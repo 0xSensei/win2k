@@ -391,25 +391,21 @@ SbLoadKeyFromDisk(
         return STATUS_OBJECT_NAME_NOT_FOUND ;
     }
 
-    if (!ReadFile( hFile, KeyDataBuffer, 16, &Actual, NULL ) ||
-        (Actual != 16 ))
+    if (!ReadFile( hFile, KeyDataBuffer, 16, &Actual, NULL ) || (Actual != 16 ))
     {
         SetErrorMode( ErrorMode );
 
         CloseHandle( hFile );
 
         return STATUS_FILE_CORRUPT_ERROR ;
-
     }
 
     KeyDataPresent = 1 ;
-
     SetErrorMode( ErrorMode );
-
     CloseHandle( hFile );
-
     return STATUS_SUCCESS ;
 }
+
 
 INT_PTR
 CALLBACK
@@ -429,34 +425,20 @@ SbPromptDlg(
         case WM_INITDIALOG:
             if ( KeyDataPwIcon == NULL )
             {
-                KeyDataPwIcon = LoadImage( GetModuleHandle(NULL),
-                                           MAKEINTRESOURCE( IDD_SB_ICON_PW ),
-                                           IMAGE_ICON,
-                                           64, 72,
-                                           LR_DEFAULTCOLOR );
-
+                KeyDataPwIcon = LoadImage( GetModuleHandle(NULL), MAKEINTRESOURCE( IDD_SB_ICON_PW ), IMAGE_ICON, 64, 72, LR_DEFAULTCOLOR );
             }
 
-            SendMessage( GetDlgItem( hDlg, IDD_SB_PW_ICON ),
-                         STM_SETICON,
-                         (WPARAM) KeyDataPwIcon,
-                         0 );
-
+            SendMessage( GetDlgItem( hDlg, IDD_SB_PW_ICON ), STM_SETICON, (WPARAM) KeyDataPwIcon, 0 );
             CentreWindow( hDlg );
-
             return TRUE ;
-
         case WM_COMMAND:
             switch ( LOWORD( wParam ) )
             {
                 case IDCANCEL:
                     EndDialog( hDlg, SB_REBOOT );
                     return TRUE ;
-
                 case IDOK:
-
                     // Get text
-
                     PWLen = GetDlgItemText( hDlg, IDD_SB_PASSWORD, PW, 128 );
 
                     // Convert length to bytes
@@ -465,33 +447,27 @@ SbPromptDlg(
                     PWLen *= sizeof(WCHAR);
 
                     // hash it
-
                     MD5Init( &Md5 );
                     MD5Update( &Md5, (PUCHAR) PW, PWLen );
   //                  MD5Update( &Md5, (PUCHAR) PW, PWLen + 1 );
                     MD5Final( &Md5 );
 
                     // save it
-
                     RtlCopyMemory( KeyDataBuffer, Md5.digest, 16 );
                     KeyDataPresent = 1;
 
                     // clean up:
-
                     EndDialog( hDlg, SB_OK );
                     FillMemory( PW, PWLen, 0xFF );
                     ZeroMemory( PW, PWLen );
                     FillMemory( &Md5, sizeof( Md5 ), 0xFF );
                     ZeroMemory( &Md5, sizeof( Md5 ) );
-
                     return TRUE ;
                 default:
                     break;
-
             }
         case WM_CLOSE:
             break;
-
     }
 
     return FALSE ;

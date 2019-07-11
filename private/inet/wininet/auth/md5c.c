@@ -1,14 +1,11 @@
 /*
-
  ** md5.c                                                             **
  ** RSA Data Security, Inc. MD5 Message-Digest Algorithm              **
  ** Created: 2/17/90 RLR                                              **
  ** Revised: 1/91 SRD,AJ,BSK,JT Reference C Version                   **
-
 */
 
 /*
-
  ** Copyright (C) 1990, RSA Data Security, Inc. All rights reserved.  **
  **                                                                   **
  ** License to copy and use this software is granted provided that    **
@@ -28,19 +25,15 @@
  **                                                                   **
  ** These notices must be retained in any copies of any part of this  **
  ** documentation and/or software.                                    **
-
 */
 
 //  Portions copyright (c) 1992 Microsoft Corp.
 //  All rights reserved
 
-
-
 #include <nt.h>
 #define UINT4   ULONG
 
 #include "md5.h"
-
 
 /* Constants for Transform routine.
 */
