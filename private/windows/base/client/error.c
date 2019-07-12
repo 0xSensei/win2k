@@ -217,12 +217,12 @@ Return Value:
 }
 
 
-BOOL WINAPI GetQueuedCompletionStatus(
-HANDLE CompletionPort,
-LPDWORD lpNumberOfBytesTransferred,
-PULONG_PTR lpCompletionKey,
-LPOVERLAPPED *lpOverlapped,
-DWORD dwMilliseconds)
+BOOL WINAPI GetQueuedCompletionStatus(HANDLE CompletionPort, 
+                                      LPDWORD lpNumberOfBytesTransferred,
+                                      PULONG_PTR lpCompletionKey,
+                                      LPOVERLAPPED* lpOverlapped,
+                                      DWORD dwMilliseconds
+)
 /*++
 Routine Description:
     This function waits for pending I/O operations associated with the specified completion port to complete.
