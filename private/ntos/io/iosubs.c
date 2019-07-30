@@ -1424,109 +1424,65 @@ Return Value:
 
     PAGED_CODE();
 
-
     // Walk the buffer and ensure that its format is valid.  That is, ensure
-    // that it does not walk off the end of the buffer, is not recursive,
-    // etc.
-
+    // that it does not walk off the end of the buffer, is not recursive, etc.
 
     eas = EaBuffer;
     tempLength = EaLength;
 
     for (;;) {
-
-
         // Get the size of the current entry in the buffer.  The minimum
         // size of the entry is the fixed size part of the structure plus
         // the length of the name, a single termination character byte which
         // must be present (a 0), plus the length of the value.  If this
-        // is not the last entry, then there will also be pad bytes to get
-        // to the next longword boundary.
-
-
+        // is not the last entry, then there will also be pad bytes to get to the next longword boundary.
 
         // Start by checking that the fixed size lies within the stated length.
-
-
         if (tempLength < FIELD_OFFSET( FILE_FULL_EA_INFORMATION, EaName[0])) {
-
             *ErrorOffset = GET_OFFSET_LENGTH( eas, EaBuffer );
             return STATUS_EA_LIST_INCONSISTENT;
         }
 
-        entrySize = FIELD_OFFSET( FILE_FULL_EA_INFORMATION, EaName[0] ) +
-                        eas->EaNameLength + 1 + eas->EaValueLength;
-
+        entrySize = FIELD_OFFSET( FILE_FULL_EA_INFORMATION, EaName[0] ) + eas->EaNameLength + 1 + eas->EaValueLength;
 
         // Confirm that the full length lies within the stated buffer length.
-
-
         if ((ULONG) tempLength < entrySize) {
-
             *ErrorOffset = GET_OFFSET_LENGTH( eas, EaBuffer );
             return STATUS_EA_LIST_INCONSISTENT;
         }
 
-
         // Confirm that there is a NULL terminator after the name.
-
-
         if (eas->EaName[eas->EaNameLength] != '\0') {
-
             *ErrorOffset = GET_OFFSET_LENGTH( eas, EaBuffer );
             return STATUS_EA_LIST_INCONSISTENT;
         }
 
         if (eas->NextEntryOffset) {
-
-
             // There is another entry in the buffer and it must be longword
-            // aligned.  Ensure that the offset indicates that it is.  If it
-            // isn't, return invalid parameter.
-
-
-            if (ALIGN_LONG( entrySize ) != eas->NextEntryOffset ||
-                (LONG) eas->NextEntryOffset < 0) {
+            // aligned.  Ensure that the offset indicates that it is.  If it isn't, return invalid parameter.
+            if (ALIGN_LONG( entrySize ) != eas->NextEntryOffset || (LONG) eas->NextEntryOffset < 0) {
                 *ErrorOffset = GET_OFFSET_LENGTH( eas, EaBuffer );
                 return STATUS_EA_LIST_INCONSISTENT;
-
             } else {
-
-
                 // There is another entry in the buffer, so account for the
-                // size of the current entry in the length and get a pointer
-                // to the next entry.
-
-
+                // size of the current entry in the length and get a pointer to the next entry.
                 tempLength -= eas->NextEntryOffset;
                 if (tempLength < 0) {
                     *ErrorOffset = GET_OFFSET_LENGTH( eas, EaBuffer );
                     return STATUS_EA_LIST_INCONSISTENT;
                 }
                 eas = (PFILE_FULL_EA_INFORMATION) ((PCHAR) eas + eas->NextEntryOffset);
-
             }
-
         } else {
-
-
             // There are no other entries in the buffer.  Simply account for
-            // the overall buffer length according to the size of the current
-            // entry and exit the loop.
-
-
+            // the overall buffer length according to the size of the current entry and exit the loop.
             tempLength -= entrySize;
             break;
-
         }
     }
 
-
     // All of the entries in the buffer have been processed.  Check to see
-    // whether the overall buffer length went negative.  If so, return an
-    // error.
-
-
+    // whether the overall buffer length went negative.  If so, return an error.
     if (tempLength < 0) {
         *ErrorOffset = GET_OFFSET_LENGTH( eas, EaBuffer );
         return STATUS_EA_LIST_INCONSISTENT;
@@ -1545,53 +1501,32 @@ IoCheckFunctionAccess(
     IN PVOID Arg1 OPTIONAL,
     IN PVOID Arg2 OPTIONAL
     )
-
 /*++
-
 Routine Description:
-
     This routine checks the parameters and access for the function and
     parameters specified by the input parameters against the current access
     to the file as described by the GrantedAccess mask parameter.  If the
     caller has the access to the file, then a successful status code is
-    returned.  Otherwise, an error status code is returned as the function
-    value.
-
+    returned.  Otherwise, an error status code is returned as the function value.
 Arguments:
-
     GrantedAccess - Access granted to the file for the caller.
-
     MajorFunction - Major function code for the operation being performed.
-
     MinorFunction - Minor function code for the operation being performed.
-
-    IoControlCode - I/O function control code for a device or file system I/O
-        code.  Used only for those two function types.
-
+    IoControlCode - I/O function control code for a device or file system I/O code.  Used only for those two function types.
     Arg1 - Optional argument that depends on the major function. Its
          FileInformationClass if the major function code indicates a query or set
-         file information function is being performed. It points to Security Info
-         if major function code is IRP_MJ_*_SECURITY.
-
+         file information function is being performed. It points to Security Info if major function code is IRP_MJ_*_SECURITY.
     Arg2 - Optional second argument that depends on the major function. Currently its
         FsInformationClass.This parameter MUST be supplied if the major function
-        code indicates that a query or set file system information function is
-        being performed.
-
+        code indicates that a query or set file system information function is being performed.
 Return Value:
-
     The final status of the access check is the function value.  If the
     accessor has the access to the file, then STATUS_SUCCESS is returned;
     otherwise, STATUS_ACCESS_DENIED is returned.
-
 Note:
-
     The GrantedAccess mask may not contain any generic mappings.  That is,
-    the IoCheckDesiredAccess function must have been previously invoked to
-    return a full mask.
-
+    the IoCheckDesiredAccess function must have been previously invoked to return a full mask.
 --*/
-
 {
     NTSTATUS status = STATUS_SUCCESS;
     PFILE_INFORMATION_CLASS FileInformationClass;
@@ -1603,127 +1538,90 @@ Note:
 
     PAGED_CODE();
 
-
-    // Determine the major function being performed.  If the function code
-    // is invalid, then return an error.
-
-
+    // Determine the major function being performed.  If the function code is invalid, then return an error.
     FileInformationClass = (PFILE_INFORMATION_CLASS)Arg1;
     FsInformationClass = (PFS_INFORMATION_CLASS)Arg2;
 
     switch( MajorFunction ) {
-
     case IRP_MJ_CREATE:
     case IRP_MJ_CLOSE:
-
         break;
-
     case IRP_MJ_READ:
-
         if (SeComputeDeniedAccesses( GrantedAccess, FILE_READ_DATA )) {
             status = STATUS_ACCESS_DENIED;
         }
         break;
-
     case IRP_MJ_WRITE:
-
         if (!SeComputeGrantedAccesses( GrantedAccess, FILE_WRITE_DATA | FILE_APPEND_DATA )) {
             status = STATUS_ACCESS_DENIED;
         }
         break;
-
     case IRP_MJ_QUERY_INFORMATION:
-
         if (IopQueryOperationAccess[*FileInformationClass] != 0) {
             if (SeComputeDeniedAccesses( GrantedAccess, IopQueryOperationAccess[*FileInformationClass] )) {
                 status = STATUS_ACCESS_DENIED;
             }
         }
         break;
-
     case IRP_MJ_SET_INFORMATION:
-
         if (IopSetOperationAccess[*FileInformationClass] != 0) {
             if (SeComputeDeniedAccesses( GrantedAccess, IopSetOperationAccess[*FileInformationClass] )) {
                 status = STATUS_ACCESS_DENIED;
             }
         }
         break;
-
     case IRP_MJ_QUERY_EA:
-
         if (SeComputeDeniedAccesses( GrantedAccess, FILE_READ_EA )) {
             status = STATUS_ACCESS_DENIED;
         }
         break;
-
     case IRP_MJ_SET_EA:
-
         if (SeComputeDeniedAccesses( GrantedAccess, FILE_WRITE_EA )) {
             status = STATUS_ACCESS_DENIED;
         }
         break;
-
     case IRP_MJ_FLUSH_BUFFERS:
-
         if (SeComputeDeniedAccesses( GrantedAccess, FILE_WRITE_DATA )) {
             status = STATUS_ACCESS_DENIED;
         }
         break;
-
     case IRP_MJ_QUERY_VOLUME_INFORMATION:
-
         if (SeComputeDeniedAccesses( GrantedAccess, IopQueryFsOperationAccess[*FsInformationClass] )) {
             status = STATUS_ACCESS_DENIED;
         }
         break;
-
     case IRP_MJ_SET_VOLUME_INFORMATION:
-
         if (SeComputeDeniedAccesses( GrantedAccess, IopSetFsOperationAccess[*FsInformationClass] )) {
             status = STATUS_ACCESS_DENIED;
         }
         break;
-
     case IRP_MJ_DIRECTORY_CONTROL:
-
         if (SeComputeDeniedAccesses( GrantedAccess, FILE_LIST_DIRECTORY )) {
             status = STATUS_ACCESS_DENIED;
         }
         break;
-
     case IRP_MJ_FILE_SYSTEM_CONTROL:
     case IRP_MJ_DEVICE_CONTROL:
     case IRP_MJ_INTERNAL_DEVICE_CONTROL:
-
         {
             ULONG accessMode = (IoControlCode >> 14) & 3;
 
             if (accessMode != FILE_ANY_ACCESS) {
-
-
                 // This I/O control requires that the caller have read, write,
                 // or read/write access to the object.  If this is not the case,
                 // then cleanup and return an appropriate error status code.
-
-
                 if (!(SeComputeGrantedAccesses( GrantedAccess, accessMode ))) {
                     status = STATUS_ACCESS_DENIED;
                 }
             }
-
         }
         break;
-
     case IRP_MJ_LOCK_CONTROL:
-
         if (!SeComputeGrantedAccesses( GrantedAccess, FILE_READ_DATA | FILE_WRITE_DATA )) {
             status = STATUS_ACCESS_DENIED;
         }
         break;
-
     case IRP_MJ_SET_SECURITY:
-
         SecurityInformation = *((PSECURITY_INFORMATION)Arg1);
         SeSetSecurityAccessMask(SecurityInformation, &DesiredAccess);
 
@@ -1731,9 +1629,7 @@ Note:
             status = STATUS_ACCESS_DENIED;
         }
         break;
-
     case IRP_MJ_QUERY_SECURITY:
-
         SecurityInformation = *((PSECURITY_INFORMATION)Arg1);
         SeQuerySecurityAccessMask(SecurityInformation, &DesiredAccess);
 
@@ -1742,61 +1638,36 @@ Note:
         }
         break;
     default:
-
         status = STATUS_INVALID_DEVICE_REQUEST;
     }
+    
     return status;
 }
 
-NTKERNELAPI
-NTSTATUS
-IoCheckQuerySetFileInformation(
-    IN FILE_INFORMATION_CLASS FileInformationClass,
-    IN ULONG Length,
-    IN BOOLEAN SetOperation
-    )
 
+NTKERNELAPI NTSTATUS IoCheckQuerySetFileInformation(IN FILE_INFORMATION_CLASS FileInformationClass, IN ULONG Length, IN BOOLEAN SetOperation)
 /*++
-
 Routine Description:
-
     This routine checks the validity of the parameters for either a query or a
     set file information operation.  It is used primarily by network servers
-    running in kernel mode since no such parameter validity checking is done
-    in the normal path.
-
+    running in kernel mode since no such parameter validity checking is done in the normal path.
 Arguments:
-
     FileInformationClass - Specifies the information class to check checked.
-
     Length - Specifies the length of the buffer supplied.
-
-    SetOperation - Specifies that the operation was a set file information as
-        opposed to a query operation.
-
+    SetOperation - Specifies that the operation was a set file information as opposed to a query operation.
 Return Value:
-
-    The function value is STATUS_SUCCESS if the parameters were valid,
-    otherwise an appropriate error is returned.
-
+    The function value is STATUS_SUCCESS if the parameters were valid, otherwise an appropriate error is returned.
 --*/
-
 {
     PCHAR operationLength;
 
-
     // The file information class itself must be w/in the valid range of file
     // information classes, otherwise this is an invalid information class.
-
-
     if ((ULONG) FileInformationClass >= FileMaximumInformation) {
         return STATUS_INVALID_INFO_CLASS;
     }
 
-
     // Determine whether this is a query or a set operation and act accordingly.
-
-
     operationLength = SetOperation ? IopSetOperationLength : IopQueryOperationLength;
 
     if (!operationLength[FileInformationClass]) {
@@ -1808,51 +1679,30 @@ Return Value:
 
     return STATUS_SUCCESS;
 }
-NTKERNELAPI
-NTSTATUS
-IoCheckQuerySetVolumeInformation(
-    IN FS_INFORMATION_CLASS FsInformationClass,
-    IN ULONG Length,
-    IN BOOLEAN SetOperation
-    )
 
+
+NTKERNELAPI NTSTATUS IoCheckQuerySetVolumeInformation(IN FS_INFORMATION_CLASS FsInformationClass, IN ULONG Length, IN BOOLEAN SetOperation)
 /*++
-
 Routine Description:
-
     This routine checks the validity of the parameters for either a query or a
     set volume information operation.  It is used primarily by network servers
-    running in kernel mode since no such parameter validity checking is done
-    in the normal path.
-
+    running in kernel mode since no such parameter validity checking is done in the normal path.
 Arguments:
-
     FsInformationClass - Specifies the information class to check.
-
     Length - Specifies the length of the buffer supplied.
-
-    SetOperation - Specifies that the operation was a set volume information as
-        opposed to a query operation.
-
+    SetOperation - Specifies that the operation was a set volume information as opposed to a query operation.
 Return Value:
-
-    The function value is STATUS_SUCCESS if the parameters were valid,
-    otherwise an appropriate error is returned.
-
+    The function value is STATUS_SUCCESS if the parameters were valid, otherwise an appropriate error is returned.
 --*/
-
 {
     PCHAR operationLength;
 
     operationLength = SetOperation ? IopSetFsOperationLength : IopQueryFsOperationLength;
 
-
     // The volume information class itself must be w/in the valid range of file
     // information classes, otherwise this is an invalid information class.
 
-    if ((ULONG) FsInformationClass >= FileFsMaximumInformation ||
-        operationLength[ FsInformationClass ] == 0 ) {
-
+    if ((ULONG) FsInformationClass >= FileFsMaximumInformation || operationLength[ FsInformationClass ] == 0 ) {
         return STATUS_INVALID_INFO_CLASS;
     }
 
@@ -1863,37 +1713,19 @@ Return Value:
     return STATUS_SUCCESS;
 }
 
-NTSTATUS
-IoCheckQuotaBufferValidity(
-    IN PFILE_QUOTA_INFORMATION QuotaBuffer,
-    IN ULONG QuotaLength,
-    OUT PULONG ErrorOffset
-    )
 
+NTSTATUS IoCheckQuotaBufferValidity(IN PFILE_QUOTA_INFORMATION QuotaBuffer, IN ULONG QuotaLength, OUT PULONG ErrorOffset)
 /*++
-
 Routine Description:
-
     This routine checks the validity of the specified quota buffer to guarantee
-    that its format is proper, no fields hang over, that it is not recursive,
-    etc.
-
+    that its format is proper, no fields hang over, that it is not recursive, etc.
 Arguments:
-
-    QuotaBuffer - Pointer to the buffer containing the quota entries to be
-        checked.
-
+    QuotaBuffer - Pointer to the buffer containing the quota entries to be checked.
     QuotaLength - Specifies the length of the QuotaBuffer.
-
     ErrorOffset - A variable to receive the offset of the offending entry in
-        the quota buffer if an error is incurred.  This variable is only valid
-        if an error occurs.
-
+        the quota buffer if an error is incurred.  This variable is only valid if an error occurs.
 Return Value:
-
-    The function value is STATUS_SUCCESS if the quota buffer contains a valid,
-    properly formed list, otherwise STATUS_QUOTA_LIST_INCONSISTENT.
-
+    The function value is STATUS_SUCCESS if the quota buffer contains a valid, properly formed list, otherwise STATUS_QUOTA_LIST_INCONSISTENT.
 --*/
 
 #if defined(_X86_)
@@ -1914,100 +1746,60 @@ Return Value:
 
     PAGED_CODE();
 
-
     // Walk the buffer and ensure that its format is valid.  That is, ensure
-    // that it does not walk off the end of the buffer, is not recursive,
-    // etc.
-
-
+    // that it does not walk off the end of the buffer, is not recursive, etc.
     quotas = QuotaBuffer;
     tempLength = QuotaLength;
 
-
     // Ensure the buffer has the correct alignment.
-
-
     if ((ULONG_PTR) quotas & (REQUIRED_QUOTA_ALIGNMENT - 1)) {
         *ErrorOffset = 0;
         return STATUS_DATATYPE_MISALIGNMENT;
     }
 
     for (;;) {
-
         ULONG sidLength;
-
 
         // Get the size of the current entry in the buffer.  The minimum size
         // of the entry is the fixed size part of the structure plus the actual
         // length of the SID.  If this is not the last entry, then there will
-        // also be pad bytes to get to the next longword boundary.  Likewise,
-        // ensure that the SID itself is valid.
-
-
-        if (tempLength < FIELD_OFFSET( FILE_QUOTA_INFORMATION, Sid ) ||
-            !RtlValidSid( &quotas->Sid )) {
+        // also be pad bytes to get to the next longword boundary.  Likewise, ensure that the SID itself is valid.
+        if (tempLength < FIELD_OFFSET( FILE_QUOTA_INFORMATION, Sid ) || !RtlValidSid( &quotas->Sid )) {
             goto error_exit;
         }
 
         sidLength = RtlLengthSid( (&quotas->Sid) );
         entrySize = FIELD_OFFSET( FILE_QUOTA_INFORMATION, Sid ) + sidLength;
 
-
         // Confirm that the full length lies within the stated buffer length.
-
-
-        if ((ULONG) tempLength < entrySize ||
-            quotas->SidLength != sidLength) {
+        if ((ULONG) tempLength < entrySize || quotas->SidLength != sidLength) {
             goto error_exit;
         }
 
         if (quotas->NextEntryOffset) {
-
-
             // There is another entry in the buffer and it must be longword
-            // aligned.  Ensure that the offset indicates that it is.  If it
-            // is not, return error status code.
-
-
-            if (entrySize > quotas->NextEntryOffset ||
-                quotas->NextEntryOffset & (REQUIRED_QUOTA_ALIGNMENT - 1) ||
-                (LONG) quotas->NextEntryOffset < 0) {
+            // aligned.  Ensure that the offset indicates that it is.  If it is not, return error status code.
+            if (entrySize > quotas->NextEntryOffset || quotas->NextEntryOffset & (REQUIRED_QUOTA_ALIGNMENT - 1) || (LONG) quotas->NextEntryOffset < 0) {
                 goto error_exit;
-
             } else {
-
-
                 // There is another entry in the buffer, so account for the size
-                // of the current entry in the length and get a pointer to the
-                // next entry.
-
-
+                // of the current entry in the length and get a pointer to the next entry.
                 tempLength -= quotas->NextEntryOffset;
                 if (tempLength < 0) {
                     goto error_exit;
                 }
                 quotas = (PFILE_QUOTA_INFORMATION) ((PCHAR) quotas + quotas->NextEntryOffset);
             }
-
         } else {
-
-
             // There are no more entries in the buffer.  Simply account for the
-            // overall buffer length according to the size of the current
-            // entry and exit the loop.
-
-
+            // overall buffer length according to the size of the current entry and exit the loop.
             tempLength -= entrySize;
             break;
         }
     }
 
-
     // All of the entries in the buffer have been processed.  Check to see
-    // whether the overall buffer length went negative.  If so, return an
-    // error.
-
-
+    // whether the overall buffer length went negative.  If so, return an error.
     if (tempLength < 0) {
         goto error_exit;
     }
@@ -2015,11 +1807,10 @@ Return Value:
     return STATUS_SUCCESS;
 
 error_exit:
-
     *ErrorOffset = GET_OFFSET_LENGTH( quotas, QuotaBuffer );
     return STATUS_QUOTA_LIST_INCONSISTENT;
-
 }
+
 
 NTSTATUS
 IoCheckShareAccess(
@@ -2029,117 +1820,64 @@ IoCheckShareAccess(
     IN OUT PSHARE_ACCESS ShareAccess,
     IN BOOLEAN Update
     )
-
 /*++
-
 Routine Description:
-
     This routine is invoked to determine whether or not a new accessor to
-    a file actually has shared access to it.  The check is made according
-    to:
-
+    a file actually has shared access to it.  The check is made according to:
         1)  How the file is currently opened.
-
         2)  What types of shared accesses are currently specified.
-
         3)  The desired and shared accesses that the new open is requesting.
 
-    If the open should succeed, then the access information about how the
-    file is currently opened is updated, according to the Update parameter.
+    If the open should succeed, then the access information about how the file is currently opened is updated, according to the Update parameter.
 
 Arguments:
-
     DesiredAccess - Desired access of current open request.
-
     DesiredShareAccess - Shared access requested by current open request.
-
     FileObject - Pointer to the file object of the current open request.
-
-    ShareAccess - Pointer to the share access structure that describes how
-        the file is currently being accessed.
-
-    Update - Specifies whether or not the share access information for the
-        file is to be updated.
+    ShareAccess - Pointer to the share access structure that describes how the file is currently being accessed.
+    Update - Specifies whether or not the share access information for the file is to be updated.
 
 Return Value:
-
     The final status of the access check is the function value.  If the
-    accessor has access to the file, STATUS_SUCCESS is returned.  Otherwise,
-    STATUS_SHARING_VIOLATION is returned.
-
+    accessor has access to the file, STATUS_SUCCESS is returned.  Otherwise, STATUS_SHARING_VIOLATION is returned.
 Note:
-
     Note that the ShareAccess parameter must be locked against other accesses
-    from other threads while this routine is executing.  Otherwise the counts
-    will be out-of-synch.
-
+    from other threads while this routine is executing.  Otherwise the counts will be out-of-synch.
 --*/
-
 {
     ULONG ocount;
 
     PAGED_CODE();
 
-
     // Set the access type in the file object for the current accessor.
-    // Note that reading and writing attributes are not included in the
-    // access check.
+    // Note that reading and writing attributes are not included in the access check.
 
-
-    FileObject->ReadAccess = (BOOLEAN) ((DesiredAccess & (FILE_EXECUTE
-        | FILE_READ_DATA)) != 0);
-    FileObject->WriteAccess = (BOOLEAN) ((DesiredAccess & (FILE_WRITE_DATA
-        | FILE_APPEND_DATA)) != 0);
+    FileObject->ReadAccess = (BOOLEAN) ((DesiredAccess & (FILE_EXECUTE | FILE_READ_DATA)) != 0);
+    FileObject->WriteAccess = (BOOLEAN) ((DesiredAccess & (FILE_WRITE_DATA | FILE_APPEND_DATA)) != 0);
     FileObject->DeleteAccess = (BOOLEAN) ((DesiredAccess & DELETE) != 0);
 
-
-    // There is no more work to do unless the user specified one of the
-    // sharing modes above.
-
-
-    if (FileObject->ReadAccess ||
-        FileObject->WriteAccess ||
-        FileObject->DeleteAccess) {
-
+    // There is no more work to do unless the user specified one of the sharing modes above.
+    if (FileObject->ReadAccess || FileObject->WriteAccess || FileObject->DeleteAccess) {
         FileObject->SharedRead = (BOOLEAN) ((DesiredShareAccess & FILE_SHARE_READ) != 0);
         FileObject->SharedWrite = (BOOLEAN) ((DesiredShareAccess & FILE_SHARE_WRITE) != 0);
         FileObject->SharedDelete = (BOOLEAN) ((DesiredShareAccess & FILE_SHARE_DELETE) != 0);
 
-
-        // Now check to see whether or not the desired accesses are compatible
-        // with the way that the file is currently open.
-
+        // Now check to see whether or not the desired accesses are compatible with the way that the file is currently open.
 
         ocount = ShareAccess->OpenCount;
 
-        if ( (FileObject->ReadAccess && (ShareAccess->SharedRead < ocount))
-             ||
-             (FileObject->WriteAccess && (ShareAccess->SharedWrite < ocount))
-             ||
-             (FileObject->DeleteAccess && (ShareAccess->SharedDelete < ocount))
-             ||
-             ((ShareAccess->Readers != 0) && !FileObject->SharedRead)
-             ||
-             ((ShareAccess->Writers != 0) && !FileObject->SharedWrite)
-             ||
-             ((ShareAccess->Deleters != 0) && !FileObject->SharedDelete)
-           ) {
-
-
-            // The check failed.  Simply return to the caller indicating that the
-            // current open cannot access the file.
-
-
+        if ( (FileObject->ReadAccess && (ShareAccess->SharedRead < ocount)) ||
+             (FileObject->WriteAccess && (ShareAccess->SharedWrite < ocount)) ||
+             (FileObject->DeleteAccess && (ShareAccess->SharedDelete < ocount)) ||
+             ((ShareAccess->Readers != 0) && !FileObject->SharedRead) ||
+             ((ShareAccess->Writers != 0) && !FileObject->SharedWrite) ||
+             ((ShareAccess->Deleters != 0) && !FileObject->SharedDelete)) {
+            // The check failed.  Simply return to the caller indicating that the current open cannot access the file.
             return STATUS_SHARING_VIOLATION;
 
-
         // The check was successful.  Update the counter information in the
-        // shared access structure for this open request if the caller
-        // specified that it should be updated.
-
-
+        // shared access structure for this open request if the caller specified that it should be updated.
         } else if (Update) {
-
             ShareAccess->OpenCount++;
 
             ShareAccess->Readers += FileObject->ReadAccess;
@@ -2151,90 +1889,58 @@ Note:
             ShareAccess->SharedDelete += FileObject->SharedDelete;
         }
     }
+    
     return STATUS_SUCCESS;
 }
 
-VOID
-FASTCALL
-IofCompleteRequest(
-    IN PIRP Irp,
-    IN CCHAR PriorityBoost
-    )
-{
 
+VOID FASTCALL IofCompleteRequest(IN PIRP Irp, IN CCHAR PriorityBoost)
+{
     // This routine will either jump immediately to IopfCompleteRequest, or
     // rather IovCompleteRequest.
 
     pIofCompleteRequest(Irp, PriorityBoost);
 }
 
-VOID
-FASTCALL
-IopfCompleteRequest(
-    IN PIRP Irp,
-    IN CCHAR PriorityBoost
-    )
 
+VOID FASTCALL IopfCompleteRequest(IN PIRP Irp, IN CCHAR PriorityBoost)
 /*++
-
 Routine Description:
-
     This routine is invoked to complete an I/O request.  It is invoked by the
     driver in its DPC routine to perform the final completion of the IRP.  The
     functions performed by this routine are as follows.
 
-        1.  A check is made to determine whether the packet's stack locations
-            have been exhausted.  If not, then the stack location pointer is set
-            to the next location and if there is a routine to be invoked, then
-            it will be invoked.  This continues until there are either no more
-            routines which are interested or the packet runs out of stack.
+        1.  A check is made to determine whether the packet's stack locations have been exhausted.
+            If not, then the stack location pointer is set to the next location and if there is a routine to be invoked, then
+            it will be invoked.  This continues until there are either no more routines which are interested or the packet runs out of stack.
 
-            If a routine is invoked to complete the packet for a specific driver
-            which needs to perform work a lot of work or the work needs to be
-            performed in the context of another process, then the routine will
-            return an alternate success code of STATUS_MORE_PROCESSING_REQUIRED.
-            This indicates that this completion routine should simply return to
-            its caller because the operation will be "completed" by this routine
+            If a routine is invoked to complete the packet for a specific driver which needs to perform work a lot of work or the work needs to be
+            performed in the context of another process, then the routine will return an alternate success code of STATUS_MORE_PROCESSING_REQUIRED.
+            This indicates that this completion routine should simply return to its caller because the operation will be "completed" by this routine
             again sometime in the future.
 
         2.  A check is made to determine whether this IRP is an associated IRP.
-            If it is, then the count on the master IRP is decremented.  If the
-            count for the master becomes zero, then the master IRP will be
-            completed according to the steps below taken for a normal IRP being
-            completed.  If the count is still non-zero, then this IRP (the one
+            If it is, then the count on the master IRP is decremented.  If the count for the master becomes zero, then the master IRP will be
+            completed according to the steps below taken for a normal IRP being completed.  If the count is still non-zero, then this IRP (the one
             being completed) will simply be deallocated.
 
-        3.  If this is paging I/O or a close operation, then simply write the
-            I/O status block and set the event to the signaled state, and
-            dereference the event.  If this is paging I/O, deallocate the IRP
-            as well.
+        3.  If this is paging I/O or a close operation, then simply write the I/O status block and set the event to the signaled state, and
+            dereference the event.  If this is paging I/O, deallocate the IRP as well.
 
-        4.  Unlock the pages, if any, specified by the MDL by calling
-            MmUnlockPages.
+        4.  Unlock the pages, if any, specified by the MDL by calling MmUnlockPages.
 
-        5.  A check is made to determine whether or not completion of the
-            request can be deferred until later.  If it can be, then this
-            routine simply exits and leaves it up to the originator of the
-            request to fully complete the IRP.  By not initializing and queueing
-            the special kernel APC to the calling thread (which is the current
-            thread by definition), a lot of interrupt and queueing processing
-            can be avoided.
+        5.  A check is made to determine whether or not completion of the request can be deferred until later.  
+            If it can be, then this routine simply exits and leaves it up to the originator of the
+            request to fully complete the IRP.  By not initializing and queueing the special kernel APC to the calling thread (which is the current
+            thread by definition), a lot of interrupt and queueing processing can be avoided.
 
-
-        6.  The final rundown routine is invoked to queue the request packet to
-            the target (requesting) thread as a special kernel mode APC.
+        6.  The final rundown routine is invoked to queue the request packet to the target (requesting) thread as a special kernel mode APC.
 
 Arguments:
-
     Irp - Pointer to the I/O Request Packet to complete.
-
-    PriorityBoost - Supplies the amount of priority boost that is to be given
-        to the target thread when the special kernel APC is queued.
-
+    PriorityBoost - Supplies the amount of priority boost that is to be given to the target thread when the special kernel APC is queued.
 Return Value:
-
     None.
-
 --*/
 
 #define ZeroIrpStackLocation( IrpSp ) {         \
@@ -2257,94 +1963,48 @@ Return Value:
     KIRQL irql;
     PVOID saveAuxiliaryPointer = NULL;
 
-
-    // Begin by ensuring that this packet has not already been completed
-    // by someone.
-
-
-    if (Irp->CurrentLocation > (CCHAR) (Irp->StackCount + 1) ||
-        Irp->Type != IO_TYPE_IRP) {
+    // Begin by ensuring that this packet has not already been completed by someone.
+    if (Irp->CurrentLocation > (CCHAR) (Irp->StackCount + 1) || Irp->Type != IO_TYPE_IRP) {
         KeBugCheckEx( MULTIPLE_IRP_COMPLETE_REQUESTS, (ULONG_PTR) Irp, __LINE__, 0, 0 );
     }
 
-
     // Ensure that the packet being completed really is still an IRP.
-
-
     ASSERT( Irp->Type == IO_TYPE_IRP );
 
-
-    // Ensure that no one believes that this request is still in a cancelable
-    // state.
-
-
+    // Ensure that no one believes that this request is still in a cancelable state.
     ASSERT( !Irp->CancelRoutine );
-
 
     // Ensure that the packet is not being completed with a thoroughly
     // confusing status code.  Actually completing a packet with a pending
-    // status probably means that someone forgot to set the real status in
-    // the packet.
-
-
+    // status probably means that someone forgot to set the real status in the packet.
     ASSERT( Irp->IoStatus.Status != STATUS_PENDING );
 
-
     // Ensure that the packet is not being completed with a minus one.  This
-    // is apparently a common problem in some drivers, and has no meaning
-    // as a status code.
-
-
+    // is apparently a common problem in some drivers, and has no meaning as a status code.
     ASSERT( Irp->IoStatus.Status != 0xffffffff );
 
-
-    // Ensure that if this is a paging I/O operation, and it failed, that the
-    // reason for the failure isn't because quota was exceeded.
-
-
+    // Ensure that if this is a paging I/O operation, and it failed, that the reason for the failure isn't because quota was exceeded.
     ASSERT( !(Irp->Flags & IRP_PAGING_IO && Irp->IoStatus.Status == STATUS_QUOTA_EXCEEDED ) );
-
 
     // Now check to see whether this is the last driver that needs to be
     // invoked for this packet.  If not, then bump the stack and check to
     // see whether the driver wishes to see the completion.  As each stack
     // location is examined, invoke any routine which needs to be invoked.
-    // If the routine returns STATUS_MORE_PROCESSING_REQUIRED, then stop the
-    // processing of this packet.
-
-
-    for (stackPointer = IoGetCurrentIrpStackLocation( Irp ),
-         Irp->CurrentLocation++,
-         Irp->Tail.Overlay.CurrentStackLocation++;
+    // If the routine returns STATUS_MORE_PROCESSING_REQUIRED, then stop the processing of this packet.
+    for (stackPointer = IoGetCurrentIrpStackLocation( Irp ), Irp->CurrentLocation++, Irp->Tail.Overlay.CurrentStackLocation++;
          Irp->CurrentLocation <= (CCHAR) (Irp->StackCount + 1);
-         stackPointer++,
-         Irp->CurrentLocation++,
-         Irp->Tail.Overlay.CurrentStackLocation++) {
-
-
+         stackPointer++, Irp->CurrentLocation++, Irp->Tail.Overlay.CurrentStackLocation++) {
         // A stack location was located.  Check to see whether or not it
-        // has a completion routine and if so, whether or not it should be
-        // invoked.
+        // has a completion routine and if so, whether or not it should be invoked.
 
-        // Begin by saving the pending returned flag in the current stack
-        // location in the fixed part of the IRP.
-
-
+        // Begin by saving the pending returned flag in the current stack location in the fixed part of the IRP.
         Irp->PendingReturned = stackPointer->Control & SL_PENDING_RETURNED;
 
-        if ( (NT_SUCCESS( Irp->IoStatus.Status ) &&
-             stackPointer->Control & SL_INVOKE_ON_SUCCESS) ||
-             (!NT_SUCCESS( Irp->IoStatus.Status ) &&
-             stackPointer->Control & SL_INVOKE_ON_ERROR) ||
-             (Irp->Cancel &&
-             stackPointer->Control & SL_INVOKE_ON_CANCEL)
-           ) {
-
-
+        if ( (NT_SUCCESS( Irp->IoStatus.Status ) && stackPointer->Control & SL_INVOKE_ON_SUCCESS) ||
+             (!NT_SUCCESS( Irp->IoStatus.Status ) && stackPointer->Control & SL_INVOKE_ON_ERROR) ||
+             (Irp->Cancel && stackPointer->Control & SL_INVOKE_ON_CANCEL)) {
             // This driver has specified a completion routine.  Invoke the
-            // routine passing it a pointer to its device object and the
-            // IRP that is being completed.
-
+            // routine passing it a pointer to its device object and the IRP that is being completed.
 
             ZeroIrpStackLocation( stackPointer );
 
@@ -2357,19 +2017,12 @@ Return Value:
                                                       stackPointer->Context );
 
             PERFINFO_DRIVER_COMPLETIONROUTINE_RETURN(Irp, stackPointer);
-
             if (status == STATUS_MORE_PROCESSING_REQUIRED) {
-
-
                 // Note:  Notice that if the driver has returned the above
                 //        status value, it may have already DEALLOCATED the
-                //        packet!  Therefore, do NOT touch any part of the
-                //        IRP in the following code.
-
-
+                //        packet!  Therefore, do NOT touch any part of the IRP in the following code.
                 return;
             }
-
         } else {
             if (Irp->PendingReturned && Irp->CurrentLocation <= Irp->StackCount) {
                 IoMarkIrpPending( Irp );
@@ -2378,86 +2031,57 @@ Return Value:
         }
     }
 
-
     // Check to see whether this is an associated IRP.  If so, then decrement
     // the count in the master IRP.  If the count is decremented to zero,
     // then complete the master packet as well.
-
-
     if (Irp->Flags & IRP_ASSOCIATED_IRP) {
         ULONG count;
         masterIrp = Irp->AssociatedIrp.MasterIrp;
-        count = ExInterlockedAddUlong( (PULONG) &masterIrp->AssociatedIrp.IrpCount,
-                                       0xffffffff,
-                                       &IopDatabaseLock );
-
+        count = ExInterlockedAddUlong( (PULONG) &masterIrp->AssociatedIrp.IrpCount, 0xffffffff, &IopDatabaseLock );
 
         // Deallocate this packet and any MDLs that are associated with it
         // by either doing direct deallocations if they were allocated from
-        // a zone or by queueing the packet to a thread to perform the
-        // deallocation.
+        // a zone or by queueing the packet to a thread to perform the deallocation.
 
         // Also, check the count of the master IRP to determine whether or not
         // the count has gone to zero.  If not, then simply get out of here.
         // Otherwise, complete the master packet.
-
 
         Irp->Tail.Overlay.Thread = masterIrp->Tail.Overlay.Thread;
         IopFreeIrpAndMdls( Irp );
         if (count == 1) {
             IoCompleteRequest( masterIrp, PriorityBoost );
         }
+        
         return;
     }
 
-
-    // Check to see if we have a name junction. If so set the stage to
-    // transmogrify the reparse point data in IopCompleteRequest.
-
-
-    if ((Irp->IoStatus.Status == STATUS_REPARSE )  &&
-        (Irp->IoStatus.Information > IO_REPARSE_TAG_RESERVED_RANGE)) {
-
+    // Check to see if we have a name junction. If so set the stage to transmogrify the reparse point data in IopCompleteRequest.
+    if ((Irp->IoStatus.Status == STATUS_REPARSE )  && (Irp->IoStatus.Information > IO_REPARSE_TAG_RESERVED_RANGE)) {
         if (Irp->IoStatus.Information == IO_REPARSE_TAG_MOUNT_POINT) {
-
-
-            // For name junctions, we save the pointer to the auxiliary
-            // buffer and use it below.
-
+            // For name junctions, we save the pointer to the auxiliary buffer and use it below.
 
             ASSERT( Irp->Tail.Overlay.AuxiliaryBuffer != NULL );
 
             saveAuxiliaryPointer = (PVOID) Irp->Tail.Overlay.AuxiliaryBuffer;
 
-
             // We NULL the entry to avoid its de-allocation at this time.
             // This buffer get deallocated in IopDoNameTransmogrify
-
-
             Irp->Tail.Overlay.AuxiliaryBuffer = NULL;
         } else {
-
-
-            // Fail the request. A driver needed to act on this IRP prior
-            // to getting to this point.
-
-
+            // Fail the request. A driver needed to act on this IRP prior to getting to this point.
             Irp->IoStatus.Status = STATUS_IO_REPARSE_TAG_NOT_HANDLED;
         }
     }
-
 
     // Check the auxiliary buffer pointer in the packet and if a buffer was
     // allocated, deallocate it now.  Note that this buffer must be freed
     // here since the pointer is overlayed with the APC that will be used
     // to get to the requesting thread's context.
-
-
     if (Irp->Tail.Overlay.AuxiliaryBuffer) {
         ExFreePool( Irp->Tail.Overlay.AuxiliaryBuffer );
         Irp->Tail.Overlay.AuxiliaryBuffer = NULL;
     }
-
 
     // Check to see if this is paging I/O or a close operation.  If either,
     // then special processing must be performed.  The reasons that special
@@ -2474,16 +2098,12 @@ Return Value:
     // system's special kernel APC routine).  Therefore, a special kernel APC
     // cannot be used since it cannot execute until the close APC finishes.
 
-    // The special steps are as follows for a synchronous paging operation
-    // and close are:
-
+    // The special steps are as follows for a synchronous paging operation and close are:
     //     1.  Copy the I/O status block (it is in SVAS, nonpaged).
     //     2.  Signal the event
     //     3.  If paging I/O, deallocate the IRP
 
-    // The special steps taken for asynchronous paging operations (out-pages)
-    // are as follows:
-
+    // The special steps taken for asynchronous paging operations (out-pages) are as follows:
     //     1.  Initialize a special kernel APC just for page writes.
     //     1.  Queue the special kernel APC.
 
@@ -2499,7 +2119,6 @@ Return Value:
     // Also note that the last time the IRP is touched for a close operation
     // must be just before the event is set to the signaled state.  Once this
     // occurs, the IRP can be deallocated by the thread waiting for the event.
-
 
     if (Irp->Flags & (IRP_PAGING_IO | IRP_CLOSE_OPERATION)) {
         if (Irp->Flags & (IRP_SYNCHRONOUS_PAGING_IO | IRP_CLOSE_OPERATION)) {
@@ -2521,24 +2140,15 @@ Return Value:
                              (PKNORMAL_ROUTINE) NULL,
                              KernelMode,
                              (PVOID) NULL );
-            (VOID) KeInsertQueueApc( &Irp->Tail.Apc,
-                                     (PVOID) NULL,
-                                     (PVOID) NULL,
-                                     PriorityBoost );
+            (VOID) KeInsertQueueApc( &Irp->Tail.Apc, (PVOID) NULL, (PVOID) NULL, PriorityBoost );
         }
+        
         return;
     }
 
-
     // Check to see whether any pages need to be unlocked.
-
-
     if (Irp->MdlAddress != NULL) {
-
-
         // Unlock any pages that may be described by MDLs.
-
-
         mdl = Irp->MdlAddress;
         while (mdl != NULL) {
             MmUnlockPages( mdl );
@@ -2546,39 +2156,23 @@ Return Value:
         }
     }
 
-
     // Make a final check here to determine whether or not this is a
     // synchronous I/O operation that is being completed in the context
-    // of the original requestor.  If so, then an optimal path through
-    // I/O completion can be taken.
-
-
+    // of the original requestor.  If so, then an optimal path through I/O completion can be taken.
     if (Irp->Flags & IRP_DEFER_IO_COMPLETION && !Irp->PendingReturned) {
-
-        if ((Irp->IoStatus.Status == STATUS_REPARSE )  &&
-            (Irp->IoStatus.Information == IO_REPARSE_TAG_MOUNT_POINT)) {
-
-
-            // For name junctions we reinstate the address of the appropriate
-            // buffer. It is freed in parse.c
-
-
+        if ((Irp->IoStatus.Status == STATUS_REPARSE )  && (Irp->IoStatus.Information == IO_REPARSE_TAG_MOUNT_POINT)) {
+            // For name junctions we reinstate the address of the appropriate buffer. It is freed in parse.c
             Irp->Tail.Overlay.AuxiliaryBuffer = saveAuxiliaryPointer;
         }
 
         return;
     }
 
-
-    // Finally, initialize the IRP as an APC structure and queue the special
-    // kernel APC to the target thread.
-
-
+    // Finally, initialize the IRP as an APC structure and queue the special kernel APC to the target thread.
     thread = Irp->Tail.Overlay.Thread;
     fileObject = Irp->Tail.Overlay.OriginalFileObject;
 
     if (!Irp->Cancel) {
-
         KeInitializeApc( &Irp->Tail.Apc,
                          &thread->Tcb,
                          Irp->ApcEnvironment,
@@ -2588,32 +2182,22 @@ Return Value:
                          KernelMode,
                          (PVOID) NULL );
 
-        (VOID) KeInsertQueueApc( &Irp->Tail.Apc,
-                                 fileObject,
-                                 (PVOID) saveAuxiliaryPointer,
-                                 PriorityBoost );
+        (VOID) KeInsertQueueApc( &Irp->Tail.Apc, fileObject, (PVOID) saveAuxiliaryPointer, PriorityBoost );
     } else {
-
-
         // This request has been cancelled.  Ensure that access to the thread
         // is synchronized, otherwise it may go away while attempting to get
         // through the remainder of completion for this request.  This happens
-        // when the thread times out waiting for the request to be completed
-        // once it has been cancelled.
+        // when the thread times out waiting for the request to be completed once it has been cancelled.
 
         // Note that it is safe to capture the thread pointer above, w/o having
         // the lock because the cancel flag was not set at that point, and
         // the code that disassociates IRPs must set the flag before looking to
-        // see whether or not the packet has been completed, and this packet
-        // will appear to be completed because it no longer belongs to a driver.
-
+        // see whether or not the packet has been completed, and this packet will appear to be completed because it no longer belongs to a driver.
 
         ExAcquireSpinLock( &IopCompletionLock, &irql );
 
         thread = Irp->Tail.Overlay.Thread;
-
         if (thread) {
-
             KeInitializeApc( &Irp->Tail.Apc,
                              &thread->Tcb,
                              Irp->ApcEnvironment,
@@ -2623,36 +2207,23 @@ Return Value:
                              KernelMode,
                              (PVOID) NULL );
 
-            (VOID) KeInsertQueueApc( &Irp->Tail.Apc,
-                                     fileObject,
-                                     (PVOID) saveAuxiliaryPointer,
-                                     PriorityBoost );
-
+            (VOID) KeInsertQueueApc( &Irp->Tail.Apc, fileObject, (PVOID) saveAuxiliaryPointer, PriorityBoost );
             ExReleaseSpinLock( &IopCompletionLock, irql );
-
         } else {
-
-
             // This request has been aborted from completing in the caller's
             // thread.  This can only occur if the packet was cancelled, and
             // the driver did not complete the request, so it was timed out.
-            // Attempt to drop things on the floor, since the originating thread
-            // has probably exited at this point.
-
+            // Attempt to drop things on the floor, since the originating thread has probably exited at this point.
 
             ExReleaseSpinLock( &IopCompletionLock, irql );
-
             ASSERT( Irp->Cancel );
 
-
             // Drop the IRP on the floor.
-
-
             IopDropIrp( Irp, fileObject );
-
         }
     }
 }
+
 
 NTSTATUS
 IoConnectInterrupt(
@@ -2668,61 +2239,32 @@ IoConnectInterrupt(
     IN KAFFINITY ProcessorEnableMask,
     IN BOOLEAN FloatingSave
     )
-
 /*++
-
 Routine Description:
-
     This routine allocates, initializes, and connects interrupt objects for
     all of the processors specified in the processor enable mask.
-
 Arguments:
-
-    InterruptObject - Address of a variable to receive a pointer to the first
-        interrupt object allocated and initialized.
-
-    ServiceRoutine - Address of the interrupt service routine (ISR) that should
-        be executed when the interrupt occurs.
-
-    ServiceContext - Supplies a pointer to the context information required
-        by the ISR.
-
-    SpinLock - Supplies a pointer to a spin lock to be used when synchronizing
-        with the ISR.
-
+    InterruptObject - Address of a variable to receive a pointer to the first interrupt object allocated and initialized.
+    ServiceRoutine - Address of the interrupt service routine (ISR) that should be executed when the interrupt occurs.
+    ServiceContext - Supplies a pointer to the context information required by the ISR.
+    SpinLock - Supplies a pointer to a spin lock to be used when synchronizing with the ISR.
     Vector - Supplies the vector upon which the interrupt occurs.
-
     Irql - Supplies the IRQL upon which the interrupt occurs.
-
-    SynchronizeIrql - The request priority that the interrupt should be
-        synchronized with.
-
+    SynchronizeIrql - The request priority that the interrupt should be synchronized with.
     InterruptMode - Specifies the interrupt mode of the device.
-
     ShareVector - Supplies a boolean value that specifies whether the
-        vector can be shared with other interrupt objects or not.  If FALSE
-        then the vector may not be shared, if TRUE it may be.
+        vector can be shared with other interrupt objects or not.  If FALSE then the vector may not be shared, if TRUE it may be.
         Latched.
-
     ProcessorEnableMask - Specifies a bit-vector for each processor on which
         the interrupt is to be connected.  A value of one in the bit position
-        cooresponding to the processor number indicates that the interrupt
-        should be allowed on that processor.  At least one bit must be set.
-
-    FloatingSave - A BOOLEAN that specifies whether or not the machine's
-        floating point state should be saved before invoking the ISR.
-
+        cooresponding to the processor number indicates that the interrupt should be allowed on that processor.  At least one bit must be set.
+    FloatingSave - A BOOLEAN that specifies whether or not the machine's floating point state should be saved before invoking the ISR.
 Return Value:
-
-    The function value is the final function status.  The three status values
-    that this routine can itself return are:
-
+    The function value is the final function status.  The three status values that this routine can itself return are:
         STATUS_SUCCESS - Everything worked successfully.
         STATUS_INVALID_PARAMETER - No processors were specified.
         STATUS_INSUFFICIENT_RESOURCES - There was not enough nonpaged pool.
-
 --*/
-
 {
     CCHAR count;
     BOOLEAN builtinUsed;
@@ -2734,19 +2276,13 @@ Return Value:
 
     PAGED_CODE();
 
-
     // Initialize the return pointer and assume success.
-
-
     *InterruptObject = (PKINTERRUPT) NULL;
     status = STATUS_SUCCESS;
-
 
     // Determine how much memory is to be allocated based on how many
     // processors this system may have and how many bits are set in the
     // processor enable mask.
-
-
     processorMask = ProcessorEnableMask & KeActiveProcessors;
     count = 0;
 
@@ -2757,15 +2293,10 @@ Return Value:
         processorMask >>= 1;
     }
 
-
-    // If any interrupt objects are to be allocated and initialized, allocate
-    // the memory now.
-
-
+    // If any interrupt objects are to be allocated and initialized, allocate the memory now.
     if (count) {
         interruptStructure = ExAllocatePoolWithTag( NonPagedPool,
-                                                    ((count - 1) * sizeof( KINTERRUPT )) +
-                                                    sizeof( IO_INTERRUPT_STRUCTURE ),
+                                                    ((count - 1) * sizeof( KINTERRUPT )) + sizeof( IO_INTERRUPT_STRUCTURE ),
                                                     'nioI' );
         if (interruptStructure == NULL) {
             status = STATUS_INSUFFICIENT_RESOURCES;
@@ -2774,56 +2305,36 @@ Return Value:
         status = STATUS_INVALID_PARAMETER;
     }
 
-
     // If the caller specified a spin lock to be used for the interrupt object,
-    // use it.  Otherwise, provide one by using the one in the structure that
-    // was just allocated.
-
-
+    // use it.  Otherwise, provide one by using the one in the structure that was just allocated.
     if (ARGUMENT_PRESENT( SpinLock )) {
         spinLock = SpinLock;
     } else {
         spinLock = &interruptStructure->SpinLock;
     }
 
-
     // If the pool allocation was successful, initialize and connect the
     // interrupt objects to the appropriate processors.
-
-
     if (NT_SUCCESS( status )) {
-
-
         // Return the address of the first interrupt object in case an
         // interrupt is pending for the device when it is initially connected
         // and the driver must synchronize its execution with the ISR.
-
-
         *InterruptObject = &interruptStructure->InterruptObject;
-
 
         // Begin by getting a pointer to the start of the memory to be used
         // for interrupt objects other than the builtin object.
-
-
         interruptObject = (PKINTERRUPT) (interruptStructure + 1);
         builtinUsed = FALSE;
         processorMask = ProcessorEnableMask & KeActiveProcessors;
 
-
         // Now zero the interrupt structure itself so that if something goes
         // wrong it can be backed out.
-
-
         RtlZeroMemory( interruptStructure, sizeof( IO_INTERRUPT_STRUCTURE ) );
-
 
         // For each entry in the processor enable mask that is set, connect
         // and initialize an interrupt object.  The first bit that is set
         // uses the builtin interrupt object, and all others use the pointers
         // that follow it.
-
-
         for (count = 0; processorMask; count++, processorMask >>= 1) {
             if (processorMask & 1) {
                 KeInitializeInterrupt( builtinUsed ?
@@ -2840,26 +2351,14 @@ Return Value:
                                        count,
                                        FloatingSave );
 
-                if (!KeConnectInterrupt( builtinUsed ?
-                                         interruptObject :
-                                         &interruptStructure->InterruptObject )) {
-
-
-                    // An error occurred while attempting to connect the
-                    // interrupt.  This means that the driver either specified
-                    // the wrong type of interrupt mode, or attempted to connect
-                    // to some processor that didn't exist, or whatever.  In
-                    // any case, the problem turns out to be an invalid
-                    // parameter was specified.  Simply back everything out
+                if (!KeConnectInterrupt( builtinUsed ? interruptObject : &interruptStructure->InterruptObject )) {
+                    // An error occurred while attempting to connect the interrupt.  This means that the driver either specified
+                    // the wrong type of interrupt mode, or attempted to connect to some processor that didn't exist, or whatever.  In
+                    // any case, the problem turns out to be an invalid parameter was specified.  Simply back everything out
                     // and return an error status.
 
-                    // Note that if the builtin entry was used, then the entire
-                    // structure needs to be walked as there are entries that
-                    // were successfully connected.  Otherwise, the first
-                    // attempt to connect failed, so simply free everything
-                    // in-line.
-
-
+                    // Note that if the builtin entry was used, then the entire structure needs to be walked as there are entries that
+                    // were successfully connected.  Otherwise, the first attempt to connect failed, so simply free everything in-line.
                     if (builtinUsed) {
                         IoDisconnectInterrupt( &interruptStructure->InterruptObject );
                     } else {
@@ -2869,36 +2368,21 @@ Return Value:
                     break;
                 }
 
-
-
                 // If the builtin entry has been used, then the interrupt
-                // object just connected was one of the pointers, so fill
-                // it in with the address of the memory actually used.
-
-
+                // object just connected was one of the pointers, so fill it in with the address of the memory actually used.
                 if (builtinUsed) {
                     interruptStructure->InterruptArray[count] = interruptObject++;
-
                 } else {
-
-
                     // Otherwise, the builtin entry was used, so indicate
-                    // that it is no longer valid to use and start using
-                    // the pointers instead.
-
-
+                    // that it is no longer valid to use and start using the pointers instead.
                     builtinUsed = TRUE;
                 }
-
             }
         }
     }
 
-
     // Finally, reset the address of the interrupt object if the function
     // failed and return the final status of the operation.
-
-
     if (!NT_SUCCESS( status )) {
         *InterruptObject = (PKINTERRUPT) NULL;
     }
@@ -2906,28 +2390,17 @@ Return Value:
     return status;
 }
 
-PCONTROLLER_OBJECT
-IoCreateController(
-    IN ULONG Size
-    )
 
+PCONTROLLER_OBJECT IoCreateController(IN ULONG Size)
 /*++
-
 Routine Description:
-
     This routine creates a controller object that can be used to synchronize
     access to a physical device controller from two or more devices.
-
 Arguments:
-
     Size - Size of the adapter extension in bytes.
-
 Return Value:
-
     A pointer to the controller object that was created or a NULL pointer.
-
 --*/
-
 {
     OBJECT_ATTRIBUTES objectAttributes;
     PCONTROLLER_OBJECT controllerObject;
@@ -2936,22 +2409,11 @@ Return Value:
 
     PAGED_CODE();
 
-
-    // Initialize the object attributes structure in preparation for creating
-    // the controller object.
-
-
-    InitializeObjectAttributes( &objectAttributes,
-                                (PUNICODE_STRING) NULL,
-                                0,
-                                (HANDLE) NULL,
-                                (PSECURITY_DESCRIPTOR) NULL );
-
+    // Initialize the object attributes structure in preparation for creating the controller object.
+    InitializeObjectAttributes( &objectAttributes, (PUNICODE_STRING) NULL, 0, (HANDLE) NULL, (PSECURITY_DESCRIPTOR) NULL );
 
     // Create the controller object itself.
-
-
-    status = ObCreateObject( KernelMode,
+    status = ObCreateObject( KernelMode, 
                              IoControllerObjectType,
                              &objectAttributes,
                              KernelMode,
@@ -2961,11 +2423,7 @@ Return Value:
                              0,
                              (PVOID *) &controllerObject );
     if (NT_SUCCESS( status )) {
-
-
         // Insert the controller object into the table.
-
-
         status = ObInsertObject( controllerObject,
                                  NULL,
                                  FILE_READ_DATA | FILE_WRITE_DATA,
@@ -2973,39 +2431,23 @@ Return Value:
                                  (PVOID *) &controllerObject,
                                  &handle );
 
-
         // If the insert operation fails, set return value to NULL.
-
-
         if (!NT_SUCCESS( status )) {
             controllerObject = (PCONTROLLER_OBJECT) NULL;
         } else {
-
-
             // The insert completed successfully.  Close the handle so that if
             // the driver is unloaded, the controller object can go away.
-
-
             (VOID) NtClose( handle );
 
-
             // Zero the memory for the controller object.
-
-
             RtlZeroMemory( controllerObject, sizeof( CONTROLLER_OBJECT ) + Size );
 
-
             // Set the type and size of this controller object.
-
-
             controllerObject->Type = IO_TYPE_CONTROLLER;
             controllerObject->Size = (USHORT) (sizeof( CONTROLLER_OBJECT ) + Size);
             controllerObject->ControllerExtension = (PVOID) (controllerObject + 1);
 
-
             // Finally, initialize the controller's device queue.
-
-
             KeInitializeDeviceQueue( &controllerObject->DeviceWaitQueue );
         }
     } else {
@@ -3015,13 +2457,8 @@ Return Value:
     return controllerObject;
 }
 
-VOID
-IopInsertRemoveDevice(
-    IN PDRIVER_OBJECT DriverObject,
-    IN PDEVICE_OBJECT DeviceObject,
-    IN BOOLEAN Insert
-    )
 
+VOID IopInsertRemoveDevice(IN PDRIVER_OBJECT DriverObject, IN PDEVICE_OBJECT DeviceObject, IN BOOLEAN Insert)
 {
     KIRQL irql;
 
@@ -3114,78 +2551,49 @@ Return Value:
 
     acl = NULL;
 
-
     // Enclose the creation of the device object in a do/while, in the rare
     // event where we have to retry because some other driver is using our
     // naming scheme for auto-generated device object names.
 
-
     do {
-
         if (DeviceCharacteristics & FILE_AUTOGENERATED_DEVICE_NAME) {
-
-
             // The caller has requested that we automatically generate a device
             // object name.  Retrieve the next available number to use for this
             // purpose, and create a name of the form "\Device\<n>", where <n>
-            // is the (8 hexadecimal digit) character representation of the unique
-            // number we retrieve.
-
+            // is the (8 hexadecimal digit) character representation of the unique number we retrieve.
 
             nextUniqueDeviceObjectNumber = InterlockedIncrement( &IopUniqueDeviceObjectNumber );
             swprintf( deviceNameBuffer, L"\\Device\\%08lx", nextUniqueDeviceObjectNumber );
 
             if (retryWithNewName) {
-
-
                 // We've already done this once (hence, the unicode device name string
                 // is all set up, as is all the security information).  Thus, we can
-                // skip down to where we re-attempt the creation of the device object
-                // using our new name.
-
-
+                // skip down to where we re-attempt the creation of the device object using our new name.
                 retryWithNewName = FALSE;
                 goto attemptDeviceObjectCreation;
-
             } else {
-
-
                 // Set the DeviceName parameter to point to our unicode string, just as
                 // if the caller had specified it (note, we explicitly ignore anything
-                // the caller passes us for device name if the FILE_AUTOGENERATED_DEVICE_NAME
-                // characteristic is specified.
-
-
+                // the caller passes us for device name if the FILE_AUTOGENERATED_DEVICE_NAME characteristic is specified.
                 RtlInitUnicodeString( &autoGeneratedDeviceName, deviceNameBuffer );
                 DeviceName = &autoGeneratedDeviceName;
             }
         }
 
-
         // Remember whether or not this device was created with a name so that
         // it can be deallocated later.
-
-
         deviceHasName = (BOOLEAN) (ARGUMENT_PRESENT( DeviceName ) ? TRUE : FALSE);
-
 
         // Detmermine whether or not this device needs to have a security descriptor
         // placed on it that allows read/write access, or whether the system default
-        // should be used.  Disks, virtual disks, and file systems simply use the
-        // system default descriptor.  All others allow read/write access.
+        // should be used.  Disks, virtual disks, and file systems simply use the system default descriptor.  All others allow read/write access.
 
         // NOTE: This routine assumes that it is in the system's security context.
         //       In particular, it assumes that the Default DACL is the system's
         //       Default DACL.  If this assumption changes in future releases,
-        //       then use of the Default DACL below should be reviewed for
-        //       appropriateness.
+        //       then use of the Default DACL below should be reviewed for appropriateness.
 
-
-
-        // If the device is a pnp device then wait until it registers a device
-        // class before doing the default setup.
-
-
+        // If the device is a pnp device then wait until it registers a device class before doing the default setup.
         securityDescriptor = IopCreateDefaultDeviceSecurityDescriptor(
                                 DeviceType,
                                 DeviceCharacteristics,
@@ -3193,22 +2601,15 @@ Return Value:
                                 localSecurityDescriptor,
                                 &acl,
                                 NULL);
-
         switch ( DeviceType ) {
-
         case FILE_DEVICE_DISK_FILE_SYSTEM:
-
             sectorSize = 512;
             break;
-
         case FILE_DEVICE_CD_ROM_FILE_SYSTEM:
-
             sectorSize = 2048;
             break;
-
         case FILE_DEVICE_DISK:
         case FILE_DEVICE_VIRTUAL_DISK:
-
             sectorSize = 512;
             break;
         }
@@ -3220,14 +2621,7 @@ attemptDeviceObjectCreation:
         // device so that only one open can be done to it at a time.  This saves
         // single user devices from having drivers that implement special code to
         // make sure that only one connection is ever valid at any given time.
-
-
-        InitializeObjectAttributes( &objectAttributes,
-                                    DeviceName,
-                                    0,
-                                    (HANDLE) NULL,
-                                    securityDescriptor );
-
+        InitializeObjectAttributes( &objectAttributes, DeviceName, 0, (HANDLE) NULL, securityDescriptor );
 
         if (Exclusive) {
             objectAttributes.Attributes |= OBJ_EXCLUSIVE;
@@ -3239,12 +2633,8 @@ attemptDeviceObjectCreation:
             objectAttributes.Attributes |= OBJ_PERMANENT;
         }
 
-
         // Create the device object itself.
-
-
-        RoundedSize = (sizeof( DEVICE_OBJECT ) + DeviceExtensionSize)
-                       % sizeof (LONGLONG);
+        RoundedSize = (sizeof( DEVICE_OBJECT ) + DeviceExtensionSize) % sizeof (LONGLONG);
         if (RoundedSize) {
             RoundedSize = sizeof (LONGLONG) - RoundedSize;
         }
@@ -3261,98 +2651,53 @@ attemptDeviceObjectCreation:
                                  0,
                                  0,
                                  (PVOID *) &deviceObject );
-
-        if ((status == STATUS_OBJECT_NAME_COLLISION) &&
-            (DeviceCharacteristics & FILE_AUTOGENERATED_DEVICE_NAME)) {
-
-
-            // Some other driver is using our naming scheme, and we've picked a
-            // device name already in use.  Try again, with a new number.
-
-
+        if ((status == STATUS_OBJECT_NAME_COLLISION) && (DeviceCharacteristics & FILE_AUTOGENERATED_DEVICE_NAME)) {
+            // Some other driver is using our naming scheme, and we've picked a device name already in use.  Try again, with a new number.
             retryWithNewName = TRUE;
         }
-
     } while (retryWithNewName);
 
     if (!NT_SUCCESS( status )) {
-
-
         // Creating the device object was not successful.  Clean everything
         // up and indicate that the object was not created.
-
-
         deviceObject = (PDEVICE_OBJECT) NULL;
-
     } else {
-
-
         // The device was successfully created.  Initialize the object so
-        // that it can be inserted into the object table.  Begin by zeroing
-        // the memory for the device object.
-
-
-        RtlZeroMemory( deviceObject,
-                       sizeof( DEVICE_OBJECT ) + sizeof ( DEVOBJ_EXTENSION ) +
-                       RoundedSize );
-
+        // that it can be inserted into the object table.  Begin by zeroing the memory for the device object.
+        RtlZeroMemory( deviceObject, sizeof( DEVICE_OBJECT ) + sizeof ( DEVOBJ_EXTENSION ) + RoundedSize );
 
         // Fill in deviceObject & deviceObjectExtension cross pointers
-
-
-        deviceObjectExt = (PDEVOBJ_EXTENSION)  (((PCHAR) deviceObject) +
-                            sizeof (DEVICE_OBJECT) + RoundedSize);
+        deviceObjectExt = (PDEVOBJ_EXTENSION)  (((PCHAR) deviceObject) + sizeof (DEVICE_OBJECT) + RoundedSize);
 
         deviceObjectExt->DeviceObject = deviceObject;
         deviceObject->DeviceObjectExtension = deviceObjectExt;
 
-
         // Initialize deviceObjectExt
         // Note: the size of a Device Object Extension is initialized specifically
         // to ZERO so no driver will depend on it.
-
-
         deviceObjectExt->Type = IO_TYPE_DEVICE_OBJECT_EXTENSION;
         deviceObjectExt->Size = 0;
 
         PoInitializeDeviceObject(deviceObjectExt);
 
-
         // Set the type and size of this device object.
-
-
         deviceObject->Type = IO_TYPE_DEVICE;
         deviceObject->Size = (USHORT) (sizeof( DEVICE_OBJECT ) + DeviceExtensionSize);
 
-
         // Set the device type field in the object so that later code can
         // check the type.  Likewise, set the device characteristics.
-
-
         deviceObject->DeviceType = DeviceType;
         deviceObject->Characteristics = DeviceCharacteristics;
 
-
         // If this device is either a tape or a disk, allocate a Volume
         // Parameter Block (VPB) which indicates that the volume has
-        // never been mounted, and set the device object's VPB pointer to
-        // it.
-
-
-        if ((DeviceType == FILE_DEVICE_DISK) ||
-            (DeviceType == FILE_DEVICE_TAPE) ||
-            (DeviceType == FILE_DEVICE_CD_ROM) ||
-            (DeviceType == FILE_DEVICE_VIRTUAL_DISK)) {
-
+        // never been mounted, and set the device object's VPB pointer to it.
+        if ((DeviceType == FILE_DEVICE_DISK) || (DeviceType == FILE_DEVICE_TAPE) || (DeviceType == FILE_DEVICE_CD_ROM) || (DeviceType == FILE_DEVICE_VIRTUAL_DISK)) {
             IopCreateVpb (deviceObject);
-            KeInitializeEvent( &deviceObject->DeviceLock,
-                               SynchronizationEvent,
-                               TRUE );
+            KeInitializeEvent( &deviceObject->DeviceLock, SynchronizationEvent, TRUE );
         }
 
-
         // Initialize the remainder of the device object.
-
         deviceObject->AlignmentRequirement = HalGetDmaAlignmentRequirement() - 1;
         deviceObject->SectorSize = sectorSize;
         deviceObject->Flags = DO_DEVICE_INITIALIZING;
@@ -3372,61 +2717,42 @@ attemptDeviceObjectCreation:
 
         deviceObject->StackSize = 1;
         switch ( DeviceType ) {
-
         case FILE_DEVICE_CD_ROM_FILE_SYSTEM:
         case FILE_DEVICE_DISK_FILE_SYSTEM:
         case FILE_DEVICE_FILE_SYSTEM:
         case FILE_DEVICE_NETWORK_FILE_SYSTEM:
         case FILE_DEVICE_TAPE_FILE_SYSTEM:
-
-
             // This device represents a file system of some sort.  Simply
             // initialize the queue list head in the device object.
-
-
             InitializeListHead( &deviceObject->Queue.ListEntry );
             break;
-
         default:
-
-
             // This is a real device of some sort.  Allocate a spin lock
             // and initialize the device queue object in the device object.
-
-
             KeInitializeDeviceQueue( &deviceObject->DeviceQueue );
             break;
         }
 
-
         // Insert the device object into the table.
-
-
         status = ObInsertObject( deviceObject,
                                  NULL,
                                  FILE_READ_DATA | FILE_WRITE_DATA,
                                  1,
                                  (PVOID *) &deviceObject,
                                  &handle );
-
         if (NT_SUCCESS( status )) {
-
-
             // Reference the driver object.   When the device object goes
             // away the reference will be removed.  This prevents the
             // driver object and driver image from going away while the
             // device object is in the pending delete state.
 
-
             ObReferenceObject( DriverObject );
 
             ASSERT((DriverObject->Flags & DRVO_UNLOAD_INVOKED) == 0);
 
-
             // The insert completed successfully.  Link the device object
             // and driver objects together.  Close the handle so that if
             // the driver is unloaded, the device object can go away.
-
 
             deviceObject->DriverObject = DriverObject;
 
@@ -3436,26 +2762,17 @@ attemptDeviceObjectCreation:
             }
 
             (VOID) NtClose( handle );
-
         } else {
-
-
             // The insert operation failed.  Fortunately it dropped the
             // reference count on the device - since that was the last one
             // all the cleanup should be done for us.
 
-
-
             // indicate that no device object was created.
-
-
             deviceObject = (PDEVICE_OBJECT) NULL;
         }
     }
 
-
     // Free the DACL if we allocated it...
-
 
     if (acl != NULL) {
         ExFreePool( acl );
@@ -3464,6 +2781,7 @@ attemptDeviceObjectCreation:
     *DeviceObject = deviceObject;
     return status;
 }
+
 
 NTSTATUS
 IoCreateFile(
@@ -3482,71 +2800,36 @@ IoCreateFile(
     IN PVOID ExtraCreateParameters OPTIONAL,
     IN ULONG Options
     )
-
 /*++
-
 Routine Description:
-
     This is the common routine for both NtCreateFile and NtOpenFile to allow
     a user to create or open a file.  This procedure is also used internally
     by kernel mode components, such as the network server, to perform the
     same type of operation, but allows kernel mode code to force checking
     arguments and access to the file, rather than bypassing these checks
     because the code is running in kernel mode.
-
 Arguments:
-
-    FileHandle - A pointer to a variable to receive the handle to the open
-        file.
-
-    DesiredAccess - Supplies the types of access that the caller would like
-        to the file.
-
-    ObjectAttributes - Supplies the attributes to be used for the file object
-        (name, SECURITY_DESCRIPTOR, etc.)
-
+    FileHandle - A pointer to a variable to receive the handle to the open file.
+    DesiredAccess - Supplies the types of access that the caller would like to the file.
+    ObjectAttributes - Supplies the attributes to be used for the file object (name, SECURITY_DESCRIPTOR, etc.)
     IoStatusBlock - Specifies the address of the caller's I/O status block.
-
     AllocationSize - Initial size that should be allocated to the file.
-        This parameter only has an affect if the file is created.  Further,
-        if not specified, then it is taken to mean zero.
-
-    FileAttributes - Specifies the attributes that should be set on the file,
-        if it is created.
-
-    ShareAccess - Supplies the types of share access that the caller would
-        like to the file.
-
+        This parameter only has an affect if the file is created.  Further, if not specified, then it is taken to mean zero.
+    FileAttributes - Specifies the attributes that should be set on the file, if it is created.
+    ShareAccess - Supplies the types of share access that the caller would like to the file.
     Disposition - Supplies the method for handling the create/open.
-
     CreateOptions - Caller options for how to perform the create/open.
-
-    EaBuffer - Optionally specifies a set of EAs to be applied to the file
-        if it is created.
-
+    EaBuffer - Optionally specifies a set of EAs to be applied to the file if it is created.
     EaLength - Supplies the length of the EaBuffer.
-
     CreateFileType - The type of file to create.
-
     ExtraCreateParameters - Optionally specifies a pointer to extra create
-        parameters.  The format of the parameters depends on the value of
-        CreateFileType.
-
-    Options - Specifies the options that are to be used during generation
-        of the create IRP.
-
+        parameters.  The format of the parameters depends on the value of CreateFileType.
+    Options - Specifies the options that are to be used during generation of the create IRP.
 Return Value:
-
     The function value is the final status of the create/open operation.
-
 Warning:
-
-    If a pointer to ExtraCreateParameters is passed the data must be
-    readable from kernel mode.
-
-
+    If a pointer to ExtraCreateParameters is passed the data must be readable from kernel mode.
 --*/
-
 {
     KPROCESSOR_MODE requestorMode;
     NTSTATUS status;
@@ -3557,10 +2840,7 @@ Warning:
 
     PAGED_CODE();
 
-
     // Get the previous mode;  i.e., the mode of the caller.
-
-
     requestorMode = KeGetPreviousMode();
 
     if (Options & IO_NO_PARAMETER_CHECKING) {
@@ -3568,93 +2848,41 @@ Warning:
     }
 
     if (requestorMode != KernelMode || Options & IO_CHECK_CREATE_PARAMETERS) {
-
-
         // Check for any invalid parameters.
-
-
         if (
-
-
             // Check that no invalid file attributes flags were specified.
 
-
 //          (FileAttributes & ~FILE_ATTRIBUTE_VALID_SET_FLAGS)
-            (FileAttributes & ~FILE_ATTRIBUTE_VALID_FLAGS)
-
-            ||
-
+            (FileAttributes & ~FILE_ATTRIBUTE_VALID_FLAGS) ||
 
             // Check that no invalid share access flags were specified.
-
-
-            (ShareAccess & ~FILE_SHARE_VALID_FLAGS)
-
-            ||
-
+            (ShareAccess & ~FILE_SHARE_VALID_FLAGS) ||
 
             // Ensure that the disposition value is in range.
-
-
-            (Disposition > FILE_MAXIMUM_DISPOSITION)
-
-            ||
-
+            (Disposition > FILE_MAXIMUM_DISPOSITION) ||
 
             // Check that no invalid create options were specified.
-
-
-            (CreateOptions & ~FILE_VALID_OPTION_FLAGS)
-
-            ||
-
+            (CreateOptions & ~FILE_VALID_OPTION_FLAGS) ||
 
             // If the caller specified synchronous I/O, then ensure that
-            // (s)he also asked for synchronize desired access to the
-            // file.
-
-
-            (CreateOptions & (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT) &&
-            (!(DesiredAccess & SYNCHRONIZE)))
-
-            ||
-
+            // (s)he also asked for synchronize desired access to the file.
+            (CreateOptions & (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT) && (!(DesiredAccess & SYNCHRONIZE))) ||
 
             // Also, if the caller specified that the file is to be deleted
-            // on close, then ensure that delete is specified as one of the
-            // desired accesses requested.
-
-
-            (CreateOptions & FILE_DELETE_ON_CLOSE &&
-            (!(DesiredAccess & DELETE)))
-
-            ||
-
+            // on close, then ensure that delete is specified as one of the desired accesses requested.
+            (CreateOptions & FILE_DELETE_ON_CLOSE && (!(DesiredAccess & DELETE))) ||
 
             // Likewise, ensure that if one of the synchronous I/O modes
             // is specified that the other one is not specified as well.
-
-
-            ((CreateOptions & (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT)) ==
-                              (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT))
-
-            ||
-
+            ((CreateOptions & (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT)) == (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT)) ||
 
             // If this create or open is for a directory operation, check
-            // that all of the other flags, dispositions, and desired
-            // access parameters were also specified correctly.
+            // that all of the other flags, dispositions, and desired access parameters were also specified correctly.
 
             // These are as follows:
-
-            //     o  No other flags other than the synchronous I/O flags,
-            //        write-through, or open by file ID are set.
-
-            //     o  The disposition value is one of create, open, or
-            //        open-if.
-
+            //     o  No other flags other than the synchronous I/O flags, write-through, or open by file ID are set.
+            //     o  The disposition value is one of create, open, or open-if.
             //     o  No non-directory accesses have been specified.
-
 
             ((CreateOptions & FILE_DIRECTORY_FILE)
              && !(CreateOptions & FILE_NON_DIRECTORY_FILE)
@@ -3676,172 +2904,76 @@ Warning:
 
             ||
 
-
-            //  FILE_COMPLETE_IF_OPLOCK and FILE_RESERVE_OPFILTER are
-            //  incompatible options.
-
-
-            ((CreateOptions & FILE_COMPLETE_IF_OPLOCKED) &&
-             (CreateOptions & FILE_RESERVE_OPFILTER))
-
-            ||
-
+            //  FILE_COMPLETE_IF_OPLOCK and FILE_RESERVE_OPFILTER are incompatible options.
+            ((CreateOptions & FILE_COMPLETE_IF_OPLOCKED) && (CreateOptions & FILE_RESERVE_OPFILTER)) ||
 
             // Finally, if the no intermediate buffering option was
-            // specified, ensure that the caller did not also request
-            // append access to the file.
-
-
-            (CreateOptions & FILE_NO_INTERMEDIATE_BUFFERING &&
-            (DesiredAccess & FILE_APPEND_DATA)) ) {
-
+            // specified, ensure that the caller did not also request append access to the file.
+            (CreateOptions & FILE_NO_INTERMEDIATE_BUFFERING && (DesiredAccess & FILE_APPEND_DATA)) ) {
             return STATUS_INVALID_PARAMETER;
         }
 
-
         // Check the file type specific creation parameters.
-
-
         if (CreateFileType == CreateFileTypeNone) {
-
             NOTHING;
-
         } else if (CreateFileType == CreateFileTypeNamedPipe) {
-
             if (!ARGUMENT_PRESENT( ExtraCreateParameters ) ) {
-
                 return STATUS_INVALID_PARAMETER;
-
             } else {
-
                 PNAMED_PIPE_CREATE_PARAMETERS NamedPipeCreateParameters;
 
                 NamedPipeCreateParameters = ExtraCreateParameters;
 
-
-                // Check the parameters for creating a named pipe to
-                // ensure that no invalid parameters were passed.
-
-
+                // Check the parameters for creating a named pipe to ensure that no invalid parameters were passed.
                 if (
+                    // Check the NamedPipeType field to ensure that it is within range.
+                    (NamedPipeCreateParameters->NamedPipeType > FILE_PIPE_MESSAGE_TYPE) ||
 
+                    // Check the ReadMode field to ensure that it is within range.
+                    (NamedPipeCreateParameters->ReadMode > FILE_PIPE_MESSAGE_MODE) ||
 
-                    // Check the NamedPipeType field to ensure that it
-                    // is within range.
-
-
-                    (NamedPipeCreateParameters->NamedPipeType >
-                        FILE_PIPE_MESSAGE_TYPE)
-
-                    ||
-
-
-                    // Check the ReadMode field to ensure that it is
-                    // within range.
-
-
-                    (NamedPipeCreateParameters->ReadMode >
-                        FILE_PIPE_MESSAGE_MODE)
-
-                    ||
-
-
-                    // Check the CompletionMode field to ensure that
-                    // it is within range.
-
-
-                    (NamedPipeCreateParameters->CompletionMode >
-                        FILE_PIPE_COMPLETE_OPERATION)
-
-                    ||
-
+                    // Check the CompletionMode field to ensure that it is within range.
+                    (NamedPipeCreateParameters->CompletionMode > FILE_PIPE_COMPLETE_OPERATION) ||
 
                     // Check the ShareAccess parameter to ensure that
                     // it does not specify shared delete access.  The
                     // Named Pipe File System itself will need to ensure
                     // that at least one of SHARE_READ or SHARE_WRITE
-                    // is specified if the first instance of the pipe
-                    // is being created.
-
-
-                    (ShareAccess & FILE_SHARE_DELETE)
-
-                    ||
-
+                    // is specified if the first instance of the pipe is being created.
+                    (ShareAccess & FILE_SHARE_DELETE) ||
 
                     // Check the Disposition parameter to ensure that
-                    // is does not specify anything other than create,
-                    // open, or open if.
-
-
-                    (Disposition < FILE_OPEN || Disposition > FILE_OPEN_IF)
-
-                    ||
-
+                    // is does not specify anything other than create, open, or open if.
+                    (Disposition < FILE_OPEN || Disposition > FILE_OPEN_IF) ||
 
                     // Finally, check the CreateOptions parameter to
-                    // ensure that it does not contain any invalid
-                    // options for named pipes.
-
-
+                    // ensure that it does not contain any invalid options for named pipes.
                     (CreateOptions & ~FILE_VALID_PIPE_OPTION_FLAGS)) {
                     return STATUS_INVALID_PARAMETER;
                 }
-
             }
-
         } else if (CreateFileType == CreateFileTypeMailslot) {
-
             if (!ARGUMENT_PRESENT( ExtraCreateParameters ) ) {
-
                 return STATUS_INVALID_PARAMETER;
-
             } else {
-
                 PMAILSLOT_CREATE_PARAMETERS mailslotCreateParameters;
 
                 mailslotCreateParameters = ExtraCreateParameters;
 
-
-                // Check the parameters for creating a mailslot to ensure
-                // that no invalid parameters were passed.
-
-
+                // Check the parameters for creating a mailslot to ensure that no invalid parameters were passed.
                 if (
-
-
                     // Check the ShareAccess parameter to ensure that
                     // it does not specify shared delete access.
+                    (ShareAccess & FILE_SHARE_DELETE) ||
 
+                    // Check the ShareAccess parameter to ensure that shared write access is specified.
+                    !(ShareAccess & ~FILE_SHARE_WRITE) ||
 
-                    (ShareAccess & FILE_SHARE_DELETE)
-
-                    ||
-
-
-                    // Check the ShareAccess parameter to ensure that
-                    // shared write access is specified.
-
-
-                    !(ShareAccess & ~FILE_SHARE_WRITE)
-
-                    ||
-
-
-                    // Check the Disposition parameter to ensure that
-                    // it specifies that the file is to be created.
-
-
-                    (Disposition != FILE_CREATE)
-
-                    ||
-
+                    // Check the Disposition parameter to ensure that it specifies that the file is to be created.
+                    (Disposition != FILE_CREATE) ||
 
                     // Check the CreateOptions parameter to ensure that
-                    // it does not contain any options that are invalid
-                    // for mailslots.
-
-
+                    // it does not contain any options that are invalid for mailslots.
                     (CreateOptions & ~FILE_VALID_MAILSLOT_OPTION_FLAGS)) {
                     return STATUS_INVALID_PARAMETER;
                 }
@@ -3850,128 +2982,74 @@ Warning:
     }
 
     if (requestorMode != KernelMode) {
-
-
         // The caller's access mode is not kernel so probe each of the
         // arguments and capture them as necessary.  If any failures occur,
         // the condition handler will be invoked to handle them.  It will
-        // simply cleanup and return an access violation status code back
-        // to the system service dispatcher.
-
+        // simply cleanup and return an access violation status code back to the system service dispatcher.
 
         openPacket.EaBuffer = (PFILE_FULL_EA_INFORMATION) NULL;
 
         try {
-
-
             // The FileHandle parameter must be writeable by the caller.
             // Probe it for a write operation.
-
-
             ProbeAndWriteHandle( FileHandle, 0L );
 
-
             // The IoStatusBlock parameter must be writeable by the caller.
-
-
             ProbeForWriteIoStatus( IoStatusBlock );
-
 
             // The AllocationSize parameter must be readable by the caller
             // if it is present.  If so, probe and capture it.
-
-
             if (ARGUMENT_PRESENT( AllocationSize )) {
-                ProbeForRead( AllocationSize,
-                              sizeof( LARGE_INTEGER ),
-                              sizeof( ULONG ) );
+                ProbeForRead( AllocationSize, sizeof( LARGE_INTEGER ), sizeof( ULONG ) );
                 initialAllocationSize = *AllocationSize;
             } else {
                 initialAllocationSize.QuadPart = 0;
             }
-
         } except(EXCEPTION_EXECUTE_HANDLER) {
-
-
             // An exception was incurred while attempting to access the
             // caller's parameters.  Simply return the reason for the
             // exception as the service status.
-
-
             return GetExceptionCode();
         }
 
-
         // Finally, if an EaBuffer was specified, ensure that it is readable
         // from the caller's mode and capture it.
-
-
         if (ARGUMENT_PRESENT( EaBuffer ) && EaLength) {
-
             ULONG errorOffset;
 
             try {
-
                 ProbeForRead( EaBuffer, EaLength, sizeof( ULONG ) );
-                openPacket.EaBuffer = ExAllocatePoolWithQuotaTag( NonPagedPool,
-                                                                  EaLength,
-                                                                  'aEoI' );
+                openPacket.EaBuffer = ExAllocatePoolWithQuotaTag( NonPagedPool, EaLength, 'aEoI' );
                 openPacket.EaLength = EaLength;
                 RtlCopyMemory( openPacket.EaBuffer, EaBuffer, EaLength );
 
-
-                // Walk the buffer and ensure that its format is valid.  Note
-                // that has been probed.
-
-
-                status = IoCheckEaBufferValidity( openPacket.EaBuffer,
-                                                  EaLength,
-                                                  &errorOffset );
-
+                // Walk the buffer and ensure that its format is valid.  Note that has been probed.
+                status = IoCheckEaBufferValidity( openPacket.EaBuffer, EaLength, &errorOffset );
                 if (!NT_SUCCESS( status )) {
                     IoStatusBlock->Status = status;
                     IoStatusBlock->Information = errorOffset;
                     ExRaiseStatus( status );
                 }
-
             } except(EXCEPTION_EXECUTE_HANDLER) {
-
-
                 // An exception was incurred while attempting to access the
-                // caller's parameters.  Check to see whether or not an EA
-                // buffer was allocated and deallocate if so.
-
-
+                // caller's parameters.  Check to see whether or not an EA buffer was allocated and deallocate if so.
                 if (openPacket.EaBuffer != NULL) {
                     ExFreePool( openPacket.EaBuffer );
                 }
 
                 return GetExceptionCode();
-
             }
-
         } else {
-
-
             // No EAs were specified.
-
-
             openPacket.EaBuffer = (PVOID) NULL;
             openPacket.EaLength = 0L;
         }
-
     } else {
-
-
         // The caller's mode is kernel.  Copy the input parameters to their
-        // expected locations for later use.  Also, put move attach device
-        // flag where it belongs.
-
-
+        // expected locations for later use.  Also, put move attach device flag where it belongs.
         if (CreateOptions & IO_ATTACH_DEVICE_API) {
             Options |= IO_ATTACH_DEVICE;
             CreateOptions &= ~IO_ATTACH_DEVICE_API;
-
         }
 
         if (ARGUMENT_PRESENT( AllocationSize )) {
@@ -3981,40 +3059,28 @@ Warning:
         }
 
         if (ARGUMENT_PRESENT( EaBuffer ) && EaLength) {
-
             ULONG errorOffset;
 
-            openPacket.EaBuffer = ExAllocatePoolWithTag( NonPagedPool,
-                                                         EaLength,
-                                                         'aEoI' );
+            openPacket.EaBuffer = ExAllocatePoolWithTag( NonPagedPool, EaLength, 'aEoI' );
             if (!openPacket.EaBuffer) {
                 return STATUS_INSUFFICIENT_RESOURCES;
             }
             openPacket.EaLength = EaLength;
             RtlCopyMemory( openPacket.EaBuffer, EaBuffer, EaLength );
 
-
-            // Walk the buffer and ensure that its format is valid.  Note
-            // that has been probed.
-
-
-            status = IoCheckEaBufferValidity( openPacket.EaBuffer,
-                                              EaLength,
-                                              &errorOffset );
-
+            // Walk the buffer and ensure that its format is valid.  Note that has been probed.
+            status = IoCheckEaBufferValidity( openPacket.EaBuffer, EaLength, &errorOffset );
             if (!NT_SUCCESS( status )) {
                 ExFreePool(openPacket.EaBuffer);
                 IoStatusBlock->Status = status;
                 IoStatusBlock->Information = errorOffset;
                 return status;
             }
-
         } else {
             openPacket.EaBuffer = (PVOID) NULL;
             openPacket.EaLength = 0L;
         }
     }
-
 
     // Now fill in an Open Packet (OP) to be used in calling the device object
     // parse routine.  This packet will allow information to be passed between
@@ -4022,7 +3088,6 @@ Warning:
     // For most services this would be done with an I/O Request Packet (IRP),
     // but this cannot be done here because the number of stack entries which
     // need to be allocated in the IRP is not yet known.
-
 
     openPacket.Type = IO_TYPE_OPEN_PACKET;
     openPacket.Size = sizeof( OPEN_PACKET );
@@ -4040,30 +3105,19 @@ Warning:
     openPacket.CreateFileType = CreateFileType;
     openPacket.ExtraCreateParameters = ExtraCreateParameters;
 
-
     // Assume that the operation is going to be successful.
-
-
     openPacket.FinalStatus = STATUS_SUCCESS;
-
 
     // Zero the file object field in the OP so the parse routine knows that
     // this is the first time through.  For reparse operations it will continue
     // to use the same file object that it allocated the first time.
-
-
     openPacket.FileObject = (PFILE_OBJECT) NULL;
 
-
     // Update the open count for this process.
-
-
     IopUpdateOtherOperationCount();
 
-
     // Attempt to open the file object by name.  This will yield the handle
-    // that the user is to use as his handle to the file in all subsequent
-    // calls, if it works.
+    // that the user is to use as his handle to the file in all subsequent calls, if it works.
 
     // This call performs a whole lot of the work for actually getting every-
     // thing set up for the I/O system.  The object manager will take the name
@@ -4073,25 +3127,13 @@ Warning:
     // up creating the file object, allocating an IRP, filling it in, and then
     // invoking the driver's dispatch routine with the packet.
 
-
-    status = ObOpenObjectByName( ObjectAttributes,
-                                 (POBJECT_TYPE) NULL,
-                                 requestorMode,
-                                 NULL,
-                                 DesiredAccess,
-                                 &openPacket,
-                                 &handle );
-
+    status = ObOpenObjectByName( ObjectAttributes, (POBJECT_TYPE) NULL, requestorMode, NULL, DesiredAccess, &openPacket, &handle );
 
     // If an EA buffer was allocated, deallocate it now before attempting to
-    // determine whether or not the operation was successful so that it can be
-    // done in one place rather than in two places.
-
-
+    // determine whether or not the operation was successful so that it can be done in one place rather than in two places.
     if (openPacket.EaBuffer) {
         ExFreePool( openPacket.EaBuffer );
     }
-
 
     // Check the status of the open.  If it was not successful, cleanup and
     // get out.  Notice that it is also possible, because this code does not
@@ -4100,77 +3142,47 @@ Warning:
     // name first refers to a device object and then a file object), a check
     // must be made here to ensure that what was returned was really a file
     // object.  The check is to see whether the device object parse routine
-    // believes that it successfully returned a pointer to a file object.  If
-    // it does, then OK;  otherwise, something went wrong somewhere.
-
+    // believes that it successfully returned a pointer to a file object.  If it does, then OK;  otherwise, something went wrong somewhere.
 
     SuccessfulIoParse = (BOOLEAN) (openPacket.ParseCheck == OPEN_PACKET_PATTERN);
-
     if (!NT_SUCCESS( status ) || !SuccessfulIoParse) {
-
         if (NT_SUCCESS( status )) {
-
-
             // The operation was successful as far as the object system is
             // concerned, but the I/O system device parse routine was never
             // successfully completed so this operation has actually completed
             // with an error because of an object mismatch.  Therefore, this is
             // the wrong type of object so dereference whatever was actually
             // referenced by closing the handle that was created for it.
-            // We have to do a ZwClose as this handle can be a kernel handle if
-            // IoCreateFile was called by a driver.
-
+            // We have to do a ZwClose as this handle can be a kernel handle if IoCreateFile was called by a driver.
 
             ZwClose( handle );
             status = STATUS_OBJECT_TYPE_MISMATCH;
         }
 
-
         // If the final status according to the device parse routine
         // indicates that the operation was not successful, then use that
-        // routine's final status because it is more descriptive than the
-        // status which was returned by the object manager.
-
+        // routine's final status because it is more descriptive than the status which was returned by the object manager.
 
         if (!NT_SUCCESS( openPacket.FinalStatus )) {
             status = openPacket.FinalStatus;
 
             if (NT_WARNING( status )) {
-
                 try {
-
                     IoStatusBlock->Status = openPacket.FinalStatus;
                     IoStatusBlock->Information = openPacket.Information;
-
                 } except(EXCEPTION_EXECUTE_HANDLER) {
-
                     status = GetExceptionCode();
-
                 }
-
             }
-
         } else if (openPacket.FileObject != NULL && !SuccessfulIoParse) {
-
-
             // Otherwise, one of two things occurred:
-
             //     1)  The parse routine was invoked at least once and a
-            //         reparse was performed but the parse routine did not
-            //         actually complete.
-
+            //         reparse was performed but the parse routine did not actually complete.
             //     2)  The parse routine was successful so everything worked
-            //         but the object manager incurred an error after the
-            //         parse routine completed.
-
-            // For case #1, there is an outstanding file object that still
-            // exists.  This must be cleaned up.
-
-            // For case #2, nothing must be done as the object manager has
-            // already dereferenced the file object.  Note that this code is
-            // not invoked if the parse routine completed with a successful
-            // status return (SuccessfulIoParse is TRUE).
-
+            //         but the object manager incurred an error after the parse routine completed.
+            // For case #1, there is an outstanding file object that still exists.  This must be cleaned up.
+            // For case #2, nothing must be done as the object manager has already dereferenced the file object.  Note that this code is
+            // not invoked if the parse routine completed with a successful status return (SuccessfulIoParse is TRUE).
 
             if (openPacket.FileObject->FileName.Length != 0) {
                 ExFreePool( openPacket.FileObject->FileName.Buffer );
@@ -4179,82 +3191,45 @@ Warning:
             ObDereferenceObject( openPacket.FileObject );
         }
 
-
         // When an NTFS file junction or an NTFS directory junction is traversed
-        // OBJ_MAX_REPARSE_ATTEMPTS namy times, the object manager gives up and
-        // returns the code STATUS_OBJECT_NAME_NOT_FOUND.
+        // OBJ_MAX_REPARSE_ATTEMPTS namy times, the object manager gives up and returns the code STATUS_OBJECT_NAME_NOT_FOUND.
 
         // This can happen in the following cases:
-
-        //      1) One encounters a legal chain of directory junctions that happen
-        //         to be longer than the value of the above constant.
-
-        //      2) One encounters a self-referential file or directory junction that
-        //         is, in effect, a tight name cycle.
-
+        //      1) One encounters a legal chain of directory junctions that happen to be longer than the value of the above constant.
+        //      2) One encounters a self-referential file or directory junction that is, in effect, a tight name cycle.
         //      3) One encounters a name cycle composed of several NTFS junctions.
 
-        // To improve on this return code see if  openPacket.Information  is
-        // the trace of an NTFS name junction.
-
-
-        if ((status == STATUS_OBJECT_NAME_NOT_FOUND) &&
-            (openPacket.Information == IO_REPARSE_TAG_MOUNT_POINT)) {
-
+        // To improve on this return code see if  openPacket.Information  is the trace of an NTFS name junction.
+        if ((status == STATUS_OBJECT_NAME_NOT_FOUND) && (openPacket.Information == IO_REPARSE_TAG_MOUNT_POINT)) {
             status = STATUS_REPARSE_POINT_NOT_RESOLVED;
         }
-
     } else {
-
-
         // At this point, the open/create operation has been successfully
-        // completed.  There is a handle to the file object, which has been
-        // created, and the file object has been signaled.
+        // completed.  There is a handle to the file object, which has been created, and the file object has been signaled.
 
-        // The remaining work to be done is to complete the operation.  This is
-        // performed as follows:
-
-        //    1.  The file object has been signaled, so no work needs to be done
-        //        for it.
-
+        // The remaining work to be done is to complete the operation.  This is performed as follows:
+        //    1.  The file object has been signaled, so no work needs to be done for it.
         //    2.  The file handle is returned to the user.
-
         //    3.  The I/O status block is written with the final status.
-
 
         openPacket.FileObject->Flags |= FO_HANDLE_CREATED;
 
         ASSERT( openPacket.FileObject->Type == IO_TYPE_FILE );
 
         try {
-
-
             // Return the file handle.
-
-
             *FileHandle = handle;
 
-
             // Write the I/O status into the caller's buffer.
-
-
             IoStatusBlock->Information = openPacket.Information;
             IoStatusBlock->Status = openPacket.FinalStatus;
             status = openPacket.FinalStatus;
-
         } except(EXCEPTION_EXECUTE_HANDLER) {
-
             status = GetExceptionCode();
-
         }
-
     }
 
-
-    // If the parse routine successfully created a file object then
-    // derefence it here.
-
-
+    // If the parse routine successfully created a file object then derefence it here.
     if (SuccessfulIoParse && openPacket.FileObject != NULL) {
         ObDereferenceObject( openPacket.FileObject );
     }
@@ -4262,32 +3237,18 @@ Warning:
     return status;
 }
 
-PKEVENT
-IoCreateNotificationEvent(
-    IN PUNICODE_STRING EventName,
-    OUT PHANDLE EventHandle
-    )
 
+PKEVENT IoCreateNotificationEvent(IN PUNICODE_STRING EventName, OUT PHANDLE EventHandle)
 /*++
-
 Routine Description:
-
     This routine creates a named notification event for use in notifying
     different system components or drivers that an event occurred.
-
 Arguments:
-
     EventName - Supplies the full name of the event.
-
     EventHandle - Supplies a location to return a handle to the event.
-
 Return Value:
-
-    The function value is a pointer to the created/opened event, or NULL if
-    the event could not be created/opened.
-
+    The function value is a pointer to the created/opened event, or NULL if the event could not be created/opened.
 --*/
-
 {
     OBJECT_ATTRIBUTES objectAttributes;
     NTSTATUS status;
@@ -4296,91 +3257,48 @@ Return Value:
 
     PAGED_CODE();
 
-
     // Begin by initializing the object attributes.
-
-
-    InitializeObjectAttributes( &objectAttributes,
-                                EventName,
-                                OBJ_OPENIF,
-                                (HANDLE) NULL,
-                                (PSECURITY_DESCRIPTOR) NULL );
-
+    InitializeObjectAttributes( &objectAttributes, EventName, OBJ_OPENIF, (HANDLE) NULL, (PSECURITY_DESCRIPTOR) NULL );
 
     // Now create or open the event.
-
-
-    status = ZwCreateEvent( &eventHandle,
-                            EVENT_ALL_ACCESS,
-                            &objectAttributes,
-                            NotificationEvent,
-                            TRUE );
+    status = ZwCreateEvent( &eventHandle, EVENT_ALL_ACCESS, &objectAttributes, NotificationEvent, TRUE );
     if (!NT_SUCCESS( status )) {
         return (PKEVENT) NULL;
     }
 
-
-    // Reference the object by its handle to get a pointer that can be returned
-    // to the caller.
-
-
-    (VOID) ObReferenceObjectByHandle( eventHandle,
-                                      0,
-                                      ExEventObjectType,
-                                      KernelMode,
-                                      (PVOID *) &eventObject,
-                                      NULL );
+    // Reference the object by its handle to get a pointer that can be returned to the caller.
+    (VOID) ObReferenceObjectByHandle( eventHandle, 0, ExEventObjectType, KernelMode, (PVOID *) &eventObject, NULL );
     ObDereferenceObject( eventObject );
 
-
     // Return the handle and the pointer to the event.
-
-
     *EventHandle = eventHandle;
 
     return eventObject;
 }
 
-PFILE_OBJECT
-IoCreateStreamFileObject(
-    IN PFILE_OBJECT FileObject OPTIONAL,
-    IN PDEVICE_OBJECT DeviceObject OPTIONAL
-    )
 
+PFILE_OBJECT IoCreateStreamFileObject(IN PFILE_OBJECT FileObject OPTIONAL, IN PDEVICE_OBJECT DeviceObject OPTIONAL)
 /*++
-
 Routine Description:
-
     This routine is invoked to create a new file object that represents an
     alternate data stream for an existing file object.  The input file object
     represents the file object that already exists for a file, and the newly
     created stream file object is used to access other parts of the file
     other than the data.  Some uses of stream file objects are the EAs or
     the SECURITY_DESCRIPTORs on the file.  The stream file object allows
-    the file system to cache these parts of the file just as if they were
-    an entire to themselves.
+    the file system to cache these parts of the file just as if they were an entire to themselves.
 
-    It is also possible to use stream file objects to represent virtual
-    volume files.  This allows various parts of the on-disk structure to
-    be viewed as a virtual file and therefore be cached using the same logic
-    in the file system.  For this case, the device object pointer is used
+    It is also possible to use stream file objects to represent virtual volume files.  This allows various parts of the on-disk structure to
+    be viewed as a virtual file and therefore be cached using the same logic in the file system.  For this case, the device object pointer is used
     to create the file object.
 
 Arguments:
-
-    FileObject - Pointer to the file object to which the new stream file
-        is related.  This pointer is optional.
-
+    FileObject - Pointer to the file object to which the new stream file is related.  This pointer is optional.
     DeviceObject - Pointer to the device object on which the stream file
-        is to be opened.  This pointer is not optional if the FileObject
-        pointer is not specified.
-
+        is to be opened.  This pointer is not optional if the FileObject pointer is not specified.
 Return Value:
-
     The function value is a pointer to the newly created stream file object.
-
 --*/
-
 {
     PFILE_OBJECT newFileObject;
     OBJECT_ATTRIBUTES objectAttributes;
@@ -4389,40 +3307,21 @@ Return Value:
 
     PAGED_CODE();
 
-
-    // Begin by getting the device object from either the file object or
-    // the device object parameter.
-
-
+    // Begin by getting the device object from either the file object or the device object parameter.
     if (ARGUMENT_PRESENT( FileObject )) {
         DeviceObject = FileObject->DeviceObject;
     }
 
-
     // Increment the reference count for the target device object.  Note
     // that no check is made to determine whether or not the device driver
     // is attempting to unload since this is an implicit open of a pseudo-
-    // file that is being made, not a real file open request.  In essence,
-    // no new file is really being opened.
-
-
+    // file that is being made, not a real file open request.  In essence, no new file is really being opened.
     ExInterlockedAddUlong( &DeviceObject->ReferenceCount, 1, &IopDatabaseLock );
 
-
-    // Initialize the object attributes that will be used to create the file
-    // object.
-
-
-    InitializeObjectAttributes( &objectAttributes,
-                                (PUNICODE_STRING) NULL,
-                                0,
-                                (HANDLE) NULL,
-                                (PSECURITY_DESCRIPTOR) NULL );
-
+    // Initialize the object attributes that will be used to create the file object.
+    InitializeObjectAttributes( &objectAttributes, (PUNICODE_STRING) NULL, 0, (HANDLE) NULL, (PSECURITY_DESCRIPTOR) NULL );
 
     // Create the new file object.
-
-
     status = ObCreateObject( KernelMode,
                              IoFileObjectType,
                              &objectAttributes,
@@ -4432,16 +3331,12 @@ Return Value:
                              (ULONG) sizeof( FILE_OBJECT ),
                              0,
                              (PVOID *) &newFileObject );
-
     if (!NT_SUCCESS( status )) {
         IopDecrementDeviceObjectRef( DeviceObject, FALSE );
         ExRaiseStatus( status );
     }
 
-
     // Initialize the common fields of the file object.
-
-
     RtlZeroMemory( newFileObject, sizeof( FILE_OBJECT ) );
     newFileObject->Type = IO_TYPE_FILE;
     newFileObject->Size = sizeof( FILE_OBJECT );
@@ -4449,99 +3344,56 @@ Return Value:
     newFileObject->Flags = FO_STREAM_FILE;
     KeInitializeEvent( &newFileObject->Event, SynchronizationEvent, FALSE );
 
-
     // Insert the device object into the table.  Note that this is done w/a
-    // pointer bias so that the object cannot go away if some random user
-    // application closes the handle before this code is finished w/it.
-
-
-    status = ObInsertObject( newFileObject,
-                             NULL,
-                             FILE_READ_DATA,
-                             1,
-                             (PVOID *) &newFileObject,
-                             &handle );
-
+    // pointer bias so that the object cannot go away if some random user application closes the handle before this code is finished w/it.
+    status = ObInsertObject( newFileObject, NULL, FILE_READ_DATA, 1, (PVOID *) &newFileObject, &handle );
     if (!NT_SUCCESS( status )) {
         ExRaiseStatus( status );
     }
 
-
-    // The insert completed successfully.  Update the bookkeeping so that the
-    // fact that there is a handle is reflected.
-
-
+    // The insert completed successfully.  Update the bookkeeping so that the fact that there is a handle is reflected.
     newFileObject->Flags |= FO_HANDLE_CREATED;
     ASSERT( newFileObject->Type == IO_TYPE_FILE );
 
-
-    // Synchronize here with the file system to make sure that
-    // volumes don't go away while en route to the FS.
-
-
+    // Synchronize here with the file system to make sure that volumes don't go away while en route to the FS.
     if (DeviceObject->Vpb) {
-
-        ExInterlockedAddUlong( &DeviceObject->Vpb->ReferenceCount,
-                               1,
-                               &IopVpbSpinLock );
+        ExInterlockedAddUlong( &DeviceObject->Vpb->ReferenceCount, 1, &IopVpbSpinLock );
     }
 
-
     // Finally, close the handle to the file. and clear the forward cluster
-
-
     status = NtClose( handle );
-
     ASSERT( NT_SUCCESS( status ) );
 
     return newFileObject;
 }
 
 
-PFILE_OBJECT
-IoCreateStreamFileObjectLite(
-    IN PFILE_OBJECT FileObject OPTIONAL,
-    IN PDEVICE_OBJECT DeviceObject OPTIONAL
-    )
-
+PFILE_OBJECT IoCreateStreamFileObjectLite(IN PFILE_OBJECT FileObject OPTIONAL, IN PDEVICE_OBJECT DeviceObject OPTIONAL)
 /*++
-
 Routine Description:
-
     This routine is invoked to create a new file object that represents an
     alternate data stream for an existing file object.  The input file object
     represents the file object that already exists for a file, and the newly
     created stream file object is used to access other parts of the file
     other than the data.  Some uses of stream file objects are the EAs or
     the SECURITY_DESCRIPTORs on the file.  The stream file object allows
-    the file system to cache these parts of the file just as if they were
-    an entire to themselves.
+    the file system to cache these parts of the file just as if they were an entire to themselves.
 
     It is also possible to use stream file objects to represent virtual
     volume files.  This allows various parts of the on-disk structure to
     be viewed as a virtual file and therefore be cached using the same logic
-    in the file system.  For this case, the device object pointer is used
-    to create the file object.
+    in the file system.  For this case, the device object pointer is used to create the file object.
 
     This call differs from IoCreateStreamFileObject in that it performs no
-    handle management and does not result in a call to the file system
-    cleanup entry.
+    handle management and does not result in a call to the file system cleanup entry.
 
 Arguments:
-
-    FileObject - Pointer to the file object to which the new stream file
-        is related.  This pointer is optional.
-
+    FileObject - Pointer to the file object to which the new stream file is related.  This pointer is optional.
     DeviceObject - Pointer to the device object on which the stream file
-        is to be opened.  This pointer is not optional if the FileObject
-        pointer is not specified.
-
+        is to be opened.  This pointer is not optional if the FileObject pointer is not specified.
 Return Value:
-
     The function value is a pointer to the newly created stream file object.
-
 --*/
-
 {
     PFILE_OBJECT newFileObject;
     OBJECT_ATTRIBUTES objectAttributes;
@@ -4550,40 +3402,21 @@ Return Value:
 
     PAGED_CODE();
 
-
-    // Begin by getting the device object from either the file object or
-    // the device object parameter.
-
-
+    // Begin by getting the device object from either the file object or the device object parameter.
     if (ARGUMENT_PRESENT( FileObject )) {
         DeviceObject = FileObject->DeviceObject;
     }
 
-
-    // if the driver has been marked for an unload or deleted operation, and
-    // the reference count goes to zero, then the driver may need to be
+    // if the driver has been marked for an unload or deleted operation, and the reference count goes to zero, then the driver may need to be
     // unloaded or deleted at this point.
-    // file that is being made, not a real file open request.  In essence,
-    // no new file is really being opened.
-
+    // file that is being made, not a real file open request.  In essence, no new file is really being opened.
 
     ExInterlockedAddUlong( &DeviceObject->ReferenceCount, 1, &IopDatabaseLock );
 
-
-    // Initialize the object attributes that will be used to create the file
-    // object.
-
-
-    InitializeObjectAttributes( &objectAttributes,
-                                (PUNICODE_STRING) NULL,
-                                0,
-                                (HANDLE) NULL,
-                                (PSECURITY_DESCRIPTOR) NULL );
-
+    // Initialize the object attributes that will be used to create the file object.
+    InitializeObjectAttributes( &objectAttributes, (PUNICODE_STRING) NULL, 0, (HANDLE) NULL, (PSECURITY_DESCRIPTOR) NULL );
 
     // Create the new file object.
-
-
     status = ObCreateObject( KernelMode,
                              IoFileObjectType,
                              &objectAttributes,
@@ -4593,16 +3426,12 @@ Return Value:
                              (ULONG) sizeof( FILE_OBJECT ),
                              0,
                              (PVOID *) &newFileObject );
-
     if (!NT_SUCCESS( status )) {
         IopDecrementDeviceObjectRef( DeviceObject, FALSE );
         ExRaiseStatus( status );
     }
 
-
     // Initialize the common fields of the file object.
-
-
     RtlZeroMemory( newFileObject, sizeof( FILE_OBJECT ) );
     newFileObject->Type = IO_TYPE_FILE;
     newFileObject->Size = sizeof( FILE_OBJECT );
@@ -4610,26 +3439,16 @@ Return Value:
     newFileObject->Flags = FO_STREAM_FILE;
     KeInitializeEvent( &newFileObject->Event, SynchronizationEvent, FALSE );
 
-
     //  Clean up from the creation.
-
-
     ObFreeObjectCreateInfoBuffer(OBJECT_TO_OBJECT_HEADER(newFileObject)->ObjectCreateInfo);
     OBJECT_TO_OBJECT_HEADER(newFileObject)->ObjectCreateInfo = NULL;
 
     newFileObject->Flags |= FO_HANDLE_CREATED;
     ASSERT( newFileObject->Type == IO_TYPE_FILE );
 
-
-    // Synchronize here with the file system to make sure that
-    // volumes don't go away while en route to the FS.
-
-
+    // Synchronize here with the file system to make sure that volumes don't go away while en route to the FS.
     if (DeviceObject->Vpb) {
-
-        ExInterlockedAddUlong( &DeviceObject->Vpb->ReferenceCount,
-                               1,
-                               &IopVpbSpinLock );
+        ExInterlockedAddUlong( &DeviceObject->Vpb->ReferenceCount, 1, &IopVpbSpinLock );
     }
 
     return newFileObject;
@@ -4692,83 +3511,40 @@ Return Value:
 
     PAGED_CODE();
 
-
     // Begin by initializing the object attributes.
-
-
-    InitializeObjectAttributes( &objectAttributes,
-                                EventName,
-                                OBJ_OPENIF,
-                                (HANDLE) NULL,
-                                (PSECURITY_DESCRIPTOR) NULL );
-
+    InitializeObjectAttributes( &objectAttributes, EventName, OBJ_OPENIF, (HANDLE) NULL, (PSECURITY_DESCRIPTOR) NULL );
 
     // Now create or open the event.
-
-
-    status = ZwCreateEvent( &eventHandle,
-                            EVENT_ALL_ACCESS,
-                            &objectAttributes,
-                            SynchronizationEvent,
-                            TRUE );
+    status = ZwCreateEvent( &eventHandle, EVENT_ALL_ACCESS, &objectAttributes, SynchronizationEvent, TRUE );
     if (!NT_SUCCESS( status )) {
         return (PKEVENT) NULL;
     }
 
-
-    // Reference the object by its handle to get a pointer that can be returned
-    // to the caller.
-
-
-    (VOID) ObReferenceObjectByHandle( eventHandle,
-                                      0,
-                                      ExEventObjectType,
-                                      KernelMode,
-                                      (PVOID *) &eventObject,
-                                      NULL );
+    // Reference the object by its handle to get a pointer that can be returned to the caller.
+    (VOID) ObReferenceObjectByHandle( eventHandle, 0, ExEventObjectType, KernelMode, (PVOID *) &eventObject, NULL );
     ObDereferenceObject( eventObject );
 
-
     // Return the handle and the pointer to the event.
-
-
     *EventHandle = eventHandle;
 
     return eventObject;
 }
 
-NTSTATUS
-IoCreateUnprotectedSymbolicLink(
-    IN PUNICODE_STRING SymbolicLinkName,
-    IN PUNICODE_STRING DeviceName
-    )
 
+NTSTATUS IoCreateUnprotectedSymbolicLink(IN PUNICODE_STRING SymbolicLinkName, IN PUNICODE_STRING DeviceName)
 /*++
-
 Routine Description:
+    This routine is invoked to assign an unprotected symbolic link name to a device. 
+    That is, a symbolic link that can be dynamically reassigned without any special authorization.
 
-    This routine is invoked to assign an unprotected symbolic link name to
-    a device.  That is, a symbolic link that can be dynamically reassigned
-    without any special authorization.
-
-
-    NOTE:  This routine will NOT over-ride inheritable protection that
-           the symbolic link might pick up.  It simply prevents the caller's
-            default token protection from being assigned.
-
-
+    NOTE:  This routine will NOT over-ride inheritable protection that the symbolic link might pick up. 
+           It simply prevents the caller's default token protection from being assigned.
 Arguments:
-
     SymbolicLinkName - Supplies the symbolic link name as a Unicode string.
-
     DeviceName - Supplies the name to which the symbolic link name refers.
-
 Return Value:
-
     The function value is the final status of the operation.
-
 --*/
-
 {
     OBJECT_ATTRIBUTES objectAttributes;
     HANDLE linkHandle;
@@ -4777,44 +3553,24 @@ Return Value:
 
     PAGED_CODE();
 
-
     // Create a security descriptor that has all access.
-
-
-    status = RtlCreateSecurityDescriptor( &securityDescriptor,
-                                          SECURITY_DESCRIPTOR_REVISION1 );
+    status = RtlCreateSecurityDescriptor( &securityDescriptor, SECURITY_DESCRIPTOR_REVISION1 );
     if (!NT_SUCCESS( status )) {
         return status;
     }
 
-    status = RtlSetDaclSecurityDescriptor ( &securityDescriptor,
-                                            TRUE,
-                                            NULL,
-                                            TRUE );     //does not over-ride inheritable protection
+    status = RtlSetDaclSecurityDescriptor ( &securityDescriptor, TRUE, NULL, TRUE );     //does not over-ride inheritable protection
     if (!NT_SUCCESS( status )) {
         return status;
     }
-
 
     // Initialize the object attributes for the symbolic link.
-
-
-        InitializeObjectAttributes( &objectAttributes,
-                                SymbolicLinkName,
-                                OBJ_PERMANENT | OBJ_CASE_INSENSITIVE,
-                                (HANDLE) NULL,
-                                &securityDescriptor );
-
+        InitializeObjectAttributes( &objectAttributes, SymbolicLinkName, OBJ_PERMANENT | OBJ_CASE_INSENSITIVE, (HANDLE) NULL, &securityDescriptor );
 
     // Note that the following assignment can fail (because it is not system
     // initialization time and therefore the \ARCname directory does not
     // exist - if this is really a call to IoAssignArcName), but that is fine.
-
-
-    status = ZwCreateSymbolicLinkObject( &linkHandle,
-                                         SYMBOLIC_LINK_ALL_ACCESS,
-                                         &objectAttributes,
-                                         DeviceName );
+    status = ZwCreateSymbolicLinkObject( &linkHandle, SYMBOLIC_LINK_ALL_ACCESS, &objectAttributes, DeviceName );
     if (NT_SUCCESS( status )) {
         ZwClose( linkHandle );
     }
@@ -4822,48 +3578,30 @@ Return Value:
     return status;
 }
 
-VOID
-IoDeleteController(
-    IN PCONTROLLER_OBJECT ControllerObject
-    )
 
+VOID IoDeleteController(IN PCONTROLLER_OBJECT ControllerObject)
 /*++
-
 Routine Description:
-
     This routine deletes the specified controller object from the system
     so that it may no longer be referenced from a driver.  It is invoked
     when either the driver is being unloaded from the system, or the driver's
-    initialization routine failed to properly initialize the device or a
-    fatal driver initialization error was encountered.
-
+    initialization routine failed to properly initialize the device or a fatal driver initialization error was encountered.
 Arguments:
-
-    ControllerObject - Pointer to the controller object that is to be
-        deleted.
-
+    ControllerObject - Pointer to the controller object that is to be deleted.
 Return Value:
-
     None.
-
 --*/
-
 {
     PAGED_CODE();
-
 
     // The controller was created as a temporary object, and all of the
     // handles for the object have already been closed.  At this point,
     // simply dereferencing the object will cause it to be deleted.
-
-
     ObDereferenceObject( ControllerObject );
 }
 
-VOID
-IopRemoveTimerFromTimerList(
-    IN PIO_TIMER timer
-    )
+
+VOID IopRemoveTimerFromTimerList(IN PIO_TIMER timer)
 {
     KIRQL irql;
 
@@ -4875,51 +3613,33 @@ IopRemoveTimerFromTimerList(
     ExReleaseFastLock( &IopTimerLock, irql );
 }
 
-VOID
-IoDeleteDevice(
-    IN PDEVICE_OBJECT DeviceObject
-    )
 
+VOID IoDeleteDevice(IN PDEVICE_OBJECT DeviceObject)
 /*++
-
 Routine Description:
-
     This routine deletes the specified device object from the system so that
     it may no longer be referenced.  It is invoked when either the device
     driver is being unloaded from the system, or the driver's initialization
     routine failed to properly initialize the device or a fatal driver
-    initialization error was encountered, or when the device is being removed
-    from the system.
-
+    initialization error was encountered, or when the device is being removed from the system.
 Arguments:
-
     DeviceObject - Pointer to the device object that is to be deleted.
-
 Return Value:
-
     None.
-
 --*/
-
 {
     KIRQL irql;
 
     IOV_DELETE_DEVICE(DeviceObject);
 
-
     // Check to see whether or not the device has registered a shutdown
     // handler if necessary, and if so, unregister it.
-
-
     if (DeviceObject->Flags & DO_SHUTDOWN_REGISTERED) {
         IoUnregisterShutdownNotification( DeviceObject );
     }
 
-
     // Release the pool that was allocated to contain the timer dispatch
     // routine and its associated context if there was one.
-
-
     if (DeviceObject->Timer) {
         PIO_TIMER timer;
 
@@ -4928,27 +3648,16 @@ Return Value:
         ExFreePool( timer );
     }
 
-
     // If this device has a name, then mark the
-    // object as temporary so that when it is dereferenced it will be
-    // deleted.
-
-
+    // object as temporary so that when it is dereferenced it will be deleted.
     if (DeviceObject->Flags & DO_DEVICE_HAS_NAME) {
         ObMakeTemporaryObject( DeviceObject );
     }
 
-
-    // PoRunDownDeviceObject will clean up any power management
-    // structures attached to the device object.
-
-
+    // PoRunDownDeviceObject will clean up any power management structures attached to the device object.
     PoRunDownDeviceObject(DeviceObject);
 
-
     // Mark the device object as deleted.
-
-
     ExAcquireSpinLock( &IopDatabaseLock, &irql );
 
     DeviceObject->DeviceObjectExtension->ExtensionFlags |= DOE_DELETE_PENDING;
@@ -4990,7 +3699,6 @@ Return Values:
     WCHAR Prefix[13]; // sizeof L"\\DosDevices\\"
 
     // Only delete links that start with \DosDevices\ 
-
     if (LinkName->Length < (sizeof(L"\\DosDevices\\"))) {
         return STATUS_SUCCESS;
     }
@@ -5093,11 +3801,7 @@ Return Values:
     PAGED_CODE();
 
     // Begin by initializing the object attributes for the symbolic link.
-    InitializeObjectAttributes( &objectAttributes,
-                                SymbolicLinkName,
-                                OBJ_CASE_INSENSITIVE,
-                                (HANDLE) NULL,
-                                (PSECURITY_DESCRIPTOR) NULL );
+    InitializeObjectAttributes( &objectAttributes, SymbolicLinkName, OBJ_CASE_INSENSITIVE, (HANDLE) NULL, (PSECURITY_DESCRIPTOR) NULL );
 
     // Open the symbolic link itself so that it can be marked temporary and closed.
     status = ZwOpenSymbolicLinkObject( &linkHandle, DELETE, &objectAttributes );
@@ -5138,22 +3842,16 @@ Return Value:
     // reference count goes to zero, then the driver may need to be unloaded at this point.
     ExAcquireSpinLock( &IopDatabaseLock, &irql );
 
-
     // Tell the Special IRP code the stack has changed. Code that will reexamine
     // the stack takes the database lock, so we can place the call here. This
-    // also allows us to assert correct behavoir *before* the stack is torn
-    // down.
-
+    // also allows us to assert correct behavoir *before* the stack is torn down.
     IOV_DETACH_DEVICE(TargetDevice);
 
     detachingDevice = TargetDevice->AttachedDevice;
     detachingExtension = detachingDevice->DeviceObjectExtension;
     ASSERT( detachingExtension->AttachedTo == TargetDevice );
 
-
     // Unlink the device from the doubly-linked attachment chain.
-
-
     detachingExtension->AttachedTo = NULL;
     TargetDevice->AttachedDevice = NULL;
 
@@ -5255,12 +3953,8 @@ Return Value:
     OPEN_PACKET openPacket;
     DUMMY_FILE_OBJECT localFileObject;
 
-
     // Build a parse open packet that tells the parse method to open the
-    // file and query its network attributes using the fast path, if it
-    // exists for this file.
-
-
+    // file and query its network attributes using the fast path, if it exists for this file.
     RtlZeroMemory( &openPacket, sizeof( OPEN_PACKET ) );
 
     openPacket.Type = IO_TYPE_OPEN_PACKET;
@@ -5274,26 +3968,14 @@ Return Value:
     openPacket.FullAttributes = TRUE;
     openPacket.LocalFileObject = &localFileObject;
 
-
     // Open the object by its name.  Because of the special QueryOnly flag set
     // in the open packet, the parse routine will open the file using the fast
     // path open and perform the query, effectively closing it as well.
-
-
-    status = ObOpenObjectByName( ObjectAttributes,
-                                 (POBJECT_TYPE) NULL,
-                                 KernelMode,
-                                 NULL,
-                                 DesiredAccess,
-                                 &openPacket,
-                                 &handle );
-
+    status = ObOpenObjectByName( ObjectAttributes, (POBJECT_TYPE) NULL, KernelMode, NULL, DesiredAccess, &openPacket, &handle );
 
     // The opeation is successful if the parse check field of the open packet
     // indicates that the parse routine was actually invoked, and the final
-    // status field of the packet is set to success.  The QueryOnly field is
-    // set to whether or not the fast path was invoked.
-
+    // status field of the packet is set to success.  The QueryOnly field is set to whether or not the fast path was invoked.
 
     if (openPacket.ParseCheck != OPEN_PACKET_PATTERN) {
         // The parse routine was not invoked properly so the operation did not work at all.
@@ -5328,26 +4010,14 @@ Return Value:
     PDEVICE_OBJECT deviceObject;
     IO_ALLOCATION_ACTION action;
 
-
     // Simply remove the next entry from the controller's device wait queue.
     // If one was successfully removed, invoke its execution routine.
-
-
     packet = KeRemoveDeviceQueue( &ControllerObject->DeviceWaitQueue );
     if (packet != NULL) {
-        deviceObject = CONTAINING_RECORD( packet,
-                                          DEVICE_OBJECT,
-                                          Queue.Wcb.WaitQueueEntry );
-        action = deviceObject->Queue.Wcb.DeviceRoutine( deviceObject,
-                                                        deviceObject->CurrentIrp,
-                                                        0,
-                                                        deviceObject->Queue.Wcb.DeviceContext );
+        deviceObject = CONTAINING_RECORD( packet, DEVICE_OBJECT, Queue.Wcb.WaitQueueEntry );
+        action = deviceObject->Queue.Wcb.DeviceRoutine( deviceObject, deviceObject->CurrentIrp, 0, deviceObject->Queue.Wcb.DeviceContext );
 
-
-        // If the execution routine wants the controller to be deallocate
-        // now, deallocate it.
-
-
+        // If the execution routine wants the controller to be deallocate now, deallocate it.
         if (action == DeallocateObject) {
             IoFreeController( ControllerObject );
         }
@@ -5395,9 +4065,7 @@ Return Value:
         Irp->AllocationFlags ^= IRP_LOOKASIDE_ALLOCATION;
         InterlockedDecrement( &IopLookasideIrpFloat );
     }
-    if (!(Irp->AllocationFlags & IRP_ALLOCATED_FIXED_SIZE) ||
-        (Irp->AllocationFlags & IRP_ALLOCATED_MUST_SUCCEED) ||
-        (IopLookasideIrpFloat >= IopLookasideIrpLimit)) {
+    if (!(Irp->AllocationFlags & IRP_ALLOCATED_FIXED_SIZE) || (Irp->AllocationFlags & IRP_ALLOCATED_MUST_SUCCEED) || (IopLookasideIrpFloat >= IopLookasideIrpLimit)) {
         ExFreePool( Irp );
     } else {
         number = LookasideSmallIrpList;
@@ -5451,17 +4119,11 @@ Return Value:
 {
     PNPAGED_LOOKASIDE_LIST lookasideList;
 
-
     // Tell memory management that this MDL will be re-used.  This will
-    // cause MM to unmap any pages that have been mapped for this MDL if
-    // it is a partial MDL.
-
-
+    // cause MM to unmap any pages that have been mapped for this MDL if it is a partial MDL.
     MmPrepareMdlForReuse(Mdl);
-    if (((Mdl->MdlFlags & MDL_ALLOCATED_FIXED_SIZE) == 0) ||
-        ((Mdl->MdlFlags & MDL_ALLOCATED_MUST_SUCCEED) != 0)) {
+    if (((Mdl->MdlFlags & MDL_ALLOCATED_FIXED_SIZE) == 0) || ((Mdl->MdlFlags & MDL_ALLOCATED_MUST_SUCCEED) != 0)) {
         ExFreePool(Mdl);
-
     } else {
         ExFreeToPPNPagedLookasideList(LookasideMdlList, Mdl);
     }
@@ -5478,25 +4140,15 @@ Routine Description:
     If they cannot, they *must* use IoGetAttachedDeviceReference.
 
 Arguments:
-
-    DeviceObject - Supplies a pointer to the device for which the attached
-        device is to be returned.
-
+    DeviceObject - Supplies a pointer to the device for which the attached device is to be returned.
 Return Value:
-
     The function value is the highest level device attached to the specified
-    device.  If no devices are attached, then the pointer to the device
-    object itself is returned.
-
+    device.  If no devices are attached, then the pointer to the device object itself is returned.
 --*/
-
 {
-
     // Loop through all of the device object's attached to the specified
-    // device.  When the last device object is found that is not attached
-    // to, return it.
-
-
+    // device.  When the last device object is found that is not attached to, return it.
+    
     while (DeviceObject->AttachedDevice) {
         DeviceObject = DeviceObject->AttachedDevice;
     }
@@ -5504,28 +4156,17 @@ Return Value:
     return DeviceObject;
 }
 
-PDEVICE_OBJECT
-IoGetAttachedDeviceReference(
-    IN PDEVICE_OBJECT DeviceObject
-    )
+
+PDEVICE_OBJECT IoGetAttachedDeviceReference(IN PDEVICE_OBJECT DeviceObject)
 /*++
-
 Routine Description:
-
     This routine synchronizes with the Io database and returns a refernce
     to the highest level device object associated withthe specified device.
-
 Arguments:
-
-    DeviceObject - Supplies a pointer to the device for which the attached
-        device is to be returned.
-
+    DeviceObject - Supplies a pointer to the device for which the attached device is to be returned.
 Return Value:
-
     The function value is a reference to the highest level device attached
-    to the specified device.  If no devices are attached, then the pointer
-    to the device object itself is returned.
-
+    to the specified device.  If no devices are attached, then the pointer to the device object itself is returned.
 --*/
 {
     KIRQL               irql;
@@ -5537,68 +4178,38 @@ Return Value:
     return DeviceObject;
 }
 
-PDEVICE_OBJECT
-IoGetBaseFileSystemDeviceObject(
-    IN PFILE_OBJECT FileObject
-    )
 
+PDEVICE_OBJECT IoGetBaseFileSystemDeviceObject(IN PFILE_OBJECT FileObject)
 /*++
-
 Routine Description:
-
     This routine returns the base (lowest-level) file system volume device
     object associated with a file.  I.e., it locates the file system w/o
     walking the attached device object list.
-
 Arguments:
-
-    FileObject - Supplies a pointer to the file object for which the base
-        file system device object is to be returned.
-
+    FileObject - Supplies a pointer to the file object for which the base file system device object is to be returned.
 Return Value:
-
-    The function value is the lowest level volume device object associated
-    w/the file.
-
+    The function value is the lowest level volume device object associated w/the file.
 --*/
-
 {
     PDEVICE_OBJECT deviceObject;
 
-
     // If the file object has a mounted Vpb, use its DeviceObject.
-
-
     if (FileObject->Vpb != NULL && FileObject->Vpb->DeviceObject != NULL) {
         deviceObject = FileObject->Vpb->DeviceObject;
 
-
     // Otherwise, if the real device has a VPB that indicates that it is
-    // mounted, then use the file system device object associated with the
-    // VPB.
-
-
-    } else if (!(FileObject->Flags & FO_DIRECT_DEVICE_OPEN) &&
-               FileObject->DeviceObject->Vpb != NULL &&
-               FileObject->DeviceObject->Vpb->DeviceObject != NULL) {
-
+    // mounted, then use the file system device object associated with the VPB.
+    } else if (!(FileObject->Flags & FO_DIRECT_DEVICE_OPEN) && FileObject->DeviceObject->Vpb != NULL && FileObject->DeviceObject->Vpb->DeviceObject != NULL) {
             deviceObject = FileObject->DeviceObject->Vpb->DeviceObject;
 
-
     // Otherwise, just return the real device object.
-
-
     } else {
-
         deviceObject = FileObject->DeviceObject;
     }
 
     ASSERT( deviceObject != NULL );
 
-
     // Simply return the resultant file object.
-
-
     return deviceObject;
 }
 
@@ -5677,43 +4288,17 @@ Return Value:
 
     PAGED_CODE();
 
-
     // Initialize the object attributes to open the device.
-
-
-    InitializeObjectAttributes( &objectAttributes,
-                                ObjectName,
-                                0,
-                                (HANDLE) NULL,
-                                (PSECURITY_DESCRIPTOR) NULL );
-
-    status = ZwOpenFile( &fileHandle,
-                         DesiredAccess,
-                         &objectAttributes,
-                         &ioStatus,
-                         0,
-                         FILE_NON_DIRECTORY_FILE );
-
+    InitializeObjectAttributes( &objectAttributes, ObjectName, 0, (HANDLE) NULL, (PSECURITY_DESCRIPTOR) NULL );
+    status = ZwOpenFile( &fileHandle, DesiredAccess, &objectAttributes, &ioStatus, 0, FILE_NON_DIRECTORY_FILE );
     if (NT_SUCCESS( status )) {
-
-
         // The open operation was successful.  Dereference the file handle
         // and obtain a pointer to the device object for the handle.
-
-
-        status = ObReferenceObjectByHandle( fileHandle,
-                                            0,
-                                            IoFileObjectType,
-                                            KernelMode,
-                                            (PVOID *) &fileObject,
-                                            NULL );
+        status = ObReferenceObjectByHandle( fileHandle, 0, IoFileObjectType, KernelMode, (PVOID *) &fileObject, NULL );
         if (NT_SUCCESS( status )) {
-
             *FileObject = fileObject;
 
-
             // Get a pointer to the device object for this file.
-
             *DeviceObject = IoGetRelatedDeviceObject( fileObject );
         }
 
@@ -5723,72 +4308,39 @@ Return Value:
     return status;
 }
 
-PDEVICE_OBJECT
-IoGetDeviceToVerify(
-    IN PETHREAD Thread
-    )
 
+PDEVICE_OBJECT IoGetDeviceToVerify(IN PETHREAD Thread)
 /*++
-
 Routine Description:
-
     This routine returns a pointer to the device object that is to be verified.
     The pointer is set in the thread object by a device driver when the disk
     or CD-ROM media appears to have changed since the last access to the device.
-
 Arguments:
-
     Thread - Pointer to the thread whose field is to be queried.
-
 Return Value:
-
     The function value is a pointer to the device to be verified, or NULL.
-
 Note:
-
     This function cannot be made a macro, since fields in the thread object
     move from release to release, so this must remain a full function.
-
-
 --*/
-
 {
-
     // Simply return the device to be verified.
-
-
     return Thread->DeviceToVerify;
 }
 
-NTKERNELAPI
-PVOID
-IoGetDriverObjectExtension(
-    IN PDRIVER_OBJECT DriverObject,
-    IN PVOID ClientIdentificationAddress
-    )
+
+NTKERNELAPI PVOID IoGetDriverObjectExtension(IN PDRIVER_OBJECT DriverObject, IN PVOID ClientIdentificationAddress)
 /*++
-
 Routine Description:
-
     This routine returns a pointer to the client driver object extension.
     This extension was allocated using IoAllocateDriverObjectExtension. If
-    an extension with the create Id does not exist for the specified driver
-    object then NULL is returned.
-
+    an extension with the create Id does not exist for the specified driver object then NULL is returned.
 Arguments:
-
     DriverObject - Pointer to driver object owning the extension.
-
-    ClientIdentificationAddress - Supplies the unique identifier which was
-        used to create the extension.
-
+    ClientIdentificationAddress - Supplies the unique identifier which was used to create the extension.
 Return Value:
-
-    The function value is a pointer to the client driver object extension,
-    or NULL.
-
+    The function value is a pointer to the client driver object extension, or NULL.
 --*/
-
 {
     KIRQL irql;
     PIO_CLIENT_EXTENSION extension;
@@ -5796,7 +4348,6 @@ Return Value:
     ExAcquireFastLock( &IopDatabaseLock, &irql );
     extension = DriverObject->DriverExtension->ClientDriverExtension;
     while (extension != NULL) {
-
         if (extension->ClientIdentificationAddress == ClientIdentificationAddress) {
             break;
         }
@@ -5813,146 +4364,85 @@ Return Value:
     return extension + 1;
 }
 
-PGENERIC_MAPPING
-IoGetFileObjectGenericMapping(
-    VOID
-    )
 
+PGENERIC_MAPPING IoGetFileObjectGenericMapping(VOID)
 /*++
-
 Routine Description:
-
     This routine returns a pointer to the generic mapping for a file object.
-
 Arguments:
-
     None.
-
 Return Value:
-
     A pointer to the generic mapping for a file object.
-
 --*/
-
 {
-
     // Simply return a pointer to the generic mapping for a file object.
-
-
     return &IopFileMapping;
 }
 
-PVOID
-IoGetInitialStack(
-    VOID
-    )
 
+PVOID IoGetInitialStack(VOID)
 /*++
-
 Routine Description:
-
-    This routine returns the base initial address of the current thread's
-    stack.
-
+    This routine returns the base initial address of the current thread's stack.
 Arguments:
-
     None.
-
 Return Value:
-
     The base initial address of the current thread's stack.
-
 Note:
-
     This function cannot be made a macro, since fields in the thread object
     move from release to release, so this must remain a full function.
-
 --*/
-
 {
-
     // Simply return the initial stack for this thread.
-
-
     return PsGetCurrentThread()->Tcb.InitialStack;
 }
 
-PDEVICE_OBJECT
-IoGetRelatedDeviceObject(
-    IN PFILE_OBJECT FileObject
-    )
 
+PDEVICE_OBJECT IoGetRelatedDeviceObject(IN PFILE_OBJECT FileObject)
 /*++
-
 Routine Description:
-
     This routine returns a pointer to the actual device object than an I/O
-    Request Packet (IRP) should be given to based on the specified file
-    object.
+    Request Packet (IRP) should be given to based on the specified file object.
 
     N.B. - Callers of this function must ensure no device object is
     attaching or detaching from this stack for the duration of this call.
     This is because the database lock is *not* held!
 
 Arguments:
-
     FileObject - Pointer to the file object representing the open file.
-
 Return Value:
-
-    The return value is a pointer to the device object for the driver to
-    whom the request is to be given.
-
+    The return value is a pointer to the device object for the driver to whom the request is to be given.
 --*/
-
 {
     PDEVICE_OBJECT deviceObject;
-
 
     // If the file object was taken out against the mounted file system, it
     // will have a Vpb. Traverse it to get to the DeviceObject. Note that in
     // this case we should never follow FileObject->DeviceObject, as that
     // mapping may be invalid after a forced dismount.
-
-
     if (FileObject->Vpb != NULL && FileObject->Vpb->DeviceObject != NULL) {
-
         ASSERT(!(FileObject->Flags & FO_DIRECT_DEVICE_OPEN));
         deviceObject = FileObject->Vpb->DeviceObject;
-
-
 
         // If a driver opened a disk device using direct device open and
         // later on it uses IoGetRelatedTargetDeviceObject to find the
         // device object it wants to send an IRP then it should not get the
         // filesystem device object. This is so that if the device object is in the
         // process of being mounted then vpb is not stable.
-
-
-    } else if (!(FileObject->Flags & FO_DIRECT_DEVICE_OPEN) &&
-               FileObject->DeviceObject->Vpb != NULL &&
-               FileObject->DeviceObject->Vpb->DeviceObject != NULL) {
-
+    } else if (!(FileObject->Flags & FO_DIRECT_DEVICE_OPEN) && FileObject->DeviceObject->Vpb != NULL && FileObject->DeviceObject->Vpb->DeviceObject != NULL) {
             deviceObject = FileObject->DeviceObject->Vpb->DeviceObject;
-
 
     // This is a direct open against the device stack (and there is no mounted
     // file system to strain the IRPs through).
-
-
     } else {
-
         deviceObject = FileObject->DeviceObject;
     }
 
     ASSERT( deviceObject != NULL );
 
-
     // Check to see whether or not the device has any associated devices.
     // If so, return the highest level device; otherwise, return a pointer
     // to the device object itself.
-
-
     if (deviceObject->AttachedDevice != NULL) {
         deviceObject = IoGetAttachedDevice( deviceObject );
     }
@@ -5960,78 +4450,43 @@ Return Value:
     return deviceObject;
 }
 
-ULONG
-IoGetRequestorProcessId(
-    IN PIRP Irp
-    )
 
+ULONG IoGetRequestorProcessId(IN PIRP Irp)
 /*++
-
 Routine Description:
-
     This routine returns a 32-bit value that is unique to the process that
     originally requested the specified I/O operation.
-
 Arguments:
-
     Irp - Pointer to the I/O Request Packet.
-
 Return Value:
-
     The function value is the 32-bit process ID.
-
-
 --*/
-
 {
     PEPROCESS process;
 
     process = IoGetRequestorProcess( Irp );
     if (process != NULL) {
-
-
         // UniqueProcessId is a kernel-mode handle, safe to truncate to ULONG.
-
-
         return HandleToUlong( process->UniqueProcessId );
     } else {
-
-
         // Return a PID of zero if there is no process associated with the IRP.
-
-
         return 0;
     }
 }
 
-PEPROCESS
-IoGetRequestorProcess(
-    IN PIRP Irp
-    )
 
+PEPROCESS IoGetRequestorProcess(IN PIRP Irp)
 /*++
-
 Routine Description:
-
     This routine returns a pointer to the process that originally
     requested the specified I/O operation.
-
 Arguments:
-
     Irp - Pointer to the I/O Request Packet.
-
 Return Value:
-
     The function value is a pointer to the original requesting process.
-
-
 --*/
-
 {
-
     // Return the address of the process that requested the I/O operation.
-
-
     if (Irp->Tail.Overlay.Thread) {
         return THREAD_TO_PROCESS( Irp->Tail.Overlay.Thread );
     } else {
@@ -6039,116 +4494,66 @@ Return Value:
     }
 }
 
-PIRP
-IoGetTopLevelIrp(
-    VOID
-    )
 
+PIRP IoGetTopLevelIrp(VOID)
 /*++
-
 Routine Description:
-
-    This routine returns the contents of the TopLevelIrp field of the current
-    thread.
-
+    This routine returns the contents of the TopLevelIrp field of the current thread.
 Arguments:
-
     None.
-
 Return Value:
-
     The final function value is the contents of the TopLevelIrp field.
-
 Note:
-
     This function cannot be made a macro, since fields in the thread object
     move from release to release, so this must remain a full function.
-
 --*/
-
 {
-
     // Simply return the TopLevelIrp field of the thread.
-
-
     return (PIRP) (PsGetCurrentThread()->TopLevelIrp);
 }
 
-VOID
-IoInitializeIrp(
-    IN OUT PIRP Irp,
-    IN USHORT PacketSize,
-    IN CCHAR StackSize
-    )
 
+VOID IoInitializeIrp(IN OUT PIRP Irp, IN USHORT PacketSize, IN CCHAR StackSize)
 /*++
-
 Routine Description:
-
     Initializes an IRP.
-
 Arguments:
-
     Irp - a pointer to the IRP to initialize.
-
     PacketSize - length, in bytes, of the IRP.
-
     StackSize - Number of stack locations in the IRP.
-
 Return Value:
-
     None.
-
 --*/
-
 {
     IOV_INITIALIZE_IRP(Irp, PacketSize, StackSize);
 
-
     // Begin by zeroing the entire packet.
-
-
     RtlZeroMemory( Irp, PacketSize );
-
 
     // Initialize the remainder of the packet by setting the appropriate fields
     // and setting up the I/O stack locations in the packet.
-
-
     Irp->Type = (CSHORT) IO_TYPE_IRP;
     Irp->Size = (USHORT) PacketSize;
     Irp->StackCount = (CCHAR) StackSize;
     Irp->CurrentLocation = (CCHAR) (StackSize + 1);
     Irp->ApcEnvironment = KeGetCurrentApcEnvironment();
     InitializeListHead (&(Irp)->ThreadListEntry);
-    Irp->Tail.Overlay.CurrentStackLocation =
-        ((PIO_STACK_LOCATION) ((UCHAR *) (Irp) +
-            sizeof( IRP ) +
-            ( (StackSize) * sizeof( IO_STACK_LOCATION ))));
+    Irp->Tail.Overlay.CurrentStackLocation = ((PIO_STACK_LOCATION) ((UCHAR *) (Irp) + sizeof( IRP ) + ( (StackSize) * sizeof( IO_STACK_LOCATION ))));
 }
 
-VOID
-IoReuseIrp(
-    PIRP Irp,
-    NTSTATUS Status)
+
+VOID IoReuseIrp(PIRP Irp, NTSTATUS Status)
 /*++
-
 Routine Description:
-
     This routine is used by drivers to initialize an already allocated IRP for reuse.
     It does what IoInitializeIrp does but it saves the allocation flags so that we know
     how to free the Irp and take care of quote requirements. Drivers should call IoReuseIrp
     instead of calling IoInitializeIrp to reinitialize an IRP.
-
 Arguments:
-
     Irp - Pointer to Irp to be reused
-
     Status - Status to preinitialize the Iostatus field.
-
 --*/
 {
-
     USHORT  PacketSize;
     CCHAR   StackSize;
     UCHAR   AllocationFlags;
@@ -6168,48 +4573,27 @@ Arguments:
     IopInitializeIrp(Irp, PacketSize, StackSize);
     Irp->AllocationFlags = AllocationFlags;
     Irp->IoStatus.Status = Status;
-
 }
 
 
-
-NTSTATUS
-IoInitializeTimer(
-    IN PDEVICE_OBJECT DeviceObject,
-    IN PIO_TIMER_ROUTINE TimerRoutine,
-    IN PVOID Context
-    )
-
+NTSTATUS IoInitializeTimer(IN PDEVICE_OBJECT DeviceObject, IN PIO_TIMER_ROUTINE TimerRoutine, IN PVOID Context)
 /*++
-
 Routine Description:
-
-    This routine is used by drivers to initialize a timer entry for a device
-    object.
-
+    This routine is used by drivers to initialize a timer entry for a device object.
 Arguments:
-
     DeviceObject - Pointer to device object to be used.
-
     TimerRoutine - Driver routine to be executed when timer expires.
-
     Context - Context parameter that is passed to the driver routine.
-
 Return Value:
-
     The function value indicates whether or not the timer was initialized.
-
 --*/
-
 {
     PIO_TIMER timer;
 
     PAGED_CODE();
 
-
     // Begin by getting the address of the timer to be used.  If no timer has
     // been allocated, allocate one and initialize it.
-
 
     timer = DeviceObject->Timer;
     if (!timer) {
@@ -6218,10 +4602,8 @@ Return Value:
             return STATUS_INSUFFICIENT_RESOURCES;
         }
 
-
         // Initialize the timer entry so that it is suitable for being placed
         // into the I/O system's timer queue.
-
 
         RtlZeroMemory( timer, sizeof( IO_TIMER ) );
         timer->Type = IO_TYPE_TIMER;
@@ -6229,69 +4611,44 @@ Return Value:
         DeviceObject->Timer = timer;
     }
 
-
     // Set the address of the driver's timer routine and the context parameter
     // passed to it and insert it onto the timer queue.  Note that the timer
-    // enable flag is not set, so this routine will not actually be invoked
-    // yet.
-
+    // enable flag is not set, so this routine will not actually be invoked yet.
 
     timer->TimerRoutine = TimerRoutine;
     timer->Context = Context;
 
-    ExInterlockedInsertTailList( &IopTimerQueueHead,
-                                 &timer->TimerList,
-                                 &IopTimerLock );
+    ExInterlockedInsertTailList( &IopTimerQueueHead, &timer->TimerList, &IopTimerLock );
     return STATUS_SUCCESS;
 }
 
-BOOLEAN
-IoIsOperationSynchronous(
-    IN PIRP Irp
-    )
 
+BOOLEAN IoIsOperationSynchronous(IN PIRP Irp)
 /*++
-
 Routine Description:
-
     This routine determines whether an I/O operation is to be considered
     synchronous or an asynchronous, from the implementors point-of-view.
     Synchronous I/O is defined by how the file was opened, or the API being
-    used to perform the operation, or by the type of paging I/O being
-    performed, if the operation is paging I/O.
+    used to perform the operation, or by the type of paging I/O being performed, if the operation is paging I/O.
 
     It is possible for asynchronous paging I/O to occur to a file that was
     opened for synchronous I/O.  This occurs when the Modified Page Writer
-    is doing I/O to a file that is mapped, when too many modified pages exist
-    in the system.
+    is doing I/O to a file that is mapped, when too many modified pages exist in the system.
 
 Arguments:
-
-    Irp - Pointer to the I/O Request Packet (IRP) representing the operation
-        to be performed.
-
+    Irp - Pointer to the I/O Request Packet (IRP) representing the operation to be performed.
 Return Value:
-
-    A value of TRUE is returned if the operation is synchronous, otherwise
-    FALSE is returned.
-
+    A value of TRUE is returned if the operation is synchronous, otherwise FALSE is returned.
 --*/
-
 {
-
-    // Determine whether this is a synchronous I/O operation.  Synchronous I/O
-    // is defined as an operation that is:
-
+    // Determine whether this is a synchronous I/O operation.  Synchronous I/O is defined as an operation that is:
     //     A file opened for synchronous I/O
     //         OR
     //     A synchronous API operation
     //         OR
     //     A synchronous paging I/O operation
 
-    //  AND this is NOT an asynchronous paging I/O operation occurring to some
-    //  file that was opened for either synchronous or asynchronous I/O.
-
-
+    //  AND this is NOT an asynchronous paging I/O operation occurring to some file that was opened for either synchronous or asynchronous I/O.
     if ((IoGetCurrentIrpStackLocation( Irp )->FileObject->Flags & FO_SYNCHRONOUS_IO ||
         Irp->Flags & IRP_SYNCHRONOUS_API ||
         Irp->Flags & IRP_SYNCHRONOUS_PAGING_IO) &&
@@ -6303,76 +4660,41 @@ Return Value:
     }
 }
 
-BOOLEAN
-IoIsSystemThread(
-    IN PETHREAD Thread
-    )
 
+BOOLEAN IoIsSystemThread(IN PETHREAD Thread)
 /*++
-
 Routine Description:
-
-    This routine returns a BOOLEAN indicating whether or not the specified
-    thread is a system thread.
-
+    This routine returns a BOOLEAN indicating whether or not the specified thread is a system thread.
 Arguments:
-
     Thread - Pointer to the thread to be checked.
-
 Return Value:
-
-    A value of TRUE is returned if the indicated thread is a system thread,
-    else FALSE.
-
+    A value of TRUE is returned if the indicated thread is a system thread, else FALSE.
 Note:
-
     This function cannot be made a macro, since fields in the thread object
     move from release to release, so this must remain a full function.
-
 --*/
-
 {
     return (BOOLEAN) IS_SYSTEM_THREAD(Thread);
 }
 
-BOOLEAN
-IoIsValidNameGraftingBuffer(
-    IN PIRP Irp,
-    IN PREPARSE_DATA_BUFFER ReparseBuffer
-    )
 
+BOOLEAN IoIsValidNameGraftingBuffer(IN PIRP Irp, IN PREPARSE_DATA_BUFFER ReparseBuffer)
 /*++
-
 Routine Description:
-
     This routine returns a BOOLEAN indicating whether or not the specified
-    buffer is a valid name grafting buffer. All internal validity checks are
-    encapsulated in this routine.
+    buffer is a valid name grafting buffer. All internal validity checks are encapsulated in this routine.
 
     Among the checks performed is whether the name lengths stored within the
-    buffer in the private data section are compatible with the total size of
-    the buffer that has been passed in.
+    buffer in the private data section are compatible with the total size of the buffer that has been passed in.
 
 Arguments:
-
-    Irp - Pointer to the I/O Request Packet (IRP) representing the operation
-        to be performed.
-
-    Buffer - Pointer to a reparse data buffer that is supposed to contain
-        a self-consistent set of names to perform name grafting.
-
+    Irp - Pointer to the I/O Request Packet (IRP) representing the operation to be performed.
+    Buffer - Pointer to a reparse data buffer that is supposed to contain a self-consistent set of names to perform name grafting.
 Return Value:
-
-    A value of TRUE is returned if the buffer is correct for name grafting,
-    else FALSE.
-
+    A value of TRUE is returned if the buffer is correct for name grafting, else FALSE.
 Note:
-
-    This function needs to be kept synchronized with the definition of
-    REPARSE_DATA_BUFFER.
-
+    This function needs to be kept synchronized with the definition of REPARSE_DATA_BUFFER.
 --*/
-
 {
     PIO_STACK_LOCATION thisStackPointer = NULL;
     UNICODE_STRING     drivePath;
@@ -6381,47 +4703,25 @@ Note:
             FIELD_OFFSET( REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer[0] ) );
     ASSERT( ReparseBuffer->ReparseDataLength < MAXIMUM_REPARSE_DATA_BUFFER_SIZE );
 
-
     // Determine whether we have the correct kind of reparse tag in the buffer.
-
-
     if (ReparseBuffer->ReparseTag != IO_REPARSE_TAG_MOUNT_POINT) {
-
-
         // The reparse tag is not an NT name grafting tag.
-
-
         return FALSE;
     }
-
 
     // Determine whether we have enough data for all the length fields.
-
-
-    if (ReparseBuffer->ReparseDataLength <
-        (FIELD_OFFSET(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer[0]) - REPARSE_DATA_BUFFER_HEADER_SIZE)) {
-
-
-        // The buffer is shorter than the minimum needed to express a pair of valid
-        // names.
-
-
+    if (ReparseBuffer->ReparseDataLength < (FIELD_OFFSET(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer[0]) - REPARSE_DATA_BUFFER_HEADER_SIZE)) {
+        // The buffer is shorter than the minimum needed to express a pair of valid names.
         return FALSE;
     }
 
-
     // Get the address of the current stack location.
-
-
     thisStackPointer = IoGetCurrentIrpStackLocation( Irp );
 
+    // Determine whether the data lengths returned are consistent with the buffer in which they are retrieved.
 
-    // Determine whether the data lengths returned are consistent with the buffer in
-    // which they are retrieved.
-
-    // This check is meaningful only when the buffer has been allocated. When this routine
+    // This check is meaningful only when the buffer has been allocated. When this routine 
     // is used when a name grafting is being set there is no allocated output buffer.
-
 
     if ((thisStackPointer->Parameters.FileSystemControl.OutputBufferLength > 0) &&
         (thisStackPointer->Parameters.FileSystemControl.OutputBufferLength <
@@ -6429,8 +4729,6 @@ Note:
                 ReparseBuffer->MountPointReparseBuffer.SubstituteNameLength +
                 ReparseBuffer->MountPointReparseBuffer.PrintNameLength +
                 2 * sizeof( UNICODE_NULL )))) {
-
-
         // The length of the appropriate buffer header, plus the lengths of the substitute
         // and print names are longer than the length of the buffer passed in.
         // Thus, this data is not self-consistent.
@@ -6440,93 +4738,52 @@ Note:
         // when transmogrifying the names. The file system returning the buffer only needs
         // to ascertain that the total syze of the data retrieved does not exceed the size
         // of the output buffer.
-
-
         return FALSE;
     }
 
-
-    // Now we determine whether the names were placed according to the reparse point
-    // specification.
-
-
+    // Now we determine whether the names were placed according to the reparse point specification.
 
     // Determine whether the SubstituteNameOffset is zero.
-
-
     if (ReparseBuffer->MountPointReparseBuffer.SubstituteNameOffset != 0) {
-
-
         // Incorrect offset for the substitute name.
-
-
         return FALSE;
     }
-
 
     // Determine whether PrintNameOffset is correct.
-
-
-    if (ReparseBuffer->MountPointReparseBuffer.PrintNameOffset !=
-        (ReparseBuffer->MountPointReparseBuffer.SubstituteNameLength + sizeof( UNICODE_NULL )) ) {
-
-
+    if (ReparseBuffer->MountPointReparseBuffer.PrintNameOffset != (ReparseBuffer->MountPointReparseBuffer.SubstituteNameLength + sizeof( UNICODE_NULL )) ) {
         // Incorrect offset for the print name.
-
-
         return FALSE;
     }
-
 
     // Determine whether ReparseDataLength is correct for name grafting operations.
     // We require a buffer of type REPARSE_DATA_BUFFER.
-
-
-    if (ReparseBuffer->ReparseDataLength !=
-        (FIELD_OFFSET(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer[0]) - REPARSE_DATA_BUFFER_HEADER_SIZE) +
+    if (ReparseBuffer->ReparseDataLength != (FIELD_OFFSET(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer[0]) - REPARSE_DATA_BUFFER_HEADER_SIZE) +
         ReparseBuffer->MountPointReparseBuffer.SubstituteNameLength +
         ReparseBuffer->MountPointReparseBuffer.PrintNameLength +
         2 * sizeof( UNICODE_NULL )) {
-
-
         // Incorrect length of the reparse data.
-
-
         return FALSE;
     }
 
-
     // Determine that the substitute name is not a UNC name.
     // This assumes that ReparseBuffer->MountPointReparseBuffer.SubstituteNameOffset is zero (0).
-
-
     {
-
         // This conditional is a transcription of part of the code of RtlDetermineDosPathNameType_U
         // present in ntos\dll\curdir.c
 
         // The only two legal names that can begin with \\ are:  \\.  and  \\?
         // All other names that begin with  \\  are disallowed.
 
-
         if ((ReparseBuffer->MountPointReparseBuffer.SubstituteNameLength > 6) &&
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[0] == L'\\') &&
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[1] == L'\\') &&
             !((ReparseBuffer->MountPointReparseBuffer.PathBuffer[2] == L'.') ||
               (ReparseBuffer->MountPointReparseBuffer.PathBuffer[2] == L'?'))) {
-
-
             // The name is not one we want to deal with.
-
-
             return FALSE;
         }
 
-
-        // When  RtlDosPathNameToNtPathName_U  is used, the UNC names are returned with a prefix
-        // of the form  \??\UNC\
-
-
+        // When  RtlDosPathNameToNtPathName_U  is used, the UNC names are returned with a prefix of the form  \??\UNC\
         if ((ReparseBuffer->MountPointReparseBuffer.SubstituteNameLength > 16) &&
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[0] == L'\\') &&
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[1] == L'?') &&
@@ -6536,27 +4793,19 @@ Note:
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[5] == L'N') &&
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[6] == L'C') &&
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[7] == L'\\')) {
-
-
             // The name is not one we want to deal with.
-
-
             return FALSE;
         }
-
 
         // See whether there is a drive letter that is mapped at the beginning of the name.
         // If the drive letter is C, then the prefix has the form  \??\C:
         // Note that we skip the offset 4 on purpose.
-
-
         if ((ReparseBuffer->MountPointReparseBuffer.SubstituteNameLength > 12) &&
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[0] == L'\\') &&
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[1] == L'?') &&
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[2] == L'?') &&
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[3] == L'\\') &&
             (ReparseBuffer->MountPointReparseBuffer.PathBuffer[5] == L':')) {
-
             NTSTATUS           status;
             UNICODE_STRING     linkValue;
             OBJECT_ATTRIBUTES  objectAttributes;
@@ -6568,41 +4817,19 @@ Note:
 
             RtlInitUnicodeString( &drivePath, pathNameValue );
 
-
             // Place the appropriate drive letter in the buffer overwriting offset 4.
-
-
             drivePath.Buffer[4] = ReparseBuffer->MountPointReparseBuffer.PathBuffer[4];
-
-            InitializeObjectAttributes( &objectAttributes,
-                                        &drivePath,
-                                        OBJ_CASE_INSENSITIVE,
-                                        (HANDLE) NULL,
-                                        (PSECURITY_DESCRIPTOR) NULL );
-
-            status = ZwOpenSymbolicLinkObject( &linkHandle,
-                                               SYMBOLIC_LINK_QUERY,
-                                               &objectAttributes );
+            InitializeObjectAttributes( &objectAttributes, &drivePath, OBJ_CASE_INSENSITIVE, (HANDLE) NULL, (PSECURITY_DESCRIPTOR) NULL );
+            status = ZwOpenSymbolicLinkObject( &linkHandle, SYMBOLIC_LINK_QUERY, &objectAttributes );
 
 #if DBG
 //     DbgPrint( "IO Name grafting drivePath: %Z ZwOpenSymbolicLinkObject status %x\n", &drivePath, status );
 #endif // DBG
-
             if ( NT_SUCCESS( status ) ) {
-
-
                 // Now query the link and see if there is a redirection
-
-
-                linkValueBuffer = ExAllocatePoolWithTag( NonPagedPool,
-                                                         2 * 260,
-                                                         '  oI' );
+                linkValueBuffer = ExAllocatePoolWithTag( NonPagedPool, 2 * 260, '  oI' );
                 if ( !linkValueBuffer ) {
-
-
                     // Insufficient resources. Return FALSE.
-
-
                     NtClose( linkHandle );
                     return FALSE;
                 }
@@ -6611,21 +4838,15 @@ Note:
                 linkValue.Length = 0;
                 linkValue.MaximumLength = (USHORT)(2 * 260);
 
-                status = ZwQuerySymbolicLinkObject( linkHandle,
-                                                    &linkValue,
-                                                    NULL );
+                status = ZwQuerySymbolicLinkObject( linkHandle, &linkValue, NULL );
                 NtClose( linkHandle );
 
 #if DBG
 //     DbgPrint( "IO Name grafting linkValue: %Z ZwQuerySymbolicLinkObject status %x\n", &linkValue, status );
 #endif // DBG
-
                 if ( NT_SUCCESS( status ) ) {
-
-
                     // The link is a re-directed drive when it has the prefix
                     // \Device\LanmanRedirector\
-
 
                     if ((linkValue.Buffer[ 0] == L'\\') &&
                         (linkValue.Buffer[ 1] == L'D') &&
@@ -6645,23 +4866,14 @@ Note:
                         (linkValue.Buffer[18] == L'r') &&
                         (linkValue.Buffer[23] == L'r') &
                         (linkValue.Buffer[24] == L'\\')) {
-
-
                         // Free the buffer.
-
-
                         ExFreePool( linkValueBuffer );
-
                         return FALSE;
                     }
 
-
                     // Fix for penetration bug. May be relaxed in the future 03/99.
                     // Exploit the fact that we have queried the symbolic link.
-                    // Want only to allow links to volumes that have the prefix
-                    //   \Device\Harddisk
-
-
+                    // Want only to allow links to volumes that have the prefix \Device\Harddisk
                     if (!((linkValue.Buffer[ 0] == L'\\') &&
                           (linkValue.Buffer[ 1] == L'D') &&
                           (linkValue.Buffer[ 2] == L'e') &&
@@ -6678,132 +4890,82 @@ Note:
                           (linkValue.Buffer[13] == L'i') &&
                           (linkValue.Buffer[14] == L's') &&
                           (linkValue.Buffer[15] == L'k'))) {
-
-
                         // Free the buffer.
-
-
                         ExFreePool( linkValueBuffer );
-
                         return FALSE;
                     }
                 }
 
-
                 // Free the buffer.
-
-
                 ExFreePool( linkValueBuffer );
             }
         }
     }
-
 
     // Fix for penetration bug. May be relaxed in the future 03/99.
     // Determine that we either have an NT file name or a volume mount point target name.
 
     // This closes the door of having an arbitrary device name that, with the help of the
     // server, can be used to bypass access checks to the underlying device.
-
-
     {
         UNICODE_STRING volumeName;
 
         if (
-
             // The shortest valid name is one of the kind \??\C: whose length is 12 when
             // in Unicode. All names used by volume mount points are longer.
-
-
             ReparseBuffer->MountPointReparseBuffer.SubstituteNameLength < 12 ) {
-
             return FALSE;
         }
 
-
         // The name has at least 6 Unicode characters.
 
-        // We have verified above that MountPointReparseBuffer.SubstituteNameOffset
-        // is zero.
-
+        // We have verified above that MountPointReparseBuffer.SubstituteNameOffset is zero.
 
         volumeName.Length =
         volumeName.MaximumLength = ReparseBuffer->MountPointReparseBuffer.SubstituteNameLength;
         volumeName.Buffer = (PWSTR) ReparseBuffer->MountPointReparseBuffer.PathBuffer;
 
-
         // When we do not have a name that begins with a drive letter and it is not
         // a valid volume mount point name then we return false.
-
-
         if ( !((ReparseBuffer->MountPointReparseBuffer.PathBuffer[0] == L'\\') &&
                (ReparseBuffer->MountPointReparseBuffer.PathBuffer[1] == L'?') &&
                (ReparseBuffer->MountPointReparseBuffer.PathBuffer[2] == L'?') &&
                (ReparseBuffer->MountPointReparseBuffer.PathBuffer[3] == L'\\') &&
 
                // Notice that we skip index 4, where the drive letter is to be.
-
-               (ReparseBuffer->MountPointReparseBuffer.PathBuffer[5] == L':'))
-
-             &&
+               (ReparseBuffer->MountPointReparseBuffer.PathBuffer[5] == L':')) &&
 
              !MOUNTMGR_IS_VOLUME_NAME( &volumeName ) ) {
-
             return FALSE;
         }
     }
 
-
     // Otherwise return TRUE.
-
-
     return TRUE;
 }
 
-VOID
-IopDoNameTransmogrify(
-    IN PIRP Irp,
-    IN PFILE_OBJECT FileObject,
-    IN PREPARSE_DATA_BUFFER ReparseBuffer
-    )
 
+VOID IopDoNameTransmogrify(IN PIRP Irp, IN PFILE_OBJECT FileObject, IN PREPARSE_DATA_BUFFER ReparseBuffer)
 /*++
-
 Routine Description:
-
     This routine is called to do the name grafting needed for junctions.
-
 Arguments:
-
-    Irp - Pointer to the I/O Request Packet (IRP) representing the operation
-        to be performed.
-
+    Irp - Pointer to the I/O Request Packet (IRP) representing the operation to be performed.
     FileObject - Pointer to the file object whose name is being affected.
-
-    ReparseBuffer - Pointer to a reparse data buffer that is supposed to contain
-        a self-consistent set of names to perform name grafting.
-
+    ReparseBuffer - Pointer to a reparse data buffer that is supposed to contain a self-consistent set of names to perform name grafting.
 Return Value:
-
     No explicit return value. The appropriate fields off the IRP are set.
-
 Note:
-
-    This function needs to be kept synchronized with the definition of
-    REPARSE_DATA_BUFFER.
-
+    This function needs to be kept synchronized with the definition of REPARSE_DATA_BUFFER.
 --*/
-
 {
     USHORT pathLength = 0;
     USHORT neededBufferLength = 0;
     PVOID outBuffer = NULL;
     PWSTR pathBuffer = NULL;
 
-
     // We do the appropriate paste of the new name in the FileName buffer
     // and deallocate the buffer that brought the data from the file system.
-
 
     ASSERT( Irp->IoStatus.Status == STATUS_REPARSE );
     ASSERT( Irp->IoStatus.Information == IO_REPARSE_TAG_MOUNT_POINT );
@@ -6820,83 +4982,54 @@ Note:
 //              ReparseBuffer->ReparseTag, ReparseBuffer->Reserved, FileObject->FileName.MaximumLength, &(FileObject->FileName) );
 #endif // DBG
 
-
     // Determine whether we have enough data for all the length fields.
 
     // Determine whether the lengths returned are consistent with the maximum
-    // buffer. This is the best self-defense check we can do at this time as
-    // the stack pointer is already invalid.
-
-
-    if (ReparseBuffer->ReparseDataLength >=
-        (FIELD_OFFSET(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer[0]) - REPARSE_DATA_BUFFER_HEADER_SIZE)) {
-
-        if (MAXIMUM_REPARSE_DATA_BUFFER_SIZE <
+    // buffer. This is the best self-defense check we can do at this time as the stack pointer is already invalid.
+    if (ReparseBuffer->ReparseDataLength >= (FIELD_OFFSET(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer[0]) - REPARSE_DATA_BUFFER_HEADER_SIZE)) {
+        if (MAXIMUM_REPARSE_DATA_BUFFER_SIZE < 
             (FIELD_OFFSET(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer[0]) +
                 ReparseBuffer->MountPointReparseBuffer.SubstituteNameLength +
                 ReparseBuffer->MountPointReparseBuffer.PrintNameLength)) {
-
             Irp->IoStatus.Status = STATUS_IO_REPARSE_DATA_INVALID;
         }
     } else {
         Irp->IoStatus.Status = STATUS_IO_REPARSE_DATA_INVALID;
     }
 
-
-    // The value in  ReparseBuffer->Reserved  is the length of the file
-    // name that has still to be parsed.
-
-
+    // The value in  ReparseBuffer->Reserved  is the length of the file name that has still to be parsed.
 
     // Copy the buffer when it has the appropriate length, else return a null UNICODE name:
     //   (1) Do defensive sanity checks on the name lengths returned.
 
     // We only care to do this if we have no error conditions.
 
-
     if (NT_SUCCESS( Irp->IoStatus.Status )) {
-
-        pathBuffer = (PWSTR)((PCHAR)ReparseBuffer->MountPointReparseBuffer.PathBuffer +
-                             ReparseBuffer->MountPointReparseBuffer.SubstituteNameOffset);
+        pathBuffer = (PWSTR)((PCHAR)ReparseBuffer->MountPointReparseBuffer.PathBuffer + ReparseBuffer->MountPointReparseBuffer.SubstituteNameOffset);
         pathLength = ReparseBuffer->MountPointReparseBuffer.SubstituteNameLength;
     }
 
+    // Notice that if the data returned in AuxiliaryBuffer is not long enough then pathLength has value 0 and pathBuffer has value NULL.
 
-    // Notice that if the data returned in AuxiliaryBuffer is not long enough then
-    // pathLength has value 0 and pathBuffer has value NULL.
-
-    // The value in  ReparseBuffer->Reserved  is the length of the file name that
-    // has still to be parsed.
+    // The value in  ReparseBuffer->Reserved  is the length of the file name that has still to be parsed.
 
     // We only care to do this if we have no error conditions.
 
-
     if (ReparseBuffer->Reserved < 0) {
-
-
         // This is an invalid offset.
-
-
         Irp->IoStatus.Status = STATUS_IO_REPARSE_DATA_INVALID;
     }
 
     if (NT_SUCCESS( Irp->IoStatus.Status )) {
-
-
         // Check for overflow. (pathLength <= MAXIMUM_REPARSE_DATA_BUFFER_SIZE)
         // so pathLength + sizeof(UNICODE_NULL) cannot overflow.
-
 
         if (((USHORT)MAXUSHORT - ReparseBuffer->Reserved ) > (pathLength +(USHORT)sizeof(UNICODE_NULL))) {
             neededBufferLength = pathLength + ReparseBuffer->Reserved + sizeof( UNICODE_NULL );
 
             // If the out name buffer isn't large enough, allocate a new one.
-
-
             if (FileObject->FileName.MaximumLength < neededBufferLength) {
-                outBuffer = ExAllocatePoolWithTag( PagedPool,
-                                                   neededBufferLength,
-                                                   'cFoI' );
+                outBuffer = ExAllocatePoolWithTag( PagedPool, neededBufferLength, 'cFoI' );
                 if (!outBuffer) {
                     Irp->IoStatus.Status = STATUS_INSUFFICIENT_RESOURCES;
                 }
@@ -6908,42 +5041,25 @@ Note:
         }
     }
 
-
     // Place in the out name buffer the remaining part of the name.
 
     // We only care to do this if we have no error conditions.
-
-
     if (NT_SUCCESS( Irp->IoStatus.Status )) {
-
         if (ReparseBuffer->Reserved) {
-
             RtlMoveMemory ( (PCHAR)outBuffer + pathLength,
-                            (PCHAR)FileObject->FileName.Buffer +
-                                  (FileObject->FileName.Length - ReparseBuffer->Reserved),
+                            (PCHAR)FileObject->FileName.Buffer + (FileObject->FileName.Length - ReparseBuffer->Reserved),
                             ReparseBuffer->Reserved );
         }
 
-
-        // Copy into the front of the out name buffer the value of the
-        // reparse point.
-
-
+        // Copy into the front of the out name buffer the value of the reparse point.
         if (pathLength) {
-
-            RtlCopyMemory( (PCHAR)outBuffer,
-                           (PCHAR)pathBuffer,
-                           pathLength );
+            RtlCopyMemory( (PCHAR)outBuffer, (PCHAR)pathBuffer, pathLength );
         }
 
         FileObject->FileName.Length = neededBufferLength - sizeof( UNICODE_NULL );
 
-
         // Free the old name buffer when needed and update the appropriate values.
-
-
         if (outBuffer != FileObject->FileName.Buffer) {
-
             if (FileObject->FileName.Buffer != NULL) {
                 ExFreePool( FileObject->FileName.Buffer );
             }
@@ -6953,53 +5069,32 @@ Note:
         }
     }
 
-
     // Free the buffer that came from the file system.
     // NULL the pointer.
-
-
     ExFreePool( ReparseBuffer );
     ReparseBuffer = NULL;
 
-
     // Clear the tag from then Information field.
-
-
     Irp->IoStatus.Information = IO_REPARSE_TAG_RESERVED_ZERO;
 }
 
-PIRP
-IoMakeAssociatedIrp(
-    IN PIRP Irp,
-    IN CCHAR StackSize
-    )
 
+PIRP IoMakeAssociatedIrp(IN PIRP Irp, IN CCHAR StackSize)
 /*++
-
 Routine Description:
-
     This routine allocates an I/O Request Packet from the system nonpaged pool
     and makes it an associated IRP to the specified IRP.  The packet will be
-    allocated to contain StackSize stack locations.  The IRP iwll also be
-    initialized.
+    allocated to contain StackSize stack locations.  The IRP iwll also be initialized.
 
     Note that it is up to the caller to have set the number of associated IRPs
     in the master packet before calling this routine for the first time.  The
     count should be set in the master packet in:  AssociatedIrp.IrpCount.
-
 Arguments:
-
     Irp - Pointer to master IRP to be associated with.
-
     StackSize - Specifies the maximum number of stack locations required.
-
 Return Value:
-
-    The function value is the address of the associated IRP or NULL, if the
-    IRP could be allocated.
-
+    The function value is the address of the associated IRP or NULL, if the IRP could be allocated.
 --*/
-
 {
     USHORT allocateSize;
     UCHAR fixedSize;
@@ -7010,11 +5105,8 @@ Return Value:
     USHORT packetSize;
     PKPRCB prcb;
 
-
     // If the size of the packet required is less than or equal to those on
-    // the lookaside lists, then attempt to allocate the packet from the
-    // lookaside lists.
-
+    // the lookaside lists, then attempt to allocate the packet from the lookaside lists.
 
     associatedIrp = NULL;
     fixedSize = 0;
@@ -7032,102 +5124,68 @@ Return Value:
         prcb = KeGetCurrentPrcb();
         lookasideList = prcb->PPLookasideList[number].P;
         lookasideList->L.TotalAllocates += 1;
-        associatedIrp = (PIRP)ExInterlockedPopEntrySList(&lookasideList->L.ListHead,
-                                                         &lookasideList->Lock);
+        associatedIrp = (PIRP)ExInterlockedPopEntrySList(&lookasideList->L.ListHead, &lookasideList->Lock);
 
         if (associatedIrp == NULL) {
             lookasideList->L.AllocateMisses += 1;
             lookasideList = prcb->PPLookasideList[number].L;
             lookasideList->L.TotalAllocates += 1;
-            associatedIrp = (PIRP)ExInterlockedPopEntrySList(&lookasideList->L.ListHead,
-                                                             &lookasideList->Lock);
+            associatedIrp = (PIRP)ExInterlockedPopEntrySList(&lookasideList->L.ListHead, &lookasideList->Lock);
         }
     }
 
-
-    // If an IRP was not allocated from the lookaside list, then allocate
-    // the packet from nonpaged pool.
-
+    // If an IRP was not allocated from the lookaside list, then allocate the packet from nonpaged pool.
 
     if (!associatedIrp) {
         if (fixedSize != 0) {
             lookasideList->L.AllocateMisses += 1;
         }
 
-
         // There are no free packets on the lookaside list, or the packet is
-        // too large to be allocated from one of the lists, so it must be
-        // allocated from general non-paged pool.
-
-
+        // too large to be allocated from one of the lists, so it must be allocated from general non-paged pool.
         associatedIrp = ExAllocatePoolWithTag(NonPagedPool, allocateSize, ' prI');
         if (!associatedIrp) {
             if (KeGetPreviousMode() == KernelMode) {
                 mustSucceed = IRP_ALLOCATED_MUST_SUCCEED;
-                associatedIrp = ExAllocatePoolWithTag(NonPagedPoolMustSucceed,
-                                                      allocateSize,
-                                                      ' prI' );
+                associatedIrp = ExAllocatePoolWithTag(NonPagedPoolMustSucceed, allocateSize, ' prI' );
             }
 
             if (!associatedIrp) {
                 return NULL;
             }
         }
-
     }
 
-
     // Initialize the packet.
-
-
     IopInitializeIrp(associatedIrp, packetSize, StackSize);
     associatedIrp->Flags |= IRP_ASSOCIATED_IRP;
     associatedIrp->AllocationFlags |= (fixedSize | mustSucceed);
 
-
     // Set the thread ID to be that of the master.
-
-
     associatedIrp->Tail.Overlay.Thread = Irp->Tail.Overlay.Thread;
 
-
     // Now make the association between this packet and the master.
-
-
     associatedIrp->AssociatedIrp.MasterIrp = Irp;
     return associatedIrp;
 }
 
-BOOLEAN
-IoPageFileCreated(
-    IN HANDLE FileHandle
-    )
 
+BOOLEAN IoPageFileCreated(IN HANDLE FileHandle)
 /*++
-
 Routine Description:
-
     This routine is invoked by the Memory Manager when a new page file is
     created.  The purpose is to lookup the paging file to determine whether
     or not it was created on the boot device.  If so, and taking crash dumps
     is enabled, then the retrieval pointers are queried from the file system
-    for the file so that they can then be used later in writing the crash
-    dump to the paging file.
+    for the file so that they can then be used later in writing the crash dump to the paging file.
 
     The Memory Manager will continue to invoke this function for each paging
     file created in the system until the one for the boot device is encountered.
-
 Arguments:
-
     FileHandle - Handle to the paging file just created.
-
 Return Value:
-
-    A value of TRUE is returned if this paging file resides on the system's
-    boot device, otherwise FALSE.
-
+    A value of TRUE is returned if this paging file resides on the system's boot device, otherwise FALSE.
 --*/
-
 {
     PFILE_OBJECT fileObject;
     PDEVICE_OBJECT deviceObject;
@@ -7139,6 +5197,7 @@ Return Value:
      return IopConfigureCrashDump( FileHandle );
 }
 
+
 NTSTATUS
 IoPageRead(
     IN PFILE_OBJECT FileObject,
@@ -7147,91 +5206,50 @@ IoPageRead(
     IN PKEVENT Event,
     OUT PIO_STATUS_BLOCK IoStatusBlock
     )
-
 /*++
-
 Routine Description:
-
     This routine provides a special, fast interface for the Pager to read pages
     in from the disk quickly and with very little overhead.  All of the special
     handling for this request is recognized by setting the IRP_PAGING_IO flag
-    in the IRP flags word.  In-page operations are detected by using the IRP
-    flag IRP_INPUT_OPERATION.
-
+    in the IRP flags word.  In-page operations are detected by using the IRP flag IRP_INPUT_OPERATION.
 Arguments:
-
-    FileObject - A pointer to a referenced file object describing which file
-        the read should be performed from.
-
+    FileObject - A pointer to a referenced file object describing which file the read should be performed from.
     MemoryDescriptorList - An MDL which describes the physical pages that the
         pages should be read into from the disk.  All of the pages have been
-        locked in memory.  The MDL also describes the length of the read
-        operation.
-
-    StartingOffset - Pointer to the offset in the file from which the read
-        should take place.
-
+        locked in memory.  The MDL also describes the length of the read operation.
+    StartingOffset - Pointer to the offset in the file from which the read should take place.
     Event - A pointer to a kernel event structure to be used for synchronization
-        purposes.  The event will be set to the Signaled state once the in-page
-        operation completes.
-
-    IoStatusBlock - A pointer to the I/O status block in which the final status
-        and information should be stored.
-
+        purposes.  The event will be set to the Signaled state once the in-page operation completes.
+    IoStatusBlock - A pointer to the I/O status block in which the final status and information should be stored.
 Return Value:
-
-    The function value is the final status of the queue request to the I/O
-    system subcomponents.
-
+    The function value is the final status of the queue request to the I/O system subcomponents.
 Notes:
-
-    This routine is invoked at APC_LEVEL; this level is honored throughout the
-    execution of the entire I/O request, including completion.
-
+    This routine is invoked at APC_LEVEL; this level is honored throughout the execution of the entire I/O request, including completion.
 --*/
-
 {
     PIRP irp;
     PIO_STACK_LOCATION irpSp;
     PDEVICE_OBJECT deviceObject;
 
-
-    // Increment performance counter.  The Cache Manager I/Os always are
-    // "recursive".
-
-
+    // Increment performance counter.  The Cache Manager I/Os always are "recursive".
     if (MmIsRecursiveIoFault()) {
         *CcMissCounter += (MemoryDescriptorList->ByteCount + PAGE_SIZE - 1) >> PAGE_SHIFT;
     }
 
-
-    // Begin by getting a pointer to the device object that the file resides
-    // on.
-
-
+    // Begin by getting a pointer to the device object that the file resides on.
     deviceObject = IoGetRelatedDeviceObject( FileObject );
 
-
     // Allocate an I/O Request Packet (IRP) for this in-page operation.
-
-
     irp = IoAllocateIrp( deviceObject->StackSize, FALSE );
     if (!irp) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
-
     // Get a pointer to the first stack location in the packet.  This location
-    // will be used to pass the function codes and parameters to the first
-    // driver.
-
-
+    // will be used to pass the function codes and parameters to the first driver.
     irpSp = IoGetNextIrpStackLocation( irp );
 
-
     // Fill in the IRP according to this request.
-
-
     irp->MdlAddress = MemoryDescriptorList;
     irp->Flags = IRP_PAGING_IO | IRP_NOCACHE | IRP_SYNCHRONOUS_PAGING_IO | IRP_INPUT_OPERATION;
     irp->RequestorMode = KernelMode;
@@ -7241,22 +5259,16 @@ Notes:
     irp->Tail.Overlay.OriginalFileObject = FileObject;
     irp->Tail.Overlay.Thread = PsGetCurrentThread();
 
-
     // Fill in the normal read parameters.
-
-
     irpSp->MajorFunction = IRP_MJ_READ;
     irpSp->FileObject = FileObject;
     irpSp->Parameters.Read.Length = MemoryDescriptorList->ByteCount;
     irpSp->Parameters.Read.ByteOffset = *StartingOffset;
 
-
-    // Queue the packet to the appropriate driver based on whether or not there
-    // is a VPB associated with the device.
-
-
+    // Queue the packet to the appropriate driver based on whether or not there is a VPB associated with the device.
     return IoCallDriver( deviceObject, irp );
 }
+
 
 NTSTATUS
 IoQueryFileInformation(
@@ -7266,52 +5278,28 @@ IoQueryFileInformation(
     OUT PVOID FileInformation,
     OUT PULONG ReturnedLength
     )
-
 /*++
-
 Routine Description:
-
     This routine returns the requested information about a specified file.
     The information returned is determined by the FileInformationClass that
     is specified, and it is placed into the caller's FileInformation buffer.
-
 Arguments:
-
-    FileObject - Supplies a pointer to the file object about which the requested
-        information is returned.
-
-    FileInformationClass - Specifies the type of information which should be
-        returned about the file.
-
+    FileObject - Supplies a pointer to the file object about which the requested information is returned.
+    FileInformationClass - Specifies the type of information which should be returned about the file.
     Length - Supplies the length, in bytes, of the FileInformation buffer.
-
     FileInformation - Supplies a buffer to receive the requested information
-        returned about the file.  This buffer must not be pageable and must
-        reside in system space.
-
-    ReturnedLength - Supplies a variable that is to receive the length of the
-        information written to the FileInformation buffer.
-
+        returned about the file.  This buffer must not be pageable and must reside in system space.
+    ReturnedLength - Supplies a variable that is to receive the length of the information written to the FileInformation buffer.
 Return Value:
-
     The status returned is the final completion status of the operation.
-
 --*/
-
 {
     PAGED_CODE();
 
-
     // Simply invoke the common routine to perform the query operation.
-
-
-    return IopQueryXxxInformation( FileObject,
-                                   FileInformationClass,
-                                   Length,
-                                   FileInformation,
-                                   ReturnedLength,
-                                   TRUE );
+    return IopQueryXxxInformation( FileObject, FileInformationClass, Length, FileInformation, ReturnedLength, TRUE );
 }
+
 
 NTSTATUS
 IoQueryVolumeInformation(
@@ -7321,151 +5309,80 @@ IoQueryVolumeInformation(
     OUT PVOID FsInformation,
     OUT PULONG ReturnedLength
     )
-
 /*++
-
 Routine Description:
-
     This routine returns the requested information about a specified volume.
     The information returned is determined by the FsInformationClass that
     is specified, and it is placed into the caller's FsInformation buffer.
-
 Arguments:
-
-    FileObject - Supplies a pointer to the file object about which the requested
-        information is returned.
-
-    FsInformationClass - Specifies the type of information which should be
-        returned about the volume.
-
+    FileObject - Supplies a pointer to the file object about which the requested information is returned.
+    FsInformationClass - Specifies the type of information which should be returned about the volume.
     Length - Supplies the length of the FsInformation buffer in bytes.
-
     FsInformation - Supplies a buffer to receive the requested information
-        returned about the file.  This buffer must not be pageable and must
-        reside in system space.
-
-    ReturnedLength - Supplies a variable that is to receive the length of the
-        information written to the FsInformation buffer.
-
+        returned about the file.  This buffer must not be pageable and must reside in system space.
+    ReturnedLength - Supplies a variable that is to receive the length of the information written to the FsInformation buffer.
 Return Value:
-
     The status returned is the final completion status of the operation.
-
 --*/
-
 {
     PAGED_CODE();
 
-
     // Simply invoke the common routine to perform the query operation.
-
-
-    return IopQueryXxxInformation( FileObject,
-                                   FsInformationClass,
-                                   Length,
-                                   FsInformation,
-                                   ReturnedLength,
-                                   FALSE );
+    return IopQueryXxxInformation( FileObject, FsInformationClass, Length, FsInformation, ReturnedLength, FALSE );
 }
 
-VOID
-IoQueueThreadIrp(
-    IN PIRP Irp
-    )
 
+VOID IoQueueThreadIrp(IN PIRP Irp)
 /*++
-
 Routine Description:
-
     This routine queues the specified I/O Request Packet (IRP) to the current
-    thread's IRP pending queue.  This queue locates all of the outstanding
-    I/O requests for the thread.
-
+    thread's IRP pending queue.  This queue locates all of the outstanding I/O requests for the thread.
 Arguments:
-
     Irp - Pointer to the I/O Request Packet (IRP) to be queued.
-
 Return Value:
-
     None.
-
 --*/
-
 {
-
     // Simply queue the packet using the internal queueing routine.
-
-
     IopQueueThreadIrp( Irp );
 }
 
-VOID
-IoRaiseHardError(
-    IN PIRP Irp,
-    IN PVPB Vpb OPTIONAL,
-    IN PDEVICE_OBJECT RealDeviceObject
-    )
 
+VOID IoRaiseHardError(IN PIRP Irp, IN PVPB Vpb OPTIONAL, IN PDEVICE_OBJECT RealDeviceObject)
 /*++
-
 Routine Description:
-
     This routine pops up a hard error in the context of the thread that
     originally requested the I/O operation specified by the input IRP.  This
     is done by queueing a kernel APC to the original thread, passing it a
     pointer to the device objects and the IRP.  Once the pop up is performed,
-    the routine either completes the I/O request then, or it calls the driver
-    back with the same IRP.
+    the routine either completes the I/O request then, or it calls the driver back with the same IRP.
 
     If the original request was an IoPageRead, then it was at APC level and
     we have to create a thread to "hold" this pop-up.  Note that we have to
-    queue to an ExWorker thread to create the thread since this can only be
-    done from the system process.
-
+    queue to an ExWorker thread to create the thread since this can only be done from the system process.
 Arguments:
-
-    Irp - A pointer to the I/O Request Packet (IRP) for the request that
-        failed.
-
-    Vpb - This is the volume parameter block of the offending media.  If the
-        media not yet mounted, this parameter should be absent.
-
+    Irp - A pointer to the I/O Request Packet (IRP) for the request that failed.
+    Vpb - This is the volume parameter block of the offending media.  If the media not yet mounted, this parameter should be absent.
     RealDeviceObject - A pointer to the device object that represents the
         device that the file system believes it has mounted.  This is
-        generally the "real" device object in the VPB, but may, in fact,
-        be a device object attached to the physical device.
-
+        generally the "real" device object in the VPB, but may, in fact, be a device object attached to the physical device.
 Return Value:
-
     None.
-
 --*/
-
 {
     PIO_STACK_LOCATION IrpSp;
 
-
-    // If pop-ups are disabled for the requesting thread, just complete the
-    // request.
-
-
+    // If pop-ups are disabled for the requesting thread, just complete the request.
     if (Irp->Tail.Overlay.Thread->HardErrorsAreDisabled) {
-
-
         // An error was incurred, so zero out the information field before
-        // completing the request if this was an input operation.  Otherwise,
-        // IopCompleteRequest will try to copy to the user's buffer.
-
-
+        // completing the request if this was an input operation.  Otherwise, IopCompleteRequest will try to copy to the user's buffer.
         if (Irp->Flags & IRP_INPUT_OPERATION) {
             Irp->IoStatus.Information = 0;
         }
 
         IoCompleteRequest( Irp, IO_DISK_INCREMENT );
-
         return;
     }
-
 
     //  If this Irp resulted from a call to IoPageRead(), the caller must
     //  have been at APC level, so don't try enqueing an APC.
@@ -7473,23 +5390,12 @@ Return Value:
     //  Also if this is a cleanup Irp, force this pop-up to go to the new
     //  thread so that it cannot be disabled.
 
-
     IrpSp = IoGetCurrentIrpStackLocation(Irp);
-
-    if ((Irp->Flags == (IRP_PAGING_IO |
-                        IRP_NOCACHE |
-                        IRP_SYNCHRONOUS_PAGING_IO |
-                        IRP_INPUT_OPERATION)) ||
-        (IrpSp->MajorFunction == IRP_MJ_CLEANUP)) {
-
+    if ((Irp->Flags == (IRP_PAGING_IO | IRP_NOCACHE | IRP_SYNCHRONOUS_PAGING_IO | IRP_INPUT_OPERATION)) || (IrpSp->MajorFunction == IRP_MJ_CLEANUP)) {
         PIOP_APC_HARD_ERROR_PACKET packet;
 
-        packet = ExAllocatePoolWithTag( NonPagedPool,
-                                        sizeof( IOP_APC_HARD_ERROR_PACKET ),
-                                        'rEoI' );
-
+        packet = ExAllocatePoolWithTag( NonPagedPool, sizeof( IOP_APC_HARD_ERROR_PACKET ), 'rEoI' );
         if ( packet == NULL ) {
-
             IoCompleteRequest( Irp, IO_DISK_INCREMENT );
             return;
         }
@@ -7498,27 +5404,15 @@ Return Value:
         packet->Irp = Irp;
         packet->Vpb = Vpb;
         packet->RealDeviceObject = RealDeviceObject;
-
         ExQueueWorkItem( &packet->Item, CriticalWorkQueue );
-
     } else {
-
         PKAPC apc;
 
-
-        // Begin by allocating and initializing an APC that can be sent to the
-        // target thread.
-
-
+        // Begin by allocating and initializing an APC that can be sent to the target thread.
         apc = ExAllocatePoolWithTag( NonPagedPool, sizeof( KAPC ), 'CPAK' );
 
-
-        // If we could not get the pool, we have no choice but to just complete
-        // the Irp, thereby passing the error onto the caller.
-
-
+        // If we could not get the pool, we have no choice but to just complete the Irp, thereby passing the error onto the caller.
         if ( apc == NULL ) {
-
             IoCompleteRequest( Irp, IO_DISK_INCREMENT );
             return;
         }
@@ -7532,56 +5426,31 @@ Return Value:
                          KernelMode,
                          Irp );
 
-        (VOID) KeInsertQueueApc( apc,
-                                 Vpb,
-                                 RealDeviceObject,
-                                 0 );
+        (VOID) KeInsertQueueApc( apc, Vpb, RealDeviceObject, 0 );
     }
 }
 
-BOOLEAN
-IoRaiseInformationalHardError(
-    IN NTSTATUS ErrorStatus,
-    IN PUNICODE_STRING String OPTIONAL,
-    IN PKTHREAD Thread OPTIONAL
-    )
+
+BOOLEAN IoRaiseInformationalHardError(IN NTSTATUS ErrorStatus, IN PUNICODE_STRING String OPTIONAL, IN PKTHREAD Thread OPTIONAL)
 /*++
-
 Routine Description:
-
     This routine pops up a hard error in the hard error popup thread.  The
     routine returns immediately, enqueuing the actual pop-up to a worker
     thread.  The hard error that is raised is informational in the sense that
     only the OK button is displayed.
-
 Arguments:
-
     ErrorStatus - The error condition.
-
     String - Depending on the error, a string may have to be enqueued.
-
-    Thread - If present, enqueue an APC to this thread rather than using
-        the hard error thread.
-
+    Thread - If present, enqueue an APC to this thread rather than using the hard error thread.
 Return Value:
-
-    BOOLEAN - TRUE if we decided to dispatch a pop-up.  FALSE if we decided
-        not to because:
-
+    BOOLEAN - TRUE if we decided to dispatch a pop-up.  FALSE if we decided not to because:
         - pop-ups are disabled in the requested thread, or
-
         - a pool allocation failed, or
-
-        - an equivalent pop-up is currently pending a user response (i.e.
-          waiting for the user to press <OK>) or in the queue, or
-
+        - an equivalent pop-up is currently pending a user response (i.e. waiting for the user to press <OK>) or in the queue, or
         - too many pop-ups have already been queued.
-
 --*/
 
-
 //  This macro compares two pop-ups to see if they are content equivalent.
-
 
 #define ArePacketsEquivalent(P1,P2) (                              \
     (P1->ErrorStatus == P2->ErrorStatus) &&                        \
@@ -7599,37 +5468,20 @@ Return Value:
 
     PIOP_HARD_ERROR_PACKET hardErrorPacket;
 
-
     // If pop-ups are disabled for the requesting thread, just return.
-
-
-    if (ARGUMENT_PRESENT(Thread) ?
-        CONTAINING_RECORD(Thread, ETHREAD, Tcb)->HardErrorsAreDisabled :
-        PsGetCurrentThread()->HardErrorsAreDisabled) {
-
+    if (ARGUMENT_PRESENT(Thread) ? CONTAINING_RECORD(Thread, ETHREAD, Tcb)->HardErrorsAreDisabled : PsGetCurrentThread()->HardErrorsAreDisabled) {
         return FALSE;
     }
-
 
     // If this is one of those special error popup codes that CSRSS expects
     // to be called with a correct set of arguments, disallow from a driver
-
-    if ( ErrorStatus == STATUS_VDM_HARD_ERROR ||
-         ErrorStatus == STATUS_UNHANDLED_EXCEPTION ||
-         ErrorStatus == STATUS_SERVICE_NOTIFICATION ) {
+    if ( ErrorStatus == STATUS_VDM_HARD_ERROR || ErrorStatus == STATUS_UNHANDLED_EXCEPTION || ErrorStatus == STATUS_SERVICE_NOTIFICATION ) {
         return FALSE;
     }
 
-
     //  If this request is going to be sent to the hard error thread, and
-    //  there are more than 25 entries already in the queue, don't
-    //  add any more.  We'll do another safe check later on.
-
-
-    if ( !ARGUMENT_PRESENT( Thread ) &&
-         (KeReadStateSemaphore( &IopHardError.WorkQueueSemaphore ) >=
-          IOP_MAXIMUM_OUTSTANDING_HARD_ERRORS) ) {
-
+    //  there are more than 25 entries already in the queue, don't add any more.  We'll do another safe check later on.
+    if ( !ARGUMENT_PRESENT( Thread ) && (KeReadStateSemaphore( &IopHardError.WorkQueueSemaphore ) >= IOP_MAXIMUM_OUTSTANDING_HARD_ERRORS) ) {
         return FALSE;
     } else {
         if (IopHardError.NumPendingApcPopups > IOP_MAXIMUM_OUTSTANDING_HARD_ERRORS) {
@@ -7637,34 +5489,17 @@ Return Value:
         }
     }
 
-
     //  Allocate the packet, and a buffer for the string if present.
-
-
-    hardErrorPacket = ExAllocatePoolWithTag( NonPagedPool,
-                                             sizeof(IOP_HARD_ERROR_PACKET),
-                                             'rEoI');
-
+    hardErrorPacket = ExAllocatePoolWithTag( NonPagedPool, sizeof(IOP_HARD_ERROR_PACKET), 'rEoI');
     if (!hardErrorPacket) { return FALSE; }
 
-
     //  Zero out the packet and fill the NT_STATUS we will pop up.
-
-
     RtlZeroMemory( hardErrorPacket, sizeof(IOP_HARD_ERROR_PACKET) );
-
     hardErrorPacket->ErrorStatus = ErrorStatus;
 
-
     //  If there is a string, copy it.
-
-
     if ( ARGUMENT_PRESENT( String ) && String->Length ) {
-
-        stringBuffer = ExAllocatePoolWithTag( NonPagedPool,
-                                              String->Length,
-                                              'rEoI' );
-
+        stringBuffer = ExAllocatePoolWithTag( NonPagedPool, String->Length, 'rEoI' );
         if (!stringBuffer) {
             ExFreePool( hardErrorPacket );
             return FALSE;
@@ -7672,41 +5507,25 @@ Return Value:
 
         hardErrorPacket->String.Length = String->Length;
         hardErrorPacket->String.MaximumLength = String->Length;
-
         hardErrorPacket->String.Buffer = stringBuffer;
-
         RtlCopyMemory( stringBuffer, String->Buffer, String->Length );
     }
 
-
     //  If there is an Thread, enqueue an APC for ourself, otherwise send
     //  it off to the to the hard error thread.
-
-
     if ( ARGUMENT_PRESENT( Thread ) ) {
-
         PKAPC apc;
 
-
-        // Begin by allocating and initializing an APC that can be sent to the
-        // target thread.
-
-
+        // Begin by allocating and initializing an APC that can be sent to the target thread.
         apc = ExAllocatePoolWithTag( NonPagedPool, sizeof( KAPC ), 'CPAK' );
 
-
-        // If we could not get the pool, we have no choice but to just
-        // free the packet and return.
-
-
+        // If we could not get the pool, we have no choice but to just free the packet and return.
         if ( apc == NULL ) {
-
             if ( hardErrorPacket->String.Buffer ) {
                 ExFreePool( hardErrorPacket->String.Buffer );
             }
 
             ExFreePool( hardErrorPacket );
-
             return FALSE;
         }
 
@@ -7719,24 +5538,13 @@ Return Value:
                          IopRaiseInformationalHardError,
                          KernelMode,
                          hardErrorPacket );
-
         (VOID) KeInsertQueueApc( apc, NULL, NULL, 0 );
-
     } else {
-
-
         //  Get exclusive access to the work queue.
-
-
         ExAcquireSpinLock( &IopHardError.WorkQueueSpinLock, &oldIrql );
 
-
         //  Check the Signal state again, if OK, go ahead and enqueue.
-
-
-        if ( KeReadStateSemaphore( &IopHardError.WorkQueueSemaphore ) >=
-             IOP_MAXIMUM_OUTSTANDING_HARD_ERRORS ) {
-
+        if ( KeReadStateSemaphore( &IopHardError.WorkQueueSemaphore ) >= IOP_MAXIMUM_OUTSTANDING_HARD_ERRORS ) {
             ExReleaseSpinLock( &IopHardError.WorkQueueSpinLock, oldIrql );
 
             if ( hardErrorPacket->String.Buffer ) {
@@ -7745,14 +5553,9 @@ Return Value:
             ExFreePool( hardErrorPacket );
             return FALSE;
         }
-
 
         //  If there is a pop-up currently up, check for a match
-
-
-        if (IopCurrentHardError &&
-            ArePacketsEquivalent( hardErrorPacket, IopCurrentHardError )) {
-
+        if (IopCurrentHardError && ArePacketsEquivalent( hardErrorPacket, IopCurrentHardError )) {
             ExReleaseSpinLock( &IopHardError.WorkQueueSpinLock, oldIrql );
 
             if ( hardErrorPacket->String.Buffer ) {
@@ -7762,23 +5565,13 @@ Return Value:
             return FALSE;
         }
 
-
         //  Run down the list of queued pop-ups looking for a match.
-
-
         links = IopHardError.WorkQueue.Flink;
-
         while (links != &IopHardError.WorkQueue) {
-
             PIOP_HARD_ERROR_PACKET queueHardErrorPacket;
 
-            queueHardErrorPacket = CONTAINING_RECORD( links,
-                                                      IOP_HARD_ERROR_PACKET,
-                                                      WorkQueueLinks );
-
-            if (ArePacketsEquivalent( hardErrorPacket,
-                                      queueHardErrorPacket )) {
-
+            queueHardErrorPacket = CONTAINING_RECORD( links, IOP_HARD_ERROR_PACKET, WorkQueueLinks );
+            if (ArePacketsEquivalent( hardErrorPacket, queueHardErrorPacket )) {
                 ExReleaseSpinLock( &IopHardError.WorkQueueSpinLock, oldIrql );
 
                 if ( hardErrorPacket->String.Buffer ) {
@@ -7791,93 +5584,52 @@ Return Value:
             links = links->Flink;
         }
 
-
         //  Enqueue this packet.
+        InsertTailList( &IopHardError.WorkQueue, &hardErrorPacket->WorkQueueLinks );
 
+        //  Bump the count on the semaphore so that the hard error thread will know that an entry has been placed in the queue.
+        (VOID) KeReleaseSemaphore( &IopHardError.WorkQueueSemaphore, 0, 1L, FALSE );
 
-        InsertTailList( &IopHardError.WorkQueue,
-                        &hardErrorPacket->WorkQueueLinks );
-
-
-        //  Bump the count on the semaphore so that the hard error thread
-        //  will know that an entry has been placed in the queue.
-
-
-        (VOID) KeReleaseSemaphore( &IopHardError.WorkQueueSemaphore,
-                                   0,
-                                   1L,
-                                   FALSE );
-
-
-        //  If we are not currently running in an ExWorkerThread, queue
-        //  a work item.
-
-
+        //  If we are not currently running in an ExWorkerThread, queue a work item.
         if ( !IopHardError.ThreadStarted ) {
             IopHardError.ThreadStarted = TRUE;
             ExQueueWorkItem( &IopHardError.ExWorkItem, DelayedWorkQueue );
         }
 
-
         //  Finally, release the spinlockevent, allowing access to the work queue again.
         //  The combination of releasing both the event and the semaphore will
         //  enable the thread to wake up and obtain the entry.
-
-
         ExReleaseSpinLock( &IopHardError.WorkQueueSpinLock, oldIrql );
     }
 
     return TRUE;
 }
 
-VOID
-IoRegisterBootDriverReinitialization(
-    IN PDRIVER_OBJECT DriverObject,
-    IN PDRIVER_REINITIALIZE DriverReinitializationRoutine,
-    IN PVOID Context
-    )
 
+VOID IoRegisterBootDriverReinitialization(IN PDRIVER_OBJECT DriverObject, IN PDRIVER_REINITIALIZE DriverReinitializationRoutine, IN PVOID Context)
 /*++
-
 Routine Description:
-
     This routine is invoked by boot drivers during their initialization or
     during their reinitialization to register with the I/O system to be
     called again once all devices have been enumerated and started.
     Note that it  is possible for this to occur during a normally running
     system, if the  driver is loaded dynamically, so all references to the
     reinitialization queue must be synchronized.
-
 Arguments:
-
     DriverObject - Pointer to the driver's driver object.
-
-    DriverReinitializationRoutine - The address of the reinitialization
-        routine that is to be invoked.
-
-    Context - Pointer to the context that is passed to the driver's
-        reinitialization routine.
-
+    DriverReinitializationRoutine - The address of the reinitialization routine that is to be invoked.
+    Context - Pointer to the context that is passed to the driver's reinitialization routine.
 Return Value:
-
     None.
-
 --*/
-
 {
     PREINIT_PACKET reinitEntry;
 
     PAGED_CODE();
 
-
     // Allocate a reinitialization entry to be inserted onto the list.  Note
-    // that if the entry cannot be allocated, then the request is simply
-    // dropped on the floor.
-
-
-    reinitEntry = ExAllocatePoolWithTag( NonPagedPool,
-                                         sizeof( REINIT_PACKET ),
-                                         'iRoI' );
+    // that if the entry cannot be allocated, then the request is simply dropped on the floor.
+    reinitEntry = ExAllocatePoolWithTag( NonPagedPool, sizeof( REINIT_PACKET ), 'iRoI' );
     if (!reinitEntry) {
         return;
     }
@@ -7887,59 +5639,33 @@ Return Value:
     reinitEntry->DriverReinitializationRoutine = DriverReinitializationRoutine;
     reinitEntry->Context = Context;
 
-    ExInterlockedInsertTailList( &IopBootDriverReinitializeQueueHead,
-                                 &reinitEntry->ListEntry,
-                                 &IopDatabaseLock );
+    ExInterlockedInsertTailList( &IopBootDriverReinitializeQueueHead, &reinitEntry->ListEntry, &IopDatabaseLock );
 }
 
-VOID
-IoRegisterDriverReinitialization(
-    IN PDRIVER_OBJECT DriverObject,
-    IN PDRIVER_REINITIALIZE DriverReinitializationRoutine,
-    IN PVOID Context
-    )
 
+VOID IoRegisterDriverReinitialization(IN PDRIVER_OBJECT DriverObject, IN PDRIVER_REINITIALIZE DriverReinitializationRoutine, IN PVOID Context)
 /*++
-
 Routine Description:
-
     This routine is invoked by drivers during their initialization or during
     their reinitialization to register with the I/O system to be called again
     before I/O system initialization is complete.  Note that it is possible
     for this to occur during a normally running system, if the driver is
-    loaded dynamically, so all references to the reinitialization queue must
-    be synchronized.
-
+    loaded dynamically, so all references to the reinitialization queue must be synchronized.
 Arguments:
-
     DriverObject - Pointer to the driver's driver object.
-
-    DriverReinitializationRoutine - The address of the reinitialization
-        routine that is to be invoked.
-
-    Context - Pointer to the context that is passed to the driver's
-        reinitialization routine.
-
+    DriverReinitializationRoutine - The address of the reinitialization routine that is to be invoked.
+    Context - Pointer to the context that is passed to the driver's reinitialization routine.
 Return Value:
-
     None.
-
 --*/
-
 {
     PREINIT_PACKET reinitEntry;
 
     PAGED_CODE();
 
-
     // Allocate a reinitialization entry to be inserted onto the list.  Note
-    // that if the entry cannot be allocated, then the request is simply
-    // dropped on the floor.
-
-
-    reinitEntry = ExAllocatePoolWithTag( NonPagedPool,
-                                         sizeof( REINIT_PACKET ),
-                                         'iRoI' );
+    // that if the entry cannot be allocated, then the request is simply dropped on the floor.
+    reinitEntry = ExAllocatePoolWithTag( NonPagedPool, sizeof( REINIT_PACKET ), 'iRoI' );
     if (!reinitEntry) {
         return;
     }
@@ -7949,34 +5675,19 @@ Return Value:
     reinitEntry->DriverReinitializationRoutine = DriverReinitializationRoutine;
     reinitEntry->Context = Context;
 
-    ExInterlockedInsertTailList( &IopDriverReinitializeQueueHead,
-                                 &reinitEntry->ListEntry,
-                                 &IopDatabaseLock );
+    ExInterlockedInsertTailList( &IopDriverReinitializeQueueHead, &reinitEntry->ListEntry, &IopDatabaseLock );
 }
 
-VOID
-IoRegisterFileSystem(
-    IN OUT PDEVICE_OBJECT DeviceObject
-    )
 
+VOID IoRegisterFileSystem(IN OUT PDEVICE_OBJECT DeviceObject)
 /*++
-
 Routine Description:
-
-    This routine inserts the device object for the file system which the device
-    object represents into the list of file systems in the system.
-
+    This routine inserts the device object for the file system which the device object represents into the list of file systems in the system.
 Arguments:
-
     DeviceObject - Pointer to device object for the file system.
-
 Return Value:
-
     None.
-
-
 --*/
-
 {
     PNOTIFICATION_PACKET nPacket;
     PLIST_ENTRY listHead = NULL;
@@ -7984,18 +5695,11 @@ Return Value:
 
     PAGED_CODE();
 
-
     // Allocate the I/O database resource for a write operation.
-
-
     (VOID) ExAcquireResourceExclusive( &IopDatabaseResource, TRUE );
 
-
     // Insert the device object into the appropriate file system queue based on
-    // the driver type in the device object.  Notice that if the device type is
-    // unrecognized, the file system is simply not registered.
-
-
+    // the driver type in the device object.  Notice that if the device type is unrecognized, the file system is simply not registered.
     if (DeviceObject->DeviceType == FILE_DEVICE_NETWORK_FILE_SYSTEM) {
         listHead = &IopNetworkFileSystemQueueHead;
     } else if (DeviceObject->DeviceType == FILE_DEVICE_CD_ROM_FILE_SYSTEM) {
@@ -8006,32 +5710,21 @@ Return Value:
         listHead = &IopTapeFileSystemQueueHead;
     }
 
-
     //  Low priority filesystems are inserted one-from-back on the queue (ahead of
     //  raw, behind everything else), as opposed to on the front.
-
-
     if (listHead != NULL) {
         if (DeviceObject->Flags & DO_LOW_PRIORITY_FILESYSTEM ) {
-            InsertTailList( listHead->Blink,
-                            &DeviceObject->Queue.ListEntry );
+            InsertTailList( listHead->Blink, &DeviceObject->Queue.ListEntry );
         } else {
-            InsertHeadList( listHead,
-                            &DeviceObject->Queue.ListEntry );
+            InsertHeadList( listHead, &DeviceObject->Queue.ListEntry );
         }
     }
 
-
     // Ensure that this file system's device is operable.
-
-
     DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
-
 
     // Notify all of the registered drivers that this file system has been
     // registered as an active file system of some type.
-
-
     entry = IopFsNotifyChangeQueueHead.Flink;
     while (entry != &IopFsNotifyChangeQueueHead) {
         nPacket = CONTAINING_RECORD( entry, NOTIFICATION_PACKET, ListEntry );
@@ -8039,68 +5732,37 @@ Return Value:
         nPacket->NotificationRoutine( DeviceObject, TRUE );
     }
 
-
     // Release the I/O database resource.
-
-
     ExReleaseResource( &IopDatabaseResource );
 
-
     // Increment the number of reasons that this driver cannot be unloaded.
-
-
     ExInterlockedAddUlong( &DeviceObject->ReferenceCount, 1, &IopDatabaseLock );
 }
 
-NTSTATUS
-IoRegisterFsRegistrationChange(
-    IN PDRIVER_OBJECT DriverObject,
-    IN PDRIVER_FS_NOTIFICATION DriverNotificationRoutine
-    )
 
+NTSTATUS IoRegisterFsRegistrationChange(IN PDRIVER_OBJECT DriverObject, IN PDRIVER_FS_NOTIFICATION DriverNotificationRoutine)
 /*++
-
 Routine Description:
-
     This routine registers the specified driver's notification routine to be
-    invoked whenever a file system registers or unregisters itself as an active
-    file system in the system.
-
+    invoked whenever a file system registers or unregisters itself as an active file system in the system.
 Arguments:
-
     DriverObject - Pointer to the driver object for the driver.
-
-    DriverNotificationRoutine - Address of routine to invoke when a file system
-        registers or unregisters itself.
-
+    DriverNotificationRoutine - Address of routine to invoke when a file system registers or unregisters itself.
 Return Value:
-
     The return status is the final value of the function.
-
 --*/
-
 {
     PNOTIFICATION_PACKET nPacket;
 
     PAGED_CODE();
 
-
-    // Begin by attempting to allocate storage for the shutdown packet.  If
-    // one cannot be allocated, simply return an appropriate error.
-
-
-    nPacket = ExAllocatePoolWithTag( PagedPool,
-                                     sizeof( NOTIFICATION_PACKET ),
-                                     'sFoI' );
+    // Begin by attempting to allocate storage for the shutdown packet.  If one cannot be allocated, simply return an appropriate error.
+    nPacket = ExAllocatePoolWithTag( PagedPool, sizeof( NOTIFICATION_PACKET ), 'sFoI' );
     if (!nPacket) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
-
-    // Initialize the notification packet and insert it onto the tail of the
-    // list.
-
-
+    // Initialize the notification packet and insert it onto the tail of the list.
     nPacket->DriverObject = DriverObject;
     nPacket->NotificationRoutine = DriverNotificationRoutine;
 
@@ -8108,254 +5770,136 @@ Return Value:
     InsertTailList( &IopFsNotifyChangeQueueHead, &nPacket->ListEntry );
     ExReleaseResource( &IopDatabaseResource );
 
-
     // Increment the number of reasons that this driver cannot be unloaded.
-
-
     ObReferenceObject( DriverObject );
 
     return STATUS_SUCCESS;
 }
 
-NTSTATUS
-IoRegisterLastChanceShutdownNotification(
-    IN PDEVICE_OBJECT DeviceObject
-    )
 
+NTSTATUS IoRegisterLastChanceShutdownNotification(IN PDEVICE_OBJECT DeviceObject)
 /*++
-
 Routine Description:
-
     This routine allows a driver to register that it would like to have its
     shutdown routine invoked at very late in system shutdown.  This gives
-    the driver an opportunity to get control just before the system is fully
-    shutdown.
-
+    the driver an opportunity to get control just before the system is fully shutdown.
 Arguments:
-
     DeviceObject - Pointer to the driver's device object.
-
 Return Value:
-
     None.
-
 --*/
-
 {
     PSHUTDOWN_PACKET shutdown;
 
     PAGED_CODE();
 
-
-    // Begin by attempting to allocate storage for the shutdown packet.  If
-    // one cannot be allocated, simply return an appropriate error.
-
-
-    shutdown = ExAllocatePoolWithTag( NonPagedPool,
-                                      sizeof( SHUTDOWN_PACKET ),
-                                      'hSoI' );
+    // Begin by attempting to allocate storage for the shutdown packet.  If one cannot be allocated, simply return an appropriate error.
+    shutdown = ExAllocatePoolWithTag( NonPagedPool, sizeof( SHUTDOWN_PACKET ), 'hSoI' );
     if (!shutdown) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
-
     // Initialize the shutdown packet and insert it onto the head of the list.
-    // Note that this is done because some drivers have dependencies on LIFO
-    // notification ordering.
-
-
+    // Note that this is done because some drivers have dependencies on LIFO notification ordering.
     shutdown->DeviceObject = DeviceObject;
+    ExInterlockedInsertHeadList( &IopNotifyLastChanceShutdownQueueHead, &shutdown->ListEntry, &IopDatabaseLock );
 
-    ExInterlockedInsertHeadList( &IopNotifyLastChanceShutdownQueueHead,
-                                 &shutdown->ListEntry,
-                                 &IopDatabaseLock );
-
-
-    // Do the bookkeeping to indicate that this driver has successfully
-    // registered a shutdown notification routine.
-
-
+    // Do the bookkeeping to indicate that this driver has successfully registered a shutdown notification routine.
     DeviceObject->Flags |= DO_SHUTDOWN_REGISTERED;
 
     return STATUS_SUCCESS;
 }
 
-NTSTATUS
-IoRegisterShutdownNotification(
-    IN PDEVICE_OBJECT DeviceObject
-    )
 
+NTSTATUS IoRegisterShutdownNotification(IN PDEVICE_OBJECT DeviceObject)
 /*++
-
 Routine Description:
-
     This routine allows a driver to register that it would like to have its
     shutdown routine invoked when the system is being shutdown.  This gives
-    the driver an opportunity to get control just before the system is fully
-    shutdown.
-
+    the driver an opportunity to get control just before the system is fully shutdown.
 Arguments:
-
     DeviceObject - Pointer to the driver's device object.
-
 Return Value:
-
     None.
-
 --*/
-
 {
     PSHUTDOWN_PACKET shutdown;
 
     PAGED_CODE();
 
-
-    // Begin by attempting to allocate storage for the shutdown packet.  If
-    // one cannot be allocated, simply return an appropriate error.
-
-
-    shutdown = ExAllocatePoolWithTag( NonPagedPool,
-                                      sizeof( SHUTDOWN_PACKET ),
-                                      'hSoI' );
+    // Begin by attempting to allocate storage for the shutdown packet.  If one cannot be allocated, simply return an appropriate error.
+    shutdown = ExAllocatePoolWithTag( NonPagedPool, sizeof( SHUTDOWN_PACKET ), 'hSoI' );
     if (!shutdown) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
-
     // Initialize the shutdown packet and insert it onto the head of the list.
-    // Note that this is done because some drivers have dependencies on LIFO
-    // notification ordering.
-
-
+    // Note that this is done because some drivers have dependencies on LIFO notification ordering.
     shutdown->DeviceObject = DeviceObject;
+    ExInterlockedInsertHeadList( &IopNotifyShutdownQueueHead, &shutdown->ListEntry, &IopDatabaseLock );
 
-    ExInterlockedInsertHeadList( &IopNotifyShutdownQueueHead,
-                                 &shutdown->ListEntry,
-                                 &IopDatabaseLock );
-
-
-    // Do the bookkeeping to indicate that this driver has successfully
-    // registered a shutdown notification routine.
-
-
+    // Do the bookkeeping to indicate that this driver has successfully registered a shutdown notification routine.
     DeviceObject->Flags |= DO_SHUTDOWN_REGISTERED;
 
     return STATUS_SUCCESS;
 }
 
-VOID
-IoReleaseCancelSpinLock(
-    IN KIRQL Irql
-    )
 
+VOID IoReleaseCancelSpinLock(IN KIRQL Irql)
 /*++
-
 Routine Description:
-
     This routine is invoked to release the cancel spin lock.  This spin lock
-    must be acquired before setting the address of a cancel routine in an
-    IRP and released after the cancel routine has been set.
-
+    must be acquired before setting the address of a cancel routine in an IRP and released after the cancel routine has been set.
 Arguments:
-
     Irql - Supplies the IRQL value returned from acquiring the spin lock.
-
 Return Value:
-
     None.
-
 --*/
-
 {
-
     // Simply release the cancel spin lock.
-
-
     ExReleaseSpinLock( &IopCancelSpinLock, Irql );
 }
 
-VOID
-IoReleaseVpbSpinLock(
-    IN KIRQL Irql
-    )
 
+VOID IoReleaseVpbSpinLock(IN KIRQL Irql)
 /*++
-
 Routine Description:
-
     This routine is invoked to release the Volume Parameter Block (VPB) spin
-    lock.  This spin lock must be acquired before accessing the mount flag,
-    reference count, and device object fields of a VPB.
-
+    lock.  This spin lock must be acquired before accessing the mount flag, reference count, and device object fields of a VPB.
 Arguments:
-
     Irql - Supplies the IRQL value returned from acquiring the spin lock.
-
 Return Value:
-
     None.
-
 --*/
-
 {
-
     // Simply release the VPB spin lock.
-
-
     ExReleaseSpinLock( &IopVpbSpinLock, Irql );
 }
 
-VOID
-IoRemoveShareAccess(
-    IN PFILE_OBJECT FileObject,
-    IN OUT PSHARE_ACCESS ShareAccess
-    )
 
+VOID IoRemoveShareAccess(IN PFILE_OBJECT FileObject, IN OUT PSHARE_ACCESS ShareAccess)
 /*++
-
 Routine Description:
-
-    This routine is invoked to remove the access and share access information
-    in a file system Share Access structure for a given open instance.
-
+    This routine is invoked to remove the access and share access information in a file system Share Access structure for a given open instance.
 Arguments:
-
     FileObject - Pointer to the file object of the current access being closed.
-
-    ShareAccess - Pointer to the share access structure that describes
-         how the file is currently being accessed.
-
+    ShareAccess - Pointer to the share access structure that describes how the file is currently being accessed.
 Return Value:
-
     None.
-
 --*/
-
 {
     PAGED_CODE();
-
 
     // If this accessor wanted some type of access other than READ_ or
     // WRITE_ATTRIBUTES, then account for the fact that he has closed the
     // file.  Otherwise, he hasn't been accounted for in the first place
     // so don't do anything.
 
-
-    if (FileObject->ReadAccess ||
-        FileObject->WriteAccess ||
-        FileObject->DeleteAccess) {
-
-
+    if (FileObject->ReadAccess || FileObject->WriteAccess || FileObject->DeleteAccess) {
         // Decrement the number of opens in the Share Access structure.
-
-
         ShareAccess->OpenCount--;
 
-
-        // For each access type, decrement the appropriate count in the Share
-        // Access structure.
-
-
+        // For each access type, decrement the appropriate count in the Share Access structure.
         if (FileObject->ReadAccess) {
             ShareAccess->Readers--;
         }
@@ -8368,11 +5912,7 @@ Return Value:
             ShareAccess->Deleters--;
         }
 
-
-        // For each shared access type, decrement the appropriate count in the
-        // Share Access structure.
-
-
+        // For each shared access type, decrement the appropriate count in the Share Access structure.
         if (FileObject->SharedRead) {
             ShareAccess->SharedRead--;
         }
@@ -8387,83 +5927,49 @@ Return Value:
     }
 }
 
-VOID
-IoSetDeviceToVerify(
-    IN PETHREAD Thread,
-    IN PDEVICE_OBJECT DeviceObject
-    )
 
+VOID IoSetDeviceToVerify(IN PETHREAD Thread, IN PDEVICE_OBJECT DeviceObject)
 /*++
-
 Routine Description:
-
     This routine sets the device to verify field in the thread object.  This
-    function is invoked by file systems to NULL this field, or to set it to
-    predefined values.
-
+    function is invoked by file systems to NULL this field, or to set it to predefined values.
 Arguments:
-
     Thread - Pointer to the thread whose field is to be set.
-
     DeviceObject - Pointer to the device to be verified, or NULL, or ...
-
 Return Value:
-
     None.
-
 Note:
-
     This function cannot be made a macro, since fields in the thread object
     move from release to release, so this must remain a full function.
-
 --*/
-
 {
-
     // Simply set the device to be verified in the specified thread.
-
-
     Thread->DeviceToVerify = DeviceObject;
 }
 
-VOID
-IoSetHardErrorOrVerifyDevice(
-    IN PIRP Irp,
-    IN PDEVICE_OBJECT DeviceObject
-    )
 
+VOID IoSetHardErrorOrVerifyDevice(IN PIRP Irp, IN PDEVICE_OBJECT DeviceObject)
 /*++
-
 Routine Description:
-
     This routine is invoked when a driver realizes that the media
     has possibly changed on a device, and it must be verified before
     continuing, or a hard error has occured.  The device is stored
     in the thread local storage of the Irp's originating thread.
-
 Arguments:
-
     Irp - Pointer to an I/O Request Packet to get the thread.
-
     DeviceObject - This is the device that needs to be verified.
-
 Return Value:
-
     None.
-
 --*/
-
 {
-
     // Store the address of the device object that needs verification in
-    // the appropriate field of the thread pointed to by the specified I/O
-    // Request Packet.
-
+    // the appropriate field of the thread pointed to by the specified I/O Request Packet.
 
     ASSERT( Irp->Tail.Overlay.Thread != NULL );
 
     Irp->Tail.Overlay.Thread->DeviceToVerify = DeviceObject;
 }
+
 
 NTSTATUS
 IoSetInformation(
@@ -8472,36 +5978,19 @@ IoSetInformation(
     IN ULONG Length,
     IN PVOID FileInformation
     )
-
 /*++
-
 Routine Description:
-
     This routine sets the requested information for the specified file.
     The information that is set is determined by the FileInformationClass
-    paramter, and the information itself is passed in the FileInformation
-    buffer.
-
+    paramter, and the information itself is passed in the FileInformation buffer.
 Arguments:
-
-    FileObject - Supplies a pointer to the file object for the file that
-        is to be changed.
-
-    FileInformationClass - Specifies the type of information that should
-        be set on the file.
-
+    FileObject - Supplies a pointer to the file object for the file that is to be changed.
+    FileInformationClass - Specifies the type of information that should be set on the file.
     Length - Supplies the length of the FileInformation buffer in bytes.
-
-    FileInformation - A buffer containing the file information to set.  This
-        buffer must not be pageable and must reside in system space.
-
+    FileInformation - A buffer containing the file information to set.  This buffer must not be pageable and must reside in system space.
 Return Value:
-
     The status returned is the final completion status of the operation.
-
-
 --*/
-
 {
     PIRP irp;
     NTSTATUS status;
@@ -8514,23 +6003,14 @@ Return Value:
 
     PAGED_CODE();
 
-
     // Reference the file object here so that no special checks need be made
-    // in I/O completion to determine whether or not to dereference the file
-    // object.
-
-
+    // in I/O completion to determine whether or not to dereference the file object.
     ObReferenceObject( FileObject );
-
 
     // Make a special check here to determine whether this is a synchronous
     // I/O operation.  If it is, then wait here until the file is owned by
-    // the current thread.  If this is not a (serialized) synchronous I/O
-    // operation, then initialize the local event.
-
-
+    // the current thread.  If this is not a (serialized) synchronous I/O operation, then initialize the local event.
     if (FileObject->Flags & FO_SYNCHRONOUS_IO) {
-
         BOOLEAN interrupted;
 
         if (!IopAcquireFastLock( FileObject )) {
@@ -8550,38 +6030,23 @@ Return Value:
         synchronousIo = FALSE;
     }
 
-
     // Get the address of the target device object.
-
-
     deviceObject = IoGetRelatedDeviceObject( FileObject );
-
 
     // Allocate and initialize the I/O Request Packet (IRP) for this operation.
     // The allocation is performed with an exception handler in case there is
     // not enough memory to satisfy the request.
-
-
     irp = IoAllocateIrp( deviceObject->StackSize, TRUE );
     if (!irp) {
-
-
-        // An IRP could not be allocated.  Cleanup and return an appropriate
-        // error status code.
-
-
+        // An IRP could not be allocated.  Cleanup and return an appropriate error status code.
         IopAllocateIrpCleanup( FileObject, (PKEVENT) NULL );
-
         return STATUS_INSUFFICIENT_RESOURCES;
     }
     irp->Tail.Overlay.OriginalFileObject = FileObject;
     irp->Tail.Overlay.Thread = PsGetCurrentThread();
     irp->RequestorMode = KernelMode;
 
-
     // Fill in the service independent parameters in the IRP.
-
-
     if (synchronousIo) {
         irp->UserEvent = (PKEVENT) NULL;
     } else {
@@ -8590,36 +6055,23 @@ Return Value:
     }
     irp->UserIosb = &localIoStatus;
 
-
     // Get a pointer to the stack location for the first driver.  This will be
     // used to pass the original function codes and parameters.
-
-
     irpSp = IoGetNextIrpStackLocation( irp );
     irpSp->MajorFunction = IRP_MJ_SET_INFORMATION;
     irpSp->FileObject = FileObject;
 
-
     // Set the system buffer address to the address of the caller's buffer and
     // set the flags so that the buffer is not deallocated.
-
-
     irp->AssociatedIrp.SystemBuffer = FileInformation;
     irp->Flags |= IRP_BUFFERED_IO;
 
-
     // Copy the caller's parameters to the service-specific portion of the IRP.
-
-
     irpSp->Parameters.SetFile.Length = Length;
     irpSp->Parameters.SetFile.FileInformationClass = FileInformationClass;
 
-
     // Insert the packet at the head of the IRP list for the thread.
-
-
     IopQueueThreadIrp( irp );
-
 
     // Everything is now set to invoke the device driver with this request.
     // However, it is possible that the information that the caller wants to
@@ -8627,16 +6079,10 @@ Return Value:
     // then the request can be satisfied here without having to have all of
     // the drivers implement the same code.  Note that having the IRP is still
     // necessary since the I/O completion code requires it.
-
-
     if (FileInformationClass == FileModeInformation) {
-
         PFILE_MODE_INFORMATION modeBuffer = FileInformation;
 
-
         // Set or clear the appropriate flags in the file object.
-
-
         if (!(FileObject->Flags & FO_NO_INTERMEDIATE_BUFFERING)) {
             if (modeBuffer->Mode & FILE_WRITE_THROUGH) {
                 FileObject->Flags |= FO_WRITE_THROUGH;
@@ -8661,105 +6107,53 @@ Return Value:
 
         status = STATUS_SUCCESS;
 
-
         // Complete the I/O operation.
-
-
         irp->IoStatus.Status = status;
         irp->IoStatus.Information = 0;
 
         IoSetNextIrpStackLocation( irp );
         IoCompleteRequest( irp, 0 );
-
-    } else if (FileInformationClass == FileRenameInformation ||
-               FileInformationClass == FileLinkInformation ||
-               FileInformationClass == FileMoveClusterInformation) {
-
-
-        // Note that the following code assumes that a rename information
-        // and a set link information structure look exactly the same.
-
-
+    } else if (FileInformationClass == FileRenameInformation || FileInformationClass == FileLinkInformation || FileInformationClass == FileMoveClusterInformation) {
+        // Note that the following code assumes that a rename information and a set link information structure look exactly the same.
         PFILE_RENAME_INFORMATION renameBuffer = FileInformation;
 
-
         // Copy the value of the replace BOOLEAN (or the ClusterCount field)
-        // from the caller's buffer to the I/O stack location parameter
-        // field where it is expected by file systems.
-
+        // from the caller's buffer to the I/O stack location parameter field where it is expected by file systems.
 
         if (FileInformationClass == FileMoveClusterInformation) {
-            irpSp->Parameters.SetFile.ClusterCount =
-                ((FILE_MOVE_CLUSTER_INFORMATION *) renameBuffer)->ClusterCount;
+            irpSp->Parameters.SetFile.ClusterCount = ((FILE_MOVE_CLUSTER_INFORMATION *) renameBuffer)->ClusterCount;
         } else {
             irpSp->Parameters.SetFile.ReplaceIfExists = renameBuffer->ReplaceIfExists;
         }
 
-
         // Check to see whether or not a fully qualified pathname was supplied.
         // If so, then more processing is required.
-
-
-        if (renameBuffer->FileName[0] == (UCHAR) OBJ_NAME_PATH_SEPARATOR ||
-            renameBuffer->RootDirectory != NULL) {
-
-
+        if (renameBuffer->FileName[0] == (UCHAR) OBJ_NAME_PATH_SEPARATOR || renameBuffer->RootDirectory != NULL) {
             // A fully qualified file name was specified as the target of the
             // rename operation.  Attempt to open the target file and ensure
-            // that the replacement policy for the file is consistent with the
-            // caller's request, and ensure that the file is on the same volume.
-
-
-            status = IopOpenLinkOrRenameTarget( &targetHandle,
-                                                irp,
-                                                renameBuffer,
-                                                FileObject );
+            // that the replacement policy for the file is consistent with the caller's request, and ensure that the file is on the same volume.
+            status = IopOpenLinkOrRenameTarget( &targetHandle, irp, renameBuffer, FileObject );
             if (!NT_SUCCESS( status )) {
                 IoSetNextIrpStackLocation( irp );
                 IoCompleteRequest( irp, 2 );
-
             } else {
-
-
                 // The fully qualified file name specifies a file on the same
-                // volume and if it exists, then the caller specified that it
-                // should be replaced.
-
-
+                // volume and if it exists, then the caller specified that it should be replaced.
                 status = IoCallDriver( deviceObject, irp );
-
             }
-
         } else {
-
-
             // This is a simple rename operation, so call the driver and let
-            // it perform the rename operation within the same directory as
-            // the source file.
-
-
+            // it perform the rename operation within the same directory as the source file.
             status = IoCallDriver( deviceObject, irp );
-
         }
-
     } else {
-
-
-        // This is not a request that can be performed here, so invoke the
-        // driver at its appropriate dispatch entry with the IRP.
-
-
+        // This is not a request that can be performed here, so invoke the driver at its appropriate dispatch entry with the IRP.
         status = IoCallDriver( deviceObject, irp );
-
     }
-
 
     // If this operation was a synchronous I/O operation, check the return
     // status to determine whether or not to wait on the file object.  If
-    // the file object is to be waited on, wait for the operation to complete
-    // and obtain the final status from the file object itself.
-
-
+    // the file object is to be waited on, wait for the operation to complete and obtain the final status from the file object itself.
     if (synchronousIo) {
         if (status == STATUS_PENDING) {
             status = KeWaitForSingleObject( &FileObject->Event,
@@ -8773,37 +6167,24 @@ Return Value:
             status = localIoStatus.Status;
         }
         IopReleaseFileObjectLock( FileObject );
-
     } else {
-
-
         // This is a normal synchronous I/O operation, as opposed to a
         // serialized synchronous I/O operation.  For this case, wait for
-        // the local event and copy the final status information back to
-        // the caller.
-
-
+        // the local event and copy the final status information back to the caller.
         if (status == STATUS_PENDING) {
-            (VOID) KeWaitForSingleObject( &event,
-                                          Executive,
-                                          KernelMode,
-                                          FALSE,
-                                          (PLARGE_INTEGER) NULL );
+            (VOID) KeWaitForSingleObject( &event, Executive, KernelMode, FALSE, (PLARGE_INTEGER) NULL );
             status = localIoStatus.Status;
         }
     }
 
-
-    // If a target handle was created because of a rename operation, close
-    // the handle now.
-
-
+    // If a target handle was created because of a rename operation, close the handle now.
     if (targetHandle != (HANDLE) NULL) {
         NtClose( targetHandle );
     }
 
     return status;
 }
+
 
 VOID
 IoSetShareAccess(
@@ -8812,95 +6193,49 @@ IoSetShareAccess(
     IN OUT PFILE_OBJECT FileObject,
     OUT PSHARE_ACCESS ShareAccess
     )
-
 /*++
-
 Routine Description:
-
-    This routine is invoked to set the access and share access information
-    in a file system Share Access structure for the first open.
-
+    This routine is invoked to set the access and share access information in a file system Share Access structure for the first open.
 Arguments:
-
     DesiredAccess - Desired access of current open request.
-
     DesiredShareAccess - Shared access requested by current open request.
-
     FileObject - Pointer to the file object of the current open request.
-
-    ShareAccess - Pointer to the share access structure that describes
-         how the file is currently being accessed.
-
+    ShareAccess - Pointer to the share access structure that describes how the file is currently being accessed.
 Return Value:
-
     None.
-
 --*/
-
 {
     PAGED_CODE();
 
-
     // Set the access type in the file object for the current accessor.
-
-
-    FileObject->ReadAccess = (BOOLEAN) ((DesiredAccess & (FILE_EXECUTE
-        | FILE_READ_DATA)) != 0);
-    FileObject->WriteAccess = (BOOLEAN) ((DesiredAccess & (FILE_WRITE_DATA
-        | FILE_APPEND_DATA)) != 0);
+    FileObject->ReadAccess = (BOOLEAN) ((DesiredAccess & (FILE_EXECUTE | FILE_READ_DATA)) != 0);
+    FileObject->WriteAccess = (BOOLEAN) ((DesiredAccess & (FILE_WRITE_DATA | FILE_APPEND_DATA)) != 0);
     FileObject->DeleteAccess = (BOOLEAN) ((DesiredAccess & DELETE) != 0);
-
 
     // Check to see whether the current file opener would like to read,
     // write, or delete the file.  If so, account for it in the share access
     // structure; otherwise, skip it.
-
-
-    if (FileObject->ReadAccess ||
-        FileObject->WriteAccess ||
-        FileObject->DeleteAccess) {
-
-
-        // Only update the share modes if the user wants to read, write or
-        // delete the file.
-
-
+    if (FileObject->ReadAccess || FileObject->WriteAccess || FileObject->DeleteAccess) {
+        // Only update the share modes if the user wants to read, write or delete the file.
         FileObject->SharedRead = (BOOLEAN) ((DesiredShareAccess & FILE_SHARE_READ) != 0);
         FileObject->SharedWrite = (BOOLEAN) ((DesiredShareAccess & FILE_SHARE_WRITE) != 0);
         FileObject->SharedDelete = (BOOLEAN) ((DesiredShareAccess & FILE_SHARE_DELETE) != 0);
 
-
         // Set the Share Access structure open count.
-
-
         ShareAccess->OpenCount = 1;
 
-
-        // Set the number of readers, writers, and deleters in the Share Access
-        // structure.
-
-
+        // Set the number of readers, writers, and deleters in the Share Access structure.
         ShareAccess->Readers = FileObject->ReadAccess;
         ShareAccess->Writers = FileObject->WriteAccess;
         ShareAccess->Deleters = FileObject->DeleteAccess;
 
-
-        // Set the number of shared readers, writers, and deleters in the Share
-        // Access structure.
-
-
+        // Set the number of shared readers, writers, and deleters in the Share Access structure.
         ShareAccess->SharedRead = FileObject->SharedRead;
         ShareAccess->SharedWrite = FileObject->SharedWrite;
         ShareAccess->SharedDelete = FileObject->SharedDelete;
-
     } else {
-
-
         // No read, write, or delete access has been requested.  Simply zero
-        // the appropriate fields in the structure so that the next accessor
-        // sees a consistent state.
-
-
+        // the appropriate fields in the structure so that the next accessor sees a consistent state.
         ShareAccess->OpenCount = 0;
         ShareAccess->Readers = 0;
         ShareAccess->Writers = 0;
@@ -8911,39 +6246,21 @@ Return Value:
     }
 }
 
-BOOLEAN
-IoSetThreadHardErrorMode(
-    IN BOOLEAN EnableHardErrors
-    )
 
+BOOLEAN IoSetThreadHardErrorMode(IN BOOLEAN EnableHardErrors)
 /*++
-
 Routine Description:
-
-    This routine either enables or disables hard errors for the current
-    thread and returns the old state of the flag.
-
+    This routine either enables or disables hard errors for the current thread and returns the old state of the flag.
 Arguments:
-
-    EnableHardErrors - Supplies a BOOLEAN value indicating whether or not
-        hard errors are to be enabled for the current thread.
-
+    EnableHardErrors - Supplies a BOOLEAN value indicating whether or not hard errors are to be enabled for the current thread.
 Return Value:
-
-    The final function value is the previous state of whether or not hard
-    errors were enabled.
-
+    The final function value is the previous state of whether or not hard errors were enabled.
 --*/
-
 {
     PETHREAD thread;
     BOOLEAN oldFlag;
 
-
-    // Get a pointer to the current thread, capture the current state of
-    // hard errors, and set the new state.
-
-
+    // Get a pointer to the current thread, capture the current state of hard errors, and set the new state.
     thread = PsGetCurrentThread();
     oldFlag = !thread->HardErrorsAreDisabled;
     thread->HardErrorsAreDisabled = !EnableHardErrors;
@@ -8951,68 +6268,38 @@ Return Value:
     return oldFlag;
 }
 
-VOID
-IoSetTopLevelIrp(
-    IN PIRP Irp
-    )
 
+VOID IoSetTopLevelIrp(IN PIRP Irp)
 /*++
-
 Routine Description:
-
     This routine sets the top level IRP field in the current thread's thread
     object.  This function is invoked by file systems to either set this field
     to the address of an I/O Request Packet (IRP) or to null it.
-
 Arguments:
-
     Irp - Pointer to the IRP to be stored in the top level IRP field.
-
 Return Value:
-
     None.
-
 Note:
-
     This function cannot be made a macro, since fields in the thread object
     move from release to release, so this must remain a full function.
-
 --*/
-
 {
-
-    // Simply set the top level IRP field in the current thread's thread
-    // object.
-
-
+    // Simply set the top level IRP field in the current thread's thread object.
     (PIRP) (PsGetCurrentThread())->TopLevelIrp = Irp;
     return;
 }
 
-VOID
-IoShutdownSystem (
-    IN ULONG Phase
-    )
 
+VOID IoShutdownSystem (IN ULONG Phase)
 /*++
-
 Routine Description:
-
-    This routine shuts down the I/O portion of the system in preparation
-    for a power-off or reboot.
-
+    This routine shuts down the I/O portion of the system in preparation for a power-off or reboot.
 Arguments:
-
     RebootPending - Indicates whether a reboot is imminently pending.
-
     Phase - Indicates which phase of shutdown is being performed.
-
 Return Value:
-
     None
-
 --*/
-
 {
     PLIST_ENTRY entry;
     PSHUTDOWN_PACKET shutdown;
@@ -9024,31 +6311,18 @@ Return Value:
 
     PAGED_CODE();
 
-
-    // Initialize the event used to synchronize the complete of all of the
-    // shutdown routines.
-
-
+    // Initialize the event used to synchronize the complete of all of the shutdown routines.
     KeInitializeEvent( &event, NotificationEvent, FALSE );
 
     if (Phase == 0) {
-
-
         // Walk the list of the drivers in the system that have registered
-        // themselves as wanting to know when the system is about to be
-        // shutdown and invoke each.
-
-
+        // themselves as wanting to know when the system is about to be shutdown and invoke each.
         while ((entry = ExInterlockedRemoveHeadList( &IopNotifyShutdownQueueHead, &IopDatabaseLock )) != NULL) {
             shutdown = CONTAINING_RECORD( entry, SHUTDOWN_PACKET, ListEntry );
 
-
             // Another driver has been found that has indicated that it requires
             // shutdown notification.  Invoke the driver's shutdown entry point.
-
-
             deviceObject = IoGetAttachedDevice( shutdown->DeviceObject );
-
             irp = IoBuildSynchronousFsdRequest( IRP_MJ_SHUTDOWN,
                                                 deviceObject,
                                                 (PVOID) NULL,
@@ -9056,63 +6330,35 @@ Return Value:
                                                 (PLARGE_INTEGER) NULL,
                                                 &event,
                                                 &ioStatus );
-
             if (IoCallDriver( deviceObject, irp ) == STATUS_PENDING) {
 #if DBG
                 PUNICODE_STRING DeviceName = ObGetObjectName( shutdown->DeviceObject );
 
-                DbgPrint( "IO: Waiting for shutdown of device object (%x) - %wZ\n",
-                          shutdown->DeviceObject,
-                          DeviceName
-                        );
+                DbgPrint( "IO: Waiting for shutdown of device object (%x) - %wZ\n", shutdown->DeviceObject, DeviceName);
 #endif // DBG
-                (VOID) KeWaitForSingleObject( &event,
-                                              Executive,
-                                              KernelMode,
-                                              FALSE,
-                                              (PLARGE_INTEGER) NULL );
+                (VOID) KeWaitForSingleObject( &event, Executive, KernelMode, FALSE, (PLARGE_INTEGER) NULL );
             }
 
             ExFreePool( shutdown );
             KeClearEvent( &event );
         }
-
     } else if (Phase == 1) {
-
 #if defined(REMOTE_BOOT)
-
-        // If this is a remote boot client then allow the cache to close the database and
-        // mark it clean.
-
-
+        // If this is a remote boot client then allow the cache to close the database and mark it clean.
         IopShutdownCsc();
 #endif // defined(REMOTE_BOOT)
 
-        // Gain access to the file system header queues by acquiring the
-        // database resource for shared access.
-
-
+        // Gain access to the file system header queues by acquiring the database resource for shared access.
         ExAcquireResourceShared( &IopDatabaseResource, TRUE );
 
-
-        // Loop through each of the disk file systems, invoking each to shutdown
-        // each of their mounted volumes.
-
-
-        for (entry = IopDiskFileSystemQueueHead.Flink;
-             entry != &IopDiskFileSystemQueueHead;
-             entry = entry->Flink) {
-
+        // Loop through each of the disk file systems, invoking each to shutdown each of their mounted volumes.
+        for (entry = IopDiskFileSystemQueueHead.Flink; entry != &IopDiskFileSystemQueueHead; entry = entry->Flink) {
             deviceObject = CONTAINING_RECORD( entry, DEVICE_OBJECT, Queue.ListEntry );
             if (deviceObject->AttachedDevice) {
                 deviceObject = IoGetAttachedDevice( deviceObject );
             }
 
-
-            // Another file system has been found.  Invoke this file system at
-            // its shutdown entry point.
-
-
+            // Another file system has been found.  Invoke this file system at its shutdown entry point.
             irp = IoBuildSynchronousFsdRequest( IRP_MJ_SHUTDOWN,
                                                 deviceObject,
                                                 (PVOID) NULL,
@@ -9124,37 +6370,23 @@ Return Value:
 #if DBG
                 PUNICODE_STRING DeviceName = ObGetObjectName( deviceObject );
 
-                DbgPrint( "IO: Waiting for shutdown of device object (%x) - %wZ\n",
-                          deviceObject,
-                          DeviceName
-                        );
+                DbgPrint( "IO: Waiting for shutdown of device object (%x) - %wZ\n", deviceObject, DeviceName);
 #endif // DBG
-                (VOID) KeWaitForSingleObject( &event,
-                                              Executive,
-                                              KernelMode,
-                                              FALSE,
-                                              (PLARGE_INTEGER) NULL );
+                (VOID) KeWaitForSingleObject( &event, Executive, KernelMode, FALSE, (PLARGE_INTEGER) NULL );
             }
 
             KeClearEvent( &event );
         }
 
-
         // Walk the list of the drivers in the system that have registered
         // themselves as wanting to know at the last chance when the system
         // is about to be shutdown and invoke each.
-
-
         while ((entry = ExInterlockedRemoveHeadList( &IopNotifyLastChanceShutdownQueueHead, &IopDatabaseLock )) != NULL) {
             shutdown = CONTAINING_RECORD( entry, SHUTDOWN_PACKET, ListEntry );
 
-
             // Another driver has been found that has indicated that it requires
             // shutdown notification.  Invoke the driver's shutdown entry point.
-
-
             deviceObject = IoGetAttachedDevice( shutdown->DeviceObject );
-
             irp = IoBuildSynchronousFsdRequest( IRP_MJ_SHUTDOWN,
                                                 deviceObject,
                                                 (PVOID) NULL,
@@ -9162,188 +6394,111 @@ Return Value:
                                                 (PLARGE_INTEGER) NULL,
                                                 &event,
                                                 &ioStatus );
-
             if (IoCallDriver( deviceObject, irp ) == STATUS_PENDING) {
 #if DBG
                 PUNICODE_STRING DeviceName = ObGetObjectName( shutdown->DeviceObject );
 
-                DbgPrint( "IO: Waiting for last chance shutdown of device object (%x) - %wZ\n",
-                          shutdown->DeviceObject,
-                          DeviceName
-                        );
+                DbgPrint( "IO: Waiting for last chance shutdown of device object (%x) - %wZ\n", shutdown->DeviceObject, DeviceName);
 #endif // DBG
-                (VOID) KeWaitForSingleObject( &event,
-                                              Executive,
-                                              KernelMode,
-                                              FALSE,
-                                              (PLARGE_INTEGER) NULL );
+                (VOID) KeWaitForSingleObject( &event, Executive, KernelMode, FALSE, (PLARGE_INTEGER) NULL );
             }
 
             ExFreePool( shutdown );
             KeClearEvent( &event );
         }
 
-
         // N.B. The system has stopped.  The IopDatabaseResource lock is
         // not released so that no other mount operations can take place.
 
         // ExReleaseResource( &IopDatabaseResource );
-
     }
 
     return ;
 }
 
-VOID
-IoStartNextPacket(
-    IN PDEVICE_OBJECT DeviceObject,
-    IN BOOLEAN Cancelable
-    )
 
+VOID IoStartNextPacket(IN PDEVICE_OBJECT DeviceObject, IN BOOLEAN Cancelable)
 /*++
-
 Routine Description:
-
     This routine is invoked to dequeue the next packet (IRP) from the
     specified device work queue and invoke the device driver's start I/O
-    routine for it.  If the Cancelable paramter is TRUE, then the update of
-    current IRP is synchronized using the cancel spinlock.
-
+    routine for it.  If the Cancelable paramter is TRUE, then the update of current IRP is synchronized using the cancel spinlock.
 Arguments:
-
     DeviceObject - Pointer to device object itself.
-
     Cancelable - Indicates that IRPs in the device queue may be cancelable.
-
 Return Value:
-
     None.
-
 --*/
-
 {
     KIRQL cancelIrql;
     PIRP irp;
     PKDEVICE_QUEUE_ENTRY packet;
 
-
     // Begin by checking to see whether or not this driver's requests are
     // to be considered cancelable.  If so, then acquire the cancel spinlock.
-
-
     if (Cancelable) {
         IoAcquireCancelSpinLock( &cancelIrql );
     }
 
-
     // Clear the current IRP field before starting another request.
-
-
     DeviceObject->CurrentIrp = (PIRP) NULL;
 
-
-    // Remove the next packet from the head of the queue.  If a packet was
-    // found, then process it.
-
-
+    // Remove the next packet from the head of the queue.  If a packet was found, then process it.
     packet = KeRemoveDeviceQueue( &DeviceObject->DeviceQueue );
-
     if (packet) {
         irp = CONTAINING_RECORD( packet, IRP, Tail.Overlay.DeviceQueueEntry );
 
-
-        // A packet was located so make it the current packet for this
-        // device.
-
-
+        // A packet was located so make it the current packet for this device.
         DeviceObject->CurrentIrp = irp;
         if (Cancelable) {
            IoReleaseCancelSpinLock( cancelIrql );
         }
 
-
         // Invoke the driver's start I/O routine for this packet.
-
-
         DeviceObject->DriverObject->DriverStartIo( DeviceObject, irp );
     } else {
-
-
-        // No packet was found, so simply release the cancel spinlock if
-        // it was acquired.
-
-
+        // No packet was found, so simply release the cancel spinlock if it was acquired.
         if (Cancelable) {
            IoReleaseCancelSpinLock( cancelIrql );
         }
     }
 }
 
-VOID
-IoStartNextPacketByKey(
-    IN PDEVICE_OBJECT DeviceObject,
-    IN BOOLEAN Cancelable,
-    IN ULONG Key
-    )
 
+VOID IoStartNextPacketByKey(IN PDEVICE_OBJECT DeviceObject, IN BOOLEAN Cancelable, IN ULONG Key)
 /*++
-
 Routine Description:
-
     This routine is invoked to dequeue the next packet (IRP) from the
     specified device work queue by key and invoke the device driver's start
     I/O routine for it.  If the Cancelable paramter is TRUE, then the
     update of current IRP is synchronized using the cancel spinlock.
-
 Arguments:
-
     DeviceObject - Pointer to device object itself.
-
     Cancelable - Indicates that IRPs in the device queue may be cancelable.
-
     Key - Specifics the Key used to remove the entry from the queue.
-
 Return Value:
-
     None.
-
 --*/
-
 {
     KIRQL                cancelIrql;
     PIRP                 irp;
     PKDEVICE_QUEUE_ENTRY packet;
 
-
     // Begin by determining whether or not requests for this device are to
     // be considered cancelable.  If so, then acquire the cancel spinlock.
-
-
     if (Cancelable) {
         IoAcquireCancelSpinLock( &cancelIrql );
     }
 
-
     // Clear the current IRP field before starting another request.
-
-
     DeviceObject->CurrentIrp = (PIRP) NULL;
 
-
-    // Attempt to remove the indicated packet according to the key from the
-    // device queue.  If one is found, then process it.
-
-
+    // Attempt to remove the indicated packet according to the key from the device queue.  If one is found, then process it.
     packet = KeRemoveByKeyDeviceQueue( &DeviceObject->DeviceQueue, Key );
-
     if (packet) {
         irp = CONTAINING_RECORD( packet, IRP, Tail.Overlay.DeviceQueueEntry );
 
-
-        // A packet was successfully located.  Make it the current packet
-        // and invoke the driver's start I/O routine for it.
-
-
+        // A packet was successfully located.  Make it the current packet and invoke the driver's start I/O routine for it.
         DeviceObject->CurrentIrp = irp;
 
         if (Cancelable) {
@@ -9351,19 +6506,14 @@ Return Value:
         }
 
         DeviceObject->DriverObject->DriverStartIo( DeviceObject, irp );
-
     } else {
-
-
-        // No packet was found, so release the cancel spinlock if it was
-        // acquired.
-
-
+        // No packet was found, so release the cancel spinlock if it was acquired.
         if (Cancelable) {
            IoReleaseCancelSpinLock( cancelIrql );
         }
     }
 }
+
 
 VOID
 IoStartPacket(
@@ -9372,107 +6522,66 @@ IoStartPacket(
     IN PULONG Key OPTIONAL,
     IN PDRIVER_CANCEL CancelFunction OPTIONAL
     )
-
 /*++
-
 Routine Description:
-
     This routine attempts to start the specified packet request (IRP) on the
     specified device.  If the device is already busy, then the packet is
     simply queued to the device queue. If a non-NULL CancelFunction is
     supplied, it will be put in the IRP.  If the IRP has been canceled, the
     CancelFunction will be called after the IRP has been inserted into the
     queue or made the current packet.
-
 Arguments:
-
     DeviceObject - Pointer to device object itself.
-
     Irp - I/O Request Packet which should be started on the device.
-
-    Key - Key to be used in inserting packet into device queue;  optional
-        (if not specified, then packet is inserted at the tail).
-
+    Key - Key to be used in inserting packet into device queue;  optional (if not specified, then packet is inserted at the tail).
     CancelFunction - Pointer to an optional cancel routine.
-
 Return Value:
-
     None.
-
 --*/
-
 {
     KIRQL oldIrql;
     KIRQL cancelIrql;
     BOOLEAN i;
 
-
     // Raise the IRQL of the processor to dispatch level for synchronization.
-
-
     KeRaiseIrql( DISPATCH_LEVEL, &oldIrql );
-
 
     // If the driver has indicated that packets are cancelable, then acquire
     // the cancel spinlock and set the address of the cancel function to
     // indicate that the packet is not only cancelable, but indicates what
     // routine to invoke should it be cancelled.
-
-
     if (CancelFunction) {
         IoAcquireCancelSpinLock( &cancelIrql );
         Irp->CancelRoutine = CancelFunction;
     }
 
-
     // If a key parameter was specified, then insert the request into the
-    // work queue according to the key;  otherwise, simply insert it at the
-    // tail.
-
-
+    // work queue according to the key;  otherwise, simply insert it at the tail.
     if (Key) {
-        i = KeInsertByKeyDeviceQueue( &DeviceObject->DeviceQueue,
-                                      &Irp->Tail.Overlay.DeviceQueueEntry,
-                                      *Key );
+        i = KeInsertByKeyDeviceQueue( &DeviceObject->DeviceQueue, &Irp->Tail.Overlay.DeviceQueueEntry, *Key );
     } else {
-        i = KeInsertDeviceQueue( &DeviceObject->DeviceQueue,
-                                 &Irp->Tail.Overlay.DeviceQueueEntry );
+        i = KeInsertDeviceQueue( &DeviceObject->DeviceQueue, &Irp->Tail.Overlay.DeviceQueueEntry );
     }
-
 
     // If the packet was not inserted into the queue, then this request is
     // now the current packet for this device.  Indicate so by storing its
     // address in the current IRP field, and begin processing the request.
-
-
     if (!i) {
-
         DeviceObject->CurrentIrp = Irp;
-
         if (CancelFunction) {
-
             IoReleaseCancelSpinLock( cancelIrql );
         }
 
-
         // Invoke the driver's start I/O routine to get the request going on the device.
         // The StartIo routine should handle the cancellation.
-
-
         DeviceObject->DriverObject->DriverStartIo( DeviceObject, Irp );
-
     } else {
-
-
         // The packet was successfully inserted into the device's work queue.
         // Make one last check to determine whether or not the packet has
         // already been marked cancelled.  If it has, then invoke the
         // driver's cancel routine now.  Note that because the cancel
         // spinlock is currently being held, an attempt to cancel the request
-        // from another processor at this point will simply wait until this
-        // routine is finished, and then get it cancelled.
-
-
+        // from another processor at this point will simply wait until this routine is finished, and then get it cancelled.
         if (CancelFunction) {
             if (Irp->Cancel) {
                 Irp->CancelIrql = cancelIrql;
@@ -9484,59 +6593,31 @@ Return Value:
         }
     }
 
-
-    // Restore the IRQL back to its value upon entry to this function before
-    // returning to the caller.
-
-
+    // Restore the IRQL back to its value upon entry to this function before returning to the caller.
     KeLowerIrql( oldIrql );
 }
 
 
-VOID
-IoStartTimer(
-    IN PDEVICE_OBJECT DeviceObject
-    )
-
+VOID IoStartTimer(IN PDEVICE_OBJECT DeviceObject)
 /*++
-
 Routine Description:
-
     This routine starts the timer associated with the specified device object.
-
 Arguments:
-
     DeviceObject - Device object associated with the timer to be started.
-
 Return Value:
-
     None.
-
 --*/
-
 {
     PIO_TIMER timer;
     KIRQL irql;
 
-
     // Get the address of the timer.
-
-
     timer = DeviceObject->Timer;
 
-
     // If the driver is not being unloaded, then it is okay to start timers.
-
-
-    if (!(DeviceObject->DeviceObjectExtension->ExtensionFlags &
-        (DOE_UNLOAD_PENDING | DOE_DELETE_PENDING | DOE_REMOVE_PENDING | DOE_REMOVE_PROCESSED))) {
-
-
+    if (!(DeviceObject->DeviceObjectExtension->ExtensionFlags & (DOE_UNLOAD_PENDING | DOE_DELETE_PENDING | DOE_REMOVE_PENDING | DOE_REMOVE_PROCESSED))) {
         // Likewise, check to see whether or not the timer is already
-        // enabled.  If so, then simply exit.  Otherwise, enable the timer
-        // by placing it into the I/O system timer queue.
-
-
+        // enabled.  If so, then simply exit.  Otherwise, enable the timer by placing it into the I/O system timer queue.
         ExAcquireFastLock( &IopTimerLock, &irql );
         if (!timer->TimerFlag) {
             timer->TimerFlag = TRUE;
@@ -9546,37 +6627,21 @@ Return Value:
     }
 }
 
-VOID
-IoStopTimer(
-    IN PDEVICE_OBJECT DeviceObject
-    )
 
+VOID IoStopTimer(IN PDEVICE_OBJECT DeviceObject)
 /*++
-
 Routine Description:
-
-    This routines stops the timer associated with the specified device object
-    from invoking being invoked.
-
+    This routines stops the timer associated with the specified device object from invoking being invoked.
 Arguments:
-
     DeviceObject - Device object associated with the timer to be stopped.
-
 Return Value:
-
     None.
-
 --*/
-
 {
     KIRQL irql;
     PIO_TIMER timer;
 
-
-    // Obtain the I/O system timer queue lock, and disable the specified
-    // timer.
-
-
+    // Obtain the I/O system timer queue lock, and disable the specified timer.
     timer = DeviceObject->Timer;
 
     ExAcquireFastLock( &IopTimerLock, &irql );
@@ -9587,6 +6652,7 @@ Return Value:
     ExReleaseFastLock( &IopTimerLock, irql );
 }
 
+
 NTSTATUS
 IoSynchronousPageWrite(
     IN PFILE_OBJECT FileObject,
@@ -9595,88 +6661,49 @@ IoSynchronousPageWrite(
     IN PKEVENT Event,
     OUT PIO_STATUS_BLOCK IoStatusBlock
     )
-
 /*++
-
 Routine Description:
-
     This routine provides a special, fast interface for the Modified Page Writer
     (MPW) to write pages to the disk quickly and with very little overhead.  All
-    of the special handling for this request is recognized by setting the
-    IRP_PAGING_IO flag in the IRP flags word.
-
+    of the special handling for this request is recognized by setting the IRP_PAGING_IO flag in the IRP flags word.
 Arguments:
-
-    FileObject - A pointer to a referenced file object describing which file
-        the write should be performed on.
-
+    FileObject - A pointer to a referenced file object describing which file the write should be performed on.
     MemoryDescriptorList - An MDL which describes the physical pages that the
-        pages should be written to the disk.  All of the pages have been locked
-        in memory.  The MDL also describes the length of the write operation.
-
-    StartingOffset - Pointer to the offset in the file from which the write
-        should take place.
-
+        pages should be written to the disk.  All of the pages have been locked in memory.  The MDL also describes the length of the write operation.
+    StartingOffset - Pointer to the offset in the file from which the write should take place.
     Event - A pointer to a kernel event structure to be used for synchronization
-        purposes.  The event will be set to the Signlaged state once the pages
-        have been written.
-
-    IoStatusBlock - A pointer to the I/O status block in which the final status
-        and information should be stored.
-
+        purposes.  The event will be set to the Signlaged state once the pages have been written.
+    IoStatusBlock - A pointer to the I/O status block in which the final status and information should be stored.
 Return Value:
-
-    The function value is the final status of the queue request to the I/O
-    system subcomponents.
-
-
+    The function value is the final status of the queue request to the I/O system subcomponents.
 --*/
-
 {
     PIRP irp;
     PIO_STACK_LOCATION irpSp;
     PDEVICE_OBJECT deviceObject;
 
-
     // Increment performance counters
-
-
     if (CcIsFileCached(FileObject)) {
         CcDataFlushes += 1;
         CcDataPages += (MemoryDescriptorList->ByteCount + PAGE_SIZE - 1) >> PAGE_SHIFT;
     }
 
-
-    // Begin by getting a pointer to the device object that the file resides
-    // on.
-
-
+    // Begin by getting a pointer to the device object that the file resides on.
     deviceObject = IoGetRelatedDeviceObject( FileObject );
 
-
     // Allocate an I/O Request Packet (IRP) for this out-page operation.
-
-
     irp = IoAllocateIrp( deviceObject->StackSize, FALSE );
     if (!irp) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
-
     // Get a pointer to the first stack location in the packet.  This location
-    // will be used to pass the function codes and parameters to the first
-    // driver.
-
-
+    // will be used to pass the function codes and parameters to the first driver.
     irpSp = IoGetNextIrpStackLocation( irp );
 
-
     // Fill in the IRP according to this request.
-
-
     irp->MdlAddress = MemoryDescriptorList;
     irp->Flags = IRP_PAGING_IO | IRP_NOCACHE | IRP_SYNCHRONOUS_PAGING_IO;
-
     irp->RequestorMode = KernelMode;
     irp->UserIosb = IoStatusBlock;
     irp->UserEvent = Event;
@@ -9684,107 +6711,60 @@ Return Value:
     irp->Tail.Overlay.OriginalFileObject = FileObject;
     irp->Tail.Overlay.Thread = PsGetCurrentThread();
 
-
     // Fill in the normal write parameters.
-
-
     irpSp->MajorFunction = IRP_MJ_WRITE;
     irpSp->Parameters.Write.Length = MemoryDescriptorList->ByteCount;
     irpSp->Parameters.Write.ByteOffset = *StartingOffset;
     irpSp->FileObject = FileObject;
 
-
     // Queue the packet to the appropriate driver based on whether or not there
     // is a VPB associated with the device.
-
-
     return IoCallDriver( deviceObject, irp );
 }
 
-PEPROCESS
-IoThreadToProcess(
-    IN PETHREAD Thread
-    )
 
+PEPROCESS IoThreadToProcess(IN PETHREAD Thread)
 /*++
-
 Routine Description:
-
     This routine returns a pointer to the process for the specified thread.
-
 Arguments:
-
     Thread - Thread whose process is to be returned.
-
 Return Value:
-
     A pointer to the thread's process.
-
 Note:
-
     This function cannot be made a macro, since fields in the thread object
     move from release to release, so this must remain a full function.
-
-
 --*/
-
 {
-
     // Simply return the thread's process.
-
-
     return THREAD_TO_PROCESS( Thread );
 }
 
-VOID
-IoUnregisterFileSystem(
-    IN OUT PDEVICE_OBJECT DeviceObject
-    )
 
+VOID IoUnregisterFileSystem(IN OUT PDEVICE_OBJECT DeviceObject)
 /*++
-
 Routine Description:
-
-    This routine removes the device object for the file system from the active
-    list of file systems in the system.
-
+    This routine removes the device object for the file system from the active list of file systems in the system.
 Arguments:
-
     DeviceObject - Pointer to device object for the file system.
-
 Return Value:
-
     None.
-
-
 --*/
-
 {
     PNOTIFICATION_PACKET nPacket;
     PLIST_ENTRY entry;
 
     PAGED_CODE();
 
-
     // Acquire the I/O database resource for a write operation.
-
-
     (VOID)ExAcquireResourceExclusive( &IopDatabaseResource, TRUE );
-
 
     // Remove the device object from whatever queue it happens to be in at the
     // moment.  There is no need to check here to determine if the device queue
-    // is in a queue since it is assumed that the caller registered it as a
-    // valid file system.
-
-
+    // is in a queue since it is assumed that the caller registered it as a valid file system.
     RemoveEntryList( &DeviceObject->Queue.ListEntry );
 
-
-    // Notify all of the registered drivers that this file system has been
-    // unregistered as an active file system of some type.
-
-
+    // Notify all of the registered drivers that this file system has been unregistered as an active file system of some type.
     entry = IopFsNotifyChangeQueueHead.Flink;
     while (entry != &IopFsNotifyChangeQueueHead) {
         nPacket = CONTAINING_RECORD( entry, NOTIFICATION_PACKET, ListEntry );
@@ -9792,71 +6772,38 @@ Return Value:
         nPacket->NotificationRoutine( DeviceObject, FALSE );
     }
 
-
     // Release the I/O database resource.
-
-
     ExReleaseResource( &IopDatabaseResource );
 
-
     // Decrement the number of reasons that this driver cannot be unloaded.
-
-
-    ExInterlockedAddUlong( &DeviceObject->ReferenceCount,
-                           0xffffffff,
-                           &IopDatabaseLock );
-
+    ExInterlockedAddUlong( &DeviceObject->ReferenceCount, 0xffffffff, &IopDatabaseLock );
 }
 
-VOID
-IoUnregisterFsRegistrationChange(
-    IN PDRIVER_OBJECT DriverObject,
-    IN PDRIVER_FS_NOTIFICATION DriverNotificationRoutine
-    )
 
+VOID IoUnregisterFsRegistrationChange(IN PDRIVER_OBJECT DriverObject, IN PDRIVER_FS_NOTIFICATION DriverNotificationRoutine)
 /*++
-
 Routine Description:
-
     This routine unregisters the specified driver's notification routine from
-    begin invoked whenever a file system registers or unregisters itself as an
-    active file system in the system.
-
+    begin invoked whenever a file system registers or unregisters itself as an active file system in the system.
 Arguments:
-
     DriverObject - Pointer to the driver object for the driver.
-
     DriverNotificationRoutine - Address of routine to unregister.
-
 Return Value:
-
     None.
-
 --*/
-
 {
     PNOTIFICATION_PACKET nPacket;
     PLIST_ENTRY entry;
 
     PAGED_CODE();
 
-
     // Begin by acquiring the database resource exclusively.
-
-
     ExAcquireResourceExclusive( &IopDatabaseResource, TRUE );
 
-
-    // Walk the list of registered notification routines and unregister the
-    // specified routine.
-
-
-    for (entry = IopFsNotifyChangeQueueHead.Flink;
-        entry != &IopFsNotifyChangeQueueHead;
-        entry = entry->Flink) {
+    // Walk the list of registered notification routines and unregister the specified routine.
+    for (entry = IopFsNotifyChangeQueueHead.Flink; entry != &IopFsNotifyChangeQueueHead; entry = entry->Flink) {
         nPacket = CONTAINING_RECORD( entry, NOTIFICATION_PACKET, ListEntry );
-        if (nPacket->DriverObject == DriverObject &&
-            nPacket->NotificationRoutine == DriverNotificationRoutine) {
+        if (nPacket->DriverObject == DriverObject && nPacket->NotificationRoutine == DriverNotificationRoutine) {
             RemoveEntryList( entry );
             ExFreePool( nPacket );
             break;
@@ -9866,32 +6813,19 @@ Return Value:
     ExReleaseResource( &IopDatabaseResource );
 
     ObDereferenceObject( DriverObject );
-
 }
 
-VOID
-IoUnregisterShutdownNotification(
-    IN PDEVICE_OBJECT DeviceObject
-    )
 
+VOID IoUnregisterShutdownNotification(IN PDEVICE_OBJECT DeviceObject)
 /*++
-
 Routine Description:
-
     This routine removes a registered driver from the shutdown notification
-    queue.  Henceforth, the driver will not be notified when the system is
-    being shutdown.
-
+    queue.  Henceforth, the driver will not be notified when the system is being shutdown.
 Arguments:
-
     DeviceObject - Pointer to the driver's device object.
-
 Return Value:
-
     None.
-
 --*/
-
 {
     PLIST_ENTRY entry;
     PSHUTDOWN_PACKET shutdown;
@@ -9900,29 +6834,17 @@ Return Value:
 
     PAGED_CODE();
 
-
     // Lock this code into memory for the duration of this function's execution.
-
-
     unlockHandle = MmLockPagableCodeSection( IoUnregisterShutdownNotification );
-
 
     // Acquire the spinlock that protects the shutdown notification queue, and
     // walk the queue looking for the caller's entry.  Once found, remove it
     // from the queue.  It is an error to not find it, but it is ignored here.
 
-
     ExAcquireSpinLock( &IopDatabaseLock, &irql );
 
-    for (entry = IopNotifyShutdownQueueHead.Flink;
-         entry != &IopNotifyShutdownQueueHead;
-         entry = entry->Flink) {
-
-
-        // An entry has been located.  If it is the one that is being searched
-        // for, simply remove it from the list and deallocate it.
-
-
+    for (entry = IopNotifyShutdownQueueHead.Flink; entry != &IopNotifyShutdownQueueHead; entry = entry->Flink) {
+        // An entry has been located.  If it is the one that is being searched for, simply remove it from the list and deallocate it.
         shutdown = CONTAINING_RECORD( entry, SHUTDOWN_PACKET, ListEntry );
         if (shutdown->DeviceObject == DeviceObject) {
             RemoveEntryList( entry );
@@ -9931,15 +6853,8 @@ Return Value:
         }
     }
 
-    for (entry = IopNotifyLastChanceShutdownQueueHead.Flink;
-         entry != &IopNotifyLastChanceShutdownQueueHead;
-         entry = entry->Flink) {
-
-
-        // An entry has been located.  If it is the one that is being searched
-        // for, simply remove it from the list and deallocate it.
-
-
+    for (entry = IopNotifyLastChanceShutdownQueueHead.Flink; entry != &IopNotifyLastChanceShutdownQueueHead; entry = entry->Flink) {
+        // An entry has been located.  If it is the one that is being searched for, simply remove it from the list and deallocate it.
         shutdown = CONTAINING_RECORD( entry, SHUTDOWN_PACKET, ListEntry );
         if (shutdown->DeviceObject == DeviceObject) {
             RemoveEntryList( entry );
@@ -9947,65 +6862,35 @@ Return Value:
             ExFreePool( shutdown );
         }
     }
-
 
     // Release the spinlock.
-
-
     ExReleaseSpinLock( &IopDatabaseLock, irql );
 
     MmUnlockPagableImageSection( unlockHandle );
 
     DeviceObject->Flags &= ~DO_SHUTDOWN_REGISTERED;
-
 }
 
-VOID
-IoUpdateShareAccess(
-    IN OUT PFILE_OBJECT FileObject,
-    IN OUT PSHARE_ACCESS ShareAccess
-    )
 
+VOID IoUpdateShareAccess(IN OUT PFILE_OBJECT FileObject, IN OUT PSHARE_ACCESS ShareAccess)
 /*++
-
 Routine Description:
-
     This routine updates the share access context for a file according to
     the desired access and share access by the current open requestor.  The
     IoCheckShareAccess routine must already have been invoked and succeeded
-    in order to invoke this routine.  Note that when the former routine was
-    invoked the Update parameter must have been FALSE.
-
+    in order to invoke this routine.  Note that when the former routine was invoked the Update parameter must have been FALSE.
 Arguments:
-
     FileObject - Pointer to the file object of the current open request.
-
-    ShareAccess - Pointer to the share access structure that describes how
-        the file is currently being accessed.
-
+    ShareAccess - Pointer to the share access structure that describes how the file is currently being accessed.
 Return Value:
-
     None.
-
 --*/
-
 {
     PAGED_CODE();
 
-
-    // Check to see whether or not the desired accesses need read, write,
-    // or delete access to the file.
-
-
-    if (FileObject->ReadAccess ||
-        FileObject->WriteAccess ||
-        FileObject->DeleteAccess) {
-
-
-        // The open request requires read, write, or delete access so update
-        // the share access context for the file.
-
-
+    // Check to see whether or not the desired accesses need read, write, or delete access to the file.
+    if (FileObject->ReadAccess || FileObject->WriteAccess || FileObject->DeleteAccess) {
+        // The open request requires read, write, or delete access so update the share access context for the file.
         ShareAccess->OpenCount++;
 
         ShareAccess->Readers += FileObject->ReadAccess;
@@ -10019,42 +6904,24 @@ Return Value:
 }
 
 
-NTSTATUS
-IoVerifyVolume(
-    IN PDEVICE_OBJECT DeviceObject,
-    IN BOOLEAN AllowRawMount
-    )
-
+NTSTATUS IoVerifyVolume(IN PDEVICE_OBJECT DeviceObject, IN BOOLEAN AllowRawMount)
 /*++
-
 Routine Description:
-
     This routine is invoked to check a mounted volume on the specified device
     when it appears as if the media may have changed since it was last
-    accessed.  If the volume is not the same volume, and a new mount is not
-    to be attempted, return the error.
+    accessed.  If the volume is not the same volume, and a new mount is not to be attempted, return the error.
 
     If the verify fails, this routine is used to perform a new mount operation
     on the device.  In this case, a "clean" VPB is allocated and a new mount
-    operation is attempted.  If no mount operation succeeds, then again the
-    error handling described above occurs.
+    operation is attempted.  If no mount operation succeeds, then again the error handling described above occurs.
 
 Arguments:
-
-    DeviceObject - Pointer to device object on which the volume is to be
-        mounted.
-
-    AllowRawMount - Indicates that this verify is on behalf of a DASD open
-        request, thus we want to allow a raw mount if the verify fails.
-
+    DeviceObject - Pointer to device object on which the volume is to be mounted.
+    AllowRawMount - Indicates that this verify is on behalf of a DASD open request, thus we want to allow a raw mount if the verify fails.
 Return Value:
-
     The function value is a successful status code if a volume was successfully
     mounted on the device.  Otherwise, an error code is returned.
-
-
 --*/
-
 {
     NTSTATUS status;
     KEVENT event;
@@ -10066,46 +6933,23 @@ Return Value:
 
     PAGED_CODE();
 
-
     //  Acquire the DeviceObject lock.  Nothing in this routine can raise
     //  so no try {} finally {} is required.
-
-
-    status = KeWaitForSingleObject( &DeviceObject->DeviceLock,
-                                    Executive,
-                                    KernelMode,
-                                    FALSE,
-                                    (PLARGE_INTEGER) NULL );
-
+    status = KeWaitForSingleObject( &DeviceObject->DeviceLock, Executive, KernelMode, FALSE, (PLARGE_INTEGER) NULL );
     ASSERT( status == STATUS_SUCCESS );
 
-
-    // If this volume is not mounted by anyone, skip the verify operation,
-    // but do the mount.
-
-
+    // If this volume is not mounted by anyone, skip the verify operation, but do the mount.
     if (!(DeviceObject->Vpb->Flags & VPB_MOUNTED)) {
-
         verifySkipped = TRUE;
-
         status = STATUS_SUCCESS;
-
     } else {
-
-
-        // This volume needs to be verified.  Initialize the event to be
-        // used while waiting for the operation to complete.
-
-
+        // This volume needs to be verified.  Initialize the event to be used while waiting for the operation to complete.
         KeInitializeEvent( &event, NotificationEvent, FALSE );
         status = STATUS_UNSUCCESSFUL;
 
-
         // Allocate and initialize an IRP for this verify operation.  Notice
         // that the flags for this operation appear the same as a page read
-        // operation.  This is because the completion code for both of the
-        // operations is exactly the same logic.
-
+        // operation.  This is because the completion code for both of the operations is exactly the same logic.
 
         fsDeviceObject = DeviceObject->Vpb->DeviceObject;
         while (fsDeviceObject->AttachedDevice) {
@@ -10113,7 +6957,6 @@ Return Value:
         }
         irp = IoAllocateIrp( fsDeviceObject->StackSize, FALSE );
         if (!irp) {
-
             KeSetEvent( &DeviceObject->DeviceLock, 0, FALSE );
             return STATUS_INSUFFICIENT_RESOURCES;
         }
@@ -10133,56 +6976,32 @@ Return Value:
 
         //          IopLoadFileSystemDriver
         // Wait for the I/O operation to complete.
-
-
         if (status == STATUS_PENDING) {
-            (VOID) KeWaitForSingleObject( &event,
-                                          Executive,
-                                          KernelMode,
-                                          FALSE,
-                                          (PLARGE_INTEGER) NULL );
+            (VOID) KeWaitForSingleObject( &event, Executive, KernelMode, FALSE, (PLARGE_INTEGER) NULL );
             status = ioStatus.Status;
         }
     }
 
-
-    // If the verify operation was skipped or unsuccessful perform a mount
-    // operation.
-
-
+    // If the verify operation was skipped or unsuccessful perform a mount operation.
     if ((status == STATUS_WRONG_VOLUME) || verifySkipped) {
-
-
         // A mount operation is to be attempted.  Allocate a new VPB
         // for this device and attempt to mount it.  Note that at this
         // point, allowing allocation of the VPB to fail is simply too
         // difficult to deal with, so if one cannot be allocated normally,
         // allocate one specifying that it must succeed.
-
-
         IopCreateVpb (DeviceObject);
         PoVolumeDevice (DeviceObject);
 
-
         // Now mount the volume.
-
-
         if (!NT_SUCCESS( IopMountVolume( DeviceObject, AllowRawMount, TRUE, FALSE ) )) {
             DeviceObject->Flags &= ~DO_VERIFY_VOLUME;
         }
     }
 
-
     //  Release the device lock.
-
-
     KeSetEvent( &DeviceObject->DeviceLock, 0, FALSE );
 
-
-    // Return the status from the verify operation as the final status of
-    // this function.
-
-
+    // Return the status from the verify operation as the final status of this function.
     return status;
 }
 
@@ -10199,7 +7018,8 @@ Arguments:
     PERROR_LOG_ENTRY entry;
     KIRQL oldIrql;
 
-    // Get the address of the error log entry header, acquire the spin lock, insert the entry onto the queue, if there are no pending requests then queue a worker thread request and release the spin lock.
+    // Get the address of the error log entry header, acquire the spin lock, insert the entry onto the queue, 
+    // if there are no pending requests then queue a worker thread request and release the spin lock.
     entry = ((PERROR_LOG_ENTRY) ElEntry) - 1;
     if (IopErrorLogDisabledThisBoot) {
         // Do nothing, drop the reference.
@@ -10821,9 +7641,11 @@ Arguments:
     IopQueueThreadIrp( irp );// Place this packet in the thread's I/O pending queue.
 
     // Decrement the reference count on the VPB, if necessary.
-    // We have to do this BEFORE handing the Irp to the file system because of a trick the file systems play with close, and believe me, you really don't want to know what it is.
+    // We have to do this BEFORE handing the Irp to the file system because of a trick the file systems play with close, 
+    // and believe me, you really don't want to know what it is.
 
-    // Since there is not a error path here (close cannot fail), and the file system is the only ome who can actually synchronize with the actual completion of close processing, the file system is the one responsible for Vpb deletion.
+    // Since there is not a error path here (close cannot fail), 
+    // and the file system is the only ome who can actually synchronize with the actual completion of close processing, the file system is the one responsible for Vpb deletion.
     vpb = FileObject->Vpb;
     if (vpb && !(FileObject->Flags & FO_DIRECT_DEVICE_OPEN)) {
         ExInterlockedAddUlong( &vpb->ReferenceCount, 0xffffffff, &IopVpbSpinLock );
@@ -10861,7 +7683,8 @@ VOID IoRetryIrpCompletions(VOID)
 /*++
 Routine Description:
     This routine is called from Mm when a page fault has completed.
-    It's called on the special occasion when a thread faults a page and then when it's waiting for the inpage to complete, an IopCompleteRequest APC fires and we fault the same page again (say if the user buffer falls on the same page).
+    It's called on the special occasion when a thread faults a page and then when it's waiting for the inpage to complete, 
+    an IopCompleteRequest APC fires and we fault the same page again (say if the user buffer falls on the same page).
     Note the fault during the APC may be referencing the same or a different user virtual address but this is irrelevant - the problem lies in the fact that both virtual address references are to the same physical
     page and thus result in a collided fault in the Mm.
 
