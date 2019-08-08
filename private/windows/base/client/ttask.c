@@ -30,10 +30,8 @@ typedef struct _LOAD_MODULE_PARAMS {
 
 HANDLE Event1, Event2;
 
-VOID
-WaitTestThread(
-    LPVOID ThreadParameter
-    )
+
+VOID WaitTestThread(LPVOID ThreadParameter)
 {
     DWORD st;
     printf("In Test Thread... Parameter %ld\n",ThreadParameter);
@@ -48,10 +46,8 @@ WaitTestThread(
     ExitThread((DWORD)ThreadParameter);
 }
 
-VOID
-TestThread(
-    LPVOID ThreadParameter
-    )
+
+VOID TestThread(LPVOID ThreadParameter)
 {
     LPSTR s;
     SYSTEMTIME DateAndTime;
