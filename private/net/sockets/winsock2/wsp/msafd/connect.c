@@ -287,8 +287,7 @@ SOCKET WSPAPI WSPJoinLeaf(SOCKET Handle,
             if (socket->AddressFamily == AF_INET) {
                 ((struct sockaddr_in *) sockaddr)->sin_port = ((struct sockaddr_in *) SocketAddress)->sin_port;
             }
-            // same for AF_INET6
-            else if (socket->AddressFamily == AF_INET6) {
+            else if (socket->AddressFamily == AF_INET6) {// same for AF_INET6
 #include <ws2tcpip.h>
                 ((struct sockaddr_in6 *) sockaddr)->sin6_port = ((struct sockaddr_in6 *) SocketAddress)->sin6_port;
             }
@@ -313,9 +312,8 @@ SOCKET WSPAPI WSPJoinLeaf(SOCKET Handle,
         err = WSAEFAULT;
         goto exit;
     }
-
-    // Get the TDI handles for this socket.
-    err = SockGetTdiHandles(socket);
+    
+    err = SockGetTdiHandles(socket);// Get the TDI handles for this socket.
     if (err != NO_ERROR) {
         goto exit;
     }
@@ -396,9 +394,8 @@ SOCKET WSPAPI WSPJoinLeaf(SOCKET Handle,
         if (err != NO_ERROR) {
             goto exit;
         }
-
-        // Remember the changed state of this socket.
-        err = SockSetHandleContext(leafSocket);
+        
+        err = SockSetHandleContext(leafSocket);// Remember the changed state of this socket.
         if (err != NO_ERROR) {
             goto exit;
         }
@@ -433,9 +430,8 @@ SOCKET WSPAPI WSPJoinLeaf(SOCKET Handle,
                                              lpGQOS,
                                              dwFlags);
     }
-
-    // Let the helper DLL do the dirty work.
-    if (err != NO_ERROR) {
+    
+    if (err != NO_ERROR) {// Let the helper DLL do the dirty work.
         goto exit;
     }
 

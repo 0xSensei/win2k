@@ -404,7 +404,6 @@ DWORD GetServerAndProtocolsFromString(
         //      - the service name may be a port number, in which case lookup by port
         //      - the protocol is optional, if doesn't exists lookup name and use first protocol found
 
-
         //  separate service from protocol (if any)
         //      - save ptr to protocol piece (if any)
         //      - copy off service piece and convert to ANSI
@@ -441,7 +440,6 @@ DWORD GetServerAndProtocolsFromString(
             }
 
             //  get the servent
-
             if (port) {
                 pservent = _pgetservebyport(port, protocolname);
             } else {
@@ -589,7 +587,6 @@ DWORD PackCsAddr(IN PHOSTENT HostEntry,
             }
 
             // Now the remote address.
-
             if (fATMAddr) {
                 csaddrInfo->RemoteAddr.lpSockaddr = (PSOCKADDR)(sockaddrAtm);
                 csaddrInfo->RemoteAddr.iSockaddrLength = sizeof(SOCKADDR_ATM);
@@ -615,19 +612,15 @@ DWORD PackCsAddr(IN PHOSTENT HostEntry,
 
             if (fATMAddr) {
                 // Fill in the remote address with the actual address, both port and IP address.
-
                 sockaddrAtm->satm_blli.Layer2Protocol = SAP_FIELD_ABSENT;
                 sockaddrAtm->satm_blli.Layer2UserSpecifiedProtocol = SAP_FIELD_ABSENT;
                 sockaddrAtm->satm_blli.Layer3Protocol = SAP_FIELD_ABSENT;
                 sockaddrAtm->satm_blli.Layer3UserSpecifiedProtocol = SAP_FIELD_ABSENT;
                 sockaddrAtm->satm_blli.Layer3IPI = SAP_FIELD_ABSENT;
-
                 sockaddrAtm->satm_bhli.HighLayerInfoType = SAP_FIELD_ABSENT;
-
                 memcpy(&sockaddrAtm->satm_number, HostEntry->h_addr_list[i], sizeof(ATM_ADDRESS));
 
                 // Lastly, fill in the protocol information.
-
                 csaddrInfo->iSocketType = SOCK_RAW;
                 csaddrInfo->iProtocol = PF_ATM;
 
@@ -641,15 +634,12 @@ DWORD PackCsAddr(IN PHOSTENT HostEntry,
                 sockaddrAtm++;
             } else if (fIPv6Addr) {
                 // Fill in the remote address with the actual address, both port and IPv6 address.
-
                 sockaddrIpv6->sin6_family = AF_INET6;
                 sockaddrIpv6->sin6_port = 0;
                 sockaddrIpv6->sin6_flowinfo = 0;
-
                 memcpy(&sockaddrIpv6->sin6_addr, HostEntry->h_addr_list[i], sizeof(IPV6_ADDRESS));
 
                 // Lastly, fill in the protocol information.
-
                 csaddrInfo->iSocketType = SOCK_RAW;
                 csaddrInfo->iProtocol = PF_INET6;
 
@@ -663,12 +653,10 @@ DWORD PackCsAddr(IN PHOSTENT HostEntry,
                 sockaddrIpv6++;
             } else {
                 // Fill in the remote address with the actual address, both port and IP address.
-
                 sockaddrIn->sin_port = htons(Port);
                 sockaddrIn->sin_addr.s_addr = *((long *)(HostEntry->h_addr_list[i]));
 
                 // Lastly, fill in the protocol information.
-
                 if (IsTcp) {
                     csaddrInfo->iSocketType = SOCK_STREAM;
                     csaddrInfo->iProtocol = IPPROTO_TCP;
@@ -2069,13 +2057,7 @@ VOID FixList(PCHAR ** List, PCHAR Base)
 //   0 -- insufficient memory to do the copy
 //   != 0 -- the address of the new hostent
 
-struct hostent * CopyHostEntry(struct hostent * phent,
-    PBYTE pbAllocated,
-                               LONG lSizeOf,
-                               PLONG plTaken,
-                               BOOL fOffsets,
-                               BOOL fUnicode
-)
+struct hostent * CopyHostEntry(struct hostent * phent, PBYTE pbAllocated, LONG lSizeOf, PLONG plTaken, BOOL fOffsets, BOOL fUnicode)
 {
     PBYTE pb;
     struct hostent * ph;
@@ -2124,7 +2106,6 @@ struct hostent * CopyHostEntry(struct hostent * phent,
         ph->h_length = phent->h_length;
 
         // The layout in the string space is the addresses first, then the aliases, then the name.
-
         pcs = phent->h_addr_list;
         pcd = ph->h_addr_list;
 
@@ -2244,7 +2225,6 @@ struct servent * CopyServEntry(struct servent * sent, PBYTE pbAllocated, LONG lS
         *pcd = 0;
 
         // now the two strings
-
         ps->s_name = (PCHAR)pb;
         RtlMoveMemory(pb, sent->s_name, dwNameSize);
         pb += dwNameSize;
@@ -2267,10 +2247,7 @@ struct servent * CopyServEntry(struct servent * sent, PBYTE pbAllocated, LONG lS
 #if REGISTRY_WORKS
 
 
-INT RnRGetTypeByName(
-    IN     LPTSTR          lpServiceName,
-    IN OUT LPGUID          lpServiceType
-)
+INT RnRGetTypeByName(IN LPTSTR lpServiceName, IN OUT LPGUID lpServiceType)
 {
     INT err;
     HKEY serviceTypesKey;
@@ -2316,10 +2293,7 @@ INT RnRGetTypeByName(
 } //RnR GetTypeByName
 
 
-DWORD RnRGetPortByType(
-    IN     LPGUID          lpServiceType,
-    IN     DWORD           dwType
-)
+DWORD RnRGetPortByType(IN LPGUID lpServiceType, IN DWORD dwType)
 {
     INT err;
     HKEY serviceTypesKey;
