@@ -1405,15 +1405,7 @@ CPadDoc::SetStatusText(LPCTSTR pchStatusText)
         char    achStatus[256]= "";   // for log status
         if (pchar)
         {
-            WideCharToMultiByte(
-                    CP_ACP,
-                    0,
-                    pchar,
-                    _tcslen(pchar),
-                    achStatus,
-                    256,
-                    NULL,
-                    NULL);
+            WideCharToMultiByte(CP_ACP, 0, pchar, _tcslen(pchar), achStatus, 256, NULL, NULL);
         }
         TraceTag((tagStatus, "%s", achStatus));
     }
@@ -3053,15 +3045,7 @@ CPadDoc::PadWndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
             if (dwVersion >= 0x80000000)
             {
                 _tcscpy(szTemp, szBuffer);
-                WideCharToMultiByte(
-                        CP_ACP,
-                        0,
-                        szTemp,
-                        -1,
-                        (char *) szBuffer,
-                        sizeof(szBuffer),
-                        NULL,
-                        NULL);
+                WideCharToMultiByte(CP_ACP, 0, szTemp, -1, (char *) szBuffer, sizeof(szBuffer), NULL, NULL);
             }
             lpTooltipText->lpszText = szBuffer;
         }
@@ -4576,8 +4560,7 @@ FillFontProc(const LOGFONT *    lplf,
     fontStyle[0] = (lplf->lfWeight == FW_BOLD) ? (1) : (0);
     fontStyle[1] = (lplf->lfItalic == TRUE)    ? (1) : (0);
     fontStyle[2] = (lplf->lfUnderline == TRUE) ? (1) : (0);
-    WideCharToMultiByte(
-            CP_ACP,
+    WideCharToMultiByte(CP_ACP,
             0,
             (const WCHAR *) lplf->lfFaceName,
             -1,

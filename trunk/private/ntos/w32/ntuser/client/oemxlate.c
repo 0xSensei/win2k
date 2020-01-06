@@ -158,8 +158,7 @@ BOOL WINAPI CharToOemW(
 
     cch = wcslen(pSrc) + 1;
 
-    WideCharToMultiByte(
-            CP_OEMCP,           // Unicode -> OEM
+    WideCharToMultiByte(CP_OEMCP,           // Unicode -> OEM
             0,                  // gives best visual match
             (LPWSTR)pSrc, cch,  // source & length
             pDst,               // dest
@@ -194,8 +193,7 @@ BOOL WINAPI CharToOemBuffW(
         return FALSE;
     }
 
-    WideCharToMultiByte(
-            CP_OEMCP,                   // Unicode -> OEM
+    WideCharToMultiByte(CP_OEMCP,                   // Unicode -> OEM
             0,                          // gives best visual match
             (LPWSTR)pSrc, (int)nLength, // source & length
             pDst,                       // dest

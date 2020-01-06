@@ -301,9 +301,7 @@ BOOL DecodeUserOID(CRYPTCATSTORE *pCatStore, CAT_NAMEVALUE *pNV, BYTE **ppbUserO
         return(FALSE);
     }
 
-    WideCharToMultiByte(0, 0,
-                        pNV->pwszTag, wcslen(pNV->pwszTag) + 1,
-                        pszObjId, cbConv, NULL, NULL);
+    WideCharToMultiByte(0, 0, pNV->pwszTag, wcslen(pNV->pwszTag) + 1, pszObjId, cbConv, NULL, NULL);
 
     pszObjId[cbConv] = NULL;
 

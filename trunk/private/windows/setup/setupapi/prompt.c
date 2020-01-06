@@ -2495,9 +2495,7 @@ SetupPromptForDiskA(
         rc = GetLastError();
 
         if(u == DPROMPT_SUCCESS) {
-
-            Size = (DWORD)WideCharToMultiByte(
-                            CP_ACP,
+            Size = (DWORD)WideCharToMultiByte(CP_ACP,
                             0,
                             pathBuffer,
                             (int)Size,
@@ -2506,7 +2504,6 @@ SetupPromptForDiskA(
                             NULL,
                             NULL
                             );
-
             if(PathRequiredSize) {
                 *PathRequiredSize = Size;
             }
@@ -2750,9 +2747,7 @@ SetupCopyErrorA(
         rc = GetLastError();
 
         if(u == DPROMPT_SUCCESS) {
-
-            Size = (DWORD)WideCharToMultiByte(
-                            CP_ACP,
+            Size = (DWORD)WideCharToMultiByte(CP_ACP,
                             0,
                             pathBuffer,
                             (int)Size,
@@ -2761,7 +2756,6 @@ SetupCopyErrorA(
                             NULL,
                             NULL
                             );
-
             if(PathRequiredSize) {
                 *PathRequiredSize = Size;
             }

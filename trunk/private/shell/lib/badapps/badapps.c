@@ -368,16 +368,7 @@ ShCheckStrVersion (
     localData = (PTSTR)Data;
 #else
     convStr = HeapAlloc (GetProcessHeap (), 0, DataSize);
-    converted = WideCharToMultiByte (
-                    CP_ACP,
-                    0,
-                    (PWSTR)Data,
-                    -1,
-                    convStr,
-                    DataSize,
-                    NULL,
-                    NULL
-                    );
+    converted = WideCharToMultiByte (CP_ACP, 0, (PWSTR)Data, -1, convStr, DataSize, NULL, NULL);
     if (!converted) {
         HeapFree (GetProcessHeap (), 0, convStr);
         return FALSE;
@@ -494,16 +485,7 @@ ShCheck16BitDescription (
     localData = (PTSTR)Data;
 #else
     convStr = HeapAlloc (GetProcessHeap (), 0, DataSize);
-    converted = WideCharToMultiByte (
-                    CP_ACP,
-                    0,
-                    (PWSTR)Data,
-                    -1,
-                    convStr,
-                    DataSize,
-                    NULL,
-                    NULL
-                    );
+    converted = WideCharToMultiByte (CP_ACP, 0, (PWSTR)Data, -1, convStr, DataSize, NULL, NULL);
     if (!converted) {
         HeapFree (GetProcessHeap (), 0, convStr);
         return FALSE;

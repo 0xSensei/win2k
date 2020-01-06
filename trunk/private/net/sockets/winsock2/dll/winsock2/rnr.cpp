@@ -146,8 +146,7 @@ Return Value:
     CurrentNSInfo->lpszIdentifier = (LPWSTR)Context->BufferFreePtr;
     __try {
         if (Context->Ansi) {
-            WideCharToMultiByte(
-                CP_ACP,                                   // CodePage (ANSI)
+            WideCharToMultiByte(CP_ACP,                                   // CodePage (ANSI)
                 0,                                        // dwFlags
                 DisplayString,                            // lpWideCharStr
                 -1,                                       // cchWideChar
@@ -1326,8 +1325,7 @@ Returns:
 
                             __try {
                                 if (*lpdwBufferLength >= StringLen) {
-                                    WideCharToMultiByte(
-                                        CP_ACP,                         // CodePage (ANSI)
+                                    WideCharToMultiByte(CP_ACP,                         // CodePage (ANSI)
                                         0,                              // dwFlags
                                         pBuffer->lpszServiceClassName,  // lpWideCharStr
                                         -1,                             // cchWideChar
@@ -1856,8 +1854,7 @@ Return Value:
 
         if (ERROR_SUCCESS == ReturnValue) {
             __try {
-                WideCharToMultiByte(
-                    CP_ACP,                        // CodePage (Ansi)
+                WideCharToMultiByte(CP_ACP,                        // CodePage (Ansi)
                     0,                             // dwFlags
                     LocalString,                   // lpWideCharStr
                     -1,                            // cchWideCharStr

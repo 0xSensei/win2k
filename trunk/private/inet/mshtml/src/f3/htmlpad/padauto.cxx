@@ -1938,8 +1938,7 @@ CPadDoc::SetDefaultPrinter(BSTR bstrNewDefaultPrinter, VARIANT_BOOL * Success)
     else
     {
         char strNewDefaultPrinter[100];
-        DWORD cbNewDefaultPrinter = WideCharToMultiByte(
-                CP_ACP, 0, bstrNewDefaultPrinter, -1, strNewDefaultPrinter, 100, NULL, NULL);
+        DWORD cbNewDefaultPrinter = WideCharToMultiByte(CP_ACP, 0, bstrNewDefaultPrinter, -1, strNewDefaultPrinter, 100, NULL, NULL);
 
         hr = (cbNewDefaultPrinter && WriteProfileStringA("Windows", "Device", (const char *)strNewDefaultPrinter))
             ? S_OK : E_FAIL;
@@ -2822,16 +2821,7 @@ CPadDoc::ASSERT(VARIANT_BOOL fAssert, BSTR bstrMessage)
             else
                 pchName = _pScriptSite->_achPath;
 
-            WideCharToMultiByte(
-                    CP_ACP,
-                    0,
-                    pchName,
-                    -1,
-                    ach,
-                    MAX_PATH,
-                    NULL,
-                    NULL);
-
+            WideCharToMultiByte(CP_ACP, 0, pchName, -1, ach, MAX_PATH, NULL, NULL);
             strcat(ach, ": ");
         }
 
@@ -2843,15 +2833,7 @@ CPadDoc::ASSERT(VARIANT_BOOL fAssert, BSTR bstrMessage)
         }
         else
         {
-            WideCharToMultiByte(
-                    CP_ACP,
-                    0,
-                    bstrMessage,
-                    -1,
-                    &ach[strlen(ach)],
-                    ARRAY_SIZE(ach) - MAX_PATH - 3,
-                    NULL,
-                    NULL);
+            WideCharToMultiByte(CP_ACP, 0, bstrMessage, -1, &ach[strlen(ach)], ARRAY_SIZE(ach) - MAX_PATH - 3, NULL, NULL);
         }
 
         PrintLog(bstrMessage);

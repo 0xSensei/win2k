@@ -1247,8 +1247,7 @@ BOOL CacheGroupInfoW2A(
             lpUnicodeGroupInfo->dwOwnerStorage,
             GROUP_OWNER_STORAGE_SIZE * sizeof(DWORD) );
 
-    BOOL fRet = WideCharToMultiByte(
-                CP_ACP,
+    BOOL fRet = WideCharToMultiByte(CP_ACP,
                 0,              // no flags.
                 lpUnicodeGroupInfo->szGroupName,
                 -1,             // null terminated unicode string.

@@ -173,19 +173,15 @@ Return Value:
             // double-byte ANSI characters -- but the string in the ANSI structure
             // is only MAX_PATH *bytes* (not MAX_PATH double-byte *characters*) long.
 
-            i = WideCharToMultiByte(
-                    CP_ACP,
+            i = WideCharToMultiByte(CP_ACP,
                     0,
                     UnicodeDevInstParams->DriverPath,
                     sizeof(UnicodeDevInstParams->DriverPath) / sizeof(WCHAR),
                     AnsiString,
                     sizeof(AnsiString),
                     NULL,
-                    NULL
-                    );
-
+                    NULL);
             if(i) {
-
                 // Copy converted string into caller's structure, limiting
                 // its length to avoid overflow.
 
@@ -392,57 +388,42 @@ Return Value:
             // double-byte ANSI characters -- but the strings in the ANSI structure
             // are sized in *bytes* (not double-byte *characters*).
 
-            i = WideCharToMultiByte(
-                    CP_ACP,
+            i = WideCharToMultiByte(CP_ACP,
                     0,
                     UnicodeSelDevParams->Title,
                     sizeof(UnicodeSelDevParams->Title) / sizeof(WCHAR),
                     AnsiTitle,
                     sizeof(AnsiTitle),
                     NULL,
-                    NULL
-                    );
-
+                    NULL);
             if(i) {
-
-                i = WideCharToMultiByte(
-                        CP_ACP,
+                i = WideCharToMultiByte(CP_ACP,
                         0,
                         UnicodeSelDevParams->Instructions,
                         sizeof(UnicodeSelDevParams->Instructions) / sizeof(WCHAR),
                         AnsiInstructions,
                         sizeof(AnsiInstructions),
                         NULL,
-                        NULL
-                        );
-
+                        NULL);
                 if(i) {
-
-                    i = WideCharToMultiByte(
-                            CP_ACP,
+                    i = WideCharToMultiByte(CP_ACP,
                             0,
                             UnicodeSelDevParams->ListLabel,
                             sizeof(UnicodeSelDevParams->ListLabel) / sizeof(WCHAR),
                             AnsiListLabel,
                             sizeof(AnsiListLabel),
                             NULL,
-                            NULL
-                            );
-
+                            NULL);
                     if(i) {
-
-                        i = WideCharToMultiByte(
-                                CP_ACP,
+                        i = WideCharToMultiByte(CP_ACP,
                                 0,
                                 UnicodeSelDevParams->SubTitle,
                                 sizeof(UnicodeSelDevParams->SubTitle) / sizeof(WCHAR),
                                 AnsiSubTitle,
                                 sizeof(AnsiSubTitle),
                                 NULL,
-                                NULL
-                                );
+                                NULL);
                         if(i) {
-
                             // Copy converted strings into caller's structure, limiting
                             // lengths to avoid overflow. If any lstrcpynA call returns NULL
                             // then it faulted meaning a pointer is bad.
@@ -657,45 +638,33 @@ Return Value:
             // double-byte ANSI characters -- but the strings in the ANSI structure
             // are sized in *bytes* (not double-byte *characters*).
 
-            i = WideCharToMultiByte(
-                    CP_ACP,
+            i = WideCharToMultiByte(CP_ACP,
                     0,
                     UnicodeDrvInfoData->Description,
                     sizeof(UnicodeDrvInfoData->Description) / sizeof(WCHAR),
                     AnsiDescription,
                     sizeof(AnsiDescription),
                     NULL,
-                    NULL
-                    );
-
+                    NULL);
             if(i) {
-
-                i = WideCharToMultiByte(
-                        CP_ACP,
+                i = WideCharToMultiByte(CP_ACP,
                         0,
                         UnicodeDrvInfoData->MfgName,
                         sizeof(UnicodeDrvInfoData->MfgName) / sizeof(WCHAR),
                         AnsiMfgName,
                         sizeof(AnsiMfgName),
                         NULL,
-                        NULL
-                        );
-
+                        NULL);
                 if(i) {
-
-                    i = WideCharToMultiByte(
-                            CP_ACP,
+                    i = WideCharToMultiByte(CP_ACP,
                             0,
                             UnicodeDrvInfoData->ProviderName,
                             sizeof(UnicodeDrvInfoData->ProviderName) / sizeof(WCHAR),
                             AnsiProviderName,
                             sizeof(AnsiProviderName),
                             NULL,
-                            NULL
-                            );
-
+                            NULL);
                     if(i) {
-
                         // Copy converted strings into caller's structure, limiting
                         // lengths to avoid overflow. If any lstrcpynA call returns NULL
                         // then it faulted meaning a pointer is bad.

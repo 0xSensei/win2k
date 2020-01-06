@@ -1562,8 +1562,7 @@ Return Value:
     while (still_trying) {
         int  chars_required;
 
-        chars_required = WideCharToMultiByte(
-            CP_ACP,        // CodePage (Ansi)
+        chars_required = WideCharToMultiByte(CP_ACP,        // CodePage (Ansi)
             0,             // dwFlags
             Source,        // lpWideCharStr
             -1,            // cchWideChar

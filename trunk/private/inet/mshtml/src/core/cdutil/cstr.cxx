@@ -427,8 +427,7 @@ CStr::GetAltStr()
         pStr += sizeof(LPSTR);
         // and fill 'er up
 
-        cchBufReq = WideCharToMultiByte(
-                        CP_ACP, 0, _pch, Length(), pStr, cchBufReq, NULL, NULL);
+        cchBufReq = WideCharToMultiByte(CP_ACP, 0, _pch, Length(), pStr, cchBufReq, NULL, NULL);
         // guarantee null term
         pStr[cchBufReq] = '\0';
     }

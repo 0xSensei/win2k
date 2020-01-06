@@ -655,8 +655,7 @@ WINBASEAPI int WINAPI MultiByteToWideChar(
     LPWSTR   lpWideCharStr,
     int      cchWideChar);
 
-WINBASEAPI int WINAPI WideCharToMultiByte(
-    UINT     CodePage,
+WINBASEAPI int WINAPI WideCharToMultiByte(UINT     CodePage,
     DWORD    dwFlags,
     LPCWSTR  lpWideCharStr,
     int      cchWideChar,

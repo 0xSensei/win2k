@@ -458,8 +458,7 @@ CStrIn::Init(LPCWSTR pwstr, int cwch)
     // Convert string to preallocated buffer, and return if successful.
 
 
-    _cchLen = WideCharToMultiByte(
-        _uCP, 0, pwstr, cwch, _ach, ARRAYSIZE(_ach) - 1, NULL, NULL);
+    _cchLen = WideCharToMultiByte(_uCP, 0, pwstr, cwch, _ach, ARRAYSIZE(_ach) - 1, NULL, NULL);
 
     if (_cchLen > 0) {
         // This is DBCS safe since byte before _cchLen is last character
@@ -473,8 +472,7 @@ CStrIn::Init(LPCWSTR pwstr, int cwch)
     }
 
 
-    cchBufReq = WideCharToMultiByte(
-        CP_ACP, 0, pwstr, cwch, NULL, 0, NULL, NULL);
+    cchBufReq = WideCharToMultiByte(CP_ACP, 0, pwstr, cwch, NULL, 0, NULL, NULL);
 
     cchBufReq++;
 
@@ -488,8 +486,7 @@ CStrIn::Init(LPCWSTR pwstr, int cwch)
     }
 
     ASSERT(HIWORD64(_pstr));
-    _cchLen = WideCharToMultiByte(
-        _uCP, 0, pwstr, cwch, _pstr, cchBufReq, NULL, NULL);
+    _cchLen = WideCharToMultiByte(_uCP, 0, pwstr, cwch, _pstr, cchBufReq, NULL, NULL);
 #if DBG == 1 /* { */
     if (_cchLen < 0) {
         errcode = GetLastError();

@@ -675,8 +675,7 @@ CStrIn::Init(LPCWSTR pwstr, int cwch)
     // Convert string to preallocated buffer, and return if successful.
 
 
-    _cchLen = WideCharToMultiByte(
-            _uCP, 0, pwstr, cwch, _ach, ARRAY_SIZE(_ach)-1, NULL, NULL);
+    _cchLen = WideCharToMultiByte(_uCP, 0, pwstr, cwch, _ach, ARRAY_SIZE(_ach)-1, NULL, NULL);
 
     if (_cchLen > 0)
     {
@@ -693,8 +692,7 @@ CStrIn::Init(LPCWSTR pwstr, int cwch)
 
     // Alloc space on heap for buffer.
 
-    cchBufReq = WideCharToMultiByte(
-            _uCP, 0, pwstr, cwch, NULL, 0, NULL, NULL);
+    cchBufReq = WideCharToMultiByte(_uCP, 0, pwstr, cwch, NULL, 0, NULL, NULL);
 
     Assert(cchBufReq > 0);
 
@@ -714,8 +712,7 @@ CStrIn::Init(LPCWSTR pwstr, int cwch)
     }
 
     Assert(HIWORD64(_pstr));
-    _cchLen = WideCharToMultiByte(
-            _uCP, 0, pwstr, cwch, _pstr, cchBufReq, NULL, NULL);
+    _cchLen = WideCharToMultiByte(_uCP, 0, pwstr, cwch, _pstr, cchBufReq, NULL, NULL);
 
 #if DBG == 1 /* { */
     if (_cchLen < 0)

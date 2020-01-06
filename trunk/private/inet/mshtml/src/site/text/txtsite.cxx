@@ -439,17 +439,13 @@ CTxtSite::createControlRange(IDispatch ** ppDisp)
 // Made this static so I would not have to declare FILE in _edit.h
 HANDLE g_f;
 
-void WriteFileAnsi (
-    HANDLE hFile, LPCVOID lpBuffer,
-    DWORD nNumberOfBytesToWrite )
+void WriteFileAnsi (HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite )
 {
     char buffer [ 1024 ];
     long _cchLen;
     DWORD nbw;
 
-    _cchLen = WideCharToMultiByte(
-        CP_ACP, 0, LPWSTR( lpBuffer ), nNumberOfBytesToWrite,
-        buffer, ARRAY_SIZE(buffer), NULL, NULL );
+    _cchLen = WideCharToMultiByte(CP_ACP, 0, LPWSTR( lpBuffer ), nNumberOfBytesToWrite, buffer, ARRAY_SIZE(buffer), NULL, NULL );
 
     WriteFile( hFile, buffer, _cchLen, & nbw, NULL );
 }

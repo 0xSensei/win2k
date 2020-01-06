@@ -2170,60 +2170,37 @@ PutChar(
 }
 
 /*
-
 *  FlushIoBuffer
 
 *  DESCRIPTION:
 *     Flushes the contents of the registry file stream to the disk and resets
 *     the buffer pointer.
-
-*  PARAMETERS:
-*     (none).
-
 */
-
-VOID
-NEAR PASCAL
-FlushIoBuffer(
-    VOID
-    )
+VOID NEAR PASCAL FlushIoBuffer(VOID)
 {
-
     FILE_NUMBYTES NumberOfBytesWritten;
 
     if (s_FileIo.BufferOffset) {
-
         if (g_RegEditData.fSaveInDownlevelFormat)
         {
-
             // Convert Unicode to ANSI before writing.
-
-
             int i;
 
-            i = WideCharToMultiByte(
-                    CP_THREAD_ACP,
+            i = WideCharToMultiByte(CP_THREAD_ACP,
                     0,
                     s_FileIo.Buffer,
                     s_FileIo.BufferOffset,
                     s_FileIo.ConversionBuffer,
                     sizeof(s_FileIo.ConversionBuffer),
                     NULL,
-                    NULL
-                    );
-
-            if (!WRITEFILE(s_FileIo.hFile, s_FileIo.ConversionBuffer, i,
-                &NumberOfBytesWritten) || (FILE_NUMBYTES) i !=
-                NumberOfBytesWritten)
-
+                    NULL);
+            if (!WRITEFILE(s_FileIo.hFile, s_FileIo.ConversionBuffer, i, &NumberOfBytesWritten) || (FILE_NUMBYTES) i != NumberOfBytesWritten)
                 g_FileErrorStringID = IDS_EXPFILEERRFILEWRITE;
         }
         else
         {
-
             // Write Unicode text
-
-            if (!WRITEFILE(s_FileIo.hFile, s_FileIo.Buffer, s_FileIo.BufferOffset * sizeof(WCHAR),
+            if (!WRITEFILE(s_FileIo.hFile, s_FileIo.Buffer, s_FileIo.BufferOffset * sizeof(WCHAR), 
                 &NumberOfBytesWritten) || (FILE_NUMBYTES) (s_FileIo.BufferOffset * sizeof(WCHAR)) !=
                 NumberOfBytesWritten)
                 g_FileErrorStringID = IDS_EXPFILEERRFILEWRITE;
@@ -2231,5 +2208,4 @@ FlushIoBuffer(
     }
 
     s_FileIo.BufferOffset = 0;
-
 }

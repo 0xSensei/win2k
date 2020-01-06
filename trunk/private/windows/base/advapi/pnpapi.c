@@ -235,8 +235,7 @@ Return Value:
     }
 
     // Perform the conversion.
-    BytesInString = WideCharToMultiByte(
-                        Codepage,
+    BytesInString = WideCharToMultiByte(Codepage,
                         0,                      // default composite char behavior
                         UnicodeString,
                         WideCharCount,

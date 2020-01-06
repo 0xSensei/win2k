@@ -222,8 +222,7 @@ STDMETHODIMP IconExt_Load(LPPERSISTFILE pPersistFile, LPCOLESTR lpszFileName, DW
     int iRet = 0;
 
 #if 1
-    iRet = WideCharToMultiByte(
-            CP_ACP,             // CodePage
+    iRet = WideCharToMultiByte(CP_ACP,             // CodePage
             0,                    // dwFlags
             lpszFileName,        // lpWideCharStr
             -1,                 // cchWideChar

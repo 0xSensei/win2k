@@ -1858,8 +1858,7 @@ GetMonitorInfo(HMONITOR hMonitor, LPMONITORINFO lpmi)
             return FALSE;
         }
 #if IS_ANSI
-        WideCharToMultiByte(
-            CP_ACP, 0,                                  // ANSI -> Unicode
+        WideCharToMultiByte(CP_ACP, 0,                                  // ANSI -> Unicode
             (LPWSTR)pName, -1,                          // source & length
             (LPSTR)((LPMONITORINFOEX)lpmi)->szDevice,   // destination & length
             sizeof(WCHAR)*CCHDEVICENAME,

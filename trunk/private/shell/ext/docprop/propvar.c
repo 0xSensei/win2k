@@ -310,8 +310,7 @@ FCoWStrToStr( LPSTR             *lplpstr,
 
     while (TRUE)
     {
-        cbBuffer = WideCharToMultiByte(
-                    uCodePage,         // Source code page
+        cbBuffer = WideCharToMultiByte(uCodePage,         // Source code page
                     0,                  // Default flags
                     lpwstr,             // Source string
                     cch + 1,            // # chars in wide string (including NULL)

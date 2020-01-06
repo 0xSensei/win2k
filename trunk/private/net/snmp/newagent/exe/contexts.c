@@ -502,15 +502,7 @@ Return Values:
                 }
 
                 // convert the UNICODE representation to UTF8 representation
-                //dwNameSize = WideCharToMultiByte(
-                //        CP_UTF8,
-                //        0,
-                //        wszName,
-                //        wcslen(wszName),
-                //        szName,
-                //        sizeof(szName),
-                //        NULL,
-                //        NULL);
+                //dwNameSize = WideCharToMultiByte(CP_UTF8, 0, wszName, wcslen(wszName), szName, sizeof(szName), NULL, NULL);
 
                 // if error, just skip this community
                 //if (dwNameSize == 0)

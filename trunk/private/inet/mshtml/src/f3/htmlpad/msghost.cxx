@@ -704,8 +704,7 @@ FillFontProc(LOGFONT FAR *    lplf,
     fontStyle[0] = (lplf->lfWeight == FW_BOLD) ? (1) : (0);
     fontStyle[1] = (lplf->lfItalic == TRUE) ? (1) : (0);
     fontStyle[2] = (lplf->lfUnderline == TRUE) ? (1) : (0);
-    WideCharToMultiByte(
-        CP_ACP,
+    WideCharToMultiByte(CP_ACP,
         0,
         (const wchar_t *)lplf->lfFaceName,
         -1,

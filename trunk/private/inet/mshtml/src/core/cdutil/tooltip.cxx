@@ -203,10 +203,7 @@ CTooltip::Show(
         if ( NULL == _ti.lpszText )
             return;
 
-        WideCharToMultiByte(CP_ACP, NULL,
-                            szText, -1,
-                            _ti.lpszText, _tcslen(szText),
-                            NULL, NULL);
+        WideCharToMultiByte(CP_ACP, NULL, szText, -1, _ti.lpszText, _tcslen(szText), NULL, NULL);
         _ti.lpszText[_tcslen(szText)] = '\0';
         SendMessageA(_hwnd, TTM_ADDTOOLA, 0, (LPARAM)&_ti);
 

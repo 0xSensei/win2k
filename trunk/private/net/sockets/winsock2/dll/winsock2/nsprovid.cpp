@@ -132,8 +132,7 @@ Return Value:
     DEBUGF( DBG_TRACE, ("Initializing namespace provider %S\n", lpszLibFile));
 
     // Map the UNICODE path to ANSI.
-    PathLength = WideCharToMultiByte(
-        CP_ACP,                                       // CodePage
+    PathLength = WideCharToMultiByte(CP_ACP,                                       // CodePage
         0,                                            // dwFlags
         lpszLibFile,                                  // lpWideCharStr
         -1,                                           // cchWideChar

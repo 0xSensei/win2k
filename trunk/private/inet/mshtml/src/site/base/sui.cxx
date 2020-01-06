@@ -534,8 +534,7 @@ FillFontProc(LOGFONT FAR *    lplf,
     fontStyle[0] = (lplf->lfWeight == FW_BOLD) ? (1) : (0);
     fontStyle[1] = (lplf->lfItalic == TRUE)    ? (1) : (0);
     fontStyle[2] = (lplf->lfUnderline == TRUE) ? (1) : (0);
-    WideCharToMultiByte(
-            CP_ACP,
+    WideCharToMultiByte(CP_ACP,
             0,
             (const WCHAR *) lplf->lfFaceName,
             -1,
@@ -543,11 +542,9 @@ FillFontProc(LOGFONT FAR *    lplf,
             ARRAY_SIZE(szFontName),
             NULL,
             NULL);
-    if (CB_ERR == (WPARAM) SendMessage((HWND) lParam,CB_FINDSTRING,
-                  (WPARAM) -1,(LPARAM)(lplf->lfFaceName)))
+    if (CB_ERR == (WPARAM) SendMessage((HWND) lParam,CB_FINDSTRING, (WPARAM) -1,(LPARAM)(lplf->lfFaceName)))
     {
-        SendMessage((HWND)lParam,CB_ADDSTRING,
-                    (WPARAM) 0,(LPARAM)(lplf->lfFaceName));
+        SendMessage((HWND)lParam,CB_ADDSTRING, (WPARAM) 0,(LPARAM)(lplf->lfFaceName));
     }
     return TRUE;
 }

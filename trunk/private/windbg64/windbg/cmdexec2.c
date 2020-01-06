@@ -2291,8 +2291,7 @@ Return Value:
                     if (uiCodePage == (UINT)-1) {
                         uiCodePage = GetACP();
                     }
-                    iCount = WideCharToMultiByte(
-                                uiCodePage,         // CodePage
+                    iCount = WideCharToMultiByte(uiCodePage,         // CodePage
                                 0,                  // dwFlags
                                 (LPWCH)rgb,         // lpWideCharStr
                                 1,                  // cchWideCharLength
@@ -2369,8 +2368,7 @@ Return Value:
                     if (uiCodePage == (UINT)-1) {
                         uiCodePage = GetACP();
                     }
-                    iCount = WideCharToMultiByte(
-                                uiCodePage,         // CodePage
+                    iCount = WideCharToMultiByte(uiCodePage,         // CodePage
                                 0,                  // dwFlags
                                 (LPWCH)rgb,         // lpWideCharStr
                                 1,                  // cchWideCharLength

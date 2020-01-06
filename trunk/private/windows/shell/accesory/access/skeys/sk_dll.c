@@ -470,13 +470,8 @@ static void GetCurrentValues()
     DBG_OUT("GetCurrentValues()");
 
 #ifdef UNICODE
-    WideCharToMultiByte(
-        CP_ACP, 0, skCurKey.lpszActivePort, -1,
-        SKeyDLL.szActivePort, sizeof(SKeyDLL.szActivePort), NULL, NULL);
-
-    WideCharToMultiByte(
-        CP_ACP, 0, skCurKey.lpszPort, -1,
-        SKeyDLL.szPort, sizeof(SKeyDLL.szPort), NULL, NULL);
+    WideCharToMultiByte(CP_ACP, 0, skCurKey.lpszActivePort, -1, SKeyDLL.szActivePort, sizeof(SKeyDLL.szActivePort), NULL, NULL);
+    WideCharToMultiByte(CP_ACP, 0, skCurKey.lpszPort, -1, SKeyDLL.szPort, sizeof(SKeyDLL.szPort), NULL, NULL);
 #else
     lstrcpy(SKeyDLL.szActivePort,skCurKey.lpszActivePort);
     lstrcpy(SKeyDLL.szPort,skCurKey.lpszPort);

@@ -1927,11 +1927,7 @@ LRESULT APIENTRY CharGridWndProc(
                         {
                             BYTE mb[2];
                             WORD wCharCode;
-                            if (WideCharToMultiByte(
-                                lCodePage, WC_NO_BEST_FIT_CHARS,
-                                &wc, 1,
-                                (char*)mb, 2,
-                                NULL, NULL ) == 1)
+                            if (WideCharToMultiByte(lCodePage, WC_NO_BEST_FIT_CHARS, &wc, 1, (char*)mb, 2, NULL, NULL ) == 1)
                             {
                                 wCharCode = mb[0];     // single-byte
                             }
@@ -2826,11 +2822,7 @@ VOID UpdateKeystrokeText(
             if((lCodePage = CodePage_GetCurCodePageVal()) != UNICODE_CODEPAGE)
             {
                 int i;
-                i = WideCharToMultiByte(
-                        lCodePage, WC_NO_BEST_FIT_CHARS,
-                        &pCode[chNew], 1,
-                        (char*)mb, 2,
-                        NULL, NULL );
+                i = WideCharToMultiByte(lCodePage, WC_NO_BEST_FIT_CHARS, &pCode[chNew], 1, (char*)mb, 2, NULL, NULL );
                 if(i == 1)
                 {
                     wCharCode = mb[0];               // single-byte

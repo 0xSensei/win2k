@@ -88,17 +88,14 @@ pUnicodeToAnsiForDisplay (
         return NULL;
     }
 
-    rc = WideCharToMultiByte (
-            atoi (CodePage),
+    rc = WideCharToMultiByte (atoi (CodePage),
             WC_COMPOSITECHECK|WC_DISCARDNS,
             UnicodeStr,
             -1,
             AnsiBuffer,
             Len,
             NULL,
-            NULL
-            );
-
+            NULL);
     if (rc == 0) {
         MyFree (AnsiBuffer);
         return NULL;

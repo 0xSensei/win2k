@@ -3708,17 +3708,7 @@ SetupDiGetDriverInfoDetailA(
 
     // Convert the chars in the multi_sz.
 
-    i = WideCharToMultiByte(
-            CP_ACP,
-            0,
-            Details->HardwareID,
-            CharCount,
-            AnsiMultiSz,
-            CharCount*2,
-            NULL,
-            NULL
-            );
-
+    i = WideCharToMultiByte(CP_ACP, 0, Details->HardwareID, CharCount, AnsiMultiSz, CharCount*2, NULL, NULL);
     if(!i) {
         rc = GetLastError();
         MyFree(Details);
@@ -3755,38 +3745,11 @@ SetupDiGetDriverInfoDetailA(
 
             // Convert fixed strings and guard against overflow.
 
-            i = WideCharToMultiByte(
-                    CP_ACP,0,
-                    Details->SectionName,
-                    -1,
-                    SectionName,
-                    sizeof(SectionName),
-                    NULL,
-                    NULL
-                    );
-
+            i = WideCharToMultiByte(CP_ACP,0, Details->SectionName, -1, SectionName, sizeof(SectionName), NULL, NULL);
             if(i) {
-                i = WideCharToMultiByte(
-                        CP_ACP,0,
-                        Details->InfFileName,
-                        -1,
-                        InfFileName,
-                        sizeof(InfFileName),
-                        NULL,
-                        NULL
-                        );
-
+                i = WideCharToMultiByte(CP_ACP,0, Details->InfFileName, -1, InfFileName, sizeof(InfFileName), NULL, NULL);
                 if(i) {
-                    i = WideCharToMultiByte(
-                            CP_ACP,0,
-                            Details->DrvDescription,
-                            -1,
-                            DrvDescription,
-                            sizeof(DrvDescription),
-                            NULL,
-                            NULL
-                            );
-
+                    i = WideCharToMultiByte(CP_ACP,0, Details->DrvDescription, -1, DrvDescription, sizeof(DrvDescription), NULL, NULL);
                     if(!i) {
                         rc = GetLastError();
                     }

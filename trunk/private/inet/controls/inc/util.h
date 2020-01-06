@@ -4,8 +4,7 @@
 
 // THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
+// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 
 // contains utilities that we will find useful.
 #ifndef _UTIL_H_
@@ -28,7 +27,7 @@ HINSTANCE GetResourceHandle(void);
 // nested scope in which you created this buffer. people should not use this
 // class directly.  use the macro(s) below.
 class TempBuffer {
-  public:
+public:
     TempBuffer(ULONG cBytes) {
         m_pBuf = (cBytes <= 120) ? &m_szTmpBuf : HeapAlloc(g_hHeap, 0, cBytes);
         m_fHeapAlloc = (cBytes > 120);
@@ -36,15 +35,15 @@ class TempBuffer {
     ~TempBuffer() {
         if (m_pBuf && m_fHeapAlloc) HeapFree(g_hHeap, 0, m_pBuf);
     }
-    void *GetBuffer() {
+    void* GetBuffer() {
         return m_pBuf;
     }
 
-  private:
-    void *m_pBuf;
+private:
+    void* m_pBuf;
     // we'll use this temp buffer for small cases.
     char  m_szTmpBuf[120];
-    unsigned m_fHeapAlloc:1;
+    unsigned m_fHeapAlloc : 1;
 };
 
 
@@ -111,8 +110,8 @@ BOOL UnregisterTypeLibrary(REFCLSID riidLibrary);
 BOOL DeleteKeyAndSubKeys(HKEY hk, LPSTR pszSubKey);
 
 // conversion helpers.
-void        HiMetricToPixel(const SIZEL *pSizeInHiMetric, SIZEL *pSizeinPixels);
-void        PixelToHiMetric(const SIZEL *pSizeInPixels, SIZEL *pSizeInHiMetric);
+void        HiMetricToPixel(const SIZEL* pSizeInHiMetric, SIZEL* pSizeinPixels);
+void        PixelToHiMetric(const SIZEL* pSizeInPixels, SIZEL* pSizeInHiMetric);
 
 #define _UTIL_H_
 #endif // _UTIL_H_

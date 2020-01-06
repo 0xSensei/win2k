@@ -713,8 +713,7 @@ Return Value:
         CopyMemory(AnsiProtocolInfo, UnicodeProtocolInfo, sizeof(*UnicodeProtocolInfo) - sizeof(UnicodeProtocolInfo->szProtocol));
 
         // And now map the string from UNICODE to ANSI.
-        result = WideCharToMultiByte(
-                     CP_ACP,                                    // CodePage (ANSI)
+        result = WideCharToMultiByte(CP_ACP,                                    // CodePage (ANSI)
                      0,                                         // dwFlags
                      UnicodeProtocolInfo->szProtocol,           // lpWideCharStr
                      -1,                                        // cchWideChar

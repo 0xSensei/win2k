@@ -1139,11 +1139,7 @@ BOOL GetNewLinkName(HWND hwndOwner, PCARD pCard)
         {
              char buff[400];
              INT oleSize;
-             oleSize= WideCharToMultiByte(
-                        CP_ACP, 0,
-                        lpstrLink, dwSize,
-                        buff, sizeof(buff),
-                        NULL, NULL );
+             oleSize= WideCharToMultiByte(CP_ACP, 0, lpstrLink, dwSize, buff, sizeof(buff), NULL, NULL );
              CopyMemory( lpstrLink, buff, oleSize );
         }
 

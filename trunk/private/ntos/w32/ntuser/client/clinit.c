@@ -890,8 +890,7 @@ VOID InitOemXlateTables()
 
         UserAssert(cch == NCHARS);
 
-        WideCharToMultiByte(
-            CP_OEMCP,                         // Unicode -> OEM
+        WideCharToMultiByte(CP_OEMCP,                         // Unicode -> OEM
             0,                                // gives best visual match
             awch, NCHARS,                     // source & length
             AnsiToOem, NCHARS,               // dest & max poss. length
@@ -919,8 +918,7 @@ VOID InitOemXlateTables()
         awch[0x0F] = 0x00a4;
         awch[0x7f] = 0x007f;
 
-        WideCharToMultiByte(
-            CP_ACP,                           // Unicode -> ANSI
+        WideCharToMultiByte(CP_ACP,                           // Unicode -> ANSI
             0,                                // gives best visual match
             awch, NCHARS,                     // source & length
             OemToAnsi, NCHARS,               // dest & max poss. length

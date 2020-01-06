@@ -46,8 +46,7 @@ typedef int (WINAPI FNMULTIBYTETOWIDECHAR)(
     OUT LPWSTR lpWideCharStr,
     IN int cchWideChar);
 
-typedef int (WINAPI FNWIDECHARTOMULTIBYTE)(
-    IN UINT CodePage,
+typedef int (WINAPI FNWIDECHARTOMULTIBYTE)(IN UINT CodePage,
     IN DWORD dwFlags,
     IN LPCWSTR lpWideCharStr,
     IN int cchWideChar,

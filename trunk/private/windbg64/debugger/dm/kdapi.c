@@ -503,16 +503,14 @@ ULONG UnicodeStringToAnsiString(PANSI_STRING    DestinationString, PUNICODE_STRI
         }
     }
 
-    DestinationString->Length = (WORD)WideCharToMultiByte(
-        CP_ACP,
+    DestinationString->Length = (WORD)WideCharToMultiByte(CP_ACP,
         WC_COMPOSITECHECK,
         (PVOID)SourceString->Buffer,
         SourceString->Length / 2,
         (PVOID)DestinationString->Buffer,
         DestinationString->MaximumLength,
         NULL,
-        NULL
-        );
+        NULL);
 
     return 0;
 }
@@ -812,16 +810,14 @@ ReloadCrashModules(
             continue;
         }
 
-        WideCharToMultiByte(
-            CP_OEMCP,
+        WideCharToMultiByte(CP_OEMCP,
             0,
             UnicodeBuffer,
             DataTableBuffer.BaseDllName.Length / 2,
             AnsiBuffer,
             sizeof(AnsiBuffer),
             NULL,
-            NULL
-            );
+            NULL);
 
 
         // establish an alias for the crash driver

@@ -63,8 +63,7 @@ ListView_InsertItemAnsi(
         // try fast buffer first.
 
 
-        cchRequired = WideCharToMultiByte(
-            CP_ACP,
+        cchRequired = WideCharToMultiByte(CP_ACP,
             0,
             pszText,
             cchText + 1, // include NULL
@@ -82,8 +81,7 @@ ListView_InsertItemAnsi(
             pszTextAnsi = FastBuffer;
         }
 
-        cchRequired = WideCharToMultiByte(
-            CP_ACP,
+        cchRequired = WideCharToMultiByte(CP_ACP,
             0,
             pszText,
             cchText + 1, // include NULL
@@ -140,8 +138,7 @@ ListView_SetItemTextAnsi(
         // try fast buffer first.
 
 
-        cchRequired = WideCharToMultiByte(
-            CP_ACP,
+        cchRequired = WideCharToMultiByte(CP_ACP,
             0,
             pszText,
             cchText + 1, // include NULL
@@ -159,8 +156,7 @@ ListView_SetItemTextAnsi(
             pszTextAnsi = FastBuffer;
         }
 
-        cchRequired = WideCharToMultiByte(
-            CP_ACP,
+        cchRequired = WideCharToMultiByte(CP_ACP,
             0,
             pszText,
             cchText + 1, // include NULL

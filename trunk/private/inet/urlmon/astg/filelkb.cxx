@@ -227,15 +227,7 @@ SCODE CFileLockBytes::Init(OLECHAR const *pwcsName)
     TCHAR atcPath[_MAX_PATH + 1];
     UINT uCodePage = AreFileApisANSI() ? CP_ACP : CP_OEMCP;
 
-    if (!WideCharToMultiByte(
-        uCodePage,
-        0,
-        pwcsName,
-        -1,
-        atcPath,
-        _MAX_PATH + 1,
-        NULL,
-        NULL))
+    if (!WideCharToMultiByte(uCodePage, 0, pwcsName, -1, atcPath, _MAX_PATH + 1, NULL, NULL))
     {
         return STG_E_INVALIDNAME;
     }

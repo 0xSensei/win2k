@@ -2545,23 +2545,10 @@ SetupGetBackupInformationA(
 
         b = SetupGetBackupInformationW(QueueHandle,&BackupParamsW);
         if (b) {
-
             // success, convert structure from UNICODE to ANSI
-
-            i = WideCharToMultiByte(
-                    CP_ACP,
-                    0,
-                    BackupParamsW.FullInfPath,
-                    MAX_PATH,
-                    BackupParams->FullInfPath,
-                    MAX_PATH,
-                    NULL,
-                    NULL
-                    );
+            i = WideCharToMultiByte(CP_ACP, 0, BackupParamsW.FullInfPath, MAX_PATH, BackupParams->FullInfPath, MAX_PATH, NULL, NULL);
             if (i==0) {
-
                 // error occurred (LastError set to error)
-
                 b = FALSE;
                 leave;              // exit try block
             }

@@ -291,9 +291,7 @@ BOOL LSReExtTextOutW(
 int WideCharToMultiByteForSymbolQuick(UINT,DWORD,LPCWSTR,int,LPSTR,int);
 int WideCharToMultiByteForSymbolSlow(UINT,DWORD,LPCWSTR,int,LPSTR,int,const int*,int*);
 
-int
-WideCharToMultiByteForSymbol(
-    UINT        uiCodePage,
+int WideCharToMultiByteForSymbol(UINT        uiCodePage,
     DWORD       dwFlags,
     LPCWSTR     pch,
     int         cch,
@@ -318,9 +316,7 @@ WideCharToMultiByteForSymbol(
 }
 
 
-int
-WideCharToMultiByteForSymbolQuick(
-    UINT        uiCodePage,
+int WideCharToMultiByteForSymbolQuick(UINT        uiCodePage,
     DWORD       dwFlags,
     LPCWSTR     pch,
     int         cch,
@@ -387,9 +383,7 @@ WideCharToMultiByteForSymbolQuick(
 }
 
 
-int
-WideCharToMultiByteForSymbolSlow(
-    UINT        uiCodePage,
+int WideCharToMultiByteForSymbolSlow(UINT        uiCodePage,
     DWORD       dwFlags,
     LPCWSTR     pch,
     int         cch,

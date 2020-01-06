@@ -168,8 +168,7 @@ Return Value:
 
     // Perform the conversion.
 
-    BytesInString = WideCharToMultiByte(
-                        Codepage,
+    BytesInString = WideCharToMultiByte(Codepage,
                         0,                      // default composite char behavior
                         UnicodeString,
                         WideCharCount,
@@ -178,7 +177,6 @@ Return Value:
                         NULL,
                         NULL
                         );
-
     if(BytesInString == 0) {
         MyFree(String);
         return(NULL);

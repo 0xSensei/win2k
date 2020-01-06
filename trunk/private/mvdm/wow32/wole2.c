@@ -342,8 +342,7 @@ UINT GetHtaskAliasProcessName(
             // Found it, return the name.
             if ( ProcessInfo->ImageName.Buffer ) {
                 cNameBufferSize =
-                    WideCharToMultiByte(
-                        CP_ACP,
+                    WideCharToMultiByte(CP_ACP,
                         0,
                         ProcessInfo->ImageName.Buffer,    // src
                         ProcessInfo->ImageName.Length,

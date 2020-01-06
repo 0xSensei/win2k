@@ -205,11 +205,7 @@ LPWSTR OLESTRDuplicate(LPCWSTR ws)
 //  Notes:
 
 
-void WideCharToMultiByteWithMlang(
-    LPCWSTR lpwszWide,
-    LPSTR   lpszAnsi,
-    int     cchAnsi,
-    DWORD   dwCodePage)
+void WideCharToMultiByteWithMlang(LPCWSTR lpwszWide, LPSTR   lpszAnsi, int     cchAnsi, DWORD   dwCodePage)
 {
     INT cchOut;
     INT cchIn = wcslen(lpwszWide);

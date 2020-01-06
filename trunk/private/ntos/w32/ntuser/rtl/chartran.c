@@ -153,8 +153,7 @@ WCSToMBEx(
          * Call GRE to convert string to Unicode. (Kernel mode)
          */
 
-        iCharsInAnsiString = EngWideCharToMultiByte(
-                                 (UINT)wCodePage,
+        iCharsInAnsiString = EngWideCharToMultiByte((UINT)wCodePage,
                                  (LPWSTR)pUnicodeString,
                                  cchUnicodeString * sizeof(WCHAR),
                                  (LPSTR)*ppAnsiString,
@@ -167,13 +166,7 @@ WCSToMBEx(
         /*
          * Call NLS API (Kernel32) to convert string to Unicode. (User mode)
          */
-        nCharsInAnsiString = WideCharToMultiByte(
-                                 (UINT)wCodePage, 0,
-                                 (LPCWSTR)pUnicodeString,
-                                 cchUnicodeString,
-                                 (LPSTR)*ppAnsiString,
-                                 nAnsiChar,
-                                 NULL, NULL);
+        nCharsInAnsiString = WideCharToMultiByte((UINT)wCodePage, 0, (LPCWSTR)pUnicodeString, cchUnicodeString, (LPSTR)*ppAnsiString, nAnsiChar, NULL, NULL);
 #endif // _USERK_
 
         if (nCharsInAnsiString == 0) {

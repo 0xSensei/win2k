@@ -1134,15 +1134,7 @@ ToAsciiEx(
             uCachedCP = dwCodePage;
             hCachedHKL = hkl;
         }
-        if (!WideCharToMultiByte(
-                 uCachedCP,
-                 0,
-                 UnicodeChar,
-                 cch,
-                 (LPSTR)lpChar,
-                 sizeof(*lpChar),
-                 NULL,
-                 &fUsedDefaultChar)) {
+        if (!WideCharToMultiByte(uCachedCP, 0, UnicodeChar, cch, (LPSTR)lpChar, sizeof(*lpChar), NULL, &fUsedDefaultChar)) {
             return 0;
         }
     }

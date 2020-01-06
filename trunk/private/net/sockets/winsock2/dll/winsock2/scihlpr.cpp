@@ -85,8 +85,7 @@ DWORD CalculateBufferSize(BOOL IsAnsi, LPVOID Buffer)
     } //if
     else{
         StringLen =0;
-        StringLen = WideCharToMultiByte(
-            CP_ACP,                        // CodePage (Ansi)
+        StringLen = WideCharToMultiByte(CP_ACP,                        // CodePage (Ansi)
             0,                             // dwFlags
             UnicodeBuffer->lpszServiceClassName, // lpWideCharStr
             -1,                            // cchWideChar
@@ -119,8 +118,7 @@ DWORD CalculateBufferSize(BOOL IsAnsi, LPVOID Buffer)
         } //if
         else{
             StringLen = 0;
-            StringLen = WideCharToMultiByte(
-                CP_ACP,                        // CodePage (Ansi)
+            StringLen = WideCharToMultiByte(CP_ACP,                        // CodePage (Ansi)
                 0,                             // dwFlags
                 UnicodeBuffer->lpClassInfos[Index].lpszName,  // lpWideCharStr
                 -1,                            // cchWideChar
@@ -279,8 +277,7 @@ MapUnicodeServiceClassInfoToAnsi(
         // Copy variable portion
 
         Target->lpszServiceClassName = (LPSTR)FreeSpace;
-        StringLen = WideCharToMultiByte(
-            CP_ACP,                          // CodePage (Ansi)
+        StringLen = WideCharToMultiByte(CP_ACP,                          // CodePage (Ansi)
             0,                               // dwFlags
             Source->lpszServiceClassName,    // lpWideCharStr
             -1,                              // cchWideChar
@@ -290,8 +287,7 @@ MapUnicodeServiceClassInfoToAnsi(
             NULL);                           // lpUsedDefaultChar
 
         FreeSpace += (StringLen+1);
-        WideCharToMultiByte(
-            CP_ACP,                          // CodePage (Ansi)
+        WideCharToMultiByte(CP_ACP,                          // CodePage (Ansi)
             0,                               // dwFlags
             Source->lpszServiceClassName,    // lpWideCharStr
             -1,                              // cchWideChar
@@ -308,8 +304,7 @@ MapUnicodeServiceClassInfoToAnsi(
             Target->lpClassInfos[Index].lpszName = (LPSTR)FreeSpace;
             TargetString = Target->lpClassInfos[Index].lpszName;
 
-            StringLen = WideCharToMultiByte(
-                CP_ACP,                          // CodePage (Ansi)
+            StringLen = WideCharToMultiByte(CP_ACP,                          // CodePage (Ansi)
                 0,                               // dwFlags
                 SourceString,                    // lpWideCharStr
                 -1,                              // cchWideChar
@@ -319,8 +314,7 @@ MapUnicodeServiceClassInfoToAnsi(
                 NULL);                           // lpUsedDefaultChar
 
             FreeSpace += (StringLen+1);
-            WideCharToMultiByte(
-                CP_ACP,                          // CodePage (Ansi)
+            WideCharToMultiByte(CP_ACP,                          // CodePage (Ansi)
                 0,                               // dwFlags
                 SourceString,                    // lpWideCharStr
                 -1,                              // cchWideChar

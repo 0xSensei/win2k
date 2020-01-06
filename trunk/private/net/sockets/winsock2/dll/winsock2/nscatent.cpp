@@ -341,8 +341,7 @@ Return Value:
         }
     }
     else {
-        pathLength = WideCharToMultiByte(
-            CP_ACP,                                       // CodePage
+        pathLength = WideCharToMultiByte(CP_ACP,                                       // CodePage
             0,                                            // dwFlags
             m_LibraryPath,                                // lpWideCharStr
             -1,                                           // cchWideChar
@@ -428,8 +427,7 @@ Return Value:
         }
     }
     else {
-        pathLength = WideCharToMultiByte(
-            CP_ACP,                                       // CodePage
+        pathLength = WideCharToMultiByte(CP_ACP,                                       // CodePage
             0,                                            // dwFlags
             m_providerDisplayString,                      // lpWideCharStr
             -1,                                           // cchWideChar

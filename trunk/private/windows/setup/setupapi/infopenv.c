@@ -621,17 +621,14 @@ SetupQueryInfOriginalFileInformationA(
 
             // First, translate/store the original INF name...
 
-            i = WideCharToMultiByte(
-                    CP_ACP,
+            i = WideCharToMultiByte(CP_ACP,
                     0,
                     UnicodeOriginalFileInfo.OriginalInfName,
                     -1,
                     OriginalFileInfo->OriginalInfName,
                     sizeof(OriginalFileInfo->OriginalInfName),
                     NULL,
-                    NULL
-                    );
-
+                    NULL);
 
             // ...and if that succeeded, then translate/store the original
             // catalog filename.
@@ -643,16 +640,14 @@ SetupQueryInfOriginalFileInformationA(
                 // file).  We don't need to special-case this, since
                 // WideCharToMultiByte can handle empty strings just fine.
 
-                i = WideCharToMultiByte(
-                        CP_ACP,
+                i = WideCharToMultiByte(CP_ACP,
                         0,
                         UnicodeOriginalFileInfo.OriginalCatalogName,
                         -1,
                         OriginalFileInfo->OriginalCatalogName,
                         sizeof(OriginalFileInfo->OriginalCatalogName),
                         NULL,
-                        NULL
-                        );
+                        NULL);
             }
 
             if(!i) {
@@ -893,22 +888,16 @@ SetupQueryInfVersionInformationA(
                 // size it is in unicode, if every char is a double-byte char.
 
                 if(ansidata = MyMalloc(VersionNode.DataSize)) {
-
-                    ansilength = WideCharToMultiByte(
-                                    CP_ACP,
+                    ansilength = WideCharToMultiByte(CP_ACP,
                                     0,
                                     (PWSTR)VersionNode.DataBlock,
                                     VersionNode.DataSize / sizeof(WCHAR),
                                     ansidata,
                                     VersionNode.DataSize,
                                     NULL,
-                                    NULL
-                                    );
-
+                                    NULL);
                     if(RequiredSize) {
-
                         // account for terminating nul
-
                         *RequiredSize = ansilength+1;
                     }
 
@@ -1202,16 +1191,7 @@ _SetupGetInfFileList(
             // The nul is included because it's converted
             // so no need to add 1
 
-            FileNameLength = WideCharToMultiByte(
-                                CP_ACP,
-                                0,
-                                FindData.cFileName,
-                                -1,
-                                ansi,
-                                MAX_PATH,
-                                NULL,
-                                NULL
-                                );
+            FileNameLength = WideCharToMultiByte(CP_ACP, 0, FindData.cFileName, -1, ansi, MAX_PATH, NULL, NULL);
         } else
 #endif
         FileNameLength = lstrlen(FindData.cFileName) + 1;

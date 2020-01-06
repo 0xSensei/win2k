@@ -522,13 +522,7 @@ private:
         _MultiByteToWideChar( pch, cb, CodePage, (WCHAR**)ppoc, pcb, pstatus );
     }
 
-    VOID      _WideCharToMultiByte(
-                    IN WCHAR const *pwc,
-                    IN ULONG cch,
-                    IN USHORT CodePage,
-                    OUT CHAR **ppch,
-                    OUT ULONG *pcb,
-                    OUT NTSTATUS *pstatus);
+    VOID      _WideCharToMultiByte(IN WCHAR const *pwc, IN ULONG cch, IN USHORT CodePage, OUT CHAR **ppch, OUT ULONG *pcb, OUT NTSTATUS *pstatus);
 
     VOID      _OLECHARToMultiByte(
                     IN OLECHAR const *poc,

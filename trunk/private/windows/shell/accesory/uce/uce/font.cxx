@@ -726,19 +726,8 @@ Font_IsWithinCodePage(
     {
         WCHAR wc2;
 
-        WideCharToMultiByte(
-            uCodePage,
-            0,
-            &(wc), 1,
-            (char*) pAnsi, 2,
-            NULL, NULL);
-
-        MultiByteToWideChar(
-            uCodePage,
-            MB_PRECOMPOSED,
-            (char*) pAnsi, 2,
-            &wc2, 1);
-
+        WideCharToMultiByte(uCodePage, 0, &(wc), 1, (char*) pAnsi, 2, NULL, NULL);
+        MultiByteToWideChar(uCodePage, MB_PRECOMPOSED, (char*) pAnsi, 2, &wc2, 1);
         return (wc == wc2);
     }
 }

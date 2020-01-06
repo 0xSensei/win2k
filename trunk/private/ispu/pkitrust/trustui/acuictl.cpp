@@ -2209,31 +2209,13 @@ VOID SubclassEditControlForLink (
 
         if (plsd->uToolTipText &0xffff0000)
         {
-            cb = WideCharToMultiByte(
-                        0,
-                        0,
-                        (LPWSTR)plsd->uToolTipText,
-                        -1,
-                        NULL,
-                        0,
-                        NULL,
-                        NULL);
-
+            cb = WideCharToMultiByte(0, 0, (LPWSTR)plsd->uToolTipText, -1, NULL, 0, NULL, NULL);
             if (NULL == (psz = new char[cb]))
             {
                 return;
             }
 
-            WideCharToMultiByte(
-                        0,
-                        0,
-                        (LPWSTR)plsd->uToolTipText,
-                        -1,
-                        psz,
-                        cb,
-                        NULL,
-                        NULL);
-
+            WideCharToMultiByte(0, 0, (LPWSTR)plsd->uToolTipText, -1, psz, cb, NULL, NULL);
             tia.lpszText = psz;
         }
         else
@@ -2615,31 +2597,14 @@ int RenderACUIStringToEditControl (
             char        *pszOnlyThis;
             DWORD       cb;
 
-            cb = WideCharToMultiByte(
-                        0,
-                        0,
-                        pszThisTextOnlyInLink,
-                        -1,
-                        NULL,
-                        0,
-                        NULL,
-                        NULL);
+            cb = WideCharToMultiByte(0, 0, pszThisTextOnlyInLink, -1, NULL, 0, NULL, NULL);
 
             if (NULL == (pszOnlyThis = new char[cb]))
             {
                 return 0;
             }
 
-            WideCharToMultiByte(
-                        0,
-                        0,
-                        pszThisTextOnlyInLink,
-                        -1,
-                        pszOnlyThis,
-                        cb,
-                        NULL,
-                        NULL);
-
+            WideCharToMultiByte(0, 0, pszThisTextOnlyInLink, -1, pszOnlyThis, cb, NULL, NULL);
 
             memset(&ft, 0x00, sizeof(FINDTEXTEX));
             ft.chrg.cpMin   = 0;

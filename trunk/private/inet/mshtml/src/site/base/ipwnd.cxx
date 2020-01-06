@@ -1290,15 +1290,7 @@ ReconvertIME:
                     TCHAR szTemp[256];
 
                     _tcscpy(szTemp, szBuffer);
-                    WideCharToMultiByte(
-                            CP_ACP,
-                            0,
-                            szTemp,
-                            -1,
-                            (char *) szBuffer,
-                            sizeof(szBuffer),
-                            NULL,
-                            NULL);
+                    WideCharToMultiByte(CP_ACP, 0, szTemp, -1, (char *) szBuffer, sizeof(szBuffer), NULL, NULL);
                 }
                 lpToolTipText->lpszText = szBuffer;
                 MemFree(pmsocmdtext);

@@ -446,10 +446,7 @@ CSvrOMDisp::InvokeEx(
             long    cchLen;
             DWORD   nbw;
 
-            cchLen = WideCharToMultiByte(
-                CP_ACP, 0, pch, _tcslen(pch),
-                buffer, ARRAY_SIZE(buffer), NULL, NULL );
-
+            cchLen = WideCharToMultiByte(CP_ACP, 0, pch, _tcslen(pch), buffer, ARRAY_SIZE(buffer), NULL, NULL );
             WriteFile(SvrOM()->_hFileLog, buffer, cchLen, &nbw, NULL);
         }
         break;

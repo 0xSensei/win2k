@@ -427,8 +427,7 @@ void DoDial(
 
         /* Dial the number */
         cch = MakeDialCmd(cmdBuf, MAXDIALSIZE, pchNumber);
-        acch= WideCharToMultiByte(
-            CP_ACP,       // use ascii code page
+        acch= WideCharToMultiByte(CP_ACP,       // use ascii code page
             0,            // no flags
             cmdBuf,       // input buffer
             cch,          // buffer length

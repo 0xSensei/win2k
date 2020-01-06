@@ -648,30 +648,10 @@ Return Value:
         // Callee wrote string data; convert as appropriate.
 
         if(!FreeOnly) {
-
             if(ThunkedToAnsi) {
-
-                MultiByteToWideChar(
-                    CP_ACP,
-                    0,
-                    (PCSTR)ThunkedParam,
-                    -1,
-                    (PWCHAR)OriginalParam,
-                    MAX_PATH
-                    );
-
+                MultiByteToWideChar(CP_ACP, 0, (PCSTR)ThunkedParam, -1, (PWCHAR)OriginalParam, MAX_PATH);
             } else {
-
-                WideCharToMultiByte(
-                    CP_ACP,
-                    0,
-                    (PCWSTR)ThunkedParam,
-                    -1,
-                    (PCHAR)OriginalParam,
-                    MAX_PATH,
-                    NULL,
-                    NULL
-                    );
+                WideCharToMultiByte(CP_ACP, 0, (PCWSTR)ThunkedParam, -1, (PCHAR)OriginalParam, MAX_PATH, NULL, NULL);
             }
         }
         MyFree((PVOID)ThunkedParam);
@@ -720,25 +700,9 @@ Return Value:
             String       = (PUCHAR)OriginalParam + StructThunkData[StructType].OutputStringOffsets[u];
 
             if(ThunkedToAnsi) {
-                MultiByteToWideChar(
-                    CP_ACP,
-                    0,
-                    SourceString,
-                    -1,
-                    String,
-                    MAX_PATH
-                    );
+                MultiByteToWideChar(CP_ACP, 0, SourceString, -1, String, MAX_PATH);
             } else {
-                WideCharToMultiByte(
-                    CP_ACP,
-                    0,
-                    SourceString,
-                    -1,
-                    String,
-                    MAX_PATH,
-                    NULL,
-                    NULL
-                    );
+                WideCharToMultiByte(CP_ACP, 0, SourceString, -1, String, MAX_PATH, NULL, NULL);
             }
         }
     }
