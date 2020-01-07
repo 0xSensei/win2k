@@ -35,7 +35,7 @@ void RWDebug::UseStandardOutput()
     fp = stdout;
 }
 
-void RWDebug::CreateLogFile(char *czFName)
+void RWDebug::CreateLogFile(char* czFName)
 {
     char   czTmpPath[256] = "";
     char   czLogFile[256];
@@ -59,7 +59,7 @@ void RWDebug::CreateLogFile(char *czFName)
 }
 
 
-RWDebug& RWDebug::Write(char *czP)
+RWDebug& RWDebug::Write(char* czP)
 {
     if (m_iError < 0) return *this;
 
@@ -69,7 +69,7 @@ RWDebug& RWDebug::Write(char *czP)
         if (m_iError < 0) return *this;
     }
 
-    if (czP  && *czP) {
+    if (czP && *czP) {
         //OutputDebugStringA(czP);
         m_iError = fputs(czP, fp);
         m_iError = fflush(fp);
@@ -139,30 +139,30 @@ RWDebug& RWDebug:: operator << (float  iv)
 
 }
 
-RWDebug& RWDebug:: operator << (char *czP)
+RWDebug& RWDebug:: operator << (char* czP)
 {
     return Write(czP);
 
 }
 
-RWDebug& RWDebug:: operator << (const char *czP)
+RWDebug& RWDebug:: operator << (const char* czP)
 {
-    return Write((char *)czP);
+    return Write((char*)czP);
 
 }
-RWDebug& RWDebug :: operator << (unsigned short *usv)
+RWDebug& RWDebug :: operator << (unsigned short* usv)
 {
-    char *czP;
+    char* czP;
     if (usv && *usv) {
         czP = ConvertToANSIString(usv);
         if (czP && *czP)
-            Write((char *)czP);
+            Write((char*)czP);
 
     }
     return *this;
 }
 
-RWDebug& RWDebug :: operator << (void *p)
+RWDebug& RWDebug :: operator << (void* p)
 {
 
     if (p) {
@@ -223,8 +223,7 @@ int RegFindValueInAllSubKey(HINSTANCE hInstance, HKEY key, LPCTSTR szSubKeyNameT
     bPrevMassStorage = bMassStorage;
     bPrevFloppy = bFloppy;
 
-    if (szSubKeyNameToFind != NULL)
-    {
+    if (szSubKeyNameToFind != NULL) {
         dwRet = RegOpenKeyEx(
             key,
             szSubKeyNameToFind,
@@ -233,11 +232,9 @@ int RegFindValueInAllSubKey(HINSTANCE hInstance, HKEY key, LPCTSTR szSubKeyNameT
             &hKey
         );
 
-        if (dwRet == ERROR_SUCCESS)
-        {
+        if (dwRet == ERROR_SUCCESS) {
             dwIndex = 0;
-            while (dwRet == ERROR_SUCCESS)
-            {
+            while (dwRet == ERROR_SUCCESS) {
                 dwSubkeyLen = 256;
                 dwRet = RegEnumKeyEx(
                     hKey,
@@ -250,14 +247,12 @@ int RegFindValueInAllSubKey(HINSTANCE hInstance, HKEY key, LPCTSTR szSubKeyNameT
                     NULL
                 );
 
-                if (dwRet == ERROR_NO_MORE_ITEMS)
-                {
+                if (dwRet == ERROR_NO_MORE_ITEMS) {
                     _TCHAR      valueName[80];
                     DWORD       valueNameSize, valueSize, n = 0;
                     TBYTE       value[80];
 
-                    do
-                    {
+                    do {
                         valueNameSize = 80 * sizeof(_TCHAR);
                         valueSize = 80 * sizeof(TBYTE);
                         dwRet = RegEnumValue(
@@ -270,62 +265,46 @@ int RegFindValueInAllSubKey(HINSTANCE hInstance, HKEY key, LPCTSTR szSubKeyNameT
                             (LPBYTE)value,
                             &valueSize
                         );
-                        if (dwRet == ERROR_SUCCESS)
-                        {
+                        if (dwRet == ERROR_SUCCESS) {
 
-                            if (nType == 1)
-                            {
-                                if (!_tcscmp(valueName, _T("Type")))
-                                {
-                                    if (!_tcscmp(szValueToFind, (LPCTSTR)value))
-                                    {
+                            if (nType == 1) {
+                                if (!_tcscmp(valueName, _T("Type"))) {
+                                    if (!_tcscmp(szValueToFind, (LPCTSTR)value)) {
                                         bType = TRUE;
                                     }
                                 }
-                                if (!_tcscmp(valueName, _T("Identifier")))
-                                {
+                                if (!_tcscmp(valueName, _T("Identifier"))) {
                                     _tcscpy(szIdentifier, (LPCTSTR)value);
                                 }
-                            }
-                            else
-                                if (nType == 2)
-                                {
-                                    if (!_tcscmp(valueName, _T("Class")))
-                                    {
-                                        if (!_tcscmp(szValueToFind, (LPCTSTR)value))
-                                        {
+                            } else
+                                if (nType == 2) {
+                                    if (!_tcscmp(valueName, _T("Class"))) {
+                                        if (!_tcscmp(szValueToFind, (LPCTSTR)value)) {
                                             bType = TRUE;
                                         }
                                     }
-                                    if (!_tcscmp(valueName, _T("DeviceDesc")))
-                                    {
+                                    if (!_tcscmp(valueName, _T("DeviceDesc"))) {
                                         // bFloppy and bMassStorage are used for handling the conditions when there are multiple
                                         // Floppy and mass storage media present.
                                         _tcscpy(szFloppy, (LPCTSTR)value);
                                         _tcsupr(szFloppy);
-                                        if (_tcsstr(szFloppy, _T("FLOPPY")) != NULL)
-                                        {
-                                            if (!bFloppy)
-                                            {
+                                        if (_tcsstr(szFloppy, _T("FLOPPY")) != NULL) {
+                                            if (!bFloppy) {
                                                 _tcscpy(szFloppy, (LPCTSTR)value);
                                                 bFloppy = TRUE;
                                             }
-                                        }
-                                        else
+                                        } else
                                             // if it is not removable or it is a cdrom the condition for type and removable
                                             // takes care of it.
                                         {
-                                            if (!bMassStorage)
-                                            {
+                                            if (!bMassStorage) {
                                                 bMassStorage = TRUE;
                                             }
                                         }
 
                                     }
-                                    if (!_tcscmp(valueName, _T("Removable")))
-                                    {
-                                        if (*value == 0x01)
-                                        {
+                                    if (!_tcscmp(valueName, _T("Removable"))) {
+                                        if (*value == 0x01) {
                                             bRemovable = TRUE;
                                         }
                                     }
@@ -340,32 +319,23 @@ int RegFindValueInAllSubKey(HINSTANCE hInstance, HKEY key, LPCTSTR szSubKeyNameT
 
                     } while (dwRet == ERROR_SUCCESS);
 
-                    if (nType == 1)
-                    {
-                        if (bType)
-                        {
+                    if (nType == 1) {
+                        if (bType) {
                             return REGFIND_FINISH;
-                        }
-                        else
-                        {
+                        } else {
                             return REGFIND_RECURSE;
                         }
-                    }
-                    else
-                        if (nType == 2)
-                        {
+                    } else
+                        if (nType == 2) {
 
-                            if (bType && bRemovable)
-                            {
+                            if (bType && bRemovable) {
                                 /*  _tcscat(szRemovableTemp,_T(":"));
                                     _tcscat(szRemovableTemp,szIdentifier);
                                     _tcscpy(szIdentifier,szRemovableTemp);*/
-                                if (bFloppy != bPrevFloppy)
-                                {
+                                if (bFloppy != bPrevFloppy) {
                                     _tcscpy(szIdentifier, szFloppy);
                                 }
-                                if (bFloppy && bMassStorage)
-                                {
+                                if (bFloppy && bMassStorage) {
                                     _TCHAR szMassString[64];
                                     LoadString(hInstance, IDS_MASS_STRORAGE_ENTRY, szMassString, 64);
                                     _tcscat(szIdentifier, szMassString);
@@ -374,24 +344,19 @@ int RegFindValueInAllSubKey(HINSTANCE hInstance, HKEY key, LPCTSTR szSubKeyNameT
                                 return REGFIND_RECURSE;
                             }
                             // The bMassStorage flag has to be reset to the previous state.
-                            else
-                            {
+                            else {
                                 bMassStorage = bPrevMassStorage;
                                 if (bFloppy != bPrevFloppy)
                                     bFloppy = bPrevFloppy;
                                 return REGFIND_RECURSE;
                             }
                         }
-                }
-                else
-                {
-                    if (dwRet == ERROR_SUCCESS)
-                    {
+                } else {
+                    if (dwRet == ERROR_SUCCESS) {
                         int nStatus;
                         nStatus = RegFindValueInAllSubKey(hInstance, hKey, szSubKey, szValueToFind, szIdentifier, nType);
 
-                        switch (nStatus)
-                        {
+                        switch (nStatus) {
                         case REGFIND_FINISH:
                         {
                             return REGFIND_FINISH;
@@ -414,14 +379,10 @@ int RegFindValueInAllSubKey(HINSTANCE hInstance, HKEY key, LPCTSTR szSubKeyNameT
                 }
             }
             RegCloseKey(hKey);
-        }
-        else
-        {
+        } else {
             RW_DEBUG << "Error Opening the key " << ConvertToANSIString(szSubKeyNameToFind) << flush;
         }
-    }
-    else
-    {
+    } else {
         RW_DEBUG << "Error: key cannot be NULL" << flush;
     }
 
@@ -435,8 +396,7 @@ BOOL RegFindTheSubKey(HKEY key, LPCTSTR szSubKeyName, LPCTSTR szSubKeyNameToFind
     TCHAR   szSubKey[256];
     HKEY    hKey;
 
-    if (szSubKeyName != NULL)
-    {
+    if (szSubKeyName != NULL) {
         dwRet = RegOpenKeyEx(
             key,
             szSubKeyName,
@@ -445,11 +405,9 @@ BOOL RegFindTheSubKey(HKEY key, LPCTSTR szSubKeyName, LPCTSTR szSubKeyNameToFind
             &hKey
         );
 
-        if (dwRet == ERROR_SUCCESS)
-        {
+        if (dwRet == ERROR_SUCCESS) {
             dwIndex = 0;
-            while (dwRet == ERROR_SUCCESS)
-            {
+            while (dwRet == ERROR_SUCCESS) {
                 dwSubkeyLen = 256;
                 dwRet = RegEnumKeyEx(
                     hKey,
@@ -462,27 +420,18 @@ BOOL RegFindTheSubKey(HKEY key, LPCTSTR szSubKeyName, LPCTSTR szSubKeyNameToFind
                     NULL
                 );
 
-                if (dwRet == ERROR_NO_MORE_ITEMS)
-                {
+                if (dwRet == ERROR_NO_MORE_ITEMS) {
                     return FALSE;
-                }
-                else
-                {
-                    if (dwRet == ERROR_SUCCESS)
-                    {
-                        if (!_tcscmp(szSubKey, szSubKeyNameToFind))
-                        {
-                            if (RegGetPointingDevice(hKey, szSubKey, szData))
-                            {
+                } else {
+                    if (dwRet == ERROR_SUCCESS) {
+                        if (!_tcscmp(szSubKey, szSubKeyNameToFind)) {
+                            if (RegGetPointingDevice(hKey, szSubKey, szData)) {
                                 RegCloseKey(hKey);
                                 return TRUE;
-                            }
-                            else
+                            } else
                                 return FALSE;
-                        }
-                        else
-                            if (RegFindTheSubKey(hKey, szSubKey, szSubKeyNameToFind, szData))
-                            {
+                        } else
+                            if (RegFindTheSubKey(hKey, szSubKey, szSubKeyNameToFind, szData)) {
                                 return TRUE;
                             }
                     }
@@ -490,14 +439,10 @@ BOOL RegFindTheSubKey(HKEY key, LPCTSTR szSubKeyName, LPCTSTR szSubKeyNameToFind
                 }
             }
             RegCloseKey(hKey);
-        }
-        else
-        {
+        } else {
             RW_DEBUG << "Error Opening the key " << ConvertToANSIString(szSubKeyNameToFind) << flush;
         }
-    }
-    else
-    {
+    } else {
         RW_DEBUG << "Error: key cannot be NULL" << flush;
     }
 
@@ -524,8 +469,7 @@ BOOL RegGetPointingDevice(HKEY Key, LPCTSTR szSubKeyName, LPTSTR szData)
         &hKey
     );
 
-    if (dwRet == ERROR_SUCCESS)
-    {
+    if (dwRet == ERROR_SUCCESS) {
         dwSubkeyLen = 256;
         dwRet = RegEnumKeyEx(
             hKey,
@@ -545,8 +489,7 @@ BOOL RegGetPointingDevice(HKEY Key, LPCTSTR szSubKeyName, LPTSTR szData)
             KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE,
             &hKey2
         );
-        do
-        {
+        do {
             valueNameSize = 80 * sizeof(TCHAR);
             valueSize = 80 * sizeof(TCHAR);
 
@@ -560,10 +503,8 @@ BOOL RegGetPointingDevice(HKEY Key, LPCTSTR szSubKeyName, LPTSTR szData)
                 (LPBYTE)value,
                 &valueSize
             );
-            if (dwRet == ERROR_SUCCESS)
-            {
-                if (!_tcscmp(valueName, _T("Identifier")))
-                {
+            if (dwRet == ERROR_SUCCESS) {
+                if (!_tcscmp(valueName, _T("Identifier"))) {
                     _tcscpy(szData, (LPCTSTR)value);
                     RegCloseKey(hKey2);
                     RegCloseKey(hKey);
@@ -616,8 +557,7 @@ int  GetProductRoot(LPTSTR pPath, PHKEY  phKey)
                                   pPath, 0, KEY_READ | KEY_WRITE, phKey);
     if (regStatus != ERROR_SUCCESS) {
         return 1; // error
-    }
-    else {
+    } else {
         return 0; // Success
     }
 
@@ -628,7 +568,7 @@ int  GetProductRoot(LPTSTR pPath, PHKEY  phKey)
 //  This function converts an UNICODE STRING to ANSI char String
 
 
-char * ConvertToANSIString(LPCTSTR   pszW)
+char* ConvertToANSIString(LPCTSTR   pszW)
 {
 
 #ifdef _UNICODE
@@ -670,24 +610,24 @@ TCHAR* ConvertToUnicode(char FAR* szA)
 #else
 
 //  in case of
-TCHAR * ConvertToUnicode(TCHAR * szW)
+TCHAR* ConvertToUnicode(TCHAR* szW)
 {
     return szW;
 }
 #endif
 
-TCHAR * GetProductBeingRegistred()
+TCHAR* GetProductBeingRegistred()
 {
     return  gszProductBeingRegistred;
 }
 
-void SetProductBeingRegistred(TCHAR *szProduct)
+void SetProductBeingRegistred(TCHAR* szProduct)
 {
     _tcscpy(gszProductBeingRegistred, szProduct);
 }
 
-void GetWindowsDirectory(TCHAR *szParamRegKey,
-                         TCHAR *czBuf)
+void GetWindowsDirectory(TCHAR* szParamRegKey,
+                         TCHAR* czBuf)
 {
     HKEY hKey;
     TCHAR szRetVal[128];
@@ -721,7 +661,7 @@ void GetWindowsDirectory(TCHAR *szParamRegKey,
     Returns 1 if successful
             0 if failure
 */
-int GetOemManufacturer(TCHAR *szProductRegKey, TCHAR *szBuf)
+int GetOemManufacturer(TCHAR* szProductRegKey, TCHAR* szBuf)
 {
     TCHAR szSection[] = _T("general");
     TCHAR szKeyName[] = _T("Manufacturer");
@@ -733,8 +673,7 @@ int GetOemManufacturer(TCHAR *szProductRegKey, TCHAR *szBuf)
     if (CheckOEMdll() == OEM_NO_ERROR) {
         GetPrivateProfileString(szSection, szKeyName, _T(""), szBuf, 256, szOemFile);
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
@@ -750,8 +689,7 @@ void SetMSID(HINSTANCE hInstance)
 
     if (!GetMSIDfromCookie(hInstance, szMSID)) {
         szMSID[0] = _T('\0');
-    }
-    else {
+    } else {
 
         _TCHAR szPartialKey[256];
         int resSize = LoadString(hInstance, IDS_KEY2, szKeyName, 255);
@@ -765,7 +703,7 @@ void SetMSID(HINSTANCE hInstance)
         dwRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, szKeyName, 0, KEY_ALL_ACCESS, &hIDKey);
         if (dwRet == ERROR_SUCCESS) {
             // Store MSID into
-            dwRet = RegSetValueEx(hIDKey, _T("MSID"), NULL, REG_SZ, (CONST BYTE *)szMSID,
+            dwRet = RegSetValueEx(hIDKey, _T("MSID"), NULL, REG_SZ, (CONST BYTE*)szMSID,
                                   _tcslen((LPCTSTR)szMSID) * sizeof(TCHAR));
             RegCloseKey(hIDKey);
         }
@@ -793,7 +731,7 @@ void RemoveMSIDEntry(HINSTANCE hInstance)
     dwRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, szKeyName, 0, KEY_ALL_ACCESS, &hIDKey);
     if (dwRet == ERROR_SUCCESS) {
         // Store MSID into
-        dwRet = RegSetValueEx(hIDKey, _T("MSID"), NULL, REG_SZ, (CONST BYTE *)szValue,
+        dwRet = RegSetValueEx(hIDKey, _T("MSID"), NULL, REG_SZ, (CONST BYTE*)szValue,
                               _tcslen((LPCTSTR)szValue) * sizeof(_TCHAR));
         RegCloseKey(hIDKey);
     }
@@ -803,7 +741,7 @@ void RemoveMSIDEntry(HINSTANCE hInstance)
     dwRet = RegOpenKeyEx(HKEY_CURRENT_USER, szKeyName, 0, KEY_ALL_ACCESS, &hIDKey);
     if (dwRet == ERROR_SUCCESS) {
         // Store MSID into
-        dwRet = RegSetValueEx(hIDKey, _T("MSID"), NULL, REG_SZ, (CONST BYTE *)szValue,
+        dwRet = RegSetValueEx(hIDKey, _T("MSID"), NULL, REG_SZ, (CONST BYTE*)szValue,
                               _tcslen((LPCTSTR)szValue) * sizeof(_TCHAR));
         RegCloseKey(hIDKey);
     }
@@ -831,8 +769,7 @@ BOOL GetMSIDfromCookie(HINSTANCE hInstance, LPTSTR szMSID)
     BOOL bRet = ATK_InternetGetCookie(szRegisterSiteURL,
                                       _T(""), szCookieInfo, &dwSize);
 
-    if (bRet)
-    {
+    if (bRet) {
         if (szCookieInfo[0] != _T('\0')) {
             RW_DEBUG << "\nAfterInternetGetCookie " << ConvertToANSIString(szCookieInfo) << flush;
         }
@@ -840,34 +777,27 @@ BOOL GetMSIDfromCookie(HINSTANCE hInstance, LPTSTR szMSID)
         BOOL bfound = FALSE;
 
         _TCHAR seps[] = _T("=");
-        _TCHAR *token;
+        _TCHAR* token;
 
         token = _tcstok(szCookieInfo, seps);
 
-        while (token != NULL)
-        {
-            if (!_tcscmp(token, _T("GUID")))
-            {
+        while (token != NULL) {
+            if (!_tcscmp(token, _T("GUID"))) {
                 bfound = TRUE;
                 break;
             }
             token = _tcstok(NULL, seps);
         }
 
-        if (bfound)
-        {
+        if (bfound) {
             token = _tcstok(NULL, seps);
             _tcscpy(szMSID, token);
             RW_DEBUG << "\n Cookie Found " << ConvertToANSIString(szMSID) << flush;
             return TRUE;
-        }
-        else
-        {
+        } else {
             _tcscpy(szMSID, _T(""));
         }
-    }
-    else
-    {
+    } else {
         _tcscpy(szMSID, _T(""));
     }
     return FALSE;
@@ -882,14 +812,12 @@ BOOL GetMSIDfromRegistry(HINSTANCE hInstance, LPTSTR szValue)
     _tcscpy(szKeyName, _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion"));
 
     LONG regStatus = RegOpenKeyEx(HKEY_CURRENT_USER, szKeyName, 0, KEY_READ, &hKeyMSID);
-    if (regStatus == ERROR_SUCCESS)
-    {
+    if (regStatus == ERROR_SUCCESS) {
         _TCHAR szValueName[64];
         unsigned long infoSize = 255;
         LoadString(hInstance, IDS_MSID, szValueName, 64);
         regStatus = RegQueryValueEx(hKeyMSID, szValueName, NULL, 0, (LPBYTE)szValue, &infoSize);
-        if (regStatus == ERROR_SUCCESS)
-        {
+        if (regStatus == ERROR_SUCCESS) {
             RegCloseKey(hKeyMSID);
             RW_DEBUG << "\n GetCookie from Registry " << ConvertToANSIString(szValue) << flush;
             return TRUE;

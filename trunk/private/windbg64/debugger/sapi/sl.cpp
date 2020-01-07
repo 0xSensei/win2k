@@ -25,20 +25,20 @@ typedef struct _BNDS {
     WORD ilnStart;
     WORD ilnEnd;
 } BNDS; // BouNDS
-typedef BNDS *LPBNDS;
+typedef BNDS* LPBNDS;
 
-LOCAL   HST     HstFromLpmds (LPMDS);
-LOCAL   BOOL    FCheckSLOrder (LPSL);
-LOCAL   LPBNDS  BuildBounds (WORD, LPUL, LPW);
+LOCAL   HST     HstFromLpmds(LPMDS);
+LOCAL   BOOL    FCheckSLOrder(LPSL);
+LOCAL   LPBNDS  BuildBounds(WORD, LPUL, LPW);
 
-__inline VOID   SortSM (LPSM);
-__inline VOID   SortSL (LPSL);
-__inline WORD   FindPosition (LPBNDS, WORD, LPUL, ULONG);
-__inline LPBNDS InsertBlock (WORD, WORD, LPBNDS, LPW, LPW);
-__inline WORD   ScanBlock (LPUL, WORD, WORD, ULONG);
-__inline VOID   SortOffFromBounds (WORD, LPBNDS, WORD, LPUL);
-__inline VOID   SortLnFromBounds (WORD, LPBNDS, WORD, LPW);
-__inline VOID   SortFromBounds (WORD, LPBNDS, WORD, LPV, WORD);
+__inline VOID   SortSM(LPSM);
+__inline VOID   SortSL(LPSL);
+__inline WORD   FindPosition(LPBNDS, WORD, LPUL, ULONG);
+__inline LPBNDS InsertBlock(WORD, WORD, LPBNDS, LPW, LPW);
+__inline WORD   ScanBlock(LPUL, WORD, WORD, ULONG);
+__inline VOID   SortOffFromBounds(WORD, LPBNDS, WORD, LPUL);
+__inline VOID   SortLnFromBounds(WORD, LPBNDS, WORD, LPW);
+__inline VOID   SortFromBounds(WORD, LPBNDS, WORD, LPV, WORD);
 
 #define SIZEOFBASE          4
 #define SIZEOFSTARTEND      8
@@ -48,9 +48,9 @@ __inline VOID   SortFromBounds (WORD, LPBNDS, WORD, LPV, WORD);
 #define SIZEOFNAME          2
 
 // make sure Pascal length byte gets read correctly regardless of type
-inline size_t cbNameLen( TCHAR *pPascalString )
+inline size_t cbNameLen(TCHAR* pPascalString)
 {
-    return *( (BYTE*)pPascalString );        // MUST be treated as unsigned byte
+    return *((BYTE*)pPascalString);        // MUST be treated as unsigned byte
 }
 
 //  Internal support routines
@@ -60,22 +60,22 @@ inline size_t cbNameLen( TCHAR *pPascalString )
 //  List of internal support functions
 
 LPW
-PsegFromSMIndex (
+PsegFromSMIndex(
     LPSM lpsm,
     WORD iseg
-    )
+)
 {
-    assert (lpsm != NULL)
-    assert (iseg < lpsm->cSeg);
+    assert(lpsm != NULL)
+        assert(iseg < lpsm->cSeg);
 
     return ((LPW)
-        ((CHAR *) lpsm +
+        ((CHAR*)lpsm +
          SIZEOFHEADER +
          (SIZEOFBASE * lpsm->cFile) +
          (SIZEOFSTARTEND * lpsm->cSeg) +
          (SIZEOFSEG * iseg)
-       )
-    );
+         )
+            );
 }
 
 
@@ -91,36 +91,36 @@ PsegFromSMIndex (
 //  Returns  a pointer to a start/end offset pair
 
 __inline LPOFP
-GetSMBounds (
+GetSMBounds(
     LPSM  lpsm,
     WORD  iSeg
-    )
+)
 {
-    assert (lpsm != NULL);
-    assert (iSeg < lpsm->cSeg);
+    assert(lpsm != NULL);
+    assert(iSeg < lpsm->cSeg);
 
-    return ((LPOFP) ((CHAR *) lpsm +
-            SIZEOFHEADER +
-            (SIZEOFBASE * lpsm->cFile) +
-            (sizeof (OFP) * iSeg)));
+    return ((LPOFP)((CHAR*)lpsm +
+                    SIZEOFHEADER +
+                    (SIZEOFBASE * lpsm->cFile) +
+                    (sizeof(OFP) * iSeg)));
 }
 
 
 LPW
-PsegFromSFIndex (
+PsegFromSFIndex(
     LPSM lpsm,
     LPSF lpsf,
     WORD iseg
-    )
+)
 {
     ULONG ulBase = 0;
 
-    assert (lpsf != NULL)
-    assert (iseg < lpsf->cSeg);
+    assert(lpsf != NULL)
+        assert(iseg < lpsf->cSeg);
 
-    ulBase = *((ULONG *) ((LPCH)lpsf + SIZEOFHEADER + (SIZEOFBASE * iseg)));
+    ulBase = *((ULONG*)((LPCH)lpsf + SIZEOFHEADER + (SIZEOFBASE * iseg)));
 
-    return (LPW) ((LPCH) lpsm + ulBase);
+    return (LPW)((LPCH)lpsm + ulBase);
 }
 
 //  GetSFBounds
@@ -138,18 +138,18 @@ PsegFromSFIndex (
 //                       if no more entries.
 
 __inline LPOFP
-GetSFBounds (
+GetSFBounds(
     LPSF lpsf,
     WORD iseg
-    )
+)
 {
-    assert (lpsf != NULL)
-    assert (iseg < lpsf->cSeg);
+    assert(lpsf != NULL)
+        assert(iseg < lpsf->cSeg);
 
-    return (LPOFP) ((CHAR *) lpsf +
-            SIZEOFHEADER +
-            (SIZEOFBASE * lpsf->cSeg) +
-            (sizeof (OFP) * iseg));
+    return (LPOFP)((CHAR*)lpsf +
+                   SIZEOFHEADER +
+                   (SIZEOFBASE * lpsf->cSeg) +
+                   (sizeof(OFP) * iseg));
 }
 
 
@@ -167,20 +167,20 @@ GetSFBounds (
 //                       not found.
 
 LPSF
-GetLpsfFromIndex (
+GetLpsfFromIndex(
     LPSM lpsmCur,
     WORD iFile
-    )
+)
 {
     LPSF lpsfNext = NULL;
 
     BOOL fRet = TRUE;
 
-    assert (lpsmCur != NULL)
+    assert(lpsmCur != NULL)
 
-    if (lpsmCur && iFile < lpsmCur->cFile) {
-        lpsfNext = (LPSF) ((CHAR *)lpsmCur + lpsmCur->baseSrcFile[iFile]);
-    }
+        if (lpsmCur && iFile < lpsmCur->cFile) {
+            lpsfNext = (LPSF)((CHAR*)lpsmCur + lpsmCur->baseSrcFile[iFile]);
+        }
     return lpsfNext;
 }
 
@@ -199,42 +199,41 @@ GetLpsfFromIndex (
 //                      in range.  Unchanged if could not find file.
 
 BOOL
-FLpsfFromAddr (
+FLpsfFromAddr(
     LPADDR lpaddr,
     LPSM lpsmCur,
-    LPSF * plpsf,
+    LPSF* plpsf,
     LPW lpwFileIndex,
     LPW lpwSegIndex
-    )
+)
 {
-    WORD iFile   = 0;
-    BOOL fFound  = FALSE;
+    WORD iFile = 0;
+    BOOL fFound = FALSE;
 
-    assert (lpsmCur != (LPSM) NULL)
-    assert (lpaddr != (LPADDR) NULL)
+    assert(lpsmCur != (LPSM)NULL)
+        assert(lpaddr != (LPADDR)NULL)
 
-    while (iFile < lpsmCur->cFile && !fFound) {
-        WORD iseg = 0;
-        LPSF lpsf = GetLpsfFromIndex (lpsmCur, iFile);
+        while (iFile < lpsmCur->cFile && !fFound) {
+            WORD iseg = 0;
+            LPSF lpsf = GetLpsfFromIndex(lpsmCur, iFile);
 
-        while (iseg < lpsf->cSeg && !fFound) {
-            WORD  seg   = *PsegFromSFIndex (lpsmCur, lpsf, iseg);
-            LPOFP lpofp = GetSFBounds (lpsf, iseg);
+            while (iseg < lpsf->cSeg && !fFound) {
+                WORD  seg = *PsegFromSFIndex(lpsmCur, lpsf, iseg);
+                LPOFP lpofp = GetSFBounds(lpsf, iseg);
 
-            if ((GetAddrSeg (*lpaddr) == seg) &&
-                (GetAddrOff (*lpaddr) >= lpofp->offStart) &&
-                (GetAddrOff (*lpaddr) <= lpofp->offEnd))
-            {
-                *lpwFileIndex = iFile;
-                *lpwSegIndex  = iseg;
-                *plpsf = lpsf;
-                fFound = TRUE;
+                if ((GetAddrSeg(*lpaddr) == seg) &&
+                    (GetAddrOff(*lpaddr) >= lpofp->offStart) &&
+                    (GetAddrOff(*lpaddr) <= lpofp->offEnd)) {
+                    *lpwFileIndex = iFile;
+                    *lpwSegIndex = iseg;
+                    *plpsf = lpsf;
+                    fFound = TRUE;
+                }
+
+                iseg++;
             }
-
-            iseg++;
+            iFile++;
         }
-        iFile++;
-    }
 
     return fFound;
 }
@@ -243,18 +242,18 @@ FLpsfFromAddr (
 //  LpchGetName
 
 __inline LPCH
-LpchGetName (
+LpchGetName(
     LPSF lpsf
-    )
+)
 {
     LPCH lpch = NULL;
 
-    assert (lpsf != NULL)
+    assert(lpsf != NULL)
 
-    lpch =  (LPCH) ((CHAR *)lpsf +
-                    SIZEOFHEADER +
-                    (SIZEOFBASE * lpsf->cSeg) +
-                    (SIZEOFSTARTEND * lpsf->cSeg));
+        lpch = (LPCH)((CHAR*)lpsf +
+                      SIZEOFHEADER +
+                      (SIZEOFBASE * lpsf->cSeg) +
+                      (SIZEOFSTARTEND * lpsf->cSeg));
 
     return lpch;
 }
@@ -263,20 +262,20 @@ LpchGetName (
 //  LpsfFromName
 
 short
-IsfFromName (
+IsfFromName(
     BOOL fExactMatch,
     short isfStart,
     LSZ lszName,
     LPMDS lpmds
-    )
+)
 {
     short isfFound = -1;
     short isf = isfStart;
-    LPEXG lpexg = (LPEXG) LLLock (lpmds->hexg);
+    LPEXG lpexg = (LPEXG)LLLock(lpmds->hexg);
 
     if (lpexg->lpefi) {
-        CHAR szFileSrc [ _MAX_CVFNAME ];
-        CHAR szExtSrc [ _MAX_CVEXT ];
+        CHAR szFileSrc[_MAX_CVFNAME];
+        CHAR szExtSrc[_MAX_CVEXT];
         WORD cbName = 0;
         WORD cchName = 0;
         LSZ  lszFileExt = NULL;
@@ -295,14 +294,14 @@ IsfFromName (
             lszFileExt = lszName + _tcslen(lszName) - cbName;
         }
 
-        for (isf = isfStart; isf < (short) lpexg->rgculFile [ imds ]; isf++) {
-            CHAR szPathOMF [ _MAX_CVPATH ];
-            CHAR szFile [ _MAX_CVFNAME ];
-            CHAR szExt [ _MAX_CVEXT ];
+        for (isf = isfStart; isf < (short)lpexg->rgculFile[imds]; isf++) {
+            CHAR szPathOMF[_MAX_CVPATH];
+            CHAR szFile[_MAX_CVFNAME];
+            CHAR szExt[_MAX_CVEXT];
 
-            _TCHAR  * lpch = (_TCHAR  *)
+            _TCHAR* lpch = (_TCHAR*)
                 lpexg->lpchFileNames +
-                (lpexg->rgichFile [ (WORD) (lpexg->rgiulFile [ imds ]) + isf ]);
+                (lpexg->rgichFile[(WORD)(lpexg->rgiulFile[imds]) + isf]);
 
             // IMPORTANT NOTE:
 
@@ -310,13 +309,12 @@ IsfFromName (
             // to compare as opposed to the number of bytes or the DBCS
             // strnicmp will fail!
 
-            if (!_tcsnicmp (lszFileExt, (_TCHAR  *) lpch + cbNameLen(lpch) - cbName + 1, cchName)) {
+            if (!_tcsnicmp(lszFileExt, (_TCHAR*)lpch + cbNameLen(lpch) - cbName + 1, cchName)) {
                 memset(szPathOMF, 0, _MAX_CVPATH);
                 memcpy(szPathOMF, lpch + 1, cbNameLen(lpch));
                 _tsplitpath(szPathOMF, NULL, NULL, szFile, szExt);
-                if (!_tcsicmp (szFileSrc, szFile) &&
-                     !_tcsicmp (szExtSrc, szExt))
-                {
+                if (!_tcsicmp(szFileSrc, szFile) &&
+                    !_tcsicmp(szExtSrc, szExt)) {
                     isfFound = isf;
                     break;
                 }
@@ -324,7 +322,7 @@ IsfFromName (
         }
     }
 
-    LLUnlock (lpmds->hexg);
+    LLUnlock(lpmds->hexg);
 
     return isfFound;
 }
@@ -335,67 +333,66 @@ IsfFromName (
 //  Purpose:  Get the next line number entry
 
 __inline LPSL
-GetLpslFromIndex (
+GetLpslFromIndex(
     LPSM lpsmCur,
     LPSF lpsfCur,
     WORD iSeg
-    )
+)
 {
     LPSL lpsl = NULL;
     BOOL fRet = TRUE;
 
-    assert (lpsfCur != NULL)
+    assert(lpsfCur != NULL)
 
-    if (iSeg < lpsfCur->cSeg) {
-        lpsl = (LPSL) ((CHAR *)lpsmCur +
-            lpsfCur->baseSrcLn [iSeg]);
-    }
+        if (iSeg < lpsfCur->cSeg) {
+            lpsl = (LPSL)((CHAR*)lpsmCur +
+                          lpsfCur->baseSrcLn[iSeg]);
+        }
     return lpsl;
 }
 
 
 BOOL
-FLpslFromAddr (
+FLpslFromAddr(
     LPADDR lpaddr,
     LPSM lpsm,
-    LPSL * plpsl
-    )
+    LPSL* plpsl
+)
 {
-    WORD    iSeg        = 0;
-    WORD    iSegCur     = 0;
-    WORD    iFileCur    = 0;
-    BOOL    fFound      = FALSE;
-    BOOL    fRet        = FALSE;
-    LPSF    lpsf        = NULL;
+    WORD    iSeg = 0;
+    WORD    iSegCur = 0;
+    WORD    iFileCur = 0;
+    BOOL    fFound = FALSE;
+    BOOL    fRet = FALSE;
+    LPSF    lpsf = NULL;
 
-    assert (lpsm != NULL)
-    assert (lpaddr != NULL)
+    assert(lpsm != NULL)
+        assert(lpaddr != NULL)
 
-    // First, do a high level pass to see if the address actually exists
-    //  within the given module.
+        // First, do a high level pass to see if the address actually exists
+        //  within the given module.
 
-    while (iSeg < lpsm->cSeg) {
+        while (iSeg < lpsm->cSeg) {
 
-        WORD  seg   = *PsegFromSMIndex (lpsm, iSeg);
-        LPOFP lpofp = GetSMBounds (lpsm, iSeg);
+            WORD  seg = *PsegFromSMIndex(lpsm, iSeg);
+            LPOFP lpofp = GetSMBounds(lpsm, iSeg);
 
-        if ((GetAddrSeg (*lpaddr) == seg) &&
-             (GetAddrOff (*lpaddr) >= lpofp->offStart) &&
-             (GetAddrOff (*lpaddr) <= lpofp->offEnd)
-       ) {
-            break;
+            if ((GetAddrSeg(*lpaddr) == seg) &&
+                (GetAddrOff(*lpaddr) >= lpofp->offStart) &&
+                (GetAddrOff(*lpaddr) <= lpofp->offEnd)
+                ) {
+                break;
+            }
+
+            iSeg++;
         }
-
-        iSeg++;
-    }
 
     // We know it is in this module, so now find the correct file
 
     if (iSeg < lpsm->cSeg &&
-         FLpsfFromAddr (lpaddr, lpsm, &lpsf, &iFileCur, &iSegCur))
-    {
-        *plpsl = GetLpslFromIndex (lpsm, lpsf, iSegCur);
-        fRet   = TRUE;
+        FLpsfFromAddr(lpaddr, lpsm, &lpsf, &iFileCur, &iSegCur)) {
+        *plpsl = GetLpslFromIndex(lpsm, lpsf, iSegCur);
+        fRet = TRUE;
     }
 
     return fRet;
@@ -407,28 +404,28 @@ FLpslFromAddr (
 //  Purpose:  Get the next line number entry
 
 __inline BOOL
-OffsetFromIndex (
+OffsetFromIndex(
     LPSL lpslCur,
     WORD iPair,
-    ULONG * lpulOff
-    )
+    ULONG* lpulOff
+)
 {
     BOOL fRet = FALSE;
 
-    assert (lpslCur != NULL)
-    assert (lpulOff != NULL)
+    assert(lpslCur != NULL)
+        assert(lpulOff != NULL)
 
-    if (iPair < lpslCur->cLnOff) {
+        if (iPair < lpslCur->cLnOff) {
 
-        if (GetTargetMachine() == mptia64) {
-            //move slot number from bits 1:0 to bits 3:2
-            *lpulOff = (lpslCur->offset [ iPair ] & ~0xf) | ((lpslCur->offset [ iPair ] & 0xf) << 2) ;
-        } else {
-            *lpulOff = lpslCur->offset [ iPair ];
+            if (GetTargetMachine() == mptia64) {
+                //move slot number from bits 1:0 to bits 3:2
+                *lpulOff = (lpslCur->offset[iPair] & ~0xf) | ((lpslCur->offset[iPair] & 0xf) << 2);
+            } else {
+                *lpulOff = lpslCur->offset[iPair];
+            }
+
+            fRet = TRUE;
         }
-
-        fRet = TRUE;
-    }
 
     return fRet;
 }
@@ -439,23 +436,23 @@ OffsetFromIndex (
 //  Purpose:  Get the next line number entry
 
 __inline BOOL
-LineFromIndex (
+LineFromIndex(
     LPSL lpslCur,
     DWORD iPair,
-    ULONG * lpusLine
-    )
+    ULONG* lpusLine
+)
 {
     BOOL    fRet = FALSE;
     ULONG   ul;
 
-    assert (lpslCur != NULL)
-    assert (lpusLine != NULL)
+    assert(lpslCur != NULL)
+        assert(lpusLine != NULL)
 
-    if (iPair < lpslCur->cLnOff) {
-        ul = (sizeof (LONG) * lpslCur->cLnOff) + (sizeof (WORD) * iPair);
-        *lpusLine = *(USHORT *)((CHAR *) lpslCur->offset + ul);
-        fRet = TRUE;
-    }
+        if (iPair < lpslCur->cLnOff) {
+            ul = (sizeof(LONG) * lpslCur->cLnOff) + (sizeof(WORD) * iPair);
+            *lpusLine = *(USHORT*)((CHAR*)lpslCur->offset + ul);
+            fRet = TRUE;
+        }
     return fRet;
 }
 
@@ -483,28 +480,28 @@ LineFromIndex (
 //              finds the first one, which is very misleading.
 
 HMOD
-SLHmodFromHsf (
+SLHmodFromHsf(
     HEXE hexe,
     HSF hsf
-    )
+)
 {
-    HEXE    hexeCur         = hexe;
-    HMOD    hmod            = 0;
-    LPSF    lpsfCur         = NULL;
-    BOOL    fFound          = FALSE;
-    LPMDS   lpmds           = NULL;
+    HEXE    hexeCur = hexe;
+    HMOD    hmod = 0;
+    LPSF    lpsfCur = NULL;
+    BOOL    fFound = FALSE;
+    LPMDS   lpmds = NULL;
     WORD    iFile;
 
     if (hsf != HsfCache.Hsf) {
         // to get an Hmod from hsf we must loop through
         // exe's to Hmods and compare hsfs associated to the
         // hmod
-        while (hexeCur = (hexe ? hexe : SHGetNextExe (hexeCur))) {
-            while ((hmod = SHGetNextMod (hexeCur, hmod)) && !fFound) {
-                lpmds = (LPMDS) hmod;
+        while (hexeCur = (hexe ? hexe : SHGetNextExe(hexeCur))) {
+            while ((hmod = SHGetNextMod(hexeCur, hmod)) && !fFound) {
+                lpmds = (LPMDS)hmod;
                 if (lpmds != NULL && lpmds->hst) {
-                    for (iFile = 0; iFile < ((LPSM) lpmds->hst)->cFile; iFile++) {
-                        if (hsf == GetLpsfFromIndex ((LPSM)lpmds->hst, iFile)) {
+                    for (iFile = 0; iFile < ((LPSM)lpmds->hst)->cFile; iFile++) {
+                        if (hsf == GetLpsfFromIndex((LPSM)lpmds->hst, iFile)) {
                             HsfCache.Hmod = hmod;
                             HsfCache.Hsf = hsf;
                             fFound = TRUE;
@@ -514,7 +511,7 @@ SLHmodFromHsf (
                 }
             }
 
-            if (hexe != (HEXE) NULL || fFound) {
+            if (hexe != (HEXE)NULL || fFound) {
 
                 // if given an exe to search don't go any further.
 
@@ -547,47 +544,46 @@ SLHmodFromHsf (
 //      1.  add parameter for hexe start
 
 BOOL
-SLLineFromAddr (
+SLLineFromAddr(
     LPADDR      lpaddr,
     LPDWORD     lpwLine,
-    SHOFF * lpcb,
-    SHOFF * lpdb
-    )
+    SHOFF* lpcb,
+    SHOFF* lpdb
+)
 {
-    HMOD    hmod    = (HMOD) NULL;
-    LPMDS   lpmds   = NULL;
-    CXT     cxtT    = {0};
-    LPSL    lpsl    = NULL;
+    HMOD    hmod = (HMOD)NULL;
+    LPMDS   lpmds = NULL;
+    CXT     cxtT = {0};
+    LPSL    lpsl = NULL;
     WORD    cPair;
     WORD    i;
     HEXE    hexe;
-    UOFFSET maxOff  = CV_MAXOFFSET;
-    BOOL    fRet    = FALSE;
+    UOFFSET maxOff = CV_MAXOFFSET;
+    BOOL    fRet = FALSE;
     short   low;
     short   mid;
     short   high;
     ULONG   ulOff;
     ULONG   usLine;
 
-    assert (lpaddr != NULL)
-    assert (lpwLine != NULL)
+    assert(lpaddr != NULL)
+        assert(lpwLine != NULL)
 
-    if (!ADDR_IS_LI (*lpaddr)) {
-        SYUnFixupAddr (lpaddr);
-    }
+        if (!ADDR_IS_LI(*lpaddr)) {
+            SYUnFixupAddr(lpaddr);
+        }
 
-    if (emiAddr (*lpaddr) == emiAddr (AddrCache.addr) &&
-        GetAddrSeg (*lpaddr) == GetAddrSeg (AddrCache.addr) &&
-        GetAddrOff (*lpaddr) >= GetAddrOff (AddrCache.addr) &&
-        GetAddrOff (*lpaddr) < GetAddrOff (AddrCache.addr) + AddrCache.cb - 1)
-    {
+    if (emiAddr(*lpaddr) == emiAddr(AddrCache.addr) &&
+        GetAddrSeg(*lpaddr) == GetAddrSeg(AddrCache.addr) &&
+        GetAddrOff(*lpaddr) >= GetAddrOff(AddrCache.addr) &&
+        GetAddrOff(*lpaddr) < GetAddrOff(AddrCache.addr) + AddrCache.cb - 1) {
         *lpwLine = AddrCache.wLine;
         if (lpcb) {
-            *lpcb    = AddrCache.cb - 1;
+            *lpcb = AddrCache.cb - 1;
         }
 
         if (lpdb) {
-            *lpdb = GetAddrOff (*lpaddr) - GetAddrOff (AddrCache.addr);
+            *lpdb = GetAddrOff(*lpaddr) - GetAddrOff(AddrCache.addr);
         }
 
         return TRUE;
@@ -595,37 +591,36 @@ SLLineFromAddr (
 
     *lpwLine = 0;
 
-    if (SHSetCxtMod (lpaddr, &cxtT) != NULL) {
-        hmod = SHHMODFrompCXT (&cxtT);
+    if (SHSetCxtMod(lpaddr, &cxtT) != NULL) {
+        hmod = SHHMODFrompCXT(&cxtT);
 
-        if (hmod != (HMOD) NULL &&
-            (lpmds = (LPMDS) hmod) != NULL &&
-            lpmds && HstFromLpmds (lpmds) &&
-            FLpslFromAddr (lpaddr, (LPSM) lpmds->hst, &lpsl))
-        {
-            hexe  = SHHexeFromHmod (SHHMODFrompCXT (&cxtT));
+        if (hmod != (HMOD)NULL &&
+            (lpmds = (LPMDS)hmod) != NULL &&
+            lpmds && HstFromLpmds(lpmds) &&
+            FLpslFromAddr(lpaddr, (LPSM)lpmds->hst, &lpsl)) {
+            hexe = SHHexeFromHmod(SHHMODFrompCXT(&cxtT));
 
             cPair = lpsl->cLnOff;
 
             for (i = 0; i < cPair; i++) {
 
-                if (OffsetFromIndex (lpsl, i, &ulOff)) {
-                    if (emiAddr (*lpaddr) == (HEMI) hexe) {
+                if (OffsetFromIndex(lpsl, i, &ulOff)) {
+                    if (emiAddr(*lpaddr) == (HEMI)hexe) {
                         // set up for the search routine
 
-                        low   = 0;
-                        high  = lpsl->cLnOff - 1;
+                        low = 0;
+                        high = lpsl->cLnOff - 1;
 
                         // binary search for the offset
                         while (low <= high) {
                             mid = (low + high) / 2;
 
-                            if (OffsetFromIndex (lpsl, mid, &ulOff)) {
-                                if (GetAddrOff (*lpaddr) < (UOFFSET) ulOff) {
+                            if (OffsetFromIndex(lpsl, mid, &ulOff)) {
+                                if (GetAddrOff(*lpaddr) < (UOFFSET)ulOff) {
                                     high = mid - 1;
-                                } else if (GetAddrOff (*lpaddr) > (UOFFSET) ulOff) {
+                                } else if (GetAddrOff(*lpaddr) > (UOFFSET)ulOff) {
                                     low = mid + 1;
-                                } else if (LineFromIndex (lpsl, mid, &usLine)) {
+                                } else if (LineFromIndex(lpsl, mid, &usLine)) {
                                     *lpwLine = usLine;
                                     maxOff = 0;
                                     high = mid;
@@ -637,17 +632,17 @@ SLLineFromAddr (
                         // if we didn't find it, get the closet but earlier line
                         // high should be one less than low.
 
-                        if (OffsetFromIndex (lpsl, high, &ulOff)) {
+                        if (OffsetFromIndex(lpsl, high, &ulOff)) {
 
-                            if (low  &&
-                                 ((GetAddrOff (*lpaddr) -
-                                   (UOFFSET) ulOff) <
-                                   maxOff)
-                              ) {
-                                maxOff = (UOFFSET) (GetAddrOff (*lpaddr) -
-                                    (UOFFSET) ulOff);
-                                if (LineFromIndex (lpsl, high, &usLine)) {
-                                    *lpwLine = (WORD) usLine;
+                            if (low &&
+                                ((GetAddrOff(*lpaddr) -
+                                (UOFFSET)ulOff) <
+                                 maxOff)
+                                ) {
+                                maxOff = (UOFFSET)(GetAddrOff(*lpaddr) -
+                                    (UOFFSET)ulOff);
+                                if (LineFromIndex(lpsl, high, &usLine)) {
+                                    *lpwLine = (WORD)usLine;
                                     //goto found;
                                 }
                             }
@@ -668,14 +663,14 @@ found:
 
         AddrCache.cb = 0;
 
-        while (AddrCache.cb == 0 && (high + 1 < (int) lpsl->cLnOff)) {
+        while (AddrCache.cb == 0 && (high + 1 < (int)lpsl->cLnOff)) {
 
-            if (OffsetFromIndex (lpsl, (WORD)(high + 1), &ulOffNext) &&
-                 OffsetFromIndex (lpsl, high, &ulOff)) {
+            if (OffsetFromIndex(lpsl, (WORD)(high + 1), &ulOffNext) &&
+                OffsetFromIndex(lpsl, high, &ulOff)) {
 
-                AddrCache.cb = (int) (ulOffNext - ulOff);
+                AddrCache.cb = (int)(ulOffNext - ulOff);
                 if (AddrCache.cb != 0) {
-                    LineFromIndex (lpsl, high, lpwLine);
+                    LineFromIndex(lpsl, high, lpwLine);
                     AddrCache.wLine = *lpwLine;
                     break;
                 }
@@ -684,15 +679,14 @@ found:
         }
 
         if (AddrCache.cb == 0) {
-            LPSF lpsf  = NULL;
+            LPSF lpsf = NULL;
             WORD iFile = 0;
-            WORD iseg  = 0;
+            WORD iseg = 0;
 
-            if (FLpsfFromAddr (lpaddr, (LPSM) lpmds->hst, &lpsf, &iFile, &iseg)
-                    &&
-                OffsetFromIndex (lpsl, high, &ulOff))
-            {
-                AddrCache.cb = (int) (GetSFBounds (lpsf, iseg)->offEnd - ulOff + 1);
+            if (FLpsfFromAddr(lpaddr, (LPSM)lpmds->hst, &lpsf, &iFile, &iseg)
+                &&
+                OffsetFromIndex(lpsl, high, &ulOff)) {
+                AddrCache.cb = (int)(GetSFBounds(lpsf, iseg)->offEnd - ulOff + 1);
             }
         }
 
@@ -701,13 +695,13 @@ found:
         }
 
         if (lpdb != NULL) {
-            if (OffsetFromIndex (lpsl, high, &ulOff)) {
-                *lpdb = GetAddrOff (*lpaddr) - ulOff;
+            if (OffsetFromIndex(lpsl, high, &ulOff)) {
+                *lpdb = GetAddrOff(*lpaddr) - ulOff;
             }
         }
 
         AddrCache.addr = *lpaddr;
-        SE_SetAddrOff (&AddrCache.addr, ulOff);
+        SE_SetAddrOff(&AddrCache.addr, ulOff);
 
         fRet = TRUE;
     }
@@ -745,15 +739,15 @@ found:
 //  Exceptions: lpNearestLines may not be valid if the return value is TRUE
 
 BOOL
-SLFLineToAddrExtended (
+SLFLineToAddrExtended(
     HSF     hsf,
     DWORD   line,
-    WORD  * piSegStart,
-    WORD  * piEntryFind,
+    WORD* piSegStart,
+    WORD* piEntryFind,
     LPADDR  lpaddr,
-    SHOFF * lpcbLn,
-    DWORD * rgwNearestLines
-    )
+    SHOFF* lpcbLn,
+    DWORD* rgwNearestLines
+)
 {
     DWORD   rgwRet[2];
     ADDR    addr = {0};
@@ -771,27 +765,27 @@ SLFLineToAddrExtended (
 
     rgwRet[0] = 0;
     rgwRet[1] = 0x7fffffff;
-    lpsf = (LPSF) hsf;
+    lpsf = (LPSF)hsf;
 
-    ADDR_IS_LI (addr) = TRUE;
+    ADDR_IS_LI(addr) = TRUE;
 
     // We need to get a mod.
 
-    if (hmod = SLHmodFromHsf ((HEXE) NULL, hsf)) {
-        HEXE  hexe  = SHHexeFromHmod (hmod);
-        LPMDS lpmds = (LPMDS) hmod;
+    if (hmod = SLHmodFromHsf((HEXE)NULL, hsf)) {
+        HEXE  hexe = SHHexeFromHmod(hmod);
+        LPMDS lpmds = (LPMDS)hmod;
 
         // Set the fFlat and fOff32 bits base on the exe
-        HEXG hexg = ((LPEXE) LLLock (hexe))->hexg;
-        LLUnlock (hexe);
-        if (((LPEXG) LLLock (hexg))->fIsPE) {
+        HEXG hexg = ((LPEXE)LLLock(hexe))->hexg;
+        LLUnlock(hexe);
+        if (((LPEXG)LLLock(hexg))->fIsPE) {
             // REVIEW - billjoy - should we check machine type or something?
-            ADDRLIN32 (addr);
+            ADDRLIN32(addr);
         } else {
             // REVIEW - billjoy - should we check machine type or something?
             //ADDR????
         }
-        LLUnlock (hexg);
+        LLUnlock(hexg);
 
         if ((lpmds != NULL) && (lpsf != NULL)) {
 
@@ -805,38 +799,38 @@ SLFLineToAddrExtended (
                 DWORD   wLine = 0;
                 DWORD   wLineNear = 0;
 
-                lpsl = GetLpslFromIndex ((LPSM) lpmds->hst, lpsf, i);
+                lpsl = GetLpslFromIndex((LPSM)lpmds->hst, lpsf, i);
 
                 for (iLn = 0; iLn < lpsl->cLnOff; iLn++) {
 
                     // look through all of the lines in the table
 
-                    BOOL fT = LineFromIndex (lpsl, iLn, &wLine);
+                    BOOL fT = LineFromIndex(lpsl, iLn, &wLine);
 
-                    assert (fT);
+                    assert(fT);
                     if (wLine == line) {
                         LPOFP   lpofp;
 
-                        fT = OffsetFromIndex (lpsl, iLn, &ulOff);
-                        assert (fT);
+                        fT = OffsetFromIndex(lpsl, iLn, &ulOff);
+                        assert(fT);
 
-                        SE_SetAddrOff (&addr, ulOff);
-                        SetAddrSeg (&addr, lpsl->Seg);
-                        emiAddr (addr) = (HEMI) hexe;
+                        SE_SetAddrOff(&addr, ulOff);
+                        SetAddrSeg(&addr, lpsl->Seg);
+                        emiAddr(addr) = (HEMI)hexe;
 
                         if (iLn + 1 < lpsl->cLnOff) {
 
                             // if the next line is in range
 
-                            OffsetFromIndex(lpsl, (WORD)(iLn+1), &ulOff);
+                            OffsetFromIndex(lpsl, (WORD)(iLn + 1), &ulOff);
 
                             // if we have a next line get the range
                             // based on next line.
 
 
-                            cbln = ulOff - GetAddrOff (addr);
+                            cbln = ulOff - GetAddrOff(addr);
 
-                            if (cbln == (SHOFF) 0) {
+                            if (cbln == (SHOFF)0) {
                                 if (wLine < rgwRet[1]) {
                                     rgwRet[1] = wLine;
                                 }
@@ -846,7 +840,7 @@ SLFLineToAddrExtended (
                             // if we don't have a next line then
                             // get the range from the boundry
 
-                            lpofp = GetSFBounds (lpsf, i);
+                            lpofp = GetSFBounds(lpsf, i);
 
                             // GetSFBounds offEnd is inclusive
                             // for the source range.  Need to
@@ -897,14 +891,14 @@ SLFLineToAddrExtended (
         }
     }
 
-    if(lpaddr) {
+    if (lpaddr) {
         *lpaddr = addr;
     }
-    if(lpcbLn) {
+    if (lpcbLn) {
         *lpcbLn = cbln;
     }
 
-    if(rgwNearestLines) {
+    if (rgwNearestLines) {
         rgwNearestLines[0] = rgwRet[0];
         rgwNearestLines[1] = rgwRet[1];
     }
@@ -934,26 +928,25 @@ SLFLineToAddrExtended (
 //  Exceptions: lpNearestLines may not be valid if the return value is TRUE
 
 BOOL
-SLFLineToAddr (
+SLFLineToAddr(
     HSF     hsf,
     DWORD   line,
     LPADDR  lpaddr,
-    SHOFF * lpcbLn,
-    DWORD * rgwNearestLines
-    )
+    SHOFF* lpcbLn,
+    DWORD* rgwNearestLines
+)
 {
-    if ((hsf  != LineCache.hsf) ||
-        (line != LineCache.wLine))
-    {
+    if ((hsf != LineCache.hsf) ||
+        (line != LineCache.wLine)) {
         WORD    iSegStart = 0;
 
         LineCache.fRet = SLFLineToAddrExtended(hsf,
-                                         line,
-                                         &iSegStart,
-                                         NULL,
-                                         &LineCache.addr,
-                                         &LineCache.cbLn,
-                                         LineCache.rgw);
+                                               line,
+                                               &iSegStart,
+                                               NULL,
+                                               &LineCache.addr,
+                                               &LineCache.cbLn,
+                                               LineCache.rgw);
         LineCache.hsf = hsf;
         LineCache.wLine = line;
     }
@@ -965,8 +958,8 @@ SLFLineToAddr (
         *lpcbLn = LineCache.cbLn;
     }
     if (rgwNearestLines) {
-        rgwNearestLines[ 0 ] = LineCache.rgw [ 0 ];
-        rgwNearestLines[ 1 ] = LineCache.rgw [ 1 ];
+        rgwNearestLines[0] = LineCache.rgw[0];
+        rgwNearestLines[1] = LineCache.rgw[1];
     }
 
     return LineCache.fRet;
@@ -994,7 +987,7 @@ SLFFileInHexe(
     HEXE hexe,
     BOOL fExactMatch,
     LSZ lszFile
-    )
+)
 {
     BOOL    fRet = FALSE;
     LPEXG   lpexg;
@@ -1008,10 +1001,10 @@ SLFFileInHexe(
 
         // The code below is copied from IsfFromName (FYI   -markbro)
         if (lpexg->lpchFileNames) {
-            _TCHAR  * lpch = (_TCHAR  *)lpexg->lpchFileNames;
-            _TCHAR  * lpchMax = lpch + lpexg->cbFileNames;
-            CHAR    szFileSrc [ _MAX_CVFNAME ];
-            CHAR    szExtSrc [ _MAX_CVEXT ];
+            _TCHAR* lpch = (_TCHAR*)lpexg->lpchFileNames;
+            _TCHAR* lpchMax = lpch + lpexg->cbFileNames;
+            CHAR    szFileSrc[_MAX_CVFNAME];
+            CHAR    szExtSrc[_MAX_CVEXT];
             WORD    cbName = 0;
             WORD    cchName = 0;
             LSZ     lszFileExt = NULL;
@@ -1030,10 +1023,10 @@ SLFFileInHexe(
             }
 
             // Stop when we've found something or the end of the table is found.
-            while(!fRet && lpch < lpchMax) {
-                CHAR szPathOMF [ _MAX_CVPATH ];
-                CHAR szFile [ _MAX_CVFNAME ];
-                CHAR szExt [ _MAX_CVEXT ];
+            while (!fRet && lpch < lpchMax) {
+                CHAR szPathOMF[_MAX_CVPATH];
+                CHAR szFile[_MAX_CVFNAME];
+                CHAR szExt[_MAX_CVEXT];
 
                 // IMPORTANT NOTE:
 
@@ -1041,13 +1034,12 @@ SLFFileInHexe(
                 // to compare as opposed to the number of bytes or the DBCS
                 // strnicmp will fail!
 
-                if (!_tcsnicmp (lszFileExt, lpch + cbNameLen(lpch) - cbName + 1, cchName)) {
+                if (!_tcsnicmp(lszFileExt, lpch + cbNameLen(lpch) - cbName + 1, cchName)) {
                     memset(szPathOMF, 0, _MAX_CVPATH);
                     memcpy(szPathOMF, lpch + 1, cbNameLen(lpch));
                     _tsplitpath(szPathOMF, NULL, NULL, szFile, szExt);
-                    if (!_tcsicmp (szFileSrc, szFile) &&
-                        !_tcsicmp (szExtSrc, szExt))
-                    {
+                    if (!_tcsicmp(szFileSrc, szFile) &&
+                        !_tcsicmp(szExtSrc, szExt)) {
                         fRet = TRUE;
                     }
                 }
@@ -1081,13 +1073,13 @@ SLFFileInHexe(
 //  Returns:    number of pairs found in exe
 
 int
-SLCAddrFromLine (
+SLCAddrFromLine(
     HEXE        hexeStart,
     HMOD        hmodStart,
     LSZ         lszFileT,
     WORD        line,
-    LPSLP      *lplpslp
-    )
+    LPSLP* lplpslp
+)
 {
     LPSLP   lpslp = (LPSLP)NULL;
     int     cslp = 0;
@@ -1105,7 +1097,7 @@ SLCAddrFromLine (
     if ((*lszFileT == '\"') && (*(lszFileT + _tcslen(lszFileT) - 1) == '\"')) {
         lszFile = szFileBuf;
         memcpy(lszFile, _tcsinc(lszFileT), _tcslen(lszFileT) - 2);
-        lszFile[_tcslen(lszFileT)-2] = '\0';
+        lszFile[_tcslen(lszFileT) - 2] = '\0';
     } else {
         lszFile = lszFileT;
     }
@@ -1113,12 +1105,10 @@ SLCAddrFromLine (
     if ((SlCache.cslp != -1) &&
         (hexeStart == SlCache.hexe) &&
         (hmodStart == SlCache.hmod) &&
-        (line      == SlCache.line) &&
-        (!_tcscmp(lszFile, SlCache.szFile)))
-    {
+        (line == SlCache.line) &&
+        (!_tcscmp(lszFile, SlCache.szFile))) {
         if ((SlCache.cslp == 0) ||
-            !(lpslp = (LPSLP)MHAlloc(sizeof(SLP) * (SlCache.cslp))))
-        {
+            !(lpslp = (LPSLP)MHAlloc(sizeof(SLP) * (SlCache.cslp)))) {
             *lplpslp = NULL;
             return 0;
         }
@@ -1135,17 +1125,17 @@ SLCAddrFromLine (
     // names are fully qualified, we should expect to always find a match on
     // the first pass.  This will help out with the case where there are two
     // different file.ext's in the exes/dlls loaded.
-    for(iPass = 0; iPass < 2 && !lpslp; ++iPass) {
+    for (iPass = 0; iPass < 2 && !lpslp; ++iPass) {
 
         // Loop through all of the exes that we know about.  We may want
         // to change this later
-        while(hexeStart || (hexe = SHGetNextExe(hexe))) {
+        while (hexeStart || (hexe = SHGetNextExe(hexe))) {
 
             // Extra fast scan to see if the file is in the list of files for the exe
             if (SLFFileInHexe(hexe, (BOOL)!iPass, lszFile)) {
 
-                while(hmodStart || (hmod = SHGetNextMod(hexe, hmod))) {
-                    LPMDS   lpmds = (LPMDS) hmod;
+                while (hmodStart || (hmod = SHGetNextMod(hexe, hmod))) {
+                    LPMDS   lpmds = (LPMDS)hmod;
                     short   isf;
                     short   isfNext = -1;
 
@@ -1163,43 +1153,41 @@ SLCAddrFromLine (
                             WORD    iEntry = 0;
 
                             hsf = (HSF)GetLpsfFromIndex(
-                                (LPSM) HstFromLpmds(lpmds),
+                                (LPSM)HstFromLpmds(lpmds),
                                 isfNext
-                           );
+                            );
 
                             // Reuse the original version.  Since we have gotten our
                             // own hsf, we know that we will get the correct line
                             // number table
-                            while(SLFLineToAddrExtended(hsf,
-                                                          line,
-                                                          &iSeg,
-                                                          &iEntry,
-                                                          &addr,
-                                                          &cb,
-                                                          NULL))
-                            {
+                            while (SLFLineToAddrExtended(hsf,
+                                                         line,
+                                                         &iSeg,
+                                                         &iEntry,
+                                                         &addr,
+                                                         &cb,
+                                                         NULL)) {
                                 // This could be smarter to allocate blocks, but the
                                 // regular case will be that this will only happen
                                 // once rather than multiple times, so just eat up
                                 // a little CPU for simplicity
                                 if (lpslp) {
                                     lpslp = (LPSLP)MHRealloc(lpslp,
-                                                    sizeof(SLP) * (cslp + 1));
-                                }
-                                else {
+                                                             sizeof(SLP) * (cslp + 1));
+                                } else {
                                     lpslp = (LPSLP)MHAlloc(sizeof(SLP));
                                 }
 
                                 // Additional check to see that the allocation
                                 // actually succeeded before copying the data
                                 if (lpslp) {
-                                    lpslp[ cslp ].cb = cb;
-                                    lpslp[ cslp ].addr = addr;
+                                    lpslp[cslp].cb = cb;
+                                    lpslp[cslp].addr = addr;
                                     ++cslp;
                                 }
                             }
                         }
-                    } while(isfNext != -1);
+                    } while (isfNext != -1);
 
                     // If a module is specified, then DON'T loop through the rest of
                     // the modules
@@ -1257,14 +1245,14 @@ SLCAddrFromLine (
 //                  and it's NOT guaranteed to be null-terminated!
 
 LPCH
-SLNameFromHsf (
+SLNameFromHsf(
     HSF hsf
-    )
+)
 {
     LPCH    lpch = NULL;
 
     if (hsf) {
-        lpch = LpchGetName ((LPSF) hsf);
+        lpch = LpchGetName((LPSF)hsf);
     }
     return(lpch);
 }
@@ -1297,26 +1285,25 @@ SLNameFromHsf (
 
 #pragma optimize ("", off)
 LPCH
-SLNameFromHmod (
+SLNameFromHmod(
     HMOD hmod,
     WORD iFile
-    )
+)
 {
-    LPCH    lpch  = NULL;
+    LPCH    lpch = NULL;
     LPMDS   lpmds;
     LPEXG   lpexg;
 
-    if ((lpmds = (LPMDS) hmod) &&
-        (lpexg = (LPEXG) LLLock (lpmds->hexg)))
-    {
+    if ((lpmds = (LPMDS)hmod) &&
+        (lpexg = (LPEXG)LLLock(lpmds->hexg))) {
         UINT imod = lpmds->imds - 1;
 
-        if (imod < lpexg->cMod && iFile <= lpexg->rgculFile [imod]) {
+        if (imod < lpexg->cMod && iFile <= lpexg->rgculFile[imod]) {
             lpch = lpexg->lpchFileNames +
-                (lpexg->rgichFile [(WORD) (lpexg->rgiulFile [imod]) + iFile - 1]);
+                (lpexg->rgichFile[(WORD)(lpexg->rgiulFile[imod]) + iFile - 1]);
         }
 
-        LLUnlock (lpmds->hexg);
+        LLUnlock(lpmds->hexg);
     }
 
     return lpch;
@@ -1334,11 +1321,11 @@ SLNameFromHmod (
 //                  if not
 
 BOOL
-SLFQueryModSrc (
+SLFQueryModSrc(
     HMOD hmod
-    )
+)
 {
-    LPMDS lpmds = (LPMDS) hmod;
+    LPMDS lpmds = (LPMDS)hmod;
 
     BOOL  fRet = lpmds->hst != NULL || lpmds->ulhst;
 
@@ -1355,24 +1342,24 @@ SLFQueryModSrc (
 //  Returns:        handle to source file, or NULL if not found
 
 HSF
-SLHsfFromPcxt (
+SLHsfFromPcxt(
     PCXT pcxt
-    )
+)
 {
-    LPMDS   lpmds = (LPMDS) SHHMODFrompCXT(pcxt);
+    LPMDS   lpmds = (LPMDS)SHHMODFrompCXT(pcxt);
     WORD    iFile = 0;
-    WORD    iSeg  = 0;
+    WORD    iSeg = 0;
     LPSF    lpsf = NULL;
 
-    if (lpmds != NULL && HstFromLpmds (lpmds) != NULL) {
-        FLpsfFromAddr (SHpADDRFrompCXT (pcxt),
-                        (LPSM) lpmds->hst,
-                        &lpsf,
-                        &iFile,
-                        &iSeg);
+    if (lpmds != NULL && HstFromLpmds(lpmds) != NULL) {
+        FLpsfFromAddr(SHpADDRFrompCXT(pcxt),
+            (LPSM)lpmds->hst,
+                      &lpsf,
+                      &iFile,
+                      &iSeg);
     }
 
-    return (HSF) lpsf;
+    return (HSF)lpsf;
 }
 
 
@@ -1390,15 +1377,15 @@ SLHsfFromPcxt (
 //                  matched!  There must be no path on the lszFile
 
 HSF
-SLHsfFromFile (
+SLHsfFromFile(
     HMOD hmod,
     LSZ  lszFile
-    )
+)
 {
     // We need to handle the no-hit case w/o loading source info
 
     LPSF    lpsf = NULL;
-    LPMDS   lpmds = (LPMDS) hmod;
+    LPMDS   lpmds = (LPMDS)hmod;
     char    szFileBuf[_MAX_PATH];
     LPSTR   lszFileT;
 
@@ -1410,16 +1397,16 @@ SLHsfFromFile (
     if ((*lszFile == '\"') && (*(lszFile + _tcslen(lszFile) - 1) == '\"')) {
         lszFileT = szFileBuf;
         memcpy(lszFileT, _tcsinc(lszFile), _tcslen(lszFile) - 2);
-        lszFileT[_tcslen(lszFile)-2] = '\0';
+        lszFileT[_tcslen(lszFile) - 2] = '\0';
     } else {
         lszFileT = lszFile;
     }
 
     if (lpmds != NULL) {
-        short isf = IsfFromName (FALSE, 0, lszFileT, lpmds);
+        short isf = IsfFromName(FALSE, 0, lszFileT, lpmds);
 
         if (isf != -1) {
-            lpsf = GetLpsfFromIndex ((LPSM) HstFromLpmds (lpmds), isf);
+            lpsf = GetLpsfFromIndex((LPSM)HstFromLpmds(lpmds), isf);
         }
     }
 
@@ -1428,9 +1415,9 @@ SLHsfFromFile (
 
 
 LOCAL HST
-HstFromLpmds (
+HstFromLpmds(
     LPMDS lpmds
-    )
+)
 {
     if (lpmds->hst != NULL) {
         return lpmds->hst;
@@ -1438,12 +1425,12 @@ HstFromLpmds (
         // Allocate space for this module's line number information,
         // then load it from the PDB and sort it.
 
-        if (!ModQueryLines(lpmds->pmod, 0, (CB *)&lpmds->cbhst) ||
+        if (!ModQueryLines(lpmds->pmod, 0, (CB*)&lpmds->cbhst) ||
             !(lpmds->cbhst) ||
             !(lpmds->hst = MHAlloc(lpmds->cbhst)))
             return 0;
 
-        if (ModQueryLines(lpmds->pmod, (PB)lpmds->hst, (CB *)&lpmds->cbhst)) {
+        if (ModQueryLines(lpmds->pmod, (PB)lpmds->hst, (CB*)&lpmds->cbhst)) {
             SortSM((LPSM)lpmds->hst);
             return lpmds->hst;
         } else {
@@ -1456,30 +1443,30 @@ HstFromLpmds (
     } else {
         assert(FALSE);          // We should never hit this code now
                                 //  that we're mapped.
-        LPEXG lpexg = (LPEXG) LLLock (lpmds->hexg);
-        HANDLE hfile = SYOpen (lpexg->lszDebug);
-        HST   hst   = MHAlloc ((UINT) lpmds->cbhst);
+        LPEXG lpexg = (LPEXG)LLLock(lpmds->hexg);
+        HANDLE hfile = SYOpen(lpexg->lszDebug);
+        HST   hst = MHAlloc((UINT)lpmds->cbhst);
 
         if (hfile == INVALID_HANDLE_VALUE || hst == NULL) {
-            LLUnlock (lpmds->hexg);
+            LLUnlock(lpmds->hexg);
             return NULL;
         }
 
-        if (SYSeek(hfile, lpmds->ulhst, SEEK_SET) != (LONG) lpmds->ulhst) {
+        if (SYSeek(hfile, lpmds->ulhst, SEEK_SET) != (LONG)lpmds->ulhst) {
             assert(FALSE);
         }
 
-        if (SYReadFar (hfile, (LPB) hst, (UINT) lpmds->cbhst) != lpmds->cbhst) {
-            assert (FALSE);
+        if (SYReadFar(hfile, (LPB)hst, (UINT)lpmds->cbhst) != lpmds->cbhst) {
+            assert(FALSE);
         }
 
-        SYClose (hfile);
+        SYClose(hfile);
 
         lpmds->hst = hst;
 
-        LLUnlock (lpmds->hexg);
+        LLUnlock(lpmds->hexg);
 
-        SortSM ((LPSM)hst);
+        SortSM((LPSM)hst);
 
         return hst;
     }
@@ -1487,20 +1474,20 @@ HstFromLpmds (
 
 
 __inline VOID
-SortSM (
+SortSM(
     LPSM lpsm
-    )
+)
 {
-    short isf  = 0;
+    short isf = 0;
     LPSF  lpsf = NULL;
 
-    while ((lpsf = GetLpsfFromIndex (lpsm, isf)) != NULL) {
+    while ((lpsf = GetLpsfFromIndex(lpsm, isf)) != NULL) {
         WORD isl = 0;
         LPSL lpsl = NULL;
 
-        while ((lpsl = GetLpslFromIndex (lpsm, lpsf, isl)) != NULL) {
-            if (!FCheckSLOrder (lpsl)) {
-                SortSL (lpsl);
+        while ((lpsl = GetLpslFromIndex(lpsm, lpsf, isl)) != NULL) {
+            if (!FCheckSLOrder(lpsl)) {
+                SortSL(lpsl);
             }
             isl += 1;
         }
@@ -1509,19 +1496,19 @@ SortSM (
 }
 
 BOOL
-FCheckSLOrder (
+FCheckSLOrder(
     LPSL lpsl
-    )
+)
 {
-    BOOL fSorted  = TRUE;
+    BOOL fSorted = TRUE;
     int  fChanged = FALSE;
-    WORD coff     = lpsl->cLnOff;
-    LPUL rgoff    = lpsl->offset;
-    LPW  rgln     = (LPW) &lpsl->offset [ coff ];
-    int  ioff     = 0;
+    WORD coff = lpsl->cLnOff;
+    LPUL rgoff = lpsl->offset;
+    LPW  rgln = (LPW)&lpsl->offset[coff];
+    int  ioff = 0;
 
     for (ioff = 1; ioff < coff; ioff++) {
-        if (rgoff [ioff] == rgoff[ioff-1]) {
+        if (rgoff[ioff] == rgoff[ioff - 1]) {
 
             // Yes this is extremely slow, but it is safe, and the
             //  condition that causes this move should only happen
@@ -1537,8 +1524,7 @@ FCheckSLOrder (
 
             fChanged = TRUE;
             coff -= 1;
-        }
-        else if (rgoff [ ioff ] < rgoff [ ioff - 1 ]) {
+        } else if (rgoff[ioff] < rgoff[ioff - 1]) {
             fSorted = FALSE;
         }
     }
@@ -1556,51 +1542,51 @@ FCheckSLOrder (
 
 
 __inline VOID
-SortOffFromBounds (
+SortOffFromBounds(
     WORD cbnds,
     LPBNDS rgbnds,
     WORD coff,
     LPUL rgoff
-    )
+)
 {
-    SortFromBounds (cbnds, rgbnds, coff, rgoff, sizeof (ULONG));
+    SortFromBounds(cbnds, rgbnds, coff, rgoff, sizeof(ULONG));
 }
 
 
 __inline VOID
-SortLnFromBounds (
+SortLnFromBounds(
     WORD cbnds,
     LPBNDS rgbnds,
     WORD cln,
     LPW rgln
-    )
+)
 {
-    SortFromBounds (cbnds, rgbnds, cln, rgln, sizeof (WORD));
+    SortFromBounds(cbnds, rgbnds, cln, rgln, sizeof(WORD));
 }
 
 
 __inline VOID
-SortFromBounds (
+SortFromBounds(
     WORD cbnds,
     LPBNDS rgbnds,
     WORD cv,
     LPV rgv,
     WORD cbv
-    )
+)
 {
-    LPV  lpv    = MHAlloc (cbv * cv);
-    WORD ibnds  = 0;
-    WORD iv     = 0;
+    LPV  lpv = MHAlloc(cbv * cv);
+    WORD ibnds = 0;
+    WORD iv = 0;
 
     if (lpv == NULL) {
         return;
     }
 
     for (ibnds = 0; ibnds < cbnds; ibnds++) {
-        WORD cvT = rgbnds [ ibnds ].ilnEnd - rgbnds [ ibnds ].ilnStart + 1;
+        WORD cvT = rgbnds[ibnds].ilnEnd - rgbnds[ibnds].ilnStart + 1;
 
-        memcpy(((LPB) lpv) + (iv * cbv),
-               ((LPB) rgv) + (rgbnds[ibnds].ilnStart * cbv),
+        memcpy(((LPB)lpv) + (iv * cbv),
+            ((LPB)rgv) + (rgbnds[ibnds].ilnStart * cbv),
                cvT * cbv);
 
         iv += cvT;
@@ -1612,33 +1598,33 @@ SortFromBounds (
 }
 
 __inline VOID
-SortSL (
+SortSL(
     LPSL lpsl
-    )
+)
 {
-    WORD   coff      = lpsl->cLnOff;
-    LPUL   rgoff     = lpsl->offset;
-    LPW    rgln      = (LPW) &lpsl->offset [ coff ];
-    WORD   cbnds     = 0;
-    LPBNDS rgbnds    = NULL;
+    WORD   coff = lpsl->cLnOff;
+    LPUL   rgoff = lpsl->offset;
+    LPW    rgln = (LPW)&lpsl->offset[coff];
+    WORD   cbnds = 0;
+    LPBNDS rgbnds = NULL;
 
-    rgbnds = BuildBounds (coff, rgoff, &cbnds);
+    rgbnds = BuildBounds(coff, rgoff, &cbnds);
     if (rgbnds != NULL) {
-        SortOffFromBounds (cbnds, rgbnds, coff, rgoff);
-        SortLnFromBounds  (cbnds, rgbnds, coff, rgln );
+        SortOffFromBounds(cbnds, rgbnds, coff, rgoff);
+        SortLnFromBounds(cbnds, rgbnds, coff, rgln);
 
-        MHFree (rgbnds);
+        MHFree(rgbnds);
     }
 }
 
 
 __inline WORD
-FindPosition (
+FindPosition(
     LPBNDS rgbnds,
     WORD cbnds,
     LPUL rgoff,
     ULONG uoff
-    )
+)
 {
     WORD ibnds = 0;
 
@@ -1646,7 +1632,7 @@ FindPosition (
     //  contain so few blocks that I'm not going to bother right now
 
     while (ibnds < cbnds) {
-        if (rgoff [ rgbnds [ ibnds ].ilnEnd ] > uoff) {
+        if (rgoff[rgbnds[ibnds].ilnEnd] > uoff) {
             break;
         }
 
@@ -1658,19 +1644,19 @@ FindPosition (
 
 
 __inline LPBNDS
-InsertBlock (
+InsertBlock(
     WORD   ibnds,
     WORD   cbnds,
     LPBNDS rgbnds,
     LPW    lpcbndsMax,
     LPW    lpcbndsAlloc
-    )
+)
 {
-    if (*lpcbndsMax + cbnds > *lpcbndsAlloc) {
+    if (*lpcbndsMax + cbnds > * lpcbndsAlloc) {
         // If the insert is going to run over the currently allocated
         //  block array, reallocate it to give more room
 
-        rgbnds = (LPBNDS) MHRealloc(rgbnds, sizeof(BNDS) * (*lpcbndsAlloc + cbndsAllocBlock));
+        rgbnds = (LPBNDS)MHRealloc(rgbnds, sizeof(BNDS) * (*lpcbndsAlloc + cbndsAllocBlock));
 
         *lpcbndsAlloc += cbndsAllocBlock;
     }
@@ -1691,17 +1677,16 @@ InsertBlock (
 
 
 __inline WORD
-ScanBlock (
+ScanBlock(
     LPUL rgoff,
     WORD coff,
     WORD ioff,
     ULONG uoffMax
-    )
+)
 {
     while (ioff + 1 < coff &&
-            rgoff [ ioff + 1 ] > rgoff [ ioff ] &&
-            rgoff [ ioff + 1 ] < uoffMax)
-    {
+           rgoff[ioff + 1] > rgoff[ioff] &&
+           rgoff[ioff + 1] < uoffMax) {
         ioff += 1;
     }
 
@@ -1710,21 +1695,21 @@ ScanBlock (
 
 
 LPBNDS
-BuildBounds (
+BuildBounds(
     WORD coff,
     LPUL rgoff,
     LPW lpcbnds
-    )
+)
 {
-    LPBNDS rgbnds     = (LPBNDS) MHAlloc (sizeof (BNDS) * cbndsAllocBlock);
+    LPBNDS rgbnds = (LPBNDS)MHAlloc(sizeof(BNDS) * cbndsAllocBlock);
     WORD   cbndsAlloc = cbndsAllocBlock;
-    WORD   cbnds      = 0;
-    WORD   ioff       = 0;
+    WORD   cbnds = 0;
+    WORD   ioff = 0;
 
     while (ioff < coff) {
-        ULONG uoffCurr  = rgoff [ ioff ];
-        ULONG uoffMax   = 0;
-        WORD  ibnds     = FindPosition (rgbnds, cbnds, rgoff, uoffCurr);
+        ULONG uoffCurr = rgoff[ioff];
+        ULONG uoffMax = 0;
+        WORD  ibnds = FindPosition(rgbnds, cbnds, rgoff, uoffCurr);
 
         if (ibnds == cbnds) {
 
@@ -1733,47 +1718,40 @@ BuildBounds (
 
             uoffMax = 0xFFFFFFFF;
 
-            rgbnds = InsertBlock (ibnds, 1, rgbnds, &cbnds, &cbndsAlloc);
+            rgbnds = InsertBlock(ibnds, 1, rgbnds, &cbnds, &cbndsAlloc);
 
-        } else if (rgoff [ rgbnds [ ibnds ].ilnStart ] > uoffCurr) {
+        } else if (rgoff[rgbnds[ibnds].ilnStart] > uoffCurr) {
 
             // We're at an insertion point, not in the middle of
             //  another block candidate
 
-            uoffMax = rgoff [ rgbnds [ ibnds ].ilnStart ];
+            uoffMax = rgoff[rgbnds[ibnds].ilnStart];
 
-            rgbnds = InsertBlock (ibnds, 1, rgbnds, &cbnds, &cbndsAlloc);
+            rgbnds = InsertBlock(ibnds, 1, rgbnds, &cbnds, &cbndsAlloc);
         } else {
 
             // We're in the middle of another block candidate, so we
             //  must split it in two
 
-            rgbnds = InsertBlock (ibnds, 2, rgbnds, &cbnds, &cbndsAlloc);
+            rgbnds = InsertBlock(ibnds, 2, rgbnds, &cbnds, &cbndsAlloc);
 
             // Start of ibnds is already set
-            rgbnds [ ibnds ].ilnEnd = ScanBlock (
-                rgoff,
-                coff,
-                rgbnds [ ibnds ].ilnStart,
-                uoffCurr
-           );
+            rgbnds[ibnds].ilnEnd = ScanBlock(rgoff, coff, rgbnds[ibnds].ilnStart, uoffCurr);
 
-            rgbnds [ ibnds + 2 ].ilnStart = rgbnds [ ibnds ].ilnEnd + 1;
+            rgbnds[ibnds + 2].ilnStart = rgbnds[ibnds].ilnEnd + 1;
             // End of ibnds + 2 is already set
 
-            uoffMax = rgoff [ rgbnds [ ibnds + 2 ].ilnStart ];
+            uoffMax = rgoff[rgbnds[ibnds + 2].ilnStart];
 
             ibnds += 1;
         }
 
-        rgbnds [ ibnds ].ilnStart = ioff;
-        rgbnds [ ibnds ].ilnEnd   = ScanBlock (rgoff, coff, ioff, uoffMax);
+        rgbnds[ibnds].ilnStart = ioff;
+        rgbnds[ibnds].ilnEnd = ScanBlock(rgoff, coff, ioff, uoffMax);
 
-        ioff = rgbnds [ ibnds ].ilnEnd + 1;
+        ioff = rgbnds[ibnds].ilnEnd + 1;
     }
 
     *lpcbnds = cbnds;
     return rgbnds;
 }
-
-

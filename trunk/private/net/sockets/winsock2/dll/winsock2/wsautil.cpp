@@ -36,14 +36,14 @@ LPFN_PROLOG PrologPointer = &Prolog_v2;
 HANDLE      gHeap = NULL;
 
 
-INT WINAPI SlowPrologOvlp (OUT LPWSATHREADID FAR * ThreadId)
+INT WINAPI SlowPrologOvlp(OUT LPWSATHREADID FAR* ThreadId)
 {
     PDPROCESS   Process;
     PDTHREAD    Thread;
     INT         ErrorCode;
 
-    ErrorCode = PROLOG(&Process,&Thread);
-    if (ErrorCode==ERROR_SUCCESS) {
+    ErrorCode = PROLOG(&Process, &Thread);
+    if (ErrorCode == ERROR_SUCCESS) {
         *ThreadId = Thread->GetWahThreadID();
     }
 
@@ -51,18 +51,18 @@ INT WINAPI SlowPrologOvlp (OUT LPWSATHREADID FAR * ThreadId)
 }
 
 
-INT WINAPI SlowProlog (VOID)
+INT WINAPI SlowProlog(VOID)
 {
     PDPROCESS   Process;
     PDTHREAD    Thread;
     INT         ErrorCode;
 
-    ErrorCode = PROLOG(&Process,&Thread);
+    ErrorCode = PROLOG(&Process, &Thread);
     return (ErrorCode);
 }
 
 
-INT WINAPI Prolog_v2(OUT PDPROCESS FAR * Process, OUT PDTHREAD FAR * Thread)
+INT WINAPI Prolog_v2(OUT PDPROCESS FAR* Process, OUT PDTHREAD FAR* Thread)
 /*
 Routine Description:
      This routine is the standard WinSock 1.1 prolog function used at all the winsock API entrypoints.
@@ -75,7 +75,7 @@ Returns:
 --*/
 {
     INT ErrorCode;
-    if ((*Process = DPROCESS::GetCurrentDProcess()) !=NULL) {
+    if ((*Process = DPROCESS::GetCurrentDProcess()) != NULL) {
         ErrorCode = DTHREAD::GetCurrentDThread(*Process, Thread);
     } //if
     else {
@@ -86,7 +86,7 @@ Returns:
 }   // Prolog_v2
 
 
-INT WINAPI Prolog_v1(OUT PDPROCESS FAR * Process, OUT PDTHREAD FAR * Thread)
+INT WINAPI Prolog_v1(OUT PDPROCESS FAR* Process, OUT PDTHREAD FAR* Thread)
 /*
 Routine Description:
      This routine is the standard WinSock 1.1 prolog function used at all the winsock API entrypoints.
@@ -100,10 +100,10 @@ Returns:
 {
     INT ErrorCode;
 
-    if ((*Process=DPROCESS::GetCurrentDProcess())!=NULL) {
+    if ((*Process = DPROCESS::GetCurrentDProcess()) != NULL) {
         ErrorCode = DTHREAD::GetCurrentDThread(*Process, Thread);
         if (ErrorCode == ERROR_SUCCESS) {
-            if( !(*Thread)->IsBlocking() ) {
+            if (!(*Thread)->IsBlocking()) {
                 ;
             } else {
                 ErrorCode = WSAEINPROGRESS;
@@ -118,7 +118,7 @@ Returns:
 }   // Prolog_v1
 
 
-INT WINAPI Prolog_Detached(OUT PDPROCESS FAR * Process, OUT PDTHREAD FAR * Thread)
+INT WINAPI Prolog_Detached(OUT PDPROCESS FAR* Process, OUT PDTHREAD FAR* Thread)
 /*
 Routine Description:
     API prolog used after we've been detached from the process's address space.
@@ -142,7 +142,7 @@ BOOL WriteRegistryEntry(
     IN LPCTSTR  EntryName,
     IN PVOID    Data,
     IN DWORD    TypeFlag
-    )
+)
 /*
 Routine Description:
     This  procedure  writes  a  single named value into an opened registry key.
@@ -168,44 +168,44 @@ Implementation note:
     DWORD  cbData;
     LONG   result;
     BOOL   ok_so_far;
-    BYTE * data_buf;
+    BYTE* data_buf;
 
     assert((TypeFlag == REG_BINARY) || (TypeFlag == REG_DWORD) || (TypeFlag == REG_EXPAND_SZ) || (TypeFlag == REG_SZ));
 
     ok_so_far = TRUE;
 
     switch (TypeFlag) {
-        case REG_BINARY:
-            cbData = (DWORD) (((LPWSABUF) Data)->len);
-            data_buf = (BYTE *) (((LPWSABUF) Data)->buf);
-            break;
-        case REG_DWORD:
-            cbData = sizeof(DWORD);
-            data_buf = (BYTE *) Data;
-            break;
-        case REG_EXPAND_SZ:
-            cbData = (DWORD) (lstrlen((char *) Data)+1);
-            data_buf = (BYTE *) Data;
-            break;
-        case REG_SZ:
-            cbData = (DWORD) (lstrlen((char *) Data)+1);
-            data_buf = (BYTE *) Data;
-            break;
-        default:
-            DEBUGF(DBG_ERR, ("Unsupported type flag specified (%lu)", TypeFlag));
-            ok_so_far = FALSE;
-            break;
+    case REG_BINARY:
+        cbData = (DWORD)(((LPWSABUF)Data)->len);
+        data_buf = (BYTE*)(((LPWSABUF)Data)->buf);
+        break;
+    case REG_DWORD:
+        cbData = sizeof(DWORD);
+        data_buf = (BYTE*)Data;
+        break;
+    case REG_EXPAND_SZ:
+        cbData = (DWORD)(lstrlen((char*)Data) + 1);
+        data_buf = (BYTE*)Data;
+        break;
+    case REG_SZ:
+        cbData = (DWORD)(lstrlen((char*)Data) + 1);
+        data_buf = (BYTE*)Data;
+        break;
+    default:
+        DEBUGF(DBG_ERR, ("Unsupported type flag specified (%lu)", TypeFlag));
+        ok_so_far = FALSE;
+        break;
     }  // switch (TypeFlag)
 
     if (ok_so_far) {
         result = RegSetValueEx(
             EntryKey,             // hkey
-            (LPCTSTR) EntryName,  // lpszValueName
+            (LPCTSTR)EntryName,  // lpszValueName
             0,                    // dwReserved
             TypeFlag,             // fdwType
             data_buf,             // lpbData
             cbData                // cbData
-            );
+        );
         if (result != ERROR_SUCCESS) {
             DEBUGF(DBG_ERR, ("Could not set value '%s'\n", EntryName));
             ok_so_far = FALSE;
@@ -222,7 +222,7 @@ BOOL ReadRegistryEntry(
     OUT PVOID   Data,
     IN  DWORD   MaxBytes,
     IN  DWORD   TypeFlag
-    )
+)
 /*
 Routine Description:
     This procedure reads a single named value from an opened registry key.
@@ -260,40 +260,40 @@ Implementation note:
     DWORD  entry_size;
     BOOL   need_exact_length;
     BOOL   ok_so_far;
-    BYTE * data_buf;
+    BYTE* data_buf;
 
     assert((TypeFlag == REG_BINARY) || (TypeFlag == REG_DWORD) || (TypeFlag == REG_EXPAND_SZ) || (TypeFlag == REG_SZ));
 
     ok_so_far = TRUE;
 
     switch (TypeFlag) {
-        case REG_BINARY:
-            count_expected = MaxBytes;
-            // Special case: REG_BINARY length compared against maximum
-            need_exact_length = FALSE;
-            data_buf = (BYTE *) (((LPWSABUF) Data)->buf);
-            break;
-        case REG_DWORD:
-            count_expected = sizeof(DWORD);
-            need_exact_length = TRUE;
-            data_buf = (BYTE *) Data;
-            break;
-        case REG_EXPAND_SZ:
-            count_expected = MaxBytes;
-            // Special case: strings length compared against maximum
-            need_exact_length = FALSE;
-            data_buf = (BYTE *) Data;
-            break;
-        case REG_SZ:
-            count_expected = MaxBytes;
-            // Special case: strings length compared against maximum
-            need_exact_length = FALSE;
-            data_buf = (BYTE *) Data;
-            break;
-        default:
-            DEBUGF(DBG_ERR, ("Unsupported type flag specified (%lu)", TypeFlag));
-            ok_so_far = FALSE;
-            break;
+    case REG_BINARY:
+        count_expected = MaxBytes;
+        // Special case: REG_BINARY length compared against maximum
+        need_exact_length = FALSE;
+        data_buf = (BYTE*)(((LPWSABUF)Data)->buf);
+        break;
+    case REG_DWORD:
+        count_expected = sizeof(DWORD);
+        need_exact_length = TRUE;
+        data_buf = (BYTE*)Data;
+        break;
+    case REG_EXPAND_SZ:
+        count_expected = MaxBytes;
+        // Special case: strings length compared against maximum
+        need_exact_length = FALSE;
+        data_buf = (BYTE*)Data;
+        break;
+    case REG_SZ:
+        count_expected = MaxBytes;
+        // Special case: strings length compared against maximum
+        need_exact_length = FALSE;
+        data_buf = (BYTE*)Data;
+        break;
+    default:
+        DEBUGF(DBG_ERR, ("Unsupported type flag specified (%lu)", TypeFlag));
+        ok_so_far = FALSE;
+        break;
     }  // switch (TypeFlag)
 
     // Read from registry
@@ -301,12 +301,12 @@ Implementation note:
         entry_size = MaxBytes;
         result = RegQueryValueEx(
             EntryKey,            // hkey
-            (LPTSTR) EntryName,  // lpszValueName
+            (LPTSTR)EntryName,  // lpszValueName
             0,                   // dwReserved
-            & type_read,         // lpdwType
+            &type_read,         // lpdwType
             data_buf,            // lpbData
-            & entry_size         // lpcbData
-            );
+            &entry_size         // lpcbData
+        );
         if (result != ERROR_SUCCESS) {
             DEBUGF(DBG_WARN, ("Could not read value '%s'\n", EntryName));
             if (result == ERROR_MORE_DATA) {
@@ -318,7 +318,7 @@ Implementation note:
 
     // Special case for REG_BINARY
     if (TypeFlag == REG_BINARY) {
-        (((LPWSABUF) Data)->len) = (u_long) entry_size;
+        (((LPWSABUF)Data)->len) = (u_long)entry_size;
     }
 
     // check type
@@ -336,7 +336,7 @@ Implementation note:
             if (count_expected != entry_size) {
                 DEBUGF(DBG_ERR, ("Length read (%lu) different from expected (%lu)\n", entry_size, count_expected));
                 ok_so_far = FALSE;
-             } // if size mismatch
+            } // if size mismatch
         } // if need_exact_length
     } // if ok_so_far
 
@@ -383,15 +383,15 @@ Implementation Notes:
     HKEY targetkey;
     LONG return_value;
 
-    DEBUGF(DBG_TRACE, ("RegDeleteKeyRecursive (%lu), '%s'\n", (ULONG_PTR) hkey, lpszSubKey));
+    DEBUGF(DBG_TRACE, ("RegDeleteKeyRecursive (%lu), '%s'\n", (ULONG_PTR)hkey, lpszSubKey));
 
     result = RegOpenKeyEx(
         hkey,            // hkey
         lpszSubKey,      // lpszSubKey
         0,               // dwReserved
         KEY_ALL_ACCESS,  // samDesired
-        & targetkey      // phkResult
-        );
+        &targetkey      // phkResult
+    );
     if (result != ERROR_SUCCESS) {
         DEBUGF(DBG_WARN, ("Unable to open key '%s' to be deleted\n", lpszSubKey));
         return result;
@@ -420,31 +420,31 @@ Implementation Notes:
                 targetkey,         // hkey
                 0,                 // iSubkey
                 subkey_name,       // lpszName
-                & subkey_name_len, // lpcchName
+                &subkey_name_len, // lpcchName
                 0,                 // lpdwReserved
                 NULL,              // lpszClass
                 NULL,              // lpcchClass
-                & dont_care        // lpftLastWrite
-                );
+                &dont_care        // lpftLastWrite
+            );
             switch (result) {
-                case ERROR_SUCCESS:
-                    result = RegDeleteKeyRecursive(
-                        targetkey,   // hkey
-                        subkey_name  // lpszSubKey
-                        );
-                    if (result != ERROR_SUCCESS) {
-                        deleting_subkeys = FALSE;
-                        return_value = result;
-                    }
-                    break;
-                case ERROR_NO_MORE_ITEMS:
-                    deleting_subkeys = FALSE;
-                    break;
-                default:
-                    DEBUGF(DBG_ERR, ("Unable to enumerate subkeys\n"));
+            case ERROR_SUCCESS:
+                result = RegDeleteKeyRecursive(
+                    targetkey,   // hkey
+                    subkey_name  // lpszSubKey
+                );
+                if (result != ERROR_SUCCESS) {
                     deleting_subkeys = FALSE;
                     return_value = result;
-                    break;
+                }
+                break;
+            case ERROR_NO_MORE_ITEMS:
+                deleting_subkeys = FALSE;
+                break;
+            default:
+                DEBUGF(DBG_ERR, ("Unable to enumerate subkeys\n"));
+                deleting_subkeys = FALSE;
+                return_value = result;
+                break;
             }  // switch (result)
         }  // while (deleting_subkeys)
 
@@ -453,7 +453,7 @@ Implementation Notes:
 
     result = RegCloseKey(
         targetkey  // hkey
-        );
+    );
     if (result != ERROR_SUCCESS) {
         DEBUGF(DBG_ERR, ("Unable to close subkey '%s'\n", lpszSubKey));
         return_value = result;
@@ -462,7 +462,7 @@ Implementation Notes:
     result = RegDeleteKey(
         hkey,       // hkey
         lpszSubKey  // lpszSubKey
-        );
+    );
     if (result != ERROR_SUCCESS) {
         DEBUGF(DBG_WARN, ("Unable to delete subkey '%s'\n", lpszSubKey));
         return_value = result;
@@ -520,31 +520,31 @@ Implementation Notes:
             hkey,               // hkey
             0,                 // iSubkey
             subkey_name,       // lpszName
-            & subkey_name_len, // lpcchName
+            &subkey_name_len, // lpcchName
             0,                 // lpdwReserved
             NULL,              // lpszClass
             NULL,              // lpcchClass
-            & dont_care        // lpftLastWrite
-            );
+            &dont_care        // lpftLastWrite
+        );
         switch (result) {
-            case ERROR_SUCCESS:
-                result = RegDeleteKey(
-                    hkey,        // hkey
-                    subkey_name  // lpszSubKey
-                    );
-                if (result != ERROR_SUCCESS) {
-                    deleting_subkeys = FALSE;
-                    return_value = result;
-                }
-                break;
-            case ERROR_NO_MORE_ITEMS:
-                deleting_subkeys = FALSE;
-                break;
-            default:
-                DEBUGF(DBG_ERR, ("Unable to enumerate subkeys\n"));
+        case ERROR_SUCCESS:
+            result = RegDeleteKey(
+                hkey,        // hkey
+                subkey_name  // lpszSubKey
+            );
+            if (result != ERROR_SUCCESS) {
                 deleting_subkeys = FALSE;
                 return_value = result;
-                break;
+            }
+            break;
+        case ERROR_NO_MORE_ITEMS:
+            deleting_subkeys = FALSE;
+            break;
+        default:
+            DEBUGF(DBG_ERR, ("Unable to enumerate subkeys\n"));
+            deleting_subkeys = FALSE;
+            return_value = result;
+            break;
         }  // switch (result)
     }  // while (deleting_subkeys)
 
@@ -594,11 +594,11 @@ Implementation Notes:
         WINSOCK_REGISTRY_ROOT,          // lpszSubKey
         0,                              // dwReserved
         MAXIMUM_ALLOWED,                // samDesired
-        & root_key                      // phkResult
-        );
-    if( lresult == ERROR_SUCCESS ) {
+        &root_key                      // phkResult
+    );
+    if (lresult == ERROR_SUCCESS) {
         create_disp = REG_OPENED_EXISTING_KEY;
-    } else if( lresult == ERROR_FILE_NOT_FOUND ) {
+    } else if (lresult == ERROR_FILE_NOT_FOUND) {
         lresult = RegCreateKeyEx(
             HKEY_LOCAL_MACHINE,         // hkey
             WINSOCK_REGISTRY_ROOT,      // lpszSubKey
@@ -607,9 +607,9 @@ Implementation Notes:
             REG_OPTION_NON_VOLATILE,    // fdwOptions
             KEY_ALL_ACCESS,             // samDesired
             NULL,                       // lpSecurityAttributes
-            & root_key,                 // phkResult
-            & create_disp               // lpdwDisposition
-            );
+            &root_key,                 // phkResult
+            &create_disp               // lpdwDisposition
+        );
     }
     if (lresult != ERROR_SUCCESS) {
         DEBUGF(DBG_ERR, ("Result (%lu) creating/opening registry root\n", lresult));
@@ -619,40 +619,40 @@ Implementation Notes:
     TRY_START(guard_root_open) {
         BOOL   bresult;
         TCHAR  reg_version[] = WINSOCK_REGISTRY_VERSION_VALUE;
-            // Initialization forces size to be the size desired.
+        // Initialization forces size to be the size desired.
 
         switch (create_disp) {
-            case REG_CREATED_NEW_KEY:
-                bresult = WriteRegistryEntry(
-                    root_key,                               // EntryKey
-                    WINSOCK_REGISTRY_VERSION_NAME,          // EntryName
-                    (PVOID)WINSOCK_REGISTRY_VERSION_VALUE,  // Data
-                    REG_SZ                                  // TypeFlag
-                    );
-                if (! bresult) {
-                    DEBUGF(DBG_ERR, ("Writing version value to registry\n"));
-                    TRY_THROW(guard_root_open);
-                }
-                break;
-            case REG_OPENED_EXISTING_KEY:
-                bresult = ReadRegistryEntry(
-                    root_key,                               // EntryKey
-                    WINSOCK_REGISTRY_VERSION_NAME,          // EntryName
-                    (PVOID) reg_version,                    // Data
-                    sizeof(reg_version),                    // MaxBytes
-                    REG_SZ                                  // TypeFlag
-                    );
-                if (! bresult) {
-                    DEBUGF(DBG_ERR, ("Reading version value from registry\n"));
-                    TRY_THROW(guard_root_open);
-                }
-                if (lstrcmp(reg_version, WINSOCK_REGISTRY_VERSION_VALUE) != 0) {
-                    DEBUGF(DBG_ERR, ("Expected registry version '%s', got '%s'\n", WINSOCK_REGISTRY_VERSION_VALUE, reg_version));
-                    TRY_THROW(guard_root_open);
-                }
-                break;
-            default:
-                break;
+        case REG_CREATED_NEW_KEY:
+            bresult = WriteRegistryEntry(
+                root_key,                               // EntryKey
+                WINSOCK_REGISTRY_VERSION_NAME,          // EntryName
+                (PVOID)WINSOCK_REGISTRY_VERSION_VALUE,  // Data
+                REG_SZ                                  // TypeFlag
+            );
+            if (!bresult) {
+                DEBUGF(DBG_ERR, ("Writing version value to registry\n"));
+                TRY_THROW(guard_root_open);
+            }
+            break;
+        case REG_OPENED_EXISTING_KEY:
+            bresult = ReadRegistryEntry(
+                root_key,                               // EntryKey
+                WINSOCK_REGISTRY_VERSION_NAME,          // EntryName
+                (PVOID)reg_version,                    // Data
+                sizeof(reg_version),                    // MaxBytes
+                REG_SZ                                  // TypeFlag
+            );
+            if (!bresult) {
+                DEBUGF(DBG_ERR, ("Reading version value from registry\n"));
+                TRY_THROW(guard_root_open);
+            }
+            if (lstrcmp(reg_version, WINSOCK_REGISTRY_VERSION_VALUE) != 0) {
+                DEBUGF(DBG_ERR, ("Expected registry version '%s', got '%s'\n", WINSOCK_REGISTRY_VERSION_VALUE, reg_version));
+                TRY_THROW(guard_root_open);
+            }
+            break;
+        default:
+            break;
         }  // switch (create_disp)
     } TRY_CATCH(guard_root_open) {
         CloseWinSockRegistryRoot(root_key);
@@ -680,7 +680,7 @@ Return Value:
 
     lresult = RegCloseKey(
         RootKey  // hkey
-        );
+    );
     if (lresult != ERROR_SUCCESS) {
         DEBUGF(DBG_ERR, ("Unexpected result (%lu) closing registry root\n", lresult));
     }
@@ -702,8 +702,8 @@ Return Value:
     INT result;
 
     // Sanity check.
-    assert( UnicodeProtocolInfo != NULL );
-    assert( AnsiProtocolInfo != NULL );
+    assert(UnicodeProtocolInfo != NULL);
+    assert(AnsiProtocolInfo != NULL);
 
     __try {
         // Copy over the scalar values.
@@ -714,23 +714,22 @@ Return Value:
 
         // And now map the string from UNICODE to ANSI.
         result = WideCharToMultiByte(CP_ACP,                                    // CodePage (ANSI)
-                     0,                                         // dwFlags
-                     UnicodeProtocolInfo->szProtocol,           // lpWideCharStr
-                     -1,                                        // cchWideChar
-                     AnsiProtocolInfo->szProtocol,              // lpMultiByteStr
-                     sizeof(AnsiProtocolInfo->szProtocol),      // cchMultiByte
-                     NULL,                                      // lpDefaultChar
-                     NULL                                       // lpUsedDefaultChar
-                     );
-        if( result == 0 ) {
+                                     0,                                         // dwFlags
+                                     UnicodeProtocolInfo->szProtocol,           // lpWideCharStr
+                                     -1,                                        // cchWideChar
+                                     AnsiProtocolInfo->szProtocol,              // lpMultiByteStr
+                                     sizeof(AnsiProtocolInfo->szProtocol),      // cchMultiByte
+                                     NULL,                                      // lpDefaultChar
+                                     NULL                                       // lpUsedDefaultChar
+        );
+        if (result == 0) {
             // WideCharToMultiByte() failed.
             return WSASYSCALLFAILURE;
         }
 
         // Success!
         return ERROR_SUCCESS;
-    }
-    __except (WS2_EXCEPTION_FILTER()) {
+    } __except (WS2_EXCEPTION_FILTER()) {
         return WSAEFAULT;
     }
 }   // MapUnicodeProtocolInfoToAnsi
@@ -751,8 +750,8 @@ Return Value:
     INT result;
 
     // Sanity check.
-    assert( AnsiProtocolInfo != NULL );
-    assert( UnicodeProtocolInfo != NULL );
+    assert(AnsiProtocolInfo != NULL);
+    assert(UnicodeProtocolInfo != NULL);
 
     __try {
         // Copy over the scalar values.
@@ -764,21 +763,20 @@ Return Value:
 
         // And now map the string from ANSI to UNICODE.
         result = MultiByteToWideChar(CP_ACP,                                    // CodePage (ANSI)
-                     0,                                         // dwFlags
-                     AnsiProtocolInfo->szProtocol,              // lpMultiByteStr
-                     -1,                                        // cchWideChar
-                     UnicodeProtocolInfo->szProtocol,           // lpWideCharStr
-                     sizeof(UnicodeProtocolInfo->szProtocol)    // cchMultiByte
-                     );
-        if( result == 0 ) {
+                                     0,                                         // dwFlags
+                                     AnsiProtocolInfo->szProtocol,              // lpMultiByteStr
+                                     -1,                                        // cchWideChar
+                                     UnicodeProtocolInfo->szProtocol,           // lpWideCharStr
+                                     sizeof(UnicodeProtocolInfo->szProtocol)    // cchMultiByte
+        );
+        if (result == 0) {
             // MultiByteToWideChar() failed.
             return WSASYSCALLFAILURE;
         }
 
         // Success!
         return ERROR_SUCCESS;
-    }
-    __except (WS2_EXCEPTION_FILTER()) {
+    } __except (WS2_EXCEPTION_FILTER()) {
         return WSAEFAULT;
     }
 }   // MapAnsiProtocolInfoToUnicode
@@ -824,15 +822,15 @@ Return Value:
 
     // Try to read the name from the registry.
     result = ReadRegistryEntry(RootKey, ValueName, (PVOID)value, sizeof(value), REG_SZ);
-    if( result ) {
-        if( lstrcmp( value, ExpectedName ) == 0 ) {
+    if (result) {
+        if (lstrcmp(value, ExpectedName) == 0) {
             return;// No update in format. We're done.
         }
 
         // The values don't match, indicating an update in registry format.
         // So, blow away the old key.
         err = RegDeleteKeyRecursive(RootKey, value);
-        if( err != NO_ERROR ) {
+        if (err != NO_ERROR) {
             // Unfortunate, but nonfatal.
             DEBUGF(DBG_ERR, ("Deleting key %s, continuing\n", value));
         }
@@ -845,18 +843,18 @@ Return Value:
     // the values don't match and we've just blown away the old catalog.
     // In either case we need to update the value in the registry before returning.
     result = WriteRegistryEntry(RootKey, ValueName, ExpectedName, REG_SZ);
-    if( !result ) {
+    if (!result) {
         DEBUGF(DBG_ERR, ("Writing %s with value %s\n", ValueName, ExpectedName));// Also unfortunate, but nonfatal.
     }
 }   // ValidateCurrentCatalogName
 
 
 INT
-AcquireExclusiveCatalogAccess (
+AcquireExclusiveCatalogAccess(
     IN  HKEY    CatalogKey,
     IN  DWORD   ExpectedSerialNum,
     OUT PHKEY   AccessKey
-    )
+)
 /*
 Routine Description:
     This procedure acquires registry lock using volatile registry key.
@@ -886,66 +884,65 @@ Return Value:
     *AccessKey = NULL;
 
     // Read current serial number
-    bresult = ReadRegistryEntry (
-                    CatalogKey,             // EntryKey
-                    SERIAL_NUMBER_NAME,     // EntryName
-                    (PVOID) &serial_num,    // Data
-                    sizeof (DWORD),         // MaxBytes
-                    REG_DWORD               // TypeFlag
-                    );
+    bresult = ReadRegistryEntry(
+        CatalogKey,             // EntryKey
+        SERIAL_NUMBER_NAME,     // EntryName
+        (PVOID)&serial_num,    // Data
+        sizeof(DWORD),         // MaxBytes
+        REG_DWORD               // TypeFlag
+    );
     if (!bresult) {
-        DEBUGF (DBG_ERR, ("Reading catalog serial number value.\n"));
+        DEBUGF(DBG_ERR, ("Reading catalog serial number value.\n"));
         return WSASYSCALLFAILURE;
     }
 
     // Check if it what caller was expecting
-    if (ExpectedSerialNum!=serial_num) {
-        DEBUGF (DBG_ERR,
+    if (ExpectedSerialNum != serial_num) {
+        DEBUGF(DBG_ERR,
             ("Catalog serial number changed since we read it, %ld->%ld.\n",
-            ExpectedSerialNum, serial_num));
+             ExpectedSerialNum, serial_num));
         return WSATRY_AGAIN;
     }
 
     // Create synchronization key
-    _stprintf (serial_num_buffer, TEXT("%08.8lX"), serial_num);
-    lresult = RegCreateKeyEx (
-                    CatalogKey,              // hKey
-                    serial_num_buffer,      // lpSubKey
-                    0,                      // dwReserved
-                    NULL,                   // lpszClass
-                    REG_OPTION_VOLATILE,    // fdwOptions
-                    KEY_ALL_ACCESS,         // samDesired
-                    NULL,                   // lpSecurityAttributes
-                    &access_key,            // phkResult
-                    &disposition            // lpdwDisposition
-                    );
+    _stprintf(serial_num_buffer, TEXT("%08.8lX"), serial_num);
+    lresult = RegCreateKeyEx(
+        CatalogKey,              // hKey
+        serial_num_buffer,      // lpSubKey
+        0,                      // dwReserved
+        NULL,                   // lpszClass
+        REG_OPTION_VOLATILE,    // fdwOptions
+        KEY_ALL_ACCESS,         // samDesired
+        NULL,                   // lpSecurityAttributes
+        &access_key,            // phkResult
+        &disposition            // lpdwDisposition
+    );
     if (lresult != ERROR_SUCCESS) {
-        DEBUGF (DBG_ERR, ("Creating access key '%s', err: %ld.\n", serial_num_buffer));
+        DEBUGF(DBG_ERR, ("Creating access key '%s', err: %ld.\n", serial_num_buffer));
         if (lresult == ERROR_ACCESS_DENIED)
             return WSAEACCES;
         else
             return WSASYSCALLFAILURE;
     }
 
-    if (disposition==REG_CREATED_NEW_KEY) {
+    if (disposition == REG_CREATED_NEW_KEY) {
         // We created the key, so caller can have the registry to itself
         *AccessKey = access_key;
         return ERROR_SUCCESS;
-    }
-    else {
+    } else {
         // The key was there already, someone must be writing to the registry and thus current callers representation of it becomes invalid.
-        RegCloseKey (access_key);
-        DEBUGF (DBG_WARN, ("Trying to lock accessed catalog, serial num: %ld.\n", serial_num));
+        RegCloseKey(access_key);
+        DEBUGF(DBG_WARN, ("Trying to lock accessed catalog, serial num: %ld.\n", serial_num));
         return WSATRY_AGAIN;
     }
 } // AcquireExclusiveRegistryAccess
 
 
-VOID ReleaseExclusiveCatalogAccess (
+VOID ReleaseExclusiveCatalogAccess(
     IN  HKEY    CatalogKey,
     IN  DWORD   CurrentSerialNum,
     IN  HKEY    access_key
-    )
+)
 /*
 Routine Description:
     This procedure releases registry lock acquired using AcuireExclusiveCatalogAccess.
@@ -962,39 +959,39 @@ Return Value:
     TCHAR       serial_num_buffer[32];
 
     // Save and increment catalog serial number
-    _stprintf (serial_num_buffer, TEXT("%08.8lX"), CurrentSerialNum);
+    _stprintf(serial_num_buffer, TEXT("%08.8lX"), CurrentSerialNum);
 
     CurrentSerialNum += 1;
 
     // Store new catalog serial number
-    bresult = WriteRegistryEntry (
-                    CatalogKey,                 // EntryKey
-                    SERIAL_NUMBER_NAME,         // EntryName
-                    (PVOID)&CurrentSerialNum,   // Data
-                    REG_DWORD                   // TypeFlag
-                    );
+    bresult = WriteRegistryEntry(
+        CatalogKey,                 // EntryKey
+        SERIAL_NUMBER_NAME,         // EntryName
+        (PVOID)&CurrentSerialNum,   // Data
+        REG_DWORD                   // TypeFlag
+    );
     if (!bresult) {
-        DEBUGF (DBG_ERR, ("Writing serial number value %ld.\n", CurrentSerialNum));
-        assert (FALSE);
+        DEBUGF(DBG_ERR, ("Writing serial number value %ld.\n", CurrentSerialNum));
+        assert(FALSE);
         // Nothing we can do, writer has done its job anyway
     }
 
-    lresult = RegDeleteKey (CatalogKey, serial_num_buffer);
+    lresult = RegDeleteKey(CatalogKey, serial_num_buffer);
     if (lresult != ERROR_SUCCESS) {
-        DEBUGF (DBG_ERR, ("Deleting serial access key '%s', err: %ld.\n", serial_num_buffer, lresult));
+        DEBUGF(DBG_ERR, ("Deleting serial access key '%s', err: %ld.\n", serial_num_buffer, lresult));
         // Unfortunate but not fatal (just leaves it in the regstry);
     }
 
-    lresult = RegCloseKey (access_key);
+    lresult = RegCloseKey(access_key);
     if (lresult != ERROR_SUCCESS) {
-        DEBUGF (DBG_ERR, ("Closing serial access key '%s', err: %ld.\n", serial_num_buffer, lresult));
+        DEBUGF(DBG_ERR, ("Closing serial access key '%s', err: %ld.\n", serial_num_buffer, lresult));
         // Unfortunate but not fatal (does not deallocate memory and possibly leaves it in the regstry);
     }
 } //ReleaseExclusiveRegistryAccess
 
 
 #define MAX_WRITER_WAIT_TIME    (3*60*1000)
-INT SynchronizeSharedCatalogAccess (IN  HKEY    CatalogKey, IN  HANDLE  ChangeEvent, OUT LPDWORD CurrentSerialNum)
+INT SynchronizeSharedCatalogAccess(IN  HKEY    CatalogKey, IN  HANDLE  ChangeEvent, OUT LPDWORD CurrentSerialNum)
 /*
 Routine Description:
     This procedure synchronizes reades access to the registry catalog against possible writers.  It waits for any writers
@@ -1018,75 +1015,74 @@ Return Value:
         // Register for notification of key creation/deletion
         // (The writer creates and keeps access key while it
         // modifies the catalog)
-        lresult = RegNotifyChangeKeyValue (
-                    CatalogKey,                 // hKey
-                    FALSE,                      // bWatchSubtree
-                    REG_NOTIFY_CHANGE_NAME,     // dwNotifyFilter,
-                    ChangeEvent,                // hEvent
-                    TRUE                        // fAsynchronous
-                    );
+        lresult = RegNotifyChangeKeyValue(
+            CatalogKey,                 // hKey
+            FALSE,                      // bWatchSubtree
+            REG_NOTIFY_CHANGE_NAME,     // dwNotifyFilter,
+            ChangeEvent,                // hEvent
+            TRUE                        // fAsynchronous
+        );
         if (lresult != ERROR_SUCCESS) {
-            DEBUGF (DBG_ERR, ("Registering for registry key change notification, err: %ld.\n", lresult));
+            DEBUGF(DBG_ERR, ("Registering for registry key change notification, err: %ld.\n", lresult));
             return_value = WSASYSCALLFAILURE;
             break;
         }
 
         // Read current catalog serial number, which is also the name of the writer access key
-        bresult = ReadRegistryEntry (
-                        CatalogKey,             // EntryKey
-                        SERIAL_NUMBER_NAME,     // EntryName
-                        (PVOID) &serial_num,    // Data
-                        sizeof (DWORD),         // MaxBytes
-                        REG_DWORD               // TypeFlag
-                        );
+        bresult = ReadRegistryEntry(
+            CatalogKey,             // EntryKey
+            SERIAL_NUMBER_NAME,     // EntryName
+            (PVOID)&serial_num,    // Data
+            sizeof(DWORD),         // MaxBytes
+            REG_DWORD               // TypeFlag
+        );
         if (!bresult) {
-            DEBUGF (DBG_ERR, ("Reading '%s' value.\n", SERIAL_NUMBER_NAME));
+            DEBUGF(DBG_ERR, ("Reading '%s' value.\n", SERIAL_NUMBER_NAME));
             return_value = WSASYSCALLFAILURE;
             break;
         }
 
         // Try to open writer access key.
-        _stprintf (serial_num_buffer, TEXT("%08.8lX"), serial_num);
+        _stprintf(serial_num_buffer, TEXT("%08.8lX"), serial_num);
         lresult = RegOpenKeyEx(
-                        CatalogKey,             // hkey
-                        serial_num_buffer,      // lpszSubKey
-                        0,                      // dwReserved
-                        MAXIMUM_ALLOWED,        // samDesired
-                        & access_key            // phkResult
-                        );
+            CatalogKey,             // hkey
+            serial_num_buffer,      // lpszSubKey
+            0,                      // dwReserved
+            MAXIMUM_ALLOWED,        // samDesired
+            &access_key            // phkResult
+        );
         if ((lresult == ERROR_FILE_NOT_FOUND)
-                || (lresult == ERROR_KEY_DELETED)) {
+            || (lresult == ERROR_KEY_DELETED)) {
             // Key was not found or is being deleted,
             // we can access the catalog
             return_value = ERROR_SUCCESS;
             *CurrentSerialNum = serial_num;
             break;
-        }
-        else if (lresult != ERROR_SUCCESS) {
+        } else if (lresult != ERROR_SUCCESS) {
             // Some other failure
-            DEBUGF (DBG_ERR, ("Opening access key '%s', err: %ld.\n", serial_num_buffer, lresult));
+            DEBUGF(DBG_ERR, ("Opening access key '%s', err: %ld.\n", serial_num_buffer, lresult));
             return_value = WSASYSCALLFAILURE;
             break;
         }
 
         // Success, writer is active, close the key,
         // wait till it gets removed, and start over again
-        lresult = RegCloseKey (access_key);
-        if (lresult!=ERROR_SUCCESS) {
-            DEBUGF (DBG_ERR, ("Closing access key '%ls', err: %ld.\n", serial_num_buffer, lresult));
+        lresult = RegCloseKey(access_key);
+        if (lresult != ERROR_SUCCESS) {
+            DEBUGF(DBG_ERR, ("Closing access key '%ls', err: %ld.\n", serial_num_buffer, lresult));
             // Non-fatal.
         }
         // Set the error code in case we fail the wait.
         return_value = WSANO_RECOVERY;
         // Limit the wait time in case writer crashed or
         // failed to remove the key.
-    } while (WaitForSingleObject (ChangeEvent, MAX_WRITER_WAIT_TIME)==WAIT_OBJECT_0);
+    } while (WaitForSingleObject(ChangeEvent, MAX_WRITER_WAIT_TIME) == WAIT_OBJECT_0);
 
     return return_value;
 }
 
 
-BOOL HasCatalogChanged (IN  HANDLE  ChangeEvent)
+BOOL HasCatalogChanged(IN  HANDLE  ChangeEvent)
 /*
 Routine Description:
     This procedure checks if registry catalog has changes since the caller has last synchronized with it
@@ -1099,14 +1095,14 @@ Return Value:
     DWORD   wait_result;
 
     // Simply check the event state
-    wait_result = WaitForSingleObject (ChangeEvent, 0);
-    if (wait_result==WAIT_OBJECT_0)
+    wait_result = WaitForSingleObject(ChangeEvent, 0);
+    if (wait_result == WAIT_OBJECT_0)
         return TRUE;
-    if (wait_result==WAIT_TIMEOUT)
+    if (wait_result == WAIT_TIMEOUT)
         return FALSE;
 
-    DEBUGF (DBG_ERR, ("Waiting for registry change event, rc=%ld, err=%ld.\n", wait_result, GetLastError ()));
-    assert (FALSE);
+    DEBUGF(DBG_ERR, ("Waiting for registry change event, rc=%ld, err=%ld.\n", wait_result, GetLastError()));
+    assert(FALSE);
     return FALSE;
 }
 
@@ -1114,17 +1110,17 @@ Return Value:
 extern "C"
 {
 
-VOID WEP( VOID )
-{
+    VOID WEP(VOID)
+    {
+
+    }
 
 }
 
+void* __cdecl operator new(size_t sz) {
+    return HeapAlloc(gHeap, 0, sz);
 }
 
-void * __cdecl operator new(size_t sz) {
-    return HeapAlloc (gHeap, 0, sz);
-}
-
-void __cdecl operator delete(void *p) {
-    HeapFree (gHeap, 0, p);
+void __cdecl operator delete(void* p) {
+    HeapFree(gHeap, 0, p);
 }

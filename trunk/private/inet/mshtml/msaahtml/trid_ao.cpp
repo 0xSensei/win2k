@@ -1,4 +1,3 @@
-
 //      File:   TRID_AO.CPP
 //      Date:   5/21/97
 //      Desc:   contains implementation of CTridentAO class.  CTridentAO
@@ -36,13 +35,13 @@
 // Constants
 
 
-static const WCHAR wszKeyboardShortcutPrefix[]  = L"Alt+";
+static const WCHAR wszKeyboardShortcutPrefix[] = L"Alt+";
 
 
 // Externally declared variables
 
 
-extern  CProxyManager   *g_pProxyMgr;
+extern  CProxyManager* g_pProxyMgr;
 
 
 // CImplIAccessible class definition
@@ -67,30 +66,30 @@ public:
     virtual STDMETHODIMP    GetTypeInfoCount(UINT* pctinfo);
     virtual STDMETHODIMP    GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo** pptinfo);
     virtual STDMETHODIMP    GetIDsOfNames(REFIID riid, OLECHAR** rgszNames, UINT                    cNames, LCID lcid, DISPID* rgdispid);
-    virtual STDMETHODIMP    Invoke(DISPID dispidMember, REFIID riid, LCID lcid,WORD wFlags, DISPPARAMS* pdispparams, VARIANT* pvarResult, EXCEPINFO* pexcepinfo, UINT* puArgErr);
+    virtual STDMETHODIMP    Invoke(DISPID dispidMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS* pdispparams, VARIANT* pvarResult, EXCEPINFO* pexcepinfo, UINT* puArgErr);
 
 
     // IAccessible
 
 
-    virtual STDMETHODIMP    get_accParent(IDispatch ** ppdispParent);
+    virtual STDMETHODIMP    get_accParent(IDispatch** ppdispParent);
     virtual STDMETHODIMP    get_accChildCount(long* pChildCount);
-    virtual STDMETHODIMP    get_accChild(VARIANT varChild, IDispatch ** ppdispChild);
+    virtual STDMETHODIMP    get_accChild(VARIANT varChild, IDispatch** ppdispChild);
     virtual STDMETHODIMP    get_accName(VARIANT varChild, BSTR* pbstrName);
     virtual STDMETHODIMP    get_accValue(VARIANT varChild, BSTR* pbstrValue);
     virtual STDMETHODIMP    get_accDescription(VARIANT varChild, BSTR* pbstrDescription);
-    virtual STDMETHODIMP    get_accRole(VARIANT varChild, VARIANT *pvarRole);
-    virtual STDMETHODIMP    get_accState(VARIANT varChild, VARIANT *pvarState);
+    virtual STDMETHODIMP    get_accRole(VARIANT varChild, VARIANT* pvarRole);
+    virtual STDMETHODIMP    get_accState(VARIANT varChild, VARIANT* pvarState);
     virtual STDMETHODIMP    get_accHelp(VARIANT varChild, BSTR* pbstrHelp);
     virtual STDMETHODIMP    get_accHelpTopic(BSTR* pbstrHelpFile, VARIANT varChild, long* pidTopic);
     virtual STDMETHODIMP    get_accKeyboardShortcut(VARIANT varChild, BSTR* pbstrKeyboardShortcut);
-    virtual STDMETHODIMP    get_accFocus(VARIANT * pvarFocusChild);
-    virtual STDMETHODIMP    get_accSelection(VARIANT * pvarSelectedChildren);
+    virtual STDMETHODIMP    get_accFocus(VARIANT* pvarFocusChild);
+    virtual STDMETHODIMP    get_accSelection(VARIANT* pvarSelectedChildren);
     virtual STDMETHODIMP    get_accDefaultAction(VARIANT varChild, BSTR* pbstrDefaultAction);
     virtual STDMETHODIMP    accSelect(long flagsSel, VARIANT varChild);
     virtual STDMETHODIMP    accLocation(long* pxLeft, long* pyTop, long* pcxWidth, long* pcyHeight, VARIANT varChild);
-    virtual STDMETHODIMP    accNavigate(long navDir, VARIANT varStart, VARIANT * pvarEndUpAt);
-    virtual STDMETHODIMP    accHitTest(long xLeft, long yTop, VARIANT * pvarChildAtPoint);
+    virtual STDMETHODIMP    accNavigate(long navDir, VARIANT varStart, VARIANT* pvarEndUpAt);
+    virtual STDMETHODIMP    accHitTest(long xLeft, long yTop, VARIANT* pvarChildAtPoint);
     virtual STDMETHODIMP    accDoDefaultAction(VARIANT varChild);
     virtual STDMETHODIMP    put_accName(VARIANT varChild, BSTR bstrName);
     virtual STDMETHODIMP    put_accValue(VARIANT varChild, BSTR pbstrValue);
@@ -99,26 +98,26 @@ public:
     // CImplIAccessible creation/destruction/maintenance
 
 
-    CImplIAccessible(IUnknown * pIUnknown,CTridentAO * pAOContainer);
+    CImplIAccessible(IUnknown* pIUnknown, CTridentAO* pAOContainer);
     ~CImplIAccessible();
 
-    protected:
+protected:
 
 
     // methods
 
 
-    HRESULT validateVariant(VARIANT * pVar);
-    HRESULT packReturnVariant(IUnknown * pIUnknown,VARIANT *pvarToPack);
-    HRESULT getTypeInfo( ITypeInfo** ppITypeInfo );
-    HRESULT prefixKeyboardShortcut( BSTR* pbstrKS );
+    HRESULT validateVariant(VARIANT* pVar);
+    HRESULT packReturnVariant(IUnknown* pIUnknown, VARIANT* pvarToPack);
+    HRESULT getTypeInfo(ITypeInfo** ppITypeInfo);
+    HRESULT prefixKeyboardShortcut(BSTR* pbstrKS);
 
 
     // Members
 
 
-    IUnknown    * m_pIUnknown;
-    CTridentAO  * m_pAOContainer;
+    IUnknown* m_pIUnknown;
+    CTridentAO* m_pAOContainer;
 };
 
 
@@ -128,7 +127,7 @@ public:
 
 class CImplIOleWindow : public IOleWindow
 {
-public :
+public:
 
     // IUnknown
 
@@ -148,15 +147,15 @@ public :
     // CImplIOleWindow creation/destruction/maintenance
 
 
-    CImplIOleWindow(IUnknown * pIUnknown,CTridentAO * pAOContainer);
+    CImplIOleWindow(IUnknown* pIUnknown, CTridentAO* pAOContainer);
     ~CImplIOleWindow();
 
 protected:
 
     // Members
 
-    IUnknown    * m_pIUnknown;
-    CTridentAO  * m_pAOContainer;
+    IUnknown* m_pIUnknown;
+    CTridentAO* m_pAOContainer;
 };
 
 
@@ -182,13 +181,13 @@ protected:
 
 
 
-CImplIAccessible::CImplIAccessible(IUnknown * pIUnknown,CTridentAO *pAOContainer)
+CImplIAccessible::CImplIAccessible(IUnknown* pIUnknown, CTridentAO* pAOContainer)
 {
 
     // assign controlling IUnknown;
 
 
-    m_pIUnknown     = pIUnknown;
+    m_pIUnknown = pIUnknown;
 
 
     // assign parent pointer : even though this is
@@ -197,7 +196,7 @@ CImplIAccessible::CImplIAccessible(IUnknown * pIUnknown,CTridentAO *pAOContainer
     // through a non OLE pointer.
 
 
-    m_pAOContainer      = pAOContainer;
+    m_pAOContainer = pAOContainer;
 }
 
 
@@ -246,7 +245,7 @@ CImplIAccessible::~CImplIAccessible()
 
 STDMETHODIMP CImplIAccessible::QueryInterface(REFIID riid, void** ppv)
 {
-    if ( !ppv )
+    if (!ppv)
         return E_INVALIDARG;
 
 
@@ -260,14 +259,12 @@ STDMETHODIMP CImplIAccessible::QueryInterface(REFIID riid, void** ppv)
     // delegate to owner
 
 
-    if (riid == IID_IAccessible )
-    {
-        *ppv = (IAccessible *)this;
-        ((IAccessible *)*ppv)->AddRef();
+    if (riid == IID_IAccessible) {
+        *ppv = (IAccessible*)this;
+        ((IAccessible*)*ppv)->AddRef();
         return NOERROR;
-    }
-    else
-        return m_pIUnknown->QueryInterface(riid,ppv);
+    } else
+        return m_pIUnknown->QueryInterface(riid, ppv);
 }
 
 
@@ -287,7 +284,7 @@ STDMETHODIMP CImplIAccessible::QueryInterface(REFIID riid, void** ppv)
 
 
 
-STDMETHODIMP_(ULONG) CImplIAccessible::AddRef( void )
+STDMETHODIMP_(ULONG) CImplIAccessible::AddRef(void)
 {
 
     // delegate ref counting to owner
@@ -312,7 +309,7 @@ STDMETHODIMP_(ULONG) CImplIAccessible::AddRef( void )
 
 
 
-STDMETHODIMP_(ULONG) CImplIAccessible::Release( void )
+STDMETHODIMP_(ULONG) CImplIAccessible::Release(void)
 {
 
     // delegate ref counting to owner
@@ -351,9 +348,9 @@ STDMETHODIMP_(ULONG) CImplIAccessible::Release( void )
 
 
 
-STDMETHODIMP CImplIAccessible::GetTypeInfoCount( UINT *pctInfo )
+STDMETHODIMP CImplIAccessible::GetTypeInfoCount(UINT* pctInfo)
 {
-    if ( !pctInfo )
+    if (!pctInfo)
         return E_INVALIDARG;
 
     *pctInfo = 1;
@@ -392,17 +389,17 @@ STDMETHODIMP CImplIAccessible::GetTypeInfoCount( UINT *pctInfo )
 
 
 
-STDMETHODIMP CImplIAccessible::GetTypeInfo( UINT itinfo, LCID lcid, ITypeInfo** ppITypeInfo )
+STDMETHODIMP CImplIAccessible::GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo** ppITypeInfo)
 {
-    if ( !ppITypeInfo )
+    if (!ppITypeInfo)
         return E_INVALIDARG;
 
-    if ( itinfo != 0 )
+    if (itinfo != 0)
         return TYPE_E_ELEMENTNOTFOUND;
 
     *ppITypeInfo = NULL;
 
-    return getTypeInfo( ppITypeInfo );
+    return getTypeInfo(ppITypeInfo);
 }
 
 
@@ -451,22 +448,22 @@ STDMETHODIMP CImplIAccessible::GetTypeInfo( UINT itinfo, LCID lcid, ITypeInfo** 
 //      ITypeInfo::GetIDsOfNames().
 
 
-STDMETHODIMP CImplIAccessible::GetIDsOfNames( REFIID riid, OLECHAR ** rgszNames, UINT cNames,
-                                        LCID lcid, DISPID * rgdispid )
+STDMETHODIMP CImplIAccessible::GetIDsOfNames(REFIID riid, OLECHAR** rgszNames, UINT cNames,
+                                             LCID lcid, DISPID* rgdispid)
 {
     HRESULT     hr;
-    ITypeInfo*  pITypeInfo = NULL;
+    ITypeInfo* pITypeInfo = NULL;
 
     FAIL_IF_DETACHED;
 
-    hr = getTypeInfo( &pITypeInfo );
+    hr = getTypeInfo(&pITypeInfo);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
-    assert( pITypeInfo );
+    assert(pITypeInfo);
 
-    hr = pITypeInfo->GetIDsOfNames( rgszNames, cNames, rgdispid );
+    hr = pITypeInfo->GetIDsOfNames(rgszNames, cNames, rgdispid);
 
     pITypeInfo->Release();
 
@@ -530,34 +527,34 @@ STDMETHODIMP CImplIAccessible::GetIDsOfNames( REFIID riid, OLECHAR ** rgszNames,
 //      This method simply delegates the call to ITypeInfo::Invoke().
 
 
-STDMETHODIMP CImplIAccessible::Invoke( DISPID dispid,
-                                 REFIID riid,
-                                 LCID lcid,
-                                 WORD wFlags,
-                                 DISPPARAMS * pdispparams,
-                                 VARIANT *pvarResult,
-                                 EXCEPINFO *pexcepinfo,
-                                 UINT *puArgErr )
+STDMETHODIMP CImplIAccessible::Invoke(DISPID dispid,
+                                      REFIID riid,
+                                      LCID lcid,
+                                      WORD wFlags,
+                                      DISPPARAMS* pdispparams,
+                                      VARIANT* pvarResult,
+                                      EXCEPINFO* pexcepinfo,
+                                      UINT* puArgErr)
 {
     HRESULT     hr;
-    ITypeInfo*  pITypeInfo = NULL;
+    ITypeInfo* pITypeInfo = NULL;
 
     FAIL_IF_DETACHED;
 
-    hr = getTypeInfo( &pITypeInfo );
+    hr = getTypeInfo(&pITypeInfo);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
-    assert( pITypeInfo );
+    assert(pITypeInfo);
 
-    hr = pITypeInfo->Invoke( (IAccessible *)this,
-                                dispid,
-                                wFlags,
-                                pdispparams,
-                                pvarResult,
-                                pexcepinfo,
-                                puArgErr );
+    hr = pITypeInfo->Invoke((IAccessible*)this,
+                            dispid,
+                            wFlags,
+                            pdispparams,
+                            pvarResult,
+                            pexcepinfo,
+                            puArgErr);
 
     pITypeInfo->Release();
 
@@ -587,9 +584,9 @@ STDMETHODIMP CImplIAccessible::Invoke( DISPID dispid,
 
 
 
-STDMETHODIMP    CImplIAccessible::get_accParent(IDispatch ** ppdispParent)
+STDMETHODIMP    CImplIAccessible::get_accParent(IDispatch** ppdispParent)
 {
-    if ( !ppdispParent )
+    if (!ppdispParent)
         return E_INVALIDARG;
 
     *ppdispParent = NULL;
@@ -601,7 +598,7 @@ STDMETHODIMP    CImplIAccessible::get_accParent(IDispatch ** ppdispParent)
     // method for customized handling)
 
 
-    return m_pAOContainer->GetAccParent( ppdispParent );
+    return m_pAOContainer->GetAccParent(ppdispParent);
 }
 
 
@@ -623,9 +620,9 @@ STDMETHODIMP    CImplIAccessible::get_accParent(IDispatch ** ppdispParent)
 
 
 
-STDMETHODIMP    CImplIAccessible::get_accChildCount(long * plChildCount)
+STDMETHODIMP    CImplIAccessible::get_accChildCount(long* plChildCount)
 {
-    if ( !plChildCount )
+    if (!plChildCount)
         return E_INVALIDARG;
 
     *plChildCount = 0;
@@ -637,7 +634,7 @@ STDMETHODIMP    CImplIAccessible::get_accChildCount(long * plChildCount)
     // method for customized handling)
 
 
-    return m_pAOContainer->GetAccChildCount( plChildCount );
+    return m_pAOContainer->GetAccChildCount(plChildCount);
 }
 
 
@@ -660,9 +657,9 @@ STDMETHODIMP    CImplIAccessible::get_accChildCount(long * plChildCount)
 
 
 
-STDMETHODIMP    CImplIAccessible::get_accChild(VARIANT varChild, IDispatch ** ppdispChild)
+STDMETHODIMP    CImplIAccessible::get_accChild(VARIANT varChild, IDispatch** ppdispChild)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
     long lChild = 0;
 
 
@@ -670,7 +667,7 @@ STDMETHODIMP    CImplIAccessible::get_accChild(VARIANT varChild, IDispatch ** pp
     // validate out parameter
 
 
-    if ( !ppdispChild )
+    if (!ppdispChild)
         return E_INVALIDARG;
 
     *ppdispChild = NULL;
@@ -683,10 +680,10 @@ STDMETHODIMP    CImplIAccessible::get_accChild(VARIANT varChild, IDispatch ** pp
 
     hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
-    if ( varChild.lVal == CHILDID_SELF )
+    if (varChild.lVal == CHILDID_SELF)
         return E_INVALIDARG;
 
 
@@ -698,7 +695,7 @@ STDMETHODIMP    CImplIAccessible::get_accChild(VARIANT varChild, IDispatch ** pp
     // to provide custom implementation)
 
 
-    hr = m_pAOContainer->GetAccChild(lChild,ppdispChild);
+    hr = m_pAOContainer->GetAccChild(lChild, ppdispChild);
 
 
 
@@ -709,7 +706,7 @@ STDMETHODIMP    CImplIAccessible::get_accChild(VARIANT varChild, IDispatch ** pp
     // object)
 
 
-    if ( hr == E_NOINTERFACE )
+    if (hr == E_NOINTERFACE)
         return S_FALSE;
     else
         return hr;
@@ -736,7 +733,7 @@ STDMETHODIMP    CImplIAccessible::get_accChild(VARIANT varChild, IDispatch ** pp
 
 STDMETHODIMP    CImplIAccessible::get_accName(VARIANT varChild, BSTR* pbstrName)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
     long lChild = 0;
 
 
@@ -744,7 +741,7 @@ STDMETHODIMP    CImplIAccessible::get_accName(VARIANT varChild, BSTR* pbstrName)
     // validate out parameter
 
 
-    if ( !pbstrName )
+    if (!pbstrName)
         return E_INVALIDARG;
 
     *pbstrName = NULL;
@@ -757,7 +754,7 @@ STDMETHODIMP    CImplIAccessible::get_accName(VARIANT varChild, BSTR* pbstrName)
 
     hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     lChild = varChild.lVal;
@@ -767,26 +764,23 @@ STDMETHODIMP    CImplIAccessible::get_accName(VARIANT varChild, BSTR* pbstrName)
     // get the accName of the requested child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation)
 
 
-        return m_pAOContainer->GetAccName( lChild, pbstrName );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        return m_pAOContainer->GetAccName(lChild, pbstrName);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
-        if ( hr != S_OK )
+        if (hr != S_OK)
             return hr;
 
 
@@ -795,8 +789,8 @@ STDMETHODIMP    CImplIAccessible::get_accName(VARIANT varChild, BSTR* pbstrName)
         // not found.
 
 
-        if ( pAEChild )
-            return pAEChild->GetAccName( lChild, pbstrName );
+        if (pAEChild)
+            return pAEChild->GetAccName(lChild, pbstrName);
         else
             return E_INVALIDARG;
     }
@@ -824,7 +818,7 @@ STDMETHODIMP    CImplIAccessible::get_accName(VARIANT varChild, BSTR* pbstrName)
 
 STDMETHODIMP    CImplIAccessible::get_accValue(VARIANT varChild, BSTR* pbstrValue)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
     long lChild = 0;
 
 
@@ -832,7 +826,7 @@ STDMETHODIMP    CImplIAccessible::get_accValue(VARIANT varChild, BSTR* pbstrValu
     // validate the out parameter
 
 
-    if ( !pbstrValue )
+    if (!pbstrValue)
         return E_INVALIDARG;
 
     *pbstrValue = NULL;
@@ -845,7 +839,7 @@ STDMETHODIMP    CImplIAccessible::get_accValue(VARIANT varChild, BSTR* pbstrValu
 
     hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     lChild = varChild.lVal;
@@ -855,26 +849,23 @@ STDMETHODIMP    CImplIAccessible::get_accValue(VARIANT varChild, BSTR* pbstrValu
     // get the accValue of the requested child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation)
 
 
-        return m_pAOContainer->GetAccValue( lChild, pbstrValue );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        return m_pAOContainer->GetAccValue(lChild, pbstrValue);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
-        if ( hr != S_OK )
+        if (hr != S_OK)
             return hr;
 
 
@@ -883,8 +874,8 @@ STDMETHODIMP    CImplIAccessible::get_accValue(VARIANT varChild, BSTR* pbstrValu
         // not found.
 
 
-        if ( pAEChild )
-            return pAEChild->GetAccValue( lChild, pbstrValue );
+        if (pAEChild)
+            return pAEChild->GetAccValue(lChild, pbstrValue);
         else
             return E_INVALIDARG;
     }
@@ -911,7 +902,7 @@ STDMETHODIMP    CImplIAccessible::get_accValue(VARIANT varChild, BSTR* pbstrValu
 
 STDMETHODIMP    CImplIAccessible::get_accDescription(VARIANT varChild, BSTR* pbstrDescription)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
     long lChild = NULL;
 
 
@@ -919,7 +910,7 @@ STDMETHODIMP    CImplIAccessible::get_accDescription(VARIANT varChild, BSTR* pbs
     // validate the out parameter
 
 
-    if ( !pbstrDescription )
+    if (!pbstrDescription)
         return E_INVALIDARG;
 
     *pbstrDescription = NULL;
@@ -932,7 +923,7 @@ STDMETHODIMP    CImplIAccessible::get_accDescription(VARIANT varChild, BSTR* pbs
 
     hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     lChild = varChild.lVal;
@@ -942,26 +933,23 @@ STDMETHODIMP    CImplIAccessible::get_accDescription(VARIANT varChild, BSTR* pbs
     // get the accDescription of the requested child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation)
 
 
-        return m_pAOContainer->GetAccDescription( lChild, pbstrDescription );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        return m_pAOContainer->GetAccDescription(lChild, pbstrDescription);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
-        if ( hr != S_OK )
+        if (hr != S_OK)
             return hr;
 
 
@@ -970,8 +958,8 @@ STDMETHODIMP    CImplIAccessible::get_accDescription(VARIANT varChild, BSTR* pbs
         // not found.
 
 
-        if ( pAEChild )
-            return pAEChild->GetAccDescription( lChild, pbstrDescription );
+        if (pAEChild)
+            return pAEChild->GetAccDescription(lChild, pbstrDescription);
         else
             return E_INVALIDARG;
     }
@@ -998,23 +986,23 @@ STDMETHODIMP    CImplIAccessible::get_accDescription(VARIANT varChild, BSTR* pbs
 
 STDMETHODIMP    CImplIAccessible::get_accRole(VARIANT varChild, VARIANT* pvarRole)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
 
 
     // validate the out parameter
 
 
-    if ( !pvarRole )
+    if (!pvarRole)
         return E_INVALIDARG;
 
 
     // clear the out parameter
 
 
-    hr = VariantClear( pvarRole );
+    hr = VariantClear(pvarRole);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     FAIL_IF_DETACHED;
@@ -1025,7 +1013,7 @@ STDMETHODIMP    CImplIAccessible::get_accRole(VARIANT varChild, VARIANT* pvarRol
 
     hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     long lChild = varChild.lVal;
@@ -1037,27 +1025,24 @@ STDMETHODIMP    CImplIAccessible::get_accRole(VARIANT varChild, VARIANT* pvarRol
 
     long lRoleConstant = 0;
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation)
 
 
-        hr = m_pAOContainer->GetAccRole( lChild, &lRoleConstant );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        hr = m_pAOContainer->GetAccRole(lChild, &lRoleConstant);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
 
-        if ( hr != S_OK )
+        if (hr != S_OK)
             return hr;
 
 
@@ -1066,14 +1051,13 @@ STDMETHODIMP    CImplIAccessible::get_accRole(VARIANT varChild, VARIANT* pvarRol
         // not found.
 
 
-        if ( pAEChild )
-            hr = pAEChild->GetAccRole( lChild, &lRoleConstant );
+        if (pAEChild)
+            hr = pAEChild->GetAccRole(lChild, &lRoleConstant);
         else
             hr = E_INVALIDARG;
     }
 
-    if ( hr == S_OK )
-    {
+    if (hr == S_OK) {
 
         // pack role into out parameter
 
@@ -1107,14 +1091,14 @@ STDMETHODIMP    CImplIAccessible::get_accRole(VARIANT varChild, VARIANT* pvarRol
 
 STDMETHODIMP    CImplIAccessible::get_accState(VARIANT varChild, VARIANT* pvarState)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
 
 
     // validate the out parameter
 
 
-    if ( !pvarState )
+    if (!pvarState)
         return E_INVALIDARG;
 
 
@@ -1122,9 +1106,9 @@ STDMETHODIMP    CImplIAccessible::get_accState(VARIANT varChild, VARIANT* pvarSt
     // clear the out parameter
 
 
-    hr = VariantClear( pvarState );
+    hr = VariantClear(pvarState);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     FAIL_IF_DETACHED;
@@ -1133,9 +1117,9 @@ STDMETHODIMP    CImplIAccessible::get_accState(VARIANT varChild, VARIANT* pvarSt
     // unpack varChild
 
 
-    hr = validateVariant( &varChild );
+    hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     long lChild = varChild.lVal;
@@ -1147,26 +1131,23 @@ STDMETHODIMP    CImplIAccessible::get_accState(VARIANT varChild, VARIANT* pvarSt
 
     long lStateConstant;
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation)
 
 
-        hr = m_pAOContainer->GetAccState( lChild, &lStateConstant );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        hr = m_pAOContainer->GetAccState(lChild, &lStateConstant);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
-        if ( hr != S_OK )
+        if (hr != S_OK)
             return hr;
 
 
@@ -1175,14 +1156,13 @@ STDMETHODIMP    CImplIAccessible::get_accState(VARIANT varChild, VARIANT* pvarSt
         // not found.
 
 
-        if ( pAEChild )
-            hr = pAEChild->GetAccState( lChild, &lStateConstant );
+        if (pAEChild)
+            hr = pAEChild->GetAccState(lChild, &lStateConstant);
         else
             hr = E_INVALIDARG;
     }
 
-    if ( hr == S_OK )
-    {
+    if (hr == S_OK) {
 
         // if the state was successfully returned, pack
         // and return to the client.
@@ -1218,14 +1198,14 @@ STDMETHODIMP    CImplIAccessible::get_accState(VARIANT varChild, VARIANT* pvarSt
 
 STDMETHODIMP    CImplIAccessible::get_accHelp(VARIANT varChild, BSTR* pbstrHelp)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
 
 
     // validate the out parameter
 
 
-    if ( !pbstrHelp )
+    if (!pbstrHelp)
         return E_INVALIDARG;
 
     *pbstrHelp = NULL;
@@ -1238,7 +1218,7 @@ STDMETHODIMP    CImplIAccessible::get_accHelp(VARIANT varChild, BSTR* pbstrHelp)
 
     hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     long lChild = varChild.lVal;
@@ -1248,36 +1228,32 @@ STDMETHODIMP    CImplIAccessible::get_accHelp(VARIANT varChild, BSTR* pbstrHelp)
     // get the accHelp of the requested child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation)
 
 
-        hr = m_pAOContainer->GetAccHelp( lChild, pbstrHelp );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        hr = m_pAOContainer->GetAccHelp(lChild, pbstrHelp);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
 
-        if ( hr == S_OK )
-        {
+        if (hr == S_OK) {
 
             // make sure that the pointer returned is valid.
             // if it is not, that means that a childID was
             // not found.
 
 
-            if ( pAEChild )
-                hr = pAEChild->GetAccHelp( lChild, pbstrHelp );
+            if (pAEChild)
+                hr = pAEChild->GetAccHelp(lChild, pbstrHelp);
             else
                 hr = E_INVALIDARG;
         }
@@ -1307,14 +1283,14 @@ STDMETHODIMP    CImplIAccessible::get_accHelp(VARIANT varChild, BSTR* pbstrHelp)
 
 STDMETHODIMP    CImplIAccessible::get_accHelpTopic(BSTR* pbstrHelpFile, VARIANT varChild, long* pidTopic)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
 
 
     // validate the pointer parameters
 
 
-    if ( !pbstrHelpFile || !pidTopic )
+    if (!pbstrHelpFile || !pidTopic)
         return E_INVALIDARG;
 
     *pidTopic = 0;
@@ -1327,7 +1303,7 @@ STDMETHODIMP    CImplIAccessible::get_accHelpTopic(BSTR* pbstrHelpFile, VARIANT 
 
     hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     long lChild = varChild.lVal;
@@ -1337,35 +1313,31 @@ STDMETHODIMP    CImplIAccessible::get_accHelpTopic(BSTR* pbstrHelpFile, VARIANT 
     // get the accHelpTopic of the requested child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helpermethod (override this method
         // to provide custom implementation)
 
 
-        hr = m_pAOContainer->GetAccHelpTopic( pbstrHelpFile, lChild, pidTopic );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        hr = m_pAOContainer->GetAccHelpTopic(pbstrHelpFile, lChild, pidTopic);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
-        if ( hr == S_OK )
-        {
+        if (hr == S_OK) {
 
             // make sure that the pointer returned is valid.
             // if it is not, that means that a childID was
             // not found.
 
 
-            if ( pAEChild )
-                hr = pAEChild->GetAccHelpTopic( pbstrHelpFile, lChild, pidTopic );
+            if (pAEChild)
+                hr = pAEChild->GetAccHelpTopic(pbstrHelpFile, lChild, pidTopic);
             else
                 hr = E_INVALIDARG;
         }
@@ -1394,16 +1366,16 @@ STDMETHODIMP    CImplIAccessible::get_accHelpTopic(BSTR* pbstrHelpFile, VARIANT 
 
 
 
-STDMETHODIMP    CImplIAccessible::get_accKeyboardShortcut(VARIANT varChild, BSTR*   pbstrKeyboardShortcut)
+STDMETHODIMP    CImplIAccessible::get_accKeyboardShortcut(VARIANT varChild, BSTR* pbstrKeyboardShortcut)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
 
 
     // validate the out parameter
 
 
-    if ( !pbstrKeyboardShortcut )
+    if (!pbstrKeyboardShortcut)
         return E_INVALIDARG;
 
     *pbstrKeyboardShortcut = NULL;
@@ -1416,7 +1388,7 @@ STDMETHODIMP    CImplIAccessible::get_accKeyboardShortcut(VARIANT varChild, BSTR
 
     hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     long lChild = varChild.lVal;
@@ -1426,42 +1398,38 @@ STDMETHODIMP    CImplIAccessible::get_accKeyboardShortcut(VARIANT varChild, BSTR
     // get the accKeyboardShortcut of the requested child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation)
 
 
-        hr = m_pAOContainer->GetAccKeyboardShortcut( lChild, pbstrKeyboardShortcut );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        hr = m_pAOContainer->GetAccKeyboardShortcut(lChild, pbstrKeyboardShortcut);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
-        if ( hr == S_OK )
-        {
+        if (hr == S_OK) {
 
             // make sure that the pointer returned is valid.
             // if it is not, that means that a childID was
             // not found.
 
 
-            if ( pAEChild )
-                hr = pAEChild->GetAccKeyboardShortcut( lChild, pbstrKeyboardShortcut );
+            if (pAEChild)
+                hr = pAEChild->GetAccKeyboardShortcut(lChild, pbstrKeyboardShortcut);
             else
                 hr = E_INVALIDARG;
         }
     }
 
-    if ( hr == S_OK && *pbstrKeyboardShortcut )
-        hr = prefixKeyboardShortcut( pbstrKeyboardShortcut );
+    if (hr == S_OK && *pbstrKeyboardShortcut)
+        hr = prefixKeyboardShortcut(pbstrKeyboardShortcut);
 
     return hr;
 }
@@ -1487,24 +1455,24 @@ STDMETHODIMP    CImplIAccessible::get_accKeyboardShortcut(VARIANT varChild, BSTR
 
 STDMETHODIMP    CImplIAccessible::get_accFocus(VARIANT* pvarFocusChild)
 {
-    HRESULT hr              = E_FAIL;
-    IUnknown  * pIUnknown   = NULL;
+    HRESULT hr = E_FAIL;
+    IUnknown* pIUnknown = NULL;
 
 
 
     // validate out parameter
 
 
-    if ( !pvarFocusChild )
+    if (!pvarFocusChild)
         return E_INVALIDARG;
 
 
     // clear the out parameter
 
 
-    hr = VariantClear( pvarFocusChild );
+    hr = VariantClear(pvarFocusChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     FAIL_IF_DETACHED;
@@ -1514,23 +1482,19 @@ STDMETHODIMP    CImplIAccessible::get_accFocus(VARIANT* pvarFocusChild)
     // to provide custom implementation)
 
 
-    hr = m_pAOContainer->GetAccFocus( &pIUnknown );
+    hr = m_pAOContainer->GetAccFocus(&pIUnknown);
 
-    if ( hr == S_OK )
-    {
-        if ( pIUnknown )
-        {
-            hr = packReturnVariant( pIUnknown, pvarFocusChild );
-        }
-        else
-        {
+    if (hr == S_OK) {
+        if (pIUnknown) {
+            hr = packReturnVariant(pIUnknown, pvarFocusChild);
+        } else {
 
             // if the method returned S_OK w/o setting pIUnknown
             // method was implemented incorrectly.
             // alert developer.
 
 
-            assert( pIUnknown );
+            assert(pIUnknown);
             hr = E_FAIL;
         }
     }
@@ -1565,15 +1529,15 @@ STDMETHODIMP    CImplIAccessible::get_accFocus(VARIANT* pvarFocusChild)
 
 STDMETHODIMP    CImplIAccessible::get_accSelection(VARIANT* pvarSelectedChildren)
 {
-    HRESULT     hr          = E_FAIL;
-    LPUNKNOWN   pIUnknown   = NULL;
+    HRESULT     hr = E_FAIL;
+    LPUNKNOWN   pIUnknown = NULL;
 
 
 
     // validate output parameter
 
 
-    if ( !pvarSelectedChildren )
+    if (!pvarSelectedChildren)
         return E_INVALIDARG;
 
 
@@ -1581,9 +1545,9 @@ STDMETHODIMP    CImplIAccessible::get_accSelection(VARIANT* pvarSelectedChildren
     // clear the out parameter
 
 
-    hr = VariantClear( pvarSelectedChildren );
+    hr = VariantClear(pvarSelectedChildren);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     FAIL_IF_DETACHED;
@@ -1593,23 +1557,19 @@ STDMETHODIMP    CImplIAccessible::get_accSelection(VARIANT* pvarSelectedChildren
     //  override this method to customize implementation
 
 
-    hr = m_pAOContainer->GetAccSelection( &pIUnknown );
+    hr = m_pAOContainer->GetAccSelection(&pIUnknown);
 
-    if ( hr == S_OK )
-    {
-        if( pIUnknown )
-        {
-            hr = packReturnVariant( pIUnknown, pvarSelectedChildren );
-        }
-        else
-        {
+    if (hr == S_OK) {
+        if (pIUnknown) {
+            hr = packReturnVariant(pIUnknown, pvarSelectedChildren);
+        } else {
 
             // If call returned S_OK w/o setting pIUnknown,
             // the call was implemented incorrectly.
             // Alert developer!
 
 
-            assert( pIUnknown );
+            assert(pIUnknown);
             hr = E_FAIL;
         }
     }
@@ -1638,14 +1598,14 @@ STDMETHODIMP    CImplIAccessible::get_accSelection(VARIANT* pvarSelectedChildren
 
 STDMETHODIMP    CImplIAccessible::get_accDefaultAction(VARIANT varChild, BSTR* pbstrDefaultAction)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
 
 
     // validate output parameter
 
 
-    if ( !pbstrDefaultAction )
+    if (!pbstrDefaultAction)
         return E_INVALIDARG;
 
     *pbstrDefaultAction = NULL;
@@ -1658,7 +1618,7 @@ STDMETHODIMP    CImplIAccessible::get_accDefaultAction(VARIANT varChild, BSTR* p
 
     hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     long lChild = varChild.lVal;
@@ -1668,35 +1628,31 @@ STDMETHODIMP    CImplIAccessible::get_accDefaultAction(VARIANT varChild, BSTR* p
     // get the accDefaultAction of the requested child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation)
 
 
-        hr = m_pAOContainer->GetAccDefaultAction( lChild, pbstrDefaultAction );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        hr = m_pAOContainer->GetAccDefaultAction(lChild, pbstrDefaultAction);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
-        if ( hr == S_OK )
-        {
+        if (hr == S_OK) {
 
             // make sure that the pointer returned is valid.
             // if it is not, that means that a childID was
             // not found.
 
 
-            if ( pAEChild )
-                hr = pAEChild->GetAccDefaultAction( lChild, pbstrDefaultAction );
+            if (pAEChild)
+                hr = pAEChild->GetAccDefaultAction(lChild, pbstrDefaultAction);
             else
                 hr = E_INVALIDARG;
         }
@@ -1725,9 +1681,9 @@ STDMETHODIMP    CImplIAccessible::get_accDefaultAction(VARIANT varChild, BSTR* p
 
 
 
-STDMETHODIMP    CImplIAccessible::accSelect( long flagsSel, VARIANT varChild )
+STDMETHODIMP    CImplIAccessible::accSelect(long flagsSel, VARIANT varChild)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
     FAIL_IF_DETACHED;
 
@@ -1737,7 +1693,7 @@ STDMETHODIMP    CImplIAccessible::accSelect( long flagsSel, VARIANT varChild )
 
     hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     long lChild = varChild.lVal;
@@ -1747,35 +1703,31 @@ STDMETHODIMP    CImplIAccessible::accSelect( long flagsSel, VARIANT varChild )
     // attempt to select the desired child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation)
 
 
-        hr = m_pAOContainer->AccSelect( flagsSel, lChild );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        hr = m_pAOContainer->AccSelect(flagsSel, lChild);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
-        if ( hr == S_OK )
-        {
+        if (hr == S_OK) {
 
             // make sure that the pointer returned is valid.
             // if it is not, that means that a childID was
             // not found.
 
 
-            if ( pAEChild )
-                hr = pAEChild->AccSelect( flagsSel, lChild );
+            if (pAEChild)
+                hr = pAEChild->AccSelect(flagsSel, lChild);
             else
                 hr = E_INVALIDARG;
         }
@@ -1809,14 +1761,14 @@ STDMETHODIMP    CImplIAccessible::accSelect( long flagsSel, VARIANT varChild )
 
 STDMETHODIMP CImplIAccessible::accLocation(long* pxLeft, long* pyTop, long* pcxWidth, long* pcyHeight, VARIANT varChild)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
 
 
     // validate output parameter
 
 
-    if( !pxLeft || !pyTop || !pcxWidth || !pcyHeight )
+    if (!pxLeft || !pyTop || !pcxWidth || !pcyHeight)
         return E_INVALIDARG;
 
     *pxLeft = *pyTop = *pcxWidth = *pcyHeight = 0;
@@ -1829,7 +1781,7 @@ STDMETHODIMP CImplIAccessible::accLocation(long* pxLeft, long* pyTop, long* pcxW
 
     hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     long lChild = varChild.lVal;
@@ -1839,36 +1791,32 @@ STDMETHODIMP CImplIAccessible::accLocation(long* pxLeft, long* pyTop, long* pcxW
     // determine the location of the desired child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation)
 
 
-        hr = m_pAOContainer->AccLocation( pxLeft, pyTop, pcxWidth, pcyHeight, lChild );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        hr = m_pAOContainer->AccLocation(pxLeft, pyTop, pcxWidth, pcyHeight, lChild);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
 
-        if ( hr == S_OK )
-        {
+        if (hr == S_OK) {
 
             // make sure that the pointer returned is valid.
             // if it is not, that means that a childID was
             // not found.
 
 
-            if ( pAEChild )
-                hr = pAEChild->AccLocation( pxLeft, pyTop, pcxWidth, pcyHeight, lChild );
+            if (pAEChild)
+                hr = pAEChild->AccLocation(pxLeft, pyTop, pcxWidth, pcyHeight, lChild);
             else
                 hr = E_INVALIDARG;
         }
@@ -1899,22 +1847,22 @@ STDMETHODIMP CImplIAccessible::accLocation(long* pxLeft, long* pyTop, long* pcxW
 
 
 
-STDMETHODIMP    CImplIAccessible::accNavigate(long navDir, VARIANT varStart, VARIANT * pvarEndUpAt)
+STDMETHODIMP    CImplIAccessible::accNavigate(long navDir, VARIANT varStart, VARIANT* pvarEndUpAt)
 {
-    HRESULT hr              = E_FAIL;
-    IUnknown * pIUnknown    = NULL;
+    HRESULT hr = E_FAIL;
+    IUnknown* pIUnknown = NULL;
 
 
 
     // validate output parameter
 
 
-    if ( !pvarEndUpAt )
+    if (!pvarEndUpAt)
         return E_INVALIDARG;
 
-    hr = VariantClear( pvarEndUpAt );
+    hr = VariantClear(pvarEndUpAt);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     FAIL_IF_DETACHED;
@@ -1926,11 +1874,11 @@ STDMETHODIMP    CImplIAccessible::accNavigate(long navDir, VARIANT varStart, VAR
 
     hr = validateVariant(&varStart);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
-    if ( navDir == NAVDIR_FIRSTCHILD || navDir == NAVDIR_LASTCHILD )
-        if ( varStart.lVal != CHILDID_SELF )
+    if (navDir == NAVDIR_FIRSTCHILD || navDir == NAVDIR_LASTCHILD)
+        if (varStart.lVal != CHILDID_SELF)
             return E_INVALIDARG;
 
     long lStart = varStart.lVal;
@@ -1939,23 +1887,19 @@ STDMETHODIMP    CImplIAccessible::accNavigate(long navDir, VARIANT varStart, VAR
     // call parent helper method to do actual navigation
 
 
-    hr = m_pAOContainer->AccNavigate( navDir, lStart, &pIUnknown );
+    hr = m_pAOContainer->AccNavigate(navDir, lStart, &pIUnknown);
 
-    if ( hr == S_OK )
-    {
-        if ( pIUnknown )
-        {
-            hr = packReturnVariant( pIUnknown, pvarEndUpAt );
-        }
-        else
-        {
+    if (hr == S_OK) {
+        if (pIUnknown) {
+            hr = packReturnVariant(pIUnknown, pvarEndUpAt);
+        } else {
 
             // getting here means that method returned S_OK
             // with a NULL pIUnknown : method was implemented
             // incorrectly. alert developer!
 
 
-            assert( pIUnknown );
+            assert(pIUnknown);
             hr = E_FAIL;
         }
 
@@ -1989,20 +1933,20 @@ STDMETHODIMP    CImplIAccessible::accNavigate(long navDir, VARIANT varStart, VAR
 
 STDMETHODIMP    CImplIAccessible::accHitTest(long xLeft, long yTop, VARIANT* pvarChildAtPoint)
 {
-    HRESULT    hr        = E_FAIL;
-    IUnknown * pIUnknown = NULL;
+    HRESULT    hr = E_FAIL;
+    IUnknown* pIUnknown = NULL;
 
 
     // validate output parameter
 
 
-    if ( !pvarChildAtPoint )
+    if (!pvarChildAtPoint)
         return E_INVALIDARG;
 
 
-    hr = VariantClear( pvarChildAtPoint );
+    hr = VariantClear(pvarChildAtPoint);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     FAIL_IF_DETACHED;
@@ -2011,10 +1955,10 @@ STDMETHODIMP    CImplIAccessible::accHitTest(long xLeft, long yTop, VARIANT* pva
     // call helper method to test for object at point.
 
 
-    hr = m_pAOContainer->AccHitTest( xLeft, yTop, &pIUnknown );
+    hr = m_pAOContainer->AccHitTest(xLeft, yTop, &pIUnknown);
 
-    if ( hr == S_OK && pIUnknown )
-        hr = packReturnVariant( pIUnknown, pvarChildAtPoint );
+    if (hr == S_OK && pIUnknown)
+        hr = packReturnVariant(pIUnknown, pvarChildAtPoint);
 
 
     // if pIUnknown == NULL, the hit test point
@@ -2047,7 +1991,7 @@ STDMETHODIMP    CImplIAccessible::accHitTest(long xLeft, long yTop, VARIANT* pva
 
 STDMETHODIMP    CImplIAccessible::accDoDefaultAction(VARIANT varChild)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
     FAIL_IF_DETACHED;
 
@@ -2055,9 +1999,9 @@ STDMETHODIMP    CImplIAccessible::accDoDefaultAction(VARIANT varChild)
     // unpack varChild
 
 
-    hr = validateVariant( &varChild );
+    hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     long lChild = varChild.lVal;
@@ -2067,35 +2011,31 @@ STDMETHODIMP    CImplIAccessible::accDoDefaultAction(VARIANT varChild)
     // do the default action for the desired child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation)
 
 
-        hr = m_pAOContainer->AccDoDefaultAction( lChild );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        hr = m_pAOContainer->AccDoDefaultAction(lChild);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
-        if ( hr == S_OK )
-        {
+        if (hr == S_OK) {
 
             // make sure that the pointer returned is valid.
             // if it is not, that means that a childID was
             // not found.
 
 
-            if ( pAEChild )
-                hr = pAEChild->AccDoDefaultAction( lChild );
+            if (pAEChild)
+                hr = pAEChild->AccDoDefaultAction(lChild);
             else
                 hr = E_INVALIDARG;
         }
@@ -2125,14 +2065,14 @@ STDMETHODIMP    CImplIAccessible::accDoDefaultAction(VARIANT varChild)
 
 STDMETHODIMP    CImplIAccessible::put_accName(VARIANT varChild, BSTR bstrName)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
 
 
     // validate input BSTR parameter.
 
 
-    if ( !bstrName )
+    if (!bstrName)
         return E_INVALIDARG;
 
     FAIL_IF_DETACHED;
@@ -2141,9 +2081,9 @@ STDMETHODIMP    CImplIAccessible::put_accName(VARIANT varChild, BSTR bstrName)
     // unpack varChild
 
 
-    hr = validateVariant( &varChild );
+    hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     long lChild = varChild.lVal;
@@ -2153,8 +2093,7 @@ STDMETHODIMP    CImplIAccessible::put_accName(VARIANT varChild, BSTR bstrName)
     // put the accName for the desired child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation).
@@ -2162,28 +2101,25 @@ STDMETHODIMP    CImplIAccessible::put_accName(VARIANT varChild, BSTR bstrName)
         // allocated TCHAR string.
 
 
-        hr = m_pAOContainer->SetAccName( lChild, bstrName );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        hr = m_pAOContainer->SetAccName(lChild, bstrName);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
-        if ( hr == S_OK )
-        {
+        if (hr == S_OK) {
 
             // make sure that the pointer returned is valid.
             // if it is not, that means that a childID was
             // not found.
 
 
-            if ( pAEChild )
-                hr = pAEChild->SetAccName( lChild, bstrName );
+            if (pAEChild)
+                hr = pAEChild->SetAccName(lChild, bstrName);
             else
                 hr = E_INVALIDARG;
         }
@@ -2213,13 +2149,13 @@ STDMETHODIMP    CImplIAccessible::put_accName(VARIANT varChild, BSTR bstrName)
 
 STDMETHODIMP    CImplIAccessible::put_accValue(VARIANT varChild, BSTR bstrValue)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
 
     // validate input BSTR parameter.
 
 
-    if ( !bstrValue )
+    if (!bstrValue)
         return E_INVALIDARG;
 
     FAIL_IF_DETACHED;
@@ -2228,9 +2164,9 @@ STDMETHODIMP    CImplIAccessible::put_accValue(VARIANT varChild, BSTR bstrValue)
     // unpack varChild
 
 
-    hr = validateVariant( &varChild );
+    hr = validateVariant(&varChild);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
     long lChild = varChild.lVal;
@@ -2240,8 +2176,7 @@ STDMETHODIMP    CImplIAccessible::put_accValue(VARIANT varChild, BSTR bstrValue)
     // put the accValue for the desired child
 
 
-    if ( lChild == CHILDID_SELF )
-    {
+    if (lChild == CHILDID_SELF) {
 
         // call parent helper method (override this method
         // to provide custom implementation).
@@ -2249,28 +2184,25 @@ STDMETHODIMP    CImplIAccessible::put_accValue(VARIANT varChild, BSTR bstrValue)
         // allocated TCHAR string.
 
 
-        hr = m_pAOContainer->SetAccValue( lChild, bstrValue );
-    }
-    else
-    {
-        CAccElement * pAEChild = NULL;
+        hr = m_pAOContainer->SetAccValue(lChild, bstrValue);
+    } else {
+        CAccElement* pAEChild = NULL;
 
 
         // iterate through child objects to match IDs
 
 
-        hr = m_pAOContainer->GetAccElemFromChildID( lChild, &pAEChild );
+        hr = m_pAOContainer->GetAccElemFromChildID(lChild, &pAEChild);
 
-        if ( hr == S_OK )
-        {
+        if (hr == S_OK) {
 
             // make sure that the pointer returned is valid.
             // if it is not, that means that a childID was
             // not found.
 
 
-            if ( pAEChild )
-                hr = pAEChild->SetAccValue( lChild, bstrValue );
+            if (pAEChild)
+                hr = pAEChild->SetAccValue(lChild, bstrValue);
             else
                 hr = E_INVALIDARG;
         }
@@ -2308,7 +2240,7 @@ STDMETHODIMP    CImplIAccessible::put_accValue(VARIANT varChild, BSTR bstrValue)
 
 
 
-HRESULT CImplIAccessible::validateVariant(VARIANT *pVar)
+HRESULT CImplIAccessible::validateVariant(VARIANT* pVar)
 {
     HRESULT hr = S_OK;
 
@@ -2316,31 +2248,29 @@ HRESULT CImplIAccessible::validateVariant(VARIANT *pVar)
     assert(pVar);
 
 
-    switch ( pVar->vt )
-    {
-        case VT_VARIANT | VT_BYREF:
-            VariantCopy( pVar, pVar->pvarVal );
-            hr = validateVariant( pVar );
-            break;
+    switch (pVar->vt) {
+    case VT_VARIANT | VT_BYREF:
+        VariantCopy(pVar, pVar->pvarVal);
+        hr = validateVariant(pVar);
+        break;
 
-        case VT_ERROR:
-            if ( pVar->scode != DISP_E_PARAMNOTFOUND )
-            {
-                hr = E_INVALIDARG;
-                break;
-            }
-            // FALL THRU!
-
-        case VT_EMPTY:
-            pVar->vt = VT_I4;
-            pVar->lVal = CHILDID_SELF;
-            // FALL THRU!
-
-        case VT_I4:
-            break;
-
-        default:
+    case VT_ERROR:
+        if (pVar->scode != DISP_E_PARAMNOTFOUND) {
             hr = E_INVALIDARG;
+            break;
+        }
+        // FALL THRU!
+
+    case VT_EMPTY:
+        pVar->vt = VT_I4;
+        pVar->lVal = CHILDID_SELF;
+        // FALL THRU!
+
+    case VT_I4:
+        break;
+
+    default:
+        hr = E_INVALIDARG;
     }
 
 
@@ -2382,14 +2312,14 @@ HRESULT CImplIAccessible::validateVariant(VARIANT *pVar)
 
 
 
-HRESULT CImplIAccessible::packReturnVariant(IUnknown * pIUnknown, VARIANT *pvarToPack)
+HRESULT CImplIAccessible::packReturnVariant(IUnknown* pIUnknown, VARIANT* pvarToPack)
 {
-    HRESULT hr      = E_FAIL;
-    void * pVoid    = NULL;
+    HRESULT hr = E_FAIL;
+    void* pVoid = NULL;
 
 
-    assert( pIUnknown );
-    assert( pvarToPack );
+    assert(pIUnknown);
+    assert(pvarToPack);
 
 
     // Get the type of the object : QI for
@@ -2397,10 +2327,9 @@ HRESULT CImplIAccessible::packReturnVariant(IUnknown * pIUnknown, VARIANT *pvarT
     // enumerator or a CAccElement derived object.
 
 
-    hr = pIUnknown->QueryInterface( IID_IAccessible, &pVoid );
+    hr = pIUnknown->QueryInterface(IID_IAccessible, &pVoid);
 
-    if ( hr == S_OK )
-    {
+    if (hr == S_OK) {
 
         // check to see if the interface pointer returned
         // is this current object.  If so, return CHILDID_SELF.
@@ -2408,30 +2337,25 @@ HRESULT CImplIAccessible::packReturnVariant(IUnknown * pIUnknown, VARIANT *pvarT
         // IDispatch, so return it to the client.
 
 
-        if ( pVoid == this )
-        {
+        if (pVoid == this) {
             pvarToPack->vt = VT_I4;
             pvarToPack->lVal = CHILDID_SELF;
-        }
-        else
-        {
+        } else {
             pvarToPack->vt = VT_DISPATCH;
-            hr = ((IUnknown*)pVoid)->QueryInterface( IID_IDispatch, (void**)&pvarToPack->pdispVal );
+            hr = ((IUnknown*)pVoid)->QueryInterface(IID_IDispatch, (void**)&pvarToPack->pdispVal);
         }
 
         ((LPUNKNOWN)(pVoid))->Release();
     }
 
-    else if ( hr == E_NOINTERFACE )
-    {
+    else if (hr == E_NOINTERFACE) {
 
         // QI to see if this is an EnumVariant interface.
 
 
-        hr = pIUnknown->QueryInterface( IID_IEnumVARIANT, &pVoid );
+        hr = pIUnknown->QueryInterface(IID_IEnumVARIANT, &pVoid);
 
-        if ( hr == S_OK )
-        {
+        if (hr == S_OK) {
 
             // object is an enumerator, so return object's
             // IUnknown* to client.
@@ -2443,8 +2367,7 @@ HRESULT CImplIAccessible::packReturnVariant(IUnknown * pIUnknown, VARIANT *pvarT
             pvarToPack->punkVal = pIUnknown;
         }
 
-        else if ( hr == E_NOINTERFACE )
-        {
+        else if (hr == E_NOINTERFACE) {
 
             // focused object is CAccElement: return
             // child ID to client.
@@ -2454,7 +2377,7 @@ HRESULT CImplIAccessible::packReturnVariant(IUnknown * pIUnknown, VARIANT *pvarT
 
 
             pvarToPack->vt = VT_I4;
-            pvarToPack->lVal = ((CAccElement *)pIUnknown)->GetChildID();
+            pvarToPack->lVal = ((CAccElement*)pIUnknown)->GetChildID();
 
             hr = S_OK;
         }
@@ -2482,14 +2405,14 @@ HRESULT CImplIAccessible::packReturnVariant(IUnknown * pIUnknown, VARIANT *pvarT
 
 
 
-HRESULT CImplIAccessible::getTypeInfo( /* out */ ITypeInfo** ppITypeInfo )
+HRESULT CImplIAccessible::getTypeInfo( /* out */ ITypeInfo** ppITypeInfo)
 {
     HRESULT     hr;
-    ITypeLib*   pITypeLib = NULL;
+    ITypeLib* pITypeLib = NULL;
 
 
-    assert( ppITypeInfo );
-    assert( *ppITypeInfo == NULL );
+    assert(ppITypeInfo);
+    assert(*ppITypeInfo == NULL);
 
 
 
@@ -2504,12 +2427,12 @@ HRESULT CImplIAccessible::getTypeInfo( /* out */ ITypeInfo** ppITypeInfo )
     //          Version 1.0 does not.
 
 
-    hr = LoadRegTypeLib( LIBID_Accessibility, 1, 1, 0, &pITypeLib );
+    hr = LoadRegTypeLib(LIBID_Accessibility, 1, 1, 0, &pITypeLib);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
-    assert( pITypeLib );
+    assert(pITypeLib);
 
 
 
@@ -2517,14 +2440,14 @@ HRESULT CImplIAccessible::getTypeInfo( /* out */ ITypeInfo** ppITypeInfo )
     //    attempt to get the IAccessible type description.
 
 
-    hr = pITypeLib->GetTypeInfoOfGuid( IID_IAccessible, ppITypeInfo );
+    hr = pITypeLib->GetTypeInfoOfGuid(IID_IAccessible, ppITypeInfo);
 
 
 
     //  Release the type library interface.
 
 
-    if ( pITypeLib )
+    if (pITypeLib)
         pITypeLib->Release();
 
 
@@ -2532,12 +2455,10 @@ HRESULT CImplIAccessible::getTypeInfo( /* out */ ITypeInfo** ppITypeInfo )
     //  Double check the out parameter.
 
 
-    if ( hr != S_OK )
-    {
-        assert( *ppITypeInfo == NULL );
+    if (hr != S_OK) {
+        assert(*ppITypeInfo == NULL);
 
-        if ( *ppITypeInfo != NULL )
-        {
+        if (*ppITypeInfo != NULL) {
             (*ppITypeInfo)->Release();
             *ppITypeInfo = NULL;
         }
@@ -2545,7 +2466,7 @@ HRESULT CImplIAccessible::getTypeInfo( /* out */ ITypeInfo** ppITypeInfo )
 
 #ifdef _DEBUG
     else  // hr == S_OK
-        assert( *ppITypeInfo );
+        assert(*ppITypeInfo);
 #endif
 
 
@@ -2576,35 +2497,31 @@ HRESULT CImplIAccessible::getTypeInfo( /* out */ ITypeInfo** ppITypeInfo )
 //      On failure, this method takes responsibility for freeing the BSTR.
 
 
-HRESULT CImplIAccessible::prefixKeyboardShortcut( /* in-out */ BSTR* pbstrKS )
+HRESULT CImplIAccessible::prefixKeyboardShortcut( /* in-out */ BSTR* pbstrKS)
 {
     HRESULT hr = S_OK;
-    WCHAR*  lpwsz = NULL;
-    long    len = wcslen( wszKeyboardShortcutPrefix ) + wcslen( *pbstrKS ) + 1;
+    WCHAR* lpwsz = NULL;
+    long    len = wcslen(wszKeyboardShortcutPrefix) + wcslen(*pbstrKS) + 1;
 
     lpwsz = new WCHAR[len];
 
-    if ( lpwsz )
-    {
+    if (lpwsz) {
         BOOL    bSuccess;
 
-        wcscpy( lpwsz, wszKeyboardShortcutPrefix );
-        wcscat( lpwsz, *pbstrKS );
+        wcscpy(lpwsz, wszKeyboardShortcutPrefix);
+        wcscat(lpwsz, *pbstrKS);
 
-        bSuccess = (BOOL) SysReAllocString( pbstrKS, lpwsz );
+        bSuccess = (BOOL)SysReAllocString(pbstrKS, lpwsz);
 
-        if ( !bSuccess )
-        {
-            SysFreeString( *pbstrKS );
+        if (!bSuccess) {
+            SysFreeString(*pbstrKS);
             *pbstrKS = NULL;
             hr = E_OUTOFMEMORY;
         }
 
-        delete [] lpwsz;
-    }
-    else
-    {
-        SysFreeString( *pbstrKS );
+        delete[] lpwsz;
+    } else {
+        SysFreeString(*pbstrKS);
         *pbstrKS = NULL;
         hr = E_OUTOFMEMORY;
     }
@@ -2637,13 +2554,13 @@ HRESULT CImplIAccessible::prefixKeyboardShortcut( /* in-out */ BSTR* pbstrKS )
 
 
 
-CImplIOleWindow::CImplIOleWindow(IUnknown * pIUnknown,CTridentAO *pAOContainer)
+CImplIOleWindow::CImplIOleWindow(IUnknown* pIUnknown, CTridentAO* pAOContainer)
 {
 
     // assign controlling IUnknown;
 
 
-    m_pIUnknown     = pIUnknown;
+    m_pIUnknown = pIUnknown;
 
 
     // assign parent pointer : even though this is
@@ -2652,7 +2569,7 @@ CImplIOleWindow::CImplIOleWindow(IUnknown * pIUnknown,CTridentAO *pAOContainer)
     // through a non OLE pointer.
 
 
-    m_pAOContainer      = pAOContainer;
+    m_pAOContainer = pAOContainer;
 }
 
 
@@ -2702,7 +2619,7 @@ CImplIOleWindow::~CImplIOleWindow()
 
 STDMETHODIMP CImplIOleWindow::QueryInterface(REFIID riid, void** ppv)
 {
-    if ( !ppv )
+    if (!ppv)
         return E_INVALIDARG;
 
 
@@ -2715,16 +2632,13 @@ STDMETHODIMP CImplIOleWindow::QueryInterface(REFIID riid, void** ppv)
     // this class only knows about IOleWindow
 
 
-    if (riid == IID_IOleWindow )
-    {
-        *ppv = (IOleWindow *)this;
-        ((IOleWindow *)*ppv)->AddRef();
+    if (riid == IID_IOleWindow) {
+        *ppv = (IOleWindow*)this;
+        ((IOleWindow*)*ppv)->AddRef();
 
         return NOERROR;
-    }
-    else
-    {
-        return m_pIUnknown->QueryInterface( riid, ppv );
+    } else {
+        return m_pIUnknown->QueryInterface(riid, ppv);
     }
 
 }
@@ -2807,9 +2721,9 @@ STDMETHODIMP_(ULONG)    CImplIOleWindow::Release(void)
 
 
 
-STDMETHODIMP    CImplIOleWindow::GetWindow( HWND* phwnd )
+STDMETHODIMP    CImplIOleWindow::GetWindow(HWND* phwnd)
 {
-    if ( !phwnd )
+    if (!phwnd)
         return E_INVALIDARG;
 
     FAIL_IF_DETACHED;
@@ -2888,13 +2802,13 @@ STDMETHODIMP    CImplIOleWindow::ContextSensitiveHelp(BOOL fEnterMode)
 
 
 
-CTridentAO::CTridentAO(CTridentAO * pAOParent,CDocumentAO * pDocAO,UINT nTOMIndex,UINT nChildID,HWND hWnd,BOOL bSupportedTag) :
-CAccObject(nChildID,hWnd,bSupportedTag)
+CTridentAO::CTridentAO(CTridentAO* pAOParent, CDocumentAO* pDocAO, UINT nTOMIndex, UINT nChildID, HWND hWnd, BOOL bSupportedTag) :
+    CAccObject(nChildID, hWnd, bSupportedTag)
 {
     m_pParent = pAOParent;
 
     m_pDocAO = pDocAO;
-    if (m_pDocAO && m_pDocAO !=this)
+    if (m_pDocAO && m_pDocAO != this)
         m_pDocAO->AddRef();  // we depend heavily on this being around
 
 
@@ -2904,20 +2818,20 @@ CAccObject(nChildID,hWnd,bSupportedTag)
     // will always be at the derived class level.
 
 
-    m_pIUnknown     = (IUnknown *)this;
-    m_pTOMObjIUnk   = NULL;
+    m_pIUnknown = (IUnknown*)this;
+    m_pTOMObjIUnk = NULL;
 
 
     // all collection index.
 
 
-    m_nTOMIndex     = nTOMIndex;
+    m_nTOMIndex = nTOMIndex;
 
 
     // state location bool
 
 
-    m_bOffScreen    = FALSE;
+    m_bOffScreen = FALSE;
 
 
     // tree resolution BOOL : this is set after
@@ -2950,16 +2864,16 @@ CAccObject(nChildID,hWnd,bSupportedTag)
     // init all property data values.
 
 
-    m_pIHTMLElement     = NULL;
-    m_pIHTMLStyle       = NULL;
-    m_bstrStyle         = NULL;
-    m_bstrDisplay       = NULL;
+    m_pIHTMLElement = NULL;
+    m_pIHTMLStyle = NULL;
+    m_bstrStyle = NULL;
+    m_bstrDisplay = NULL;
 
-    m_bstrName          = NULL;
-    m_bstrValue         = NULL;
-    m_bstrDescription   = NULL;
+    m_bstrName = NULL;
+    m_bstrValue = NULL;
+    m_bstrDescription = NULL;
     m_bstrDefaultAction = NULL;
-    m_bstrKbdShortcut   = NULL;
+    m_bstrKbdShortcut = NULL;
 
 
     //  For those derived objects whose accName and
@@ -2983,7 +2897,7 @@ CAccObject(nChildID,hWnd,bSupportedTag)
 
 
 #ifdef _DEBUG
-    _tcscpy(m_szAOMName,_T("Generic CTridentAO"));
+    _tcscpy(m_szAOMName, _T("Generic CTridentAO"));
 #endif
 
 }
@@ -3010,7 +2924,7 @@ CTridentAO::~CTridentAO()
     //  see the ::Detach() Fx Description for the reasons.
 
 
-    if (m_pDocAO && m_pDocAO !=this)
+    if (m_pDocAO && m_pDocAO != this)
         m_pDocAO->Release();
 
     freeDataMembers();
@@ -3044,14 +2958,14 @@ CTridentAO::~CTridentAO()
 
 
 
-HRESULT CTridentAO::Init(IUnknown * pTOMObjIUnk)
+HRESULT CTridentAO::Init(IUnknown* pTOMObjIUnk)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
 
     assert(pTOMObjIUnk);
 
-    if ( !pTOMObjIUnk )
+    if (!pTOMObjIUnk)
         return E_INVALIDARG;
 
     m_pTOMObjIUnk = pTOMObjIUnk;
@@ -3062,9 +2976,9 @@ HRESULT CTridentAO::Init(IUnknown * pTOMObjIUnk)
 
 
     if (!m_pIHTMLElement)
-        hr = pTOMObjIUnk->QueryInterface(IID_IHTMLElement,(void **)&m_pIHTMLElement);
+        hr = pTOMObjIUnk->QueryInterface(IID_IHTMLElement, (void**)&m_pIHTMLElement);
 
-    if ( hr == S_OK && m_lAOMType != AOMITEM_NOTSUPPORTED )
+    if (hr == S_OK && m_lAOMType != AOMITEM_NOTSUPPORTED)
         hr = createInterfaceImplementors();
 
     return hr;
@@ -3092,7 +3006,7 @@ HRESULT CTridentAO::Init(IUnknown * pTOMObjIUnk)
 
 
 void
-CTridentAO::Detach ()
+CTridentAO::Detach()
 {
     m_bDetached = TRUE;
 
@@ -3107,7 +3021,7 @@ CTridentAO::Detach ()
 void
 CTridentAO::Zombify()
 {
-    std::list<CAccElement *>::iterator itCurPos;
+    std::list<CAccElement*>::iterator itCurPos;
 
     m_bZombified = TRUE;
 
@@ -3116,8 +3030,7 @@ CTridentAO::Zombify()
 
     itCurPos = m_AEList.begin();
 
-    while( itCurPos != m_AEList.end() )
-    {
+    while (itCurPos != m_AEList.end()) {
         (*itCurPos)->Zombify();
 
         itCurPos++;
@@ -3141,19 +3054,17 @@ CTridentAO::Zombify()
 HRESULT
 CTridentAO::DetachChildren()
 {
-    CAOMMgr * pAOMMgr = NULL;
-    std::list<CAccElement *>::iterator itCurPos;
+    CAOMMgr* pAOMMgr = NULL;
+    std::list<CAccElement*>::iterator itCurPos;
 
 
     // while there is a child list, Detach all my children.
 
 
-    while (m_AEList.size())
-    {
+    while (m_AEList.size()) {
         itCurPos = m_AEList.begin();
 
-        if (!(*itCurPos)->IsDetached())
-        {
+        if (!(*itCurPos)->IsDetached()) {
             (*itCurPos)->Detach();
         }
 
@@ -3184,14 +3095,12 @@ CTridentAO::DetachChildren()
 
 
 BOOL
-CTridentAO::DoBlockForDetach ()
+CTridentAO::DoBlockForDetach()
 {
-    if (m_pDocAO->CanDetachTreeNow() )
-    {
+    if (m_pDocAO->CanDetachTreeNow()) {
         g_pProxyMgr->DetachReadyTrees();
         return TRUE;
-    }
-    else
+    } else
         return IsDetached();
 }
 
@@ -3213,22 +3122,19 @@ CTridentAO::DoBlockForDetach ()
 
 
 void
-CTridentAO::ReleaseTridentInterfaces ()
+CTridentAO::ReleaseTridentInterfaces()
 {
-    if(m_pTOMObjIUnk)
-    {
+    if (m_pTOMObjIUnk) {
         m_pTOMObjIUnk->Release();
         m_pTOMObjIUnk = NULL;
     }
 
-    if(m_pIHTMLElement)
-    {
+    if (m_pIHTMLElement) {
         m_pIHTMLElement->Release();
         m_pIHTMLElement = NULL;
     }
 
-    if(m_pIHTMLStyle)
-    {
+    if (m_pIHTMLStyle) {
         m_pIHTMLStyle->Release();
         m_pIHTMLStyle = NULL;
     }
@@ -3261,7 +3167,7 @@ CTridentAO::ReleaseTridentInterfaces ()
 
 STDMETHODIMP CTridentAO::QueryInterface(REFIID riid, void** ppv)
 {
-    if ( !ppv )
+    if (!ppv)
         return E_INVALIDARG;
 
 
@@ -3276,24 +3182,17 @@ STDMETHODIMP CTridentAO::QueryInterface(REFIID riid, void** ppv)
     // of the IAccessible or IOleWindow interfaces.
 
 
-    if (riid == IID_IUnknown)
-    {
-        *ppv = (IUnknown *)m_pIUnknown;
-    }
-    else if ((riid == IID_IAccessible) || (riid == IID_IDispatch) )
-    {
-        assert( m_pImplIAccessible );
+    if (riid == IID_IUnknown) {
+        *ppv = (IUnknown*)m_pIUnknown;
+    } else if ((riid == IID_IAccessible) || (riid == IID_IDispatch)) {
+        assert(m_pImplIAccessible);
 
-        *ppv = (IAccessible *)m_pImplIAccessible;
-    }
-    else if(riid == IID_IOleWindow )
-    {
-        assert( m_pImplIOleWindow );
+        *ppv = (IAccessible*)m_pImplIAccessible;
+    } else if (riid == IID_IOleWindow) {
+        assert(m_pImplIOleWindow);
 
-        *ppv = (IOleWindow *)m_pImplIOleWindow;
-    }
-    else if (riid == IID_IEnumVARIANT)
-    {
+        *ppv = (IOleWindow*)m_pImplIOleWindow;
+    } else if (riid == IID_IEnumVARIANT) {
 
         // instead of returning a pointer to an IEnumVARIANT
         // interface on this object, we create an enumerator
@@ -3304,19 +3203,17 @@ STDMETHODIMP CTridentAO::QueryInterface(REFIID riid, void** ppv)
         // IEnumVARIANT!), this is standard COM behavior.
 
 
-        CEnumVariant*   pcenum;
+        CEnumVariant* pcenum;
         HRESULT         hr;
 
-        hr = createEnumerator( &pcenum );
+        hr = createEnumerator(&pcenum);
 
-        if ( FAILED( hr ) )
+        if (FAILED(hr))
             return hr;
 
-        *ppv = (IEnumVARIANT *)pcenum;
+        *ppv = (IEnumVARIANT*)pcenum;
         return(NOERROR);
-    }
-    else
-    {
+    } else {
         *ppv = NULL;
         return(E_NOINTERFACE);
     }
@@ -3326,7 +3223,7 @@ STDMETHODIMP CTridentAO::QueryInterface(REFIID riid, void** ppv)
     // ref count maintained in most derived class.
 
 
-    ((LPUNKNOWN) *ppv)->AddRef();
+    ((LPUNKNOWN)*ppv)->AddRef();
     return(NOERROR);
 }
 
@@ -3356,35 +3253,31 @@ STDMETHODIMP CTridentAO::QueryInterface(REFIID riid, void** ppv)
 
 
 
-HRESULT CTridentAO::GetAccFocus(IUnknown **ppIUnknown)
+HRESULT CTridentAO::GetAccFocus(IUnknown** ppIUnknown)
 {
-    CAccElement*    pAccElem = NULL;
+    CAccElement* pAccElem = NULL;
     UINT            nTOMIndex = 0;
     HRESULT         hr = E_FAIL;
 
 
-    assert( m_pDocAO );
-    assert( ppIUnknown );
+    assert(m_pDocAO);
+    assert(ppIUnknown);
 
 
 
     // Get AO or AE with current focus
 
 
-    hr = m_pDocAO->GetFocusedItem( &nTOMIndex );
+    hr = m_pDocAO->GetFocusedItem(&nTOMIndex);
 
-    if ( hr == S_OK )
-    {
+    if (hr == S_OK) {
 
         // Are we the focused item?
 
 
-        if ( nTOMIndex == m_nTOMIndex )
-        {
+        if (nTOMIndex == m_nTOMIndex) {
             *ppIUnknown = (LPUNKNOWN)this;
-        }
-        else
-        {
+        } else {
 
             // get AOMMgr pointer to build/navigate tree to
             // next object in the focus chain.
@@ -3392,19 +3285,17 @@ HRESULT CTridentAO::GetAccFocus(IUnknown **ppIUnknown)
 
             CAOMMgr* pAOMMgr = NULL;
 
-            hr = GetAOMMgr( &pAOMMgr );
+            hr = GetAOMMgr(&pAOMMgr);
 
-            if ( hr == S_OK )
-            {
+            if (hr == S_OK) {
 
                 //  get next object in focus chain to return to client
 
 
-                hr = pAOMMgr->GetFocusedObjectFromID( this, nTOMIndex, &pAccElem );
+                hr = pAOMMgr->GetFocusedObjectFromID(this, nTOMIndex, &pAccElem);
 
-                if ( hr == S_OK )
-                {
-                    if ( pAccElem )
+                if (hr == S_OK) {
+                    if (pAccElem)
                         *ppIUnknown = (LPUNKNOWN)pAccElem;
                     else
                         hr = E_FAIL;
@@ -3440,7 +3331,7 @@ HRESULT CTridentAO::GetAccFocus(IUnknown **ppIUnknown)
 
 
 
-HRESULT CTridentAO::GetAccSelection( IUnknown** ppIUnknown )
+HRESULT CTridentAO::GetAccSelection(IUnknown** ppIUnknown)
 {
     HRESULT hr = E_FAIL;
     BOOL    bIsSelected = FALSE;
@@ -3458,7 +3349,7 @@ HRESULT CTridentAO::GetAccSelection( IUnknown** ppIUnknown )
     //  selected objects.
 
 
-    if ( hr = ensureResolvedTree() )
+    if (hr = ensureResolvedTree())
         return hr;
 
 
@@ -3471,41 +3362,36 @@ HRESULT CTridentAO::GetAccSelection( IUnknown** ppIUnknown )
     //  return S_FALSE.
 
 
-    assert( m_pIHTMLElement );
+    assert(m_pIHTMLElement);
 
-    if ( !m_pIHTMLElement )
+    if (!m_pIHTMLElement)
         return E_NOINTERFACE;
 
-    hr = m_pDocAO->IsTEOSelected( m_pIHTMLElement, &bIsSelected );
+    hr = m_pDocAO->IsTEOSelected(m_pIHTMLElement, &bIsSelected);
 
-    if ( hr == S_OK )
-    {
-        if ( !bIsSelected )
+    if (hr == S_OK) {
+        if (!bIsSelected)
             hr = S_FALSE;
-        else
-        {
+        else {
 
             //  The text range of the TEO associated with
             //  this AO intersects the range selection, so
             //  does this AO have any children?
 
 
-            if ( !m_AEList.size() )
-            {
+            if (!m_AEList.size()) {
 
                 //  This AO has no children--it alone is selected.
 
 
                 *ppIUnknown = (LPUNKNOWN)this;
-            }
-            else
-            {
+            } else {
 
                 //  This AO has children, so one or more of them
                 //  are selected.
 
 
-                hr = getSelectedChildren( ppIUnknown );
+                hr = getSelectedChildren(ppIUnknown);
             }
         }
     }
@@ -3543,11 +3429,11 @@ HRESULT CTridentAO::GetAccSelection( IUnknown** ppIUnknown )
 
 
 
-HRESULT CTridentAO::AccNavigate(long navDir, long lStart,IUnknown **ppIUnknown)
+HRESULT CTridentAO::AccNavigate(long navDir, long lStart, IUnknown** ppIUnknown)
 {
     HRESULT hr = E_FAIL;
 
-    std::list<CAccElement *>::iterator itChildPos;
+    std::list<CAccElement*>::iterator itChildPos;
 
     assert(ppIUnknown);
 
@@ -3558,113 +3444,106 @@ HRESULT CTridentAO::AccNavigate(long navDir, long lStart,IUnknown **ppIUnknown)
     //  itself or one of its specified children
 
 
-    if ( lStart == CHILDID_SELF )
-    {
+    if (lStart == CHILDID_SELF) {
 
         // Navigate w/ respect to the object, so only
         //  first/lastchild navigation is valid
 
 
-        switch( navDir )
-        {
-            case NAVDIR_FIRSTCHILD :
+        switch (navDir) {
+        case NAVDIR_FIRSTCHILD:
 
 
-                // tree must be fully built in order to
-                // successfully navigate to a child.
+            // tree must be fully built in order to
+            // successfully navigate to a child.
 
 
-                if(hr = ensureResolvedTree())
-                    return(hr);
+            if (hr = ensureResolvedTree())
+                return(hr);
 
 
-                // list size is only a factor if the caller
-                // is trying to navigate children. Otherwise it
-                // is ignored.
+            // list size is only a factor if the caller
+            // is trying to navigate children. Otherwise it
+            // is ignored.
 
 
-                if ( m_AEList.size()<= 0 )
-                    return( S_FALSE );
+            if (m_AEList.size() <= 0)
+                return(S_FALSE);
 
 
-                itChildPos  = m_AEList.begin();
+            itChildPos = m_AEList.begin();
+            *ppIUnknown = (LPUNKNOWN)*itChildPos;
+            break;
+
+        case NAVDIR_LASTCHILD:
+
+
+
+            // tree must be fully built in order to
+            // successfully navigate to a child.
+
+
+            if (hr = ensureResolvedTree())
+                return(hr);
+
+
+            // list size is only a factor if the caller
+            // is trying to navigate children. Otherwise it
+            // is ignored.
+
+
+            if (m_AEList.size() <= 0)
+                return(S_FALSE);
+
+            if (m_AEList.size() == 1) {
+                itChildPos = m_AEList.begin();
                 *ppIUnknown = (LPUNKNOWN)*itChildPos;
-                break;
+            } else {
 
-            case NAVDIR_LASTCHILD :
-
-
-
-                // tree must be fully built in order to
-                // successfully navigate to a child.
+                //  Standard case : > 1 child in list.
+                //  Don't check against end of list, which
+                //  is just past the *last* list item,
+                //  and referencing undefined stuff.
 
 
-                if(hr = ensureResolvedTree())
-                    return(hr);
+                itChildPos = --m_AEList.end();
+                *ppIUnknown = (LPUNKNOWN)*itChildPos;
+            }
 
+            break;
 
-                // list size is only a factor if the caller
-                // is trying to navigate children. Otherwise it
-                // is ignored.
-
-
-                if ( m_AEList.size()<= 0 )
-                    return( S_FALSE );
-
-                if(m_AEList.size() == 1)
-                {
-                    itChildPos  = m_AEList.begin();
-                    *ppIUnknown = (LPUNKNOWN)*itChildPos;
-                }
-                else
-                {
-
-                    //  Standard case : > 1 child in list.
-                    //  Don't check against end of list, which
-                    //  is just past the *last* list item,
-                    //  and referencing undefined stuff.
-
-
-                    itChildPos  = --m_AEList.end();
-                    *ppIUnknown = (LPUNKNOWN)*itChildPos;
-                }
-
-                break;
-
-            case NAVDIR_NEXT :
-            case NAVDIR_PREVIOUS :
+        case NAVDIR_NEXT:
+        case NAVDIR_PREVIOUS:
 
 
 
-                // sibling navigation: we need to delegate to parent
-                // passing this object's child ID to the parent.
+            // sibling navigation: we need to delegate to parent
+            // passing this object's child ID to the parent.
 
 
-                if(m_pParent)
-                    return(m_pParent->AccNavigate(navDir,GetChildID(),ppIUnknown));
-                else
-                    return(S_FALSE);
+            if (m_pParent)
+                return(m_pParent->AccNavigate(navDir, GetChildID(), ppIUnknown));
+            else
+                return(S_FALSE);
 
 
-            default :
+        default:
 
-                return( DISP_E_MEMBERNOTFOUND );
+            return(DISP_E_MEMBERNOTFOUND);
         }
-    }
-    else
-    {
+    } else {
 
 
         // tree must be fully built in order to
         // successfully navigate to a child.
 
 
-        if(hr = ensureResolvedTree())
+        if (hr = ensureResolvedTree())
             return(hr);
 
 
-        if ( m_AEList.size() <= 0 )
-            return( DISP_E_MEMBERNOTFOUND );
+        if (m_AEList.size() <= 0)
+            return(DISP_E_MEMBERNOTFOUND);
 
 
         // Navigate w/ respect to one of the children, so
@@ -3673,45 +3552,44 @@ HRESULT CTridentAO::AccNavigate(long navDir, long lStart,IUnknown **ppIUnknown)
 
         CAccElement* pAccElement;
 
-        if ( GetAccElemFromChildID( lStart, &pAccElement, &itChildPos ) == S_FALSE )
-            return( DISP_E_MEMBERNOTFOUND );
+        if (GetAccElemFromChildID(lStart, &pAccElement, &itChildPos) == S_FALSE)
+            return(DISP_E_MEMBERNOTFOUND);
 
-        switch( navDir )
-        {
-            case NAVDIR_FIRSTCHILD :
-            case NAVDIR_LASTCHILD  :
+        switch (navDir) {
+        case NAVDIR_FIRSTCHILD:
+        case NAVDIR_LASTCHILD:
 
-                return( DISP_E_MEMBERNOTFOUND );
+            return(DISP_E_MEMBERNOTFOUND);
 
-            case NAVDIR_NEXT :
-
-
-                // Don't check against end of list, which
-                //  is just past the *last* list item,
-                //  and referencing undefined stuff.
+        case NAVDIR_NEXT:
 
 
-                if ( itChildPos == --m_AEList.end() )
-                    return( S_FALSE );
+            // Don't check against end of list, which
+            //  is just past the *last* list item,
+            //  and referencing undefined stuff.
 
-                *ppIUnknown = LPUNKNOWN(*(++itChildPos));
-                break;
 
-            case NAVDIR_PREVIOUS :
+            if (itChildPos == --m_AEList.end())
+                return(S_FALSE);
 
-                if ( itChildPos == m_AEList.begin() )
-                    return( S_FALSE );
+            *ppIUnknown = LPUNKNOWN(*(++itChildPos));
+            break;
 
-                *ppIUnknown = LPUNKNOWN(*(--itChildPos));
-                break;
+        case NAVDIR_PREVIOUS:
 
-            default :
+            if (itChildPos == m_AEList.begin())
+                return(S_FALSE);
 
-                return( DISP_E_MEMBERNOTFOUND );
+            *ppIUnknown = LPUNKNOWN(*(--itChildPos));
+            break;
+
+        default:
+
+            return(DISP_E_MEMBERNOTFOUND);
         }
     }
 
-    assert( *ppIUnknown );
+    assert(*ppIUnknown);
 
 
     return(S_OK);
@@ -3740,13 +3618,13 @@ HRESULT CTridentAO::AccNavigate(long navDir, long lStart,IUnknown **ppIUnknown)
 
 
 
-HRESULT CTridentAO::AccHitTest(long xLeft, long yTop,IUnknown ** ppIUnknown)
+HRESULT CTridentAO::AccHitTest(long xLeft, long yTop, IUnknown** ppIUnknown)
 {
-    HRESULT hr              = E_FAIL;
-    CAccElement * pAccEl    = NULL;
+    HRESULT hr = E_FAIL;
+    CAccElement* pAccEl = NULL;
 
 
-    assert( ppIUnknown );
+    assert(ppIUnknown);
 
     *ppIUnknown = NULL;
 
@@ -3765,10 +3643,9 @@ HRESULT CTridentAO::AccHitTest(long xLeft, long yTop,IUnknown ** ppIUnknown)
     // next hit object.
 
 
-    CAOMMgr *pAOMMgr;
+    CAOMMgr* pAOMMgr;
 
-    if(hr = GetAOMMgr(&pAOMMgr))
-    {
+    if (hr = GetAOMMgr(&pAOMMgr)) {
         return(hr);
     }
 
@@ -3779,30 +3656,28 @@ HRESULT CTridentAO::AccHitTest(long xLeft, long yTop,IUnknown ** ppIUnknown)
 
     assert(m_hWnd);
 
-    ScreenToClient(m_hWnd,&pt);
+    ScreenToClient(m_hWnd, &pt);
 
 
     // get next hit object.
 
 
-    hr = pAOMMgr->GetAccessibleObjectFromPt(this,&pt,&pAccEl);
+    hr = pAOMMgr->GetAccessibleObjectFromPt(this, &pt, &pAccEl);
 
-    if ( SUCCEEDED( hr ) )
-    {
+    if (SUCCEEDED(hr)) {
 
         // CAOMMgr::GetAccessibleObjectFromPt() may return
         //  success but not have set pAccEl.  in this case,
         //  the point lies outside the object, which is fine.
 
 
-        if ( pAccEl )
-        {
+        if (pAccEl) {
 
             // cast the returned object and return it.
             // the addref happened
 
 
-            *ppIUnknown = (IUnknown *)pAccEl;
+            *ppIUnknown = (IUnknown*)pAccEl;
         }
 
         hr = S_OK;
@@ -3830,22 +3705,21 @@ HRESULT CTridentAO::AccHitTest(long xLeft, long yTop,IUnknown ** ppIUnknown)
 
 
 
-HRESULT CTridentAO::GetAccParent(IDispatch ** ppdispParent)
+HRESULT CTridentAO::GetAccParent(IDispatch** ppdispParent)
 {
-    assert( ppdispParent );
+    assert(ppdispParent);
 
 
     // check for parent : if no parent, set out
     // parameter to NULL and return S_FALSE
 
 
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
-    if ( m_pParent )
-        hr = m_pParent->QueryInterface(IID_IAccessible,(void **)ppdispParent);
+    if (m_pParent)
+        hr = m_pParent->QueryInterface(IID_IAccessible, (void**)ppdispParent);
 
-    if ( hr != S_OK )
-    {
+    if (hr != S_OK) {
         *ppdispParent = NULL;
         hr = S_FALSE;
     }
@@ -3875,18 +3749,18 @@ HRESULT CTridentAO::GetAccChildCount(long* plChildCount)
 {
     HRESULT hr = E_FAIL;
 
-    assert ( plChildCount );
+    assert(plChildCount);
 
 
     // make sure that tree is built before querying it.
 
 
-    if(hr = ensureResolvedTree())
+    if (hr = ensureResolvedTree())
         return(hr);
 
 
     *plChildCount = m_AEList.size();
-    return( S_OK );
+    return(S_OK);
 }
 
 
@@ -3907,15 +3781,15 @@ HRESULT CTridentAO::GetAccChildCount(long* plChildCount)
 
 
 
-HRESULT CTridentAO::GetAccChild(long lChild, IDispatch ** ppdispChild)
+HRESULT CTridentAO::GetAccChild(long lChild, IDispatch** ppdispChild)
 {
-    HRESULT hr              = E_FAIL;
+    HRESULT hr = E_FAIL;
 
-    assert ( ppdispChild );
+    assert(ppdispChild);
 
-    CAccElement* pAEChild   = NULL;
+    CAccElement* pAEChild = NULL;
 
-    *ppdispChild            = NULL;
+    *ppdispChild = NULL;
 
 
 
@@ -3923,10 +3797,10 @@ HRESULT CTridentAO::GetAccChild(long lChild, IDispatch ** ppdispChild)
     // search for child object in parent list.
 
 
-    hr = GetAccElemFromChildID(lChild,&pAEChild);
+    hr = GetAccElemFromChildID(lChild, &pAEChild);
 
 
-    if(hr != S_OK)
+    if (hr != S_OK)
         return(hr);
 
 
@@ -3936,8 +3810,7 @@ HRESULT CTridentAO::GetAccChild(long lChild, IDispatch ** ppdispChild)
 
 
 
-    if(pAEChild)
-    {
+    if (pAEChild) {
 
         // **NOTE** this call will fail if the child
         // is an AE, which doesnt support an IDispatch
@@ -3950,15 +3823,13 @@ HRESULT CTridentAO::GetAccChild(long lChild, IDispatch ** ppdispChild)
         // it was initialized as NULL.
 
 
-        return(pAEChild->QueryInterface( IID_IDispatch, (void**)ppdispChild ));
+        return(pAEChild->QueryInterface(IID_IDispatch, (void**)ppdispChild));
 
-    }
-    else
-    {
+    } else {
 
         // reaching here means that the child was not found
 
-        return( hr);
+        return(hr);
     }
 
 }
@@ -3982,7 +3853,7 @@ HRESULT CTridentAO::GetAccChild(long lChild, IDispatch ** ppdispChild)
 
 
 
-HRESULT CTridentAO::GetAccName(long lChild, BSTR * pbstrName)
+HRESULT CTridentAO::GetAccName(long lChild, BSTR* pbstrName)
 {
     return(DISP_E_MEMBERNOTFOUND);
 }
@@ -4007,7 +3878,7 @@ HRESULT CTridentAO::GetAccName(long lChild, BSTR * pbstrName)
 
 
 
-HRESULT CTridentAO::GetAccValue(long lChild, BSTR * pbstrValue)
+HRESULT CTridentAO::GetAccValue(long lChild, BSTR* pbstrValue)
 {
     return(DISP_E_MEMBERNOTFOUND);
 }
@@ -4031,7 +3902,7 @@ HRESULT CTridentAO::GetAccValue(long lChild, BSTR * pbstrValue)
 
 
 
-HRESULT CTridentAO::GetAccDescription(long lChild, BSTR * pbstrDescription)
+HRESULT CTridentAO::GetAccDescription(long lChild, BSTR* pbstrDescription)
 {
     return(DISP_E_MEMBERNOTFOUND);
 }
@@ -4057,7 +3928,7 @@ HRESULT CTridentAO::GetAccDescription(long lChild, BSTR * pbstrDescription)
 
 
 
-HRESULT CTridentAO::GetAccState( long lChild, long* plState )
+HRESULT CTridentAO::GetAccState(long lChild, long* plState)
 {
     HRESULT hr = E_FAIL;
 
@@ -4072,35 +3943,30 @@ HRESULT CTridentAO::GetAccState( long lChild, long* plState )
 
     assert(m_pIHTMLElement);
 
-    if (!m_pIHTMLStyle)
-    {
-        if (S_OK != (hr = m_pIHTMLElement->get_style( &m_pIHTMLStyle )))
+    if (!m_pIHTMLStyle) {
+        if (S_OK != (hr = m_pIHTMLElement->get_style(&m_pIHTMLStyle)))
             return hr;
 
         assert(m_pIHTMLStyle);
 
-        if (!m_cache.IsDirty(CACHE_BSTR_STYLE))
-        {
-            if (S_OK != (hr = m_pIHTMLStyle->get_visibility( &m_bstrStyle )))
+        if (!m_cache.IsDirty(CACHE_BSTR_STYLE)) {
+            if (S_OK != (hr = m_pIHTMLStyle->get_visibility(&m_bstrStyle)))
                 return hr;
 
             m_cache.Dirty(CACHE_BSTR_STYLE);
         }
 
-        if (!m_cache.IsDirty(CACHE_BSTR_DISPLAY))
-        {
-            if (S_OK != (hr = m_pIHTMLStyle->get_display( &m_bstrDisplay )))
+        if (!m_cache.IsDirty(CACHE_BSTR_DISPLAY)) {
+            if (S_OK != (hr = m_pIHTMLStyle->get_display(&m_bstrDisplay)))
                 return hr;
 
             m_cache.Dirty(CACHE_BSTR_DISPLAY);
         }
     }
 
-    if ( m_bstrStyle )
-    {
+    if (m_bstrStyle) {
         // UNDONE: use fast 7-bit string compare instead
-        if (!_wcsicmp(m_bstrStyle, L"VISIBLE"))
-        {
+        if (!_wcsicmp(m_bstrStyle, L"VISIBLE")) {
             *plState |= STATE_SYSTEM_INVISIBLE;
             return S_OK;
         }
@@ -4116,8 +3982,7 @@ HRESULT CTridentAO::GetAccState( long lChild, long* plState )
     //  that the element object is not visible.
 
 
-    if ( m_bstrDisplay )
-    {
+    if (m_bstrDisplay) {
         *plState |= STATE_SYSTEM_INVISIBLE;
         return S_OK;
     }
@@ -4144,17 +4009,17 @@ HRESULT CTridentAO::GetAccState( long lChild, long* plState )
 
 
 
-HRESULT CTridentAO::GetAccHelp(long lChild, BSTR * pbstrHelp)
+HRESULT CTridentAO::GetAccHelp(long lChild, BSTR* pbstrHelp)
 {
 
 #ifdef _DEBUG
     WCHAR   wstr[128];
 
-    swprintf( wstr, L"PID: %lX, TID: %lX", GetCurrentProcessId(), GetCurrentThreadId() );
+    swprintf(wstr, L"PID: %lX, TID: %lX", GetCurrentProcessId(), GetCurrentThreadId());
 
-    *pbstrHelp = SysAllocString( wstr );
+    *pbstrHelp = SysAllocString(wstr);
 
-    assert( *pbstrHelp );
+    assert(*pbstrHelp);
 
     return S_OK;
 #else
@@ -4185,7 +4050,7 @@ HRESULT CTridentAO::GetAccHelp(long lChild, BSTR * pbstrHelp)
 
 
 
-HRESULT CTridentAO::GetAccHelpTopic(BSTR * pbstrHelpFile, long lChild,long * pidTopic)
+HRESULT CTridentAO::GetAccHelpTopic(BSTR* pbstrHelpFile, long lChild, long* pidTopic)
 {
     return(DISP_E_MEMBERNOTFOUND);
 }
@@ -4210,7 +4075,7 @@ HRESULT CTridentAO::GetAccHelpTopic(BSTR * pbstrHelpFile, long lChild,long * pid
 
 
 
-HRESULT CTridentAO::GetAccKeyboardShortcut(long lChild, BSTR * pbstrKeyboardShortcut)
+HRESULT CTridentAO::GetAccKeyboardShortcut(long lChild, BSTR* pbstrKeyboardShortcut)
 {
     return(DISP_E_MEMBERNOTFOUND);
 }
@@ -4235,7 +4100,7 @@ HRESULT CTridentAO::GetAccKeyboardShortcut(long lChild, BSTR * pbstrKeyboardShor
 
 
 
-HRESULT CTridentAO::GetAccDefaultAction(long lChild, BSTR * pbstrDefAction)
+HRESULT CTridentAO::GetAccDefaultAction(long lChild, BSTR* pbstrDefAction)
 {
     return(DISP_E_MEMBERNOTFOUND);
 }
@@ -4294,28 +4159,28 @@ HRESULT CTridentAO::AccSelect(long flagsSel, long lChild)
 
 
 
-HRESULT CTridentAO::AccLocation(long * pxLeft, long * pyTop, long * pcxWidth,long * pcyHeight, long lChild)
+HRESULT CTridentAO::AccLocation(long* pxLeft, long* pyTop, long* pcxWidth, long* pcyHeight, long lChild)
 {
     HRESULT hr;
 
-    long xLeft      =0;
-    long yTop       =0;
-    long cxWidth    =0;
-    long cyHeight   =0;
+    long xLeft = 0;
+    long yTop = 0;
+    long cxWidth = 0;
+    long cyHeight = 0;
 
-    assert( pxLeft );
-    assert( pyTop );
-    assert( pcxWidth );
-    assert( pcyHeight );
+    assert(pxLeft);
+    assert(pyTop);
+    assert(pcxWidth);
+    assert(pcyHeight);
 
 
     // initialize the out parameters
 
 
-    *pxLeft     = 0;
-    *pyTop      = 0;
-    *pcxWidth   = 0;
-    *pcyHeight  = 0;
+    *pxLeft = 0;
+    *pyTop = 0;
+    *pcxWidth = 0;
+    *pcyHeight = 0;
 
 
     // get screen locations
@@ -4323,23 +4188,23 @@ HRESULT CTridentAO::AccLocation(long * pxLeft, long * pyTop, long * pcxWidth,lon
 
     assert(m_pIHTMLElement);
 
-    if(!m_pIHTMLElement)
+    if (!m_pIHTMLElement)
         return(E_NOINTERFACE);
 
     hr = m_pIHTMLElement->get_offsetLeft(&xLeft);
-    if(hr != S_OK)
+    if (hr != S_OK)
         return(hr);
 
     hr = m_pIHTMLElement->get_offsetTop(&yTop);
-    if(hr != S_OK)
+    if (hr != S_OK)
         return(hr);
 
     hr = m_pIHTMLElement->get_offsetWidth(&cxWidth);
-    if(hr != S_OK)
+    if (hr != S_OK)
         return(hr);
 
     hr = m_pIHTMLElement->get_offsetHeight(&cyHeight);
-    if(hr != S_OK)
+    if (hr != S_OK)
         return(hr);
 
 
@@ -4348,8 +4213,7 @@ HRESULT CTridentAO::AccLocation(long * pxLeft, long * pyTop, long * pcxWidth,lon
     // visible and wait to be proven wrong.
 
 
-    if ( cxWidth == 0 || cyHeight == 0 )
-    {
+    if (cxWidth == 0 || cyHeight == 0) {
         m_bOffScreen = TRUE;
         return S_OK;
     }
@@ -4360,9 +4224,9 @@ HRESULT CTridentAO::AccLocation(long * pxLeft, long * pyTop, long * pcxWidth,lon
     // get offset from top left corner of HTML document.
 
 
-    hr = adjustOffsetToRootParent(&xLeft,&yTop);
+    hr = adjustOffsetToRootParent(&xLeft, &yTop);
 
-    if(hr != S_OK)
+    if (hr != S_OK)
         return(hr);
 
 
@@ -4370,16 +4234,15 @@ HRESULT CTridentAO::AccLocation(long * pxLeft, long * pyTop, long * pcxWidth,lon
     // adjust point to account for client area
 
 
-    hr = adjustOffsetForClientArea(&xLeft,&yTop);
+    hr = adjustOffsetForClientArea(&xLeft, &yTop);
 
 
     // if the adjusted x and y values are not on the
     // screen, toggle on screen state boolean.
 
 
-    if(hr != S_OK)
-    {
-        if(hr == S_FALSE)
+    if (hr != S_OK) {
+        if (hr == S_FALSE)
             m_bOffScreen = TRUE;
         else
             return(hr);
@@ -4389,10 +4252,10 @@ HRESULT CTridentAO::AccLocation(long * pxLeft, long * pyTop, long * pcxWidth,lon
     // Set out parameters with calculated location.
 
 
-    *pxLeft     = xLeft;
-    *pyTop      = yTop;
-    *pcxWidth   = cxWidth;
-    *pcyHeight  = cyHeight;
+    *pxLeft = xLeft;
+    *pyTop = yTop;
+    *pcxWidth = cxWidth;
+    *pcyHeight = cyHeight;
 
     return(S_OK);
 }
@@ -4487,19 +4350,19 @@ HRESULT CTridentAO::SetAccValue(long lChild, BSTR bstrValue)
 
 
 
-HRESULT CTridentAO::AddChild(CAccElement * pChild)
+HRESULT CTridentAO::AddChild(CAccElement* pChild)
 {
-    if(!pChild)
+    if (!pChild)
         return(E_INVALIDARG);
 
     // always insert to back of list
-    m_AEList.push_back( pChild );
+    m_AEList.push_back(pChild);
 
     return S_OK;
 }
 
 
----
+-- -
 //  CTridentAO::GetFocusedTOMElementIndex()
 
 //  DESCRIPTION:
@@ -4521,12 +4384,12 @@ HRESULT CTridentAO::AddChild(CAccElement * pChild)
 //      if the return value is good.
 
 
-HRESULT CTridentAO::GetFocusedTOMElementIndex(UINT *puTOMIndex)
+HRESULT CTridentAO::GetFocusedTOMElementIndex(UINT * puTOMIndex)
 {
-    assert( puTOMIndex );
-    assert(m_pDocAO );
+    assert(puTOMIndex);
+    assert(m_pDocAO);
 
-    return( m_pDocAO->GetFocusedItem( puTOMIndex ) );
+    return(m_pDocAO->GetFocusedItem(puTOMIndex));
 }
 
 
@@ -4560,18 +4423,18 @@ HRESULT CTridentAO::GetFocusedTOMElementIndex(UINT *puTOMIndex)
 //      if the return value is good.
 
 
-HRESULT CTridentAO::GetAccElemFromChildID(LONG lChild,CAccElement ** ppAEChild,
-                                          std::list<CAccElement *>::iterator *ppitPos,
+HRESULT CTridentAO::GetAccElemFromChildID(LONG lChild, CAccElement** ppAEChild,
+                                          std::list<CAccElement*>::iterator* ppitPos,
                                           BOOL bFullTreeSearch)
 {
-    std::list<CAccElement *>::iterator  itCurPos;
+    std::list<CAccElement*>::iterator  itCurPos;
     HRESULT                             hr;
-    CAccElement                         *pAEChild   = NULL;
+    CAccElement* pAEChild = NULL;
     BOOL                                bChildFound = FALSE;
 
 
-    assert( lChild != CHILDID_SELF );
-    assert( ppAEChild );
+    assert(lChild != CHILDID_SELF);
+    assert(ppAEChild);
 
 
     // TODO:  Determine if we really need to
@@ -4580,27 +4443,23 @@ HRESULT CTridentAO::GetAccElemFromChildID(LONG lChild,CAccElement ** ppAEChild,
 
     itCurPos = m_AEList.begin();
 
-    while( itCurPos != m_AEList.end() && !bChildFound )
-    {
-        pAEChild = (CAccElement*) *itCurPos;
+    while (itCurPos != m_AEList.end() && !bChildFound) {
+        pAEChild = (CAccElement*)*itCurPos;
 
-        if ( pAEChild->GetChildID() == lChild )
+        if (pAEChild->GetChildID() == lChild)
             bChildFound = TRUE;
-        else
-        {
+        else {
 
             // if this is a full tree search, check to see
             // if the current element is an AO.  If it is,
             // then recurse.
 
 
-            if ( bFullTreeSearch )
-            {
-                if ( IsAOMTypeAO(*itCurPos) )
-                {
-                    CTridentAO* pAO = (CTridentAO*) *itCurPos;
+            if (bFullTreeSearch) {
+                if (IsAOMTypeAO(*itCurPos)) {
+                    CTridentAO* pAO = (CTridentAO*)*itCurPos;
 
-                    hr = pAO->GetAccElemFromChildID(lChild,ppAEChild,ppitPos,bFullTreeSearch);
+                    hr = pAO->GetAccElemFromChildID(lChild, ppAEChild, ppitPos, bFullTreeSearch);
 
 
                     // if the return code is good, a match has
@@ -4608,8 +4467,7 @@ HRESULT CTridentAO::GetAccElemFromChildID(LONG lChild,CAccElement ** ppAEChild,
                     // break out right away for serious errors.
 
 
-                    if ( (hr == S_OK) && (*ppAEChild) )
-                    {
+                    if ((hr == S_OK) && (*ppAEChild)) {
 
                         // set the pAEChild pointer so that the object found
                         // in the recursive search is sucessfully transferred
@@ -4619,9 +4477,7 @@ HRESULT CTridentAO::GetAccElemFromChildID(LONG lChild,CAccElement ** ppAEChild,
                         pAEChild = *ppAEChild;
                         bChildFound = TRUE;
                         break;
-                    }
-                    else if ( hr != S_FALSE )
-                    {
+                    } else if (hr != S_FALSE) {
                         return hr;
                     }
                 }
@@ -4630,17 +4486,15 @@ HRESULT CTridentAO::GetAccElemFromChildID(LONG lChild,CAccElement ** ppAEChild,
         }
     }
 
-    if ( bChildFound )
-    {
+    if (bChildFound) {
         *ppAEChild = pAEChild;
 
-        if ( ppitPos )
+        if (ppitPos)
             *ppitPos = itCurPos;
-    }
-    else
-        return( S_FALSE );
+    } else
+        return(S_FALSE);
 
-    return( S_OK );
+    return(S_OK);
 }
 
 
@@ -4671,26 +4525,25 @@ HRESULT CTridentAO::GetAccElemFromChildID(LONG lChild,CAccElement ** ppAEChild,
 //      if the return value is good.
 
 
-HRESULT CTridentAO::GetAccElemFromTomIndex(LONG lIndex,CAccElement ** ppAEChild)
+HRESULT CTridentAO::GetAccElemFromTomIndex(LONG lIndex, CAccElement** ppAEChild)
 {
     HRESULT hr = E_FAIL;
 
-    std::list<CAccElement *>::iterator  itCurPos;
+    std::list<CAccElement*>::iterator  itCurPos;
 
-    CAccElement     *pAEChild   = NULL;
+    CAccElement* pAEChild = NULL;
     BOOL            bChildFound = FALSE;
 
 
-    assert( ppAEChild );
+    assert(ppAEChild);
 
 
     // check to see if this object is the matching object
 
 
-    if ( lIndex == GetTOMAllIndex() )
-    {
-        *ppAEChild = (CAccElement *)this;
-        return( S_OK );
+    if (lIndex == GetTOMAllIndex()) {
+        *ppAEChild = (CAccElement*)this;
+        return(S_OK);
     }
 
 
@@ -4699,12 +4552,11 @@ HRESULT CTridentAO::GetAccElemFromTomIndex(LONG lIndex,CAccElement ** ppAEChild)
 
     itCurPos = m_AEList.begin();
 
-    while( itCurPos != m_AEList.end() && !bChildFound )
-    {
-        CTridentAO * pTridentAO;
-        CTridentAE * pTridentAE;
+    while (itCurPos != m_AEList.end() && !bChildFound) {
+        CTridentAO* pTridentAO;
+        CTridentAE* pTridentAE;
 
-        pAEChild = (CAccElement*) *itCurPos;
+        pAEChild = (CAccElement*)*itCurPos;
 
 
 
@@ -4712,40 +4564,34 @@ HRESULT CTridentAO::GetAccElemFromTomIndex(LONG lIndex,CAccElement ** ppAEChild)
         // QI to find out which one it is.
 
 
-        CComQIPtr<IAccessible,&IID_IAccessible> pIAccessible(pAEChild);
+        CComQIPtr<IAccessible, &IID_IAccessible> pIAccessible(pAEChild);
 
-        if(pIAccessible)
-        {
+        if (pIAccessible) {
 
-            pTridentAO = (CTridentAO *)pAEChild;
+            pTridentAO = (CTridentAO*)pAEChild;
 
-            if(pTridentAO->GetTOMAllIndex() == lIndex)
+            if (pTridentAO->GetTOMAllIndex() == lIndex)
                 bChildFound = TRUE;
 
-        }
-        else
-        {
-            pTridentAE = (CTridentAE *)pAEChild;
+        } else {
+            pTridentAE = (CTridentAE*)pAEChild;
 
-            if ( pTridentAE->GetTOMAllIndex() == lIndex )
+            if (pTridentAE->GetTOMAllIndex() == lIndex)
                 bChildFound = TRUE;
         }
 
-        if(!(bChildFound))
-        {
+        if (!(bChildFound)) {
             itCurPos++;
         }
     }
 
 
-    if ( bChildFound )
-    {
+    if (bChildFound) {
         *ppAEChild = pAEChild;
-    }
-    else
-        return( S_FALSE );
+    } else
+        return(S_FALSE);
 
-    return( S_OK );
+    return(S_OK);
 
 }
 
@@ -4773,9 +4619,9 @@ HRESULT CTridentAO::ScrollIntoView(void)
 
     VariantInit(&varArgStart);
 
-    assert( m_pIHTMLElement );
+    assert(m_pIHTMLElement);
 
-    if(!m_pIHTMLElement)
+    if (!m_pIHTMLElement)
         return(E_NOINTERFACE);
 
 
@@ -4815,8 +4661,7 @@ HRESULT CTridentAO::ensureResolvedTree(void)
     // built.
 
 
-    if(m_bResolvedState)
-    {
+    if (m_bResolvedState) {
         return(S_OK);
     }
 
@@ -4824,10 +4669,9 @@ HRESULT CTridentAO::ensureResolvedTree(void)
     // get AOMMgr pointer
 
 
-    CAOMMgr *pAOMMgr;
+    CAOMMgr* pAOMMgr;
 
-    if(hr = GetAOMMgr(&pAOMMgr))
-    {
+    if (hr = GetAOMMgr(&pAOMMgr)) {
         return(hr);
     }
 
@@ -4839,8 +4683,7 @@ HRESULT CTridentAO::ensureResolvedTree(void)
     //  entire child tree beneath this object.
 
 
-    if(hr = pAOMMgr->ResolveChildren(this))
-    {
+    if (hr = pAOMMgr->ResolveChildren(this)) {
         return(hr);
     }
 
@@ -4871,7 +4714,7 @@ HRESULT CTridentAO::ensureResolvedTree(void)
 //  S_OK | E_FAIL
 
 
-HRESULT CTridentAO::GetAOMMgr(CAOMMgr ** ppAOMMgr)
+HRESULT CTridentAO::GetAOMMgr(CAOMMgr** ppAOMMgr)
 {
     assert(ppAOMMgr);
 
@@ -4896,7 +4739,7 @@ HRESULT CTridentAO::GetAOMMgr(CAOMMgr ** ppAOMMgr)
 
 
 
-HRESULT CTridentAO::GetChildList(std::list<CAccElement *> **ppChildList)
+HRESULT CTridentAO::GetChildList(std::list<CAccElement*>** ppChildList)
 {
     assert(ppChildList);
 
@@ -4936,20 +4779,20 @@ HRESULT CTridentAO::GetChildList(std::list<CAccElement *> **ppChildList)
 
 
 
-HRESULT CTridentAO::IsPointInTextChildren(  long xLeft,
-                                            long yTop,
-                                            IHTMLTxtRange * pDocTxtRange,
-                                            CAccElement **ppAccEl)
+HRESULT CTridentAO::IsPointInTextChildren(long xLeft,
+                                          long yTop,
+                                          IHTMLTxtRange* pDocTxtRange,
+                                          CAccElement** ppAccEl)
 {
-    HRESULT hr              = E_FAIL;
-    long iListSize          = 0;
-    long iCurCount          = 0;
-    CAccElement * pAccEl    = NULL;
-    CTridentAE * pAE        = NULL;
-    std::list<CAccElement *>::iterator itCurPos;
-    BOOL bInTextRange       = FALSE;
-    short sExpand           = 0;
-    CTextAE * pTextAE       = NULL;
+    HRESULT hr = E_FAIL;
+    long iListSize = 0;
+    long iCurCount = 0;
+    CAccElement* pAccEl = NULL;
+    CTridentAE* pAE = NULL;
+    std::list<CAccElement*>::iterator itCurPos;
+    BOOL bInTextRange = FALSE;
+    short sExpand = 0;
+    CTextAE* pTextAE = NULL;
 
 
     // validate inputs : if there is no text
@@ -4958,12 +4801,12 @@ HRESULT CTridentAO::IsPointInTextChildren(  long xLeft,
 
 
 
-    if(!pDocTxtRange)
+    if (!pDocTxtRange)
         return(S_FALSE);
 
-    assert( ppAccEl );
+    assert(ppAccEl);
 
-    if(!ppAccEl )
+    if (!ppAccEl)
         return(E_INVALIDARG);
 
 
@@ -4978,8 +4821,7 @@ HRESULT CTridentAO::IsPointInTextChildren(  long xLeft,
     // list has been fully resolved.
 
 
-    if(!m_bResolvedState)
-    {
+    if (!m_bResolvedState) {
         return(S_FALSE);
     }
 
@@ -4994,8 +4836,7 @@ HRESULT CTridentAO::IsPointInTextChildren(  long xLeft,
     // in a point seems clearer.
 
 
-    if(hr = pDocTxtRange->moveToPoint(xLeft,yTop))
-    {
+    if (hr = pDocTxtRange->moveToPoint(xLeft, yTop)) {
         return(hr);
     }
 
@@ -5008,42 +4849,36 @@ HRESULT CTridentAO::IsPointInTextChildren(  long xLeft,
 
     // TODO: make bstr global to component
 
-    BSTR bstr = SysAllocString( L"character" );
+    BSTR bstr = SysAllocString(L"character");
 
-    if(hr = pDocTxtRange->expand(bstr,&sExpand) )
-    {
-        SysFreeString( bstr );
+    if (hr = pDocTxtRange->expand(bstr, &sExpand)) {
+        SysFreeString(bstr);
         return(hr);
     }
 
-    SysFreeString( bstr );
+    SysFreeString(bstr);
 
 
     // iterate throught all children in the list, looking
     // for text children.
 
 
-    itCurPos    = m_AEList.begin();
-    iListSize   = m_AEList.size();
+    itCurPos = m_AEList.begin();
+    iListSize = m_AEList.size();
 
-    for(iCurCount = 0; iCurCount < iListSize; iCurCount ++)
-    {
+    for (iCurCount = 0; iCurCount < iListSize; iCurCount++) {
 
         assert(itCurPos != m_AEList.end());
 
         pAccEl = *itCurPos;
 
-        if(pAccEl->GetAOMType() == AOMITEM_TEXT)
-        {
-            pTextAE = (CTextAE *)pAccEl;
+        if (pAccEl->GetAOMType() == AOMITEM_TEXT) {
+            pTextAE = (CTextAE*)pAccEl;
 
-            if(hr = pTextAE->ContainsPoint(xLeft,yTop,pDocTxtRange))
-            {
-                if(hr != S_FALSE)
+            if (hr = pTextAE->ContainsPoint(xLeft, yTop, pDocTxtRange)) {
+                if (hr != S_FALSE)
                     return(hr);
-            }
-            else
-            {
+            } else {
 
 
                 // the textAE contained the input text range :
@@ -5094,52 +4929,51 @@ HRESULT CTridentAO::IsPointInTextChildren(  long xLeft,
 
 
 HRESULT
-CTridentAO::IsAncestorAnchor( /* out */ CAnchorAO** ppAnchorAncestor )
+CTridentAO::IsAncestorAnchor( /* out */ CAnchorAO** ppAnchorAncestor)
 {
     HRESULT     hr = S_OK;
     CTridentAO* pAO = this;
 
-    assert( ppAnchorAncestor );
+    assert(ppAnchorAncestor);
     *ppAnchorAncestor = NULL;
 
     do {
-        if ( !pAO->GetParent() )
+        if (!pAO->GetParent())
             hr = S_FALSE;
         else
-            switch ( pAO->GetAOMType() )
-            {
-                case AOMITEM_ANCHOR:
-                    *ppAnchorAncestor = (CAnchorAO*) pAO;
-                    break;
+            switch (pAO->GetAOMType()) {
+            case AOMITEM_ANCHOR:
+                *ppAnchorAncestor = (CAnchorAO*)pAO;
+                break;
 
-                case AOMITEM_AREA:
-                case AOMITEM_BUTTON:
-                case AOMITEM_CHECKBOX:
-                case AOMITEM_EDITFIELD:
-                case AOMITEM_FRAME:
-                case AOMITEM_IMAGE:
-                case AOMITEM_PLUGIN:
-                case AOMITEM_RADIOBUTTON:
-                case AOMITEM_SELECTLIST:
-                case AOMITEM_TABLE:
-                case AOMITEM_TABLECELL:
-                case AOMITEM_IMAGEBUTTON:
-                case AOMITEM_DOCUMENT:
-                case AOMITEM_WINDOW:
-                    hr = S_FALSE;
-                    break;
+            case AOMITEM_AREA:
+            case AOMITEM_BUTTON:
+            case AOMITEM_CHECKBOX:
+            case AOMITEM_EDITFIELD:
+            case AOMITEM_FRAME:
+            case AOMITEM_IMAGE:
+            case AOMITEM_PLUGIN:
+            case AOMITEM_RADIOBUTTON:
+            case AOMITEM_SELECTLIST:
+            case AOMITEM_TABLE:
+            case AOMITEM_TABLECELL:
+            case AOMITEM_IMAGEBUTTON:
+            case AOMITEM_DOCUMENT:
+            case AOMITEM_WINDOW:
+                hr = S_FALSE;
+                break;
 
-                default:
-                    pAO = pAO->GetParent();
-                    break;
+            default:
+                pAO = pAO->GetParent();
+                break;
             }
-    } while ( !*ppAnchorAncestor && hr == S_OK );
+    } while (!*ppAnchorAncestor && hr == S_OK);
 
 #ifdef _DEBUG
-    if ( hr == S_OK )
-        assert( *ppAnchorAncestor );
+    if (hr == S_OK)
+        assert(*ppAnchorAncestor);
     else
-        assert( !*ppAnchorAncestor );
+        assert(!*ppAnchorAncestor);
 #endif
 
     return hr;
@@ -5173,16 +5007,16 @@ CTridentAO::IsAncestorAnchor( /* out */ CAnchorAO** ppAnchorAncestor )
 
 
 HRESULT
-CTridentAO::createInterfaceImplementors( LPUNKNOWN pIUnk )
+CTridentAO::createInterfaceImplementors(LPUNKNOWN pIUnk)
 {
     // create IAccessible implementor
-    if ( !m_pImplIAccessible )
-        m_pImplIAccessible = new CImplIAccessible( ( pIUnk ? pIUnk : this ), this );
+    if (!m_pImplIAccessible)
+        m_pImplIAccessible = new CImplIAccessible((pIUnk ? pIUnk : this), this);
 
-    if ( !m_pImplIOleWindow )
-        m_pImplIOleWindow = new CImplIOleWindow( ( pIUnk ? pIUnk : this ), this );
+    if (!m_pImplIOleWindow)
+        m_pImplIOleWindow = new CImplIOleWindow((pIUnk ? pIUnk : this), this);
 
-    return ( m_pImplIAccessible && m_pImplIOleWindow ) ? S_OK : E_OUTOFMEMORY;
+    return (m_pImplIAccessible && m_pImplIOleWindow) ? S_OK : E_OUTOFMEMORY;
 }
 
 
@@ -5210,60 +5044,51 @@ CTridentAO::freeDataMembers(void)
     // contained object cleanup. Set to NULL for safety
 
 
-    if(m_pImplIAccessible)
-    {
+    if (m_pImplIAccessible) {
         delete m_pImplIAccessible;
         m_pImplIAccessible = NULL;
     }
 
-    if(m_pImplIOleWindow)
-    {
+    if (m_pImplIOleWindow) {
         delete m_pImplIOleWindow;
-        m_pImplIOleWindow=NULL;
+        m_pImplIOleWindow = NULL;
     }
 
 
     // free all allocated strings. Set to NULL for safety
 
 
-    if(m_bstrName)
-    {
+    if (m_bstrName) {
         SysFreeString(m_bstrName);
-        m_bstrName=NULL;
+        m_bstrName = NULL;
     }
 
-    if(m_bstrValue)
-    {
+    if (m_bstrValue) {
         SysFreeString(m_bstrValue);
         m_bstrValue = NULL;
     }
 
-    if(m_bstrDescription)
-    {
+    if (m_bstrDescription) {
         SysFreeString(m_bstrDescription);
         m_bstrDescription = NULL;
     }
 
-    if(m_bstrDefaultAction)
-    {
+    if (m_bstrDefaultAction) {
         SysFreeString(m_bstrDefaultAction);
         m_bstrDefaultAction = NULL;
     }
 
-    if(m_bstrKbdShortcut)
-    {
+    if (m_bstrKbdShortcut) {
         SysFreeString(m_bstrKbdShortcut);
         m_bstrKbdShortcut = NULL;
     }
 
-    if(m_bstrStyle)
-    {
+    if (m_bstrStyle) {
         SysFreeString(m_bstrStyle);
         m_bstrStyle = NULL;
     }
 
-    if(m_bstrDisplay)
-    {
+    if (m_bstrDisplay) {
         SysFreeString(m_bstrDisplay);
         m_bstrDisplay = NULL;
     }
@@ -5294,21 +5119,19 @@ CTridentAO::freeDataMembers(void)
 
 HRESULT CTridentAO::freeChildren(void)
 {
-    std::list<CAccElement *>::iterator itCurPos;
+    std::list<CAccElement*>::iterator itCurPos;
 
-    if(m_AEList.size())
-    {
+    if (m_AEList.size()) {
         itCurPos = m_AEList.begin();
 
-        while(itCurPos != m_AEList.end())
-        {
+        while (itCurPos != m_AEList.end()) {
             // call virtual destructor here.
             (*itCurPos)->Detach();
             itCurPos++;
         }
 
         // free list.
-        m_AEList.erase(m_AEList.begin(),m_AEList.end());
+        m_AEList.erase(m_AEList.begin(), m_AEList.end());
     }
 
     return S_OK;
@@ -5339,18 +5162,18 @@ HRESULT CTridentAO::freeChildren(void)
 //                        otherwise.
 
 
-HRESULT CTridentAO::createEnumerator( CEnumVariant** ppcenum, std::list<CAccElement *> *pAccElemList )
+HRESULT CTridentAO::createEnumerator(CEnumVariant** ppcenum, std::list<CAccElement*>* pAccElemList)
 {
-    HRESULT         hr          = E_FAIL;
+    HRESULT         hr = E_FAIL;
     VARIANT         var;
-    SAFEARRAY FAR*  psa         = NULL;
+    SAFEARRAY FAR* psa = NULL;
     SAFEARRAYBOUND  rgsbnd[1];
     long            ix[1];
-    int             i           = 0;
-    CAccElement *   pAEChild    = NULL;
+    int             i = 0;
+    CAccElement* pAEChild = NULL;
 
 
-    assert ( ppcenum );
+    assert(ppcenum);
 
     *ppcenum = NULL;
 
@@ -5359,13 +5182,12 @@ HRESULT CTridentAO::createEnumerator( CEnumVariant** ppcenum, std::list<CAccElem
     // be returned.
 
 
-    if(hr = ensureResolvedTree())
-    {
+    if (hr = ensureResolvedTree()) {
         return(hr);
     }
 
-    std::list<CAccElement *> *pList;
-    std::list<CAccElement *>::iterator itCurPos;
+    std::list<CAccElement*>* pList;
+    std::list<CAccElement*>::iterator itCurPos;
 
 
     pList = (pAccElemList != NULL) ? pAccElemList : &m_AEList;
@@ -5376,13 +5198,13 @@ HRESULT CTridentAO::createEnumerator( CEnumVariant** ppcenum, std::list<CAccElem
     //    is the number of children of CAccClient.
 
 
-    rgsbnd[0].lLbound   = 0;
+    rgsbnd[0].lLbound = 0;
     rgsbnd[0].cElements = pList->size();
 
-    psa = SafeArrayCreate( VT_VARIANT, 1, rgsbnd );
+    psa = SafeArrayCreate(VT_VARIANT, 1, rgsbnd);
 
-    if ( psa == NULL )
-        return( E_OUTOFMEMORY );
+    if (psa == NULL)
+        return(E_OUTOFMEMORY);
 
 
     //  For each child, set the VARIANT's lVal member
@@ -5392,30 +5214,25 @@ HRESULT CTridentAO::createEnumerator( CEnumVariant** ppcenum, std::list<CAccElem
 
     itCurPos = pList->begin();
 
-    while( itCurPos != pList->end() )
-    {
+    while (itCurPos != pList->end()) {
         VariantInit(&var);
 
-        pAEChild = (CAccElement*) *itCurPos;
+        pAEChild = (CAccElement*)*itCurPos;
 
 
         //  Determine whether the child is an AE or an AO
         //  by checking its CAccElement AOM type.
 
 
-        if ( IsAOMTypeAE( pAEChild ) )
-        {
+        if (IsAOMTypeAE(pAEChild)) {
 
             // Load child IDs for all AEs
 
 
             var.vt = VT_I4;
             var.lVal = pAEChild->GetChildID();
-        }
-        else
-        {
-            if ( pAEChild->GetChildID() == GetChildID() )
-            {
+        } else {
+            if (pAEChild->GetChildID() == GetChildID()) {
 
                 // if ChildID() = m_nChildID(), return VT_I4 w/
                 // CHILDID_SELF
@@ -5423,9 +5240,7 @@ HRESULT CTridentAO::createEnumerator( CEnumVariant** ppcenum, std::list<CAccElem
 
                 var.vt = VT_I4;
                 var.lVal = CHILDID_SELF;
-            }
-            else
-            {
+            } else {
 
                 // Load LPDISPATCHs for all AOs
 
@@ -5447,12 +5262,11 @@ HRESULT CTridentAO::createEnumerator( CEnumVariant** ppcenum, std::list<CAccElem
         //  copied, not allocated for SAFEARRAYs
 
 
-        hr = SafeArrayPutElement( psa, ix, &var );
+        hr = SafeArrayPutElement(psa, ix, &var);
 
-        if ( hr!= S_OK )
-        {
-            SafeArrayDestroy( psa );
-            return( hr );
+        if (hr != S_OK) {
+            SafeArrayDestroy(psa);
+            return(hr);
         }
 
         itCurPos++;
@@ -5462,11 +5276,10 @@ HRESULT CTridentAO::createEnumerator( CEnumVariant** ppcenum, std::list<CAccElem
     //  Create the enumerator.
 
 
-    hr = CEnumVariant::Create( psa, rgsbnd[0].cElements, ppcenum );
+    hr = CEnumVariant::Create(psa, rgsbnd[0].cElements, ppcenum);
 
-    if ( hr == S_OK )
-    {
-        assert( *ppcenum );
+    if (hr == S_OK) {
+        assert(*ppcenum);
 
         ((LPUNKNOWN)(*ppcenum))->AddRef();
     }
@@ -5475,9 +5288,9 @@ HRESULT CTridentAO::createEnumerator( CEnumVariant** ppcenum, std::list<CAccElem
     //  Clean up by destroying the SAFEARRAY.
 
 
-    SafeArrayDestroy( psa );
+    SafeArrayDestroy(psa);
 
-    return( hr );
+    return(hr);
 }
 
 
@@ -5502,18 +5315,18 @@ HRESULT CTridentAO::createEnumerator( CEnumVariant** ppcenum, std::list<CAccElem
 //      HRESULT S_OK | S_FALSE | E_FAIL | E_INVALIDARG
 
 
-HRESULT CTridentAO::getSelectedChildren( IUnknown** ppIUnknown )
+HRESULT CTridentAO::getSelectedChildren(IUnknown** ppIUnknown)
 {
     HRESULT     hr;
     BOOL        bIsSelected;
     long        iCurCount, iListSize;
-    CAccElement *pAccEl;
+    CAccElement* pAccEl;
 
-    std::list<CAccElement *>            selectionList;
-    std::list<CAccElement *>::iterator  itCurPos;
+    std::list<CAccElement*>            selectionList;
+    std::list<CAccElement*>::iterator  itCurPos;
 
 
-    itCurPos  = m_AEList.begin();
+    itCurPos = m_AEList.begin();
     iListSize = m_AEList.size();
 
 
@@ -5522,8 +5335,7 @@ HRESULT CTridentAO::getSelectedChildren( IUnknown** ppIUnknown )
     //  children.
 
 
-    for (iCurCount = 0; iCurCount < iListSize; iCurCount++, itCurPos++)
-    {
+    for (iCurCount = 0; iCurCount < iListSize; iCurCount++, itCurPos++) {
         bIsSelected = FALSE;
 
         pAccEl = *itCurPos;
@@ -5533,18 +5345,15 @@ HRESULT CTridentAO::getSelectedChildren( IUnknown** ppIUnknown )
         //  Check the AOM type.
 
 
-        if ( IsAOMTypeAE( pAccEl ) )
-        {
+        if (IsAOMTypeAE(pAccEl)) {
 
             //  Only AEs supported are CTextAEs.
 
 
-            assert( pAccEl->GetAOMType() == AOMITEM_TEXT );
+            assert(pAccEl->GetAOMType() == AOMITEM_TEXT);
 
-            hr = m_pDocAO->IsTextRangeSelected( ((CTextAE*)pAccEl)->GetTextRangePtr(), &bIsSelected );
-        }
-        else
-        {
+            hr = m_pDocAO->IsTextRangeSelected(((CTextAE*)pAccEl)->GetTextRangePtr(), &bIsSelected);
+        } else {
 
             //  Special case controls here (radio buttons, check
             //  boxes, edit fields, buttons, image buttons,
@@ -5553,37 +5362,32 @@ HRESULT CTridentAO::getSelectedChildren( IUnknown** ppIUnknown )
             //  shouldn't be selected.
 
 
-            if ( IsAOMTypeControl( pAccEl ) )
-            {
+            if (IsAOMTypeControl(pAccEl)) {
                 bIsSelected = FALSE;
                 hr = S_OK;
-            }
-            else
-                hr = m_pDocAO->IsTEOSelected( ((CTridentAO*)pAccEl)->GetTEOIHTMLElement(), &bIsSelected );
+            } else
+                hr = m_pDocAO->IsTEOSelected(((CTridentAO*)pAccEl)->GetTEOIHTMLElement(), &bIsSelected);
         }
 
-        if ( hr != S_OK )
+        if (hr != S_OK)
             break;
-        else if ( bIsSelected )
-        {
-            selectionList.push_back( pAccEl );
+        else if (bIsSelected) {
+            selectionList.push_back(pAccEl);
         }
     }
 
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
-    else if ( !selectionList.size() )
+    else if (!selectionList.size())
         return E_UNEXPECTED;
-    else
-    {
+    else {
 
         // Single item selected?
 
 
-        if ( selectionList.size() == 1 )
-        {
-            itCurPos    = selectionList.begin();
+        if (selectionList.size() == 1) {
+            itCurPos = selectionList.begin();
             *ppIUnknown = LPUNKNOWN(*itCurPos);
         }
 
@@ -5591,14 +5395,13 @@ HRESULT CTridentAO::getSelectedChildren( IUnknown** ppIUnknown )
         // Multiple items selected?
 
 
-        else
-        {
-            CEnumVariant    *pEnum;
+        else {
+            CEnumVariant* pEnum;
 
-            hr = createEnumerator( &pEnum, &selectionList );
+            hr = createEnumerator(&pEnum, &selectionList);
 
-            if ( FAILED( hr ) )
-                return( hr );
+            if (FAILED(hr))
+                return(hr);
 
             *ppIUnknown = (LPUNKNOWN)pEnum;
         }
@@ -5630,14 +5433,14 @@ HRESULT CTridentAO::getSelectedChildren( IUnknown** ppIUnknown )
 //      if the return value is good.
 
 
-HRESULT CTridentAO::getTitleFromIHTMLElement(BSTR *pbstrTitle)
+HRESULT CTridentAO::getTitleFromIHTMLElement(BSTR* pbstrTitle)
 {
-    HRESULT hr  = E_FAIL;
+    HRESULT hr = E_FAIL;
 
-    assert( pbstrTitle );
-    assert( m_pIHTMLElement );
+    assert(pbstrTitle);
+    assert(m_pIHTMLElement);
 
-    if(!m_pIHTMLElement)
+    if (!m_pIHTMLElement)
         return(E_NOINTERFACE);
 
     hr = m_pIHTMLElement->get_title(pbstrTitle);
@@ -5663,21 +5466,21 @@ HRESULT CTridentAO::getTitleFromIHTMLElement(BSTR *pbstrTitle)
 
 
 
-HRESULT CTridentAO::adjustOffsetToRootParent(long * pxLeft,long * pyTop)
+HRESULT CTridentAO::adjustOffsetToRootParent(long* pxLeft, long* pyTop)
 {
     HRESULT hr;
-    long xLeft =        * pxLeft;
-    long yTop =         * pyTop;
-    IHTMLElement        * pIHTMLElement = NULL;
-    IHTMLElement        * pIHTMLParentElement = NULL;
-    IHTMLControlElement * pControlElem = NULL;
+    long xLeft = *pxLeft;
+    long yTop = *pyTop;
+    IHTMLElement* pIHTMLElement = NULL;
+    IHTMLElement* pIHTMLParentElement = NULL;
+    IHTMLControlElement* pControlElem = NULL;
     long                  lTempLeft = 0;
-    long                  lTempTop  = 0;
+    long                  lTempTop = 0;
     long                  lClientLeft = 0;
-    long                  lClientTop  = 0;
+    long                  lClientTop = 0;
 
-    assert( pxLeft );
-    assert( pyTop );
+    assert(pxLeft);
+    assert(pyTop);
     assert(m_pIHTMLElement);
 
 
@@ -5689,14 +5492,13 @@ HRESULT CTridentAO::adjustOffsetToRootParent(long * pxLeft,long * pyTop)
     pIHTMLElement->AddRef();
 
 
-    while ( (hr = pIHTMLElement->get_offsetParent( &pIHTMLParentElement )) == S_OK )
-    {
+    while ((hr = pIHTMLElement->get_offsetParent(&pIHTMLParentElement)) == S_OK) {
 
         // method can return S_OK, with NULL parent, so
         // check for valid parent
 
 
-        if ( pIHTMLParentElement == NULL )
+        if (pIHTMLParentElement == NULL)
             break;
 
 
@@ -5704,12 +5506,12 @@ HRESULT CTridentAO::adjustOffsetToRootParent(long * pxLeft,long * pyTop)
         // the parent
 
 
-        hr = pIHTMLParentElement->get_offsetLeft( &lTempLeft );
-        if ( hr != S_OK )
+        hr = pIHTMLParentElement->get_offsetLeft(&lTempLeft);
+        if (hr != S_OK)
             goto CleanUp;
 
-        hr = pIHTMLParentElement->get_offsetTop( &lTempTop );
-        if ( hr != S_OK )
+        hr = pIHTMLParentElement->get_offsetTop(&lTempTop);
+        if (hr != S_OK)
             goto CleanUp;
 
 
@@ -5718,28 +5520,26 @@ HRESULT CTridentAO::adjustOffsetToRootParent(long * pxLeft,long * pyTop)
 
 
         hr = pIHTMLParentElement->QueryInterface(IID_IHTMLControlElement,
-                                                 (VOID**) &pControlElem);
-        if ( hr == S_OK )
-        {
-            if ( !pControlElem )
+            (VOID**)&pControlElem);
+        if (hr == S_OK) {
+            if (!pControlElem)
                 goto CleanUp;
 
-            hr = pControlElem->get_clientTop( &lClientTop );
+            hr = pControlElem->get_clientTop(&lClientTop);
             if (hr != S_OK)
                 goto CleanUp;
 
-            hr = pControlElem->get_clientLeft( &lClientLeft);
+            hr = pControlElem->get_clientLeft(&lClientLeft);
             if (hr != S_OK)
                 goto CleanUp;
 
             pControlElem->Release();
-            pControlElem=NULL;
-        }
-        else
+            pControlElem = NULL;
+        } else
             goto CleanUp;
 
         xLeft += lTempLeft + lClientLeft;
-        yTop  += lTempTop  + lClientTop;
+        yTop += lTempTop + lClientTop;
 
 
         // make the parent the child
@@ -5751,14 +5551,14 @@ HRESULT CTridentAO::adjustOffsetToRootParent(long * pxLeft,long * pyTop)
     }
 
     *pxLeft = xLeft;
-    *pyTop  = yTop;
+    *pyTop = yTop;
 
 
 CleanUp:
-    if ( pIHTMLElement )
+    if (pIHTMLElement)
         pIHTMLElement->Release();
 
-    if ( pIHTMLParentElement )
+    if (pIHTMLParentElement)
         pIHTMLParentElement->Release();
 
     if (pControlElem)
@@ -5789,22 +5589,22 @@ CleanUp:
 
 
 
-HRESULT CTridentAO::adjustOffsetForClientArea(long *pxLeft,long *pyTop)
+HRESULT CTridentAO::adjustOffsetForClientArea(long* pxLeft, long* pyTop)
 {
     HRESULT hr;
-    long    xLeft   = *pxLeft;
-    long    yTop    = *pyTop;
+    long    xLeft = *pxLeft;
+    long    yTop = *pyTop;
 
 
     // get the scroll offsets :
 
-    assert( m_pDocAO );
+    assert(m_pDocAO);
 
     POINT ptScrollOffset;
 
     hr = m_pDocAO->GetScrollOffset(&ptScrollOffset);
 
-    if(hr != S_OK)
+    if (hr != S_OK)
         return(hr);
 
 
@@ -5813,8 +5613,8 @@ HRESULT CTridentAO::adjustOffsetForClientArea(long *pxLeft,long *pyTop)
     // in the client area of the owner document
 
 
-    xLeft   -= ptScrollOffset.x;
-    yTop    -= ptScrollOffset.y;
+    xLeft -= ptScrollOffset.x;
+    yTop -= ptScrollOffset.y;
 
 
     // determine if xLeft or yTop is to the right
@@ -5824,12 +5624,12 @@ HRESULT CTridentAO::adjustOffsetForClientArea(long *pxLeft,long *pyTop)
     // | below the current client area
 
 
-    long lDocLeft    =0;
-    long lDocTop     =0;
-    long lDocWidth   =0;
-    long lDocHeight  =0;
-    long lcxWidth    =0;
-    long lcyHeight   =0;
+    long lDocLeft = 0;
+    long lDocTop = 0;
+    long lDocWidth = 0;
+    long lDocHeight = 0;
+    long lcxWidth = 0;
+    long lcyHeight = 0;
 
 
     // the document accLocation defers to the body to return
@@ -5845,7 +5645,7 @@ HRESULT CTridentAO::adjustOffsetForClientArea(long *pxLeft,long *pyTop)
                                &lDocHeight,
                                CHILDID_SELF);
 
-    if(hr != S_OK)
+    if (hr != S_OK)
         return(hr);
 
 
@@ -5855,7 +5655,7 @@ HRESULT CTridentAO::adjustOffsetForClientArea(long *pxLeft,long *pyTop)
 
 
     xLeft += lDocLeft;
-    yTop  += lDocTop;
+    yTop += lDocTop;
 
 
     // compare the 'fully adjusted' xLeft and yTop with
@@ -5867,27 +5667,26 @@ HRESULT CTridentAO::adjustOffsetForClientArea(long *pxLeft,long *pyTop)
     // and height
 
 
-    if(m_pIHTMLElement)
-    {
+    if (m_pIHTMLElement) {
         hr = m_pIHTMLElement->get_offsetWidth(&lcxWidth);
-        if(hr != S_OK)
+        if (hr != S_OK)
             return(hr);
 
         hr = m_pIHTMLElement->get_offsetHeight(&lcyHeight);
-        if(hr != S_OK)
+        if (hr != S_OK)
             return(hr);
     }
 
-    if( (xLeft > lDocLeft + lDocWidth) ||  // off the right
-        (yTop  > lDocTop + lDocHeight) ||  // off the bottom
-        (xLeft + lcxWidth  < lDocLeft) ||  // off to the left
-        (yTop  + lcyHeight < lDocTop)   )  // off to the top
+    if ((xLeft > lDocLeft + lDocWidth) ||  // off the right
+        (yTop > lDocTop + lDocHeight) ||  // off the bottom
+        (xLeft + lcxWidth < lDocLeft) ||  // off to the left
+        (yTop + lcyHeight < lDocTop))  // off to the top
     {
         hr = S_FALSE;
     }
 
     *pxLeft = xLeft;
-    *pyTop  = yTop;
+    *pyTop = yTop;
 
     return hr;
 }
@@ -5911,7 +5710,7 @@ HRESULT CTridentAO::adjustOffsetForClientArea(long *pxLeft,long *pyTop)
 
 HRESULT CTridentAO::click(void)
 {
-    if ( !m_pIHTMLElement )
+    if (!m_pIHTMLElement)
         return E_NOINTERFACE;
 
     return m_pIHTMLElement->click();
@@ -5956,22 +5755,22 @@ HRESULT CTridentAO::click(void)
 //  else  standard COM error.
 
 
-HRESULT CTridentAO::getVisibleCorner(POINT * pPt,DWORD  *pdwCorner)
+HRESULT CTridentAO::getVisibleCorner(POINT* pPt, DWORD* pdwCorner)
 {
-    HRESULT hr          = E_FAIL;
+    HRESULT hr = E_FAIL;
 
-    long xLeft          = 0;
-    long yTop           = 0;
-    long xRight         = 0;
-    long yBottom        = 0;
-    long cxWidth        = 0;
-    long cyHeight       = 0;
-    long xDocLeft       = 0;
-    long yDocTop        = 0;
-    long cxDocWidth     = 0;
-    long cyDocHeight    = 0;
-    long xClientLeft    = 0;
-    long yClientTop     = 0;
+    long xLeft = 0;
+    long yTop = 0;
+    long xRight = 0;
+    long yBottom = 0;
+    long cxWidth = 0;
+    long cyHeight = 0;
+    long xDocLeft = 0;
+    long yDocTop = 0;
+    long cxDocWidth = 0;
+    long cyDocHeight = 0;
+    long xClientLeft = 0;
+    long yClientTop = 0;
 
 
     // validate inputs
@@ -5986,10 +5785,10 @@ HRESULT CTridentAO::getVisibleCorner(POINT * pPt,DWORD  *pdwCorner)
     // METHOD IS USED **
 
 
-    if(hr = CTridentAO::AccLocation(&xLeft,&yTop,&cxWidth,&cyHeight,0))
+    if (hr = CTridentAO::AccLocation(&xLeft, &yTop, &cxWidth, &cyHeight, 0))
         return(hr);
 
-    if(!xLeft || !yTop || !cxWidth || !cyHeight)
+    if (!xLeft || !yTop || !cxWidth || !cyHeight)
         return(S_FALSE);
 
 
@@ -6006,15 +5805,14 @@ HRESULT CTridentAO::getVisibleCorner(POINT * pPt,DWORD  *pdwCorner)
     // offscreen.
 
 
-    if(hr  = m_pDocAO->AccLocation(&xDocLeft,&yDocTop,&cxDocWidth,&cyDocHeight,0))
+    if (hr = m_pDocAO->AccLocation(&xDocLeft, &yDocTop, &cxDocWidth, &cyDocHeight, 0))
         return(hr);
 
 
     // is xLeft offscreen ?
 
 
-    if((xLeft - xDocLeft ) < 0)
-    {
+    if ((xLeft - xDocLeft) < 0) {
 
         assert((xRight - xDocLeft) >= 0);
 
@@ -6029,17 +5827,15 @@ HRESULT CTridentAO::getVisibleCorner(POINT * pPt,DWORD  *pdwCorner)
         // this is rare.)
 
 
-        if((xDocLeft + cxDocWidth - xRight) > 0)
+        if ((xDocLeft + cxDocWidth - xRight) > 0)
             *pdwCorner |= POINT_XRIGHT;
         else
             *pdwCorner |= POINT_XMID;
-    }
-    else
+    } else
         *pdwCorner |= POINT_XLEFT;
 
 
-    if((yTop - yDocTop) < 0)
-    {
+    if ((yTop - yDocTop) < 0) {
         assert((yBottom - yDocTop) >= 0);
 
 
@@ -6052,12 +5848,11 @@ HRESULT CTridentAO::getVisibleCorner(POINT * pPt,DWORD  *pdwCorner)
         // this is rare.)
 
 
-        if((yDocTop + cyDocHeight - yBottom ) > 0)
+        if ((yDocTop + cyDocHeight - yBottom) > 0)
             *pdwCorner |= POINT_YBOTTOM;
         else
             *pdwCorner |= POINT_YMID;
-    }
-    else
+    } else
         *pdwCorner |= POINT_YTOP;
 
 
@@ -6065,15 +5860,14 @@ HRESULT CTridentAO::getVisibleCorner(POINT * pPt,DWORD  *pdwCorner)
     // get the internal border offsets if they exist.
 
 
-    CComQIPtr<IHTMLControlElement,&IID_IHTMLControlElement> pIHTMLControlElement(m_pTOMObjIUnk);
+    CComQIPtr<IHTMLControlElement, &IID_IHTMLControlElement> pIHTMLControlElement(m_pTOMObjIUnk);
 
 
-    if(pIHTMLControlElement)
-    {
-        if(hr = pIHTMLControlElement->get_clientTop(&xClientLeft))
+    if (pIHTMLControlElement) {
+        if (hr = pIHTMLControlElement->get_clientTop(&xClientLeft))
             return(hr);
 
-        if(hr = pIHTMLControlElement->get_clientLeft(&yClientTop))
+        if (hr = pIHTMLControlElement->get_clientLeft(&yClientTop))
             return(hr);
     }
 
@@ -6082,8 +5876,7 @@ HRESULT CTridentAO::getVisibleCorner(POINT * pPt,DWORD  *pdwCorner)
     // corner is visible.
 
 
-    switch(*pdwCorner & POINT_XMASK)
-    {
+    switch (*pdwCorner & POINT_XMASK) {
     case POINT_XLEFT:
         pPt->x = xLeft + xClientLeft;
         break;
@@ -6091,12 +5884,11 @@ HRESULT CTridentAO::getVisibleCorner(POINT * pPt,DWORD  *pdwCorner)
         pPt->x = xRight - xClientLeft;
         break;
     case POINT_XMID:
-        pPt->x = (xRight - xLeft)/2;
+        pPt->x = (xRight - xLeft) / 2;
         break;
     }
 
-    switch(*pdwCorner & POINT_YMASK  )
-    {
+    switch (*pdwCorner & POINT_YMASK) {
     case POINT_YTOP:
         pPt->y = yTop + yClientTop;
         break;
@@ -6104,7 +5896,7 @@ HRESULT CTridentAO::getVisibleCorner(POINT * pPt,DWORD  *pdwCorner)
         pPt->y = yBottom - yClientTop;
         break;
     case POINT_YMID:
-        pPt->y = (yBottom - yTop)/2;
+        pPt->y = (yBottom - yTop) / 2;
     }
 
     return(S_OK);
@@ -6131,7 +5923,7 @@ HRESULT CTridentAO::getVisibleCorner(POINT * pPt,DWORD  *pdwCorner)
 
 
 
-HRESULT CTridentAO::resolveNameAndDescription( void )
+HRESULT CTridentAO::resolveNameAndDescription(void)
 {
     HRESULT hr = E_FAIL;
     BSTR    bstrTmp = NULL;
@@ -6143,15 +5935,13 @@ HRESULT CTridentAO::resolveNameAndDescription( void )
 
     m_bNameAndDescriptionResolved = FALSE;
 
-    if ( m_bstrName )
-    {
-        SysFreeString( m_bstrName );
+    if (m_bstrName) {
+        SysFreeString(m_bstrName);
         m_bstrName = NULL;
     }
 
-    if ( m_bstrDescription )
-    {
-        SysFreeString( m_bstrDescription );
+    if (m_bstrDescription) {
+        SysFreeString(m_bstrDescription);
         m_bstrDescription = NULL;
     }
 
@@ -6165,15 +5955,14 @@ HRESULT CTridentAO::resolveNameAndDescription( void )
     //  the object's name.
 
 
-    hr = getTitleFromIHTMLElement( &bstrTmp );
+    hr = getTitleFromIHTMLElement(&bstrTmp);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         return hr;
 
-    if ( bstrTmp )
-    {
-        m_bstrName = SysAllocString( bstrTmp );
-        SysFreeString( bstrTmp );
+    if (bstrTmp) {
+        m_bstrName = SysAllocString(bstrTmp);
+        SysFreeString(bstrTmp);
 
 
         //  The accName property has been cached, now let's
@@ -6186,27 +5975,22 @@ HRESULT CTridentAO::resolveNameAndDescription( void )
 
         bstrTmp = NULL;
 
-        hr = getDescriptionString( &bstrTmp );
+        hr = getDescriptionString(&bstrTmp);
 
-        if ( hr != S_OK )
-        {
-            SysFreeString( m_bstrName );
+        if (hr != S_OK) {
+            SysFreeString(m_bstrName);
             return hr;
-        }
-        else
-        {
-            if ( bstrTmp )
-            {
-                m_bstrDescription = SysAllocString( bstrTmp );
-                SysFreeString( bstrTmp );
+        } else {
+            if (bstrTmp) {
+                m_bstrDescription = SysAllocString(bstrTmp);
+                SysFreeString(bstrTmp);
             }
 
             m_bNameAndDescriptionResolved = TRUE;
         }
     }
 
-    else
-    {
+    else {
 
         //  The object's TEO doesn't have a TITLE attribute,
         //  so use the object's description string, if it
@@ -6214,14 +5998,12 @@ HRESULT CTridentAO::resolveNameAndDescription( void )
         //  means that the object's description will be empty.
 
 
-        hr = getDescriptionString( &bstrTmp );
+        hr = getDescriptionString(&bstrTmp);
 
-        if ( hr == S_OK )
-        {
-            if ( bstrTmp )
-            {
-                m_bstrName = SysAllocString( bstrTmp );
-                SysFreeString( bstrTmp );
+        if (hr == S_OK) {
+            if (bstrTmp) {
+                m_bstrName = SysAllocString(bstrTmp);
+                SysFreeString(bstrTmp);
             }
 
             m_bNameAndDescriptionResolved = TRUE;
@@ -6260,18 +6042,18 @@ HRESULT CTridentAO::resolveNameAndDescription( void )
 
 
 
-HRESULT CTridentAO::getDescriptionString( BSTR* pbstrDescStr )
+HRESULT CTridentAO::getDescriptionString(BSTR* pbstrDescStr)
 {
     HRESULT hr;
 
 
-    assert( pbstrDescStr );
+    assert(pbstrDescStr);
     *pbstrDescStr = NULL;
 
-    if ( !m_pIHTMLElement )
+    if (!m_pIHTMLElement)
         hr = E_NOINTERFACE;
     else
-        hr = m_pIHTMLElement->get_innerText( pbstrDescStr );
+        hr = m_pIHTMLElement->get_innerText(pbstrDescStr);
 
     return hr;
 }

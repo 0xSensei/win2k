@@ -39,8 +39,7 @@ HRESULT LocaleToCodePage(LCID locale, UINT* puCodePage)
 {
     HRESULT hr = S_OK;
 
-    if (puCodePage)
-    {
+    if (puCodePage) {
         TCHAR szCodePage[8];
 
         if (::GetLocaleInfo(locale, LOCALE_IDEFAULTANSICODEPAGE, szCodePage, ARRAYSIZE(szCodePage)) > 0)
@@ -98,8 +97,7 @@ STDMETHODIMP CMLStr::GetLength(long* plLen)
     if (SUCCEEDED(hr))
         hr = GetLen(0, GetBufCCh(), &lLen);
 
-    if (plLen)
-    {
+    if (plLen) {
         if (SUCCEEDED(hr))
             *plLen = lLen;
         else
@@ -160,8 +158,7 @@ HRESULT CMLStr::SetStrBufCommon(void* pMLStrX, long lDestPos, long lDestLen, UIN
         (!pSrcBufA || SUCCEEDED(hr = pSrcBufA->GetStatus(&lBufFlags, &cchBuf))) &&
         SUCCEEDED(hr = RegularizePosLen(&lDestPos, &lDestLen)) &&
         SUCCEEDED(hr = GetCCh(0, lDestPos, &cchDestPos)) &&
-        SUCCEEDED(hr = GetCCh(cchDestPos, lDestLen, &cchDestLen)))
-    {
+        SUCCEEDED(hr = GetCCh(cchDestPos, lDestLen, &cchDestLen))) {
         if (!cchDestPos && cchDestLen == GetBufCCh()) // Replacing entire string
         {
             IMLangStringBufW* const pOldBufW = GetMLStrBufW();
@@ -185,16 +182,12 @@ HRESULT CMLStr::SetStrBufCommon(void* pMLStrX, long lDestPos, long lDestLen, UIN
 
             if (plActualLen)
                 hr = GetLen(0, GetBufCCh(), &lActualLen);
-        }
-        else
-        {
+        } else {
 #ifdef ASTRIMPL
-            if (pSrcBufW)
-            {
+            if (pSrcBufW) {
                 CMLStrBufWalkW BufWalk(pSrcBufW, 0, cchBuf, (pcchActual || plActualLen));
 
-                while (BufWalk.Lock(hr))
-                {
+                while (BufWalk.Lock(hr)) {
                     long cchSet;
                     long lSetLen;
 
@@ -206,13 +199,10 @@ HRESULT CMLStr::SetStrBufCommon(void* pMLStrX, long lDestPos, long lDestLen, UIN
                 cchBuf = BufWalk.GetDoneCCh();
 
                 pSrcBufW->Release();
-            }
-            else if (pSrcBufA && pMLStrX)
-            {
+            } else if (pSrcBufA && pMLStrX) {
                 CMLStrBufWalkA BufWalk(pSrcBufA, 0, cchBuf, (pcchActual || plActualLen));
 
-                while (BufWalk.Lock(hr))
-                {
+                while (BufWalk.Lock(hr)) {
                     long cchSet;
                     long lSetLen;
 
@@ -224,9 +214,7 @@ HRESULT CMLStr::SetStrBufCommon(void* pMLStrX, long lDestPos, long lDestLen, UIN
                 cchBuf = BufWalk.GetDoneCCh();
 
                 pSrcBufA->Release();
-            }
-            else
-            {
+            } else {
                 hr = SetMLStr(lDestPos, lDestLen, NULL, 0, 0);
             }
 #else
@@ -235,15 +223,12 @@ HRESULT CMLStr::SetStrBufCommon(void* pMLStrX, long lDestPos, long lDestLen, UIN
         }
     }
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         if (pcchActual)
             *pcchActual = cchBuf;
         if (plActualLen)
             *plActualLen = lActualLen;
-    }
-    else
-    {
+    } else {
         if (pcchActual)
             *pcchActual = 0;
         if (plActualLen)
@@ -273,22 +258,17 @@ STDMETHODIMP CMLStr::GetWStr(long lSrcPos, long lSrcLen, WCHAR* pszDest, long cc
     if (SUCCEEDED(hr) &&
         SUCCEEDED(hr = RegularizePosLen(&lSrcPos, &lSrcLen)) &&
         SUCCEEDED(hr = GetCCh(0, lSrcPos, &cchSrcPos)) &&
-        SUCCEEDED(hr = GetCCh(cchSrcPos, lSrcLen, &cchSrcLen)))
-    {
-        if (pszDest)
-        {
+        SUCCEEDED(hr = GetCCh(cchSrcPos, lSrcLen, &cchSrcLen))) {
+        if (pszDest) {
             long cchActualTemp = min(cchSrcLen, cchDest);
             cchActual = cchActualTemp;
 
-            while (SUCCEEDED(hr) && cchActualTemp > 0)
-            {
+            while (SUCCEEDED(hr) && cchActualTemp > 0) {
                 WCHAR* pszBuf;
                 long cchBuf;
 
-                if (m_pMLStrBufW)
-                {
-                    if (SUCCEEDED(hr = m_pMLStrBufW->LockBuf(cchSrcPos, cchActualTemp, &pszBuf, &cchBuf)))
-                    {
+                if (m_pMLStrBufW) {
+                    if (SUCCEEDED(hr = m_pMLStrBufW->LockBuf(cchSrcPos, cchActualTemp, &pszBuf, &cchBuf))) {
                         ::memcpy(pszDest, pszBuf, sizeof(WCHAR) * cchBuf);
                         hr = m_pMLStrBufW->UnlockBuf(pszBuf, 0, 0);
 
@@ -296,21 +276,17 @@ STDMETHODIMP CMLStr::GetWStr(long lSrcPos, long lSrcLen, WCHAR* pszDest, long cc
                         cchActualTemp -= cchBuf;
                         pszDest += cchBuf;
                     }
-                }
-                else // m_pMLStrBufW
+                } else // m_pMLStrBufW
                 {
                     hr = E_FAIL;  // !ASTRIMPL
                 }
             }
 
-            if (FAILED(hr) && cchActualTemp < cchActual && (pcchActual || plActualLen))
-            {
+            if (FAILED(hr) && cchActualTemp < cchActual && (pcchActual || plActualLen)) {
                 cchActual -= cchActualTemp;
                 hr = S_OK;
             }
-        }
-        else
-        {
+        } else {
             cchActual = cchSrcLen;
         }
     }
@@ -318,15 +294,12 @@ STDMETHODIMP CMLStr::GetWStr(long lSrcPos, long lSrcLen, WCHAR* pszDest, long cc
     if (SUCCEEDED(hr) && plActualLen)
         hr = CalcLenW(0, cchActual, &lActualLen);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         if (pcchActual)
             *pcchActual = cchActual;
         if (plActualLen)
             *plActualLen = lActualLen;
-    }
-    else
-    {
+    } else {
         if (pcchActual)
             *pcchActual = 0;
         if (plActualLen)
@@ -364,19 +337,16 @@ STDMETHODIMP CMLStr::LockWStr(long lSrcPos, long lSrcLen, long lFlags, long cchR
         SUCCEEDED(hr = PrepareMLStrBuf()) &&
         SUCCEEDED(hr = RegularizePosLen(&lSrcPos, &lSrcLen)) &&
         SUCCEEDED(hr = GetCCh(0, lSrcPos, &cchSrcPos)) &&
-        SUCCEEDED(hr = GetCCh(cchSrcPos, lSrcLen, &cchSrcLen)))
-    {
+        SUCCEEDED(hr = GetCCh(cchSrcPos, lSrcLen, &cchSrcLen))) {
         IMLangStringBufW* const pMLStrBufW = GetMLStrBufW();
         SetDirectLockFlag(pMLStrBufW != 0);
 
-        if (IsDirectLock())
-        {
+        if (IsDirectLock()) {
             long cchInserted;
             long cchLockLen = cchSrcLen;
 
-            if (cchRequest > cchSrcLen &&
-                SUCCEEDED(hr = pMLStrBufW->Insert(cchSrcPos + cchSrcLen, cchRequest - cchSrcLen, &cchInserted)))
-            {
+            if (cchRequest > cchSrcLen&&
+                SUCCEEDED(hr = pMLStrBufW->Insert(cchSrcPos + cchSrcLen, cchRequest - cchSrcLen, &cchInserted))) {
                 SetBufCCh(GetBufCCh() + cchInserted);
                 cchLockLen += cchInserted;
 
@@ -386,27 +356,21 @@ STDMETHODIMP CMLStr::LockWStr(long lSrcPos, long lSrcLen, long lFlags, long cchR
 
             if (SUCCEEDED(hr) &&
                 SUCCEEDED(hr = pMLStrBufW->LockBuf(cchSrcPos, cchLockLen, &pszBuf, &cchBuf)) &&
-                !pcchDest && cchBuf < max(cchSrcLen, cchRequest))
-            {
+                !pcchDest && cchBuf < max(cchSrcLen, cchRequest)) {
                 hr = E_OUTOFMEMORY; // Can't lock StrBuf
             }
 
-        }
-        else if (m_pMLStrBufA)
-        {
+        } else if (m_pMLStrBufA) {
             long cchSize;
 
-            if (SUCCEEDED(hr = CalcBufSizeW(lSrcLen, &cchSize)))
-            {
+            if (SUCCEEDED(hr = CalcBufSizeW(lSrcLen, &cchSize))) {
                 cchBuf = max(cchSize, cchRequest);
                 hr = MemAlloc(sizeof(*pszBuf) * cchBuf, (void**)&pszBuf);
             }
 
             if (SUCCEEDED(hr) && (lFlags & MLSTR_READ))
                 hr = ConvertMLStrBufAToWStr(m_uCodePage, m_pMLStrBufA, cchSrcPos, cchSrcLen, pszBuf, cchBuf, (pcchDest) ? &cchBuf : NULL);
-        }
-        else
-        {
+        } else {
             hr = E_FAIL; // !ASTRIMPL
         }
     }
@@ -414,8 +378,7 @@ STDMETHODIMP CMLStr::LockWStr(long lSrcPos, long lSrcLen, long lFlags, long cchR
     if (plDestLen && SUCCEEDED(hr))
         hr = CalcLenW(pszBuf, cchBuf, &lLockLen);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         SetLockFlags(lFlags);
         m_pszLockBuf = pszBuf;
         m_cchLockPos = cchSrcPos;
@@ -429,11 +392,8 @@ STDMETHODIMP CMLStr::LockWStr(long lSrcPos, long lSrcLen, long lFlags, long cchR
             *pcchDest = cchBuf;
         if (plDestLen)
             *plDestLen = lLockLen;
-    }
-    else
-    {
-        if (pszBuf)
-        {
+    } else {
+        if (pszBuf) {
             if (IsDirectLock())
                 GetMLStrBufW()->UnlockBuf(pszBuf, 0, 0);
             else
@@ -460,10 +420,8 @@ HRESULT CMLStr::UnlockWStrDirect(void* pKey, const void* pszSrc, long cchSrc, lo
     const long cchLockLen = GetLockInfo()->GetCChLen(pKey);
 
     if (SUCCEEDED(hr = pMLStrBufW->UnlockBuf((WCHAR*)pszSrc, 0, cchSrc)) &&
-        (GetLockInfo()->GetFlags(pKey) & MLSTR_WRITE))
-    {
-        if (cchSrc < cchLockLen)
-        {
+        (GetLockInfo()->GetFlags(pKey) & MLSTR_WRITE)) {
+        if (cchSrc < cchLockLen) {
             if (SUCCEEDED(hr = pMLStrBufW->Delete(GetLockInfo()->GetCChPos(pKey) + cchSrc, cchLockLen - cchSrc)))
                 SetBufCCh(GetBufCCh() - (cchLockLen - cchSrc));
         }
@@ -482,8 +440,7 @@ HRESULT CMLStr::UnlockWStrIndirect(void* pKey, const void* pszSrc, long cchSrc, 
 {
     HRESULT hr = S_OK;
 
-    if (GetLockInfo()->GetFlags(pKey) & MLSTR_WRITE)
-    {
+    if (GetLockInfo()->GetFlags(pKey) & MLSTR_WRITE) {
         CComQIPtr<IMLangStringWStr, &IID_IMLangStringWStr> pMLStrW(this);
         ASSERT(pMLStrW);
         hr = pMLStrW->SetWStr(GetLockInfo()->GetPos(pKey), GetLockInfo()->GetLen(pKey), (WCHAR*)pszSrc, cchSrc, pcchActual, plActualLen);
@@ -501,10 +458,8 @@ HRESULT CMLStr::UnlockAStrDirect(void* pKey, const void* pszSrc, long cchSrc, lo
     const long cchLockLen = GetLockInfo()->GetCChLen(pKey);
 
     if (SUCCEEDED(hr = pMLStrBufA->UnlockBuf((CHAR*)pszSrc, 0, cchSrc)) &&
-        (GetLockInfo()->GetFlags(pKey) & MLSTR_WRITE))
-    {
-        if (cchSrc < cchLockLen)
-        {
+        (GetLockInfo()->GetFlags(pKey) & MLSTR_WRITE)) {
+        if (cchSrc < cchLockLen) {
             if (SUCCEEDED(hr = pMLStrBufA->Delete(GetLockInfo()->GetCChPos(pKey) + cchSrc, cchLockLen - cchSrc)))
                 SetBufCCh(GetBufCCh() - (cchLockLen - cchSrc));
         }
@@ -523,8 +478,7 @@ HRESULT CMLStr::UnlockAStrIndirect(void* pKey, const void* pszSrc, long cchSrc, 
 {
     HRESULT hr = S_OK;
 
-    if (GetLockInfo()->GetFlags(pKey) & MLSTR_WRITE)
-    {
+    if (GetLockInfo()->GetFlags(pKey) & MLSTR_WRITE) {
         CComQIPtr<IMLangStringAStr, &IID_IMLangStringAStr> pMLStrA(this);
         ASSERT(pMLStrA);
         hr = pMLStrA->SetAStr(GetLockInfo()->GetPos(pKey), GetLockInfo()->GetLen(pKey), GetLockInfo()->GetCodePage(pKey), (CHAR*)pszSrc, cchSrc, pcchActual, plActualLen);
@@ -551,23 +505,18 @@ STDMETHODIMP CMLStr::UnlockWStr(const WCHAR* pszSrc, long cchSrc, long* pcchActu
     if (SUCCEEDED(hr) && (!IsLocked() || pszSrc != m_pszLockBuf))
         hr = E_INVALIDARG; // This MLStr is not locked
 
-    if (!(lLockFlags & MLSTR_WRITE))
-    {
+    if (!(lLockFlags & MLSTR_WRITE)) {
         cchSrc = 0;
         lSrcLen = 0;
     }
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         IMLangStringBufW* const pMLStrBufW = GetMLStrBufW();
 
-        if (IsDirectLock())
-        {
+        if (IsDirectLock()) {
             if (SUCCEEDED(hr = pMLStrBufW->UnlockBuf(pszSrc, 0, cchSrc)) &&
-                (lLockFlags & MLSTR_WRITE))
-            {
-                if (cchSrc < m_cchLockLen)
-                {
+                (lLockFlags & MLSTR_WRITE)) {
+                if (cchSrc < m_cchLockLen) {
                     if (SUCCEEDED(hr = pMLStrBufW->Delete(m_cchLockPos + cchSrc, m_cchLockLen - cchSrc)))
                         SetBufCCh(GetBufCCh() - (m_cchLockLen - cchSrc));
                 }
@@ -575,9 +524,7 @@ STDMETHODIMP CMLStr::UnlockWStr(const WCHAR* pszSrc, long cchSrc, long* pcchActu
                 if (SUCCEEDED(hr) && plActualLen)
                     hr = CalcLenW(pszSrc, cchSrc, &lSrcLen);
             }
-        }
-        else
-        {
+        } else {
             if (lLockFlags & MLSTR_WRITE)
                 hr = SetWStr(m_lLockPos, m_lLockLen, pszSrc, cchSrc, (pcchActual) ? &cchSrc : NULL, (plActualLen) ? &lSrcLen : NULL);
 
@@ -587,15 +534,12 @@ STDMETHODIMP CMLStr::UnlockWStr(const WCHAR* pszSrc, long cchSrc, long* pcchActu
         }
     }
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         if (pcchActual)
             *pcchActual = cchSrc;
         if (plActualLen)
             *plActualLen = lSrcLen;
-    }
-    else
-    {
+    } else {
         if (pcchActual)
             *pcchActual = 0;
         if (plActualLen)
@@ -621,15 +565,12 @@ HRESULT CMLStr::UnlockStrCommon(const void* pszSrc, long cchSrc, long* pcchActua
     if (SUCCEEDED(hr))
         hr = GetLockInfo()->Unlock(pLockKey, pszSrc, cchSrc, (pcchActual) ? &cchSrc : NULL, (plActualLen) ? &lSrcLen : NULL);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         if (pcchActual)
             *pcchActual = cchSrc;
         if (plActualLen)
             *plActualLen = lSrcLen;
-    }
-    else
-    {
+    } else {
         if (pcchActual)
             *pcchActual = 0;
         if (plActualLen)
@@ -654,10 +595,9 @@ STDMETHODIMP CMLStr::SetLocale(long lDestPos, long lDestLen, LCID locale)
     if (SUCCEEDED(hr) &&
         SUCCEEDED(hr = RegularizePosLen(&lDestPos, &lDestLen)) &&
         SUCCEEDED(hr = GetCCh(0, lDestPos, &cchDestPos)) &&
-        SUCCEEDED(hr = GetCCh(cchDestPos, lDestLen, &cchDestLen)))
-    {
+        SUCCEEDED(hr = GetCCh(cchDestPos, lDestLen, &cchDestLen))) {
         //if (!cchDestPos && cchDestLen == GetBufCCh())
-            SetLocale(locale);
+        SetLocale(locale);
         //else
         //    hr = E_NOTIMPL; // Cannot set the locale to a part of string in this version.
     }
@@ -680,22 +620,18 @@ STDMETHODIMP CMLStr::GetLocale(long lSrcPos, long lSrcMaxLen, LCID* plocale, lon
 
     if (SUCCEEDED(hr) &&
         SUCCEEDED(hr = GetLen(0, GetBufCCh(), &lStrLen)) &&
-        SUCCEEDED(hr = ::RegularizePosLen(lStrLen, &lSrcPos, &lSrcMaxLen)))
-    {
+        SUCCEEDED(hr = ::RegularizePosLen(lStrLen, &lSrcPos, &lSrcMaxLen))) {
         if (plocale)
             *plocale = GetLocale();
         if (plLocalePos)
             *plLocalePos = 0;
-        if (plLocaleLen)
-        {
+        if (plLocaleLen) {
             if (plLocalePos)
                 *plLocaleLen = lStrLen;
             else
                 *plLocaleLen = lSrcMaxLen;
         }
-    }
-    else
-    {
+    } else {
         if (plocale)
             *plocale = 0;
         if (plLocalePos)
@@ -714,13 +650,10 @@ HRESULT CMLStr::PrepareMLStrBuf(void)
 #ifdef ASTRIMPL
 
     IMLangStringBufW* pBuf = new CMLStr::CMLStrBufStandardW;
-    if (pBuf)
-    {
+    if (pBuf) {
         SetMLStrBufW(pBuf);
         return S_OK;
-    }
-    else
-    {
+    } else {
         return E_OUTOFMEMORY;
     }
 #else
@@ -742,20 +675,16 @@ HRESULT CMLStr::RegularizePosLen(long* plPos, long* plLen)
 
 HRESULT CMLStr::GetCCh(long cchOffset, long lLen, long* pcchLen)
 {
-    if (GetMLStrBufW())
-    {
+    if (GetMLStrBufW()) {
         if (pcchLen)
             *pcchLen = lLen; // The number of characters is equal to the length
         return S_OK;
-    }
-    else if (GetMLStrBufA())
-    {
+    } else if (GetMLStrBufA()) {
         HRESULT hr = S_OK;
 #ifdef ASTRIMPL
         CMLStrBufWalkA BufWalk(GetMLStrBufA(), cchOffset, GetBufCCh() - cchOffset);
 
-        while (lLen > 0 && BufWalk.Lock(hr))
-        {
+        while (lLen > 0 && BufWalk.Lock(hr)) {
             for (LPCSTR pszTemp = BufWalk.GetStr(); lLen > 0 && *pszTemp; lLen--)
                 pszTemp = ::CharNextExA((WORD)GetCodePage(), pszTemp, 0);
 
@@ -768,13 +697,11 @@ HRESULT CMLStr::GetCCh(long cchOffset, long lLen, long* pcchLen)
         long cchDone = 0;
         long cchRest = GetBufCCh() - cchOffset;
 
-        while (SUCCEEDED(hr) && lLen > 0)
-        {
+        while (SUCCEEDED(hr) && lLen > 0) {
             CHAR* pszBuf;
             long cchBuf;
 
-            if (SUCCEEDED(hr = m_pMLStrBufA->LockBuf(cchOffset, cchRest, &pszBuf, &cchBuf)))
-            {
+            if (SUCCEEDED(hr = m_pMLStrBufA->LockBuf(cchOffset, cchRest, &pszBuf, &cchBuf))) {
                 for (LPCSTR pszTemp = pszBuf; lLen > 0 && *pszTemp; lLen--)
                     pszTemp = ::CharNextExA((WORD)m_uCodePage, pszTemp, 0);
 
@@ -790,22 +717,19 @@ HRESULT CMLStr::GetCCh(long cchOffset, long lLen, long* pcchLen)
         }
 #endif
 
-        if (pcchLen)
-        {
+        if (pcchLen) {
             if (SUCCEEDED(hr))
 #ifdef ASTRIMPL
-                *pcchLen = BufWalk.GetDoneCCh();
+                * pcchLen = BufWalk.GetDoneCCh();
 #else
-                *pcchLen = cchDone;
+                * pcchLen = cchDone;
 #endif
             else
                 *pcchLen = 0;
         }
 
         return hr;
-    }
-    else
-    {
+    } else {
         if (pcchLen)
             *pcchLen = 0; // No string
         return S_OK;
@@ -814,21 +738,17 @@ HRESULT CMLStr::GetCCh(long cchOffset, long lLen, long* pcchLen)
 
 HRESULT CMLStr::GetLen(long cchOffset, long cchLen, long* plLen)
 {
-    if (GetMLStrBufW())
-    {
+    if (GetMLStrBufW()) {
         if (plLen)
             *plLen = cchLen; // The length is equal to the number of characters
         return S_OK;
-    }
-    else if (GetMLStrBufA())
-    {
+    } else if (GetMLStrBufA()) {
         HRESULT hr = S_OK;
         long lDoneLen = 0;
 #ifdef ASTRIMPL
         CMLStrBufWalkA BufWalk(GetMLStrBufA(), cchOffset, cchLen);
 
-        while (BufWalk.Lock(hr))
-        {
+        while (BufWalk.Lock(hr)) {
             long lTempLen;
 
             hr = CalcLenA(GetCodePage(), BufWalk.GetStr(), BufWalk.GetCCh(), &lTempLen);
@@ -840,13 +760,11 @@ HRESULT CMLStr::GetLen(long cchOffset, long cchLen, long* plLen)
         }
 #else
 
-        while (SUCCEEDED(hr) && cchLen > 0)
-        {
+        while (SUCCEEDED(hr) && cchLen > 0) {
             CHAR* pszBuf;
             long cchBuf;
 
-            if (SUCCEEDED(hr = m_pMLStrBufA->LockBuf(cchOffset, cchLen, &pszBuf, &cchBuf)))
-            {
+            if (SUCCEEDED(hr = m_pMLStrBufA->LockBuf(cchOffset, cchLen, &pszBuf, &cchBuf))) {
                 long lTempLen;
 
                 hr = CalcLenA(GetCodePage(), pszBuf, cchBuf, &lTempLen);
@@ -862,8 +780,7 @@ HRESULT CMLStr::GetLen(long cchOffset, long cchLen, long* plLen)
         }
 #endif
 
-        if (plLen)
-        {
+        if (plLen) {
             if (SUCCEEDED(hr))
                 *plLen = lDoneLen;
             else
@@ -871,9 +788,7 @@ HRESULT CMLStr::GetLen(long cchOffset, long cchLen, long* plLen)
         }
 
         return hr;
-    }
-    else
-    {
+    } else {
         if (plLen)
             *plLen = 0; // No string
         return S_OK;
@@ -885,8 +800,7 @@ HRESULT CMLStr::CalcLenA(UINT uCodePage, const CHAR* psz, long cchLen, long* plL
     long lLen = 0;
     const CHAR* const pszEnd = psz + cchLen;
 
-    for (; psz < pszEnd && *psz; lLen++)
-    {
+    for (; psz < pszEnd && *psz; lLen++) {
         const CHAR* const pszNew = ::CharNextExA((WORD)uCodePage, psz, 0);
 
         if (pszNew > pszEnd) // Overrun out of buffer
@@ -937,17 +851,14 @@ HRESULT CMLStr::ConvAStrToWStr(UINT uCodePage, const CHAR* pszSrc, long cchSrc, 
     if (pcchActualA && SUCCEEDED(hr))
         hr = CalcCChA(uCodePage, pszSrc, lWrittenLen, &cchWrittenA);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         if (pcchActualA)
             *pcchActualA = cchWrittenA;
         if (pcchActualW)
             *pcchActualW = cchWrittenW;
         if (plActualLen)
             *plActualLen = lWrittenLen;
-    }
-    else
-    {
+    } else {
         if (pcchActualA)
             *pcchActualA = 0;
         if (pcchActualW)
@@ -969,8 +880,7 @@ HRESULT CMLStr::ConvWStrToAStr(BOOL fCanStopAtMiddle, UINT uCodePage, const WCHA
     if (!cchWrittenA)
         hr = E_FAIL; // NLS failed
 
-    if ((pcchActualW || plActualLen) && SUCCEEDED(hr))
-    {
+    if ((pcchActualW || plActualLen) && SUCCEEDED(hr)) {
         if (pszDest)
             hr = CalcLenA(uCodePage, pszDest, cchWrittenA, &lWrittenLen);
         else
@@ -980,17 +890,14 @@ HRESULT CMLStr::ConvWStrToAStr(BOOL fCanStopAtMiddle, UINT uCodePage, const WCHA
     if (pcchActualW && SUCCEEDED(hr))
         hr = CalcCChW(pszSrc, lWrittenLen, &cchWrittenW);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         if (pcchActualA)
             *pcchActualA = cchWrittenA;
         if (pcchActualW)
             *pcchActualW = cchWrittenW;
         if (plActualLen)
             *plActualLen = lWrittenLen;
-    }
-    else
-    {
+    } else {
         if (pcchActualA)
             *pcchActualA = 0;
         if (pcchActualW)
@@ -1009,13 +916,11 @@ HRESULT CMLStr::ConvertMLStrBufAToWStr(UINT uCodePage, IMLangStringBufA* pMLStrB
     HRESULT hr = S_OK;
     long cchDone = 0;
 
-    while (SUCCEEDED(hr) && cchSrcLen > 0)
-    {
+    while (SUCCEEDED(hr) && cchSrcLen > 0) {
         CHAR* pszBufA;
         long cchBufA;
 
-        if (SUCCEEDED(hr = pMLStrBufA->LockBuf(cchSrcPos, cchSrcLen, &pszBufA, &cchBufA)))
-        {
+        if (SUCCEEDED(hr = pMLStrBufA->LockBuf(cchSrcPos, cchSrcLen, &pszBufA, &cchBufA))) {
             long cchWritten = ::MultiByteToWideChar(uCodePage, 0, pszBufA, cchBufA, pszBuf, cchBuf);
             if (!cchWritten)
                 hr = E_FAIL; // NLS failed
@@ -1033,8 +938,7 @@ HRESULT CMLStr::ConvertMLStrBufAToWStr(UINT uCodePage, IMLangStringBufA* pMLStrB
         }
     }
 
-    if (pcchActual)
-    {
+    if (pcchActual) {
         *pcchActual = cchDone;
 
         if (FAILED(hr) && cchDone > 0)
@@ -1056,10 +960,8 @@ HRESULT CMLStr::ConvertWStrToMLStrBufA(const WCHAR*, long, UINT, IMLangStringBuf
 
 HRESULT CMLStr::CLockInfo::UnlockAll(void)
 {
-    if (m_pLockArray)
-    {
-        for (int n = 0; n < MAX_LOCK_COUNT; n++)
-        {
+    if (m_pLockArray) {
+        for (int n = 0; n < MAX_LOCK_COUNT; n++) {
             if (m_pLockArray[n].m_psz)
                 Unlock(&m_pLockArray[n], m_pLockArray[n].m_psz, m_pLockArray[n].m_cchLen, NULL, NULL);
         }
@@ -1073,25 +975,19 @@ HRESULT CMLStr::CLockInfo::Lock(PFNUNLOCKPROC pfnUnlockProc, long lFlags, UINT u
     HRESULT hr = S_OK;
     int nIndex;
 
-    if (!m_pLockArray)
-    {
+    if (!m_pLockArray) {
         m_pLockArray = new CLockInfoEntry[MAX_LOCK_COUNT];
 
-        if (m_pLockArray)
-        {
+        if (m_pLockArray) {
             for (nIndex = 0; nIndex < MAX_LOCK_COUNT; nIndex++)
                 m_pLockArray[nIndex].m_psz = NULL;
-        }
-        else
-        {
+        } else {
             hr = E_OUTOFMEMORY;
         }
     }
 
-    if (SUCCEEDED(hr))
-    {
-        for (nIndex = 0; nIndex < MAX_LOCK_COUNT; nIndex++)
-        {
+    if (SUCCEEDED(hr)) {
+        for (nIndex = 0; nIndex < MAX_LOCK_COUNT; nIndex++) {
             if (!m_pLockArray[nIndex].m_psz)
                 break;
         }
@@ -1099,8 +995,7 @@ HRESULT CMLStr::CLockInfo::Lock(PFNUNLOCKPROC pfnUnlockProc, long lFlags, UINT u
             hr = MLSTR_E_TOOMANYNESTOFLOCK;
     }
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         m_pLockArray[nIndex].m_psz = psz;
         m_pLockArray[nIndex].m_pfnUnlockProc = pfnUnlockProc;
         m_pLockArray[nIndex].m_lFlags = lFlags;
@@ -1119,10 +1014,8 @@ HRESULT CMLStr::CLockInfo::Find(const void* psz, long, void** ppKey)
     HRESULT hr = S_OK;
     int nIndex;
 
-    if (m_pLockArray)
-    {
-        for (nIndex = 0; nIndex < MAX_LOCK_COUNT; nIndex++)
-        {
+    if (m_pLockArray) {
+        for (nIndex = 0; nIndex < MAX_LOCK_COUNT; nIndex++) {
             if (psz == m_pLockArray[nIndex].m_psz)
                 break;
         }
@@ -1130,8 +1023,7 @@ HRESULT CMLStr::CLockInfo::Find(const void* psz, long, void** ppKey)
     if (!m_pLockArray || nIndex >= MAX_LOCK_COUNT)
         hr = E_INVALIDARG;
 
-    if (ppKey)
-    {
+    if (ppKey) {
         if (SUCCEEDED(hr))
             *ppKey = &m_pLockArray[nIndex];
         else
@@ -1146,8 +1038,7 @@ HRESULT CMLStr::CLockInfo::Unlock(void* pKey, const void* psz, long cch, long* p
     CLockInfoEntry* const pEntry = (CLockInfoEntry*)pKey;
     HRESULT hr;
 
-    if (!(pEntry->m_lFlags & MLSTR_WRITE))
-    {
+    if (!(pEntry->m_lFlags & MLSTR_WRITE)) {
         cch = 0;
         if (plActualLen)
             *plActualLen = 0;
@@ -1160,8 +1051,7 @@ HRESULT CMLStr::CLockInfo::Unlock(void* pKey, const void* psz, long cch, long* p
 
     pEntry->m_psz = NULL; // Remove from lock array anyway
 
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         if (pcchActual)
             *pcchActual = 0;
         if (plActualLen)
@@ -1176,8 +1066,7 @@ HRESULT CMLStr::CLockInfo::Unlock(void* pKey, const void* psz, long cch, long* p
 
 long CMLStr::CMLStrBufStandardW::RoundBufSize(long cchStr)
 {
-    for (int n = 8; n < 12; n++)
-    {
+    for (int n = 8; n < 12; n++) {
         if (cchStr < (1L << n))
             break;
     }
@@ -1216,8 +1105,7 @@ CMLStr::~CMLStr(void)
 
     // Release all attributes in m_attr
     VERIFY(SUCCEEDED(m_attr.Top(&pv)));
-    while (pv)
-    {
+    while (pv) {
         IMLStrAttr* const pAttr = m_attr.GetAttr(pv);
         ASSERT(pAttr);
         VERIFY(SUCCEEDED(pAttr->SetClient(NULL))); // Reset
@@ -1238,13 +1126,11 @@ STDMETHODIMP CMLStr::LockMLStr(long lPos, long lLen, DWORD dwFlags, DWORD* pdwCo
 
     Lock();
 
-    if (SUCCEEDED(hr = ::RegularizePosLen(m_lLen, &lPos, &lLen)))
-    {
+    if (SUCCEEDED(hr = ::RegularizePosLen(m_lLen, &lPos, &lLen))) {
         const DWORD dwThrd = ::GetCurrentThreadId();
 
         if (SUCCEEDED(hr = CheckAccessValidation(lPos, lLen, dwFlags, dwThrd, plActualPos, plActualLen)) &&
-            SUCCEEDED(hr = m_lock.Add(&pv)))
-        {
+            SUCCEEDED(hr = m_lock.Add(&pv))) {
             if (plActualPos && !plActualLen)
                 lLen -= *plActualPos - lPos;
             else if (plActualLen)
@@ -1257,9 +1143,7 @@ STDMETHODIMP CMLStr::LockMLStr(long lPos, long lLen, DWORD dwFlags, DWORD* pdwCo
             if (FAILED(hr))
                 VERIFY(SUCCEEDED(m_lock.Remove(pv)));
         }
-    }
-    else
-    {
+    } else {
         if (plActualPos)
             *plActualPos = 0;
         if (plActualLen)
@@ -1268,8 +1152,7 @@ STDMETHODIMP CMLStr::LockMLStr(long lPos, long lLen, DWORD dwFlags, DWORD* pdwCo
 
     Unlock();
 
-    if (pdwCookie)
-    {
+    if (pdwCookie) {
         if (SUCCEEDED(hr))
             *pdwCookie = (DWORD)pv;
         else
@@ -1304,7 +1187,7 @@ HRESULT CMLStr::CheckAccessValidation(long lPos, long lLen, DWORD dwFlags, DWORD
                 if ((dwFlags & MLSTR_MOVE) && // Moving this lock
                     lPos < plinfo->lPos + plinfo->lLen && // Overwrap or left of this lock
                     (dwThrd != plinfo->dwThrd || // Another thread
-                     (plinfo->dwFlags & (MLSTR_READ | MLSTR_WRITE)))) // Same thread and has read or write access
+                    (plinfo->dwFlags & (MLSTR_READ | MLSTR_WRITE)))) // Same thread and has read or write access
                 {
                     if (dwThrd == plinfo->dwThrd)
                         hr = MLSTR_E_ACCESSDENIED;
@@ -1321,9 +1204,9 @@ HRESULT CMLStr::CheckAccessValidation(long lPos, long lLen, DWORD dwFlags, DWORD
                         dwShareMask = ~(MLSTR_SHARE_DENYREAD | MLSTR_SHARE_DENYWRITE); // Ignore share flags
 
                     if (((dwFlags & MLSTR_WRITE) && (plinfo->dwFlags & (MLSTR_READ | MLSTR_WRITE | MLSTR_SHARE_DENYWRITE) & dwShareMask)) || // Write on read/write
-                        ((dwFlags & MLSTR_READ)  && (plinfo->dwFlags & (             MLSTR_WRITE | MLSTR_SHARE_DENYREAD ) & dwShareMask)) || // Read on write
+                        ((dwFlags & MLSTR_READ) && (plinfo->dwFlags & (MLSTR_WRITE | MLSTR_SHARE_DENYREAD) & dwShareMask)) || // Read on write
                         ((dwFlags & MLSTR_SHARE_DENYWRITE & dwShareMask) && (plinfo->dwFlags & MLSTR_WRITE)) || // Share deny on write
-                        ((dwFlags & MLSTR_SHARE_DENYREAD  & dwShareMask) && (plinfo->dwFlags & MLSTR_READ)))    // Share deny on read
+                        ((dwFlags & MLSTR_SHARE_DENYREAD & dwShareMask) && (plinfo->dwFlags & MLSTR_READ)))    // Share deny on read
                     {
                         // Conflicting access
                         if ((plinfo->lPos <= lActualPos && plinfo->lPos + plinfo->lLen >= lActualPos + lActualLen) || // No valid range left
@@ -1335,10 +1218,9 @@ HRESULT CMLStr::CheckAccessValidation(long lPos, long lLen, DWORD dwFlags, DWORD
                                 hr = MLSTR_E_ACCESSDENIED;
                             else
                                 hr = MLSTR_E_BUSY;
-                        }
-                        else if ((!plActualPos && plinfo->lPos <= lActualPos) || // Forward processing, Starting from invalid range
-                                 (!plActualLen && plinfo->lPos + plinfo->lLen < lActualPos + lActualLen) || // Backward processing, Trancate valid range
-                                 (plActualPos && plActualLen && plinfo->lPos - lActualPos >= (lActualPos + lActualLen) - (plinfo->lPos + plinfo->lLen))) // Maximum valid range, Right valid range is bigger
+                        } else if ((!plActualPos && plinfo->lPos <= lActualPos) || // Forward processing, Starting from invalid range
+                            (!plActualLen && plinfo->lPos + plinfo->lLen < lActualPos + lActualLen) || // Backward processing, Trancate valid range
+                                   (plActualPos && plActualLen && plinfo->lPos - lActualPos >= (lActualPos + lActualLen) - (plinfo->lPos + plinfo->lLen))) // Maximum valid range, Right valid range is bigger
                         {
                             lActualLen += lActualPos;
                             lActualPos = plinfo->lPos + plinfo->lLen;
@@ -1350,9 +1232,7 @@ HRESULT CMLStr::CheckAccessValidation(long lPos, long lLen, DWORD dwFlags, DWORD
                                 else
                                     hrValidation = MLSTR_E_BUSY;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             lActualLen = plinfo->lPos - lActualPos;
                             if (!plActualLen) // Backward processing
                             {
@@ -1370,15 +1250,13 @@ HRESULT CMLStr::CheckAccessValidation(long lPos, long lLen, DWORD dwFlags, DWORD
                 hr = m_lock.Next(pv, &pv);
         }
 
-        if (SUCCEEDED(hr) && FAILED(hrValidation))
-        {
+        if (SUCCEEDED(hr) && FAILED(hrValidation)) {
             hr = hrValidation;
             if (plActualLen && lPos < lActualPos) // Forward processing
             {
                 lActualLen = lActualPos - lPos;
                 lActualPos = lPos;
-            }
-            else if (plActualPos && lPos + lLen != lActualPos + lActualLen) // Backward processing
+            } else if (plActualPos && lPos + lLen != lActualPos + lActualLen) // Backward processing
             {
                 lActualPos += lActualLen;
                 lActualLen = lPos + lLen - lActualPos;
@@ -1404,19 +1282,15 @@ HRESULT CMLStr::CheckAccessValidation(long lPos, long lLen, DWORD dwFlags, DWORD
                 break;
 
             m_cWaitUnlock = -1; // Initialize
-        }
-        else // After second time
+        } else // After second time
         {
             ASSERT(m_cWaitUnlock == 0 || m_cWaitUnlock == -1 || m_cWaitUnlock >= 1);
             if (m_cWaitUnlock == 0) // Don't reset if m_cWaitUnlock is not zero
             {
                 ::ResetEvent(m_hUnlockEvent);
                 m_cWaitUnlock = -1;
-            }
-            else
-            {
-                if (!m_hZeroEvent)
-                {
+            } else {
+                if (!m_hZeroEvent) {
                     m_hZeroEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL); // Auto-reset, initial reset
                     if (!m_hZeroEvent)
                         break;
@@ -1450,11 +1324,9 @@ HRESULT CMLStr::CheckAccessValidation(long lPos, long lLen, DWORD dwFlags, DWORD
         Lock();
 
         ASSERT(m_cWaitUnlock == -1 || m_cWaitUnlock >= 1);
-        if (m_cWaitUnlock == -1)
-        {
+        if (m_cWaitUnlock == -1) {
             m_cWaitUnlock = 0;
-        }
-        else // m_cWaitUnlock >= 1
+        } else // m_cWaitUnlock >= 1
         {
             m_cWaitUnlock--;
 
@@ -1462,13 +1334,11 @@ HRESULT CMLStr::CheckAccessValidation(long lPos, long lLen, DWORD dwFlags, DWORD
             // Unless this, it may not good for performance.
             // In worst case, it makes thousands of loops in this function because it never reset m_hUnlockEvent.
             // m_hUnlockEvent will be signaled even though UnlockMLStr is called yet.
-            if (m_cWaitUnlock > 0)
-            {
+            if (m_cWaitUnlock > 0) {
                 Unlock();
                 ::WaitForSingleObject(m_hZeroEvent, INFINITE); // Wait until m_cWaitUnlock gets zero, auto-reset
                 Lock();
-            }
-            else // Now it's zero! Yeah!
+            } else // Now it's zero! Yeah!
             {
                 ::SetEvent(m_hZeroEvent); // Release other threads
             }
@@ -1535,8 +1405,7 @@ STDMETHODIMP CMLStr::RegisterAttr(IUnknown* pUnk, DWORD* pdwCookie)
     Lock();
 
     if (SUCCEEDED(hr = m_attr.Add(&pv)) &&
-        SUCCEEDED(hr = pUnk->QueryInterface(IID_IMLStrAttr, (void**)&pAttr)))
-    {
+        SUCCEEDED(hr = pUnk->QueryInterface(IID_IMLStrAttr, (void**)&pAttr))) {
         ASSERT_READ_PTR(pAttr);
     }
 
@@ -1544,8 +1413,7 @@ STDMETHODIMP CMLStr::RegisterAttr(IUnknown* pUnk, DWORD* pdwCookie)
         SUCCEEDED(hr = StartEndConnectionAttr(pAttr, &dwConnCookie, 0))) // Connect
     {
         fConnStarted = TRUE;
-        if (SUCCEEDED(hr = pAttr->SetClient((IMLangString*)this)))
-        {
+        if (SUCCEEDED(hr = pAttr->SetClient((IMLangString*)this))) {
             CFire fire(hr, this);
             while (fire.Next())
                 hr = fire.Sink()->OnRegisterAttr(pAttr);
@@ -1553,18 +1421,14 @@ STDMETHODIMP CMLStr::RegisterAttr(IUnknown* pUnk, DWORD* pdwCookie)
     }
 
     if (SUCCEEDED(hr) &&
-        SUCCEEDED(hr = pAttr->SetMLStr(0, -1, (IMLangString*)this, 0, m_lLen)))
-    {
+        SUCCEEDED(hr = pAttr->SetMLStr(0, -1, (IMLangString*)this, 0, m_lLen))) {
         m_attr.SetAttr(pv, pAttr);
         m_attr.SetCookie(pv, dwConnCookie);
 
         if (pdwCookie)
             *pdwCookie = (DWORD)pv;
-    }
-    else
-    {
-        if (pAttr)
-        {
+    } else {
+        if (pAttr) {
             pAttr->SetClient(NULL);
             if (fConnStarted)
                 VERIFY(SUCCEEDED(StartEndConnectionAttr(pAttr, NULL, dwConnCookie))); // Disconnect
@@ -1628,13 +1492,10 @@ STDMETHODIMP CMLStr::EnumAttr(IEnumUnknown** ppEnumUnk)
 
     *ppEnumUnk = pEnum;
 
-    if (pEnum)
-    {
+    if (pEnum) {
         pEnum->Init(this);
         return S_OK;
-    }
-    else
-    {
+    } else {
         return E_OUTOFMEMORY;
     }
 }
@@ -1651,24 +1512,19 @@ STDMETHODIMP CMLStr::FindAttr(REFIID riid, LPARAM lParam, IUnknown** ppUnk)
 
     Lock();
 
-    for (hr = m_attr.Top(&pv); SUCCEEDED(hr) && pv; hr = m_attr.Next(pv, &pv))
-    {
+    for (hr = m_attr.Top(&pv); SUCCEEDED(hr) && pv; hr = m_attr.Next(pv, &pv)) {
         IMLStrAttr* const pIMLStrAttr = m_attr.GetAttr(pv);
         IUnknown* pUnk;
         long lConf;
 
         hr = pIMLStrAttr->QueryAttr(riid, lParam, &pUnk, &lConf);
-        if (SUCCEEDED(hr))
-        {
-            if (lConf > lMaxConf)
-            {
+        if (SUCCEEDED(hr)) {
+            if (lConf > lMaxConf) {
                 lMaxConf = lConf;
                 if (pMaxUnk)
                     pMaxUnk->Release();
                 pMaxUnk = pUnk;
-            }
-            else
-            {
+            } else {
                 if (pUnk)
                     pUnk->Release();
             }
@@ -1678,15 +1534,12 @@ STDMETHODIMP CMLStr::FindAttr(REFIID riid, LPARAM lParam, IUnknown** ppUnk)
         }
     }
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         if (ppUnk)
             *ppUnk = pMaxUnk;
         else if (pMaxUnk)
             pMaxUnk->Release();
-    }
-    else
-    {
+    } else {
         if (pMaxUnk)
             pMaxUnk->Release();
         if (ppUnk)
@@ -1762,10 +1615,8 @@ HRESULT CMLStr::CEnumAttr::Next(ULONG celt, IUnknown** rgelt, ULONG* pceltFetche
 
     ULONG c = 0;
 
-    if (rgelt && m_pMLStr)
-    {
-        for (; m_pv && c < celt; c++)
-        {
+    if (rgelt && m_pMLStr) {
+        for (; m_pv && c < celt; c++) {
             *rgelt = m_pMLStr->m_attr.GetAttr(m_pv);
             ASSERT(*rgelt);
             (*rgelt)->AddRef();

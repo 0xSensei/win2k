@@ -45,14 +45,14 @@ Revision History:
 
 
 // Macros for swapping the bytes in a long and a short.
-#define SWAP_LONG(l)                                \
-            ( ( ((l) >> 24) & 0x000000FFL ) |       \
-              ( ((l) >>  8) & 0x0000FF00L ) |       \
-              ( ((l) <<  8) & 0x00FF0000L ) |       \
+#define SWAP_LONG(l)                          \
+            ( ( ((l) >> 24) & 0x000000FFL ) | \
+              ( ((l) >>  8) & 0x0000FF00L ) | \
+              ( ((l) <<  8) & 0x00FF0000L ) | \
               ( ((l) << 24) & 0xFF000000L ) )
 
-#define WS_SWAP_SHORT(s)                            \
-            ( ( ((s) >> 8) & 0x00FF ) |             \
+#define WS_SWAP_SHORT(s)                \
+            ( ( ((s) >> 8) & 0x00FF ) | \
               ( ((s) << 8) & 0xFF00 ) )
 
 
@@ -61,8 +61,6 @@ Revision History:
 // The first three bytes of each row are the char/string value for the byte,
 // and the fourth byte in each row is the length of the string required for the byte.
 // This approach allows a fast implementation with no jumps.
-
-
 BYTE NToACharStrings[][4] = {
     '0', 'x', 'x', 1,
     '1', 'x', 'x', 1,
@@ -323,7 +321,6 @@ BYTE NToACharStrings[][4] = {
 };
 
 
-
 u_long WSAAPI htonl(IN u_long hostlong)
 /*++
 Routine Description:
@@ -380,7 +377,7 @@ Returns:
 }
 
 
-unsigned long WSAAPI inet_addr(IN const char FAR * cp)
+unsigned long WSAAPI inet_addr(IN const char FAR* cp)
 /*++
 Routine Description:
     Convert a string containing an Internet Protocol dotted address into an in_addr.
@@ -393,19 +390,13 @@ Returns:
     example if a portion of an "a.b.c.d" address exceeds 255, inet_addr() returns the value INADDR_NONE.
 --*/
 {
-    u_long value;                // value to return to the user
-    u_long number_base;          // The number base in use for an
-                                 // address field
-    u_long address_field_count;  // How many fields where found in the
-                                 // address string
-    char c;                      // temp variable to hold the charater
-                                 // that is being processed currently
-    u_long fields[4];            // an array of unsigned longs to
-                                 // recieve the values from each field
-                                 // in the address
-    u_long *p_fields = fields;   // a pointer used to index through
-                                 // the 'fields' array
-    BOOL MoreFields = TRUE;      // Are there more address fields to scan
+    u_long value;              // value to return to the user
+    u_long number_base;        // The number base in use for an address field
+    u_long address_field_count;// How many fields where found in the address string
+    char c;                    // temp variable to hold the charater that is being processed currently
+    u_long fields[4];          // an array of unsigned longs to recieve the values from each field in the address
+    u_long* p_fields = fields; // a pointer used to index through the 'fields' array
+    BOOL MoreFields = TRUE;    // Are there more address fields to scan
 
     if (cp == NULL) {
         SetLastError(WSAEFAULT);
@@ -425,8 +416,7 @@ Returns:
             // an address field is '0' then the user is using octal or hex
             // notation for the assress field
             if (*cp == '0') {
-                // If the second charater in the field is x or X then this is
-                // a hex number else it is an octal number.
+                // If the second charater in the field is x or X then this is a hex number else it is an octal number.
                 if (*++cp == 'x' || *cp == 'X') {
                     number_base = BASE_SIXTEEN;
                     cp++; // skip the x
@@ -453,8 +443,7 @@ Returns:
                 break;
             }
 
-            // Is the charater following the the number a '.'. If so skip the
-            // the '.' and scan the next field.
+            // Is the charater following the the number a '.'. If so skip the the '.' and scan the next field.
             if (*cp == '.') {
                 /*
                  * Internet format:
@@ -463,77 +452,72 @@ Returns:
                  *  a.b (with b treated as 24 bits)
                  */
                 if (p_fields >= fields + 3) {
-                    // and internet address cannot have more than 4 fields so
-                    // return an error
+                    // and internet address cannot have more than 4 fields so return an error
                     return (INADDR_NONE);
                 }
-                // set the value of this part of the addess and advance
-                // the pointer to the next part
+                // set the value of this part of the addess and advance the pointer to the next part
                 *p_fields++ = value;
 
                 cp++;
             } else {
                 MoreFields = FALSE;
-            } //else
-        } //while
+            }
+        }
 
         //  Check for trailing characters. A valid address can end with
         //  NULL or whitespace. An address may not end with a '.'
-
         if ((*cp == '\0' && *(cp - 1) == '.') || (*cp && !isspace(*cp))) {
             return (INADDR_NONE);
         }
-    } __except (WS2_EXCEPTION_FILTER())
-    {
+    } __except (WS2_EXCEPTION_FILTER()) {
         SetLastError(WSAEFAULT);
         return (INADDR_NONE);
     }
-
-    // set the the value of the final field in the address
-    *p_fields++ = value;
+    
+    *p_fields++ = value;// set the the value of the final field in the address
 
     // Concoct the address according to the number of fields specified.
     address_field_count = (u_long)(p_fields - fields);
     switch (address_field_count) {
     case 1:               // a -- 32 bits
-    value = fields[0];
-    break;
+        value = fields[0];
+        break;
     case 2:               // a.b -- 8.24 bits
-    if (fields[0] > MAX_EIGHT_BIT_VALUE || fields[1] > MAX_TWENTY_FOUR_BIT_VALUE) {
-        return (INADDR_NONE);
-    } //if
-    else {
-        value = (fields[0] << 24) | (fields[1] & MAX_TWENTY_FOUR_BIT_VALUE);
-    } //else
-    break;
+        if (fields[0] > MAX_EIGHT_BIT_VALUE || fields[1] > MAX_TWENTY_FOUR_BIT_VALUE) {
+            return (INADDR_NONE);
+        } else {
+            value = (fields[0] << 24) | (fields[1] & MAX_TWENTY_FOUR_BIT_VALUE);
+        }
+        break;
     case 3:               // a.b.c -- 8.8.16 bits
-    if (fields[0] > MAX_EIGHT_BIT_VALUE || fields[1] > MAX_EIGHT_BIT_VALUE || fields[2] > MAX_SIXTEEN_BIT_VALUE) {
-        return (INADDR_NONE);
-    } //if
-    else {
-        value = (fields[0] << 24) | ((fields[1] & MAX_EIGHT_BIT_VALUE) << 16) | (fields[2] & MAX_SIXTEEN_BIT_VALUE);
-    } //else
-    break;
+        if (fields[0] > MAX_EIGHT_BIT_VALUE ||
+            fields[1] > MAX_EIGHT_BIT_VALUE ||
+            fields[2] > MAX_SIXTEEN_BIT_VALUE) {
+            return (INADDR_NONE);
+        } else {
+            value = (fields[0] << 24) |
+                ((fields[1] & MAX_EIGHT_BIT_VALUE) << 16) |
+                (fields[2] & MAX_SIXTEEN_BIT_VALUE);
+        }
+        break;
     case 4:            // a.b.c.d -- 8.8.8.8 bits
-    if (fields[0] > MAX_EIGHT_BIT_VALUE ||
-        fields[1] > MAX_EIGHT_BIT_VALUE || 
-        fields[2] > MAX_EIGHT_BIT_VALUE || 
-        fields[3] > MAX_EIGHT_BIT_VALUE) {
-        return (INADDR_NONE);
-    } //if
-    else {
-        value = (fields[0] << 24) | 
-            ((fields[1] & MAX_EIGHT_BIT_VALUE) << 16) | 
-            ((fields[2] & MAX_EIGHT_BIT_VALUE) << 8) | 
-            (fields[3] & MAX_EIGHT_BIT_VALUE);
-    } //else
-    break;
+        if (fields[0] > MAX_EIGHT_BIT_VALUE ||
+            fields[1] > MAX_EIGHT_BIT_VALUE ||
+            fields[2] > MAX_EIGHT_BIT_VALUE ||
+            fields[3] > MAX_EIGHT_BIT_VALUE) {
+            return (INADDR_NONE);
+        } else {
+            value = (fields[0] << 24) |
+                ((fields[1] & MAX_EIGHT_BIT_VALUE) << 16) |
+                ((fields[2] & MAX_EIGHT_BIT_VALUE) << 8) |
+                (fields[3] & MAX_EIGHT_BIT_VALUE);
+        }
+        break;
 
-    // if the address string handed to us has more than 4 address
-    // fields return an error
+        // if the address string handed to us has more than 4 address fields return an error
     default:
-    return (INADDR_NONE);
-    } // switch
+        return (INADDR_NONE);
+    }
 
     // convert the value to network byte order and return it to the user.
     value = htonl(value);
@@ -541,7 +525,7 @@ Returns:
 }
 
 
-char FAR * WSAAPI inet_ntoa(IN struct in_addr in)
+char FAR* WSAAPI inet_ntoa(IN struct in_addr in)
 /*++
 Routine Description:
     Convert a network address into a string in dotted format.
@@ -555,10 +539,10 @@ Returns:
 {
     PDPROCESS Process;
     PDTHREAD  Thread;
-    INT       ErrorCode;
-    PCHAR     Buffer = NULL;
-    BOOL      AddedArtificialStartup = FALSE;
-    WSADATA   wsaData;
+    INT ErrorCode;
+    PCHAR Buffer = NULL;
+    BOOL AddedArtificialStartup = FALSE;
+    WSADATA wsaData;
     PUCHAR p;
     PUCHAR b;
 
@@ -572,7 +556,6 @@ Returns:
         // PROLOG failed with WSANOTINITIALIZED, meaning the app has not yet called WSAStartup().
         // For historical (hysterical?) reasons, inet_ntoa() must be functional before WSAStartup() is called.
         // So, we'll add an artificial WSAStartup() and press on.
-
         ErrorCode = WSAStartup(WINSOCK_HIGH_API_VERSION, &wsaData);
         if (ErrorCode != NO_ERROR) {
             SetLastError(ErrorCode);
@@ -588,7 +571,7 @@ Returns:
             SetLastError(ErrorCode);
             return NULL;
         }
-    } //if
+    }
 
     Buffer = Thread->GetResultBuffer();
     b = (PUCHAR)Buffer;
@@ -633,7 +616,7 @@ Returns:
 }
 
 
-int WSAAPI WSAHtonl(IN SOCKET s, IN u_long hostlong, OUT u_long FAR * lpnetlong)
+int WSAAPI WSAHtonl(IN SOCKET s, IN u_long hostlong, OUT u_long FAR* lpnetlong)
 /*++
 Routine Description:
     Convert a u_long from a specified host byte order to network byte order.
@@ -645,8 +628,8 @@ Returns:
     If no error occurs, WSAHtonl() returns 0. Otherwise, a value of SOCKET_ERROR is returned.
 --*/
 {
-    PDSOCKET            Socket;
-    INT                 ErrorCode;
+    PDSOCKET Socket;
+    INT ErrorCode;
     PPROTO_CATALOG_ITEM CatalogEntry;
     LPWSAPROTOCOL_INFOW ProtocolInfo;
 
@@ -665,10 +648,9 @@ Returns:
             __try {
                 if (LITTLEENDIAN == ProtocolInfo->iNetworkByteOrder) {
                     *lpnetlong = hostlong;
-                } //if
-                else {
+                } else {
                     *lpnetlong = SWAP_LONG(hostlong);
-                } //else
+                }
                 ErrorCode = ERROR_SUCCESS;
             } __except (WS2_EXCEPTION_FILTER()) {
                 ErrorCode = WSAEFAULT;
@@ -677,8 +659,7 @@ Returns:
             Socket->DropDSocketReference();
             if (ErrorCode == ERROR_SUCCESS)
                 return ErrorCode;
-        } //if
-        else
+        } else
             ErrorCode = WSAENOTSOCK;
     }
 
@@ -687,7 +668,7 @@ Returns:
 }
 
 
-int WSAAPI WSAHtons(IN SOCKET s, IN u_short hostshort, OUT u_short FAR * lpnetshort)
+int WSAAPI WSAHtons(IN SOCKET s, IN u_short hostshort, OUT u_short FAR* lpnetshort)
 /*++
 Routine Description:
     Convert a u_short from a specified host byte order to network byte order.
@@ -699,8 +680,8 @@ Returns:
      If no error occurs, WSANtohs() returns 0. Otherwise, a value of SOCKET_ERROR is returned.
 --*/
 {
-    PDSOCKET            Socket;
-    INT                 ErrorCode;
+    PDSOCKET Socket;
+    INT ErrorCode;
     PPROTO_CATALOG_ITEM CatalogEntry;
     LPWSAPROTOCOL_INFOW ProtocolInfo;
 
@@ -718,14 +699,12 @@ Returns:
             __try {
                 if (LITTLEENDIAN == ProtocolInfo->iNetworkByteOrder) {
                     *lpnetshort = hostshort;
-                } //if
-                else {
+                } else {
                     *lpnetshort = WS_SWAP_SHORT(hostshort);
-                } //else
+                }
 
                 ErrorCode = ERROR_SUCCESS;
-            } __except (WS2_EXCEPTION_FILTER())
-            {
+            } __except (WS2_EXCEPTION_FILTER()) {
                 ErrorCode = WSAEFAULT;
             }
 
@@ -733,8 +712,7 @@ Returns:
             if (ErrorCode == ERROR_SUCCESS) {
                 return ErrorCode;
             }
-        } //if
-        else {
+        } else {
             ErrorCode = WSAENOTSOCK;
         }
     }
@@ -744,7 +722,7 @@ Returns:
 }
 
 
-int WSAAPI WSANtohl(IN SOCKET s, IN u_long netlong, OUT u_long FAR * lphostlong)
+int WSAAPI WSANtohl(IN SOCKET s, IN u_long netlong, OUT u_long FAR* lphostlong)
 /*++
 Routine Description:
     Convert a u_long from network byte order to host byte order.
@@ -756,8 +734,8 @@ Returns:
      If no error occurs, WSANtohs() returns 0. Otherwise, a value of SOCKET_ERROR is returned.
 --*/
 {
-    PDSOCKET            Socket;
-    INT                 ErrorCode;
+    PDSOCKET Socket;
+    INT ErrorCode;
     PPROTO_CATALOG_ITEM CatalogEntry;
     LPWSAPROTOCOL_INFOW ProtocolInfo;
 
@@ -776,10 +754,9 @@ Returns:
             __try {
                 if (LITTLEENDIAN == ProtocolInfo->iNetworkByteOrder) {
                     *lphostlong = netlong;
-                } //if
-                else {
+                } else {
                     *lphostlong = SWAP_LONG(netlong);
-                } //else
+                }
                 ErrorCode = ERROR_SUCCESS;
             } __except (WS2_EXCEPTION_FILTER()) {
                 ErrorCode = WSAEFAULT;
@@ -789,8 +766,7 @@ Returns:
             if (ErrorCode == ERROR_SUCCESS) {
                 return ErrorCode;
             }
-        } //if
-        else {
+        } else {
             ErrorCode = WSAENOTSOCK;
         }
     }
@@ -800,14 +776,14 @@ Returns:
 }
 
 
-int WSAAPI WSANtohs(IN SOCKET s, IN u_short netshort, OUT u_short FAR * lphostshort)
+int WSAAPI WSANtohs(IN SOCKET s, IN u_short netshort, OUT u_short FAR* lphostshort)
 /*++
 Returns:
     Zero on success else SOCKET_ERROR. The error code is stored with SetErrorCode().
 --*/
 {
-    PDSOCKET            Socket;
-    INT                 ErrorCode;
+    PDSOCKET Socket;
+    INT ErrorCode;
     PPROTO_CATALOG_ITEM CatalogEntry;
     LPWSAPROTOCOL_INFOW ProtocolInfo;
 
@@ -826,10 +802,9 @@ Returns:
             __try {
                 if (LITTLEENDIAN == ProtocolInfo->iNetworkByteOrder) {
                     *lphostshort = netshort;
-                } //if
-                else {
+                } else {
                     *lphostshort = WS_SWAP_SHORT(netshort);
-                } //else
+                }
                 ErrorCode = ERROR_SUCCESS;
             } __except (WS2_EXCEPTION_FILTER()) {
                 ErrorCode = WSAEFAULT;
@@ -839,8 +814,7 @@ Returns:
             if (ErrorCode == ERROR_SUCCESS) {
                 return ErrorCode;
             }
-        } //if
-        else {
+        } else {
             ErrorCode = WSAENOTSOCK;
         }
     }

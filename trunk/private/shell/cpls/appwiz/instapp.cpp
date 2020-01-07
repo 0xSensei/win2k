@@ -20,8 +20,8 @@
 #include "resource.h"
 #include "uemapp.h"
 
-const TCHAR c_szInstall[]  = TEXT("Software\\Installer\\Products\\%s");
-const TCHAR c_szTSInstallMode[]  = TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\Terminal Server\\Install\\Change User Option");
+const TCHAR c_szInstall[] = TEXT("Software\\Installer\\Products\\%s");
+const TCHAR c_szTSInstallMode[] = TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\Terminal Server\\Install\\Change User Option");
 const TCHAR c_szUpdateInfo[] = TEXT("URLUpdateInfo");
 const TCHAR c_szSlowInfoCache[] = TEXT("SlowInfoCache");
 const TCHAR c_szRegstrARPCache[] = TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\App Management\\ARPCache");
@@ -78,8 +78,7 @@ CInstalledApp::CInstalledApp(HKEY hkeySub, LPCTSTR pszKeyName, LPCTSTR pszProduc
     // Does this app have an explicit modify path?
     cbModify = SIZEOF(_szModifyPath);
     lRet = SHQueryValueEx(hkeySub, TEXT("ModifyPath"), 0, &dwType, (PBYTE)_szModifyPath, &cbModify);
-    if ((ERROR_SUCCESS == lRet) && (TEXT('\0') != _szModifyPath[0]))
-    {
+    if ((ERROR_SUCCESS == lRet) && (TEXT('\0') != _szModifyPath[0])) {
         // Yes; remove the legacy modify/remove combination.
         _dwAction &= ~APPACTION_MODIFYREMOVE;
 
@@ -114,15 +113,14 @@ CInstalledApp::CInstalledApp(LPTSTR pszProductID) : _cRef(1), _dwSource(IA_DARWI
 
     // For Machine Assigned Darwin Apps, only admins should be allowed
     // to modify the app
-    if (!IsUserAnAdmin())
-    {
+    if (!IsUserAnAdmin()) {
         TCHAR szAT[5];
         DWORD cchAT = ARRAYSIZE(szAT);
 
         // NOTE: according to chetanp, the first character of szAT should be "0" or "1"
         // '0' means it's user assigned, '1' means it's machine assigned
         if ((ERROR_SUCCESS == MsiGetProductInfo(pszProductID, INSTALLPROPERTY_ASSIGNMENTTYPE,
-                                               szAT, &cchAT))
+                                                szAT, &cchAT))
             && (szAT[0] == TEXT('1')))
             bMachineAssigned = TRUE;
     }
@@ -130,23 +128,18 @@ CInstalledApp::CInstalledApp(LPTSTR pszProductID) : _cRef(1), _dwSource(IA_DARWI
     // Query the install state and separate the cases where this app is
     // installed on the machine or assigned...
     // In the assigned case we allow only Uninstall operation.
-    if (INSTALLSTATE_ADVERTISED == MsiQueryProductState(pszProductID))
-    {
+    if (INSTALLSTATE_ADVERTISED == MsiQueryProductState(pszProductID)) {
         _dwAction |= APPACTION_UNINSTALL;
-    }
-    else
-    {
+    } else {
         DWORD dwActionBlocked = 0;
         HKEY hkeySub = _OpenUninstallRegKey(KEY_READ);
-        if (hkeySub)
-        {
+        if (hkeySub) {
             dwActionBlocked = _QueryBlockedActions(hkeySub);
             _GetInstallLocationFromRegistry(hkeySub);
             RegCloseKey(hkeySub);
             if (bMachineAssigned)
                 _dwAction |= APPACTION_REPAIR & (~dwActionBlocked);
-            else
-            {
+            else {
                 _dwAction |= APPACTION_STANDARD & (~dwActionBlocked);
                 _GetUpdateUrl();
             }
@@ -158,8 +151,7 @@ CInstalledApp::CInstalledApp(LPTSTR pszProductID) : _cRef(1), _dwSource(IA_DARWI
 // destructor
 CInstalledApp::~CInstalledApp()
 {
-    if (_pszUpdateUrl)
-    {
+    if (_pszUpdateUrl) {
         ASSERT(_dwSource & IA_DARWIN);
         LocalFree(_pszUpdateUrl);
     }
@@ -175,18 +167,14 @@ void CInstalledApp::_GetUpdateUrl()
     TCHAR szInstall[MAX_PATH];
     HKEY hkeyInstall;
     wnsprintf(szInstall, ARRAYSIZE(szInstall), c_szInstall, _szProductID);
-    if (RegOpenKeyEx(_MyHkeyRoot(), szInstall, 0, KEY_READ, &hkeyInstall) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(_MyHkeyRoot(), szInstall, 0, KEY_READ, &hkeyInstall) == ERROR_SUCCESS) {
         ULONG cbUrl;
-        if (SHQueryValueEx(hkeyInstall, c_szUpdateInfo, NULL, NULL, NULL, &cbUrl) == ERROR_SUCCESS)
-        {
-            _pszUpdateUrl = (LPTSTR) LocalAlloc(LPTR, cbUrl);
-            if (ERROR_SUCCESS != SHQueryValueEx(hkeyInstall, TEXT(""), NULL, NULL, (PBYTE)_pszUpdateUrl, &cbUrl))
-            {
+        if (SHQueryValueEx(hkeyInstall, c_szUpdateInfo, NULL, NULL, NULL, &cbUrl) == ERROR_SUCCESS) {
+            _pszUpdateUrl = (LPTSTR)LocalAlloc(LPTR, cbUrl);
+            if (ERROR_SUCCESS != SHQueryValueEx(hkeyInstall, TEXT(""), NULL, NULL, (PBYTE)_pszUpdateUrl, &cbUrl)) {
                 LocalFree(_pszUpdateUrl);
                 _pszUpdateUrl = NULL;
-            }
-            else
+            } else
                 _dwAction |= APPACTION_UPGRADE;
         }
         RegCloseKey(hkeyInstall);
@@ -219,11 +207,9 @@ DWORD CInstalledApp::_QueryBlockedActions(HKEY hkey)
 {
     DWORD dwRet = _QueryActionBlockInfo(hkey);
 
-    if (dwRet != APPACTION_STANDARD)
-    {
+    if (dwRet != APPACTION_STANDARD) {
         HKEY hkeyPolicy = _OpenRelatedRegKey(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"), KEY_READ, FALSE);
-        if (hkeyPolicy)
-        {
+        if (hkeyPolicy) {
             dwRet |= _QueryActionBlockInfo(hkeyPolicy);
             RegCloseKey(hkeyPolicy);
         }
@@ -239,8 +225,7 @@ void CInstalledApp::_GetInstallLocationFromRegistry(HKEY hkeySub)
     LONG lRet = SHQueryValueEx(hkeySub, TEXT("InstallLocation"), 0, &dwType, (PBYTE)_szInstallLocation, &cbInstallLocation);
     PathUnquoteSpaces(_szInstallLocation);
 
-    if (lRet == ERROR_SUCCESS)
-    {
+    if (lRet == ERROR_SUCCESS) {
         ASSERT(IS_VALID_STRING_PTR(_szInstallLocation, -1));
         _dwAction |= APPACTION_CANGETSIZE;
     }
@@ -254,7 +239,7 @@ HKEY CInstalledApp::_OpenRelatedRegKey(HKEY hkey, LPCTSTR pszRegLoc, REGSAM samD
 
     TCHAR szRegKey[MAX_PATH];
 
-    RIP (pszRegLoc);
+    RIP(pszRegLoc);
 
     // For Darwin apps, use the ProductID as the key name
     LPTSTR pszKeyName = (_dwSource & IA_DARWIN) ? _szProductID : _szKeyName;
@@ -262,8 +247,7 @@ HKEY CInstalledApp::_OpenRelatedRegKey(HKEY hkey, LPCTSTR pszRegLoc, REGSAM samD
 
     // Open this key in the registry
     lRet = RegOpenKeyEx(hkey, szRegKey, 0, samDesired, &hkeySub);
-    if (bCreate && (lRet == ERROR_FILE_NOT_FOUND))
-    {
+    if (bCreate && (lRet == ERROR_FILE_NOT_FOUND)) {
         lRet = RegCreateKeyEx(hkey, szRegKey, 0, NULL, REG_OPTION_NON_VOLATILE, samDesired, NULL, &hkeySub, NULL);
     }
 
@@ -285,25 +269,19 @@ LPWSTR CInstalledApp::_GetLegacyInfoString(HKEY hkeySub, LPTSTR pszInfoName)
     DWORD cbSize;
     DWORD dwType;
     LPWSTR pwszInfo = NULL;
-    if (SHQueryValueEx(hkeySub, pszInfoName, 0, &dwType, NULL, &cbSize) == ERROR_SUCCESS)
-    {
+    if (SHQueryValueEx(hkeySub, pszInfoName, 0, &dwType, NULL, &cbSize) == ERROR_SUCCESS) {
         LPTSTR pszInfoT = (LPTSTR)LocalAlloc(LPTR, cbSize);
-        if (pszInfoT && (SHQueryValueEx(hkeySub, pszInfoName, 0, &dwType, (PBYTE)pszInfoT, &cbSize) == ERROR_SUCCESS))
-        {
-            if ((dwType == REG_SZ) || (dwType == REG_EXPAND_SZ))
-            {
-                if (FAILED(SHStrDup(pszInfoT, &pwszInfo)))
-                {
+        if (pszInfoT && (SHQueryValueEx(hkeySub, pszInfoName, 0, &dwType, (PBYTE)pszInfoT, &cbSize) == ERROR_SUCCESS)) {
+            if ((dwType == REG_SZ) || (dwType == REG_EXPAND_SZ)) {
+                if (FAILED(SHStrDup(pszInfoT, &pwszInfo))) {
                     ASSERT(pwszInfo == NULL);
                 }
 
                 // For the "DisplayIcon" case, we need to make sure the path of
                 // the icon actually exists.
-                if (pwszInfo && !lstrcmp(pszInfoName, TEXT("DisplayIcon")))
-                {
+                if (pwszInfo && !lstrcmp(pszInfoName, TEXT("DisplayIcon"))) {
                     PathParseIconLocation(pszInfoT);
-                    if (!PathFileExists(pszInfoT))
-                    {
+                    if (!PathFileExists(pszInfoT)) {
                         SHFree(pwszInfo);
                         pwszInfo = NULL;
                     }
@@ -327,17 +305,14 @@ STDMETHODIMP CInstalledApp::GetAppInfo(PAPPINFODATA pai)
     DWORD dwInfoFlags = pai->dwMask;
     pai->dwMask = 0;
     // We cache the product name in all cases(Legacy, Darwin, SMS).
-    if (dwInfoFlags & AIM_DISPLAYNAME)
-    {
+    if (dwInfoFlags & AIM_DISPLAYNAME) {
         if (SUCCEEDED(SHStrDup(_szProduct, &pai->pszDisplayName)))
             pai->dwMask |= AIM_DISPLAYNAME;
     }
 
-    if (dwInfoFlags & ~AIM_DISPLAYNAME)
-    {
+    if (dwInfoFlags & ~AIM_DISPLAYNAME) {
         HKEY hkeySub = _OpenUninstallRegKey(KEY_READ);
-        if (hkeySub != NULL)
-        {
+        if (hkeySub != NULL) {
             const static struct {
                 DWORD dwBit;
                 LPTSTR szRegText;
@@ -363,36 +338,31 @@ STDMETHODIMP CInstalledApp::GetAppInfo(PAPPINFODATA pai)
                 {AIM_IMAGE,           TEXT("DisplayIcon"),      FIELD_OFFSET(APPINFODATA, pszImage) },
                 {AIM_READMEURL,       TEXT("Readme"),           FIELD_OFFSET(APPINFODATA, pszReadmeUrl) },
                 {AIM_UPDATEINFOURL,   TEXT("UrlUpdateInfo"),    FIELD_OFFSET(APPINFODATA, pszUpdateInfoUrl) },
-                };
+            };
 
             ASSERT(IS_VALID_HANDLE(hkeySub, KEY));
 
             int i;
-            for (i = 0; i < ARRAYSIZE(s_rgInitAppInfo); i++)
-            {
-                if (dwInfoFlags & s_rgInitAppInfo[i].dwBit)
-                {
+            for (i = 0; i < ARRAYSIZE(s_rgInitAppInfo); i++) {
+                if (dwInfoFlags & s_rgInitAppInfo[i].dwBit) {
                     LPWSTR pszInfo = _GetLegacyInfoString(hkeySub, s_rgInitAppInfo[i].szRegText);
-                    if (pszInfo)
-                    {
+                    if (pszInfo) {
                         // We are assuming each field is a LPWSTR.
                         LPBYTE pbField = (LPBYTE)pai + s_rgInitAppInfo[i].ibOffset;
 
                         pai->dwMask |= s_rgInitAppInfo[i].dwBit;
-                        *(LPWSTR *)pbField = pszInfo;
+                        *(LPWSTR*)pbField = pszInfo;
                     }
                 }
             }
 
             // If we want a image path but did not get it, and we are a darwin app
-            if ((dwInfoFlags & AIM_IMAGE) && !(pai->dwMask & AIM_IMAGE) && (_dwSource & IA_DARWIN))
-            {
-                TCHAR szProductIcon[MAX_PATH*2];
+            if ((dwInfoFlags & AIM_IMAGE) && !(pai->dwMask & AIM_IMAGE) && (_dwSource & IA_DARWIN)) {
+                TCHAR szProductIcon[MAX_PATH * 2];
                 DWORD cchProductIcon = ARRAYSIZE(szProductIcon);
                 // Okay, call Darwin to get the image
                 if ((ERROR_SUCCESS == MsiGetProductInfo(_szProductID, INSTALLPROPERTY_PRODUCTICON, szProductIcon, &cchProductIcon))
-                    && szProductIcon[0])
-                {
+                    && szProductIcon[0]) {
                     if (SUCCEEDED(SHStrDup(szProductIcon, &pai->pszImage)))
                         pai->dwMask |= AIM_IMAGE;
                 }
@@ -409,7 +379,7 @@ STDMETHODIMP CInstalledApp::GetAppInfo(PAPPINFODATA pai)
 
 
 // IShellApps::GetPossibleActions
-STDMETHODIMP CInstalledApp::GetPossibleActions(DWORD * pdwActions)
+STDMETHODIMP CInstalledApp::GetPossibleActions(DWORD* pdwActions)
 {
     ASSERT(IS_VALID_WRITE_PTR(pdwActions, DWORD));
     *pdwActions = _dwAction;
@@ -427,7 +397,7 @@ Purpose: This method finds the application folder for this app.  If a
 BOOL CInstalledApp::_FindAppFolderFromStrings()
 {
     TraceMsg(TF_INSTAPP, "(CInstalledApp) FindAppFolderFromStrings ---- %s  %s  %s  %s",
-            _szProduct, _szCleanedKeyName, _szUninstall, _szModifyPath);
+             _szProduct, _szCleanedKeyName, _szUninstall, _szModifyPath);
 
     // Try to determine from the "installlocation", "uninstall", or "modify"
     // regvalues.
@@ -437,28 +407,24 @@ BOOL CInstalledApp::_FindAppFolderFromStrings()
 
     // First try out the location string, this is most likely to give us some thing
     // and probably is the correct location for logo 5 apps.
-    if (_dwAction & APPACTION_CANGETSIZE)
-    {
-        if (!IsValidAppFolderLocation(_szInstallLocation))
-        {
+    if (_dwAction & APPACTION_CANGETSIZE) {
+        if (!IsValidAppFolderLocation(_szInstallLocation)) {
             // We got bad location string from the registry, set it to empty string
             _dwAction &= ~APPACTION_CANGETSIZE;
             _szInstallLocation[0] = 0;
-        }
-        else
+        } else
             // The string from the registry is fine
             return TRUE;
     }
 
     // We didn't have a location string or failed to get anything from it.
     // logo 3 apps are typically this case...
-    LPTSTR pszShortName  = (_dwSource & IA_LEGACY) ? _szCleanedKeyName : NULL;
+    LPTSTR pszShortName = (_dwSource & IA_LEGACY) ? _szCleanedKeyName : NULL;
     TCHAR  szFolder[MAX_PATH];
 
     // Let's take a look at the uninstall string, 2nd most likely to give hints
     if ((_dwAction & APPACTION_UNINSTALL) &&
-        (ParseInfoString(_szUninstall, _szProduct, pszShortName, szFolder)))
-    {
+        (ParseInfoString(_szUninstall, _szProduct, pszShortName, szFolder))) {
         // remember this string and set the Action bit to get size
         lstrcpy(_szInstallLocation, szFolder);
         _dwAction |= APPACTION_CANGETSIZE;
@@ -467,8 +433,7 @@ BOOL CInstalledApp::_FindAppFolderFromStrings()
 
     // Now try the modify string
     if ((_dwAction & APPACTION_MODIFY) &&
-        (ParseInfoString(_szModifyPath, _szProduct, pszShortName, szFolder)))
-    {
+        (ParseInfoString(_szModifyPath, _szProduct, pszShortName, szFolder))) {
         // remember this string and set the Action bit to get size
         lstrcpy(_szInstallLocation, szFolder);
         _dwAction |= APPACTION_CANGETSIZE;
@@ -489,8 +454,7 @@ HRESULT CInstalledApp::_PersistSlowAppInfo(PSLOWAPPINFO psai)
     HRESULT hres = E_FAIL;
     ASSERT(psai);
     HKEY hkeyARPCache = _OpenRelatedRegKey(_MyHkeyRoot(), c_szRegstrARPCache, KEY_SET_VALUE, TRUE);
-    if (hkeyARPCache)
-    {
+    if (hkeyARPCache) {
         PERSISTSLOWINFO psi = {0};
         DWORD dwType = 0;
         DWORD cbSize = SIZEOF(psi);
@@ -506,8 +470,7 @@ HRESULT CInstalledApp::_PersistSlowAppInfo(PSLOWAPPINFO psai)
         psi.ftLastUsed = psai->ftLastUsed;
         psi.iTimesUsed = psai->iTimesUsed;
 
-        if (!(psi.dwMasks & PERSISTSLOWINFO_IMAGE) && psai->pszImage && psai->pszImage[0])
-        {
+        if (!(psi.dwMasks & PERSISTSLOWINFO_IMAGE) && psai->pszImage && psai->pszImage[0]) {
             psi.dwMasks |= PERSISTSLOWINFO_IMAGE;
             StrCpy(psi.szImage, psai->pszImage);
         }
@@ -533,15 +496,13 @@ HRESULT CInstalledApp::_SetSlowAppInfoChanged(HKEY hkeyARPCache, DWORD dwValue)
 {
     HRESULT hres = E_FAIL;
     BOOL bNewKey = FALSE;
-    if (!hkeyARPCache)
-    {
+    if (!hkeyARPCache) {
         hkeyARPCache = _OpenRelatedRegKey(_MyHkeyRoot(), c_szRegstrARPCache, KEY_READ, FALSE);
         if (hkeyARPCache)
             bNewKey = TRUE;
     }
 
-    if (hkeyARPCache)
-    {
+    if (hkeyARPCache) {
         if (ERROR_SUCCESS == RegSetValueEx(hkeyARPCache, TEXT("Changed"), 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(dwValue)))
             hres = S_OK;
 
@@ -562,8 +523,7 @@ HRESULT CInstalledApp::_IsSlowAppInfoChanged()
 {
     HRESULT hres = S_FALSE;
     HKEY hkeyARPCache = _OpenRelatedRegKey(_MyHkeyRoot(), c_szRegstrARPCache, KEY_READ, FALSE);
-    if (hkeyARPCache)
-    {
+    if (hkeyARPCache) {
         DWORD dwValue;
         DWORD dwType;
         DWORD cbSize = SIZEOF(dwValue);
@@ -572,28 +532,25 @@ HRESULT CInstalledApp::_IsSlowAppInfoChanged()
             hres = S_OK;
 
         RegCloseKey(hkeyARPCache);
-    }
-    else
+    } else
         hres = S_OK;
     return hres;
 }
 
-BOOL CInstalledApp::_GetDarwinAppSize(ULONGLONG * pullTotal)
+BOOL CInstalledApp::_GetDarwinAppSize(ULONGLONG* pullTotal)
 {
     BOOL bRet = FALSE;
     HKEY hkeySub = _OpenUninstallRegKey(KEY_READ);
 
     RIP(pullTotal);
     *pullTotal = 0;
-    if (hkeySub)
-    {
+    if (hkeySub) {
         DWORD dwSize = 0;
         DWORD dwType = 0;
         DWORD cbSize = SIZEOF(dwSize);
 
         if (ERROR_SUCCESS == SHQueryValueEx(hkeySub, TEXT("EstimatedSize"), 0, &dwType, &dwSize, &cbSize)
-            && (dwType == REG_DWORD))
-        {
+            && (dwType == REG_DWORD)) {
             // NOTE: EstimatedSize is in "kb"
             *pullTotal = dwSize * 1024;
             bRet = TRUE;
@@ -619,8 +576,7 @@ STDMETHODIMP CInstalledApp::GetSlowAppInfo(PSLOWAPPINFO psai)
 {
 #ifndef DOWNLEVEL_PLATFORM
     HRESULT hres = E_INVALIDARG;
-    if (psai)
-    {
+    if (psai) {
         // Is this an app that we know we can't get info for?
         // In this case this is a darwin app that has not changed
         BOOL bFoundFolder = FALSE;
@@ -628,66 +584,61 @@ STDMETHODIMP CInstalledApp::GetSlowAppInfo(PSLOWAPPINFO psai)
         BOOL bSlowAppInfoChanged = (S_OK == _IsSlowAppInfoChanged());
 
         // Nothing should have changed except for the usage info, so get the cached one first
-        if (FAILED(GetCachedSlowAppInfo(psai)))
-        {
+        if (FAILED(GetCachedSlowAppInfo(psai))) {
             ZeroMemory(psai, sizeof(*psai));
             psai->iTimesUsed = -1;
-            psai->ullSize = (ULONGLONG) -1;
+            psai->ullSize = (ULONGLONG)-1;
         }
 
         // No; have we tried to determine this app's installation location?
         switch (_dwSource) {
-            case IA_LEGACY:
-            {
-                if (!_bTriedToFindFolder)
-                {
-                    // No; try to find out now
-                    BOOL bRet = _FindAppFolderFromStrings();
-                    if (bRet)
-                        TraceMsg(TF_ALWAYS, "(CInstalledApp) App Folder Found %s --- %s", _szProduct, _szInstallLocation);
-                    else
-                    {
-                        ASSERT(!(_dwAction & APPACTION_CANGETSIZE));
-                        ASSERT(_szInstallLocation[0] == 0);
-                    }
-                }
-
-                pszShortName = _szCleanedKeyName;
-
-                bFoundFolder = _dwAction & APPACTION_CANGETSIZE;
-                if (!bFoundFolder)
-                    bFoundFolder = SlowFindAppFolder(_szProduct, pszShortName, _szInstallLocation);
-            }
-            break;
-
-            case IA_DARWIN:
-            {
-                 // Can we get the Darwin app size?
-                if (!_GetDarwinAppSize(&psai->ullSize))
-                   // No, let's set it back to the default value
-                   psai->ullSize = (ULONGLONG) -1;
-
-                // Get the "times used" info from UEM
-                UEMINFO uei = {0};
-                uei.cbSize = SIZEOF(uei);
-                uei.dwMask = UEIM_HIT | UEIM_FILETIME;
-                if(SUCCEEDED(UEMQueryEvent(&UEMIID_SHELL, UEME_RUNPATH, (WPARAM)-1, (LPARAM)_szProductID, &uei)))
-                {
-                    // Is there a change to the times used?
-                    if (uei.cHit > psai->iTimesUsed)
-                    {
-                        // Yes, then overwrite the times used field
-                        psai->iTimesUsed = uei.cHit;
-                    }
-
-                    if (CompareFileTime(&(uei.ftExecute), &psai->ftLastUsed) > 0)
-                        psai->ftLastUsed = uei.ftExecute;
+        case IA_LEGACY:
+        {
+            if (!_bTriedToFindFolder) {
+                // No; try to find out now
+                BOOL bRet = _FindAppFolderFromStrings();
+                if (bRet)
+                    TraceMsg(TF_ALWAYS, "(CInstalledApp) App Folder Found %s --- %s", _szProduct, _szInstallLocation);
+                else {
+                    ASSERT(!(_dwAction & APPACTION_CANGETSIZE));
+                    ASSERT(_szInstallLocation[0] == 0);
                 }
             }
-            break;
 
-            default:
-                break;
+            pszShortName = _szCleanedKeyName;
+
+            bFoundFolder = _dwAction & APPACTION_CANGETSIZE;
+            if (!bFoundFolder)
+                bFoundFolder = SlowFindAppFolder(_szProduct, pszShortName, _szInstallLocation);
+        }
+        break;
+
+        case IA_DARWIN:
+        {
+            // Can we get the Darwin app size?
+            if (!_GetDarwinAppSize(&psai->ullSize))
+                // No, let's set it back to the default value
+                psai->ullSize = (ULONGLONG)-1;
+
+            // Get the "times used" info from UEM
+            UEMINFO uei = {0};
+            uei.cbSize = SIZEOF(uei);
+            uei.dwMask = UEIM_HIT | UEIM_FILETIME;
+            if (SUCCEEDED(UEMQueryEvent(&UEMIID_SHELL, UEME_RUNPATH, (WPARAM)-1, (LPARAM)_szProductID, &uei))) {
+                // Is there a change to the times used?
+                if (uei.cHit > psai->iTimesUsed) {
+                    // Yes, then overwrite the times used field
+                    psai->iTimesUsed = uei.cHit;
+                }
+
+                if (CompareFileTime(&(uei.ftExecute), &psai->ftLastUsed) > 0)
+                    psai->ftLastUsed = uei.ftExecute;
+            }
+        }
+        break;
+
+        default:
+            break;
         }
 
         LPCTSTR pszInstallLocation = bFoundFolder ? _szInstallLocation : NULL;
@@ -713,18 +664,15 @@ STDMETHODIMP CInstalledApp::GetCachedSlowAppInfo(PSLOWAPPINFO psai)
 {
 #ifndef DOWNLEVEL_PLATFORM
     HRESULT hres = E_FAIL;
-    if (psai)
-    {
+    if (psai) {
         ZeroMemory(psai, sizeof(*psai));
         HKEY hkeyARPCache = _OpenRelatedRegKey(_MyHkeyRoot(), c_szRegstrARPCache, KEY_READ, FALSE);
-        if (hkeyARPCache)
-        {
+        if (hkeyARPCache) {
             PERSISTSLOWINFO psi = {0};
             DWORD dwType;
             DWORD cbSize = SIZEOF(psi);
             if ((RegQueryValueEx(hkeyARPCache, c_szSlowInfoCache, 0, &dwType, (LPBYTE)&psi, &cbSize) == ERROR_SUCCESS)
-                && (psi.dwSize == SIZEOF(psi)))
-            {
+                && (psi.dwSize == SIZEOF(psi))) {
                 psai->ullSize = psi.ullSize;
                 psai->ftLastUsed = psi.ftLastUsed;
                 psai->iTimesUsed = psi.iTimesUsed;
@@ -736,9 +684,9 @@ STDMETHODIMP CInstalledApp::GetCachedSlowAppInfo(PSLOWAPPINFO psai)
         }
     }
 #else
-        HRESULT hres = E_NOTIMPL;
+    HRESULT hres = E_NOTIMPL;
 #endif //DOWNLEVEL_PLATFORM
-        return hres;
+    return hres;
 }
 
 
@@ -747,47 +695,42 @@ STDMETHODIMP CInstalledApp::IsInstalled()
 {
     HRESULT hres = S_FALSE;
 
-    switch (_dwSource)
+    switch (_dwSource) {
+    case IA_LEGACY:
     {
-        case IA_LEGACY:
-        {
-            // First Let's see if the reg key is still there
-            HKEY hkey = _OpenUninstallRegKey(KEY_READ);
-            if (hkey)
-            {
-                // Second we check the "DisplayName" and the "UninstallString"
-                LPWSTR pszName = _GetLegacyInfoString(hkey, REGSTR_VAL_UNINSTALLER_DISPLAYNAME);
-                if (pszName)
-                {
-                    if (pszName[0])
-                    {
-                        LPWSTR pszUninstall = _GetLegacyInfoString(hkey, REGSTR_VAL_UNINSTALLER_COMMANDLINE);
-                        if (pszUninstall)
-                        {
-                            if (pszUninstall[0])
-                                hres = S_OK;
+        // First Let's see if the reg key is still there
+        HKEY hkey = _OpenUninstallRegKey(KEY_READ);
+        if (hkey) {
+            // Second we check the "DisplayName" and the "UninstallString"
+            LPWSTR pszName = _GetLegacyInfoString(hkey, REGSTR_VAL_UNINSTALLER_DISPLAYNAME);
+            if (pszName) {
+                if (pszName[0]) {
+                    LPWSTR pszUninstall = _GetLegacyInfoString(hkey, REGSTR_VAL_UNINSTALLER_COMMANDLINE);
+                    if (pszUninstall) {
+                        if (pszUninstall[0])
+                            hres = S_OK;
 
-                            SHFree(pszUninstall);
-                        }
+                        SHFree(pszUninstall);
                     }
-
-                    SHFree(pszName);
                 }
-                RegCloseKey(hkey);
+
+                SHFree(pszName);
             }
+            RegCloseKey(hkey);
         }
+    }
+    break;
+
+    case IA_DARWIN:
+        if (MsiQueryProductState(_szProductID) == INSTALLSTATE_DEFAULT)
+            hres = S_OK;
         break;
 
-        case IA_DARWIN:
-            if (MsiQueryProductState(_szProductID) == INSTALLSTATE_DEFAULT)
-                hres = S_OK;
-            break;
+    case IA_SMS:
+        break;
 
-        case IA_SMS:
-            break;
-
-        default:
-            break;
+    default:
+        break;
     }
 
     return hres;
@@ -814,12 +757,12 @@ STDAPI_(BOOL) Old_CreateAndWaitForProcess(LPTSTR pszExeName)
 #ifdef WX86
     if (bWx86Enabled && bForceX86Env) {
         cchArch = GetEnvironmentVariableW(ProcArchName,
-            szArchValue,
-            sizeof(szArchValue)
-            );
+                                          szArchValue,
+                                          sizeof(szArchValue)
+        );
 
         if (!cchArch || cchArch >= sizeof(szArchValue)) {
-            szArchValue[0]=L'\0';
+            szArchValue[0] = L'\0';
         }
 
         SetEnvironmentVariableW(ProcArchName, L"x86");
@@ -829,8 +772,7 @@ STDAPI_(BOOL) Old_CreateAndWaitForProcess(LPTSTR pszExeName)
     // Create the process
     fWorked = CreateProcess(NULL, pszExeName, NULL, NULL, FALSE, dwCreationFlags, NULL, NULL,
                             &si, &pi);
-    if (fWorked)
-    {
+    if (fWorked) {
 
         // Wait for the install to finish.
 
@@ -848,7 +790,7 @@ STDAPI_(BOOL) Old_CreateAndWaitForProcess(LPTSTR pszExeName)
 
             if (dwWaitRet == WAIT_OBJECT_0 + 1) {
                 // block-local variable
-                MSG msg ;
+                MSG msg;
 
                 // read all of the messages in this next loop
                 // removing each message as we read it
@@ -909,27 +851,23 @@ EXTERN_C BOOL _inline BrowseForExe(HWND hwnd, LPTSTR pszName, DWORD cchName,
  *-------*/
 BOOL_PTR CALLBACK NewUninstallProc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)
 {
-    RIP (lp);
+    RIP(lp);
 
-    LPTSTR pszExe = (LPTSTR) GetWindowLongPtr(hDlg, DWLP_USER);
-    switch (msg)
-    {
+    LPTSTR pszExe = (LPTSTR)GetWindowLongPtr(hDlg, DWLP_USER);
+    switch (msg) {
     case WM_INITDIALOG:
-        if (lp != NULL)
-        {
+        if (lp != NULL) {
             pszExe = (LPTSTR)lp;
             SetWindowText(GetDlgItem(hDlg, IDC_TEXT), pszExe);
             pszExe[0] = 0;
             SetWindowLongPtr(hDlg, DWLP_USER, lp);
-        }
-        else
+        } else
             EndDialog(hDlg, -1);
         break;
 
     case WM_COMMAND:
         ASSERT(pszExe);
-        switch (GET_WM_COMMAND_ID(wp, lp))
-        {
+        switch (GET_WM_COMMAND_ID(wp, lp)) {
         case IDC_BROWSE:
             if (BrowseForExe(hDlg, pszExe, MAX_PATH, NULL))
                 Edit_SetText(GetDlgItem(hDlg, IDC_COMMAND), pszExe);
@@ -961,10 +899,9 @@ int GetNewUninstallProgram(HWND hwndParent, LPTSTR pszExePath, DWORD cchExePath)
 {
     int iRet = 0;
     RIP(pszExePath);
-    if (cchExePath >= MAX_PATH)
-    {
+    if (cchExePath >= MAX_PATH) {
         iRet = (int)DialogBoxParam(g_hinst, MAKEINTRESOURCE(DLG_UNCUNINSTALLBROWSE),
-                              hwndParent, NewUninstallProc, (LPARAM)(int *)pszExePath);
+                                   hwndParent, NewUninstallProc, (LPARAM)(int*)pszExePath);
     }
 
     return iRet;
@@ -979,13 +916,12 @@ BOOL CInstalledApp::_CreateAppModifyProcess(HWND hwndParent, LPTSTR pszExePath)
 #ifndef DOWNLEVEL_PLATFORM
     // PPCF_LONGESTPOSSIBLE does not exist on down level platforms
     if (0 >= PathProcessCommand(pszExePath, szModifiedExePath,
-                                 ARRAYSIZE(szModifiedExePath), PPCF_ADDQUOTES | PPCF_NODIRECTORIES | PPCF_LONGESTPOSSIBLE))
+                                ARRAYSIZE(szModifiedExePath), PPCF_ADDQUOTES | PPCF_NODIRECTORIES | PPCF_LONGESTPOSSIBLE))
 #endif
-        lstrcpy(szModifiedExePath,pszExePath);
+        lstrcpy(szModifiedExePath, pszExePath);
 
     TCHAR szErrExe[MAX_PATH];
-    if (!PathIsNetAndCreatable(pszExePath, szErrExe))
-    {
+    if (!PathIsNetAndCreatable(pszExePath, szErrExe)) {
         TCHAR szExplain[MAX_PATH];
         LoadString(g_hinst, IDS_UNINSTALL_UNCUNACCESSIBLE, szExplain, ARRAYSIZE(szExplain));
 
@@ -995,12 +931,10 @@ BOOL CInstalledApp::_CreateAppModifyProcess(HWND hwndParent, LPTSTR pszExePath)
     }
 
     bRet = CreateAndWaitForProcess(szModifiedExePath);
-    if (!bRet)
-    {
-        if (ShellMessageBox( HINST_THISDLL, hwndParent, MAKEINTRESOURCE( IDS_UNINSTALL_FAILED ),
-                             MAKEINTRESOURCE( IDS_UNINSTALL_ERROR ),
-                             MB_YESNO | MB_ICONEXCLAMATION, _szProduct, _szProduct) == IDYES)
-        {
+    if (!bRet) {
+        if (ShellMessageBox(HINST_THISDLL, hwndParent, MAKEINTRESOURCE(IDS_UNINSTALL_FAILED),
+                            MAKEINTRESOURCE(IDS_UNINSTALL_ERROR),
+                            MB_YESNO | MB_ICONEXCLAMATION, _szProduct, _szProduct) == IDYES) {
             // If we are unable to uninstall the app, give the user the option of removing
             // it from the Add/Remove programs list.  Note that we only know an uninstall
             // has failed if we are unable to execute its command line in the registry.  This
@@ -1013,15 +947,13 @@ BOOL CInstalledApp::_CreateAppModifyProcess(HWND hwndParent, LPTSTR pszExePath)
             // various installer apps and see if any of them do return error codes that we could
             // use to be better at detecting failure cases.
             HKEY hkUninstall;
-            if (RegOpenKey(_MyHkeyRoot(), REGSTR_PATH_UNINSTALL, &hkUninstall) == ERROR_SUCCESS)
-            {
+            if (RegOpenKey(_MyHkeyRoot(), REGSTR_PATH_UNINSTALL, &hkUninstall) == ERROR_SUCCESS) {
                 if (ERROR_SUCCESS == SHDeleteKey(hkUninstall, _szKeyName))
                     bRet = TRUE;
-                else
-                {
-                    ShellMessageBox( HINST_THISDLL, hwndParent, MAKEINTRESOURCE( IDS_CANT_REMOVE_FROM_REGISTRY ),
-                                     MAKEINTRESOURCE( IDS_UNINSTALL_ERROR ),
-                                     MB_OK | MB_ICONEXCLAMATION, _szProduct);
+                else {
+                    ShellMessageBox(HINST_THISDLL, hwndParent, MAKEINTRESOURCE(IDS_CANT_REMOVE_FROM_REGISTRY),
+                                    MAKEINTRESOURCE(IDS_UNINSTALL_ERROR),
+                                    MB_OK | MB_ICONEXCLAMATION, _szProduct);
                 }
                 RegCloseKey(hkUninstall);
             }
@@ -1051,8 +983,7 @@ DWORD _QueryTSInstallMode(LPTSTR pszKeyName)
     DWORD dwVal = 0;
     DWORD dwValSize = SIZEOF(dwVal);
     if (ERROR_SUCCESS != SHGetValue(HKEY_LOCAL_MACHINE, c_szTSInstallMode, pszKeyName,
-                                   NULL, &dwVal, &dwValSize))
-    {
+                                    NULL, &dwVal, &dwValSize)) {
         dwVal = 0;
     }
 
@@ -1073,12 +1004,10 @@ STDMETHODIMP CInstalledApp::Uninstall(HWND hwndParent)
     DWORD dwTSInstallMode = 1;
     BOOL bPrevMode = FALSE;
 
-    if (IsTerminalServicesRunning())
-    {
+    if (IsTerminalServicesRunning()) {
         // On NT,  let Terminal Services know that we are about to uninstall an application.
         dwTSInstallMode = _QueryTSInstallMode((_dwSource & IA_DARWIN) ? _szProductID : _szKeyName);
-        if (dwTSInstallMode == 0)
-        {
+        if (dwTSInstallMode == 0) {
             bPrevMode = TermsrvAppInstallMode();
             SetTermsrvAppInstallMode(TRUE);
         }
@@ -1086,77 +1015,68 @@ STDMETHODIMP CInstalledApp::Uninstall(HWND hwndParent)
 #endif // DOWNLEVEL_PLATFORM
 #endif // WINNT
 
-    switch (_dwSource)
+    switch (_dwSource) {
+    case IA_LEGACY:
+        if (_LegacyUninstall(hwndParent))
+            hres = S_OK;
+        break;
+
+    case IA_DARWIN:
     {
-        case IA_LEGACY:
-            if (_LegacyUninstall(hwndParent))
+        TCHAR   szFinal[512], szPrompt[256];
+
+        LoadString(g_hinst, IDS_CONFIRM_REMOVE, szPrompt, ARRAYSIZE(szPrompt));
+        wnsprintf(szFinal, ARRAYSIZE(szFinal), szPrompt, _szProduct);
+        if (ShellMessageBox(g_hinst, hwndParent, szFinal, MAKEINTRESOURCE(IDS_NAME),
+                            MB_YESNO | MB_ICONQUESTION, _szProduct, _szProduct) == IDYES) {
+            LONG lRet;
+            INSTALLUILEVEL OldUI = MsiSetInternalUI(INSTALLUILEVEL_BASIC, NULL);
+            lRet = MsiConfigureProduct(_szProductID, INSTALLLEVEL_DEFAULT, INSTALLSTATE_ABSENT);
+            MsiSetInternalUI(OldUI, NULL);
+            hres = HRESULT_FROM_WIN32(lRet);
+
+
+            // Is this an ophaned assigned app? If so, say we succeeded and call
+            // Class Store to remove it.
+            // BUGBUG: This is too Class Store specific, what if the app is from
+            // SMS?
+            if ((lRet == ERROR_INSTALL_SOURCE_ABSENT) &&
+                (INSTALLSTATE_ADVERTISED == MsiQueryProductState(_szProductID))) {
                 hres = S_OK;
-            break;
+            }
 
-        case IA_DARWIN:
-        {
-            TCHAR   szFinal[512], szPrompt[256];
-
-            LoadString(g_hinst, IDS_CONFIRM_REMOVE, szPrompt, ARRAYSIZE(szPrompt));
-            wnsprintf(szFinal, ARRAYSIZE(szFinal), szPrompt, _szProduct);
-            if (ShellMessageBox(g_hinst, hwndParent, szFinal, MAKEINTRESOURCE(IDS_NAME),
-                                MB_YESNO | MB_ICONQUESTION, _szProduct, _szProduct) == IDYES)
-            {
-                LONG lRet;
-                INSTALLUILEVEL OldUI = MsiSetInternalUI(INSTALLUILEVEL_BASIC, NULL);
-                lRet = MsiConfigureProduct(_szProductID, INSTALLLEVEL_DEFAULT, INSTALLSTATE_ABSENT);
-                MsiSetInternalUI(OldUI, NULL);
-                hres = HRESULT_FROM_WIN32(lRet);
-
-
-                // Is this an ophaned assigned app? If so, say we succeeded and call
-                // Class Store to remove it.
-                // BUGBUG: This is too Class Store specific, what if the app is from
-                // SMS?
-                if ((lRet == ERROR_INSTALL_SOURCE_ABSENT) &&
-                    (INSTALLSTATE_ADVERTISED == MsiQueryProductState(_szProductID)))
-                {
-                    hres = S_OK;
-                }
-
-                if (SUCCEEDED(hres))
-                {
-                    // Tell Class Store we are uninstalling a Darwin app
-                    // NOTE: We call this function for every Darwin app, which is not right because
-                    // some darwin apps could be from a different source, such as SMS, we need a better
-                    // way to do this.
-                    WCHAR wszProductID[GUIDSTR_MAX];
+            if (SUCCEEDED(hres)) {
+                // Tell Class Store we are uninstalling a Darwin app
+                // NOTE: We call this function for every Darwin app, which is not right because
+                // some darwin apps could be from a different source, such as SMS, we need a better
+                // way to do this.
+                WCHAR wszProductID[GUIDSTR_MAX];
 #ifdef UNICODE
-                    StrCpy(wszProductID, _szProductID);
+                StrCpy(wszProductID, _szProductID);
 #else
-                    SHTCharToUnicode(_szProductID, wszProductID, ARRAYSIZE(wszProductID));
+                SHTCharToUnicode(_szProductID, wszProductID, ARRAYSIZE(wszProductID));
 #endif
-                    UninstallApplication(wszProductID);
-                }
-                else
-                    _ARPErrorMessageBox(lRet);
+                UninstallApplication(wszProductID);
+            } else
+                _ARPErrorMessageBox(lRet);
 
-            }
-            else
-            {
-                hres = E_ABORT;      // works for user cancelled
-            }
-            break;
+        } else {
+            hres = E_ABORT;      // works for user cancelled
         }
+        break;
+    }
 
-        case IA_SMS:
-            break;
+    case IA_SMS:
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     // Get rid of the ARP Cache for this app.
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         HKEY hkeyARPCache;
-        if (ERROR_SUCCESS == RegOpenKey(_MyHkeyRoot(), c_szRegstrARPCache, &hkeyARPCache))
-        {
+        if (ERROR_SUCCESS == RegOpenKey(_MyHkeyRoot(), c_szRegstrARPCache, &hkeyARPCache)) {
             LPTSTR pszKeyName = (_dwSource & IA_DARWIN) ? _szProductID : _szKeyName;
             SHDeleteKey(hkeyARPCache, pszKeyName);
             RegCloseKey(hkeyARPCache);
@@ -1176,7 +1096,7 @@ BOOL CInstalledApp::_LegacyModify(HWND hwndParent)
 {
     ASSERT(_dwAction & APPACTION_MODIFY);
     ASSERT(_dwSource & (IA_LEGACY | IA_DARWIN));
-//    ASSERT(IS_VALID_STRING_PTR(_szProductID, 39));
+    //    ASSERT(IS_VALID_STRING_PTR(_szProductID, 39));
 
     return _CreateAppModifyProcess(hwndParent, _szModifyPath);
 }
@@ -1191,20 +1111,17 @@ STDMETHODIMP CInstalledApp::Modify(HWND hwndParent)
     // On NT,  let Terminal Services know that we are about to modify an application.
     DWORD dwTSInstallMode = _QueryTSInstallMode((_dwSource & IA_DARWIN) ? _szProductID : _szKeyName);
     BOOL bPrevMode = FALSE;
-    if (dwTSInstallMode == 0)
-    {
+    if (dwTSInstallMode == 0) {
         bPrevMode = TermsrvAppInstallMode();
         SetTermsrvAppInstallMode(TRUE);
     }
 #endif // DOWNLEVEL_PLATFORM
 #endif // WINNT
 
-    if (_dwAction & APPACTION_MODIFY)
-    {
+    if (_dwAction & APPACTION_MODIFY) {
         if ((_dwSource & IA_LEGACY) && _LegacyModify(hwndParent))
             hres = S_OK;
-        else if (_dwSource & IA_DARWIN)
-        {
+        else if (_dwSource & IA_DARWIN) {
             // For modify operations we need to use the FULL UI level to give user
             // more choices
             // NOTE: we are currently not setting this back to the original after the
@@ -1236,8 +1153,8 @@ LONG CInstalledApp::_DarRepair(BOOL bReinstall)
     DWORD dwReinstall;
 
     dwReinstall = REINSTALLMODE_USERDATA | REINSTALLMODE_MACHINEDATA |
-                  REINSTALLMODE_SHORTCUT | REINSTALLMODE_FILEOLDERVERSION |
-                  REINSTALLMODE_FILEVERIFY;
+        REINSTALLMODE_SHORTCUT | REINSTALLMODE_FILEOLDERVERSION |
+        REINSTALLMODE_FILEVERIFY;
 
     return MsiReinstallProduct(_szProductID, dwReinstall);
 }
@@ -1246,8 +1163,7 @@ LONG CInstalledApp::_DarRepair(BOOL bReinstall)
 STDMETHODIMP CInstalledApp::Repair(BOOL bReinstall)
 {
     HRESULT hres = E_FAIL;
-    if (_dwSource & IA_DARWIN)
-    {
+    if (_dwSource & IA_DARWIN) {
         LONG lRet = _DarRepair(bReinstall);
         hres = HRESULT_FROM_WIN32(lRet);
         if (FAILED(hres))
@@ -1265,8 +1181,7 @@ STDMETHODIMP CInstalledApp::Repair(BOOL bReinstall)
 STDMETHODIMP CInstalledApp::Upgrade()
 {
     HRESULT hres = E_FAIL;
-    if ((_dwAction & APPACTION_UPGRADE) && (_dwSource & IA_DARWIN))
-    {
+    if ((_dwAction & APPACTION_UPGRADE) && (_dwSource & IA_DARWIN)) {
         ShellExecute(NULL, NULL, _pszUpdateUrl, NULL, NULL, SW_SHOWDEFAULT);
         hres = S_OK;
         _SetSlowAppInfoChanged(NULL, 1);
@@ -1277,7 +1192,7 @@ STDMETHODIMP CInstalledApp::Upgrade()
 }
 
 // IInstalledApp::QueryInterface
-HRESULT CInstalledApp::QueryInterface(REFIID riid, LPVOID * ppvOut)
+HRESULT CInstalledApp::QueryInterface(REFIID riid, LPVOID* ppvOut)
 {
     static const QITAB qit[] = {
         QITABENT(CInstalledApp, IInstalledApp),                  // IID_IInstalledApp

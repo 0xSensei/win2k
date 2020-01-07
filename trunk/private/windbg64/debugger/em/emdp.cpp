@@ -69,15 +69,15 @@ HLLI            llprc = (HLLI)NULL;
 
 HPRC            hprcCurr = 0;
 HPID            hpidCurr = 0;
-PID             pidCurr  = 0;
+PID             pidCurr = 0;
 PCPU_POINTERS   pointersCurr = 0;
 MPT             mptCurr;
 
 HTHD            hthdCurr = 0;
 HTID            htidCurr = 0;
-TID             tidCurr  = 0;
+TID             tidCurr = 0;
 
-HLLI            HllEo = (HLLI) NULL;
+HLLI            HllEo = (HLLI)NULL;
 
 
 
@@ -118,13 +118,13 @@ LOADDMSTRUCT LoadDmStruct = {
 
 
 
-/*** CODE **/
+ /*** CODE **/
 LPTSTR
 MHStrdup(
     LPTSTR lpstr
-    )
+)
 {
-    LPTSTR retstr = (LPTSTR) MHAlloc((_ftcslen(lpstr) + 1) * sizeof(TCHAR));
+    LPTSTR retstr = (LPTSTR)MHAlloc((_ftcslen(lpstr) + 1) * sizeof(TCHAR));
     assert(retstr);
     if (retstr) {
         _ftcscpy(retstr, lpstr);
@@ -153,9 +153,9 @@ MHStrdup(
  *****/
 
 #ifdef DEBUGVER
-DEBUG_VERSION('E','M',"Execution Model")
+DEBUG_VERSION('E', 'M', "Execution Model")
 #else
-RELEASE_VERSION('E','M',"Execution Model")
+RELEASE_VERSION('E', 'M', "Execution Model")
 #endif
 
 DBGVERSIONCHECK()
@@ -178,20 +178,20 @@ DBGVERSIONCHECK()
  *      the DM has actually processed the command.                         *
  *                                                                         *
  *****/
-XOSD
-SendCommand (
-    DMF dmf,
-    HPID hpid,
-    HTID htid
+    XOSD
+    SendCommand(
+        DMF dmf,
+        HPID hpid,
+        HTID htid
     )
 {
     DBB dbb = {0};
 
-    dbb.dmf  = dmf;
+    dbb.dmf = dmf;
     dbb.hpid = hpid;
     dbb.htid = htid;
 
-    return CallTL ( tlfDebugPacket, hpid, FIELD_OFFSET ( DBB, rgbVar ), (DWORD64)&dbb );
+    return CallTL(tlfDebugPacket, hpid, FIELD_OFFSET(DBB, rgbVar), (DWORD64)&dbb);
 }
 
 
@@ -215,26 +215,26 @@ SendCommand (
  *                                                                         *
  *****/
 EMEXPORT XOSD
-SendRequest (
+SendRequest(
     DMF dmf,
     HPID hpid,
     HTID htid
-    )
+)
 {
     DBB     dbb = {0};
     XOSD    xosd;
 
-    dbb.dmf  = dmf;
+    dbb.dmf = dmf;
     dbb.hpid = hpid;
     dbb.htid = htid;
 
-    xosd = CallTL ( tlfRequest, hpid, FIELD_OFFSET ( DBB, rgbVar ), (DWORD64)&dbb );
+    xosd = CallTL(tlfRequest, hpid, FIELD_OFFSET(DBB, rgbVar), (DWORD64)&dbb);
 
     if (xosd != xosdNone) {
         return xosd;
     }
 
-    xosd = (XOSD) LpDmMsg->xosdRet;
+    xosd = (XOSD)LpDmMsg->xosdRet;
 
     return xosd;
 }
@@ -262,13 +262,13 @@ SendRequest (
  *                                                                         *
  *****/
 EMEXPORT XOSD
-SendRequestX (
+SendRequestX(
     DMF dmf,
     HPID hpid,
     HTID htid,
     DWORD wLen,
     LPVOID lpv
-    )
+)
 {
     LPDBB   lpdbb;
     XOSD    xosd;
@@ -278,28 +278,28 @@ SendRequestX (
             MHFree(LpSendBuf);
         }
         CbSendBuf = FIELD_OFFSET(DBB, rgbVar) + wLen;
-        LpSendBuf = (LPBYTE) MHAlloc(CbSendBuf);
+        LpSendBuf = (LPBYTE)MHAlloc(CbSendBuf);
     }
 
     if (!LpSendBuf) {
         return xosdOutOfMemory;
     }
 
-    ZeroMemory(LpSendBuf,CbSendBuf);
+    ZeroMemory(LpSendBuf, CbSendBuf);
     lpdbb = (LPDBB)LpSendBuf;
 
-    lpdbb->dmf  = dmf;
+    lpdbb->dmf = dmf;
     lpdbb->hpid = hpid;
     lpdbb->htid = htid;
-    _fmemcpy ( lpdbb->rgbVar, lpv, wLen );
+    _fmemcpy(lpdbb->rgbVar, lpv, wLen);
 
-    xosd = CallTL ( tlfRequest, hpid, FIELD_OFFSET ( DBB, rgbVar ) + wLen, (DWORD64)lpdbb );
+    xosd = CallTL(tlfRequest, hpid, FIELD_OFFSET(DBB, rgbVar) + wLen, (DWORD64)lpdbb);
 
     if (xosd != xosdNone) {
         return xosd;
     }
 
-    xosd = (XOSD) LpDmMsg->xosdRet;
+    xosd = (XOSD)LpDmMsg->xosdRet;
 
     return xosd;
 }
@@ -313,61 +313,61 @@ SendRequestX (
 //      You probably want to free the lplpvPacket when you're done.
 
 XOSD
-RepackProgLoad (
+RepackProgLoad(
     CONST LPPRL lpprl,
-    LPVOID      *lplpvPacket,
-    UINT        *pcb
-    )
+    LPVOID* lplpvPacket,
+    UINT* pcb
+)
 {
-    BYTE*   lpb;
+    BYTE* lpb;
     LPTSTR  lszRemoteDir = _T("");
 
-    assert (lpprl);
-    assert (lplpvPacket);
-    assert (pcb);
+    assert(lpprl);
+    assert(lplpvPacket);
+    assert(pcb);
 
     // lszRemoteDir is allowed to be NULL, in which case we pass ""
-    if (lpprl -> lszRemoteDir != NULL) {
-        lszRemoteDir = lpprl -> lszRemoteDir;
+    if (lpprl->lszRemoteDir != NULL) {
+        lszRemoteDir = lpprl->lszRemoteDir;
     }
 
     *pcb = sizeof(DWORD);
-    *pcb += _ftcslen(lpprl -> lszRemoteExe) + 1;
-    *pcb += lpprl->lszCmdLine? (_ftcslen(lpprl -> lszCmdLine) + 1) : 1;
+    *pcb += _ftcslen(lpprl->lszRemoteExe) + 1;
+    *pcb += lpprl->lszCmdLine ? (_ftcslen(lpprl->lszCmdLine) + 1) : 1;
 
     *pcb += _ftcslen(lszRemoteDir) + 1;
-    *pcb += sizeof (SPAWNORPHAN);
+    *pcb += sizeof(SPAWNORPHAN);
 
 #if defined(_UNICODE)
 #pragma message("MHAlloc and *lplpvPacket+ctch need work")
 #endif
-    *lplpvPacket = MHAlloc(*pcb);
-    lpb = (BYTE*) *lplpvPacket;
+    * lplpvPacket = MHAlloc(*pcb);
+    lpb = (BYTE*)*lplpvPacket;
 
     if (!*lplpvPacket) {
         return xosdOutOfMemory;
     }
 
-//  REVIEW:  SwapEndian ( &dwChildFlags, sizeof ( dwChildFlags ) );
+    //  REVIEW:  SwapEndian ( &dwChildFlags, sizeof ( dwChildFlags ) );
 
-    memcpy (lpb, &(lpprl -> dwChildFlags), sizeof (lpprl -> dwChildFlags));
+    memcpy(lpb, &(lpprl->dwChildFlags), sizeof(lpprl->dwChildFlags));
     lpb += sizeof(DWORD);
 
-    _ftcscpy((CHAR*) lpb, lpprl -> lszRemoteExe);
-    lpb += _ftcslen (lpprl -> lszRemoteExe) + 1;
+    _ftcscpy((CHAR*)lpb, lpprl->lszRemoteExe);
+    lpb += _ftcslen(lpprl->lszRemoteExe) + 1;
 
     if (lpprl->lszCmdLine) {
-        _ftcscpy((CHAR*) lpb, lpprl -> lszCmdLine);
-        lpb += _ftcslen (lpprl -> lszCmdLine) + 1;
+        _ftcscpy((CHAR*)lpb, lpprl->lszCmdLine);
+        lpb += _ftcslen(lpprl->lszCmdLine) + 1;
     } else {
         *lpb++ = 0;
     }
 
-    _ftcscpy((CHAR*) lpb, lszRemoteDir);
-    lpb += _ftcslen (lszRemoteDir) + 1;
+    _ftcscpy((CHAR*)lpb, lszRemoteDir);
+    lpb += _ftcslen(lszRemoteDir) + 1;
 
-    if (lpprl -> lpso) {
-        memcpy ((CHAR*) lpb, lpprl -> lpso, sizeof (SPAWNORPHAN));
+    if (lpprl->lpso) {
+        memcpy((CHAR*)lpb, lpprl->lpso, sizeof(SPAWNORPHAN));
     } else {
         *lpb = 0;
     }
@@ -375,11 +375,11 @@ RepackProgLoad (
     return xosdNone;
 }
 XOSD
-SpawnOrphan (
+SpawnOrphan(
     HPID  hpid,
     DWORD  cb,
     LPSOS lpsos
-    )
+)
 
 /*++
 
@@ -404,23 +404,23 @@ Return Value:
     LPVOID lpb;
     XOSD xosd;
 
-    xosd = RepackProgLoad(lpsos, &lpb, (UINT*) &cb);
+    xosd = RepackProgLoad(lpsos, &lpb, (UINT*)&cb);
     if (xosd != xosdNone) {
         return (xosd);
     }
 
-    assert (lpsos -> lpso);
+    assert(lpsos->lpso);
 
-    xosd = SendRequestX ( dmfSpawnOrphan,
-                          hpid,
-                          NULL,
-                          cb,
-                          lpb
-                          );
+    xosd = SendRequestX(dmfSpawnOrphan,
+                        hpid,
+                        NULL,
+                        cb,
+                        lpb
+    );
 
     MHFree(lpb);
 
-    memcpy (lpsos -> lpso, LpDmMsg->rgb, sizeof (SPAWNORPHAN));
+    memcpy(lpsos->lpso, LpDmMsg->rgb, sizeof(SPAWNORPHAN));
 
     return xosd;
 }                               /* SpawnOrphan() */
@@ -429,11 +429,11 @@ Return Value:
 
 
 XOSD
-ProgramLoad (
+ProgramLoad(
     HPID  hpid,
     DWORD  cb,
     LPPRL lpprl
-    )
+)
 
 /*++
 
@@ -459,25 +459,25 @@ Return Value:
     LPPRC lpprc;
     HPRC  hprc = HprcFromHpid(hpid);
     LPVOID lpb;
-    lpprc = (LPPRC) LLLock ( hprc );
+    lpprc = (LPPRC)LLLock(hprc);
 
 #if 0
-    lpprc->efp  = efpNone;
+    lpprc->efp = efpNone;
 #endif
-    LLDestroy ( lpprc->llmdi );
-    lpprc->llmdi = LLInit ( sizeof ( MDI ), llfNull, NULL, MDIComp );
+    LLDestroy(lpprc->llmdi);
+    lpprc->llmdi = LLInit(sizeof(MDI), llfNull, NULL, MDIComp);
 
-    LLUnlock ( hprc );
+    LLUnlock(hprc);
 
-    PurgeCache ();
+    PurgeCache();
 
-    xosd = RepackProgLoad(lpprl, &lpb, (UINT*) &cb);
+    xosd = RepackProgLoad(lpprl, &lpb, (UINT*)&cb);
     if (xosd != xosdNone) {
         return (xosd);
     }
-    assert (!lpprl -> lpso);
+    assert(!lpprl->lpso);
 
-    xosd = SendRequestX (
+    xosd = SendRequestX(
         dmfProgLoad,
         hpid,
         NULL,
@@ -489,9 +489,9 @@ Return Value:
 
     if (xosd == xosdNone) {
         xosd = LpDmMsg->xosdRet;
-        lpprc = (LPPRC) LLLock ( hprc );
+        lpprc = (LPPRC)LLLock(hprc);
         lpprc->stat = statStarted;
-        LLUnlock ( hprc );
+        LLUnlock(hprc);
     }
 
     return xosd;
@@ -512,12 +512,12 @@ Return Value:
  *****/
 
 XOSD
-ProgramFree (
+ProgramFree(
     HPID hpid,
     HTID htid
-    )
+)
 {
-    return SendRequest ( dmfProgFree, hpid, NULL );
+    return SendRequest(dmfProgFree, hpid, NULL);
 }
 
 
@@ -529,7 +529,7 @@ CompareAddrs(
     HPID hpid,
     HTID htid,
     LPCAS lpcas
-    )
+)
 {
     ADDR a1 = *lpcas->lpaddr1;
     ADDR a2 = *lpcas->lpaddr2;
@@ -538,17 +538,16 @@ CompareAddrs(
 
     // if both are LI, see if they are comparable:
     if (ADDR_IS_LI(a1) && ADDR_IS_LI(a2)
-          && emiAddr(a1) == emiAddr(a2)
-          && GetAddrSeg(a1) == GetAddrSeg(a2))
-    {
-       if (GetAddrOff(a1) < GetAddrOff(a2)) {
-           l = fCmpLT;
-       } else if (GetAddrOff(a1) == GetAddrOff(a2)) {
-           l = fCmpEQ;
-       } else {
-           l = fCmpGT;
-       }
-       *lpcas->lpResult = l;
+        && emiAddr(a1) == emiAddr(a2)
+        && GetAddrSeg(a1) == GetAddrSeg(a2)) {
+        if (GetAddrOff(a1) < GetAddrOff(a2)) {
+            l = fCmpLT;
+        } else if (GetAddrOff(a1) == GetAddrOff(a2)) {
+            l = fCmpEQ;
+        } else {
+            l = fCmpGT;
+        }
+        *lpcas->lpResult = l;
     }
 
     else {
@@ -565,7 +564,7 @@ CompareAddrs(
 
         // if real mode address, we can really compare
         if (ADDR_IS_REAL(a1) && ADDR_IS_REAL(a2)) {
-            LONG64 ll =  ((GetAddrSeg(a1) << 4) + (GetAddrOff(a1) & 0xffff))
+            LONG64 ll = ((GetAddrSeg(a1) << 4) + (GetAddrOff(a1) & 0xffff))
                 - ((GetAddrSeg(a2) << 4) + (GetAddrOff(a2) & 0xffff));
             *lpcas->lpResult = (ll < 0) ? -1 : ((ll == 0) ? 0 : 1);
         }
@@ -615,91 +614,91 @@ typedef struct _MCI {
     WORD cb;
     HPID hpid;
     ADDR addr;
-    BYTE rgb [ cbMaxCache ];
+    BYTE rgb[cbMaxCache];
 } MCI;  // Memory Cache Item
 
 #define imciMax MAXCACHE
-MCI FAR rgmci [ imciMax ] = {   { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } };
+MCI FAR rgmci[imciMax] = {{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }};
 
 // Most recent used == 0, 2nd to last == 1, etc
 
-int rgiUsage [ imciMax ] = {0};
+int rgiUsage[imciMax] = {0};
 
 void
-InitUsage (
+InitUsage(
     void
-    )
+)
 {
     int iUsage;
 
-    for ( iUsage = 0; iUsage < imciMax; iUsage++ ) {
-        rgiUsage [ iUsage ] = imciMax - ( iUsage + 1 );
+    for (iUsage = 0; iUsage < imciMax; iUsage++) {
+        rgiUsage[iUsage] = imciMax - (iUsage + 1);
     }
 }
 
 VOID
-SetMostRecent (
+SetMostRecent(
     int imci
-    )
+)
 {
     int i;
 
-    if ( rgiUsage [ imci ] != 0 ) {
-        for ( i = 0; i < imciMax; i++ ) {
-            if ( rgiUsage [ i ] < rgiUsage [ imci ] ) {
-                rgiUsage [ i ] ++;
+    if (rgiUsage[imci] != 0) {
+        for (i = 0; i < imciMax; i++) {
+            if (rgiUsage[i] < rgiUsage[imci]) {
+                rgiUsage[i] ++;
             }
         }
-        rgiUsage [ imci ] = 0;
+        rgiUsage[imci] = 0;
     }
 }
 
 int
-GetLeastRecent (
+GetLeastRecent(
     VOID
-    )
+)
 {
     int i;
 
-    for ( i = 0; i < imciMax; i++ ) {
-        assert ( rgiUsage [ i ] >= 0 && rgiUsage [ i ] < imciMax );
-        if ( rgiUsage [ i ] == imciMax - 1 ) {
+    for (i = 0; i < imciMax; i++) {
+        assert(rgiUsage[i] >= 0 && rgiUsage[i] < imciMax);
+        if (rgiUsage[i] == imciMax - 1) {
             return i;
         }
     }
 
-    assert ( FALSE );
+    assert(FALSE);
 
     return i;
 }
 
 VOID
-SetLeastRecent (
+SetLeastRecent(
     int imci
-    )
+)
 {
     int i;
 
-    if ( rgiUsage [ imci ] != imciMax - 1 ) {
-        for ( i = 0; i < imciMax; i++ ) {
-            if ( rgiUsage [ i ] > rgiUsage [ imci ] ) {
-                rgiUsage [ i ] --;
+    if (rgiUsage[imci] != imciMax - 1) {
+        for (i = 0; i < imciMax; i++) {
+            if (rgiUsage[i] > rgiUsage[imci]) {
+                rgiUsage[i] --;
             }
         }
-        rgiUsage [ imci ] = imciMax-1;
+        rgiUsage[imci] = imciMax - 1;
     }
 }
 
 
 XOSD
-ReadPhysical (
+ReadPhysical(
     HPID    hpid,
     DWORD   cb,
     LPBYTE  lpbDest,
     LPADDR  lpaddr,
     DWORD   iCache,
     LPDWORD lpcbr
-    )
+)
 {
     LPDBB lpdbb;
     PRWP  prwp;
@@ -711,21 +710,21 @@ ReadPhysical (
     }
 
     lpdbb = (LPDBB)MHAlloc(FIELD_OFFSET(DBB, rgbVar) + sizeof(RWP));
-    ZeroMemory(lpdbb,FIELD_OFFSET(DBB, rgbVar) + sizeof(RWP));
+    ZeroMemory(lpdbb, FIELD_OFFSET(DBB, rgbVar) + sizeof(RWP));
     prwp = (PRWP)lpdbb->rgbVar;
 
     lpdbb->dmf = dmfReadMem;
     lpdbb->hpid = hpid;
     lpdbb->htid = NULL;
 
-    if ( cb + sizeof(DWORD) + FIELD_OFFSET(DM_MSG, rgb) > CbDmMsg ) {
-        MHFree ( LpDmMsg );
-        CbDmMsg = cb + sizeof ( DWORD ) + FIELD_OFFSET( DM_MSG, rgb );
-        LpDmMsg = (LPDM_MSG) MHAlloc ( CbDmMsg );
-        CallTL ( tlfSetBuffer, lpdbb->hpid, CbDmMsg, (DWORD64)LpDmMsg );
+    if (cb + sizeof(DWORD) + FIELD_OFFSET(DM_MSG, rgb) > CbDmMsg) {
+        MHFree(LpDmMsg);
+        CbDmMsg = cb + sizeof(DWORD) + FIELD_OFFSET(DM_MSG, rgb);
+        LpDmMsg = (LPDM_MSG)MHAlloc(CbDmMsg);
+        CallTL(tlfSetBuffer, lpdbb->hpid, CbDmMsg, (DWORD64)LpDmMsg);
     }
 
-    prwp->cb   = cb;
+    prwp->cb = cb;
     prwp->addr = *lpaddr;
 
     xosd = CallTL(tlfRequest, lpdbb->hpid, FIELD_OFFSET(DBB, rgbVar) + sizeof(RWP), (DWORD64)lpdbb);
@@ -733,9 +732,9 @@ ReadPhysical (
     if (xosd == xosdNone) {
         xosd = LpDmMsg->xosdRet;
         if (xosd == xosdNone) {
-            *lpcbr = *( (LPDWORD) (LpDmMsg->rgb) );
-            assert( *lpcbr <= cb );
-            _fmemcpy ( lpbDest, LpDmMsg->rgb + sizeof ( DWORD ), *lpcbr );
+            *lpcbr = *((LPDWORD)(LpDmMsg->rgb));
+            assert(*lpcbr <= cb);
+            _fmemcpy(lpbDest, LpDmMsg->rgb + sizeof(DWORD), *lpcbr);
         }
     }
 
@@ -745,11 +744,11 @@ ReadPhysical (
 }
 
 XOSD
-EnableCache (
+EnableCache(
     HPID  hpid,
     HTID  htid,
     BOOL  state
-    )
+)
 {
     fCacheDisabled = state;
 
@@ -762,29 +761,29 @@ EnableCache (
 
 
 void
-PurgeCache (
+PurgeCache(
     VOID
-    )
+)
 {
     int imci;
 
-    for ( imci = 0; imci < imciMax; imci++ ) {
-        rgmci [ imci ].cb = 0;
+    for (imci = 0; imci < imciMax; imci++) {
+        rgmci[imci].cb = 0;
     }
 }
 
 void
-PurgeCacheHpid (
+PurgeCacheHpid(
     HPID hpid
-    )
+)
 {
     int imci;
 
-    for ( imci = 0; imci < imciMax; imci++ ) {
+    for (imci = 0; imci < imciMax; imci++) {
 
-        if ( rgmci [ imci ].hpid == hpid ) {
-            rgmci [ imci ].cb = 0;
-            SetLeastRecent ( imci );
+        if (rgmci[imci].hpid == hpid) {
+            rgmci[imci].cb = 0;
+            SetLeastRecent(imci);
         }
     }
 }
@@ -797,7 +796,7 @@ ReadForCacheIA64(
     LPBYTE lpbDest,
     LPADDR lpaddr,
     LPDWORD lpcb
-    )
+)
 
 /*++
 
@@ -833,24 +832,24 @@ Return Value:
     int         dbOverlap = 0;
     XOSD        xosd;
     ADDR        addrSave = *lpaddr;
-    MCI *       pmci;
+    MCI* pmci;
 
     /*
      *  Determine if the starting address is contained in a
      *  voided cache entry
      */
 
-    for ( imci = 0, pmci = rgmci ; imci < imciMax; imci++, pmci++ ) {
+    for (imci = 0, pmci = rgmci; imci < imciMax; imci++, pmci++) {
 
-        if ( (pmci->cb == 0) &&
-             (pmci->hpid == hpid) &&
-             (ADDR_IS_REAL( pmci->addr) == ADDR_IS_REAL( *lpaddr )) &&
-             (GetAddrSeg ( pmci->addr ) == GetAddrSeg ( *lpaddr )) &&
-             (GetAddrOff ( *lpaddr ) >= GetAddrOff ( pmci->addr )) &&
-                         // Check required to detect arithmetic overflow cases.
-             (GetAddrOff(*lpaddr) < GetAddrOff( pmci->addr ) + cbMaxCache) &&
-             (GetAddrOff ( *lpaddr ) + cbP < GetAddrOff ( pmci->addr ) + cbMaxCache)
-        ) {
+        if ((pmci->cb == 0) &&
+            (pmci->hpid == hpid) &&
+            (ADDR_IS_REAL(pmci->addr) == ADDR_IS_REAL(*lpaddr)) &&
+            (GetAddrSeg(pmci->addr) == GetAddrSeg(*lpaddr)) &&
+            (GetAddrOff(*lpaddr) >= GetAddrOff(pmci->addr)) &&
+            // Check required to detect arithmetic overflow cases.
+            (GetAddrOff(*lpaddr) < GetAddrOff(pmci->addr) + cbMaxCache) &&
+            (GetAddrOff(*lpaddr) + cbP < GetAddrOff(pmci->addr) + cbMaxCache)
+            ) {
             //v-vadimp - doesn't matter what was in this entry
             break;
         }
@@ -862,26 +861,26 @@ Return Value:
      *  an LRU algorithm.
      */
 
-    if ( imci == imciMax ) {
-        imci = GetLeastRecent ( );
+    if (imci == imciMax) {
+        imci = GetLeastRecent();
     }
 
     /*
      *  Do an actual read of memory from the debuggee
      */
 
-        // some IA64 tricks to improve performance on Gambit
+     // some IA64 tricks to improve performance on Gambit
     ADDR backAddr = *lpaddr;
     if (GetAddrOff(*lpaddr) == 0) { // reads from 0 always fail
         return xosdGeneral;
     }
     // v-vadimp - this will read memory around the starting address, intended to improve
     // displaying values on the stack where we walk backwards, or disasm so first try reading lpaddr +/- cbT/2
-    if (cb <= cbT/2) { //v-vadimp - if there is enough space to read before
-        GetAddrOff(*lpaddr) = __max ((SOFFSET)(GetAddrOff(*lpaddr) - cbT/2), 0);
+    if (cb <= cbT / 2) { //v-vadimp - if there is enough space to read before
+        GetAddrOff(*lpaddr) = __max((SOFFSET)(GetAddrOff(*lpaddr) - cbT / 2), 0);
         dbOverlap = (DWORD)(GetAddrOff(addrSave) - GetAddrOff(*lpaddr));
         if (GetAddrOff(*lpaddr) != 0) {
-            xosd = ReadPhysical ( hpid, cbT, rgmci [ imci ].rgb, lpaddr, imci, &cbr );
+            xosd = ReadPhysical(hpid, cbT, rgmci[imci].rgb, lpaddr, imci, &cbr);
         } else { //fall thru to regular read if adjusted address is 0
             xosd = xosdGeneral;
         }
@@ -892,10 +891,10 @@ Return Value:
     if (xosd != xosdNone) {
         *lpaddr = backAddr;
         dbOverlap = 0;
-        xosd = ReadPhysical ( hpid, cbT, rgmci [ imci ].rgb, lpaddr, imci, &cbr );
+        xosd = ReadPhysical(hpid, cbT, rgmci[imci].rgb, lpaddr, imci, &cbr);
     }
 
-    if ( xosd != xosdNone ) {
+    if (xosd != xosdNone) {
         return xosd;
     }
 
@@ -904,7 +903,7 @@ Return Value:
      *  size variable.
      */
 
-    if ( cbr < cbT ) {
+    if (cbr < cbT) {
         cbT = cbr;
     }
 
@@ -912,29 +911,29 @@ Return Value:
      *  touch the LRU table
      */
 
-    SetMostRecent ( imci );
+    SetMostRecent(imci);
 
     /*
      *  set up the cache entry
      */
 
     assert(cbT <= cbMaxCache);
-    rgmci [ imci ].cb = (WORD) cbT;
-    rgmci [ imci ].addr = *lpaddr;
-    rgmci [ imci ].hpid = hpid;
+    rgmci[imci].cb = (WORD)cbT;
+    rgmci[imci].addr = *lpaddr;
+    rgmci[imci].hpid = hpid;
     *lpaddr = addrSave;
 
     /*
      *  compute the number of bytes read
      */
 
-    cbT = min( cbP, (DWORD)rgmci[ imci ].cb - dbOverlap);
+    cbT = min(cbP, (DWORD)rgmci[imci].cb - dbOverlap);
 
     /*
      *  copy from the cache entry to the users space
      */
 
-    _fmemcpy ( lpbDest, &rgmci [ imci ].rgb [dbOverlap], cbT );
+    _fmemcpy(lpbDest, &rgmci[imci].rgb[dbOverlap], cbT);
 
     /*
      *  return the number of bytes read
@@ -952,7 +951,7 @@ ReadForCache(
     LPBYTE lpbDest,
     LPADDR lpaddr,
     LPDWORD lpcb
-    )
+)
 
 /*++
 
@@ -983,33 +982,33 @@ Return Value:
 {
     assert(cbP <= cbMaxCache);
     int         cb = cbP;
-    DWORD       cbT  = cb < cbMaxCache ? cbMaxCache : cb;
+    DWORD       cbT = cb < cbMaxCache ? cbMaxCache : cb;
     DWORD       imci;
     DWORD       cbr;
     int         dbOverlap = 0;
     XOSD        xosd;
     ADDR        addrSave = *lpaddr;
-    MCI *       pmci;
+    MCI* pmci;
 
     /*
      *  Determine if the starting address is contained in a
      *  voided cache entry
      */
 
-    for ( imci = 0, pmci = rgmci ; imci < imciMax; imci++, pmci++ ) {
+    for (imci = 0, pmci = rgmci; imci < imciMax; imci++, pmci++) {
 
-        if ( (pmci->cb == 0) &&
-             (pmci->hpid == hpid) &&
-             (ADDR_IS_REAL( pmci->addr) == ADDR_IS_REAL( *lpaddr )) &&
-             (GetAddrSeg ( pmci->addr ) == GetAddrSeg ( *lpaddr )) &&
-             (GetAddrOff ( *lpaddr ) >= GetAddrOff ( pmci->addr )) &&
-                         // Check required to detect arithmetic overflow cases.
-             (GetAddrOff(*lpaddr) < GetAddrOff( pmci->addr ) + cbMaxCache) &&
-             (GetAddrOff ( *lpaddr ) + cbP < GetAddrOff ( pmci->addr ) + cbMaxCache)
-        ) {
-            dbOverlap = (int) (GetAddrOff ( pmci->addr ) - GetAddrOff ( *lpaddr ) );
+        if ((pmci->cb == 0) &&
+            (pmci->hpid == hpid) &&
+            (ADDR_IS_REAL(pmci->addr) == ADDR_IS_REAL(*lpaddr)) &&
+            (GetAddrSeg(pmci->addr) == GetAddrSeg(*lpaddr)) &&
+            (GetAddrOff(*lpaddr) >= GetAddrOff(pmci->addr)) &&
+            // Check required to detect arithmetic overflow cases.
+            (GetAddrOff(*lpaddr) < GetAddrOff(pmci->addr) + cbMaxCache) &&
+            (GetAddrOff(*lpaddr) + cbP < GetAddrOff(pmci->addr) + cbMaxCache)
+            ) {
+            dbOverlap = (int)(GetAddrOff(pmci->addr) - GetAddrOff(*lpaddr));
             assert(dbOverlap <= cbMaxCache);
-            GetAddrOff ( *lpaddr ) = GetAddrOff ( pmci->addr );
+            GetAddrOff(*lpaddr) = GetAddrOff(pmci->addr);
             break;
         }
     }
@@ -1020,18 +1019,18 @@ Return Value:
      *  an LRU algorithm.
      */
 
-    if ( imci == imciMax ) {
-        imci = GetLeastRecent ( );
+    if (imci == imciMax) {
+        imci = GetLeastRecent();
     }
 
     /*
      *  Do an actual read of memory from the debuggee
      */
 
-    xosd = ReadPhysical ( hpid, cbT, rgmci [ imci ].rgb, lpaddr, imci, &cbr );
+    xosd = ReadPhysical(hpid, cbT, rgmci[imci].rgb, lpaddr, imci, &cbr);
 
 
-    if ( xosd != xosdNone ) {
+    if (xosd != xosdNone) {
         return xosd;
     }
 
@@ -1040,7 +1039,7 @@ Return Value:
      *  size variable.
      */
 
-    if ( cbr < cbT ) {
+    if (cbr < cbT) {
         cbT = cbr;
     }
 
@@ -1048,7 +1047,7 @@ Return Value:
      * if we did not anything (or enough), then don't adjust
      */
 
-    if ( (int)cbr + dbOverlap > 0 ) {
+    if ((int)cbr + dbOverlap > 0) {
         cbT += dbOverlap;
     }
 
@@ -1056,33 +1055,33 @@ Return Value:
      *  touch the LRU table
      */
 
-    SetMostRecent ( imci );
+    SetMostRecent(imci);
 
     /*
      *  set up the cache entry
      */
 
     assert(cbT <= cbMaxCache);
-    rgmci [ imci ].cb = (WORD) cbT;
-    rgmci [ imci ].addr = *lpaddr;
-    rgmci [ imci ].hpid = hpid;
-    GetAddrOff ( *lpaddr ) += cbT;
+    rgmci[imci].cb = (WORD)cbT;
+    rgmci[imci].addr = *lpaddr;
+    rgmci[imci].hpid = hpid;
+    GetAddrOff(*lpaddr) += cbT;
     *lpaddr = addrSave;
 
     /*
      *  compute the number of bytes read
      */
 
-    cbT = (int)min( cbP, (DWORD)rgmci[ imci ].cb );
+    cbT = (int)min(cbP, (DWORD)rgmci[imci].cb);
 
     /*
      *  copy from the cache entry to the users space
      */
 
-    if ( dbOverlap >= 0 ) {
+    if (dbOverlap >= 0) {
         dbOverlap = 0;
     }
-    _fmemcpy ( lpbDest, rgmci [ imci ].rgb - dbOverlap, cbT );
+    _fmemcpy(lpbDest, rgmci[imci].rgb - dbOverlap, cbT);
 
     /*
      *  return the number of bytes read
@@ -1098,7 +1097,7 @@ int
 GetCacheIndex(
     HPID   hpid,
     LPADDR lpaddr
-    )
+)
 
 /*++
 
@@ -1122,8 +1121,8 @@ Return Value:
 {
     int imci;
 
-    for ( imci = 0; imci < imciMax; imci++ ) {
-        LPADDR lpaddrT = &rgmci [ imci ].addr;
+    for (imci = 0; imci < imciMax; imci++) {
+        LPADDR lpaddrT = &rgmci[imci].addr;
 
         /*
          *   To be in the cache entry check:
@@ -1135,12 +1134,12 @@ Return Value:
          *              ending points of the cache
          */
 
-        if ( (rgmci [ imci ].cb != 0) &&
-             (rgmci [ imci ].hpid == hpid) &&
-             (ADDR_IS_REAL( *lpaddrT ) == ADDR_IS_REAL( *lpaddr )) &&
-             (GetAddrSeg ( *lpaddrT ) == GetAddrSeg ( *lpaddr )) &&
-             (GetAddrOff ( *lpaddrT ) <= GetAddrOff ( *lpaddr )) &&
-             (GetAddrOff ( *lpaddrT ) + rgmci[ imci ].cb > GetAddrOff ( *lpaddr ))) {
+        if ((rgmci[imci].cb != 0) &&
+            (rgmci[imci].hpid == hpid) &&
+            (ADDR_IS_REAL(*lpaddrT) == ADDR_IS_REAL(*lpaddr)) &&
+            (GetAddrSeg(*lpaddrT) == GetAddrSeg(*lpaddr)) &&
+            (GetAddrOff(*lpaddrT) <= GetAddrOff(*lpaddr)) &&
+            (GetAddrOff(*lpaddrT) + rgmci[imci].cb > GetAddrOff(*lpaddr))) {
 
             break;
         }
@@ -1151,12 +1150,12 @@ Return Value:
 
 
 int
-ReadFromCache (
+ReadFromCache(
     HPID hpid,
     DWORD cb,
     LPBYTE lpbDest,
     LPADDR lpaddr
-    )
+)
 
 /*++
 
@@ -1186,14 +1185,14 @@ Return Value:
      *  in one of the cached buffers.
      */
 
-    imci = GetCacheIndex ( hpid, lpaddr );
+    imci = GetCacheIndex(hpid, lpaddr);
 
     /*
      *  If the starting address is in a cache entry then read as many
      *  bytes as is possible from that cache entry.
      */
 
-    if ( imci != imciMax ) {
+    if (imci != imciMax) {
         DWORD ibStart;
         DWORD  cbT;
 
@@ -1203,14 +1202,14 @@ Return Value:
          *      the number of bytes which can be read in
          */
 
-        ibStart = (DWORD)( GetAddrOff ( *lpaddr ) - GetAddrOff ( rgmci[imci].addr ) );
-        cbT = min ( cb, rgmci [ imci ].cb - ibStart );
+        ibStart = (DWORD)(GetAddrOff(*lpaddr) - GetAddrOff(rgmci[imci].addr));
+        cbT = min(cb, rgmci[imci].cb - ibStart);
 
         /*
          *   Preform the copy
          */
 
-        _fmemcpy ( lpbDest, rgmci [ imci ].rgb + ibStart, cbT );
+        _fmemcpy(lpbDest, rgmci[imci].rgb + ibStart, cbT);
 
         /*
          *   Return the number of bytes copied.  If it is less than
@@ -1225,14 +1224,14 @@ Return Value:
 }                               /* ReadFromCache() */
 
 XOSD
-ReadBufferIA64 (
+ReadBufferIA64(
     HPID    hpid,
     HTID    htid,
     LPADDR  lpaddr,
     DWORD   cb,
     LPBYTE  lpbDest,
     LPDWORD lpcbRead
-    )
+)
 /*++
 
 Routine Description:
@@ -1285,7 +1284,7 @@ Return Value:
     /* If we are at the end of the memory address range and are trying to read
      * beyond the address range, just read till 0xFFFFFFFF
      */
-    if ( cb != 0 && GetAddrOff(addr) + cb - 1 < GetAddrOff(addr)) {
+    if (cb != 0 && GetAddrOff(addr) + cb - 1 < GetAddrOff(addr)) {
         cb = (DWORD)(0 - GetAddrOff(addr));
     }
 
@@ -1297,10 +1296,10 @@ Return Value:
      *  This generally is due to large memory dumps.
      */
 
-    lpprc = (LPPRC) LLLock(hprc);
-    if ( (lpprc->fRunning ) || (fCacheDisabled) ) { //v-vadimp - even if trying to read more than cache size try to read as much as possible from cache first
+    lpprc = (LPPRC)LLLock(hprc);
+    if ((lpprc->fRunning) || (fCacheDisabled)) { //v-vadimp - even if trying to read more than cache size try to read as much as possible from cache first
         LLUnlock(hprc);
-        return ReadPhysical ( hpid, cb, lpbDest, &addr, MAXCACHE, lpcbRead );
+        return ReadPhysical(hpid, cb, lpbDest, &addr, MAXCACHE, lpcbRead);
     }
     LLUnlock(hprc);
 
@@ -1312,10 +1311,10 @@ Return Value:
 
 tryReadingCacheAgain:
     while ((cb != 0) &&
-           ( cbT = ReadFromCache ( hpid, cb, lpbDest, &addr ) ) > 0 ) {
+        (cbT = ReadFromCache(hpid, cb, lpbDest, &addr)) > 0) {
         cbRead += cbT;
         lpbDest += cbT;
-        GetAddrOff ( addr ) += cbT;
+        GetAddrOff(addr) += cbT;
         cb -= cbT;
     }
 
@@ -1325,12 +1324,12 @@ tryReadingCacheAgain:
      *  buffer.
      */
 
-    if ( cb > 0 ) {
-        xosd = ReadForCacheIA64 ( hpid, cb, lpbDest, &addr, (LPDWORD) &cbT );
+    if (cb > 0) {
+        xosd = ReadForCacheIA64(hpid, cb, lpbDest, &addr, (LPDWORD)&cbT);
         if (xosd == xosdNone) { //v-vadimp - might not have read everything (cb>sizeof(cache entry)) go and try reading from cache again
             cbRead += cbT;
             lpbDest += cbT;
-            GetAddrOff ( addr ) += cbT;
+            GetAddrOff(addr) += cbT;
             cb -= cbT;
             goto tryReadingCacheAgain;
         }
@@ -1345,14 +1344,14 @@ tryReadingCacheAgain:
 
 
 XOSD
-ReadBuffer (
+ReadBuffer(
     HPID    hpid,
     HTID    htid,
     LPADDR  lpaddr,
     DWORD   cb,
     LPBYTE  lpbDest,
     LPDWORD lpcbRead
-    )
+)
 /*++
 
 Routine Description:
@@ -1396,7 +1395,7 @@ Return Value:
      */
 
     if (MPTFromHprc(hprc) == mptia64) { //custom read procedure for IA64 with some perf tricks
-        return ReadBufferIA64( hpid, htid, lpaddr, cb, lpbDest, lpcbRead );
+        return ReadBufferIA64(hpid, htid, lpaddr, cb, lpbDest, lpcbRead);
     }
 
     addr = *lpaddr;
@@ -1409,7 +1408,7 @@ Return Value:
     /* If we are at the end of the memory address range and are trying to read
      * beyond the address range, just read till 0xFFFFFFFF
      */
-    if ( cb != 0 && GetAddrOff(addr) + cb - 1 < GetAddrOff(addr)) {
+    if (cb != 0 && GetAddrOff(addr) + cb - 1 < GetAddrOff(addr)) {
         cb = (DWORD)(0 - GetAddrOff(addr));
     }
 
@@ -1421,10 +1420,10 @@ Return Value:
      *  This generally is due to large memory dumps.
      */
 
-    lpprc = (LPPRC) LLLock(hprc);
-    if ( (cb > cbMaxCache) || (lpprc->fRunning ) || (fCacheDisabled) ) {
+    lpprc = (LPPRC)LLLock(hprc);
+    if ((cb > cbMaxCache) || (lpprc->fRunning) || (fCacheDisabled)) {
         LLUnlock(hprc);
-        return ReadPhysical ( hpid, cb, lpbDest, &addr, MAXCACHE, lpcbRead );
+        return ReadPhysical(hpid, cb, lpbDest, &addr, MAXCACHE, lpcbRead);
     }
     LLUnlock(hprc);
 
@@ -1435,10 +1434,10 @@ Return Value:
      */
 
     while ((cb != 0) &&
-           ( cbT = ReadFromCache ( hpid, cb, lpbDest, &addr ) ) > 0 ) {
+        (cbT = ReadFromCache(hpid, cb, lpbDest, &addr)) > 0) {
         cbRead += cbT;
         lpbDest += cbT;
-        GetAddrOff ( addr ) += cbT;
+        GetAddrOff(addr) += cbT;
         cb -= cbT;
     }
 
@@ -1448,8 +1447,8 @@ Return Value:
      *  buffer.
      */
 
-    if ( cb > 0 ) {
-        xosd = ReadForCache ( hpid, cb, lpbDest, &addr, (LPDWORD) &cbT );
+    if (cb > 0) {
+        xosd = ReadForCache(hpid, cb, lpbDest, &addr, (LPDWORD)&cbT);
         if (xosd == xosdNone) {
             cbRead += cbT;
         }
@@ -1465,30 +1464,30 @@ Return Value:
 
 
 XOSD
-WriteBufferCache (
+WriteBufferCache(
     HPID hpid,
     HTID htid,
     LPADDR lpaddr,
     DWORD cb,
     LPBYTE lpb,
     LPDWORD lpdwBytesWritten
-    )
+)
 {
-    PurgeCacheHpid ( hpid );
-    return WriteBuffer ( hpid, htid, lpaddr, cb, lpb, lpdwBytesWritten );
+    PurgeCacheHpid(hpid);
+    return WriteBuffer(hpid, htid, lpaddr, cb, lpb, lpdwBytesWritten);
 }
 
 
 
 XOSD
-WriteBuffer (
+WriteBuffer(
     HPID hpid,
     HTID htid,
     LPADDR lpaddr,
     DWORD cb,
     LPBYTE lpb,
     LPDWORD lpdwBytesWritten
-    )
+)
 
 /*++
 
@@ -1517,22 +1516,22 @@ Return Value:
 
 --*/
 {
-    LPRWP lprwp = (LPRWP) MHAlloc( FIELD_OFFSET( RWP, rgb ) + cb );
+    LPRWP lprwp = (LPRWP)MHAlloc(FIELD_OFFSET(RWP, rgb) + cb);
     XOSD  xosd;
 
-    lprwp->cb   = cb;
+    lprwp->cb = cb;
     lprwp->addr = *lpaddr;
 
-    _fmemcpy ( lprwp->rgb, lpb, cb );
+    _fmemcpy(lprwp->rgb, lpb, cb);
 
-    xosd = SendRequestX (dmfWriteMem,
-                         hpid,
-                         htid,
-                         FIELD_OFFSET ( RWP, rgb ) + cb,
-                         lprwp
-                         );
+    xosd = SendRequestX(dmfWriteMem,
+                        hpid,
+                        htid,
+                        FIELD_OFFSET(RWP, rgb) + cb,
+                        lprwp
+    );
 
-    MHFree ( lprwp );
+    MHFree(lprwp);
 
     if (xosd == xosdNone) {
         *lpdwBytesWritten = *((LPDWORD)(LpDmMsg->rgb));
@@ -1547,14 +1546,14 @@ Return Value:
     //  tragic, so we ignore the return code.  The shell uses this
     //  notification to update all its memory breakpoints.
 
-    CallDB (
+    CallDB(
         dbcMemoryChanged,
         hpid,
         NULL,
         CEXM_MDL_native,
         cb,
         (DWORD64)lpaddr
-        );
+    );
 
     return xosd;
 }                               /* WriteBuffer() */
@@ -1569,54 +1568,54 @@ typedef struct _EMIC {
 
 #define cemicMax 4
 
-EMIC rgemic [ cemicMax ] = {0};
+EMIC rgemic[cemicMax] = {0};
 
 XOSD
-FindEmi (
+FindEmi(
     HPID   hpid,
     LPADDR lpaddr
-    )
+)
 {
     XOSD        xosd = xosdNone;
-    WORD        sel = (WORD)GetAddrSeg ( *lpaddr );
+    WORD        sel = (WORD)GetAddrSeg(*lpaddr);
     HPRC        hprc = HprcFromHpid(hpid);
-    HLLI        llmdi = LlmdiFromHprc ( hprc );
+    HLLI        llmdi = LlmdiFromHprc(hprc);
     BOOL        fFound = FALSE;
     ULONG       iobj = 0;
     HMDI        hmdi;
-    LPPRC       lpprc = (LPPRC) LLLock( hprc );
+    LPPRC       lpprc = (LPPRC)LLLock(hprc);
 
     if ((lpprc->dmi.fAlwaysFlat) || (sel == lpprc->selFlatCs) || (sel == lpprc->selFlatDs)) {
         ADDR_IS_FLAT(*lpaddr) = TRUE;
     }
-    LLUnlock( hprc );
+    LLUnlock(hprc);
 
-    for ( hmdi = LLNext ( llmdi, hmdiNull );
-          hmdi != hmdiNull;
-          hmdi = LLNext ( llmdi, hmdi ) ) {
+    for (hmdi = LLNext(llmdi, hmdiNull);
+         hmdi != hmdiNull;
+         hmdi = LLNext(llmdi, hmdi)) {
 
-        LPMDI   lpmdi = (LPMDI) LLLock ( hmdi );
+        LPMDI   lpmdi = (LPMDI)LLLock(hmdi);
         LPOBJD  rgobjd;
 
-        assert( Is64PtrSE(lpmdi->lpBaseOfDll) );
+        assert(Is64PtrSE(lpmdi->lpBaseOfDll));
 
         if (ADDR_IS_FLAT(*lpaddr) && (!ADDR_IS_LI(*lpaddr))) {
             if (GetAddrOff(*lpaddr) < lpmdi->lpBaseOfDll ||
-                GetAddrOff(*lpaddr) >= lpmdi->lpBaseOfDll+lpmdi->dwSizeOfDll) {
+                GetAddrOff(*lpaddr) >= lpmdi->lpBaseOfDll + lpmdi->dwSizeOfDll) {
 
                 // can't be in this dll so look at the next one
 
-                LLUnlock ( hmdi );
+                LLUnlock(hmdi);
                 continue;
             }
         }
 
         if (lpmdi && lpmdi->cobj == -1) {
-            if (GetSectionObjectsFromDM( hpid, lpmdi ) != xosdNone) {
+            if (GetSectionObjectsFromDM(hpid, lpmdi) != xosdNone) {
 
                 // can't do it now; punt with hpid.
 
-                LLUnlock ( hmdi );
+                LLUnlock(hmdi);
                 break;
             }
         }
@@ -1628,10 +1627,10 @@ FindEmi (
         //  the case that we recieved a dbcLoadModule, but did not end up
         //  loading the module  (a-math)
 
-        for ( iobj = 0; iobj < lpmdi->cobj; iobj++ ) {
+        for (iobj = 0; iobj < lpmdi->cobj; iobj++) {
             if (((lpmdi->fFlatMode && ADDR_IS_FLAT(*lpaddr)) ||
-                 (rgobjd[iobj].wSel == sel) && !ADDR_IS_FLAT(*lpaddr)) &&
-                (rgobjd[iobj].offset <= GetAddrOff(*lpaddr)) &&
+                (rgobjd[iobj].wSel == sel) && !ADDR_IS_FLAT(*lpaddr)) &&
+                 (rgobjd[iobj].offset <= GetAddrOff(*lpaddr)) &&
                 (GetAddrOff(*lpaddr) < rgobjd[iobj].offset + rgobjd[iobj].cb) &&
                 lpmdi->hemi) {
 
@@ -1640,94 +1639,94 @@ FindEmi (
             }
         }
 
-        LLUnlock ( hmdi );
+        LLUnlock(hmdi);
 
         // This break is here instead of in the "for" condition so
         //   that hmdi does not get advanced before we break
 
-        if ( fFound ) {
+        if (fFound) {
             break;
         }
     }
 
 
-    if ( !fFound ) {
-        emiAddr ( *lpaddr ) = (HEMI) hpid;
+    if (!fFound) {
+        emiAddr(*lpaddr) = (HEMI)hpid;
     } else {
-        emiAddr ( *lpaddr ) = (HEMI) HemiFromHmdi ( hmdi );
+        emiAddr(*lpaddr) = (HEMI)HemiFromHmdi(hmdi);
 
-        if ( LLNext ( llmdi, hmdiNull ) != hmdi ) {
+        if (LLNext(llmdi, hmdiNull) != hmdi) {
 
             // put the most recent hit at the head
             // this is an optimization to speed up the fixup/unfixup process
-            LLRemove ( llmdi, hmdi );
-            LLAddHead ( llmdi, hmdi );
+            LLRemove(llmdi, hmdi);
+            LLAddHead(llmdi, hmdi);
         }
     }
 
-    assert ( emiAddr ( *lpaddr ) != 0 );
+    assert(emiAddr(*lpaddr) != 0);
 
     return xosd;
 }
 
 #pragma optimize ("", off)
 XOSD
-SetEmiFromCache (
+SetEmiFromCache(
     HPID   hpid,
     LPADDR lpaddr
-    )
+)
 {
     XOSD xosd = xosdContinue;
 #ifndef TARGET32
     int  iemic;
 
-    for ( iemic = 0; iemic < cemicMax; iemic++ ) {
+    for (iemic = 0; iemic < cemicMax; iemic++) {
 
-        if ( rgemic [ iemic ].hpid == hpid &&
-             rgemic [ iemic ].sel  == GetAddrSeg ( *lpaddr ) ) {
+        if (rgemic[iemic].hpid == hpid &&
+            rgemic[iemic].sel == GetAddrSeg(*lpaddr)) {
 
-            if ( iemic != 0 ) {
-                EMIC emic = rgemic [ iemic ];
+            if (iemic != 0) {
+                EMIC emic = rgemic[iemic];
                 int iemicT;
 
-                for ( iemicT = iemic - 1; iemicT >= 0; iemicT-- ) {
-                    rgemic [ iemicT + 1 ] = rgemic [ iemicT ];
+                for (iemicT = iemic - 1; iemicT >= 0; iemicT--) {
+                    rgemic[iemicT + 1] = rgemic[iemicT];
                 }
-                rgemic [ 0 ] = emic;
+                rgemic[0] = emic;
             }
 
             xosd = xosdNone;
-            emiAddr ( *lpaddr ) = rgemic [ 0 ].hemi;
-            assert ( emiAddr ( *lpaddr ) != 0 );
+            emiAddr(*lpaddr) = rgemic[0].hemi;
+            assert(emiAddr(*lpaddr) != 0);
             break;
         }
     }
 #else
-    Unreferenced( hpid );
-    Unreferenced( lpaddr );
+    Unreferenced(hpid);
+    Unreferenced(lpaddr);
 #endif // !TARGET32
     return xosd;
 }
 #pragma optimize ("", on)
 
 XOSD
-SetCacheFromEmi (
+SetCacheFromEmi(
     HPID hpid,
     LPADDR lpaddr
-    )
+)
 {
     int iemic;
 
-    assert ( emiAddr ( *lpaddr ) != 0 );
+    assert(emiAddr(*lpaddr) != 0);
 
-    for ( iemic = cemicMax - 2; iemic >= 0; iemic-- ) {
+    for (iemic = cemicMax - 2; iemic >= 0; iemic--) {
 
-        rgemic [ iemic + 1 ] = rgemic [ iemic ];
+        rgemic[iemic + 1] = rgemic[iemic];
     }
 
-    rgemic [ 0 ].hpid = hpid;
-    rgemic [ 0 ].hemi = emiAddr ( *lpaddr );
-    rgemic [ 0 ].sel  = (WORD)GetAddrSeg ( *lpaddr );
+    rgemic[0].hpid = hpid;
+    rgemic[0].hemi = emiAddr(*lpaddr);
+    rgemic[0].sel = (WORD)GetAddrSeg(*lpaddr);
 
     return xosdNone;
 }
@@ -1744,16 +1743,16 @@ SetCacheFromEmi (
 
  */
 XOSD
-CleanCacheOfEmi (
+CleanCacheOfEmi(
     void
-    )
+)
 {
     int iemic;
 
-    for ( iemic = 0; iemic < cemicMax; iemic++ ) {
+    for (iemic = 0; iemic < cemicMax; iemic++) {
 
-        rgemic [ iemic ].hpid = NULL;
-        rgemic [ iemic ].sel  = 0;
+        rgemic[iemic].hpid = NULL;
+        rgemic[iemic].sel = 0;
     }
 
     return xosdNone;
@@ -1762,29 +1761,29 @@ CleanCacheOfEmi (
 
 
 XOSD
-SetEmi (
+SetEmi(
     HPID   hpid,
     LPADDR lpaddr
-    )
+)
 {
     XOSD xosd = xosdNone;
 
-    if ( emiAddr ( *lpaddr ) == 0 ) {
+    if (emiAddr(*lpaddr) == 0) {
 
         //if (ADDR_IS_REAL(*lpaddr)) {
         //    emiAddr( *lpaddr ) = (HEMI) hpid;
         //    return xosd;
         //}
 
-        if ( ( xosd = SetEmiFromCache ( hpid, lpaddr ) ) == xosdContinue ) {
+        if ((xosd = SetEmiFromCache(hpid, lpaddr)) == xosdContinue) {
 
-            xosd = FindEmi ( hpid, lpaddr );
-            if ( xosd == xosdNone ) {
-                SetCacheFromEmi ( hpid, lpaddr );
+            xosd = FindEmi(hpid, lpaddr);
+            if (xosd == xosdNone) {
+                SetCacheFromEmi(hpid, lpaddr);
             }
         }
 
-        assert ( emiAddr ( *lpaddr ) != 0 );
+        assert(emiAddr(*lpaddr) != 0);
     }
 
     return xosd;
@@ -1816,47 +1815,47 @@ SetEmi (
 #define doffMax 60
 
 static HPID hpidGPI = NULL;
-static BYTE rgbGPI [ doffMax ];
+static BYTE rgbGPI[doffMax];
 static ADDR addrGPI;
 
 XOSD
-GPIBuildCache (
+GPIBuildCache(
     HPID hpid,
     HTID htid,
     LPADDR lpaddr
-    )
+)
 {
-    XOSD xosd   =  xosdBadAddress;
-    int  fFound =  FALSE;
-    ADDR addr   = *lpaddr;
+    XOSD xosd = xosdBadAddress;
+    int  fFound = FALSE;
+    ADDR addr = *lpaddr;
     ADDR addrT;
     int  ib = 0;
 
 
-    _fmemset ( rgbGPI, 0, doffMax );
+    _fmemset(rgbGPI, 0, doffMax);
 
     addrGPI = *lpaddr;
     hpidGPI = hpid;
 
-    GetAddrOff ( addr ) -= (int) min ( (UOFFSET) doffMax, GetAddrOff ( *lpaddr ) );
+    GetAddrOff(addr) -= (int)min((UOFFSET)doffMax, GetAddrOff(*lpaddr));
 
-    while ( !fFound && GetAddrOff ( addr ) < GetAddrOff ( *lpaddr ) ) {
+    while (!fFound && GetAddrOff(addr) < GetAddrOff(*lpaddr)) {
         SDI  sdi;
 
-        sdi.dop    = dopNone;
-        sdi.addr   = addr;
+        sdi.dop = dopNone;
+        sdi.addr = addr;
 
         addrT = addr;
 
-        Disasm ( hpid, htid, &sdi );
+        Disasm(hpid, htid, &sdi);
 
         addr = sdi.addr;
 
-        rgbGPI [ ib ] = (BYTE) ( GetAddrOff ( addrGPI ) - GetAddrOff ( addr ) );
+        rgbGPI[ib] = (BYTE)(GetAddrOff(addrGPI) - GetAddrOff(addr));
 
-        if ( GetAddrOff ( addr ) == GetAddrOff ( *lpaddr ) ) {
-            xosd   = xosdNone;
-            *lpaddr= addrT;
+        if (GetAddrOff(addr) == GetAddrOff(*lpaddr)) {
+            xosd = xosdNone;
+            *lpaddr = addrT;
             fFound = TRUE;
         }
 
@@ -1866,11 +1865,11 @@ GPIBuildCache (
     // We haven't synced yet, so *lpaddr is probably pointing
     //  to something that isn't really synchronous
 
-    if ( !fFound ) {
-        xosd   = (XOSD) ( GetAddrOff ( *lpaddr ) - GetAddrOff ( addrT ) );
-        GetAddrOff ( *lpaddr ) -= xosd;
-        if ( GetAddrOff ( *lpaddr ) != 0 ) {
-            (void) GetPrevInst ( hpid, htid, lpaddr );
+    if (!fFound) {
+        xosd = (XOSD)(GetAddrOff(*lpaddr) - GetAddrOff(addrT));
+        GetAddrOff(*lpaddr) -= xosd;
+        if (GetAddrOff(*lpaddr) != 0) {
+            (void)GetPrevInst(hpid, htid, lpaddr);
         }
     }
 
@@ -1879,19 +1878,19 @@ GPIBuildCache (
 
 
 VOID
-GPIShiftCache (
+GPIShiftCache(
     LPADDR lpaddr,
-    int *pib
-    )
+    int* pib
+)
 {
-    int doff = (int) ( GetAddrOff ( addrGPI ) - GetAddrOff ( *lpaddr ) );
-    int ib   = 0;
+    int doff = (int)(GetAddrOff(addrGPI) - GetAddrOff(*lpaddr));
+    int ib = 0;
 
     *pib = 0;
-    while ( ib < doffMax && rgbGPI [ ib ] != 0 ) {
-        rgbGPI [ ib ] = (BYTE) max ( (int) rgbGPI [ ib ] - doff, 0 );
+    while (ib < doffMax && rgbGPI[ib] != 0) {
+        rgbGPI[ib] = (BYTE)max((int)rgbGPI[ib] - doff, 0);
 
-        if ( rgbGPI [ ib ] == 0 && *pib == 0 ) {
+        if (rgbGPI[ib] == 0 && *pib == 0) {
             *pib = ib;
         }
 
@@ -1902,65 +1901,64 @@ GPIShiftCache (
 }
 
 XOSD
-GPIUseCache (
+GPIUseCache(
     HPID hpid,
     HTID htid,
     LPADDR lpaddr
-    )
+)
 {
-    XOSD xosd   =  xosdBadAddress;
-    int  fFound =  FALSE;
-    ADDR addr   = *lpaddr;
-    int  ib     =  0;
-    int  ibCache=  0;
-    int  ibMax  =  0;
-    BYTE rgb [ doffMax ];
+    XOSD xosd = xosdBadAddress;
+    int  fFound = FALSE;
+    ADDR addr = *lpaddr;
+    int  ib = 0;
+    int  ibCache = 0;
+    int  ibMax = 0;
+    BYTE rgb[doffMax];
 
 
-    GPIShiftCache ( lpaddr, &ibMax );
+    GPIShiftCache(lpaddr, &ibMax);
 
-    _fmemset ( rgb, 0, doffMax );
+    _fmemset(rgb, 0, doffMax);
 
-    GetAddrOff ( addr ) -= (int) min ( (UOFFSET) doffMax, GetAddrOff ( *lpaddr ) );
+    GetAddrOff(addr) -= (int)min((UOFFSET)doffMax, GetAddrOff(*lpaddr));
 
-    while ( !fFound && GetAddrOff ( addr ) < GetAddrOff ( *lpaddr ) ) {
+    while (!fFound && GetAddrOff(addr) < GetAddrOff(*lpaddr)) {
         ADDR addrT;
-        BYTE doff = (BYTE) ( GetAddrOff ( *lpaddr ) - GetAddrOff ( addr ) );
+        BYTE doff = (BYTE)(GetAddrOff(*lpaddr) - GetAddrOff(addr));
 
         // Attempt to align with the cache
 
-        while ( doff < rgbGPI [ ibCache ] ) {
+        while (doff < rgbGPI[ibCache]) {
             ibCache += 1;
         }
 
-        if ( doff == rgbGPI [ ibCache ] ) {
+        if (doff == rgbGPI[ibCache]) {
 
             // We have alignment with the cache
 
-            addr  = *lpaddr;
+            addr = *lpaddr;
             addrT = addr;
-            GetAddrOff ( addrT ) -= rgbGPI [ ibMax - 1 ];
-        }
-        else {
+            GetAddrOff(addrT) -= rgbGPI[ibMax - 1];
+        } else {
             SDI  sdi;
 
             sdi.dop = dopNone;
             sdi.addr = addr;
             addrT = addr;
 
-            Disasm ( hpid, htid, &sdi );
+            Disasm(hpid, htid, &sdi);
 
 
             addr = sdi.addr;
 
-            rgb [ ib ] = (BYTE) ( GetAddrOff ( addrGPI ) - GetAddrOff ( addr ) );
+            rgb[ib] = (BYTE)(GetAddrOff(addrGPI) - GetAddrOff(addr));
 
             ib += 1;
         }
 
-        if ( GetAddrOff ( addr ) == GetAddrOff ( *lpaddr ) ) {
-            xosd   = xosdNone;
-            *lpaddr= addrT;
+        if (GetAddrOff(addr) == GetAddrOff(*lpaddr)) {
+            xosd = xosdNone;
+            *lpaddr = addrT;
             fFound = TRUE;
         }
 
@@ -1968,36 +1966,34 @@ GPIUseCache (
 
     // Rebuild the cache
 
-    _fmemmove ( &rgbGPI [ ib - 1 ], &rgbGPI [ ibCache ], ibMax - ibCache );
-    _fmemcpy  ( rgbGPI, rgb, ib - 1 );
+    _fmemmove(&rgbGPI[ib - 1], &rgbGPI[ibCache], ibMax - ibCache);
+    _fmemcpy(rgbGPI, rgb, ib - 1);
 
     return xosd;
 }
 
 XOSD
-GetPrevInst (
+GetPrevInst(
     HPID hpid,
     HTID htid,
     LPADDR lpaddr
-    )
+)
 {
 
-    if ( GetAddrOff ( *lpaddr ) == 0 ) {
+    if (GetAddrOff(*lpaddr) == 0) {
 
         return xosdBadAddress;
-    }
-    else if (
+    } else if (
         hpid == hpidGPI &&
-        GetAddrSeg ( *lpaddr ) == GetAddrSeg ( addrGPI ) &&
-        GetAddrOff ( *lpaddr ) <  GetAddrOff ( addrGPI ) &&
-        GetAddrOff ( *lpaddr ) >  GetAddrOff ( addrGPI ) - doffMax / 2
-    ) {
+        GetAddrSeg(*lpaddr) == GetAddrSeg(addrGPI) &&
+        GetAddrOff(*lpaddr) < GetAddrOff(addrGPI) &&
+        GetAddrOff(*lpaddr) > GetAddrOff(addrGPI) - doffMax / 2
+        ) {
 
-        return GPIUseCache ( hpid, htid, lpaddr );
-    }
-    else {
+        return GPIUseCache(hpid, htid, lpaddr);
+    } else {
 
-        return GPIBuildCache ( hpid, htid, lpaddr );
+        return GPIBuildCache(hpid, htid, lpaddr);
     }
 }
 
@@ -2010,11 +2006,11 @@ XOSD
 FLoadedOverlay(
     HPID   hpid,
     LPADDR lpaddr
-    )
+)
 {
     XOSD    xosd = xosdContinue;
-    Unreferenced( hpid );
-    Unreferenced( lpaddr );
+    Unreferenced(hpid);
+    Unreferenced(lpaddr);
     return xosd;
 }
 
@@ -2025,7 +2021,7 @@ SetupExecute(
     HPID       hpid,
     HTID       htid,
     LPHIND     lphind
-    )
+)
 /*++
 
 Routine Description:
@@ -2076,10 +2072,10 @@ Return Value:
      *  Allocate an execute object for this working item.
      */
 
-    if ((hlli = LLCreate( HllEo )) == 0) {
+    if ((hlli = LLCreate(HllEo)) == 0) {
         return xosdOutOfMemory;
     }
-    lpeo = (LP_EXECUTE_OBJECT_EM) LLLock( hlli );
+    lpeo = (LP_EXECUTE_OBJECT_EM)LLLock(hlli);
     lpeo->regs = MHAlloc(SizeOfContext(hpid));
 
     /*
@@ -2087,40 +2083,40 @@ Return Value:
      *  execute object.
      */
 
-    xosd = SendRequest(dmfSetupExecute, hpid, htid );
+    xosd = SendRequest(dmfSetupExecute, hpid, htid);
 
     if (xosd != xosdNone) {
-        LLUnlock( hlli );
-        LLDelete( HllEo, hlli );
+        LLUnlock(hlli);
+        LLDelete(HllEo, hlli);
         return xosd;
     }
 
-    lpeo->heoDm = *(HIND *) LpDmMsg->rgb;
+    lpeo->heoDm = *(HIND*)LpDmMsg->rgb;
 
     /*
      *  Get the current register set for the thread on which we are going
      *  to do the exeucte.
      */
 
-    lpthd = (LPTHD) LLLock( hthd );
+    lpthd = (LPTHD)LLLock(hthd);
 
     lpeo->hthd = hthd;
 
-    if (!( lpthd->drt & drtAllPresent )) {
-        UpdateRegisters( hprc, hthd );
+    if (!(lpthd->drt & drtAllPresent)) {
+        UpdateRegisters(hprc, hthd);
     }
 
-    _fmemcpy( lpeo->regs, lpthd->regs, SizeOfContext(hpid));
+    _fmemcpy(lpeo->regs, lpthd->regs, SizeOfContext(hpid));
 
-    LLUnlock( hthd );
+    LLUnlock(hthd);
 
     /*
      *  Unlock the execute object and return its handle
      */
 
-    LLUnlock( hlli );
+    LLUnlock(hlli);
 
-    *lphind =  (HIND)hlli;
+    *lphind = (HIND)hlli;
 
     return xosdNone;
 }                               /* SetupExecute() */
@@ -2132,7 +2128,7 @@ StartExecute(
     HPID       hpid,
     HIND       hind,
     LPEXECUTE_STRUCT lpes
-    )
+)
 
 /*++
 
@@ -2165,12 +2161,12 @@ Return Value:
         return xosdBadProcess;
     }
 
-    lpeo = (LP_EXECUTE_OBJECT_EM) LLLock( (HLLE)hind );
-    hthd= lpeo->hthd;
+    lpeo = (LP_EXECUTE_OBJECT_EM)LLLock((HLLE)hind);
+    hthd = lpeo->hthd;
     htid = HtidFromHthd(hthd),
-    lpes->hindDm = lpeo->heoDm;
+        lpes->hindDm = lpeo->heoDm;
     FixupAddr(hpid, htid, &lpes->addr);
-    LLUnlock( (HLLE)hind );
+    LLUnlock((HLLE)hind);
 
     /*
      *  Cause any changes to registers to be written back
@@ -2195,7 +2191,7 @@ XOSD
 CleanUpExecute(
     HPID hpid,
     HIND hind
-    )
+)
 
 /*++
 
@@ -2220,21 +2216,21 @@ Return Value:
     LPTHD                       lpthd;
     LP_EXECUTE_OBJECT_EM        lpeo;
 
-    lpeo = (LP_EXECUTE_OBJECT_EM) LLLock( (HLLE)hind );
+    lpeo = (LP_EXECUTE_OBJECT_EM)LLLock((HLLE)hind);
 
-    lpthd = (LPTHD) LLLock( lpeo->hthd );
+    lpthd = (LPTHD)LLLock(lpeo->hthd);
 
-    _fmemcpy( lpthd->regs, lpeo->regs, SizeOfContext(hpid));
+    _fmemcpy(lpthd->regs, lpeo->regs, SizeOfContext(hpid));
 
-    lpthd->drt = (DRT) (drtAllPresent | drtCntrlPresent | drtAllDirty | drtCntrlDirty);
+    lpthd->drt = (DRT)(drtAllPresent | drtCntrlPresent | drtAllDirty | drtCntrlDirty);
 
     SendRequestX(dmfCleanUpExecute, hpid, HtidFromHthd(lpeo->hthd),
                  sizeof(HIND), &lpeo->heoDm);
 
-    LLUnlock( (lpeo->hthd) );
-    LLUnlock( (HLLE)hind );
+    LLUnlock((lpeo->hthd));
+    LLUnlock((HLLE)hind);
 
-    LLDelete( HllEo, (HLLE)hind );
+    LLDelete(HllEo, (HLLE)hind);
 
     return xosdNone;
 
@@ -2245,48 +2241,48 @@ void
 UpdateNLGStatus(
     HPID    hpid,
     HTID    htid
-    )
+)
 {
-    HPRC    hprc = HprcFromHpid (hpid);
-    LPPRC   lpprc = (LPPRC)LLLock (hprc);
+    HPRC    hprc = HprcFromHpid(hpid);
+    LPPRC   lpprc = (LPPRC)LLLock(hprc);
     HMDI    hmdi;
     XOSD    xosd = xosdNone;
 
 
     if (lpprc->dmi.fNonLocalGoto) {
-        while ( hmdi = LLFind (lpprc->llmdi, NULL, NULL, emdiNLG )) {
-            LPMDI   lpmdi = (LPMDI) LLLock ( hmdi );
+        while (hmdi = LLFind(lpprc->llmdi, NULL, NULL, emdiNLG)) {
+            LPMDI   lpmdi = (LPMDI)LLLock(hmdi);
             NLG     nlg = lpmdi->nlg;
 
-            FixupAddr ( hpid, htid, &nlg.addrNLGDispatch );
-            FixupAddr ( hpid, htid, &nlg.addrNLGDestination );
-            FixupAddr ( hpid, htid, &nlg.addrNLGReturn );
+            FixupAddr(hpid, htid, &nlg.addrNLGDispatch);
+            FixupAddr(hpid, htid, &nlg.addrNLGDestination);
+            FixupAddr(hpid, htid, &nlg.addrNLGReturn);
 
             xosd = SendRequestX(dmfNonLocalGoto,
-                                HpidFromHprc ( hprc ),
+                                HpidFromHprc(hprc),
                                 NULL,
-                                sizeof ( nlg ),
+                                sizeof(nlg),
                                 &nlg
-                                );
+            );
 
             lpmdi->fSendNLG = FALSE;
-            LLUnlock ( hmdi );
+            LLUnlock(hmdi);
         }
     }
 
-    LLUnlock (hprc);
+    LLUnlock(hprc);
 }
 
 
 
 XOSD
-EMFunc (
+EMFunc(
     EMF  emf,
     HPID hpid,
     HTID htid,
     DWORD64 wValue,
     DWORD64 lValue
-    )
+)
 
 /*++
 
@@ -2393,51 +2389,51 @@ Other:
     XOSD xosd = xosdNone;
 
 
-    switch ( emf ) {
+    switch (emf) {
 
     default:
-        assert ( FALSE );
+        assert(FALSE);
         xosd = xosdUnknown;
         break;
 
     case emfKernelLoaded:
 
-        CallTL ( tlfReply, hpid, 0, 0 );
+        CallTL(tlfReply, hpid, 0, 0);
         xosd = xosdNone;
         break;
 
     case emfNewSymbolsLoaded:
 
-        xosd = SendRequest ( dmfNewSymbolsLoaded, hpid, htid );
+        xosd = SendRequest(dmfNewSymbolsLoaded, hpid, htid);
         break;
 
-    case emfShowDebuggee :
+    case emfShowDebuggee:
 
-        xosd = SendRequestX ( dmfSelect, hpid, htid, sizeof (wValue), &wValue );
+        xosd = SendRequestX(dmfSelect, hpid, htid, sizeof(wValue), &wValue);
         break;
 
     case emfStop:
 
-        xosd = SendRequestX ( dmfStop, hpid, htid, sizeof(wValue), &wValue );
+        xosd = SendRequestX(dmfStop, hpid, htid, sizeof(wValue), &wValue);
         break;
 
     case emfRegisterDBF:
 
-        InitUsage ( );
-        lpdbf = (LPDBF) lValue;
+        InitUsage();
+        lpdbf = (LPDBF)lValue;
         break;
 
     case emfInit:
 
-        llprc = LLInit ( sizeof ( PRC ), llfNull, PiDKill, PDComp );
+        llprc = LLInit(sizeof(PRC), llfNull, PiDKill, PDComp);
 
-        CallDB = ( (LPEMCB) lValue)->lpfnCallBackDB;
-        CallTL = ( (LPEMCB) lValue)->lpfnCallBackTL;
-        CallNT = ( (LPEMCB) lValue)->lpfnCallBackNT;
+        CallDB = ((LPEMCB)lValue)->lpfnCallBackDB;
+        CallTL = ((LPEMCB)lValue)->lpfnCallBackTL;
+        CallNT = ((LPEMCB)lValue)->lpfnCallBackNT;
 
-        LpDmMsg = (LPDM_MSG) MHAlloc ( CBBUFFERDEF );
+        LpDmMsg = (LPDM_MSG)MHAlloc(CBBUFFERDEF);
         CbDmMsg = CBBUFFERDEF;
-        CallTL ( tlfSetBuffer, hpid, CBBUFFERDEF, (DWORD64)LpDmMsg );
+        CallTL(tlfSetBuffer, hpid, CBBUFFERDEF, (DWORD64)LpDmMsg);
 
         break;
 
@@ -2446,7 +2442,7 @@ Other:
         /*
          * do any uninitialization for the EM itself
          */
-        FreeEmErrorStrings ();
+        FreeEmErrorStrings();
 
         CleanupDisassembler();
         MHFree(LpDmMsg);
@@ -2457,89 +2453,89 @@ Other:
 
     case emfSetAddr:
 
-        xosd = SetAddr( hpid, htid, (ADR) wValue, (LPADDR) lValue );
+        xosd = SetAddr(hpid, htid, (ADR)wValue, (LPADDR)lValue);
         break;
 
     case emfGetAddr:
 
-        xosd = GetAddr( hpid, htid, (ADR) wValue, (LPADDR) lValue );
+        xosd = GetAddr(hpid, htid, (ADR)wValue, (LPADDR)lValue);
         break;
 
     case emfSpawnOrphan:
 
-        xosd = SpawnOrphan ( hpid, (DWORD)wValue, (LPSOS) lValue);
+        xosd = SpawnOrphan(hpid, (DWORD)wValue, (LPSOS)lValue);
         break;
 
     case emfProgramLoad:
 
-        SyncHprcWithDM( hpid );
-        xosd = ProgramLoad ( hpid, (DWORD)wValue, (LPPRL) lValue );
+        SyncHprcWithDM(hpid);
+        xosd = ProgramLoad(hpid, (DWORD)wValue, (LPPRL)lValue);
         break;
 
     case emfProgramFree:
 
-        xosd = ProgramFree ( hpid, htid );
+        xosd = ProgramFree(hpid, htid);
         break;
 
     case emfFixupAddr:
 
-        xosd = FixupAddr ( hpid, htid, (LPADDR) lValue );
+        xosd = FixupAddr(hpid, htid, (LPADDR)lValue);
         break;
 
     case emfUnFixupAddr:
 
-        xosd = UnFixupAddr ( hpid, htid, (LPADDR) lValue );
+        xosd = UnFixupAddr(hpid, htid, (LPADDR)lValue);
         break;
 
     case emfSetEmi:
 
-        xosd = SetEmi ( hpid, (LPADDR) lValue );
+        xosd = SetEmi(hpid, (LPADDR)lValue);
         break;
 
     case emfMetric:
 
-        xosd = DebugMetric ( hpid, htid, (DWORD)wValue, (LPLONG) lValue );
+        xosd = DebugMetric(hpid, htid, (DWORD)wValue, (LPLONG)lValue);
         break;
 
     case emfDebugPacket:
     {
-        LPRTP lprtp = (LPRTP) lValue;
+        LPRTP lprtp = (LPRTP)lValue;
 
         xosd = DebugPacket(
-                     lprtp->dbc,
-                     lprtp->hpid,
-                     lprtp->htid,
-                     lprtp->cb,
-                     (lprtp->cb == 0 ) ? NULL : (LPBYTE) lprtp->rgbVar
-                     );
+            lprtp->dbc,
+            lprtp->hpid,
+            lprtp->htid,
+            lprtp->cb,
+            (lprtp->cb == 0) ? NULL : (LPBYTE)lprtp->rgbVar
+        );
         break;
     }
 
     case emfSetMulti:
 
-        xosd  = SendRequest ( (DMF) (wValue ? dmfSetMulti : dmfClearMulti),
-                                                                  hpid, htid );
+        xosd = SendRequest((DMF)(wValue ? dmfSetMulti : dmfClearMulti),
+                           hpid, htid);
         break;
 
     case emfDebugger:
 
-        xosd = SendRequestX ( dmfDebugger, hpid, htid, (DWORD)wValue, (LPVOID) lValue );
+        xosd = SendRequestX(dmfDebugger, hpid, htid, (DWORD)wValue, (LPVOID)lValue);
         break;
 
     case emfRegisterEmi:
 
-        RegisterEmi ( hpid, htid, (LPREMI) lValue );
+        RegisterEmi(hpid, htid, (LPREMI)lValue);
         break;
 
     case emfGetModel:
-        *(WORD *)lValue = CEXM_MDL_native;
+        *(WORD*)lValue = CEXM_MDL_native;
         break;
 
     case emfGetRegStruct:
         if (wValue >= CRgrd(hpid)) {
             xosd = xosdInvalidParameter;
         } else {
-            *((RD FAR *) lValue) = Rgrd(hpid)[wValue];
+            *((RD FAR*) lValue) = Rgrd(hpid)[wValue];
         }
         break;
 
@@ -2548,32 +2544,32 @@ Other:
         if (wValue >= CRgfd(hpid)) {
             xosd = xosdInvalidParameter;
         } else {
-            *((FD FAR *) lValue) = Rgfd(hpid)[wValue].fd;
+            *((FD FAR*) lValue) = Rgfd(hpid)[wValue].fd;
         }
         break;
 
     case emfGetFlag:
-        xosd = GetFlagValue( hpid, htid, (DWORD)wValue, (LPVOID) lValue );
+        xosd = GetFlagValue(hpid, htid, (DWORD)wValue, (LPVOID)lValue);
         break;
 
     case emfSetFlag:
-        xosd = SetFlagValue( hpid, htid, (DWORD)wValue, (LPVOID) lValue );
+        xosd = SetFlagValue(hpid, htid, (DWORD)wValue, (LPVOID)lValue);
         break;
 
     case emfSetupExecute:
-        xosd = SetupExecute(hpid, htid, (LPHIND) lValue);
+        xosd = SetupExecute(hpid, htid, (LPHIND)lValue);
         break;
 
     case emfStartExecute:
-        xosd = StartExecute(hpid, (HIND) wValue, (LPEXECUTE_STRUCT) lValue);
+        xosd = StartExecute(hpid, (HIND)wValue, (LPEXECUTE_STRUCT)lValue);
         break;
 
     case emfCleanUpExecute:
-        xosd = CleanUpExecute(hpid, (HIND) wValue);
+        xosd = CleanUpExecute(hpid, (HIND)wValue);
         break;
 
     case emfSetPath:
-        xosd = SetPath (hpid, htid, (DWORD)wValue, (LPTSTR)lValue);
+        xosd = SetPath(hpid, htid, (DWORD)wValue, (LPTSTR)lValue);
         break;
 
     case emfGo:
@@ -2581,7 +2577,7 @@ Other:
         break;
 
     case emfSingleStep:
-        xosd = SingleStep ( hpid, htid, (LPEXOP)lValue );
+        xosd = SingleStep(hpid, htid, (LPEXOP)lValue);
         break;
 
     case emfRangeStep:
@@ -2595,26 +2591,26 @@ Other:
     case emfWriteMemory:
     {
         LPRWMS lprwms = (LPRWMS)lValue;
-        xosd = WriteBufferCache ( hpid,
-                                  htid,
-                                  lprwms->lpaddr,
-                                  lprwms->cbBuffer,
-                                  (LPBYTE) lprwms->lpbBuffer,
-                                  lprwms->lpcb
-                                  );
+        xosd = WriteBufferCache(hpid,
+                                htid,
+                                lprwms->lpaddr,
+                                lprwms->cbBuffer,
+                                (LPBYTE)lprwms->lpbBuffer,
+                                lprwms->lpcb
+        );
         break;
     }
 
     case emfReadMemory:
     {
         LPRWMS lprwms = (LPRWMS)lValue;
-        xosd = ReadBuffer ( hpid,
-                            htid,
-                            lprwms->lpaddr,
-                            lprwms->cbBuffer,
-                            (LPBYTE) lprwms->lpbBuffer,
-                            lprwms->lpcb
-                            );
+        xosd = ReadBuffer(hpid,
+                          htid,
+                          lprwms->lpaddr,
+                          lprwms->cbBuffer,
+                          (LPBYTE)lprwms->lpbBuffer,
+                          lprwms->lpcb
+        );
         break;
     }
 
@@ -2623,7 +2619,7 @@ Other:
         break;
 
     case emfBreakPoint:
-        xosd = HandleBreakpoints( hpid, (DWORD)wValue, (UINT_PTR)lValue );
+        xosd = HandleBreakpoints(hpid, (DWORD)wValue, (UINT_PTR)lValue);
         break;
 
     case emfProcessStatus:
@@ -2647,64 +2643,64 @@ Other:
         break;
 
     case emfCreateHpid:
-        xosd = CreateHprc ( hpid );
+        xosd = CreateHprc(hpid);
 
-        if ( xosd == xosdNone ) {
-            xosd = SendRequest ( dmfCreatePid, hpid, NULL );
+        if (xosd == xosdNone) {
+            xosd = SendRequest(dmfCreatePid, hpid, NULL);
 
             //  We're allowed to have an HPID with no TL, so special-case
             //  the xosdInvalidParameter return code, which is returned
             //  by CallTL if there is no TL.
 
-            if ( xosd == xosdInvalidParameter ) {
+            if (xosd == xosdInvalidParameter) {
                 xosd = xosdNone;
             } else {
-                SyncHprcWithDM( hpid );
+                SyncHprcWithDM(hpid);
             }
         }
 
         break;
 
     case emfDestroyHpid:
-        {
-            HPRC hprc = HprcFromHpid(hpid);
-            xosd = SendRequest ( dmfDestroyPid, hpid, NULL );
-            if ( xosd == xosdLineNotConnected || xosd == xosdInvalidParameter ) {
+    {
+        HPRC hprc = HprcFromHpid(hpid);
+        xosd = SendRequest(dmfDestroyPid, hpid, NULL);
+        if (xosd == xosdLineNotConnected || xosd == xosdInvalidParameter) {
 
-                //  xosdLineNotConnected:  Communication line broke, we'll
-                //      ignore this error.
+            //  xosdLineNotConnected:  Communication line broke, we'll
+            //      ignore this error.
 
-                //  xosdInvalidParameter:  We're allowed to have an HPID with
-                //      no TL, so special case this return code, which is
-                //      returned by CallTL if there is no TL.
+            //  xosdInvalidParameter:  We're allowed to have an HPID with
+            //      no TL, so special case this return code, which is
+            //      returned by CallTL if there is no TL.
 
-                xosd = xosdNone;
-            }
-            DestroyHprc ( hprc );
+            xosd = xosdNone;
         }
-        break;
+        DestroyHprc(hprc);
+    }
+    break;
 
     case emfDestroyHtid:
-        {
-            HPRC hprc = HprcFromHpid(hpid);
-            DestroyHthd( HthdFromHtid( hprc, htid ));
-        }
-        break;
+    {
+        HPRC hprc = HprcFromHpid(hpid);
+        DestroyHthd(HthdFromHtid(hprc, htid));
+    }
+    break;
 
     case emfUnassemble:
-        Disasm ( hpid, htid, (LPSDI) lValue );
+        Disasm(hpid, htid, (LPSDI)lValue);
         break;
 
     case emfAssemble:
-        xosd = Assemble ( hpid, htid, (LPADDR) wValue, (LPTSTR) lValue );
+        xosd = Assemble(hpid, htid, (LPADDR)wValue, (LPTSTR)lValue);
         break;
 
     case emfGetReg:
-        xosd = GetRegValue( hpid, htid, (DWORD)wValue, (LPVOID) lValue );
+        xosd = GetRegValue(hpid, htid, (DWORD)wValue, (LPVOID)lValue);
         break;
 
     case emfSetReg:
-        xosd = SetRegValue( hpid, htid, (DWORD)wValue, (LPVOID) lValue );
+        xosd = SetRegValue(hpid, htid, (DWORD)wValue, (LPVOID)lValue);
         break;
 
     case emfDebugActive:
@@ -2712,34 +2708,34 @@ Other:
         if (xosd == xosdNone) {
             xosd = LpDmMsg->xosdRet;
         }
-        SyncHprcWithDM( hpid );
+        SyncHprcWithDM(hpid);
         break;
 
     case emfGetMessageMap:
-        *((LPMESSAGEMAP *)lValue) = &MessageMap;
+        *((LPMESSAGEMAP*)lValue) = &MessageMap;
         break;
 
     case emfGetMessageMaskMap:
-        *((LPMASKMAP *)lValue) = &MaskMap;
+        *((LPMASKMAP*)lValue) = &MaskMap;
         break;
 
     case emfGetModuleNameFromAddress:
         xosd = GetModuleNameFromAddress(hpid,
                                         wValue,
-                                        (PTSTR) lValue
-                                        );
+                                        (PTSTR)lValue
+        );
         break;
 
     case emfGetModuleList:
-        xosd = GetModuleList( hpid,
-                              htid,
-                              (LPTSTR)wValue,
-                              (LPMODULE_LIST FAR *)lValue
-                              );
+        xosd = GetModuleList(hpid,
+                             htid,
+                             (LPTSTR)wValue,
+                             (LPMODULE_LIST FAR*)lValue
+        );
         break;
 
     case emfCompareAddrs:
-        xosd = CompareAddrs( hpid, htid, (LPCAS) lValue );
+        xosd = CompareAddrs(hpid, htid, (LPCAS)lValue);
         break;
 
     case emfSetDebugMode:
@@ -2748,7 +2744,7 @@ Other:
         break;
 
     case emfUnRegisterEmi:
-        xosd = UnLoadFixups (hpid, (HEMI)lValue);
+        xosd = UnLoadFixups(hpid, (HEMI)lValue);
         break;
 
     case emfGetFrame:
@@ -2764,7 +2760,7 @@ Other:
         break;
 
     case emfGetPrevInst:
-        xosd = BackDisasm(hpid, htid, (LPGPIS)lValue );
+        xosd = BackDisasm(hpid, htid, (LPGPIS)lValue);
         break;
 
     case emfConnect:
@@ -2774,27 +2770,27 @@ Other:
         if (!LoadDmStruct.lpDmParams) {
             LoadDmStruct.lpDmParams = MHStrdup(DEFAULT_DMPARAMS);
         }
-        xosd = CallTL( tlfLoadDM, hpid, sizeof(LOADDMSTRUCT), (DWORD64)&LoadDmStruct);
+        xosd = CallTL(tlfLoadDM, hpid, sizeof(LOADDMSTRUCT), (DWORD64)&LoadDmStruct);
         if (xosd == xosdNone) {
-            xosd = SendRequest( dmfInit, hpid, htid );
+            xosd = SendRequest(dmfInit, hpid, htid);
         }
         break;
 
     case emfDisconnect:
-        xosd = SendRequest( dmfUnInit, hpid, htid );
+        xosd = SendRequest(dmfUnInit, hpid, htid);
         break;
 
     case emfInfoReply:
-        CallTL ( tlfReply, hpid, (DWORD)wValue, lValue );
+        CallTL(tlfReply, hpid, (DWORD)wValue, lValue);
         xosd = xosdNone;
         break;
 
     case emfSystemService:
-        xosd = SystemService( hpid, htid, (DWORD)wValue, (LPSSS)lValue );
+        xosd = SystemService(hpid, htid, (DWORD)wValue, (LPSSS)lValue);
         break;
 
     case emfGetTimeStamp:
-        xosd = GetTimeStamp (hpid, htid, (LPTCS) lValue);
+        xosd = GetTimeStamp(hpid, htid, (LPTCS)lValue);
         break;
 
     case emfSaveRegs:
@@ -2807,32 +2803,32 @@ Other:
 
     case emfSetup:
 
-        {
-            LPEMSS  lpemss = (LPEMSS)lValue;
-            TCHAR   szModuleName[_MAX_PATH];
-            TCHAR   szModuleParams[_MAX_PATH];
+    {
+        LPEMSS  lpemss = (LPEMSS)lValue;
+        TCHAR   szModuleName[_MAX_PATH];
+        TCHAR   szModuleParams[_MAX_PATH];
 
-            if (lpemss->fLoad) {
-                if (lpemss->pfnGetModuleInfo(szModuleName, szModuleParams)) {
-                    if (LoadDmStruct.lpDmName) {
-                        MHFree(LoadDmStruct.lpDmName);
-                    }
-                    if (LoadDmStruct.lpDmParams) {
-                        MHFree(LoadDmStruct.lpDmParams);
-                    }
-                    LoadDmStruct.lpDmName = MHStrdup(szModuleName);
-                    LoadDmStruct.lpDmParams = MHStrdup(szModuleParams);
-
-                    xosd = xosdOutOfMemory;
+        if (lpemss->fLoad) {
+            if (lpemss->pfnGetModuleInfo(szModuleName, szModuleParams)) {
+                if (LoadDmStruct.lpDmName) {
+                    MHFree(LoadDmStruct.lpDmName);
                 }
-            }
+                if (LoadDmStruct.lpDmParams) {
+                    MHFree(LoadDmStruct.lpDmParams);
+                }
+                LoadDmStruct.lpDmName = MHStrdup(szModuleName);
+                LoadDmStruct.lpDmParams = MHStrdup(szModuleParams);
 
-            if (lpemss->fSave) {
-                assert(0);
+                xosd = xosdOutOfMemory;
             }
-
         }
-        break;
+
+        if (lpemss->fSave) {
+            assert(0);
+        }
+
+    }
+    break;
 
     }
 
@@ -2850,18 +2846,18 @@ DllMain(
     HINSTANCE hModule,
     DWORD  dwReason,
     DWORD  dwReserved
-    )
+)
 {
     Unreferenced(hModule);
     Unreferenced(dwReserved);
 
     switch (dwReason) {
 
-      case DLL_THREAD_ATTACH:
-      case DLL_THREAD_DETACH:
+    case DLL_THREAD_ATTACH:
+    case DLL_THREAD_DETACH:
         break;
 
-      case DLL_PROCESS_DETACH:
+    case DLL_PROCESS_DETACH:
 
         if (LpSendBuf) {
             MHFree(LpSendBuf);
@@ -2877,10 +2873,10 @@ DllMain(
         DeleteCriticalSection(&csCache);
         break;
 
-      case DLL_PROCESS_ATTACH:
+    case DLL_PROCESS_ATTACH:
 
         InitializeCriticalSection(&csCache);
-                DisableThreadLibraryCalls(hModule);
+        DisableThreadLibraryCalls(hModule);
         break;
     }
 
@@ -2890,24 +2886,24 @@ DllMain(
 
 
 XOSD
-DebugPacket (
+DebugPacket(
     DBC dbc,
     HPID hpid,
     HTID htid,
     DWORD wValue,
     LPBYTE lpb
-    )
+)
 {
     XOSD        xosd = xosdContinue;
-    HPRC        hprc = HprcFromHpid ( hpid );
-    HTHD        hthd = HthdFromHtid ( hprc, htid );
+    HPRC        hprc = HprcFromHpid(hpid);
+    HTHD        hthd = HthdFromHtid(hprc, htid);
     LONG        emdi;
     LPTHD       lpthd;
     LPPRC       lpprc;
     DWORD64     wNewValue = wValue;
 
     if (hthd) {
-        lpthd = (LPTHD) LLLock(hthd);
+        lpthd = (LPTHD)LLLock(hthd);
         lpthd->drt = drtNonePresent;
         LLUnlock(hthd);
     }
@@ -2920,96 +2916,96 @@ DebugPacket (
      * than xosdContinue.
      */
 
-    switch ( dbc ) {
+    switch (dbc) {
     case dbceAssignPID:
-        {
-            LPPRC lpprc = (LPPRC) LLLock ( hprc );
+    {
+        LPPRC lpprc = (LPPRC)LLLock(hprc);
 
-            assert ( wValue == sizeof ( PID ) );
-            lpprc->pid = *( (PID FAR *) lpb );
-            lpprc->stat = statStarted;
-            LLUnlock ( hprc );
-        }
-        xosd = xosdNone;
-        break;
+        assert(wValue == sizeof(PID));
+        lpprc->pid = *((PID FAR*) lpb);
+        lpprc->stat = statStarted;
+        LLUnlock(hprc);
+    }
+    xosd = xosdNone;
+    break;
 
     case dbcCreateThread:
-        lpprc = (LPPRC) LLLock(hprc);
+        lpprc = (LPPRC)LLLock(hprc);
         lpprc->fRunning = FALSE;
         LLUnlock(hprc);
 
-        assert ( wValue == sizeof ( TCR ) );
-        xosd = CreateThreadStruct ( hpid, *( (TID FAR *) lpb ), &htid );
-        if ( ((LPTCR) lpb)->uoffTEB != 0 ) {
-            HTHD  hthdT = HthdFromHtid ( hprc, htid );
-            LPTHD lpthd = (LPTHD) LLLock ( hthdT );
+        assert(wValue == sizeof(TCR));
+        xosd = CreateThreadStruct(hpid, *((TID FAR*) lpb), &htid);
+        if (((LPTCR)lpb)->uoffTEB != 0) {
+            HTHD  hthdT = HthdFromHtid(hprc, htid);
+            LPTHD lpthd = (LPTHD)LLLock(hthdT);
 
-            lpthd->uoffTEB = ((LPTCR) lpb)->uoffTEB;
-            LLUnlock ( hthdT );
+            lpthd->uoffTEB = ((LPTCR)lpb)->uoffTEB;
+            LLUnlock(hthdT);
         }
 
-        CallTL ( tlfReply, hpid, sizeof ( HTID ), (DWORD64)&htid );
-        if ( xosd == xosdNone ) {
+        CallTL(tlfReply, hpid, sizeof(HTID), (DWORD64)&htid);
+        if (xosd == xosdNone) {
             xosd = xosdContinue;
         }
         break;
 
     case dbcNewProc:
-        {
-            HPRC  hprcT;
-            HPID  hpidT;
-            LPPRC lpprc;
-            LPNPP lpnpp;
+    {
+        HPRC  hprcT;
+        HPID  hpidT;
+        LPPRC lpprc;
+        LPNPP lpnpp;
 
-            /*
-             * lpb points to an NPP (New Process Packet).  The PID is
-             * the PID of the debuggee; fReallyNew indicates if this is
-             * really a new process or if it already existed but hasn't
-             * been seen before by OSDebug.
-             */
+        /*
+         * lpb points to an NPP (New Process Packet).  The PID is
+         * the PID of the debuggee; fReallyNew indicates if this is
+         * really a new process or if it already existed but hasn't
+         * been seen before by OSDebug.
+         */
 
-            assert ( wValue == sizeof(NPP) );
-            lpnpp = (LPNPP) lpb;
+        assert(wValue == sizeof(NPP));
+        lpnpp = (LPNPP)lpb;
 
-            // See EMCallBackDB in od.c
+        // See EMCallBackDB in od.c
 
-            CallDB ( dbcoNewProc,
-                     hpid,
-                     htid,
-                     CEXM_MDL_native,
-                     sizeof ( HPID ),
-                     (DWORD64)&hpidT
-                     );
+        CallDB(dbcoNewProc,
+               hpid,
+               htid,
+               CEXM_MDL_native,
+               sizeof(HPID),
+               (DWORD64)&hpidT
+        );
 
-            (void) CreateHprc ( hpidT );
+        (void)CreateHprc(hpidT);
 
-            hprcT       = HprcFromHpid ( hpidT );
-            lpprc       = (LPPRC) LLLock ( hprcT );
-            lpprc->pid  = lpnpp->pid;
-            lpprc->stat = statStarted;
-            LLUnlock ( hprcT );
+        hprcT = HprcFromHpid(hpidT);
+        lpprc = (LPPRC)LLLock(hprcT);
+        lpprc->pid = lpnpp->pid;
+        lpprc->stat = statStarted;
+        LLUnlock(hprcT);
 
-            CallTL ( tlfReply, hpid, sizeof ( HPID ), (DWORD64)&hpidT );
+        CallTL(tlfReply, hpid, sizeof(HPID), (DWORD64)&hpidT);
 
-            SyncHprcWithDM( hpidT );
+        SyncHprcWithDM(hpidT);
 
-            wNewValue = (LPARAM)hpidT;
-            // BUGBUG: why is a bool value being assigned to a pointer variable?
-            // ANSWERANSWER: because the VC people were lazy.  It ends up in lParam
-            //               in OSDCallbackFunc.
-            lpb = (LPBYTE) (LONG) lpnpp->fReallyNew;
-            if ( xosd == xosdNone ) {
-                xosd = xosdContinue;
-            }
+        wNewValue = (LPARAM)hpidT;
+        // BUGBUG: why is a bool value being assigned to a pointer variable?
+        // ANSWERANSWER: because the VC people were lazy.  It ends up in lParam
+        //               in OSDCallbackFunc.
+        lpb = (LPBYTE)(LONG)lpnpp->fReallyNew;
+        if (xosd == xosdNone) {
+            xosd = xosdContinue;
         }
-        break;
+    }
+    break;
 
 
     case dbcThreadTerm:
-        lpprc = (LPPRC) LLLock(hprc);
+        lpprc = (LPPRC)LLLock(hprc);
         lpprc->fRunning = FALSE;
         LLUnlock(hprc);
-        lpthd = (LPTHD) LLLock(hthd);
+        lpthd = (LPTHD)LLLock(hthd);
         lpthd->fRunning = FALSE;
         LLUnlock(hthd);
 
@@ -3022,27 +3018,27 @@ DebugPacket (
          * wValue = 0 and lValue = exit code.
          */
 
-        assert ( wValue == sizeof(ULONG) );
+        assert(wValue == sizeof(ULONG));
         wNewValue = 0;
-        lpb = (LPBYTE) (*(ULONG*)lpb);
+        lpb = (LPBYTE)(*(ULONG*)lpb);
         break;
 
     case dbcDeleteThread:
 
-        lpthd = (LPTHD) LLLock(hthd);
-        lpthd->tid    = (TID)-1;
+        lpthd = (LPTHD)LLLock(hthd);
+        lpthd->tid = (TID)-1;
         LLUnlock(hthd);
 
-        assert ( wValue == sizeof(ULONG) );
+        assert(wValue == sizeof(ULONG));
         wNewValue = 0;
-        lpb = (LPBYTE) (*(ULONG*)lpb);
+        lpb = (LPBYTE)(*(ULONG*)lpb);
         break;
 
     case dbcModLoad:
-        lpprc = (LPPRC) LLLock(hprc);
+        lpprc = (LPPRC)LLLock(hprc);
         lpprc->fRunning = FALSE;
         LLUnlock(hprc);
-        xosd = LoadFixups ( hpid, htid, (LPMODULELOAD) lpb );
+        xosd = LoadFixups(hpid, htid, (LPMODULELOAD)lpb);
         break;
 
     case dbcModFree:            /* Should use dbceModFree*               */
@@ -3057,15 +3053,15 @@ DebugPacket (
             LPMDI   lpmdi;
             HLLI    llmdi;
 
-            llmdi = LlmdiFromHprc ( hprc );
-            assert( llmdi );
+            llmdi = LlmdiFromHprc(hprc);
+            assert(llmdi);
 
-            hmdi = LLFind( llmdi, 0, lpb, emdi);
-            assert( hmdi );
+            hmdi = LLFind(llmdi, 0, lpb, emdi);
+            assert(hmdi);
 
-            lpmdi = (LPMDI) LLLock( hmdi );
-            lpb = (LPBYTE) lpmdi->hemi;
-            LLUnlock( hmdi );
+            lpmdi = (LPMDI)LLLock(hmdi);
+            lpb = (LPBYTE)lpmdi->hemi;
+            LLUnlock(hmdi);
             LLUnlock(hprc);
 
             dbc = dbcModFree;
@@ -3078,10 +3074,10 @@ DebugPacket (
         break;
 
     case dbcExecuteDone:
-        lpprc = (LPPRC) LLLock(hprc);
+        lpprc = (LPPRC)LLLock(hprc);
         lpprc->fRunning = FALSE;
         LLUnlock(hprc);
-        lpthd = (LPTHD) LLLock(hthd);
+        lpthd = (LPTHD)LLLock(hthd);
         lpthd->fRunning = FALSE;
         LLUnlock(hthd);
         break;
@@ -3095,66 +3091,66 @@ DebugPacket (
     case dbcEntryPoint:
     case dbcLoadComplete:
     case dbcCheckBpt:
-        {
-            LPBPR lpbpr = (LPBPR) lpb;
-            LPTHD lpthd = (LPTHD) LLLock ( hthd );
+    {
+        LPBPR lpbpr = (LPBPR)lpb;
+        LPTHD lpthd = (LPTHD)LLLock(hthd);
 
-            assert ( wValue == sizeof ( BPR ) );
+        assert(wValue == sizeof(BPR));
 
-            PurgeCache ( );
-            lpprc = (LPPRC) LLLock(hprc);
-            if (dbc != dbcCheckBpt) {
-                lpprc->fRunning = FALSE;
-                lpthd->fRunning = FALSE;
-            }
-            LLUnlock(hprc);
-
-            CopyFrameRegs(hpid, lpthd, lpbpr);
-
-            lpthd->fFlat         = lpbpr->fFlat;
-            lpthd->fOff32        = lpbpr->fOff32;
-            lpthd->fReal         = lpbpr->fReal;
-
-            lpthd->drt = drtCntrlPresent;
-
-            LLUnlock( hthd );
-
-            wNewValue = lpbpr->qwNotify;
-            lpb = NULL;
+        PurgeCache();
+        lpprc = (LPPRC)LLLock(hprc);
+        if (dbc != dbcCheckBpt) {
+            lpprc->fRunning = FALSE;
+            lpthd->fRunning = FALSE;
         }
-        break;
+        LLUnlock(hprc);
+
+        CopyFrameRegs(hpid, lpthd, lpbpr);
+
+        lpthd->fFlat = lpbpr->fFlat;
+        lpthd->fOff32 = lpbpr->fOff32;
+        lpthd->fReal = lpbpr->fReal;
+
+        lpthd->drt = drtCntrlPresent;
+
+        LLUnlock(hthd);
+
+        wNewValue = lpbpr->qwNotify;
+        lpb = NULL;
+    }
+    break;
 
     case dbcException:
-        {
-            LPEPR lpepr = (LPEPR) lpb;
-            LPTHD lpthd = (LPTHD) LLLock ( hthd );
-            ADDR  addr  = {0};
+    {
+        LPEPR lpepr = (LPEPR)lpb;
+        LPTHD lpthd = (LPTHD)LLLock(hthd);
+        ADDR  addr = {0};
 
 #if 0
-            /*
-              * This would be true if we did not pass parameters up
-              */
-            assert ( wValue == sizeof ( EPR ) );
+        /*
+          * This would be true if we did not pass parameters up
+          */
+        assert(wValue == sizeof(EPR));
 #endif
 
-            PurgeCache ( );
-            lpprc = (LPPRC) LLLock(hprc);
-            lpprc->fRunning = FALSE;
-            LLUnlock(hprc);
-            lpthd->fRunning = FALSE;
+        PurgeCache();
+        lpprc = (LPPRC)LLLock(hprc);
+        lpprc->fRunning = FALSE;
+        LLUnlock(hprc);
+        lpthd->fRunning = FALSE;
 
 
-            CopyFrameRegs(hpid, lpthd, &lpepr->bpr);
+        CopyFrameRegs(hpid, lpthd, &lpepr->bpr);
 
-            lpthd->fFlat        = lpepr->bpr.fFlat;
-            lpthd->fOff32       = lpepr->bpr.fOff32;
-            lpthd->fReal        = lpepr->bpr.fReal;
+        lpthd->fFlat = lpepr->bpr.fFlat;
+        lpthd->fOff32 = lpepr->bpr.fOff32;
+        lpthd->fReal = lpepr->bpr.fReal;
 
-            lpthd->drt = drtCntrlPresent;
+        lpthd->drt = drtCntrlPresent;
 
-            LLUnlock( hthd );
-        }
-        break;
+        LLUnlock(hthd);
+    }
+    break;
 
     case dbceCheckBpt:
         assert(FALSE);
@@ -3163,259 +3159,259 @@ DebugPacket (
 
 
     case dbcError:
-        {
-            static TCHAR sz[500];
-            XOSD    xosdErr = *( (XOSD *)lpb );
-            LPTSTR  str = (LPTSTR) (lpb + sizeof(XOSD));
+    {
+        static TCHAR sz[500];
+        XOSD    xosdErr = *((XOSD*)lpb);
+        LPTSTR  str = (LPTSTR)(lpb + sizeof(XOSD));
 
-            if (str[0]) {
-                lpb = (LPBYTE) str;
-            } else {
-                _stprintf(sz, _T("DM%04d: %s"), xosdErr, EmError(xosdErr));
-                lpb = (LPBYTE) sz;
-            }
-            wNewValue = xosdErr;
+        if (str[0]) {
+            lpb = (LPBYTE)str;
+        } else {
+            _stprintf(sz, _T("DM%04d: %s"), xosdErr, EmError(xosdErr));
+            lpb = (LPBYTE)sz;
         }
-        break;
+        wNewValue = xosdErr;
+    }
+    break;
 
     case dbceSegLoad:
-        {
-            SLI     sli;
-            HMDI    hmdi;
-            LPMDI   lpmdi;
-            UINT    i;
+    {
+        SLI     sli;
+        HMDI    hmdi;
+        LPMDI   lpmdi;
+        UINT    i;
 
-            sli = *( (LPSLI) lpb );
+        sli = *((LPSLI)lpb);
 
-            hmdi = LLFind( LlmdiFromHprc( hprc ), 0, &sli.mte,
-                          (LONG) emdiMTE);
+        hmdi = LLFind(LlmdiFromHprc(hprc), 0, &sli.mte,
+            (LONG)emdiMTE);
 
-            assert( hmdi );
+        assert(hmdi);
 
-            lpmdi = (LPMDI) LLLock(hmdi );
+        lpmdi = (LPMDI)LLLock(hmdi);
 
-            if (sli.wSegNo >= lpmdi->cobj) {
-                i = lpmdi->cobj;
-                lpmdi->cobj = sli.wSegNo+1;
-                lpmdi->rgobjd = (OBJD *) MHRealloc(lpmdi->rgobjd,
-                                        sizeof(OBJD)*lpmdi->cobj);
-                memset(&lpmdi->rgobjd[i], 0, sizeof(OBJD)*(lpmdi->cobj - i));
-            }
-            lpmdi->rgobjd[ sli.wSegNo ].wSel = sli.wSelector;
-            lpmdi->rgobjd[ sli.wSegNo ].wPad = 1;
-            lpmdi->rgobjd[ sli.wSegNo ].cb = (DWORD) -1;
-
-            LLUnlock( hmdi );
-
-
-            //  Let the shell know that a new segment was loaded, so it
-            //  can try to instantiate virtual BPs.
-
-            xosd = CallDB( dbcSegLoad,
-                           hpid,
-                           htid,
-                           CEXM_MDL_native,
-                           0,
-                           sli.wSelector
-                           );
-            xosd=xosdNone;
-
+        if (sli.wSegNo >= lpmdi->cobj) {
+            i = lpmdi->cobj;
+            lpmdi->cobj = sli.wSegNo + 1;
+            lpmdi->rgobjd = (OBJD*)MHRealloc(lpmdi->rgobjd,
+                                             sizeof(OBJD) * lpmdi->cobj);
+            memset(&lpmdi->rgobjd[i], 0, sizeof(OBJD) * (lpmdi->cobj - i));
         }
-        break;
+        lpmdi->rgobjd[sli.wSegNo].wSel = sli.wSelector;
+        lpmdi->rgobjd[sli.wSegNo].wPad = 1;
+        lpmdi->rgobjd[sli.wSegNo].cb = (DWORD)-1;
+
+        LLUnlock(hmdi);
+
+
+        //  Let the shell know that a new segment was loaded, so it
+        //  can try to instantiate virtual BPs.
+
+        xosd = CallDB(dbcSegLoad,
+                      hpid,
+                      htid,
+                      CEXM_MDL_native,
+                      0,
+                      sli.wSelector
+        );
+        xosd = xosdNone;
+
+    }
+    break;
 
     case dbceSegMove:
-        {
-            SLI     sli;
-            HMDI    hmdi;
-            LPMDI   lpmdi;
+    {
+        SLI     sli;
+        HMDI    hmdi;
+        LPMDI   lpmdi;
 
-            sli = *( (LPSLI) lpb );
+        sli = *((LPSLI)lpb);
 
-            hmdi = LLFind( LlmdiFromHprc( hprc ), 0, &sli.mte,
-                          (LONG) emdiMTE);
+        hmdi = LLFind(LlmdiFromHprc(hprc), 0, &sli.mte,
+            (LONG)emdiMTE);
 
-            assert( hmdi );
+        assert(hmdi);
 
-            lpmdi = (LPMDI) LLLock(hmdi );
+        lpmdi = (LPMDI)LLLock(hmdi);
 
-            assert(sli.wSegNo > 0 );
-            if (sli.wSegNo < lpmdi->cobj) {
-                lpmdi->rgobjd[ sli.wSegNo - 1 ].wSel = sli.wSelector;
-            }
-
-            LLUnlock( hmdi );
+        assert(sli.wSegNo > 0);
+        if (sli.wSegNo < lpmdi->cobj) {
+            lpmdi->rgobjd[sli.wSegNo - 1].wSel = sli.wSelector;
         }
-        break;
+
+        LLUnlock(hmdi);
+    }
+    break;
 
     case dbcCanStep:
-        {
-            CANSTEP CanStep;
-            ADDR origAddr;
+    {
+        CANSTEP CanStep;
+        ADDR origAddr;
 
-            assert ( wValue == sizeof ( ADDR ) );
+        assert(wValue == sizeof(ADDR));
 
-            UnFixupAddr( hpid, htid, (LPADDR) lpb);
-            origAddr = *(LPADDR)lpb;
+        UnFixupAddr(hpid, htid, (LPADDR)lpb);
+        origAddr = *(LPADDR)lpb;
 
-            xosd = CallDB(dbc,
-                          hpid,
-                          htid,
-                          CEXM_MDL_native,
-                          0,
-                          (DWORD64)lpb
-                          );
+        xosd = CallDB(dbc,
+                      hpid,
+                      htid,
+                      CEXM_MDL_native,
+                      0,
+                      (DWORD64)lpb
+        );
 
-            if ( xosd != xosdNone ) {
-                CanStep.Flags = CANSTEP_NO;
-            } else {
-                CanStep = *((CANSTEP*)lpb);
-                if (CanStep.Flags == CANSTEP_YES) {
-                    AdjustForProlog(hpid, htid, &origAddr, &CanStep);
-                }
+        if (xosd != xosdNone) {
+            CanStep.Flags = CANSTEP_NO;
+        } else {
+            CanStep = *((CANSTEP*)lpb);
+            if (CanStep.Flags == CANSTEP_YES) {
+                AdjustForProlog(hpid, htid, &origAddr, &CanStep);
             }
-
-            CallTL ( tlfReply, hpid, sizeof( CanStep ), (DWORD64)&CanStep );
-
-            xosd = xosdNone;
         }
-        break;
+
+        CallTL(tlfReply, hpid, sizeof(CanStep), (DWORD64)&CanStep);
+
+        xosd = xosdNone;
+    }
+    break;
 
     case dbceGetOffsetFromSymbol:
-        {
-            ADDR addr = {0};
-            xosd = CallDB(dbcGetExpression, hpid, htid, CEXM_MDL_native, (LPARAM)&addr, (DWORD64)lpb);
-            if (xosd == xosdNone) {
-                FixupAddr(hpid, htid, &addr);
-            }
-            CallTL( tlfReply, hpid, sizeof(addr.addr.off), (DWORD64)&addr.addr.off );
-            xosd = xosdNone;
+    {
+        ADDR addr = {0};
+        xosd = CallDB(dbcGetExpression, hpid, htid, CEXM_MDL_native, (LPARAM)&addr, (DWORD64)lpb);
+        if (xosd == xosdNone) {
+            FixupAddr(hpid, htid, &addr);
         }
+        CallTL(tlfReply, hpid, sizeof(addr.addr.off), (DWORD64)&addr.addr.off);
+        xosd = xosdNone;
+    }
 
-        break;
+    break;
 
     case dbceGetSymbolFromOffset:
-        {
-            LPTSTR p;
+    {
+        LPTSTR p;
 #if defined(UNICODE) || defined(_UNICODE)
 #pragma message("SHAddrToPublicName needs UNICODE api")
 #endif
 #ifdef NT_BUILD_ONLY
-            ADDR addr;
-            LPTSTR fname = (LPTSTR) SHAddrToPublicName( (LPADDR)lpb, &addr );
+        ADDR addr;
+        LPTSTR fname = (LPTSTR)SHAddrToPublicName((LPADDR)lpb, &addr);
 #else
-            LPTSTR fname = (LPTSTR) SHAddrToPublicName( (LPADDR)lpb );
+        LPTSTR fname = (LPTSTR)SHAddrToPublicName((LPADDR)lpb);
 #endif
-            HTID vhtid;
+        HTID vhtid;
 
-            GetFrame( hpid, htid, 1, (DWORD_PTR)&vhtid );
-            lpthd = (LPTHD) LLLock(hthd);
-            if (fname) {
-                p = (LPTSTR) MHAlloc( (_ftcslen(fname) + 16) * sizeof(TCHAR) );
-                _ftcscpy(p,fname);
-                MHFree(fname);
-            } else {
-                p = (LPTSTR) MHAlloc( 32 );
-                _stprintf( p, _T("<unknown>0x%016x"), GetAddrOff(*(LPADDR)lpb) );
-            }
-            fname = p;
-            p += _ftcslen(p) + 1;
-            *(UNALIGNED PDWORD64)p = (DWORD64)lpthd->StackFrame.AddrReturn.Offset;
-            LLUnlock(hthd);
-            CallTL( tlfReply, hpid, (_ftcslen(fname)+1)*sizeof(TCHAR)+sizeof(DWORD64), (DWORD64)fname );
-            MHFree( fname );
-            xosd = xosdNone;
+        GetFrame(hpid, htid, 1, (DWORD_PTR)&vhtid);
+        lpthd = (LPTHD)LLLock(hthd);
+        if (fname) {
+            p = (LPTSTR)MHAlloc((_ftcslen(fname) + 16) * sizeof(TCHAR));
+            _ftcscpy(p, fname);
+            MHFree(fname);
+        } else {
+            p = (LPTSTR)MHAlloc(32);
+            _stprintf(p, _T("<unknown>0x%016x"), GetAddrOff(*(LPADDR)lpb));
         }
-        break;
+        fname = p;
+        p += _ftcslen(p) + 1;
+        *(UNALIGNED PDWORD64)p = (DWORD64)lpthd->StackFrame.AddrReturn.Offset;
+        LLUnlock(hthd);
+        CallTL(tlfReply, hpid, (_ftcslen(fname) + 1) * sizeof(TCHAR) + sizeof(DWORD64), (DWORD64)fname);
+        MHFree(fname);
+        xosd = xosdNone;
+    }
+    break;
 
     case dbceEnableCache:
-        EnableCache( hpid, htid, *(LPDWORD)lpb );
-        CallTL( tlfReply, hpid, 0, 0 );
+        EnableCache(hpid, htid, *(LPDWORD)lpb);
+        CallTL(tlfReply, hpid, 0, 0);
         xosd = xosdNone;
         break;
 
     case dbceGetMessageMask:
-        {
-            DWORD dwMsgMask = GetMessageMask( *(LPDWORD)lpb );
-            CallTL( tlfReply, hpid, sizeof(DWORD), (DWORD64)&dwMsgMask);
-            xosd = xosdNone;
-        }
-        break;
+    {
+        DWORD dwMsgMask = GetMessageMask(*(LPDWORD)lpb);
+        CallTL(tlfReply, hpid, sizeof(DWORD), (DWORD64)&dwMsgMask);
+        xosd = xosdNone;
+    }
+    break;
 
     case dbcLastAddr:
-        assert( wValue == sizeof( ADDR ) );
+        assert(wValue == sizeof(ADDR));
 
-        UnFixupAddr( hpid, htid, (LPADDR) lpb );
+        UnFixupAddr(hpid, htid, (LPADDR)lpb);
 
-        xosd = CallDB(dbc, hpid, htid, CEXM_MDL_native, 0, (DWORD64) lpb);
+        xosd = CallDB(dbc, hpid, htid, CEXM_MDL_native, 0, (DWORD64)lpb);
 
-        if ( xosd == xosdNone ) {
-            FixupAddr( hpid, htid, (LPADDR) lpb );
+        if (xosd == xosdNone) {
+            FixupAddr(hpid, htid, (LPADDR)lpb);
         }
 
-        CallTL( tlfReply, hpid, sizeof(ADDR), (DWORD64)lpb);
+        CallTL(tlfReply, hpid, sizeof(ADDR), (DWORD64)lpb);
         break;
 
     case dbceExceptionDuringStep:
-        {
-            DWORD cAddrsAllocated = 6, cbPacket;
-            HTID vhtid = htid;
-            LPEXHDLR lpexhdlr = (LPEXHDLR) MHAlloc(sizeof(EXHDLR)+sizeof(ADDR)*cAddrsAllocated);
-            lpexhdlr->count = 0;
-            GetFrameEH(hpid, htid, &lpexhdlr, &cAddrsAllocated);
-            while (GetFrame(hpid, vhtid, 1, (DWORD_PTR)&vhtid)==xosdNone) {
-                GetFrameEH(hpid, vhtid, &lpexhdlr, &cAddrsAllocated);
-            }
-            cbPacket = sizeof(EXHDLR)+(lpexhdlr->count * sizeof(ADDR));
-            CallTL( tlfReply, hpid, cbPacket, (DWORD64) lpexhdlr);
-            MHFree(lpexhdlr);
-            xosd = xosdNone;
+    {
+        DWORD cAddrsAllocated = 6, cbPacket;
+        HTID vhtid = htid;
+        LPEXHDLR lpexhdlr = (LPEXHDLR)MHAlloc(sizeof(EXHDLR) + sizeof(ADDR) * cAddrsAllocated);
+        lpexhdlr->count = 0;
+        GetFrameEH(hpid, htid, &lpexhdlr, &cAddrsAllocated);
+        while (GetFrame(hpid, vhtid, 1, (DWORD_PTR)&vhtid) == xosdNone) {
+            GetFrameEH(hpid, vhtid, &lpexhdlr, &cAddrsAllocated);
         }
-        break;
+        cbPacket = sizeof(EXHDLR) + (lpexhdlr->count * sizeof(ADDR));
+        CallTL(tlfReply, hpid, cbPacket, (DWORD64)lpexhdlr);
+        MHFree(lpexhdlr);
+        xosd = xosdNone;
+    }
+    break;
 
     case dbceGetFunctionInformation:
-        {
-            GFI gfi;
-            FUNCTION_INFORMATION FunctionInformation;
-            gfi.lpaddr = (LPADDR)lpb;
-            gfi.lpFunctionInformation = &FunctionInformation;
-            xosd = GetFunctionInfo(hpid, &gfi);
+    {
+        GFI gfi;
+        FUNCTION_INFORMATION FunctionInformation;
+        gfi.lpaddr = (LPADDR)lpb;
+        gfi.lpFunctionInformation = &FunctionInformation;
+        xosd = GetFunctionInfo(hpid, &gfi);
 
-            if (xosd != xosdNone) {
-                ZeroMemory(&FunctionInformation, sizeof(FUNCTION_INFORMATION));
-            }
-            CallTL( tlfReply,
-                    hpid,
-                    sizeof(FUNCTION_INFORMATION),
-                    (DWORD64)&FunctionInformation
-                  );
+        if (xosd != xosdNone) {
+            ZeroMemory(&FunctionInformation, sizeof(FUNCTION_INFORMATION));
         }
-        break;
+        CallTL(tlfReply,
+               hpid,
+               sizeof(FUNCTION_INFORMATION),
+               (DWORD64)&FunctionInformation
+        );
+    }
+    break;
 
     default:
         break;
     }
 
     if ((xosd == xosdContinue) && (dbc < dbcMax) && (dbc != dbcModLoad)) {
-        xosd = CallDB ( dbc, hpid, htid, CEXM_MDL_native, wNewValue, (DWORD64)lpb );
+        xosd = CallDB(dbc, hpid, htid, CEXM_MDL_native, wNewValue, (DWORD64)lpb);
     }
 
-    switch ( dbc ) {
+    switch (dbc) {
 
     case dbcProcTerm:
-        {
-            LPPRC lpprc = (LPPRC) LLLock ( hprc );
-            lpprc->stat = statDead;
-            LLUnlock ( hprc );
-        }
-        break;
+    {
+        LPPRC lpprc = (LPPRC)LLLock(hprc);
+        lpprc->stat = statDead;
+        LLUnlock(hprc);
+    }
+    break;
 
     case dbcThreadTerm:
-        {
-            LPTHD lpthd = (LPTHD) LLLock ( hthd );
-            lpthd->fVirtual = TRUE;
-            LLUnlock ( hthd );
-        }
-        break;
+    {
+        LPTHD lpthd = (LPTHD)LLLock(hthd);
+        lpthd->fVirtual = TRUE;
+        LLUnlock(hthd);
+    }
+    break;
 
     case dbcDeleteProc:
         break;
@@ -3426,11 +3422,11 @@ DebugPacket (
     case dbcCheckBpt:
     case dbcCheckWatchPoint:
     case dbcCheckMsgBpt:
-        {
-            DWORD wContinue = xosd;
-            xosd = xosdNone;
-            CallTL( tlfReply, hpid, sizeof(wContinue), (DWORD64)&wContinue);
-        }
+    {
+        DWORD wContinue = xosd;
+        xosd = xosdNone;
+        CallTL(tlfReply, hpid, sizeof(wContinue), (DWORD64)&wContinue);
+    }
     }
 
     return xosd;

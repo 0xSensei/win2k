@@ -14,9 +14,9 @@ DWORD GetViewOptionsForDispatch()
     // Get the view options to return...
 
     SHGetSetSettings(&ss,
-        SSF_SHOWALLOBJECTS|SSF_SHOWEXTENSIONS|SSF_SHOWCOMPCOLOR|
-            SSF_SHOWSYSFILES|SSF_DOUBLECLICKINWEBVIEW|SSF_DESKTOPHTML|SSF_WIN95CLASSIC,
-        FALSE);
+                     SSF_SHOWALLOBJECTS | SSF_SHOWEXTENSIONS | SSF_SHOWCOMPCOLOR |
+                     SSF_SHOWSYSFILES | SSF_DOUBLECLICKINWEBVIEW | SSF_DESKTOPHTML | SSF_WIN95CLASSIC,
+                     FALSE);
 
     // Aarg: mnuch the Bool:1 fields into a dword...
     if (ss.fShowAllObjects) dwSetting |= SFVVO_SHOWALLOBJECTS;
@@ -59,10 +59,10 @@ CWebViewFolderContents::CWebViewFolderContents() : _psdf(NULL), _psfv(NULL)
 CWebViewFolderContents::~CWebViewFolderContents()
 {
     UnadviseAll();
-    ASSERT(NULL==_pdvf);
-    ASSERT(NULL==_pdvf2);
-    ASSERT(NULL==_psfv);
-    ASSERT(NULL==_hwndLV);
+    ASSERT(NULL == _pdvf);
+    ASSERT(NULL == _pdvf2);
+    ASSERT(NULL == _psfv);
+    ASSERT(NULL == _hwndLV);
 
     if (_pClassTypeInfo)
         _pClassTypeInfo->Release();
@@ -86,22 +86,20 @@ CWebViewFolderContents::~CWebViewFolderContents()
 
 
 // ATL maintainence functions
-LRESULT CWebViewFolderContents::_OnMessageForwarder(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
+LRESULT CWebViewFolderContents::_OnMessageForwarder(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    if (_hwndLVParent)
-    {
+    if (_hwndLVParent) {
         bHandled = TRUE;
         HWND hwnd = NULL;
 
         // Forward these messages directly to DefView (don't let MSHTML eat them)
         return ::SendMessage(_hwndLVParent, uMsg, wParam, lParam);
-    }
-    else
+    } else
         return 0;
 }
 
 
-LRESULT CWebViewFolderContents::_OnEraseBkgndMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
+LRESULT CWebViewFolderContents::_OnEraseBkgndMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     // This function will just tell the default handler not to do anything and we
     // will handle it.
@@ -114,17 +112,15 @@ LRESULT CWebViewFolderContents::_OnEraseBkgndMessage(UINT uMsg, WPARAM wParam, L
 }
 
 
-LRESULT CWebViewFolderContents::_OnSizeMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
+LRESULT CWebViewFolderContents::_OnSizeMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     // Now resize the DefView ListView window because ATL isn't very reliable at it.
-    if (_hwndLV)
-    {
+    if (_hwndLV) {
         ::SetWindowPos(_hwndLV, 0, 0, 0, m_rcPos.right - m_rcPos.left, m_rcPos.bottom - m_rcPos.top, SWP_NOZORDER);
 
         // We need to force a rearrange on IE401SHELL32 when the proper
         // size is set.  This is a timing dependent hack, but it works right now.
-        if (_fReArrangeListView)
-        {
+        if (_fReArrangeListView) {
             ListView_Arrange(_hwndLV, LVA_DEFAULT);
             _fReArrangeListView = FALSE;
         }
@@ -135,7 +131,7 @@ LRESULT CWebViewFolderContents::_OnSizeMessage(UINT uMsg, WPARAM wParam, LPARAM 
 }
 
 
-LRESULT CWebViewFolderContents::_OnReArrangeListView(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
+LRESULT CWebViewFolderContents::_OnReArrangeListView(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     _fReArrangeListView = TRUE;
     bHandled = TRUE;
@@ -147,13 +143,11 @@ HRESULT CWebViewFolderContents::DoVerbUIActivate(LPCRECT prcPosRect, HWND hwndPa
 {
     HRESULT hr = IOleObjectImpl<CWebViewFolderContents>::DoVerbUIActivate(prcPosRect, hwndParent);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         hr = _OnInPlaceActivate();
     }
 
-    if (_hwndLV)
-    {
+    if (_hwndLV) {
         ::SetFocus(_hwndLV);
     }
 
@@ -163,11 +157,9 @@ HRESULT CWebViewFolderContents::DoVerbUIActivate(LPCRECT prcPosRect, HWND hwndPa
 
 void CWebViewFolderContents::UnadviseAll()
 {
-    if (_dsaCookies)
-    {
+    if (_dsaCookies) {
         DWORD dw;
-        for (int i = 0; DSA_GetItem(_dsaCookies, i, &dw); i++)
-        {
+        for (int i = 0; DSA_GetItem(_dsaCookies, i, &dw); i++) {
             Unadvise(dw);
         }
         DSA_Destroy(_dsaCookies);
@@ -188,19 +180,15 @@ HRESULT CWebViewFolderContents::_OnInPlaceActivate(void)
 {
     HRESULT hr = S_OK;
 
-    if (_pdvf == NULL)
-    {
-        hr = IUnknown_QueryService(m_spClientSite, SID_DefView, IID_IDefViewFrame, (void **)&_pdvf);
-        if (EVAL(SUCCEEDED(hr)))
-        {
+    if (_pdvf == NULL) {
+        hr = IUnknown_QueryService(m_spClientSite, SID_DefView, IID_IDefViewFrame, (void**)&_pdvf);
+        if (EVAL(SUCCEEDED(hr))) {
             // Use the IDefViewFrame2 if we can get one; else fall back on IDefViewFrame.
-            if (_pdvf2 == NULL)
-            {
-                hr = _pdvf->QueryInterface(IID_IDefViewFrame2, (LPVOID *)&_pdvf2);
+            if (_pdvf2 == NULL) {
+                hr = _pdvf->QueryInterface(IID_IDefViewFrame2, (LPVOID*)&_pdvf2);
             }
-            if (_pdvf2 ? EVAL(SUCCEEDED(hr = _pdvf2->GetWindowLV2(&_hwndLV, SAFECAST(this, IWebViewOCWinMan *))))
-                       : EVAL(SUCCEEDED(hr = _pdvf ->GetWindowLV (&_hwndLV))))
-            {
+            if (_pdvf2 ? EVAL(SUCCEEDED(hr = _pdvf2->GetWindowLV2(&_hwndLV, SAFECAST(this, IWebViewOCWinMan*))))
+                : EVAL(SUCCEEDED(hr = _pdvf->GetWindowLV(&_hwndLV)))) {
                 // we got it -- show the listview
 
                 _ShowWindowLV(_hwndLV);
@@ -210,7 +198,7 @@ HRESULT CWebViewFolderContents::_OnInPlaceActivate(void)
                 // This is a timing issue and is no longer the case.  Mimick what shell32
                 // does so we can do the rearrange when the correct SetObjectRects comes through
                 ::PostMessage(m_hWnd, WM_DVOC_REARRANGELISTVIEW, 0, 0);
-           }
+            }
         }
     }
     return hr;
@@ -219,8 +207,7 @@ HRESULT CWebViewFolderContents::_OnInPlaceActivate(void)
 HRESULT CWebViewFolderContents::DoVerbInPlaceActivate(LPCRECT prcPosRect, HWND hwndParent)
 {
     HRESULT hr = IOleObjectImpl<CWebViewFolderContents>::DoVerbInPlaceActivate(prcPosRect, hwndParent);
-    if (EVAL(SUCCEEDED(hr)))
-    {
+    if (EVAL(SUCCEEDED(hr))) {
         hr = _OnInPlaceActivate();
     }
     return hr;
@@ -243,8 +230,7 @@ HRESULT CWebViewFolderContents::SetObjectRects(LPCRECT lprcPosRect, LPCRECT lprc
 {
     HRESULT hres = IOleInPlaceObject_SetObjectRects(lprcPosRect, lprcClipRect);
 
-    if (_hwndLV && _pdvf2)
-    {
+    if (_hwndLV && _pdvf2) {
         _pdvf2->AutoAutoArrange(0);
     }
 
@@ -255,27 +241,21 @@ HRESULT CWebViewFolderContents::SetObjectRects(LPCRECT lprcPosRect, LPCRECT lprc
 HRESULT CWebViewFolderContents::TranslateAccelerator(LPMSG pMsg)
 {
     HRESULT hres = S_OK;
-    if (!_fTabRecieved)
-    {
+    if (!_fTabRecieved) {
         hres = IOleInPlaceActiveObjectImpl<CWebViewFolderContents>::TranslateAccelerator(pMsg);
 
         // If we did not handle this and if it is a tab (and we are not getting it in a cycle), forward it to trident, if present.
-        if (hres != S_OK && pMsg && (pMsg->wParam == VK_TAB || pMsg->wParam == VK_F6) && m_spClientSite)
-        {
+        if (hres != S_OK && pMsg && (pMsg->wParam == VK_TAB || pMsg->wParam == VK_F6) && m_spClientSite) {
             IOleControlSite* pocs = NULL;
-            if (SUCCEEDED(m_spClientSite->QueryInterface(IID_IOleControlSite, (void **)&pocs)))
-            {
+            if (SUCCEEDED(m_spClientSite->QueryInterface(IID_IOleControlSite, (void**)&pocs))) {
                 DWORD grfModifiers = 0;
-                if (GetKeyState(VK_SHIFT) & 0x8000)
-                {
+                if (GetKeyState(VK_SHIFT) & 0x8000) {
                     grfModifiers |= 0x1;    //KEYMOD_SHIFT
                 }
-                if (GetKeyState(VK_CONTROL) & 0x8000)
-                {
+                if (GetKeyState(VK_CONTROL) & 0x8000) {
                     grfModifiers |= 0x2;    //KEYMOD_CONTROL;
                 }
-                if (GetKeyState(VK_MENU) & 0x8000)
-                {
+                if (GetKeyState(VK_MENU) & 0x8000) {
                     grfModifiers |= 0x4;    //KEYMOD_ALT;
                 }
                 _fTabRecieved = TRUE;
@@ -288,13 +268,12 @@ HRESULT CWebViewFolderContents::TranslateAccelerator(LPMSG pMsg)
 }
 
 // *** IProvideClassInfo ***
-HRESULT CWebViewFolderContents::GetClassInfo(ITypeInfo ** ppTI)
+HRESULT CWebViewFolderContents::GetClassInfo(ITypeInfo** ppTI)
 {
     if (!_pClassTypeInfo)
         Shell32GetTypeInfo(LANGIDFROMLCID(g_lcidLocaleUnicpp), CLSID_WebViewFolderContents, &_pClassTypeInfo);
 
-    if (EVAL(_pClassTypeInfo))
-    {
+    if (EVAL(_pClassTypeInfo)) {
         _pClassTypeInfo->AddRef();
         *ppTI = _pClassTypeInfo;
         return S_OK;
@@ -345,15 +324,13 @@ HRESULT CWebViewFolderContents::GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo** 
     }
 #endif
 */
-    //Load a type lib if we don't have the information already.
-    if (NULL == *ppITypeInfo)
-    {
-        ITypeInfo * pITIDisp;
+//Load a type lib if we don't have the information already.
+    if (NULL == *ppITypeInfo) {
+        ITypeInfo* pITIDisp;
 
         hr = Shell32GetTypeInfo(lcid, IID_IShellFolderViewDual, &pITIDisp);
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             HRESULT hrT;
             HREFTYPE hrefType;
 
@@ -375,34 +352,45 @@ HRESULT CWebViewFolderContents::GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo** 
 
 
 HRESULT CWebViewFolderContents::GetIDsOfNames(REFIID /*riid*/, LPOLESTR* rgszNames,
-    UINT cNames, LCID lcid, DISPID* rgdispid)
+                                              UINT cNames, LCID lcid, DISPID* rgdispid)
 {
     ITypeInfo* pInfo;
     HRESULT hr = GetTypeInfo(0, lcid, &pInfo);
 
-    if (pInfo != NULL)
-    {
+    if (pInfo != NULL) {
         hr = pInfo->GetIDsOfNames(rgszNames, cNames, rgdispid);
         pInfo->Release();
     }
 
-    TraceMsg(TF_DEFVIEW, "CWebViewFolderContents::GetIDsOfNames(DISPID=%ls, lcid=%d, cNames=%d) returned hr=%#08lx", *rgszNames, lcid, cNames, hr);
+    TraceMsg(TF_DEFVIEW, 
+             "CWebViewFolderContents::GetIDsOfNames(DISPID=%ls, lcid=%d, cNames=%d) returned hr=%#08lx", 
+             *rgszNames, 
+             lcid, 
+             cNames,
+             hr);
+
     return hr;
 }
 
-HRESULT CWebViewFolderContents::Invoke(DISPID dispidMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS * pdispparams, VARIANT * pvarResult, EXCEPINFO * pexcepinfo, UINT * puArgErr)
+HRESULT CWebViewFolderContents::Invoke(DISPID dispidMember,
+                                       REFIID riid,
+                                       LCID lcid, 
+                                       WORD wFlags,
+                                       DISPPARAMS* pdispparams,
+                                       VARIANT* pvarResult,
+                                       EXCEPINFO* pexcepinfo,
+                                       UINT* puArgErr)
 {
     HRESULT hr = E_FAIL;
-    IDispatch * pdisp;
+    IDispatch* pdisp;
     DISPPARAMS dispparams = {0};
 
     if (!pdispparams)
         pdispparams = &dispparams;  // otherwise OLE Fails when passed NULL.
 
 #ifdef CROSS_FRAME_SECURITY
-    switch (dispidMember)
-    {
-    // this
+    switch (dispidMember) {
+        // this
     case DISPID_SECURITYCTX:
         ASSERT(pvarResult);
         V_VT(pvarResult) = VT_BSTR;
@@ -412,41 +400,55 @@ HRESULT CWebViewFolderContents::Invoke(DISPID dispidMember, REFIID riid, LCID lc
     default:
 #endif
 
-    if (dispidMember == DISPID_WINDOWOBJECT)
-    {
-        if (SUCCEEDED(get_Script(&pdisp)))
-        {
-            hr = pdisp->Invoke(dispidMember, riid, lcid, wFlags, pdispparams, pvarResult, pexcepinfo, puArgErr);
-            pdisp->Release();
-            return hr;
+        if (dispidMember == DISPID_WINDOWOBJECT) {
+            if (SUCCEEDED(get_Script(&pdisp))) {
+                hr = pdisp->Invoke(dispidMember,
+                                   riid, 
+                                   lcid, 
+                                   wFlags,
+                                   pdispparams,
+                                   pvarResult,
+                                   pexcepinfo,
+                                   puArgErr);
+                pdisp->Release();
+                return hr;
+            } else
+                return DISP_E_MEMBERNOTFOUND;
         }
-        else
-            return DISP_E_MEMBERNOTFOUND;
-    }
-    // make sure we have an interface to hand off to Invoke
-    if (NULL == m_pdisp)
-    {
-        hr = _InternalQueryInterface(IID_IShellFolderViewDual, (LPVOID*)&m_pdisp);
-        ASSERT(SUCCEEDED(hr));
+        // make sure we have an interface to hand off to Invoke
+        if (NULL == m_pdisp) {
+            hr = _InternalQueryInterface(IID_IShellFolderViewDual, (LPVOID*)&m_pdisp);
+            ASSERT(SUCCEEDED(hr));
 
-        // don't hold a refcount on ourself
-        m_pdisp->Release();
-    }
+            // don't hold a refcount on ourself
+            m_pdisp->Release();
+        }
 
 
-    ITypeInfo * pITypeInfo;
+        ITypeInfo* pITypeInfo;
 
-    hr = GetTypeInfo(0, lcid, &pITypeInfo);
-    if (EVAL(SUCCEEDED(hr)))
-    {
-        //Clear exceptions
-        SetErrorInfo(0L, NULL);
+        hr = GetTypeInfo(0, lcid, &pITypeInfo);
+        if (EVAL(SUCCEEDED(hr))) {
+            //Clear exceptions
+            SetErrorInfo(0L, NULL);
 
-        hr = pITypeInfo->Invoke(m_pdisp, dispidMember, wFlags, pdispparams, pvarResult, pexcepinfo, puArgErr);
-        pITypeInfo->Release();
-    }
+            hr = pITypeInfo->Invoke(m_pdisp,
+                                    dispidMember, 
+                                    wFlags, 
+                                    pdispparams, 
+                                    pvarResult, 
+                                    pexcepinfo, 
+                                    puArgErr);
+            pITypeInfo->Release();
+        }
 
-    TraceMsg(TF_DEFVIEW, "CWebViewFolderContents::Invoke(DISPID=%#08lx, lcid=%d, wFlags=%d, pvarResult=%#08lx) returned hr=%#08lx", dispidMember, lcid, wFlags, pvarResult, hr);
+        TraceMsg(TF_DEFVIEW,
+                 "CWebViewFolderContents::Invoke(DISPID=%#08lx, lcid=%d, wFlags=%d, pvarResult=%#08lx) returned hr=%#08lx",
+                 dispidMember, 
+                 lcid, wFlags,
+                 pvarResult, 
+                 hr);
+
 #ifdef CROSS_FRAME_SECURITY
     }
 #endif
@@ -454,8 +456,11 @@ HRESULT CWebViewFolderContents::Invoke(DISPID dispidMember, REFIID riid, LCID lc
     return hr;
 }
 
+
 #define DW_MISC_STATUS (OLEMISC_SETCLIENTSITEFIRST|OLEMISC_ACTIVATEWHENVISIBLE|OLEMISC_RECOMPOSEONRESIZE|OLEMISC_CANTLINKINSIDE|OLEMISC_INSIDEOUT)
-HRESULT CWebViewFolderContents::GetMiscStatus(DWORD dwAspect, DWORD *pdwStatus)
+
+
+HRESULT CWebViewFolderContents::GetMiscStatus(DWORD dwAspect, DWORD* pdwStatus)
 {
     *pdwStatus = DW_MISC_STATUS;
 
@@ -464,7 +469,7 @@ HRESULT CWebViewFolderContents::GetMiscStatus(DWORD dwAspect, DWORD *pdwStatus)
 
 
 // IExpDispSupport
-HRESULT CWebViewFolderContents::FindCIE4ConnectionPoint(REFIID riid, CIE4ConnectionPoint **ppccp)
+HRESULT CWebViewFolderContents::FindCIE4ConnectionPoint(REFIID riid, CIE4ConnectionPoint** ppccp)
 {
     HRESULT hr = E_FAIL;
 
@@ -472,13 +477,11 @@ HRESULT CWebViewFolderContents::FindCIE4ConnectionPoint(REFIID riid, CIE4Connect
         return E_INVALIDARG;
 
     *ppccp = NULL;
-    if (IsEqualIID(DIID_DShellFolderViewEvents, riid))
-    {
+    if (IsEqualIID(DIID_DShellFolderViewEvents, riid)) {
         if (!_pmyiecp)
-            _pmyiecp = new CMyIE4ConnectionPoint(SAFECAST(this, IExpDispSupport *));
+            _pmyiecp = new CMyIE4ConnectionPoint(SAFECAST(this, IExpDispSupport*));
 
-        if (EVAL(_pmyiecp))
-        {
+        if (EVAL(_pmyiecp)) {
             // Don't give ref because _pmyiecp doesn't do refs, we
             // are assuming we will out live the one caller.  That's
             // okay because we assume with good reason that it will only be one specific
@@ -493,7 +496,7 @@ HRESULT CWebViewFolderContents::FindCIE4ConnectionPoint(REFIID riid, CIE4Connect
 
 
 // IOleInPlaceActiveObject
-HRESULT CWebViewFolderContents::SwapWindow(HWND hwndLV, IWebViewOCWinMan **pocWinMan)
+HRESULT CWebViewFolderContents::SwapWindow(HWND hwndLV, IWebViewOCWinMan** pocWinMan)
 {
     HRESULT hres = S_OK;
 
@@ -524,8 +527,7 @@ void CWebViewFolderContents::_ShowWindowLV(HWND hwndLV)
 
     LONG lExStyle = ::GetWindowLong(_hwndLV, GWL_EXSTYLE);
     _fClientEdge = lExStyle & WS_EX_CLIENTEDGE ? TRUE : FALSE;
-    if (_fClientEdge)
-    {
+    if (_fClientEdge) {
         lExStyle &= ~WS_EX_CLIENTEDGE;
         ::SetWindowLong(_hwndLV, GWL_EXSTYLE, lExStyle);
     }
@@ -538,7 +540,7 @@ void CWebViewFolderContents::_ShowWindowLV(HWND hwndLV)
 
     ::SetWindowPos(_hwndLV, 0, 0, 0, m_rcPos.right - m_rcPos.left, m_rcPos.bottom - m_rcPos.top, SWP_NOZORDER);
 
-    _pdvf->QueryInterface(IID_IShellFolderView, (void **)&_psfv);
+    _pdvf->QueryInterface(IID_IShellFolderView, (void**)&_psfv);
 
     // Incase We have been advised before we got here...
     if (_fSetDefViewAutomationObject)
@@ -549,8 +551,7 @@ void CWebViewFolderContents::_ShowWindowLV(HWND hwndLV)
 
 void CWebViewFolderContents::_ReleaseWindow()
 {
-    if (_hwndLV)
-    {
+    if (_hwndLV) {
         HWND hwndFocusPrev = GetFocus();
         if (_fClientEdge)
             SetWindowBits(_hwndLV, GWL_EXSTYLE, WS_EX_CLIENTEDGE, WS_EX_CLIENTEDGE);
@@ -567,15 +568,13 @@ void CWebViewFolderContents::_ReleaseWindow()
 
 
 // *** IConnectionPoint ***
-HRESULT CWebViewFolderContents::Advise(IUnknown * pUnkSink, DWORD * pdwCookie)
+HRESULT CWebViewFolderContents::Advise(IUnknown* pUnkSink, DWORD* pdwCookie)
 {
     HRESULT hr = S_OK;
 
-    if (!_dsaCookies)
-    {
+    if (!_dsaCookies) {
         _dsaCookies = DSA_Create(sizeof(*pdwCookie), 4);
-        if (!_dsaCookies)
-        {
+        if (!_dsaCookies) {
             *pdwCookie = 0;
             hr = E_OUTOFMEMORY;
         }
@@ -585,10 +584,8 @@ HRESULT CWebViewFolderContents::Advise(IUnknown * pUnkSink, DWORD * pdwCookie)
     _dwAdviseCount++;
     _SetAutomationObject();
 
-    if (SUCCEEDED(hr))
-    {
-        if (-1 == DSA_AppendItem(_dsaCookies, pdwCookie))
-        {
+    if (SUCCEEDED(hr)) {
+        if (-1 == DSA_AppendItem(_dsaCookies, pdwCookie)) {
             IConnectionPointImpl<CWebViewFolderContents, &DIID_DShellFolderViewEvents>::Unadvise(*pdwCookie);
             *pdwCookie = 0;
             hr = E_OUTOFMEMORY;
@@ -603,15 +600,12 @@ HRESULT CWebViewFolderContents::Unadvise(DWORD dwCookie)
 {
     HRESULT hr = E_FAIL;
 
-    if (_dsaCookies)
-    {
+    if (_dsaCookies) {
         int i = 0;
         DWORD dw;
 
-        while (DSA_GetItem(_dsaCookies, i++, &dw))
-        {
-            if (dw == dwCookie)
-            {
+        while (DSA_GetItem(_dsaCookies, i++, &dw)) {
+            if (dw == dwCookie) {
                 DSA_DeleteItem(_dsaCookies, --i);
                 hr = IConnectionPointImpl<CWebViewFolderContents, &DIID_DShellFolderViewEvents>::Unadvise(dwCookie);
                 _dwAdviseCount--;
@@ -628,10 +622,8 @@ HRESULT CWebViewFolderContents::_SetAutomationObject(void)
 {
     HRESULT hr = S_OK;
 
-    if (1 == _dwAdviseCount)
-    {
-        if (_psfv)
-        {
+    if (1 == _dwAdviseCount) {
+        if (_psfv) {
             // Let Defview know about us...
             hr = _psfv->SetAutomationObject(SAFECAST(this, IDispatch*));
         }
@@ -647,8 +639,7 @@ HRESULT CWebViewFolderContents::_ClearAutomationObject(void)
 {
     HRESULT hr = S_OK;
 
-    if ((0 == _dwAdviseCount) && _fSetDefViewAutomationObject)
-    {
+    if ((0 == _dwAdviseCount) && _fSetDefViewAutomationObject) {
         if (_psfv)
             hr = _psfv->SetAutomationObject(NULL);
 
@@ -659,7 +650,7 @@ HRESULT CWebViewFolderContents::_ClearAutomationObject(void)
 }
 
 // IShellFolderViewDual
-HRESULT CWebViewFolderContents::get_Application(IDispatch **ppid)
+HRESULT CWebViewFolderContents::get_Application(IDispatch** ppid)
 {
     // We will let the folder object get created and have it maintain that we only have one
     // application object (with the site) set properly...
@@ -669,34 +660,30 @@ HRESULT CWebViewFolderContents::get_Application(IDispatch **ppid)
     return hr;
 }
 
-HRESULT CWebViewFolderContents::get_Parent(IDispatch **ppid)
+HRESULT CWebViewFolderContents::get_Parent(IDispatch** ppid)
 {
     *ppid = NULL;
     ASSERT(0);  // Error returns from script cause bad dialogs
     return E_FAIL;
 }
 
-HRESULT CWebViewFolderContents::_GetFolderIDList(LPITEMIDLIST *ppidl)
+HRESULT CWebViewFolderContents::_GetFolderIDList(LPITEMIDLIST* ppidl)
 {
     *ppidl = NULL;
 
-    IShellFolder *psf;
-    if (SUCCEEDED(_pdvf->GetShellFolder(&psf)))
-    {
-        IPersistFolder2 *ppf;
-        if (SUCCEEDED(psf->QueryInterface(IID_IPersistFolder2, (void **)&ppf)))
-        {
+    IShellFolder* psf;
+    if (SUCCEEDED(_pdvf->GetShellFolder(&psf))) {
+        IPersistFolder2* ppf;
+        if (SUCCEEDED(psf->QueryInterface(IID_IPersistFolder2, (void**)&ppf))) {
             ppf->GetCurFolder(ppidl);
             ppf->Release();
         }
         psf->Release();
     }
 
-    if (*ppidl == NULL)
-    {
+    if (*ppidl == NULL) {
         LPITEMIDLIST pidl;
-        if (SUCCEEDED(_psfv->GetObject(&pidl, (UINT)-42)) && pidl)
-        {
+        if (SUCCEEDED(_psfv->GetObject(&pidl, (UINT)-42)) && pidl) {
             *ppidl = ILClone(pidl);
         }
     }
@@ -706,27 +693,23 @@ HRESULT CWebViewFolderContents::_GetFolderIDList(LPITEMIDLIST *ppidl)
 }
 
 #ifdef CROSS_FRAME_SECURITY
-HRESULT CWebViewFolderContents::_GetFolderSecurity(BSTR *pbstr)
+HRESULT CWebViewFolderContents::_GetFolderSecurity(BSTR* pbstr)
 {
     *pbstr = NULL;
 
     LPITEMIDLIST pidl;
     HRESULT hres = _GetFolderIDList(&pidl);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         TCHAR szURL[MAX_URL_STRING];
 
-        if (SHGetPathFromIDList(pidl, szURL))
-        {
+        if (SHGetPathFromIDList(pidl, szURL)) {
             DWORD dwChar = ARRAYSIZE(szURL);
             hres = UrlCreateFromPath(szURL, szURL, &dwChar, 0);    // in place!
-            if (SUCCEEDED(hres))
-            {
+            if (SUCCEEDED(hres)) {
                 *pbstr = TCharSysAllocString(szURL);
                 hres = *pbstr ? S_OK : E_OUTOFMEMORY;
             }
-        }
-        else
+        } else
             hres = E_FAIL;
     }
 
@@ -739,23 +722,20 @@ HRESULT CWebViewFolderContents::_GetFolder()
 {
     HRESULT hres = E_FAIL;
 
-    if (_pdvf)
-    {
+    if (_pdvf) {
         if (_psdf)
             return NOERROR;
 
         LPITEMIDLIST pidl;
-        if (EVAL(SUCCEEDED(_GetFolderIDList(&pidl))))
-        {
-            IShellFolder *psf = NULL;
+        if (EVAL(SUCCEEDED(_GetFolderIDList(&pidl)))) {
+            IShellFolder* psf = NULL;
             // For objects that cheat and not have a unique pidl to folder mapping
             _pdvf->GetShellFolder(&psf);
 
             // We assume we need the parent window to the defview...
             hres = CSDFolder_Create(::GetParent(_hwndLVParent), pidl, psf, &_psdf);
             SAFERELEASE(psf);
-            if (SUCCEEDED(hres))
-            {
+            if (SUCCEEDED(hres)) {
                 _psdf->SetSite(m_spClientSite);
                 hres = MakeSafeForScripting((IUnknown**)&_psdf);
             }
@@ -767,27 +747,26 @@ HRESULT CWebViewFolderContents::_GetFolder()
     return hres;
 }
 
-HRESULT CWebViewFolderContents::get_Folder(Folder **ppid)
+HRESULT CWebViewFolderContents::get_Folder(Folder** ppid)
 {
     HRESULT hres;
     *ppid = NULL;
 
     hres = _GetFolder();
     if (SUCCEEDED(hres))
-        hres = _psdf->QueryInterface(IID_Folder, (void **)ppid);
+        hres = _psdf->QueryInterface(IID_Folder, (void**)ppid);
 
     ASSERT(SUCCEEDED(hres));  // Error returns from script cause bad dialogs
     return hres;
 }
 
-HRESULT CWebViewFolderContents::SelectedItems(FolderItems **ppid)
+HRESULT CWebViewFolderContents::SelectedItems(FolderItems** ppid)
 {
     // We need to talk to the actual window under us
     *ppid = NULL;
 
     HRESULT hres = _GetFolder();
-    if (EVAL(SUCCEEDED(hres)))
-    {
+    if (EVAL(SUCCEEDED(hres))) {
         hres = CSDFldrItems_Create(_psdf, TRUE, ppid);
         if (EVAL(SUCCEEDED(hres)))
             hres = MakeSafeForScripting((IUnknown**)ppid);
@@ -797,30 +776,25 @@ HRESULT CWebViewFolderContents::SelectedItems(FolderItems **ppid)
     return hres;
 }
 
-HRESULT CWebViewFolderContents::get_FocusedItem(FolderItem **ppid)
+HRESULT CWebViewFolderContents::get_FocusedItem(FolderItem** ppid)
 {
     *ppid = NULL;
 
     HRESULT hres = _GetFolder();
-    if (EVAL(SUCCEEDED(hres)))
-    {
+    if (EVAL(SUCCEEDED(hres))) {
         hres = S_FALSE;
 
-        if (_psfv)
-        {
+        if (_psfv) {
             LPITEMIDLIST pidl;
-            if (SUCCEEDED(_psfv->GetObject(&pidl, (UINT)-2)) && pidl)
-            {
+            if (SUCCEEDED(_psfv->GetObject(&pidl, (UINT)-2)) && pidl) {
                 hres = CSDFldrItem_Create(_psdf, pidl, ppid);
-                if (SUCCEEDED(hres))
-                {
+                if (SUCCEEDED(hres)) {
                     hres = MakeSafeForScripting((IUnknown**)ppid);
                 }
                 // Don't free pidl as we did not copy it...
                 // ILFree(pidl);
             }
-        }
-        else
+        } else
             hres = E_FAIL;
     }
 
@@ -828,18 +802,15 @@ HRESULT CWebViewFolderContents::get_FocusedItem(FolderItem **ppid)
     return hres;
 }
 
-HRESULT CWebViewFolderContents::SelectItem(VARIANT *pvfi, int dwFlags)
+HRESULT CWebViewFolderContents::SelectItem(VARIANT* pvfi, int dwFlags)
 {
     HRESULT hres = E_FAIL;
-    if (_pdvf && _psfv)
-    {
+    if (_pdvf && _psfv) {
         LPCITEMIDLIST pidl = VariantToConstIDList(pvfi);
-        if (pidl)
-        {
-            IShellView *psv;
-            hres = _psfv->QueryInterface(IID_IShellView, (void **)&psv);
-            if (SUCCEEDED(hres))
-            {
+        if (pidl) {
+            IShellView* psv;
+            hres = _psfv->QueryInterface(IID_IShellView, (void**)&psv);
+            if (SUCCEEDED(hres)) {
                 hres = psv->SelectItem(pidl, dwFlags);
                 psv->Release();
             }
@@ -850,26 +821,26 @@ HRESULT CWebViewFolderContents::SelectItem(VARIANT *pvfi, int dwFlags)
     return hres;
 }
 
-HRESULT CWebViewFolderContents::PopupItemMenu(FolderItem *pfi, VARIANT vx, VARIANT vy, BSTR * pbs)
+HRESULT CWebViewFolderContents::PopupItemMenu(FolderItem* pfi, VARIANT vx, VARIANT vy, BSTR* pbs)
 {
     ASSERT(0);  // Error returns from script cause bad dialogs
     return E_NOTIMPL;
 }
 
-HRESULT CWebViewFolderContents::get_Script(IDispatch **ppid)
+HRESULT CWebViewFolderContents::get_Script(IDispatch** ppid)
 {
     HRESULT hr;
-    IHTMLDocument * phtmld;
-    IShellView  * psv;
+    IHTMLDocument* phtmld;
+    IShellView* psv;
 
     *ppid = NULL;
     if (_psfv) {
-        hr = _psfv->QueryInterface(IID_IShellView, (void **)&psv);
+        hr = _psfv->QueryInterface(IID_IShellView, (void**)&psv);
         if (SUCCEEDED(hr)) {
             // lets see if there is a IHTMLDocument that is below us now...
-            hr = psv->GetItemObject(SVGIO_BACKGROUND, IID_IHTMLDocument, (void **)&phtmld);
+            hr = psv->GetItemObject(SVGIO_BACKGROUND, IID_IHTMLDocument, (void**)&phtmld);
             if (SUCCEEDED(hr)) {
-                hr = MakeSafeForScripting((IUnknown **)&phtmld);
+                hr = MakeSafeForScripting((IUnknown**)&phtmld);
                 if (SUCCEEDED(hr)) {
                     hr = phtmld->get_Script(ppid);
                     phtmld->Release();
@@ -881,26 +852,21 @@ HRESULT CWebViewFolderContents::get_Script(IDispatch **ppid)
         hr = E_FAIL;
     }
 
-   ASSERT(SUCCEEDED(hr));  // Error returns from script cause bad dialogs
-   return hr;
+    ASSERT(SUCCEEDED(hr));  // Error returns from script cause bad dialogs
+    return hr;
 }
-HRESULT CWebViewFolderContents::get_ViewOptions(long *plSetting)
+HRESULT CWebViewFolderContents::get_ViewOptions(long* plSetting)
 {
     *plSetting = (LONG)GetViewOptionsForDispatch();
     return S_OK;
 }
 
 
-
-
-
-
-HRESULT CMyIE4ConnectionPoint::DoInvokeIE4(LPBOOL pf, LPVOID *ppv, DISPID dispid, DISPPARAMS *pdispparams)
+HRESULT CMyIE4ConnectionPoint::DoInvokeIE4(LPBOOL pf, LPVOID* ppv, DISPID dispid, DISPPARAMS* pdispparams)
 {
     // Shell32 never asks for a cancel
     ASSERT(pf == NULL && ppv == NULL);
 
     // Forward the invoke to our parent WebViewFolderContents.
-    return IUnknown_CPContainerInvokeParam(m_punk, DIID_DShellFolderViewEvents,
-                        dispid, NULL, 0);
+    return IUnknown_CPContainerInvokeParam(m_punk, DIID_DShellFolderViewEvents, dispid, NULL, 0);
 }

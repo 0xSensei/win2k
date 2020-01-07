@@ -33,8 +33,7 @@ CRulerItem::CRulerItem(UINT nBitmapID)
     m_hbm = NULL;
     m_hbmMask = NULL;
 
-    if (nBitmapID != 0)
-    {
+    if (nBitmapID != 0) {
         m_hbmMask = LoadBitmap(AfxFindResourceHandle(MAKEINTRESOURCE(nBitmapID + 1), RT_BITMAP),
                                MAKEINTRESOURCE(nBitmapID + 1));
         ASSERT(m_hbmMask != NULL);
@@ -50,13 +49,11 @@ CRulerItem::CRulerItem(UINT nBitmapID)
 
 CRulerItem::~CRulerItem()
 {
-    if (m_hbm != NULL)
-    {
+    if (m_hbm != NULL) {
         DeleteObject(m_hbm);
     }
 
-    if (m_hbmMask != NULL)
-    {
+    if (m_hbmMask != NULL) {
         DeleteObject(m_hbmMask);
     }
 }
@@ -66,15 +63,13 @@ BOOL CRulerItem::LoadMaskedBitmap(LPCTSTR lpszResourceName)
 {
     ASSERT(lpszResourceName != NULL);
 
-    if (m_hbm != NULL)
-    {
+    if (m_hbm != NULL) {
         DeleteObject(m_hbm);
     }
 
     HINSTANCE hInst = AfxFindResourceHandle(lpszResourceName, RT_BITMAP);
     HRSRC hRsrc = FindResource(hInst, lpszResourceName, RT_BITMAP);
-    if (hRsrc == NULL)
-    {
+    if (hRsrc == NULL) {
         return FALSE;
     }
 
@@ -85,10 +80,8 @@ BOOL CRulerItem::LoadMaskedBitmap(LPCTSTR lpszResourceName)
 
 void CRulerItem::SetHorzPosTwips(int nXPos)
 {
-    if (GetHorzPosTwips() != nXPos)
-    {
-        if (m_bTrack)
-        {
+    if (GetHorzPosTwips() != nXPos) {
+        if (m_bTrack) {
             DrawFocusLine();
         }
 
@@ -96,8 +89,7 @@ void CRulerItem::SetHorzPosTwips(int nXPos)
         m_nXPosTwips = nXPos;
         Invalidate();
 
-        if (m_bTrack)
-        {
+        if (m_bTrack) {
             DrawFocusLine();
         }
     }
@@ -109,13 +101,11 @@ void CRulerItem::TrackHorzPosTwips(int nXPos, BOOL /*bOnRuler*/)
     int nMin = GetMin();
     int nMax = GetMax();
 
-    if (nXPos < nMin)
-    {
+    if (nXPos < nMin) {
         nXPos = nMin;
     }
 
-    if (nXPos > nMax)
-    {
+    if (nXPos > nMax) {
         nXPos = nMax;
     }
 
@@ -125,8 +115,7 @@ void CRulerItem::TrackHorzPosTwips(int nXPos, BOOL /*bOnRuler*/)
 
 void CRulerItem::DrawFocusLine()
 {
-    if (GetHorzPosTwips() != 0)
-    {
+    if (GetHorzPosTwips() != 0) {
         m_rcTrack.left = m_rcTrack.right = GetHorzPosPix();
         ASSERT(m_pDC != NULL);
         int nLeft = m_pRuler->XRulerToClient(m_rcTrack.left);
@@ -140,8 +129,7 @@ void CRulerItem::SetTrack(BOOL b)
 {
     m_bTrack = b;
 
-    if (m_pDC != NULL)
-    {
+    if (m_pDC != NULL) {
         // just in case we lost focus Capture somewhere
         DrawFocusLine();
         m_pDC->RestoreDC(-1);
@@ -149,8 +137,7 @@ void CRulerItem::SetTrack(BOOL b)
         m_pDC = NULL;
     }
 
-    if (m_bTrack)
-    {
+    if (m_bTrack) {
         CWordPadView* pView = (CWordPadView*)m_pRuler->GetView();
         ASSERT(pView != NULL);
         pView->GetClientRect(&m_rcTrack);
@@ -178,8 +165,8 @@ void CRulerItem::Invalidate()
 CRect CRulerItem::GetHitRectPix()
 {
     int nx = GetHorzPosPix();
-    return CRect(CPoint((m_nAlignment == TA_CENTER) ? 
-        (nx - m_size.cx / 2) : 
+    return CRect(CPoint((m_nAlignment == TA_CENTER) ?
+        (nx - m_size.cx / 2) :
                         (m_nAlignment == TA_LEFT) ? nx : nx - m_size.cx, m_nYPosPix),
                  m_size);
 }
@@ -193,33 +180,23 @@ void CRulerItem::Draw(CDC& dc)
 
     HGDIOBJ hbm = ::SelectObject(dcBitmap.m_hDC, m_hbmMask);
 
-    if (m_nAlignment == TA_CENTER)
-    {
+    if (m_nAlignment == TA_CENTER) {
         // do mask part
         dc.BitBlt(pt.x - m_size.cx / 2, pt.y, m_size.cx, m_size.cy, &dcBitmap, 0, 0, SRCAND);
-    }
-    else if (m_nAlignment == TA_LEFT)
-    {
+    } else if (m_nAlignment == TA_LEFT) {
         dc.BitBlt(pt.x, pt.y, m_size.cx, m_size.cy, &dcBitmap, 0, 0, SRCAND);
-    }
-    else
-    {
+    } else {
         // TA_RIGHT
         dc.BitBlt(pt.x - m_size.cx, pt.y, m_size.cx, m_size.cy, &dcBitmap, 0, 0, SRCAND);
     }
 
     ::SelectObject(dcBitmap.m_hDC, m_hbm);// do image part
 
-    if (m_nAlignment == TA_CENTER)
-    {
+    if (m_nAlignment == TA_CENTER) {
         dc.BitBlt(pt.x - m_size.cx / 2, pt.y, m_size.cx, m_size.cy, &dcBitmap, 0, 0, SRCINVERT);
-    }
-    else if (m_nAlignment == TA_LEFT)
-    {
+    } else if (m_nAlignment == TA_LEFT) {
         dc.BitBlt(pt.x, pt.y, m_size.cx, m_size.cy, &dcBitmap, 0, 0, SRCINVERT);
-    }
-    else
-    {
+    } else {
         // TA_RIGHT
         dc.BitBlt(pt.x - m_size.cx, pt.y, m_size.cx, m_size.cy, &dcBitmap, 0, 0, SRCINVERT);
     }
@@ -241,12 +218,9 @@ BOOL CComboRulerItem::HitTestPix(CPoint pt)
 {
     m_bHitPrimary = FALSE;
 
-    if (CRulerItem::GetHitRectPix().PtInRect(pt))
-    {
+    if (CRulerItem::GetHitRectPix().PtInRect(pt)) {
         m_bHitPrimary = TRUE;
-    }
-    else
-    {
+    } else {
         return m_secondary.HitTestPix(pt);
     }
 
@@ -263,8 +237,7 @@ void CComboRulerItem::Draw(CDC& dc)
 
 void CComboRulerItem::SetHorzPosTwips(int nXPos)
 {
-    if (m_bHitPrimary)
-    {
+    if (m_bHitPrimary) {
         // only change linked items by delta
         m_link.SetHorzPosTwips(m_link.GetHorzPosTwips() + nXPos - GetHorzPosTwips());
     }
@@ -279,13 +252,11 @@ void CComboRulerItem::TrackHorzPosTwips(int nXPos, BOOL /*bOnRuler*/)
     int nMin = GetMin();
     int nMax = GetMax();
 
-    if (nXPos < nMin)
-    {
+    if (nXPos < nMin) {
         nXPos = nMin;
     }
 
-    if (nXPos > nMax)
-    {
+    if (nXPos > nMax) {
         nXPos = nMax;
     }
 
@@ -324,14 +295,11 @@ void CComboRulerItem::SetBounds(int nMin, int nMax)
 
 int CComboRulerItem::GetMin()
 {
-    if (m_bHitPrimary)
-    {
+    if (m_bHitPrimary) {
         int nPDist = GetHorzPosTwips() - CRulerItem::GetMin();
         int nLDist = m_link.GetHorzPosTwips() - m_link.GetMin();
         return GetHorzPosTwips() - min(nPDist, nLDist);
-    }
-    else
-    {
+    } else {
         return CRulerItem::GetMin();
     }
 }
@@ -339,15 +307,12 @@ int CComboRulerItem::GetMin()
 
 int CComboRulerItem::GetMax()
 {
-    if (m_bHitPrimary)
-    {
+    if (m_bHitPrimary) {
         int nPDist = CRulerItem::GetMax() - GetHorzPosTwips();
         int nLDist = m_link.GetMax() - m_link.GetHorzPosTwips();
         int nMinDist = (nPDist < nLDist) ? nPDist : nLDist;
         return GetHorzPosTwips() + nMinDist;
-    }
-    else
-    {
+    } else {
         return CRulerItem::GetMax();
     }
 }
@@ -355,12 +320,9 @@ int CComboRulerItem::GetMax()
 
 void CTabRulerItem::TrackHorzPosTwips(int nXPos, BOOL bOnRuler)
 {
-    if (bOnRuler)
-    {
+    if (bOnRuler) {
         CRulerItem::TrackHorzPosTwips(nXPos, bOnRuler);
-    }
-    else
-    {
+    } else {
         CRulerItem::TrackHorzPosTwips(0, bOnRuler);
     }
 }
@@ -382,7 +344,7 @@ END_MESSAGE_MAP()
 
 
 CRulerBar::CRulerBar() :
-    m_leftmargin(IDB_RULER_BLOCK, IDB_RULER_UP, m_indent), 
+    m_leftmargin(IDB_RULER_BLOCK, IDB_RULER_UP, m_indent),
     m_indent(IDB_RULER_DOWN),
     m_rightmargin(IDB_RULER_UP),
     m_tabItem(IDB_RULER_TAB)
@@ -392,8 +354,7 @@ CRulerBar::CRulerBar() :
     m_indent.SetRuler(this);
     m_rightmargin.SetRuler(this);
 
-    for (int i = 0; i < MAX_TAB_STOPS; i++)
-    {
+    for (int i = 0; i < MAX_TAB_STOPS; i++) {
         // all of the tab stops share handles
         m_pTabItems[i].m_hbm = m_tabItem.m_hbm;
         m_pTabItems[i].m_hbmMask = m_tabItem.m_hbmMask;
@@ -425,8 +386,7 @@ CRulerBar::CRulerBar() :
 
 CRulerBar::~CRulerBar()
 {
-    for (int i = 0; i < MAX_TAB_STOPS; i++)
-    {
+    for (int i = 0; i < MAX_TAB_STOPS; i++) {
         // set handles to NULL to avoid deleting twice
         m_pTabItems[i].m_hbm = NULL;
         m_pTabItems[i].m_hbmMask = NULL;
@@ -466,8 +426,7 @@ void CRulerBar::OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL /*bDisableIfNoHndler*
 
     //Get the page size and see if changed -- from document
     //get margins and tabs and see if changed -- from view
-    if (m_pSelItem == NULL)
-    {
+    if (m_pSelItem == NULL) {
         // only update if not in middle of dragging
         CWordPadView* pView = (CWordPadView*)GetView();
         ASSERT(pView != NULL);
@@ -479,21 +438,18 @@ void CRulerBar::OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL /*bDisableIfNoHndler*
         CPoint pt = rect.TopLeft();
         pView->ClientToScreen(&pt);
         ScreenToClient(&pt);
-        if (m_cxLeftBorder != pt.x)
-        {
+        if (m_cxLeftBorder != pt.x) {
             m_cxLeftBorder = pt.x;
             Invalidate();
         }
 
         int nScroll = 0;
 
-        if (pView->GetStyle() & WS_HSCROLL)
-        {
+        if (pView->GetStyle() & WS_HSCROLL) {
             nScroll = pView->GetScrollPos(SB_HORZ);
         }
 
-        if (nScroll != m_nScroll)
-        {
+        if (nScroll != m_nScroll) {
             m_nScroll = nScroll;
             Invalidate();
         }
@@ -531,8 +487,7 @@ BOOL CRulerBar::Create(CWnd* pParentWnd, DWORD dwStyle, UINT nID)
                                             ::LoadCursor(NULL, IDC_ARROW),
                                             (HBRUSH)(COLOR_BTNFACE + 1),
                                             NULL);
-    if (!CWnd::Create(lpszClass, NULL, dwStyle, rect, pParentWnd, nID))
-    {
+    if (!CWnd::Create(lpszClass, NULL, dwStyle, rect, pParentWnd, nID)) {
         return FALSE;
     }
     // NOTE: Parent must resize itself for control bar to be resized
@@ -545,8 +500,7 @@ BOOL CRulerBar::Create(CWnd* pParentWnd, DWORD dwStyle, UINT nID)
 
     int i;
     int nMax = 100;
-    for (i = 0; i < MAX_TAB_STOPS; i++)
-    {
+    for (i = 0; i < MAX_TAB_STOPS; i++) {
         m_pTabItems[i].SetRuler(this);
         m_pTabItems[i].SetVertPos(8);
         m_pTabItems[i].SetHorzPosTwips(0);
@@ -581,13 +535,11 @@ void CRulerBar::Update(const PARAFORMAT& pf)
     m_rightmargin.SetHorzPosTwips(PrintWidth() - (int)pf.dxRightIndent);
 
     int i = 0;
-    for (i = 0; i < pf.cTabCount; i++)
-    {
+    for (i = 0; i < pf.cTabCount; i++) {
         m_pTabItems[i].SetHorzPosTwips((int)pf.rgxTabs[i]);
     }
 
-    for (; i < MAX_TAB_STOPS; i++)
-    {
+    for (; i < MAX_TAB_STOPS; i++) {
         m_pTabItems[i].SetHorzPosTwips(0);
     }
 }
@@ -595,15 +547,13 @@ void CRulerBar::Update(const PARAFORMAT& pf)
 
 void CRulerBar::Update(CSize sizePaper, const CRect& rectMargins)
 {
-    if ((sizePaper != m_sizePaper) || (rectMargins != m_rectMargin))
-    {
+    if ((sizePaper != m_sizePaper) || (rectMargins != m_rectMargin)) {
         m_sizePaper = sizePaper;
         m_rectMargin = rectMargins;
         Invalidate();
     }
 
-    if (m_unit.m_nTPU != theApp.GetTPU())
-    {
+    if (m_unit.m_nTPU != theApp.GetTPU()) {
         m_unit = theApp.GetUnit();
         Invalidate();
     }
@@ -621,13 +571,11 @@ void CRulerBar::FillInParaFormat(PARAFORMAT& pf)
     SortTabs();
 
     int i, nPos = 0;
-    for (i = 0; i < MAX_TAB_STOPS; i++)
-    {
+    for (i = 0; i < MAX_TAB_STOPS; i++) {
         // get rid of zeroes and multiples i.e. 
         // if we have 0,0,0,1,2,3,4,4,5
         // we will get tabs at 1,2,3,4,5
-        if (nPos != m_pTabItems[i].GetHorzPosTwips())
-        {
+        if (nPos != m_pTabItems[i].GetHorzPosTwips()) {
             nPos = m_pTabItems[i].GetHorzPosTwips();
             pf.rgxTabs[pf.cTabCount++] = nPos;
         }
@@ -640,12 +588,9 @@ void CRulerBar::SortTabs()
 {
     int i, j, nPos;
 
-    for (i = 0; i < MAX_TAB_STOPS - 1; i++)
-    {
-        for (j = i + 1; j < MAX_TAB_STOPS; j++)
-        {
-            if (m_pTabItems[j].GetHorzPosTwips() < m_pTabItems[i].GetHorzPosTwips())
-            {
+    for (i = 0; i < MAX_TAB_STOPS - 1; i++) {
+        for (j = i + 1; j < MAX_TAB_STOPS; j++) {
+            if (m_pTabItems[j].GetHorzPosTwips() < m_pTabItems[i].GetHorzPosTwips()) {
                 nPos = m_pTabItems[j].GetHorzPosTwips();
                 m_pTabItems[j].SetHorzPosTwips(m_pTabItems[i].GetHorzPosTwips());
                 m_pTabItems[i].SetHorzPosTwips(nPos);
@@ -659,8 +604,7 @@ void CRulerBar::DoPaint(CDC* pDC)
 {
     CControlBar::DoPaint(pDC); // CControlBar::DoPaint -- draws border
 
-    if (m_unit.m_nTPU != 0)
-    {
+    if (m_unit.m_nTPU != 0) {
         pDC->SaveDC();
 
         // offset coordinate system
@@ -688,10 +632,8 @@ void CRulerBar::DrawTabs(CDC& dc)
     int i;
     int nPos = 0;
 
-    for (i = 0; i < MAX_TAB_STOPS; i++)
-    {
-        if (m_pTabItems[i].GetHorzPosTwips() > nPos)
-        {
+    for (i = 0; i < MAX_TAB_STOPS; i++) {
+        if (m_pTabItems[i].GetHorzPosTwips() > nPos) {
             nPos = (m_pTabItems[i].GetHorzPosTwips());
         }
 
@@ -702,8 +644,7 @@ void CRulerBar::DrawTabs(CDC& dc)
     nPos = nPos - nPos % 720 + 720;
     dc.SelectObject(&penBtnShadow);
 
-    for (; nPos < nPageWidth; nPos += 720)
-    {
+    for (; nPos < nPageWidth; nPos += 720) {
         int nx = XTwipsToRuler(nPos);
         dc.MoveTo(nx, HEIGHT - 1);
         dc.LineTo(nx, HEIGHT + 1);
@@ -789,10 +730,8 @@ void CRulerBar::DrawNumbers(CDC& dc, int nInc, int nTPU)
     TCHAR buf[10];
     int nTwips, nPixel, nLen;
 
-    for (nTwips = nInc; nTwips < nPageEdge; nTwips += nInc)
-    {
-        if (nTwips == nPageWidth)
-        {
+    for (nTwips = nInc; nTwips < nPageEdge; nTwips += nInc) {
+        if (nTwips == nPageWidth) {
             continue;
         }
 
@@ -811,10 +750,8 @@ void CRulerBar::DrawDiv(CDC& dc, int nInc, int nLargeDiv, int nLength)
     int nPageEdge = nPageWidth + m_rectMargin.right;
     int nTwips, nPixel;
 
-    for (nTwips = nInc; nTwips < nPageEdge; nTwips += nInc)
-    {
-        if (nTwips == nPageWidth || nTwips % nLargeDiv == 0)
-        {
+    for (nTwips = nInc; nTwips < nPageEdge; nTwips += nInc) {
+        if (nTwips == nPageWidth || nTwips % nLargeDiv == 0) {
             continue;
         }
 
@@ -832,30 +769,21 @@ void CRulerBar::OnLButtonDown(UINT nFlags, CPoint point)
 
     m_pSelItem = NULL;
 
-    if (m_leftmargin.HitTestPix(pt))
-    {
+    if (m_leftmargin.HitTestPix(pt)) {
         m_pSelItem = &m_leftmargin;
-    }
-    else if (m_indent.HitTestPix(pt))
-    {
+    } else if (m_indent.HitTestPix(pt)) {
         m_pSelItem = &m_indent;
-    }
-    else if (m_rightmargin.HitTestPix(pt))
-    {
+    } else if (m_rightmargin.HitTestPix(pt)) {
         m_pSelItem = &m_rightmargin;
-    }
-    else
-    {
+    } else {
         m_pSelItem = GetHitTabPix(pt);
     }
 
-    if (m_pSelItem == NULL)
-    {
+    if (m_pSelItem == NULL) {
         m_pSelItem = GetFreeTab();
     }
 
-    if (m_pSelItem == NULL)
-    {
+    if (m_pSelItem == NULL) {
         return;
     }
 
@@ -872,14 +800,13 @@ void CRulerBar::SetMarginBounds()
     m_leftmargin.SetBounds(0, m_rightmargin.GetHorzPosTwips());
     m_indent.SetBounds(0, m_rightmargin.GetHorzPosTwips());
 
-    int nMin = (m_leftmargin.GetHorzPosTwips() > m_indent.GetHorzPosTwips()) ? 
+    int nMin = (m_leftmargin.GetHorzPosTwips() > m_indent.GetHorzPosTwips()) ?
         m_leftmargin.GetHorzPosTwips() :
         m_indent.GetHorzPosTwips();
     int nMax = PrintWidth() + m_rectMargin.right;
     m_rightmargin.SetBounds(nMin, nMax);
 
-    for (int i = 0; i < MAX_TAB_STOPS; i++)
-    {
+    for (int i = 0; i < MAX_TAB_STOPS; i++) {
         // tabs can go from zero to the right page edge
         m_pTabItems[i].SetBounds(0, nMax);
     }
@@ -890,10 +817,8 @@ CRulerItem* CRulerBar::GetFreeTab()
 {
     int i;
 
-    for (i = 0; i < MAX_TAB_STOPS; i++)
-    {
-        if (m_pTabItems[i].GetHorzPosTwips() == 0)
-        {
+    for (i = 0; i < MAX_TAB_STOPS; i++) {
+        if (m_pTabItems[i].GetHorzPosTwips() == 0) {
             return &m_pTabItems[i];
         }
     }
@@ -906,10 +831,8 @@ CTabRulerItem* CRulerBar::GetHitTabPix(CPoint point)
 {
     int i;
 
-    for (i = 0; i < MAX_TAB_STOPS; i++)
-    {
-        if (m_pTabItems[i].HitTestPix(point))
-        {
+    for (i = 0; i < MAX_TAB_STOPS; i++) {
+        if (m_pTabItems[i].HitTestPix(point)) {
             return &m_pTabItems[i];
         }
     }
@@ -920,8 +843,7 @@ CTabRulerItem* CRulerBar::GetHitTabPix(CPoint point)
 
 void CRulerBar::OnLButtonUp(UINT nFlags, CPoint point)
 {
-    if (::GetCapture() != m_hWnd)
-    {
+    if (::GetCapture() != m_hWnd) {
         return;
     }
 
@@ -942,8 +864,7 @@ void CRulerBar::OnMouseMove(UINT nFlags, CPoint point)
 {
     CControlBar::OnMouseMove(nFlags, point);
 
-    if (::GetCapture() != m_hWnd)
-    {
+    if (::GetCapture() != m_hWnd) {
         // use ::GetCapture to avoid creating temporaries
         return;
     }
@@ -956,7 +877,7 @@ void CRulerBar::OnMouseMove(UINT nFlags, CPoint point)
     // snap to minimum movement
     point.x = XClientToTwips(point.x);
     point.x += m_unit.m_nMinMove / 2;
-    point.x -= point.x%m_unit.m_nMinMove;
+    point.x -= point.x % m_unit.m_nMinMove;
 
     m_pSelItem->TrackHorzPosTwips(point.x, bOnRuler);
     UpdateWindow();
@@ -1007,8 +928,7 @@ LRESULT CRulerBar::OnSizeParent(WPARAM wParam, LPARAM lParam)
 {
     BOOL bVis = GetStyle() & WS_VISIBLE;
 
-    if ((bVis && (m_nStateFlags & delayHide)) || (!bVis && (m_nStateFlags & delayShow)))
-    {
+    if ((bVis && (m_nStateFlags & delayHide)) || (!bVis && (m_nStateFlags & delayShow))) {
         m_bDeferInProgress = TRUE;
     }
 

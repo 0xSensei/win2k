@@ -26,10 +26,10 @@ extern "C" {
 
 DWORD pSetupGuidFromString(PWCHAR GuidString, LPGUID Guid);
 
-CONST TCHAR*    DEVMGR_NOTIFY_CLASS_NAME = TEXT("DevMgrNotifyClass");
-CONST TCHAR*    DEVMGR_REFRESH_MSG = TEXT("DevMgrRefreshOn");
-CONST TCHAR*    YES = TEXT("Yes");
-CONST TCHAR*    NO = TEXT("No");
+CONST TCHAR* DEVMGR_NOTIFY_CLASS_NAME = TEXT("DevMgrNotifyClass");
+CONST TCHAR* DEVMGR_REFRESH_MSG = TEXT("DevMgrRefreshOn");
+CONST TCHAR* YES = TEXT("Yes");
+CONST TCHAR* NO = TEXT("No");
 
 // This guid is used for file signing/verification.
 GUID DriverVerifyGuid = DRIVER_ACTION_VERIFY;
@@ -38,7 +38,7 @@ GUID DriverVerifyGuid = DRIVER_ACTION_VERIFY;
 // The aim of this is that buiding a guid list take time and in many case, a minimum buffer should retrive all of them.
 // We do not want to get the size first, allocate buffer and get it again.
 // 64 looks to be fair enough value because there are not many classes out there today(and maybe, in the future).
-const int GUID_LIST_INIT_SIZE =     64;
+const int GUID_LIST_INIT_SIZE = 64;
 
 #if DBG
 #define DUMP_DEVICETREE     0x00000001
@@ -58,7 +58,7 @@ BOOL CDevInfoList::DiGetExtensionPropSheetPage(
     LPFNADDPROPSHEETPAGE pfnAddPropSheetPage,
     DWORD PageType,
     LPARAM lParam
-    )
+)
 {
     SP_PROPSHEETPAGE_REQUEST PropPageRequest;
     LPFNADDPROPSHEETPAGES AddPropPages;
@@ -67,14 +67,11 @@ BOOL CDevInfoList::DiGetExtensionPropSheetPage(
     PropPageRequest.PageRequested = PageType;
     PropPageRequest.DeviceInfoSet = m_hDevInfo;
     PropPageRequest.DeviceInfoData = DevData;
-    if (SPPSR_SELECT_DEVICE_RESOURCES == PageType)
-    {
+    if (SPPSR_SELECT_DEVICE_RESOURCES == PageType) {
         HINSTANCE hModule = ::GetModuleHandle(TEXT("setupapi.dll"));
-        if (hModule)
-        {
+        if (hModule) {
             AddPropPages = (LPFNADDPROPSHEETPAGES)GetProcAddress(hModule, "ExtensionPropSheetPageProc");
-            if (AddPropPages)
-            {
+            if (AddPropPages) {
                 if (AddPropPages(&PropPageRequest, pfnAddPropSheetPage, lParam))
                     return TRUE;
             }
@@ -89,8 +86,7 @@ BOOL CDevInfoList::InstallDevInst(HWND hwndParent, LPCTSTR DeviceId, BOOL    Upd
     BOOL Result = FALSE;
     HINSTANCE hLib = LoadLibrary(TEXT("newdev.dll"));
     LPFNINSTALLDEVINST InstallDevInst;
-    if (hLib)
-    {
+    if (hLib) {
         InstallDevInst = (LPFNINSTALLDEVINST)GetProcAddress(hLib, "InstallDevInst");
         if (InstallDevInst)
             Result = (*InstallDevInst)(hwndParent, DeviceId, UpdateDriver, pReboot);
@@ -107,8 +103,7 @@ DWORD CDevInfoList::DiGetFlags(PSP_DEVINFO_DATA DevData)
 {
     SP_DEVINSTALL_PARAMS dip;
     dip.cbSize = sizeof(dip);
-    if (DiGetDeviceInstallParams(DevData, &dip))
-    {
+    if (DiGetDeviceInstallParams(DevData, &dip)) {
         return dip.Flags;
     }
 
@@ -120,8 +115,7 @@ DWORD CDevInfoList::DiGetExFlags(PSP_DEVINFO_DATA DevData)
 {
     SP_DEVINSTALL_PARAMS dip;
     dip.cbSize = sizeof(dip);
-    if (DiGetDeviceInstallParams(DevData, &dip))
-    {
+    if (DiGetDeviceInstallParams(DevData, &dip)) {
         return dip.FlagsEx;
     }
 
@@ -133,8 +127,7 @@ BOOL CDevInfoList::DiTurnOnDiFlags(PSP_DEVINFO_DATA DevData, DWORD FlagsMask)
 {
     SP_DEVINSTALL_PARAMS dip;
     dip.cbSize = sizeof(dip);
-    if (DiGetDeviceInstallParams(DevData, &dip))
-    {
+    if (DiGetDeviceInstallParams(DevData, &dip)) {
         dip.Flags |= FlagsMask;
         return DiSetDeviceInstallParams(DevData, &dip);
     }
@@ -147,8 +140,7 @@ BOOL CDevInfoList::DiTurnOffDiFlags(PSP_DEVINFO_DATA DevData, DWORD FlagsMask)
 {
     SP_DEVINSTALL_PARAMS dip;
     dip.cbSize = sizeof(dip);
-    if (DiGetDeviceInstallParams(DevData, &dip))
-    {
+    if (DiGetDeviceInstallParams(DevData, &dip)) {
         dip.Flags &= ~FlagsMask;
         return DiSetDeviceInstallParams(DevData, &dip);
     }
@@ -161,8 +153,7 @@ BOOL CDevInfoList::DiTurnOnDiExFlags(PSP_DEVINFO_DATA DevData, DWORD FlagsMask)
 {
     SP_DEVINSTALL_PARAMS dip;
     dip.cbSize = sizeof(dip);
-    if (DiGetDeviceInstallParams(DevData, &dip))
-    {
+    if (DiGetDeviceInstallParams(DevData, &dip)) {
         dip.FlagsEx |= FlagsMask;
         return DiSetDeviceInstallParams(DevData, &dip);
     }
@@ -175,8 +166,7 @@ BOOL CDevInfoList::DiTurnOffDiExFlags(PSP_DEVINFO_DATA DevData, DWORD FlagsMask)
 {
     SP_DEVINSTALL_PARAMS dip;
     dip.cbSize = sizeof(dip);
-    if (DiGetDeviceInstallParams(DevData, &dip))
-    {
+    if (DiGetDeviceInstallParams(DevData, &dip)) {
         dip.FlagsEx &= ~FlagsMask;
         return DiSetDeviceInstallParams(DevData, &dip);
     }
@@ -187,8 +177,7 @@ BOOL CDevInfoList::DiTurnOffDiExFlags(PSP_DEVINFO_DATA DevData, DWORD FlagsMask)
 
 void CDevInfoList::DiDestroyDeviceInfoList()
 {
-    if (INVALID_HANDLE_VALUE != m_hDevInfo)
-    {
+    if (INVALID_HANDLE_VALUE != m_hDevInfo) {
         SetupDiDestroyDeviceInfoList(m_hDevInfo);
         m_hDevInfo = INVALID_HANDLE_VALUE;
     }
@@ -200,11 +189,10 @@ CDevInfoList::DiGetDeviceDescription(
     TCHAR* pBuffer,
     DWORD  Size,
     DWORD* pRequiredSize
-    )
+)
 {
 
-    if (Size && !pBuffer)
-    {
+    if (Size && !pBuffer) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
@@ -212,14 +200,13 @@ CDevInfoList::DiGetDeviceDescription(
     BOOL Result;
     ActualSize = 0;
     Result = DiGetDeviceRegistryProperty(DevData, SPDRP_FRIENDLYNAME, NULL,
-                                         (PBYTE)pBuffer, Size * sizeof(TCHAR),
+        (PBYTE)pBuffer, Size * sizeof(TCHAR),
                                          &ActualSize);
-    if (!Result && ERROR_INSUFFICIENT_BUFFER != GetLastError())
-    {
+    if (!Result && ERROR_INSUFFICIENT_BUFFER != GetLastError()) {
         // no friendly name available, use device's description
         ActualSize = 0;
         Result = DiGetDeviceRegistryProperty(DevData, SPDRP_DEVICEDESC, NULL,
-                                             (PBYTE)pBuffer,
+            (PBYTE)pBuffer,
                                              Size * sizeof(TCHAR),
                                              &ActualSize);
     }
@@ -233,14 +220,13 @@ BOOL
 CDevInfoList::DiGetDeviceDescriptionString(
     PSP_DEVINFO_DATA DevData,
     String& str
-    )
+)
 {
 
     // first probe the size
     DWORD RequiredSize = 0;
     TCHAR  Desc[LINE_LEN];
-    if (DiGetDeviceDescription(DevData, Desc, ARRAYLEN(Desc), &RequiredSize))
-    {
+    if (DiGetDeviceDescription(DevData, Desc, ARRAYLEN(Desc), &RequiredSize)) {
         str = Desc;
         return TRUE;
     }
@@ -253,17 +239,16 @@ CDevInfoList::DiGetDeviceMFGString(
     TCHAR* pBuffer,
     DWORD  Size,
     DWORD* pRequiredSize
-    )
+)
 {
-    if (Size && !pBuffer)
-    {
+    if (Size && !pBuffer) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
     DWORD ActualSize = 0;
     BOOL Result;
     Result = DiGetDeviceRegistryProperty(DevData, SPDRP_MFG, NULL,
-                                         (PBYTE)pBuffer,
+        (PBYTE)pBuffer,
                                          Size * sizeof(TCHAR),
                                          &ActualSize);
     if (pRequiredSize)
@@ -274,12 +259,11 @@ BOOL
 CDevInfoList::DiGetDeviceMFGString(
     PSP_DEVINFO_DATA DevData,
     String& str
-    )
+)
 {
     DWORD RequiredSize = 0;
     TCHAR MFG[LINE_LEN];
-    if (DiGetDeviceMFGString(DevData, MFG, ARRAYLEN(MFG), &RequiredSize))
-    {
+    if (DiGetDeviceMFGString(DevData, MFG, ARRAYLEN(MFG), &RequiredSize)) {
         str = MFG;
         return TRUE;
     }
@@ -293,17 +277,16 @@ CDevInfoList::DiGetDeviceIDString(
     TCHAR* pBuffer,
     DWORD  Size,
     DWORD* pRequiredSize
-    )
+)
 {
-    if (Size && !pBuffer)
-    {
+    if (Size && !pBuffer) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
     DWORD ActualSize = 0;
     BOOL Result;
     Result = DiGetDeviceRegistryProperty(DevData, SPDRP_HARDWAREID, NULL,
-                                         (PBYTE) pBuffer,
+        (PBYTE)pBuffer,
                                          Size * sizeof(TCHAR), &ActualSize);
     if (pRequiredSize)
         *pRequiredSize = ActualSize / sizeof(TCHAR);
@@ -313,13 +296,12 @@ BOOL
 CDevInfoList::DiGetDeviceIDString(
     PSP_DEVINFO_DATA DevData,
     String& str
-    )
+)
 {
     BOOL Result;
     DWORD RequiredSize = 0;
     TCHAR DeviceId[MAX_DEVICE_ID_LEN];
-    if (DiGetDeviceIDString(DevData, DeviceId, ARRAYLEN(DeviceId), &RequiredSize))
-    {
+    if (DiGetDeviceIDString(DevData, DeviceId, ARRAYLEN(DeviceId), &RequiredSize)) {
         str = DeviceId;
         return TRUE;
     }
@@ -346,7 +328,7 @@ CDevInfoList::DiGetDeviceIDString(
 
 CMachine::CMachine(
     LPCTSTR pMachineName
-    )
+)
 {
 
     InitializeCriticalSection(&m_CriticalSection);
@@ -372,8 +354,7 @@ CMachine::CMachine(
     m_strMachineDisplayName.Empty();
 
     // skip over any leading '\' chars
-    if (pMachineName && _T('\0') != *pMachineName)
-    {
+    if (pMachineName && _T('\0') != *pMachineName) {
         int len = lstrlen(pMachineName);
         ASSERT(len >= 3 && _T('\\') == pMachineName[0] && _T('\\') == pMachineName[1]);
         m_strMachineDisplayName = &pMachineName[2];
@@ -381,8 +362,7 @@ CMachine::CMachine(
         m_IsLocal = (0 == m_strMachineDisplayName.CompareNoCase(LocalName));
     }
 
-    else
-    {
+    else {
         // local machine
         m_strMachineDisplayName = LocalName;
         m_strMachineFullName = TEXT("\\\\") + m_strMachineDisplayName;
@@ -401,12 +381,12 @@ CMachine::CMachine(
     // is not 0 then we will show Phantom devices.
 
     if (((BufferLen = ::GetEnvironmentVariable(TEXT("DEVMGR_SHOW_NONPRESENT_DEVICES"),
-                                 Buffer,
-                                 sizeof(Buffer)/sizeof(TCHAR))) != 0) &&
-         ((BufferLen > 1) ||
-          (lstrcmp(Buffer, TEXT("0"))))) {
+                                               Buffer,
+                                               sizeof(Buffer) / sizeof(TCHAR))) != 0) &&
+                                               ((BufferLen > 1) ||
+        (lstrcmp(Buffer, TEXT("0"))))) {
 
-          m_ShowNonPresentDevices = TRUE;
+        m_ShowNonPresentDevices = TRUE;
     }
 }
 
@@ -414,7 +394,7 @@ BOOL
 CMachine::Initialize(
     HWND hwndParent,
     LPCTSTR DeviceId
-    )
+)
 {
     DEBUGBREAK_ON(DEBUG_OPTIONS_BREAKON_INITMACHINE);
 
@@ -432,11 +412,9 @@ CMachine::Initialize(
     DWORD Size;
     Size = sizeof(m_LoggingMask);
     String strLogging;
-    if (regDevMgr.Open(HKEY_LOCAL_MACHINE, REG_PATH_DEVICE_MANAGER))
-    {
+    if (regDevMgr.Open(HKEY_LOCAL_MACHINE, REG_PATH_DEVICE_MANAGER)) {
         if (regDevMgr.GetValue(REG_VAL_DEVMGR_LOGGING_MASK, &Type, (BYTE*)&m_LoggingMask, &Size) &&
-            REG_DWORD == Type && sizeof(Size) == Size && m_LoggingMask)
-        {
+            REG_DWORD == Type && sizeof(Size) == Size && m_LoggingMask) {
             // create a file under the temporary subdirectory. The file
             // name is the machine name itself with extension "dmlog"
 
@@ -453,8 +431,7 @@ CMachine::Initialize(
     HCURSOR hCursorOld;
     hCursorOld = SetCursor(LoadCursor(NULL, IDC_WAIT));
     BOOL Result = FALSE;
-    if (CreateClassesAndDevices(DeviceId))
-    {
+    if (CreateClassesAndDevices(DeviceId)) {
 #if DBG
         if (g_Dump & DUMP_CLASSDEVICES)
             DumpClassDevices();
@@ -482,8 +459,7 @@ CMachine::ScheduleRefresh()
     Lock();
     // Only queue the the request if there is no requests outstanding
     // and we have a valid window handle/message to the notify window.
-    if (!m_RefreshPending && m_hwndNotify && m_msgRefresh)
-    {
+    if (!m_RefreshPending && m_hwndNotify && m_msgRefresh) {
         // broadcast the message so that every instance runs on
         // the computer get the notification
         ::PostMessage(HWND_BROADCAST, m_msgRefresh, 0, 0);
@@ -502,8 +478,7 @@ CMachine::CreateNotifyWindow()
 {
     WNDCLASS wndClass;
     //lets see if the class has been registered.
-    if (!GetClassInfo(g_hInstance, DEVMGR_NOTIFY_CLASS_NAME, &wndClass))
-    {
+    if (!GetClassInfo(g_hInstance, DEVMGR_NOTIFY_CLASS_NAME, &wndClass)) {
         // register the class
         memset(&wndClass, 0, sizeof(wndClass));
         wndClass.lpfnWndProc = dmNotifyWndProc;
@@ -517,12 +492,11 @@ CMachine::CreateNotifyWindow()
     String strMsg = DEVMGR_REFRESH_MSG;
     strMsg += m_strMachineDisplayName;
     m_msgRefresh = RegisterWindowMessage(strMsg);
-    if (m_msgRefresh)
-    {
+    if (m_msgRefresh) {
         // Create a data window.
         m_hwndNotify = CreateWindowEx(WS_EX_TOOLWINDOW, DEVMGR_NOTIFY_CLASS_NAME,
                                       TEXT(""),
-                                      WS_DLGFRAME|WS_BORDER|WS_DISABLED,
+                                      WS_DLGFRAME | WS_BORDER | WS_DISABLED,
                                       CW_USEDEFAULT, CW_USEDEFAULT,
                                       0, 0, NULL, NULL, g_hInstance, (void*)this);
         return (NULL != m_hwndNotify);
@@ -551,51 +525,47 @@ dmNotifyWndProc(
     UINT uMsg,
     WPARAM wParam,
     LPARAM lParam
-    )
+)
 {
     CMachine* pThis;
     pThis = (CMachine*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
     // special case for private refresh message
-    if (pThis && uMsg == pThis->m_msgRefresh)
-    {
+    if (pThis && uMsg == pThis->m_msgRefresh) {
         pThis->LOGMISCINFO(TEXT("Private refresh message\n"));
         pThis->Refresh();
         return FALSE;
     }
-    switch (uMsg)
+    switch (uMsg) {
+    case WM_CREATE:
     {
-        case WM_CREATE:
-            {
-                pThis =  (CMachine*)((CREATESTRUCT*)lParam)->lpCreateParams;
-                SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pThis);
-                break;
-            }
-        case WM_DEVICECHANGE:
-            {
-                if (DBT_DEVNODES_CHANGED == wParam)
-                {
-                    pThis->LOGMISCINFO(TEXT("WM_DEVICECHANGE\n"));
-                    // While we are in WM_DEVICECHANGE context,
-                    // no CM apis can be called because it would
-                    // deadlock. Here, we schedule a timer so that
-                    // we can handle the message later on.
-                    SetTimer(hWnd, DM_NOTIFY_TIMERID, 1000, NULL);
-                }
-                break;
-            }
-        case WM_TIMER:
-            {
-                if (DM_NOTIFY_TIMERID == wParam)
-                {
-                    KillTimer(hWnd, DM_NOTIFY_TIMERID);
-                    ASSERT(pThis);
-                    pThis->ScheduleRefresh();
-                }
-                break;
-            }
-        default:
-            break;
+        pThis = (CMachine*)((CREATESTRUCT*)lParam)->lpCreateParams;
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pThis);
+        break;
+    }
+    case WM_DEVICECHANGE:
+    {
+        if (DBT_DEVNODES_CHANGED == wParam) {
+            pThis->LOGMISCINFO(TEXT("WM_DEVICECHANGE\n"));
+            // While we are in WM_DEVICECHANGE context,
+            // no CM apis can be called because it would
+            // deadlock. Here, we schedule a timer so that
+            // we can handle the message later on.
+            SetTimer(hWnd, DM_NOTIFY_TIMERID, 1000, NULL);
+        }
+        break;
+    }
+    case WM_TIMER:
+    {
+        if (DM_NOTIFY_TIMERID == wParam) {
+            KillTimer(hWnd, DM_NOTIFY_TIMERID);
+            ASSERT(pThis);
+            pThis->ScheduleRefresh();
+        }
+        break;
+    }
+    default:
+        break;
     }
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
@@ -609,11 +579,10 @@ dmNotifyWndProc(
 BOOL
 CMachine::AttachFolder(
     CFolder* pFolder
-    )
+)
 {
     ASSERT(pFolder);
-    if (!IsFolderAttached(pFolder))
-    {
+    if (!IsFolderAttached(pFolder)) {
         pFolder->MachinePropertyChanged(this);
         m_listFolders.AddTail(pFolder);
     }
@@ -623,13 +592,11 @@ CMachine::AttachFolder(
 BOOL
 CMachine::IsFolderAttached(
     CFolder* pFolder
-    )
+)
 {
-    if (!m_listFolders.IsEmpty())
-    {
+    if (!m_listFolders.IsEmpty()) {
         POSITION pos = m_listFolders.GetHeadPosition();
-        while (NULL != pos)
-        {
+        while (NULL != pos) {
             if (pFolder == m_listFolders.GetNext(pos))
                 return TRUE;
         }
@@ -640,16 +607,14 @@ CMachine::IsFolderAttached(
 void
 CMachine::DetachFolder(
     CFolder* pFolder
-    )
+)
 {
     int nFolders = m_listFolders.GetCount();
-    for (int i = 0; i < nFolders; i++)
-    {
+    for (int i = 0; i < nFolders; i++) {
         CFolder* pFolderToTest;
         POSITION pos = m_listFolders.FindIndex(i);
         pFolderToTest = m_listFolders.GetAt(pos);
-        if (pFolderToTest == pFolder)
-        {
+        if (pFolderToTest == pFolder) {
             m_listFolders.RemoveAt(pos);
             break;
         }
@@ -659,7 +624,7 @@ CMachine::DetachFolder(
 BOOL
 CMachine::AttachPropertySheet(
     HWND hwndPropertySheet
-    )
+)
 {
     ASSERT(hwndPropertySheet);
     m_listPropertySheets.AddTail(hwndPropertySheet);
@@ -669,16 +634,14 @@ CMachine::AttachPropertySheet(
 void
 CMachine::DetachPropertySheet(
     HWND hwndPropertySheet
-    )
+)
 {
     int nPropertySheets = m_listPropertySheets.GetCount();
-    for (int i = 0; i < nPropertySheets; i++)
-    {
+    for (int i = 0; i < nPropertySheets; i++) {
         HWND hwndPropertySheetToTest;
         POSITION pos = m_listPropertySheets.FindIndex(i);
         hwndPropertySheetToTest = m_listPropertySheets.GetAt(pos);
-        if (hwndPropertySheetToTest == hwndPropertySheet)
-        {
+        if (hwndPropertySheetToTest == hwndPropertySheet) {
             m_listPropertySheets.RemoveAt(pos);
             break;
         }
@@ -709,22 +672,18 @@ CMachine::~CMachine()
         // then pull them from the list, otherwise call DestroyWindow on them.
 
         int nPropertySheets = m_listPropertySheets.GetCount();
-        for (int i = 0; i < nPropertySheets; i++)
-        {
+        for (int i = 0; i < nPropertySheets; i++) {
             HWND hwndPropertySheetToTest;
             POSITION pos = m_listPropertySheets.FindIndex(i);
             hwndPropertySheetToTest = m_listPropertySheets.GetAt(pos);
 
-            if (IsWindow(hwndPropertySheetToTest))
-            {
+            if (IsWindow(hwndPropertySheetToTest)) {
 
                 // There is still a valid window for this property sheet so
                 // call DestroyWindow on it.
 
                 ::DestroyWindow(hwndPropertySheetToTest);
-            }
-            else
-            {
+            } else {
 
                 // There is no window for this property sheet so just remove
                 // it from the list
@@ -740,16 +699,14 @@ CMachine::~CMachine()
 
     // if we have created a device change data window for this machine,
     // destroy it.
-    if (m_hwndNotify && IsWindow(m_hwndNotify))
-    {
+    if (m_hwndNotify && IsWindow(m_hwndNotify)) {
         ::DestroyWindow(m_hwndNotify);
         m_hwndNotify = NULL;
     }
 
     DestroyClassesAndDevices();
 
-    if (!m_listFolders.IsEmpty())
-    {
+    if (!m_listFolders.IsEmpty()) {
         m_listFolders.RemoveAll();
     }
 
@@ -766,36 +723,30 @@ CMachine::DestroyClassesAndDevices()
 {
     LOGMISCINFO(TEXT("!!!!Destroy class and devices!!!!\n"));
 
-    if (m_pComputer)
-    {
+    if (m_pComputer) {
         delete m_pComputer;
         m_pComputer = NULL;
     }
 
-    if (!m_listDevice.IsEmpty())
-    {
+    if (!m_listDevice.IsEmpty()) {
         POSITION pos = m_listDevice.GetHeadPosition();
-        while (NULL != pos)
-        {
+        while (NULL != pos) {
             CDevice* pDevice = m_listDevice.GetNext(pos);
             delete pDevice;
         }
         m_listDevice.RemoveAll();
     }
 
-    if (!m_listClass.IsEmpty())
-    {
+    if (!m_listClass.IsEmpty()) {
         POSITION pos = m_listClass.GetHeadPosition();
-        while (NULL != pos)
-        {
+        while (NULL != pos) {
             CClass* pClass = m_listClass.GetNext(pos);
             delete pClass;
         }
         m_listClass.RemoveAll();
     }
 
-    if (m_ImageListData.cbSize)
-    {
+    if (m_ImageListData.cbSize) {
         DiDestroyClassImageList(&m_ImageListData);
     }
 
@@ -809,13 +760,12 @@ BOOL
 CMachine::BuildClassesFromGuidList(
     LPGUID  GuidList,
     DWORD   Guids
-    )
+)
 {
     DWORD Index;
     CClass* pClass;
     // build a list of CClass for each GUID.
-    for (Index = 0; Index < Guids; Index++)
-    {
+    for (Index = 0; Index < Guids; Index++) {
         SafePtr<CClass> ClassPtr;
         pClass = new CClass(this, &GuidList[Index]);
         ClassPtr.Attach(pClass);
@@ -844,7 +794,7 @@ CMachine::BuildClassesFromGuidList(
 BOOL
 CMachine::CreateClassesAndDevices(
     LPCTSTR DeviceId
-    )
+)
 {
     SC_HANDLE SCMHandle = NULL;
 
@@ -856,20 +806,16 @@ CMachine::CreateClassesAndDevices(
     // if the object is being created for a single device,
     // create a empty device info list. We will add the
     // device to the info list later.
-    if (DeviceId)
-    {
+    if (DeviceId) {
         m_hDevInfo = DiCreateDeviceInfoList(NULL, m_hwndParent);
-    }
-    else
-    {
+    } else {
         // we have to pull out the entire devices/classes set
         // so create a device info list that contains all of them.
         m_hDevInfo = DiGetClassDevs(NULL, NULL, m_hwndParent, DIGCF_ALLCLASSES | DIGCF_PROFILE);
     }
 
     // NULL != INVALID_HANDLE_VALUE. We checked both just be safe.
-    if(INVALID_HANDLE_VALUE == m_hDevInfo || NULL == m_hDevInfo)
-    {
+    if (INVALID_HANDLE_VALUE == m_hDevInfo || NULL == m_hDevInfo) {
         LogLastError(TEXT("DiCreateDeviceInfoList"));
         return FALSE;
     }
@@ -885,12 +831,9 @@ CMachine::CreateClassesAndDevices(
     // The catch is that we will be able to call Setuapi and cfgmgr32
     // API without worrying about which hMachine to use.
 
-    if (DiGetDeviceInfoListDetail(&DevInfoDetailData))
-    {
+    if (DiGetDeviceInfoListDetail(&DevInfoDetailData)) {
         m_hMachine = DevInfoDetailData.RemoteMachineHandle;
-    }
-    else
-    {
+    } else {
         // unable to get the devinfo detail information.
         // bugbug what should we do here?????
         LogLastError(TEXT("DiGetDeviceInfoListDetail"));
@@ -900,39 +843,32 @@ CMachine::CreateClassesAndDevices(
 
     // get class image list data;
     m_ImageListData.cbSize = sizeof(m_ImageListData);
-    if (DiGetClassImageList(&m_ImageListData))
-    {
+    if (DiGetClassImageList(&m_ImageListData)) {
         // add extra icons
         HICON hIcon;
 
-        if ((hIcon = LoadIcon(g_hInstance, MAKEINTRESOURCE(IDI_DEVMGR))) != NULL)
-        {
+        if ((hIcon = LoadIcon(g_hInstance, MAKEINTRESOURCE(IDI_DEVMGR))) != NULL) {
             m_ComputerIndex = ImageList_AddIcon(m_ImageListData.ImageList, hIcon);
             DestroyIcon(hIcon);
         }
 
-        if ((hIcon = LoadIcon(g_hInstance, MAKEINTRESOURCE(IDI_RESOURCES))) != NULL)
-        {
+        if ((hIcon = LoadIcon(g_hInstance, MAKEINTRESOURCE(IDI_RESOURCES))) != NULL) {
             m_ResourceIndex = ImageList_AddIcon(m_ImageListData.ImageList, hIcon);
             DestroyIcon(hIcon);
         }
-    }
-    else
-    {
+    } else {
         LogLastError(TEXT("DiGetClassImageList"));
     }
 
     // if the object is created for a particular device,
     // do not create the entire device list because it is
     // a waste of time.
-    if (DeviceId)
-    {
+    if (DeviceId) {
         SP_DEVINFO_DATA DevData;
         GUID ClassGuid;
         DevData.cbSize = sizeof(DevData);
         if (DiOpenDeviceInfo(DeviceId, m_hwndParent, 0, &DevData) &&
-                            CmGetClassGuid(DevData.DevInst, ClassGuid))
-        {
+            CmGetClassGuid(DevData.DevInst, ClassGuid)) {
             // create a CClass for the device(without CClass, no
             // device can not be created).
             CClass* pClass;
@@ -980,17 +916,13 @@ CMachine::CreateClassesAndDevices(
     ClassGuids = GUID_LIST_INIT_SIZE;
 
 
-    if (DiBuildClassInfoList(0, LocalGuid, ClassGuids, &GuidsRequired))
-    {
+    if (DiBuildClassInfoList(0, LocalGuid, ClassGuids, &GuidsRequired)) {
         BuildClassesFromGuidList(LocalGuid, GuidsRequired);
-    }
-    else if (ERROR_INSUFFICIENT_BUFFER == GetLastError() && GuidsRequired)
-    {
+    } else if (ERROR_INSUFFICIENT_BUFFER == GetLastError() && GuidsRequired) {
         // the stack based buffer is too small, allocate buffer from
         // the heap.
         BufferPtr<GUID> ClassGuidList(GuidsRequired);
-        if (DiBuildClassInfoList(0, ClassGuidList, GuidsRequired, &ClassGuids))
-        {
+        if (DiBuildClassInfoList(0, ClassGuidList, GuidsRequired, &ClassGuids)) {
             BuildClassesFromGuidList(ClassGuidList, ClassGuids);
         }
     }
@@ -998,8 +930,7 @@ CMachine::CreateClassesAndDevices(
 
     // If we have any classes at all, create devices objects
 
-    if (!m_listClass.IsEmpty())
-    {
+    if (!m_listClass.IsEmpty()) {
         DWORD Index = 0;
         SP_DEVINFO_DATA DevData;
 
@@ -1015,14 +946,12 @@ CMachine::CreateClassesAndDevices(
         // associate each device to its class.
 
         DevData.cbSize = sizeof(DevData);
-        while (DiEnumDeviceInfo(Index, &DevData))
-        {
+        while (DiEnumDeviceInfo(Index, &DevData)) {
             POSITION pos = m_listClass.GetHeadPosition();
             CClass* pClass;
 
             // find the class for this device
-            while (NULL != pos)
-            {
+            while (NULL != pos) {
                 pClass = m_listClass.GetNext(pos);
 
 
@@ -1032,8 +961,7 @@ CMachine::CreateClassesAndDevices(
 
                 if ((IsEqualGUID(DevData.ClassGuid, *pClass)) ||
                     (IsEqualGUID(GUID_DEVCLASS_UNKNOWN, *pClass) &&
-                     IsEqualGUID(DevData.ClassGuid, GUID_NULL)))
-                {
+                     IsEqualGUID(DevData.ClassGuid, GUID_NULL))) {
 
                     // Is this one of the special DevInst that we should
                     // not create a CDevice for?
@@ -1079,9 +1007,7 @@ CMachine::CreateClassesAndDevices(
         m_pComputer = new CComputer(this, dnRoot);
         DEVNODE dnStart = CmGetChild(dnRoot);
         CreateDeviceTree(m_pComputer, NULL, dnStart);
-    }
-    else
-    {
+    } else {
         m_LogFile.Logf(TEXT("No classes available, total class guid from setupdi = %l\n"),
                        GuidsRequired);
     }
@@ -1101,22 +1027,17 @@ CMachine::CreateDeviceTree(
     CDevice* pParent,
     CDevice* pSibling,
     DEVNODE dn
-    )
+)
 {
     CDevice* pDevice;
     DEVNODE dnChild, dnSibling;
-    while (dn)
-    {
+    while (dn) {
         pDevice = DevNodeToDevice(dn);
-        if (pDevice)
-        {
+        if (pDevice) {
             // no sibling ->this is the first child
-            if (!pSibling)
-            {
+            if (!pSibling) {
                 pParent->SetChild(pDevice);
-            }
-            else
-            {
+            } else {
                 pSibling->SetSibling(pDevice);
             }
 
@@ -1124,13 +1045,10 @@ CMachine::CreateDeviceTree(
             pSibling = pDevice;
             dnChild = CmGetChild(dn);
 
-            if (dnChild)
-            {
+            if (dnChild) {
                 CreateDeviceTree(pDevice, NULL, dnChild);
             }
-        }
-        else
-        {
+        } else {
             m_LogFile.Logf(TEXT("Devnode %lx not contained in hDevInfo\n"),
                            dn);
             //TRACE((TEXT("Devnode %08X not contained in hDevInfo")));
@@ -1146,11 +1064,10 @@ CMachine::CreateDeviceTree(
 CDevice*
 CMachine::DevNodeToDevice(
     DEVNODE dn
-    )
+)
 {
     POSITION pos = m_listDevice.GetHeadPosition();
-    while (NULL != pos)
-    {
+    while (NULL != pos) {
         CDevice* pDevice = m_listDevice.GetNext(pos);
 
         if (pDevice->GetDevNode() == dn) {
@@ -1168,13 +1085,12 @@ CMachine::DevNodeToDevice(
 CDevice*
 CMachine::DeviceIDToDevice(
     LPCTSTR DeviceID
-    )
+)
 {
     if (!DeviceID)
         return NULL;
     POSITION pos = m_listDevice.GetHeadPosition();
-    while (NULL != pos)
-    {
+    while (NULL != pos) {
         CDevice* pDevice = m_listDevice.GetNext(pos);
         if (*pDevice == DeviceID)
             return pDevice;
@@ -1188,13 +1104,12 @@ CMachine::DeviceIDToDevice(
 CClass*
 CMachine::ClassGuidToClass(
     LPGUID ClassGuid
-    )
+)
 {
     if (!ClassGuid)
         return NULL;
     POSITION pos = m_listClass.GetHeadPosition();
-    while (NULL != pos)
-    {
+    while (NULL != pos) {
         CClass* pClass = m_listClass.GetNext(pos);
         if (IsEqualGUID(*ClassGuid, *pClass))
             return pClass;
@@ -1206,36 +1121,29 @@ BOOL
 CMachine::LoadStringWithMachineName(
     int StringId,
     LPTSTR Buffer,
-    DWORD*  BufferLen
-    )
+    DWORD* BufferLen
+)
 {
-    if (!BufferLen || *BufferLen && !Buffer)
-    {
+    if (!BufferLen || *BufferLen && !Buffer) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
     TCHAR Format[LINE_LEN];
     TCHAR Temp[1024];
     LoadResourceString(StringId, Format, ARRAYLEN(Format));
-    if (IsLocal())
-    {
+    if (IsLocal()) {
         TCHAR LocalComputer[LINE_LEN];
         LoadResourceString(IDS_LOCAL_MACHINE, LocalComputer, ARRAYLEN(LocalComputer));
         wsprintf(Temp, Format, LocalComputer);
-    }
-    else
-    {
+    } else {
         wsprintf(Temp, Format, (LPCTSTR)m_strMachineFullName);
     }
     DWORD Len = lstrlen(Temp);
-    if (*BufferLen > Len)
-    {
+    if (*BufferLen > Len) {
         lstrcpyn(Buffer, Temp, Len + 1);
         *BufferLen = Len;
         return TRUE;
-    }
-    else
-    {
+    } else {
         SetLastError(ERROR_BUFFER_OVERFLOW);
         *BufferLen = Len;
         return FALSE;
@@ -1251,23 +1159,19 @@ CMachine::GetActivePropSheetCount()
 {
     UINT Count = 0;
     // start with class and then for each device under the class
-    if (!m_listClass.IsEmpty())
-    {
+    if (!m_listClass.IsEmpty()) {
         POSITION posClass;
         posClass = m_listClass.GetHeadPosition();
         CClass* pClass;
-        while (NULL != posClass)
-        {
+        while (NULL != posClass) {
             pClass = m_listClass.GetNext(posClass);
             if (pClass->m_psd.GetWindowHandle())
                 Count++;
             // loop through all its devices
             CDevice* pDevice;
             PVOID Context;
-            if (pClass->GetFirstDevice(&pDevice, Context))
-            {
-                do
-                {
+            if (pClass->GetFirstDevice(&pDevice, Context)) {
+                do {
                     if (pDevice->m_psd.GetWindowHandle())
                         Count++;
                 } while (pClass->GetNextDevice(&pDevice, Context));
@@ -1285,8 +1189,7 @@ BOOL
 CMachine::Reenumerate()
 {
     BOOL Result = FALSE;
-    if (m_pComputer)
-    {
+    if (m_pComputer) {
         // Temporarily disable refresh while we are doing reenumeration
         // so that we will not keep refreshing the device tree.
         EnableRefresh(FALSE);
@@ -1313,19 +1216,15 @@ CMachine::Reenumerate()
 BOOL
 CMachine::EnableRefresh(
     BOOL fEnable
-    )
+)
 {
     BOOL Result = TRUE;
     Lock();
-    if (fEnable)
-    {
-        if (m_RefreshDisableCounter < 0)
-        {
+    if (fEnable) {
+        if (m_RefreshDisableCounter < 0) {
             m_RefreshDisableCounter++;
         }
-    }
-    else
-    {
+    } else {
         m_RefreshDisableCounter--;
 
     }
@@ -1337,8 +1236,7 @@ CMachine::EnableRefresh(
     // we want the refresh to be done in the main thread. The data window
     // we created will receive the message and execute the refresh
     // in the main thread context.
-    if (fEnable && m_RefreshPending)
-    {
+    if (fEnable && m_RefreshPending) {
         m_RefreshPending = FALSE;
         ScheduleRefresh();
     }
@@ -1368,8 +1266,7 @@ CMachine::Refresh()
     BOOL Result = TRUE;
     Lock();
 
-    if (0 == m_RefreshDisableCounter)
-    {
+    if (0 == m_RefreshDisableCounter) {
 
         HCURSOR hCursorOld;
         hCursorOld = SetCursor(LoadCursor(NULL, IDC_WAIT));
@@ -1380,22 +1277,18 @@ CMachine::Refresh()
         // so that each folder can enagage to the machine again.
         POSITION pos;
         pos = m_listFolders.GetHeadPosition();
-        while (NULL != pos)
-        {
+        while (NULL != pos) {
             ((CFolder*)m_listFolders.GetNext(pos))->MachinePropertyChanged(NULL);
         }
         // we can destroy all the "old" classes and devices now.
 
         LOGMISCINFO(TEXT("Refreshing...\n"));
         DestroyClassesAndDevices();
-        if (CreateClassesAndDevices())
-        {
+        if (CreateClassesAndDevices()) {
             // notify every attach folder to recreate
-            if (!m_listFolders.IsEmpty())
-            {
+            if (!m_listFolders.IsEmpty()) {
                 POSITION pos = m_listFolders.GetHeadPosition();
-                while (NULL != pos)
-                {
+                while (NULL != pos) {
                     CFolder* pFolder = m_listFolders.GetNext(pos);
                     Result = SUCCEEDED(pFolder->MachinePropertyChanged(this));
                 }
@@ -1405,9 +1298,7 @@ CMachine::Refresh()
             SetCursor(hCursorOld);
         m_RefreshPending = FALSE;
 
-    }
-    else
-    {
+    } else {
         // we need to refresh while the refresh is disabled
         // Remember this so that when refresh is enabled, we
         // can launch a refresh.
@@ -1421,12 +1312,11 @@ CMachine::Refresh()
 BOOL
 CMachine::GetFirstDevice(
     CDevice** ppDevice,
-    PVOID&    Context
-    )
+    PVOID& Context
+)
 {
     ASSERT(ppDevice);
-    if (!m_listDevice.IsEmpty())
-    {
+    if (!m_listDevice.IsEmpty()) {
         POSITION pos = m_listDevice.GetHeadPosition();
         *ppDevice = m_listDevice.GetNext(pos);
         Context = pos;
@@ -1441,12 +1331,11 @@ BOOL
 CMachine::GetNextDevice(
     CDevice** ppDevice,
     PVOID& Context
-    )
+)
 {
     ASSERT(ppDevice);
     POSITION pos = (POSITION)Context;
-    if (NULL != pos)
-    {
+    if (NULL != pos) {
         *ppDevice = m_listDevice.GetNext(pos);
         Context = pos;
         return TRUE;
@@ -1459,11 +1348,10 @@ BOOL
 CMachine::GetFirstClass(
     CClass** ppClass,
     PVOID& Context
-    )
+)
 {
     ASSERT(ppClass);
-    if (!m_listClass.IsEmpty())
-    {
+    if (!m_listClass.IsEmpty()) {
         POSITION pos = m_listClass.GetHeadPosition();
         *ppClass = m_listClass.GetNext(pos);
         Context = pos;
@@ -1477,13 +1365,12 @@ CMachine::GetFirstClass(
 BOOL
 CMachine::GetNextClass(
     CClass** ppClass,
-    PVOID&   Context
-    )
+    PVOID& Context
+)
 {
     ASSERT(ppClass);
     POSITION pos = (POSITION)Context;
-    if (NULL != pos)
-    {
+    if (NULL != pos) {
         *ppClass = m_listClass.GetNext(pos);
         Context = pos;
         return TRUE;
@@ -1496,7 +1383,7 @@ BOOL
 CMachine::pGetOriginalInfName(
     LPTSTR InfName,
     String& OriginalInfName
-    )
+)
 {
     SP_ORIGINAL_FILE_INFO InfOriginalFileInformation;
     PSP_INF_INFORMATION pInfInformation;
@@ -1515,7 +1402,7 @@ CMachine::pGetOriginalInfName(
                                       pInfInformation,
                                       InfInformationSize,
                                       &InfInformationSize
-                                      );
+        );
 
         DWORD Error = GetLastError();
 
@@ -1539,7 +1426,7 @@ CMachine::pGetOriginalInfName(
                                               pInfInformation,
                                               InfInformationSize,
                                               &InfInformationSize
-                                              );
+                );
             }
         }
 
@@ -1549,7 +1436,7 @@ CMachine::pGetOriginalInfName(
 
             if (SetupQueryInfOriginalFileInformation(pInfInformation, 0, NULL, &InfOriginalFileInformation)) {
 
-                if (InfOriginalFileInformation.OriginalInfName[0]!=0) {
+                if (InfOriginalFileInformation.OriginalInfName[0] != 0) {
 
 
                     // we have a "real" inf name
@@ -1582,7 +1469,7 @@ BOOL
 CMachine::GetDigitalSigner(
     LPTSTR FullInfPath,
     String& DigitalSigner
-    )
+)
 {
     String OriginalInfName;
     String Catalog;
@@ -1623,12 +1510,12 @@ CMachine::GetDigitalSigner(
         lstrcpy(&Catalog[Catalog.GetLength() - lstrlen(TEXT(".CAT"))], TEXT(".CAT"));
     }
 
-    lstrcpyn(UnicodeKey, OriginalInfName, sizeof(UnicodeKey)/sizeof(TCHAR));
+    lstrcpyn(UnicodeKey, OriginalInfName, sizeof(UnicodeKey) / sizeof(TCHAR));
 
 
     // Calculate the hash value for the inf.
 
-    if(CryptCATAdminAcquireContext(&hCatAdmin, &DriverVerifyGuid, 0)) {
+    if (CryptCATAdminAcquireContext(&hCatAdmin, &DriverVerifyGuid, 0)) {
 
         hFile = CreateFile(FullInfPath,
                            GENERIC_READ,
@@ -1637,9 +1524,9 @@ CMachine::GetDigitalSigner(
                            OPEN_EXISTING,
                            0,
                            NULL
-                          );
+        );
 
-        if(hFile == INVALID_HANDLE_VALUE) {
+        if (hFile == INVALID_HANDLE_VALUE) {
 
             Err = GetLastError();
             ASSERT(Err != NO_ERROR);
@@ -1656,13 +1543,13 @@ CMachine::GetDigitalSigner(
 
                 Hash = (LPBYTE)LocalAlloc(LPTR, HashSize);
 
-                if(!Hash) {
+                if (!Hash) {
 
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     break;
                 }
 
-                if(CryptCATAdminCalcHashFromFileHandle(hFile, &HashSize, Hash, 0)) {
+                if (CryptCATAdminCalcHashFromFileHandle(hFile, &HashSize, Hash, 0)) {
 
                     Err = NO_ERROR;
 
@@ -1675,14 +1562,14 @@ CMachine::GetDigitalSigner(
                     // If this API did screw up and not set last error, go ahead
                     // and set something.
 
-                    if(Err == NO_ERROR) {
+                    if (Err == NO_ERROR) {
 
                         Err = ERROR_INVALID_DATA;
                     }
 
                     LocalFree(Hash);
 
-                    if(Err != ERROR_INSUFFICIENT_BUFFER) {
+                    if (Err != ERROR_INSUFFICIENT_BUFFER) {
 
                         // The API failed for some reason other than
                         // buffer-too-small.  We gotta bail.
@@ -1691,11 +1578,11 @@ CMachine::GetDigitalSigner(
                         break;
                     }
                 }
-            } while(Err != NO_ERROR);
+            } while (Err != NO_ERROR);
 
             CloseHandle(hFile);
 
-            if(Err == NO_ERROR) {
+            if (Err == NO_ERROR) {
 
 
                 // Now we have the file's hash.  Initialize the structures that
@@ -1748,16 +1635,15 @@ CMachine::GetDigitalSigner(
                 hCatInfo = CryptCATAdminEnumCatalogFromHash(hCatAdmin, Hash, HashSize, 0, &PrevCat);
 
                 // Enumerate through all of the catalogs installed on the system
-                while(hCatInfo) {
+                while (hCatInfo) {
                     CatInfo.cbStruct = sizeof(CATALOG_INFO);
-                    if(CryptCATCatalogInfoFromContext(hCatInfo, &CatInfo, 0)) {
+                    if (CryptCATCatalogInfoFromContext(hCatInfo, &CatInfo, 0)) {
                         CatalogFullPath = CatInfo.wszCatalogFile;
 
                         // If we have a catalog name we're looking for, see if the current catalog matches.  If we
                         // are not validating against a specific catalog, then just attempt to validate against each catalog we
                         // enumerate.  Note that the catalog file info we get back gives us a fully qualified path.
-                        if(Catalog.IsEmpty() || (!lstrcmpi(MyGetFileTitle(CatalogFullPath), (LPTSTR)Catalog)))
-                        {
+                        if (Catalog.IsEmpty() || (!lstrcmpi(MyGetFileTitle(CatalogFullPath), (LPTSTR)Catalog))) {
                             // We found an applicable catalog, now
                             // validate the file against that catalog.
 
@@ -1790,7 +1676,7 @@ CMachine::GetDigitalSigner(
                             // the INF didn't specify one), then we move
                             // on to the next catalog.  Otherwise, we've
                             // failed.
-                            if((Err == NO_ERROR) || !Catalog.IsEmpty()) {
+                            if ((Err == NO_ERROR) || !Catalog.IsEmpty()) {
                                 CryptCATAdminReleaseCatalogContext(hCatAdmin, hCatInfo, 0);
                                 break;
                             }
@@ -1802,12 +1688,12 @@ CMachine::GetDigitalSigner(
                 }
             }
 
-            if(Hash) {
+            if (Hash) {
                 LocalFree(Hash);
             }
         }
 
-        CryptCATAdminReleaseContext(hCatAdmin,0);
+        CryptCATAdminReleaseContext(hCatAdmin, 0);
     }
 
     return TRUE;
@@ -1819,7 +1705,7 @@ CMachine::DoNotCreateDevice(
     SC_HANDLE SCMHandle,
     LPGUID ClassGuid,
     DEVINST DevInst
-    )
+)
 /*++
 
     This function returns whether a CDevice should be created for this DevInst
@@ -1852,7 +1738,7 @@ CMachine::DoNotCreateDevice(
                                   CM_DRP_SERVICE,
                                   (PVOID)ServiceName,
                                   &Size
-                                  ) == CR_SUCCESS) {
+        ) == CR_SUCCESS) {
 
 
             // Open this particular service
@@ -1927,15 +1813,14 @@ BOOL
 CMachine::DiGetClassFriendlyNameString(
     LPGUID Guid,
     String& strClass
-    )
+)
 {
     TCHAR DisplayName[LINE_LEN + 1];
     // try friendly name first. If it failed, try the class name
     if (SetupDiGetClassDescriptionEx(Guid, DisplayName, sizeof(DisplayName),
-                                 NULL, GetRemoteMachineFullName(), NULL) ||
+                                     NULL, GetRemoteMachineFullName(), NULL) ||
         SetupDiClassNameFromGuidEx(Guid, DisplayName, sizeof(DisplayName),
-                                         NULL, GetRemoteMachineFullName(), NULL))
-    {
+                                   NULL, GetRemoteMachineFullName(), NULL)) {
         strClass = DisplayName;
         return TRUE;
     }
@@ -1945,7 +1830,7 @@ CMachine::DiGetClassFriendlyNameString(
 DEVNODE
 CMachine::CmGetParent(
     DEVNODE dn
-    )
+)
 {
     DEVNODE dnParent;
 
@@ -1959,11 +1844,11 @@ CMachine::CmGetParent(
 DEVNODE
 CMachine::CmGetChild(
     DEVNODE dn
-    )
+)
 {
     DEVNODE dnChild;
     m_LastCR = CM_Get_Child_Ex(&dnChild, dn, 0, m_hMachine);
-    if (CR_SUCCESS ==  m_LastCR)
+    if (CR_SUCCESS == m_LastCR)
         return dnChild;
 
     return NULL;
@@ -1972,12 +1857,12 @@ CMachine::CmGetChild(
 DEVNODE
 CMachine::CmGetSibling(
     DEVNODE dn
-    )
+)
 {
     DEVNODE dnSibling;
     m_LastCR = CM_Get_Sibling_Ex(&dnSibling, dn, 0, m_hMachine);
     if (CR_SUCCESS == m_LastCR)
-       return dnSibling;
+        return dnSibling;
 
     return NULL;
 }
@@ -1986,7 +1871,7 @@ DEVNODE
 CMachine::CmGetRootDevNode()
 {
     DEVNODE dnRoot;
-    m_LastCR =  CM_Locate_DevNode_Ex(&dnRoot, NULL, 0, m_hMachine);
+    m_LastCR = CM_Locate_DevNode_Ex(&dnRoot, NULL, 0, m_hMachine);
     if (CR_SUCCESS == m_LastCR)
         return dnRoot;
     return NULL;
@@ -1996,12 +1881,11 @@ BOOL
 CMachine::CmGetDeviceIDString(
     DEVNODE dn,
     String& str
-    )
+)
 {
     TCHAR DeviceID[MAX_DEVICE_ID_LEN + 1];
     m_LastCR = CM_Get_Device_ID_Ex(dn, DeviceID, sizeof(DeviceID), 0, m_hMachine);
-    if (CR_SUCCESS == m_LastCR)
-    {
+    if (CR_SUCCESS == m_LastCR) {
         str = DeviceID;
         return TRUE;
     }
@@ -2011,7 +1895,7 @@ BOOL
 CMachine::CmGetConfigFlags(
     DEVNODE dn,
     DWORD* pFlags
-    )
+)
 {
     DWORD Size;
     Size = sizeof(DWORD);
@@ -2022,7 +1906,7 @@ BOOL
 CMachine::CmGetCapabilities(
     DEVNODE dn,
     DWORD* pCapabilities
-    )
+)
 {
     DWORD Size;
     Size = sizeof(DWORD);
@@ -2034,19 +1918,17 @@ BOOL
 CMachine::CmGetDescriptionString(
     DEVNODE dn,
     String& str
-    )
+)
 {
     TCHAR Description[LINE_LEN + 1];
     ULONG Size = sizeof(Description);
     m_LastCR = CmGetRegistryProperty(dn, CM_DRP_FRIENDLYNAME, Description, &Size);
-    if (CR_NO_SUCH_VALUE == m_LastCR)
-    {
+    if (CR_NO_SUCH_VALUE == m_LastCR) {
         Size = sizeof(Description);
         m_LastCR = CmGetRegistryProperty(dn, CM_DRP_DEVICEDESC, Description,
-                                 &Size);
+                                         &Size);
     }
-    if (CR_SUCCESS == m_LastCR)
-    {
+    if (CR_SUCCESS == m_LastCR) {
         str = Description;
         return TRUE;
     }
@@ -2057,13 +1939,12 @@ BOOL
 CMachine::CmGetMFGString(
     DEVNODE dn,
     String& str
-    )
+)
 {
     TCHAR MFG[LINE_LEN + 1];
     ULONG Size = sizeof(MFG);
     m_LastCR = CmGetRegistryProperty(dn, CM_DRP_MFG, MFG, &Size);
-    if (CR_SUCCESS == m_LastCR)
-    {
+    if (CR_SUCCESS == m_LastCR) {
         str = MFG;
         return TRUE;
     }
@@ -2074,7 +1955,7 @@ BOOL
 CMachine::CmGetProviderString(
     DEVNODE dn,
     String& str
-    )
+)
 {
     TCHAR Provider[LINE_LEN + 1];
     ULONG Size = sizeof(Provider);
@@ -2082,8 +1963,7 @@ CMachine::CmGetProviderString(
     m_LastCR = CmGetRegistrySoftwareProperty(dn, TEXT("ProviderName"),
                                              Provider, &Size);
 
-    if (CR_SUCCESS == m_LastCR)
-    {
+    if (CR_SUCCESS == m_LastCR) {
         str = Provider;
         return TRUE;
     }
@@ -2095,7 +1975,7 @@ BOOL
 CMachine::CmGetDriverDateString(
     DEVNODE dn,
     String& str
-    )
+)
 {
     TCHAR DriverDate[LINE_LEN + 1];
     ULONG Size = sizeof(DriverDate);
@@ -2103,8 +1983,7 @@ CMachine::CmGetDriverDateString(
     m_LastCR = CmGetRegistrySoftwareProperty(dn, TEXT("DriverDate"),
                                              DriverDate, &Size);
 
-    if (CR_SUCCESS == m_LastCR)
-    {
+    if (CR_SUCCESS == m_LastCR) {
         str = DriverDate;
         return TRUE;
     }
@@ -2115,8 +1994,8 @@ CMachine::CmGetDriverDateString(
 BOOL
 CMachine::CmGetDriverDateData(
     DEVNODE dn,
-    FILETIME *ft
-    )
+    FILETIME* ft
+)
 {
     ULONG Size = sizeof(*ft);
 
@@ -2130,7 +2009,7 @@ BOOL
 CMachine::CmGetDriverVersionString(
     DEVNODE dn,
     String& str
-    )
+)
 {
     TCHAR DriverVersion[LINE_LEN + 1];
     ULONG Size = sizeof(DriverVersion);
@@ -2138,8 +2017,7 @@ CMachine::CmGetDriverVersionString(
     m_LastCR = CmGetRegistrySoftwareProperty(dn, TEXT("DriverVersion"),
                                              DriverVersion, &Size);
 
-    if (CR_SUCCESS == m_LastCR)
-    {
+    if (CR_SUCCESS == m_LastCR) {
         str = DriverVersion;
         return TRUE;
     }
@@ -2151,7 +2029,7 @@ BOOL
 CMachine::CmGetBusGuid(
     DEVNODE dn,
     LPGUID Guid
-    )
+)
 {
 
     ULONG Size = sizeof(*Guid);
@@ -2170,19 +2048,17 @@ BOOL
 CMachine::CmGetBusGuidString(
     DEVNODE dn,
     String& str
-    )
+)
 {
     GUID BusGuid;
     TCHAR BusGuidString[MAX_GUID_STRING_LEN];
     ULONG Size;
-    while (dn)
-    {
+    while (dn) {
         // we have to set the size on each loop
-        Size  = sizeof(BusGuid);
+        Size = sizeof(BusGuid);
         m_LastCR = CmGetRegistryProperty(dn, CM_DRP_BUSTYPEGUID, &BusGuid, &Size);
         if (CR_SUCCESS == m_LastCR && GuidToString(&BusGuid, BusGuidString,
-                                                   ARRAYLEN(BusGuidString)))
-        {
+                                                   ARRAYLEN(BusGuidString))) {
 
             str = BusGuidString;
             return TRUE;
@@ -2196,15 +2072,14 @@ BOOL
 CMachine::CmGetClassGuid(
     DEVNODE dn,
     GUID& Guid
-    )
+)
 {
     TCHAR szGuidString[MAX_GUID_STRING_LEN + 1];
     ULONG Size = sizeof(szGuidString);
 
     m_LastCR = CmGetRegistryProperty(dn, CM_DRP_CLASSGUID, szGuidString, &Size);
 
-    if (CR_SUCCESS == m_LastCR && GuidFromString(szGuidString, &Guid))
-    {
+    if (CR_SUCCESS == m_LastCR && GuidFromString(szGuidString, &Guid)) {
         return TRUE;
     }
 
@@ -2213,8 +2088,7 @@ CMachine::CmGetClassGuid(
     // does not have a class GUID.  If this is the case then we will return
     // GUID_DEVCLASS_UNKNOWN
 
-    else
-    {
+    else {
         memcpy(&Guid, &GUID_DEVCLASS_UNKNOWN, sizeof(GUID));
         return TRUE;
     }
@@ -2225,7 +2099,7 @@ CMachine::CmGetHardwareIDs(
     DEVNODE dn,
     PVOID Buffer,
     ULONG* BufferLen
-    )
+)
 {
     m_LastCR = CmGetRegistryProperty(dn, CM_DRP_HARDWAREID, Buffer, BufferLen);
     return CR_SUCCESS == m_LastCR;
@@ -2236,7 +2110,7 @@ CMachine::CmGetCompatibleIDs(
     DEVNODE dn,
     PVOID Buffer,
     ULONG* BufferLen
-    )
+)
 {
     m_LastCR = CmGetRegistryProperty(dn, CM_DRP_COMPATIBLEIDS, Buffer, BufferLen);
     return CR_SUCCESS == m_LastCR;
@@ -2246,7 +2120,7 @@ LPTSTR
 FormatString(
     LPCTSTR format,
     ...
-    )
+)
 {
     LPTSTR str = NULL;
     va_list arglist;
@@ -2259,7 +2133,7 @@ FormatString(
                       (LPTSTR)&str,
                       0,
                       &arglist
-                      ) == 0) {
+    ) == 0) {
         str = NULL;
     }
 
@@ -2273,7 +2147,7 @@ STDAPI_(CONFIGRET) GetLocationInformation(
     LPTSTR Location,
     ULONG LocationLen,
     HMACHINE hMachine
-    )
+)
 /*++
 
     Slot x (LocationInformation)
@@ -2304,7 +2178,7 @@ STDAPI_(CONFIGRET) GetLocationInformation(
                                         &ulSize,
                                         0,
                                         hMachine
-                                        );
+    );
 
 
     // UINumber has precedence over all other location information so check if this
@@ -2312,14 +2186,14 @@ STDAPI_(CONFIGRET) GetLocationInformation(
 
     ulSize = sizeof(UINumber);
     if (((LastCR = CM_Get_DevNode_Registry_Property_Ex(dn,
-                                        CM_DRP_UI_NUMBER,
-                                        NULL,
-                                        &UINumber,
-                                        &ulSize,
-                                        0,
-                                        hMachine
-                                        )) == CR_SUCCESS) &&
-        (ulSize > 0)) {
+                                                       CM_DRP_UI_NUMBER,
+                                                       NULL,
+                                                       &UINumber,
+                                                       &ulSize,
+                                                       0,
+                                                       hMachine
+    )) == CR_SUCCESS) &&
+    (ulSize > 0)) {
 
 
         UINumberDescFormat[0] = TEXT('\0');
@@ -2339,7 +2213,7 @@ STDAPI_(CONFIGRET) GetLocationInformation(
             *UINumberDescFormat) {
 
         } else {
-            ::LoadString(g_hInstance, IDS_UI_NUMBER_DESC_FORMAT, UINumberDescFormat, sizeof(UINumberDescFormat)/sizeof(TCHAR));
+            ::LoadString(g_hInstance, IDS_UI_NUMBER_DESC_FORMAT, UINumberDescFormat, sizeof(UINumberDescFormat) / sizeof(TCHAR));
         }
 
         LPTSTR UINumberBuffer = NULL;
@@ -2371,7 +2245,7 @@ STDAPI_(CONFIGRET) GetLocationInformation(
     // We don't have a UINumber but we do have LocationInformation
 
     else if (*Buffer) {
-        ::LoadString(g_hInstance, IDS_LOCATION, Format, sizeof(Format)/sizeof(TCHAR));
+        ::LoadString(g_hInstance, IDS_LOCATION, Format, sizeof(Format) / sizeof(TCHAR));
         wsprintf((LPTSTR)Location, Format, Buffer);
     }
 
@@ -2388,13 +2262,13 @@ STDAPI_(CONFIGRET) GetLocationInformation(
             Buffer[0] = TEXT('\0');
             ulSize = sizeof(Buffer);
             if (((LastCR = CM_Get_DevNode_Registry_Property_Ex(dnParent,
-                                             CM_DRP_FRIENDLYNAME,
-                                             NULL,
-                                             Buffer,
-                                             &ulSize,
-                                             0,
-                                             hMachine
-                                             )) != CR_SUCCESS) ||
+                                                               CM_DRP_FRIENDLYNAME,
+                                                               NULL,
+                                                               Buffer,
+                                                               &ulSize,
+                                                               0,
+                                                               hMachine
+            )) != CR_SUCCESS) ||
                 !*Buffer) {
 
 
@@ -2402,24 +2276,24 @@ STDAPI_(CONFIGRET) GetLocationInformation(
 
                 ulSize = sizeof(Buffer);
                 if (((LastCR = CM_Get_DevNode_Registry_Property_Ex(dnParent,
-                                                     CM_DRP_DEVICEDESC,
-                                                     NULL,
-                                                     Buffer,
-                                                     &ulSize,
-                                                     0,
-                                                     hMachine
-                                                     )) != CR_SUCCESS) ||
+                                                                   CM_DRP_DEVICEDESC,
+                                                                   NULL,
+                                                                   Buffer,
+                                                                   &ulSize,
+                                                                   0,
+                                                                   hMachine
+                )) != CR_SUCCESS) ||
                     !*Buffer) {
 
                     ulSize = sizeof(Buffer);
                     if (((LastCR = CM_Get_DevNode_Registry_Property_Ex(dnParent,
-                                                         CM_DRP_CLASS,
-                                                         NULL,
-                                                         Buffer,
-                                                         &ulSize,
-                                                         0,
-                                                         hMachine
-                                                         )) != CR_SUCCESS) ||
+                                                                       CM_DRP_CLASS,
+                                                                       NULL,
+                                                                       Buffer,
+                                                                       &ulSize,
+                                                                       0,
+                                                                       hMachine
+                    )) != CR_SUCCESS) ||
                         !*Buffer) {
 
 
@@ -2435,7 +2309,7 @@ STDAPI_(CONFIGRET) GetLocationInformation(
 
             // We have a description of the parent
 
-            ::LoadString(g_hInstance, IDS_LOCATION_NOUINUMBER, Format, sizeof(Format)/sizeof(TCHAR));
+            ::LoadString(g_hInstance, IDS_LOCATION_NOUINUMBER, Format, sizeof(Format) / sizeof(TCHAR));
             wsprintf((LPTSTR)Location, Format, Buffer);
         } else {
 
@@ -2453,7 +2327,7 @@ CMachine::CmGetStatus(
     DEVNODE dn,
     DWORD* pProblem,
     DWORD* pStatus
-    )
+)
 {
     ASSERT(pProblem && pStatus);
     m_LastCR = CM_Get_DevNode_Status_Ex(pStatus, pProblem, dn, 0, m_hMachine);
@@ -2464,11 +2338,11 @@ BOOL
 CMachine::CmGetKnownLogConf(
     DEVNODE dn,
     LOG_CONF* plc,
-    DWORD*    plcType
-    )
+    DWORD* plcType
+)
 {
     ASSERT(plc);
-    *plc  = 0;
+    *plc = 0;
     if (plcType)
         *plcType = LOG_CONF_BITS + 1;
 
@@ -2477,11 +2351,9 @@ CMachine::CmGetKnownLogConf(
     ASSERT(ALLOC_LOG_CONF + 1 == BOOT_LOG_CONF &&
            BOOT_LOG_CONF + 1 == FORCED_LOG_CONF);
 
-    for (ULONG lcType = lcTypeFirst; lcType <= lcTypeLast; lcType++)
-    {
+    for (ULONG lcType = lcTypeFirst; lcType <= lcTypeLast; lcType++) {
         m_LastCR = CM_Get_First_Log_Conf_Ex(plc, dn, lcType, m_hMachine);
-        if (CR_SUCCESS == m_LastCR)
-        {
+        if (CR_SUCCESS == m_LastCR) {
             if (plcType)
                 *plcType = lcType;
             break;
@@ -2493,10 +2365,9 @@ CMachine::CmGetKnownLogConf(
 BOOL
 CMachine::CmHasResources(
     DEVNODE dn
-    )
+)
 {
-    for (ULONG lcType = 0; lcType < NUM_LOG_CONF; lcType++)
-    {
+    for (ULONG lcType = 0; lcType < NUM_LOG_CONF; lcType++) {
         m_LastCR = CM_Get_First_Log_Conf_Ex(NULL, dn, lcType, m_hMachine);
         if (CR_SUCCESS == m_LastCR)
             break;
@@ -2510,7 +2381,7 @@ BOOL
 CMachine::CmReenumerate(
     DEVNODE dn,
     ULONG Flags
-    )
+)
 {
     m_LastCR = CM_Reenumerate_DevNode(dn, Flags);
     return CR_SUCCESS == m_LastCR;
@@ -2520,13 +2391,13 @@ CMachine::CmGetHwProfileFlags(
     DEVNODE dn,
     ULONG Profile,
     ULONG* pFlags
-    )
+)
 {
     TCHAR DeviceID[MAX_DEVICE_ID_LEN + 1];
     m_LastCR = CM_Get_Device_ID_Ex(dn, DeviceID, sizeof(DeviceID),
                                    0, m_hMachine);
     if (CR_SUCCESS == m_LastCR)
-         return CmGetHwProfileFlags(DeviceID, Profile, pFlags);
+        return CmGetHwProfileFlags(DeviceID, Profile, pFlags);
     return FALSE;
 }
 
@@ -2535,7 +2406,7 @@ CMachine::CmGetHwProfileFlags(
     LPCTSTR DeviceID,
     ULONG Profile,
     ULONG* pFlags
-    )
+)
 {
     m_LastCR = CM_Get_HW_Prof_Flags_Ex((LPTSTR)DeviceID, Profile, pFlags, 0,
                                        m_hMachine);
@@ -2547,7 +2418,7 @@ CMachine::CmSetHwProfileFlags(
     DEVNODE dn,
     ULONG Profile,
     ULONG Flags
-    )
+)
 {
     TCHAR DeviceID[MAX_DEVICE_ID_LEN + 1];
     m_LastCR = CM_Get_Device_ID_Ex(dn, DeviceID, sizeof(DeviceID),
@@ -2562,7 +2433,7 @@ CMachine::CmSetHwProfileFlags(
     LPCTSTR DeviceID,
     ULONG Profile,
     ULONG Flags
-    )
+)
 {
     m_LastCR = CM_Set_HW_Prof_Flags_Ex((LPTSTR)DeviceID, Profile, Flags, 0,
                                        m_hMachine);
@@ -2572,12 +2443,11 @@ CMachine::CmSetHwProfileFlags(
 BOOL
 CMachine::CmHasDrivers(
     DEVNODE dn
-    )
+)
 {
     ULONG Size = 0;
     m_LastCR = CmGetRegistryProperty(dn, CM_DRP_DRIVER, NULL, &Size);
-    if (CR_BUFFER_SMALL != m_LastCR)
-    {
+    if (CR_BUFFER_SMALL != m_LastCR) {
         Size = 0;
         m_LastCR = CmGetRegistryProperty(dn, CM_DRP_SERVICE, NULL, &Size);
     }
@@ -2588,14 +2458,13 @@ CMachine::CmHasDrivers(
 
 BOOL
 CMachine::CmGetCurrentHwProfile(
-   ULONG* phwpf
-   )
+    ULONG* phwpf
+)
 {
     HWPROFILEINFO hwpfInfo;
     ASSERT(phwpf);
 
-    if (CmGetHwProfileInfo(0xFFFFFFFF, &hwpfInfo))
-    {
+    if (CmGetHwProfileInfo(0xFFFFFFFF, &hwpfInfo)) {
         *phwpf = hwpfInfo.HWPI_ulHWProfile;
         return TRUE;
     }
@@ -2606,7 +2475,7 @@ BOOL
 CMachine::CmGetHwProfileInfo(
     int Index,
     PHWPROFILEINFO pHwProfileInfo
-    )
+)
 {
     m_LastCR = CM_Get_Hardware_Profile_Info_Ex(Index, pHwProfileInfo, 0, m_hMachine);
     return (CR_SUCCESS == m_LastCR);
@@ -2615,11 +2484,11 @@ CMachine::CmGetHwProfileInfo(
 ULONG
 CMachine::CmGetResDesDataSize(
     RES_DES rd
-    )
+)
 {
     ULONG Size;
     m_LastCR = CM_Get_Res_Des_Data_Size_Ex(&Size, rd, 0, m_hMachine);
-    if(CR_SUCCESS == m_LastCR)
+    if (CR_SUCCESS == m_LastCR)
         return Size;
     return 0;
 }
@@ -2629,7 +2498,7 @@ CMachine::CmGetResDesData(
     RES_DES rd,
     PVOID Buffer,
     ULONG BufferSize
-    )
+)
 {
     m_LastCR = CM_Get_Res_Des_Data_Ex(rd, Buffer, BufferSize, 0, m_hMachine);
     return CR_SUCCESS == m_LastCR;
@@ -2641,7 +2510,7 @@ CMachine::CmGetNextResDes(
     RES_DES   rd,
     RESOURCEID ForResource,
     PRESOURCEID pTheResource
-    )
+)
 {
     m_LastCR = CM_Get_Next_Res_Des_Ex(prdNext, rd, ForResource, pTheResource,
                                       0, m_hMachine);
@@ -2651,7 +2520,7 @@ CMachine::CmGetNextResDes(
 void
 CMachine::CmFreeResDesHandle(
     RES_DES rd
-    )
+)
 {
     m_LastCR = CM_Free_Res_Des_Handle(rd);
 }
@@ -2659,7 +2528,7 @@ void
 CMachine::CmFreeResDes(
     PRES_DES prdPrev,
     RES_DES  rd
-    )
+)
 {
     m_LastCR = CM_Free_Res_Des_Ex(prdPrev, rd, 0, m_hMachine);
 }
@@ -2667,7 +2536,7 @@ CMachine::CmFreeResDes(
 void
 CMachine::CmFreeLogConfHandle(
     LOG_CONF lc
-    )
+)
 {
     m_LastCR = CM_Free_Log_Conf_Handle(lc);
 }
@@ -2675,17 +2544,15 @@ CMachine::CmFreeLogConfHandle(
 int
 CMachine::CmGetNumberOfBasicLogConf(
     DEVNODE dn
-    )
+)
 {
     LOG_CONF lcFirst;
     int      nLC = 0;
 
-    if (CmGetFirstLogConf(dn, &lcFirst, BASIC_LOG_CONF))
-    {
+    if (CmGetFirstLogConf(dn, &lcFirst, BASIC_LOG_CONF)) {
         LOG_CONF lcNext;
         BOOL NoMore = FALSE;
-        do
-        {
+        do {
             NoMore = !CmGetNextLogConf(&lcNext, lcFirst, BASIC_LOG_CONF);
             CmFreeLogConfHandle(lcFirst);
             lcFirst = lcNext;
@@ -2700,7 +2567,7 @@ CMachine::CmGetFirstLogConf(
     DEVNODE dn,
     LOG_CONF* plc,
     ULONG Type
-    )
+)
 {
     m_LastCR = CM_Get_First_Log_Conf_Ex(plc, dn, Type, m_hMachine);
     return CR_SUCCESS == m_LastCR;
@@ -2710,7 +2577,7 @@ CMachine::CmGetNextLogConf(
     LOG_CONF* plcNext,
     LOG_CONF lcRef,
     ULONG Type
-    )
+)
 {
     m_LastCR = CM_Get_Next_Log_Conf_Ex(plcNext, lcRef, Type, m_hMachine);
     return CR_SUCCESS == m_LastCR;
@@ -2720,11 +2587,11 @@ ULONG
 CMachine::CmGetArbitratorFreeDataSize(
     DEVNODE dn,
     RESOURCEID ResType
-    )
+)
 {
     ULONG Size;
     m_LastCR = CM_Query_Arbitrator_Free_Size_Ex(&Size, dn, ResType,
-                                                     0, m_hMachine);
+                                                0, m_hMachine);
     if (CR_SUCCESS == m_LastCR)
         return Size;
 
@@ -2737,11 +2604,11 @@ CMachine::CmGetArbitratorFreeData(
     PVOID pBuffer,
     ULONG BufferSize,
     RESOURCEID ResType
-    )
+)
 {
     m_LastCR = CM_Query_Arbitrator_Free_Data_Ex(pBuffer, BufferSize, dn,
                                                 ResType, 0, m_hMachine
-                                                );
+    );
     return CR_SUCCESS == m_LastCR;
 }
 
@@ -2750,7 +2617,7 @@ CMachine::CmTestRangeAvailable(
     RANGE_LIST RangeList,
     DWORDLONG dlBase,
     DWORDLONG dlEnd
-    )
+)
 {
     m_LastCR = CM_Test_Range_Available(dlBase, dlEnd, RangeList, 0);
     return (CR_SUCCESS == m_LastCR);
@@ -2761,10 +2628,10 @@ CMachine::CmDeleteRange(
     RANGE_LIST RangeList,
     DWORDLONG dlBase,
     DWORDLONG dlLen
-    )
+)
 {
     DWORDLONG dlEnd = dlBase + dlLen - 1;
-    m_LastCR  = CM_Delete_Range(dlBase, dlEnd, RangeList, 0);
+    m_LastCR = CM_Delete_Range(dlBase, dlEnd, RangeList, 0);
 }
 BOOL
 CMachine::CmGetFirstRange(
@@ -2772,11 +2639,10 @@ CMachine::CmGetFirstRange(
     DWORDLONG* pdlBase,
     DWORDLONG* pdlLen,
     RANGE_ELEMENT* pre
-    )
+)
 {
     m_LastCR = CM_First_Range(RangeList, pdlBase, pdlLen, pre, 0);
-    if (CR_SUCCESS == m_LastCR)
-    {
+    if (CR_SUCCESS == m_LastCR) {
         *pdlLen = *pdlLen - *pdlBase + 1;
         return TRUE;
     }
@@ -2788,11 +2654,10 @@ CMachine::CmGetNextRange(
     RANGE_ELEMENT* pre,
     DWORDLONG* pdlBase,
     DWORDLONG* pdlLen
-    )
+)
 {
     m_LastCR = CM_Next_Range(pre, pdlBase, pdlLen, 0);
-    if (CR_SUCCESS == m_LastCR)
-    {
+    if (CR_SUCCESS == m_LastCR) {
         *pdlLen = *pdlLen - *pdlBase + 1;
         return TRUE;
     }
@@ -2802,7 +2667,7 @@ CMachine::CmGetNextRange(
 void
 CMachine::CmFreeRangeList(
     RANGE_LIST RangeList
-    )
+)
 {
     m_LastCR = CM_Free_Range_List(RangeList, 0);
 }
@@ -2812,12 +2677,12 @@ CMachine::CmGetRegistryProperty(
     ULONG Property,
     PVOID pBuffer,
     ULONG* pBufferSize
-    )
+)
 {
     return CM_Get_DevNode_Registry_Property_Ex(dn, Property, NULL,
                                                pBuffer, pBufferSize,
                                                0, m_hMachine
-                                               );
+    );
 }
 
 CONFIGRET
@@ -2826,17 +2691,17 @@ CMachine::CmGetRegistrySoftwareProperty(
     LPCTSTR ValueName,
     PVOID pBuffer,
     ULONG* pBufferSize
-    )
+)
 {
     HKEY hKey;
     DWORD Type = REG_SZ;
     CONFIGRET CR;
 
     if (CR_SUCCESS == (CR = CM_Open_DevNode_Key_Ex(dn, KEY_READ, 0, RegDisposition_OpenExisting,
-        &hKey, CM_REGISTRY_SOFTWARE, m_hMachine))) {
+                                                   &hKey, CM_REGISTRY_SOFTWARE, m_hMachine))) {
 
         if (ERROR_SUCCESS != RegQueryValueEx(hKey, ValueName, NULL, &Type, (const PBYTE)pBuffer,
-                                            pBufferSize)) {
+                                             pBufferSize)) {
 
             CR = CR_REGISTRY_ERROR;
         }
@@ -2851,9 +2716,9 @@ CMachine::CmGetRegistrySoftwareProperty(
 BOOL
 CMachine::CmGetDeviceIdListSize(
     LPCTSTR Filter,
-    ULONG*  Size,
+    ULONG* Size,
     ULONG   Flags
-    )
+)
 {
     m_LastCR = CM_Get_Device_ID_List_Size_Ex(Size, Filter, Flags, m_hMachine);
     return CR_SUCCESS == m_LastCR;
@@ -2862,10 +2727,10 @@ CMachine::CmGetDeviceIdListSize(
 BOOL
 CMachine::CmGetDeviceIdList(
     LPCTSTR Filter,
-    TCHAR*  Buffer,
+    TCHAR* Buffer,
     ULONG   BufferSize,
     ULONG   Flags
-    )
+)
 {
     m_LastCR = CM_Get_Device_ID_List_Ex(Filter, Buffer, BufferSize, Flags, m_hMachine);
     return CR_SUCCESS == m_LastCR;
@@ -2873,12 +2738,10 @@ CMachine::CmGetDeviceIdList(
 
 CMachineList::~CMachineList()
 {
-    if (!m_listMachines.IsEmpty())
-    {
+    if (!m_listMachines.IsEmpty()) {
         POSITION pos = m_listMachines.GetHeadPosition();
         CMachine* pMachine;
-        while (NULL != pos)
-        {
+        while (NULL != pos) {
             pMachine = m_listMachines.GetNext(pos);
             delete pMachine;
         }
@@ -2910,25 +2773,21 @@ CMachineList::CreateMachine(
     HWND hwndParent,
     LPCTSTR MachineName,
     CMachine** ppMachine
-    )
+)
 {
     ASSERT(ppMachine);
-    *ppMachine =  NULL;
+    *ppMachine = NULL;
 
     CMachine* pMachine = NULL;
-    if (!MachineName || _T('\0') == MachineName[0])
-    {
+    if (!MachineName || _T('\0') == MachineName[0]) {
         // local machine.
         String strMachineName;
         strMachineName.GetComputerName();
         pMachine = FindMachine(strMachineName);
-    }
-    else
-    {
+    } else {
         pMachine = FindMachine(MachineName);
     }
-    if (NULL == pMachine)
-    {
+    if (NULL == pMachine) {
         pMachine = new CMachine(MachineName);
         m_listMachines.AddTail(pMachine);
     }
@@ -2938,13 +2797,11 @@ CMachineList::CreateMachine(
 CMachine*
 CMachineList::FindMachine(
     LPCTSTR MachineName
-    )
+)
 {
-    if (!m_listMachines.IsEmpty())
-    {
+    if (!m_listMachines.IsEmpty()) {
         POSITION pos = m_listMachines.GetHeadPosition();
-        while (NULL != pos)
-        {
+        while (NULL != pos) {
             CMachine* pMachine;
             pMachine = m_listMachines.GetNext(pos);
             if (!lstrcmpi(MachineName, pMachine->GetMachineFullName()))
@@ -2967,24 +2824,21 @@ CMachine::DumpClassDevices()
     String strDevice;
     TRACE1(TEXT("%s\n"), (LPCTSTR)m_pComputer->GetDisplayName());
 
-    while (NULL != pos)
-    {
+    while (NULL != pos) {
         pClass = m_listClass.GetNext(pos);
         strClass = strInsert;
         strClass += pClass->GetDisplayName();
         TRACE2(TEXT("%s, image index = %d\n"), (LPCTSTR)strClass, pClass->GetImageIndex());
         CDevice* pDevice;
         PVOID    Context;
-        if (pClass->GetFirstDevice(&pDevice, Context))
-        {
-            do
-            {
+        if (pClass->GetFirstDevice(&pDevice, Context)) {
+            do {
                 strDevice = TEXT("  ");
                 strDevice += strInsert;
                 strDevice += pDevice->GetDisplayName();
                 TRACE3(TEXT("%s, DeviceId = %s, DN = %lx\n"), (LPCTSTR)strDevice,
                        pDevice->GetDeviceID(), pDevice->GetDevNode());
-            }while (pClass->GetNextDevice(&pDevice, Context));
+            } while (pClass->GetNextDevice(&pDevice, Context));
         }
     }
 
@@ -3001,7 +2855,7 @@ CMachine::DumpDeviceSubtree(
     BOOL HasParent,
     LPCTSTR Insert,
     CDevice* pDevice
-    )
+)
 {
     CDevice* pSibling;
     do {
@@ -3018,7 +2872,7 @@ CMachine::DumpDeviceSubtree(
         }
         pDevice = pSibling;
 
-    }while (NULL != pDevice);
+    } while (NULL != pDevice);
 
 }
 
@@ -3040,22 +2894,20 @@ void
 CMachine::DumpDevNodeSubtree(
     LPCTSTR Insert,
     DEVNODE dn
-    )
+)
 {
     ASSERT(Insert);
 
     DEVNODE dnChild, dnSibling;
     String strInsert;
     String strDeviceID;
-    do
-    {
+    do {
         dnSibling = CmGetSibling(dn);
         CmGetDeviceIDString(dn, strDeviceID);
         TRACE1(TEXT("%s"), Insert);
         TRACE2(TEXT("(%lx)%s\n"), dn, (LPCTSTR)strDeviceID);
         dnChild = CmGetChild(dn);
-        if (dnChild)
-        {
+        if (dnChild) {
             strInsert = TEXT("  ");
             strInsert += Insert;
             DumpDevNodeSubtree((LPCTSTR)strInsert, dnChild);
@@ -3069,18 +2921,15 @@ CMachine::DumpDevNodeSubtree(
 BOOL
 CMachine::LogObject()
 {
-    if (m_LoggingMask & LOG_MASK_COMPUTER)
-    {
+    if (m_LoggingMask & LOG_MASK_COMPUTER) {
         m_LogFile.Logf(TEXT("   COMPUTER <%s> INFORMATION\n\n"), GetMachineFullName());
         m_LogFile.Logf(TEXT("hMachine = 0x%lx, total classes = %ld, total devices = %ld\n"),
-                        m_hMachine, m_listClass.GetCount(), m_listDevice.GetCount());
+                       m_hMachine, m_listClass.GetCount(), m_listDevice.GetCount());
     }
-    if (m_LoggingMask & LOG_MASK_CLASS)
-    {
+    if (m_LoggingMask & LOG_MASK_CLASS) {
         CClass* pClass;
         POSITION pos = m_listClass.GetHeadPosition();
-        while (NULL != pos)
-        {
+        while (NULL != pos) {
             pClass = m_listClass.GetNext(pos);
             LogObject(pClass);
         }
@@ -3091,7 +2940,7 @@ CMachine::LogObject()
 BOOL
 CMachine::LogObject(
     CClass* pClass
-    )
+)
 {
     ASSERT(pClass && (m_LoggingMask & LOG_MASK_CLASS));
     m_LogFile.Logf(TEXT("\n\n   CLASS <%s> INFORMATION   \n\n"), pClass->GetDisplayName());
@@ -3105,19 +2954,14 @@ CMachine::LogObject(
     TCHAR GuidString[MAX_PATH];
     GuidToString(*pClass, GuidString, ARRAYLEN(GuidString));
     m_LogFile.Logf(TEXT("Guid = %s\n"), GuidString);
-    if (m_LoggingMask & LOG_MASK_DEVICE)
-    {
+    if (m_LoggingMask & LOG_MASK_DEVICE) {
         PVOID Context;
         CDevice* pDevice;
-        if (pClass->GetFirstDevice(&pDevice, Context))
-        {
-            do
-            {
+        if (pClass->GetFirstDevice(&pDevice, Context)) {
+            do {
                 LogObject(pDevice);
             } while (pClass->GetNextDevice(&pDevice, Context));
-        }
-        else
-        {
+        } else {
             m_LogFile.Log(TEXT("This class has no devices\n"));
         }
     }
@@ -3128,7 +2972,7 @@ CMachine::LogObject(
 BOOL
 CMachine::LogObject(
     CDevice* pDevice
-    )
+)
 {
     DWORD Status, Problem, Flags;
 

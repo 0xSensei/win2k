@@ -76,8 +76,8 @@
 #define  CITIDM_EDITPAGE  10
 // Command group for private communication with CITBar
 // 67077B95-4F9D-11D0-B884-00AA00B60104
-const GUID CGID_PrivCITCommands = { 0x67077B95L, 0x4F9D, 0x11D0, 0xB8, 0x84,
-0x00, 0xAA, 0x00, 0xB6, 0x01, 0x04 };
+const GUID CGID_PrivCITCommands = {0x67077B95L, 0x4F9D, 0x11D0, 0xB8, 0x84,
+0x00, 0xAA, 0x00, 0xB6, 0x01, 0x04};
 // end temp itbar stuff
 
 #define  DBG_ACCELENTRIES 2
@@ -96,9 +96,9 @@ const GUID CGID_PrivCITCommands = { 0x67077B95L, 0x4F9D, 0x11D0, 0xB8, 0x84,
 #define  OPT_ACCELENTRIES_WITH_FILEMENU 5
 #endif /* UNIX */
 
-EXTERN_C const GUID IID_IDocHostObject = { 0x67431840L, 0xC511, 0x11CF, 0x89, 0xA9, 0x00, 0xA0, 0xC9, 0x05, 0x41, 0x29 };
-EXTERN_C const GUID IID_IMimeInfo = { 0xF77459A0L, 0xBF9A, 0x11cf, 0xBA, 0x4E, 0x00, 0xC0, 0x4F, 0xD7, 0x08, 0x16 };
-EXTERN_C const GUID IID_IsPicsBrowser = { 0xF114C2C0L, 0x90BE, 0x11D0, 0x83, 0xB1, 0x00, 0xC0, 0x4F, 0xD7, 0x05, 0xB2 };
+EXTERN_C const GUID IID_IDocHostObject = {0x67431840L, 0xC511, 0x11CF, 0x89, 0xA9, 0x00, 0xA0, 0xC9, 0x05, 0x41, 0x29};
+EXTERN_C const GUID IID_IMimeInfo = {0xF77459A0L, 0xBF9A, 0x11cf, 0xBA, 0x4E, 0x00, 0xC0, 0x4F, 0xD7, 0x08, 0x16};
+EXTERN_C const GUID IID_IsPicsBrowser = {0xF114C2C0L, 0x90BE, 0x11D0, 0x83, 0xB1, 0x00, 0xC0, 0x4F, 0xD7, 0x05, 0xB2};
 
 #include <shlwapi.h>
 #include <ratings.h>
@@ -156,7 +156,7 @@ struct IDFOLDERA
 };
 typedef IDFOLDERA* LPIDFOLDERA;
 
-const ITEMIDLIST s_idNull = { {0} };
+const ITEMIDLIST s_idNull = {{0}};
 
 
 // Icons are globally shared among multiple threads.
@@ -167,7 +167,7 @@ HICON g_hiconOffline = NULL;
 HICON g_hiconPrinter = NULL;
 HICON g_hiconScriptErr = NULL;
 
-HICON g_ahiconState[IDI_STATE_LAST - IDI_STATE_FIRST + 1] = { NULL };
+HICON g_ahiconState[IDI_STATE_LAST - IDI_STATE_FIRST + 1] = {NULL};
 #define MAX_MIXED_STR_LEN   32
 
 // OpenUIURL is just a wrapper for OpenUI, calling CreateURLMoniker() if the
@@ -231,11 +231,9 @@ void RepairIE()
     FIXIEPROC   fpFixIE;
 
     hIESetup = LoadLibrary(L"IESetup.dll");
-    if (hIESetup)
-    {
+    if (hIESetup) {
         fpFixIE = (FIXIEPROC)GetProcAddress(hIESetup, "FixIE");
-        if (fpFixIE)
-        {
+        if (fpFixIE) {
             fpFixIE(TRUE, 0);
         }
         FreeLibrary(hIESetup);
@@ -243,22 +241,19 @@ void RepairIE()
 }
 
 
-BOOL _IsDesktopItem(CDocObjectHost * pdoh)
+BOOL _IsDesktopItem(CDocObjectHost* pdoh)
 {
     BOOL fIsDesktopItem = FALSE;
-    IServiceProvider  * psb;
+    IServiceProvider* psb;
 
     ASSERT(pdoh);
     //Check if we are a desktop component.
-    if (SUCCEEDED(pdoh->QueryService(SID_STopLevelBrowser, IID_IServiceProvider, (void **)&psb)))
-    {
+    if (SUCCEEDED(pdoh->QueryService(SID_STopLevelBrowser, IID_IServiceProvider, (void**)&psb))) {
         LPTARGETFRAME2  ptgf;
-        if (SUCCEEDED(psb->QueryService(IID_ITargetFrame2, IID_ITargetFrame2, (void **)&ptgf)))
-        {
+        if (SUCCEEDED(psb->QueryService(IID_ITargetFrame2, IID_ITargetFrame2, (void**)&ptgf))) {
             DWORD dwOptions;
 
-            if (SUCCEEDED(ptgf->GetFrameOptions(&dwOptions)))
-            {
+            if (SUCCEEDED(ptgf->GetFrameOptions(&dwOptions))) {
                 //Is this a desktop component?
                 if (IsFlagSet(dwOptions, FRAMEOPTIONS_DESKTOP))
                     fIsDesktopItem = TRUE;
@@ -272,7 +267,7 @@ BOOL _IsDesktopItem(CDocObjectHost * pdoh)
 }
 
 
-BOOL _IsImmediateParentDesktop(CDocObjectHost *pdoh, IServiceProvider *psp)
+BOOL _IsImmediateParentDesktop(CDocObjectHost* pdoh, IServiceProvider* psp)
 {
     BOOL    fImmediateParentIsDesktop = FALSE;
     LPTARGETFRAME2  ptgf;
@@ -283,21 +278,17 @@ BOOL _IsImmediateParentDesktop(CDocObjectHost *pdoh, IServiceProvider *psp)
 
     //We know that this is a desktop item. Check if the immediate parent is desktop
     // or it is hosted too deep on desktop!
-    if (psp && SUCCEEDED(psp->QueryService(IID_ITargetFrame2, IID_ITargetFrame2, (void **)&ptgf)))
-    {
+    if (psp && SUCCEEDED(psp->QueryService(IID_ITargetFrame2, IID_ITargetFrame2, (void**)&ptgf))) {
         LPUNKNOWN pUnkParent;
 
         //Get it's immediate parent.
-        if (SUCCEEDED(ptgf->GetParentFrame(&pUnkParent)))
-        {
-            if (pUnkParent)
-            {
+        if (SUCCEEDED(ptgf->GetParentFrame(&pUnkParent))) {
+            if (pUnkParent) {
                 //Has a parent. So, the immediate parent can't be desktop!
                 pUnkParent->Release();
 
                 fImmediateParentIsDesktop = FALSE;
-            }
-            else
+            } else
                 fImmediateParentIsDesktop = TRUE; //No parent. Must be a desktop comp.
         }
         ptgf->Release();
@@ -310,7 +301,7 @@ BOOL _IsImmediateParentDesktop(CDocObjectHost *pdoh, IServiceProvider *psp)
 //Gets the current display name in wide char
 
 // If fURL is TRUE, it returns file-URL with file: prefix.
-HRESULT CDocObjectHost::_GetCurrentPageW(LPOLESTR * ppszDisplayName, BOOL fURL)
+HRESULT CDocObjectHost::_GetCurrentPageW(LPOLESTR* ppszDisplayName, BOOL fURL)
 {
     HRESULT hres = E_FAIL;
     ASSERT(_pmkCur);
@@ -320,52 +311,40 @@ HRESULT CDocObjectHost::_GetCurrentPageW(LPOLESTR * ppszDisplayName, BOOL fURL)
     if (_pmkCur) {
         IBindCtx* pbc;
         hres = CreateBindCtx(0, &pbc);
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             hres = _pmkCur->GetDisplayName(pbc, NULL, ppszDisplayName);
 
             //  special handling just for file: urls.
-            if (SUCCEEDED(hres) && _fFileProtocol)
-            {
+            if (SUCCEEDED(hres) && _fFileProtocol) {
                 ASSERT(*ppszDisplayName);
 
                 WCHAR szText[MAX_URL_STRING];
                 DWORD cchText = SIZECHARS(szText);
-                if (!fURL)
-                {
+                if (!fURL) {
                     hres = PathCreateFromUrlW(*ppszDisplayName, szText, &cchText, 0);
-                }
-                else
-                {
+                } else {
                     //  we need this to be in the normalized form of the URL
                     //  for internal usage.  urlmon keeps them in the funny PATHURL style
                     hres = UrlCanonicalizeW(*ppszDisplayName, szText, &cchText, 0);
                 }
 
-                if (SUCCEEDED(hres))
-                {
+                if (SUCCEEDED(hres)) {
                     UINT cchDisplayName = lstrlenW(*ppszDisplayName);
 
-                    if (cchText > cchDisplayName)
-                    {
+                    if (cchText > cchDisplayName) {
                         //  need to resize
                         CoTaskMemFree(*ppszDisplayName);
-                        *ppszDisplayName = (WCHAR *)CoTaskMemAlloc((cchText + 1) * SIZEOF(WCHAR));
+                        *ppszDisplayName = (WCHAR*)CoTaskMemAlloc((cchText + 1) * SIZEOF(WCHAR));
 
-                        if (*ppszDisplayName)
-                        {
+                        if (*ppszDisplayName) {
                             //  go ahead and copy it in
                             StrCpyNW(*ppszDisplayName, szText, cchText + 1);
-                        }
-                        else
+                        } else
                             hres = E_OUTOFMEMORY;
-                    }
-                    else
-                    {
+                    } else {
                         StrCpyNW(*ppszDisplayName, szText, cchDisplayName + 1);
                     }
-                }
-                else
+                } else
                     OleFree(*ppszDisplayName);
             }
             pbc->Release();
@@ -380,10 +359,9 @@ HRESULT CDocObjectHost::_GetCurrentPage(LPTSTR szBuf, UINT cchMax, BOOL fURL)
 {
     szBuf[0] = 0;   // zero out buffer
 
-    WCHAR *pszDisplayName;
+    WCHAR* pszDisplayName;
     HRESULT hres = _GetCurrentPageW(&pszDisplayName, fURL);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         StrCpyN(szBuf, pszDisplayName, cchMax);
         OleFree(pszDisplayName);
     }
@@ -441,13 +419,11 @@ CDocObjectHost::~CDocObjectHost()
     ASSERT(_pmsov == NULL);
     ASSERT(_pcmdMergedMenu == NULL);
 
-    if (_pScriptErrList != NULL)
-    {
+    if (_pScriptErrList != NULL) {
         _pScriptErrList->Release();
     }
 
-    if (_strPriorityStatusText != NULL)
-    {
+    if (_strPriorityStatusText != NULL) {
         SysFreeString(_strPriorityStatusText);
     }
 
@@ -466,8 +442,7 @@ CDocObjectHost::~CDocObjectHost()
         _dwPicsSerialNumber = 0;
     }
 
-    if (_hPicsQuery)
-    {
+    if (_hPicsQuery) {
         RatingObtainCancel(_hPicsQuery);
         _hPicsQuery = NULL;
     }
@@ -499,8 +474,7 @@ CDocObjectHost::~CDocObjectHost()
         DestroyMenu(_hmenuFrame);
     }
 
-    if (_hacc)
-    {
+    if (_hacc) {
         DestroyAcceleratorTable(_hacc);
         _hacc = NULL;
     }
@@ -511,8 +485,7 @@ CDocObjectHost::~CDocObjectHost()
     if (_ptbStd)
         delete[] _ptbStd;
 
-    if (_pBrowsExt)
-    {
+    if (_pBrowsExt) {
         _pBrowsExt->Release();
     }
 
@@ -533,8 +506,7 @@ Purpose: Dump the menu handles for this docobj.  Optionally
 */
 void CDocObjectHost::_DumpMenus(IN LPCTSTR pszMsg, IN BOOL    bBreak)
 {
-    if (IsFlagSet(g_dwDumpFlags, DF_DEBUGMENU))
-    {
+    if (IsFlagSet(g_dwDumpFlags, DF_DEBUGMENU)) {
         ASSERT(pszMsg);
 
         TraceMsg(TF_ALWAYS, "DocHost: Dumping menus for %#08x %s", (LPVOID)this, pszMsg);
@@ -550,7 +522,7 @@ void CDocObjectHost::_DumpMenus(IN LPCTSTR pszMsg, IN BOOL    bBreak)
 #endif
 
 
-HRESULT CDocObjectHost::QueryInterface(REFIID riid, LPVOID * ppvObj)
+HRESULT CDocObjectHost::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
     static const QITAB qit[] = {
         QITABENT(CDocObjectHost, IOleInPlaceSite),
@@ -681,12 +653,10 @@ void _AssertRestrictionOrderIsCorrect()
 {
     COMPILETIME_ASSERT(ARRAYSIZE(c_tbStd) == ARRAYSIZE(c_rest));
 
-    for (UINT i = 0; i < ARRAYSIZE(c_tbStd); i++)
-    {
+    for (UINT i = 0; i < ARRAYSIZE(c_tbStd); i++) {
         // If any of these rip, it means that c_rest and c_tbStd have
         // gotten out of sync.  Need to fix up c_rest to match c_tbStd.
-        switch (c_tbStd[i].idCommand)
-        {
+        switch (c_tbStd[i].idCommand) {
         case DVIDM_SHOWTOOLS:       ASSERT(c_rest[i] == REST_BTN_TOOLS);        break;
         case DVIDM_MAILNEWS:        ASSERT(c_rest[i] == REST_BTN_MAIL);         break;
         case DVIDM_FONTS:           ASSERT(c_rest[i] == REST_BTN_FONTS);        break;
@@ -715,7 +685,7 @@ BYTE _BtnStateFromRestIfAvailable(BOOL fAvailable, DWORD dwRest)
 
 BOOL CDocObjectHost::_ToolsButtonAvailable()
 {
-    OLECMD rgcmd = { OLECMDID_HIDETOOLBARS, 0 };
+    OLECMD rgcmd = {OLECMDID_HIDETOOLBARS, 0};
 
     if (_pmsoctBrowser)
         _pmsoctBrowser->QueryStatus(NULL, 1, &rgcmd, NULL);
@@ -778,7 +748,7 @@ __inline BYTE CDocObjectHost::_DefDiscussionsButtonState(DWORD dwRest)
 
 BOOL CDocObjectHost::_MailButtonAvailable()
 {
-    OLECMD rgcmdMailFavs[] = { { SBCMDID_DOMAILMENU, 0} };
+    OLECMD rgcmdMailFavs[] = {{ SBCMDID_DOMAILMENU, 0}};
 
     if (_pmsoctBrowser)
         _pmsoctBrowser->QueryStatus(&CGID_Explorer, ARRAYSIZE(rgcmdMailFavs), rgcmdMailFavs, NULL);
@@ -804,8 +774,7 @@ BOOL CDocObjectHost::_EditButtonAvailable()
     HKEY hkey = NULL;
 
     if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT(".htm\\shell\\edit\\command"), 0, KEY_READ, &hkey) ||
-        ERROR_SUCCESS == RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT("htmlfile\\shell\\edit\\command"), 0, KEY_READ, &hkey))
-    {
+        ERROR_SUCCESS == RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT("htmlfile\\shell\\edit\\command"), 0, KEY_READ, &hkey)) {
         RegCloseKey(hkey);
         fRet = TRUE;
     }
@@ -892,8 +861,7 @@ void CDocObjectHost::_AddButtons(BOOL fForceReload)
         return;
 
     IExplorerToolbar* pxtb;
-    if (_psp && SUCCEEDED(_psp->QueryService(SID_SExplorerToolbar, IID_IExplorerToolbar, (LPVOID*)&pxtb)))
-    {
+    if (_psp && SUCCEEDED(_psp->QueryService(SID_SExplorerToolbar, IID_IExplorerToolbar, (LPVOID*)&pxtb))) {
         const GUID* pguid = _GetButtonCommandGroup();
 
         HRESULT hr = pxtb->SetCommandTarget((IOleCommandTarget*)this, pguid, VBF_TOOLS | VBF_ADDRESS | VBF_LINKS | VBF_BRAND);
@@ -902,11 +870,10 @@ void CDocObjectHost::_AddButtons(BOOL fForceReload)
             // Another dochost already merged the buttons into the toolbar under the
             // same command group, so don't bother re-merging.  We just need to initialize
             // _iString, since we're skipping the call to _pBrowsExt->InitButtons below.
-            VARIANT var = { VT_I4 };
+            VARIANT var = {VT_I4};
             IUnknown_Exec(_pBrowsExt, &CLSID_PrivBrowsExtCommands, PBEC_GETSTRINGINDEX, 0, &var, NULL);   // should always succeed
             _iString = var.lVal;
-        }
-        else {
+        } else {
             UINT nNumExtButtons = 0;
 
             _pBrowsExt->GetNumButtons(&nNumExtButtons);
@@ -914,10 +881,9 @@ void CDocObjectHost::_AddButtons(BOOL fForceReload)
             int nNumButtons = nNumExtButtons + ARRAYSIZE(c_tbStd);
 
             // GetTBArray insures that tbStd != NULL, so we don't need that check here
-            TBBUTTON    *tbStd = new TBBUTTON[nNumButtons];
+            TBBUTTON* tbStd = new TBBUTTON[nNumButtons];
 
-            if (tbStd != NULL)
-            {
+            if (tbStd != NULL) {
                 memcpy(tbStd, c_tbStd, SIZEOF(TBBUTTON) * ARRAYSIZE(c_tbStd));
 
                 UINT iStringIndex = (UINT)-1;  // result of adding the string buffer to the toolbar string list
@@ -928,16 +894,13 @@ void CDocObjectHost::_AddButtons(BOOL fForceReload)
                 ASSERT(tbStd[8].idCommand == DVIDM_PASTE);
                 ASSERT(tbStd[9].idCommand == DVIDM_ENCODING);
 
-                if (SUCCEEDED(hr) && iStringIndex != -1)
-                {
+                if (SUCCEEDED(hr) && iStringIndex != -1) {
                     tbStd[6].iString = iStringIndex;
                     tbStd[7].iString = iStringIndex + 1;
                     tbStd[8].iString = iStringIndex + 2;
                     tbStd[9].iString = iStringIndex + 3;
                     _iString = (int)iStringIndex;
-                }
-                else
-                {
+                } else {
                     tbStd[6].iString = tbStd[7].iString = tbStd[8].iString = tbStd[9].iString = -1;
                     _iString = -1;
                 }
@@ -969,23 +932,19 @@ HRESULT CDocObjectHost::UIActivate(UINT uState, BOOL fPrevViewIsDocView)
     UINT uStatePrev = _uState;
 
     // We are supposed to update the menu
-    if (uState != _uState)
-    {
+    if (uState != _uState) {
         // There was a state transition.
         _uState = uState;
 
         // If the new state is SVUIA_DEACTIVATE
-        if (_uState == SVUIA_DEACTIVATE)
-        {
+        if (_uState == SVUIA_DEACTIVATE) {
             //  When we are deactivating (we are navigating away)
             // we UIDeactivate the current MsoView.
             _UIDeactivateMsoView();
 
             _IPDeactivateMsoView(_pmsov);
             _DestroyBrowserMenu();
-        }
-        else if (_uState == SVUIA_INPLACEACTIVATE && uStatePrev == SVUIA_ACTIVATE_FOCUS)
-        {
+        } else if (_uState == SVUIA_INPLACEACTIVATE && uStatePrev == SVUIA_ACTIVATE_FOCUS) {
             // Transition from SVUIA_ACTIVATE_FOCUS->SVUIA_INPLACEACTIVATE
 
             // BUGBUG: If we set this DONT_UIDEACTIVATE, then we stop calling
@@ -1012,38 +971,29 @@ HRESULT CDocObjectHost::UIActivate(UINT uState, BOOL fPrevViewIsDocView)
                 IOleInPlaceActiveObject* piact = _xao.GetObject(); // no AddRef
                 TraceMsg(TF_SHDAPPHACK, "DOH::UIActivate APPHACK calling %x->OnDocWindowActivate (this=%x)",
                          piact, this);
-                if (piact)
-                {
+                if (piact) {
                     piact->OnDocWindowActivate(FALSE);
                 }
-            }
-            else if (!(_dwAppHack & BROWSERFLAG_DONTDEACTIVATEMSOVIEW))
-            {
+            } else if (!(_dwAppHack & BROWSERFLAG_DONTDEACTIVATEMSOVIEW)) {
                 // HACK: In Excel, if we deactiveate the view, it never gets focus again
                 // fix for the bug from hell: #20906
                 _UIDeactivateMsoView();
-            }
-            else
-            {
+            } else {
                 // We're transitioning from SVUIA_ACTIVATE_FOCUS->SVUIA_INPLACEACTIVATE
                 // and BROWSERFLAG_DONTDEACTIVATEMSOVIEW is set.
                 // call the object's IOleInPlactActiveObject::OnFrameWindowActivate(FALSE);
                 IOleInPlaceActiveObject* piact = _xao.GetObject(); // no AddRef
-                if (piact)
-                {
+                if (piact) {
                     piact->OnFrameWindowActivate(FALSE);
                 }
             }
-        }
-        else if (uStatePrev == SVUIA_DEACTIVATE)
-        {
+        } else if (uStatePrev == SVUIA_DEACTIVATE) {
             //  If UIActivate is called either
             // (1) when the binding is pending; _bsc._pbc!=NULL
             // (2) when the async binding is done; _bsc._pole!=NULL
 
             SHVMSG("UIActivate about to call _Bind", _bsc._pbc, NULL);
-            if (_pole == NULL && _bsc._pbc)
-            {
+            if (_pole == NULL && _bsc._pbc) {
                 ASSERT(_pmkCur);
                 IBindCtx* pbc = _bsc._pbc;
                 pbc->AddRef();
@@ -1058,14 +1008,11 @@ HRESULT CDocObjectHost::UIActivate(UINT uState, BOOL fPrevViewIsDocView)
 
             _AddButtons(FALSE);
 
-        }
-        else {
+        } else {
             // opening a new document for 1st time (to UIActive or IPActive)
             goto GoSetFocus;
         }
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_SHDUIACTIVATE, "DOH:::UIActivate -- same uState (%x)", _uState);
     GoSetFocus:
         if ((_uState == SVUIA_ACTIVATE_FOCUS)) {
@@ -1074,13 +1021,11 @@ HRESULT CDocObjectHost::UIActivate(UINT uState, BOOL fPrevViewIsDocView)
                 // if it is, we have an hwnd and all we need to do
                 // is SetFocus (for compatibility w/ weird guys...)
 
-                if (IsChildOrSelf(_ActiveHwnd(), GetFocus()) != S_OK)
-                {
+                if (IsChildOrSelf(_ActiveHwnd(), GetFocus()) != S_OK) {
                     TraceMsg(TF_SHDUIACTIVATE, "DOH:::UIActivate -- calling SetFocus(%x)", _ActiveHwnd());
                     SetFocus(_ActiveHwnd());
                 }
-            }
-            else {
+            } else {
                 // we're in the OC, and it's IPActive not UIActive.
                 // (either that or it's the very 1st time for the main view).
                 // NOTE: Due to CBaseBrowser code that defers SVUIA_ACTIVATE_FOCUS until
@@ -1112,17 +1057,13 @@ HRESULT CDocObjectHost::_DoVerbHelper(BOOL fOC)
 
     if (_uState == SVUIA_INPLACEACTIVATE) {
         iVerb = OLEIVERB_INPLACEACTIVATE;
-    }
-    else if ((_uState == SVUIA_ACTIVATE_FOCUS)) {
+    } else if ((_uState == SVUIA_ACTIVATE_FOCUS)) {
         iVerb = OLEIVERB_UIACTIVATE;
-    }
-    else {
+    } else {
         TraceMsg(TF_ERROR, "DOC::_DoVerbHelper untested (and probably the wrong iVerb mapping)");
     }
-    if (_pedsHelper)
-    {
-        if (SUCCEEDED(_pedsHelper->GetDoVerbMSG(&msg)))
-        {
+    if (_pedsHelper) {
+        if (SUCCEEDED(_pedsHelper->GetDoVerbMSG(&msg))) {
             pmsg = &msg;
         }
     }
@@ -1143,7 +1084,7 @@ class CDocObjAssoc : public IUnknown
 {
 public:
     // *** IUnknown methods ***
-    virtual STDMETHODIMP QueryInterface(REFIID riid, LPVOID * ppvObj);
+    virtual STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppvObj);
     virtual STDMETHODIMP_(ULONG) AddRef(void);
     virtual STDMETHODIMP_(ULONG) Release(void);
 
@@ -1161,14 +1102,11 @@ protected:
 };
 
 
-HRESULT CDocObjAssoc::QueryInterface(REFIID riid, LPVOID * ppvObj)
+HRESULT CDocObjAssoc::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
-    if (IsEqualIID(riid, IID_IUnknown))
-    {
+    if (IsEqualIID(riid, IID_IUnknown)) {
         *ppvObj = SAFECAST(this, IUnknown*);
-    }
-    else
-    {
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -1202,12 +1140,10 @@ void CDocObjectHost::_IPDeactivateMsoView(IOleDocumentView* pmsov)
 {
     TraceMsg(TF_SHDUIACTIVATE, "DOH::_IPDeactivateMsoView called (this==%x)", this);
 
-    if (pmsov)
-    {
+    if (pmsov) {
         IOleInPlaceObject* pipo = NULL;
         HRESULT hresT = _pole->QueryInterface(IID_IOleInPlaceObject, (LPVOID*)&pipo);
-        if (SUCCEEDED(hresT))
-        {
+        if (SUCCEEDED(hresT)) {
             pipo->InPlaceDeactivate();
             pipo->Release();
         }
@@ -1220,8 +1156,7 @@ void CDocObjectHost::_UIDeactivateMsoView(void)
 {
     TraceMsg(TF_SHDUIACTIVATE, "DOH::_UIDeactivateMsoView called (this==%x)", this);
 
-    if (_pmsov)
-    {
+    if (_pmsov) {
         _pmsov->UIActivate(FALSE);
     }
 }
@@ -1231,7 +1166,7 @@ void CDocObjectHost::_UIDeactivateMsoView(void)
 void CDocObjectHost::_HideOfficeToolbars(void)
 {
     if (_pmsot) {
-        OLECMD rgcmd = { OLECMDID_HIDETOOLBARS, 0 };
+        OLECMD rgcmd = {OLECMDID_HIDETOOLBARS, 0};
 
         _pmsot->QueryStatus(NULL, 1, &rgcmd, NULL);
 
@@ -1257,13 +1192,11 @@ void CDocObjectHost::_ShowMsoView(void)
     if (SUCCEEDED(hres) && psite) {
         if (psite != this) {
             _pmsov->SetInPlaceSite(this);
-        }
-        else {
+        } else {
             TraceMsg(TF_SHDAPPHACK, "DOH::_ShowMsoView not calling SetInPlaceSite because it's already set");
         }
         psite->Release();
-    }
-    else {
+    } else {
         _pmsov->SetInPlaceSite(this);
     }
 
@@ -1272,8 +1205,7 @@ void CDocObjectHost::_ShowMsoView(void)
     ASSERT(_uState != SVUIA_DEACTIVATE);
     if (_uState != SVUIA_INPLACEACTIVATE       // Do this if we're not already SVUIA_INPLACEACTIVE
         || !(_dwAppHack & BROWSERFLAG_MSHTML)  //   or if it's not Trident (office apps expect this call)
-        )
-    {
+        ) {
         // Trident is sending progress changed messages here -- and causing Compuserve a problem.
         // Flag the fact that we're UIActivating them, and suppress forwarding ProgressChanged
         // messages to our container when this flag is true.  (IE v4.1 bug 54787)
@@ -1347,11 +1279,9 @@ HRESULT CDocObjectHost::_ActivateMsoView()
         // failure on the bogus location.  In this case pwszLocation will
         // be the original url that failed preceeded with a '#'.
         LPOLESTR pwszUrl;
-        if (FAILED(hres) && SUCCEEDED(_GetCurrentPageW(&pwszUrl, TRUE)))
-        {
+        if (FAILED(hres) && SUCCEEDED(_GetCurrentPageW(&pwszUrl, TRUE))) {
             // if it begins with res: it may be our erro page
-            if (pwszUrl[0] == L'r' && pwszUrl[1] == L'e' && IsErrorUrl(pwszUrl))
-            {
+            if (pwszUrl[0] == L'r' && pwszUrl[1] == L'e' && IsErrorUrl(pwszUrl)) {
                 // It's our internal error page, so ignore the error
                 hres = S_OK;
             }
@@ -1363,8 +1293,7 @@ HRESULT CDocObjectHost::_ActivateMsoView()
             TraceMsg(DM_ERROR, "DOC::_ActivateMsoView _phls->Navigate(%s) ##FAILED## %x",
                      _pszLocation ? _pszLocation : TEXT(""), hres);
         }
-    }
-    else {
+    } else {
         // BUGBUG todo: use _DoVerbHelper? (but careful! ACT_FOCUS different)
         LONG iVerb = OLEIVERB_SHOW;
         MSG msg;
@@ -1373,10 +1302,8 @@ HRESULT CDocObjectHost::_ActivateMsoView()
         if (_uState == SVUIA_INPLACEACTIVATE) {
             iVerb = OLEIVERB_INPLACEACTIVATE;
         }
-        if (_pedsHelper)
-        {
-            if (SUCCEEDED(_pedsHelper->GetDoVerbMSG(&msg)))
-            {
+        if (_pedsHelper) {
+            if (SUCCEEDED(_pedsHelper->GetDoVerbMSG(&msg))) {
                 pmsg = &msg;
             }
         }
@@ -1411,8 +1338,7 @@ HRESULT CDocObjectHost::_EnsureActivateMsoView()
     // if we've got an ole object and
     // either we don't have a view, or we don't have an active view..
     // do the activation
-    if (_pole)
-    {
+    if (_pole) {
         if (!_pmsov || !_ActiveObject()) {
             hres = _ActivateMsoView();
             // Note that we should not UIActivate it here. We should wait
@@ -1431,8 +1357,7 @@ void CDocObjectHost::_CloseMsoView(void)
 {
     ATOMICRELEASE(_pmsot);
 
-    if (_pmsov)
-    {
+    if (_pmsov) {
         VIEWMSG(TEXT("_CloseMsoView calling pmsov->UIActivate(FALSE)"));
         IOleDocumentView* pmsov = _pmsov;
         _pmsov = NULL;
@@ -1459,8 +1384,7 @@ void CDocObjectHost::_CloseMsoView(void)
 
 void CDocObjectHost::_OnPaint(HDC hdc)
 {
-    if (_pmsov && !_ActiveObject())
-    {
+    if (_pmsov && !_ActiveObject()) {
         HRESULT hres;
         RECT rcClient;
         GetClientRect(_hwnd, &rcClient);
@@ -1482,8 +1406,7 @@ HRESULT _GetDefaultLocation(LPWSTR pszPath, DWORD cchPathSizeIn, UINT id)
     // BUGBUG: This is Internet Explorer Specific
 
     HKEY hkeyroot = id == IDP_CHANNELGUIDE ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
-    if (RegOpenKeyW(hkeyroot, L"Software\\Microsoft\\Internet Explorer\\Main", &hkey) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyW(hkeyroot, L"Software\\Microsoft\\Internet Explorer\\Main", &hkey) == ERROR_SUCCESS) {
         DWORD dwType;
 
         LPCWSTR pszName;
@@ -1505,8 +1428,7 @@ HRESULT _GetDefaultLocation(LPWSTR pszPath, DWORD cchPathSizeIn, UINT id)
             break;
         }
 
-        if (RegQueryValueExW(hkey, pszName, 0, &dwType, (LPBYTE)szPath, &cbSize) == ERROR_SUCCESS)
-        {
+        if (RegQueryValueExW(hkey, pszName, 0, &dwType, (LPBYTE)szPath, &cbSize) == ERROR_SUCCESS) {
             // When reading a URL from registry, treat it like it was typed
             // in on the address bar.
 
@@ -1515,8 +1437,7 @@ HRESULT _GetDefaultLocation(LPWSTR pszPath, DWORD cchPathSizeIn, UINT id)
             if (!ParseURLFromOutsideSourceW(szPath, pszPath, &cchPathSize, NULL))
                 StrCpyNW(pszPath, szPath, cchPathSizeIn);
 
-            if (IsFileUrlW(pszPath))
-            {
+            if (IsFileUrlW(pszPath)) {
                 cchPathSize = cchPathSizeIn;
                 hres = PathCreateFromUrlW(pszPath, pszPath, &cchPathSize, 0);
             }
@@ -1564,20 +1485,17 @@ HRESULT _GetStdLocation(LPTSTR pszPath, DWORD cchPathSize, UINT id)
     }
 
     hres = URLSubRegQuery(szRegKey_SMIEM, pszName, TRUE, szPathTemp, cchTempSize, URLSUB_ALL);
-    if (FAILED(hres) && ((DVIDM_GOFIRSTHOME == id) || (DVIDM_GOFIRSTHOMERO == id)))
-    {
+    if (FAILED(hres) && ((DVIDM_GOFIRSTHOME == id) || (DVIDM_GOFIRSTHOMERO == id))) {
         // The First Home key doesn't exist so use the home key.
         pszName = TEXT("Start Page");
         hres = URLSubRegQuery(szRegKey_SMIEM, pszName, TRUE, szPathTemp, cchTempSize, URLSUB_ALL);
         id = DVIDM_GOHOME;
     }
 
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         // When reading a URL from registry, treat it like it was typed in on the address bar.
 
-        if (ParseURLFromOutsideSourceW(szPathTemp, pszPath, &cchPathSize, NULL))
-        {
+        if (ParseURLFromOutsideSourceW(szPathTemp, pszPath, &cchPathSize, NULL)) {
             if (IsFileUrlW(pszPath))
                 hres = PathCreateFromUrlW(pszPath, pszPath, &cchPathSize, 0);
         }
@@ -1587,8 +1505,7 @@ HRESULT _GetStdLocation(LPTSTR pszPath, DWORD cchPathSize, UINT id)
     {
         HUSKEY hUSKey;
 
-        if (ERROR_SUCCESS == SHRegOpenUSKey(szRegKey_SMIEM, KEY_WRITE, NULL, &hUSKey, FALSE))
-        {
+        if (ERROR_SUCCESS == SHRegOpenUSKey(szRegKey_SMIEM, KEY_WRITE, NULL, &hUSKey, FALSE)) {
             SHRegDeleteUSValue(hUSKey, TEXT("First Home Page"), SHREGDEL_DEFAULT);
             SHRegCloseUSKey(hUSKey);
         }
@@ -1602,8 +1519,7 @@ HRESULT _GetStdLocation(LPTSTR pszPath, DWORD cchPathSize, UINT id)
 
 HRESULT WINAPI _GetDefaultLocation(UINT idp, LPWSTR pszPath, UINT cchMax)
 {
-    switch (idp)
-    {
+    switch (idp) {
     case IDP_UPDATE:
     case IDP_CHANNELGUIDE:
         URLSubLoadString(NULL, IDS_DEF_UPDATE + (idp - IDP_UPDATE), pszPath, cchMax, URLSUB_ALL);
@@ -1617,7 +1533,7 @@ HRESULT WINAPI _GetDefaultLocation(UINT idp, LPWSTR pszPath, UINT cchMax)
 }
 
 
-HRESULT WINAPI SHDGetPageLocation(HWND hwndOwner, UINT idp, LPWSTR pszPath, UINT cchMax, LPITEMIDLIST *ppidlOut)
+HRESULT WINAPI SHDGetPageLocation(HWND hwndOwner, UINT idp, LPWSTR pszPath, UINT cchMax, LPITEMIDLIST* ppidlOut)
 {
     TCHAR szBuf[MAX_URL_STRING];
     if (pszPath == NULL) {
@@ -1630,26 +1546,22 @@ HRESULT WINAPI SHDGetPageLocation(HWND hwndOwner, UINT idp, LPWSTR pszPath, UINT
     case IDP_UPDATE:
     case IDP_CHANNELGUIDE:
         ASSERT(IDP_CHANNELGUIDE - IDP_UPDATE == IDS_DEF_CHANNELGUIDE - IDS_DEF_UPDATE);
-        if (FAILED(_GetDefaultLocation(pszPath, cchMax, idp)))
-        {
+        if (FAILED(_GetDefaultLocation(pszPath, cchMax, idp))) {
             _GetDefaultLocation(idp, pszPath, cchMax);
         }
         break;
     default:
         ASSERT(idp == IDP_START || idp == IDP_SEARCH);
         hres = _GetStdLocation(pszPath, cchMax, (idp == IDP_SEARCH) ? DVIDM_GOSEARCH : DVIDM_GOHOME);
-        if (FAILED(hres))
-        {
+        if (FAILED(hres)) {
             _GetDefaultLocation(idp, pszPath, cchMax);
         }
         break;
     }
 
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         hres = IECreateFromPath(pszPath, ppidlOut);
-        if (FAILED(hres))
-        {
+        if (FAILED(hres)) {
             // IECreateFromPath() above could have failed if the default location
             // was invalid. (Like file://server_no_exist/
             _GetDefaultLocation(idp, pszPath, cchMax);
@@ -1676,10 +1588,9 @@ void CDocObjectHost::_ChainBSC()
             hres = psp->QueryService(SID_SHlinkFrame, IID_IBindStatusCallback, (LPVOID*)&_bsc._pbscChained);
             CHAINMSG("_StartAsyncBinding psp(hlf)->QS returns", hres);
             psp->Release();
-            if (SUCCEEDED(hres))
-            {
+            if (SUCCEEDED(hres)) {
                 ASSERT(NULL == _bsc._pnegotiateChained);
-                _bsc._pbscChained->QueryInterface(IID_IHttpNegotiate, (LPVOID *)&_bsc._pnegotiateChained);
+                _bsc._pbscChained->QueryInterface(IID_IHttpNegotiate, (LPVOID*)&_bsc._pnegotiateChained);
             }
         }
     }
@@ -1707,17 +1618,13 @@ BOOL CDocObjectHost::_BuildClassMapping(void)
     ENTERCRITICAL;
     if (!g_hdsaCls) {
         g_hdsaStr = DSA_Create(SIZEOF(LPCSTR), 32);
-        if (g_hdsaStr)
-        {
+        if (g_hdsaStr) {
             HDSA hdsaCls = DSA_Create(SIZEOF(CLSID), 32);
-            if (hdsaCls)
-            {
+            if (hdsaCls) {
                 HKEY hkey;
-                if (RegOpenKey(HKEY_LOCAL_MACHINE, TEXT("Software\\Microsoft\\Internet Explorer\\MediaTypeClass"), &hkey) == ERROR_SUCCESS)
-                {
+                if (RegOpenKey(HKEY_LOCAL_MACHINE, TEXT("Software\\Microsoft\\Internet Explorer\\MediaTypeClass"), &hkey) == ERROR_SUCCESS) {
                     TCHAR szCLSID[64];  // enough for "{CLSID}"
-                    for (int iKey = 0; RegEnumKey(hkey, iKey, szCLSID, SIZEOF(szCLSID)) == ERROR_SUCCESS; iKey++)
-                    {
+                    for (int iKey = 0; RegEnumKey(hkey, iKey, szCLSID, SIZEOF(szCLSID)) == ERROR_SUCCESS; iKey++) {
                         CLSID clsid;
                         if (FAILED(CLSIDFromString(szCLSID, &clsid))) {
                             TraceMsg(DM_WARNING, "CDOH::_RMTC CLSIDFromString(%x) failed", szCLSID);
@@ -1726,18 +1633,15 @@ BOOL CDocObjectHost::_BuildClassMapping(void)
 
                         TraceMsg(DM_MIMEMAPPING, "CDOH::_RMTC RegEnumKey found %s", szCLSID);
                         HKEY hkeyCLSID;
-                        if (RegOpenKey(hkey, szCLSID, &hkeyCLSID) == ERROR_SUCCESS)
-                        {
-                            for (int iValue = 0; ; iValue++)
-                            {
+                        if (RegOpenKey(hkey, szCLSID, &hkeyCLSID) == ERROR_SUCCESS) {
+                            for (int iValue = 0; ; iValue++) {
                                 CHAR szFormatName[128];
                                 DWORD dwType;
                                 DWORD cchValueName = ARRAYSIZE(szFormatName);
                                 // Keep the name ansi because it needs to get
                                 // passed to urlmon's RegisterMediaTypeClass as
                                 // ansi.
-                                if (RegEnumValueA(hkeyCLSID, iValue, szFormatName, &cchValueName, NULL, &dwType, NULL, NULL) == ERROR_SUCCESS)
-                                {
+                                if (RegEnumValueA(hkeyCLSID, iValue, szFormatName, &cchValueName, NULL, &dwType, NULL, NULL) == ERROR_SUCCESS) {
                                     TraceMsg(DM_MIMEMAPPING, "CDOH::_RMTC RegEnumValue found %s", szFormatName);
                                     LPSTR psz = StrDupA(szFormatName);
                                     if (psz) {
@@ -1747,20 +1651,17 @@ BOOL CDocObjectHost::_BuildClassMapping(void)
                                             break;
                                         }
                                     }
-                                }
-                                else {
+                                } else {
                                     break;
                                 }
                             }
                             RegCloseKey(hkeyCLSID);
-                        }
-                        else {
+                        } else {
                             TraceMsg(DM_WARNING, "CDOH::_RMTC RegOpenKey(%s) failed", szCLSID);
                         }
                     }
                     RegCloseKey(hkey);
-                }
-                else {
+                } else {
                     TraceMsg(0, "CDOH::_RMTC RegOpenKey(MediaTypeClass) failed");
                 }
 
@@ -1792,15 +1693,13 @@ HRESULT CDocObjectHost::_RegisterMediaTypeClass(IBindCtx* pbc)
     }
 
     // Now see if the container has anything that needs to be registered
-    if (_psp)
-    {
-        IMimeInfo       *pIMimeInfo;
+    if (_psp) {
+        IMimeInfo* pIMimeInfo;
         hres = _psp->QueryService(SID_IMimeInfo, IID_IMimeInfo, (LPVOID*)&pIMimeInfo);
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             UINT            cTypes = 0;
-            LPCSTR          *ppszTypes = NULL;
-            CLSID           *pclsIDs = NULL;
+            LPCSTR* ppszTypes = NULL;
+            CLSID* pclsIDs = NULL;
             ASSERT(pIMimeInfo);
             hres = pIMimeInfo->GetMimeCLSIDMapping(&cTypes, &ppszTypes, &pclsIDs);
             if (SUCCEEDED(hres)) {
@@ -1820,8 +1719,7 @@ HRESULT CDocObjectHost::_RegisterMediaTypeClass(IBindCtx* pbc)
                 CoTaskMemFree(pclsIDs);
             }
             pIMimeInfo->Release();
-        }
-        else {
+        } else {
             hres = S_FALSE;
         }
     }
@@ -1836,30 +1734,24 @@ HRESULT _RegisterAcceptHeaders(IBindCtx* pbc, IShellBrowser* psb)
 }
 
 
-HRESULT GetAmbientBoolProp(IExpDispSupport* peds, DISPID dispid, BOOL *pb)
+HRESULT GetAmbientBoolProp(IExpDispSupport* peds, DISPID dispid, BOOL* pb)
 {
-    VARIANT var = { 0 };
+    VARIANT var = {0};
 
     // Assume failure
     *pb = FALSE;
 
-    HRESULT hres = peds->OnInvoke(dispid, IID_NULL, NULL, DISPATCH_PROPERTYGET, (DISPPARAMS *)&g_dispparamsNoArgs, &var, NULL, NULL);
-    if (SUCCEEDED(hres))
-    {
+    HRESULT hres = peds->OnInvoke(dispid, IID_NULL, NULL, DISPATCH_PROPERTYGET, (DISPPARAMS*)&g_dispparamsNoArgs, &var, NULL, NULL);
+    if (SUCCEEDED(hres)) {
         // VB returns success with VT_EMPTY, so we can't assert here
-        if (var.vt == VT_BOOL)
-        {
+        if (var.vt == VT_BOOL) {
             *pb = (var.boolVal) ? TRUE : FALSE;
-        }
-        else
-        {
+        } else {
             // Even though VB says VT_EMPTY, we don't know what other containers
             // might shove in here. Make sure we clean up.
             VariantClear(&var);
         }
-    }
-    else
-    {
+    } else {
         hres = E_FAIL;
     }
 
@@ -1867,18 +1759,15 @@ HRESULT GetAmbientBoolProp(IExpDispSupport* peds, DISPID dispid, BOOL *pb)
 }
 
 
-HRESULT CDocObjectHost::_GetOfflineSilent(BOOL *pbIsOffline, BOOL *pbIsSilent)
+HRESULT CDocObjectHost::_GetOfflineSilent(BOOL* pbIsOffline, BOOL* pbIsSilent)
 {
-    if (_peds)
-    {
+    if (_peds) {
         if (pbIsOffline)
             GetAmbientBoolProp(_peds, DISPID_AMBIENT_OFFLINEIFNOTCONNECTED, pbIsOffline);
 
         if (pbIsSilent)
             GetAmbientBoolProp(_peds, DISPID_AMBIENT_SILENT, pbIsSilent);
-    }
-    else
-    {
+    } else {
         if (pbIsOffline)
             *pbIsOffline = FALSE;
         if (pbIsSilent)
@@ -1929,13 +1818,11 @@ void CDocObjectHost::_StartPicsQuery(void)
              */
             LPOLESTR pwszSecurityURL = NULL;
 
-            if (SUCCEEDED(CoInternetGetSecurityUrl(pwszRawURL, &pwszSecurityURL, PSU_SECURITY_URL_ONLY, 0)))
-            {
+            if (SUCCEEDED(CoInternetGetSecurityUrl(pwszRawURL, &pwszSecurityURL, PSU_SECURITY_URL_ONLY, 0))) {
                 // List of protocols for which we never enforce ratings.
                 if (!StrCmpNIW(pwszSecurityURL, L"file:", 5) || !StrCmpNIW(pwszSecurityURL, L"about:", 6) || !StrCmpNIW(pwszSecurityURL, L"mk:", 3)) {
                     fEnforce = FALSE;
-                }
-                else {
+                } else {
                     Str_SetPtr(&_pszPicsURL, pwszSecurityURL);
                 }
 
@@ -1956,8 +1843,7 @@ void CDocObjectHost::_StartPicsQuery(void)
             _dwPicsSerialNumber = ::_AddPicsQuery(_hwnd);
             if (_dwPicsSerialNumber == 0)
                 hr = E_OUTOFMEMORY;
-            else
-            {
+            else {
                 // The ratings apis are ansi.
                 CHAR szURL[MAX_URL_STRING];
 
@@ -1969,8 +1855,7 @@ void CDocObjectHost::_StartPicsQuery(void)
                 ::_RemovePicsQuery(_dwPicsSerialNumber);
                 _dwPicsSerialNumber = 0;
                 _fbPicsWaitFlags &= ~PICS_WAIT_FOR_ASYNC;
-            }
-            else {
+            } else {
                 TraceMsg(DM_PICS, "CDOH::_StartPicsQuery async query queued");
             }
         }
@@ -1990,8 +1875,7 @@ void CDocObjectHost::_GotLabel(HRESULT hres, LPVOID pDetails, BYTE bfSource)
 
         if (pDetails != NULL)
             ::RatingFreeDetails(pDetails);
-    }
-    else {
+    } else {
         /* If the result is an error somehow (label doesn't apply, etc.), and
          * we can expect more labels from this source, then we don't do anything
          * except save the rating details if we haven't got any yet.
@@ -2001,12 +1885,10 @@ void CDocObjectHost::_GotLabel(HRESULT hres, LPVOID pDetails, BYTE bfSource)
 
             if (_pRatingDetails == NULL) {
                 _pRatingDetails = pDetails;
-            }
-            else {
+            } else {
                 ::RatingFreeDetails(pDetails);
             }
-        }
-        else {
+        } else {
             /* Either we got a definitive answer from this rating source, or
              * this is the only answer we'll get from it.  We clear at least
              * the flag for this source so we know we've heard from it.  If
@@ -2026,8 +1908,7 @@ void CDocObjectHost::_GotLabel(HRESULT hres, LPVOID pDetails, BYTE bfSource)
                 TraceMsg(DM_PICS, "CDOH::_GotLabel allowing access");
                 ::RatingFreeDetails(pDetails);  /* don't need this if access allowed */
                 _fPicsAccessAllowed = 1;
-            }
-            else {
+            } else {
                 /* Access denied or error.  Meaningful details from this result
                  * can override details from an earlier, less significant
                  * result.  Only explicitly deny access if not an error,
@@ -2071,11 +1952,9 @@ void CDocObjectHost::_HandleInDocumentLabel(LPCTSTR pszLabel)
     UINT cbMultiByte = WideCharToMultiByte(CP_ACP, 0, pszLabel,
                                            -1, NULL, 0, NULL, NULL);
     if (cbMultiByte > 0) {
-        char *pszLabelAnsi = new char[cbMultiByte + 1];
-        if (pszLabelAnsi != NULL)
-        {
-            if (WideCharToMultiByte(CP_ACP, 0, pszLabel, -1, pszLabelAnsi, cbMultiByte + 1, NULL, NULL))
-            {
+        char* pszLabelAnsi = new char[cbMultiByte + 1];
+        if (pszLabelAnsi != NULL) {
+            if (WideCharToMultiByte(CP_ACP, 0, pszLabel, -1, pszLabelAnsi, cbMultiByte + 1, NULL, NULL)) {
                 HRESULT hres = ::RatingCheckUserAccess(NULL, szURL, pszLabelAnsi, NULL, _dwPicsLabelSource, &pDetails);
                 _GotLabel(hres, pDetails, bFlag);
             }
@@ -2094,8 +1973,7 @@ void CDocObjectHost::_HandleDocumentEnd(void)
 
     if (_pRootDownload != NULL) {
         ::PostMessage(_hwnd, WM_PICS_ROOTDOWNLOADCOMPLETE, 0, 0);
-    }
-    else {
+    } else {
         /* End of document;  revoke the IOleCommandTarget we gave to the document,
          * so it won't send us any more notifications.
          */
@@ -2169,7 +2047,7 @@ void CDocObjectHost::_StartPicsRootQuery(LPCTSTR pszURL)
         }
 
         if (SUCCEEDED(hres)) {
-            IMoniker *pmk = NULL;
+            IMoniker* pmk = NULL;
             hres = MonikerFromURL(wszRootURL, &pmk);
 
             if (SUCCEEDED(hres)) {
@@ -2196,8 +2074,7 @@ void CDocObjectHost::_StartPicsRootQuery(LPCTSTR pszURL)
                 _HandlePicsChecksComplete();
             }
         }
-    }
-    else {
+    } else {
         TraceMsg(DM_PICS, "CDOH::_StartPicsRootQuery no query queued, waitflags=%x", (DWORD)_fbPicsWaitFlags);
     }
 }
@@ -2240,8 +2117,7 @@ HRESULT CDocObjectHost::_StartAsyncBinding(IMoniker* pmk, IBindCtx* pbc, IShellV
 #ifdef DEBUG
     if (g_dwPrototype & 0x00000800) {
         TraceMsg(DM_TRACE, "CDOH::_StartAsyncBinding skipping CLSID mapping");
-    }
-    else
+    } else
 #endif
     {
         // Register overriding mime->CLSID mapping
@@ -2304,8 +2180,7 @@ HRESULT CDocObjectHost::_StartAsyncBinding(IMoniker* pmk, IBindCtx* pbc, IShellV
 
     _fSyncBindToObject = FALSE;
 
-    if (SUCCEEDED(_hrOnStopBinding) && (SUCCEEDED(hres) || hres == E_PENDING))
-    {
+    if (SUCCEEDED(_hrOnStopBinding) && (SUCCEEDED(hres) || hres == E_PENDING)) {
         hres = S_OK;
 
         if (_bsc._pbc) {
@@ -2315,32 +2190,26 @@ HRESULT CDocObjectHost::_StartAsyncBinding(IMoniker* pmk, IBindCtx* pbc, IShellV
                     _bsc._psvPrev = psvPrev;
                     psvPrev->AddRef();
                 }
-            }
-            else {
+            } else {
                 URLMSG3(TEXT("_StartAsyncBinding we've already got _pole"), hres, _pole);
             }
 
             // If moniker happen to return the object synchronously, emulate
             // OnDataAvailable callback and OnStopBinding.
-            if (punk)
-            {
+            if (punk) {
                 _bsc.OnObjectAvailable(IID_IUnknown, punk);
                 _bsc.OnStopBinding(hres, NULL);
                 punk->Release();
                 ASSERT(_bsc._pbc == NULL);
             }
-        }
-        else {
+        } else {
             // OnStopBinding has been already called.
-            if (punk)
-            {
+            if (punk) {
                 AssertMsg(0, TEXT("CDOH::_StartAsyncBinding pmk->BindToObject returned punk after calling OnStopBinding")); // Probably URLMON bug.
                 punk->Release();
             }
         }
-    }
-    else
-    {
+    } else {
         // Binding failed.
         TraceMsg(DM_WARNING, "CDOH::_StartAsyncBinding failed (%x)", hres);
 
@@ -2367,8 +2236,7 @@ HRESULT CDocObjectHost::_StartAsyncBinding(IMoniker* pmk, IBindCtx* pbc, IShellV
 
         if (_bsc._pbc)
             _bsc.OnStopBinding(hres, NULL);
-        else if (!bSuppressUI)
-        {
+        else if (!bSuppressUI) {
             //  OnStopBinding was already called, but with a success
             //  so we need to handle the error here.  this happens
             //  with some invalid URLs like http:/server
@@ -2389,31 +2257,26 @@ HRESULT CDocObjectHost::_StartAsyncBinding(IMoniker* pmk, IBindCtx* pbc, IShellV
 void CDocObjectHost::_ReleasePendingObject(BOOL fIfInited)
 {
     HRESULT hres;
-    IOleObject *polePending;
+    IOleObject* polePending;
 #ifdef TRIDENT_NEEDS_LOCKRUNNING
-    IRunnableObject *pro;
+    IRunnableObject* pro;
 #endif
 
     if (fIfInited == FALSE && _fPendingWasInited == FALSE)
         return;
 
-    if (_punkPending)
-    {
-        if (_fCreatingPending)
-        {
+    if (_punkPending) {
+        if (_fCreatingPending) {
             _fAbortCreatePending = 1;
             return;
         }
 
-        if (!_fPendingNeedsInit && !IsSameObject(_punkPending, _pole))
-        {
-            hres = _punkPending->QueryInterface(IID_IOleObject, (LPVOID *)&polePending);
+        if (!_fPendingNeedsInit && !IsSameObject(_punkPending, _pole)) {
+            hres = _punkPending->QueryInterface(IID_IOleObject, (LPVOID*)&polePending);
             if (SUCCEEDED(hres)) {
                 LPOLECLIENTSITE pcs;
-                if (SUCCEEDED(polePending->GetClientSite(&pcs)) && pcs)
-                {
-                    if (pcs == SAFECAST(this, LPOLECLIENTSITE))
-                    {
+                if (SUCCEEDED(polePending->GetClientSite(&pcs)) && pcs) {
+                    if (pcs == SAFECAST(this, LPOLECLIENTSITE)) {
                         polePending->SetClientSite(NULL);
                     }
                     pcs->Release();
@@ -2423,9 +2286,8 @@ void CDocObjectHost::_ReleasePendingObject(BOOL fIfInited)
         }
 #ifdef TRIDENT_NEEDS_LOCKRUNNING
         //  TRIDENT NO LONGER SUPPORTS IRunnableObject
-        hres = _punkPending->QueryInterface(IID_IRunnableObject, (LPVOID *)&pro);
-        if (SUCCEEDED(hres))
-        {
+        hres = _punkPending->QueryInterface(IID_IRunnableObject, (LPVOID*)&pro);
+        if (SUCCEEDED(hres)) {
             hres = pro->LockRunning(FALSE, TRUE);
             pro->Release();
         }
@@ -2451,13 +2313,12 @@ void CDocObjectHost::_ReleaseOleObject(BOOL fIfInited)
     }
 
     if (_pvo) {
-        IAdviseSink *pSink;
+        IAdviseSink* pSink;
         // paranoia: only blow away the advise sink if it is still us
         if (SUCCEEDED(_pvo->GetAdvise(NULL, NULL, &pSink)) && pSink) {
-            if (pSink == (IAdviseSink *)this) {
+            if (pSink == (IAdviseSink*)this) {
                 _pvo->SetAdvise(0, 0, NULL);
-            }
-            else {
+            } else {
                 ASSERT(0);  // do we really hit this case?
             }
 
@@ -2504,11 +2365,9 @@ void CDocObjectHost::_UnBind(void)
 
         //  If this is NOT MSHTML, cache the OLE server so that we don't
         // need to restart or load the OLE server again.
-        if (!(_dwAppHack & (BROWSERFLAG_MSHTML | BROWSERFLAG_DONTCACHESERVER)))
-        {
-            IBrowserService *pbs;
-            if (SUCCEEDED(QueryService(SID_STopLevelBrowser, IID_IBrowserService, (LPVOID *)&pbs)))
-            {
+        if (!(_dwAppHack & (BROWSERFLAG_MSHTML | BROWSERFLAG_DONTCACHESERVER))) {
+            IBrowserService* pbs;
+            if (SUCCEEDED(QueryService(SID_STopLevelBrowser, IID_IBrowserService, (LPVOID*)&pbs))) {
                 pbs->CacheOLEServer(_pole);
                 pbs->Release();
             }
@@ -2564,13 +2423,11 @@ void CDocObjectHost::_AppHackForExcel95(void)
     hres = _pole->QueryInterface(IID_IDataObject, (LPVOID*)&pdt);
     TraceMsg(DM_BINDAPPHACK, "_PostBindAppHack -- QI(IOleDataObject) returned %x", hres);
 
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         ASSERT(_pstg == NULL);
         hres = StgCreateDocfile(NULL, STGM_DIRECT | STGM_CREATE | STGM_READWRITE | STGM_SHARE_EXCLUSIVE | STGM_DELETEONRELEASE, 0, &_pstg);
         TraceMsg(DM_BINDAPPHACK, "_PostBindAppHack StgCreateDocFile(NULL) returned %x", hres);
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             IOleObject* poleCopy = NULL;
             hres = OleCreateFromData(pdt, IID_IOleObject, OLERENDER_NONE, NULL, this, _pstg, (LPVOID*)&poleCopy);
             TraceMsg(DM_BINDAPPHACK, "_PostBindAppHack OleCreateFromData(IOleObject) returned %x", hres);
@@ -2602,34 +2459,26 @@ HKEY _GetUserCLSIDKey(IOleObject* pole, const CLSID* pclsid, DWORD* pdwAppHack)
         //  GetUserClassID is optional, can return E_FAIL, then is defined to be
         //  the same as that returned by IPersist::GetClassID. cf, msdev documentation
         //  for GetUserClassID
-        if (FAILED(hres))
-        {
+        if (FAILED(hres)) {
             hres = IUnknown_GetClassID(pole, &clsid);
         }
-    }
-    else if (pclsid) {
+    } else if (pclsid) {
         clsid = *pclsid;
         hres = S_OK;
-    }
-    else
-    {
+    } else {
         return NULL;
     }
 
     // Notice that we check for two CLSIDs to see if this is MSHTML.
-    if (pdwAppHack)
-    {
-        static const IID IID_IVBOleObj = { 0xb88c9640, 0x14e0, 0x11d0, { 0xb3, 0x49, 0x0, 0xa0, 0xc9, 0xa, 0xea, 0x82 } };
+    if (pdwAppHack) {
+        static const IID IID_IVBOleObj = {0xb88c9640, 0x14e0, 0x11d0, { 0xb3, 0x49, 0x0, 0xa0, 0xc9, 0xa, 0xea, 0x82 }};
         LPUNKNOWN    pVBOleObj;
 
-        if (IsEqualGUID(clsid, CLSID_HTMLDocument) || IsEqualGUID(clsid, CLSID_MHTMLDocument) || IsEqualGUID(clsid, CLSID_HTMLPluginDocument))
-        {
+        if (IsEqualGUID(clsid, CLSID_HTMLDocument) || IsEqualGUID(clsid, CLSID_MHTMLDocument) || IsEqualGUID(clsid, CLSID_HTMLPluginDocument)) {
             TraceMsg(TF_SHDAPPHACK, "_GetUserCLSID this is Trident. Skip opening reg key");
             *pdwAppHack = BROWSERFLAG_NEVERERASEBKGND | BROWSERFLAG_SUPPORTTOP | BROWSERFLAG_MSHTML;
             return NULL;
-        }
-        else if (pole && SUCCEEDED(pole->QueryInterface(IID_IVBOleObj, (void**)&pVBOleObj)))
-        {
+        } else if (pole && SUCCEEDED(pole->QueryInterface(IID_IVBOleObj, (void**)&pVBOleObj))) {
             // If the object answers to IID_IVBOleObj, it's a VB doc object and shouldn't be cached.
             pVBOleObj->Release();
             *pdwAppHack = BROWSERFLAG_DONTCACHESERVER;
@@ -2646,8 +2495,7 @@ HKEY _GetUserCLSIDKey(IOleObject* pole, const CLSID* pclsid, DWORD* pdwAppHack)
         TCHAR szKey[60];    // 60 is enough for CLSID\\{CLSID_XX}
         wnsprintf(szKey, ARRAYSIZE(szKey), TEXT("CLSID\\%s"), szBuf);
 
-        if (RegOpenKey(HKEY_CLASSES_ROOT, szKey, &hkey) != ERROR_SUCCESS)
-        {
+        if (RegOpenKey(HKEY_CLASSES_ROOT, szKey, &hkey) != ERROR_SUCCESS) {
             TraceMsg(DM_WARNING, "_GetUserCLSIDKey RegOpenKey(%s) failed", szKey);
             // I don't trust RegOpenKey.
             hkey = NULL;
@@ -2662,18 +2510,14 @@ BOOL _GetAppHackKey(LPCTSTR pszProgID, DWORD* pdwData)
 {
     BOOL fSuccess = FALSE;
     HKEY hkey;
-    if (RegOpenKey(HKEY_CLASSES_ROOT, pszProgID, &hkey) == ERROR_SUCCESS)
-    {
+    if (RegOpenKey(HKEY_CLASSES_ROOT, pszProgID, &hkey) == ERROR_SUCCESS) {
         DWORD dwType;
         DWORD cbSize = SIZEOF(*pdwData);
         if (RegQueryValueEx(hkey, TEXT("BrowserFlags"), NULL,
                             &dwType, (LPBYTE)pdwData, &cbSize) == ERROR_SUCCESS
-            && (dwType == REG_DWORD || (dwType == REG_BINARY && cbSize == SIZEOF(*pdwData))))
-        {
+            && (dwType == REG_DWORD || (dwType == REG_BINARY && cbSize == SIZEOF(*pdwData)))) {
             fSuccess = TRUE;
-        }
-        else
-        {
+        } else {
 
             // Unlike IE3, we make it absolutely sure that the type of object
             // has either "DocObject" key or "BrowseInPlace" key under the
@@ -2709,12 +2553,10 @@ BOOL _GetAppHackKey(LPCTSTR pszProgID, DWORD* pdwData)
 void GetAppHackFlags(IOleObject* pole, const CLSID* pclsid, DWORD* pdwAppHack)
 {
     HKEY hkey = _GetUserCLSIDKey(pole, pclsid, pdwAppHack);
-    if (hkey)
-    {
+    if (hkey) {
         TCHAR szValue[MAX_PATH];
         LONG cb = SIZEOF(szValue);
-        if (RegQueryValue(hkey, TEXT("ProgID"), szValue, &cb) == ERROR_SUCCESS)
-        {
+        if (RegQueryValue(hkey, TEXT("ProgID"), szValue, &cb) == ERROR_SUCCESS) {
             // First, check if we have an BrowserFlags flag in the registry.
             // If there is, use it. Otherwise, try hard-coded progIDs as
             // we did in IE 3.0
@@ -2748,15 +2590,11 @@ void GetAppHackFlags(IOleObject* pole, const CLSID* pclsid, DWORD* pdwAppHack)
                 };
                 const static TCHAR s_ActiveMoveCtx[] = TEXT("AMOVIE.ActiveMovieControl");
 
-                if (!StrCmpN(szValue, s_ActiveMoveCtx, ARRAYSIZE(s_ActiveMoveCtx) - 1))
-                {
+                if (!StrCmpN(szValue, s_ActiveMoveCtx, ARRAYSIZE(s_ActiveMoveCtx) - 1)) {
                     *pdwAppHack = BROWSERFLAG_DONTAUTOCLOSE;
-                }
-                else
-                {
+                } else {
                     for (int i = 0; i < ARRAYSIZE(s_aah); i++) {
-                        if (StrCmp(szValue, s_aah[i].pszProgID) == 0)
-                        {
+                        if (StrCmp(szValue, s_aah[i].pszProgID) == 0) {
                             *pdwAppHack |= s_aah[i].dwAppHack;
                             break;
                         }
@@ -2765,8 +2603,7 @@ void GetAppHackFlags(IOleObject* pole, const CLSID* pclsid, DWORD* pdwAppHack)
             }
 
             TraceMsg(DM_BINDAPPHACK, "_GetAppHack ProgID=%s, *pdwAppHack=%x", szValue, *pdwAppHack);
-        }
-        else {
+        } else {
             TraceMsg(DM_BINDAPPHACK, "_GetAppHack RegQueryValue(ProgID) failed");
         }
 
@@ -2778,8 +2615,7 @@ void GetAppHackFlags(IOleObject* pole, const CLSID* pclsid, DWORD* pdwAppHack)
 DWORD CDocObjectHost::_GetAppHack(void)
 {
     ASSERT(_pole);
-    if (!_fHaveAppHack && _pole)
-    {
+    if (!_fHaveAppHack && _pole) {
         _dwAppHack = 0;     // Assume no hack
         _fHaveAppHack = TRUE;
         ::GetAppHackFlags(_pole, NULL, &_dwAppHack);
@@ -2820,8 +2656,7 @@ HRESULT CDocObjectHost::_BindSync(IMoniker* pmk, IBindCtx* pbc, IShellView* psvP
         if (!_pole) {
             hres = E_FAIL;      // BUGBUG: Get the error code from OnStopBinding
         }
-    }
-    else {
+    } else {
         // No, bind synchronously
         URLMSG(TEXT("_Bind. Performing syncronous binding"));
         hres = pmk->BindToObject(pbc, NULL, IID_IOleObject, (LPVOID*)&_pole);
@@ -2920,9 +2755,9 @@ UINT CDocObjectHost::_PicsBlockingDialog(LPCTSTR pszURL)
         _EnableModeless(FALSE);
 
         HRESULT hres = S_OK;
-        IOleCommandTarget *pcmdtTop;
-        if (SUCCEEDED(QueryService(SID_STopLevelBrowser, IID_IOleCommandTarget, (void **)&pcmdtTop))) {
-            VARIANTARG v = { 0 };
+        IOleCommandTarget* pcmdtTop;
+        if (SUCCEEDED(QueryService(SID_STopLevelBrowser, IID_IOleCommandTarget, (void**)&pcmdtTop))) {
+            VARIANTARG v = {0};
             v.vt = VT_INT_PTR;
             v.byref = _pRatingDetails;
             hres = pcmdtTop->Exec(&CGID_ShellDocView, SHDVID_PICSBLOCKINGUI, 0, &v, NULL);
@@ -2936,8 +2771,7 @@ UINT CDocObjectHost::_PicsBlockingDialog(LPCTSTR pszURL)
         TraceMsg(DM_PICS, "CDOH::_PicsBlockingDialog returning %d", uRet);
 
         return uRet;
-    }
-    else {
+    } else {
         TraceMsg(DM_PICS, "CDOH::_PicsBlockingDialog, access allowed");
 
         return IDOK;
@@ -2957,16 +2791,14 @@ HRESULT CDocObjectHost::_MayHaveVirus(REFCLSID rclsid)
     TraceMsg(TF_SHDPROGRESS, "DOH::_MayHaveVirus called");
     LPWSTR pwzProgID = NULL;
     HRESULT hresT = E_FAIL;
-    if (SUCCEEDED(ProgIDFromCLSID(rclsid, &pwzProgID)))
-    {
+    if (SUCCEEDED(ProgIDFromCLSID(rclsid, &pwzProgID))) {
         if (StrCmpI(pwzProgID, TEXT("htmlfile")) != 0
             && StrCmpI(pwzProgID, TEXT("htmlfile_FullWindowEmbed")) != 0
             && StrCmpI(pwzProgID, TEXT("mhtmlfile")) != 0
             && StrCmpI(pwzProgID, TEXT("xmlfile")) != 0
-            && StrCmpI(pwzProgID, TEXT("xslfile")) != 0)
-        {
+            && StrCmpI(pwzProgID, TEXT("xslfile")) != 0) {
             TCHAR szURL[MAX_URL_STRING];
-            TCHAR * pszURL = szURL;
+            TCHAR* pszURL = szURL;
 
             hresT = _GetCurrentPage(szURL, ARRAYSIZE(szURL), TRUE);
             if (SUCCEEDED(hresT)) {
@@ -2997,12 +2829,10 @@ HRESULT CDocObjectHost::_MayHaveVirus(REFCLSID rclsid)
                     hresT = HRESULT_FROM_WIN32(ERROR_CANCELLED);
                     break;
                 }
-            }
-            else {
+            } else {
                 TraceMsg(DM_ERROR, "DOH::_MayHaveVirus _GetCurrentPage failed %x", hresT);
             }
-        }
-        else {
+        } else {
             TraceMsg(TF_SHDPROGRESS, "DOH::_MayHaveVirus this is htmlfile -- don't call MayOpenSafeDialogOpenDialog");
             _fPicsBlockLate = TRUE;
         }
@@ -3022,24 +2852,20 @@ STDMETHODIMP CDocObjectHost::SaveObject(void)
 }
 
 
-STDMETHODIMP CDocObjectHost::GetMoniker(DWORD dwAssign, DWORD dwWhichMoniker, IMoniker **ppmk)
+STDMETHODIMP CDocObjectHost::GetMoniker(DWORD dwAssign, DWORD dwWhichMoniker, IMoniker** ppmk)
 {
     HRESULT hres = E_INVALIDARG;
     *ppmk = NULL;
     TraceMsg(TF_SHDBINDING, "CDOH::GetMoniker called dwWhichMoniker=%x", dwWhichMoniker);
 
-    switch (dwWhichMoniker)
-    {
+    switch (dwWhichMoniker) {
     case OLEWHICHMK_OBJREL:
     case OLEWHICHMK_OBJFULL:
-        if (_pmkCur)
-        {
+        if (_pmkCur) {
             *ppmk = _pmkCur;
             _pmkCur->AddRef();
             hres = S_OK;
-        }
-        else
-        {
+        } else {
             hres = E_UNEXPECTED;
         }
         break;
@@ -3049,7 +2875,7 @@ STDMETHODIMP CDocObjectHost::GetMoniker(DWORD dwAssign, DWORD dwWhichMoniker, IM
 }
 
 
-STDMETHODIMP CDocObjectHost::GetContainer(IOleContainer **ppContainer)
+STDMETHODIMP CDocObjectHost::GetContainer(IOleContainer** ppContainer)
 {
     // BUGBUG: According to CKindel, we should implement this method
     //  as the way for a DocObject to access IDispatch interface of
@@ -3093,12 +2919,11 @@ STDMETHODIMP CDocObjectHost::RequestNewObjectLayout(void)
 // the IHlinkFrame interface. We happened to use our QI to implement
 // this, but the semantics of QueryService is different from QI.
 // It does not necessary return the same object.
-HRESULT CDocObjectHost::QueryService(REFGUID guidService, REFIID riid, void **ppvObj)
+HRESULT CDocObjectHost::QueryService(REFGUID guidService, REFIID riid, void** ppvObj)
 {
     // In order for the context menu to work correctly inside IFrames, we
     // need to fail a certain query ONLY for IFrames on desktop.
-    if (!IsEqualGUID(guidService, CLSID_HTMLDocument) || !_IsImmediateParentDesktop(this, _psp))
-    {
+    if (!IsEqualGUID(guidService, CLSID_HTMLDocument) || !_IsImmediateParentDesktop(this, _psp)) {
         //  Delegate ISP to the _psb.
         if (_psb && _psp)
             return _psp->QueryService(guidService, riid, ppvObj);
@@ -3136,8 +2961,7 @@ void CDocObjectHost::_RemoveFrameSubMenus(void)
     // Get the count of menu items in our template's File menu and
     // the ID of the first menu item.
     hmenu = GetMenuFromID(_hmenuFrame, FCIDM_MENU_FILE);
-    if (hmenu)
-    {
+    if (hmenu) {
         citemFile = GetMenuItemCount(hmenu);
         nID = GetMenuItemID(hmenu, 0);
     }
@@ -3145,20 +2969,16 @@ void CDocObjectHost::_RemoveFrameSubMenus(void)
     // Now look at the browser menu's File menu and, starting at
     // nID, remove any submenus.
     hmenu = GetMenuFromID(_hmenuBrowser, FCIDM_MENU_FILE);
-    if (hmenu)
-    {
+    if (hmenu) {
         int citem = GetMenuItemCount(hmenu);
         int iTop;
         int i;
 
         // Where does our template file menu start?
-        for (iTop = 0; iTop < citem; iTop++)
-        {
-            if (GetMenuItemID(hmenu, iTop) == nID)
-            {
+        for (iTop = 0; iTop < citem; iTop++) {
+            if (GetMenuItemID(hmenu, iTop) == nID) {
                 // Start at where our template file menu ends and work up
-                for (i = iTop + citemFile - 1; 0 < citemFile; i--, citemFile--)
-                {
+                for (i = iTop + citemFile - 1; 0 < citemFile; i--, citemFile--) {
                     HMENU hmenuSub = GetSubMenu(hmenu, i);
 
                     if (hmenuSub)
@@ -3222,8 +3042,7 @@ HRESULT CDocObjectHost::_CreateBrowserMenu(LPOLEMENUGROUPWIDTHS pmw)
 
     if (SUCCEEDED(hres)) {
         // Load our menu if not loaded yet
-        if (!_hmenuFrame)
-        {
+        if (!_hmenuFrame) {
             _hmenuFrame = LoadMenu(MLGetHinst(), MAKEINTRESOURCE(MID_FOCUS));
         }
 
@@ -3232,24 +3051,20 @@ HRESULT CDocObjectHost::_CreateBrowserMenu(LPOLEMENUGROUPWIDTHS pmw)
         mii.cbSize = sizeof(mii);
         mii.fMask = MIIM_SUBMENU;
 
-        if (GetMenuItemInfo(_hmenuBrowser, FCIDM_MENU_FILE, FALSE, &mii))
-        {
+        if (GetMenuItemInfo(_hmenuBrowser, FCIDM_MENU_FILE, FALSE, &mii)) {
             HMENU hmenuFileBrowse = mii.hSubMenu;
 
             // Merge our menuitems into this submenu.
-            if (_hmenuFrame)
-            {
+            if (_hmenuFrame) {
                 MENUITEMINFO miiItem;
                 miiItem.cbSize = SIZEOF(MENUITEMINFO);
                 miiItem.fMask = MIIM_SUBMENU;
 
-                if (GetMenuItemInfo(_hmenuFrame, FCIDM_MENU_FILE, FALSE, &miiItem))
-                {
+                if (GetMenuItemInfo(_hmenuFrame, FCIDM_MENU_FILE, FALSE, &miiItem)) {
                     TCHAR szItem[128];
                     HMENU hmenuFileT = miiItem.hSubMenu;
                     UINT citem = GetMenuItemCount(hmenuFileT);
-                    for (int i = citem - 1; i >= 0; i--)
-                    {
+                    for (int i = citem - 1; i >= 0; i--) {
                         // We need to reset for each item.
                         miiItem.fMask = MIIM_STATE | MIIM_ID | MIIM_SUBMENU | MIIM_CHECKMARKS | MIIM_TYPE | MIIM_DATA;
                         miiItem.fType = MFT_STRING;
@@ -3262,9 +3077,7 @@ HRESULT CDocObjectHost::_CreateBrowserMenu(LPOLEMENUGROUPWIDTHS pmw)
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             TraceMsg(TF_SHDUIACTIVATE, "DOH::_CreateBrowseMenu parent has no File menu (it's probably a browser OC)");
             ASSERT(0); // DocObject in OC is not supposed to call InsertMenus.
         }
@@ -3293,7 +3106,7 @@ HRESULT CDocObjectHost::_InsertMenus(/* [in] */ HMENU hmenuShared, /* [out][in] 
     if (_fHaveParentSite)
         return S_OK;
 
-    OLEMENUGROUPWIDTHS mw = { {0} };
+    OLEMENUGROUPWIDTHS mw = {{0}};
     hres = _CreateBrowserMenu(&mw);
     if (FAILED(hres)) {
         TraceMsg(DM_ERROR, "DOH::InsertMenus _CreateBrpwserMenu failed");
@@ -3309,8 +3122,7 @@ HRESULT CDocObjectHost::_InsertMenus(/* [in] */ HMENU hmenuShared, /* [out][in] 
     mii.cch = ARRAYSIZE(szSubMenu);
     mii.dwTypeData = szSubMenu;
 
-    if (EVAL(GetMenuItemInfo(_hmenuBrowser, FCIDM_MENU_FILE, FALSE, &mii)))
-    {
+    if (EVAL(GetMenuItemInfo(_hmenuBrowser, FCIDM_MENU_FILE, FALSE, &mii))) {
         ASSERT(szSubMenu == mii.dwTypeData);
         InsertMenuItem(hmenuShared, nMenuOffset++, TRUE, &mii);
         lpMenuWidths->width[0] = 1;
@@ -3319,8 +3131,7 @@ HRESULT CDocObjectHost::_InsertMenus(/* [in] */ HMENU hmenuShared, /* [out][in] 
     // Note that we need to re-initialize mii
     mii.cch = ARRAYSIZE(szSubMenu);
 
-    if (EVAL(GetMenuItemInfo(_hmenuBrowser, FCIDM_MENU_EXPLORE, FALSE, &mii)))
-    {
+    if (EVAL(GetMenuItemInfo(_hmenuBrowser, FCIDM_MENU_EXPLORE, FALSE, &mii))) {
         // BUGBUG: GetMenuItemInfo is recursive (why?).  The item it retrieves
         // for FCIDM_MENU_EXPLORE can either be the top level Go menu, or if that
         // does not exist (NT5 case), it returns the Go To submenu of View.
@@ -3335,19 +3146,16 @@ HRESULT CDocObjectHost::_InsertMenus(/* [in] */ HMENU hmenuShared, /* [out][in] 
 
     mii.cch = ARRAYSIZE(szSubMenu);
 
-    if (EVAL(GetMenuItemInfo(_hmenuBrowser, FCIDM_MENU_FAVORITES, FALSE, &mii)))
-    {
+    if (EVAL(GetMenuItemInfo(_hmenuBrowser, FCIDM_MENU_FAVORITES, FALSE, &mii))) {
         InsertMenuItem(hmenuShared, nMenuOffset++, TRUE, &mii);
         lpMenuWidths->width[4]++;
     }
 
-    if (_hmenuFrame)
-    {
+    if (_hmenuFrame) {
         // Micro-merge the help menu.
         mii.cch = ARRAYSIZE(szSubMenu);
 
-        if (EVAL(GetMenuItemInfo(_hmenuFrame, FCIDM_MENU_HELP, FALSE, &mii)))
-        {
+        if (EVAL(GetMenuItemInfo(_hmenuFrame, FCIDM_MENU_HELP, FALSE, &mii))) {
             InsertMenuItem(hmenuShared, nMenuOffset++, TRUE, &mii);
             lpMenuWidths->width[5]++;
         }
@@ -3377,8 +3185,7 @@ void CDocObjectHost::_CompleteHelpMenuMerge(HMENU hmenu)
     mii.fMask = MIIM_SUBMENU;
 
     // see if they added anything to our menu
-    if (GetMenuItemInfo(_hmenuFrame, FCIDM_MENU_HELP, FALSE, &mii))
-    {
+    if (GetMenuItemInfo(_hmenuFrame, FCIDM_MENU_HELP, FALSE, &mii)) {
         hmenuHelp = mii.hSubMenu;
         int iMenuCount = GetMenuItemCount(mii.hSubMenu);
 
@@ -3410,8 +3217,7 @@ void CDocObjectHost::_CompleteHelpMenuMerge(HMENU hmenu)
                     if (iCount != i) {
                         // if we're not the last one, then we're not it
                         bRemove = TRUE;
-                    }
-                    else {
+                    } else {
                         // if we are the last one see if the help menu was added
                         // right before us
                         TCHAR szMenuTitle[80];
@@ -3452,8 +3258,7 @@ HRESULT CDocObjectHost::_SetMenu(
         return S_OK;
 
     // A NULL hmenuShared means to reinstate the container's original menu.
-    if (hmenuShared)
-    {
+    if (hmenuShared) {
         // Clean up duplicate help menus
         _CompleteHelpMenuMerge(hmenuShared);
     }
@@ -3464,8 +3269,7 @@ HRESULT CDocObjectHost::_SetMenu(
     if (EVAL(_psb))
         hres = _psb->SetMenuSB(hmenuShared, holemenu, hwndActiveObject);
 
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         // need to tell the shell browser that we want doc obj style menu merging
         if (_pmsoctBrowser)
             _pmsoctBrowser->Exec(&CGID_Explorer, SBCMDID_ACTIVEOBJECTMENUS, 0, NULL, NULL);
@@ -3498,12 +3302,10 @@ HRESULT CDocObjectHost::_SetMenu(
         mii.cbSize = SIZEOF(mii);
         mii.fMask = MIIM_SUBMENU;
 
-        if (hmenuShared && _hmenuBrowser && GetMenuItemInfo(hmenuShared, FCIDM_MENU_EXPLORE, FALSE, &mii))
-        {
+        if (hmenuShared && _hmenuBrowser && GetMenuItemInfo(hmenuShared, FCIDM_MENU_EXPLORE, FALSE, &mii)) {
             HMENU hmenuGo = mii.hSubMenu;
 
-            if (GetMenuItemInfo(_hmenuBrowser, FCIDM_MENU_EXPLORE, FALSE, &mii) && mii.hSubMenu == hmenuGo && _menulist.IsObjectMenu(hmenuGo))
-            {
+            if (GetMenuItemInfo(_hmenuBrowser, FCIDM_MENU_EXPLORE, FALSE, &mii) && mii.hSubMenu == hmenuGo && _menulist.IsObjectMenu(hmenuGo)) {
                 _menulist.RemoveMenu(hmenuGo);
             }
         }
@@ -3521,12 +3323,10 @@ HRESULT CDocObjectHost::_SetMenu(
 
 void CDocObjectHost::_SetStatusText(LPCSTR pszText)
 {
-    if (_psb)
-    {
+    if (_psb) {
         WPARAM wParam = STATUS_PANE_NAVIGATION;
 
-        if (g_bBiDiW95Loc && *pszText)
-        {
+        if (g_bBiDiW95Loc && *pszText) {
             char szBuf[256];
 
             szBuf[0] = szBuf[1] = TEXT('\t');
@@ -3574,8 +3374,7 @@ BOOL CDocObjectHost::_IsMenuShared(HMENU hmenu)
 
     // Is this our help menu from _hmenuFrame?
     if (GetMenuItemInfo(_hmenuFrame, FCIDM_MENU_HELP, FALSE, &mii) &&
-        mii.hSubMenu == hmenu)
-    {
+        mii.hSubMenu == hmenu) {
         // Yes
         return TRUE;
     }
@@ -3602,8 +3401,7 @@ HRESULT CDocObjectHost::_RemoveMenus(/* [in] */ HMENU hmenuShared)
     // and destroying that below will take care of cleanup.
     // However, we need to only remove menus that are ours.
 
-    for (int i = (int)GetMenuItemCount(hmenuShared) - 1; i >= 0; i--)
-    {
+    for (int i = (int)GetMenuItemCount(hmenuShared) - 1; i >= 0; i--) {
         // TraceMsg(0, "sdv TR - ::RemoveMenus calling RemoveMenu(0)");
         HMENU hmenu = GetSubMenu(hmenuShared, i);
 
@@ -3624,19 +3422,15 @@ HRESULT CDocObjectHost::_SetStatusText(/* [in] */ LPCOLESTR pszStatusText)
     LPCOLESTR   pszForward;
 
     // Simply forward it.
-    if (_psb != NULL)
-    {
+    if (_psb != NULL) {
         // if it's NULL or just "" then give precedence to
         // _strPriorityStatusText, otherwise we display
         // whatever we're given
 
         if (pszStatusText != NULL && pszStatusText[0] != TEXT('\0') ||
-            _strPriorityStatusText == NULL)
-        {
+            _strPriorityStatusText == NULL) {
             pszForward = pszStatusText;
-        }
-        else
-        {
+        } else {
             pszForward = _strPriorityStatusText;
         }
 
@@ -3652,17 +3446,13 @@ void CDocObjectHost::_SetPriorityStatusText(LPCOLESTR pszPriorityStatusText)
     // if they gave us a new string, replace the old one,
     // otherwise just NULL out the old one
 
-    if (_strPriorityStatusText != NULL)
-    {
+    if (_strPriorityStatusText != NULL) {
         SysFreeString(_strPriorityStatusText);
     }
 
-    if (pszPriorityStatusText != NULL)
-    {
+    if (pszPriorityStatusText != NULL) {
         _strPriorityStatusText = SysAllocString(pszPriorityStatusText);
-    }
-    else
-    {
+    } else {
         _strPriorityStatusText = NULL;
     }
 
@@ -3711,15 +3501,13 @@ HRESULT CDocObjectHost::_TranslateAccelerator(
 }
 
 // IViewObject
-HRESULT CDocObjectHost::Draw(DWORD dwDrawAspect, LONG lindex, void *pvAspect,
-                             DVTARGETDEVICE *ptd, HDC hicTargetDev, HDC hdcDraw,
-                             const RECTL *lprcBounds, const RECTL *lprcWBounds,
+HRESULT CDocObjectHost::Draw(DWORD dwDrawAspect, LONG lindex, void* pvAspect,
+                             DVTARGETDEVICE* ptd, HDC hicTargetDev, HDC hdcDraw,
+                             const RECTL* lprcBounds, const RECTL* lprcWBounds,
                              BOOL(*pfnContinue)(ULONG_PTR), ULONG_PTR dwContinue)
 {
-    if (_pvo && lprcBounds)
-    {
-        if (_uState == SVUIA_DEACTIVATE && _hwnd)
-        {
+    if (_pvo && lprcBounds) {
+        if (_uState == SVUIA_DEACTIVATE && _hwnd) {
             HRESULT hresT = S_OK;
             RECT rcClient;
             GetClientRect(_hwnd, &rcClient);
@@ -3728,8 +3516,7 @@ HRESULT CDocObjectHost::Draw(DWORD dwDrawAspect, LONG lindex, void *pvAspect,
             // We should not call SetExtent with an empty rectangle.
             // It happens when we print a page with a floating frame.
 
-            if (rcClient.right > 0 && rcClient.bottom > 0)
-            {
+            if (rcClient.right > 0 && rcClient.bottom > 0) {
                 SIZEL sizel;
                 sizel.cx = MulDiv(rcClient.right, 2540, GetDeviceCaps(hdcDraw, LOGPIXELSX));
                 sizel.cy = MulDiv(rcClient.bottom, 2540, GetDeviceCaps(hdcDraw, LOGPIXELSY));
@@ -3755,11 +3542,10 @@ HRESULT CDocObjectHost::Draw(DWORD dwDrawAspect, LONG lindex, void *pvAspect,
 }
 
 HRESULT CDocObjectHost::GetColorSet(DWORD dwAspect, LONG lindex,
-                                    void *pvAspect, DVTARGETDEVICE *ptd, HDC hicTargetDev,
-                                    LOGPALETTE **ppColorSet)
+                                    void* pvAspect, DVTARGETDEVICE* ptd, HDC hicTargetDev,
+                                    LOGPALETTE** ppColorSet)
 {
-    if (_pvo)
-    {
+    if (_pvo) {
         return _pvo->GetColorSet(dwAspect, lindex, pvAspect, ptd, hicTargetDev,
                                  ppColorSet);
     }
@@ -3770,7 +3556,7 @@ HRESULT CDocObjectHost::GetColorSet(DWORD dwAspect, LONG lindex,
     return S_FALSE;
 }
 
-HRESULT CDocObjectHost::Freeze(DWORD, LONG, void *, DWORD *pdwFreeze)
+HRESULT CDocObjectHost::Freeze(DWORD, LONG, void*, DWORD* pdwFreeze)
 {
     if (pdwFreeze)
         *pdwFreeze = 0;
@@ -3784,7 +3570,7 @@ HRESULT CDocObjectHost::Unfreeze(DWORD)
 }
 
 HRESULT CDocObjectHost::SetAdvise(DWORD dwAspect, DWORD advf,
-                                  IAdviseSink *pSink)
+                                  IAdviseSink* pSink)
 {
     if (dwAspect != DVASPECT_CONTENT)
         return DV_E_DVASPECT;
@@ -3792,8 +3578,7 @@ HRESULT CDocObjectHost::SetAdvise(DWORD dwAspect, DWORD advf,
     if (advf & ~(ADVF_PRIMEFIRST | ADVF_ONLYONCE))
         return E_INVALIDARG;
 
-    if (pSink != _padvise)
-    {
+    if (pSink != _padvise) {
         ATOMICRELEASE(_padvise);
 
         _padvise = pSink;
@@ -3802,22 +3587,20 @@ HRESULT CDocObjectHost::SetAdvise(DWORD dwAspect, DWORD advf,
             _padvise->AddRef();
     }
 
-    if (_padvise)
-    {
+    if (_padvise) {
         _advise_aspect = dwAspect;
         _advise_advf = advf;
 
         if (advf & ADVF_PRIMEFIRST)
             OnViewChange(_advise_aspect, -1);
-    }
-    else
+    } else
         _advise_aspect = _advise_advf = 0;
 
     return S_OK;
 }
 
-HRESULT CDocObjectHost::GetAdvise(DWORD *pdwAspect, DWORD *padvf,
-                                  IAdviseSink **ppSink)
+HRESULT CDocObjectHost::GetAdvise(DWORD* pdwAspect, DWORD* padvf,
+                                  IAdviseSink** ppSink)
 {
     if (pdwAspect)
         *pdwAspect = _advise_aspect;
@@ -3825,8 +3608,7 @@ HRESULT CDocObjectHost::GetAdvise(DWORD *pdwAspect, DWORD *padvf,
     if (padvf)
         *padvf = _advise_advf;
 
-    if (ppSink)
-    {
+    if (ppSink) {
         if (_padvise)
             _padvise->AddRef();
 
@@ -3837,7 +3619,7 @@ HRESULT CDocObjectHost::GetAdvise(DWORD *pdwAspect, DWORD *padvf,
 }
 
 // IAdviseSink
-void CDocObjectHost::OnDataChange(FORMATETC *, STGMEDIUM *)
+void CDocObjectHost::OnDataChange(FORMATETC*, STGMEDIUM*)
 {
 }
 
@@ -3845,18 +3627,15 @@ void CDocObjectHost::OnViewChange(DWORD dwAspect, LONG lindex)
 {
     dwAspect &= _advise_aspect;
 
-    if (dwAspect && _padvise)
-    {
-        IAdviseSink *pSink = _padvise;
-        IUnknown *punkRelease;
+    if (dwAspect && _padvise) {
+        IAdviseSink* pSink = _padvise;
+        IUnknown* punkRelease;
 
-        if (_advise_advf & ADVF_ONLYONCE)
-        {
+        if (_advise_advf & ADVF_ONLYONCE) {
             punkRelease = pSink;
             _padvise = NULL;
             _advise_aspect = _advise_advf = 0;
-        }
-        else
+        } else
             punkRelease = NULL;
 
         pSink->OnViewChange(dwAspect, lindex);
@@ -3866,7 +3645,7 @@ void CDocObjectHost::OnViewChange(DWORD dwAspect, LONG lindex)
     }
 }
 
-void CDocObjectHost::OnRename(IMoniker *)
+void CDocObjectHost::OnRename(IMoniker*)
 {
 }
 
@@ -3884,7 +3663,7 @@ void CDocObjectHost::OnClose()
 }
 
 // IOleWindow
-HRESULT CDocObjectHost::GetWindow(HWND * lphwnd)
+HRESULT CDocObjectHost::GetWindow(HWND* lphwnd)
 {
     *lphwnd = _hwnd;
     return S_OK;
@@ -3928,8 +3707,7 @@ HRESULT CDocObjectHost::OnUIActivate(void)
     // an embedded object.
 
     OIPSMSG(TEXT("OnUIActivate called"));
-    if (EVAL(_psb))
-    {
+    if (EVAL(_psb)) {
         // If we had the DocObject in SVUIA_INPLACEACTIVATE send it to SVUIA_ACTIVATE_FOCUS
 
         // NOTES: Unlike IE3.0, we don't call _psv->UIActivate which has a side
@@ -3963,8 +3741,8 @@ IOleInPlaceSite* CDocObjectHost::_GetParentSite()
 }
 
 HRESULT CDocObjectHost::GetWindowContext(
-    /* [out] */ IOleInPlaceFrame **ppFrame,
-    /* [out] */ IOleInPlaceUIWindow **ppDoc,
+    /* [out] */ IOleInPlaceFrame** ppFrame,
+    /* [out] */ IOleInPlaceUIWindow** ppDoc,
     /* [out] */ LPRECT lprcPosRect,
     /* [out] */ LPRECT lprcClipRect,
     /* [out][in] */ LPOLEINPLACEFRAMEINFO lpFrameInfo)
@@ -3998,16 +3776,13 @@ HRESULT CDocObjectHost::GetWindowContext(
 
     lpFrameInfo->haccel = _hacc;            // BUGBUG
 
-    if (!SHRestricted(REST_NOFILEMENU))
-    {
+    if (!SHRestricted(REST_NOFILEMENU)) {
 #ifdef DEBUG
         lpFrameInfo->cAccelEntries = DBG_ACCELENTRIES_WITH_FILEMENU; // WARNING: see shdocvw.rc, ACCELL_DOCVIEW
 #else
         lpFrameInfo->cAccelEntries = OPT_ACCELENTRIES_WITH_FILEMENU; // WARNING: see shdocvw.rc, ACCELL_DOCVIEW
 #endif
-    }
-    else
-    {
+    } else {
 #ifdef DEBUG
         lpFrameInfo->cAccelEntries = DBG_ACCELENTRIES; // WARNING: see shdocvw.rc, ACCELL_DOCVIEW
 #else
@@ -4080,16 +3855,12 @@ void CDocObjectHost::_OnNotify(LPNMHDR lpnm)
 
 void MapAtToNull(LPTSTR psz)
 {
-    while (*psz)
-    {
-        if (*psz == TEXT('@'))
-        {
+    while (*psz) {
+        if (*psz == TEXT('@')) {
             LPTSTR pszNext = CharNext(psz);
             *psz = 0;
             psz = pszNext;
-        }
-        else
-        {
+        } else {
             psz = CharNext(psz);
         }
     }
@@ -4103,7 +3874,7 @@ void BrowsePushed(HWND hDlg)
     TCHAR szTitle[MAX_PATH];
     LPITEMIDLIST pidl;
     LPCITEMIDLIST pidlChild;
-    IShellFolder * pSF;
+    IShellFolder* pSF;
 
     // load the filter and then replace all the @ characters with NULL.  The end of the string will be doubly
     // null-terminated
@@ -4120,15 +3891,12 @@ void BrowsePushed(HWND hDlg)
     MLLoadShellLangString(IDS_TITLE, szTitle, ARRAYSIZE(szTitle));
 
     if (GetFileNameFromBrowse(hDlg, szText, ARRAYSIZE(szText), NULL,
-                              TEXT(".htm"), szFilter, szTitle))
-    {
-        if (SUCCEEDED(IECreateFromPath(szText, &pidl)))
-        {
-            if (SUCCEEDED(IEBindToParentFolder(pidl, &pSF, &pidlChild)))
-            {
+                              TEXT(".htm"), szFilter, szTitle)) {
+        if (SUCCEEDED(IECreateFromPath(szText, &pidl))) {
+            if (SUCCEEDED(IEBindToParentFolder(pidl, &pSF, &pidlChild))) {
                 HWND hWndCombo = GetDlgItem(hDlg, IDD_COMMAND);
 
-                COMBOBOXEXITEM cbexItem = { 0 };
+                COMBOBOXEXITEM cbexItem = {0};
                 cbexItem.mask = CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE;
                 cbexItem.pszText = szText;
                 cbexItem.cchTextMax = ARRAYSIZE(szText);
@@ -4139,9 +3907,7 @@ void BrowsePushed(HWND hDlg)
                 pSF->Release();
             }
             ILFree(pidl);
-        }
-        else
-        {
+        } else {
             PathUnquoteSpaces(szText);
             SetDlgItemText(hDlg, IDD_COMMAND, szText);
         }
@@ -4154,12 +3920,12 @@ void BrowsePushed(HWND hDlg)
 
 struct SOpenDlg {
     TCHAR           szURL[MAX_URL_STRING];
-    IAddressEditBox *paebox;   // Object that controls ComboBoxEx
-    IBandSite       *pbs;   // Used in AEBox Init call (used as a Connection Site)
-    IWinEventHandler *pweh;    // Used to funnel IDD_COMMAND messages to the AEBox
+    IAddressEditBox* paebox;   // Object that controls ComboBoxEx
+    IBandSite* pbs;   // Used in AEBox Init call (used as a Connection Site)
+    IWinEventHandler* pweh;    // Used to funnel IDD_COMMAND messages to the AEBox
 };
 
-const DWORD c_mapCtrlToContextIds[] = { 0, 0 };
+const DWORD c_mapCtrlToContextIds[] = {0, 0};
 
 const DWORD c_aRunHelpIds[] = {
         IDD_ICON,             NO_HELP,
@@ -4173,7 +3939,7 @@ const DWORD c_aRunHelpIds[] = {
 };
 
 #ifndef UNIX
-HRESULT OpenDlgOnWebFolderOK(HWND hDlg, SOpenDlg * podlg)
+HRESULT OpenDlgOnWebFolderOK(HWND hDlg, SOpenDlg* podlg)
 {
     ASSERT(podlg);
 
@@ -4203,7 +3969,7 @@ HRESULT OpenDlgOnWebFolderOK(HWND hDlg, SOpenDlg * podlg)
 }
 #endif // UNIX
 
-HRESULT OpenDlgOnOK(HWND hDlg, SOpenDlg * podlg)
+HRESULT OpenDlgOnOK(HWND hDlg, SOpenDlg* podlg)
 {
     ASSERT(podlg);
 
@@ -4213,8 +3979,7 @@ HRESULT OpenDlgOnOK(HWND hDlg, SOpenDlg * podlg)
     */
     if (podlg->paebox)
         hr = podlg->paebox->ParseNow(SHURL_FLAGS_NONE);
-    else
-    {
+    else {
         HWND hWndOpenBox = GetDlgItem(hDlg, IDD_COMMAND);
         ComboBox_GetText(hWndOpenBox, podlg->szURL, ARRAYSIZE(podlg->szURL));
         PathRemoveBlanks(podlg->szURL);
@@ -4223,7 +3988,7 @@ HRESULT OpenDlgOnOK(HWND hDlg, SOpenDlg * podlg)
     return hr;
 }
 
-void CleanUpAutoComplete(SOpenDlg *podlg)
+void CleanUpAutoComplete(SOpenDlg* podlg)
 {
     ATOMICRELEASE(podlg->paebox);
     ATOMICRELEASE(podlg->pweh);
@@ -4236,8 +4001,7 @@ void CleanUpAutoComplete(SOpenDlg *podlg)
 BOOL_PTR CALLBACK CDocObjectHost::s_RunDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     SOpenDlg* podlg = (SOpenDlg*)GetWindowLongPtr(hDlg, DWLP_USER);
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_DESTROY:
         SHRemoveDefaultDialogFont(hDlg);
         return FALSE;
@@ -4249,13 +4013,12 @@ BOOL_PTR CALLBACK CDocObjectHost::s_RunDlgProc(HWND hDlg, UINT uMsg, WPARAM wPar
         HWND hWndOpenBox = GetDlgItem(hDlg, IDD_COMMAND);
         HWND hWndEditBox = (HWND)SendMessage(hWndOpenBox, CBEM_GETEDITCONTROL, 0, 0);
         SetWindowLongPtr(hDlg, DWLP_USER, lParam);
-        podlg = (SOpenDlg *)lParam;
+        podlg = (SOpenDlg*)lParam;
 
         // cross-lang platform support
         SHSetDefaultDialogFont(hDlg, IDD_COMMAND);
 
-        if (podlg->paebox)
-        {
+        if (podlg->paebox) {
             if (FAILED(podlg->paebox->Init(hWndOpenBox, hWndEditBox, AEB_INIT_DEFAULT, podlg->pbs)) ||
                 FAILED(IUnknown_SetOwner(podlg->paebox, podlg->pbs)))
                 CleanUpAutoComplete(podlg);
@@ -4285,8 +4048,7 @@ BOOL_PTR CALLBACK CDocObjectHost::s_RunDlgProc(HWND hDlg, UINT uMsg, WPARAM wPar
         break;
 
     case WM_COMMAND:
-        switch (GET_WM_COMMAND_ID(wParam, lParam))
-        {
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
         case IDHELP:
             break;
 
@@ -4295,8 +4057,7 @@ BOOL_PTR CALLBACK CDocObjectHost::s_RunDlgProc(HWND hDlg, UINT uMsg, WPARAM wPar
             break;
 
         case IDD_COMMAND:
-            switch (GET_WM_COMMAND_CMD(wParam, lParam))
-            {
+            switch (GET_WM_COMMAND_CMD(wParam, lParam)) {
             case CBN_SELCHANGE:
                 break;
 
@@ -4320,17 +4081,14 @@ BOOL_PTR CALLBACK CDocObjectHost::s_RunDlgProc(HWND hDlg, UINT uMsg, WPARAM wPar
             // to check.
 #ifndef UNIX
             HWND hwndCheckBox = GetDlgItem(hDlg, IDC_ASWEBFOLDER);
-            if (hwndCheckBox)
-            {
+            if (hwndCheckBox) {
                 LRESULT lrState = SendMessage(hwndCheckBox, BM_GETCHECK,
                                               0, 0);
-                if (lrState == BST_CHECKED)
-                {
+                if (lrState == BST_CHECKED) {
                     if (SUCCEEDED(OpenDlgOnWebFolderOK(hDlg, podlg)))
                         EndDialog(hDlg, IDC_ASWEBFOLDER);
                     break;
-                }
-                else
+                } else
 #endif
                     if (FAILED(OpenDlgOnOK(hDlg, podlg)))
                         break;
@@ -4359,8 +4117,7 @@ BOOL_PTR CALLBACK CDocObjectHost::s_RunDlgProc(HWND hDlg, UINT uMsg, WPARAM wPar
 void CDocObjectHost::_Navigate(LPCWSTR pwszURL)
 {
     IWebBrowser2* pwb2;
-    if (SUCCEEDED(IUnknown_QueryService(_psb, SID_SContainerDispatch, IID_IWebBrowser2, (LPVOID*)&pwb2)))
-    {
+    if (SUCCEEDED(IUnknown_QueryService(_psb, SID_SContainerDispatch, IID_IWebBrowser2, (LPVOID*)&pwb2))) {
 
         // HACK: We are not passing BSTR, but LPWSTR, which
         //  will work as far as IWebBrowser2 can handle
@@ -4372,7 +4129,7 @@ void CDocObjectHost::_Navigate(LPCWSTR pwszURL)
 }
 
 
-HRESULT CDocObjectHost::_PrepFileOpenAddrBand(IAddressEditBox ** ppaeb, IWinEventHandler ** ppweh, IBandSite ** ppbs)
+HRESULT CDocObjectHost::_PrepFileOpenAddrBand(IAddressEditBox** ppaeb, IWinEventHandler** ppweh, IBandSite** ppbs)
 {
     HRESULT hr;
 
@@ -4382,45 +4139,38 @@ HRESULT CDocObjectHost::_PrepFileOpenAddrBand(IAddressEditBox ** ppaeb, IWinEven
 
     //  If our CoCreateInstance fails, s_rundlgproc will know because paebox
     //  will be NULL
-    hr = CoCreateInstance(CLSID_AddressEditBox, NULL, CLSCTX_INPROC_SERVER, IID_IAddressEditBox, (void **)ppaeb);
-    if (EVAL(SUCCEEDED(hr)))
-    {
-        IServiceProvider *pspT;
+    hr = CoCreateInstance(CLSID_AddressEditBox, NULL, CLSCTX_INPROC_SERVER, IID_IAddressEditBox, (void**)ppaeb);
+    if (EVAL(SUCCEEDED(hr))) {
+        IServiceProvider* pspT;
         hr = (*ppaeb)->QueryInterface(IID_IWinEventHandler, (LPVOID*)ppweh);
 
         //  Travel up the object hierarchy, and obtain the same pointer that
         //  the address bar was ::Init'ed with
         //  WARNING: This is not optional.  The addressband will fault if this fails.
-        if (EVAL(SUCCEEDED(hr) && _psp))
-        {
+        if (EVAL(SUCCEEDED(hr) && _psp)) {
             hr = _psp->QueryService(SID_SExplorerToolbar, IID_IServiceProvider, (LPVOID*)&pspT);
             // In framed cases, CBaseBrowser2::QueryService() will filter out SID_SExplorerToolbar
             // because it's afraid of Toolbars appearing in the frame.  We won't have that problem,
             // so we may need to go the TopLevelBrowser first and then ask around there.
-            if (FAILED(hr))
-            {
-                IServiceProvider *pspT2;
+            if (FAILED(hr)) {
+                IServiceProvider* pspT2;
 
                 hr = _psp->QueryService(SID_STopLevelBrowser, IID_IServiceProvider, (LPVOID*)&pspT2);
-                if (EVAL(SUCCEEDED(hr)))
-                {
+                if (EVAL(SUCCEEDED(hr))) {
                     hr = pspT2->QueryService(SID_SExplorerToolbar, IID_IServiceProvider, (LPVOID*)&pspT);
                     pspT2->Release();
                 }
             }
 
-            if (EVAL(SUCCEEDED(hr)))
-            {
-                if (EVAL(SUCCEEDED(hr = pspT->QueryService(IID_IBandSite, IID_IBandSite, (LPVOID*)ppbs))))
-                {
-                    IDeskBand *pdbT;
+            if (EVAL(SUCCEEDED(hr))) {
+                if (EVAL(SUCCEEDED(hr = pspT->QueryService(IID_IBandSite, IID_IBandSite, (LPVOID*)ppbs)))) {
+                    IDeskBand* pdbT;
                     // Had to include "ITBAR.H" to access CBIDX_ADDDRESS
 // HACKHACK
 #define CBIDX_ADDRESS           4
                     // If any of the following fails, I don't care because the MRU can be out of
                     // synch.
-                    if (SUCCEEDED((*ppbs)->QueryBand(CBIDX_ADDRESS, &pdbT, NULL, NULL, 0)))
-                    {
+                    if (SUCCEEDED((*ppbs)->QueryBand(CBIDX_ADDRESS, &pdbT, NULL, NULL, 0))) {
                         IUnknown_Exec(pdbT, &CGID_AddressEditBox, AECMDID_SAVE, 0, NULL, NULL);
                         pdbT->Release();
                     }
@@ -4431,8 +4181,7 @@ HRESULT CDocObjectHost::_PrepFileOpenAddrBand(IAddressEditBox ** ppaeb, IWinEven
 
     }
 
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         ATOMICRELEASE(*ppaeb);
         ATOMICRELEASE(*ppweh);
         ATOMICRELEASE(*ppbs);
@@ -4444,15 +4193,14 @@ HRESULT CDocObjectHost::_PrepFileOpenAddrBand(IAddressEditBox ** ppaeb, IWinEven
 void CDocObjectHost::_OnOpen(void)
 {
     HWND hwndFrame;
-    SOpenDlg odlg = { 0 };
+    SOpenDlg odlg = {0};
 
     _psb->GetWindow(&hwndFrame);
 
     if (SHIsRestricted2W(_hwnd, REST_NoFileOpen, NULL, 0))
         return;
 
-    if (EVAL(SUCCEEDED(_PrepFileOpenAddrBand(&(odlg.paebox), &odlg.pweh, &odlg.pbs))))
-    {
+    if (EVAL(SUCCEEDED(_PrepFileOpenAddrBand(&(odlg.paebox), &odlg.pweh, &odlg.pbs)))) {
         // BUGBUG: Make it a helper member, which notifies up and down.
         _psb->EnableModelessSB(FALSE);
 
@@ -4476,8 +4224,7 @@ void CDocObjectHost::_OnOpen(void)
 
         _psb->EnableModelessSB(TRUE);
 
-        if (iRet == IDOK)
-        {
+        if (iRet == IDOK) {
             if (g_dwStopWatchMode)   // Perf mode to mark start time
                 StopWatch_MarkSameFrameStart(hwndFrame);
 
@@ -4489,11 +4236,9 @@ void CDocObjectHost::_OnOpen(void)
 
 #ifndef UNIX
 
-        if (iRet == IDC_ASWEBFOLDER)
-        {
+        if (iRet == IDC_ASWEBFOLDER) {
             BSTR bstrUrl = SysAllocString(odlg.szURL);
-            if (bstrUrl != NULL)
-            {
+            if (bstrUrl != NULL) {
                 _NavigateFolder(bstrUrl);
                 SysFreeString(bstrUrl);
             }
@@ -4515,8 +4260,7 @@ void CDocObjectHost::_OnImportExport(HWND hwnd)
 
 UINT_PTR CALLBACK DocHostSaveAsOFNHook(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (msg)
-    {
+    switch (msg) {
     case WM_INITDIALOG:
     {
         /* Hide the "Save as Type" text box */
@@ -4548,12 +4292,9 @@ void CDocObjectHost::_OnHelpGoto(UINT idRes)
     // our default values.
 
     // We special case the Online_Support URL because it was supported in IE3.
-    if (IDS_HELPURL_SUPPORT == idRes)
-    {
+    if (IDS_HELPURL_SUPPORT == idRes) {
         hr = URLSubRegQuery(SZ_REGKEY_HELPURL_OVERRIDE, SZ_REGVAL_HELPURL_SUPPORT, TRUE, szURL, ARRAYSIZE(szURL), URLSUB_ALL);
-    }
-    else
-    {
+    } else {
         WCHAR szValue[MAX_PATH];
 
         wnsprintfW(szValue, ARRAYSIZE(szValue), SZ_REGVAL_HELPURL_TEMPLATE, (idRes - IDS_HELPMSWEB + 1));
@@ -4563,8 +4304,7 @@ void CDocObjectHost::_OnHelpGoto(UINT idRes)
     if (FAILED(hr))
         hr = URLSubLoadString(NULL, idRes, szURL, ARRAYSIZE(szURL), URLSUB_ALL);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         _Navigate(szURL);
     }
 }
@@ -4575,14 +4315,12 @@ STDAPI_(void) IEAboutBox(HWND hWnd);
 // WM_COMMAND from _WndProc - execs are going down
 void CDocObjectHost::_OnCommand(UINT wNotify, UINT id, HWND hwndControl)
 {
-    if (_ShouldForwardMenu(WM_COMMAND, MAKEWPARAM(id, wNotify), (LPARAM)hwndControl))
-    {
+    if (_ShouldForwardMenu(WM_COMMAND, MAKEWPARAM(id, wNotify), (LPARAM)hwndControl)) {
         _ForwardObjectMsg(WM_COMMAND, MAKEWPARAM(id, wNotify), (LPARAM)hwndControl);
         return;
     }
 
-    switch (id)
-    {
+    switch (id) {
     case DVIDM_HELPTUTORIAL:
         _OnHelpGoto(IDS_HELPTUTORIAL);
         break;
@@ -4604,12 +4342,11 @@ void CDocObjectHost::_OnCommand(UINT wNotify, UINT id, HWND hwndControl)
         break;
 #else
         uCLSSPEC ucs;
-        QUERYCONTEXT qc = { 0 };
+        QUERYCONTEXT qc = {0};
         ucs.tyspec = TYSPEC_CLSID;
         ucs.tagged_union.clsid = CLSID_IEHelp;
 
-        if (SUCCEEDED(FaultInIEFeature(_hwnd, &ucs, &qc, FIEF_FLAG_FORCE_JITUI)))
-        {
+        if (SUCCEEDED(FaultInIEFeature(_hwnd, &ucs, &qc, FIEF_FLAG_FORCE_JITUI))) {
             // MLHtmlHelp runs on a separate thread and should therefore be
             // safe against the kinds of message loops problems indicated above
 
@@ -4631,16 +4368,13 @@ void CDocObjectHost::_OnCommand(UINT wNotify, UINT id, HWND hwndControl)
         HRESULT hres = SHDGetPageLocation(_hwnd,
             (id == DVIDM_GOSEARCH) ? IDP_SEARCH : IDP_START,
                                           szPath, ARRAYSIZE(szPath), &pidl);
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             _psb->BrowseObject(pidl, SBSP_ABSOLUTE | SBSP_SAMEBROWSER);
             ILFree(pidl);
-        }
-        else
-        {
+        } else {
             TCHAR szMessage[256];
             BOOL fSuccess = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
-                                          NULL, hres, 0, szMessage, ARRAYSIZE(szMessage), (va_list *)&szPath);
+                                          NULL, hres, 0, szMessage, ARRAYSIZE(szMessage), (va_list*)&szPath);
             if (!fSuccess)
                 szMessage[0] = 0;
 
@@ -4664,8 +4398,7 @@ void CDocObjectHost::_OnCommand(UINT wNotify, UINT id, HWND hwndControl)
         // make sure the top level browser gets cloned, not an explorer bar
         IShellBrowser* psbTop;
         if (!SHIsRestricted2W(_hwnd, REST_NoFileNew, NULL, 0) &&
-            EVAL(SUCCEEDED(_psp->QueryService(SID_STopLevelBrowser, IID_IShellBrowser, (void **)&psbTop))) && psbTop)
-        {
+            EVAL(SUCCEEDED(_psp->QueryService(SID_STopLevelBrowser, IID_IShellBrowser, (void**)&psbTop))) && psbTop) {
             // tell the top level browser to save its window size to the registry so
             // that our new window can pick it up and cascade properly
             IUnknown_Exec(psbTop, &CGID_Explorer, SBCMDID_SUGGESTSAVEWINPOS, 0, NULL, NULL);
@@ -4756,9 +4489,8 @@ void CDocObjectHost::_OnCommand(UINT wNotify, UINT id, HWND hwndControl)
         if (SHIsRestricted2W(_hwnd, REST_NoBrowserSaveAs, NULL, 0))
             break;
 
-        if (_pmsot)
-        {
-            OLECMD rgcmds[] = { { OLECMDID_SAVEAS, 0 }, };
+        if (_pmsot) {
+            OLECMD rgcmds[] = {{ OLECMDID_SAVEAS, 0 },};
 
             _pmsot->QueryStatus(NULL, ARRAYSIZE(rgcmds), rgcmds, NULL);
 
@@ -4775,8 +4507,7 @@ void CDocObjectHost::_OnCommand(UINT wNotify, UINT id, HWND hwndControl)
         break;
 
     default:
-        if (IsInRange(id, DVIDM_HELPMSWEB, DVIDM_HELPMSWEBLAST))
-        {
+        if (IsInRange(id, DVIDM_HELPMSWEB, DVIDM_HELPMSWEBLAST)) {
 #ifndef UNIX
             if (id == FCIDM_HELPNETSCAPEUSERS)
                 SHHtmlHelpOnDemandWrap(_hwnd, TEXT("iexplore.chm > iedefault"), HH_DISPLAY_TOPIC, (DWORD_PTR)TEXT("lvg_nscp.htm"), ML_CROSSCODEPAGE);
@@ -4787,9 +4518,7 @@ void CDocObjectHost::_OnCommand(UINT wNotify, UINT id, HWND hwndControl)
             else
 #endif
                 _OnHelpGoto(IDS_HELPMSWEB + (id - DVIDM_HELPMSWEB));
-        }
-        else if (IsInRange(id, DVIDM_MSHTML_FIRST, DVIDM_MSHTML_LAST))
-        {
+        } else if (IsInRange(id, DVIDM_MSHTML_FIRST, DVIDM_MSHTML_LAST)) {
             TraceMsg(DM_PREMERGEDMENU, "Processing merged menuitem %d", id - DVIDM_MSHTML_FIRST);
             ASSERT(_pcmdMergedMenu);
             if (_pcmdMergedMenu) {
@@ -4799,26 +4528,18 @@ void CDocObjectHost::_OnCommand(UINT wNotify, UINT id, HWND hwndControl)
                              id - DVIDM_MSHTML_FIRST, hresT);
                 }
             }
-        }
-        else if (IsInRange(id, DVIDM_MENUEXT_FIRST, DVIDM_MENUEXT_LAST))
-        {
+        } else if (IsInRange(id, DVIDM_MENUEXT_FIRST, DVIDM_MENUEXT_LAST)) {
             // Menu Extensions
             IUnknown_Exec(_pBrowsExt, &CLSID_ToolbarExtButtons, id, 0, NULL, NULL);
-        }
-        else
-        {
+        } else {
         TryDocument:
-            if (_pmsot)
-            {
+            if (_pmsot) {
                 // Check if we need to call object's Exec.
                 UINT idMso = _MapToMso(id);
-                if (idMso != (UINT)-1)
-                {
+                if (idMso != (UINT)-1) {
                     // Yes. Call it.
                     _pmsot->Exec(NULL, idMso, OLECMDEXECOPT_PROMPTUSER, NULL, NULL);
-                }
-                else if (id == DVIDM_PRINTFRAME)
-                {
+                } else if (id == DVIDM_PRINTFRAME) {
                     _pmsot->Exec(&CGID_ShellDocView, SHDVID_PRINTFRAME, OLECMDEXECOPT_PROMPTUSER, NULL, NULL);
                 }
             }
@@ -4835,11 +4556,9 @@ HRESULT CDocObjectHost::_OnSaveAs(void)
 
     ASSERT(_pole);
 
-    if (_dwAppHack & BROWSERFLAG_MSHTML)
-    {
+    if (_dwAppHack & BROWSERFLAG_MSHTML) {
         SaveBrowserFile(_hwnd, _pole);
-    }
-    else // old dochost stuff
+    } else // old dochost stuff
     {
         TCHAR szSaveTo[MAX_PATH];   // ok with MAX_PATH
         MLLoadString(IDS_DOCUMENT, szSaveTo, ARRAYSIZE(szSaveTo));
@@ -4872,11 +4591,9 @@ HRESULT CDocObjectHost::_OnSaveAs(void)
         TCHAR szExt[40];
 
         HKEY hkey = _GetUserCLSIDKey(_pole, NULL, NULL);
-        if (hkey)
-        {
+        if (hkey) {
             LONG cb = SIZEOF(szValue);
-            if (RegQueryValue(hkey, TEXT("DefaultExtension"), szValue, &cb) == ERROR_SUCCESS)
-            {
+            if (RegQueryValue(hkey, TEXT("DefaultExtension"), szValue, &cb) == ERROR_SUCCESS) {
                 TraceMsg(DM_SAVEASHACK, "DOH::_OnSaveAs DefExt is %s", szValue);
 
                 // It is suposed to be like ".xls, Excel Workbook (*.xls)"
@@ -4904,12 +4621,10 @@ HRESULT CDocObjectHost::_OnSaveAs(void)
                 TraceMsg(DM_APPHACK, "APPHACK DOH SaveAs'ing to %s", szSaveTo);
                 hres = ppf->Save(szSaveTo, FALSE);
                 ppf->Release();
-            }
-            else {
+            } else {
                 ASSERT(0);
             }
-        }
-        else
+        } else
             hres = S_FALSE;
     }
 
@@ -4920,18 +4635,17 @@ HRESULT CDocObjectHost::_OnSaveAs(void)
 // BUGBUG: this should be in a header
 // Mail Recipient drop target implementation...
 // {9E56BE60-C50F-11CF-9A2C-00A0C90A90CE}
-EXTERN_C const GUID CLSID_MailRecipient = { 0x9E56BE60L, 0xC50F, 0x11CF, 0x9A, 0x2C, 0x00, 0xA0, 0xC9, 0x0A, 0x90, 0xCE };
+EXTERN_C const GUID CLSID_MailRecipient = {0x9E56BE60L, 0xC50F, 0x11CF, 0x9A, 0x2C, 0x00, 0xA0, 0xC9, 0x0A, 0x90, 0xCE};
 
-HRESULT DropOnMailRecipient(IDataObject *pdtobj, DWORD grfKeyState)
+HRESULT DropOnMailRecipient(IDataObject* pdtobj, DWORD grfKeyState)
 {
-    IDropTarget *pdrop;
+    IDropTarget* pdrop;
     HRESULT hres = CoCreateInstance(CLSID_MailRecipient, NULL, CLSCTX_INPROC_SERVER | CLSCTX_LOCAL_SERVER, IID_IDropTarget, (void**)&pdrop);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         hres = SimulateDrop(pdrop, pdtobj, grfKeyState, NULL, NULL);
         pdrop->Release();
     }
-    
+
     return hres;
 }
 
@@ -4939,13 +4653,11 @@ HRESULT DropOnMailRecipient(IDataObject *pdtobj, DWORD grfKeyState)
 HRESULT SendDocToMailRecipient(LPCITEMIDLIST pidl, UINT uiCodePage, DWORD grfKeyState)
 {
 #ifndef UNIX
-    IDataObject *pdtobj;
+    IDataObject* pdtobj;
     HRESULT hres = GetDataObjectForPidl(pidl, &pdtobj);
-    if (SUCCEEDED(hres))
-    {
-        IQueryCodePage * pQcp;
-        if (SUCCEEDED(pdtobj->QueryInterface(IID_IQueryCodePage, (LPVOID *)&pQcp)))
-        {
+    if (SUCCEEDED(hres)) {
+        IQueryCodePage* pQcp;
+        if (SUCCEEDED(pdtobj->QueryInterface(IID_IQueryCodePage, (LPVOID*)&pQcp))) {
             pQcp->SetCodePage(uiCodePage);
             pQcp->Release();
         }
@@ -5019,14 +4731,12 @@ void CDocObjectHost::_OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu
 
             }
 
-            if (_pmsot)
-            {
+            if (_pmsot) {
                 OLECMD rgcmd2[] = {
                     { IDM_VIEWSOURCE, 0 },
                 };
 
-                if (SHRestricted2(REST_NoViewSource, NULL, 0) == 0)
-                {
+                if (SHRestricted2(REST_NoViewSource, NULL, 0) == 0) {
                     // we only want to modify the state of the view source item
                     // if it isn't restricted by the IEAK. if it's restricted, we
                     // need to leave it disabled regardles of what the object
@@ -5039,11 +4749,8 @@ void CDocObjectHost::_OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu
                 }
             }
 
-        }
-        else if (GetMenuFromID(_hmenuCur, FCIDM_MENU_FILE) == hmInit)
-        {
-            if (_pmsot)
-            {
+        } else if (GetMenuFromID(_hmenuCur, FCIDM_MENU_FILE) == hmInit) {
+            if (_pmsot) {
                 TraceMsg(0, "sdv TR _OnInitMenuPopup : step 5");
                 OLECMD rgcmds[] = {
                     { OLECMDID_PRINT, 0 },
@@ -5081,13 +4788,11 @@ void CDocObjectHost::_OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu
                 if ((_dwAppHack & BROWSERFLAG_MSHTML) &&
                     SHRestricted2(REST_NoBrowserSaveAs, NULL, 0))
                     rgcmds[4].cmdf &= ~(OLECMDF_ENABLED | OLECMDF_SUPPORTED);
-                else if (!(rgcmds[4].cmdf & (OLECMDF_ENABLED | OLECMDF_SUPPORTED)))
-                {
+                else if (!(rgcmds[4].cmdf & (OLECMDF_ENABLED | OLECMDF_SUPPORTED))) {
                     IPersistFile* ppf;
                     ASSERT(_pole);
                     HRESULT hresT = _pole->QueryInterface(IID_IPersistFile, (LPVOID*)&ppf);
-                    if (SUCCEEDED(hresT))
-                    {
+                    if (SUCCEEDED(hresT)) {
                         TraceMsg(DM_APPHACK, "APPHACK DOH Enabling SaveAs menu for Excel95");
                         rgcmds[4].cmdf |= OLECMDF_ENABLED;
                         ppf->Release();
@@ -5099,10 +4804,8 @@ void CDocObjectHost::_OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu
                 //  Automatically enable it if the moniker is a FILE moniker
                 //  AND the document has been altered by the user.
 
-                if (_fFileProtocol && _IsDirty(NULL))
-                {
-                    if (!(rgcmds[3].cmdf & OLECMDF_ENABLED))
-                    {
+                if (_fFileProtocol && _IsDirty(NULL)) {
+                    if (!(rgcmds[3].cmdf & OLECMDF_ENABLED)) {
                         TraceMsg(DM_APPHACK, "APPHACK DOH Enabling Save for Office Apps");
                     }
                     rgcmds[3].cmdf |= OLECMDF_ENABLED;
@@ -5126,8 +4829,7 @@ void CDocObjectHost::_OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu
 
                 HMENU hmFileNew = SHGetMenuFromID(hmInit, DVIDM_NEW);
 
-                if (hmFileNew)
-                {
+                if (hmFileNew) {
                     const static struct {
                         LPCTSTR pszClient;
                         UINT idCmd;
@@ -5146,10 +4848,8 @@ void CDocObjectHost::_OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu
 
                     BOOL bItemRemoved = FALSE;
 
-                    for (int i = 0; i < ARRAYSIZE(s_Clients); i++)
-                    {
-                        if (!SHIsRegisteredClient(s_Clients[i].pszClient))
-                        {
+                    for (int i = 0; i < ARRAYSIZE(s_Clients); i++) {
+                        if (!SHIsRegisteredClient(s_Clients[i].pszClient)) {
                             if (RemoveMenu(hmFileNew, s_Clients[i].idCmd, MF_BYCOMMAND))
                                 bItemRemoved = TRUE;
                         }
@@ -5160,12 +4860,9 @@ void CDocObjectHost::_OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu
                 }
             }
 
-        }
-        else if (GetMenuFromID(_hmenuCur, FCIDM_VIEWFONTS) == hmInit
-                 || GetMenuFromID(_hmenuCur, FCIDM_ENCODING) == hmInit)
-        {
-            if (_pmsot)
-            {
+        } else if (GetMenuFromID(_hmenuCur, FCIDM_VIEWFONTS) == hmInit
+                   || GetMenuFromID(_hmenuCur, FCIDM_ENCODING) == hmInit) {
+            if (_pmsot) {
                 // Handling fonts popup in view menu
                 OLECMD rgcmd[] = {
                     { SHDVID_GETFONTMENU,  0 },
@@ -5176,14 +4873,12 @@ void CDocObjectHost::_OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu
 
                 int idx = (GetMenuFromID(_hmenuCur, FCIDM_VIEWFONTS) == hmInit ? 0 : 1);
 
-                if (rgcmd[idx].cmdf & OLECMDF_ENABLED)
-                {
-                    VARIANTARG v = { 0 };
+                if (rgcmd[idx].cmdf & OLECMDF_ENABLED) {
+                    VARIANTARG v = {0};
                     HRESULT hr;
 
                     hr = _pmsot->Exec(&CGID_ShellDocView, rgcmd[idx].cmdID, 0, NULL, &v);
-                    if (S_OK == hr)
-                    {
+                    if (S_OK == hr) {
                         // (on NT/Unix) DestroyMenu(hmInit) shouldn't work, because
                         // we're inside the processing of WM_INITMENUPOPUP message
                         // for hmInit. DestroyMenu will make the hmInit handle
@@ -5212,20 +4907,15 @@ void CDocObjectHost::_OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu
 
                         mii.cbSize = sizeof(mii);
                         mii.fMask = MIIM_ID | MIIM_SUBMENU;
-                        while (GetMenuItemInfo(hmenuFonts, uItem, TRUE, &mii))
-                        {
-                            if (idx == 1 && mii.hSubMenu != NULL)
-                            {
+                        while (GetMenuItemInfo(hmenuFonts, uItem, TRUE, &mii)) {
+                            if (idx == 1 && mii.hSubMenu != NULL) {
                                 UINT uItemSub = 0;
                                 HMENU hMenuSub = mii.hSubMenu;
-                                while (GetMenuItemInfo(hMenuSub, uItemSub, TRUE, &mii))
-                                {
+                                while (GetMenuItemInfo(hMenuSub, uItemSub, TRUE, &mii)) {
                                     mii.wID += DVIDM_MSHTML_FIRST;
                                     SetMenuItemInfo(hMenuSub, uItemSub++, TRUE, &mii);
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 mii.wID += DVIDM_MSHTML_FIRST;
                                 SetMenuItemInfo(hmenuFonts, uItem, TRUE, &mii);
                             }
@@ -5233,16 +4923,14 @@ void CDocObjectHost::_OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu
                         }
 
 #ifndef UNIX
-                        if (!g_fRunningOnNT)
-                        {
+                        if (!g_fRunningOnNT) {
                             mii.cbSize = sizeof(mii);
                             mii.fMask = MIIM_SUBMENU;
                             mii.hSubMenu = hmenuFonts;
                             SetMenuItemInfo(_hmenuCur,
                                 (idx == 0 ? FCIDM_VIEWFONTS : FCIDM_ENCODING),
                                             FALSE, &mii);
-                        }
-                        else
+                        } else
 #endif
                         {
                             Menu_Replace(hmInit, hmenuFonts);
@@ -5251,13 +4939,10 @@ void CDocObjectHost::_OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu
                     }
                 }
             }
-        }
-        else  if (GetMenuFromID(_hmenuCur, FCIDM_MENU_TOOLS) == hmInit ||
-                  GetMenuFromID(_hmenuCur, FCIDM_MENU_HELP) == hmInit)
-        {
+        } else  if (GetMenuFromID(_hmenuCur, FCIDM_MENU_TOOLS) == hmInit ||
+                    GetMenuFromID(_hmenuCur, FCIDM_MENU_HELP) == hmInit) {
             // Add Tools and help Menu Extensions
-            if (_pBrowsExt)
-            {
+            if (_pBrowsExt) {
                 _pBrowsExt->OnCustomizableMenuPopup(_hmenuCur, hmInit);
             }
         }
@@ -5279,8 +4964,7 @@ Returns: TRUE if the message needs to be forwarded
 */
 BOOL CDocObjectHost::_ShouldForwardMenu(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_MENUSELECT:
     {
         // In USER menu bars, the first menuselect will be sent for the
@@ -5296,25 +4980,19 @@ BOOL CDocObjectHost::_ShouldForwardMenu(UINT uMsg, WPARAM wParam, LPARAM lParam)
         // The same goes for CShellBrowser::_ShouldForwardMenu().
 
         HMENU hmenu = GET_WM_MENUSELECT_HMENU(wParam, lParam);
-        if (hmenu && (MF_POPUP & GET_WM_MENUSELECT_FLAGS(wParam, lParam)))
-        {
+        if (hmenu && (MF_POPUP & GET_WM_MENUSELECT_FLAGS(wParam, lParam))) {
             HMENU hmenuSub = GetSubMenu(hmenu, GET_WM_MENUSELECT_CMD(wParam, lParam));
 
-            if (hmenu == _hmenuCur)
-            {
+            if (hmenu == _hmenuCur) {
                 // Normal case, where we just look at the topmost popdown menus
                 _fForwardMenu = _menulist.IsObjectMenu(hmenuSub);
-            }
-            else if (_menulist.IsObjectMenu(hmenuSub))
-            {
+            } else if (_menulist.IsObjectMenu(hmenuSub)) {
                 // This happens if the cascading submenu (micro-merged help menu for
                 // example) should be forwarded on, but the parent menu should
                 // not.
                 _fForwardMenu = TRUE;
-            }
-            else if (GetMenuFromID(_hmenuCur, FCIDM_MENU_HELP) == hmenu
-                     && !_menulist.IsObjectMenu(hmenu))
-            {
+            } else if (GetMenuFromID(_hmenuCur, FCIDM_MENU_HELP) == hmenu
+                       && !_menulist.IsObjectMenu(hmenu)) {
                 // 80430 Appcompat: notice that our menu fowarding doesn't work for the
                 // micro-merged Help menu.  If the user previously selected the merged
                 // submenu, and we end up here, it means a non-merged submenu was just
@@ -5332,8 +5010,7 @@ BOOL CDocObjectHost::_ShouldForwardMenu(UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_COMMAND:
-        if (_fForwardMenu)
-        {
+        if (_fForwardMenu) {
             // Stop forwarding menu messages after WM_COMMAND
             _fForwardMenu = FALSE;
 
@@ -5362,18 +5039,16 @@ Purpose: Forwards messages to the in-place object.
 LRESULT CDocObjectHost::_ForwardObjectMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT lRet = 0L;
-    IOleInPlaceActiveObject *piact = _xao.GetObject();
+    IOleInPlaceActiveObject* piact = _xao.GetObject();
     ASSERT(IS_VALID_CODE_PTR(piact, IOleInPlaceActiveObject));
 
-    if (piact)
-    {
+    if (piact) {
         HWND hwnd;
 
         piact->GetWindow(&hwnd);
         ASSERT(IS_VALID_HANDLE(hwnd, WND));
 
-        if (hwnd)
-        {
+        if (hwnd) {
             if (uMsg == WM_COMMAND)
                 PostMessage(hwnd, uMsg, wParam, lParam);
             else
@@ -5387,12 +5062,10 @@ LRESULT CDocObjectHost::_ForwardObjectMsg(UINT uMsg, WPARAM wParam, LPARAM lPara
 
 void CDocObjectHost::_OnMenuSelect(UINT id, UINT mf, HMENU hmenu)
 {
-    if (_psb)
-    {
-        if (IsInRange(id, DVIDM_MSHTML_FIRST, DVIDM_MSHTML_LAST))
-        {
+    if (_psb) {
+        if (IsInRange(id, DVIDM_MSHTML_FIRST, DVIDM_MSHTML_LAST)) {
             if (_pcmdMergedMenu) {
-                OLECMD rgcmd = { id - DVIDM_MSHTML_FIRST, 0 };
+                OLECMD rgcmd = {id - DVIDM_MSHTML_FIRST, 0};
                 struct {
                     OLECMDTEXT  cmdtxt;
                     WCHAR       szExtra[MAX_PATH];
@@ -5406,30 +5079,22 @@ void CDocObjectHost::_OnMenuSelect(UINT id, UINT mf, HMENU hmenu)
                 HRESULT hresT = _pcmdMergedMenu->QueryStatus(&CGID_MSHTML, 1, &rgcmd, &cmdt.cmdtxt);
                 if (SUCCEEDED(hresT) && cmdt.cmdtxt.rgwz[0]) {
                     _psb->SetStatusTextSB(cmdt.cmdtxt.rgwz);
-                }
-                else {
+                } else {
                     TraceMsg(DM_ERROR, "CDOH::_OnMenuSelect QueryStatus failed %x %d",
                              hresT, cmdt.cmdtxt.cwActual);
                 }
-            }
-            else
+            } else
                 // An ASSERT was replaced with this TraceMsg to allow testing on Win9x.
                 // 70240 which reported the assert was pushed to IE6.
                 TraceMsg(TF_WARNING, "CDocObjectHost::_OnMenuSelect   _pcmdMergedMenu == NULL");
-        }
-        else if (IsInRange(id, DVIDM_MENUEXT_FIRST, DVIDM_MENUEXT_LAST))
-        {
+        } else if (IsInRange(id, DVIDM_MENUEXT_FIRST, DVIDM_MENUEXT_LAST)) {
             // Menu Extensions go here
-            if (_pBrowsExt)
-            {
+            if (_pBrowsExt) {
                 _pBrowsExt->OnMenuSelect(id);
             }
-        }
-        else
-        {
+        } else {
             WCHAR wszT[MAX_STATUS_SIZE];
-            if (MLLoadStringW(IDS_HELP_OF(id), wszT, ARRAYSIZE(wszT)))
-            {
+            if (MLLoadStringW(IDS_HELP_OF(id), wszT, ARRAYSIZE(wszT))) {
                 _psb->SetStatusTextSB(wszT);
             }
         }
@@ -5450,11 +5115,9 @@ BOOL CDocObjectHost::_HandlePicsChecksComplete(void)
         }
 
         return FALSE;
-    }
-    else {
+    } else {
         TraceMsg(DM_PICS, "CDOH::_HandlePicsChecksComplete access allowed, execing ACTIVATEMENOW");
-        if (!_fSetTarget && _pmsoctBrowser)
-        {
+        if (!_fSetTarget && _pmsoctBrowser) {
             _pmsoctBrowser->Exec(&CGID_ShellDocView, SHDVID_ACTIVATEMENOW, NULL, NULL, NULL);
         }
 
@@ -5467,21 +5130,15 @@ LRESULT CDocObjectHost::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 {
     LRESULT lRet = 0L;
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_TIMER:
-        if (wParam == IDTIMER_PROGRESS)
-        {
+        if (wParam == IDTIMER_PROGRESS) {
             _OnSetProgressPos(0, PROGRESS_TICK);
             break;
-        }
-        else if (wParam == IDTIMER_PROGRESSFULL)
-        {
+        } else if (wParam == IDTIMER_PROGRESSFULL) {
             _OnSetProgressPos(-2, PROGRESS_RESET);
             break;
-        }
-        else
-        {
+        } else {
 #ifdef TEST_DELAYED_SHOWMSOVIEW
             MessageBeep(0);
             KillTimer(_hwnd, 100);
@@ -5508,8 +5165,7 @@ LRESULT CDocObjectHost::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
             ::_RemovePicsQuery((DWORD)lParam);
             hr = (HRESULT)wParam;
             lpvRatingDetails = pq.lpvRatingDetails;
-        }
-        else {
+        } else {
             hr = E_FAIL;
             lpvRatingDetails = NULL;
         }
@@ -5540,16 +5196,13 @@ LRESULT CDocObjectHost::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
         TraceMsg(DM_PICS, "CDOH::v_WndProc got WM_PICS_ALLCHECKSCOMPLETE, lParam=%x", lParam);
 
         if (lParam == IDOK) {
-            if (!_fSetTarget)
-            {
+            if (!_fSetTarget) {
                 TraceMsg(DM_PICS, "CDOH::v_WndProc(WM_PICS_ASYNCCOMPLETE) execing SHDVID_ACTIVATEMENOW");
                 _pmsoctBrowser->Exec(&CGID_ShellDocView, SHDVID_ACTIVATEMENOW, NULL, NULL, NULL);
-            }
-            else {
+            } else {
                 TraceMsg(DM_PICS, "CDOH::v_WndProc(WM_PICS_ASYNCCOMPLETE) not execing SHDVID_ACTIVATEMENOW");
             }
-        }
-        else {
+        } else {
             ASSERT(!_fSetTarget);
             TraceMsg(DM_PICS, "CDOH::v_WndProc(WM_PICS_ASYNCCOMPLETE) calling _CancelPendingNavigation");
             _CancelPendingNavigation(FALSE);
@@ -5582,21 +5235,18 @@ LRESULT CDocObjectHost::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case WM_MENUSELECT:
         if (_ShouldForwardMenu(uMsg, wParam, lParam))
             lRet = _ForwardObjectMsg(uMsg, wParam, lParam);
-        else
-        {
+        else {
             UINT uMenuFlags = GET_WM_MENUSELECT_FLAGS(wParam, lParam);
             WORD wID = GET_WM_MENUSELECT_CMD(wParam, lParam);
             HMENU hMenu = GET_WM_MENUSELECT_HMENU(wParam, lParam);
 
             // Check for popup menus so we can display help strings for them
-            if (uMenuFlags & MF_POPUP)
-            {
+            if (uMenuFlags & MF_POPUP) {
                 MENUITEMINFO miiSubMenu;
 
                 miiSubMenu.cbSize = SIZEOF(MENUITEMINFO);
                 miiSubMenu.fMask = MIIM_SUBMENU | MIIM_ID;
-                if (GetMenuItemInfoWrap(hMenu, wID, TRUE, &miiSubMenu))
-                {
+                if (GetMenuItemInfoWrap(hMenu, wID, TRUE, &miiSubMenu)) {
                     // Change the parameters to simulate a "normal" menu item
                     wID = (WORD)miiSubMenu.wID;
                 }
@@ -5630,16 +5280,14 @@ LRESULT CDocObjectHost::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
         break;
 
     case WM_SIZE:
-        if (_pmsov)
-        {
+        if (_pmsov) {
             RECT rcClient;
             GetClientRect(_hwnd, &rcClient);
 
             // We should call ResizeBorder only if the browser is
             // not an IOleInPlaceUIWindow.
 
-            if (_pipu == NULL)
-            {
+            if (_pipu == NULL) {
                 TraceMsg(TF_SHDUIACTIVATE, "DOH::WM_SIZE calling _piact->ResizeBorder");
                 _xao.ResizeBorder(&rcClient, &_dof, TRUE);
             }
@@ -5705,8 +5353,7 @@ LRESULT CDocObjectHost::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
         if (_fDrawBackground ||
             (!(_dwAppHack & BROWSERFLAG_NEVERERASEBKGND)
              && ((_pmsov && _uState != SVUIA_DEACTIVATE)
-                 || _bsc._fBinding)))
-        {
+                 || _bsc._fBinding))) {
             PAINTMSG("WM_ERASEBKGND", this);
             goto DoDefault;
         }
@@ -5719,8 +5366,8 @@ LRESULT CDocObjectHost::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
         // control
 
     {
-        IOleCommandTarget *pcmdtTop;
-        if (SUCCEEDED(QueryService(SID_STopLevelBrowser, IID_IOleCommandTarget, (void **)&pcmdtTop))) {
+        IOleCommandTarget* pcmdtTop;
+        if (SUCCEEDED(QueryService(SID_STopLevelBrowser, IID_IOleCommandTarget, (void**)&pcmdtTop))) {
             pcmdtTop->Exec(&CGID_ShellDocView, SHDVID_HELP, 0, NULL, NULL);
             pcmdtTop->Release();
         }
@@ -5734,8 +5381,7 @@ LRESULT CDocObjectHost::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
     default:
         // Handle the MSWheel message
-        if ((uMsg == GetWheelMsg()) && _pole)
-        {
+        if ((uMsg == GetWheelMsg()) && _pole) {
             HWND hwndT;
 
             // If for some reason our window has focus we just need to
@@ -5747,8 +5393,7 @@ LRESULT CDocObjectHost::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
             // try to find a window to forward along to
 
-            if (SUCCEEDED(IUnknown_GetWindow(_pole, &hwndT)))
-            {
+            if (SUCCEEDED(IUnknown_GetWindow(_pole, &hwndT))) {
                 PostMessage(hwndT, uMsg, wParam, lParam);
                 return 1;
             }
@@ -5766,7 +5411,7 @@ const TCHAR c_szViewClass[] = TEXT("Shell DocObject View");
 
 void CDocObjectHost::_RegisterWindowClass(void)
 {
-    WNDCLASS wc = { 0 };
+    WNDCLASS wc = {0};
 
     wc.style = CS_PARENTDC;
     wc.lpfnWndProc = s_WndProc;
@@ -5790,8 +5435,7 @@ void CDocObjectHost::_InitOleObject()
 
 #ifdef DEBUG
         IOleClientSite* pcliT = NULL;
-        if (SUCCEEDED(_pole->GetClientSite(&pcliT)) && pcliT)
-        {
+        if (SUCCEEDED(_pole->GetClientSite(&pcliT)) && pcliT) {
 
             // Trident now grabs the client site from the bind context.
             // We don't want to hit this assertin this case (pcliT==this).
@@ -5844,8 +5488,7 @@ BOOL CDocObjectHost::_OperationIsHyperlink()
     bindinfo.cbSize = sizeof(BINDINFO);
 
     HRESULT hr = _bsc.GetBindInfo(&dw, &bindinfo);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         ReleaseBindInfo(&bindinfo);
         return BOOLIFY(dw & BINDF_HYPERLINK);
     }
@@ -5871,13 +5514,11 @@ HRESULT CDocObjectHost::SetTarget(IMoniker* pmk, UINT uiCP, LPCTSTR pszLocation,
     //  this is only set if we did a successful LoadHistory()
     _fIsHistoricalObject = FALSE;
 
-    if (_bsc._hszPostData)
-    {
+    if (_bsc._hszPostData) {
         GlobalFree(_bsc._hszPostData);
         _bsc._hszPostData = NULL;
     }
-    if (_bsc._pszHeaders)
-    {
+    if (_bsc._pszHeaders) {
         LocalFree(_bsc._pszHeaders);
         _bsc._pszHeaders = NULL;
     }
@@ -5892,11 +5533,10 @@ HRESULT CDocObjectHost::SetTarget(IMoniker* pmk, UINT uiCP, LPCTSTR pszLocation,
     //  way above us before we ever existed.  now it is
     //  waiting for us.
 
-    IBrowserService *pbs;
-    IStream *pstm = NULL;
-    IBindCtx *pbcHistory = NULL;
-    if (SUCCEEDED(QueryService(SID_SShellBrowser, IID_IBrowserService, (LPVOID *)&pbs)))
-    {
+    IBrowserService* pbs;
+    IStream* pstm = NULL;
+    IBindCtx* pbcHistory = NULL;
+    if (SUCCEEDED(QueryService(SID_SShellBrowser, IID_IBrowserService, (LPVOID*)&pbs))) {
         ASSERT(pbs);
 
         //  just in case there is one already there, like in the case of local anchor navigates
@@ -5915,15 +5555,12 @@ HRESULT CDocObjectHost::SetTarget(IMoniker* pmk, UINT uiCP, LPCTSTR pszLocation,
 
         _InitOleObject();
 
-        if (pstm)
-        {
-            IPersistHistory *pph;
-            if (SUCCEEDED(_pole->QueryInterface(IID_IPersistHistory, (LPVOID *)&pph)))
-            {
+        if (pstm) {
+            IPersistHistory* pph;
+            if (SUCCEEDED(_pole->QueryInterface(IID_IPersistHistory, (LPVOID*)&pph))) {
                 ASSERT(pph);
 
-                if (SUCCEEDED(pph->LoadHistory(pstm, pbcHistory)))
-                {
+                if (SUCCEEDED(pph->LoadHistory(pstm, pbcHistory))) {
 
                     //  this is to make sure that we wait for
                     //  the pole to tell us when it is ready.
@@ -5937,16 +5574,14 @@ HRESULT CDocObjectHost::SetTarget(IMoniker* pmk, UINT uiCP, LPCTSTR pszLocation,
                     // we may need to redo the pics stuff too.
                     // PrepPicsForAsync();
                     TraceMsg(TF_TRAVELLOG, "DOH::SetTarget pph->LoadHistory Successful");
-                }
-                else
+                } else
                     ATOMICRELEASE(_pole);
 
                 pph->Release();
             }
 
             ATOMICRELEASE(pstm);
-        }
-        else
+        } else
             hres = S_OK;
 
         ATOMICRELEASE(pbcHistory);
@@ -5963,8 +5598,7 @@ HRESULT CDocObjectHost::SetTarget(IMoniker* pmk, UINT uiCP, LPCTSTR pszLocation,
         }
     }
 
-    if (!_pole)
-    {
+    if (!_pole) {
         ASSERT(!pstm);
         ASSERT(!pbcHistory);
 
@@ -5977,21 +5611,16 @@ HRESULT CDocObjectHost::SetTarget(IMoniker* pmk, UINT uiCP, LPCTSTR pszLocation,
         }
         if (pbc == NULL) {
             hres = CreateBindCtx(0, &pbc);
-        }
-        else {
+        } else {
             hres = S_OK;
         }
 
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             IBindCtx* pbcWrapper = BCW_Create(pbc);
 
-            if (pbcWrapper == NULL)
-            {
+            if (pbcWrapper == NULL) {
                 pbcWrapper = pbc;
-            }
-            else
-            {
+            } else {
                 pbc->Release();
             }
 
@@ -6002,8 +5631,7 @@ HRESULT CDocObjectHost::SetTarget(IMoniker* pmk, UINT uiCP, LPCTSTR pszLocation,
             hres = CreateAsyncBindCtxEx(pbcWrapper, 0, NULL, NULL, &pbcAsync, 0);
 
 
-            if (SUCCEEDED(hres))
-            {
+            if (SUCCEEDED(hres)) {
 
                 ASSERT(pbcAsync);
                 ATOMICRELEASE(_pbcCur);
@@ -6015,8 +5643,7 @@ HRESULT CDocObjectHost::SetTarget(IMoniker* pmk, UINT uiCP, LPCTSTR pszLocation,
                 pbcWrapper = pbcAsync;
             }
 
-            if (SUCCEEDED(hres))
-            {
+            if (SUCCEEDED(hres)) {
 #ifdef DEBUG
                 DWORD dwMksys;
                 hres = pmk->IsSystemMoniker(&dwMksys);
@@ -6067,33 +5694,28 @@ void _InitIcons(void)
 {
     ENTERCRITICAL;
 
-    if (g_hiconScriptErr == NULL)
-    {
+    if (g_hiconScriptErr == NULL) {
         g_hiconScriptErr = _LoadSmallIcon(IDI_STATE_SCRIPTERROR);
         if (IS_BIDI_LOCALIZED_SYSTEM())
             MirrorIcon(&g_hiconScriptErr, NULL);
     }
 
 
-    if (!g_hiconSSL)
-    {
+    if (!g_hiconSSL) {
         g_hiconSSL = _LoadSmallIcon(IDI_SSL);
         if (IS_BIDI_LOCALIZED_SYSTEM())
             MirrorIcon(&g_hiconSSL, NULL);
     }
 
 
-    if (!g_hiconFortezza)
-    {
+    if (!g_hiconFortezza) {
         g_hiconFortezza = _LoadSmallIcon(IDI_FORTEZZA);
         if (IS_BIDI_LOCALIZED_SYSTEM())
             MirrorIcon(&g_hiconFortezza, NULL);
     }
 
-    for (UINT id = IDI_STATE_FIRST; id <= IDI_STATE_LAST; id++)
-    {
-        if (!g_ahiconState[id - IDI_STATE_FIRST])
-        {
+    for (UINT id = IDI_STATE_FIRST; id <= IDI_STATE_LAST; id++) {
+        if (!g_ahiconState[id - IDI_STATE_FIRST]) {
             g_ahiconState[id - IDI_STATE_FIRST] = _LoadSmallIcon(id);
             if (IS_BIDI_LOCALIZED_SYSTEM())
                 MirrorIcon(&g_ahiconState[id - IDI_STATE_FIRST], NULL);
@@ -6101,16 +5723,14 @@ void _InitIcons(void)
     }
 
 
-    if (!g_hiconOffline)
-    {
+    if (!g_hiconOffline) {
         g_hiconOffline = _LoadSmallIcon(IDI_OFFLINE);
         if (IS_BIDI_LOCALIZED_SYSTEM())
             MirrorIcon(&g_hiconOffline, NULL);
     }
 
 
-    if (!g_hiconPrinter)
-    {
+    if (!g_hiconPrinter) {
         g_hiconPrinter = _LoadSmallIcon(IDI_PRINTER);
         if (IS_BIDI_LOCALIZED_SYSTEM())
             MirrorIcon(&g_hiconPrinter, NULL);
@@ -6124,18 +5744,15 @@ void _InitIcons(void)
 // we try to delay this till absolutely needed in order to not load
 // wininet till the end
 
-IUnknown *
+IUnknown*
 CDocObjectHost::get_punkSFHistory()
 {
-    if (_pocthf && !_punkSFHistory)
-    {
+    if (_pocthf && !_punkSFHistory) {
         VARIANT var;
 
         VariantInit(&var);
-        if (SUCCEEDED(_pocthf->Exec(&CGID_Explorer, SBCMDID_HISTSFOLDER, TRUE, NULL, &var)))
-        {
-            if (VT_UNKNOWN == var.vt && NULL != var.punkVal)
-            {
+        if (SUCCEEDED(_pocthf->Exec(&CGID_Explorer, SBCMDID_HISTSFOLDER, TRUE, NULL, &var))) {
+            if (VT_UNKNOWN == var.vt && NULL != var.punkVal) {
                 _punkSFHistory = var.punkVal;
                 _punkSFHistory->AddRef();
             }
@@ -6159,9 +5776,9 @@ BOOL CDocObjectHost::InitHostWindow(IShellView* psv, IShellBrowser* psb,
                                     LPRECT prcView)
 {
     HWND hwndParent;
-    IServiceProvider  * pspTop;
-    IOleObject        * pTopOleObject;
-    IOleClientSite    * pOleClientSite;
+    IServiceProvider* pspTop;
+    IOleObject* pTopOleObject;
+    IOleClientSite* pOleClientSite;
 
     _ResetOwners();
 
@@ -6188,8 +5805,7 @@ BOOL CDocObjectHost::InitHostWindow(IShellView* psv, IShellBrowser* psb,
     ASSERT(_pipu);
 
     ASSERT(_psp);
-    if (_psp)
-    {
+    if (_psp) {
 
         // Get the object that manages the extended buttons from the top-level browser
         // But only if we don't already have it.
@@ -6209,24 +5825,20 @@ BOOL CDocObjectHost::InitHostWindow(IShellView* psv, IShellBrowser* psb,
         _peds->QueryInterface(IID_IExpDispSupportOC, (LPVOID*)&_pedsHelper);
         ASSERT(NULL == _phf);
         _psp->QueryService(SID_SHlinkFrame, IID_IHlinkFrame, (LPVOID*)&_phf);
-        if (_phf)
-        {
-            _phf->QueryInterface(IID_IUrlHistoryNotify, (LPVOID *)&_pocthf);
+        if (_phf) {
+            _phf->QueryInterface(IID_IUrlHistoryNotify, (LPVOID*)&_pocthf);
         }
         // _punkSFHistory was being initialized here - but in order to delay the load of wininet.dll
         // we initialize it just before we use it
 
         ASSERT(_pWebOCUIHandler == NULL);
         ASSERT(_fWebOC == FALSE);
-        if (SUCCEEDED(_psp->QueryService(SID_STopLevelBrowser, IID_IServiceProvider, (void **)&pspTop)) && pspTop)
-        {
-            if (SUCCEEDED(pspTop->QueryService(SID_SContainerDispatch, IID_IOleObject, (void **)&pTopOleObject)) && pTopOleObject)
-            {
+        if (SUCCEEDED(_psp->QueryService(SID_STopLevelBrowser, IID_IServiceProvider, (void**)&pspTop)) && pspTop) {
+            if (SUCCEEDED(pspTop->QueryService(SID_SContainerDispatch, IID_IOleObject, (void**)&pTopOleObject)) && pTopOleObject) {
                 _fWebOC = TRUE; // there was a container so we're a WebOC
 
                 pTopOleObject->GetClientSite(&pOleClientSite);
-                if (pOleClientSite)
-                {
+                if (pOleClientSite) {
                     pOleClientSite->QueryInterface(IID_IDocHostUIHandler, (void**)&_pWebOCUIHandler);
                     pOleClientSite->QueryInterface(IID_IDocHostShowUI, (void**)&_pWebOCShowUI);
                     pOleClientSite->Release();
@@ -6237,7 +5849,7 @@ BOOL CDocObjectHost::InitHostWindow(IShellView* psv, IShellBrowser* psb,
         }
     }
 
-    _dhUIHandler.SetSite((IDocHostUIHandler *)this); // Apparently we need to disamiguate the IUnknown reference.
+    _dhUIHandler.SetSite((IDocHostUIHandler*)this); // Apparently we need to disamiguate the IUnknown reference.
 
     _psb->GetWindow(&hwndParent);
 
@@ -6283,8 +5895,7 @@ BOOL CDocObjectHost::InitHostWindow(IShellView* psv, IShellBrowser* psb,
         if (SHRestricted(REST_NOFILEMENU))
             uiAcc = ACCEL_DOCVIEW_NOFILEMENU;
 
-        if (_hacc)
-        {
+        if (_hacc) {
             DestroyAcceleratorTable(_hacc);
             _hacc = NULL;
         }
@@ -6292,8 +5903,7 @@ BOOL CDocObjectHost::InitHostWindow(IShellView* psv, IShellBrowser* psb,
         _hacc = LoadAccelerators(MLGetHinst(), MAKEINTRESOURCE(uiAcc));
         _InitIcons();
 
-    }
-    else {
+    } else {
         ASSERT(GetParent(_hwnd) == hwndParent);
         MoveWindow(_hwnd, prcView->left, prcView->top,
                    prcView->right - prcView->left, prcView->bottom - prcView->top, TRUE);
@@ -6310,14 +5920,12 @@ void CDocObjectHost::_CleanupProgress(void)
 {
     TraceMsg(TF_SHDPROGRESS, "CDOH::CleanupProgress fTimer = %d, fFull = %d, hwndProg = %X", _fProgressTimer, _fProgressTimerFull, _hwndProgress);
 
-    if (_fProgressTimer)
-    {
+    if (_fProgressTimer) {
         KillTimer(_hwnd, IDTIMER_PROGRESS);
         _fProgressTimer = FALSE;
     }
 
-    if (_fProgressTimerFull)
-    {
+    if (_fProgressTimerFull) {
         //  we are being stopped, and the hwnd is destroyed
         //  before we clear the status bar.  zekel - 22-JUL-97
         _OnSetProgressPos(-2, PROGRESS_RESET);
@@ -6390,8 +5998,7 @@ HRESULT CDocObjectHost::_CreateMsoView(void)
     ASSERT(_pmsov == NULL);
     ASSERT(_pmsoc == NULL);
     HRESULT hres = OleRun(_pole);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
 
         // WARNING:
         // if you add anything to here, you should also pass it along
@@ -6409,8 +6016,7 @@ HRESULT CDocObjectHost::_CreateMsoView(void)
                 //  want to take this hack out before we ship. (SatoNa)
 
                 _pmsov->SetInPlaceSite(this);
-            }
-            else {
+            } else {
                 TraceMsg(DM_ERROR, "DOH::_CreateMsoView pmsod->CreateView() ##FAILED## %x", hres);
             }
 
@@ -6422,10 +6028,8 @@ HRESULT CDocObjectHost::_CreateMsoView(void)
                 _pmsov->QueryInterface(IID_IOleControl, (LPVOID*)&_pmsoc);
             }
 #ifdef HLINK_EXTRA
-            if (_pihlbc)
-            {
-                if (_phls)
-                {
+            if (_pihlbc) {
+                if (_phls) {
                     _phls->SetBrowseContext(_pihlbc);
                 }
 
@@ -6436,12 +6040,10 @@ HRESULT CDocObjectHost::_CreateMsoView(void)
             }
 #endif // HLINK_EXTRA
             pmsod->Release();
-        }
-        else {
+        } else {
             TraceMsg(DM_ERROR, "DOH::_CreateMsoView _pole->QI(IOleDocument) ##FAILED## %x", hres);
         }
-    }
-    else {
+    } else {
         TraceMsg(DM_ERROR, "DOH::_CreateMsoView OleRun ##FAILED## %x", hres);
     }
 
@@ -6453,17 +6055,15 @@ HRESULT CDocObjectHost::_ForwardSetSecureLock(int lock)
     HRESULT hr = E_FAIL;
     TraceMsg(DM_SSL, "[%X}DOH::ForwardSecureLock() lock = %d", this, lock, hr);
 
-    VARIANT va = { 0 };
+    VARIANT va = {0};
     va.vt = VT_I4;
     va.lVal = lock;
 
     //  we should only suggest if we are not the topframe
-    if (_psp && _psb && !IsTopFrameBrowser(_psp, _psb))
-    {
-        IOleCommandTarget *pmsoct;
+    if (_psp && _psb && !IsTopFrameBrowser(_psp, _psb)) {
+        IOleCommandTarget* pmsoct;
 
-        if (SUCCEEDED(_psp->QueryService(SID_STopFrameBrowser, IID_IOleCommandTarget, (LPVOID *)&pmsoct)))
-        {
+        if (SUCCEEDED(_psp->QueryService(SID_STopFrameBrowser, IID_IOleCommandTarget, (LPVOID*)&pmsoct))) {
             ASSERT(pmsoct);
             if (lock < SECURELOCK_FIRSTSUGGEST)
                 va.lVal += SECURELOCK_FIRSTSUGGEST;
@@ -6471,8 +6071,7 @@ HRESULT CDocObjectHost::_ForwardSetSecureLock(int lock)
             hr = pmsoct->Exec(&CGID_Explorer, SBCMDID_SETSECURELOCKICON, 0, &va, NULL);
             pmsoct->Release();
         }
-    }
-    else
+    } else
         if (_pmsoctBrowser)
             hr = _pmsoctBrowser->Exec(&CGID_Explorer, SBCMDID_SETSECURELOCKICON, 0, &va, NULL);
 
@@ -6481,7 +6080,7 @@ HRESULT CDocObjectHost::_ForwardSetSecureLock(int lock)
 
 
 // This is the only method of IOleDocumentSite, which we MUST implement.
-HRESULT CDocObjectHost::ActivateMe(IOleDocumentView *pviewToActivate)
+HRESULT CDocObjectHost::ActivateMe(IOleDocumentView* pviewToActivate)
 {
     TraceMsg(TF_SHDUIACTIVATE, "DOC::ActivateMe called when _pmsov is %x", _pmsov);
 
@@ -6510,7 +6109,7 @@ HRESULT CDocObjectHost::ActivateMe(IOleDocumentView *pviewToActivate)
 }
 
 //Helper routine for QueryStatus for status messages
-ULONG ulBufferSizeNeeded(wchar_t *wsz, int ids, ULONG ulBufferLen)
+ULONG ulBufferSizeNeeded(wchar_t* wsz, int ids, ULONG ulBufferLen)
 {
     TraceMsg(0, "sdv TR ulBufferSizeNeeded called with (%x)", ids);
 
@@ -6525,20 +6124,17 @@ ULONG ulBufferSizeNeeded(wchar_t *wsz, int ids, ULONG ulBufferLen)
     return ((ULONG)dwLen);
 }
 
-HRESULT CDocObjectHost::OnQueryStatus(const GUID *pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT *pcmdtext, HRESULT hres)
+HRESULT CDocObjectHost::OnQueryStatus(const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext, HRESULT hres)
 {
-    if (pguidCmdGroup == NULL)
-    {
+    if (pguidCmdGroup == NULL) {
         ULONG i;
 
         if (rgCmds == NULL)
             return E_INVALIDARG;
 
-        for (i = 0; i < cCmds; i++)
-        {
+        for (i = 0; i < cCmds; i++) {
             // ONLY say that we support the stuff we support in ::OnExec
-            switch (rgCmds[i].cmdID)
-            {
+            switch (rgCmds[i].cmdID) {
             case OLECMDID_OPEN:
             case OLECMDID_SAVE:
             case OLECMDID_UPDATECOMMANDS:
@@ -6550,12 +6146,9 @@ HRESULT CDocObjectHost::OnQueryStatus(const GUID *pguidCmdGroup, ULONG cCmds, OL
                 break;
 
             default:
-                if (SUCCEEDED(hres))
-                {
+                if (SUCCEEDED(hres)) {
                     // _pmsoctBrowser already filled this in
-                }
-                else
-                {
+                } else {
                     rgCmds[i].cmdf = 0;
                 }
                 break;
@@ -6563,10 +6156,8 @@ HRESULT CDocObjectHost::OnQueryStatus(const GUID *pguidCmdGroup, ULONG cCmds, OL
         }
 
         /* for now we deal only with status text*/
-        if (pcmdtext)
-        {
-            switch (rgCmds[i].cmdID)
-            {
+        if (pcmdtext) {
+            switch (rgCmds[i].cmdID) {
             case OLECMDID_OPEN:
             case OLECMDID_SAVE:
                 pcmdtext->cwActual = ulBufferSizeNeeded(pcmdtext->rgwz,
@@ -6575,12 +6166,9 @@ HRESULT CDocObjectHost::OnQueryStatus(const GUID *pguidCmdGroup, ULONG cCmds, OL
                 break;
 
             default:
-                if (SUCCEEDED(hres))
-                {
+                if (SUCCEEDED(hres)) {
                     // _pmsoctBrowser already filled this in
-                }
-                else
-                {
+                } else {
                     pcmdtext->cmdtextf = OLECMDTEXTF_NONE;
                     pcmdtext->cwActual = 0;
                     if (pcmdtext->rgwz && pcmdtext->cwBuf > 0)
@@ -6591,27 +6179,19 @@ HRESULT CDocObjectHost::OnQueryStatus(const GUID *pguidCmdGroup, ULONG cCmds, OL
         }
 
         hres = S_OK;
-    }
-    else if (IsEqualGUID(*pguidCmdGroup, CLSID_InternetButtons) ||
-             IsEqualGUID(*pguidCmdGroup, CLSID_MSOButtons))
-    {
-        for (UINT i = 0; i < cCmds; i++)
-        {
+    } else if (IsEqualGUID(*pguidCmdGroup, CLSID_InternetButtons) ||
+               IsEqualGUID(*pguidCmdGroup, CLSID_MSOButtons)) {
+        for (UINT i = 0; i < cCmds; i++) {
             // CommandIDs from DVIDM_MENUEXT_FIRST to DVIDM_MENUEXT_LAST are reserved for toolbar extension buttons
             // Do NOT use this range for constants within the scope of CLSID_InternetButtons/CLSID_MSOButtons!
-            if (IsInRange(rgCmds[i].cmdID, DVIDM_MENUEXT_FIRST, DVIDM_MENUEXT_LAST))
-            {
+            if (IsInRange(rgCmds[i].cmdID, DVIDM_MENUEXT_FIRST, DVIDM_MENUEXT_LAST)) {
                 // We'll pass specificially this OLECMD through to the custom button
                 IUnknown_QueryStatus(_pBrowsExt, &CLSID_ToolbarExtButtons, 1, &rgCmds[i], pcmdtext);
-            }
-            else
-            {
-                switch (rgCmds[i].cmdID)
-                {
+            } else {
+                switch (rgCmds[i].cmdID) {
                 case DVIDM_PRINT:
                     //                case DVIDM_FONTS:     // bugbug: always returns disabled
-                    if (_pmsoctBrowser)
-                    {
+                    if (_pmsoctBrowser) {
                         OLECMD ocButton;
                         static const int tbtab[] =
                         {
@@ -6654,14 +6234,12 @@ HRESULT CDocObjectHost::OnQueryStatus(const GUID *pguidCmdGroup, ULONG cCmds, OL
                     break;
 
                 case DVIDM_EDITPAGE:
-                    if (_psp)
-                    {
+                    if (_psp) {
                         // BUGBUG: temp code -- forward to itbar
                         // itbar edit code is moving here soon
                         IExplorerToolbar* pxtb;
-                        if (SUCCEEDED(_psp->QueryService(SID_SExplorerToolbar, IID_IExplorerToolbar, (LPVOID*)&pxtb)))
-                        {
-                            OLECMD ocButton = { CITIDM_EDITPAGE, 0 };
+                        if (SUCCEEDED(_psp->QueryService(SID_SExplorerToolbar, IID_IExplorerToolbar, (LPVOID*)&pxtb))) {
+                            OLECMD ocButton = {CITIDM_EDITPAGE, 0};
                             IUnknown_QueryStatus(pxtb, &CGID_PrivCITCommands, 1, &ocButton, NULL);
                             rgCmds[i].cmdf = ocButton.cmdf;
                             pxtb->Release();
@@ -6677,10 +6255,10 @@ HRESULT CDocObjectHost::OnQueryStatus(const GUID *pguidCmdGroup, ULONG cCmds, OL
 }
 
 HRESULT CDocObjectHost::QueryStatus(
-    /* [unique][in] */ const GUID *pguidCmdGroup,
+    /* [unique][in] */ const GUID* pguidCmdGroup,
     /* [in] */ ULONG cCmds,
     /* [out][in][size_is] */ OLECMD rgCmds[],
-    /* [unique][out][in] */ OLECMDTEXT *pcmdtext)
+    /* [unique][out][in] */ OLECMDTEXT* pcmdtext)
 {
     HRESULT hres = OLECMDERR_E_UNKNOWNGROUP;
 
@@ -6697,16 +6275,13 @@ HRESULT CDocObjectHost::QueryStatus(
 
 void CDocObjectHost::_OnSave(void)
 {
-    if (_pole && _fFileProtocol)
-    {
+    if (_pole && _fFileProtocol) {
         IPersistFile* ppf = 0;
         HRESULT hres = _pole->QueryInterface(IID_IPersistFile, (LPVOID*)&ppf);
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             LPOLESTR pszDisplayName = NULL;
             hres = _GetCurrentPageW(&pszDisplayName);
-            if (SUCCEEDED(hres))
-            {
+            if (SUCCEEDED(hres)) {
                 // fRemember = TRUE for normal case
                 hres = ppf->Save(pszDisplayName, !_fCantSaveBack);
                 if (FAILED(hres)) {
@@ -6726,39 +6301,31 @@ void CDocObjectHost::_OnSetProgressPos(DWORD dwPos, DWORD state)
     if (dwPos == -1)
         state = PROGRESS_RESET;
 
-    switch (state)
-    {
+    switch (state) {
     case PROGRESS_RESET:
         TraceMsg(TF_SHDPROGRESS, "DOH::OnSetProgressPos() RESET, timer = %d", _fProgressTimer);
-        if (_fProgressTimer)
-        {
+        if (_fProgressTimer) {
             KillTimer(_hwnd, IDTIMER_PROGRESS);
             _fProgressTimer = FALSE;
         }
 
-        if (_dwProgressMax)
-        {
+        if (_dwProgressMax) {
             // this will always finish up the progress bar
             //  so that when trident doesnt send us the last update
             //  we do it anyway
-            if (_fProgressTimerFull && dwPos == -2)
-            {
+            if (_fProgressTimerFull && dwPos == -2) {
                 _fProgressTimerFull = FALSE;
                 KillTimer(_hwnd, IDTIMER_PROGRESSFULL);
                 _dwProgressPos = 0;
                 _OnSetProgressMax(0);
                 _fShowProgressCtl = FALSE;
                 _PlaceProgressBar(TRUE);
-            }
-            else if (!_fProgressTimerFull)
-            {
+            } else if (!_fProgressTimerFull) {
                 _OnSetProgressPos(0, PROGRESS_FULL);
                 _fProgressTimerFull = TRUE;
                 SetTimer(_hwnd, IDTIMER_PROGRESSFULL, 500, NULL);
             }
-        }
-        else
-        {
+        } else {
             _fShowProgressCtl = FALSE;
             _PlaceProgressBar(TRUE);
         }
@@ -6791,8 +6358,7 @@ void CDocObjectHost::_OnSetProgressPos(DWORD dwPos, DWORD state)
         break;
     case PROGRESS_RECEIVING:
         TraceMsg(TF_SHDPROGRESS, "DOH::OnSetProgressPos() RECEIVING, timer = %d, dwPos = %d", _fProgressTimer, dwPos);
-        if (_fProgressTimer)
-        {
+        if (_fProgressTimer) {
             KillTimer(_hwnd, IDTIMER_PROGRESS);
             _fProgressTimer = FALSE;
 
@@ -6804,22 +6370,19 @@ void CDocObjectHost::_OnSetProgressPos(DWORD dwPos, DWORD state)
         _dwProgressPos = ADJUSTPROGRESSPOS(dwPos);
         break;
     case PROGRESS_TICK:
-        if (_fProgressTimer)
-        {
+        if (_fProgressTimer) {
             if (_dwProgressInc)
                 _dwProgressPos += _dwProgressInc;
 
             // else we post the still waiting message...
             AssertMsg(_dwProgressMod, TEXT("I want to see this - Get ZekeL"));
-            if (_dwProgressMod && 0 == (++_dwProgressTicks % _dwProgressMod))
-            {
+            if (_dwProgressMod && 0 == (++_dwProgressTicks % _dwProgressMod)) {
                 // this means we are about half way.
                 _dwProgressInc /= 2;
             }
 
             TraceMsg(TF_SHDPROGRESS, "DOH::OnSetProgressPos() TICK, dwPos = %d, ticks = %d, inc = %d", _dwProgressPos, _dwProgressTicks, _dwProgressInc);
-        }
-        else
+        } else
             TraceMsg(TF_SHDPROGRESS, "DOH::OnSetProgressPos() TICKNOT");
         break;
     case PROGRESS_FULL:
@@ -6829,15 +6392,12 @@ void CDocObjectHost::_OnSetProgressPos(DWORD dwPos, DWORD state)
         // if there are script errors, make sure the status
         // bar is properly set (re: icon and text)
         if (_pScriptErrList != NULL &&
-            !_pScriptErrList->IsEmpty())
-        {
+            !_pScriptErrList->IsEmpty()) {
             TCHAR   szMsg[MAX_PATH];
 
             // set the script error icon
-            if (g_hiconScriptErr != NULL)
-            {
-                if (_psb != NULL)
-                {
+            if (g_hiconScriptErr != NULL) {
+                if (_psb != NULL) {
                     _psb->SendControlMsg(FCW_STATUS,
                                          SB_SETICON,
                                          STATUS_PANE_NAVIGATION,
@@ -6858,16 +6418,14 @@ void CDocObjectHost::_OnSetProgressPos(DWORD dwPos, DWORD state)
         ASSERT(FALSE);
     }
 
-    if (_hwndProgress)
-    {
+    if (_hwndProgress) {
         _psb->SendControlMsg(FCW_PROGRESS, PBM_SETPOS, _dwProgressPos, 0, NULL);
         TraceMsg(TF_SHDPROGRESS, "DOH::OnSetProgressPos() updating, pos = %d, %d%% full", _dwProgressPos, _dwProgressMax ? _dwProgressPos * 100 / _dwProgressMax : 0);
 
     }
 
     // fire an event that progress has changed
-    if (_peds)
-    {
+    if (_peds) {
         //  if we are sent a -1, we must forward the event on so that
         //  our host gets it too.  some containers rely on this.
         //  specifically DevStudio's HTMLHelp
@@ -6875,8 +6433,7 @@ void CDocObjectHost::_OnSetProgressPos(DWORD dwPos, DWORD state)
         if (dwPos != -1)
             dwPos = _dwProgressPos;
 
-        if (!_fUIActivatingView)
-        {
+        if (!_fUIActivatingView) {
             FireEvent_DoInvokeDwords(_peds, DISPID_PROGRESSCHANGE, dwPos, _dwProgressMax);
         }
     }
@@ -6886,8 +6443,7 @@ void CDocObjectHost::_OnSetProgressPos(DWORD dwPos, DWORD state)
 void CDocObjectHost::_OnSetProgressMax(DWORD dwMax)
 {
     // remember the maximum range so we have it when we want to fire progress events
-    if (_dwProgressMax != dwMax && _psb)
-    {
+    if (_dwProgressMax != dwMax && _psb) {
         _dwProgressMax = dwMax;
 
         TraceMsg(TF_SHDPROGRESS, "DOH::OnSetProgressMax() max = %d", _dwProgressMax);
@@ -6899,8 +6455,7 @@ void CDocObjectHost::_OnSetProgressMax(DWORD dwMax)
         if (_hwndProgress) {
             _psb->SendControlMsg(FCW_PROGRESS, PBM_SETRANGE32, 0, dwMax, NULL);
             TraceMsg(TF_SHDPROGRESS, "DOH::OnSetProgressMax() updating (%d of %d)", _dwProgressPos, _dwProgressMax);
-        }
-        else
+        } else
             TraceMsg(TF_SHDPROGRESS, "DOH::OnSetProgressMax() No hwndProgress");
     }
 }
@@ -6959,10 +6514,8 @@ void CDocObjectHost::_InitToolbarButtons()
         _pmsoctBrowser->QueryStatus(NULL, 1, &acmd[ARRAYSIZE(acmd) - 1], NULL);
     }
 
-    if (_psb)
-    {
-        for (int i = 1; i < ARRAYSIZE(acmd); i++)
-        {
+    if (_psb) {
+        for (int i = 1; i < ARRAYSIZE(acmd); i++) {
             UINT idCmd = _MapFromMso(acmd[i].cmdID);
             _psb->SendControlMsg(FCW_TOOLBAR, TB_ENABLEBUTTON, idCmd,
                 (LPARAM)acmd[i].cmdf, NULL);
@@ -6981,8 +6534,7 @@ void CDocObjectHost::_InitToolbarButtons()
         _pmsot->Exec(NULL, OLECMDID_ZOOM, OLECMDEXECOPT_DONTPROMPTUSER, NULL, &var);
         if (var.vt == VT_I4) {
             _iZoom = var.lVal;
-        }
-        else {
+        } else {
             VariantClear(&var);
         }
 
@@ -6993,8 +6545,7 @@ void CDocObjectHost::_InitToolbarButtons()
         if (var.vt == VT_I4) {
             _iZoomMin = (int)(short)LOWORD(var.lVal);
             _iZoomMax = (int)(short)HIWORD(var.lVal);
-        }
-        else {
+        } else {
             VariantClear(&var);
         }
     }
@@ -7003,15 +6554,13 @@ void CDocObjectHost::_InitToolbarButtons()
 void CDocObjectHost::_OnSetStatusText(VARIANTARG* pvarIn)
 {
     if (pvarIn->vt == (VT_BSTR) && _psb) {
-        IShellView *psvActive;
+        IShellView* psvActive;
 
         _psb->QueryActiveShellView(&psvActive);
-        if (psvActive)
-        {
+        if (psvActive) {
             //  Suppress sending status messages if we aren't the active view - else
             //  we could be reporting nasties from unapproved PICS pages
-            if (IsSameObject(_psv, psvActive))
-            {
+            if (IsSameObject(_psv, psvActive)) {
                 LPCOLESTR pwch = (LPCOLESTR)pvarIn->bstrVal;
                 TCHAR szHint[256];
 
@@ -7043,8 +6592,7 @@ BOOL CDocObjectHost::_IsDirty(IPersistFile** pppf)
     if (_pole) {
         IPersistFile* ppf;
         HRESULT hresT = _pole->QueryInterface(IID_IPersistFile, (LPVOID*)&ppf);
-        if (SUCCEEDED(hresT))
-        {
+        if (SUCCEEDED(hresT)) {
             if (ppf->IsDirty() == S_OK) {
                 fDirty = TRUE;
                 if (pppf) {
@@ -7058,7 +6606,7 @@ BOOL CDocObjectHost::_IsDirty(IPersistFile** pppf)
     return fDirty;
 }
 
-void CDocObjectHost::_OnSetTitle(VARIANTARG *pvTitle)
+void CDocObjectHost::_OnSetTitle(VARIANTARG* pvTitle)
 {
     if (EVAL(pvTitle->vt == VT_BSTR)) {
         LPCOLESTR pwch = (LPCOLESTR)pvTitle->bstrVal;
@@ -7091,16 +6639,15 @@ void CDocObjectHost::_OnCodePageChange(const VARIANTARG* pvarargIn)
         // }
 
         // Change the 'current' codepage.
-        IBrowserService *pbs;
-        if (SUCCEEDED(QueryService(SID_STopLevelBrowser, IID_IBrowserService, (LPVOID *)&pbs)))
-        {
+        IBrowserService* pbs;
+        if (SUCCEEDED(QueryService(SID_STopLevelBrowser, IID_IBrowserService, (LPVOID*)&pbs))) {
             pbs->GetSetCodePage(&var, NULL);
             pbs->Release();
         }
 
         // Write the codepage to the URL history
 
-        IUniformResourceLocator *   purl = NULL;
+        IUniformResourceLocator* purl = NULL;
         HRESULT hresT = CoCreateInstance(CLSID_InternetShortcut, NULL, CLSCTX_INPROC_SERVER, IID_IUniformResourceLocator, (LPVOID*)&purl);
         if (SUCCEEDED(hresT)) {
             TCHAR szURL[MAX_URL_STRING];
@@ -7109,16 +6656,16 @@ void CDocObjectHost::_OnCodePageChange(const VARIANTARG* pvarargIn)
 
             hresT = purl->SetURL(szURL, 0);
             if (SUCCEEDED(hresT)) {
-                IPropertySetStorage *       ppropsetstg;
-                hresT = purl->QueryInterface(IID_IPropertySetStorage, (LPVOID *)&ppropsetstg);
+                IPropertySetStorage* ppropsetstg;
+                hresT = purl->QueryInterface(IID_IPropertySetStorage, (LPVOID*)&ppropsetstg);
                 if (SUCCEEDED(hresT)) {
-                    IPropertyStorage *          ppropstg;
+                    IPropertyStorage* ppropstg;
                     hresT = ppropsetstg->Open(FMTID_InternetSite, STGM_READWRITE, &ppropstg);
                     if (SUCCEEDED(hresT)) {
                         const static PROPSPEC c_aprop[] = {
                             { PRSPEC_PROPID, PID_INTSITE_CODEPAGE},
                         };
-                        PROPVARIANT prvar = { 0 };
+                        PROPVARIANT prvar = {0};
                         prvar.vt = VT_UI4;
                         prvar.lVal = var.lVal;
                         hresT = ppropstg->WriteMultiple(1, c_aprop, &prvar, 0);
@@ -7126,28 +6673,23 @@ void CDocObjectHost::_OnCodePageChange(const VARIANTARG* pvarargIn)
 
                         ppropstg->Commit(STGC_DEFAULT);
                         ppropstg->Release();
-                    }
-                    else {
+                    } else {
                         TraceMsg(DM_WARNING, "CDOH::_OnCodePageChange Open failed %x", hresT);
                     }
 
                     ppropsetstg->Release();
-                }
-                else {
+                } else {
                     TraceMsg(DM_WARNING, "CDOH::_OnCodePageChange QI failed %x", hresT);
                 }
-            }
-            else {
+            } else {
                 TraceMsg(DM_WARNING, "CDOH::_OnCodePageChange SetURL failed %x", hresT);
             }
             purl->Release();
-        }
-        else {
+        } else {
             TraceMsg(DM_WARNING, "CDOH::_OnCodePageChange CoCreate failed %x", hresT);
         }
 
-    }
-    else {
+    } else {
         ASSERT(0);
     }
 }
@@ -7155,12 +6697,11 @@ void CDocObjectHost::_OnCodePageChange(const VARIANTARG* pvarargIn)
 
 void CDocObjectHost::_MappedBrowserExec(DWORD nCmdID, DWORD nCmdexecopt)
 {
-    if (_pmsoctBrowser)
-    {
+    if (_pmsoctBrowser) {
         DWORD nCmdIDCT = _MapToMso(nCmdID);
         ASSERT(nCmdIDCT != -1);     // if this rips, need to add missing case to _MapCommandID
 
-        OLECMD rgcmd = { nCmdIDCT, 0 };
+        OLECMD rgcmd = {nCmdIDCT, 0};
 
         // bugbug - Trident sometimes executes commands that are disabled (cut, paste) so
         // ensure that the command is enabled first
@@ -7172,29 +6713,25 @@ void CDocObjectHost::_MappedBrowserExec(DWORD nCmdID, DWORD nCmdexecopt)
         // be able to execute the command to show the toolbars because they start off hidden.
 
         if (!fEnabled && (nCmdID == DVIDM_SHOWTOOLS) &&
-            (_GetAppHack() & BROWSERFLAG_ENABLETOOLSBTN))
-        {
+            (_GetAppHack() & BROWSERFLAG_ENABLETOOLSBTN)) {
             fEnabled = TRUE;
         }
 
-        if (fEnabled)
-        {
+        if (fEnabled) {
             _pmsoctBrowser->Exec(NULL, nCmdIDCT, nCmdexecopt, NULL, NULL);
         }
     }
 }
 
-HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG *pvarargIn, VARIANTARG *pvarargOut)
+HRESULT CDocObjectHost::OnExec(const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut)
 {
-    if (pguidCmdGroup == NULL)
-    {
+    if (pguidCmdGroup == NULL) {
         // _InitToolbarButtons and _OnSetStatusText reference _psb directly
         ASSERT(_psb);
         if (!_psb)
             return E_FAIL;
 
-        switch (nCmdID)
-        {
+        switch (nCmdID) {
 
             // The containee has found an http-equiv meta tag; handle it
             // appropriately (client pull, PICS, etc)
@@ -7212,16 +6749,13 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
             _fShowProgressCtl = TRUE;
             _PlaceProgressBar(TRUE);
             _OnSetProgressPos(0, PROGRESS_FINDING);
-            if (IsGlobalOffline())
-            {
+            if (IsGlobalOffline()) {
                 // This is pointing to a web address and we're offline
                 // Ask the user if (s)he wants to go online
                 TCHAR szURL[MAX_URL_STRING];
                 if (SUCCEEDED(_GetCurrentPage(szURL, ARRAYSIZE(szURL), TRUE)) &&
-                    UrlHitsNet(szURL))
-                {
-                    if (InternetGoOnline(szURL, _hwnd, TRUE) && _psb)
-                    {
+                    UrlHitsNet(szURL)) {
+                    if (InternetGoOnline(szURL, _hwnd, TRUE) && _psb) {
                         // Tell all browser windows to update their title and status pane
                         SendShellIEBroadcastMessage(WM_WININICHANGE, 0, 0, 1000);
                     }
@@ -7279,17 +6813,13 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
         default:
             return OLECMDERR_E_NOTSUPPORTED;
         }
-    }
-    else if (IsEqualGUID(CGID_ShellDocView, *pguidCmdGroup))
-    {
-        switch (nCmdID)
-        {
+    } else if (IsEqualGUID(CGID_ShellDocView, *pguidCmdGroup)) {
+        switch (nCmdID) {
         case SHDVID_SSLSTATUS:
         {
             // Ask the user if (s)he wants to go online
             TCHAR szURL[MAX_URL_STRING];
-            if (SUCCEEDED(_GetCurrentPage(szURL, ARRAYSIZE(szURL), TRUE)))
-            {
+            if (SUCCEEDED(_GetCurrentPage(szURL, ARRAYSIZE(szURL), TRUE))) {
                 if (_bsc._pszRedirectedURL && *_bsc._pszRedirectedURL)
                     StrCpyN(szURL, _bsc._pszRedirectedURL, ARRAYSIZE(szURL));
 
@@ -7302,8 +6832,7 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
         case SHDVID_ZONESTATUS:
         {
             // Load the current url into the properties page
-            if (!SHRestricted2W(REST_NoBrowserOptions, NULL, 0))
-            {
+            if (!SHRestricted2W(REST_NoBrowserOptions, NULL, 0)) {
                 TCHAR szBuf[MAX_URL_STRING];
                 _GetCurrentPage(szBuf, ARRAYSIZE(szBuf));
                 ZoneConfigureW(_hwnd, szBuf);
@@ -7312,8 +6841,7 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
         }
 
         case SHDVID_QUERYMERGEDHELPMENU:
-            if (_hmenuMergedHelp)
-            {
+            if (_hmenuMergedHelp) {
                 pvarargOut->vt = VT_INT_PTR;
                 pvarargOut->byref = _hmenuMergedHelp;
                 return S_OK;
@@ -7321,8 +6849,7 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
             return S_FALSE;
 
         case SHDVID_QUERYOBJECTSHELPMENU:
-            if (_hmenuObjHelp)
-            {
+            if (_hmenuObjHelp) {
                 pvarargOut->vt = VT_INT_PTR;
                 pvarargOut->byref = _hmenuObjHelp;
                 return S_OK;
@@ -7340,8 +6867,7 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
 
         case SHDVID_AMBIENTPROPCHANGE:
             // An ambient property above us has changed, let the docobj know
-            if (_pmsoc)
-            {
+            if (_pmsoc) {
                 ASSERT(pvarargIn->vt == VT_I4);
                 return(_pmsoc->OnAmbientPropertyChange(pvarargIn->lVal));
             }
@@ -7352,28 +6878,22 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
 
         case SHDVID_ONCOLORSCHANGE:
             // this comes from trident and needs passing back up to our parent ...
-            if (_pmsoctBrowser)
-            {
+            if (_pmsoctBrowser) {
                 return _pmsoctBrowser->Exec(pguidCmdGroup, nCmdID, nCmdexecopt, pvarargIn, pvarargOut);
-            }
-            else
+            } else
                 return E_FAIL;
 
         case SHDVID_GETOPTIONSHWND:
-            if (_pmsoctBrowser)
-            {
+            if (_pmsoctBrowser) {
                 return _pmsoctBrowser->Exec(pguidCmdGroup, nCmdID, nCmdexecopt, pvarargIn, pvarargOut);
-            }
-            else
-            {
+            } else {
                 return E_FAIL;
             }
 
         case SHDVID_DOCWRITEABORT:
             //  pending DocObject wants to us to abort any binding and activate
             //  it directly
-            if (_bsc._pib && _bsc._fBinding && _punkPending && !_pole)
-            {
+            if (_bsc._pib && _bsc._fBinding && _punkPending && !_pole) {
                 _bsc._fDocWriteAbort = 1;
                 _bsc.OnObjectAvailable(IID_IUnknown, _punkPending);
                 _bsc.AbortBinding();
@@ -7415,9 +6935,8 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
             _fSetSecureLock = TRUE;
             _eSecureLock = pvarargIn->lVal;
 
-            IShellView *psvActive;
-            if (_psb && SUCCEEDED(_psb->QueryActiveShellView(&psvActive)))
-            {
+            IShellView* psvActive;
+            if (_psb && SUCCEEDED(_psb->QueryActiveShellView(&psvActive))) {
                 if (psvActive && IsSameObject(_psv, psvActive))
                     _ForwardSetSecureLock(pvarargIn->lVal);
 
@@ -7436,8 +6955,7 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
             // if we're a weboc then this script err list should be null
             ASSERT(!_fWebOC || _pScriptErrList == NULL);
 
-            if (_pScriptErrList != NULL && !_pScriptErrList->IsEmpty())
-            {
+            if (_pScriptErrList != NULL && !_pScriptErrList->IsEmpty()) {
                 // do the script error info dialog
                 _ScriptErr_Dlg(TRUE);
             }
@@ -7456,16 +6974,13 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
         default:
             return OLECMDERR_E_NOTSUPPORTED;
         }
-    }
-    else if (IsEqualGUID(CGID_Explorer, *pguidCmdGroup))
-    {
+    } else if (IsEqualGUID(CGID_Explorer, *pguidCmdGroup)) {
         switch (nCmdID) {
         case SBCMDID_MAYSAVECHANGES:
             return _OnMaySaveChanges();
 
         case SBCMDID_GETPANE:
-            switch (nCmdexecopt)
-            {
+            switch (nCmdexecopt) {
             case PANE_NAVIGATION:
                 V_I4(pvarargOut) = STATUS_PANE_NAVIGATION;
                 return S_OK;
@@ -7498,11 +7013,8 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
         default:
             return OLECMDERR_E_NOTSUPPORTED;
         } // switch
-    }
-    else if (IsEqualGUID(CGID_DocHostCommandHandler, *pguidCmdGroup))
-    {
-        switch (nCmdID)
-        {
+    } else if (IsEqualGUID(CGID_DocHostCommandHandler, *pguidCmdGroup)) {
+        switch (nCmdID) {
         case OLECMDID_SAVEAS:
             _OnSaveAs();
             return S_OK;
@@ -7513,33 +7025,26 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
 
             hr = S_OK;
 
-            if (_fWebOC)
-            {
+            if (_fWebOC) {
                 // we're a web oc.
                 // pass the handling of this script error to
                 // an appropriate CDocHostUIHandler
 
-                if (_pWebOCUIHandler != NULL)
-                {
-                    IOleCommandTarget * pioct;
+                if (_pWebOCUIHandler != NULL) {
+                    IOleCommandTarget* pioct;
 
                     ASSERT(IS_VALID_CODE_PTR(_pWebOCUIHandler, IDocHostUIHandler));
 
-                    hr = _pWebOCUIHandler->QueryInterface(IID_IOleCommandTarget, (LPVOID *)&pioct);
-                    if (SUCCEEDED(hr))
-                    {
+                    hr = _pWebOCUIHandler->QueryInterface(IID_IOleCommandTarget, (LPVOID*)&pioct);
+                    if (SUCCEEDED(hr)) {
                         hr = pioct->Exec(pguidCmdGroup, nCmdID, nCmdexecopt, pvarargIn, pvarargOut);
 
                         pioct->Release();
                     }
-                }
-                else
-                {
+                } else {
                     hr = _dhUIHandler.Exec(pguidCmdGroup, nCmdID, nCmdexecopt, pvarargIn, pvarargOut);
                 }
-            }
-            else
-            {
+            } else {
                 ASSERT(IS_VALID_READ_PTR(pvarargIn, VARIANTARG));
                 ASSERT(IS_VALID_WRITE_PTR(pvarargOut, VARIANTARG));
 
@@ -7547,33 +7052,26 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
                 // ourselves, so cache the errors for later
                 // display in the new script error dialog
 
-                if (pvarargIn == NULL || pvarargOut == NULL)
-                {
+                if (pvarargIn == NULL || pvarargOut == NULL) {
                     hr = E_INVALIDARG;
                 }
 
-                if (SUCCEEDED(hr))
-                {
-                    if (_pScriptErrList == NULL)
-                    {
+                if (SUCCEEDED(hr)) {
+                    if (_pScriptErrList == NULL) {
 
                         // create a new script error list
                         _pScriptErrList = new CScriptErrorList;
-                        if (_pScriptErrList == NULL)
-                        {
+                        if (_pScriptErrList == NULL) {
                             hr = E_OUTOFMEMORY;
                         }
                     }
 
-                    if (SUCCEEDED(hr))
-                    {
+                    if (SUCCEEDED(hr)) {
                         TCHAR   szMsg[MAX_PATH];
 
                         // stuff the error icon into the status bar
-                        if (g_hiconScriptErr != NULL)
-                        {
-                            if (_psb != NULL)
-                            {
+                        if (g_hiconScriptErr != NULL) {
+                            if (_psb != NULL) {
                                 _psb->SendControlMsg(FCW_STATUS,
                                                      SB_SETICON,
                                                      STATUS_PANE_NAVIGATION,
@@ -7593,13 +7091,10 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
                         _ScriptErr_Dlg(FALSE);
 
                         V_VT(pvarargOut) = VT_BOOL;
-                        if (_pScriptErrList->IsFull())
-                        {
+                        if (_pScriptErrList->IsFull()) {
                             // stop running scripts
                             V_BOOL(pvarargOut) = VARIANT_FALSE;
-                        }
-                        else
-                        {
+                        } else {
                             // keep running scripts
                             V_BOOL(pvarargOut) = VARIANT_TRUE;
                         }
@@ -7633,8 +7128,7 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
         {
             HRESULT hr = OLECMDERR_E_NOTSUPPORTED;
 
-            if (_pScriptErrList != NULL)
-            {
+            if (_pScriptErrList != NULL) {
                 // clear out the script error list
                 _pScriptErrList->ClearErrorList();
                 _SetPriorityStatusText(NULL);
@@ -7648,27 +7142,21 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
             // Otherwise fall through and let the client handle it.
 
 
-            if (_pwszRefreshUrl)
-            {
+            if (_pwszRefreshUrl) {
                 _DoAsyncNavigation(_pwszRefreshUrl);
                 hr = S_OK;
-            }
-            else
-            {
+            } else {
 
                 // Non http errors (syntax, DNS, etc) are handled by a async nav
                 // to res://shdocvw/error.htm#originalurl.  Handle the refresh
                 // for those pages here.
 
-                if (_pmkCur)
-                {
+                if (_pmkCur) {
                     LPOLESTR pstrUrl;
 
-                    if (SUCCEEDED(_pmkCur->GetDisplayName(_pbcCur, NULL, &pstrUrl)))
-                    {
+                    if (SUCCEEDED(_pmkCur->GetDisplayName(_pbcCur, NULL, &pstrUrl))) {
 
-                        if (IsErrorUrl(pstrUrl) && _pszLocation && *_pszLocation)
-                        {
+                        if (IsErrorUrl(pstrUrl) && _pszLocation && *_pszLocation) {
 
                             // The error url has the form:
                             // "res://shdocvw.dll/http404.htm#http://foo.bar"
@@ -7699,26 +7187,22 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
         default:
             return OLECMDERR_E_NOTSUPPORTED;
         }
-    }
-    else if (IsEqualGUID(*pguidCmdGroup, CLSID_InternetButtons) ||
-             IsEqualGUID(*pguidCmdGroup, CLSID_MSOButtons))
-    {
+    } else if (IsEqualGUID(*pguidCmdGroup, CLSID_InternetButtons) ||
+               IsEqualGUID(*pguidCmdGroup, CLSID_MSOButtons)) {
         UEMFireEvent(&UEMIID_BROWSER, UEME_UITOOLBAR, UEMF_XEVENT, UIG_OTHER, nCmdID);
         if (nCmdexecopt == OLECMDEXECOPT_PROMPTUSER) {
             // the user hit the drop down
-            if (_pmsoctBrowser && pvarargIn && pvarargIn->vt == VT_INT_PTR)
-            {
+            if (_pmsoctBrowser && pvarargIn && pvarargIn->vt == VT_INT_PTR) {
                 // v.vt = VT_INT_PTR;
                 POINT pt;
                 RECT* prc = (RECT*)pvarargIn->byref;
                 pt.x = prc->left;
                 pt.y = prc->bottom;
 
-                switch (nCmdID)
-                {
+                switch (nCmdID) {
                 case DVIDM_MAILNEWS:
                 {
-                    VARIANTARG v = { VT_I4 };
+                    VARIANTARG v = {VT_I4};
                     v.lVal = MAKELONG(prc->left, prc->bottom);
                     _pmsoctBrowser->Exec(&CGID_Explorer, SBCMDID_DOMAILMENU, 0, &v, NULL);
                     break;
@@ -7726,7 +7210,7 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
 
                 case DVIDM_FONTS:
                 {
-                    VARIANTARG v = { VT_I4 };
+                    VARIANTARG v = {VT_I4};
                     v.lVal = MAKELONG(prc->left, prc->bottom);
                     _pmsoctBrowser->Exec(&CGID_ShellDocView, SHDVID_FONTMENUOPEN, 0, &v, NULL);
                     break;
@@ -7734,7 +7218,7 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
 
                 case DVIDM_ENCODING:
                 {
-                    VARIANTARG v = { VT_I4 };
+                    VARIANTARG v = {VT_I4};
                     v.lVal = MAKELONG(prc->left, prc->bottom);
                     _pmsoctBrowser->Exec(&CGID_ShellDocView, SHDVID_MIMECSETMENUOPEN, 0, &v, NULL);
                     break;
@@ -7746,12 +7230,9 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
 
         // CommandIDs from DVIDM_MENUEXT_FIRST to DVIDM_MENUEXT_LAST are reserved for toolbar extension buttons
         // Do NOT use this range for constants within the scope of CLSID_InternetButtons/CLSID_MSOButtons!
-        if (InRange(nCmdID, DVIDM_MENUEXT_FIRST, DVIDM_MENUEXT_LAST))
-        {
+        if (InRange(nCmdID, DVIDM_MENUEXT_FIRST, DVIDM_MENUEXT_LAST)) {
             IUnknown_Exec(_pBrowsExt, &CLSID_ToolbarExtButtons, nCmdID, nCmdexecopt, pvarargIn, pvarargOut);
-        }
-        else
-        {
+        } else {
             switch (nCmdID) {
 
             case DVIDM_DISCUSSIONS:
@@ -7784,33 +7265,26 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
             }
         }
         return S_OK;
-    }
-    else if (IsEqualGUID(IID_IExplorerToolbar, *pguidCmdGroup))
-    {
-        switch (nCmdID)
-        {
+    } else if (IsEqualGUID(IID_IExplorerToolbar, *pguidCmdGroup)) {
+        switch (nCmdID) {
         case ETCMDID_GETBUTTONS:
         {
             int nNumExtButtons = 0;
 
-            if (_pBrowsExt)
-            {
+            if (_pBrowsExt) {
                 _pBrowsExt->GetNumButtons((UINT*)&nNumExtButtons);
             }
 
             int nNumButtons = nNumExtButtons + ARRAYSIZE(c_tbStd);
 
-            if ((_nNumButtons != nNumButtons) && (_ptbStd != NULL))
-            {
+            if ((_nNumButtons != nNumButtons) && (_ptbStd != NULL)) {
                 delete[] _ptbStd;
                 _ptbStd = NULL;
             }
 
-            if (_ptbStd == NULL)
-            {
+            if (_ptbStd == NULL) {
                 _ptbStd = new TBBUTTON[nNumButtons];
-                if (_ptbStd == NULL)
-                {
+                if (_ptbStd == NULL) {
                     return E_OUTOFMEMORY;
                 }
                 _nNumButtons = nNumButtons;
@@ -7824,20 +7298,16 @@ HRESULT CDocObjectHost::OnExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nC
             ASSERT(_ptbStd[8].idCommand == DVIDM_PASTE);
             ASSERT(_ptbStd[9].idCommand == DVIDM_ENCODING);
 
-            if (-1 != _iString)
-            {
+            if (-1 != _iString) {
                 _ptbStd[6].iString = _iString;
                 _ptbStd[7].iString = _iString + 1;
                 _ptbStd[8].iString = _iString + 2;
                 _ptbStd[9].iString = _iString + 3;
-            }
-            else
-            {
+            } else {
                 _ptbStd[6].iString = _ptbStd[7].iString = _ptbStd[8].iString = _ptbStd[9].iString = -1;
             }
 
-            if (_pBrowsExt)
-            {
+            if (_pBrowsExt) {
                 _pBrowsExt->GetButtons(&_ptbStd[ARRAYSIZE(c_tbStd)], nNumExtButtons, FALSE);
             }
 
@@ -7882,11 +7352,9 @@ HRESULT CDocObjectHost::_OnMaySaveChanges(void)
     //  2. DocObject which returns S_OK for IPersistFile::S_OK implements
     //   OLECMDID_SAVEAS.
 
-    if (_fFileProtocol || _pmsot)
-    {
+    if (_fFileProtocol || _pmsot) {
         IPersistFile* ppf;
-        if (_IsDirty(&ppf))
-        {
+        if (_IsDirty(&ppf)) {
             ASSERT(ppf);
 
             TCHAR szBuf[MAX_URL_STRING];
@@ -7906,16 +7374,13 @@ HRESULT CDocObjectHost::_OnMaySaveChanges(void)
                     // because we are loading the object with read-only flags.  So we show
                     // the Save As dialog to let the user choose another filename.
 
-                    if (_GetAppHack() & BROWSERFLAG_SAVEASWHENCLOSING)
-                    {
+                    if (_GetAppHack() & BROWSERFLAG_SAVEASWHENCLOSING) {
                         if (_OnSaveAs() != S_OK)
                             hres = S_FALSE;
-                    }
-                    else
+                    } else
                         _OnSave();
 
-                }
-                else {
+                } else {
                     HRESULT hresT = _pmsot->Exec(NULL, OLECMDID_SAVEAS, OLECMDEXECOPT_PROMPTUSER, NULL, NULL);
                     SAVEMSG("Exec(OLECMDID_SAVEAS) returned", hresT);
 
@@ -7946,8 +7411,7 @@ HRESULT CDocObjectHost::_OnMaySaveChanges(void)
             }
 
             ppf->Release();
-        }
-        else {
+        } else {
             ASSERT(ppf == NULL);
         }
     }
@@ -7959,7 +7423,7 @@ HRESULT CDocObjectHost::_OnMaySaveChanges(void)
 
 
     if (hres == S_OK && _pmsot) {
-        VARIANT varOut = { 0 };
+        VARIANT varOut = {0};
         HRESULT hresT = _pmsot->Exec(NULL, OLECMDID_ONUNLOAD, OLECMDEXECOPT_PROMPTUSER, NULL, &varOut);
         if (varOut.vt == VT_BOOL && varOut.boolVal != VARIANT_TRUE) {
             hres = S_FALSE;
@@ -7969,17 +7433,15 @@ HRESULT CDocObjectHost::_OnMaySaveChanges(void)
     return hres;
 }
 
-BOOL _ExecNearest(const GUID *pguidCmdGroup, DWORD nCmdID, BOOL fDown)
+BOOL _ExecNearest(const GUID* pguidCmdGroup, DWORD nCmdID, BOOL fDown)
 {
     // Some commands we want to do in the closest frame to the docobj,
     // some in the farthest-away frame, and some we want to handle
     // in the top-most dochost. Look at the command to figure out
     // the routing and then do it.
     BOOL fNearest = FALSE; // most everything goes to the farthest-away frame
-    if (pguidCmdGroup == NULL)
-    {
-        switch (nCmdID)
-        {
+    if (pguidCmdGroup == NULL) {
+        switch (nCmdID) {
         case OLECMDID_OPEN:
         case OLECMDID_SAVE:
         case OLECMDID_SETTITLE:
@@ -8001,11 +7463,8 @@ BOOL _ExecNearest(const GUID *pguidCmdGroup, DWORD nCmdID, BOOL fDown)
             fNearest = fDown;
             break;
         }
-    }
-    else if (IsEqualGUID(CGID_ShellDocView, *pguidCmdGroup))
-    {
-        switch (nCmdID)
-        {
+    } else if (IsEqualGUID(CGID_ShellDocView, *pguidCmdGroup)) {
+        switch (nCmdID) {
         case SHDVID_AMBIENTPROPCHANGE:
         case SHDVID_GETSYSIMAGEINDEX:
         case SHDVID_DOCWRITEABORT:
@@ -8021,20 +7480,15 @@ BOOL _ExecNearest(const GUID *pguidCmdGroup, DWORD nCmdID, BOOL fDown)
             fNearest = fDown;
             break;
         }
-    }
-    else if (IsEqualGUID(CGID_Explorer, *pguidCmdGroup))
-    {
-        switch (nCmdID)
-        {
+    } else if (IsEqualGUID(CGID_Explorer, *pguidCmdGroup)) {
+        switch (nCmdID) {
         case SBCMDID_MAYSAVECHANGES:    // since OLECMDID_SAVE is to the nearest frame
             fNearest = TRUE;
             break;
         }
-    }
-    else if (IsEqualGUID(IID_IExplorerToolbar, *pguidCmdGroup) ||
-             IsEqualGUID(CLSID_InternetButtons, *pguidCmdGroup) ||
-             IsEqualGUID(CLSID_MSOButtons, *pguidCmdGroup))
-    {
+    } else if (IsEqualGUID(IID_IExplorerToolbar, *pguidCmdGroup) ||
+               IsEqualGUID(CLSID_InternetButtons, *pguidCmdGroup) ||
+               IsEqualGUID(CLSID_MSOButtons, *pguidCmdGroup)) {
         fNearest = TRUE;
     }
 
@@ -8042,11 +7496,11 @@ BOOL _ExecNearest(const GUID *pguidCmdGroup, DWORD nCmdID, BOOL fDown)
 }
 
 HRESULT CDocObjectHost::Exec(
-    /* [unique][in] */ const GUID *pguidCmdGroup,
+    /* [unique][in] */ const GUID* pguidCmdGroup,
     /* [in] */ DWORD nCmdID,
     /* [in] */ DWORD nCmdexecopt,
-    /* [unique][in] */ VARIANTARG *pvarargIn,
-    /* [unique][out][in] */ VARIANTARG *pvarargOut)
+    /* [unique][in] */ VARIANTARG* pvarargIn,
+    /* [unique][out][in] */ VARIANTARG* pvarargOut)
 {
     HRESULT hres = OLECMDERR_E_UNKNOWNGROUP;
 
@@ -8073,19 +7527,17 @@ HRESULT CDocObjectHost::Exec(
     return hres;
 }
 
-HRESULT CDocObjectHost::_GetUrlVariant(VARIANT *pvarargOut)
+HRESULT CDocObjectHost::_GetUrlVariant(VARIANT* pvarargOut)
 {
     ASSERT(pvarargOut);
-    if (_pmkCur)
-    {
+    if (_pmkCur) {
         LPOLESTR pszDisplayName = NULL;
         LPTSTR pszRedirectedURL = NULL;
 
         if (_bsc._pszRedirectedURL && *_bsc._pszRedirectedURL)
             pszRedirectedURL = _bsc._pszRedirectedURL;
 
-        if (pszRedirectedURL || SUCCEEDED(_GetCurrentPageW(&pszDisplayName, TRUE)))
-        {
+        if (pszRedirectedURL || SUCCEEDED(_GetCurrentPageW(&pszDisplayName, TRUE))) {
             pvarargOut->bstrVal = SysAllocString(pszRedirectedURL ? pszRedirectedURL : pszDisplayName);
             if (pvarargOut->bstrVal)
                 pvarargOut->vt = VT_BSTR;
@@ -8099,16 +7551,15 @@ HRESULT CDocObjectHost::_GetUrlVariant(VARIANT *pvarargOut)
 HRESULT CDocObjectHost::_CoCreateHTMLDocument(REFIID riid, LPVOID* ppvOut)
 {
     IOleCommandTarget* pcmd;
-    HRESULT hres = QueryService(SID_STopLevelBrowser, IID_IOleCommandTarget, (void **)&pcmd);
+    HRESULT hres = QueryService(SID_STopLevelBrowser, IID_IOleCommandTarget, (void**)&pcmd);
     if (SUCCEEDED(hres)) {
-        VARIANT varOut = { 0 };
+        VARIANT varOut = {0};
         hres = pcmd->Exec(&CGID_Explorer, SBCMDID_COCREATEDOCUMENT, 0, NULL, &varOut);
         if (SUCCEEDED(hres) && varOut.vt == VT_UNKNOWN) {
             hres = varOut.punkVal->QueryInterface(riid, ppvOut);
             // Clean it up by ourself so that we don't load OLEAUT32
             varOut.punkVal->Release();
-        }
-        else {
+        } else {
             ASSERT(varOut.vt == VT_EMPTY);
             VariantClear(&varOut);
         }
@@ -8121,24 +7572,21 @@ HRESULT CDocObjectHost::_CreatePendingDocObject(BOOL fMustInit)
 {
     HRESULT hres = S_OK;
 
-    if (_punkPending == NULL)
-    {
+    if (_punkPending == NULL) {
         hres = _CoCreateHTMLDocument(IID_IUnknown, (LPVOID*)&_punkPending);
         _fPendingNeedsInit = 1;   // lazy InitNew only if absolutely necessary
     }
-    if (_fPendingNeedsInit && fMustInit && SUCCEEDED(hres))
-    {
-        IPersistStreamInit *pipsi;
-        IOleObject *polePending;
+    if (_fPendingNeedsInit && fMustInit && SUCCEEDED(hres)) {
+        IPersistStreamInit* pipsi;
+        IOleObject* polePending;
 #ifdef TRIDENT_NEEDS_LOCKRUNNING
-        IRunnableObject *pro;
+        IRunnableObject* pro;
 #endif
         _fCreatingPending = 1;    // we are creating _punkPending
         _fAbortCreatePending = 0;
         _fPendingNeedsInit = 0;
-        hres = _punkPending->QueryInterface(IID_IPersistStreamInit, (LPVOID *)&pipsi);
-        if (SUCCEEDED(hres))
-        {
+        hres = _punkPending->QueryInterface(IID_IPersistStreamInit, (LPVOID*)&pipsi);
+        if (SUCCEEDED(hres)) {
             hres = pipsi->InitNew();
             pipsi->Release();
         }
@@ -8146,11 +7594,9 @@ HRESULT CDocObjectHost::_CreatePendingDocObject(BOOL fMustInit)
         //  while in the process of loading the document), trident will respond with E_PENDING
         //  since there is already a load in progress, this call/init is a timing issue, and
         //  we can use the exisitng one.
-        if (SUCCEEDED(hres) || hres == E_PENDING)
-        {
-            hres = _punkPending->QueryInterface(IID_IOleObject, (LPVOID *)&polePending);
-            if (SUCCEEDED(hres))
-            {
+        if (SUCCEEDED(hres) || hres == E_PENDING) {
+            hres = _punkPending->QueryInterface(IID_IOleObject, (LPVOID*)&polePending);
+            if (SUCCEEDED(hres)) {
                 hres = polePending->SetClientSite(this);
                 polePending->Release();
             }
@@ -8160,11 +7606,9 @@ HRESULT CDocObjectHost::_CreatePendingDocObject(BOOL fMustInit)
                 //  registered.  LockRunning(FALSE,FALSE) implied in the Revoke will result
                 //  in OleClose being called on _punkPending if we haven't activated it
                 //  by end of binding.  Thus we must call LockRunning ourself
-            if (SUCCEEDED(hres))
-            {
-                hres = _punkPending->QueryInterface(IID_IRunnableObject, (LPVOID *)&pro);
-                if (SUCCEEDED(hres))
-                {
+            if (SUCCEEDED(hres)) {
+                hres = _punkPending->QueryInterface(IID_IRunnableObject, (LPVOID*)&pro);
+                if (SUCCEEDED(hres)) {
                     hres = pro->LockRunning(TRUE, TRUE);
                     pro->Release();
                 }
@@ -8173,20 +7617,15 @@ HRESULT CDocObjectHost::_CreatePendingDocObject(BOOL fMustInit)
         }
         _fCreatingPending = 0;
         _fPendingWasInited = 1;
-        if (FAILED(hres))
-        {
+        if (FAILED(hres)) {
             SAFERELEASE(_punkPending);
-        }
-        else if (_fAbortCreatePending)
-        {
+        } else if (_fAbortCreatePending) {
             //  Detect AOL pumping messages and reentering and attempting to release
             //  _punkPending
             _fAbortCreatePending = 0;
             _ReleasePendingObject();
             hres = E_FAIL;
-        }
-        else
-        {
+        } else {
             //  Pass URL for pending object to it in advance of IPersistMoniker::Load
 
 
@@ -8222,44 +7661,33 @@ HRESULT CDocObjectHost::_CreatePendingDocObject(BOOL fMustInit)
 
 // called from CDocObjectView to exec and forward these calls down
 
-HRESULT CDocObjectHost::ExecDown(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG *pvarargIn, VARIANTARG *pvarargOut)
+HRESULT CDocObjectHost::ExecDown(const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut)
 {
     HRESULT hres = OLECMDERR_E_UNKNOWNGROUP;
 
     //  Special case Exec's that are used to fetch info on pending docobject
     //  for scripting access before OnObjectAvailable
-    if (pguidCmdGroup && IsEqualGUID(CGID_ShellDocView, *pguidCmdGroup))
-    {
-        switch (nCmdID)
-        {
+    if (pguidCmdGroup && IsEqualGUID(CGID_ShellDocView, *pguidCmdGroup)) {
+        switch (nCmdID) {
         case SHDVID_GETPENDINGOBJECT:
             ASSERT(pvarargOut);
             VariantClearLazy(pvarargOut);
-            if (_pole)
-            {
-                _pole->QueryInterface(IID_IUnknown, (LPVOID *) &(pvarargOut->punkVal));
-            }
-            else
-            {
+            if (_pole) {
+                _pole->QueryInterface(IID_IUnknown, (LPVOID*)&(pvarargOut->punkVal));
+            } else {
                 _CreatePendingDocObject(TRUE);
-                if (_punkPending)
-                {
+                if (_punkPending) {
                     pvarargOut->punkVal = _punkPending;
                     _punkPending->AddRef();
-                }
-                else if (_pole)
-                {
-                    _pole->QueryInterface(IID_IUnknown, (LPVOID *) &(pvarargOut->punkVal));
+                } else if (_pole) {
+                    _pole->QueryInterface(IID_IUnknown, (LPVOID*)&(pvarargOut->punkVal));
                 }
             }
-            if (pvarargOut->punkVal != NULL)
-            {
+            if (pvarargOut->punkVal != NULL) {
                 pvarargOut->vt = VT_UNKNOWN;
                 hres = S_OK;
 
-            }
-            else
-            {
+            } else {
                 hres = E_FAIL;
             }
             return hres;
@@ -8291,8 +7719,7 @@ HRESULT CDocObjectHost::ExecDown(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD 
         if (hres == E_INVALIDARG
             && (_dwAppHack & BROWSERFLAG_PRINTPROMPTUI)
             && pguidCmdGroup == NULL
-            && nCmdID == OLECMDID_PRINT)
-        {
+            && nCmdID == OLECMDID_PRINT) {
             TraceMsg(TF_SHDAPPHACK, "DOH::ExecDown(OLECMDID_PRINT) removing PRINTFLAG_PROMPTUSER");
             nCmdexecopt &= ~OLECMDEXECOPT_DONTPROMPTUSER;
             hres = _pmsot->Exec(pguidCmdGroup, nCmdID, nCmdexecopt, pvarargIn, pvarargOut);
@@ -8304,7 +7731,7 @@ HRESULT CDocObjectHost::ExecDown(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD 
 
     return hres;
 }
-HRESULT CDocObjectHost::QueryStatusDown(const GUID *pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT *pcmdtext)
+HRESULT CDocObjectHost::QueryStatusDown(const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext)
 {
     HRESULT hres;
 
@@ -8332,8 +7759,7 @@ HRESULT CDocObjectHost::OnControlInfoChanged()
 {
     HRESULT hres = E_NOTIMPL;
 
-    if (_pedsHelper)
-    {
+    if (_pedsHelper) {
         hres = _pedsHelper->OnOnControlInfoChanged();
     }
 
@@ -8351,7 +7777,7 @@ HRESULT CDocObjectHost::OnControlInfoChanged()
 
 //  that's how we do it when we're top-level.  when we're a frameset, we
 //  need to do it the 'real' way, sending it up to our parent IOCS.
-HRESULT CDocObjectHost::TranslateAccelerator(MSG __RPC_FAR *pmsg, DWORD grfModifiers)
+HRESULT CDocObjectHost::TranslateAccelerator(MSG __RPC_FAR* pmsg, DWORD grfModifiers)
 {
 
     HRESULT hres = S_FALSE;
@@ -8390,15 +7816,12 @@ HRESULT CDocObjectHost::TranslateAccelerator(MSG __RPC_FAR *pmsg, DWORD grfModif
 // }
 
 
-STDMETHODIMP CDocObjectHost::CPicsCommandTarget::QueryInterface(REFIID riid, LPVOID * ppvObj)
+STDMETHODIMP CDocObjectHost::CPicsCommandTarget::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
     if (IsEqualIID(riid, IID_IOleCommandTarget) ||
-        IsEqualIID(riid, IID_IUnknown))
-    {
-        *ppvObj = SAFECAST(this, IOleCommandTarget *);
-    }
-    else
-    {
+        IsEqualIID(riid, IID_IUnknown)) {
+        *ppvObj = SAFECAST(this, IOleCommandTarget*);
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -8422,21 +7845,19 @@ STDMETHODIMP_(ULONG) CDocObjectHost::CPicsCommandTarget::Release(void)
     return pdoh->Release();
 }
 
-STDMETHODIMP CDocObjectHost::CPicsCommandTarget::QueryStatus(const GUID *pguidCmdGroup,
-                                                             ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT *pcmdtext)
+STDMETHODIMP CDocObjectHost::CPicsCommandTarget::QueryStatus(const GUID* pguidCmdGroup,
+                                                             ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP CDocObjectHost::CPicsCommandTarget::Exec(const GUID *pguidCmdGroup,
-                                                      DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG *pvarargIn, VARIANTARG *pvarargOut)
+STDMETHODIMP CDocObjectHost::CPicsCommandTarget::Exec(const GUID* pguidCmdGroup,
+                                                      DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut)
 {
     CDocObjectHost* pdoh = IToClass(CDocObjectHost, _ctPics, this);
 
-    if (IsEqualGUID(CGID_ShellDocView, *pguidCmdGroup))
-    {
-        switch (nCmdID)
-        {
+    if (IsEqualGUID(CGID_ShellDocView, *pguidCmdGroup)) {
+        switch (nCmdID) {
         case SHDVID_PICSLABELFOUND:
             if (pvarargIn->vt == (VT_BSTR)) {
                 pdoh->_HandleInDocumentLabel(pvarargIn->bstrVal);
@@ -8458,34 +7879,25 @@ STDMETHODIMP CDocObjectHost::CPicsCommandTarget::Exec(const GUID *pguidCmdGroup,
 
 
 HRESULT CDocObjectFrame::QueryService(REFGUID guidService,
-                                      REFIID riid, void **ppvObj)
+                                      REFIID riid, void** ppvObj)
 {
     return _pdoh->QueryService(guidService, riid, ppvObj);
 }
 
-HRESULT CDocObjectFrame::QueryInterface(REFIID riid, LPVOID * ppvObj)
+HRESULT CDocObjectFrame::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
     if (IsEqualIID(riid, IID_IOleInPlaceFrame) ||
         IsEqualIID(riid, IID_IOleInPlaceUIWindow) ||
         IsEqualIID(riid, IID_IOleWindow) ||
-        IsEqualIID(riid, IID_IUnknown))
-    {
+        IsEqualIID(riid, IID_IUnknown)) {
         *ppvObj = SAFECAST(this, IOleInPlaceFrame*);
-    }
-    else if (IsEqualIID(riid, IID_IOleCommandTarget))
-    {
+    } else if (IsEqualIID(riid, IID_IOleCommandTarget)) {
         *ppvObj = SAFECAST(this, IOleCommandTarget*);
-    }
-    else if (IsEqualIID(riid, IID_IServiceProvider))
-    {
+    } else if (IsEqualIID(riid, IID_IServiceProvider)) {
         *ppvObj = SAFECAST(this, IServiceProvider*);
-    }
-    else if (IsEqualIID(riid, IID_IInternetSecurityMgrSite))
-    {
+    } else if (IsEqualIID(riid, IID_IInternetSecurityMgrSite)) {
         *ppvObj = SAFECAST(this, IInternetSecurityMgrSite*);
-    }
-    else
-    {
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -8504,7 +7916,7 @@ ULONG CDocObjectFrame::Release(void)
     return _pdoh->Release();
 }
 
-HRESULT CDocObjectFrame::GetWindow(HWND * lphwnd)
+HRESULT CDocObjectFrame::GetWindow(HWND* lphwnd)
 {
     DOFMSG(TEXT("GetWindow called"));
     return _pdoh->_pipu ?
@@ -8541,7 +7953,7 @@ HRESULT CDocObjectFrame::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
 }
 
 HRESULT CDocObjectFrame::SetActiveObject(
-    IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName)
+    IOleInPlaceActiveObject* pActiveObject, LPCOLESTR pszObjName)
 {
     DOFMSG(TEXT("SetActiveObject called"));
 
@@ -8595,15 +8007,15 @@ HRESULT CDocObjectFrame::TranslateAccelerator(LPMSG lpmsg, WORD wID)
     return _pdoh->_TranslateAccelerator(lpmsg, wID);
 }
 
-HRESULT CDocObjectFrame::QueryStatus(const GUID *pguidCmdGroup,
-                                     ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT *pcmdtext)
+HRESULT CDocObjectFrame::QueryStatus(const GUID* pguidCmdGroup,
+                                     ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext)
 {
     DOFMSG(TEXT("QueryStatus called"));
     return _pdoh->QueryStatus(pguidCmdGroup, cCmds, rgCmds, pcmdtext);
 }
 
-HRESULT CDocObjectFrame::Exec(const GUID *pguidCmdGroup,
-                              DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG *pvarargIn, VARIANTARG *pvarargOut)
+HRESULT CDocObjectFrame::Exec(const GUID* pguidCmdGroup,
+                              DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut)
 {
     DOFMSG(TEXT("Exec called"));
     return _pdoh->Exec(pguidCmdGroup, nCmdID, nCmdexecopt, pvarargIn, pvarargOut);
@@ -8664,7 +8076,7 @@ HRESULT CProxyActiveObject::OnDocWindowActivate(
 
 HRESULT CProxyActiveObject::ResizeBorder(
     LPCRECT prcBorder,
-    IOleInPlaceUIWindow *pUIWindow,
+    IOleInPlaceUIWindow* pUIWindow,
     BOOL fFrameWindow)
 {
     if (_piact) {
@@ -8675,10 +8087,9 @@ HRESULT CProxyActiveObject::ResizeBorder(
     }
     return E_FAIL;
 }
-void CProxyActiveObject::SetActiveObject(IOleInPlaceActiveObject *piact)
+void CProxyActiveObject::SetActiveObject(IOleInPlaceActiveObject* piact)
 {
-    if (_piact)
-    {
+    if (_piact) {
         ATOMICRELEASE(_piact);
         _hwnd = NULL;
     }
@@ -8701,16 +8112,13 @@ HRESULT CProxyActiveObject::EnableModeless(
     return hres;
 }
 
-HRESULT CProxyActiveObject::QueryInterface(REFIID riid, LPVOID * ppvObj)
+HRESULT CProxyActiveObject::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
     if (IsEqualIID(riid, IID_IOleInPlaceActiveObject) ||
         IsEqualIID(riid, IID_IOleWindow) ||
-        IsEqualIID(riid, IID_IUnknown))
-    {
+        IsEqualIID(riid, IID_IUnknown)) {
         *ppvObj = SAFECAST(this, IOleInPlaceActiveObject*);
-    }
-    else
-    {
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -8729,7 +8137,7 @@ ULONG CProxyActiveObject::Release(void)
     return _pdoh->Release();
 }
 
-HRESULT CProxyActiveObject::GetWindow(HWND * lphwnd)
+HRESULT CProxyActiveObject::GetWindow(HWND* lphwnd)
 {
     return _pdoh->GetWindow(lphwnd);
 }
@@ -8760,7 +8168,7 @@ void CDocObjectHost::_PlaceProgressBar(BOOL fForcedLayout)
                 UINT cxProgressBar = (_fShowProgressCtl) ? 100 : 0;
 
                 INT nSBWidth = rc.right - rc.left;
-                INT arnRtEdge[STATUS_PANES] = { 1 };
+                INT arnRtEdge[STATUS_PANES] = {1};
                 INT nIconPaneWidth = GetSystemMetrics(SM_CXSMICON) +
                     (GetSystemMetrics(SM_CXEDGE) * 4);
                 INT nWidthReqd = cxZone + cxProgressBar + (nIconPaneWidth * 2);
@@ -8783,10 +8191,8 @@ void CDocObjectHost::_PlaceProgressBar(BOOL fForcedLayout)
 
                 LRESULT nParts = 0;
                 nParts = SendMessage(hwndStatus, SB_GETPARTS, 0, 0L);
-                if (nParts != STATUS_PANES)
-                {
-                    for (int n = 0; n < nParts; n++)
-                    {
+                if (nParts != STATUS_PANES) {
+                    for (int n = 0; n < nParts; n++) {
                         SendMessage(hwndStatus, SB_SETTEXT, n | SBT_NOTABPARSING, NULL);
                         SendMessage(hwndStatus, SB_SETICON, n, NULL);
                     }
@@ -8800,12 +8206,9 @@ void CDocObjectHost::_PlaceProgressBar(BOOL fForcedLayout)
                 }
 
                 if (_hwndProgress) {
-                    if (SendMessage(hwndStatus, SB_GETRECT, 1, (LPARAM)&rc))
-                    {
+                    if (SendMessage(hwndStatus, SB_GETRECT, 1, (LPARAM)&rc)) {
                         InflateRect(&rc, -GetSystemMetrics(SM_CXEDGE), -GetSystemMetrics(SM_CYEDGE));
-                    }
-                    else
-                    {
+                    } else {
                         rc.left = rc.top = rc.right = rc.bottom = 0;
                     }
 
@@ -8824,8 +8227,7 @@ void CDocObjectHost::_PlaceProgressBar(BOOL fForcedLayout)
                     SendMessage(hwndStatus, SB_SIMPLE, TRUE, 0);
             }
         }
-    }
-    else {
+    } else {
         TraceMsg(TF_ERROR, "_PlaceProgressBar ASSERT(_psb) this=%x", this);
     }
 }
@@ -8847,8 +8249,7 @@ void CDocObjectHost::_ActivateOleObject(void)
 
     if (SUCCEEDED(hres)) {
         CShdAdviseSink_Advise(_pwb, _pole);
-    }
-    else {
+    } else {
         TraceMsg(DM_ERROR, "CDOH::_ActivateOleObject DoVerb failed %x.", hres);
     }
 
@@ -8867,11 +8268,9 @@ void CDocObjectHost::_OnReadyState(long lVal)
 {
     // Forward this to the browser so we can source ReadyState events properly
     //  TRACE this zekel
-    if (_psb)
-    {
-        IDocNavigate *pdn;
-        if (SUCCEEDED(_psb->QueryInterface(IID_IDocNavigate, (LPVOID*)&pdn)))
-        {
+    if (_psb) {
+        IDocNavigate* pdn;
+        if (SUCCEEDED(_psb->QueryInterface(IID_IDocNavigate, (LPVOID*)&pdn))) {
             ASSERT(_psv);
             pdn->OnReadyStateChange(_psv, lVal);
             pdn->Release();
@@ -8881,43 +8280,36 @@ void CDocObjectHost::_OnReadyState(long lVal)
     // NOTE: The below code is rather wasteful. The OmWindow stuff
     // should trigger off the above ReadyState code.
 
-    IShellHTMLWindowSupport *phtmlWS;
-    if (_psp && SUCCEEDED(_psp->QueryService(SID_SOmWindow, IID_IShellHTMLWindowSupport, (void**)&phtmlWS)))
-    {
+    IShellHTMLWindowSupport* phtmlWS;
+    if (_psp && SUCCEEDED(_psp->QueryService(SID_SOmWindow, IID_IShellHTMLWindowSupport, (void**)&phtmlWS))) {
         phtmlWS->ReadyStateChangedTo(lVal, _psv);
         phtmlWS->Release();
     }
 
-    if (lVal >= READYSTATE_INTERACTIVE)
-    {
+    if (lVal >= READYSTATE_INTERACTIVE) {
         // Technically we can get this value multiple times,
         // so make sure we call _Navigate only once.
 
-        if (!_fReadystateInteractiveProcessed)
-        {
+        if (!_fReadystateInteractiveProcessed) {
             _fReadystateInteractiveProcessed = TRUE;
 
             _Navigate();
         }
 
-        if (lVal == READYSTATE_COMPLETE)
-        {
+        if (lVal == READYSTATE_COMPLETE) {
             _OnSetProgressPos(0, PROGRESS_RESET);
 
-            if (_pwb)
-            {
+            if (_pwb) {
                 WCHAR szTitle[MAX_PATH]; // titles are only stored up to this size
 
-                if (SUCCEEDED(_pwb->GetTitle(_psv, szTitle, ARRAYSIZE(szTitle))))
-                {
+                if (SUCCEEDED(_pwb->GetTitle(_psv, szTitle, ARRAYSIZE(szTitle)))) {
                     // BharatS : 01/09/97 : There is no need to tie the updating of the title in the
                     // history to the updating of the INTSITE database. Thus the INTSITE database
                     // update can be moved out of AddUrlToUrlHistoryStg() in history.cpp when time permits
                     // to a more logical place such as someplace in dochost.cpp
 
                     _UpdateHistoryAndIntSiteDB(szTitle);
-                }
-                else {
+                } else {
                     _UpdateHistoryAndIntSiteDB(NULL);
                 }
             }
@@ -8927,25 +8319,22 @@ void CDocObjectHost::_OnReadyState(long lVal)
 
 HRESULT CDocObjectHost::_OnChangedReadyState()
 {
-    IDispatch * p_idispatch;
+    IDispatch* p_idispatch;
 
     ASSERT(_pole || _fFriendlyError);
     if (!_pole)
         return E_UNEXPECTED;
 
-    if (SUCCEEDED(_pole->QueryInterface(IID_IDispatch, (LPVOID*)&p_idispatch)))
-    {
+    if (SUCCEEDED(_pole->QueryInterface(IID_IDispatch, (LPVOID*)&p_idispatch))) {
         VARIANTARG va;
         EXCEPINFO exInfo;
 
         va.vt = 0;
-        if (EVAL(SUCCEEDED(p_idispatch->Invoke(DISPID_READYSTATE, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, (DISPPARAMS *)&g_dispparamsNoArgs, &va, &exInfo, NULL))
-                 && va.vt == VT_I4))
-        {
+        if (EVAL(SUCCEEDED(p_idispatch->Invoke(DISPID_READYSTATE, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, (DISPPARAMS*)&g_dispparamsNoArgs, &va, &exInfo, NULL))
+                 && va.vt == VT_I4)) {
             _OnReadyState(va.lVal);
 
-            if (va.lVal == READYSTATE_COMPLETE)
-            {
+            if (va.lVal == READYSTATE_COMPLETE) {
                 _RemoveTransitionCapability();
             }
 
@@ -8982,14 +8371,12 @@ void CDocObjectHost::_UpdateHistoryAndIntSiteDB(LPCWSTR pwszTitle)
     TCHAR szUrl[MAX_URL_STRING];
 
     if (SUCCEEDED(_GetCurrentPage(szUrl, MAX_URL_STRING, TRUE)) &&
-        _ValidateURL(szUrl, UQF_DEFAULT))
-    {
+        _ValidateURL(szUrl, UQF_DEFAULT)) {
         // update history and intsite if this isn't a silent browse
         BOOL bSilent = FALSE;
         HRESULT hr = _GetOfflineSilent(NULL, &bSilent);
 
-        if (SUCCEEDED(hr) && (!bSilent))
-        {
+        if (SUCCEEDED(hr) && (!bSilent)) {
 
             AddUrlToUrlHistoryStg(szUrl,
                                   pwszTitle,
@@ -9005,13 +8392,13 @@ void CDocObjectHost::_UpdateHistoryAndIntSiteDB(LPCWSTR pwszTitle)
 
 
             // If this page is a redirect, update intsite for destination too
-            INTERNET_CACHE_ENTRY_INFO *pCacheEntry = NULL;
+            INTERNET_CACHE_ENTRY_INFO* pCacheEntry = NULL;
 
 #ifndef UNIX
             WCHAR    chBuf[MAX_CACHE_ENTRY_INFO_SIZE];
 
             // Find entry in cache using redirect map
-            pCacheEntry = (INTERNET_CACHE_ENTRY_INFO *)chBuf;
+            pCacheEntry = (INTERNET_CACHE_ENTRY_INFO*)chBuf;
 #else
             union
             {
@@ -9020,13 +8407,12 @@ void CDocObjectHost::_UpdateHistoryAndIntSiteDB(LPCWSTR pwszTitle)
             } chBuf;
 
             // Find entry in cache using redirect map
-            pCacheEntry = (INTERNET_CACHE_ENTRY_INFO *)&chBuf;
+            pCacheEntry = (INTERNET_CACHE_ENTRY_INFO*)&chBuf;
 #endif /* !UNIX */
 
             DWORD dwSize = SIZEOF(chBuf);
             BOOL fSuccess = GetUrlCacheEntryInfoEx(szUrl, pCacheEntry, &dwSize, NULL, 0, NULL, 0);
-            if (fSuccess)
-            {
+            if (fSuccess) {
                 // If we have a different url than we started with, update it too
                 if (StrCmp(szUrl, pCacheEntry->lpszSourceUrlName)) {
                     AddUrlToUrlHistoryStg(pCacheEntry->lpszSourceUrlName,
@@ -9070,16 +8456,13 @@ BOOL CDocObjectHost::_SetUpTransitionCapability()
 
     // Check for proper readystate support
     BOOL fReadyStateOK = FALSE;
-    IDispatch * p_idispatch;
-    if (SUCCEEDED(_pole->QueryInterface(IID_IDispatch, (LPVOID*)&p_idispatch)))
-    {
+    IDispatch* p_idispatch;
+    if (SUCCEEDED(_pole->QueryInterface(IID_IDispatch, (LPVOID*)&p_idispatch))) {
         VARIANTARG va;
         EXCEPINFO exInfo;
 
-        if (SUCCEEDED(p_idispatch->Invoke(DISPID_READYSTATE, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, (DISPPARAMS *)&g_dispparamsNoArgs, &va, &exInfo, NULL)))
-        {
-            if ((va.vt == VT_I4) && (va.lVal < READYSTATE_COMPLETE))
-            {
+        if (SUCCEEDED(p_idispatch->Invoke(DISPID_READYSTATE, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, (DISPPARAMS*)&g_dispparamsNoArgs, &va, &exInfo, NULL))) {
+            if ((va.vt == VT_I4) && (va.lVal < READYSTATE_COMPLETE)) {
                 lReadyState = va.lVal;
                 fReadyStateOK = TRUE;
             }
@@ -9088,19 +8471,16 @@ BOOL CDocObjectHost::_SetUpTransitionCapability()
         p_idispatch->Release();
     }
 
-    if (fReadyStateOK)
-    {
+    if (fReadyStateOK) {
         // Check and Set-Up IPropertyNotifySink
-        if (SUCCEEDED(ConnectToConnectionPoint(SAFECAST(this, IPropertyNotifySink*), IID_IPropertyNotifySink, TRUE, _pole, &_dwPropNotifyCookie, NULL)))
-        {
+        if (SUCCEEDED(ConnectToConnectionPoint(SAFECAST(this, IPropertyNotifySink*), IID_IPropertyNotifySink, TRUE, _pole, &_dwPropNotifyCookie, NULL))) {
             fSupportsReadystate = TRUE;
             _OnReadyState(lReadyState);
         }
     }
 
     // If no ReadyState, we simulate it
-    if (!fSupportsReadystate)
-    {
+    if (!fSupportsReadystate) {
         _OnReadyState(READYSTATE_COMPLETE);
     }
 
@@ -9113,8 +8493,7 @@ BOOL CDocObjectHost::_RemoveTransitionCapability()
 {
     BOOL fRet = FALSE;
 
-    if (_dwPropNotifyCookie)
-    {
+    if (_dwPropNotifyCookie) {
         ConnectToConnectionPoint(NULL, IID_IPropertyNotifySink, FALSE, _pole, &_dwPropNotifyCookie, NULL);
         fRet = TRUE;
     }
@@ -9122,12 +8501,11 @@ BOOL CDocObjectHost::_RemoveTransitionCapability()
     return(fRet);
 }
 
-HRESULT _GetRequestFlagFromPIB(IBinding *pib, DWORD *pdwOptions)
+HRESULT _GetRequestFlagFromPIB(IBinding* pib, DWORD* pdwOptions)
 {
     HRESULT hres = E_FAIL;
     *pdwOptions = 0;
-    if (pib)
-    {
+    if (pib) {
         IWinInetInfo* pwinet;
         hres = pib->QueryInterface(IID_IWinInetInfo, (LPVOID*)&pwinet);
         if (SUCCEEDED(hres)) {
@@ -9156,21 +8534,20 @@ void CDocObjectHost::_NavigateFolder(BSTR bstrUrl)
     // allows for navigation to a web folder.
 
 
-    Iwfolders * pWF = NULL;
-    IElementBehaviorFactory * pebf = NULL;
-    IElementBehavior * pPeer = NULL;
+    Iwfolders* pWF = NULL;
+    IElementBehaviorFactory* pebf = NULL;
+    IElementBehavior* pPeer = NULL;
     HWND hwndOwner = NULL;
-    IServiceProvider * psp = NULL;
-    IUnknown * punkwb = NULL;
+    IServiceProvider* psp = NULL;
+    IUnknown* punkwb = NULL;
 
     // Make the peer factory
     if (!_psb || (FAILED(_psb->GetWindow(&hwndOwner))) ||
-        (FAILED(CoCreateInstance(CLSID_PeerFactory, NULL, CLSCTX_INPROC, IID_IElementBehaviorFactory, (LPVOID *)&pebf))) ||
-                                 (FAILED(pebf->FindBehavior(L"httpFolder", NULL, NULL, &pPeer))) ||
-        (FAILED(pPeer->QueryInterface(IID_Iwfolders, (void **)&pWF))) ||
-        (FAILED(QueryService(SID_STopLevelBrowser, IID_IServiceProvider, (LPVOID *)&psp))) ||
-        (FAILED(psp->QueryService(SID_SContainerDispatch, IID_IUnknown, (LPVOID*)&punkwb))))
-    {
+        (FAILED(CoCreateInstance(CLSID_PeerFactory, NULL, CLSCTX_INPROC, IID_IElementBehaviorFactory, (LPVOID*)&pebf))) ||
+        (FAILED(pebf->FindBehavior(L"httpFolder", NULL, NULL, &pPeer))) ||
+        (FAILED(pPeer->QueryInterface(IID_Iwfolders, (void**)&pWF))) ||
+        (FAILED(QueryService(SID_STopLevelBrowser, IID_IServiceProvider, (LPVOID*)&psp))) ||
+        (FAILED(psp->QueryService(SID_SContainerDispatch, IID_IUnknown, (LPVOID*)&punkwb)))) {
         WCHAR wszMessage[MAX_PATH];
         WCHAR wszTitle[MAX_PATH];
 
@@ -9206,12 +8583,11 @@ void CDocObjectHost::_CancelPendingNavigation(BOOL fAsyncDownload)
     if (_pmsoctBrowser) {
         TraceMsg(DM_TRACE, "DOH::_CancelPendingNavigation calling _pmsc->Exec");
         if (fAsyncDownload) {
-            VARIANT var = { 0 };
+            VARIANT var = {0};
             var.vt = VT_I4;
             ASSERT(var.lVal == FALSE);    // asynd download is done.
             _pmsoctBrowser->Exec(&CGID_Explorer, SBCMDID_CANCELNAVIGATION, 0, &var, NULL);
-        }
-        else {
+        } else {
             _pmsoctBrowser->Exec(&CGID_Explorer, SBCMDID_CANCELNAVIGATION, 0, NULL, NULL);
         }
     }
@@ -9233,12 +8609,11 @@ void CDocObjectHost::_ResetStatusBar()
 void CDocObjectHost::_DoAsyncNavigation(LPCTSTR pszURL)
 {
     if (_pmsoctBrowser) {
-        VARIANT vararg = { 0 };
+        VARIANT vararg = {0};
 
         vararg.vt = VT_BSTR;
         vararg.bstrVal = SysAllocStringT(pszURL);
-        if (vararg.bstrVal)
-        {
+        if (vararg.bstrVal) {
             TraceMsg(DM_TRACE, "DOH::_DoAsyncNavigation calling _pmsc->Exec");
             _pmsoctBrowser->Exec(&CGID_Explorer, SBCMDID_ASYNCNAVIGATION, 0, &vararg, NULL);
             VariantClear(&vararg);
@@ -9255,7 +8630,7 @@ UINT SHIEErrorMsgBox(IShellBrowser* psb,
     TCHAR szMsg[MAX_PATH];
     LPCTSTR pszURL = TEXT("");
     HWND hwndParent = hwndOwner;
-    IShellBrowser *psbParent = NULL;
+    IShellBrowser* psbParent = NULL;
 
     // if a URL was specified, use it; otherwise use empty string
     if (pszURLparam)
@@ -9280,21 +8655,18 @@ UINT SHIEErrorMsgBox(IShellBrowser* psb,
         }
     }
 
-    if (i >= ARRAYSIZE(c_ahres))
-    {
+    if (i >= ARRAYSIZE(c_ahres)) {
         // Default message if FormatMessage doesn't recognize dwLastError
         MLLoadString(IDS_UNDEFINEDERR, szMsg, ARRAYSIZE(szMsg));
 
         if (hrError >= HRESULT_FROM_WIN32(INTERNET_ERROR_BASE)
-            && hrError <= HRESULT_FROM_WIN32(INTERNET_ERROR_LAST))
-        {
+            && hrError <= HRESULT_FROM_WIN32(INTERNET_ERROR_LAST)) {
             HMODULE hmod = GetModuleHandle(TEXT("WININET"));
             ASSERT(hmod);
             FormatMessage(FORMAT_MESSAGE_FROM_HMODULE, (LPCVOID)hmod, HRESULT_CODE(hrError), 0L,
                           szMsg, ARRAYSIZE(szMsg), NULL);
 
-        }
-        else {
+        } else {
             // See if one of the system components has an error message
             // for this error.  If not, szMsg will retain our default
             // message to handle this.
@@ -9304,33 +8676,27 @@ UINT SHIEErrorMsgBox(IShellBrowser* psb,
     }
 
     psbParent = psb;
-    if (psbParent)
-    {
+    if (psbParent) {
         psbParent->AddRef();
     }
 
     //  Here we make an heroic effort to find a visible window to run the dialog against
     //  If we can't, then we bail, to avoid weird UI effect (particularly when the frametop
     //  browser is in kiosk mode
-    if (!IsWindowVisible(hwndParent))
-    {
-        if (NULL == psb || FAILED(psb->GetWindow(&hwndParent)) || !IsWindowVisible(hwndParent))
-        {
+    if (!IsWindowVisible(hwndParent)) {
+        if (NULL == psb || FAILED(psb->GetWindow(&hwndParent)) || !IsWindowVisible(hwndParent)) {
             hwndParent = NULL;
             ATOMICRELEASE(psbParent);
         }
-        if (NULL == hwndParent && psb)
-        {
+        if (NULL == hwndParent && psb) {
             IUnknown_QueryService(psb, SID_STopFrameBrowser, IID_IShellBrowser, (LPVOID*)&psbParent);
-            if (NULL == psbParent || FAILED(psbParent->GetWindow(&hwndParent)) || !IsWindowVisible(hwndParent))
-            {
+            if (NULL == psbParent || FAILED(psbParent->GetWindow(&hwndParent)) || !IsWindowVisible(hwndParent)) {
                 hwndParent = NULL;
             }
         }
     }
 
-    if (hwndParent)
-    {
+    if (hwndParent) {
         if (psbParent) {
             psbParent->EnableModelessSB(FALSE);
         }
@@ -9345,8 +8711,7 @@ UINT SHIEErrorMsgBox(IShellBrowser* psb,
         }
     }
 
-    if (psbParent)
-    {
+    if (psbParent) {
         UINT cRef = psbParent->Release();
 
         AssertMsg(cRef > 0, TEXT("IE_ErrorMsgBox psb->Release returned 0."));
@@ -9367,8 +8732,7 @@ BOOL ShouldShellExecURL(LPTSTR pszURL)
     HKEY hk;
 
     if (SUCCEEDED(UrlGetPart(pszURL, sz, &cch, URL_PART_SCHEME, 0))
-        && SUCCEEDED(AssocQueryKey(0, ASSOCKEY_CLASS, sz, NULL, &hk)))
-    {
+        && SUCCEEDED(AssocQueryKey(0, ASSOCKEY_CLASS, sz, NULL, &hk))) {
 
         //  HACKHACK - telnet.exe will fault on buffer overrun
         //      if the url is > 230. we special case here.
@@ -9378,8 +8742,7 @@ BOOL ShouldShellExecURL(LPTSTR pszURL)
              StrCmpI(sz, TEXT("rlogin")) &&
              StrCmpI(sz, TEXT("tn3270"))
              )
-            )
-        {
+            ) {
             fRet = (NOERROR == RegQueryValueEx(hk, TEXT("URL Protocol"), NULL, NULL, NULL, NULL));
         }
 
@@ -9397,19 +8760,19 @@ class CShdAdviseSink : public IAdviseSink
 {
 public:
     // *** IUnknown methods ***
-    virtual STDMETHODIMP QueryInterface(REFIID riid, LPVOID * ppvObj);
+    virtual STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppvObj);
     virtual STDMETHODIMP_(ULONG) AddRef(void);
     virtual STDMETHODIMP_(ULONG) Release(void);
 
     // *** IAdviseSink methods ***
     virtual void __stdcall OnDataChange(
-        FORMATETC *pFormatetc,
-        STGMEDIUM *pStgmed);
+        FORMATETC* pFormatetc,
+        STGMEDIUM* pStgmed);
     virtual void __stdcall OnViewChange(
         DWORD dwAspect,
         LONG lindex);
     virtual void __stdcall OnRename(
-        IMoniker *pmk);
+        IMoniker* pmk);
     virtual void __stdcall OnSave(void);
     virtual void __stdcall OnClose(void);
 
@@ -9431,8 +8794,7 @@ void CShdAdviseSink_Advise(IBrowserService* pwb, IOleObject* pole)
 {
     IAdviseSink* padv = new CShdAdviseSink(pwb, pole);
     // If pole->Advise succeeds, it will addreff to IAdviseSink.
-    if (padv != NULL)
-    {
+    if (padv != NULL) {
         padv->Release();
     }
 }
@@ -9475,15 +8837,12 @@ ULONG CShdAdviseSink::Release()
     return 0;
 }
 
-HRESULT CShdAdviseSink::QueryInterface(REFIID riid, LPVOID * ppvObj)
+HRESULT CShdAdviseSink::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
     if (IsEqualIID(riid, IID_IAdviseSink) ||
-        IsEqualIID(riid, IID_IUnknown))
-    {
+        IsEqualIID(riid, IID_IUnknown)) {
         *ppvObj = (IAdviseSink*)this;
-    }
-    else
-    {
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -9493,8 +8852,8 @@ HRESULT CShdAdviseSink::QueryInterface(REFIID riid, LPVOID * ppvObj)
 }
 
 void CShdAdviseSink::OnDataChange(
-    FORMATETC *pFormatetc,
-    STGMEDIUM *pStgmed)
+    FORMATETC* pFormatetc,
+    STGMEDIUM* pStgmed)
 {
 }
 
@@ -9505,7 +8864,7 @@ void CShdAdviseSink::OnViewChange(
 }
 
 void CShdAdviseSink::OnRename(
-    IMoniker *pmk)
+    IMoniker* pmk)
 {
 }
 
@@ -9533,33 +8892,27 @@ void CShdAdviseSink::OnClose(void)
 HRESULT CDocObjectHost::AddPages(LPFNADDPROPSHEETPAGE lpfnAddPage, LPARAM lParam)
 {
     HRESULT hres = S_OK;
-    IShellPropSheetExt *pspse;
+    IShellPropSheetExt* pspse;
     /*
      * Create a property sheet page for required page, including imported File
      * Types property sheet.
      */
      // add stuff that the docobj itself has.
-    if (_pole)
-    {
-        if (SUCCEEDED(_pole->QueryInterface(IID_IShellPropSheetExt, (LPVOID*)&pspse)))
-        {
+    if (_pole) {
+        if (SUCCEEDED(_pole->QueryInterface(IID_IShellPropSheetExt, (LPVOID*)&pspse))) {
             hres = pspse->AddPages(lpfnAddPage, lParam);
             pspse->Release();
-        }
-        else
-        {
+        } else {
             // Some docobjects don't know about IShellPropSheetExt (ie, Visual Basic),
             // so do it ourselves.
 
             if (NULL == _hinstInetCpl)
                 _hinstInetCpl = LoadLibrary(TEXT("inetcpl.cpl"));
 
-            if (_hinstInetCpl)
-            {
+            if (_hinstInetCpl) {
                 PFNADDINTERNETPROPERTYSHEETSEX pfnAddSheet = (PFNADDINTERNETPROPERTYSHEETSEX)GetProcAddress(_hinstInetCpl, STR_ADDINTERNETPROPSHEETSEX);
-                if (pfnAddSheet)
-                {
-                    IEPROPPAGEINFO iepi = { 0 };
+                if (pfnAddSheet) {
+                    IEPROPPAGEINFO iepi = {0};
 
                     // we just want the security page.
                     iepi.cbSize = sizeof(iepi);
@@ -9580,7 +8933,7 @@ HRESULT CDocObjectHost::AddPages(LPFNADDPROPSHEETPAGE lpfnAddPage, LPARAM lParam
 // IDocHostUIHandler implementation
 ==
 
-HRESULT CDocObjectHost::TranslateAccelerator(LPMSG lpMsg, const GUID *pguidCmdGroup, DWORD nCmdID)
+HRESULT CDocObjectHost::TranslateAccelerator(LPMSG lpMsg, const GUID * pguidCmdGroup, DWORD nCmdID)
 {
     if (_pWebOCUIHandler)
         return _pWebOCUIHandler->TranslateAccelerator(lpMsg, pguidCmdGroup, nCmdID);
@@ -9588,7 +8941,7 @@ HRESULT CDocObjectHost::TranslateAccelerator(LPMSG lpMsg, const GUID *pguidCmdGr
 }
 
 
-HRESULT CDocObjectHost::GetDropTarget(IDropTarget *pDropTarget, IDropTarget **ppDropTarget)
+HRESULT CDocObjectHost::GetDropTarget(IDropTarget* pDropTarget, IDropTarget** ppDropTarget)
 {
     // REVIEW: Does this apply anymore?
     TraceMsg(DM_DOCHOSTUIHANDLER, "CDOH::GetDropTarget called");
@@ -9599,9 +8952,9 @@ HRESULT CDocObjectHost::GetDropTarget(IDropTarget *pDropTarget, IDropTarget **pp
     HRESULT hres = S_OK;
 
     if (pDropTarget) {
-        IDropTarget *pdtFrame;
-        IDropTarget *pdt3;
-        IDropTarget *pdtBlocking;
+        IDropTarget* pdtFrame;
+        IDropTarget* pdt3;
+        IDropTarget* pdtBlocking;
 
         QueryService(SID_STopFrameBrowser, IID_IDropTarget, (LPVOID*)&pdtFrame);
 
@@ -9616,8 +8969,7 @@ HRESULT CDocObjectHost::GetDropTarget(IDropTarget *pDropTarget, IDropTarget **pp
 
         // allow constrained browser bands like Search to prevent drop
         QueryService(SID_SDropBlocker, IID_IUnknown, (LPVOID*)&pdtBlocking);
-        if (pdtBlocking)
-        {
+        if (pdtBlocking) {
             ATOMICRELEASE(pdt3);
             pDropTarget = NULL;
         }
@@ -9632,8 +8984,7 @@ HRESULT CDocObjectHost::GetDropTarget(IDropTarget *pDropTarget, IDropTarget **pp
             ASSERT(hres == S_OK);
 
             pdtFrame->Release();
-        }
-        else {
+        } else {
             ASSERT(0);
             hres = E_UNEXPECTED;
         }
@@ -9641,8 +8992,7 @@ HRESULT CDocObjectHost::GetDropTarget(IDropTarget *pDropTarget, IDropTarget **pp
         ATOMICRELEASE(pdtBlocking);
         ATOMICRELEASE(pdt3);
 
-    }
-    else {
+    } else {
         hres = E_INVALIDARG;
     }
 
@@ -9650,25 +9000,22 @@ HRESULT CDocObjectHost::GetDropTarget(IDropTarget *pDropTarget, IDropTarget **pp
 }
 
 HRESULT CDocObjectHost::ShowUI(
-    DWORD dwID, IOleInPlaceActiveObject *pActiveObject,
-    IOleCommandTarget *pCommandTarget, IOleInPlaceFrame *pFrame,
-    IOleInPlaceUIWindow *pDoc)
+    DWORD dwID, IOleInPlaceActiveObject* pActiveObject,
+    IOleCommandTarget* pCommandTarget, IOleInPlaceFrame* pFrame,
+    IOleInPlaceUIWindow* pDoc)
 {
     if (_pWebOCUIHandler)
         return _pWebOCUIHandler->ShowUI(dwID, pActiveObject, pCommandTarget, pFrame, pDoc);
 
     if (_dwAppHack & BROWSERFLAG_MSHTML) // Who else will call on this interface?
     {
-        if (_pmsoctBrowser)
-        {
+        if (_pmsoctBrowser) {
             TraceMsg(DM_PREMERGEDMENU, "DOH::ShowUI called this=%x pcmd=%x",
                      this, pCommandTarget);
-            VARIANT var = { 0 };
+            VARIANT var = {0};
             HRESULT hresT = _pmsoctBrowser->Exec(&CGID_Explorer, SBCMDID_SETMERGEDWEBMENU, 0, NULL, &var);
-            if (SUCCEEDED(hresT))
-            {
-                if (_pcmdMergedMenu)
-                {
+            if (SUCCEEDED(hresT)) {
+                if (_pcmdMergedMenu) {
                     // BUGBUG: Tell Trident to stop calling us twice
                     TraceMsg(DM_WARNING, "DOH::ShowUI called twice! "
                              "this=%x pcmdCur=%x pcmdNew=%x",
@@ -9703,18 +9050,17 @@ HRESULT CDocObjectHost::HideUI(void)
     return S_FALSE;
 }
 
-HRESULT CDocObjectHost::GetHostInfo(DOCHOSTUIINFO *pInfo)
+HRESULT CDocObjectHost::GetHostInfo(DOCHOSTUIINFO* pInfo)
 {
-    IServiceProvider * psp = NULL;
-    IWebBrowser2     * pwb = NULL;
+    IServiceProvider* psp = NULL;
+    IWebBrowser2* pwb = NULL;
     VARIANT_BOOL       b = VARIANT_FALSE;
     DWORD              dwFlagsWebOC = 0;
     HRESULT            hr;
 
     if (_pWebOCUIHandler
         && SUCCEEDED(_pWebOCUIHandler->GetHostInfo(pInfo))
-        )
-    {
+        ) {
         dwFlagsWebOC = pInfo->dwFlags;
     }
 
@@ -9726,7 +9072,7 @@ HRESULT CDocObjectHost::GetHostInfo(DOCHOSTUIINFO *pInfo)
 
     // Get the top level browser
 
-    hr = QueryService(SID_STopLevelBrowser, IID_IServiceProvider, (LPVOID *)&psp);
+    hr = QueryService(SID_STopLevelBrowser, IID_IServiceProvider, (LPVOID*)&psp);
     if (hr)
         goto Cleanup;
 
@@ -9737,9 +9083,8 @@ HRESULT CDocObjectHost::GetHostInfo(DOCHOSTUIINFO *pInfo)
         goto Cleanup;
 
     // Tell the browser what our dochost flags are
-    IEFrameAuto *pIEFrameAuto;
-    if (SUCCEEDED(pwb->QueryInterface(IID_IEFrameAuto, (void **)&pIEFrameAuto)) && pIEFrameAuto)
-    {
+    IEFrameAuto* pIEFrameAuto;
+    if (SUCCEEDED(pwb->QueryInterface(IID_IEFrameAuto, (void**)&pIEFrameAuto)) && pIEFrameAuto) {
         pIEFrameAuto->SetDocHostFlags(pInfo->dwFlags);
         pIEFrameAuto->Release();
     }
@@ -9761,15 +9106,14 @@ Cleanup:
     return S_OK;
 }
 
-HRESULT CDocObjectHost::ShowContextMenu(DWORD dwID, POINT *ppt, IUnknown *pcmdtReserved, IDispatch *pdispReserved)
+HRESULT CDocObjectHost::ShowContextMenu(DWORD dwID, POINT* ppt, IUnknown* pcmdtReserved, IDispatch* pdispReserved)
 {
     HRESULT             hr;
-    OLECMD              rgcmd = { IDM_BROWSEMODE, 0 };
+    OLECMD              rgcmd = {IDM_BROWSEMODE, 0};
 
     // If we're in the WebOC and it has a IDocHostUIHandler, use it.
 
-    if (_pWebOCUIHandler)
-    {
+    if (_pWebOCUIHandler) {
         hr = _pWebOCUIHandler->ShowContextMenu(dwID, ppt, pcmdtReserved, pdispReserved);
         if (hr == S_OK)
             goto Cleanup;
@@ -9784,9 +9128,7 @@ HRESULT CDocObjectHost::ShowContextMenu(DWORD dwID, POINT *ppt, IUnknown *pcmdtR
         && !(rgcmd.cmdf & OLECMDF_LATCHED))   // if not LATCHED means we're in edit mode.
     {
         hr = S_FALSE;
-    }
-    else
-    {
+    } else {
         hr = _dhUIHandler.ShowContextMenu(dwID, ppt, pcmdtReserved, pdispReserved);
     }
 
@@ -9822,35 +9164,35 @@ HRESULT CDocObjectHost::OnFrameWindowActivate(BOOL fActivate)
     return _dhUIHandler.OnFrameWindowActivate(fActivate);
 }
 
-HRESULT CDocObjectHost::ResizeBorder(LPCRECT prcBorder, IOleInPlaceUIWindow *pUIWindow, BOOL fRameWindow)
+HRESULT CDocObjectHost::ResizeBorder(LPCRECT prcBorder, IOleInPlaceUIWindow* pUIWindow, BOOL fRameWindow)
 {
     if (_pWebOCUIHandler)
         return _pWebOCUIHandler->ResizeBorder(prcBorder, pUIWindow, fRameWindow);
     return _dhUIHandler.ResizeBorder(prcBorder, pUIWindow, fRameWindow);
 }
 
-HRESULT CDocObjectHost::GetOptionKeyPath(BSTR *pbstrKey, DWORD dw)
+HRESULT CDocObjectHost::GetOptionKeyPath(BSTR* pbstrKey, DWORD dw)
 {
     if (_pWebOCUIHandler)
         return _pWebOCUIHandler->GetOptionKeyPath(pbstrKey, dw);
     return _dhUIHandler.GetOptionKeyPath(pbstrKey, dw);
 }
 
-HRESULT CDocObjectHost::GetExternal(IDispatch **ppDisp)
+HRESULT CDocObjectHost::GetExternal(IDispatch** ppDisp)
 {
     if (_pWebOCUIHandler)
         return _pWebOCUIHandler->GetExternal(ppDisp);
     return _dhUIHandler.GetExternal(ppDisp);
 }
 
-HRESULT CDocObjectHost::TranslateUrl(DWORD dwTranslate, OLECHAR *pchURLIn, OLECHAR **ppchURLOut)
+HRESULT CDocObjectHost::TranslateUrl(DWORD dwTranslate, OLECHAR* pchURLIn, OLECHAR** ppchURLOut)
 {
     if (_pWebOCUIHandler)
         return _pWebOCUIHandler->TranslateUrl(dwTranslate, pchURLIn, ppchURLOut);
     return _dhUIHandler.TranslateUrl(dwTranslate, pchURLIn, ppchURLOut);
 }
 
-HRESULT CDocObjectHost::FilterDataObject(IDataObject *pDO, IDataObject **ppDORet)
+HRESULT CDocObjectHost::FilterDataObject(IDataObject* pDO, IDataObject** ppDORet)
 {
     if (_pWebOCUIHandler)
         return _pWebOCUIHandler->FilterDataObject(pDO, ppDORet);
@@ -9858,10 +9200,9 @@ HRESULT CDocObjectHost::FilterDataObject(IDataObject *pDO, IDataObject **ppDORet
 }
 
 HRESULT CDocObjectHost::ShowMessage(HWND hwnd, LPOLESTR lpstrText, LPOLESTR lpstrCaption,
-                                    DWORD dwType, LPOLESTR lpstrHelpFile, DWORD dwHelpContext, LRESULT __RPC_FAR *plResult)
+                                    DWORD dwType, LPOLESTR lpstrHelpFile, DWORD dwHelpContext, LRESULT __RPC_FAR* plResult)
 {
-    if (_pWebOCShowUI)
-    {
+    if (_pWebOCShowUI) {
         return _pWebOCShowUI->ShowMessage(hwnd, lpstrText, lpstrCaption, dwType,
                                           lpstrHelpFile, dwHelpContext, plResult);
     }
@@ -9870,10 +9211,9 @@ HRESULT CDocObjectHost::ShowMessage(HWND hwnd, LPOLESTR lpstrText, LPOLESTR lpst
 }
 
 HRESULT CDocObjectHost::ShowHelp(HWND hwnd, LPOLESTR pszHelpFile, UINT uCommand, DWORD dwData,
-                                 POINT ptMouse, IDispatch __RPC_FAR *pDispatchObjectHit)
+                                 POINT ptMouse, IDispatch __RPC_FAR* pDispatchObjectHit)
 {
-    if (_pWebOCShowUI)
-    {
+    if (_pWebOCShowUI) {
         return _pWebOCShowUI->ShowHelp(hwnd, pszHelpFile, uCommand, dwData, ptMouse,
                                        pDispatchObjectHit);
     }
@@ -9892,8 +9232,7 @@ CDocObjectHost::_ScriptErr_Dlg(BOOL fOverridePerErrorMode)
     // therefore we might already have a dialog open when a second dialog
     // is requested
 
-    if (_fScriptErrDlgOpen)
-    {
+    if (_fScriptErrDlgOpen) {
         // a dialog is already open lower in the callstack
         // request an up-to-date dialog be shown
         // we have to do this because otherwise we might
@@ -9906,16 +9245,13 @@ CDocObjectHost::_ScriptErr_Dlg(BOOL fOverridePerErrorMode)
                                                       szRegVal_ErrDlgPerErr,
                                                       FALSE,
                                                       TRUE);
-    }
-    else
-    {
+    } else {
         _fScriptErrDlgOpen = TRUE;
 
         // keep showing dialogs as long as someone farther up the
         // call stack keeps requesting them
 
-        do
-        {
+        do {
             BOOL    fShowDlg;
 
             _fShowScriptErrDlgAgain = FALSE;
@@ -9923,8 +9259,7 @@ CDocObjectHost::_ScriptErr_Dlg(BOOL fOverridePerErrorMode)
             // if the user double clicked on the status bar, then we
             // show the dialog regardless of per-error-mode settings
 
-            if (fOverridePerErrorMode)
-            {
+            if (fOverridePerErrorMode) {
                 fShowDlg = TRUE;
 
                 // because of other script errors hitting the
@@ -9935,17 +9270,14 @@ CDocObjectHost::_ScriptErr_Dlg(BOOL fOverridePerErrorMode)
                 // in "show every error" mode.
 
                 fOverridePerErrorMode = FALSE;
-            }
-            else
-            {
+            } else {
                 fShowDlg = SHRegGetBoolUSValue(szRegKey_SMIEM,
                                                szRegVal_ErrDlgPerErr,
                                                FALSE,
                                                TRUE);
             }
 
-            if (fShowDlg)
-            {
+            if (fShowDlg) {
                 HRESULT hr;
                 TCHAR   szResURL[MAX_URL_STRING];
 
@@ -9956,14 +9288,12 @@ CDocObjectHost::_ScriptErr_Dlg(BOOL fOverridePerErrorMode)
                                        szResURL,
                                        ARRAYSIZE(szResURL),
                                        TEXT("shdocvw.dll"));
-                if (SUCCEEDED(hr))
-                {
-                    IMoniker *  pmk;
+                if (SUCCEEDED(hr)) {
+                    IMoniker* pmk;
                     HWND        hwnd;
 
                     hr = CreateURLMoniker(NULL, szResURL, &pmk);
-                    if (SUCCEEDED(hr))
-                    {
+                    if (SUCCEEDED(hr)) {
                         VARIANT varErrorCache;
 
                         V_VT(&varErrorCache) = VT_DISPATCH;
@@ -9982,15 +9312,15 @@ CDocObjectHost::_ScriptErr_Dlg(BOOL fOverridePerErrorMode)
 }
 
 HRESULT
-CDocObjectHost::_ScriptErr_CacheInfo(VARIANTARG *pvarIn)
+CDocObjectHost::_ScriptErr_CacheInfo(VARIANTARG* pvarIn)
 {
-    IHTMLDocument2 *    pOmDoc;
-    IHTMLWindow2 *      pOmWindow;
-    IHTMLEventObj *     pEventObj;
+    IHTMLDocument2* pOmDoc;
+    IHTMLWindow2* pOmWindow;
+    IHTMLEventObj* pEventObj;
     HRESULT             hr;
 
-    TCHAR *       apchNames[] =
-    { TEXT("errorLine"),
+    TCHAR* apchNames[] =
+    {TEXT("errorLine"),
       TEXT("errorCharacter"),
       TEXT("errorCode"),
       TEXT("errorMessage"),
@@ -10006,23 +9336,20 @@ CDocObjectHost::_ScriptErr_CacheInfo(VARIANTARG *pvarIn)
 
     // load the script error object
 
-    hr = V_UNKNOWN(pvarIn)->QueryInterface(IID_IHTMLDocument2, (void **)&pOmDoc);
-    if (FAILED(hr))
-    {
+    hr = V_UNKNOWN(pvarIn)->QueryInterface(IID_IHTMLDocument2, (void**)&pOmDoc);
+    if (FAILED(hr)) {
         return hr;
     }
 
     hr = pOmDoc->get_parentWindow(&pOmWindow);
     ATOMICRELEASE(pOmDoc);
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         return hr;
     }
 
     hr = pOmWindow->get_event(&pEventObj);
     ATOMICRELEASE(pOmWindow);
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         return hr;
     }
 
@@ -10030,14 +9357,12 @@ CDocObjectHost::_ScriptErr_CacheInfo(VARIANTARG *pvarIn)
     // copy the interesting data out of the event object
 
 
-    for (i = 0; i < ARRAYSIZE(apchNames); i++)
-    {
+    for (i = 0; i < ARRAYSIZE(apchNames); i++) {
         DISPPARAMS  params;
 
         // get the property's dispid
         hr = pEventObj->GetIDsOfNames(IID_NULL, &apchNames[i], 1, LOCALE_SYSTEM_DEFAULT, &aDispid[i]);
-        if (hr != S_OK)
-        {
+        if (hr != S_OK) {
             ATOMICRELEASE(pEventObj);
             return hr;
         }
@@ -10046,8 +9371,7 @@ CDocObjectHost::_ScriptErr_CacheInfo(VARIANTARG *pvarIn)
         params.cNamedArgs = 0;
 
         hr = pEventObj->Invoke(aDispid[i], IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYGET, &params, &varOut[i], NULL, NULL);
-        if (hr != S_OK)
-        {
+        if (hr != S_OK) {
             ATOMICRELEASE(pEventObj);
             return hr;
         }
@@ -10088,8 +9412,7 @@ CScriptErrorList::CScriptErrorList() : CImpIDispatch(&IID_IScriptErrorList)
 
 CScriptErrorList::~CScriptErrorList()
 {
-    if (_hdpa != NULL)
-    {
+    if (_hdpa != NULL) {
         ClearErrorList();
         DPA_Destroy(_hdpa);
     }
@@ -10103,36 +9426,26 @@ CScriptErrorList::AddNewErrorInfo(LONG lLine,
                                   BSTR strUrl)
 {
     HRESULT             hr;
-    _CScriptErrInfo *   pNewData;
+    _CScriptErrInfo* pNewData;
 
-    if (strMsg == NULL || strUrl == NULL)
-    {
+    if (strMsg == NULL || strUrl == NULL) {
         return E_INVALIDARG;
     }
 
     pNewData = new _CScriptErrInfo;
-    if (pNewData != NULL)
-    {
+    if (pNewData != NULL) {
         hr = pNewData->Init(lLine, lChar, lCode, strMsg, strUrl);
-        if (SUCCEEDED(hr))
-        {
-            if (_hdpa != NULL)
-            {
+        if (SUCCEEDED(hr)) {
+            if (_hdpa != NULL) {
                 DPA_AppendPtr(_hdpa, (LPVOID)pNewData);
                 _lDispIndex = DPA_GetPtrCount(_hdpa) - 1;
-            }
-            else
-            {
+            } else {
                 hr = E_FAIL;
             }
-        }
-        else
-        {
+        } else {
             delete pNewData;
         }
-    }
-    else
-    {
+    } else {
         hr = E_OUTOFMEMORY;
     }
 
@@ -10142,17 +9455,15 @@ CScriptErrorList::AddNewErrorInfo(LONG lLine,
 void
 CScriptErrorList::ClearErrorList()
 {
-    if (_hdpa != NULL)
-    {
+    if (_hdpa != NULL) {
         int iDel;
         int cPtr;
 
         cPtr = DPA_GetPtrCount(_hdpa);
 
         // delete from end to beginning to avoid unnecessary packing
-        for (iDel = cPtr - 1; iDel >= 0; iDel--)
-        {
-            delete ((_CScriptErrInfo *)DPA_GetPtr(_hdpa, iDel));
+        for (iDel = cPtr - 1; iDel >= 0; iDel--) {
+            delete ((_CScriptErrInfo*)DPA_GetPtr(_hdpa, iDel));
             DPA_DeletePtr(_hdpa, iDel);
         }
 
@@ -10161,18 +9472,15 @@ CScriptErrorList::ClearErrorList()
 }
 
 STDMETHODIMP
-CScriptErrorList::QueryInterface(REFIID iid, void ** ppObj)
+CScriptErrorList::QueryInterface(REFIID iid, void** ppObj)
 {
     ASSERT(ppObj != NULL);
 
     if (IsEqualIID(iid, IID_IUnknown) ||
         IsEqualIID(iid, IID_IDispatch) ||
-        IsEqualIID(iid, IID_IScriptErrorList))
-    {
-        *ppObj = (IScriptErrorList *)this;
-    }
-    else
-    {
+        IsEqualIID(iid, IID_IScriptErrorList)) {
+        *ppObj = (IScriptErrorList*)this;
+    } else {
         *ppObj = NULL;
         return E_NOINTERFACE;
     }
@@ -10193,8 +9501,7 @@ STDMETHODIMP_(ULONG)
 CScriptErrorList::Release()
 {
     _ulRefCount--;
-    if (_ulRefCount > 0)
-    {
+    if (_ulRefCount > 0) {
         return _ulRefCount;
     }
 
@@ -10209,14 +9516,12 @@ CScriptErrorList::advanceError()
 
     hr = E_FAIL;
 
-    if (_hdpa != NULL)
-    {
+    if (_hdpa != NULL) {
         int cPtr;
 
         cPtr = DPA_GetPtrCount(_hdpa);
 
-        if (_lDispIndex < cPtr - 1)
-        {
+        if (_lDispIndex < cPtr - 1) {
             _lDispIndex++;
             hr = S_OK;
         }
@@ -10228,8 +9533,7 @@ CScriptErrorList::advanceError()
 STDMETHODIMP
 CScriptErrorList::retreatError()
 {
-    if (_lDispIndex < 1)
-    {
+    if (_lDispIndex < 1) {
         return E_FAIL;
     }
 
@@ -10239,7 +9543,7 @@ CScriptErrorList::retreatError()
 }
 
 STDMETHODIMP
-CScriptErrorList::canAdvanceError(BOOL * pfCanAdvance)
+CScriptErrorList::canAdvanceError(BOOL* pfCanAdvance)
 {
     HRESULT hr;
 
@@ -10247,8 +9551,7 @@ CScriptErrorList::canAdvanceError(BOOL * pfCanAdvance)
 
     hr = E_FAIL;
 
-    if (_hdpa != NULL)
-    {
+    if (_hdpa != NULL) {
         int cPtr;
 
         cPtr = DPA_GetPtrCount(_hdpa);
@@ -10261,7 +9564,7 @@ CScriptErrorList::canAdvanceError(BOOL * pfCanAdvance)
 }
 
 STDMETHODIMP
-CScriptErrorList::canRetreatError(BOOL * pfCanRetreat)
+CScriptErrorList::canRetreatError(BOOL* pfCanRetreat)
 {
     ASSERT(pfCanRetreat != NULL);
 
@@ -10271,7 +9574,7 @@ CScriptErrorList::canRetreatError(BOOL * pfCanRetreat)
 }
 
 STDMETHODIMP
-CScriptErrorList::getErrorLine(LONG * plLine)
+CScriptErrorList::getErrorLine(LONG* plLine)
 {
     HRESULT hr;
 
@@ -10279,19 +9582,17 @@ CScriptErrorList::getErrorLine(LONG * plLine)
     ASSERT(_lDispIndex >= 0);
 
     hr = E_FAIL;
-    if (_hdpa != NULL)
-    {
+    if (_hdpa != NULL) {
         int cPtr;
 
         cPtr = DPA_GetPtrCount(_hdpa);
 
         ASSERT(_lDispIndex < cPtr || _lDispIndex == 0);
 
-        if (cPtr > 0)
-        {
-            _CScriptErrInfo *    pInfo;
+        if (cPtr > 0) {
+            _CScriptErrInfo* pInfo;
 
-            pInfo = (_CScriptErrInfo *)DPA_GetPtr(_hdpa, _lDispIndex);
+            pInfo = (_CScriptErrInfo*)DPA_GetPtr(_hdpa, _lDispIndex);
             *plLine = pInfo->_lLine;
             hr = S_OK;
         }
@@ -10301,7 +9602,7 @@ CScriptErrorList::getErrorLine(LONG * plLine)
 }
 
 STDMETHODIMP
-CScriptErrorList::getErrorChar(LONG * plChar)
+CScriptErrorList::getErrorChar(LONG* plChar)
 {
     HRESULT hr;
 
@@ -10309,19 +9610,17 @@ CScriptErrorList::getErrorChar(LONG * plChar)
     ASSERT(_lDispIndex >= 0);
 
     hr = E_FAIL;
-    if (_hdpa != NULL)
-    {
+    if (_hdpa != NULL) {
         int cPtr;
 
         cPtr = DPA_GetPtrCount(_hdpa);
 
         ASSERT(_lDispIndex < cPtr || _lDispIndex == 0);
 
-        if (cPtr > 0)
-        {
-            _CScriptErrInfo *   pInfo;
+        if (cPtr > 0) {
+            _CScriptErrInfo* pInfo;
 
-            pInfo = (_CScriptErrInfo *)DPA_GetPtr(_hdpa, _lDispIndex);
+            pInfo = (_CScriptErrInfo*)DPA_GetPtr(_hdpa, _lDispIndex);
             *plChar = pInfo->_lChar;
             hr = S_OK;
         }
@@ -10331,7 +9630,7 @@ CScriptErrorList::getErrorChar(LONG * plChar)
 }
 
 STDMETHODIMP
-CScriptErrorList::getErrorCode(LONG * plCode)
+CScriptErrorList::getErrorCode(LONG* plCode)
 {
     HRESULT hr;
 
@@ -10339,19 +9638,17 @@ CScriptErrorList::getErrorCode(LONG * plCode)
     ASSERT(_lDispIndex >= 0);
 
     hr = E_FAIL;
-    if (_hdpa != NULL)
-    {
+    if (_hdpa != NULL) {
         int cPtr;
 
         cPtr = DPA_GetPtrCount(_hdpa);
 
         ASSERT(_lDispIndex < cPtr || _lDispIndex == 0);
 
-        if (cPtr > 0)
-        {
-            _CScriptErrInfo *   pInfo;
+        if (cPtr > 0) {
+            _CScriptErrInfo* pInfo;
 
-            pInfo = (_CScriptErrInfo *)DPA_GetPtr(_hdpa, _lDispIndex);
+            pInfo = (_CScriptErrInfo*)DPA_GetPtr(_hdpa, _lDispIndex);
             *plCode = pInfo->_lCode;
             hr = S_OK;
         }
@@ -10361,7 +9658,7 @@ CScriptErrorList::getErrorCode(LONG * plCode)
 }
 
 
-STDMETHODIMP CScriptErrorList::getErrorMsg(BSTR * pstrMsg)
+STDMETHODIMP CScriptErrorList::getErrorMsg(BSTR* pstrMsg)
 {
     HRESULT hr;
 
@@ -10369,27 +9666,22 @@ STDMETHODIMP CScriptErrorList::getErrorMsg(BSTR * pstrMsg)
     ASSERT(_lDispIndex >= 0);
 
     hr = E_FAIL;
-    if (_hdpa != NULL)
-    {
+    if (_hdpa != NULL) {
         int cPtr;
 
         cPtr = DPA_GetPtrCount(_hdpa);
 
         ASSERT(_lDispIndex < cPtr || _lDispIndex == 0);
 
-        if (cPtr > 0)
-        {
-            _CScriptErrInfo *   pInfo;
+        if (cPtr > 0) {
+            _CScriptErrInfo* pInfo;
 
-            pInfo = (_CScriptErrInfo *)DPA_GetPtr(_hdpa, _lDispIndex);
+            pInfo = (_CScriptErrInfo*)DPA_GetPtr(_hdpa, _lDispIndex);
             *pstrMsg = SysAllocString(pInfo->_strMsg);
 
-            if (*pstrMsg != NULL)
-            {
+            if (*pstrMsg != NULL) {
                 hr = S_OK;
-            }
-            else
-            {
+            } else {
                 hr = E_OUTOFMEMORY;
             }
         }
@@ -10399,7 +9691,7 @@ STDMETHODIMP CScriptErrorList::getErrorMsg(BSTR * pstrMsg)
 }
 
 
-STDMETHODIMP CScriptErrorList::getErrorUrl(BSTR * pstrUrl)
+STDMETHODIMP CScriptErrorList::getErrorUrl(BSTR* pstrUrl)
 {
     HRESULT hr;
 
@@ -10407,27 +9699,22 @@ STDMETHODIMP CScriptErrorList::getErrorUrl(BSTR * pstrUrl)
     ASSERT(_lDispIndex >= 0);
 
     hr = E_FAIL;
-    if (_hdpa != NULL)
-    {
+    if (_hdpa != NULL) {
         int     cPtr;
 
         cPtr = DPA_GetPtrCount(_hdpa);
 
         ASSERT(_lDispIndex < cPtr || _lDispIndex == 0);
 
-        if (cPtr > 0)
-        {
-            _CScriptErrInfo *   pInfo;
+        if (cPtr > 0) {
+            _CScriptErrInfo* pInfo;
 
-            pInfo = (_CScriptErrInfo *)DPA_GetPtr(_hdpa, _lDispIndex);
+            pInfo = (_CScriptErrInfo*)DPA_GetPtr(_hdpa, _lDispIndex);
             *pstrUrl = SysAllocString(pInfo->_strUrl);
 
-            if (*pstrUrl != NULL)
-            {
+            if (*pstrUrl != NULL) {
                 hr = S_OK;
-            }
-            else
-            {
+            } else {
                 hr = E_OUTOFMEMORY;
             }
         }
@@ -10437,7 +9724,7 @@ STDMETHODIMP CScriptErrorList::getErrorUrl(BSTR * pstrUrl)
 }
 
 
-STDMETHODIMP CScriptErrorList::getAlwaysShowLockState(BOOL * pfAlwaysShowLocked)
+STDMETHODIMP CScriptErrorList::getAlwaysShowLockState(BOOL* pfAlwaysShowLocked)
 {
     *pfAlwaysShowLocked = IsInetcplRestricted(TEXT("Advanced"));
 
@@ -10445,7 +9732,7 @@ STDMETHODIMP CScriptErrorList::getAlwaysShowLockState(BOOL * pfAlwaysShowLocked)
 }
 
 
-STDMETHODIMP CScriptErrorList::getDetailsPaneOpen(BOOL * pfDetailsPaneOpen)
+STDMETHODIMP CScriptErrorList::getDetailsPaneOpen(BOOL* pfDetailsPaneOpen)
 {
     *pfDetailsPaneOpen = SHRegGetBoolUSValue(szRegKey_SMIEM, szRegVal_ErrDlgDetailsOpen, FALSE, FALSE);
     return S_OK;
@@ -10459,13 +9746,10 @@ STDMETHODIMP CScriptErrorList::setDetailsPaneOpen(BOOL fDetailsPaneOpen)
     LPTSTR  pszVal;
     int     cbSize;
 
-    if (fDetailsPaneOpen)
-    {
+    if (fDetailsPaneOpen) {
         pszVal = szYes;
         cbSize = sizeof(szYes);
-    }
-    else
-    {
+    } else {
         pszVal = szNo;
         cbSize = sizeof(szNo);
     }
@@ -10477,7 +9761,7 @@ STDMETHODIMP CScriptErrorList::setDetailsPaneOpen(BOOL fDetailsPaneOpen)
 }
 
 
-STDMETHODIMP CScriptErrorList::getPerErrorDisplay(BOOL * pfPerErrorDisplay)
+STDMETHODIMP CScriptErrorList::getPerErrorDisplay(BOOL* pfPerErrorDisplay)
 {
     *pfPerErrorDisplay = SHRegGetBoolUSValue(szRegKey_SMIEM, szRegVal_ErrDlgPerErr, FALSE, FALSE);
     return S_OK;
@@ -10491,13 +9775,10 @@ STDMETHODIMP CScriptErrorList::setPerErrorDisplay(BOOL fPerErrorDisplay)
     LPTSTR  pszVal;
     int     cbSize;
 
-    if (fPerErrorDisplay)
-    {
+    if (fPerErrorDisplay) {
         pszVal = szYes;
         cbSize = sizeof(szYes);
-    }
-    else
-    {
+    } else {
         pszVal = szNo;
         cbSize = sizeof(szNo);
     }
@@ -10515,14 +9796,12 @@ HRESULT CScriptErrorList::_CScriptErrInfo::Init(LONG lLine, LONG lChar, LONG lCo
     ASSERT(_strUrl == NULL);
 
     _strMsg = SysAllocString(strMsg);
-    if (_strMsg == NULL)
-    {
+    if (_strMsg == NULL) {
         return E_OUTOFMEMORY;
     }
 
     _strUrl = SysAllocString(strUrl);
-    if (_strUrl == NULL)
-    {
+    if (_strUrl == NULL) {
         SysFreeString(_strMsg);
         return E_OUTOFMEMORY;
     }
@@ -10537,13 +9816,11 @@ HRESULT CScriptErrorList::_CScriptErrInfo::Init(LONG lLine, LONG lChar, LONG lCo
 
 CScriptErrorList::_CScriptErrInfo::~_CScriptErrInfo()
 {
-    if (_strMsg != NULL)
-    {
+    if (_strMsg != NULL) {
         SysFreeString(_strMsg);
     }
 
-    if (_strUrl != NULL)
-    {
+    if (_strUrl != NULL) {
         SysFreeString(_strUrl);
     }
 }

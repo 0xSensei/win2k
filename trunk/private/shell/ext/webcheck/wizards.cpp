@@ -110,52 +110,47 @@ inline void SetShowWelcomeScreen(DWORD dwShowWelcome)
 //          Always has finish button
 
 
-void SetWizButtons(HWND hDlg, INT_PTR resID, WizInfo *pwi)
+void SetWizButtons(HWND hDlg, INT_PTR resID, WizInfo* pwi)
 {
     DWORD dwButtons;
 
-    switch (resID)
-    {
-        case IDD_WIZARD0:
-            dwButtons = PSWIZB_NEXT;
-            break;
+    switch (resID) {
+    case IDD_WIZARD0:
+        dwButtons = PSWIZB_NEXT;
+        break;
 
-        case IDD_WIZARD1:
-            dwButtons = PSWIZB_NEXT;
-            if (!(pwi->dwExceptFlags & WIZPAGE_NOINTRO))
-            {
-                dwButtons |= PSWIZB_BACK;
-            }
-            break;
+    case IDD_WIZARD1:
+        dwButtons = PSWIZB_NEXT;
+        if (!(pwi->dwExceptFlags & WIZPAGE_NOINTRO)) {
+            dwButtons |= PSWIZB_BACK;
+        }
+        break;
 
-        case IDD_WIZARD2:
-            if ((!(pwi->dwExceptFlags & WIZPAGE_NODOWNLOAD)) ||
-                (!(pwi->dwExceptFlags & WIZPAGE_NOINTRO)))
-            {
-                dwButtons = PSWIZB_BACK;
-            }
-            else
-            {
-                dwButtons = 0;
-            }
-
-            dwButtons |= (pwi->bIsNewSchedule || (!(pwi->dwExceptFlags & WIZPAGE_NOLOGIN)))
-                         ? PSWIZB_NEXT : PSWIZB_FINISH;
-            break;
-
-        case IDD_WIZARD3:
-            dwButtons = PSWIZB_BACK |
-                        ((!(pwi->dwExceptFlags & WIZPAGE_NOLOGIN)) ? PSWIZB_NEXT : PSWIZB_FINISH);
-            break;
-
-        case IDD_WIZARD4:
-            dwButtons = PSWIZB_BACK | PSWIZB_FINISH;
-            break;
-
-        default:
+    case IDD_WIZARD2:
+        if ((!(pwi->dwExceptFlags & WIZPAGE_NODOWNLOAD)) ||
+            (!(pwi->dwExceptFlags & WIZPAGE_NOINTRO))) {
+            dwButtons = PSWIZB_BACK;
+        } else {
             dwButtons = 0;
-            ASSERT(FALSE);
-            break;
+        }
+
+        dwButtons |= (pwi->bIsNewSchedule || (!(pwi->dwExceptFlags & WIZPAGE_NOLOGIN)))
+            ? PSWIZB_NEXT : PSWIZB_FINISH;
+        break;
+
+    case IDD_WIZARD3:
+        dwButtons = PSWIZB_BACK |
+            ((!(pwi->dwExceptFlags & WIZPAGE_NOLOGIN)) ? PSWIZB_NEXT : PSWIZB_FINISH);
+        break;
+
+    case IDD_WIZARD4:
+        dwButtons = PSWIZB_BACK | PSWIZB_FINISH;
+        break;
+
+    default:
+        dwButtons = 0;
+        ASSERT(FALSE);
+        break;
     }
 
     PropSheet_SetWizButtons(GetParent(hDlg), dwButtons);
@@ -165,24 +160,18 @@ HRESULT CreateAndAddPage(PROPSHEETHEADER& psh, PROPSHEETPAGE& psp, int nPageInde
 {
     HRESULT hr = S_OK;
 
-    if (!(WizPages[nPageIndex].dwExceptFlags & dwExceptFlags))
-    {
+    if (!(WizPages[nPageIndex].dwExceptFlags & dwExceptFlags)) {
         psp.pszTemplate = MAKEINTRESOURCE(WizPages[nPageIndex].nResourceID);
         psp.pfnDlgProc = WizPages[nPageIndex].dlgProc;
 
         HPROPSHEETPAGE hpage = CreatePropertySheetPage(&psp);
 
-        if (NULL != hpage)
-        {
+        if (NULL != hpage) {
             psh.phpage[psh.nPages++] = hpage;
-        }
-        else
-        {
+        } else {
             hr = E_OUTOFMEMORY;
         }
-    }
-    else
-    {
+    } else {
         hr = S_FALSE;
     }
 
@@ -194,8 +183,8 @@ HRESULT CreateWizard(HWND hwndParent, SUBSCRIPTIONTYPE subType, POOEBuf pOOE)
     HRESULT hr = S_OK;
     UINT i;
     HPROPSHEETPAGE hPropPage[ARRAYSIZE(WizPages)];
-    PROPSHEETPAGE psp = { 0 };
-    PROPSHEETHEADER psh = { 0 };
+    PROPSHEETPAGE psp = {0};
+    PROPSHEETHEADER psh = {0};
     WizInfo wi;
 
     ASSERT(NULL != pOOE);
@@ -207,68 +196,55 @@ HRESULT CreateWizard(HWND hwndParent, SUBSCRIPTIONTYPE subType, POOEBuf pOOE)
     wi.bShowWelcome = GetShowWelcomeScreen();
     wi.bIsNewSchedule = FALSE;
 
-    if (FALSE == wi.bShowWelcome)
-    {
+    if (FALSE == wi.bShowWelcome) {
         wi.dwExceptFlags |= WIZPAGE_NOINTRO;
     }
 
-    if (IsDesktop(subType))
-    {
+    if (IsDesktop(subType)) {
         wi.dwExceptFlags |= WIZPAGE_NODOWNLOAD;
     }
 
     if ((pOOE->bChannel && (!pOOE->bNeedPassword)) ||
-        SHRestricted2W(REST_NoSubscriptionPasswords, NULL, 0))
-    {
+        SHRestricted2W(REST_NoSubscriptionPasswords, NULL, 0)) {
         wi.dwExceptFlags |= WIZPAGE_NOLOGIN;
     }
 
     // initialize propsheet header.
-    psh.dwSize      = sizeof(PROPSHEETHEADER);
-    psh.dwFlags     = PSH_WIZARD;
-    psh.hwndParent  = hwndParent;
-    psh.pszCaption  = NULL;
-    psh.hInstance   = MLGetHinst();
-    psh.nPages      = 0;
-    psh.nStartPage  = 0;
-    psh.phpage      = hPropPage;
+    psh.dwSize = sizeof(PROPSHEETHEADER);
+    psh.dwFlags = PSH_WIZARD;
+    psh.hwndParent = hwndParent;
+    psh.pszCaption = NULL;
+    psh.hInstance = MLGetHinst();
+    psh.nPages = 0;
+    psh.nStartPage = 0;
+    psh.phpage = hPropPage;
 
     // initialize propsheet page.
-    psp.dwSize          = sizeof(PROPSHEETPAGE);
-    psp.dwFlags         = PSP_DEFAULT;
-    psp.hInstance       = MLGetHinst();
-    psp.pszIcon         = NULL;
-    psp.pszTitle        = NULL;
-    psp.lParam          = (LPARAM)&wi;
+    psp.dwSize = sizeof(PROPSHEETPAGE);
+    psp.dwFlags = PSP_DEFAULT;
+    psp.hInstance = MLGetHinst();
+    psp.pszIcon = NULL;
+    psp.pszTitle = NULL;
+    psp.lParam = (LPARAM)&wi;
 
-    for (i = 0; (i < ARRAYSIZE(WizPages)) && (SUCCEEDED(hr)); i++)
-    {
+    for (i = 0; (i < ARRAYSIZE(WizPages)) && (SUCCEEDED(hr)); i++) {
         hr = CreateAndAddPage(psh, psp, i, wi.dwExceptFlags);
     }
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         // invoke the property sheet
         INT_PTR nResult = PropertySheet(&psh);
 
-        if (nResult > 0)
-        {
+        if (nResult > 0) {
             SetShowWelcomeScreen(wi.bShowWelcome);
             hr = S_OK;
-        }
-        else if (nResult == 0)
-        {
+        } else if (nResult == 0) {
             hr = E_ABORT;
-        }
-        else
-        {
+        } else {
             hr = E_FAIL;
         }
-    }
-    else
-    {
-        for (i = 0; i < psh.nPages; i++)
-        {
+    } else {
+        for (i = 0; i < psh.nPages; i++) {
             DestroyPropertySheetPage(hPropPage[i]);
         }
     }
@@ -284,12 +260,10 @@ BOOL IsADScreenSaverActive()
 {
     BOOL bEnabled = FALSE;
 
-    for (;;)
-    {
+    for (;;) {
         // NOTE: This is always written as an 8.3 filename
         TCHAR szCurrScrnSavePath[MAX_PATH];
-        if (GetPrivateProfileString(c_szStrBoot, c_szStrScrnSave, c_szStrEmpty, szCurrScrnSavePath, ARRAYSIZE(szCurrScrnSavePath), c_szStrSystemIni) == 0)
-        {
+        if (GetPrivateProfileString(c_szStrBoot, c_szStrScrnSave, c_szStrEmpty, szCurrScrnSavePath, ARRAYSIZE(szCurrScrnSavePath), c_szStrSystemIni) == 0) {
             break;
         }
 
@@ -301,45 +275,37 @@ BOOL IsADScreenSaverActive()
 
         TCHAR szScrnSavePath[MAX_PATH];
         MLLoadString(IDS_SCREENSAVEREXE, szScrnSavePath,
-                   ARRAYSIZE(szScrnSavePath));
+                     ARRAYSIZE(szScrnSavePath));
 
         TCHAR szFullScrnSavePath[MAX_PATH];
         TCHAR szWinPath[MAX_PATH];
 
         // Find the full file name and path of the screen saver
         // GetFileAttributes returns 0xFFFFFFFF if there is an error (ie: no file!)
-        if (GetWindowsDirectory(szWinPath, ARRAYSIZE(szWinPath)))
-        {
+        if (GetWindowsDirectory(szWinPath, ARRAYSIZE(szWinPath))) {
             PathCombine(szFullScrnSavePath, szWinPath, szScrnSavePath);
-            if (GetFileAttributes(szFullScrnSavePath) == 0xFFFFFFFF)
-            {
+            if (GetFileAttributes(szFullScrnSavePath) == 0xFFFFFFFF) {
                 TCHAR szSysPath[MAX_PATH];
-                if (GetSystemDirectory(szSysPath, ARRAYSIZE(szSysPath)))
-                {
+                if (GetSystemDirectory(szSysPath, ARRAYSIZE(szSysPath))) {
                     PathCombine(szFullScrnSavePath, szSysPath, szScrnSavePath);
-                    if (GetFileAttributes(szFullScrnSavePath) == 0xFFFFFFFF)
-                    {
+                    if (GetFileAttributes(szFullScrnSavePath) == 0xFFFFFFFF) {
                         PathCombine(szFullScrnSavePath, szWinPath, TEXT("actsaver.scr"));
-                        if (GetFileAttributes(szFullScrnSavePath) == 0xFFFFFFFF)
-                        {
+                        if (GetFileAttributes(szFullScrnSavePath) == 0xFFFFFFFF) {
                             PathCombine(szFullScrnSavePath, szSysPath, TEXT("actsaver.scr"));
                             if (GetFileAttributes(szFullScrnSavePath) == 0xFFFFFFFF)
                                 break;
                         }
                     }
-                }
-                else
+                } else
                     break;
             }
-        }
-        else
+        } else
             break;
 
         // Convert to 8.3 -- for some reason this is the
         // only format that the CPL applet recognizes...
         TCHAR szShortScrnSavePath[MAX_PATH];
-        if (GetShortPathName(szFullScrnSavePath, szShortScrnSavePath, ARRAYSIZE(szShortScrnSavePath)))
-        {
+        if (GetShortPathName(szFullScrnSavePath, szShortScrnSavePath, ARRAYSIZE(szShortScrnSavePath))) {
             TraceMsg(TF_ALWAYS, "szCurrScrnSavePath = %s", szCurrScrnSavePath);
             TraceMsg(TF_ALWAYS, "szShortScrnSavePath = %s", szShortScrnSavePath);
 
@@ -356,29 +322,27 @@ HRESULT MakeADScreenSaverActive()
 {
     TCHAR szScrnSavePath[MAX_PATH];
     MLLoadString(IDS_SCREENSAVEREXE, szScrnSavePath,
-               ARRAYSIZE(szScrnSavePath));
+                 ARRAYSIZE(szScrnSavePath));
 
-    if (PathFindOnPath(szScrnSavePath, NULL))
-    {
+    if (PathFindOnPath(szScrnSavePath, NULL)) {
         // Convert to 8.3 -- for some reason this is the
         // only format that the CPL applet recognizes...
         TCHAR szShortScrnSavePath[MAX_PATH];
         GetShortPathName(szScrnSavePath, szShortScrnSavePath, ARRAYSIZE(szShortScrnSavePath));
 
-        WritePrivateProfileString(  c_szStrBoot,
-                                    c_szStrScrnSave,
-                                    szShortScrnSavePath,
-                                    c_szStrSystemIni);
+        WritePrivateProfileString(c_szStrBoot,
+                                  c_szStrScrnSave,
+                                  szShortScrnSavePath,
+                                  c_szStrSystemIni);
 
         // Flip the screen saver ON
-        SystemParametersInfo(   SPI_SETSCREENSAVEACTIVE,
-                                TRUE,
-                                NULL,
-                                SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+        SystemParametersInfo(SPI_SETSCREENSAVEACTIVE,
+                             TRUE,
+                             NULL,
+                             SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 
         return S_OK;
-    }
-    else
+    } else
         return E_FAIL;
 }
 
@@ -387,41 +351,39 @@ HRESULT MakeADScreenSaverActive()
 
 INT_PTR CALLBACK WelcomeDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    LPPROPSHEETPAGE lpPropSheet =(LPPROPSHEETPAGE) GetWindowLongPtr(hDlg, DWLP_USER);
-    WizInfo *pWiz = lpPropSheet ? (WizInfo *)lpPropSheet->lParam : NULL;
-    NMHDR FAR *lpnm;
+    LPPROPSHEETPAGE lpPropSheet = (LPPROPSHEETPAGE)GetWindowLongPtr(hDlg, DWLP_USER);
+    WizInfo* pWiz = lpPropSheet ? (WizInfo*)lpPropSheet->lParam : NULL;
+    NMHDR FAR* lpnm;
     BOOL result = FALSE;
 
-    switch (message)
-    {
-        case WM_INITDIALOG:
-            SetWindowLongPtr(hDlg, DWLP_USER, lParam);
+    switch (message) {
+    case WM_INITDIALOG:
+        SetWindowLongPtr(hDlg, DWLP_USER, lParam);
+        result = TRUE;
+        break;
+
+    case WM_NOTIFY:
+        lpnm = (NMHDR FAR*)lParam;
+
+        switch (lpnm->code) {
+        case PSN_SETACTIVE:
+
+            ASSERT(NULL != lpPropSheet);
+            ASSERT(NULL != pWiz);
+
+            SetWizButtons(hDlg, (INT_PTR)lpPropSheet->pszTemplate, pWiz);
             result = TRUE;
             break;
 
-        case WM_NOTIFY:
-            lpnm = (NMHDR FAR *)lParam;
+        case PSN_KILLACTIVE:
 
-            switch (lpnm->code)
-            {
-                case PSN_SETACTIVE:
+            ASSERT(NULL != pWiz);
 
-                    ASSERT(NULL != lpPropSheet);
-                    ASSERT(NULL != pWiz);
-
-                    SetWizButtons(hDlg, (INT_PTR) lpPropSheet->pszTemplate, pWiz);
-                    result = TRUE;
-                    break;
-
-                case PSN_KILLACTIVE:
-
-                    ASSERT(NULL != pWiz);
-
-                    pWiz->bShowWelcome = !IsDlgButtonChecked(hDlg, IDC_WIZ_DONT_SHOW_INTRO);
-                    result = TRUE;
-                    break;
-            }
+            pWiz->bShowWelcome = !IsDlgButtonChecked(hDlg, IDC_WIZ_DONT_SHOW_INTRO);
+            result = TRUE;
             break;
+        }
+        break;
 
     }
 
@@ -433,10 +395,10 @@ void EnableLevelsDeep(HWND hwndDlg, BOOL fEnable)
 
     ASSERT(hwndDlg != NULL);
 
-    EnableWindow(GetDlgItem(hwndDlg,IDC_WIZ_LINKSDEEP_STATIC1), fEnable);
-    EnableWindow(GetDlgItem(hwndDlg,IDC_WIZ_LINKSDEEP_STATIC2), fEnable);
-    EnableWindow(GetDlgItem(hwndDlg,IDC_WIZ_LINKSDEEP_EDIT), fEnable);
-    EnableWindow(GetDlgItem(hwndDlg,IDC_WIZ_LINKSDEEP_SPIN), fEnable);
+    EnableWindow(GetDlgItem(hwndDlg, IDC_WIZ_LINKSDEEP_STATIC1), fEnable);
+    EnableWindow(GetDlgItem(hwndDlg, IDC_WIZ_LINKSDEEP_STATIC2), fEnable);
+    EnableWindow(GetDlgItem(hwndDlg, IDC_WIZ_LINKSDEEP_EDIT), fEnable);
+    EnableWindow(GetDlgItem(hwndDlg, IDC_WIZ_LINKSDEEP_SPIN), fEnable);
 
     return;
 
@@ -448,13 +410,13 @@ void EnableLevelsDeep(HWND hwndDlg, BOOL fEnable)
 void ShowLevelsDeep(HWND hwndDlg, BOOL fShow)
 {
 
-    INT nCmdShow = fShow ? SW_SHOW: SW_HIDE;
+    INT nCmdShow = fShow ? SW_SHOW : SW_HIDE;
     ASSERT(hwndDlg != NULL);
 
-    ShowWindow(GetDlgItem(hwndDlg,IDC_WIZ_LINKSDEEP_STATIC1), nCmdShow);
-    ShowWindow(GetDlgItem(hwndDlg,IDC_WIZ_LINKSDEEP_STATIC2), nCmdShow);
-    ShowWindow(GetDlgItem(hwndDlg,IDC_WIZ_LINKSDEEP_EDIT), nCmdShow);
-    ShowWindow(GetDlgItem(hwndDlg,IDC_WIZ_LINKSDEEP_SPIN), nCmdShow);
+    ShowWindow(GetDlgItem(hwndDlg, IDC_WIZ_LINKSDEEP_STATIC1), nCmdShow);
+    ShowWindow(GetDlgItem(hwndDlg, IDC_WIZ_LINKSDEEP_STATIC2), nCmdShow);
+    ShowWindow(GetDlgItem(hwndDlg, IDC_WIZ_LINKSDEEP_EDIT), nCmdShow);
+    ShowWindow(GetDlgItem(hwndDlg, IDC_WIZ_LINKSDEEP_SPIN), nCmdShow);
 
     return;
 
@@ -465,184 +427,163 @@ void ShowLevelsDeep(HWND hwndDlg, BOOL fShow)
 
 INT_PTR CALLBACK DownloadDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    LPPROPSHEETPAGE lpPropSheet =(LPPROPSHEETPAGE) GetWindowLongPtr(hDlg, DWLP_USER);
-    WizInfo *pWiz = lpPropSheet ? (WizInfo *)lpPropSheet->lParam : NULL;
+    LPPROPSHEETPAGE lpPropSheet = (LPPROPSHEETPAGE)GetWindowLongPtr(hDlg, DWLP_USER);
+    WizInfo* pWiz = lpPropSheet ? (WizInfo*)lpPropSheet->lParam : NULL;
     POOEBuf  pBuf = pWiz ? pWiz->pOOE : NULL;
-    NMHDR FAR *lpnm;
+    NMHDR FAR* lpnm;
     BOOL result = FALSE;
 
-    switch (message)
+    switch (message) {
+    case WM_INITDIALOG:
     {
-        case WM_INITDIALOG:
-        {
-            TCHAR szBuf[256];
-            SetWindowLongPtr(hDlg, DWLP_USER, lParam);
+        TCHAR szBuf[256];
+        SetWindowLongPtr(hDlg, DWLP_USER, lParam);
 
-            pWiz = (WizInfo *)((LPPROPSHEETPAGE)lParam)->lParam;
-            pBuf = pWiz ? pWiz->pOOE : NULL;
+        pWiz = (WizInfo*)((LPPROPSHEETPAGE)lParam)->lParam;
+        pBuf = pWiz ? pWiz->pOOE : NULL;
 
-            SetListViewToString(GetDlgItem (hDlg, IDC_NAME), pBuf->m_Name);
-            SetListViewToString(GetDlgItem (hDlg, IDC_URL), pBuf->m_URL);
+        SetListViewToString(GetDlgItem(hDlg, IDC_NAME), pBuf->m_Name);
+        SetListViewToString(GetDlgItem(hDlg, IDC_URL), pBuf->m_URL);
 
-            MLLoadString(
-                IsChannel(pWiz->subType) ? IDS_WIZ_GET_LINKS_CHANNEL : IDS_WIZ_GET_LINKS_URL,
-                szBuf, ARRAYSIZE(szBuf));
+        MLLoadString(
+            IsChannel(pWiz->subType) ? IDS_WIZ_GET_LINKS_CHANNEL : IDS_WIZ_GET_LINKS_URL,
+            szBuf, ARRAYSIZE(szBuf));
 
-            SetDlgItemText(hDlg, IDC_WIZ_GET_LINKS_TEXT, szBuf);
+        SetDlgItemText(hDlg, IDC_WIZ_GET_LINKS_TEXT, szBuf);
 
-            int checked;
+        int checked;
 
-            if ((pBuf->bChannel && (pBuf->fChannelFlags & CHANNEL_AGENT_PRECACHE_ALL)) ||
-                (!pBuf->bChannel && ((pBuf->m_RecurseLevels) > 0)))
-            {
-                checked = IDC_WIZ_LINKS_YES;
-            }
-            else
-            {
-                checked = IDC_WIZ_LINKS_NO;
-            }
-
-            CheckRadioButton(hDlg, IDC_WIZ_LINKS_YES, IDC_WIZ_LINKS_NO, checked);
-
-
-            // Initialize the spin control for "levels deep" UI
-
-            HWND hwndLevelsSpin = GetDlgItem(hDlg,IDC_WIZ_LINKSDEEP_SPIN);
-            SendMessage(hwndLevelsSpin, UDM_SETRANGE, 0, MAKELONG(MAX_WEBCRAWL_LEVELS, 1));
-            SendMessage(hwndLevelsSpin, UDM_SETPOS, 0, pBuf->m_RecurseLevels);
-            ShowLevelsDeep(hDlg,!pBuf->bChannel);
-            EnableLevelsDeep(hDlg,!pBuf->bChannel && IDC_WIZ_LINKS_YES==checked);
-
-            result = TRUE;
-            break;
+        if ((pBuf->bChannel && (pBuf->fChannelFlags & CHANNEL_AGENT_PRECACHE_ALL)) ||
+            (!pBuf->bChannel && ((pBuf->m_RecurseLevels) > 0))) {
+            checked = IDC_WIZ_LINKS_YES;
+        } else {
+            checked = IDC_WIZ_LINKS_NO;
         }
 
-        case WM_COMMAND:
-
-            switch (HIWORD(wParam))
-            {
-
-            case BN_CLICKED:
-
-                if (!pBuf->bChannel)
-                    switch (LOWORD(wParam))
-                    {
-
-                    case IDC_WIZ_LINKS_YES:
-                        EnableLevelsDeep(hDlg,TRUE);
-                        break;
-
-                    case IDC_WIZ_LINKS_NO:
-                        EnableLevelsDeep(hDlg,FALSE);
-                        break;
-
-                    }
-                break;
-
-            case EN_KILLFOCUS:
+        CheckRadioButton(hDlg, IDC_WIZ_LINKS_YES, IDC_WIZ_LINKS_NO, checked);
 
 
-                // This code checks for bogus values in the "levels deep"
-                // edit control and replaces them with something valid
+        // Initialize the spin control for "levels deep" UI
 
-                if (LOWORD(wParam)==IDC_WIZ_LINKSDEEP_EDIT)
-                {
-                    BOOL fTranslated = FALSE;
-                    UINT cLevels = GetDlgItemInt(hDlg,IDC_WIZ_LINKSDEEP_EDIT,&fTranslated,FALSE);
+        HWND hwndLevelsSpin = GetDlgItem(hDlg, IDC_WIZ_LINKSDEEP_SPIN);
+        SendMessage(hwndLevelsSpin, UDM_SETRANGE, 0, MAKELONG(MAX_WEBCRAWL_LEVELS, 1));
+        SendMessage(hwndLevelsSpin, UDM_SETPOS, 0, pBuf->m_RecurseLevels);
+        ShowLevelsDeep(hDlg, !pBuf->bChannel);
+        EnableLevelsDeep(hDlg, !pBuf->bChannel && IDC_WIZ_LINKS_YES == checked);
 
-                    if (!fTranslated || cLevels < 1)
-                    {
-                        SetDlgItemInt(hDlg,IDC_WIZ_LINKSDEEP_EDIT,1,FALSE);
-                    }
-                    else if (cLevels > MAX_WEBCRAWL_LEVELS)
-                    {
-                        SetDlgItemInt(hDlg,IDC_WIZ_LINKSDEEP_EDIT,MAX_WEBCRAWL_LEVELS,FALSE);
-                    }
+        result = TRUE;
+        break;
+    }
+
+    case WM_COMMAND:
+
+        switch (HIWORD(wParam)) {
+
+        case BN_CLICKED:
+
+            if (!pBuf->bChannel)
+                switch (LOWORD(wParam)) {
+
+                case IDC_WIZ_LINKS_YES:
+                    EnableLevelsDeep(hDlg, TRUE);
+                    break;
+
+                case IDC_WIZ_LINKS_NO:
+                    EnableLevelsDeep(hDlg, FALSE);
+                    break;
 
                 }
+            break;
 
-                break;
+        case EN_KILLFOCUS:
 
+
+            // This code checks for bogus values in the "levels deep"
+            // edit control and replaces them with something valid
+
+            if (LOWORD(wParam) == IDC_WIZ_LINKSDEEP_EDIT) {
+                BOOL fTranslated = FALSE;
+                UINT cLevels = GetDlgItemInt(hDlg, IDC_WIZ_LINKSDEEP_EDIT, &fTranslated, FALSE);
+
+                if (!fTranslated || cLevels < 1) {
+                    SetDlgItemInt(hDlg, IDC_WIZ_LINKSDEEP_EDIT, 1, FALSE);
+                } else if (cLevels > MAX_WEBCRAWL_LEVELS) {
+                    SetDlgItemInt(hDlg, IDC_WIZ_LINKSDEEP_EDIT, MAX_WEBCRAWL_LEVELS, FALSE);
+                }
+
+            }
+
+            break;
+
+        }
+        break;
+
+    case WM_NOTIFY:
+        lpnm = (NMHDR FAR*)lParam;
+
+        switch (lpnm->code) {
+        case PSN_SETACTIVE:
+
+            ASSERT(NULL != lpPropSheet);
+            ASSERT(NULL != pWiz);
+
+            SetWizButtons(hDlg, (INT_PTR)lpPropSheet->pszTemplate, pWiz);
+            result = TRUE;
+            break;
+
+        case PSN_KILLACTIVE:
+
+            ASSERT(NULL != pBuf);
+
+            if (IsDlgButtonChecked(hDlg, IDC_WIZ_LINKS_YES)) {
+                if (IsChannel(pWiz->subType)) {
+                    pBuf->fChannelFlags |= CHANNEL_AGENT_PRECACHE_ALL;
+                } else {
+                    if (pBuf->m_RecurseLevels < 1) {
+                        DWORD dwPos = (DWORD)SendDlgItemMessage(hDlg, IDC_WIZ_LINKSDEEP_SPIN, UDM_GETPOS, 0, 0);
+
+
+                        // Set the m_RecurseLevels field to the given by the
+                        // spin control.  HIWORD(dwPos) indicated errror.
+
+                        if (HIWORD(dwPos))
+                            pBuf->m_RecurseLevels = 1;
+                        else
+                            pBuf->m_RecurseLevels = LOWORD(dwPos);
+
+                    }
+                    pBuf->m_RecurseFlags |= WEBCRAWL_LINKS_ELSEWHERE;
+                }
+            } else {
+                if (IsChannel(pWiz->subType)) {
+                    pBuf->fChannelFlags &= ~CHANNEL_AGENT_PRECACHE_ALL;
+                    pBuf->fChannelFlags |= CHANNEL_AGENT_PRECACHE_SOME;
+                } else {
+                    pBuf->m_RecurseLevels = 0;
+                    pBuf->m_RecurseFlags &= ~WEBCRAWL_LINKS_ELSEWHERE;
+                }
             }
             break;
 
-        case WM_NOTIFY:
-            lpnm = (NMHDR FAR *)lParam;
-
-            switch (lpnm->code)
-            {
-                case PSN_SETACTIVE:
-
-                    ASSERT(NULL != lpPropSheet);
-                    ASSERT(NULL != pWiz);
-
-                    SetWizButtons(hDlg, (INT_PTR) lpPropSheet->pszTemplate, pWiz);
-                    result = TRUE;
-                    break;
-
-                case PSN_KILLACTIVE:
-
-                    ASSERT(NULL != pBuf);
-
-                    if (IsDlgButtonChecked(hDlg, IDC_WIZ_LINKS_YES))
-                    {
-                        if (IsChannel(pWiz->subType))
-                        {
-                            pBuf->fChannelFlags |= CHANNEL_AGENT_PRECACHE_ALL;
-                        }
-                        else
-                        {
-                            if (pBuf->m_RecurseLevels < 1)
-                            {
-                                DWORD dwPos = (DWORD)SendDlgItemMessage(hDlg,IDC_WIZ_LINKSDEEP_SPIN,UDM_GETPOS,0,0);
-
-
-                                // Set the m_RecurseLevels field to the given by the
-                                // spin control.  HIWORD(dwPos) indicated errror.
-
-                                if (HIWORD(dwPos))
-                                    pBuf->m_RecurseLevels = 1;
-                                else
-                                    pBuf->m_RecurseLevels = LOWORD(dwPos);
-
-                            }
-                            pBuf->m_RecurseFlags |= WEBCRAWL_LINKS_ELSEWHERE;
-                        }
-                    }
-                    else
-                    {
-                        if (IsChannel(pWiz->subType))
-                        {
-                            pBuf->fChannelFlags &= ~CHANNEL_AGENT_PRECACHE_ALL;
-                            pBuf->fChannelFlags |= CHANNEL_AGENT_PRECACHE_SOME;
-                        }
-                        else
-                        {
-                            pBuf->m_RecurseLevels = 0;
-                            pBuf->m_RecurseFlags &= ~WEBCRAWL_LINKS_ELSEWHERE;
-                        }
-                    }
-                    break;
-
-            }
-            break;
+        }
+        break;
 
     }
 
     return result;
 }
 
-void HandleScheduleButtons(HWND hDlg, LPPROPSHEETPAGE lpPropSheet, WizInfo *pWiz)
+void HandleScheduleButtons(HWND hDlg, LPPROPSHEETPAGE lpPropSheet, WizInfo* pWiz)
 {
     ASSERT(NULL != lpPropSheet);
     ASSERT(NULL != pWiz);
 
     EnableWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_LIST),
-        IsDlgButtonChecked(hDlg, IDC_WIZ_SCHEDULE_EXISTING));
+                 IsDlgButtonChecked(hDlg, IDC_WIZ_SCHEDULE_EXISTING));
 
     pWiz->bIsNewSchedule = IsDlgButtonChecked(hDlg, IDC_WIZ_SCHEDULE_NEW);
 
-    SetWizButtons(hDlg, (INT_PTR) lpPropSheet->pszTemplate, pWiz);
+    SetWizButtons(hDlg, (INT_PTR)lpPropSheet->pszTemplate, pWiz);
 }
 
 struct PICKSCHED_LIST_DATA
@@ -656,38 +597,34 @@ struct PICKSCHED_ENUM_DATA
     POOEBuf pBuf;
     SYNCSCHEDULECOOKIE defSchedule;
     SYNCSCHEDULECOOKIE customSchedule;
-    int *pnDefaultSelection;
-    BOOL bHasAtLeastOneSchedule:1;
-    BOOL bFoundCustomSchedule:1;
+    int* pnDefaultSelection;
+    BOOL bHasAtLeastOneSchedule : 1;
+    BOOL bFoundCustomSchedule : 1;
 };
 
-BOOL PickSched_EnumCallback(ISyncSchedule *pSyncSchedule,
-                            SYNCSCHEDULECOOKIE *pSchedCookie,
+BOOL PickSched_EnumCallback(ISyncSchedule* pSyncSchedule,
+                            SYNCSCHEDULECOOKIE* pSchedCookie,
                             LPARAM lParam)
 {
     BOOL bAdded = FALSE;
-    PICKSCHED_ENUM_DATA *psed = (PICKSCHED_ENUM_DATA *)lParam;
+    PICKSCHED_ENUM_DATA* psed = (PICKSCHED_ENUM_DATA*)lParam;
     DWORD dwSyncScheduleFlags;
-    PICKSCHED_LIST_DATA *psld = NULL;
+    PICKSCHED_LIST_DATA* psld = NULL;
 
     ASSERT(NULL != pSyncSchedule);
 
-    if (SUCCEEDED(pSyncSchedule->GetFlags(&dwSyncScheduleFlags)))
-    {
+    if (SUCCEEDED(pSyncSchedule->GetFlags(&dwSyncScheduleFlags))) {
         //  This checks to make sure we only add a publisher's schedule to the
         //  list if it belongs to this item.
         if ((!(dwSyncScheduleFlags & SYNCSCHEDINFO_FLAGS_READONLY)) ||
-            (*pSchedCookie == psed->customSchedule))
-        {
+            (*pSchedCookie == psed->customSchedule)) {
             psld = new PICKSCHED_LIST_DATA;
 
-            if (NULL != psld)
-            {
+            if (NULL != psld) {
                 WCHAR wszName[MAX_PATH];
                 DWORD cchName = ARRAYSIZE(wszName);
 
-                if (SUCCEEDED(pSyncSchedule->GetScheduleName(&cchName, wszName)))
-                {
+                if (SUCCEEDED(pSyncSchedule->GetScheduleName(&cchName, wszName))) {
                     TCHAR szName[MAX_PATH];
 
                     MyOleStrToStrN(szName, ARRAYSIZE(szName), wszName);
@@ -697,31 +634,25 @@ BOOL PickSched_EnumCallback(ISyncSchedule *pSyncSchedule,
                     psld->SchedCookie = *pSchedCookie;
 
                     int index;
-                    if (*pSchedCookie == psed->customSchedule)
-                    {
+                    if (*pSchedCookie == psed->customSchedule) {
                         index = ComboBox_InsertString(psed->hwndSchedList, 0, szName);
-                        if ((index >= 0) && (psed->defSchedule == GUID_NULL))
-                        {
+                        if ((index >= 0) && (psed->defSchedule == GUID_NULL)) {
                             //  Do this always for custom schedules if there
                             //  is no defSchedule set
                             *psed->pnDefaultSelection = index;
                             psed->bFoundCustomSchedule = TRUE;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         index = ComboBox_AddString(psed->hwndSchedList, szName);
                     }
 
-                    if (index >= 0)
-                    {
+                    if (index >= 0) {
                         bAdded = (ComboBox_SetItemData(psed->hwndSchedList, index, psld) != CB_ERR);
 
                         if ((psed->defSchedule == *pSchedCookie)
                             ||
                             ((-1 == *psed->pnDefaultSelection) &&
-                                IsCookieOnSchedule(pSyncSchedule, &psed->pBuf->m_Cookie)))
-                        {
+                             IsCookieOnSchedule(pSyncSchedule, &psed->pBuf->m_Cookie))) {
                             *psed->pnDefaultSelection = index;
                         }
                     }
@@ -730,8 +661,7 @@ BOOL PickSched_EnumCallback(ISyncSchedule *pSyncSchedule,
         }
     }
 
-    if (!bAdded)
-    {
+    if (!bAdded) {
         SAFEDELETE(psld);
     }
 
@@ -739,7 +669,7 @@ BOOL PickSched_EnumCallback(ISyncSchedule *pSyncSchedule,
 
 }
 
-BOOL PickSched_FillSchedList(HWND hDlg, POOEBuf pBuf, int *pnDefaultSelection)
+BOOL PickSched_FillSchedList(HWND hDlg, POOEBuf pBuf, int* pnDefaultSelection)
 {
     PICKSCHED_ENUM_DATA sed;
 
@@ -756,16 +686,14 @@ BOOL PickSched_FillSchedList(HWND hDlg, POOEBuf pBuf, int *pnDefaultSelection)
     EnumSchedules(PickSched_EnumCallback, (LPARAM)&sed);
 
     if (!sed.bFoundCustomSchedule && pBuf->bChannel &&
-        (sizeof(TASK_TRIGGER) == pBuf->m_Trigger.cbTriggerSize))
-    {
+        (sizeof(TASK_TRIGGER) == pBuf->m_Trigger.cbTriggerSize)) {
         //  This item has a custom schedule but it isn't an existing
         //  schedule (actually, this is the normal case).  We now
         //  have to add a fake entry.
 
-        PICKSCHED_LIST_DATA *psld = new PICKSCHED_LIST_DATA;
+        PICKSCHED_LIST_DATA* psld = new PICKSCHED_LIST_DATA;
 
-        if (NULL != psld)
-        {
+        if (NULL != psld) {
             TCHAR szSchedName[MAX_PATH];
             BOOL bAdded = FALSE;
 
@@ -774,15 +702,13 @@ BOOL PickSched_FillSchedList(HWND hDlg, POOEBuf pBuf, int *pnDefaultSelection)
 
             int index = ComboBox_InsertString(sed.hwndSchedList, 0, szSchedName);
 
-            if (index >= 0)
-            {
+            if (index >= 0) {
                 bAdded = (ComboBox_SetItemData(sed.hwndSchedList, index, psld) != CB_ERR);
                 sed.bHasAtLeastOneSchedule = TRUE;
                 *pnDefaultSelection = index;
             }
 
-            if (!bAdded)
-            {
+            if (!bAdded) {
                 delete psld;
             }
         }
@@ -791,20 +717,17 @@ BOOL PickSched_FillSchedList(HWND hDlg, POOEBuf pBuf, int *pnDefaultSelection)
     return sed.bHasAtLeastOneSchedule;
 }
 
-PICKSCHED_LIST_DATA *PickSchedList_GetData(HWND hwndSchedList, int index)
+PICKSCHED_LIST_DATA* PickSchedList_GetData(HWND hwndSchedList, int index)
 {
-    PICKSCHED_LIST_DATA *psld = NULL;
+    PICKSCHED_LIST_DATA* psld = NULL;
 
-    if (index < 0)
-    {
+    if (index < 0) {
         index = ComboBox_GetCurSel(hwndSchedList);
     }
 
-    if (index >= 0)
-    {
-        psld = (PICKSCHED_LIST_DATA *)ComboBox_GetItemData(hwndSchedList, index);
-        if (psld == (PICKSCHED_LIST_DATA *)CB_ERR)
-        {
+    if (index >= 0) {
+        psld = (PICKSCHED_LIST_DATA*)ComboBox_GetItemData(hwndSchedList, index);
+        if (psld == (PICKSCHED_LIST_DATA*)CB_ERR) {
             psld = NULL;
         }
     }
@@ -816,11 +739,9 @@ void PickSchedList_FreeAllData(HWND hwndSchedList)
 {
     int count = ComboBox_GetCount(hwndSchedList);
 
-    for (int i = 0; i < count; i++)
-    {
-        PICKSCHED_LIST_DATA *psld = PickSchedList_GetData(hwndSchedList, i);
-        if (NULL != psld)
-        {
+    for (int i = 0; i < count; i++) {
+        PICKSCHED_LIST_DATA* psld = PickSchedList_GetData(hwndSchedList, i);
+        if (NULL != psld) {
             delete psld;
         }
     }
@@ -828,125 +749,109 @@ void PickSchedList_FreeAllData(HWND hwndSchedList)
 
 INT_PTR CALLBACK PickScheduleDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    LPPROPSHEETPAGE lpPropSheet =(LPPROPSHEETPAGE)GetWindowLongPtr(hDlg, DWLP_USER);
-    WizInfo *pWiz = lpPropSheet ? (WizInfo *)lpPropSheet->lParam : NULL;
+    LPPROPSHEETPAGE lpPropSheet = (LPPROPSHEETPAGE)GetWindowLongPtr(hDlg, DWLP_USER);
+    WizInfo* pWiz = lpPropSheet ? (WizInfo*)lpPropSheet->lParam : NULL;
     POOEBuf  pBuf = pWiz ? pWiz->pOOE : NULL;
-    NMHDR FAR *lpnm;
+    NMHDR FAR* lpnm;
     BOOL result = FALSE;
 
-    switch (message)
+    switch (message) {
+    case WM_INITDIALOG:
     {
-        case WM_INITDIALOG:
-        {
-            SetWindowLongPtr(hDlg, DWLP_USER, lParam);
+        SetWindowLongPtr(hDlg, DWLP_USER, lParam);
 
-            lpPropSheet = (LPPROPSHEETPAGE)lParam;
-            pWiz = (WizInfo *)lpPropSheet->lParam;
+        lpPropSheet = (LPPROPSHEETPAGE)lParam;
+        pWiz = (WizInfo*)lpPropSheet->lParam;
 
-            int nDefaultSelection = -1;
-            BOOL bHaveSchedules = PickSched_FillSchedList(hDlg, pWiz->pOOE,
-                                                          &nDefaultSelection);
-            BOOL bNoScheduledUpdates = SHRestricted2W(REST_NoScheduledUpdates, NULL, 0);
-            int defID = IDC_WIZ_SCHEDULE_NONE;
+        int nDefaultSelection = -1;
+        BOOL bHaveSchedules = PickSched_FillSchedList(hDlg, pWiz->pOOE,
+                                                      &nDefaultSelection);
+        BOOL bNoScheduledUpdates = SHRestricted2W(REST_NoScheduledUpdates, NULL, 0);
+        int defID = IDC_WIZ_SCHEDULE_NONE;
 
-            if (!bHaveSchedules)
-            {
-                ShowWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_EXISTING), SW_HIDE);
-                ShowWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_LIST), SW_HIDE);
+        if (!bHaveSchedules) {
+            ShowWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_EXISTING), SW_HIDE);
+            ShowWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_LIST), SW_HIDE);
+        } else if (!bNoScheduledUpdates) {
+            if (-1 == nDefaultSelection) {
+                //  This item isn't on any schedule yet
+                nDefaultSelection = 0;
+            } else {
+                //  This item is on at least one schedule
+                defID = IDC_WIZ_SCHEDULE_EXISTING;
             }
-            else if (!bNoScheduledUpdates)
-            {
-                if (-1 == nDefaultSelection)
-                {
-                    //  This item isn't on any schedule yet
-                    nDefaultSelection = 0;
-                }
-                else
-                {
-                    //  This item is on at least one schedule
-                    defID = IDC_WIZ_SCHEDULE_EXISTING;
-                }
 
-                ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_LIST),
-                                   nDefaultSelection);
-            }
-            CheckRadioButton(hDlg, IDC_WIZ_SCHEDULE_NONE, IDC_WIZ_SCHEDULE_EXISTING,
-                             defID);
+            ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_LIST),
+                               nDefaultSelection);
+        }
+        CheckRadioButton(hDlg, IDC_WIZ_SCHEDULE_NONE, IDC_WIZ_SCHEDULE_EXISTING,
+                         defID);
+
+        ASSERT(NULL != lpPropSheet);
+        ASSERT(NULL != pWiz);
+
+        if (bNoScheduledUpdates) {
+            EnableWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_NEW), FALSE);
+            EnableWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_EXISTING), FALSE);
+            EnableWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_LIST), FALSE);
+        } else if (SHRestricted2(REST_NoEditingScheduleGroups, NULL, 0)) {
+            EnableWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_NEW), FALSE);
+        }
+
+        HandleScheduleButtons(hDlg, lpPropSheet, pWiz);
+        result = TRUE;
+        break;
+    }
+
+    case WM_DESTROY:
+        PickSchedList_FreeAllData(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_LIST));
+        break;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDC_WIZ_SCHEDULE_EXISTING:
+        case IDC_WIZ_SCHEDULE_NEW:
+        case IDC_WIZ_SCHEDULE_NONE:
 
             ASSERT(NULL != lpPropSheet);
             ASSERT(NULL != pWiz);
-
-            if (bNoScheduledUpdates)
-            {
-                EnableWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_NEW), FALSE);
-                EnableWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_EXISTING), FALSE);
-                EnableWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_LIST), FALSE);
-            }
-            else if (SHRestricted2(REST_NoEditingScheduleGroups, NULL, 0))
-            {
-                EnableWindow(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_NEW), FALSE);
-            }
 
             HandleScheduleButtons(hDlg, lpPropSheet, pWiz);
             result = TRUE;
             break;
         }
+        break;
 
-        case WM_DESTROY:
-            PickSchedList_FreeAllData(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_LIST));
+    case WM_NOTIFY:
+        lpnm = (NMHDR FAR*)lParam;
+
+        switch (lpnm->code) {
+        case PSN_SETACTIVE:
+
+            ASSERT(NULL != lpPropSheet);
+            ASSERT(NULL != pWiz);
+
+            SetWizButtons(hDlg, (INT_PTR)lpPropSheet->pszTemplate, pWiz);
+            result = TRUE;
             break;
 
-        case WM_COMMAND:
-            switch (LOWORD(wParam))
-            {
-                case IDC_WIZ_SCHEDULE_EXISTING:
-                case IDC_WIZ_SCHEDULE_NEW:
-                case IDC_WIZ_SCHEDULE_NONE:
+        case PSN_WIZNEXT:
+        case PSN_WIZFINISH:
+            if (IsDlgButtonChecked(hDlg, IDC_WIZ_SCHEDULE_NONE)) {
+                pBuf->groupCookie = NOTFCOOKIE_SCHEDULE_GROUP_MANUAL;
+            } else if (IsDlgButtonChecked(hDlg, IDC_WIZ_SCHEDULE_EXISTING)) {
+                PICKSCHED_LIST_DATA* psld =
+                    PickSchedList_GetData(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_LIST), -1);
 
-                    ASSERT(NULL != lpPropSheet);
-                    ASSERT(NULL != pWiz);
-
-                    HandleScheduleButtons(hDlg, lpPropSheet, pWiz);
-                    result = TRUE;
-                    break;
+                if (NULL != psld) {
+                    pBuf->groupCookie = psld->SchedCookie;
+                }
             }
+            result = TRUE;
             break;
 
-        case WM_NOTIFY:
-            lpnm = (NMHDR FAR *)lParam;
-
-            switch (lpnm->code)
-            {
-                case PSN_SETACTIVE:
-
-                    ASSERT(NULL != lpPropSheet);
-                    ASSERT(NULL != pWiz);
-
-                    SetWizButtons(hDlg, (INT_PTR) lpPropSheet->pszTemplate, pWiz);
-                    result = TRUE;
-                    break;
-
-                case PSN_WIZNEXT:
-                case PSN_WIZFINISH:
-                    if (IsDlgButtonChecked(hDlg, IDC_WIZ_SCHEDULE_NONE))
-                    {
-                        pBuf->groupCookie = NOTFCOOKIE_SCHEDULE_GROUP_MANUAL;
-                    }
-                    else if (IsDlgButtonChecked(hDlg, IDC_WIZ_SCHEDULE_EXISTING))
-                    {
-                        PICKSCHED_LIST_DATA *psld =
-                            PickSchedList_GetData(GetDlgItem(hDlg, IDC_WIZ_SCHEDULE_LIST), -1);
-
-                        if (NULL != psld)
-                        {
-                            pBuf->groupCookie = psld->SchedCookie;
-                        }
-                    }
-                    result = TRUE;
-                    break;
-
-            }
-            break;
+        }
+        break;
 
     }
 
@@ -956,8 +861,7 @@ INT_PTR CALLBACK PickScheduleDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPA
 #ifdef NEWSCHED_AUTONAME
 void NewSchedWiz_AutoName(HWND hDlg, POOEBuf pBuf)
 {
-    if (!(pBuf->m_dwPropSheetFlags & PSF_NO_AUTO_NAME_SCHEDULE))
-    {
+    if (!(pBuf->m_dwPropSheetFlags & PSF_NO_AUTO_NAME_SCHEDULE)) {
         pBuf->m_dwPropSheetFlags &= ~PSF_NO_CHECK_SCHED_CONFLICT;
 
         NewSched_AutoNameHelper(hDlg);
@@ -1001,14 +905,12 @@ BOOL NewSchedWiz_ResolveNameConflict(HWND hDlg, POOEBuf pBuf)
 {
     BOOL bResult = TRUE;
 
-    if (!(pBuf->m_dwPropSheetFlags & PSF_NO_CHECK_SCHED_CONFLICT))
-    {
+    if (!(pBuf->m_dwPropSheetFlags & PSF_NO_CHECK_SCHED_CONFLICT)) {
         bResult = NewSched_ResolveNameConflictHelper(hDlg, &pBuf->m_Trigger,
                                                      &pBuf->groupCookie);
     }
 
-    if (bResult)
-    {
+    if (bResult) {
         pBuf->m_dwPropSheetFlags |= PSF_NO_CHECK_SCHED_CONFLICT;
     }
 
@@ -1025,155 +927,139 @@ inline void NewSchedWiz_CreateSchedule(HWND hDlg, POOEBuf pBuf)
 
 INT_PTR CALLBACK NewScheduleWizDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    LPPROPSHEETPAGE lpPropSheet =(LPPROPSHEETPAGE)GetWindowLongPtr(hDlg, DWLP_USER);
-    WizInfo *pWiz = lpPropSheet ? (WizInfo *)lpPropSheet->lParam : NULL;
+    LPPROPSHEETPAGE lpPropSheet = (LPPROPSHEETPAGE)GetWindowLongPtr(hDlg, DWLP_USER);
+    WizInfo* pWiz = lpPropSheet ? (WizInfo*)lpPropSheet->lParam : NULL;
     POOEBuf  pBuf = pWiz ? pWiz->pOOE : NULL;
-    NMHDR *lpnm;
+    NMHDR* lpnm;
     BOOL result = FALSE;
 
-    switch (message)
+    switch (message) {
+    case WM_INITDIALOG:
     {
-        case WM_INITDIALOG:
-        {
-            SetWindowLongPtr(hDlg, DWLP_USER, lParam);
-            NewSched_OnInitDialogHelper(hDlg);
+        SetWindowLongPtr(hDlg, DWLP_USER, lParam);
+        NewSched_OnInitDialogHelper(hDlg);
 
-            pWiz = (WizInfo *)((LPPROPSHEETPAGE)lParam)->lParam;
-            pBuf = pWiz->pOOE;
+        pWiz = (WizInfo*)((LPPROPSHEETPAGE)lParam)->lParam;
+        pBuf = pWiz->pOOE;
 
-            pBuf->hwndNewSchedDlg = hDlg;
+        pBuf->hwndNewSchedDlg = hDlg;
 
-/*
-            SUBCLASS_DATA *psd = new SUBCLASS_DATA;
+        /*
+                    SUBCLASS_DATA *psd = new SUBCLASS_DATA;
 
-            if (NULL != psd)
-            {
-                HWND hwndEdit = GetDlgItem(hDlg, IDC_SCHEDULE_NAME);
-                psd->pBuf = pBuf;
-                psd->lpfnOldWndProc = (WNDPROC)GetWindowLong(hwndEdit, GWL_WNDPROC);
-                if (SetProp(hwndEdit, c_szSubClassProp, (HANDLE)psd))
-                {
-                    SubclassWindow(hwndEdit, EditSubclassProc);
+                    if (NULL != psd)
+                    {
+                        HWND hwndEdit = GetDlgItem(hDlg, IDC_SCHEDULE_NAME);
+                        psd->pBuf = pBuf;
+                        psd->lpfnOldWndProc = (WNDPROC)GetWindowLong(hwndEdit, GWL_WNDPROC);
+                        if (SetProp(hwndEdit, c_szSubClassProp, (HANDLE)psd))
+                        {
+                            SubclassWindow(hwndEdit, EditSubclassProc);
+                        }
+                        else
+                        {
+                            delete psd;
+                        }
+                    }
+        */
+        result = TRUE;
+        break;
+    }
+
+    case WM_COMMAND:
+        if (NULL != pBuf) {
+            switch (LOWORD(wParam)) {
+            case IDC_SCHEDULE_DAYS:
+                if (HIWORD(wParam) == EN_UPDATE) {
+                    if (LOWORD(wParam) == IDC_SCHEDULE_DAYS) {
+                        KeepSpinNumberInRange(hDlg, IDC_SCHEDULE_DAYS,
+                                              IDC_SCHEDULE_DAYS_SPIN, 1, 99);
+
+                        pBuf->m_dwPropSheetFlags &= ~PSF_NO_CHECK_SCHED_CONFLICT;
+
+                        result = TRUE;
+                    }
                 }
-                else
-                {
-                    delete psd;
+#ifdef NEWSCHED_AUTONAME
+                else if (HIWORD(wParam) == EN_CHANGE) {
+                    NewSchedWiz_AutoName(hDlg, pBuf);
+                    result = TRUE;
                 }
+#endif
+                break;
+
+            case IDC_SCHEDULE_NAME:
+                if (HIWORD(wParam) == EN_CHANGE) {
+                    pBuf->m_dwPropSheetFlags &= ~PSF_NO_CHECK_SCHED_CONFLICT;
+                    result = TRUE;
+                }
+                break;
+                /*
+                                    case IDC_SCHEDULE_NAME:
+                                        if (HIWORD(wParam) == EN_CHANGE)
+                                        {
+                                            TCHAR szName[MAX_PATH];
+                                            GetDlgItemText(hDlg, IDC_SCHEDULE_NAME, szName, ARRAYSIZE(szName));
+
+                                            if (lstrlen(szName) == 0)
+                                            {
+                                                pBuf->m_dwPropSheetFlags &= ~PSF_NO_AUTO_NAME_SCHEDULE;
+                                            }
+                                        }
+                                        break;
+                */
             }
-*/
+        }
+        break;
+
+    case WM_NOTIFY:
+        lpnm = (NMHDR FAR*)lParam;
+
+        switch (lpnm->code) {
+        case PSN_SETACTIVE:
+
+            ASSERT(NULL != lpPropSheet);
+            ASSERT(NULL != pWiz);
+            if (!pWiz->bIsNewSchedule) {
+                //  If the user didn't pick a new schedule, move on
+                SetWindowLongPtr(hDlg, DWLP_MSGRESULT, -1);
+            } else {
+                SetWizButtons(hDlg, (INT_PTR)lpPropSheet->pszTemplate, pWiz);
+            }
+            result = TRUE;
+            break;
+
+#ifdef NEWSCHED_AUTONAME
+        case DTN_DATETIMECHANGE:
+            if (NULL != pBuf) {
+                NewSchedWiz_AutoName(hDlg, pBuf);
+            }
+            break;
+#endif
+
+        case PSN_KILLACTIVE:
+            result = TRUE;
+            break;
+
+        case PSN_WIZNEXT:
+            if (!NewSchedWiz_ResolveNameConflict(hDlg, pBuf)) {
+                //  Don't proceed
+                SetWindowLongPtr(hDlg, DWLP_MSGRESULT, TRUE);
+            }
+            result = TRUE;
+            break;
+
+        case PSN_WIZFINISH:
+            if (NewSchedWiz_ResolveNameConflict(hDlg, pBuf)) {
+                NewSchedWiz_CreateSchedule(hDlg, pBuf);
+            } else {
+                //  Don't proceed
+                SetWindowLongPtr(hDlg, DWLP_MSGRESULT, TRUE);
+            }
             result = TRUE;
             break;
         }
-
-        case WM_COMMAND:
-            if (NULL != pBuf)
-            {
-                switch (LOWORD(wParam))
-                {
-                    case IDC_SCHEDULE_DAYS:
-                        if (HIWORD(wParam) == EN_UPDATE)
-                        {
-                            if (LOWORD(wParam) == IDC_SCHEDULE_DAYS)
-                            {
-                                KeepSpinNumberInRange(hDlg, IDC_SCHEDULE_DAYS,
-                                                      IDC_SCHEDULE_DAYS_SPIN, 1, 99);
-
-                                pBuf->m_dwPropSheetFlags &= ~PSF_NO_CHECK_SCHED_CONFLICT;
-
-                                result = TRUE;
-                            }
-                        }
-#ifdef NEWSCHED_AUTONAME
-                        else if (HIWORD(wParam) == EN_CHANGE)
-                        {
-                            NewSchedWiz_AutoName(hDlg, pBuf);
-                            result = TRUE;
-                        }
-#endif
-                        break;
-
-                    case IDC_SCHEDULE_NAME:
-                        if (HIWORD(wParam) == EN_CHANGE)
-                        {
-                            pBuf->m_dwPropSheetFlags &= ~PSF_NO_CHECK_SCHED_CONFLICT;
-                            result = TRUE;
-                        }
-                        break;
-/*
-                    case IDC_SCHEDULE_NAME:
-                        if (HIWORD(wParam) == EN_CHANGE)
-                        {
-                            TCHAR szName[MAX_PATH];
-                            GetDlgItemText(hDlg, IDC_SCHEDULE_NAME, szName, ARRAYSIZE(szName));
-
-                            if (lstrlen(szName) == 0)
-                            {
-                                pBuf->m_dwPropSheetFlags &= ~PSF_NO_AUTO_NAME_SCHEDULE;
-                            }
-                        }
-                        break;
-*/
-                }
-            }
-            break;
-
-        case WM_NOTIFY:
-            lpnm = (NMHDR FAR *)lParam;
-
-            switch (lpnm->code)
-            {
-                case PSN_SETACTIVE:
-
-                    ASSERT(NULL != lpPropSheet);
-                    ASSERT(NULL != pWiz);
-                    if (!pWiz->bIsNewSchedule)
-                    {
-                        //  If the user didn't pick a new schedule, move on
-                        SetWindowLongPtr(hDlg, DWLP_MSGRESULT, -1);
-                    }
-                    else
-                    {
-                        SetWizButtons(hDlg, (INT_PTR) lpPropSheet->pszTemplate, pWiz);
-                    }
-                    result = TRUE;
-                    break;
-
-#ifdef NEWSCHED_AUTONAME
-                case DTN_DATETIMECHANGE:
-                    if (NULL != pBuf)
-                    {
-                        NewSchedWiz_AutoName(hDlg, pBuf);
-                    }
-                    break;
-#endif
-
-                case PSN_KILLACTIVE:
-                    result = TRUE;
-                    break;
-
-                case PSN_WIZNEXT:
-                    if (!NewSchedWiz_ResolveNameConflict(hDlg, pBuf))
-                    {
-                        //  Don't proceed
-                        SetWindowLongPtr(hDlg, DWLP_MSGRESULT, TRUE);
-                    }
-                    result = TRUE;
-                    break;
-
-                case PSN_WIZFINISH:
-                    if (NewSchedWiz_ResolveNameConflict(hDlg, pBuf))
-                    {
-                        NewSchedWiz_CreateSchedule(hDlg, pBuf);
-                    }
-                    else
-                    {
-                        //  Don't proceed
-                        SetWindowLongPtr(hDlg, DWLP_MSGRESULT, TRUE);
-                    }
-                    result = TRUE;
-                    break;
-            }
-            break;
+        break;
     }
 
     return result;
@@ -1190,141 +1076,122 @@ void Login_EnableControls(HWND hDlg, BOOL bEnable)
         IDC_PASSWORDCONFIRM
     };
 
-    for (int i = 0; i < ARRAYSIZE(IDs); i++)
-    {
+    for (int i = 0; i < ARRAYSIZE(IDs); i++) {
         EnableWindow(GetDlgItem(hDlg, IDs[i]), bEnable);
     }
 }
 
 INT_PTR CALLBACK LoginDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    LPPROPSHEETPAGE lpPropSheet =(LPPROPSHEETPAGE)GetWindowLongPtr(hDlg, DWLP_USER);
-    WizInfo *pWiz = lpPropSheet ? (WizInfo *)lpPropSheet->lParam : NULL;
+    LPPROPSHEETPAGE lpPropSheet = (LPPROPSHEETPAGE)GetWindowLongPtr(hDlg, DWLP_USER);
+    WizInfo* pWiz = lpPropSheet ? (WizInfo*)lpPropSheet->lParam : NULL;
     POOEBuf  pBuf = pWiz ? pWiz->pOOE : NULL;
-    NMHDR FAR *lpnm;
+    NMHDR FAR* lpnm;
     BOOL result = FALSE;
 
-    switch (message)
-    {
-        case WM_INITDIALOG:
-            SetWindowLongPtr(hDlg, DWLP_USER, lParam);
+    switch (message) {
+    case WM_INITDIALOG:
+        SetWindowLongPtr(hDlg, DWLP_USER, lParam);
 
-            lpPropSheet = (LPPROPSHEETPAGE)lParam;
-            pWiz = (WizInfo *)lpPropSheet->lParam;
-            pBuf = pWiz->pOOE;
+        lpPropSheet = (LPPROPSHEETPAGE)lParam;
+        pWiz = (WizInfo*)lpPropSheet->lParam;
+        pBuf = pWiz->pOOE;
 
-            if (pBuf->bChannel)
-            {
-                ShowWindow(GetDlgItem(hDlg, IDC_PASSWORD_NO), SW_HIDE);
-                ShowWindow(GetDlgItem(hDlg, IDC_PASSWORD_YES), SW_HIDE);
-                ShowWindow(GetDlgItem(hDlg, IDC_LOGIN_PROMPT_URL), SW_HIDE);
+        if (pBuf->bChannel) {
+            ShowWindow(GetDlgItem(hDlg, IDC_PASSWORD_NO), SW_HIDE);
+            ShowWindow(GetDlgItem(hDlg, IDC_PASSWORD_YES), SW_HIDE);
+            ShowWindow(GetDlgItem(hDlg, IDC_LOGIN_PROMPT_URL), SW_HIDE);
+        } else {
+            CheckRadioButton(hDlg, IDC_PASSWORD_NO, IDC_PASSWORD_YES,
+                (((pBuf->username[0] == 0) && (pBuf->password[0] == 0)) ?
+                 IDC_PASSWORD_NO : IDC_PASSWORD_YES));
+
+            ShowWindow(GetDlgItem(hDlg, IDC_LOGIN_PROMPT), SW_HIDE);
+            ShowWindow(GetDlgItem(hDlg, IDC_LOGIN_PROMPT_CHANNEL), SW_HIDE);
+        }
+
+        Edit_LimitText(GetDlgItem(hDlg, IDC_USERNAME), ARRAYSIZE(pBuf->username) - 1);
+        SetDlgItemText(hDlg, IDC_USERNAME, pBuf->username);
+
+        Edit_LimitText(GetDlgItem(hDlg, IDC_PASSWORD), ARRAYSIZE(pBuf->password) - 1);
+        SetDlgItemText(hDlg, IDC_PASSWORD, pBuf->password);
+
+        Edit_LimitText(GetDlgItem(hDlg, IDC_PASSWORDCONFIRM), ARRAYSIZE(pBuf->password) - 1);
+        SetDlgItemText(hDlg, IDC_PASSWORDCONFIRM, pBuf->password);
+
+        Login_EnableControls(hDlg, (IsDlgButtonChecked(hDlg, IDC_PASSWORD_YES) || pBuf->bChannel));
+
+        result = TRUE;
+        break;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDC_PASSWORD_YES:
+        case IDC_PASSWORD_NO:
+            if (BN_CLICKED == HIWORD(wParam)) {
+                Login_EnableControls(hDlg, IsDlgButtonChecked(hDlg, IDC_PASSWORD_YES));
+                result = TRUE;
             }
-            else
-            {
-                CheckRadioButton(hDlg, IDC_PASSWORD_NO, IDC_PASSWORD_YES,
-                    (((pBuf->username[0] == 0) && (pBuf->password[0] == 0)) ?
-                        IDC_PASSWORD_NO : IDC_PASSWORD_YES));
+            break;
+        }
+        break;
 
-                ShowWindow(GetDlgItem(hDlg, IDC_LOGIN_PROMPT), SW_HIDE);
-                ShowWindow(GetDlgItem(hDlg, IDC_LOGIN_PROMPT_CHANNEL), SW_HIDE);
-            }
+    case WM_NOTIFY:
+        lpnm = (NMHDR FAR*)lParam;
 
-            Edit_LimitText(GetDlgItem(hDlg, IDC_USERNAME), ARRAYSIZE(pBuf->username) - 1);
-            SetDlgItemText(hDlg, IDC_USERNAME, pBuf->username);
+        switch (lpnm->code) {
+        case PSN_SETACTIVE:
 
-            Edit_LimitText(GetDlgItem(hDlg, IDC_PASSWORD), ARRAYSIZE(pBuf->password) - 1);
-            SetDlgItemText(hDlg, IDC_PASSWORD, pBuf->password);
+            ASSERT(NULL != lpPropSheet);
+            ASSERT(NULL != pWiz);
 
-            Edit_LimitText(GetDlgItem(hDlg, IDC_PASSWORDCONFIRM), ARRAYSIZE(pBuf->password) - 1);
-            SetDlgItemText(hDlg, IDC_PASSWORDCONFIRM, pBuf->password);
-
-            Login_EnableControls(hDlg, (IsDlgButtonChecked(hDlg, IDC_PASSWORD_YES) || pBuf->bChannel));
-
+            SetWizButtons(hDlg, (INT_PTR)lpPropSheet->pszTemplate, pWiz);
             result = TRUE;
             break;
 
-        case WM_COMMAND:
-            switch (LOWORD(wParam))
-            {
-                case IDC_PASSWORD_YES:
-                case IDC_PASSWORD_NO:
-                    if (BN_CLICKED == HIWORD(wParam))
-                    {
-                        Login_EnableControls(hDlg, IsDlgButtonChecked(hDlg, IDC_PASSWORD_YES));
-                        result = TRUE;
-                    }
-                    break;
-            }
-            break;
+        case PSN_WIZFINISH:
+        {
+            BOOL bFinishOK = TRUE;
 
-        case WM_NOTIFY:
-            lpnm = (NMHDR FAR *)lParam;
+            if (pBuf->bChannel || IsDlgButtonChecked(hDlg, IDC_PASSWORD_YES)) {
+                TCHAR szUsername[ARRAYSIZE(pBuf->username) + 1];
+                TCHAR szPassword[ARRAYSIZE(pBuf->password) + 1];
+                TCHAR szPasswordConfirm[ARRAYSIZE(pBuf->password) + 1];
 
-            switch (lpnm->code)
-            {
-                case PSN_SETACTIVE:
+                GetDlgItemText(hDlg, IDC_USERNAME, szUsername, ARRAYSIZE(szUsername));
+                GetDlgItemText(hDlg, IDC_PASSWORD, szPassword, ARRAYSIZE(szPassword));
+                GetDlgItemText(hDlg, IDC_PASSWORDCONFIRM, szPasswordConfirm, ARRAYSIZE(szPasswordConfirm));
 
-                    ASSERT(NULL != lpPropSheet);
-                    ASSERT(NULL != pWiz);
-
-                    SetWizButtons(hDlg, (INT_PTR) lpPropSheet->pszTemplate, pWiz);
-                    result = TRUE;
-                    break;
-
-                case PSN_WIZFINISH:
-                {
-                    BOOL bFinishOK = TRUE;
-
-                    if (pBuf->bChannel || IsDlgButtonChecked(hDlg, IDC_PASSWORD_YES))
-                    {
-                        TCHAR szUsername[ARRAYSIZE(pBuf->username) + 1];
-                        TCHAR szPassword[ARRAYSIZE(pBuf->password) + 1];
-                        TCHAR szPasswordConfirm[ARRAYSIZE(pBuf->password) + 1];
-
-                        GetDlgItemText(hDlg, IDC_USERNAME, szUsername, ARRAYSIZE(szUsername));
-                        GetDlgItemText(hDlg, IDC_PASSWORD, szPassword, ARRAYSIZE(szPassword));
-                        GetDlgItemText(hDlg, IDC_PASSWORDCONFIRM, szPasswordConfirm, ARRAYSIZE(szPasswordConfirm));
-
-                        if (!szUsername[0] && (szPassword[0] || szPasswordConfirm[0]))
-                        {
-                            SGMessageBox(hDlg,
-                                        (pBuf->bChannel ? IDS_NEEDCHANNELUSERNAME : IDS_NEEDUSERNAME),
-                                        MB_ICONWARNING);
-                            bFinishOK = FALSE;
-                        }
-                        else if (szUsername[0] && !szPassword[0])
-                        {
-                            SGMessageBox(hDlg,
-                                        (pBuf->bChannel ? IDS_NEEDCHANNELPASSWORD : IDS_NEEDPASSWORD),
-                                        MB_ICONWARNING);
-                            bFinishOK = FALSE;
-                        }
-                        else if (StrCmp(szPassword, szPasswordConfirm) != 0)
-                        {
-                            SGMessageBox(hDlg, IDS_MISMATCHED_PASSWORDS, MB_ICONWARNING);
-                            bFinishOK = FALSE;
-                        }
-                        else
-                        {
-                            StrCpyN(pBuf->username, szUsername, ARRAYSIZE(pBuf->username));
-                            StrCpyN(pBuf->password, szPassword, ARRAYSIZE(pBuf->password));
-                            pBuf->dwFlags |= (PROP_WEBCRAWL_UNAME | PROP_WEBCRAWL_PSWD);
-                        }
-
-                    }
-                    if (!bFinishOK)
-                    {
-                        SetWindowLongPtr(hDlg, DWLP_MSGRESULT, TRUE);
-                    }
-                    else if (pWiz->bIsNewSchedule)
-                    {
-                        NewSchedWiz_CreateSchedule(pBuf->hwndNewSchedDlg, pBuf);
-                    }
-
-                    result = TRUE;
-                    break;
+                if (!szUsername[0] && (szPassword[0] || szPasswordConfirm[0])) {
+                    SGMessageBox(hDlg,
+                        (pBuf->bChannel ? IDS_NEEDCHANNELUSERNAME : IDS_NEEDUSERNAME),
+                                 MB_ICONWARNING);
+                    bFinishOK = FALSE;
+                } else if (szUsername[0] && !szPassword[0]) {
+                    SGMessageBox(hDlg,
+                        (pBuf->bChannel ? IDS_NEEDCHANNELPASSWORD : IDS_NEEDPASSWORD),
+                                 MB_ICONWARNING);
+                    bFinishOK = FALSE;
+                } else if (StrCmp(szPassword, szPasswordConfirm) != 0) {
+                    SGMessageBox(hDlg, IDS_MISMATCHED_PASSWORDS, MB_ICONWARNING);
+                    bFinishOK = FALSE;
+                } else {
+                    StrCpyN(pBuf->username, szUsername, ARRAYSIZE(pBuf->username));
+                    StrCpyN(pBuf->password, szPassword, ARRAYSIZE(pBuf->password));
+                    pBuf->dwFlags |= (PROP_WEBCRAWL_UNAME | PROP_WEBCRAWL_PSWD);
                 }
+
             }
+            if (!bFinishOK) {
+                SetWindowLongPtr(hDlg, DWLP_MSGRESULT, TRUE);
+            } else if (pWiz->bIsNewSchedule) {
+                NewSchedWiz_CreateSchedule(pBuf->hwndNewSchedDlg, pBuf);
+            }
+
+            result = TRUE;
+            break;
+        }
+        }
     }
 
     return result;
@@ -1332,40 +1199,38 @@ INT_PTR CALLBACK LoginDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 
 INT_PTR CALLBACK EnableScreenSaverDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    switch(message)
+    switch (message) {
+    case WM_COMMAND:
     {
-        case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDOK:
+        case IDCANCEL:
         {
-            switch (LOWORD(wParam))
-            {
-                case IDOK:
-                case IDCANCEL:
-                {
-                    DWORD dwChecked = IsDlgButtonChecked(hDlg, IDC_DONTASKAGAIN);
+            DWORD dwChecked = IsDlgButtonChecked(hDlg, IDC_DONTASKAGAIN);
 
-                    WriteRegValue(  HKEY_CURRENT_USER,
-                                    WEBCHECK_REGKEY,
-                                    g_szDontAskScreenSaver,
-                                    &dwChecked,
-                                    sizeof(DWORD),
-                                    REG_DWORD);
+            WriteRegValue(HKEY_CURRENT_USER,
+                          WEBCHECK_REGKEY,
+                          g_szDontAskScreenSaver,
+                          &dwChecked,
+                          sizeof(DWORD),
+                          REG_DWORD);
 
-                    if (wParam == IDOK)
-                        MakeADScreenSaverActive();
+            if (wParam == IDOK)
+                MakeADScreenSaverActive();
 
-                    EndDialog(hDlg, wParam);
-                    break;
-                }
-
-                default:
-                    return FALSE;
-            }
-
+            EndDialog(hDlg, wParam);
             break;
         }
 
         default:
             return FALSE;
+        }
+
+        break;
+    }
+
+    default:
+        return FALSE;
     }
 
     return TRUE;

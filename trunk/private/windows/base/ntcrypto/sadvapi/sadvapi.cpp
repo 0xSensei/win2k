@@ -24,17 +24,17 @@
 typedef struct _VTableStruc {
     HCRYPTPROV  hProv;                          // Handle to provider
     LONG Inuse;
-} VTableStruc, *PVTableStruc;
+} VTableStruc, * PVTableStruc;
 
 typedef struct _VKeyStruc {
     PVTableStruc pVTable;                       // pointer to provider
     HCRYPTKEY    hKey;                          // Handle to key
-} VKeyStruc, *PVKeyStruc;
+} VKeyStruc, * PVKeyStruc;
 
 typedef struct _VHashStruc {
     PVTableStruc pVTable;                       // pointer to provider
     HCRYPTHASH  hHash;                          // Handle to hash
-} VHashStruc, *PVHashStruc;
+} VHashStruc, * PVHashStruc;
 
 
 void __inline EnterProviderCritSec(IN PVTableStruc pVTable);
@@ -62,47 +62,45 @@ PVHashStruc BuildVHash(IN PVTableStruc pVTable);
  *  Returns:
  */
 BOOL
-WINAPI SCryptAcquireContextW(OUT    HCRYPTPROV *phProv,
-                            IN OUT LPCWSTR pwszIdentity,
-                            IN OUT LPCWSTR pwszProvider,
-                            IN     DWORD dwProvType,
-                            IN     DWORD dwFlags)
+WINAPI SCryptAcquireContextW(OUT    HCRYPTPROV* phProv,
+                             IN OUT LPCWSTR pwszIdentity,
+                             IN OUT LPCWSTR pwszProvider,
+                             IN     DWORD dwProvType,
+                             IN     DWORD dwFlags)
 {
-    CHAR    *pszIdentity = NULL;
-    CHAR    *pszProvider = NULL;
+    CHAR* pszIdentity = NULL;
+    CHAR* pszProvider = NULL;
     long    c = 0;
     long    i;
     BOOL    fRet = FALSE;
 
-    if (pwszIdentity)
-    {
+    if (pwszIdentity) {
         c = wcslen(pwszIdentity);
         if (NULL == (pszIdentity = (CHAR*)LocalAlloc(LMEM_ZEROINIT,
-                                                     (c+1) * sizeof(CHAR))))
+            (c + 1) * sizeof(CHAR))))
             goto Ret;
-        for (i=0;i<c;i++)
+        for (i = 0; i < c; i++)
             pszIdentity[i] = (CHAR)pwszIdentity[i];
         pszIdentity[i] = 0;
     }
 
-    if (pwszProvider)
-    {
+    if (pwszProvider) {
         c = wcslen(pwszProvider);
         if (NULL == (pszProvider = (CHAR*)LocalAlloc(LMEM_ZEROINIT,
-                                                     (c+1) * sizeof(CHAR))))
+            (c + 1) * sizeof(CHAR))))
             goto Ret;
-        for (i=0;i<c;i++)
+        for (i = 0; i < c; i++)
             pszProvider[i] = (CHAR)pwszProvider[i];
         pszProvider[i] = 0;
     }
 
     fRet = SCryptAcquireContextA(
-                            phProv,
-                            pszIdentity,
-                            pszProvider,
-                            dwProvType,
-                            dwFlags
-                            );
+        phProv,
+        pszIdentity,
+        pszProvider,
+        dwProvType,
+        dwFlags
+    );
 
 Ret:
     if (pszIdentity)
@@ -113,11 +111,11 @@ Ret:
 }
 
 BOOL
-WINAPI SCryptAcquireContextA(OUT    HCRYPTPROV *phProv,
-                            IN OUT LPCSTR pszIdentity,
-                            IN OUT LPCSTR pszProvider,  // ignored
-                            IN     DWORD dwProvType,    // ignored
-                            IN     DWORD dwFlags)
+WINAPI SCryptAcquireContextA(OUT    HCRYPTPROV* phProv,
+                             IN OUT LPCSTR pszIdentity,
+                             IN OUT LPCSTR pszProvider,  // ignored
+                             IN     DWORD dwProvType,    // ignored
+                             IN     DWORD dwFlags)
 {
     PVTableStruc        pVTable = NULL;
     VTableProvStruc     TableForProvider;
@@ -125,11 +123,11 @@ WINAPI SCryptAcquireContextA(OUT    HCRYPTPROV *phProv,
 
 
     pVTable = (PVTableStruc)LocalAlloc(
-                                    LMEM_ZEROINIT,
-                                    sizeof(VTableStruc)
-                                    );
+        LMEM_ZEROINIT,
+        sizeof(VTableStruc)
+    );
 
-    if( pVTable == NULL ) {
+    if (pVTable == NULL) {
         *phProv = 0;
         return FALSE;
     }
@@ -145,26 +143,22 @@ WINAPI SCryptAcquireContextA(OUT    HCRYPTPROV *phProv,
     __try {
 
         fRet = CPAcquireContext(
-                            &pVTable->hProv,
-                            (LPSTR)pszIdentity,
-                            dwFlags,
-                            &TableForProvider
-                            );
+            &pVTable->hProv,
+            (LPSTR)pszIdentity,
+            dwFlags,
+            &TableForProvider
+        );
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
 
-    if(!fRet)
-    {
+    if (!fRet) {
         LocalFree(pVTable);
         pVTable = NULL;
-    }
-    else
-    {
-        if (dwFlags & CRYPT_DELETEKEYSET)
-        {
+    } else {
+        if (dwFlags & CRYPT_DELETEKEYSET) {
             LocalFree(pVTable);
             pVTable = NULL;
         } else {
@@ -194,13 +188,13 @@ WINAPI SCryptAcquireContextA(OUT    HCRYPTPROV *phProv,
  */
 BOOL
 WINAPI SCryptReleaseContext(IN HCRYPTPROV hProv,
-                           IN DWORD dwFlags)
+                            IN DWORD dwFlags)
 {
-    PVTableStruc pVTable = (PVTableStruc) hProv;
+    PVTableStruc pVTable = (PVTableStruc)hProv;
     LONG         ContextRefCount;
     BOOL         fRet = FALSE;
 
-    ContextRefCount = LeaveProviderCritSec( pVTable );
+    ContextRefCount = LeaveProviderCritSec(pVTable);
 
     __try {
 
@@ -209,18 +203,18 @@ WINAPI SCryptReleaseContext(IN HCRYPTPROV hProv,
         // for debug builds, catch fools leaking state.
 
 
-        ASSERT( ContextRefCount == 0 );
+        ASSERT(ContextRefCount == 0);
 
-        if( ContextRefCount != 0 ) {
+        if (ContextRefCount != 0) {
             SetLastError(ERROR_BUSY);
             return FALSE;
         }
 
         fRet = CPReleaseContext(pVTable->hProv, dwFlags);
 
-    } __except ( EXCEPTION_EXECUTE_HANDLER ) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
     LocalFree(pVTable);
@@ -245,11 +239,11 @@ WINAPI SCryptReleaseContext(IN HCRYPTPROV hProv,
  */
 BOOL
 WINAPI SCryptGenKey(IN HCRYPTPROV hProv,
-                   IN ALG_ID Algid,
-                   IN DWORD dwFlags,
-                   OUT HCRYPTKEY * phKey)
+                    IN ALG_ID Algid,
+                    IN DWORD dwFlags,
+                    OUT HCRYPTKEY* phKey)
 {
-    PVTableStruc    pVTable = (PVTableStruc) hProv;
+    PVTableStruc    pVTable = (PVTableStruc)hProv;
     PVKeyStruc      pVKey;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -258,25 +252,25 @@ WINAPI SCryptGenKey(IN HCRYPTPROV hProv,
         *phKey = 0;
         pVKey = BuildVKey(pVTable);
 
-        if( pVKey == NULL )
+        if (pVKey == NULL)
             return FALSE;
 
         EnterProviderCritSec(pVTable);
         fCritSec = TRUE;
 
         fRet = CPGenKey(pVTable->hProv, Algid, dwFlags, &pVKey->hKey);
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
 
-    if( fRet ) {
-        *phKey = (HCRYPTKEY) pVKey;
+    if (fRet) {
+        *phKey = (HCRYPTKEY)pVKey;
         return TRUE;
     }
 
@@ -309,13 +303,13 @@ WINAPI SCryptGenKey(IN HCRYPTPROV hProv,
  */
 BOOL
 WINAPI SCryptDuplicateKey(
-                         IN HCRYPTKEY hKey,
-                         IN DWORD *pdwReserved,
-                         IN DWORD dwFlags,
-                         OUT HCRYPTKEY * phKey
-                         )
+    IN HCRYPTKEY hKey,
+    IN DWORD* pdwReserved,
+    IN DWORD dwFlags,
+    OUT HCRYPTKEY* phKey
+)
 {
-    PVKeyStruc      pVKey = (PVKeyStruc) hKey;
+    PVKeyStruc      pVKey = (PVKeyStruc)hKey;
     PVTableStruc    pVTable;
     PVKeyStruc      pVNewKey;
     BOOL            fCritSec = FALSE;
@@ -328,7 +322,7 @@ WINAPI SCryptDuplicateKey(
 
         pVNewKey = BuildVKey(pVTable);
 
-        if( pVNewKey == NULL ) {
+        if (pVNewKey == NULL) {
             return FALSE;
         }
 
@@ -336,24 +330,24 @@ WINAPI SCryptDuplicateKey(
         fCritSec = TRUE;
 
         fRet = CPDuplicateKey(
-                        pVTable->hProv,
-                        pVKey->hKey,
-                        pdwReserved,
-                        dwFlags,
-                        &pVNewKey->hKey
-                        );
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+            pVTable->hProv,
+            pVKey->hKey,
+            pdwReserved,
+            dwFlags,
+            &pVNewKey->hKey
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
-    if( fRet ) {
-        *phKey = (HCRYPTKEY) pVNewKey;
+    if (fRet) {
+        *phKey = (HCRYPTKEY)pVNewKey;
         return TRUE;
     }
 
@@ -387,13 +381,13 @@ WINAPI SCryptDuplicateKey(
  */
 BOOL
 WINAPI SCryptDeriveKey(IN HCRYPTPROV hProv,
-                      IN ALG_ID Algid,
-                      IN HCRYPTHASH hHash,
-                      IN DWORD dwFlags,
-                      OUT HCRYPTKEY * phKey)
+                       IN ALG_ID Algid,
+                       IN HCRYPTHASH hHash,
+                       IN DWORD dwFlags,
+                       OUT HCRYPTKEY* phKey)
 {
-    PVTableStruc    pVTable = (PVTableStruc) hProv;
-    PVHashStruc     pVHash = (PVHashStruc) hHash;
+    PVTableStruc    pVTable = (PVTableStruc)hProv;
+    PVHashStruc     pVHash = (PVHashStruc)hHash;
     PVKeyStruc      pVKey;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -402,37 +396,36 @@ WINAPI SCryptDeriveKey(IN HCRYPTPROV hProv,
     __try {
 
         *phKey = 0;
-        if (pVHash->pVTable != pVTable)
-        {
+        if (pVHash->pVTable != pVTable) {
             SetLastError(ERROR_INVALID_PARAMETER);
             return FALSE;
         }
 
         pVKey = BuildVKey(pVTable);
-        if( pVKey == NULL )
+        if (pVKey == NULL)
             return FALSE;
 
         EnterProviderCritSec(pVTable);
         fCritSec = TRUE;
 
         fRet = CPDeriveKey(
-                        pVTable->hProv,
-                        Algid,
-                        pVHash->hHash,
-                        dwFlags,
-                        &pVKey->hKey
-                        );
+            pVTable->hProv,
+            Algid,
+            pVHash->hHash,
+            dwFlags,
+            &pVKey->hKey
+        );
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
-    if( fRet ) {
-        *phKey = (HCRYPTKEY) pVKey;
+    if (fRet) {
+        *phKey = (HCRYPTKEY)pVKey;
         return TRUE;
     }
 
@@ -465,7 +458,7 @@ WINAPI SCryptDeriveKey(IN HCRYPTPROV hProv,
 BOOL
 WINAPI SCryptDestroyKey(IN HCRYPTKEY hKey)
 {
-    PVKeyStruc      pVKey = (PVKeyStruc) hKey;
+    PVKeyStruc      pVKey = (PVKeyStruc)hKey;
     PVTableStruc    pVTable;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -477,12 +470,12 @@ WINAPI SCryptDestroyKey(IN HCRYPTKEY hKey)
         fCritSec = TRUE;
 
         fRet = CPDestroyKey(pVTable->hProv, pVKey->hKey);
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -509,11 +502,11 @@ WINAPI SCryptDestroyKey(IN HCRYPTKEY hKey)
  */
 BOOL
 WINAPI SCryptSetKeyParam(IN HCRYPTKEY hKey,
-                        IN DWORD dwParam,
-                        IN BYTE *pbData,
-                        IN DWORD dwFlags)
+                         IN DWORD dwParam,
+                         IN BYTE* pbData,
+                         IN DWORD dwFlags)
 {
-    PVKeyStruc      pVKey = (PVKeyStruc) hKey;
+    PVKeyStruc      pVKey = (PVKeyStruc)hKey;
     PVTableStruc    pVTable;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -525,18 +518,18 @@ WINAPI SCryptSetKeyParam(IN HCRYPTKEY hKey,
         fCritSec = TRUE;
 
         fRet = CPSetKeyParam(
-                            pVTable->hProv,
-                            pVKey->hKey,
-                            dwParam,
-                            pbData,
-                            dwFlags
-                            );
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+            pVTable->hProv,
+            pVKey->hKey,
+            dwParam,
+            pbData,
+            dwFlags
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec )
+    if (fCritSec)
         LeaveProviderCritSec(pVTable);
 
     return fRet;
@@ -561,12 +554,12 @@ WINAPI SCryptSetKeyParam(IN HCRYPTKEY hKey,
  */
 BOOL
 WINAPI SCryptGetKeyParam(IN HCRYPTKEY hKey,
-                        IN DWORD dwParam,
-                        IN BYTE *pbData,
-                        IN DWORD *pdwDataLen,
-                        IN DWORD dwFlags)
+                         IN DWORD dwParam,
+                         IN BYTE* pbData,
+                         IN DWORD* pdwDataLen,
+                         IN DWORD dwFlags)
 {
-    PVKeyStruc      pVKey = (PVKeyStruc) hKey;
+    PVKeyStruc      pVKey = (PVKeyStruc)hKey;
     PVTableStruc    pVTable;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -578,19 +571,19 @@ WINAPI SCryptGetKeyParam(IN HCRYPTKEY hKey,
         fCritSec = TRUE;
 
         fRet = CPGetKeyParam(
-                        pVTable->hProv,
-                        pVKey->hKey,
-                        dwParam,
-                        pbData,
-                        pdwDataLen,
-                        dwFlags
-                        );
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+            pVTable->hProv,
+            pVKey->hKey,
+            dwParam,
+            pbData,
+            pdwDataLen,
+            dwFlags
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -615,11 +608,11 @@ WINAPI SCryptGetKeyParam(IN HCRYPTKEY hKey,
  */
 BOOL
 WINAPI SCryptGenRandom(IN HCRYPTPROV hProv,
-                      IN DWORD dwLen,
-                      OUT BYTE *pbBuffer)
+                       IN DWORD dwLen,
+                       OUT BYTE* pbBuffer)
 
 {
-    PVTableStruc    pVTable = (PVTableStruc) hProv;
+    PVTableStruc    pVTable = (PVTableStruc)hProv;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
 
@@ -628,12 +621,12 @@ WINAPI SCryptGenRandom(IN HCRYPTPROV hProv,
         fCritSec = TRUE;
 
         fRet = CPGenRandom(pVTable->hProv, dwLen, pbBuffer);
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -656,10 +649,10 @@ WINAPI SCryptGenRandom(IN HCRYPTPROV hProv,
  */
 BOOL
 WINAPI SCryptGetUserKey(IN HCRYPTPROV hProv,
-                       IN DWORD dwKeySpec,
-                       OUT HCRYPTKEY *phUserKey)
+                        IN DWORD dwKeySpec,
+                        OUT HCRYPTKEY* phUserKey)
 {
-    PVTableStruc    pVTable = (PVTableStruc) hProv;
+    PVTableStruc    pVTable = (PVTableStruc)hProv;
     PVKeyStruc      pVKey;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -669,7 +662,7 @@ WINAPI SCryptGetUserKey(IN HCRYPTPROV hProv,
         *phUserKey = 0;
         pVKey = BuildVKey(pVTable);
 
-        if( pVKey == NULL ) {
+        if (pVKey == NULL) {
             return FALSE;
         }
 
@@ -677,17 +670,17 @@ WINAPI SCryptGetUserKey(IN HCRYPTPROV hProv,
         fCritSec = TRUE;
 
         fRet = CPGetUserKey(pVTable->hProv, dwKeySpec, &pVKey->hKey);
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
-    if( fRet ) {
-        *phUserKey = (HCRYPTKEY) pVKey;
+    if (fRet) {
+        *phUserKey = (HCRYPTKEY)pVKey;
         return TRUE;
     }
 
@@ -696,7 +689,7 @@ WINAPI SCryptGetUserKey(IN HCRYPTPROV hProv,
 
     __try {
         *phUserKey = 0;
-    } __except(EXCEPTION_EXECUTE_HANDLER) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         ; // gulp
     }
 
@@ -725,15 +718,15 @@ WINAPI SCryptGetUserKey(IN HCRYPTPROV hProv,
  */
 BOOL
 WINAPI SCryptExportKey(IN HCRYPTKEY hKey,
-                      IN HCRYPTKEY hPubKey,
-                      IN DWORD dwBlobType,
-                      IN DWORD dwFlags,
-                      OUT BYTE *pbData,
-                      OUT DWORD *pdwDataLen)
+                       IN HCRYPTKEY hPubKey,
+                       IN DWORD dwBlobType,
+                       IN DWORD dwFlags,
+                       OUT BYTE* pbData,
+                       OUT DWORD* pdwDataLen)
 {
-    PVKeyStruc      pVKey = (PVKeyStruc) hKey;
+    PVKeyStruc      pVKey = (PVKeyStruc)hKey;
     PVTableStruc    pVTable;
-    PVKeyStruc      pVPublicKey = (PVKeyStruc) hPubKey;
+    PVKeyStruc      pVPublicKey = (PVKeyStruc)hPubKey;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
 
@@ -745,8 +738,7 @@ WINAPI SCryptExportKey(IN HCRYPTKEY hKey,
 
         pVTable = pVKey->pVTable;
 
-        if (pVPublicKey && pVPublicKey->pVTable != pVTable)
-        {
+        if (pVPublicKey && pVPublicKey->pVTable != pVTable) {
             *pdwDataLen = 0;
             SetLastError(ERROR_INVALID_PARAMETER);
             return FALSE;
@@ -756,20 +748,20 @@ WINAPI SCryptExportKey(IN HCRYPTKEY hKey,
         fCritSec = TRUE;
 
         fRet = CPExportKey(
-                        pVTable->hProv,
-                        pVKey->hKey,
-                        (pVPublicKey == NULL ? 0 : pVPublicKey->hKey),
-                        dwBlobType,
-                        dwFlags,
-                        pbData,
-                        pdwDataLen
-                        );
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+            pVTable->hProv,
+            pVKey->hKey,
+            (pVPublicKey == NULL ? 0 : pVPublicKey->hKey),
+            dwBlobType,
+            dwFlags,
+            pbData,
+            pdwDataLen
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -798,15 +790,15 @@ WINAPI SCryptExportKey(IN HCRYPTKEY hKey,
  */
 BOOL
 WINAPI SCryptImportKey(IN HCRYPTPROV hProv,
-                      IN CONST BYTE *pbData,
-                      IN DWORD dwDataLen,
-                      IN HCRYPTKEY hPubKey,
-                      IN DWORD dwFlags,
-                      OUT HCRYPTKEY *phKey)
+                       IN CONST BYTE* pbData,
+                       IN DWORD dwDataLen,
+                       IN HCRYPTKEY hPubKey,
+                       IN DWORD dwFlags,
+                       OUT HCRYPTKEY* phKey)
 {
-    PVTableStruc    pVTable = (PVTableStruc) hProv;
+    PVTableStruc    pVTable = (PVTableStruc)hProv;
     PVKeyStruc      pVKey;
-    PVKeyStruc      pVPublicKey = (PVKeyStruc) hPubKey;
+    PVKeyStruc      pVPublicKey = (PVKeyStruc)hPubKey;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
 
@@ -814,39 +806,38 @@ WINAPI SCryptImportKey(IN HCRYPTPROV hProv,
 
         *phKey = 0;
 
-        if (pVPublicKey && pVPublicKey->pVTable != pVTable)
-        {
+        if (pVPublicKey && pVPublicKey->pVTable != pVTable) {
             SetLastError(ERROR_INVALID_PARAMETER);
             return FALSE;
         }
 
         pVKey = BuildVKey(pVTable);
 
-        if( pVKey == NULL )
+        if (pVKey == NULL)
             return FALSE;
 
         EnterProviderCritSec(pVTable);
         fCritSec = TRUE;
 
         fRet = CPImportKey(
-                        pVTable->hProv,
-                        pbData,
-                        dwDataLen,
-                        (pVPublicKey == NULL ? 0 : pVPublicKey->hKey),
-                        dwFlags,
-                        &pVKey->hKey
-                        );
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+            pVTable->hProv,
+            pbData,
+            dwDataLen,
+            (pVPublicKey == NULL ? 0 : pVPublicKey->hKey),
+            dwFlags,
+            &pVKey->hKey
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
-    if( fRet ) {
-        *phKey = (HCRYPTKEY) pVKey;
+    if (fRet) {
+        *phKey = (HCRYPTKEY)pVKey;
         return TRUE;
     }
 
@@ -855,7 +846,7 @@ WINAPI SCryptImportKey(IN HCRYPTPROV hProv,
 
     __try {
         *phKey = 0;
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         ; // gulp
     }
 
@@ -885,16 +876,16 @@ WINAPI SCryptImportKey(IN HCRYPTPROV hProv,
  */
 BOOL
 WINAPI SCryptEncrypt(IN HCRYPTKEY hKey,
-                    IN HCRYPTHASH hHash,
-                    IN BOOL Final,
-                    IN DWORD dwFlags,
-                    IN OUT BYTE *pbData,
-                    IN OUT DWORD *pdwDataLen,
-                    IN DWORD dwBufLen)
+                     IN HCRYPTHASH hHash,
+                     IN BOOL Final,
+                     IN DWORD dwFlags,
+                     IN OUT BYTE* pbData,
+                     IN OUT DWORD* pdwDataLen,
+                     IN DWORD dwBufLen)
 {
-    PVKeyStruc      pVKey = (PVKeyStruc) hKey;
+    PVKeyStruc      pVKey = (PVKeyStruc)hKey;
     PVTableStruc    pVTable;
-    PVHashStruc     pVHash = (PVHashStruc) hHash;
+    PVHashStruc     pVHash = (PVHashStruc)hHash;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
 
@@ -903,8 +894,7 @@ WINAPI SCryptEncrypt(IN HCRYPTKEY hKey,
 
         pVTable = pVKey->pVTable;
 
-        if (pVHash && pVHash->pVTable != pVTable)
-        {
+        if (pVHash && pVHash->pVTable != pVTable) {
             *pdwDataLen = 0;
             SetLastError(ERROR_INVALID_PARAMETER);
             return FALSE;
@@ -914,21 +904,21 @@ WINAPI SCryptEncrypt(IN HCRYPTKEY hKey,
         fCritSec = TRUE;
 
         fRet = CPEncrypt(
-                        pVTable->hProv,
-                        pVKey->hKey,
-                        (pVHash == NULL ? 0 : pVHash->hHash),
-                        Final,
-                        dwFlags,
-                        pbData,
-                        pdwDataLen,
-                        dwBufLen
-                        );
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+            pVTable->hProv,
+            pVKey->hKey,
+            (pVHash == NULL ? 0 : pVHash->hHash),
+            Final,
+            dwFlags,
+            pbData,
+            pdwDataLen,
+            dwBufLen
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -957,24 +947,23 @@ WINAPI SCryptEncrypt(IN HCRYPTKEY hKey,
  */
 BOOL
 WINAPI SCryptDecrypt(IN HCRYPTKEY hKey,
-                    IN HCRYPTHASH hHash,
-                    IN BOOL Final,
-                    IN DWORD dwFlags,
-                    IN OUT BYTE *pbData,
-                    IN OUT DWORD *pdwDataLen)
+                     IN HCRYPTHASH hHash,
+                     IN BOOL Final,
+                     IN DWORD dwFlags,
+                     IN OUT BYTE* pbData,
+                     IN OUT DWORD* pdwDataLen)
 
 {
-    PVKeyStruc      pVKey = (PVKeyStruc) hKey;
+    PVKeyStruc      pVKey = (PVKeyStruc)hKey;
     PVTableStruc    pVTable;
-    PVHashStruc     pVHash = (PVHashStruc) hHash;
+    PVHashStruc     pVHash = (PVHashStruc)hHash;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
 
     __try {
         pVTable = pVKey->pVTable;
 
-        if (pVHash && pVHash->pVTable != pVTable)
-        {
+        if (pVHash && pVHash->pVTable != pVTable) {
             *pdwDataLen = 0;
             SetLastError(ERROR_INVALID_PARAMETER);
             return FALSE;
@@ -984,20 +973,20 @@ WINAPI SCryptDecrypt(IN HCRYPTKEY hKey,
         fCritSec = TRUE;
 
         fRet = CPDecrypt(
-                        pVTable->hProv,
-                        pVKey->hKey,
-                        (pVHash == NULL ? 0 : pVHash->hHash),
-                        Final,
-                        dwFlags,
-                        pbData,
-                        pdwDataLen
-                        );
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+            pVTable->hProv,
+            pVKey->hKey,
+            (pVHash == NULL ? 0 : pVHash->hHash),
+            Final,
+            dwFlags,
+            pbData,
+            pdwDataLen
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -1024,13 +1013,13 @@ WINAPI SCryptDecrypt(IN HCRYPTKEY hKey,
  */
 BOOL
 WINAPI SCryptCreateHash(IN HCRYPTPROV hProv,
-                       IN ALG_ID Algid,
-                       IN HCRYPTKEY hKey,
-                       IN DWORD dwFlags,
-                       OUT HCRYPTHASH *phHash)
+                        IN ALG_ID Algid,
+                        IN HCRYPTKEY hKey,
+                        IN DWORD dwFlags,
+                        OUT HCRYPTHASH* phHash)
 {
-    PVTableStruc    pVTable = (PVTableStruc) hProv;
-    PVKeyStruc      pVKey = (PVKeyStruc) hKey;
+    PVTableStruc    pVTable = (PVTableStruc)hProv;
+    PVKeyStruc      pVKey = (PVKeyStruc)hKey;
     PVHashStruc     pVHash;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -1038,37 +1027,36 @@ WINAPI SCryptCreateHash(IN HCRYPTPROV hProv,
     __try {
         *phHash = 0;
 
-        if (pVKey && pVKey->pVTable != pVTable)
-        {
+        if (pVKey && pVKey->pVTable != pVTable) {
             SetLastError(ERROR_INVALID_PARAMETER);
             return FALSE;
         }
 
         pVHash = BuildVHash(pVTable);
-        if( pVHash == NULL )
+        if (pVHash == NULL)
             return FALSE;
 
         EnterProviderCritSec(pVTable);
         fCritSec = TRUE;
 
         fRet = CPCreateHash(
-                        pVTable->hProv,
-                        Algid,
-                        (pVKey == NULL ? 0 : pVKey->hKey),
-                        dwFlags,
-                        &pVHash->hHash
-                        );
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+            pVTable->hProv,
+            Algid,
+            (pVKey == NULL ? 0 : pVKey->hKey),
+            dwFlags,
+            &pVHash->hHash
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
-    if( fRet ) {
-        *phHash = (HCRYPTHASH) pVHash;
+    if (fRet) {
+        *phHash = (HCRYPTHASH)pVHash;
         return TRUE;
     }
 
@@ -1077,7 +1065,7 @@ WINAPI SCryptCreateHash(IN HCRYPTPROV hProv,
 
     __try {
         *phHash = 0;
-    } __except(EXCEPTION_EXECUTE_HANDLER) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         ; // gulp
     }
 
@@ -1101,13 +1089,13 @@ WINAPI SCryptCreateHash(IN HCRYPTPROV hProv,
  */
 BOOL
 WINAPI SCryptDuplicateHash(
-                         IN HCRYPTHASH hHash,
-                         IN DWORD *pdwReserved,
-                         IN DWORD dwFlags,
-                         OUT HCRYPTHASH * phHash
-                         )
+    IN HCRYPTHASH hHash,
+    IN DWORD* pdwReserved,
+    IN DWORD dwFlags,
+    OUT HCRYPTHASH* phHash
+)
 {
-    PVHashStruc     pVHash = (PVHashStruc) hHash;
+    PVHashStruc     pVHash = (PVHashStruc)hHash;
     PVTableStruc    pVTable;
     PVHashStruc     pVNewHash;
     BOOL            fCritSec = FALSE;
@@ -1119,7 +1107,7 @@ WINAPI SCryptDuplicateHash(
         pVTable = pVHash->pVTable;
 
         pVNewHash = BuildVHash(pVTable);
-        if( pVNewHash == NULL ) {
+        if (pVNewHash == NULL) {
             return FALSE;
         }
 
@@ -1127,23 +1115,23 @@ WINAPI SCryptDuplicateHash(
         fCritSec = TRUE;
 
         fRet = CPDuplicateHash(
-                        pVTable->hProv,
-                        pVHash->hHash,
-                        pdwReserved,
-                        dwFlags,
-                        &pVNewHash->hHash
-                        );
+            pVTable->hProv,
+            pVHash->hHash,
+            pdwReserved,
+            dwFlags,
+            &pVNewHash->hHash
+        );
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
-    if( fRet ) {
-        *phHash = (HCRYPTHASH) pVNewHash;
+    if (fRet) {
+        *phHash = (HCRYPTHASH)pVNewHash;
         return TRUE;
     }
 
@@ -1152,7 +1140,7 @@ WINAPI SCryptDuplicateHash(
 
     __try {
         *phHash = 0;
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         ; // gulp
     }
 
@@ -1178,11 +1166,11 @@ WINAPI SCryptDuplicateHash(
  */
 BOOL
 WINAPI SCryptHashData(IN HCRYPTHASH hHash,
-                     IN CONST BYTE *pbData,
-                     IN DWORD dwDataLen,
-                     IN DWORD dwFlags)
+                      IN CONST BYTE* pbData,
+                      IN DWORD dwDataLen,
+                      IN DWORD dwFlags)
 {
-    PVHashStruc     pVHash = (PVHashStruc) hHash;
+    PVHashStruc     pVHash = (PVHashStruc)hHash;
     PVTableStruc    pVTable;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -1195,19 +1183,19 @@ WINAPI SCryptHashData(IN HCRYPTHASH hHash,
         fCritSec = TRUE;
 
         fRet = CPHashData(
-                        pVTable->hProv,
-                        pVHash->hHash,
-                        pbData,
-                        dwDataLen,
-                        dwFlags
-                        );
+            pVTable->hProv,
+            pVHash->hHash,
+            pbData,
+            dwDataLen,
+            dwFlags
+        );
 
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -1232,12 +1220,12 @@ WINAPI SCryptHashData(IN HCRYPTHASH hHash,
  */
 BOOL
 WINAPI SCryptHashSessionKey(IN HCRYPTHASH hHash,
-                           IN HCRYPTKEY hKey,
-                           IN DWORD dwFlags)
+                            IN HCRYPTKEY hKey,
+                            IN DWORD dwFlags)
 {
-    PVHashStruc     pVHash = (PVHashStruc) hHash;
+    PVHashStruc     pVHash = (PVHashStruc)hHash;
     PVTableStruc    pVTable;
-    PVKeyStruc      pVKey = (PVKeyStruc) hKey;
+    PVKeyStruc      pVKey = (PVKeyStruc)hKey;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
 
@@ -1245,8 +1233,7 @@ WINAPI SCryptHashSessionKey(IN HCRYPTHASH hHash,
     __try {
         pVTable = pVHash->pVTable;
 
-        if (pVKey->pVTable != pVTable)
-        {
+        if (pVKey->pVTable != pVTable) {
             SetLastError(ERROR_INVALID_PARAMETER);
             return FALSE;
         }
@@ -1255,17 +1242,17 @@ WINAPI SCryptHashSessionKey(IN HCRYPTHASH hHash,
         fCritSec = TRUE;
 
         fRet = CPHashSessionKey(
-                        pVTable->hProv,
-                        pVHash->hHash,
-                        pVKey->hKey,
-                        dwFlags
-                        );
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+            pVTable->hProv,
+            pVHash->hHash,
+            pVKey->hKey,
+            dwFlags
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -1288,7 +1275,7 @@ WINAPI SCryptHashSessionKey(IN HCRYPTHASH hHash,
 BOOL
 WINAPI SCryptDestroyHash(IN HCRYPTHASH hHash)
 {
-    PVHashStruc     pVHash = (PVHashStruc) hHash;
+    PVHashStruc     pVHash = (PVHashStruc)hHash;
     PVTableStruc    pVTable;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -1301,12 +1288,12 @@ WINAPI SCryptDestroyHash(IN HCRYPTHASH hHash)
         fCritSec = TRUE;
 
         fRet = CPDestroyHash(pVTable->hProv, pVHash->hHash);
-    } __except(EXCEPTION_EXECUTE_HANDLER) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -1336,11 +1323,11 @@ WINAPI SCryptDestroyHash(IN HCRYPTHASH hHash)
  */
 BOOL
 WINAPI SCryptSignHashW(IN  HCRYPTHASH hHash,
-              IN  DWORD dwKeySpec,
-              IN  LPCWSTR sDescription,
-              IN  DWORD dwFlags,
-              OUT BYTE *pbSignature,
-              OUT DWORD *pdwSigLen)
+                       IN  DWORD dwKeySpec,
+                       IN  LPCWSTR sDescription,
+                       IN  DWORD dwFlags,
+                       OUT BYTE* pbSignature,
+                       OUT DWORD* pdwSigLen)
 {
     SetLastError(ERROR_NOT_SUPPORTED);
     return FALSE;
@@ -1348,13 +1335,13 @@ WINAPI SCryptSignHashW(IN  HCRYPTHASH hHash,
 
 BOOL
 WINAPI SCryptSignHashA(IN  HCRYPTHASH hHash,
-              IN  DWORD dwKeySpec,
-              IN  LPCSTR sDescription,
-              IN  DWORD dwFlags,
-              OUT BYTE *pbSignature,
-              OUT DWORD *pdwSigLen)
+                       IN  DWORD dwKeySpec,
+                       IN  LPCSTR sDescription,
+                       IN  DWORD dwFlags,
+                       OUT BYTE* pbSignature,
+                       OUT DWORD* pdwSigLen)
 {
-    PVHashStruc     pVHash = (PVHashStruc) hHash;
+    PVHashStruc     pVHash = (PVHashStruc)hHash;
     PVTableStruc    pVTable;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -1366,20 +1353,20 @@ WINAPI SCryptSignHashA(IN  HCRYPTHASH hHash,
         fCritSec = TRUE;
 
         fRet = CPSignHash(
-                        pVTable->hProv,
-                        pVHash->hHash,
-                        dwKeySpec,
-                        NULL,
-                        dwFlags,
-                        pbSignature,
-                        pdwSigLen
-                        );
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+            pVTable->hProv,
+            pVHash->hHash,
+            dwKeySpec,
+            NULL,
+            dwFlags,
+            pbSignature,
+            pdwSigLen
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -1406,11 +1393,11 @@ WINAPI SCryptSignHashA(IN  HCRYPTHASH hHash,
  */
 BOOL
 WINAPI SCryptVerifySignatureW(IN HCRYPTHASH hHash,
-                 IN CONST BYTE *pbSignature,
-                 IN DWORD dwSigLen,
-                 IN HCRYPTKEY hPubKey,
-                 IN LPCWSTR sDescription,
-                 IN DWORD dwFlags)
+                              IN CONST BYTE* pbSignature,
+                              IN DWORD dwSigLen,
+                              IN HCRYPTKEY hPubKey,
+                              IN LPCWSTR sDescription,
+                              IN DWORD dwFlags)
 {
     SetLastError(ERROR_NOT_SUPPORTED);
     return FALSE;
@@ -1418,15 +1405,15 @@ WINAPI SCryptVerifySignatureW(IN HCRYPTHASH hHash,
 
 BOOL
 WINAPI SCryptVerifySignatureA(IN HCRYPTHASH hHash,
-                 IN CONST BYTE *pbSignature,
-                 IN DWORD dwSigLen,
-                 IN HCRYPTKEY hPubKey,
-                 IN LPCSTR sDescription,
-                 IN DWORD dwFlags)
+                              IN CONST BYTE* pbSignature,
+                              IN DWORD dwSigLen,
+                              IN HCRYPTKEY hPubKey,
+                              IN LPCSTR sDescription,
+                              IN DWORD dwFlags)
 {
-    PVHashStruc     pVHash = (PVHashStruc) hHash;
+    PVHashStruc     pVHash = (PVHashStruc)hHash;
     PVTableStruc    pVTable;
-    PVKeyStruc      pVPubKey = (PVKeyStruc) hPubKey;
+    PVKeyStruc      pVPubKey = (PVKeyStruc)hPubKey;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
 
@@ -1434,8 +1421,7 @@ WINAPI SCryptVerifySignatureA(IN HCRYPTHASH hHash,
     __try {
         pVTable = pVHash->pVTable;
 
-        if (pVPubKey && pVPubKey->pVTable != pVTable)
-        {
+        if (pVPubKey && pVPubKey->pVTable != pVTable) {
             SetLastError(ERROR_INVALID_PARAMETER);
             return FALSE;
         }
@@ -1444,20 +1430,20 @@ WINAPI SCryptVerifySignatureA(IN HCRYPTHASH hHash,
         fCritSec = TRUE;
 
         fRet = CPVerifySignature(
-                            pVTable->hProv,
-                            pVHash->hHash,
-                            pbSignature,
-                            dwSigLen,
-                            (pVPubKey == NULL ? 0 : pVPubKey->hKey),
-                            NULL,
-                            dwFlags
-                            );
-    } __except( EXCEPTION_EXECUTE_HANDLER ) {
+            pVTable->hProv,
+            pVHash->hHash,
+            pbSignature,
+            dwSigLen,
+            (pVPubKey == NULL ? 0 : pVPubKey->hKey),
+            NULL,
+            dwFlags
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -1481,11 +1467,11 @@ WINAPI SCryptVerifySignatureA(IN HCRYPTHASH hHash,
  */
 BOOL
 WINAPI SCryptSetProvParam(IN HCRYPTPROV hProv,
-             IN DWORD dwParam,
-             IN BYTE *pbData,
-             IN DWORD dwFlags)
+                          IN DWORD dwParam,
+                          IN BYTE* pbData,
+                          IN DWORD dwFlags)
 {
-    PVTableStruc    pVTable = (PVTableStruc) hProv;
+    PVTableStruc    pVTable = (PVTableStruc)hProv;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
 
@@ -1494,12 +1480,12 @@ WINAPI SCryptSetProvParam(IN HCRYPTPROV hProv,
         fCritSec = TRUE;
 
         fRet = CPSetProvParam(pVTable->hProv, dwParam, pbData, dwFlags);
-    } __except(EXCEPTION_EXECUTE_HANDLER) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -1525,12 +1511,12 @@ WINAPI SCryptSetProvParam(IN HCRYPTPROV hProv,
  */
 BOOL
 WINAPI SCryptGetProvParam(IN HCRYPTPROV hProv,
-             IN DWORD dwParam,
-             IN BYTE *pbData,
-             IN DWORD *pdwDataLen,
-             IN DWORD dwFlags)
+                          IN DWORD dwParam,
+                          IN BYTE* pbData,
+                          IN DWORD* pdwDataLen,
+                          IN DWORD dwFlags)
 {
-    PVTableStruc    pVTable = (PVTableStruc) hProv;
+    PVTableStruc    pVTable = (PVTableStruc)hProv;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
 
@@ -1539,18 +1525,18 @@ WINAPI SCryptGetProvParam(IN HCRYPTPROV hProv,
         fCritSec = TRUE;
 
         fRet = CPGetProvParam(
-                        pVTable->hProv,
-                        dwParam,
-                        pbData,
-                        pdwDataLen,
-                        dwFlags
-                        );
-    } __except(EXCEPTION_EXECUTE_HANDLER) {
+            pVTable->hProv,
+            dwParam,
+            pbData,
+            pdwDataLen,
+            dwFlags
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -1575,11 +1561,11 @@ WINAPI SCryptGetProvParam(IN HCRYPTPROV hProv,
  */
 BOOL
 WINAPI SCryptSetHashParam(IN HCRYPTHASH hHash,
-             IN DWORD dwParam,
-             IN BYTE *pbData,
-             IN DWORD dwFlags)
+                          IN DWORD dwParam,
+                          IN BYTE* pbData,
+                          IN DWORD dwFlags)
 {
-    PVHashStruc     pVHash = (PVHashStruc) hHash;
+    PVHashStruc     pVHash = (PVHashStruc)hHash;
     PVTableStruc    pVTable;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -1593,18 +1579,18 @@ WINAPI SCryptSetHashParam(IN HCRYPTHASH hHash,
         fCritSec = TRUE;
 
         fRet = CPSetHashParam(
-                        pVTable->hProv,
-                        pVHash->hHash,
-                        dwParam,
-                        pbData,
-                        dwFlags
-                        );
+            pVTable->hProv,
+            pVHash->hHash,
+            dwParam,
+            pbData,
+            dwFlags
+        );
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -1630,12 +1616,12 @@ WINAPI SCryptSetHashParam(IN HCRYPTHASH hHash,
  */
 BOOL
 WINAPI SCryptGetHashParam(IN HCRYPTKEY hHash,
-             IN DWORD dwParam,
-             IN BYTE *pbData,
-             IN DWORD *pdwDataLen,
-             IN DWORD dwFlags)
+                          IN DWORD dwParam,
+                          IN BYTE* pbData,
+                          IN DWORD* pdwDataLen,
+                          IN DWORD dwFlags)
 {
-    PVHashStruc     pVHash = (PVHashStruc) hHash;
+    PVHashStruc     pVHash = (PVHashStruc)hHash;
     PVTableStruc    pVTable;
     BOOL            fCritSec = FALSE;
     BOOL            fRet = FALSE;
@@ -1647,19 +1633,19 @@ WINAPI SCryptGetHashParam(IN HCRYPTKEY hHash,
         fCritSec = TRUE;
 
         fRet = CPGetHashParam(
-                        pVTable->hProv,
-                        pVHash->hHash,
-                        dwParam,
-                        pbData,
-                        pdwDataLen,
-                        dwFlags
-                        );
-    } __except(EXCEPTION_EXECUTE_HANDLER) {
+            pVTable->hProv,
+            pVHash->hHash,
+            dwParam,
+            pbData,
+            pdwDataLen,
+            dwFlags
+        );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         fRet = FALSE;
-        ASSERT( fRet );
+        ASSERT(fRet);
     }
 
-    if( fCritSec ) {
+    if (fCritSec) {
         LeaveProviderCritSec(pVTable);
     }
 
@@ -1686,7 +1672,7 @@ PVKeyStruc BuildVKey(IN PVTableStruc pVTable)
     PVKeyStruc      pVKey;
 
     pVKey = (PVKeyStruc)LocalAlloc(LMEM_ZEROINIT, sizeof(VKeyStruc));
-    if( pVKey == NULL )
+    if (pVKey == NULL)
         return NULL;
 
     pVKey->pVTable = pVTable;
@@ -1699,7 +1685,7 @@ PVHashStruc BuildVHash(IN PVTableStruc pVTable)
     PVHashStruc     pVHash;
 
     pVHash = (PVHashStruc)LocalAlloc(LMEM_ZEROINIT, sizeof(VHashStruc));
-    if( pVHash == NULL )
+    if (pVHash == NULL)
         return NULL;
 
     pVHash->pVTable = pVTable;

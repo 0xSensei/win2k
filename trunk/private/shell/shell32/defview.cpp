@@ -47,8 +47,8 @@ extern "C" HMENU CDesktop_GetActiveDesktopMenu(void);
 
 STDAPI_(void) DPA_FreeIDArray(HDPA hdpa);
 
-BOOL StringFromCustomViewData(SFVVIEWSDATA *pItem, LPTSTR pszString, UINT cb, UINT idString);
-BOOL ColorFromCustomViewData(SFVVIEWSDATA *pItem, COLORREF * pcr, UINT idCR);
+BOOL StringFromCustomViewData(SFVVIEWSDATA* pItem, LPTSTR pszString, UINT cb, UINT idString);
+BOOL ColorFromCustomViewData(SFVVIEWSDATA* pItem, COLORREF* pcr, UINT idCR);
 BOOL ShowInfoTip();
 
 // define MAX_ICON_WAIT to be the most (in ms) we will ever wait for a icon to be extracted.
@@ -76,7 +76,7 @@ BOOL ShowInfoTip();
 
 #define DEFVIEW_THREAD_IDLE_TIMEOUT     (1000 * 60 * 2)
 
-BOOL DefView_IdleDoStuff(CDefView *pdsv, LPRUNNABLETASK pTask, REFTASKOWNERID rTID, DWORD_PTR lParam, DWORD dwPriority);
+BOOL DefView_IdleDoStuff(CDefView* pdsv, LPRUNNABLETASK pTask, REFTASKOWNERID rTID, DWORD_PTR lParam, DWORD dwPriority);
 
 // Whenever we enter an "update pending" state, set this timer
 // instead. Let child DefViewOCs have a window to get our
@@ -93,7 +93,7 @@ BOOL DefView_IdleDoStuff(CDefView *pdsv, LPRUNNABLETASK pTask, REFTASKOWNERID rT
 DWORD   dwFinish, dwStart;
 #endif
 
-STDAPI SHGetIconFromPIDL(IShellFolder *psf, IShellIcon *psi, LPCITEMIDLIST pidl, UINT flags, int *piImage);
+STDAPI SHGetIconFromPIDL(IShellFolder* psf, IShellIcon* psi, LPCITEMIDLIST pidl, UINT flags, int* piImage);
 
 #ifndef SIF_ALL
 #define SIF_ALL             (SIF_RANGE | SIF_PAGE | SIF_POS)
@@ -164,21 +164,21 @@ const COLORREF  g_VgaColorTable[] = {
 
 // Note that it returns NULL, if iItem is -1.
 
-HRESULT DefView_ExplorerCommand(CDefView *pdsv, UINT idFCIDM);
-void DefView_DismissEdit(CDefView *pdsv);
-void DefView_OnInitMenu(CDefView *pdsv);
-LRESULT DefView_OnMenuSelect(CDefView *pdsv, UINT id, UINT mf, HMENU hmenu);
-void DV_GetMenuHelpText(CDefView *pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText);
-void DV_GetToolTipText(CDefView *pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText);
-void DV_DoDefaultStatusBar(CDefView *pdsv, BOOL fInitialize);
+HRESULT DefView_ExplorerCommand(CDefView* pdsv, UINT idFCIDM);
+void DefView_DismissEdit(CDefView* pdsv);
+void DefView_OnInitMenu(CDefView* pdsv);
+LRESULT DefView_OnMenuSelect(CDefView* pdsv, UINT id, UINT mf, HMENU hmenu);
+void DV_GetMenuHelpText(CDefView* pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText);
+void DV_GetToolTipText(CDefView* pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText);
+void DV_DoDefaultStatusBar(CDefView* pdsv, BOOL fInitialize);
 
-void DefView_MoveSelectedItems(CDefView *pdsv, int dx, int dy, BOOL fAll);
-BOOL DefView_GetDropPoint(CDefView *pdv, POINT *ppt);
-BOOL DefView_GetDragPoint(CDefView *pdv, POINT *ppt);
-DWORD LVStyleFromView(CDefView *lpdv);
-HRESULT DefView_GetItemObjects(CDefView *pdsv, LPCITEMIDLIST **ppidl, UINT uItem, UINT *pcItems);
+void DefView_MoveSelectedItems(CDefView* pdsv, int dx, int dy, BOOL fAll);
+BOOL DefView_GetDropPoint(CDefView* pdv, POINT* ppt);
+BOOL DefView_GetDragPoint(CDefView* pdv, POINT* ppt);
+DWORD LVStyleFromView(CDefView* lpdv);
+HRESULT DefView_GetItemObjects(CDefView* pdsv, LPCITEMIDLIST** ppidl, UINT uItem, UINT* pcItems);
 
-HRESULT DV_AllocRestOfStream(IStream *pstm, void **ppData, UINT *puLen);
+HRESULT DV_AllocRestOfStream(IStream* pstm, void** ppData, UINT* puLen);
 
 #define SHOWICONS 1
 #ifdef SHOWICONS
@@ -200,12 +200,12 @@ HRESULT DV_AllocRestOfStream(IStream *pstm, void **ppData, UINT *puLen);
 #define EXTVIEWEXTRAWIDTH  100
 #define EXTVIEWEXTRAHEIGHT 110
 
-void EnableCombinedView(CDefView *pdsv, BOOL fEnable);
+void EnableCombinedView(CDefView* pdsv, BOOL fEnable);
 
 
 #ifdef DEBUG
 
-void DefView_StartNotify(CDefView *pdsv, UINT code)
+void DefView_StartNotify(CDefView* pdsv, UINT code)
 {
     if (pdsv == NULL)
         return;
@@ -229,7 +229,7 @@ void DefView_StartNotify(CDefView *pdsv, UINT code)
 }
 
 
-void DefView_StopNotify(CDefView *pdsv, UINT code)
+void DefView_StopNotify(CDefView* pdsv, UINT code)
 {
     if (pdsv == NULL)
         return;
@@ -253,7 +253,7 @@ void DefView_StopNotify(CDefView *pdsv, UINT code)
 }
 
 
-HRESULT DV_Next(CDefView *pdsv, IEnumIDList *peunk, int cnt, LPITEMIDLIST *ppidl, ULONG *pcelt)
+HRESULT DV_Next(CDefView* pdsv, IEnumIDList* peunk, int cnt, LPITEMIDLIST* ppidl, ULONG* pcelt)
 {
     HRESULT hres;
 
@@ -264,7 +264,7 @@ HRESULT DV_Next(CDefView *pdsv, IEnumIDList *peunk, int cnt, LPITEMIDLIST *ppidl
 }
 
 
-TCHAR *DV_Name(CDefView *pdsv)
+TCHAR* DV_Name(CDefView* pdsv)
 {
     static TCHAR ach[128];
     if (pdsv->_hwndMain) {
@@ -290,7 +290,7 @@ HRESULT CDefView::CallCB(UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
-void CDefView::RegisterSFVEvents(IUnknown * pTarget, BOOL fConnect)
+void CDefView::RegisterSFVEvents(IUnknown* pTarget, BOOL fConnect)
 {
     ConnectToConnectionPoint(SAFECAST(this, IShellView2*), DIID_DShellFolderViewEvents, fConnect, pTarget, &m_dwConnectionCookie, NULL);
 }
@@ -332,7 +332,7 @@ void CDefView::CheckIfSelectedAndNotifyAutomation(LPCITEMIDLIST pidl, int iItem)
 }
 
 
-BOOL DV_IsDropOnSource(CDefView *pdsv, IDropTarget *pdtgt)
+BOOL DV_IsDropOnSource(CDefView* pdsv, IDropTarget* pdtgt)
 {
     // context menu paste (_bMouseMenu shows context menu, cut stuff shows source)
     if (pdsv->_bMouseMenu && pdsv->_bHaveCutStuff) {
@@ -381,7 +381,7 @@ BOOL _DoesRegkeyExist(HKEY hkRoot, LPCTSTR pszSubkey)
 // wallpaper and returns TRUE if so. If the wallpaper is the default wallpaper,
 // it reads the colors from the registry. If the colors are missing, then it
 // supplies the default colors.
-BOOL GetColorsFromHTMLdoc(CDefView *pdsv, COLORREF *clrTextBk, COLORREF *clrHotlight)
+BOOL GetColorsFromHTMLdoc(CDefView* pdsv, COLORREF* clrTextBk, COLORREF* clrHotlight)
 {
     int i;
 
@@ -420,7 +420,7 @@ BOOL GetColorsFromHTMLdoc(CDefView *pdsv, COLORREF *clrTextBk, COLORREF *clrHotl
 
 
 // Set the colors for the folder - taking care if it's the desktop.
-void DSV_SetFolderColors(CDefView *pdsv)
+void DSV_SetFolderColors(CDefView* pdsv)
 {
     COLORREF clrText, clrTextBk, clrWindow;
 
@@ -522,7 +522,7 @@ void DSV_SetFolderColors(CDefView *pdsv)
     } else {
         // Nope.
         clrWindow = GetSysColor(COLOR_WINDOW);
-            clrTextBk = clrWindow;
+        clrTextBk = clrWindow;
         clrText = GetSysColor(COLOR_WINDOWTEXT);
 
         if ((pdsv->_fs.fFlags & FWF_TRANSPARENT) && !pdsv->_fCombinedView) {
@@ -539,13 +539,13 @@ void DSV_SetFolderColors(CDefView *pdsv)
 
     // if its a thumbvw, do the thumbvw thing, always do standard listvw thing.
     if (pdsv->m_cFrame.IsSFVExtension()) {
-        IShellFolderView * pSFV = pdsv->m_cFrame.GetExtendedISFV();
+        IShellFolderView* pSFV = pdsv->m_cFrame.GetExtendedISFV();
 
         if (pSFV) {
             HRESULT hres;
-            IDefViewExtInit2 * pShellView = NULL;
+            IDefViewExtInit2* pShellView = NULL;
 
-            hres = pSFV->QueryInterface(IID_IDefViewExtInit2, (void **)&pShellView);
+            hres = pSFV->QueryInterface(IID_IDefViewExtInit2, (void**)&pShellView);
             if (SUCCEEDED(hres)) {
                 pShellView->SetViewWindowColors(clrText, clrTextBk, clrWindow);
                 ATOMICRELEASE(pShellView);
@@ -559,7 +559,7 @@ void DSV_SetFolderColors(CDefView *pdsv)
 }
 
 
-DWORD LVStyleFromView(CDefView *pdsv)
+DWORD LVStyleFromView(CDefView* pdsv)
 {
     DWORD dwStyle;
 
@@ -603,32 +603,32 @@ DWORD LVStyleFromView(CDefView *pdsv)
 }
 
 
-void CDefView::_GetSortDefaults(DVSAVESTATE *pSaveState)
+void CDefView::_GetSortDefaults(DVSAVESTATE* pSaveState)
 {
     SHELLSTATE ss;
     SHGetSetSettings(&ss, SSF_SORTCOLUMNS, FALSE);
     pSaveState->lParamSort = ss.lParamSort;
     pSaveState->iDirection = ss.iSortDirection ? ss.iSortDirection : 1;
     pSaveState->iLastColumnClick = -1;
-    CallCB(SFVM_GETSORTDEFAULTS, (LPARAM) &(pSaveState->iDirection), (WPARAM) &(pSaveState->lParamSort));
+    CallCB(SFVM_GETSORTDEFAULTS, (LPARAM) & (pSaveState->iDirection), (WPARAM) & (pSaveState->lParamSort));
 
     TraceMsg(TF_DEFVIEW, "_GetSortDefaults returning lParamSort==%d, iDir==%d", pSaveState->lParamSort, pSaveState->iDirection);
 }
 
 
-HRESULT CDefView::_GetDetailsHelper(int i, DETAILSINFO *pdi)
+HRESULT CDefView::_GetDetailsHelper(int i, DETAILSINFO* pdi)
 {
     HRESULT hres = E_NOTIMPL;
 
     if (_pshf2) {
-        hres = _pshf2->GetDetailsOf(pdi->pidl, i, (SHELLDETAILS *)&pdi->fmt);
+        hres = _pshf2->GetDetailsOf(pdi->pidl, i, (SHELLDETAILS*)&pdi->fmt);
     }
 
     if (FAILED(hres))   // Don't make NSEs impl all of IShellFolder2
     {
         if (_psd) {
             // HACK: pdi->fmt is the same layout as SHELLDETAILS
-            hres = _psd->GetDetailsOf(pdi->pidl, i, (SHELLDETAILS *)&pdi->fmt);
+            hres = _psd->GetDetailsOf(pdi->pidl, i, (SHELLDETAILS*)&pdi->fmt);
         } else if (HasCB()) {
             hres = CallCB(SFVM_GETDETAILSOF, i, (LPARAM)pdi);
         } else {
@@ -667,17 +667,17 @@ typedef struct
     USHORT uOffsetWidths;
     USHORT uOffsetColOrder;
     USHORT uOffsetColStates;
-} COLSFILEHEADER, *LPCOLSFILEHEADER;
+} COLSFILEHEADER, * LPCOLSFILEHEADER;
 
 
 class CColumnPointer
 {
 public:
     // Note: we assume that pdsv is used _only_ for calling IVC.  If this changes, fix callers
-    CColumnPointer(BYTE *pCols, CDefView *pdsv)
+    CColumnPointer(BYTE* pCols, CDefView* pdsv)
     {
         LPCOLSFILEHEADER lpcfh = (LPCOLSFILEHEADER)pCols;
-        DWORD *pColList = NULL;
+        DWORD* pColList = NULL;
         int u;
 
         // set these up, as they shouldn't change
@@ -726,10 +726,10 @@ public:
     // uOrder should normally be uCol
     BOOL AppendColumn(UINT uCol, USHORT uWidth, INT uOrder)
     {
-        UINT *p;
+        UINT* p;
         // Slide every index above this one up
         for (INT u = 0; u < DSA_GetItemCount(m_dsaColOrder); u++) {
-            p = (UINT *)DSA_GetItemPtr(m_dsaColOrder, u);
+            p = (UINT*)DSA_GetItemPtr(m_dsaColOrder, u);
             if (!p)
                 break; // safety...
             if (*p >= uCol)
@@ -744,13 +744,13 @@ public:
 
     BOOL RemoveColumn(UINT uCol)
     {
-        UINT *p;
+        UINT* p;
 
         if ((int)uCol >= DSA_GetItemCount(m_dsaWidths))
             return FALSE;
         // Slide every index above this one down
         for (INT u = 0; u < DSA_GetItemCount(m_dsaColOrder); u++) {
-            p = (UINT *)DSA_GetItemPtr(m_dsaColOrder, u);
+            p = (UINT*)DSA_GetItemPtr(m_dsaColOrder, u);
             if (!p)
                 break; // safety...
             if (*p > uCol)
@@ -808,7 +808,7 @@ public:
     void RestoreColumnOrder(HWND hwndList)
     {
         UINT cCols;
-        UINT *pCols;
+        UINT* pCols;
         HWND hwndHead = ListView_GetHeader(hwndList);
 
         if (!hwndHead)
@@ -850,7 +850,7 @@ public:
             return TRUE;
         }
 
-        UINT *pCols = (LPUINT)LocalAlloc(LPTR, cCols * sizeof(UINT));
+        UINT* pCols = (LPUINT)LocalAlloc(LPTR, cCols * sizeof(UINT));
 
         ListView_GetColumnOrderArray(hwndList, cCols, pCols);
 
@@ -865,7 +865,7 @@ public:
         return(bDefaultOrder);
     }
 
-    HRESULT Write(IStream* pstm, CDefView * pvc)
+    HRESULT Write(IStream* pstm, CDefView* pvc)
     {
         DWORD i;
 
@@ -922,7 +922,7 @@ void CDefView::AddColumns()
     _bLoadedColumns = TRUE;
 
     // I also use this as a flag for whether to free pColHdr
-    IStream *pstmCols = NULL;
+    IStream* pstmCols = NULL;
 
     // Calculate a reasonable size to initialize the column width to.
 
@@ -937,7 +937,7 @@ void CDefView::AddColumns()
     if (SUCCEEDED(CallCB(SFVM_GETCOLSAVESTREAM, STGM_READ, (LPARAM)&pstmCols)) && pstmCols) {
         uLen = 0;
 
-        HRESULT hres = DV_AllocRestOfStream(pstmCols, (void **)&pColHdr, &uLen);
+        HRESULT hres = DV_AllocRestOfStream(pstmCols, (void**)&pColHdr, &uLen);
 
         ATOMICRELEASE(pstmCols);
 
@@ -1034,7 +1034,7 @@ void CDefView::UpdateSelectionMode()
 }
 
 
-void UpdateUnderlines(CDefView *pdsv)
+void UpdateUnderlines(CDefView* pdsv)
 {
     DWORD cb;
     DWORD dwUnderline = ICON_IE;
@@ -1173,7 +1173,7 @@ LRESULT CDefView::_OnCreate(HWND hWnd)
     ASSERT(_psd == NULL);  // this should not be set yet...
 
     // IShellDetails for old callers, new guys use IShellFolder2
-    _pshf->CreateViewObject(_hwndMain, IID_IShellDetails, (void **)&_psd);
+    _pshf->CreateViewObject(_hwndMain, IID_IShellDetails, (void**)&_psd);
 
     if ((_fs.ViewMode == FVM_DETAILS) || (SHGetAppCompatFlags(ACF_LOADCOLUMNHANDLER) & ACF_LOADCOLUMNHANDLER)) {
         if (!_bLoadedColumns)
@@ -1314,7 +1314,7 @@ void CDefView::OnListViewDelete(int iItem, LPITEMIDLIST pidl)
 
 // NOTE: many keys are handled as accelerators
 
-void CDefView::HandleKeyDown(LV_KEYDOWN *lpnmhdr)
+void CDefView::HandleKeyDown(LV_KEYDOWN* lpnmhdr)
 {
     // REVIEW: these are things not handled by accelerators, see if we can
     // make them all based on accelerators
@@ -1346,7 +1346,7 @@ LPITEMIDLIST CDefView::_GetPIDL(int i)
 }
 
 
-LPCITEMIDLIST DV_GetPIDLParam(CDefView *pdsv, LPARAM lParam, int i)
+LPCITEMIDLIST DV_GetPIDLParam(CDefView* pdsv, LPARAM lParam, int i)
 {
     if (lParam)
         return (LPCITEMIDLIST)lParam;
@@ -1365,7 +1365,7 @@ LPCITEMIDLIST DV_GetPIDLParam(CDefView *pdsv, LPARAM lParam, int i)
 
 // Notes: Note that this function returns LP*C*ITEMIDLIST. The caller is not
 //  supposed alter or delete them. Their lifetime are very short (until the list view is modified).
-UINT DefView_GetItemPIDLS(CDefView *pdsv, LPCITEMIDLIST apidl[], UINT cItemMax, UINT uItem)
+UINT DefView_GetItemPIDLS(CDefView* pdsv, LPCITEMIDLIST apidl[], UINT cItemMax, UINT uItem)
 {
     // REVIEW: We should put the focused one at the top of the list.
     int iItem = -1;
@@ -1411,9 +1411,9 @@ UINT DefView_GetItemPIDLS(CDefView *pdsv, LPCITEMIDLIST apidl[], UINT cItemMax, 
 
 //  This function get the array of IDList from the selection and calls
 // IShellFolder::GetUIObjectOf member to get the specified UI object interface.
-HRESULT DefView_GetUIObjectFromItem(CDefView *pdsv, REFIID riid, void **ppv, UINT uItem)
+HRESULT DefView_GetUIObjectFromItem(CDefView* pdsv, REFIID riid, void** ppv, UINT uItem)
 {
-    LPCITEMIDLIST *apidl = NULL;
+    LPCITEMIDLIST* apidl = NULL;
     UINT cItems;
     HRESULT hres;
 
@@ -1429,7 +1429,7 @@ HRESULT DefView_GetUIObjectFromItem(CDefView *pdsv, REFIID riid, void **ppv, UIN
         else if (SVGIO_ALLVIEW == uItem) {
             hres = pdsv->m_cFrame.GetExtendedISFV()->GetObjectCount(&cItems);
             if (SUCCEEDED(hres)) {
-                apidl = (LPCITEMIDLIST *)LocalAlloc(LPTR, SIZEOF(LPCITEMIDLIST)*cItems);
+                apidl = (LPCITEMIDLIST*)LocalAlloc(LPTR, SIZEOF(LPCITEMIDLIST) * cItems);
                 if (apidl) {
                     UINT count = 0;
 
@@ -1478,18 +1478,18 @@ HRESULT DefView_GetUIObjectFromItem(CDefView *pdsv, REFIID riid, void **ppv, UIN
 
 //  NOTE: if we're in an extended view, don't cache the context menu
 // because the top defview isn't notified of selection changes, so the cache will get out of date.
-IContextMenu *CDefView::_GetContextMenuFromSelection()
+IContextMenu* CDefView::_GetContextMenuFromSelection()
 {
-    IContextMenu *pcm = NULL;
+    IContextMenu* pcm = NULL;
 
     if (_HasNormalView()) {
         if (m_cFrame.IsSFVExtension()) // IShellView Extended View
         {
-            m_cFrame.GetExtendedISV()->GetItemObject(SVGIO_SELECTION, IID_IContextMenu, (void **)&pcm);
+            m_cFrame.GetExtendedISV()->GetItemObject(SVGIO_SELECTION, IID_IContextMenu, (void**)&pcm);
         } else    // normal large, small, list, details . . .
         {
             if (_pcmSel == NULL)
-                DefView_GetUIObjectFromItem(this, IID_IContextMenu, (void **)&_pcmSel, SVGIO_SELECTION);
+                DefView_GetUIObjectFromItem(this, IID_IContextMenu, (void**)&_pcmSel, SVGIO_SELECTION);
 
             if (_pcmSel) {
                 pcm = _pcmSel;
@@ -1516,13 +1516,13 @@ UINT CDefView::_GetExplorerFlag()
 
 
 #define DEFAULT_ATTRIBUTES  (DROPEFFECT_LINK | DROPEFFECT_MOVE | DROPEFFECT_COPY | SFGAO_CANDELETE | SFGAO_CANRENAME | SFGAO_HASPROPSHEET)
-DWORD DefView_GetAttributesFromSelection(CDefView *pdsv, DWORD dwAttrMask)
+DWORD DefView_GetAttributesFromSelection(CDefView* pdsv, DWORD dwAttrMask)
 {
     if (pdsv->_HasNormalView()) // normal views are non docobj extended views.
     {
         if (pdsv->m_cFrame.IsSFVExtension()) // IShellView extension
         {
-            LPCITEMIDLIST *apidl;
+            LPCITEMIDLIST* apidl;
             HRESULT hres;
             UINT cItems;
 
@@ -1544,7 +1544,7 @@ DWORD DefView_GetAttributesFromSelection(CDefView *pdsv, DWORD dwAttrMask)
             DWORD dwAttrQuery = DEFAULT_ATTRIBUTES | dwAttrMask;
 
             if ((pdsv->_dwAttrSel == (DWORD)-1) || (dwAttrQuery != DEFAULT_ATTRIBUTES)) {
-                LPCITEMIDLIST *apidl;
+                LPCITEMIDLIST* apidl;
                 UINT cItems;
 
                 HRESULT hres = DefView_GetItemObjects(pdsv, &apidl, SVGIO_SELECTION, &cItems);
@@ -1585,7 +1585,7 @@ DWORD DefView_GetAttributesFromSelection(CDefView *pdsv, DWORD dwAttrMask)
 #define DVFCMF_ALL          0xFFFFFFFF
 
 
-void DV_FlushCachedMenu(CDefView *pdsv, ULONG dwFlushFlags = DVFCMF_ALL)
+void DV_FlushCachedMenu(CDefView* pdsv, ULONG dwFlushFlags = DVFCMF_ALL)
 {
     if (dwFlushFlags & DVFCMF_SEL) {
         // THIS FAULTS if you create two context menus in a row
@@ -1671,7 +1671,7 @@ void CDefView::ContextMenu(DWORD dwPos)
         SetWaitCursor();
 
         // use the background context menu wrapper
-        HRESULT hr = this->GetItemObject(SVGIO_BACKGROUND, IID_IContextMenu, (void **)&_pcmBackground);
+        HRESULT hr = this->GetItemObject(SVGIO_BACKGROUND, IID_IContextMenu, (void**)&_pcmBackground);
 
         ResetWaitCursor();
 
@@ -1692,10 +1692,10 @@ void CDefView::ContextMenu(DWORD dwPos)
     UEMFireEvent(&UEMIID_SHELL, UEME_INSTRBROWSER, UEMF_INSTRUMENT, UIBW_UICONTEXT, i);
 
     if (IsSafeToDefaultVerb()) {
-        ICommDlgBrowser2 *pcdb2;
+        ICommDlgBrowser2* pcdb2;
 
         // Get the ICommDlgBrowser2 interface.
-        _psb->QueryInterface(IID_ICommDlgBrowser2, (void **)&pcdb2);
+        _psb->QueryInterface(IID_ICommDlgBrowser2, (void**)&pcdb2);
 
         if (_pcmBackground) {
             fFlags |= _GetExplorerFlag();
@@ -1827,7 +1827,7 @@ void CDefView::ContextMenu(DWORD dwPos)
 
 void CALLBACK DefView_GetDataPoint(LPCITEMIDLIST pidl, LPPOINT ppt, LPARAM lParam)
 {
-    CDefView *pdsv = (CDefView *)lParam;
+    CDefView* pdsv = (CDefView*)lParam;
 
     if (pidl)
         pdsv->_GetItemPosition(pidl, ppt);
@@ -1836,7 +1836,7 @@ void CALLBACK DefView_GetDataPoint(LPCITEMIDLIST pidl, LPPOINT ppt, LPARAM lPara
 }
 
 
-void DefView_SetViewMode(CDefView *pdsv, UINT fvmNew, DWORD dwStyle)
+void DefView_SetViewMode(CDefView* pdsv, UINT fvmNew, DWORD dwStyle)
 {
     pdsv->_fs.ViewMode = fvmNew;
     pdsv->_dvState.iDirection = 1;
@@ -1844,7 +1844,7 @@ void DefView_SetViewMode(CDefView *pdsv, UINT fvmNew, DWORD dwStyle)
 }
 
 
-BOOL DV_GetItemSpacing(CDefView *pdsv, LPITEMSPACING lpis)
+BOOL DV_GetItemSpacing(CDefView* pdsv, LPITEMSPACING lpis)
 {
     DWORD dwSize;
 
@@ -1859,7 +1859,7 @@ BOOL DV_GetItemSpacing(CDefView *pdsv, LPITEMSPACING lpis)
 }
 
 
-void DefView_SetPoints(CDefView *pdsv, IDataObject *pdtobj)
+void DefView_SetPoints(CDefView* pdsv, IDataObject* pdtobj)
 {
     SCALEINFO si;
 
@@ -1883,7 +1883,7 @@ void DefView_SetPoints(CDefView *pdsv, IDataObject *pdtobj)
 }
 
 
-BOOL _DidDropOnRecycleBin(IDataObject *pdtobj)
+BOOL _DidDropOnRecycleBin(IDataObject* pdtobj)
 {
     CLSID clsid;
     return SUCCEEDED(DataObj_GetDropTarget(pdtobj, &clsid)) && IsEqualCLSID(clsid, CLSID_RecycleBin);
@@ -1891,7 +1891,7 @@ BOOL _DidDropOnRecycleBin(IDataObject *pdtobj)
 
 
 // REVIEW: Currently, we are not doing any serialization assuming that only one GUI thread can come here at a time.
-LRESULT CDefView::_OnBeginDrag(NM_LISTVIEW * pnm)
+LRESULT CDefView::_OnBeginDrag(NM_LISTVIEW* pnm)
 {
     POINT ptOffset = pnm->ptAction;             // hwndLV client coords
 
@@ -1929,8 +1929,8 @@ LRESULT CDefView::_OnBeginDrag(NM_LISTVIEW * pnm)
 
     ClientToScreen(_hwndListview, &ptOffset);     // now in screen
 
-    IDataObject *pdtobj;
-    if (SUCCEEDED(DefView_GetUIObjectFromItem(this, IID_IDataObject, (void **)&pdtobj, SVGIO_SELECTION))) {
+    IDataObject* pdtobj;
+    if (SUCCEEDED(DefView_GetUIObjectFromItem(this, IID_IDataObject, (void**)&pdtobj, SVGIO_SELECTION))) {
         // Give the source a chance to alter the drop effect.
         CallCB(SFVM_ALTERDROPEFFECT, (WPARAM)&dwEffect, (LPARAM)pdtobj);
 
@@ -1982,7 +1982,7 @@ void CDefView::_FocusOnSomething(void)
 #define NOTIFY_AUTOMATION_SELCHANGE_TIMEOUT     (GetDoubleClickTime())
 
 
-HRESULT CDefView::_InvokeCommand(IContextMenu *pcm, CMINVOKECOMMANDINFOEX *pici)
+HRESULT CDefView::_InvokeCommand(IContextMenu* pcm, CMINVOKECOMMANDINFOEX* pici)
 {
     TCHAR szWorkingDir[MAX_PATH];
 #ifdef UNICODE
@@ -2025,12 +2025,12 @@ HRESULT CDefView::_InvokeCommand(IContextMenu *pcm, CMINVOKECOMMANDINFOEX *pici)
 DWORD CDefView::_GetNeededSecurityAction(void)
 {
     DWORD dwUrlAction = 0;
-    IUnknown * punk;
+    IUnknown* punk;
 
     ASSERT(_psb);
 
     // If we are hosted by Trident, Zone Check Action.
-    if (SUCCEEDED(_psb->QueryInterface(IID_IIsWebBrowserSB, (void **)&punk))) {
+    if (SUCCEEDED(_psb->QueryInterface(IID_IIsWebBrowserSB, (void**)&punk))) {
         dwUrlAction = URLACTION_SHELL_VERB;
         ATOMICRELEASE(punk);
     } else if (_fGetWindowLV) {
@@ -2050,7 +2050,7 @@ HRESULT CDefView::_ZoneCheck(DWORD dwFlags, DWORD dwAllowAction)
     ASSERT(_psb);
 
     if (dwUrlAction && (dwUrlAction != dwAllowAction)) {
-        IInternetHostSecurityManager * pihsm;
+        IInternetHostSecurityManager* pihsm;
 
         // First check if our parent wants to generate our context (Zone/URL).
         hr = IUnknown_QueryService(_psb, IID_IInternetHostSecurityManager, IID_IInternetHostSecurityManager, (void**)&pihsm);
@@ -2077,7 +2077,7 @@ HRESULT CDefView::_ZoneCheck(DWORD dwFlags, DWORD dwAllowAction)
             // URL that comes from the pidl we are at.
 
             if (_GetPath(szPathSource)) {
-                IInternetSecurityMgrSite * pisms;
+                IInternetSecurityMgrSite* pisms;
 
                 // Try to get a IInternetSecurityMgrSite so our UI will be modal.
                 if (SUCCEEDED(IUnknown_QueryService(_psb, SID_STopLevelBrowser, IID_IInternetSecurityMgrSite, (void**)&pisms))) {
@@ -2111,7 +2111,7 @@ void CDefView::_ProcessDblClick(LPNMITEMACTIVATE pnmia)
 {
     // Use the cached context menu object if there is one, else
     // make it.
-    IContextMenu *pcmSel;
+    IContextMenu* pcmSel;
     // SHIFT invokes the "alternate" command (usually Print)
     int iShowCmd = SW_NORMAL;
     DECLAREWAITCURSOR;
@@ -2204,7 +2204,7 @@ void CDefView::_ProcessDblClick(LPNMITEMACTIVATE pnmia)
 }
 
 
-void CDefView::_UpdateColData(CBackgroundColInfo *pbgci)
+void CDefView::_UpdateColData(CBackgroundColInfo* pbgci)
 {
     UINT iItem = _FindItem(pbgci->GetPIDL(), NULL, FALSE);
     if (iItem != -1) {
@@ -2222,7 +2222,7 @@ void CDefView::_UpdateColData(CBackgroundColInfo *pbgci)
 }
 
 
-void CDefView::_UpdateIcon(CDVGetIconTask * pTask)
+void CDefView::_UpdateIcon(CDVGetIconTask* pTask)
 {
     ASSERT(pTask);
     ASSERT(pTask->_pidl);
@@ -2263,7 +2263,7 @@ void CDefView::_UpdateOverlay(int iList, int iOverlay)
 }
 
 
-HRESULT CDefView::_GetIconAsync(LPCITEMIDLIST pidl, int *piIcon, BOOL fCanWait)
+HRESULT CDefView::_GetIconAsync(LPCITEMIDLIST pidl, int* piIcon, BOOL fCanWait)
 {
     HRESULT hres;
 
@@ -2314,8 +2314,8 @@ again:
         }
 #endif
 
-        IRunnableTask * pTask = NULL;
-        CDVGetIconTask * pIconTask;
+        IRunnableTask* pTask = NULL;
+        CDVGetIconTask* pIconTask;
         hres = CDVGetIconTask_CreateInstance(this, pidl, &pTask, &pIconTask);
         if (SUCCEEDED(hres)) {
             InterlockedIncrement(&_AsyncIconCount);
@@ -2372,7 +2372,7 @@ again:
 
 HRESULT CDefView::_GetOverlayIndexAsync(LPCITEMIDLIST pidl, int iList)
 {
-    IRunnableTask * pTask = NULL;
+    IRunnableTask* pTask = NULL;
 
     HRESULT hres = CDVIconOverlayTask_CreateInstance(this, pidl, iList, &pTask);
     if (SUCCEEDED(hres)) {
@@ -2385,7 +2385,7 @@ HRESULT CDefView::_GetOverlayIndexAsync(LPCITEMIDLIST pidl, int iList)
 
 
 // Returns: if the cursor is over a listview item, its index; otherwise, -1.
-int DV_HitTest(CDefView *pdsv, const POINT *ppt)
+int DV_HitTest(CDefView* pdsv, const POINT* ppt)
 {
     LV_HITTESTINFO info;
 
@@ -2400,7 +2400,7 @@ int DV_HitTest(CDefView *pdsv, const POINT *ppt)
 typedef void(*PFNGETINFOTIP)(LPVOID, LPTSTR, int);
 
 
-void _AppendInfoTip(PFNGETINFOTIP pfn, LPVOID pv, NMLVGETINFOTIP *plvn)
+void _AppendInfoTip(PFNGETINFOTIP pfn, LPVOID pv, NMLVGETINFOTIP* plvn)
 {
     BOOL fSuccess = FALSE;
 
@@ -2435,23 +2435,23 @@ void _AppendInfoTipFromString(LPVOID pv, LPTSTR pszBuf, int cch)
 
 void _AppendInfoTipFromVariant(LPVOID pv, LPTSTR pszBuf, int cch)
 {
-    VARIANT *pvar = (VARIANT *)pv;
+    VARIANT* pvar = (VARIANT*)pv;
     VariantToStr(pvar, pszBuf, cch);
 }
 
 
-void CDefView::_OnGetInfoTip(NMLVGETINFOTIP *plvn)
+void CDefView::_OnGetInfoTip(NMLVGETINFOTIP* plvn)
 {
     if (!ShowInfoTip())
         return;
 
     LPITEMIDLIST pidl = _GetPIDL(plvn->iItem);
     if (pidl) {
-        IQueryInfo *pqi;
+        IQueryInfo* pqi;
         LPCITEMIDLIST apidl[1] = {pidl};
 
         if (SUCCEEDED(_pshf->GetUIObjectOf(NULL, 1, apidl, IID_IQueryInfo, NULL, (void**)&pqi))) {
-            WCHAR *pwszTip;
+            WCHAR* pwszTip;
 
             if (SUCCEEDED(pqi->GetInfoTip(0, &pwszTip)) && pwszTip) {
                 _AppendInfoTip(_AppendInfoTipFromString, pwszTip, plvn);
@@ -2472,7 +2472,7 @@ void CDefView::_OnGetInfoTip(NMLVGETINFOTIP *plvn)
 
 HRESULT CDefView::_OnViewWindowActive()
 {
-    IShellView *psv = _psvOuter ? _psvOuter : SAFECAST(this, IShellView*);
+    IShellView* psv = _psvOuter ? _psvOuter : SAFECAST(this, IShellView*);
 
     return _psb->OnViewWindowActive(psv);
 }
@@ -2505,7 +2505,7 @@ DWORD GetAltColor()
 #endif
 
 
-LRESULT CDefView::_OnLVNotify(NM_LISTVIEW *plvn)
+LRESULT CDefView::_OnLVNotify(NM_LISTVIEW* plvn)
 {
     switch (plvn->hdr.code) {
     case NM_KILLFOCUS:
@@ -2550,7 +2550,7 @@ LRESULT CDefView::_OnLVNotify(NM_LISTVIEW *plvn)
         break;
     }
     case LVN_GETINFOTIP:
-        _OnGetInfoTip((NMLVGETINFOTIP *)plvn);
+        _OnGetInfoTip((NMLVGETINFOTIP*)plvn);
         break;
     case LVN_ITEMACTIVATE:
         if (!_fDisabled) {
@@ -2645,7 +2645,7 @@ LRESULT CDefView::_OnLVNotify(NM_LISTVIEW *plvn)
         // owner data state changed: e.g. search results
     case LVN_ODSTATECHANGED:
     {
-        NM_ODSTATECHANGE *pnm = (NM_ODSTATECHANGE *)plvn;
+        NM_ODSTATECHANGE* pnm = (NM_ODSTATECHANGE*)plvn;
 
         // for now handle only selection changes
         if ((pnm->uOldState ^ pnm->uNewState) & LVIS_SELECTED) {
@@ -2706,7 +2706,7 @@ LRESULT CDefView::_OnLVNotify(NM_LISTVIEW *plvn)
         }
         break;
     case LVN_KEYDOWN:
-        this->HandleKeyDown(((LV_KEYDOWN *)plvn));
+        this->HandleKeyDown(((LV_KEYDOWN*)plvn));
         break;
 #define plvdi ((LV_DISPINFO *)plvn)
 
@@ -2752,7 +2752,7 @@ LRESULT CDefView::_OnLVNotify(NM_LISTVIEW *plvn)
 
                 // _pshf may need to talk back to us or use us to EnableModless for UI.
                 // FTP Needs this.
-                IUnknown_SetSite(_pshf, SAFECAST(this, IOleCommandTarget *));
+                IUnknown_SetSite(_pshf, SAFECAST(this, IOleCommandTarget*));
                 if (SUCCEEDED(_pshf->SetNameOf(_hwndMain, pidl, wszName, SHGDN_INFOLDER, NULL))) {
                     SHChangeNotifyHandleEvents();
                     DV_CDB_OnStateChange(this, CDBOSC_RENAME);
@@ -2796,7 +2796,7 @@ LRESULT CDefView::_OnLVNotify(NM_LISTVIEW *plvn)
         if (item.iSubItem == 0 && (item.mask & LVIF_IMAGE)) {
             if (!_psio)
                 //try again
-                _pshf->QueryInterface(IID_IShellIconOverlay, (void **)&_psio);
+                _pshf->QueryInterface(IID_IShellIconOverlay, (void**)&_psio);
 
             // If the location supports the IShellIconOverlay than only need to ask for ghosted, else
             // we need to do the old stuff...
@@ -2927,7 +2927,7 @@ LRESULT CDefView::_OnLVNotify(NM_LISTVIEW *plvn)
                         if (_bInSortCallBack)
                             plvdi->item.mask |= LVIF_DI_SETITEM;
                         else {
-                            IRunnableTask *pTask;
+                            IRunnableTask* pTask;
 
                             if (SUCCEEDED(CDVExtendedColumnTask_CreateInstance(this, pidl, _fmt, item.iSubItem, &pTask))) {
                                 if (DefView_IdleDoStuff(this, pTask, TOID_DVBackgroundEnum, 0, TASK_PRIORITY_BKGRND_FILL)) {
@@ -3089,7 +3089,7 @@ BOOL CDefView::_ShouldEnableButton(UINT uiCmd, DWORD dwAttr, int iIndex)
     states and should be revisited if we add toolbar buttons that care about
     much more than the attributes used by Move to & Copy to.
     */
-BOOL CDefView::_GetCachedToolbarSelectionAttrs(ULONG *pdwAttr)
+BOOL CDefView::_GetCachedToolbarSelectionAttrs(ULONG* pdwAttr)
 {
     BOOL fResult = FALSE;
     CLSID clsid;
@@ -3120,8 +3120,8 @@ void CDefView::_SetCachedToolbarSelectionAttrs(ULONG dwAttrs)
 void CDefView::_EnableDisableTBButtons()
 {
     if (!IsEqualGUID(_clsid, GUID_NULL)) {
-        IExplorerToolbar *piet;
-        if (SUCCEEDED(IUnknown_QueryService(_psb, SID_SExplorerToolbar, IID_IExplorerToolbar, (void **)&piet))) {
+        IExplorerToolbar* piet;
+        if (SUCCEEDED(IUnknown_QueryService(_psb, SID_SExplorerToolbar, IID_IExplorerToolbar, (void**)&piet))) {
             ULONG dwAttr;
 
             if (!_GetCachedToolbarSelectionAttrs(&dwAttr))
@@ -3154,7 +3154,7 @@ void CDefView::_EnableDisableTBButtons()
 
 // you can add expensive code to the WM_DSV_SENDSELECTIONCHANGED handler,
 // that happens after all of the sel change notifies go through.
-void CDefView::OnLVSelectionChange(NM_LISTVIEW *plvn)
+void CDefView::OnLVSelectionChange(NM_LISTVIEW* plvn)
 {
     // toss the cached context menu
     DV_FlushCachedMenu(this, DVFCMF_SEL);
@@ -3182,11 +3182,11 @@ void CDefView::OnLVSelectionChange(NM_LISTVIEW *plvn)
 #define IN_STD_BMP      0x0000
 
 
-LRESULT CDefView::_OnNotify(NMHDR *pnm)
+LRESULT CDefView::_OnNotify(NMHDR* pnm)
 {
     switch (pnm->idFrom) {
     case ID_LISTVIEW:
-        return _OnLVNotify((NM_LISTVIEW *)pnm);
+        return _OnLVNotify((NM_LISTVIEW*)pnm);
     case FCIDM_TOOLBAR:
         return _TBNotify(pnm);
     default:
@@ -3210,20 +3210,20 @@ LRESULT CDefView::_OnNotify(NMHDR *pnm)
 }
 
 
-HRESULT CDefView::InitializeVariableColumns(DWORD *pdwColList)
+HRESULT CDefView::InitializeVariableColumns(DWORD* pdwColList)
 {
 #define MI_INITIAL_SIZE 6
     DETAILSINFO di;
     TCHAR szText[MAX_PATH];
     UINT iReal;
 #ifdef DEBUG
-    DWORD *pdwColOrig = pdwColList;
+    DWORD* pdwColOrig = pdwColList;
 #endif
 
     m_cColItems = 0;
 
     if (!m_pColItems)
-        m_pColItems = (COL_INFO *)LocalAlloc(LPTR, MI_INITIAL_SIZE * sizeof(*m_pColItems));
+        m_pColItems = (COL_INFO*)LocalAlloc(LPTR, MI_INITIAL_SIZE * sizeof(*m_pColItems));
 
     if (!m_pColItems)
         return E_OUTOFMEMORY;
@@ -3242,7 +3242,7 @@ HRESULT CDefView::InitializeVariableColumns(DWORD *pdwColList)
         StrRetToBuf(&di.str, NULL, szText, ARRAYSIZE(szText));
 
         if (iReal >= MI_INITIAL_SIZE) {
-            COL_INFO *pmi = (COL_INFO *)LocalReAlloc(m_pColItems, (iReal + 1) * SIZEOF(m_pColItems[0]), LMEM_MOVEABLE | LMEM_ZEROINIT);
+            COL_INFO* pmi = (COL_INFO*)LocalReAlloc(m_pColItems, (iReal + 1) * SIZEOF(m_pColItems[0]), LMEM_MOVEABLE | LMEM_ZEROINIT);
             ASSERT(pmi);
             if (!pmi) {
                 // Realloc failed. We need to bail out.
@@ -3359,7 +3359,7 @@ HRESULT CDefView::SetColumnState(UINT uCol, DWORD dwMask, DWORD dwNewBits)
 }
 
 
-HRESULT CDefView::MapRealToVisibleColumn(UINT uRealCol, UINT *puVisCol)
+HRESULT CDefView::MapRealToVisibleColumn(UINT uRealCol, UINT* puVisCol)
 {
     ASSERT(_bLoadedColumns);
     HRESULT hres = E_FAIL;
@@ -3385,7 +3385,7 @@ HRESULT CDefView::MapRealToVisibleColumn(UINT uRealCol, UINT *puVisCol)
 }
 
 
-HRESULT CDefView::MapVisibleToRealColumn(UINT uVisCol, UINT *puReal)
+HRESULT CDefView::MapVisibleToRealColumn(UINT uVisCol, UINT* puReal)
 {
     ASSERT(_bLoadedColumns);
     HRESULT hres = E_FAIL;
@@ -3408,7 +3408,7 @@ HRESULT CDefView::MapVisibleToRealColumn(UINT uVisCol, UINT *puReal)
 }
 
 
-BOOL CDefView::_IsExtendedColumn(INT_PTR iReal, DWORD *pdwState)
+BOOL CDefView::_IsExtendedColumn(INT_PTR iReal, DWORD* pdwState)
 {
     DWORD dwState = 0;
     BOOL bRet = (_pshf2 && SUCCEEDED(_pshf2->GetDefaultColumnState((int)iReal, &dwState)) && (dwState & SHCOLSTATE_EXTENDED));
@@ -3492,8 +3492,8 @@ void CDefView::_SetSortArrows(void)
     if (!hwndHead || _IsOwnerData())
         return;
 
-    MapRealToVisibleColumn((UINT)_dvState.lParamSort, (UINT *)&iCol);
-    MapRealToVisibleColumn(_dvState.iLastColumnClick, (UINT *)&iColLast);
+    MapRealToVisibleColumn((UINT)_dvState.lParamSort, (UINT*)&iCol);
+    MapRealToVisibleColumn(_dvState.iLastColumnClick, (UINT*)&iColLast);
 
     HBITMAP hbm = (HBITMAP)LoadImage(HINST_THISDLL, MAKEINTRESOURCE((_dvState.iDirection > 0) ? IDB_SORT_UP : IDB_SORT_DN), IMAGE_BITMAP, 0, 0, LR_LOADMAP3DCOLORS);
     HDITEM hdi1 = {HDI_BITMAP | HDI_FORMAT, 0, NULL, NULL, 0, 0, 0, 0, 0};
@@ -3535,9 +3535,9 @@ PFNDPACOMPARE CDefView::_GetCompareFunction(void)
 // to pass to DPA_Sort() if you don't want to make this determination.
 
 // p1 and p2 are pointers to the lv_item's LPARAM, which is currently the pidl
-int CALLBACK CDefView::_CompareExact(void *p1, void *p2, LPARAM lParam)
+int CALLBACK CDefView::_CompareExact(void* p1, void* p2, LPARAM lParam)
 {
-    CDefView *thisObject = (CDefView *)lParam;
+    CDefView* thisObject = (CDefView*)lParam;
     HRESULT hres = thisObject->_pshf2->CompareIDs(thisObject->_dvState.lParamSort | SHCIDS_ALLFIELDS, (LPITEMIDLIST)p1, (LPITEMIDLIST)p2);
 
     // 99/05/18 #341468 vtan: If the first comparison fails it may be because
@@ -3562,9 +3562,9 @@ int CALLBACK CDefView::_CompareExact(void *p1, void *p2, LPARAM lParam)
 
 
 // p1 and p2 are pointers to the lv_item's LPARAM, which is currently the pidl
-int CALLBACK CDefView::_Compare(void *p1, void *p2, LPARAM lParam)
+int CALLBACK CDefView::_Compare(void* p1, void* p2, LPARAM lParam)
 {
-    CDefView *thisObject = (CDefView *)lParam;
+    CDefView* thisObject = (CDefView*)lParam;
     HRESULT hres = thisObject->_pshf->CompareIDs(thisObject->_dvState.lParamSort, (LPITEMIDLIST)p1, (LPITEMIDLIST)p2);
     if (FAILED(hres)) {
         DVSAVESTATE     saveState;
@@ -3585,7 +3585,7 @@ int CALLBACK CDefView::_Compare(void *p1, void *p2, LPARAM lParam)
 // dw1 and dw2 are the actual item index.  thisObject index is only valid during the sort
 int CALLBACK CDefView::_CompareExtended(LPARAM dw1, LPARAM dw2, LPARAM lParam)
 {
-    CDefView *thisObject = (CDefView *)lParam;
+    CDefView* thisObject = (CDefView*)lParam;
 
     // First, match filesystem and put folders in front of files:
     LPCITEMIDLIST pidl1 = thisObject->_GetPIDL((int)dw1);
@@ -3598,7 +3598,7 @@ int CALLBACK CDefView::_CompareExtended(LPARAM dw1, LPARAM dw2, LPARAM lParam)
 
         hres = thisObject->_pshf2->CompareIDs(thisObject->_dvState.lParamSort, pidl1, pidl2);
         if (SUCCEEDED(hres))
-            return(static_cast<short>(HRESULT_CODE(hres)) * thisObject->_dvState.iDirection);
+            return(static_cast<short>(HRESULT_CODE(hres))* thisObject->_dvState.iDirection);
     }
 
     DWORD uFlags1 = SFGAO_FOLDER;
@@ -3698,12 +3698,12 @@ BOOL CDefView::_InternalRearrange(void)
 }
 
 
-int CALLBACK CDefView::_DVITEM_Compare(void *p1, void *p2, LPARAM lParam)
+int CALLBACK CDefView::_DVITEM_Compare(void* p1, void* p2, LPARAM lParam)
 {
-    CDefView    *thisObject = reinterpret_cast<CDefView*>(lParam);
+    CDefView* thisObject = reinterpret_cast<CDefView*>(lParam);
 
-    UNALIGNED DVITEM *pdvi1 = (UNALIGNED DVITEM *)p1;
-    UNALIGNED DVITEM *pdvi2 = (UNALIGNED DVITEM *)p2;
+    UNALIGNED DVITEM* pdvi1 = (UNALIGNED DVITEM*)p1;
+    UNALIGNED DVITEM* pdvi2 = (UNALIGNED DVITEM*)p2;
     LPITEMIDLIST pFakeEnd1, pFakeEnd2;
     USHORT uSave1, uSave2;
     int nCmp;
@@ -3731,9 +3731,9 @@ int CALLBACK CDefView::_DVITEM_Compare(void *p1, void *p2, LPARAM lParam)
 // Side effect: the listview items are always arranged after this call
 BOOL CDefView::_RestorePos(PDVSAVEHEADER pSaveHeader, UINT uLen)
 {
-    UNALIGNED DVITEM *pDVItem, *pDVEnd;
+    UNALIGNED DVITEM* pDVItem, * pDVEnd;
     HDPA dpaItems;
-    UNALIGNED DVITEM * UNALIGNED * ppDVItem, *UNALIGNED * ppEndDVItems;
+    UNALIGNED DVITEM* UNALIGNED* ppDVItem, * UNALIGNED* ppEndDVItems;
     BOOL bOK = FALSE;
     int iCount, i;
     DWORD dwStyle = GetWindowStyle(_hwndListview);
@@ -3757,13 +3757,13 @@ BOOL CDefView::_RestorePos(PDVSAVEHEADER pSaveHeader, UINT uLen)
         return TRUE;
     }
 #endif
-    pDVItem = (UNALIGNED DVITEM *)(((LPBYTE)pSaveHeader) + pSaveHeader->cbPosOffset);
+    pDVItem = (UNALIGNED DVITEM*)(((LPBYTE)pSaveHeader) + pSaveHeader->cbPosOffset);
 
     // BUGBUG more runtime size checking, should be init in case you don't get
     // here the day you happen to break its validity (DavePl)
     ASSERT(SIZEOF(DVSAVEHEADER) >= SIZEOF(DVITEM));
 
-    pDVEnd = (UNALIGNED DVITEM *)(((LPBYTE)pSaveHeader) + uLen - SIZEOF(DVITEM));
+    pDVEnd = (UNALIGNED DVITEM*)(((LPBYTE)pSaveHeader) + uLen - SIZEOF(DVITEM));
 
     // Grow every 16 items
     dpaItems = DPA_Create(16);
@@ -3771,7 +3771,7 @@ BOOL CDefView::_RestorePos(PDVSAVEHEADER pSaveHeader, UINT uLen)
         return bOK;
     }
 
-    for (;; pDVItem = (UNALIGNED DVITEM *)_ILNext(&pDVItem->idl)) {
+    for (;; pDVItem = (UNALIGNED DVITEM*)_ILNext(&pDVItem->idl)) {
         if (pDVItem > pDVEnd) {
             // Invalid list
             break;
@@ -3791,7 +3791,7 @@ BOOL CDefView::_RestorePos(PDVSAVEHEADER pSaveHeader, UINT uLen)
         goto Error1;
     }
 
-    ppDVItem = (UNALIGNED DVITEM * UNALIGNED *)DPA_GetPtrPtr(dpaItems);
+    ppDVItem = (UNALIGNED DVITEM * UNALIGNED*)DPA_GetPtrPtr(dpaItems);
     ppEndDVItems = ppDVItem + DPA_GetPtrCount(dpaItems);
 
     // Turn off auto-arrange if it's on at the mo.
@@ -3839,7 +3839,7 @@ BOOL CDefView::_RestorePos(PDVSAVEHEADER pSaveHeader, UINT uLen)
                 ListView_SetItemPosition32(_hwndListview, i, 0x7FFFFFFF, 0x7FFFFFFF);
                 break;
             } else if (nCmp == 0) {
-                UNALIGNED DVITEM * pDVItem = *ppDVItem;
+                UNALIGNED DVITEM* pDVItem = *ppDVItem;
 
                 // They are equal
                 ListView_SetItemPosition32(_hwndListview, i, pDVItem->pt.x, pDVItem->pt.y);
@@ -3876,10 +3876,10 @@ Error1:;
 // Returns TRUE if the columns are the default width, FALSE otherwise
 // Side effect: the stream pointer is left right after the last column
 //              EVEN when on default width!
-BOOL CDefView::SaveCols(IStream *pstm)
+BOOL CDefView::SaveCols(IStream* pstm)
 {
     BOOL bDefaultCols = FALSE;
-    IStream *pstmCols = NULL;
+    IStream* pstmCols = NULL;
 
     if (!_psd && !_pshf2 && !this->HasCB())
         return TRUE;
@@ -3944,7 +3944,7 @@ BOOL CDefView::SaveCols(IStream *pstm)
 // Returns S_OK if the positions are saved, S_FALSE if we don't need to save,
 // E_FAIL on error.
 // Side effect: the stream pointer is left right after the last icon
-HRESULT CDefView::SavePos(IStream *pstm)
+HRESULT CDefView::SavePos(IStream* pstm)
 {
     int iCount, i;
     DVITEM dvitem;
@@ -3989,7 +3989,7 @@ HRESULT CDefView::SavePos(IStream *pstm)
 
 // this should NOT check for whether the item is already in the listview
 // if it does, we'll have some serious performance problems
-int DefView_AddObject(CDefView *pdsv, LPITEMIDLIST pidl, BOOL bCopy = FALSE)
+int DefView_AddObject(CDefView* pdsv, LPITEMIDLIST pidl, BOOL bCopy = FALSE)
 {
     int i;
     LV_ITEM item;
@@ -4041,7 +4041,7 @@ int DefView_AddObject(CDefView *pdsv, LPITEMIDLIST pidl, BOOL bCopy = FALSE)
 
 
 // Find the relative pidl, if it exists
-int CDefView::_FindItem(LPCITEMIDLIST pidl, LPITEMIDLIST *ppidlFound, BOOL fSamePtr)
+int CDefView::_FindItem(LPCITEMIDLIST pidl, LPITEMIDLIST* ppidlFound, BOOL fSamePtr)
 {
     int iItem;
     int cItems;
@@ -4178,7 +4178,7 @@ int CDefView::_RemoveObject(LPCITEMIDLIST pidl, BOOL fSamePtr)
 // much reason to.
 
 // Note: bCopy controls copying only of ppidl[1].  ppidl[0] is never copied.
-int CDefView::_UpdateObject(LPITEMIDLIST *ppidl, BOOL bCopy /* = FALSE */)
+int CDefView::_UpdateObject(LPITEMIDLIST* ppidl, BOOL bCopy /* = FALSE */)
 {
     LPITEMIDLIST pidlOld;
     int i = _FindItem(ppidl[0], &pidlOld, FALSE);
@@ -4270,7 +4270,7 @@ int CDefView::_UpdateObject(LPITEMIDLIST *ppidl, BOOL bCopy /* = FALSE */)
 //  invalidates all items with the given image index.
 
 //  or update all items if iImage == -1
-void DefView_UpdateImage(CDefView *pdsv, int iImage)
+void DefView_UpdateImage(CDefView* pdsv, int iImage)
 {
     LV_ITEM item;
     int cItems;
@@ -4345,7 +4345,7 @@ void DefView_UpdateImage(CDefView *pdsv, int iImage)
 
 // Function to process the SFVM_REFRESHOBJECT message, by searching
 // through the list for a match of the first pidl.  If a match is found, the item is redrawn.
-int CDefView::_RefreshObject(LPITEMIDLIST *ppidl)
+int CDefView::_RefreshObject(LPITEMIDLIST* ppidl)
 {
     // BUGBUG: should support refreshing a range of pidls
     int i = _FindItem(ppidl[0], NULL, FALSE);
@@ -4356,7 +4356,7 @@ int CDefView::_RefreshObject(LPITEMIDLIST *ppidl)
 
 
 // Function to process the SFVM_GETSELECTEDOBJECTS message
-HRESULT DefView_GetItemObjects(CDefView *pdsv, LPCITEMIDLIST **ppidl, UINT uItem, UINT *pcItems)
+HRESULT DefView_GetItemObjects(CDefView* pdsv, LPCITEMIDLIST** ppidl, UINT uItem, UINT* pcItems)
 {
     UINT cItems = DefView_GetItemPIDLS(pdsv, NULL, 0, uItem);
     *pcItems = cItems;
@@ -4366,7 +4366,7 @@ HRESULT DefView_GetItemObjects(CDefView *pdsv, LPCITEMIDLIST **ppidl, UINT uItem
         if (cItems == 0)
             return S_OK;  // nothing allocated...
 
-        *ppidl = (LPCITEMIDLIST *)LocalAlloc(LPTR, SIZEOF(LPITEMIDLIST) * cItems);
+        *ppidl = (LPCITEMIDLIST*)LocalAlloc(LPTR, SIZEOF(LPITEMIDLIST) * cItems);
         if (!*ppidl)
             return E_OUTOFMEMORY;
 
@@ -4378,7 +4378,7 @@ HRESULT DefView_GetItemObjects(CDefView *pdsv, LPCITEMIDLIST **ppidl, UINT uItem
 }
 
 
-void DefView_SetItemPos(CDefView *pdsv, LPSFV_SETITEMPOS psip)
+void DefView_SetItemPos(CDefView* pdsv, LPSFV_SETITEMPOS psip)
 {
     int i = pdsv->_FindItem(psip->pidl, NULL, FALSE);
     if (i >= 0) {
@@ -4395,7 +4395,7 @@ void DefView_SetItemPos(CDefView *pdsv, LPSFV_SETITEMPOS psip)
 #define SHORTENUMTIMEOUT        500     // 1/2 second
 
 
-HRESULT DV_AllocRestOfStream(IStream *pstm, void **ppData, UINT *puLen)
+HRESULT DV_AllocRestOfStream(IStream* pstm, void** ppData, UINT* puLen)
 {
     UINT uLen;
     ULARGE_INTEGER libCurPos;
@@ -4418,7 +4418,7 @@ HRESULT DV_AllocRestOfStream(IStream *pstm, void **ppData, UINT *puLen)
     }
     *puLen = uLen;
 
-    pstm->Seek(*(LARGE_INTEGER *)&libCurPos, STREAM_SEEK_SET, NULL);
+    pstm->Seek(*(LARGE_INTEGER*)&libCurPos, STREAM_SEEK_SET, NULL);
     // This really should not fail
     pstm->Read(*ppData, uLen, NULL);
 
@@ -4426,7 +4426,7 @@ HRESULT DV_AllocRestOfStream(IStream *pstm, void **ppData, UINT *puLen)
 }
 
 
-HRESULT DV_AllocNewStream(IStream *pstm, void **ppData, UINT *puLen)
+HRESULT DV_AllocNewStream(IStream* pstm, void** ppData, UINT* puLen)
 {
     struct
     {
@@ -4501,9 +4501,9 @@ HRESULT DV_AllocNewStream(IStream *pstm, void **ppData, UINT *puLen)
 }
 
 
-UINT CDefView::_GetSaveHeader(PDVSAVEHEADER *ppSaveHeader)
+UINT CDefView::_GetSaveHeader(PDVSAVEHEADER* ppSaveHeader)
 {
-    IStream *pstm;
+    IStream* pstm;
     UINT uLen = SIZEOF(ITEMIDLIST);
 
     *ppSaveHeader = NULL;
@@ -4519,11 +4519,11 @@ UINT CDefView::_GetSaveHeader(PDVSAVEHEADER *ppSaveHeader)
         return 0;
 
     // first try new stream format
-    if (FAILED(DV_AllocNewStream(pstm, (void **)ppSaveHeader, &uLen))) {
+    if (FAILED(DV_AllocNewStream(pstm, (void**)ppSaveHeader, &uLen))) {
         ASSERT(uLen == SIZEOF(ITEMIDLIST));
 
         // then try old format
-        if (FAILED(DV_AllocRestOfStream(pstm, (void **)ppSaveHeader, &uLen))) {
+        if (FAILED(DV_AllocRestOfStream(pstm, (void**)ppSaveHeader, &uLen))) {
             uLen = 0;
         } else {
             if (uLen < SIZEOF(DVSAVEHEADER) + SIZEOF(ITEMIDLIST) || (*ppSaveHeader)->cbSize != SIZEOF(DVSAVEHEADER)) {
@@ -4610,7 +4610,7 @@ void CDefView::_RestoreState(PDVSAVEHEADER pInSaveHeader, UINT uLen)
 //  This function can be called only when we are filling listview items
 // (from within ::FillObjects. It is very important to pass consistent
 // dwFlags to GetDisplayNameOf and SetNameOf.
-void DefView_UpdateGlobalFlags(CDefView *pdsv)
+void DefView_UpdateGlobalFlags(CDefView* pdsv)
 {
     SHELLSTATE ss;
     SHGetSetSettings(&ss, SSF_SHOWALLOBJECTS | SSF_SHOWCOMPCOLOR, FALSE);
@@ -4732,7 +4732,7 @@ void CDefView::_FilterDPAs(HDPA hdpa, HDPA hdpaOld)
 
 
 // this is only called from within SHCNE_*  don't put up ui on the enum error.
-void DefView_Update(CDefView *pdsv)
+void DefView_Update(CDefView* pdsv)
 {
     if (pdsv->_bBkFilling) {
         // 99/05/11 #301779 vtan: If there is a background fill and another update
@@ -4794,9 +4794,9 @@ UINT HandleMessages(HWND hwnd, HWND _hwndMain)
 
 void CDefView::_ShowControl(UINT idControl, int idCmd)
 {
-    IBrowserService *pbs;
+    IBrowserService* pbs;
 
-    if (SUCCEEDED(_psb->QueryInterface(IID_IBrowserService, (void **)&pbs))) {
+    if (SUCCEEDED(_psb->QueryInterface(IID_IBrowserService, (void**)&pbs))) {
         pbs->ShowControlWindow(idControl, idCmd);
         ATOMICRELEASE(pbs);
     }
@@ -4813,7 +4813,7 @@ bool    IsSingleWindowBrowsing(void)
 
 
 // Alter the size of the parent to best fit around the items we have.
-void ViewWindow_BestFit(CDefView *pdsv, BOOL bTimeout)
+void ViewWindow_BestFit(CDefView* pdsv, BOOL bTimeout)
 {
     const int cxMin = MINVIEWWIDTH, cyMin = MINVIEWHEIGHT;
     const int cxSpacing = GetSystemMetrics(SM_CXICONSPACING);
@@ -5064,7 +5064,7 @@ void DefView_CheckForFillDoneOnDestroy(HWND _hwndView)
         // Verify that the message was really for us.
         if (msg.hwnd == _hwndView) {
             TraceMsg(TF_DEFVIEW, "DefView: WM_DSV_UPDATEICON after WM_DESTROY!!!");
-            CDVGetIconTask * pTask = (CDVGetIconTask *)msg.lParam;
+            CDVGetIconTask* pTask = (CDVGetIconTask*)msg.lParam;
             ATOMICRELEASE(pTask);
         }
     }
@@ -5236,7 +5236,7 @@ Error1:;
 }
 
 
-void ChangeRefForIdle(CDefView *pdsv, BOOL bAdd)
+void ChangeRefForIdle(CDefView* pdsv, BOOL bAdd)
 {
     if (bAdd) {
         if (InterlockedIncrement(&pdsv->_cRefForIdle) == 0) {
@@ -5264,10 +5264,10 @@ void ChangeRefForIdle(CDefView *pdsv, BOOL bAdd)
 // Returns: TRUE, if we successfully create the idle thread.
 
 // On success, *phdpaNew will be NULL.  On failure it may or may not be NULL.
-BOOL DV_StartIdle(CDefView *pdsv, IEnumIDList *peunk, HDPA *phdpaNew, BOOL bRefresh)
+BOOL DV_StartIdle(CDefView* pdsv, IEnumIDList* peunk, HDPA* phdpaNew, BOOL bRefresh)
 {
     if (pdsv->EnumerationTimeout(bRefresh)) {
-        IRunnableTask * pTask;
+        IRunnableTask* pTask;
 
         HRESULT hr = CDVBkgrndEnumTask_CreateInstance(pdsv, peunk, *phdpaNew, bRefresh, &pTask);
         if (SUCCEEDED(hr)) {
@@ -5366,7 +5366,7 @@ HRESULT CDefView::EmptyBkgrndThread(BOOL fTerminate)
 // Enumeration loop for the main GUI thread.
 HRESULT CDefView::FillObjects(BOOL bRefresh, PDVSAVEHEADER pSaveHeader, UINT uLen, BOOL fInteractive)
 {
-    IEnumIDList *peunk;
+    IEnumIDList* peunk;
     LPITEMIDLIST pidl;
     ULONG celt;
     DWORD dwTime;
@@ -5401,8 +5401,8 @@ HRESULT CDefView::FillObjects(BOOL bRefresh, PDVSAVEHEADER pSaveHeader, UINT uLe
     //Is this View in Common Dialog
     if (DV_CDB_IsCommonDialog(this) && !(dwEnumFlags & SHCONTF_INCLUDEHIDDEN)) {
         //Ask Common dialog if its wants to show all files
-        ICommDlgBrowser2 *pcdb2;
-        if (SUCCEEDED(_psb->QueryInterface(IID_ICommDlgBrowser2, (void **)&pcdb2))) {
+        ICommDlgBrowser2* pcdb2;
+        if (SUCCEEDED(_psb->QueryInterface(IID_ICommDlgBrowser2, (void**)&pcdb2))) {
             DWORD dwFlags = 0;
             pcdb2->GetViewFlags(&dwFlags);
             if (dwFlags & CDB2GVF_SHOWALLFILES)
@@ -5426,7 +5426,7 @@ HRESULT CDefView::FillObjects(BOOL bRefresh, PDVSAVEHEADER pSaveHeader, UINT uLe
             goto Done;
     }
 
-    IUnknown_SetSite(peunk, SAFECAST(this, IOleCommandTarget *));      // give enum a ref to us
+    IUnknown_SetSite(peunk, SAFECAST(this, IOleCommandTarget*));      // give enum a ref to us
 
     hdpaNew = DPA_Create(16);
     if (!hdpaNew)
@@ -5554,7 +5554,7 @@ HRESULT CDefView::FillObjectsShowHide(BOOL bRefresh, PDVSAVEHEADER pSaveHeader, 
 }
 
 
-void DefView_MoveSelectedItems(CDefView *pdsv, int dx, int dy, BOOL fAll)
+void DefView_MoveSelectedItems(CDefView* pdsv, int dx, int dy, BOOL fAll)
 {
     LVUtil_MoveSelectedItems(pdsv->_hwndListview, dx, dy, fAll);
     pdsv->_bItemsMoved = TRUE;
@@ -5586,7 +5586,7 @@ TCHAR const c_szRename[] = TEXT("rename");
 #define EC_EITHER     3
 
 
-HRESULT DefView_ExplorerCommand(CDefView *pdsv, UINT idFCIDM)
+HRESULT DefView_ExplorerCommand(CDefView* pdsv, UINT idFCIDM)
 {
     HRESULT hres = E_FAIL;
 
@@ -5613,11 +5613,11 @@ HRESULT DefView_ExplorerCommand(CDefView *pdsv, UINT idFCIDM)
 
     for (i = 0; i < ARRAYSIZE(c_idMap); i++) {
         if (c_idMap[i].idmFC == idFCIDM) {
-            IContextMenu *pcm = NULL;
+            IContextMenu* pcm = NULL;
 
             if (c_idMap[i].f_Background == EC_BACKGROUND) {
             TryBackground:
-                pdsv->_pshf->CreateViewObject(pdsv->_hwndMain, IID_IContextMenu, (void **)&pcm);
+                pdsv->_pshf->CreateViewObject(pdsv->_hwndMain, IID_IContextMenu, (void**)&pcm);
             } else {
                 DECLAREWAITCURSOR;
                 SetWaitCursor();
@@ -5656,7 +5656,7 @@ HRESULT DefView_ExplorerCommand(CDefView *pdsv, UINT idFCIDM)
 #endif
 
                 if (hmenu) {
-                    IUnknown_SetSite(pcm, SAFECAST(pdsv, IOleCommandTarget *));
+                    IUnknown_SetSite(pcm, SAFECAST(pdsv, IOleCommandTarget*));
                     pcm->QueryContextMenu(hmenu, 0, SFVIDM_CONTEXT_FIRST, SFVIDM_CONTEXT_LAST, 0);
                     pdsv->_bContextMenuMode = TRUE;
                     hres = pdsv->_InvokeCommand(pcm, &ici);
@@ -5685,10 +5685,10 @@ HRESULT DefView_ExplorerCommand(CDefView *pdsv, UINT idFCIDM)
 }
 
 
-STDAPI_(BOOL) Def_IsPasteAvailable(IDropTarget *pdtgt, DWORD *pdwEffect);
+STDAPI_(BOOL) Def_IsPasteAvailable(IDropTarget* pdtgt, DWORD* pdwEffect);
 
 
-BOOL DefView_AllowCommand(CDefView *pdsv, UINT uID, WPARAM wParam, LPARAM lParam)
+BOOL DefView_AllowCommand(CDefView* pdsv, UINT uID, WPARAM wParam, LPARAM lParam)
 {
     DWORD dwAttribsIn;
     DWORD dwEffect;
@@ -5753,7 +5753,7 @@ BOOL CDefView::_IsViewDesktop()
 
 
 // access to the current views name ala IShellFolder::GetDisplayNameOf()
-HRESULT CDefView::_GetNameAndFlags(UINT gdnFlags, LPTSTR pszPath, UINT cch, DWORD *pdwFlags)
+HRESULT CDefView::_GetNameAndFlags(UINT gdnFlags, LPTSTR pszPath, UINT cch, DWORD* pdwFlags)
 {
     *pszPath = 0;
 
@@ -5790,7 +5790,7 @@ EXTERN_C TCHAR const c_szHtmlWindowsHlp[] = TEXT("windows.chm");
 
 #ifdef CUSTOM_BACKGROUND
 // A helper function for grovelling the registry
-BOOL GetRegThing(HKEY ahk[], int nhk, LPCTSTR pszValue, LPBYTE lpThing, DWORD dwThingType, DWORD cbBytes, void *lpDefault)
+BOOL GetRegThing(HKEY ahk[], int nhk, LPCTSTR pszValue, LPBYTE lpThing, DWORD dwThingType, DWORD cbBytes, void* lpDefault)
 {
     int i;
 
@@ -5909,13 +5909,13 @@ void CDefView::_UpdateListviewColors(BOOL fClassic)
 
     // if its a thumbvw, do the thumbvw thing, always do standard listvw thing.
     if (m_cFrame.IsSFVExtension()) {
-        IShellFolderView * pSFV = m_cFrame.GetExtendedISFV();
+        IShellFolderView* pSFV = m_cFrame.GetExtendedISFV();
 
         if (pSFV) {
             HRESULT hres;
-            IDefViewExtInit2 * pShellView = NULL;
+            IDefViewExtInit2* pShellView = NULL;
 
-            hres = pSFV->QueryInterface(IID_IDefViewExtInit2, (void **)&pShellView);
+            hres = pSFV->QueryInterface(IID_IDefViewExtInit2, (void**)&pShellView);
             if (SUCCEEDED(hres)) {
                 WCHAR wszImage[INTERNET_MAX_URL_LENGTH];
                 SHTCharToUnicode(szImage, wszImage, ARRAYSIZE(wszImage));
@@ -5943,11 +5943,11 @@ public:
     CCurrentSelectionTransfer(void);
     ~CCurrentSelectionTransfer(void);
 
-    HRESULT         GetSelection(IShellFolderView *pISFV);
-    HRESULT         SetSelection(IShellFolderView *pISFV, IShellView *pISV);
+    HRESULT         GetSelection(IShellFolderView* pISFV);
+    HRESULT         SetSelection(IShellFolderView* pISFV, IShellView* pISV);
 private:
     UINT            m_uiItemCount;
-    LPITEMIDLIST    *m_PIDLs;
+    LPITEMIDLIST* m_PIDLs;
 };
 
 CCurrentSelectionTransfer::CCurrentSelectionTransfer(void) :
@@ -5971,10 +5971,10 @@ CCurrentSelectionTransfer::~CCurrentSelectionTransfer(void)
 }
 
 
-HRESULT CCurrentSelectionTransfer::GetSelection(IShellFolderView *pISFV)
+HRESULT CCurrentSelectionTransfer::GetSelection(IShellFolderView* pISFV)
 {
     HRESULT         hres;
-    LPCITEMIDLIST   *pidls;
+    LPCITEMIDLIST* pidls;
 
     hres = pISFV->GetSelectedObjects(&pidls, &m_uiItemCount);
     if (SUCCEEDED(hres)) {
@@ -6003,7 +6003,7 @@ HRESULT CCurrentSelectionTransfer::GetSelection(IShellFolderView *pISFV)
 }
 
 
-HRESULT CCurrentSelectionTransfer::SetSelection(IShellFolderView *pISFV, IShellView *pISV)
+HRESULT CCurrentSelectionTransfer::SetSelection(IShellFolderView* pISFV, IShellView* pISV)
 {
     HRESULT     hres = S_OK;
 
@@ -6067,7 +6067,7 @@ HWND CDefView::ViewWindowSetFocus()
 
 // we are switching from the current view to extended view uID
 // =>switch to webview type view from webview typ view or non webview type view.
-HRESULT CDefView::_SwitchToViewIDPVID(UINT uID, SHELLVIEWID const *pvid, BOOL bForce)
+HRESULT CDefView::_SwitchToViewIDPVID(UINT uID, SHELLVIEWID const* pvid, BOOL bForce)
 {
     HRESULT hres;
     UINT fvmOld;
@@ -6536,20 +6536,20 @@ class CColumnDlg
 {
 public:
     HRESULT ShowDialog();
-    CColumnDlg(CDefView *pdsv);
+    CColumnDlg(CDefView* pdsv);
     ~CColumnDlg();
 
 private:
     void OnInit(HWND hwndLVAll);
     BOOL SaveState();
     void MoveItem(int iDelta);
-    void UpdateDlgButtons(NMLISTVIEW *pnmlv, HWND hwndDlg);
+    void UpdateDlgButtons(NMLISTVIEW* pnmlv, HWND hwndDlg);
 
 private:
-    CDefView *_pdsv;
+    CDefView* _pdsv;
     HWND _hwndLVAll;
-    UINT *_pdwOrder;
-    int *_pWidths;
+    UINT* _pdwOrder;
+    int* _pWidths;
     BOOL _bChanged;
     BOOL _bLoaded;
     BOOL _bUpdating;    // used to block notification processing while we're updating
@@ -6558,7 +6558,7 @@ private:
 };
 
 
-CColumnDlg::CColumnDlg(CDefView *pdsv)
+CColumnDlg::CColumnDlg(CDefView* pdsv)
 {
     _pdsv = pdsv;
     _pdwOrder = NULL;
@@ -6584,7 +6584,7 @@ HRESULT CColumnDlg::ShowDialog()
     _bChanged = FALSE;      // We are on the stack, so no zero allocator
 
     _pdwOrder = (UINT*)LocalAlloc(NONZEROLPTR, sizeof(UINT) * _pdsv->m_cColItems); // total columns
-    _pWidths = (int *)LocalAlloc(NONZEROLPTR, sizeof(int) * _pdsv->m_cColItems); // total columns
+    _pWidths = (int*)LocalAlloc(NONZEROLPTR, sizeof(int) * _pdsv->m_cColItems); // total columns
     if (!_pdwOrder || !_pWidths)
         return E_OUTOFMEMORY;
 
@@ -6600,7 +6600,7 @@ HRESULT CColumnDlg::ShowDialog()
 void CColumnDlg::OnInit(HWND hwndLVAll)
 {
     UINT i, iItem, iVisible;
-    UINT *pOrderInverse;
+    UINT* pOrderInverse;
 
     LV_ITEM lvi;
     LV_COLUMN lvc;
@@ -6610,7 +6610,7 @@ void CColumnDlg::OnInit(HWND hwndLVAll)
     iVisible++;
 
     ListView_GetColumnOrderArray(_pdsv->_hwndListview, iVisible, _pdwOrder);
-    pOrderInverse = (UINT *)LocalAlloc(NONZEROLPTR, sizeof(DWORD)*iVisible);
+    pOrderInverse = (UINT*)LocalAlloc(NONZEROLPTR, sizeof(DWORD) * iVisible);
     if (!pOrderInverse)
         return;
     for (i = 0; i < iVisible; i++)
@@ -6788,7 +6788,7 @@ BOOL EnableDlgItem(HWND hdlg, UINT idc, BOOL f)
 }
 
 
-void CColumnDlg::UpdateDlgButtons(NMLISTVIEW *pnmlv, HWND hwndDlg)
+void CColumnDlg::UpdateDlgButtons(NMLISTVIEW* pnmlv, HWND hwndDlg)
 {
     BOOL bChecked, bOldUpdateState = _bUpdating;
     int iWidth;
@@ -6817,10 +6817,10 @@ void CColumnDlg::UpdateDlgButtons(NMLISTVIEW *pnmlv, HWND hwndDlg)
 
 BOOL_PTR CALLBACK CColumnDlg::DlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    CColumnDlg *pcd;
+    CColumnDlg* pcd;
 
     if (uMsg == WM_INITDIALOG) {
-        pcd = (CColumnDlg *)lParam;
+        pcd = (CColumnDlg*)lParam;
         if (!pcd)
             EndDialog(hwndDlg, FALSE);
         SetWindowLongPtr(hwndDlg, DWLP_USER, (LONG_PTR)pcd);
@@ -6874,7 +6874,7 @@ BOOL_PTR CALLBACK CColumnDlg::DlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LP
 
     case WM_NOTIFY:
         if (pcd->_bLoaded && !pcd->_bUpdating) {
-            NMLISTVIEW * pnmlv = (NMLISTVIEW*)lParam;
+            NMLISTVIEW* pnmlv = (NMLISTVIEW*)lParam;
             switch (((LPNMHDR)lParam)->code) {
             case LVN_ITEMCHANGING:
                 // fix up the buttons & such here
@@ -6915,8 +6915,8 @@ BOOL_PTR CALLBACK CColumnDlg::DlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LP
 
 LRESULT ToggleComponent(UINT uID)
 {
-    IActiveDesktop *piad;
-    if (SUCCEEDED(CoCreateInstance(CLSID_ActiveDesktop, NULL, CLSCTX_INPROC_SERVER, IID_IActiveDesktop, (void **)&piad))) {
+    IActiveDesktop* piad;
+    if (SUCCEEDED(CoCreateInstance(CLSID_ActiveDesktop, NULL, CLSCTX_INPROC_SERVER, IID_IActiveDesktop, (void**)&piad))) {
         COMPONENT   comp;
         TCHAR       componentSource[INTERNET_MAX_URL_LENGTH];
 
@@ -6948,16 +6948,16 @@ LRESULT ToggleComponent(UINT uID)
 
 DWORD NewDesktopItem(LPVOID lpParameter)
 {
-    IActiveDesktop * piad;
+    IActiveDesktop* piad;
 
     CoInitialize(0);
 
-    if (SUCCEEDED(SHCoCreateInstance(NULL, &CLSID_ActiveDesktop, NULL, IID_IActiveDesktop, (void **)&piad))) {
-        if (NewComponent(*(HWND *)lpParameter, piad, FALSE, NULL) >= 0) {
+    if (SUCCEEDED(SHCoCreateInstance(NULL, &CLSID_ActiveDesktop, NULL, IID_IActiveDesktop, (void**)&piad))) {
+        if (NewComponent(*(HWND*)lpParameter, piad, FALSE, NULL) >= 0) {
             // If we succeeded in adding an item then ensure AD is on and then apply
             // the changes.
             COMPONENTSOPT co;
-            IADesktopP2 * piadp2;
+            IADesktopP2* piadp2;
 
             co.dwSize = sizeof(COMPONENTSOPT);
             piad->GetDesktopItemOptions(&co, 0);
@@ -6966,7 +6966,7 @@ DWORD NewDesktopItem(LPVOID lpParameter)
             // If we need to turn AD on at this point we need to refresh the wallpaper state
             // in our piad object, use IADesktopP2 to do so.  Otherwise if there was an html
             // wallpaper it won't show up when we apply changes.
-            if (SUCCEEDED(piad->QueryInterface(IID_IADesktopP2, (void **)&piadp2))) {
+            if (SUCCEEDED(piad->QueryInterface(IID_IADesktopP2, (void**)&piadp2))) {
                 piadp2->ReReadWallpaper();
                 piadp2->Release();
             }
@@ -7004,7 +7004,7 @@ void CDefView::_DoColumnsMenu(int x, int y) // X and Y are screen coordinates
 }
 
 
-LRESULT CDefView::Command(IContextMenu *pcmSel, WPARAM wParam, LPARAM lParam)
+LRESULT CDefView::Command(IContextMenu* pcmSel, WPARAM wParam, LPARAM lParam)
 {
     TCHAR szSettings[MAX_PATH];
     DWORD dwStyle;
@@ -7019,7 +7019,7 @@ LRESULT CDefView::Command(IContextMenu *pcmSel, WPARAM wParam, LPARAM lParam)
 
     if (InRange(uID, SFVIDM_CONTEXT_FIRST, SFVIDM_CONTEXT_LAST) || InRange(uID, SFVIDM_BACK_CONTEXT_FIRST, SFVIDM_BACK_CONTEXT_LAST)) {
         BOOL bRenameIt = FALSE;
-        IContextMenu * pcmFree = NULL;
+        IContextMenu* pcmFree = NULL;
 
         if (pcmSel == NULL) {
             if (InRange(uID, SFVIDM_BACK_CONTEXT_FIRST, SFVIDM_BACK_CONTEXT_LAST)) {
@@ -7301,7 +7301,7 @@ LRESULT CDefView::Command(IContextMenu *pcmSel, WPARAM wParam, LPARAM lParam)
         ss.fDesktopHTML = !ss.fDesktopHTML;           // Toggle the state
         bHasVisibleNonLocalPicture = false;
         if (ss.fDesktopHTML && !IsICWCompleted()) {
-            IActiveDesktop  *pIAD;
+            IActiveDesktop* pIAD;
 
             if (SUCCEEDED(SHCoCreateInstance(NULL, &CLSID_ActiveDesktop, NULL, IID_IActiveDesktop, reinterpret_cast<void**>(&pIAD)))) {
                 bHasVisibleNonLocalPicture = (DisableUndisplayableComponents(pIAD) != 0);
@@ -7329,7 +7329,7 @@ LRESULT CDefView::Command(IContextMenu *pcmSel, WPARAM wParam, LPARAM lParam)
         // Call the command target to Update and refresh even if the desktop frame
         // is in offline mode.
         ASSERT(m_cFrame.IsWebView());  //This command is valid only for extended views.
-        if (SUCCEEDED(_psb->QueryInterface(IID_IOleCommandTarget, (void **)&pct))) {
+        if (SUCCEEDED(_psb->QueryInterface(IID_IOleCommandTarget, (void**)&pct))) {
             pct->Exec(&CGID_ShellDocView, SHDVID_UPDATEOFFLINEDESKTOP, 0, NULL, NULL);
             pct->Release();
         }
@@ -7384,22 +7384,22 @@ LRESULT CDefView::Command(IContextMenu *pcmSel, WPARAM wParam, LPARAM lParam)
         }
 
         CLSID clsid;
-        IContextMenu *pcm;
+        IContextMenu* pcm;
 
         if (uID == SFVIDM_EDIT_COPYTO)
             clsid = CLSID_CopyToMenu;
         else
             clsid = CLSID_MoveToMenu;
 
-        if (SUCCEEDED(SHCoCreateInstance(NULL, &clsid, NULL, IID_IContextMenu, (void **)&pcm))) {
+        if (SUCCEEDED(SHCoCreateInstance(NULL, &clsid, NULL, IID_IContextMenu, (void**)&pcm))) {
             IShellExtInit* psei;
 
-            IUnknown_SetSite(pcm, SAFECAST(this, IDropTarget *)); // Needed to go modal during UI
+            IUnknown_SetSite(pcm, SAFECAST(this, IDropTarget*)); // Needed to go modal during UI
 
-            if (SUCCEEDED(pcm->QueryInterface(IID_IShellExtInit, (void **)&psei))) {
+            if (SUCCEEDED(pcm->QueryInterface(IID_IShellExtInit, (void**)&psei))) {
                 IDataObject* pdobj;
 
-                if (SUCCEEDED(DefView_GetUIObjectFromItem(this, IID_IDataObject, (void **)&pdobj, SVGIO_SELECTION))) {
+                if (SUCCEEDED(DefView_GetUIObjectFromItem(this, IID_IDataObject, (void**)&pdobj, SVGIO_SELECTION))) {
                     LPITEMIDLIST pidlFolder = _GetViewPidl();
                     CMINVOKECOMMANDINFO ici = {0};
 
@@ -7501,8 +7501,8 @@ LRESULT CDefView::Command(IContextMenu *pcmSel, WPARAM wParam, LPARAM lParam)
         break;
     default:
         if (this->m_cFrame.IsSFVExtension()) {
-            IShellFolderView * pSFV = this->m_cFrame.GetExtendedISFV();
-            IShellView2 * pView = this->m_cFrame.GetExtendedISV();
+            IShellFolderView* pSFV = this->m_cFrame.GetExtendedISFV();
+            IShellView2* pView = this->m_cFrame.GetExtendedISV();
 
             HRESULT hr = E_NOTIMPL;
             switch (uID) {
@@ -7518,7 +7518,7 @@ LRESULT CDefView::Command(IContextMenu *pcmSel, WPARAM wParam, LPARAM lParam)
             case SFVIDM_FILE_RENAME:
             {
                 // get the selected items..
-                LPCITEMIDLIST * apidl = NULL;
+                LPCITEMIDLIST* apidl = NULL;
                 UINT cidl = 0;
                 hr = pSFV->GetSelectedObjects(&apidl, &cidl);
                 if (hr != S_OK || cidl <= 0) {
@@ -7531,7 +7531,7 @@ LRESULT CDefView::Command(IContextMenu *pcmSel, WPARAM wParam, LPARAM lParam)
                 }
 
                 if (apidl != NULL)
-                    LocalFree((void *)apidl);
+                    LocalFree((void*)apidl);
                 break;
             }
             case SFVIDM_ARRANGE_AUTO:
@@ -7730,7 +7730,7 @@ void CDefView::_OnRename(LPCITEMIDLIST* ppidl)
 //  1 - App wants us to set the default text (but not initialize)
 
 //  <other bits reserved for future use>
-void DV_UpdateStatusBar(CDefView *pdsv, BOOL fInitialize)
+void DV_UpdateStatusBar(CDefView* pdsv, BOOL fInitialize)
 {
     HRESULT hres = pdsv->CallCB(SFVM_UPDATESTATUSBAR, fInitialize, 0);
 
@@ -7869,7 +7869,7 @@ LRESULT CDefView::_OnFSNotify(LONG lNotification, LPCITEMIDLIST* ppidl)
                 DefView_UpdateImage(this, iImage);
             }
         } else if (ppidl && ppidl[0]) {
-            int iImage = *(int UNALIGNED *)((BYTE *)ppidl[0] + 2);
+            int iImage = *(int UNALIGNED*)((BYTE*)ppidl[0] + 2);
             DefView_UpdateImage(this, iImage);
         }
         break;
@@ -7934,7 +7934,7 @@ LRESULT CDefView::_OnFSNotify(LONG lNotification, LPCITEMIDLIST* ppidl)
         if (_pidlMonitor) {
             TCHAR szPath[MAX_PATH];
             if (SHGetPathFromIDList(_pidlMonitor, szPath)) {
-                DWORD dwChangedDrives = *(DWORD UNALIGNED *)((BYTE *)ppidl[0] + 2);
+                DWORD dwChangedDrives = *(DWORD UNALIGNED*)((BYTE*)ppidl[0] + 2);
                 int idDrive = PathGetDriveNumber(szPath);
                 TraceMsg(TF_DEFVIEW, "Changed drives = %x", dwChangedDrives);
                 if (idDrive != -1 && ((1 << idDrive) & dwChangedDrives)) {
@@ -7955,7 +7955,7 @@ LRESULT CDefView::_OnFSNotify(LONG lNotification, LPCITEMIDLIST* ppidl)
 }
 
 
-BOOL CDefView::_GetItemPosition(LPCITEMIDLIST pidl, POINT *ppt)
+BOOL CDefView::_GetItemPosition(LPCITEMIDLIST pidl, POINT* ppt)
 {
     int i = _FindItem(pidl, NULL, FALSE);
     if (i != -1)
@@ -7965,7 +7965,7 @@ BOOL CDefView::_GetItemPosition(LPCITEMIDLIST pidl, POINT *ppt)
 
 
 // called when some of our objects get put on the clipboard
-LRESULT DSV_OnSetClipboard(CDefView *pdsv, WPARAM idCmd)
+LRESULT DSV_OnSetClipboard(CDefView* pdsv, WPARAM idCmd)
 {
     TraceMsg(TF_DEFVIEW, "DSV_OnSetClipboard");
 
@@ -7997,7 +7997,7 @@ LRESULT DSV_OnSetClipboard(CDefView *pdsv, WPARAM idCmd)
 
 
 // called when the clipboard get changed, clear any items in the "cut" state
-LRESULT DSV_OnClipboardChange(CDefView *pdsv)
+LRESULT DSV_OnClipboardChange(CDefView* pdsv)
 {
     //  if we dont have any cut stuff we dont care.
     if (!pdsv->_bHaveCutStuff)
@@ -8020,7 +8020,7 @@ LRESULT DSV_OnClipboardChange(CDefView *pdsv)
 // Note: this function returns the point in Listview Coordinate
 // space.  So any hit testing done with this needs to be converted
 // back to Client coordinate space...
-BOOL DefView_GetDropPoint(CDefView *pdv, POINT *ppt)
+BOOL DefView_GetDropPoint(CDefView* pdv, POINT* ppt)
 {
     // Check whether we already have gotten the drop anchor (before any
     // menu processing)
@@ -8042,7 +8042,7 @@ BOOL DefView_GetDropPoint(CDefView *pdv, POINT *ppt)
 }
 
 
-BOOL DefView_GetDragPoint(CDefView *pdv, POINT *ppt)
+BOOL DefView_GetDragPoint(CDefView* pdv, POINT* ppt)
 {
     BOOL fSource = pdv->_bDragSource || pdv->_bMouseMenu;
     if (fSource) {
@@ -8059,7 +8059,7 @@ BOOL DefView_GetDragPoint(CDefView *pdv, POINT *ppt)
 }
 
 
-void DV_PaintErrMsg(HWND hWnd, CDefView *pdsv)
+void DV_PaintErrMsg(HWND hWnd, CDefView* pdsv)
 {
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(hWnd, &ps);
@@ -8085,7 +8085,7 @@ void DV_PaintErrMsg(HWND hWnd, CDefView *pdsv)
 //  No items selected:  "nn object(s)"              nn = total objects in folder
 //  One item selected:  <InfoTip for selected item> if item supports InfoTip
 //  Else:               "nn object(s) selected"     nn = num selected objects
-void DV_DoDefaultStatusBar(CDefView *pdsv, BOOL fInitialize)
+void DV_DoDefaultStatusBar(CDefView* pdsv, BOOL fInitialize)
 {
     if (pdsv->_psb) {
         // Some of the failure cases do not null hwnd...
@@ -8101,7 +8101,7 @@ void DV_DoDefaultStatusBar(CDefView *pdsv, BOOL fInitialize)
                 SendMessage(hwndStatus, SB_SETPARTS, ARRAYSIZE(ciParts), (LPARAM)ciParts);
             }
 
-            IQueryInfo *pqi;
+            IQueryInfo* pqi;
             LPWSTR pwszTip = NULL;
             LPTSTR pszStatus = NULL;
             TCHAR szStatus[128];
@@ -8186,7 +8186,7 @@ void DV_DoDefaultStatusBar(CDefView *pdsv, BOOL fInitialize)
 #define BUFFERED_REFRESH_TIMEOUT     5000   //5 seconds.
 
 
-void DefView_Desktop_OnWinIniChange(CDefView *pdsv, WPARAM wParam, LPCTSTR lpszSection)
+void DefView_Desktop_OnWinIniChange(CDefView* pdsv, WPARAM wParam, LPCTSTR lpszSection)
 {
     if (lpszSection) {
         if (!lstrcmpi(lpszSection, TEXT("ToggleDesktop")))
@@ -8229,7 +8229,7 @@ void DefView_Desktop_OnWinIniChange(CDefView *pdsv, WPARAM wParam, LPCTSTR lpszS
 }
 
 
-void DefView_OnWinIniChange(CDefView *pdsv, WPARAM wParam, LPCTSTR lpszSection)
+void DefView_OnWinIniChange(CDefView* pdsv, WPARAM wParam, LPCTSTR lpszSection)
 {
     if ((wParam == SPI_GETICONTITLELOGFONT) || ((wParam == 0) && lpszSection && !lstrcmpi(lpszSection, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\IconUnderline")))) {
         UpdateUnderlines(pdsv);
@@ -8288,7 +8288,7 @@ void DefView_OnWinIniChange(CDefView *pdsv, WPARAM wParam, LPCTSTR lpszSection)
 }
 
 
-void SetDefaultViewSettings(CDefView *pdsv)
+void SetDefaultViewSettings(CDefView* pdsv)
 {
     // only do this if we've actually shown the view...
     // (ie, there's no _hwndStatic)
@@ -8319,7 +8319,7 @@ HWND CDefView::GetChildViewWindow()
 }
 
 
-void DefView_SetFocus(CDefView *pdsv)
+void DefView_SetFocus(CDefView* pdsv)
 {
     // if it's a combined view then we need to give focus to listview
     if (!pdsv->_fCombinedView && pdsv->m_cFrame.IsWebView()) {
@@ -8358,12 +8358,12 @@ void DefView_SetFocus(CDefView *pdsv)
 
 LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
-    CDefView *pdsv = (CDefView *)GetWindowLongPtr(hWnd, 0);
+    CDefView* pdsv = (CDefView*)GetWindowLongPtr(hWnd, 0);
     LRESULT l;
     DWORD dwID;
 
     if (iMessage == WM_CREATE) {
-        pdsv = (CDefView *)(((LPCREATESTRUCT)lParam)->lpCreateParams);
+        pdsv = (CDefView*)(((LPCREATESTRUCT)lParam)->lpCreateParams);
         return pdsv->_OnCreate(hWnd);
     }
 
@@ -8535,11 +8535,11 @@ LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
         // LVN_ITEMACTIVATE causes us to dismiss the common dialog, which
         // does a pdsv->DestroyViewWindow, which destroys the ListView
         // which destroys the NMHDR!)
-        UINT code = ((NMHDR *)lParam)->code;
+        UINT code = ((NMHDR*)lParam)->code;
 #endif
         pdsv->AddRef();             // just in case
         DefView_StartNotify(pdsv, code);
-        l = pdsv->_OnNotify((NMHDR *)lParam);
+        l = pdsv->_OnNotify((NMHDR*)lParam);
         DefView_StopNotify(pdsv, code);
         pdsv->Release();            // release
         return l;
@@ -8574,7 +8574,7 @@ LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
     case WM_QUERYDROPOBJECT:
     case WM_DROPOBJECT:
     case WM_DROPFILES:
-        return pdsv->OldDragMsgs(iMessage, wParam, (const DROPSTRUCT *)lParam);
+        return pdsv->OldDragMsgs(iMessage, wParam, (const DROPSTRUCT*)lParam);
     case WM_DSV_DISABLEACTIVEDESKTOP:
         DisableActiveDesktop();
         break;
@@ -8584,7 +8584,7 @@ LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
         break;
     case WM_DSV_FSNOTIFY:
     {
-        LPITEMIDLIST *ppidl;
+        LPITEMIDLIST* ppidl;
         LONG lEvent;
 
         TIMESTART(pdsv->_FSNotify);
@@ -8594,8 +8594,8 @@ LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
             if (pdsv->_fDisabled || (pdsv->CallCB(SFVM_FSNOTIFY, (WPARAM)ppidl, (LPARAM)lEvent) == S_FALSE)) {
                 lParam = 0;
             } else {
-                IShellChangeNotify *pscn;
-                if (pdsv->m_cFrame.IsSFVExtension() && SUCCEEDED(pdsv->m_cFrame.m_pActiveSFV->QueryInterface(IID_IShellChangeNotify, (void **)&pscn))) {
+                IShellChangeNotify* pscn;
+                if (pdsv->m_cFrame.IsSFVExtension() && SUCCEEDED(pdsv->m_cFrame.m_pActiveSFV->QueryInterface(IID_IShellChangeNotify, (void**)&pscn))) {
                     lParam = pscn->OnChange(lEvent, ppidl[0], ppidl[1]);
                     pscn->Release();
                 }
@@ -8616,7 +8616,7 @@ LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
         //      wParam is 0
         //      lParam contains PIDL, iIconIndex, and an "already used" flag
     case WM_DSV_UPDATEICON:
-        pdsv->_UpdateIcon((CDVGetIconTask *)lParam);
+        pdsv->_UpdateIcon((CDVGetIconTask*)lParam);
         break;
     case WM_DSV_UPDATECOLDATA:
         pdsv->_UpdateColData((CBackgroundColInfo*)lParam);
@@ -8770,16 +8770,16 @@ LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
             return 1;
         }
     RelayToCM:
-        IContextMenu2 *pcm2;
+        IContextMenu2* pcm2;
         if (InRange(dwID, SFVIDM_BACK_CONTEXT_FIRST, SFVIDM_BACK_CONTEXT_LAST)) {
             if (pdsv->_pcmBackground) {
-                if (SUCCEEDED(pdsv->_pcmBackground->QueryInterface(IID_IContextMenu2, (void **)&pcm2))) {
+                if (SUCCEEDED(pdsv->_pcmBackground->QueryInterface(IID_IContextMenu2, (void**)&pcm2))) {
                     pcm2->HandleMenuMsg(iMessage, wParam, lParam);
                     ATOMICRELEASE(pcm2);
                 }
             }
         } else if (pdsv->_pcmSel || pdsv->_pcmBackground) {
-            if (SUCCEEDED((pdsv->_pcmSel ? pdsv->_pcmSel : pdsv->_pcmBackground)->QueryInterface(IID_IContextMenu2, (void **)&pcm2))) {
+            if (SUCCEEDED((pdsv->_pcmSel ? pdsv->_pcmSel : pdsv->_pcmBackground)->QueryInterface(IID_IContextMenu2, (void**)&pcm2))) {
                 pcm2->HandleMenuMsg(iMessage, wParam, lParam);
                 ATOMICRELEASE(pcm2);
             }
@@ -8788,11 +8788,11 @@ LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
     case WM_MENUCHAR:
     case WM_NEXTMENU:
     {
-        IContextMenu3 *pcm3;
+        IContextMenu3* pcm3;
         LRESULT ic3Result;
         HRESULT hResic3 = E_FAIL;
         if (pdsv->_pcmSel) {
-            if (SUCCEEDED(pdsv->_pcmSel->QueryInterface(IID_IContextMenu3, (void **)&pcm3))) {
+            if (SUCCEEDED(pdsv->_pcmSel->QueryInterface(IID_IContextMenu3, (void**)&pcm3))) {
                 hResic3 = pcm3->HandleMenuMsg2(iMessage, wParam, lParam, &ic3Result);
                 ATOMICRELEASE(pcm3);
             }
@@ -8801,7 +8801,7 @@ LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
         }
         //Forward these messages to IContextMenu3 on the DefCm.
         if (pdsv->_pcmBackground) {
-            if (SUCCEEDED(pdsv->_pcmBackground->QueryInterface(IID_IContextMenu3, (void **)&pcm3))) {
+            if (SUCCEEDED(pdsv->_pcmBackground->QueryInterface(IID_IContextMenu3, (void**)&pcm3))) {
                 hResic3 = pcm3->HandleMenuMsg2(iMessage, wParam, lParam, &ic3Result);
                 ATOMICRELEASE(pcm3);
             }
@@ -8842,7 +8842,7 @@ LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
     case SVM_SELECTANDPOSITIONITEM:
     {
         UINT i;
-        SFM_SAP * psap = (SFM_SAP*)lParam;
+        SFM_SAP* psap = (SFM_SAP*)lParam;
         for (i = 0; i < wParam; psap++, i++)
             pdsv->SelectAndPositionItem(psap->pidl, psap->uSelectFlags, psap->fMove ? &psap->pt : NULL);
         break;
@@ -8871,10 +8871,10 @@ LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
         break;
     case WM_DSV_DESKHTML_CHANGES:
         if (pdsv->_IsDesktop()) {
-            IADesktopP2     *piadp2;
+            IADesktopP2* piadp2;
 
-            if (SUCCEEDED(SHCoCreateInstance(NULL, &CLSID_ActiveDesktop, NULL, IID_IADesktopP2, (void **)&piadp2))) {
-                IActiveDesktopP     *piadpp;
+            if (SUCCEEDED(SHCoCreateInstance(NULL, &CLSID_ActiveDesktop, NULL, IID_IADesktopP2, (void**)&piadp2))) {
+                IActiveDesktopP* piadpp;
 
                 TraceMsg(TF_DEFVIEW, "WM_DSV_DESKHTML_CHANGES");
 
@@ -8922,7 +8922,7 @@ BOOL DefView_RegisterWindow(void)
         wc.style = CS_PARENTDC;
         wc.lpfnWndProc = DefView_WndProc;
         wc.cbClsExtra = 0;
-        wc.cbWndExtra = SIZEOF(CDefView *);
+        wc.cbWndExtra = SIZEOF(CDefView*);
         wc.hInstance = HINST_THISDLL;
         wc.hIcon = NULL;
         wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -9001,7 +9001,7 @@ CDefView::~CDefView()
 }
 
 
-BOOL DefView_IdleDoStuff(CDefView *pdsv, LPRUNNABLETASK pTask, REFTASKOWNERID rTID, DWORD_PTR lParam, DWORD dwPriority)
+BOOL DefView_IdleDoStuff(CDefView* pdsv, LPRUNNABLETASK pTask, REFTASKOWNERID rTID, DWORD_PTR lParam, DWORD dwPriority)
 {
     HRESULT hr;
 
@@ -9009,7 +9009,7 @@ BOOL DefView_IdleDoStuff(CDefView *pdsv, LPRUNNABLETASK pTask, REFTASKOWNERID rT
     ASSERT(dwPriority > 0);
 
     if (pdsv->_pScheduler == NULL) {
-        HRESULT hr = CoCreateInstance(CLSID_ShellTaskScheduler, NULL, CLSCTX_INPROC, IID_IShellTaskScheduler, (void **) &(pdsv->_pScheduler));
+        HRESULT hr = CoCreateInstance(CLSID_ShellTaskScheduler, NULL, CLSCTX_INPROC, IID_IShellTaskScheduler, (void**)&(pdsv->_pScheduler));
         if (FAILED(hr)) {
             return FALSE;
         }
@@ -9070,7 +9070,7 @@ const TBBUTTON c_tbDefView95[] = {
 };
 
 
-LRESULT CDefView::_TBNotify(NMHDR *pnm)
+LRESULT CDefView::_TBNotify(NMHDR* pnm)
 {
     LPTBNOTIFY ptbn = (LPTBNOTIFY)pnm;
 
@@ -9087,8 +9087,8 @@ LRESULT CDefView::_TBNotify(NMHDR *pnm)
 BOOL CDefView::_MergeIExplorerToolbar(UINT cExtButtons)
 {
     BOOL fRet = FALSE;
-    IExplorerToolbar *piet;
-    if (SUCCEEDED(IUnknown_QueryService(_psb, SID_SExplorerToolbar, IID_IExplorerToolbar, (void **)&piet))) {
+    IExplorerToolbar* piet;
+    if (SUCCEEDED(IUnknown_QueryService(_psb, SID_SExplorerToolbar, IID_IExplorerToolbar, (void**)&piet))) {
         BOOL fGotClsid = TRUE;
 
         DWORD dwFlags = VBF_TOOLS | VBF_ADDRESS | VBF_BRAND;
@@ -9111,7 +9111,7 @@ BOOL CDefView::_MergeIExplorerToolbar(UINT cExtButtons)
         }
 
         if (fGotClsid) {
-            HRESULT hr = piet->SetCommandTarget((IUnknown *)SAFECAST(this, IOleCommandTarget *), &_clsid, dwFlags);
+            HRESULT hr = piet->SetCommandTarget((IUnknown*)SAFECAST(this, IOleCommandTarget*), &_clsid, dwFlags);
             if (SUCCEEDED(hr)) {
                 // If hr == S_FALSE, another defview merged in its buttons under the
                 // same clsid, and they're still there.  So no need to call AddButtons.
@@ -9284,7 +9284,7 @@ void CDefView::MergeToolBar(BOOL bCanRestore)
 }
 
 
-STDMETHODIMP CDefView::GetWindow(HWND *phwnd)
+STDMETHODIMP CDefView::GetWindow(HWND* phwnd)
 {
     *phwnd = _hwndView;
     return S_OK;
@@ -9522,7 +9522,7 @@ STDMETHODIMP CDefView::Refresh()
             // much less expensive.
             hmod = GetModuleHandle(TEXT("msjava.dll"));
             if (hmod) {
-                typedef HRESULT(*PFNNOTIFYBROWSERSHUTDOWN)(void *);
+                typedef HRESULT(*PFNNOTIFYBROWSERSHUTDOWN)(void*);
                 FARPROC fp = GetProcAddress(hmod, "NotifyBrowserShutdown");
                 if (fp) {
                     HRESULT hr = ((PFNNOTIFYBROWSERSHUTDOWN)fp)(NULL);
@@ -9536,7 +9536,7 @@ STDMETHODIMP CDefView::Refresh()
 }
 
 
-STDMETHODIMP CDefView::CreateViewWindow(IShellView *lpPrevView, LPCFOLDERSETTINGS lpfs, IShellBrowser *psb, RECT *prc, HWND *phWnd)
+STDMETHODIMP CDefView::CreateViewWindow(IShellView* lpPrevView, LPCFOLDERSETTINGS lpfs, IShellBrowser* psb, RECT* prc, HWND* phWnd)
 {
     SV2CVW2_PARAMS cParams;
 
@@ -9565,7 +9565,7 @@ STDMETHODIMP CDefView::CreateViewWindow(IShellView *lpPrevView, LPCFOLDERSETTING
 }
 
 
-SHELLVIEWID const *SVIDFromViewMode(UINT ViewMode)
+SHELLVIEWID const* SVIDFromViewMode(UINT ViewMode)
 {
     switch (ViewMode) {
     case FVM_SMALLICON:
@@ -9581,7 +9581,7 @@ SHELLVIEWID const *SVIDFromViewMode(UINT ViewMode)
 }
 
 
-void ViewModeFromSVID(SHELLVIEWID const *pvid, UINT  *pViewMode)
+void ViewModeFromSVID(SHELLVIEWID const* pvid, UINT* pViewMode)
 {
     if (IsEqualIID(*pvid, VID_LargeIcons))
         *pViewMode = FVM_ICON;
@@ -9626,7 +9626,7 @@ STDMETHODIMP CDefView::HandleRename(LPCITEMIDLIST pidl)
 
 
 // IViewObject
-HRESULT CDefView::GetColorSet(DWORD dwAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd, HDC hicTargetDev, LOGPALETTE **ppColorSet)
+HRESULT CDefView::GetColorSet(DWORD dwAspect, LONG lindex, void* pvAspect, DVTARGETDEVICE* ptd, HDC hicTargetDev, LOGPALETTE** ppColorSet)
 {
     if (m_cFrame.IsWebView() && m_cFrame.m_pvoActive) {
         return m_cFrame.m_pvoActive->GetColorSet(dwAspect, lindex, pvAspect, ptd, hicTargetDev, ppColorSet);
@@ -9639,7 +9639,7 @@ HRESULT CDefView::GetColorSet(DWORD dwAspect, LONG lindex, void *pvAspect, DVTAR
 }
 
 
-HRESULT CDefView::Freeze(DWORD, LONG, void *, DWORD *pdwFreeze)
+HRESULT CDefView::Freeze(DWORD, LONG, void*, DWORD* pdwFreeze)
 {
     return E_NOTIMPL;
 }
@@ -9651,7 +9651,7 @@ HRESULT CDefView::Unfreeze(DWORD)
 }
 
 
-HRESULT CDefView::SetAdvise(DWORD dwAspect, DWORD advf, IAdviseSink *pSink)
+HRESULT CDefView::SetAdvise(DWORD dwAspect, DWORD advf, IAdviseSink* pSink)
 {
     if (dwAspect != DVASPECT_CONTENT)
         return DV_E_DVASPECT;
@@ -9681,7 +9681,7 @@ HRESULT CDefView::SetAdvise(DWORD dwAspect, DWORD advf, IAdviseSink *pSink)
 }
 
 
-HRESULT CDefView::GetAdvise(DWORD *pdwAspect, DWORD *padvf, IAdviseSink **ppSink)
+HRESULT CDefView::GetAdvise(DWORD* pdwAspect, DWORD* padvf, IAdviseSink** ppSink)
 {
     if (pdwAspect)
         *pdwAspect = _advise_aspect;
@@ -9700,7 +9700,7 @@ HRESULT CDefView::GetAdvise(DWORD *pdwAspect, DWORD *padvf, IAdviseSink **ppSink
 }
 
 
-HRESULT CDefView::Draw(DWORD, LONG, void *, DVTARGETDEVICE *, HDC, HDC, const RECTL *, const RECTL *, BOOL(*)(ULONG_PTR), ULONG_PTR)
+HRESULT CDefView::Draw(DWORD, LONG, void*, DVTARGETDEVICE*, HDC, HDC, const RECTL*, const RECTL*, BOOL(*)(ULONG_PTR), ULONG_PTR)
 {
     return E_NOTIMPL;
 }
@@ -9711,8 +9711,8 @@ void CDefView::PropagateOnViewChange(DWORD dwAspect, LONG lindex)
     dwAspect &= _advise_aspect;
 
     if (dwAspect && _padvise) {
-        IAdviseSink *pSink = _padvise;
-        IUnknown *punkRelease;
+        IAdviseSink* pSink = _padvise;
+        IUnknown* punkRelease;
 
         if (_advise_advf & ADVF_ONLYONCE) {
             punkRelease = pSink;
@@ -9782,12 +9782,12 @@ STDMETHODIMP CDefView::CreateViewWindow2(LPSV2CVW2_PARAMS lpParams)
     if (lpParams->cbSize < SIZEOF(SV2CVW2_PARAMS))
         return E_INVALIDARG;
 
-    IShellView *lpPrevView = lpParams->psvPrev;
+    IShellView* lpPrevView = lpParams->psvPrev;
     LPCFOLDERSETTINGS lpfs = lpParams->pfs;
-    IShellBrowser *psb = lpParams->psbOwner;
-    RECT *prc = lpParams->prcView;
-    HWND *phWnd = &lpParams->hwndView;
-    SHELLVIEWID const *pvid = lpParams->pvid;
+    IShellBrowser* psb = lpParams->psbOwner;
+    RECT* prc = lpParams->prcView;
+    HWND* phWnd = &lpParams->hwndView;
+    SHELLVIEWID const* pvid = lpParams->pvid;
     SHELLSTATE ss;
 
     if (pvid && IsEqualIID(*pvid, VID_WebView))
@@ -9806,14 +9806,14 @@ STDMETHODIMP CDefView::CreateViewWindow2(LPSV2CVW2_PARAMS lpParams)
         return E_UNEXPECTED;
 
     ASSERT(_pshf);
-    _pshf->QueryInterface(IID_IShellIcon, (void **)&_psi);
-    _pshf->QueryInterface(IID_IShellIconOverlay, (void **)&_psio);
+    _pshf->QueryInterface(IID_IShellIcon, (void**)&_psi);
+    _pshf->QueryInterface(IID_IShellIconOverlay, (void**)&_psio);
 
     // We need to make sure to store this before doing the GetWindowRect
     _psb = psb;
     psb->AddRef();
 
-    psb->QueryInterface(IID_ICommDlgBrowser, (void **)&_pcdb);
+    psb->QueryInterface(IID_ICommDlgBrowser, (void**)&_pcdb);
 
     _fs = *lpfs;
 
@@ -9843,8 +9843,8 @@ STDMETHODIMP CDefView::CreateViewWindow2(LPSV2CVW2_PARAMS lpParams)
 
     // if there was a previous view that we know about, poke around a bit
     if (_fWin95ViewState) {
-        CDefView *pdsvPrev;
-        if (lpPrevView && SUCCEEDED(lpPrevView->QueryInterface(IID_CDefView, (void **)&pdsvPrev))) {
+        CDefView* pdsvPrev;
+        if (lpPrevView && SUCCEEDED(lpPrevView->QueryInterface(IID_CDefView, (void**)&pdsvPrev))) {
             // preserve stuff like sort order
             _dvState = pdsvPrev->_dvState;
             if (_pSaveHeader)
@@ -9889,7 +9889,7 @@ STDMETHODIMP CDefView::CreateViewWindow2(LPSV2CVW2_PARAMS lpParams)
     // See if they want to overwrite the selection object
     if (fIsOwnerData) {
         // Only used in owner data.
-        ILVRange *plvr = NULL;
+        ILVRange* plvr = NULL;
         CallCB(SFVM_GETODRANGEOBJECT, LVSR_SELECTION, (LPARAM)&plvr);
         if (plvr) {
             ListView_SetLVRangeObject(_hwndListview, LVSR_SELECTION, plvr);
@@ -10024,7 +10024,7 @@ STDMETHODIMP CDefView::CreateViewWindow2(LPSV2CVW2_PARAMS lpParams)
     ASSERT(_pdtgtBack == NULL);
 
     // this may fail
-    _pshf->CreateViewObject(_hwndMain, IID_IDropTarget, (void **)&_pdtgtBack);
+    _pshf->CreateViewObject(_hwndMain, IID_IDropTarget, (void**)&_pdtgtBack);
 
     // we don't really need to register drag drop when in the shell because
     // our frame does it for us.   we still need it here for comdlg and other
@@ -10045,17 +10045,17 @@ STDMETHODIMP CDefView::CreateViewWindow2(LPSV2CVW2_PARAMS lpParams)
 
     // BUGBUG:: See if there is a cleaner place to do this.
     if (SUCCEEDED(_GetIPersistHistoryObject(NULL))) {
-        IBrowserService *pbs;
-        if (SUCCEEDED(_psb->QueryInterface(IID_IBrowserService, (void **)&pbs))) {
-            IOleObject *pole;
-            IStream *pstm;
-            IBindCtx *pbc;
+        IBrowserService* pbs;
+        if (SUCCEEDED(_psb->QueryInterface(IID_IBrowserService, (void**)&pbs))) {
+            IOleObject* pole;
+            IStream* pstm;
+            IBindCtx* pbc;
             pbs->GetHistoryObject(&pole, &pstm, &pbc);
             if (pole) {
                 IUnknown_SetSite(pole, SAFECAST(this, IShellView2*));      // Set the back pointer.
                 if (pstm) {
-                    IPersistHistory *pph;
-                    if (SUCCEEDED(pole->QueryInterface(IID_IPersistHistory, (void **)&pph))) {
+                    IPersistHistory* pph;
+                    if (SUCCEEDED(pole->QueryInterface(IID_IPersistHistory, (void**)&pph))) {
                         pph->LoadHistory(pstm, pbc);
                         pph->Release();
                     }
@@ -10372,7 +10372,7 @@ BOOL IsBackSpace(LPMSG pMsg)
 }
 
 
-extern int IsVK_TABCycler(MSG *pMsg);
+extern int IsVK_TABCycler(MSG* pMsg);
 
 
 
@@ -10672,7 +10672,7 @@ void CDefView::InitViewMenu(HMENU hmInit)
 }
 
 
-void DV_GetCBText(CDefView *pdsv, UINT_PTR id, UINT uMsgT, UINT uMsgA, UINT uMsgW, LPTSTR psz, UINT cch)
+void DV_GetCBText(CDefView* pdsv, UINT_PTR id, UINT uMsgT, UINT uMsgA, UINT uMsgW, LPTSTR psz, UINT cch)
 {
     *psz = 0;
 
@@ -10689,7 +10689,7 @@ void DV_GetCBText(CDefView *pdsv, UINT_PTR id, UINT uMsgT, UINT uMsgA, UINT uMsg
 }
 
 
-void DV_GetMenuHelpText(CDefView *pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText)
+void DV_GetMenuHelpText(CDefView* pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText)
 {
     VDATEINPUTBUF(pszText, TCHAR, cchText);
     *pszText = 0;
@@ -10750,7 +10750,7 @@ void DV_GetMenuHelpText(CDefView *pdsv, UINT_PTR id, LPTSTR pszText, UINT cchTex
 #ifdef UNICODE
 #define DV_GetToolTipTextW  DV_GetToolTipText
 #else
-void DV_GetToolTipTextW(CDefView *pdsv, UINT_PTR id, LPWSTR pwzText, UINT cchText)
+void DV_GetToolTipTextW(CDefView* pdsv, UINT_PTR id, LPWSTR pwzText, UINT cchText)
 {
     LPTSTR pszText = (LPTSTR)LocalAlloc(LPTR, cchText * SIZEOF(TCHAR));
     if (pszText) {
@@ -10762,7 +10762,7 @@ void DV_GetToolTipTextW(CDefView *pdsv, UINT_PTR id, LPWSTR pwzText, UINT cchTex
 #endif
 
 
-void DV_GetToolTipText(CDefView *pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText)
+void DV_GetToolTipText(CDefView* pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText)
 {
     VDATEINPUTBUF(pszText, TCHAR, cchText);
     *pszText = 0;
@@ -10786,7 +10786,7 @@ void DV_GetToolTipText(CDefView *pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText
 }
 
 
-LRESULT DefView_OnMenuSelect(CDefView *pdsv, UINT id, UINT mf, HMENU hmenu)
+LRESULT DefView_OnMenuSelect(CDefView* pdsv, UINT id, UINT mf, HMENU hmenu)
 {
     TCHAR szHelpText[80 + 2 * MAX_PATH];   // Lots of stack!
 
@@ -10839,7 +10839,7 @@ LRESULT DefView_OnMenuSelect(CDefView *pdsv, UINT id, UINT mf, HMENU hmenu)
 // REVIEW: Moving the focus away from the edit window will
 //  dismiss the name edit mode. Should we introduce
 //  a LV_DISMISSEDIT instead?
-void DefView_DismissEdit(CDefView *pdsv)
+void DefView_DismissEdit(CDefView* pdsv)
 {
     if (pdsv->_uState == SVUIA_ACTIVATE_FOCUS) {
         HWND hwndFocus = GetFocus();
@@ -10850,7 +10850,7 @@ void DefView_DismissEdit(CDefView *pdsv)
 }
 
 
-void DefView_OnInitMenu(CDefView *pdsv)
+void DefView_OnInitMenu(CDefView* pdsv)
 {
     // We need to dismiss the edit mode if it is any.
     DefView_DismissEdit(pdsv);
@@ -10922,8 +10922,8 @@ LRESULT CDefView::OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu)
         if (_uState == SVUIA_ACTIVATE_FOCUS) {
             //DWORD dwMenuState;
             //BOOL bDeleteItems = FALSE; //what is this used for?
-            IContextMenu *pcmSel;
-            IContextMenu *pcmBack;
+            IContextMenu* pcmSel;
+            IContextMenu* pcmBack;
             // First of all, remove all the menu items we've added.
             _RemoveContextMenuItems(hmInit);
 
@@ -10950,7 +10950,7 @@ LRESULT CDefView::OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu)
             pcmSel = _GetContextMenuFromSelection();
             //ASSERT(pcmSel == _pcmSel || m_cFrame.IsWebView());
 
-            if (SUCCEEDED(_pshf->CreateViewObject(_hwndMain, IID_IContextMenu, (void **)&pcmBack))) {
+            if (SUCCEEDED(_pshf->CreateViewObject(_hwndMain, IID_IContextMenu, (void**)&pcmBack))) {
                 if (!pcmSel) {
                     pcmSel = pcmBack;
                     pcmBack = NULL;
@@ -10989,8 +10989,8 @@ LRESULT CDefView::OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu)
 
             _SHPrettyMenu(hmInit);
         } else if (_uState == SVUIA_ACTIVATE_NOFOCUS && _pcmBackground == NULL) {
-            IContextMenu *pcmBack;
-            if (SUCCEEDED(_pshf->CreateViewObject(_hwndMain, IID_IContextMenu, (void **)&pcmBack))) {
+            IContextMenu* pcmBack;
+            if (SUCCEEDED(_pshf->CreateViewObject(_hwndMain, IID_IContextMenu, (void**)&pcmBack))) {
                 if (_pcmBackground == NULL) {
                     // cache the contextmenu so that the status bar helptext
                     // and the command execution for menu items in a viewextension works
@@ -11087,7 +11087,7 @@ STDMETHODIMP CDefView::AddPropertySheetPages(IN DWORD dwReserved, IN LPFNADDPROP
 }
 
 
-HRESULT CDefView::_SaveViewState(IStream *pstm)
+HRESULT CDefView::_SaveViewState(IStream* pstm)
 {
     HRESULT hres;
     LARGE_INTEGER dlibMove = {0, 0};
@@ -11194,7 +11194,7 @@ SetSize:
 // Member:  CDefView::SaveViewState
 STDMETHODIMP CDefView::SaveViewState()
 {
-    IStream *pstm;
+    IStream* pstm;
     HRESULT hres;
 
     // do we have any view extensions...
@@ -11219,7 +11219,7 @@ STDMETHODIMP CDefView::SaveViewState()
 }
 
 
-HRESULT CDefView::_GetStorageStream(DWORD grfMode, IStream* *ppIStream)
+HRESULT CDefView::_GetStorageStream(DWORD grfMode, IStream** ppIStream)
 //  99/02/05 #226140 vtan: Function used to get the storage
 //  stream for the default view state of the current DefView.
 //  Typically this will be CLSID_ShellFSFolder but can be
@@ -11251,7 +11251,7 @@ HRESULT CDefView::_SaveGlobalViewState(void)
 //  invoked from CShellBrowser2::SetAsDefFolderSettings().
 {
     HRESULT     hResult;
-    IStream     *pIStream;
+    IStream* pIStream;
 
     hResult = _GetStorageStream(STGM_WRITE, &pIStream);
     if (pIStream != NULL) {
@@ -11263,7 +11263,7 @@ HRESULT CDefView::_SaveGlobalViewState(void)
 }
 
 
-HRESULT CDefView::_LoadGlobalViewState(IStream* *ppIStream)
+HRESULT CDefView::_LoadGlobalViewState(IStream** ppIStream)
 //  99/02/05 #226140 vtan: Function called from
 //  _GetSaveHeader to get the default view state
 //  for this class.
@@ -11309,7 +11309,7 @@ void CDefView::_RestoreAllGhostedFileView()
 }
 
 
-HRESULT CDefView::SelectAndPositionItem(LPCITEMIDLIST pidlItem, UINT uFlags, POINT *ppt)
+HRESULT CDefView::SelectAndPositionItem(LPCITEMIDLIST pidlItem, UINT uFlags, POINT* ppt)
 {
     int i;
 
@@ -11438,7 +11438,7 @@ void CDefView::_ClearSelectList()
         int cItems = DSA_GetItemCount(hdsa);
         int i;
         for (i = 0; i < cItems; i++) {
-            DVDelaySelItem *pdvdsi = (DVDelaySelItem*)DSA_GetItemPtr(hdsa, i);
+            DVDelaySelItem* pdvdsi = (DVDelaySelItem*)DSA_GetItemPtr(hdsa, i);
             if (pdvdsi)
                 ILFree(pdvdsi->pidl);
         }
@@ -11456,7 +11456,7 @@ void CDefView::SelectSelectedItems()
         int cItems = DSA_GetItemCount(hdsa);
         int i;
         for (i = 0; i < cItems; i++) {
-            DVDelaySelItem *pdvdsi = (DVDelaySelItem*)DSA_GetItemPtr(hdsa, i);
+            DVDelaySelItem* pdvdsi = (DVDelaySelItem*)DSA_GetItemPtr(hdsa, i);
             if (pdvdsi) {
                 this->SelectItem(pdvdsi->pidl, pdvdsi->uFlagsSelect);
                 ILFree(pdvdsi->pidl);
@@ -11472,7 +11472,7 @@ void CDefView::SelectSelectedItems()
 // Returns:
 //      S_OK, if successfully processed.
 //      (S_FALSE), if default code should be used.
-HRESULT CALLBACK DefView_DFMCallBackBG(IShellFolder *psf, HWND hwndOwner, IDataObject *pdtobj, UINT uMsg, WPARAM wParam, LPARAM lParam)
+HRESULT CALLBACK DefView_DFMCallBackBG(IShellFolder* psf, HWND hwndOwner, IDataObject* pdtobj, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     HRESULT hres;
 
@@ -11490,7 +11490,7 @@ HRESULT CALLBACK DefView_DFMCallBackBG(IShellFolder *psf, HWND hwndOwner, IDataO
 }
 
 
-HRESULT CDefView::_GetIPersistHistoryObject(IPersistHistory **ppph)
+HRESULT CDefView::_GetIPersistHistoryObject(IPersistHistory** ppph)
 {
     // See to see if specific folder wants to handle it...
     HRESULT hr;
@@ -11500,7 +11500,7 @@ HRESULT CDefView::_GetIPersistHistoryObject(IPersistHistory **ppph)
         // Here we can decide if we want to default should be to always save
         // the default defview stuff or not.  For now we will assume that we do
         if (ppph) {
-            CDefViewPersistHistory *pdvph;
+            CDefViewPersistHistory* pdvph;
             pdvph = new CDefViewPersistHistory();
             if (pdvph) {
                 hr = pdvph->QueryInterface(IID_IPersistHistory, (void**)ppph);
@@ -11518,7 +11518,7 @@ HRESULT CDefView::_GetIPersistHistoryObject(IPersistHistory **ppph)
 
 
 // Member:  CDefView::GetItemObject
-STDMETHODIMP CDefView::GetItemObject(UINT uItem, REFIID riid, void **ppv)
+STDMETHODIMP CDefView::GetItemObject(UINT uItem, REFIID riid, void** ppv)
 {
     *ppv = NULL;
 
@@ -11531,13 +11531,13 @@ STDMETHODIMP CDefView::GetItemObject(UINT uItem, REFIID riid, void **ppv)
         if (IsEqualIID(riid, IID_IDispatch) || IsEqualIID(riid, IID_IDefViewScript)) {
             if (!m_pauto) {
                 // try to create an Instance of the Shell disipatch for folder views...
-                HRESULT hres = SHExtCoCreateInstance(NULL, &CLSID_ShellFolderView, NULL, IID_IDispatch, (void **)&m_pauto);
+                HRESULT hres = SHExtCoCreateInstance(NULL, &CLSID_ShellFolderView, NULL, IID_IDispatch, (void**)&m_pauto);
                 if (SUCCEEDED(hres)) {
-                    IShellService *pss;
-                    hres = m_pauto->QueryInterface(IID_IShellService, (void **)&pss);
+                    IShellService* pss;
+                    hres = m_pauto->QueryInterface(IID_IShellService, (void**)&pss);
                     if (SUCCEEDED(hres)) {
                         // Pass a ref to ourselves
-                        pss->SetOwner((IShellFolderView *)this);
+                        pss->SetOwner((IShellFolderView*)this);
                         pss->Release();
                     } else {
                         // Failure...
@@ -11618,7 +11618,7 @@ STDMETHODIMP CDefView::GetItemObject(UINT uItem, REFIID riid, void **ppv)
 }
 
 
-STDMETHODIMP CDefView::QueryInterface(REFIID riid, void **ppvObj)
+STDMETHODIMP CDefView::QueryInterface(REFIID riid, void** ppvObj)
 {
     static const QITAB qit[] = {
         QITABENT(CDefView, IShellView2),                    // IID_IShellView2
@@ -11639,7 +11639,7 @@ STDMETHODIMP CDefView::QueryInterface(REFIID riid, void **ppvObj)
     if (FAILED(hres)) {
         // special case this one as it simply casts this...
         if (IsEqualIID(riid, IID_CDefView)) {
-            *ppvObj = (void *)this;
+            *ppvObj = (void*)this;
             AddRef();
             hres = S_OK;
         }
@@ -11666,12 +11666,12 @@ STDMETHODIMP_(ULONG) CDefView::Release()
 
 
 // Constructor of CDefView class
-CDefView::CDefView(IShellFolder *psf, IShellFolderViewCB* psfvcb, IShellView* psvOuter) : _cRef(1), m_cCallback(psfvcb)
+CDefView::CDefView(IShellFolder* psf, IShellFolderViewCB* psfvcb, IShellView* psvOuter) : _cRef(1), m_cCallback(psfvcb)
 {
     DebugMsg(TF_LIFE, TEXT("ctor CDefView %x"), this);
 
-    psf->QueryInterface(IID_IShellFolder, (void **)&_pshf);
-    psf->QueryInterface(IID_IShellFolder2, (void **)&_pshf2);
+    psf->QueryInterface(IID_IShellFolder, (void**)&_pshf);
+    psf->QueryInterface(IID_IShellFolder2, (void**)&_pshf2);
 
     LPCITEMIDLIST pidl = NULL;
     LONG lEvents = 0;
@@ -11706,13 +11706,13 @@ CDefView::CDefView(IShellFolder *psf, IShellFolderViewCB* psfvcb, IShellView* ps
 
 
 #ifdef DO_NEXT
-STDAPI SHCreateShellFolderViewA(const SFV_CREATE* pcsfv, IShellView ** ppsv)
+STDAPI SHCreateShellFolderViewA(const SFV_CREATE* pcsfv, IShellView** ppsv)
 {
     if (!pcsfv || SIZEOF(*pcsfv) != pcsfv->cbSize) {
         return E_INVALIDARG;
     }
 
-    CDefView *pdsv = new CDefView(pcsfv->_pshf, pcsfv->psfvcb, pcsfv->psvOuter);
+    CDefView* pdsv = new CDefView(pcsfv->_pshf, pcsfv->psfvcb, pcsfv->psvOuter);
     if (pdsv) {
         *ppsv = pdsv;
         return NOERROR;
@@ -11722,9 +11722,9 @@ STDAPI SHCreateShellFolderViewA(const SFV_CREATE* pcsfv, IShellView ** ppsv)
 
 
 // BugBug we need to handle both...
-STDAPI SHCreateShellFolderViewW(const SFV_CREATE* pcsfv, IShellView ** ppsv)
+STDAPI SHCreateShellFolderViewW(const SFV_CREATE* pcsfv, IShellView** ppsv)
 #else
-STDAPI SHCreateShellFolderView(const SFV_CREATE* pcsfv, IShellView ** ppsv)
+STDAPI SHCreateShellFolderView(const SFV_CREATE* pcsfv, IShellView** ppsv)
 #endif
 {
     *ppsv = NULL;
@@ -11733,7 +11733,7 @@ STDAPI SHCreateShellFolderView(const SFV_CREATE* pcsfv, IShellView ** ppsv)
         return E_INVALIDARG;
     }
 
-    CDefView *pdsv = new CDefView(pcsfv->pshf, pcsfv->psfvcb, pcsfv->psvOuter);
+    CDefView* pdsv = new CDefView(pcsfv->pshf, pcsfv->psfvcb, pcsfv->psvOuter);
     if (pdsv) {
         *ppsv = pdsv;
         return NOERROR;
@@ -11744,7 +11744,7 @@ STDAPI SHCreateShellFolderView(const SFV_CREATE* pcsfv, IShellView ** ppsv)
 
 
 // Drag & Drop
-void CDVDropTarget::LeaveAndReleaseData(CDefView *that)
+void CDVDropTarget::LeaveAndReleaseData(CDefView* that)
 {
     that->_dvdt.DragLeave();
 
@@ -11786,7 +11786,7 @@ void CDefView::DropFiles(HDROP hdrop)
 
 
 // This function processes win 3.1 Drag & Drop messages
-LRESULT CDefView::OldDragMsgs(UINT uMsg, WPARAM wParam, const DROPSTRUCT * lpds)
+LRESULT CDefView::OldDragMsgs(UINT uMsg, WPARAM wParam, const DROPSTRUCT* lpds)
 {
     DWORD dwEffect = DROPEFFECT_COPY;
 
@@ -11889,7 +11889,7 @@ void CDVDropTarget::ReleaseDataObject()
         //  We do this just in case because we don't know what OLE does
         //  from inside Release (it might call back one of our members).
 
-        IDataObject *pdtobj = this->pdtobj;
+        IDataObject* pdtobj = this->pdtobj;
         this->pdtobj = NULL;
         ATOMICRELEASE(pdtobj);
     }
@@ -11898,7 +11898,7 @@ void CDVDropTarget::ReleaseDataObject()
 
 void CDVDropTarget::ReleaseCurrentDropTarget()
 {
-    CDefView *pdv = IToClass(CDefView, _dvdt, this);
+    CDefView* pdv = IToClass(CDefView, _dvdt, this);
     if (this->pdtgtCur) {
         this->pdtgtCur->DragLeave();
         ATOMICRELEASE(this->pdtgtCur);
@@ -11909,9 +11909,9 @@ void CDVDropTarget::ReleaseCurrentDropTarget()
 }
 
 
-HRESULT CDVDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
+HRESULT CDVDropTarget::DragEnter(IDataObject* pdtobj, DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect)
 {
-    CDefView *pdv = IToClass(CDefView, _dvdt, this);
+    CDefView* pdv = IToClass(CDefView, _dvdt, this);
     HWND hwndLock;
     IOleCommandTarget* pct;
 
@@ -11971,7 +11971,7 @@ HRESULT CDVDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL 
 
 // this MUST set pdwEffect to 0 or DROPEFFECT_MOVE if it's a default drag drop
 // in the same window
-void DV_AlterEffect(CDefView *pdv, DWORD grfKeyState, DWORD *pdwEffect, UINT uFlags)
+void DV_AlterEffect(CDefView* pdv, DWORD grfKeyState, DWORD* pdwEffect, UINT uFlags)
 {
     g_fDraggingOverSource = FALSE;
 
@@ -12001,10 +12001,10 @@ void DV_AlterEffect(CDefView *pdv, DWORD grfKeyState, DWORD *pdwEffect, UINT uFl
 }
 
 
-HRESULT CDVDropTarget::DragOver(DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
+HRESULT CDVDropTarget::DragOver(DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect)
 {
     HRESULT hres = S_OK;
-    CDefView *pdv = IToClass(CDefView, _dvdt, this);
+    CDefView* pdv = IToClass(CDefView, _dvdt, this);
     int itemNew;
     POINT pt;
     RECT rc;
@@ -12040,7 +12040,7 @@ HRESULT CDVDropTarget::DragOver(DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
     //  If we are dragging over on a different item, get its IDropTarget
     // interface or adjust itemNew to -1.
     if (this->itemOver != itemNew) {
-        IDropTarget *pdtgtNew = NULL;
+        IDropTarget* pdtgtNew = NULL;
 
         this->dwLastTime = GetTickCount();     // keep track for auto-expanding the tree
 
@@ -12061,7 +12061,7 @@ HRESULT CDVDropTarget::DragOver(DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
                 DWORD dwAttr = SFGAO_DROPTARGET;
                 hres = pdv->_pshf->GetAttributesOf(1, apidl, &dwAttr);
                 if (SUCCEEDED(hres) && (dwAttr & SFGAO_DROPTARGET)) {
-                    hres = pdv->_pshf->GetUIObjectOf(pdv->_hwndMain, 1, apidl, IID_IDropTarget, NULL, (void **)&pdtgtNew);
+                    hres = pdv->_pshf->GetUIObjectOf(pdv->_hwndMain, 1, apidl, IID_IDropTarget, NULL, (void**)&pdtgtNew);
                     ASSERT(itemNew != pdv->_itemCur);    // MUST not be the same
                 }
             }
@@ -12172,7 +12172,7 @@ HRESULT CDVDropTarget::DragOver(DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
 
 HRESULT CDVDropTarget::DragLeave()
 {
-    CDefView *pdv = IToClass(CDefView, _dvdt, this);
+    CDefView* pdv = IToClass(CDefView, _dvdt, this);
 
     // Make it possible to call it more than necessary.
     if (this->pdtobj) {
@@ -12194,9 +12194,9 @@ HRESULT CDVDropTarget::DragLeave()
 }
 
 
-HRESULT CDVDropTarget::Drop(IDataObject *pdtobj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+HRESULT CDVDropTarget::Drop(IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-    CDefView *pdv = IToClass(CDefView, _dvdt, this);
+    CDefView* pdv = IToClass(CDefView, _dvdt, this);
 
     // Notes: OLE will give us a different data object (fully marshalled)
     //  from the one we've got on DragEnter.
@@ -12241,7 +12241,7 @@ HRESULT CDVDropTarget::Drop(IDataObject *pdtobj, DWORD grfKeyState, POINTL pt, D
         // use this local because if pdtgtCur::Drop does a UnlockWindow
         // then hits an error and needs to put up a dialog,
         // we could get re-entered and clobber the defview's pdtgtCur
-        IDropTarget *pdtgtCur = this->pdtgtCur;
+        IDropTarget* pdtgtCur = this->pdtgtCur;
         this->pdtgtCur = NULL;
 
         // HACK ALERT!!!!
@@ -12304,14 +12304,14 @@ void DefView_UnlockWindow()
 #endif
 
 
-STDAPI_(CDefView *) DV_HwndMain2DefView(HWND _hwndMain)
+STDAPI_(CDefView*) DV_HwndMain2DefView(HWND _hwndMain)
 {
-    CDefView *pdsv = NULL;
-    IShellBrowser *psb = FileCabinet_GetIShellBrowser(_hwndMain);
+    CDefView* pdsv = NULL;
+    IShellBrowser* psb = FileCabinet_GetIShellBrowser(_hwndMain);
     if (psb) {
-        IShellView *psv;
+        IShellView* psv;
         if (SUCCEEDED(psb->QueryActiveShellView(&psv))) {
-            if (SUCCEEDED(psv->QueryInterface(IID_CDefView, (void **)&pdsv))) {
+            if (SUCCEEDED(psv->QueryInterface(IID_CDefView, (void**)&pdsv))) {
                 // HACK: We'll release this now and assume the pointer
                 // is still OK afterwards.  We really should release this
                 // in the calling function
@@ -12319,9 +12319,9 @@ STDAPI_(CDefView *) DV_HwndMain2DefView(HWND _hwndMain)
                     pdsv->Release();
             } else {
                 // We might have the _psvOuter, query for the pdsv
-                IShellView *psvInner;
-                if (SUCCEEDED(psv->QueryInterface(IID_IShellView, (void **)&psvInner))) {
-                    if (SUCCEEDED(psvInner->QueryInterface(IID_CDefView, (void **)&pdsv))) {
+                IShellView* psvInner;
+                if (SUCCEEDED(psv->QueryInterface(IID_IShellView, (void**)&psvInner))) {
+                    if (SUCCEEDED(psvInner->QueryInterface(IID_CDefView, (void**)&pdsv))) {
                         // HACK: We'll release this now and assume the pointer
                         // is still OK afterwards.  We really should release this
                         // in the calling function
@@ -12341,19 +12341,19 @@ STDAPI_(CDefView *) DV_HwndMain2DefView(HWND _hwndMain)
 
 STDAPI_(HWND) DV_HwndMain2HwndView(HWND _hwndMain)
 {
-    CDefView *pdsv = DV_HwndMain2DefView(_hwndMain);
+    CDefView* pdsv = DV_HwndMain2DefView(_hwndMain);
     return pdsv ? pdsv->_hwndView : NULL;
 }
 
 
-STDAPI_(IShellFolderViewCB *) SHGetShellFolderViewCB(HWND _hwndMain)
+STDAPI_(IShellFolderViewCB*) SHGetShellFolderViewCB(HWND _hwndMain)
 {
-    CDefView *pdsv = DV_HwndMain2DefView(_hwndMain);
+    CDefView* pdsv = DV_HwndMain2DefView(_hwndMain);
     return pdsv ? pdsv->m_cCallback.GetSFVCB() : NULL;
 }
 
 
-BOOL DefView_IsBkDropTarget(CDefView *pdsv, IDropTarget *pdtg)
+BOOL DefView_IsBkDropTarget(CDefView* pdsv, IDropTarget* pdtg)
 {
     BOOL fRet = FALSE;
     POINT pt;
@@ -12429,7 +12429,7 @@ STDMETHODIMP CDefView::GetAutoArrange()
 }
 
 
-STDMETHODIMP CDefView::GetArrangeParam(LPARAM *plParamSort)
+STDMETHODIMP CDefView::GetArrangeParam(LPARAM* plParamSort)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12441,7 +12441,7 @@ STDMETHODIMP CDefView::GetArrangeParam(LPARAM *plParamSort)
 }
 
 
-STDMETHODIMP CDefView::AddObject(LPITEMIDLIST pidl, UINT *puItem)
+STDMETHODIMP CDefView::AddObject(LPITEMIDLIST pidl, UINT* puItem)
 {
     HRESULT hr = NOERROR;
 
@@ -12463,7 +12463,7 @@ STDMETHODIMP CDefView::AddObject(LPITEMIDLIST pidl, UINT *puItem)
 }
 
 
-STDMETHODIMP CDefView::GetObjectCount(UINT *puCount)
+STDMETHODIMP CDefView::GetObjectCount(UINT* puCount)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12504,7 +12504,7 @@ STDMETHODIMP CDefView::SetObjectCount(UINT uCount, UINT dwFlags)
 }
 
 
-STDMETHODIMP CDefView::GetObject(LPITEMIDLIST *ppidl, UINT uItem)
+STDMETHODIMP CDefView::GetObject(LPITEMIDLIST* ppidl, UINT uItem)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12526,7 +12526,7 @@ STDMETHODIMP CDefView::GetObject(LPITEMIDLIST *ppidl, UINT uItem)
 }
 
 
-STDMETHODIMP CDefView::RemoveObject(LPITEMIDLIST pidl, UINT *puItem)
+STDMETHODIMP CDefView::RemoveObject(LPITEMIDLIST pidl, UINT* puItem)
 {
     *puItem = _RemoveObject(pidl, FALSE);
 
@@ -12541,7 +12541,7 @@ STDMETHODIMP CDefView::RemoveObject(LPITEMIDLIST pidl, UINT *puItem)
 }
 
 
-STDMETHODIMP CDefView::UpdateObject(LPITEMIDLIST pidlOld, LPITEMIDLIST pidlNew, UINT *puItem)
+STDMETHODIMP CDefView::UpdateObject(LPITEMIDLIST pidlOld, LPITEMIDLIST pidlNew, UINT* puItem)
 {
     LPITEMIDLIST apidl[2] = {pidlOld, pidlNew};
 
@@ -12561,7 +12561,7 @@ STDMETHODIMP CDefView::UpdateObject(LPITEMIDLIST pidlOld, LPITEMIDLIST pidlNew, 
 }
 
 
-STDMETHODIMP CDefView::RefreshObject(LPITEMIDLIST pidl, UINT *puItem)
+STDMETHODIMP CDefView::RefreshObject(LPITEMIDLIST pidl, UINT* puItem)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12592,7 +12592,7 @@ STDMETHODIMP CDefView::SetRedraw(BOOL bRedraw)
 }
 
 
-STDMETHODIMP CDefView::GetSelectedObjects(LPCITEMIDLIST **pppidl, UINT *puItems)
+STDMETHODIMP CDefView::GetSelectedObjects(LPCITEMIDLIST** pppidl, UINT* puItems)
 {
     UINT    cItems;
     if (this->m_cFrame.IsSFVExtension()) {
@@ -12610,7 +12610,7 @@ STDMETHODIMP CDefView::GetSelectedObjects(LPCITEMIDLIST **pppidl, UINT *puItems)
 }
 
 
-STDMETHODIMP CDefView::GetSelectedCount(UINT *puSelected)
+STDMETHODIMP CDefView::GetSelectedCount(UINT* puSelected)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12622,7 +12622,7 @@ STDMETHODIMP CDefView::GetSelectedCount(UINT *puSelected)
 }
 
 
-STDMETHODIMP CDefView::IsDropOnSource(IDropTarget *pDropTarget)
+STDMETHODIMP CDefView::IsDropOnSource(IDropTarget* pDropTarget)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12633,13 +12633,13 @@ STDMETHODIMP CDefView::IsDropOnSource(IDropTarget *pDropTarget)
 }
 
 
-STDMETHODIMP CDefView::MoveIcons(IDataObject *pDataObject)
+STDMETHODIMP CDefView::MoveIcons(IDataObject* pDataObject)
 {
     return E_NOTIMPL;
 }
 
 
-STDMETHODIMP CDefView::GetDropPoint(POINT *ppt)
+STDMETHODIMP CDefView::GetDropPoint(POINT* ppt)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12650,7 +12650,7 @@ STDMETHODIMP CDefView::GetDropPoint(POINT *ppt)
 }
 
 
-STDMETHODIMP CDefView::GetDragPoint(POINT *ppt)
+STDMETHODIMP CDefView::GetDragPoint(POINT* ppt)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12661,7 +12661,7 @@ STDMETHODIMP CDefView::GetDragPoint(POINT *ppt)
 }
 
 
-STDMETHODIMP CDefView::SetItemPos(LPCITEMIDLIST pidl, POINT *ppt)
+STDMETHODIMP CDefView::SetItemPos(LPCITEMIDLIST pidl, POINT* ppt)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12677,7 +12677,7 @@ STDMETHODIMP CDefView::SetItemPos(LPCITEMIDLIST pidl, POINT *ppt)
 }
 
 
-STDMETHODIMP CDefView::IsBkDropTarget(IDropTarget *pDropTarget)
+STDMETHODIMP CDefView::IsBkDropTarget(IDropTarget* pDropTarget)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12703,7 +12703,7 @@ STDMETHODIMP CDefView::SetClipboard(BOOL bMove)
 }
 
 
-STDMETHODIMP CDefView::SetPoints(IDataObject *pDataObject)
+STDMETHODIMP CDefView::SetPoints(IDataObject* pDataObject)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12715,7 +12715,7 @@ STDMETHODIMP CDefView::SetPoints(IDataObject *pDataObject)
 }
 
 
-STDMETHODIMP CDefView::GetItemSpacing(ITEMSPACING *pSpacing)
+STDMETHODIMP CDefView::GetItemSpacing(ITEMSPACING* pSpacing)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         // delegate to the view extension....
@@ -12770,7 +12770,7 @@ STDMETHODIMP CDefView::Select(UINT dwFlags)
 }
 
 
-STDMETHODIMP CDefView::QuerySupport(UINT * pdwSupport)
+STDMETHODIMP CDefView::QuerySupport(UINT* pdwSupport)
 {
     if (this->m_cFrame.IsSFVExtension()) {
         return this->m_cFrame.GetExtendedISFV()->QuerySupport(pdwSupport);
@@ -12780,20 +12780,20 @@ STDMETHODIMP CDefView::QuerySupport(UINT * pdwSupport)
     return S_OK;
 }
 
-STDMETHODIMP CDefView::SetAutomationObject(IDispatch *pdisp)
+STDMETHODIMP CDefView::SetAutomationObject(IDispatch* pdisp)
 {
     // Release any previous automation objects we may have...
     if (m_pauto) {
         // Tell the automation object to release the back pointer to us...
-        IShellService *pss;
-        if (SUCCEEDED(m_pauto->QueryInterface(IID_IShellService, (void **)&pss))) {
+        IShellService* pss;
+        if (SUCCEEDED(m_pauto->QueryInterface(IID_IShellService, (void**)&pss))) {
             // Pass an Unknown pointer to this guy...
             pss->SetOwner(NULL);
             ATOMICRELEASE(pss);
         }
 
         //release our use of it, make sure won't be hit by any callback...
-        IDispatch * pauto = m_pauto;
+        IDispatch* pauto = m_pauto;
         m_pauto = NULL;
         ATOMICRELEASE(pauto);
     }
@@ -12817,12 +12817,12 @@ STDMETHODIMP CDefView::SetAutomationObject(IDispatch *pdisp)
 
 // A common function that given an IShellFolder and and an Idlist that is
 // contained in it, get back the index into the system image list.
-HRESULT _GetILIndexGivenPXIcon(IExtractIcon *pxicon, UINT uFlags, LPCITEMIDLIST pidl, int *piImage, BOOL fAnsiCrossOver)
+HRESULT _GetILIndexGivenPXIcon(IExtractIcon* pxicon, UINT uFlags, LPCITEMIDLIST pidl, int* piImage, BOOL fAnsiCrossOver)
 {
     TCHAR szIconFile[MAX_PATH];
 #ifdef UNICODE
     CHAR szIconFileA[MAX_PATH];
-    IExtractIconA *pxiconA = (IExtractIconA *)pxicon;
+    IExtractIconA* pxiconA = (IExtractIconA*)pxicon;
 #endif
     int iIndex;
     int iImage = -1;
@@ -12927,16 +12927,16 @@ HRESULT _GetILIndexGivenPXIcon(IExtractIcon *pxicon, UINT uFlags, LPCITEMIDLIST 
 
 // A common function that given an IShellFolder and and an Idlist that is
 // contained in it, get back the index into the system image list.
-STDAPI SHGetIconFromPIDL(IShellFolder *psf, IShellIcon *psi, LPCITEMIDLIST pidl, UINT flags, int *piImage)
+STDAPI SHGetIconFromPIDL(IShellFolder* psf, IShellIcon* psi, LPCITEMIDLIST pidl, UINT flags, int* piImage)
 {
-    IExtractIcon *pxi;
+    IExtractIcon* pxi;
     HRESULT hres;
 
     ASSERT(g_himlIcons);      // you must initialize the icon cache first
 
     if (psi) {
 #ifdef DEBUG
-        *piImage = -1;
+        * piImage = -1;
 #endif
         hres = psi->GetIconOf(pidl, flags, piImage);
 
@@ -12954,7 +12954,7 @@ STDAPI SHGetIconFromPIDL(IShellFolder *psf, IShellIcon *psi, LPCITEMIDLIST pidl,
 
     *piImage = Shell_GetCachedImageIndex(c_szShell32Dll, II_DOCNOASSOC, 0);
 
-    hres = psf->GetUIObjectOf(NULL, 1, pidl ? &pidl : NULL, IID_IExtractIcon, NULL, (void **)&pxi);
+    hres = psf->GetUIObjectOf(NULL, 1, pidl ? &pidl : NULL, IID_IExtractIcon, NULL, (void**)&pxi);
     if (SUCCEEDED(hres)) {
         hres = _GetILIndexGivenPXIcon(pxi, flags, pidl, piImage, FALSE);
         pxi->Release();
@@ -12962,11 +12962,11 @@ STDAPI SHGetIconFromPIDL(IShellFolder *psf, IShellIcon *psi, LPCITEMIDLIST pidl,
 #ifdef UNICODE
     else {
         // Try the ANSI interface, see if we are dealing with an old set of code
-        IExtractIconA *pxiA;
+        IExtractIconA* pxiA;
 
-        hres = psf->GetUIObjectOf(NULL, 1, pidl ? &pidl : NULL, IID_IExtractIconA, NULL, (void **)&pxiA);
+        hres = psf->GetUIObjectOf(NULL, 1, pidl ? &pidl : NULL, IID_IExtractIconA, NULL, (void**)&pxiA);
         if (SUCCEEDED(hres)) {
-            hres = _GetILIndexGivenPXIcon((IExtractIcon *)pxiA, flags, pidl, piImage, TRUE);
+            hres = _GetILIndexGivenPXIcon((IExtractIcon*)pxiA, flags, pidl, piImage, TRUE);
             pxiA->Release();
         }
     }
@@ -12978,7 +12978,7 @@ STDAPI SHGetIconFromPIDL(IShellFolder *psf, IShellIcon *psi, LPCITEMIDLIST pidl,
 
 // A common function that given an IShellFolder and and an Idlist that is
 // contained in it, get back the index into the system image list.
-int WINAPI SHMapPIDLToSystemImageListIndex(IShellFolder *psf, LPCITEMIDLIST pidl, int *piIndexSel)
+int WINAPI SHMapPIDLToSystemImageListIndex(IShellFolder* psf, LPCITEMIDLIST pidl, int* piIndexSel)
 {
     int iIndex;
 
@@ -12994,7 +12994,7 @@ int WINAPI SHMapPIDLToSystemImageListIndex(IShellFolder *psf, LPCITEMIDLIST pidl
 
 // -------------- auto scroll stuff --------------
 
-BOOL _AddTimeSample(AUTO_SCROLL_DATA *pad, const POINT *ppt, DWORD dwTime)
+BOOL _AddTimeSample(AUTO_SCROLL_DATA* pad, const POINT* ppt, DWORD dwTime)
 {
     pad->pts[pad->iNextSample] = *ppt;
     pad->dwTimes[pad->iNextSample] = dwTime;
@@ -13017,7 +13017,7 @@ int g_distance = 0;
 #endif
 
 
-int _CurrentVelocity(AUTO_SCROLL_DATA *pad)
+int _CurrentVelocity(AUTO_SCROLL_DATA* pad)
 {
     int i, iStart, iNext;
     int dx, dy, distance;
@@ -13104,7 +13104,7 @@ DWORD ListView_GetWindowStyle(HWND hwnd)
 }
 
 
-DWORD DAD_DragScrollDirection(HWND hwnd, const POINT *ppt)
+DWORD DAD_DragScrollDirection(HWND hwnd, const POINT* ppt)
 {
     RECT rcOuter, rc;
     DWORD dwDSD = DSD_NONE;
@@ -13159,7 +13159,7 @@ DWORD DAD_DragScrollDirection(HWND hwnd, const POINT *ppt)
 #define MIN_SCROLL_VELOCITY     20      // scaled mouse velocity
 
 
-BOOL WINAPI DAD_AutoScroll(HWND hwnd, AUTO_SCROLL_DATA *pad, const POINT *pptNow)
+BOOL WINAPI DAD_AutoScroll(HWND hwnd, AUTO_SCROLL_DATA* pad, const POINT* pptNow)
 {
     // first time we've been called, init our state
     int v;
@@ -13212,8 +13212,8 @@ HDSA g_hdsaDefViewCopyHook = NULL;
 typedef struct _DVCOPYHOOK
 {
     HWND        _hwndView;
-    CDefView *  pdv;
-} DVCOPYHOOK, *LPDVCOPYHOOK;
+    CDefView* pdv;
+} DVCOPYHOOK, * LPDVCOPYHOOK;
 
 
 void CDefView::AddCopyHook()
@@ -13248,7 +13248,7 @@ int CDefView::FindCopyHook(BOOL fRemoveInvalid)
     item = DSA_GetItemCount(g_hdsaDefViewCopyHook);
 
     while (--item >= 0) {
-        const DVCOPYHOOK * pdvch = (const DVCOPYHOOK *)DSA_GetItemPtr(g_hdsaDefViewCopyHook, item);
+        const DVCOPYHOOK* pdvch = (const DVCOPYHOOK*)DSA_GetItemPtr(g_hdsaDefViewCopyHook, item);
         if (pdvch) {
             if (fRemoveInvalid) {
                 if (!IsWindow(pdvch->_hwndView)) {
@@ -13272,7 +13272,7 @@ int CDefView::FindCopyHook(BOOL fRemoveInvalid)
 
 void CDefView::RemoveCopyHook()
 {
-    IShellView *psv = NULL;
+    IShellView* psv = NULL;
     ENTERCRITICAL;
     if (g_hdsaDefViewCopyHook) {
         int  item = FindCopyHook(TRUE);
@@ -13297,7 +13297,7 @@ void CDefView::RemoveCopyHook()
 }
 
 
-extern "C" UINT DefView_CopyHook(const COPYHOOKINFO *pchi)
+extern "C" UINT DefView_CopyHook(const COPYHOOKINFO * pchi)
 {
     int item;
     UINT idRet = IDYES;
@@ -13341,7 +13341,7 @@ extern "C" UINT DefView_CopyHook(const COPYHOOKINFO *pchi)
 
 
 // IOleCommandTarget stuff - just forward to the extended view
-STDMETHODIMP CDefView::QueryStatus(const GUID *pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT *pcmdtext)
+STDMETHODIMP CDefView::QueryStatus(const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext)
 {
     HRESULT hres = OLECMDERR_E_UNKNOWNGROUP;
     BOOL fQSCalled = FALSE;
@@ -13413,7 +13413,7 @@ STDMETHODIMP CDefView::QueryStatus(const GUID *pguidCmdGroup, ULONG cCmds, OLECM
 }
 
 
-STDMETHODIMP CDefView::Exec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG *pvarargIn, VARIANTARG *pvarargOut)
+STDMETHODIMP CDefView::Exec(const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut)
 {
     HRESULT hres = OLECMDERR_E_UNKNOWNGROUP;
 
@@ -13485,7 +13485,7 @@ STDMETHODIMP CDefView::Exec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nCmde
         switch (nCmdID) {
         case ETCMDID_GETBUTTONS:
             pvarargOut->vt = VT_BYREF;
-            pvarargOut->byref = (void *)_pbtn;
+            pvarargOut->byref = (void*)_pbtn;
             *pvarargIn->plVal = _cTotalButtons;
             return S_OK;
         case ETCMDID_RELOADBUTTONS:
@@ -13532,11 +13532,11 @@ void CDefView::_ShowAndActivate()
 
 
 // IDefViewFrame2 (available only through QueryService from sfvext!)
-HRESULT CDefView::GetWindowLV2(HWND * phwnd, IUnknown * punk)
+HRESULT CDefView::GetWindowLV2(HWND* phwnd, IUnknown* punk)
 {
 
     ASSERT(punk);
-    if (punk && !_IsDesktop() && SUCCEEDED(punk->QueryInterface(IID_IWebViewOCWinMan, (void **)&_pocWinMan))) {
+    if (punk && !_IsDesktop() && SUCCEEDED(punk->QueryInterface(IID_IWebViewOCWinMan, (void**)&_pocWinMan))) {
         if (!_fGetWindowLV) {
             _fGetWindowLV = TRUE;
             if (m_cFrame.IsSFVExtension()) {
@@ -13585,7 +13585,7 @@ HRESULT CDefView::GetWindowLV2(HWND * phwnd, IUnknown * punk)
 
 
 // IDefViewFrame
-HRESULT CDefView::GetWindowLV(HWND * phwnd)
+HRESULT CDefView::GetWindowLV(HWND* phwnd)
 {
     ASSERT(0);  // What should I do here?
     return GetWindowLV2(phwnd, NULL);
@@ -13602,7 +13602,7 @@ HRESULT CDefView::ReleaseWindowLV()
 }
 
 
-HRESULT CDefView::GetShellFolder(IShellFolder **ppsf)
+HRESULT CDefView::GetShellFolder(IShellFolder** ppsf)
 {
     *ppsf = _pshf;
     if (*ppsf)
@@ -13614,7 +13614,7 @@ HRESULT CDefView::GetShellFolder(IShellFolder **ppsf)
 
 // IServiceProvider
 
-STDMETHODIMP CDefView::QueryService(REFGUID guidService, REFIID riid, void **ppv)
+STDMETHODIMP CDefView::QueryService(REFGUID guidService, REFIID riid, void** ppv)
 {
     HRESULT hr = E_FAIL;
     *ppv = NULL;
@@ -13624,7 +13624,7 @@ STDMETHODIMP CDefView::QueryService(REFGUID guidService, REFIID riid, void **ppv
         if (riid != IID_IDefViewFrame || !_IsDesktop())
             hr = QueryInterface(riid, ppv);
     } else if (guidService == SID_ShellFolderViewCB) {
-        IShellFolderViewCB * psfvcb = m_cCallback.GetSFVCB();
+        IShellFolderViewCB* psfvcb = m_cCallback.GetSFVCB();
         if (psfvcb)
             hr = psfvcb->QueryInterface(riid, ppv);
     } else {
@@ -13635,7 +13635,7 @@ STDMETHODIMP CDefView::QueryService(REFGUID guidService, REFIID riid, void **ppv
 }
 
 
-STDMETHODIMP CDefView::OnSetTitle(VARIANTARG *pvTitle)
+STDMETHODIMP CDefView::OnSetTitle(VARIANTARG* pvTitle)
 {
     DebugMsg(DM_ERROR, TEXT("CDefView::OnSetTitle - not implemented"));
     return E_NOTIMPL;
@@ -13643,10 +13643,10 @@ STDMETHODIMP CDefView::OnSetTitle(VARIANTARG *pvTitle)
 
 
 // friend create function for the Background context menu wrapper
-HRESULT CBackgrndMenu_CreateInstance(CDefView *pDefView, REFIID riid, void **ppvObj)
+HRESULT CBackgrndMenu_CreateInstance(CDefView* pDefView, REFIID riid, void** ppvObj)
 {
     HRESULT hr = NOERROR;
-    CBackgrndMenu * pMenu = new CBackgrndMenu(pDefView, &hr);
+    CBackgrndMenu* pMenu = new CBackgrndMenu(pDefView, &hr);
     if (!pMenu) {
         return E_OUTOFMEMORY;
     }
@@ -13666,7 +13666,7 @@ HRESULT CBackgrndMenu_CreateInstance(CDefView *pDefView, REFIID riid, void **ppv
 // The background ContextMenu handler. this is a wrapper for menu creation and
 // the old menu handler than only responds to GetCommandString. This object is
 // obtained by doing DefView->GetItemObjects( SVGIO_BACKGROUND, IID_IContextMenu );
-CBackgrndMenu::CBackgrndMenu(CDefView *pDefView, HRESULT * pHr) : m_pDefView(pDefView), m_cRef(1)
+CBackgrndMenu::CBackgrndMenu(CDefView* pDefView, HRESULT* pHr) : m_pDefView(pDefView), m_cRef(1)
 {
     if (!m_pDefView) {
         *pHr = E_INVALIDARG;
@@ -13679,7 +13679,7 @@ CBackgrndMenu::CBackgrndMenu(CDefView *pDefView, HRESULT * pHr) : m_pDefView(pDe
     // create the folder menu that used to be created (this is used to handle the getcommand string)
 
     LPITEMIDLIST pidlFolder = pDefView->_GetViewPidl();
-    *pHr = CDefFolderMenu_Create(pidlFolder, m_pDefView->_hwndMain, 0, NULL, m_pDefView->_pshf, DefView_DFMCallBackBG, NULL, NULL, (IContextMenu **)&m_pFolderMenu);
+    *pHr = CDefFolderMenu_Create(pidlFolder, m_pDefView->_hwndMain, 0, NULL, m_pDefView->_pshf, DefView_DFMCallBackBG, NULL, NULL, (IContextMenu**)&m_pFolderMenu);
     ILFree(pidlFolder);
 }
 
@@ -13704,7 +13704,7 @@ CBackgrndMenu::~CBackgrndMenu()
 }
 
 
-STDMETHODIMP CBackgrndMenu::QueryInterface(REFIID riid, void **ppvObj)
+STDMETHODIMP CBackgrndMenu::QueryInterface(REFIID riid, void** ppvObj)
 {
     static const QITAB qit[] = {
         QITABENT(CBackgrndMenu, IContextMenu3),                  // IID_IContextMenu3
@@ -13759,13 +13759,13 @@ STDMETHODIMP CBackgrndMenu::QueryContextMenu(HMENU hmenu, UINT indexMenu, UINT i
     }
 
     if (m_pDefView->_pcmSel == NULL) {
-        IContextMenu *pcm = NULL;
+        IContextMenu* pcm = NULL;
 
         // it's okay to create and cache this context menu even if we have
         // an extended view because we're doing the background context menu
         // here, which is handled by the parent defview. _pcmSel is also
         // flushed at the end of this function.
-        hr = m_pDefView->_pshf->CreateViewObject(m_pDefView->_hwndMain, IID_IContextMenu, (void **)&pcm);
+        hr = m_pDefView->_pshf->CreateViewObject(m_pDefView->_hwndMain, IID_IContextMenu, (void**)&pcm);
         if (SUCCEEDED(hr)) {
             m_pDefView->_pcmSel = pcm;
             m_pcmSel = pcm;
@@ -13826,7 +13826,7 @@ STDMETHODIMP CBackgrndMenu::InvokeCommand(LPCMINVOKECOMMANDINFO lpici)
 }
 
 
-STDMETHODIMP CBackgrndMenu::GetCommandString(UINT_PTR idCmd, UINT uType, UINT *pwRes, LPSTR pszName, UINT cchMax)
+STDMETHODIMP CBackgrndMenu::GetCommandString(UINT_PTR idCmd, UINT uType, UINT* pwRes, LPSTR pszName, UINT cchMax)
 {
     return m_pFolderMenu->GetCommandString(idCmd, uType, pwRes, pszName, cchMax);
 }
@@ -13869,12 +13869,12 @@ STDMETHODIMP CBackgrndMenu::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lPar
     }
 
     if (m_pcmSel) {
-        IContextMenu2 *pcm2;
-        IContextMenu3 *pcm3;
-        if (SUCCEEDED(m_pcmSel->QueryInterface(IID_IContextMenu3, (void **)&pcm3))) {
+        IContextMenu2* pcm2;
+        IContextMenu3* pcm3;
+        if (SUCCEEDED(m_pcmSel->QueryInterface(IID_IContextMenu3, (void**)&pcm3))) {
             pcm3->HandleMenuMsg2(uMsg, wParam, lParam, plResult);
             ATOMICRELEASE(pcm3);
-        } else if (SUCCEEDED(m_pcmSel->QueryInterface(IID_IContextMenu2, (void **)&pcm2))) {
+        } else if (SUCCEEDED(m_pcmSel->QueryInterface(IID_IContextMenu2, (void**)&pcm2))) {
             pcm2->HandleMenuMsg(uMsg, wParam, lParam);
             ATOMICRELEASE(pcm2);
         }

@@ -98,29 +98,25 @@ CCdfView::EnumObjects(
 
     HRESULT hr = S_OK;
 
-    if (!m_bCdfParsed)
-    {
+    if (!m_bCdfParsed) {
         TraceMsg(TF_CDFPARSE, "IShellFolder EnumObjects(%s) %s",
                  hwndOwner ? TEXT("HWND") : TEXT("NULL"),
                  PathFindFileName(m_szPath));
         hr = ParseCdfFolder(NULL, PARSE_LOCAL);
     }
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         *ppIEnumIDList = (IEnumIDList*) new CCdfEnum(m_pIXMLElementCollection,
                                                      grfFlags, m_pcdfidl);
 
         hr = *ppIEnumIDList ? S_OK : E_OUTOFMEMORY;
-    }
-    else
-    {
+    } else {
         *ppIEnumIDList = NULL;
     }
 
 
     ASSERT((SUCCEEDED(hr) && *ppIEnumIDList) ||
-           (FAILED(hr) && NULL == *ppIEnumIDList));
+        (FAILED(hr) && NULL == *ppIEnumIDList));
 
     TraceMsg(TF_CDFENUM, "<OUT> EnumObjects tid:0x%x", GetCurrentThreadId());
 
@@ -166,22 +162,19 @@ CCdfView::BindToObject(
 
 
 #if 1 //Hack
-    while(!ILIsEmpty(pidl) && !CDFIDL_IsValidId((PCDFITEMID)&pidl->mkid))
+    while (!ILIsEmpty(pidl) && !CDFIDL_IsValidId((PCDFITEMID)&pidl->mkid))
         pidl = _ILNext(pidl);
 
-    if (ILIsEmpty(pidl))
-    {
+    if (ILIsEmpty(pidl)) {
         HRESULT hr = S_OK;
 
-        if (!m_bCdfParsed)
-        {
+        if (!m_bCdfParsed) {
             TraceMsg(TF_CDFPARSE, "IShellFolder BindToObject (Hack) %s",
                      PathFindFileName(m_szPath));
             hr = ParseCdfFolder(NULL, PARSE_LOCAL);
         }
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             AddRef();
             *ppvOut = (void**)(IShellFolder*)this;
         }
@@ -204,46 +197,35 @@ CCdfView::BindToObject(
 
     *ppvOut = NULL;
 
-    if (CDFIDL_IsFolderId((PCDFITEMID)&pidl->mkid))
-    {
-        if (!m_bCdfParsed)
-        {
+    if (CDFIDL_IsFolderId((PCDFITEMID)&pidl->mkid)) {
+        if (!m_bCdfParsed) {
             TraceMsg(TF_CDFPARSE, "IShellFolder BindToObject %s",
                      PathFindFileName(m_szPath));
             hr = ParseCdfFolder(NULL, PARSE_LOCAL);
         }
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             ASSERT(XML_IsCdfidlMemberOf(m_pIXMLElementCollection,
-                                        (PCDFITEMIDLIST)pidl));
+                (PCDFITEMIDLIST)pidl));
 
             CCdfView* pCCdfView = (CCdfView*)new CCdfView((PCDFITEMIDLIST)pidl,
                                                           m_pidlPath,
                                                           m_pIXMLElementCollection);
 
-            if (pCCdfView)
-            {
-                if (ILIsEmpty(_ILNext(pidl)))
-                {
+            if (pCCdfView) {
+                if (ILIsEmpty(_ILNext(pidl))) {
                     hr = pCCdfView->QueryInterface(riid, ppvOut);
-                }
-                else
-                {
+                } else {
                     hr = pCCdfView->BindToObject(_ILNext(pidl), pbcReserved, riid,
                                                  ppvOut);
                 }
 
                 pCCdfView->Release();
-            }
-            else
-            {
+            } else {
                 hr = E_OUTOFMEMORY;
             }
         }
-    }
-    else
-    {
+    } else {
         hr = E_INVALIDARG;
     }
 
@@ -314,7 +296,7 @@ CCdfView::CompareIDs(
     ASSERT(CDFIDL_IsValid((PCDFITEMIDLIST)pidl1));
     ASSERT(CDFIDL_IsValid((PCDFITEMIDLIST)pidl2));
 
-    SHORT sRes = CDFIDL_Compare((PCDFITEMIDLIST)pidl1,(PCDFITEMIDLIST)pidl2);
+    SHORT sRes = CDFIDL_Compare((PCDFITEMIDLIST)pidl1, (PCDFITEMIDLIST)pidl2);
 
     return 0x0000ffff & sRes;
 }
@@ -368,14 +350,11 @@ CCdfView::CreateViewObject(
 
     HRESULT hr;
 
-    if (IID_IShellView == riid)
-    {
+    if (IID_IShellView == riid) {
         hr = CreateDefaultShellView((IShellFolder*)this,
-                                    (LPITEMIDLIST)m_pidlPath,
+            (LPITEMIDLIST)m_pidlPath,
                                     (IShellView**)ppvOut);
-    }
-    else
-    {
+    } else {
         *ppvOut = NULL;
 
         hr = E_NOINTERFACE;
@@ -427,39 +406,33 @@ CCdfView::GetAttributesOf(
 
     ULONG fAttributeFilter = *pfAttributesOut;
 
-    if (!m_bCdfParsed)
-    {
+    if (!m_bCdfParsed) {
         TraceMsg(TF_CDFPARSE, "IShellFolder GetAttributesOf %s",
                  PathFindFileName(m_szPath));
         ParseCdfFolder(NULL, PARSE_LOCAL);
     }
 
-    if (m_pIXMLElementCollection)
-    {
-        if (cidl)
-        {
+    if (m_pIXMLElementCollection) {
+        if (cidl) {
 
             *pfAttributesOut = (ULONG)-1;
 
-            while(cidl-- && *pfAttributesOut)
-            {
+            while (cidl-- && *pfAttributesOut) {
                 ASSERT(CDFIDL_IsValid((PCDFITEMIDLIST)apidl[cidl]));
                 ASSERT(ILIsEmpty(_ILNext(apidl[cidl])));
                 ASSERT(XML_IsCdfidlMemberOf(m_pIXMLElementCollection,
-                                            (PCDFITEMIDLIST)apidl[cidl]));
+                    (PCDFITEMIDLIST)apidl[cidl]));
 
 
                 // CDFIDL_GetAttributes returns zero on failure.
 
 
                 *pfAttributesOut &= CDFIDL_GetAttributes(
-                                                   m_pIXMLElementCollection,
-                                                   (PCDFITEMIDLIST)apidl[cidl],
-                                                   fAttributeFilter);
+                    m_pIXMLElementCollection,
+                    (PCDFITEMIDLIST)apidl[cidl],
+                    fAttributeFilter);
             }
-        }
-        else
-        {
+        } else {
 
             // Return this folder's attributes.
 
@@ -469,9 +442,7 @@ CCdfView::GetAttributesOf(
             if (XML_ContainsFolder(m_pIXMLElementCollection))
                 *pfAttributesOut |= SFGAO_HASSUBFOLDER;
         }
-    }
-    else
-    {
+    } else {
 
         // m_pIXMLElementCollection == NULL in low memory situations.
 
@@ -517,7 +488,7 @@ CCdfView::GetUIObjectOf(
     LPCITEMIDLIST* apidl,
     REFIID riid,
     UINT* prgfInOut,
-    LPVOID * ppvOut
+    LPVOID* ppvOut
 )
 {
     ASSERT(apidl || 0 == cidl);
@@ -525,102 +496,87 @@ CCdfView::GetUIObjectOf(
 
     // ASSERT(m_bCdfParsed);  Called when cdf is not parsed.
 
-    #ifdef DEBUG
-        for(UINT i = 0; i < cidl; i++)
-        {
-            ASSERT(CDFIDL_IsValid((PCDFITEMIDLIST)apidl[i]));
-            ASSERT(ILIsEmpty(_ILNext(apidl[i])));
-            ASSERT(XML_IsCdfidlMemberOf(m_pIXMLElementCollection,
-                                        (PCDFITEMIDLIST)apidl[i]));
-        }
-    #endif // DEBUG
+#ifdef DEBUG
+    for (UINT i = 0; i < cidl; i++) {
+        ASSERT(CDFIDL_IsValid((PCDFITEMIDLIST)apidl[i]));
+        ASSERT(ILIsEmpty(_ILNext(apidl[i])));
+        ASSERT(XML_IsCdfidlMemberOf(m_pIXMLElementCollection,
+            (PCDFITEMIDLIST)apidl[i]));
+    }
+#endif // DEBUG
 
     HRESULT hr;
 
     *ppvOut = NULL;
 
-    if (cidl)
-    {
+    if (cidl) {
         if (IID_IExtractIcon == riid
 #ifdef UNICODE
             || IID_IExtractIconA == riid
 #endif
-            )
-        {
+            ) {
             ASSERT(1 == cidl);
 
-            if (!m_bCdfParsed)
-            {
+            if (!m_bCdfParsed) {
                 TraceMsg(TF_CDFPARSE, "IShellFolder IExtractIcon %s",
                          PathFindFileName(m_szPath));
                 ParseCdfFolder(NULL, PARSE_LOCAL);
             }
 
 #ifdef UNICODE
-            CExtractIcon *pxi = new CExtractIcon((PCDFITEMIDLIST)apidl[0],
-                                                      m_pIXMLElementCollection);
+            CExtractIcon* pxi = new CExtractIcon((PCDFITEMIDLIST)apidl[0],
+                                                 m_pIXMLElementCollection);
 
             if (riid == IID_IExtractIconW)
-                *ppvOut = (IExtractIconW *)pxi;
+                *ppvOut = (IExtractIconW*)pxi;
             else
-                *ppvOut = (IExtractIconA *)pxi;
+                *ppvOut = (IExtractIconA*)pxi;
 #else
-            *ppvOut = (IExtractIcon*)new CExtractIcon((PCDFITEMIDLIST)apidl[0],
-                                                      m_pIXMLElementCollection);
+            * ppvOut = (IExtractIcon*)new CExtractIcon((PCDFITEMIDLIST)apidl[0],
+                                                       m_pIXMLElementCollection);
 #endif
             hr = *ppvOut ? S_OK : E_OUTOFMEMORY;
-        }
-        else if (IID_IContextMenu == riid)
-        {
+        } else if (IID_IContextMenu == riid) {
 
-        #if USE_DEFAULT_MENU_HANDLER
+#if USE_DEFAULT_MENU_HANDLER
 
             hr = CDefFolderMenu_Create((LPITEMIDLIST)m_pcdfidl, hwndOwner, cidl,
                                        apidl, (IShellFolder*)this, MenuCallBack,
                                        NULL, NULL, (IContextMenu**)ppvOut);
-        #else // USE_DEFAULT_MENU_HANDLER
+#else // USE_DEFAULT_MENU_HANDLER
 
-            *ppvOut = (IContextMenu*)new CContextMenu((PCDFITEMIDLIST*)apidl,
-                                                      m_pidlPath, cidl);
+            * ppvOut = (IContextMenu*)new CContextMenu((PCDFITEMIDLIST*)apidl,
+                                                       m_pidlPath, cidl);
 
             hr = *ppvOut ? S_OK : E_OUTOFMEMORY;
 
-        #endif // USE_DEFAULT_MENU_HANDLER
+#endif // USE_DEFAULT_MENU_HANDLER
 
-        }
-        else if (IID_IQueryInfo == riid)
-        {
+        } else if (IID_IQueryInfo == riid) {
             ASSERT(1 == cidl);
 
-            if (!m_bCdfParsed)
-            {
+            if (!m_bCdfParsed) {
                 TraceMsg(TF_CDFPARSE, "IShellFolder IQueryInfo %s",
                          PathFindFileName(m_szPath));
                 ParseCdfFolder(NULL, PARSE_LOCAL);
             }
 
             *ppvOut = (IQueryInfo*)new CQueryInfo((PCDFITEMIDLIST)apidl[0],
-                                                   m_pIXMLElementCollection);
+                                                  m_pIXMLElementCollection);
 
             hr = *ppvOut ? S_OK : E_OUTOFMEMORY;
-        }
-        else if (IID_IShellLink  == riid || IID_IDataObject == riid
+        } else if (IID_IShellLink == riid || IID_IDataObject == riid
 #ifdef UNICODE
-                || IID_IShellLinkA == riid
+                   || IID_IShellLinkA == riid
 #endif
-                )
-        {
+                   ) {
             ASSERT(1 == cidl); // IDataObject should handle cidl > 1!
 
             hr = QueryInternetShortcut((PCDFITEMIDLIST)apidl[0], riid, ppvOut);
-        }
-        else
-        {
+        } else {
             hr = E_NOINTERFACE;
         }
-    }
-    else
-    {
+    } else {
         ASSERT(0);  // Is this ever called with cidl == 0?
 
         hr = E_FAIL;
@@ -663,7 +619,7 @@ CCdfView::GetDisplayNameOf(
     ASSERT(CDFIDL_IsValid((PCDFITEMIDLIST)pidl));
     ASSERT(ILIsEmpty(_ILNext(pidl)));
     ASSERT(XML_IsCdfidlMemberOf(m_pIXMLElementCollection,
-                                (PCDFITEMIDLIST)pidl));
+        (PCDFITEMIDLIST)pidl));
     ASSERT(lpName);
 
     return CDFIDL_GetDisplayName((PCDFITEMIDLIST)pidl, lpName);
@@ -743,12 +699,9 @@ CCdfView::Initialize(
 
     m_pidlPath = ILClone(pidl);
 
-    if (m_pidlPath)
-    {
+    if (m_pidlPath) {
         hr = CPersist::Initialize(pidl);
-    }
-    else
-    {
+    } else {
         hr = E_OUTOFMEMORY;
     }
 
@@ -797,17 +750,15 @@ CCdfView::ParseCdfFolder(
 
     hr = CPersist::ParseCdf(hwndOwner, &pIXMLDocument, dwParseFlags);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         ASSERT(pIXMLDocument);
 
-        IXMLElement*    pIXMLElement;
+        IXMLElement* pIXMLElement;
         LONG            nIndex;
 
         hr = XML_GetFirstChannelElement(pIXMLDocument, &pIXMLElement, &nIndex);
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             ASSERT(pIXMLElement);
             //ASSERT(NULL == m_pcdfidl); Can be non-NULL on a reparse.
 
@@ -820,13 +771,12 @@ CCdfView::ParseCdfFolder(
             m_pcdfidl = CDFIDL_CreateFromXMLElement(pIXMLElement, nIndex);
 
             HRESULT hr2 = pIXMLElement->get_children(&m_pIXMLElementCollection);
-            if(!m_pIXMLElementCollection)
-            {
+            if (!m_pIXMLElementCollection) {
                 ASSERT(hr2 != S_OK);
                 hr = E_FAIL;
             }
             ASSERT((S_OK == hr2 && m_pIXMLElementCollection) ||
-                   (S_OK != hr2 && NULL == m_pIXMLElementCollection));
+                (S_OK != hr2 && NULL == m_pIXMLElementCollection));
 
             pIXMLElement->Release();
         }
@@ -837,7 +787,6 @@ CCdfView::ParseCdfFolder(
     return hr;
 }
 
-//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 
 // *** CCdfView::QueryInternetShortcut ***
 
@@ -853,17 +802,7 @@ CCdfView::ParseCdfFolder(
 // Return:
 //     S_OK if the object is created and the interface is found.
 //     A COM error code otherwise.
-
-// Comments:
-
-
-
-HRESULT
-QueryInternetShortcut(
-    LPCTSTR pszURL,
-    REFIID riid,
-    void** ppvOut
-)
+HRESULT QueryInternetShortcut(LPCTSTR pszURL, REFIID riid, void** ppvOut)
 {
     ASSERT(pszURL);
     ASSERT(ppvOut);
@@ -872,23 +811,20 @@ QueryInternetShortcut(
 
     WCHAR wszURL[INTERNET_MAX_URL_LENGTH];
 
-    if (SHTCharToUnicode(pszURL, wszURL, ARRAYSIZE(wszURL)))
-    {
+    if (SHTCharToUnicode(pszURL, wszURL, ARRAYSIZE(wszURL))) {
         BSTR bstrURL = SysAllocString(wszURL);
 
-        if (bstrURL)
-        {
+        if (bstrURL) {
             CDFITEM cdfi;
 
             cdfi.nIndex = 1;
             cdfi.cdfItemType = CDF_Folder;
             cdfi.bstrName = bstrURL;
-            cdfi.bstrURL  = bstrURL;
+            cdfi.bstrURL = bstrURL;
 
             PCDFITEMIDLIST pcdfidl = CDFIDL_Create(&cdfi);
 
-            if (pcdfidl)
-            {
+            if (pcdfidl) {
                 hr = QueryInternetShortcut(pcdfidl, riid, ppvOut);
 
                 CDFIDL_Free(pcdfidl);
@@ -900,7 +836,7 @@ QueryInternetShortcut(
 
     return hr;
 }
-//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+
 
 // *** CCdfView::QueryInternetShortcut ***
 
@@ -917,17 +853,7 @@ QueryInternetShortcut(
 // Return:
 //     S_OK if the object is created and the interface is found.
 //     A COM error code otherwise.
-
-// Comments:
-
-
-
-HRESULT
-QueryInternetShortcut(
-    PCDFITEMIDLIST pcdfidl,
-    REFIID riid,
-    void** ppvOut
-)
+HRESULT QueryInternetShortcut(PCDFITEMIDLIST pcdfidl, REFIID riid, void** ppvOut)
 {
     ASSERT(CDFIDL_IsValid(pcdfidl));
     ASSERT(ILIsEmpty(_ILNext((LPITEMIDLIST)pcdfidl)));
@@ -937,23 +863,19 @@ QueryInternetShortcut(
 
     *ppvOut = NULL;
 
-
     // Only create a shell link object if the CDF contains an URL
 
-    if (*(CDFIDL_GetURL(pcdfidl)) != 0)
-    {
-        IShellLinkA * pIShellLink;
+    if (*(CDFIDL_GetURL(pcdfidl)) != 0) {
+        IShellLinkA* pIShellLink;
 
         hr = CoCreateInstance(CLSID_InternetShortcut, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkA, (void**)&pIShellLink);
         BOOL bCoInit = FALSE;
-        if ((CO_E_NOTINITIALIZED == hr || REGDB_E_IIDNOTREG == hr) && SUCCEEDED(CoInitialize(NULL)))
-        {
+        if ((CO_E_NOTINITIALIZED == hr || REGDB_E_IIDNOTREG == hr) && SUCCEEDED(CoInitialize(NULL))) {
             bCoInit = TRUE;
             hr = CoCreateInstance(CLSID_InternetShortcut, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkA, (void**)&pIShellLink);
         }
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             ASSERT(pIShellLink);
 
 #ifdef UNICODE
@@ -965,8 +887,7 @@ QueryInternetShortcut(
             hr = pIShellLink->SetPath(CDFIDL_GetURL(pcdfidl));
 #endif
 
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
 
                 // The description ends up being the file name created.
 
@@ -993,10 +914,7 @@ QueryInternetShortcut(
 
         if (bCoInit)
             CoUninitialize();
-
-    }
-    else
-    {
+    } else {
         hr = E_FAIL;
     }
 

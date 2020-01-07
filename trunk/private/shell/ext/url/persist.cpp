@@ -100,7 +100,7 @@ PRIVATE_CODE HRESULT MassageURL(PSTR pszURL)
 }
 
 
-PRIVATE_CODE HRESULT ReadURLFromFile(PCSTR pcszFile, PSTR *ppszURL)
+PRIVATE_CODE HRESULT ReadURLFromFile(PCSTR pcszFile, PSTR* ppszURL)
 {
     HRESULT hr;
     PSTR pszNewURL;
@@ -112,51 +112,41 @@ PRIVATE_CODE HRESULT ReadURLFromFile(PCSTR pcszFile, PSTR *ppszURL)
 
     pszNewURL = new(char[g_ucMaxURLLen]);
 
-    if (pszNewURL)
-    {
+    if (pszNewURL) {
         DWORD dwcValueLen;
 
         dwcValueLen = SHGetIniString(s_cszInternetShortcutSection,
                                      s_cszURLKey,
                                      pszNewURL, g_ucMaxURLLen, pcszFile);
 
-        if (dwcValueLen > 0)
-        {
+        if (dwcValueLen > 0) {
             hr = MassageURL(pszNewURL);
 
-            if (hr == S_OK)
-            {
+            if (hr == S_OK) {
                 PSTR pszShorterURL;
 
                 // (+ 1) for null terminator.
 
                 if (ReallocateMemory(pszNewURL, lstrlen(pszNewURL) + 1,
-                    (PVOID *)&pszShorterURL))
-                {
+                    (PVOID*)&pszShorterURL)) {
                     *ppszURL = pszShorterURL;
 
                     hr = S_OK;
-                }
-                else
+                } else
                     hr = E_OUTOFMEMORY;
             }
-        }
-        else
-        {
+        } else {
             hr = S_FALSE;
 
             WARNING_OUT(("ReadURLFromFile: No URL found in file %s.",
                          pcszFile));
         }
-    }
-    else
+    } else
         hr = E_OUTOFMEMORY;
 
     if (FAILED(hr) ||
-        hr == S_FALSE)
-    {
-        if (pszNewURL)
-        {
+        hr == S_FALSE) {
+        if (pszNewURL) {
             delete pszNewURL;
             pszNewURL = NULL;
         }
@@ -179,8 +169,7 @@ PRIVATE_CODE HRESULT WriteURLToFile(PCSTR pcszFile, PCSTR pcszURL)
     ASSERT(!pcszURL ||
            IS_VALID_STRING_PTR(pcszURL, CSTR));
 
-    if (AnyMeat(pcszURL))
-    {
+    if (AnyMeat(pcszURL)) {
         int ncbLen;
 
         ASSERT(IS_VALID_STRING_PTR(pcszFile, CSTR));
@@ -189,8 +178,7 @@ PRIVATE_CODE HRESULT WriteURLToFile(PCSTR pcszFile, PCSTR pcszURL)
         hr = (SHSetIniString(s_cszInternetShortcutSection, s_cszURLKey, pcszURL, pcszFile))
             ? S_OK
             : E_FAIL;
-    }
-    else
+    } else
         hr = (SHDeleteIniString(s_cszInternetShortcutSection, s_cszURLKey, pcszFile))
         ? S_OK
         : E_FAIL;
@@ -200,7 +188,7 @@ PRIVATE_CODE HRESULT WriteURLToFile(PCSTR pcszFile, PCSTR pcszURL)
 
 
 PRIVATE_CODE HRESULT ReadIconLocationFromFile(PCSTR pcszFile,
-                                              PSTR *ppszIconFile, PINT pniIcon)
+                                              PSTR* ppszIconFile, PINT pniIcon)
 {
     HRESULT hr;
     char rgchNewIconFile[MAX_PATH_LEN];
@@ -218,50 +206,39 @@ PRIVATE_CODE HRESULT ReadIconLocationFromFile(PCSTR pcszFile,
                                  rgchNewIconFile,
                                  sizeof(rgchNewIconFile), pcszFile);
 
-    if (dwcValueLen > 0)
-    {
+    if (dwcValueLen > 0) {
         char rgchNewIconIndex[s_ucMaxIconIndexLen];
 
         dwcValueLen = GetPrivateProfileString(s_cszInternetShortcutSection, s_cszIconIndexKey, EMPTY_STRING, rgchNewIconIndex, sizeof(rgchNewIconIndex), pcszFile);
-        if (dwcValueLen > 0)
-        {
+        if (dwcValueLen > 0) {
             int niIcon;
 
-            if (StrToIntEx(rgchNewIconIndex, 0, &niIcon))
-            {
+            if (StrToIntEx(rgchNewIconIndex, 0, &niIcon)) {
                 // (+ 1) for null terminator.
 
                 *ppszIconFile = new(char[lstrlen(rgchNewIconFile) + 1]);
 
-                if (*ppszIconFile)
-                {
+                if (*ppszIconFile) {
                     lstrcpy(*ppszIconFile, rgchNewIconFile);
                     *pniIcon = niIcon;
 
                     hr = S_OK;
-                }
-                else
+                } else
                     hr = E_OUTOFMEMORY;
-            }
-            else
-            {
+            } else {
                 hr = S_FALSE;
 
                 WARNING_OUT(("ReadIconLocationFromFile(): Bad icon index \"%s\" found in file %s.",
                              rgchNewIconIndex,
                              pcszFile));
             }
-        }
-        else
-        {
+        } else {
             hr = S_FALSE;
 
             WARNING_OUT(("ReadIconLocationFromFile(): No icon index found in file %s.",
                          pcszFile));
         }
-    }
-    else
-    {
+    } else {
         hr = S_FALSE;
 
         TRACE_OUT(("ReadIconLocationFromFile(): No icon file found in file %s.",
@@ -285,8 +262,7 @@ PRIVATE_CODE HRESULT WriteIconLocationToFile(PCSTR pcszFile,
            IS_VALID_STRING_PTR(pcszIconFile, CSTR));
     ASSERT(IsValidIconIndex((pcszIconFile ? S_OK : S_FALSE), pcszIconFile, MAX_PATH_LEN, niIcon));
 
-    if (AnyMeat(pcszIconFile))
-    {
+    if (AnyMeat(pcszIconFile)) {
         char rgchIconIndexRHS[s_ucMaxIconIndexLen];
         int ncLen;
 
@@ -303,8 +279,7 @@ PRIVATE_CODE HRESULT WriteIconLocationToFile(PCSTR pcszFile,
                                         pcszFile))
             ? S_OK
             : E_FAIL;
-    }
-    else
+    } else
         hr = (SHDeleteIniString(s_cszInternetShortcutSection,
                                 s_cszIconFileKey, pcszFile) &&
               DeletePrivateProfileString(s_cszInternetShortcutSection,
@@ -328,22 +303,18 @@ PRIVATE_CODE HRESULT ReadHotkeyFromFile(PCSTR pcszFile, PWORD pwHotkey)
     *pwHotkey = 0;
 
     dwcValueLen = GetPrivateProfileString(s_cszInternetShortcutSection, s_cszHotkeyKey, EMPTY_STRING, rgchHotkey, sizeof(rgchHotkey), pcszFile);
-    if (dwcValueLen > 0)
-    {
+    if (dwcValueLen > 0) {
         UINT uHotkey;
 
-        if (StrToIntEx(rgchHotkey, 0, (int *)&uHotkey))
-        {
+        if (StrToIntEx(rgchHotkey, 0, (int*)&uHotkey)) {
             *pwHotkey = (WORD)uHotkey;
 
             hr = S_OK;
-        }
-        else
+        } else
             WARNING_OUT(("ReadHotkeyFromFile(): Bad hotkey \"%s\" found in file %s.",
                          rgchHotkey,
                          pcszFile));
-    }
-    else
+    } else
         WARNING_OUT(("ReadHotkeyFromFile(): No hotkey found in file %s.",
                      pcszFile));
 
@@ -364,8 +335,7 @@ PRIVATE_CODE HRESULT WriteHotkeyToFile(PCSTR pcszFile, WORD wHotkey)
     ASSERT(!wHotkey ||
            IsValidHotkey(wHotkey));
 
-    if (wHotkey)
-    {
+    if (wHotkey) {
         char rgchHotkeyRHS[s_ucMaxHotkeyLen];
         int ncLen;
 
@@ -379,8 +349,7 @@ PRIVATE_CODE HRESULT WriteHotkeyToFile(PCSTR pcszFile, WORD wHotkey)
                                        pcszFile)
             ? S_OK
             : E_FAIL;
-    }
-    else
+    } else
         hr = DeletePrivateProfileString(s_cszInternetShortcutSection,
                                         s_cszHotkeyKey, pcszFile)
         ? S_OK
@@ -391,7 +360,7 @@ PRIVATE_CODE HRESULT WriteHotkeyToFile(PCSTR pcszFile, WORD wHotkey)
 
 
 PRIVATE_CODE HRESULT ReadWorkingDirectoryFromFile(PCSTR pcszFile,
-                                                  PSTR *ppszWorkingDirectory)
+                                                  PSTR* ppszWorkingDirectory)
 {
     HRESULT hr;
     char rgchDirValue[MAX_PATH_LEN];
@@ -407,32 +376,25 @@ PRIVATE_CODE HRESULT ReadWorkingDirectoryFromFile(PCSTR pcszFile,
                                  rgchDirValue,
                                  sizeof(rgchDirValue), pcszFile);
 
-    if (dwcValueLen > 0)
-    {
+    if (dwcValueLen > 0) {
         char rgchFullPath[MAX_PATH_LEN];
         PSTR pszFileName;
 
         if (GetFullPathName(rgchDirValue, sizeof(rgchFullPath), rgchFullPath,
-                            &pszFileName) > 0)
-        {
+                            &pszFileName) > 0) {
             // (+ 1) for null terminator.
 
             *ppszWorkingDirectory = new(char[lstrlen(rgchFullPath) + 1]);
 
-            if (*ppszWorkingDirectory)
-            {
+            if (*ppszWorkingDirectory) {
                 lstrcpy(*ppszWorkingDirectory, rgchFullPath);
 
                 hr = S_OK;
-            }
-            else
+            } else
                 hr = E_OUTOFMEMORY;
-        }
-        else
+        } else
             hr = E_FAIL;
-    }
-    else
-    {
+    } else {
         hr = S_FALSE;
 
         TRACE_OUT(("ReadWorkingDirectoryFromFile: No working directory found in file %s.",
@@ -482,27 +444,21 @@ PRIVATE_CODE HRESULT ReadShowCmdFromFile(PCSTR pcszFile, PINT pnShowCmd)
     *pnShowCmd = g_nDefaultShowCmd;
 
     dwcValueLen = GetPrivateProfileString(s_cszInternetShortcutSection, s_cszShowCmdKey, EMPTY_STRING, rgchNewShowCmd, sizeof(rgchNewShowCmd), pcszFile);
-    if (dwcValueLen > 0)
-    {
+    if (dwcValueLen > 0) {
         int nShowCmd;
 
-        if (StrToIntEx(rgchNewShowCmd, 0, &nShowCmd))
-        {
+        if (StrToIntEx(rgchNewShowCmd, 0, &nShowCmd)) {
             *pnShowCmd = nShowCmd;
 
             hr = S_OK;
-        }
-        else
-        {
+        } else {
             hr = S_FALSE;
 
             WARNING_OUT(("ReadShowCmdFromFile: Invalid show command \"%s\" found in file %s.",
                          rgchNewShowCmd,
                          pcszFile));
         }
-    }
-    else
-    {
+    } else {
         hr = S_FALSE;
 
         TRACE_OUT(("ReadShowCmdFromFile: No show command found in file %s.",
@@ -525,8 +481,7 @@ PRIVATE_CODE HRESULT WriteShowCmdToFile(PCSTR pcszFile, int nShowCmd)
     ASSERT(IS_VALID_STRING_PTR(pcszFile, CSTR));
     ASSERT(IsValidShowCmd(nShowCmd));
 
-    if (nShowCmd != g_nDefaultShowCmd)
-    {
+    if (nShowCmd != g_nDefaultShowCmd) {
         char rgchShowCmdRHS[s_ucMaxShowCmdLen];
         int ncLen;
 
@@ -540,8 +495,7 @@ PRIVATE_CODE HRESULT WriteShowCmdToFile(PCSTR pcszFile, int nShowCmd)
                                         pcszFile))
             ? S_OK
             : E_FAIL;
-    }
-    else
+    } else
         hr = (DeletePrivateProfileString(s_cszInternetShortcutSection,
                                          s_cszShowCmdKey, pcszFile))
         ? S_OK
@@ -554,7 +508,7 @@ PRIVATE_CODE HRESULT WriteShowCmdToFile(PCSTR pcszFile, int nShowCmd)
 /****** Public Functions *****/
 
 
-PUBLIC_CODE HRESULT UnicodeToANSI(LPCOLESTR pcwszUnicode, PSTR *ppszANSI)
+PUBLIC_CODE HRESULT UnicodeToANSI(LPCOLESTR pcwszUnicode, PSTR* ppszANSI)
 {
     HRESULT hr;
     int ncbLen;
@@ -569,26 +523,21 @@ PUBLIC_CODE HRESULT UnicodeToANSI(LPCOLESTR pcwszUnicode, PSTR *ppszANSI)
     ncbLen = WideCharToMultiByte(CP_ACP, 0, pcwszUnicode, -1, NULL, 0, NULL,
                                  NULL);
 
-    if (ncbLen > 0)
-    {
+    if (ncbLen > 0) {
         PSTR pszNewANSI;
 
         // (+ 1) for null terminator.
 
         pszNewANSI = new(char[ncbLen]);
 
-        if (pszNewANSI)
-        {
+        if (pszNewANSI) {
             // Translate string.
 
             if (WideCharToMultiByte(CP_ACP, 0, pcwszUnicode, -1, pszNewANSI,
-                                    ncbLen, NULL, NULL) > 0)
-            {
+                                    ncbLen, NULL, NULL) > 0) {
                 *ppszANSI = pszNewANSI;
                 hr = S_OK;
-            }
-            else
-            {
+            } else {
                 delete pszNewANSI;
                 pszNewANSI = NULL;
 
@@ -596,12 +545,9 @@ PUBLIC_CODE HRESULT UnicodeToANSI(LPCOLESTR pcwszUnicode, PSTR *ppszANSI)
 
                 WARNING_OUT(("UnicodeToANSI(): Failed to translate Unicode string to ANSI."));
             }
-        }
-        else
+        } else
             hr = E_OUTOFMEMORY;
-    }
-    else
-    {
+    } else {
         hr = E_UNEXPECTED;
 
         WARNING_OUT(("UnicodeToANSI(): Failed to get length of translated ANSI string."));
@@ -614,7 +560,7 @@ PUBLIC_CODE HRESULT UnicodeToANSI(LPCOLESTR pcwszUnicode, PSTR *ppszANSI)
 }
 
 
-PUBLIC_CODE HRESULT ANSIToUnicode(PCSTR pcszANSI, LPOLESTR *ppwszUnicode)
+PUBLIC_CODE HRESULT ANSIToUnicode(PCSTR pcszANSI, LPOLESTR* ppwszUnicode)
 {
     HRESULT hr;
     int ncbWideLen;
@@ -628,26 +574,21 @@ PUBLIC_CODE HRESULT ANSIToUnicode(PCSTR pcszANSI, LPOLESTR *ppwszUnicode)
 
     ncbWideLen = MultiByteToWideChar(CP_ACP, 0, pcszANSI, -1, NULL, 0);
 
-    if (ncbWideLen > 0)
-    {
+    if (ncbWideLen > 0) {
         PWSTR pwszNewUnicode;
 
         // (+ 1) for null terminator.
 
         pwszNewUnicode = new(WCHAR[ncbWideLen]);
 
-        if (pwszNewUnicode)
-        {
+        if (pwszNewUnicode) {
             // Translate string.
 
             if (MultiByteToWideChar(CP_ACP, 0, pcszANSI, -1, pwszNewUnicode,
-                                    ncbWideLen) > 0)
-            {
+                                    ncbWideLen) > 0) {
                 *ppwszUnicode = pwszNewUnicode;
                 hr = S_OK;
-            }
-            else
-            {
+            } else {
                 delete pwszNewUnicode;
                 pwszNewUnicode = NULL;
 
@@ -655,12 +596,9 @@ PUBLIC_CODE HRESULT ANSIToUnicode(PCSTR pcszANSI, LPOLESTR *ppwszUnicode)
 
                 WARNING_OUT(("ANSIToUnicode(): Failed to translate ANSI path string to Unicode."));
             }
-        }
-        else
+        } else
             hr = E_OUTOFMEMORY;
-    }
-    else
-    {
+    } else {
         hr = E_UNEXPECTED;
 
         WARNING_OUT(("ANSIToUnicode(): Failed to get length of translated Unicode string."));
@@ -687,55 +625,43 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::SaveToFile(PCSTR pcszFile,
     ASSERT(IS_VALID_STRING_PTR(pcszFile, CSTR));
 
     hr = GetURL(&pszURL);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         hr = WriteURLToFile(pcszFile, pszURL);
-        if (pszURL)
-        {
+        if (pszURL) {
             SHFree(pszURL);
             pszURL = NULL;
         }
 
-        if (hr == S_OK)
-        {
+        if (hr == S_OK) {
             char rgchBuf[MAX_PATH_LEN];
             int niIcon;
 
             hr = GetIconLocation(rgchBuf, sizeof(rgchBuf), &niIcon);
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 hr = WriteIconLocationToFile(pcszFile, rgchBuf, niIcon);
-                if (hr == S_OK)
-                {
+                if (hr == S_OK) {
                     WORD wHotkey;
 
                     hr = GetHotkey(&wHotkey);
-                    if (SUCCEEDED(hr))
-                    {
+                    if (SUCCEEDED(hr)) {
                         hr = WriteHotkeyToFile(pcszFile, wHotkey);
-                        if (hr == S_OK)
-                        {
+                        if (hr == S_OK) {
                             hr = GetWorkingDirectory(rgchBuf, sizeof(rgchBuf));
-                            if (SUCCEEDED(hr))
-                            {
+                            if (SUCCEEDED(hr)) {
                                 hr = WriteWorkingDirectoryToFile(pcszFile, rgchBuf);
-                                if (hr == S_OK)
-                                {
+                                if (hr == S_OK) {
                                     int nShowCmd;
 
                                     GetShowCmd(&nShowCmd);
 
                                     hr = WriteShowCmdToFile(pcszFile, nShowCmd);
-                                    if (hr == S_OK)
-                                    {
+                                    if (hr == S_OK) {
                                         /* Remember file if requested. */
 
-                                        if (bRemember)
-                                        {
+                                        if (bRemember) {
                                             PSTR pszFileCopy;
 
-                                            if (StringCopy(pcszFile, &pszFileCopy))
-                                            {
+                                            if (StringCopy(pcszFile, &pszFileCopy)) {
                                                 if (m_pszFile)
                                                     delete m_pszFile;
 
@@ -743,13 +669,11 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::SaveToFile(PCSTR pcszFile,
 
                                                 TRACE_OUT(("InternetShortcut::SaveToFile(): Remembering file %s, as requested.",
                                                            m_pszFile));
-                                            }
-                                            else
+                                            } else
                                                 hr = E_OUTOFMEMORY;
                                         }
 
-                                        if (hr == S_OK)
-                                        {
+                                        if (hr == S_OK) {
                                             Dirty(FALSE);
 
                                             SHChangeNotify(SHCNE_UPDATEITEM, (SHCNF_PATH | SHCNF_FLUSH), pcszFile, NULL);
@@ -790,77 +714,63 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::LoadFromFile(PCSTR pcszFile,
 
     hr = ReadURLFromFile(pcszFile, &pszURL);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         hr = SetURL(pszURL, (IURL_SETURL_FL_GUESS_PROTOCOL |
                              IURL_SETURL_FL_USE_DEFAULT_PROTOCOL));
 
-        if (pszURL)
-        {
+        if (pszURL) {
             delete pszURL;
             pszURL = NULL;
         }
 
-        if (hr == S_OK)
-        {
+        if (hr == S_OK) {
             PSTR pszIconFile;
             int niIcon;
 
             hr = ReadIconLocationFromFile(pcszFile, &pszIconFile, &niIcon);
 
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 hr = SetIconLocation(pszIconFile, niIcon);
 
-                if (pszIconFile)
-                {
+                if (pszIconFile) {
                     delete pszIconFile;
                     pszIconFile = NULL;
                 }
 
-                if (hr == S_OK)
-                {
+                if (hr == S_OK) {
                     WORD wHotkey;
 
                     hr = ReadHotkeyFromFile(pcszFile, &wHotkey);
 
-                    if (SUCCEEDED(hr))
-                    {
+                    if (SUCCEEDED(hr)) {
                         hr = SetHotkey(wHotkey);
 
-                        if (hr == S_OK)
-                        {
+                        if (hr == S_OK) {
                             PSTR pszWorkingDirectory;
 
                             hr = ReadWorkingDirectoryFromFile(pcszFile,
                                                               &pszWorkingDirectory);
 
-                            if (SUCCEEDED(hr))
-                            {
+                            if (SUCCEEDED(hr)) {
                                 hr = SetWorkingDirectory(pszWorkingDirectory);
 
-                                if (pszWorkingDirectory)
-                                {
+                                if (pszWorkingDirectory) {
                                     delete pszWorkingDirectory;
                                     pszWorkingDirectory = NULL;
                                 }
 
-                                if (hr == S_OK)
-                                {
+                                if (hr == S_OK) {
                                     int nShowCmd;
 
                                     hr = ReadShowCmdFromFile(pcszFile, &nShowCmd);
 
-                                    if (SUCCEEDED(hr))
-                                    {
+                                    if (SUCCEEDED(hr)) {
                                         /* Remember file if requested. */
 
-                                        if (bRemember)
-                                        {
+                                        if (bRemember) {
                                             PSTR pszFileCopy;
 
-                                            if (StringCopy(pcszFile, &pszFileCopy))
-                                            {
+                                            if (StringCopy(pcszFile, &pszFileCopy)) {
                                                 if (m_pszFile)
                                                     delete m_pszFile;
 
@@ -868,13 +778,11 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::LoadFromFile(PCSTR pcszFile,
 
                                                 TRACE_OUT(("InternetShortcut::LoadFromFile(): Remembering file %s, as requested.",
                                                            m_pszFile));
-                                            }
-                                            else
+                                            } else
                                                 hr = E_OUTOFMEMORY;
                                         }
 
-                                        if (SUCCEEDED(hr))
-                                        {
+                                        if (SUCCEEDED(hr)) {
                                             SetShowCmd(nShowCmd);
 
                                             Dirty(FALSE);
@@ -915,16 +823,14 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::GetCurFile(PSTR pszFile,
     ASSERT(IS_VALID_STRUCT_PTR(this, CInternetShortcut));
     ASSERT(IS_VALID_WRITE_BUFFER_PTR(pszFile, STR, ucbLen));
 
-    if (m_pszFile)
-    {
+    if (m_pszFile) {
         lstrcpyn(pszFile, m_pszFile, ucbLen);
 
         TRACE_OUT(("InternetShortcut::GetCurFile(): Current file name is %s.",
                    pszFile));
 
         hr = S_OK;
-    }
-    else
+    } else
         hr = S_FALSE;
 
     ASSERT(IS_VALID_STRUCT_PTR(this, CInternetShortcut));
@@ -947,16 +853,13 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::Dirty(BOOL bDirty)
 
     ASSERT(IS_VALID_STRUCT_PTR(this, CInternetShortcut));
 
-    if (bDirty)
-    {
+    if (bDirty) {
         if (IS_FLAG_CLEAR(m_dwFlags, INTSHCUT_FL_DIRTY)) {
             TRACE_OUT(("InternetShortcut::Dirty(): Now dirty."));
         }
 
         SET_FLAG(m_dwFlags, INTSHCUT_FL_DIRTY);
-    }
-    else
-    {
+    } else {
         if (IS_FLAG_SET(m_dwFlags, INTSHCUT_FL_DIRTY)) {
             TRACE_OUT(("InternetShortcut::Dirty(): Now clean."));
         }
@@ -1031,19 +934,16 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::Save(LPCOLESTR pcwszFile,
     ASSERT(IS_VALID_STRUCT_PTR(this, CInternetShortcut));
     // BUGBUG: Need OLESTR validation function to validate pcwszFile here.
 
-    if (pcwszFile)
-    {
+    if (pcwszFile) {
         hr = UnicodeToANSI(pcwszFile, &pszFile);
 
-        if (hr == S_OK)
-        {
+        if (hr == S_OK) {
             hr = SaveToFile(pszFile, bRemember);
 
             delete pszFile;
             pszFile = NULL;
         }
-    }
-    else if (m_pszFile)
+    } else if (m_pszFile)
         // Ignore bRemember.
         hr = SaveToFile(m_pszFile, FALSE);
     else
@@ -1096,8 +996,7 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::Load(LPCOLESTR pcwszFile,
 
     hr = UnicodeToANSI(pcwszFile, &pszFile);
 
-    if (hr == S_OK)
-    {
+    if (hr == S_OK) {
         hr = LoadFromFile(pszFile, TRUE);
 
         delete pszFile;
@@ -1114,7 +1013,7 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::Load(LPCOLESTR pcwszFile,
 #pragma warning(default:4100) /* "unreferenced formal parameter" warning */
 
 
-HRESULT STDMETHODCALLTYPE InternetShortcut::GetCurFile(LPOLESTR *ppwszFile)
+HRESULT STDMETHODCALLTYPE InternetShortcut::GetCurFile(LPOLESTR* ppwszFile)
 {
     HRESULT hr;
     LPOLESTR pwszTempFile;
@@ -1124,21 +1023,17 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::GetCurFile(LPOLESTR *ppwszFile)
     ASSERT(IS_VALID_STRUCT_PTR(this, CInternetShortcut));
     ASSERT(IS_VALID_WRITE_PTR(ppwszFile, LPOLESTR));
 
-    if (m_pszFile)
-    {
+    if (m_pszFile) {
         hr = ANSIToUnicode(m_pszFile, &pwszTempFile);
 
         if (hr == S_OK) {
             TRACE_OUT(("InternetShortcut::GetCurFile(): Current file name is %s.",
                        m_pszFile));
         }
-    }
-    else
-    {
+    } else {
         hr = ANSIToUnicode(g_cszURLDefaultFileNamePrompt, &pwszTempFile);
 
-        if (hr == S_OK)
-        {
+        if (hr == S_OK) {
             hr = S_FALSE;
 
             TRACE_OUT(("InternetShortcut::GetCurFile(): No current file name.  Returning default file name prompt %s.",
@@ -1146,8 +1041,7 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::GetCurFile(LPOLESTR *ppwszFile)
         }
     }
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         // We should really call OleGetMalloc() to get the process IMalloc here.
         // Use SHAlloc() here instead to avoid loading ole32.dll.
         // SHAlloc() / SHFree() turn in to IMalloc::Alloc() and IMalloc::Free()
@@ -1303,10 +1197,8 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::TransferUniformResourceLocator(
 
     ZeroMemory(pstgmed, sizeof(*pstgmed));
 
-    if (IS_FLAG_SET(pfmtetc->tymed, TYMED_HGLOBAL))
-    {
-        if (m_pszURL)
-        {
+    if (IS_FLAG_SET(pfmtetc->tymed, TYMED_HGLOBAL)) {
+        if (m_pszURL) {
             HGLOBAL hgURL;
 
             hr = E_OUTOFMEMORY;
@@ -1314,14 +1206,12 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::TransferUniformResourceLocator(
             // (+ 1) for null terminator.
             hgURL = GlobalAlloc(0, lstrlen(m_pszURL) + 1);
 
-            if (hgURL)
-            {
+            if (hgURL) {
                 PSTR pszURL;
 
                 pszURL = (PSTR)GlobalLock(hgURL);
 
-                if (EVAL(pszURL))
-                {
+                if (EVAL(pszURL)) {
                     lstrcpy(pszURL, m_pszURL);
 
                     pstgmed->tymed = TYMED_HGLOBAL;
@@ -1334,17 +1224,14 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::TransferUniformResourceLocator(
                     pszURL = NULL;
                 }
 
-                if (hr != S_OK)
-                {
+                if (hr != S_OK) {
                     GlobalFree(hgURL);
                     hgURL = NULL;
                 }
             }
-        }
-        else
+        } else
             hr = DV_E_FORMATETC;
-    }
-    else
+    } else
         hr = DV_E_TYMED;
 
     ASSERT(IS_VALID_STRUCT_PTR(this, CInternetShortcut));
@@ -1398,8 +1285,7 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::TransferFileGroupDescriptor(
     pstgmed->hGlobal = NULL;
     pstgmed->pUnkForRelease = NULL;
 
-    if (IS_FLAG_SET(pfmtetc->tymed, TYMED_HGLOBAL))
-    {
+    if (IS_FLAG_SET(pfmtetc->tymed, TYMED_HGLOBAL)) {
         HGLOBAL hgFileGroupDesc;
 
         hr = E_OUTOFMEMORY;
@@ -1407,35 +1293,29 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::TransferFileGroupDescriptor(
         hgFileGroupDesc = GlobalAlloc(GMEM_ZEROINIT,
                                       sizeof(FILEGROUPDESCRIPTOR));
 
-        if (hgFileGroupDesc)
-        {
+        if (hgFileGroupDesc) {
             PFILEGROUPDESCRIPTOR pfgd;
 
             pfgd = (PFILEGROUPDESCRIPTOR)GlobalLock(hgFileGroupDesc);
 
-            if (EVAL(pfgd))
-            {
+            if (EVAL(pfgd)) {
                 PFILEDESCRIPTOR pfd = &(pfgd->fgd[0]);
 
                 // Do we already have a file name to use?
 
-                if (m_pszFile)
-                {
+                if (m_pszFile) {
                     lstrcpyn(pfd->cFileName, ExtractFileName(m_pszFile),
                              SIZECHARS(pfd->cFileName));
 
                     hr = S_OK;
-                }
-                else
-                {
+                } else {
                     if (EVAL(MLLoadStringA(
                         IDS_NEW_INTERNET_SHORTCUT, pfd->cFileName,
                         sizeof(pfd->cFileName))))
                         hr = S_OK;
                 }
 
-                if (hr == S_OK)
-                {
+                if (hr == S_OK) {
                     pfd->dwFlags = (FD_FILESIZE |
                                     FD_LINKUI);
                     pfd->nFileSizeHigh = 0;
@@ -1452,14 +1332,12 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::TransferFileGroupDescriptor(
                 pfgd = NULL;
             }
 
-            if (hr != S_OK)
-            {
+            if (hr != S_OK) {
                 GlobalFree(hgFileGroupDesc);
                 hgFileGroupDesc = NULL;
             }
         }
-    }
-    else
+    } else
         hr = DV_E_TYMED;
 
     ASSERT(IS_VALID_STRUCT_PTR(this, CInternetShortcut));
@@ -1495,13 +1373,11 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::TransferFileContents(
     pstgmed->hGlobal = NULL;
     pstgmed->pUnkForRelease = NULL;
 
-    if (IS_FLAG_SET(pfmtetc->tymed, TYMED_HGLOBAL))
-    {
+    if (IS_FLAG_SET(pfmtetc->tymed, TYMED_HGLOBAL)) {
         HGLOBAL hgFileContents;
-        hr = CreateURLFileContents(m_pszURL, (LPSTR *)&hgFileContents);
+        hr = CreateURLFileContents(m_pszURL, (LPSTR*)&hgFileContents);
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             // Note some apps don't pay attention to the nFileSizeLow
             // field; fortunately, CreateURLFileContents adds a final
             // null terminator to prevent trailing garbage.
@@ -1511,11 +1387,9 @@ HRESULT STDMETHODCALLTYPE InternetShortcut::TransferFileContents(
             ASSERT(!pstgmed->pUnkForRelease);
 
             hr = S_OK;
-        }
-        else
+        } else
             hr = E_OUTOFMEMORY;
-    }
-    else
+    } else
         hr = DV_E_TYMED;
 
     ASSERT(IS_VALID_STRUCT_PTR(this, CInternetShortcut));

@@ -85,8 +85,7 @@ CPackage::~CPackage()
     DestroyIC();
 
     // we destroy depending on which type of object we had packaged
-    switch(_panetype)
-    {
+    switch (_panetype) {
     case PEMBED:
         if (_pEmbed->pszTempName) {
             DeleteFile(_pEmbed->pszTempName);
@@ -124,16 +123,14 @@ CPackage::~CPackage()
     delete _lpszContainerObj;
 
     ReleaseContextMenu();
-    if (NULL != _pVerbs)
-    {
-        for (ULONG i = 0; i < _cVerbs; i++)
-        {
+    if (NULL != _pVerbs) {
+        for (ULONG i = 0; i < _cVerbs; i++) {
             delete _pVerbs[i].lpszVerbName;
         }
         delete _pVerbs;
     }
 
-    DebugMsg(DM_TRACE,"CPackage being destroyed. _cRef == %d",_cRef);
+    DebugMsg(DM_TRACE, "CPackage being destroyed. _cRef == %d", _cRef);
 }
 
 HRESULT CPackage::Init()
@@ -149,19 +146,19 @@ HRESULT CPackage::Init()
 
     // Initialize all the interfaces...
 
-    if (!(_pIOleObject        = new CPackage_IOleObject(this)))
+    if (!(_pIOleObject = new CPackage_IOleObject(this)))
         return E_OUTOFMEMORY;
-    if (!(_pIViewObject2      = new CPackage_IViewObject2(this)))
+    if (!(_pIViewObject2 = new CPackage_IViewObject2(this)))
         return E_OUTOFMEMORY;
-    if (!(_pIDataObject       = new CPackage_IDataObject(this)))
+    if (!(_pIDataObject = new CPackage_IDataObject(this)))
         return E_OUTOFMEMORY;
-    if (!(_pIPersistStorage   = new CPackage_IPersistStorage(this)))
+    if (!(_pIPersistStorage = new CPackage_IPersistStorage(this)))
         return E_OUTOFMEMORY;
-    if (!(_pIPersistFile      = new CPackage_IPersistFile(this)))
+    if (!(_pIPersistFile = new CPackage_IPersistFile(this)))
         return E_OUTOFMEMORY;
-    if (!(_pIAdviseSink       = new CPackage_IAdviseSink(this)))
+    if (!(_pIAdviseSink = new CPackage_IAdviseSink(this)))
         return E_OUTOFMEMORY;
-    if (!(_pIRunnableObject   = new CPackage_IRunnableObject(this)))
+    if (!(_pIRunnableObject = new CPackage_IRunnableObject(this)))
         return E_OUTOFMEMORY;
 
     // Get some system metrics that we'll need later...
@@ -176,11 +173,11 @@ HRESULT CPackage::Init()
 
     // register some clipboard formats that we support...
 
-    g_cfFileContents    = RegisterClipboardFormat(CFSTR_FILECONTENTS);
-    g_cfFileDescriptor  = RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
-    g_cfObjectDescriptor= RegisterClipboardFormat(CFSTR_OBJECTDESCRIPTOR);
-    g_cfEmbedSource     = RegisterClipboardFormat(CFSTR_EMBEDSOURCE);
-    g_cfFileNameW       = RegisterClipboardFormat(TEXT("FileNameW"));
+    g_cfFileContents = RegisterClipboardFormat(CFSTR_FILECONTENTS);
+    g_cfFileDescriptor = RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
+    g_cfObjectDescriptor = RegisterClipboardFormat(CFSTR_OBJECTDESCRIPTOR);
+    g_cfEmbedSource = RegisterClipboardFormat(CFSTR_EMBEDSOURCE);
+    g_cfFileNameW = RegisterClipboardFormat(TEXT("FileNameW"));
 
     // Initialize a generic icon
     _lpic = IconCreate();
@@ -196,48 +193,38 @@ HRESULT CPackage::Init()
 
 
 
-HRESULT CPackage::QueryInterface(REFIID iid, void ** ppvObj)
+HRESULT CPackage::QueryInterface(REFIID iid, void** ppvObj)
 {
     DebugMsg(DM_TRACE, "pack - QueryInterface() called.");
 
     if (iid == IID_IUnknown) {
         DebugMsg(DM_TRACE, "         getting IID_IUnknown");
-        *ppvObj = (void *)this;
-    }
-    else if (iid == IID_IOleObject) {
+        *ppvObj = (void*)this;
+    } else if (iid == IID_IOleObject) {
         DebugMsg(DM_TRACE, "         getting IID_IOleObject");
-        *ppvObj = (void *)_pIOleObject;
-    }
-    else if ((iid == IID_IViewObject2) || (iid == IID_IViewObject)) {
+        *ppvObj = (void*)_pIOleObject;
+    } else if ((iid == IID_IViewObject2) || (iid == IID_IViewObject)) {
         DebugMsg(DM_TRACE, "         getting IID_IViewObject");
-        *ppvObj = (void *)_pIViewObject2;
-    }
-    else if (iid == IID_IDataObject) {
+        *ppvObj = (void*)_pIViewObject2;
+    } else if (iid == IID_IDataObject) {
         DebugMsg(DM_TRACE, "         getting IID_IDataObject");
-        *ppvObj = (void *)_pIDataObject;
-    }
-    else if ((iid == IID_IPersistStorage) || (iid == IID_IPersist)) {
+        *ppvObj = (void*)_pIDataObject;
+    } else if ((iid == IID_IPersistStorage) || (iid == IID_IPersist)) {
         DebugMsg(DM_TRACE, "         getting IID_IPersistStorage");
-        *ppvObj = (void *)_pIPersistStorage;
-    }
-    else if (iid == IID_IPersistFile) {
+        *ppvObj = (void*)_pIPersistStorage;
+    } else if (iid == IID_IPersistFile) {
         DebugMsg(DM_TRACE, "         getting IID_IPersistFile");
-        *ppvObj = (void *)_pIPersistFile;
-    }
-    else if (iid == IID_IAdviseSink) {
+        *ppvObj = (void*)_pIPersistFile;
+    } else if (iid == IID_IAdviseSink) {
         DebugMsg(DM_TRACE, "         getting IID_IAdviseSink");
-        *ppvObj = (void *)_pIAdviseSink;
-    }
-    else if (iid == IID_IRunnableObject) {
+        *ppvObj = (void*)_pIAdviseSink;
+    } else if (iid == IID_IRunnableObject) {
         DebugMsg(DM_TRACE, "         getting IID_IRunnableObject");
-        *ppvObj = (void *)_pIRunnableObject;
-    }
-    else if (iid == IID_IEnumOLEVERB)
-    {
+        *ppvObj = (void*)_pIRunnableObject;
+    } else if (iid == IID_IEnumOLEVERB) {
         DebugMsg(DM_TRACE, "         getting IID_IEnumOLEVERB");
-        *ppvObj = (IEnumOLEVERB*) this;
-    }
-    else {
+        *ppvObj = (IEnumOLEVERB*)this;
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -262,7 +249,7 @@ ULONG CPackage::Release()
     return 0;
 }
 
-HRESULT CPackage_CreateInstnace(LPUNKNOWN * ppunk)
+HRESULT CPackage_CreateInstnace(LPUNKNOWN* ppunk)
 {
     DebugMsg(DM_TRACE, "pack - CreateInstance called");
 
@@ -284,60 +271,44 @@ HRESULT CPackage_CreateInstnace(LPUNKNOWN * ppunk)
 STDMETHODIMP CPackage::Next(ULONG celt, OLEVERB* rgVerbs, ULONG* pceltFetched)
 {
     HRESULT hr;
-    if (NULL != rgVerbs)
-    {
-        if (1 == celt)
-        {
-            if (_nCurVerb < _cVerbs)
-            {
+    if (NULL != rgVerbs) {
+        if (1 == celt) {
+            if (_nCurVerb < _cVerbs) {
                 ASSERT(NULL != _pVerbs);
                 *rgVerbs = _pVerbs[_nCurVerb];
                 if ((NULL != _pVerbs[_nCurVerb].lpszVerbName) &&
-                    (NULL != (rgVerbs->lpszVerbName = (LPWSTR) CoTaskMemAlloc(
-                        (lstrlenW(_pVerbs[_nCurVerb].lpszVerbName) + 1) * SIZEOF(WCHAR)))))
-                {
+                    (NULL != (rgVerbs->lpszVerbName = (LPWSTR)CoTaskMemAlloc(
+                    (lstrlenW(_pVerbs[_nCurVerb].lpszVerbName) + 1) * SIZEOF(WCHAR))))) {
                     StrCpyW(rgVerbs->lpszVerbName, _pVerbs[_nCurVerb].lpszVerbName);
                 }
                 _nCurVerb++;
                 hr = S_OK;
-            }
-            else
-            {
+            } else {
                 hr = S_FALSE;
             }
-            if (NULL != pceltFetched)
-            {
+            if (NULL != pceltFetched) {
                 *pceltFetched = (S_OK == hr) ? 1 : 0;
             }
-        }
-        else if (NULL != pceltFetched)
-        {
+        } else if (NULL != pceltFetched) {
             int cVerbsToCopy = min(celt, _cVerbs - _nCurVerb);
-            if (cVerbsToCopy > 0)
-            {
+            if (cVerbsToCopy > 0) {
                 ASSERT(NULL != _pVerbs);
                 CopyMemory(rgVerbs, &(_pVerbs[_nCurVerb]), cVerbsToCopy * sizeof(OLEVERB));
-                for (int i = 0; i < cVerbsToCopy; i++)
-                {
+                for (int i = 0; i < cVerbsToCopy; i++) {
                     if ((NULL != _pVerbs[_nCurVerb + i].lpszVerbName) &&
-                        (NULL != (rgVerbs[i].lpszVerbName = (LPWSTR) CoTaskMemAlloc(
-                            (lstrlenW(_pVerbs[_nCurVerb + i].lpszVerbName) + 1) * SIZEOF(WCHAR)))))
-                    {
+                        (NULL != (rgVerbs[i].lpszVerbName = (LPWSTR)CoTaskMemAlloc(
+                        (lstrlenW(_pVerbs[_nCurVerb + i].lpszVerbName) + 1) * SIZEOF(WCHAR))))) {
                         StrCpyW(rgVerbs[i].lpszVerbName, _pVerbs[_nCurVerb + i].lpszVerbName);
                     }
                 }
                 _nCurVerb += cVerbsToCopy;
             }
-            *pceltFetched = (ULONG) cVerbsToCopy;
-            hr = (celt == (ULONG) cVerbsToCopy) ? S_OK : S_FALSE;
-        }
-        else
-        {
+            *pceltFetched = (ULONG)cVerbsToCopy;
+            hr = (celt == (ULONG)cVerbsToCopy) ? S_OK : S_FALSE;
+        } else {
             hr = E_INVALIDARG;
         }
-    }
-    else
-    {
+    } else {
         hr = E_INVALIDARG;
     }
     return hr;
@@ -345,14 +316,11 @@ STDMETHODIMP CPackage::Next(ULONG celt, OLEVERB* rgVerbs, ULONG* pceltFetched)
 
 STDMETHODIMP CPackage::Skip(ULONG celt)
 {
-    if (_nCurVerb + celt > _cVerbs)
-    {
+    if (_nCurVerb + celt > _cVerbs) {
         // there aren't enough elements, go to the end and return S_FALSE
         _nCurVerb = _cVerbs;
         return S_FALSE;
-    }
-    else
-    {
+    } else {
         _nCurVerb += celt;
         return S_OK;
     }
@@ -366,8 +334,7 @@ STDMETHODIMP CPackage::Reset()
 
 STDMETHODIMP CPackage::Clone(IEnumOLEVERB** ppEnum)
 {
-    if (NULL != ppEnum)
-    {
+    if (NULL != ppEnum) {
         *ppEnum = NULL;
     }
     return E_NOTIMPL;
@@ -393,11 +360,9 @@ HRESULT  CPackage::EmbedInitFromFile(LPTSTR lpFileName, BOOL fInitFile)
 
     // if this is the first time we've been called, then we need to allocate
     // memory for the _pEmbed structure
-    if (_pEmbed == NULL)
-    {
+    if (_pEmbed == NULL) {
         _pEmbed = new EMBED;
-        if (_pEmbed)
-        {
+        if (_pEmbed) {
             _pEmbed->pszTempName = NULL;
             _pEmbed->hTask = NULL;
             _pEmbed->poo = NULL;
@@ -412,9 +377,8 @@ HRESULT  CPackage::EmbedInitFromFile(LPTSTR lpFileName, BOOL fInitFile)
     // open the file to package...
 
     HANDLE fh = CreateFile(lpFileName, GENERIC_READ, FILE_SHARE_READWRITE,
-            NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
-    if (fh == INVALID_HANDLE_VALUE)
-    {
+                           NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+    if (fh == INVALID_HANDLE_VALUE) {
         DWORD dwError = GetLastError();
         return E_FAIL;
     }
@@ -423,8 +387,7 @@ HRESULT  CPackage::EmbedInitFromFile(LPTSTR lpFileName, BOOL fInitFile)
 
     // Get the size of the file
     _pEmbed->fd.nFileSizeLow = GetFileSize(fh, &dwSize);
-    if (_pEmbed->fd.nFileSizeLow == 0xFFFFFFFF)
-    {
+    if (_pEmbed->fd.nFileSizeLow == 0xFFFFFFFF) {
         DWORD dwError = GetLastError();
         return E_FAIL;
     }
@@ -436,15 +399,14 @@ HRESULT  CPackage::EmbedInitFromFile(LPTSTR lpFileName, BOOL fInitFile)
     // If it's only a temp file that we're reloading (fInitFile == FALSE) then
     // don't bother setting the filename.
 
-    if (fInitFile)
-    {
-        lstrcpy(_pEmbed->fd.cFileName,lpFileName);
+    if (fInitFile) {
+        lstrcpy(_pEmbed->fd.cFileName, lpFileName);
         DestroyIC();
         _lpic = IconCreateFromFile(lpFileName);
         if (_pIDataAdviseHolder)
-            _pIDataAdviseHolder->SendOnDataChange(_pIDataObject,0, NULL);
+            _pIDataAdviseHolder->SendOnDataChange(_pIDataObject, 0, NULL);
         if (_pViewSink)
-            _pViewSink->OnViewChange(_dwViewAspects,_dwViewAdvf);
+            _pViewSink->OnViewChange(_dwViewAspects, _dwViewAdvf);
     }
 
     _fIsDirty = TRUE;
@@ -456,11 +418,9 @@ HRESULT CPackage::CmlInitFromFile(LPTSTR lpFileName, BOOL fUpdateIcon)
 {
     // if this is the first time we've been called, then we need to allocate
     // memory for the _pCml structure
-    if (_pCml == NULL)
-    {
+    if (_pCml == NULL) {
         _pCml = new CML;
-        if (_pCml)
-        {
+        if (_pCml) {
             // we don't use this, but an old packager accessing us might.
             _pCml->fCmdIsLink = FALSE;
         }
@@ -470,19 +430,18 @@ HRESULT CPackage::CmlInitFromFile(LPTSTR lpFileName, BOOL fUpdateIcon)
         return E_OUTOFMEMORY;
 
     _panetype = CMDLINK;
-    lstrcpy(_pCml->szCommandLine,lpFileName);
+    lstrcpy(_pCml->szCommandLine, lpFileName);
     _fIsDirty = TRUE;
 
-    if (fUpdateIcon)
-    {
+    if (fUpdateIcon) {
         DestroyIC();
         _lpic = IconCreateFromFile(lpFileName);
 
         if (_pIDataAdviseHolder)
-            _pIDataAdviseHolder->SendOnDataChange(_pIDataObject,0, NULL);
+            _pIDataAdviseHolder->SendOnDataChange(_pIDataObject, 0, NULL);
 
         if (_pViewSink)
-            _pViewSink->OnViewChange(_dwViewAspects,_dwViewAdvf);
+            _pViewSink->OnViewChange(_dwViewAspects, _dwViewAdvf);
     }
     return S_OK;
 }
@@ -498,24 +457,21 @@ HRESULT CPackage::InitFromPackInfo(LPPACKAGER_INFO lppi)
     // to that folder instead of an embedded file.
 
 
-    if ((dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
-    {
+    if ((dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY) {
         hr = CmlInitFromFile(lppi->szFilename, FALSE);
-    }
-    else
-    {
+    } else {
         // we pass FALSE here, because we don't want to write the icon
         // information.
 
         hr = EmbedInitFromFile(lppi->szFilename, FALSE);
-        lstrcpy(_pEmbed->fd.cFileName,lppi->szFilename);
+        lstrcpy(_pEmbed->fd.cFileName, lppi->szFilename);
         _panetype = PEMBED;
     }
 
     // set the icon information
-    lstrcpy(_lpic->szIconPath,lppi->szIconPath);
+    lstrcpy(_lpic->szIconPath, lppi->szIconPath);
     _lpic->iDlgIcon = lppi->iIcon;
-    lstrcpy(_lpic->szIconText,lppi->szLabel);
+    lstrcpy(_lpic->szIconText, lppi->szLabel);
     IconRefresh();
 
     // we need to tell the client we want to be saved...it should be smart
@@ -530,41 +486,31 @@ HRESULT CPackage::CreateTempFileName()
 {
     ASSERT(NULL != _pEmbed);
     TCHAR szDefPath[MAX_PATH];
-    if (_pEmbed->pszTempName)
-    {
+    if (_pEmbed->pszTempName) {
         return S_OK;
-    }
-    else if (GetTempPath(ARRAYSIZE(szDefPath), szDefPath))
-    {
+    } else if (GetTempPath(ARRAYSIZE(szDefPath), szDefPath)) {
         LPTSTR pszFile;
-        if ((NULL != _lpic) && (TEXT('\0') != _lpic->szIconText[0]))
-        {
+        if ((NULL != _lpic) && (TEXT('\0') != _lpic->szIconText[0])) {
             pszFile = _lpic->szIconText;
-        }
-        else
-        {
+        } else {
             pszFile = PathFindFileName(_pEmbed->fd.cFileName);
         }
         PathAppend(szDefPath, pszFile);
-        if (PathFileExists(szDefPath))
-        {
+        if (PathFileExists(szDefPath)) {
             TCHAR szOriginal[MAX_PATH];
             lstrcpy(szOriginal, szDefPath);
             PathYetAnotherMakeUniqueName(szDefPath, szOriginal, NULL, NULL);
         }
 
         _pEmbed->pszTempName = new TCHAR[lstrlen(szDefPath) + 1];
-        if (!_pEmbed->pszTempName)
-        {
-            DebugMsg(DM_TRACE,"            couldn't alloc memory for pszTempName!!");
+        if (!_pEmbed->pszTempName) {
+            DebugMsg(DM_TRACE, "            couldn't alloc memory for pszTempName!!");
             return E_OUTOFMEMORY;
         }
         lstrcpy(_pEmbed->pszTempName, szDefPath);
         return S_OK;
-    }
-    else
-    {
-        DebugMsg(DM_TRACE,"            couldn't get temp path!!");
+    } else {
+        DebugMsg(DM_TRACE, "            couldn't get temp path!!");
         return E_FAIL;
     }
 }
@@ -583,17 +529,15 @@ HRESULT CPackage::CreateTempFile()
     //          E_FAIL  -- error creating temp file
 
 
-    DebugMsg(DM_TRACE,"            CreateTempFile() called.");
+    DebugMsg(DM_TRACE, "            CreateTempFile() called.");
 
     HRESULT hr = CreateTempFileName();
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         return hr;
     }
 
-    if (PathFileExists(_pEmbed->pszTempName))
-    {
-        DebugMsg(DM_TRACE,"            already have a temp file!!");
+    if (PathFileExists(_pEmbed->pszTempName)) {
+        DebugMsg(DM_TRACE, "            already have a temp file!!");
         return S_OK;
     }
 
@@ -601,16 +545,12 @@ HRESULT CPackage::CreateTempFile()
     // creating a package, and should be able to copy the packaged file
     // to create a temp file
 
-    if (!_fLoaded)
-    {
-        if (!(CopyFile(_pEmbed->fd.cFileName, _pEmbed->pszTempName, FALSE)))
-        {
-            DebugMsg(DM_TRACE,"            couldn't copy file!!");
+    if (!_fLoaded) {
+        if (!(CopyFile(_pEmbed->fd.cFileName, _pEmbed->pszTempName, FALSE))) {
+            DebugMsg(DM_TRACE, "            couldn't copy file!!");
             return E_FAIL;
         }
-    }
-    else
-    {
+    } else {
         TCHAR szTempFile[MAX_PATH];
         // copy the file name because _pEmbed may get re-created below,
         // but we want to hold on to this filename:
@@ -621,11 +561,9 @@ HRESULT CPackage::CreateTempFile()
         // the seek pointer to init the filecontents stream.  so, we
         // call PackageReadFromStream to create the FileContents stream
 
-        if (_pstm && !_pstmFileContents)
-        {
-            if (FAILED(PackageReadFromStream(_pstm)))
-            {
-                DebugMsg(DM_TRACE,"            couldn't read from stream!!");
+        if (_pstm && !_pstmFileContents) {
+            if (FAILED(PackageReadFromStream(_pstm))) {
+                DebugMsg(DM_TRACE, "            couldn't read from stream!!");
                 return E_FAIL;
             }
         }
@@ -634,22 +572,16 @@ HRESULT CPackage::CreateTempFile()
         _pstmFileContents->Clone(&pstm);  // we don't want to move the seek
                                           // pointer on our FileContents stream
 
-        if (FAILED(CopyStreamToFile(pstm, szTempFile)))
-        {
-            DebugMsg(DM_TRACE,"            couldn't copy from stream!!");
+        if (FAILED(CopyStreamToFile(pstm, szTempFile))) {
+            DebugMsg(DM_TRACE, "            couldn't copy from stream!!");
             pstm->Release();
             return E_FAIL;
-        }
-        else
-        {
+        } else {
             ASSERT(_pEmbed);
             delete _pEmbed->pszTempName;
-            if (NULL != (_pEmbed->pszTempName = new TCHAR[lstrlen(szTempFile) + 1]))
-            {
+            if (NULL != (_pEmbed->pszTempName = new TCHAR[lstrlen(szTempFile) + 1])) {
                 lstrcpy(_pEmbed->pszTempName, szTempFile);
-            }
-            else
-            {
+            } else {
                 return E_OUTOFMEMORY;
             }
         }
@@ -672,15 +604,15 @@ HRESULT CPackage::CreateTempFile()
 
 HRESULT CPackage::GetFileDescriptor(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
 {
-    FILEGROUPDESCRIPTOR *pfgd;
+    FILEGROUPDESCRIPTOR* pfgd;
 
 
-    DebugMsg(DM_TRACE,"            Getting File Descriptor");
+    DebugMsg(DM_TRACE, "            Getting File Descriptor");
 
     // we only support HGLOBAL at this time
 
     if (!(pFE->tymed & TYMED_HGLOBAL)) {
-        DebugMsg(DM_TRACE,"            does not support HGLOBAL!");
+        DebugMsg(DM_TRACE, "            does not support HGLOBAL!");
         return DATA_E_FORMATETC;
     }
 
@@ -689,44 +621,43 @@ HRESULT CPackage::GetFileDescriptor(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
     pSTM->tymed = TYMED_HGLOBAL;
 
     // render the file descriptor
-    if (!(pfgd = (FILEGROUPDESCRIPTOR *)GlobalAlloc(GPTR,
-        sizeof(FILEGROUPDESCRIPTOR))))
+    if (!(pfgd = (FILEGROUPDESCRIPTOR*)GlobalAlloc(GPTR,
+                                                   sizeof(FILEGROUPDESCRIPTOR))))
         return E_OUTOFMEMORY;
 
     pSTM->hGlobal = pfgd;
 
     pfgd->cItems = 1;
 
-    switch(_panetype)
-    {
-        case PEMBED:
-            pfgd->fgd[0] = _pEmbed->fd;
-            GetDisplayName(pfgd->fgd[0].cFileName, _pEmbed->fd.cFileName);
-            break;
+    switch (_panetype) {
+    case PEMBED:
+        pfgd->fgd[0] = _pEmbed->fd;
+        GetDisplayName(pfgd->fgd[0].cFileName, _pEmbed->fd.cFileName);
+        break;
 
-        case CMDLINK:
-            // the label for the package will serve as the filename for the
-            // shortcut we're going to create.
-            lstrcpy(pfgd->fgd[0].cFileName, _lpic->szIconText);
-            // BUGBUG: harcoded use of .lnk extension!!
-            lstrcat(pfgd->fgd[0].cFileName, TEXT(".lnk"));
+    case CMDLINK:
+        // the label for the package will serve as the filename for the
+        // shortcut we're going to create.
+        lstrcpy(pfgd->fgd[0].cFileName, _lpic->szIconText);
+        // BUGBUG: harcoded use of .lnk extension!!
+        lstrcat(pfgd->fgd[0].cFileName, TEXT(".lnk"));
 
-            // we want to add the little arrow to the shortcut.
-            pfgd->fgd[0].dwFlags = FD_LINKUI;
-            break;
+        // we want to add the little arrow to the shortcut.
+        pfgd->fgd[0].dwFlags = FD_LINKUI;
+        break;
     }
     return S_OK;
 }
 
 HRESULT CPackage::GetFileContents(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
 {
-    void *  lpvDest = NULL;
+    void* lpvDest = NULL;
     DWORD   dwSize;
     HANDLE  hFile = NULL;
     DWORD   cb;
     HRESULT hr = E_FAIL;
 
-    DebugMsg(DM_TRACE,"            Getting File Contents");
+    DebugMsg(DM_TRACE, "            Getting File Contents");
 
     // Copy file contents to ISTREAM //
 
@@ -736,29 +667,27 @@ HRESULT CPackage::GetFileContents(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
     // into a single stream named CONTENTS.
 
     if (pFE->tymed & TYMED_ISTREAM) {
-        DebugMsg(DM_TRACE,"            using TYMED_ISTREAM");
+        DebugMsg(DM_TRACE, "            using TYMED_ISTREAM");
         pSTM->tymed = TYMED_ISTREAM;
 
         switch (_panetype) {
-            case PEMBED:
-                if (_pstmFileContents)
-                    hr = _pstmFileContents->Clone(&pSTM->pstm);
-                else
-                    return E_FAIL;
-                break;
+        case PEMBED:
+            if (_pstmFileContents)
+                hr = _pstmFileContents->Clone(&pSTM->pstm);
+            else
+                return E_FAIL;
+            break;
 
-            case CMDLINK:
-                hr = CreateStreamOnHGlobal(NULL, TRUE, &pSTM->pstm);
-                if (SUCCEEDED(hr))
-                {
-                    hr = CreateShortcutOnStream(pSTM->pstm);
-                    if (FAILED(hr))
-                    {
-                        pSTM->pstm->Release();
-                        pSTM->pstm = NULL;
-                    }
+        case CMDLINK:
+            hr = CreateStreamOnHGlobal(NULL, TRUE, &pSTM->pstm);
+            if (SUCCEEDED(hr)) {
+                hr = CreateShortcutOnStream(pSTM->pstm);
+                if (FAILED(hr)) {
+                    pSTM->pstm->Release();
+                    pSTM->pstm = NULL;
                 }
-                break;
+            }
+            break;
         }
         return hr;
     }
@@ -771,12 +700,12 @@ HRESULT CPackage::GetFileContents(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
     // but this is here as a common denominator
 
     if (pFE->tymed & TYMED_HGLOBAL) {
-        DebugMsg(DM_TRACE,"            using TYMED_HGLOBAL");
+        DebugMsg(DM_TRACE, "            using TYMED_HGLOBAL");
         pSTM->tymed = TYMED_HGLOBAL;
 
         if (_panetype == CMDLINK) {
             DebugMsg(DM_TRACE,
-                "    H_GLOBAL not supported for CMDLINK");
+                     "    H_GLOBAL not supported for CMDLINK");
             return DATA_E_FORMATETC;
         }
 
@@ -784,7 +713,7 @@ HRESULT CPackage::GetFileContents(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
 
         // caller is responsible for freeing this memory, even if we fail.
         if (!(lpvDest = GlobalAlloc(GPTR, dwSize))) {
-            DebugMsg(DM_TRACE,"            out o memory!!");
+            DebugMsg(DM_TRACE, "            out o memory!!");
             return E_OUTOFMEMORY;
         }
         pSTM->hGlobal = lpvDest;
@@ -806,12 +735,11 @@ HRESULT CPackage::GetFileContents(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
             pstm->Release();
             if (FAILED(hr))
                 return hr;
-        }
-        else
+        } else
             return E_FAIL;
 
         if (FAILED(hr) || cb != dwSize) {
-            DebugMsg(DM_TRACE,"            error reading from stream!!");
+            DebugMsg(DM_TRACE, "            error reading from stream!!");
             return E_FAIL;
         }
         return hr;
@@ -829,10 +757,10 @@ HRESULT CPackage::GetMetafilePict(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
     HFONT               hfont = NULL;
 
 
-    DebugMsg(DM_TRACE,"            Getting MetafilePict");
+    DebugMsg(DM_TRACE, "            Getting MetafilePict");
 
     if (!(pFE->tymed & TYMED_MFPICT)) {
-        DebugMsg(DM_TRACE,"            does not support MFPICT!");
+        DebugMsg(DM_TRACE, "            does not support MFPICT!");
         return DATA_E_FORMATETC;
     }
     pSTM->tymed = TYMED_MFPICT;
@@ -852,7 +780,7 @@ HRESULT CPackage::GetMetafilePict(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
     SetWindowOrgEx(hdcMF, 0, 0, NULL);
     SetWindowExtEx(hdcMF, lpic->rc.right - 1, lpic->rc.bottom - 1, NULL);
 
-    SetRect(&rcTemp, 0, 0, lpic->rc.right,lpic->rc.bottom);
+    SetRect(&rcTemp, 0, 0, lpic->rc.right, lpic->rc.bottom);
     hfont = SelectFont(hdcMF, g_hfontTitle);
 
     // Center the icon
@@ -888,12 +816,12 @@ HRESULT CPackage::GetObjectDescriptor(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
     LPOBJECTDESCRIPTOR lpobj;
     DWORD   dwFullUserTypeNameLen;
 
-    DebugMsg(DM_TRACE,"            Getting Object Descriptor");
+    DebugMsg(DM_TRACE, "            Getting Object Descriptor");
 
     // we only support HGLOBAL at this time
 
     if (!(pFE->tymed & TYMED_HGLOBAL)) {
-        DebugMsg(DM_TRACE,"            does not support HGLOBAL!");
+        DebugMsg(DM_TRACE, "            does not support HGLOBAL!");
         return DATA_E_FORMATETC;
     }
 
@@ -902,16 +830,16 @@ HRESULT CPackage::GetObjectDescriptor(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
     dwFullUserTypeNameLen = 0; //lstrlen(szUserType) + 1;
     pSTM->tymed = TYMED_HGLOBAL;
 
-    if (!(lpobj = (OBJECTDESCRIPTOR *)GlobalAlloc(GPTR,
-        sizeof(OBJECTDESCRIPTOR)+dwFullUserTypeNameLen)))
+    if (!(lpobj = (OBJECTDESCRIPTOR*)GlobalAlloc(GPTR,
+                                                 sizeof(OBJECTDESCRIPTOR) + dwFullUserTypeNameLen)))
         return E_OUTOFMEMORY;
 
     pSTM->hGlobal = lpobj;
 
-    lpobj->cbSize       = sizeof(OBJECTDESCRIPTOR)+dwFullUserTypeNameLen;
-    lpobj->clsid        = CLSID_CPackage;
-    lpobj->dwDrawAspect = DVASPECT_CONTENT|DVASPECT_ICON;
-    _pIOleObject->GetMiscStatus(DVASPECT_CONTENT|DVASPECT_ICON,&(lpobj->dwStatus));
+    lpobj->cbSize = sizeof(OBJECTDESCRIPTOR) + dwFullUserTypeNameLen;
+    lpobj->clsid = CLSID_CPackage;
+    lpobj->dwDrawAspect = DVASPECT_CONTENT | DVASPECT_ICON;
+    _pIOleObject->GetMiscStatus(DVASPECT_CONTENT | DVASPECT_ICON, &(lpobj->dwStatus));
     lpobj->dwFullUserTypeName = 0L; //sizeof(OBJECTDESCRIPTOR);
     lpobj->dwSrcOfCopy = 0L;
 
@@ -955,16 +883,12 @@ HRESULT CPackage::PackageReadFromStream(IStream* pstm)
     pstm->Read(&w, sizeof(w), NULL);
 
     // read in the icon information
-    if (w == (WORD)ICON)
-    {
-        if (FAILED(IconReadFromStream(pstm)))
-        {
-            DebugMsg(DM_TRACE,"         error reading icon info!!");
+    if (w == (WORD)ICON) {
+        if (FAILED(IconReadFromStream(pstm))) {
+            DebugMsg(DM_TRACE, "         error reading icon info!!");
             return E_FAIL;
         }
-    }
-    else if (w == (WORD)PICTURE)
-    {
+    } else if (w == (WORD)PICTURE) {
         DebugMsg(DM_TRACE, "         old Packager Appearance, not supported!!");
         // NOTE: Ideally, we could just ignore the appearance and continue, but to
         // do so, we'll need to know how much information to skip over before continuing
@@ -982,8 +906,7 @@ HRESULT CPackage::PackageReadFromStream(IStream* pstm)
 
     _panetype = (PANETYPE)w;
 
-    switch((PANETYPE)w)
-    {
+    switch ((PANETYPE)w) {
     case PEMBED:
         // read in the contents information
         return EmbedReadFromStream(pstm);
@@ -1005,8 +928,7 @@ HRESULT CPackage::PackageReadFromStream(IStream* pstm)
 HRESULT CPackage::IconReadFromStream(IStream* pstm)
 {
     LPIC lpic = IconCreate();
-    if (lpic)
-    {
+    if (lpic) {
         CHAR szTemp[MAX_PATH];
         StringReadFromStream(pstm, szTemp, ARRAYSIZE(szTemp));
         SHAnsiToTChar(szTemp, lpic->szIconText, ARRAYSIZE(lpic->szIconText));
@@ -1016,7 +938,7 @@ HRESULT CPackage::IconReadFromStream(IStream* pstm)
 
         WORD wDlgIcon;
         pstm->Read(&wDlgIcon, sizeof(wDlgIcon), NULL);
-        lpic->iDlgIcon = (INT) wDlgIcon;
+        lpic->iDlgIcon = (INT)wDlgIcon;
         GetCurrentIcon(lpic);
         IconCalcSize(lpic);
     }
@@ -1063,17 +985,14 @@ HRESULT CPackage::EmbedReadFromStream(IStream* pstm)
     }
 
     _pEmbed = new EMBED;
-    if (NULL != _pEmbed)
-    {
+    if (NULL != _pEmbed) {
         _pEmbed->fd.dwFlags = FD_FILESIZE;
         _pEmbed->fd.nFileSizeLow = dwSize;
         _pEmbed->fd.nFileSizeHigh = 0;
         SHAnsiToTChar(szFileName, _pEmbed->fd.cFileName, ARRAYSIZE(_pEmbed->fd.cFileName));
-        DebugMsg(DM_TRACE,"         %s\n\r         %d",_pEmbed->fd.cFileName,_pEmbed->fd.nFileSizeLow);
+        DebugMsg(DM_TRACE, "         %s\n\r         %d", _pEmbed->fd.cFileName, _pEmbed->fd.nFileSizeLow);
         return S_OK;
-    }
-    else
-    {
+    } else {
         return E_OUTOFMEMORY;
     }
 }
@@ -1129,12 +1048,11 @@ HRESULT CPackage::PackageWriteToStream(IStream* pstm)
     w = (WORD)ICON;
     if (FAILED(pstm->Write(&w, sizeof(WORD), NULL)))
         return E_FAIL;
-    cb += 2*sizeof(WORD);       // for appearance type and contents type
+    cb += 2 * sizeof(WORD);       // for appearance type and contents type
 
     // write out the icon information
-    if (FAILED(IconWriteToStream(pstm,&dwSize)))
-    {
-        DebugMsg(DM_TRACE,"         error writing icon info!!");
+    if (FAILED(IconWriteToStream(pstm, &dwSize))) {
+        DebugMsg(DM_TRACE, "         error writing icon info!!");
         return E_FAIL;
     }
     cb += dwSize;
@@ -1144,27 +1062,25 @@ HRESULT CPackage::PackageWriteToStream(IStream* pstm)
     if (FAILED(pstm->Write(&_panetype, sizeof(WORD), NULL)))
         return E_FAIL;
 
-    switch(_panetype)
-    {
-        case PEMBED:
+    switch (_panetype) {
+    case PEMBED:
 
-            // write out the contents information
-            if (FAILED(EmbedWriteToStream(pstm,&dwSize)))
-            {
-                DebugMsg(DM_TRACE,"         error writing embed info!!");
-                return E_FAIL;
-            }
-            cb += dwSize;
-            break;
+        // write out the contents information
+        if (FAILED(EmbedWriteToStream(pstm, &dwSize))) {
+            DebugMsg(DM_TRACE, "         error writing embed info!!");
+            return E_FAIL;
+        }
+        cb += dwSize;
+        break;
 
-        case CMDLINK:
-            // write out the contents information
-            if (FAILED(CmlWriteToStream(pstm,&dwSize))) {
-                DebugMsg(DM_TRACE,"         error writing cml info!!");
-                return E_FAIL;
-            }
-            cb += dwSize;
-            break;
+    case CMDLINK:
+        // write out the contents information
+        if (FAILED(CmlWriteToStream(pstm, &dwSize))) {
+            DebugMsg(DM_TRACE, "         error writing cml info!!");
+            return E_FAIL;
+        }
+        cb += dwSize;
+        break;
     }
 
 
@@ -1183,23 +1099,20 @@ HRESULT CPackage::PackageWriteToStream(IStream* pstm)
 // return:  s_OK   - icon properly written
 //          E_FAIL - error writing icon
 
-HRESULT CPackage::IconWriteToStream(IStream* pstm, DWORD *pdw)
+HRESULT CPackage::IconWriteToStream(IStream* pstm, DWORD* pdw)
 {
     DWORD cb = 0;
     CHAR szTemp[MAX_PATH];
     SHTCharToAnsi(_lpic->szIconText, szTemp, ARRAYSIZE(szTemp));
     HRESULT hr = StringWriteToStream(pstm, szTemp, &cb);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         SHTCharToAnsi(_lpic->szIconPath, szTemp, ARRAYSIZE(szTemp));
         hr = StringWriteToStream(pstm, szTemp, &cb);
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             DWORD dwWrite;
-            WORD wDlgIcon = (WORD) _lpic->iDlgIcon;
+            WORD wDlgIcon = (WORD)_lpic->iDlgIcon;
             hr = pstm->Write(&wDlgIcon, sizeof(wDlgIcon), &dwWrite);
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 cb += dwWrite;
                 if (pdw)
                     *pdw = cb;
@@ -1214,23 +1127,20 @@ HRESULT CPackage::IconWriteToStream(IStream* pstm, DWORD *pdw)
 // return:  S_OK   - contents written succesfully
 //          E_FAIL - error writing contents
 
-HRESULT CPackage::EmbedWriteToStream(IStream* pstm, DWORD *pdw)
+HRESULT CPackage::EmbedWriteToStream(IStream* pstm, DWORD* pdw)
 {
     DWORD cb = 0;
     CHAR szTemp[MAX_PATH];
     SHTCharToAnsi(_pEmbed->fd.cFileName, szTemp, ARRAYSIZE(szTemp));
     DWORD dwSize = lstrlenA(szTemp) + 1;
     HRESULT hr = pstm->Write(&dwSize, sizeof(dwSize), &cb);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         DWORD dwWrite;
         hr = StringWriteToStream(pstm, szTemp, &dwWrite);
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             cb += dwWrite;
             hr = pstm->Write(&_pEmbed->fd.nFileSizeLow, sizeof(_pEmbed->fd.nFileSizeLow), &dwWrite);
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 cb += dwWrite;
 
                 // we want to make sure our file contents stream always points to latest
@@ -1240,8 +1150,7 @@ HRESULT CPackage::EmbedWriteToStream(IStream* pstm, DWORD *pdw)
                 // pointer to it, because we're in a SaveAs situation, and we don't want
                 // to be hanging onto pointers to other peoples streams.
 
-                if (_pstmFileContents && _pstm == pstm)
-                {
+                if (_pstmFileContents && _pstm == pstm) {
                     _pstmFileContents->Release();
                     pstm->Clone(&_pstmFileContents);
                 }
@@ -1249,11 +1158,9 @@ HRESULT CPackage::EmbedWriteToStream(IStream* pstm, DWORD *pdw)
                 // This is for screwy apps, like MSWorks that ask us to save ourselves
                 // before they've even told us to initialize ourselves.
 
-                if (_pEmbed->fd.cFileName[0])
-                {
+                if (_pEmbed->fd.cFileName[0]) {
                     hr = CopyFileToStream(_pEmbed->pszTempName, pstm);
-                    if (SUCCEEDED(hr))
-                    {
+                    if (SUCCEEDED(hr)) {
                         cb += _pEmbed->fd.nFileSizeLow;
                     }
                 }
@@ -1270,7 +1177,7 @@ HRESULT CPackage::EmbedWriteToStream(IStream* pstm, DWORD *pdw)
 // return:  S_OK   - contents written succesfully
 //          E_FAIL - error writing contents
 
-HRESULT CPackage::CmlWriteToStream(IStream* pstm, DWORD *pdw)
+HRESULT CPackage::CmlWriteToStream(IStream* pstm, DWORD* pdw)
 {
     DWORD cb = 0;
     WORD w = _pCml->fCmdIsLink;
@@ -1298,16 +1205,15 @@ HRESULT CPackage::CmlWriteToStream(IStream* pstm, DWORD *pdw)
 HRESULT CPackage::CreateShortcutOnStream(IStream* pstm)
 {
     HRESULT hr;
-    IShellLink *psl;
+    IShellLink* psl;
     TCHAR szArgs[CBCMDLINKMAX - MAX_PATH];
     TCHAR szPath[MAX_PATH];
 
-    hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
-    if (SUCCEEDED(hr))
-    {
-        IPersistStream *pps;
+    hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void**)&psl);
+    if (SUCCEEDED(hr)) {
+        IPersistStream* pps;
 
-        lstrcpy(szPath,_pCml->szCommandLine);
+        lstrcpy(szPath, _pCml->szCommandLine);
         PathSeparateArgs(szPath, szArgs);
 
         psl->SetPath(szPath);
@@ -1315,27 +1221,24 @@ HRESULT CPackage::CreateShortcutOnStream(IStream* pstm)
         psl->SetShowCmd(SW_SHOW);
         psl->SetArguments(szArgs);
 
-        hr = psl->QueryInterface(IID_IPersistStream, (void **)&pps);
-        if (SUCCEEDED(hr))
-        {
-            hr = pps->Save(pstm,TRUE);
+        hr = psl->QueryInterface(IID_IPersistStream, (void**)&pps);
+        if (SUCCEEDED(hr)) {
+            hr = pps->Save(pstm, TRUE);
             pps->Release();
         }
         psl->Release();
     }
 
     LARGE_INTEGER li = {0,0};
-    pstm->Seek(li,STREAM_SEEK_SET,NULL);
+    pstm->Seek(li, STREAM_SEEK_SET, NULL);
 
     return hr;
 }
 
 HRESULT CPackage::InitVerbEnum(OLEVERB* pVerbs, ULONG cVerbs)
 {
-    if (NULL != _pVerbs)
-    {
-        for (ULONG i = 0; i < _cVerbs; i++)
-        {
+    if (NULL != _pVerbs) {
+        for (ULONG i = 0; i < _cVerbs; i++) {
             delete _pVerbs[i].lpszVerbName;
         }
         delete _pVerbs;
@@ -1348,8 +1251,7 @@ HRESULT CPackage::InitVerbEnum(OLEVERB* pVerbs, ULONG cVerbs)
 
 VOID CPackage::ReleaseContextMenu()
 {
-    if (NULL != _pcm)
-    {
+    if (NULL != _pcm) {
         _pcm->Release();
         _pcm = NULL;
     }
@@ -1359,45 +1261,33 @@ HRESULT CPackage::GetContextMenu(IContextMenu** ppcm)
 {
     HRESULT hr = E_FAIL;
     ASSERT(NULL != ppcm);
-    if (NULL != _pcm)
-    {
+    if (NULL != _pcm) {
         _pcm->AddRef();
         *ppcm = _pcm;
         hr = S_OK;
-    }
-    else if ((PEMBED == _panetype) || (CMDLINK == _panetype))
-    {
-        if (PEMBED == _panetype)
-        {
+    } else if ((PEMBED == _panetype) || (CMDLINK == _panetype)) {
+        if (PEMBED == _panetype) {
             hr = CreateTempFileName();
-        }
-        else
-        {
+        } else {
             hr = S_OK;
         }
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             LPITEMIDLIST pidl = SHSimpleIDListFromPath((PEMBED == _panetype) ?
-                                                        _pEmbed->pszTempName :
-                                                        _pCml->szCommandLine);
-            if (NULL != pidl)
-            {
+                                                       _pEmbed->pszTempName :
+                                                       _pCml->szCommandLine);
+            if (NULL != pidl) {
                 IShellFolder* psf;
                 LPCITEMIDLIST pidlChild;
-                if (SUCCEEDED(hr = SHBindToIDListParent(pidl, IID_IShellFolder, (void **)&psf, &pidlChild)))
-                {
-                    hr = psf->GetUIObjectOf(NULL, 1, &pidlChild, IID_IContextMenu, NULL, (void**) &_pcm);
-                    if (SUCCEEDED(hr))
-                    {
+                if (SUCCEEDED(hr = SHBindToIDListParent(pidl, IID_IShellFolder, (void**)&psf, &pidlChild))) {
+                    hr = psf->GetUIObjectOf(NULL, 1, &pidlChild, IID_IContextMenu, NULL, (void**)&_pcm);
+                    if (SUCCEEDED(hr)) {
                         _pcm->AddRef();
                         *ppcm = _pcm;
                     }
                     psf->Release();
                 }
                 ILFree(pidl);
-            }
-            else
-            {
+            } else {
                 hr = E_OUTOFMEMORY;
             }
         }
@@ -1425,9 +1315,9 @@ HRESULT CPackage::IconRefresh()
 
     // Next, notify our containers that our view has changed.
     if (_pIDataAdviseHolder)
-        _pIDataAdviseHolder->SendOnDataChange(_pIDataObject,0, NULL);
+        _pIDataAdviseHolder->SendOnDataChange(_pIDataObject, 0, NULL);
     if (_pViewSink)
-        _pViewSink->OnViewChange(_dwViewAspects,_dwViewAdvf);
+        _pViewSink->OnViewChange(_dwViewAspects, _dwViewAdvf);
 
     // Set our dirty flag
     _fIsDirty = TRUE;
@@ -1443,8 +1333,7 @@ int CPackage::RunWizard()
 
     PackWiz_CreateWizard(NULL, &packInfo);
 
-    if (*packInfo.szFilename == TEXT('\0'))
-    {
+    if (*packInfo.szFilename == TEXT('\0')) {
         ShellMessageBox(g_hinst,
                         NULL,
                         MAKEINTRESOURCE(IDS_CREATE_ERROR),
@@ -1456,8 +1345,7 @@ int CPackage::RunWizard()
     InitFromPackInfo(&packInfo);
 
     hr = OleSetClipboard(_pIDataObject);
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         ShellMessageBox(g_hinst,
                         NULL,
                         MAKEINTRESOURCE(IDS_COPY_ERROR),
@@ -1471,8 +1359,7 @@ int CPackage::RunWizard()
     // the clipboard.
 
     hr = OleFlushClipboard();
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         ShellMessageBox(g_hinst,
                         NULL,
                         MAKEINTRESOURCE(IDS_COPY_ERROR),
@@ -1492,8 +1379,7 @@ int CPackage::RunWizard()
 
 void CPackage::DestroyIC()
 {
-    if (_lpic)
-    {
+    if (_lpic) {
         if (_lpic->hDlgIcon)
             DestroyIcon(_lpic->hDlgIcon);
 
@@ -1505,9 +1391,8 @@ STDAPI_(BOOL) PackWizRunFromExe()
 {
     OleInitialize(NULL);
 
-    CPackage *pPackage = new CPackage;
-    if (pPackage)
-    {
+    CPackage* pPackage = new CPackage;
+    if (pPackage) {
         pPackage->Init();
         pPackage->RunWizard();
         pPackage->Release();

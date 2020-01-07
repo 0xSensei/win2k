@@ -38,13 +38,13 @@ BOOL WINAPI DllMain(HINSTANCE DllInstHandle, DWORD     Reason, LPVOID    Reserve
 DWORD WindowThreadFunc(LPDWORD TheParam);
 BOOL APIENTRY DebugDlgProc(IN HWND hwndDlg, IN UINT message, IN WPARAM wParam, IN LPARAM lParam);
 BOOL GetFile(IN  HWND   OwnerWindow, OUT  LPSTR Buffer, IN  DWORD  BufSize);
-VOID GetComdlgErrMsg (LPTSTR  Buffer, LPTSTR  Fmt);
+VOID GetComdlgErrMsg(LPTSTR  Buffer, LPTSTR  Fmt);
 void AbortAndClose(IN HANDLE FileHandle, IN HWND WindowHandle);
 
 
 // Externally Visible Global Variables
-HWND   DebugWindow=NULL;       // handle to the child edit control
-HANDLE LogFileHandle=INVALID_HANDLE_VALUE;// handle to the log file
+HWND   DebugWindow = NULL;       // handle to the child edit control
+HANDLE LogFileHandle = INVALID_HANDLE_VALUE;// handle to the log file
 DWORD  OutputStyle = NO_OUTPUT; // where to put output
 char   Buffer[TEXT_LEN];       // buffer for building output strings
 
@@ -55,17 +55,17 @@ char   Buffer[TEXT_LEN];       // buffer for building output strings
 // name for my window class
 static char             DTWndClass[] = "DTWindow";
 
-static HWND             FrameWindow=NULL;   // handle to frame of debug window
+static HWND             FrameWindow = NULL;   // handle to frame of debug window
 static WNDPROC          EditWndProc;   // the edit control's window proc
 static HINSTANCE        DllInstHandle; // handle to the dll instance
-static DWORD            TlsIndex=-1;      // tls index for this module
+static DWORD            TlsIndex = -1;      // tls index for this module
 static CRITICAL_SECTION CrSec;         // critical section for text output
 static BOOL             DllInitialized = FALSE; // Flag to trigger dynamic
                                         // initialization of first API call
 static HANDLE           TextOutEvent;  // set when debug window is ready
 
-static char             LogFileName[MAX_PATH+1]; // name of the log file
-static char             ModuleFileName[MAX_PATH+1]; // name of the application
+static char             LogFileName[MAX_PATH + 1]; // name of the log file
+static char             ModuleFileName[MAX_PATH + 1]; // name of the application
 
 // handle to and id of the main thread of the DLL which initializes
 // and creates windows, etc
@@ -77,7 +77,7 @@ static LPFNDTHANDLER  HdlFuncTable[MAX_DTCODE + 1];
 // Input desktop to communicate to the user
 static HDESK   HDesk;
 typedef
-HDESK (* LPFN_OPENINPUTDESKTOP) (
+HDESK(*LPFN_OPENINPUTDESKTOP) (
     DWORD dwFlags,          // flags to control interaction with other
                             // applications
     BOOL fInherit,          // specifies whether returned handle is
@@ -86,7 +86,7 @@ HDESK (* LPFN_OPENINPUTDESKTOP) (
     );
 
 typedef
-BOOL (* LPFN_CLOSEDESKTOP) (
+BOOL(*LPFN_CLOSEDESKTOP) (
     HDESK hDesktop          // handle to desktop to close
     );
 static LPFN_OPENINPUTDESKTOP   lpfnOpenInputDesktop;
@@ -94,43 +94,43 @@ static LPFN_CLOSEDESKTOP       lpfnCloseDesktop;
 
 // static strings
 static char  ErrStr2[] = "An error occurred while trying to get a log"
-    " filename (%s).  Debug output will go to the window only.";
+" filename (%s).  Debug output will go to the window only.";
 static char ErrStr3[] = "Had problems writing to file.  Aborting file"
-    " output -- all debug output will now go to the debugger.";
-static char sCDERR_USERCANCEL[]="Operation was cancelled.";
-static char sCDERR_FINDRESFAILURE[]="The common dialog box function failed"
-    " to find a specified resource.";
-static char sCDERR_INITIALIZATION[]="The common dialog box function failed"
-    " during initialization. This error often occurs when sufficient memory"
-    " is not available.";
-static char sCDERR_LOCKRESFAILURE[]="The common dialog box function failed"
-    " to load a specified resource.";
-static char sCDERR_LOADRESFAILURE[]="The common dialog box function failed"
-    " to load a specified string.";
-static char sCDERR_LOADSTRFAILURE[]="The common dialog box function failed"
-    " to lock a specified resource.";
-static char sCDERR_MEMALLOCFAILURE[]="The common dialog box function was"
-    " unable to allocate memory for internal structures.";
-static char sCDERR_MEMLOCKFAILURE[]="The common dialog box function was"
-    " unable to lock the memory associated with a handle.";
-static char sCDERR_NOHINSTANCE[]="The ENABLETEMPLATE flag was set in the"
-    " Flags member of the initialization structure for the corresponding"
-    " common dialog box, but you failed to provide a corresponding instance"
-    " handle.";
-static char sCDERR_NOHOOK[]="The ENABLEHOOK flag was set in the Flags member"
-    " of the initialization structure for the corresponding common dialog box,"
-    " but you failed to provide a pointer to a corresponding hook procedure.";
-static char sCDERR_NOTEMPLATE[]="The ENABLETEMPLATE flag was set in the Flags"
-    " member of the initialization structure for the corresponding common"
-    " dialog box, but you failed to provide a corresponding template.";
-static char sCDERR_STRUCTSIZE[]="The lStructSize member of the initialization"
-    " structure for the corresponding common dialog box is invalid.";
-static char sFNERR_BUFFERTOOSMALL[]="The buffer pointed to by the lpstrFile"
-    " member of the OPENFILENAME structure is too small for the file name"
-    " specified by the user.";
-static char sFNERR_INVALIDFILENAME[]="A file name is invalid.";
-static char sFNERR_SUBCLASSFAILURE[]="An attempt to subclass a list box failed"
-    " because sufficient memory was not available.";
+" output -- all debug output will now go to the debugger.";
+static char sCDERR_USERCANCEL[] = "Operation was cancelled.";
+static char sCDERR_FINDRESFAILURE[] = "The common dialog box function failed"
+" to find a specified resource.";
+static char sCDERR_INITIALIZATION[] = "The common dialog box function failed"
+" during initialization. This error often occurs when sufficient memory"
+" is not available.";
+static char sCDERR_LOCKRESFAILURE[] = "The common dialog box function failed"
+" to load a specified resource.";
+static char sCDERR_LOADRESFAILURE[] = "The common dialog box function failed"
+" to load a specified string.";
+static char sCDERR_LOADSTRFAILURE[] = "The common dialog box function failed"
+" to lock a specified resource.";
+static char sCDERR_MEMALLOCFAILURE[] = "The common dialog box function was"
+" unable to allocate memory for internal structures.";
+static char sCDERR_MEMLOCKFAILURE[] = "The common dialog box function was"
+" unable to lock the memory associated with a handle.";
+static char sCDERR_NOHINSTANCE[] = "The ENABLETEMPLATE flag was set in the"
+" Flags member of the initialization structure for the corresponding"
+" common dialog box, but you failed to provide a corresponding instance"
+" handle.";
+static char sCDERR_NOHOOK[] = "The ENABLEHOOK flag was set in the Flags member"
+" of the initialization structure for the corresponding common dialog box,"
+" but you failed to provide a pointer to a corresponding hook procedure.";
+static char sCDERR_NOTEMPLATE[] = "The ENABLETEMPLATE flag was set in the Flags"
+" member of the initialization structure for the corresponding common"
+" dialog box, but you failed to provide a corresponding template.";
+static char sCDERR_STRUCTSIZE[] = "The lStructSize member of the initialization"
+" structure for the corresponding common dialog box is invalid.";
+static char sFNERR_BUFFERTOOSMALL[] = "The buffer pointed to by the lpstrFile"
+" member of the OPENFILENAME structure is too small for the file name"
+" specified by the user.";
+static char sFNERR_INVALIDFILENAME[] = "A file name is invalid.";
+static char sFNERR_SUBCLASSFAILURE[] = "An attempt to subclass a list box failed"
+" because sufficient memory was not available.";
 
 
 // Function Definitions
@@ -148,64 +148,57 @@ BOOL WINAPI  DllMain(HINSTANCE InstanceHandle, DWORD     dwReason, LPVOID    lpv
       Please see windows documentation.
 --*/
 {
-    Cstack_c   *ThreadCstack;  // points to Cstack objects in tls
+    Cstack_c* ThreadCstack;  // points to Cstack objects in tls
 
-    switch(dwReason) {
-
-    // Determine the reason for the call and act accordingly.
-
+    switch (dwReason) {
+        // Determine the reason for the call and act accordingly.
     case DLL_PROCESS_ATTACH:
-        if (GetModuleFileName (NULL, ModuleFileName, sizeof (ModuleFileName))==0)
+        if (GetModuleFileName(NULL, ModuleFileName, sizeof(ModuleFileName)) == 0)
             return FALSE;
-
 
         // Allocate a TLS index.
         TlsIndex = TlsAlloc();
-        if (TlsIndex==0xFFFFFFFF)
+        if (TlsIndex == 0xFFFFFFFF)
             return FALSE;
 
         DllInstHandle = InstanceHandle;
         InitializeCriticalSection(&CrSec);
         TextOutEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-        if (TextOutEvent==NULL)
+        if (TextOutEvent == NULL)
             return FALSE;
 
         // Fill in the handler function table.
         DTHandlerInit(HdlFuncTable, MAX_DTCODE);
 
         // flow through...
-
     case DLL_THREAD_ATTACH:
-
         // Store a pointer to a new Cstack_c in the slot for this
         // thread.
         ThreadCstack = new Cstack_c();
         TlsSetValue(TlsIndex, (LPVOID)ThreadCstack);
         break;
     case DLL_PROCESS_DETACH:
-
         // Note that lpvReserved will be NULL if the detach is due to
         // a FreeLibrary() call, and non-NULL if the detach is due to
         // process cleanup.
 
-
-        if( lpvReserved == NULL ) {
+        if (lpvReserved == NULL) {
             // Free up some resources.  This is like cleaning up your room
             // before the tornado strikes, but hey, it's good practice.
             TlsFree(TlsIndex);
             DeleteCriticalSection(&CrSec);
 
             if ((OutputStyle == FILE_ONLY) || (OutputStyle == FILE_AND_WINDOW)) {
-                if (LogFileHandle!=INVALID_HANDLE_VALUE) {
+                if (LogFileHandle != INVALID_HANDLE_VALUE) {
                     CloseHandle(LogFileHandle);
                 }
             }
 
-            if (WindowThread!=NULL)
+            if (WindowThread != NULL)
                 CloseHandle(WindowThread);
 
-            if ((lpfnCloseDesktop!=NULL) && (HDesk!=NULL)) {
-                lpfnCloseDesktop (HDesk);
+            if ((lpfnCloseDesktop != NULL) && (HDesk != NULL)) {
+                lpfnCloseDesktop(HDesk);
                 HDesk = NULL;
             }
         }
@@ -213,7 +206,7 @@ BOOL WINAPI  DllMain(HINSTANCE InstanceHandle, DWORD     dwReason, LPVOID    lpv
         break;
     case DLL_THREAD_DETACH:
         // Get the pointer to this thread's Cstack, and delete the object.
-        ThreadCstack = (Cstack_c *)TlsGetValue(TlsIndex);
+        ThreadCstack = (Cstack_c*)TlsGetValue(TlsIndex);
         delete ThreadCstack;
         break;
     default:
@@ -224,7 +217,7 @@ BOOL WINAPI  DllMain(HINSTANCE InstanceHandle, DWORD     dwReason, LPVOID    lpv
 } // DllMain()
 
 
-VOID InitializeDll (VOID)
+VOID InitializeDll(VOID)
 {
     PINITDATA  InitDataPtr;    // to pass to the window creation thread
     HMODULE hUser32;
@@ -234,18 +227,24 @@ VOID InitializeDll (VOID)
     HKEY    hkeyAppData;
     INT     err;
 
-    EnterCriticalSection (&CrSec);
+    EnterCriticalSection(&CrSec);
     if (!DllInitialized) {
         DllInitialized = TRUE;
-        if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Services\\WinSock2\\Parameters\\DT_DLL_App_Data", 0, MAXIMUM_ALLOWED, &hkeyAppData)==NO_ERROR) {
+        if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, 
+                         "System\\CurrentControlSet\\Services\\WinSock2\\Parameters\\DT_DLL_App_Data", 
+                         0, 
+                         MAXIMUM_ALLOWED, 
+                         &hkeyAppData) == NO_ERROR) {
             DWORD   value, sz, type;
-            sz = sizeof (value);
-            if ((RegQueryValueEx (hkeyAppData, ModuleFileName, NULL, &type, (PUCHAR)&value, &sz)==NO_ERROR) && (type==REG_DWORD) && (sz==sizeof(value)) ) {
+            sz = sizeof(value);
+            if ((RegQueryValueEx(hkeyAppData, ModuleFileName, NULL, &type, (PUCHAR)&value, &sz) == NO_ERROR) &&
+                (type == REG_DWORD) && 
+                (sz == sizeof(value))) {
                 switch (value) {
                 case FILE_ONLY:
                 case FILE_AND_WINDOW:
-                    strcpy (LogFileName, ModuleFileName);
-                    strcat (LogFileName, ".log");
+                    strcpy(LogFileName, ModuleFileName);
+                    strcat(LogFileName, ".log");
                 case NO_OUTPUT:
                 case WINDOW_ONLY:
                 case DEBUGGER:
@@ -254,92 +253,98 @@ VOID InitializeDll (VOID)
                     break;
                 }
             }
-            RegCloseKey (hkeyAppData);
+            RegCloseKey(hkeyAppData);
         }
 
-        hUser32 = GetModuleHandle ("user32.dll");
-        if (hUser32!=NULL) {
-            if (!outputStyleSet || (OutputStyle==FILE_AND_WINDOW) || (OutputStyle==WINDOW_ONLY)) {
-                lpfnOpenInputDesktop = (LPFN_OPENINPUTDESKTOP)GetProcAddress (hUser32, "OpenInputDesktop");
-                lpfnCloseDesktop = (LPFN_CLOSEDESKTOP)GetProcAddress (hUser32, "CloseDesktop");
-                if ((lpfnOpenInputDesktop!=NULL) && (lpfnCloseDesktop!=NULL)) {
-                    HDesk = lpfnOpenInputDesktop (0, FALSE, MAXIMUM_ALLOWED);
-                    if (HDesk!=NULL) {
-                        if (GetThreadDesktop (GetCurrentThreadId ())==NULL) {
-                            if (SetThreadDesktop (HDesk)) {
+        hUser32 = GetModuleHandle("user32.dll");
+        if (hUser32 != NULL) {
+            if (!outputStyleSet || (OutputStyle == FILE_AND_WINDOW) || (OutputStyle == WINDOW_ONLY)) {
+                lpfnOpenInputDesktop = (LPFN_OPENINPUTDESKTOP)GetProcAddress(hUser32, "OpenInputDesktop");
+                lpfnCloseDesktop = (LPFN_CLOSEDESKTOP)GetProcAddress(hUser32, "CloseDesktop");
+                if ((lpfnOpenInputDesktop != NULL) && (lpfnCloseDesktop != NULL)) {
+                    HDesk = lpfnOpenInputDesktop(0, FALSE, MAXIMUM_ALLOWED);
+                    if (HDesk != NULL) {
+                        if (GetThreadDesktop(GetCurrentThreadId()) == NULL) {
+                            if (SetThreadDesktop(HDesk)) {
                                 if (!outputStyleSet) {
                                     // Pop up a dialog box for the user to choose output method.
-                                    OutputStyle = DialogBox(DllInstHandle, MAKEINTRESOURCE(IDD_DIALOG1), NULL, (DLGPROC)DebugDlgProc);
+                                    OutputStyle = DialogBox(DllInstHandle,
+                                                            MAKEINTRESOURCE(IDD_DIALOG1), 
+                                                            NULL, 
+                                                            (DLGPROC)DebugDlgProc);
                                 }
-                            }
-                            else {
-                                err = GetLastError ();
-                                lpfnCloseDesktop (HDesk);
+                            } else {
+                                err = GetLastError();
+                                lpfnCloseDesktop(HDesk);
                                 HDesk = NULL;
                                 // Can't set input desktop, force debugger output.
                                 OutputStyle = NO_OUTPUT;
-                                wsprintf (Buffer, "Could not set input desktop in the process (err: %ld),"
-                                                   " setting output style to NO_OUTPUT.\n", err);
-                                DTTextOut (NULL, NULL, Buffer, DEBUGGER);
-                                wsprintf (Buffer,
-                                    "Edit '%s' value (REG_DWORD) under 'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\WinSock2\\Parameters\\DT_DLL_App_Data' key"
-                                    " in the registry to set output style to DEBUGGER(%ld) or FILE_ONLY(%ld).\n",
-                                    ModuleFileName, DEBUGGER, FILE_ONLY);
-                                DTTextOut (NULL, NULL, Buffer, DEBUGGER);
+                                wsprintf(Buffer, "Could not set input desktop in the process (err: %ld),"
+                                         " setting output style to NO_OUTPUT.\n", err);
+                                DTTextOut(NULL, NULL, Buffer, DEBUGGER);
+                                wsprintf(Buffer,
+                                         "Edit '%s' value (REG_DWORD) under 'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\WinSock2\\Parameters\\DT_DLL_App_Data' key"
+                                         " in the registry to set output style to DEBUGGER(%ld) or FILE_ONLY(%ld).\n",
+                                         ModuleFileName, DEBUGGER, FILE_ONLY);
+                                DTTextOut(NULL, NULL, Buffer, DEBUGGER);
                             }
-                        }
-                        else {
-                            lpfnCloseDesktop (HDesk);
+                        } else {
+                            lpfnCloseDesktop(HDesk);
                             HDesk = NULL;
                             if (!outputStyleSet) {
                                 // Pop up a dialog box for the user to choose output method.
                                 OutputStyle = DialogBox(DllInstHandle, MAKEINTRESOURCE(IDD_DIALOG1), NULL, (DLGPROC)DebugDlgProc);
                             }
                         }
-                    }
-                    else {
+                    } else {
                         // No desktop, force debugger output.
-                        err = GetLastError ();
+                        err = GetLastError();
                         OutputStyle = NO_OUTPUT;
-                        wsprintf (Buffer, "Could not open input desktop in the process (err: %ld),"
-                                           " setting output style to NO_OUTPUT.\n", err);
-                        DTTextOut (NULL, NULL, Buffer, DEBUGGER);
-                        wsprintf (Buffer,
-                            "Edit %s value under 'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\WinSock2\\Parameters\\DT_DLL_App_Data' key"
-                            " in the registry to set output style to DEBUGGER(%ld) or FILE_ONLY(%ld).\n",
-                            ModuleFileName, DEBUGGER, FILE_ONLY);
-                        DTTextOut (NULL, NULL, Buffer, DEBUGGER);
+                        wsprintf(Buffer, "Could not open input desktop in the process (err: %ld),"
+                                 " setting output style to NO_OUTPUT.\n", err);
+                        DTTextOut(NULL, NULL, Buffer, DEBUGGER);
+                        wsprintf(Buffer,
+                                 "Edit %s value under 'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\WinSock2\\Parameters\\DT_DLL_App_Data' key"
+                                 " in the registry to set output style to DEBUGGER(%ld) or FILE_ONLY(%ld).\n",
+                                 ModuleFileName, DEBUGGER, FILE_ONLY);
+                        DTTextOut(NULL, NULL, Buffer, DEBUGGER);
                     }
-                }
-                else {
+                } else {
                     lpfnCloseDesktop = NULL;
                     HDesk = NULL;
                     if (!outputStyleSet) {
                         // Pop up a dialog box for the user to choose output method.
-                        OutputStyle = DialogBox(DllInstHandle, MAKEINTRESOURCE(IDD_DIALOG1), NULL, (DLGPROC)DebugDlgProc);
+                        OutputStyle = DialogBox(DllInstHandle,
+                                                MAKEINTRESOURCE(IDD_DIALOG1),
+                                                NULL, 
+                                                (DLGPROC)DebugDlgProc);
                     }
                 }
             }
 
 
             if ((OutputStyle == FILE_ONLY) || (OutputStyle == FILE_AND_WINDOW)) {
-                LogFileHandle = CreateFile(LogFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+                LogFileHandle = CreateFile(LogFileName, 
+                                           GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                           NULL, 
+                                           CREATE_ALWAYS,
+                                           FILE_ATTRIBUTE_NORMAL,
+                                           NULL);
                 if (LogFileHandle == INVALID_HANDLE_VALUE) {
-                    if (OutputStyle==FILE_AND_WINDOW) {
-                        DWORD   rc = GetLastError ();
-                        if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, rc, 0, Buffer, sizeof (Buffer), NULL )!=0) {
-                        }
-                        else {
-                            wsprintf (Buffer, "Error %ld.", rc);
+                    if (OutputStyle == FILE_AND_WINDOW) {
+                        DWORD   rc = GetLastError();
+                        if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                          NULL, rc, 0, Buffer, sizeof(Buffer), NULL) != 0) {
+                        } else {
+                            wsprintf(Buffer, "Error %ld.", rc);
                         }
                         MessageBox(NULL, Buffer, "Creating log file", MB_OK | MB_ICONSTOP);
-                    }
-                    else {
+                    } else {
                         OutputStyle = NO_OUTPUT;
-                        wsprintf (Buffer, "Couldn't open log file %ls!"
-                            "  No output will be generated.\n",
-                            LogFileName);
-                        DTTextOut (NULL, NULL, Buffer, DEBUGGER);
+                        wsprintf(Buffer, "Couldn't open log file %ls!"
+                                 "  No output will be generated.\n",
+                                 LogFileName);
+                        DTTextOut(NULL, NULL, Buffer, DEBUGGER);
                     }
                 }
             }
@@ -348,7 +353,7 @@ VOID InitializeDll (VOID)
             // or file -- get the time, PID, and TID of the calling
             // process and put into a INITDATA struct.  This memory will
             // be freed by the thread it is passed to.
-            InitDataPtr = (PINITDATA) LocalAlloc(0, sizeof(INITDATA));
+            InitDataPtr = (PINITDATA)LocalAlloc(0, sizeof(INITDATA));
             GetLocalTime(&(InitDataPtr->LocalTime));
             InitDataPtr->TID = GetCurrentThreadId();
             InitDataPtr->PID = GetCurrentProcessId();
@@ -356,7 +361,12 @@ VOID InitializeDll (VOID)
             // Create the initialization/window handling thread.
             if ((OutputStyle == WINDOW_ONLY) || (OutputStyle == FILE_AND_WINDOW)) {
                 WindowThread =
-                  CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)WindowThreadFunc, (LPVOID)InitDataPtr, 0, &WindowThreadId);
+                    CreateThread(NULL,
+                                 0,
+                                 (LPTHREAD_START_ROUTINE)WindowThreadFunc,
+                                 (LPVOID)InitDataPtr, 
+                                 0,
+                                 &WindowThreadId);
             } else {
                 // Normally the window thread does a DTTextOut of the time
                 // and process info that we saved just above.  But in this
@@ -378,13 +388,12 @@ VOID InitializeDll (VOID)
                 // (because there is only one thread, and we know the code above has been executed before WSAPre|PostApiNotify).
                 SetEvent(TextOutEvent);
             }
-        }
-        else {
-            DTTextOut (NULL, NULL, " Could not load user32.dll\n", DEBUGGER);
+        } else {
+            DTTextOut(NULL, NULL, " Could not load user32.dll\n", DEBUGGER);
         }
     }
 
-    LeaveCriticalSection (&CrSec);
+    LeaveCriticalSection(&CrSec);
 }
 
 
@@ -414,7 +423,7 @@ BOOL WINAPIV WSAPreApiNotify(IN  INT    NotificationCode, OUT LPVOID ReturnCode,
 --*/
 {
     va_list          vl;            // used for variable arg-list parsing
-    Cstack_c         *ThreadCstack; // the Cstack_c object for this thread
+    Cstack_c* ThreadCstack; // the Cstack_c object for this thread
     int              Index = 0;     // index into string we are creating
     BOOL             ReturnValue;   // value to return
     LPFNDTHANDLER    HdlFunc;       // pointer to handler function
@@ -422,10 +431,10 @@ BOOL WINAPIV WSAPreApiNotify(IN  INT    NotificationCode, OUT LPVOID ReturnCode,
     int              OriginalError; // any pending error is saved
 
     if (!DllInitialized) {
-        InitializeDll ();
+        InitializeDll();
     }
 
-    if (OutputStyle==NO_OUTPUT)
+    if (OutputStyle == NO_OUTPUT)
         return FALSE;
 
     OriginalError = GetLastError();
@@ -438,8 +447,8 @@ BOOL WINAPIV WSAPreApiNotify(IN  INT    NotificationCode, OUT LPVOID ReturnCode,
     va_start(vl, LibraryName);
 
     // Get the Cstack_c object for this thread.
-    ThreadCstack = (Cstack_c *)TlsGetValue(TlsIndex);
-    if (!ThreadCstack){
+    ThreadCstack = (Cstack_c*)TlsGetValue(TlsIndex);
+    if (!ThreadCstack) {
         ThreadCstack = new Cstack_c();
         TlsSetValue(TlsIndex, (LPVOID)ThreadCstack);
         wsprintf(Buffer, "0x%X Foriegn thread\n", GetCurrentThreadId());
@@ -486,8 +495,8 @@ BOOL WINAPIV WSAPostApiNotify(IN  INT    NotificationCode, OUT LPVOID ReturnCode
   PostApiNotify()
 
   Function Description:
-      Like PreApiNotify, builds a string and passes it, along with information about the call, to a handler function.
-
+      Like PreApiNotify, builds a string and passes it, 
+      along with information about the call, to a handler function.
   Arguments:
       NotificationCode  -- specifies which API function called us.
       ReturnCode -- a generic pointer to the return value of the API function.
@@ -497,16 +506,16 @@ BOOL WINAPIV WSAPostApiNotify(IN  INT    NotificationCode, OUT LPVOID ReturnCode
 --*/
 {
     va_list          vl;            // used for variable arg-list parsing
-    Cstack_c         *ThreadCstack; // the Cstack_c object for this thread
+    Cstack_c* ThreadCstack; // the Cstack_c object for this thread
     int              Index = 0;     // index into string we are creating
     int              Counter;       // counter we pop off the cstack
     LPFNDTHANDLER    HdlFunc;       // pointer to handler function
     int              OriginalError; // any pending error is saved
 
     if (!DllInitialized) {
-        InitializeDll ();
+        InitializeDll();
     }
-    if (OutputStyle==NO_OUTPUT)
+    if (OutputStyle == NO_OUTPUT)
         return FALSE;
 
     OriginalError = GetLastError();
@@ -519,9 +528,9 @@ BOOL WINAPIV WSAPostApiNotify(IN  INT    NotificationCode, OUT LPVOID ReturnCode
     va_start(vl, LibraryName);
 
     // Get the cstack object from TLS, pop the Counter.
-    ThreadCstack = (Cstack_c *) TlsGetValue(TlsIndex);
+    ThreadCstack = (Cstack_c*)TlsGetValue(TlsIndex);
 
-    if (!ThreadCstack){
+    if (!ThreadCstack) {
         ThreadCstack = new Cstack_c();
         TlsSetValue(TlsIndex, (LPVOID)ThreadCstack);
         wsprintf(Buffer, "0x%X Foriegn thread\n", GetCurrentThreadId());
@@ -554,13 +563,14 @@ BOOL WINAPIV WSAPostApiNotify(IN  INT    NotificationCode, OUT LPVOID ReturnCode
 
 LRESULT APIENTRY DTMainWndProc(IN HWND   WindowHandle, IN UINT   Message, IN WPARAM WParam, IN LPARAM LParam)
 /*
-
   DTMainWndProc()
 
   Function Description:
       Window procedure for the main window of the Dll.
-      This function processes WM_CREATE messages in order to create a child edit control, which does most of the dirty work.
-      Also processes WM_COMMAND to trap notification messages from the edit control, as well as WM_SIZE and WM_DESTROY messages.
+      This function processes WM_CREATE messages in order to create a child edit control,
+      which does most of the dirty work.
+      Also processes WM_COMMAND to trap notification messages from the edit control, 
+      as well as WM_SIZE and WM_DESTROY messages.
   Arguments:
       WindowHandle -- the window.
       Message -- the message.
@@ -579,15 +589,13 @@ LRESULT APIENTRY DTMainWndProc(IN HWND   WindowHandle, IN UINT   Message, IN WPA
     DWORD      OldOutputStyle;    // temporary storage for OutputStyle
 
     switch (Message) {
-
     case WM_CREATE:
-
         // Create the debug window as a multiline edit control.
         GetClientRect(WindowHandle, &Rect);
         DebugWindow = CreateWindow("EDIT",
                                    NULL,
                                    WS_CHILD | WS_VISIBLE |
-                                   WS_VSCROLL | ES_LEFT  |
+                                   WS_VSCROLL | ES_LEFT |
                                    ES_MULTILINE | ES_AUTOVSCROLL,
                                    0,
                                    0,
@@ -600,7 +608,7 @@ LRESULT APIENTRY DTMainWndProc(IN HWND   WindowHandle, IN UINT   Message, IN WPA
 
         // Subclass the edit control's window procedure to be
         // DTEditWndProc.
-        EditWndProc = (WNDPROC) SetWindowLongPtr (DebugWindow, GWLP_WNDPROC, (UINT_PTR)DTEditWndProc);
+        EditWndProc = (WNDPROC)SetWindowLongPtr(DebugWindow, GWLP_WNDPROC, (UINT_PTR)DTEditWndProc);
 
         // Set the edit control's text size to the maximum.
         SendMessage(DebugWindow, EM_LIMITTEXT, 0, 0);
@@ -668,7 +676,8 @@ LRESULT APIENTRY DTEditWndProc(IN HWND   WindowHandle, IN UINT   Message, IN WPA
 /*++
   Function Description:
       Subclassed window procedure for the debug window.
-      This function disables some edit control functionality, and also responds to a user-defined message to print out text in the window.
+      This function disables some edit control functionality, 
+      and also responds to a user-defined message to print out text in the window.
   Arguments:
       WindowHandle -- the window.
       Message -- the message.
@@ -700,7 +709,8 @@ DWORD WindowThreadFunc(LPDWORD TheParam)
 /*
   Function Description:
       Thread function for WindowThread created in DllMain during process attachment.
-      Registers a window class, creates an instance of that class, and goes into a message loop to retrieve messages for that window or it's child edit control.
+      Registers a window class, creates an instance of that class, 
+      and goes into a message loop to retrieve messages for that window or it's child edit control.
   Arguments:
       TheParam -- Pointer to the parameter passed in by the function that called CreateThread.
   Return Value:
@@ -711,30 +721,29 @@ DWORD WindowThreadFunc(LPDWORD TheParam)
     MSG       msg;          // retrieved message
     PINITDATA InitDataPtr;  // casts TheParam into a INITDATA pointer
 
-    if ((HDesk!=NULL) && (HDesk!=GetThreadDesktop (GetCurrentThreadId ()))) {
-        SetThreadDesktop (HDesk);
+    if ((HDesk != NULL) && (HDesk != GetThreadDesktop(GetCurrentThreadId()))) {
+        SetThreadDesktop(HDesk);
     }
 
     // Register a window class for the frame window.
-    wnd_class.style         = CS_HREDRAW | CS_VREDRAW;
-    wnd_class.lpfnWndProc   = DTMainWndProc;
-    wnd_class.cbClsExtra    = 0;
-    wnd_class.cbWndExtra    = 0;
-    wnd_class.hInstance     = DllInstHandle;
-    wnd_class.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
-    wnd_class.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wnd_class.style = CS_HREDRAW | CS_VREDRAW;
+    wnd_class.lpfnWndProc = DTMainWndProc;
+    wnd_class.cbClsExtra = 0;
+    wnd_class.cbWndExtra = 0;
+    wnd_class.hInstance = DllInstHandle;
+    wnd_class.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wnd_class.hCursor = LoadCursor(NULL, IDC_ARROW);
     wnd_class.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wnd_class.lpszMenuName  = NULL;
+    wnd_class.lpszMenuName = NULL;
     wnd_class.lpszClassName = DTWndClass;
     RegisterClass(&wnd_class);
 
-    wsprintf (Buffer, "%s - DT_DLL", ModuleFileName);
+    wsprintf(Buffer, "%s - DT_DLL", ModuleFileName);
 
     // Create a frame window
     FrameWindow = CreateWindow(DTWndClass,
                                Buffer,
-                               WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN |
-                               WS_VISIBLE,
+                               WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_VISIBLE,
                                CW_USEDEFAULT,
                                CW_USEDEFAULT,
                                CW_USEDEFAULT,
@@ -764,7 +773,7 @@ DWORD WindowThreadFunc(LPDWORD TheParam)
     SetEvent(TextOutEvent);
 
     // Go into a message loop.
-    while (GetMessage(&msg, NULL, 0 , 0)) {
+    while (GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
@@ -776,7 +785,8 @@ DWORD WindowThreadFunc(LPDWORD TheParam)
 BOOL APIENTRY DebugDlgProc(HWND DialogWindow, UINT Message, WPARAM WParam, LPARAM LParam)
 /*++
   Function Description:
-      Window function for the dialog box IDC_DIALOG1, the dialog box that pops up when the dll is loaded and prompts the user for the output style of his/her choice.
+      Window function for the dialog box IDC_DIALOG1, 
+      the dialog box that pops up when the dll is loaded and prompts the user for the output style of his/her choice.
   Arguments:
       DialogWindow -- handle to the dialog box window.
       Message -- the message being received.
@@ -798,12 +808,11 @@ BOOL APIENTRY DebugDlgProc(HWND DialogWindow, UINT Message, WPARAM WParam, LPARA
             // and act appropriately.
             if (IsDlgButtonChecked(DialogWindow, IDC_RADIO4)) {
                 outputStyle = NO_OUTPUT;
-            }
-            else if (IsDlgButtonChecked(DialogWindow, IDC_RADIO5)) {
+            } else if (IsDlgButtonChecked(DialogWindow, IDC_RADIO5)) {
                 // Radio Button 1 was clicked.
                 if (!GetFile(DialogWindow, LogFileName, LogFNSize)) {
                     TCHAR   strBuf[1024];
-                    GetComdlgErrMsg (strBuf, ErrStr2);
+                    GetComdlgErrMsg(strBuf, ErrStr2);
                     outputStyle = WINDOW_ONLY;
                     // Error -- OutputStyle stays WINDOW_ONLY.
                     MessageBox(DialogWindow, strBuf, "Error.", MB_OK | MB_ICONSTOP);
@@ -817,10 +826,10 @@ BOOL APIENTRY DebugDlgProc(HWND DialogWindow, UINT Message, WPARAM WParam, LPARA
                 // Radio Button 3 was clicked.
                 if (!GetFile(DialogWindow, LogFileName, LogFNSize)) {
                     TCHAR   strBuf[1024];
-                    GetComdlgErrMsg (strBuf, ErrStr2);
+                    GetComdlgErrMsg(strBuf, ErrStr2);
                     outputStyle = WINDOW_ONLY;
                     // Error -- OutputStyle stays WINDOW_ONLY.
-                    MessageBox(DialogWindow, strBuf, "Error",  MB_OK | MB_ICONSTOP);
+                    MessageBox(DialogWindow, strBuf, "Error", MB_OK | MB_ICONSTOP);
                 } else {
                     outputStyle = FILE_AND_WINDOW;
                 }
@@ -829,40 +838,53 @@ BOOL APIENTRY DebugDlgProc(HWND DialogWindow, UINT Message, WPARAM WParam, LPARA
                 outputStyle = DEBUGGER;
             } else {
                 // No radio buttons were clicked -- pop up a Message box.
-                MessageBox(DialogWindow, "You must choose one output method.", "Choose or Die.", MB_OK | MB_ICONSTOP);
+                MessageBox(DialogWindow,
+                           "You must choose one output method.",
+                           "Choose or Die.", 
+                           MB_OK | MB_ICONSTOP);
                 break;
             }
 
             // Store setting to the registry if requested.
-            if (IsDlgButtonChecked (DialogWindow, IDC_CHECK)) {
+            if (IsDlgButtonChecked(DialogWindow, IDC_CHECK)) {
                 DWORD rc, disposition;
                 HKEY    hkeyAppData;
-                rc = RegCreateKeyEx(HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Services\\WinSock2\\Parameters\\DT_DLL_App_Data", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL, &hkeyAppData, &disposition);
-                if (rc==NO_ERROR) {
-                    rc = RegSetValueEx (hkeyAppData, ModuleFileName, 0, REG_DWORD, (BYTE *)&outputStyle, sizeof (outputStyle));
-                    RegCloseKey (hkeyAppData);
+                rc = RegCreateKeyEx(HKEY_LOCAL_MACHINE, 
+                                    "System\\CurrentControlSet\\Services\\WinSock2\\Parameters\\DT_DLL_App_Data",
+                                    0, 
+                                    NULL,
+                                    REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL,
+                                    &hkeyAppData, 
+                                    &disposition);
+                if (rc == NO_ERROR) {
+                    rc = RegSetValueEx(hkeyAppData, 
+                                       ModuleFileName,
+                                       0,
+                                       REG_DWORD,
+                                       (BYTE*)&outputStyle,
+                                       sizeof(outputStyle));
+                    RegCloseKey(hkeyAppData);
                 }
 
-                if (rc!=NO_ERROR) {
-                    if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, rc, 0, Buffer, sizeof (Buffer), NULL )!=0) {
+                if (rc != NO_ERROR) {
+                    if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+                                      NULL, rc, 0, Buffer, sizeof(Buffer), NULL) != 0) {
 
+                    } else {
+                        wsprintf(Buffer, "Error %ld.", rc);
                     }
-                    else {
-                        wsprintf (Buffer, "Error %ld.", rc);
-                    }
-                    MessageBox( NULL, Buffer, "Storing application settings",  MB_OK | MB_ICONINFORMATION );
+                    MessageBox(NULL, Buffer, "Storing application settings", MB_OK | MB_ICONINFORMATION);
                 }
             }
 
             // flow through
-
         case IDCANCEL:
             EndDialog(DialogWindow, (int)outputStyle);
             return TRUE;
         }
     case WM_INITDIALOG:
-        wsprintf (Buffer, "%s - DT_DLL", ModuleFileName);
-        SetWindowText (DialogWindow, Buffer);
+        wsprintf(Buffer, "%s - DT_DLL", ModuleFileName);
+        SetWindowText(DialogWindow, Buffer);
         return TRUE;
     }
 
@@ -870,7 +892,7 @@ BOOL APIENTRY DebugDlgProc(HWND DialogWindow, UINT Message, WPARAM WParam, LPARA
 } // DebugDlgProc()
 
 
-BOOL DTTextOut(IN HWND   WindowHandle, IN HANDLE FileHandle, IN char   *String, DWORD     Style)
+BOOL DTTextOut(IN HWND   WindowHandle, IN HANDLE FileHandle, IN char* String, DWORD     Style)
 /*++
   Function Description:
       This function outputs a string to a debug window and/or file.
@@ -886,19 +908,28 @@ BOOL DTTextOut(IN HWND   WindowHandle, IN HANDLE FileHandle, IN char   *String, 
     DWORD NumWritten;           // WriteFile takes an address to this
     DWORD Index;                // index of end of edit control text
     BOOL  Result;               // result of WriteFile
-    char  Output[TEXT_LEN+60];     // scratch buffer
+    char  Output[TEXT_LEN + 60];     // scratch buffer
 
     static DWORD LineCount = 0; // text output line number
     DWORD  BufIndex = 0;        // index into output string
 
-    if (Style==NO_OUTPUT)
+    if (Style == NO_OUTPUT)
         return TRUE;
 
     // Build a new string with the line-number and pid.tid in front.
-    if (Style==DEBUGGER)
-        BufIndex += wsprintf(Output, "DT_DLL(%d-%X.%X @%8.8lX) ", LineCount++, GetCurrentProcessId (), GetCurrentThreadId (), GetTickCount ());
+    if (Style == DEBUGGER)
+        BufIndex += wsprintf(Output, "DT_DLL(%d-%X.%X @%8.8lX) ", 
+                             LineCount++,
+                             GetCurrentProcessId(),
+                             GetCurrentThreadId(), 
+                             GetTickCount());
     else
-        BufIndex += wsprintf(Output, "(%d-%X.%X @%8.8lX) ", LineCount++, GetCurrentProcessId (), GetCurrentThreadId (), GetTickCount ());
+        BufIndex += wsprintf(Output,
+                             "(%d-%X.%X @%8.8lX) ",
+                             LineCount++,
+                             GetCurrentProcessId(),
+                             GetCurrentThreadId(),
+                             GetTickCount());
     strcpy(Output + BufIndex, String);
 
     switch (Style) {
@@ -908,7 +939,7 @@ BOOL DTTextOut(IN HWND   WindowHandle, IN HANDLE FileHandle, IN char   *String, 
         SendMessage(WindowHandle, EM_REPLACESEL, 0, (LPARAM)Output);
         break;
     case FILE_ONLY:
-        Result = WriteFile(FileHandle, (LPCVOID)Output, strlen(Output),  &NumWritten, NULL);
+        Result = WriteFile(FileHandle, (LPCVOID)Output, strlen(Output), &NumWritten, NULL);
         if (!Result) {
             AbortAndClose(FileHandle, WindowHandle);
             return FALSE;
@@ -935,7 +966,8 @@ BOOL DTTextOut(IN HWND   WindowHandle, IN HANDLE FileHandle, IN char   *String, 
 void AbortAndClose(IN HANDLE FileHandle, IN HWND WindowHandle)
 /*
   Function Description:
-      Closes a file handle, informs the user via a message box, and changes the global variable OutputStyle to WINDOW_ONLY
+      Closes a file handle, informs the user via a message box, 
+      and changes the global variable OutputStyle to WINDOW_ONLY
   Arguments:
       FileHandle -- handle to a file that caused the error.
       WindowHandle -- handle to a window to be the parent of the Message Box.
@@ -973,11 +1005,11 @@ BOOL GetFile(IN  HWND   OwnerWindow, OUT LPSTR  FileName, IN  DWORD  FileNameSiz
 
     // Set the members of the OPENFILENAME structure.
 #if (_WIN32_WINNT >= 0x0500)
-    if (LOBYTE(LOWORD(GetVersion()))<5)
+    if (LOBYTE(LOWORD(GetVersion())) < 5)
         OpenFileName.lStructSize = OPENFILENAME_SIZE_VERSION_400;
     else
 #endif
-        OpenFileName.lStructSize = sizeof (OpenFileName);
+        OpenFileName.lStructSize = sizeof(OpenFileName);
     OpenFileName.hwndOwner = OwnerWindow;
     OpenFileName.lpstrFilter = OpenFileName.lpstrCustomFilter = NULL;
     OpenFileName.nFilterIndex = 0;
@@ -993,14 +1025,13 @@ BOOL GetFile(IN  HWND   OwnerWindow, OUT LPSTR  FileName, IN  DWORD  FileNameSiz
 } // GetFile()
 
 
-VOID GetComdlgErrMsg (LPTSTR  Buffer, LPTSTR  Fmt)
+VOID GetComdlgErrMsg(LPTSTR  Buffer, LPTSTR  Fmt)
 {
     LPTSTR  str;
     DWORD   err;
     TCHAR   numBuf[256];
 
-    switch (err=CommDlgExtendedError ())
-    {
+    switch (err = CommDlgExtendedError()) {
     case 0:
         str = sCDERR_USERCANCEL;
         break;
@@ -1047,10 +1078,10 @@ VOID GetComdlgErrMsg (LPTSTR  Buffer, LPTSTR  Fmt)
         str = sFNERR_SUBCLASSFAILURE;
         break;
     default:
-        wsprintf (numBuf, "Unknown common dialog error: %ld", err);
+        wsprintf(numBuf, "Unknown common dialog error: %ld", err);
         str = numBuf;
         break;
     }
 
-    wsprintf (Buffer, Fmt, str);
+    wsprintf(Buffer, Fmt, str);
 }

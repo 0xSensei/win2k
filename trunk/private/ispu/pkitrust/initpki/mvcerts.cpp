@@ -11,17 +11,16 @@
 
 #include    "global.hxx"
 
-static HRESULT HError ()
+static HRESULT HError()
 {
-    DWORD   dw = GetLastError ();
+    DWORD   dw = GetLastError();
     HRESULT hr;
-    if ( dw <= (DWORD) 0xFFFF )
-        hr = HRESULT_FROM_WIN32 ( dw );
+    if (dw <= (DWORD)0xFFFF)
+        hr = HRESULT_FROM_WIN32(dw);
     else
         hr = dw;
 
-    if ( ! FAILED ( hr ) )
-    {
+    if (!FAILED(hr)) {
         // somebody failed a call without properly setting an error condition
 
         hr = E_UNEXPECTED;
@@ -57,36 +56,31 @@ HRESULT PurgeDuplicateCertificate(HCERTSTORE hStore, PCCERT_CONTEXT pCert)
     pExistingCert = CertGetSubjectCertificateFromStore(hStore,
                                                        X509_ASN_ENCODING,
                                                        pCert->pCertInfo);
-    if (pExistingCert)
-    {
+    if (pExistingCert) {
         if (CompareFileTime(&pExistingCert->pCertInfo->NotBefore,
                             &pCert->pCertInfo->NotBefore) <= 0) {
 
             fRes = CertDeleteCertificateFromStore(pExistingCert);  // Delete existing
             pExistingCert = NULL;
 
-            if (!(fRes))
-            {
+            if (!(fRes)) {
                 goto CertDupError;
             }
-        }
-        else
-        {
+        } else {
             hr = S_FALSE;
         }
     }
 
-    CommonReturn:
-        if (pExistingCert)
-        {
-            CertFreeCertificateContext(pExistingCert);
-        }
-        return hr;
+CommonReturn:
+    if (pExistingCert) {
+        CertFreeCertificateContext(pExistingCert);
+    }
+    return hr;
 
 
-    ErrorReturn:
-        SetLastError((DWORD)hr);
-        goto CommonReturn;
+ErrorReturn:
+    SetLastError((DWORD)hr);
+    goto CommonReturn;
 
     SET_HRESULT_EX(DBG_SS, CertDupError, GetLastError());
 }
@@ -101,9 +95,9 @@ HRESULT MoveSpcCerts(BOOL fDelete, HCERTSTORE hStore)
     HKEY hKeyParent = NULL;
     HKEY hKeyBucket = NULL;
     LPSTR pszName = NULL;
-    BYTE *pbData = NULL;
+    BYTE* pbData = NULL;
 
-    PKITRY {
+    PKITRY{
         if (ERROR_SUCCESS != RegOpenKeyEx(HKEY_LOCAL_MACHINE,
                                           SZIE30CERTROOT,
                                           0,                  // dwReserved
@@ -111,93 +105,92 @@ HRESULT MoveSpcCerts(BOOL fDelete, HCERTSTORE hStore)
                                           &hKeyRoot))
             PKITHROW(S_OK);
 
-        // Copy any existing certificates
-        if (ERROR_SUCCESS != RegOpenKeyEx(hKeyRoot,
-                                          SZIE30CERTBUCKET,
-                                          0,                  // dwReserved
-                                          KEY_READ,
-                                          &hKeyBucket))
-            PKITHROW(HError());
+    // Copy any existing certificates
+    if (ERROR_SUCCESS != RegOpenKeyEx(hKeyRoot,
+                                      SZIE30CERTBUCKET,
+                                      0,                  // dwReserved
+                                      KEY_READ,
+                                      &hKeyBucket))
+        PKITHROW(HError());
 
-        DWORD   cValues, cchMaxName, cbMaxData;
-        // see how many and how big the registry is
-        if (ERROR_SUCCESS != RegQueryInfoKey(hKeyBucket,
-                                             NULL,
-                                             NULL,
-                                             NULL,
-                                             NULL,
-                                             NULL,
-                                             NULL,
-                                             &cValues,
-                                             &cchMaxName,
-                                             &cbMaxData,
-                                             NULL,
-                                             NULL
-                                             ))
-            PKITHROW(HError());
+    DWORD   cValues, cchMaxName, cbMaxData;
+    // see how many and how big the registry is
+    if (ERROR_SUCCESS != RegQueryInfoKey(hKeyBucket,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         &cValues,
+                                         &cchMaxName,
+                                         &cbMaxData,
+                                         NULL,
+                                         NULL
+                                         ))
+        PKITHROW(HError());
 
-        // allocate the memory needed to read the reg
-        pszName = (LPSTR) LocalAlloc(LMEM_ZEROINIT, cchMaxName + 1);
-        pbData = (BYTE *) LocalAlloc(LMEM_ZEROINIT, cbMaxData);
-        if (NULL == pszName  || NULL == pbData)
-            PKITHROW(E_OUTOFMEMORY);
+    // allocate the memory needed to read the reg
+    pszName = (LPSTR)LocalAlloc(LMEM_ZEROINIT, cchMaxName + 1);
+    pbData = (BYTE*)LocalAlloc(LMEM_ZEROINIT, cbMaxData);
+    if (NULL == pszName || NULL == pbData)
+        PKITHROW(E_OUTOFMEMORY);
 
-        // enum the registry getting certs
-        for (DWORD i = 0; i < cValues; i++ ) {
-            DWORD dwType;
-            DWORD cchName = cchMaxName + 1;
-            DWORD cbData = cbMaxData;
-            PCCERT_CONTEXT pCert = NULL;
+    // enum the registry getting certs
+    for (DWORD i = 0; i < cValues; i++) {
+        DWORD dwType;
+        DWORD cchName = cchMaxName + 1;
+        DWORD cbData = cbMaxData;
+        PCCERT_CONTEXT pCert = NULL;
 
-            if (ERROR_SUCCESS != RegEnumValueA(hKeyBucket,
-                                               i,
-                                               pszName,
-                                               &cchName,
-                                               NULL,
-                                               &dwType,
-                                               pbData,
-                                               &cbData)) {
-                if (SUCCEEDED(hr))
-                    hr = HError();
-            } else if (cchName) {
-                if((pCert = CertCreateCertificateContext(X509_ASN_ENCODING,
-                                                         pbData,
-                                                         cbData)) == NULL) {
-                    hr = HError();
-                }
-                else {
-                    HRESULT hr2 = PurgeDuplicateCertificate(hStore, pCert);
-                    if(hr2 == S_OK) {
-                        if(!CertAddCertificateContextToStore(hStore,
-                                                             pCert,
-                                                             CERT_STORE_ADD_USE_EXISTING,
-                                                             NULL       // ppStoreContext
-                                                             )) {
-                            /*MessageBox(NULL, "Copy Certificate Failed", NULL,
-                                       MB_OK);*/
-                            if(SUCCEEDED(hr))
-                                hr = HError();
-                        }
+        if (ERROR_SUCCESS != RegEnumValueA(hKeyBucket,
+                                           i,
+                                           pszName,
+                                           &cchName,
+                                           NULL,
+                                           &dwType,
+                                           pbData,
+                                           &cbData)) {
+            if (SUCCEEDED(hr))
+                hr = HError();
+        } else if (cchName) {
+            if ((pCert = CertCreateCertificateContext(X509_ASN_ENCODING,
+                                                     pbData,
+                                                     cbData)) == NULL) {
+                hr = HError();
+            } else {
+                HRESULT hr2 = PurgeDuplicateCertificate(hStore, pCert);
+                if (hr2 == S_OK) {
+                    if (!CertAddCertificateContextToStore(hStore,
+                                                         pCert,
+                                                         CERT_STORE_ADD_USE_EXISTING,
+                                                         NULL       // ppStoreContext
+                                                         )) {
+                        /*MessageBox(NULL, "Copy Certificate Failed", NULL,
+                                   MB_OK);*/
+                        if (SUCCEEDED(hr))
+                            hr = HError();
                     }
                 }
-                if(pCert)
-                    CertFreeCertificateContext(pCert);
-                /*
-                  if (!CertAddEncodedCertificateToStore(hStore,
-                                                      X509_ASN_ENCODING,
-                                                      pbData,
-                                                      cbData,
-                                                      CERT_STORE_ADD_USE_EXISTING,
-                                                      NULL)) {               // ppCertContext
-                    MessageBox(NULL, "Copy Certificate Failed", NULL,
-                               MB_OK);
-                               if (SUCCEEDED(hr))
-                        hr = HError();
-                        */
             }
+            if (pCert)
+                CertFreeCertificateContext(pCert);
+            /*
+              if (!CertAddEncodedCertificateToStore(hStore,
+                                                  X509_ASN_ENCODING,
+                                                  pbData,
+                                                  cbData,
+                                                  CERT_STORE_ADD_USE_EXISTING,
+                                                  NULL)) {               // ppCertContext
+                MessageBox(NULL, "Copy Certificate Failed", NULL,
+                           MB_OK);
+                           if (SUCCEEDED(hr))
+                    hr = HError();
+                    */
         }
     }
-    PKICATCH(err) {
+    }
+        PKICATCH(err) {
         hr = err.pkiError;
     } PKIEND;
 
@@ -209,7 +202,7 @@ HRESULT MoveSpcCerts(BOOL fDelete, HCERTSTORE hStore)
     RegCloseKey(hKeyRoot);
 
 
-    if(SUCCEEDED(hr) && fDelete) {
+    if (SUCCEEDED(hr) && fDelete) {
 
         Status = ERROR_SUCCESS;
         while (Status == ERROR_SUCCESS) {
@@ -222,12 +215,12 @@ HRESULT MoveSpcCerts(BOOL fDelete, HCERTSTORE hStore)
                 return HError();
 
             // Delete all of the store's subkeys including the certificates
-            CHAR szSubKey[MAX_PATH+1];
+            CHAR szSubKey[MAX_PATH + 1];
             if (ERROR_SUCCESS == (Status = RegEnumKey(hKeyRoot,
                                                       0,          // iSubKey
                                                       szSubKey,
                                                       MAX_PATH + 1
-                                                      )))
+            )))
                 Status = RegDeleteKey(hKeyRoot, szSubKey);
             RegCloseKey(hKeyRoot);
         }
@@ -252,7 +245,7 @@ HRESULT MoveSpcCerts(BOOL fDelete, HCERTSTORE hStore)
 BOOL TestIE30Store(HKEY hRegRoot, LPCSTR psLoc)
 {
     HRESULT hr = S_FALSE;
-    HKEY hKeyRoot   = NULL;
+    HKEY hKeyRoot = NULL;
     HKEY hKeyBucket = NULL;
     char pbValueName[MAX_PATH];
     DWORD cbValueName = MAX_PATH;
@@ -261,7 +254,7 @@ BOOL TestIE30Store(HKEY hRegRoot, LPCSTR psLoc)
 
     // __asm int 3
 
-    PKITRY {
+    PKITRY{
         if (ERROR_SUCCESS != RegOpenKeyExA(hRegRoot,
                                            psLoc,
                                            0,                  // dwReserved
@@ -293,16 +286,16 @@ BOOL TestIE30Store(HKEY hRegRoot, LPCSTR psLoc)
                                              ))
             PKITHROW(HError());
 
-        if(cchMaxName < 40 && cSubKeys == 0)
+        if (cchMaxName < 40 && cSubKeys == 0)
             hr = S_OK;
     }
-    PKICATCH(err) {
+        PKICATCH(err) {
         hr = err.pkiError;
     } PKIEND
 
-    if(hKeyRoot != NULL)
-        RegCloseKey(hKeyRoot);
-    if(hKeyBucket != NULL)
+        if (hKeyRoot != NULL)
+            RegCloseKey(hKeyRoot);
+    if (hKeyBucket != NULL)
         RegCloseKey(hKeyBucket);
     return hr == S_OK ? TRUE : FALSE;
 }
@@ -314,50 +307,50 @@ HRESULT TransferIE30Certificates(HKEY hRegRoot, LPCSTR psLoc, HCERTSTORE hStore,
 {
     HRESULT hr = S_OK;
     LONG Status;
-    HKEY hKeyRoot   = NULL;
+    HKEY hKeyRoot = NULL;
     HKEY hKeyBucket = NULL;
-    HKEY hKeyTags   = NULL;
-    HKEY hKeyAux    = NULL;
+    HKEY hKeyTags = NULL;
+    HKEY hKeyAux = NULL;
 
     if (ERROR_SUCCESS != RegOpenKeyExA(hRegRoot,
                                        psLoc,
                                        0,                  // dwReserved
                                        KEY_READ,
                                        &hKeyRoot
-                                       ))
+    ))
         return S_OK;
 
-        // Copy any existing certificates
+    // Copy any existing certificates
     if (ERROR_SUCCESS == RegOpenKeyExA(hKeyRoot,
                                        SZIE30CERTBUCKET,
                                        0,                  // dwReserved
                                        KEY_READ,
                                        &hKeyBucket
-                                       )               &&
+    ) &&
 
         ERROR_SUCCESS == RegOpenKeyExA(hKeyRoot,
                                        SZIE30AUXINFO,
                                        0,                  // dwReserved
                                        KEY_READ,
                                        &hKeyAux
-                                       )               &&
+        ) &&
 
         ERROR_SUCCESS == RegOpenKeyExA(hKeyRoot,
                                        SZIE30TAGS,
                                        0,                  // dwReserved
                                        KEY_READ,
                                        &hKeyTags
-                                       )) {
+        )) {
 
         DWORD   cValuesCert, cchMaxNameCert, cbMaxDataCert;
         DWORD   cValuesTag, cchMaxNameTag, cbMaxDataTag;
         DWORD   cValuesAux, cchMaxNameAux, cbMaxDataAux;
         LPSTR   szName = NULL;
-        BYTE *pbLoadCert = NULL;
-        BYTE *pbFixedCert = NULL;
-        BYTE *pbDataCert = NULL;
-        BYTE *pbDataAux = NULL;
-        BYTE *pbDataTag = NULL;
+        BYTE* pbLoadCert = NULL;
+        BYTE* pbFixedCert = NULL;
+        BYTE* pbDataCert = NULL;
+        BYTE* pbDataAux = NULL;
+        BYTE* pbDataTag = NULL;
 
         // see how many and how big the registry is
         if (ERROR_SUCCESS != RegQueryInfoKey(hKeyBucket,
@@ -372,7 +365,7 @@ HRESULT TransferIE30Certificates(HKEY hRegRoot, LPCSTR psLoc, HCERTSTORE hStore,
                                              &cbMaxDataCert,
                                              NULL,
                                              NULL
-                                             )           ||
+        ) ||
             ERROR_SUCCESS != RegQueryInfoKey(hKeyTags,
                                              NULL,
                                              NULL,
@@ -385,7 +378,7 @@ HRESULT TransferIE30Certificates(HKEY hRegRoot, LPCSTR psLoc, HCERTSTORE hStore,
                                              &cbMaxDataTag,
                                              NULL,
                                              NULL
-                                             )           ||
+            ) ||
             ERROR_SUCCESS != RegQueryInfoKey(hKeyAux,
                                              NULL,
                                              NULL,
@@ -398,27 +391,27 @@ HRESULT TransferIE30Certificates(HKEY hRegRoot, LPCSTR psLoc, HCERTSTORE hStore,
                                              &cbMaxDataAux,
                                              NULL,
                                              NULL
-                                             ))
+            ))
             hr = HError();
         else {
             // allocate the memory needed to read the reg
-            szName = (LPSTR) LocalAlloc(LMEM_ZEROINIT, cchMaxNameCert + 1);
-            pbDataCert = (BYTE *) LocalAlloc(LMEM_ZEROINIT, cbMaxDataCert);
-            pbDataTag = (BYTE *) LocalAlloc(LMEM_ZEROINIT, cbMaxDataTag);
-            pbDataAux = (BYTE *) LocalAlloc(LMEM_ZEROINIT, cbMaxDataAux);
+            szName = (LPSTR)LocalAlloc(LMEM_ZEROINIT, cchMaxNameCert + 1);
+            pbDataCert = (BYTE*)LocalAlloc(LMEM_ZEROINIT, cbMaxDataCert);
+            pbDataTag = (BYTE*)LocalAlloc(LMEM_ZEROINIT, cbMaxDataTag);
+            pbDataAux = (BYTE*)LocalAlloc(LMEM_ZEROINIT, cbMaxDataAux);
 
-            if (NULL == szName      ||
-                NULL == pbDataCert  ||
-                NULL == pbDataAux   ||
-                NULL == pbDataTag   )
+            if (NULL == szName ||
+                NULL == pbDataCert ||
+                NULL == pbDataAux ||
+                NULL == pbDataTag)
                 hr = E_OUTOFMEMORY;
         }
 
         // enum the registry getting certs
-        for (DWORD i = 0; SUCCEEDED(hr) && i < cValuesCert; i++ ) {
+        for (DWORD i = 0; SUCCEEDED(hr) && i < cValuesCert; i++) {
 
             DWORD dwType;
-            BYTE *  pb;
+            BYTE* pb;
             CRYPT_KEY_PROV_INFO   keyInfo;
             DWORD cchName = cchMaxNameCert + 1;
             DWORD cbDataCert = cbMaxDataCert;
@@ -443,45 +436,44 @@ HRESULT TransferIE30Certificates(HKEY hRegRoot, LPCSTR psLoc, HCERTSTORE hStore,
                               &dwType,
                               pbDataCert,
                               &cbDataCert
-                              ) == ERROR_SUCCESS      &&
+            ) == ERROR_SUCCESS &&
 
                 dwType == REG_BINARY) {
 
 
-                if(Fix7FCert(cbDataCert,
-                             pbDataCert,
-                             &cbFixedCert,
-                             &pbFixedCert) &&
-                   cbFixedCert != 0) {
+                if (Fix7FCert(cbDataCert,
+                              pbDataCert,
+                              &cbFixedCert,
+                              &pbFixedCert) &&
+                    cbFixedCert != 0) {
                     pbLoadCert = pbFixedCert;
                     cbLoadCert = cbFixedCert;
-                }
-                else {
+                } else {
                     pbLoadCert = pbDataCert;
                     cbLoadCert = cbDataCert;
                 }
 
                 // get the cert context
-                if((pCertContxt = CertCreateCertificateContext(X509_ASN_ENCODING,
-                                                               pbLoadCert,
-                                                               cbLoadCert)) != NULL) {
+                if ((pCertContxt = CertCreateCertificateContext(X509_ASN_ENCODING,
+                                                                pbLoadCert,
+                                                                cbLoadCert)) != NULL) {
 
                     // See if it has a tag and aux info.
                     // get the tag
-                    if(RegQueryValueExA(hKeyTags,
-                                        szName,
-                                        NULL,
-                                        &dwType,
-                                        pbDataTag,
-                                        &cbDataTag) == ERROR_SUCCESS    &&
+                    if (RegQueryValueExA(hKeyTags,
+                                         szName,
+                                         NULL,
+                                         &dwType,
+                                         pbDataTag,
+                                         &cbDataTag) == ERROR_SUCCESS &&
 
-                       // get the aux info
-                       RegQueryValueExA(hKeyAux,
-                                        (LPTSTR) pbDataTag,
-                                        NULL,
-                                        &dwType,
-                                        pbDataAux,
-                                        &cbDataAux) == ERROR_SUCCESS ) {
+                        // get the aux info
+                        RegQueryValueExA(hKeyAux,
+                        (LPTSTR)pbDataTag,
+                                         NULL,
+                                         &dwType,
+                                         pbDataAux,
+                                         &cbDataAux) == ERROR_SUCCESS) {
 
                         // aux info is
                         // wszPurpose
@@ -496,46 +488,46 @@ HRESULT TransferIE30Certificates(HKEY hRegRoot, LPCSTR psLoc, HCERTSTORE hStore,
                         memset(&keyInfo, 0, sizeof(CRYPT_KEY_PROV_INFO));
 
                         // skip purpose, should be client auth
-                        pb += (lstrlenW((LPWSTR) pb) + 1) * sizeof(WCHAR);
+                        pb += (lstrlenW((LPWSTR)pb) + 1) * sizeof(WCHAR);
 
                         // get the provider
-                        keyInfo.pwszProvName = (LPWSTR) pb;
-                        pb += (lstrlenW((LPWSTR) pb) + 1) * sizeof(WCHAR);
+                        keyInfo.pwszProvName = (LPWSTR)pb;
+                        pb += (lstrlenW((LPWSTR)pb) + 1) * sizeof(WCHAR);
 
                         // get the container name
-                        keyInfo.pwszContainerName = (LPWSTR) pb;
-                        pb += (lstrlenW((LPWSTR) pb) + 1) * sizeof(WCHAR);
+                        keyInfo.pwszContainerName = (LPWSTR)pb;
+                        pb += (lstrlenW((LPWSTR)pb) + 1) * sizeof(WCHAR);
 
                         // skip filename, should be '\0'
-                        pb += (lstrlenW((LPWSTR) pb) + 1) * sizeof(WCHAR);
+                        pb += (lstrlenW((LPWSTR)pb) + 1) * sizeof(WCHAR);
 
                         // skip credential, don't really know what it is?
-                        pb += (lstrlenW((LPWSTR) pb) + 1) * sizeof(WCHAR);
+                        pb += (lstrlenW((LPWSTR)pb) + 1) * sizeof(WCHAR);
 
                         // get the provider type
-                        keyInfo.dwProvType = *((DWORD *) pb);
+                        keyInfo.dwProvType = *((DWORD*)pb);
                         pb += sizeof(DWORD);
 
                         // get the key spec
-                        keyInfo.dwKeySpec  = *((DWORD *) pb);
+                        keyInfo.dwKeySpec = *((DWORD*)pb);
 
 
                         // add the property to the certificate
-                        if( !CertSetCertificateContextProperty(pCertContxt,
+                        if (!CertSetCertificateContextProperty(pCertContxt,
                                                                CERT_KEY_PROV_INFO_PROP_ID,
                                                                0,
                                                                &keyInfo))
                             status = S_FALSE;
                     }
 
-                    if(status == S_OK) {
+                    if (status == S_OK) {
                         HRESULT hr2 = PurgeDuplicateCertificate(hStore, pCertContxt);
-                        if(hr2 == S_OK) {
-                            if(!CertAddCertificateContextToStore(hStore,
-                                                                 pCertContxt,
-                                                                 CERT_STORE_ADD_USE_EXISTING,
-                                                                 NULL       // ppStoreContext
-                                                                 )) {
+                        if (hr2 == S_OK) {
+                            if (!CertAddCertificateContextToStore(hStore,
+                                                                  pCertContxt,
+                                                                  CERT_STORE_ADD_USE_EXISTING,
+                                                                  NULL       // ppStoreContext
+                            )) {
                                 /*MessageBox(NULL,
                                   "Copy Certificate Failed",
                                   NULL,
@@ -547,9 +539,9 @@ HRESULT TransferIE30Certificates(HKEY hRegRoot, LPCSTR psLoc, HCERTSTORE hStore,
                 }
 
             }
-            if(pCertContxt != NULL)
+            if (pCertContxt != NULL)
                 CertFreeCertificateContext(pCertContxt);
-            if(pbFixedCert) {
+            if (pbFixedCert) {
                 LocalFree(pbFixedCert);
                 pbFixedCert = NULL;
             }
@@ -559,26 +551,26 @@ HRESULT TransferIE30Certificates(HKEY hRegRoot, LPCSTR psLoc, HCERTSTORE hStore,
             LocalFree(szName);
         if (pbDataCert)
             LocalFree(pbDataCert);
-        if(pbDataAux)
+        if (pbDataAux)
             LocalFree(pbDataAux);
-        if(pbDataTag)
+        if (pbDataTag)
             LocalFree(pbDataTag);
     }
 
 
 
-    if(hKeyRoot != NULL)
+    if (hKeyRoot != NULL)
         RegCloseKey(hKeyRoot);
-    if(hKeyBucket != NULL)
+    if (hKeyBucket != NULL)
         RegCloseKey(hKeyBucket);
-    if(hKeyTags != NULL)
+    if (hKeyTags != NULL)
         RegCloseKey(hKeyTags);
-    if(hKeyAux != NULL)
+    if (hKeyAux != NULL)
         RegCloseKey(hKeyAux);
     if (FAILED(hr))
         return hr;
 
-    if(SUCCEEDED(hr) && fDelete) {
+    if (SUCCEEDED(hr) && fDelete) {
 
         // Re-open registry with write/delete access
         if (ERROR_SUCCESS != RegOpenKeyEx(hRegRoot,
@@ -610,38 +602,34 @@ HRESULT MoveCertificates(BOOL fDelete)
     HCERTSTORE hStore = NULL;
     HCRYPTPROV hCrypt = NULL;
     //__asm int 3
-    PKITRY {
+    PKITRY{
         /*
         if (!CryptAcquireContext(&hCrypt, NULL, MS_DEF_PROV, PROV_RSA_FULL, 0))
             PKITHROW(HError());
             */
-        hSpcStore = CertOpenSystemStore( NULL, TEXT("SPC") );
+        hSpcStore = CertOpenSystemStore(NULL, TEXT("SPC"));
 
-        if(!hSpcStore)
+        if (!hSpcStore)
             PKITHROW(HError());
         hr = MoveSpcCerts(fDelete, hSpcStore);
 
         hStore = CertOpenSystemStore(NULL, TEXT(IE30CONVERTEDSTORE));
-        if(!hStore)
+        if (!hStore)
             PKITHROW(HError());
 
         hr2 = TransferIE30Certificates(HKEY_CURRENT_USER, SZIE30CERTCLIENTAUTH, hStore, fDelete);
 
     }
-    PKICATCH(err) {
+        PKICATCH(err) {
         hr = err.pkiError;
     } PKIEND;
 
-    if(SUCCEEDED(hr)) hr = hr2;
-    if(hSpcStore)
-        CertCloseStore( hSpcStore, 0 );
-    if(hStore)
+    if (SUCCEEDED(hr)) hr = hr2;
+    if (hSpcStore)
+        CertCloseStore(hSpcStore, 0);
+    if (hStore)
         CertCloseStore(hStore, 0);
-    if(hCrypt)
+    if (hCrypt)
         CryptReleaseContext(hCrypt, 0);
     return hr;
 }
-
-
-
-

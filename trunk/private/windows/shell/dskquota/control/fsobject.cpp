@@ -1,9 +1,6 @@
-
 /*  File: fsobject.cpp
 
-    Description: Contains member function definitions for class FSObject and
-        it's derived subclasses.
-
+    Description: Contains member function definitions for class FSObject and it's derived subclasses.
 
     Revision History:
 
@@ -27,55 +24,35 @@
 #endif
 
 
-
-/*  Function: FSObject::~FSObject
-
+FSObject::~FSObject(VOID)
+/*
     Description: Destructor.  Frees object's name buffer.
 
-    Arguments: None.
-
-    Returns: Nothing.
-
     Revision History:
-
     Date        Description                                          Programmer
         --
     05/22/96    Initial creation.                                    BrianAu
 */
-
-FSObject::~FSObject(
-    VOID
-    )
 {
     DBGTRACE((DM_CONTROL, DL_MID, TEXT("FSObject::~FSObject")));
 }
 
 
-
-/*  Function: FSObject::AddRef
-
+ULONG FSObject::AddRef(VOID)
+/*
     Description: Increments object reference count.
         Note this is not a member of IUnknown; but it works the same.
-
-    Arguments: None.
 
     Returns: New reference count value.
 
     Revision History:
-
     Date        Description                                          Programmer
         --
     05/22/96    Initial creation.                                    BrianAu
 */
-
-ULONG
-FSObject::AddRef(
-    VOID
-    )
 {
     DBGTRACE((DM_CONTROL, DL_LOW, TEXT("FSObject::AddRef")));
-    DBGPRINT((DM_CONTROL, DL_LOW, TEXT("\t0x%08X  %d -> %d"),
-             this, m_cRef, m_cRef + 1));
+    DBGPRINT((DM_CONTROL, DL_LOW, TEXT("\t0x%08X  %d -> %d"), this, m_cRef, m_cRef + 1));
 
     ULONG ulReturn = m_cRef + 1;
     InterlockedIncrement(&m_cRef);
@@ -84,39 +61,29 @@ FSObject::AddRef(
 }
 
 
-
-/*  Function: FSObject::Release
-
+ULONG FSObject::Release(VOID)
+/*
     Description: Decrements object reference count.  If count drops to 0,
         object is deleted.  Note this is not a member of IUnknown; but it
         works the same.
 
-    Arguments: None.
-
     Returns: New reference count value.
 
     Revision History:
-
     Date        Description                                          Programmer
         --
     05/22/96    Initial creation.                                    BrianAu
 */
-
-ULONG
-FSObject::Release(
-    VOID
-    )
 {
     DBGTRACE((DM_CONTROL, DL_LOW, TEXT("FSObject::Release")));
-    DBGPRINT((DM_CONTROL, DL_LOW, TEXT("\t0x%08X  %d -> %d"),
-             this, m_cRef, m_cRef - 1));
+    DBGPRINT((DM_CONTROL, DL_LOW, TEXT("\t0x%08X  %d -> %d"), this, m_cRef, m_cRef - 1));
 
     ULONG ulReturn = m_cRef - 1;
-    if (InterlockedDecrement(&m_cRef) == 0)
-    {
+    if (InterlockedDecrement(&m_cRef) == 0) {
         delete this;
         ulReturn = 0;
     }
+
     return ulReturn;
 }
 
@@ -149,11 +116,7 @@ FSObject::Release(
                 Changed logic to indicate reason for not supporting
                 quotas.
 */
-
-HRESULT
-FSObject::ObjectSupportsQuotas(
-    LPCTSTR pszFSObjName
-    )
+HRESULT FSObject::ObjectSupportsQuotas(LPCTSTR pszFSObjName)
 {
     DBGTRACE((DM_CONTROL, DL_MID, TEXT("FSObject::ObjectSupportsQuotas")));
     DBGPRINT((DM_CONTROL, DL_MID, TEXT("\tobject = \"%s\""), pszFSObjName ? pszFSObjName : TEXT("<null>")));
@@ -165,36 +128,24 @@ FSObject::ObjectSupportsQuotas(
     DBGASSERT((NULL != pszFSObjName));
 
     if (GetVolumeInformation(
-                pszFSObjName,
-                NULL, 0,
-                NULL, 0,
-                &dwFileSysFlags,
-                szFileSysName,
-                ARRAYSIZE(szFileSysName)))
-    {
-
+        pszFSObjName,
+        NULL, 0,
+        NULL, 0,
+        &dwFileSysFlags,
+        szFileSysName,
+        ARRAYSIZE(szFileSysName))) {
         // Does the file system support quotas?
-
-        if (0 != (dwFileSysFlags & FILE_VOLUME_QUOTAS))
-        {
-
+        if (0 != (dwFileSysFlags & FILE_VOLUME_QUOTAS)) {
             // Yes, it does.
-
             hr = S_OK;
             DBGPRINT((DM_CONTROL, DL_LOW, TEXT("Vol \"%s\" supports quotas"), pszFSObjName));
-        }
-        else
-        {
-
+        } else {
             // Doesn't support quotas.
-
             hr = HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
             DBGPRINT((DM_CONTROL, DL_HIGH, TEXT("File system \"%s\" on \"%s\" doesn't support quotas."),
-                     szFileSysName, pszFSObjName));
+                      szFileSysName, pszFSObjName));
         }
-    }
-    else
-    {
+    } else {
         DWORD dwErr = GetLastError();
         hr = HRESULT_FROM_WIN32(dwErr);
         DBGERROR((TEXT("Error %d calling GetVolumeInformation for \"%s\""), dwErr, pszFSObjName));
@@ -202,7 +153,6 @@ FSObject::ObjectSupportsQuotas(
 
     return hr;
 }
-
 
 
 /*  Function: FSObject::Create
@@ -235,13 +185,7 @@ FSObject::ObjectSupportsQuotas(
     05/23/96    Initial creation.                                    BrianAu
     09/05/96    Added exception handling.                            BrianAu
 */
-
-HRESULT
-FSObject::Create(
-    LPCTSTR pszFSObjName,
-    DWORD dwAccess,
-    FSObject **ppNewObject
-    )
+HRESULT FSObject::Create(LPCTSTR pszFSObjName, DWORD dwAccess, FSObject** ppNewObject)
 {
     DBGTRACE((DM_CONTROL, DL_MID, TEXT("FSObject::Create")));
     DBGPRINT((DM_CONTROL, DL_MID, TEXT("\tVol = \"%s\""), pszFSObjName ? pszFSObjName : TEXT("<null>")));
@@ -252,46 +196,33 @@ FSObject::Create(
 
     *ppNewObject = NULL;
 
-    FSObject *pNewObject = NULL;
+    FSObject* pNewObject = NULL;
 
-    try
-    {
+    try {
         hr = FSObject::ObjectSupportsQuotas(pszFSObjName);
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             pNewObject = new FSLocalVolume(pszFSObjName);
-
 
             // Do any subclass-specific initialization.
             // i.e.:  Volume opens the volume device.
 
             hr = pNewObject->Initialize(dwAccess);
-
-            if (SUCCEEDED(hr))
-            {
-
+            if (SUCCEEDED(hr)) {
                 // Return ptr to caller.
-
                 DBGPRINT((DM_CONTROL, DL_MID, TEXT("FSObject created")));
                 pNewObject->AddRef();
                 *ppNewObject = pNewObject;
-            }
-            else
-            {
+            } else {
                 DBGPRINT((DM_CONTROL, DL_MID, TEXT("FSObject create FAILED with error 0x%08X"), hr));
                 delete pNewObject;
                 pNewObject = NULL;
             }
         }
-    }
-    catch(CAllocException& e)
-    {
+    } catch (CAllocException & e) {
         DBGERROR((TEXT("Insufficient memory exception")));
         delete pNewObject;  // Will also free name if necessary.
         hr = E_OUTOFMEMORY;
-    }
-    catch(...)
-    {
+    } catch (...) {
         DBGERROR((TEXT("Unexpected C++ exception")));
         delete pNewObject;
         hr = E_UNEXPECTED;
@@ -303,17 +234,10 @@ FSObject::Create(
 
 // Version to clone an existing FSObject.
 
-HRESULT
-FSObject::Create(
-    const FSObject& ObjectToClone,
-    FSObject **ppNewObject
-    )
+HRESULT FSObject::Create(const FSObject& ObjectToClone, FSObject** ppNewObject)
 {
-    return FSObject::Create(ObjectToClone.m_strFSObjName,
-                            ObjectToClone.m_dwAccessRights,
-                            ppNewObject);
+    return FSObject::Create(ObjectToClone.m_strFSObjName, ObjectToClone.m_dwAccessRights, ppNewObject);
 }
-
 
 
 /*  Function: FSObject::GetName
@@ -343,16 +267,13 @@ HRESULT FSObject::GetName(LPTSTR pszBuffer, ULONG cchBuffer) const
     DBGASSERT((NULL != pszBuffer));
     if ((ULONG)m_strFSObjName.Length() < cchBuffer)
         lstrcpyn(pszBuffer, m_strFSObjName, cchBuffer);
-    else
-    {
+    else {
         *pszBuffer = TEXT('\0');
         hr = HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER);
     }
 
     return hr;
 }
-
-
 
 
 /*  Function: FSVolume::~FSVolume
@@ -369,10 +290,7 @@ HRESULT FSObject::GetName(LPTSTR pszBuffer, ULONG cchBuffer) const
         --
     05/24/96    Initial creation.                                    BrianAu
 */
-
-FSVolume::~FSVolume(
-    VOID
-    )
+FSVolume::~FSVolume(VOID)
 {
     DBGTRACE((DM_CONTROL, DL_MID, TEXT("FSVolume::~FSVolume")));
     if (NULL != m_hVolume)
@@ -404,26 +322,19 @@ FSVolume::~FSVolume(
     07/03/97    Changed so caller passes in desired access.          BrianAu
 */
 
-HRESULT FSVolume::Initialize(
-    DWORD dwAccess
-    )
+HRESULT FSVolume::Initialize(DWORD dwAccess)
 {
     DBGTRACE((DM_CONTROL, DL_MID, TEXT("FSVolume::Initialize")));
     DBGPRINT((DM_CONTROL, DL_MID, TEXT("\tdwAccess = 0x%08X"), dwAccess));
 
     HRESULT hr = NOERROR;
 
-
     // Close the device if it's open.
-
     if (NULL != m_hVolume)
         CloseHandle(m_hVolume);
 
-
     // Create a path to the actual quota file on the volume.
-    // This string is appended to the existing "volume name" we already
-    // have.
-
+    // This string is appended to the existing "volume name" we already have.
     CPath strQuotaFile(m_strFSObjName);
     strQuotaFile.AddBackslash();
     strQuotaFile += CString("$Extend\\$Quota:$Q:$INDEX_ALLOCATION");
@@ -435,10 +346,7 @@ HRESULT FSVolume::Initialize(
                            OPEN_EXISTING,
                            FILE_FLAG_BACKUP_SEMANTICS,
                            NULL);
-
-    if (INVALID_HANDLE_VALUE == m_hVolume)
-    {
-
+    if (INVALID_HANDLE_VALUE == m_hVolume) {
         // Couldn't open device because...
         // 1. I/O error
         // 2. File (device) not found.
@@ -448,10 +356,7 @@ HRESULT FSVolume::Initialize(
         hr = HRESULT_FROM_WIN32(dwErr);
         DBGERROR((TEXT("Error %d opening quota file \"%s\""), dwErr, strQuotaFile.Cstr()));
         m_hVolume = NULL;
-    }
-    else
-    {
-
+    } else {
         // Save access granted to caller.  Will be used to validate
         // operation requests later.
 
@@ -461,7 +366,6 @@ HRESULT FSVolume::Initialize(
 
     return hr;
 }
-
 
 
 /*  Function: FSVolume::QueryObjectQuotaInformation
@@ -486,53 +390,39 @@ HRESULT FSVolume::Initialize(
     05/24/96    Initial creation.                                    BrianAu
     08/11/96    Added access control.                                BrianAu
 */
-
-HRESULT
-FSVolume::QueryObjectQuotaInformation(
-    PDISKQUOTA_FSOBJECT_INFORMATION poi
-    )
+HRESULT FSVolume::QueryObjectQuotaInformation(PDISKQUOTA_FSOBJECT_INFORMATION poi)
 {
     DBGTRACE((DM_CONTROL, DL_MID, TEXT("FSVolume::QueryObjectQuotaInformation")));
     HRESULT hr = E_FAIL;
 
-    if (!GrantedAccess(GENERIC_READ))
-    {
+    if (!GrantedAccess(GENERIC_READ)) {
         DBGPRINT((DM_CONTROL, DL_MID, TEXT("Access denied reading quota info")));
         hr = HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED);
-    }
-    else
-    {
+    } else {
         NTSTATUS status = STATUS_SUCCESS;
         IO_STATUS_BLOCK iosb;
         FILE_FS_CONTROL_INFORMATION ControlInfo;
 
         status = NtQueryVolumeInformationFile(
-                    m_hVolume,
-                    &iosb,
-                    &ControlInfo,
-                    sizeof(ControlInfo),
-                    FileFsControlInformation);
-
-        if (STATUS_SUCCESS == status)
-        {
-
+            m_hVolume,
+            &iosb,
+            &ControlInfo,
+            sizeof(ControlInfo),
+            FileFsControlInformation);
+        if (STATUS_SUCCESS == status) {
             // Update caller's buffer with quota control data.
-
-            poi->DefaultQuotaThreshold  = ControlInfo.DefaultQuotaThreshold.QuadPart;
-            poi->DefaultQuotaLimit      = ControlInfo.DefaultQuotaLimit.QuadPart;
+            poi->DefaultQuotaThreshold = ControlInfo.DefaultQuotaThreshold.QuadPart;
+            poi->DefaultQuotaLimit = ControlInfo.DefaultQuotaLimit.QuadPart;
             poi->FileSystemControlFlags = ControlInfo.FileSystemControlFlags;
             hr = NOERROR;
-        }
-        else
-        {
+        } else {
             DBGERROR((TEXT("NtQueryVolumeInformationFile failed with NTSTATUS 0x%08X"), status));
             hr = HResultFromNtStatus(status);
         }
     }
+
     return hr;
 }
-
-
 
 
 /*  Function: FSVolume::SetObjectQuotaInformation
@@ -565,81 +455,57 @@ FSVolume::QueryObjectQuotaInformation(
     05/24/96    Initial creation.                                    BrianAu
     08/11/96    Added access control.                                BrianAu
 */
-
-HRESULT
-FSVolume::SetObjectQuotaInformation(
-    PDISKQUOTA_FSOBJECT_INFORMATION poi,
-    DWORD dwChangeMask
-    ) const
+HRESULT FSVolume::SetObjectQuotaInformation(PDISKQUOTA_FSOBJECT_INFORMATION poi, DWORD dwChangeMask) const
 {
     DBGTRACE((DM_CONTROL, DL_MID, TEXT("FSVolume::SetObjectQuotaInformation")));
     HRESULT hr = E_FAIL;
 
-    if (!GrantedAccess(GENERIC_WRITE))
-    {
+    if (!GrantedAccess(GENERIC_WRITE)) {
         DBGPRINT((DM_CONTROL, DL_MID, TEXT("Access denied setting quota info")));
         hr = HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED);
-    }
-    else
-    {
+    } else {
         NTSTATUS status = STATUS_SUCCESS;
         IO_STATUS_BLOCK iosb;
         FILE_FS_CONTROL_INFORMATION ControlInfo;
 
-
         // First read current info from disk.
         // Then replace whatever we're changing.
-
         status = NtQueryVolumeInformationFile(
-                    m_hVolume,
-                    &iosb,
-                    &ControlInfo,
-                    sizeof(ControlInfo),
-                    FileFsControlInformation);
-
-        if (STATUS_SUCCESS == status)
-        {
-
+            m_hVolume,
+            &iosb,
+            &ControlInfo,
+            sizeof(ControlInfo),
+            FileFsControlInformation);
+        if (STATUS_SUCCESS == status) {
             // Only alter those values specified in dwChangeMask.
-
-            if (FSObject::ChangeState & dwChangeMask)
-            {
+            if (FSObject::ChangeState & dwChangeMask) {
                 ControlInfo.FileSystemControlFlags &= ~DISKQUOTA_STATE_MASK;
                 ControlInfo.FileSystemControlFlags |= (poi->FileSystemControlFlags & DISKQUOTA_STATE_MASK);
             }
-            if (FSObject::ChangeLogFlags & dwChangeMask)
-            {
+            if (FSObject::ChangeLogFlags & dwChangeMask) {
                 ControlInfo.FileSystemControlFlags &= ~DISKQUOTA_LOGFLAG_MASK;
                 ControlInfo.FileSystemControlFlags |= (poi->FileSystemControlFlags & DISKQUOTA_LOGFLAG_MASK);
             }
-            if (FSObject::ChangeThreshold & dwChangeMask)
-            {
+            if (FSObject::ChangeThreshold & dwChangeMask) {
                 ControlInfo.DefaultQuotaThreshold.QuadPart = poi->DefaultQuotaThreshold;
             }
-            if (FSObject::ChangeLimit & dwChangeMask)
-            {
+            if (FSObject::ChangeLimit & dwChangeMask) {
                 ControlInfo.DefaultQuotaLimit.QuadPart = poi->DefaultQuotaLimit;
             }
 
             status = NtSetVolumeInformationFile(
-                        m_hVolume,
-                        &iosb,
-                        &ControlInfo,
-                        sizeof(ControlInfo),
-                        FileFsControlInformation);
-
-            if (STATUS_SUCCESS == status)
-            {
+                m_hVolume,
+                &iosb,
+                &ControlInfo,
+                sizeof(ControlInfo),
+                FileFsControlInformation);
+            if (STATUS_SUCCESS == status) {
                 hr = NOERROR;
-            }
-            else
-            {
+            } else {
                 DBGERROR((TEXT("NtSetVolumeInformationFile failed with NTSTATUS = 0x%08X"), status));
                 hr = HResultFromNtStatus(status);
             }
-        }
-        else
-        {
+        } else {
             DBGERROR((TEXT("NtQueryVolumeInformationFile failed with NTSTATUS = 0x%08X"), status));
             hr = HResultFromNtStatus(status);
         }
@@ -647,8 +513,6 @@ FSVolume::SetObjectQuotaInformation(
 
     return hr;
 }
-
-
 
 
 /*  Function: FSVolume::QueryUserQuotaInformation
@@ -694,7 +558,6 @@ FSVolume::SetObjectQuotaInformation(
     05/24/96    Initial creation.                                    BrianAu
     08/11/96    Added access control.                                BrianAu
 */
-
 HRESULT
 FSVolume::QueryUserQuotaInformation(
     PVOID pBuffer,
@@ -704,54 +567,45 @@ FSVolume::QueryUserQuotaInformation(
     ULONG cbSidList,
     PSID  pStartSid,
     BOOL  bRestartScan
-    )
+)
 {
     DBGTRACE((DM_CONTROL, DL_MID, TEXT("FSVolume::QueryUserQuotaInformation")));
     HRESULT hr = E_FAIL;
 
     DBGASSERT((NULL != pBuffer));
 
-    if (!GrantedAccess(GENERIC_READ))
-    {
+    if (!GrantedAccess(GENERIC_READ)) {
         DBGPRINT((DM_CONTROL, DL_MID, TEXT("Access denied querying user quota info")));
         hr = HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED);
-    }
-    else
-    {
+    } else {
         NTSTATUS status = STATUS_SUCCESS;
         IO_STATUS_BLOCK iosb;
 
         status = NtQueryQuotaInformationFile(
-                    m_hVolume,
-                    &iosb,
-                    pBuffer,
-                    cbBuffer,
-                    (BOOLEAN)bReturnSingleEntry,
-                    pSidList,
-                    cbSidList,
-                    pStartSid,
-                    (BOOLEAN)bRestartScan);
-
-        switch(status)
-        {
-            case STATUS_SUCCESS:
-                hr = NOERROR;
-                break;
-
-            default:
-                DBGERROR((TEXT("NtQueryQuotaInformationFile failed with NTSTATUS 0x%08X"), status));
-
-                // Fall through...
-
-            case STATUS_NO_MORE_ENTRIES:
-                hr = HResultFromNtStatus(status);
-                break;
+            m_hVolume,
+            &iosb,
+            pBuffer,
+            cbBuffer,
+            (BOOLEAN)bReturnSingleEntry,
+            pSidList,
+            cbSidList,
+            pStartSid,
+            (BOOLEAN)bRestartScan);
+        switch (status) {
+        case STATUS_SUCCESS:
+            hr = NOERROR;
+            break;
+        default:
+            DBGERROR((TEXT("NtQueryQuotaInformationFile failed with NTSTATUS 0x%08X"), status));
+            // Fall through...
+        case STATUS_NO_MORE_ENTRIES:
+            hr = HResultFromNtStatus(status);
+            break;
         }
     }
+
     return hr;
 }
-
-
 
 
 /*  Function: FSVolume::SetUserQuotaInformation
@@ -777,12 +631,7 @@ FSVolume::QueryUserQuotaInformation(
     05/24/96    Initial creation.                                    BrianAu
     08/11/96    Added access control.                                BrianAu
 */
-
-HRESULT
-FSVolume::SetUserQuotaInformation(
-    PVOID pBuffer,
-    ULONG cbBuffer
-    ) const
+HRESULT FSVolume::SetUserQuotaInformation(PVOID pBuffer, ULONG cbBuffer) const
 {
     DBGTRACE((DM_CONTROL, DL_MID, TEXT("FSVolume::SetUserQuotaInformation")));
 
@@ -790,55 +639,38 @@ FSVolume::SetUserQuotaInformation(
 
     DBGASSERT((NULL != pBuffer));
 
-    if (!GrantedAccess(GENERIC_WRITE))
-    {
+    if (!GrantedAccess(GENERIC_WRITE)) {
         DBGPRINT((DM_CONTROL, DL_MID, TEXT("Access denied setting user quota info")));
         hr = HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED);
-    }
-    else
-    {
+    } else {
         NTSTATUS status = STATUS_SUCCESS;
         IO_STATUS_BLOCK iosb;
 
-        status = NtSetQuotaInformationFile(
-                    m_hVolume,
-                    &iosb,
-                    pBuffer,
-                    cbBuffer);
-
-        if (STATUS_SUCCESS == status)
-        {
+        status = NtSetQuotaInformationFile(m_hVolume, &iosb, pBuffer, cbBuffer);
+        if (STATUS_SUCCESS == status) {
             hr = NOERROR;
-        }
-        else
-        {
+        } else {
             DBGERROR((TEXT("NtSetQuotaInformationFile failed with NTSTATUS 0x%08X"), status));
             hr = HResultFromNtStatus(status);
         }
     }
+
     return hr;
 }
 
 
-
 // Convert an NTSTATUS value to an HRESULT.
 // This is a simple attempt at converting the most common NTSTATUS values that
-// might be returned from NtQueryxxxxx and NTSetxxxxxx functions.  If I've missed
-// some obvious ones, go ahead and add them.
-
-HRESULT
-FSObject::HResultFromNtStatus(
-    NTSTATUS status
-    )
+// might be returned from NtQueryxxxxx and NTSetxxxxxx functions. 
+// If I've missed some obvious ones, go ahead and add them.
+HRESULT FSObject::HResultFromNtStatus(NTSTATUS status)
 {
     HRESULT hr = E_FAIL;  // Default if none matched.
 
-    static const struct
-    {
+    static const struct {
         NTSTATUS status;
         HRESULT hr;
     } rgXref[] = {
-
        { STATUS_SUCCESS,                NOERROR                                        },
        { STATUS_INVALID_PARAMETER,      E_INVALIDARG                                   },
        { STATUS_NO_MORE_ENTRIES,        HRESULT_FROM_WIN32(ERROR_NO_MORE_ITEMS)        },
@@ -849,13 +681,12 @@ FSObject::HResultFromNtStatus(
        { STATUS_INVALID_DEVICE_REQUEST, HRESULT_FROM_WIN32(ERROR_BAD_DEVICE)           },
        { STATUS_FILE_INVALID,           HRESULT_FROM_WIN32(ERROR_DEVICE_NOT_AVAILABLE) }};
 
-    for (int i = 0; i < ARRAYSIZE(rgXref); i++)
-    {
-        if (rgXref[i].status == status)
-        {
+    for (int i = 0; i < ARRAYSIZE(rgXref); i++) {
+        if (rgXref[i].status == status) {
             hr = rgXref[i].hr;
             break;
         }
     }
+
     return hr;
 }

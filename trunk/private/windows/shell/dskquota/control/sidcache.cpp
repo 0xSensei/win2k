@@ -44,18 +44,18 @@
 
 // How long (milliseconds) we'll wait to get a lock on the cache.
 
-const DWORD MUTEX_WAIT_TIMEOUT      = 5000;
+const DWORD MUTEX_WAIT_TIMEOUT = 5000;
 
 // Byte value used to fill in unused blocks in the data file.
 
-const BYTE  RECORD_UNUSED_BYTE      = 0xCC;
+const BYTE  RECORD_UNUSED_BYTE = 0xCC;
 
 // A value to signify the start of a record in the data file.
 // The bit pattern is  1010101010101010 0101010101010101
 // Highly unlikely that any data file data will produce this
 // pattern.
 
-const DWORD RECORD_SIGNATURE        = 0xAAAA5555;
+const DWORD RECORD_SIGNATURE = 0xAAAA5555;
 
 // Signatures written into the header of the index and data files.
 // For validating a file just in case someone's put another file
@@ -65,13 +65,13 @@ const DWORD RECORD_SIGNATURE        = 0xAAAA5555;
 // 3210 is BobDay's office number (across the hall).
 // Hey, I had to pick something.
 
-const DWORD INDEX_FILE_SIGNATURE    = 0x26003209;
-const DWORD DATA_FILE_SIGNATURE     = 0x26003210;
+const DWORD INDEX_FILE_SIGNATURE = 0x26003209;
+const DWORD DATA_FILE_SIGNATURE = 0x26003210;
 
 // A version number so a future build of the software won't be confused
 // by a change in file formats.  Bump this if the file format changes.
 
-const DWORD FILE_VERSION            = 0x00000003;
+const DWORD FILE_VERSION = 0x00000003;
 
 // Average number of 32-byte blocks per cache entry.
 // Entries are variable length (SID, Name etc).  This average is used
@@ -79,25 +79,25 @@ const DWORD FILE_VERSION            = 0x00000003;
 // require 4 blocks. Both the data file and index file grow independently
 // as needed so it isn't a problem if this isn't always accurate.
 
-const DWORD AVG_BLOCKS_PER_ENTRY    = 4;
+const DWORD AVG_BLOCKS_PER_ENTRY = 4;
 
 // Create space for this many records in a new data file.
 // Since the data and index files grow automatically as needed,
 // this can change as you see fit.
 
 #if DBG
-    const DWORD NEW_CACHE_ENTRY_COUNT   = 4;   // Force frequent file growth.
+const DWORD NEW_CACHE_ENTRY_COUNT = 4;   // Force frequent file growth.
 #else
-    const DWORD NEW_CACHE_ENTRY_COUNT   = 128;
+const DWORD NEW_CACHE_ENTRY_COUNT = 128;
 #endif
 
 // The index and data files automatically grow when needed.  These
 // values control how much they grow by.
 
 #if DBG
-    const DWORD DATA_FILE_GROW_BLOCKS   = 4;  // Force frequent file growth.
+const DWORD DATA_FILE_GROW_BLOCKS = 4;  // Force frequent file growth.
 #else
-    const DWORD DATA_FILE_GROW_BLOCKS   = 512;
+const DWORD DATA_FILE_GROW_BLOCKS = 512;
 #endif
 
 const DWORD INDEX_FILE_GROW_ENTRIES = (DATA_FILE_GROW_BLOCKS / AVG_BLOCKS_PER_ENTRY);
@@ -161,20 +161,20 @@ LPBYTE g_pbMappedIndexFile;
 // Names for system objects.  Mutex and maps are named so they can
 // be shared between processes.
 
-const LPCTSTR g_szSidCacheMutex     = TEXT("DSKQUOTA_SIDCACHE_MUTEX");
+const LPCTSTR g_szSidCacheMutex = TEXT("DSKQUOTA_SIDCACHE_MUTEX");
 const LPCTSTR g_pszIndexFileMapping = TEXT("DSKQUOTA_SIDCACHE_INDEX");
-const LPCTSTR g_pszDataFileMapping  = TEXT("DSKQUOTA_SIDCACHE_DATA");
+const LPCTSTR g_pszDataFileMapping = TEXT("DSKQUOTA_SIDCACHE_DATA");
 
 // Use to clear a file's GUID and to test for a NULL guid.
 
 static const GUID GUID_Null =
-{ 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } };
+{0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }};
 
 
 // Registry parameter value names.
 
-const TCHAR g_szSidCacheRecLifeMin[]   = TEXT("SidCacheRecLifeMin");
-const TCHAR g_szSidCacheRecLifeMax[]   = TEXT("SidCacheRecLifeMax");
+const TCHAR g_szSidCacheRecLifeMin[] = TEXT("SidCacheRecLifeMin");
+const TCHAR g_szSidCacheRecLifeMax[] = TEXT("SidCacheRecLifeMax");
 
 
 
@@ -204,15 +204,14 @@ const TCHAR g_szSidCacheRecLifeMax[]   = TEXT("SidCacheRecLifeMax");
 
 SidNameCache::SidNameCache(
     VOID
-    ) : m_hMutex(NULL),
-        m_pIndexMgr(NULL),
-        m_pRecordMgr(NULL)
+) : m_hMutex(NULL),
+m_pIndexMgr(NULL),
+m_pRecordMgr(NULL)
 {
     DBGTRACE((DM_SIDCACHE, DL_MID, TEXT("SidNameCache::SidNameCache")));
     if (NULL == (m_hMutex = CreateMutex(NULL,                    // No security
                                         FALSE,                   // Non-owned
-                                        g_szSidCacheMutex)))
-    {
+                                        g_szSidCacheMutex))) {
         throw CSyncException(CSyncException::mutex, CSyncException::create);
     }
 
@@ -242,7 +241,7 @@ SidNameCache::SidNameCache(
 
 SidNameCache::~SidNameCache(
     VOID
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_MID, TEXT("SidNameCache::~SidNameCache")));
     if (NULL != m_hMutex)
@@ -251,8 +250,7 @@ SidNameCache::~SidNameCache(
     delete m_pIndexMgr;
     delete m_pRecordMgr;
 
-    if (NULL != m_hMutex)
-    {
+    if (NULL != m_hMutex) {
         ReleaseLock();
         CloseHandle(m_hMutex);
     }
@@ -293,8 +291,8 @@ SidNameCache::~SidNameCache(
 
 HRESULT
 SidNameCache::CreateNewCache(
-    SidNameCache **ppCache
-    )
+    SidNameCache** ppCache
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_HIGH, TEXT("SidNameCache::CreateNewCache")));
 
@@ -313,13 +311,10 @@ SidNameCache::CreateNewCache(
     // data file doesn't exist or is invalid, new files are created.
 
     hr = ptrCache->Initialize(TRUE);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         *ppCache = ptrCache.get();
         ptrCache.disown();
-    }
-    else
-    {
+    } else {
         DBGERROR((TEXT("SID cache initialization failed with error 0x%08X"), hr));
     }
 
@@ -358,7 +353,7 @@ SidNameCache::CreateNewCache(
 HRESULT
 SidNameCache::Initialize(
     BOOL bOpenExisting
-    )
+)
 {
     DBGTRACE((DM_CONTROL, DL_MID, TEXT("SidNameCache::Initialize")));
     DBGASSERT((NULL == m_pIndexMgr));
@@ -367,20 +362,15 @@ SidNameCache::Initialize(
     HRESULT hResult = E_FAIL;
     CacheAutoLock lock(*this);
 
-    if (lock.Lock())
-    {
-        try
-        {
-            if (m_strFilePath.IsEmpty())
-            {
+    if (lock.Lock()) {
+        try {
+            if (m_strFilePath.IsEmpty()) {
 
                 // If file path is empty, it means we couldn't get the
                 // user's profile directory from the registry.
 
                 DBGERROR((TEXT("Error creating SID cache files.  No path.")));
-            }
-            else
-            {
+            } else {
 
                 // Name for our cache data and index files.
                 // Will append .DAT and .NDX respectively.
@@ -397,51 +387,44 @@ SidNameCache::Initialize(
                 CString strIndexFile(m_strFilePath);
 
                 strDataFile.Format(TEXT("%1\\%2.dat"), (LPCTSTR)m_strFilePath, szSidCacheFile);
-                strIndexFile.Format(TEXT("%1\\%2.ndx"),(LPCTSTR)m_strFilePath, szSidCacheFile);
+                strIndexFile.Format(TEXT("%1\\%2.ndx"), (LPCTSTR)m_strFilePath, szSidCacheFile);
 
 
                 // Create the record and index manager objects.
 
                 m_pRecordMgr = new RecordMgr(*this);
-                m_pIndexMgr  = new IndexMgr(*this);
+                m_pIndexMgr = new IndexMgr(*this);
 
                 DBGPRINT((DM_CONTROL, DL_MID, TEXT("Create SID cache DataFile = %s  IndexFile = %s"),
-                         (LPCTSTR)strDataFile, (LPCTSTR)strIndexFile));
+                    (LPCTSTR)strDataFile, (LPCTSTR)strIndexFile));
 
-                if (bOpenExisting)
-                {
+                if (bOpenExisting) {
 
                     // First try opening existing data and index files.
 
-                    if (NULL != m_pRecordMgr->Initialize(strDataFile))
-                    {
+                    if (NULL != m_pRecordMgr->Initialize(strDataFile)) {
                         if (NULL != m_pIndexMgr->Initialize(strIndexFile))
                             hResult = NO_ERROR;
                     }
                 }
 
-                if (FAILED(hResult) || !FilesAreValid())
-                {
+                if (FAILED(hResult) || !FilesAreValid()) {
                     hResult = E_FAIL;
 
                     // Couldn't open existing files, try creating new ones.
                     // Any open files/mappings will be closed.
 
                     if (NULL != m_pRecordMgr->Initialize(strDataFile,
-                                          NEW_CACHE_ENTRY_COUNT * AVG_BLOCKS_PER_ENTRY))
-                    {
+                                                         NEW_CACHE_ENTRY_COUNT * AVG_BLOCKS_PER_ENTRY)) {
                         if (NULL != m_pIndexMgr->Initialize(strIndexFile,
                                                             INDEX_BUCKET_COUNT,
-                                                            NEW_CACHE_ENTRY_COUNT))
-                        {
+                                                            NEW_CACHE_ENTRY_COUNT)) {
                             hResult = NO_ERROR;
                         }
                     }
                 }
             }
-        }
-        catch(...)
-        {
+        } catch (...) {
             delete m_pRecordMgr;
             m_pRecordMgr = NULL;
             delete m_pIndexMgr;
@@ -505,7 +488,7 @@ SidNameCache::OpenMappedFile(
     DWORD cbFileLow,
     PHANDLE phFile,
     PHANDLE phFileMapping
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_MID, TEXT("SidNameCache::OpenMappedFile")));
     LPBYTE pbBase = NULL;
@@ -516,18 +499,14 @@ SidNameCache::OpenMappedFile(
     DBGASSERT((NULL != phFileMapping));
 
     *phFile = CreateFile(pszFile, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, dwCreation, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN, NULL);
-    if (INVALID_HANDLE_VALUE != *phFile)
-    {
-        if ((*phFileMapping = CreateFileMapping(*phFile, NULL, PAGE_READWRITE, cbFileHigh, cbFileLow, pszMapping)) != NULL)
-        {
+    if (INVALID_HANDLE_VALUE != *phFile) {
+        if ((*phFileMapping = CreateFileMapping(*phFile, NULL, PAGE_READWRITE, cbFileHigh, cbFileLow, pszMapping)) != NULL) {
             pbBase = (LPBYTE)MapViewOfFile(*phFileMapping, FILE_MAP_WRITE, 0, 0, 0);
             if (NULL == pbBase)
                 DBGERROR((TEXT("SIDCACHE - Failed to map view of file %s"), pszFile));
-        }
-        else
+        } else
             DBGERROR((TEXT("SIDCACHE - Failed to create mapping %s for file %s"), pszMapping, pszFile));
-    }
-    else
+    } else
         DBGERROR((TEXT("SIDCACHE - Failed to open file %s"), pszFile));
 
     return pbBase;
@@ -561,7 +540,7 @@ SidNameCache::OpenMappedFile(
 VOID
 SidNameCache::SetCacheFilePath(
     VOID
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_HIGH, TEXT("SidNameCache::SetCacheFilePath")));
 
@@ -572,24 +551,23 @@ SidNameCache::SetCacheFilePath(
     // Therefore, we read the registry values just like the shell does.
     // EricFlo suggested this so it's OK ZAW-wise.
 
-    LONG lResult        = ERROR_SUCCESS;
-    HKEY hKey           = NULL;
+    LONG lResult = ERROR_SUCCESS;
+    HKEY hKey = NULL;
     DWORD dwDisposition = 0;
-    const TCHAR szKeyNameRoot[]      = TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer");
+    const TCHAR szKeyNameRoot[] = TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer");
     const TCHAR szMSWinNTDiskQuota[] = TEXT("Microsoft\\Windows NT\\DiskQuota");
 
     LPCTSTR rgpszKeys[] = {
                             TEXT("\\User Shell Folders"),
                             TEXT("\\Shell Folders"),
-                          };
+    };
 
 
     // Start with an empty path buffer.
 
     m_strFilePath.Empty();
 
-    for (INT i = 0; i < ARRAYSIZE(rgpszKeys) && m_strFilePath.IsEmpty(); i++)
-    {
+    for (INT i = 0; i < ARRAYSIZE(rgpszKeys) && m_strFilePath.IsEmpty(); i++) {
 
         // Create the key name.
 
@@ -600,62 +578,50 @@ SidNameCache::SetCacheFilePath(
         // Open the reg key.
 
         lResult = RegCreateKeyEx(HKEY_CURRENT_USER, strKeyName, 0, NULL, 0, KEY_READ, NULL, &hKey, &dwDisposition);
-        if (ERROR_SUCCESS == lResult)
-        {
-            try
-            {
+        if (ERROR_SUCCESS == lResult) {
+            try {
 
                 // Get the path to the user's "Application Data" directory.
 
                 DBGASSERT((NULL != hKey));
 
                 DWORD dwValueType = 0;
-                DWORD cbValue     = MAX_PATH * sizeof(TCHAR);
+                DWORD cbValue = MAX_PATH * sizeof(TCHAR);
 
                 lResult = RegQueryValueEx(hKey, TEXT("AppData"), 0, &dwValueType, (LPBYTE)m_strFilePath.GetBuffer(MAX_PATH), &cbValue);
                 m_strFilePath.ReleaseBuffer();
-                if (ERROR_SUCCESS == lResult)
-                {
+                if (ERROR_SUCCESS == lResult) {
 
                     // Ensure the path has a trailing backslash.
 
                     INT cchPath = m_strFilePath.Length();
-                    if (0 < cchPath && TEXT('\\') != m_strFilePath[cchPath-1])
-                    {
+                    if (0 < cchPath && TEXT('\\') != m_strFilePath[cchPath - 1]) {
                         m_strFilePath += CString(TEXT("\\"));
                     }
 
                     // Append "Microsoft\Windows NT\DiskQuota" to the path.
 
                     m_strFilePath += CString(szMSWinNTDiskQuota);
-                }
-                else
-                {
+                } else {
 
                     // Something failed.  Ensure m_strFilePath is empty.
 
                     m_strFilePath.Empty();
-                    if (ERROR_FILE_NOT_FOUND != lResult)
-                    {
+                    if (ERROR_FILE_NOT_FOUND != lResult) {
                         DBGERROR((TEXT("SIDCACHE - Error %d getting \"AppData\" reg value."), lResult));
                     }
                 }
-            }
-            catch(...)
-            {
+            } catch (...) {
                 RegCloseKey(hKey);  // Don't want to leak this key handle.
                 throw;
             }
             RegCloseKey(hKey);
-        }
-        else if (ERROR_FILE_NOT_FOUND != lResult)
-        {
+        } else if (ERROR_FILE_NOT_FOUND != lResult) {
             DBGERROR((TEXT("SIDCACHE - Error %d opening \"\\User Shell Folders\" or \"Shell Folders\" reg key"), lResult));
         }
     }
 
-    if (!m_strFilePath.IsEmpty())
-    {
+    if (!m_strFilePath.IsEmpty()) {
 
         // Expand any embedded environment strings.
 
@@ -665,25 +631,22 @@ SidNameCache::SetCacheFilePath(
         // Ensure the path DOES NOT have a trailing backslash.
 
         INT cchPath = m_strFilePath.Length();
-        if (0 < cchPath && TEXT('\\') == m_strFilePath[cchPath-1])
-        {
-            m_strFilePath[cchPath-1] = TEXT('\0');
+        if (0 < cchPath && TEXT('\\') == m_strFilePath[cchPath - 1]) {
+            m_strFilePath[cchPath - 1] = TEXT('\0');
         }
 
-        if ((DWORD)-1 == ::GetFileAttributes(m_strFilePath))
-        {
+        if ((DWORD)-1 == ::GetFileAttributes(m_strFilePath)) {
 
             // If the directory doesn't exist, try to create it.
 
-            if (0 == CreateCacheFileDirectory(m_strFilePath))
-            {
+            if (0 == CreateCacheFileDirectory(m_strFilePath)) {
 
                 // Couldn't create the directory, make sure the path
                 // is empty so we don't try to write to a non-existent
                 // directory.
 
                 DBGERROR((TEXT("SIDCACHE - Error %d creating directory \"%s\""),
-                         GetLastError(), (LPCTSTR)m_strFilePath));
+                          GetLastError(), (LPCTSTR)m_strFilePath));
                 m_strFilePath.Empty();
             }
         }
@@ -713,20 +676,18 @@ SidNameCache::SetCacheFilePath(
 BOOL
 SidNameCache::CreateCacheFileDirectory(
     LPCTSTR pszPath
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_HIGH, TEXT("SidNameCache::CreateCacheFileDirectory")));
     BOOL bResult = TRUE;
     CString s(pszPath);     // Local copy we can play with.
     LPTSTR psz = (LPTSTR)s; // Ptr to C string.
 
-    while(TEXT('\0') != *psz && bResult)
-    {
+    while (TEXT('\0') != *psz && bResult) {
 
         // Find the next backslash (or end-of-string).
 
-        while(TEXT('\0') != *psz && TEXT('\\') != *psz)
-        {
+        while (TEXT('\0') != *psz && TEXT('\\') != *psz) {
             psz++;
         }
 
@@ -737,15 +698,13 @@ SidNameCache::CreateCacheFileDirectory(
 
         // See if the directory already exists.
 
-        if ((DWORD)-1 == ::GetFileAttributes(s))
-        {
+        if ((DWORD)-1 == ::GetFileAttributes(s)) {
 
             // It doesn't.  Try to create it.
 
-            if (0 == ::CreateDirectory(s, NULL))
-            {
+            if (0 == ::CreateDirectory(s, NULL)) {
                 DBGERROR((TEXT("SIDCACHE - Error %d creating directory \"%s\""),
-                         GetLastError(), (LPCTSTR)s));
+                          GetLastError(), (LPCTSTR)s));
                 bResult = FALSE;
             }
         }
@@ -756,8 +715,7 @@ SidNameCache::CreateCacheFileDirectory(
         *psz++ = chSaved;
     }
 
-    if (bResult)
-    {
+    if (bResult) {
 
         // Created directory. Set SYSTEM & HIDDEN attribute bits on the final
         // subdirectory ("\DiskQuota").
@@ -795,7 +753,7 @@ SidNameCache::CreateCacheFileDirectory(
 BOOL
 SidNameCache::Lock(
     VOID
-    )
+)
 {
     BOOL bResult = FALSE;
     DBGASSERT((NULL != m_hMutex));
@@ -806,17 +764,16 @@ SidNameCache::Lock(
     //             thread.  If you suck up that thread's messages, it won't receive
     //             the WM_QUIT message commanding it to shutdown.
 
-    switch(WaitForSingleObject(m_hMutex, MUTEX_WAIT_TIMEOUT))
-    {
-        case WAIT_OBJECT_0:
-        case WAIT_ABANDONED:
-            bResult = TRUE;
-            break;
+    switch (WaitForSingleObject(m_hMutex, MUTEX_WAIT_TIMEOUT)) {
+    case WAIT_OBJECT_0:
+    case WAIT_ABANDONED:
+        bResult = TRUE;
+        break;
 
-        case WAIT_FAILED:
-        case WAIT_TIMEOUT:
-        default:
-            break;
+    case WAIT_FAILED:
+    case WAIT_TIMEOUT:
+    default:
+        break;
     }
     return bResult;
 }
@@ -844,7 +801,7 @@ SidNameCache::Lock(
 VOID
 SidNameCache::ReleaseLock(
     VOID
-    )
+)
 {
     DBGASSERT((NULL != m_hMutex));
     ReleaseMutex(m_hMutex);
@@ -883,22 +840,17 @@ SidNameCache::ReleaseLock(
 HRESULT
 SidNameCache::BeginTransaction(
     VOID
-    )
+)
 {
     HRESULT hResult = NO_ERROR;
-    if (Lock())
-    {
-        if (FilesAreValid())
-        {
+    if (Lock()) {
+        if (FilesAreValid()) {
             InvalidateFiles();
-        }
-        else
-        {
+        } else {
             ReleaseLock();
             hResult = HRESULT_FROM_WIN32(ERROR_INVALID_DATA);
         }
-    }
-    else
+    } else
         hResult = HRESULT_FROM_WIN32(ERROR_LOCK_FAILED);
 
     return hResult;
@@ -926,7 +878,7 @@ SidNameCache::BeginTransaction(
 VOID
 SidNameCache::EndTransaction(
     VOID
-    )
+)
 {
 
     // If you hit this assertion, probably didn't call BeginTransaction
@@ -963,20 +915,17 @@ SidNameCache::EndTransaction(
 BOOL
 SidNameCache::Clear(
     VOID
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_HIGH, TEXT("SidNameCache::Clear")));
     BOOL bResult = FALSE;
     CacheAutoLock lock(*this);
-    if (lock.Lock())
-    {
-        if (NULL != m_pIndexMgr)
-        {
+    if (lock.Lock()) {
+        if (NULL != m_pIndexMgr) {
             delete m_pIndexMgr;
             m_pIndexMgr = NULL;
         }
-        if (NULL != m_pRecordMgr)
-        {
+        if (NULL != m_pRecordMgr) {
             delete m_pRecordMgr;
             m_pRecordMgr = NULL;
         }
@@ -1010,7 +959,7 @@ SidNameCache::Clear(
 BOOL
 SidNameCache::FilesAreValid(
     VOID
-    )
+)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((INDEX_FILE_MAPPED));
@@ -1019,8 +968,7 @@ SidNameCache::FilesAreValid(
     GUID guidDataFile;
 
     m_pIndexMgr->GetFileGUID(&guidIndexFile);
-    if (GUID_Null != guidIndexFile)
-    {
+    if (GUID_Null != guidIndexFile) {
         m_pRecordMgr->GetFileGUID(&guidDataFile);
         return guidDataFile == guidIndexFile;
     }
@@ -1050,7 +998,7 @@ SidNameCache::FilesAreValid(
 VOID
 SidNameCache::ValidateFiles(
     VOID
-    )
+)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((INDEX_FILE_MAPPED));
@@ -1084,7 +1032,7 @@ SidNameCache::ValidateFiles(
 VOID
 SidNameCache::InvalidateFiles(
     VOID
-    )
+)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((INDEX_FILE_MAPPED));
@@ -1144,26 +1092,22 @@ SidNameCache::InvalidateFiles(
 HRESULT
 SidNameCache::Lookup(
     PSID pKeySid,
-    LPTSTR *ppszContainer,
-    LPTSTR *ppszLogonName,
-    LPTSTR *ppszDisplayName
-    )
+    LPTSTR* ppszContainer,
+    LPTSTR* ppszLogonName,
+    LPTSTR* ppszDisplayName
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_MID, TEXT("SidNameCache::Lookup [SID]")));
     DBGASSERT((NULL != pKeySid));
 
     HRESULT hResult = BeginTransaction();
 
-    if (SUCCEEDED(hResult))
-    {
-        try
-        {
+    if (SUCCEEDED(hResult)) {
+        try {
             DWORD iBlock = m_pIndexMgr->Lookup(pKeySid);
 
-            if ((DWORD)-1 != iBlock)
-            {
-                if (!m_pRecordMgr->RecordExpired(iBlock))
-                {
+            if ((DWORD)-1 != iBlock) {
+                if (!m_pRecordMgr->RecordExpired(iBlock)) {
                     PSID pSid = NULL;
 
                     // This can throw OutOfMemory.
@@ -1178,9 +1122,7 @@ SidNameCache::Lookup(
 
                     if (NULL != pSid)
                         delete[] pSid;
-                }
-                else
-                {
+                } else {
 
                     // Record is outdated.  Delete it from the cache.
                     // Returning "not found" will cause the caller to get
@@ -1188,24 +1130,19 @@ SidNameCache::Lookup(
                     // then again be added to the cache.
 
                     DBGPRINT((DM_SIDCACHE, DL_HIGH,
-                             TEXT("SIDCACHE - Record at block %d has expired."),
-                             iBlock));
+                              TEXT("SIDCACHE - Record at block %d has expired."),
+                              iBlock));
 
                     m_pIndexMgr->FreeEntry(pKeySid);
                     m_pRecordMgr->FreeRecord(iBlock);
                     hResult = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
                 }
-            }
-            else
+            } else
                 hResult = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);  // SID not in cache.
-        }
-        catch(CAllocException &e)
-        {
+        } catch (CAllocException & e) {
             EndTransaction(); // Files are still valid.
             throw;
-        }
-        catch(...)
-        {
+        } catch (...) {
             ReleaseLock();  // Files may not be valid.
             throw;
         }
@@ -1248,8 +1185,8 @@ SidNameCache::Lookup(
 HRESULT
 SidNameCache::Lookup(
     LPCTSTR pszLogonName,
-    PSID *ppSid
-    )
+    PSID* ppSid
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_MID, TEXT("SidNameCache::Lookup [name]")));
     DBGASSERT((NULL != pszLogonName));
@@ -1257,17 +1194,14 @@ SidNameCache::Lookup(
 
     HRESULT hResult = BeginTransaction();
 
-    if (SUCCEEDED(hResult))
-    {
-        try
-        {
+    if (SUCCEEDED(hResult)) {
+        try {
 
             // Can throw OutOfMemory.
 
             DWORD iBlock = m_pIndexMgr->Lookup(pszLogonName);
 
-            if ((DWORD)-1 != iBlock)
-            {
+            if ((DWORD)-1 != iBlock) {
 
                 // Can throw OutOfMemory.
 
@@ -1277,8 +1211,7 @@ SidNameCache::Lookup(
                                                  NULL,
                                                  NULL);
 
-                if (m_pRecordMgr->RecordExpired(iBlock))
-                {
+                if (m_pRecordMgr->RecordExpired(iBlock)) {
 
                     // Record is outdated.  Delete it from the cache.
                     // Returning "not found" will cause the caller to get
@@ -1288,21 +1221,16 @@ SidNameCache::Lookup(
                     DBGASSERT((NULL != *ppSid));
                     m_pIndexMgr->FreeEntry(*ppSid);
                     m_pRecordMgr->FreeRecord(iBlock);
-                    delete[] *ppSid;
+                    delete[] * ppSid;
                     *ppSid = NULL;
                     hResult = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
                 }
-            }
-            else
+            } else
                 hResult = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);  // SID not in cache.
-        }
-        catch(CAllocException& e)
-        {
+        } catch (CAllocException & e) {
             EndTransaction();  // Files are still valid.
             throw;
-        }
-        catch(...)
-        {
+        } catch (...) {
             ReleaseLock();  // Files may not be valid.
             throw;
         }
@@ -1355,7 +1283,7 @@ SidNameCache::Add(
     LPCTSTR pszContainer,
     LPCTSTR pszLogonName,
     LPCTSTR pszDisplayName
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_MID, TEXT("SidNameCache::Add")));
 
@@ -1366,36 +1294,27 @@ SidNameCache::Add(
 
     HRESULT hResult = BeginTransaction();
 
-    if (SUCCEEDED(hResult))
-    {
-        try
-        {
+    if (SUCCEEDED(hResult)) {
+        try {
 
             // Can throw OutOfMemory.
 
-            if ((DWORD)-1 == m_pIndexMgr->Lookup(pSid))
-            {
+            if ((DWORD)-1 == m_pIndexMgr->Lookup(pSid)) {
                 DWORD iBlock = m_pRecordMgr->Store(pSid,
                                                    pszContainer,
                                                    pszLogonName,
                                                    pszDisplayName);
 
-                if ((DWORD)-1 != iBlock)
-                {
+                if ((DWORD)-1 != iBlock) {
                     m_pIndexMgr->Add(pSid, iBlock);
                     hResult = NO_ERROR;
                 }
-            }
-            else
+            } else
                 hResult = S_FALSE;  // Already exists. Not a failure.
-        }
-        catch(CAllocException& e)
-        {
+        } catch (CAllocException & e) {
             EndTransaction(); // Files are still valid.
             throw;
-        }
-        catch(...)
-        {
+        } catch (...) {
             ReleaseLock(); // Files may not be valid.
             throw;
         }
@@ -1435,10 +1354,10 @@ SidNameCache::Add(
 
 SidNameCache::IndexMgr::IndexMgr(
     SidNameCache& refCache
-    ) : m_refCache(refCache),
-        m_pFileHdr(NULL),
-        m_hFile(NULL),
-        m_hFileMapping(NULL)
+) : m_refCache(refCache),
+m_pFileHdr(NULL),
+m_hFile(NULL),
+m_hFileMapping(NULL)
 {
     DBGTRACE((DM_SIDCACHE, DL_MID, TEXT("SidNameCache::SidNameCache::IndexMgr")));
 
@@ -1465,7 +1384,7 @@ SidNameCache::IndexMgr::IndexMgr(
 
 SidNameCache::IndexMgr::~IndexMgr(
     VOID
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_MID, TEXT("SidNameCache::SidNameCache::~IndexMgr")));
     CloseIndexFile();
@@ -1502,7 +1421,7 @@ SidNameCache::IndexMgr::Initialize(
     LPCTSTR pszFile,
     DWORD cBuckets,
     DWORD cMaxEntries
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_HIGH, TEXT("SidNameCache::IndexMgr::Initialize")));
     DBGASSERT((NULL != pszFile));
@@ -1512,17 +1431,14 @@ SidNameCache::IndexMgr::Initialize(
 
     m_strFileName = pszFile;
 
-    if (0 == cBuckets && 0 == cMaxEntries)
-    {
+    if (0 == cBuckets && 0 == cMaxEntries) {
 
         // Initialize manager using existing cache files.
 
         m_pFileHdr = (PINDEX_FILE_HDR)OpenIndexFile(pszFile);
-        if (NULL != m_pFileHdr)
-        {
+        if (NULL != m_pFileHdr) {
             if (FILE_VERSION != m_pFileHdr->dwVersion ||
-                INDEX_FILE_SIGNATURE != m_pFileHdr->dwSignature)
-            {
+                INDEX_FILE_SIGNATURE != m_pFileHdr->dwSignature) {
 
                 // This version of the software doesn't understand this
                 // version of the file or file has an invalid signature.
@@ -1534,9 +1450,7 @@ SidNameCache::IndexMgr::Initialize(
                 m_pFileHdr = NULL;
             }
         }
-    }
-    else
-    {
+    } else {
 
         // Initialize manager by creating new cache files.
 
@@ -1546,8 +1460,7 @@ SidNameCache::IndexMgr::Initialize(
         m_pFileHdr = (PINDEX_FILE_HDR)CreateIndexFile(pszFile,
                                                       uliFileSize.HighPart,
                                                       uliFileSize.LowPart);
-        if (NULL != m_pFileHdr)
-        {
+        if (NULL != m_pFileHdr) {
             InitNewIndexFile(cBuckets, cMaxEntries);
         }
     }
@@ -1579,7 +1492,7 @@ SidNameCache::IndexMgr::CreateIndexFile(
     LPCTSTR pszFile,
     DWORD cbFileHigh,
     DWORD cbFileLow
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::IndexMgr::CreateIndexFile")));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("\tFile: \"%s\""), pszFile ? pszFile : TEXT("<null>")));
@@ -1589,13 +1502,13 @@ SidNameCache::IndexMgr::CreateIndexFile(
     CloseIndexFile();  // Make sure any existing index file is closed.
 
     g_pbMappedIndexFile = SidNameCache::OpenMappedFile(
-                                pszFile,
-                                g_pszIndexFileMapping,
-                                CREATE_ALWAYS,
-                                cbFileHigh,
-                                cbFileLow,
-                                &m_hFile,
-                                &m_hFileMapping);
+        pszFile,
+        g_pszIndexFileMapping,
+        CREATE_ALWAYS,
+        cbFileHigh,
+        cbFileLow,
+        &m_hFile,
+        &m_hFileMapping);
 
     return g_pbMappedIndexFile;
 }
@@ -1622,7 +1535,7 @@ SidNameCache::IndexMgr::CreateIndexFile(
 LPBYTE
 SidNameCache::IndexMgr::OpenIndexFile(
     LPCTSTR pszFile
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::IndexMgr::OpenIndexFile")));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("\tFile: \"%s\""), pszFile ? pszFile : TEXT("<null>")));
@@ -1631,13 +1544,13 @@ SidNameCache::IndexMgr::OpenIndexFile(
     CloseIndexFile();  // Make sure any existing index file is closed.
 
     g_pbMappedIndexFile = SidNameCache::OpenMappedFile(
-                                pszFile,
-                                g_pszIndexFileMapping,
-                                OPEN_EXISTING,
-                                0,
-                                0,
-                                &m_hFile,
-                                &m_hFileMapping);
+        pszFile,
+        g_pszIndexFileMapping,
+        OPEN_EXISTING,
+        0,
+        0,
+        &m_hFile,
+        &m_hFileMapping);
     return g_pbMappedIndexFile;
 }
 
@@ -1662,22 +1575,19 @@ SidNameCache::IndexMgr::OpenIndexFile(
 VOID
 SidNameCache::IndexMgr::CloseIndexFile(
     VOID
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::IndexMgr::CloseIndexFile")));
-    if (NULL != g_pbMappedIndexFile)
-    {
+    if (NULL != g_pbMappedIndexFile) {
         UnmapViewOfFile(g_pbMappedIndexFile);
         g_pbMappedIndexFile = NULL;
         m_pFileHdr = NULL;
     }
-    if (NULL != m_hFileMapping)
-    {
+    if (NULL != m_hFileMapping) {
         CloseHandle(m_hFileMapping);
         m_hFileMapping = NULL;
     }
-    if (NULL != m_hFile && INVALID_HANDLE_VALUE != m_hFile)
-    {
+    if (NULL != m_hFile && INVALID_HANDLE_VALUE != m_hFile) {
         CloseHandle(m_hFile);
         m_hFile = NULL;
     }
@@ -1708,7 +1618,7 @@ SidNameCache::IndexMgr::CloseIndexFile(
 LPBYTE
 SidNameCache::IndexMgr::GrowIndexFile(
     DWORD cGrowEntries
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::IndexMgr::GrowIndexFile")));
     DBGASSERT((INDEX_FILE_MAPPED));
@@ -1717,8 +1627,8 @@ SidNameCache::IndexMgr::GrowIndexFile(
     DWORD cNewMaxEntries = cOldMaxEntries + cGrowEntries;
 
     DBGPRINT((DM_SIDCACHE, DL_MID,
-             TEXT("Growing SID cache index %d -> %d entries."),
-             cOldMaxEntries, cNewMaxEntries));
+              TEXT("Growing SID cache index %d -> %d entries."),
+              cOldMaxEntries, cNewMaxEntries));
 
 
     // Open the existing file and map with a new larger size.
@@ -1731,18 +1641,17 @@ SidNameCache::IndexMgr::GrowIndexFile(
     CloseIndexFile();
 
     g_pbMappedIndexFile = SidNameCache::OpenMappedFile(
-                                m_strFileName,
-                                g_pszIndexFileMapping,
-                                OPEN_EXISTING,
-                                uliFileSize.HighPart,
-                                uliFileSize.LowPart,
-                                &m_hFile,
-                                &m_hFileMapping);
+        m_strFileName,
+        g_pszIndexFileMapping,
+        OPEN_EXISTING,
+        uliFileSize.HighPart,
+        uliFileSize.LowPart,
+        &m_hFile,
+        &m_hFileMapping);
 
     m_pFileHdr = (PINDEX_FILE_HDR)g_pbMappedIndexFile;
 
-    if (NULL != g_pbMappedIndexFile)
-    {
+    if (NULL != g_pbMappedIndexFile) {
         m_pFileHdr->cMaxEntries = cNewMaxEntries;
 
 
@@ -1753,8 +1662,7 @@ SidNameCache::IndexMgr::GrowIndexFile(
         // invalid.
 
         PINDEX_ENTRY pEntry = m_pFileHdr->pEntries + cOldMaxEntries;
-        for (UINT i = 0; i < cGrowEntries; i++)
-        {
+        for (UINT i = 0; i < cGrowEntries; i++) {
             AddEntryToFreeList(pEntry++);
         }
         DBGPRINT((DM_SIDCACHE, DL_HIGH, TEXT("SIDCACHE - Index growth complete.")));
@@ -1791,19 +1699,19 @@ VOID
 SidNameCache::IndexMgr::InitNewIndexFile(
     DWORD cBuckets,
     DWORD cMaxEntries
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::IndexMgr::InitNewIndexFile")));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("\tcBuckets = %d, cMaxEntries = %d"),
-               cBuckets, cMaxEntries));
+              cBuckets, cMaxEntries));
     DBGASSERT((INDEX_FILE_MAPPED));
 
-    m_pFileHdr->dwSignature   = INDEX_FILE_SIGNATURE;
-    m_pFileHdr->dwVersion     = FILE_VERSION;
-    m_pFileHdr->cBuckets      = cBuckets;
-    m_pFileHdr->cMaxEntries   = cMaxEntries;
-    m_pFileHdr->pBuckets      = (PINDEX_ENTRY *)(sizeof(INDEX_FILE_HDR));
-    m_pFileHdr->pEntries      = (PINDEX_ENTRY)(m_pFileHdr->pBuckets + cBuckets);
+    m_pFileHdr->dwSignature = INDEX_FILE_SIGNATURE;
+    m_pFileHdr->dwVersion = FILE_VERSION;
+    m_pFileHdr->cBuckets = cBuckets;
+    m_pFileHdr->cMaxEntries = cMaxEntries;
+    m_pFileHdr->pBuckets = (PINDEX_ENTRY*)(sizeof(INDEX_FILE_HDR));
+    m_pFileHdr->pEntries = (PINDEX_ENTRY)(m_pFileHdr->pBuckets + cBuckets);
 
 
     // Initialize the hash table and return all entries to the free list.
@@ -1833,7 +1741,7 @@ SidNameCache::IndexMgr::InitNewIndexFile(
 VOID
 SidNameCache::IndexMgr::Clear(
     VOID
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::IndexMgr::Clear")));
     DBGASSERT((INDEX_FILE_MAPPED));
@@ -1846,15 +1754,14 @@ SidNameCache::IndexMgr::Clear(
 
     DBGASSERT((0 < m_pFileHdr->cBuckets));
     ZeroMemory(NDX_BASED_CAST(BYTE, m_pFileHdr->pBuckets),
-               m_pFileHdr->cBuckets * sizeof(PINDEX_ENTRY *));
+               m_pFileHdr->cBuckets * sizeof(PINDEX_ENTRY*));
 
 
     // Return all index entry nodes to the free list.
 
     PINDEX_ENTRY pEntry = m_pFileHdr->pEntries;
     DBGASSERT((0 < m_pFileHdr->cMaxEntries));
-    for (UINT i = 0; i < m_pFileHdr->cMaxEntries; i++)
-    {
+    for (UINT i = 0; i < m_pFileHdr->cMaxEntries; i++) {
 
         // We're iterating through all entries.  No need to detach first.
 
@@ -1892,8 +1799,8 @@ SidNameCache::IndexMgr::Clear(
 
 VOID
 SidNameCache::IndexMgr::SetFileGUID(
-    const GUID *pguid
-    )
+    const GUID* pguid
+)
 {
     DBGASSERT((INDEX_FILE_MAPPED));
     DBGASSERT((NULL != pguid));
@@ -1903,7 +1810,7 @@ SidNameCache::IndexMgr::SetFileGUID(
 VOID
 SidNameCache::IndexMgr::GetFileGUID(
     LPGUID pguid
-    )
+)
 {
     DBGASSERT((INDEX_FILE_MAPPED));
     DBGASSERT((NULL != pguid));
@@ -1931,14 +1838,13 @@ SidNameCache::IndexMgr::GetFileGUID(
 PINDEX_ENTRY
 SidNameCache::IndexMgr::AllocEntry(
     VOID
-    )
+)
 {
     DBGASSERT((INDEX_FILE_MAPPED));
     PINDEX_ENTRY pEntry = m_pFileHdr->pFirstFree;
 
-    if (NULL != pEntry)
-    {
-        NDX_BASED(INDEX_ENTRY) *pBasedEntry = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
+    if (NULL != pEntry) {
+        NDX_BASED(INDEX_ENTRY)* pBasedEntry = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
 
 
         // Unlink the entry from the free list.
@@ -1950,8 +1856,7 @@ SidNameCache::IndexMgr::AllocEntry(
 
         pBasedEntry->pNext = pBasedEntry->pPrev = NULL;
 
-        if (NULL != m_pFileHdr->pFirstFree)
-        {
+        if (NULL != m_pFileHdr->pFirstFree) {
 
             // If there is at least one entry in the free list, set the "prev"
             // pointer of the new "first" entry to NULL.
@@ -1991,12 +1896,11 @@ SidNameCache::IndexMgr::AllocEntry(
 VOID
 SidNameCache::IndexMgr::FreeEntry(
     PSID pSid
-    )
+)
 {
     DBGASSERT((NULL != pSid));
     PINDEX_ENTRY pEntry = Find(pSid);
-    if (NULL != pEntry)
-    {
+    if (NULL != pEntry) {
         FreeEntry(pEntry);
     }
 }
@@ -2005,7 +1909,7 @@ SidNameCache::IndexMgr::FreeEntry(
 VOID
 SidNameCache::IndexMgr::FreeEntry(
     PINDEX_ENTRY pEntry
-    )
+)
 {
     DBGASSERT((NULL != pEntry));
     DetachEntry(pEntry);
@@ -2036,12 +1940,12 @@ SidNameCache::IndexMgr::FreeEntry(
 VOID
 SidNameCache::IndexMgr::AddEntryToFreeList(
     PINDEX_ENTRY pEntry
-    )
+)
 {
     DBGASSERT((INDEX_FILE_MAPPED));
     DBGASSERT((NULL != pEntry));
 
-    NDX_BASED(INDEX_ENTRY) *pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
+    NDX_BASED(INDEX_ENTRY)* pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
 
 
     // Insert the node at the head of the free list.
@@ -2049,10 +1953,10 @@ SidNameCache::IndexMgr::AddEntryToFreeList(
     // (we always add and remove free list entries at the head)
     // therefore we don't need to set the next node's "prev" pointer.
 
-    pBased->iBucket        = (DWORD)-1;
-    pBased->iBlock         = (DWORD)-1;
-    pBased->pPrev          = NULL;
-    pBased->pNext          = m_pFileHdr->pFirstFree;
+    pBased->iBucket = (DWORD)-1;
+    pBased->iBlock = (DWORD)-1;
+    pBased->pPrev = NULL;
+    pBased->pNext = m_pFileHdr->pFirstFree;
     m_pFileHdr->pFirstFree = pEntry;
 }
 
@@ -2081,26 +1985,24 @@ SidNameCache::IndexMgr::AddEntryToFreeList(
 PINDEX_ENTRY
 SidNameCache::IndexMgr::DetachEntry(
     PINDEX_ENTRY pEntry
-    )
+)
 {
     DBGASSERT((INDEX_FILE_MAPPED));
     DBGASSERT((NULL != pEntry));
 
-    NDX_BASED(INDEX_ENTRY) *pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
-    NDX_BASED(INDEX_ENTRY) *pBasedNext;
-    NDX_BASED(INDEX_ENTRY) *pBasedPrev;
+    NDX_BASED(INDEX_ENTRY)* pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
+    NDX_BASED(INDEX_ENTRY)* pBasedNext;
+    NDX_BASED(INDEX_ENTRY)* pBasedPrev;
 
 
     // Unlink the entry from it's list.
 
-    if (NULL != pBased->pPrev)
-    {
-        pBasedPrev        = NDX_BASED_CAST(INDEX_ENTRY, pBased->pPrev);
+    if (NULL != pBased->pPrev) {
+        pBasedPrev = NDX_BASED_CAST(INDEX_ENTRY, pBased->pPrev);
         pBasedPrev->pNext = pBased->pNext;
     }
-    if (NULL != pBased->pNext)
-    {
-        pBasedNext        = NDX_BASED_CAST(INDEX_ENTRY, pBased->pNext);
+    if (NULL != pBased->pNext) {
+        pBasedNext = NDX_BASED_CAST(INDEX_ENTRY, pBased->pNext);
         pBasedNext->pPrev = pBased->pPrev;
     }
 
@@ -2137,12 +2039,12 @@ SidNameCache::IndexMgr::DetachEntry(
 PINDEX_ENTRY
 SidNameCache::IndexMgr::GetHashBucketValue(
     DWORD iBucket
-    )
+)
 {
     DBGASSERT((INDEX_FILE_MAPPED));
     DBGASSERT((iBucket < m_pFileHdr->cBuckets));
 
-    NDX_BASED(PINDEX_ENTRY) *pBased = NDX_BASED_CAST(PINDEX_ENTRY, m_pFileHdr->pBuckets + iBucket);
+    NDX_BASED(PINDEX_ENTRY)* pBased = NDX_BASED_CAST(PINDEX_ENTRY, m_pFileHdr->pBuckets + iBucket);
     return *pBased;
 }
 
@@ -2173,7 +2075,7 @@ VOID
 SidNameCache::IndexMgr::SetHashBucketValue(
     DWORD iBucket,
     PINDEX_ENTRY pEntry
-    )
+)
 {
     DBGASSERT((INDEX_FILE_MAPPED));
     DBGASSERT((iBucket < m_pFileHdr->cBuckets));
@@ -2181,7 +2083,7 @@ SidNameCache::IndexMgr::SetHashBucketValue(
     // pEntry == NULL is OK.
 
 
-    NDX_BASED(PINDEX_ENTRY) *pBased = NDX_BASED_CAST(PINDEX_ENTRY,
+    NDX_BASED(PINDEX_ENTRY)* pBased = NDX_BASED_CAST(PINDEX_ENTRY,
                                                      m_pFileHdr->pBuckets + iBucket);
     *pBased = pEntry;
 }
@@ -2218,7 +2120,7 @@ SidNameCache::IndexMgr::SetHashBucketValue(
 PINDEX_ENTRY
 SidNameCache::IndexMgr::Find(
     PSID pKeySid
-    )
+)
 {
     DBGASSERT((INDEX_FILE_MAPPED));
     DBGASSERT((NULL != pKeySid));
@@ -2231,17 +2133,16 @@ PINDEX_ENTRY
 SidNameCache::IndexMgr::Find(
     PSID pKeySid,
     DWORD dwHashCode
-    )
+)
 {
     DBGASSERT((INDEX_FILE_MAPPED));
     DBGASSERT((NULL != pKeySid));
 
-    BOOL bFound         = FALSE;
+    BOOL bFound = FALSE;
     PINDEX_ENTRY pEntry = GetHashBucketValue(dwHashCode);
-    while(NULL != pEntry && !bFound)
-    {
+    while (NULL != pEntry && !bFound) {
         PSID pSid = NULL;
-        NDX_BASED(INDEX_ENTRY) *pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
+        NDX_BASED(INDEX_ENTRY)* pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
 
 
         // This can throw OutOfMemory.
@@ -2276,39 +2177,35 @@ SidNameCache::IndexMgr::Find(
 PINDEX_ENTRY
 SidNameCache::IndexMgr::Find(
     LPCTSTR pszKeyLogonName
-    )
+)
 {
     DBGASSERT((INDEX_FILE_MAPPED));
     DBGASSERT((NULL != pszKeyLogonName));
 
-    BOOL bFound         = FALSE;
+    BOOL bFound = FALSE;
     PINDEX_ENTRY pEntry = NULL;
 
-    for (UINT i = 0; !bFound && (i < m_pFileHdr->cBuckets); i++)
-    {
+    for (UINT i = 0; !bFound && (i < m_pFileHdr->cBuckets); i++) {
         pEntry = GetHashBucketValue(i);
-        while(NULL != pEntry && !bFound)
-        {
+        while (NULL != pEntry && !bFound) {
             array_autoptr<TCHAR> ptrLogonName;
 
-            NDX_BASED(INDEX_ENTRY) *pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
+            NDX_BASED(INDEX_ENTRY)* pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
 
 
             // This can throw OutOfMemory.
 
             m_refCache.m_pRecordMgr->Retrieve(pBased->iBlock,
-                                        NULL,
-                                        NULL,  // no container.
-                                        ptrLogonName.getaddr(),
-                                        NULL); // no display name
+                                              NULL,
+                                              NULL,  // no container.
+                                              ptrLogonName.getaddr(),
+                                              NULL); // no display name
 
             DBGASSERT((NULL != ptrLogonName.get()));
 
-            if (0 == lstrcmpi(ptrLogonName.get(), pszKeyLogonName))
-            {
+            if (0 == lstrcmpi(ptrLogonName.get(), pszKeyLogonName)) {
                 bFound = TRUE;
-            }
-            else
+            } else
                 pEntry = pBased->pNext;
         }
     }
@@ -2345,7 +2242,7 @@ SidNameCache::IndexMgr::Find(
 DWORD
 SidNameCache::IndexMgr::Lookup(
     PSID pSid
-    )
+)
 {
     DBGASSERT((NULL != pSid));
 
@@ -2354,9 +2251,8 @@ SidNameCache::IndexMgr::Lookup(
 
     PINDEX_ENTRY pEntry = Find(pSid, Hash(pSid));
 
-    if (NULL != pEntry)
-    {
-        NDX_BASED(INDEX_ENTRY) *pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
+    if (NULL != pEntry) {
+        NDX_BASED(INDEX_ENTRY)* pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
         return pBased->iBlock;
     }
 
@@ -2368,7 +2264,7 @@ SidNameCache::IndexMgr::Lookup(
 DWORD
 SidNameCache::IndexMgr::Lookup(
     LPCTSTR pszLogonName
-    )
+)
 {
     DBGASSERT((NULL != pszLogonName));
 
@@ -2377,9 +2273,8 @@ SidNameCache::IndexMgr::Lookup(
 
     PINDEX_ENTRY pEntry = Find(pszLogonName);
 
-    if (NULL != pEntry)
-    {
-        NDX_BASED(INDEX_ENTRY) *pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
+    if (NULL != pEntry) {
+        NDX_BASED(INDEX_ENTRY)* pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
         return pBased->iBlock;
     }
 
@@ -2414,45 +2309,41 @@ PINDEX_ENTRY
 SidNameCache::IndexMgr::Add(
     PSID pSid,
     DWORD iBlock
-    )
+)
 {
-    DWORD dwHashCode    = Hash(pSid);
+    DWORD dwHashCode = Hash(pSid);
     PINDEX_ENTRY pEntry = Find(pSid, dwHashCode); // Can throw OutOfMemory.
 
 
     // Don't create duplicate entries.
 
-    if (NULL == pEntry)
-    {
+    if (NULL == pEntry) {
 
         // Try to allocate an index entry from the free list.
 
         pEntry = AllocEntry();
-        if (NULL == pEntry)
-        {
+        if (NULL == pEntry) {
 
             // Grow the index file and try again.
 
             GrowIndexFile(INDEX_FILE_GROW_ENTRIES);
             pEntry = AllocEntry();
         }
-        if (NULL != pEntry)
-        {
-            NDX_BASED(INDEX_ENTRY) *pBasedEntry = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
-            NDX_BASED(INDEX_ENTRY) *pBasedNext;
+        if (NULL != pEntry) {
+            NDX_BASED(INDEX_ENTRY)* pBasedEntry = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
+            NDX_BASED(INDEX_ENTRY)* pBasedNext;
 
 
             // Fill in the members of the new entry.
 
             pBasedEntry->iBucket = dwHashCode;
-            pBasedEntry->iBlock  = iBlock;
-            pBasedEntry->pNext   = GetHashBucketValue(dwHashCode);
-            pBasedEntry->pPrev   = NULL;
+            pBasedEntry->iBlock = iBlock;
+            pBasedEntry->pNext = GetHashBucketValue(dwHashCode);
+            pBasedEntry->pPrev = NULL;
 
             // Now insert it at the head of the hash bucket's entry list.
 
-            if (NULL != pBasedEntry->pNext)
-            {
+            if (NULL != pBasedEntry->pNext) {
                 pBasedNext = NDX_BASED_CAST(INDEX_ENTRY, pBasedEntry->pNext);
                 pBasedNext->pPrev = pEntry;
             }
@@ -2492,14 +2383,14 @@ SidNameCache::IndexMgr::Add(
 DWORD
 SidNameCache::IndexMgr::Hash(
     PSID pSid
-    )
+)
 {
     DBGASSERT((INDEX_FILE_MAPPED));
-    DWORD dwCode   = 0;
-    PBYTE pbSid    = (PBYTE)pSid;
+    DWORD dwCode = 0;
+    PBYTE pbSid = (PBYTE)pSid;
     PBYTE pbEndSid = pbSid + GetLengthSid(pSid);
 
-    for ( ;pbSid < pbEndSid; pbSid++)
+    for (; pbSid < pbEndSid; pbSid++)
         dwCode += *pbSid;
 
     return dwCode % m_pFileHdr->cBuckets;
@@ -2527,7 +2418,7 @@ SidNameCache::IndexMgr::Hash(
 VOID
 SidNameCache::IndexMgr::Dump(
     VOID
-    )
+)
 {
     UINT i, j;
     DBGASSERT((INDEX_FILE_MAPPED));
@@ -2537,26 +2428,24 @@ SidNameCache::IndexMgr::Dump(
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("  m_pFileHdr.........: 0x%p"), m_pFileHdr));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    dwSignature......: 0x%08X"), (DWORD)m_pFileHdr->dwSignature));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    dwVersion........: 0x%08X"), (DWORD)m_pFileHdr->dwVersion));
-    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cBuckets.........: %d"),     (DWORD)m_pFileHdr->cBuckets));
-    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cMaxEntries......: %d"),     (DWORD)m_pFileHdr->cMaxEntries));
-    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cEntries.........: %d"),     (DWORD)m_pFileHdr->cEntries));
+    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cBuckets.........: %d"), (DWORD)m_pFileHdr->cBuckets));
+    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cMaxEntries......: %d"), (DWORD)m_pFileHdr->cMaxEntries));
+    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cEntries.........: %d"), (DWORD)m_pFileHdr->cEntries));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    pBuckets.........: 0x%p"), m_pFileHdr->pBuckets));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    pEntries.........: 0x%p"), m_pFileHdr->pEntries));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    pFirstFree.......: 0x%p"), m_pFileHdr->pFirstFree));
 
-    for (i = 0; i < m_pFileHdr->cBuckets; i++)
-    {
+    for (i = 0; i < m_pFileHdr->cBuckets; i++) {
         PINDEX_ENTRY pEntry = GetHashBucketValue(i);
         DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("  Bucket[%03d] = 0x%p"), i, pEntry));
 
-        while(NULL != pEntry)
-        {
-            NDX_BASED(INDEX_ENTRY) *pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
+        while (NULL != pEntry) {
+            NDX_BASED(INDEX_ENTRY)* pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
             DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("     Bkt = %3d  P = 0x%08X  N = 0x%08X  Blk = %d"),
-                       pBased->iBucket,
-                       pBased->pPrev,
-                       pBased->pNext,
-                       pBased->iBlock));
+                      pBased->iBucket,
+                      pBased->pPrev,
+                      pBased->pNext,
+                      pBased->iBlock));
 
             pEntry = pBased->pNext;
         }
@@ -2564,14 +2453,13 @@ SidNameCache::IndexMgr::Dump(
 
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("  FreeList")));
     PINDEX_ENTRY pEntry = m_pFileHdr->pFirstFree;
-    while(NULL != pEntry)
-    {
-        NDX_BASED(INDEX_ENTRY) *pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
+    while (NULL != pEntry) {
+        NDX_BASED(INDEX_ENTRY)* pBased = NDX_BASED_CAST(INDEX_ENTRY, pEntry);
         DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("     Bkt = %3d  P = 0x%08X  N = 0x%08X  Blk = %d"),
-                   pBased->iBucket,
-                   pBased->pPrev,
-                   pBased->pNext,
-                   pBased->iBlock));
+                  pBased->iBucket,
+                  pBased->pPrev,
+                  pBased->pNext,
+                  pBased->iBlock));
 
         pEntry = pBased->pNext;
     }
@@ -2613,12 +2501,12 @@ const DWORD DEF_REC_LIFE_MAX = 60;
 
 SidNameCache::RecordMgr::RecordMgr(
     SidNameCache& refCache
-    ) : m_refCache(refCache),
-        m_pFileHdr(NULL),
-        m_hFile(NULL),
-        m_hFileMapping(NULL),
-        m_cDaysRecLifeMin(DEF_REC_LIFE_MIN),
-        m_cDaysRecLifeRange(DEF_REC_LIFE_MAX - DEF_REC_LIFE_MIN)
+) : m_refCache(refCache),
+m_pFileHdr(NULL),
+m_hFile(NULL),
+m_hFileMapping(NULL),
+m_cDaysRecLifeMin(DEF_REC_LIFE_MIN),
+m_cDaysRecLifeRange(DEF_REC_LIFE_MAX - DEF_REC_LIFE_MIN)
 {
     DWORD cDaysRecLifeMax = DEF_REC_LIFE_MAX;
 
@@ -2632,17 +2520,14 @@ SidNameCache::RecordMgr::RecordMgr(
     // min/range.
 
     RegKey key(HKEY_CURRENT_USER, REGSTR_KEY_DISKQUOTA);
-    if (key.Open(KEY_WRITE, true))
-    {
+    if (key.Open(KEY_WRITE, true)) {
         if (FAILED(key.GetValue(g_szSidCacheRecLifeMin, &m_cDaysRecLifeMin)) ||
-            65536 <= m_cDaysRecLifeMin)
-        {
+            65536 <= m_cDaysRecLifeMin) {
             m_cDaysRecLifeMin = DEF_REC_LIFE_MIN; // Default;
             key.SetValue(g_szSidCacheRecLifeMin, m_cDaysRecLifeMin);
         }
         if (FAILED(key.GetValue(g_szSidCacheRecLifeMax, &cDaysRecLifeMax)) ||
-            65536 <= cDaysRecLifeMax)
-        {
+            65536 <= cDaysRecLifeMax) {
             cDaysRecLifeMax = DEF_REC_LIFE_MAX; // Default;
             key.SetValue(g_szSidCacheRecLifeMax, cDaysRecLifeMax);
         }
@@ -2673,7 +2558,7 @@ SidNameCache::RecordMgr::RecordMgr(
 
 SidNameCache::RecordMgr::~RecordMgr(
     VOID
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_MID, TEXT("SidNameCache::SidNameCache::~RecordMgr")));
     CloseDataFile();
@@ -2706,7 +2591,7 @@ LPBYTE
 SidNameCache::RecordMgr::Initialize(
     LPCTSTR pszFile,
     DWORD cBlocks
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_HIGH, TEXT("SidNameCache::RecordMgr::Initialize")));
     DBGPRINT((DM_SIDCACHE, DL_HIGH, TEXT("\tpszFile = \"%s\", cBlocks = %d"),
@@ -2716,8 +2601,7 @@ SidNameCache::RecordMgr::Initialize(
 
     m_strFileName = pszFile;
 
-    if (0 != cBlocks)
-    {
+    if (0 != cBlocks) {
 
         // Create a new data file.
 
@@ -2735,22 +2619,17 @@ SidNameCache::RecordMgr::Initialize(
         m_pFileHdr = (PDATA_FILE_HDR)CreateDataFile(pszFile,
                                                     uliFileSize.HighPart,
                                                     uliFileSize.LowPart);
-        if (NULL != m_pFileHdr)
-        {
+        if (NULL != m_pFileHdr) {
             InitNewDataFile(cBlocks);
         }
-    }
-    else
-    {
+    } else {
 
         // Open an existing data file.
 
         m_pFileHdr = (PDATA_FILE_HDR)OpenDataFile(pszFile);
-        if (NULL != m_pFileHdr)
-        {
+        if (NULL != m_pFileHdr) {
             if (FILE_VERSION != m_pFileHdr->dwVersion ||
-                DATA_FILE_SIGNATURE != m_pFileHdr->dwSignature)
-            {
+                DATA_FILE_SIGNATURE != m_pFileHdr->dwSignature) {
 
                 // This version of the software doesn't understand this
                 // version of the file or the signature is invalid.
@@ -2792,7 +2671,7 @@ SidNameCache::RecordMgr::CreateDataFile(
     LPCTSTR pszFile,
     DWORD cbFileHigh,
     DWORD cbFileLow
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::RecordMgr::CreateDataFile")));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("\tpszFile = \"%s\""),
@@ -2801,13 +2680,13 @@ SidNameCache::RecordMgr::CreateDataFile(
     CloseDataFile();  // Make sure any existing data file is closed.
 
     g_pbMappedDataFile = SidNameCache::OpenMappedFile(
-                                pszFile,
-                                g_pszDataFileMapping,
-                                CREATE_ALWAYS,
-                                cbFileHigh,
-                                cbFileLow,
-                                &m_hFile,
-                                &m_hFileMapping);
+        pszFile,
+        g_pszDataFileMapping,
+        CREATE_ALWAYS,
+        cbFileHigh,
+        cbFileLow,
+        &m_hFile,
+        &m_hFileMapping);
 
     return g_pbMappedDataFile;
 }
@@ -2834,7 +2713,7 @@ SidNameCache::RecordMgr::CreateDataFile(
 LPBYTE
 SidNameCache::RecordMgr::OpenDataFile(
     LPCTSTR pszFile
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::RecordMgr::OpenDataFile")));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("\tpszFile = \"%s\""),
@@ -2843,13 +2722,13 @@ SidNameCache::RecordMgr::OpenDataFile(
     CloseDataFile();  // Make sure any existing data file is closed.
 
     g_pbMappedDataFile = SidNameCache::OpenMappedFile(
-                                pszFile,
-                                g_pszDataFileMapping,
-                                OPEN_EXISTING,
-                                0,
-                                0,
-                                &m_hFile,
-                                &m_hFileMapping);
+        pszFile,
+        g_pszDataFileMapping,
+        OPEN_EXISTING,
+        0,
+        0,
+        &m_hFile,
+        &m_hFileMapping);
 
     return g_pbMappedDataFile;
 }
@@ -2875,22 +2754,19 @@ SidNameCache::RecordMgr::OpenDataFile(
 VOID
 SidNameCache::RecordMgr::CloseDataFile(
     VOID
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::RecordMgr::CloseDataFile")));
-    if (NULL != g_pbMappedDataFile)
-    {
+    if (NULL != g_pbMappedDataFile) {
         UnmapViewOfFile(g_pbMappedDataFile);
         g_pbMappedDataFile = NULL;
         m_pFileHdr = NULL;
     }
-    if (NULL != m_hFileMapping)
-    {
+    if (NULL != m_hFileMapping) {
         CloseHandle(m_hFileMapping);
         m_hFileMapping = NULL;
     }
-    if (NULL != m_hFile && INVALID_HANDLE_VALUE != m_hFile)
-    {
+    if (NULL != m_hFile && INVALID_HANDLE_VALUE != m_hFile) {
         CloseHandle(m_hFile);
         m_hFile = NULL;
     }
@@ -2920,7 +2796,7 @@ SidNameCache::RecordMgr::CloseDataFile(
 LPBYTE
 SidNameCache::RecordMgr::GrowDataFile(
     DWORD cGrowBlocks
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::RecordMgr::GrowDataFile")));
 
@@ -2951,8 +2827,8 @@ SidNameCache::RecordMgr::GrowDataFile(
     cNewMapEle = cNewBlocks / BITS_IN_DWORD;
 
     DBGPRINT((DM_SIDCACHE, DL_MID,
-             TEXT("Growing SID cache data file\nMap Ele %d -> %d\nBlocks %d -> %d"),
-             cOldMapEle, cNewMapEle, cOldBlocks, cNewBlocks));
+              TEXT("Growing SID cache data file\nMap Ele %d -> %d\nBlocks %d -> %d"),
+              cOldMapEle, cNewMapEle, cOldBlocks, cNewBlocks));
 
 
     // Open the mapped file with a new larger size.
@@ -2963,18 +2839,17 @@ SidNameCache::RecordMgr::GrowDataFile(
     CloseDataFile();
 
     g_pbMappedDataFile = SidNameCache::OpenMappedFile(
-                                m_strFileName,
-                                g_pszDataFileMapping,
-                                OPEN_EXISTING,
-                                uliFileSize.HighPart,
-                                uliFileSize.LowPart,
-                                &m_hFile,
-                                &m_hFileMapping);
+        m_strFileName,
+        g_pszDataFileMapping,
+        OPEN_EXISTING,
+        uliFileSize.HighPart,
+        uliFileSize.LowPart,
+        &m_hFile,
+        &m_hFileMapping);
 
     m_pFileHdr = (PDATA_FILE_HDR)g_pbMappedDataFile;
 
-    if (NULL != g_pbMappedDataFile)
-    {
+    if (NULL != g_pbMappedDataFile) {
         UINT i = 0;
 
 
@@ -2983,8 +2858,8 @@ SidNameCache::RecordMgr::GrowDataFile(
         // map elements.  Since the index file tracks records by block index,
         // this movement doesn't affect existing index file entries.
 
-        m_pFileHdr->cBlocks       = cNewBlocks;
-        m_pFileHdr->cMapElements  = cNewMapEle;
+        m_pFileHdr->cBlocks = cNewBlocks;
+        m_pFileHdr->cMapElements = cNewMapEle;
 
         // Save current block base for when we move the blocks to make room for
         // the growth of the allocation bitmap.
@@ -3008,7 +2883,7 @@ SidNameCache::RecordMgr::GrowDataFile(
         // Initialize the new map elements to 0 (un-allocated).
 
         ZeroMemory(DAT_BASED_CAST(BYTE, m_pFileHdr->pdwMap + cOldMapEle),
-                   (cNewMapEle - cOldMapEle) * sizeof(DWORD));
+            (cNewMapEle - cOldMapEle) * sizeof(DWORD));
 
         // Initialize the new data blocks to 0xCC pattern.
 
@@ -3048,8 +2923,8 @@ SidNameCache::RecordMgr::GrowDataFile(
 
 VOID
 SidNameCache::RecordMgr::SetFileGUID(
-    const GUID *pguid
-    )
+    const GUID* pguid
+)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((NULL != pguid));
@@ -3060,7 +2935,7 @@ SidNameCache::RecordMgr::SetFileGUID(
 VOID
 SidNameCache::RecordMgr::GetFileGUID(
     LPGUID pguid
-    )
+)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((NULL != pguid));
@@ -3089,7 +2964,7 @@ SidNameCache::RecordMgr::GetFileGUID(
 VOID
 SidNameCache::RecordMgr::InitNewDataFile(
     DWORD cBlocks
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::RecordMgr::InitNewDataFile")));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("\tcBlocks = %d"), cBlocks));
@@ -3100,12 +2975,12 @@ SidNameCache::RecordMgr::InitNewDataFile(
 
     // Initialize file header.
 
-    m_pFileHdr->dwSignature   = DATA_FILE_SIGNATURE;
-    m_pFileHdr->dwVersion     = FILE_VERSION;
-    m_pFileHdr->cBlocks       = cBlocks;
-    m_pFileHdr->cMapElements  = cBlocks / BITS_IN_DWORD;
-    m_pFileHdr->pdwMap        = (LPDWORD)(sizeof(DATA_FILE_HDR));
-    m_pFileHdr->pBlocks       = (PBLOCK)(m_pFileHdr->pdwMap + m_pFileHdr->cMapElements);
+    m_pFileHdr->dwSignature = DATA_FILE_SIGNATURE;
+    m_pFileHdr->dwVersion = FILE_VERSION;
+    m_pFileHdr->cBlocks = cBlocks;
+    m_pFileHdr->cMapElements = cBlocks / BITS_IN_DWORD;
+    m_pFileHdr->pdwMap = (LPDWORD)(sizeof(DATA_FILE_HDR));
+    m_pFileHdr->pBlocks = (PBLOCK)(m_pFileHdr->pdwMap + m_pFileHdr->cMapElements);
 
 
     // We want all of the data blocks quadword aligned because they contain
@@ -3140,13 +3015,13 @@ SidNameCache::RecordMgr::InitNewDataFile(
 VOID
 SidNameCache::RecordMgr::Clear(
     VOID
-    )
+)
 {
     DBGTRACE((DM_SIDCACHE, DL_LOW, TEXT("SidNameCache::RecordMgr::Clear")));
     DBGASSERT((DATA_FILE_MAPPED));
 
-    m_pFileHdr->cBlocksUsed   = 0;
-    m_pFileHdr->iFirstFree    = 0;
+    m_pFileHdr->cBlocksUsed = 0;
+    m_pFileHdr->iFirstFree = 0;
     SetFileGUID(&GUID_Null);
 
 
@@ -3187,12 +3062,12 @@ SidNameCache::RecordMgr::FillBlocks(
     DWORD iBlock,
     DWORD cBlocks,
     BYTE b
-    )
+)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((ValidBlockNumber(iBlock)));
 
-    DAT_BASED(BYTE) *pb = DAT_BASED_CAST(BYTE, BlockAddress(iBlock));
+    DAT_BASED(BYTE)* pb = DAT_BASED_CAST(BYTE, BlockAddress(iBlock));
     DBGASSERT((SidNameCache::IsQuadAligned(pb)));
 
 
@@ -3235,7 +3110,7 @@ BOOL
 SidNameCache::RecordMgr::IsBitSet(
     LPDWORD pdwBase,
     DWORD iBit
-    )
+)
 {
     DBGASSERT((NULL != pdwBase));
     DWORD b = iBit & 0x0000001F;
@@ -3249,7 +3124,7 @@ VOID
 SidNameCache::RecordMgr::SetBit(
     LPDWORD pdwBase,
     DWORD iBit
-    )
+)
 {
     DBGASSERT((NULL != pdwBase));
     DWORD b = iBit & 0x0000001F;
@@ -3262,7 +3137,7 @@ VOID
 SidNameCache::RecordMgr::ClrBit(
     LPDWORD pdwBase,
     DWORD iBit
-    )
+)
 {
     DBGASSERT((NULL != pdwBase));
     DWORD b = iBit & 0x0000001F;
@@ -3294,7 +3169,7 @@ SidNameCache::RecordMgr::ClrBit(
 BOOL
 SidNameCache::RecordMgr::ValidBlockNumber(
     DWORD iBlock
-    )
+)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     return (iBlock < m_pFileHdr->cBlocks);
@@ -3325,11 +3200,11 @@ SidNameCache::RecordMgr::ValidBlockNumber(
 BOOL
 SidNameCache::RecordMgr::IsBlockUsed(
     DWORD iBlock
-    )
+)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((ValidBlockNumber(iBlock)));
-    DAT_BASED(DWORD) *pdwBased = DAT_BASED_CAST(DWORD, m_pFileHdr->pdwMap);
+    DAT_BASED(DWORD)* pdwBased = DAT_BASED_CAST(DWORD, m_pFileHdr->pdwMap);
 
     return IsBitSet((LPDWORD)pdwBased, iBlock);
 }
@@ -3338,12 +3213,12 @@ SidNameCache::RecordMgr::IsBlockUsed(
 VOID
 SidNameCache::RecordMgr::MarkBlockUsed(
     DWORD iBlock
-    )
+)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((ValidBlockNumber(iBlock)));
 
-    DAT_BASED(DWORD) *pdwBased = DAT_BASED_CAST(DWORD, m_pFileHdr->pdwMap);
+    DAT_BASED(DWORD)* pdwBased = DAT_BASED_CAST(DWORD, m_pFileHdr->pdwMap);
     DBGASSERT((!IsBitSet((LPDWORD)pdwBased, iBlock)));
     SetBit((LPDWORD)pdwBased, iBlock);
 }
@@ -3351,12 +3226,12 @@ SidNameCache::RecordMgr::MarkBlockUsed(
 VOID
 SidNameCache::RecordMgr::MarkBlockUnused(
     DWORD iBlock
-    )
+)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((ValidBlockNumber(iBlock)));
 
-    DAT_BASED(DWORD) *pdwBased = DAT_BASED_CAST(DWORD, m_pFileHdr->pdwMap);
+    DAT_BASED(DWORD)* pdwBased = DAT_BASED_CAST(DWORD, m_pFileHdr->pdwMap);
     DBGASSERT((IsBitSet((LPDWORD)pdwBased, iBlock)));
     ClrBit((LPDWORD)pdwBased, iBlock);
 }
@@ -3384,7 +3259,7 @@ SidNameCache::RecordMgr::MarkBlockUnused(
 DWORD
 SidNameCache::RecordMgr::BlocksRequired(
     DWORD cb
-    )
+)
 {
 
     // Round byte request up to nearest 32-byte block.
@@ -3424,7 +3299,7 @@ SidNameCache::RecordMgr::BlocksRequired(
 BOOL
 SidNameCache::IsQuadAligned(
     LPVOID pv
-    )
+)
 {
     return (IsQuadAligned((DWORD_PTR)pv));
 }
@@ -3433,7 +3308,7 @@ SidNameCache::IsQuadAligned(
 BOOL
 SidNameCache::IsQuadAligned(
     DWORD_PTR dw
-    )
+)
 {
     return (0 == (dw & 0x00000007));
 }
@@ -3442,11 +3317,10 @@ SidNameCache::IsQuadAligned(
 VOID
 SidNameCache::QuadAlign(
     LPDWORD pdwValue
-    )
+)
 {
     DBGASSERT((NULL != pdwValue));
-    if (*pdwValue & 0x00000007)
-    {
+    if (*pdwValue & 0x00000007) {
 
         // Round up to next whole multiple of 8.
 
@@ -3458,11 +3332,10 @@ SidNameCache::QuadAlign(
 VOID
 SidNameCache::WordAlign(
     LPDWORD pdwValue
-    )
+)
 {
     DBGASSERT((NULL != pdwValue));
-    if (*pdwValue & 0x00000001)
-    {
+    if (*pdwValue & 0x00000001) {
 
         // Round up to next whole multiple of 2.
 
@@ -3519,9 +3392,9 @@ SidNameCache::RecordMgr::BytesRequiredForRecord(
     LPDWORD pcbLogonName,
     LPCTSTR pszDisplayName,
     LPDWORD pcbDisplayName
-    )
+)
 {
-    DWORD cb      = 0;
+    DWORD cb = 0;
     DWORD cbTotal = sizeof(RECORD_HDR);
 
 
@@ -3578,7 +3451,7 @@ SidNameCache::RecordMgr::BytesRequiredForRecord(
 VOID
 SidNameCache::RecordMgr::FreeBlock(
     DWORD iBlock
-    )
+)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((ValidBlockNumber(iBlock)));
@@ -3620,7 +3493,7 @@ VOID
 SidNameCache::RecordMgr::FreeBlocks(
     DWORD iFirstBlock,
     DWORD cBlocks
-    )
+)
 {
     for (UINT i = 0; i < cBlocks; i++)
         FreeBlock(iFirstBlock + i);
@@ -3644,20 +3517,15 @@ SidNameCache::RecordMgr::FreeBlocks(
     09/21/96    Initial creation.                                    BrianAu
 */
 
-VOID
-SidNameCache::RecordMgr::FreeRecord(
-    DWORD iFirstBlock
-    )
+VOID SidNameCache::RecordMgr::FreeRecord(DWORD iFirstBlock)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((ValidBlockNumber(iFirstBlock)));
-    DAT_BASED(RECORD_HDR) *pRecHdr = DAT_BASED_CAST(RECORD_HDR, BlockAddress(iFirstBlock));
+    DAT_BASED(RECORD_HDR)* pRecHdr = DAT_BASED_CAST(RECORD_HDR, BlockAddress(iFirstBlock));
 
     DBGASSERT((RECORD_SIGNATURE == pRecHdr->dwSignature));
     FreeBlocks(iFirstBlock, pRecHdr->cBlocks);
 }
-
-
 
 
 /*  Function: SidNameCache::RecordMgr::BlockAddress
@@ -3677,18 +3545,13 @@ SidNameCache::RecordMgr::FreeRecord(
     09/21/96    Initial creation.                                    BrianAu
 */
 
-PBLOCK
-SidNameCache::RecordMgr::BlockAddress(
-    DWORD iBlock
-    )
+PBLOCK SidNameCache::RecordMgr::BlockAddress(DWORD iBlock)
 {
     DBGASSERT((DATA_FILE_MAPPED));
     DBGASSERT((ValidBlockNumber(iBlock)));
 
     return m_pFileHdr->pBlocks + iBlock;
 }
-
-
 
 
 /*  Function: SidNameCache::RecordMgr::FileSize
@@ -3707,26 +3570,16 @@ SidNameCache::RecordMgr::BlockAddress(
         --
     09/24/96    Initial creation.                                    BrianAu
 */
-
-UINT64
-SidNameCache::RecordMgr::FileSize(
-    DWORD cBlocks
-    )
-
+UINT64 SidNameCache::RecordMgr::FileSize(DWORD cBlocks)
 {
-    DWORD dwTemp = sizeof(DATA_FILE_HDR) +
-                  ((cBlocks / BITS_IN_DWORD) * sizeof(DWORD));
-
+    DWORD dwTemp = sizeof(DATA_FILE_HDR) + ((cBlocks / BITS_IN_DWORD) * sizeof(DWORD));
 
     // Start of blocks must be quad-aligned.
 
     SidNameCache::QuadAlign(&dwTemp);
 
-    return (UINT64)(dwTemp) +
-           (UINT64)(sizeof(BLOCK) * cBlocks);
+    return (UINT64)(dwTemp)+ (UINT64)(sizeof(BLOCK) * cBlocks);
 }
-
-
 
 
 /*  Function: SidNameCache::RecordMgr::AllocBlocks
@@ -3746,32 +3599,24 @@ SidNameCache::RecordMgr::FileSize(
         --
     09/21/96    Initial creation.                                    BrianAu
 */
-
-DWORD
-SidNameCache::RecordMgr::AllocBlocks(
-    DWORD cBlocksReqd
-    )
+DWORD SidNameCache::RecordMgr::AllocBlocks(DWORD cBlocksReqd)
 {
     DBGASSERT((DATA_FILE_MAPPED));
 
     DWORD iBlock = m_pFileHdr->iFirstFree;
 
     DBGPRINT((DM_SIDCACHE, DL_MID,
-             TEXT("SIDCACHE - AllocBlocks: Allocate %d blocks"),
-             cBlocksReqd));
+              TEXT("SIDCACHE - AllocBlocks: Allocate %d blocks"),
+              cBlocksReqd));
 
-    while(iBlock < m_pFileHdr->cBlocks)
-    {
-        DBGPRINT((DM_SIDCACHE, DL_MID,
-                 TEXT("   Start scan at block %d"), iBlock));
+    while (iBlock < m_pFileHdr->cBlocks) {
+        DBGPRINT((DM_SIDCACHE, DL_MID, TEXT("   Start scan at block %d"), iBlock));
 
         // Look for cBlocksReqd consecutive free blocks.
 
-        for (UINT j = 0; j < cBlocksReqd && (iBlock + j) < m_pFileHdr->cBlocks ; j++)
-        {
+        for (UINT j = 0; j < cBlocksReqd && (iBlock + j) < m_pFileHdr->cBlocks; j++) {
             DBGPRINT((DM_SIDCACHE, DL_MID, TEXT("      Checking %d"), iBlock + j));
-            if (IsBlockUsed(iBlock + j))
-            {
+            if (IsBlockUsed(iBlock + j)) {
 
                 // This one's used. Start searching again.
 
@@ -3782,17 +3627,15 @@ SidNameCache::RecordMgr::AllocBlocks(
 
             // If a block is marked "unused", it should contain all 0xCC.
 
-            DAT_BASED(BYTE) *pb = DAT_BASED_CAST(BYTE, BlockAddress(iBlock + j));
-            for (UINT k = 0; k < sizeof(BLOCK); k++)
-            {
+            DAT_BASED(BYTE)* pb = DAT_BASED_CAST(BYTE, BlockAddress(iBlock + j));
+            for (UINT k = 0; k < sizeof(BLOCK); k++) {
                 DBGASSERT((RECORD_UNUSED_BYTE == *(pb + k)));
             }
 #endif
         }
 
         DBGPRINT((DM_SIDCACHE, DL_MID, TEXT("   Scan complete.  %d blocks checked"), j));
-        if (j == cBlocksReqd)
-        {
+        if (j == cBlocksReqd) {
 
             // Found a sufficient range of free blocks.
             // Mark the blocks as allocated in the allocation bitmap.
@@ -3800,19 +3643,17 @@ SidNameCache::RecordMgr::AllocBlocks(
             for (UINT i = 0; i < cBlocksReqd; i++)
                 MarkBlockUsed(iBlock + i);
 
-            if (iBlock == m_pFileHdr->iFirstFree)
-            {
+            if (iBlock == m_pFileHdr->iFirstFree) {
 
                 // Now scan to find the next free block.
                 // We'll save it's location to help with future free-block searches.
 
                 for (m_pFileHdr->iFirstFree = iBlock + cBlocksReqd;
                      m_pFileHdr->iFirstFree < m_pFileHdr->cBlocks && IsBlockUsed(m_pFileHdr->iFirstFree);
-                     m_pFileHdr->iFirstFree++)
-                {
+                     m_pFileHdr->iFirstFree++) {
                     DBGPRINT((DM_SIDCACHE, DL_MID,
-                             TEXT("SIDCACHE - Advancing first free %d"),
-                             m_pFileHdr->iFirstFree));
+                              TEXT("SIDCACHE - Advancing first free %d"),
+                              m_pFileHdr->iFirstFree));
                     NULL;
                 }
             }
@@ -3826,8 +3667,6 @@ SidNameCache::RecordMgr::AllocBlocks(
 
     return (DWORD)-1;  // No blocks available of sufficient size.
 }
-
-
 
 
 /*  Function: SidNameCache::RecordMgr::RecordExpired
@@ -3846,14 +3685,10 @@ SidNameCache::RecordMgr::AllocBlocks(
         --
     09/21/96    Initial creation.                                    BrianAu
 */
-
-BOOL
-SidNameCache::RecordMgr::RecordExpired(
-    DWORD iBlock
-    )
+BOOL SidNameCache::RecordMgr::RecordExpired(DWORD iBlock)
 {
     DBGASSERT((ValidBlockNumber(iBlock)));
-    DAT_BASED(RECORD_HDR) *pRec = DAT_BASED_CAST(RECORD_HDR, BlockAddress(iBlock));
+    DAT_BASED(RECORD_HDR)* pRec = DAT_BASED_CAST(RECORD_HDR, BlockAddress(iBlock));
     DBGASSERT((SidNameCache::IsQuadAligned(pRec)));
     DBGASSERT((RECORD_SIGNATURE == pRec->dwSignature));
 
@@ -3862,13 +3697,13 @@ SidNameCache::RecordMgr::RecordExpired(
     ULARGE_INTEGER uliFileNow;
     ULARGE_INTEGER uliBirthday;
 
-    uliBirthday.LowPart  = pRec->Birthday.dwLowDateTime;
+    uliBirthday.LowPart = pRec->Birthday.dwLowDateTime;
     uliBirthday.HighPart = pRec->Birthday.dwHighDateTime;
 
     GetSystemTime(&SysNow);
     SystemTimeToFileTime(&SysNow, &FileNow);
 
-    uliFileNow.LowPart  = FileNow.dwLowDateTime;
+    uliFileNow.LowPart = FileNow.dwLowDateTime;
     uliFileNow.HighPart = FileNow.dwHighDateTime;
 
     DWORD cDaysVariation = 0;
@@ -3884,14 +3719,12 @@ SidNameCache::RecordMgr::RecordExpired(
     // which is the unit the FILETIME structure is based on.
 
     uliBirthday.QuadPart += ((UINT64)864000000000L *
-                            (UINT64)(m_cDaysRecLifeMin + cDaysVariation));
+        (UINT64)(m_cDaysRecLifeMin + cDaysVariation));
 
     // If it's still less than "now", the record is considered good.
 
     return uliFileNow.QuadPart > uliBirthday.QuadPart;
 }
-
-
 
 
 /*  Function: SidNameCache::RecordMgr::Store
@@ -3924,62 +3757,57 @@ SidNameCache::RecordMgr::Store(
     LPCTSTR pszContainer,
     LPCTSTR pszLogonName,
     LPCTSTR pszDisplayName
-    )
+)
 {
-    DWORD cbSid         = 0;
-    DWORD cbContainer   = 0;
-    DWORD cbLogonName   = 0;
+    DWORD cbSid = 0;
+    DWORD cbContainer = 0;
+    DWORD cbLogonName = 0;
     DWORD cbDisplayName = 0;
 
     DWORD cbRequired = BytesRequiredForRecord(
-                            pSid,
-                            &cbSid,
-                            pszContainer,
-                            &cbContainer,
-                            pszLogonName,
-                            &cbLogonName,
-                            pszDisplayName,
-                            &cbDisplayName);
+        pSid,
+        &cbSid,
+        pszContainer,
+        &cbContainer,
+        pszLogonName,
+        &cbLogonName,
+        pszDisplayName,
+        &cbDisplayName);
 
     DWORD cBlocksRequired = BlocksRequired(cbRequired);
     DBGPRINT((DM_SIDCACHE, DL_MID,
-             TEXT("SIDCACHE - Store: %s (%s) in \"%s\"  %d bytes, %d blocks"),
-             pszDisplayName, pszLogonName, pszContainer, cbRequired, cBlocksRequired));
+              TEXT("SIDCACHE - Store: %s (%s) in \"%s\"  %d bytes, %d blocks"),
+              pszDisplayName, pszLogonName, pszContainer, cbRequired, cBlocksRequired));
 
 
     // Try to allocate the required blocks.
 
     DWORD iBlock = AllocBlocks(cBlocksRequired);
-    if ((DWORD)-1 == iBlock)
-    {
-
+    if ((DWORD)-1 == iBlock) {
         // Couldn't allocate blocks.  Extend the data file.
-
         GrowDataFile(DATA_FILE_GROW_BLOCKS);
         iBlock = AllocBlocks(cBlocksRequired);
     }
-    if ((DWORD)-1 != iBlock)
-    {
 
+    if ((DWORD)-1 != iBlock) {
         // Got the required number of blocks.
-
         DBGASSERT((ValidBlockNumber(iBlock)));
-        PBLOCK pBlock               = BlockAddress(iBlock);
-        DAT_BASED(RECORD_HDR) *pRec = DAT_BASED_CAST(RECORD_HDR, pBlock);
-        DAT_BASED(BYTE) *pbRec      = DAT_BASED_CAST(BYTE, pBlock);
+        PBLOCK pBlock = BlockAddress(iBlock);
+        DAT_BASED(RECORD_HDR)* pRec = DAT_BASED_CAST(RECORD_HDR, pBlock);
+        DAT_BASED(BYTE)* pbRec = DAT_BASED_CAST(BYTE, pBlock);
 
 
         // Fill in the record header.
         // Includes storing the item offset values from the start of the record.
         // Storing these values in the record hdr will help with data retrieval.
 
-        pRec->dwSignature       = RECORD_SIGNATURE;
-        pRec->cBlocks           = cBlocksRequired;
-        pRec->cbOfsSid          = sizeof(RECORD_HDR);
-        pRec->cbOfsContainer    = pRec->cbOfsSid    + cbSid;
+        pRec->dwSignature = RECORD_SIGNATURE;
+        pRec->cBlocks = cBlocksRequired;
+        pRec->cbOfsSid = sizeof(RECORD_HDR);
+        pRec->cbOfsContainer = pRec->cbOfsSid + cbSid;
         WordAlign(&pRec->cbOfsContainer);
 
-        pRec->cbOfsLogonName   = pRec->cbOfsContainer + cbContainer;
+        pRec->cbOfsLogonName = pRec->cbOfsContainer + cbContainer;
         pRec->cbOfsDisplayName = pRec->cbOfsLogonName + cbLogonName;;
 
 
@@ -3994,8 +3822,8 @@ SidNameCache::RecordMgr::Store(
         // Use ACTUAL length values for memory transfers.
 
         CopySid(cbSid, (PSID)(pbRec + pRec->cbOfsSid), pSid);
-        lstrcpy((LPTSTR)(pbRec + pRec->cbOfsContainer),   pszContainer);
-        lstrcpy((LPTSTR)(pbRec + pRec->cbOfsLogonName),   pszLogonName);
+        lstrcpy((LPTSTR)(pbRec + pRec->cbOfsContainer), pszContainer);
+        lstrcpy((LPTSTR)(pbRec + pRec->cbOfsLogonName), pszLogonName);
         lstrcpy((LPTSTR)(pbRec + pRec->cbOfsDisplayName), pszDisplayName);
 
 
@@ -4050,42 +3878,36 @@ SidNameCache::RecordMgr::Store(
 HRESULT
 SidNameCache::RecordMgr::Retrieve(
     DWORD iBlock,
-    PSID *ppSid,
-    LPTSTR *ppszContainer,
-    LPTSTR *ppszLogonName,
-    LPTSTR *ppszDisplayName
-    )
+    PSID* ppSid,
+    LPTSTR* ppszContainer,
+    LPTSTR* ppszLogonName,
+    LPTSTR* ppszDisplayName
+)
 {
-    PBLOCK pBlock               = BlockAddress(iBlock);
-    DAT_BASED(RECORD_HDR) *pRec = DAT_BASED_CAST(RECORD_HDR, pBlock);
-    DAT_BASED(BYTE) *pbRec      = DAT_BASED_CAST(BYTE, pBlock);
+    PBLOCK pBlock = BlockAddress(iBlock);
+    DAT_BASED(RECORD_HDR)* pRec = DAT_BASED_CAST(RECORD_HDR, pBlock);
+    DAT_BASED(BYTE)* pbRec = DAT_BASED_CAST(BYTE, pBlock);
 
     DBGASSERT((SidNameCache::IsQuadAligned(pRec)));
     DBGASSERT((RECORD_SIGNATURE == pRec->dwSignature));
 
-    if (NULL != ppSid)
-    {
+    if (NULL != ppSid) {
         PSID pSid = (PSID)(pbRec + pRec->cbOfsSid);
-        if (IsValidSid(pSid))
-        {
+        if (IsValidSid(pSid)) {
             *ppSid = SidDup(pSid);
-        }
-        else
+        } else
             return HRESULT_FROM_WIN32(ERROR_INVALID_SID);
     }
 
-    if (NULL != ppszContainer)
-    {
+    if (NULL != ppszContainer) {
         *ppszContainer = StringDup((LPTSTR)(pbRec + pRec->cbOfsContainer));
     }
 
-    if (NULL != ppszLogonName)
-    {
+    if (NULL != ppszLogonName) {
         *ppszLogonName = StringDup((LPTSTR)(pbRec + pRec->cbOfsLogonName));
     }
 
-    if (NULL != ppszDisplayName)
-    {
+    if (NULL != ppszDisplayName) {
         *ppszDisplayName = StringDup((LPTSTR)(pbRec + pRec->cbOfsDisplayName));
     }
 
@@ -4110,10 +3932,7 @@ SidNameCache::RecordMgr::Retrieve(
 */
 
 #if DBG
-VOID
-SidNameCache::RecordMgr::Dump(
-    VOID
-    )
+VOID SidNameCache::RecordMgr::Dump(VOID)
 {
     UINT i, j;
     DBGASSERT((DATA_FILE_MAPPED));
@@ -4123,38 +3942,34 @@ SidNameCache::RecordMgr::Dump(
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("  m_pFileHdr.........: 0x%p"), m_pFileHdr));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    dwSignature......: 0x%08X"), (DWORD)m_pFileHdr->dwSignature));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    dwVersion........: 0x%08X"), (DWORD)m_pFileHdr->dwVersion));
-    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cBlocks..........: %d"),     (DWORD)m_pFileHdr->cBlocks));
-    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cBlocksUsed......: %d"),     (DWORD)m_pFileHdr->cBlocksUsed));
-    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cMapElements.....: %d"),     (DWORD)m_pFileHdr->cMapElements));
-    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    iFirstFree.......: %d"),     (DWORD)m_pFileHdr->iFirstFree));
+    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cBlocks..........: %d"), (DWORD)m_pFileHdr->cBlocks));
+    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cBlocksUsed......: %d"), (DWORD)m_pFileHdr->cBlocksUsed));
+    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    cMapElements.....: %d"), (DWORD)m_pFileHdr->cMapElements));
+    DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    iFirstFree.......: %d"), (DWORD)m_pFileHdr->iFirstFree));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    pdwMap...........: 0x%p"), m_pFileHdr->pdwMap));
     DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("    pBlocks..........: 0x%p"), m_pFileHdr->pBlocks));
 
     PBLOCK pBlock = m_pFileHdr->pBlocks;
 
-    for (i = 0; i < m_pFileHdr->cBlocks; i++)
-    {
-        DAT_BASED(BYTE) *pb = DAT_BASED_CAST(BYTE, pBlock);
+    for (i = 0; i < m_pFileHdr->cBlocks; i++) {
+        DAT_BASED(BYTE)* pb = DAT_BASED_CAST(BYTE, pBlock);
 
         DBGPRINT((DM_SIDCACHE, DL_LOW, TEXT("BLOCK %d "), i));
-        for (UINT row = 0; row < 2; row++)
-        {
+        for (UINT row = 0; row < 2; row++) {
             TCHAR szHex[MAX_PATH];
             TCHAR szAscii[MAX_PATH];
 
             LPTSTR pszHex = szHex;
-            pb = DAT_BASED_CAST(BYTE, pBlock) + (row * (sizeof(BLOCK)/2));
-            for (j = 0; j < 16; j++)
-            {
+            pb = DAT_BASED_CAST(BYTE, pBlock) + (row * (sizeof(BLOCK) / 2));
+            for (j = 0; j < 16; j++) {
                 wsprintf(pszHex, TEXT("%02X "), *pb);
                 pb++;
                 pszHex += 2;
             }
 
             LPTSTR pszAscii = szAscii;
-            pb = DAT_BASED_CAST(BYTE, pBlock) + (row * (sizeof(BLOCK)/2));
-            for (j = 0; j < 16; j++)
-            {
+            pb = DAT_BASED_CAST(BYTE, pBlock) + (row * (sizeof(BLOCK) / 2));
+            for (j = 0; j < 16; j++) {
                 wsprintf(pszAscii, TEXT("%c"), *pb > 31 ? *pb : TEXT('.'));
                 pb++;
                 pszAscii++;

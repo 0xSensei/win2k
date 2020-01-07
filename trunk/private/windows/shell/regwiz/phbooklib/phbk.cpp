@@ -47,42 +47,32 @@ static void GetAbsolutePath(LPTSTR input, LPTSTR output)
         return;
     }
 
-    if (input[0] == _T('%'))
-    {
+    if (input[0] == _T('%')) {
         LPTSTR token = _tcstok(input, _T("%"));
-        if (token != NULL)
-        {
+        if (token != NULL) {
             LPTSTR sztemp;
             sztemp = getenv(token);
-            if (sztemp != NULL)
-            {
+            if (sztemp != NULL) {
                 _tcscpy(output, sztemp);
             }
             token = _tcstok(NULL, _T("\0"));
-            if (token != NULL)
-            {
+            if (token != NULL) {
                 _tcscat(output, token);
             }
         }
-    }
-    else
-    {
+    } else {
         LPTSTR token = _tcstok(input, _T("%"));
-        if (token != NULL)
-        {
+        if (token != NULL) {
             _tcscpy(output, token);
             token = _tcstok(NULL, _T("%"));
-            if (token != NULL)
-            {
+            if (token != NULL) {
                 LPTSTR sztemp;
                 sztemp = getenv(token);
-                if (sztemp != NULL)
-                {
+                if (sztemp != NULL) {
                     _tcscat(output, sztemp);
                 }
                 token = _tcstok(NULL, _T("\0"));
-                if (token != NULL)
-                {
+                if (token != NULL) {
                     _tcscat(output, token);
                 }
             }
@@ -136,8 +126,7 @@ CPhoneBook::CPhoneBook()
         GetAbsolutePath(czTemp, m_szICWDirectoryPath);
         size_t sLen = strlen(m_szICWDirectoryPath);
         m_szICWDirectoryPath[sLen - 1] = '\0';
-    }
-    else {
+    } else {
 
         MessageBox(NULL, "Error Accessing PAth ", "SearchPath", MB_OK);
         // Error
@@ -145,30 +134,22 @@ CPhoneBook::CPhoneBook()
 
 
 #if !defined(WIN16)
-    if (VER_PLATFORM_WIN32_NT == DWGetWin32Platform())
-    {
+    if (VER_PLATFORM_WIN32_NT == DWGetWin32Platform()) {
         m_bScriptingAvailable = TRUE;
-    }
-    else
-    {
+    } else {
 
         // Verify scripting by checking for smmscrpt.dll in RemoteAccess registry key
 
-        if (1111 <= DWGetWin32BuildNumber())
-        {
+        if (1111 <= DWGetWin32BuildNumber()) {
             m_bScriptingAvailable = TRUE;
-        }
-        else
-        {
+        } else {
             m_bScriptingAvailable = FALSE;
             hKey = NULL;
             lrc = RegOpenKey(HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Services\\RemoteAccess\\Authentication\\SMM_FILES\\PPP", &hKey);
-            if (ERROR_SUCCESS == lrc)
-            {
+            if (ERROR_SUCCESS == lrc) {
                 dwSize = MAX_PATH;
                 lrc = RegQueryValueEx(hKey, "Path", 0, &dwType, (LPBYTE)szData, &dwSize);
-                if (ERROR_SUCCESS == lrc)
-                {
+                if (ERROR_SUCCESS == lrc) {
                     if (0 == lstrcmpi(szData, "smmscrpt.dll"))
                         m_bScriptingAvailable = TRUE;
                 }
@@ -181,8 +162,7 @@ CPhoneBook::CPhoneBook()
 
         // Verify that the DLL can be loaded
 
-        if (m_bScriptingAvailable)
-        {
+        if (m_bScriptingAvailable) {
             hInst = LoadLibrary("smmscrpt.dll");
             if (hInst)
                 FreeLibrary(hInst);
@@ -222,7 +202,7 @@ CPhoneBook::~CPhoneBook()
 }
 
 // ############################################################################
-BOOL CPhoneBook::ReadPhoneBookDW(DWORD far *pdw, CCSVFile far *pcCSVFile)
+BOOL CPhoneBook::ReadPhoneBookDW(DWORD far* pdw, CCSVFile far* pcCSVFile)
 {
     if (!pcCSVFile->ReadToken(szTempBuffer, TEMP_BUFFER_LENGTH))
         return FALSE;
@@ -230,7 +210,7 @@ BOOL CPhoneBook::ReadPhoneBookDW(DWORD far *pdw, CCSVFile far *pcCSVFile)
 }
 
 // ############################################################################
-BOOL CPhoneBook::ReadPhoneBookW(WORD far *pw, CCSVFile far *pcCSVFile)
+BOOL CPhoneBook::ReadPhoneBookW(WORD far* pw, CCSVFile far* pcCSVFile)
 {
     if (!pcCSVFile->ReadToken(szTempBuffer, TEMP_BUFFER_LENGTH))
         return FALSE;
@@ -238,7 +218,7 @@ BOOL CPhoneBook::ReadPhoneBookW(WORD far *pw, CCSVFile far *pcCSVFile)
 }
 
 // ############################################################################
-BOOL CPhoneBook::ReadPhoneBookB(BYTE far *pb, CCSVFile far *pcCSVFile)
+BOOL CPhoneBook::ReadPhoneBookB(BYTE far* pb, CCSVFile far* pcCSVFile)
 {
     if (!pcCSVFile->ReadToken(szTempBuffer, TEMP_BUFFER_LENGTH))
         return FALSE;
@@ -246,7 +226,7 @@ BOOL CPhoneBook::ReadPhoneBookB(BYTE far *pb, CCSVFile far *pcCSVFile)
 }
 
 // ############################################################################
-BOOL CPhoneBook::ReadPhoneBookSZ(LPSTR psz, DWORD dwSize, CCSVFile far *pcCSVFile)
+BOOL CPhoneBook::ReadPhoneBookSZ(LPSTR psz, DWORD dwSize, CCSVFile far* pcCSVFile)
 {
     if (!pcCSVFile->ReadToken(psz, dwSize))
         return FALSE;
@@ -263,8 +243,7 @@ BOOL CPhoneBook::FixUpFromRealloc(PACCESSENTRY paeOld, PACCESSENTRY paeNew)
 
     // No starting value or no move, therefore no fix-ups needed
 
-    if ((0 == paeOld) || (paeNew == paeOld))
-    {
+    if ((0 == paeOld) || (paeNew == paeOld)) {
         bRC = TRUE;
         goto FixUpFromReallocExit;
     }
@@ -278,8 +257,7 @@ BOOL CPhoneBook::FixUpFromRealloc(PACCESSENTRY paeOld, PACCESSENTRY paeNew)
 
     // fix up STATES
 
-    for (idx = 0; idx < m_cStates; idx++)
-    {
+    for (idx = 0; idx < m_cStates; idx++) {
         if (m_rgState[idx].paeFirst)
             m_rgState[idx].paeFirst = (PACCESSENTRY)((LONG_PTR)m_rgState[idx].paeFirst - lDiff);
     }
@@ -287,8 +265,7 @@ BOOL CPhoneBook::FixUpFromRealloc(PACCESSENTRY paeOld, PACCESSENTRY paeNew)
 
     // fix up ID look up array
 
-    for (idx = 0; idx < m_pLineCountryList->dwNumCountries; idx++)
-    {
+    for (idx = 0; idx < m_pLineCountryList->dwNumCountries; idx++) {
         if (m_rgIDLookUp[idx].pFirstAE)
             m_rgIDLookUp[idx].pFirstAE = (PACCESSENTRY)((LONG_PTR)m_rgIDLookUp[idx].pFirstAE - lDiff);
     }
@@ -316,7 +293,7 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
     LPLINECOUNTRYENTRY pLCETemp;
     DWORD idx;
     LPSTR pszTemp;
-    CCSVFile far *pcCSVFile = NULL;
+    CCSVFile far* pcCSVFile = NULL;
     LPSTATE ps, psLast; //faster to use pointers.
     int iTestSK;
 
@@ -363,18 +340,17 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
         // Load Look Up arrays
 #ifdef DEBUG
     m_rgIDLookUp = (LPIDLOOKUPELEMENT)GlobalAlloc(GPTR,
-        (int)(sizeof(IDLOOKUPELEMENT)*m_pLineCountryList->dwNumCountries + 5));
+        (int)(sizeof(IDLOOKUPELEMENT) * m_pLineCountryList->dwNumCountries + 5));
 #else
     m_rgIDLookUp = (LPIDLOOKUPELEMENT)GlobalAlloc(GPTR,
-        (int)(sizeof(IDLOOKUPELEMENT)*m_pLineCountryList->dwNumCountries));
+        (int)(sizeof(IDLOOKUPELEMENT) * m_pLineCountryList->dwNumCountries));
 #endif
     if (!m_rgIDLookUp) goto InitExit;
 
     pLCETemp = (LPLINECOUNTRYENTRY)((DWORD_PTR)m_pLineCountryList +
                                     m_pLineCountryList->dwCountryListOffset);
 
-    for (idx = 0; idx < m_pLineCountryList->dwNumCountries; idx++)
-    {
+    for (idx = 0; idx < m_pLineCountryList->dwNumCountries; idx++) {
         m_rgIDLookUp[idx].dwID = pLCETemp[idx].dwCountryID;
         m_rgIDLookUp[idx].pLCE = &pLCETemp[idx];
     }
@@ -387,8 +363,7 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
 
     if (!m_rgNameLookUp) goto InitExit;
 
-    for (idx = 0; idx < m_pLineCountryList->dwNumCountries; idx++)
-    {
+    for (idx = 0; idx < m_pLineCountryList->dwNumCountries; idx++) {
         m_rgNameLookUp[idx].psCountryName = (LPSTR)((LPBYTE)m_pLineCountryList + (DWORD)pLCETemp[idx].dwCountryNameOffset);
         m_rgNameLookUp[idx].dwNameSize = pLCETemp[idx].dwCountryNameSize;
         m_rgNameLookUp[idx].pLCE = &pLCETemp[idx];
@@ -398,8 +373,7 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
           CompareCntryNameLookUpElements);
 
     // Load States
-    if (!SearchPath(NULL, STATE_FILENAME, NULL, TEMP_BUFFER_LENGTH, szTempBuffer, &pszTemp))
-    {
+    if (!SearchPath(NULL, STATE_FILENAME, NULL, TEMP_BUFFER_LENGTH, szTempBuffer, &pszTemp)) {
         if (m_szICWDirectoryPath) {
             // Try with c:\\ProgramFile\\ICW-INTERNET\\......
             if (!SearchPath(m_szICWDirectoryPath,
@@ -408,14 +382,12 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
                 hr = ERROR_FILE_NOT_FOUND;
                 goto InitExit;
 
-            }
-            else {
+            } else {
                 ; // OK Th e file is found
                 iTestSK = 0;
 
             }
-        }
-        else {
+        } else {
             AssertSz(0, "STATE.ICW not found");
             hr = ERROR_FILE_NOT_FOUND;
             goto InitExit;
@@ -425,8 +397,7 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
     pcCSVFile = new CCSVFile;
     if (!pcCSVFile) goto InitExit;
 
-    if (!pcCSVFile->Open(szTempBuffer))
-    {
+    if (!pcCSVFile->Open(szTempBuffer)) {
         AssertSz(0, "Can not open STATE.ICW");
         delete pcCSVFile;
         pcCSVFile = NULL;
@@ -438,18 +409,16 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
     if (!pcCSVFile->ReadToken(szTempBuffer, TEMP_BUFFER_LENGTH))
         goto InitExit;
 
-    if (!FSz2Dw(szTempBuffer, &m_cStates))
-    {
+    if (!FSz2Dw(szTempBuffer, &m_cStates)) {
         AssertSz(0, "STATE.ICW count is invalid");
         goto InitExit;
     }
 
-    m_rgState = (LPSTATE)GlobalAlloc(GPTR, (int)(sizeof(STATE)*m_cStates));
+    m_rgState = (LPSTATE)GlobalAlloc(GPTR, (int)(sizeof(STATE) * m_cStates));
     if (!m_rgState)
         goto InitExit;
 
-    for (ps = m_rgState, psLast = &m_rgState[m_cStates - 1]; ps <= psLast; ++ps)
-    {
+    for (ps = m_rgState, psLast = &m_rgState[m_cStates - 1]; ps <= psLast; ++ps) {
         pcCSVFile->ReadToken(ps->szStateName, cbStateName);
     }
 
@@ -457,8 +426,7 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
 
     // Locate ISP's INF file
     if (!SearchPath(NULL, (LPCTSTR)pszISPCode, INF_SUFFIX, MAX_PATH,
-                    m_szINFFile, &pszTemp))
-    {
+                    m_szINFFile, &pszTemp)) {
         wsprintf(szTempBuffer, "Can not find:%s%s (%d)", pszISPCode, INF_SUFFIX, GetLastError());
         if (m_szICWDirectoryPath) {
             if (!SearchPath(m_szICWDirectoryPath, (LPCTSTR)pszISPCode, INF_SUFFIX, MAX_PATH,
@@ -467,14 +435,12 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
                 hr = ERROR_FILE_NOT_FOUND;
                 goto InitExit;
 
-            }
-            else {
+            } else {
                 iTestSK++;
 
             }
 
-        }
-        else {
+        } else {
             AssertSz(0, szTempBuffer);
             hr = ERROR_FILE_NOT_FOUND;
             goto InitExit;
@@ -482,36 +448,31 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
     }
 
     //Load Phone Book
-    if (!GetPrivateProfileString(INF_APP_NAME, INF_PHONE_BOOK, INF_DEFAULT, szTempBuffer, TEMP_BUFFER_LENGTH, m_szINFFile))
-    {
+    if (!GetPrivateProfileString(INF_APP_NAME, INF_PHONE_BOOK, INF_DEFAULT, szTempBuffer, TEMP_BUFFER_LENGTH, m_szINFFile)) {
         AssertSz(0, "PhoneBookFile not specified in INF file");
         hr = ERROR_FILE_NOT_FOUND;
         goto InitExit;
     }
 
 #ifdef DEBUG
-    if (!lstrcmp(szTempBuffer, INF_DEFAULT))
-    {
+    if (!lstrcmp(szTempBuffer, INF_DEFAULT)) {
         wsprintf(szTempBuffer, "%s value not found in ISP file", INF_PHONE_BOOK);
         AssertSz(0, szTempBuffer);
     }
 #endif
-    if (!SearchPath(NULL, szTempBuffer, NULL, MAX_PATH, m_szPhoneBook, &pszTemp))
-    {
+    if (!SearchPath(NULL, szTempBuffer, NULL, MAX_PATH, m_szPhoneBook, &pszTemp)) {
         if (m_szICWDirectoryPath) {
             if (!SearchPath(m_szICWDirectoryPath, szTempBuffer, NULL, MAX_PATH, m_szPhoneBook, &pszTemp)) {
                 AssertSz(0, "ISP phone book not found");
                 hr = ERROR_FILE_NOT_FOUND;
                 goto InitExit;
 
-            }
-            else {
+            } else {
                 ;; // OK file Found
                 iTestSK++;
             }
 
-        }
-        else {
+        } else {
             AssertSz(0, "ISP phone book not found");
             hr = ERROR_FILE_NOT_FOUND;
             goto InitExit;
@@ -520,8 +481,7 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
 
     }
 
-    if (!pcCSVFile->Open(m_szPhoneBook))
-    {
+    if (!pcCSVFile->Open(m_szPhoneBook)) {
         AssertSz(0, "Can not open phone book");
         hr = GetLastError();
         goto InitExit;
@@ -531,10 +491,8 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
     do {
         Assert(dwSizeAllocated >= m_cPhoneBookEntries);
         // check that sufficient memory is allocated
-        if (m_rgPhoneBookEntry)
-        {
-            if (dwSizeAllocated == m_cPhoneBookEntries)
-            {
+        if (m_rgPhoneBookEntry) {
+            if (dwSizeAllocated == m_cPhoneBookEntries) {
 
                 // we need more memory
 
@@ -552,8 +510,7 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
 
                 // UNLOCK
                 Assert(m_hPhoneBookEntry);
-                if (FALSE == GlobalUnlock(m_hPhoneBookEntry))
-                {
+                if (FALSE == GlobalUnlock(m_hPhoneBookEntry)) {
                     if (NO_ERROR != GetLastError())
                         goto InitExit;
                 }
@@ -577,9 +534,7 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
                     ((LONG_PTR)pAETemp - (LONG_PTR)(m_rgPhoneBookEntry)));
 
             }
-        }
-        else
-        {
+        } else {
 
             // Initialization for the first time through
 
@@ -605,33 +560,26 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
 
         // Read a line from the phonebook
         hr = ReadOneLine(pCurAccessEntry, pcCSVFile);
-        if (hr == ERROR_NO_MORE_ITEMS)
-        {
+        if (hr == ERROR_NO_MORE_ITEMS) {
             break;
-        }
-        else if (hr != ERROR_SUCCESS)
-        {
+        } else if (hr != ERROR_SUCCESS) {
             goto InitExit;
         }
 
         hr = ERROR_NOT_ENOUGH_MEMORY;
 
         // Check to see if this is the first phone number for a given country
-        if (pCurAccessEntry->dwCountryID != dwLastCountry)
-        {
+        if (pCurAccessEntry->dwCountryID != dwLastCountry) {
             LPIDLOOKUPELEMENT lpIDLookupElement;
             // NOTE: Not sure about the first parameter here.
             lpIDLookupElement = (LPIDLOOKUPELEMENT)bsearch(&pCurAccessEntry->dwCountryID,
                                                            m_rgIDLookUp, (int)m_pLineCountryList->dwNumCountries, sizeof(IDLOOKUPELEMENT),
                                                            CompareIDLookUpElements);
-            if (!lpIDLookupElement)
-            {
+            if (!lpIDLookupElement) {
                 // bad country ID, but we can't assert here
                 Dprintf("Bad country ID in phone book %d\n", pCurAccessEntry->dwCountryID);
                 continue;
-            }
-            else
-            {
+            } else {
                 // for a given country ID this is the first phone number
                 lpIDLookupElement->pFirstAE = pCurAccessEntry;
                 dwLastCountry = pCurAccessEntry->dwCountryID;
@@ -639,8 +587,7 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
         }
 
         // Check to see if this is the first phone number for a given state
-        if (pCurAccessEntry->wStateID && (pCurAccessEntry->wStateID != dwLastState))
-        {
+        if (pCurAccessEntry->wStateID && (pCurAccessEntry->wStateID != dwLastState)) {
             idx = pCurAccessEntry->wStateID - 1;
             m_rgState[idx].dwCountryID = pCurAccessEntry->dwCountryID;
             m_rgState[idx].paeFirst = pCurAccessEntry;
@@ -663,8 +610,7 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
 
     // UNLOCK
     Assert(m_hPhoneBookEntry);
-    if (FALSE != GlobalUnlock(m_hPhoneBookEntry))
-    {
+    if (FALSE != GlobalUnlock(m_hPhoneBookEntry)) {
         if (NO_ERROR != GetLastError())
             goto InitExit;
     }
@@ -684,8 +630,7 @@ HRESULT CPhoneBook::Init(LPCSTR pszISPCode)
     hr = ERROR_SUCCESS;
 InitExit:
     // If something failed release everything
-    if (hr != ERROR_SUCCESS)
-    {
+    if (hr != ERROR_SUCCESS) {
 #ifdef WIN16
         GlobalFree(m_rgPhoneBookEntry);
 #else
@@ -708,18 +653,17 @@ InitExit:
         m_rgState = NULL;
     }
 
-    if (pcCSVFile)
-    {
+    if (pcCSVFile) {
         pcCSVFile->Close();
         delete pcCSVFile;
     }
     return hr;
 }
 
-// ############################################################################
+
 HRESULT CPhoneBook::Merge(LPCSTR pszChangeFile)
 {
-    CCSVFile far *pcCSVFile;
+    CCSVFile far* pcCSVFile;
     ACCESSENTRY aeChange;
     LPIDXLOOKUPELEMENT rgIdxLookUp;
     LPIDXLOOKUPELEMENT pCurIdxLookUp;
@@ -769,8 +713,7 @@ HRESULT CPhoneBook::Merge(LPCSTR pszChangeFile)
     if (!rgIdxLookUp)
         goto MergeExit;
 
-    for (dwIdx = 0; dwIdx < m_cPhoneBookEntries; dwIdx++)
-    {
+    for (dwIdx = 0; dwIdx < m_cPhoneBookEntries; dwIdx++) {
         rgIdxLookUp[dwIdx].dwIndex = rgIdxLookUp[dwIdx].pAE->dwIndex;
         rgIdxLookUp[dwIdx].pAE = &m_rgPhoneBookEntry[dwIdx];
     }
@@ -793,20 +736,16 @@ HRESULT CPhoneBook::Merge(LPCSTR pszChangeFile)
         ZeroMemory(&aeChange, sizeof(ACCESSENTRY));
         hr = ReadOneLine(&aeChange, pcCSVFile);
 
-        if (hr == ERROR_NO_MORE_ITEMS)
-        {
+        if (hr == ERROR_NO_MORE_ITEMS) {
             break; // no more enteries
-        }
-        else if (hr = !ERROR_SUCCESS)
-        {
+        } else if (hr = !ERROR_SUCCESS) {
             goto MergeExit;
         }
 
         hr = ERROR_NOT_ENOUGH_MEMORY;
 
         // Determine if this is a delete or add record
-        if (aeChange.szAccessNumber[0] == '0' && aeChange.szAccessNumber[1] == '\0')
-        {
+        if (aeChange.szAccessNumber[0] == '0' && aeChange.szAccessNumber[1] == '\0') {
             // This is a delete record, find matching record
             // NOTE: we only search the numbers that existed before the change file,
             // because they are the only ones that are sorted.
@@ -816,20 +755,17 @@ HRESULT CPhoneBook::Merge(LPCSTR pszChangeFile)
             if (pCurIdxLookUp)
                 pCurIdxLookUp->pAE = NULL;  //Create a dead entry in the look up table
             m_cPhoneBookEntries--;
-        }
-        else
-        {
+        } else {
             // This is an add entry
             m_cPhoneBookEntries++;
             dwUsed++;
             // Make sure we have enough room
-            if (m_cPhoneBookEntries > dwAllocated)
-            {
+            if (m_cPhoneBookEntries > dwAllocated) {
                 // Grow phone book
                 dwAllocated += CHANGE_BUFFER_SIZE;
 #ifdef WIN16
                 Assert(m_rgPhoneBookEntry);
-                rgTemp = GlobalReAlloc(m_rgPhoneBookEntry, (int)(sizeof(ACCESSENTRY)*dwAllocated), GHND);
+                rgTemp = GlobalReAlloc(m_rgPhoneBookEntry, (int)(sizeof(ACCESSENTRY) * dwAllocated), GHND);
                 Assert(rgTemp);
                 if (!rgTemp)
                     goto MergeExit;
@@ -837,7 +773,7 @@ HRESULT CPhoneBook::Merge(LPCSTR pszChangeFile)
 
                 // Grow look up index
                 Assert(rgIdxLookUp);
-                rgTemp = GlobalReAlloc(rgIdxLookUp, (int)(sizeof(IDXLOOKUPELEMENT)*dwAllocated), GHND);
+                rgTemp = GlobalReAlloc(rgIdxLookUp, (int)(sizeof(IDXLOOKUPELEMENT) * dwAllocated), GHND);
                 Assert(rgTemp);
                 if (!rgTemp)
                     goto MergeExit;
@@ -845,7 +781,7 @@ HRESULT CPhoneBook::Merge(LPCSTR pszChangeFile)
 #else
                 Assert(m_hPhoneBookEntry);
                 GlobalUnlock(m_hPhoneBookEntry);
-                hTemp = (HANDLE)GlobalReAlloc(m_hPhoneBookEntry, sizeof(ACCESSENTRY)*dwAllocated, GHND);
+                hTemp = (HANDLE)GlobalReAlloc(m_hPhoneBookEntry, sizeof(ACCESSENTRY) * dwAllocated, GHND);
                 Assert(hTemp);
                 if (!hTemp)
                     goto MergeExit;
@@ -858,7 +794,7 @@ HRESULT CPhoneBook::Merge(LPCSTR pszChangeFile)
                 // Grow look up index
                 Assert(hIdxLookUp);
                 GlobalUnlock(hIdxLookUp);
-                hTemp = (HANDLE)GlobalReAlloc(hIdxLookUp, sizeof(IDXLOOKUPELEMENT)*dwAllocated, GHND);
+                hTemp = (HANDLE)GlobalReAlloc(hIdxLookUp, sizeof(IDXLOOKUPELEMENT) * dwAllocated, GHND);
                 Assert(hTemp);
                 if (!hTemp)
                     goto MergeExit;
@@ -897,8 +833,7 @@ HRESULT CPhoneBook::Merge(LPCSTR pszChangeFile)
     if (hFile == INVALID_HANDLE_VALUE)
         goto MergeExit;
 
-    for (dwIdx = 0; dwIdx < m_cPhoneBookEntries; dwIdx++)
-    {
+    for (dwIdx = 0; dwIdx < m_cPhoneBookEntries; dwIdx++) {
         cch = wsprintf(szTempBuffer, "%lu,%lu,%lu,%s,%s,%s,%lu,%lu,%lu,%lu,%s\r\n",
                        rgIdxLookUp[dwIdx].pAE->dwIndex,
                        rgIdxLookUp[dwIdx].pAE->dwCountryID,
@@ -912,8 +847,7 @@ HRESULT CPhoneBook::Merge(LPCSTR pszChangeFile)
                        DWORD(rgIdxLookUp[dwIdx].pAE->fType),
                        rgIdxLookUp[dwIdx].pAE->szDataCenter);
 
-        if (!WriteFile(hFile, szTempBuffer, cch, &cchWritten, NULL))
-        {
+        if (!WriteFile(hFile, szTempBuffer, cch, &cchWritten, NULL)) {
             // something went wrong, get rid of the temporary file
             CloseHandle(hFile);
             DeleteFile(szTempFileName);
@@ -927,8 +861,7 @@ HRESULT CPhoneBook::Merge(LPCSTR pszChangeFile)
     hFile = NULL;
 
     // Move new phone book over old
-    if (!MoveFileEx(szTempFileName, m_szPhoneBook, MOVEFILE_REPLACE_EXISTING))
-    {
+    if (!MoveFileEx(szTempFileName, m_szPhoneBook, MOVEFILE_REPLACE_EXISTING)) {
         hr = GetLastError();
         goto MergeExit;
     }
@@ -955,8 +888,7 @@ HRESULT CPhoneBook::Merge(LPCSTR pszChangeFile)
     hr = Init(szTempBuffer);
 
 MergeExit:
-    if (hr != ERROR_SUCCESS)
-    {
+    if (hr != ERROR_SUCCESS) {
         GlobalFree(rgIdxLookUp);
         if (pcCSVFile) delete pcCSVFile;
         CloseHandle(hFile);
@@ -964,55 +896,52 @@ MergeExit:
     return hr;
 }
 
-// ############################################################################
-HRESULT CPhoneBook::ReadOneLine(PACCESSENTRY lpAccessEntry, CCSVFile far *pcCSVFile)
+
+HRESULT CPhoneBook::ReadOneLine(PACCESSENTRY lpAccessEntry, CCSVFile far* pcCSVFile)
 {
     HRESULT hr = ERROR_SUCCESS;
 
 #if !defined(WIN16)
     ReadOneLineStart:
 #endif //WIN16
-                    if (!ReadPhoneBookDW(&lpAccessEntry->dwIndex, pcCSVFile))
-                    {
-                        hr = ERROR_NO_MORE_ITEMS; // no more enteries
-                        goto ReadExit;
-                    }
-                    ReadVerifyPhoneBookDW(lpAccessEntry->dwCountryID);
-                    ReadVerifyPhoneBookW(lpAccessEntry->wStateID);
-                    ReadVerifyPhoneBookSZ(lpAccessEntry->szCity, cbCity);
-                    ReadVerifyPhoneBookSZ(lpAccessEntry->szAreaCode, cbAreaCode);
-                    // NOTE: 0 is a valid area code and ,, is a valid entry for an area code
-                    if (!FSz2Dw(lpAccessEntry->szAreaCode, &lpAccessEntry->dwAreaCode))
-                        lpAccessEntry->dwAreaCode = NO_AREA_CODE;
-                    ReadVerifyPhoneBookSZ(lpAccessEntry->szAccessNumber, cbAccessNumber);
-                    ReadVerifyPhoneBookDW(lpAccessEntry->dwConnectSpeedMin);
-                    ReadVerifyPhoneBookDW(lpAccessEntry->dwConnectSpeedMax);
-                    ReadVerifyPhoneBookB(lpAccessEntry->bFlipFactor);
-                    ReadVerifyPhoneBookDW(lpAccessEntry->fType);
-                    ReadVerifyPhoneBookSZ(lpAccessEntry->szDataCenter, cbDataCenter);
+    if (!ReadPhoneBookDW(&lpAccessEntry->dwIndex, pcCSVFile)) {
+        hr = ERROR_NO_MORE_ITEMS; // no more enteries
+        goto ReadExit;
+    }
+    ReadVerifyPhoneBookDW(lpAccessEntry->dwCountryID);
+    ReadVerifyPhoneBookW(lpAccessEntry->wStateID);
+    ReadVerifyPhoneBookSZ(lpAccessEntry->szCity, cbCity);
+    ReadVerifyPhoneBookSZ(lpAccessEntry->szAreaCode, cbAreaCode);
+    // NOTE: 0 is a valid area code and ,, is a valid entry for an area code
+    if (!FSz2Dw(lpAccessEntry->szAreaCode, &lpAccessEntry->dwAreaCode))
+        lpAccessEntry->dwAreaCode = NO_AREA_CODE;
+    ReadVerifyPhoneBookSZ(lpAccessEntry->szAccessNumber, cbAccessNumber);
+    ReadVerifyPhoneBookDW(lpAccessEntry->dwConnectSpeedMin);
+    ReadVerifyPhoneBookDW(lpAccessEntry->dwConnectSpeedMax);
+    ReadVerifyPhoneBookB(lpAccessEntry->bFlipFactor);
+    ReadVerifyPhoneBookDW(lpAccessEntry->fType);
+    ReadVerifyPhoneBookSZ(lpAccessEntry->szDataCenter, cbDataCenter);
 #if !defined(WIN16)
 
-                    // If scripting is not available and the phonebook entry has a dun file other than
-                    // icwip.dun, then ignore the entry and read the one after that.
+    // If scripting is not available and the phonebook entry has a dun file other than
+    // icwip.dun, then ignore the entry and read the one after that.
 
-                    if (!m_bScriptingAvailable)
-                    {
-                        if (0 != lstrcmpi(lpAccessEntry->szDataCenter, "icwip.dun"))
-                        {
-                            ZeroMemory(lpAccessEntry, sizeof(ACCESSENTRY));
-                            goto ReadOneLineStart;
-                        }
-                    }
+    if (!m_bScriptingAvailable) {
+        if (0 != lstrcmpi(lpAccessEntry->szDataCenter, "icwip.dun")) {
+            ZeroMemory(lpAccessEntry, sizeof(ACCESSENTRY));
+            goto ReadOneLineStart;
+        }
+    }
 #endif //WIN16
 
-                ReadExit:
-                    return hr;
-                ReadError:
-                    hr = ERROR_INVALID_DATA;
-                    goto ReadExit;
+ReadExit:
+    return hr;
+ReadError:
+    hr = ERROR_INVALID_DATA;
+    goto ReadExit;
 }
 
-// ############################################################################
+
 HRESULT CPhoneBook::Suggest(PSUGGESTINFO pSuggest)
 {
     WORD        wNumFound = 0;
@@ -1043,11 +972,9 @@ HRESULT CPhoneBook::Suggest(PSUGGESTINFO pSuggest)
     lpAccessEntry = pCurLookUp->pFirstAE;
     do {
         // check for the right area code
-        if (lpAccessEntry->dwAreaCode == pSuggest->wAreaCode)
-        {
+        if (lpAccessEntry->dwAreaCode == pSuggest->wAreaCode) {
             // check for the right type of number
-            if ((lpAccessEntry->fType & pSuggest->bMask) == pSuggest->fType)
-            {
+            if ((lpAccessEntry->fType & pSuggest->bMask) == pSuggest->fType) {
                 pSuggest->rgpAccessEntry[wNumFound] = lpAccessEntry;
                 wNumFound++;
             }
@@ -1063,8 +990,7 @@ HRESULT CPhoneBook::Suggest(PSUGGESTINFO pSuggest)
     //  if ((pSuggest->wAreaCode != 0) && (wNumFound < pSuggest->wNumber))
     // No, there are some places (Finland?  ChrisK knows) where 0 is a legit area code -- jmazner
 
-    if (wNumFound < pSuggest->wNumber)
-    {
+    if (wNumFound < pSuggest->wNumber) {
         lpAccessEntry = pCurLookUp->pFirstAE;
 
         // Note: we are now only looking for Nationwide phone numbers (state = 0)
@@ -1086,8 +1012,7 @@ HRESULT CPhoneBook::Suggest(PSUGGESTINFO pSuggest)
             // have included it in the previous pass, so don't duplicate it again here.
             if ((lpAccessEntry->fType & pSuggest->bMask) == pSuggest->fType &&
                 lpAccessEntry->wStateID == 0 &&
-                lpAccessEntry->dwAreaCode != pSuggest->wAreaCode)
-            {
+                lpAccessEntry->dwAreaCode != pSuggest->wAreaCode) {
                 pSuggest->rgpAccessEntry[wNumFound] = lpAccessEntry;
                 wNumFound++;
             }
@@ -1102,8 +1027,7 @@ HRESULT CPhoneBook::Suggest(PSUGGESTINFO pSuggest)
     // 8/13/96 jmazner MOS Normandy #4597
     // if we STILL couldn't find enough numnbers, widen the search to include tollfree #s
 
-    if (wNumFound < pSuggest->wNumber)
-    {
+    if (wNumFound < pSuggest->wNumber) {
         lpAccessEntry = pCurLookUp->pFirstAE;
 
         // Tweak pSuggest->bMask to let through the toll/charge bit
@@ -1124,8 +1048,7 @@ HRESULT CPhoneBook::Suggest(PSUGGESTINFO pSuggest)
             // (because of tollfree bit), so no need to worry about dups from there.
             if ((lpAccessEntry->fType & pSuggest->bMask) == pSuggest->fType &&
                 lpAccessEntry->wStateID == 0 &&
-                lpAccessEntry->dwAreaCode != pSuggest->wAreaCode)
-            {
+                lpAccessEntry->dwAreaCode != pSuggest->wAreaCode) {
                 pSuggest->rgpAccessEntry[wNumFound] = lpAccessEntry;
                 wNumFound++;
             }
@@ -1141,7 +1064,7 @@ SuggestExit:
     return hr;
 }
 
-// ############################################################################
+
 HRESULT CPhoneBook::GetCanonical(PACCESSENTRY pAE, LPSTR psOut)
 {
     HRESULT hr = ERROR_SUCCESS;
@@ -1150,22 +1073,20 @@ HRESULT CPhoneBook::GetCanonical(PACCESSENTRY pAE, LPSTR psOut)
     pIDLookUp = (LPIDLOOKUPELEMENT)bsearch(&pAE->dwCountryID, m_rgIDLookUp,
         (int)m_pLineCountryList->dwNumCountries, sizeof(IDLOOKUPELEMENT), CompareIdxLookUpElements);
 
-    if (!pIDLookUp)
-    {
+    if (!pIDLookUp) {
         hr = ERROR_INVALID_PARAMETER;
-    }
-    else {
+    } else {
         SzCanonicalFromAE(psOut, pAE, pIDLookUp->pLCE);
     }
 
     return hr;
 }
 
-// ############################################################################
-DllExportH PhoneBookLoad(LPCSTR pszISPCode, DWORD_PTR far *pdwPhoneID)
+
+DllExportH PhoneBookLoad(LPCSTR pszISPCode, DWORD_PTR far* pdwPhoneID)
 {
     HRESULT hr = ERROR_NOT_ENOUGH_MEMORY;
-    CPhoneBook far *pcPhoneBook;
+    CPhoneBook far* pcPhoneBook;
 
     if (!g_hInstDll)
         g_hInstDll = GetModuleHandle(NULL);
@@ -1182,11 +1103,9 @@ DllExportH PhoneBookLoad(LPCSTR pszISPCode, DWORD_PTR far *pdwPhoneID)
         hr = pcPhoneBook->Init(pszISPCode);
 
     // in case of failure
-    if (hr && pcPhoneBook)
-    {
+    if (hr && pcPhoneBook) {
         delete pcPhoneBook;
-    }
-    else {
+    } else {
         *pdwPhoneID = (DWORD_PTR)pcPhoneBook;
     }
 
@@ -1198,13 +1117,12 @@ DllExportH PhoneBookLoad(LPCSTR pszISPCode, DWORD_PTR far *pdwPhoneID)
     return hr;
 }
 
-// ############################################################################
+
 DllExportH PhoneBookUnload(DWORD_PTR dwPhoneID)
 {
     Assert(dwPhoneID);
 
-    if (dwPhoneID)
-    {
+    if (dwPhoneID) {
 #if defined(WIN16)
         BMP_DestroyClass(g_hInstDll);
 #endif
@@ -1215,61 +1133,57 @@ DllExportH PhoneBookUnload(DWORD_PTR dwPhoneID)
     return ERROR_SUCCESS;
 }
 
-// ############################################################################
+
 DllExportH PhoneBookMergeChanges(DWORD_PTR dwPhoneID, LPCSTR pszChangeFile)
 {
     return ((CPhoneBook far*)dwPhoneID)->Merge(pszChangeFile);
 }
 
-// ############################################################################
+
 DllExportH PhoneBookSuggestNumbers(DWORD_PTR dwPhoneID, PSUGGESTINFO lpSuggestInfo)
 {
     HRESULT hr = ERROR_NOT_ENOUGH_MEMORY;
 
     // get suggested numbers
-    lpSuggestInfo->rgpAccessEntry = (PACCESSENTRY *)GlobalAlloc(GPTR, sizeof(PACCESSENTRY) * lpSuggestInfo->wNumber);
-    if (lpSuggestInfo->rgpAccessEntry)
-    {
-        hr = ((CPhoneBook far *)dwPhoneID)->Suggest(lpSuggestInfo);
+    lpSuggestInfo->rgpAccessEntry = (PACCESSENTRY*)GlobalAlloc(GPTR, sizeof(PACCESSENTRY) * lpSuggestInfo->wNumber);
+    if (lpSuggestInfo->rgpAccessEntry) {
+        hr = ((CPhoneBook far*)dwPhoneID)->Suggest(lpSuggestInfo);
     }
 
     return hr;
 }
 
-// ############################################################################
+
 DllExportH PhoneBookGetCanonical(DWORD_PTR dwPhoneID, PACCESSENTRY pAE, LPSTR psOut)
 {
     return ((CPhoneBook far*)dwPhoneID)->GetCanonical(pAE, psOut);
 }
 
-// ############################################################################
+
 DllExportH PhoneBookDisplaySignUpNumbers(DWORD_PTR dwPhoneID,
-                                         LPSTR far *ppszPhoneNumbers,
-                                         LPSTR far *ppszDunFiles,
-                                         WORD far *pwPhoneNumbers,
-                                         DWORD far *pdwCountry,
-                                         WORD far *pwRegion,
+                                         LPSTR far* ppszPhoneNumbers,
+                                         LPSTR far* ppszDunFiles,
+                                         WORD far* pwPhoneNumbers,
+                                         DWORD far* pdwCountry,
+                                         WORD far* pwRegion,
                                          BYTE fType,
                                          BYTE bMask,
                                          HWND hwndParent,
                                          DWORD dwFlags)
 {
     INT_PTR hr;
-    AssertSz(ppszPhoneNumbers && pwPhoneNumbers && pdwCountry &&pwRegion, "invalid parameters");
+    AssertSz(ppszPhoneNumbers && pwPhoneNumbers && pdwCountry && pwRegion, "invalid parameters");
 
 
     //CAccessNumDlg *pcDlg;
-    CSelectNumDlg far *pcDlg;
+    CSelectNumDlg far* pcDlg;
     pcDlg = new CSelectNumDlg;
-    if (!pcDlg)
-    {
+    if (!pcDlg) {
         hr = GetLastError();
         goto DisplayExit;
     }
 
     // Initialize information for dialog
-
-
     pcDlg->m_dwPhoneBook = dwPhoneID;
     pcDlg->m_dwCountryID = *pdwCountry;
     pcDlg->m_wRegion = *pwRegion;
@@ -1279,15 +1193,13 @@ DllExportH PhoneBookDisplaySignUpNumbers(DWORD_PTR dwPhoneID,
 
     // invoke the dialog
 
-
     // BUG: NOT THREAD SAFE!!
     g_hWndMain = hwndParent;
     hr = DialogBoxParam(g_hInstDll, MAKEINTRESOURCE(IDD_SELECTNUMBER),
                         g_hWndMain, (DLGPROC)PhbkGenericDlgProc, (LPARAM)pcDlg);
     g_hWndMain = NULL;
 
-    if (hr == IDC_CMDNEXT)
-    {
+    if (hr == IDC_CMDNEXT) {
         *pwRegion = pcDlg->m_wRegion;
         *pdwCountry = pcDlg->m_dwCountryID;
 
@@ -1296,8 +1208,7 @@ DllExportH PhoneBookDisplaySignUpNumbers(DWORD_PTR dwPhoneID,
         lstrcpy(ppszDunFiles[0], &pcDlg->m_szDunFile[0]);
 
         hr = ERROR_SUCCESS;
-    }
-    else if (hr == IDC_CMDBACK)
+    } else if (hr == IDC_CMDBACK)
         hr = ERROR_USERBACK;
     else
         hr = ERROR_USERCANCEL;
@@ -1308,4 +1219,3 @@ DisplayExit:
 
     return (HRESULT)hr;
 }
-

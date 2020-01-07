@@ -16,13 +16,13 @@ void IERevokeClassFactoryObject(void);
 class CShellWindowListCF : public IClassFactory
 {
     // IUnKnown
-    public:
-    virtual STDMETHODIMP QueryInterface(REFIID,void **);
+public:
+    virtual STDMETHODIMP QueryInterface(REFIID, void**);
     virtual STDMETHODIMP_(ULONG) AddRef(void);
     virtual STDMETHODIMP_(ULONG) Release(void);
 
     // IClassFactory
-    virtual STDMETHODIMP CreateInstance(IUnknown *pUnkOuter, REFIID riid, void **ppvObject);
+    virtual STDMETHODIMP CreateInstance(IUnknown* pUnkOuter, REFIID riid, void** ppvObject);
     virtual STDMETHODIMP LockServer(BOOL fLock);
 
     // constructor
@@ -35,13 +35,13 @@ protected:
     // locals
 
     LONG            _cRef;
-    IShellWindows    *_pswWinList;
+    IShellWindows* _pswWinList;
 };
 
 
 DWORD g_dwWinListCFRegister = 0;
 DWORD g_fWinListRegistered = FALSE;     // Only used in browser only mode...
-IShellWindows *g_pswWinList = NULL;
+IShellWindows* g_pswWinList = NULL;
 
 // Function to get called by the tray to create the global window list and register it with the system
 
@@ -61,14 +61,16 @@ BOOL CShellWindowListCF::Init()
 
     // First see if there already is one defined...
 
-    if (FAILED(hres))
-    {
+    if (FAILED(hres)) {
         TraceMsg(DM_WINLIST, "WinList_Init CoCreateInstance Failed: %x", hres);
         return FALSE;
     }
 
     // And register our class factory with the system...
-    hres = CoRegisterClassObject(CLSID_ShellWindows, this, CLSCTX_LOCAL_SERVER | CLSCTX_INPROC_SERVER, REGCLS_MULTIPLEUSE, &g_dwWinListCFRegister);
+    hres = CoRegisterClassObject(CLSID_ShellWindows,
+                                 this, 
+                                 CLSCTX_LOCAL_SERVER | CLSCTX_INPROC_SERVER, REGCLS_MULTIPLEUSE, 
+                                 &g_dwWinListCFRegister);
     ASSERT(SUCCEEDED(hres));
 
     //  this call governs when we will call CoRevoke on the CF
@@ -84,8 +86,7 @@ BOOL CShellWindowListCF::Init()
 
 CShellWindowListCF::~CShellWindowListCF()
 {
-    if (_pswWinList)
-    {
+    if (_pswWinList) {
         g_pswWinList = NULL;
         _pswWinList->Release();
     }
@@ -93,7 +94,7 @@ CShellWindowListCF::~CShellWindowListCF()
 }
 
 
-STDMETHODIMP CShellWindowListCF::QueryInterface(REFIID riid, void **ppvObj)
+STDMETHODIMP CShellWindowListCF::QueryInterface(REFIID riid, void** ppvObj)
 {
     static const QITAB qit[] = {
         QITABENT(CShellWindowListCF, IClassFactory), // IID_IClassFactory
@@ -119,13 +120,12 @@ STDMETHODIMP_(ULONG) CShellWindowListCF::Release()
 }
 
 
-STDMETHODIMP CShellWindowListCF::CreateInstance(IUnknown *pUnkOuter, REFIID riid, void **ppvObj)
+STDMETHODIMP CShellWindowListCF::CreateInstance(IUnknown* pUnkOuter, REFIID riid, void** ppvObj)
 {
     // aggregation checking is done in class factory
     // For now simply use our QueryService to get the dispatch.
     // this will do all of the things to create it and the like.
-    if (!_pswWinList)
-    {
+    if (!_pswWinList) {
         ASSERT(0);
         return E_FAIL;
     }
@@ -147,11 +147,10 @@ STDAPI CWinListShellProc_CreateInstance(IUnknown* pUnkOuter, IUnknown** ppunk, L
     if (g_dwWinListCFRegister)
         return CO_E_OBJISREG;
 
-    CShellWindowListCF *pswWinList = new CShellWindowListCF;
-    if (pswWinList)
-    {
+    CShellWindowListCF* pswWinList = new CShellWindowListCF;
+    if (pswWinList) {
         pswWinList->Init(); // tell it to initialize
-        *ppunk = SAFECAST(pswWinList, IUnknown *);
+        *ppunk = SAFECAST(pswWinList, IUnknown*);
         return NOERROR;
     }
     return E_OUTOFMEMORY;
@@ -165,15 +164,13 @@ BOOL WinList_Init(void)
 
     //  If this is not a browser-only install. Register the class factory object now with no instance.
     // Otherwise, do it when the first instance is created (see shbrowse.cpp).
-    if (!g_fBrowserOnlyProcess)
-    {
+    if (!g_fBrowserOnlyProcess) {
         //  First, register the class factory object for CLSID_InternetExplorer.
         // Note that we pass NULL indicating that subsequent CreateInstance should simply create a new instance.
         IEInitializeClassFactoryObject(NULL);
 
-        CShellWindowListCF *pswWinList = new CShellWindowListCF;
-        if (pswWinList)
-        {
+        CShellWindowListCF* pswWinList = new CShellWindowListCF;
+        if (pswWinList) {
             BOOL fRetVal = pswWinList->Init(); // tell it to initialize
             pswWinList->Release(); // Release our handle hopefully init registered
 
@@ -183,9 +180,7 @@ BOOL WinList_Init(void)
 
             return fRetVal;
         }
-    }
-    else
-    {
+    } else {
         // Initialize IEDDE. - Done before cocreate below for timing issues
         IEDDE_Initialize();
 
@@ -198,22 +193,19 @@ BOOL WinList_Init(void)
 
 
 #ifdef UNIX
-HRESULT CoCreateShellWindows(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsContext, REFIID riid,  void **ppv)
+HRESULT CoCreateShellWindows(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsContext, REFIID riid, void** ppv)
 {
     HRESULT hres;
 
-    if (!g_pswWinList)
-    {
+    if (!g_pswWinList) {
         hres = CSDWindows_CreateInstance(&g_pswWinList);
-        if (FAILED(hres))
-        {
+        if (FAILED(hres)) {
             return E_FAIL;
         }
     }
 
     hres = g_pswWinList->QueryInterface(riid, ppv);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         g_dwWinListCFRegister = 1;
     }
 
@@ -225,43 +217,49 @@ HRESULT CoCreateShellWindows(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsCo
 
 IShellWindows* WinList_GetShellWindows(BOOL fForceMarshalled)
 {
-    IShellWindows *psw;
+    IShellWindows* psw;
 
     if (fForceMarshalled)
         psw = NULL;
     else
         psw = g_pswWinList;
 
-    if (psw)
-    {
+    if (psw) {
         // Optimize the inter-thread case by using the global WinList, this makes opening folders much faster.
         psw->AddRef();
-    }
-    else
-    {
+    } else {
         SHCheckRegistry();
 
 #ifndef NO_RPCSS_ON_UNIX
-        HRESULT hres = CoCreateInstance(CLSID_ShellWindows, NULL, CLSCTX_LOCAL_SERVER | CLSCTX_INPROC_SERVER, IID_IShellWindows,  (void **)&psw);
+        HRESULT hres = CoCreateInstance(CLSID_ShellWindows, 
+                                        NULL, 
+                                        CLSCTX_LOCAL_SERVER | CLSCTX_INPROC_SERVER, 
+                                        IID_IShellWindows, 
+                                        (void**)&psw);
 #else
-        HRESULT hres = CoCreateShellWindows(CLSID_ShellWindows, NULL, CLSCTX_LOCAL_SERVER | CLSCTX_INPROC_SERVER, IID_IShellWindows,  (void **)&psw);
+        HRESULT hres = CoCreateShellWindows(CLSID_ShellWindows,
+                                            NULL, 
+                                            CLSCTX_LOCAL_SERVER | CLSCTX_INPROC_SERVER,
+                                            IID_IShellWindows,
+                                            (void**)&psw);
 #endif
 
-        if ( (g_fBrowserOnlyProcess || !IsInternetExplorerApp()) && !g_fWinListRegistered)
-        {
+        if ((g_fBrowserOnlyProcess || !IsInternetExplorerApp()) && !g_fWinListRegistered) {
             // If it failed and we are not funning in integrated mode, and this is the
             // first time for this process, we should then register the Window List with
             // the shell process.  We moved that from WinList_Init as that caused us to
             // do interprocess send/post messages to early which caused DDE to break...
             g_fWinListRegistered = TRUE;    // only call once
-            if (FAILED(hres))
-            {
+            if (FAILED(hres)) {
                 SHLoadInProc(CLSID_WinListShellProc);
-                hres = CoCreateInstance(CLSID_ShellWindows, NULL, CLSCTX_LOCAL_SERVER | CLSCTX_INPROC_SERVER, IID_IShellWindows,  (void **)&psw);
+                hres = CoCreateInstance(CLSID_ShellWindows, 
+                                        NULL, 
+                                        CLSCTX_LOCAL_SERVER | CLSCTX_INPROC_SERVER, 
+                                        IID_IShellWindows, 
+                                        (void**)&psw);
             }
 
-            if (psw)
-            {
+            if (psw) {
                 psw->ProcessAttachDetach(TRUE);
             }
         }
@@ -269,7 +267,9 @@ IShellWindows* WinList_GetShellWindows(BOOL fForceMarshalled)
         // hr == REGDB_E_CLASSNOTREG when the shell process isn't running.
         // hr == RPC_E_CANTCALLOUT_ININPUTSYNCCALL happens durring DDE launch of IE.
         // should investigate, but removing assert for IE5 ship.
-        AssertMsg(SUCCEEDED(hres) || hres == REGDB_E_CLASSNOTREG || hres == RPC_E_CANTCALLOUT_ININPUTSYNCCALL, TEXT("WinList_GetShellWindows CoCreateInst(CLSID_ShellWindows) failed %x"), hres);
+        AssertMsg(SUCCEEDED(hres) || hres == REGDB_E_CLASSNOTREG || hres == RPC_E_CANTCALLOUT_ININPUTSYNCCALL, 
+                  TEXT("WinList_GetShellWindows CoCreateInst(CLSID_ShellWindows) failed %x"), 
+                  hres);
     }
 
     return psw;
@@ -285,8 +285,7 @@ void WinList_Terminate(void)
     IEDDE_Uninitialize();
 
     // Release our usage of the object to allow the system to clean it up
-    if (!g_fBrowserOnlyProcess)
-    {
+    if (!g_fBrowserOnlyProcess) {
         //  this is the explorer process, and we control the vertical
 
         if (g_dwWinListCFRegister) {
@@ -310,15 +309,11 @@ void WinList_Terminate(void)
 
         IERevokeClassFactoryObject();
         CUrlHistory_CleanUp();
-    }
-    else
-    {
-        if (g_fWinListRegistered)
-        {
+    } else {
+        if (g_fWinListRegistered) {
             // only do this if we actually registered...
             IShellWindows* psw = WinList_GetShellWindows(TRUE);
-            if (psw)
-            {
+            if (psw) {
                 psw->ProcessAttachDetach(FALSE);    // Tell it we are going away...
                 psw->Release();
             }
@@ -326,8 +321,7 @@ void WinList_Terminate(void)
     }
 
 #ifdef UNIX
-    if (g_pswWinList)
-    {
+    if (g_pswWinList) {
         g_pswWinList->Release();
     }
 #endif
@@ -349,8 +343,7 @@ HRESULT WinList_Revoke(long dwRegister)
     TraceMsg(DM_WINLIST, "WinList_Reevoke called on %x", dwRegister);
 
     ASSERT(psw);
-    if (psw)
-    {
+    if (psw) {
         hres = psw->Revoke((long)dwRegister);
         ASSERT(SUCCEEDED(hres));
         psw->Release();
@@ -366,12 +359,10 @@ STDAPI NavigateToPIDL(IWebBrowser2* pwb, LPCITEMIDLIST pidl)
 
     VARIANT varThePidl;
 
-    if (InitVariantFromIDList(&varThePidl, pidl))
-    {
+    if (InitVariantFromIDList(&varThePidl, pidl)) {
         hr = pwb->Navigate2(&varThePidl, PVAREMPTY, PVAREMPTY, PVAREMPTY, PVAREMPTY);
         VariantClear(&varThePidl);       // Needed to free the copy of the PIDL in varThePidl.
-    }
-    else
+    } else
         hr = E_OUTOFMEMORY;
 
     return hr;
@@ -386,8 +377,7 @@ BOOL _InitVariantFromIDListLazy(IShellWindows* psw, VARIANT* pvar, LPCITEMIDLIST
     if (!pidl)
         return TRUE;    // Leave as empty!
 
-    if (psw == g_pswWinList)
-    {
+    if (psw == g_pswWinList) {
         InitVariantFromIDListInProc(pvar, pidl);  // non-marshalled call
         return TRUE;
     }
@@ -413,23 +403,18 @@ HRESULT WinList_NotifyNewLocation(IShellWindows* psw, long dwRegister, LPCITEMID
 }
 
 // Winlist_RegisterPending
-STDAPI WinList_RegisterPending(DWORD dwThread, LPCITEMIDLIST pidl, LPCITEMIDLIST pidlRoot, long *pdwRegister)
+STDAPI WinList_RegisterPending(DWORD dwThread, LPCITEMIDLIST pidl, LPCITEMIDLIST pidlRoot, long* pdwRegister)
 {
     // Register with the window list that we have a pidl that we are starting up.
     HRESULT hres = E_UNEXPECTED;
     ASSERT(!pidlRoot);
-    if (pidl)
-    {
+    if (pidl) {
         IShellWindows* psw = WinList_GetShellWindows(FALSE);
-        if (psw)
-        {
+        if (psw) {
             VARIANT var;
-            if (_InitVariantFromIDListLazy(psw, &var, pidl))
-            {
+            if (_InitVariantFromIDListLazy(psw, &var, pidl)) {
                 hres = psw->RegisterPending(dwThread, &var, PVAREMPTY, SWC_BROWSER, pdwRegister);
-            }
-            else
-            {
+            } else {
                 hres = E_OUTOFMEMORY;
             }
             VariantClearLazy(&var);
@@ -447,7 +432,7 @@ STDAPI WinList_RegisterPending(DWORD dwThread, LPCITEMIDLIST pidl, LPCITEMIDLIST
  * expensive due to the marshalling overhead.  Don't query for it unless you
  * absolutely need it!
 */
-HRESULT WinList_FindFolderWindow(LPCITEMIDLIST pidl, LPCITEMIDLIST pidlRoot, HWND *phwnd, IWebBrowserApp **ppauto)
+HRESULT WinList_FindFolderWindow(LPCITEMIDLIST pidl, LPCITEMIDLIST pidlRoot, HWND* phwnd, IWebBrowserApp** ppauto)
 {
     HRESULT hres = E_UNEXPECTED;
     ASSERT(!pidlRoot);
@@ -456,22 +441,23 @@ HRESULT WinList_FindFolderWindow(LPCITEMIDLIST pidl, LPCITEMIDLIST pidlRoot, HWN
     if (phwnd)
         *phwnd = NULL;
 
-    if (pidl)
-    {
+    if (pidl) {
         // Try a cached psw if we don't need ppauto
         IShellWindows* psw = WinList_GetShellWindows(ppauto != NULL);
-        if (psw)
-        {
+        if (psw) {
             VARIANT var;
-            if (_InitVariantFromIDListLazy(psw, &var, pidl))
-            {
+            if (_InitVariantFromIDListLazy(psw, &var, pidl)) {
                 IDispatch* pdisp = NULL;
-                hres = psw->FindWindow(&var, PVAREMPTY, SWC_BROWSER, (long *)phwnd, ppauto ? (SWFO_NEEDDISPATCH | SWFO_INCLUDEPENDING) : SWFO_INCLUDEPENDING, &pdisp);
-                if (pdisp)
-                {
+                hres = psw->FindWindow(&var,
+                                       PVAREMPTY,
+                                       SWC_BROWSER, 
+                                       (long*)phwnd,
+                                       ppauto ? (SWFO_NEEDDISPATCH | SWFO_INCLUDEPENDING) : SWFO_INCLUDEPENDING,
+                                       &pdisp);
+                if (pdisp) {
                     // if this fails it's because we are inside SendMessage loop and ole doesn't like it
                     if (ppauto)
-                        hres = pdisp->QueryInterface(IID_IWebBrowserApp, (void **)ppauto);
+                        hres = pdisp->QueryInterface(IID_IWebBrowserApp, (void**)ppauto);
                     pdisp->Release();
                 }
             }
@@ -501,51 +487,59 @@ HRESULT WinList_OnActivate(IShellWindows* psw, long dwRegister, BOOL fActivate, 
 class CGIDFWait
 {
 public:
-    ULONG AddRef(void) ;
+    ULONG AddRef(void);
     ULONG Release(void);
 
-    BOOL Init(IShellWindows *psw, LPCITEMIDLIST pidl, DWORD dwPending);
+    BOOL Init(IShellWindows* psw, LPCITEMIDLIST pidl, DWORD dwPending);
     void CleanUp(void);
     HRESULT WaitForWindowToOpen(DWORD dwTimeout);
 
     CGIDFWait(void);
 
-    protected:
+protected:
 
     ~CGIDFWait(void);
-        // internal class to watch for events...
-        class CGIDFEvents : public DShellWindowsEvents
-        {
-            public:
+    // internal class to watch for events...
+    class CGIDFEvents : public DShellWindowsEvents
+    {
+    public:
 
-            // IUnknown methods
+        // IUnknown methods
 
-            virtual STDMETHODIMP QueryInterface(REFIID riid, void ** ppvObj);
-            virtual STDMETHODIMP_(ULONG) AddRef(void) ;
-            virtual STDMETHODIMP_(ULONG) Release(void);
+        virtual STDMETHODIMP QueryInterface(REFIID riid, void** ppvObj);
+        virtual STDMETHODIMP_(ULONG) AddRef(void);
+        virtual STDMETHODIMP_(ULONG) Release(void);
 
-            // IDispatch methods
+        // IDispatch methods
 
-            STDMETHOD(GetTypeInfoCount)(THIS_ UINT * pctinfo);
-            STDMETHOD(GetTypeInfo)(THIS_ UINT itinfo, LCID lcid, ITypeInfo * * pptinfo);
-            STDMETHOD(GetIDsOfNames)(THIS_ REFIID riid, OLECHAR * * rgszNames,
-                UINT cNames, LCID lcid, DISPID * rgdispid);
-            STDMETHOD(Invoke)(THIS_ DISPID dispidMember, REFIID riid,
-                LCID lcid, WORD wFlags, DISPPARAMS * pdispparams, VARIANT * pvarResult,
-                EXCEPINFO * pexcepinfo, UINT * puArgErr);
+        STDMETHOD(GetTypeInfoCount)(THIS_ UINT* pctinfo);
+        STDMETHOD(GetTypeInfo)(THIS_ UINT itinfo, LCID lcid, ITypeInfo** pptinfo);
+        STDMETHOD(GetIDsOfNames)(THIS_ REFIID riid,
+                                 OLECHAR** rgszNames,
+                                 UINT cNames, 
+                                 LCID lcid, 
+                                 DISPID* rgdispid);
+        STDMETHOD(Invoke)(THIS_ DISPID dispidMember, 
+                          REFIID riid,
+                          LCID lcid,
+                          WORD wFlags, 
+                          DISPPARAMS* pdispparams,
+                          VARIANT* pvarResult,
+                          EXCEPINFO* pexcepinfo,
+                          UINT* puArgErr);
 
-        } m_EventHandler;
+    } m_EventHandler;
 
-        friend class CGIDFEvents;
+    friend class CGIDFEvents;
 
-        DWORD m_dwCookie;
-        IShellWindows *m_psw;
-        IConnectionPoint *m_picp;
-        DWORD m_dwPending;
-        LPITEMIDLIST m_pidl;
-        HANDLE m_hevent;
-        BOOL  m_fAdvised;
-        int m_cRef;
+    DWORD m_dwCookie;
+    IShellWindows* m_psw;
+    IConnectionPoint* m_picp;
+    DWORD m_dwPending;
+    LPITEMIDLIST m_pidl;
+    HANDLE m_hevent;
+    BOOL  m_fAdvised;
+    int m_cRef;
 };
 
 
@@ -593,7 +587,7 @@ CGIDFWait::~CGIDFWait(void)
 }
 
 
-BOOL CGIDFWait::Init(IShellWindows *psw, LPCITEMIDLIST pidl, DWORD dwPending)
+BOOL CGIDFWait::Init(IShellWindows* psw, LPCITEMIDLIST pidl, DWORD dwPending)
 {
     // First try to create an event object
     m_hevent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -602,7 +596,12 @@ BOOL CGIDFWait::Init(IShellWindows *psw, LPCITEMIDLIST pidl, DWORD dwPending)
 
     // We do not have a window or it is pending...
     // first lets setup that we want to be notified of new windows.
-    if (FAILED(ConnectToConnectionPoint(SAFECAST(&m_EventHandler, IDispatch*), DIID_DShellWindowsEvents, TRUE, psw, &m_dwCookie, &m_picp)))
+    if (FAILED(ConnectToConnectionPoint(SAFECAST(&m_EventHandler, IDispatch*),
+                                        DIID_DShellWindowsEvents,
+                                        TRUE,
+                                        psw, 
+                                        &m_dwCookie, 
+                                        &m_picp)))
         return FALSE;
 
     // Save away passed in stuff that we care about.
@@ -618,8 +617,7 @@ BOOL CGIDFWait::Init(IShellWindows *psw, LPCITEMIDLIST pidl, DWORD dwPending)
 void CGIDFWait::CleanUp(void)
 {
     // Don't need to listen anmore.
-    if (m_dwCookie)
-    {
+    if (m_dwCookie) {
         m_picp->Unadvise(m_dwCookie);
         m_dwCookie = 0;
     }
@@ -644,62 +642,51 @@ HRESULT CGIDFWait::WaitForWindowToOpen(DWORD dwTimeOut)
     DWORD dwWait = dwTimeOut;
     DWORD dwWaitResult;
 
-    do
-    {
-        dwWaitResult= MsgWaitForMultipleObjects(1, &m_hevent,
-                                                FALSE, // fWaitAll, wait for any one
-                                                dwWait, QS_ALLINPUT);
+    do {
+        dwWaitResult = MsgWaitForMultipleObjects(1, &m_hevent,
+                                                 FALSE, // fWaitAll, wait for any one
+                                                 dwWait, QS_ALLINPUT);
 
         // Check if we are signaled for a send message.
-        if (dwWaitResult != WAIT_OBJECT_0 + 1)
-        {
+        if (dwWaitResult != WAIT_OBJECT_0 + 1) {
             // No. Break out of the loop.
             break;
         }
 
         // We may need to dispatch stuff here.
         MSG msg;
-        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
+        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
 
         // than MSEC_MAXWAIT if we wait more than that.
 
-        dwWait = dwStart+dwTimeOut - GetTickCount();
-
-
+        dwWait = dwStart + dwTimeOut - GetTickCount();
     } while (dwWait <= dwTimeOut);
-
 
     BOOL fAdvised;
 
     {
-    ENTERCRITICAL;
+        ENTERCRITICAL;
 
-    fAdvised = m_fAdvised;
-    m_fAdvised = FALSE;
+        fAdvised = m_fAdvised;
+        m_fAdvised = FALSE;
 
-    LEAVECRITICAL;
+        LEAVECRITICAL;
     }
 
     return fAdvised ? NOERROR : E_FAIL;
 }
 
 
-STDMETHODIMP CGIDFWait::CGIDFEvents::QueryInterface(REFIID riid, void **ppvOut)
+STDMETHODIMP CGIDFWait::CGIDFEvents::QueryInterface(REFIID riid, void** ppvOut)
 {
-    if (IsEqualIID(riid, IID_IDispatch) || IsEqualIID(riid, IID_IUnknown))
-    {
-        *ppvOut = SAFECAST(this, IDispatch *);
-    }
-    else if (IsEqualIID(riid, DIID_DShellWindowsEvents))
-    {
-        *ppvOut = SAFECAST(this, DShellWindowsEvents *);
-    }
-    else
-    {
+    if (IsEqualIID(riid, IID_IDispatch) || IsEqualIID(riid, IID_IUnknown)) {
+        *ppvOut = SAFECAST(this, IDispatch*);
+    } else if (IsEqualIID(riid, DIID_DShellWindowsEvents)) {
+        *ppvOut = SAFECAST(this, DShellWindowsEvents*);
+    } else {
         *ppvOut = NULL;
         return E_NOINTERFACE;
     }
@@ -723,30 +710,40 @@ ULONG CGIDFWait::CGIDFEvents::Release(void)
 }
 
 
-HRESULT CGIDFWait::CGIDFEvents::GetTypeInfoCount(UINT *pctinfo)
+HRESULT CGIDFWait::CGIDFEvents::GetTypeInfoCount(UINT* pctinfo)
 {
     return E_NOTIMPL;
 }
 
 
-HRESULT CGIDFWait::CGIDFEvents::GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo **pptinfo)
+HRESULT CGIDFWait::CGIDFEvents::GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo** pptinfo)
 {
     return E_NOTIMPL;
 }
 
 
-HRESULT CGIDFWait::CGIDFEvents::GetIDsOfNames(REFIID riid, OLECHAR **rgszNames,  UINT cNames, LCID lcid, DISPID *rgdispid)
+HRESULT CGIDFWait::CGIDFEvents::GetIDsOfNames(REFIID riid,
+                                              OLECHAR** rgszNames, 
+                                              UINT cNames,
+                                              LCID lcid,
+                                              DISPID* rgdispid)
 {
     return E_NOTIMPL;
 }
 
 
-HRESULT CGIDFWait::CGIDFEvents::Invoke(DISPID dispid, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS * pdispparams, VARIANT * pvarResult, EXCEPINFO * pexcepinfo, UINT * puArgErr)
+HRESULT CGIDFWait::CGIDFEvents::Invoke(DISPID dispid,
+                                       REFIID riid, 
+                                       LCID lcid,
+                                       WORD wFlags,
+                                       DISPPARAMS* pdispparams,
+                                       VARIANT* pvarResult,
+                                       EXCEPINFO* pexcepinfo,
+                                       UINT* puArgErr)
 {
     CGIDFWait* pdfwait = IToClass(CGIDFWait, m_EventHandler, this);
 
-    if (dispid == DISPID_WINDOWREGISTERED)
-    {
+    if (dispid == DISPID_WINDOWREGISTERED) {
         ENTERCRITICAL;
 
         // Signal the event
@@ -761,7 +758,7 @@ HRESULT CGIDFWait::CGIDFEvents::Invoke(DISPID dispid, REFIID riid, LCID lcid, WO
 
 
 // BugBug:: this assumes not rooted
-STDAPI SHGetIDispatchForFolder(LPCITEMIDLIST pidl, IWebBrowserApp **ppauto)
+STDAPI SHGetIDispatchForFolder(LPCITEMIDLIST pidl, IWebBrowserApp** ppauto)
 {
     HRESULT hres = E_UNEXPECTED;
 
@@ -773,29 +770,28 @@ STDAPI SHGetIDispatchForFolder(LPCITEMIDLIST pidl, IWebBrowserApp **ppauto)
 
     // Try a cached psw if we don't need ppauto
     IShellWindows* psw = WinList_GetShellWindows(ppauto != NULL);
-    if (psw)
-    {
+    if (psw) {
         VARIANT var;
         LONG lhwnd;
-        if (InitVariantFromIDList(&var, pidl))
-        {
+        if (InitVariantFromIDList(&var, pidl)) {
             IDispatch* pdisp;
-            hres = psw->FindWindow(&var, PVAREMPTY, SWC_BROWSER, &lhwnd, ppauto ? (SWFO_NEEDDISPATCH | SWFO_INCLUDEPENDING) : SWFO_INCLUDEPENDING, &pdisp);
-            if ((hres == E_PENDING) || (hres == S_FALSE))
-            {
+            hres = psw->FindWindow(&var, 
+                                   PVAREMPTY,
+                                   SWC_BROWSER,
+                                   &lhwnd, 
+                                   ppauto ? (SWFO_NEEDDISPATCH | SWFO_INCLUDEPENDING) : SWFO_INCLUDEPENDING,
+                                   &pdisp);
+            if ((hres == E_PENDING) || (hres == S_FALSE)) {
                 HRESULT hresOld = hres;
                 hres = E_FAIL;
-                CGIDFWait *pdfwait = new CGIDFWait();   // Setup a wait object...
-                if (pdfwait)
-                {
-                    if (pdfwait->Init(psw, pidl, 0))
-                    {
-                        if (hresOld == S_FALSE)
-                        {
+                CGIDFWait* pdfwait = new CGIDFWait();   // Setup a wait object...
+                if (pdfwait) {
+                    if (pdfwait->Init(psw, pidl, 0)) {
+                        if (hresOld == S_FALSE) {
                             // Startup opening a new window
                             SHELLEXECUTEINFO sei = {sizeof(SHELLEXECUTEINFO)};
 
-                            sei.lpIDList = (void *)pidl;
+                            sei.lpIDList = (void*)pidl;
 
                             //  WARNING - old versions of ShellExec() didnt pay attention - ZekeL - 30-DEC-98
                             //  to whether the hwnd is in the same process or not,
@@ -815,10 +811,13 @@ STDAPI SHGetIDispatchForFolder(LPCITEMIDLIST pidl, IWebBrowserApp **ppauto)
                             hres = ShellExecuteEx(&sei) ? NOERROR : S_FALSE;
                         }
 
-                        while ((hres = psw->FindWindow(&var, PVAREMPTY, SWC_BROWSER, &lhwnd, ppauto ? (SWFO_NEEDDISPATCH | SWFO_INCLUDEPENDING) : SWFO_INCLUDEPENDING, &pdisp)) != S_OK)
-                        {
-                            if (FAILED(pdfwait->WaitForWindowToOpen(20 * 1000)))
-                            {
+                        while ((hres = psw->FindWindow(&var,
+                                                       PVAREMPTY,
+                                                       SWC_BROWSER,
+                                                       &lhwnd, 
+                                                       ppauto ? (SWFO_NEEDDISPATCH | SWFO_INCLUDEPENDING) : SWFO_INCLUDEPENDING,
+                                                       &pdisp)) != S_OK) {
+                            if (FAILED(pdfwait->WaitForWindowToOpen(20 * 1000))) {
                                 hres = E_ABORT;
                                 break;
                             }
@@ -828,10 +827,9 @@ STDAPI SHGetIDispatchForFolder(LPCITEMIDLIST pidl, IWebBrowserApp **ppauto)
                     pdfwait->Release(); // release our use of this object...
                 }
             }
-            if (hres == S_OK && ppauto)
-            {
+            if (hres == S_OK && ppauto) {
                 // if this fails this is because we are inside SendMessage loop
-                hres = pdisp->QueryInterface(IID_IWebBrowserApp, (void **)ppauto);
+                hres = pdisp->QueryInterface(IID_IWebBrowserApp, (void**)ppauto);
             }
             if (pdisp)
                 pdisp->Release();
@@ -851,11 +849,11 @@ STDAPI SHGetIDispatchForFolder(LPCITEMIDLIST pidl, IWebBrowserApp **ppauto)
 
 #undef VariantCopy
 
-WINOLEAUTAPI VariantCopyLazy(VARIANTARG * pvargDest, VARIANTARG * pvargSrc)
+WINOLEAUTAPI VariantCopyLazy(VARIANTARG* pvargDest, VARIANTARG* pvargSrc)
 {
     VariantClearLazy(pvargDest);
 
-    switch(pvargSrc->vt) {
+    switch (pvargSrc->vt) {
     case VT_I4:
     case VT_UI4:
     case VT_BOOL:
@@ -879,10 +877,9 @@ WINOLEAUTAPI VariantCopyLazy(VARIANTARG * pvargDest, VARIANTARG * pvargSrc)
 // WARNING: This function must be placed at the end because we #undef VariantClear
 #undef VariantClear
 
-HRESULT VariantClearLazy(VARIANTARG *pvarg)
+HRESULT VariantClearLazy(VARIANTARG* pvarg)
 {
-    switch (pvarg->vt)
-    {
+    switch (pvarg->vt) {
     case VT_I4:
     case VT_UI4:
     case VT_EMPTY:

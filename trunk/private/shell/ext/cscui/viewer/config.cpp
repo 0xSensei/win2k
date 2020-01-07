@@ -1,12 +1,6 @@
-
-
 //  Microsoft Windows
-
 //  Copyright (C) Microsoft Corporation, 1997 - 1999
-
 //  File:       config.cpp
-
-
 
 #include "pch.h"
 #pragma hdrstop
@@ -15,7 +9,6 @@
 #include "regstr.h"
 #include "config.h"
 #include "util.h"
-
 
 // Determine if a character is a DBCS lead byte.
 // If build is UNICODE, always returns false.
@@ -28,10 +21,9 @@ inline bool DBCSLEADBYTE(TCHAR ch)
 }
 
 
-LPCTSTR CConfig::s_rgpszSubkeys[] = { REGSTR_KEY_OFFLINEFILES,
-                                      REGSTR_KEY_OFFLINEFILESPOLICY };
+LPCTSTR CConfig::s_rgpszSubkeys[] = {REGSTR_KEY_OFFLINEFILES, REGSTR_KEY_OFFLINEFILESPOLICY};
 
-LPCTSTR CConfig::s_rgpszValues[]  = { REGSTR_VAL_DEFCACHESIZE,
+LPCTSTR CConfig::s_rgpszValues[] = {REGSTR_VAL_DEFCACHESIZE,
                                       REGSTR_VAL_CSCENABLED,
                                       REGSTR_VAL_GOOFFLINEACTION,
                                       REGSTR_VAL_NOCONFIGCACHE,
@@ -53,15 +45,11 @@ LPCTSTR CConfig::s_rgpszValues[]  = { REGSTR_VAL_DEFCACHESIZE,
 // Note that by making the singleton instance a function static
 // object it is not created until the first call to GetSingleton.
 
-CConfig& CConfig::GetSingleton(
-    void
-    )
+CConfig& CConfig::GetSingleton(void)
 {
     static CConfig TheConfig;
     return TheConfig;
 }
-
-
 
 
 // This is the workhorse of the CSCUI policy code for scalar values.
@@ -70,90 +58,67 @@ CConfig& CConfig::GetSingleton(
 // Known keys in the registry are scanned until a value is found.
 // The scanning order enforces the precedence of policy vs. default vs.
 // preference and machine vs. user.
-
-DWORD CConfig::GetValue(
-    eValues iValue,
-    bool *pbSetByPolicy
-    ) const
+DWORD CConfig::GetValue(eValues iValue, bool* pbSetByPolicy) const
 {
-
     // This table identifies each DWORD policy/preference item used by CSCUI.
     // The entries MUST be ordered the same as the eValues enumeration.
     // Each entry describes the possible sources for data and a default value
-    // to be used if no registry entries are present or if there's a problem reading
-    // the registry.
-
+    // to be used if no registry entries are present or if there's a problem reading the registry.
     static const struct Item
     {
         DWORD fSrc;      // Mask indicating the reg locations to read.
         DWORD dwDefault; // Hard-coded default.
-
-    } rgItems[] =  {
-
-//  Value ID                               eSRC_PREF_CU | eSRC_PREF_LM | eSRC_POL_CU | eSRC_POL_LM   Default value
-// -----------  ------------   ------------   -----------   ----------- -------------------
-/* iVAL_DEFCACHESIZE                  */ {                                             eSRC_POL_LM, 1000             },
-/* iVAL_CSCENABLED                    */ {                                             eSRC_POL_LM, 1                },
-/* iVAL_GOOFFLINEACTION               */ { eSRC_PREF_CU |                eSRC_POL_CU | eSRC_POL_LM, eGoOfflineSilent },
-/* iVAL_NOCONFIGCACHE                 */ {                               eSRC_POL_CU | eSRC_POL_LM, 0                },
-/* iVAL_NOCACHEVIEWER                 */ {                               eSRC_POL_CU | eSRC_POL_LM, 0                },
-/* iVAL_NOMAKEAVAILABLEOFFLINE        */ {                               eSRC_POL_CU | eSRC_POL_LM, 0                },
-/* iVAL_SYNCATLOGOFF                  */ { eSRC_PREF_CU |                eSRC_POL_CU | eSRC_POL_LM, eSyncFull        },
-/* iVAL_NOREMINDERS                   */ { eSRC_PREF_CU |                eSRC_POL_CU | eSRC_POL_LM, 0                },
-/* iVAL_REMINDERFREQMINUTES           */ { eSRC_PREF_CU |                eSRC_POL_CU | eSRC_POL_LM, 60               },
-/* iVAL_INITIALBALLOONTIMEOUTSECONDS  */ {                               eSRC_POL_CU | eSRC_POL_LM, 30               },
-/* iVAL_REMINDERBALLOONTIMEOUTSECONDS */ {                               eSRC_POL_CU | eSRC_POL_LM, 15               },
-/* iVAL_EVENTLOGGINGLEVEL             */ { eSRC_PREF_CU | eSRC_PREF_LM | eSRC_POL_CU | eSRC_POL_LM, 0                },
-/* iVAL_PURGEATLOGOFF                 */ {                                             eSRC_POL_LM, 0                },
-/* iVAL_FIRSTPINWIZARDSHOWN           */ { eSRC_PREF_CU                                           , 0                },
-/* iVAL_SLOWLINKSPEED                 */ { eSRC_PREF_CU | eSRC_PREF_LM | eSRC_POL_CU | eSRC_POL_LM, 640              },
-/* iVAL_ALWAYSPINSUBFOLDERS           */ {                                             eSRC_POL_LM, 0                }
-                                         };
-
+    } rgItems[] = {
+        //  Value ID                               eSRC_PREF_CU | eSRC_PREF_LM | eSRC_POL_CU | eSRC_POL_LM   Default value
+        // -----------  ------------   ------------   -----------   ----------- -------------------
+        /* iVAL_DEFCACHESIZE                  */ {                                             eSRC_POL_LM, 1000             },
+        /* iVAL_CSCENABLED                    */ {                                             eSRC_POL_LM, 1                },
+        /* iVAL_GOOFFLINEACTION               */ { eSRC_PREF_CU | eSRC_POL_CU | eSRC_POL_LM, eGoOfflineSilent },
+        /* iVAL_NOCONFIGCACHE                 */ {                               eSRC_POL_CU | eSRC_POL_LM, 0                },
+        /* iVAL_NOCACHEVIEWER                 */ {                               eSRC_POL_CU | eSRC_POL_LM, 0                },
+        /* iVAL_NOMAKEAVAILABLEOFFLINE        */ {                               eSRC_POL_CU | eSRC_POL_LM, 0                },
+        /* iVAL_SYNCATLOGOFF                  */ { eSRC_PREF_CU | eSRC_POL_CU | eSRC_POL_LM, eSyncFull        },
+        /* iVAL_NOREMINDERS                   */ { eSRC_PREF_CU | eSRC_POL_CU | eSRC_POL_LM, 0                },
+        /* iVAL_REMINDERFREQMINUTES           */ { eSRC_PREF_CU | eSRC_POL_CU | eSRC_POL_LM, 60               },
+        /* iVAL_INITIALBALLOONTIMEOUTSECONDS  */ {                               eSRC_POL_CU | eSRC_POL_LM, 30               },
+        /* iVAL_REMINDERBALLOONTIMEOUTSECONDS */ {                               eSRC_POL_CU | eSRC_POL_LM, 15               },
+        /* iVAL_EVENTLOGGINGLEVEL             */ { eSRC_PREF_CU | eSRC_PREF_LM | eSRC_POL_CU | eSRC_POL_LM, 0                },
+        /* iVAL_PURGEATLOGOFF                 */ {                                             eSRC_POL_LM, 0                },
+        /* iVAL_FIRSTPINWIZARDSHOWN           */ { eSRC_PREF_CU                                           , 0                },
+        /* iVAL_SLOWLINKSPEED                 */ { eSRC_PREF_CU | eSRC_PREF_LM | eSRC_POL_CU | eSRC_POL_LM, 640              },
+        /* iVAL_ALWAYSPINSUBFOLDERS           */ {                                             eSRC_POL_LM, 0                }
+    };
 
     // This table maps registry keys and subkey names to our
     // source mask values.  The array is ordered with the highest
     // precedence sources first.  A policy level mask is also
-    // associated with each entry so that we honor the "big switch"
-    // for enabling/disabling CSCUI policies.
-    //
+    // associated with each entry so that we honor the "big switch" for enabling/disabling CSCUI policies.
     static const struct Source
     {
         eSources    fSrc;         // Source for reg data.
         HKEY        hkeyRoot;     // Root key in registry (hkcu, hklm).
         eSubkeys    iSubkey;      // Index into s_rgpszSubkeys[]
-
-    } rgSrcs[] = { { eSRC_POL_LM,  HKEY_LOCAL_MACHINE, iSUBKEY_POL  },
+    } rgSrcs[] = {{ eSRC_POL_LM,  HKEY_LOCAL_MACHINE, iSUBKEY_POL  },
                    { eSRC_POL_CU,  HKEY_CURRENT_USER,  iSUBKEY_POL  },
                    { eSRC_PREF_CU, HKEY_CURRENT_USER,  iSUBKEY_PREF },
                    { eSRC_PREF_LM, HKEY_LOCAL_MACHINE, iSUBKEY_PREF }
-                 };
+    };
 
-
-    const Item& item  = rgItems[iValue];
-    DWORD dwResult    = item.dwDefault;    // Set default return value.
+    const Item& item = rgItems[iValue];
+    DWORD dwResult = item.dwDefault;    // Set default return value.
     bool bSetByPolicy = false;
 
-
-    // Iterate over all of the sources until we find one that is specified
-    // for this item.  For each iteration, if we're able to read the value,
+    // Iterate over all of the sources until we find one that is specified for this item. 
+    // For each iteration, if we're able to read the value,
     // that's the one we return.  If not we drop down to the next source
     // in the precedence order (rgSrcs[]) and try to read it's value.  If
-    // we've tried all of the sources without a successful read we return the
-    // hard-coded default.
-
-    for (int i = 0; i < ARRAYSIZE(rgSrcs); i++)
-    {
+    // we've tried all of the sources without a successful read we return the hard-coded default.
+    for (int i = 0; i < ARRAYSIZE(rgSrcs); i++) {
         const Source& src = rgSrcs[i];
 
-
         // Is this source valid for this item?
-
-        if (0 != (src.fSrc & item.fSrc))
-        {
-
+        if (0 != (src.fSrc & item.fSrc)) {
             // This source is valid for this item.  Read it.
-
             DWORD cbResult = sizeof(dwResult);
             DWORD dwType;
 
@@ -162,16 +127,14 @@ DWORD CConfig::GetValue(
                                             s_rgpszValues[iValue],
                                             &dwType,
                                             &dwResult,
-                                            &cbResult))
-            {
-
+                                            &cbResult)) {
                 // We read a value from the registry so we're done.
-
                 bSetByPolicy = (0 != (eSRC_POL & src.fSrc));
                 break;
             }
         }
     }
+
     if (NULL != pbSetByPolicy)
         *pbSetByPolicy = bSetByPolicy;
 
@@ -179,187 +142,137 @@ DWORD CConfig::GetValue(
 }
 
 
-
 // Save a custom GoOfflineAction list to the registry.
 // See comments for LoadCustomGoOfflineActions for formatting details.
-
-HRESULT
-CConfig::SaveCustomGoOfflineActions(
-    RegKey& key,
-    const CArray<CConfig::CustomGOA>& rgCustomGOA
-    )
+HRESULT CConfig::SaveCustomGoOfflineActions(RegKey& key, const CArray<CConfig::CustomGOA>& rgCustomGOA)
 {
     DBGTRACE((DM_CONFIG, DL_MID, TEXT("CConfig::SaveCustomGoOfflineActions")));
     DBGPRINT((DM_CONFIG, DL_LOW, TEXT("Saving %d actions"), rgCustomGOA.Count()));
     HRESULT hr = NOERROR;
     int cValuesNotDeleted = 0;
     key.DeleteAllValues(&cValuesNotDeleted);
-    if (0 != cValuesNotDeleted)
-    {
-        DBGERROR((TEXT("%d GoOfflineAction values not deleted from registry"),
-                  cValuesNotDeleted));
+    if (0 != cValuesNotDeleted) {
+        DBGERROR((TEXT("%d GoOfflineAction values not deleted from registry"), cValuesNotDeleted));
     }
 
     CString strServer;
     TCHAR szAction[20];
     int cGOA = rgCustomGOA.Count();
-    for (int i = 0; i < cGOA; i++)
-    {
-
+    for (int i = 0; i < cGOA; i++) {
         // Write each sharename-action pair to the registry.
-        // The action value must be converted to ASCII to be
-        // compatible with the values generated by poledit.
-
+        // The action value must be converted to ASCII to be compatible with the values generated by poledit.
         wsprintf(szAction, TEXT("%d"), DWORD(rgCustomGOA[i].GetAction()));
         rgCustomGOA[i].GetServerName(&strServer);
         hr = key.SetValue(strServer, szAction);
-        if (FAILED(hr))
-        {
-            DBGERROR((TEXT("Error 0x%08X saving GoOfflineAction for \"%s\" to registry."),
-                     hr, strServer.Cstr()));
+        if (FAILED(hr)) {
+            DBGERROR((TEXT("Error 0x%08X saving GoOfflineAction for \"%s\" to registry."), hr, strServer.Cstr()));
             break;
         }
     }
+
     return hr;
 }
 
 
-bool
-CConfig::CustomGOAExists(
-    const CArray<CustomGOA>& rgGOA,
-    const CustomGOA& goa
-    )
+bool CConfig::CustomGOAExists(const CArray<CustomGOA>& rgGOA, const CustomGOA& goa)
 {
     int cEntries = rgGOA.Count();
     CString strServer;
-    for (int i = 0; i < cEntries; i++)
-    {
+
+    for (int i = 0; i < cEntries; i++) {
         if (0 == goa.CompareByServer(rgGOA[i]))
             return true;
     }
+
     return false;
 }
 
 
-
 // Builds an array of Go-offline actions.
 // Each entry is a server-action pair.
-
-void
-CConfig::GetCustomGoOfflineActions(
-    CArray<CustomGOA> *prgGOA,
-    bool *pbSetByPolicy         // optional.  Can be NULL.
-    )
+void CConfig::GetCustomGoOfflineActions(
+    CArray<CustomGOA>* prgGOA,
+    bool* pbSetByPolicy         // optional.  Can be NULL.
+)
 {
     static const struct Source
     {
         eSources    fSrc;         // Source for reg data.
         HKEY        hkeyRoot;     // Root key in registry (hkcu, hklm).
         eSubkeys    iSubkey;      // Index into s_rgpszSubkeys[]
-
-    } rgSrcs[] = { { eSRC_POL_LM,   HKEY_LOCAL_MACHINE, iSUBKEY_POL  },
+    } rgSrcs[] = {{ eSRC_POL_LM,   HKEY_LOCAL_MACHINE, iSUBKEY_POL  },
                    { eSRC_POL_CU,   HKEY_CURRENT_USER,  iSUBKEY_POL  },
                    { eSRC_PREF_CU,  HKEY_CURRENT_USER,  iSUBKEY_PREF }
-                 };
+    };
 
     prgGOA->Clear();
 
     CString strName;
     HRESULT hr;
     bool bSetByPolicyAny = false;
-    bool bSetByPolicy    = false;
-
+    bool bSetByPolicy = false;
 
     // Iterate over all of the possible sources.
-
-    for (int i = 0; i < ARRAYSIZE(rgSrcs); i++)
-    {
+    for (int i = 0; i < ARRAYSIZE(rgSrcs); i++) {
         const Source& src = rgSrcs[i];
 
         // Is this source valid for the current policy level?
         // Note that policy level is ignored if source is preference.
-
-        if (0 != (eSRC_PREF & src.fSrc))
-        {
+        if (0 != (eSRC_PREF & src.fSrc)) {
             RegKey key(src.hkeyRoot, s_rgpszSubkeys[src.iSubkey]);
 
-            if (SUCCEEDED(key.Open(KEY_READ)))
-            {
+            if (SUCCEEDED(key.Open(KEY_READ))) {
                 RegKey keyGOA(key, REGSTR_SUBKEY_CUSTOMGOOFFLINEACTIONS);
-                if (SUCCEEDED(keyGOA.Open(KEY_READ)))
-                {
+                if (SUCCEEDED(keyGOA.Open(KEY_READ))) {
                     TCHAR szValue[20];
                     DWORD dwType;
                     DWORD cbValue = sizeof(szValue);
                     RegKey::ValueIterator iter = keyGOA.CreateValueIterator();
 
-
-                    while(S_OK == (hr = iter.Next(&strName, &dwType, (LPBYTE)szValue, &cbValue)))
-                    {
-                        if (REG_SZ == dwType)
-                        {
-
+                    while (S_OK == (hr = iter.Next(&strName, &dwType, (LPBYTE)szValue, &cbValue))) {
+                        if (REG_SZ == dwType) {
                             // Convert from "0","1","2" to 0,1,2
-
                             DWORD dwValue = szValue[0] - TEXT('0');
-                            if (IsValidGoOfflineAction(dwValue))
-                            {
-
+                            if (IsValidGoOfflineAction(dwValue)) {
                                 // Only add if value is of proper type and value.
-                                // Protects against someone manually adding garbage
-                                // to the registry.
+                                // Protects against someone manually adding garbage to the registry.
 
-                                // Server names can also be entered into the registry
-                                // using poledit (and winnt.adm).  This entry mechanism
-                                // can't validate format so we need to ensure the entry
+                                // Server names can also be entered into the registry using poledit (and winnt.adm). 
+                                // This entry mechanism can't validate format so we need to ensure the entry
                                 // doesn't have leading '\' or space characters.
 
                                 LPCTSTR pszServer = strName.Cstr();
-                                while(*pszServer && (TEXT('\\') == *pszServer || TEXT(' ') == *pszServer))
+                                while (*pszServer && (TEXT('\\') == *pszServer || TEXT(' ') == *pszServer))
                                     pszServer++;
 
-                                bSetByPolicy    = (0 != (src.fSrc & eSRC_POL));
+                                bSetByPolicy = (0 != (src.fSrc & eSRC_POL));
                                 bSetByPolicyAny = bSetByPolicyAny || bSetByPolicy;
-                                CustomGOA goa = CustomGOA(pszServer,
-                                                          (CConfig::OfflineAction)dwValue,
-                                                          bSetByPolicy);
+                                CustomGOA goa = CustomGOA(pszServer, (CConfig::OfflineAction)dwValue, bSetByPolicy);
 
-                                if (!CustomGOAExists(*prgGOA, goa))
-                                {
+                                if (!CustomGOAExists(*prgGOA, goa)) {
                                     prgGOA->Append(goa);
                                 }
+                            } else {
+                                DBGERROR((TEXT("GoOfflineAction value %d invalid for \"%s\""), dwValue, strName.Cstr()));
                             }
-                            else
-                            {
-                                DBGERROR((TEXT("GoOfflineAction value %d invalid for \"%s\""),
-                                          dwValue, strName.Cstr()));
-                            }
-                        }
-                        else
-                        {
-                            DBGERROR((TEXT("GoOfflineAction for \"%s\" has invalid reg type %d"),
-                                      strName.Cstr(), dwType));
+                        } else {
+                            DBGERROR((TEXT("GoOfflineAction for \"%s\" has invalid reg type %d"), strName.Cstr(), dwType));
                         }
                     }
                 }
             }
         }
     }
+
     if (NULL != pbSetByPolicy)
         *pbSetByPolicy = bSetByPolicyAny;
 }
 
 
-
 // Retrieve the go-offline action for a specific server.  If the server
 // has a "customized" action defined by either system policy or user
-// setting, that action is used.  Otherwise, the "default" action is
-// used.
-
-int
-CConfig::GoOfflineAction(
-    LPCTSTR pszServer
-    ) const
+// setting, that action is used.  Otherwise, the "default" action is used.
+int CConfig::GoOfflineAction(LPCTSTR pszServer) const
 {
     DBGTRACE((DM_CONFIG, DL_HIGH, TEXT("CConfig::GoOfflineAction(server)")));
     DBGPRINT((DM_CONFIG, DL_HIGH, TEXT("\tServer = \"%s\""), pszServer ? pszServer : TEXT("<null>")));
@@ -370,28 +283,22 @@ CConfig::GoOfflineAction(
 
     DBGASSERT((NULL != pszServer));
 
-
     // Skip passed any leading backslashes for comparison.
     // The values we store in the registry don't have a leading "\\".
-
-    while(*pszServer && TEXT('\\') == *pszServer)
+    while (*pszServer && TEXT('\\') == *pszServer)
         pszServer++;
 
     CConfig::OfflineActionInfo info;
     CConfig::OfflineActionIter iter = CreateOfflineActionIter();
-    while(iter.Next(&info))
-    {
-        if (0 == lstrcmpi(pszServer, info.szServer))
-        {
+    while (iter.Next(&info)) {
+        if (0 == lstrcmpi(pszServer, info.szServer)) {
             DBGPRINT((DM_CONFIG, DL_HIGH, TEXT("Action is %d for share \"%s\""), info.iAction, info.szServer));
             iAction = info.iAction;  // Return custom action.
             break;
         }
     }
 
-
     // Guard against bogus reg data.
-
     if (eNumOfflineActions <= iAction || 0 > iAction)
         iAction = eGoOfflineSilent;
 
@@ -400,14 +307,9 @@ CConfig::GoOfflineAction(
 }
 
 
-
 // CConfig::CustomGOA
 // "GOA" is "Go Offline Action"
-
-bool
-CConfig::CustomGOA::operator < (
-    const CustomGOA& rhs
-    ) const
+bool CConfig::CustomGOA::operator < (const CustomGOA& rhs) const
 {
     int diff = CompareByServer(rhs);
     if (0 == diff)
@@ -417,63 +319,45 @@ CConfig::CustomGOA::operator < (
 }
 
 
-
 // Compare two CustomGoOfflineAction objects by their
 // server names.  Comparison is case-insensitive.
 // Returns:  <0 = *this < rhs
 //            0 = *this == rhs
 //           >0 = *this > rhs
-
-int
-CConfig::CustomGOA::CompareByServer(
-    const CustomGOA& rhs
-    ) const
+int CConfig::CustomGOA::CompareByServer(const CustomGOA& rhs) const
 {
     return GetServerName().CompareNoCase(rhs.GetServerName());
 }
 
 
-
 // CConfig::OfflineActionIter
-
-bool
-CConfig::OfflineActionIter::Next(
-    OfflineActionInfo *pInfo
-    )
+bool CConfig::OfflineActionIter::Next(OfflineActionInfo* pInfo)
 {
     bool bResult = false;
 
     // Exception-phobic code may be calling this.
-
-    try
-    {
-        if (-1 == m_iAction)
-        {
+    try {
+        if (-1 == m_iAction) {
             m_pConfig->GetCustomGoOfflineActions(&m_rgGOA);
             m_iAction = 0;
         }
-        if (m_iAction < m_rgGOA.Count())
-        {
+        if (m_iAction < m_rgGOA.Count()) {
             CString s;
             m_rgGOA[m_iAction].GetServerName(&s);
             lstrcpyn(pInfo->szServer, s, ARRAYSIZE(pInfo->szServer));
             pInfo->iAction = (DWORD)m_rgGOA[m_iAction++].GetAction();
             bResult = true;
         }
-    }
-    catch(...)
-    {
+    } catch (...) {
 
     }
+
     return bResult;
 }
 
 
-
-
 #ifdef _USE_EXT_EXCLUSION_LIST
 /*
-
 // I originally wrote this code assuming our UI code would want to
 // know about excluded extensions.  As it turns out, only the CSC agent
 // cares about these and ShishirP has his own code for reading these
@@ -481,7 +365,6 @@ CConfig::OfflineActionIter::Next(
 // is implemented and how one might merge multiple lists into a single
 // list.  It's also been left in case the UI code does eventually need
 // access to excluded extensions. [brianau - 3/15/99]
-
 
 // Refresh the "excluded file extension" list from the registry.
 // The resulting list is a double-nul terminated list of filename extensions.
@@ -496,11 +379,7 @@ CConfig::OfflineActionIter::Next(
 
 // Note that code must be DBCS aware.
 
-void
-CConfig::RefreshExclusionList(
-    RegKey& keyLM,
-    RegKey& keyCU
-    ) const
+void CConfig::RefreshExclusionList(RegKey& keyLM, RegKey& keyCU) const
 {
     DBGTRACE((DM_CONFIG, DL_MID, TEXT("CConfig::RefreshExclusionList")));
 
@@ -510,7 +389,6 @@ CConfig::RefreshExclusionList(
     CArray<CString> rgExtsLM;
     CArray<CString> rgExtsCU;
     CArray<CString> rgExts;
-
 
     // Get each exclusion array (LM and CU) then merge them together
     // into one (removing duplicates).
@@ -549,30 +427,22 @@ CConfig::RefreshExclusionList(
     }
 }
 
-
-
 // Advance a character pointer past any space or dot characters.
 
-LPCTSTR
-CConfig::SkipDotsAndSpaces(  // [ static ]
-    LPCTSTR s
-    )
+LPCTSTR CConfig::SkipDotsAndSpaces(  // [ static ]
+    LPCTSTR s)
 {
     while(s && *s && (TEXT('.') == *s || TEXT(' ') == *s))
         s++;
+
     return s;
 }
-
-
 
 
 // Removes any duplicate extension strings from a CString array.
 // This function assumes the array is sorted.
 
-void
-CConfig::RemoveDuplicateStrings(
-    CArray<CString> *prgExt
-    ) const
+void CConfig::RemoveDuplicateStrings(CArray<CString> *prgExt) const
 {
     DBGTRACE((DM_CONFIG, DL_LOW, TEXT("CConfig::RemoveDuplicateStrings")));
 
@@ -586,11 +456,8 @@ CConfig::RemoveDuplicateStrings(
 }
 
 
-
 // Merge two arrays of CString objects into a single
-// array containing no duplicates.  The returned array is
-// in sorted order.
-
+// array containing no duplicates.  The returned array is in sorted order.
 void
 CConfig::MergeStringArrays(
     CArray<CString>& rgExtsA,
@@ -604,7 +471,6 @@ CConfig::MergeStringArrays(
 
     if (0 == nA || 0 == nB)
     {
-
         // A quick optimization if one of the arrays is empty.
         // We can just copy the non-empty one.
 
@@ -617,9 +483,7 @@ CConfig::MergeStringArrays(
     }
     else
     {
-
         // Both arrays have content so we must merge.
-
         rgExtsA.BubbleSort();
         rgExtsB.BubbleSort();
         prgMerged->Clear();
@@ -645,18 +509,12 @@ CConfig::MergeStringArrays(
     RemoveDuplicateStrings(prgMerged);
 }
 
-
-
 // Read one extension exclusion list from the registry.
 // Break it up into the individual extensions, skipping any
 // leading spaces and periods.  Each extension is appended
 // to an array of extension strings.
 
-void
-CConfig::GetOneExclusionArray(
-    RegKey& key,
-    CArray<CString> *prgExts
-    ) const
+void CConfig::GetOneExclusionArray(RegKey& key, CArray<CString> *prgExts) const
 {
     DBGTRACE((DM_CONFIG, DL_LOW, TEXT("CConfig::GetOneExclusionArray")));
     prgExts->Clear();
@@ -668,7 +526,6 @@ CConfig::GetOneExclusionArray(
         HRESULT hr = key.GetValue(REGSTR_VAL_EXTEXCLUSIONLIST, &s);
         if (SUCCEEDED(hr))
         {
-
             // Build an array of CStrings.  One element for each of the
             // extensions in the policy value.
 
@@ -682,7 +539,6 @@ CConfig::GetOneExclusionArray(
                 {
                     if (TEXT('.') != *ps)
                     {
-
                         // Skip leading periods.
                         // Replace semicolons and commas with nul.
 
@@ -695,9 +551,7 @@ CConfig::GetOneExclusionArray(
                 }
                 if (ps == psEnd)
                 {
-
                     // Pick up last item in list.
-
                     bAddThis = true;
                 }
                 if (bAddThis)
@@ -713,21 +567,14 @@ CConfig::GetOneExclusionArray(
         }
         else
         {
-            DBGERROR((TEXT("Error 0x%08X reading reg value \"%s\""),
-                       hr, REGSTR_VAL_EXTEXCLUSIONLIST));
+            DBGERROR((TEXT("Error 0x%08X reading reg value \"%s\""), hr, REGSTR_VAL_EXTEXCLUSIONLIST));
         }
     }
 }
 
 
-
-// Determine if a particular file extension is included in the
-// exclusion list.
-
-bool
-CConfig::ExtensionExcluded(
-    LPCTSTR pszExt
-    ) const
+// Determine if a particular file extension is included in the exclusion list.
+bool CConfig::ExtensionExcluded(LPCTSTR pszExt) const
 {
     bool bExcluded = false;
     ExcludedExtIter iter = CreateExcludedExtIter();
@@ -740,26 +587,19 @@ CConfig::ExtensionExcluded(
             break;
         }
     }
+
     return bExcluded;
 }
 
 
-
-
 // CConfig::ExcludedExtIter
-
-
-CConfig::ExcludedExtIter::ExcludedExtIter(
-    const CConfig::ExcludedExtIter& rhs
-    ) : m_pszExts(NULL)
+CConfig::ExcludedExtIter::ExcludedExtIter(const CConfig::ExcludedExtIter& rhs) : m_pszExts(NULL)
 {
     *this = rhs;
 }
 
-CConfig::ExcludedExtIter&
-CConfig::ExcludedExtIter::operator = (
-    const CConfig::ExcludedExtIter& rhs
-    )
+
+CConfig::ExcludedExtIter& CConfig::ExcludedExtIter::operator = (const CConfig::ExcludedExtIter& rhs)
 {
     if (&rhs != this)
     {
@@ -769,6 +609,7 @@ CConfig::ExcludedExtIter::operator = (
             m_pszExts = CopyDblNulList(rhs.m_pszExts);
         m_iter.Attach(m_pszExts);
     }
+
     return *this;
 }
 
@@ -776,10 +617,7 @@ CConfig::ExcludedExtIter::operator = (
 // Returns length of required buffer in characters
 // including the final nul terminator.
 
-int
-CConfig::ExcludedExtIter::DblNulListLen(
-    LPCTSTR psz
-    )
+int CConfig::ExcludedExtIter::DblNulListLen(LPCTSTR psz)
 {
     int len = 0;
     while(psz && (*psz || *(psz+1)))
@@ -787,6 +625,7 @@ CConfig::ExcludedExtIter::DblNulListLen(
         len++;
         psz++;
     }
+
     return psz ? len + 2 : 0;
 }
 
@@ -794,10 +633,7 @@ CConfig::ExcludedExtIter::DblNulListLen(
 // Copies a double-nul terminated list.  Returns address
 // of new copy.  Caller must free new list using delete[].
 
-LPTSTR
-CConfig::ExcludedExtIter::CopyDblNulList(
-    LPCTSTR psz
-    )
+LPTSTR CConfig::ExcludedExtIter::CopyDblNulList(LPCTSTR psz)
 {
     LPTSTR s0 = NULL;
     if (NULL != psz)
@@ -807,9 +643,8 @@ CConfig::ExcludedExtIter::CopyDblNulList(
         while(0 < cch--)
             *s++ = *psz++;
     }
+
     return s0;
 }
-
 */
 #endif // _USE_EXT_EXCLUSION_LIST
-

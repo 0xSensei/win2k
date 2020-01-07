@@ -18,7 +18,7 @@
 //  Synopsis:   Constructor
 
 
-CHashDbCompactor::CHashDbCompactor ()
+CHashDbCompactor::CHashDbCompactor()
 {
     m_hDbLock = NULL;
     m_pwszDbDirectory = NULL;
@@ -39,21 +39,18 @@ CHashDbCompactor::CHashDbCompactor ()
 //  Synopsis:   Destructor
 
 
-CHashDbCompactor::~CHashDbCompactor ()
+CHashDbCompactor::~CHashDbCompactor()
 {
-    if ( m_hDbLock != NULL )
-    {
-        CloseHandle( m_hDbLock );
+    if (m_hDbLock != NULL) {
+        CloseHandle(m_hDbLock);
     }
 
-    if ( m_pwszTempKeyPath[ 0 ] != L'\0' )
-    {
-        DeleteFileU( m_pwszTempKeyPath );
+    if (m_pwszTempKeyPath[0] != L'\0') {
+        DeleteFileU(m_pwszTempKeyPath);
     }
 
-    if ( m_pwszTempDataPath[ 0 ] != L'\0' )
-    {
-        DeleteFileU( m_pwszTempDataPath );
+    if (m_pwszTempDataPath[0] != L'\0') {
+        DeleteFileU(m_pwszTempDataPath);
     }
 
     delete m_pwszDbDirectory;
@@ -68,52 +65,46 @@ CHashDbCompactor::~CHashDbCompactor ()
 
 
 BOOL
-CHashDbCompactor::Initialize (
-                      IN LPCWSTR pwszDbLock,
-                      IN LPCWSTR pwszDbDirectory
-                      )
+CHashDbCompactor::Initialize(
+    IN LPCWSTR pwszDbLock,
+    IN LPCWSTR pwszDbDirectory
+)
 {
-    if ( ( m_hDbLock = CreateMutexU( NULL, FALSE, pwszDbLock ) ) == NULL )
-    {
-        return( FALSE );
+    if ((m_hDbLock = CreateMutexU(NULL, FALSE, pwszDbLock)) == NULL) {
+        return(FALSE);
     }
 
-    m_pwszDbDirectory = new WCHAR [ wcslen( pwszDbDirectory ) + 1 ];
-    if ( m_pwszDbDirectory != NULL )
-    {
-        wcscpy( m_pwszDbDirectory, pwszDbDirectory );
-    }
-    else
-    {
-        SetLastError( E_OUTOFMEMORY );
-        return( FALSE );
+    m_pwszDbDirectory = new WCHAR[wcslen(pwszDbDirectory) + 1];
+    if (m_pwszDbDirectory != NULL) {
+        wcscpy(m_pwszDbDirectory, pwszDbDirectory);
+    } else {
+        SetLastError(E_OUTOFMEMORY);
+        return(FALSE);
     }
 
-    if ( GrowUniqueCatalogs( INITIAL_UNIQUE_CATALOGS ) == FALSE )
-    {
-        return( FALSE );
+    if (GrowUniqueCatalogs(INITIAL_UNIQUE_CATALOGS) == FALSE) {
+        return(FALSE);
     }
 
-    assert( m_aUniqueCatalogs != NULL );
-    assert( m_cAllocatedUniqueCatalogs == INITIAL_UNIQUE_CATALOGS );
+    assert(m_aUniqueCatalogs != NULL);
+    assert(m_cAllocatedUniqueCatalogs == INITIAL_UNIQUE_CATALOGS);
 
-    if ( ( GetTempFileNameU(
-              pwszDbDirectory,
-              NULL,
-              0,
-              m_pwszTempKeyPath
-              ) == FALSE ) ||
-         ( GetTempFileNameU(
-              pwszDbDirectory,
-              NULL,
-              0,
-              m_pwszTempDataPath
-              ) == FALSE ) )
-    {
-        return( FALSE );
+    if ((GetTempFileNameU(
+        pwszDbDirectory,
+        NULL,
+        0,
+        m_pwszTempKeyPath
+    ) == FALSE) ||
+    (GetTempFileNameU(
+        pwszDbDirectory,
+        NULL,
+        0,
+        m_pwszTempDataPath
+    ) == FALSE)) {
+        return(FALSE);
     }
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -124,9 +115,9 @@ CHashDbCompactor::Initialize (
 
 
 VOID
-CHashDbCompactor::LockDatabase ()
+CHashDbCompactor::LockDatabase()
 {
-    WaitForSingleObject( m_hDbLock, INFINITE );
+    WaitForSingleObject(m_hDbLock, INFINITE);
 }
 
 
@@ -137,9 +128,9 @@ CHashDbCompactor::LockDatabase ()
 
 
 VOID
-CHashDbCompactor::UnlockDatabase ()
+CHashDbCompactor::UnlockDatabase()
 {
-    ReleaseMutex( m_hDbLock );
+    ReleaseMutex(m_hDbLock);
 }
 
 
@@ -150,13 +141,13 @@ CHashDbCompactor::UnlockDatabase ()
 
 
 BOOL
-CHashDbCompactor::MapDatabase (
-                     IN LPCWSTR pwszDbName,
-                     OUT PCRYPT_DATA_BLOB pKey,
-                     OUT LPWSTR* ppwszKeyPath,
-                     OUT PCRYPT_DATA_BLOB pData,
-                     OUT LPWSTR* ppwszDataPath
-                     )
+CHashDbCompactor::MapDatabase(
+    IN LPCWSTR pwszDbName,
+    OUT PCRYPT_DATA_BLOB pKey,
+    OUT LPWSTR* ppwszKeyPath,
+    OUT PCRYPT_DATA_BLOB pData,
+    OUT LPWSTR* ppwszDataPath
+)
 {
     BOOL   fResult = TRUE;
     LPWSTR pwszKeyDbPath = NULL;
@@ -174,69 +165,58 @@ CHashDbCompactor::MapDatabase (
     DWORD  cbKeyFileSize = 0;
     DWORD  cbDataFileSize = 0;
 
-    cwDirectory = wcslen( m_pwszDbDirectory );
-    cwName = wcslen( pwszDbName );
-    cwKeyExt = wcslen( DB_KEY_EXT );
-    cwDataExt = wcslen( DB_DATA_EXT );
+    cwDirectory = wcslen(m_pwszDbDirectory);
+    cwName = wcslen(pwszDbName);
+    cwKeyExt = wcslen(DB_KEY_EXT);
+    cwDataExt = wcslen(DB_DATA_EXT);
 
-    pwszKeyDbPath = new WCHAR [ cwDirectory + cwName + cwKeyExt + 2 ];
-    pwszDataDbPath = new WCHAR [ cwDirectory + cwName + cwDataExt + 2 ];
+    pwszKeyDbPath = new WCHAR[cwDirectory + cwName + cwKeyExt + 2];
+    pwszDataDbPath = new WCHAR[cwDirectory + cwName + cwDataExt + 2];
 
-    if ( ( pwszKeyDbPath != NULL ) && ( pwszDataDbPath != NULL ) )
-    {
-        wcscpy( pwszKeyDbPath, m_pwszDbDirectory );
-        wcscat( pwszKeyDbPath, L"\\" );
-        wcscat( pwszKeyDbPath, pwszDbName );
+    if ((pwszKeyDbPath != NULL) && (pwszDataDbPath != NULL)) {
+        wcscpy(pwszKeyDbPath, m_pwszDbDirectory);
+        wcscat(pwszKeyDbPath, L"\\");
+        wcscat(pwszKeyDbPath, pwszDbName);
 
-        wcscpy( pwszDataDbPath, pwszKeyDbPath );
+        wcscpy(pwszDataDbPath, pwszKeyDbPath);
 
-        wcscat( pwszKeyDbPath, DB_KEY_EXT );
-        wcscat( pwszDataDbPath, DB_DATA_EXT );
-    }
-    else
-    {
-        SetLastError( E_OUTOFMEMORY );
+        wcscat(pwszKeyDbPath, DB_KEY_EXT);
+        wcscat(pwszDataDbPath, DB_DATA_EXT);
+    } else {
+        SetLastError(E_OUTOFMEMORY);
         fResult = FALSE;
     }
 
-    if ( fResult == TRUE )
-    {
+    if (fResult == TRUE) {
         hKeyFile = CreateFileU(pwszKeyDbPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         hDataFile = CreateFileU(pwszDataDbPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if ( ( hKeyFile != INVALID_HANDLE_VALUE ) && ( hDataFile != INVALID_HANDLE_VALUE ) )
-        {
-            cbKeyFileSize = GetFileSize( hKeyFile, NULL );
-            cbDataFileSize = GetFileSize( hDataFile, NULL );
+        if ((hKeyFile != INVALID_HANDLE_VALUE) && (hDataFile != INVALID_HANDLE_VALUE)) {
+            cbKeyFileSize = GetFileSize(hKeyFile, NULL);
+            cbDataFileSize = GetFileSize(hDataFile, NULL);
 
-            if ( cbKeyFileSize > 0 )
-            {
+            if (cbKeyFileSize > 0) {
                 hMappedKeyFile = CreateFileMapping(hKeyFile, NULL, PAGE_READONLY, 0, 0, NULL);
             }
 
-            if ( cbDataFileSize > 0 )
-            {
+            if (cbDataFileSize > 0) {
                 hMappedDataFile = CreateFileMapping(hDataFile, NULL, PAGE_READONLY, 0, 0, NULL);
             }
         }
 
-        if ( hMappedKeyFile != NULL )
-        {
+        if (hMappedKeyFile != NULL) {
             pbKey = (LPBYTE)MapViewOfFile(hMappedKeyFile, FILE_MAP_READ, 0, 0, 0);
         }
 
-        if ( hMappedDataFile != NULL )
-        {
+        if (hMappedDataFile != NULL) {
             pbData = (LPBYTE)MapViewOfFile(hMappedDataFile, FILE_MAP_READ, 0, 0, 0);
         }
 
-        if ( ( ( pbKey == NULL ) && ( cbKeyFileSize != 0 ) ) || ( ( pbData == NULL ) && ( cbDataFileSize != 0 ) ) )
-        {
+        if (((pbKey == NULL) && (cbKeyFileSize != 0)) || ((pbData == NULL) && (cbDataFileSize != 0))) {
             fResult = FALSE;
         }
     }
 
-    if ( fResult == TRUE )
-    {
+    if (fResult == TRUE) {
         pKey->cbData = cbKeyFileSize;
         pKey->pbData = pbKey;
         *ppwszKeyPath = pwszKeyDbPath;
@@ -244,34 +224,28 @@ CHashDbCompactor::MapDatabase (
         pData->cbData = cbDataFileSize;
         pData->pbData = pbData;
         *ppwszDataPath = pwszDataDbPath;
-    }
-    else
-    {
+    } else {
         delete pwszKeyDbPath;
         delete pwszDataDbPath;
     }
 
-    if ( hKeyFile != INVALID_HANDLE_VALUE )
-    {
-        CloseHandle( hKeyFile );
+    if (hKeyFile != INVALID_HANDLE_VALUE) {
+        CloseHandle(hKeyFile);
     }
 
-    if ( hDataFile != INVALID_HANDLE_VALUE )
-    {
-        CloseHandle( hDataFile );
+    if (hDataFile != INVALID_HANDLE_VALUE) {
+        CloseHandle(hDataFile);
     }
 
-    if ( hMappedKeyFile != NULL )
-    {
-        CloseHandle( hMappedKeyFile );
+    if (hMappedKeyFile != NULL) {
+        CloseHandle(hMappedKeyFile);
     }
 
-    if ( hMappedDataFile != NULL )
-    {
-        CloseHandle( hMappedDataFile );
+    if (hMappedDataFile != NULL) {
+        CloseHandle(hMappedDataFile);
     }
 
-    return( fResult );
+    return(fResult);
 }
 
 
@@ -282,21 +256,19 @@ CHashDbCompactor::MapDatabase (
 
 
 VOID
-CHashDbCompactor::UnmapDatabase (
-                       IN PCRYPT_DATA_BLOB pKey,
-                       IN PCRYPT_DATA_BLOB pData
-                       )
+CHashDbCompactor::UnmapDatabase(
+    IN PCRYPT_DATA_BLOB pKey,
+    IN PCRYPT_DATA_BLOB pData
+)
 {
     FlushCompactionAnalysis();
 
-    if ( pKey->pbData != NULL )
-    {
-        UnmapViewOfFile( pKey->pbData );
+    if (pKey->pbData != NULL) {
+        UnmapViewOfFile(pKey->pbData);
     }
 
-    if ( pData->pbData != NULL )
-    {
-        UnmapViewOfFile( pData->pbData );
+    if (pData->pbData != NULL) {
+        UnmapViewOfFile(pData->pbData);
     }
 }
 
@@ -308,70 +280,62 @@ CHashDbCompactor::UnmapDatabase (
 
 
 BOOL
-CHashDbCompactor::AnalyzeDataForCompaction (
-                         IN PCRYPT_DATA_BLOB pData,
-                         IN OPTIONAL LPCSTR pszUnwantedCatalog
-                         )
+CHashDbCompactor::AnalyzeDataForCompaction(
+    IN PCRYPT_DATA_BLOB pData,
+    IN OPTIONAL LPCSTR pszUnwantedCatalog
+)
 {
     BOOL            fResult = TRUE;
-    HashMastRec*    pHashMastRecord;
+    HashMastRec* pHashMastRecord;
     DWORD           cbToNextRecord;
     DWORD           cRecord;
     DWORD           cCount;
     PUNIQUE_CATALOG pUniqueCatalog;
 
-    if ( m_cUniqueCatalogs > 0 )
-    {
-        if ( FlushCompactionAnalysis() == FALSE )
-        {
-            return( FALSE );
+    if (m_cUniqueCatalogs > 0) {
+        if (FlushCompactionAnalysis() == FALSE) {
+            return(FALSE);
         }
     }
 
-    pHashMastRecord = (HashMastRec *)(
-                           pData->pbData + BFILE_HEADERSIZE + sizeof( DWORD )
-                           );
+    pHashMastRecord = (HashMastRec*)(
+        pData->pbData + BFILE_HEADERSIZE + sizeof(DWORD)
+        );
 
-    cbToNextRecord = sizeof( HashMastRec ) + sizeof( DWORD );
+    cbToNextRecord = sizeof(HashMastRec) + sizeof(DWORD);
 
-    if ( pData->cbData < BFILE_HEADERSIZE )
-    {
+    if (pData->cbData < BFILE_HEADERSIZE) {
         cRecord = 0;
-    }
-    else
-    {
-        cRecord = ( pData->cbData - BFILE_HEADERSIZE ) / cbToNextRecord;
+    } else {
+        cRecord = (pData->cbData - BFILE_HEADERSIZE) / cbToNextRecord;
     }
 
-    for ( cCount = 0; ( fResult == TRUE ) && ( cCount < cRecord ); cCount++ )
-    {
-        if ( ( pszUnwantedCatalog == NULL ) ||
-             ( _strnicmp(
-                   pHashMastRecord->CatName,
-                   pszUnwantedCatalog,
-                   MAX_PATH
-                   ) != 0 ) )
-        {
+    for (cCount = 0; (fResult == TRUE) && (cCount < cRecord); cCount++) {
+        if ((pszUnwantedCatalog == NULL) ||
+            (_strnicmp(
+                pHashMastRecord->CatName,
+                pszUnwantedCatalog,
+                MAX_PATH
+            ) != 0)) {
             pUniqueCatalog = FindUniqueCatalogByName(
-                                 pHashMastRecord->CatName
-                                 );
+                pHashMastRecord->CatName
+            );
 
-            if ( ( pUniqueCatalog == NULL ) &&
-                 ( CatalogFileExists(
-                          pHashMastRecord->CatName,
-                          MAX_PATH
-                          ) == TRUE ) )
-            {
-                fResult = AddUniqueCatalog( pHashMastRecord );
+            if ((pUniqueCatalog == NULL) &&
+                (CatalogFileExists(
+                    pHashMastRecord->CatName,
+                    MAX_PATH
+                ) == TRUE)) {
+                fResult = AddUniqueCatalog(pHashMastRecord);
             }
         }
 
-        pHashMastRecord = (HashMastRec *)(
-                               (LPBYTE)pHashMastRecord + cbToNextRecord
-                               );
+        pHashMastRecord = (HashMastRec*)(
+            (LPBYTE)pHashMastRecord + cbToNextRecord
+            );
     }
 
-    return( fResult );
+    return(fResult);
 }
 
 
@@ -382,17 +346,16 @@ CHashDbCompactor::AnalyzeDataForCompaction (
 
 
 BOOL
-CHashDbCompactor::FlushCompactionAnalysis ()
+CHashDbCompactor::FlushCompactionAnalysis()
 {
     DWORD           cAllocatedUniqueCatalogs;
     DWORD           cUniqueCatalogs;
     PUNIQUE_CATALOG aUniqueCatalogs;
 
-    if ( m_cAllocatedUniqueCatalogs == INITIAL_UNIQUE_CATALOGS )
-    {
+    if (m_cAllocatedUniqueCatalogs == INITIAL_UNIQUE_CATALOGS) {
         m_cUniqueCatalogs = 0;
         m_iLastUniqueCatalogFoundByName = 0;
-        return( TRUE );
+        return(TRUE);
     }
 
     aUniqueCatalogs = m_aUniqueCatalogs;
@@ -403,20 +366,19 @@ CHashDbCompactor::FlushCompactionAnalysis ()
     m_cUniqueCatalogs = 0;
     m_cAllocatedUniqueCatalogs = 0;
 
-    if ( GrowUniqueCatalogs( INITIAL_UNIQUE_CATALOGS ) == FALSE )
-    {
+    if (GrowUniqueCatalogs(INITIAL_UNIQUE_CATALOGS) == FALSE) {
         m_aUniqueCatalogs = aUniqueCatalogs;
         m_cUniqueCatalogs = cUniqueCatalogs;
         m_cAllocatedUniqueCatalogs = cAllocatedUniqueCatalogs;
 
-        return( FALSE );
+        return(FALSE);
     }
 
     delete aUniqueCatalogs;
 
     m_iLastUniqueCatalogFoundByName = 0;
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -427,11 +389,11 @@ CHashDbCompactor::FlushCompactionAnalysis ()
 
 
 BOOL
-CHashDbCompactor::WriteCompactedDatabase (
-                       IN PCRYPT_DATA_BLOB pKey,
-                       IN PCRYPT_DATA_BLOB pData,
-                       IN OPTIONAL LPCSTR pszUnwantedCatalog
-                       )
+CHashDbCompactor::WriteCompactedDatabase(
+    IN PCRYPT_DATA_BLOB pKey,
+    IN PCRYPT_DATA_BLOB pData,
+    IN OPTIONAL LPCSTR pszUnwantedCatalog
+)
 {
     BOOL            fResult = FALSE;
     HANDLE          hFile;
@@ -441,228 +403,203 @@ CHashDbCompactor::WriteCompactedDatabase (
     DWORD           cbSize;
     LPBYTE          pbDataFile = NULL;
     LPBYTE          pbFile = NULL;
-    HashMastRec*    pHashMastRecord;
+    HashMastRec* pHashMastRecord;
     PUNIQUE_CATALOG pUniqueCatalog;
     LPDWORD         pdw;
     DWORD           RecordId;
     DWORD           cKey;
     LPBYTE          pbKey;
     LPBYTE          pb;
-    BFILE_HEADER*   pHeader = NULL;
+    BFILE_HEADER* pHeader = NULL;
 
     hDataFile = CreateFileU(
-                      m_pwszTempDataPath,
-                      GENERIC_READ | GENERIC_WRITE,
-                      0,
-                      NULL,
-                      CREATE_ALWAYS,
-                      FILE_ATTRIBUTE_NORMAL,
-                      NULL
-                      );
+        m_pwszTempDataPath,
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        NULL,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
 
-    if ( hDataFile == INVALID_HANDLE_VALUE )
-    {
-        return( FALSE );
+    if (hDataFile == INVALID_HANDLE_VALUE) {
+        return(FALSE);
     }
 
-    cbSize = ( sizeof( DWORD ) + sizeof( HashMastRec ) ) * m_cUniqueCatalogs;
+    cbSize = (sizeof(DWORD) + sizeof(HashMastRec)) * m_cUniqueCatalogs;
     cbSize += BFILE_HEADERSIZE;
 
-    if ( SetFilePointer( hDataFile, cbSize, NULL, FILE_BEGIN ) != 0xFFFFFFFF )
-    {
-        fResult = SetEndOfFile( hDataFile );
+    if (SetFilePointer(hDataFile, cbSize, NULL, FILE_BEGIN) != 0xFFFFFFFF) {
+        fResult = SetEndOfFile(hDataFile);
     }
 
-    if ( fResult == TRUE )
-    {
-        if ( ( hMap = CreateFileMapping(hDataFile, NULL, PAGE_READWRITE, 0, 0, NULL) ) != NULL )
-        {
-            pbDataFile = (LPBYTE)MapViewOfFile( hMap, FILE_MAP_WRITE, 0, 0, 0 );
-            CloseHandle( hMap );
+    if (fResult == TRUE) {
+        if ((hMap = CreateFileMapping(hDataFile, NULL, PAGE_READWRITE, 0, 0, NULL)) != NULL) {
+            pbDataFile = (LPBYTE)MapViewOfFile(hMap, FILE_MAP_WRITE, 0, 0, 0);
+            CloseHandle(hMap);
         }
 
-        if ( pbDataFile != NULL )
-        {
-            memcpy( pbDataFile, BFILE_SIG, BFILE_SIZEOFSIG );
+        if (pbDataFile != NULL) {
+            memcpy(pbDataFile, BFILE_SIG, BFILE_SIZEOFSIG);
 
-            pHeader = (BFILE_HEADER *)( pbDataFile + BFILE_SIZEOFSIG );
+            pHeader = (BFILE_HEADER*)(pbDataFile + BFILE_SIZEOFSIG);
 
-            memset( pHeader, 0, sizeof( BFILE_HEADER ) );
+            memset(pHeader, 0, sizeof(BFILE_HEADER));
 
             pHeader->sVersion = BFILE_VERSION_1;
             pHeader->sIntVersion = CATDB_VERSION_1;
             pHeader->cbKey = KEY_SIZE;
-            pHeader->cbData = sizeof( HashMastRec );
-        }
-        else
-        {
+            pHeader->cbData = sizeof(HashMastRec);
+        } else {
             fResult = FALSE;
         }
     }
 
-    pdw = (LPDWORD)( pbDataFile + BFILE_HEADERSIZE );
-    pHashMastRecord = (HashMastRec *)( (LPBYTE)pdw + sizeof( DWORD ) );
+    pdw = (LPDWORD)(pbDataFile + BFILE_HEADERSIZE);
+    pHashMastRecord = (HashMastRec*)((LPBYTE)pdw + sizeof(DWORD));
 
-    for ( cCount = 0;
-          ( cCount < m_cUniqueCatalogs ) && ( fResult == TRUE );
-          cCount++ )
-    {
+    for (cCount = 0;
+        (cCount < m_cUniqueCatalogs) && (fResult == TRUE);
+         cCount++) {
         RecordId = cCount + 1;
 
-        memcpy( pdw, &RecordId, sizeof( DWORD ) );
+        memcpy(pdw, &RecordId, sizeof(DWORD));
 
         memcpy(
-           pHashMastRecord,
-           &m_aUniqueCatalogs[ cCount ].HashDbRecord,
-           sizeof( HashMastRec )
-           );
+            pHashMastRecord,
+            &m_aUniqueCatalogs[cCount].HashDbRecord,
+            sizeof(HashMastRec)
+        );
 
         pdw = (LPDWORD)(
-                 (LPBYTE)pdw + sizeof( HashMastRec ) + sizeof( DWORD )
-                 );
+            (LPBYTE)pdw + sizeof(HashMastRec) + sizeof(DWORD)
+            );
 
-        pHashMastRecord = (HashMastRec *)( (LPBYTE)pdw + sizeof( DWORD ) );
+        pHashMastRecord = (HashMastRec*)((LPBYTE)pdw + sizeof(DWORD));
     }
 
-    if ( fResult == FALSE )
-    {
-        if ( pbDataFile != NULL )
-        {
-            UnmapViewOfFile( pbDataFile );
+    if (fResult == FALSE) {
+        if (pbDataFile != NULL) {
+            UnmapViewOfFile(pbDataFile);
         }
 
-        CloseHandle( hDataFile );
+        CloseHandle(hDataFile);
 
-        return( FALSE );
+        return(FALSE);
     }
 
     fResult = FALSE;
     pbFile = NULL;
 
     hFile = CreateFileU(
-                  m_pwszTempKeyPath,
-                  GENERIC_READ | GENERIC_WRITE,
-                  0,
-                  NULL,
-                  CREATE_ALWAYS,
-                  FILE_ATTRIBUTE_NORMAL,
-                  NULL
-                  );
+        m_pwszTempKeyPath,
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        NULL,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
 
-    if ( hFile == INVALID_HANDLE_VALUE )
-    {
-        UnmapViewOfFile( pbDataFile );
-        CloseHandle( hDataFile );
-        return( FALSE );
+    if (hFile == INVALID_HANDLE_VALUE) {
+        UnmapViewOfFile(pbDataFile);
+        CloseHandle(hDataFile);
+        return(FALSE);
     }
 
-    if ( SetFilePointer( hFile, pKey->cbData, NULL, FILE_BEGIN ) != 0xFFFFFFFF )
-    {
-        fResult = SetEndOfFile( hFile );
+    if (SetFilePointer(hFile, pKey->cbData, NULL, FILE_BEGIN) != 0xFFFFFFFF) {
+        fResult = SetEndOfFile(hFile);
     }
 
-    if ( ( fResult == TRUE ) && ( pKey->cbData > 0 ) )
-    {
-        if ( ( hMap = CreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, 0, NULL) ) != NULL )
-        {
-            pbFile = (LPBYTE)MapViewOfFile( hMap, FILE_MAP_WRITE, 0, 0, 0 );
-            CloseHandle( hMap );
+    if ((fResult == TRUE) && (pKey->cbData > 0)) {
+        if ((hMap = CreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, 0, NULL)) != NULL) {
+            pbFile = (LPBYTE)MapViewOfFile(hMap, FILE_MAP_WRITE, 0, 0, 0);
+            CloseHandle(hMap);
         }
 
-        if ( pbFile == NULL )
-        {
+        if (pbFile == NULL) {
             fResult = FALSE;
         }
     }
 
     cKey = pKey->cbData / KEY_RECORD_SIZE;
-    pdw = (LPDWORD)( pKey->pbData + KEY_SIZE );
+    pdw = (LPDWORD)(pKey->pbData + KEY_SIZE);
     pbKey = pKey->pbData;
     pb = pbFile;
     RecordId = 0;
 
-    __try
-    {
-        for ( cCount = 0; ( cCount < cKey ) && ( fResult == TRUE ); cCount++ )
-        {
-            if ( ( *pdw + sizeof( HashMastRec ) + sizeof( DWORD ) ) <= pData->cbData )
-            {
-                pHashMastRecord = (HashMastRec *)(
-                                       pData->pbData + *pdw + sizeof( DWORD )
-                                       );
+    __try {
+        for (cCount = 0; (cCount < cKey) && (fResult == TRUE); cCount++) {
+            if ((*pdw + sizeof(HashMastRec) + sizeof(DWORD)) <= pData->cbData) {
+                pHashMastRecord = (HashMastRec*)(
+                    pData->pbData + *pdw + sizeof(DWORD)
+                    );
 
-                if ( ( pszUnwantedCatalog == NULL ) ||
-                     ( _strnicmp(
-                           pHashMastRecord->CatName,
-                           pszUnwantedCatalog,
-                           MAX_PATH
-                           ) != 0 ) )
-                {
+                if ((pszUnwantedCatalog == NULL) ||
+                    (_strnicmp(
+                        pHashMastRecord->CatName,
+                        pszUnwantedCatalog,
+                        MAX_PATH
+                    ) != 0)) {
                     pUniqueCatalog = FindUniqueCatalogByName(
-                                         pHashMastRecord->CatName
-                                         );
+                        pHashMastRecord->CatName
+                    );
 
-                    if ( pUniqueCatalog == NULL )
-                    {
-                        pdw = (LPDWORD)( (LPBYTE)pdw + KEY_RECORD_SIZE );
+                    if (pUniqueCatalog == NULL) {
+                        pdw = (LPDWORD)((LPBYTE)pdw + KEY_RECORD_SIZE);
                         pbKey += KEY_RECORD_SIZE;
                         continue;
                     }
 
                     memcpy(
-                       pb,
-                       pbKey,
-                       KEY_SIZE
-                       );
+                        pb,
+                        pbKey,
+                        KEY_SIZE
+                    );
 
                     pb += KEY_SIZE;
 
                     memcpy(
-                       pb,
-                       (LPBYTE)&pUniqueCatalog->UniqueOffset,
-                       sizeof( DWORD )
-                       );
+                        pb,
+                        (LPBYTE)&pUniqueCatalog->UniqueOffset,
+                        sizeof(DWORD)
+                    );
 
-                    pb += sizeof( DWORD );
+                    pb += sizeof(DWORD);
 
                     RecordId += 1;
                 }
             }
 
-            pdw = (LPDWORD)( (LPBYTE)pdw + KEY_RECORD_SIZE );
+            pdw = (LPDWORD)((LPBYTE)pdw + KEY_RECORD_SIZE);
             pbKey += KEY_RECORD_SIZE;
         }
-    }
-    __except( EXCEPTION_EXECUTE_HANDLER )
-    {
-        SetLastError( GetExceptionCode() );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        SetLastError(GetExceptionCode());
         fResult = FALSE;
     }
 
-    if ( pbFile != NULL )
-    {
-        UnmapViewOfFile( pbFile );
+    if (pbFile != NULL) {
+        UnmapViewOfFile(pbFile);
     }
 
-    if ( fResult == TRUE )
-    {
+    if (fResult == TRUE) {
         cbSize = RecordId * KEY_RECORD_SIZE;
 
         pHeader->cbSortedEOF = cbSize;
-        pHeader->dwLastRecNum = ( RecordId > 0 ) ? ( RecordId - 1 ) : 0;
+        pHeader->dwLastRecNum = (RecordId > 0) ? (RecordId - 1) : 0;
         pHeader->fDirty = FALSE;
 
-        if ( SetFilePointer( hFile, cbSize, NULL, FILE_BEGIN ) != 0xFFFFFFFF )
-        {
-            fResult = SetEndOfFile( hFile );
+        if (SetFilePointer(hFile, cbSize, NULL, FILE_BEGIN) != 0xFFFFFFFF) {
+            fResult = SetEndOfFile(hFile);
         }
     }
 
-    UnmapViewOfFile( pbDataFile );
-    CloseHandle( hDataFile );
-    CloseHandle( hFile );
+    UnmapViewOfFile(pbDataFile);
+    CloseHandle(hDataFile);
+    CloseHandle(hFile);
 
-    return( fResult );
+    return(fResult);
 }
 
 
@@ -673,29 +610,28 @@ CHashDbCompactor::WriteCompactedDatabase (
 
 
 BOOL
-CHashDbCompactor::CommitCompactedDatabase (
-                        IN LPCWSTR pwszFinalKeyPath,
-                        IN LPCWSTR pwszFinalDataPath
-                        )
+CHashDbCompactor::CommitCompactedDatabase(
+    IN LPCWSTR pwszFinalKeyPath,
+    IN LPCWSTR pwszFinalDataPath
+)
 {
-    if ( MoveFileExU(
-             m_pwszTempKeyPath,
-             pwszFinalKeyPath,
-             MOVEFILE_COPY_ALLOWED |
-             MOVEFILE_REPLACE_EXISTING |
-             MOVEFILE_WRITE_THROUGH
-             ) == FALSE )
-    {
-        return( FALSE );
+    if (MoveFileExU(
+        m_pwszTempKeyPath,
+        pwszFinalKeyPath,
+        MOVEFILE_COPY_ALLOWED |
+        MOVEFILE_REPLACE_EXISTING |
+        MOVEFILE_WRITE_THROUGH
+    ) == FALSE) {
+        return(FALSE);
     }
 
-    return( MoveFileExU(
-                m_pwszTempDataPath,
-                pwszFinalDataPath,
-                MOVEFILE_COPY_ALLOWED |
-                MOVEFILE_REPLACE_EXISTING |
-                MOVEFILE_WRITE_THROUGH
-                ) );
+    return(MoveFileExU(
+        m_pwszTempDataPath,
+        pwszFinalDataPath,
+        MOVEFILE_COPY_ALLOWED |
+        MOVEFILE_REPLACE_EXISTING |
+        MOVEFILE_WRITE_THROUGH
+    ));
 }
 
 
@@ -706,7 +642,7 @@ CHashDbCompactor::CommitCompactedDatabase (
 
 
 VOID
-CHashDbCompactor::FreeString (IN LPWSTR pwsz)
+CHashDbCompactor::FreeString(IN LPWSTR pwsz)
 {
     delete pwsz;
 }
@@ -719,34 +655,32 @@ CHashDbCompactor::FreeString (IN LPWSTR pwsz)
 
 
 BOOL
-CHashDbCompactor::GrowUniqueCatalogs (DWORD cGrow)
+CHashDbCompactor::GrowUniqueCatalogs(DWORD cGrow)
 {
     BOOL            fResult = FALSE;
     DWORD           cAllocatedUniqueCatalogs;
     PUNIQUE_CATALOG aUniqueCatalogs;
 
     cAllocatedUniqueCatalogs = m_cAllocatedUniqueCatalogs + cGrow;
-    aUniqueCatalogs = new UNIQUE_CATALOG [ cAllocatedUniqueCatalogs ];
+    aUniqueCatalogs = new UNIQUE_CATALOG[cAllocatedUniqueCatalogs];
 
-    if ( aUniqueCatalogs == NULL )
-    {
-        SetLastError( E_OUTOFMEMORY );
-        return( FALSE );
+    if (aUniqueCatalogs == NULL) {
+        SetLastError(E_OUTOFMEMORY);
+        return(FALSE);
     }
 
     memset(
-       aUniqueCatalogs,
-       0,
-       sizeof( UNIQUE_CATALOG ) * cAllocatedUniqueCatalogs
-       );
+        aUniqueCatalogs,
+        0,
+        sizeof(UNIQUE_CATALOG) * cAllocatedUniqueCatalogs
+    );
 
-    if ( m_aUniqueCatalogs != NULL )
-    {
+    if (m_aUniqueCatalogs != NULL) {
         memcpy(
-           aUniqueCatalogs,
-           m_aUniqueCatalogs,
-           m_cUniqueCatalogs * sizeof( UNIQUE_CATALOG )
-           );
+            aUniqueCatalogs,
+            m_aUniqueCatalogs,
+            m_cUniqueCatalogs * sizeof(UNIQUE_CATALOG)
+        );
 
         delete m_aUniqueCatalogs;
     }
@@ -754,7 +688,7 @@ CHashDbCompactor::GrowUniqueCatalogs (DWORD cGrow)
     m_cAllocatedUniqueCatalogs = cAllocatedUniqueCatalogs;
     m_aUniqueCatalogs = aUniqueCatalogs;
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -765,34 +699,31 @@ CHashDbCompactor::GrowUniqueCatalogs (DWORD cGrow)
 
 
 PUNIQUE_CATALOG
-CHashDbCompactor::FindUniqueCatalogByName (LPCSTR pszCatalogName)
+CHashDbCompactor::FindUniqueCatalogByName(LPCSTR pszCatalogName)
 {
     DWORD cCount;
 
-    if ( ( m_iLastUniqueCatalogFoundByName < m_cUniqueCatalogs ) &&
-         ( _strnicmp(
-               m_aUniqueCatalogs[ m_iLastUniqueCatalogFoundByName ].HashDbRecord.CatName,
-               pszCatalogName,
-               MAX_PATH
-               ) == 0 ) )
-    {
-        return( &m_aUniqueCatalogs[ m_iLastUniqueCatalogFoundByName ] );
+    if ((m_iLastUniqueCatalogFoundByName < m_cUniqueCatalogs) &&
+        (_strnicmp(
+            m_aUniqueCatalogs[m_iLastUniqueCatalogFoundByName].HashDbRecord.CatName,
+            pszCatalogName,
+            MAX_PATH
+        ) == 0)) {
+        return(&m_aUniqueCatalogs[m_iLastUniqueCatalogFoundByName]);
     }
 
-    for ( cCount = 0; cCount < m_cUniqueCatalogs; cCount++ )
-    {
-        if ( _strnicmp(
-                 m_aUniqueCatalogs[ cCount ].HashDbRecord.CatName,
-                 pszCatalogName,
-                 MAX_PATH
-                 ) == 0 )
-        {
+    for (cCount = 0; cCount < m_cUniqueCatalogs; cCount++) {
+        if (_strnicmp(
+            m_aUniqueCatalogs[cCount].HashDbRecord.CatName,
+            pszCatalogName,
+            MAX_PATH
+        ) == 0) {
             m_iLastUniqueCatalogFoundByName = cCount;
-            return( &m_aUniqueCatalogs[ cCount ] );
+            return(&m_aUniqueCatalogs[cCount]);
         }
     }
 
-    return( NULL );
+    return(NULL);
 }
 
 
@@ -803,28 +734,26 @@ CHashDbCompactor::FindUniqueCatalogByName (LPCSTR pszCatalogName)
 
 
 BOOL
-CHashDbCompactor::AddUniqueCatalog (HashMastRec* pHashMastRecord)
+CHashDbCompactor::AddUniqueCatalog(HashMastRec* pHashMastRecord)
 {
     DWORD UniqueOffset;
 
-    if ( m_cUniqueCatalogs == m_cAllocatedUniqueCatalogs )
-    {
-        if ( GrowUniqueCatalogs( GROW_UNIQUE_CATALOGS ) == FALSE )
-        {
-            return( FALSE );
+    if (m_cUniqueCatalogs == m_cAllocatedUniqueCatalogs) {
+        if (GrowUniqueCatalogs(GROW_UNIQUE_CATALOGS) == FALSE) {
+            return(FALSE);
         }
     }
 
-    UniqueOffset = ( m_cUniqueCatalogs * (
-                              sizeof( HashMastRec ) + sizeof( DWORD )
-                              ) ) + BFILE_HEADERSIZE;
+    UniqueOffset = (m_cUniqueCatalogs * (
+        sizeof(HashMastRec) + sizeof(DWORD)
+        )) + BFILE_HEADERSIZE;
 
-    m_aUniqueCatalogs[ m_cUniqueCatalogs ].HashDbRecord = *pHashMastRecord;
-    m_aUniqueCatalogs[ m_cUniqueCatalogs ].UniqueOffset = UniqueOffset;
+    m_aUniqueCatalogs[m_cUniqueCatalogs].HashDbRecord = *pHashMastRecord;
+    m_aUniqueCatalogs[m_cUniqueCatalogs].UniqueOffset = UniqueOffset;
 
     m_cUniqueCatalogs += 1;
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -835,42 +764,39 @@ CHashDbCompactor::AddUniqueCatalog (HashMastRec* pHashMastRecord)
 
 
 BOOL
-CHashDbCompactor::CatalogFileExists (LPCSTR pszCatalogName, DWORD cbName)
+CHashDbCompactor::CatalogFileExists(LPCSTR pszCatalogName, DWORD cbName)
 {
     BOOL   fResult = FALSE;
-    WCHAR  pwszFile[ MAX_PATH ];
-    WCHAR  pwszPath[ MAX_PATH ];
+    WCHAR  pwszFile[MAX_PATH];
+    WCHAR  pwszPath[MAX_PATH];
     HANDLE hFile;
 
-    if ( MultiByteToWideChar(CP_ACP, 0, pszCatalogName, cbName, pwszFile, MAX_PATH) == 0 )
-    {
-        return( FALSE );
+    if (MultiByteToWideChar(CP_ACP, 0, pszCatalogName, cbName, pwszFile, MAX_PATH) == 0) {
+        return(FALSE);
     }
 
-    if ( ( wcslen( m_pwszDbDirectory ) + wcslen( pwszFile ) + 2 ) > MAX_PATH )
-    {
-        return( FALSE );
+    if ((wcslen(m_pwszDbDirectory) + wcslen(pwszFile) + 2) > MAX_PATH) {
+        return(FALSE);
     }
 
-    wcscpy( pwszPath, m_pwszDbDirectory );
-    wcscat( pwszPath, L"\\" );
-    wcscat( pwszPath, pwszFile );
+    wcscpy(pwszPath, m_pwszDbDirectory);
+    wcscat(pwszPath, L"\\");
+    wcscat(pwszPath, pwszFile);
 
-    if ( ( hFile = CreateFileU(
-                         pwszPath,
-                         GENERIC_READ,
-                         FILE_SHARE_READ | FILE_SHARE_WRITE,
-                         NULL,
-                         OPEN_EXISTING,
-                         FILE_ATTRIBUTE_NORMAL,
-                         NULL
-                         ) ) != INVALID_HANDLE_VALUE )
-    {
-        CloseHandle( hFile );
+    if ((hFile = CreateFileU(
+        pwszPath,
+        GENERIC_READ,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        NULL,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    )) != INVALID_HANDLE_VALUE) {
+        CloseHandle(hFile);
         fResult = TRUE;
     }
 
-    return( fResult );
+    return(fResult);
 }
 
 
@@ -881,12 +807,12 @@ CHashDbCompactor::CatalogFileExists (LPCSTR pszCatalogName, DWORD cbName)
 
 
 BOOL WINAPI
-CatalogCompactHashDatabase (
-       IN LPCWSTR pwszDbLock,
-       IN LPCWSTR pwszDbDirectory,
-       IN LPCWSTR pwszDbName,
-       IN OPTIONAL LPCWSTR pwszUnwantedCatalog
-       )
+CatalogCompactHashDatabase(
+    IN LPCWSTR pwszDbLock,
+    IN LPCWSTR pwszDbDirectory,
+    IN LPCWSTR pwszDbName,
+    IN OPTIONAL LPCWSTR pwszUnwantedCatalog
+)
 {
     BOOL             fResult;
     CHashDbCompactor HashDbCompactor;
@@ -895,69 +821,57 @@ CatalogCompactHashDatabase (
     CRYPT_DATA_BLOB  KeyMap;
     CRYPT_DATA_BLOB  DataMap;
     BOOL             fDatabaseMapped = FALSE;
-    CHAR             szUnwantedCatalog[ MAX_PATH + 1 ];
+    CHAR             szUnwantedCatalog[MAX_PATH + 1];
     LPSTR            pszUnwantedCatalog = NULL;
 
-    if ( pwszUnwantedCatalog != NULL )
-    {
+    if (pwszUnwantedCatalog != NULL) {
         pszUnwantedCatalog = szUnwantedCatalog;
 
-        if ( WideCharToMultiByte(CP_ACP, 0, pwszUnwantedCatalog, -1, pszUnwantedCatalog, MAX_PATH, NULL, NULL) == FALSE )
-        {
-            return( FALSE );
+        if (WideCharToMultiByte(CP_ACP, 0, pwszUnwantedCatalog, -1, pszUnwantedCatalog, MAX_PATH, NULL, NULL) == FALSE) {
+            return(FALSE);
         }
     }
 
-    fResult = HashDbCompactor.Initialize( pwszDbLock, pwszDbDirectory );
-    if ( fResult == FALSE )
-    {
-        return( FALSE );
+    fResult = HashDbCompactor.Initialize(pwszDbLock, pwszDbDirectory);
+    if (fResult == FALSE) {
+        return(FALSE);
     }
 
     HashDbCompactor.LockDatabase();
 
-    __try
-    {
+    __try {
         fResult = HashDbCompactor.MapDatabase(pwszDbName, &KeyMap, &pwszKeyPath, &DataMap, &pwszDataPath);
-        if ( fResult == TRUE )
-        {
+        if (fResult == TRUE) {
             fDatabaseMapped = TRUE;
 
             fResult = HashDbCompactor.AnalyzeDataForCompaction(&DataMap, pszUnwantedCatalog);
         }
 
-        if ( fResult == TRUE )
-        {
+        if (fResult == TRUE) {
             fResult = HashDbCompactor.WriteCompactedDatabase(&KeyMap, &DataMap, pszUnwantedCatalog);
         }
 
-        if ( fDatabaseMapped == TRUE )
-        {
-            HashDbCompactor.UnmapDatabase( &KeyMap, &DataMap );
+        if (fDatabaseMapped == TRUE) {
+            HashDbCompactor.UnmapDatabase(&KeyMap, &DataMap);
         }
 
-        if ( fResult == TRUE )
-        {
+        if (fResult == TRUE) {
             fResult = HashDbCompactor.CommitCompactedDatabase(pwszKeyPath, pwszDataPath);
         }
-    }
-    __except( EXCEPTION_EXECUTE_HANDLER )
-    {
-        SetLastError( GetExceptionCode() );
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        SetLastError(GetExceptionCode());
         fResult = FALSE;
     }
 
     HashDbCompactor.UnlockDatabase();
 
-    if ( pwszKeyPath != NULL )
-    {
-        HashDbCompactor.FreeString( pwszKeyPath );
+    if (pwszKeyPath != NULL) {
+        HashDbCompactor.FreeString(pwszKeyPath);
     }
 
-    if ( pwszDataPath != NULL )
-    {
-        HashDbCompactor.FreeString( pwszDataPath );
+    if (pwszDataPath != NULL) {
+        HashDbCompactor.FreeString(pwszDataPath);
     }
 
-    return( fResult );
+    return(fResult);
 }

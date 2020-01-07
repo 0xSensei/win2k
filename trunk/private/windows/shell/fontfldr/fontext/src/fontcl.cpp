@@ -66,18 +66,18 @@ extern "C" {
 #endif
 
 
-// [stevecat]   This used to reside in "wingdip.h" (included with <winp.h>)
-//  6/29/95     but I have taken it out because of C++ name-mangling problems
-//              with that header file that are not going to be fixed because
-//              this file is going to change significantly (according to
-//              EricK) when we switch over to Kernel mode GDI/User.
+    // [stevecat]   This used to reside in "wingdip.h" (included with <winp.h>)
+    //  6/29/95     but I have taken it out because of C++ name-mangling problems
+    //              with that header file that are not going to be fixed because
+    //              this file is going to change significantly (according to
+    //              EricK) when we switch over to Kernel mode GDI/User.
 
 
-//#include <stddef.h>     //  Needed for winp.h
-//#include <winp.h>       //  For private GDI entry point:  GetFontResourceInfo
+    //#include <stddef.h>     //  Needed for winp.h
+    //#include <winp.h>       //  For private GDI entry point:  GetFontResourceInfo
 
 
-// Private Control Panel entry point to enumerate fonts by file.
+    // Private Control Panel entry point to enumerate fonts by file.
 
 #define GFRI_NUMFONTS       0L
 #define GFRI_DESCRIPTION    1L
@@ -90,10 +90,10 @@ extern "C" {
 
 #include <winfont.h> //Type1 PFM file offsets and reader macros.
 
-extern BOOL WINAPI GetFontResourceInfoW( LPWSTR  lpPathname,
-                                         LPDWORD lpBytes,
-                                         LPVOID  lpBuffer,
-                                         DWORD   iType );
+    extern BOOL WINAPI GetFontResourceInfoW(LPWSTR  lpPathname,
+                                            LPDWORD lpBytes,
+                                            LPVOID  lpBuffer,
+                                            DWORD   iType);
 
 #ifdef __cplusplus
 }
@@ -116,13 +116,13 @@ extern BOOL WINAPI GetFontResourceInfoW( LPWSTR  lpPathname,
 #define NEW_FONT_VERSION     0x0300
 
 #ifdef ROM
-HANDLE FAR PASCAL IsROMModule( LPTSTR lpName, BOOL fSelector );
+HANDLE FAR PASCAL IsROMModule(LPTSTR lpName, BOOL fSelector);
 #endif
 
-CFDirVector * CFontClass::s_poDirList = 0;
+CFDirVector* CFontClass::s_poDirList = 0;
 
 
-BOOL bTTFFromFOT( LPTSTR lpFOTPath, LPTSTR lpTTF, WORD wLen )
+BOOL bTTFFromFOT(LPTSTR lpFOTPath, LPTSTR lpTTF, WORD wLen)
 {
     PATHNAME szTTFPath;
     BOOL     bValid;
@@ -132,8 +132,8 @@ BOOL bTTFFromFOT( LPTSTR lpFOTPath, LPTSTR lpTTF, WORD wLen )
     ULONG    iSize = MAX_PATH_LEN;
 
 
-    bValid = GetFontResourceInfoW( lpFOTPath, &iSize, szTTFPath,
-                                   GFRI_TTFILENAME );
+    bValid = GetFontResourceInfoW(lpFOTPath, &iSize, szTTFPath,
+                                  GFRI_TTFILENAME);
 
 #else
 
@@ -141,7 +141,7 @@ BOOL bTTFFromFOT( LPTSTR lpFOTPath, LPTSTR lpTTF, WORD wLen )
     BOOL     bOpen;
 
 
-    hfile  = _lopen( lpFOTPath, OF_READ );
+    hfile = _lopen(lpFOTPath, OF_READ);
 
     bValid = hfile != HFILE_ERROR;
 
@@ -149,17 +149,16 @@ BOOL bTTFFromFOT( LPTSTR lpFOTPath, LPTSTR lpTTF, WORD wLen )
     //  Peek into the FOT file to find the TTF name
 
 
-    if( bValid )
-    {
-        bOpen  = TRUE;
-        bValid = _llseek( hfile, 0x400, 0 ) != HFILE_ERROR;
+    if (bValid) {
+        bOpen = TRUE;
+        bValid = _llseek(hfile, 0x400, 0) != HFILE_ERROR;
     };
 
-    if( bValid )
-         bValid = _lread( hfile, szTTFPath, sizeof( szTTFPath ) ) != HFILE_ERROR;
+    if (bValid)
+        bValid = _lread(hfile, szTTFPath, sizeof(szTTFPath)) != HFILE_ERROR;
 
-    if( bOpen )
-        _lclose( hfile );
+    if (bOpen)
+        _lclose(hfile);
 
 #endif  //  WINNT
 
@@ -168,11 +167,10 @@ BOOL bTTFFromFOT( LPTSTR lpFOTPath, LPTSTR lpTTF, WORD wLen )
     //  Then make up a full name.
 
 
-    if( bValid )
-    {
-        szTTFPath[ MAX_PATH_LEN ] = TEXT( '\0' );
+    if (bValid) {
+        szTTFPath[MAX_PATH_LEN] = TEXT('\0');
 
-        bValid = bMakeFQName( lpTTF, szTTFPath, wLen );
+        bValid = bMakeFQName(lpTTF, szTTFPath, wLen);
     }
 
     return bValid;
@@ -190,7 +188,7 @@ BOOL bTTFFromFOT( LPTSTR lpFOTPath, LPTSTR lpTTF, WORD wLen )
  * RETURNS:  void
  **/
 
-int GetFontsDirectory( LPTSTR lpPath, int iLen )
+int GetFontsDirectory(LPTSTR lpPath, int iLen)
 {
     static   FullPathName_t s_szFontsDir;
     static   BOOL           s_Fetched = FALSE;
@@ -202,63 +200,57 @@ int GetFontsDirectory( LPTSTR lpPath, int iLen )
     //  is the root directory.
 
 
-    if( ( !s_Fetched &&
-          SHGetSpecialFolderPath( NULL, s_szFontsDir, CSIDL_FONTS, FALSE ) ) )
-    {
-        DWORD dwAttr = GetFileAttributes( s_szFontsDir );
+    if ((!s_Fetched &&
+         SHGetSpecialFolderPath(NULL, s_szFontsDir, CSIDL_FONTS, FALSE))) {
+        DWORD dwAttr = GetFileAttributes(s_szFontsDir);
 
-        if( dwAttr != (DWORD) -1 && ( dwAttr & FILE_ATTRIBUTE_DIRECTORY ) )
-        {
+        if (dwAttr != (DWORD)-1 && (dwAttr & FILE_ATTRIBUTE_DIRECTORY)) {
             s_Fetched = TRUE;
-            iRet = lstrlen( s_szFontsDir );
+            iRet = lstrlen(s_szFontsDir);
         }
     }
 
 
-    if( !s_Fetched )
-    {
-        int wLen = GetSystemWindowsDirectory( s_szFontsDir, ARRAYSIZE( s_szFontsDir ) );
+    if (!s_Fetched) {
+        int wLen = GetSystemWindowsDirectory(s_szFontsDir, ARRAYSIZE(s_szFontsDir));
 
-        s_Fetched = ( wLen > 0 ) && ( wLen <= ARRAYSIZE( s_szFontsDir ) );
+        s_Fetched = (wLen > 0) && (wLen <= ARRAYSIZE(s_szFontsDir));
 
 
         //  Build up the Fonts directory. This is no longer the System folder.
 
 
-        if( s_Fetched )
-        {
+        if (s_Fetched) {
 
             // Find the last TEXT( "\" ).
 
 
-            if( s_szFontsDir[ wLen-1 ] != TEXT( '\\' ) )
-            {
-                s_szFontsDir[ wLen ]   = TEXT( '\\' );
-                s_szFontsDir[ wLen+1 ] = 0;
+            if (s_szFontsDir[wLen - 1] != TEXT('\\')) {
+                s_szFontsDir[wLen] = TEXT('\\');
+                s_szFontsDir[wLen + 1] = 0;
                 wLen++;
             }
 
-            LoadString( g_hInst,
-                        IDS_FONTS_FOLDER,
-                        s_szFontsDir + wLen,
-                        ARRAYSIZE( s_szFontsDir ) - wLen );
+            LoadString(g_hInst,
+                       IDS_FONTS_FOLDER,
+                       s_szFontsDir + wLen,
+                       ARRAYSIZE(s_szFontsDir) - wLen);
         }
 
-        iRet = lstrlen( s_szFontsDir );
+        iRet = lstrlen(s_szFontsDir);
     }
 
 #ifdef UNICODE
 
     //  Make an ANSI version of szSharedDir for t1instal call
 
-    if( WideCharToMultiByte( CP_ACP, 0, s_szFontsDir, -1,
-                              g_szFontsDirA, PATHMAX, NULL, NULL ) == FALSE )
-    {
+    if (WideCharToMultiByte(CP_ACP, 0, s_szFontsDir, -1,
+                            g_szFontsDirA, PATHMAX, NULL, NULL) == FALSE) {
 
         //  Report initialization error
 
 
-        iUIMsgExclaim(NULL, MYFONT + 18, s_szFontsDir );
+        iUIMsgExclaim(NULL, MYFONT + 18, s_szFontsDir);
 
         return (FALSE);
     }
@@ -266,8 +258,8 @@ int GetFontsDirectory( LPTSTR lpPath, int iLen )
     lstrcpy(g_szFontsDirA, s_szFontsDir);
 #endif
 
-    if( iRet <= iLen )
-        lstrcpy( lpPath, s_szFontsDir );
+    if (iRet <= iLen)
+        lstrcpy(lpPath, s_szFontsDir);
 
     return iRet;
 }
@@ -277,25 +269,25 @@ int GetFontsDirectory( LPTSTR lpPath, int iLen )
  * DirFilenameClass routines:
  **/
 
-/**
- * FUNCTION: vGetFullName
+ /**
+  * FUNCTION: vGetFullName
 
- * PURPOSE:  Load the full directory/path/filename into the given string.
- *              The full name includes the directory name from the database,
- *              with the file name appended to it.
+  * PURPOSE:  Load the full directory/path/filename into the given string.
+  *              The full name includes the directory name from the database,
+  *              with the file name appended to it.
 
- * RETURNS:  void
- **/
+  * RETURNS:  void
+  **/
 
-void DirFilenameClass :: vGetFullName( PTSTR pStr )
+void DirFilenameClass::vGetFullName(PTSTR pStr)
 {
     ASSERT(NULL != m_poDir);
-    lstrcpy( pStr, m_poDir->lpString( ) );
+    lstrcpy(pStr, m_poDir->lpString());
 
-    if( pStr[ lstrlen( pStr ) - 1 ] != TEXT( '\\' ) )
-        lstrcat( pStr, TEXT( "\\" ) );
+    if (pStr[lstrlen(pStr) - 1] != TEXT('\\'))
+        lstrcat(pStr, TEXT("\\"));
 
-    lstrcat( pStr, m_szFOnly );
+    lstrcat(pStr, m_szFOnly);
 }
 
 
@@ -307,27 +299,25 @@ void DirFilenameClass :: vGetFullName( PTSTR pStr )
  * RETURNS:  RC - NOERR unless directory list full or name too long
  **/
 
-CFontDir * CFontClass::poAddDir( LPTSTR lpPath, LPTSTR * lpName )
+CFontDir* CFontClass::poAddDir(LPTSTR lpPath, LPTSTR* lpName)
 {
     *lpName = NULL;
 
     LPTSTR lpLastSlash;
     LPTSTR lpFileOnly;
-    CFontDir * poDir = 0;
+    CFontDir* poDir = 0;
 
 
     //  The first time through, allocate the directory struct.
 
 
-    if( !s_poDirList )
-    {
-        s_poDirList  = new CFDirVector( 64 );
+    if (!s_poDirList) {
+        s_poDirList = new CFDirVector(64);
 
-        if( !s_poDirList )
+        if (!s_poDirList)
             return 0;
 
-        if( !s_poDirList->bInit( ) )
-        {
+        if (!s_poDirList->bInit()) {
             s_poDirList = 0;
             return 0;
         }
@@ -339,16 +329,14 @@ CFontDir * CFontClass::poAddDir( LPTSTR lpPath, LPTSTR * lpName )
 
         FullPathName_t szBaseDir;
 
-        int wLen = GetFontsDirectory( szBaseDir, ARRAYSIZE( szBaseDir ) );
+        int wLen = GetFontsDirectory(szBaseDir, ARRAYSIZE(szBaseDir));
 
-        CFontDir * poDir = new CFontDir;
+        CFontDir* poDir = new CFontDir;
 
-        if( poDir && poDir->bInit( szBaseDir, wLen ) )
-        {
-            poDir->vOnSysDir( TRUE );
+        if (poDir && poDir->bInit(szBaseDir, wLen)) {
+            poDir->vOnSysDir(TRUE);
 
-            if( !s_poDirList->bAdd( poDir ) )
-            {
+            if (!s_poDirList->bAdd(poDir)) {
                 delete poDir;
 
                 delete s_poDirList;
@@ -357,9 +345,7 @@ CFontDir * CFontClass::poAddDir( LPTSTR lpPath, LPTSTR * lpName )
 
                 return 0;
             }
-        }
-        else
-        {
+        } else {
             delete s_poDirList;
 
             s_poDirList = 0;
@@ -372,16 +358,14 @@ CFontDir * CFontClass::poAddDir( LPTSTR lpPath, LPTSTR * lpName )
         // It is located in slot 1.
 
 
-        wLen = GetSystemDirectory( szBaseDir, ARRAYSIZE( szBaseDir ) );
+        wLen = GetSystemDirectory(szBaseDir, ARRAYSIZE(szBaseDir));
 
         poDir = new CFontDir;
 
-        if( poDir && poDir->bInit( szBaseDir, wLen ) )
-        {
-            poDir->vOnSysDir( TRUE );
+        if (poDir && poDir->bInit(szBaseDir, wLen)) {
+            poDir->vOnSysDir(TRUE);
 
-            if( !s_poDirList->bAdd( poDir ) )
-            {
+            if (!s_poDirList->bAdd(poDir)) {
                 delete poDir;
 
                 delete s_poDirList;
@@ -390,9 +374,7 @@ CFontDir * CFontClass::poAddDir( LPTSTR lpPath, LPTSTR * lpName )
 
                 return 0;
             }
-        }
-        else
-        {
+        } else {
             delete s_poDirList;
 
             s_poDirList = 0;
@@ -410,35 +392,32 @@ CFontDir * CFontClass::poAddDir( LPTSTR lpPath, LPTSTR * lpName )
     // Force same case file (?)
     // lstrcpy( lpPath, /* _strlwr */ (lpPath ) );
 
-    lpLastSlash = StrRChr( lpPath, NULL, TEXT( '\\' ) );
+    lpLastSlash = StrRChr(lpPath, NULL, TEXT('\\'));
 
 
-    TCHAR szTempFile[ MAX_PATH_LEN ];
+    TCHAR szTempFile[MAX_PATH_LEN];
 
 
-    if( !lpLastSlash )
-    {
-        if( !bMakeFQName( szTempFile, lpPath, MAX_PATH_LEN, TRUE ) )
-        {
-            return( NULL );
+    if (!lpLastSlash) {
+        if (!bMakeFQName(szTempFile, lpPath, MAX_PATH_LEN, TRUE)) {
+            return(NULL);
         }
 
         *lpName = lpPath;
         lpPath = szTempFile;
 
-        lpLastSlash = StrRChr( lpPath, NULL, TEXT( '\\' ) );
+        lpLastSlash = StrRChr(lpPath, NULL, TEXT('\\'));
 
-        if( !lpLastSlash )
-        {
+        if (!lpLastSlash) {
 
             // This should never happen
 
 
-            return( NULL );
+            return(NULL);
         }
     }
 
-    lpFileOnly = lpLastSlash+1;
+    lpFileOnly = lpLastSlash + 1;
 
 
     // Try to find the directory in the list.
@@ -446,10 +425,9 @@ CFontDir * CFontClass::poAddDir( LPTSTR lpPath, LPTSTR * lpName )
 
     int iLen = (int)(lpFileOnly - lpPath - 1);
 
-    poDir = s_poDirList->fdFindDir( lpPath, iLen, TRUE );
+    poDir = s_poDirList->fdFindDir(lpPath, iLen, TRUE);
 
-    if( !*lpName )
-    {
+    if (!*lpName) {
         *lpName = lpFileOnly;
     }
 
@@ -457,15 +435,14 @@ CFontDir * CFontClass::poAddDir( LPTSTR lpPath, LPTSTR * lpName )
 }
 
 
-RC CFontClass :: rcStoreDirFN( LPTSTR lpszPath, DirFilenameClass& dirfn )
+RC CFontClass::rcStoreDirFN(LPTSTR lpszPath, DirFilenameClass& dirfn)
 {
     RC     rc = ERR_FAIL;
     LPTSTR lpName;
-    CFontDir * poDir = poAddDir( lpszPath, &lpName );
+    CFontDir* poDir = poAddDir(lpszPath, &lpName);
 
-    if( poDir && ( lstrlen( lpName ) <= MAX_FILE_LEN ) )
-    {
-        dirfn.vSet( poDir, lpName );
+    if (poDir && (lstrlen(lpName) <= MAX_FILE_LEN)) {
+        dirfn.vSet(poDir, lpName);
 
         rc = NOERR;
     }
@@ -483,7 +460,7 @@ RC CFontClass :: rcStoreDirFN( LPTSTR lpszPath, DirFilenameClass& dirfn )
  * RETURNS:  void
  **/
 
-void CFontClass :: vStuffPANOSE( )
+void CFontClass::vStuffPANOSE()
 {
     PANOSEBytesClass xUsePANOSE;    // Will initialize as dummy;
 
@@ -496,8 +473,8 @@ void CFontClass :: vStuffPANOSE( )
     // invalid.
 
 
-    if( rcPANOSEFromTTF( xUsePANOSE ) == NOERR )
-        m_fHavePANOSE = xUsePANOSE.bVerify( );
+    if (rcPANOSEFromTTF(xUsePANOSE) == NOERR)
+        m_fHavePANOSE = xUsePANOSE.bVerify();
     else
         m_fHavePANOSE = FALSE;
 
@@ -505,25 +482,25 @@ void CFontClass :: vStuffPANOSE( )
     //  If we don't have a valid PANOSE number, make sure we've got a clean one
 
 
-    if( !m_fHavePANOSE )
-        xUsePANOSE.vClear( );
+    if (!m_fHavePANOSE)
+        xUsePANOSE.vClear();
 
-    m_jFamily = xUsePANOSE.jFamily( );
+    m_jFamily = xUsePANOSE.jFamily();
 
-    memcpy( m_xPANOSE.m_ajNumMem,
-            xUsePANOSE.m_ajBytes,
-            sizeof( m_xPANOSE.m_ajNumMem ) );
+    memcpy(m_xPANOSE.m_ajNumMem,
+           xUsePANOSE.m_ajBytes,
+           sizeof(m_xPANOSE.m_ajNumMem));
 
 }
 #endif
 
-DWORD CFontClass :: dCalcFileSize( )
+DWORD CFontClass::dCalcFileSize()
 {
 
     //  First we get the size of the basis file
 
 
-    GetFileInfo( );
+    GetFileInfo();
 
     return m_wFileK;
 }
@@ -533,18 +510,17 @@ DWORD CFontClass :: dCalcFileSize( )
  * Start of Public routines
  **/
 
-/**
- * FUNCTION: bAFR
+ /**
+  * FUNCTION: bAFR
 
- * PURPOSE:  Add font resource
+  * PURPOSE:  Add font resource
 
- * RETURNS:  TRUE on success.
- **/
+  * RETURNS:  TRUE on success.
+  **/
 
-BOOL CFontClass::bAFR( )
+BOOL CFontClass::bAFR()
 {
-    if( !m_bAFR )
-    {
+    if (!m_bAFR) {
         FullPathName_t szFile;
         LPTSTR pszResourceName = szFile;
 
@@ -552,15 +528,13 @@ BOOL CFontClass::bAFR( )
         TCHAR szType1FontResourceName[MAX_TYPE1_FONT_RESOURCE];
 #endif
 
-        if( !bGetFOT( szFile, ARRAYSIZE( szFile ) ) )
-        {
-            bGetFQName( szFile, ARRAYSIZE( szFile ) );
+        if (!bGetFOT(szFile, ARRAYSIZE(szFile))) {
+            bGetFQName(szFile, ARRAYSIZE(szFile));
         }
 
 #ifdef WINNT
 
-        if (bType1())
-        {
+        if (bType1()) {
 
             // Font is a Type1.
             // Create a Type1 font resource name as:  "<pfm>|<pfb>"
@@ -571,95 +545,88 @@ BOOL CFontClass::bAFR( )
                 BuildType1FontResourceName(szFile,
                                            szPfbPath,
                                            szType1FontResourceName,
-                                           ARRAYSIZE(szType1FontResourceName)))
-            {
+                                           ARRAYSIZE(szType1FontResourceName))) {
                 pszResourceName = szType1FontResourceName;
             }
         }
 #endif // WINNT
 
-        if( AddFontResource(pszResourceName) )
+        if (AddFontResource(pszResourceName))
             m_bAFR = TRUE;
-   }
+    }
 
-   return m_bAFR;
+    return m_bAFR;
 }
 
 
-void CFontClass::GetFileInfo( )
+void CFontClass::GetFileInfo()
 {
-    TCHAR szPath[ MAX_PATH ];
+    TCHAR szPath[MAX_PATH];
     WIN32_FIND_DATA fd;
 
 
-// TODO: [stevecat] Change this to check the FONT Type for this font.
-//                  if bType1 == TRUE then add size of PFB file also
-//                  to total font size for a more accurate representation
-//                  of total Type1 font file sizes.
+    // TODO: [stevecat] Change this to check the FONT Type for this font.
+    //                  if bType1 == TRUE then add size of PFB file also
+    //                  to total font size for a more accurate representation
+    //                  of total Type1 font file sizes.
 
 
 
-    if( !m_bFileInfoFetched )
-    {
-        m_ft.dwLowDateTime  = 0;
+    if (!m_bFileInfoFetched) {
+        m_ft.dwLowDateTime = 0;
         m_ft.dwHighDateTime = 0;
 
-        if( bGetFQName( szPath, ARRAYSIZE( szPath ) ) )
-        {
-            HANDLE hfind = FindFirstFile( szPath, &fd );
+        if (bGetFQName(szPath, ARRAYSIZE(szPath))) {
+            HANDLE hfind = FindFirstFile(szPath, &fd);
 
-            m_bFileInfoFetched  = TRUE;
+            m_bFileInfoFetched = TRUE;
 
-            if( hfind != INVALID_HANDLE_VALUE )
-            {
-                m_wFileK = (UINT) BYTESTOK( fd.nFileSizeLow );
-                m_ft     = fd.ftLastWriteTime;
+            if (hfind != INVALID_HANDLE_VALUE) {
+                m_wFileK = (UINT)BYTESTOK(fd.nFileSizeLow);
+                m_ft = fd.ftLastWriteTime;
 
-                FindClose( hfind );
+                FindClose(hfind);
             }
         }
 
 
-// [stevecat] Add check for existing PFB file and add its size to this
-//  FIXIFX - test this to be sure PFB filename is getting full path for
-//           FindFile call.
+        // [stevecat] Add check for existing PFB file and add its size to this
+        //  FIXIFX - test this to be sure PFB filename is getting full path for
+        //           FindFile call.
 
 
-        if( bPFB( ) )
-        {
-//            TCHAR szPfbFile[ MAX_PATH ];
+        if (bPFB()) {
+            //            TCHAR szPfbFile[ MAX_PATH ];
 
-//            if( bGetPFB( szPfbFile, ARRAYSIZE( szPfbFile ) )
-//            {
-//                if( bMakeFQName( szPath, szPfbFile, ARRAYSIZE( szPath ) ) )
+            //            if( bGetPFB( szPfbFile, ARRAYSIZE( szPfbFile ) )
+            //            {
+            //                if( bMakeFQName( szPath, szPfbFile, ARRAYSIZE( szPath ) ) )
 
-            if( bMakeFQName( szPath, m_lpszPFB, ARRAYSIZE( szPath ) ) )
-            {
-                HANDLE hfind = FindFirstFile( szPath, &fd );
+            if (bMakeFQName(szPath, m_lpszPFB, ARRAYSIZE(szPath))) {
+                HANDLE hfind = FindFirstFile(szPath, &fd);
 
-                m_bFileInfoFetched  = TRUE;
+                m_bFileInfoFetched = TRUE;
 
-                if( hfind != INVALID_HANDLE_VALUE )
-                {
-                    m_wFileK += (UINT) BYTESTOK( fd.nFileSizeLow );
+                if (hfind != INVALID_HANDLE_VALUE) {
+                    m_wFileK += (UINT)BYTESTOK(fd.nFileSizeLow);
 
-                    FindClose( hfind );
+                    FindClose(hfind);
                 }
             }
-//            }
+            //            }
         }
 
     }
 }
 
 
-BOOL CFontClass::GetFileTime( FILETIME * pft )
+BOOL CFontClass::GetFileTime(FILETIME* pft)
 {
-    GetFileInfo( );
+    GetFileInfo();
 
     *pft = m_ft;
 
-    return( pft->dwLowDateTime || pft->dwHighDateTime );
+    return(pft->dwLowDateTime || pft->dwHighDateTime);
 }
 
 
@@ -670,10 +637,9 @@ BOOL CFontClass::GetFileTime( FILETIME * pft )
 
  * RETURNS:  TRUE on success.
  **/
-BOOL CFontClass::bRFR( )
+BOOL CFontClass::bRFR()
 {
-    if( m_bAFR )
-    {
+    if (m_bAFR) {
         FullPathName_t szFile;
         LPTSTR pszResourceName = szFile;
 
@@ -686,17 +652,15 @@ BOOL CFontClass::bRFR( )
         // Try both if necessary.
 
 
-        if( !bGetFOT( szFile, ARRAYSIZE( szFile ) ) )
-        {
-            bGetFQName( szFile, ARRAYSIZE( szFile ) );
+        if (!bGetFOT(szFile, ARRAYSIZE(szFile))) {
+            bGetFQName(szFile, ARRAYSIZE(szFile));
         }
 
         m_bAFR = FALSE;
 
 #ifdef WINNT
 
-        if (bType1())
-        {
+        if (bType1()) {
 
             // Font is a Type1.
             // Create a Type1 font resource name as:  "<pfm>|<pfb>"
@@ -707,70 +671,66 @@ BOOL CFontClass::bRFR( )
                 BuildType1FontResourceName(szFile,
                                            szPfbPath,
                                            szType1FontResourceName,
-                                           ARRAYSIZE(szType1FontResourceName)))
-            {
+                                           ARRAYSIZE(szType1FontResourceName))) {
                 pszResourceName = szType1FontResourceName;
             }
         }
 
 #endif // WINNT
 
-        if( !RemoveFontResource( pszResourceName ) )
-        {
-            TCHAR szFN[ MAX_PATH_LEN ];
+        if (!RemoveFontResource(pszResourceName)) {
+            TCHAR szFN[MAX_PATH_LEN];
 
-            vGetFileName( szFN );
+            vGetFileName(szFN);
 
-            if( bFOT( ) || !RemoveFontResource( szFN ) )
-            {
+            if (bFOT() || !RemoveFontResource(szFN)) {
 
                 // If the file doesn't exist, then it couldn't be in GDI.
 
 
-                if( GetFileAttributes( szFile ) != 0xffffffff )
+                if (GetFileAttributes(szFile) != 0xffffffff)
                     m_bAFR = TRUE;
             }
         }
     }
 
-    return( !m_bAFR );
+    return(!m_bAFR);
 }
 
 
 #ifndef    CHECKFILENAMEFIRST
 
-BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanionFile )
+BOOL CFontClass::bInit(LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanionFile)
 {
-    static const TCHAR    c_szPLOTTER     [] = TEXT( " (PLOTTER)" );
-    static const TCHAR    c_szTRUETYPE    [] = TEXT( " (TRUETYPE)" );
-    static const TCHAR    c_szTRUETYPEALT [] = TEXT( " (TRUE TYPE)" );
-    static const TCHAR    c_szTYPE1       [] = TEXT( " (TYPE 1)" );
-    static const TCHAR    c_szTYPE1ALT    [] = TEXT( " (POSTSCRIPT)" );
-    static const TCHAR    c_szFOT         [] = TEXT( ".FOT" );
-    static const TCHAR    c_szTTF         [] = TEXT( ".TTF" );
-    static const TCHAR    c_szTTC         [] = TEXT( ".TTC" );
-    static const TCHAR    c_szOTF         [] = TEXT( ".OTF" );
-    static const TCHAR    c_szPFM         [] = TEXT( ".PFM" );
-    static const TCHAR    c_szINF         [] = TEXT( ".INF" );
+    static const TCHAR    c_szPLOTTER[] = TEXT(" (PLOTTER)");
+    static const TCHAR    c_szTRUETYPE[] = TEXT(" (TRUETYPE)");
+    static const TCHAR    c_szTRUETYPEALT[] = TEXT(" (TRUE TYPE)");
+    static const TCHAR    c_szTYPE1[] = TEXT(" (TYPE 1)");
+    static const TCHAR    c_szTYPE1ALT[] = TEXT(" (POSTSCRIPT)");
+    static const TCHAR    c_szFOT[] = TEXT(".FOT");
+    static const TCHAR    c_szTTF[] = TEXT(".TTF");
+    static const TCHAR    c_szTTC[] = TEXT(".TTC");
+    static const TCHAR    c_szOTF[] = TEXT(".OTF");
+    static const TCHAR    c_szPFM[] = TEXT(".PFM");
+    static const TCHAR    c_szINF[] = TEXT(".INF");
 
     LPTSTR  pTT;
     LPTSTR  lpszEn;
     BOOL    bSuccess = TRUE;
 
 
-    LPCTSTR lpName = lpNamePart( lpFileName );
+    LPCTSTR lpName = lpNamePart(lpFileName);
 
 
-    if( !lpName )
-    {
+    if (!lpName) {
         lpName = lpFileName;
     }
 
     FullPathName_t szName;
 
-    lstrcpyn( szName, lpName, ARRAYSIZE( szName ) );
+    lstrcpyn(szName, lpName, ARRAYSIZE(szName));
 
-    CharUpper( szName );
+    CharUpper(szName);
 
     m_bFileInfoFetched = FALSE;
 
@@ -778,8 +738,7 @@ BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanion
     // Store the file name.
 
 
-    if( rcStoreDirFN( lpFileName ) != NOERR )
-    {
+    if (rcStoreDirFN(lpFileName) != NOERR) {
         delete this;
         return FALSE;
     }
@@ -788,79 +747,68 @@ BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanion
     // Figure out what type of font this is.
 
 
-    lpszEn = _tcsstr( lpszDesc, TEXT( " (" ) );
+    lpszEn = _tcsstr(lpszDesc, TEXT(" ("));
 
-    if( lpszEn == NULL )
-    {
+    if (lpszEn == NULL) {
 
         //  There's no additional description, so set filetype based on
         //  extension.
 
 
-        m_wNameLen = (BYTE)lstrlen( lpszDesc );
+        m_wNameLen = (BYTE)lstrlen(lpszDesc);
 
-        if( _tcsstr( szName, c_szTTF ) )
-            vSetTrueType( FALSE );
-        else if( _tcsstr( szName, c_szOTF ) )
-            vSetOpenType( );
-        else if( _tcsstr( szName, c_szTTC ) )
-            vSetTTCType( );
-        else if( _tcsstr( szName, c_szPFM ) )
-        {
-            vSetType1( );
+        if (_tcsstr(szName, c_szTTF))
+            vSetTrueType(FALSE);
+        else if (_tcsstr(szName, c_szOTF))
+            vSetOpenType();
+        else if (_tcsstr(szName, c_szTTC))
+            vSetTTCType();
+        else if (_tcsstr(szName, c_szPFM)) {
+            vSetType1();
 
-            if( lpCompanionFile != NULL )
-                bSetPFB( lpCompanionFile );
+            if (lpCompanionFile != NULL)
+                bSetPFB(lpCompanionFile);
+        } else if (_tcsstr(szName, c_szINF)) {
+            vSetType1();
+
+            if (lpCompanionFile != NULL)
+                bSetPFB(lpCompanionFile);
         }
-        else if( _tcsstr( szName, c_szINF ) )
-        {
-            vSetType1( );
-
-            if( lpCompanionFile != NULL )
-                bSetPFB( lpCompanionFile );
-        }
-    }
-    else
-    {
-        m_wNameLen = (BYTE)(lpszEn-lpszDesc);
+    } else {
+        m_wNameLen = (BYTE)(lpszEn - lpszDesc);
 
         FontDesc_t szEn;
 
-        lstrcpyn( szEn, lpszEn, ARRAYSIZE( szEn ) );
+        lstrcpyn(szEn, lpszEn, ARRAYSIZE(szEn));
 
-        CharUpper( szEn );
+        CharUpper(szEn);
 
-        pTT = _tcsstr( szEn, c_szTRUETYPE );
+        pTT = _tcsstr(szEn, c_szTRUETYPE);
 
-        if( !pTT )
-            pTT = _tcsstr( szEn, c_szTRUETYPEALT );
+        if (!pTT)
+            pTT = _tcsstr(szEn, c_szTRUETYPEALT);
 
-        if( pTT )
-        {
+        if (pTT) {
 
             //  This is either a TTF or an FOT
 
 
-            BOOL bFOT = ( _tcsstr( szName, c_szFOT ) != (LPTSTR) NULL );
+            BOOL bFOT = (_tcsstr(szName, c_szFOT) != (LPTSTR)NULL);
 
-            if( bFOT )
-            {
+            if (bFOT) {
                 FullPathName_t szTTF;
                 FullPathName_t szFOT;
 
-                if( bMakeFQName( szFOT, lpFileName, ARRAYSIZE( szFOT ) ) )
-                {
-                    bSuccess = bTTFFromFOT( szFOT, szTTF, ARRAYSIZE( szTTF ) );
+                if (bMakeFQName(szFOT, lpFileName, ARRAYSIZE(szFOT))) {
+                    bSuccess = bTTFFromFOT(szFOT, szTTF, ARRAYSIZE(szTTF));
 
-                    if( bSuccess )
-                    {
-                        if( !bSetFOT( szFOT ) )
-                        {
+                    if (bSuccess) {
+                        if (!bSetFOT(szFOT)) {
                             delete this;
-                            return( FALSE );
+                            return(FALSE);
                         }
 
-                        return bInit( lpszDesc, szTTF, NULL );
+                        return bInit(lpszDesc, szTTF, NULL);
                     }
                 }
 
@@ -872,40 +820,31 @@ BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanion
                 return FALSE;
             }
 
-            vSetTrueType( bFOT );
+            vSetTrueType(bFOT);
 
-            if( _tcsstr( szName, c_szTTC ) )
-                vSetTTCType( );
-        }
-        else if( _tcsstr( szName, c_szOTF ) )
-        {
-            vSetOpenType( );
-        }
-        else if( _tcsstr( szName, c_szTTC ) )
-        {
-            vSetTTCType( );
-        }
-        else if( _tcsstr( szName, c_szTYPE1 ) )
-        {
-            vSetType1( );
+            if (_tcsstr(szName, c_szTTC))
+                vSetTTCType();
+        } else if (_tcsstr(szName, c_szOTF)) {
+            vSetOpenType();
+        } else if (_tcsstr(szName, c_szTTC)) {
+            vSetTTCType();
+        } else if (_tcsstr(szName, c_szTYPE1)) {
+            vSetType1();
 
-            if( lpCompanionFile != NULL )
-                bSetPFB( lpCompanionFile );
-        }
-        else if( _tcsstr( szName, c_szTYPE1ALT ) )
-        {
-            vSetType1( );
+            if (lpCompanionFile != NULL)
+                bSetPFB(lpCompanionFile);
+        } else if (_tcsstr(szName, c_szTYPE1ALT)) {
+            vSetType1();
 
-            if( lpCompanionFile != NULL )
-                bSetPFB( lpCompanionFile );
-        }
-        else    //   if( _tcsstr( szEn, c_szPLOTTER ) == NULL )
+            if (lpCompanionFile != NULL)
+                bSetPFB(lpCompanionFile);
+        } else    //   if( _tcsstr( szEn, c_szPLOTTER ) == NULL )
         {
-            vSetDeviceType( );
+            vSetDeviceType();
         }
     }
 
-    lstrcpyn( m_szFontLHS, lpszDesc, ARRAYSIZE( m_szFontLHS ) );
+    lstrcpyn(m_szFontLHS, lpszDesc, ARRAYSIZE(m_szFontLHS));
 
 
     //  It is assumed that this font is already installed.
@@ -920,7 +859,7 @@ BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanion
 
     m_wFamIdx = IDX_NULL;
 
-    vSetFamilyFont( );
+    vSetFamilyFont();
 
 
     // Invalidate the font object's cached file attributes.
@@ -934,18 +873,18 @@ BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanion
 
 #else    // !CHECKFILENAMEFIRST
 
-BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanionFile )
+BOOL CFontClass::bInit(LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanionFile)
 {
-    static const TCHAR    c_szTRUETYPE    [] = TEXT( " (TRUETYPE)" );
-    static const TCHAR    c_szTRUETYPEALT [] = TEXT( " (TRUE TYPE)" );
-    static const TCHAR    c_szTYPE1       [] = TEXT( " (TYPE 1)" );
-    static const TCHAR    c_szTYPE1ALT    [] = TEXT( " (POSTSCRIPT)" );
-    static const TCHAR    c_szFOT         [] = TEXT( ".FOT" );
-    static const TCHAR    c_szTTF         [] = TEXT( ".TTF" );
-    static const TCHAR    c_szTTC         [] = TEXT( ".TTC" );
-    static const TCHAR    c_szFON         [] = TEXT( ".FON" );
-    static const TCHAR    c_szPFM         [] = TEXT( ".PFM" );
-    static const TCHAR    c_szINF         [] = TEXT( ".INF" );
+    static const TCHAR    c_szTRUETYPE[] = TEXT(" (TRUETYPE)");
+    static const TCHAR    c_szTRUETYPEALT[] = TEXT(" (TRUE TYPE)");
+    static const TCHAR    c_szTYPE1[] = TEXT(" (TYPE 1)");
+    static const TCHAR    c_szTYPE1ALT[] = TEXT(" (POSTSCRIPT)");
+    static const TCHAR    c_szFOT[] = TEXT(".FOT");
+    static const TCHAR    c_szTTF[] = TEXT(".TTF");
+    static const TCHAR    c_szTTC[] = TEXT(".TTC");
+    static const TCHAR    c_szFON[] = TEXT(".FON");
+    static const TCHAR    c_szPFM[] = TEXT(".PFM");
+    static const TCHAR    c_szINF[] = TEXT(".INF");
 
     BOOL    bFoundType = FALSE;
 
@@ -955,8 +894,7 @@ BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanion
     //  Store the file name.
 
 
-    if( rcStoreDirFN( lpFileName ) != NOERR )
-    {
+    if (rcStoreDirFN(lpFileName) != NOERR) {
         delete this;
         return FALSE;
     }
@@ -965,57 +903,42 @@ BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanion
     //  Figure out what type of font this is.
 
 
-    LPTSTR lpExt = PathFindExtension( lpFileName );
+    LPTSTR lpExt = PathFindExtension(lpFileName);
 
-    if( lpExt )
-    {
+    if (lpExt) {
         bFoundType = TRUE;
 
         FullPathName_t szExt;
 
-        lstrcpyn( szExt, lpExt, ARRAYSIZE( szExt ) );
+        lstrcpyn(szExt, lpExt, ARRAYSIZE(szExt));
 
-        PathRemoveBlanks( szExt );
+        PathRemoveBlanks(szExt);
 
-        if( _tcsicmp( szExt, c_szTTF ) == 0 )
-        {
-            vSetTrueType( FALSE );
-        }
-        else if( _tcsicmp( szName, c_szTTC ) == 0 )
-        {
-            vSetTTCType( );
-        }
-        else if( _tcsicmp( szName, c_szFON ) == 0 )
-        {
-            vSetDeviceType( );
-        }
-        else if( _tcsicmp( szName, c_szPFM ) == 0 )
-        {
-            vSetType1( );
+        if (_tcsicmp(szExt, c_szTTF) == 0) {
+            vSetTrueType(FALSE);
+        } else if (_tcsicmp(szName, c_szTTC) == 0) {
+            vSetTTCType();
+        } else if (_tcsicmp(szName, c_szFON) == 0) {
+            vSetDeviceType();
+        } else if (_tcsicmp(szName, c_szPFM) == 0) {
+            vSetType1();
 
-            if( lpCompanionFile != NULL )
-                bSetPFB( lpCompanionFile );
-        }
-        else if( _tcsicmp( szName, c_szINF ) == 0 )
-        {
-            vSetType1( );
+            if (lpCompanionFile != NULL)
+                bSetPFB(lpCompanionFile);
+        } else if (_tcsicmp(szName, c_szINF) == 0) {
+            vSetType1();
 
-            if( lpCompanionFile != NULL )
-                bSetPFB( lpCompanionFile );
-        }
-        else if( _tcsicmp( szName, c_szFOT ) == 0 )
-        {
+            if (lpCompanionFile != NULL)
+                bSetPFB(lpCompanionFile);
+        } else if (_tcsicmp(szName, c_szFOT) == 0) {
             FullPathName_t szTTF;
             FullPathName_t szFOT;
 
-            if( bMakeFQName( szFOT, lpFileName, ARRAYSIZE( szFOT ) ) )
-            {
-                if( bTTFFromFOT( szFOT, szTTF, ARRAYSIZE( szTTF ) ) )
-                {
-                    if( bSetFOT( szFOT ) )
-                    {
+            if (bMakeFQName(szFOT, lpFileName, ARRAYSIZE(szFOT))) {
+                if (bTTFFromFOT(szFOT, szTTF, ARRAYSIZE(szTTF))) {
+                    if (bSetFOT(szFOT)) {
                         delete this;
-                        return bInit( lpszDesc, szTTF, NULL );
+                        return bInit(lpszDesc, szTTF, NULL);
                     }
                 }
             }
@@ -1025,65 +948,51 @@ BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanion
 
 
             delete this;
-            return( FALSE );
-        }
-        else
-        {
+            return(FALSE);
+        } else {
             bFoundType = FALSE;
         }
     }
 
-    LPTSTR lpszEn = _tcsstr( lpszDesc, TEXT( " (" ) );
+    LPTSTR lpszEn = _tcsstr(lpszDesc, TEXT(" ("));
 
-    if( lpszEn == NULL )
-    {
-        m_wNameLen = lstrlen( lpszDesc );
-    }
-    else
-    {
-        m_wNameLen = lpszEn-lpszDesc;
+    if (lpszEn == NULL) {
+        m_wNameLen = lstrlen(lpszDesc);
+    } else {
+        m_wNameLen = lpszEn - lpszDesc;
 
-        if( !bFoundType )
-        {
+        if (!bFoundType) {
             FontDesc_t szEn;
 
-            lstrcpyn( szEn, lpszEn, ARRAYSIZE( szEn ) );
+            lstrcpyn(szEn, lpszEn, ARRAYSIZE(szEn));
 
-            CharUpper( szEn );
+            CharUpper(szEn);
 
-            LPTSTR pTT = _tcsstr( szEn, szTRUETYPE );
+            LPTSTR pTT = _tcsstr(szEn, szTRUETYPE);
 
-            if( !pTT )
-            {
-                pTT = _tcsstr( szEn, szTRUETYPEALT );
+            if (!pTT) {
+                pTT = _tcsstr(szEn, szTRUETYPEALT);
             }
 
-            if( pTT )
-            {
-                vSetTrueType( FALSE );
-            }
-            else if( _tcsstr( szName, c_szTYPE1 ) )
-            {
-                vSetType1( );
+            if (pTT) {
+                vSetTrueType(FALSE);
+            } else if (_tcsstr(szName, c_szTYPE1)) {
+                vSetType1();
 
-                if( lpCompanionFile != NULL )
-                    bSetPFB( lpCompanionFile );
-            }
-            else if( _tcsstr( szName, c_szTYPE1ALT ) )
-            {
-                vSetType1( );
+                if (lpCompanionFile != NULL)
+                    bSetPFB(lpCompanionFile);
+            } else if (_tcsstr(szName, c_szTYPE1ALT)) {
+                vSetType1();
 
-                if( lpCompanionFile != NULL )
-                    bSetPFB( lpCompanionFile );
-            }
-            else
-            {
-                vSetDeviceType( );
+                if (lpCompanionFile != NULL)
+                    bSetPFB(lpCompanionFile);
+            } else {
+                vSetDeviceType();
             }
         }
     }
 
-    lstrcpy( m_szFontLHS, lpszDesc );
+    lstrcpy(m_szFontLHS, lpszDesc);
 
 
     //  It is assumed that this font is already installed.
@@ -1098,7 +1007,7 @@ BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanion
 
     m_wFamIdx = IDX_NULL;
 
-    vSetFamilyFont( );
+    vSetFamilyFont();
 
 
     // Invalidate the font object's cached file attributes.
@@ -1107,7 +1016,7 @@ BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanion
 
     InvalidateFileAttributes();
 
-    return( TRUE );
+    return(TRUE);
 }
 #endif    // !CHECKFILENAMEFIRST
 
@@ -1118,13 +1027,12 @@ BOOL CFontClass :: bInit( LPTSTR lpszDesc, LPTSTR lpFileName, LPTSTR lpCompanion
 
 DWORD CFontClass::dwGetFileAttributes(void)
 {
-    if (!m_bAttributesValid)
-    {
+    if (!m_bAttributesValid) {
 
         // Cached value is invalid.
         // Refresh from file system.
 
-        TCHAR szPath[MAX_PATH] = { TEXT('\0') };
+        TCHAR szPath[MAX_PATH] = {TEXT('\0')};
 
 
         // Get full path to file.
@@ -1132,8 +1040,7 @@ DWORD CFontClass::dwGetFileAttributes(void)
         if (!bGetFileToDel(szPath))   // Gets path if local font file.
             vGetDirFN(szPath);        // Gets path if remote font file.
 
-        if (TEXT('\0') != szPath[0])
-        {
+        if (TEXT('\0') != szPath[0]) {
             DWORD dwAttr = GetFileAttributes(szPath);
             if ((DWORD)~0 != dwAttr)
                 m_dwFileAttributes = dwAttr;
@@ -1166,7 +1073,7 @@ DWORD CFontClass::dwGetFileAttributes(void)
 //           LocalFree() when finished with it.
 
 
-DWORD CFontClass::GetLogFontInfo(LPTSTR pszPath, LOGFONT **ppLogFontInfo)
+DWORD CFontClass::GetLogFontInfo(LPTSTR pszPath, LOGFONT** ppLogFontInfo)
 {
     DWORD dwNumFonts = 0;
     DWORD dwBufSize = 0;
@@ -1178,17 +1085,15 @@ DWORD CFontClass::GetLogFontInfo(LPTSTR pszPath, LOGFONT **ppLogFontInfo)
 
     // Get the number of fonts in the font resource.
 
-    if ( NULL != pszPath &&
-         NULL != ppLogFontInfo &&
-         GetFontResourceInfoW(pszPath,
-                              &dwBufSize,
-                              &dwNumFonts,
-                              GFRI_NUMFONTS) )
-    {
+    if (NULL != pszPath &&
+        NULL != ppLogFontInfo &&
+        GetFontResourceInfoW(pszPath,
+                             &dwBufSize,
+                             &dwNumFonts,
+                             GFRI_NUMFONTS)) {
         *ppLogFontInfo = (LPLOGFONT)LocalAlloc(LPTR, sizeof(LOGFONT) * dwNumFonts);
 
-        if ( NULL != *ppLogFontInfo )
-        {
+        if (NULL != *ppLogFontInfo) {
             dwBufSize = sizeof(LOGFONT) * dwNumFonts;
 
             // Now get the array of LOGFONT structures.
@@ -1196,15 +1101,14 @@ DWORD CFontClass::GetLogFontInfo(LPTSTR pszPath, LOGFONT **ppLogFontInfo)
             if (!GetFontResourceInfoW(pszPath,
                                       &dwBufSize,
                                       *ppLogFontInfo,
-                                      GFRI_LOGFONTS))
-            {
+                                      GFRI_LOGFONTS)) {
 
                 // GetFontResourceInfo failed.
                 // Clean up and adjust return value to indicate failure.
 
                 LocalFree(*ppLogFontInfo);
                 *ppLogFontInfo = NULL;
-                dwNumFonts     = 0;
+                dwNumFonts = 0;
             }
         }
     }
@@ -1259,56 +1163,49 @@ DWORD CFontClass::GetType1Info(LPCTSTR pszPath,
     ASSERT(NULL != pszPath);
 
     if (NULL != pszPath &&
-       (hFile = CreateFile(pszPath,
-                           GENERIC_READ,
-                           0,
-                           NULL,
-                           OPEN_ALWAYS,
-                           FILE_ATTRIBUTE_NORMAL,
-                           NULL)) != INVALID_HANDLE_VALUE )
-    {
+        (hFile = CreateFile(pszPath,
+                            GENERIC_READ,
+                            0,
+                            NULL,
+                            OPEN_ALWAYS,
+                            FILE_ATTRIBUTE_NORMAL,
+                            NULL)) != INVALID_HANDLE_VALUE) {
         HANDLE hFileMapping = INVALID_HANDLE_VALUE;
 
-        if ((hFileMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL)) != NULL)
-        {
+        if ((hFileMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL)) != NULL) {
             LPCSTR pbFile = NULL;
 
-            if ((pbFile = (LPCSTR)MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0)) != NULL)
-            {
+            if ((pbFile = (LPCSTR)MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0)) != NULL) {
 
                 // Get font style.
 
-                if ( NULL != pdwStyle )
+                if (NULL != pdwStyle)
                     *pdwStyle = READ_DWORD(&pbFile[OFF_Italic]) ? FDI_S_ITALIC : FDI_S_REGULAR;
 
 
                 // Get font weight.
 
-                if ( NULL != pwWeight )
+                if (NULL != pwWeight)
                     *pwWeight = READ_WORD(&pbFile[OFF_Weight]);
 
 
                 // Get family (face) name string.
 
-                if ( NULL != pszFamilyBuf )
-                {
+                if (NULL != pszFamilyBuf) {
                     LPCSTR pszFaceName = (LPCSTR)(pbFile + READ_DWORD(&pbFile[OFF_Face]));
 
                     MultiByteToWideChar(CP_ACP, 0, pszFaceName, -1, pszFamilyBuf, nBufChars);
                 }
                 UnmapViewOfFile(pbFile);
-            }
-            else
+            } else
                 dwResult = GetLastError();
 
             CloseHandle(hFileMapping);
-        }
-        else
+        } else
             dwResult = GetLastError();
 
         CloseHandle(hFile);
-    }
-    else
+    } else
         dwResult = GetLastError();
 
     return dwResult;
@@ -1327,28 +1224,24 @@ DWORD CFontClass::GetType1Info(LPCTSTR pszPath,
 
  * RETURNS:  TRUE if value is successfully filled in.
  **/
-BOOL CFontClass :: bFillIn( )
+BOOL CFontClass::bFillIn()
 {
     FONTDESCINFO   fdi;
 
-    if( !m_bFilledIn )
-    {
+    if (!m_bFilledIn) {
 
         //  If this is a TTC file, we don't care about PANOSE numbers and
         //  family names.
 
 
-        if( bTTC( ) )
-        {
+        if (bTTC()) {
             // vSetFamName( szGetDesc( ) );
 
             m_lpszFamName = m_szFontLHS;
 
-            vSetFamilyFont( );
-        }
-        else if( bTrueType( ) || bOpenType( ) )
-        {
-            if( !bGetFQName( fdi.szFile, ARRAYSIZE( fdi.szFile ) ) )
+            vSetFamilyFont();
+        } else if (bTrueType() || bOpenType()) {
+            if (!bGetFQName(fdi.szFile, ARRAYSIZE(fdi.szFile)))
                 goto errout1;
 
             fdi.dwFlags = FDI_ALL;
@@ -1359,10 +1252,9 @@ BOOL CFontClass :: bFillIn( )
             //  soon as possible.)
 
 
-            vSetFamilyFont( );
+            vSetFamilyFont();
 
-            if( !bIsTrueType( &fdi ) )
-            {
+            if (!bIsTrueType(&fdi)) {
 
                 // Couldn't open font file for Type1 info.
                 // One reason is a font shortcut who's link has been broken.
@@ -1378,9 +1270,9 @@ BOOL CFontClass :: bFillIn( )
             //  Copy over font info.
 
 
-            memcpy( m_xPANOSE.m_ajBytes, &fdi.jPanose, PANOSE_LEN );
+            memcpy(m_xPANOSE.m_ajBytes, &fdi.jPanose, PANOSE_LEN);
 
-            lstrcpy( m_szFamName, fdi.szFamily );
+            lstrcpy(m_szFamName, fdi.szFamily);
 
             m_wWeight = fdi.wWeight;
 
@@ -1392,20 +1284,17 @@ BOOL CFontClass :: bFillIn( )
             //  Verify the PANOSE number.
 
 
-            if( !m_xPANOSE.bVerify( ) )
-            {
-                m_xPANOSE.vClear( );
+            if (!m_xPANOSE.bVerify()) {
+                m_xPANOSE.vClear();
 
                 // m_fHavePANOSE = FALSE;
-            }
-            else
+            } else
                 // m_fHavePANOSE = TRUE;
-                m_jFamily = m_xPANOSE.jFamily( );
+                m_jFamily = m_xPANOSE.jFamily();
         }
 #ifdef WINNT
-        else if ( bType1() )
-        {
-            if( ! bGetFQName( fdi.szFile, ARRAYSIZE( fdi.szFile ) ) )
+        else if (bType1()) {
+            if (!bGetFQName(fdi.szFile, ARRAYSIZE(fdi.szFile)))
                 goto errout1;
 
 
@@ -1414,14 +1303,12 @@ BOOL CFontClass :: bFillIn( )
 
             LPTSTR pszDot = StrRChr(fdi.szFile, NULL, TEXT('.'));
 
-            if (NULL != pszDot && lstrcmpi(pszDot+1, TEXT("PFM")) == 0)
-            {
+            if (NULL != pszDot && lstrcmpi(pszDot + 1, TEXT("PFM")) == 0) {
                 if (ERROR_SUCCESS != GetType1Info(fdi.szFile,
                                                   m_szFamName,
                                                   ARRAYSIZE(m_szFamName),
                                                   &m_dwStyle,
-                                                  &m_wWeight))
-                {
+                                                  &m_wWeight)) {
 
                     // Couldn't open font file for Type1 info.
                     // One reason is a font shortcut who's link has been broken.
@@ -1431,9 +1318,7 @@ BOOL CFontClass :: bFillIn( )
                     lstrcpyn(m_szFamName, m_szFontLHS, ARRAYSIZE(m_szFamName));
                     RemoveDecoration(m_szFamName, TRUE);
                 }
-            }
-            else
-            {
+            } else {
 
                 // If this code is hit, it means that we have installed
                 // something other than a PFM file as a Type1 font.  This is
@@ -1442,12 +1327,12 @@ BOOL CFontClass :: bFillIn( )
                 // During development, complain about it.
 
                 DEBUGMSG((DM_TRACE1, TEXT("Non-PFM file (%s) installed for Type1 font."),
-                                     fdi.szFile));
+                          fdi.szFile));
                 ASSERT(0);
 
                 m_szFamName[0] = TEXT('\0');
-                m_dwStyle      = 0;
-                m_wWeight      = 0;
+                m_dwStyle = 0;
+                m_wWeight = 0;
             }
         }
 #else
@@ -1458,47 +1343,42 @@ BOOL CFontClass :: bFillIn( )
 
         //  FNT files.
 
-        else
-        {
-            if( ! bGetFQName( fdi.szFile, ARRAYSIZE( fdi.szFile ) ) )
+        else {
+            if (!bGetFQName(fdi.szFile, ARRAYSIZE(fdi.szFile)))
                 goto errout1;
 
             fdi.dwFlags = FDI_ALL;
 
-            vSetFamilyFont( );
+            vSetFamilyFont();
 
-            if( bIsNewExe( &fdi ) )
-            {
+            if (bIsNewExe(&fdi)) {
 
                 // Copy over font info.
 
 
-                lstrcpy( m_szFamName, fdi.szFamily );
+                lstrcpy(m_szFamName, fdi.szFamily);
 
                 m_wWeight = fdi.wWeight;
 
                 m_dwStyle = fdi.dwStyle;
             }
 #ifdef WINNT
-            else
-            {
+            else {
 
                 // Probably a 32-bit font resource.
                 // Even if there are multiple fonts in resource,
                 // just use info from first font.
 
-                LOGFONT *paLogFontInfo = NULL;
-                DWORD dwNumLogFonts    = 0;
+                LOGFONT* paLogFontInfo = NULL;
+                DWORD dwNumLogFonts = 0;
 
                 dwNumLogFonts = GetLogFontInfo(fdi.szFile, &paLogFontInfo);
-                if ( 0 != dwNumLogFonts && NULL != paLogFontInfo)
-                {
+                if (0 != dwNumLogFonts && NULL != paLogFontInfo) {
                     lstrcpy(m_szFamName, (paLogFontInfo + 0)->lfFaceName);
                     m_wWeight = (WORD)((paLogFontInfo + 0)->lfWeight);
                     m_dwStyle = ((paLogFontInfo + 0)->lfItalic ? FDI_S_ITALIC : FDI_S_REGULAR);
                     LocalFree(paLogFontInfo);
-                }
-                else
+                } else
                     goto errout1;
             }
 #else
@@ -1527,7 +1407,7 @@ errout1:
 
  * RETURNS:  TRUE if successful
  **/
-BOOL CFontClass :: bGetFQName( LPTSTR lpsz, WORD wLen )
+BOOL CFontClass::bGetFQName(LPTSTR lpsz, WORD wLen)
 {
 
     //  Get the font's directory path, and make the fully qualified name from
@@ -1536,38 +1416,34 @@ BOOL CFontClass :: bGetFQName( LPTSTR lpsz, WORD wLen )
 
     PATHNAME  szPath;
 
-    vGetDirFN( szPath );
+    vGetDirFN(szPath);
 
-    return bMakeFQName( lpsz, szPath, wLen );
+    return bMakeFQName(lpsz, szPath, wLen);
 }
 
 
-BOOL CFontClass::bGetFileToDel( LPTSTR szFileName )
+BOOL CFontClass::bGetFileToDel(LPTSTR szFileName)
 {
-    if( bFOT( ) )
-    {
+    if (bFOT()) {
         LPTSTR lpPath = m_lpszFOT;
-        LPTSTR lpLastSlash = StrRChr( lpPath, NULL, TEXT( '\\' ) );
+        LPTSTR lpLastSlash = StrRChr(lpPath, NULL, TEXT('\\'));
 
-        TCHAR szTempFile[ MAX_PATH_LEN ];
+        TCHAR szTempFile[MAX_PATH_LEN];
 
-        if( !lpLastSlash )
-        {
-            if( !bMakeFQName( szTempFile, lpPath, MAX_PATH_LEN, TRUE ) )
-            {
-                return( FALSE );
+        if (!lpLastSlash) {
+            if (!bMakeFQName(szTempFile, lpPath, MAX_PATH_LEN, TRUE)) {
+                return(FALSE);
             }
 
             lpPath = szTempFile;
 
-            lpLastSlash = StrRChr( lpPath, NULL, TEXT( '\\' ) );
+            lpLastSlash = StrRChr(lpPath, NULL, TEXT('\\'));
 
-            if( !lpLastSlash )
-            {
+            if (!lpLastSlash) {
 
                 //  This should never happen
 
-                return( FALSE );
+                return(FALSE);
             }
         }
 
@@ -1579,21 +1455,18 @@ BOOL CFontClass::bGetFileToDel( LPTSTR szFileName )
 
         int iLen = (int)(lpFileOnly - lpPath - 1);
 
-        CFontDir *poDir = s_poDirList->fdFindDir( lpPath, iLen, FALSE );
+        CFontDir* poDir = s_poDirList->fdFindDir(lpPath, iLen, FALSE);
 
-        if( poDir && poDir->bOnSysDir( ) )
-        {
-            bGetFOT( szFileName, sizeof( FullPathName_t ) / sizeof( TCHAR ) );
-            return( TRUE );
+        if (poDir && poDir->bOnSysDir()) {
+            bGetFOT(szFileName, sizeof(FullPathName_t) / sizeof(TCHAR));
+            return(TRUE);
         }
-    }
-    else if( bOnSysDir( ) )
-    {
-        vGetDirFN( szFileName );
-        return( TRUE );
+    } else if (bOnSysDir()) {
+        vGetDirFN(szFileName);
+        return(TRUE);
     }
 
-    return( FALSE );
+    return(FALSE);
 }
 
 int CFontClass::s_cFonts = 0;
@@ -1610,8 +1483,7 @@ ULONG CFontClass::Release(void)
 {
     ULONG ulReturn = m_cRef - 1;
 
-    if (InterlockedDecrement(&m_cRef) == 0)
-    {
+    if (InterlockedDecrement(&m_cRef) == 0) {
         delete this;
         ulReturn = 0;
     }
@@ -1631,13 +1503,13 @@ typedef enum
     DC_NO,
 } DC_RETURN;
 
-DC_RETURN bDirContains( LPCTSTR szInName,
-                        LPCTSTR szDir,
-                        BOOL bCheckExist,
-                        LPTSTR lpszName,
-                        DWORD dwNameLen )
+DC_RETURN bDirContains(LPCTSTR szInName,
+                       LPCTSTR szDir,
+                       BOOL bCheckExist,
+                       LPTSTR lpszName,
+                       DWORD dwNameLen)
 {
-    size_t wInNameLen = lstrlen( szInName );
+    size_t wInNameLen = lstrlen(szInName);
 
 
     //  If the path doesn't have a disk or directory specifier in it, start
@@ -1646,37 +1518,35 @@ DC_RETURN bDirContains( LPCTSTR szInName,
     //  input path.
 
 
-    lstrcpyn( lpszName, szDir, dwNameLen );
+    lstrcpyn(lpszName, szDir, dwNameLen);
 
 
     //  Make sure there's room to append the input path name to the output
     //  name.  If not (shouldn't ever happen), clear the output name and fail.
 
 
-    if( ( lstrlen( lpszName ) + wInNameLen ) >= dwNameLen )
-    {
-        return( DC_ERROR );
+    if ((lstrlen(lpszName) + wInNameLen) >= dwNameLen) {
+        return(DC_ERROR);
     }
 
     // DEBUGMSG( (DM_TRACE1,TEXT( "About to strcat % onto the end of %s" ), szInName, lpszName ) );
 
-    lstrcat( lpszName, szInName );
+    lstrcat(lpszName, szInName);
 
-    if( !bCheckExist )
-    {
-        return( DC_YES );
+    if (!bCheckExist) {
+        return(DC_YES);
     }
 
 #ifdef WINNT
 
-    return( MyOpenFile( lpszName, NULL, OF_EXIST )
-                        != (HANDLE) INVALID_HANDLE_VALUE ? DC_YES : DC_NO );
+    return(MyOpenFile(lpszName, NULL, OF_EXIST)
+           != (HANDLE)INVALID_HANDLE_VALUE ? DC_YES : DC_NO);
 
 #else
 
     OFSTRUCT os;
 
-    return( OpenFile( lpszName, &os, OF_EXIST )!=HFILE_ERROR ? DC_YES : DC_NO );
+    return(OpenFile(lpszName, &os, OF_EXIST) != HFILE_ERROR ? DC_YES : DC_NO);
 
 #endif  //  WINNT
 }
@@ -1691,43 +1561,39 @@ DC_RETURN bDirContains( LPCTSTR szInName,
 
  * RETURNS:  TRUE if FQ name will fit in return, error FALSE
  **/
-BOOL PASCAL bMakeFQName( LPTSTR lpszName,
-                         LPTSTR szInName,
-                         DWORD  dwFQNameLen,
-                         BOOL   bSearchPath )
+BOOL PASCAL bMakeFQName(LPTSTR lpszName,
+                        LPTSTR szInName,
+                        DWORD  dwFQNameLen,
+                        BOOL   bSearchPath)
 {
-    size_t wInNameLen = lstrlen( szInName );
+    size_t wInNameLen = lstrlen(szInName);
 
-    if( _tcscspn( szInName, TEXT( ":\\" ) ) != wInNameLen )
-    {
+    if (_tcscspn(szInName, TEXT(":\\")) != wInNameLen) {
 
         //  (Presumably) fully qualified; no need to check anything
 
 
-        if( wInNameLen >= dwFQNameLen )
-        {
-            return( FALSE );
+        if (wInNameLen >= dwFQNameLen) {
+            return(FALSE);
         }
 
-        lstrcpy( lpszName, szInName );
-        return( TRUE );
+        lstrcpy(lpszName, szInName);
+        return(TRUE);
     }
 
     FullPathName_t szDir;
 
-    if( bSearchPath )
-    {
+    if (bSearchPath) {
 
         //  Set the current dir to the Fonts folder so it will get searched
         //  first
 
 
-        if( !GetFontsDirectory( szDir, ARRAYSIZE( szDir ) ) )
-        {
-            return( FALSE );
+        if (!GetFontsDirectory(szDir, ARRAYSIZE(szDir))) {
+            return(FALSE);
         }
 
-        SetCurrentDirectory( szDir );
+        SetCurrentDirectory(szDir);
 
 
         //  Check to see if the file exists on the path.
@@ -1735,56 +1601,48 @@ BOOL PASCAL bMakeFQName( LPTSTR lpszName,
 
 #ifdef WINNT
 
-        TCHAR szPathName[ PATHMAX ];
+        TCHAR szPathName[PATHMAX];
 
-        if( MyOpenFile( szInName, szPathName, OF_EXIST )
-                    != (HANDLE) INVALID_HANDLE_VALUE )
-        {
-            if( (DWORD) lstrlen( szPathName ) >= dwFQNameLen )
-            {
-                return( FALSE );
+        if (MyOpenFile(szInName, szPathName, OF_EXIST)
+            != (HANDLE)INVALID_HANDLE_VALUE) {
+            if ((DWORD)lstrlen(szPathName) >= dwFQNameLen) {
+                return(FALSE);
             }
 
-            lstrcpy( lpszName, szPathName );
-            return( TRUE );
+            lstrcpy(lpszName, szPathName);
+            return(TRUE);
         }
 #else
 
         OFSTRUCT os;
 
-        if( OpenFile( szInName, &os, OF_EXIST ) != HFILE_ERROR )
-        {
-            if( (DWORD) lstrlen( os.szPathName ) >= dwFQNameLen )
-            {
-                return( FALSE );
+        if (OpenFile(szInName, &os, OF_EXIST) != HFILE_ERROR) {
+            if ((DWORD)lstrlen(os.szPathName) >= dwFQNameLen) {
+                return(FALSE);
             }
 
-            lstrcpy( lpszName, os.szPathName );
-            return( TRUE );
+            lstrcpy(lpszName, os.szPathName);
+            return(TRUE);
         }
 #endif  // WINNT
 
 
         //  If not on the path, we will fall through and just fill in the
         //  Fonts dir
-    }
-    else
-    {
+    } else {
 
         //  First check in the system directory; always check for existence
 
 
-        if( !GetSystemDirectory( szDir, ARRAYSIZE( szDir ) ) )
-        {
-            return( FALSE );
+        if (!GetSystemDirectory(szDir, ARRAYSIZE(szDir))) {
+            return(FALSE);
         }
 
-        lpCPBackSlashTerm( szDir );
+        lpCPBackSlashTerm(szDir);
 
-        switch( bDirContains( szInName, szDir, TRUE, lpszName, dwFQNameLen ) )
-        {
+        switch (bDirContains(szInName, szDir, TRUE, lpszName, dwFQNameLen)) {
         case DC_YES:
-            return( TRUE );
+            return(TRUE);
             break;
         }
 
@@ -1793,22 +1651,18 @@ BOOL PASCAL bMakeFQName( LPTSTR lpszName,
         //  are really looking for the file to exist
 
 
-        if( !GetFontsDirectory( szDir, ARRAYSIZE( szDir ) ) )
-        {
-            return( FALSE );
+        if (!GetFontsDirectory(szDir, ARRAYSIZE(szDir))) {
+            return(FALSE);
         }
     }
 
-    lpCPBackSlashTerm( szDir );
+    lpCPBackSlashTerm(szDir);
 
-    switch( bDirContains( szInName, szDir, FALSE, lpszName, dwFQNameLen ) )
-    {
+    switch (bDirContains(szInName, szDir, FALSE, lpszName, dwFQNameLen)) {
     case DC_ERROR:
-        return( FALSE );
+        return(FALSE);
         break;
     }
 
-    return( TRUE );
+    return(TRUE);
 }
-
-

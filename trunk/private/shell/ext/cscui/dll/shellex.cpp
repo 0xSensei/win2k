@@ -35,10 +35,10 @@
 // Thread data for unpinning files
 typedef struct _CSC_UNPIN_DATA
 {
-    CscFilenameList *pNamelist;
+    CscFilenameList* pNamelist;
     DWORD            dwUpdateFlags;
     HWND             hwndOwner;
-} CSC_UNPIN_DATA, *PCSC_UNPIN_DATA;
+} CSC_UNPIN_DATA, * PCSC_UNPIN_DATA;
 
 
 
@@ -47,18 +47,16 @@ typedef struct _CSC_UNPIN_DATA
 
 
 HRESULT WINAPI
-CCscShellExt::CreateInstance(REFIID riid, LPVOID *ppv)
+CCscShellExt::CreateInstance(REFIID riid, LPVOID* ppv)
 {
     HRESULT hr;
-    CCscShellExt *pThis;
+    CCscShellExt* pThis;
 
     pThis = new CCscShellExt;
-    if (pThis)
-    {
+    if (pThis) {
         hr = pThis->QueryInterface(riid, ppv);
         pThis->Release();                           // release initial ref
-    }
-    else
+    } else
         hr = E_OUTOFMEMORY;
 
     return hr;
@@ -71,7 +69,7 @@ CCscShellExt::CreateInstance(REFIID riid, LPVOID *ppv)
 
 
 
-STDMETHODIMP CCscShellExt::QueryInterface(REFIID riid, void **ppv)
+STDMETHODIMP CCscShellExt::QueryInterface(REFIID riid, void** ppv)
 {
     static const QITAB qit[] =
     {
@@ -183,8 +181,7 @@ CCscShellExt::QueryContextMenu(HMENU hMenu,
 
     InsertMenuItem(hMenu, iMenu++, TRUE, &mii);
 
-    if (!config.NoMakeAvailableOffline())
-    {
+    if (!config.NoMakeAvailableOffline()) {
 
         // Add the "Make Available Offline" menu item
 
@@ -193,8 +190,7 @@ CCscShellExt::QueryContextMenu(HMENU hMenu,
         mii.fMask = MIIM_TYPE | MIIM_STATE | MIIM_ID;
         mii.fType = MFT_STRING;
         mii.fState = MFS_ENABLED;
-        if (m_dwUIStatus & (CSC_PROP_ADMIN_PINNED | CSC_PROP_PINNED))
-        {
+        if (m_dwUIStatus & (CSC_PROP_ADMIN_PINNED | CSC_PROP_PINNED)) {
             mii.fState = MFS_CHECKED;
             if (m_dwUIStatus & (CSC_PROP_ADMIN_PINNED | CSC_PROP_INHERIT_PIN))
                 mii.fState |= MFS_DISABLED;
@@ -205,8 +201,7 @@ CCscShellExt::QueryContextMenu(HMENU hMenu,
         InsertMenuItem(hMenu, iMenu++, TRUE, &mii);
     }
 
-    if (m_dwUIStatus & (CSC_PROP_SYNCABLE | CSC_PROP_PINNED | CSC_PROP_ADMIN_PINNED))
-    {
+    if (m_dwUIStatus & (CSC_PROP_SYNCABLE | CSC_PROP_PINNED | CSC_PROP_ADMIN_PINNED)) {
 
         // Add the "Synchronize" menu item
 
@@ -250,7 +245,7 @@ CCscShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 {
     HRESULT hr = S_OK;
     UINT iCmd = 0;
-    CscFilenameList *pfnl = NULL;   // Namelist object.
+    CscFilenameList* pfnl = NULL;   // Namelist object.
     BOOL fPin;
     BOOL bSubFolders = FALSE;
     DWORD dwUpdateFlags = 0;
@@ -259,30 +254,20 @@ CCscShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
     TraceAssert(IsCSCEnabled());
     TraceAssert(!(m_dwUIStatus & CSC_PROP_NO_CSC));
 
-    if (HIWORD(lpcmi->lpVerb))
-    {
-        if (!lstrcmpiA(lpcmi->lpVerb, STR_PIN_VERB))
-        {
+    if (HIWORD(lpcmi->lpVerb)) {
+        if (!lstrcmpiA(lpcmi->lpVerb, STR_PIN_VERB)) {
             iCmd = 0;
             m_dwUIStatus &= ~CSC_PROP_PINNED;
-        }
-        else if (!lstrcmpiA(lpcmi->lpVerb, STR_UNPIN_VERB))
-        {
+        } else if (!lstrcmpiA(lpcmi->lpVerb, STR_UNPIN_VERB)) {
             iCmd = 0;
             m_dwUIStatus |= CSC_PROP_PINNED;
-        }
-        else if (!lstrcmpiA(lpcmi->lpVerb, STR_SYNC_VERB))
-        {
+        } else if (!lstrcmpiA(lpcmi->lpVerb, STR_SYNC_VERB)) {
             iCmd = 1;
-        }
-        else
-        {
+        } else {
             Trace((TEXT("Unknown command \"%S\""), lpcmi->lpVerb));
             ExitGracefully(hr, E_INVALIDARG, "Invalid command");
         }
-    }
-    else
-    {
+    } else {
         iCmd = LOWORD(lpcmi->lpVerb);
 
         // If we didn't add the "Make Available Offline" verb, adjust the index
@@ -302,16 +287,13 @@ CCscShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
                        &bSubFolders);
     FailGracefully(hr, "Unable to build file list");
 
-    switch (iCmd)
-    {
+    switch (iCmd) {
     case 0:  // "Make  available offline" menu choice - Pin files
-        if (!FirstPinWizardCompleted())
-        {
+        if (!FirstPinWizardCompleted()) {
 
             // User has never seen the "first pin" wizard.
 
-            if (S_FALSE == ShowFirstPinWizard(lpcmi->hwnd))
-            {
+            if (S_FALSE == ShowFirstPinWizard(lpcmi->hwnd)) {
 
                 // User cancelled wizard.  Abort pinning operation.
 
@@ -319,15 +301,13 @@ CCscShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
             }
         }
         fPin = !(m_dwUIStatus & CSC_PROP_PINNED);
-        if (!fPin && (m_dwUIStatus & CSC_PROP_DCON_MODE))
-        {
+        if (!fPin && (m_dwUIStatus & CSC_PROP_DCON_MODE)) {
             // Unpin while disconnected causes things to disappear.
             // Warn the user.
             if (IDCANCEL == CscMessageBox(lpcmi->hwnd,
                                           MB_OKCANCEL | MB_ICONWARNING,
                                           g_hInstance,
-                                          IDS_CONFIRM_UNPIN_OFFLINE))
-            {
+                                          IDS_CONFIRM_UNPIN_OFFLINE)) {
                 ExitGracefully(hr, E_FAIL, "User cancelled disconnected unpin operation");
             }
         }
@@ -335,13 +315,11 @@ CCscShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
         // the "AlwaysPinSubFolders" policy is NOT set, ask the user
         // whether to go deep or not.
         // If the policy IS set we automatically do a recursive pin.
-        if (bSubFolders && (!fPin || !CConfig::GetSingleton().AlwaysPinSubFolders()))
-        {
+        if (bSubFolders && (!fPin || !CConfig::GetSingleton().AlwaysPinSubFolders())) {
             switch (DialogBox(g_hInstance,
-                    MAKEINTRESOURCE(fPin ? IDD_CONFIRM_PIN : IDD_CONFIRM_UNPIN),
-                    lpcmi->hwnd,
-                    _ConfirmPinDlgProc))
-            {
+                              MAKEINTRESOURCE(fPin ? IDD_CONFIRM_PIN : IDD_CONFIRM_UNPIN),
+                              lpcmi->hwnd,
+                              _ConfirmPinDlgProc)) {
             case IDYES:
                 // nothing
                 break;
@@ -357,17 +335,14 @@ CCscShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
         if (bSubFolders)
             dwUpdateFlags |= CSC_UPDATE_PIN_RECURSE;
 
-        if (fPin)
-        {
+        if (fPin) {
             // Self-host notification callback
             CSCUI_NOTIFYHOOK((CSCH_Pin, TEXT("Pinning %1!d! selected items"), pfnl->GetFileCount()));
 
             // Set the flags for pin + quick sync
             dwUpdateFlags |= CSC_UPDATE_SELECTION | CSC_UPDATE_STARTNOW
-                                | CSC_UPDATE_PINFILES | CSC_UPDATE_FILL_QUICK;
-        }
-        else
-        {
+                | CSC_UPDATE_PINFILES | CSC_UPDATE_FILL_QUICK;
+        } else {
             HANDLE hThread;
             DWORD dwThreadID;
             PCSC_UNPIN_DATA pUnpinData = (PCSC_UNPIN_DATA)LocalAlloc(LPTR, SIZEOF(CSC_UNPIN_DATA));
@@ -380,14 +355,12 @@ CCscShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
             // process rather than starting SyncMgr.  However, let's do
             // it in the background in case there's a lot to unpin.
 
-            if (pUnpinData)
-            {
+            if (pUnpinData) {
                 pUnpinData->pNamelist = pfnl;
                 pUnpinData->dwUpdateFlags = dwUpdateFlags;
                 pUnpinData->hwndOwner = lpcmi->hwnd;
                 hThread = CreateThread(NULL, 0, _UnpinFilesThread, pUnpinData, 0, &dwThreadID);
-                if (hThread)
-                {
+                if (hThread) {
                     // The thread will delete pUnpinData and pUnpinData->pNamelist
                     pfnl = NULL;
 
@@ -398,9 +371,7 @@ CCscShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
                     WaitForSingleObject(hThread, 750);
                     CloseHandle(hThread);
                     SetCursor(hCur);
-                }
-                else
-                {
+                } else {
                     LocalFree(pUnpinData);
                 }
             }
@@ -413,8 +384,8 @@ CCscShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
     case 1: // Synchronize
         // Set the flags for a full sync
         dwUpdateFlags = CSC_UPDATE_SELECTION | CSC_UPDATE_STARTNOW
-                            | CSC_UPDATE_REINT | CSC_UPDATE_FILL_ALL
-                            | CSC_UPDATE_SHOWUI_ALWAYS | CSC_UPDATE_NOTIFY_DONE;
+            | CSC_UPDATE_REINT | CSC_UPDATE_FILL_ALL
+            | CSC_UPDATE_SHOWUI_ALWAYS | CSC_UPDATE_NOTIFY_DONE;
         break;
     }
 
@@ -425,20 +396,16 @@ CCscShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
     // this behavior as the operation was initiated by a user's explicit
     // selection of files/folders in explorer.
 
-    if (dwUpdateFlags && pfnl->GetFileCount())
-    {
-        if (!::IsSyncInProgress())
-        {
+    if (dwUpdateFlags && pfnl->GetFileCount()) {
+        if (!::IsSyncInProgress()) {
             hr = CscUpdateCache(dwUpdateFlags | CSC_UPDATE_IGNORE_ACCESS, pfnl);
-        }
-        else
-        {
+        } else {
 
             // A sync is in progress.  Tell user why they can't currently
             // pin or sync.
 
-            const UINT rgidsMsg[] = { IDS_CANTPIN_SYNCINPROGRESS,
-                                      IDS_CANTSYNC_SYNCINPROGRESS };
+            const UINT rgidsMsg[] = {IDS_CANTPIN_SYNCINPROGRESS,
+                                      IDS_CANTSYNC_SYNCINPROGRESS};
 
             CscMessageBox(lpcmi->hwnd,
                           MB_OK | MB_ICONINFORMATION,
@@ -486,16 +453,11 @@ CCscShellExt::GetCommandString(UINT_PTR iCmd,
 
     hr = S_OK;
 
-    if (uFlags == GCS_HELPTEXT)
-    {
+    if (uFlags == GCS_HELPTEXT) {
         LoadString(g_hInstance, iCmd ? IDS_HELP_UPDATE_SEL : IDS_HELP_PIN, (LPTSTR)pszString, cchMax);
-    }
-    else if (uFlags == GCS_VERB)
-    {
+    } else if (uFlags == GCS_VERB) {
         lstrcpyn((LPTSTR)pszString, iCmd ? TEXT(STR_SYNC_VERB) : ((m_dwUIStatus & CSC_PROP_PINNED) ? TEXT(STR_UNPIN_VERB) : TEXT(STR_PIN_VERB)), cchMax);
-    }
-    else if (uFlags != GCS_VALIDATE)
-    {
+    } else if (uFlags != GCS_VALIDATE) {
         // Must be some other flag that we don't handle
         hr = E_NOTIMPL;
     }
@@ -511,8 +473,8 @@ CCscShellExt::GetCommandString(UINT_PTR iCmd,
 
 
 STDMETHODIMP
-CCscShellExt::IsMemberOf (LPCWSTR pwszPath,
-                          DWORD dwAttrib)
+CCscShellExt::IsMemberOf(LPCWSTR pwszPath,
+                         DWORD dwAttrib)
 {
     HRESULT hr = S_FALSE;  // assume not pinned
     DWORD dwHintFlags;
@@ -533,16 +495,12 @@ CCscShellExt::IsMemberOf (LPCWSTR pwszPath,
     // Ask CSC if this is a pinned file
 
     dwHintFlags = 0;
-    if (CSCQueryFileStatus(pszUNC, NULL, NULL, &dwHintFlags))
-    {
+    if (CSCQueryFileStatus(pszUNC, NULL, NULL, &dwHintFlags)) {
         if (dwHintFlags & (FLAG_CSC_HINT_PIN_USER | FLAG_CSC_HINT_PIN_ADMIN))
             hr = S_OK;
-    }
-    else
-    {
+    } else {
         dwErr = GetLastError();
-        if (ERROR_FILE_NOT_FOUND != dwErr)
-        {
+        if (ERROR_FILE_NOT_FOUND != dwErr) {
 
             // BUGBUG:  Need to check for 0 to accomodate GetLastError
             //          returning 0 on CSCQueryFileStatus failure.
@@ -560,8 +518,7 @@ CCscShellExt::IsMemberOf (LPCWSTR pwszPath,
     if (!CConfig::GetSingleton().AlwaysPinSubFolders())
         dwAttribTest |= FILE_ATTRIBUTE_DIRECTORY;
 
-    if (S_FALSE == hr && !(dwAttrib & dwAttribTest))
-    {
+    if (S_FALSE == hr && !(dwAttrib & dwAttribTest)) {
 
         // If we get here, then either CSCQueryFileStatus succeeded but the file
         // isn't pinned, or the file isn't in the cache (ERROR_FILE_NOT_FOUND).
@@ -575,15 +532,13 @@ CCscShellExt::IsMemberOf (LPCWSTR pwszPath,
         // "AlwaysPinSubFolders" policy is set, we will pin folders.
 
         pszSlash = PathFindFileName(pszUNC);
-        if (pszSlash && pszUNC != pszSlash)
-        {
+        if (pszSlash && pszUNC != pszSlash) {
             --pszSlash;
             *pszSlash = TEXT('\0'); // truncate the path
 
             // Check the parent status
             if (CSCQueryFileStatus(pszUNC, NULL, NULL, &dwHintFlags) &&
-                (dwHintFlags & (FLAG_CSC_HINT_PIN_USER | FLAG_CSC_HINT_PIN_ADMIN)))
-            {
+                (dwHintFlags & (FLAG_CSC_HINT_PIN_USER | FLAG_CSC_HINT_PIN_ADMIN))) {
                 // The parent is pinned, so pin this file with the same flags
 
                 if (dwHintFlags & FLAG_CSC_HINT_PIN_ADMIN)
@@ -608,8 +563,7 @@ CCscShellExt::IsMemberOf (LPCWSTR pwszPath,
                 //        want to do the "wait" and THEN decide the file should not be
                 //        pinned because it's not a UNC path or it's a directory.
 
-                if (!IsPurgeInProgress())
-                {
+                if (!IsPurgeInProgress()) {
                     if (CSCPinFile(pszUNC, dwHintFlags, NULL, NULL, NULL))
                         hr = S_OK;
                 }
@@ -623,21 +577,20 @@ CCscShellExt::IsMemberOf (LPCWSTR pwszPath,
 }
 
 STDMETHODIMP
-CCscShellExt::GetOverlayInfo (LPWSTR pwszIconFile,
-                              int cchMax,
-                              int * pIndex,
-                              DWORD * pdwFlags)
+CCscShellExt::GetOverlayInfo(LPWSTR pwszIconFile,
+                             int cchMax,
+                             int* pIndex,
+                             DWORD* pdwFlags)
 {
 
-    if (cchMax < (lstrlen(c_szDllName) + 1))
-    {
+    if (cchMax < (lstrlen(c_szDllName) + 1)) {
         return E_OUTOFMEMORY;
     }
 
 #ifdef UNICODE
-    lstrcpyn (pwszIconFile, c_szDllName, cchMax);
+    lstrcpyn(pwszIconFile, c_szDllName, cchMax);
 #else
-    MultiByteToWideChar (CP_ACP, 0, c_szDllName, -1, pwszIconFile, cchMax);
+    MultiByteToWideChar(CP_ACP, 0, c_szDllName, -1, pwszIconFile, cchMax);
 #endif
 
     // BUGBUG Using the ID doesn't work on Win95. We're currently not shipping
@@ -646,17 +599,17 @@ CCscShellExt::GetOverlayInfo (LPWSTR pwszIconFile,
     // should always be one, but using the ID is still preferable.
 #ifdef WINNT
     // Use positive #'s for indexes, negative for ID's
-    *pIndex = -IDI_PIN_OVERLAY;
+    * pIndex = -IDI_PIN_OVERLAY;
 #else
-    *pIndex = 1;
+    * pIndex = 1;
 #endif
-    *pdwFlags = (ISIOI_ICONFILE | ISIOI_ICONINDEX);
+    * pdwFlags = (ISIOI_ICONFILE | ISIOI_ICONINDEX);
 
     return S_OK;
 }
 
 STDMETHODIMP
-CCscShellExt::GetPriority (int * pIPriority)
+CCscShellExt::GetPriority(int* pIPriority)
 {
     *pIPriority = 1;
 
@@ -681,15 +634,12 @@ CCscShellExt::ShareIsCacheable(LPCTSTR pszUNC, PBOOL pbShareConnected, PDWORD pd
     lstrcpyn(szShare, pszUNC, ARRAYSIZE(szShare));
     PathStripToRoot(szShare);
 
-    if (!CSCQueryFileStatus(szShare, &dwShareStatus, NULL, NULL))
-    {
-        if (ConnectShare(szShare))
-        {
+    if (!CSCQueryFileStatus(szShare, &dwShareStatus, NULL, NULL)) {
+        if (ConnectShare(szShare)) {
             *pbShareConnected = TRUE;
             if (!CSCQueryFileStatus(szShare, &dwShareStatus, NULL, NULL))
                 dwShareStatus = FLAG_CSC_SHARE_STATUS_NO_CACHING;
-        }
-        else
+        } else
             dwShareStatus = FLAG_CSC_SHARE_STATUS_NO_CACHING;
     }
 
@@ -747,8 +697,7 @@ CCscShellExt::CheckOneFileStatus(LPCTSTR pszItem,
         ExitGracefully(hr, HRESULT_FROM_WIN32(ERROR_BAD_PATHNAME), "Locally redirected path");
 
     // Check whether the share is cacheable
-    if (!bShareChecked)
-    {
+    if (!bShareChecked) {
         DWORD dwShareStatus = 0;
 
         if (!ShareIsCacheable(pszItem, &bShareConnected, &dwShareStatus))
@@ -759,47 +708,38 @@ CCscShellExt::CheckOneFileStatus(LPCTSTR pszItem,
     }
 
     // Check the file status
-    if (!CSCQueryFileStatus(pszItem, NULL, NULL, &dwHintFlags))
-    {
+    if (!CSCQueryFileStatus(pszItem, NULL, NULL, &dwHintFlags)) {
         DWORD dwErr = GetLastError();
-        if (dwErr != ERROR_FILE_NOT_FOUND)
-        {
+        if (dwErr != ERROR_FILE_NOT_FOUND) {
             if (NO_ERROR == dwErr)
                 dwErr = ERROR_GEN_FAILURE;
             ExitGracefully(hr, HRESULT_FROM_WIN32(dwErr), "CSCQueryFileStatus failed");
         }
-    }
-    else
-    {
-        if (dwAttr & SFGAO_FOLDER)
-        {
+    } else {
+        if (dwAttr & SFGAO_FOLDER) {
             // CSCQueryFileStatus succeeded, so this folder is in the cache.
             // Enable the sync menu.
-            if (PathIsRoot(pszItem))
-            {
+            if (PathIsRoot(pszItem)) {
                 // Special note for "\\server\share" items: CSCQueryFileStatus
                 // can succeed even if nothing on the share is cached. Only
                 // enable CSC_PROP_SYNCABLE if something on this share is cached.
                 CSCSHARESTATS shareStats;
-                CSCGETSTATSINFO si = { SSEF_NONE,  // No exclusions
+                CSCGETSTATSINFO si = {SSEF_NONE,  // No exclusions
                                        SSUF_TOTAL, // Interested in total only.
                                        false,      // No access info reqd (faster).
-                                       false };
+                                       false};
 
                 _GetShareStatisticsForUser(pszItem, &si, &shareStats);
                 if (shareStats.cTotal)
                     *pdwStatus |= CSC_PROP_SYNCABLE;
-            }
-            else
-            {
+            } else {
                 *pdwStatus |= CSC_PROP_SYNCABLE;
             }
         }
 
         const bool bPinSubFolders = CConfig::GetSingleton().AlwaysPinSubFolders();
         if (!(*pdwStatus & CSC_PROP_INHERIT_PIN) &&
-            (!(dwAttr & SFGAO_FOLDER) || bPinSubFolders))
-        {
+            (!(dwAttr & SFGAO_FOLDER) || bPinSubFolders)) {
             TCHAR szParent[MAX_PATH];
             DWORD dwParentHints = 0;
 
@@ -808,8 +748,7 @@ CCscShellExt::CheckOneFileStatus(LPCTSTR pszItem,
             lstrcpyn(szParent, pszItem, ARRAYSIZE(szParent));
             PathRemoveFileSpec(szParent);
             if (CSCQueryFileStatus(szParent, NULL, NULL, &dwParentHints)
-                && (dwParentHints & FLAG_CSC_HINT_PIN_USER))
-            {
+                && (dwParentHints & FLAG_CSC_HINT_PIN_USER)) {
                 *pdwStatus |= CSC_PROP_INHERIT_PIN;
             }
         }
@@ -839,9 +778,8 @@ _PathIsUNCServer(LPCTSTR pszPath)
     if (!pszPath)
         return FALSE;
 
-    for (i = 0; *pszPath; pszPath++ )
-    {
-        if (pszPath[0]==TEXT('\\') && pszPath[1]) // don't count a trailing slash
+    for (i = 0; *pszPath; pszPath++) {
+        if (pszPath[0] == TEXT('\\') && pszPath[1]) // don't count a trailing slash
         {
             i++;
         }
@@ -887,8 +825,7 @@ CCscShellExt::CheckFileStatus(LPDATAOBJECT pdobj,
 
     // Check the parent path
     pszItem = ida.GetItemPath(0);
-    if (PathIsUNC(pszItem) && !_PathIsUNCServer(pszItem))
-    {
+    if (PathIsUNC(pszItem) && !_PathIsUNCServer(pszItem)) {
         DWORD dwShareStatus = 0;
 
         if (!ShareIsCacheable(pszItem, &bShareConnected, &dwShareStatus))
@@ -902,8 +839,7 @@ CCscShellExt::CheckFileStatus(LPDATAOBJECT pdobj,
     }
 
     // Loop over each selected item
-    for (i = 1; i <= cItems; i++)
-    {
+    for (i = 1; i <= cItems; i++) {
         // Get the attributes
         DWORD dwAttr = SFGAO_FILESYSTEM | SFGAO_LINK | SFGAO_FOLDER;
         hr = ida.GetItemAttributes(i, &dwAttr);
@@ -918,20 +854,17 @@ CCscShellExt::CheckFileStatus(LPDATAOBJECT pdobj,
             ExitGracefully(hr, E_FAIL, "Unable to get item path");
 
         // Is it a shortcut?
-        if (dwAttr & SFGAO_LINK)
-        {
+        if (dwAttr & SFGAO_LINK) {
             LPTSTR pszTarget = NULL;
 
             // Check the target
             GetLinkTarget(pszItem, NULL, &pszTarget);
-            if (pszTarget)
-            {
+            if (pszTarget) {
                 hr = CheckOneFileStatus(pszTarget, 0, FALSE, &dwStatus);
                 LocalFreeString(&pszTarget);
 
                 if (SUCCEEDED(hr)
-                    && !PathIsUNC(pszItem))
-                {
+                    && !PathIsUNC(pszItem)) {
                     // The link is local, but the target is remote, so don't
                     // bother checking status of the link itself.  Just go
                     // with the target status and move on to the next item.
@@ -944,8 +877,7 @@ CCscShellExt::CheckFileStatus(LPDATAOBJECT pdobj,
         // like "X:\" here.  Also, if the path is local (in which case we're
         // only interested in link targets), then the path will be a drive
         // letter path.  In all cases, continue only if we can get a UNC path.
-        if (!PathIsUNC(pszItem))
-        {
+        if (!PathIsUNC(pszItem)) {
             GetRemotePath(pszItem, &pszUNC);
             if (!pszUNC || !PathIsUNC(pszUNC))
                 ExitGracefully(hr, E_FAIL, "Not a net path");
@@ -984,8 +916,8 @@ exit_gracefully:
 HRESULT
 CCscShellExt::FolderHasSubFolders(
     LPCTSTR pszPath,
-    CscFilenameList *pfnl
-    )
+    CscFilenameList* pfnl
+)
 {
     if (NULL == pszPath || TEXT('\0') == *pszPath)
         return E_INVALIDARG;
@@ -994,41 +926,30 @@ CCscShellExt::FolderHasSubFolders(
     const TCHAR szWildcard[] = TEXT("*.*");
     UINT cchFolder = lstrlen(pszPath) + 1;  // +1 for '\\'
     LPTSTR pszTemp = (LPTSTR)LocalAlloc(LPTR, (cchFolder + MAX_PATH + 1) * sizeof(TCHAR));
-    if (NULL != pszTemp)
-    {
+    if (NULL != pszTemp) {
         PathCombine(pszTemp, pszPath, szWildcard);
         WIN32_FIND_DATA fd;
         HANDLE hFind = FindFirstFile(pszTemp, &fd);
-        if (INVALID_HANDLE_VALUE != hFind)
-        {
-            do
-            {
-                if ((FILE_ATTRIBUTE_DIRECTORY & fd.dwFileAttributes) && !PathIsDotOrDotDot(fd.cFileName))
-                {
-                    if (IsHiddenSystem(fd.dwFileAttributes))
-                    {
+        if (INVALID_HANDLE_VALUE != hFind) {
+            do {
+                if ((FILE_ATTRIBUTE_DIRECTORY & fd.dwFileAttributes) && !PathIsDotOrDotDot(fd.cFileName)) {
+                    if (IsHiddenSystem(fd.dwFileAttributes)) {
                         // This subfolder is "super hidden".  Build the full path
                         // and silently add it to the file list, but don't set the
                         // result to S_OK (we don't want superhidden subfolders to
                         // cause prompts).
                         lstrcpy(&pszTemp[cchFolder], fd.cFileName);
                         pfnl->AddFile(pszTemp, true);
-                    }
-                    else
+                    } else
                         hr = S_OK;  // don't break, there may be superhidden folders
                 }
-            }
-            while(FindNextFile(hFind, &fd));
+            } while (FindNextFile(hFind, &fd));
             FindClose(hFind);
-        }
-        else
-        {
+        } else {
             hr = HRESULT_FROM_WIN32(GetLastError());
         }
         LocalFree(pszTemp);
-    }
-    else
-    {
+    } else {
         hr = E_OUTOFMEMORY;
     }
     return hr;
@@ -1038,7 +959,7 @@ CCscShellExt::FolderHasSubFolders(
 STDMETHODIMP
 CCscShellExt::BuildFileList(LPDATAOBJECT pdobj,
                             HWND hwndOwner,
-                            CscFilenameList *pfnl,
+                            CscFilenameList* pfnl,
                             LPBOOL pbSubFolders)
 {
     HRESULT hr;
@@ -1064,8 +985,7 @@ CCscShellExt::BuildFileList(LPDATAOBJECT pdobj,
         ExitGracefully(hr, E_FAIL, "No items");
 
     // Loop over each selected item
-    for (i = 1; i <= cItems; i++)
-    {
+    for (i = 1; i <= cItems; i++) {
         // Get the attributes
         DWORD dwAttr = SFGAO_FILESYSTEM | SFGAO_LINK | SFGAO_FOLDER;
         hr = ida.GetItemAttributes(i, &dwAttr);
@@ -1080,14 +1000,12 @@ CCscShellExt::BuildFileList(LPDATAOBJECT pdobj,
             ExitGracefully(hr, E_FAIL, "Unable to get item path");
 
         // Is it a shortcut?
-        if (dwAttr & SFGAO_LINK)
-        {
+        if (dwAttr & SFGAO_LINK) {
             LPTSTR pszTarget = NULL;
 
             // Check the target
             GetLinkTarget(pszItem, hwndOwner, &pszTarget);
-            if (pszTarget)
-            {
+            if (pszTarget) {
                 // Add the target to the file list
                 if (!pfnl->FileExists(pszTarget, false))
                     pfnl->AddFile(pszTarget, false);
@@ -1099,8 +1017,7 @@ CCscShellExt::BuildFileList(LPDATAOBJECT pdobj,
         // If the path is local or the parent is "My Computer", then the item
         // path will be a drive letter path.  In all cases, add the file to
         // the list only if we can get a UNC path.
-        if (!PathIsUNC(pszItem))
-        {
+        if (!PathIsUNC(pszItem)) {
             GetRemotePath(pszItem, &pszUNC);
             if (!pszUNC || !PathIsUNC(pszUNC))
                 continue;
@@ -1126,8 +1043,7 @@ CCscShellExt::BuildFileList(LPDATAOBJECT pdobj,
         // part comes from a list of localized strings provided by Office.
         // This is a stupid way to go.
 
-        if (!bDirectory && PathIsHTMLFile(pszItem))
-        {
+        if (!bDirectory && PathIsHTMLFile(pszItem)) {
             // Truncate the path
             LPTSTR pszExtn = PathFindExtension(pszItem);
             if (pszExtn)
@@ -1202,11 +1118,10 @@ CCscShellExt::_UnpinFilesThread(LPVOID pvThreadData)
     HINSTANCE hInstThisDll = LoadLibrary(c_szDllName);
     PCSC_UNPIN_DATA pUnpinData = reinterpret_cast<PCSC_UNPIN_DATA>(pvThreadData);
 
-    if (pUnpinData)
-    {
+    if (pUnpinData) {
         CscUnpinFileList(pUnpinData->pNamelist,
-                        (pUnpinData->dwUpdateFlags & CSC_UPDATE_PIN_RECURSE),
-                        NULL, NULL, 0);
+            (pUnpinData->dwUpdateFlags & CSC_UPDATE_PIN_RECURSE),
+                         NULL, NULL, 0);
         delete pUnpinData->pNamelist;
         LocalFree(pUnpinData);
     }
@@ -1223,15 +1138,13 @@ CCscShellExt::_ConfirmPinDlgProc(HWND hDlg,
                                  LPARAM lParam)
 {
     INT_PTR bResult = TRUE;
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_INITDIALOG:
         CheckRadioButton(hDlg, IDC_PIN_NO_RECURSE, IDC_PIN_RECURSE, IDC_PIN_RECURSE);
         break;
 
     case WM_COMMAND:
-        switch (LOWORD(wParam))
-        {
+        switch (LOWORD(wParam)) {
         case IDCANCEL:
             EndDialog(hDlg, IDCANCEL);
             break;
@@ -1260,7 +1173,7 @@ typedef struct _UNPIN_FILES_DATA
     BOOL                    bSubfolders;
     PFN_UNPINPROGRESSPROC   pfnProgressCB;
     LPARAM                  lpContext;
-} UNPIN_FILES_DATA, *PUNPIN_FILES_DATA;
+} UNPIN_FILES_DATA, * PUNPIN_FILES_DATA;
 
 DWORD WINAPI
 _UnpinCallback(LPCTSTR             pszItem,
@@ -1278,8 +1191,7 @@ _UnpinCallback(LPCTSTR             pszItem,
         return CSCPROC_RETURN_SKIP;
 
     // Update progress
-    if (pufd->pfnProgressCB)
-    {
+    if (pufd->pfnProgressCB) {
         DWORD dwResult = (*pufd->pfnProgressCB)(pszItem, pufd->lpContext);
         if (CSCPROC_RETURN_CONTINUE != dwResult)
             return dwResult;
@@ -1288,8 +1200,7 @@ _UnpinCallback(LPCTSTR             pszItem,
     // Unpin the item if it's pinned.  For folders,
     // do this before recursing.
     if ((eReason == ENUM_REASON_FILE || eReason == ENUM_REASON_FOLDER_BEGIN)
-        && (dwHintFlags & FLAG_CSC_HINT_PIN_USER))
-    {
+        && (dwHintFlags & FLAG_CSC_HINT_PIN_USER)) {
         CSCUnpinFile(pszItem,
                      FLAG_CSC_HINT_PIN_USER | FLAG_CSC_HINT_PIN_INHERIT_USER,
                      NULL,
@@ -1301,8 +1212,7 @@ _UnpinCallback(LPCTSTR             pszItem,
 
     // Delete items that are no longer pinned.  For folders,
     // do this after recursing.
-    if (eReason == ENUM_REASON_FILE || eReason == ENUM_REASON_FOLDER_END)
-    {
+    if (eReason == ENUM_REASON_FILE || eReason == ENUM_REASON_FOLDER_END) {
         if (!dwHintFlags && !dwPinCount)
             CscDelete(pszItem);
 
@@ -1320,7 +1230,7 @@ _UnpinCallback(LPCTSTR             pszItem,
 }
 
 DWORD
-_UnpinOneShare(CscFilenameList *pfnl,
+_UnpinOneShare(CscFilenameList* pfnl,
                CscFilenameList::HSHARE hShare,
                PUNPIN_FILES_DATA pufd)
 {
@@ -1330,8 +1240,7 @@ _UnpinOneShare(CscFilenameList *pfnl,
     CscFilenameList::FileIter fi = pfnl->CreateFileIterator(hShare);
 
     // Iterate over the filenames associated with the share.
-    while (pszFile = fi.Next())
-    {
+    while (pszFile = fi.Next()) {
         TCHAR szFullPath[MAX_PATH];
         TCHAR szRelativePath[MAX_PATH];
         WIN32_FIND_DATA fd;
@@ -1343,8 +1252,7 @@ _UnpinOneShare(CscFilenameList *pfnl,
         fd.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
 
         // Directories have a trailing "\*"
-        if (StrChr(pszFile, TEXT('*')))
-        {
+        if (StrChr(pszFile, TEXT('*'))) {
             // It's a directory. Trim off the "\*"
             cchFile -= 2;
             fd.dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY;
@@ -1363,11 +1271,9 @@ _UnpinOneShare(CscFilenameList *pfnl,
         lstrcpyn(fd.cFileName, pszFile ? pszFile : szFullPath, ARRAYSIZE(fd.cFileName));
 
         // Update progress
-        if (pufd->pfnProgressCB)
-        {
+        if (pufd->pfnProgressCB) {
             dwResult = (*pufd->pfnProgressCB)(szFullPath, pufd->lpContext);
-            switch (dwResult)
-            {
+            switch (dwResult) {
             case CSCPROC_RETURN_SKIP:
                 continue;
             case CSCPROC_RETURN_ABORT:
@@ -1385,8 +1291,7 @@ _UnpinOneShare(CscFilenameList *pfnl,
         ShellChangeNotify(szFullPath, &fd, FALSE);
 
         // If it's a directory, unpin its contents
-        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-        {
+        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
             _CSCEnumDatabase(szFullPath,
                              pufd->bSubfolders,
                              _UnpinCallback,
@@ -1395,8 +1300,7 @@ _UnpinOneShare(CscFilenameList *pfnl,
         }
 
         // Is it still pinned?
-        if (!dwHintFlags && !dwPinCount)
-        {
+        if (!dwHintFlags && !dwPinCount) {
             // Remove it from the cache (folders may still contain children
             // so we expect this to fail sometimes).
             CscDelete(szFullPath);
@@ -1414,7 +1318,7 @@ _UnpinOneShare(CscFilenameList *pfnl,
 }
 
 void
-CscUnpinFileList(CscFilenameList      *pfnl,
+CscUnpinFileList(CscFilenameList* pfnl,
                  BOOL                  bSubfolders,
                  LPCTSTR               pszShare,
                  PFN_UNPINPROGRESSPROC pfnProgressCB,
@@ -1435,13 +1339,11 @@ CscUnpinFileList(CscFilenameList      *pfnl,
     {
         if (pfnl->GetShareHandle(pszShare, &hShare))
             _UnpinOneShare(pfnl, hShare, &ufd);
-    }
-    else            // enumerate everything in the list
+    } else            // enumerate everything in the list
     {
         CscFilenameList::ShareIter si = pfnl->CreateShareIterator();
 
-        while (si.Next(&hShare) && dwResult != CSCPROC_RETURN_ABORT)
-        {
+        while (si.Next(&hShare) && dwResult != CSCPROC_RETURN_ABORT) {
             dwResult = _UnpinOneShare(pfnl, hShare, &ufd);
         }
     }

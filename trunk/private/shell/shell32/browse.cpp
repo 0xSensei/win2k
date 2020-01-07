@@ -23,7 +23,7 @@ typedef struct _bfsf
     HWND        hwndOwner;
     LPCITEMIDLIST pidlRoot;      // Root of search.  Typically desktop or my net
     LPTSTR        pszDisplayName;// Return display name of item selected.
-    int          *piImage;      // where to return the Image index.
+    int* piImage;      // where to return the Image index.
     LPCTSTR      lpszTitle;      // resource (or text to go in the banner over the tree.
     UINT         ulFlags;       // Flags that control the return stuff
     BFFCALLBACK  lpfn;
@@ -32,14 +32,14 @@ typedef struct _bfsf
     HWND         hwndTree;      // The tree control.
     HWND        hwndEdit;
     HTREEITEM    htiCurParent;  // tree item associated with Current shell folder
-    IShellFolder *psfParent;    // Cache of the last IShell folder I needed...
+    IShellFolder* psfParent;    // Cache of the last IShell folder I needed...
     LPITEMIDLIST pidlCurrent;   // IDlist of current folder to select
-    BOOL         fShowAllObjects:1; // Should we Show all ?
-    BOOL        fUnicode:1;     // 1:unicode entry pt  0:ansi
-} BFSF, *PBFSF;
+    BOOL         fShowAllObjects : 1; // Should we Show all ?
+    BOOL        fUnicode : 1;     // 1:unicode entry pt  0:ansi
+} BFSF, * PBFSF;
 
 
-LPITEMIDLIST SHBrowseForFolder2(BFSF * pbfsf);
+LPITEMIDLIST SHBrowseForFolder2(BFSF* pbfsf);
 BOOL_PTR CALLBACK _BrowseForFolderBFSFDlgProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 LPITEMIDLIST _BFSFUpdateISHCache(PBFSF pbfsf, HTREEITEM hti, LPITEMIDLIST pidlItem);
 
@@ -52,10 +52,10 @@ LPITEMIDLIST _BFSFUpdateISHCache(PBFSF pbfsf, HTREEITEM hti, LPITEMIDLIST pidlIt
 // We want to use SHBrowseForFolder2 if either:
 // 1. pbfsf->lpfn == NULL since the caller wont' customize the dialog, or
 // 2. pbfsf->ulFlags
-BOOL ShouldUseBrowseForFolder2(BFSF * pbfsf)
+BOOL ShouldUseBrowseForFolder2(BFSF* pbfsf)
 {
-//  TODO/BUGBUG: Enable the following code after we have it working with all the backward compat cases.
-//    return (!pbfsf->lpfn || (BIF_NEWDIALOGSTYLE == pbfsf->ulFlags));
+    //  TODO/BUGBUG: Enable the following code after we have it working with all the backward compat cases.
+    //    return (!pbfsf->lpfn || (BIF_NEWDIALOGSTYLE == pbfsf->ulFlags));
     return (BIF_NEWDIALOGSTYLE & pbfsf->ulFlags);
 }
 
@@ -70,17 +70,17 @@ STDAPI_(LPITEMIDLIST) SHBrowseForFolder(LPBROWSEINFO lpbi)
     // but rather called DialogBoxParam on its own.  If you change this
     // routine, change the A version as well!!
     BFSF bfsf =
-        {
-          lpbi->hwndOwner,
-          lpbi->pidlRoot,
-          lpbi->pszDisplayName,
-          &lpbi->iImage,
-          lpbi->lpszTitle,
-          lpbi->ulFlags,
-          lpbi->lpfn,
-          lpbi->lParam,
-        };
-    HCURSOR hcOld = SetCursor(LoadCursor(NULL,IDC_WAIT));
+    {
+      lpbi->hwndOwner,
+      lpbi->pidlRoot,
+      lpbi->pszDisplayName,
+      &lpbi->iImage,
+      lpbi->lpszTitle,
+      lpbi->ulFlags,
+      lpbi->lpfn,
+      lpbi->lParam,
+    };
+    HCURSOR hcOld = SetCursor(LoadCursor(NULL, IDC_WAIT));
     SHELLSTATE ss;
 
     SHGetSetSettings(&ss, SSF_SHOWALLOBJECTS, FALSE);
@@ -93,8 +93,7 @@ STDAPI_(LPITEMIDLIST) SHBrowseForFolder(LPBROWSEINFO lpbi)
 
     if (ShouldUseBrowseForFolder2(&bfsf))
         lpRet = SHBrowseForFolder2(&bfsf);  // Continue even if OLE wasn't initialized.
-    else
-    {
+    else {
         // Now Create the dialog that will be doing the browsing.
         if (DialogBoxParam(HINST_THISDLL, MAKEINTRESOURCE(DLG_BROWSEFORFOLDER),
                            lpbi->hwndOwner, _BrowseForFolderBFSFDlgProc, (LPARAM)&bfsf))
@@ -117,10 +116,9 @@ LPITEMIDLIST WINAPI SHBrowseForFolderA(LPBROWSEINFOA lpbi)
     LPITEMIDLIST lpRet;
     WCHAR wszReturn[MAX_PATH];
     HRESULT hrOle = SHCoInitialize();   // Init OLE for AutoComplete
-    ThunkText * pThunkText = ConvertStrings(1, lpbi->lpszTitle);
+    ThunkText* pThunkText = ConvertStrings(1, lpbi->lpszTitle);
 
-    if (pThunkText)
-    {
+    if (pThunkText) {
         BFSF bfsf =
         {
             lpbi->hwndOwner,
@@ -132,7 +130,7 @@ LPITEMIDLIST WINAPI SHBrowseForFolderA(LPBROWSEINFOA lpbi)
             lpbi->lpfn,
             lpbi->lParam,
         };
-        HCURSOR hcOld = SetCursor(LoadCursor(NULL,IDC_WAIT));
+        HCURSOR hcOld = SetCursor(LoadCursor(NULL, IDC_WAIT));
         SHELLSTATE ss;
         BOOL_PTR fDialogResult;
 
@@ -141,14 +139,11 @@ LPITEMIDLIST WINAPI SHBrowseForFolderA(LPBROWSEINFOA lpbi)
         bfsf.fUnicode = 0;
 
         // Now Create the dialog that will be doing the browsing.
-        if (ShouldUseBrowseForFolder2(&bfsf))
-        {
+        if (ShouldUseBrowseForFolder2(&bfsf)) {
             bfsf.pidlCurrent = SHBrowseForFolder2(&bfsf);
             if (bfsf.pidlCurrent)
                 fDialogResult = TRUE;
-        }
-        else
-        {
+        } else {
             // Now Create the dialog that will be doing the browsing.
             fDialogResult = DialogBoxParam(HINST_THISDLL,
                                            MAKEINTRESOURCE(DLG_BROWSEFORFOLDER),
@@ -160,21 +155,15 @@ LPITEMIDLIST WINAPI SHBrowseForFolderA(LPBROWSEINFOA lpbi)
         if (hcOld)
             SetCursor(hcOld);
 
-        if (fDialogResult)
-        {
-            if (NULL != lpbi->pszDisplayName)
-            {
+        if (fDialogResult) {
+            if (NULL != lpbi->pszDisplayName) {
                 SHUnicodeToAnsi(wszReturn, lpbi->pszDisplayName, MAX_PATH);
             }
             lpRet = bfsf.pidlCurrent;
-        }
-        else
-        {
+        } else {
             lpRet = NULL;
         }
-    }
-    else
-    {
+    } else {
         lpRet = NULL;
     }
 
@@ -202,13 +191,13 @@ int BFSFCallback(PBFSF pbfsf, UINT uMsg, LPARAM lParam)
 // Some helper functions for processing the dialog
 
 HTREEITEM _BFSFAddItemToTree(HWND hwndTree,
-        HTREEITEM htiParent, LPITEMIDLIST pidl, int cChildren)
+                             HTREEITEM htiParent, LPITEMIDLIST pidl, int cChildren)
 {
     TV_INSERTSTRUCT tii;
 
     // Initialize item to add with callback for everything
     tii.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE |
-            TVIF_PARAM | TVIF_CHILDREN;
+        TVIF_PARAM | TVIF_CHILDREN;
     tii.hParent = htiParent;
     tii.hInsertAfter = TVI_FIRST;
     tii.item.iImage = I_IMAGECALLBACK;
@@ -227,8 +216,7 @@ LPITEMIDLIST _BFSFGetIDListFromTreeItem(HWND hwndTree, HTREEITEM hti)
     TV_ITEM tvi;
 
     // If no hti passed in, get the selected on.
-    if (hti == NULL)
-    {
+    if (hti == NULL) {
         hti = TreeView_GetSelection(hwndTree);
         if (hti == NULL)
             return(NULL);
@@ -243,8 +231,7 @@ LPITEMIDLIST _BFSFGetIDListFromTreeItem(HWND hwndTree, HTREEITEM hti)
     pidl = ILClone((LPITEMIDLIST)tvi.lParam);
 
     // Now walk up parents.
-    while ((NULL != (tvi.hItem = TreeView_GetParent(hwndTree, tvi.hItem))) && pidl)
-    {
+    while ((NULL != (tvi.hItem = TreeView_GetParent(hwndTree, tvi.hItem))) && pidl) {
         if (!TreeView_GetItem(hwndTree, &tvi))
             return(pidl);   // will assume I screwed up...
         pidlT = ILCombine((LPITEMIDLIST)tvi.lParam, pidl);
@@ -260,19 +247,18 @@ LPITEMIDLIST _BFSFGetIDListFromTreeItem(HWND hwndTree, HTREEITEM hti)
 
 int CALLBACK _BFSFTreeCompare(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 {
-        IShellFolder *psfParent = (IShellFolder *)lParamSort;
-        HRESULT hres;
+    IShellFolder* psfParent = (IShellFolder*)lParamSort;
+    HRESULT hres;
 
-        hres = psfParent->CompareIDs(0, (LPITEMIDLIST)lParam1, (LPITEMIDLIST)lParam2);
-        if (!SUCCEEDED(hres))
-        {
-                return(0);
-        }
+    hres = psfParent->CompareIDs(0, (LPITEMIDLIST)lParam1, (LPITEMIDLIST)lParam2);
+    if (!SUCCEEDED(hres)) {
+        return(0);
+    }
 
-        return((short)SCODE_CODE(GetScode(hres)));
+    return((short)SCODE_CODE(GetScode(hres)));
 }
 
-void _BFSFSort(PBFSF pbfsf, HTREEITEM hti, IShellFolder *psf)
+void _BFSFSort(PBFSF pbfsf, HTREEITEM hti, IShellFolder* psf)
 {
     TV_SORTCB sSortCB;
     sSortCB.hParent = hti;
@@ -289,8 +275,8 @@ BOOL _BFSFHandleItemExpanding(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
 {
     LPITEMIDLIST pidlToExpand;
     LPITEMIDLIST pidl;
-    IShellFolder *psf;
-    IShellFolder *psfDesktop;
+    IShellFolder* psf;
+    IShellFolder* psfDesktop;
     BYTE bType;
     DWORD grfFlags;
     BOOL fPrinterTest = FALSE;
@@ -314,8 +300,7 @@ BOOL _BFSFHandleItemExpanding(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
     TreeView_SetItem(pbfsf->hwndTree, &tvi);
 
 
-    if (lpnmtv->itemNew.hItem == NULL)
-    {
+    if (lpnmtv->itemNew.hItem == NULL) {
         lpnmtv->itemNew.hItem = TreeView_GetSelection(pbfsf->hwndTree);
         if (lpnmtv->itemNew.hItem == NULL)
             return FALSE;
@@ -330,8 +315,7 @@ BOOL _BFSFHandleItemExpanding(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
     // special case to handle if the Pidl is the desktop
     // This is rather gross, but the desktop appears to be simply a pidl
     // of length 0 and ILIsEqual will not work...
-    if (FAILED(SHBindToObject(psfDesktop, IID_IShellFolder, pidlToExpand, (LPVOID*)&psf)))
-    {
+    if (FAILED(SHBindToObject(psfDesktop, IID_IShellFolder, pidlToExpand, (LPVOID*)&psf))) {
         ILFree(pidlToExpand);
         return FALSE; // Could not get IShellFolder.
     }
@@ -340,14 +324,12 @@ BOOL _BFSFHandleItemExpanding(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
     // browse for a network printer.  In this case if we are at server
     // level we then need to change what we search for non folders when
     // we are the level of a server.
-    if (pbfsf->ulFlags & BIF_BROWSEFORPRINTER)
-    {
+    if (pbfsf->ulFlags & BIF_BROWSEFORPRINTER) {
         grfFlags = SHCONTF_FOLDERS | SHCONTF_NETPRINTERSRCH | SHCONTF_NONFOLDERS;
         pidl = ILFindLastID(pidlToExpand);
         bType = SIL_GetType(pidl);
-        fPrinterTest = ((bType & (SHID_NET|SHID_INGROUPMASK))==SHID_NET_SERVER);
-    }
-    else if (pbfsf->ulFlags & BIF_BROWSEINCLUDEFILES)
+        fPrinterTest = ((bType & (SHID_NET | SHID_INGROUPMASK)) == SHID_NET_SERVER);
+    } else if (pbfsf->ulFlags & BIF_BROWSEINCLUDEFILES)
         grfFlags = SHCONTF_FOLDERS | SHCONTF_NONFOLDERS;
     else
         grfFlags = SHCONTF_FOLDERS;
@@ -355,17 +337,15 @@ BOOL _BFSFHandleItemExpanding(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
     if (pbfsf->fShowAllObjects)
         grfFlags |= SHCONTF_INCLUDEHIDDEN;
 
-    IEnumIDList *penum;
-    if (FAILED(psf->EnumObjects(pbfsf->hwndDlg, grfFlags, &penum)))
-    {
+    IEnumIDList* penum;
+    if (FAILED(psf->EnumObjects(pbfsf->hwndDlg, grfFlags, &penum))) {
         psf->Release();
         ILFree(pidlToExpand);
         return FALSE;
     }
     // psf->AddRef();
 
-    while (NextIDL(penum, &pidl))
-    {
+    while (NextIDL(penum, &pidl)) {
         int cChildren = I_CHILDRENCALLBACK;  // Do call back for children
 
         // We need to special case here in the netcase where we onlyu
@@ -376,10 +356,8 @@ BOOL _BFSFHandleItemExpanding(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
         // workgroups when the appropriate option is set.
 
         bType = SIL_GetType(pidl);
-        if ((pbfsf->ulFlags & BIF_DONTGOBELOWDOMAIN) && (bType & SHID_NET))
-        {
-            switch (bType & (SHID_NET | SHID_INGROUPMASK))
-            {
+        if ((pbfsf->ulFlags & BIF_DONTGOBELOWDOMAIN) && (bType & SHID_NET)) {
+            switch (bType & (SHID_NET | SHID_INGROUPMASK)) {
             case SHID_NET_SERVER:
                 ILFree(pidl);       // Dont want to add this one
                 continue;           // Try the next one
@@ -388,63 +366,54 @@ BOOL _BFSFHandleItemExpanding(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
             }
         }
 
-        else if ((pbfsf->ulFlags & BIF_BROWSEFORCOMPUTER) && (bType & SHID_NET))
-        {
+        else if ((pbfsf->ulFlags & BIF_BROWSEFORCOMPUTER) && (bType & SHID_NET)) {
             if ((bType & (SHID_NET | SHID_INGROUPMASK)) == SHID_NET_SERVER)
                 cChildren = 0;  // Don't expand below it...
         }
 
-        else if (pbfsf->ulFlags & BIF_BROWSEFORPRINTER)
-        {
+        else if (pbfsf->ulFlags & BIF_BROWSEFORPRINTER) {
             // Special case when we are only allowing printers.
             // for now I will simply key on the fact that it is non-FS.
             ULONG ulAttr = SFGAO_FILESYSANCESTOR;
 
-            psf->GetAttributesOf(1, (LPCITEMIDLIST *) &pidl, &ulAttr);
+            psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidl, &ulAttr);
 
-            if ((ulAttr & SFGAO_FILESYSANCESTOR) == 0)
-            {
+            if ((ulAttr & SFGAO_FILESYSANCESTOR) == 0) {
                 cChildren = 0;      // Force to not have children;
-            }
-            else if (fPrinterTest)
-            {
+            } else if (fPrinterTest) {
                 ILFree(pidl);       // We are down to server level so don't add other things here
                 continue;           // Try the next one
             }
-        }
-        else if (pbfsf->ulFlags & BIF_BROWSEINCLUDEFILES)
-        {
+        } else if (pbfsf->ulFlags & BIF_BROWSEINCLUDEFILES) {
             // Lets not use the callback to see if this item has children or not
             // as some or files (no children) and it is not worth writing our own
             // enumerator as we don't want the + to depend on if there are sub-folders
             // but instead it should be if it has files...
             ULONG ulAttr = SFGAO_FOLDER;
 
-            psf->GetAttributesOf(1, (LPCITEMIDLIST *) &pidl, &ulAttr);
-            if ((ulAttr & SFGAO_FOLDER)== 0)
+            psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidl, &ulAttr);
+            if ((ulAttr & SFGAO_FOLDER) == 0)
                 cChildren = 0;      // Force to not have children;
             else
                 cChildren = 1;
         }
 
-        if (pbfsf->ulFlags & (BIF_RETURNONLYFSDIRS | BIF_RETURNFSANCESTORS))
-        {
+        if (pbfsf->ulFlags & (BIF_RETURNONLYFSDIRS | BIF_RETURNFSANCESTORS)) {
             // If we are only looking for FS level things only add items
             // that are in the name space that are file system objects or
             // ancestors of file system objects
             ULONG ulAttr = SFGAO_FILESYSANCESTOR | SFGAO_FILESYSTEM;
 
-            psf->GetAttributesOf(1, (LPCITEMIDLIST *) &pidl, &ulAttr);
+            psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidl, &ulAttr);
 
-            if ((ulAttr & (SFGAO_FILESYSANCESTOR | SFGAO_FILESYSTEM))== 0)
-            {
+            if ((ulAttr & (SFGAO_FILESYSANCESTOR | SFGAO_FILESYSTEM)) == 0) {
                 ILFree(pidl);       // We are down to server level so don't add other things here
                 continue;           // Try the next one
             }
         }
 
         _BFSFAddItemToTree(pbfsf->hwndTree, lpnmtv->itemNew.hItem,
-                pidl, cChildren);
+                           pidl, cChildren);
         cAdded++;
     }
 
@@ -458,8 +427,7 @@ BOOL _BFSFHandleItemExpanding(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
     // If we did not add anything we should update this item to let
     // the user know something happened.
 
-    if (cAdded == 0)
-    {
+    if (cAdded == 0) {
         TV_ITEM tvi;
         tvi.mask = TVIF_CHILDREN | TVIF_HANDLE;   // only change the number of children
         tvi.hItem = lpnmtv->itemNew.hItem;
@@ -485,7 +453,7 @@ void _BFSFHandleDeleteItem(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
 LPITEMIDLIST _BFSFUpdateISHCache(PBFSF pbfsf, HTREEITEM hti, LPITEMIDLIST pidlItem)
 {
     HTREEITEM htiParent;
-    IShellFolder *psfDesktop;
+    IShellFolder* psfDesktop;
 
     if (pidlItem == NULL)
         return NULL;
@@ -494,36 +462,29 @@ LPITEMIDLIST _BFSFUpdateISHCache(PBFSF pbfsf, HTREEITEM hti, LPITEMIDLIST pidlIt
 
     // Need to handle the root case here!
     htiParent = TreeView_GetParent(pbfsf->hwndTree, hti);
-    if ((htiParent != pbfsf->htiCurParent) || (pbfsf->psfParent == NULL))
-    {
+    if ((htiParent != pbfsf->htiCurParent) || (pbfsf->psfParent == NULL)) {
         LPITEMIDLIST pidl;
 
-        if (pbfsf->psfParent)
-        {
+        if (pbfsf->psfParent) {
             if (pbfsf->psfParent != psfDesktop)
                 pbfsf->psfParent->Release();
             pbfsf->psfParent = NULL;
         }
 
-        if (htiParent)
-        {
+        if (htiParent) {
             pidl = _BFSFGetIDListFromTreeItem(pbfsf->hwndTree, htiParent);
-        }
-        else
-        {
+        } else {
 
             // If No Parent then the item here is one of our roots which
             // should be fully qualified.  So try to get the parent by
             // decomposing the ID.
 
             LPITEMIDLIST pidlT = (LPITEMIDLIST)ILFindLastID(pidlItem);
-            if (pidlT != pidlItem)
-            {
+            if (pidlT != pidlItem) {
                 pidl = ILClone(pidlItem);
                 ILRemoveLastID(pidl);
                 pidlItem = pidlT;
-            }
-            else
+            } else
                 pidl = NULL;
         }
 
@@ -540,7 +501,7 @@ LPITEMIDLIST _BFSFUpdateISHCache(PBFSF pbfsf, HTREEITEM hti, LPITEMIDLIST pidlIt
 
 
 
-void _BFSFGetDisplayInfo(PBFSF pbfsf, TV_DISPINFO *lpnm)
+void _BFSFGetDisplayInfo(PBFSF pbfsf, TV_DISPINFO* lpnm)
 {
     TV_ITEM ti;
     LPITEMIDLIST pidlItem = (LPITEMIDLIST)lpnm->item.lParam;
@@ -556,41 +517,35 @@ void _BFSFGetDisplayInfo(PBFSF pbfsf, TV_DISPINFO *lpnm)
     // They are asking for IconIndex.  See if we can find it now.
     // Once found update their list, such that they wont call us back for
     // it again.
-    if (lpnm->item.mask & (TVIF_IMAGE | TVIF_SELECTEDIMAGE))
-    {
+    if (lpnm->item.mask & (TVIF_IMAGE | TVIF_SELECTEDIMAGE)) {
         // We now need to map the item into the right image index.
         ti.iImage = lpnm->item.iImage = SHMapPIDLToSystemImageListIndex(
-                pbfsf->psfParent, pidlItem, &ti.iSelectedImage);
+            pbfsf->psfParent, pidlItem, &ti.iSelectedImage);
         // we should save it back away to
         lpnm->item.iSelectedImage = ti.iSelectedImage;
         ti.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE;
     }
     // Also see if this guy has any child folders
-    if (lpnm->item.mask & TVIF_CHILDREN)
-    {
+    if (lpnm->item.mask & TVIF_CHILDREN) {
         ULONG ulAttrs;
 
         ulAttrs = SFGAO_HASSUBFOLDER;
-        pbfsf->psfParent->GetAttributesOf(1, (LPCITEMIDLIST *) &pidlItem, &ulAttrs);
+        pbfsf->psfParent->GetAttributesOf(1, (LPCITEMIDLIST*)&pidlItem, &ulAttrs);
 
         ti.cChildren = lpnm->item.cChildren =
-                (ulAttrs & SFGAO_HASSUBFOLDER)? 1 : 0;
+            (ulAttrs & SFGAO_HASSUBFOLDER) ? 1 : 0;
 
         ti.mask |= TVIF_CHILDREN;
 
     }
 
-    if (lpnm->item.mask & TVIF_TEXT)
-    {
+    if (lpnm->item.mask & TVIF_TEXT) {
         STRRET str;
-        if (SUCCEEDED(pbfsf->psfParent->GetDisplayNameOf(pidlItem, SHGDN_INFOLDER, &str)))
-        {
+        if (SUCCEEDED(pbfsf->psfParent->GetDisplayNameOf(pidlItem, SHGDN_INFOLDER, &str))) {
             StrRetToBuf(&str, pidlItem, lpnm->item.pszText, lpnm->item.cchTextMax);
             ti.mask |= TVIF_TEXT;
             ti.pszText = lpnm->item.pszText;
-        }
-        else
-        {
+        } else {
             AssertMsg(0, TEXT("The folder %08x that owns pidl %08x rejected it!"),
                       pbfsf, pidlItem);
             // Oh well - display a blank name and hope for the best.
@@ -616,20 +571,18 @@ void _BFSFHandleSelChanged(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
 
     // We only need to do anything if we only want to return File system
     // level objects.
-    if ((pbfsf->ulFlags & (BIF_RETURNONLYFSDIRS|BIF_RETURNFSANCESTORS|BIF_BROWSEFORPRINTER|BIF_BROWSEFORCOMPUTER)) == 0)
+    if ((pbfsf->ulFlags & (BIF_RETURNONLYFSDIRS | BIF_RETURNFSANCESTORS | BIF_BROWSEFORPRINTER | BIF_BROWSEFORCOMPUTER)) == 0)
         goto NotifySelChange;
 
     // We need to get the attributes of this object...
     pidl = _BFSFUpdateISHCache(pbfsf, lpnmtv->itemNew.hItem,
-            (LPITEMIDLIST)lpnmtv->itemNew.lParam);
+        (LPITEMIDLIST)lpnmtv->itemNew.lParam);
 
-    if (pidl)
-    {
+    if (pidl) {
         BOOL fEnable = TRUE;
 
         bType = SIL_GetType(pidl);
-        if ((pbfsf->ulFlags & (BIF_RETURNFSANCESTORS|BIF_RETURNONLYFSDIRS)) != 0)
-        {
+        if ((pbfsf->ulFlags & (BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS)) != 0) {
             int i;
             // if this is the root pidl, then do a get attribs on 0
             // so that we'll get the attributes on the root, rather than
@@ -639,16 +592,14 @@ void _BFSFHandleSelChanged(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
             } else
                 i = 1;
 
-            pbfsf->psfParent->GetAttributesOf(i, (LPCITEMIDLIST *) &pidl, &ulAttrs);
+            pbfsf->psfParent->GetAttributesOf(i, (LPCITEMIDLIST*)&pidl, &ulAttrs);
 
             fEnable = (((ulAttrs & SFGAO_FILESYSTEM) && (pbfsf->ulFlags & BIF_RETURNONLYFSDIRS)) ||
                 ((ulAttrs & SFGAO_FILESYSANCESTOR) && (pbfsf->ulFlags & BIF_RETURNFSANCESTORS))) ||
-                    ((bType & (SHID_NET | SHID_INGROUPMASK)) == SHID_NET_SERVER);
-        }
-        else if ((pbfsf->ulFlags & BIF_BROWSEFORCOMPUTER) != 0)
+                       ((bType & (SHID_NET | SHID_INGROUPMASK)) == SHID_NET_SERVER);
+        } else if ((pbfsf->ulFlags & BIF_BROWSEFORCOMPUTER) != 0)
             fEnable = ((bType & (SHID_NET | SHID_INGROUPMASK)) == SHID_NET_SERVER);
-        else if ((pbfsf->ulFlags & BIF_BROWSEFORPRINTER) != 0)
-        {
+        else if ((pbfsf->ulFlags & BIF_BROWSEFORPRINTER) != 0) {
             // Printers are of type Share and usage Print...
             fEnable = ((bType & (SHID_NET | SHID_INGROUPMASK)) == SHID_NET_SHARE);
         }
@@ -660,8 +611,7 @@ void _BFSFHandleSelChanged(PBFSF pbfsf, LPNM_TREEVIEW lpnmtv)
 
 NotifySelChange:
 
-    if (pbfsf->ulFlags & BIF_EDITBOX)
-    {
+    if (pbfsf->ulFlags & BIF_EDITBOX) {
         TCHAR szText[MAX_PATH];        // update the edit box
         TVITEM tvi;
 
@@ -674,11 +624,9 @@ NotifySelChange:
         SetWindowText(pbfsf->hwndEdit, szText);
     }
 
-    if (pbfsf->lpfn)
-    {
+    if (pbfsf->lpfn) {
         pidl = _BFSFGetIDListFromTreeItem(pbfsf->hwndTree, lpnmtv->itemNew.hItem);
-        if (pidl)
-        {
+        if (pidl) {
             BFSFCallback(pbfsf, BFFM_SELCHANGED, (LPARAM)pidl);
             ILFree(pidl);
         }
@@ -779,14 +727,12 @@ BOOL _BrowseForFolderOnBFSFInitDlg(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 
     lpsz = ResourceCStrToStr(HINST_THISDLL, pbfsf->lpszTitle);
     SetDlgItemText(hwnd, IDD_BROWSETITLE, lpsz);
-    if (lpsz != pbfsf->lpszTitle)
-    {
+    if (lpsz != pbfsf->lpszTitle) {
         LocalFree(lpsz);
         lpsz = NULL;
     }
 
-    if(!(IS_WINDOW_RTL_MIRRORED(pbfsf->hwndOwner)))
-    {
+    if (!(IS_WINDOW_RTL_MIRRORED(pbfsf->hwndOwner))) {
         SHSetWindowBits(hwnd, GWL_EXSTYLE, RTL_MIRRORED_WINDOW, 0);
     }
 
@@ -794,10 +740,9 @@ BOOL _BrowseForFolderOnBFSFInitDlg(HWND hwnd, HWND hwndFocus, LPARAM lParam)
     pbfsf->hwndDlg = hwnd;
     hwndTree = pbfsf->hwndTree = GetDlgItem(hwnd, IDD_FOLDERLIST);
 
-    if (hwndTree)
-    {
+    if (hwndTree) {
         UINT swpFlags = SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER
-                | SWP_NOACTIVATE;
+            | SWP_NOACTIVATE;
         RECT rc;
         POINT pt = {0,0};
 
@@ -805,27 +750,23 @@ BOOL _BrowseForFolderOnBFSFInitDlg(HWND hwnd, HWND hwndFocus, LPARAM lParam)
         MapWindowPoints(hwndTree, hwnd, (POINT*)&rc, 2);
         pbfsf->hwndEdit = GetDlgItem(hwnd, IDD_BROWSEEDIT);
 
-        if (!(pbfsf->ulFlags & BIF_STATUSTEXT))
-        {
+        if (!(pbfsf->ulFlags & BIF_STATUSTEXT)) {
             HWND hwndStatus = GetDlgItem(hwnd, IDD_BROWSESTATUS);
             // nuke the status window
             ShowWindow(hwndStatus, SW_HIDE);
             MapWindowPoints(hwndStatus, hwnd, &pt, 1);
             rc.top = pt.y;
-            swpFlags =  SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOACTIVATE;
+            swpFlags = SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOACTIVATE;
         }
 
-        if (pbfsf->ulFlags & BIF_EDITBOX)
-        {
+        if (pbfsf->ulFlags & BIF_EDITBOX) {
             RECT rcT;
             GetClientRect(pbfsf->hwndEdit, &rcT);
             SetWindowPos(pbfsf->hwndEdit, NULL, rc.left, rc.top, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
             rc.top += (rcT.bottom - rcT.top) + GetSystemMetrics(SM_CYEDGE) * 4;
-            swpFlags =  SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOACTIVATE;
+            swpFlags = SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOACTIVATE;
             SHAutoComplete(GetDlgItem(hwnd, IDD_BROWSEEDIT), (SHACF_FILESYSTEM | SHACF_URLALL | SHACF_FILESYS_ONLY));
-        }
-        else
-        {
+        } else {
             DestroyWindow(pbfsf->hwndEdit);
             pbfsf->hwndEdit = NULL;
         }
@@ -834,7 +775,7 @@ BOOL _BrowseForFolderOnBFSFInitDlg(HWND hwnd, HWND hwndFocus, LPARAM lParam)
         TreeView_SetImageList(hwndTree, himl, TVSIL_NORMAL);
 
         SetWindowLongPtr(hwndTree, GWL_EXSTYLE,
-                GetWindowLongPtr(hwndTree, GWL_EXSTYLE) | WS_EX_CLIENTEDGE);
+                         GetWindowLongPtr(hwndTree, GWL_EXSTYLE) | WS_EX_CLIENTEDGE);
 
         // Now try to get this window to know to recalc
         SetWindowPos(hwndTree, NULL, rc.left, rc.top,
@@ -844,8 +785,7 @@ BOOL _BrowseForFolderOnBFSFInitDlg(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 
     // If they passed in a root, add it, else add the contents of the
     // Root of evil... to the list as ROOT objects.
-    if (pbfsf->pidlRoot)
-    {
+    if (pbfsf->pidlRoot) {
         LPITEMIDLIST pidl;
         if (IS_INTRESOURCE(pbfsf->pidlRoot)) {
             pidl = SHCloneSpecialIDList(NULL, PtrToUlong((PVOID)pbfsf->pidlRoot), TRUE);
@@ -857,9 +797,7 @@ BOOL _BrowseForFolderOnBFSFInitDlg(HWND hwnd, HWND hwndFocus, LPARAM lParam)
         // Still need to expand below this point. to the starting location
         // That was passed in. But for now expand the first level.
         TreeView_Expand(hwndTree, hti, TVE_EXPAND);
-    }
-    else
-    {
+    } else {
         LPITEMIDLIST pidlDesktop = SHCloneSpecialIDList(NULL, CSIDL_DESKTOP, FALSE);
         HTREEITEM htiRoot = _BFSFAddItemToTree(hwndTree, TVI_ROOT, pidlDesktop, 1);
         BOOL bFoundDrives = FALSE;
@@ -869,17 +807,13 @@ BOOL _BrowseForFolderOnBFSFInitDlg(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 
         // Lets Preexpand the Drives portion....
         hti = TreeView_GetChild(hwndTree, htiRoot);
-        while (hti && !bFoundDrives)
-        {
+        while (hti && !bFoundDrives) {
             LPITEMIDLIST pidl = _BFSFGetIDListFromTreeItem(hwndTree, hti);
-            if (pidl)
-            {
+            if (pidl) {
                 LPITEMIDLIST pidlDrives = SHCloneSpecialIDList(NULL, CSIDL_DRIVES, FALSE);
-                if (pidlDrives)
-                {
+                if (pidlDrives) {
                     bFoundDrives = ILIsEqual(pidl, pidlDrives);
-                    if (bFoundDrives)
-                    {
+                    if (bFoundDrives) {
                         TreeView_Expand(hwndTree, hti, TVE_EXPAND);
                         TreeView_SelectItem(hwndTree, hti);
                     }
@@ -907,13 +841,10 @@ BOOL _BrowseForFolderOnBFSFInitDlg(HWND hwnd, HWND hwndFocus, LPARAM lParam)
         }
     }
 
-    if ((pbfsf->ulFlags & BIF_BROWSEFORCOMPUTER) != 0)
-    {
+    if ((pbfsf->ulFlags & BIF_BROWSEFORCOMPUTER) != 0) {
         LoadString(HINST_THISDLL, IDS_FINDSEARCH_COMPUTER, szTitle, ARRAYSIZE(szTitle));
         SetWindowText(hwnd, szTitle);
-    }
-    else if ((pbfsf->ulFlags & BIF_BROWSEFORPRINTER) != 0)
-    {
+    } else if ((pbfsf->ulFlags & BIF_BROWSEFORPRINTER) != 0) {
         LoadString(HINST_THISDLL, IDS_FINDSEARCH_PRINTER, szTitle, ARRAYSIZE(szTitle));
         SetWindowText(hwnd, szTitle);
     }
@@ -961,14 +892,13 @@ BOOL _BFSFSetSelectionA(PBFSF pbfsf, BOOL blParamIsPath, LPARAM lParam)
 {
     BOOL fRet = FALSE;
 
-    if (blParamIsPath)
-    {
+    if (blParamIsPath) {
 #ifdef UNICODE
 
         // UNICODE build.  Convert path from ansi to wide-char.
 
         LPWSTR lpszPathW = NULL;
-        INT cchPathW     = 0;
+        INT cchPathW = 0;
 
         cchPathW = MultiByteToWideChar(CP_ACP,
                                        0,
@@ -976,11 +906,9 @@ BOOL _BFSFSetSelectionA(PBFSF pbfsf, BOOL blParamIsPath, LPARAM lParam)
                                        -1,
                                        NULL,
                                        0);
-        if (0 < cchPathW)
-        {
-            lpszPathW = (LPWSTR) LocalAlloc(LPTR, cchPathW * sizeof(TCHAR));
-            if (NULL != lpszPathW)
-            {
+        if (0 < cchPathW) {
+            lpszPathW = (LPWSTR)LocalAlloc(LPTR, cchPathW * sizeof(TCHAR));
+            if (NULL != lpszPathW) {
                 MultiByteToWideChar(CP_ACP,
                                     0,
                                     (LPCSTR)lParam,
@@ -990,8 +918,7 @@ BOOL _BFSFSetSelectionA(PBFSF pbfsf, BOOL blParamIsPath, LPARAM lParam)
 
                 lParam = (LPARAM)SHSimpleIDListFromPath(lpszPathW);
                 LocalFree(lpszPathW);
-            }
-            else
+            } else
                 return FALSE;  // Failed buffer allocation.
         }
 #else
@@ -1021,15 +948,14 @@ BOOL _BFSFSetSelectionW(PBFSF pbfsf, BOOL blParamIsPath, LPARAM lParam)
 {
     BOOL fRet = FALSE;
 
-    if (blParamIsPath)
-    {
+    if (blParamIsPath) {
 
 #ifndef UNICODE
 
         // ANSI build.  Convert path from wide-char to ansi.
 
         LPSTR lpszPathA = NULL;
-        INT cchPathA    = 0;
+        INT cchPathA = 0;
 
         // BUGBUG REVIEW: Why doesn't this just use a MAX_PATH buffer?
         cchPathA = WideCharToMultiByte(CP_ACP,
@@ -1040,11 +966,9 @@ BOOL _BFSFSetSelectionW(PBFSF pbfsf, BOOL blParamIsPath, LPARAM lParam)
                                        0,
                                        0,
                                        0);
-        if (0 < cchPathA)
-        {
-            lpszPathA = (LPSTR) LocalAlloc(LPTR, cchPathA * sizeof(TCHAR));
-            if (NULL != lpszPathA)
-            {
+        if (0 < cchPathA) {
+            lpszPathA = (LPSTR)LocalAlloc(LPTR, cchPathA * sizeof(TCHAR));
+            if (NULL != lpszPathA) {
                 WideCharToMultiByte(CP_ACP,
                                     0,
                                     (LPWSTR)lParam,
@@ -1056,8 +980,7 @@ BOOL _BFSFSetSelectionW(PBFSF pbfsf, BOOL blParamIsPath, LPARAM lParam)
 
                 lParam = (LPARAM)SHSimpleIDListFromPath(lpszPathA);
                 LocalFree(lpszPathA);
-            }
-            else
+            } else
                 return FALSE;  // Failed buffer allocation.
         }
 #else
@@ -1072,8 +995,7 @@ BOOL _BFSFSetSelectionW(PBFSF pbfsf, BOOL blParamIsPath, LPARAM lParam)
 
     fRet = BrowseSelectPidl(pbfsf, (LPITEMIDLIST)lParam);
 
-    if (blParamIsPath)
-    {
+    if (blParamIsPath) {
 
         // Free the pidl we created from path.
 
@@ -1088,20 +1010,18 @@ BOOL _BFSFSetSelectionW(PBFSF pbfsf, BOOL blParamIsPath, LPARAM lParam)
 // _BrowseForFolderOnBFSFCommand - Process the WM_COMMAND message
 
 void _BrowseForFolderOnBFSFCommand(PBFSF pbfsf, int id, HWND hwndCtl,
-        UINT codeNotify)
+                                   UINT codeNotify)
 {
     HTREEITEM hti;
 
-    switch (id)
-    {
+    switch (id) {
     case IDD_BROWSEEDIT:
-        if (codeNotify == EN_CHANGE)
-        {
+        if (codeNotify == EN_CHANGE) {
             TCHAR szBuf[4];     // (arb. size, anything > 2)
 
             szBuf[0] = 1;       // if Get fails ('impossible'), enable OK
             GetDlgItemText(pbfsf->hwndDlg, IDD_BROWSEEDIT, szBuf,
-                    ARRAYSIZE(szBuf));
+                           ARRAYSIZE(szBuf));
             DlgEnableOk(pbfsf->hwndDlg, (WPARAM)(BOOL)szBuf[0]);
         }
         break;
@@ -1115,7 +1035,7 @@ void _BrowseForFolderOnBFSFCommand(PBFSF pbfsf, int id, HWND hwndCtl,
         // We can now update the structure with the idlist of the item selected
         hti = TreeView_GetSelection(pbfsf->hwndTree);
         pbfsf->pidlCurrent = _BFSFGetIDListFromTreeItem(pbfsf->hwndTree,
-                hti);
+                                                        hti);
 
         tvi.mask = TVIF_TEXT | TVIF_IMAGE;
         tvi.hItem = hti;
@@ -1125,28 +1045,23 @@ void _BrowseForFolderOnBFSFCommand(PBFSF pbfsf, int id, HWND hwndCtl,
         tvi.cchTextMax = MAX_PATH;
         TreeView_GetItem(pbfsf->hwndTree, &tvi);
 
-        if (pbfsf->ulFlags & BIF_EDITBOX)
-        {
+        if (pbfsf->ulFlags & BIF_EDITBOX) {
             TCHAR szEditTextRaw[MAX_PATH];
             TCHAR szEditText[MAX_PATH];
 
             GetWindowText(pbfsf->hwndEdit, szEditTextRaw, ARRAYSIZE(szEditTextRaw));
             SHExpandEnvironmentStrings(szEditTextRaw, szEditText, ARRAYSIZE(szEditText));
 
-            if (lstrcmpi(szEditText, tvi.pszText))
-            {
+            if (lstrcmpi(szEditText, tvi.pszText)) {
                 // the two are different, we need to get the user typed one
                 LPITEMIDLIST pidl;
                 pidl = ILCreateFromPath(szEditText);
-                if (pidl)
-                {
+                if (pidl) {
                     ILFree(pbfsf->pidlCurrent);
                     pbfsf->pidlCurrent = pidl;
                     lstrcpy(tvi.pszText, szEditText);
                     tvi.iImage = -1;
-                }
-                else if (pbfsf->ulFlags & BIF_VALIDATE)
-                {
+                } else if (pbfsf->ulFlags & BIF_VALIDATE) {
                     LPARAM lParam;
 #ifdef UNICODE
                     char szAnsi[MAX_PATH];
@@ -1160,14 +1075,13 @@ void _BrowseForFolderOnBFSFCommand(PBFSF pbfsf, int id, HWND hwndCtl,
                     tvi.iImage = -1;
                     lParam = (LPARAM)szEditText;
 #ifdef UNICODE
-                    if (!pbfsf->fUnicode)
-                    {
+                    if (!pbfsf->fUnicode) {
                         SHUnicodeToAnsi(szEditText, szAnsi, ARRAYSIZE(szAnsi));
                         lParam = (LPARAM)szAnsi;
                     }
 #endif
                     // 0:EndDialog, 1:continue
-                    fDone = BFSFCallback(pbfsf, pbfsf->fUnicode?BFFM_VALIDATEFAILEDW : BFFM_VALIDATEFAILEDA, lParam) == 0;
+                    fDone = BFSFCallback(pbfsf, pbfsf->fUnicode ? BFFM_VALIDATEFAILEDW : BFFM_VALIDATEFAILEDA, lParam) == 0;
                 }
                 // else old behavior: hand back last-clicked pidl (even
                 // though it doesn't match editbox text!)
@@ -1212,26 +1126,24 @@ const static DWORD aBrowseHelpIDs[] = {  // Context Help IDs
 };
 
 BOOL_PTR CALLBACK _BrowseForFolderBFSFDlgProc(HWND hwndDlg, UINT msg, WPARAM wParam,
-        LPARAM lParam)
+                                              LPARAM lParam)
 {
     PBFSF pbfsf = (PBFSF)GetWindowLongPtr(hwndDlg, DWLP_USER);
 
     switch (msg) {
-    HANDLE_MSG(pbfsf, WM_COMMAND, _BrowseForFolderOnBFSFCommand);
+        HANDLE_MSG(pbfsf, WM_COMMAND, _BrowseForFolderOnBFSFCommand);
 
-    // HANDLE_MSG(hwndDlg, WM_INITDIALOG, );
+        // HANDLE_MSG(hwndDlg, WM_INITDIALOG, );
     case WM_INITDIALOG:
         return (BOOL)HANDLE_WM_INITDIALOG(hwndDlg, wParam, lParam, _BrowseForFolderOnBFSFInitDlg);
 
 
     case WM_DESTROY:
 
-        if (pbfsf->psfParent)
-        {
-            IShellFolder *psfDesktop;
+        if (pbfsf->psfParent) {
+            IShellFolder* psfDesktop;
             SHGetDesktopFolder(&psfDesktop);
-            if (pbfsf->psfParent != psfDesktop)
-            {
+            if (pbfsf->psfParent != psfDesktop) {
                 pbfsf->psfParent->Release();
                 pbfsf->psfParent = NULL;
             }
@@ -1258,13 +1170,12 @@ BOOL_PTR CALLBACK _BrowseForFolderBFSFDlgProc(HWND hwndDlg, UINT msg, WPARAM wPa
 
 
     case WM_NOTIFY:
-        switch (((NMHDR *)lParam)->code)
-        {
-        // BUGBUG: need comments on exactly what we need both
-        // A/W version of these messages for.
+        switch (((NMHDR*)lParam)->code) {
+            // BUGBUG: need comments on exactly what we need both
+            // A/W version of these messages for.
         case TVN_GETDISPINFOA:
         case TVN_GETDISPINFOW:
-            _BFSFGetDisplayInfo(pbfsf, (TV_DISPINFO *)lParam);
+            _BFSFGetDisplayInfo(pbfsf, (TV_DISPINFO*)lParam);
             break;
 
         case TVN_ITEMEXPANDINGA:
@@ -1288,13 +1199,13 @@ BOOL_PTR CALLBACK _BrowseForFolderBFSFDlgProc(HWND hwndDlg, UINT msg, WPARAM wPa
         break;
 
     case WM_HELP:
-        WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL,
-            HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aBrowseHelpIDs);
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, NULL,
+                HELP_WM_HELP, (ULONG_PTR)(LPTSTR)aBrowseHelpIDs);
         break;
 
     case WM_CONTEXTMENU:
-        WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU,
-            (ULONG_PTR)(LPVOID) aBrowseHelpIDs);
+        WinHelp((HWND)wParam, NULL, HELP_CONTEXTMENU,
+            (ULONG_PTR)(LPVOID)aBrowseHelpIDs);
         break;
 
     default:
@@ -1337,19 +1248,19 @@ BOOL_PTR CALLBACK _BrowseForFolderBFSFDlgProc(HWND hwndDlg, UINT msg, WPARAM wPa
 \****/
 #define WNDPROP_CSHBrowseForFolder TEXT("WNDPROP_CSHBrowseForFolder_THIS")
 
-class CSHBrowseForFolder :    public IShellFolderFilter
+class CSHBrowseForFolder : public IShellFolderFilter
 {
 public:
-    LPITEMIDLIST DisplayDialog(BFSF * pbfsf);
+    LPITEMIDLIST DisplayDialog(BFSF* pbfsf);
 
     // *** IUnknown ***
-    STDMETHODIMP QueryInterface(REFIID riid, LPVOID * ppvObj);
+    STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppvObj);
     STDMETHODIMP_(ULONG) AddRef(void);
     STDMETHODIMP_(ULONG) Release(void);
 
     // *** IShellFolderFilter methods ***
-    virtual STDMETHODIMP ShouldShow(IShellFolder* psf, LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlItem) {return _ShouldShow(psf, pidlFolder, pidlItem, FALSE);};
-    virtual STDMETHODIMP GetEnumFlags(IShellFolder* psf, LPCITEMIDLIST pidlFolder, HWND *phwnd, DWORD *pgrfFlags);
+    virtual STDMETHODIMP ShouldShow(IShellFolder* psf, LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlItem) { return _ShouldShow(psf, pidlFolder, pidlItem, FALSE); };
+    virtual STDMETHODIMP GetEnumFlags(IShellFolder* psf, LPCITEMIDLIST pidlFolder, HWND* phwnd, DWORD* pgrfFlags);
 
     CSHBrowseForFolder(void);
     ~CSHBrowseForFolder(void);
@@ -1371,7 +1282,7 @@ private:
     HRESULT _OnSizeDialog(HWND hwnd, DWORD dwWidth, DWORD dwHeight);
     HDWP _SizeControls(HWND hwnd, HDWP hdwp, RECT rcTree, int dx, int dy);
     HRESULT _SetDialogSize(HWND hwnd, DWORD dwWidth, DWORD dwHeight);
-    BOOL_PTR _OnGetMinMaxInfo(MINMAXINFO * pMinMaxInfo);
+    BOOL_PTR _OnGetMinMaxInfo(MINMAXINFO* pMinMaxInfo);
 
     HRESULT _ProcessEditChangeOnOK(BOOL fUpdateTree);
     HRESULT _OnTreeSelectChange(DWORD dwFlags);
@@ -1390,15 +1301,15 @@ private:
     // Private Member Variables
     LONG                        _cRef;
 
-    INSCTree *                  _pns;
-    IWinEventHandler *          _pweh;
-    IPersistFolder *            _ppf;      // AutoComplete's interface to set the current working directory for AC.
+    INSCTree* _pns;
+    IWinEventHandler* _pweh;
+    IPersistFolder* _ppf;      // AutoComplete's interface to set the current working directory for AC.
     LPITEMIDLIST                _pidlSelected;
     BOOL                        _fEditboxDirty; // Is the editbox the last thing the user modified (over the selection tree).
     HWND                        _hwndTv;
     HWND                        _hwndBFF;
     HWND                        _hDlg;
-    BFSF *                      _pbfsf;
+    BFSF* _pbfsf;
     BOOL                        _fPrinterFilter;
     LPITEMIDLIST                _pidlChildFilter; // If non-NULL, we want to filter all children in this filder. (Including grandchildren)
 
@@ -1415,13 +1326,12 @@ private:
 
 
 
-LPITEMIDLIST SHBrowseForFolder2(BFSF * pbfsf)
+LPITEMIDLIST SHBrowseForFolder2(BFSF* pbfsf)
 {
     LPITEMIDLIST pidl = NULL;
     HRESULT hrOle = SHOleInitialize(0);     // The caller may not have inited OLE and we need to CoCreate _pns.
-    CSHBrowseForFolder * pcshbff = new CSHBrowseForFolder();
-    if (pcshbff)
-    {
+    CSHBrowseForFolder* pcshbff = new CSHBrowseForFolder();
+    if (pcshbff) {
         pidl = pcshbff->DisplayDialog(pbfsf);
         delete pcshbff;
     }
@@ -1465,16 +1375,16 @@ CSHBrowseForFolder::~CSHBrowseForFolder()
 }
 
 
-LPITEMIDLIST CSHBrowseForFolder::DisplayDialog(BFSF * pbfsf)
+LPITEMIDLIST CSHBrowseForFolder::DisplayDialog(BFSF* pbfsf)
 {
     HRESULT hr;
-//    SHELLSTATE ss;
+    //    SHELLSTATE ss;
 
-//    SHGetSetSettings(&ss, SSF_SHOWALLOBJECTS, FALSE);
-//    m_fShowAllObjects = BOOLIFY(ss.fShowAllObjects);
+    //    SHGetSetSettings(&ss, SSF_SHOWALLOBJECTS, FALSE);
+    //    m_fShowAllObjects = BOOLIFY(ss.fShowAllObjects);
 
     _pbfsf = pbfsf;
-    hr = (HRESULT) DialogBoxParam(HINST_THISDLL, MAKEINTRESOURCE(DLG_BROWSEFORFOLDER2), pbfsf->hwndOwner, BrowseForDirDlgProc, (LPARAM)this);
+    hr = (HRESULT)DialogBoxParam(HINST_THISDLL, MAKEINTRESOURCE(DLG_BROWSEFORFOLDER2), pbfsf->hwndOwner, BrowseForDirDlgProc, (LPARAM)this);
 
     return (((S_OK == hr) && _pidlSelected) ? ILClone(_pidlSelected) : NULL);
 }
@@ -1485,14 +1395,13 @@ LPITEMIDLIST CSHBrowseForFolder::DisplayDialog(BFSF * pbfsf)
 LRESULT CALLBACK CSHBrowseForFolder::NameSpaceWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {   // GWL_USERDATA
     LRESULT lResult = 0;
-    CSHBrowseForFolder * pThis = (CSHBrowseForFolder *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    CSHBrowseForFolder* pThis = (CSHBrowseForFolder*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_CREATE:
     {
-        CREATESTRUCT * pcs = (CREATESTRUCT *) lParam;
-        pThis = (CSHBrowseForFolder *)pcs->lpCreateParams;
+        CREATESTRUCT* pcs = (CREATESTRUCT*)lParam;
+        pThis = (CSHBrowseForFolder*)pcs->lpCreateParams;
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(void*)(CSHBrowseForFolder*)pThis);
     }
     break;
@@ -1502,7 +1411,7 @@ LRESULT CALLBACK CSHBrowseForFolder::NameSpaceWndProc(HWND hwnd, UINT uMsg, WPAR
     // and until we get the WM_INITDIALOG we dont have our pmbci pointer, we just
     // return false
     if (pThis)
-        lResult = (LRESULT) pThis->_NameSpaceWndProc(hwnd, uMsg, wParam, lParam);
+        lResult = (LRESULT)pThis->_NameSpaceWndProc(hwnd, uMsg, wParam, lParam);
     else
         lResult = DefWindowProc(hwnd, uMsg, wParam, lParam);
 
@@ -1516,15 +1425,13 @@ LRESULT CSHBrowseForFolder::_NameSpaceWndProc(HWND hwnd, UINT uMsg, WPARAM wPara
 {
     LRESULT lResult = 0;    // 0 means we didn't do anything
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_CREATE:
         _OnCreateNameSpace(hwnd);
         break;
 
     case WM_DESTROY:
-        if (_pns)
-        {
+        if (_pns) {
             IUnknown_SetSite(_pns, NULL);
         }
         break;
@@ -1553,20 +1460,18 @@ LRESULT CSHBrowseForFolder::_NameSpaceWndProc(HWND hwnd, UINT uMsg, WPARAM wPara
 
 BOOL_PTR CSHBrowseForFolder::_OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 {
-    switch (id)
-    {
+    switch (id) {
     case IDOK:
-        if (_OnOK())
-        {
+        if (_OnOK()) {
             EVAL(SUCCEEDED(_OnSaveSize(hDlg)));
-            EndDialog(hDlg, (int) S_OK);
+            EndDialog(hDlg, (int)S_OK);
             return TRUE;
         }
         break;
 
     case IDCANCEL:
         EVAL(SUCCEEDED(_OnSaveSize(hDlg)));
-        EndDialog(hDlg, (int) S_FALSE);
+        EndDialog(hDlg, (int)S_FALSE);
         return TRUE;
         break;
 
@@ -1592,12 +1497,11 @@ BOOL_PTR CSHBrowseForFolder::_OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT co
 BOOL_PTR CALLBACK CSHBrowseForFolder::BrowseForDirDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     BOOL_PTR pfResult = FALSE;
-    CSHBrowseForFolder * pThis = (CSHBrowseForFolder *)GetWindowLongPtr(hDlg, GWLP_USERDATA);
+    CSHBrowseForFolder* pThis = (CSHBrowseForFolder*)GetWindowLongPtr(hDlg, GWLP_USERDATA);
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_INITDIALOG:
-        pThis = (CSHBrowseForFolder *)lParam;
+        pThis = (CSHBrowseForFolder*)lParam;
         SetWindowLongPtr(hDlg, GWLP_USERDATA, (LONG_PTR)(void*)(CSHBrowseForFolder*)pThis);
         pfResult = TRUE;
         break;
@@ -1622,8 +1526,7 @@ BOOL_PTR CSHBrowseForFolder::_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 {
     BOOL_PTR pfResult = FALSE;
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_INITDIALOG:
         EVAL(SUCCEEDED(_OnInitDialog(hDlg)));
         pfResult = TRUE;
@@ -1635,17 +1538,17 @@ BOOL_PTR CSHBrowseForFolder::_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
         break;
 
     case WM_GETMINMAXINFO:
-        pfResult = _OnGetMinMaxInfo((MINMAXINFO *) lParam);
+        pfResult = _OnGetMinMaxInfo((MINMAXINFO*)lParam);
         break;
 
     case WM_CLOSE:
         wParam = IDCANCEL;
         // fall through
     case WM_COMMAND:
-        pfResult = _OnCommand(hDlg, (int) LOWORD(wParam), (HWND) lParam, (UINT)HIWORD(wParam));
+        pfResult = _OnCommand(hDlg, (int)LOWORD(wParam), (HWND)lParam, (UINT)HIWORD(wParam));
         break;
 
-    // These BFFM_* messages are sent by the callback proc (_pbfsf->lpfn)
+        // These BFFM_* messages are sent by the callback proc (_pbfsf->lpfn)
     case BFFM_SETSTATUSTEXTA:
         _BFSFSetStatusTextA(_pbfsf, (LPCSTR)lParam);
         break;
@@ -1655,8 +1558,7 @@ BOOL_PTR CSHBrowseForFolder::_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
         break;
 
     case BFFM_SETSELECTIONW:
-        if ((BOOL)wParam)
-        {
+        if ((BOOL)wParam) {
             // Is it a path?
             pfResult = SUCCEEDED(_OnSetSelectPathW((LPCWSTR)lParam));
             break;
@@ -1664,8 +1566,7 @@ BOOL_PTR CSHBrowseForFolder::_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 
         // Fall Thru for pidl case
     case BFFM_SETSELECTIONA:
-        if ((BOOL)wParam)
-        {
+        if ((BOOL)wParam) {
             // Is it a path?
             pfResult = SUCCEEDED(_OnSetSelectPathA((LPCSTR)lParam));
             break;
@@ -1680,8 +1581,7 @@ BOOL_PTR CSHBrowseForFolder::_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
         break;
 
     case WM_NOTIFY:
-        switch (((NMHDR *)lParam)->code)
-        {
+        switch (((NMHDR*)lParam)->code) {
         case TVN_ITEMEXPANDINGA:
         case TVN_ITEMEXPANDINGW:
             SetCursor(LoadCursor(NULL, IDC_WAIT));
@@ -1700,11 +1600,11 @@ BOOL_PTR CSHBrowseForFolder::_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
         break;
 
     case WM_HELP:
-        WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aBrowseHelpIDs);
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR)aBrowseHelpIDs);
         break;
 
     case WM_CONTEXTMENU:
-        WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(LPTSTR) aBrowseHelpIDs);
+        WinHelp((HWND)wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(LPTSTR)aBrowseHelpIDs);
         break;
     }
 
@@ -1718,9 +1618,9 @@ HRESULT CSHBrowseForFolder::_OnInitDialog(HWND hwnd)
     RECT rcTree;
     WNDCLASS wc = {0};
 
-    wc.style         = CS_PARENTDC;
-    wc.lpfnWndProc   = NameSpaceWndProc;
-    wc.hInstance     = HINST_THISDLL;
+    wc.style = CS_PARENTDC;
+    wc.lpfnWndProc = NameSpaceWndProc;
+    wc.hInstance = HINST_THISDLL;
     wc.lpszClassName = CLASS_NSC;
     EVAL(SHRegisterClass(&wc));
 
@@ -1730,8 +1630,7 @@ HRESULT CSHBrowseForFolder::_OnInitDialog(HWND hwnd)
     GetWindowRect(GetDlgItem(hwnd, IDD_FOLDERLIST), &rcTree);
 
     // Hide the edit box and stretch the folder list if requested
-    if (!(_pbfsf->ulFlags & BIF_EDITBOX))
-    {
+    if (!(_pbfsf->ulFlags & BIF_EDITBOX)) {
         RECT rcEdit;
         HWND hwndBrowseEdit = GetDlgItem(hwnd, IDD_BROWSEEDIT);
         HWND hwndBrowseEditLabel = GetDlgItem(hwnd, IDD_FOLDERLABLE);
@@ -1751,7 +1650,7 @@ HRESULT CSHBrowseForFolder::_OnInitDialog(HWND hwnd)
     EnableWindow(GetDlgItem(hwnd, IDD_FOLDERLIST), FALSE);
     ShowWindow(GetDlgItem(hwnd, IDD_FOLDERLIST), SW_HIDE);
     EVAL(MapWindowPoints(HWND_DESKTOP, hwnd, (LPPOINT)&rcTree, 2));
-    _hwndBFF = CreateWindowEx(WINDOWSTYLES_EX_BFF, CLASS_NSC, NULL, WINDOWSTYLES_BFF, rcTree.left, rcTree.top, RECTWIDTH(rcTree), RECTHEIGHT(rcTree), hwnd, NULL, HINST_THISDLL, (void *)this);
+    _hwndBFF = CreateWindowEx(WINDOWSTYLES_EX_BFF, CLASS_NSC, NULL, WINDOWSTYLES_BFF, rcTree.left, rcTree.top, RECTWIDTH(rcTree), RECTHEIGHT(rcTree), hwnd, NULL, HINST_THISDLL, (void*)this);
     ASSERT(_hwndBFF);
 
     EVAL(SetWindowText(GetDlgItem(hwnd, IDD_BROWSETITLE), _pbfsf->lpszTitle));
@@ -1780,10 +1679,9 @@ HRESULT CSHBrowseForFolder::_OnInitDialog(HWND hwnd)
 LPITEMIDLIST MyDocsIDList(void)
 {
     LPITEMIDLIST pidl = NULL;
-    IShellFolder *psf;
+    IShellFolder* psf;
     HRESULT hres = SHGetDesktopFolder(&psf);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         WCHAR wszName[128];
 
         SHTCharToUnicode(TEXT("::") MYDOCS_CLSID, wszName, ARRAYSIZE(wszName));
@@ -1793,8 +1691,7 @@ LPITEMIDLIST MyDocsIDList(void)
     }
 
     // Win95/NT4 case, go for the real MyDocs folder
-    if (FAILED(hres))
-    {
+    if (FAILED(hres)) {
         hres = SHGetSpecialFolderLocation(NULL, CSIDL_PERSONAL, &pidl);
     }
     return SUCCEEDED(hres) ? pidl : NULL;
@@ -1806,18 +1703,15 @@ HRESULT GetMyDocumentsDisplayName(LPTSTR pszPath, UINT cch)
     *pszPath = 0;
 
     IShellFolder* psf;
-    if (SUCCEEDED(SHGetDesktopFolder(&psf)))
-    {
+    if (SUCCEEDED(SHGetDesktopFolder(&psf))) {
         LPITEMIDLIST pidl;
         WCHAR wszName[128];
 
         SHTCharToUnicode(TEXT("::") MYDOCS_CLSID, wszName, ARRAYSIZE(wszName));
 
-        if (SUCCEEDED(psf->ParseDisplayName(NULL, NULL, wszName, NULL, &pidl, NULL)))
-        {
+        if (SUCCEEDED(psf->ParseDisplayName(NULL, NULL, wszName, NULL, &pidl, NULL))) {
             STRRET sr;
-            if (SUCCEEDED(psf->GetDisplayNameOf(pidl, SHGDN_NORMAL, &sr)))
-            {
+            if (SUCCEEDED(psf->GetDisplayNameOf(pidl, SHGDN_NORMAL, &sr))) {
                 StrRetToBuf(&sr, pidl, pszPath, cch);
             }
             ILFree(pidl);
@@ -1833,17 +1727,15 @@ HRESULT GetMyDocumentsDisplayName(LPTSTR pszPath, UINT cch)
 
 BOOL CSHBrowseForFolder::_OnCreateNameSpace(HWND hwnd)
 {
-    HRESULT hr = CoCreateInstance(CLSID_NSCTree, NULL, CLSCTX_INPROC_SERVER, IID_INSCTree, (void **)&_pns);
-    if (SUCCEEDED(hr))
-    {
+    HRESULT hr = CoCreateInstance(CLSID_NSCTree, NULL, CLSCTX_INPROC_SERVER, IID_INSCTree, (void**)&_pns);
+    if (SUCCEEDED(hr)) {
         RECT rc;
-        IShellFolderFilterSite * psffs;
+        IShellFolderFilterSite* psffs;
         DWORD shcontf = SHCONTF_FOLDERS;
 
-        hr = _pns->QueryInterface(IID_IShellFolderFilterSite, (void **)&psffs);
-        if (SUCCEEDED(hr))
-        {
-            hr = psffs->SetFilter(SAFECAST(this, IShellFolderFilter *));
+        hr = _pns->QueryInterface(IID_IShellFolderFilterSite, (void**)&psffs);
+        if (SUCCEEDED(hr)) {
+            hr = psffs->SetFilter(SAFECAST(this, IShellFolderFilter*));
             AssertMsg(SUCCEEDED(hr), TEXT("IShellFolderFilterSite::SetFilter() on the NSC failed but I need that for filtering."));
             psffs->Release();
         }
@@ -1851,7 +1743,7 @@ BOOL CSHBrowseForFolder::_OnCreateNameSpace(HWND hwnd)
         _pns->SetNscMode(0);    // 0 == Tree
         _hwndTv = NULL;
         _pns->CreateTree(hwnd, TVS_HASLINES | TVS_HASBUTTONS, &_hwndTv);
-        _pns->QueryInterface(IID_IWinEventHandler, (void **)&_pweh);
+        _pns->QueryInterface(IID_IWinEventHandler, (void**)&_pweh);
 
         // Turn on the ClientEdge
         SetWindowBits(_hwndTv, GWL_EXSTYLE, WS_EX_CLIENTEDGE, WS_EX_CLIENTEDGE);
@@ -1877,11 +1769,9 @@ BOOL CSHBrowseForFolder::_OnCreateNameSpace(HWND hwnd)
 #endif // FEATURE_ROOTED_NSC
 
         _pns->Initialize(pidlRoot, shcontf, NSS_DROPTARGET);
-        if (!_pbfsf->pidlRoot)
-        {
+        if (!_pbfsf->pidlRoot) {
             LPITEMIDLIST pidl = MyDocsIDList();
-            if (pidl)
-            {
+            if (pidl) {
                 _pns->SetSelectedItem(pidl, TRUE, FALSE, 0);
                 ILFree(pidl);
             }
@@ -1910,26 +1800,21 @@ BOOL CSHBrowseForFolder::_OnOK(void)
             return FALSE;   // Yes, so just bail.
 
         // Was IDD_BROWSEEDIT modified more recently than the selection in the tree?
-        if (_fEditboxDirty)
-        {
+        if (_fEditboxDirty) {
             // No, so _ProcessEditChangeOnOK() will update _pidlSelected with what's in the editbox.
             // SUCCEEDED(hr)->EndDialog, FAILED(hr)->continue
 
             // NOTE: FALSE means don't update the tree (since the dialog is closing)
             hr = _ProcessEditChangeOnOK(FALSE);
-        }
-        else
-        {
+        } else {
             // The user may have just finished editing the name of a newly created folder
             // and NSC didn't tell use the pidl changes because of the rename. NT #377453.
             // Therefore, we just update the pidl before we leave.  (Life Sucks)
             hr = _OnTreeSelectChange(SHBFFN_NONE);
         }
 
-        if (SUCCEEDED(hr))
-        {
-            if (_pbfsf->pszDisplayName && _pidlSelected)
-            {
+        if (SUCCEEDED(hr)) {
+            if (_pbfsf->pszDisplayName && _pidlSelected) {
                 //  the browse struct doesnt contain a buffer
                 //  size so we assume MAX_PATH here....
                 SHGetNameAndFlags(_pidlSelected, SHGDN_NORMAL, _pbfsf->pszDisplayName, MAX_PATH, NULL);
@@ -1982,12 +1867,11 @@ HRESULT CSHBrowseForFolder::_OnInitSize(HWND hwnd)
 }
 
 
-BOOL_PTR CSHBrowseForFolder::_OnGetMinMaxInfo(MINMAXINFO * pMinMaxInfo)
+BOOL_PTR CSHBrowseForFolder::_OnGetMinMaxInfo(MINMAXINFO* pMinMaxInfo)
 {
     BOOL_PTR pfResult = 1;
 
-    if (pMinMaxInfo)
-    {
+    if (pMinMaxInfo) {
         pMinMaxInfo->ptMinTrackSize.x = _dwMinWidth;
         pMinMaxInfo->ptMinTrackSize.y = _dwMinHeight;
 
@@ -2006,9 +1890,8 @@ HRESULT CSHBrowseForFolder::_OnLoadSize(HWND hwnd)
     DWORD cbSize1 = sizeof(dwWidth);
     DWORD cbSize2 = sizeof(dwHeight);
 
-    if ((ERROR_SUCCESS != SHGetValue(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"), TEXT("Browse For Folder Width"), NULL, (void *)&dwWidth, &cbSize1)) ||
-        (ERROR_SUCCESS != SHGetValue(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"), TEXT("Browse For Folder Height"), NULL, (void *)&dwHeight, &cbSize2)))
-    {
+    if ((ERROR_SUCCESS != SHGetValue(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"), TEXT("Browse For Folder Width"), NULL, (void*)&dwWidth, &cbSize1)) ||
+        (ERROR_SUCCESS != SHGetValue(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"), TEXT("Browse For Folder Height"), NULL, (void*)&dwHeight, &cbSize2))) {
         // These values don't exist.
         hr = S_FALSE;
     }
@@ -2019,8 +1902,7 @@ HRESULT CSHBrowseForFolder::_OnLoadSize(HWND hwnd)
 
     // Is the saved size larger than this monitor size?
     if ((dwWidth >= (DWORD)RECTWIDTH(monInfo.rcWork)) ||
-        (dwHeight >= (DWORD)RECTHEIGHT(monInfo.rcWork)))
-    {
+        (dwHeight >= (DWORD)RECTHEIGHT(monInfo.rcWork))) {
         // Yes, so default to a rational size.
         hr = S_FALSE;
     }
@@ -2047,8 +1929,8 @@ HRESULT CSHBrowseForFolder::_OnSaveSize(HWND hwnd)
     DWORD dwWidth = (rc.right - rc.left);
     DWORD dwHeight = (rc.bottom - rc.top);
 
-    SHSetValue(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"), TEXT("Browse For Folder Width"), REG_DWORD, (void *)&dwWidth, sizeof(dwWidth));
-    SHSetValue(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"), TEXT("Browse For Folder Height"), REG_DWORD, (void *)&dwHeight, sizeof(dwHeight));
+    SHSetValue(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"), TEXT("Browse For Folder Width"), REG_DWORD, (void*)&dwWidth, sizeof(dwWidth));
+    SHSetValue(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"), TEXT("Browse For Folder Height"), REG_DWORD, (void*)&dwHeight, sizeof(dwHeight));
 
     return S_OK;
 }
@@ -2058,15 +1940,13 @@ HDWP CSHBrowseForFolder::_SizeControls(HWND hwnd, HDWP hdwp, RECT rcTree, int dx
 {
     //  Move the controls.
     HWND hwndControl = ::GetWindow(hwnd, GW_CHILD);
-    while (hwndControl && hdwp)
-    {
+    while (hwndControl && hdwp) {
         RECT rcControl;
 
         GetWindowRect(hwndControl, &rcControl);
         MapWindowRect(HWND_DESKTOP, hwnd, &rcControl);
 
-        switch (GetDlgCtrlID(hwndControl))
-        {
+        switch (GetDlgCtrlID(hwndControl)) {
         case IDD_BROWSETITLE:
             // Increase the width of these controls
             hdwp = DeferWindowPos(hdwp, hwndControl, NULL, rcControl.left, rcControl.top, (RECTWIDTH(rcControl) + dx), RECTHEIGHT(rcControl), (SWP_NOZORDER | SWP_NOACTIVATE));
@@ -2148,16 +2028,14 @@ HRESULT CSHBrowseForFolder::_OnSizeDialog(HWND hwnd, DWORD dwWidth, DWORD dwHeig
     MapWindowRect(HWND_DESKTOP, hwnd, &rcTree);
 
     // Don't do anything if the size remains the same
-    if ((dx != 0) || (dy != 0))
-    {
+    if ((dx != 0) || (dy != 0)) {
         HDWP hdwp = BeginDeferWindowPos(15);
 
         //  Set the sizing grip to the correct location.
         SetWindowPos(GetDlgItem(hwnd, IDD_BFF_RESIZE_TAB), NULL, (dwWidth - _cxGrip), (dwHeight - _cyGrip), 0, 0, (SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE));
-//        TraceMsg(TF_ALWAYS, "_OnSizeDialog(<%d,%d>) update Min=<%d,%d> rcTree=<%d,%d>", dwWidth, dwHeight, _dwMinWidth, _dwMinHeight, RECTWIDTH(rcTree), RECTWIDTH(rcTree));
+        //        TraceMsg(TF_ALWAYS, "_OnSizeDialog(<%d,%d>) update Min=<%d,%d> rcTree=<%d,%d>", dwWidth, dwHeight, _dwMinWidth, _dwMinHeight, RECTWIDTH(rcTree), RECTWIDTH(rcTree));
 
-        if (EVAL(hdwp))
-        {
+        if (EVAL(hdwp)) {
             hdwp = DeferWindowPos(hdwp, _hwndBFF, NULL, 0, 0, (RECTWIDTH(rcTree) + dx), (RECTHEIGHT(rcTree) + dy), (SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE));
 
             if (hdwp)
@@ -2168,10 +2046,8 @@ HRESULT CSHBrowseForFolder::_OnSizeDialog(HWND hwnd, DWORD dwWidth, DWORD dwHeig
         }
 
         SetWindowPos(_hwndTv, NULL, 0, 0, (RECTWIDTH(rcTree) + dx), (RECTHEIGHT(rcTree) + dy), (SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE));
-    }
-    else
-    {
-//        TraceMsg(TF_ALWAYS, "_OnSizeDialog(<%d,%d>) NOUPDATE Min=<%d,%d> rcTree=<%d,%d>", dwWidth, dwHeight, _dwMinWidth, _dwMinHeight, RECTWIDTH(rcTree), RECTWIDTH(rcTree));
+    } else {
+        //        TraceMsg(TF_ALWAYS, "_OnSizeDialog(<%d,%d>) NOUPDATE Min=<%d,%d> rcTree=<%d,%d>", dwWidth, dwHeight, _dwMinWidth, _dwMinHeight, RECTWIDTH(rcTree), RECTWIDTH(rcTree));
     }
 
     return S_OK;
@@ -2205,8 +2081,7 @@ HRESULT CSHBrowseForFolder::_OnSetSelectPidl(LPCITEMIDLIST pidl)
     HRESULT hr;
 
     // Did the caller pass NULL?
-    if (!pidl)
-    {
+    if (!pidl) {
         // Yes, this means they want the default selected, so
         // let's do "My Docs" which is the new default.
         pidlMyDocs = MyDocsIDList();  // I promise not to change it.
@@ -2222,12 +2097,11 @@ HRESULT CSHBrowseForFolder::_OnSetSelectPidl(LPCITEMIDLIST pidl)
 
 BOOL CSHBrowseForFolder::_DoesFilterAllow(LPCITEMIDLIST pidl, BOOL fStrictParsing)
 {
-    IShellFolder * psfParent;
+    IShellFolder* psfParent;
     LPCITEMIDLIST pidlChild;
-    HRESULT hr = SHBindToIDListParent(pidl, IID_IShellFolder, (void **)&psfParent, &pidlChild);
+    HRESULT hr = SHBindToIDListParent(pidl, IID_IShellFolder, (void**)&psfParent, &pidlChild);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         hr = _ShouldShow(psfParent, NULL, pidlChild, fStrictParsing);
         psfParent->Release();
     }
@@ -2240,28 +2114,23 @@ HRESULT CSHBrowseForFolder::_OnPidlNavigation(LPCITEMIDLIST pidl, DWORD dwFlags)
 {
     HRESULT hr = S_OK;
 
-    if (_DoesFilterAllow(pidl, (SHBFFN_STRICT_PARSING & dwFlags)))
-    {
+    if (_DoesFilterAllow(pidl, (SHBFFN_STRICT_PARSING & dwFlags))) {
         Pidl_Set(&_pidlSelected, pidl);
 
-        if (_pidlSelected)
-        {
+        if (_pidlSelected) {
             // NOTE: for perf, fUpdateTree is FALSE when closing the dialog, so
             // we don't bother to call INSCTree::SetSelectedItem()
-            if ((SHBFFN_UPDATE_TREE & dwFlags) && _pns)
-            {
+            if ((SHBFFN_UPDATE_TREE & dwFlags) && _pns) {
                 hr = _pns->SetSelectedItem(_pidlSelected, TRUE, FALSE, 0);
             }
             TCHAR szDisplayName[MAX_URL_STRING];
 
-            if (SUCCEEDED(hr = SHGetNameAndFlags(_pidlSelected, SHGDN_NORMAL, szDisplayName, SIZECHARS(szDisplayName), NULL)))
-            {
+            if (SUCCEEDED(hr = SHGetNameAndFlags(_pidlSelected, SHGDN_NORMAL, szDisplayName, SIZECHARS(szDisplayName), NULL))) {
                 EVAL(SetWindowText(GetDlgItem(_hDlg, IDD_BROWSEEDIT), szDisplayName));
                 _fEditboxDirty = FALSE;
             }
 
-            if (SHBFFN_FIRE_SEL_CHANGE & dwFlags)
-            {
+            if (SHBFFN_FIRE_SEL_CHANGE & dwFlags) {
                 // For back compat reasons, we need to re-enable the OK button
                 // because the callback may turn it off.
                 EnableWindow(GetDlgItem(_hDlg, IDOK), TRUE);
@@ -2271,11 +2140,8 @@ HRESULT CSHBrowseForFolder::_OnPidlNavigation(LPCITEMIDLIST pidl, DWORD dwFlags)
             if (_ppf)  // Tell AutoComplete we are in a new location.
                 EVAL(SUCCEEDED(_ppf->Initialize(_pidlSelected)));
         }
-    }
-    else
-    {
-        if (SHBFFN_DISPLAY_ERRORS & dwFlags)
-        {
+    } else {
+        if (SHBFFN_DISPLAY_ERRORS & dwFlags) {
             TCHAR szPath[MAX_URL_STRING];
 
             if (FAILED(SHGetNameAndFlags(pidl, SHGDN_FORPARSING, szPath, SIZECHARS(szPath), NULL)))
@@ -2285,8 +2151,7 @@ HRESULT CSHBrowseForFolder::_OnPidlNavigation(LPCITEMIDLIST pidl, DWORD dwFlags)
             ShellMessageBox(HINST_THISDLL, _hDlg, MAKEINTRESOURCE(IDS_FOLDER_NOT_ALLOWED),
                             MAKEINTRESOURCE(IDS_FOLDER_NOT_ALLOWED_TITLE), (MB_OK | MB_ICONHAND), szPath);
             hr = HRESULT_FROM_WIN32(ERROR_CANCELLED);
-        }
-        else
+        } else
             hr = HRESULT_FROM_WIN32(ERROR_INVALID_NAME);
     }
 
@@ -2296,27 +2161,21 @@ HRESULT CSHBrowseForFolder::_OnPidlNavigation(LPCITEMIDLIST pidl, DWORD dwFlags)
 
 BOOL CSHBrowseForFolder::_CreateNewFolder(HWND hDlg)
 {
-    if (_pns)
-    {
-        IShellFavoritesNameSpace * psfns;
+    if (_pns) {
+        IShellFavoritesNameSpace* psfns;
 
-        if (SUCCEEDED(_pns->QueryInterface(IID_IShellFavoritesNameSpace, (void **) &psfns)))
-        {
+        if (SUCCEEDED(_pns->QueryInterface(IID_IShellFavoritesNameSpace, (void**)&psfns))) {
             HRESULT hr = psfns->NewFolder();
 
-            if (FAILED(hr) && (HRESULT_FROM_WIN32(ERROR_CANCELLED) != hr))
-            {
+            if (FAILED(hr) && (HRESULT_FROM_WIN32(ERROR_CANCELLED) != hr)) {
                 // If it failed, then the user doesn't have permission to create a
                 // new folder here.  We can't disable the "New Folder" button because
                 // it takes too long (perf) to see if it's supported.  The only way
                 // is to determine if "New Folder" is in the ContextMenu.
                 ShellMessageBox(HINST_THISDLL, hDlg, MAKEINTRESOURCE(IDS_NEWFOLDER_NOT_HERE),
                                 MAKEINTRESOURCE(IDS_FOLDER_NOT_ALLOWED_TITLE), (MB_OK | MB_ICONHAND));
-            }
-            else
-            {
-                if (SUCCEEDED(hr))
-                {
+            } else {
+                if (SUCCEEDED(hr)) {
                     _fEditboxDirty = FALSE; // The newly selected node in the tree is the most up to date.
                 }
             }
@@ -2329,14 +2188,13 @@ BOOL CSHBrowseForFolder::_CreateNewFolder(HWND hDlg)
 }
 
 
-HRESULT IUnknown_SetOptions(IUnknown * punk, DWORD dwACLOptions)
+HRESULT IUnknown_SetOptions(IUnknown* punk, DWORD dwACLOptions)
 {
     HRESULT hr = S_OK;
-    IACList2 * pal2;
+    IACList2* pal2;
 
-    hr = punk->QueryInterface(IID_IACList2, (void **)&pal2);
-    if (SUCCEEDED(hr))
-    {
+    hr = punk->QueryInterface(IID_IACList2, (void**)&pal2);
+    if (SUCCEEDED(hr)) {
         hr = pal2->SetOptions(dwACLOptions);
         pal2->Release();
     }
@@ -2347,26 +2205,22 @@ HRESULT IUnknown_SetOptions(IUnknown * punk, DWORD dwACLOptions)
 
 HRESULT CSHBrowseForFolder::_InitAutoComplete(HWND hwndEdit)
 {
-    HRESULT hr = CoCreateInstance(CLSID_ACListISF, NULL, CLSCTX_INPROC_SERVER, IID_IPersistFolder, (void **)&_ppf);
-    if (EVAL(SUCCEEDED(hr)))
-    {
-        IAutoComplete2 * pac;
+    HRESULT hr = CoCreateInstance(CLSID_ACListISF, NULL, CLSCTX_INPROC_SERVER, IID_IPersistFolder, (void**)&_ppf);
+    if (EVAL(SUCCEEDED(hr))) {
+        IAutoComplete2* pac;
 
         // Create the AutoComplete Object
-        hr = CoCreateInstance(CLSID_AutoComplete, NULL, CLSCTX_INPROC_SERVER, IID_IAutoComplete2, (void **)&pac);
-        if (EVAL(SUCCEEDED(hr)))
-        {
+        hr = CoCreateInstance(CLSID_AutoComplete, NULL, CLSCTX_INPROC_SERVER, IID_IAutoComplete2, (void**)&pac);
+        if (EVAL(SUCCEEDED(hr))) {
             hr = pac->Init(hwndEdit, _ppf, NULL, NULL);
 
             // Set the autocomplete options
             DWORD dwACOptions = 0;
-            if (SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOAPPEND, FALSE, /*default:*/FALSE))
-            {
+            if (SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOAPPEND, FALSE, /*default:*/FALSE)) {
                 dwACOptions |= ACO_AUTOAPPEND;
             }
 
-            if (SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOSUGGEST, FALSE, /*default:*/TRUE))
-            {
+            if (SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOSUGGEST, FALSE, /*default:*/TRUE)) {
                 dwACOptions |= ACO_AUTOSUGGEST;
             }
 
@@ -2383,10 +2237,8 @@ HRESULT CSHBrowseForFolder::_InitAutoComplete(HWND hwndEdit)
 
 void CSHBrowseForFolder::_OnNotify(LPNMHDR pnm)
 {
-    if (pnm)
-    {
-        switch (pnm->code)
-        {
+    if (pnm) {
+        switch (pnm->code) {
         case TVN_SELCHANGEDA:
         case TVN_SELCHANGEDW:
             _OnTreeSelectChange(SHBFFN_DISPLAY_ERRORS);
@@ -2426,13 +2278,11 @@ HRESULT CSHBrowseForFolder::_OfferToPrepPath(OUT LPTSTR szPath, IN DWORD cchSize
 
     // Callers
     if (SHExpandEnvironmentStrings(szDisplayName, szPath, cchSize)
-        && (PathIsUNC(szPath) || (-1 != PathGetDriveNumber(szPath))))
-    {
+        && (PathIsUNC(szPath) || (-1 != PathGetDriveNumber(szPath)))) {
         // yes, so make sure the drive is inserted (if ejectable)
         // This will also offer to format unformatted drives.
         hr = SHPathPrepareForWrite(_hDlg, NULL, szPath, SHPPFW_DEFAULT);
-    }
-    else
+    } else
         StrCpyN(szPath, szDisplayName, cchSize);
 
     return hr;
@@ -2445,11 +2295,9 @@ HRESULT CSHBrowseForFolder::_ProcessEditChangeOnOK(BOOL fUpdateTree)
 
     // It will succeed if it was successful or DIDN'T display an error
     // dialog and we didn't.
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         LPITEMIDLIST pidl = ILCreateFromPath(szPath);
-        if (pidl)
-        {
+        if (pidl) {
             DWORD dwFlags = (SHBFFN_FIRE_SEL_CHANGE | SHBFFN_STRICT_PARSING | SHBFFN_DISPLAY_ERRORS);
 
             _fEditboxDirty = FALSE;
@@ -2462,37 +2310,33 @@ HRESULT CSHBrowseForFolder::_ProcessEditChangeOnOK(BOOL fUpdateTree)
                 _fEditboxDirty = FALSE;
         }
 
-        if ((_pbfsf->ulFlags & BIF_VALIDATE) && !pidl)
-        {
+        if ((_pbfsf->ulFlags & BIF_VALIDATE) && !pidl) {
             LPARAM lParam;
             CHAR szAnsi[MAX_URL_STRING];
             WCHAR wzUnicode[MAX_URL_STRING];
 
-            if (_pbfsf->fUnicode)
-            {
+            if (_pbfsf->fUnicode) {
                 // pidl can be NULL if ILCreateFromPath() failed.
                 if (pidl)
                     SHGetNameAndFlagsW(pidl, SHGDN_FORPARSING, wzUnicode, ARRAYSIZE(wzUnicode), NULL);
                 else
                     SHTCharToUnicode(szPath, wzUnicode, ARRAYSIZE(wzUnicode));
 
-                lParam = (LPARAM) wzUnicode;
-            }
-            else
-            {
+                lParam = (LPARAM)wzUnicode;
+            } else {
                 // pidl can be NULL if ILCreateFromPath() failed.
                 if (pidl)
                     SHGetNameAndFlagsA(pidl, SHGDN_FORPARSING, szAnsi, ARRAYSIZE(szAnsi), NULL);
                 else
                     SHTCharToAnsi(szPath, szAnsi, ARRAYSIZE(szAnsi));
 
-                lParam = (LPARAM) szAnsi;
+                lParam = (LPARAM)szAnsi;
             }
 
             ASSERT(_pbfsf->lpfn != NULL);
 
             // 0:EndDialog, 1:continue
-            if (0 == BFSFCallback(_pbfsf, (_pbfsf->fUnicode? BFFM_VALIDATEFAILEDW : BFFM_VALIDATEFAILEDA), lParam))
+            if (0 == BFSFCallback(_pbfsf, (_pbfsf->fUnicode ? BFFM_VALIDATEFAILEDW : BFFM_VALIDATEFAILEDA), lParam))
                 hr = S_OK; // This is returned so the dialog can close in _OnOK
             else
                 hr = HRESULT_FROM_WIN32(ERROR_CANCELLED);
@@ -2510,11 +2354,9 @@ HRESULT CSHBrowseForFolder::_OnTreeSelectChange(DWORD dwFlags)
     LPITEMIDLIST pidl;
     HRESULT hr = S_OK;
 
-    if (_pns)
-    {
+    if (_pns) {
         hr = _pns->GetSelectedItem(&pidl, 0);
-        if (S_OK == hr)
-        {
+        if (S_OK == hr) {
             hr = _OnPidlNavigation(pidl, (SHBFFN_FIRE_SEL_CHANGE | dwFlags));
             ILFree(pidl);
         }
@@ -2524,7 +2366,7 @@ HRESULT CSHBrowseForFolder::_OnTreeSelectChange(DWORD dwFlags)
 }
 
 
-HRESULT CSHBrowseForFolder::QueryInterface(REFIID riid, void **ppvObj)
+HRESULT CSHBrowseForFolder::QueryInterface(REFIID riid, void** ppvObj)
 {
     static const QITAB qit[] = {
         QITABENT(CSHBrowseForFolder, IShellFolderFilter),         // IID_IShellFolderFilter
@@ -2545,8 +2387,8 @@ ULONG CSHBrowseForFolder::Release()
     if (InterlockedDecrement(&_cRef))
         return _cRef;
 
-// We aren't a real COM object yet.
-//    delete this;
+    // We aren't a real COM object yet.
+    //    delete this;
     return 0;
 }
 
@@ -2557,17 +2399,13 @@ HRESULT CSHBrowseForFolder::_ShouldShow(IShellFolder* psf, LPCITEMIDLIST pidlFol
     BOOL fFilterChildern = FALSE;
 
     // Do we want to filter our all the children of a certain folder?
-    if (_pidlChildFilter)
-    {
+    if (_pidlChildFilter) {
         // Yes, let's see if the tree walking caller is still
         // in this folder?
-        if (pidlFolder && ILIsParent(_pidlChildFilter, pidlFolder, FALSE))
-        {
+        if (pidlFolder && ILIsParent(_pidlChildFilter, pidlFolder, FALSE)) {
             // Yes, so don't use it.
             hr = S_FALSE;
-        }
-        else
-        {
+        } else {
             // The calling tree walker has walked out side of
             // this folder, so remove the filter.
             _FilterThisFolder(NULL, NULL);
@@ -2575,8 +2413,7 @@ HRESULT CSHBrowseForFolder::_ShouldShow(IShellFolder* psf, LPCITEMIDLIST pidlFol
     }
 
     AssertMsg((ILIsEmpty(pidlItem) || ILIsEmpty(_ILNext(pidlItem))), TEXT("CSHBrowseForFolder::ShouldShow() pidlItem needs to be only one itemID long because we don't handle that case."));
-    if (S_OK == hr)
-    {
+    if (S_OK == hr) {
         hr = _DoesMatchFilter(psf, pidlFolder, pidlItem, fStrict);
     }
 
@@ -2584,7 +2421,7 @@ HRESULT CSHBrowseForFolder::_ShouldShow(IShellFolder* psf, LPCITEMIDLIST pidlFol
 }
 
 
-HRESULT CSHBrowseForFolder::GetEnumFlags(IShellFolder* psf, LPCITEMIDLIST pidlFolder, HWND *phwnd, DWORD *pgrfFlags)
+HRESULT CSHBrowseForFolder::GetEnumFlags(IShellFolder* psf, LPCITEMIDLIST pidlFolder, HWND* phwnd, DWORD* pgrfFlags)
 {
     if (_pbfsf->ulFlags & BIF_SHAREABLE)
         *pgrfFlags |= SHCONTF_SHAREABLE;
@@ -2599,8 +2436,7 @@ HRESULT CSHBrowseForFolder::_FilterThisFolder(LPCITEMIDLIST pidlFolder, LPCITEMI
 
     if (pidlChild)
         _pidlChildFilter = ILCombine(pidlFolder, pidlChild);
-    else
-    {
+    else {
         if (pidlFolder)
             _pidlChildFilter = ILClone(pidlFolder);
         else
@@ -2619,28 +2455,25 @@ HRESULT CSHBrowseForFolder::_InitFilter(void)
     // browse for a network printer.  In this case if we are at server
     // level we then need to change what we search for non folders when
     // we are the level of a server.
-    if (_pbfsf->ulFlags & BIF_BROWSEFORPRINTER)
-    {
+    if (_pbfsf->ulFlags & BIF_BROWSEFORPRINTER) {
         LPCITEMIDLIST pidl = ILFindLastID(_pbfsf->pidlRoot);
 
-        _fPrinterFilter = ((SIL_GetType(pidl) & (SHID_NET|SHID_INGROUPMASK))==SHID_NET_SERVER);
+        _fPrinterFilter = ((SIL_GetType(pidl) & (SHID_NET | SHID_INGROUPMASK)) == SHID_NET_SERVER);
     }
 
     return hr;
 }
 
 
-BOOL IsPidlUrl(IShellFolder * psf, LPCITEMIDLIST pidlChild)
+BOOL IsPidlUrl(IShellFolder* psf, LPCITEMIDLIST pidlChild)
 {
     STRRET str;
     BOOL fIsURL = FALSE;
 
-    if (SUCCEEDED(psf->GetDisplayNameOf(pidlChild, SHGDN_FORPARSING, &str)))
-    {
+    if (SUCCEEDED(psf->GetDisplayNameOf(pidlChild, SHGDN_FORPARSING, &str))) {
         WCHAR wzDisplayName[MAX_URL_STRING];
 
-        if (SUCCEEDED(StrRetToBufW(&str, pidlChild, wzDisplayName, ARRAYSIZE(wzDisplayName))))
-        {
+        if (SUCCEEDED(StrRetToBufW(&str, pidlChild, wzDisplayName, ARRAYSIZE(wzDisplayName)))) {
             fIsURL = PathIsURLW(wzDisplayName);
         }
     }
@@ -2648,7 +2481,7 @@ BOOL IsPidlUrl(IShellFolder * psf, LPCITEMIDLIST pidlChild)
     return fIsURL;
 }
 
-HRESULT CSHBrowseForFolder::_DoesMatchFilter(IShellFolder * psf, LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlChild, BOOL fStrict)
+HRESULT CSHBrowseForFolder::_DoesMatchFilter(IShellFolder* psf, LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlChild, BOOL fStrict)
 {
     HRESULT hr = S_OK;
     BYTE bType;
@@ -2661,10 +2494,8 @@ HRESULT CSHBrowseForFolder::_DoesMatchFilter(IShellFolder * psf, LPCITEMIDLIST p
     // workgroups when the appropriate option is set.
 
     bType = SIL_GetType(pidlChild);
-    if ((_pbfsf->ulFlags & BIF_DONTGOBELOWDOMAIN) && (bType & SHID_NET))
-    {
-        switch (bType & (SHID_NET | SHID_INGROUPMASK))
-        {
+    if ((_pbfsf->ulFlags & BIF_DONTGOBELOWDOMAIN) && (bType & SHID_NET)) {
+        switch (bType & (SHID_NET | SHID_INGROUPMASK)) {
         case SHID_NET_SERVER:
             hr = S_FALSE;           // don't add it
             break;
@@ -2672,72 +2503,57 @@ HRESULT CSHBrowseForFolder::_DoesMatchFilter(IShellFolder * psf, LPCITEMIDLIST p
             _FilterThisFolder(pidlFolder, pidlChild);      // Force to not have children;
             break;
         }
-    }
-    else if ((_pbfsf->ulFlags & BIF_BROWSEFORCOMPUTER) && (bType & SHID_NET))
-    {
+    } else if ((_pbfsf->ulFlags & BIF_BROWSEFORCOMPUTER) && (bType & SHID_NET)) {
         if ((bType & (SHID_NET | SHID_INGROUPMASK)) == SHID_NET_SERVER)
             _FilterThisFolder(pidlFolder, pidlChild);      // Don't expand below it...
-    }
-    else if (_pbfsf->ulFlags & BIF_BROWSEFORPRINTER)
-    {
+    } else if (_pbfsf->ulFlags & BIF_BROWSEFORPRINTER) {
         // Special case when we are only allowing printers.
         // for now I will simply key on the fact that it is non-FS.
         ULONG ulAttr = SFGAO_FILESYSANCESTOR;
 
         psf->GetAttributesOf(1, &pidlChild, &ulAttr);
-        if ((ulAttr & SFGAO_FILESYSANCESTOR) == 0)
-        {
+        if ((ulAttr & SFGAO_FILESYSANCESTOR) == 0) {
             _FilterThisFolder(pidlFolder, pidlChild);      // Don't expand below it...
-        }
-        else
-        {
+        } else {
             if (_fPrinterFilter)
                 hr = S_FALSE;           // don't add it
         }
-    }
-    else if (!(_pbfsf->ulFlags & BIF_BROWSEINCLUDEFILES))
-    {
+    } else if (!(_pbfsf->ulFlags & BIF_BROWSEINCLUDEFILES)) {
         // If the caller wants to include URLs and this is an URL,
         // then we are done.  Otherwise, we need to enter this if and
         // filter out items that don't have the SFGAO_FOLDER attribute
         // set.
-        if (!(_pbfsf->ulFlags & BIF_BROWSEINCLUDEURLS) || !IsPidlUrl(psf, pidlChild))
-        {
+        if (!(_pbfsf->ulFlags & BIF_BROWSEINCLUDEURLS) || !IsPidlUrl(psf, pidlChild)) {
             // Lets not use the callback to see if this item has children or not
             // as some or files (no children) and it is not worth writing our own
             // enumerator as we don't want the + to depend on if there are sub-folders
             // but instead it should be if it has files...
             ULONG ulAttr = SFGAO_FOLDER;
 
-            psf->GetAttributesOf(1, (LPCITEMIDLIST *) &pidlChild, &ulAttr);
-            if ((ulAttr & SFGAO_FOLDER)== 0)
+            psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidlChild, &ulAttr);
+            if ((ulAttr & SFGAO_FOLDER) == 0)
                 hr = S_FALSE;           // don't add it
         }
     }
 
-    if (_pbfsf->ulFlags & (BIF_RETURNONLYFSDIRS | BIF_RETURNFSANCESTORS))
-    {
+    if (_pbfsf->ulFlags & (BIF_RETURNONLYFSDIRS | BIF_RETURNFSANCESTORS)) {
         // If we are only looking for FS level things only add items
         // that are in the name space that are file system objects or
         // ancestors of file system objects
         ULONG ulAttr = 0;
 
-        if (fStrict)
-        {
+        if (fStrict) {
             if (_pbfsf->ulFlags & BIF_RETURNONLYFSDIRS)
                 ulAttr |= SFGAO_FILESYSTEM;
 
             if (_pbfsf->ulFlags & BIF_RETURNFSANCESTORS)
                 ulAttr |= SFGAO_FILESYSANCESTOR;
-        }
-        else
-        {
+        } else {
             ulAttr = (SFGAO_FILESYSANCESTOR | SFGAO_FILESYSTEM);
         }
 
-        psf->GetAttributesOf(1, (LPCITEMIDLIST *) &pidlChild, &ulAttr);
-        if ((ulAttr & (SFGAO_FILESYSANCESTOR | SFGAO_FILESYSTEM))== 0)
-        {
+        psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidlChild, &ulAttr);
+        if ((ulAttr & (SFGAO_FILESYSANCESTOR | SFGAO_FILESYSTEM)) == 0) {
             hr = S_FALSE;           // don't add it
         }
     }

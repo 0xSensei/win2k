@@ -29,7 +29,7 @@ extern "C" {
     extern  void    Look_InitDPIglobals();
 }
 
-BOOL MakeMonitorBitmap(int w, int h, LPCTSTR sz, HBITMAP *pBitmap, HBITMAP *pMaskBitmap, int cx, int cy, BOOL fSelected);
+BOOL MakeMonitorBitmap(int w, int h, LPCTSTR sz, HBITMAP* pBitmap, HBITMAP* pMaskBitmap, int cx, int cy, BOOL fSelected);
 
 #define SELECTION_THICKNESS 4
 #define MONITOR_BORDER      1
@@ -119,7 +119,7 @@ typedef struct _multimon_device {
     // Main class for settings
 
 
-    CDeviceSettings * pds;
+    CDeviceSettings* pds;
 
 
     // Color and resolution information cache
@@ -147,7 +147,7 @@ typedef struct _multimon_device {
 
     BOOLEAN        bTracking;
     HWND           hwndFlash;  //Flash window.
-} MULTIMON_DEVICE, *PMULTIMON_DEVICE;
+} MULTIMON_DEVICE, * PMULTIMON_DEVICE;
 
 #define GetDlgCtrlDevice(hwnd) ((PMULTIMON_DEVICE)GetDlgCtrlIDP(hwnd))
 
@@ -175,16 +175,16 @@ extern void SetDisplayCPLPreference(LPCTSTR szRegVal, int val);
 // A and W versions are available - pClassName can be ANSI or UNICODE
 // string. This is a TCHAR-style prototype, but you can do a A or W
 // specific one if desired.
-typedef HRESULT(WINAPI *PFNCREATESTDACCESSIBLEPROXY) (
+typedef HRESULT(WINAPI* PFNCREATESTDACCESSIBLEPROXY) (
     HWND     hWnd,
     LPTSTR   pClassName,
     LONG     idObject,
     REFIID   riid,
-    void **  ppvObject
+    void** ppvObject
     );
 
 // Same for LresultFromObject...
-typedef LRESULT(WINAPI *PFNLRESULTFROMOBJECT)(
+typedef LRESULT(WINAPI* PFNLRESULTFROMOBJECT)(
     REFIID riid,
     WPARAM wParam,
     LPUNKNOWN punk
@@ -234,10 +234,10 @@ class CAccessibleWrapper : public IAccessible
     ULONG          m_ref;
 
     // Need ptr to the IAccessible
-    IAccessible *  m_pAcc;
+    IAccessible* m_pAcc;
     HWND           m_hwnd;
 public:
-    CAccessibleWrapper(HWND hwnd, IAccessible * pAcc);
+    CAccessibleWrapper(HWND hwnd, IAccessible* pAcc);
     virtual ~CAccessibleWrapper();
 
     // IUnknown
@@ -256,33 +256,33 @@ public:
                                            UINT* puArgErr);
 
     // IAccessible
-    virtual STDMETHODIMP            get_accParent(IDispatch ** ppdispParent);
+    virtual STDMETHODIMP            get_accParent(IDispatch** ppdispParent);
     virtual STDMETHODIMP            get_accChildCount(long* pChildCount);
-    virtual STDMETHODIMP            get_accChild(VARIANT varChild, IDispatch ** ppdispChild);
+    virtual STDMETHODIMP            get_accChild(VARIANT varChild, IDispatch** ppdispChild);
 
     virtual STDMETHODIMP            get_accName(VARIANT varChild, BSTR* pszName);
     virtual STDMETHODIMP            get_accValue(VARIANT varChild, BSTR* pszValue);
     virtual STDMETHODIMP            get_accDescription(VARIANT varChild, BSTR* pszDescription);
-    virtual STDMETHODIMP            get_accRole(VARIANT varChild, VARIANT *pvarRole);
-    virtual STDMETHODIMP            get_accState(VARIANT varChild, VARIANT *pvarState);
+    virtual STDMETHODIMP            get_accRole(VARIANT varChild, VARIANT* pvarRole);
+    virtual STDMETHODIMP            get_accState(VARIANT varChild, VARIANT* pvarState);
     virtual STDMETHODIMP            get_accHelp(VARIANT varChild, BSTR* pszHelp);
     virtual STDMETHODIMP            get_accHelpTopic(BSTR* pszHelpFile, VARIANT varChild, long* pidTopic);
     virtual STDMETHODIMP            get_accKeyboardShortcut(VARIANT varChild, BSTR* pszKeyboardShortcut);
-    virtual STDMETHODIMP            get_accFocus(VARIANT * pvarFocusChild);
-    virtual STDMETHODIMP            get_accSelection(VARIANT * pvarSelectedChildren);
+    virtual STDMETHODIMP            get_accFocus(VARIANT* pvarFocusChild);
+    virtual STDMETHODIMP            get_accSelection(VARIANT* pvarSelectedChildren);
     virtual STDMETHODIMP            get_accDefaultAction(VARIANT varChild, BSTR* pszDefaultAction);
 
     virtual STDMETHODIMP            accSelect(long flagsSel, VARIANT varChild);
     virtual STDMETHODIMP            accLocation(long* pxLeft, long* pyTop, long* pcxWidth, long* pcyHeight, VARIANT varChild);
-    virtual STDMETHODIMP            accNavigate(long navDir, VARIANT varStart, VARIANT * pvarEndUpAt);
-    virtual STDMETHODIMP            accHitTest(long xLeft, long yTop, VARIANT * pvarChildAtPoint);
+    virtual STDMETHODIMP            accNavigate(long navDir, VARIANT varStart, VARIANT* pvarEndUpAt);
+    virtual STDMETHODIMP            accHitTest(long xLeft, long yTop, VARIANT* pvarChildAtPoint);
     virtual STDMETHODIMP            accDoDefaultAction(VARIANT varChild);
 
     virtual STDMETHODIMP            put_accName(VARIANT varChild, BSTR szName);
     virtual STDMETHODIMP            put_accValue(VARIANT varChild, BSTR pszValue);
 };
 
-CAccessibleWrapper::CAccessibleWrapper(HWND hwnd, IAccessible * pAcc)
+CAccessibleWrapper::CAccessibleWrapper(HWND hwnd, IAccessible* pAcc)
     : m_ref(1),
     m_pAcc(pAcc),
     m_hwnd(hwnd)
@@ -306,11 +306,9 @@ STDMETHODIMP  CAccessibleWrapper::QueryInterface(REFIID riid, void** ppv)
 
     if ((riid == IID_IUnknown) ||
         (riid == IID_IDispatch) ||
-        (riid == IID_IAccessible))
-    {
-        *ppv = (IAccessible *)this;
-    }
-    else
+        (riid == IID_IAccessible)) {
+        *ppv = (IAccessible*)this;
+    } else
         return(E_NOINTERFACE);
 
     AddRef();
@@ -367,7 +365,7 @@ STDMETHODIMP  CAccessibleWrapper::Invoke(DISPID dispidMember, REFIID riid, LCID 
 // IAccessible
 // - pass all through m_pAcc
 
-STDMETHODIMP  CAccessibleWrapper::get_accParent(IDispatch ** ppdispParent)
+STDMETHODIMP  CAccessibleWrapper::get_accParent(IDispatch** ppdispParent)
 {
     return m_pAcc->get_accParent(ppdispParent);
 }
@@ -379,7 +377,7 @@ STDMETHODIMP  CAccessibleWrapper::get_accChildCount(long* pChildCount)
 }
 
 
-STDMETHODIMP  CAccessibleWrapper::get_accChild(VARIANT varChild, IDispatch ** ppdispChild)
+STDMETHODIMP  CAccessibleWrapper::get_accChild(VARIANT varChild, IDispatch** ppdispChild)
 {
     return m_pAcc->get_accChild(varChild, ppdispChild);
 }
@@ -404,8 +402,7 @@ STDMETHODIMP  CAccessibleWrapper::get_accValue(VARIANT varChild, BSTR* pszValue)
     // (which is what we want), whereas other values refer to the
     // sub-components - the actual slider 'thumb', and the 'page
     // up/page down' areas to the left/right of it.
-    if (varChild.vt == VT_I4 && varChild.lVal == CHILDID_SELF)
-    {
+    if (varChild.vt == VT_I4 && varChild.lVal == CHILDID_SELF) {
         HWND hDlg;
         TCHAR achRes[120];
 #ifndef UNICODE
@@ -416,16 +413,14 @@ STDMETHODIMP  CAccessibleWrapper::get_accValue(VARIANT varChild, BSTR* pszValue)
 
         SendDlgItemMessage(hDlg, IDC_RESXY, WM_GETTEXT, 120, (LPARAM)achRes);
 #ifdef UNICODE
-        *pszValue = SysAllocString(achRes);
+        * pszValue = SysAllocString(achRes);
 #else
         MultiByteToWideChar(CP_ACP, 0, achRes, -1, wszRes, 120);
         *pszValue = SysAllocString(wszRes);
 #endif
         return S_OK;
 
-    }
-    else
-    {
+    } else {
         // Pass requests about the sub-components to the
         // 'original' IAccessible for us).
         return m_pAcc->get_accValue(varChild, pszValue);
@@ -439,13 +434,13 @@ STDMETHODIMP  CAccessibleWrapper::get_accDescription(VARIANT varChild, BSTR* psz
 }
 
 
-STDMETHODIMP  CAccessibleWrapper::get_accRole(VARIANT varChild, VARIANT *pvarRole)
+STDMETHODIMP  CAccessibleWrapper::get_accRole(VARIANT varChild, VARIANT* pvarRole)
 {
     return m_pAcc->get_accRole(varChild, pvarRole);
 }
 
 
-STDMETHODIMP  CAccessibleWrapper::get_accState(VARIANT varChild, VARIANT *pvarState)
+STDMETHODIMP  CAccessibleWrapper::get_accState(VARIANT varChild, VARIANT* pvarState)
 {
     return m_pAcc->get_accState(varChild, pvarState);
 }
@@ -469,13 +464,13 @@ STDMETHODIMP  CAccessibleWrapper::get_accKeyboardShortcut(VARIANT varChild, BSTR
 }
 
 
-STDMETHODIMP  CAccessibleWrapper::get_accFocus(VARIANT * pvarFocusChild)
+STDMETHODIMP  CAccessibleWrapper::get_accFocus(VARIANT* pvarFocusChild)
 {
     return m_pAcc->get_accFocus(pvarFocusChild);
 }
 
 
-STDMETHODIMP  CAccessibleWrapper::get_accSelection(VARIANT * pvarSelectedChildren)
+STDMETHODIMP  CAccessibleWrapper::get_accSelection(VARIANT* pvarSelectedChildren)
 {
     return m_pAcc->get_accSelection(pvarSelectedChildren);
 }
@@ -500,13 +495,13 @@ STDMETHODIMP  CAccessibleWrapper::accLocation(long* pxLeft, long* pyTop, long* p
 }
 
 
-STDMETHODIMP  CAccessibleWrapper::accNavigate(long navDir, VARIANT varStart, VARIANT * pvarEndUpAt)
+STDMETHODIMP  CAccessibleWrapper::accNavigate(long navDir, VARIANT varStart, VARIANT* pvarEndUpAt)
 {
     return m_pAcc->accNavigate(navDir, varStart, pvarEndUpAt);
 }
 
 
-STDMETHODIMP  CAccessibleWrapper::accHitTest(long xLeft, long yTop, VARIANT * pvarChildAtPoint)
+STDMETHODIMP  CAccessibleWrapper::accHitTest(long xLeft, long yTop, VARIANT* pvarChildAtPoint)
 {
     return m_pAcc->accHitTest(xLeft, yTop, pvarChildAtPoint);
 }
@@ -592,25 +587,25 @@ private:
 
     void _InitUI();
     void _UpdateUI(int FocusToCtrlID = 0);
-    LPTSTR _FormatMessageInvoke(LPCTSTR pcszFormat, va_list *argList);
+    LPTSTR _FormatMessageInvoke(LPCTSTR pcszFormat, va_list* argList);
     LPTSTR _FormatMessageWrap(LPCTSTR pcszFormat, ...);
     void _GetDisplayName(PMULTIMON_DEVICE pDevice, LPTSTR pszDisplay, DWORD cchSize);
     int  _SaveDisplaySettings(DWORD dwSet);
     BOOL _RebuildDisplaySettings(BOOL bComplete);
     void _ForwardToChildren(UINT message, WPARAM wParam, LPARAM lParam);
 
-    static BOOL _AnyChange(CDeviceSettings *rgpds[], ULONG numDevices);
+    static BOOL _AnyChange(CDeviceSettings* rgpds[], ULONG numDevices);
 
-    static BOOL _AnyColorChange(CDeviceSettings *rgpds[], ULONG numDevices);
+    static BOOL _AnyColorChange(CDeviceSettings* rgpds[], ULONG numDevices);
 
-    static BOOL _IsSingleToMultimonChange(CDeviceSettings *rgpds[],
+    static BOOL _IsSingleToMultimonChange(CDeviceSettings* rgpds[],
                                           ULONG numDevices);
 
     static int _DisplaySaveSettings(CDeviceSettings* rgpds[],
                                     ULONG            numDevices,
                                     HWND             hDlg);
 
-    static int _SaveSettings(CDeviceSettings *rgpds[],
+    static int _SaveSettings(CDeviceSettings* rgpds[],
                              ULONG numDevices,
                              HWND hDlg,
                              DWORD dwSet);
@@ -626,14 +621,14 @@ public:
 
     static BOOL RegisterPreviewWindowClass(WNDPROC pfnWndProc);
     // *** IUnknown methods ***
-    STDMETHODIMP QueryInterface(REFIID riid, LPVOID * ppvObj);
+    STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppvObj);
     STDMETHODIMP_(ULONG) AddRef(void);
     STDMETHODIMP_(ULONG) Release(void);
 
     // *** IMultiMonConfig methods ***
     STDMETHOD(Initialize) (HWND hwndHost, WNDPROC pfnWndProc, DWORD dwReserved);
-    STDMETHOD(GetNumberOfMonitors) (int * pCMon, DWORD dwReserved);
-    STDMETHOD(GetMonitorData) (int iMonitor, MonitorData * pmd, DWORD dwReserved);
+    STDMETHOD(GetNumberOfMonitors) (int* pCMon, DWORD dwReserved);
+    STDMETHOD(GetMonitorData) (int iMonitor, MonitorData* pmd, DWORD dwReserved);
     STDMETHOD(Paint) (THIS_ int iMonitor, DWORD dwReserved);
 
     void InitMultiMonitorDlg(HWND hDlg);
@@ -683,8 +678,7 @@ void CMultiMon::_DestroyMultimonDevice(PMULTIMON_DEVICE pDevice)
     delete pDevice->pds;
     pDevice->pds = NULL;
 
-    if (pDevice->hwndFlash)
-    {
+    if (pDevice->hwndFlash) {
         DestroyWindow(pDevice->hwndFlash);
         pDevice->hwndFlash = NULL;
     }
@@ -716,8 +710,7 @@ void CMultiMon::_DestroyDisplaySettings()
     // CtrlIDs for the monitor windows. So, we need destroy the monitor windows first;
     // otherwise, if the monitor windows are destroyed later, they try to use these invalid
     // pDevice in FlashText. (pDevice->hwndFlash will fault).
-    while (hwndC = GetWindow(_hwndDesk, GW_CHILD))
-    {
+    while (hwndC = GetWindow(_hwndDesk, GW_CHILD)) {
         RemoveTrackingToolTip(hwndC);
         RemovePopupToolTip(hwndC);
         DestroyWindow(hwndC);
@@ -767,8 +760,7 @@ BOOL CMultiMon::_InitMessage()
         // However, if this is a new situation, just report a "bad driver"
 
 
-        if (_bBadDriver)
-        {
+        if (_bBadDriver) {
             ASSERT(gbExecMode == EXEC_INVALID_MODE);
 
             gbExecMode = EXEC_INVALID_MODE;
@@ -776,8 +768,7 @@ BOOL CMultiMon::_InitMessage()
         }
 
 
-        if (gbExecMode == EXEC_INVALID_MODE)
-        {
+        if (gbExecMode == EXEC_INVALID_MODE) {
             DWORD Mesg;
 
             switch (gbInvalidMode) {
@@ -841,8 +832,7 @@ BOOL CMultiMon::_InitMessage()
 
 
             if ((gbInvalidMode == EXEC_INVALID_OLD_DISPLAY_DRIVER) ||
-                (gbInvalidMode == EXEC_INVALID_DISPLAY_DRIVER))
-            {
+                (gbInvalidMode == EXEC_INVALID_DISPLAY_DRIVER)) {
                 ASSERT(FALSE);
             }
         }
@@ -903,8 +893,7 @@ VOID CMultiMon::_vPreExecMode()
 
                 gbExecMode = EXEC_DETECT;
 
-            }
-            else {
+            } else {
 
 
                 // If we are in setup mode, we also check the extra values
@@ -976,8 +965,7 @@ VOID CMultiMon::_vPreExecMode()
 
         KdPrint(("\n \nDisplay.cpl: The display applet is in : %ws\n", psz));
 
-        if (gbExecMode == EXEC_INVALID_MODE)
-        {
+        if (gbExecMode == EXEC_INVALID_MODE) {
             KdPrint(("\t\t sub invalid mode : %ws", pszInv));
         }
         KdPrint(("\n\n", psz));
@@ -1016,8 +1004,7 @@ VOID CMultiMon::_vPostExecMode() {
                             NULL,
                             NULL,
                             (LPBYTE)(&data),
-                            &cb) == ERROR_SUCCESS)
-        {
+                            &cb) == ERROR_SUCCESS) {
             gbInvalidMode = EXEC_INVALID_DEFAULT_DISPLAY_MODE;
         }
 
@@ -1027,8 +1014,7 @@ VOID CMultiMon::_vPostExecMode() {
                             NULL,
                             NULL,
                             (LPBYTE)(&data),
-                            &cb) == ERROR_SUCCESS)
-        {
+                            &cb) == ERROR_SUCCESS) {
             gbInvalidMode = EXEC_INVALID_DISPLAY_MODE;
         }
 
@@ -1038,8 +1024,7 @@ VOID CMultiMon::_vPostExecMode() {
                             NULL,
                             NULL,
                             (LPBYTE)(&data),
-                            &cb) == ERROR_SUCCESS)
-        {
+                            &cb) == ERROR_SUCCESS) {
             gbInvalidMode = EXEC_INVALID_16COLOR_DISPLAY_MODE;
         }
 
@@ -1050,8 +1035,7 @@ VOID CMultiMon::_vPostExecMode() {
                             NULL,
                             NULL,
                             (LPBYTE)(&data),
-                            &cb) == ERROR_SUCCESS)
-        {
+                            &cb) == ERROR_SUCCESS) {
             gbInvalidMode = EXEC_INVALID_CONFIGURATION;
         }
 
@@ -1061,8 +1045,7 @@ VOID CMultiMon::_vPostExecMode() {
                             NULL,
                             NULL,
                             (LPBYTE)(&data),
-                            &cb) == ERROR_SUCCESS)
-        {
+                            &cb) == ERROR_SUCCESS) {
             gbInvalidMode = EXEC_INVALID_DISPLAY_DRIVER;
         }
 
@@ -1078,8 +1061,7 @@ VOID CMultiMon::_vPostExecMode() {
                             NULL,
                             NULL,
                             (LPBYTE)(&data),
-                            &cb) == ERROR_SUCCESS)
-        {
+                            &cb) == ERROR_SUCCESS) {
             gbInvalidMode = EXEC_INVALID_OLD_DISPLAY_DRIVER;
         }
 
@@ -1099,10 +1081,8 @@ VOID CMultiMon::_vPostExecMode() {
         LPTSTR psz;
         LPTSTR pszInv;
 
-        if (gbExecMode == EXEC_INVALID_MODE)
-        {
-            switch (gbInvalidMode)
-            {
+        if (gbExecMode == EXEC_INVALID_MODE) {
+            switch (gbInvalidMode) {
             case EXEC_INVALID_DEFAULT_DISPLAY_MODE:
                 pszInv = TEXT("Default mode being used");
                 break;
@@ -1160,26 +1140,21 @@ void CMultiMon::_OffsetPreviewToDesk(LPRECT in, LPRECT out)
 }
 
 
-int CMultiMon::_SaveSettings(CDeviceSettings *rgpds[], ULONG numDevices, HWND hDlg, DWORD dwSet)
+int CMultiMon::_SaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, HWND hDlg, DWORD dwSet)
 {
     int     iRet = 0;
     ULONG   iDevice;
 
-    for (iDevice = 0; iDevice < numDevices; iDevice++)
-    {
+    for (iDevice = 0; iDevice < numDevices; iDevice++) {
         // BUGBUG - we should only save the settings for devices that have
         // changed.
 
         int iResult = rgpds[iDevice]->SaveSettings(dwSet);
-        if (iResult != DISP_CHANGE_SUCCESSFUL)
-        {
-            if (iResult == DISP_CHANGE_RESTART)
-            {
+        if (iResult != DISP_CHANGE_SUCCESSFUL) {
+            if (iResult == DISP_CHANGE_RESTART) {
                 iRet = iResult;
                 continue;
-            }
-            else
-            {
+            } else {
                 FmtMessageBox(hDlg,
                               MB_ICONEXCLAMATION,
                               IDS_CHANGE_SETTINGS,
@@ -1202,8 +1177,7 @@ INT_PTR CALLBACK KeepNewDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
     TCHAR szRevert[100];
     TCHAR szString[120];
 
-    switch (message)
-    {
+    switch (message) {
     case WM_INITDIALOG:
         hicon = LoadIcon(NULL, IDI_QUESTION);
         if (hicon)
@@ -1254,8 +1228,7 @@ BOOL CMultiMon::_RebuildDisplaySettings(BOOL bComplete)
     BOOL result = TRUE;
     HCURSOR hcur = SetCursor(LoadCursor(NULL, IDC_WAIT));
 
-    for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++)
-    {
+    for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++) {
         delete _Devices[iDevice].pds;
         _Devices[iDevice].pds = new CDeviceSettings();
     }
@@ -1269,25 +1242,23 @@ int CMultiMon::GetNumberOfAttachedDisplays()
 {
     int nDisplays = 0;
 
-    for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++)
-    {
+    for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++) {
         if (_Devices[iDevice].pds->IsAttached())
             nDisplays++;
     }
     return nDisplays;
 }
 
-BOOL CMultiMon::_AnyColorChange(CDeviceSettings *rgpds[], ULONG numDevices)
+BOOL CMultiMon::_AnyColorChange(CDeviceSettings* rgpds[], ULONG numDevices)
 {
-    for (ULONG iDevice = 0; iDevice < numDevices; iDevice++)
-    {
+    for (ULONG iDevice = 0; iDevice < numDevices; iDevice++) {
         if (rgpds[iDevice]->IsAttached() && rgpds[iDevice]->IsColorChanged())
             return TRUE;
     }
     return FALSE;
 }
 
-/* static */ BOOL CMultiMon::_IsSingleToMultimonChange(CDeviceSettings *rgpds[],
+/* static */ BOOL CMultiMon::_IsSingleToMultimonChange(CDeviceSettings* rgpds[],
                                                        ULONG numDevices)
 {
     int nAttached = 0;
@@ -1295,8 +1266,7 @@ BOOL CMultiMon::_AnyColorChange(CDeviceSettings *rgpds[], ULONG numDevices)
 
     for (ULONG iDevice = 0;
         (iDevice < numDevices) && (nOrgAttached <= 1);
-         iDevice++)
-    {
+         iDevice++) {
         if (rgpds[iDevice]->IsOrgAttached())
             nOrgAttached++;
         if (rgpds[iDevice]->IsAttached())
@@ -1306,12 +1276,10 @@ BOOL CMultiMon::_AnyColorChange(CDeviceSettings *rgpds[], ULONG numDevices)
     return ((nOrgAttached <= 1) && (nAttached > 1));
 }
 
-BOOL CMultiMon::_AnyChange(CDeviceSettings *rgpds[], ULONG numDevices)
+BOOL CMultiMon::_AnyChange(CDeviceSettings* rgpds[], ULONG numDevices)
 {
-    for (ULONG iDevice = 0; iDevice < numDevices; iDevice++)
-    {
-        if (rgpds[iDevice]->IsAttached() && rgpds[iDevice]->bIsModeChanged())
-        {
+    for (ULONG iDevice = 0; iDevice < numDevices; iDevice++) {
+        if (rgpds[iDevice]->IsAttached() && rgpds[iDevice]->bIsModeChanged()) {
             return TRUE;
         }
     }
@@ -1321,18 +1289,16 @@ BOOL CMultiMon::_AnyChange(CDeviceSettings *rgpds[], ULONG numDevices)
 
 BOOL CMultiMon::_QueryForceSmallFont()
 {
-    for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++)
-    {
+    for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++) {
         if ((_Devices[iDevice].pds->IsAttached()) &&
-            (!_Devices[iDevice].pds->IsSmallFontNecessary()))
-        {
+            (!_Devices[iDevice].pds->IsSmallFontNecessary())) {
             return FALSE;
         }
     }
     return TRUE;
 }
 
-LPTSTR  CMultiMon::_FormatMessageInvoke(LPCTSTR pcszFormat, va_list *argList)
+LPTSTR  CMultiMon::_FormatMessageInvoke(LPCTSTR pcszFormat, va_list* argList)
 
 {
     LPTSTR  pszOutput;
@@ -1341,8 +1307,7 @@ LPTSTR  CMultiMon::_FormatMessageInvoke(LPCTSTR pcszFormat, va_list *argList)
                       pcszFormat,
                       0, 0,
                       reinterpret_cast<LPTSTR>(&pszOutput), 0,
-                      argList) == 0)
-    {
+                      argList) == 0) {
         pszOutput = NULL;
     }
     return(pszOutput);
@@ -1390,13 +1355,11 @@ void CMultiMon::_OnAdvancedClicked()
 
     _DoAdvancedSettingsSheet();
 
-    if (bCanBePruned && !bIsPruningReadOnly)
-    {
+    if (bCanBePruned && !bIsPruningReadOnly) {
         _pCurDevice->pds->GetPruningMode(&bCanBePruned,
                                          &bIsPruningReadOnly,
                                          &bAfterIsPruningOn);
-        if (bBeforeIsPruningOn != bAfterIsPruningOn)
-        {
+        if (bBeforeIsPruningOn != bAfterIsPruningOn) {
 
             // pruning mode has changed - update the UI
 
@@ -1457,9 +1420,8 @@ void CMultiMon::_DoAdvancedSettingsSheet()
         psh.nPages++;
 
 #ifndef WINNT
-    ATOM AtomDevice = GlobalAddAtom((char *)&_pCurDevice->DisplayDevice.DeviceName);
-    if (pDesk16 && CallCPLEntry16(hDesk16, pDesk16, NULL, CPL_INIT, (LPARAM)AtomDevice, 0))
-    {
+    ATOM AtomDevice = GlobalAddAtom((char*)&_pCurDevice->DisplayDevice.DeviceName);
+    if (pDesk16 && CallCPLEntry16(hDesk16, pDesk16, NULL, CPL_INIT, (LPARAM)AtomDevice, 0)) {
         // or just add the default page
         SHAddPages16(NULL, "DESKCP16.DLL,GetAdapterPage",
                      _AddDisplayPropSheetPage, (LPARAM)&psh);
@@ -1467,12 +1429,10 @@ void CMultiMon::_DoAdvancedSettingsSheet()
 
         // only add the monitor tab iff a monitor exists
 
-        if (_pCurDevice->DisplayDevice.DeviceName[0])
-        {
+        if (_pCurDevice->DisplayDevice.DeviceName[0]) {
             TCHAR szMonitor[140];
 
-            if (_pCurDevice->pds->GetMonitorName(szMonitor))
-            {
+            if (_pCurDevice->pds->GetMonitorName(szMonitor)) {
                 SHAddPages16(NULL, "DESKCP16.DLL,GetMonitorPage",
                              _AddDisplayPropSheetPage, (LPARAM)&psh);
             }
@@ -1483,8 +1443,8 @@ void CMultiMon::_DoAdvancedSettingsSheet()
     }
 #endif
 
-    IDataObject * pdo = NULL;
-    _pCurDevice->pds->QueryInterface(IID_IDataObject, (LPVOID *)&pdo);
+    IDataObject* pdo = NULL;
+    _pCurDevice->pds->QueryInterface(IID_IDataObject, (LPVOID*)&pdo);
 
 
     // load any extensions from the registry
@@ -1493,8 +1453,7 @@ void CMultiMon::_DoAdvancedSettingsSheet()
 
     // load the generic (non hardware specific) extensions
 
-    if ((hpsxa = SHCreatePropSheetExtArrayEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_CONTROLSFOLDER TEXT("\\Device"), 8, pdo)) != NULL)
-    {
+    if ((hpsxa = SHCreatePropSheetExtArrayEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_CONTROLSFOLDER TEXT("\\Device"), 8, pdo)) != NULL) {
         SHAddFromPropSheetExtArray(hpsxa, _AddDisplayPropSheetPage, (LPARAM)&psh);
     }
 
@@ -1510,42 +1469,35 @@ void CMultiMon::_DoAdvancedSettingsSheet()
 
 
 #ifdef WINNT
-    if ((hpsxaOEM = SHCreatePropSheetExtArrayEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_CONTROLSFOLDER TEXT("\\Display"), 8, pdo)) != NULL)
-    {
+    if ((hpsxaOEM = SHCreatePropSheetExtArrayEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_CONTROLSFOLDER TEXT("\\Display"), 8, pdo)) != NULL) {
         SHAddFromPropSheetExtArray(hpsxaOEM, _AddDisplayPropSheetPage, (LPARAM)&psh);
     }
 #else
-    if ((hpsxaOEM = SHCreatePropSheetExtArrayEx(HKEY_LOCAL_MACHINE, _pCurDevice->DisplayDevice.DeviceKey, 8, pdo)) != NULL)
-    {
+    if ((hpsxaOEM = SHCreatePropSheetExtArrayEx(HKEY_LOCAL_MACHINE, _pCurDevice->DisplayDevice.DeviceKey, 8, pdo)) != NULL) {
         SHAddFromPropSheetExtArray(hpsxaOEM, _AddDisplayPropSheetPage, (LPARAM)&psh);
     }
 #endif
 
     // add a fake settings page to fool OEM extensions (must be last)
 
-    if (hpsxa || hpsxaOEM)
-    {
+    if (hpsxa || hpsxaOEM) {
         AddFakeSettingsPage(&psh);
     }
 
-    if (psh.nPages)
-    {
+    if (psh.nPages) {
         iResult = PropertySheet(&psh);
     }
 
     _GetDisplayName(_pCurDevice, szDisplay, ARRAYSIZE(szDisplay));
 
-    if (_NumDevices == 1)
-    {
+    if (_NumDevices == 1) {
         //Set the name of the primary in the static text
         //strip the first token off (this is the number we dont want it)
-        TCHAR *pch;
+        TCHAR* pch;
         for (pch = szDisplay; *pch && *pch != TEXT(' '); pch++);
         for (; *pch && *pch == TEXT(' '); pch++);
         SetDlgItemText(_hDlg, IDC_DISPLAYTEXT, pch);
-    }
-    else
-    {
+    } else {
         ComboBox_DeleteString(_hwndList, _pCurDevice->ComboBoxItem);
         ComboBox_InsertString(_hwndList, _pCurDevice->ComboBoxItem, szDisplay);
         ComboBox_SetItemData(_hwndList, _pCurDevice->ComboBoxItem, (DWORD_PTR)_pCurDevice);
@@ -1568,8 +1520,7 @@ void CMultiMon::_DoAdvancedSettingsSheet()
         FreeLibrary16(hDesk16);
 #endif
 
-    if ((iResult == ID_PSRESTARTWINDOWS) || (iResult == ID_PSREBOOTSYSTEM))
-    {
+    if ((iResult == ID_PSRESTARTWINDOWS) || (iResult == ID_PSREBOOTSYSTEM)) {
         PropSheet_CancelToClose(GetParent(_hDlg));
 
         if (iResult == ID_PSREBOOTSYSTEM)
@@ -1602,8 +1553,7 @@ void CMultiMon::UpdateActiveDisplay(PMULTIMON_DEVICE pDevice, BOOL bRepaint /*=T
     else
         ComboBox_SetCurSel(_hwndList, pDevice->ComboBoxItem);
 
-    if (pDevice && pDevice != (PMULTIMON_DEVICE)CB_ERR)
-    {
+    if (pDevice && pDevice != (PMULTIMON_DEVICE)CB_ERR) {
         hwndC = GetCurDeviceHwnd();
 
         // The Current Device has changed, so, force recreating the bitmap the next time
@@ -1619,8 +1569,7 @@ void CMultiMon::UpdateActiveDisplay(PMULTIMON_DEVICE pDevice, BOOL bRepaint /*=T
         if (hwndC)
             RedrawWindow(hwndC, NULL, NULL, RDW_ERASE | RDW_INVALIDATE);
 
-        if (_NumDevices > 1)
-        {
+        if (_NumDevices > 1) {
 
             // Update the two check box windows
 
@@ -1638,14 +1587,11 @@ void CMultiMon::UpdateActiveDisplay(PMULTIMON_DEVICE pDevice, BOOL bRepaint /*=T
 
         // Reset the values for the list boxes, and then repaint it
 
-        if (bRepaint)
-        {
+        if (bRepaint) {
             _InitUI();
             _UpdateUI();
         }
-        }
-    else
-    {
+    } else {
 
         // No display device !
 
@@ -1654,7 +1600,7 @@ void CMultiMon::UpdateActiveDisplay(PMULTIMON_DEVICE pDevice, BOOL bRepaint /*=T
     }
 
     _InSetInfo--;
-    }
+}
 
 
 // Initialize the resolution and color UI widgets
@@ -1673,26 +1619,23 @@ void CMultiMon::_InitUI()
 
     SendDlgItemMessage(_hDlg, IDC_COLORBOX, CB_RESETCONTENT, 0, 0);
 
-    if (_pCurDevice->ColorList)
-    {
+    if (_pCurDevice->ColorList) {
         LocalFree(_pCurDevice->ColorList);
         _pCurDevice->ColorList = NULL;
     }
     _pCurDevice->cColors = _pCurDevice->pds->GetColorList(NULL, &_pCurDevice->ColorList);
 
-    for (i = 0; i < _pCurDevice->cColors; i++)
-    {
+    for (i = 0; i < _pCurDevice->cColors; i++) {
         TCHAR  achColor[50];
         DWORD  idColor;
 
-        Color = (int) *(_pCurDevice->ColorList + i);
+        Color = (int)*(_pCurDevice->ColorList + i);
 
 
         // convert bit count to number of colors and make it a string
 
 
-        switch (Color)
-        {
+        switch (Color) {
         case 32: idColor = ID_DSP_TXT_TRUECOLOR32; break;
         case 24: idColor = ID_DSP_TXT_TRUECOLOR24; break;
         case 16: idColor = ID_DSP_TXT_16BIT_COLOR; break;
@@ -1713,8 +1656,7 @@ void CMultiMon::_InitUI()
 
     TraceMsg(TF_FUNC, "_InitUI() -- Screen Size list");
 
-    if (_pCurDevice->ResolutionList)
-    {
+    if (_pCurDevice->ResolutionList) {
         LocalFree(_pCurDevice->ResolutionList);
         _pCurDevice->ResolutionList = NULL;
     }
@@ -1761,14 +1703,11 @@ void CMultiMon::_UpdateUI(int FocusToCtrlID)
 
     TraceMsg(TF_FUNC, "_UpdateUI() -- Set Color %d", Color);
 
-    for (i = 0; i < _pCurDevice->cColors; i++)
-    {
-        if (Color == (int) *(_pCurDevice->ColorList + i))
-        {
+    for (i = 0; i < _pCurDevice->cColors; i++) {
+        if (Color == (int)*(_pCurDevice->ColorList + i)) {
             TraceMsg(TF_FUNC, "_UpdateUI() -- Set Color index %d", i);
 
-            if (_iColor == i)
-            {
+            if (_iColor == i) {
                 TraceMsg(TF_FUNC, "_UpdateUI() -- Set Color index %d - is current", i);
                 break;
             }
@@ -1782,8 +1721,7 @@ void CMultiMon::_UpdateUI(int FocusToCtrlID)
 
             if (Color <= 4)
                 iBitmap = IDB_COLOR4;
-            else if (bpp >= 16)
-            {
+            else if (bpp >= 16) {
                 if (Color <= 8)
                     iBitmap = IDB_COLOR8;
                 else if (Color <= 16)
@@ -1795,11 +1733,9 @@ void CMultiMon::_UpdateUI(int FocusToCtrlID)
             ReleaseDC(NULL, hdc);
 
             hbm = (HBITMAP)LoadImage(hInstance, MAKEINTRESOURCE(iBitmap), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
-            if (hbm)
-            {
+            if (hbm) {
                 hbmOld = (HBITMAP)SendDlgItemMessage(_hDlg, IDC_COLORSAMPLE, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbm);
-                if (hbmOld)
-                {
+                if (hbmOld) {
                     DeleteObject(hbmOld);
                 }
             }
@@ -1809,8 +1745,7 @@ void CMultiMon::_UpdateUI(int FocusToCtrlID)
         }
     }
 
-    if (i == _pCurDevice->cColors)
-    {
+    if (i == _pCurDevice->cColors) {
         TraceMsg(TF_ERROR, "_UpdateUI -- !!! inconsistent color list !!!");
     }
 
@@ -1835,15 +1770,12 @@ void CMultiMon::_UpdateUI(int FocusToCtrlID)
     // Update the resolution slider
 
 
-    for (i = 0; i < _pCurDevice->cResolutions; i++)
-    {
+    for (i = 0; i < _pCurDevice->cResolutions; i++) {
         if ((Res.x == (*(_pCurDevice->ResolutionList + i)).x) &&
-            (Res.y == (*(_pCurDevice->ResolutionList + i)).y))
-        {
+            (Res.y == (*(_pCurDevice->ResolutionList + i)).y)) {
             TraceMsg(TF_FUNC, "_UpdateUI() -- Set Resolution index %d", i);
 
-            if (_iResolution == i)
-            {
+            if (_iResolution == i) {
                 TraceMsg(TF_FUNC, "_UpdateUI() -- Set Resolution index %d - is current", i);
                 break;
             }
@@ -1853,8 +1785,7 @@ void CMultiMon::_UpdateUI(int FocusToCtrlID)
         }
     }
 
-    if (i == _pCurDevice->cResolutions)
-    {
+    if (i == _pCurDevice->cResolutions) {
         TraceMsg(TF_ERROR, "_UpdateUI -- !!! inconsistent color list !!!");
     }
 
@@ -1889,8 +1820,7 @@ CMultiMon::SetPrimary(
     // Check if state is already set.
 
 
-    if (pDevice == _pPrimaryDevice)
-    {
+    if (pDevice == _pPrimaryDevice) {
         pDevice->pds->SetPrimary(TRUE);
         return TRUE;
     }
@@ -1908,10 +1838,8 @@ CMultiMon::SetPrimary(
     // make sure the primary is in a mode >= 256 color
 
 
-    if (pDevice->pds->GetCurColor() < 8)
-    {
-        for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++)
-        {
+    if (pDevice->pds->GetCurColor() < 8) {
+        for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++) {
             _Devices[iDevice].pds->SetAttached(FALSE);
         }
 
@@ -1931,11 +1859,6 @@ CMultiMon::SetPrimary(
 }
 
 
-
-//  SetMonAttached()
-
-
-
 BOOL
 CMultiMon::SetMonAttached(
     PMULTIMON_DEVICE pDevice,
@@ -1943,14 +1866,11 @@ CMultiMon::SetMonAttached(
     BOOL bForce,
     HWND hwnd)
 {
-    if (pDevice->pds->IsAttached() == bSetAttached)
-    {
+    if (pDevice->pds->IsAttached() == bSetAttached) {
         return TRUE;
     }
 
-    if (bSetAttached)
-    {
-
+    if (bSetAttached) {
         // Make sure this device actually has a rectangle.
         // If it does not (not configured in the registry, then we need
         // to put up a popup and ask the user to configure the device.
@@ -1962,14 +1882,12 @@ CMultiMon::SetMonAttached(
         // if (IsRectEmpty(&rcPos))
         //     return FALSE;
 
-        if (hwnd)
-        {
+        if (hwnd) {
 
             // Check to see if we should ask the user about enabling this device
 
 
-            if (bForce == FALSE)
-            {
+            if (bForce == FALSE) {
                 TCHAR szTurnItOn[400];
                 TCHAR szTurnOnTitleFormat[30];
                 TCHAR szTurnOnTitle[110];
@@ -1978,8 +1896,7 @@ CMultiMon::SetMonAttached(
                 LoadString(hInstance, IDS_TURNONTITLE, szTurnOnTitleFormat, SIZEOF(szTurnOnTitleFormat));
                 wsprintf(szTurnOnTitle, szTurnOnTitleFormat, pDevice->DisplayIndex);
 
-                if (GetNumberOfAttachedDisplays() == 1)
-                {
+                if (GetNumberOfAttachedDisplays() == 1) {
                     LoadString(hInstance, IDS_TURNONMSG, szTurnItOn, SIZEOF(szTurnItOn));
                     pstr += lstrlen(szTurnItOn);
                 }
@@ -1987,8 +1904,7 @@ CMultiMon::SetMonAttached(
                 LoadString(hInstance, IDS_TURNITON, pstr, SIZEOF(szTurnItOn));
 
                 if (ShellMessageBox(hInstance, hwnd, szTurnItOn, szTurnOnTitle,
-                                    MB_YESNO | MB_ICONINFORMATION) != IDYES)
-                {
+                                    MB_YESNO | MB_ICONINFORMATION) != IDYES) {
                     return FALSE;
                 }
             }
@@ -1996,8 +1912,7 @@ CMultiMon::SetMonAttached(
 
         pDevice->pds->SetAttached(TRUE);
 
-    }
-    else  // (bSetAttached == FALSE)
+    } else  // (bSetAttached == FALSE)
     {
 
         // Can't detach if we have only one device or it's the primary.
@@ -2005,8 +1920,7 @@ CMultiMon::SetMonAttached(
 
 
         if ((GetNumberOfAttachedDisplays() == 1) ||
-            pDevice->pds->IsPrimary())
-        {
+            pDevice->pds->IsPrimary()) {
             ASSERT(FALSE);
         }
 
@@ -2039,8 +1953,7 @@ void CMultiMon::SetDirty(BOOL bDirty)
 {
     _bDirty = bDirty;
 
-    if (_bDirty)
-    {
+    if (_bDirty) {
         PostMessage(GetParent(_hDlg), PSM_CHANGED, (WPARAM)_hDlg, 0L);
     }
 }
@@ -2068,14 +1981,12 @@ void CMultiMon::_CleanupRects(HWND hwndP)
 
     n = 0;
 
-    for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++)
-    {
+    for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++) {
         PMULTIMON_DEVICE pDevice = &_Devices[iDevice];
 
         hwndC = GetDlgItemP(hwndP, (INT_PTR)pDevice);
 
-        if (hwndC != NULL)
-        {
+        if (hwndC != NULL) {
             RECT rcPos;
 
             TraceMsg(TF_GENERAL, "_CleanupRects start Device %08lx, Dev = %d, hwnd = %08lx",
@@ -2084,7 +1995,7 @@ void CMultiMon::_CleanupRects(HWND hwndP)
             ShowWindow(hwndC, SW_SHOW);
 
             GetWindowRect(hwndC, &arc[n]);
-            MapWindowPoints(NULL, hwndP, (POINT FAR*)&arc[n], 2);
+            MapWindowPoints(NULL, hwndP, (POINT FAR*) & arc[n], 2);
 
             pDevice->pds->GetCurPosition(&rcPos);
 
@@ -2097,13 +2008,11 @@ void CMultiMon::_CleanupRects(HWND hwndP)
             // Eventually, non-attached devices should be showed aligned on the
             // right hand side of the window.
 
-            if (!pDevice->pds->IsAttached())
-            {
+            if (!pDevice->pds->IsAttached()) {
                 OffsetRect(&arc[n], 10000, 0);
             }
 
-            if (pDevice->pds->IsPrimary())
-            {
+            if (pDevice->pds->IsPrimary()) {
                 TraceMsg(TF_GENERAL, "_CleanupRects primary Device %08lx", pDevice);
 
                 iArcPrimary = n;
@@ -2139,8 +2048,7 @@ void CMultiMon::_CleanupRects(HWND hwndP)
     if (rcU.left < 0 || rcU.top < 0 || x < 0 || y < 0 ||
         rcU.right > rcPrev.right || rcU.bottom > rcPrev.bottom ||
         (x > (rcPrev.right - rcPrev.left) / 8 &&
-         y > (rcPrev.bottom - rcPrev.top) / 8))
-    {
+         y > (rcPrev.bottom - rcPrev.top) / 8)) {
         _rcDesk = rcU;
         sx = MulDiv(rcPrev.right - rcPrev.left - 16, 1000, _rcDesk.right - _rcDesk.left);
         sy = MulDiv(rcPrev.bottom - rcPrev.top - 16, 1000, _rcDesk.bottom - _rcDesk.top);
@@ -2154,8 +2062,7 @@ void CMultiMon::_CleanupRects(HWND hwndP)
 
     // Show all the windows and save them all to the devmode.
 
-    for (i = 0; i < n; i++)
-    {
+    for (i = 0; i < n; i++) {
         RECT rcPos;
         POINT ptPos;
 
@@ -2194,18 +2101,15 @@ void CMultiMon::_ConfirmPositions()
     PMULTIMON_DEVICE pDevice;
     ULONG iDevice;
 
-    for (iDevice = 0; iDevice < _NumDevices; iDevice++)
-    {
+    for (iDevice = 0; iDevice < _NumDevices; iDevice++) {
         pDevice = &_Devices[iDevice];
-        if (pDevice->pds->IsOrgAttached())
-        {
+        if (pDevice->pds->IsOrgAttached()) {
             RECT rcOrg, rcCur;
 
             pDevice->pds->GetCurPosition(&rcCur);
             pDevice->pds->GetOrgPosition(&rcOrg);
             if ((rcCur.left != rcOrg.left) ||
-                (rcCur.top != rcOrg.top))
-            {
+                (rcCur.top != rcOrg.top)) {
                 POINT ptOrg;
 
                 ptOrg.x = rcCur.left;
@@ -2225,15 +2129,14 @@ void CMultiMon::GetMonitorPosition(PMULTIMON_DEVICE pDevice, HWND hwndP, PPOINT 
     RECT arc[MONITORS_MAX];
     int i;
 
-    for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++)
-    {
+    for (ULONG iDevice = 0; iDevice < _NumDevices; iDevice++) {
         PMULTIMON_DEVICE pDevice = &_Devices[iDevice];
 
         hwndC = GetDlgItemP(hwndP, (INT_PTR)pDevice);
         ASSERT(hwndC);
 
         GetWindowRect(hwndC, &arc[iDevice]);
-        MapWindowPoints(NULL, hwndP, (POINT FAR*)&arc[iDevice], 2);
+        MapWindowPoints(NULL, hwndP, (POINT FAR*) & arc[iDevice], 2);
 
         pDevice->pds->GetCurPosition(&rcPos);
 
@@ -2293,7 +2196,7 @@ LRESULT CALLBACK DeskWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 int ComputeNumberOfDisplayDevices()
 {
     int iNumberOfDevices = 0;
-    CMultiMon   *pMultiMon = new CMultiMon;
+    CMultiMon* pMultiMon = new CMultiMon;
     int iDevice;
 
     // Enumerate all display devices to count the number of valid devices.
@@ -2334,8 +2237,7 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
         ComboBox_ResetContent(_hwndList);
         SetRectEmpty(&_rcDesk);
 
-        while (hwndC = GetWindow(_hwndDesk, GW_CHILD))
-        {
+        while (hwndC = GetWindow(_hwndDesk, GW_CHILD)) {
             RemoveTrackingToolTip(hwndC);
             RemovePopupToolTip(hwndC);
             DestroyWindow(hwndC);
@@ -2343,8 +2245,7 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
 
         ShowWindow(_hwndDesk, SW_HIDE);
 
-        if (_himl != NULL)
-        {
+        if (_himl != NULL) {
             ImageList_Destroy(_himl);
             _himl = NULL;
         }
@@ -2371,8 +2272,7 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
 
     _EnumerateAllDisplayDevices();
 
-    if (_NumDevices == 0)
-    {
+    if (_NumDevices == 0) {
         ASSERT(0);
         return FALSE;
     }
@@ -2391,16 +2291,13 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
 
     _pPrimaryDevice = NULL;
 
-    for (iDevice = 0; iDevice < _NumDevices; iDevice++)
-    {
+    for (iDevice = 0; iDevice < _NumDevices; iDevice++) {
 
         // First, we can pick any monitor that is attached as the primary.
 
 
-        if (_Devices[iDevice].pds->IsAttached())
-        {
-            if (_pPrimaryDevice == NULL)
-            {
+        if (_Devices[iDevice].pds->IsAttached()) {
+            if (_pPrimaryDevice == NULL) {
                 _pPrimaryDevice = &_Devices[iDevice];
                 TraceMsg(TF_GENERAL, "InitDisplaySettings: primary found %d\n", iDevice);
             }
@@ -2410,14 +2307,10 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
             // Pick this one.
 
 
-            if (_Devices[iDevice].DisplayDevice.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
-            {
-                if (bTmpDevicePrimary)
-                {
+            if (_Devices[iDevice].DisplayDevice.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) {
+                if (bTmpDevicePrimary) {
                     ASSERT(FALSE);
-                }
-                else
-                {
+                } else {
                     _pPrimaryDevice = &_Devices[iDevice];
                     bTmpDevicePrimary = TRUE;
                     TraceMsg(TF_GENERAL, "InitDisplaySettings: Tmp DEVICE_PRIMARY found %d", iDevice);
@@ -2432,13 +2325,10 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
                 _Devices[iDevice].pds->GetCurPosition(&pos);
 
                 if ((pos.left == 0) &&
-                    (pos.top == 0))
-                {
+                    (pos.top == 0)) {
                     _pPrimaryDevice = &_Devices[iDevice];
                     TraceMsg(TF_GENERAL, "InitDisplaySettings: Best DEVICE_PRIMARY found %d", iDevice);
-                }
-                else
-                {
+                } else {
                     ASSERT(FALSE);
                     TraceMsg(TF_GENERAL, "InitDisplaySettings: PRIMARY is not at 0,0");
                 }
@@ -2446,8 +2336,7 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
         }
     }
 
-    if (_pPrimaryDevice == NULL)
-    {
+    if (_pPrimaryDevice == NULL) {
         ASSERT(FALSE);
         TraceMsg(TF_GENERAL, "InitDisplaySettings: NO Attached devices !!!");
 
@@ -2495,11 +2384,10 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
 
     // Go through all the devices one last time to create the windows
 
-    for (iDevice = 0; iDevice < _NumDevices; iDevice++)
-    {
+    for (iDevice = 0; iDevice < _NumDevices; iDevice++) {
         TCHAR szDisplay[256];
         pDevice = &_Devices[iDevice];
-        MonitorData md = { 0 };
+        MonitorData md = {0};
         RECT rcPos;
         LPVOID pWindowData = (LPVOID)this;
         pDevice->DisplayIndex = iDevice + 1;
@@ -2523,22 +2411,19 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
         // Set the selection
 
 
-        if (pDevice == _pPrimaryDevice)
-        {
+        if (pDevice == _pPrimaryDevice) {
             iPrimeDevice = iDevice;
         }
 
-        if (!pDevice->pds->IsAttached())
-        {
+        if (!pDevice->pds->IsAttached()) {
             // By default set the unattached monitors to the right of the primary monitor
-            POINT ptPos = { rcPrimary.right, rcPrimary.top };
+            POINT ptPos = {rcPrimary.right, rcPrimary.top};
             pDevice->pds->SetCurPosition(&ptPos);
         }
 
         pDevice->pds->GetCurPosition(&rcPos);
 
-        if (bExport)
-        {
+        if (bExport) {
             md.dwSize = SIZEOF(MonitorData);
             if (pDevice->pds->IsPrimary())
                 md.dwStatus |= MD_PRIMARY;
@@ -2549,8 +2434,7 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
             pWindowData = &md;
         }
 
-        if (_himl == NULL)
-        {
+        if (_himl == NULL) {
             UINT flags = ILC_COLORDDB | ILC_MASK;
             _himl = ImageList_Create(cxImage, cyImage, flags, _NumDevices, 1);
             ASSERT(_himl);
@@ -2602,8 +2486,7 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
     _CleanupRects(_hwndDesk);
 
     // Now: depends on whether we have a multimon system, change the UI
-    if (_NumDevices == 1)
-    {
+    if (_NumDevices == 1) {
         HWND hwndDisable;
 
         hwndDisable = GetDlgItem(_hDlg, IDC_MULTIMONHELP);
@@ -2622,7 +2505,7 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
 
         //Set the name of the primary in the static text
         //strip the first token off (this is the number we dont want it)
-        TCHAR *pch, szDisplay[MAX_PATH];
+        TCHAR* pch, szDisplay[MAX_PATH];
         _GetDisplayName(_pPrimaryDevice, szDisplay, ARRAYSIZE(szDisplay));
         for (pch = szDisplay; *pch && *pch != TEXT(' '); pch++);
         for (; *pch && *pch == TEXT(' '); pch++);
@@ -2636,9 +2519,7 @@ BOOL CMultiMon::_InitDisplaySettings(BOOL bExport)
         if (hwndDisable = GetDlgItem(_hDlg, IDC_DISPLAYUSEME))
             ShowWindow(hwndDisable, SW_HIDE);
 
-    }
-    else if (_NumDevices > 0)
-    {
+    } else if (_NumDevices > 0) {
         //Hide the static text, keep the combo box
         ShowWindow(GetDlgItem(_hDlg, IDC_DISPLAYTEXT), SW_HIDE);
 
@@ -2682,8 +2563,7 @@ int  CMultiMon::_EnumerateAllDisplayDevices()
     // Enumerate all the devices in the system.
 
 
-    for (iEnum = 0; _NumDevices < MONITORS_MAX; iEnum++)
-    {
+    for (iEnum = 0; _NumDevices < MONITORS_MAX; iEnum++) {
         pDevice = &_Devices[_NumDevices];
         ZeroMemory(&(pDevice->DisplayDevice), sizeof(DISPLAY_DEVICE));
         pDevice->DisplayDevice.cb = sizeof(DISPLAY_DEVICE);
@@ -2702,8 +2582,7 @@ int  CMultiMon::_EnumerateAllDisplayDevices()
 
         // BUGBUG WINNT - WIN98 incompatibility
 #ifndef WINNT
-        if (fSuccess)
-        {
+        if (fSuccess) {
             pDevice->hdc = CreateDC(NULL, (LPTSTR)pDevice->DisplayDevice.DeviceName, NULL, NULL);
             fSuccess = pDevice->hdc != NULL;
         }
@@ -2714,8 +2593,7 @@ int  CMultiMon::_EnumerateAllDisplayDevices()
         // EnumDisplayDevices is returning NO devices, this is bad
         // invent a fake device.
 
-        if (!fSuccess && iEnum == 0)
-        {
+        if (!fSuccess && iEnum == 0) {
             pDevice->DisplayDevice.DeviceName[0] = 0;
 
             LoadString(hInstance, IDS_UNKNOWNDEVICE,
@@ -2731,8 +2609,7 @@ int  CMultiMon::_EnumerateAllDisplayDevices()
         }
 #endif
 
-        if (!fSuccess)
-        {
+        if (!fSuccess) {
             TraceMsg(TF_GENERAL, "End of list\n");
             break;
         }
@@ -2741,8 +2618,7 @@ int  CMultiMon::_EnumerateAllDisplayDevices()
         // We won't even include the MIRRORING drivers in the list for
         // now.
 
-        if (pDevice->DisplayDevice.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER)
-        {
+        if (pDevice->DisplayDevice.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) {
             TraceMsg(TF_GENERAL, "Mirroring driver - skip it\n");
             continue;
         }
@@ -2758,8 +2634,7 @@ int  CMultiMon::_EnumerateAllDisplayDevices()
 
         pDevice->pds = new CDeviceSettings();
 
-        if (pDevice->pds->InitSettings(&pDevice->DisplayDevice))
-        {
+        if (pDevice->pds->InitSettings(&pDevice->DisplayDevice)) {
 #ifdef WINNT
 
             // Determine if the VGA is the primary.
@@ -2768,8 +2643,7 @@ int  CMultiMon::_EnumerateAllDisplayDevices()
             // We want to delete this device later on if we have others.
 
 
-            if (pDevice->DisplayDevice.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
-            {
+            if (pDevice->DisplayDevice.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) {
                 CRegistrySettings crv(&pDevice->DisplayDevice.DeviceKey[0]);
 
                 LPTSTR pszMini = crv.GetMiniPort();
@@ -2779,8 +2653,7 @@ int  CMultiMon::_EnumerateAllDisplayDevices()
                 // Otherwise, let's try to use this device
 
 
-                if (pszMini && (!lstrcmpi(TEXT("vga"), pszMini)))
-                {
+                if (pszMini && (!lstrcmpi(TEXT("vga"), pszMini))) {
                     TraceMsg(TF_GENERAL, "EnumDevices - VGA primary\n");
                     dwVgaPrimary = _NumDevices;
                 }
@@ -2792,9 +2665,7 @@ int  CMultiMon::_EnumerateAllDisplayDevices()
 
 
             _NumDevices++;
-        }
-        else
-        {
+        } else {
             delete pDevice->pds;
         }
 
@@ -2806,8 +2677,7 @@ int  CMultiMon::_EnumerateAllDisplayDevices()
 
 
     if ((dwVgaPrimary != 0xFFFFFFFF) &&
-        (_NumDevices >= 2))
-    {
+        (_NumDevices >= 2)) {
         TraceMsg(TF_GENERAL, "REMOVE primary VGA device\n");
 
         delete _Devices[dwVgaPrimary].pds;
@@ -2893,14 +2763,13 @@ void CMultiMon::InitMultiMonitorDlg(HWND hDlg)
 
 LRESULT CALLBACK DeskWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uID, DWORD_PTR dwRefData)
 {
-    CMultiMon * pcmm = (CMultiMon *)dwRefData;
+    CMultiMon* pcmm = (CMultiMon*)dwRefData;
     HWND hwndC;
     RECT rcPos;
     BOOL bMoved = TRUE;
     int iMonitor;
 
-    switch (message)
-    {
+    switch (message) {
     case WM_GETDLGCODE:
         return DLGC_WANTCHARS | DLGC_WANTARROWS;
 
@@ -2908,11 +2777,12 @@ LRESULT CALLBACK DeskWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
         RedrawWindow(hDlg, NULL, NULL, RDW_INVALIDATE);
         break;
 
-    case WM_MOUSEMOVE: {
+    case WM_MOUSEMOVE:
+    {
         MSG mmsg;
         ToolTip_RelayEvent(ghwndToolTipPopup, mmsg, hDlg, message, wParam, lParam);
     }
-                       break;
+    break;
 
     case WM_PAINT:
         if (GetFocus() != hDlg)
@@ -2929,8 +2799,7 @@ LRESULT CALLBACK DeskWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
         hwndC = pcmm->GetCurDeviceHwnd();
         GetWindowRect(hwndC, &rcPos);
         MapWindowRect(NULL, hDlg, &rcPos);
-        switch (wParam)
-        {
+        switch (wParam) {
         case VK_LEFT:
             MoveWindow(hwndC, rcPos.left - MONITORMOVEUNIT, rcPos.top, RECTWIDTH(rcPos), RECTHEIGHT(rcPos), TRUE);
             break;
@@ -2949,8 +2818,7 @@ LRESULT CALLBACK DeskWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
         }
 #undef MONITORMOVEUNIT
 
-        if (bMoved)
-        {
+        if (bMoved) {
             pcmm->HandleMonitorChange(hwndC, FALSE, FALSE);
             if (IsWindowVisible(ghwndToolTipPopup)) {
                 ToolTip_Update(ghwndToolTipPopup);
@@ -2963,13 +2831,11 @@ LRESULT CALLBACK DeskWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 
         if (wParam >= TEXT('0') && wParam <= TEXT('9') && pcmm) {
             iMonitor = (TCHAR)wParam - TEXT('0');
-            if ((iMonitor == 0) && (pcmm->GetNumDevices() >= 10))
-            {
+            if ((iMonitor == 0) && (pcmm->GetNumDevices() >= 10)) {
                 iMonitor = 10;
             }
 
-            if ((iMonitor > 0) && ((ULONG)iMonitor <= pcmm->GetNumDevices()))
-            {
+            if ((iMonitor > 0) && ((ULONG)iMonitor <= pcmm->GetNumDevices())) {
                 HWND hwndList = GetDlgItem(GetParent(hDlg), IDC_DISPLAYLIST);
                 ComboBox_SetCurSel(hwndList, iMonitor - 1);
                 pcmm->UpdateActiveDisplay(NULL);
@@ -2997,14 +2863,12 @@ LRESULT CALLBACK DeskWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 INT_PTR CALLBACK
 MultiMonitorDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    CMultiMon * pcmm = (CMultiMon *)GetWindowLongPtr(hDlg, DWLP_USER);
-    switch (message)
-    {
+    CMultiMon* pcmm = (CMultiMon*)GetWindowLongPtr(hDlg, DWLP_USER);
+    switch (message) {
     case WM_INITDIALOG:
         ASSERT(!pcmm);
         pcmm = new CMultiMon;
-        if (pcmm)
-        {
+        if (pcmm) {
             SetWindowLongPtr(hDlg, DWLP_USER, (LPARAM)pcmm);
             ghwndPropSheet = GetParent(hDlg);
 
@@ -3024,14 +2888,12 @@ MultiMonitorDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
-        if (pcmm)
-        {
+        if (pcmm) {
             pcmm->WndProc(message, wParam, lParam);
             SetWindowLongPtr(hDlg, DWLP_USER, NULL);
             delete pcmm;
         }
-        if (gfFlashWindowRegistered)
-        {
+        if (gfFlashWindowRegistered) {
             gfFlashWindowRegistered = FALSE;
             UnregisterClass(TEXT("MonitorNumber32"), hInstance);
         }
@@ -3055,8 +2917,8 @@ void CMultiMon::_SetPreviewScreenSize(int HRes, int VRes, int iOrgXRes, int iOrg
     int mon_dy = MON_DY - MON_TRAY;
 
     // init to identical extents
-    SIZE dSrc = { MON_DX, mon_dy };
-    SIZE dDst = { MON_DX, mon_dy };
+    SIZE dSrc = {MON_DX, mon_dy};
+    SIZE dDst = {MON_DX, mon_dy};
 
     // set up a work area to play in
     if (!_hbmMonitor || !_hbmScrSample)
@@ -3068,10 +2930,9 @@ void CMultiMon::_SetPreviewScreenSize(int HRes, int VRes, int iOrgXRes, int iOrg
     hbmOld = (HBITMAP)SelectObject(g_hdcMem, _hbmMonitor);
 
     // see if we need to shrink either aspect of the image
-    if (HRes > iOrgXRes || VRes > iOrgYRes)
-    {
+    if (HRes > iOrgXRes || VRes > iOrgYRes) {
         // make sure the uncovered area will be seamless with the desktop
-        RECT rc = { MON_X, MON_Y, MON_X + MON_DX, MON_Y + mon_dy };
+        RECT rc = {MON_X, MON_Y, MON_X + MON_DX, MON_Y + mon_dy};
         HBRUSH hbr =
             CreateSolidBrush(GetPixel(g_hdcMem, MON_X + 1, MON_Y + 1));
 
@@ -3110,13 +2971,10 @@ void CMultiMon::_SetPreviewScreenSize(int HRes, int VRes, int iOrgXRes, int iOrg
 
 void CMultiMon::_RedrawDeskPreviews()
 {
-    if (_NumDevices > 1)
-    {
+    if (_NumDevices > 1) {
         _CleanupRects(_hwndDesk);
         RedrawWindow(_hwndDesk, NULL, NULL, RDW_ALLCHILDREN | RDW_ERASE | RDW_INVALIDATE);
-    }
-    else if (_pCurDevice && _pCurDevice->pds)
-    {
+    } else if (_pCurDevice && _pCurDevice->pds) {
         RECT rcPos, rcOrgPos;
         _pCurDevice->pds->GetCurPosition(&rcPos);
         _pCurDevice->pds->GetOrgPosition(&rcOrgPos);
@@ -3133,7 +2991,7 @@ void CMultiMon::_RedrawDeskPreviews()
 
 int DisplaySaveSettings(PVOID pContext, HWND hwnd)
 {
-    CDeviceSettings *rgpds[1];
+    CDeviceSettings* rgpds[1];
     rgpds[0] = (CDeviceSettings*)pContext;
     if (rgpds[0]->bIsModeChanged())
         return CMultiMon::_DisplaySaveSettings(rgpds, 1, hwnd);
@@ -3155,8 +3013,7 @@ int CMultiMon::_DisplaySaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, 
 
     iSave = _SaveSettings(rgpds, numDevices, hDlg, CDS_TEST);
 
-    if (iSave < DISP_CHANGE_SUCCESSFUL)
-    {
+    if (iSave < DISP_CHANGE_SUCCESSFUL) {
         FmtMessageBox(hDlg,
                       MB_ICONEXCLAMATION,
                       IDS_CHANGE_SETTINGS,
@@ -3174,24 +3031,18 @@ int CMultiMon::_DisplaySaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, 
 
     if (!bReboot &&
         (_AnyChange(rgpds, numDevices) ||
-         _IsSingleToMultimonChange(rgpds, numDevices)))
-    {
+         _IsSingleToMultimonChange(rgpds, numDevices))) {
         iDynaResult = AskDynaCDS(hDlg);
-        if (iDynaResult == -1)
-        {
+        if (iDynaResult == -1) {
             return DISP_CHANGE_NOTUPDATED;
-        }
-        else if (iDynaResult == 0)
-        {
+        } else if (iDynaResult == 0) {
             bReboot = TRUE;
         }
     }
 
-    if (!bReboot && _AnyChange(rgpds, numDevices))
-    {
+    if (!bReboot && _AnyChange(rgpds, numDevices)) {
         if (ShellMessageBox(hInstance, GetParent(hDlg), szWarnFlicker,
-                            NULL, MB_OKCANCEL | MB_ICONINFORMATION) != IDOK)
-        {
+                            NULL, MB_OKCANCEL | MB_ICONINFORMATION) != IDOK) {
             return DISP_CHANGE_NOTUPDATED;
         }
         bTest = TRUE;
@@ -3202,8 +3053,7 @@ int CMultiMon::_DisplaySaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, 
 
     iSave = _SaveSettings(rgpds, numDevices, hDlg, CDS_UPDATEREGISTRY | CDS_NORESET);
 
-    if (iSave < DISP_CHANGE_SUCCESSFUL)
-    {
+    if (iSave < DISP_CHANGE_SUCCESSFUL) {
 
         // BUGBUG
         // If we get NOT_UPDATED, this mean security may be turned on.
@@ -3211,15 +3061,12 @@ int CMultiMon::_DisplaySaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, 
         // This only works in single mon ...
 
 
-        if (iSave == DISP_CHANGE_NOTUPDATED)
-        {
+        if (iSave == DISP_CHANGE_NOTUPDATED) {
             FmtMessageBox(hDlg,
                           MB_ICONEXCLAMATION,
                           IDS_CHANGE_SETTINGS,
                           IDS_SETTINGS_CANNOT_SAVE);
-        }
-        else
-        {
+        } else {
             FmtMessageBox(hDlg,
                           MB_ICONEXCLAMATION,
                           IDS_CHANGE_SETTINGS,
@@ -3230,8 +3077,7 @@ int CMultiMon::_DisplaySaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, 
         // Restore the settings to their original state
 
 
-        for (iDevice = 0; iDevice < numDevices; iDevice++)
-        {
+        for (iDevice = 0; iDevice < numDevices; iDevice++) {
             rgpds[iDevice]->RestoreSettings();
         }
 
@@ -3240,8 +3086,7 @@ int CMultiMon::_DisplaySaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, 
     }
 
 
-    if (bReboot)
-    {
+    if (bReboot) {
         iSave = DISP_CHANGE_RESTART;
     }
 
@@ -3250,8 +3095,7 @@ int CMultiMon::_DisplaySaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, 
 
     GetCursorPos(&ptCursorSave);
 
-    if (iSave == DISP_CHANGE_SUCCESSFUL)
-    {
+    if (iSave == DISP_CHANGE_SUCCESSFUL) {
         hwndC = CreateCoverWindow(COVER_NOPAINT);
 
         // If EnumDisplaySettings was called with EDS_RAWMODE, we need CDS_RAWMODE below.
@@ -3265,15 +3109,12 @@ int CMultiMon::_DisplaySaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, 
         // Check the return from the dynamic mode switch.
 
 
-        if (iSave < 0)
-        {
+        if (iSave < 0) {
             FmtMessageBox(hDlg,
                           MB_ICONEXCLAMATION,
                           IDS_CHANGE_SETTINGS,
                           IDS_DYNAMIC_CHANGESETTINGS_FAILED);
-        }
-        else if (iSave == DISP_CHANGE_SUCCESSFUL)
-        {
+        } else if (iSave == DISP_CHANGE_SUCCESSFUL) {
 
 
             // Set the cursor to where it was before we changed the display
@@ -3290,8 +3131,7 @@ int CMultiMon::_DisplaySaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, 
             if (bTest && (IDYES != DialogBox(hInstance,
                                              MAKEINTRESOURCE(DLG_KEEPNEW),
                                              GetParent(hDlg),
-                                             KeepNewDlgProc)))
-            {
+                                             KeepNewDlgProc))) {
                 iSave = DISP_CHANGE_NOTUPDATED;
             }
         }
@@ -3301,13 +3141,11 @@ int CMultiMon::_DisplaySaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, 
     // Determine what to do based on the return code.
 
 
-    if (iSave >= DISP_CHANGE_SUCCESSFUL)
-    {
+    if (iSave >= DISP_CHANGE_SUCCESSFUL) {
 
         // Confirm the settings
 
-        for (iDevice = 0; iDevice < numDevices; iDevice++)
-        {
+        for (iDevice = 0; iDevice < numDevices; iDevice++) {
             rgpds[iDevice]->ConfirmChangeSettings();
         }
 
@@ -3319,14 +3157,11 @@ int CMultiMon::_DisplaySaveSettings(CDeviceSettings* rgpds[], ULONG numDevices, 
         if (numDevices > 1)
             WritePrivateProfileString(TEXT("Video"), TEXT("Optimize"), TEXT("bmp"), TEXT("qtw.ini"));
 #endif
-    }
-    else
-    {
+    } else {
 
         // Restore the settings to their original state
 
-        for (iDevice = 0; iDevice < numDevices; iDevice++)
-        {
+        for (iDevice = 0; iDevice < numDevices; iDevice++) {
             rgpds[iDevice]->RestoreSettings();
         }
 
@@ -3353,8 +3188,7 @@ int CMultiMon::_HandleApply()
     // force VGA mode in the registry and restart.
 
     if (gbExecMode == EXEC_INVALID_MODE &&
-        gbInvalidMode == EXEC_INVALID_DISPLAY_DEVICE)
-    {
+        gbInvalidMode == EXEC_INVALID_DISPLAY_DEVICE) {
         NukeDisplaySettings();
         PropSheet_RestartWindows(ghwndPropSheet);
         return DISP_CHANGE_SUCCESSFUL;
@@ -3366,8 +3200,7 @@ int CMultiMon::_HandleApply()
 
     if (gbExecMode == EXEC_INVALID_MODE &&
         gbInvalidMode == EXEC_INVALID_DISPLAY_MODE &&
-        _pPrimaryDevice->pds->GetCurColor() == 4)
-    {
+        _pPrimaryDevice->pds->GetCurColor() == 4) {
         NukeDisplaySettings();
         // BUGBUG this does not work because the return value type has changed
         PropSheet_RestartWindows(ghwndPropSheet);
@@ -3375,7 +3208,7 @@ int CMultiMon::_HandleApply()
     }
 #endif
 
-    CDeviceSettings *rgpds[MONITORS_MAX];
+    CDeviceSettings* rgpds[MONITORS_MAX];
     ULONG           iDevice;
 
     for (iDevice = 0; iDevice < _NumDevices; iDevice++) {
@@ -3466,23 +3299,20 @@ void CMultiMon::_ForwardToChildren(UINT message, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
-    NMHDR FAR * lpnm;
+    NMHDR FAR* lpnm;
     HWND hwndC;
     HWND hwndSample;
     HBITMAP hbm;
 
-    switch (message)
-    {
+    switch (message) {
     case WM_NOTIFY:
 
-        lpnm = (NMHDR FAR *)lParam;
-        switch (lpnm->code)
-        {
+        lpnm = (NMHDR FAR*)lParam;
+        switch (lpnm->code) {
         case PSN_APPLY:
 
             //Check to see if there is a change in the DPI value due to "Advanced->General" tab.
-            if (g_iNewDPI != g_iAppliedNewDPI)
-            {
+            if (g_iNewDPI != g_iAppliedNewDPI) {
                 //Yup! There is a change. See if the Appearance tab is up and running; if so,
                 // it will handle the DPI change gracefully!
                 if (!g_hDlg) //If appearance tab running?
@@ -3493,8 +3323,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
                 }
             }
 
-            if (IsDirty())
-            {
+            if (IsDirty()) {
                 int status;
 
 
@@ -3507,18 +3336,14 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
 
                 SetDirty(status < 0);
 
-                if (status == DISP_CHANGE_RESTART)
-                {
+                if (status == DISP_CHANGE_RESTART) {
                     PropSheet_RestartWindows(ghwndPropSheet);
-                }
-                else if (status == DISP_CHANGE_SUCCESSFUL)
-                {
+                } else if (status == DISP_CHANGE_SUCCESSFUL) {
 
                     // if the close flag is false, and we are not rebooting,
                     // rebuild the settings
 
-                    if (((PSHNOTIFY*)lParam)->lParam == FALSE)
-                    {
+                    if (((PSHNOTIFY*)lParam)->lParam == FALSE) {
                         UINT iDevice;
                         TCHAR szDeviceName[32];
 
@@ -3528,18 +3353,14 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
 
                         lstrcpy(szDeviceName, _pCurDevice->DisplayDevice.DeviceName);
                         _InitDisplaySettings(FALSE);
-                        for (iDevice = 0; iDevice < _NumDevices; iDevice++)
-                        {
-                            if (lstrcmp(_Devices[iDevice].DisplayDevice.DeviceName, szDeviceName) == 0)
-                            {
+                        for (iDevice = 0; iDevice < _NumDevices; iDevice++) {
+                            if (lstrcmp(_Devices[iDevice].DisplayDevice.DeviceName, szDeviceName) == 0) {
                                 UpdateActiveDisplay(_Devices + iDevice);
                                 break;
                             }
                         }
                     }
-                }
-                else
-                {
+                } else {
 
                     // Make sure the dialog stays and redraw
 
@@ -3556,8 +3377,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_CTLCOLORSTATIC:
 
-        if (GetDlgCtrlID((HWND)lParam) == IDC_DISPLAYDESK)
-        {
+        if (GetDlgCtrlID((HWND)lParam) == IDC_DISPLAYDESK) {
             return (UINT_PTR)GetSysColorBrush(COLOR_APPWORKSPACE);
         }
         return FALSE;
@@ -3565,12 +3385,10 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_COMMAND:
 
-        switch (GET_WM_COMMAND_ID(wParam, lParam))
-        {
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
         case IDC_DISPLAYPRIME:
 
-            if (!SetPrimary(_pCurDevice))
-            {
+            if (!SetPrimary(_pCurDevice)) {
                 return FALSE;
             }
 
@@ -3589,8 +3407,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
             if (!SetMonAttached(_pCurDevice,
                                 !_pCurDevice->pds->IsAttached(),
                                 TRUE,
-                                _hDlg))
-            {
+                                _hDlg)) {
                 return FALSE;
             }
 
@@ -3600,8 +3417,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case IDC_DISPLAYLIST:
-            switch (GET_WM_COMMAND_CMD(wParam, lParam))
-            {
+            switch (GET_WM_COMMAND_CMD(wParam, lParam)) {
             case CBN_DBLCLK:
                 goto DoDeviceSettings;
 
@@ -3615,8 +3431,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case IDC_DISPLAYPROPERTIES:
-            switch (GET_WM_COMMAND_CMD(wParam, lParam))
-            {
+            switch (GET_WM_COMMAND_CMD(wParam, lParam)) {
             DoDeviceSettings:
             case BN_CLICKED:
                 if (IsWindowEnabled(GetDlgItem(_hDlg, IDC_DISPLAYPROPERTIES)))
@@ -3629,8 +3444,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case IDC_COLORBOX:
-            switch (GET_WM_COMMAND_CMD(wParam, lParam))
-            {
+            switch (GET_WM_COMMAND_CMD(wParam, lParam)) {
             case CBN_SELCHANGE:
             {
                 HWND hwndColorBox = GetDlgItem(_hDlg, IDC_COLORBOX);
@@ -3641,7 +3455,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
                     // Message box if something bad is going to happen ?
                     //    _VerifyPrimaryMode(TRUE);
 
-                    _pCurDevice->pds->SetCurColor((int) *(_pCurDevice->ColorList + iClr));
+                    _pCurDevice->pds->SetCurColor((int)*(_pCurDevice->ColorList + iClr));
 
 
                     // Repaint the control in case they changed
@@ -3671,8 +3485,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
             si.dwFlags = STARTF_USESHOWWINDOW;
             si.wShowWindow = SW_NORMAL;
 
-            if (CreateProcess(NULL, szCommand, NULL, NULL, FALSE, 0, 0, NULL, &si, &pi))
-            {
+            if (CreateProcess(NULL, szCommand, NULL, NULL, FALSE, 0, 0, NULL, &si, &pi)) {
                 CloseHandle(pi.hThread);
                 CloseHandle(pi.hProcess);
             }
@@ -3686,8 +3499,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
 
             //Enumerate all the monitors and flash this for each!
             hwndC = GetWindow(_hwndDesk, GW_CHILD);
-            while (hwndC)
-            {
+            while (hwndC) {
                 PostMessage(hwndC, WM_COMMAND, MAKEWPARAM(IDC_FLASH, 0), MAKELPARAM(0, 0));
                 hwndC = GetWindow(hwndC, GW_HWNDNEXT);
             }
@@ -3710,8 +3522,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
 
             // Set the apply button if something changed
 
-            if (_pCurDevice->pds->bIsModeChanged())
-            {
+            if (_pCurDevice->pds->bIsModeChanged()) {
                 SetDirty();
             }
         }
@@ -3795,8 +3606,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
                 _hbmMonitor = 0;
             }
             _hbmMonitor = LoadMonitorBitmap(FALSE); // we'll do the desktop
-        }
-        else if (_NumDevices > 0) {
+        } else if (_NumDevices > 0) {
             HBITMAP hbm, hbmMask;
             int cx, cy;
             UINT iDevice;
@@ -3806,8 +3616,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
 
             // replace each monitor bitmap with one with correct colors
 
-            for (iDevice = 0; iDevice < _NumDevices; iDevice++)
-            {
+            for (iDevice = 0; iDevice < _NumDevices; iDevice++) {
                 pDevice = &_Devices[iDevice];
 
                 _itot(iDevice + 1, ach, 10);
@@ -3836,13 +3645,11 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
         // We only reenumerate if a new *video* device arrives
 
         if (!_InSetInfo &&
-            (wParam == DBT_DEVICEARRIVAL || wParam == DBT_DEVICEREMOVECOMPLETE))
-        {
-            DEV_BROADCAST_HDR *bhdr = (DEV_BROADCAST_HDR *)lParam;
+            (wParam == DBT_DEVICEARRIVAL || wParam == DBT_DEVICEREMOVECOMPLETE)) {
+            DEV_BROADCAST_HDR* bhdr = (DEV_BROADCAST_HDR*)lParam;
 
             // check for something else here, most likely the dev interface guid
-            if (bhdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
-            {
+            if (bhdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE) {
                 _InitDisplaySettings(FALSE);
             }
         }
@@ -3856,8 +3663,7 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
         if (hbm = (HBITMAP)SendMessage(hwndSample, STM_SETIMAGE, IMAGE_BITMAP, NULL))
             DeleteObject(hbm);
 
-        if (_NumDevices == 1)
-        {
+        if (_NumDevices == 1) {
             hwndSample = GetDlgItem(_hDlg, IDC_SCREENSAMPLE);
             if (hbm = (HBITMAP)SendMessage(hwndSample, STM_SETIMAGE, IMAGE_BITMAP, NULL))
                 DeleteObject(hbm);
@@ -3882,11 +3688,9 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_LBUTTONDBLCLK:
-        if (_NumDevices == 1)
-        {
+        if (_NumDevices == 1) {
             HWND hwndSample = GetDlgItem(_hDlg, IDC_SCREENSAMPLE);
-            if (NULL != hwndSample)
-            {
+            if (NULL != hwndSample) {
                 POINT pt;
                 RECT rc;
 
@@ -3899,20 +3703,19 @@ LRESULT CALLBACK CMultiMon::WndProc(UINT message, WPARAM wParam, LPARAM lParam)
             }
 
             break;
-        }
-        else
+        } else
             return FALSE;
 
     default:
         return FALSE;
-        }
+    }
 
     return TRUE;
-    }
+}
 
 
 // IUnknown methods
-HRESULT CMultiMon::QueryInterface(REFIID riid, LPVOID * ppvObj)
+HRESULT CMultiMon::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
     // ppvObj must not be NULL
     ASSERT(ppvObj != NULL);
@@ -3922,9 +3725,9 @@ HRESULT CMultiMon::QueryInterface(REFIID riid, LPVOID * ppvObj)
 
     *ppvObj = NULL;
     if (IsEqualIID(riid, IID_IUnknown))
-        *ppvObj = SAFECAST(this, IUnknown *);
+        *ppvObj = SAFECAST(this, IUnknown*);
     else if (IsEqualIID(riid, IID_IMultiMonConfig))
-        *ppvObj = SAFECAST(this, IMultiMonConfig *);
+        *ppvObj = SAFECAST(this, IMultiMonConfig*);
     else
         return E_NOINTERFACE;
 
@@ -3954,11 +3757,10 @@ ULONG CMultiMon::Release()
 // IMultiMonConfig methods
 HRESULT CMultiMon::Initialize(HWND hwndHost, WNDPROC pfnWndProc, DWORD dwReserved)
 {
-    WNDCLASS wc = { 0 };
+    WNDCLASS wc = {0};
     HRESULT hr = E_FAIL;
 
-    if (hwndHost && RegisterPreviewWindowClass(pfnWndProc))
-    {
+    if (hwndHost && RegisterPreviewWindowClass(pfnWndProc)) {
         _hwndDesk = hwndHost;
         if (_InitDisplaySettings(TRUE))
             hr = S_OK;
@@ -3966,10 +3768,9 @@ HRESULT CMultiMon::Initialize(HWND hwndHost, WNDPROC pfnWndProc, DWORD dwReserve
     return hr;
 }
 
-HRESULT CMultiMon::GetNumberOfMonitors(int * pCMon, DWORD dwReserved)
+HRESULT CMultiMon::GetNumberOfMonitors(int* pCMon, DWORD dwReserved)
 {
-    if (pCMon)
-    {
+    if (pCMon) {
         *pCMon = _NumDevices;
         return S_OK;
     }
@@ -3977,7 +3778,7 @@ HRESULT CMultiMon::GetNumberOfMonitors(int * pCMon, DWORD dwReserved)
     return E_FAIL;
 }
 
-HRESULT CMultiMon::GetMonitorData(int iMonitor, MonitorData * pmd, DWORD dwReserved)
+HRESULT CMultiMon::GetMonitorData(int iMonitor, MonitorData* pmd, DWORD dwReserved)
 {
     ASSERT(pmd);
     if ((pmd == NULL) || ((ULONG)iMonitor >= _NumDevices))
@@ -4034,8 +3835,7 @@ LRESULT CALLBACK BigNumberWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
     HGDIOBJ hOldPen;
     HGDIOBJ hNewPen;
 
-    switch (msg)
-    {
+    switch (msg) {
     case WM_CREATE:
         break;
 
@@ -4142,8 +3942,7 @@ void FlashText(HWND hDlg, PMULTIMON_DEVICE pDevice, LPCTSTR sz, LPRECT prc, BOOL
     if (!pDevice->pds->IsOrgAttached())
         return;
 
-    if (pDevice->hwndFlash && IsWindow(pDevice->hwndFlash))
-    {
+    if (pDevice->hwndFlash && IsWindow(pDevice->hwndFlash)) {
         DestroyWindow(pDevice->hwndFlash);
         pDevice->hwndFlash = NULL;
     }
@@ -4151,8 +3950,7 @@ void FlashText(HWND hDlg, PMULTIMON_DEVICE pDevice, LPCTSTR sz, LPRECT prc, BOOL
     if (sz == NULL)
         return;
 
-    if (fWait)
-    {
+    if (fWait) {
         while ((i = Bail()) == 0)
             ;
 
@@ -4167,8 +3965,7 @@ void FlashText(HWND hDlg, PMULTIMON_DEVICE pDevice, LPCTSTR sz, LPRECT prc, BOOL
     ReleaseDC(NULL, hdc);
     DeleteObject(hfont);
 
-    if (!gfFlashWindowRegistered)
-    {
+    if (!gfFlashWindowRegistered) {
         WNDCLASS    cls;
         cls.hCursor = LoadCursor(NULL, IDC_ARROW);
         cls.hIcon = NULL;
@@ -4221,7 +4018,7 @@ void DrawMonitorNum(HDC hdc, int w, int h, LPCTSTR sz, BOOL fDrawBackground = TR
     if (fDrawBackground)
         FillRect(hdc, &rc, GetSysColorBrush(COLOR_DESKTOP));
 
-    InflateRect(&rc, -(MON_X*w / MON_W) >> 1, -(MON_Y*h / MON_H));
+    InflateRect(&rc, -(MON_X * w / MON_W) >> 1, -(MON_Y * h / MON_H));
 
     if (rgbDesk == rgb)
         rgb = GetSysColor(COLOR_WINDOWTEXT);
@@ -4363,8 +4160,7 @@ HMENU CreateFrequencyMenu(PMULTIMON_DEVICE pDevice)
 
         if (freq == 1) {
             LoadString(hInstance, IDS_DEFFREQ, ach, sizeof(ach));
-        }
-        else {
+        } else {
             DWORD  idFreq = IDS_FREQ;
 
             if (freq < 50) {
@@ -4391,7 +4187,7 @@ HMENU CreateFrequencyMenu(PMULTIMON_DEVICE pDevice)
 
 #endif
 
-BOOL MakeMonitorBitmap(int w, int h, LPCTSTR sz, HBITMAP *pBitmap, HBITMAP *pMaskBitmap, int cx, int cy, BOOL fSelected)
+BOOL MakeMonitorBitmap(int w, int h, LPCTSTR sz, HBITMAP* pBitmap, HBITMAP* pMaskBitmap, int cx, int cy, BOOL fSelected)
 {
     HBITMAP hbm;        // 128x128 bitmap we will return
     HBITMAP hbmT;       // bitmap loaded from resource
@@ -4429,8 +4225,7 @@ BOOL MakeMonitorBitmap(int w, int h, LPCTSTR sz, HBITMAP *pBitmap, HBITMAP *pMas
     BOOL bNeedDiff = ((fSelected &&
         (GetSysColor(COLOR_APPWORKSPACE) == GetSysColor(COLOR_HIGHLIGHT))) ||
                        (GetSysColor(COLOR_APPWORKSPACE) == GetSysColor(COLOR_BTNHIGHLIGHT)));
-    if (bNeedDiff)
-    {
+    if (bNeedDiff) {
         DWORD rgbDiff = ((GetSysColor(COLOR_ACTIVEBORDER) != GetSysColor(COLOR_APPWORKSPACE))
                          ? GetSysColor(COLOR_ACTIVEBORDER)
                          : GetSysColor(COLOR_APPWORKSPACE) ^ 0x00FFFFFF);
@@ -4453,8 +4248,7 @@ BOOL MakeMonitorBitmap(int w, int h, LPCTSTR sz, HBITMAP *pBitmap, HBITMAP *pMas
          ? GetSysColorBrush(COLOR_BTNHIGHLIGHT)
          : hbrDiff));
 
-    if (bNeedDiff)
-    {
+    if (bNeedDiff) {
         DeleteObject(hbrDiff);
         hbrDiff = NULL;
     }
@@ -4509,7 +4303,7 @@ BOOL MakeMonitorBitmap(int w, int h, LPCTSTR sz, HBITMAP *pBitmap, HBITMAP *pMas
 
 // NOTE pDevice->Snap must be initialized to 0,0 in WM_ENTERSIZEMOVE
 
-void SnapMonitorRect(PMULTIMON_DEVICE pDevice, HWND hwnd, RECT *prc)
+void SnapMonitorRect(PMULTIMON_DEVICE pDevice, HWND hwnd, RECT* prc)
 {
     HWND hwndT;
     int  d;
@@ -4545,16 +4339,14 @@ void SnapMonitorRect(PMULTIMON_DEVICE pDevice, HWND hwnd, RECT *prc)
     // walk all other windows and snap our window to them
 
     for (hwndT = GetWindow(hwnd, GW_HWNDFIRST); hwndT;
-         hwndT = GetWindow(hwndT, GW_HWNDNEXT))
-    {
+         hwndT = GetWindow(hwndT, GW_HWNDNEXT)) {
         if (hwndT == hwnd)
             continue;
 
         GetWindowRect(hwndT, &rcT);
         InflateRect(&rcT, SNAP_DX, SNAP_DY);
 
-        if (IntersectRect(&rcT, &rcT, &rc))
-        {
+        if (IntersectRect(&rcT, &rcT, &rc)) {
             GetWindowRect(hwndT, &rcT);
             SNAPX(right, left);  SNAPY(bottom, top);
             SNAPX(right, right); SNAPY(bottom, bottom);
@@ -4602,10 +4394,9 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
     HWND hDlg = GetParent(GetParent(hwnd));
     RECT rcPos;
     MSG mmsg;
-    CMultiMon * pcmm = (CMultiMon *)GetWindowLongPtr(hwnd, 0);
+    CMultiMon* pcmm = (CMultiMon*)GetWindowLongPtr(hwnd, 0);
 
-    switch (msg)
-    {
+    switch (msg) {
     case WM_CREATE:
         ASSERT(((LPCREATESTRUCT)lParam)->lpCreateParams);
         SetWindowLongPtr(hwnd, 0, (LONG_PTR)((LPCREATESTRUCT)lParam)->lpCreateParams);
@@ -4640,8 +4431,7 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
             (DWORD_PTR)(LPTSTR)sc_MultiMonitorHelpIds);
         break;
     case WM_COMMAND:
-        switch (GET_WM_COMMAND_ID(wParam, lParam))
-        {
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
         case IDC_DISPLAYPRIME:
         case IDC_DISPLAYUSEME:
         case IDC_DISPLAYPROPERTIES:
@@ -4652,8 +4442,7 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 
             pDevice->pds->GetOrgPosition(&rcPos);
 
-            if (!IsRectEmpty(&rcPos))
-            {
+            if (!IsRectEmpty(&rcPos)) {
                 GetWindowText(hwnd, ach, ARRAYSIZE(ach));
                 FlashText(hDlg, pDevice, ach, &rcPos, FALSE);
             }
@@ -4679,13 +4468,11 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
                       pDevice->pds->IsPrimary() ? MF_CHECKED : MF_UNCHECKED);
         // until I figure out how to render on a non attached monitor, just
         // disable the menu item
-        EnableMenuItem((HMENU)wParam, IDC_FLASH,
-                       pDevice->pds->IsAttached() ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem((HMENU)wParam, IDC_FLASH, pDevice->pds->IsAttached() ? MF_ENABLED : MF_GRAYED);
         EnableMenuItem((HMENU)wParam, IDC_DISPLAYPROPERTIES,
                        IsWindowEnabled(GetDlgItem(GetParent(GetParent(hwnd)), IDC_DISPLAYPROPERTIES)) ?
                        MF_ENABLED : MF_GRAYED);
-        EnableMenuItem((HMENU)wParam, IDC_DISPLAYUSEME,
-                       pDevice->pds->IsPrimary() ? MF_GRAYED : MF_ENABLED);
+        EnableMenuItem((HMENU)wParam, IDC_DISPLAYUSEME, pDevice->pds->IsPrimary() ? MF_GRAYED : MF_ENABLED);
 
 #ifndef WINNT
         EnableMenuItem((HMENU)wParam, IDC_DISPLAYPRIME, MF_GRAYED);
@@ -4711,15 +4498,13 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 
         pDevice = GetDlgCtrlDevice(hwnd);
 
-        if (pDevice && pcmm)
-        {
+        if (pDevice && pcmm) {
             HMENU hmenu;
             POINT pt;
 
             hmenu = LoadMenu(hInstance, MAKEINTRESOURCE(MENU_MONITOR));
 
-            if (hmenu)
-            {
+            if (hmenu) {
 #if QUICK_REFRESH
                 if (GetKeyState(VK_CONTROL) & 0x8000) {
                     HMENU hsub;
@@ -4751,8 +4536,8 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
                 TrackPopupMenu(GetSubMenu(hmenu, 0), TPM_RIGHTBUTTON, pt.x, pt.y, 0, hwnd, NULL);
 
                 DestroyMenu(hmenu);
-                }
             }
+        }
         break;
     case WM_NCRBUTTONUP:
         ToolTip_RelayEvent(ghwndToolTipPopup, mmsg, NULL, WM_RBUTTONUP, GetKeyStates(), lParam);
@@ -4772,8 +4557,7 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 
         pDevice->pds->GetOrgPosition(&rcPos);
 
-        if (!IsRectEmpty(&rcPos))
-        {
+        if (!IsRectEmpty(&rcPos)) {
             GetWindowText(hwnd, ach, ARRAYSIZE(ach));
             FlashText(hDlg, pDevice, ach, &rcPos, TRUE);
         }
@@ -4787,20 +4571,18 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 #endif
 
     case WM_NOTIFY:
-        switch (((NMHDR FAR *)lParam)->code) {
+        switch (((NMHDR FAR*)lParam)->code) {
         case TTN_NEEDTEXT:
             pDevice = GetDlgCtrlDevice(hwnd);
             if (pDevice->pds->IsPrimary()) {
                 LoadString(hInstance, IDS_PRIMARY,
                     ((LPNMTTDISPINFO)lParam)->szText,
                            SIZEOF(((LPNMTTDISPINFO)lParam)->szText));
-            }
-            else if (!pDevice->pds->IsAttached()) {
+            } else if (!pDevice->pds->IsAttached()) {
                 LoadString(hInstance, IDS_NOTATTACHED,
                     ((LPNMTTDISPINFO)lParam)->szText,
                            SIZEOF(((LPNMTTDISPINFO)lParam)->szText));
-            }
-            else {
+            } else {
                 TCHAR szSecondary[32];
                 LoadString(hInstance, IDS_SECONDARY, szSecondary, SIZEOF(szSecondary));
                 pDevice->pds->GetCurPosition(&rcPos);
@@ -4835,8 +4617,7 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
             TrackToolTip(pDevice, hwnd, TRUE);
         }
 
-        if (ToolTip_GetCurrentTool(ghwndToolTipTracking, &ti) && pcmm)
-        {
+        if (ToolTip_GetCurrentTool(ghwndToolTipTracking, &ti) && pcmm) {
             TCHAR location[16];
             POINT pt;
 
@@ -4869,15 +4650,12 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
         break;
     case MM_MONITORMOVED:
         pDevice = GetDlgCtrlDevice(hwnd);
-        if (pcmm)
-        {
+        if (pcmm) {
 
             // If the user moved the monitor, see if they want to attach it
 
-            if (!pcmm->QueryNoAttach() && pDevice && !pDevice->pds->IsAttached())
-            {
-                if (pcmm->SetMonAttached(pDevice, TRUE, FALSE, hwnd))
-                {
+            if (!pcmm->QueryNoAttach() && pDevice && !pDevice->pds->IsAttached()) {
+                if (pcmm->SetMonAttached(pDevice, TRUE, FALSE, hwnd)) {
                     pcmm->UpdateActiveDisplay(pDevice);
                 }
             }
@@ -4905,8 +4683,7 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 
         BOOL fSelected = (pcmm ? (BOOL)(pDevice == pcmm->GetCurDevice()) : FALSE);
 
-        if (pDevice->w != w || pDevice->h != h)
-        {
+        if (pDevice->w != w || pDevice->h != h) {
             HBITMAP hbm, hbmMask;
             int cx, cy;
 
@@ -4921,27 +4698,21 @@ LRESULT CALLBACK MonitorWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
             DeleteObject(hbmMask);
         }
 
-        if (!pDevice->pds->IsAttached())
-        {
+        if (!pDevice->pds->IsAttached()) {
             FillRect(hdc, &rc, GetSysColorBrush(COLOR_APPWORKSPACE));
 
-            if (pcmm && fSelected)
-            {
+            if (pcmm && fSelected) {
                 ImageList_DrawEx(pDevice->himl, pDevice->iImage, hdc, 0, 0, w, h, CLR_DEFAULT, CLR_DEFAULT, ILD_BLEND25);
-            }
-            else
-            {
+            } else {
                 ImageList_DrawEx(pDevice->himl, pDevice->iImage, hdc, 0, 0, w, h, CLR_DEFAULT, CLR_NONE, ILD_BLEND50);
             }
-        }
-        else
-        {
+        } else {
             ImageList_DrawEx(pDevice->himl, pDevice->iImage, hdc, 0, 0, w, h, CLR_DEFAULT, CLR_DEFAULT, ILD_IMAGE);
         }
 
         EndPaint(hwnd, &ps);
         return 0L;
-        }
+    }
 
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
@@ -4951,23 +4722,19 @@ LRESULT CALLBACK SliderSubWndProc(HWND hwndSlider, UINT uMsg, WPARAM wParam, LPA
     ASSERT(uID == 0);
     ASSERT(dwRefData == 0);
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_GETOBJECT:
-        if (lParam == OBJID_CLIENT)
-        {
+        if (lParam == OBJID_CLIENT) {
             // At this point we will try to load oleacc and get the functions
             // we need.
-            if (!g_fAttemptedOleAccLoad)
-            {
+            if (!g_fAttemptedOleAccLoad) {
                 g_fAttemptedOleAccLoad = TRUE;
 
                 ASSERT(s_pfnCreateStdAccessibleProxy == NULL);
                 ASSERT(s_pfnLresultFromObject == NULL);
 
                 g_hOleAcc = LoadLibrary(TEXT("OLEACC"));
-                if (g_hOleAcc != NULL)
-                {
+                if (g_hOleAcc != NULL) {
 #ifdef UNICODE
                     s_pfnCreateStdAccessibleProxy = (PFNCREATESTDACCESSIBLEPROXY)
                         GetProcAddress(g_hOleAcc, "CreateStdAccessibleProxyW");
@@ -4976,8 +4743,7 @@ LRESULT CALLBACK SliderSubWndProc(HWND hwndSlider, UINT uMsg, WPARAM wParam, LPA
 #endif
                     s_pfnLresultFromObject = (PFNLRESULTFROMOBJECT)GetProcAddress(g_hOleAcc, "LresultFromObject");
                 }
-                if (s_pfnLresultFromObject == NULL || s_pfnCreateStdAccessibleProxy == NULL)
-                {
+                if (s_pfnLresultFromObject == NULL || s_pfnCreateStdAccessibleProxy == NULL) {
                     // No point holding on to Oleacc since we can't use it.
                     FreeLibrary(g_hOleAcc);
                     g_hOleAcc = NULL;
@@ -4986,10 +4752,8 @@ LRESULT CALLBACK SliderSubWndProc(HWND hwndSlider, UINT uMsg, WPARAM wParam, LPA
                 }
             }
 
-
-            if (g_hOleAcc && s_pfnCreateStdAccessibleProxy && s_pfnLresultFromObject)
-            {
-                IAccessible *pAcc = NULL;
+            if (g_hOleAcc && s_pfnCreateStdAccessibleProxy && s_pfnLresultFromObject) {
+                IAccessible* pAcc = NULL;
                 HRESULT hr;
 
                 // Create default slider proxy.
@@ -4998,19 +4762,15 @@ LRESULT CALLBACK SliderSubWndProc(HWND hwndSlider, UINT uMsg, WPARAM wParam, LPA
                     TEXT("msctls_trackbar32"),
                     OBJID_CLIENT,
                     IID_IAccessible,
-                    (void **)&pAcc
-                );
+                    (void**)&pAcc);
 
-
-                if (SUCCEEDED(hr) && pAcc)
-                {
+                if (SUCCEEDED(hr) && pAcc) {
                     // now wrap it up in our customized wrapper...
-                    IAccessible * pWrapAcc = new CAccessibleWrapper(hwndSlider, pAcc);
+                    IAccessible* pWrapAcc = new CAccessibleWrapper(hwndSlider, pAcc);
                     // Release our ref to proxy (wrapper has its own addref'd ptr)...
                     pAcc->Release();
 
-                    if (pWrapAcc != NULL)
-                    {
+                    if (pWrapAcc != NULL) {
                         // ...and return the wrapper via LresultFromObject...
                         LRESULT lr = s_pfnLresultFromObject(IID_IAccessible, wParam, pWrapAcc);
                         // Release our interface pointer - OLEACC has its own addref to the object

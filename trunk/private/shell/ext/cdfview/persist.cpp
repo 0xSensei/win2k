@@ -42,7 +42,7 @@
 CPersist::CPersist(
     void
 )
-: m_bCdfParsed(FALSE)
+    : m_bCdfParsed(FALSE)
 {
     ASSERT(0 == *m_szPath);
     ASSERT(NULL == m_polestrURL);
@@ -65,7 +65,7 @@ CPersist::CPersist(
 CPersist::CPersist(
     BOOL bCdfParsed
 )
-: m_bCdfParsed(bCdfParsed)
+    : m_bCdfParsed(bCdfParsed)
 {
     ASSERT(0 == *m_szPath);
     ASSERT(NULL == m_polestrURL);
@@ -88,8 +88,7 @@ CPersist::~CPersist(
     void
 )
 {
-    if (m_fPendingNavigation && m_pIWebBrowser2 && m_pIXMLDocument)
-    {
+    if (m_fPendingNavigation && m_pIWebBrowser2 && m_pIXMLDocument) {
     }
 
     if (m_polestrURL)
@@ -202,29 +201,25 @@ CPersist::Load(
 
     HRESULT hr;
 
-    if (SHUnicodeToTChar(pszFileName, m_szPath, ARRAYSIZE(m_szPath)))
-    {
+    if (SHUnicodeToTChar(pszFileName, m_szPath, ARRAYSIZE(m_szPath))) {
         hr = S_OK;
 
         QuickCheckInitType();
-    }
-    else
-    {
+    } else {
         hr = E_FAIL;
     }
 
     return hr;
 }
 
-void CPersist::QuickCheckInitType( void )
+void CPersist::QuickCheckInitType(void)
 {
     // if the path is a directory then
     // it has to be a Shellfolder we were initialised for.
     // we are calculating this here so that we can avoid hitting the disk
     // in GetInitType if at all possible.
 
-    if (PathIsDirectory(m_szPath))
-    {
+    if (PathIsDirectory(m_szPath)) {
         m_rgInitType = IT_INI;
     }
 }
@@ -387,14 +382,12 @@ CPersist::Parse(
 
     BOOL bCoInit = FALSE;
 
-    if ((CO_E_NOTINITIALIZED == hr || REGDB_E_IIDNOTREG == hr) && SUCCEEDED(CoInitialize(NULL)))
-    {
+    if ((CO_E_NOTINITIALIZED == hr || REGDB_E_IIDNOTREG == hr) && SUCCEEDED(CoInitialize(NULL))) {
         bCoInit = TRUE;
         hr = CoCreateInstance(CLSID_XMLDocument, NULL, CLSCTX_INPROC_SERVER, IID_IXMLDocument, (void**)ppIXMLDocument);
     }
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         ASSERT(*ppIXMLDocument);
 
         hr = XML_SynchronousParse(*ppIXMLDocument, szURL);
@@ -438,39 +431,32 @@ CPersist::ParseCdf(
 
     HRESULT hr;
 
-    if (*m_szPath)
-    {
+    if (*m_szPath) {
         INITTYPE it = GetInitType(m_szPath);
 
-        switch(it)
-        {
+        switch (it) {
         case IT_FILE:
             hr = InitializeFromURL(m_szPath, ppIXMLDocument, dwParseFlags);
             break;
 
         case IT_INI:
-            {
-                TCHAR szURL[INTERNET_MAX_URL_LENGTH];
+        {
+            TCHAR szURL[INTERNET_MAX_URL_LENGTH];
 
-                if (ReadFromIni(TSTR_INI_URL, szURL, ARRAYSIZE(szURL)))
-                {
-                    hr = InitializeFromURL(szURL, ppIXMLDocument, dwParseFlags);
-                }
-                else
-                {
-                    hr = E_FAIL;
-                }
+            if (ReadFromIni(TSTR_INI_URL, szURL, ARRAYSIZE(szURL))) {
+                hr = InitializeFromURL(szURL, ppIXMLDocument, dwParseFlags);
+            } else {
+                hr = E_FAIL;
             }
-            break;
+        }
+        break;
 
         case IT_SHORTCUT:
         case IT_UNKNOWN:
             hr = E_FAIL;
             break;
         }
-    }
-    else
-    {
+    } else {
         hr = E_OUTOFMEMORY;
     }
 
@@ -478,12 +464,11 @@ CPersist::ParseCdf(
     // REVIEW: Properly notify user on failure to init.
 
 
-    if (FAILED(hr) && hwndOwner)
-    {
+    if (FAILED(hr) && hwndOwner) {
         TCHAR szText[MAX_PATH];
         TCHAR szTitle[MAX_PATH];
 
-        MLLoadString(IDS_ERROR_DLG_TEXT,  szText, MAX_PATH);
+        MLLoadString(IDS_ERROR_DLG_TEXT, szText, MAX_PATH);
         MLLoadString(IDS_ERROR_DLG_TITLE, szTitle, MAX_PATH);
 
         MessageBox(hwndOwner, szText, szTitle, MB_OK | MB_ICONWARNING);
@@ -520,8 +505,7 @@ CPersist::GetInitType(
     LPTSTR szPath
 )
 {
-    if ( m_rgInitType != IT_UNKNOWN )
-    {
+    if (m_rgInitType != IT_UNKNOWN) {
         return m_rgInitType;
     }
 
@@ -529,12 +513,9 @@ CPersist::GetInitType(
 
     INITTYPE itRet;
 
-    if (PathIsDirectory(szPath))
-    {
+    if (PathIsDirectory(szPath)) {
         itRet = IT_INI;
-    }
-    else
-    {
+    } else {
         itRet = IT_FILE;
     }
 
@@ -580,8 +561,7 @@ CPersist::InitializeFromURL(
 
     TCHAR szCanonicalURL[INTERNET_MAX_URL_LENGTH];
 
-    if (PathIsURL(pszURL))
-    {
+    if (PathIsURL(pszURL)) {
         ULONG cch = ARRAYSIZE(szCanonicalURL);
 
         if (InternetCanonicalizeUrl(pszURL, szCanonicalURL, &cch, 0))
@@ -593,42 +573,32 @@ CPersist::InitializeFromURL(
     // parse it and place it in the cache.
 
 
-    if (PARSE_REPARSE & dwParseFlags)
-    {
+    if (PARSE_REPARSE & dwParseFlags) {
         (void)Cache_RemoveItem(pszURL);
         hr = E_FAIL;
-    }
-    else
-    {
+    } else {
         hr = Cache_QueryItem(pszURL, ppIXMLDocument, dwParseFlags);
 
         if (SUCCEEDED(hr))
             TraceMsg(TF_CDFPARSE, "[XML Document Cache]");
     }
 
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         DWORD    dwCacheCount = g_dwCacheCount;
         FILETIME ftLastMod;
 
-        if (dwParseFlags & PARSE_LOCAL)
-        {
+        if (dwParseFlags & PARSE_LOCAL) {
             TCHAR szLocalFile[MAX_PATH];
 
             hr = URLGetLocalFileName(pszURL, szLocalFile,
                                      ARRAYSIZE(szLocalFile), &ftLastMod);
 
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 hr = Parse(szLocalFile, ppIXMLDocument);
-            }
-            else
-            {
+            } else {
                 hr = OLE_E_NOCACHE;
             }
-        }
-        else
-        {
+        } else {
             TraceMsg(TF_CDFPARSE, "[*** CDF parse enabled to hit net!!! ***]");
 
             hr = Parse(pszURL, ppIXMLDocument);
@@ -640,23 +610,20 @@ CPersist::InitializeFromURL(
             // Stuff the images files into the cache.
 
 
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 ASSERT(*ppIXMLDocument);
 
                 XML_DownloadImages(*ppIXMLDocument);
             }
         }
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             Cache_AddItem(pszURL, *ppIXMLDocument, dwParseFlags, ftLastMod,
                           dwCacheCount);
         }
     }
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         ASSERT(*ppIXMLDocument);
 
         m_bCdfParsed = TRUE;
@@ -702,22 +669,19 @@ CPersist::ReadFromIni(
 
     BOOL fRet = FALSE;
 
-    if (m_szPath && *m_szPath)
-    {
+    if (m_szPath && *m_szPath) {
         INITTYPE it = GetInitType(m_szPath);
 
-        if (it == IT_INI)
-        {
-            LPCTSTR szFile    = TSTR_INI_FILE;
+        if (it == IT_INI) {
+            LPCTSTR szFile = TSTR_INI_FILE;
             LPCTSTR szSection = TSTR_INI_SECTION;
-            LPCTSTR szKey     = pszKey;
+            LPCTSTR szKey = pszKey;
             TCHAR   szPath[MAX_PATH];
 
             StrCpyN(szPath, m_szPath, ARRAYSIZE(szPath) - StrLen(szFile));
             StrCat(szPath, szFile);
 
-            if (GetPrivateProfileString(szSection, szKey, TEXT(""), szOut, cch, szPath))
-            {
+            if (GetPrivateProfileString(szSection, szKey, TEXT(""), szOut, cch, szPath)) {
                 fRet = TRUE;
             }
         }
@@ -756,8 +720,7 @@ CPersist::ReadFromIni(
 
     TCHAR szURL[INTERNET_MAX_URL_LENGTH];
 
-    if (ReadFromIni(pszKey, szURL, ARRAYSIZE(szURL)))
-    {
+    if (ReadFromIni(pszKey, szURL, ARRAYSIZE(szURL))) {
         WCHAR wszURL[INTERNET_MAX_URL_LENGTH];
 
         if (SHTCharToUnicode(szURL, wszURL, ARRAYSIZE(wszURL)))
@@ -790,8 +753,7 @@ CPersist::IsUnreadCdf(
 
     TCHAR szURL[INTERNET_MAX_URL_LENGTH];
 
-    if (ReadFromIni(TSTR_INI_URL, szURL, ARRAYSIZE(szURL)))
-    {
+    if (ReadFromIni(TSTR_INI_URL, szURL, ARRAYSIZE(szURL))) {
         fRet = IsRecentlyChangedURL(szURL);
     }
 
@@ -825,10 +787,9 @@ CPersist::IsRecentlyChangedURL(
     IPropertySetStorage* pIPropertySetStorage;
 
     hr = QueryInternetShortcut(pszURL, IID_IPropertySetStorage,
-                               (void**)&pIPropertySetStorage);
+        (void**)&pIPropertySetStorage);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         ASSERT(pIPropertySetStorage);
 
         IPropertyStorage* pIPropertyStorage;
@@ -836,23 +797,19 @@ CPersist::IsRecentlyChangedURL(
         hr = pIPropertySetStorage->Open(FMTID_InternetSite, STGM_READWRITE,
                                         &pIPropertyStorage);
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             ASSERT(pIPropertyStorage);
 
-            PROPSPEC propspec = { PRSPEC_PROPID, PID_INTSITE_FLAGS };
+            PROPSPEC propspec = {PRSPEC_PROPID, PID_INTSITE_FLAGS};
             PROPVARIANT propvar;
 
             PropVariantInit(&propvar);
 
             hr = pIPropertyStorage->ReadMultiple(1, &propspec, &propvar);
 
-            if (SUCCEEDED(hr) && (VT_UI4 == propvar.vt))
-            {
+            if (SUCCEEDED(hr) && (VT_UI4 == propvar.vt)) {
                 fRet = propvar.ulVal & PIDISF_RECENTLYCHANGED;
-            }
-            else
-            {
+            } else {
                 PropVariantClear(&propvar);
             }
 
@@ -893,10 +850,9 @@ ClearGleamFlag(
     IPropertySetStorage* pIPropertySetStorage;
 
     hr = QueryInternetShortcut(pszURL, IID_IPropertySetStorage,
-                               (void**)&pIPropertySetStorage);
+        (void**)&pIPropertySetStorage);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         ASSERT(pIPropertySetStorage);
 
         IPropertyStorage* pIPropertyStorage;
@@ -904,11 +860,10 @@ ClearGleamFlag(
         hr = pIPropertySetStorage->Open(FMTID_InternetSite, STGM_READWRITE,
                                         &pIPropertyStorage);
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             ASSERT(pIPropertyStorage);
 
-            PROPSPEC propspec = { PRSPEC_PROPID, PID_INTSITE_FLAGS };
+            PROPSPEC propspec = {PRSPEC_PROPID, PID_INTSITE_FLAGS};
             PROPVARIANT propvar;
 
             PropVariantInit(&propvar);
@@ -916,8 +871,7 @@ ClearGleamFlag(
             hr = pIPropertyStorage->ReadMultiple(1, &propspec, &propvar);
 
             if (SUCCEEDED(hr) && (VT_UI4 == propvar.vt) &&
-                (propvar.ulVal & PIDISF_RECENTLYCHANGED))
-            {
+                (propvar.ulVal & PIDISF_RECENTLYCHANGED)) {
                 TCHAR  szHash[MAX_PATH];
                 int   iIndex;
                 UINT  uFlags;
@@ -926,7 +880,7 @@ ClearGleamFlag(
                 HRESULT hr2 = PreUpdateChannelImage(pszPath, szHash, &iIndex,
                                                     &uFlags, &iImageIndex);
 
-                propvar.ulVal &=  ~PIDISF_RECENTLYCHANGED;
+                propvar.ulVal &= ~PIDISF_RECENTLYCHANGED;
 
                 hr = pIPropertyStorage->WriteMultiple(1, &propspec, &propvar,
                                                       0);
@@ -935,17 +889,14 @@ ClearGleamFlag(
 
                 TraceMsg(TF_GLEAM, "- Gleam Cleared %s", pszURL);
 
-                if (SUCCEEDED(hr) && SUCCEEDED(hr2))
-                {
+                if (SUCCEEDED(hr) && SUCCEEDED(hr2)) {
                     WCHAR wszHash[MAX_PATH];
                     SHTCharToUnicode(szHash, wszHash, ARRAYSIZE(wszHash));
 
                     UpdateChannelImage(wszHash, iIndex, uFlags, iImageIndex);
                 }
 
-            }
-            else
-            {
+            } else {
                 PropVariantClear(&propvar);
             }
 
@@ -990,59 +941,51 @@ URLGetLocalFileName(
 
     HRESULT hr = E_FAIL;
 
-    if (pftLastMod)
-    {
-        pftLastMod->dwLowDateTime  = 0;
+    if (pftLastMod) {
+        pftLastMod->dwLowDateTime = 0;
         pftLastMod->dwHighDateTime = 0;
     }
 
     // by using the internal shlwapi function, we avoid loading WININET
     // unless we really really need it...
-    if (PathIsURL(pszURL))
-    {
+    if (PathIsURL(pszURL)) {
         PARSEDURL rgCrackedURL = {0};
 
-        rgCrackedURL.cbSize = sizeof( rgCrackedURL );
+        rgCrackedURL.cbSize = sizeof(rgCrackedURL);
 
-        if ( SUCCEEDED( ParseURL( pszURL, &rgCrackedURL )))
-        {
-            switch(rgCrackedURL.nScheme)
-            {
+        if (SUCCEEDED(ParseURL(pszURL, &rgCrackedURL))) {
+            switch (rgCrackedURL.nScheme) {
             case URL_SCHEME_HTTP:
             case URL_SCHEME_FTP:
             case URL_SCHEME_GOPHER:
-                {
-                    ULONG cbSize  = MAX_CACHE_ENTRY_INFO_SIZE;
+            {
+                ULONG cbSize = MAX_CACHE_ENTRY_INFO_SIZE;
 
-                    INTERNET_CACHE_ENTRY_INFO* piceiAlloced =
+                INTERNET_CACHE_ENTRY_INFO* piceiAlloced =
                     (INTERNET_CACHE_ENTRY_INFO*) new BYTE[cbSize];
 
-                    if (piceiAlloced)
-                    {
-                        piceiAlloced->dwStructSize =
-                                          sizeof(INTERNET_CACHE_ENTRY_INFO);
+                if (piceiAlloced) {
+                    piceiAlloced->dwStructSize =
+                        sizeof(INTERNET_CACHE_ENTRY_INFO);
 
-                        if (GetUrlCacheEntryInfoEx(pszURL, piceiAlloced,
-                                                   &cbSize, NULL, NULL,
-                                                   NULL, 0))
-                        {
-                            if (StrCpyN(szLocalFile,
-                                        piceiAlloced->lpszLocalFileName, cch))
-                            {
-                                if (pftLastMod)
-                                {
-                                    *pftLastMod =
-                                                 piceiAlloced->LastModifiedTime;
-                                }
-
-                                hr = S_OK;
+                    if (GetUrlCacheEntryInfoEx(pszURL, piceiAlloced,
+                                               &cbSize, NULL, NULL,
+                                               NULL, 0)) {
+                        if (StrCpyN(szLocalFile,
+                                    piceiAlloced->lpszLocalFileName, cch)) {
+                            if (pftLastMod) {
+                                *pftLastMod =
+                                    piceiAlloced->LastModifiedTime;
                             }
-                        }
 
-                        delete [] piceiAlloced;
+                            hr = S_OK;
+                        }
                     }
+
+                    delete[] piceiAlloced;
                 }
-                break;
+            }
+            break;
 
             case URL_SCHEME_FILE:
                 hr = PathCreateFromUrl(pszURL, szLocalFile, (LPDWORD)&cch, 0);
@@ -1051,9 +994,7 @@ URLGetLocalFileName(
             }
 
         }
-    }
-    else
-    {
+    } else {
         if (StrCpyN(szLocalFile, pszURL, cch))
             hr = S_OK;
     }
@@ -1074,28 +1015,25 @@ URLGetLastModTime(
     ASSERT(pszURL);
     ASSERT(pftLastMod);
 
-    pftLastMod->dwLowDateTime  = 0;
+    pftLastMod->dwLowDateTime = 0;
     pftLastMod->dwHighDateTime = 0;
 
-    ULONG cbSize  = 0;
+    ULONG cbSize = 0;
 
     if (!GetUrlCacheEntryInfoEx(pszURL, NULL, &cbSize, NULL, NULL, NULL, 0)
-        && cbSize > 0)
-    {
+        && cbSize > 0) {
         INTERNET_CACHE_ENTRY_INFO* piceiAlloced =
-                                  (INTERNET_CACHE_ENTRY_INFO*) new BYTE[cbSize];
+            (INTERNET_CACHE_ENTRY_INFO*) new BYTE[cbSize];
 
-        if (piceiAlloced)
-        {
+        if (piceiAlloced) {
             piceiAlloced->dwStructSize = sizeof(INTERNET_CACHE_ENTRY_INFO);
 
             if (GetUrlCacheEntryInfoEx(pszURL, piceiAlloced, &cbSize, NULL,
-                                       NULL, NULL, 0))
-            {
+                                       NULL, NULL, 0)) {
                 *pftLastMod = piceiAlloced->LastModifiedTime;
             }
 
-            delete [] piceiAlloced;
+            delete[] piceiAlloced;
         }
     }
 
@@ -1127,42 +1065,37 @@ CPersist::Load(
 
     hr = pIMoniker->GetDisplayName(pIBindCtx, NULL, &m_polestrURL);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         ASSERT(m_polestrURL);
 
         ASSERT(NULL == m_pIXMLDocument)
 
-        DLL_ForcePreloadDlls(PRELOAD_MSXML);
+            DLL_ForcePreloadDlls(PRELOAD_MSXML);
 
         hr = CoCreateInstance(CLSID_XMLDocument, NULL, CLSCTX_INPROC_SERVER, IID_IXMLDocument, (void**)&m_pIXMLDocument);
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             ASSERT(m_pIXMLDocument);
 
             CBindStatusCallback* pCBindStatusCallback = new CBindStatusCallback(
-                                                                m_pIXMLDocument,
-                                                                m_polestrURL);
+                m_pIXMLDocument,
+                m_polestrURL);
 
-            if (pCBindStatusCallback)
-            {
+            if (pCBindStatusCallback) {
                 IBindStatusCallback* pPrevIBindStatusCallback;
 
                 hr = RegisterBindStatusCallback(pIBindCtx,
-                                     (IBindStatusCallback*)pCBindStatusCallback,
-                                     &pPrevIBindStatusCallback, 0);
+                    (IBindStatusCallback*)pCBindStatusCallback,
+                                                &pPrevIBindStatusCallback, 0);
 
-                if (SUCCEEDED(hr))
-                {
+                if (SUCCEEDED(hr)) {
                     pCBindStatusCallback->Init(pPrevIBindStatusCallback);
 
                     IPersistMoniker* pIPersistMoniker;
 
                     hr = m_pIXMLDocument->QueryInterface(IID_IPersistMoniker,
-                                                     (void**)&pIPersistMoniker);
+                        (void**)&pIPersistMoniker);
 
-                    if (SUCCEEDED(hr))
-                    {
+                    if (SUCCEEDED(hr)) {
                         ASSERT(pIPersistMoniker);
 
                         hr = pIPersistMoniker->Load(fFullyAvailable, pIMoniker,
@@ -1172,9 +1105,7 @@ CPersist::Load(
                 }
 
                 pCBindStatusCallback->Release();
-            }
-            else
-            {
+            } else {
                 hr = E_OUTOFMEMORY;
             }
         }
@@ -1193,19 +1124,12 @@ CPersist::Save(
     return E_NOTIMPL;
 }
 
-STDMETHODIMP
-CPersist::SaveCompleted(
-    IMoniker* pIMoniker,
-    IBindCtx* pIBindCtx
-)
+STDMETHODIMP CPersist::SaveCompleted(IMoniker* pIMoniker, IBindCtx* pIBindCtx)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP
-CPersist::GetCurMoniker(
-    IMoniker** ppIMoniker
-)
+STDMETHODIMP CPersist::GetCurMoniker(IMoniker** ppIMoniker)
 {
     return E_NOTIMPL;
 }

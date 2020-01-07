@@ -4,7 +4,7 @@
 
 #define SZ_FOLDEROPTSTUBCLASS TEXT("MSGlobalFolderOptionsStub")
 
-void Cabinet_StateChanged(CABINETSTATE *pcs);
+void Cabinet_StateChanged(CABINETSTATE* pcs);
 void Cabinet_RefreshAll(void);
 BOOL UpdateDefFolderSettings(BOOL fWebView, BOOL fWebViewOld);
 
@@ -29,10 +29,10 @@ const static DWORD aFolderOptsHelpIDs[] = {  // Context Help IDs
     0, 0
 };
 
-typedef struct
-{
+
+typedef struct {
     CABINETSTATE cs;      // Cached "current" CabState.
-    CFolderOptionsPsx *ppsx;    // to talk to our propsheet sibling
+    CFolderOptionsPsx* ppsx;    // to talk to our propsheet sibling
     // The icons corresponding to the radio button selected are stored here.
     HICON   ahIcon[IDC_FCUS_ICON_MAX - IDC_FCUS_WEB + 1];
 } FOLDEROPTDATA;
@@ -44,7 +44,7 @@ typedef struct
 
 
 // if 'set' is false then it gets the ActiveDesktop state  and assigns that value to the *pActDesk
-void GetSetActiveDesktop(BOOL *pActDesk, BOOL fset)
+void GetSetActiveDesktop(BOOL* pActDesk, BOOL fset)
 {
     IActiveDesktop* pad;
     HRESULT hres;
@@ -89,7 +89,7 @@ void GetSetActiveDesktop(BOOL *pActDesk, BOOL fset)
 // Reads CabinetState and Default Folder Settings
 void ReadStateAndSettings(HWND hDlg)
 {
-    FOLDEROPTDATA *pfod = (FOLDEROPTDATA *)GetWindowLongPtr(hDlg, DWLP_USER);
+    FOLDEROPTDATA* pfod = (FOLDEROPTDATA*)GetWindowLongPtr(hDlg, DWLP_USER);
     ASSERT(pfod);
 
     pfod->ppsx->SetNeedRefresh(FALSE);
@@ -100,11 +100,11 @@ void ReadStateAndSettings(HWND hDlg)
 
 // This function selects a given radio button among a set of radio buttons AND it sets the Icon
 // image corresponding to the radio button selected.
-void CheckRBtnAndSetIcon(HWND hDlg, 
+void CheckRBtnAndSetIcon(HWND hDlg,
                          int idStartBtn,
                          int idEndBtn,
                          int idSelectedBtn,
-                         FOLDEROPTDATA *pfod, 
+                         FOLDEROPTDATA* pfod,
                          BOOL fCheckBtn)
 {
     //  Check the radio button if required
@@ -149,13 +149,13 @@ void CheckRBtnAndSetIcon(HWND hDlg,
         pfod->ahIcon[iIndex] = (HICON)LoadImage(HINST_THISDLL,
                                                 MAKEINTRESOURCE(IDI_ACTIVEDESK_ON + iIndex),
                                                 IMAGE_ICON,
-                                                0, 
+                                                0,
                                                 0,
                                                 LR_DEFAULTSIZE);
     }
 
     // Set the Icon image corresponding to the Radio button selected.
-    SendDlgItemMessage(hDlg, 
+    SendDlgItemMessage(hDlg,
                        IDC_FCUS_ICON_ACTIVEDESKTOP + (iIndex >> 1),
                        STM_SETICON,
                        (WPARAM)(pfod->ahIcon[iIndex]),
@@ -173,20 +173,20 @@ BOOL_PTR CALLBACK FolderOptionsDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
 
     INSTRUMENT_WNDPROC(SHCNFI_FOLDEROPTIONS_DLGPROC, hDlg, uMsg, wParam, lParam);
 
-    FOLDEROPTDATA *pfod = (FOLDEROPTDATA *)GetWindowLongPtr(hDlg, DWLP_USER);
+    FOLDEROPTDATA* pfod = (FOLDEROPTDATA*)GetWindowLongPtr(hDlg, DWLP_USER);
 
     switch (uMsg) {
     case WM_INITDIALOG:
     {
-        pfod = (FOLDEROPTDATA *)LocalAlloc(LPTR, SIZEOF(*pfod));
+        pfod = (FOLDEROPTDATA*)LocalAlloc(LPTR, SIZEOF(*pfod));
         if (pfod) {
             BOOL fClassicShell, fForceActiveDesktopOn;
             SHELLSTATE ss = {0};
 
             SetWindowLongPtr(hDlg, DWLP_USER, (LONG_PTR)pfod);//Set the Folder Options data
 
-            PROPSHEETPAGE *pps = (PROPSHEETPAGE *)lParam;
-            pfod->ppsx = (CFolderOptionsPsx *)pps->lParam;
+            PROPSHEETPAGE* pps = (PROPSHEETPAGE*)lParam;
+            pfod->ppsx = (CFolderOptionsPsx*)pps->lParam;
 
             ReadStateAndSettings(hDlg);
 
@@ -283,7 +283,7 @@ BOOL_PTR CALLBACK FolderOptionsDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
         return TRUE;
     }
     case WM_NOTIFY:
-        switch (((NMHDR *)lParam)->code) {
+        switch (((NMHDR*)lParam)->code) {
         case PSN_APPLY:
         {
             SHELLSTATE oldss = {0};
@@ -354,7 +354,9 @@ BOOL_PTR CALLBACK FolderOptionsDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
                                 cb,
                                 SHREGSET_DEFAULT);
 
-                SHSendMessageBroadcast(WM_WININICHANGE, 0, (LPARAM)TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\IconUnderline"));
+                SHSendMessageBroadcast(WM_WININICHANGE, 
+                                       0, 
+                                       (LPARAM)TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\IconUnderline"));
             }
 
             if ((ss.fWin95Classic != oldss.fWin95Classic)
@@ -378,10 +380,13 @@ BOOL_PTR CALLBACK FolderOptionsDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
         }
         break;
     case WM_HELP:
-        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, TEXT(SHELL_HLP), HELP_WM_HELP, (ULONG_PTR)(LPTSTR)aFolderOptsHelpIDs);
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle,
+                TEXT(SHELL_HLP),
+                HELP_WM_HELP,
+                (ULONG_PTR)(LPTSTR)aFolderOptsHelpIDs);
         break;
     case WM_CONTEXTMENU:
-        WinHelp((HWND)wParam, TEXT(SHELL_HLP), HELP_CONTEXTMENU, (ULONG_PTR)(void *)aFolderOptsHelpIDs);
+        WinHelp((HWND)wParam, TEXT(SHELL_HLP), HELP_CONTEXTMENU, (ULONG_PTR)(void*)aFolderOptsHelpIDs);
         break;
     case WM_COMMAND:
         switch (idSelectedBtn = GET_WM_COMMAND_ID(wParam, lParam)) {
@@ -414,10 +419,24 @@ BOOL_PTR CALLBACK FolderOptionsDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
 
             // Don't set the default web view option if web view is disabled via system policy.
             if (0 == SHRestricted(REST_NOWEBVIEW)) {
-                CheckRBtnAndSetIcon(hDlg, IDC_FCUS_WHENEVER_POSSIBLE, IDC_FCUS_WHEN_CHOOSE, IDC_FCUS_WHENEVER_POSSIBLE, pfod, TRUE);
+                CheckRBtnAndSetIcon(hDlg, 
+                                    IDC_FCUS_WHENEVER_POSSIBLE, 
+                                    IDC_FCUS_WHEN_CHOOSE,
+                                    IDC_FCUS_WHENEVER_POSSIBLE,
+                                    pfod, 
+                                    TRUE);
             }
-            CheckRBtnAndSetIcon(hDlg, IDC_FCUS_SAME_WINDOW, IDC_FCUS_SEPARATE_WINDOWS, IDC_FCUS_SAME_WINDOW, pfod, TRUE);
-            CheckRBtnAndSetIcon(hDlg, IDC_FCUS_SINGLECLICK, IDC_FCUS_DOUBLECLICK, IDC_FCUS_DOUBLECLICK, pfod, TRUE);
+            CheckRBtnAndSetIcon(hDlg, IDC_FCUS_SAME_WINDOW, 
+                                IDC_FCUS_SEPARATE_WINDOWS,
+                                IDC_FCUS_SAME_WINDOW,
+                                pfod, 
+                                TRUE);
+            CheckRBtnAndSetIcon(hDlg,
+                                IDC_FCUS_SINGLECLICK, 
+                                IDC_FCUS_DOUBLECLICK,
+                                IDC_FCUS_DOUBLECLICK,
+                                pfod, 
+                                TRUE);
 
             CheckRadioButton(hDlg, IDC_FCUS_ICON_IE, IDC_FCUS_ICON_HOVER, IDC_FCUS_ICON_IE);
             EnableWindow(GetDlgItem(hDlg, IDC_FCUS_ICON_IE), FALSE); //Disable
@@ -447,7 +466,6 @@ BOOL_PTR CALLBACK FolderOptionsDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
 
 
 // Moved from defview.cpp, which never used these functions
-
 const TCHAR c_szExploreClass[] = TEXT("ExploreWClass");
 const TCHAR c_szIExploreClass[] = TEXT("IEFrame");
 const TCHAR c_szCabinetClass[] =
@@ -549,7 +567,7 @@ BOOL CALLBACK Cabinet_GlobalStateEnum(HWND hwnd, LPARAM lParam)
 }
 
 
-void Cabinet_StateChanged(CABINETSTATE *pcs)
+void Cabinet_StateChanged(CABINETSTATE* pcs)
 {
     // Save the new settings away...
     WriteCabinetState(pcs);
@@ -599,7 +617,7 @@ HWND CreateGlobalFolderOptionsStubWindow(void)
 
 BOOL CALLBACK AddPropSheetPage(HPROPSHEETPAGE hpage, LPARAM lParam)
 {
-    PROPSHEETHEADER * ppsh = (PROPSHEETHEADER *)lParam;
+    PROPSHEETHEADER* ppsh = (PROPSHEETHEADER*)lParam;
 
     if (ppsh->nPages < MAXPROPPAGES) {
         ppsh->phpage[ppsh->nPages++] = hpage;
@@ -610,10 +628,10 @@ BOOL CALLBACK AddPropSheetPage(HPROPSHEETPAGE hpage, LPARAM lParam)
 }
 
 
-void AddPropSheetCLSID(REFCLSID clsid, PROPSHEETHEADER *ppsh)
+void AddPropSheetCLSID(REFCLSID clsid, PROPSHEETHEADER* ppsh)
 {
-    IShellPropSheetExt *psx;
-    HRESULT hres = CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER, IID_IShellPropSheetExt, (void **)&psx);
+    IShellPropSheetExt* psx;
+    HRESULT hres = CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER, IID_IShellPropSheetExt, (void**)&psx);
     if (SUCCEEDED(hres)) {
         psx->AddPages(AddPropSheetPage, (LPARAM)ppsh);
         psx->Release();
@@ -621,7 +639,7 @@ void AddPropSheetCLSID(REFCLSID clsid, PROPSHEETHEADER *ppsh)
 }
 
 
-DWORD CALLBACK GlobalFolderOptPropSheetThreadProc(void *)
+DWORD CALLBACK GlobalFolderOptPropSheetThreadProc(void*)
 {
     PROPSHEETHEADER psh;
     HPROPSHEETPAGE rPages[MAXPROPPAGES];
@@ -653,7 +671,7 @@ DWORD CALLBACK GlobalFolderOptPropSheetThreadProc(void *)
 BOOL CALLBACK FindFolderOptionsEnumProc(HWND hwnd, LPARAM lParam)
 {
     BOOL fRet = TRUE;
-    HWND *phwnd = (HWND *)lParam;
+    HWND* phwnd = (HWND*)lParam;
     TCHAR szClass[MAX_PATH];
 
     GetClassName(hwnd, szClass, ARRAYSIZE(szClass));
@@ -681,7 +699,7 @@ void DoGlobalFolderOptions(void)
     } else {
         DWORD dwThread;
         HANDLE hThread = CreateThread(NULL,
-                                      0, 
+                                      0,
                                       GlobalFolderOptPropSheetThreadProc,
                                       NULL,
                                       THREAD_PRIORITY_NORMAL,

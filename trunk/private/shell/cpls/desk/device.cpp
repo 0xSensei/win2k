@@ -26,49 +26,49 @@
 
 DWORD g_aiSetHelpIds[] = {
 
-//    ID_DSP_CHANGE,      IDH_DSKTPMONITOR_CHANGE_DISPLAY,
-    IDC_COLORBOX,       IDH_DSKTPMONITOR_COLOR,
-    ID_DSP_CLRPALGRP,   IDH_DSKTPMONITOR_COLOR,
-//    ID_DSP_COLORBAR,    IDH_DSKTPMONITOR_COLOR,
-    IDC_SCREENSIZE,     IDH_DSKTPMONITOR_AREA,
-    ID_DSP_DSKAREAGRP,  IDH_DSKTPMONITOR_AREA,
-//    ID_DSP_X_BY_Y,      IDH_DSKTPMONITOR_AREA,
-    ID_DSP_REFFREQGRP,  IDH_DSKTPMONITOR_REFRESH,
-    ID_DSP_FREQ,        IDH_DSKTPMONITOR_REFRESH,
-    ID_DSP_LIST_ALL,    IDH_DSKTPMONITOR_LIST_MODES,
-    IDC_SCREENSAMPLE,   IDH_DSKTPMONITOR_MONITOR,
-    ID_DSP_TEST,        IDH_DSKTPMONITOR_TEST,
-    ID_DSP_FONTSIZEGRP, IDH_DSKTPMONITOR_FONTSIZE,
-    ID_DSP_FONTSIZE,    IDH_DSKTPMONITOR_FONTSIZE,
-    ID_ADP_ADPGRP,      IDH_DSKTPMONITOR_ADTYPE,
-    ID_ADP_ADAPTOR,     IDH_DSKTPMONITOR_ADTYPE,
-//    ID_ADP_CHGADP,      IDH_DSKTPMONITOR_CHANGE1,
-//    ID_ADP_DETECT,      IDH_DSKTPMONITOR_DETECT,
-    ID_ADP_ADPINFGRP,   IDH_DSKTPMONITOR_AD_FACTS,
-    ID_ADP_CHIP,        IDH_DSKTPMONITOR_AD_FACTS,
-    ID_ADP_DAC,         IDH_DSKTPMONITOR_AD_FACTS,
-    ID_ADP_MEM,         IDH_DSKTPMONITOR_AD_FACTS,
-    ID_ADP_ADP_STRING,  IDH_DSKTPMONITOR_AD_FACTS,
-    ID_ADP_BIOS_INFO,   IDH_DSKTPMONITOR_AD_FACTS,
-    ID_ADP_AI1,         IDH_DSKTPMONITOR_AD_FACTS,
-    ID_ADP_AI2,         IDH_DSKTPMONITOR_AD_FACTS,
-    ID_ADP_AI3,         IDH_DSKTPMONITOR_AD_FACTS,
-    ID_ADP_AI4,         IDH_DSKTPMONITOR_AD_FACTS,
-    ID_ADP_AI5,         IDH_DSKTPMONITOR_AD_FACTS,
-    ID_ADP_DRVINFGRP,   IDH_DSKTPMONITOR_DRIVER,
-    ID_ADP_MANUFACT,    IDH_DSKTPMONITOR_DRIVER,
-    ID_ADP_VERSION,     IDH_DSKTPMONITOR_DRIVER,
-    ID_ADP_CURFILES,    IDH_DSKTPMONITOR_DRIVER,
-    ID_ADP_DI1,         IDH_DSKTPMONITOR_DRIVER,
-    ID_ADP_DI2,         IDH_DSKTPMONITOR_DRIVER,
-    ID_ADP_DI3,         IDH_DSKTPMONITOR_DRIVER,
+    //    ID_DSP_CHANGE,      IDH_DSKTPMONITOR_CHANGE_DISPLAY,
+        IDC_COLORBOX,       IDH_DSKTPMONITOR_COLOR,
+        ID_DSP_CLRPALGRP,   IDH_DSKTPMONITOR_COLOR,
+        //    ID_DSP_COLORBAR,    IDH_DSKTPMONITOR_COLOR,
+            IDC_SCREENSIZE,     IDH_DSKTPMONITOR_AREA,
+            ID_DSP_DSKAREAGRP,  IDH_DSKTPMONITOR_AREA,
+            //    ID_DSP_X_BY_Y,      IDH_DSKTPMONITOR_AREA,
+                ID_DSP_REFFREQGRP,  IDH_DSKTPMONITOR_REFRESH,
+                ID_DSP_FREQ,        IDH_DSKTPMONITOR_REFRESH,
+                ID_DSP_LIST_ALL,    IDH_DSKTPMONITOR_LIST_MODES,
+                IDC_SCREENSAMPLE,   IDH_DSKTPMONITOR_MONITOR,
+                ID_DSP_TEST,        IDH_DSKTPMONITOR_TEST,
+                ID_DSP_FONTSIZEGRP, IDH_DSKTPMONITOR_FONTSIZE,
+                ID_DSP_FONTSIZE,    IDH_DSKTPMONITOR_FONTSIZE,
+                ID_ADP_ADPGRP,      IDH_DSKTPMONITOR_ADTYPE,
+                ID_ADP_ADAPTOR,     IDH_DSKTPMONITOR_ADTYPE,
+                //    ID_ADP_CHGADP,      IDH_DSKTPMONITOR_CHANGE1,
+                //    ID_ADP_DETECT,      IDH_DSKTPMONITOR_DETECT,
+                    ID_ADP_ADPINFGRP,   IDH_DSKTPMONITOR_AD_FACTS,
+                    ID_ADP_CHIP,        IDH_DSKTPMONITOR_AD_FACTS,
+                    ID_ADP_DAC,         IDH_DSKTPMONITOR_AD_FACTS,
+                    ID_ADP_MEM,         IDH_DSKTPMONITOR_AD_FACTS,
+                    ID_ADP_ADP_STRING,  IDH_DSKTPMONITOR_AD_FACTS,
+                    ID_ADP_BIOS_INFO,   IDH_DSKTPMONITOR_AD_FACTS,
+                    ID_ADP_AI1,         IDH_DSKTPMONITOR_AD_FACTS,
+                    ID_ADP_AI2,         IDH_DSKTPMONITOR_AD_FACTS,
+                    ID_ADP_AI3,         IDH_DSKTPMONITOR_AD_FACTS,
+                    ID_ADP_AI4,         IDH_DSKTPMONITOR_AD_FACTS,
+                    ID_ADP_AI5,         IDH_DSKTPMONITOR_AD_FACTS,
+                    ID_ADP_DRVINFGRP,   IDH_DSKTPMONITOR_DRIVER,
+                    ID_ADP_MANUFACT,    IDH_DSKTPMONITOR_DRIVER,
+                    ID_ADP_VERSION,     IDH_DSKTPMONITOR_DRIVER,
+                    ID_ADP_CURFILES,    IDH_DSKTPMONITOR_DRIVER,
+                    ID_ADP_DI1,         IDH_DSKTPMONITOR_DRIVER,
+                    ID_ADP_DI2,         IDH_DSKTPMONITOR_DRIVER,
+                    ID_ADP_DI3,         IDH_DSKTPMONITOR_DRIVER,
 
 
-    // not implemented yet: IDH_DSKTPMONITOR_CUSTOM
-    //                      IDH_DSKTPMONITOR_ENERGY
-    //                      IDH_DSKTPMONITOR_CHANGE2
-    //                      IDH_DSKTPMONITOR_MONTYPE
-    0, 0
+                    // not implemented yet: IDH_DSKTPMONITOR_CUSTOM
+                    //                      IDH_DSKTPMONITOR_ENERGY
+                    //                      IDH_DSKTPMONITOR_CHANGE2
+                    //                      IDH_DSKTPMONITOR_MONTYPE
+                    0, 0
 };
 
 
@@ -90,7 +90,7 @@ DWORD g_aiSetHelpIds[] = {
 #if RESIZE_PROBLEM
 LRESULT WINAPI MyProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-WNDPROC gOldProc=NULL;
+WNDPROC gOldProc = NULL;
 #endif
 
 HWND ghwndPropSheet;
@@ -101,8 +101,8 @@ HWND ghwndPropSheet;
 * Pure "C" functions used only in this file
 *
 \**/
-LPTSTR SubStrEnd( LPTSTR pszTarget, LPTSTR pszScan);
-DWORD WINAPI ApplyNowThd( LPVOID lpThreadParameter);
+LPTSTR SubStrEnd(LPTSTR pszTarget, LPTSTR pszScan);
+DWORD WINAPI ApplyNowThd(LPVOID lpThreadParameter);
 
 /**\
 *
@@ -111,17 +111,17 @@ DWORD WINAPI ApplyNowThd( LPVOID lpThreadParameter);
 \**/
 //#if defined(__cplusplus) && defined(CPP_FUNCTIONS)
 
-void *  __cdecl operator new(unsigned int nSize)
-    {
+void* __cdecl operator new(unsigned int nSize)
+{
     // Zero init just to save some headaches
     return((LPVOID)LocalAlloc(LPTR, nSize));
-    }
+}
 
 
-void  __cdecl operator delete(void *pv)
-    {
+void  __cdecl operator delete(void* pv)
+{
     LocalFree((HLOCAL)pv);
-    }
+}
 
 //extern "C" int __cdecl _purecall(void) {return 0;}
 
@@ -138,24 +138,24 @@ typedef struct tagLISTELEM LISTELEM;
 struct tagLISTELEM
 {
     LPDEVMODE value;
-    LISTELEM *next;
+    LISTELEM* next;
 };
 
 class CList
 {
 private:
-    LISTELEM *Head;
+    LISTELEM* Head;
 
 public:
-    CList() { Head = (LISTELEM *) NULL; }
+    CList() { Head = (LISTELEM*)NULL; }
     ~CList();
 
     void Insert(LPDEVMODE p);
     LPDEVMODE Pop();
     void Process();
 
-    BOOL InOrder(LISTELEM *a, LISTELEM *b);
-    BOOL EquivExists(LISTELEM *p);
+    BOOL InOrder(LISTELEM* a, LISTELEM* b);
+    BOOL EquivExists(LISTELEM* p);
 };
 
 CList::~CList()
@@ -169,36 +169,29 @@ CList::~CList()
     ASSERT(Head == NULL);
 }
 
-BOOL CList::InOrder(LISTELEM *a, LISTELEM *b)
+BOOL CList::InOrder(LISTELEM* a, LISTELEM* b)
 {
 
     // Sort on color depth...
 
 
-    if (a->value->dmBitsPerPel != b->value->dmBitsPerPel)
-    {
+    if (a->value->dmBitsPerPel != b->value->dmBitsPerPel) {
         return (a->value->dmBitsPerPel < b->value->dmBitsPerPel);
-    }
-    else
-    {
+    } else {
 
         // ...then on resolution (area)...
 
 
         if ((a->value->dmPelsWidth * a->value->dmPelsHeight) !=
-            (b->value->dmPelsWidth * b->value->dmPelsHeight))
-        {
+            (b->value->dmPelsWidth * b->value->dmPelsHeight)) {
             return ((a->value->dmPelsWidth * a->value->dmPelsHeight) <
-                    (b->value->dmPelsWidth * b->value->dmPelsHeight));
-        }
-        else
-        {
+                (b->value->dmPelsWidth * b->value->dmPelsHeight));
+        } else {
 
             // ...then on frequency
 
 
-            if (a->value->dmDisplayFrequency != b->value->dmDisplayFrequency)
-            {
+            if (a->value->dmDisplayFrequency != b->value->dmDisplayFrequency) {
                 return (a->value->dmDisplayFrequency < b->value->dmDisplayFrequency);
             }
         }
@@ -209,25 +202,21 @@ BOOL CList::InOrder(LISTELEM *a, LISTELEM *b)
 
 void CList::Insert(LPDEVMODE p)
 {
-    LISTELEM *pElem;
-    LISTELEM *pCurrElem;
+    LISTELEM* pElem;
+    LISTELEM* pCurrElem;
 
-    pElem = (LISTELEM *) LocalAlloc(LPTR, sizeof(LISTELEM));
-    pElem->value = (LPDEVMODE) LocalAlloc(LPTR, sizeof(DEVMODE) + p->dmDriverExtra);
+    pElem = (LISTELEM*)LocalAlloc(LPTR, sizeof(LISTELEM));
+    pElem->value = (LPDEVMODE)LocalAlloc(LPTR, sizeof(DEVMODE) + p->dmDriverExtra);
 
     memcpy(pElem->value, p, sizeof(DEVMODE) + p->dmDriverExtra);
 
-    if (!Head || InOrder(pElem, Head))
-    {
+    if (!Head || InOrder(pElem, Head)) {
         pElem->next = Head;
         Head = pElem;
-    }
-    else
-    {
+    } else {
         pCurrElem = Head;
 
-        while (pCurrElem->next && !InOrder(pElem, pCurrElem->next))
-        {
+        while (pCurrElem->next && !InOrder(pElem, pCurrElem->next)) {
             pCurrElem = pCurrElem->next;
         }
 
@@ -238,11 +227,10 @@ void CList::Insert(LPDEVMODE p)
 
 LPDEVMODE CList::Pop()
 {
-    LISTELEM *pCurrElem;
+    LISTELEM* pCurrElem;
     LPDEVMODE ret;
 
-    if (Head)
-    {
+    if (Head) {
         pCurrElem = Head;
         Head = Head->next;
 
@@ -250,28 +238,24 @@ LPDEVMODE CList::Pop()
         LocalFree(pCurrElem);
 
         return ret;
-    }
-    else
-    {
+    } else {
         return NULL;
     }
 }
 
-BOOL CList::EquivExists(LISTELEM *p)
+BOOL CList::EquivExists(LISTELEM* p)
 {
-    LISTELEM *pCurrElem = Head;
+    LISTELEM* pCurrElem = Head;
 
 
     // We are only looking for equivalent 8bpp modes, so stop
     // looking once we've passed the 8bpp modes.
 
 
-    while (pCurrElem && (pCurrElem->value->dmBitsPerPel <= 8))
-    {
+    while (pCurrElem && (pCurrElem->value->dmBitsPerPel <= 8)) {
         if ((p != pCurrElem) &&  // A will not be considered equivalent to A
-            (p->value->dmPelsWidth  == pCurrElem->value->dmPelsWidth &&
-             p->value->dmPelsHeight == pCurrElem->value->dmPelsHeight))
-        {
+            (p->value->dmPelsWidth == pCurrElem->value->dmPelsWidth &&
+             p->value->dmPelsHeight == pCurrElem->value->dmPelsHeight)) {
             return TRUE;
         }
 
@@ -292,9 +276,9 @@ BOOL CList::EquivExists(LISTELEM *p)
 
 void CList::Process()
 {
-    LISTELEM *pCurrElem;
-    LISTELEM *pPrevElem;
-    LISTELEM *dup;
+    LISTELEM* pCurrElem;
+    LISTELEM* pPrevElem;
+    LISTELEM* dup;
     BOOL bDisplay4BppModes = FALSE;
     BOOL bDisplaySafeModes = FALSE;
 
@@ -310,8 +294,7 @@ void CList::Process()
                      SZ_DISPLAY_4BPP_MODES,
                      0,
                      KEY_READ,
-                     &hkeyDriver) ==  ERROR_SUCCESS)
-    {
+                     &hkeyDriver) == ERROR_SUCCESS) {
         bDisplay4BppModes = TRUE;
         RegCloseKey(hkeyDriver);
     }
@@ -330,50 +313,45 @@ void CList::Process()
     // when the display driver is not loaded.
 
     HDC hdc = GetDC(NULL);
-    int w   = GetDeviceCaps(hdc, HORZRES);
-    int h   = GetDeviceCaps(hdc, VERTRES);
+    int w = GetDeviceCaps(hdc, HORZRES);
+    int h = GetDeviceCaps(hdc, VERTRES);
     int bpp = GetDeviceCaps(hdc, PLANES) * GetDeviceCaps(hdc, BITSPIXEL);
     ReleaseDC(NULL, hdc);
 
     if (bpp <= 4 && w <= 800 && h <= 600)
-       bDisplaySafeModes = TRUE;
+        bDisplaySafeModes = TRUE;
 #endif
 
     pCurrElem = Head;
 
-    while (pCurrElem)
-    {
+    while (pCurrElem) {
 
         // If any of the following conditions are true, then we want to
         // remove the current mode.
 
 
         if (((pCurrElem->next) &&
-             (pCurrElem->value->dmBitsPerPel == pCurrElem->next->value->dmBitsPerPel) &&
-             (pCurrElem->value->dmPelsWidth  == pCurrElem->next->value->dmPelsWidth)  &&
+            (pCurrElem->value->dmBitsPerPel == pCurrElem->next->value->dmBitsPerPel) &&
+             (pCurrElem->value->dmPelsWidth == pCurrElem->next->value->dmPelsWidth) &&
              (pCurrElem->value->dmPelsHeight == pCurrElem->next->value->dmPelsHeight) &&
              (pCurrElem->value->dmDisplayFrequency == pCurrElem->next->value->dmDisplayFrequency))
-          ||
+            ||
             ((pCurrElem->value->dmBitsPerPel == 4) &&
-             (!bDisplay4BppModes || !(pCurrElem->value->dmFields & DM_POSITION)) &&
+            (!bDisplay4BppModes || !(pCurrElem->value->dmFields & DM_POSITION)) &&
              (EquivExists(pCurrElem)))
-          ||
+            ||
             (bDisplaySafeModes &&
-              (pCurrElem->value->dmPelsWidth * pCurrElem->value->dmPelsHeight *
-               pCurrElem->value->dmBitsPerPel) > 1024*768*8)
-          ||
+            (pCurrElem->value->dmPelsWidth * pCurrElem->value->dmPelsHeight *
+             pCurrElem->value->dmBitsPerPel) > 1024 * 768 * 8)
+            ||
             (pCurrElem->value->dmPelsHeight < 480)
-          ||
-            (pCurrElem->value->dmPelsWidth < 640))
-        {
+            ||
+            (pCurrElem->value->dmPelsWidth < 640)) {
             dup = pCurrElem;
 
-            if (pCurrElem == Head)
-            {
+            if (pCurrElem == Head) {
                 Head = pCurrElem->next;
-            }
-            else
-            {
+            } else {
                 pPrevElem->next = pCurrElem->next;
             }
 
@@ -381,9 +359,7 @@ void CList::Process()
 
             LocalFree(dup->value);
             LocalFree(dup);
-        }
-        else
-        {
+        } else {
             pPrevElem = pCurrElem;
             pCurrElem = pCurrElem->next;
         }
@@ -413,7 +389,7 @@ int CDEVMODEIDAT::Index(int i1, int i2) {
     return -1;
 }
 
-BOOL CDEVMODEIDAT::GetData(int iOrd, int *pi1, int *pi2) {
+BOOL CDEVMODEIDAT::GetData(int iOrd, int* pi1, int* pi2) {
     if (iOrd == 0) {
         *pi1 = this->iRepData1;
         *pi2 = this->iRepData2;
@@ -437,9 +413,9 @@ PCDEVMODEIDAT CDEVMODEIDAT::Insert(int i1, int i2) {
 
     while (1) {
 
-        if ( (pcdmiNext == NULL) ||
-             (pcdmiNext->iRepData1 > i1) ||
-             ((pcdmiNext->iRepData1 == i1) && (pcdmiNext->iRepData2 > i2)) ) {
+        if ((pcdmiNext == NULL) ||
+            (pcdmiNext->iRepData1 > i1) ||
+            ((pcdmiNext->iRepData1 == i1) && (pcdmiNext->iRepData2 > i2))) {
 
             break;
 
@@ -484,7 +460,7 @@ int CDEVMODEINDEX::MapRepresentationToOrdinal(int i1, int i2) {
     return pcdmiHead->Index(i1, i2);
 }
 
-BOOL CDEVMODEINDEX::MapOrdinalToRepresentation(int iOrd, int *pi1, int *pi2) {
+BOOL CDEVMODEINDEX::MapOrdinalToRepresentation(int iOrd, int* pi1, int* pi2) {
     if (pcdmiHead == NULL)
         return FALSE;
 
@@ -528,7 +504,7 @@ int CDEVMODEINDEX::AddIndex(int i1, int i2) {
 // an int for the one you want to remain the same.
 // (Rather PROLOGish, isn't it?)
 
-BOOL CDEVMODELST::FindClosestMode(int iRes, int *piClr, int *piFreq) {
+BOOL CDEVMODELST::FindClosestMode(int iRes, int* piClr, int* piFreq) {
     int iClr, iFreq;
 
     /*
@@ -540,7 +516,7 @@ BOOL CDEVMODELST::FindClosestMode(int iRes, int *piClr, int *piFreq) {
          * higher ones.
          */
         for (iFreq = *piFreq; iFreq >= 0; iFreq--) {
-            if(LookUp(iRes, iClr, iFreq)) {
+            if (LookUp(iRes, iClr, iFreq)) {
                 *piFreq = iFreq;
                 *piClr = iClr;
                 return TRUE;
@@ -548,8 +524,8 @@ BOOL CDEVMODELST::FindClosestMode(int iRes, int *piClr, int *piFreq) {
         }
 
         /* Couldn't find lower freq, try higher */
-        for (iFreq = *piFreq;  iFreq  < this->cFreq; iFreq++) {
-            if(LookUp(iRes, iClr, iFreq)) {
+        for (iFreq = *piFreq; iFreq < this->cFreq; iFreq++) {
+            if (LookUp(iRes, iClr, iFreq)) {
                 *piFreq = iFreq;
                 *piClr = iClr;
                 return TRUE;
@@ -566,7 +542,7 @@ BOOL CDEVMODELST::FindClosestMode(int iRes, int *piClr, int *piFreq) {
          * higher ones.
          */
         for (iFreq = *piFreq; iFreq >= 0; iFreq--) {
-            if(LookUp(iRes, iClr, iFreq)) {
+            if (LookUp(iRes, iClr, iFreq)) {
                 *piFreq = iFreq;
                 *piClr = iClr;
                 return TRUE;
@@ -574,7 +550,7 @@ BOOL CDEVMODELST::FindClosestMode(int iRes, int *piClr, int *piFreq) {
         }
 
         /* Couldn't find lower freq, try higher */
-        for (iFreq = *piFreq;  iFreq  < this->cFreq; iFreq++) {
+        for (iFreq = *piFreq; iFreq < this->cFreq; iFreq++) {
             if (LookUp(iRes, iClr, iFreq)) {
                 *piFreq = iFreq;
                 *piClr = iClr;
@@ -586,19 +562,19 @@ BOOL CDEVMODELST::FindClosestMode(int iRes, int *piClr, int *piFreq) {
     return FALSE;
 }
 
-BOOL CDEVMODELST::FindClosestMode(int *piRes, int iClr, int *piFreq ) {
+BOOL CDEVMODELST::FindClosestMode(int* piRes, int iClr, int* piFreq) {
     int iRes, iFreq;
 
     /*
      * Try lower resolutions until we find one that will work
      */
-    for(iRes = *piRes; iRes >= 0; iRes-- ) {
+    for (iRes = *piRes; iRes >= 0; iRes--) {
 
         /* Try lower frequencies first, incase the monitor can't handle
          * higher ones.
          */
-        for(iFreq = *piFreq; iFreq >= 0; iFreq-- ) {
-            if(LookUp(iRes, iClr, iFreq )) {
+        for (iFreq = *piFreq; iFreq >= 0; iFreq--) {
+            if (LookUp(iRes, iClr, iFreq)) {
                 *piFreq = iFreq;
                 *piRes = iRes;
                 return TRUE;
@@ -606,8 +582,8 @@ BOOL CDEVMODELST::FindClosestMode(int *piRes, int iClr, int *piFreq ) {
         }
 
         /* Couldn't find lower freq, try higher */
-        for(iFreq = *piFreq;  iFreq  < this->cFreq; iFreq++ ) {
-            if(LookUp(iRes, iClr, iFreq )) {
+        for (iFreq = *piFreq; iFreq < this->cFreq; iFreq++) {
+            if (LookUp(iRes, iClr, iFreq)) {
                 *piFreq = iFreq;
                 *piRes = iRes;
                 return TRUE;
@@ -619,12 +595,12 @@ BOOL CDEVMODELST::FindClosestMode(int *piRes, int iClr, int *piFreq ) {
     /*
      * Couldn't find a lower res mode, check for higher
      */
-    for(iRes = *piRes; iRes < this->cRes; iRes++ ) {
+    for (iRes = *piRes; iRes < this->cRes; iRes++) {
         /* Try lower frequencies first, incase the monitor can't handle
          * higher ones.
          */
-        for(iFreq = *piFreq; iFreq >= 0; iFreq-- ) {
-            if(LookUp(iRes, iClr, iFreq )) {
+        for (iFreq = *piFreq; iFreq >= 0; iFreq--) {
+            if (LookUp(iRes, iClr, iFreq)) {
                 *piFreq = iFreq;
                 *piRes = iRes;
                 return TRUE;
@@ -632,8 +608,8 @@ BOOL CDEVMODELST::FindClosestMode(int *piRes, int iClr, int *piFreq ) {
         }
 
         /* Couldn't find lower freq, try higher */
-        for(iFreq = *piFreq;  iFreq  < this->cFreq; iFreq++ ) {
-            if(LookUp(iRes, iClr, iFreq )) {
+        for (iFreq = *piFreq; iFreq < this->cFreq; iFreq++) {
+            if (LookUp(iRes, iClr, iFreq)) {
                 *piFreq = iFreq;
                 *piRes = iRes;
                 return TRUE;
@@ -644,19 +620,19 @@ BOOL CDEVMODELST::FindClosestMode(int *piRes, int iClr, int *piFreq ) {
     return FALSE;
 }
 
-BOOL CDEVMODELST::FindClosestMode(int *piRes, int *piClr, int iFreq ) {
+BOOL CDEVMODELST::FindClosestMode(int* piRes, int* piClr, int iFreq) {
     int iRes, iClr;
 
     /*
      * Try lower resolutions until we find one that will work
      */
-    for(iRes = *piRes; iRes >= 0; iRes-- ) {
+    for (iRes = *piRes; iRes >= 0; iRes--) {
 
         /* Try lower Colors first, incase the adaptor can't handle
          * higher ones.
          */
-        for(iClr = *piClr; iClr >= 0; iClr-- ) {
-            if(LookUp(iRes, iClr, iFreq )) {
+        for (iClr = *piClr; iClr >= 0; iClr--) {
+            if (LookUp(iRes, iClr, iFreq)) {
                 *piClr = iClr;
                 *piRes = iRes;
                 return TRUE;
@@ -664,8 +640,8 @@ BOOL CDEVMODELST::FindClosestMode(int *piRes, int *piClr, int iFreq ) {
         }
 
         /* Couldn't find lower color, try higher */
-        for(iClr = *piClr; iClr < this->cClr; iClr++ ) {
-            if(LookUp(iRes, iClr, iFreq )) {
+        for (iClr = *piClr; iClr < this->cClr; iClr++) {
+            if (LookUp(iRes, iClr, iFreq)) {
                 *piClr = iClr;
                 *piRes = iRes;
                 return TRUE;
@@ -677,12 +653,12 @@ BOOL CDEVMODELST::FindClosestMode(int *piRes, int *piClr, int iFreq ) {
     /*
      * Couldn't find a lower res mode, check for higher
      */
-    for(iRes = *piRes; iRes < this->cRes; iRes++ ) {
+    for (iRes = *piRes; iRes < this->cRes; iRes++) {
         /* Try lower colors first, incase the adaptor can't handle
          * higher ones.
          */
-        for(iClr = *piClr; iClr >= 0; iClr-- ) {
-            if(LookUp(iRes, iClr, iFreq )) {
+        for (iClr = *piClr; iClr >= 0; iClr--) {
+            if (LookUp(iRes, iClr, iFreq)) {
                 *piClr = iClr;
                 *piRes = iRes;
                 return TRUE;
@@ -690,8 +666,8 @@ BOOL CDEVMODELST::FindClosestMode(int *piRes, int *piClr, int iFreq ) {
         }
 
         /* Couldn't find lower color, try higher */
-        for(iClr = *piClr; iClr < this->cClr; iClr++ ) {
-            if(LookUp(iRes, iClr, iFreq )) {
+        for (iClr = *piClr; iClr < this->cClr; iClr++) {
+            if (LookUp(iRes, iClr, iFreq)) {
                 *piClr = iClr;
                 *piRes = iRes;
                 return TRUE;
@@ -711,8 +687,7 @@ BOOL CDEVMODELST::ReconstructModeMatrix()
     // If the cube is empty, return failiure.
 
 
-    if ((size = cRes * cClr * cFreq) == 0)
-    {
+    if ((size = cRes * cClr * cFreq) == 0) {
         WarnMsg(TEXT("ReconstructModeList Failed!!!!"), TEXT(""));
         return FALSE;
     }
@@ -724,7 +699,7 @@ BOOL CDEVMODELST::ReconstructModeMatrix()
 
     } else {
 
-        PCDEVMODE pcdm, *pArray;
+        PCDEVMODE pcdm, * pArray;
         LPDEVMODE lpdm;
         int iRes, iClr, iFreq;
 
@@ -737,7 +712,7 @@ BOOL CDEVMODELST::ReconstructModeMatrix()
             lpdm = pcdm->GetData();
 
             iRes = cdmiRes.MapRepresentationToOrdinal(lpdm->dmPelsWidth,
-                    lpdm->dmPelsHeight);
+                                                      lpdm->dmPelsHeight);
             iClr = cdmiClr.MapRepresentationToOrdinal(lpdm->dmBitsPerPel, 0);
             iFreq = cdmiFreq.MapRepresentationToOrdinal(lpdm->dmDisplayFrequency, 0);
 
@@ -771,10 +746,10 @@ BOOL CDEVMODELST::ReconstructModeMatrix()
 //  (I suppose I should have made this the constructor for the DEVMODELST
 //  class, but I wanted it to return a value).
 
-BOOL CDEVMODELST::BuildList(LPTSTR pszDevName, HWND hwnd )
+BOOL CDEVMODELST::BuildList(LPTSTR pszDevName, HWND hwnd)
 {
     BYTE devmode[sizeof(DEVMODE) + 0xFFFF];
-    LPDEVMODE pdevmode = (LPDEVMODE) devmode;
+    LPDEVMODE pdevmode = (LPDEVMODE)devmode;
     DWORD i;
     CList list;
 
@@ -790,22 +765,20 @@ BOOL CDEVMODELST::BuildList(LPTSTR pszDevName, HWND hwnd )
     // duplicate.
 
 
-    ZeroMemory(pdevmode,sizeof(DEVMODE));
+    ZeroMemory(pdevmode, sizeof(DEVMODE));
     pdevmode->dmSize = sizeof(DEVMODE);
     pdevmode->dmDriverExtra = 0xFFFF;
 
     i = 0;
 
-    while (EnumDisplaySettingsEx(pszDevName, i++, pdevmode, 0))
-    {
+    while (EnumDisplaySettingsEx(pszDevName, i++, pdevmode, 0)) {
         list.Insert(pdevmode);
         pdevmode->dmDriverExtra = 0xFFFF;
     }
 
     list.Process();
 
-    while (pdevmode = list.Pop())
-    {
+    while (pdevmode = list.Pop()) {
         AddDevMode(pdevmode);
     }
 
@@ -839,12 +812,11 @@ void CDEVMODELST::AddDevMode(LPDEVMODE lpdm)
 
     if ((lpdm->dmDisplayFrequency == 0) ||
         (lpdm->dmDisplayFlags & ~DMDISPLAYFLAGS_VALID) ||
-        (lpdm->dmFields & ~(DM_BITSPERPEL   |
-                            DM_PELSWIDTH    |
-                            DM_PELSHEIGHT   |
+        (lpdm->dmFields & ~(DM_BITSPERPEL |
+                            DM_PELSWIDTH |
+                            DM_PELSHEIGHT |
                             DM_DISPLAYFLAGS |
-                            DM_DISPLAYFREQUENCY)))
-    {
+                            DM_DISPLAYFREQUENCY))) {
         SetDriverBadData();
     }
 
@@ -878,7 +850,7 @@ void CDEVMODELST::AddDevMode(LPDEVMODE lpdm)
 
 // CREGVIDOBJ constructor
 
-CREGVIDOBJ::CREGVIDOBJ(LPTSTR pszDisplay):
+CREGVIDOBJ::CREGVIDOBJ(LPTSTR pszDisplay) :
     hkServiceReg(NULL), hkVideoRegR(NULL), hkVideoRegW(NULL), pszDrvName(NULL),
     pszKeyName(NULL), bdisablable(FALSE) {
 
@@ -910,7 +882,7 @@ CREGVIDOBJ::CREGVIDOBJ(LPTSTR pszDisplay):
                      SZ_VIDEOMAP,
                      0,
                      KEY_READ,
-                     &hkeyMap) !=  ERROR_SUCCESS) {
+                     &hkeyMap) != ERROR_SUCCESS) {
         return;
     }
 
@@ -1002,7 +974,7 @@ CREGVIDOBJ::CREGVIDOBJ(LPTSTR pszDisplay):
                          pszPath,
                          0,
                          KEY_READ,
-                         &hkeyDriver) ==  ERROR_SUCCESS) {
+                         &hkeyDriver) == ERROR_SUCCESS) {
 
 
             // parse the device map and open the registry.
@@ -1022,38 +994,38 @@ CREGVIDOBJ::CREGVIDOBJ(LPTSTR pszDisplay):
                 // extract the name, which will be of the form ...\driver.sys
 
 
-                {
+                                    {
 
-                    LPTSTR pszDriver, pszDriverEnd;
+                                        LPTSTR pszDriver, pszDriverEnd;
 
-                    pszDriver = szName;
-                    pszDriverEnd = pszDriver + lstrlen(pszDriver);
+                                        pszDriver = szName;
+                                        pszDriverEnd = pszDriver + lstrlen(pszDriver);
 
-                    while(pszDriverEnd != pszDriver &&
-                          *pszDriverEnd != TEXT('.')) {
-                        pszDriverEnd--;
-                    }
+                                        while (pszDriverEnd != pszDriver &&
+                                               *pszDriverEnd != TEXT('.')) {
+                                            pszDriverEnd--;
+                                        }
 
-                    *pszDriverEnd = UNICODE_NULL;
+                                        *pszDriverEnd = UNICODE_NULL;
 
-                    while(pszDriverEnd != pszDriver &&
-                          *pszDriverEnd != TEXT('\\')) {
-                        pszDriverEnd--;
-                    }
+                                        while (pszDriverEnd != pszDriver &&
+                                               *pszDriverEnd != TEXT('\\')) {
+                                            pszDriverEnd--;
+                                        }
 
-                    pszDriverEnd++;
-
-
-                    // If pszDriver and pszDriverEnd are different, we now
-                    // have the driver name.
+                                        pszDriverEnd++;
 
 
-                    if (pszDriverEnd > pszDriver) {
+                                        // If pszDriver and pszDriverEnd are different, we now
+                                        // have the driver name.
 
-                        pszName = pszDriverEnd;
 
-                    }
-                }
+                                        if (pszDriverEnd > pszDriver) {
+
+                                            pszName = pszDriverEnd;
+
+                                        }
+                                    }
             }
 
 
@@ -1081,7 +1053,7 @@ CREGVIDOBJ::CREGVIDOBJ(LPTSTR pszDisplay):
             RegCloseKey(hkeyDriver);
         }
 
-        while(pszEnd > pszPath && *pszEnd != TEXT('\\')) {
+        while (pszEnd > pszPath&&* pszEnd != TEXT('\\')) {
             pszEnd--;
         }
         pszEnd++;
@@ -1091,7 +1063,7 @@ CREGVIDOBJ::CREGVIDOBJ(LPTSTR pszDisplay):
 
 
         this->pszKeyName = (LPTSTR)LocalAlloc(LMEM_ZEROINIT,
-                                              (lstrlen(pszEnd) + 1) * sizeof(TCHAR));
+            (lstrlen(pszEnd) + 1) * sizeof(TCHAR));
 
         if (this->pszKeyName != NULL) {
 
@@ -1111,7 +1083,7 @@ CREGVIDOBJ::CREGVIDOBJ(LPTSTR pszDisplay):
         } else {
 
             this->pszDrvName = (LPTSTR)LocalAlloc(LMEM_ZEROINIT,
-                                                  (lstrlen(pszName) + 1) * sizeof(TCHAR));
+                (lstrlen(pszName) + 1) * sizeof(TCHAR));
 
             if (this->pszDrvName != NULL) {
 
@@ -1130,7 +1102,7 @@ CREGVIDOBJ::CREGVIDOBJ(LPTSTR pszDisplay):
                      pszPath,
                      0,
                      KEY_READ | KEY_WRITE,
-                     &hkServiceReg) !=  ERROR_SUCCESS) {
+                     &hkServiceReg) != ERROR_SUCCESS) {
 
         this->hkServiceReg = NULL;
         bdisablable = FALSE;
@@ -1232,7 +1204,7 @@ VOID CREGVIDOBJ::GetHardwareInformation(
                                     pKeyNames[i],
                                     NULL,
                                     &dwType,
-                                    (PUCHAR) (&mem),
+                                    (PUCHAR)(&mem),
                                     &cb) == ERROR_SUCCESS) {
 
 
@@ -1241,17 +1213,17 @@ VOID CREGVIDOBJ::GetHardwareInformation(
 
 
                     // Divide down to Ks
-                    mem =  mem >> 10;
+                    mem = mem >> 10;
 
                     // if a MB multiple, divide again.
 
                     if ((mem & 0x3FF) != 0) {
 
-                        psz = FmtSprint( MSG_SETTING_KB, mem );
+                        psz = FmtSprint(MSG_SETTING_KB, mem);
 
                     } else {
 
-                        psz = FmtSprint( MSG_SETTING_MB, mem >> 10 );
+                        psz = FmtSprint(MSG_SETTING_MB, mem >> 10);
 
                     }
                 }
@@ -1307,7 +1279,7 @@ VOID CREGVIDOBJ::GetHardwareInformation(
             }
         }
 
-        *(((LPTSTR *)pInfo) + i) = psz;
+        *(((LPTSTR*)pInfo) + i) = psz;
     }
 
 
@@ -1333,12 +1305,9 @@ BOOL CREGVIDOBJ::EnableDriver(BOOL Enable) {
     // actually try to disable other drivers
 
 
-    if (Enable)
-    {
+    if (Enable) {
         dw = SERVICE_SYSTEM_START;
-    }
-    else
-    {
+    } else {
         dw = SERVICE_DISABLED;
     }
 
@@ -1349,7 +1318,7 @@ BOOL CREGVIDOBJ::EnableDriver(BOOL Enable) {
                                TEXT("Start"),
                                NULL,
                                REG_DWORD,
-                               (LPBYTE) &dw,
+                               (LPBYTE)&dw,
                                sizeof(DWORD))) == ERROR_SUCCESS);
 
     } else {
@@ -1390,7 +1359,7 @@ BOOL CREGVIDOBJ::SetErrorControlNormal(void) {
                                TEXT("ErrorControl"),
                                NULL,
                                REG_DWORD,
-                               (LPBYTE) &dw,
+                               (LPBYTE)&dw,
                                sizeof(DWORD))) == ERROR_SUCCESS);
 
     } else {
@@ -1470,9 +1439,9 @@ LPTSTR CREGVIDOBJ::CloneDisplayFileNames(BOOL bPreprocess) {
                 tmppsz = psz;
                 cNumStrings = 0;
 
-                while(*tmppsz) {
+                while (*tmppsz) {
 
-                    while(*tmppsz++);
+                    while (*tmppsz++);
                     cNumStrings++;
 
                 }
@@ -1494,9 +1463,9 @@ LPTSTR CREGVIDOBJ::CloneDisplayFileNames(BOOL bPreprocess) {
 
 
             cb = lstrlen(this->GetMiniPort()) +
-                 cb +
-                 lstrlen(SZ_DOTSYS) +
-                 cNumStrings * (lstrlen(SZ_DOTDLL) + lstrlen(SZ_FILE_SEPARATOR));
+                cb +
+                lstrlen(SZ_DOTSYS) +
+                cNumStrings * (lstrlen(SZ_DOTDLL) + lstrlen(SZ_FILE_SEPARATOR));
 
 
             pszName = (LPTSTR)LocalAlloc(LMEM_ZEROINIT, cb * sizeof(TCHAR));
@@ -1550,15 +1519,15 @@ int CDIALOG::Dialog(HINSTANCE hmod, HWND hwndCallerParent, LPARAM lInitParam) {
 
 #if 0
     return DialogBoxParam(hmod, MAKEINTRESOURCE(this->iDlgResID),
-            this->hwndParent, (DLGPROC)::CDialogProc, (LONG)this);
+                          this->hwndParent, (DLGPROC)::CDialogProc, (LONG)this);
 #else
     {
-    int i;
+        int i;
 
-    i = DialogBoxParam(hmod, MAKEINTRESOURCE(this->iDlgResID),
-            this->hwndParent, (DLGPROC)::CDialogProc, (LONG)this);
-    GetLastError();
-    return i;
+        i = DialogBoxParam(hmod, MAKEINTRESOURCE(this->iDlgResID),
+                           this->hwndParent, (DLGPROC)::CDialogProc, (LONG)this);
+        GetLastError();
+        return i;
     }
 #endif
 }
@@ -1566,8 +1535,7 @@ int CDIALOG::Dialog(HINSTANCE hmod, HWND hwndCallerParent, LPARAM lInitParam) {
 #if RESIZE_PROBLEM
 LRESULT WINAPI MyProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (uMsg == WM_WINDOWPOSCHANGING)
-    {
+    if (uMsg == WM_WINDOWPOSCHANGING) {
         RECT  r;
         ULONG currHeight, newHeight;
         LPWINDOWPOS lpWinPos = (LPWINDOWPOS)lParam;
@@ -1577,25 +1545,24 @@ LRESULT WINAPI MyProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         currHeight = r.bottom - r.top;
         newHeight = lpWinPos->cy;
 
-        if ( (!(lpWinPos->flags & SWP_NOSIZE)) &&
-             (currHeight != newHeight)         &&
-             (newHeight < 350))
-        {
+        if ((!(lpWinPos->flags & SWP_NOSIZE)) &&
+            (currHeight != newHeight) &&
+            (newHeight < 350)) {
 #if DBG
             CHAR buffer[256];
 
             sprintf(buffer, "!! IMPORTANT !!\n\n"
-                            "We are trying to track down a bug in the system "
-                            "where occasionally this display applet has its size "
-                            "changed on the fly.  We think that is about to happen "
-                            "on your machine!  Please contact ErickS, or AndreVa.\n\n"
-                            "The current height is: %d\n"
-                            "The new height is: %d",
-                            currHeight,
-                            newHeight);
+                    "We are trying to track down a bug in the system "
+                    "where occasionally this display applet has its size "
+                    "changed on the fly.  We think that is about to happen "
+                    "on your machine!  Please contact ErickS, or AndreVa.\n\n"
+                    "The current height is: %d\n"
+                    "The new height is: %d",
+                    currHeight,
+                    newHeight);
 
             MessageBoxA(hwnd, buffer, "NOTE: Please contact ErickS!",
-                       MB_ICONSTOP | MB_OK);
+                        MB_ICONSTOP | MB_OK);
 
 #else
 
@@ -1610,9 +1577,7 @@ LRESULT WINAPI MyProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         return 0;
 
-    }
-    else
-    {
+    } else {
         return gOldProc(hwnd, uMsg, wParam, lParam);
     }
 }
@@ -1624,7 +1589,7 @@ LRESULT WINAPI MyProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 //  cracks the messages and dispatches them to the virtual message methods
 
 BOOL CDIALOG::WndProc(UINT msg, WPARAM wParam, LPARAM lParam) {
-    switch(msg) {
+    switch (msg) {
 
     case WM_INITDIALOG:
 
@@ -1634,9 +1599,8 @@ BOOL CDIALOG::WndProc(UINT msg, WPARAM wParam, LPARAM lParam) {
         // sure we only do this once!!
 
 
-        if (gOldProc == NULL)
-        {
-            gOldProc = (WNDPROC) GetWindowLong(this->hwndParent, GWL_WNDPROC);
+        if (gOldProc == NULL) {
+            gOldProc = (WNDPROC)GetWindowLong(this->hwndParent, GWL_WNDPROC);
             SetWindowLong(this->hwndParent, GWL_WNDPROC, (LONG)MyProc);
         }
 #endif
@@ -1645,14 +1609,14 @@ BOOL CDIALOG::WndProc(UINT msg, WPARAM wParam, LPARAM lParam) {
 
     case WM_COMMAND:
         return this->DoCommand((int)LOWORD(wParam), (HWND)lParam,
-                (int)HIWORD(wParam));
+            (int)HIWORD(wParam));
 
     case WM_NOTIFY:
-        return this->DoNotify((int)wParam, (NMHDR *)lParam, ((NMHDR *)lParam)->code );
+        return this->DoNotify((int)wParam, (NMHDR*)lParam, ((NMHDR*)lParam)->code);
 
     case WM_HSCROLL:
         return this->HScroll(GetDlgCtrlID((HWND)lParam), LOWORD(wParam),
-                HIWORD(wParam));
+                             HIWORD(wParam));
 
     case WM_PAINT:
         return this->Paint();
@@ -1667,8 +1631,7 @@ BOOL CDIALOG::WndProc(UINT msg, WPARAM wParam, LPARAM lParam) {
         // We should restore our parents original WndProc before returning...
 
 
-        if (gOldProc)
-        {
+        if (gOldProc) {
             SetWindowLong(this->hwndParent, GWL_WNDPROC, (LONG)gOldProc);
             gOldProc = NULL;
         }
@@ -1684,10 +1647,10 @@ BOOL CDIALOG::WndProc(UINT msg, WPARAM wParam, LPARAM lParam) {
         return this->SysColorChange();
 
     case WM_HELP:
-        return this->DoHelp( (LPHELPINFO) lParam );
+        return this->DoHelp((LPHELPINFO)lParam);
 
     case WM_CONTEXTMENU:
-        return this->DoContextMenu( (HWND)wParam, LOWORD(lParam), HIWORD(lParam) );
+        return this->DoContextMenu((HWND)wParam, LOWORD(lParam), HIWORD(lParam));
 
     default:
 
@@ -1695,15 +1658,15 @@ BOOL CDIALOG::WndProc(UINT msg, WPARAM wParam, LPARAM lParam) {
     }
 }
 
-BOOL CDIALOG::DoHelp( LPHELPINFO lphi ) {
+BOOL CDIALOG::DoHelp(LPHELPINFO lphi) {
 
-    WinHelp((HWND) lphi->hItemHandle, NULL, HELP_WM_HELP, (DWORD) g_aiSetHelpIds);
+    WinHelp((HWND)lphi->hItemHandle, NULL, HELP_WM_HELP, (DWORD)g_aiSetHelpIds);
     return TRUE;
 }
 
-BOOL CDIALOG::DoContextMenu( HWND hwnd, WORD xPos, WORD yPos ) {
+BOOL CDIALOG::DoContextMenu(HWND hwnd, WORD xPos, WORD yPos) {
 
-    WinHelp((HWND)hwnd, NULL, HELP_CONTEXTMENU, (DWORD) g_aiSetHelpIds);
+    WinHelp((HWND)hwnd, NULL, HELP_CONTEXTMENU, (DWORD)g_aiSetHelpIds);
     return TRUE;
 }
 
@@ -1727,7 +1690,7 @@ public:
     VOID CDLGMODELIST::RecurseList(PCDEVMODE pcdevCurrent);
 };
 
-typedef CDLGMODELIST *PCDLGMODELIST;
+typedef CDLGMODELIST* PCDLGMODELIST;
 
 CDLGMODELIST::CDLGMODELIST() {
     this->iDlgResID = DLG_SET_MODE_LIST;
@@ -1735,7 +1698,7 @@ CDLGMODELIST::CDLGMODELIST() {
 
 BOOL CDLGMODELIST::InitDlg(HWND hwndFocus) {
 
-    PCDEVMODE pcModeList = (*(PCDEVMODELST *)(this->lParam))->GetDevmodeList();
+    PCDEVMODE pcModeList = (*(PCDEVMODELST*)(this->lParam))->GetDevmodeList();
 
 
     // The first entry in the list is NULL, so ignore it.
@@ -1823,70 +1786,45 @@ VOID CDLGMODELIST::RecurseList(PCDEVMODE pcdevCurrent) {
         i = this->SendCtlMsg(ID_MODE_LIST, LB_ADDSTRING, 0, (LPARAM)pszMode);
     }
 #else
-
     i = this->SendCtlMsg(ID_MODE_LIST, LB_ADDSTRING, 0, (LPARAM)lpsz);
-
 #endif
 
     LocalFree(lpsz);
 
-
     // Save the devmode pointer in the data field of the list so we can
     // retrieve it when the user selects the entry.
-
-
     this->SendCtlMsg(ID_MODE_LIST, LB_SETITEMDATA, i, (LPARAM)lpdm);
 
     return;
 }
 
-BOOL CDLGMODELIST::DoCommand(int idControl, HWND hwndControl, int iNoteCode ) {
+
+BOOL CDLGMODELIST::DoCommand(int idControl, HWND hwndControl, int iNoteCode) {
 
     int iSel;
     LPDEVMODE lpdm;
 
-    switch(idControl ) {
-
+    switch (idControl) {
     case ID_MODE_LIST:
-
         if (iNoteCode != LBN_DBLCLK) {
             break;
         }
 
-
         // If we do get a double click, then fall through as an OK
-
-
     case IDOK:
-
-
         // get the selected driver id.
-
-
         iSel = this->SendCtlMsg(ID_MODE_LIST, LB_GETCURSEL, 0, 0);
-
-        if (iSel == LB_ERR ||
-            (lpdm = (LPDEVMODE) (this->SendCtlMsg(ID_MODE_LIST,
-                                                  LB_GETITEMDATA,
-                                                  iSel,
-                                                  0))) == NULL) {
-
+        if (iSel == LB_ERR || (lpdm = (LPDEVMODE)(this->SendCtlMsg(ID_MODE_LIST, LB_GETITEMDATA, iSel, 0))) == NULL) {
             lpdm = NULL;
-
         }
 
         EndDialog(this->hwnd, (int)lpdm);
-
         break;
-
     case IDCANCEL:
         EndDialog(this->hwnd, 0);
         break;
-
     default:
-
         return FALSE;
-
     }
 
     return TRUE;

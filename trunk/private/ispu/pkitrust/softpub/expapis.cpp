@@ -49,7 +49,7 @@ static const struct {
 #define NCASTORES (sizeof(rgCaStoreInfo)/sizeof(rgCaStoreInfo[0]))
 
 #define MAX_CHAIN_LEN   16
-typedef struct _CHAIN_INFO CHAIN_INFO, *PCHAIN_INFO;
+typedef struct _CHAIN_INFO CHAIN_INFO, * PCHAIN_INFO;
 struct _CHAIN_INFO {
     DWORD           cCert;
     PCCERT_CONTEXT  rgpCert[MAX_CHAIN_LEN];
@@ -61,22 +61,21 @@ struct _CHAIN_INFO {
 
 //  AuthCert allocation and free functions
 
-static void *ACAlloc(
+static void* ACAlloc(
     IN size_t cbBytes
-    )
+)
 {
-    void *pv;
-    pv = (void *)new BYTE[cbBytes];
+    void* pv;
+    pv = (void*)new BYTE[cbBytes];
     if (pv == NULL)
-       SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
     return pv;
 }
 static void ACFree(
-    IN void *pv
-    )
+    IN void* pv
+)
 {
-    if (pv)
-    {
+    if (pv) {
         delete pv;
     }
 }
@@ -87,28 +86,28 @@ static HRESULT GetAndIe30ClientAuthCertificates(HCERTSTORE hStore)
 {
     HRESULT hr = S_OK;
     LONG Status;
-    HKEY hKeyRoot   = NULL;
+    HKEY hKeyRoot = NULL;
     HKEY hKeyBucket = NULL;
-    HKEY hKeyTags   = NULL;
-    HKEY hKeyAux    = NULL;
+    HKEY hKeyTags = NULL;
+    HKEY hKeyAux = NULL;
 
     if (ERROR_SUCCESS != RegOpenKeyExA(
-            HKEY_CURRENT_USER,
-            SZIE30CERTCLIENTAUTH,
-            0,                  // dwReserved
-            KEY_READ,
-            &hKeyRoot
-            ))
+        HKEY_CURRENT_USER,
+        SZIE30CERTCLIENTAUTH,
+        0,                  // dwReserved
+        KEY_READ,
+        &hKeyRoot
+    ))
         return S_OK;
 
     // Copy any existing certificates
     if (ERROR_SUCCESS == RegOpenKeyExA(
-            hKeyRoot,
-            SZIE30CERTBUCKET,
-            0,                  // dwReserved
-            KEY_READ,
-            &hKeyBucket
-        )               &&
+        hKeyRoot,
+        SZIE30CERTBUCKET,
+        0,                  // dwReserved
+        KEY_READ,
+        &hKeyBucket
+    ) &&
 
         ERROR_SUCCESS == RegOpenKeyExA(
             hKeyRoot,
@@ -116,7 +115,7 @@ static HRESULT GetAndIe30ClientAuthCertificates(HCERTSTORE hStore)
             0,                  // dwReserved
             KEY_READ,
             &hKeyAux
-            )               &&
+        ) &&
 
         ERROR_SUCCESS == RegOpenKeyExA(
             hKeyRoot,
@@ -124,80 +123,80 @@ static HRESULT GetAndIe30ClientAuthCertificates(HCERTSTORE hStore)
             0,                  // dwReserved
             KEY_READ,
             &hKeyTags
-            )) {
+        )) {
 
-            DWORD   cValuesCert, cchMaxNameCert, cbMaxDataCert;
-            DWORD   cValuesTag, cchMaxNameTag, cbMaxDataTag;
-            DWORD   cValuesAux, cchMaxNameAux, cbMaxDataAux;
-            LPSTR   szName = NULL;
-            BYTE *pbDataCert = NULL;
-            BYTE *pbDataAux = NULL;
-            BYTE *pbDataTag = NULL;
+        DWORD   cValuesCert, cchMaxNameCert, cbMaxDataCert;
+        DWORD   cValuesTag, cchMaxNameTag, cbMaxDataTag;
+        DWORD   cValuesAux, cchMaxNameAux, cbMaxDataAux;
+        LPSTR   szName = NULL;
+        BYTE* pbDataCert = NULL;
+        BYTE* pbDataAux = NULL;
+        BYTE* pbDataTag = NULL;
 
 
-            // see how many and how big the registry is
-            if (ERROR_SUCCESS != RegQueryInfoKey(
-                        hKeyBucket,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        &cValuesCert,
-                        &cchMaxNameCert,
-                        &cbMaxDataCert,
-                        NULL,
-                        NULL
-                        )           ||
-                ERROR_SUCCESS != RegQueryInfoKey(
-                        hKeyTags,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        &cValuesTag,
-                        &cchMaxNameTag,
-                        &cbMaxDataTag,
-                        NULL,
-                        NULL
-                        )           ||
-                ERROR_SUCCESS != RegQueryInfoKey(
-                        hKeyAux,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        &cValuesAux,
-                        &cchMaxNameAux,
-                        &cbMaxDataAux,
-                        NULL,
-                        NULL
-                        ))
-                    hr = SignError();
-            else {
-                // allocate the memory needed to read the reg
-                szName = (LPSTR) HEAPALLOC(cchMaxNameCert + 1);
-                pbDataCert = (BYTE *) HEAPALLOC(cbMaxDataCert);
-                pbDataTag = (BYTE *) HEAPALLOC(cbMaxDataTag);
-                pbDataAux = (BYTE *) HEAPALLOC(cbMaxDataAux);
+        // see how many and how big the registry is
+        if (ERROR_SUCCESS != RegQueryInfoKey(
+            hKeyBucket,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            &cValuesCert,
+            &cchMaxNameCert,
+            &cbMaxDataCert,
+            NULL,
+            NULL
+        ) ||
+            ERROR_SUCCESS != RegQueryInfoKey(
+                hKeyTags,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                &cValuesTag,
+                &cchMaxNameTag,
+                &cbMaxDataTag,
+                NULL,
+                NULL
+            ) ||
+            ERROR_SUCCESS != RegQueryInfoKey(
+                hKeyAux,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                &cValuesAux,
+                &cchMaxNameAux,
+                &cbMaxDataAux,
+                NULL,
+                NULL
+            ))
+            hr = SignError();
+        else {
+            // allocate the memory needed to read the reg
+            szName = (LPSTR)HEAPALLOC(cchMaxNameCert + 1);
+            pbDataCert = (BYTE*)HEAPALLOC(cbMaxDataCert);
+            pbDataTag = (BYTE*)HEAPALLOC(cbMaxDataTag);
+            pbDataAux = (BYTE*)HEAPALLOC(cbMaxDataAux);
 
-                if (NULL == szName      ||
-                    NULL == pbDataCert  ||
-                    NULL == pbDataAux   ||
-                    NULL == pbDataTag   )
-                    hr = E_OUTOFMEMORY;
-            }
+            if (NULL == szName ||
+                NULL == pbDataCert ||
+                NULL == pbDataAux ||
+                NULL == pbDataTag)
+                hr = E_OUTOFMEMORY;
+        }
 
         // enum the registry getting certs
-        for (DWORD i = 0; SUCCEEDED(hr) && i < cValuesCert; i++ ) {
+        for (DWORD i = 0; SUCCEEDED(hr) && i < cValuesCert; i++) {
 
             DWORD dwType;
-            BYTE *  pb;
+            BYTE* pb;
             CRYPT_KEY_PROV_INFO   keyInfo;
             DWORD cchName = cchMaxNameCert + 1;
             DWORD cbDataCert = cbMaxDataCert;
@@ -221,33 +220,33 @@ static HRESULT GetAndIe30ClientAuthCertificates(HCERTSTORE hStore)
                 &dwType,
                 pbDataCert,
                 &cbDataCert
-                ) == ERROR_SUCCESS      &&
+            ) == ERROR_SUCCESS &&
 
-                dwType == REG_BINARY    &&
+                dwType == REG_BINARY &&
 
-            // get the cert context
-            (pCertContxt = CertCreateCertificateContext(
-                X509_ASN_ENCODING,
-                pbDataCert,
-                cbDataCert)) != NULL        &&
+                // get the cert context
+                (pCertContxt = CertCreateCertificateContext(
+                    X509_ASN_ENCODING,
+                    pbDataCert,
+                    cbDataCert)) != NULL &&
 
-            // get the tag
-            RegQueryValueExA(
-                hKeyTags,
-                szName,
-                NULL,
-                &dwType,
-                pbDataTag,
-                &cbDataTag) == ERROR_SUCCESS    &&
+                // get the tag
+                RegQueryValueExA(
+                    hKeyTags,
+                    szName,
+                    NULL,
+                    &dwType,
+                    pbDataTag,
+                    &cbDataTag) == ERROR_SUCCESS &&
 
-            // get the aux info
-            RegQueryValueExA(
-                hKeyAux,
-                (LPTSTR) pbDataTag,
-                NULL,
-                &dwType,
-                pbDataAux,
-                &cbDataAux) == ERROR_SUCCESS ) {
+                // get the aux info
+                RegQueryValueExA(
+                    hKeyAux,
+                    (LPTSTR)pbDataTag,
+                    NULL,
+                    &dwType,
+                    pbDataAux,
+                    &cbDataAux) == ERROR_SUCCESS) {
 
                 // aux info is
                 // wszPurpose
@@ -262,41 +261,41 @@ static HRESULT GetAndIe30ClientAuthCertificates(HCERTSTORE hStore)
                 memset(&keyInfo, 0, sizeof(CRYPT_KEY_PROV_INFO));
 
                 // skip purpose, should be client auth
-                pb += (lstrlenW((LPWSTR) pb) + 1) * sizeof(WCHAR);
+                pb += (lstrlenW((LPWSTR)pb) + 1) * sizeof(WCHAR);
 
                 // get the provider
-                keyInfo.pwszProvName = (LPWSTR) pb;
-                pb += (lstrlenW((LPWSTR) pb) + 1) * sizeof(WCHAR);
+                keyInfo.pwszProvName = (LPWSTR)pb;
+                pb += (lstrlenW((LPWSTR)pb) + 1) * sizeof(WCHAR);
 
                 // get the container name
-                keyInfo.pwszContainerName = (LPWSTR) pb;
-                pb += (lstrlenW((LPWSTR) pb) + 1) * sizeof(WCHAR);
+                keyInfo.pwszContainerName = (LPWSTR)pb;
+                pb += (lstrlenW((LPWSTR)pb) + 1) * sizeof(WCHAR);
 
                 // skip filename, should be '\0'
-                pb += (lstrlenW((LPWSTR) pb) + 1) * sizeof(WCHAR);
+                pb += (lstrlenW((LPWSTR)pb) + 1) * sizeof(WCHAR);
 
                 // skip credential, don't really know what it is?
-                pb += (lstrlenW((LPWSTR) pb) + 1) * sizeof(WCHAR);
+                pb += (lstrlenW((LPWSTR)pb) + 1) * sizeof(WCHAR);
 
                 // get the provider type
-                keyInfo.dwProvType = *((DWORD *) pb);
+                keyInfo.dwProvType = *((DWORD*)pb);
                 pb += sizeof(DWORD);
 
                 // get the key spec
-                keyInfo.dwKeySpec  = *((DWORD *) pb);
+                keyInfo.dwKeySpec = *((DWORD*)pb);
 
                 // add the property to the certificate
-                if( !CertSetCertificateContextProperty(
+                if (!CertSetCertificateContextProperty(
                     pCertContxt,
                     CERT_KEY_PROV_INFO_PROP_ID,
                     0,
-                    &keyInfo)           ||
+                    &keyInfo) ||
 
-                !CertAddCertificateContextToStore(
-                    hStore,
-                    pCertContxt,
-                    CERT_STORE_ADD_USE_EXISTING,
-                    NULL                            // ppStoreContext
+                    !CertAddCertificateContextToStore(
+                        hStore,
+                        pCertContxt,
+                        CERT_STORE_ADD_USE_EXISTING,
+                        NULL                            // ppStoreContext
                     )) {
 
                     MessageBox(
@@ -306,11 +305,11 @@ static HRESULT GetAndIe30ClientAuthCertificates(HCERTSTORE hStore)
                         MB_OK);
 
 
-                   hr = SignError();
+                    hr = SignError();
                 }
             }
 
-            if(pCertContxt != NULL)
+            if (pCertContxt != NULL)
                 CertFreeCertificateContext(pCertContxt);
         }
 
@@ -318,20 +317,20 @@ static HRESULT GetAndIe30ClientAuthCertificates(HCERTSTORE hStore)
             HEAPFREE(szName);
         if (pbDataCert)
             HEAPFREE(pbDataCert);
-        if(pbDataAux)
+        if (pbDataAux)
             HEAPFREE(pbDataAux);
-        if(pbDataTag)
+        if (pbDataTag)
             HEAPFREE(pbDataTag);
     }
 
 
-    if(hKeyRoot != NULL)
+    if (hKeyRoot != NULL)
         RegCloseKey(hKeyRoot);
-    if(hKeyBucket != NULL)
+    if (hKeyBucket != NULL)
         RegCloseKey(hKeyBucket);
-    if(hKeyTags != NULL)
+    if (hKeyTags != NULL)
         RegCloseKey(hKeyTags);
-    if(hKeyAux != NULL)
+    if (hKeyAux != NULL)
         RegCloseKey(hKeyAux);
     if (FAILED(hr))
         return hr;
@@ -341,18 +340,18 @@ static HRESULT GetAndIe30ClientAuthCertificates(HCERTSTORE hStore)
 
 
 // Return List is Null terminated
-static HCERTSTORE * GetMyStoreList()
+static HCERTSTORE* GetMyStoreList()
 {
     int i;
-    HCERTSTORE *phStoreList;
-    if (NULL == (phStoreList = (HCERTSTORE *) ACAlloc(
-            sizeof(HCERTSTORE) * (NMYSTORES + 1))))
+    HCERTSTORE* phStoreList;
+    if (NULL == (phStoreList = (HCERTSTORE*)ACAlloc(
+        sizeof(HCERTSTORE) * (NMYSTORES + 1))))
         return NULL;
     memset(phStoreList, 0, sizeof(HCERTSTORE) * (NMYSTORES + 1));
     for (i = 0; i < NMYSTORES; i++) {
-    if (NULL == (phStoreList[i] = CertOpenSystemStore(
-        NULL,
-                rgpszMyStore[i])))
+        if (NULL == (phStoreList[i] = CertOpenSystemStore(
+            NULL,
+            rgpszMyStore[i])))
             goto ErrorReturn;
     }
     goto CommonReturn;
@@ -370,13 +369,13 @@ CommonReturn:
     return phStoreList;
 }
 
-static HCERTSTORE * GetCaStoreList()
+static HCERTSTORE* GetCaStoreList()
 {
     int i;
     int cStore;
-    HCERTSTORE *phStoreList;
-    if (NULL == (phStoreList = (HCERTSTORE *) ACAlloc(
-            sizeof(HCERTSTORE) * (NCASTORES + 1))))
+    HCERTSTORE* phStoreList;
+    if (NULL == (phStoreList = (HCERTSTORE*)ACAlloc(
+        sizeof(HCERTSTORE) * (NCASTORES + 1))))
         return NULL;
     memset(phStoreList, 0, sizeof(HCERTSTORE) * (NCASTORES + 1));
 
@@ -386,12 +385,12 @@ static HCERTSTORE * GetCaStoreList()
 
         dwFlags = rgCaStoreInfo[i].dwFlags | CERT_STORE_READONLY_FLAG;
         if (phStoreList[cStore] = CertOpenStore(
-                CERT_STORE_PROV_SYSTEM_A,
-                0,                          // dwEncodingType
-                0,                          // hCryptProv
-                dwFlags,
-                (const void *) rgCaStoreInfo[i].pszStore
-                ))
+            CERT_STORE_PROV_SYSTEM_A,
+            0,                          // dwEncodingType
+            0,                          // hCryptProv
+            dwFlags,
+            (const void*)rgCaStoreInfo[i].pszStore
+        ))
             cStore++;
     }
     return phStoreList;
@@ -402,9 +401,9 @@ static HCERTSTORE * GetCaStoreList()
 // set to NULL.
 static BOOL GetIssuer(
     IN PCCERT_CONTEXT pSubject,
-    IN HCERTSTORE *phCaStoreList,
-    OUT PCCERT_CONTEXT *ppIssuer
-    )
+    IN HCERTSTORE* phCaStoreList,
+    OUT PCCERT_CONTEXT* ppIssuer
+)
 {
     BOOL fResult = FALSE;
     PCCERT_CONTEXT pIssuer = NULL;
@@ -416,7 +415,7 @@ static BOOL GetIssuer(
             pSubject,
             NULL,       // pPrevIssuer,
             &dwFlags
-            );
+        );
         if (pIssuer || GetLastError() == CRYPT_E_SELF_SIGNED) {
             fResult = TRUE;
             break;
@@ -436,17 +435,17 @@ static BOOL GetIssuer(
 
 static PCHAIN_INFO CreateChainInfo(
     IN PCCERT_CONTEXT pCert,
-    IN BYTE *pbEncodedIssuerName,
+    IN BYTE* pbEncodedIssuerName,
     IN DWORD cbEncodedIssuerName,
-    IN HCERTSTORE *phCaStoreList,
-    IN HCERTSTORE *phMyStoreList
-    )
+    IN HCERTSTORE* phCaStoreList,
+    IN HCERTSTORE* phMyStoreList
+)
 {
     BOOL fIssuerMatch = FALSE;
     DWORD cCert = 1;
     DWORD cbCert = 0;
     PCHAIN_INFO pChainInfo;
-    if (NULL == (pChainInfo = (PCHAIN_INFO) ACAlloc(sizeof(CHAIN_INFO))))
+    if (NULL == (pChainInfo = (PCHAIN_INFO)ACAlloc(sizeof(CHAIN_INFO))))
         return NULL;
     memset(pChainInfo, 0, sizeof(CHAIN_INFO));
     pChainInfo->rgpCert[0] = CertDuplicateCertificateContext(pCert);
@@ -460,16 +459,16 @@ static PCHAIN_INFO CreateChainInfo(
         if (!fIssuerMatch) {
             if (cbEncodedIssuerName == 0 ||
                 (cbEncodedIssuerName == pCert->pCertInfo->Issuer.cbData &&
-                    memcmp(pbEncodedIssuerName,
+                 memcmp(pbEncodedIssuerName,
                         pCert->pCertInfo->Issuer.pbData,
                         cbEncodedIssuerName) == 0))
                 fIssuerMatch = TRUE;
         }
         if (GetIssuer(pCert, phCaStoreList, &pIssuer) ||
-                GetIssuer(pCert, phMyStoreList, &pIssuer)) {
+            GetIssuer(pCert, phMyStoreList, &pIssuer)) {
             pCert = pIssuer;
             if (pCert) {
-                assert (cCert < MAX_CHAIN_LEN);
+                assert(cCert < MAX_CHAIN_LEN);
                 if (cCert < MAX_CHAIN_LEN)
                     pChainInfo->rgpCert[cCert++] = pCert;
                 else {
@@ -479,8 +478,7 @@ static PCHAIN_INFO CreateChainInfo(
             }
             // else
             //  Self-signed
-        }
-        else
+        } else
             pCert = NULL;
     }
 
@@ -504,8 +502,8 @@ static PCHAIN_INFO CreateChainInfo(
 static BOOL CheckKeyProvInfo(
     IN PCCERT_CONTEXT pCert,
     IN DWORD dwKeySpec,
-    OUT DWORD *pcbKeyProvInfo
-    )
+    OUT DWORD* pcbKeyProvInfo
+)
 {
     BOOL fResult = FALSE;
     HCRYPTPROV hCryptProv = 0;
@@ -521,27 +519,27 @@ static BOOL CheckKeyProvInfo(
         CERT_KEY_PROV_INFO_PROP_ID,
         NULL,                           // pvData
         &cbKeyProvInfo
-        );
+    );
     if (cbKeyProvInfo) {
         if (dwKeySpec == 0)
             fResult = TRUE;
         else {
             DWORD dwIdx;
-            if (NULL == (pKeyProvInfo = (PCRYPT_KEY_PROV_INFO) ACAlloc(cbKeyProvInfo)))
+            if (NULL == (pKeyProvInfo = (PCRYPT_KEY_PROV_INFO)ACAlloc(cbKeyProvInfo)))
                 goto CommonReturn;
             if (!CertGetCertificateContextProperty(
-                    pCert,
-                    CERT_KEY_PROV_INFO_PROP_ID,
-                    pKeyProvInfo,
-                    &cbKeyProvInfo
-                    )) goto CommonReturn;
+                pCert,
+                CERT_KEY_PROV_INFO_PROP_ID,
+                pKeyProvInfo,
+                &cbKeyProvInfo
+            )) goto CommonReturn;
             if (!CryptAcquireContextU(
-                    &hCryptProv,
-                    pKeyProvInfo->pwszContainerName,
-                    pKeyProvInfo->pwszProvName,
-                    pKeyProvInfo->dwProvType,
-                    pKeyProvInfo->dwFlags & ~CERT_SET_KEY_PROV_HANDLE_PROP_ID
-                    )) {
+                &hCryptProv,
+                pKeyProvInfo->pwszContainerName,
+                pKeyProvInfo->pwszProvName,
+                pKeyProvInfo->dwProvType,
+                pKeyProvInfo->dwFlags & ~CERT_SET_KEY_PROV_HANDLE_PROP_ID
+            )) {
                 hCryptProv = NULL;
                 goto CommonReturn;
             }
@@ -549,11 +547,11 @@ static BOOL CheckKeyProvInfo(
                 PCRYPT_KEY_PROV_PARAM pKeyProvParam =
                     &pKeyProvInfo->rgProvParam[dwIdx];
                 if (!CryptSetProvParam(
-                        hCryptProv,
-                        pKeyProvParam->dwParam,
-                        pKeyProvParam->pbData,
-                        pKeyProvParam->dwFlags
-                        )) goto CommonReturn;
+                    hCryptProv,
+                    pKeyProvParam->dwParam,
+                    pKeyProvParam->pbData,
+                    pKeyProvParam->dwFlags
+                )) goto CommonReturn;
             }
 
             // Get public key to compare certificate with
@@ -564,22 +562,22 @@ static BOOL CheckKeyProvInfo(
                 pCert->dwCertEncodingType,
                 NULL,               // pPubKeyInfo
                 &cbPubKeyInfo
-                );
+            );
             if (cbPubKeyInfo == 0) goto CommonReturn;
-            if (NULL == (pPubKeyInfo = (PCERT_PUBLIC_KEY_INFO) ACAlloc(
-                    cbPubKeyInfo)))
+            if (NULL == (pPubKeyInfo = (PCERT_PUBLIC_KEY_INFO)ACAlloc(
+                cbPubKeyInfo)))
                 goto CommonReturn;
             if (!CryptExportPublicKeyInfo(
-                    hCryptProv,
-                    dwKeySpec,
-                    pCert->dwCertEncodingType,
-                    pPubKeyInfo,
-                    &cbPubKeyInfo
-                    )) goto CommonReturn;
+                hCryptProv,
+                dwKeySpec,
+                pCert->dwCertEncodingType,
+                pPubKeyInfo,
+                &cbPubKeyInfo
+            )) goto CommonReturn;
             fResult = CertComparePublicKeyInfo(
-                    pCert->dwCertEncodingType,
-                    &pCert->pCertInfo->SubjectPublicKeyInfo,
-                    pPubKeyInfo);
+                pCert->dwCertEncodingType,
+                &pCert->pCertInfo->SubjectPublicKeyInfo,
+                pPubKeyInfo);
         }
     }
 CommonReturn:
@@ -608,20 +606,20 @@ HRESULT
 WINAPI
 FindCertsByIssuer(
     OUT PCERT_CHAIN pCertChains,
-    IN OUT DWORD *pcbCertChains,
-    OUT DWORD *pcCertChains,        // count of certificates chains returned
+    IN OUT DWORD* pcbCertChains,
+    OUT DWORD* pcCertChains,        // count of certificates chains returned
     IN BYTE* pbEncodedIssuerName,   // DER encoded issuer name
     IN DWORD cbEncodedIssuerName,   // count in bytes of encoded issuer name
     IN LPCWSTR pwszPurpose,         // "ClientAuth" or "CodeSigning"
     IN DWORD dwKeySpec              // only return signers supporting this
                                     // keyspec
 
-    )
+)
 {
     HRESULT hr;
-    HCERTSTORE *phMyStoreList = NULL;
-    HCERTSTORE *phCaStoreList = NULL;
-    HCERTSTORE *phStore;
+    HCERTSTORE* phMyStoreList = NULL;
+    HCERTSTORE* phCaStoreList = NULL;
+    HCERTSTORE* phStore;
     HCERTSTORE hStore;
 
     DWORD cChain = 0;
@@ -634,13 +632,13 @@ FindCertsByIssuer(
     // open the IE30 store
 
     if (NULL != (hStore = CertOpenSystemStore(
-    NULL,
-    IE30CONVERTEDSTORE))) {
+        NULL,
+        IE30CONVERTEDSTORE))) {
 
-    // don't care about errors, and we don't
-    // want to delete the old store just yet.
-    GetAndIe30ClientAuthCertificates(hStore);
-    CertCloseStore(hStore, 0);
+        // don't care about errors, and we don't
+        // want to delete the old store just yet.
+        GetAndIe30ClientAuthCertificates(hStore);
+        CertCloseStore(hStore, 0);
     }
 
 
@@ -664,12 +662,12 @@ FindCertsByIssuer(
                 // of any cert in the chain.
                 PCHAIN_INFO pChainInfo;
                 if (pChainInfo = CreateChainInfo(
-                        pCert,
-                        pbEncodedIssuerName,
-                        cbEncodedIssuerName,
-                        phCaStoreList,
-                        phMyStoreList
-                        )) {
+                    pCert,
+                    pbEncodedIssuerName,
+                    cbEncodedIssuerName,
+                    phCaStoreList,
+                    phMyStoreList
+                )) {
                     // Add to list of chains
                     pChainInfo->pNext = pChainInfoHead;
                     pChainInfoHead = pChainInfo;
@@ -717,19 +715,19 @@ FindCertsByIssuer(
 
         PCERT_CHAIN pOutChain;
         PCERT_BLOB pCertBlob;
-        BYTE *pbExtra;
+        BYTE* pbExtra;
         PCHAIN_INFO pChainInfo;
 
         pOutChain = pCertChains;
-        pCertBlob = (PCERT_BLOB) (((BYTE *) pOutChain) +
-            sizeof(CERT_CHAIN) * cChain);
-        pbExtra = ((BYTE *) pCertBlob) + sizeof(CERT_BLOB) * cTotalCert;
+        pCertBlob = (PCERT_BLOB)(((BYTE*)pOutChain) +
+                                 sizeof(CERT_CHAIN) * cChain);
+        pbExtra = ((BYTE*)pCertBlob) + sizeof(CERT_BLOB) * cTotalCert;
         pChainInfo = pChainInfoHead;
-        for ( ;  pChainInfo != NULL;
-                                pChainInfo = pChainInfo->pNext, pOutChain++) {
+        for (;  pChainInfo != NULL;
+             pChainInfo = pChainInfo->pNext, pOutChain++) {
             DWORD cb;
             DWORD cCert = pChainInfo->cCert;
-            PCCERT_CONTEXT *ppCert = pChainInfo->rgpCert;
+            PCCERT_CONTEXT* ppCert = pChainInfo->rgpCert;
 
             pOutChain->cCerts = cCert;
             pOutChain->certs = pCertBlob;
@@ -738,16 +736,16 @@ FindCertsByIssuer(
             assert(cbExtra >= 0);
             if (cbExtra < 0) goto UnexpectedError;
             if (!CertGetCertificateContextProperty(
-                    *ppCert,
-                    CERT_KEY_PROV_INFO_PROP_ID,
-                    pbExtra,
-                    &cb
-                    ))
+                *ppCert,
+                CERT_KEY_PROV_INFO_PROP_ID,
+                pbExtra,
+                &cb
+            ))
                 goto UnexpectedError;
-            pOutChain->keyLocatorInfo = * ((PCRYPT_KEY_PROV_INFO) pbExtra);
+            pOutChain->keyLocatorInfo = *((PCRYPT_KEY_PROV_INFO)pbExtra);
             pbExtra += pChainInfo->cbKeyProvInfo;
 
-            for ( ; cCert > 0; cCert--, ppCert++, pCertBlob++) {
+            for (; cCert > 0; cCert--, ppCert++, pCertBlob++) {
                 cb = (*ppCert)->cbCertEncoded;
                 cbExtra -= ALIGN_LEN(cb);
                 assert(cbExtra >= 0);
@@ -760,9 +758,9 @@ FindCertsByIssuer(
             }
         }
         assert(cbExtra == 0);
-        assert(pCertBlob == (PCERT_BLOB) ((BYTE *) pCertChains +
-            sizeof(CERT_CHAIN) * cChain +
-            sizeof(CERT_BLOB) * cTotalCert));
+        assert(pCertBlob == (PCERT_BLOB)((BYTE*)pCertChains +
+                                         sizeof(CERT_CHAIN) * cChain +
+                                         sizeof(CERT_BLOB) * cTotalCert));
     }
 
     hr = S_OK;

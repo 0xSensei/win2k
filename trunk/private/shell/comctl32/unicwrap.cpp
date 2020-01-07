@@ -25,9 +25,8 @@ int UnicodeFromMbcs(LPWSTR pwstr, int cwch, LPCSTR pstr, int cch = -1);
 //  Synopsis:   Frees string if alloc'd and initializes to NULL.
 void CConvertStr::Free()
 {
-    if (_pstr != _ach && HIWORD64(_pstr) != 0)
-    {
-        delete [] _pstr;
+    if (_pstr != _ach && HIWORD64(_pstr) != 0) {
+        delete[] _pstr;
     }
 
     _pstr = NULL;
@@ -39,9 +38,8 @@ void CConvertStr::Free()
 //  Synopsis:   Frees string if alloc'd and initializes to NULL.
 void CConvertStrW::Free()
 {
-    if (_pwstr != _awch && HIWORD64(_pwstr) != 0)
-    {
-        delete [] _pwstr;
+    if (_pwstr != _awch && HIWORD64(_pwstr) != 0) {
+        delete[] _pwstr;
     }
 
     _pwstr = NULL;
@@ -71,9 +69,8 @@ void CStrInW::Init(LPCSTR pstr, int cch)
     _cwchLen = 0;
 
     // Check if string is NULL or an atom.
-    if (HIWORD64(pstr) == 0)
-    {
-        _pwstr = (LPWSTR) pstr;
+    if (HIWORD64(pstr) == 0) {
+        _pwstr = (LPWSTR)pstr;
         return;
     }
 
@@ -85,9 +82,8 @@ void CStrInW::Init(LPCSTR pstr, int cch)
 
     _cwchLen = MultiByteToWideChar(CP_ACP, 0, pstr, cch, _awch, ARRAYSIZE(_awch));
 
-    if (_cwchLen > 0)
-    {
-        if(_awch[_cwchLen-1] == 0)
+    if (_cwchLen > 0) {
+        if (_awch[_cwchLen - 1] == 0)
             _cwchLen--;                // account for terminator
         _pwstr = _awch;
         return;
@@ -97,12 +93,11 @@ void CStrInW::Init(LPCSTR pstr, int cch)
     // Alloc space on heap for buffer.
 
 
-    cchBufReq = MultiByteToWideChar( CP_ACP, 0, pstr, cch, NULL, 0 );
+    cchBufReq = MultiByteToWideChar(CP_ACP, 0, pstr, cch, NULL, 0);
 
     ASSERT(cchBufReq > 0);
     _pwstr = new WCHAR[cchBufReq];
-    if (!_pwstr)
-    {
+    if (!_pwstr) {
         // On failure, the argument will point to the empty string.
         _awch[0] = 0;
         _pwstr = _awch;
@@ -110,7 +105,7 @@ void CStrInW::Init(LPCSTR pstr, int cch)
     }
 
     ASSERT(HIWORD64(_pwstr));
-    _cwchLen = -1 + MultiByteToWideChar(CP_ACP, 0, pstr, cch, _pwstr, cchBufReq );
+    _cwchLen = -1 + MultiByteToWideChar(CP_ACP, 0, pstr, cch, _pwstr, cchBufReq);
     ASSERT(_cwchLen >= 0);
 }
 
@@ -163,14 +158,12 @@ void CStrIn::Init(LPCWSTR pwstr, int cwch)
     _cchLen = 0;
 
     // Check if string is NULL or an atom.
-    if (HIWORD64(pwstr) == 0)
-    {
-        _pstr = (LPSTR) pwstr;
+    if (HIWORD64(pwstr) == 0) {
+        _pstr = (LPSTR)pwstr;
         return;
     }
 
-    if ( cwch == 0 )
-    {
+    if (cwch == 0) {
         *_ach = '\0';
         _pstr = _ach;
         return;
@@ -182,9 +175,8 @@ void CStrIn::Init(LPCWSTR pwstr, int cwch)
 
 
     _cchLen = WideCharToMultiByte(_uCP, 0, pwstr, cwch, _ach, ARRAYSIZE(_ach), NULL, NULL);
-    if (_cchLen > 0)
-    {
-        if (_ach[_cchLen-1]==0) _cchLen--;          // account for terminator
+    if (_cchLen > 0) {
+        if (_ach[_cchLen - 1] == 0) _cchLen--;          // account for terminator
         _pstr = _ach;
         return;
     }
@@ -194,8 +186,7 @@ void CStrIn::Init(LPCWSTR pwstr, int cwch)
 
     ASSERT(cchBufReq > 0);
     _pstr = new char[cchBufReq];
-    if (!_pstr)
-    {
+    if (!_pstr) {
         // On failure, the argument will point to the empty string.
         _ach[0] = 0;
         _pstr = _ach;
@@ -206,8 +197,7 @@ void CStrIn::Init(LPCWSTR pwstr, int cwch)
     _cchLen = -1 + WideCharToMultiByte(_uCP, 0, pwstr, cwch, _pstr, cchBufReq, NULL, NULL);
 
 #if DBG == 1 /* { */
-    if (_cchLen < 0)
-    {
+    if (_cchLen < 0) {
         errcode = GetLastError();
         ASSERT(0 && "WideCharToMultiByte failed in unicode wrapper.");
     }
@@ -238,8 +228,7 @@ CStrInMulti::CStrInMulti(LPCWSTR pwstr)
 
 
     pwstrT = pwstr;
-    if (pwstr)
-    {
+    if (pwstr) {
         do {
             while (*pwstrT++)
                 ;
@@ -275,8 +264,7 @@ CStrOut::CStrOut(LPWSTR pwstr, int cwchBuf) : CConvertStr(CP_ACP)
     _pwstr = pwstr;
     _cwchBuf = cwchBuf;
 
-    if (!pwstr)
-    {
+    if (!pwstr) {
         ASSERT(cwchBuf == 0);
         _pstr = NULL;
         return;
@@ -288,16 +276,14 @@ CStrOut::CStrOut(LPWSTR pwstr, int cwchBuf) : CConvertStr(CP_ACP)
     _ach[0] = 0;
 
     // Use preallocated buffer if big enough.
-    if (cwchBuf * 2 <= ARRAYSIZE(_ach))
-    {
+    if (cwchBuf * 2 <= ARRAYSIZE(_ach)) {
         _pstr = _ach;
         return;
     }
 
     // Allocate buffer.
     _pstr = new char[cwchBuf * 2];
-    if (!_pstr)
-    {
+    if (!_pstr) {
 
         // On failure, the argument will point to a zero-sized buffer initialized
         // to the empty string.  This should cause the Windows API to fail.
@@ -378,8 +364,7 @@ int CStrOut::ConvertIncludingNul()
 int CStrOut::ConvertExcludingNul()
 {
     int ret = ConvertIncludingNul();
-    if (ret)
-    {
+    if (ret) {
         ret -= 1;
     }
     return ret;
@@ -446,8 +431,7 @@ int MbcsFromUnicode(LPSTR pstr, int cch, LPCWSTR pwstr, int cwch)
     ret = WideCharToMultiByte(CP_ACP, 0, pwstr, cwch, pstr, cch, NULL, NULL);
 
 #if DBG == 1 /* { */
-    if (ret <= 0)
-    {
+    if (ret <= 0) {
         errcode = GetLastError();
         ASSERT(0 && "WideCharToMultiByte failed in unicode wrapper.");
     }
@@ -501,8 +485,7 @@ int UnicodeFromMbcs(LPWSTR pwstr, int cwch, LPCSTR pstr, int cch)
     ret = MultiByteToWideChar(CP_ACP, 0, pstr, cch, pwstr, cwch);
 
 #if DBG == 1 /* { */
-    if (ret <= 0)
-    {
+    if (ret <= 0) {
         errcode = GetLastError();
         ASSERT(0 && "MultiByteToWideChar failed in unicode wrapper.");
     }
@@ -768,17 +751,16 @@ BOOL IsCharSpaceW(WCHAR wch)
 {
     int nType;
 
-    switch(wch>>8)
-    {
-        case 0x00: nType = 0x1e; break;
-        case 0x20: nType = 0x1f; break;
-        case 0x30: nType = 0x20; break;
-        case 0xfe: nType = 0x21; break;
-        default:   nType = 0x00; break;
+    switch (wch >> 8) {
+    case 0x00: nType = 0x1e; break;
+    case 0x20: nType = 0x1f; break;
+    case 0x30: nType = 0x20; break;
+    case 0xfe: nType = 0x21; break;
+    default:   nType = 0x00; break;
     }
 
-    return (adwData[abIndex[nType][(wch>>__INDEX_SHIFT)&__INDEX_MASK]]
-            >>(wch&__BIT_MASK)) & 1;
+    return (adwData[abIndex[nType][(wch >> __INDEX_SHIFT)& __INDEX_MASK]]
+            >> (wch & __BIT_MASK)) & 1;
 }
 
 const BYTE abType1Punct[256] = // 32
@@ -859,15 +841,14 @@ BOOL IsCharXDigitW(WCHAR wch)
 {
     int nType;
 
-    switch(wch>>8)
-    {
-        case 0x00: nType = 0x49; break;
-        case 0xff: nType = 0x4a; break;
-        default:   nType = 0x00; break;
+    switch (wch >> 8) {
+    case 0x00: nType = 0x49; break;
+    case 0xff: nType = 0x4a; break;
+    default:   nType = 0x00; break;
     }
 
-    return (adwData[abIndex[nType][(wch>>__INDEX_SHIFT)&__INDEX_MASK]]
-            >> (wch&__BIT_MASK)) & 1;
+    return (adwData[abIndex[nType][(wch >> __INDEX_SHIFT)& __INDEX_MASK]]
+            >> (wch & __BIT_MASK)) & 1;
 }
 
 const BYTE abType1Upper[256] = // 12
@@ -947,7 +928,7 @@ BOOL IsCharPunctW(WCHAR wch) { return ISCHARFUNC(Punct, wch); }
 BOOL IsCharCntrlW(WCHAR wch)
 {
     return    (unsigned)(wch - 0x0000) <= (0x001f - 0x0000)
-           || (unsigned)(wch - 0x007f) <= (0x009f - 0x007f);
+        || (unsigned)(wch - 0x007f) <= (0x009f - 0x007f);
 }
 
 // NB (cthrash) WCH_NBSP is considered blank, for compatibility.
@@ -955,10 +936,10 @@ BOOL IsCharCntrlW(WCHAR wch)
 BOOL IsCharBlankW(WCHAR wch)
 {
     return    wch == 0x0009
-           || wch == 0x0020
-           || wch == 0x00a0
-           || wch == 0x3000
-           || wch == 0xfeff;
+        || wch == 0x0020
+        || wch == 0x00a0
+        || wch == 0x3000
+        || wch == 0xfeff;
 }
 
 BOOL IsCharAlphaWrap(WCHAR wch) { return ISCHARFUNC(Alpha, wch); }
@@ -1240,12 +1221,11 @@ const aType3DualValue[21] =
 BOOL GetStringType3ExW(
     LPCWSTR lpSrcStr,    // string arg
     int     cchSrc,      // length (or -1)
-    LPWORD  lpCharType ) // output buffer
+    LPWORD  lpCharType) // output buffer
 {
     LPCWSTR  lpStop = lpSrcStr + ((cchSrc == -1) ? MAXLONG : cchSrc);
 
-    while (lpSrcStr < lpStop)
-    {
+    while (lpSrcStr < lpStop) {
         WCHAR wch = *lpSrcStr++;
         WORD wCharType;
         BYTE bPageSub;
@@ -1253,36 +1233,34 @@ BOOL GetStringType3ExW(
         if (!wch && cchSrc == -1)
             break;
 
-        switch (wch & (unsigned int)0xff00)
-        {
-            case 0x0000:
-                wCharType = abType3Page0[wch];         // Page0: 4 values
-                break;
-            case 0x2000:
-                wCharType = abType3Page32[wch & 0xff]; // Page32: 4 values
-                break;
-            case 0x3000:
-                wCharType = abType3Page48[wch & 0xff];  // Page48: 10 values
-                break;
-            case 0xff00:
-                wCharType = abType3Page255[wch & 0xff]; // Page255: 7 values
-                break;
-            default:
-                bPageSub = abType3PageSub[wch>>8];
+        switch (wch & (unsigned int)0xff00) {
+        case 0x0000:
+            wCharType = abType3Page0[wch];         // Page0: 4 values
+            break;
+        case 0x2000:
+            wCharType = abType3Page32[wch & 0xff]; // Page32: 4 values
+            break;
+        case 0x3000:
+            wCharType = abType3Page48[wch & 0xff];  // Page48: 10 values
+            break;
+        case 0xff00:
+            wCharType = abType3Page255[wch & 0xff]; // Page255: 7 values
+            break;
+        default:
+            bPageSub = abType3PageSub[wch >> 8];
 
-                if (bPageSub & 0x80)                  // 21 pages have 2 values
-                {
-                    const struct tagType3DualValue *p = aType3DualValue +
-                        (bPageSub & 0x7f);
+            if (bPageSub & 0x80)                  // 21 pages have 2 values
+            {
+                const struct tagType3DualValue* p = aType3DualValue +
+                    (bPageSub & 0x7f);
 
-                    wCharType = (BYTE) p->adwValue[(p->adwBitfield[(wch>>5)&7]
-                        >> (wch & 0x1f)) & 1];
-                }
-                else                                  // 231 pages have 1 value
-                {
-                    wCharType = bPageSub;
-                }
-                break;
+                wCharType = (BYTE)p->adwValue[(p->adwBitfield[(wch >> 5) & 7]
+                                               >> (wch & 0x1f)) & 1];
+            } else                                  // 231 pages have 1 value
+            {
+                wCharType = bPageSub;
+            }
+            break;
         }
 
         *lpCharType++ = wCharType << 3;
@@ -1303,8 +1281,7 @@ int StrCmpW(
     ASSERT(IS_VALID_STRING_PTRW(pwsz1, -1));
     ASSERT(IS_VALID_STRING_PTRW(pwsz2, -1));
 
-    if (pwsz1 && pwsz2)
-    {
+    if (pwsz1 && pwsz2) {
         CStrIn psz1(pwsz1);
         CStrIn psz2(pwsz2);
 
@@ -1322,8 +1299,7 @@ int StrCmpIW(
     ASSERT(IS_VALID_STRING_PTRW(pwsz1, -1));
     ASSERT(IS_VALID_STRING_PTRW(pwsz2, -1));
 
-    if (pwsz1 && pwsz2)
-    {
+    if (pwsz1 && pwsz2) {
         CStrIn psz1(pwsz1);
         CStrIn psz2(pwsz2);
 
@@ -1373,10 +1349,10 @@ LPWSTR StrCatW(LPWSTR psz1, LPCWSTR psz2)
 
 
 BOOL AppendMenuWrap(
-        HMENU   hMenu,
-        UINT    uFlags,
-        UINT    uIDnewItem,
-        LPCWSTR lpnewItem)
+    HMENU   hMenu,
+    UINT    uFlags,
+    UINT    uIDnewItem,
+    LPCWSTR lpnewItem)
 {
     ASSERT(!(uFlags & MF_BITMAP) && !(uFlags & MF_OWNERDRAW));
 
@@ -1414,19 +1390,16 @@ LRESULT CallWindowProcWrap(
 
 
 
-LPWSTR CharLowerWrap( LPWSTR pch )
+LPWSTR CharLowerWrap(LPWSTR pch)
 {
-    if (!HIWORD64(pch))
-    {
+    if (!HIWORD64(pch)) {
         WCHAR ch = (WCHAR)(LONG_PTR)pch;
 
-        CharLowerBuffWrap( &ch, 1 );
+        CharLowerBuffWrap(&ch, 1);
 
         pch = (LPWSTR)MAKEINTATOM(ch);
-    }
-    else
-    {
-        CharLowerBuffWrap( pch, lstrlenW(pch) );
+    } else {
+        CharLowerBuffWrap(pch, lstrlenW(pch));
     }
 
     return pch;
@@ -1443,135 +1416,90 @@ LPWSTR CharLowerWrap( LPWSTR pch )
 
 
 
-DWORD CharLowerBuffWrap( LPWSTR pch, DWORD cchLength )
+DWORD CharLowerBuffWrap(LPWSTR pch, DWORD cchLength)
 {
     DWORD cch;
 
-    for ( cch = cchLength; cch-- ; pch++ )
-    {
+    for (cch = cchLength; cch--; pch++) {
         WCHAR ch = *pch;
 
-        if (IsCharUpperWrap(ch))
-        {
-            if (ch < 0x0100)
-            {
+        if (IsCharUpperWrap(ch)) {
+            if (ch < 0x0100) {
                 *pch += 32;             // Get Latin-1 out of the way first
-            }
-            else if (ch < 0x0531)
-            {
-                if (ch < 0x0391)
-                {
-                    if (ch < 0x01cd)
-                    {
-                        if (ch <= 0x178)
-                        {
-                            if (ch < 0x0178)
-                            {
+            } else if (ch < 0x0531) {
+                if (ch < 0x0391) {
+                    if (ch < 0x01cd) {
+                        if (ch <= 0x178) {
+                            if (ch < 0x0178) {
                                 *pch += (ch == 0x0130) ? 0 : 1;
-                            }
-                            else
-                            {
+                            } else {
                                 *pch -= 121;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             static const BYTE abLookup[] =
                             {  // 0/8  1/9  2/a  3/b  4/c  5/d  6/e  7/f
-            /* 0x0179-0x17f */           1,   0,   1,   0,   1,   0,   0,
-            /* 0x0180-0x187 */      0, 210,   1,   0,   1,   0, 206,   1,
-            /* 0x0188-0x18f */      0, 205, 205,   1,   0,   0,  79, 202,
-            /* 0x0190-0x197 */    203,   1,   0, 205, 207,   0, 211, 209,
-            /* 0x0198-0x19f */      1,   0,   0,   0, 211, 213,   0, 214,
-            /* 0x01a0-0x1a7 */      1,   0,   1,   0,   1,   0,   0,   1,
-            /* 0x01a8-0x1af */      0, 218,   0,   0,   1,   0, 218,   1,
-            /* 0x01b0-0x1b7 */      0, 217, 217,   1,   0,   1,   0, 219,
-            /* 0x01b8-0x1bf */      1,   0,   0,   0,   1,   0,   0,   0,
-            /* 0x01c0-0x1c7 */      0,   0,   0,   0,   2,   0,   0,   2,
-            /* 0x01c8-0x1cb */      0,   0,   2,   0
+                                /* 0x0179-0x17f */           1,   0,   1,   0,   1,   0,   0,
+                                /* 0x0180-0x187 */      0, 210,   1,   0,   1,   0, 206,   1,
+                                /* 0x0188-0x18f */      0, 205, 205,   1,   0,   0,  79, 202,
+                                /* 0x0190-0x197 */    203,   1,   0, 205, 207,   0, 211, 209,
+                                /* 0x0198-0x19f */      1,   0,   0,   0, 211, 213,   0, 214,
+                                /* 0x01a0-0x1a7 */      1,   0,   1,   0,   1,   0,   0,   1,
+                                /* 0x01a8-0x1af */      0, 218,   0,   0,   1,   0, 218,   1,
+                                /* 0x01b0-0x1b7 */      0, 217, 217,   1,   0,   1,   0, 219,
+                                /* 0x01b8-0x1bf */      1,   0,   0,   0,   1,   0,   0,   0,
+                                /* 0x01c0-0x1c7 */      0,   0,   0,   0,   2,   0,   0,   2,
+                                /* 0x01c8-0x1cb */      0,   0,   2,   0
                             };
 
-                            *pch += abLookup[ch-0x0179];
+                            *pch += abLookup[ch - 0x0179];
                         }
-                    }
-                    else if (ch < 0x0386)
-                    {
-                        switch (ch)
-                        {
-                            case 0x01f1: *pch += 2; break;
-                            case 0x01f2: break;
-                            default: *pch += 1;
+                    } else if (ch < 0x0386) {
+                        switch (ch) {
+                        case 0x01f1: *pch += 2; break;
+                        case 0x01f2: break;
+                        default: *pch += 1;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         static const BYTE abLookup[] =
-                            { 38, 0, 37, 37, 37, 0, 64, 0, 63, 63 };
+                        {38, 0, 37, 37, 37, 0, 64, 0, 63, 63};
 
-                        *pch += abLookup[ch-0x0386];
+                        *pch += abLookup[ch - 0x0386];
                     }
-                }
-                else
-                {
-                    if (ch < 0x0410)
-                    {
-                        if (ch < 0x0401)
-                        {
-                            if (ch < 0x03e2)
-                            {
+                } else {
+                    if (ch < 0x0410) {
+                        if (ch < 0x0401) {
+                            if (ch < 0x03e2) {
                                 if (!InRange(ch, 0x03d2, 0x03d4) &&
-                                    !(InRange(ch, 0x3da, 0x03e0) & !(ch & 1)))
-                                {
+                                    !(InRange(ch, 0x3da, 0x03e0) & !(ch & 1))) {
                                     *pch += 32;
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 *pch += 1;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             *pch += 80;
                         }
-                    }
-                    else
-                    {
-                        if (ch < 0x0460)
-                        {
+                    } else {
+                        if (ch < 0x0460) {
                             *pch += 32;
-                        }
-                        else
-                        {
+                        } else {
                             *pch += 1;
                         }
                     }
                 }
-            }
-            else
-            {
-                if (ch < 0x2160)
-                {
-                    if (ch < 0x1fba)
-                    {
-                        if (ch < 0x1f08)
-                        {
-                            if (ch < 0x1e00)
-                            {
+            } else {
+                if (ch < 0x2160) {
+                    if (ch < 0x1fba) {
+                        if (ch < 0x1f08) {
+                            if (ch < 0x1e00) {
                                 *pch += 48;
-                            }
-                            else
-                            {
+                            } else {
                                 *pch += 1;
                             }
-                        }
-                        else if (!(InRange(ch, 0x1f88, 0x1faf) && (ch & 15)>7))
-                        {
+                        } else if (!(InRange(ch, 0x1f88, 0x1faf) && (ch & 15) > 7)) {
                             *pch -= 8;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         static const BYTE abLookup[] =
                         {  // 8    9    a    b    c    d    e    f
                               0,   0,  74,  74,   0,   0,   0,   0,
@@ -1580,38 +1508,27 @@ DWORD CharLowerBuffWrap( LPWSTR pch, DWORD cchLength )
                               8,   8, 112, 112,   7,   0,   0,   0,
                             128, 128, 126, 126,   0,   0,   0,   0
                         };
-                        int i = (ch-0x1fb0);
+                        int i = (ch - 0x1fb0);
 
-                        *pch -= (int)abLookup[((i>>1) & ~7) | (i & 7)];
+                        *pch -= (int)abLookup[((i >> 1) & ~7) | (i & 7)];
                     }
-                }
-                else
-                {
-                    if (ch < 0xff21)
-                    {
-                        if (ch < 0x24b6)
-                        {
+                } else {
+                    if (ch < 0xff21) {
+                        if (ch < 0x24b6) {
                             *pch += 16;
-                        }
-                        else
-                        {
+                        } else {
                             *pch += 26;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         *pch += 32;
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             // These are Unicode Number Forms.  They have lowercase counter-
             // parts, but are not considered uppercase.  Why, I don't know.
 
-            if (InRange(ch, 0x2160, 0x216f))
-            {
+            if (InRange(ch, 0x2160, 0x216f)) {
                 *pch += 16;
             }
         }
@@ -1626,25 +1543,19 @@ DWORD CharLowerBuffWrap( LPWSTR pch, DWORD cchLength )
 
 LPWSTR CharNextWrap(LPCWSTR lpszCurrent)
 {
-    if (*lpszCurrent)
-    {
-        return (LPWSTR) lpszCurrent + 1;
-    }
-    else
-    {
-        return (LPWSTR) lpszCurrent;
+    if (*lpszCurrent) {
+        return (LPWSTR)lpszCurrent + 1;
+    } else {
+        return (LPWSTR)lpszCurrent;
     }
 }
 
 LPWSTR CharPrevWrap(LPCWSTR lpszStart, LPCWSTR lpszCurrent)
 {
-    if (lpszCurrent == lpszStart)
-    {
-        return (LPWSTR) lpszStart;
-    }
-    else
-    {
-        return (LPWSTR) lpszCurrent - 1;
+    if (lpszCurrent == lpszStart) {
+        return (LPWSTR)lpszStart;
+    } else {
+        return (LPWSTR)lpszCurrent - 1;
     }
 }
 
@@ -1665,18 +1576,15 @@ BOOL CharToOemWrap(LPCWSTR lpszSrc, LPSTR lpszDst)
 
 // returns:     Uppercased character or string.  In the string case,
 //              the uppercasing is done inplace.
-LPWSTR CharUpperWrap( LPWSTR pch )
+LPWSTR CharUpperWrap(LPWSTR pch)
 {
-    if (!HIWORD64(pch))
-    {
+    if (!HIWORD64(pch)) {
         WCHAR ch = (WCHAR)(LONG_PTR)pch;
 
-        CharUpperBuffWrap( &ch, 1 );
+        CharUpperBuffWrap(&ch, 1);
         pch = (LPWSTR)MAKEINTATOM(ch);
-    }
-    else
-    {
-        CharUpperBuffWrap( pch, lstrlenW(pch) );
+    } else {
+        CharUpperBuffWrap(pch, lstrlenW(pch));
     }
 
     return pch;
@@ -1692,41 +1600,28 @@ LPWSTR CharUpperWrap( LPWSTR pch )
 //              even when they don't have an uppercase counterpart.
 
 // returns:     Character count (cch).  The uppercasing is done inplace.
-DWORD CharUpperBuffWrap( LPWSTR pch, DWORD cchLength )
+DWORD CharUpperBuffWrap(LPWSTR pch, DWORD cchLength)
 {
     DWORD cch;
 
-    for ( cch = cchLength; cch-- ; pch++ )
-    {
+    for (cch = cchLength; cch--; pch++) {
         WCHAR ch = *pch;
 
-        if (IsCharLowerWrap(ch))
-        {
-            if (ch < 0x00ff)
-            {
+        if (IsCharLowerWrap(ch)) {
+            if (ch < 0x00ff) {
                 *pch -= ((ch != 0xdf) << 5);
-            }
-            else if (ch < 0x03b1)
-            {
-                if (ch < 0x01f5)
-                {
-                    if (ch < 0x01ce)
-                    {
-                        if (ch < 0x017f)
-                        {
-                            if (ch < 0x0101)
-                            {
+            } else if (ch < 0x03b1) {
+                if (ch < 0x01f5) {
+                    if (ch < 0x01ce) {
+                        if (ch < 0x017f) {
+                            if (ch < 0x0101) {
                                 *pch += 121;
-                            }
-                            else
-                            {
+                            } else {
                                 *pch -= (ch != 0x0131 &&
                                          ch != 0x0138 &&
                                          ch != 0x0149);
                             }
-                        }
-                        else if (ch < 0x01c9)
-                        {
+                        } else if (ch < 0x01c9) {
                             static const BYTE abMask[] =
                             {                       // 6543210f edcba987
                                 0xfc, 0xbf,         // 11111100 10111111
@@ -1738,165 +1633,106 @@ DWORD CharUpperBuffWrap( LPWSTR pch, DWORD cchLength )
 
                             int i = ch - 0x017f;
 
-                            *pch -= ((abMask[i>>3] >> (i&7)) & 1) +
-                                    (ch == 0x01c6);
+                            *pch -= ((abMask[i >> 3] >> (i & 7)) & 1) +
+                                (ch == 0x01c6);
+                        } else {
+                            *pch -= ((ch != 0x01cb) << 1);
                         }
-                        else
-                        {
-                            *pch -= ((ch != 0x01cb)<<1);
-                        }
-                    }
-                    else
-                    {
-                        if (ch < 0x01df)
-                        {
-                            if (ch < 0x01dd)
-                            {
+                    } else {
+                        if (ch < 0x01df) {
+                            if (ch < 0x01dd) {
                                 *pch -= 1;
-                            }
-                            else
-                            {
+                            } else {
                                 *pch -= 79;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             *pch -= 1 + (ch == 0x01f3) -
-                                    InRange(ch,0x01f0,0x01f2);
+                                InRange(ch, 0x01f0, 0x01f2);
                         }
                     }
-                }
-                else if (ch < 0x0253)
-                {
+                } else if (ch < 0x0253) {
                     *pch -= (ch < 0x0250);
-                }
-                else if (ch < 0x03ac)
-                {
+                } else if (ch < 0x03ac) {
                     static const BYTE abLookup[] =
                     {// 0/8  1/9  2/a  3/b  4/c  5/d  6/e  7/f
-    /* 0x0253-0x0257 */                210, 206,   0, 205, 205,
-    /* 0x0258-0x025f */   0, 202,   0, 203,   0,   0,   0,   0,
-    /* 0x0260-0x0267 */ 205,   0,   0, 207,   0,   0,   0,   0,
-    /* 0x0268-0x026f */ 209, 211,   0,   0,   0,   0,   0, 211,
-    /* 0x0270-0x0277 */   0,   0, 213,   0,   0, 214,   0,   0,
-    /* 0x0278-0x027f */   0,   0,   0,   0,   0,   0,   0,   0,
-    /* 0x0280-0x0287 */   0,   0,   0, 218,   0,   0,   0,   0,
-    /* 0x0288-0x028f */ 218,   0, 217, 217,   0,   0,   0,   0,
-    /* 0x0290-0x0297 */   0,   0, 219
+                        /* 0x0253-0x0257 */                210, 206,   0, 205, 205,
+                        /* 0x0258-0x025f */   0, 202,   0, 203,   0,   0,   0,   0,
+                        /* 0x0260-0x0267 */ 205,   0,   0, 207,   0,   0,   0,   0,
+                        /* 0x0268-0x026f */ 209, 211,   0,   0,   0,   0,   0, 211,
+                        /* 0x0270-0x0277 */   0,   0, 213,   0,   0, 214,   0,   0,
+                        /* 0x0278-0x027f */   0,   0,   0,   0,   0,   0,   0,   0,
+                        /* 0x0280-0x0287 */   0,   0,   0, 218,   0,   0,   0,   0,
+                        /* 0x0288-0x028f */ 218,   0, 217, 217,   0,   0,   0,   0,
+                        /* 0x0290-0x0297 */   0,   0, 219
                     };
 
-                    if (ch <= 0x0292)
-                    {
+                    if (ch <= 0x0292) {
                         *pch -= abLookup[ch - 0x0253];
                     }
-                }
-                else
-                {
+                } else {
                     *pch -= (ch == 0x03b0) ? 0 : (37 + (ch == 0x03ac));
                 }
-            }
-            else
-            {
-                if (ch < 0x0561)
-                {
-                    if (ch < 0x0451)
-                    {
-                        if (ch < 0x03e3)
-                        {
-                            if (ch < 0x03cc)
-                            {
-                                *pch -= (ch != 0x03c2)<<5;
-                            }
-                            else
-                            {
+            } else {
+                if (ch < 0x0561) {
+                    if (ch < 0x0451) {
+                        if (ch < 0x03e3) {
+                            if (ch < 0x03cc) {
+                                *pch -= (ch != 0x03c2) << 5;
+                            } else {
                                 int i = (ch < 0x03d0);
-                                *pch -= (i<<6) - i + (ch == 0x03cc);
+                                *pch -= (i << 6) - i + (ch == 0x03cc);
                             }
-                        }
-                        else if (ch < 0x0430)
-                        {
+                        } else if (ch < 0x0430) {
                             *pch -= (ch < 0x03f0);
-                        }
-                        else
-                        {
+                        } else {
                             *pch -= 32;
                         }
-                    }
-                    else if (ch < 0x0461)
-                    {
+                    } else if (ch < 0x0461) {
                         *pch -= 80;
-                    }
-                    else
-                    {
+                    } else {
                         *pch -= 1;
                     }
-                }
-                else
-                {
-                    if (ch < 0x1fb0)
-                    {
-                        if (ch < 0x1f70)
-                        {
-                            if (ch < 0x1e01)
-                            {
+                } else {
+                    if (ch < 0x1fb0) {
+                        if (ch < 0x1f70) {
+                            if (ch < 0x1e01) {
                                 int i = ch != 0x0587 && ch != 0x10f6;
-                                *pch -= ((i<<5)+(i<<4)); /* 48 */
-                            }
-                            else if (ch < 0x1f00)
-                            {
+                                *pch -= ((i << 5) + (i << 4)); /* 48 */
+                            } else if (ch < 0x1f00) {
                                 *pch -= !InRange(ch, 0x1e96, 0x1e9a);
+                            } else {
+                                int i = !InRange(ch, 0x1f50, 0x1f56) || (ch & 1);
+                                *pch += (i << 3);
                             }
-                            else
-                            {
-                                int i = !InRange(ch, 0x1f50, 0x1f56)||(ch & 1);
-                                *pch += (i<<3);
-                            }
-                        }
-                        else
-                        {
+                        } else {
                             static const BYTE abLookup[] =
-                                { 74, 86, 86, 100, 128, 112, 126 };
+                            {74, 86, 86, 100, 128, 112, 126};
 
-                            if ( ch <= 0x1f7d )
-                            {
-                                *pch += abLookup[(ch-0x1f70)>>1];
+                            if (ch <= 0x1f7d) {
+                                *pch += abLookup[(ch - 0x1f70) >> 1];
                             }
                         }
-                    }
-                    else
-                    {
-                        if (ch < 0x24d0)
-                        {
-                            if (ch < 0x1fe5)
-                            {
-                                *pch += (0x0023 & (1<<(ch&15))) ? 8 : 0;
+                    } else {
+                        if (ch < 0x24d0) {
+                            if (ch < 0x1fe5) {
+                                *pch += (0x0023 & (1 << (ch & 15))) ? 8 : 0;
+                            } else if (ch < 0x2170) {
+                                *pch += (0x0023 & (1 << (ch & 15))) ? 7 : 0;
+                            } else {
+                                *pch -= ((ch > 0x24b5) << 4);
                             }
-                            else if (ch < 0x2170)
-                            {
-                                *pch += (0x0023 & (1<<(ch&15))) ? 7 : 0;
-                            }
-                            else
-                            {
-                                *pch -= ((ch > 0x24b5)<<4);
-                            }
-                        }
-                        else if (ch < 0xff41)
-                        {
+                        } else if (ch < 0xff41) {
                             int i = !InRange(ch, 0xfb00, 0xfb17);
-                            *pch -= (i<<4)+(i<<3)+(i<<1); /* 26 */
-                        }
-                        else
-                        {
+                            *pch -= (i << 4) + (i << 3) + (i << 1); /* 26 */
+                        } else {
                             *pch -= 32;
                         }
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             int i = InRange(ch, 0x2170, 0x217f);
-            *pch -= (i<<4);
+            *pch -= (i << 4);
         }
     }
 
@@ -1904,9 +1740,9 @@ DWORD CharUpperBuffWrap( LPWSTR pch, DWORD cchLength )
 }
 
 int CopyAcceleratorTableWrap(
-        HACCEL  hAccelSrc,
-        LPACCEL lpAccelDst,
-        int     cAccelEntries)
+    HACCEL  hAccelSrc,
+    LPACCEL lpAccelDst,
+    int     cAccelEntries)
 {
     return CopyAcceleratorTableA(hAccelSrc, lpAccelDst, cAccelEntries);
 }
@@ -1916,35 +1752,33 @@ HACCEL CreateAcceleratorTableWrap(LPACCEL lpAccel, int cEntries)
     return CreateAcceleratorTableA(lpAccel, cEntries);
 }
 
-typedef HDC (*FnCreateHDCA)(LPCSTR, LPCSTR, LPCSTR, CONST DEVMODEA *);
+typedef HDC(*FnCreateHDCA)(LPCSTR, LPCSTR, LPCSTR, CONST DEVMODEA*);
 
 HDC CreateHDCWrap(
-        LPCWSTR             lpszDriver,
-        LPCWSTR             lpszDevice,
-        LPCWSTR             lpszOutput,
-        CONST DEVMODEW *    lpInitData,
-        FnCreateHDCA        pfn)
+    LPCWSTR             lpszDriver,
+    LPCWSTR             lpszDevice,
+    LPCWSTR             lpszOutput,
+    CONST DEVMODEW* lpInitData,
+    FnCreateHDCA        pfn)
 {
-    DEVMODEA *  pdevmode = NULL;
+    DEVMODEA* pdevmode = NULL;
     CStrIn      strDriver(lpszDriver);
     CStrIn      strDevice(lpszDevice);
     CStrIn      strOutput(lpszOutput);
     HDC         hdcReturn = 0;
 
-    if (lpInitData)
-    {
-        pdevmode = (DEVMODEA *) LocalAlloc( LPTR, lpInitData->dmSize + lpInitData->dmDriverExtra );
+    if (lpInitData) {
+        pdevmode = (DEVMODEA*)LocalAlloc(LPTR, lpInitData->dmSize + lpInitData->dmDriverExtra);
 
-        if (pdevmode)
-        {
-            MbcsFromUnicode((CHAR *)pdevmode->dmDeviceName, CCHDEVICENAME, lpInitData->dmDeviceName);
+        if (pdevmode) {
+            MbcsFromUnicode((CHAR*)pdevmode->dmDeviceName, CCHDEVICENAME, lpInitData->dmDeviceName);
             memcpy(&pdevmode->dmSpecVersion,
-                    &lpInitData->dmSpecVersion,
-                    FIELD_OFFSET(DEVMODEW,dmFormName) - FIELD_OFFSET(DEVMODEW,dmSpecVersion));
-            MbcsFromUnicode((CHAR *)pdevmode->dmFormName, CCHFORMNAME, lpInitData->dmFormName);
+                   &lpInitData->dmSpecVersion,
+                   FIELD_OFFSET(DEVMODEW, dmFormName) - FIELD_OFFSET(DEVMODEW, dmSpecVersion));
+            MbcsFromUnicode((CHAR*)pdevmode->dmFormName, CCHFORMNAME, lpInitData->dmFormName);
             memcpy(&pdevmode->dmLogPixels,
-                    &lpInitData->dmLogPixels,
-                    lpInitData->dmDriverExtra + lpInitData->dmSize - FIELD_OFFSET(DEVMODEW, dmLogPixels));
+                   &lpInitData->dmLogPixels,
+                   lpInitData->dmDriverExtra + lpInitData->dmSize - FIELD_OFFSET(DEVMODEW, dmLogPixels));
 
             pdevmode->dmSize -= (sizeof(BCHAR) - sizeof(char)) * (CCHDEVICENAME + CCHFORMNAME);
         }
@@ -1952,8 +1786,7 @@ HDC CreateHDCWrap(
 
     hdcReturn = (*pfn)(strDriver, strDevice, strOutput, pdevmode);
 
-    if (pdevmode)
-    {
+    if (pdevmode) {
         LocalFree(pdevmode);
     }
 
@@ -1961,27 +1794,27 @@ HDC CreateHDCWrap(
 }
 
 HDC CreateDCWrap(
-        LPCWSTR             lpszDriver,
-        LPCWSTR             lpszDevice,
-        LPCWSTR             lpszOutput,
-        CONST DEVMODEW *    lpInitData)
+    LPCWSTR             lpszDriver,
+    LPCWSTR             lpszDevice,
+    LPCWSTR             lpszOutput,
+    CONST DEVMODEW* lpInitData)
 {
     return CreateHDCWrap(lpszDriver, lpszDevice, lpszOutput, lpInitData, CreateDCA);
 }
 
 HDC CreateICWrap(
-        LPCWSTR             lpszDriver,
-        LPCWSTR             lpszDevice,
-        LPCWSTR             lpszOutput,
-        CONST DEVMODEW *    lpInitData)
+    LPCWSTR             lpszDriver,
+    LPCWSTR             lpszDevice,
+    LPCWSTR             lpszOutput,
+    CONST DEVMODEW* lpInitData)
 {
     return CreateHDCWrap(lpszDriver, lpszDevice, lpszOutput, lpInitData, CreateICA);
 }
 
 
 BOOL CreateDirectoryWrap(
-        LPCWSTR                 lpPathName,
-        LPSECURITY_ATTRIBUTES   lpSecurityAttributes)
+    LPCWSTR                 lpPathName,
+    LPSECURITY_ATTRIBUTES   lpSecurityAttributes)
 {
     CStrIn  str(lpPathName);
 
@@ -1990,42 +1823,42 @@ BOOL CreateDirectoryWrap(
 }
 
 HANDLE CreateEventWrap(
-        LPSECURITY_ATTRIBUTES   lpEventAttributes,
-        BOOL                    bManualReset,
-        BOOL                    bInitialState,
-        LPCWSTR                 lpName)
+    LPSECURITY_ATTRIBUTES   lpEventAttributes,
+    BOOL                    bManualReset,
+    BOOL                    bInitialState,
+    LPCWSTR                 lpName)
 {
-    return CreateEventA(lpEventAttributes, bManualReset, bInitialState, (LPCSTR) lpName);
+    return CreateEventA(lpEventAttributes, bManualReset, bInitialState, (LPCSTR)lpName);
 }
 
 HANDLE CreateFileWrap(
-        LPCWSTR                 lpFileName,
-        DWORD                   dwDesiredAccess,
-        DWORD                   dwShareMode,
-        LPSECURITY_ATTRIBUTES   lpSecurityAttributes,
-        DWORD                   dwCreationDisposition,
-        DWORD                   dwFlagsAndAttributes,
-        HANDLE                  hTemplateFile)
+    LPCWSTR                 lpFileName,
+    DWORD                   dwDesiredAccess,
+    DWORD                   dwShareMode,
+    LPSECURITY_ATTRIBUTES   lpSecurityAttributes,
+    DWORD                   dwCreationDisposition,
+    DWORD                   dwFlagsAndAttributes,
+    HANDLE                  hTemplateFile)
 {
     CStrIn  str(lpFileName);
 
     return CreateFileA(
-            str,
-            dwDesiredAccess,
-            dwShareMode,
-            lpSecurityAttributes,
-            dwCreationDisposition,
-            dwFlagsAndAttributes,
-            hTemplateFile);
+        str,
+        dwDesiredAccess,
+        dwShareMode,
+        lpSecurityAttributes,
+        dwCreationDisposition,
+        dwFlagsAndAttributes,
+        hTemplateFile);
 }
 
 HANDLE CreateFileMappingWrap(
-        HANDLE hFile,
-        LPSECURITY_ATTRIBUTES lpFileMappingAttributes,
-        DWORD flProtect,
-        DWORD dwMaxSizeHigh,
-        DWORD dwMaxSizeLow,
-        LPCWSTR lpName)
+    HANDLE hFile,
+    LPSECURITY_ATTRIBUTES lpFileMappingAttributes,
+    DWORD flProtect,
+    DWORD dwMaxSizeHigh,
+    DWORD dwMaxSizeLow,
+    LPCWSTR lpName)
 {
     CStrIn str(lpName);
 
@@ -2033,27 +1866,27 @@ HANDLE CreateFileMappingWrap(
 }
 
 HFONT CreateFontWrap(
-        int nHeight,
-        int nWidth,
-        int nEscapement,
-        int nOrientation,
-        int fnWeight,
-        DWORD fdwItalic,
-        DWORD fdwUnderline,
-        DWORD fdwStrikeOut,
-        DWORD fdwCharSet,
-        DWORD fdwOutputPrecision,
-        DWORD fdwClipPrecision,
-        DWORD fdwQuality,
-        DWORD fdwPitchAndFamily,
-        LPCWSTR lpszFace)
+    int nHeight,
+    int nWidth,
+    int nEscapement,
+    int nOrientation,
+    int fnWeight,
+    DWORD fdwItalic,
+    DWORD fdwUnderline,
+    DWORD fdwStrikeOut,
+    DWORD fdwCharSet,
+    DWORD fdwOutputPrecision,
+    DWORD fdwClipPrecision,
+    DWORD fdwQuality,
+    DWORD fdwPitchAndFamily,
+    LPCWSTR lpszFace)
 {
     CStrIn str(lpszFace);
 
     return CreateFontA(nHeight, nWidth, nEscapement, nOrientation, fnWeight, fdwItalic, fdwUnderline, fdwStrikeOut, fdwCharSet, fdwOutputPrecision, fdwClipPrecision, fdwQuality, fdwPitchAndFamily, str);
 }
 
-HFONT CreateFontIndirectWrap(CONST LOGFONTW * plfw)
+HFONT CreateFontIndirectWrap(CONST LOGFONTW* plfw)
 {
     LOGFONTA  lfa;
     HFONT     hFont;
@@ -2066,35 +1899,35 @@ HFONT CreateFontIndirectWrap(CONST LOGFONTW * plfw)
 }
 
 HWND CreateWindowExWrap(
-        DWORD       dwExStyle,
-        LPCWSTR     lpClassName,
-        LPCWSTR     lpWindowName,
-        DWORD       dwStyle,
-        int         X,
-        int         Y,
-        int         nWidth,
-        int         nHeight,
-        HWND        hWndParent,
-        HMENU       hMenu,
-        HINSTANCE   hInstance,
-        LPVOID      lpParam)
+    DWORD       dwExStyle,
+    LPCWSTR     lpClassName,
+    LPCWSTR     lpWindowName,
+    DWORD       dwStyle,
+    int         X,
+    int         Y,
+    int         nWidth,
+    int         nHeight,
+    HWND        hWndParent,
+    HMENU       hMenu,
+    HINSTANCE   hInstance,
+    LPVOID      lpParam)
 {
     CStrIn  strClass(lpClassName);
     CStrIn  strWindow(lpWindowName);
 
     return CreateWindowExA(
-            dwExStyle,
-            strClass,
-            strWindow,
-            dwStyle,
-            X,
-            Y,
-            nWidth,
-            nHeight,
-            hWndParent,
-            hMenu,
-            hInstance,
-            lpParam);
+        dwExStyle,
+        strClass,
+        strWindow,
+        dwStyle,
+        X,
+        Y,
+        nWidth,
+        nHeight,
+        hWndParent,
+        hMenu,
+        hInstance,
+        lpParam);
 }
 
 LRESULT DefWindowProcWrap(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -2109,18 +1942,18 @@ BOOL DeleteFileWrap(LPCWSTR pwsz)
     return DeleteFileA(str);
 }
 
-LRESULT DispatchMessageWrap(CONST MSG * lpMsg)
+LRESULT DispatchMessageWrap(CONST MSG* lpMsg)
 {
     return DispatchMessageA(lpMsg);
 }
 
 #ifndef FONT_LINK
 int DrawTextWrap(
-        HDC     hDC,
-        LPCWSTR lpString,
-        int     nCount,
-        LPRECT  lpRect,
-        UINT    uFormat)
+    HDC     hDC,
+    LPCWSTR lpString,
+    int     nCount,
+    LPRECT  lpRect,
+    UINT    uFormat)
 {
     CStrIn  str(lpString, nCount);
 
@@ -2129,12 +1962,12 @@ int DrawTextWrap(
 
 // shlwapi also have this.
 int DrawTextExPrivWrap(
-        HDC     hDC,
-        LPWSTR  lpString,
-        int     nCount,
-        LPRECT  lpRect,
-        UINT    uFormat,
-        LPDRAWTEXTPARAMS lpDTParams)
+    HDC     hDC,
+    LPWSTR  lpString,
+    int     nCount,
+    LPRECT  lpRect,
+    UINT    uFormat,
+    LPDRAWTEXTPARAMS lpDTParams)
 {
     CStrIn  str(lpString, nCount);
 
@@ -2150,55 +1983,52 @@ struct EFFSTAT
 };
 
 int CALLBACK EnumFontFamiliesCallbackWrap(
-        ENUMLOGFONTA *  lpelf,
-        NEWTEXTMETRIC * lpntm,
-        DWORD           FontType,
-        LPARAM          lParam)
+    ENUMLOGFONTA* lpelf,
+    NEWTEXTMETRIC* lpntm,
+    DWORD           FontType,
+    LPARAM          lParam)
 {
     ENUMLOGFONTW    elf;
 
     //  Convert strings from ANSI to Unicode
-    if (((EFFSTAT *)lParam)->fFamilySpecified && (FontType & TRUETYPE_FONTTYPE) )
-    {
+    if (((EFFSTAT*)lParam)->fFamilySpecified && (FontType & TRUETYPE_FONTTYPE)) {
         UnicodeFromMbcs(
-                        elf.elfFullName,
-                        ARRAYSIZE(elf.elfFullName),
-                        (LPCSTR) lpelf->elfFullName);
+            elf.elfFullName,
+            ARRAYSIZE(elf.elfFullName),
+            (LPCSTR)lpelf->elfFullName);
         UnicodeFromMbcs(
-                        elf.elfStyle,
-                        ARRAYSIZE(elf.elfStyle),
-                        (LPCSTR) lpelf->elfStyle);
-    }
-    else
-    {
+            elf.elfStyle,
+            ARRAYSIZE(elf.elfStyle),
+            (LPCSTR)lpelf->elfStyle);
+    } else {
         elf.elfStyle[0] = L'\0';
         elf.elfFullName[0] = L'\0';
     }
 
     UnicodeFromMbcs(
-            elf.elfLogFont.lfFaceName,
-            ARRAYSIZE(elf.elfLogFont.lfFaceName),
-            (LPCSTR) lpelf->elfLogFont.lfFaceName);
+        elf.elfLogFont.lfFaceName,
+        ARRAYSIZE(elf.elfLogFont.lfFaceName),
+        (LPCSTR)lpelf->elfLogFont.lfFaceName);
 
     //  Copy the non-string data
     memcpy(
-            &elf.elfLogFont,
-            &lpelf->elfLogFont,
-            FIELD_OFFSET(LOGFONTA, lfFaceName));
+        &elf.elfLogFont,
+        &lpelf->elfLogFont,
+        FIELD_OFFSET(LOGFONTA, lfFaceName));
 
     //  Chain to the original callback function
-    return (*((EFFSTAT *) lParam)->lpEnumFontProc)(
-            (const LOGFONTW *) &elf,
-            (const TEXTMETRICW *) lpntm,
-            FontType,
-            ((EFFSTAT *) lParam)->lParam);
+    return (*((EFFSTAT*)lParam)->lpEnumFontProc)(
+        (const LOGFONTW*)&elf,
+        (const TEXTMETRICW*)lpntm,
+        FontType,
+        ((EFFSTAT*)lParam)->lParam);
 }
 
 int EnumFontFamiliesWrap(
-        HDC          hdc,
-        LPCWSTR      lpszFamily,
-        FONTENUMPROC lpEnumFontProc,
-        LPARAM       lParam)
+    HDC          hdc,
+    LPCWSTR      lpszFamily,
+    FONTENUMPROC lpEnumFontProc,
+    LPARAM       lParam)
 {
     CStrIn  str(lpszFamily);
     EFFSTAT effstat;
@@ -2208,49 +2038,49 @@ int EnumFontFamiliesWrap(
     effstat.fFamilySpecified = lpszFamily != NULL;
 
     return EnumFontFamiliesA(
-            hdc,
-            str,
-            (FONTENUMPROCA) EnumFontFamiliesCallbackWrap,
-            (LPARAM) &effstat);
+        hdc,
+        str,
+        (FONTENUMPROCA)EnumFontFamiliesCallbackWrap,
+        (LPARAM)&effstat);
 }
 
 int EnumFontFamiliesExWrap(
-        HDC          hdc,
-        LPLOGFONTW   lplfw,
-        FONTENUMPROC lpEnumFontProc,
-        LPARAM       lParam,
-        DWORD        dwFlags )
+    HDC          hdc,
+    LPLOGFONTW   lplfw,
+    FONTENUMPROC lpEnumFontProc,
+    LPARAM       lParam,
+    DWORD        dwFlags)
 {
     LOGFONTA lfa;
     CStrIn   str(lplfw->lfFaceName);
     EFFSTAT  effstat;
 
-    ASSERT( FIELD_OFFSET(LOGFONTW, lfFaceName) == FIELD_OFFSET(LOGFONTA, lfFaceName) );
+    ASSERT(FIELD_OFFSET(LOGFONTW, lfFaceName) == FIELD_OFFSET(LOGFONTA, lfFaceName));
 
-    memcpy( &lfa, lplfw, sizeof(LOGFONTA) - FIELD_OFFSET(LOGFONTA, lfFaceName) );
-    memcpy( lfa.lfFaceName, str, LF_FACESIZE );
+    memcpy(&lfa, lplfw, sizeof(LOGFONTA) - FIELD_OFFSET(LOGFONTA, lfFaceName));
+    memcpy(lfa.lfFaceName, str, LF_FACESIZE);
 
     effstat.lParam = lParam;
     effstat.lpEnumFontProc = lpEnumFontProc;
     effstat.fFamilySpecified = lplfw->lfFaceName != NULL;
 
     return EnumFontFamiliesExA(
-            hdc,
-            &lfa,
-            (FONTENUMPROCA) EnumFontFamiliesCallbackWrap,
-            (LPARAM) &effstat,
-            dwFlags );
+        hdc,
+        &lfa,
+        (FONTENUMPROCA)EnumFontFamiliesCallbackWrap,
+        (LPARAM)&effstat,
+        dwFlags);
 }
 
 BOOL EnumResourceNamesWrap(
-        HINSTANCE        hModule,
-        LPCWSTR          lpType,
-        ENUMRESNAMEPROCW lpEnumFunc,
-        LONG             lParam)
+    HINSTANCE        hModule,
+    LPCWSTR          lpType,
+    ENUMRESNAMEPROCW lpEnumFunc,
+    LONG             lParam)
 {
     ASSERT(HIWORD64(lpType) == 0);
 
-    return EnumResourceNamesA(hModule, (LPCSTR) lpType, (ENUMRESNAMEPROCA)lpEnumFunc, lParam);
+    return EnumResourceNamesA(hModule, (LPCSTR)lpType, (ENUMRESNAMEPROCA)lpEnumFunc, lParam);
 }
 
 #ifndef FONT_LINK
@@ -2263,17 +2093,14 @@ BOOL EnumResourceNamesWrap(
 
 //  The name of this app:  Lotus SmartSuite ScreenCam 97.
 
-BOOL ExtTextOutWrap(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc, LPCWSTR lpStr, UINT cch, CONST INT *lpDx)
+BOOL ExtTextOutWrap(HDC hdc, int x, int y, UINT fuOptions, CONST RECT* lprc, LPCWSTR lpStr, UINT cch, CONST INT* lpDx)
 {
     // Force a thunk to ANSI if running Win95 + ME
-    if (g_fMEEnabled && !g_bRunOnMemphis)
-    {
+    if (g_fMEEnabled && !g_bRunOnMemphis) {
         CStrIn str(lpStr, cch);
 
         return ExtTextOutA(hdc, x, y, fuOptions, lprc, str, str.strlen(), lpDx);
-    }
-    else
-    {
+    } else {
         if (lpStr == NULL)              // Stupid workaround
             lpStr = TEXT("");           // for ScreenCam 97
         return ExtTextOutW(hdc, x, y, fuOptions, lprc, lpStr, cch, lpDx);
@@ -2282,18 +2109,18 @@ BOOL ExtTextOutWrap(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc, LPC
 #endif
 
 HANDLE FindFirstFileWrap(
-        LPCWSTR             lpFileName,
-        LPWIN32_FIND_DATAW  pwszFd)
+    LPCWSTR             lpFileName,
+    LPWIN32_FIND_DATAW  pwszFd)
 {
     CStrIn              str(lpFileName);
     WIN32_FIND_DATAA    fd;
     HANDLE              ret;
 
-    memcpy(&fd, pwszFd, sizeof(FILETIME)*3+sizeof(DWORD)*5);
+    memcpy(&fd, pwszFd, sizeof(FILETIME) * 3 + sizeof(DWORD) * 5);
 
     ret = FindFirstFileA(str, &fd);
 
-    memcpy(pwszFd, &fd, sizeof(FILETIME)*3+sizeof(DWORD)*5);
+    memcpy(pwszFd, &fd, sizeof(FILETIME) * 3 + sizeof(DWORD) * 5);
 
     UnicodeFromMbcs(pwszFd->cFileName, ARRAYSIZE(pwszFd->cFileName), fd.cFileName);
     UnicodeFromMbcs(pwszFd->cAlternateFileName, ARRAYSIZE(pwszFd->cAlternateFileName), fd.cAlternateFileName);
@@ -2333,7 +2160,7 @@ DWORD FormatMessageWrap(
     DWORD       dwLanguageId,
     LPWSTR      lpBuffer,
     DWORD       nSize,
-    va_list *   Arguments)
+    va_list* Arguments)
 {
     //This assert is only valid on Windows 95.
     ASSERT(!(dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER));
@@ -2352,7 +2179,7 @@ BOOL GetClassInfoWrap(HINSTANCE hModule, LPCWSTR lpClassName, LPWNDCLASSW lpWndC
 
     ASSERT(sizeof(WNDCLASSA) == sizeof(WNDCLASSW));
 
-    ret = GetClassInfoA(hModule, strClassName, (LPWNDCLASSA) lpWndClassW);
+    ret = GetClassInfoA(hModule, strClassName, (LPWNDCLASSA)lpWndClassW);
 
     lpWndClassW->lpszMenuName = NULL;
     lpWndClassW->lpszClassName = NULL;
@@ -2393,12 +2220,12 @@ DWORD GetCurrentDirectoryWrap(DWORD nBufferLength, LPWSTR lpBuffer)
 
 
 int GetDateFormatWrap(
-        LCID Locale,
-        DWORD dwFlags,
-        CONST SYSTEMTIME *lpDate,
-        LPCWSTR lpFormat,
-        LPWSTR lpDateStr,
-        int cchDate)
+    LCID Locale,
+    DWORD dwFlags,
+    CONST SYSTEMTIME* lpDate,
+    LPCWSTR lpFormat,
+    LPWSTR lpDateStr,
+    int cchDate)
 {
     CStrIn strFormat(lpFormat);
     CStrOut str(lpDateStr, cchDate);
@@ -2415,10 +2242,10 @@ int GetDateFormatWrap(
 }
 
 UINT GetDlgItemTextWrap(
-        HWND    hWndDlg,
-        int     idControl,
-        LPWSTR  lpsz,
-        int     cchMax)
+    HWND    hWndDlg,
+    int     idControl,
+    LPWSTR  lpsz,
+    int     cchMax)
 {
     CStrOut str(lpsz, cchMax);
 
@@ -2457,28 +2284,25 @@ BOOL GetMenuItemInfoWrap(
 {
     BOOL fRet;
 
-    ASSERT( sizeof(MENUITEMINFOW) == sizeof(MENUITEMINFOA) &&
-            FIELD_OFFSET(MENUITEMINFOW, dwTypeData) ==
-            FIELD_OFFSET(MENUITEMINFOA, dwTypeData) );
+    ASSERT(sizeof(MENUITEMINFOW) == sizeof(MENUITEMINFOA) &&
+           FIELD_OFFSET(MENUITEMINFOW, dwTypeData) ==
+           FIELD_OFFSET(MENUITEMINFOA, dwTypeData));
 
-    if ( (MIIM_TYPE & lpmiiW->fMask) &&
-         0 == (lpmiiW->fType & (MFT_BITMAP | MFT_SEPARATOR)))
-    {
+    if ((MIIM_TYPE & lpmiiW->fMask) &&
+        0 == (lpmiiW->fType & (MFT_BITMAP | MFT_SEPARATOR))) {
         MENUITEMINFOA miiA;
         CStrOut str(lpmiiW->dwTypeData, lpmiiW->cch);
 
-        memcpy( &miiA, lpmiiW, sizeof(MENUITEMINFOA) );
+        memcpy(&miiA, lpmiiW, sizeof(MENUITEMINFOA));
         miiA.dwTypeData = str;
         miiA.cch = str.BufSize();
 
-        fRet = GetMenuItemInfoA( hMenu, uItem, fByPosition, &miiA );
+        fRet = GetMenuItemInfoA(hMenu, uItem, fByPosition, &miiA);
 
         memcpy(lpmiiW, &miiA, FIELD_OFFSET(MENUITEMINFOW, dwTypeData));
-    }
-    else
-    {
-        fRet = GetMenuItemInfoA( hMenu, uItem, fByPosition,
-                                 (LPMENUITEMINFOA)lpmiiW );
+    } else {
+        fRet = GetMenuItemInfoA(hMenu, uItem, fByPosition,
+            (LPMENUITEMINFOA)lpmiiW);
     }
 
     return fRet;
@@ -2487,11 +2311,11 @@ BOOL GetMenuItemInfoWrap(
 
 
 int GetMenuStringWrap(
-        HMENU   hMenu,
-        UINT    uIDItem,
-        LPWSTR  lpString,
-        int     nMaxCount,
-        UINT    uFlag)
+    HMENU   hMenu,
+    UINT    uIDItem,
+    LPWSTR  lpString,
+    int     nMaxCount,
+    UINT    uFlag)
 {
     CStrOut str(lpString, nMaxCount);
 
@@ -2500,10 +2324,10 @@ int GetMenuStringWrap(
 }
 
 BOOL GetMessageWrap(
-        LPMSG   lpMsg,
-        HWND    hWnd,
-        UINT    wMsgFilterMin,
-        UINT    wMsgFilterMax)
+    LPMSG   lpMsg,
+    HWND    hWnd,
+    UINT    wMsgFilterMin,
+    UINT    wMsgFilterMax)
 {
     return GetMessageA(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax);
 }
@@ -2518,12 +2342,12 @@ DWORD GetModuleFileNameWrap(HINSTANCE hModule, LPWSTR pwszFilename, DWORD nSize)
 
 
 int GetNumberFormatWrap(
-        LCID Locale,
-        DWORD dwFlags,
-        LPCWSTR lpValue,
-        CONST NUMBERFMTW *lpFormat,
-        LPWSTR lpNumberStr,
-        int cchNumber)
+    LCID Locale,
+    DWORD dwFlags,
+    LPCWSTR lpValue,
+    CONST NUMBERFMTW* lpFormat,
+    LPWSTR lpNumberStr,
+    int cchNumber)
 {
     CStrIn strValue(lpValue);
     CStrOut str(lpNumberStr, cchNumber);
@@ -2553,12 +2377,12 @@ UINT GetSystemDirectoryWrap(LPWSTR lpBuffer, UINT uSize)
 }
 
 DWORD SearchPathWrap(
-        LPCWSTR lpPathName,
-        LPCWSTR lpFileName,
-        LPCWSTR lpExtension,
-        DWORD   cchReturnBuffer,
-        LPWSTR  lpReturnBuffer,
-        LPWSTR *  plpfilePart)
+    LPCWSTR lpPathName,
+    LPCWSTR lpFileName,
+    LPCWSTR lpExtension,
+    DWORD   cchReturnBuffer,
+    LPWSTR  lpReturnBuffer,
+    LPWSTR* plpfilePart)
 {
     CStrIn  strPath(lpPathName);
     CStrIn  strFile(lpFileName);
@@ -2566,12 +2390,12 @@ DWORD SearchPathWrap(
     CStrOut strReturnBuffer(lpReturnBuffer, cchReturnBuffer);
 
     DWORD dwLen = SearchPathA(
-            strPath,
-            strFile,
-            strExtension,
-            strReturnBuffer.BufSize(),
-            strReturnBuffer,
-            (LPSTR *)plpfilePart);
+        strPath,
+        strFile,
+        strExtension,
+        strReturnBuffer.BufSize(),
+        strReturnBuffer,
+        (LPSTR*)plpfilePart);
 
 
     // Getting the correct value for plpfilePart requires
@@ -2582,7 +2406,7 @@ DWORD SearchPathWrap(
     *plpfilePart = NULL;
 
     if (cchReturnBuffer == 0)
-        dwLen = 2*dwLen;
+        dwLen = 2 * dwLen;
     else
         dwLen = strReturnBuffer.ConvertExcludingNul();
 
@@ -2599,17 +2423,13 @@ int GetObjectWrap(HGDIOBJ hgdiObj, int cbBuffer, LPVOID lpvObj)
 {
     int nRet;
 
-    if(cbBuffer != sizeof(LOGFONTW))
-    {
+    if (cbBuffer != sizeof(LOGFONTW)) {
         nRet = GetObjectA(hgdiObj, cbBuffer, lpvObj);
-    }
-    else
-    {
+    } else {
         LOGFONTA lfa;
 
         nRet = GetObjectA(hgdiObj, sizeof(lfa), &lfa);
-        if (nRet > 0)
-        {
+        if (nRet > 0) {
             memcpy(lpvObj, &lfa, FIELD_OFFSET(LOGFONTW, lfFaceName));
             UnicodeFromMbcs(((LOGFONTW*)lpvObj)->lfFaceName, ARRAYSIZE(((LOGFONTW*)lpvObj)->lfFaceName),
                             lfa.lfFaceName, -1);
@@ -2624,13 +2444,13 @@ int GetObjectWrap(HGDIOBJ hgdiObj, int cbBuffer, LPVOID lpvObj)
 //      GetFullPathNameWrap
 
 
-DWORD GetFullPathNameWrap( LPCWSTR lpFileName,
-                     DWORD  nBufferLength,
-                     LPWSTR lpBuffer,
-                     LPWSTR *lpFilePart)
+DWORD GetFullPathNameWrap(LPCWSTR lpFileName,
+                          DWORD  nBufferLength,
+                          LPWSTR lpBuffer,
+                          LPWSTR* lpFilePart)
 {
     CStrIn  strIn(lpFileName);
-    CStrOut  strOut(lpBuffer,nBufferLength);
+    CStrOut  strOut(lpBuffer, nBufferLength);
     LPSTR   pFile;
     DWORD   dwRet;
 
@@ -2647,10 +2467,10 @@ BOOL GetStringTypeExWrap(LCID lcid, DWORD dwInfoType, LPCTSTR lpSrcStr, int cchS
 }
 
 UINT GetPrivateProfileIntWrap(
-        LPCWSTR lpAppName,
-        LPCWSTR lpKeyName,
-        INT     nDefault,
-        LPCWSTR lpFileName)
+    LPCWSTR lpAppName,
+    LPCWSTR lpKeyName,
+    INT     nDefault,
+    LPCWSTR lpFileName)
 {
     CStrIn  strApp(lpAppName);
     CStrIn  strKey(lpKeyName);
@@ -2660,9 +2480,9 @@ UINT GetPrivateProfileIntWrap(
 }
 
 UINT GetProfileIntWrap(
-        LPCWSTR lpAppName,
-        LPCWSTR lpKeyName,
-        INT     nDefault)
+    LPCWSTR lpAppName,
+    LPCWSTR lpKeyName,
+    INT     nDefault)
 {
     CStrIn  strApp(lpAppName);
     CStrIn  strKey(lpKeyName);
@@ -2671,11 +2491,11 @@ UINT GetProfileIntWrap(
 }
 
 DWORD GetProfileStringWrap(
-        LPCWSTR lpAppName,
-        LPCWSTR lpKeyName,
-        LPCWSTR lpDefault,
-        LPWSTR  lpBuffer,
-        DWORD   dwBuffersize)
+    LPCWSTR lpAppName,
+    LPCWSTR lpKeyName,
+    LPCWSTR lpDefault,
+    LPWSTR  lpBuffer,
+    DWORD   dwBuffersize)
 {
     CStrIn  strApp(lpAppName);
     CStrIn  strKey(lpKeyName);
@@ -2696,10 +2516,10 @@ HANDLE GetPropWrap(HWND hWnd, LPCWSTR lpString)
 }
 
 UINT GetTempFileNameWrap(
-        LPCWSTR lpPathName,
-        LPCWSTR lpPrefixString,
-        UINT    uUnique,
-        LPWSTR  lpTempFileName)
+    LPCWSTR lpPathName,
+    LPCWSTR lpPrefixString,
+    UINT    uUnique,
+    LPWSTR  lpTempFileName)
 {
     CStrIn  strPath(lpPathName);
     CStrIn  strPrefix(lpPrefixString);
@@ -2718,32 +2538,32 @@ DWORD GetTempPathWrap(DWORD nBufferLength, LPWSTR lpBuffer)
 
 #ifndef FONT_LINK
 BOOL GetTextExtentPointWrap(
-        HDC     hdc,
-        LPCWSTR pwsz,
-        int     cb,
-        LPSIZE  pSize)
+    HDC     hdc,
+    LPCWSTR pwsz,
+    int     cb,
+    LPSIZE  pSize)
 {
-    CStrIn str(pwsz,cb);
+    CStrIn str(pwsz, cb);
 
     return GetTextExtentPointA(hdc, str, str.strlen(), pSize);
 }
 
 BOOL GetTextExtentPoint32Wrap(
-        HDC     hdc,
-        LPCWSTR pwsz,
-        int     cb,
-        LPSIZE  pSize)
+    HDC     hdc,
+    LPCWSTR pwsz,
+    int     cb,
+    LPSIZE  pSize)
 {
-    CStrIn str(pwsz,cb);
+    CStrIn str(pwsz, cb);
 
     return GetTextExtentPoint32A(hdc, str, str.strlen(), pSize);
 }
 #endif
 
 int GetTextFaceWrap(
-        HDC    hdc,
-        int    cch,
-        LPWSTR lpFaceName)
+    HDC    hdc,
+    int    cch,
+    LPWSTR lpFaceName)
 {
     CStrOut str(lpFaceName, cch);
 
@@ -2753,46 +2573,45 @@ int GetTextFaceWrap(
 
 BOOL GetTextMetricsWrap(HDC hdc, LPTEXTMETRICW lptm)
 {
-   BOOL         ret;
-   TEXTMETRICA  tm;
+    BOOL         ret;
+    TEXTMETRICA  tm;
 
     ret = GetTextMetricsA(hdc, &tm);
 
-    if (ret)
-    {
-        lptm->tmHeight              = tm.tmHeight;
-        lptm->tmAscent              = tm.tmAscent;
-        lptm->tmDescent             = tm.tmDescent;
-        lptm->tmInternalLeading     = tm.tmInternalLeading;
-        lptm->tmExternalLeading     = tm.tmExternalLeading;
-        lptm->tmAveCharWidth        = tm.tmAveCharWidth;
-        lptm->tmMaxCharWidth        = tm.tmMaxCharWidth;
-        lptm->tmWeight              = tm.tmWeight;
-        lptm->tmOverhang            = tm.tmOverhang;
-        lptm->tmDigitizedAspectX    = tm.tmDigitizedAspectX;
-        lptm->tmDigitizedAspectY    = tm.tmDigitizedAspectY;
-        lptm->tmItalic              = tm.tmItalic;
-        lptm->tmUnderlined          = tm.tmUnderlined;
-        lptm->tmStruckOut           = tm.tmStruckOut;
-        lptm->tmPitchAndFamily      = tm.tmPitchAndFamily;
-        lptm->tmCharSet             = tm.tmCharSet;
+    if (ret) {
+        lptm->tmHeight = tm.tmHeight;
+        lptm->tmAscent = tm.tmAscent;
+        lptm->tmDescent = tm.tmDescent;
+        lptm->tmInternalLeading = tm.tmInternalLeading;
+        lptm->tmExternalLeading = tm.tmExternalLeading;
+        lptm->tmAveCharWidth = tm.tmAveCharWidth;
+        lptm->tmMaxCharWidth = tm.tmMaxCharWidth;
+        lptm->tmWeight = tm.tmWeight;
+        lptm->tmOverhang = tm.tmOverhang;
+        lptm->tmDigitizedAspectX = tm.tmDigitizedAspectX;
+        lptm->tmDigitizedAspectY = tm.tmDigitizedAspectY;
+        lptm->tmItalic = tm.tmItalic;
+        lptm->tmUnderlined = tm.tmUnderlined;
+        lptm->tmStruckOut = tm.tmStruckOut;
+        lptm->tmPitchAndFamily = tm.tmPitchAndFamily;
+        lptm->tmCharSet = tm.tmCharSet;
 
-        UnicodeFromMbcs(&lptm->tmFirstChar, 1, (LPSTR) &tm.tmFirstChar, 1);
-        UnicodeFromMbcs(&lptm->tmLastChar, 1, (LPSTR) &tm.tmLastChar, 1);
-        UnicodeFromMbcs(&lptm->tmDefaultChar, 1, (LPSTR) &tm.tmDefaultChar, 1);
-        UnicodeFromMbcs(&lptm->tmBreakChar, 1, (LPSTR) &tm.tmBreakChar, 1);
+        UnicodeFromMbcs(&lptm->tmFirstChar, 1, (LPSTR)&tm.tmFirstChar, 1);
+        UnicodeFromMbcs(&lptm->tmLastChar, 1, (LPSTR)&tm.tmLastChar, 1);
+        UnicodeFromMbcs(&lptm->tmDefaultChar, 1, (LPSTR)&tm.tmDefaultChar, 1);
+        UnicodeFromMbcs(&lptm->tmBreakChar, 1, (LPSTR)&tm.tmBreakChar, 1);
     }
 
     return ret;
 }
 
 int GetTimeFormatWrap(
-        LCID Locale,
-        DWORD dwFlags,
-        CONST SYSTEMTIME *lpTime,
-        LPCWSTR lpFormat,
-        LPWSTR lpTimeStr,
-        int cchTime)
+    LCID Locale,
+    DWORD dwFlags,
+    CONST SYSTEMTIME* lpTime,
+    LPCWSTR lpFormat,
+    LPWSTR lpTimeStr,
+    int cchTime)
 {
     CStrIn strFormat(lpFormat);
     CStrOut str(lpTimeStr, cchTime);
@@ -2840,15 +2659,15 @@ ATOM GlobalAddAtomWrap(LPCWSTR lpString)
 }
 
 BOOL GrayStringWrap(
-        HDC hDC,
-        HBRUSH hBrush,
-        GRAYSTRINGPROC lpOutputFunc,
-        LPARAM lpData,
-        int nCount,
-        int x,
-        int y,
-        int nWidth,
-        int nHeight)
+    HDC hDC,
+    HBRUSH hBrush,
+    GRAYSTRINGPROC lpOutputFunc,
+    LPARAM lpData,
+    int nCount,
+    int x,
+    int y,
+    int nWidth,
+    int nHeight)
 {
     CStrIn str((LPWSTR)lpData);
 
@@ -2859,24 +2678,19 @@ LONG ImmGetCompositionStringWrap(HIMC hIMC, DWORD dwIndex, LPVOID lpBuf, DWORD d
 {
     int cb = 0;
 
-    if ((dwIndex & GCS_COMPSTR) || (dwIndex & GCS_RESULTSTR))
-    {
-        if (dwBufLen)
-        {
-            CStrOut str((LPWSTR)lpBuf, dwBufLen/sizeof(WCHAR) + 1);
+    if ((dwIndex & GCS_COMPSTR) || (dwIndex & GCS_RESULTSTR)) {
+        if (dwBufLen) {
+            CStrOut str((LPWSTR)lpBuf, dwBufLen / sizeof(WCHAR) + 1);
 
             cb = ImmGetCompositionStringA(hIMC, dwIndex, str, str.BufSize());
             *(WCHAR*)((LPSTR)str + cb) = L'\0';
             return str.ConvertExcludingNul() * sizeof(WCHAR);
-        }
-        else
-        {
+        } else {
             LPWSTR lpStr;
 
             cb = ImmGetCompositionStringA(hIMC, dwIndex, lpBuf, dwBufLen);
             lpStr = (LPWSTR)LocalAlloc(LPTR, (cb + 1) * sizeof(WCHAR));
-            if (lpStr)
-            {
+            if (lpStr) {
                 CStrOut str(lpStr, cb + 1);
 
                 cb = ImmGetCompositionStringA(hIMC, dwIndex, str, str.BufSize());
@@ -2886,27 +2700,21 @@ LONG ImmGetCompositionStringWrap(HIMC hIMC, DWORD dwIndex, LPVOID lpBuf, DWORD d
                 return cb;
             }
         }
-    }
-    else if (dwIndex & GCS_COMPATTR)
-    {
-        if (dwBufLen)
-        {
+    } else if (dwIndex & GCS_COMPATTR) {
+        if (dwBufLen) {
             LPSTR lpStr, lpAttr;
             UINT i = 0;
 
             lpStr = (LPSTR)LocalAlloc(LPTR, dwBufLen);
-            if (lpStr)
-            {
+            if (lpStr) {
                 lpAttr = (LPSTR)LocalAlloc(LPTR, dwBufLen);
-                if (lpAttr)
-                {
+                if (lpAttr) {
                     LPSTR lpNext = lpStr;
 
                     cb = ImmGetCompositionStringA(hIMC, GCS_COMPSTR, lpStr, dwBufLen);
                     ImmGetCompositionStringA(hIMC, GCS_COMPATTR, lpAttr, dwBufLen);
 
-                    for (i = 0; (lpNext - lpStr < cb) && (i < dwBufLen); i++)
-                    {
+                    for (i = 0; (lpNext - lpStr < cb) && (i < dwBufLen); i++) {
                         ((LPSTR)lpBuf)[i] = lpAttr[lpNext - lpStr];
                         lpNext = CharNextA(lpNext);
                     }
@@ -2922,8 +2730,7 @@ LONG ImmGetCompositionStringWrap(HIMC hIMC, DWORD dwIndex, LPVOID lpBuf, DWORD d
 
 LONG ImmSetCompositionStringWrap(HIMC hIMC, DWORD dwIndex, LPVOID lpComp, DWORD dwCompLen, LPVOID lpRead, DWORD dwReadLen)
 {
-    if (dwIndex & SCS_SETSTR)
-    {
+    if (dwIndex & SCS_SETSTR) {
         CStrIn str((LPWSTR)lpComp);
 
         ASSERT(!lpRead);
@@ -2934,11 +2741,11 @@ LONG ImmSetCompositionStringWrap(HIMC hIMC, DWORD dwIndex, LPVOID lpComp, DWORD 
 }
 
 BOOL InsertMenuWrap(
-        HMENU   hMenu,
-        UINT    uPosition,
-        UINT    uFlags,
-        UINT    uIDNewItem,
-        LPCWSTR lpNewItem)
+    HMENU   hMenu,
+    UINT    uPosition,
+    UINT    uFlags,
+    UINT    uIDNewItem,
+    LPCWSTR lpNewItem)
 {
     CStrIn  str(lpNewItem);
 
@@ -2954,7 +2761,7 @@ HACCEL LoadAcceleratorsWrap(HINSTANCE hInstance, LPCWSTR lpTableName)
 {
     CStrIn str(lpTableName);
 
-    return LoadAcceleratorsA(hInstance, (LPCSTR) str);
+    return LoadAcceleratorsA(hInstance, (LPCSTR)str);
 }
 
 HBITMAP LoadBitmapWrap(HINSTANCE hInstance, LPCWSTR lpBitmapName)
@@ -2968,7 +2775,7 @@ HCURSOR LoadCursorWrap(HINSTANCE hInstance, LPCWSTR lpCursorName)
 {
     CStrIn str(lpCursorName);
 
-    return LoadCursorA(hInstance, (LPCSTR) str);
+    return LoadCursorA(hInstance, (LPCSTR)str);
 }
 
 HICON LoadIconWrap(HINSTANCE hInstance, LPCWSTR lpIconName)
@@ -2979,22 +2786,22 @@ HICON LoadIconWrap(HINSTANCE hInstance, LPCWSTR lpIconName)
 }
 
 HANDLE LoadImageWrap(
-        HINSTANCE hInstance,
-        LPCWSTR lpName,
-        UINT uType,
-        int cxDesired,
-        int cyDesired,
-        UINT fuLoad)
+    HINSTANCE hInstance,
+    LPCWSTR lpName,
+    UINT uType,
+    int cxDesired,
+    int cyDesired,
+    UINT fuLoad)
 {
     CStrIn str(lpName);
 
     return LoadImageA(
-            hInstance,
-            str,
-            uType,
-            cxDesired,
-            cyDesired,
-            fuLoad);
+        hInstance,
+        str,
+        uType,
+        cxDesired,
+        cyDesired,
+        fuLoad);
 }
 
 HINSTANCE LoadLibraryWrap(LPCWSTR lpLibFileName)
@@ -3005,9 +2812,9 @@ HINSTANCE LoadLibraryWrap(LPCWSTR lpLibFileName)
 }
 
 HINSTANCE LoadLibraryExWrap(
-        LPCWSTR lpLibFileName,
-        HANDLE  hFile,
-        DWORD   dwFlags)
+    LPCWSTR lpLibFileName,
+    HANDLE  hFile,
+    DWORD   dwFlags)
 {
     CStrIn  str(lpLibFileName);
 
@@ -3018,7 +2825,7 @@ HMENU LoadMenuWrap(HINSTANCE hInstance, LPCWSTR lpMenuName)
 {
     ASSERT(HIWORD64(lpMenuName) == 0);
 
-    return LoadMenuA(hInstance, (LPCSTR) lpMenuName);
+    return LoadMenuA(hInstance, (LPCSTR)lpMenuName);
 }
 
 int LoadStringWrap(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int nBufferMax)
@@ -3052,7 +2859,7 @@ int LoadStringWrap(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int nBufferMa
                 pwch += *pwch + 1;
             }
             cwch = min(*pwch, nBufferMax - 1);
-            memcpy(lpBuffer, pwch+1, cwch * sizeof(WCHAR)); /* Copy the goo */
+            memcpy(lpBuffer, pwch + 1, cwch * sizeof(WCHAR)); /* Copy the goo */
         }
     }
     lpBuffer[cwch] = L'\0';                 /* Terminate the string */
@@ -3075,7 +2882,7 @@ UINT MapVirtualKeyWrap(UINT uCode, UINT uMapType)
 
 
 
-static WCHAR TransformCharNoOp1( LPCWSTR *ppch, int )
+static WCHAR TransformCharNoOp1(LPCWSTR* ppch, int)
 {
     WCHAR ch = **ppch;
 
@@ -3106,26 +2913,19 @@ static WCHAR TransformCharNoOp1( LPCWSTR *ppch, int )
 
 
 
-static WCHAR TransformCharWidth( LPCWSTR *ppch, int cchRemaining )
+static WCHAR TransformCharWidth(LPCWSTR* ppch, int cchRemaining)
 {
     WCHAR ch = **ppch;
 
     (*ppch)++;
 
-    if (ch == 0x0020)
-    {
+    if (ch == 0x0020) {
         ch = 0x3000;
-    }
-    else if (ch == 0x005c)
-    {
+    } else if (ch == 0x005c) {
         // REVERSE SOLIDUS (aka BACKSLASH) maps to itself
-    }
-    else if (InRange(ch, 0x0021, 0x07e))
-    {
+    } else if (InRange(ch, 0x0021, 0x07e)) {
         ch += 65248;
-    }
-    else if (InRange(ch, 0x00a2, 0x00af))
-    {
+    } else if (InRange(ch, 0x00a2, 0x00af)) {
         static const WCHAR achFull[] =
         {
             0xffe0, 0xffe1, 0x00a4, 0xffe5, 0xffe4, 0x00a7, 0x00a8, // 0xa2-0xa8
@@ -3133,25 +2933,20 @@ static WCHAR TransformCharWidth( LPCWSTR *ppch, int cchRemaining )
         };
 
         ch = achFull[ch - 0x00a2];
-    }
-    else if (ch == 0x20a9) // WON SIGN
+    } else if (ch == 0x20a9) // WON SIGN
     {
         ch = 0xffe6;
-    }
-    else if (InRange(ch, 0xff61, 0xffdc))
-    {
+    } else if (InRange(ch, 0xff61, 0xffdc)) {
         WCHAR chNext = (cchRemaining > 1) ? **ppch : 0;
 
-        if (chNext == 0xff9e && InRange(ch, 0xff73, 0xff8e))
-        {
-            if (cchRemaining != 1)
-            {
+        if (chNext == 0xff9e && InRange(ch, 0xff73, 0xff8e)) {
+            if (cchRemaining != 1) {
                 static const WCHAR achFull[] =
                 {
-/* 0xff73-0xff79 */  0xb0f4, 0x30a8, 0x30aa, 0xb0ac, 0xb0ae, 0xb0b0, 0xb0b2,
-/* 0xff7a-0xff80 */  0xb0b4, 0xb0b6, 0xb0b8, 0xb0ba, 0xb0bc, 0xb0be, 0xb0c0,
-/* 0xff81-0xff87 */  0xb0c2, 0xb0c5, 0xb0c7, 0xb0c9, 0x30ca, 0x30cb, 0x30cc,
-/* 0xff88-0xff8e */  0x30cd, 0x30ce, 0xb0d0, 0xb0d3, 0xb0d6, 0xb0d9, 0xb0dc
+                    /* 0xff73-0xff79 */  0xb0f4, 0x30a8, 0x30aa, 0xb0ac, 0xb0ae, 0xb0b0, 0xb0b2,
+                    /* 0xff7a-0xff80 */  0xb0b4, 0xb0b6, 0xb0b8, 0xb0ba, 0xb0bc, 0xb0be, 0xb0c0,
+                    /* 0xff81-0xff87 */  0xb0c2, 0xb0c5, 0xb0c7, 0xb0c9, 0x30ca, 0x30cb, 0x30cc,
+                    /* 0xff88-0xff8e */  0x30cd, 0x30ce, 0xb0d0, 0xb0d3, 0xb0d6, 0xb0d9, 0xb0dc
                 };
 
                 // HALFWIDTH KATAKANA VOICED SOUND MARK
@@ -3163,21 +2958,16 @@ static WCHAR TransformCharWidth( LPCWSTR *ppch, int cchRemaining )
 
                 ch = chTemp & 0x7fff;
 
-                if (chTemp & 0x8000)
-                {
+                if (chTemp & 0x8000) {
                     (*ppch)++;
                 }
             }
-        }
-        else if (chNext == 0xff9f && InRange(ch, 0xff8a, 0xff8e))
-        {
+        } else if (chNext == 0xff9f && InRange(ch, 0xff8a, 0xff8e)) {
             // HALFWIDTH KATAKANA SEMI-VOICED SOUND MARK
 
             ch = 0x30d1 + (ch - 0xff8a) * 3;
             (*ppch)++;
-        }
-        else
-        {
+        } else {
             static const WCHAR achMapFullFFxx[] =
             {
                 0x3002, 0x300c, 0x300d, 0x3001, 0x30fb, 0x30f2, 0x30a1,  // 0xff61-0xff67
@@ -3218,7 +3008,7 @@ static WCHAR TransformCharWidth( LPCWSTR *ppch, int cchRemaining )
 
 
 
-static WCHAR TransformCharNoOp2( WCHAR ch )
+static WCHAR TransformCharNoOp2(WCHAR ch)
 {
     return ch;
 }
@@ -3234,11 +3024,10 @@ static WCHAR TransformCharNoOp2( WCHAR ch )
 
 
 
-static WCHAR TransformCharKana( WCHAR ch )
+static WCHAR TransformCharKana(WCHAR ch)
 {
     if (((ch & 0xff00) == 0x3000) &&
-        (InRange(ch, 0x3041, 0x3094) || InRange(ch, 0x309d, 0x309e)))
-    {
+        (InRange(ch, 0x3041, 0x3094) || InRange(ch, 0x309d, 0x309e))) {
         ch += 0x060;
     }
 
@@ -3256,7 +3045,7 @@ static WCHAR TransformCharKana( WCHAR ch )
 
 
 
-static DWORD TransformCharNoOp3( LPWSTR, DWORD cch )
+static DWORD TransformCharNoOp3(LPWSTR, DWORD cch)
 {
     return cch;
 }
@@ -3274,25 +3063,24 @@ static DWORD TransformCharNoOp3( LPWSTR, DWORD cch )
 
 // BUGBUG (cthrash) We do not fold Presentation Forms (Alphabetic or Arabic)
 
-static WCHAR TransformCharFinal( WCHAR ch )
+static WCHAR TransformCharFinal(WCHAR ch)
 {
     WCHAR chRet = ch;
 
     if (ch >= 0x3c2)                    // short-circuit ASCII +
     {
-        switch (ch)
-        {
-            case 0x03c2:                // GREEK SMALL LETTER FINAL SIGMA
-            case 0x05da:                // HEBREW LETTER FINAL KAF
-            case 0x05dd:                // HEBREW LETTER FINAL MEM
-            case 0x05df:                // HEBREW LETTER FINAL NUN
-            case 0x05e3:                // HEBREW LETTER FINAL PE
-            case 0x05e5:                // HEBREW LETTER FINAL TSADI
-            case 0xfb26:                // HEBREW LETTER WIDE FINAL MEM
-            case 0xfb3a:                // HEBREW LETTER FINAL KAF WITH DAGESH
-            case 0xfb43:                // HEBREW LETTER FINAL PE WITH DAGESH
-                chRet++;
-                break;
+        switch (ch) {
+        case 0x03c2:                // GREEK SMALL LETTER FINAL SIGMA
+        case 0x05da:                // HEBREW LETTER FINAL KAF
+        case 0x05dd:                // HEBREW LETTER FINAL MEM
+        case 0x05df:                // HEBREW LETTER FINAL NUN
+        case 0x05e3:                // HEBREW LETTER FINAL PE
+        case 0x05e5:                // HEBREW LETTER FINAL TSADI
+        case 0xfb26:                // HEBREW LETTER WIDE FINAL MEM
+        case 0xfb3a:                // HEBREW LETTER FINAL KAF WITH DAGESH
+        case 0xfb43:                // HEBREW LETTER FINAL PE WITH DAGESH
+            chRet++;
+            break;
         }
     }
 
@@ -3320,32 +3108,31 @@ static int CompareStringString(
     LPCWSTR lpA,
     int     cchA,
     LPCWSTR lpB,
-    int     cchB )
+    int     cchB)
 {
     int nRet = 0;
     WCHAR wchIgnoreNulA = cchA == -1 ? 0 : -1;
     WCHAR wchIgnoreNulB = cchB == -1 ? 0 : -1;
-    WCHAR (*pfnTransformWidth)(LPCWSTR *, int);
-    WCHAR (*pfnTransformKana)(WCHAR);
-    DWORD (*pfnTransformLower)(LPWSTR, DWORD);
-    WCHAR (*pfnTransformFinal)(WCHAR);
+    WCHAR(*pfnTransformWidth)(LPCWSTR*, int);
+    WCHAR(*pfnTransformKana)(WCHAR);
+    DWORD(*pfnTransformLower)(LPWSTR, DWORD);
+    WCHAR(*pfnTransformFinal)(WCHAR);
 
 
     pfnTransformWidth = (dwFlags & NORM_IGNOREWIDTH)
-                        ? TransformCharWidth : TransformCharNoOp1;
-    pfnTransformKana  = (dwFlags & NORM_IGNOREKANATYPE)
-                        ? TransformCharKana : TransformCharNoOp2;
+        ? TransformCharWidth : TransformCharNoOp1;
+    pfnTransformKana = (dwFlags & NORM_IGNOREKANATYPE)
+        ? TransformCharKana : TransformCharNoOp2;
     pfnTransformLower = (dwFlags & NORM_IGNORECASE)
-                        ? CharLowerBuffWrap : TransformCharNoOp3;
+        ? CharLowerBuffWrap : TransformCharNoOp3;
     pfnTransformFinal = (dwFlags & NORM_IGNORECASE)
-                        ? TransformCharFinal : TransformCharNoOp2;
+        ? TransformCharFinal : TransformCharNoOp2;
 
-    while (   !nRet
+    while (!nRet
            && cchA
            && cchB
            && (*lpA | wchIgnoreNulA)
-           && (*lpB | wchIgnoreNulB) )
-    {
+           && (*lpB | wchIgnoreNulB)) {
         WCHAR chA, chB;
         LPCWSTR lpAOld = lpA;
         LPCWSTR lpBOld = lpB;
@@ -3361,17 +3148,15 @@ static int CompareStringString(
         chB = (*pfnTransformFinal)(chB);
 
         nRet = (int)chA - (int)chB;
-        cchA -= (int) (lpA-lpAOld);
-        cchB -= (int) (lpB-lpBOld);
+        cchA -= (int)(lpA - lpAOld);
+        cchB -= (int)(lpB - lpBOld);
     }
 
-    if (!nRet)
-    {
+    if (!nRet) {
         nRet = cchA - cchB;
     }
 
-    if (nRet)
-    {
+    if (nRet) {
         nRet = nRet > 0 ? 1 : -1;
     }
 
@@ -3398,7 +3183,7 @@ static int CompareStringWord(
     LPCWSTR lpA,
     int     cchA,
     LPCWSTR lpB,
-    int     cchB )
+    int     cchB)
 {
     // BUGBUG (cthrash) We won't properly support word compare for the
     // time being.  Do the same old CP_ACP trick, which should cover
@@ -3440,16 +3225,13 @@ LWSTDAPI_(int) CompareStringAltW(
     LPCWSTR lpA,
     int     cchA,
     LPCWSTR lpB,
-    int     cchB )
+    int     cchB)
 {
     int nRet;
 
-    if (dwFlags & SORT_STRINGSORT)
-    {
+    if (dwFlags & SORT_STRINGSORT) {
         nRet = CompareStringString(dwFlags, lpA, cchA, lpB, cchB);
-    }
-    else
-    {
+    } else {
         nRet = CompareStringWord(lcid, dwFlags, lpA, cchA, lpB, cchB);
     }
 
@@ -3477,11 +3259,11 @@ int CompareStringWrap(
 
 
     return CompareStringA(Locale, dwCmpFlags,
-                          strString1,cchCount1,
-                          strString2,cchCount2);
+                          strString1, cchCount1,
+                          strString2, cchCount2);
 }
 
-BOOL MessageBoxIndirectWrap(MSGBOXPARAMS *pmbp)
+BOOL MessageBoxIndirectWrap(MSGBOXPARAMS* pmbp)
 {
     CStrIn        strText(pmbp->lpszText);
     CStrIn        strCaption(pmbp->lpszCaption);
@@ -3502,51 +3284,50 @@ DWORD GetCharacterPlacementWrap(
     int nMaxExtent,     // maximum extent for displayed string
     LPGCP_RESULTS lpResults, // pointer to buffer for placement result
     DWORD dwFlags       // placement flags
-   )
+)
 {
     CStrIn strText(lpString);
     DWORD dwRet;
 
     // Leave for someone else.
-    ASSERT (lpResults->lpOutString == NULL);
-    ASSERT (lpResults->lpClass == NULL);
+    ASSERT(lpResults->lpOutString == NULL);
+    ASSERT(lpResults->lpClass == NULL);
 
-    dwRet = GetCharacterPlacementA (hdc, strText, nCount, nMaxExtent,
-                                    (LPGCP_RESULTSA)lpResults,
-                                    dwFlags);
+    dwRet = GetCharacterPlacementA(hdc, strText, nCount, nMaxExtent,
+        (LPGCP_RESULTSA)lpResults,
+                                   dwFlags);
     return dwRet;
 }
 
 #ifndef FONT_LINK
-BOOL GetCharWidthWrap (
-     HDC hdc,
-     UINT iFirstChar,
-     UINT iLastChar,
-     LPINT lpBuffer)
+BOOL GetCharWidthWrap(
+    HDC hdc,
+    UINT iFirstChar,
+    UINT iLastChar,
+    LPINT lpBuffer)
 {
     // Note that we expect to do only one character at a time for anything but
     // ISO Latin 1.
-    if (iFirstChar > 255)
-    {
-        UINT mbChar=0;
+    if (iFirstChar > 255) {
+        UINT mbChar = 0;
         WCHAR ch;
 
         // Convert string
         ch = (WCHAR)iFirstChar;
         WideCharToMultiByte(CP_ACP, 0, &ch, 1,
-                            (char *)&mbChar, 2, NULL, NULL);
+            (char*)&mbChar, 2, NULL, NULL);
     }
 
-    return (GetCharWidthA (hdc, iFirstChar, iLastChar, lpBuffer));
+    return (GetCharWidthA(hdc, iFirstChar, iLastChar, lpBuffer));
 }
 #endif
 
 BOOL ModifyMenuWrap(
-        HMENU   hMenu,
-        UINT    uPosition,
-        UINT    uFlags,
-        UINT    uIDNewItem,
-        LPCWSTR lpNewItem)
+    HMENU   hMenu,
+    UINT    uPosition,
+    UINT    uFlags,
+    UINT    uIDNewItem,
+    LPCWSTR lpNewItem)
 {
     ASSERT(!(uFlags & MF_BITMAP) && !(uFlags & MF_OWNERDRAW));
 
@@ -3586,29 +3367,29 @@ VOID OutputDebugStringWrap(LPCWSTR lpOutputString)
 }
 
 BOOL PeekMessageWrap(
-        LPMSG   lpMsg,
-        HWND    hWnd,
-        UINT    wMsgFilterMin,
-        UINT    wMsgFilterMax,
-        UINT    wRemoveMsg)
+    LPMSG   lpMsg,
+    HWND    hWnd,
+    UINT    wMsgFilterMin,
+    UINT    wMsgFilterMax,
+    UINT    wRemoveMsg)
 {
     return PeekMessageA(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
 }
 
 BOOL PostMessageWrap(
-        HWND    hWnd,
-        UINT    Msg,
-        WPARAM  wParam,
-        LPARAM  lParam)
+    HWND    hWnd,
+    UINT    Msg,
+    WPARAM  wParam,
+    LPARAM  lParam)
 {
     return PostMessageA(hWnd, Msg, wParam, lParam);
 }
 
 BOOL PostThreadMessageWrap(
-        DWORD idThread,
-        UINT Msg,
-        WPARAM wParam,
-        LPARAM lParam)
+    DWORD idThread,
+    UINT Msg,
+    WPARAM wParam,
+    LPARAM lParam)
 {
     return PostThreadMessageA(idThread, Msg, wParam, lParam);
 }
@@ -3625,7 +3406,7 @@ LONG RegCreateKeyExWrap(HKEY hKey, LPCTSTR lpSubKey, DWORD Reserved, LPTSTR lpCl
     CStrIn strSubKey(lpSubKey);
     CStrIn strClass(lpClass);
 
-    return RegCreateKeyExA(hKey, strSubKey, Reserved, strClass, dwOptions, samDesired, lpSecurityAttributes,  phkResult, lpdwDisposition);
+    return RegCreateKeyExA(hKey, strSubKey, Reserved, strClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
 }
 
 LONG RegDeleteKeyWrap(HKEY hKey, LPCWSTR pwszSubKey)
@@ -3636,10 +3417,10 @@ LONG RegDeleteKeyWrap(HKEY hKey, LPCWSTR pwszSubKey)
 }
 
 LONG RegEnumKeyWrap(
-        HKEY    hKey,
-        DWORD   dwIndex,
-        LPWSTR  lpName,
-        DWORD   cbName)
+    HKEY    hKey,
+    DWORD   dwIndex,
+    LPWSTR  lpName,
+    DWORD   cbName)
 {
     CStrOut str(lpName, cbName);
 
@@ -3647,20 +3428,19 @@ LONG RegEnumKeyWrap(
 }
 
 LONG RegEnumKeyExWrap(
-        HKEY        hKey,
-        DWORD       dwIndex,
-        LPWSTR      lpName,
-        LPDWORD     lpcbName,
-        LPDWORD     lpReserved,
-        LPWSTR      lpClass,
-        LPDWORD     lpcbClass,
-        PFILETIME   lpftLastWriteTime)
+    HKEY        hKey,
+    DWORD       dwIndex,
+    LPWSTR      lpName,
+    LPDWORD     lpcbName,
+    LPDWORD     lpReserved,
+    LPWSTR      lpClass,
+    LPDWORD     lpcbClass,
+    PFILETIME   lpftLastWriteTime)
 {
     long    ret;
     DWORD   dwClass = 0;
 
-    if (!lpcbClass)
-    {
+    if (!lpcbClass) {
         lpcbClass = &dwClass;
     }
 
@@ -3668,14 +3448,14 @@ LONG RegEnumKeyExWrap(
     CStrOut strClass(lpClass, *lpcbClass);
 
     ret = RegEnumKeyExA(
-            hKey,
-            dwIndex,
-            strName,
-            lpcbName,
-            lpReserved,
-            strClass,
-            lpcbClass,
-            lpftLastWriteTime);
+        hKey,
+        dwIndex,
+        strName,
+        lpcbName,
+        lpReserved,
+        strClass,
+        lpcbClass,
+        lpftLastWriteTime);
 
     *lpcbName = strName.ConvertExcludingNul();
     *lpcbClass = strClass.ConvertExcludingNul();
@@ -3698,41 +3478,41 @@ LONG RegOpenKeyExWrap(HKEY    hKey, LPCWSTR lpSubKey, DWORD   ulOptions, REGSAM 
 }
 
 LONG RegQueryInfoKeyWrap(
-        HKEY hKey,
-        LPWSTR lpClass,
-        LPDWORD lpcbClass,
-        LPDWORD lpReserved,
-        LPDWORD lpcSubKeys,
-        LPDWORD lpcbMaxSubKeyLen,
-        LPDWORD lpcbMaxClassLen,
-        LPDWORD lpcValues,
-        LPDWORD lpcbMaxValueNameLen,
-        LPDWORD lpcbMaxValueLen,
-        LPDWORD lpcbSecurityDescriptor,
-        PFILETIME lpftLastWriteTime)
+    HKEY hKey,
+    LPWSTR lpClass,
+    LPDWORD lpcbClass,
+    LPDWORD lpReserved,
+    LPDWORD lpcSubKeys,
+    LPDWORD lpcbMaxSubKeyLen,
+    LPDWORD lpcbMaxClassLen,
+    LPDWORD lpcValues,
+    LPDWORD lpcbMaxValueNameLen,
+    LPDWORD lpcbMaxValueLen,
+    LPDWORD lpcbSecurityDescriptor,
+    PFILETIME lpftLastWriteTime)
 {
     CStrIn  str(lpClass);
 
     return RegQueryInfoKeyA(
-                hKey,
-                str,
-                lpcbClass,
-                lpReserved,
-                lpcSubKeys,
-                lpcbMaxSubKeyLen,
-                lpcbMaxClassLen,
-                lpcValues,
-                lpcbMaxValueNameLen,
-                lpcbMaxValueLen,
-                lpcbSecurityDescriptor,
-                lpftLastWriteTime);
+        hKey,
+        str,
+        lpcbClass,
+        lpReserved,
+        lpcSubKeys,
+        lpcbMaxSubKeyLen,
+        lpcbMaxClassLen,
+        lpcValues,
+        lpcbMaxValueNameLen,
+        lpcbMaxValueLen,
+        lpcbSecurityDescriptor,
+        lpftLastWriteTime);
 }
 
 LONG RegQueryValueWrap(
-        HKEY    hKey,
-        LPCWSTR pwszSubKey,
-        LPWSTR  pwszValue,
-        PLONG   lpcbValue)
+    HKEY    hKey,
+    LPCWSTR pwszSubKey,
+    LPWSTR  pwszValue,
+    PLONG   lpcbValue)
 {
     long    ret;
     long    cb;
@@ -3744,8 +3524,7 @@ LONG RegQueryValueWrap(
     if (ret != ERROR_SUCCESS)
         goto Cleanup;
 
-    if (strValue)
-    {
+    if (strValue) {
         cb = strValue.ConvertIncludingNul();
     }
 
@@ -3756,12 +3535,12 @@ Cleanup:
 }
 
 LONG RegQueryValueExWrap(
-        HKEY    hKey,
-        LPCWSTR lpValueName,
-        LPDWORD lpReserved,
-        LPDWORD lpType,
-        LPBYTE  lpData,
-        LPDWORD lpcbData)
+    HKEY    hKey,
+    LPCWSTR lpValueName,
+    LPDWORD lpReserved,
+    LPDWORD lpType,
+    LPBYTE  lpData,
+    LPDWORD lpcbData)
 {
     LONG    ret;
     CStrIn  strValueName(lpValueName);
@@ -3775,31 +3554,29 @@ LONG RegQueryValueExWrap(
 
     ASSERT(dwTempType != REG_MULTI_SZ);
 
-    switch (dwTempType)
-    {
+    switch (dwTempType) {
     case REG_EXPAND_SZ:
     case REG_SZ:
-        {
-            CStrOut strData((LPWSTR) lpData, (*lpcbData) / sizeof(WCHAR));
+    {
+        CStrOut strData((LPWSTR)lpData, (*lpcbData) / sizeof(WCHAR));
 
-            cb = strData.BufSize();
-            ret = RegQueryValueExA(hKey, strValueName, lpReserved, lpType, (LPBYTE)(LPSTR)strData, &cb);
-            if (ret != ERROR_SUCCESS)
-                break;
-
-            if (strData)
-            {
-                cb = strData.ConvertIncludingNul();
-            }
-
-            *lpcbData = cb * sizeof(WCHAR);
+        cb = strData.BufSize();
+        ret = RegQueryValueExA(hKey, strValueName, lpReserved, lpType, (LPBYTE)(LPSTR)strData, &cb);
+        if (ret != ERROR_SUCCESS)
             break;
+
+        if (strData) {
+            cb = strData.ConvertIncludingNul();
         }
+
+        *lpcbData = cb * sizeof(WCHAR);
+        break;
+    }
     default:
-        {
-            ret = RegQueryValueExA(hKey, strValueName, lpReserved, lpType, lpData, lpcbData);
-            break;
-        }
+    {
+        ret = RegQueryValueExA(hKey, strValueName, lpReserved, lpType, lpData, lpcbData);
+        break;
+    }
     }
 
 Cleanup:
@@ -3807,11 +3584,11 @@ Cleanup:
 }
 
 LONG RegSetValueWrap(
-        HKEY    hKey,
-        LPCWSTR lpSubKey,
-        DWORD   dwType,
-        LPCWSTR lpData,
-        DWORD   cbData)
+    HKEY    hKey,
+    LPCWSTR lpSubKey,
+    DWORD   dwType,
+    LPCWSTR lpData,
+    DWORD   cbData)
 {
     CStrIn  strKey(lpSubKey);
     CStrIn  strValue(lpData);
@@ -3820,28 +3597,27 @@ LONG RegSetValueWrap(
 }
 
 LONG RegSetValueExWrap(
-        HKEY        hKey,
-        LPCWSTR     lpValueName,
-        DWORD       Reserved,
-        DWORD       dwType,
-        CONST BYTE* lpData,
-        DWORD       cbData)
+    HKEY        hKey,
+    LPCWSTR     lpValueName,
+    DWORD       Reserved,
+    DWORD       dwType,
+    CONST BYTE* lpData,
+    DWORD       cbData)
 {
     ASSERT(dwType != REG_MULTI_SZ);
 
     CStrIn      strKey(lpValueName);
-    CStrIn      strSZ((dwType == REG_SZ || dwType == REG_EXPAND_SZ) ? (LPCWSTR) lpData : NULL);
+    CStrIn      strSZ((dwType == REG_SZ || dwType == REG_EXPAND_SZ) ? (LPCWSTR)lpData : NULL);
 
-    if (strSZ)
-    {
-        lpData = (LPBYTE) (LPSTR) strSZ;
+    if (strSZ) {
+        lpData = (LPBYTE)(LPSTR)strSZ;
         cbData = strSZ.strlen() + 1;
     }
 
     return RegSetValueExA(hKey, strKey, Reserved, dwType, lpData, cbData);
 }
 
-ATOM RegisterClassWrap(CONST WNDCLASSW * lpWndClass)
+ATOM RegisterClassWrap(CONST WNDCLASSW* lpWndClass)
 {
     WNDCLASSA   wc;
     CStrIn      strMenuName(lpWndClass->lpszMenuName);
@@ -3871,8 +3647,8 @@ UINT RegisterWindowMessageWrap(LPCWSTR lpString)
 }
 
 HANDLE RemovePropWrap(
-        HWND    hWnd,
-        LPCWSTR lpString)
+    HWND    hWnd,
+    LPCWSTR lpString)
 {
     CStrIn  str(lpString);
 
@@ -3882,11 +3658,11 @@ HANDLE RemovePropWrap(
 //  NOTE (SumitC) Instead of calling SendDlgItemMessageA below, I'm forwarding to
 //       SendMessageWrap so as not to have to re-do the special-case processing.
 LRESULT SendDlgItemMessageWrap(
-        HWND    hDlg,
-        int     nIDDlgItem,
-        UINT    Msg,
-        WPARAM  wParam,
-        LPARAM  lParam)
+    HWND    hDlg,
+    int     nIDDlgItem,
+    UINT    Msg,
+    WPARAM  wParam,
+    LPARAM  lParam)
 {
     HWND hWnd;
 
@@ -3904,25 +3680,21 @@ LRESULT SendDlgItemMessageWrap(
 #define ADJUST_TO_WCHAR_POS     0
 #define ADJUST_TO_CHAR_POS      1
 
-int AdjustECPosition(char *psz, int iPos, int iType)
+int AdjustECPosition(char* psz, int iPos, int iType)
 {
-    char *pstr = psz;
+    char* pstr = psz;
     int iNewPos = iPos;
 
-    if (ADJUST_TO_WCHAR_POS == iType)
-    {
+    if (ADJUST_TO_WCHAR_POS == iType) {
         iNewPos = 0;
-        while (*pstr && (pstr - psz != iPos))
-        {
+        while (*pstr && (pstr - psz != iPos)) {
             pstr = CharNextA(pstr);
             iNewPos++;
         }
-    }
-    else if (ADJUST_TO_CHAR_POS == iType)
-    {
+    } else if (ADJUST_TO_CHAR_POS == iType) {
         while (*pstr && iPos--)
             pstr = CharNextA(pstr);
-        iNewPos = (int) (pstr-psz);
+        iNewPos = (int)(pstr - psz);
     }
     return iNewPos;
 }
@@ -3951,17 +3723,13 @@ CStrA::CStrA(int cch) : CConvertStr(CP_ACP)
 {
     _cchLen = cch;
 
-    if (cch <= ARRAYSIZE(_ach))
-    {
+    if (cch <= ARRAYSIZE(_ach)) {
         // It fits in our small buffer
         _pstr = _ach;
-    }
-    else
-    {
+    } else {
         // Need to allocate a big buffer
         _pstr = new char[cch];
-        if (!_pstr)
-        {
+        if (!_pstr) {
             // On failure, use the small buffer after all.
             _pstr = _ach;
             _cchLen = ARRAYSIZE(_ach);
@@ -3970,10 +3738,10 @@ CStrA::CStrA(int cch) : CConvertStr(CP_ACP)
 }
 
 LRESULT SendEditMessageWrap(
-        HWND    hWnd,
-        UINT    Msg,
-        WPARAM  wParam,
-        LPARAM  lParam)
+    HWND    hWnd,
+    UINT    Msg,
+    WPARAM  wParam,
+    LPARAM  lParam)
 {
     WORD wStart, wEnd;
     DWORD dwPos;
@@ -3989,24 +3757,23 @@ LRESULT SendEditMessageWrap(
     if (Msg == EM_SETSEL) {
         if ((wParam == 0 || (DWORD)wParam == 0xFFFFFFFF) &&
             (lParam == 0 || (DWORD)lParam == 0xFFFFFFFF))
-        return SendMessageA(hWnd, Msg, wParam, lParam);
+            return SendMessageA(hWnd, Msg, wParam, lParam);
     }
 
     // Get the current window text, since we will be studying it
     CStrA sz(GetWindowTextLengthA(hWnd) + 1);
     GetWindowTextA(hWnd, sz, sz.bufsize());
 
-    switch (Msg)
-    {
+    switch (Msg) {
     case EM_GETSEL:
-        {
-            DWORD_PTR dwPos;
+    {
+        DWORD_PTR dwPos;
 
-            dwPos = SendMessageA(hWnd, Msg, wParam, lParam);
-            wStart = (WORD)AdjustECPosition(sz, GET_X_LPARAM(dwPos), ADJUST_TO_WCHAR_POS);
-            wEnd = (WORD)AdjustECPosition(sz, GET_Y_LPARAM(dwPos), ADJUST_TO_WCHAR_POS);
-            return MAKELONG(wStart, wEnd);
-        }
+        dwPos = SendMessageA(hWnd, Msg, wParam, lParam);
+        wStart = (WORD)AdjustECPosition(sz, GET_X_LPARAM(dwPos), ADJUST_TO_WCHAR_POS);
+        wEnd = (WORD)AdjustECPosition(sz, GET_Y_LPARAM(dwPos), ADJUST_TO_WCHAR_POS);
+        return MAKELONG(wStart, wEnd);
+    }
 
     case EM_SETSEL:
         wStart = (WORD)AdjustECPosition(sz, wParam, ADJUST_TO_CHAR_POS);
@@ -4036,57 +3803,55 @@ LRESULT SendEditMessageWrap(
 
 
 #ifndef UNIX
-  #define SHLWAPI_SENDMESSAGEWRAPW_ORD      136
+#define SHLWAPI_SENDMESSAGEWRAPW_ORD      136
 #else
-  #define SHLWAPI_SENDMESSAGEWRAPW_ORD      "SendMessageWrapW"
+#define SHLWAPI_SENDMESSAGEWRAPW_ORD      "SendMessageWrapW"
 #endif
 
-typedef LRESULT (* PFNSENDMESSAGEWRAPW)(HWND, UINT, WPARAM, LPARAM);
+typedef LRESULT(*PFNSENDMESSAGEWRAPW)(HWND, UINT, WPARAM, LPARAM);
 
 LRESULT SendMessageWrap(
-        HWND    hWnd,
-        UINT    Msg,
-        WPARAM  wParam,
-        LPARAM  lParam)
+    HWND    hWnd,
+    UINT    Msg,
+    WPARAM  wParam,
+    LPARAM  lParam)
 {
     // For XCP PlugUI:
     //     1)If shlwapi is in memory, ask it to do the work, otherwise let it
     //          fall through to original comctl32 wrap implementation.
     //     2)This implementation only apply to LB for fixing #67837
-    switch (Msg)
+    switch (Msg) {
+    case LB_ADDSTRING:
+    case LB_FINDSTRING:
+    case LB_FINDSTRINGEXACT:
+    case LB_INSERTSTRING:
+    case LB_GETTEXT:
+    case LB_GETTEXTLEN:
+    case LB_SELECTSTRING:
     {
-        case LB_ADDSTRING:
-        case LB_FINDSTRING:
-        case LB_FINDSTRINGEXACT:
-        case LB_INSERTSTRING:
-        case LB_GETTEXT:
-        case LB_GETTEXTLEN:
-        case LB_SELECTSTRING:
-        {
-            extern HMODULE GetShlwapiHModule();
-            PFNSENDMESSAGEWRAPW pfnSndMsgWrapW = NULL;
-            HMODULE hShlwapi;
+        extern HMODULE GetShlwapiHModule();
+        PFNSENDMESSAGEWRAPW pfnSndMsgWrapW = NULL;
+        HMODULE hShlwapi;
 
-            hShlwapi = GetShlwapiHModule();
-            if (hShlwapi)
-                pfnSndMsgWrapW = (PFNSENDMESSAGEWRAPW)GetProcAddress(hShlwapi, (LPCSTR)SHLWAPI_SENDMESSAGEWRAPW_ORD);
+        hShlwapi = GetShlwapiHModule();
+        if (hShlwapi)
+            pfnSndMsgWrapW = (PFNSENDMESSAGEWRAPW)GetProcAddress(hShlwapi, (LPCSTR)SHLWAPI_SENDMESSAGEWRAPW_ORD);
 
-            if (pfnSndMsgWrapW)
-                return pfnSndMsgWrapW(hWnd, Msg, wParam, lParam);
-            else
-                break;   // fall through the regular comctl32's wrap
-        }
+        if (pfnSndMsgWrapW)
+            return pfnSndMsgWrapW(hWnd, Msg, wParam, lParam);
+        else
+            break;   // fall through the regular comctl32's wrap
+    }
     }
 
     // original comctl32's wrap implementation
     CHAR sz[MAX_PATH];  // BUGBUG: It's big enough current comctl32 usage until now ...
 
-    switch (Msg)
-    {
+    switch (Msg) {
     case WM_GETTEXT:
     {
-        CStrOut str((LPWSTR)lParam, (int) wParam);
-        SendMessageA(hWnd, Msg, (WPARAM) str.BufSize(), (LPARAM) (LPSTR) str);
+        CStrOut str((LPWSTR)lParam, (int)wParam);
+        SendMessageA(hWnd, Msg, (WPARAM)str.BufSize(), (LPARAM)(LPSTR)str);
         return str.ConvertExcludingNul();
     }
 
@@ -4100,9 +3865,9 @@ LRESULT SendMessageWrap(
     case EM_POSFROMCHAR:
         return SendEditMessageWrap(hWnd, Msg, wParam, lParam);
 
-    // BUGBUG raymondc - This is wrong.  EM_GETLIMITTEXT returns the number
-    // of characters, not bytes.  But the only place we use it is in our
-    // IME composition code, and maybe they really meant to divide by two...
+        // BUGBUG raymondc - This is wrong.  EM_GETLIMITTEXT returns the number
+        // of characters, not bytes.  But the only place we use it is in our
+        // IME composition code, and maybe they really meant to divide by two...
 
     case EM_GETLIMITTEXT:
         return SendMessageA(hWnd, Msg, wParam, lParam) / sizeof(WCHAR);
@@ -4111,11 +3876,11 @@ LRESULT SendMessageWrap(
     {
         LRESULT nLen;
 
-        CStrOut str((LPWSTR) lParam, (* (SHORT *) lParam) + 1);
-        * (SHORT *) (LPSTR) str = * (SHORT *) lParam;
-        nLen = SendMessageA(hWnd, Msg, (WPARAM) wParam, (LPARAM) (LPSTR) str);
-        if(nLen > 0)
-            ((LPSTR) str)[nLen] = '\0';
+        CStrOut str((LPWSTR)lParam, (*(SHORT*)lParam) + 1);
+        *(SHORT*)(LPSTR)str = *(SHORT*)lParam;
+        nLen = SendMessageA(hWnd, Msg, (WPARAM)wParam, (LPARAM)(LPSTR)str);
+        if (nLen > 0)
+            ((LPSTR)str)[nLen] = '\0';
 
         return nLen;
     }
@@ -4123,7 +3888,7 @@ LRESULT SendMessageWrap(
     // BUGBUG: Always assume lParam points structure, not string buffer
     case CB_INSERTSTRING:
     {
-        return SendMessageA(hWnd, Msg, wParam, (LPARAM) lParam);
+        return SendMessageA(hWnd, Msg, wParam, (LPARAM)lParam);
     }
 
     case WM_SETTEXT:
@@ -4138,8 +3903,8 @@ LRESULT SendMessageWrap(
     case LB_INSERTSTRING:
     case LB_FINDSTRINGEXACT:
     {
-        CStrIn  str((LPWSTR) lParam);
-        return SendMessageA(hWnd, Msg, wParam, (LPARAM) (LPSTR) str);
+        CStrIn  str((LPWSTR)lParam);
+        return SendMessageA(hWnd, Msg, wParam, (LPARAM)(LPSTR)str);
     }
 
     case LB_GETTEXTLEN:
@@ -4153,7 +3918,7 @@ LRESULT SendMessageWrap(
     case CB_GETLBTEXT:
     {
         CStrOut str((LPWSTR)lParam, 255);
-        SendMessageA(hWnd, Msg, wParam, (LPARAM) (LPSTR) str);
+        SendMessageA(hWnd, Msg, wParam, (LPARAM)(LPSTR)str);
         return str.ConvertExcludingNul();
     }
 
@@ -4162,7 +3927,7 @@ LRESULT SendMessageWrap(
         WPARAM  wp;
 
         ASSERT(HIWORD64(wParam) == 0);
-        MbcsFromUnicode((LPSTR) &wp, sizeof(wp), (LPWSTR) &wParam);
+        MbcsFromUnicode((LPSTR)&wp, sizeof(wp), (LPWSTR)&wParam);
         ASSERT(HIWORD64(wp) == 0);
 
         return SendMessageA(hWnd, Msg, wp, lParam);
@@ -4202,26 +3967,23 @@ BOOL SetMenuItemInfoWrap(
 {
     BOOL fRet;
 
-    ASSERT( sizeof(MENUITEMINFOW) == sizeof(MENUITEMINFOA) &&
-            FIELD_OFFSET(MENUITEMINFOW, dwTypeData) ==
-            FIELD_OFFSET(MENUITEMINFOA, dwTypeData) );
+    ASSERT(sizeof(MENUITEMINFOW) == sizeof(MENUITEMINFOA) &&
+           FIELD_OFFSET(MENUITEMINFOW, dwTypeData) ==
+           FIELD_OFFSET(MENUITEMINFOA, dwTypeData));
 
-    if ( (MIIM_TYPE & lpmiiW->fMask) &&
-         0 == (lpmiiW->fType & (MFT_BITMAP | MFT_SEPARATOR)))
-    {
+    if ((MIIM_TYPE & lpmiiW->fMask) &&
+        0 == (lpmiiW->fType & (MFT_BITMAP | MFT_SEPARATOR))) {
         MENUITEMINFOA miiA;
         CStrIn str(lpmiiW->dwTypeData, lpmiiW->cch);
 
-        memcpy( &miiA, lpmiiW, sizeof(MENUITEMINFOA) );
+        memcpy(&miiA, lpmiiW, sizeof(MENUITEMINFOA));
         miiA.dwTypeData = str;
         miiA.cch = str.strlen();
 
-        fRet = SetMenuItemInfoA( hMenu, uItem, fByPosition, &miiA );
-    }
-    else
-    {
-        fRet = SetMenuItemInfoA( hMenu, uItem, fByPosition,
-                                 (LPCMENUITEMINFOA)lpmiiW );
+        fRet = SetMenuItemInfoA(hMenu, uItem, fByPosition, &miiA);
+    } else {
+        fRet = SetMenuItemInfoA(hMenu, uItem, fByPosition,
+            (LPCMENUITEMINFOA)lpmiiW);
     }
 
     return fRet;
@@ -4257,37 +4019,34 @@ BOOL SetWindowTextWrap(HWND hWnd, LPCWSTR lpString)
 }
 
 BOOL SystemParametersInfoWrap(
-        UINT    uiAction,
-        UINT    uiParam,
-        PVOID   pvParam,
-        UINT    fWinIni)
+    UINT    uiAction,
+    UINT    uiParam,
+    PVOID   pvParam,
+    UINT    fWinIni)
 {
     BOOL        ret;
     char        ach[LF_FACESIZE];
 
-    if (uiAction == SPI_SETDESKWALLPAPER)
-    {
-        CStrIn str((LPCWSTR) pvParam);
+    if (uiAction == SPI_SETDESKWALLPAPER) {
+        CStrIn str((LPCWSTR)pvParam);
 
         ret = SystemParametersInfoA(
-                        uiAction,
-                        uiParam,
-                        str,
-                        fWinIni);
-    }
-    else if (uiAction == SPI_GETNONCLIENTMETRICS)
-    {
+            uiAction,
+            uiParam,
+            str,
+            fWinIni);
+    } else if (uiAction == SPI_GETNONCLIENTMETRICS) {
         NONCLIENTMETRICSA ncmA;
-        NONCLIENTMETRICS *pncm = (NONCLIENTMETRICS *)pvParam;
+        NONCLIENTMETRICS* pncm = (NONCLIENTMETRICS*)pvParam;
 
         ASSERT(uiParam == sizeof(NONCLIENTMETRICS) && pncm->cbSize == sizeof(NONCLIENTMETRICS));
 
         ncmA.cbSize = sizeof(ncmA);
         ret = SystemParametersInfoA(
-                        uiAction,
-                        sizeof(ncmA),
-                        &ncmA,
-                        fWinIni);
+            uiAction,
+            sizeof(ncmA),
+            &ncmA,
+            fWinIni);
 
         pncm->iBorderWidth = ncmA.iBorderWidth;
         pncm->iScrollWidth = ncmA.iScrollWidth;
@@ -4313,21 +4072,19 @@ BOOL SystemParametersInfoWrap(
 
         memcpy(&pncm->lfMessageFont, &ncmA.lfMessageFont, FIELD_OFFSET(LOGFONTW, lfFaceName));
         UnicodeFromMbcs(pncm->lfMessageFont.lfFaceName, ARRAYSIZE(pncm->lfMessageFont.lfFaceName), ncmA.lfMessageFont.lfFaceName);
-    }
-    else
+    } else
         ret = SystemParametersInfoA(
-                        uiAction,
-                        uiParam,
-                        pvParam,
-                        fWinIni);
+            uiAction,
+            uiParam,
+            pvParam,
+            fWinIni);
 
-    if ((uiAction == SPI_GETICONTITLELOGFONT) && ret)
-    {
+    if ((uiAction == SPI_GETICONTITLELOGFONT) && ret) {
         strcpy(ach, ((LPLOGFONTA)pvParam)->lfFaceName);
         UnicodeFromMbcs(
-                ((LPLOGFONTW)pvParam)->lfFaceName,
-                ARRAYSIZE(((LPLOGFONTW)pvParam)->lfFaceName),
-                ach);
+            ((LPLOGFONTW)pvParam)->lfFaceName,
+            ARRAYSIZE(((LPLOGFONTW)pvParam)->lfFaceName),
+            ach);
     }
 
     return ret;
@@ -4336,13 +4093,11 @@ BOOL SystemParametersInfoWrap(
 #ifndef FONT_LINK
 BOOL TextOutWrap(HDC hdc, int x, int y, LPCWSTR lpStr, int cb)
 {
-    if (g_fMEEnabled && !g_bRunOnMemphis)
-    {
+    if (g_fMEEnabled && !g_bRunOnMemphis) {
         CStrIn str(lpStr);
 
         return TextOutA(hdc, x, y, str, str.strlen());
-    }
-    else
+    } else
         return TextOutW(hdc, x, y, lpStr, cb);
 }
 #endif
@@ -4363,7 +4118,7 @@ SHORT VkKeyScanWrap(WCHAR ch)
 {
     CStrIn str(&ch, 1);
 
-    return VkKeyScanA(*(char *)str);
+    return VkKeyScanA(*(char*)str);
 }
 
 BOOL WinHelpWrap(HWND hwnd, LPCWSTR szFile, UINT uCmd, DWORD dwData)
@@ -4380,29 +4135,24 @@ BOOL WinHelpWrap(HWND hwnd, LPCWSTR szFile, UINT uCmd, DWORD dwData)
 //  bugs.  Taken from the NT wsprintf source code.
 
 //  _MBToWCS and _WCSToMB are actually macros which call ntrtl functions in the NT version.
-int _MBToWCS(LPCSTR pszIn, int cchIn, LPWSTR *ppwszOut)
+int _MBToWCS(LPCSTR pszIn, int cchIn, LPWSTR* ppwszOut)
 {
     int cch = 0;
     int cbAlloc;
 
-    if ((0 != cchIn) && (NULL != ppwszOut))
-    {
+    if ((0 != cchIn) && (NULL != ppwszOut)) {
         cchIn++;
         cbAlloc = cchIn * sizeof(WCHAR);
 
         *ppwszOut = (LPWSTR)LocalAlloc(LMEM_FIXED, cbAlloc);
 
-        if (NULL != *ppwszOut)
-        {
+        if (NULL != *ppwszOut) {
             cch = MultiByteToWideChar(CP_ACP, 0, pszIn, cchIn, *ppwszOut, cchIn);
 
-            if (!cch)
-            {
+            if (!cch) {
                 LocalFree(*ppwszOut);
                 *ppwszOut = NULL;
-            }
-            else
-            {
+            } else {
                 cch--;  //  Just return the number of characters
             }
         }
@@ -4440,7 +4190,7 @@ int _MBToWCS(LPCSTR pszIn, int cchIn, LPWSTR *ppwszOut)
 
 LPCWSTR SP_GetFmtValueW(
     LPCWSTR lpch,
-    int *lpw)
+    int* lpw)
 {
     int ii = 0;
 
@@ -4483,22 +4233,22 @@ int SP_PutNumberW(
     int count = 0;
 
     /* It might not work for some locales or digit sets */
-    if(uppercase)
-        uppercase =  'A'-'0'-10;
+    if (uppercase)
+        uppercase = 'A' - '0' - 10;
     else
-        uppercase = 'a'-'0'-10;
+        uppercase = 'a' - '0' - 10;
 
     if (count < limit) {
-        do  {
-            mod =  n % radix;
+        do {
+            mod = n % radix;
             n /= radix;
 
             mod += '0';
             if (mod > '9')
-            mod += uppercase;
+                mod += uppercase;
             *lpstr++ = (WCHAR)mod;
             count++;
-        } while((count < limit) && n);
+        } while ((count < limit) && n);
     }
 
     return count;
@@ -4521,7 +4271,7 @@ void SP_ReverseW(
 {
     WCHAR ch;
 
-    while(lpLast > lpFirst){
+    while (lpLast > lpFirst) {
         ch = *lpFirst;
         *lpFirst++ = *lpLast;
         *lpLast-- = ch;
@@ -4637,7 +4387,7 @@ int wvnsprintfW(
 
             case L'i':
             case L'd':
-                size=1;
+                size = 1;
                 sign++;
 
                 /** FALL THROUGH to case 'u' **/
@@ -4645,7 +4395,7 @@ int wvnsprintfW(
             case L'u':
                 /* turn off prefix if decimal */
                 prefix = 0;
-donumeric:
+            donumeric:
                 /* special cases to act like MSC v5.10 */
                 if (left || prec >= 0)
                     fillch = L' ';
@@ -4816,12 +4566,12 @@ donumeric:
                 } else {
                     psz = va_arg(varglist, LPSTR);
                     cch = lstrlenA(psz);
-putstring:
+                putstring:
                     cch = _MBToWCS(psz, cch, &lpTWC);
-                    fAllocateMem = (BOOL) cch;
+                    fAllocateMem = (BOOL)cch;
                     lpT = lpTWC;
                 }
-putwstring:
+            putwstring:
                 if (prec >= 0 && cch > prec)
                     cch = prec;
                 width -= cch;
@@ -4839,14 +4589,14 @@ putwstring:
                 }
 
                 if (fAllocateMem) {
-                     LocalFree(lpTWC);
-                     fAllocateMem = FALSE;
+                    LocalFree(lpTWC);
+                    fAllocateMem = FALSE;
                 }
 
                 break;
 
             default:
-normalch:
+            normalch:
                 out((WCHAR)*lpFmt);
                 break;
             }  /* END OF SWITCH(*lpFmt) */
@@ -4862,8 +4612,7 @@ normalch:
 errorout:
     *lpOut = 0;
 
-    if (fAllocateMem)
-    {
+    if (fAllocateMem) {
         LocalFree(lpTWC);
     }
 
@@ -4905,11 +4654,11 @@ LWSTDAPIV_(int) wsprintfW(
 //      StartDoc
 
 
-int StartDocWrap( HDC hDC, const DOCINFO * lpdi )
+int StartDocWrap(HDC hDC, const DOCINFO* lpdi)
 {
-    CStrIn  strDocName( lpdi->lpszDocName );
-    CStrIn  strOutput( lpdi->lpszOutput );
-    CStrIn  strDatatype( lpdi->lpszDatatype );
+    CStrIn  strDocName(lpdi->lpszDocName);
+    CStrIn  strOutput(lpdi->lpszOutput);
+    CStrIn  strDatatype(lpdi->lpszDatatype);
     DOCINFOA dia;
 
     dia.cbSize = sizeof(DOCINFO);
@@ -4918,7 +4667,7 @@ int StartDocWrap( HDC hDC, const DOCINFO * lpdi )
     dia.lpszDatatype = strDatatype;
     dia.fwType = lpdi->fwType;
 
-    return StartDocA( hDC, &dia );
+    return StartDocA(hDC, &dia);
 }
 
 #endif  // !WINNT
@@ -4929,22 +4678,18 @@ int StartDocWrap( HDC hDC, const DOCINFO * lpdi )
 //  Plug UI support with SHLWAPI
 
 
-typedef HRESULT (*PFNDLLGETVERSION)(DLLVERSIONINFO * pinfo);
+typedef HRESULT(*PFNDLLGETVERSION)(DLLVERSIONINFO* pinfo);
 HMODULE GetShlwapiHModule()
 {
     HMODULE hShlwapi = GetModuleHandle(TEXT("SHLWAPI"));
-    if (hShlwapi)
-    {
+    if (hShlwapi) {
         PFNDLLGETVERSION pfnDllGetVersion = (PFNDLLGETVERSION)GetProcAddress(hShlwapi, "DllGetVersion");
-        if (pfnDllGetVersion)
-        {
+        if (pfnDllGetVersion) {
             DLLVERSIONINFO dllinfo;
 
             dllinfo.cbSize = sizeof(DLLVERSIONINFO);
-            if (pfnDllGetVersion(&dllinfo) == NOERROR)
-            {
-                if (dllinfo.dwMajorVersion < 5)
-                {
+            if (pfnDllGetVersion(&dllinfo) == NOERROR) {
+                if (dllinfo.dwMajorVersion < 5) {
                     // This guy doesn't support ML functions
                     hShlwapi = NULL;
                 }
@@ -4961,12 +4706,11 @@ HMODULE GetShlwapiHModule()
 #else
 #define SHLWAPIMLISMLHINSTANCE_ORD     "MLIsMLHInstance"
 #endif
-typedef BOOL (* PFNMLISMLHINSTANCE)(HINSTANCE);
+typedef BOOL(*PFNMLISMLHINSTANCE)(HINSTANCE);
 BOOL MLIsMLHInstanceWrap(HINSTANCE hInst)
 {
     HMODULE hShlwapi = GetShlwapiHModule();
-    if (hShlwapi)
-    {
+    if (hShlwapi) {
         PFNMLISMLHINSTANCE pfn;
         pfn = (PFNMLISMLHINSTANCE)GetProcAddress(hShlwapi, (LPCSTR)SHLWAPIMLISMLHINSTANCE_ORD);
         if (pfn)
@@ -4987,15 +4731,14 @@ BOOL MLIsMLHInstanceWrap(HINSTANCE hInst)
 #else
 #define SHLWAPIMLSETMLHINSTANCE_ORD "MLSetMLHInstance"
 #endif
-typedef HRESULT (* PFNMLSETMLHINSTANCE)(HINSTANCE, LANGID);
+typedef HRESULT(*PFNMLSETMLHINSTANCE)(HINSTANCE, LANGID);
 HRESULT MLSetMLHInstanceWrap(HINSTANCE hInst, LANGID lidUI)
 {
     HMODULE hShlwapi;
     PFNMLSETMLHINSTANCE pfnMLSet = NULL;
 
     hShlwapi = GetShlwapiHModule();
-    if (hShlwapi)
-    {
+    if (hShlwapi) {
         pfnMLSet = (PFNMLSETMLHINSTANCE)GetProcAddress(hShlwapi, (LPCSTR)SHLWAPIMLSETMLHINSTANCE_ORD);
         if (pfnMLSet)
             return pfnMLSet(hInst, lidUI);
@@ -5009,15 +4752,14 @@ HRESULT MLSetMLHInstanceWrap(HINSTANCE hInst, LANGID lidUI)
 #else
 #define SHLWAPIMLCLEARMLHINSTANCE_ORD "MLClearMLHInstance"
 #endif
-typedef HRESULT (* PFNMLCLEARMLHINSTANCE)(HINSTANCE);
+typedef HRESULT(*PFNMLCLEARMLHINSTANCE)(HINSTANCE);
 HRESULT MLClearMLHinstanceWrap(HINSTANCE hInst)
 {
     HMODULE hShlwapi;
     PFNMLCLEARMLHINSTANCE pfnMLClear = NULL;
 
     hShlwapi = GetShlwapiHModule();
-    if (hShlwapi)
-    {
+    if (hShlwapi) {
         pfnMLClear = (PFNMLCLEARMLHINSTANCE)GetProcAddress(hShlwapi, (LPCSTR)SHLWAPIMLCLEARMLHINSTANCE_ORD);
         if (pfnMLClear)
             return pfnMLClear(hInst);
@@ -5040,13 +4782,13 @@ HRESULT MLClearMLHinstanceWrap(HINSTANCE hInst)
 #else
 #define SHLWAPICREATEDIALOGINDIRECTPARAM_ORD     "CreateDialogIndirectParamWrapW"
 #endif
-typedef HWND (* PFNCREATEDIALOGINDIRECTPARAM)(HINSTANCE, LPCDLGTEMPLATE, HWND, DLGPROC, LPARAM);
+typedef HWND(*PFNCREATEDIALOGINDIRECTPARAM)(HINSTANCE, LPCDLGTEMPLATE, HWND, DLGPROC, LPARAM);
 HWND CreateDialogIndirectParamWrap(
-        HINSTANCE       hInstance,
-        LPCDLGTEMPLATE  lpTemplate,
-        HWND            hWndParent,
-        DLGPROC         lpDialogFunc,
-        LPARAM          dwInitParam)
+    HINSTANCE       hInstance,
+    LPCDLGTEMPLATE  lpTemplate,
+    HWND            hWndParent,
+    DLGPROC         lpDialogFunc,
+    LPARAM          dwInitParam)
 {
     HMODULE hShlwapi;
     PFNCREATEDIALOGINDIRECTPARAM pfnCDIP = NULL;
@@ -5058,13 +4800,11 @@ HWND CreateDialogIndirectParamWrap(
     // thunks to the real A/W api for us).
 
     hShlwapi = GetShlwapiHModule();
-    if (hShlwapi)
-    {
+    if (hShlwapi) {
         pfnCDIP = (PFNCREATEDIALOGINDIRECTPARAM)GetProcAddress(hShlwapi, (LPCSTR)SHLWAPICREATEDIALOGINDIRECTPARAM_ORD);
     }
 
-    if (!pfnCDIP)
-    {
+    if (!pfnCDIP) {
         if (g_bRunOnNT)
             pfnCDIP = CreateDialogIndirectParamW;
         else
@@ -5093,13 +4833,13 @@ HWND CreateDialogIndirectParamWrap(
 #else
 #define SHLWAPIDIALOGBOXINDIRECTPARAM_ORD     "DialogBoxIndirectParamWrapW"
 #endif
-typedef INT_PTR (* PFNDIALOGBOXINDIRECTPARAM)(HINSTANCE, LPCDLGTEMPLATE, HWND, DLGPROC, LPARAM);
+typedef INT_PTR(*PFNDIALOGBOXINDIRECTPARAM)(HINSTANCE, LPCDLGTEMPLATE, HWND, DLGPROC, LPARAM);
 INT_PTR DialogBoxIndirectParamWrap(
-        HINSTANCE       hInstance,
-        LPCDLGTEMPLATEW hDialogTemplate,
-        HWND            hWndParent,
-        DLGPROC         lpDialogFunc,
-        LPARAM          dwInitParam)
+    HINSTANCE       hInstance,
+    LPCDLGTEMPLATEW hDialogTemplate,
+    HWND            hWndParent,
+    DLGPROC         lpDialogFunc,
+    LPARAM          dwInitParam)
 {
     HMODULE hShlwapi;
     INT_PTR iRet;
@@ -5114,8 +4854,7 @@ INT_PTR DialogBoxIndirectParamWrap(
     if (hShlwapi)
         pfnDBIP = (PFNDIALOGBOXINDIRECTPARAM)GetProcAddress(hShlwapi, (LPCSTR)SHLWAPIDIALOGBOXINDIRECTPARAM_ORD);
 
-    if (!pfnDBIP)
-    {
+    if (!pfnDBIP) {
         if (g_bRunOnNT)
             pfnDBIP = DialogBoxIndirectParamW;
         else

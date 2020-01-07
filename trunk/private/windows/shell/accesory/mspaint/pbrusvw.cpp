@@ -1,8 +1,5 @@
 // pbrusvw.cpp : implementation of the CPBView class
-
-
 #include "stdafx.h"
-
 #include "global.h"
 #include "pbrush.h"
 #include "pbrusdoc.h"
@@ -34,12 +31,10 @@
 #include <dlgprnt2.cpp>
 
 #if 0 // THIS_FILE is already declared in dlgprnt2.cpp
-
 #ifdef _DEBUG
 #undef THIS_FILE
 static CHAR BASED_CODE THIS_FILE[] = __FILE__;
 #endif
-
 #endif
 
 IMPLEMENT_DYNCREATE(CPBView, CView)
@@ -47,9 +42,7 @@ IMPLEMENT_DYNCREATE(CPBView, CView)
 #include "memtrace.h"
 
 
-
 // CPBView
-
 BEGIN_MESSAGE_MAP(CPBView, CView)
     //{{AFX_MSG_MAP(CPBView)
     ON_WM_CREATE()
@@ -118,8 +111,6 @@ BEGIN_MESSAGE_MAP(CPBView, CView)
 
     ON_WM_DESTROY()
 
-
-
     // Standard printing commands
     ON_COMMAND(ID_FILE_PRINT, OnFilePrint)
     ON_COMMAND(ID_FILE_PRINT_PREVIEW, OnFilePrintPreview)
@@ -138,26 +129,21 @@ CPBView::CPBView()
 }
 
 
-
 CPBView::~CPBView()
 {
     // reset the toolbar
-    if (g_pImgToolWnd && g_pImgToolWnd->m_hWnd &&
-        IsWindow(g_pImgToolWnd->m_hWnd))
-    {
+    if (g_pImgToolWnd && g_pImgToolWnd->m_hWnd && IsWindow(g_pImgToolWnd->m_hWnd)) {
         g_pImgToolWnd->SelectTool(IDMB_ARROW);
         g_pImgToolWnd->InvalidateOptions();
     }
 
     DestroyThumbNailView();
 
-    if (m_pImgWnd)
-    {
+    if (m_pImgWnd) {
         delete m_pImgWnd;
         m_pImgWnd = NULL;
     }
 }
-
 
 
 BOOL CPBView::PreCreateWindow(CREATESTRUCT& cs)
@@ -169,18 +155,14 @@ BOOL CPBView::PreCreateWindow(CREATESTRUCT& cs)
 }
 
 
-
-
-BOOL CPBView::PreTranslateMessage(MSG *pMsg)
+BOOL CPBView::PreTranslateMessage(MSG* pMsg)
 {
     // Handle a bug in MFC regarding enabling of accelerators on Popup menus.
-    if (pMsg->message == WM_KEYDOWN)
-    {
+    if (pMsg->message == WM_KEYDOWN) {
         // Find the app menu for this window.
-        CWnd    *pWnd = this;
-        CMenu   *pMenu = NULL;
-        while (pWnd)
-        {
+        CWnd* pWnd = this;
+        CMenu* pMenu = NULL;
+        while (pWnd) {
             if ((pMenu = pWnd->GetMenu()) && IsMenu(pMenu->m_hMenu))
                 break;
             else
@@ -188,8 +170,7 @@ BOOL CPBView::PreTranslateMessage(MSG *pMsg)
             pWnd = pWnd->GetParent();
         }
 
-        if (pMenu)
-        {
+        if (pMenu) {
             pMenu->EnableMenuItem(ID_VIEW_ZOOM_100, MF_BYCOMMAND |
                 (m_pImgWnd && m_pImgWnd->GetZoom() != 1 ? MF_ENABLED : MF_DISABLED));
             pMenu->EnableMenuItem(ID_VIEW_ZOOM_400, MF_BYCOMMAND |
@@ -207,22 +188,18 @@ BOOL CPBView::PreTranslateMessage(MSG *pMsg)
 
 void CPBView::OnDraw(CDC* pDC)
 {
-    if (m_pImgWnd)
-    {
+    if (m_pImgWnd) {
         CRect rectPaint;
         CPalette* ppal = m_pImgWnd->SetImgPalette(pDC, FALSE);
 
         // if the dc passed in is a CPaint DC use the rcPaint rect to optimize
         // painting to only paint the invalid area.  ELSE use the whole image
         // size.
-        if (pDC->IsKindOf(RUNTIME_CLASS(CPaintDC)))
-        {
-            rectPaint = ((CPaintDC *)pDC)->m_ps.rcPaint;
+        if (pDC->IsKindOf(RUNTIME_CLASS(CPaintDC))) {
+            rectPaint = ((CPaintDC*)pDC)->m_ps.rcPaint;
             if (theApp.m_bEmbedded)
                 m_pImgWnd->Invalidate();
-        }
-        else
-        {
+        } else {
             m_pImgWnd->GetImageRect(rectPaint);
         }
 
@@ -238,7 +215,6 @@ void CPBView::OnDraw(CDC* pDC)
 
 BOOL CPBView::GetPrintToInfo(CPrintInfo* pInfo)
 {
-
     ASSERT(pInfo != NULL);
     ASSERT(pInfo->m_pPD != NULL);
 
@@ -246,9 +222,7 @@ BOOL CPBView::GetPrintToInfo(CPrintInfo* pInfo)
         return FALSE;
 
     ASSERT(pInfo->m_pPD->m_pd.hDC == NULL);
-    pInfo->m_pPD->m_pd.hDC = ::CreateDC(NULL,
-                                        theApp.m_strPrinterName,
-                                        NULL, NULL);
+    pInfo->m_pPD->m_pd.hDC = ::CreateDC(NULL, theApp.m_strPrinterName, NULL, NULL);
 
     // set up From and To page range from Min and Max
     pInfo->m_pPD->m_pd.nFromPage = (WORD)pInfo->GetMinPage();
@@ -262,16 +236,10 @@ BOOL CPBView::GetPrintToInfo(CPrintInfo* pInfo)
     return TRUE;
 }
 
+
 BOOL CPBView::OnPreparePrinting(CPrintInfo* pInfo)
 {
-
-
-
-    // Create a C_PrintDialogEx structure to replace the PrintDialog in the
-    // CPrintInfo
-
-
-
+    // Create a C_PrintDialogEx structure to replace the PrintDialog in the CPrintInfo
     m_pdRestore = pInfo->m_pPD;
     m_pdexSub = new C_PrintDialogEx(FALSE, PD_RETURNDC | PD_ALLPAGES | PD_NOSELECTION | PD_USEDEVMODECOPIESANDCOLLATE);
     pInfo->m_pPD = m_pdexSub;
@@ -289,22 +257,18 @@ BOOL CPBView::OnPreparePrinting(CPrintInfo* pInfo)
     if (pInfo->m_lpUserData == NULL)
         return FALSE;
 
-    if (theApp.m_bPrintOnly)
-    {
-        if (GetPrintToInfo(pInfo))
-        {
+    if (theApp.m_bPrintOnly) {
+        if (GetPrintToInfo(pInfo)) {
             return(TRUE);
         }
 
-        if (!theApp.GetPrinterDeviceDefaults(&pInfo->m_pPD->m_pd))
-        {
+        if (!theApp.GetPrinterDeviceDefaults(&pInfo->m_pPD->m_pd)) {
             // bring up dialog to alert the user they need to install a printer.
             if (theApp.DoPrintDialog(pInfo->m_pPD) != IDOK)
                 return FALSE;
         }
 
-        if (!pInfo->m_pPD->m_pd.hDC)
-        {
+        if (!pInfo->m_pPD->m_pd.hDC) {
             // call CreatePrinterDC if DC was not created by above
             if (!pInfo->m_pPD->CreatePrinterDC())
                 return FALSE;
@@ -318,58 +282,47 @@ BOOL CPBView::OnPreparePrinting(CPrintInfo* pInfo)
     }
 
     // default preparation
-    if (!DoPreparePrinting(pInfo))
-    {
+    if (!DoPreparePrinting(pInfo)) {
         ((CPrintResObj*)pInfo->m_lpUserData)->EndPrinting(NULL, pInfo);
         pInfo->m_lpUserData = NULL;
         return FALSE;
     }
+
     return TRUE;
 }
-
 
 
 void CPBView::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo)
 {
 
-    if (pInfo != NULL
-        && pInfo->m_lpUserData != NULL)
+    if (pInfo != NULL && pInfo->m_lpUserData != NULL)
         ((CPrintResObj*)pInfo->m_lpUserData)->BeginPrinting(pDC, pInfo);
     else
         CView::OnBeginPrinting(pDC, pInfo);
 }
 
 
-
 void CPBView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo)
 {
-
 #ifdef USE_MIRRORING
-
     // Disable RTL mirroring
-
-    if (PBGetLayout(pDC->GetSafeHdc()) & LAYOUT_RTL)
-    {
+    if (PBGetLayout(pDC->GetSafeHdc()) & LAYOUT_RTL) {
         PBSetLayout(pDC->GetSafeHdc(), 0);
     }
 #endif
 
     CView::OnPrepareDC(pDC, pInfo);
 
-    if (pInfo != NULL
-        && pInfo->m_lpUserData != NULL)
+    if (pInfo != NULL && pInfo->m_lpUserData != NULL)
         ((CPrintResObj*)pInfo->m_lpUserData)->PrepareDC(pDC, pInfo);
 }
 
 
-
 void CPBView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 {
-
     BOOL bProcessed = FALSE;
 
-    if (pInfo != NULL
-        && pInfo->m_lpUserData != NULL)
+    if (pInfo != NULL && pInfo->m_lpUserData != NULL)
         bProcessed = ((CPrintResObj*)pInfo->m_lpUserData)->PrintPage(pDC, pInfo);
 
     if (!bProcessed)
@@ -377,25 +330,20 @@ void CPBView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 }
 
 
-
 void CPBView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
 {
-
     if (pInfo == NULL)
         return;
 
-    if (pInfo->m_lpUserData != NULL)
-    {
+    if (pInfo->m_lpUserData != NULL) {
         ((CPrintResObj*)pInfo->m_lpUserData)->EndPrinting(pDC, pInfo);
         pInfo->m_lpUserData = NULL;
     }
 
     // Restore the original dialog pointer
-
     pInfo->m_pPD = m_pdRestore;
     delete m_pdexSub;
 }
-
 
 
 // CPBView diagnostics
@@ -407,12 +355,10 @@ void CPBView::AssertValid() const
 }
 
 
-
 void CPBView::Dump(CDumpContext& dc) const
 {
     CView::Dump(dc);
 }
-
 
 
 CPBDoc* CPBView::GetDocument() // non-debug version is inline
@@ -433,15 +379,13 @@ int CPBView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
     // Disable RTL mirroring on client drawing area. [samera]
 
-    if (lpCreateStruct->dwExStyle & WS_EX_LAYOUTRTL)
-    {
+    if (lpCreateStruct->dwExStyle & WS_EX_LAYOUTRTL) {
         SetWindowLong(GetSafeHwnd(), GWL_EXSTYLE, lpCreateStruct->dwExStyle & ~WS_EX_LAYOUTRTL);
     }
 #endif
 
     return 0;
 }
-
 
 
 void CPBView::OnShowWindow(BOOL bShow, UINT nStatus)
@@ -453,21 +397,17 @@ void CPBView::OnShowWindow(BOOL bShow, UINT nStatus)
 }
 
 
-
 void CPBView::OnDestroy()
 {
     // reset the toolbar
-    if (g_pImgToolWnd && g_pImgToolWnd->m_hWnd &&
-        IsWindow(g_pImgToolWnd->m_hWnd))
-    {
+    if (g_pImgToolWnd && g_pImgToolWnd->m_hWnd && IsWindow(g_pImgToolWnd->m_hWnd)) {
         g_pImgToolWnd->SelectTool(IDMB_ARROW);
         g_pImgToolWnd->InvalidateOptions();
     }
 
     DestroyThumbNailView();
 
-    if (m_pImgWnd)
-    {
+    if (m_pImgWnd) {
         if (::IsWindow(m_pImgWnd->m_hWnd))
             m_pImgWnd->DestroyWindow();
 
@@ -479,17 +419,13 @@ void CPBView::OnDestroy()
 }
 
 
-
 void CPBView::OnInitialUpdate(void)
 {
     CPBDoc* pDoc = GetDocument();
 
-    if (SetObject())
-    {
-        if (theApp.m_bPrintOnly)
-        {
-            if (pDoc->m_bObjectLoaded)
-            {
+    if (SetObject()) {
+        if (theApp.m_bPrintOnly) {
+            if (pDoc->m_bObjectLoaded) {
                 OnFilePrint();
 
                 GetParentFrame()->PostMessage(WM_CLOSE);
@@ -501,11 +437,8 @@ void CPBView::OnInitialUpdate(void)
         theUndo.SetMaxLevels(3);
 
         SetTools();
-    }
-    else
-    {
-        if (pDoc->m_pBitmapObjNew != NULL)
-        {
+    } else {
+        if (pDoc->m_pBitmapObjNew != NULL) {
             delete pDoc->m_pBitmapObjNew;
             pDoc->m_pBitmapObjNew = NULL;
         }
@@ -515,29 +448,21 @@ void CPBView::OnInitialUpdate(void)
 }
 
 
-
-void CPBView::OnActivateView(BOOL bActivate, CView* pActivateView,
-                             CView* pDeactiveView)
+void CPBView::OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeactiveView)
 {
     CView::OnActivateView(bActivate, pActivateView, pDeactiveView);
 }
 
 
-
-BOOL CPBView::OnCmdMsg(UINT nID, int nCode, void* pExtra,
-                       AFX_CMDHANDLERINFO* pHandlerInfo)
+BOOL CPBView::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {
-    if (nCode == CN_COMMAND)
-    {
-        if (m_pImgWnd
-            &&  m_pImgWnd->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+    if (nCode == CN_COMMAND) {
+        if (m_pImgWnd && m_pImgWnd->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
             return TRUE;
     }
 
     return CView::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }
-
-
 
 
 void CPBView::OnSize(UINT nType, int cx, int cy)
@@ -548,7 +473,6 @@ void CPBView::OnSize(UINT nType, int cx, int cy)
     if (m_pImgWnd)
         m_pImgWnd->MoveWindow(0, 0, cx, cy);
 }
-
 
 
 BOOL CPBView::SetObject()
@@ -566,22 +490,19 @@ BOOL CPBView::SetObject()
     // see if a bad file was loaded, but not an empty file, which is OK
     if (!pDoc->m_bObjectLoaded
         && !pBitmapObj->m_bTempName
-        &&    pBitmapObj->GetData()
-        && pBitmapObj->GetDataSize())
-    {
+        && pBitmapObj->GetData()
+        && pBitmapObj->GetDataSize()) {
         delete pBitmapObj;
         pBitmapObj = NULL;
 
         CString strDocName;
         CString strFilterExt;
 
-        if (!pDoc->GetDocTemplate()->GetDocString(strDocName, CDocTemplate::docName)
-            || strDocName.IsEmpty())
+        if (!pDoc->GetDocTemplate()->GetDocString(strDocName, CDocTemplate::docName) || strDocName.IsEmpty())
             // use generic 'untitled'
             VERIFY(strDocName.LoadString(AFX_IDS_UNTITLED));
 
-        if (!pDoc->GetDocTemplate()->GetDocString(strFilterExt, CDocTemplate::filterExt)
-            || strFilterExt.IsEmpty())
+        if (!pDoc->GetDocTemplate()->GetDocString(strFilterExt, CDocTemplate::filterExt) || strFilterExt.IsEmpty())
             pDoc->SetPathName(strDocName);
         else
             pDoc->SetPathName(strDocName + strFilterExt);
@@ -602,9 +523,7 @@ BOOL CPBView::SetObject()
         && !pBitmapObj->CreateImg())
         return FALSE;
 
-    if (pBitmapObj->m_pImg->cxWidth < 1
-        || pBitmapObj->m_pImg->cyHeight < 1)
-    {
+    if (pBitmapObj->m_pImg->cxWidth < 1 || pBitmapObj->m_pImg->cyHeight < 1) {
         CmpMessageBox(IDS_ERROR_BITMAPSIZE, AFX_IDS_APP_TITLE, MB_OK | MB_ICONEXCLAMATION);
         return FALSE;
     }
@@ -615,8 +534,7 @@ BOOL CPBView::SetObject()
     if (!SetView(pBitmapObj))
         return FALSE;
 
-    if (pDoc->m_pBitmapObj)
-    {
+    if (pDoc->m_pBitmapObj) {
         delete pDoc->m_pBitmapObj;
         pDoc->m_pBitmapObj = NULL;
     }
@@ -628,7 +546,6 @@ BOOL CPBView::SetObject()
 }
 
 
-
 BOOL CPBView::SetView(CBitmapObj* pBitmapObj)
 {
     IMG* pImg = pBitmapObj->m_pImg;
@@ -637,8 +554,7 @@ BOOL CPBView::SetView(CBitmapObj* pBitmapObj)
 
     CImgWnd* pImgWnd = new CImgWnd(pImg);
 
-    if (pImgWnd == NULL)
-    {
+    if (pImgWnd == NULL) {
         theApp.SetMemoryEmergency();
 
         TRACE(TEXT("Create CImgWnd faild\n"));
@@ -650,14 +566,12 @@ BOOL CPBView::SetView(CBitmapObj* pBitmapObj)
 
     GetClientRect(&rectPos);
 
-    if (!pImgWnd->Create(WS_CHILD | WS_VISIBLE, rectPos, this))
-    {
+    if (!pImgWnd->Create(WS_CHILD | WS_VISIBLE, rectPos, this)) {
         TRACE(TEXT("Create img wnd failed\n"));
         return FALSE;
     }
 
-    if (m_pImgWnd)
-    {
+    if (m_pImgWnd) {
         if (::IsWindow(m_pImgWnd->m_hWnd))
             m_pImgWnd->DestroyWindow();
         delete m_pImgWnd;
@@ -666,8 +580,7 @@ BOOL CPBView::SetView(CBitmapObj* pBitmapObj)
 
     m_pImgWnd = pImgWnd;
 
-    if (m_pwndThumbNailView != NULL)
-    {
+    if (m_pwndThumbNailView != NULL) {
         m_pImgWnd->SetThumbnailView(m_pwndThumbNailView);
         m_pwndThumbNailView->UpdateThumbNailView();
     }
@@ -679,7 +592,6 @@ BOOL CPBView::SetView(CBitmapObj* pBitmapObj)
 }
 
 
-
 int CPBView::SetTools()
 {
     CFrameWnd* pOwnerWindow = GetParentFrame();
@@ -688,33 +600,27 @@ int CPBView::SetTools()
 
     ASSERT(pOwnerWindow != NULL);
 
-    if (!theApp.m_bLinked && theApp.m_pwndInPlaceFrame != NULL)
-    {
+    if (!theApp.m_bLinked && theApp.m_pwndInPlaceFrame != NULL) {
         pOwnerWindow = theApp.m_pwndInPlaceFrame;
 
         if (theApp.m_hwndInPlaceApp != NULL)
             pParentWindow = (CFrameWnd*)CFrameWnd::FromHandle(theApp.m_hwndInPlaceApp);
     }
 
-
     ASSERT(g_pStatBarWnd);
     ASSERT(g_pImgToolWnd);
     ASSERT(g_pImgColorsWnd);
 
     // Create the status bar
-    if (!g_pStatBarWnd->m_hWnd)
-    {
-        if (g_pStatBarWnd->Create(pParentWindow))
-        {
+    if (!g_pStatBarWnd->m_hWnd) {
+        if (g_pStatBarWnd->Create(pParentWindow)) {
             if (theApp.m_fntStatus.m_hObject != NULL)
                 g_pStatBarWnd->SetFont(&theApp.m_fntStatus, FALSE);
             g_pStatBarWnd->SetOwner(pOwnerWindow);
             ShowStatusBar(TRUE);
 
             bRestoreState = TRUE;
-        }
-        else
-        {
+        } else {
             TRACE0("Failed to create status bar\n");
             return -1;
         }
@@ -723,8 +629,7 @@ int CPBView::SetTools()
     pParentWindow->EnableDocking(CBRS_ALIGN_ANY);
 
     // Create and dock the tool bar
-    if (!g_pImgToolWnd->m_hWnd || !IsWindow(g_pImgToolWnd->m_hWnd))
-    {
+    if (!g_pImgToolWnd->m_hWnd || !IsWindow(g_pImgToolWnd->m_hWnd)) {
         CString strToolWnd;
         strToolWnd.LoadString(IDS_PAINT_TOOL);
         if (g_pImgToolWnd->Create(strToolWnd,
@@ -732,40 +637,31 @@ int CPBView::SetTools()
                                   CRect(0, 0, 0, 0),
                                   CPoint(25, 25),
                                   2,
-                                  pParentWindow))
-        {
+                                  pParentWindow)) {
             g_pImgToolWnd->SetOwner(pOwnerWindow);
             g_pImgToolWnd->EnableDocking(CBRS_ALIGN_LEFT | CBRS_ALIGN_RIGHT);
-            pParentWindow->DockControlBar(g_pImgToolWnd,
-                                          AFX_IDW_DOCKBAR_LEFT);
+            pParentWindow->DockControlBar(g_pImgToolWnd, AFX_IDW_DOCKBAR_LEFT);
 
             bRestoreState = TRUE;
-        }
-        else
-        {
+        } else {
             TRACE0("Failed to create toolbar\n");
             return -1;
         }
     }
 
     // Create and dock the color bar
-    if (!g_pImgColorsWnd->m_hWnd || !IsWindow(g_pImgColorsWnd->m_hWnd))
-    {
+    if (!g_pImgColorsWnd->m_hWnd || !IsWindow(g_pImgColorsWnd->m_hWnd)) {
         CString strColorsWnd;
         strColorsWnd.LoadString(IDS_COLORS);
         if (g_pImgColorsWnd->Create(strColorsWnd,
                                     WS_CHILD | WS_VISIBLE | CBRS_BOTTOM,
-                                    pParentWindow))
-        {
+                                    pParentWindow)) {
             g_pImgColorsWnd->SetOwner(pOwnerWindow);
             g_pImgColorsWnd->EnableDocking(CBRS_ALIGN_BOTTOM | CBRS_ALIGN_TOP);
-            pParentWindow->DockControlBar(g_pImgColorsWnd,
-                                          AFX_IDW_DOCKBAR_BOTTOM);
+            pParentWindow->DockControlBar(g_pImgColorsWnd, AFX_IDW_DOCKBAR_BOTTOM);
 
             bRestoreState = TRUE;
-        }
-        else
-        {
+        } else {
             TRACE0("Failed to create colorbar\n");
             return -1;
         }
@@ -786,15 +682,13 @@ BOOL CPBView::DestroyThumbNailView()
 
     theApp.m_bShowThumbnail = FALSE;
 
-    if (m_pwndThumbNailFloat != NULL)
-    {
+    if (m_pwndThumbNailFloat != NULL) {
         if (::IsWindow(m_pwndThumbNailFloat->m_hWnd))
             m_pwndThumbNailFloat->DestroyWindow();
         delete m_pwndThumbNailFloat;
         m_pwndThumbNailFloat = NULL;
         bResult = TRUE;
     }
-
 
     theApp.m_bShowThumbnail = bOriginalSetting;
     m_pwndThumbNailView = NULL;
@@ -805,6 +699,7 @@ BOOL CPBView::DestroyThumbNailView()
     return bResult;
 }
 
+
 BOOL CPBView::CreateThumbNailView()
 {
     if (m_pImgWnd == NULL)
@@ -812,29 +707,22 @@ BOOL CPBView::CreateThumbNailView()
 
     DestroyThumbNailView();
 
-
     m_pwndThumbNailFloat = new CFloatThumbNailView(m_pImgWnd);
 
-    if (m_pwndThumbNailFloat != NULL)
-    {
+    if (m_pwndThumbNailFloat != NULL) {
         if (m_pwndThumbNailFloat->Create(this))
             m_pwndThumbNailView = m_pwndThumbNailFloat->GetThumbNailView();
 
-        if (m_pwndThumbNailView)
-        {
+        if (m_pwndThumbNailView) {
             m_pImgWnd->SetThumbnailView(m_pwndThumbNailView);
             m_pwndThumbNailFloat->ShowWindow(SW_SHOWNOACTIVATE);
-        }
-        else
-        {
+        } else {
             delete m_pwndThumbNailFloat;
             m_pwndThumbNailFloat = NULL;
         }
     }
 
-
-    if (m_pwndThumbNailView == NULL)
-    {
+    if (m_pwndThumbNailView == NULL) {
         theApp.m_bShowThumbnail = FALSE;
         theApp.SetMemoryEmergency();
 
@@ -850,7 +738,6 @@ BOOL CPBView::CreateThumbNailView()
 }
 
 
-
 void CPBView::ToggleThumbNailVisibility(void)
 {
     theApp.m_bShowThumbnail = !IsThumbNailVisible();
@@ -862,43 +749,32 @@ void CPBView::ToggleThumbNailVisibility(void)
 }
 
 
-
 void CPBView::HideThumbNailView(void)
 {
-    if (IsThumbNailVisible())
-    {
+    if (IsThumbNailVisible()) {
         if (m_pwndThumbNailFloat)
             m_pwndThumbNailFloat->ShowWindow(SW_HIDE);
-
 
         theApp.m_bShowThumbnail = FALSE;
     }
 }
 
 
-
 void CPBView::ShowThumbNailView(void)
 {
-    if (theApp.m_bShowThumbnail
-        && !IsThumbNailVisible())
-    {
-        if (m_pwndThumbNailView)
-        {
+    if (theApp.m_bShowThumbnail && !IsThumbNailVisible()) {
+        if (m_pwndThumbNailView) {
             if (m_pwndThumbNailFloat)
                 m_pwndThumbNailFloat->ShowWindow(SW_SHOWNOACTIVATE);
-
-        }
-        else
+        } else
             CreateThumbNailView();
     }
 }
 
 
-
 BOOL CPBView::IsThumbNailVisible(void)
 {
     BOOL bVisible = FALSE;
-
 
     if (m_pwndThumbNailFloat != NULL)
         bVisible = m_pwndThumbNailFloat->IsWindowVisible();
@@ -907,33 +783,28 @@ BOOL CPBView::IsThumbNailVisible(void)
 }
 
 
-
-
 CPoint CPBView::GetDockedPos(DOCKERS tool, CSize& sizeTool)
 {
     CPoint      pt;
     CRect       rectClient;
     CRect       rectView;
-    CFrameWnd*  pFrame = GetParentFrame();
+    CFrameWnd* pFrame = GetParentFrame();
 
     pFrame->GetClientRect(&rectClient);
     pFrame->NegotiateBorderSpace(CFrameWnd::borderGet, &rectView);
 
-    switch (tool)
-    {
+    switch (tool) {
     case toolbox:
         ASSERT(0);
         break;
-
     case colorbox:
         ASSERT(0);
         break;
-
     }
+
     pFrame->ClientToScreen(&pt);
     return pt;
 }
-
 
 
 void CPBView::GetFloatPos(DOCKERS tool, CRect& rectPos)
@@ -942,12 +813,10 @@ void CPBView::GetFloatPos(DOCKERS tool, CRect& rectPos)
 }
 
 
-
 void CPBView::SetFloatPos(DOCKERS tool, CRect& rectPos)
 {
     //removed docked thumbnail code
 }
-
 
 
 void CPBView::OnViewThumbnail()
@@ -956,14 +825,12 @@ void CPBView::OnViewThumbnail()
 }
 
 
-
 void CPBView::OnUpdateViewThumbnail(CCmdUI* pCmdUI)
 {
     BOOL bEnable = FALSE;
 
     if (m_pImgWnd != NULL
-        && m_pImgWnd->GetZoom() > 1)
-    {
+        && m_pImgWnd->GetZoom() > 1) {
         bEnable = TRUE;
     }
 
@@ -972,11 +839,9 @@ void CPBView::OnUpdateViewThumbnail(CCmdUI* pCmdUI)
 }
 
 
-
 void CPBView::OnEditUndo()
 {
-    if (!TextToolProcessed(ID_EDIT_UNDO))
-    {
+    if (!TextToolProcessed(ID_EDIT_UNDO)) {
         CancelToolMode(FALSE);
 
         CommitSelection(TRUE);
@@ -985,7 +850,6 @@ void CPBView::OnEditUndo()
         DirtyImg(m_pImgWnd->m_pImg);
     }
 }
-
 
 
 void CPBView::OnEditRedo()
@@ -997,12 +861,10 @@ void CPBView::OnEditRedo()
 }
 
 
-
 void CPBView::OnEditCut()
 {
     m_pImgWnd->CmdCut();
 }
-
 
 
 void CPBView::OnEditClear()
@@ -1011,21 +873,16 @@ void CPBView::OnEditClear()
 }
 
 
-
-
 void CPBView::OnEditCopy()
 {
     m_pImgWnd->CmdCopy();
 }
 
 
-
 void CPBView::OnEditPaste()
 {
     m_pImgWnd->CmdPaste();
 }
-
-
 
 
 void CPBView::OnUpdateEditUndo(CCmdUI* pCmdUI)
@@ -1035,7 +892,6 @@ void CPBView::OnUpdateEditUndo(CCmdUI* pCmdUI)
 }
 
 
-
 void CPBView::OnUpdateEditRedo(CCmdUI* pCmdUI)
 {
     // the text tool does not have a redo stack
@@ -1043,19 +899,16 @@ void CPBView::OnUpdateEditRedo(CCmdUI* pCmdUI)
 }
 
 
-
 void CPBView::OnUpdateEditSelection(CCmdUI* pCmdUI)
 {
     BOOL bEnable = FALSE;
 
-    if (m_pImgWnd != NULL)
-    {
+    if (m_pImgWnd != NULL) {
         bEnable = m_pImgWnd->IsSelectionAvailable();
     }
 
     pCmdUI->Enable(bEnable);
 }
-
 
 
 void CPBView::OnUpdateEditClearSel(CCmdUI* pCmdUI)
@@ -1069,19 +922,16 @@ void CPBView::OnUpdateEditClearSel(CCmdUI* pCmdUI)
 }
 
 
-
 void CPBView::OnUpdateEditPaste(CCmdUI* pCmdUI)
 {
     BOOL bEnable = FALSE;
 
-    if (m_pImgWnd != NULL)
-    {
+    if (m_pImgWnd != NULL) {
         bEnable = m_pImgWnd->IsPasteAvailable();
     }
 
     pCmdUI->Enable(bEnable);
 }
-
 
 
 void CPBView::OnViewGrid()
@@ -1090,27 +940,22 @@ void CPBView::OnViewGrid()
 }
 
 
-
 void CPBView::OnViewZoom100()
 {
-    if (m_pImgWnd->GetZoom() != 1)
-    {
+    if (m_pImgWnd->GetZoom() != 1) {
         m_pImgWnd->SetZoom(1);
         m_pImgWnd->CheckScrollBars();
     }
 }
 
 
-
 void CPBView::OnViewZoom400()
 {
-    if (m_pImgWnd->GetZoom() != 4)
-    {
+    if (m_pImgWnd->GetZoom() != 4) {
         m_pImgWnd->SetZoom(4);
         m_pImgWnd->CheckScrollBars();
     }
 }
-
 
 
 void CPBView::OnViewZoom()
@@ -1127,7 +972,6 @@ void CPBView::OnViewZoom()
 }
 
 
-
 void CPBView::OnUpdateViewZoom100(CCmdUI* pCmdUI)
 {
     BOOL bEnable = FALSE;
@@ -1137,7 +981,6 @@ void CPBView::OnUpdateViewZoom100(CCmdUI* pCmdUI)
 
     pCmdUI->Enable(bEnable);
 }
-
 
 
 void CPBView::OnUpdateViewZoom400(CCmdUI* pCmdUI)
@@ -1151,21 +994,18 @@ void CPBView::OnUpdateViewZoom400(CCmdUI* pCmdUI)
 }
 
 
-
 void CPBView::OnUpdateViewGrid(CCmdUI* pCmdUI)
 {
     BOOL bCheck = FALSE;
     BOOL bEnable = FALSE;
 
-    if (m_pImgWnd)
-    {
+    if (m_pImgWnd) {
         bEnable = (m_pImgWnd->GetZoom() > 2);
         bCheck = m_pImgWnd->IsGridVisible();
     }
     pCmdUI->Enable(bEnable);
     pCmdUI->SetCheck(bCheck);
 }
-
 
 
 void CPBView::OnImageInvertColors()
@@ -1182,13 +1022,11 @@ void CPBView::OnUpdateImageInvertColors(CCmdUI* pCmdUI)
 
     BOOL bEnable = FALSE;
 
-    if (m_pImgWnd)
-    {
+    if (m_pImgWnd) {
         bEnable = (!theApp.m_bPaletted);
     }
     pCmdUI->Enable(bEnable);
 }
-
 
 
 void CPBView::OnTglopaque()
@@ -1197,13 +1035,11 @@ void CPBView::OnTglopaque()
 }
 
 
-
 void CPBView::OnUpdateTglopaque(CCmdUI* pCmdUI)
 {
     pCmdUI->Enable(m_pImgWnd != NULL);
     pCmdUI->SetCheck(theImgBrush.m_bOpaque);
 }
-
 
 
 void CPBView::OnImageAttributes()
@@ -1219,34 +1055,26 @@ void CPBView::OnImageAttributes()
 
     CImageAttr dlg;
 
-    BOOL bMono = (pBitmapRes->m_pImg->cPlanes == 1
-                  && pBitmapRes->m_pImg->cBitCount == 1);
+    BOOL bMono = (pBitmapRes->m_pImg->cPlanes == 1 && pBitmapRes->m_pImg->cBitCount == 1);
 
     dlg.m_bMonochrome = bMono;
-    dlg.SetWidthHeight(pBitmapRes->m_pImg->cxWidth,
-                       pBitmapRes->m_pImg->cyHeight);
+    dlg.SetWidthHeight(pBitmapRes->m_pImg->cxWidth, pBitmapRes->m_pImg->cyHeight);
 
     if (dlg.DoModal() != IDOK)
         return;
 
     CSize size = dlg.GetWidthHeight();
 
-    if (size.cx != pBitmapRes->m_pImg->cxWidth
-        || size.cy != pBitmapRes->m_pImg->cyHeight)
-    {
+    if (size.cx != pBitmapRes->m_pImg->cxWidth || size.cy != pBitmapRes->m_pImg->cyHeight) {
         theUndo.BeginUndo(TEXT("Property Edit"));
 
         pBitmapRes->SetSizeProp(P_Size, size);
-
         theUndo.EndUndo();
-
         theApp.m_sizeBitmap = size;
     }
 
     if (dlg.m_bMonochrome != bMono
-        && (!dlg.m_bMonochrome
-            || AfxMessageBox(IDS_WARNING_MONO, MB_YESNO | MB_ICONEXCLAMATION) == IDYES))
-    {
+        && (!dlg.m_bMonochrome || AfxMessageBox(IDS_WARNING_MONO, MB_YESNO | MB_ICONEXCLAMATION) == IDYES)) {
         theUndo.BeginUndo(TEXT("Property Edit"));
 
         pBitmapRes->SetIntProp(P_Colors, dlg.m_bMonochrome);
@@ -1254,7 +1082,6 @@ void CPBView::OnImageAttributes()
         theUndo.EndUndo();
     }
 }
-
 
 
 void CPBView::OnImageClearImage()
@@ -1265,15 +1092,12 @@ void CPBView::OnImageClearImage()
 }
 
 
-
 void CPBView::OnFilePrint()
 {
     CancelToolMode(FALSE);
 
     CView::OnFilePrint();
-
 }
-
 
 
 void CPBView::OnFilePrintPreview()
@@ -1284,17 +1108,14 @@ void CPBView::OnFilePrintPreview()
 }
 
 
-
 void CPBView::OnUpdateImageClearImage(CCmdUI* pCmdUI)
 {
     BOOL bEnable = FALSE;
 
     if (m_pImgWnd)
-        bEnable = (CImgTool::GetCurrentID() != IDMX_TEXTTOOL
-                   && !m_pImgWnd->IsSelectionAvailable());
+        bEnable = (CImgTool::GetCurrentID() != IDMX_TEXTTOOL && !m_pImgWnd->IsSelectionAvailable());
     pCmdUI->Enable(bEnable);
 }
-
 
 
 void CPBView::OnSel2bsh()
@@ -1303,19 +1124,16 @@ void CPBView::OnSel2bsh()
 }
 
 
-
 void CPBView::OnLargerbrush()
 {
     m_pImgWnd->CmdLargerBrush();
 }
 
 
-
 void CPBView::OnSmallerbrush()
 {
     m_pImgWnd->CmdSmallerBrush();
 }
-
 
 
 void CPBView::OnImageFlipRotate()
@@ -1327,14 +1145,11 @@ void CPBView::OnImageFlipRotate()
     if (dlg.DoModal() != IDOK)
         return;
 
-    if (dlg.m_bAngle)
-    {
-        switch (dlg.m_nAngle)
-        {
+    if (dlg.m_bAngle) {
+        switch (dlg.m_nAngle) {
         case 90:
             m_pImgWnd->CmdRot90();
             break;
-
         case 180:
             theUndo.BeginUndo(TEXT("Rotate 180"));
 
@@ -1343,7 +1158,6 @@ void CPBView::OnImageFlipRotate()
 
             theUndo.EndUndo();
             break;
-
         case 270:
             theUndo.BeginUndo(TEXT("Rotate 270"));
 
@@ -1354,14 +1168,12 @@ void CPBView::OnImageFlipRotate()
             theUndo.EndUndo();
             break;
         }
-    }
-    else
+    } else
         if (dlg.m_bHorz)
             m_pImgWnd->CmdFlipBshH();
         else
             m_pImgWnd->CmdFlipBshV();
 }
-
 
 
 void CPBView::OnUpdateImageFlipRotate(CCmdUI* pCmdUI)
@@ -1370,12 +1182,10 @@ void CPBView::OnUpdateImageFlipRotate(CCmdUI* pCmdUI)
 }
 
 
-
 void CPBView::OnEditcolors()
 {
     g_pColors->CmdEditColor();
 }
-
 
 
 void CPBView::OnUpdateEditcolors(CCmdUI* pCmdUI)
@@ -1393,14 +1203,11 @@ void CPBView::OnLoadcolors()
 }
 
 
-
 void CPBView::OnUpdateLoadcolors(CCmdUI* pCmdUI)
 {
     BOOL bEnable = FALSE;
 
-    if (g_pColors && m_pImgWnd && m_pImgWnd->m_pImg &&
-        m_pImgWnd->m_pImg->m_pBitmapObj)
-    {
+    if (g_pColors && m_pImgWnd && m_pImgWnd->m_pImg && m_pImgWnd->m_pImg->m_pBitmapObj) {
         // not allowed except on 24 bit images
         bEnable = (m_pImgWnd->m_pImg->m_pBitmapObj->m_nColors == 3);
     }
@@ -1409,12 +1216,10 @@ void CPBView::OnUpdateLoadcolors(CCmdUI* pCmdUI)
 }
 
 
-
 void CPBView::OnSavecolors()
 {
     g_pColors->CmdSaveColors();
 }
-
 
 
 void CPBView::OnUpdateSavecolors(CCmdUI* pCmdUI)
@@ -1424,34 +1229,29 @@ void CPBView::OnUpdateSavecolors(CCmdUI* pCmdUI)
 
 
 #endif
+
+
 void CPBView::OnEditSelectAll()
 {
-    if (m_pImgWnd)
-    {
-        if (!TextToolProcessed(ID_EDIT_SELECT_ALL))
-        {
-            IMG *img = m_pImgWnd ? m_pImgWnd->GetImg() : NULL;
-
-            if (img)
-            {
+    if (m_pImgWnd) {
+        if (!TextToolProcessed(ID_EDIT_SELECT_ALL)) {
+            IMG* img = m_pImgWnd ? m_pImgWnd->GetImg() : NULL;
+            if (img) {
                 CImgTool::Select(IDMB_PICKTOOL);
-                m_pImgWnd->MakeBrush(img->hDC,
-                                     CRect(0, 0, img->cxWidth, img->cyHeight));
+                m_pImgWnd->MakeBrush(img->hDC, CRect(0, 0, img->cxWidth, img->cyHeight));
             }
         }
     }
 }
 
 
-
 void CPBView::OnEditPasteFrom()
 {
-    CBitmapObj *pResObject = new CBitmapObj();
+    CBitmapObj* pResObject = new CBitmapObj();
 
     ASSERT(pResObject != NULL);
 
-    if (pResObject != NULL)
-    {
+    if (pResObject != NULL) {
         ASSERT(m_pImgWnd != NULL);
 
         pResObject->MakeEmpty();
@@ -1459,9 +1259,7 @@ void CPBView::OnEditPasteFrom()
         CString newName;
         int iColor = 0;
 
-        if (theApp.DoPromptFileName(newName, IDS_EDIT_PASTE_FROM,
-                                    OFN_PATHMUSTEXIST, TRUE, iColor, FALSE))
-        {
+        if (theApp.DoPromptFileName(newName, IDS_EDIT_PASTE_FROM, OFN_PATHMUSTEXIST, TRUE, iColor, FALSE)) {
             if (pResObject->Import(newName))
                 m_pImgWnd->PasteImageFile((LPSTR)(pResObject->GetData()));
         }
@@ -1473,29 +1271,23 @@ void CPBView::OnEditPasteFrom()
 }
 
 
-
-
-BOOL FillBitmapObj(CImgWnd* pImgWnd, CBitmapObj* pResObject, IMG* pImgStruct,
-                   int iColor)
+BOOL FillBitmapObj(CImgWnd* pImgWnd, CBitmapObj* pResObject, IMG* pImgStruct, int iColor)
 {
     ASSERT(pImgWnd != NULL);
 
     pResObject->MakeEmpty();
 
-    if (pImgWnd->m_pImg == NULL
-        || pImgWnd->m_pImg->m_pBitmapObj == NULL
-        || pImgWnd->m_pImg->m_pBitmapObj->m_pImg == NULL)
-    {
+    if (pImgWnd->m_pImg == NULL ||
+        pImgWnd->m_pImg->m_pBitmapObj == NULL ||
+        pImgWnd->m_pImg->m_pBitmapObj->m_pImg == NULL) {
         return(FALSE);
     }
 
-    if (iColor < 0)
-    {
+    if (iColor < 0) {
         iColor = pImgWnd->m_pImg->m_pBitmapObj->m_nColors;
     }
 
-    if (theImgBrush.m_bFirstDrag)
-    {
+    if (theImgBrush.m_bFirstDrag) {
         PickupSelection();
     }
 
@@ -1509,8 +1301,7 @@ BOOL FillBitmapObj(CImgWnd* pImgWnd, CBitmapObj* pResObject, IMG* pImgStruct,
     pImgStruct->cxWidth = theImgBrush.m_size.cx;
     pImgStruct->cyHeight = theImgBrush.m_size.cy;
 
-    if (iColor < 4 && iColor >= 0)
-    {
+    if (iColor < 4 && iColor >= 0) {
         pResObject->m_nSaveColors = iColor;
     }
 
@@ -1530,22 +1321,21 @@ BOOL FillBitmapObj(CImgWnd* pImgWnd, CBitmapObj* pResObject, IMG* pImgStruct,
     return(TRUE);
 }
 
+
 void CPBView::OnEditCopyTo()
 {
     CString newName;
     int iColor = m_pImgWnd->m_pImg->m_pBitmapObj->m_nColors;
 
     if (theApp.DoPromptFileName(newName, IDS_EDIT_COPY_TO,
-                                OFN_HIDEREADONLY | OFN_PATHMUSTEXIST, FALSE, iColor, TRUE))
-    {
+                                OFN_HIDEREADONLY | OFN_PATHMUSTEXIST, FALSE, iColor, TRUE)) {
         BeginWaitCursor();
 
         CBitmapObj cResObject;
 
         IMG imgStruct;
 
-        if (!FillBitmapObj(m_pImgWnd, &cResObject, &imgStruct, iColor))
-        {
+        if (!FillBitmapObj(m_pImgWnd, &cResObject, &imgStruct, iColor)) {
             // BUGBUG: Need an error message
             // Actually, can this ever happen?
             return;
@@ -1562,22 +1352,16 @@ void CPBView::OnEditCopyTo()
 }
 
 
-
 void CPBView::OnUpdateEditCopyTo(CCmdUI* pCmdUI)
 {
     BOOL bEnable = FALSE;
 
-    if (CImgTool::GetCurrentID() == IDMB_PICKTOOL
-        || CImgTool::GetCurrentID() == IDMB_PICKRGNTOOL)
-    {
+    if (CImgTool::GetCurrentID() == IDMB_PICKTOOL || CImgTool::GetCurrentID() == IDMB_PICKRGNTOOL) {
         ASSERT(m_pImgWnd != NULL);
 
-        if (m_pImgWnd != NULL)
-        {
-            if (m_pImgWnd->m_pImg != NULL)
-            {
-                if (m_pImgWnd->m_pImg == theImgBrush.m_pImg)
-                {
+        if (m_pImgWnd != NULL) {
+            if (m_pImgWnd->m_pImg != NULL) {
+                if (m_pImgWnd->m_pImg == theImgBrush.m_pImg) {
                     bEnable = TRUE;
                 }
             }
@@ -1586,7 +1370,6 @@ void CPBView::OnUpdateEditCopyTo(CCmdUI* pCmdUI)
 
     pCmdUI->Enable(bEnable);
 }
-
 
 
 void CPBView::OnImageStretchSkew()
@@ -1601,9 +1384,7 @@ void CPBView::OnImageStretchSkew()
     int iStretchHorz = dlg.GetStretchHorz();
     int iStretchVert = dlg.GetStretchVert();
 
-    if (iStretchVert
-        || iStretchHorz)
-    {
+    if (iStretchVert || iStretchHorz) {
         CPBDoc* pDoc = GetDocument();
 
         ASSERT(pDoc);
@@ -1611,25 +1392,23 @@ void CPBView::OnImageStretchSkew()
         int iWidthImg = pDoc->m_pBitmapObj->m_pImg->cxWidth;
         int iHeightImg = pDoc->m_pBitmapObj->m_pImg->cyHeight;
 
-        if (theImgBrush.m_pImg == NULL)
-        {
-            int lX = iWidthImg + (iWidthImg  * iStretchHorz) / 100;
+        if (theImgBrush.m_pImg == NULL) {
+            int lX = iWidthImg + (iWidthImg * iStretchHorz) / 100;
             int lY = iHeightImg + (iHeightImg * iStretchVert) / 100;
 
             CBitmap bmWork;
             CDC     dcWork;
-            CDC*    pdcImg = CDC::FromHandle(pDoc->m_pBitmapObj->m_pImg->hDC);
+            CDC* pdcImg = CDC::FromHandle(pDoc->m_pBitmapObj->m_pImg->hDC);
             CSize   sizeBMP((UINT)lX, (UINT)lY);
             CRect   rect(0, 0, lX, lY);
 
             if (!dcWork.CreateCompatibleDC(pdcImg)
-                || !bmWork.CreateCompatibleBitmap(pdcImg, iWidthImg, iHeightImg))
-            {
+                || !bmWork.CreateCompatibleBitmap(pdcImg, iWidthImg, iHeightImg)) {
                 theApp.SetGdiEmergency(TRUE);
                 return;
             }
 
-            CBitmap*   pbmOld = dcWork.SelectObject(&bmWork);
+            CBitmap* pbmOld = dcWork.SelectObject(&bmWork);
             CPalette* ppalOld = m_pImgWnd->SetImgPalette(&dcWork, FALSE);
 
             BeginWaitCursor();
@@ -1640,8 +1419,7 @@ void CPBView::OnImageStretchSkew()
 
             pDoc->m_pBitmapObj->SetSizeProp(P_Size, sizeBMP);
 
-            StretchCopy(pdcImg->m_hDC, 0, 0, lX, lY,
-                        dcWork.m_hDC, 0, 0, iWidthImg, iHeightImg);
+            StretchCopy(pdcImg->m_hDC, 0, 0, lX, lY, dcWork.m_hDC, 0, 0, iWidthImg, iHeightImg);
 
             InvalImgRect(m_pImgWnd->m_pImg, NULL);
             CommitImgRect(m_pImgWnd->m_pImg, NULL);
@@ -1659,9 +1437,7 @@ void CPBView::OnImageStretchSkew()
             theApp.m_sizeBitmap = sizeBMP;
 
             EndWaitCursor();
-        }
-        else
-        {
+        } else {
             CRect rect = theImgBrush.m_rcSelection;
             long  lX = theImgBrush.m_size.cx;
             long  lY = theImgBrush.m_size.cy;
@@ -1676,17 +1452,14 @@ void CPBView::OnImageStretchSkew()
             // then give the suer the option2 of growing the image...
 //          if (lX > iWidthImg || lY > iHeightImg)
 //              {
-//              switch (AfxMessageBox( IDS_ENLAGEBITMAPFORSTRETCH,
-//                                     MB_YESNOCANCEL | MB_ICONQUESTION ))
+//              switch (AfxMessageBox( IDS_ENLAGEBITMAPFORSTRETCH, MB_YESNOCANCEL | MB_ICONQUESTION ))
 //                  {
 //                  default:
 //                      return;
 //                      break;
-
 //                  case IDYES:
 //                      {
-//                      CSize size( max( lX, iWidthImg  ),
-//                                  max( lY, iHeightImg ) );
+//                      CSize size( max( lX, iWidthImg  ), max( lY, iHeightImg ) );
 
 //                      theUndo.BeginUndo( "Resize Bitmap" );
 //                      VERIFY( pDoc->m_pBitmapObj->SetSizeProp( P_Size, size ) );
@@ -1694,7 +1467,6 @@ void CPBView::OnImageStretchSkew()
 //                      theUndo.EndUndo();
 //                      }
 //                      break;
-
 //                  case IDNO:
 //                      break;
 //                  }
@@ -1724,27 +1496,23 @@ void CPBView::OnImageStretchSkew()
 }
 
 
-
 void CPBView::OnUpdateImageStretchSkew(CCmdUI* pCmdUI)
 {
     pCmdUI->Enable(m_pImgWnd != NULL);
 }
 
 
-
 void CPBView::OnViewViewPicture()
 {
-    CPBDoc *pDoc;
+    CPBDoc* pDoc;
     CString strCaption;
 
     ASSERT(!theApp.m_bEmbedded);
     pDoc = GetDocument();
 
-    CFullScreenThumbNailView *pcThumbNailView = new CFullScreenThumbNailView(m_pImgWnd);
+    CFullScreenThumbNailView* pcThumbNailView = new CFullScreenThumbNailView(m_pImgWnd);
 
-    if (pcThumbNailView == NULL
-        || !pcThumbNailView->Create((LPCTSTR)pDoc->GetPathName()))
-    {
+    if (pcThumbNailView == NULL || !pcThumbNailView->Create((LPCTSTR)pDoc->GetPathName())) {
         theApp.SetMemoryEmergency();
 
         TRACE(TEXT("Create CThumbNailView faild\n"));
@@ -1752,12 +1520,10 @@ void CPBView::OnViewViewPicture()
 }
 
 
-
 void CPBView::OnUpdateViewViewPicture(CCmdUI* pCmdUI)
 {
     pCmdUI->Enable(m_pImgWnd != NULL);
 }
-
 
 
 void CPBView::OnViewTextToolbar()
@@ -1772,20 +1538,18 @@ void CPBView::OnViewTextToolbar()
 }
 
 
-
 void CPBView::OnUpdateViewTextToolbar(CCmdUI* pCmdUI)
 {
     BOOL bEnable = FALSE;
 
-    if (CImgTool::GetCurrentID() == IDMX_TEXTTOOL)
-    {
+    if (CImgTool::GetCurrentID() == IDMX_TEXTTOOL) {
         CTextTool* pTextTool = (CTextTool*)CImgTool::GetCurrent();
 
         ASSERT(pTextTool);
         ASSERT(pTextTool->IsKindOf(RUNTIME_CLASS(CTextTool)));
 
         if (pTextTool
-            &&  pTextTool->IsSlectionVisible())
+            && pTextTool->IsSlectionVisible())
             bEnable = TRUE;
     }
 
@@ -1794,12 +1558,10 @@ void CPBView::OnUpdateViewTextToolbar(CCmdUI* pCmdUI)
 }
 
 
-
 void CPBView::OnFileSetaswallpaperT()
 {
     SetTheWallpaper(TRUE);
 }
-
 
 
 void CPBView::OnUpdateFileSetaswallpaperT(CCmdUI* pCmdUI)
@@ -1808,12 +1570,10 @@ void CPBView::OnUpdateFileSetaswallpaperT(CCmdUI* pCmdUI)
 }
 
 
-
 void CPBView::OnFileSetaswallpaperC()
 {
     SetTheWallpaper(FALSE);
 }
-
 
 
 void CPBView::OnUpdateFileSetaswallpaperC(CCmdUI* pCmdUI)
@@ -1822,13 +1582,11 @@ void CPBView::OnUpdateFileSetaswallpaperC(CCmdUI* pCmdUI)
 }
 
 
-
 BOOL CPBView::CanSetWallpaper()
 {
     BOOL bEnable = FALSE;
 
-    if (m_pImgWnd != NULL)
-    {
+    if (m_pImgWnd != NULL) {
         CPBDoc* pDoc = GetDocument();
 
         ASSERT(pDoc);
@@ -1837,7 +1595,6 @@ BOOL CPBView::CanSetWallpaper()
     }
     return bEnable;
 }
-
 
 
 void CPBView::SetTheWallpaper(BOOL bTiled /* = FALSE */)
@@ -1850,56 +1607,59 @@ void CPBView::SetTheWallpaper(BOOL bTiled /* = FALSE */)
     BOOL bSetWallpaper = !(cStrFileName.IsEmpty() || pDoc->IsModified() || pDoc->m_bNonBitmapFile);
 
     if (!bSetWallpaper)
-        switch (AfxMessageBox(IDS_MUST_SAVE_WALLPAPER, MB_OKCANCEL | MB_ICONEXCLAMATION))
-        {
+        switch (AfxMessageBox(IDS_MUST_SAVE_WALLPAPER, MB_OKCANCEL | MB_ICONEXCLAMATION)) {
         case IDOK:
             // If so, either Save or Update, as appropriate
             bSetWallpaper = pDoc->SaveTheDocument();
             cStrFileName = pDoc->GetPathName();
             break;
-
         case IDCANCEL:
             break;
-
         default:
             theApp.SetMemoryEmergency();
             break;
         }
 
-    if (bSetWallpaper)
-    {
+    if (bSetWallpaper) {
         DWORD dwDisp;
         HKEY  hKey = 0;
 
-        if (RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("Control Panel\\Desktop"), REG_OPTION_RESERVED, TEXT(""), REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwDisp) == ERROR_SUCCESS)
-        {
-            RegSetValueEx(hKey, TEXT("TileWallpaper"), 0, REG_SZ, (BYTE *)(bTiled ? TEXT("1") : TEXT("0")), 2 * sizeof(TCHAR));
+        if (RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("Control Panel\\Desktop"),
+                           REG_OPTION_RESERVED, TEXT(""),
+                           REG_OPTION_NON_VOLATILE,
+                           KEY_ALL_ACCESS,
+                           NULL,
+                           &hKey,
+                           &dwDisp) == ERROR_SUCCESS) {
+            RegSetValueEx(hKey,
+                          TEXT("TileWallpaper"),
+                          0,
+                          REG_SZ,
+                          (BYTE*)(bTiled ? TEXT("1") : TEXT("0")),
+                          2 * sizeof(TCHAR));
             RegCloseKey(hKey);
         }
 
-        SystemParametersInfo(SPI_SETDESKWALLPAPER, bTiled ? 1 : 0, (LPVOID)(cStrFileName.GetBuffer(cStrFileName.GetLength())), SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+        SystemParametersInfo(SPI_SETDESKWALLPAPER,
+                             bTiled ? 1 : 0,
+                             (LPVOID)(cStrFileName.GetBuffer(cStrFileName.GetLength())),
+                             SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
         cStrFileName.ReleaseBuffer();
     }
 }
-
 
 
 void CPBView::OnPaletteChanged(CWnd* pFocusWnd)
 {
     // If this application did not change the palette, select
     // and realize this application's palette
-    if ((pFocusWnd != m_pImgWnd)
-        && (m_pImgWnd != NULL)
-        && (m_pImgWnd->m_pImg != NULL))
-    {
-        if (theApp.m_pPalette)
-        {
+    if ((pFocusWnd != m_pImgWnd) && (m_pImgWnd != NULL) && (m_pImgWnd->m_pImg != NULL)) {
+        if (theApp.m_pPalette) {
             // Redraw the entire client area
             m_pImgWnd->InvalidateRect(NULL);
             m_pImgWnd->UpdateWindow();
 
-            if (g_pImgColorsWnd && g_pImgColorsWnd->m_hWnd && IsWindow(g_pImgColorsWnd->m_hWnd))
-            {
+            if (g_pImgColorsWnd && g_pImgColorsWnd->m_hWnd && IsWindow(g_pImgColorsWnd->m_hWnd)) {
                 InvalColorWnd();
                 // g_pImgColorsWnd->UpdateWindow();
             }
@@ -1908,30 +1668,25 @@ void CPBView::OnPaletteChanged(CWnd* pFocusWnd)
 }
 
 
-
 BOOL CPBView::OnQueryNewPalette()
 {
     HPALETTE hOldPal = NULL;
 
-    if (m_pImgWnd && ::IsWindow(m_pImgWnd->m_hWnd)
-        && m_pImgWnd->m_pImg)
-    {
-        if (theApp.m_pPalette)
-        {
+    if (m_pImgWnd && ::IsWindow(m_pImgWnd->m_hWnd) && m_pImgWnd->m_pImg) {
+        if (theApp.m_pPalette) {
             // Redraw the entire client area
             m_pImgWnd->InvalidateRect(NULL);
             m_pImgWnd->UpdateWindow();
 
-            if (g_pImgColorsWnd && g_pImgColorsWnd->m_hWnd && IsWindow(g_pImgColorsWnd->m_hWnd))
-            {
+            if (g_pImgColorsWnd && g_pImgColorsWnd->m_hWnd && IsWindow(g_pImgColorsWnd->m_hWnd)) {
                 InvalColorWnd();
                 g_pImgColorsWnd->UpdateWindow();
             }
         }
     }
+
     return TRUE;
 }
-
 
 
 void CPBView::OnUpdateImageAttributes(CCmdUI* pCmdUI)
@@ -1944,8 +1699,7 @@ void CPBView::OnUpdateImageAttributes(CCmdUI* pCmdUI)
 
 void CPBView::OnEscape()
 {
-    if (m_pImgWnd != NULL)
-    {
+    if (m_pImgWnd != NULL) {
         m_pImgWnd->CmdCancel();
     }
 
@@ -1957,13 +1711,10 @@ void CPBView::OnEscapeServer()
 {
     CImgTool* pImgTool = CImgTool::GetCurrent();
 
-    if (pImgTool->IsToolModal())
-    {
+    if (pImgTool->IsToolModal()) {
         OnEscape();
         return;
-    }
-    else
-    {
+    } else {
         // Tell the OLE client (if there is one) we are all done
         GetDocument()->OnDeactivateUI(FALSE);
     }
