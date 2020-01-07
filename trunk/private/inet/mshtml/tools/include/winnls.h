@@ -647,8 +647,7 @@ WINBASEAPI UINT WINAPI GetOEMCP(void);
 WINBASEAPI BOOL WINAPI GetCPInfo(UINT      CodePage, LPCPINFO  lpCPInfo);
 WINBASEAPI BOOL WINAPI IsDBCSLeadByte(BYTE  TestChar);
 WINBASEAPI BOOL WINAPI IsDBCSLeadByteEx(UINT  CodePage, BYTE  TestChar);
-WINBASEAPI int WINAPI MultiByteToWideChar(
-    UINT     CodePage,
+WINBASEAPI int WINAPI MultiByteToWideChar(UINT     CodePage,
     DWORD    dwFlags,
     LPCSTR   lpMultiByteStr,
     int      cchMultiByte,

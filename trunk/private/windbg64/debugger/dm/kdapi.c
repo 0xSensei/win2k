@@ -645,14 +645,7 @@ ReloadModulesFromList(
     if (JustLoadThisOne && *JustLoadThisOne) {
 
         Len = _tcslen(JustLoadThisOne);
-        MultiByteToWideChar(
-            CP_OEMCP,
-            0,
-            JustLoadThisOne,
-            Len,
-            UnicodeBuffer,
-            sizeof(UnicodeBuffer)
-            );
+        MultiByteToWideChar(CP_OEMCP, 0, JustLoadThisOne, Len, UnicodeBuffer, sizeof(UnicodeBuffer));
     }
 
     if (!NT_SUCCESS(DmKdReadListEntry(ListAddr, &List))) {

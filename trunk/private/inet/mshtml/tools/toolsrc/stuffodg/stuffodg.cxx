@@ -106,12 +106,8 @@ main(int argc, char ** argv)
     if (hr)
         goto Cleanup;
 
-
     // Create docfile to stuff odg's into.
-
-
-    ret = TW32(0, MultiByteToWideChar(
-            CP_ACP, 0, argv[1], -1, awch, MAX_PATH));
+    ret = TW32(0, MultiByteToWideChar(CP_ACP, 0, argv[1], -1, awch, MAX_PATH));
     if (!ret)
     {
         hr = GetLastWin32Error();
@@ -137,8 +133,7 @@ main(int argc, char ** argv)
         {
             pStgSrc = NULL;
             pStgDst = NULL;
-            ret = TW32(0, MultiByteToWideChar(
-                    CP_ACP, 0, argv[j], -1, awch, MAX_PATH));
+            ret = TW32(0, MultiByteToWideChar(CP_ACP, 0, argv[j], -1, awch, MAX_PATH));
             if (!ret)
             {
                 hr = GetLastWin32Error();
@@ -201,10 +196,7 @@ Loop2Cleanup:
 
 
         // Copy designated "f" stream.
-
-
-        ret = TW32(0, MultiByteToWideChar(
-                CP_ACP, 0, argv[2], -1, awch, MAX_PATH));
+        ret = TW32(0, MultiByteToWideChar(CP_ACP, 0, argv[2], -1, awch, MAX_PATH));
         if (!ret)
         {
             hr = GetLastWin32Error();

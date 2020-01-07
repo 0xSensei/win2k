@@ -326,9 +326,7 @@ CStrInW::Init(LPCSTR pstr, int cch)
     // will succeed, and we won't be able to null terminate the string!
     // Decrease our buffer by one for this case.
 
-    _cwchLen = MultiByteToWideChar(
-        CP_ACP, 0, pstr, cch, _awch, ARRAYSIZE(_awch) - 1);
-
+    _cwchLen = MultiByteToWideChar(CP_ACP, 0, pstr, cch, _awch, ARRAYSIZE(_awch) - 1);
     if (_cwchLen > 0) {
         // Some callers don't NULL terminate.
 
@@ -363,8 +361,7 @@ CStrInW::Init(LPCSTR pstr, int cch)
     }
 
     ASSERT(HIWORD64(_pwstr));
-    _cwchLen = MultiByteToWideChar(
-        CP_ACP, 0, pstr, cch, _pwstr, cchBufReq);
+    _cwchLen = MultiByteToWideChar(CP_ACP, 0, pstr, cch, _pwstr, cchBufReq);
 
 #if DBG == 1 /* { */
     if (0 == _cwchLen) {

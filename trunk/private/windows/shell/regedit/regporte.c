@@ -1459,14 +1459,12 @@ GetChar(
             {
                 int i;
 
-                i = MultiByteToWideChar(
-                        CP_THREAD_ACP,
+                i = MultiByteToWideChar(CP_THREAD_ACP,
                         MB_PRECOMPOSED,
                         s_FileIo.ConversionBuffer,
                         NumberOfBytesRead,
                         s_FileIo.Buffer,
-                        SIZE_FILE_IO_BUFFER
-                        );
+                        SIZE_FILE_IO_BUFFER);
 
                 s_FileIo.CharsAvailable = i;
             }

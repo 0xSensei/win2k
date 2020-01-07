@@ -921,13 +921,7 @@ Return Value:
             memcpy(lpBuf, szCopyBuf, cb);
         } else {
             mbtowc((WCHAR *)lpBuf, szCopyBuf, cb);
-            cb = 2 * MultiByteToWideChar(
-                                CP_ACP,
-                                0,
-                                szCopyBuf,
-                                cb,
-                                (LPWSTR)lpBuf,
-                                cchBuf);
+            cb = 2 * MultiByteToWideChar(CP_ACP, 0, szCopyBuf, cb, (LPWSTR)lpBuf, cchBuf);
         }
 
         break;

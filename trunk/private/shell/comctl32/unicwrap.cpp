@@ -83,8 +83,7 @@ void CStrInW::Init(LPCSTR pstr, int cch)
     // Convert string to preallocated buffer, and return if successful.
 
 
-    _cwchLen = MultiByteToWideChar(
-            CP_ACP, 0, pstr, cch, _awch, ARRAYSIZE(_awch));
+    _cwchLen = MultiByteToWideChar(CP_ACP, 0, pstr, cch, _awch, ARRAYSIZE(_awch));
 
     if (_cwchLen > 0)
     {
@@ -111,8 +110,7 @@ void CStrInW::Init(LPCSTR pstr, int cch)
     }
 
     ASSERT(HIWORD64(_pwstr));
-    _cwchLen = -1 + MultiByteToWideChar(
-            CP_ACP, 0, pstr, cch, _pwstr, cchBufReq );
+    _cwchLen = -1 + MultiByteToWideChar(CP_ACP, 0, pstr, cch, _pwstr, cchBufReq );
     ASSERT(_cwchLen >= 0);
 }
 

@@ -2003,8 +2003,7 @@ Return Value:
             return (SOCKET_ERROR);
         }
 
-        MultiByteToWideChar(
-            CP_ACP,                          // CodePage (Ansi)
+        MultiByteToWideChar(CP_ACP,                          // CodePage (Ansi)
             0,                               // dwFlags
             AddressString,                   // lpMultiByte
             -1,                              // cchMultiByte

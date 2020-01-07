@@ -328,8 +328,7 @@ Return Value:
         );
 
         if (io_result) {
-            pathLength = MultiByteToWideChar(
-                CP_ACP,                                   // CodePage
+            pathLength = MultiByteToWideChar(CP_ACP,                                   // CodePage
                 0,                                        // dwFlags
                 ansiPath,                                 // lpMultiByteStr
                 -1,                                       // cchMultiByte
@@ -414,8 +413,7 @@ Return Value:
         );
 
         if (io_result) {
-            pathLength = MultiByteToWideChar(
-                CP_ACP,                                   // CodePage
+            pathLength = MultiByteToWideChar(CP_ACP,                                   // CodePage
                 0,                                        // dwFlags
                 ansiPath,                                 // lpMultiByteStr
                 -1,                                       // cchMultiByte

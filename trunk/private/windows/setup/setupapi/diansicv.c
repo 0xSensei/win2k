@@ -87,14 +87,12 @@ Return Value:
             // Convert the single string in the structure. To make things easier
             // we'll just convert the entire buffer. There's no potential for overflow.
 
-            i = MultiByteToWideChar(
-                    CP_ACP,
+            i = MultiByteToWideChar(CP_ACP,
                     MB_PRECOMPOSED,
                     AnsiDevInstParams->DriverPath,
                     sizeof(AnsiDevInstParams->DriverPath),
                     UnicodeDevInstParams->DriverPath,
-                    sizeof(UnicodeDevInstParams->DriverPath) / sizeof(WCHAR)
-                    );
+                    sizeof(UnicodeDevInstParams->DriverPath) / sizeof(WCHAR));
 
             if(!i) {
                 rc = GetLastError();
@@ -260,43 +258,35 @@ Return Value:
             // Convert the strings in the structure. To make things easier
             // we'll just convert the entire buffers. There's no potential for overflow.
 
-            i = MultiByteToWideChar(
-                    CP_ACP,
+            i = MultiByteToWideChar(CP_ACP,
                     MB_PRECOMPOSED,
                     AnsiSelDevParams->Title,
                     sizeof(AnsiSelDevParams->Title),
                     UnicodeSelDevParams->Title,
-                    sizeof(UnicodeSelDevParams->Title) / sizeof(WCHAR)
-                    );
+                    sizeof(UnicodeSelDevParams->Title) / sizeof(WCHAR));
 
             if(i) {
-                i = MultiByteToWideChar(
-                        CP_ACP,
+                i = MultiByteToWideChar(CP_ACP,
                         MB_PRECOMPOSED,
                         AnsiSelDevParams->Instructions,
                         sizeof(AnsiSelDevParams->Instructions),
                         UnicodeSelDevParams->Instructions,
-                        sizeof(UnicodeSelDevParams->Instructions) / sizeof(WCHAR)
-                        );
+                        sizeof(UnicodeSelDevParams->Instructions) / sizeof(WCHAR));
 
                 if(i) {
-                    i = MultiByteToWideChar(
-                            CP_ACP,
+                    i = MultiByteToWideChar(CP_ACP,
                             MB_PRECOMPOSED,
                             AnsiSelDevParams->ListLabel,
                             sizeof(AnsiSelDevParams->ListLabel),
                             UnicodeSelDevParams->ListLabel,
-                            sizeof(UnicodeSelDevParams->ListLabel) / sizeof(WCHAR)
-                            );
+                            sizeof(UnicodeSelDevParams->ListLabel) / sizeof(WCHAR));
                     if(i) {
-                        i = MultiByteToWideChar(
-                                CP_ACP,
+                        i = MultiByteToWideChar(CP_ACP,
                                 MB_PRECOMPOSED,
                                 AnsiSelDevParams->SubTitle,
                                 sizeof(AnsiSelDevParams->SubTitle),
                                 UnicodeSelDevParams->SubTitle,
-                                sizeof(UnicodeSelDevParams->SubTitle) / sizeof(WCHAR)
-                                );
+                                sizeof(UnicodeSelDevParams->SubTitle) / sizeof(WCHAR));
 
                         if(!i) {
                             rc = GetLastError();
@@ -516,18 +506,15 @@ Return Value:
             // Convert the strings in the structure. To make things easier
             // we'll just convert the entire buffers. There's no potential for overflow.
 
-            i = MultiByteToWideChar(
-                    CP_ACP,
+            i = MultiByteToWideChar(CP_ACP,
                     MB_PRECOMPOSED,
                     AnsiDrvInfoData->Description,
                     sizeof(AnsiDrvInfoData->Description),
                     UnicodeDrvInfoData->Description,
-                    sizeof(UnicodeDrvInfoData->Description) / sizeof(WCHAR)
-                    );
+                    sizeof(UnicodeDrvInfoData->Description) / sizeof(WCHAR));
 
             if(i) {
-                i = MultiByteToWideChar(
-                        CP_ACP,
+                i = MultiByteToWideChar(CP_ACP,
                         MB_PRECOMPOSED,
                         AnsiDrvInfoData->MfgName,
                         sizeof(AnsiDrvInfoData->MfgName),
@@ -536,8 +523,7 @@ Return Value:
                         );
 
                 if(i) {
-                    i = MultiByteToWideChar(
-                            CP_ACP,
+                    i = MultiByteToWideChar(CP_ACP,
                             MB_PRECOMPOSED,
                             AnsiDrvInfoData->ProviderName,
                             sizeof(AnsiDrvInfoData->ProviderName),

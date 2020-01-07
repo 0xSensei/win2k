@@ -1811,19 +1811,10 @@ HRESULT CProcInfo::SetDataWowTask(LARGE_INTEGER  TotalTime,
 
         m_pszImageName[0] = m_pszImageName[1] = TEXT(' ');
 
-        MultiByteToWideChar(
-            CP_ACP,
-            0,
-            pchExe,
-            uLen,
-            &m_pszImageName[2],
-            uLen
-            );
+        MultiByteToWideChar(CP_ACP, 0, pchExe, uLen, &m_pszImageName[2], uLen);
         m_pszImageName[uLen + 2] = 0;
 
-
         // WOW EXE filenames are always uppercase, so lowercase it.
-
 
         CharLowerBuff(&m_pszImageName[2], uLen);
 

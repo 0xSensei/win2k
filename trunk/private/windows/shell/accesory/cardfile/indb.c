@@ -95,8 +95,7 @@ TCHAR* Ole2Native( OLECHAR* szBuf, INT num )
     }
     iOleSize= (pszTemp-szBuf);                  // chars to convert including nulls
 
-    iWSize= MultiByteToWideChar(
-                         CP_ACP,                // codepage
+    iWSize= MultiByteToWideChar(CP_ACP,                // codepage
                          MB_PRECOMPOSED,        // character type options
                          szBuf,                 // string to convert
                          iOleSize,              // length to convert
@@ -104,12 +103,10 @@ TCHAR* Ole2Native( OLECHAR* szBuf, INT num )
                          0);                    // length of output buffer
 
     pszResult= LocalAlloc( LPTR, iWSize*sizeof(TCHAR) );
-
     if( pszResult )
     {
         INT iResSize;
-        iResSize= MultiByteToWideChar(
-                         CP_ACP,                // code page
+        iResSize= MultiByteToWideChar(CP_ACP,                // code page
                          MB_PRECOMPOSED,        // character type options
                          szBuf,                 // string to map
                          iOleSize,              // length in chars to convert

@@ -79,8 +79,7 @@ struct UnicodeBuf : public FlexBuf
         LPWSTR pwszUrl = (LPWSTR) GetPtr (sizeof(WCHAR) * cbUrl);
         if (!pwszUrl)
             return NULL;
-        MultiByteToWideChar
-            (CP_ACP, 0, pszUrl, cbUrl, pwszUrl, cbUrl);
+        MultiByteToWideChar(CP_ACP, 0, pszUrl, cbUrl, pwszUrl, cbUrl);
         return pwszUrl;
     }
 };

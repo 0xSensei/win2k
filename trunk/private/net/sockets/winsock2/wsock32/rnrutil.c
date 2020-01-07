@@ -63,8 +63,7 @@ Return Value:
     }
 
     // convert it
-    err = MultiByteToWideChar(
-                   CP_ACP,         // better by ANSI
+    err = MultiByteToWideChar(CP_ACP,         // better by ANSI
                    0,
                    lpAnsi,
                    -1,             // it's NULL terminated

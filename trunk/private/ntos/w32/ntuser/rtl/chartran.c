@@ -307,8 +307,7 @@ int MBToWCSEx(
 
         UserAssert(0);
 
-        iCharsInUnicodeString = EngMultiByteToWideChar(
-                                    (UINT)wCodePage,
+        iCharsInUnicodeString = EngMultiByteToWideChar((UINT)wCodePage,
                                     (LPWSTR)*ppUnicodeString,
                                     (int)cchUnicodeString * sizeof(WCHAR),
                                     (LPSTR)pAnsiString,
@@ -322,8 +321,7 @@ int MBToWCSEx(
         /*
          * Call NLS API (Kernel32) to convert string to Unicode. (User mode)
          */
-        nCharsInUnicodeString = MultiByteToWideChar(
-                                    (UINT)wCodePage, 0,
+        nCharsInUnicodeString = MultiByteToWideChar((UINT)wCodePage, 0,
                                     (LPCSTR)pAnsiString,
                                     (int)nAnsiChar,
                                     (LPWSTR)*ppUnicodeString,

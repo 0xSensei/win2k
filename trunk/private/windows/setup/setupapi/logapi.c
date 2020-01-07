@@ -136,15 +136,7 @@ pAnsiToUnicodeForDisplay (
         return NULL;
     }
 
-    rc = MultiByteToWideChar (
-            atoi (CodePage),
-            MB_USEGLYPHCHARS,
-            AnsiStr,
-            -1,
-            UnicodeBuffer,
-            Len
-            );
-
+    rc = MultiByteToWideChar (atoi (CodePage), MB_USEGLYPHCHARS, AnsiStr, -1, UnicodeBuffer, Len);
     if (rc == 0) {
         MyFree (UnicodeBuffer);
         return NULL;

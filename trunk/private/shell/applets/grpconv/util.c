@@ -314,14 +314,7 @@ LPTSTR fgets(LPTSTR sz, DWORD count, HANDLE fh)
     AnsiString[count-1] = '\0';
 
     // Convert the Ansi String to Unicode
-    if (MultiByteToWideChar(
-        CP_ACP,
-        MB_PRECOMPOSED,
-        AnsiString,
-        -1,
-        sz,
-        count
-        )  != 0) {
+    if (MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, AnsiString, -1, sz, count)  != 0) {
         retval = sz;
     }
 

@@ -263,10 +263,7 @@ STDAPI GetAcceptLanguagesW(LPWSTR pwzLanguages, LPDWORD pcchLanguages)
 
     if (SUCCEEDED(hr))
     {
-        *pcchLanguages = MultiByteToWideChar(
-                             CP_ACP, 0, psz, -1,
-                             pwzLanguages, *pcchLanguages - 1);
-
+        *pcchLanguages = MultiByteToWideChar(CP_ACP, 0, psz, -1, pwzLanguages, *pcchLanguages - 1);
         pwzLanguages[*pcchLanguages] = 0;
     }
 

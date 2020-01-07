@@ -38,8 +38,7 @@ extern "C" {
 
 typedef UINT (WINAPI FNGETACP)(VOID);
 
-typedef int (WINAPI FNMULTIBYTETOWIDECHAR)(
-    IN UINT CodePage,
+typedef int (WINAPI FNMULTIBYTETOWIDECHAR)(IN UINT CodePage,
     IN DWORD dwFlags,
     IN LPCSTR lpMultiByteStr,
     IN int cchMultiByte,
@@ -55,11 +54,9 @@ typedef int (WINAPI FNWIDECHARTOMULTIBYTE)(IN UINT CodePage,
     IN LPCSTR lpDefaultChar,
     IN LPBOOL lpUsedDefaultChar);
 
-typedef BSTR FNSYSALLOCSTRING(
-    OLECHAR FAR* pwsz);
+typedef BSTR FNSYSALLOCSTRING(OLECHAR FAR* pwsz);
 
-typedef VOID FNSYSFREESTRING(
-    BSTR pwsz);
+typedef VOID FNSYSFREESTRING(BSTR pwsz);
 
 
 // The UNICODECALLOUTS structure holds function

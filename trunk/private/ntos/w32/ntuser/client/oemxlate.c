@@ -229,8 +229,7 @@ BOOL WINAPI OemToCharW(
 
     cch = strlen(pSrc) + 1;
 
-    MultiByteToWideChar(
-            CP_OEMCP,                          // Unicode -> OEM
+    MultiByteToWideChar(CP_OEMCP,                          // Unicode -> OEM
             MB_PRECOMPOSED | MB_USEGLYPHCHARS, // visual map to precomposed
             (LPSTR)pSrc, cch,                  // source & length
             pDst,                              // destination
@@ -263,8 +262,7 @@ BOOL WINAPI OemToCharBuffW(
         return FALSE;
     }
 
-    MultiByteToWideChar(
-            CP_OEMCP,                          // Unicode -> OEM
+    MultiByteToWideChar(CP_OEMCP,                          // Unicode -> OEM
             MB_PRECOMPOSED | MB_USEGLYPHCHARS, // visual map to precomposed
             (LPSTR)pSrc, nLength,              // source & length
             pDst,                              // destination

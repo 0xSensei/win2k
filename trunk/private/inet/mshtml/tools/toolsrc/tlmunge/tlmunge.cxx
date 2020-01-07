@@ -2028,8 +2028,7 @@ ParseArguments(int argc, char ** argv, LPWSTR pwstrTL, LPSTR pstrOutFile, LPSTR 
             goto ShowUsage;
         }
     }
-    ret = TW32(0, MultiByteToWideChar(
-            CP_ACP, 0, argv[1], -1, pwstrTL, MAX_PATH));
+    ret = TW32(0, MultiByteToWideChar(CP_ACP, 0, argv[1], -1, pwstrTL, MAX_PATH));
     if (!ret)
         RRETURN(GetLastWin32Error());
 

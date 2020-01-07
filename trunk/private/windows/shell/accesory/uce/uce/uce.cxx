@@ -927,12 +927,7 @@ LRESULT APIENTRY UCEWndProc(
                     for(i = 0; i <= chRangeLast && pCode[i]; i++)
                     {
                         GetUName(pCode[i], wbuffer);
-                        /*
-                        MultiByteToWideChar(
-                                CP_ACP,
-                                MB_PRECOMPOSED,
-                                buffer3, -1,
-                                wbuffer, 256); */
+                        /*MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, buffer3, -1, wbuffer, 256); */
                         _wcsupr(wbuffer);
                         for(k = 0; k < word; k++)
                         {
@@ -1917,11 +1912,7 @@ LRESULT APIENTRY CharGridWndProc(
                     else
                     {
                         GetUName(wc, szMessageW);
-                        /*
-                        MultiByteToWideChar(
-                            CP_ACP, 0,
-                            szMessageA, -1,
-                            szMessageW, MAX_PATH);*/
+                        /*MultiByteToWideChar(CP_ACP, 0, szMessageA, -1, szMessageW, MAX_PATH);*/
                         if((lCodePage = CodePage_GetCurCodePageVal())
                             != UNICODE_CODEPAGE)
                         {

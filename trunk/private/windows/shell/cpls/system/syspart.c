@@ -254,48 +254,24 @@ ArcPathToNtPath(
 #ifdef UNICODE
     lstrcpynW(arcPath+9,ArcPath,sizeof(arcPath)/sizeof(WCHAR));
 #else
-    MultiByteToWideChar(
-        CP_ACP,
-        0,
-        ArcPath,
-        -1,
-        arcPath+9,
-        (sizeof(arcPath)/sizeof(WCHAR))-9
-        );
+    MultiByteToWideChar(CP_ACP, 0, ArcPath, -1, arcPath+9, (sizeof(arcPath)/sizeof(WCHAR))-9);
 #endif
 
     UnicodeString.Buffer = arcPath;
     UnicodeString.Length = lstrlenW(arcPath)*sizeof(WCHAR);
     UnicodeString.MaximumLength = UnicodeString.Length + sizeof(WCHAR);
 
-    InitializeObjectAttributes(
-        &Obja,
-        &UnicodeString,
-        OBJ_CASE_INSENSITIVE,
-        NULL,
-        NULL
-        );
-
-    Status = (*NtOpenSymLinkRoutine)(
-                &ObjectHandle,
-                READ_CONTROL | SYMBOLIC_LINK_QUERY,
-                &Obja
-                );
-
+    InitializeObjectAttributes(&Obja, &UnicodeString, OBJ_CASE_INSENSITIVE, NULL, NULL);
+    Status = (*NtOpenSymLinkRoutine)(&ObjectHandle, READ_CONTROL | SYMBOLIC_LINK_QUERY, &Obja);
     if(NT_SUCCESS(Status)) {
-
         // Query the object to get the link target.
-
         UnicodeString.Buffer = Buffer;
         UnicodeString.Length = 0;
         UnicodeString.MaximumLength = sizeof(Buffer)-sizeof(WCHAR);
 
         Status = (*NtQuerSymLinkRoutine)(ObjectHandle,&UnicodeString,NULL);
-
         CloseHandle(ObjectHandle);
-
         if(NT_SUCCESS(Status)) {
-
             Buffer[UnicodeString.Length/sizeof(WCHAR)] = 0;
 
 #ifdef UNICODE

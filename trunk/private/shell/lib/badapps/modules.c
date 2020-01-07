@@ -233,14 +233,7 @@ ShGet16ModuleDescription (
     CopyMemory (a_result, MappedImage + neHeader->ne_nrestab + 1, *size);
     a_result [*size] = 0;
 #ifdef UNICODE
-    converted = MultiByteToWideChar (
-                    CP_ACP,
-                    0,
-                    a_result,
-                    *size,
-                    w_result,
-                    512
-                    );
+    converted = MultiByteToWideChar (CP_ACP, 0, a_result, *size, w_result, 512);
     if (!converted) {
         return NULL;
     }

@@ -842,14 +842,7 @@ CHashDbCompactor::CatalogFileExists (LPCSTR pszCatalogName, DWORD cbName)
     WCHAR  pwszPath[ MAX_PATH ];
     HANDLE hFile;
 
-    if ( MultiByteToWideChar(
-              CP_ACP,
-              0,
-              pszCatalogName,
-              cbName,
-              pwszFile,
-              MAX_PATH
-              ) == 0 )
+    if ( MultiByteToWideChar(CP_ACP, 0, pszCatalogName, cbName, pwszFile, MAX_PATH) == 0 )
     {
         return( FALSE );
     }

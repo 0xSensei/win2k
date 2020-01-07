@@ -33,7 +33,7 @@ PerfDbgTag(tagZONEMAP_COMPONENTS, "Urlmon", "Log Security URL parser", DEB_SESSI
 #define MAX_IPRANGE 32
 
 BOOL  CSecurityManager::s_bIPInit = FALSE;
-BYTE * CSecurityManager::s_pRanges = NULL;
+BYTE* CSecurityManager::s_pRanges = NULL;
 DWORD CSecurityManager::s_cNumRanges = 0;
 DWORD CSecurityManager::s_cbRangeItem = 0;
 DWORD CSecurityManager::s_dwNextRangeIndex = 0;
@@ -46,7 +46,7 @@ BOOL  CSecurityManager::s_bcsectInit = FALSE;
 CRITICAL_SECTION CSecurityManager::s_csectIP;
 HANDLE CSecurityManager::CSecMgrCache::s_hMutexCounter;
 
-CLSID * CSecurityManager::s_clsidAllowedList = NULL;
+CLSID* CSecurityManager::s_clsidAllowedList = NULL;
 CRITICAL_SECTION CSecurityManager::s_csectAList;
 DWORD CSecurityManager::s_dwNumAllowedControls;
 
@@ -56,7 +56,7 @@ DWORD CSecurityManager::s_dwNumAllowedControls;
 // at 0 and go up sequentially.
 #define URL_SCHEME_WILDCARD (0x0000FFFF)
 
-typedef DWORD (APIENTRY *WNETGETCONNECTION) (LPSTR, LPSTR, LPDWORD);
+typedef DWORD(APIENTRY* WNETGETCONNECTION) (LPSTR, LPSTR, LPDWORD);
 
 
 // Simple class to force freeing of memory pointer.
@@ -64,7 +64,7 @@ class CFreeStrPtr
 {
 public:
     CFreeStrPtr(LPWSTR pwsz) { m_pwsz = pwsz; }
-    ~CFreeStrPtr()  { delete [] m_pwsz; }
+    ~CFreeStrPtr() { delete[] m_pwsz; }
 private:
     LPWSTR m_pwsz;
 };
@@ -76,7 +76,7 @@ private:
 #endif
 
 // Scans a string for number from 0 to 255 inclusive.
-PRIVATE BOOL ScanByte (LPCTSTR& psz, BYTE *bOut)
+PRIVATE BOOL ScanByte(LPCTSTR& psz, BYTE* bOut)
 {
     DWORD dw;
 
@@ -98,53 +98,49 @@ PRIVATE BOOL ScanByte (LPCTSTR& psz, BYTE *bOut)
         return FALSE;
 
 done:
-    *bOut = (BYTE) dw;
+    *bOut = (BYTE)dw;
     return TRUE;
 }
 
 // Scans a string for a range, wrapping ScanByte
-PRIVATE BOOL ScanRange (LPCTSTR& psz, BYTE* pbLow, BYTE* pbHigh)
+PRIVATE BOOL ScanRange(LPCTSTR& psz, BYTE* pbLow, BYTE* pbHigh)
 {
-    if (*psz == WILDCARD)
-    {
-        *pbLow  = 0;
+    if (*psz == WILDCARD) {
+        *pbLow = 0;
         *pbHigh = 255;
         psz++; // move past *
         return TRUE;
     }
 
-    if (!ScanByte (psz, pbLow))
+    if (!ScanByte(psz, pbLow))
         return FALSE;
 
     while (*psz == SPACE)
         psz++; // trim whitespace
-    if (*psz != HYPHEN)
-    {
+    if (*psz != HYPHEN) {
         *pbHigh = *pbLow;
         return TRUE;
-    }
-    else
-    {
+    } else {
         psz++; // move past -
         while (*psz == SPACE)
             psz++; // trim whitespace
-        return ScanByte (psz, pbHigh);
+        return ScanByte(psz, pbHigh);
     }
 }
 
 
-PRIVATE BOOL ReadIPRule (LPCTSTR psz, BYTE *pbLow, BYTE *pbHigh)
+PRIVATE BOOL ReadIPRule(LPCTSTR psz, BYTE* pbLow, BYTE* pbHigh)
 {
     // Note: ScanRange first param passed by reference.
     return
-       (    ScanRange (psz, pbLow++, pbHigh++)
-        &&  *psz++ == DOT
-        &&  ScanRange (psz, pbLow++, pbHigh++)
-        &&  *psz++ == DOT
-        &&  ScanRange (psz, pbLow++, pbHigh++)
-        &&  *psz++ == DOT
-        &&  ScanRange (psz, pbLow++, pbHigh++)
-       );
+        (ScanRange(psz, pbLow++, pbHigh++)
+         && *psz++ == DOT
+         && ScanRange(psz, pbLow++, pbHigh++)
+         && *psz++ == DOT
+         && ScanRange(psz, pbLow++, pbHigh++)
+         && *psz++ == DOT
+         && ScanRange(psz, pbLow++, pbHigh++)
+         );
 }
 
 
@@ -161,8 +157,8 @@ PRIVATE BOOL ReadIPRule (LPCTSTR psz, BYTE *pbLow, BYTE *pbHigh)
 */
 PRIVATE ULONG
 inet_addr(
-    IN const TCHAR *cp
-    )
+    IN const TCHAR* cp
+)
 
 /*++
 
@@ -221,128 +217,126 @@ Return Value:
 */
 
 {
-        register unsigned long val, base, n;
-        register TCHAR c;
-        unsigned long parts[4], *pp = parts;
-        const unsigned long INADDR_NONE = -1;
+    register unsigned long val, base, n;
+    register TCHAR c;
+    unsigned long parts[4], * pp = parts;
+    const unsigned long INADDR_NONE = -1;
 
 
 again:
+    /*
+     * Collect number up to ``.''.
+     * Values are specified as for C:
+     * 0x=hex, 0=octal, other=decimal.
+     */
+    val = 0; base = 10;
+    if (*cp == '0') {
+        base = 8, cp++;
+        if (*cp == 'x' || *cp == 'X')
+            base = 16, cp++;
+    }
+
+    while (c = *cp) {
+        // If it is a decimal digit..
+        if (c <= NINE && c >= ZERO) {
+            val = (val * base) + (c - '0');
+            cp++;
+            continue;
+        }
+        // If we are base 16 and it is a hex digit...
+        if (base == 16 &&
+            ((c >= TEXT('a') && c <= TEXT('f')) ||
+            (c >= TEXT('A') && c <= TEXT('F'))
+             )
+            ) {
+            val = (val << 4) + (c + 10 - (islower(c) ? TEXT('a') : TEXT('A')));
+            cp++;
+            continue;
+        }
+        break;
+    }
+    if (*cp == '.') {
         /*
-         * Collect number up to ``.''.
-         * Values are specified as for C:
-         * 0x=hex, 0=octal, other=decimal.
+         * Internet format:
+         *      a.b.c.d
+         *      a.b.c   (with c treated as 16-bits)
+         *      a.b     (with b treated as 24 bits)
          */
-        val = 0; base = 10;
-        if (*cp == '0') {
-            base = 8, cp++;
-            if (*cp == 'x' || *cp == 'X')
-                base = 16, cp++;
+         /* GSS - next line was corrected on 8/5/89, was 'parts + 4' */
+        if (pp >= parts + 3) {
+            return ((unsigned long)-1);
         }
+        *pp++ = val, cp++;
+        goto again;
+    }
+    /*
+     * Check for trailing characters.
+     */
+    if (*cp && !IsSpace(*cp)) {
+        return (INADDR_NONE);
+    }
+    *pp++ = val;
+    /*
+     * Concoct the address according to
+     * the number of parts specified.
+     */
+    n = (unsigned long)(pp - parts);
+    switch ((int)n) {
 
-        while (c = *cp) {
-                // If it is a decimal digit..
-                if (c <= NINE && c >= ZERO) {
-                        val = (val * base) + (c - '0');
-                        cp++;
-                        continue;
-                }
-                // If we are base 16 and it is a hex digit...
-                if ( base == 16 &&
-                     ( (c >= TEXT('a') && c <= TEXT('f')) ||
-                       (c >= TEXT('A') && c <= TEXT('F'))
-                     )
-                   )
-                {
-                        val = (val << 4) + (c + 10 - (islower(c) ? TEXT('a') : TEXT('A')));
-                        cp++;
-                        continue;
-                }
-                break;
+    case 1:                         /* a -- 32 bits */
+        val = parts[0];
+        break;
+
+    case 2:                         /* a.b -- 8.24 bits */
+        if ((parts[0] > 0xff) || (parts[1] > 0xffffff)) {
+            return(INADDR_NONE);
         }
-        if (*cp == '.') {
-                /*
-                 * Internet format:
-                 *      a.b.c.d
-                 *      a.b.c   (with c treated as 16-bits)
-                 *      a.b     (with b treated as 24 bits)
-                 */
-                /* GSS - next line was corrected on 8/5/89, was 'parts + 4' */
-                if (pp >= parts + 3) {
-                        return ((unsigned long) -1);
-                }
-                *pp++ = val, cp++;
-                goto again;
+        val = (parts[0] << 24) | (parts[1] & 0xffffff);
+        break;
+
+    case 3:                         /* a.b.c -- 8.8.16 bits */
+        if ((parts[0] > 0xff) || (parts[1] > 0xff) ||
+            (parts[2] > 0xffff)) {
+            return(INADDR_NONE);
         }
-        /*
-         * Check for trailing characters.
-         */
-        if (*cp && !IsSpace(*cp)) {
-                return (INADDR_NONE);
+        val = (parts[0] << 24) | ((parts[1] & 0xff) << 16) |
+            (parts[2] & 0xffff);
+        break;
+
+    case 4:                         /* a.b.c.d -- 8.8.8.8 bits */
+        if ((parts[0] > 0xff) || (parts[1] > 0xff) ||
+            (parts[2] > 0xff) || (parts[3] > 0xff)) {
+            return(INADDR_NONE);
         }
-        *pp++ = val;
-        /*
-         * Concoct the address according to
-         * the number of parts specified.
-         */
-        n = (unsigned long)(pp-parts);
-        switch ((int) n) {
+        val = (parts[0] << 24) | ((parts[1] & 0xff) << 16) |
+            ((parts[2] & 0xff) << 8) | (parts[3] & 0xff);
+        break;
 
-        case 1:                         /* a -- 32 bits */
-                val = parts[0];
-                break;
-
-        case 2:                         /* a.b -- 8.24 bits */
-                if ((parts[0] > 0xff) || (parts[1] > 0xffffff)) {
-                    return(INADDR_NONE);
-                }
-                val = (parts[0] << 24) | (parts[1] & 0xffffff);
-                break;
-
-        case 3:                         /* a.b.c -- 8.8.16 bits */
-                if ((parts[0] > 0xff) || (parts[1] > 0xff) ||
-                    (parts[2] > 0xffff)) {
-                    return(INADDR_NONE);
-                }
-                val = (parts[0] << 24) | ((parts[1] & 0xff) << 16) |
-                        (parts[2] & 0xffff);
-                break;
-
-        case 4:                         /* a.b.c.d -- 8.8.8.8 bits */
-                if ((parts[0] > 0xff) || (parts[1] > 0xff) ||
-                    (parts[2] > 0xff) || (parts[3] > 0xff)) {
-                    return(INADDR_NONE);
-                }
-                val = (parts[0] << 24) | ((parts[1] & 0xff) << 16) |
-                      ((parts[2] & 0xff) << 8) | (parts[3] & 0xff);
-                break;
-
-        default:
-                return (INADDR_NONE);
-        }
+    default:
+        return (INADDR_NONE);
+    }
 
 #if defined(UNIX) && defined(BIG_ENDIAN)
-//  IEUNIX: Dont swap on BIG_ENDIAN Unix m/c.
-        return (val);
+    //  IEUNIX: Dont swap on BIG_ENDIAN Unix m/c.
+    return (val);
 #else
-        val = (val & 0xff000000) >> 24 |
-              (val & 0x00ff0000) >> 8  |
-              (val & 0x0000ff00) << 8  |
-              (val & 0x000000ff) << 24;
-        return (val);
+    val = (val & 0xff000000) >> 24 |
+        (val & 0x00ff0000) >> 8 |
+        (val & 0x0000ff00) << 8 |
+        (val & 0x000000ff) << 24;
+    return (val);
 #endif
 }
 
 
 // Checks if site is in form of IP address.
-PRIVATE BOOL ReadAddress (LPCTSTR pwszSite, BYTE *pb)
+PRIVATE BOOL ReadAddress(LPCTSTR pwszSite, BYTE* pb)
 {
     ULONG ipaddr = inet_addr(pwszSite);
 
-    if (ipaddr != -1)
-    {
+    if (ipaddr != -1) {
 #ifndef UNIX
-        *(ULONG*)pb = ipaddr;
+        * (ULONG*)pb = ipaddr;
 #else
         memcpy(pb, &ipaddr, sizeof(ULONG));
 #endif /* UNIX */
@@ -360,8 +354,8 @@ struct ZONEMAP_COMPONENTS
     DWORD    cchProtocol, cchSite, cchDomain;
 
     DWORD    nScheme;   // One of URL_SCHEME_*
-    BOOL     fAddr:1;    // whether name is in form of IP address
-    BOOL     fIPRange:1; // whether name is in form of an IP Range.
+    BOOL     fAddr : 1;    // whether name is in form of IP address
+    BOOL     fIPRange : 1; // whether name is in form of an IP Range.
     BYTE     bAddr[4];  // if IP address, components of IP address
     RANGE_ITEM rangeItem; // If IP Range, components of IP Range.
 
@@ -372,13 +366,13 @@ struct ZONEMAP_COMPONENTS
     TCHAR    szSiteBuf[MAX_PATH]; // used for remote drives
     TCHAR    szIPAddr[16];   // room for 255.255.255.255 + NULL
 
-    HRESULT Crack (LPCTSTR pwszUrl, DWORD dwFlags, BOOL bIPRange = FALSE);
+    HRESULT Crack(LPCTSTR pwszUrl, DWORD dwFlags, BOOL bIPRange = FALSE);
 
-    BOOL SetUNC (LPSTR pszUNC);
+    BOOL SetUNC(LPSTR pszUNC);
 };
 
 
-BOOL ZONEMAP_COMPONENTS::SetUNC (LPSTR pszUNC)
+BOOL ZONEMAP_COMPONENTS::SetUNC(LPSTR pszUNC)
 {
     PerfDbgLog(tagZONEMAP_COMPONENTS, this, "+ZONEMAP_COMPONENTS::SetUNC");
 
@@ -388,15 +382,14 @@ BOOL ZONEMAP_COMPONENTS::SetUNC (LPSTR pszUNC)
     pszUNC += 2;
 
     // Strip the share name from the host.
-    LPSTR pszSlash = StrChrA (pszUNC, '\\');
+    LPSTR pszSlash = StrChrA(pszUNC, '\\');
     if (!pszSlash)
         return FALSE;
     *pszSlash = 0;
-    DWORD cchUNC = (DWORD) (pszSlash - pszUNC);
+    DWORD cchUNC = (DWORD)(pszSlash - pszUNC);
 
     // Convert back to unicode.
-    cchSite = MultiByteToWideChar
-        (CP_ACP, 0, pszUNC, cchUNC, szSiteBuf, MAX_PATH);
+    cchSite = MultiByteToWideChar(CP_ACP, 0, pszUNC, cchUNC, szSiteBuf, MAX_PATH);
     szSiteBuf[cchSite] = 0;
     pszSite = szSiteBuf;
 
@@ -411,11 +404,11 @@ inline BOOL IsDosPath(LPCTSTR p)
 {
 #ifndef unix
     return (*p == BACKSLASH
-                ||
+            ||
             /* it starts with "x:" where x is from the English alphabet */
-                ( (*p) &&
-                  ((*p >= TEXT('a') && *p <= TEXT('z')) || (*p >= TEXT('A') && *p <= TEXT('Z'))) &&
-                  p[1] == COLON) );
+            ((*p) &&
+            ((*p >= TEXT('a') && *p <= TEXT('z')) || (*p >= TEXT('A') && *p <= TEXT('Z'))) &&
+             p[1] == COLON));
 #else
     return (*p == SLASH);
 #endif /* unix */
@@ -430,18 +423,14 @@ inline BOOL IsDrive(LPCTSTR p)
 #endif /* unix */
 }
 
-inline BOOL IsWildcardScheme(LPCTSTR p, BOOL &bImplicit)
+inline BOOL IsWildcardScheme(LPCTSTR p, BOOL& bImplicit)
 {
     BOOL bRet = FALSE;
-    if ( p && *p )
-    {
-        if (*p == WILDCARD && p[1] == COLON)
-        {
+    if (p && *p) {
+        if (*p == WILDCARD && p[1] == COLON) {
             bRet = TRUE;
             bImplicit = FALSE;
-        }
-        else if (StrChr(p, COLON) == NULL)
-        {
+        } else if (StrChr(p, COLON) == NULL) {
             // If there is no Colon in the string the user didn't specify a scheme
             // and we will assume it is a wildcard.
             // i.e *:*.microsoft.com is treated the same as *.microsoft.com
@@ -462,7 +451,7 @@ inline BOOL IsOpaqueScheme(DWORD dwScheme)
 
 // Global Init functions.
 
-BOOL CSecurityManager::GlobalInit( )
+BOOL CSecurityManager::GlobalInit()
 {
     InitializeCriticalSection(&s_csectIP);
     InitializeCriticalSection(&s_csectAList);
@@ -471,35 +460,33 @@ BOOL CSecurityManager::GlobalInit( )
     return TRUE;
 }
 
-BOOL CSecurityManager::GlobalCleanup( )
+BOOL CSecurityManager::GlobalCleanup()
 {
-    delete [] s_pRanges;
+    delete[] s_pRanges;
     s_pRanges = NULL;
 
-    if(s_clsidAllowedList)
-    {
-        delete [] s_clsidAllowedList;
+    if (s_clsidAllowedList) {
+        delete[] s_clsidAllowedList;
         s_clsidAllowedList = NULL;
     }
 
 
-    if ( s_bcsectInit )
-    {
-        DeleteCriticalSection(&s_csectIP) ;
+    if (s_bcsectInit) {
+        DeleteCriticalSection(&s_csectIP);
         DeleteCriticalSection(&s_csectAList);
     }
 
     return TRUE;
 }
 
-VOID CSecurityManager::IncrementGlobalCounter( )
+VOID CSecurityManager::IncrementGlobalCounter()
 {
-    CSecurityManager::CSecMgrCache::IncrementGlobalCounter( );
+    CSecurityManager::CSecMgrCache::IncrementGlobalCounter();
 }
 
 // Helper functions to deal with caching MapUrlToZone results.
 
-HRESULT ZONEMAP_COMPONENTS::Crack (LPCTSTR pszScan, DWORD dwFlags, BOOL bIPRange /* = FALSE*/)
+HRESULT ZONEMAP_COMPONENTS::Crack(LPCTSTR pszScan, DWORD dwFlags, BOOL bIPRange /* = FALSE*/)
 {
     PerfDbgLog(tagZONEMAP_COMPONENTS, this, "+ZONEMAP_COMPONENTS::Crack");
     fDrive = FALSE;
@@ -511,43 +498,34 @@ HRESULT ZONEMAP_COMPONENTS::Crack (LPCTSTR pszScan, DWORD dwFlags, BOOL bIPRange
     if (IsDosPath(pszScan))
         dwFlags |= PUAF_ISFILE;
 
-    if (dwFlags & PUAF_ISFILE)
-    {
+    if (dwFlags & PUAF_ISFILE) {
         pszProtocol = cszFileProt;
         cchProtocol = CSTRLENW(cszFileProt);
         nScheme = URL_SCHEME_FILE;
-    }
-    else
-    {
+    } else {
         PARSEDURL pu;
         pu.cbSize = sizeof(pu);
 
         BOOL bImplicit = FALSE;
-        if ( (dwFlags & PUAF_ACCEPT_WILDCARD_SCHEME) &&
-             IsWildcardScheme(pszScan, bImplicit)
-           )
-        {
+        if ((dwFlags & PUAF_ACCEPT_WILDCARD_SCHEME) &&
+            IsWildcardScheme(pszScan, bImplicit)
+            ) {
             nScheme = URL_SCHEME_WILDCARD;
             pszProtocol = &chWildCard;
             cchProtocol = 1;
             // Skip over the *: if the user entered this explicity.
             if (!bImplicit)
                 pszScan += 2;
-        }
-        else
-        {
+        } else {
             HRESULT hr = ParseURL(pszScan, &pu);
 
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 nScheme = pu.nScheme;
                 pszProtocol = pu.pszProtocol;
 
                 cchProtocol = pu.cchProtocol;
                 pszScan = pu.pszSuffix;
-            }
-            else
-            {
+            } else {
                 return hr;
             }
 
@@ -556,9 +534,8 @@ HRESULT ZONEMAP_COMPONENTS::Crack (LPCTSTR pszScan, DWORD dwFlags, BOOL bIPRange
         // Copy protocol to null terminate it.
         if (cchProtocol >= INTERNET_MAX_SCHEME_LENGTH)
             return E_INVALIDARG;
-        else
-        {
-            memcpy (szProtBuf, pszProtocol, sizeof(TCHAR) * cchProtocol);
+        else {
+            memcpy(szProtBuf, pszProtocol, sizeof(TCHAR) * cchProtocol);
             szProtBuf[cchProtocol] = 0;
             pszProtocol = szProtBuf;
         }
@@ -567,15 +544,12 @@ HRESULT ZONEMAP_COMPONENTS::Crack (LPCTSTR pszScan, DWORD dwFlags, BOOL bIPRange
 
     // Opaque URLs - We cannot interpret anything besides the scheme.
     // Just Treat the rest of the string as the Site.
-    if (IsOpaqueScheme(nScheme))
-    {
+    if (IsOpaqueScheme(nScheme)) {
         pszSite = pszScan;
         cchSite = lstrlen(pszSite);
         pszDomain = NULL;
         cchDomain = 0;
-    }
-    else
-    {
+    } else {
 #ifndef unix
         // Scan past leading '/' and '\' before site.
         while (*pszScan == SLASH || *pszScan == BACKSLASH)
@@ -584,24 +558,22 @@ HRESULT ZONEMAP_COMPONENTS::Crack (LPCTSTR pszScan, DWORD dwFlags, BOOL bIPRange
         pszSite = pszScan;
 
         // Is this a drive letter. If so we need to figure out whether it is local or remote.
-        if (nScheme == URL_SCHEME_FILE && pszSite[0] != WILDCARD && IsDrive(pszSite))
-        {
+        if (nScheme == URL_SCHEME_FILE && pszSite[0] != WILDCARD && IsDrive(pszSite)) {
             fDrive = TRUE;
 
             char szDriveRoot[4];
-            szDriveRoot[0] = (BYTE) pszSite[0];
+            szDriveRoot[0] = (BYTE)pszSite[0];
 #ifndef unix
             szDriveRoot[1] = ':';
             szDriveRoot[2] = '\\';
             szDriveRoot[3] = 0;
 #else
-        szDriveRoot[1] = 0;
+            szDriveRoot[1] = 0;
 #endif /* unix */
 
-            dwDriveType = GetDriveTypeFromCacheA (szDriveRoot);
+            dwDriveType = GetDriveTypeFromCacheA(szDriveRoot);
 
-            if (dwDriveType == DRIVE_REMOTE)
-            {
+            if (dwDriveType == DRIVE_REMOTE) {
                 // Strip the trailing backslash.
                 szDriveRoot[2] = 0;
 
@@ -609,10 +581,9 @@ HRESULT ZONEMAP_COMPONENTS::Crack (LPCTSTR pszScan, DWORD dwFlags, BOOL bIPRange
                 DWORD cchUNC;
                 cchUNC = MAX_PATH;
 
-                if (NO_ERROR == WNetGetConnectionA(szDriveRoot, szUNC, &cchUNC))
-                {
+                if (NO_ERROR == WNetGetConnectionA(szDriveRoot, szUNC, &cchUNC)) {
                     fDrive = FALSE;
-                    SetUNC (szUNC);
+                    SetUNC(szUNC);
                 }
             }
         }
@@ -621,54 +592,47 @@ HRESULT ZONEMAP_COMPONENTS::Crack (LPCTSTR pszScan, DWORD dwFlags, BOOL bIPRange
 
         pszScan = pszSite;
 
-        if (fDrive)
-        {
+        if (fDrive) {
             // Just start using the drive as is.
             cchSite = lstrlen(pszSite);
             cchDomain = 0;
             pszDomain = NULL;
-        }
-        else
-        {
+        } else {
 
             // Scan for characters which delimit site.
-            while (1)
-            {
-                switch (*pszScan)
-                {
-                    case 0:
-                    case SLASH:
-                    case BACKSLASH:
-                        break;
+            while (1) {
+                switch (*pszScan) {
+                case 0:
+                case SLASH:
+                case BACKSLASH:
+                    break;
 
-                    case TEXT('@'):
-                        // This happens with custom protocols. Remove assert.
-                        // TransAssert(FALSE);
-                    default:
-                        pszScan++;
-                        continue;
+                case TEXT('@'):
+                    // This happens with custom protocols. Remove assert.
+                    // TransAssert(FALSE);
+                default:
+                    pszScan++;
+                    continue;
                 }
                 break;
             }
 
 
-            cchSite = (DWORD) (pszScan - pszSite);
+            cchSite = (DWORD)(pszScan - pszSite);
 
             pszDomain = NULL;
             cchDomain = 0;
 
             // Check for IP ranges if we are asked to first.
-            if (bIPRange)
-            {
+            if (bIPRange) {
                 fIPRange = ReadIPRule(pszSite, rangeItem.bLow, rangeItem.bHigh);
                 if (fIPRange)
                     return S_OK;
             }
 
             // Check for names that are form of an IP address.
-            fAddr = ReadAddress (pszSite, bAddr);
-            if (fAddr)
-            {
+            fAddr = ReadAddress(pszSite, bAddr);
+            if (fAddr) {
                 cchSite = wnsprintf(szIPAddr, ARRAYSIZE(szIPAddr), TEXT("%d.%d.%d.%d"), bAddr[0], bAddr[1], bAddr[2], bAddr[3]);
                 pszSite = szIPAddr;
                 return S_OK;
@@ -680,30 +644,24 @@ HRESULT ZONEMAP_COMPONENTS::Crack (LPCTSTR pszScan, DWORD dwFlags, BOOL bIPRange
             DWORD cDot = 0;
             LPCTSTR pszDot = NULL;
 
-            while (pszScan > pszSite)
-            {
-                if ( (*pszScan == DOT) && (pszScan < pszSite + cchSite - 2) )
-                {
+            while (pszScan > pszSite) {
+                if ((*pszScan == DOT) && (pszScan < pszSite + cchSite - 2)) {
                     ++cDot;
-                    if (cDot == 1)
-                    {
+                    if (cDot == 1) {
                         pszDot = pszScan;
-                    }
-                    else if (   cDot == 2
-                             && pszDot    // Non-null only the 1st time
-                             && pszDot == pszSite + cchSite - 3   // Only check .?? ending
-                             && pszScan + 3 >= pszDot)   // Check distance between the dots
+                    } else if (cDot == 2
+                               && pszDot    // Non-null only the 1st time
+                               && pszDot == pszSite + cchSite - 3   // Only check .?? ending
+                               && pszScan + 3 >= pszDot)   // Check distance between the dots
                     {
                         // The distance between the 2 dots is less than 3 chars (.?? or smaller),
                         // so don't count this as a dot and don't check again.
                         --cDot;
                         pszDot = NULL;
-                    }
-                    else
-                    {
+                    } else {
                         pszDomain = pszScan + 1;
-                        cchDomain = (DWORD) (pszSite + cchSite - pszDomain);
-                        cchSite = (DWORD) (pszScan - pszSite);
+                        cchDomain = (DWORD)(pszSite + cchSite - pszDomain);
+                        cchSite = (DWORD)(pszScan - pszSite);
                         break;
                     }
                 }
@@ -725,9 +683,9 @@ HRESULT ZONEMAP_COMPONENTS::Crack (LPCTSTR pszScan, DWORD dwFlags, BOOL bIPRange
 STDAPI
 InternetCreateSecurityManager
 (
-    IUnknown * pUnkOuter,
+    IUnknown* pUnkOuter,
     REFIID  riid,
-    void **ppvObj,
+    void** ppvObj,
     DWORD dwReserved
 )
 {
@@ -736,34 +694,25 @@ InternetCreateSecurityManager
     HRESULT hr = S_OK;
     *ppvObj = NULL;
 
-    if ( !IsZonesInitialized() )
+    if (!IsZonesInitialized())
         return E_UNEXPECTED;
 
-    if (dwReserved != 0 || !ppvObj || (pUnkOuter && riid != IID_IUnknown))
-    {
+    if (dwReserved != 0 || !ppvObj || (pUnkOuter && riid != IID_IUnknown)) {
         // If the object has to be aggregated the caller can only ask
         // for an IUnknown back.
         hr = E_INVALIDARG;
-    }
-    else
-    {
-        CSecurityManager * pSecMgr = new CSecurityManager(pUnkOuter, (IUnknown **)ppvObj);
+    } else {
+        CSecurityManager* pSecMgr = new CSecurityManager(pUnkOuter, (IUnknown**)ppvObj);
 
-        if ( pSecMgr )
-        {
+        if (pSecMgr) {
 
-            if (riid == IID_IUnknown || riid == IID_IInternetSecurityManager)
-            {
+            if (riid == IID_IUnknown || riid == IID_IInternetSecurityManager) {
                 // The correct pointer is in ppvObj
-                *ppvObj = (IInternetSecurityManager *)pSecMgr;
-            }
-            else
-            {
+                *ppvObj = (IInternetSecurityManager*)pSecMgr;
+            } else {
                 hr = E_NOINTERFACE;
             }
-        }
-        else
-        {
+        } else {
             hr = E_OUTOFMEMORY;
         }
     }
@@ -777,7 +726,7 @@ InternetCreateSecurityManager
 // Class Initialization-Destruction.
 
 
-CSecurityManager::CSecurityManager(IUnknown *pUnkOuter, IUnknown** ppUnkInner)
+CSecurityManager::CSecurityManager(IUnknown* pUnkOuter, IUnknown** ppUnkInner)
 {
     PerfDbgLog(tagCSecurityManager, this, "+CSecurityManager::CSecurityManager");
 
@@ -788,15 +737,11 @@ CSecurityManager::CSecurityManager(IUnknown *pUnkOuter, IUnknown** ppUnkInner)
 
     m_pZoneManager = NULL;
 
-    if (!pUnkOuter)
-    {
+    if (!pUnkOuter) {
         pUnkOuter = &m_Unknown;
-    }
-    else
-    {
+    } else {
         TransAssert(ppUnkInner);
-        if (ppUnkInner)
-        {
+        if (ppUnkInner) {
             *ppUnkInner = &m_Unknown;
             m_ref = 0;
         }
@@ -804,12 +749,11 @@ CSecurityManager::CSecurityManager(IUnknown *pUnkOuter, IUnknown** ppUnkInner)
 
     m_pUnkOuter = pUnkOuter;
 
-    if (ERROR_SUCCESS != m_regZoneMap.Open (NULL, SZZONEMAP, KEY_READ))
+    if (ERROR_SUCCESS != m_regZoneMap.Open(NULL, SZZONEMAP, KEY_READ))
         goto done;
 
     EnterCriticalSection(&s_csectIP);
-    if (!s_bIPInit)
-    {
+    if (!s_bIPInit) {
         ReadAllIPRules();
         s_bIPInit = TRUE;
     }
@@ -844,11 +788,9 @@ CSecurityManager::~CSecurityManager()
 
 BOOL CSecurityManager::EnsureZoneManager()
 {
-    if (m_pZoneManager == NULL)
-    {
+    if (m_pZoneManager == NULL) {
         if (SUCCEEDED(InternetCreateZoneManager(NULL,
-                          IID_IInternetZoneManager, (void **)&m_pZoneManager, NULL)))
-        {
+                                                IID_IInternetZoneManager, (void**)&m_pZoneManager, NULL))) {
             TransAssert(m_pZoneManager != NULL);
         }
     }
@@ -863,15 +805,12 @@ STDMETHODIMP CSecurityManager::CPrivUnknown::QueryInterface(REFIID riid, void** 
 
     *ppvObj = NULL;
 
-    CSecurityManager * pSecurityManager = GETPPARENT(this, CSecurityManager, m_Unknown);
+    CSecurityManager* pSecurityManager = GETPPARENT(this, CSecurityManager, m_Unknown);
 
-    if (riid == IID_IUnknown || riid == IID_IInternetSecurityManager)
-    {
-        *ppvObj = (IInternetSecurityManager *)pSecurityManager;
+    if (riid == IID_IUnknown || riid == IID_IInternetSecurityManager) {
+        *ppvObj = (IInternetSecurityManager*)pSecurityManager;
         pSecurityManager->AddRef();
-    }
-    else
-    {
+    } else {
         hr = E_NOINTERFACE;
     }
 
@@ -889,12 +828,11 @@ STDMETHODIMP_(ULONG) CSecurityManager::CPrivUnknown::AddRef()
 STDMETHODIMP_(ULONG) CSecurityManager::CPrivUnknown::Release()
 {
 
-    CSecurityManager *pSecurityManager = GETPPARENT(this, CSecurityManager, m_Unknown);
+    CSecurityManager* pSecurityManager = GETPPARENT(this, CSecurityManager, m_Unknown);
 
     LONG lRet = --m_ref;
 
-    if (lRet == 0)
-    {
+    if (lRet == 0) {
         delete pSecurityManager;
     }
 
@@ -902,21 +840,19 @@ STDMETHODIMP_(ULONG) CSecurityManager::CPrivUnknown::Release()
 }
 
 // IUnknown methods
-STDMETHODIMP CSecurityManager::QueryInterface(REFIID riid, void **ppvObj)
+STDMETHODIMP CSecurityManager::QueryInterface(REFIID riid, void** ppvObj)
 {
     PerfDbgLog(tagCSecurityManager, this, "+CSecurityManager::QueryInterface");
     HRESULT hr = E_NOINTERFACE;
 
     *ppvObj = NULL;
 
-    if (riid == IID_IUnknown || riid == IID_IInternetSecurityManager)
-    {
-        *ppvObj = (IInternetSecurityManager *)this;
+    if (riid == IID_IUnknown || riid == IID_IInternetSecurityManager) {
+        *ppvObj = (IInternetSecurityManager*)this;
     }
 
-    if (*ppvObj != NULL)
-    {
-        ((IUnknown *)*ppvObj)->AddRef();
+    if (*ppvObj != NULL) {
+        ((IUnknown*)*ppvObj)->AddRef();
         hr = S_OK;
     }
 
@@ -946,15 +882,14 @@ STDMETHODIMP
 CSecurityManager::MapUrlToZone
 (
     LPCWSTR pwszUrl,
-    DWORD *pdwZone,
+    DWORD* pdwZone,
     DWORD dwFlags
 )
 {
     PerfDbgLog(tagCSecurityManager, this, "+CSecurityManager::MapUrlToZone");
     HRESULT hr = INET_E_DEFAULT_ACTION;
 
-    if (m_pDelegateSecMgr)
-    {
+    if (m_pDelegateSecMgr) {
         hr = m_pDelegateSecMgr->MapUrlToZone(pwszUrl, pdwZone, dwFlags);
     }
 
@@ -967,52 +902,41 @@ CSecurityManager::MapUrlToZone
     }
     */
 
-    if (hr == INET_E_DEFAULT_ACTION)
-    {
+    if (hr == INET_E_DEFAULT_ACTION) {
         LPWSTR pwszSecUrl = NULL;
 
-        if (pdwZone == NULL || pwszUrl == NULL)
-        {
+        if (pdwZone == NULL || pwszUrl == NULL) {
             hr = E_INVALIDARG;
         }
 
-        if (!s_smcache.Lookup(pwszUrl, pdwZone))
-        {
-            hr =  CoInternetGetSecurityUrl(pwszUrl, &pwszSecUrl, PSU_DEFAULT, 0);
+        if (!s_smcache.Lookup(pwszUrl, pdwZone)) {
+            hr = CoInternetGetSecurityUrl(pwszUrl, &pwszSecUrl, PSU_DEFAULT, 0);
 
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 TransAssert(pwszSecUrl);
                 CFreeStrPtr freeStr(pwszSecUrl);
 
                 // Reduce the URL here.  Need to do this up to two times.
 
-                for (int i = 1; i <= 2; i++)
-                {
-                    if (StrChr(pwszSecUrl, PERCENT))
-                    {
+                for (int i = 1; i <= 2; i++) {
+                    if (StrChr(pwszSecUrl, PERCENT)) {
                         UrlUnescapeW(pwszSecUrl, NULL, 0, URL_UNESCAPE_INPLACE);
-                    }
-                    else
+                    } else
                         break;
                 }
 
                 ZONEMAP_COMPONENTS zc;
-                if (SUCCEEDED(hr = zc.Crack (pwszSecUrl, dwFlags)))
-                {
+                if (SUCCEEDED(hr = zc.Crack(pwszSecUrl, dwFlags))) {
                     BOOL fMarked;
 
-                    hr = MapUrlToZone (&zc, pdwZone, dwFlags, &fMarked);
+                    hr = MapUrlToZone(&zc, pdwZone, dwFlags, &fMarked);
 
-                    if (hr == S_OK && !(dwFlags & MUTZ_NOCACHE))
-                    {
-                        s_smcache.Add(pwszUrl, *pdwZone, fMarked );
+                    if (hr == S_OK && !(dwFlags & MUTZ_NOCACHE)) {
+                        s_smcache.Add(pwszUrl, *pdwZone, fMarked);
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             hr = S_OK;
         }
     }
@@ -1022,11 +946,10 @@ CSecurityManager::MapUrlToZone
 }
 
 VOID
-CSecurityManager::PickZCString(ZONEMAP_COMPONENTS *pzc, LPCWSTR *ppwsz, DWORD *pcch, LPCWSTR pwszDocDomain)
+CSecurityManager::PickZCString(ZONEMAP_COMPONENTS* pzc, LPCWSTR* ppwsz, DWORD* pcch, LPCWSTR pwszDocDomain)
 {
-    if (pzc->cchDomain)
-    {
-        TransAssert (!pzc->fDrive);
+    if (pzc->cchDomain) {
+        TransAssert(!pzc->fDrive);
         // We should use the whole site even if we were able to get the
         // primary domain. i.e. security id for http://www.microsoft.com
         // should be http:www.microsoft.com and NOT http:microsoft.com
@@ -1037,14 +960,10 @@ CSecurityManager::PickZCString(ZONEMAP_COMPONENTS *pzc, LPCWSTR *ppwsz, DWORD *p
         TransAssert(pzc->pszSite[pzc->cchSite] == DOT);
         *ppwsz = pzc->pszSite;
         *pcch = pzc->cchSite + pzc->cchDomain + 1;
-    }
-    else if (pzc->fDrive && pzc->dwDriveType != DRIVE_REMOTE)
-    {
+    } else if (pzc->fDrive && pzc->dwDriveType != DRIVE_REMOTE) {
         *ppwsz = TEXT("");
         *pcch = 0;
-    }
-    else if (pzc->nScheme == URL_SCHEME_FILE)
-    {
+    } else if (pzc->nScheme == URL_SCHEME_FILE) {
         // For URL's of the nature \\server\sharename we want to include both the server and sharename in
         // the security ID. This permits me from looking at \\server\private by putting up a page on
         // \\server\public  At thuis point pzc->pszSite should point to the string "server\private\foo.htm"
@@ -1052,17 +971,12 @@ CSecurityManager::PickZCString(ZONEMAP_COMPONENTS *pzc, LPCWSTR *ppwsz, DWORD *p
         LPCTSTR lpszCurr = pzc->pszSite;
         BOOL bFoundFirstSlash = FALSE;
 
-        for (; *lpszCurr != NULL ; lpszCurr++)
-        {
-            if (*lpszCurr == SLASH || *lpszCurr == BACKSLASH)
-            {
-                if (bFoundFirstSlash)
-                {
+        for (; *lpszCurr != NULL; lpszCurr++) {
+            if (*lpszCurr == SLASH || *lpszCurr == BACKSLASH) {
+                if (bFoundFirstSlash) {
                     // This is the second slash we are done.
                     break;
-                }
-                else
-                {
+                } else {
                     bFoundFirstSlash = TRUE;
                 }
             }
@@ -1070,32 +984,25 @@ CSecurityManager::PickZCString(ZONEMAP_COMPONENTS *pzc, LPCWSTR *ppwsz, DWORD *p
 
         *ppwsz = pzc->pszSite;
 
-        if (lpszCurr != NULL)
-        {
+        if (lpszCurr != NULL) {
             *pcch = (DWORD)(lpszCurr - pzc->pszSite);
-        }
-        else
-        {
+        } else {
             TransAssert(FALSE);
             *pcch = pzc->cchSite;
         }
-    }
-    else
-    {
-        TransAssert (!pzc->pszDomain && !pzc->cchDomain);
+    } else {
+        TransAssert(!pzc->pszDomain && !pzc->cchDomain);
         *ppwsz = pzc->pszSite;
         *pcch = pzc->cchSite;
     }
 
     // If the domain string passed is a suffix of the site string we will
     // use that string instead.
-    if (*pcch && pwszDocDomain != 0)
-    {
+    if (*pcch && pwszDocDomain != 0) {
         DWORD cchDocDomain = lstrlenW(pwszDocDomain);
 
         if (*pcch > cchDocDomain &&
-            (0 == StrCmpNICW(pwszDocDomain, &((*ppwsz)[*pcch - cchDocDomain]), cchDocDomain)))
-        {
+            (0 == StrCmpNICW(pwszDocDomain, &((*ppwsz)[*pcch - cchDocDomain]), cchDocDomain))) {
             *ppwsz = pwszDocDomain;
             *pcch = cchDocDomain;
         }
@@ -1105,29 +1012,26 @@ CSecurityManager::PickZCString(ZONEMAP_COMPONENTS *pzc, LPCWSTR *ppwsz, DWORD *p
 STDMETHODIMP
 CSecurityManager::GetSecurityId
 (
-        /* [in] */ LPCWSTR pwszUrl,
-        /* [size_is][out] */ BYTE* pbSecurityId,
-        /* [out][in] */ DWORD *pcbSecurityId,
-        /* [in] */ DWORD_PTR dwReserved
+    /* [in] */ LPCWSTR pwszUrl,
+    /* [size_is][out] */ BYTE* pbSecurityId,
+    /* [out][in] */ DWORD* pcbSecurityId,
+    /* [in] */ DWORD_PTR dwReserved
 )
 {
     PerfDbgLog(tagCSecurityManager, this, "Called CSecurityManager::GetSecurityId");
     HRESULT hr = INET_E_DEFAULT_ACTION;
 
     // Check args ...
-    if (pwszUrl == NULL || !pwszUrl[0] || !pcbSecurityId )
-    {
+    if (pwszUrl == NULL || !pwszUrl[0] || !pcbSecurityId) {
         return E_INVALIDARG;
     }
 
 
-    if (m_pDelegateSecMgr)
-    {
+    if (m_pDelegateSecMgr) {
         hr = m_pDelegateSecMgr->GetSecurityId(pwszUrl, pbSecurityId, pcbSecurityId, dwReserved);
     }
 
-    if (hr == INET_E_DEFAULT_ACTION)
-    {
+    if (hr == INET_E_DEFAULT_ACTION) {
         BOOL fFoundInCache;
         BOOL        fMarked = FALSE;
         DWORD       dwZone;
@@ -1137,15 +1041,13 @@ CSecurityManager::GetSecurityId
 
         // if it wasn't in the cache, or the url and zone were there, but not the security ID,
         // then we still need to do some work.
-        if ( !fFoundInCache || cbSecurityID == 0 )
-        {
+        if (!fFoundInCache || cbSecurityID == 0) {
             LPWSTR pwszSecUrl = NULL;
             DWORD dwFlags = 0;
 
             hr = CoInternetGetSecurityUrl(pwszUrl, &pwszSecUrl, PSU_DEFAULT, 0);
 
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 TransAssert(pwszSecUrl != NULL);
                 CFreeStrPtr freeStr(pwszSecUrl);
 
@@ -1154,7 +1056,7 @@ CSecurityManager::GetSecurityId
                 LPWSTR pwszMarkURL = NULL;
                 LPWSTR pwszSecUrl2 = NULL;
 
-                if (S_OK != zc.Crack (pwszSecUrl, dwFlags))
+                if (S_OK != zc.Crack(pwszSecUrl, dwFlags))
                     return E_INVALIDARG;
 
                 // Select middle portion of Id.
@@ -1167,10 +1069,9 @@ CSecurityManager::GetSecurityId
 
                 // if the url was found in the cache, the an earlier MapUrlToZone
                 // put it there with its zone and Marked flag,
-                if (!fFoundInCache || fMarked)
-                {
-                    hr = MapUrlToZone (&zc, &dwZone, 0, &fMarked, &pwszMarkURL);
-                    TransAssert (hr == S_OK);
+                if (!fFoundInCache || fMarked) {
+                    hr = MapUrlToZone(&zc, &dwZone, 0, &fMarked, &pwszMarkURL);
+                    TransAssert(hr == S_OK);
 
                     // If the Mark of the Web is present, then take the Mark URL
                     // and substitute it for the original one in the zc, this will
@@ -1180,21 +1081,18 @@ CSecurityManager::GetSecurityId
                     // potentially compromised page on the user's disk from accessing
                     // frames of the live, original site if the two should wind up
                     // in the same frameset.
-                    if (fMarked)
-                    {
+                    if (fMarked) {
                         TransAssert(pwszMarkURL != NULL);
 
                         hr = CoInternetGetSecurityUrl(pwszMarkURL, &pwszSecUrl2, PSU_DEFAULT, 0);
 
-                        if (SUCCEEDED(hr))
-                        {
+                        if (SUCCEEDED(hr)) {
                             TransAssert(pwszSecUrl2 != NULL);
 
-                            if(SUCCEEDED(zc.Crack (pwszSecUrl2, dwFlags)))
+                            if (SUCCEEDED(zc.Crack(pwszSecUrl2, dwFlags)))
                                 PickZCString(&zc, &psz2, &cch2, (LPCWSTR)dwReserved);
-                            else
-                            {
-                                if (pwszSecUrl2)  delete [] pwszSecUrl2;
+                            else {
+                                if (pwszSecUrl2)  delete[] pwszSecUrl2;
                                 if (pwszMarkURL)  LocalFree(pwszMarkURL);
 
                                 return E_INVALIDARG;
@@ -1204,11 +1102,10 @@ CSecurityManager::GetSecurityId
                 }
 
                 // Calculate required size of buffer.
-                DWORD cbTail = sizeof(DWORD) + ((fMarked)? sizeof(CHAR) : 0);
+                DWORD cbTail = sizeof(DWORD) + ((fMarked) ? sizeof(CHAR) : 0);
                 DWORD cbSite = 0;
 
-                if (cch2 != 0)
-                {
+                if (cch2 != 0) {
                     cbSite = WideCharToMultiByte(CP_ACP, 0, psz2, cch2, NULL, 0, NULL, NULL);
                     if (cbSite == 0)
                         return(HRESULT_FROM_WIN32(GetLastError()));
@@ -1216,25 +1113,23 @@ CSecurityManager::GetSecurityId
 
                 DWORD cbRequired = zc.cchProtocol + 1 + cbSite + cbTail;
 
-                if (*pcbSecurityId < cbRequired)
-                {
+                if (*pcbSecurityId < cbRequired) {
                     *pcbSecurityId = cbRequired;
-                    return HRESULT_FROM_WIN32 (ERROR_INSUFFICIENT_BUFFER);
+                    return HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER);
                 }
 
                 // Emit the protocol in ANSI.
                 DWORD cbOut;
-                cbOut = WideCharToMultiByte (CP_ACP, 0, zc.pszProtocol, zc.cchProtocol,
-                    (LPSTR) pbSecurityId, *pcbSecurityId, NULL, NULL);
+                cbOut = WideCharToMultiByte(CP_ACP, 0, zc.pszProtocol, zc.cchProtocol,
+                    (LPSTR)pbSecurityId, *pcbSecurityId, NULL, NULL);
                 if (cbOut != zc.cchProtocol)
                     return E_INVALIDARG; // non-ascii chars illegal in URL scheme
                 pbSecurityId[cbOut++] = ':';
 
                 // Emit the site/domain in ANSI.
-                if (cch2 != 0)
-                {
-                    cbSite = WideCharToMultiByte (CP_ACP, 0, psz2, cch2,
-                        (LPSTR) pbSecurityId + cbOut, *pcbSecurityId - cbOut, NULL, NULL);
+                if (cch2 != 0) {
+                    cbSite = WideCharToMultiByte(CP_ACP, 0, psz2, cch2,
+                        (LPSTR)pbSecurityId + cbOut, *pcbSecurityId - cbOut, NULL, NULL);
                 }
 
 
@@ -1242,13 +1137,11 @@ CSecurityManager::GetSecurityId
                 // File: url's can come in with slashes and backslashes as seperators.
                 // To prevent things from breaking we replace any slashes in the
                 // pbSecurityId with a backslash.
-                if (zc.nScheme == URL_SCHEME_FILE && cch2 != 0)
-                {
+                if (zc.nScheme == URL_SCHEME_FILE && cch2 != 0) {
                     LPSTR lpszStart = (LPSTR)pbSecurityId + cbOut;
                     LPSTR lpsz = lpszStart;
 
-                    while (lpsz < lpszStart + cbSite)
-                    {
+                    while (lpsz < lpszStart + cbSite) {
                         if (*lpsz == '/')
                             *lpsz = '\\';
 
@@ -1260,13 +1153,12 @@ CSecurityManager::GetSecurityId
 
                 // Downcase the buffer.
                 pbSecurityId[cbOut] = 0;
-                CharLowerA ((LPSTR) pbSecurityId);
+                CharLowerA((LPSTR)pbSecurityId);
 
                 // Add the zone.
                 memcpy(pbSecurityId + cbOut, &dwZone, sizeof(DWORD));
 
-                if (fMarked)
-                {
+                if (fMarked) {
                     CHAR chMark = WILDCARD;
                     memcpy(pbSecurityId + cbOut + sizeof(DWORD), &chMark, sizeof(CHAR));
                 }
@@ -1278,7 +1170,7 @@ CSecurityManager::GetSecurityId
                 s_smcache.Add(pwszUrl, dwZone, fMarked, pbSecurityId, cbRequired, (LPCWSTR)dwReserved);
 
                 if (pwszSecUrl2)
-                    delete [] pwszSecUrl2 ;
+                    delete[] pwszSecUrl2;
 
                 if (pwszMarkURL)
                     LocalFree(pwszMarkURL);
@@ -1286,8 +1178,7 @@ CSecurityManager::GetSecurityId
             } // got security URL
 
         } // got security URL
-        else
-        {
+        else {
             // Got it from the cache.
             *pcbSecurityId = cbSecurityID;
             hr = S_OK;
@@ -1306,7 +1197,7 @@ struct ActionStrIDMap
     DWORD dwStrID;
 };
 
-ActionStrIDMap actionAlertIDMap [ ]  =
+ActionStrIDMap actionAlertIDMap[] =
 {
     { URLACTION_DOWNLOAD_SIGNED_ACTIVEX,            IDS_ACTION_DL_SIGNED_ACTIVEX        },
     { URLACTION_DOWNLOAD_UNSIGNED_ACTIVEX,          IDS_ACTION_DL_ACTIVEX               },
@@ -1346,7 +1237,7 @@ ActionStrIDMap actionAlertIDMap [ ]  =
 
 };
 
-ActionStrIDMap actionWarnIDMap [ ]  =
+ActionStrIDMap actionWarnIDMap[] =
 {
     { URLACTION_SHELL_INSTALL_DTITEMS,              IDS_WARN_SHELL_INSTALL_DTITEMS      },
     { URLACTION_SHELL_MOVE_OR_COPY,                 IDS_WARN_SHELL_MOVE_OR_COPY         },
@@ -1365,10 +1256,8 @@ CSecurityManager::GetAlertIdForAction(DWORD dwAction)
     // The action should exist in our map.
     int count = ARRAYSIZE(actionAlertIDMap);
 
-    for ( int i = 0 ; i < count ; i++ )
-    {
-        if (actionAlertIDMap[i].dwAction == dwAction)
-        {
+    for (int i = 0; i < count; i++) {
+        if (actionAlertIDMap[i].dwAction == dwAction) {
             return actionAlertIDMap[i].dwStrID;
         }
     }
@@ -1386,10 +1275,8 @@ CSecurityManager::GetWarnIdForAction(DWORD dwAction)
     // The action should exist in our map.
     int count = ARRAYSIZE(actionWarnIDMap);
 
-    for ( int i = 0 ; i < count ; i++ )
-    {
-        if (actionWarnIDMap[i].dwAction == dwAction)
-        {
+    for (int i = 0; i < count; i++) {
+        if (actionWarnIDMap[i].dwAction == dwAction) {
             return actionWarnIDMap[i].dwStrID;
         }
     }
@@ -1410,25 +1297,24 @@ CSecurityManager::GetWarnIdForAction(DWORD dwAction)
 BOOL
 CSecurityManager::CPersistAnswers::IsPersistentAnswerAction(DWORD dwAction)
 {
-    switch (dwAction)
-    {
-        case URLACTION_ACTIVEX_RUN:
+    switch (dwAction) {
+    case URLACTION_ACTIVEX_RUN:
         // This shouldn't happen because it is an aggregator
-        case URLACTION_ACTIVEX_OVERRIDE_OBJECT_SAFETY:
+    case URLACTION_ACTIVEX_OVERRIDE_OBJECT_SAFETY:
         // These should never get called because of KludgeMapAggregatePolicy
-        case URLACTION_ACTIVEX_OVERRIDE_DATA_SAFETY:
-        case URLACTION_ACTIVEX_OVERRIDE_SCRIPT_SAFETY:
-        case URLACTION_SCRIPT_OVERRIDE_SAFETY:
+    case URLACTION_ACTIVEX_OVERRIDE_DATA_SAFETY:
+    case URLACTION_ACTIVEX_OVERRIDE_SCRIPT_SAFETY:
+    case URLACTION_SCRIPT_OVERRIDE_SAFETY:
 
-        case URLACTION_ACTIVEX_CONFIRM_NOOBJECTSAFETY:
-        case URLACTION_SCRIPT_RUN:
-        case URLACTION_SCRIPT_JAVA_USE:
-        case URLACTION_HTML_FONT_DOWNLOAD:
-        case URLACTION_SCRIPT_SAFE_ACTIVEX:
-        case URLACTION_CROSS_DOMAIN_DATA:
-            return TRUE;
-        default:
-            return FALSE;
+    case URLACTION_ACTIVEX_CONFIRM_NOOBJECTSAFETY:
+    case URLACTION_SCRIPT_RUN:
+    case URLACTION_SCRIPT_JAVA_USE:
+    case URLACTION_HTML_FONT_DOWNLOAD:
+    case URLACTION_SCRIPT_SAFE_ACTIVEX:
+    case URLACTION_CROSS_DOMAIN_DATA:
+        return TRUE;
+    default:
+        return FALSE;
     }
 }
 
@@ -1442,7 +1328,7 @@ CSecurityManager::CPersistAnswers::CAnswerEntry::CAnswerEntry(LPCWSTR pszUrl, DW
     m_pszUrl = StrDup(pszUrl);
 }
 
-CSecurityManager::CPersistAnswers::CAnswerEntry::~CAnswerEntry( )
+CSecurityManager::CPersistAnswers::CAnswerEntry::~CAnswerEntry()
 {
     if (m_pszUrl)
         LocalFree(m_pszUrl);
@@ -1454,15 +1340,14 @@ BOOL CSecurityManager::CPersistAnswers::CAnswerEntry::MatchEntry(LPCWSTR pszUrl,
 }
 
 // CPersistAnswers methods.
-CSecurityManager::CPersistAnswers::~CPersistAnswers( )
+CSecurityManager::CPersistAnswers::~CPersistAnswers()
 {
     // go through the CAnswerEntries and free them up.
-    CAnswerEntry * pEntry = m_pAnswerEntry;
+    CAnswerEntry* pEntry = m_pAnswerEntry;
 
-    while ( pEntry )
-    {
-        CAnswerEntry * pDelete = pEntry;
-        pEntry = pEntry->GetNext( );
+    while (pEntry) {
+        CAnswerEntry* pDelete = pEntry;
+        pEntry = pEntry->GetNext();
         delete pDelete;
     }
 }
@@ -1472,17 +1357,15 @@ CSecurityManager::CPersistAnswers::~CPersistAnswers( )
 BOOL CSecurityManager::CPersistAnswers::GetPrevAnswer(LPCWSTR pszUrl, DWORD dwAction, INT* piAnswer)
 {
     BOOL bReturn = FALSE;
-    CAnswerEntry * pAnswerEntry;
+    CAnswerEntry* pAnswerEntry;
 
     if (!IsPersistentAnswerAction(dwAction))
         return FALSE;
 
-    for (pAnswerEntry = m_pAnswerEntry ; pAnswerEntry != NULL; pAnswerEntry = pAnswerEntry->GetNext())
-    {
-        if (pAnswerEntry->MatchEntry(pszUrl, dwAction))
-        {
+    for (pAnswerEntry = m_pAnswerEntry; pAnswerEntry != NULL; pAnswerEntry = pAnswerEntry->GetNext()) {
+        if (pAnswerEntry->MatchEntry(pszUrl, dwAction)) {
             if (piAnswer)
-                *piAnswer = pAnswerEntry->GetAnswer( );
+                *piAnswer = pAnswerEntry->GetAnswer();
 
             bReturn = TRUE;
             break;
@@ -1500,7 +1383,7 @@ VOID CSecurityManager::CPersistAnswers::RememberAnswer(LPCWSTR pszUrl, DWORD dwA
 
     TransAssert(!GetPrevAnswer(pszUrl, dwAction, NULL));
 
-    CAnswerEntry * pNew = new CAnswerEntry(pszUrl, dwAction, iAnswer);
+    CAnswerEntry* pNew = new CAnswerEntry(pszUrl, dwAction, iAnswer);
     // Just don't persist answers if we don't have memory.
     if (pNew == NULL || pNew->GetUrl() == NULL)
         return;
@@ -1517,47 +1400,43 @@ VOID CSecurityManager::CPersistAnswers::RememberAnswer(LPCWSTR pszUrl, DWORD dwA
 INT_PTR
 CSecurityManager::ZonesAlertDialogProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (iMsg)
+    switch (iMsg) {
+    case WM_INITDIALOG:
     {
-        case WM_INITDIALOG:
-        {
-            WCHAR  rgszAlert[MAX_ALERT_SIZE];
-            LPDLGDATA lpDlgData = (LPDLGDATA)lParam;
-            TransAssert(lpDlgData != NULL);
+        WCHAR  rgszAlert[MAX_ALERT_SIZE];
+        LPDLGDATA lpDlgData = (LPDLGDATA)lParam;
+        TransAssert(lpDlgData != NULL);
 
-            DWORD dwStrId = GetAlertIdForAction(lpDlgData->dwAction);
+        DWORD dwStrId = GetAlertIdForAction(lpDlgData->dwAction);
 
 
-            if (::LoadStringWrapW(g_hInst, dwStrId, rgszAlert, MAX_ALERT_SIZE) == 0)
-            {
-                TransAssert(FALSE);
-                ::LoadStringWrapW(g_hInst, IDS_ACTION_UNKNOWN, rgszAlert, MAX_ALERT_SIZE);
-            }
+        if (::LoadStringWrapW(g_hInst, dwStrId, rgszAlert, MAX_ALERT_SIZE) == 0) {
+            TransAssert(FALSE);
+            ::LoadStringWrapW(g_hInst, IDS_ACTION_UNKNOWN, rgszAlert, MAX_ALERT_SIZE);
+        }
 
-            HWND hwndAlertText = ::GetDlgItem(hDlg, IDC_ZONEALERTTEXT);
+        HWND hwndAlertText = ::GetDlgItem(hDlg, IDC_ZONEALERTTEXT);
 
-            TransAssert(hwndAlertText != NULL);
-            ::SetWindowTextWrapW(hwndAlertText, rgszAlert);
+        TransAssert(hwndAlertText != NULL);
+        ::SetWindowTextWrapW(hwndAlertText, rgszAlert);
 
-            if (lpDlgData->dwFlags & PUAF_FORCEUI_FOREGROUND)
-            {
-                SetForegroundWindow(hDlg);
-            }
+        if (lpDlgData->dwFlags & PUAF_FORCEUI_FOREGROUND) {
+            SetForegroundWindow(hDlg);
+        }
 
+        return TRUE;
+    }
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDOK:
+            EndDialog(hDlg, ZALERT_YES);
+            return TRUE;
+        case IDCANCEL:
+            EndDialog(hDlg, ZALERT_NO);
             return TRUE;
         }
-        case WM_COMMAND:
-            switch (LOWORD(wParam))
-            {
-                case IDOK:
-                    EndDialog(hDlg, ZALERT_YES);
-                    return TRUE;
-                case IDCANCEL:
-                    EndDialog(hDlg, ZALERT_NO);
-                    return TRUE;
-            }
 
-            break;
+        break;
     }  /* end switch */
 
     return FALSE;
@@ -1575,68 +1454,63 @@ CSecurityManager::IsFormsSubmitAction(DWORD dwAction)
     return (dwAction == URLACTION_HTML_SUBMIT_FORMS ||
             dwAction == URLACTION_HTML_SUBMIT_FORMS_FROM ||
             dwAction == URLACTION_HTML_SUBMIT_FORMS_TO
-           );
+            );
 }
 
 INT_PTR
 CSecurityManager::FormsAlertDialogProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (iMsg)
+    switch (iMsg) {
+    case WM_INITDIALOG:
     {
-        case WM_INITDIALOG:
+        LPDLGDATA lpDlgData = (LPDLGDATA)lParam;
+        TransAssert(lpDlgData != NULL);
+        LPWSTR pstr = lpDlgData->pstr;
+
+        if (pstr != NULL) {
+            HWND hwnd = ::GetDlgItem(hDlg, IDC_ZONEALERTTEXT);
+            TransAssert(hwnd != NULL);
+            ::SetWindowTextWrapW(hwnd, pstr);
+        }
+
+        if (lpDlgData->dwFlags & PUAF_FORCEUI_FOREGROUND) {
+            SetForegroundWindow(hDlg);
+        }
+
+        if (!(lpDlgData->dwFlags & PUAF_DONTCHECKBOXINDIALOG)) {
+            CheckDlgButton(hDlg, IDC_DONT_WANT_WARNING, BST_CHECKED);
+        }
+        return TRUE;
+    }
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDOK:
+        case IDYES:
         {
-            LPDLGDATA lpDlgData = (LPDLGDATA)lParam;
-            TransAssert(lpDlgData != NULL);
-            LPWSTR pstr = lpDlgData->pstr;
+            DWORD dwRet;
+            if (IsDlgButtonChecked(hDlg, IDC_DONT_WANT_WARNING) == BST_CHECKED)
+                dwRet = ZALERT_YESPERSIST;
+            else
+                dwRet = ZALERT_YES;
 
-            if (pstr != NULL)
-            {
-                HWND hwnd = ::GetDlgItem(hDlg, IDC_ZONEALERTTEXT);
-                TransAssert(hwnd != NULL);
-                ::SetWindowTextWrapW(hwnd, pstr);
-            }
-
-            if (lpDlgData->dwFlags & PUAF_FORCEUI_FOREGROUND)
-            {
-                SetForegroundWindow(hDlg);
-            }
-
-            if(!(lpDlgData->dwFlags & PUAF_DONTCHECKBOXINDIALOG))
-            {
-                CheckDlgButton(hDlg, IDC_DONT_WANT_WARNING, BST_CHECKED);
-            }
+            EndDialog(hDlg, dwRet);
             return TRUE;
         }
-        case WM_COMMAND:
-            switch (LOWORD(wParam))
-            {
-                case IDOK:
-                case IDYES:
-                {
-                    DWORD dwRet;
-                    if (IsDlgButtonChecked(hDlg, IDC_DONT_WANT_WARNING) == BST_CHECKED)
-                        dwRet = ZALERT_YESPERSIST;
-                    else
-                        dwRet = ZALERT_YES;
 
-                    EndDialog(hDlg, dwRet);
-                    return TRUE;
-                }
+        case IDCANCEL:
+        case IDNO:
+            EndDialog(hDlg, ZALERT_NO);
+            return TRUE;
+        }
 
-                case IDCANCEL:
-                case IDNO:
-                    EndDialog(hDlg, ZALERT_NO);
-                    return TRUE;
-            }
-
-            break;
+        break;
     }  /* end switch */
 
     return FALSE;
 }
 
 INT
-CSecurityManager::ShowFormsAlertDialog(HWND hwndParent, LPDLGDATA lpDlgData )
+CSecurityManager::ShowFormsAlertDialog(HWND hwndParent, LPDLGDATA lpDlgData)
 {
     int nRet;
     TransAssert(lpDlgData != NULL);
@@ -1648,13 +1522,11 @@ CSecurityManager::ShowFormsAlertDialog(HWND hwndParent, LPDLGDATA lpDlgData )
 
     ZONEATTRIBUTES zc;
     zc.cbSize = sizeof(zc);
-    if (SUCCEEDED(m_pZoneManager->GetZoneAttributes(lpDlgData->dwZone, &zc)))
-    {
+    if (SUCCEEDED(m_pZoneManager->GetZoneAttributes(lpDlgData->dwZone, &zc))) {
         WCHAR rgchStr[MAX_ALERT_SIZE];
         UINT uID = (lpDlgData->dwAction == URLACTION_HTML_SUBMIT_FORMS_FROM) ? IDS_ACTION_POST_FROM : IDS_ACTION_FORMS_POST;
 
-        if (::LoadStringWrapW(g_hInst, uID, rgchStr, MAX_ALERT_SIZE) != 0)
-        {
+        if (::LoadStringWrapW(g_hInst, uID, rgchStr, MAX_ALERT_SIZE) != 0) {
             if (wnsprintfW(rgch, MAX_ALERT_SIZE, rgchStr, zc.szDisplayName) != 0)
                 pstr = rgch;
         }
@@ -1662,13 +1534,13 @@ CSecurityManager::ShowFormsAlertDialog(HWND hwndParent, LPDLGDATA lpDlgData )
 
     lpDlgData->pstr = pstr;
 
-    nRet =  (int) ::DialogBoxParamWrapW (
-                        g_hInst,
-                        MAKEINTRESOURCEW(IDD_WARN_ON_POST),
-                        hwndParent,
-                        CSecurityManager::FormsAlertDialogProc,
-                        (LPARAM)lpDlgData
-                    );
+    nRet = (int) ::DialogBoxParamWrapW(
+        g_hInst,
+        MAKEINTRESOURCEW(IDD_WARN_ON_POST),
+        hwndParent,
+        CSecurityManager::FormsAlertDialogProc,
+        (LPARAM)lpDlgData
+    );
 
     return nRet;
 }
@@ -1676,44 +1548,40 @@ CSecurityManager::ShowFormsAlertDialog(HWND hwndParent, LPDLGDATA lpDlgData )
 INT_PTR
 CSecurityManager::ZonesWarnDialogProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (iMsg)
+    switch (iMsg) {
+    case WM_INITDIALOG:
     {
-        case WM_INITDIALOG:
-        {
-            WCHAR  rgszWarn[MAX_ALERT_SIZE];
-            LPDLGDATA lpDlgData = (LPDLGDATA)lParam;
-            TransAssert(lpDlgData != NULL);
-            DWORD dwAction = lpDlgData->dwAction;
-            DWORD dwStrId = GetWarnIdForAction(dwAction);
+        WCHAR  rgszWarn[MAX_ALERT_SIZE];
+        LPDLGDATA lpDlgData = (LPDLGDATA)lParam;
+        TransAssert(lpDlgData != NULL);
+        DWORD dwAction = lpDlgData->dwAction;
+        DWORD dwStrId = GetWarnIdForAction(dwAction);
 
-            if (::LoadStringWrapW(g_hInst, dwStrId, rgszWarn, MAX_ALERT_SIZE) == 0)
-            {
-                TransAssert(FALSE);
-                ::LoadStringWrapW(g_hInst, IDS_WARN_UNKNOWN, rgszWarn, MAX_ALERT_SIZE);
-            }
+        if (::LoadStringWrapW(g_hInst, dwStrId, rgszWarn, MAX_ALERT_SIZE) == 0) {
+            TransAssert(FALSE);
+            ::LoadStringWrapW(g_hInst, IDS_WARN_UNKNOWN, rgszWarn, MAX_ALERT_SIZE);
+        }
 
-            HWND hwndWarnText = ::GetDlgItem(hDlg, IDC_ZONEALERTTEXT);
+        HWND hwndWarnText = ::GetDlgItem(hDlg, IDC_ZONEALERTTEXT);
 
-            TransAssert(hwndWarnText != NULL);
-            ::SetWindowTextWrapW(hwndWarnText, rgszWarn);
+        TransAssert(hwndWarnText != NULL);
+        ::SetWindowTextWrapW(hwndWarnText, rgszWarn);
 
-            if (lpDlgData->dwFlags & PUAF_FORCEUI_FOREGROUND)
-            {
-                SetForegroundWindow(hDlg);
-            }
+        if (lpDlgData->dwFlags & PUAF_FORCEUI_FOREGROUND) {
+            SetForegroundWindow(hDlg);
+        }
 
+        return TRUE;
+    }
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDOK:
+        case IDCANCEL:
+            EndDialog(hDlg, ZALERT_YES);
             return TRUE;
         }
-        case WM_COMMAND:
-            switch (LOWORD(wParam))
-            {
-                case IDOK:
-                case IDCANCEL:
-                    EndDialog(hDlg, ZALERT_YES);
-                    return TRUE;
-            }
 
-            break;
+        break;
     }  /* end switch */
 
     return FALSE;
@@ -1726,9 +1594,9 @@ CSecurityManager::ProcessUrlAction
 (
     LPCWSTR pwszUrl,
     DWORD dwAction,
-    BYTE * pPolicy,
+    BYTE* pPolicy,
     DWORD cbPolicy,
-    BYTE * pContext,
+    BYTE* pContext,
     DWORD cbContext,
     DWORD dwFlags,
     DWORD dwReserved
@@ -1739,20 +1607,17 @@ CSecurityManager::ProcessUrlAction
     DWORD dwZone = ZONEID_INVALID;
 
 
-// First check if the delegation interface wants to handle this.
-    if (m_pDelegateSecMgr)
-    {
+    // First check if the delegation interface wants to handle this.
+    if (m_pDelegateSecMgr) {
         hr = m_pDelegateSecMgr->ProcessUrlAction(pwszUrl, dwAction, pPolicy, cbPolicy, pContext, cbContext, dwFlags, dwReserved);
     }
 
-    if (hr != INET_E_DEFAULT_ACTION)
-    {
+    if (hr != INET_E_DEFAULT_ACTION) {
         // Delegation interface processed the request.
         return hr;
     }
 
-    if (!EnsureZoneManager())
-    {
+    if (!EnsureZoneManager()) {
         return E_UNEXPECTED;
     }
 
@@ -1760,26 +1625,22 @@ CSecurityManager::ProcessUrlAction
     // function.
     AddRef();
 
-    if (SUCCEEDED(hr = MapUrlToZone(pwszUrl, &dwZone, dwFlags)))
-    {
+    if (SUCCEEDED(hr = MapUrlToZone(pwszUrl, &dwZone, dwFlags))) {
         DWORD dwPolicy;
 
-        hr = m_pZoneManager->GetZoneActionPolicy(dwZone, dwAction, (BYTE *)&dwPolicy, sizeof(dwPolicy), URLZONEREG_DEFAULT);
+        hr = m_pZoneManager->GetZoneActionPolicy(dwZone, dwAction, (BYTE*)&dwPolicy, sizeof(dwPolicy), URLZONEREG_DEFAULT);
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             DWORD dwPermissions = GetUrlPolicyPermissions(dwPolicy);
 
             // Are we supposed to be showing any UI here?
-            if ( (( dwPermissions == URLPOLICY_QUERY && ( dwFlags & PUAF_NOUI) == 0 ) ||
-                  ( dwPermissions == URLPOLICY_DISALLOW && ( dwFlags & PUAF_WARN_IF_DENIED) != 0))
-                 && HIWORD(dwPolicy) == 0)
-            {
+            if (((dwPermissions == URLPOLICY_QUERY && (dwFlags & PUAF_NOUI) == 0) ||
+                (dwPermissions == URLPOLICY_DISALLOW && (dwFlags & PUAF_WARN_IF_DENIED) != 0))
+                && HIWORD(dwPolicy) == 0) {
                 HWND hwndParent = NULL;
                 // Show UI unless the host indicates otherwise.
                 BOOL bShowUI = TRUE;
-                if  (m_pSite != NULL)
-                {
+                if (m_pSite != NULL) {
                     HRESULT hrGetWnd = m_pSite->GetWindow(&hwndParent);
 
                     // Host doesn't want us to show UI.
@@ -1802,47 +1663,37 @@ CSecurityManager::ProcessUrlAction
                 dlgData.pstr = NULL;
                 dlgData.dwFlags = dwFlags | ((dwPolicy & URLPOLICY_DONTCHECKDLGBOX) ? PUAF_DONTCHECKBOXINDIALOG : 0);
                 dwPolicy = dwPolicy & ~URLPOLICY_DONTCHECKDLGBOX;
-                if ( dwPermissions == URLPOLICY_QUERY )
-                {
+                if (dwPermissions == URLPOLICY_QUERY) {
                     // First check to see if the user already answered this question once.
-                    if (!m_persistAnswers.GetPrevAnswer(pwszUrl, dwAction, &nRet))
-                    {
+                    if (!m_persistAnswers.GetPrevAnswer(pwszUrl, dwAction, &nRet)) {
 
                         fRememberAnswer = TRUE;
 
-                        if (!bShowUI)
-                        {
+                        if (!bShowUI) {
                             // If we can't show UI just act as if the user said No.
                             nRet = ZALERT_NO;
-                        }
-                        else if (IsFormsSubmitAction(dwAction))
-                        {
+                        } else if (IsFormsSubmitAction(dwAction)) {
                             nRet = ShowFormsAlertDialog(hwndParent, &dlgData);
-                        }
-                        else
-                        {
-                            nRet = (int) ::DialogBoxParamWrapW (
-                                            g_hInst,
-                                            MAKEINTRESOURCEW(IDD_ZONE_ALERT),
-                                            hwndParent,
-                                            CSecurityManager::ZonesAlertDialogProc,
-                                            (LPARAM)&dlgData
-                                        );
+                        } else {
+                            nRet = (int) ::DialogBoxParamWrapW(
+                                g_hInst,
+                                MAKEINTRESOURCEW(IDD_ZONE_ALERT),
+                                hwndParent,
+                                CSecurityManager::ZonesAlertDialogProc,
+                                (LPARAM)&dlgData
+                            );
                         }
                     }
-                }
-                else
-                {
+                } else {
                     TransAssert(dwPermissions == URLPOLICY_DISALLOW);
-                    if (bShowUI)
-                    {
-                        nRet = (int) ::DialogBoxParamWrapW (
-                                        g_hInst,
-                                        MAKEINTRESOURCEW(IDD_WARN_ALERT),
-                                        hwndParent,
-                                        CSecurityManager::ZonesWarnDialogProc,
-                                        (LPARAM)&dlgData
-                                    );
+                    if (bShowUI) {
+                        nRet = (int) ::DialogBoxParamWrapW(
+                            g_hInst,
+                            MAKEINTRESOURCEW(IDD_WARN_ALERT),
+                            hwndParent,
+                            CSecurityManager::ZonesWarnDialogProc,
+                            (LPARAM)&dlgData
+                        );
                     }
                 }
 
@@ -1850,8 +1701,7 @@ CSecurityManager::ProcessUrlAction
 
                 // If we failed to show the dialog we should just return
                 // the policies unmodified.
-                if (dwPermissions == URLPOLICY_QUERY && nRet != -1 )
-                {
+                if (dwPermissions == URLPOLICY_QUERY && nRet != -1) {
                     // Change the policy to reflect the users choice.
                     DWORD dwYesOnlyPolicy;
                     dwYesOnlyPolicy = dwPolicy | URLPOLICY_DONTCHECKDLGBOX; // copy old policy before it is changed
@@ -1868,17 +1718,15 @@ CSecurityManager::ProcessUrlAction
                     // TODO: create a more generic category name "CanDlgChangePolicy" or something like that
                     // instead of the specific IsFormsSubmitAction.
 
-                    if (IsFormsSubmitAction(dwAction) && ((nRet == ZALERT_YESPERSIST) || (nRet == ZALERT_YES)))
-                    {
+                    if (IsFormsSubmitAction(dwAction) && ((nRet == ZALERT_YESPERSIST) || (nRet == ZALERT_YES))) {
 
                         m_pZoneManager->SetZoneActionPolicy(dwZone, dwAction,
-                                                            (BYTE *)((nRet == ZALERT_YESPERSIST) ?  &dwPolicy : &dwYesOnlyPolicy),
+                            (BYTE*)((nRet == ZALERT_YESPERSIST) ? &dwPolicy : &dwYesOnlyPolicy),
                                                             sizeof(dwPolicy), URLZONEREG_DEFAULT);
                     }
                 }
 
-                if (m_pSite != NULL)
-                {
+                if (m_pSite != NULL) {
                     m_pSite->EnableModeless(TRUE);
                 }
             }
@@ -1886,25 +1734,21 @@ CSecurityManager::ProcessUrlAction
             TransAssert(cbPolicy == 0 || cbPolicy >= sizeof(DWORD));
 
             if (cbPolicy >= sizeof(DWORD) && pPolicy != NULL)
-                *(DWORD *)pPolicy = dwPolicy;
+                *(DWORD*)pPolicy = dwPolicy;
 
 
             // Code to check for allowed list of directx objects
             // for URLACTION_ACTIVEX_RUN
-            if(dwAction == URLACTION_ACTIVEX_RUN &&
-                dwPolicy == URLPOLICY_ACTIVEX_CHECK_LIST)
-            {
+            if (dwAction == URLACTION_ACTIVEX_RUN &&
+                dwPolicy == URLPOLICY_ACTIVEX_CHECK_LIST) {
                 DWORD dwValue = 0;
                 hr = CSecurityManager::GetActiveXRunPermissions(pContext, dwValue);
-                *(DWORD *)pPolicy = dwValue;
+                *(DWORD*)pPolicy = dwValue;
             }
             // normal allowed permissions
-            else if(GetUrlPolicyPermissions(dwPolicy) == URLPOLICY_ALLOW)
-            {
-                hr = S_OK ;
-            }
-            else
-            {
+            else if (GetUrlPolicyPermissions(dwPolicy) == URLPOLICY_ALLOW) {
+                hr = S_OK;
+            } else {
                 hr = S_FALSE;
             }
 
@@ -1920,9 +1764,9 @@ CSecurityManager::QueryCustomPolicy
 (
     LPCWSTR pwszUrl,
     REFGUID guidKey,
-    BYTE **ppPolicy,
-    DWORD *pcbPolicy,
-    BYTE *pContext,
+    BYTE** ppPolicy,
+    DWORD* pcbPolicy,
+    BYTE* pContext,
     DWORD cbContext,
     DWORD dwReserved
 )
@@ -1931,24 +1775,18 @@ CSecurityManager::QueryCustomPolicy
     HRESULT hr = INET_E_DEFAULT_ACTION;
     DWORD dwZone = ZONEID_INVALID;
 
-    if (m_pDelegateSecMgr)
-    {
+    if (m_pDelegateSecMgr) {
         hr = m_pDelegateSecMgr->QueryCustomPolicy(pwszUrl, guidKey, ppPolicy, pcbPolicy, pContext, cbContext, dwReserved);
     }
 
-    if (hr == INET_E_DEFAULT_ACTION)
-    {
-        if (!EnsureZoneManager())
-        {
+    if (hr == INET_E_DEFAULT_ACTION) {
+        if (!EnsureZoneManager()) {
             return E_UNEXPECTED;
         }
 
-        if (SUCCEEDED(hr = MapUrlToZone(pwszUrl, &dwZone, NULL)))
-        {
+        if (SUCCEEDED(hr = MapUrlToZone(pwszUrl, &dwZone, NULL))) {
             hr = m_pZoneManager->GetZoneCustomPolicy(dwZone, guidKey, ppPolicy, pcbPolicy, URLZONEREG_DEFAULT);
-        }
-        else
-        {
+        } else {
             hr = E_UNEXPECTED;
         }
     }
@@ -1960,11 +1798,10 @@ CSecurityManager::QueryCustomPolicy
 STDMETHODIMP
 CSecurityManager::GetSecuritySite
 (
-    IInternetSecurityMgrSite **ppSite
+    IInternetSecurityMgrSite** ppSite
 )
 {
-    if (ppSite)
-    {
+    if (ppSite) {
         if (m_pSite)
             m_pSite->AddRef();
 
@@ -1976,41 +1813,34 @@ CSecurityManager::GetSecuritySite
 STDMETHODIMP
 CSecurityManager::SetSecuritySite
 (
-    IInternetSecurityMgrSite *pSite
+    IInternetSecurityMgrSite* pSite
 )
 {
-    if (m_pSite)
-    {
+    if (m_pSite) {
         m_pSite->Release();
     }
 
-    if (m_pDelegateSecMgr)
-    {
+    if (m_pDelegateSecMgr) {
         m_pDelegateSecMgr->Release();
         m_pDelegateSecMgr = NULL;
     }
 
     m_pSite = pSite;
 
-    if (m_pSite)
-    {
+    if (m_pSite) {
         m_pSite->AddRef();
 
-        IServiceProvider * pServiceProvider = NULL;
+        IServiceProvider* pServiceProvider = NULL;
 
-        if (SUCCEEDED(m_pSite->QueryInterface(IID_IServiceProvider, (void **)&pServiceProvider)))
-        {
+        if (SUCCEEDED(m_pSite->QueryInterface(IID_IServiceProvider, (void**)&pServiceProvider))) {
             TransAssert(pServiceProvider != NULL);
 
             if (SUCCEEDED(pServiceProvider->QueryService(
-                                SID_SInternetSecurityManager,
-                                IID_IInternetSecurityManager,
-                                (void **)&m_pDelegateSecMgr)))
-            {
+                SID_SInternetSecurityManager,
+                IID_IInternetSecurityManager,
+                (void**)&m_pDelegateSecMgr))) {
                 TransAssert(m_pDelegateSecMgr != NULL);
-            }
-            else
-            {
+            } else {
                 m_pDelegateSecMgr = NULL;
             }
             pServiceProvider->Release();
@@ -2035,24 +1865,21 @@ CSecurityManager::SetZoneMapping
     HRESULT hr = INET_E_DEFAULT_ACTION;
 
     // Increment the counter so any cached url to zone mappings are invalidated.
-    IncrementGlobalCounter( );
+    IncrementGlobalCounter();
 
-    if (m_pDelegateSecMgr)
-    {
+    if (m_pDelegateSecMgr) {
         hr = m_pDelegateSecMgr->SetZoneMapping(dwZone, pszPattern, dwFlags);
     }
 
-    if (hr == INET_E_DEFAULT_ACTION)
-    {
+    if (hr == INET_E_DEFAULT_ACTION) {
         LPWSTR pwszSecPattern = NULL;
         hr = CoInternetGetSecurityUrl(pszPattern, &pwszSecPattern, PSU_DEFAULT, 0);
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             CFreeStrPtr freeStr(pwszSecPattern);
 
             ZONEMAP_COMPONENTS zc;
-            hr = zc.Crack (pwszSecPattern, PUAF_ACCEPT_WILDCARD_SCHEME, TRUE);
+            hr = zc.Crack(pwszSecPattern, PUAF_ACCEPT_WILDCARD_SCHEME, TRUE);
             if (hr != S_OK)
                 return hr;
 
@@ -2063,19 +1890,15 @@ CSecurityManager::SetZoneMapping
                 return E_OUTOFMEMORY;
 
             // Don't allow adding not https entries if the zone requires server verification.
-            if (!(dwFlags & SZM_DELETE) && SUCCEEDED(m_pZoneManager->GetZoneAttributes(dwZone, &za)))
-            {
-                if (za.dwFlags & ZAFLAGS_REQUIRE_VERIFICATION)
-                {
-                    if (zc.nScheme != URL_SCHEME_HTTPS)
-                    {
-                        return E_ACCESSDENIED ;
+            if (!(dwFlags & SZM_DELETE) && SUCCEEDED(m_pZoneManager->GetZoneAttributes(dwZone, &za))) {
+                if (za.dwFlags & ZAFLAGS_REQUIRE_VERIFICATION) {
+                    if (zc.nScheme != URL_SCHEME_HTTPS) {
+                        return E_ACCESSDENIED;
                     }
                 }
             }
 
-            if (zc.fIPRange)
-            {
+            if (zc.fIPRange) {
                 hr = AddDeleteIPRule(&zc, dwZone, dwFlags);
                 return hr;
             }
@@ -2090,17 +1913,15 @@ CSecurityManager::SetZoneMapping
 
             TCHAR szKeyName[MAX_PATH];
             DWORD cchKeyName = CSTRLENW(SZDOMAINS);
-            memcpy (szKeyName, SZDOMAINS, sizeof(TCHAR) * cchKeyName);
+            memcpy(szKeyName, SZDOMAINS, sizeof(TCHAR) * cchKeyName);
 
-            if ((zc.cchDomain == 0 && zc.cchSite == 0) || (zc.cchProtocol == 0))
-            {
+            if ((zc.cchDomain == 0 && zc.cchSite == 0) || (zc.cchProtocol == 0)) {
                 return E_INVALIDARG;
             }
 
-            if (zc.pszDomain)
-            {
-                memcpy (szKeyName + cchKeyName,
-                    zc.pszDomain, sizeof(TCHAR) * zc.cchDomain);
+            if (zc.pszDomain) {
+                memcpy(szKeyName + cchKeyName,
+                       zc.pszDomain, sizeof(TCHAR) * zc.cchDomain);
                 // Null terminate for strchr.
                 szKeyName[cchKeyName + zc.cchDomain] = TEXT('\0');
                 if (StrChr(szKeyName + cchKeyName, WILDCARD) != NULL)
@@ -2112,30 +1933,24 @@ CSecurityManager::SetZoneMapping
             // Check for the simple wildcard case.
             // patterns such as *.microsoft.com where the only thing
             // after a * is the second-level domain.
-            if (zc.pszSite[0] == WILDCARD && zc.cchSite == 1)
-            {
+            if (zc.pszSite[0] == WILDCARD && zc.cchSite == 1) {
                 if (!zc.pszDomain)
                     return E_INVALIDARG;
-            }
-            else
-            {
+            } else {
                 // Wildcards are only permitted at the begining of pattern.
                 // So patterns such as *.foo.*.microsoft.com are invalid.
 
-                if (zc.pszSite[0] == WILDCARD)
-                {
+                if (zc.pszSite[0] == WILDCARD) {
                     // We already know that zc.cchSite is greater than 1
                     // because we would have caught it in the outer 'if' clause
                     // otherwise.
-                    if (zc.pszSite[1] != DOT)
-                    {
+                    if (zc.pszSite[1] != DOT) {
                         return E_INVALIDARG;
                     }
 
                     // Skip over the leading *. and make sure there are no
                     // other *'s in the string.
-                    if (StrRChr(zc.pszSite + 2, zc.pszSite + zc.cchSite, WILDCARD) != NULL)
-                    {
+                    if (StrRChr(zc.pszSite + 2, zc.pszSite + zc.cchSite, WILDCARD) != NULL) {
                         return E_INVALIDARG;
                     }
                 }
@@ -2143,22 +1958,20 @@ CSecurityManager::SetZoneMapping
                 if (zc.pszDomain)  // Add seperator only if we added a domain name.
                 {
                     szKeyName[cchKeyName++] = BACKSLASH;
-                }
-                else if (!IsOpaqueScheme(zc.nScheme) &&
-                          (zc.pszSite[zc.cchSite - 1] == DOT ||
-                           zc.pszSite[0] == DOT)
-                        )
+                } else if (!IsOpaqueScheme(zc.nScheme) &&
+                    (zc.pszSite[zc.cchSite - 1] == DOT ||
+                     zc.pszSite[0] == DOT)
+                           )
 
                 {
                     // Catches invalid cases such as http://ohserv. or http://.inetsdk.
                     return E_INVALIDARG;
                 }
 
-                memcpy (szKeyName + cchKeyName,
-                    zc.pszSite, sizeof(TCHAR) * zc.cchSite);
+                memcpy(szKeyName + cchKeyName,
+                       zc.pszSite, sizeof(TCHAR) * zc.cchSite);
 
-                if (!IsOpaqueScheme(zc.nScheme))
-                {
+                if (!IsOpaqueScheme(zc.nScheme)) {
                     szKeyName[cchKeyName + zc.cchSite] = TEXT('\0');
                 }
                 cchKeyName += zc.cchSite;
@@ -2169,50 +1982,35 @@ CSecurityManager::SetZoneMapping
 
             DWORD dwErr;
 
-            if (dwFlags & SZM_DELETE)
-            {
+            if (dwFlags & SZM_DELETE) {
                 // Delete mapping if one exists.
-                if (ERROR_FILE_NOT_FOUND == regMap.Open (m_regZoneMap, szKeyName, KEY_WRITE))
+                if (ERROR_FILE_NOT_FOUND == regMap.Open(m_regZoneMap, szKeyName, KEY_WRITE))
                     return S_OK; // nothing to delete
-                if ((dwErr = regMap.DeleteValue (zc.pszProtocol)) == ERROR_SUCCESS)
-                {
+                if ((dwErr = regMap.DeleteValue(zc.pszProtocol)) == ERROR_SUCCESS) {
                     // Try reclaiming any registry key's which might be empty.
                     regMap.Close();
                     m_regZoneMap.DeleteEmptyKey(szKeyName);
-                    if (zc.pszDomain)
-                    {
+                    if (zc.pszDomain) {
                         DWORD cch = CSTRLENW(SZDOMAINS) + zc.cchDomain;
                         szKeyName[cch] = TEXT('\0');
                         m_regZoneMap.DeleteEmptyKey(szKeyName);
                     }
                     return S_OK;
-                }
-                else
-                {
+                } else {
                     hr = HRESULT_FROM_WIN32(dwErr);
                 }
-            }
-            else
-            {
+            } else {
                 // Creates new mapping.
-                if ((dwErr = regMap.Create (m_regZoneMap, szKeyName, KEY_READ | KEY_WRITE)) == ERROR_SUCCESS)
-                {
+                if ((dwErr = regMap.Create(m_regZoneMap, szKeyName, KEY_READ | KEY_WRITE)) == ERROR_SUCCESS) {
                     DWORD dwZoneEntry;
-                    if (regMap.QueryValue(&dwZoneEntry, zc.pszProtocol) == ERROR_SUCCESS)
-                    {
+                    if (regMap.QueryValue(&dwZoneEntry, zc.pszProtocol) == ERROR_SUCCESS) {
                         hr = HRESULT_FROM_WIN32(ERROR_FILE_EXISTS);
-                    }
-                    else if ((dwErr = regMap.SetValue (dwZone, zc.pszProtocol)) == ERROR_SUCCESS)
-                    {
+                    } else if ((dwErr = regMap.SetValue(dwZone, zc.pszProtocol)) == ERROR_SUCCESS) {
                         return S_OK;
-                    }
-                    else
-                    {
+                    } else {
                         hr = HRESULT_FROM_WIN32(dwErr);
                     }
-                }
-                else
-                {
+                } else {
                     hr = HRESULT_FROM_WIN32(dwErr);
                 }
             }
@@ -2234,24 +2032,22 @@ CSecurityManager::ComposeUrlSansProtocol
     int     cchDomain,
     LPCTSTR pszSite,
     int     cchSite,
-    LPTSTR  *ppszRet,
-    int     *pcchUrlSansProtocol
+    LPTSTR* ppszRet,
+    int* pcchUrlSansProtocol
 )
 {
 
-    if (ppszRet == NULL)
-    {
-       return E_INVALIDARG;
+    if (ppszRet == NULL) {
+        return E_INVALIDARG;
     }
 
-    int cchUrlSansProtocol = cchSite + 1 /* . */ + cchDomain ;
+    int cchUrlSansProtocol = cchSite + 1 /* . */ + cchDomain;
 
     // Create the part of the string without the protocol
-    LPTSTR szUrlSansProtocol = new TCHAR [cchUrlSansProtocol + 1];
+    LPTSTR szUrlSansProtocol = new TCHAR[cchUrlSansProtocol + 1];
 
 
-    if ( szUrlSansProtocol == NULL )
-    {
+    if (szUrlSansProtocol == NULL) {
         *ppszRet = NULL;
 
         if (pcchUrlSansProtocol)
@@ -2263,8 +2059,7 @@ CSecurityManager::ComposeUrlSansProtocol
     LPTSTR szCurrent = szUrlSansProtocol;
 
     // Copy over the specific parts of the name.
-    if (pszSite != NULL)
-    {
+    if (pszSite != NULL) {
         memcpy(szCurrent, pszSite, cchSite * sizeof(TCHAR));
         szCurrent += cchSite;
         memcpy(szCurrent, TEXT("."), 1 * sizeof(TCHAR));
@@ -2294,25 +2089,21 @@ CSecurityManager::ComposeUrl
     LPCTSTR pszProtocol,
     int cchProtocol,
     BOOL bAddWildCard,
-    LPTSTR * ppszUrl,
-    int *pcchUrl
+    LPTSTR* ppszUrl,
+    int* pcchUrl
 )
 {
-    if (ppszUrl == NULL)
-    {
+    if (ppszUrl == NULL) {
         return E_INVALIDARG;
     }
 
     BOOL bWildCardScheme = FALSE;
-    BOOL bOpaqueScheme   = FALSE;
+    BOOL bOpaqueScheme = FALSE;
 
-    if (cchProtocol == 1 && pszProtocol[0] == WILDCARD)
-    {
+    if (cchProtocol == 1 && pszProtocol[0] == WILDCARD) {
         bWildCardScheme = TRUE;
         bOpaqueScheme = FALSE;
-    }
-    else
-    {
+    } else {
         // Figure out if this is an an opaque scheme.
         LPWSTR pszTemp = (LPWSTR)_alloca((cchProtocol + 2) * sizeof(TCHAR));
         memcpy(pszTemp, pszProtocol, cchProtocol * sizeof(TCHAR));
@@ -2324,12 +2115,9 @@ CSecurityManager::ComposeUrl
 
         HRESULT hr = ParseURL(pszTemp, &pu);
 
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             bOpaqueScheme = IsOpaqueScheme(pu.nScheme);
-        }
-        else
-        {
+        } else {
             bOpaqueScheme = TRUE;
         }
     }
@@ -2338,29 +2126,22 @@ CSecurityManager::ComposeUrl
     int cchUrl = cchUrlSansProt;
 
 
-    if (bOpaqueScheme)
-    {
+    if (bOpaqueScheme) {
         cchUrl += cchProtocol + 1;    // we have to add prot: to the URL
-    }
-    else if (bWildCardScheme)
-    {
+    } else if (bWildCardScheme) {
         // If the scheme is a wildcard we don't add it to the eventual display.
-    }
-    else
-    {
-       cchUrl += cchProtocol + 3;  // we have to add prot:// to the url.
+    } else {
+        cchUrl += cchProtocol + 3;  // we have to add prot:// to the url.
     }
 
     // If we are not an opaque schema, we might need to add a wildcard character as well.
-    if (!bOpaqueScheme && bAddWildCard)
-    {
+    if (!bOpaqueScheme && bAddWildCard) {
         cchUrl += 2; /* for *. */
     }
 
-    LPTSTR szUrl = new TCHAR [cchUrl + 1];
+    LPTSTR szUrl = new TCHAR[cchUrl + 1];
 
-    if (szUrl == NULL)
-    {
+    if (szUrl == NULL) {
         *ppszUrl = NULL;
 
         if (pcchUrl)
@@ -2373,30 +2154,22 @@ CSecurityManager::ComposeUrl
 
     // if the scheme is wildcard we don't want to display the scheme at all.
     // i.e we will show *.microsoft.com and *:*.microsoft.com
-    if (bWildCardScheme)
-    {
-        if (bAddWildCard)
-        {
+    if (bWildCardScheme) {
+        if (bAddWildCard) {
             memcpy(szCurrent, TEXT("*."), 2 * sizeof(TCHAR));
             szCurrent += 2;
         }
-    }
-    else
-    {
+    } else {
         memcpy(szCurrent, pszProtocol, cchProtocol * sizeof(TCHAR));
         szCurrent += cchProtocol;
 
-        if (bOpaqueScheme)
-        {
+        if (bOpaqueScheme) {
             memcpy(szCurrent, TEXT(":"), 1 * sizeof(TCHAR));
             szCurrent += 1;
-        }
-        else
-        {
+        } else {
             memcpy(szCurrent, TEXT("://"), 3 * sizeof(TCHAR));
             szCurrent += 3;
-            if (bAddWildCard)
-            {
+            if (bAddWildCard) {
                 memcpy(szCurrent, TEXT("*."), 2 * sizeof(TCHAR));
                 szCurrent += 2;
             }
@@ -2419,7 +2192,7 @@ HRESULT
 CSecurityManager::AddIPRulesToEnum
 (
     DWORD dwZone,
-    CEnumString *pEnumString
+    CEnumString* pEnumString
 )
 {
     HRESULT hr = NOERROR;
@@ -2430,10 +2203,9 @@ CSecurityManager::AddIPRulesToEnum
     CRegKey regRanges;
     DWORD cNumRanges = 0;
 
-    if (   ERROR_SUCCESS != regRanges.Open(m_regZoneMap, SZRANGES, KEY_READ)
+    if (ERROR_SUCCESS != regRanges.Open(m_regZoneMap, SZRANGES, KEY_READ)
         || ERROR_SUCCESS != regRanges.QuerySubKeyInfo(&cNumRanges, NULL, NULL)
-       )
-    {
+        ) {
         return S_OK;  // Nothing to add if we can't open the key.
     }
 
@@ -2445,29 +2217,26 @@ CSecurityManager::AddIPRulesToEnum
     TCHAR rgchSansProtocol[MAX_PATH];
     DWORD iItem;
 
-    for (iItem = 0 ; iItem < cNumRanges ; iItem++ )
-    {
+    for (iItem = 0; iItem < cNumRanges; iItem++) {
         DWORD cbName, cbRange;
         CRegKey regItem;
         cbName = cchMaxKey;
         cbRange = sizeof(rgchSansProtocol) - 3 * sizeof(TCHAR);
 
-        if  (  ERROR_SUCCESS == regRanges.EnumKey(iItem, szKeyName, &cbName)
+        if (ERROR_SUCCESS == regRanges.EnumKey(iItem, szKeyName, &cbName)
             && ERROR_SUCCESS == regItem.Open(regRanges, szKeyName, KEY_READ)
             && ERROR_SUCCESS == regItem.QueryValue(rgchSansProtocol, SZRANGE, &cbRange)
-            )
-        {
+            ) {
             LONG lRetProtocol = NOERROR;
             TCHAR rgchProtocol[MAX_PATH];
             DWORD dwZoneRead = ZONEID_INVALID;
             DWORD dwType;
 
-            for ( DWORD dwIdxProt = 0 , cchP = ARRAYSIZE(rgchProtocol), dwSizeZoneId = sizeof(dwZoneRead);
-                  (((lRetProtocol = regItem.EnumValue(dwIdxProt, rgchProtocol, &cchP, &dwType, &dwZoneRead, &dwSizeZoneId)) != ERROR_NO_MORE_ITEMS)
-                   && (hr == NOERROR));
-                   dwIdxProt++, cchP = ARRAYSIZE(rgchProtocol), dwSizeZoneId = sizeof(dwZoneRead), dwZoneRead = ZONEID_INVALID
-                )
-            {
+            for (DWORD dwIdxProt = 0, cchP = ARRAYSIZE(rgchProtocol), dwSizeZoneId = sizeof(dwZoneRead);
+                (((lRetProtocol = regItem.EnumValue(dwIdxProt, rgchProtocol, &cchP, &dwType, &dwZoneRead, &dwSizeZoneId)) != ERROR_NO_MORE_ITEMS)
+                 && (hr == NOERROR));
+                 dwIdxProt++, cchP = ARRAYSIZE(rgchProtocol), dwSizeZoneId = sizeof(dwZoneRead), dwZoneRead = ZONEID_INVALID
+                 ) {
 #ifdef unix
                 if (lRetProtocol == ERROR_MORE_DATA)
                     continue;
@@ -2480,23 +2249,19 @@ CSecurityManager::AddIPRulesToEnum
                     || dwType != REG_DWORD || dwZoneRead == ZONEID_INVALID)
                     continue;
 
-                if (dwZone == dwZoneRead)
-                {
+                if (dwZone == dwZoneRead) {
                     int cchProtocol = lstrlen(rgchProtocol);
                     int cchRange = lstrlen(rgchSansProtocol);
 
                     LPTSTR szUrl = NULL;
 
-                    if ( (SUCCEEDED(ComposeUrl(rgchSansProtocol, cchRange, rgchProtocol, cchProtocol, FALSE, &szUrl, NULL)))
-                         && (SUCCEEDED(pEnumString->AddString(szUrl))))
-                    {
+                    if ((SUCCEEDED(ComposeUrl(rgchSansProtocol, cchRange, rgchProtocol, cchProtocol, FALSE, &szUrl, NULL)))
+                        && (SUCCEEDED(pEnumString->AddString(szUrl)))) {
                         if (szUrl != NULL)
-                            delete [] szUrl;
-                    }
-                    else
-                    {
+                            delete[] szUrl;
+                    } else {
                         if (szUrl != NULL)
-                            delete [] szUrl;
+                            delete[] szUrl;
 
                         hr = E_OUTOFMEMORY;
                         break;
@@ -2517,12 +2282,12 @@ CSecurityManager::AddIPRulesToEnum
 HRESULT
 CSecurityManager::AddUrlsToEnum
 (
-    CRegKey * pRegKey,
+    CRegKey* pRegKey,
     DWORD dwZone,
     LPCTSTR pszUrlSansProt,
     int cchUrlSansProt,
     BOOL bAddWildCard,
-    CEnumString *pEnumString
+    CEnumString* pEnumString
 )
 {
     HRESULT hr = NOERROR;
@@ -2532,42 +2297,36 @@ CSecurityManager::AddUrlsToEnum
     DWORD dwZoneRead = ZONEID_INVALID;
     DWORD dwType;
 
-    for ( DWORD dwIdxProt = 0 , cchP = sizeof(rgszProtocol)/sizeof(TCHAR), dwSizeZoneId = sizeof(dwZoneRead);
-          (((lRetProtocol = pRegKey->EnumValue(dwIdxProt, rgszProtocol, &cchP, &dwType, &dwZoneRead, &dwSizeZoneId)) != ERROR_NO_MORE_ITEMS)
-           && (hr == NOERROR));
-           dwIdxProt++, cchP = sizeof(rgszProtocol)/sizeof(TCHAR), dwSizeZoneId = sizeof(dwZoneRead), dwZoneRead = ZONEID_INVALID
-        )
-    {
-        if (lRetProtocol != NO_ERROR)
-        {
+    for (DWORD dwIdxProt = 0, cchP = sizeof(rgszProtocol) / sizeof(TCHAR), dwSizeZoneId = sizeof(dwZoneRead);
+        (((lRetProtocol = pRegKey->EnumValue(dwIdxProt, rgszProtocol, &cchP, &dwType, &dwZoneRead, &dwSizeZoneId)) != ERROR_NO_MORE_ITEMS)
+         && (hr == NOERROR));
+         dwIdxProt++, cchP = sizeof(rgszProtocol) / sizeof(TCHAR), dwSizeZoneId = sizeof(dwZoneRead), dwZoneRead = ZONEID_INVALID
+         ) {
+        if (lRetProtocol != NO_ERROR) {
             // Break out of this loop but keep trying other sites.
             break;
         }
 
-        if (  dwSizeZoneId == 0 || cchP == 0 || rgszProtocol[0] == TEXT('\0')
-                || dwType != REG_DWORD || dwZoneRead == ZONEID_INVALID)
+        if (dwSizeZoneId == 0 || cchP == 0 || rgszProtocol[0] == TEXT('\0')
+            || dwType != REG_DWORD || dwZoneRead == ZONEID_INVALID)
             continue;
 
         // Yippeee, finally found a match.
-        if (dwZone == dwZoneRead)
-        {
+        if (dwZone == dwZoneRead) {
             int cchProtocol = lstrlen(rgszProtocol);
 
             LPTSTR szUrl = NULL;
 
             // Compose the name of the URL.
-            if ( (SUCCEEDED(ComposeUrl(pszUrlSansProt, cchUrlSansProt, rgszProtocol, cchProtocol, bAddWildCard, &szUrl, NULL)))
-                 && (SUCCEEDED(pEnumString->AddString(szUrl))))
-            {
+            if ((SUCCEEDED(ComposeUrl(pszUrlSansProt, cchUrlSansProt, rgszProtocol, cchProtocol, bAddWildCard, &szUrl, NULL)))
+                && (SUCCEEDED(pEnumString->AddString(szUrl)))) {
                 // Both succeeded we have added this string to the enumeration.
                 // Just free up the memory and move on.
                 if (szUrl != NULL)
-                    delete [] szUrl;
-            }
-            else
-            {
+                    delete[] szUrl;
+            } else {
                 if (szUrl != NULL)
-                    delete [] szUrl;
+                    delete[] szUrl;
                 hr = E_OUTOFMEMORY;
                 break;
             }
@@ -2582,7 +2341,7 @@ HRESULT
 CSecurityManager::GetZoneMappings
 (
     DWORD dwZone,
-    IEnumString **ppEnumString,
+    IEnumString** ppEnumString,
     DWORD dwFlags
 )
 {
@@ -2590,9 +2349,9 @@ CSecurityManager::GetZoneMappings
 
     HRESULT hr = NOERROR;
 
-    CEnumString *pEnumString = NULL;
+    CEnumString* pEnumString = NULL;
 
-    pEnumString = new CEnumString( );
+    pEnumString = new CEnumString();
 
     if (pEnumString == NULL)
         return E_OUTOFMEMORY;
@@ -2616,20 +2375,17 @@ CSecurityManager::GetZoneMappings
     TCHAR rgszProtocol[MAX_PATH];
     LONG lRetDomain = NOERROR;
 
-    if ( ((HUSKEY)m_regZoneMap != NULL) &&
-         (regDomainRoot.Open(m_regZoneMap, SZDOMAINS, KEY_READ) == NOERROR)
-       )
-    {
+    if (((HUSKEY)m_regZoneMap != NULL) &&
+        (regDomainRoot.Open(m_regZoneMap, SZDOMAINS, KEY_READ) == NOERROR)
+        ) {
         // If we couldn't open the root, then no rules exist for any zone.
         // Return an empty enumerator
-        for ( DWORD dwIdxDomain = 0, cchD = sizeof(rgszDomain)/sizeof(TCHAR) ;
-              (((lRetDomain = regDomainRoot.EnumKey(dwIdxDomain, rgszDomain, &cchD)) != ERROR_NO_MORE_ITEMS)
-               && (hr == NOERROR));
-              dwIdxDomain++ , cchD = sizeof(rgszDomain)/sizeof(TCHAR)
-            )
-        {
-            if (lRetDomain != NOERROR)
-            {
+        for (DWORD dwIdxDomain = 0, cchD = sizeof(rgszDomain) / sizeof(TCHAR);
+            (((lRetDomain = regDomainRoot.EnumKey(dwIdxDomain, rgszDomain, &cchD)) != ERROR_NO_MORE_ITEMS)
+             && (hr == NOERROR));
+             dwIdxDomain++, cchD = sizeof(rgszDomain) / sizeof(TCHAR)
+             ) {
+            if (lRetDomain != NOERROR) {
                 TransAssert(lRetDomain != ERROR_MORE_DATA);
                 break;
             }
@@ -2640,8 +2396,7 @@ CSecurityManager::GetZoneMappings
             // Open the key to the domain.
             CRegKey regDomain;
 
-            if (regDomain.Open(regDomainRoot, rgszDomain, KEY_READ) != NOERROR )
-            {
+            if (regDomain.Open(regDomainRoot, rgszDomain, KEY_READ) != NOERROR) {
                 // We couldn't open this domain for some reason, but we will
                 // keep trying the other domains.
                 continue;
@@ -2651,22 +2406,19 @@ CSecurityManager::GetZoneMappings
 
             TransAssert((HUSKEY)regDomain != NULL);
 
-            for ( DWORD dwIdxSite = 0 , cchS = sizeof(rgszSite)/sizeof(TCHAR) ;
-                  (((lRetSite = regDomain.EnumKey(dwIdxSite, rgszSite, &cchS)) != ERROR_NO_MORE_ITEMS)
-                    && (hr == NOERROR));
-                  dwIdxSite++ , cchS = sizeof(rgszSite)/sizeof(TCHAR)
-                )
-            {
-                if (lRetSite != NOERROR)
-                {
-                    TransAssert(lRetSite !=  ERROR_MORE_DATA);
+            for (DWORD dwIdxSite = 0, cchS = sizeof(rgszSite) / sizeof(TCHAR);
+                (((lRetSite = regDomain.EnumKey(dwIdxSite, rgszSite, &cchS)) != ERROR_NO_MORE_ITEMS)
+                 && (hr == NOERROR));
+                 dwIdxSite++, cchS = sizeof(rgszSite) / sizeof(TCHAR)
+                 ) {
+                if (lRetSite != NOERROR) {
+                    TransAssert(lRetSite != ERROR_MORE_DATA);
                     break;      // We will break out of this loop but keep trying other domains.
                 }
 
                 CRegKey regSite;
 
-                if (regSite.Open(regDomain, rgszSite, KEY_READ) != NOERROR )
-                {
+                if (regSite.Open(regDomain, rgszSite, KEY_READ) != NOERROR) {
                     // Couldn't open the site but try other sites anyway.
                     continue;
                 }
@@ -2678,8 +2430,7 @@ CSecurityManager::GetZoneMappings
 
                 // Get everything about the name figured out
                 if ((FAILED(ComposeUrlSansProtocol(rgszDomain, cchDomain, rgszSite, cchSite, &szUrlSansProtocol, &cchUrlSansProtocol)))
-                     || szUrlSansProtocol == NULL  )
-                {
+                    || szUrlSansProtocol == NULL) {
                     hr = E_OUTOFMEMORY;
                     break;
                 }
@@ -2689,7 +2440,7 @@ CSecurityManager::GetZoneMappings
                 hr = AddUrlsToEnum(&regSite, dwZone, szUrlSansProtocol, cchUrlSansProtocol, FALSE, pEnumString);
 
                 // Free up the memory we just allocated.
-                delete [] szUrlSansProtocol;
+                delete[] szUrlSansProtocol;
 
             } /* for each site */
 
@@ -2703,8 +2454,7 @@ CSecurityManager::GetZoneMappings
             BOOL bAddWildCard = (StrChr(rgszDomain, DOT) != NULL);
 
             if ((FAILED(ComposeUrlSansProtocol(rgszDomain, cchDomain, NULL, 0, &szSiteWildCard, &cchSiteWildCard)))
-                  || szSiteWildCard == NULL)
-            {
+                || szSiteWildCard == NULL) {
                 hr = E_OUTOFMEMORY;
                 break;
             }
@@ -2713,25 +2463,21 @@ CSecurityManager::GetZoneMappings
 
             hr = AddUrlsToEnum(&regDomain, dwZone, szSiteWildCard, cchSiteWildCard, bAddWildCard, pEnumString);
 
-            delete [] szSiteWildCard;
+            delete[] szSiteWildCard;
         }
     }// opened domains root key
 
     // Finally add all the IP range entries to the structure.
-    if (hr == NOERROR)
-    {
+    if (hr == NOERROR) {
         hr = AddIPRulesToEnum(dwZone, pEnumString);
     }
 
     // Finally call the strings
-    if ( hr == NOERROR )
-    {
+    if (hr == NOERROR) {
         // Pass back the Enumeration to the caller.
         if (ppEnumString)
             *ppEnumString = pEnumString;
-    }
-    else
-    {
+    } else {
         // We need to free the object and return NULL to the caller.
         if (ppEnumString)
             *ppEnumString = NULL;
@@ -2748,8 +2494,8 @@ CSecurityManager::GetZoneMappings
 
 
 HRESULT
-CSecurityManager::MapUrlToZone (ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, DWORD dwFlags,
-                                BOOL *pfMarked, LPWSTR *ppszMarkURL)
+CSecurityManager::MapUrlToZone(ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, DWORD dwFlags,
+                               BOOL* pfMarked, LPWSTR* ppszMarkURL)
 {
     HRESULT hr;
     CRegKey regProtocols;
@@ -2760,38 +2506,32 @@ CSecurityManager::MapUrlToZone (ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, DWORD d
         goto default_zone;
 
     // do the Mark of the Web stuff, if we have a file:
-    if (pzc->nScheme == URL_SCHEME_FILE)
-    {
+    if (pzc->nScheme == URL_SCHEME_FILE) {
         LPWSTR pwszMarkURL = NULL;
-        TCHAR  *pszExt = PathFindExtension(pzc->pszSite);
+        TCHAR* pszExt = PathFindExtension(pzc->pszSite);
         LPCTSTR pszPath;
         TCHAR  szPath[MAX_PATH];
 
-        if (!pzc->fDrive)
-        {
-            StrCpy( szPath, TEXT("\\\\") );
+        if (!pzc->fDrive) {
+            StrCpy(szPath, TEXT("\\\\"));
             StrCatBuff(szPath, pzc->pszSite, ARRAYSIZE(szPath));
             pszPath = szPath;
-        }
-        else
+        } else
             pszPath = pzc->pszSite;
 
         // Don't look for the mark if flags say not to.
         // We only want to pursue the Mark of the Web for htm(l) files.
         // If Marked, we want to be sure we're not chasing our tail recursively.
-        if ( !(dwFlags & MUTZ_NOSAVEDFILECHECK) &&
-             (StrCmpI(pszExt,TEXT(".htm")) == 0 || StrCmpI(pszExt,TEXT(".html")) == 0) &&
-             FileBearsMarkOfTheWeb(pszPath, &pwszMarkURL) &&
-             StrCmp(pszPath, pwszMarkURL) != 0)
-        {
-            MapUrlToZone( pwszMarkURL, pdwZone, dwFlags | MUTZ_NOSAVEDFILECHECK | MUTZ_NOCACHE );
+        if (!(dwFlags & MUTZ_NOSAVEDFILECHECK) &&
+            (StrCmpI(pszExt, TEXT(".htm")) == 0 || StrCmpI(pszExt, TEXT(".html")) == 0) &&
+            FileBearsMarkOfTheWeb(pszPath, &pwszMarkURL) &&
+            StrCmp(pszPath, pwszMarkURL) != 0) {
+            MapUrlToZone(pwszMarkURL, pdwZone, dwFlags | MUTZ_NOSAVEDFILECHECK | MUTZ_NOCACHE);
 
             // Don't take the mark's word for it if it's asserting local machine
-            if ( *pdwZone != URLZONE_LOCAL_MACHINE )
-            {
+            if (*pdwZone != URLZONE_LOCAL_MACHINE) {
                 fMarked = TRUE;
-                if (ppszMarkURL)
-                {
+                if (ppszMarkURL) {
                     *ppszMarkURL = pwszMarkURL;
                     pwszMarkURL = NULL; // give mark string to caller, don't free
                 }
@@ -2806,89 +2546,79 @@ CSecurityManager::MapUrlToZone (ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, DWORD d
         // if not marked, or ignoring the mark, process as normal.
     }
 
-    if (pzc->fDrive)
-    {
-        switch (pzc->dwDriveType)
+    if (pzc->fDrive) {
+        switch (pzc->dwDriveType) {
+        case 0:
+        case 1:
+            break;
+        case DRIVE_REMOTE:
+            TransAssert(FALSE);
+            *pdwZone = URLZONE_INTRANET;
+            goto done;
+        default:
         {
-            case 0:
-            case 1:
-                break;
-            case DRIVE_REMOTE:
-                TransAssert(FALSE);
-                *pdwZone = URLZONE_INTRANET;
-                goto done;
-            default:
-            {
-                BOOL bCacheFile = IsFileInCacheDir(pzc->pszSite);
+            BOOL bCacheFile = IsFileInCacheDir(pzc->pszSite);
 
-                *pdwZone = bCacheFile ? URLZONE_INTERNET : URLZONE_LOCAL_MACHINE;
-                goto done;
-            }
+            *pdwZone = bCacheFile ? URLZONE_INTERNET : URLZONE_LOCAL_MACHINE;
+            goto done;
         }
-    }
-    else if (IsOpaqueScheme(pzc->nScheme))
-    {
-        if (S_OK == CheckSiteAndDomainMappings (pzc, pdwZone, pzc->pszProtocol))
+        }
+    } else if (IsOpaqueScheme(pzc->nScheme)) {
+        if (S_OK == CheckSiteAndDomainMappings(pzc, pdwZone, pzc->pszProtocol))
             goto done;
 
         if (S_OK == CheckMKURL(pzc, pdwZone, pzc->pszProtocol))
             goto done;
-    }
-    else
-    {
-        if (pzc->fAddr)
-        {
+    } else {
+        if (pzc->fAddr) {
             // Check name in form of IP address against range rules.
-            if (S_OK == CheckAddressAgainstRanges (pzc, pdwZone, pzc->pszProtocol))
+            if (S_OK == CheckAddressAgainstRanges(pzc, pdwZone, pzc->pszProtocol))
                 goto done;
         }
 
-        if ((HUSKEY) m_regZoneMap)
-        {
+        if ((HUSKEY)m_regZoneMap) {
             // Check for a mapping for the site (or domain, if applicable)
-            if (S_OK == CheckSiteAndDomainMappings (pzc, pdwZone, pzc->pszProtocol))
+            if (S_OK == CheckSiteAndDomainMappings(pzc, pdwZone, pzc->pszProtocol))
                 goto done;
 
             if (S_OK == CheckUNCAsIntranet(pzc, pdwZone, pzc->pszProtocol))
                 goto done;
 
             // Check for Local Intranet name rules.
-            if (S_OK == CheckIntranetName (pzc, pdwZone, pzc->pszProtocol))
+            if (S_OK == CheckIntranetName(pzc, pdwZone, pzc->pszProtocol))
                 goto done;
 
             // Check for proxy bypass rule.
-            if (S_OK == CheckProxyBypassRule (pzc, pdwZone, pzc->pszProtocol))
+            if (S_OK == CheckProxyBypassRule(pzc, pdwZone, pzc->pszProtocol))
                 goto done;
         }
     }
 
     // Check for protocol defaults.
-    if (    ERROR_SUCCESS == regProtocols.Open (m_regZoneMap, SZPROTOCOLS, KEY_READ)
-        &&  ERROR_SUCCESS == regProtocols.QueryValueOrWild (pdwZone, pzc->pszProtocol)
-       )
-    {
+    if (ERROR_SUCCESS == regProtocols.Open(m_regZoneMap, SZPROTOCOLS, KEY_READ)
+        && ERROR_SUCCESS == regProtocols.QueryValueOrWild(pdwZone, pzc->pszProtocol)
+        ) {
         goto done;
     }
 
 default_zone:
-        *pdwZone = URLZONE_INTERNET;
+    *pdwZone = URLZONE_INTERNET;
 done:
-        if (pfMarked)
-            *pfMarked = fMarked;
+    if (pfMarked)
+        *pfMarked = fMarked;
 
-        hr = S_OK;
-        return hr;
+    hr = S_OK;
+    return hr;
 }
 
 HRESULT
-CSecurityManager::ReadAllIPRules( )
+CSecurityManager::ReadAllIPRules()
 {
     DWORD* pdwIndexes = NULL;
 
     EnterCriticalSection(&s_csectIP);
-    if (s_pRanges != NULL)
-    {
-        delete [] s_pRanges;
+    if (s_pRanges != NULL) {
+        delete[] s_pRanges;
         s_pRanges = NULL;
         s_cNumRanges = 0;
     }
@@ -2898,20 +2628,18 @@ CSecurityManager::ReadAllIPRules( )
 
     CRegKey regRanges, regItem;
 
-    if ((HUSKEY)m_regZoneMap == NULL)
-    {
-        if (ERROR_SUCCESS != m_regZoneMap.Open (NULL, SZZONEMAP, KEY_READ))
+    if ((HUSKEY)m_regZoneMap == NULL) {
+        if (ERROR_SUCCESS != m_regZoneMap.Open(NULL, SZZONEMAP, KEY_READ))
             goto done;
     }
 
     DWORD cchMaxKey;
 
     // Read in ranges from registry.
-    if (   ERROR_SUCCESS != regRanges.Open (m_regZoneMap, SZRANGES, KEY_READ)
-        || ERROR_SUCCESS != regRanges.QuerySubKeyInfo (&s_cNumRanges, &cchMaxKey, NULL)
+    if (ERROR_SUCCESS != regRanges.Open(m_regZoneMap, SZRANGES, KEY_READ)
+        || ERROR_SUCCESS != regRanges.QuerySubKeyInfo(&s_cNumRanges, &cchMaxKey, NULL)
         || 0 == s_cNumRanges
-       )
-    {
+        ) {
         goto done;
     }
 
@@ -2919,11 +2647,10 @@ CSecurityManager::ReadAllIPRules( )
     cchMaxKey = 20;
     // Calculate size of range item and allocate array (no alignment padding)
     s_cbRangeItem = sizeof(RANGE_ITEM) + sizeof(TCHAR) * (cchMaxKey + 1);
-    s_pRanges = new BYTE [s_cbRangeItem * s_cNumRanges];
+    s_pRanges = new BYTE[s_cbRangeItem * s_cNumRanges];
     pdwIndexes = new DWORD[s_cNumRanges];
 
-    if (!s_pRanges || !pdwIndexes)
-    {
+    if (!s_pRanges || !pdwIndexes) {
         s_cNumRanges = 0;
         goto done;
     }
@@ -2933,23 +2660,21 @@ CSecurityManager::ReadAllIPRules( )
     RANGE_ITEM* pItem;
     DWORD iItem, cItem;
 
-    pItem = (RANGE_ITEM *) s_pRanges;
+    pItem = (RANGE_ITEM*)s_pRanges;
     cItem = s_cNumRanges;
     s_cNumRanges = 0;
 
-    for (iItem = 0; iItem < cItem; iItem++)
-    {
+    for (iItem = 0; iItem < cItem; iItem++) {
         // Reset output buffer sizes.
         DWORD cbName, cbRange;
         cbName = cchMaxKey;
         cbRange = sizeof(szRange);
 
         // Get range from next key.
-        if (  ERROR_SUCCESS != regRanges.EnumKey (iItem, pItem->szName, &cbName)
-           || ERROR_SUCCESS != regItem.Open (regRanges, pItem->szName, KEY_READ)
-           || ERROR_SUCCESS != regItem.QueryValue (szRange, SZRANGE, &cbRange)
-           )
-        {
+        if (ERROR_SUCCESS != regRanges.EnumKey(iItem, pItem->szName, &cbName)
+            || ERROR_SUCCESS != regItem.Open(regRanges, pItem->szName, KEY_READ)
+            || ERROR_SUCCESS != regItem.QueryValue(szRange, SZRANGE, &cbRange)
+            ) {
             break;
         }
 
@@ -2957,26 +2682,23 @@ CSecurityManager::ReadAllIPRules( )
         // form Range followed by Number. Range####
         DWORD chRange = lstrlen(SZRANGEPREFIX);
 
-        if (0 == StrCmpNI(pItem->szName, SZRANGEPREFIX, chRange))
-        {
+        if (0 == StrCmpNI(pItem->szName, SZRANGEPREFIX, chRange)) {
             pdwIndexes[iItem] = StrToInt(pItem->szName + chRange);
         }
 
-        if (!ReadIPRule (szRange, pItem->bLow, pItem->bHigh))
+        if (!ReadIPRule(szRange, pItem->bLow, pItem->bHigh))
             continue;
 
         // Advance to next range item in array.
-        pItem = (RANGE_ITEM*) (((LPBYTE) pItem) + s_cbRangeItem);
+        pItem = (RANGE_ITEM*)(((LPBYTE)pItem) + s_cbRangeItem);
         s_cNumRanges++;
     }
 
     // Find an empty slot or if we don't find one
-    for (s_dwNextRangeIndex = 1 ; s_dwNextRangeIndex <= cItem; s_dwNextRangeIndex++)
-    {
+    for (s_dwNextRangeIndex = 1; s_dwNextRangeIndex <= cItem; s_dwNextRangeIndex++) {
         DWORD i;
         // Go through the entries and see if the index exists.
-        for (i = 0; i < cItem ; i++ )
-        {
+        for (i = 0; i < cItem; i++) {
             if (pdwIndexes[i] == s_dwNextRangeIndex)
                 break;
         }
@@ -2986,7 +2708,7 @@ CSecurityManager::ReadAllIPRules( )
     }
 
     TransAssert(s_dwNextRangeIndex >= 1 && s_dwNextRangeIndex <= (cItem + 1));
-    delete [] pdwIndexes;
+    delete[] pdwIndexes;
 
 done:
     LeaveCriticalSection(&s_csectIP);
@@ -2995,7 +2717,7 @@ done:
 
 HRESULT
 CSecurityManager::AddDeleteIPRule
-    (ZONEMAP_COMPONENTS* pzc, DWORD dwZone, DWORD dwFlags)
+(ZONEMAP_COMPONENTS* pzc, DWORD dwZone, DWORD dwFlags)
 {
     HRESULT hr = S_OK;
     DWORD dwError = ERROR_SUCCESS;
@@ -3010,113 +2732,86 @@ CSecurityManager::AddDeleteIPRule
 
     EnterCriticalSection(&s_csectIP);
 
-    RANGE_ITEM *pItem = (RANGE_ITEM *)s_pRanges;
+    RANGE_ITEM* pItem = (RANGE_ITEM*)s_pRanges;
 
     // First figure out if this item already exists in our list.
     // This is useful in both the delete and add case.
     for (DWORD iRange = 0;
-               iRange < s_cNumRanges ;
-               iRange++, pItem = (RANGE_ITEM*) (((LPBYTE) pItem) + s_cbRangeItem))
-    {
-        if  ( ( 0 == memcmp(pItem->bLow, pzc->rangeItem.bLow, sizeof(pItem->bLow)))
-              && (0 == memcmp(pItem->bHigh, pzc->rangeItem.bHigh, sizeof(pItem->bHigh)))
-            )
-        {
+         iRange < s_cNumRanges;
+         iRange++, pItem = (RANGE_ITEM*)(((LPBYTE)pItem) + s_cbRangeItem)) {
+        if ((0 == memcmp(pItem->bLow, pzc->rangeItem.bLow, sizeof(pItem->bLow)))
+            && (0 == memcmp(pItem->bHigh, pzc->rangeItem.bHigh, sizeof(pItem->bHigh)))
+            ) {
             break;
         }
     }
 
     // If we have a valid "named" entry in the registry.
-    if (iRange < s_cNumRanges && pItem->szName[0] != TEXT('\0'))
-    {
+    if (iRange < s_cNumRanges && pItem->szName[0] != TEXT('\0')) {
         bFoundItem = TRUE;
         StrCpy(szItemName, SZRANGES);
         StrCat(szItemName, pItem->szName);
-    }
-    else
-    {
+    } else {
         bFoundItem = FALSE;
         pItem = NULL;
     }
 
     // Are we trying to do an add or a delete.
-    if  (dwFlags & SZM_DELETE)
-    {
+    if (dwFlags & SZM_DELETE) {
         // If we have a valid "named" entry in the registry delete it now.
-        if (bFoundItem)
-        {
+        if (bFoundItem) {
             TransAssert(pItem != NULL);
 
             CRegKey regItem;
-            if ((dwError = regItem.Open(m_regZoneMap, szItemName, KEY_READ | KEY_WRITE)) != ERROR_SUCCESS)
-            {
+            if ((dwError = regItem.Open(m_regZoneMap, szItemName, KEY_READ | KEY_WRITE)) != ERROR_SUCCESS) {
                 hr = HRESULT_FROM_WIN32(dwError);
-            }
-            else
-            {
+            } else {
                 // Get the protocol name and delete the protocol related value.
-                if ((dwError = regItem.DeleteValue (pzc->pszProtocol)) == ERROR_SUCCESS)
-                {
+                if ((dwError = regItem.DeleteValue(pzc->pszProtocol)) == ERROR_SUCCESS) {
                     DWORD dwNumValues = 0;
 
                     // Is this the last entry for this range? If so delete the range & nuke the key.
                     if (ERROR_SUCCESS == regItem.QuerySubKeyInfo(NULL, NULL, &dwNumValues) &&
                         dwNumValues == 1 &&
                         ERROR_SUCCESS == regItem.DeleteValue(SZRANGE)
-                       )
-                    {
+                        ) {
                         regItem.Close();
                         m_regZoneMap.DeleteEmptyKey(szItemName);
                     }
-                }
-                else
-                {
+                } else {
                     hr = HRESULT_FROM_WIN32(dwError);
                 }
             }
+        } else {
+            hr = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
         }
-        else
-        {
-            hr =  HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
-        }
-    }
-    else
-    {
-        if (bFoundItem)
-        {
+    } else {
+        if (bFoundItem) {
             TransAssert(pItem != NULL);
             // See if an entry with the given name already
             CRegKey regItem;
 
-            if ((dwError = regItem.Open(m_regZoneMap, szItemName, KEY_READ | KEY_WRITE)) != ERROR_SUCCESS)
-            {
+            if ((dwError = regItem.Open(m_regZoneMap, szItemName, KEY_READ | KEY_WRITE)) != ERROR_SUCCESS) {
                 hr = HRESULT_FROM_WIN32(dwError);
-            }
-            else
-            {
+            } else {
                 DWORD dwZoneExists;
                 // If we were able to read the value, fail because entry already exists.
-                if (regItem.QueryValue(&dwZoneExists, pzc->pszProtocol) == ERROR_SUCCESS)
-                {
+                if (regItem.QueryValue(&dwZoneExists, pzc->pszProtocol) == ERROR_SUCCESS) {
                     hr = HRESULT_FROM_WIN32(ERROR_FILE_EXISTS);
                 }
             }
-        }
-        else
-        {
+        } else {
             // Create the new item name.
             StrCpy(szItemName, SZRANGES);
             StrCat(szItemName, SZRANGEPREFIX);
-            if (!DwToWchar(s_dwNextRangeIndex, szItemName + lstrlen(SZRANGES) + lstrlen(SZRANGEPREFIX), 10))
-            {
+            if (!DwToWchar(s_dwNextRangeIndex, szItemName + lstrlen(SZRANGES) + lstrlen(SZRANGEPREFIX), 10)) {
                 TransAssert(FALSE);
                 hr = E_UNEXPECTED;
             }
         }
 
         // Okay to go ahead and create the entry.
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             TCHAR szIPRule[MAX_IPRANGE];
             // We shouldn't have any domain part for IP Rules.
             TransAssert(pzc->pszDomain == NULL);
@@ -3126,22 +2821,18 @@ CSecurityManager::AddDeleteIPRule
             CRegKey regMap;
 
             // Now add the entry to the registry.
-            if ( ((dwError = regMap.Create(m_regZoneMap, szItemName, KEY_WRITE)) == ERROR_SUCCESS) &&
-                 ((dwError = regMap.SetValue(dwZone, pzc->pszProtocol)) == ERROR_SUCCESS) &&
-                 ((dwError = regMap.SetValue(szIPRule, SZRANGE)) == ERROR_SUCCESS)
-               )
-            {
+            if (((dwError = regMap.Create(m_regZoneMap, szItemName, KEY_WRITE)) == ERROR_SUCCESS) &&
+                ((dwError = regMap.SetValue(dwZone, pzc->pszProtocol)) == ERROR_SUCCESS) &&
+                ((dwError = regMap.SetValue(szIPRule, SZRANGE)) == ERROR_SUCCESS)
+                ) {
                 hr = S_OK;
-            }
-            else
-            {
+            } else {
                 hr = HRESULT_FROM_WIN32(dwError);
             }
         }
     }
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         hr = ReadAllIPRules();
     }
 
@@ -3152,41 +2843,37 @@ CSecurityManager::AddDeleteIPRule
 
 HRESULT
 CSecurityManager::CheckAddressAgainstRanges
-    (ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
+(ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
 {
     TCHAR szKeyName[MAX_PATH];
     const DWORD cchRanges = CSTRLENW(SZRANGES);
-    memcpy (szKeyName, SZRANGES, sizeof(TCHAR) * cchRanges);
+    memcpy(szKeyName, SZRANGES, sizeof(TCHAR) * cchRanges);
 
     CRegKey regItem;
 
     EnterCriticalSection(&s_csectIP);
-    RANGE_ITEM* pItem = (RANGE_ITEM *) s_pRanges;
+    RANGE_ITEM* pItem = (RANGE_ITEM*)s_pRanges;
 
-    for (DWORD iRange=0; iRange < s_cNumRanges; iRange++)
-    {
-        for (DWORD iByte=0; iByte<4; iByte++)
-        {
-            if (   pzc->bAddr[iByte] < pItem->bLow[iByte]
+    for (DWORD iRange = 0; iRange < s_cNumRanges; iRange++) {
+        for (DWORD iByte = 0; iByte < 4; iByte++) {
+            if (pzc->bAddr[iByte] < pItem->bLow[iByte]
                 || pzc->bAddr[iByte] > pItem->bHigh[iByte]
-               )
-            {
+                ) {
                 goto next_range; // much cleaner than a break and test
             }
         }
 
-        StrCpyW (szKeyName + cchRanges, pItem->szName);
+        StrCpyW(szKeyName + cchRanges, pItem->szName);
 
-        if (    ERROR_SUCCESS == regItem.Open (m_regZoneMap, szKeyName, KEY_READ)
-            &&  ERROR_SUCCESS == regItem.QueryValueOrWild (pdwZone, pszProt)
-           )
-        {
+        if (ERROR_SUCCESS == regItem.Open(m_regZoneMap, szKeyName, KEY_READ)
+            && ERROR_SUCCESS == regItem.QueryValueOrWild(pdwZone, pszProt)
+            ) {
             LeaveCriticalSection(&s_csectIP);
             return S_OK;
         }
 
-next_range:
-        pItem = (RANGE_ITEM*) (((LPBYTE) pItem) + s_cbRangeItem);
+    next_range:
+        pItem = (RANGE_ITEM*)(((LPBYTE)pItem) + s_cbRangeItem);
     }
 
     LeaveCriticalSection(&s_csectIP);
@@ -3195,29 +2882,28 @@ next_range:
 
 
 HRESULT CSecurityManager::CheckSiteAndDomainMappings
-    (ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
+(ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
 {
     CRegKey regDomain, regSite;
     DWORD dwRegErr;
 
     TCHAR szKeyName[MAX_PATH];
     const DWORD cchKeyName = CSTRLENW(SZDOMAINS);
-    memcpy (szKeyName, SZDOMAINS, sizeof(TCHAR) * cchKeyName);
+    memcpy(szKeyName, SZDOMAINS, sizeof(TCHAR) * cchKeyName);
 
     TransAssert(!pzc->fDrive);
 
-    if (pzc->pszDomain)
-    {
+    if (pzc->pszDomain) {
         // First, look for domain rule.
-        memcpy (szKeyName + cchKeyName, pzc->pszDomain, sizeof(TCHAR) * pzc->cchDomain);
+        memcpy(szKeyName + cchKeyName, pzc->pszDomain, sizeof(TCHAR) * pzc->cchDomain);
         szKeyName[cchKeyName + pzc->cchDomain] = 0;
-        if (ERROR_SUCCESS != regDomain.Open (m_regZoneMap, szKeyName, KEY_READ))
+        if (ERROR_SUCCESS != regDomain.Open(m_regZoneMap, szKeyName, KEY_READ))
             return S_FALSE;
 
         // Now add the site.
-        memcpy (szKeyName, pzc->pszSite, sizeof(TCHAR) * pzc->cchSite);
+        memcpy(szKeyName, pzc->pszSite, sizeof(TCHAR) * pzc->cchSite);
         szKeyName[pzc->cchSite] = 0;
-        dwRegErr = regSite.Open (regDomain, szKeyName, KEY_READ);
+        dwRegErr = regSite.Open(regDomain, szKeyName, KEY_READ);
 
         // For IE5.0 we support wildcard's beyond the second level domain.
         // For example if you had an intranet address www.internal.mycorp.com
@@ -3229,26 +2915,22 @@ HRESULT CSecurityManager::CheckSiteAndDomainMappings
         // If we find one we see if the wildcard pattern matches the site whose
         // zone we are trying to determine.
 
-        if (dwRegErr != ERROR_SUCCESS)
-        {
+        if (dwRegErr != ERROR_SUCCESS) {
             TCHAR rgchSubKeyName[MAX_PATH];
             LONG lRet = NOERROR;
 
-            for ( DWORD dwIndex = 0 , cchSubKey = ARRAYSIZE(rgchSubKeyName) ;
-                   ((lRet = regDomain.EnumKey(dwIndex, rgchSubKeyName, &cchSubKey)) != ERROR_NO_MORE_ITEMS) ;
-                   dwIndex++ , cchSubKey = ARRAYSIZE(rgchSubKeyName)
-                )
-            {
-                if (lRet != NOERROR)
-                {
+            for (DWORD dwIndex = 0, cchSubKey = ARRAYSIZE(rgchSubKeyName);
+                ((lRet = regDomain.EnumKey(dwIndex, rgchSubKeyName, &cchSubKey)) != ERROR_NO_MORE_ITEMS);
+                 dwIndex++, cchSubKey = ARRAYSIZE(rgchSubKeyName)
+                 ) {
+                if (lRet != NOERROR) {
                     TransAssert(lRet != ERROR_MORE_DATA);
                     break;
                 }
 
                 // For patterns that finish with a *. we will do a suffix
                 // match to see if the wildcard sequence is valid.
-                if (cchSubKey > 2 && rgchSubKeyName[0] == WILDCARD && rgchSubKeyName[1] == DOT)
-                {
+                if (cchSubKey > 2 && rgchSubKeyName[0] == WILDCARD && rgchSubKeyName[1] == DOT) {
                     // First condition
                     //    for xyz.foo.microsoft.com to match *.foo.microsoft.com
                     //        www.foo has to be greater than or equal to foo.microsoft.com
@@ -3257,41 +2939,36 @@ HRESULT CSecurityManager::CheckSiteAndDomainMappings
                     //     cchSubkey is the length of *.foo, therefore the last
                     //     cchSubKey - 2 characters of the two strings should match.
                     if (pzc->cchSite >= (cchSubKey - 2) &&
-                        ( StrCmpNI (rgchSubKeyName + 2, /* skip *. */
-                                    pzc->pszSite + pzc->cchSite - cchSubKey + 2,
-                                    cchSubKey - 2
-                                   )  == 0
+                        (StrCmpNI(rgchSubKeyName + 2, /* skip *. */
+                                  pzc->pszSite + pzc->cchSite - cchSubKey + 2,
+                                  cchSubKey - 2
+                        ) == 0
                          )
-                       )
-                    {
+                        ) {
                         dwRegErr = regSite.Open(regDomain, rgchSubKeyName, KEY_READ);
                         break;
                     }
                 }
             }
         }
-    }
-    else
-    {
+    } else {
         // There was no domain.  Look for a site rule.
-        memcpy (szKeyName + cchKeyName, pzc->pszSite, sizeof(TCHAR) * pzc->cchSite);
+        memcpy(szKeyName + cchKeyName, pzc->pszSite, sizeof(TCHAR) * pzc->cchSite);
         szKeyName[cchKeyName + pzc->cchSite] = 0;
-        dwRegErr = regSite.Open (m_regZoneMap, szKeyName, KEY_READ);
+        dwRegErr = regSite.Open(m_regZoneMap, szKeyName, KEY_READ);
     }
 
     // Look for matching protocols under site key.
-    if (    ERROR_SUCCESS == dwRegErr
-        &&  ERROR_SUCCESS == regSite.QueryValueOrWild (pdwZone, pszProt)
-       )
-    {
+    if (ERROR_SUCCESS == dwRegErr
+        && ERROR_SUCCESS == regSite.QueryValueOrWild(pdwZone, pszProt)
+        ) {
         return S_OK;
     }
 
     // Now fall back to domain if there was one.
-    else if (   pzc->pszDomain
-            &&  ERROR_SUCCESS == regDomain.QueryValueOrWild (pdwZone, pszProt)
-       )
-    {
+    else if (pzc->pszDomain
+             && ERROR_SUCCESS == regDomain.QueryValueOrWild(pdwZone, pszProt)
+             ) {
         return S_OK;
     }
 
@@ -3300,7 +2977,7 @@ HRESULT CSecurityManager::CheckSiteAndDomainMappings
 
 
 HRESULT CSecurityManager::CheckUNCAsIntranet
-    (ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
+(ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
 {
     HRESULT hr = S_FALSE;
     DWORD dwUNCAsIntranet;
@@ -3314,8 +2991,7 @@ HRESULT CSecurityManager::CheckUNCAsIntranet
     if (ERROR_SUCCESS != m_regZoneMap.QueryValue(&dwUNCAsIntranet, SZUNCASINTRANET))
         return hr;
 
-    if (dwUNCAsIntranet == 0)
-    {
+    if (dwUNCAsIntranet == 0) {
         hr = S_OK;
         if (pdwZone)
             *pdwZone = URLZONE_INTERNET;
@@ -3325,7 +3001,7 @@ HRESULT CSecurityManager::CheckUNCAsIntranet
 }
 
 HRESULT CSecurityManager::CheckIntranetName
-    (ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
+(ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
 {
     HRESULT hr = S_FALSE;
     DWORD dwZone = ZONEID_INVALID;
@@ -3340,21 +3016,17 @@ HRESULT CSecurityManager::CheckIntranetName
     if (ERROR_SUCCESS != m_regZoneMap.QueryValue(&dwZone, SZINTRANETNAME))
         return hr;
 
-    if (dwZone != URLZONE_INTRANET)
-    {
+    if (dwZone != URLZONE_INTRANET) {
         TransAssert(FALSE);
         dwZone = URLZONE_INTRANET;
     }
 
 
-    if (pzc->pszSite && !pzc->pszDomain)
-    {
+    if (pzc->pszSite && !pzc->pszDomain) {
         BOOL bFoundDot = FALSE;
 
-        for (DWORD dwIndex = 0 ; dwIndex < pzc->cchSite ; dwIndex++ )
-        {
-            if (pzc->pszSite[dwIndex] == DOT)
-            {
+        for (DWORD dwIndex = 0; dwIndex < pzc->cchSite; dwIndex++) {
+            if (pzc->pszSite[dwIndex] == DOT) {
                 bFoundDot = TRUE;
                 break;
             }
@@ -3371,7 +3043,7 @@ HRESULT CSecurityManager::CheckIntranetName
 
 
 HRESULT CSecurityManager::CheckProxyBypassRule
-    (ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
+(ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
 {
     TransAssert(!pzc->fDrive);
 
@@ -3389,7 +3061,7 @@ HRESULT CSecurityManager::CheckProxyBypassRule
     char szHost[MAX_PATH];
     DWORD cbHost;
     cbHost = WideCharToMultiByte
-        (CP_ACP, 0, pzc->pszSite, cchTotal, szHost, sizeof(szHost), NULL, NULL);
+    (CP_ACP, 0, pzc->pszSite, cchTotal, szHost, sizeof(szHost), NULL, NULL);
     if (!cbHost)
         return S_FALSE;
 
@@ -3399,30 +3071,29 @@ HRESULT CSecurityManager::CheckProxyBypassRule
     szHost[cbHost] = 0;
     INTERNET_SCHEME tScheme;
     BOOL bCheckByPassRules = TRUE;
-    switch(pzc->nScheme)
-    {
-        case URL_SCHEME_HTTP:
-            tScheme = INTERNET_SCHEME_HTTP;
-            break;
-        case URL_SCHEME_HTTPS:
-            tScheme = INTERNET_SCHEME_HTTPS;
-            break;
-        case URL_SCHEME_GOPHER:
-            tScheme = INTERNET_SCHEME_GOPHER;
-            break;
-        case URL_SCHEME_FTP:
-            tScheme = INTERNET_SCHEME_FTP;
-            break;
-        default:
-            bCheckByPassRules = FALSE;
-            break;
+    switch (pzc->nScheme) {
+    case URL_SCHEME_HTTP:
+        tScheme = INTERNET_SCHEME_HTTP;
+        break;
+    case URL_SCHEME_HTTPS:
+        tScheme = INTERNET_SCHEME_HTTPS;
+        break;
+    case URL_SCHEME_GOPHER:
+        tScheme = INTERNET_SCHEME_GOPHER;
+        break;
+    case URL_SCHEME_FTP:
+        tScheme = INTERNET_SCHEME_FTP;
+        break;
+    default:
+        bCheckByPassRules = FALSE;
+        break;
     }
 
-    return bCheckByPassRules && IsHostInProxyBypassList (tScheme, szHost, cbHost) ? S_OK : S_FALSE;
+    return bCheckByPassRules && IsHostInProxyBypassList(tScheme, szHost, cbHost) ? S_OK : S_FALSE;
 }
 
 HRESULT CSecurityManager::CheckMKURL
-    (ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
+(ZONEMAP_COMPONENTS* pzc, DWORD* pdwZone, LPCTSTR pszProt)
 {
     HRESULT hr = S_FALSE;
     DWORD dwZone = ZONEID_INVALID;
@@ -3432,18 +3103,15 @@ HRESULT CSecurityManager::CheckMKURL
     if (pzc->nScheme == URL_SCHEME_MK &&
         pzc->pszDomain == NULL &&
         pzc->pszSite != NULL &&
-        pzc->pszSite[0] == AT)
-    {
+        pzc->pszSite[0] == AT) {
         // look for a : in the domain string.
         LPTSTR pszColon = StrChr(pzc->pszSite, COLON);
-        if ( pszColon != NULL)
-        {
+        if (pszColon != NULL) {
             CRegKey regProtocols;
             *pszColon = TEXT('\0'); // Temporarily overwrite the colon.
             if ((ERROR_SUCCESS == regProtocols.Open(m_regZoneMap, SZPROTOCOLS, KEY_READ)) &&
                 (ERROR_SUCCESS == regProtocols.QueryValue(&dwZone, pzc->pszSite))
-               )
-            {
+                ) {
                 *pdwZone = dwZone;
                 hr = S_OK;
             }
@@ -3470,55 +3138,47 @@ CSecurityManager::CSecMgrCache::CSecMgrCache(void)
 CSecurityManager::CSecMgrCache::~CSecMgrCache(void)
 {
     Flush();
-    DeleteCriticalSection(&m_csectZoneCache) ;
+    DeleteCriticalSection(&m_csectZoneCache);
 
     CloseHandle(s_hMutexCounter);
 }
 
 BOOL
 CSecurityManager::CSecMgrCache::Lookup(LPCWSTR pwszURL,
-                                       DWORD *pdwZone,
-                                       BOOL *pfMarked,
+                                       DWORD* pdwZone,
+                                       BOOL* pfMarked,
                                        BYTE* pbSecurityID,
-                                       DWORD *pcbSecurityID,
+                                       DWORD* pcbSecurityID,
                                        LPCWSTR pwszDocDomain)
 {
     BOOL fFound = FALSE;
 
     EnterCriticalSection(&m_csectZoneCache);
 
-    if ( !IsCounterEqual() )
-    {
+    if (!IsCounterEqual()) {
         Flush();
-    }
-    else
-    {
+    } else {
         int i;
 
-        fFound = FindCacheEntry( pwszURL, i );
-        if (fFound)
-        {
-            if ( pbSecurityID )
-            {
+        fFound = FindCacheEntry(pwszURL, i);
+        if (fFound) {
+            if (pbSecurityID) {
                 TransAssert(pcbSecurityID);
-                if ( m_asmce[i].m_pbSecurityID &&
-                     (  (m_asmce[i].m_pwszDocDomain == NULL && pwszDocDomain == NULL) || /* both are NULL */
-                        (   m_asmce[i].m_pwszDocDomain && pwszDocDomain &&
-                            (0 == StrCmpW(m_asmce[i].m_pwszDocDomain, pwszDocDomain))  /* the strings match */
-                        )
+                if (m_asmce[i].m_pbSecurityID &&
+                    ((m_asmce[i].m_pwszDocDomain == NULL && pwszDocDomain == NULL) || /* both are NULL */
+                    (m_asmce[i].m_pwszDocDomain && pwszDocDomain &&
+                     (0 == StrCmpW(m_asmce[i].m_pwszDocDomain, pwszDocDomain))  /* the strings match */
+                     )
                      ) &&
-                     m_asmce[i].m_cbSecurityID <= *pcbSecurityID)
-                {
+                    m_asmce[i].m_cbSecurityID <= *pcbSecurityID) {
 
-                    memcpy( pbSecurityID, m_asmce[i].m_pbSecurityID, m_asmce[i].m_cbSecurityID  );
+                    memcpy(pbSecurityID, m_asmce[i].m_pbSecurityID, m_asmce[i].m_cbSecurityID);
                     *pcbSecurityID = m_asmce[i].m_cbSecurityID;
-                }
-                else
+                } else
                     *pcbSecurityID = 0;
             }
 
-            if (pdwZone)
-            {
+            if (pdwZone) {
                 *pdwZone = m_asmce[i].m_dwZone;
 
                 if (pfMarked)
@@ -3536,7 +3196,7 @@ void
 CSecurityManager::CSecMgrCache::Add(LPCWSTR pwszURL,
                                     DWORD dwZone,
                                     BOOL fMarked,
-                                    const BYTE *pbSecurityID,
+                                    const BYTE* pbSecurityID,
                                     const DWORD cbSecurityID,
                                     LPCWSTR pwszDocDomain)
 {
@@ -3545,10 +3205,10 @@ CSecurityManager::CSecMgrCache::Add(LPCWSTR pwszURL,
 
     EnterCriticalSection(&m_csectZoneCache);
 
-    if ( !IsCounterEqual() )
+    if (!IsCounterEqual())
         Flush();
 
-    fFound = FindCacheEntry( pwszURL, i ); // found or not, i will be the right place to set it.
+    fFound = FindCacheEntry(pwszURL, i); // found or not, i will be the right place to set it.
     m_asmce[i].Set(pwszURL, dwZone, fMarked, pbSecurityID, cbSecurityID, pwszDocDomain);
     if (!fFound)
         m_iAdd = (m_iAdd + 1) % MAX_SEC_MGR_CACHE;
@@ -3565,7 +3225,7 @@ CSecurityManager::CSecMgrCache::Flush(void)
 
     EnterCriticalSection(&m_csectZoneCache);
 
-    for ( i = 0; i < MAX_SEC_MGR_CACHE; i++ )
+    for (i = 0; i < MAX_SEC_MGR_CACHE; i++)
         m_asmce[i].Flush();
 
     m_iAdd = 0;
@@ -3575,10 +3235,10 @@ CSecurityManager::CSecMgrCache::Flush(void)
 
 // Is the counter we saved with the cache entry, equal to the current counter.
 BOOL
-CSecurityManager::CSecMgrCache::IsCounterEqual( ) const
+CSecurityManager::CSecMgrCache::IsCounterEqual() const
 {
     CExclusiveLock lock(s_hMutexCounter);
-    LPDWORD lpdwCounter = (LPDWORD) g_SharedMem.GetPtr(SM_SECMGRCHANGE_COUNTER);
+    LPDWORD lpdwCounter = (LPDWORD)g_SharedMem.GetPtr(SM_SECMGRCHANGE_COUNTER);
     // If we couldn't create the shared memory for some reason, we just assume our cache is up to date.
     if (lpdwCounter == NULL)
         return TRUE;
@@ -3587,10 +3247,10 @@ CSecurityManager::CSecMgrCache::IsCounterEqual( ) const
 }
 
 VOID
-CSecurityManager::CSecMgrCache::SetToCurrentCounter( )
+CSecurityManager::CSecMgrCache::SetToCurrentCounter()
 {
     CExclusiveLock lock(s_hMutexCounter);
-    LPDWORD lpdwCounter = (LPDWORD) g_SharedMem.GetPtr(SM_SECMGRCHANGE_COUNTER);
+    LPDWORD lpdwCounter = (LPDWORD)g_SharedMem.GetPtr(SM_SECMGRCHANGE_COUNTER);
     if (lpdwCounter == NULL)
         return;
 
@@ -3598,10 +3258,10 @@ CSecurityManager::CSecMgrCache::SetToCurrentCounter( )
 }
 
 VOID
-CSecurityManager::CSecMgrCache::IncrementGlobalCounter( )
+CSecurityManager::CSecMgrCache::IncrementGlobalCounter()
 {
     CExclusiveLock lock(s_hMutexCounter);
-    LPDWORD lpdwCounter = (LPDWORD) g_SharedMem.GetPtr(SM_SECMGRCHANGE_COUNTER);
+    LPDWORD lpdwCounter = (LPDWORD)g_SharedMem.GetPtr(SM_SECMGRCHANGE_COUNTER);
     if (lpdwCounter == NULL)
         return;
 
@@ -3609,7 +3269,7 @@ CSecurityManager::CSecMgrCache::IncrementGlobalCounter( )
 }
 
 BOOL
-CSecurityManager::CSecMgrCache::FindCacheEntry( LPCWSTR pwszURL, int& riEntry )
+CSecurityManager::CSecMgrCache::FindCacheEntry(LPCWSTR pwszURL, int& riEntry)
 {
     BOOL fFound = FALSE;
     riEntry = m_iAdd - 1 % MAX_SEC_MGR_CACHE;
@@ -3617,29 +3277,24 @@ CSecurityManager::CSecMgrCache::FindCacheEntry( LPCWSTR pwszURL, int& riEntry )
     // our cache is a circular buffer. We scan it from the last entry
     // we added backwards to the next slot to add to, createing a quasi-
     // MRU.
-    if ( riEntry < 0 )
+    if (riEntry < 0)
         riEntry = MAX_SEC_MGR_CACHE + riEntry;
 
     // check below us, starting with the most recent addition, if any.
-    for ( ; riEntry >= 0; riEntry-- )
-    {
-        if ( m_asmce[riEntry].m_pwszURL &&
-             StrCmpW( m_asmce[riEntry].m_pwszURL, pwszURL ) == 0 )
-        {
+    for (; riEntry >= 0; riEntry--) {
+        if (m_asmce[riEntry].m_pwszURL &&
+            StrCmpW(m_asmce[riEntry].m_pwszURL, pwszURL) == 0) {
             fFound = TRUE;
             break;
         }
     }
 
-    if (!fFound)
-    {
-        for ( riEntry = MAX_SEC_MGR_CACHE - 1; riEntry >= m_iAdd; riEntry-- )
-        {
+    if (!fFound) {
+        for (riEntry = MAX_SEC_MGR_CACHE - 1; riEntry >= m_iAdd; riEntry--) {
             if (m_asmce[riEntry].m_pwszURL == NULL)
                 break; // hasn't been used yet.
-            else if ( m_asmce[riEntry].m_pwszURL &&
-                      StrCmpW( m_asmce[riEntry].m_pwszURL, pwszURL ) == 0 )
-            {
+            else if (m_asmce[riEntry].m_pwszURL &&
+                     StrCmpW(m_asmce[riEntry].m_pwszURL, pwszURL) == 0) {
                 fFound = TRUE;
                 break;
             }
@@ -3656,28 +3311,25 @@ void
 CSecurityManager::CSecMgrCache::CSecMgrCacheEntry::Set(LPCWSTR pwszURL,
                                                        DWORD dwZone,
                                                        BOOL fMarked,
-                                                       const BYTE *pbSecurityID,
+                                                       const BYTE* pbSecurityID,
                                                        DWORD cbSecurityID,
                                                        LPCWSTR pwszDocDomain)
 {
-    if ( pwszURL )
-    {
+    if (pwszURL) {
         // Only replace if the string has changed.
         // We may see the same string if the entry is
         // set by MapUrlToZone before GetSecurityID is called.
-        if (m_pwszURL && StrCmpW(pwszURL, m_pwszURL))
-        {
-            delete [] m_pwszURL;
+        if (m_pwszURL && StrCmpW(pwszURL, m_pwszURL)) {
+            delete[] m_pwszURL;
             m_pwszURL = NULL;
         }
 
-        if (!m_pwszURL)
-        {
-            int cchURL = lstrlenW( pwszURL );
+        if (!m_pwszURL) {
+            int cchURL = lstrlenW(pwszURL);
 
-            m_pwszURL = new WCHAR[cchURL+1];
-            if ( m_pwszURL )
-                StrCpyW( m_pwszURL, pwszURL );
+            m_pwszURL = new WCHAR[cchURL + 1];
+            if (m_pwszURL)
+                StrCpyW(m_pwszURL, pwszURL);
             else
                 return;
         }
@@ -3687,52 +3339,41 @@ CSecurityManager::CSecMgrCache::CSecMgrCacheEntry::Set(LPCWSTR pwszURL,
     // add the security ID, than means that on any set operation, we're
     // either changing the url or adding the security ID. Either way, if
     // we have a security ID, its invalid now, so flush it.
-    if (m_pbSecurityID)
-    {
-        delete [] m_pbSecurityID;
+    if (m_pbSecurityID) {
+        delete[] m_pbSecurityID;
         m_pbSecurityID = NULL;
         m_cbSecurityID = 0;
     }
 
-    if (m_pwszDocDomain)
-    {
-        delete [] m_pwszDocDomain;
+    if (m_pwszDocDomain) {
+        delete[] m_pwszDocDomain;
         m_pwszDocDomain = NULL;
     }
 
-    if ( pbSecurityID )
-    {
+    if (pbSecurityID) {
         m_pbSecurityID = new BYTE[cbSecurityID];
-        if ( m_pbSecurityID )
-        {
-            memcpy( m_pbSecurityID, pbSecurityID, cbSecurityID  );
-            if (pwszDocDomain)
-            {
+        if (m_pbSecurityID) {
+            memcpy(m_pbSecurityID, pbSecurityID, cbSecurityID);
+            if (pwszDocDomain) {
                 m_pwszDocDomain = new WCHAR[lstrlenW(pwszDocDomain) + 1];
-                if (m_pwszDocDomain != NULL)
-                {
+                if (m_pwszDocDomain != NULL) {
                     StrCpyW(m_pwszDocDomain, pwszDocDomain);
-                }
-                else
-                {
+                } else {
                     // If we don't have memory for the Document's domain property
                     // we better not remember the security ID either.
-                    delete [] m_pbSecurityID;
+                    delete[] m_pbSecurityID;
                     m_pbSecurityID = NULL;
                     cbSecurityID = 0;
                 }
             }
-        }
-        else
-        {
+        } else {
             cbSecurityID = 0;
         }
 
         m_cbSecurityID = cbSecurityID;
     }
 
-    if (dwZone != URLZONE_INVALID)
-    {
+    if (dwZone != URLZONE_INVALID) {
         m_dwZone = dwZone;
         m_fMarked = fMarked;
     }
@@ -3751,9 +3392,8 @@ CSecurityManager::CSecMgrCache::CSecMgrCacheEntry::Flush(void)
 
     m_cbSecurityID = 0;
 
-    if (m_pwszDocDomain)
-    {
-        delete [] m_pwszDocDomain;
+    if (m_pwszDocDomain) {
+        delete[] m_pwszDocDomain;
         m_pwszDocDomain = NULL;
     }
 
@@ -3767,12 +3407,10 @@ CSecurityManager::EnsureListReady(BOOL bForce)
 // Returns whether or not the list had to be made
 // bForce is whether to force a reinitialization
 {
-    if(CSecurityManager::s_clsidAllowedList == NULL || bForce == TRUE)
-    {
+    if (CSecurityManager::s_clsidAllowedList == NULL || bForce == TRUE) {
         CSecurityManager::IntializeAllowedControls();
         return TRUE;
-    }
-    else
+    } else
         return FALSE;
 }
 
@@ -3780,9 +3418,9 @@ void
 CSecurityManager::IntializeAllowedControls()
 {
     DWORD i = 0;
-    DWORD dwNumKeys=0;
-    DWORD dwMaxLen=0;
-    DWORD dwNumValues=0;
+    DWORD dwNumKeys = 0;
+    DWORD dwMaxLen = 0;
+    DWORD dwNumValues = 0;
     // this buffer size should be long enough to hold a string-form
     // CLSID, plus the two end braces, plus a null terminator
     TCHAR szValueName[40];
@@ -3792,9 +3430,8 @@ CSecurityManager::IntializeAllowedControls()
     DWORD dwDataLength = sizeof(DWORD);
 
     // In case we somehow get multiply initialized
-    if(CSecurityManager::s_clsidAllowedList != NULL)
-    {
-        delete [] CSecurityManager::s_clsidAllowedList;
+    if (CSecurityManager::s_clsidAllowedList != NULL) {
+        delete[] CSecurityManager::s_clsidAllowedList;
         CSecurityManager::s_clsidAllowedList = NULL;
     }
     CSecurityManager::s_dwNumAllowedControls = 0;
@@ -3802,47 +3439,40 @@ CSecurityManager::IntializeAllowedControls()
 
     //open key
     // look at HKLM only, first
-    CRegKey * prkey_AllowedControls;
+    CRegKey* prkey_AllowedControls;
     CRegKey rkey_AllowedControls(TRUE);
     CRegKey rkey_AllowedControlsCU(FALSE);
 
     LONG lRes = rkey_AllowedControls.Open(NULL, ALLOWED_CONTROLS_KEY, KEY_READ);
-    if(lRes != ERROR_SUCCESS)
-    {
+    if (lRes != ERROR_SUCCESS) {
         // List not found in HKLM, check HKCU
 
         lRes = rkey_AllowedControlsCU.Open(NULL, ALLOWED_CONTROLS_KEY, KEY_READ);
 
-        if(lRes != ERROR_SUCCESS)
-        {
+        if (lRes != ERROR_SUCCESS) {
             // AllowedControls Key not able to be opened
             return;
-        }
-        else
-        {
+        } else {
             prkey_AllowedControls = &rkey_AllowedControlsCU;
         }
-    }
-    else
-    {
+    } else {
         prkey_AllowedControls = &rkey_AllowedControls;
     }
 
 
     lRes = prkey_AllowedControls->QuerySubKeyInfo(&dwNumKeys, &dwMaxLen, &dwNumValues);
-    if(lRes != ERROR_SUCCESS)
+    if (lRes != ERROR_SUCCESS)
         return;
 
     // prepare space in data structure
     // array will not need to be resized, since the maximum number of allowed
     // CLSIDs is the number of values in the key
     CSecurityManager::s_clsidAllowedList = new CLSID[dwNumValues];
-    if(CSecurityManager::s_clsidAllowedList == NULL) // new failed
+    if (CSecurityManager::s_clsidAllowedList == NULL) // new failed
         return;
 
     // loop through all values in the key
-    for(i = 0; i < dwNumValues; i++)
-    {
+    for (i = 0; i < dwNumValues; i++) {
         // at every loop, these values get changed and must be reset to the
         // length of the name and data buffers, respectively
         dwNameLength = ARRAYSIZE(szValueName);
@@ -3850,17 +3480,16 @@ CSecurityManager::IntializeAllowedControls()
 
         // Get the (DWORD) value for the current value name
         LONG lResult = prkey_AllowedControls->EnumValue(i, szValueName, &dwNameLength,
-                                                 &dwType, &dwData, &dwDataLength);
+                                                        &dwType, &dwData, &dwDataLength);
 
-        if(lResult == ERROR_SUCCESS && dwType == REG_DWORD
-            && GetUrlPolicyPermissions(dwData) == URLPOLICY_ALLOW)
-        {
+        if (lResult == ERROR_SUCCESS && dwType == REG_DWORD
+            && GetUrlPolicyPermissions(dwData) == URLPOLICY_ALLOW) {
             // found a value for the CLSID given, and it is set to allow the CLSID
             // add the CLSID to the list
-            CLSID * p_id = CSecurityManager::s_clsidAllowedList +   //pointer +
-                           CSecurityManager::s_dwNumAllowedControls;//offset
+            CLSID* p_id = CSecurityManager::s_clsidAllowedList +   //pointer +
+                CSecurityManager::s_dwNumAllowedControls;//offset
             HRESULT hr = CLSIDFromString(szValueName, p_id);
-            if(hr != NOERROR)
+            if (hr != NOERROR)
                 continue;
 
             CSecurityManager::s_dwNumAllowedControls++;
@@ -3869,24 +3498,21 @@ CSecurityManager::IntializeAllowedControls()
 }
 
 HRESULT
-CSecurityManager::GetControlPermissions(BYTE * raw_CLSID, DWORD & dwPerm)
+CSecurityManager::GetControlPermissions(BYTE* raw_CLSID, DWORD& dwPerm)
 {
-    CLSID * id = (CLSID *)(raw_CLSID);
+    CLSID* id = (CLSID*)(raw_CLSID);
     dwPerm = 0;
 
     // If the list is not initialized (something's wrong) leave function
-    if(CSecurityManager::s_clsidAllowedList == NULL)
-    {
+    if (CSecurityManager::s_clsidAllowedList == NULL) {
         return E_UNEXPECTED;
     }
 
 
     DWORD index = 0;
     // Search for the given CLSID in the list of allowed Controls
-    for(index = 0; index < CSecurityManager::s_dwNumAllowedControls; index++)
-    {
-        if(*id == (CSecurityManager::s_clsidAllowedList[index]))
-        {
+    for (index = 0; index < CSecurityManager::s_dwNumAllowedControls; index++) {
+        if (*id == (CSecurityManager::s_clsidAllowedList[index])) {
             dwPerm = URLPOLICY_ALLOW; // not necesarry, since currently only allowed controls
                                       // are in the list, but this may change later
             return S_OK;
@@ -3898,7 +3524,7 @@ CSecurityManager::GetControlPermissions(BYTE * raw_CLSID, DWORD & dwPerm)
 }
 
 HRESULT
-CSecurityManager::GetActiveXRunPermissions(BYTE * raw_CLSID, DWORD & dwPerm)
+CSecurityManager::GetActiveXRunPermissions(BYTE* raw_CLSID, DWORD& dwPerm)
 {
     HRESULT hr = S_FALSE;
     DWORD dwValue;
@@ -3907,32 +3533,26 @@ CSecurityManager::GetActiveXRunPermissions(BYTE * raw_CLSID, DWORD & dwPerm)
     // Initialize the Allowed Controls list if it is not already
     CSecurityManager::EnsureListReady(FALSE);
     // get the list permission for pContext, if it is in the list
-    HRESULT permHR = CSecurityManager::GetControlPermissions(raw_CLSID,dwValue);
+    HRESULT permHR = CSecurityManager::GetControlPermissions(raw_CLSID, dwValue);
     LeaveCriticalSection(&s_csectAList);
 
     // interpret results, (zone dependent interpretation not yet implemented)
-    if(SUCCEEDED(permHR))
-    {
-        if(permHR == S_OK) // found in list
+    if (SUCCEEDED(permHR)) {
+        if (permHR == S_OK) // found in list
         {
-            if(dwValue == URLPOLICY_ALLOW)
-            {
+            if (dwValue == URLPOLICY_ALLOW) {
                 hr = S_OK;
                 dwPerm = URLPOLICY_ALLOW;
-            }
-            else
-            {
+            } else {
                 hr = S_FALSE;
                 dwPerm = URLPOLICY_DISALLOW;
             }
-        }
-        else  // not in list; default is to disallow
+        } else  // not in list; default is to disallow
         {
             hr = S_FALSE;
             dwPerm = URLPOLICY_DISALLOW;
         }
-    }
-    else // Unknown error.  Disallow by default
+    } else // Unknown error.  Disallow by default
     {
         hr = S_FALSE;
         dwPerm = URLPOLICY_DISALLOW;
@@ -3940,4 +3560,3 @@ CSecurityManager::GetActiveXRunPermissions(BYTE * raw_CLSID, DWORD & dwPerm)
 
     return hr;
 }
-

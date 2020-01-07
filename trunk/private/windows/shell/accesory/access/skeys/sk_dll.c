@@ -421,13 +421,8 @@ static void ProcessDLL()
             skNewKey.dwFlags     = SKeyDLL.dwFlags;
 
 #ifdef UNICODE
-            MultiByteToWideChar(
-                CP_ACP, 0, SKeyDLL.szActivePort, -1,
-                 skNewKey.lpszActivePort, MAX_PATH);
-
-            MultiByteToWideChar(
-                CP_ACP, 0, SKeyDLL.szPort, -1,
-                skNewKey.lpszPort, MAX_PATH);
+            MultiByteToWideChar(CP_ACP, 0, SKeyDLL.szActivePort, -1, skNewKey.lpszActivePort, MAX_PATH);
+            MultiByteToWideChar(CP_ACP, 0, SKeyDLL.szPort, -1, skNewKey.lpszPort, MAX_PATH);
 #else
             lstrcpy(skNewKey.lpszActivePort,SKeyDLL.szActivePort);
             lstrcpy(skNewKey.lpszPort,SKeyDLL.szPort);

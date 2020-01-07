@@ -72,11 +72,7 @@ WCharCP(
   // ASCii : 0x21 ~ 0x7F
   for(mb[0] = ASCII_BEG; mb[0] <= ASCII_END; mb[0]++)
   {
-    if(MultiByteToWideChar(
-            CodePage,
-            MB_ERR_INVALID_CHARS,
-            (const char *)mb, 1,
-            &wc, 1) == 0)
+    if(MultiByteToWideChar(CodePage, MB_ERR_INVALID_CHARS, (const char *)mb, 1, &wc, 1) == 0)
         continue;
 
     GetStringTypeW(CT_CTYPE1, &wc, 1, &ctype);
@@ -93,16 +89,11 @@ WCharCP(
 
   for(mb[0] = HIANSI_BEG; mb[0] > 0; (mb[0])++)
   {
-    if(MultiByteToWideChar(
-                  CodePage,
-                  MB_ERR_INVALID_CHARS,
-                  (const char *)mb, 1,
-                  &wc, 1) == 0)
+    if(MultiByteToWideChar(CodePage, MB_ERR_INVALID_CHARS, (const char *)mb, 1, &wc, 1) == 0)
           continue;
 
     GetStringTypeW(CT_CTYPE1, &wc, 1, &ctype);
-    if((!ctype) ||
-       ( ctype & C1_CNTRL))
+    if((!ctype) || ( ctype & C1_CNTRL))
        continue;
 
     if(lpWC != NULL)
@@ -125,11 +116,7 @@ WCharCP(
       if(mb[1] == DELETE_CHAR)               // 0x7F is not a trail byte
           continue;
 
-      if(MultiByteToWideChar(
-                    CodePage,
-                    MB_ERR_INVALID_CHARS,
-                    (const char *)mb, 2,
-                    &wc, 1) == 0)
+      if(MultiByteToWideChar(CodePage, MB_ERR_INVALID_CHARS, (const char *)mb, 2, &wc, 1) == 0)
             continue;
 
       if(NOT_EUDC(wc))                       // always include EUDC

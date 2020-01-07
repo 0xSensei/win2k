@@ -1206,15 +1206,12 @@ BOOL CacheGroupInfoA2W(
            GROUP_OWNER_STORAGE_SIZE * sizeof(DWORD) );
 
 
-    BOOL fRet = MultiByteToWideChar(
-               CP_ACP,
+    BOOL fRet = MultiByteToWideChar(CP_ACP,
                MB_PRECOMPOSED,
                lpAnsiGroupInfo->szGroupName,
                -1,         // null terminated ansi string.
                lpUnicodeGroupInfo->szGroupName,
-               GROUPNAME_MAX_LENGTH
-    );
-
+               GROUPNAME_MAX_LENGTH);
     if( fRet )
     {
         *lpdwUnicodeGroupInfoSize = lpUnicodeGroupInfo->dwGroupSize;

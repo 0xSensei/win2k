@@ -149,9 +149,7 @@ else
    pfh->FormatID = OldFormatHeader.FormatID;
    pfh->DataLen = OldFormatHeader.DataLen;
    pfh->DataOffset = OldFormatHeader.DataOffset;
-   MultiByteToWideChar(
-         CP_ACP, MB_PRECOMPOSED, OldFormatHeader.Name, -1,
-         pfh->Name, CCHFMTNAMEMAX);
+   MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, OldFormatHeader.Name, -1, pfh->Name, CCHFMTNAMEMAX);
    }
 
 // PINFO(TEXT("\r\n"));

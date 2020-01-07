@@ -882,8 +882,7 @@ VOID InitOemXlateTables()
     }
     else
     {
-        cch = MultiByteToWideChar(
-            CP_ACP,                           // ANSI -> Unicode
+        cch = MultiByteToWideChar(CP_ACP,                           // ANSI -> Unicode
             MB_PRECOMPOSED,                   // map to precomposed
             ach, NCHARS,                      // source & length
             awch, NCHARS);                    // destination & length
@@ -899,8 +898,7 @@ VOID InitOemXlateTables()
         /*
          * Now generate pOemToAnsi table.
          */
-        cch = MultiByteToWideChar(
-            CP_OEMCP,                         // OEM -> Unicode
+        cch = MultiByteToWideChar(CP_OEMCP,                         // OEM -> Unicode
             MB_PRECOMPOSED | MB_USEGLYPHCHARS,// visual map to precomposed
             ach, NCHARS,                      // source & length
             awch, NCHARS);                    // destination

@@ -226,18 +226,9 @@ DumpFormat( FORMATETC * pfetc, TCHAR * szFormat, BOOL fUnicode )
             if (!cchLength)
                 break;
 
-            cchWideChar = MultiByteToWideChar(
-                    CP_ACP,
-                    MB_PRECOMPOSED,
-                    abBuf,
-                    cchLength,
-                    achBuffer,
-                    ARRAY_SIZE(achBuffer));
-
+            cchWideChar = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, abBuf, cchLength, achBuffer, ARRAY_SIZE(achBuffer));
             Assert(cchWideChar > 0);
-
             WriteFileAnsi( g_f, achBuffer, cchWideChar );
-
             if (cchLength < cbRead)
                 break;
         }

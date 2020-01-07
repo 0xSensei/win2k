@@ -139,14 +139,7 @@ int _cdecl main(int argc, char * argv[])
     pwszCatalogFile = new WCHAR [ cch + 1 ];
     if ( pwszCatalogFile != NULL )
     {
-        if ( MultiByteToWideChar(
-                  CP_ACP,
-                  0,
-                  pszCatalogFile,
-                  -1,
-                  pwszCatalogFile,
-                  cch + 1
-                  ) == 0 )
+        if ( MultiByteToWideChar(CP_ACP, 0, pszCatalogFile, -1, pwszCatalogFile, cch + 1) == 0 )
         {
             delete pwszCatalogFile;
             return( 1 );
@@ -167,14 +160,7 @@ int _cdecl main(int argc, char * argv[])
         pwszFileName = new WCHAR [ cch + 1 ];
         if ( pwszFileName != NULL )
         {
-            if ( MultiByteToWideChar(
-                      CP_ACP,
-                      0,
-                      pszFileName,
-                      -1,
-                      pwszFileName,
-                      cch + 1
-                      ) == 0 )
+            if ( MultiByteToWideChar(CP_ACP, 0, pszFileName, -1, pwszFileName, cch + 1) == 0 )
             {
                 delete pwszCatalogFile;
                 delete pwszFileName;
@@ -380,14 +366,7 @@ RemoveHashFromCatalog(IN LPWSTR pwszCatalogFile, IN LPSTR pszHash)
     {
        goto ErrorReturn;
     }
-    if ( MultiByteToWideChar(
-                  CP_ACP,
-                  0,
-                  pszHash,
-                  -1,
-                  pwszHash,
-                  cch + 1
-                  ) == 0 )
+    if ( MultiByteToWideChar(CP_ACP, 0, pszHash, -1, pwszHash, cch + 1) == 0 )
     {
         goto ErrorReturn;
     }

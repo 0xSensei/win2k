@@ -509,15 +509,12 @@ Return Value:
     WCHAR wszAdapterName[(MAX_ADAPTER_NAME_LENGTH + 6)];
     int len;
 
-    len = MultiByteToWideChar(
-        CP_ACP,
+    len = MultiByteToWideChar(CP_ACP,
         0, // flags
         GetAdapterName(),
         -1, // assume null-terminated
         wszAdapterName,
-        (MAX_ADAPTER_NAME_LENGTH + 6)
-        );
-
+        (MAX_ADAPTER_NAME_LENGTH + 6));
     if ( len == 0 ) {
         return FALSE;  // failed to convert string
     }

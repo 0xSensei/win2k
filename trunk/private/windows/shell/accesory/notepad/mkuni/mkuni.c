@@ -200,8 +200,7 @@ int _cdecl main(int argc, char**argv)
             putust( pfo,TEXT("   ") );
         }
         // Convert it to the world of unicodes.
-        if (MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, lpstrLine, -1,
-                        wLineBuffer, LINE_SIZE ))
+        if (MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, lpstrLine, -1, wLineBuffer, LINE_SIZE ))
             putust(pfo, wLineBuffer);
 
         putust( pfo, ASCIIEOL );

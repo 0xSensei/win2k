@@ -188,8 +188,7 @@ FCoStrToWStr( LPWSTR            *lplpwstr,
 
     while (TRUE)
     {
-        cchBuffer = MultiByteToWideChar(
-                        uCodePage,          // Source code page
+        cchBuffer = MultiByteToWideChar(uCodePage,          // Source code page
                         0,                  // Default flags
                         lpstr,              // Source string
                         -1,                 // Default length

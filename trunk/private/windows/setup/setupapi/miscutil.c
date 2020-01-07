@@ -243,21 +243,11 @@ Return Value:
 
 
     // Perform the conversion.
-
-    CharsInUnicodeString = MultiByteToWideChar(
-                                Codepage,
-                                MB_PRECOMPOSED,
-                                String,
-                                BytesIn8BitString,
-                                UnicodeString,
-                                BytesIn8BitString
-                                );
-
+    CharsInUnicodeString = MultiByteToWideChar(Codepage, MB_PRECOMPOSED, String, BytesIn8BitString, UnicodeString, BytesIn8BitString);
     if(CharsInUnicodeString == 0) {
         MyFree(UnicodeString);
         return(NULL);
     }
-
 
     // Resize the unicode string's buffer to its correct size.
     // If the realloc fails for some reason the original

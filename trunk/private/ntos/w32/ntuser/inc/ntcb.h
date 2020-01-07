@@ -5588,8 +5588,7 @@ RECVCALL(ClientCharToWchar, CLIENTCHARTOWCHARMSG)
     ach[0] = LOBYTE(CALLDATA(wch));
     ach[1] = HIBYTE(CALLDATA(wch));
 
-    MultiByteToWideChar(
-            CALLDATA(CodePage),                // CP_THREAD_ACP, 437, 850 etc.
+    MultiByteToWideChar(CALLDATA(CodePage),                // CP_THREAD_ACP, 437, 850 etc.
             MB_PRECOMPOSED | MB_USEGLYPHCHARS, // visual map to precomposed
             ach, ach[1] ? 2 : 1,               // source & length
             &wch,                              // destination

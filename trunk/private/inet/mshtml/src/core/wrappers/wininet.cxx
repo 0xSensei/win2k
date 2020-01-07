@@ -274,13 +274,7 @@ BOOL WINAPI RetrieveUrlCacheEntryFileBugW(
 
     cInfo = *pcb - sizeof(INTERNET_CACHE_ENTRY_INFO);
     pcai->lpszLocalFileName = (TCHAR *) (((BYTE *) pcai) + sizeof(INTERNET_CACHE_ENTRY_INFO));
-    MultiByteToWideChar(
-            CP_ACP,
-            0,
-            (char *) pInfo->lpszLocalFileName,
-            -1,
-            pcai->lpszLocalFileName,
-            cInfo);
+    MultiByteToWideChar(CP_ACP, 0, (char *) pInfo->lpszLocalFileName, -1, pcai->lpszLocalFileName, cInfo);
     pcai->LastModifiedTime.dwHighDateTime = pInfo->LastModifiedTime.dwHighDateTime;
     pcai->LastModifiedTime.dwLowDateTime = pInfo->LastModifiedTime.dwLowDateTime;
     pcai->ExpireTime.dwHighDateTime = pInfo->LastModifiedTime.dwHighDateTime;

@@ -282,48 +282,24 @@ ArcPathToNtPath(
 #ifdef UNICODE
     lstrcpynW(arcPath+9,ArcPath,sizeof(arcPath)/sizeof(WCHAR));
 #else
-    MultiByteToWideChar(
-        CP_ACP,
-        0,
-        ArcPath,
-        -1,
-        arcPath+9,
-        (sizeof(arcPath)/sizeof(WCHAR))-9
-        );
+    MultiByteToWideChar(CP_ACP, 0, ArcPath, -1, arcPath+9, (sizeof(arcPath)/sizeof(WCHAR))-9);
 #endif
 
     UnicodeString.Buffer = arcPath;
     UnicodeString.Length = (USHORT) (lstrlenW(arcPath)*sizeof(WCHAR));
     UnicodeString.MaximumLength = UnicodeString.Length + sizeof(WCHAR);
 
-    InitializeObjectAttributes(
-        &Obja,
-        &UnicodeString,
-        OBJ_CASE_INSENSITIVE,
-        NULL,
-        NULL
-        );
-
-    Status = (*NtOpenSymLinkRoutine)(
-                &ObjectHandle,
-                READ_CONTROL | SYMBOLIC_LINK_QUERY,
-                &Obja
-                );
-
+    InitializeObjectAttributes(&Obja, &UnicodeString, OBJ_CASE_INSENSITIVE, NULL, NULL);
+    Status = (*NtOpenSymLinkRoutine)(&ObjectHandle, READ_CONTROL | SYMBOLIC_LINK_QUERY, &Obja);
     if(NT_SUCCESS(Status)) {
-
         // Query the object to get the link target.
-
         UnicodeString.Buffer = Buffer;
         UnicodeString.Length = 0;
         UnicodeString.MaximumLength = sizeof(Buffer)-sizeof(WCHAR);
 
         Status = (*NtQuerSymLinkRoutine)(ObjectHandle,&UnicodeString,NULL);
-
         CloseHandle(ObjectHandle);
-
         if(NT_SUCCESS(Status)) {
-
             Buffer[UnicodeString.Length/sizeof(WCHAR)] = 0;
 
 #ifdef UNICODE
@@ -788,57 +764,24 @@ MatchNTSymbolicPaths(
     ULONG Context = 0;
     ULONG ReturnedLength;
 
-
-
 #ifdef UNICODE
     lstrcpyW( pDevice,lpDeviceName);
     lstrcpyW( pMatch,lpMatchName);
     lstrcpyW( pSysPart,lpSysPart);
 #else
-    MultiByteToWideChar(
-        CP_ACP,
-        0,
-        lpDeviceName,
-        -1,
-        pDevice,
-        (sizeof(pDevice)/sizeof(WCHAR))
-        );
-    MultiByteToWideChar(
-        CP_ACP,
-        0,
-        lpMatchName,
-        -1,
-        pMatch,
-        (sizeof(pMatch)/sizeof(WCHAR))
-        );
-    MultiByteToWideChar(
-        CP_ACP,
-        0,
-        lpSysPart,
-        -1,
-        pSysPart,
-        (sizeof(pSysPart)/sizeof(WCHAR))
-        );
+    MultiByteToWideChar(CP_ACP, 0, lpDeviceName, -1, pDevice, (sizeof(pDevice)/sizeof(WCHAR)));
+    MultiByteToWideChar(CP_ACP, 0, lpMatchName, -1, pMatch, (sizeof(pMatch)/sizeof(WCHAR)));
+    MultiByteToWideChar(CP_ACP, 0, lpSysPart, -1, pSysPart, (sizeof(pSysPart)/sizeof(WCHAR)));
 #endif
-
 
     UnicodeString.Buffer = pDevice;
     UnicodeString.Length = (USHORT)(lstrlenW(pDevice)*sizeof(WCHAR));
     UnicodeString.MaximumLength = UnicodeString.Length + sizeof(WCHAR);
 
-    InitializeObjectAttributes( &Attributes,
-                                &UnicodeString,
-                                OBJ_CASE_INSENSITIVE,
-                                NULL,
-                                NULL
-                              );
-    Status = (*NtOpenDirRoutine)( &DirectoryHandle,
-                                    DIRECTORY_QUERY,
-                                    &Attributes
-                                  );
+    InitializeObjectAttributes( &Attributes, &UnicodeString, OBJ_CASE_INSENSITIVE, NULL, NULL);
+    Status = (*NtOpenDirRoutine)( &DirectoryHandle, DIRECTORY_QUERY, &Attributes);
     if (!NT_SUCCESS( Status ))
         return(FALSE);
-
 
     RestartScan = TRUE;
     DirInfo = (POBJECT_DIRECTORY_INFORMATION)&DirInfoBuffer;

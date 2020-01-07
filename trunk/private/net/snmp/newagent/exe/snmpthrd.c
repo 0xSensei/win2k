@@ -220,8 +220,7 @@ Return Values:
         if (unicodeCommunity.stream == NULL)
             return FALSE;
 
-        fAccessOk = (MultiByteToWideChar(
-                        CP_ACP,
+        fAccessOk = (MultiByteToWideChar(CP_ACP,
                         MB_PRECOMPOSED,
                         pNLE->Community.stream,
                         pNLE->Community.length,

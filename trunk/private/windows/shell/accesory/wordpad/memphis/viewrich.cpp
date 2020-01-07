@@ -162,14 +162,7 @@ long CRichEdit2Ctrl::FindText(DWORD dwFlags, FINDTEXTEX* pFindText) const
 
         if (S_OK == hr)
         {
-            int error = MultiByteToWideChar(
-                                CP_ACP,
-                                MB_ERR_INVALID_CHARS,
-                                pFindText->lpstrText,
-                                -1,
-                                lpwszFind,
-                                cchFind);
-
+            int error = MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, pFindText->lpstrText, -1, lpwszFind, cchFind);
             if (0 != error)
                 lpwszFind = SysAllocString(lpwszFind);
             else

@@ -171,47 +171,27 @@ Return Value:
 
     SOCK_ASSERT( length < sizeof(ansiString) );
 
-
     // Map it to UNICODE.
-
-
-    result = MultiByteToWideChar(
-                 CP_ACP,
-                 0,
-                 ansiString,
-                 -1,
-                 lpszAddressString,
-                 (INT)*lpdwAddressStringLength
-                 );
-
+    result = MultiByteToWideChar(CP_ACP, 0, ansiString, -1, lpszAddressString, (INT)*lpdwAddressStringLength);
     if( result == 0 ) {
-
         err = WSAEFAULT;
         goto exit;
-
     }
 
-
     // Success!
-
-
     SOCK_ASSERT( err == NO_ERROR );
 
     *lpdwAddressStringLength = (DWORD)result;
     result = 0;
 
 exit:
-
     if( err != NO_ERROR ) {
-
         *lpErrno = err;
         result = SOCKET_ERROR;
-
     }
 
     SOCK_EXIT( "WSPAddressToString", result, (result == SOCKET_ERROR) ? lpErrno : NULL );
     return result;
-
 }   // WSPAddressToString
 
 

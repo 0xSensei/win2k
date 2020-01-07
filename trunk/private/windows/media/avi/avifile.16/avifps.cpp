@@ -438,12 +438,7 @@ ErrExit:
         _fmemcpy(m_sh.szName, psinfo->szUnicodeName, sizeof(m_sh.szName));
     } else {
         // need ansi->unicode thunk
-        MultiByteToWideChar(
-            CP_ACP, 0,
-        psinfo->szName,
-             -1,
-        m_sh.szName,
-        NUMELMS(m_sh.szName));
+        MultiByteToWideChar(CP_ACP, 0, psinfo->szName, -1, m_sh.szName, NUMELMS(m_sh.szName));
     }
 #else
         // we only use the ansi which is always sent
@@ -1226,12 +1221,7 @@ ErrExit:
             psinfo->szUnicodeType, sizeof(m_fi.szFileType));
     } else {
         // need ansi->unicode thunk
-        MultiByteToWideChar(
-            CP_ACP, 0,
-        psinfo->szFileType,
-             -1,
-        m_fi.szFileType,
-        NUMELMS(m_fi.szFileType));
+        MultiByteToWideChar(CP_ACP, 0, psinfo->szFileType, -1, m_fi.szFileType, NUMELMS(m_fi.szFileType));
     }
 #else
         // we only use the ansi which is always sent
