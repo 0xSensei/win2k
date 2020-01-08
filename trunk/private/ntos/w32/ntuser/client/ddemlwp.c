@@ -28,8 +28,8 @@ LRESULT DDEMLMotherWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         return(ProcessRegistrationMessage(hwnd, message, wParam, lParam));
     case WM_DDE_INITIATE:
         ProcessDDEMLInitiate((PCL_INSTANCE_INFO)GetWindowLongPtr(hwnd, GWLP_PCI),
-            (HWND)wParam, 
-                             (ATOM)LOWORD(lParam), 
+            (HWND)wParam,
+                             (ATOM)LOWORD(lParam),
                              (ATOM)HIWORD(lParam));
         return(0);
     }

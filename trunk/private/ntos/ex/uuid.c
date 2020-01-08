@@ -576,7 +576,7 @@ Return Value:
             // thread already took the lock and updated the cache. We'll just loop and try again.
             continue;
         }
-        
+
         if (Delta >= 0) {// If the cache hadn't already run dry, we can break out of this retry loop.
             break;
         }
@@ -586,13 +586,13 @@ Return Value:
         // Take the cache lock
         KeEnterCriticalRegion();
         ExAcquireFastMutexUnsafe(&ExpUuidLock);
-        
+
         if (Time != ExpUuidCachedValues.Time) {// If the cache has already been updated, try again.            
             ExReleaseFastMutexUnsafe(&ExpUuidLock);// Release the lock
             KeLeaveCriticalRegion();
             continue;
         }
-        
+
         Status = ExpUuidGetValues(&ExpUuidCachedValues);// Update the cache.
         if (Status != STATUS_SUCCESS) {// Release the lock            
             ExReleaseFastMutexUnsafe(&ExpUuidLock);
@@ -603,7 +603,7 @@ Return Value:
         // The sequence number may have been dirtied, see if it needs to be saved. 
         // If there's an error, we'll ignore it and retry on a future call.
         ExpUuidSaveSequenceNumberIf();
-        
+
         ExReleaseFastMutexUnsafe(&ExpUuidLock);// Release the lock
         KeLeaveCriticalRegion();
 

@@ -53,7 +53,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
     messages and structures.
 
-************************************************************************/
+ */
 
 #if !defined HTASK
 #define HTASK HANDLE
@@ -66,7 +66,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
     ICM function declarations
 
-************************************************************************/
+ */
 
     BOOL    VFWAPI ICInfo(DWORD fccType, DWORD fccHandler, ICINFO FAR* lpicinfo);
     BOOL    VFWAPI ICInstall(DWORD fccType, DWORD fccHandler, LPARAM lParam, LPSTR szDesc, UINT wFlags);
@@ -93,7 +93,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
     query macros
 
-************************************************************************/
+ */
 #define ICMF_CONFIGURE_QUERY     0x00000001
 #define ICMF_ABOUT_QUERY         0x00000001
 
@@ -113,7 +113,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
     get/set state macros
 
-************************************************************************/
+ */
 
 #define ICGetState(hic, pv, cb) \
     ICSendMessage(hic, ICM_GETSTATE, (DWORD)(LPVOID)(pv), (DWORD)(cb))
@@ -128,7 +128,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
     get value macros
 
-************************************************************************/
+ */
     static DWORD dwICValue;
 
 #define ICGetDefaultQuality(hic) \
@@ -141,7 +141,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
         draw window macro
 
-    ************************************************************************/
+     */
 #define ICDrawWindow(hic, prc) \
     ICSendMessage(hic, ICM_DRAW_WINDOW, (DWORD)(LPVOID)(prc), sizeof(RECT))
 
@@ -149,7 +149,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
         compression functions
 
-    ************************************************************************/
+     */
     /*
      *  ICCompress()
 
@@ -220,7 +220,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
         decompression functions
 
-    ************************************************************************/
+     */
 
     /*
      *  ICDecompress()
@@ -291,7 +291,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
         decompression (ex) functions
 
-    ************************************************************************/
+     */
 
     // end_vfw32
 
@@ -495,7 +495,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
     drawing functions
 
-************************************************************************/
+ */
 
 /*
  *  ICDrawBegin()
@@ -640,7 +640,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
     Status callback functions
 
-************************************************************************/
+ */
 
 /*
  *  ICSetStatusProc()
@@ -691,7 +691,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
 helper routines for DrawDib and MCIAVI...
 
-************************************************************************/
+ */
 
 #define ICDecompressOpen(fccType, fccHandler, lpbiIn, lpbiOut) \
     ICLocate(fccType, fccHandler, lpbiIn, lpbiOut, ICMODE_DECOMPRESS)
@@ -704,7 +704,7 @@ helper routines for DrawDib and MCIAVI...
 
     /*
     Higher level functions
-    ************************************************************************/
+     */
 
     HANDLE VFWAPI ICImageCompress(
         HIC                 hic,        // compressor to use

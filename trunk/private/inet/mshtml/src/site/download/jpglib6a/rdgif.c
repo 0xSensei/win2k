@@ -662,16 +662,13 @@ finish_input_gif(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 /*
  * The module selection routine for GIF format input.
 */
-
 GLOBAL(cjpeg_source_ptr)
 jinit_read_gif(j_compress_ptr cinfo)
 {
     gif_source_ptr source;
 
     /* Create module interface object */
-    source = (gif_source_ptr)
-        (*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_IMAGE,
-                                    SIZEOF(gif_source_struct));
+    source = (gif_source_ptr) (*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(gif_source_struct));
     source->cinfo = cinfo;    /* make back link for subroutines */
     /* Fill in method ptrs, except get_pixel_rows which start_input sets */
     source->pub.start_input = start_input_gif;

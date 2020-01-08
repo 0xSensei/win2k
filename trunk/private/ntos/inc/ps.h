@@ -577,13 +577,9 @@ typedef struct _IMAGE_INFO
 
 #define IMAGE_ADDRESSING_MODE_32BIT     3
 
-typedef
-VOID
-(*PLOAD_IMAGE_NOTIFY_ROUTINE)(
-    IN PUNICODE_STRING FullImageName,
-    IN HANDLE ProcessId,                // pid into which image is being mapped
-    IN PIMAGE_INFO ImageInfo
-    );
+typedef VOID(*PLOAD_IMAGE_NOTIFY_ROUTINE)(IN PUNICODE_STRING FullImageName,
+                                          IN HANDLE ProcessId,                // pid into which image is being mapped
+                                          IN PIMAGE_INFO ImageInfo);
 
 NTSTATUS PsSetLoadImageNotifyRoutine(IN PLOAD_IMAGE_NOTIFY_ROUTINE NotifyRoutine);
 // end_ntddk end_ntifs
@@ -710,7 +706,9 @@ VOID PsUnlockProcess(IN PEPROCESS Process);
 
 // Exception Handling
 
-BOOLEAN PsForwardException(IN PEXCEPTION_RECORD ExceptionRecord, IN BOOLEAN DebugException, IN BOOLEAN SecondChance);
+BOOLEAN PsForwardException(IN PEXCEPTION_RECORD ExceptionRecord,
+                           IN BOOLEAN DebugException,
+                           IN BOOLEAN SecondChance);
 
 typedef NTSTATUS(*PKWIN32_PROCESS_CALLOUT) (IN PEPROCESS Process, IN BOOLEAN Initialize);
 
@@ -770,14 +768,13 @@ typedef struct _WIN32_POWERSTATE_PARAMETERS
 typedef NTSTATUS(*PKWIN32_POWEREVENT_CALLOUT) (IN PKWIN32_POWEREVENT_PARAMETERS Parm);
 typedef NTSTATUS(*PKWIN32_POWERSTATE_CALLOUT) (IN PKWIN32_POWERSTATE_PARAMETERS Parm);
 
-NTKERNELAPI VOID PsEstablishWin32Callouts(
-    IN PKWIN32_PROCESS_CALLOUT ProcessCallout,
-    IN PKWIN32_THREAD_CALLOUT ThreadCallout,
-    IN PKWIN32_GLOBALATOMTABLE_CALLOUT GlobalAtomTableCallout,
-    IN PKWIN32_POWEREVENT_CALLOUT PowerEventCallout,
-    IN PKWIN32_POWERSTATE_CALLOUT PowerStateCallout,
-    IN PKWIN32_JOB_CALLOUT JobCallout,
-    IN PVOID BatchFlushRoutine);
+NTKERNELAPI VOID PsEstablishWin32Callouts(IN PKWIN32_PROCESS_CALLOUT ProcessCallout,
+                                          IN PKWIN32_THREAD_CALLOUT ThreadCallout,
+                                          IN PKWIN32_GLOBALATOMTABLE_CALLOUT GlobalAtomTableCallout,
+                                          IN PKWIN32_POWEREVENT_CALLOUT PowerEventCallout,
+                                          IN PKWIN32_POWERSTATE_CALLOUT PowerStateCallout,
+                                          IN PKWIN32_JOB_CALLOUT JobCallout,
+                                          IN PVOID BatchFlushRoutine);
 
 typedef enum _PSPROCESSPRIORITYMODE
 {

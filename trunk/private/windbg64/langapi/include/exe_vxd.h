@@ -22,11 +22,9 @@
 #endif
 
 
-/*_________________________________________________________________*
+/*
  |    OS/2 .EXE FILE HEADER DEFINITION - 386 version 0:32           |
- *                                                                 */
-
-
+*/
 #define BITPERWORD    16
 #define BITPERBYTE    8
 #define OBJPAGELEN    4096
@@ -103,7 +101,6 @@ struct e32_exe {            /* New 32-bit .EXE header */
     unsigned short    Dev386_DDK_Version;
     /* DDK version for VxD */
 };
-
 
 
 #define E32_MAGIC1(x)        (x).e32_magic[0]

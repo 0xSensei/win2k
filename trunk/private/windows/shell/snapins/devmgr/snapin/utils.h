@@ -1,24 +1,17 @@
 #ifndef __UTILS__H
 #define __UTILS__H
-/*++
 
+/*++
 Copyright (C) 1997-1999  Microsoft Corporation
 
 Module Name:
-
     utils.h
 
 Abstract:
-
     This module declares utilities classes
 
 Author:
-
     William Hsieh (williamh) created
-
-Revision History:
-
-
 */
 
 
@@ -40,7 +33,6 @@ public:
             return FALSE;
         lstrcpy(m_Message, Message);
         return TRUE;
-
     }
     BOOL SetCaption(LPCTSTR Caption)
     {
@@ -138,7 +130,6 @@ private:
 };
 
 
-
 // Text string class
 
 class String
@@ -197,12 +188,10 @@ public:
 
 protected:
     String(int Len);
-
 };
 
 
 // Command line parsing class
-
 class CCommandLine
 {
 public:
@@ -211,11 +200,7 @@ public:
 };
 
 
-
-
-
 // Safe registry class
-
 class CSafeRegistry
 {
 public:
@@ -278,8 +263,6 @@ inline void DestructElements(TYPE* pElements, int Count)
 }
 
 // TEMPLATEs
-
-
 
 
 // CList template, adapted from MFC
@@ -499,8 +482,7 @@ CList<TYPE, ARG_TYPE>::NewNode(CList::CNode* pPrev, CList::CNode* pNext)
 {
     if (m_pNodeFree == NULL) {
         // add another block
-        CBlock* pNewBlock = new CBlock(m_pBlocks, m_nBlockSize,
-                                       sizeof(CNode));
+        CBlock* pNewBlock = new CBlock(m_pBlocks, m_nBlockSize, sizeof(CNode));
         if (m_pBlocks == NULL) {
             m_pBlocks = pNewBlock;
         }
@@ -626,7 +608,6 @@ TYPE CList<TYPE, ARG_TYPE>::RemoveTail()
 template<class TYPE, class ARG_TYPE>
 POSITION CList<TYPE, ARG_TYPE>::InsertBefore(POSITION position, ARG_TYPE newElement)
 {
-
     if (position == NULL)
         return AddHead(newElement); // insert before nothing -> head of the list
 
@@ -648,7 +629,6 @@ POSITION CList<TYPE, ARG_TYPE>::InsertBefore(POSITION position, ARG_TYPE newElem
 template<class TYPE, class ARG_TYPE>
 POSITION CList<TYPE, ARG_TYPE>::InsertAfter(POSITION position, ARG_TYPE newElement)
 {
-
     if (position == NULL)
         return AddTail(newElement); // insert after nothing -> tail of the list
 
@@ -670,7 +650,6 @@ POSITION CList<TYPE, ARG_TYPE>::InsertAfter(POSITION position, ARG_TYPE newEleme
 template<class TYPE, class ARG_TYPE>
 void CList<TYPE, ARG_TYPE>::RemoveAt(POSITION position)
 {
-
     CNode* pOldNode = (CNode*)position;
 
     // remove pOldNode from list
@@ -702,7 +681,6 @@ POSITION CList<TYPE, ARG_TYPE>::FindIndex(int nIndex) const
     }
     return (POSITION)pNode;
 }
-
 
 
 // NOTE:
@@ -870,7 +848,6 @@ private:
     T* __p;
 
 };
-
 
 
 class CPropPageProvider;

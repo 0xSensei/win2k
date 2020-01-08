@@ -5657,7 +5657,6 @@ VOID PASCAL ShowProtoInfo(LPWSAPROTOCOL_INFOA pInfo, DWORD dwIndex, BOOL bAscii)
         ShowBytes((lstrlenA(pInfo->szProtocol) + 1) * sizeof(CHAR), pInfo->szProtocol, 2);
     } else {
         ShowStr("%sszProtocol=%ws", szProtoInfoN, pInfo->szProtocol);
-        ShowBytes((lstrlenW(((LPWSAPROTOCOL_INFOW)pInfo)->szProtocol) + 1) * sizeof(WCHAR),
-                  pInfo->szProtocol, 2);
+        ShowBytes((lstrlenW(((LPWSAPROTOCOL_INFOW)pInfo)->szProtocol) + 1) * sizeof(WCHAR), pInfo->szProtocol, 2);
     }
 }

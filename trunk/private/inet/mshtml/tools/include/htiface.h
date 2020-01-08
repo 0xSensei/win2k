@@ -1246,37 +1246,29 @@ extern "C" {
     {
         BEGIN_INTERFACE
 
-            HRESULT(STDMETHODCALLTYPE __RPC_FAR* QueryInterface)(
-                ITargetFramePriv __RPC_FAR* This,
-                /* [in] */ REFIID riid,
-                /* [iid_is][out] */ void __RPC_FAR* __RPC_FAR* ppvObject);
+            HRESULT(STDMETHODCALLTYPE __RPC_FAR* QueryInterface)(ITargetFramePriv __RPC_FAR* This,
+                                                                 /* [in] */ REFIID riid,
+                                                                 /* [iid_is][out] */ void __RPC_FAR* __RPC_FAR* ppvObject);
 
-        ULONG(STDMETHODCALLTYPE __RPC_FAR* AddRef)(
-            ITargetFramePriv __RPC_FAR* This);
+        ULONG(STDMETHODCALLTYPE __RPC_FAR* AddRef)(ITargetFramePriv __RPC_FAR* This);
+        ULONG(STDMETHODCALLTYPE __RPC_FAR* Release)(ITargetFramePriv __RPC_FAR* This);
 
-        ULONG(STDMETHODCALLTYPE __RPC_FAR* Release)(
-            ITargetFramePriv __RPC_FAR* This);
+        HRESULT(STDMETHODCALLTYPE __RPC_FAR* FindFrameDownwards)(ITargetFramePriv __RPC_FAR* This,
+                                                                 /* [in] */ LPCWSTR pszTargetName,
+                                                                 /* [in] */ DWORD dwFlags,
+                                                                 /* [out] */ IUnknown __RPC_FAR* __RPC_FAR* ppunkTargetFrame);
 
-        HRESULT(STDMETHODCALLTYPE __RPC_FAR* FindFrameDownwards)(
-            ITargetFramePriv __RPC_FAR* This,
-            /* [in] */ LPCWSTR pszTargetName,
-            /* [in] */ DWORD dwFlags,
-            /* [out] */ IUnknown __RPC_FAR* __RPC_FAR* ppunkTargetFrame);
+        HRESULT(STDMETHODCALLTYPE __RPC_FAR* FindFrameInContext)(ITargetFramePriv __RPC_FAR* This,
+                                                                 /* [in] */ LPCWSTR pszTargetName,
+                                                                 /* [in] */ IUnknown __RPC_FAR* punkContextFrame,
+                                                                 /* [in] */ DWORD dwFlags,
+                                                                 /* [out] */ IUnknown __RPC_FAR* __RPC_FAR* ppunkTargetFrame);
 
-        HRESULT(STDMETHODCALLTYPE __RPC_FAR* FindFrameInContext)(
-            ITargetFramePriv __RPC_FAR* This,
-            /* [in] */ LPCWSTR pszTargetName,
-            /* [in] */ IUnknown __RPC_FAR* punkContextFrame,
-            /* [in] */ DWORD dwFlags,
-            /* [out] */ IUnknown __RPC_FAR* __RPC_FAR* ppunkTargetFrame);
+        HRESULT(STDMETHODCALLTYPE __RPC_FAR* OnChildFrameActivate)(ITargetFramePriv __RPC_FAR* This,
+                                                                   /* [in] */ IUnknown __RPC_FAR* pUnkChildFrame);
 
-        HRESULT(STDMETHODCALLTYPE __RPC_FAR* OnChildFrameActivate)(
-            ITargetFramePriv __RPC_FAR* This,
-            /* [in] */ IUnknown __RPC_FAR* pUnkChildFrame);
-
-        HRESULT(STDMETHODCALLTYPE __RPC_FAR* OnChildFrameDeactivate)(
-            ITargetFramePriv __RPC_FAR* This,
-            /* [in] */ IUnknown __RPC_FAR* pUnkChildFrame);
+        HRESULT(STDMETHODCALLTYPE __RPC_FAR* OnChildFrameDeactivate)(ITargetFramePriv __RPC_FAR* This,
+                                                                     /* [in] */ IUnknown __RPC_FAR* pUnkChildFrame);
 
         END_INTERFACE
     } ITargetFramePrivVtbl;
@@ -1318,50 +1310,42 @@ extern "C" {
 
 #endif     /* C style interface */
 
-    HRESULT STDMETHODCALLTYPE ITargetFramePriv_FindFrameDownwards_Proxy(
-        ITargetFramePriv __RPC_FAR* This,
-        /* [in] */ LPCWSTR pszTargetName,
-        /* [in] */ DWORD dwFlags,
-        /* [out] */ IUnknown __RPC_FAR* __RPC_FAR* ppunkTargetFrame);
+    HRESULT STDMETHODCALLTYPE ITargetFramePriv_FindFrameDownwards_Proxy(ITargetFramePriv __RPC_FAR* This,
+                                                                        /* [in] */ LPCWSTR pszTargetName,
+                                                                        /* [in] */ DWORD dwFlags,
+                                                                        /* [out] */ IUnknown __RPC_FAR* __RPC_FAR* ppunkTargetFrame);
 
-    void __RPC_STUB ITargetFramePriv_FindFrameDownwards_Stub(
-        IRpcStubBuffer* This,
-        IRpcChannelBuffer* _pRpcChannelBuffer,
-        PRPC_MESSAGE _pRpcMessage,
-        DWORD* _pdwStubPhase);
+    void __RPC_STUB ITargetFramePriv_FindFrameDownwards_Stub(IRpcStubBuffer* This,
+                                                             IRpcChannelBuffer* _pRpcChannelBuffer,
+                                                             PRPC_MESSAGE _pRpcMessage,
+                                                             DWORD* _pdwStubPhase);
 
-    HRESULT STDMETHODCALLTYPE ITargetFramePriv_FindFrameInContext_Proxy(
-        ITargetFramePriv __RPC_FAR* This,
-        /* [in] */ LPCWSTR pszTargetName,
-        /* [in] */ IUnknown __RPC_FAR* punkContextFrame,
-        /* [in] */ DWORD dwFlags,
-        /* [out] */ IUnknown __RPC_FAR* __RPC_FAR* ppunkTargetFrame);
+    HRESULT STDMETHODCALLTYPE ITargetFramePriv_FindFrameInContext_Proxy(ITargetFramePriv __RPC_FAR* This,
+                                                                        /* [in] */ LPCWSTR pszTargetName,
+                                                                        /* [in] */ IUnknown __RPC_FAR* punkContextFrame,
+                                                                        /* [in] */ DWORD dwFlags,
+                                                                        /* [out] */ IUnknown __RPC_FAR* __RPC_FAR* ppunkTargetFrame);
 
-    void __RPC_STUB ITargetFramePriv_FindFrameInContext_Stub(
-        IRpcStubBuffer* This,
-        IRpcChannelBuffer* _pRpcChannelBuffer,
-        PRPC_MESSAGE _pRpcMessage,
-        DWORD* _pdwStubPhase);
+    void __RPC_STUB ITargetFramePriv_FindFrameInContext_Stub(IRpcStubBuffer* This,
+                                                             IRpcChannelBuffer* _pRpcChannelBuffer,
+                                                             PRPC_MESSAGE _pRpcMessage,
+                                                             DWORD* _pdwStubPhase);
 
-    HRESULT STDMETHODCALLTYPE ITargetFramePriv_OnChildFrameActivate_Proxy(
-        ITargetFramePriv __RPC_FAR* This,
-        /* [in] */ IUnknown __RPC_FAR* pUnkChildFrame);
+    HRESULT STDMETHODCALLTYPE ITargetFramePriv_OnChildFrameActivate_Proxy(ITargetFramePriv __RPC_FAR* This,
+                                                                          /* [in] */ IUnknown __RPC_FAR* pUnkChildFrame);
 
-    void __RPC_STUB ITargetFramePriv_OnChildFrameActivate_Stub(
-        IRpcStubBuffer* This,
-        IRpcChannelBuffer* _pRpcChannelBuffer,
-        PRPC_MESSAGE _pRpcMessage,
-        DWORD* _pdwStubPhase);
+    void __RPC_STUB ITargetFramePriv_OnChildFrameActivate_Stub(IRpcStubBuffer* This,
+                                                               IRpcChannelBuffer* _pRpcChannelBuffer,
+                                                               PRPC_MESSAGE _pRpcMessage,
+                                                               DWORD* _pdwStubPhase);
 
-    HRESULT STDMETHODCALLTYPE ITargetFramePriv_OnChildFrameDeactivate_Proxy(
-        ITargetFramePriv __RPC_FAR* This,
-        /* [in] */ IUnknown __RPC_FAR* pUnkChildFrame);
+    HRESULT STDMETHODCALLTYPE ITargetFramePriv_OnChildFrameDeactivate_Proxy(ITargetFramePriv __RPC_FAR* This,
+                                                                            /* [in] */ IUnknown __RPC_FAR* pUnkChildFrame);
 
-    void __RPC_STUB ITargetFramePriv_OnChildFrameDeactivate_Stub(
-        IRpcStubBuffer* This,
-        IRpcChannelBuffer* _pRpcChannelBuffer,
-        PRPC_MESSAGE _pRpcMessage,
-        DWORD* _pdwStubPhase);
+    void __RPC_STUB ITargetFramePriv_OnChildFrameDeactivate_Stub(IRpcStubBuffer* This,
+                                                                 IRpcChannelBuffer* _pRpcChannelBuffer,
+                                                                 PRPC_MESSAGE _pRpcMessage,
+                                                                 DWORD* _pdwStubPhase);
 
 #endif     /* __ITargetFramePriv_INTERFACE_DEFINED__ */
 

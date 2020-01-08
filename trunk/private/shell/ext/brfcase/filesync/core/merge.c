@@ -52,13 +52,6 @@ PRIVATE_CODE BOOL VerifyRECITEMAndDestRECNODE(PCRECNODE);
 
 /*
 ** CreateRecHandlerCache()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PRIVATE_CODE HRESULT CreateRecHandlerCache(void)
@@ -68,7 +61,6 @@ PRIVATE_CODE HRESULT CreateRecHandlerCache(void)
     ASSERT(RecHandlerCacheIsOk());
 
     /* Has the merge handler cache already been created? */
-
     if (MhcicRecHandlerCache)
         /* Yes. */
         hr = S_OK;
@@ -91,13 +83,6 @@ PRIVATE_CODE HRESULT CreateRecHandlerCache(void)
 
 /*
 ** DestroyRecHandlerCache()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PRIVATE_CODE void DestroyRecHandlerCache(void)
@@ -123,13 +108,6 @@ PRIVATE_CODE void DestroyRecHandlerCache(void)
 
 /*
 ** OLEMerge()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PRIVATE_CODE HRESULT OLEMerge(PRECNODE prnDest, RECSTATUSPROC rsp,
@@ -144,55 +122,42 @@ PRIVATE_CODE HRESULT OLEMerge(PRECNODE prnDest, RECSTATUSPROC rsp,
     /* lpCallbackData may be any value. */
 
     ASSERT(IS_VALID_STRUCT_PTR(prnDest, CRECNODE));
-    ASSERT(!rsp ||
-           IS_VALID_CODE_PTR(rsp, RECSTATUSPROC));
+    ASSERT(!rsp || IS_VALID_CODE_PTR(rsp, RECSTATUSPROC));
     ASSERT(FLAGS_ARE_VALID(dwInFlags, ALL_RI_FLAGS));
-    ASSERT(IS_FLAG_CLEAR(dwInFlags, RI_FL_ALLOW_UI) ||
-           IS_VALID_HANDLE(hwndOwner, WND));
-    ASSERT(IS_FLAG_CLEAR(dwInFlags, RI_FL_FEEDBACK_WINDOW_VALID) ||
-           IS_VALID_HANDLE(hwndProgressFeedback, WND));
+    ASSERT(IS_FLAG_CLEAR(dwInFlags, RI_FL_ALLOW_UI) || IS_VALID_HANDLE(hwndOwner, WND));
+    ASSERT(IS_FLAG_CLEAR(dwInFlags, RI_FL_FEEDBACK_WINDOW_VALID) || IS_VALID_HANDLE(hwndProgressFeedback, WND));
     ASSERT(IS_VALID_WRITE_PTR(pprnMergedResult, PRECNODE));
 
     ComposePath(rgchMergeDestPath, prnDest->pcszFolder, prnDest->priParent->pcszName);
     ASSERT(lstrlen(rgchMergeDestPath) < ARRAYSIZE(rgchMergeDestPath));
 
     hr = GetReconcilerClassID(rgchMergeDestPath, &clsidReconcilableObject);
-
     if (SUCCEEDED(hr)) {
         PIReconcilableObject piro;
 
-        hr = GetClassInterface(MhcicRecHandlerCache, &clsidReconcilableObject,
-                               &IID_IReconcilableObject, &piro);
-
+        hr = GetClassInterface(MhcicRecHandlerCache, &clsidReconcilableObject, &IID_IReconcilableObject, &piro);
         if (SUCCEEDED(hr)) {
             HSTGIFACE hstgi;
 
             hr = GetStorageInterface((PIUnknown)piro, &hstgi);
-
             if (SUCCEEDED(hr)) {
                 hr = LoadFromStorage(hstgi, rgchMergeDestPath);
-
                 if (SUCCEEDED(hr)) {
                     PIReconcileInitiator pirecinit;
 
                     hr = IReconcileInitiator_Constructor(
                         GetTwinBriefcase((HTWIN)(prnDest->hObjectTwin)), rsp,
                         lpCallbackData, &pirecinit);
-
                     if (SUCCEEDED(hr)) {
                         ULONG ulcMergeSources;
                         PIMoniker* ppimkMergeSources;
 
-                        hr = CreateMergeSourceMonikers(prnDest, &ulcMergeSources,
-                                                       &ppimkMergeSources);
-
+                        hr = CreateMergeSourceMonikers(prnDest, &ulcMergeSources, &ppimkMergeSources);
                         if (SUCCEEDED(hr)) {
                             DWORD dwOLEFlags;
                             LONG liMergedResult;
 
-                            dwOLEFlags = (RECONCILEF_NORESIDUESOK |
-                                          RECONCILEF_OMITSELFRESIDUE |
-                                          RECONCILEF_YOUMAYDOTHEUPDATES);
+                            dwOLEFlags = (RECONCILEF_NORESIDUESOK | RECONCILEF_OMITSELFRESIDUE | RECONCILEF_YOUMAYDOTHEUPDATES);
 
                             if (IS_FLAG_SET(dwInFlags, RI_FL_ALLOW_UI))
                                 SET_FLAG(dwOLEFlags, RECONCILEF_MAYBOTHERUSER);
@@ -227,7 +192,6 @@ PRIVATE_CODE HRESULT OLEMerge(PRECNODE prnDest, RECSTATUSPROC rsp,
                                         ASSERT(liMergedResult == -1);
 
                                         hr = SaveToStorage(hstgi);
-
                                         if (SUCCEEDED(hr)) {
                                             *pprnMergedResult = prnDest;
 
@@ -242,9 +206,7 @@ PRIVATE_CODE HRESULT OLEMerge(PRECNODE prnDest, RECSTATUSPROC rsp,
                                         TRACE_OUT((TEXT("OLEMerge(): Merged result identical to %s."),
                                                    rgchMergeDestPath));
                                     } else {
-                                        if (GetRecNodeByIndex(prnDest->priParent,
-                                                              liMergedResult,
-                                                              pprnMergedResult))
+                                        if (GetRecNodeByIndex(prnDest->priParent, liMergedResult, pprnMergedResult))
                                             TRACE_OUT((TEXT("OLEMerge(): Merged result identical to %s\\%s."),
                                             (*pprnMergedResult)->pcszFolder,
                                                        (*pprnMergedResult)->priParent->pcszName));
@@ -258,11 +220,9 @@ PRIVATE_CODE HRESULT OLEMerge(PRECNODE prnDest, RECSTATUSPROC rsp,
                                     }
                                 }
                             } else
-                                WARNING_OUT((TEXT("OLEMerge(): Merge to %s failed."),
-                                             rgchMergeDestPath));
+                                WARNING_OUT((TEXT("OLEMerge(): Merge to %s failed."), rgchMergeDestPath));
 
-                            ReleaseIUnknowns(ulcMergeSources,
-                                (PIUnknown*)ppimkMergeSources);
+                            ReleaseIUnknowns(ulcMergeSources, (PIUnknown*)ppimkMergeSources);
                         } else
                             WARNING_OUT((TEXT("OLEMerge(): Failed to create merge source monikers for merge destination %s."),
                                          rgchMergeDestPath));
@@ -287,8 +247,7 @@ PRIVATE_CODE HRESULT OLEMerge(PRECNODE prnDest, RECSTATUSPROC rsp,
                    rgchMergeDestPath));
 
     ASSERT(FAILED(hr) ||
-        (IS_VALID_STRUCT_PTR(*pprnMergedResult, CRECNODE) &&
-           (*pprnMergedResult)->priParent == prnDest->priParent));
+        (IS_VALID_STRUCT_PTR(*pprnMergedResult, CRECNODE) && (*pprnMergedResult)->priParent == prnDest->priParent));
 
     return(hr);
 }
@@ -296,15 +255,7 @@ PRIVATE_CODE HRESULT OLEMerge(PRECNODE prnDest, RECSTATUSPROC rsp,
 
 /*
 ** GetRecNodeByIndex()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
-
 ** The first RECNODE in the RECITEM's list of RECNODEs is index 1, the second
 ** RECNODE is index 2, etc.
 */
@@ -328,9 +279,7 @@ PRIVATE_CODE BOOL GetRecNodeByIndex(PCRECITEM pcri, LONG li, PRECNODE* pprn)
     } else
         bFound = FALSE;
 
-    ASSERT(!bFound ||
-        (IS_VALID_STRUCT_PTR(*pprn, CRECNODE) &&
-           (*pprn)->priParent == pcri));
+    ASSERT(!bFound || (IS_VALID_STRUCT_PTR(*pprn, CRECNODE) && (*pprn)->priParent == pcri));
 
     return(bFound);
 }
@@ -338,13 +287,6 @@ PRIVATE_CODE BOOL GetRecNodeByIndex(PCRECITEM pcri, LONG li, PRECNODE* pprn)
 
 /*
 ** CreateMergeSourceMonikers()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PRIVATE_CODE HRESULT CreateMergeSourceMonikers(PRECNODE prnDest,
@@ -362,8 +304,7 @@ PRIVATE_CODE HRESULT CreateMergeSourceMonikers(PRECNODE prnDest,
     ulcMergeSources = 0;
 
     for (pcrn = prnDest->priParent->prnFirst; pcrn; pcrn = pcrn->prnNext) {
-        if (pcrn->rnaction == RNA_MERGE_ME &&
-            pcrn != prnDest)
+        if (pcrn->rnaction == RNA_MERGE_ME && pcrn != prnDest)
             ulcMergeSources++;
     }
 
@@ -372,8 +313,7 @@ PRIVATE_CODE HRESULT CreateMergeSourceMonikers(PRECNODE prnDest,
         *pulcMergeSources = 0;
 
         for (pcrn = prnDest->priParent->prnFirst; pcrn; pcrn = pcrn->prnNext) {
-            if (pcrn->rnaction == RNA_MERGE_ME &&
-                pcrn != prnDest) {
+            if (pcrn->rnaction == RNA_MERGE_ME && pcrn != prnDest) {
                 hr = MyCreateFileMoniker(pcrn->pcszFolder,
                                          pcrn->priParent->pcszName,
                                          &((*pppimk)[*pulcMergeSources]));
@@ -397,13 +337,6 @@ PRIVATE_CODE HRESULT CreateMergeSourceMonikers(PRECNODE prnDest,
 
 /*
 ** CreateCopyDestinationMonikers()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PRIVATE_CODE HRESULT CreateCopyDestinationMonikers(PCRECITEM pcri,
@@ -458,41 +391,25 @@ PRIVATE_CODE HRESULT CreateCopyDestinationMonikers(PCRECITEM pcri,
 
 /*
 ** RecHandlerCacheIsOk()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PRIVATE_CODE BOOL RecHandlerCacheIsOk(void)
 {
     /* Are the module merge handler cache variables in a correct state? */
 
-    return(!MhcicRecHandlerCache ||
-           IS_VALID_HANDLE(MhcicRecHandlerCache, CLSIFACECACHE));
+    return(!MhcicRecHandlerCache || IS_VALID_HANDLE(MhcicRecHandlerCache, CLSIFACECACHE));
 }
 
 
 /*
 ** VerifyRECITEMAndDestRECNODE()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PRIVATE_CODE BOOL VerifyRECITEMAndDestRECNODE(PCRECNODE pcrnSrc)
 {
     /* Do the RECITEM and source RECNODE actions match? */
 
-    return(pcrnSrc->priParent->riaction == RIA_MERGE &&
-           pcrnSrc->rnaction == RNA_MERGE_ME);
+    return(pcrnSrc->priParent->riaction == RIA_MERGE && pcrnSrc->rnaction == RNA_MERGE_ME);
 }
 
 #endif
@@ -503,13 +420,6 @@ PRIVATE_CODE BOOL VerifyRECITEMAndDestRECNODE(PCRECNODE pcrnSrc)
 
 /*
 ** BeginMerge()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PUBLIC_CODE void BeginMerge(void)
@@ -527,13 +437,6 @@ PUBLIC_CODE void BeginMerge(void)
 
 /*
 ** EndMerge()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PUBLIC_CODE void EndMerge(void)
@@ -553,13 +456,6 @@ PUBLIC_CODE void EndMerge(void)
 
 /*
 ** MergeHandler()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PUBLIC_CODE HRESULT MergeHandler(PRECNODE prnDest, RECSTATUSPROC rsp,
@@ -572,15 +468,11 @@ PUBLIC_CODE HRESULT MergeHandler(PRECNODE prnDest, RECSTATUSPROC rsp,
     /* lpCallbackData may be any value. */
 
     ASSERT(IS_VALID_STRUCT_PTR(prnDest, CRECNODE));
-    ASSERT(!rsp ||
-           IS_VALID_CODE_PTR(rsp, RECSTATUSPROC));
+    ASSERT(!rsp || IS_VALID_CODE_PTR(rsp, RECSTATUSPROC));
     ASSERT(FLAGS_ARE_VALID(dwInFlags, ALL_RI_FLAGS));
-    ASSERT(IS_FLAG_CLEAR(dwInFlags, RI_FL_ALLOW_UI) ||
-           IS_VALID_HANDLE(hwndOwner, WND));
-    ASSERT(IS_FLAG_CLEAR(dwInFlags, RI_FL_FEEDBACK_WINDOW_VALID) ||
-           IS_VALID_HANDLE(hwndProgressFeedback, WND));
+    ASSERT(IS_FLAG_CLEAR(dwInFlags, RI_FL_ALLOW_UI) || IS_VALID_HANDLE(hwndOwner, WND));
+    ASSERT(IS_FLAG_CLEAR(dwInFlags, RI_FL_FEEDBACK_WINDOW_VALID) || IS_VALID_HANDLE(hwndProgressFeedback, WND));
     ASSERT(IS_VALID_WRITE_PTR(pprnMergedResult, PRECNODE));
-
     ASSERT(VerifyRECITEMAndDestRECNODE(prnDest));
 
     BeginMerge();
@@ -588,7 +480,6 @@ PUBLIC_CODE HRESULT MergeHandler(PRECNODE prnDest, RECSTATUSPROC rsp,
     /* Make sure the merge handler cache has been created. */
 
     hr = CreateRecHandlerCache();
-
     if (SUCCEEDED(hr)) {
         RECSTATUSUPDATE rsu;
 
@@ -597,11 +488,8 @@ PUBLIC_CODE HRESULT MergeHandler(PRECNODE prnDest, RECSTATUSPROC rsp,
         rsu.ulScale = 1;
         rsu.ulProgress = 0;
 
-        if (NotifyReconciliationStatus(rsp, RS_BEGIN_MERGE, (LPARAM)&rsu,
-                                       lpCallbackData)) {
-            hr = OLEMerge(prnDest, rsp, lpCallbackData, dwInFlags, hwndOwner,
-                          hwndProgressFeedback, pprnMergedResult);
-
+        if (NotifyReconciliationStatus(rsp, RS_BEGIN_MERGE, (LPARAM)&rsu, lpCallbackData)) {
+            hr = OLEMerge(prnDest, rsp, lpCallbackData, dwInFlags, hwndOwner, hwndProgressFeedback, pprnMergedResult);
             if (SUCCEEDED(hr)) {
                 /* 100% complete. */
 
@@ -610,8 +498,7 @@ PUBLIC_CODE HRESULT MergeHandler(PRECNODE prnDest, RECSTATUSPROC rsp,
 
                 /* Don't allow abort. */
 
-                NotifyReconciliationStatus(rsp, RS_END_MERGE, (LPARAM)&rsu,
-                                           lpCallbackData);
+                NotifyReconciliationStatus(rsp, RS_END_MERGE, (LPARAM)&rsu, lpCallbackData);
             }
         } else
             hr = E_ABORT;
@@ -629,17 +516,9 @@ PUBLIC_CODE HRESULT MergeHandler(PRECNODE prnDest, RECSTATUSPROC rsp,
 
 /*
 ** MyCreateFileMoniker()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
-PUBLIC_CODE HRESULT MyCreateFileMoniker(LPCTSTR pcszPath, LPCTSTR pcszSubPath,
-                                        PIMoniker* ppimk)
+PUBLIC_CODE HRESULT MyCreateFileMoniker(LPCTSTR pcszPath, LPCTSTR pcszSubPath, PIMoniker* ppimk)
 {
     HRESULT hr;
     TCHAR rgchPath[MAX_PATH_LEN];
@@ -679,13 +558,6 @@ PUBLIC_CODE HRESULT MyCreateFileMoniker(LPCTSTR pcszPath, LPCTSTR pcszSubPath,
 
 /*
 ** ReleaseIUnknowns()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PUBLIC_CODE void ReleaseIUnknowns(ULONG ulcIUnknowns, PIUnknown* ppiunk)
@@ -710,13 +582,6 @@ PUBLIC_CODE void ReleaseIUnknowns(ULONG ulcIUnknowns, PIUnknown* ppiunk)
 
 /*
 ** OLECopy()
-
-
-
-** Arguments:
-
-** Returns:
-
 ** Side Effects:  none
 */
 PUBLIC_CODE HRESULT OLECopy(PRECNODE prnSrc, PCCLSID pcclsidReconcilableObject,
@@ -730,13 +595,10 @@ PUBLIC_CODE HRESULT OLECopy(PRECNODE prnSrc, PCCLSID pcclsidReconcilableObject,
 
     ASSERT(IS_VALID_STRUCT_PTR(prnSrc, CRECNODE));
     ASSERT(IS_VALID_STRUCT_PTR(pcclsidReconcilableObject, CCLSID));
-    ASSERT(!rsp ||
-           IS_VALID_CODE_PTR(rsp, RECSTATUSPROC));
+    ASSERT(!rsp || IS_VALID_CODE_PTR(rsp, RECSTATUSPROC));
     ASSERT(FLAGS_ARE_VALID(dwFlags, ALL_RI_FLAGS));
-    ASSERT(IS_FLAG_CLEAR(dwFlags, RI_FL_ALLOW_UI) ||
-           IS_VALID_HANDLE(hwndOwner, WND));
-    ASSERT(IS_FLAG_CLEAR(dwFlags, RI_FL_FEEDBACK_WINDOW_VALID) ||
-           IS_VALID_HANDLE(hwndProgressFeedback, WND));
+    ASSERT(IS_FLAG_CLEAR(dwFlags, RI_FL_ALLOW_UI) || IS_VALID_HANDLE(hwndOwner, WND));
+    ASSERT(IS_FLAG_CLEAR(dwFlags, RI_FL_FEEDBACK_WINDOW_VALID) || IS_VALID_HANDLE(hwndProgressFeedback, WND));
 
     BeginMerge();
 
@@ -751,24 +613,19 @@ PUBLIC_CODE HRESULT OLECopy(PRECNODE prnSrc, PCCLSID pcclsidReconcilableObject,
         ComposePath(rgchCopySrcPath, prnSrc->pcszFolder, prnSrc->priParent->pcszName);
         ASSERT(lstrlen(rgchCopySrcPath) < ARRAYSIZE(rgchCopySrcPath));
 
-        hr = GetClassInterface(MhcicRecHandlerCache, pcclsidReconcilableObject,
-                               &IID_IReconcilableObject, &piro);
-
+        hr = GetClassInterface(MhcicRecHandlerCache, pcclsidReconcilableObject, &IID_IReconcilableObject, &piro);
         if (SUCCEEDED(hr)) {
             HSTGIFACE hstgi;
 
             hr = GetStorageInterface((PIUnknown)piro, &hstgi);
-
             if (SUCCEEDED(hr)) {
                 hr = LoadFromStorage(hstgi, rgchCopySrcPath);
-
                 if (SUCCEEDED(hr)) {
                     PIReconcileInitiator pirecinit;
 
                     hr = IReconcileInitiator_Constructor(
                         GetTwinBriefcase((HTWIN)(prnSrc->hObjectTwin)), rsp,
                         lpCallbackData, &pirecinit);
-
                     if (SUCCEEDED(hr)) {
                         ULONG ulcCopyDestinations;
                         PIMoniker* ppimkCopyDestinations;
@@ -776,13 +633,11 @@ PUBLIC_CODE HRESULT OLECopy(PRECNODE prnSrc, PCCLSID pcclsidReconcilableObject,
                         hr = CreateCopyDestinationMonikers(prnSrc->priParent,
                                                            &ulcCopyDestinations,
                                                            &ppimkCopyDestinations);
-
                         if (SUCCEEDED(hr)) {
                             DWORD dwOLEFlags;
                             LONG liMergedResult;
 
-                            dwOLEFlags = (RECONCILEF_YOUMAYDOTHEUPDATES |
-                                          RECONCILEF_ONLYYOUWERECHANGED);
+                            dwOLEFlags = (RECONCILEF_YOUMAYDOTHEUPDATES | RECONCILEF_ONLYYOUWERECHANGED);
 
                             if (IS_FLAG_SET(dwFlags, RI_FL_ALLOW_UI))
                                 SET_FLAG(dwOLEFlags, RECONCILEF_MAYBOTHERUSER);
@@ -796,7 +651,6 @@ PUBLIC_CODE HRESULT OLECopy(PRECNODE prnSrc, PCCLSID pcclsidReconcilableObject,
                                                          ulcCopyDestinations,
                                                          ppimkCopyDestinations,
                                                          &liMergedResult, NULL, NULL);
-
                             if (SUCCEEDED(hr)) {
                                 ASSERT(liMergedResult == -1);
 
@@ -809,8 +663,7 @@ PUBLIC_CODE HRESULT OLECopy(PRECNODE prnSrc, PCCLSID pcclsidReconcilableObject,
                                 WARNING_OUT((TEXT("OLECopy(): Copy from %s failed."),
                                              rgchCopySrcPath));
 
-                            ReleaseIUnknowns(ulcCopyDestinations,
-                                (PIUnknown*)ppimkCopyDestinations);
+                            ReleaseIUnknowns(ulcCopyDestinations, (PIUnknown*)ppimkCopyDestinations);
                         } else
                             WARNING_OUT((TEXT("OLECopy(): Failed to create copy destination monikers for copy source %s."),
                                          rgchCopySrcPath));

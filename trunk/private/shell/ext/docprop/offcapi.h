@@ -67,17 +67,17 @@
 //This is done so that one can install two client apps of diffrent language
 //on the same machine.
 typedef struct _officeinfo
-    {
+{
     HINSTANCE hinst; //instance of the office client app
 #if DEBUG_MEMORY
-         void * ((OFC_CALLBACK *PAlloc)(unsigned, LPCTSTR, unsigned));
-         void ((OFC_CALLBACK *FreeP)(void *, unsigned, LPCTSTR, unsigned));
+    void* ((OFC_CALLBACK* PAlloc)(unsigned, LPCTSTR, unsigned));
+    void((OFC_CALLBACK* FreeP)(void*, unsigned, LPCTSTR, unsigned));
 #else
-         void * ((OFC_CALLBACK *PAlloc)(unsigned)); // client memory allocator
-         void ((OFC_CALLBACK *FreeP)(void *, unsigned)); //free memory routine
+    void* ((OFC_CALLBACK* PAlloc)(unsigned)); // client memory allocator
+    void((OFC_CALLBACK* FreeP)(void*, unsigned)); //free memory routine
 #endif
-         LCID lcid; // Standard Language Code Id of language the app is using
-    }OFFICEINFO;
+    LCID lcid; // Standard Language Code Id of language the app is using
+}OFFICEINFO;
 
 //iseachinfo is used to call IntelliSearch using Office()
 //hwnd is the parent window for the IS dlg
@@ -88,63 +88,63 @@ typedef struct _officeinfo
 //cisdb is count of the isdb tables you want the IS to be done on (normally 1)
 //pstz[] is the array of ptrs to the path and name of the isdb tables.
 typedef struct _isearchinfo
+{
+    HWND hwnd;
+    union
+    {
+        BOOL((OFC_CALLBACK* pfnISCallback)(int, TCHAR*, int));
+        struct
         {
-        HWND hwnd;
-        union
-                {
-                BOOL ((OFC_CALLBACK *pfnISCallback)(int, TCHAR *, int));
-                struct
-                        {
-                        unsigned fMOM:1;
-                        unsigned fDetachNote:1;
-                        unsigned fAWTabOnTop:1;
-                        unsigned unused:29;
-                        } async;
-                } callData;
-        UINT cisdb;//count of the IS dbs
-        TCHAR *pstz[1];
-        }ISEARCHINFO;
+            unsigned fMOM : 1;
+            unsigned fDetachNote : 1;
+            unsigned fAWTabOnTop : 1;
+            unsigned unused : 29;
+        } async;
+    } callData;
+    UINT cisdb;//count of the IS dbs
+    TCHAR* pstz[1];
+}ISEARCHINFO;
 
 //use MSOAWVBAHELPINFO when calling Office(ioffcAWVBAHelp,)
 //This will display the vba help as usual. In case user asks for
 //AnswerWizard it would have setup winhelp to do that
 typedef struct _msoawvbahelpinfo
-        {
-        TCHAR *pszVBAHelpfilename; //name of the vba help file
-        UINT idVBAHelp; //id of the help to be displayed
-        ISEARCHINFO isearchinfo;
-        }MSOAWVBAHELPINFO;
+{
+    TCHAR* pszVBAHelpfilename; //name of the vba help file
+    UINT idVBAHelp; //id of the help to be displayed
+    ISEARCHINFO isearchinfo;
+}MSOAWVBAHELPINFO;
 //the following two are sent as wParam when fDetachNote is set to true
 #define wISDetaching    0xfffffffe      //when the dll is detached
 #define wISInited               0xffffffff      //when the init was successful
 
 //_ver is used to get the office.dll version no. using Office()
 typedef struct _ver
-        {
-        long rmjV;
-        long rmmV;
-        long rupV;
-        }VER;
+{
+    long rmjV;
+    long rmmV;
+    long rupV;
+}VER;
 
 typedef struct _isdebinfo
-        {
-        HWND hwnd;
-        }ISDEBINFO;
+{
+    HWND hwnd;
+}ISDEBINFO;
 
 //msomsninfo is used to communicate MSN connection related info.
 //Use it when calling ioffcDoMSNConnection.
 //Right now it just needs the hwnd of the apps main window.
 typedef struct _msomsninfo
-        {
-        HWND hwnd;
-        }MSOMSNINFO;
+{
+    HWND hwnd;
+}MSOMSNINFO;
 
 #ifdef __cplusplus
 extern TEXT("C") {
 #endif // __cplusplus
-LRESULT OFC_CALLTYPE Office(UINT ioffc, void *lpv);
-//It returns the message number that you will get for ISearch ghosting.
-UINT OFC_CALLTYPE MsoGetWmGhost();
+    LRESULT OFC_CALLTYPE Office(UINT ioffc, void* lpv);
+    //It returns the message number that you will get for ISearch ghosting.
+    UINT OFC_CALLTYPE MsoGetWmGhost();
 #ifdef __cplusplus
 }; // extern "C"
 #endif // __cplusplus
@@ -231,7 +231,7 @@ each memory block that office has allocated.
 #ifdef __cplusplus
 extern TEXT("C") {
 #endif // __cplusplus
-VOID OFC_CALLTYPE EnumOfficeAllocs(void (OFC_CALLBACK *)(void *, int));
+    VOID OFC_CALLTYPE EnumOfficeAllocs(void (OFC_CALLBACK*)(void*, int));
 #ifdef __cplusplus
 }; // extern "C"
 #endif // __cplusplus
@@ -268,44 +268,44 @@ VOID OFC_CALLTYPE EnumOfficeAllocs(void (OFC_CALLBACK *)(void *, int));
 // >0 : NFT return codes.
 
 typedef struct tagNFT
-        {
-        LPCTSTR          lpszName;
-        LPCTSTR          lpszType;
-        DWORD                   dwReturnCode;
-        DWORD                   dwPosition;
-        LPCTSTR          lpszApplication;
-        LPCTSTR          lpszCommand;
-        LPCTSTR          lpszTopic;
-        LPCTSTR          lpszDDEExec;
-        LPCTSTR          lpszPreview;
-        DWORD                   dwFlags;                        /* NFT_SHOWMETAFILE: Text or MF */
-        } NFT;
+{
+    LPCTSTR          lpszName;
+    LPCTSTR          lpszType;
+    DWORD                   dwReturnCode;
+    DWORD                   dwPosition;
+    LPCTSTR          lpszApplication;
+    LPCTSTR          lpszCommand;
+    LPCTSTR          lpszTopic;
+    LPCTSTR          lpszDDEExec;
+    LPCTSTR          lpszPreview;
+    DWORD                   dwFlags;                        /* NFT_SHOWMETAFILE: Text or MF */
+} NFT;
 
 #if 0
 // This structure is not Win64-compliant (bad alignment)
 // Fortunately, we don't use it.
 typedef struct tagNFN
-   {
-        DWORD                   lStructSize;                    // Size of the structure.
-        HWND                    hwndOwner;           // Parent window of the dialog.
-        HINSTANCE       hInstance;           // Modula handle of the calling process.
-        LPCTSTR          lpstrFilter;         // File filter, e.g. "*.dot\0*.wiz\0\0"
-        LPTSTR                   lpstrFile;           // File name buffer. Provided by caller.
-        DWORD                   nMaxFile;            // Size of lpstrFile.
-        LPTSTR                   lpstrFileTitle;      // File name without the path.
-        DWORD                   nMaxFileTitle;       // Size of lpstrFileTitle.
-        LPCTSTR          lpstrTitle;          // Dialog title.
-        LPTSTR                   lpstrCategory;       // Default category.
-        DWORD                   nMaxCategory;                   // Max size of category buffer.
-        DWORD                   Flags;               // Flags. See NFN_* above.
-        WORD                    nFileOffset;         // Index into lpstrFile for file name.
-        WORD                    nFileExtension;      // Index into lpstrFile for extension.
-        LPTSTR                   lpstrRegNFT;                    // Registry key of default items.
-        NFT                     *lpNFT;                                 // Explicit enties for non-file templates.
-        WORD                    cNFT;                                           // Count of non-file templates.
-        LPCTSTR          lpstrNoPreview;         // Msg to use if no thumbnail in template.
-        POINT                   ptCenter;                               // Position to display dialog.
-        }NEWFILENAME;
+{
+    DWORD                   lStructSize;                    // Size of the structure.
+    HWND                    hwndOwner;           // Parent window of the dialog.
+    HINSTANCE       hInstance;           // Modula handle of the calling process.
+    LPCTSTR          lpstrFilter;         // File filter, e.g. "*.dot\0*.wiz\0\0"
+    LPTSTR                   lpstrFile;           // File name buffer. Provided by caller.
+    DWORD                   nMaxFile;            // Size of lpstrFile.
+    LPTSTR                   lpstrFileTitle;      // File name without the path.
+    DWORD                   nMaxFileTitle;       // Size of lpstrFileTitle.
+    LPCTSTR          lpstrTitle;          // Dialog title.
+    LPTSTR                   lpstrCategory;       // Default category.
+    DWORD                   nMaxCategory;                   // Max size of category buffer.
+    DWORD                   Flags;               // Flags. See NFN_* above.
+    WORD                    nFileOffset;         // Index into lpstrFile for file name.
+    WORD                    nFileExtension;      // Index into lpstrFile for extension.
+    LPTSTR                   lpstrRegNFT;                    // Registry key of default items.
+    NFT* lpNFT;                                 // Explicit enties for non-file templates.
+    WORD                    cNFT;                                           // Count of non-file templates.
+    LPCTSTR          lpstrNoPreview;         // Msg to use if no thumbnail in template.
+    POINT                   ptCenter;                               // Position to display dialog.
+}NEWFILENAME;
 #else
 typedef struct tagNFN NEWFILENAME;              // opaque definition
 #endif
@@ -321,19 +321,19 @@ typedef struct tagNFN NEWFILENAME;              // opaque definition
 #ifdef __cplusplus
 extern TEXT("C") {
 #endif // __cplusplus
-TCHAR * OFC_CALLTYPE SharedTemplatesPath(TCHAR sz[], long cchMax);
-TCHAR * OFC_CALLTYPE LocalTemplatesPath(TCHAR sz[], long cchMax);
-LONG OFC_CALLTYPE SetLocalTemplatesPath(LPCTSTR pszPath);
-LONG OFC_CALLTYPE SetSharedTemplatesPath(LPCTSTR pszPath);
-BOOL OFC_CALLTYPE FIsPlaceHolder(LPCTSTR lpszFileName);
-long OFC_CALLTYPE GetNewFileName(NEWFILENAME *pNfn, NFT *pNFT);
-TCHAR * OFC_CALLTYPE GetTemplatesPath(TCHAR szPath[], long cchMax, int iId);
+    TCHAR* OFC_CALLTYPE SharedTemplatesPath(TCHAR sz[], long cchMax);
+    TCHAR* OFC_CALLTYPE LocalTemplatesPath(TCHAR sz[], long cchMax);
+    LONG OFC_CALLTYPE SetLocalTemplatesPath(LPCTSTR pszPath);
+    LONG OFC_CALLTYPE SetSharedTemplatesPath(LPCTSTR pszPath);
+    BOOL OFC_CALLTYPE FIsPlaceHolder(LPCTSTR lpszFileName);
+    long OFC_CALLTYPE GetNewFileName(NEWFILENAME * pNfn, NFT * pNFT);
+    TCHAR* OFC_CALLTYPE GetTemplatesPath(TCHAR szPath[], long cchMax, int iId);
 
-/* Window procedure used for sub-classinf the new dialog */
-long FAR PASCAL CoreNewWndProc(HWND hwnd,
-                                         UINT wMsgId,
-                                         WPARAM wParam,
-                                         LPARAM lParam);
+    /* Window procedure used for sub-classinf the new dialog */
+    long FAR PASCAL CoreNewWndProc(HWND hwnd,
+                                   UINT wMsgId,
+                                   WPARAM wParam,
+                                   LPARAM lParam);
 
 #ifdef __cplusplus
 }; // extern "C"
@@ -346,36 +346,36 @@ long FAR PASCAL CoreNewWndProc(HWND hwnd,
 
 typedef struct tagTHUMBNAIL THUMBNAIL;
 typedef struct tagPREVIEWPARAM {
-        HDC hdc;
-        THUMBNAIL *pNail;
-        DWORD dwExtX;
-        DWORD dwExtY;
-        RECT rcCrop;
-        POINT ptOffset;
-        BOOL fImprove;
-        BOOL fUsePalette;
+    HDC hdc;
+    THUMBNAIL* pNail;
+    DWORD dwExtX;
+    DWORD dwExtY;
+    RECT rcCrop;
+    POINT ptOffset;
+    BOOL fImprove;
+    BOOL fUsePalette;
     BOOL fDie;
-        BOOL fFitWithin;
-        void (PASCAL *lpprocCleanUp)(struct tagPREVIEWPARAM *);
-        LPVOID pData;
+    BOOL fFitWithin;
+    void (PASCAL* lpprocCleanUp)(struct tagPREVIEWPARAM*);
+    LPVOID pData;
 } PREVIEWPARAM;
 
 
 #ifdef __cplusplus
 extern TEXT("C") {
 #endif // __cplusplus
-THUMBNAIL * OFC_CALLTYPE LoadThumbnail(LPSTORAGE pIStorage);
-THUMBNAIL * OFC_CALLTYPE MakeThumbnail(WORD wType, LPVOID pPicture);
-LPSTORAGE OFC_CALLTYPE OpenDocFileA(LPCTSTR lpszDocFile);
-void      OFC_CALLTYPE DestroyThumbnail(THUMBNAIL *lpTN);
-DWORD     WINAPI PreviewThumbnail(LPVOID lParam);
-HBRUSH          OFC_CALLTYPE HbrCreateHalftoneBrush(HDC hdc, COLORREF Color);
-HPALETTE  OFC_CALLTYPE HPalCreateHalftone(HDC hdc,
-                                                                                                                                  const PALETTEENTRY *pShared,
-                                                                                                                                  const DWORD nEntries,
-                                                                                                                                  const BYTE dH,
-                                                                                                                                  const BYTE dS,
-                                                                                                                                  const BYTE dV);
+    THUMBNAIL* OFC_CALLTYPE LoadThumbnail(LPSTORAGE pIStorage);
+    THUMBNAIL* OFC_CALLTYPE MakeThumbnail(WORD wType, LPVOID pPicture);
+    LPSTORAGE OFC_CALLTYPE OpenDocFileA(LPCTSTR lpszDocFile);
+    void      OFC_CALLTYPE DestroyThumbnail(THUMBNAIL * lpTN);
+    DWORD     WINAPI PreviewThumbnail(LPVOID lParam);
+    HBRUSH          OFC_CALLTYPE HbrCreateHalftoneBrush(HDC hdc, COLORREF Color);
+    HPALETTE  OFC_CALLTYPE HPalCreateHalftone(HDC hdc,
+                                              const PALETTEENTRY * pShared,
+                                              const DWORD nEntries,
+                                              const BYTE dH,
+                                              const BYTE dS,
+                                              const BYTE dV);
 
 #ifdef __cplusplus
 }; // extern "C"
@@ -448,30 +448,30 @@ typedef enum _VARENUM_EX
 {
 
 #ifdef UNICODE
-    VT_LPTSTR  = VT_LPWSTR
+    VT_LPTSTR = VT_LPWSTR
 #else
-    VT_LPTSTR  = VT_LPSTR
+    VT_LPTSTR = VT_LPSTR
 #endif
 
 } VARENUM_EX;
 
-  // The types supported by the User-Defined properties
+// The types supported by the User-Defined properties
 
 typedef enum _UDTYPES
 {
-  wUDlpsz    = VT_LPTSTR,
-  wUDdate    = VT_FILETIME,
-  wUDdw      = VT_I4,
-  wUDfloat   = VT_R8,
-  wUDbool    = VT_BOOL,
-  wUDinvalid = VT_VARIANT        // VT_VARIANT is invalid because it
-                                 // must always be combined with VT_VECTOR
+    wUDlpsz = VT_LPTSTR,
+    wUDdate = VT_FILETIME,
+    wUDdw = VT_I4,
+    wUDfloat = VT_R8,
+    wUDbool = VT_BOOL,
+    wUDinvalid = VT_VARIANT        // VT_VARIANT is invalid because it
+                                   // must always be combined with VT_VECTOR
 } UDTYPES;
 
 #ifdef OLE_PROPS
 #include "SInfoI.h"
 
-  // Use the real Vtbl for OLE objects
+// Use the real Vtbl for OLE objects
 #define SIVTBLSTRUCT struct ISumInfo
 
   // For OLE objects, first param is pointer to interface class
@@ -482,11 +482,11 @@ extern TEXT("C") {
 #endif // __cplusplus
 
     // Must support IUnknown methods for OLE objects....
-  HRESULT OFC_CALLTYPE HrSumInfoQueryInterface (IUnknown FAR *,
-                                             REFIID riid,
-                                             LPVOID FAR* ppvObj);
-  ULONG OFC_CALLTYPE UlSumInfoAddRef (IUnknown FAR *);
-  ULONG OFC_CALLTYPE UlSumInfoRelease (IUnkown FAR *);
+    HRESULT OFC_CALLTYPE HrSumInfoQueryInterface(IUnknown FAR*,
+                                                 REFIID riid,
+                                                 LPVOID FAR * ppvObj);
+    ULONG OFC_CALLTYPE UlSumInfoAddRef(IUnknown FAR*);
+    ULONG OFC_CALLTYPE UlSumInfoRelease(IUnkown FAR*);
 
 #ifdef __cplusplus
 }; // extern "C"
@@ -494,7 +494,7 @@ extern TEXT("C") {
 
 #else  // !OLE_PROPS
 
-  // Create a placeholder Vtbl for non-OLE objects.
+// Create a placeholder Vtbl for non-OLE objects.
 #define SIVTBLSTRUCT struct _SIVTBLSTRUCT { void FAR *lpVtbl; } SIVTBLSTRUCT
 
   // For non-OLE objects, first param is pointer to real data.
@@ -504,13 +504,13 @@ extern TEXT("C") {
 
 typedef struct tagSINAIL
 {
-   DWORD cbData;     // size of *pdata
-   DWORD cftag;      // either 0,-1,-2,-3, or positive. This decides the size of pFMTID.
-   BYTE *pbFMTID;    // bytes representing the FMTID
-   BYTE *pbData;     // bytes representing the data
+    DWORD cbData;     // size of *pdata
+    DWORD cftag;      // either 0,-1,-2,-3, or positive. This decides the size of pFMTID.
+    BYTE* pbFMTID;    // bytes representing the FMTID
+    BYTE* pbData;     // bytes representing the data
 } SINAIL;
 
-typedef SINAIL FAR * LPSINAIL;
+typedef SINAIL FAR* LPSINAIL;
 
 // Note about tagSINAIL:
 
@@ -528,23 +528,23 @@ typedef SINAIL FAR * LPSINAIL;
   // always use the supplied API's.
 typedef struct _OFFICESUMINFO {
 
-  SIVTBLSTRUCT;                             // Vtbl goes here for OLE objs,
-                                            // Must be here for overlays to work!
-  BOOL                m_fObjChanged;        // Indicates the object has changed
-  ULONG               m_ulRefCount;         // Reference count
-  LPVOID              m_lpData;             // Pointer to the real data
-  HPROPSHEETPAGE      m_hPage;              // Handle of property page.
+    SIVTBLSTRUCT;                             // Vtbl goes here for OLE objs,
+                                              // Must be here for overlays to work!
+    BOOL                m_fObjChanged;        // Indicates the object has changed
+    ULONG               m_ulRefCount;         // Reference count
+    LPVOID              m_lpData;             // Pointer to the real data
+    HPROPSHEETPAGE      m_hPage;              // Handle of property page.
 
-} OFFICESUMINFO, FAR * LPOFFICESUMINFO;
+} OFFICESUMINFO, FAR* LPOFFICESUMINFO;
 
 #ifdef __cplusplus
 extern TEXT("C") {
 #endif // __cplusplus
 
 
-// Indices to pass to API routines to get the specifc data.
+    // Indices to pass to API routines to get the specifc data.
 
-  // Strings
+      // Strings
 #define SI_TITLE        0
 #define SI_SUBJECT      1
 #define SI_AUTHOR       2
@@ -587,34 +587,34 @@ extern TEXT("C") {
     //   TRUE -- the data has changed, and should be saved.
     //   FALSE -- the data has not changed.
 
-  BOOL OFC_CALLTYPE FSumInfoShouldSave (LPSIOBJ lpSIObj);
+    BOOL OFC_CALLTYPE FSumInfoShouldSave(LPSIOBJ lpSIObj);
 
 
-// Data manipulation
+    // Data manipulation
 
-    // Get the size of a given string property.
+        // Get the size of a given string property.
 
-    // Parameters:
+        // Parameters:
 
-    //   lpSIObj - pointer to Summary Info object.
-    //   iw - specifies which string to get the size of and should be
-    //        one of the following values:
-    //      SI_TITLE
-    //      SI_SUBJECT
-    //      SI_AUTHOR
-    //      SI_KEYWORDS
-    //      SI_COMMENTS
-    //      SI_TEMPLATE
-    //      SI_LASTAUTH
-    //      SI_REVISION
-    //      SI_APPNAME
+        //   lpSIObj - pointer to Summary Info object.
+        //   iw - specifies which string to get the size of and should be
+        //        one of the following values:
+        //      SI_TITLE
+        //      SI_SUBJECT
+        //      SI_AUTHOR
+        //      SI_KEYWORDS
+        //      SI_COMMENTS
+        //      SI_TEMPLATE
+        //      SI_LASTAUTH
+        //      SI_REVISION
+        //      SI_APPNAME
 
-    //   pdw - pointer to a dword, will contain cb on return
+        //   pdw - pointer to a dword, will contain cb on return
 
-    // Return value:
+        // Return value:
 
-    //   The function returns TRUE on success, FALSE on error.
-  BOOL OFC_CALLTYPE FCbSumInfoString (LPSIOBJ lpSIObj, WORD iw, DWORD *pdw);
+        //   The function returns TRUE on success, FALSE on error.
+    BOOL OFC_CALLTYPE FCbSumInfoString(LPSIOBJ lpSIObj, WORD iw, DWORD * pdw);
     // Get a given time property.
 
     // Parameters:
@@ -648,9 +648,9 @@ extern TEXT("C") {
     //       OFFICE provides a utility routine to convert a number of
     //       units of 100ns into minutes. Call Convert100nsToMin.
 
-  BOOL OFC_CALLTYPE FSumInfoGetTime (LPSIOBJ lpSIObj,
-                                           WORD iw,
-                                           LPFILETIME lpTime);
+    BOOL OFC_CALLTYPE FSumInfoGetTime(LPSIOBJ lpSIObj,
+                                      WORD iw,
+                                      LPFILETIME lpTime);
 
     // Set the time property to a given value
 
@@ -689,19 +689,19 @@ extern TEXT("C") {
     //       OFFICE provides a utility routine to convert a number of
     //       minutes into units of 100ns. Call ConvertMinTo100ns
 
-  BOOL OFC_CALLTYPE FSumInfoSetTime (LPSIOBJ lpSIObj, WORD iw, LPFILETIME lpTime);
-  // Convert a number in units of 100ns into number of minutes.
+    BOOL OFC_CALLTYPE FSumInfoSetTime(LPSIOBJ lpSIObj, WORD iw, LPFILETIME lpTime);
+    // Convert a number in units of 100ns into number of minutes.
 
-  // Parameters:
+    // Parameters:
 
-  //     lptime - on input: contains a number expressed in 100ns.
-  //              on output: contains the equivalent number of minutes.
+    //     lptime - on input: contains a number expressed in 100ns.
+    //              on output: contains the equivalent number of minutes.
 
-  // Return value:
+    // Return value:
 
-  //     None.
+    //     None.
 
-  VOID OFC_CALLTYPE Convert100nsToMin(LPFILETIME lpTime);
+    VOID OFC_CALLTYPE Convert100nsToMin(LPFILETIME lpTime);
 
     // Get an integer property
 
@@ -719,7 +719,7 @@ extern TEXT("C") {
     // Return value:
 
     //   The function returns TRUE on succes, FALSE on error.
-  BOOL OFC_CALLTYPE FDwSumInfoGetInt (LPSIOBJ lpSIObj, WORD iw, DWORD *pdw);
+    BOOL OFC_CALLTYPE FDwSumInfoGetInt(LPSIOBJ lpSIObj, WORD iw, DWORD * pdw);
 
     // Set an integer property to a given value
 
@@ -742,7 +742,7 @@ extern TEXT("C") {
 
     // Note: The function will dirty the object on success.
 
-  BOOL OFC_CALLTYPE FSumInfoSetInt (LPSIOBJ lpSIObj, WORD iw, DWORD dw);
+    BOOL OFC_CALLTYPE FSumInfoSetInt(LPSIOBJ lpSIObj, WORD iw, DWORD dw);
 
 #ifdef __cplusplus
 }; // extern "C"
@@ -804,14 +804,14 @@ extern TEXT("C") {
   // Our object
 typedef struct _DOCSUMINFO {
 
-  DSIVTBLSTRUCT;                            // Vtbl goes here for OLE objs,
-                                            // Must be here for overlays to work!
-  BOOL                m_fObjChanged;        // Indicates the object has changed
-  ULONG               m_ulRefCount;         // Reference count
-  LPVOID              m_lpData;             // Pointer to the real data
-  HPROPSHEETPAGE      m_hPage;              // Handle of property page.
+    DSIVTBLSTRUCT;                            // Vtbl goes here for OLE objs,
+                                              // Must be here for overlays to work!
+    BOOL                m_fObjChanged;        // Indicates the object has changed
+    ULONG               m_ulRefCount;         // Reference count
+    LPVOID              m_lpData;             // Pointer to the real data
+    HPROPSHEETPAGE      m_hPage;              // Handle of property page.
 
-} DOCSUMINFO, FAR * LPDOCSUMINFO;
+} DOCSUMINFO, FAR* LPDOCSUMINFO;
 
 
 #ifdef __cplusplus
@@ -819,10 +819,10 @@ extern TEXT("C") {
 #endif
 
 
-// Indices to pass to API routines to get the specifc data.
+    // Indices to pass to API routines to get the specifc data.
 
 
-  // Strings
+      // Strings
 #define DSI_CATEGORY    0
 #define DSI_FORMAT      1
 #define DSI_MANAGER     2
@@ -844,7 +844,7 @@ extern TEXT("C") {
 // Standard I/O routines
 
 
- BOOL FCbDocSumString (LPDSIOBJ lpDSIObj, WORD iw, DWORD *pdw);
+    BOOL FCbDocSumString(LPDSIOBJ lpDSIObj, WORD iw, DWORD * pdw);
 
 
     // Indicates if the Document Summary Infodata has changed.
@@ -858,93 +858,93 @@ extern TEXT("C") {
     //   TRUE -- the data has changed, and should be saved.
     //   FALSE -- the data has not changed.
 
-  BOOL OFC_CALLTYPE FDocSumShouldSave (LPDSIOBJ lpDSIObj);
+    BOOL OFC_CALLTYPE FDocSumShouldSave(LPDSIOBJ lpDSIObj);
 
 
-// Data manipulation routines
-
-
-
-  // How Heading and Document parts work:
-
-  // Heading:
-
-  // Heading is a list of non-indented headings that will be
-  // displayed in the "Contents" ply.
-
-  // Associated with each Heading is the number of document parts
-  // that goes with the particular heading -- this is the concept of a
-  // Heading Pair.
-
-  // Document Parts:
-
-  // Document Parts is a list of parts associated with a heading.
-
-  // Example (as it could be implemented in Microsoft Excel):
-
-  // Worksheets
-  //     Sheet1
-  //     Sheet2
-  // Modules
-  //     Module1                             Figure 1
-  // Charts
-  //     Chart1
-  //     Chart2
-  //     Chart3
-
-  // Thus the Heading Pairs would be:
-
-  // Heading Pair
-  //    string                           count
-
-  // Worksheets            2
-  // Modules               1                 Figure 2
-  // Charts                3
-
-
-  // And the Document Parts would be:
-
-  // Document Parts
-
-  // Sheet1
-  // Sheet2
-  // Module1
-  // Chart1                                  Figure 3
-  // Chart2
-  // Chart3
-
-
-  // Note: Headings and Document Parts are not restricted to be parts of
-  //       a document, but can be whatever the client wants.  Car models,
-  //       car makes, customers, etc...
-
-  //       The above is just an example.
+    // Data manipulation routines
 
 
 
+      // How Heading and Document parts work:
 
-    // Get an integer property
+      // Heading:
 
-    // Parameters:
+      // Heading is a list of non-indented headings that will be
+      // displayed in the "Contents" ply.
 
-    //   lpDSIObj - pointer to Document Summary Info object
-    //   iw - specifies which integer to get and should be
-    //        one of the following values:
-    //      DSI_BYTES
-    //      DSI_LINES
-    //      DSI_PARAS
-    //      DSI_SLIDES
-    //      DSI_NOTES
-    //      DSI_HIDDENSLIDES
-    //      DSI_MMCLIPS
+      // Associated with each Heading is the number of document parts
+      // that goes with the particular heading -- this is the concept of a
+      // Heading Pair.
 
-    //   pdw - pointer to dword, will contain integer
+      // Document Parts:
 
-    // Return value:
+      // Document Parts is a list of parts associated with a heading.
 
-    //   The function returns TRUE on success, FALSE on error
+      // Example (as it could be implemented in Microsoft Excel):
 
-  BOOL OFC_CALLTYPE FDwDocSumGetInt (LPDSIOBJ lpDSIObj, WORD iw, DWORD *pdw);
+      // Worksheets
+      //     Sheet1
+      //     Sheet2
+      // Modules
+      //     Module1                             Figure 1
+      // Charts
+      //     Chart1
+      //     Chart2
+      //     Chart3
+
+      // Thus the Heading Pairs would be:
+
+      // Heading Pair
+      //    string                           count
+
+      // Worksheets            2
+      // Modules               1                 Figure 2
+      // Charts                3
+
+
+      // And the Document Parts would be:
+
+      // Document Parts
+
+      // Sheet1
+      // Sheet2
+      // Module1
+      // Chart1                                  Figure 3
+      // Chart2
+      // Chart3
+
+
+      // Note: Headings and Document Parts are not restricted to be parts of
+      //       a document, but can be whatever the client wants.  Car models,
+      //       car makes, customers, etc...
+
+      //       The above is just an example.
+
+
+
+
+        // Get an integer property
+
+        // Parameters:
+
+        //   lpDSIObj - pointer to Document Summary Info object
+        //   iw - specifies which integer to get and should be
+        //        one of the following values:
+        //      DSI_BYTES
+        //      DSI_LINES
+        //      DSI_PARAS
+        //      DSI_SLIDES
+        //      DSI_NOTES
+        //      DSI_HIDDENSLIDES
+        //      DSI_MMCLIPS
+
+        //   pdw - pointer to dword, will contain integer
+
+        // Return value:
+
+        //   The function returns TRUE on success, FALSE on error
+
+    BOOL OFC_CALLTYPE FDwDocSumGetInt(LPDSIOBJ lpDSIObj, WORD iw, DWORD * pdw);
 
     // Determine if the actual values of the LINKED user defined properties has changed
          // This function should only be called right after loading the properties to
@@ -967,7 +967,7 @@ extern TEXT("C") {
      //     The function returns FALSE if the link value have not
      //     changed, or on error.
 
-  BOOL OFC_CALLTYPE FLinkValsChanged(LPDSIOBJ lpDSIObj);
+    BOOL OFC_CALLTYPE FLinkValsChanged(LPDSIOBJ lpDSIObj);
 
 #ifdef __cplusplus
 }; // extern "C"
@@ -1020,11 +1020,11 @@ extern TEXT("C") {
 #endif // __cplusplus
 
     // Must support IUnknown methods for OLE objects....
-  HRESULT OFC_CALLTYPE HrUserDefQueryInterface (IUnknown FAR *,
-                                             REFIID riid,
-                                             LPVOID FAR* ppvObj);
-  ULONG OFC_CALLTYPE UlUserDefAddRef (IUnknown FAR *);
-  ULONG OFC_CALLTYPE UlUserDefRelease (IUnkown FAR *);
+    HRESULT OFC_CALLTYPE HrUserDefQueryInterface(IUnknown FAR*,
+                                                 REFIID riid,
+                                                 LPVOID FAR * ppvObj);
+    ULONG OFC_CALLTYPE UlUserDefAddRef(IUnknown FAR*);
+    ULONG OFC_CALLTYPE UlUserDefRelease(IUnkown FAR*);
 
 #ifdef __cplusplus
 }; // extern "C"
@@ -1045,14 +1045,14 @@ extern TEXT("C") {
 
 typedef struct _USERPROP {
 
-  UDPVTBLSTRUCT;                            // Vtbl goes here for OLE objs,
-                                            // Must be here for overlays to work!
-  BOOL                m_fObjChanged;        // Indicates the object has changed
-  ULONG               m_ulRefCount;         // Reference count
-  LPVOID              m_lpData;             // Pointer to the real data
-  HPROPSHEETPAGE      m_hPage;              // Handle of property page.
+    UDPVTBLSTRUCT;                            // Vtbl goes here for OLE objs,
+                                              // Must be here for overlays to work!
+    BOOL                m_fObjChanged;        // Indicates the object has changed
+    ULONG               m_ulRefCount;         // Reference count
+    LPVOID              m_lpData;             // Pointer to the real data
+    HPROPSHEETPAGE      m_hPage;              // Handle of property page.
 
-} USERPROP, FAR * LPUSERPROP;
+} USERPROP, FAR* LPUSERPROP;
 
 
 
@@ -1063,42 +1063,42 @@ extern TEXT("C") {
 #endif
 
 
-// Standard I/O routines
+    // Standard I/O routines
 
-    // Indicates if the data has changed, meaning a write is needed.
-  BOOL OFC_CALLTYPE FUserDefShouldSave (LPUDOBJ lpUDObj);
-
-
-// Routines to query and modify data.
+        // Indicates if the data has changed, meaning a write is needed.
+    BOOL OFC_CALLTYPE FUserDefShouldSave(LPUDOBJ lpUDObj);
 
 
-  // How User-defined properties work:
-
-  // See the OLE Property Exchange spec for full details.
-
-  // Each User-defined type has a string "Name" and integer Property Id
-  // value associated with it.  The Property Id's are sequential, but
-  // are only good for the current object in memory (i.e. you can't count
-  // on the Property Id value remaining the same between loads of the
-  // data.  The string will remain the same, if it has not been changed
-  // or deleted.)
-  // Currently, the User-defined types can have 5 types for the value:
-  // String, Date, Integer, float and boolean.  When setting and getting the values, you
-  // must make sure that the type stored matches what you expect to
-  // retreive.  For Int's, the LPVOID should be the int itself, not
-  // a pointer.  In all other cases, the LPVOID should point to a buffer
-  // of appropriate size for the type.
+    // Routines to query and modify data.
 
 
-  // Masks used for querying property data.  Note that these are
-  // mutually exclusive.
+      // How User-defined properties work:
+
+      // See the OLE Property Exchange spec for full details.
+
+      // Each User-defined type has a string "Name" and integer Property Id
+      // value associated with it.  The Property Id's are sequential, but
+      // are only good for the current object in memory (i.e. you can't count
+      // on the Property Id value remaining the same between loads of the
+      // data.  The string will remain the same, if it has not been changed
+      // or deleted.)
+      // Currently, the User-defined types can have 5 types for the value:
+      // String, Date, Integer, float and boolean.  When setting and getting the values, you
+      // must make sure that the type stored matches what you expect to
+      // retreive.  For Int's, the LPVOID should be the int itself, not
+      // a pointer.  In all other cases, the LPVOID should point to a buffer
+      // of appropriate size for the type.
+
+
+      // Masks used for querying property data.  Note that these are
+      // mutually exclusive.
 #define UD_STATIC       0x00
 #define UD_LINK         0x01
 
 
     // Returns the type of the given Property Value from the string
     // Returns wUDInvalid on error
-  UDTYPES OFC_CALLTYPE UdtypesUserDefType (LPUDOBJ lpUDObj, LPTSTR lpsz);
+    UDTYPES OFC_CALLTYPE UdtypesUserDefType(LPUDOBJ lpUDObj, LPTSTR lpsz);
 
     // This will return the Property Value for the given Property string.
     // lpszProp is the property string
@@ -1111,22 +1111,22 @@ extern TEXT("C") {
     // Function returns NULL on error.
     // WARNING! Be very careful calling this.  Be sure that the
     // buffer and return value match the type for the Property Value!
-  LPVOID OFC_CALLTYPE LpvoidUserDefGetPropVal (LPUDOBJ lpUDObj,
-                                            LPTSTR lpszProp,
-                                            DWORD cbMax,
-                                            LPVOID lpv,
-                                            DWORD dwMask,
-                                            BOOL *pfLink,
-                                            BOOL *pfLinkInvalid);
+    LPVOID OFC_CALLTYPE LpvoidUserDefGetPropVal(LPUDOBJ lpUDObj,
+                                                LPTSTR lpszProp,
+                                                DWORD cbMax,
+                                                LPVOID lpv,
+                                                DWORD dwMask,
+                                                BOOL * pfLink,
+                                                BOOL * pfLinkInvalid);
 
     // This acts exactly as the above routine (LpvoidUserDefGetPropVal),
     // except that it returns the value in the forma of a PropVariant.
 
-  LPPROPVARIANT OFC_CALLTYPE LppropvarUserDefGetPropVal
-                                            (LPUDOBJ lpUDObj,
-                                             LPTSTR lpszProp,
-                                             BOOL *pfLink,
-                                             BOOL *pfLinkInvalid);
+    LPPROPVARIANT OFC_CALLTYPE LppropvarUserDefGetPropVal
+    (LPUDOBJ lpUDObj,
+     LPTSTR lpszProp,
+     BOOL * pfLink,
+     BOOL * pfLinkInvalid);
 
 
     // Set the value of a given property to a new value.
@@ -1149,90 +1149,90 @@ extern TEXT("C") {
          //       This will be interpreted as an invalid date and the date will
          //              be displayed as the empty string in the list box.
 
-  BOOL OFC_CALLTYPE FUserDefChangeVal (LPUDOBJ lpUDObj,
-                                               LPTSTR lpszProp,
-                                               UDTYPES udtype,
-                                               LPVOID lpv,
-                                                         BOOL fLinkInvalid);
+    BOOL OFC_CALLTYPE FUserDefChangeVal(LPUDOBJ lpUDObj,
+                                        LPTSTR lpszProp,
+                                        UDTYPES udtype,
+                                        LPVOID lpv,
+                                        BOOL fLinkInvalid);
 
 
 
-// Routines to create and remove data from the Property Set.
+    // Routines to create and remove data from the Property Set.
 
 
-    // This will add a new Property to the set, with the given
-    // Property string.  This function can also be used to modify
-    // an existing property.
+        // This will add a new Property to the set, with the given
+        // Property string.  This function can also be used to modify
+        // an existing property.
 
-    // lpUDObj      - pointer to the UD properties
-    // lpszPropName - name of property to be added/modified
-    // lpvVal       - value of the property
-    // udtype       - value type
-    // lpszLinkMonik - name of the link/moniker
-    // fLink        - true if the property is a link
-    // fHidden      - true if the property is hidden
+        // lpUDObj      - pointer to the UD properties
+        // lpszPropName - name of property to be added/modified
+        // lpvVal       - value of the property
+        // udtype       - value type
+        // lpszLinkMonik - name of the link/moniker
+        // fLink        - true if the property is a link
+        // fHidden      - true if the property is hidden
 
-    // NOTE: If udtype == wUDbool, lpv must point to a DWORD, but the
-    //       HIWORD must be 0.
+        // NOTE: If udtype == wUDbool, lpv must point to a DWORD, but the
+        //       HIWORD must be 0.
 
-    // WARNING: Be sure that the type matches what the lpv really is!
+        // WARNING: Be sure that the type matches what the lpv really is!
 
-    // The caller is responsible for freeing any memory
-    // associated with a property value after it is added to the
-    // User-defined Property object.
+        // The caller is responsible for freeing any memory
+        // associated with a property value after it is added to the
+        // User-defined Property object.
 
-         // NOTE: If udtype == wUDDate you can set the value to 0 (not NULL)
-         //       This will be interpreted as an invalid date and the date will
-         //              be displayed as the empty string in the list box.
+             // NOTE: If udtype == wUDDate you can set the value to 0 (not NULL)
+             //       This will be interpreted as an invalid date and the date will
+             //              be displayed as the empty string in the list box.
 
-    // The function returns a pointer to the PropVariant created for this
-    // new value, or NULL if there is an error.
+        // The function returns a pointer to the PropVariant created for this
+        // new value, or NULL if there is an error.
 
 
     LPPROPVARIANT OFC_CALLTYPE LppropvarUserDefAddProp
-                        (LPUDOBJ lpUDObj,
-                         LPTSTR lpszPropName,
-                         LPVOID lpvVal,
-                         UDTYPES udtype,
-                         LPTSTR lpszLinkMonik,
-                         BOOL fLink,
-                         BOOL fHidden);
+    (LPUDOBJ lpUDObj,
+     LPTSTR lpszPropName,
+     LPVOID lpvVal,
+     UDTYPES udtype,
+     LPTSTR lpszLinkMonik,
+     BOOL fLink,
+     BOOL fHidden);
 
     // This will delete a Property from the set given a Property string.
-  BOOL OFC_CALLTYPE FUserDefDeleteProp (LPUDOBJ lpUDObj, LPTSTR lpsz);
+    BOOL OFC_CALLTYPE FUserDefDeleteProp(LPUDOBJ lpUDObj, LPTSTR lpsz);
 
 
-// Routines to iterate through the User-defined properties
+    // Routines to iterate through the User-defined properties
 
-// Notes: Adding and deleting elements invalidates the iterator.
+    // Notes: Adding and deleting elements invalidates the iterator.
 
-    // An iterator for User-defined Properties
-  typedef struct _UDITER FAR * LPUDITER;
+        // An iterator for User-defined Properties
+    typedef struct _UDITER FAR* LPUDITER;
 
     // Create a User-defined Properties iterator
-  LPUDITER OFC_CALLTYPE LpudiUserDefCreateIterator (LPUDOBJ lpUDObj);
+    LPUDITER OFC_CALLTYPE LpudiUserDefCreateIterator(LPUDOBJ lpUDObj);
 
     // Destroy a User-defined Properties iterator
-  BOOL OFC_CALLTYPE FUserDefDestroyIterator (LPUDITER *lplpUDIter);
+    BOOL OFC_CALLTYPE FUserDefDestroyIterator(LPUDITER * lplpUDIter);
 
     // Determine if an iterator is still valid
-  BOOL OFC_CALLTYPE FUserDefIteratorValid (LPUDITER lpUDIter);
+    BOOL OFC_CALLTYPE FUserDefIteratorValid(LPUDITER lpUDIter);
 
     // Iterate to the next element
          // Returns TRUE if we could get to the next element, FALSE otherwise.
-  BOOL OFC_CALLTYPE FUserDefIteratorNext (LPUDITER lpUDIter);
+    BOOL OFC_CALLTYPE FUserDefIteratorNext(LPUDITER lpUDIter);
 
     // Returns true if the iterator is a link, false otherwise
-  DLLEXPORT BOOL OFC_CALLTYPE FUserDefIteratorIsLink (LPUDITER lpUDIter);
+    DLLEXPORT BOOL OFC_CALLTYPE FUserDefIteratorIsLink(LPUDITER lpUDIter);
 
     // Returns true if the iterator is an invalid link, returns false if the
     // iterator is not a link or if the iterator is a valid link
-  DLLEXPORT BOOL OFC_CALLTYPE FUserDefIteratorIsLinkInvalid (LPUDITER lpUDIter);
+    DLLEXPORT BOOL OFC_CALLTYPE FUserDefIteratorIsLinkInvalid(LPUDITER lpUDIter);
 
 
     // Returns the type of the given Property Value from the iterator
     // Returns wUDInvalid on error
-  UDTYPES OFC_CALLTYPE UdtypesUserDefIteratorType (LPUDITER lpUDIter);
+    UDTYPES OFC_CALLTYPE UdtypesUserDefIteratorType(LPUDITER lpUDIter);
 
     // This will return the Property Value for the given iterator
     // lpv is a buffer to hold the value, of size cbMax.
@@ -1245,20 +1245,20 @@ extern TEXT("C") {
     // WARNING! Be very careful calling this.  Be sure that the
     // buffer and return value match the type for the Property Value!
 
-  LPVOID OFC_CALLTYPE LpvoidUserDefGetIteratorVal (LPUDITER lpUDIter,
-                                                DWORD cbMax,
-                                                LPVOID lpv,
-                                                DWORD dwMask,
-                                                BOOL *pfLink,
-                                                BOOL *pfLinkInvalid);
+    LPVOID OFC_CALLTYPE LpvoidUserDefGetIteratorVal(LPUDITER lpUDIter,
+                                                    DWORD cbMax,
+                                                    LPVOID lpv,
+                                                    DWORD dwMask,
+                                                    BOOL * pfLink,
+                                                    BOOL * pfLinkInvalid);
 
     // This function is equivalent to the previous (LpvoidUserDefGetIteratorVal),
     // except that it returns the value in the form of a PropVariant.
 
-  LPPROPVARIANT OFC_CALLTYPE LppropvarUserDefGetIteratorVal
-                                              (LPUDITER lpUDIter,
-                                               BOOL *pfLink,
-                                               BOOL *pfLinkInvalid );
+    LPPROPVARIANT OFC_CALLTYPE LppropvarUserDefGetIteratorVal
+    (LPUDITER lpUDIter,
+     BOOL * pfLink,
+     BOOL * pfLinkInvalid);
 
 
     // Set the value of the iterator item to a new value.
@@ -1283,37 +1283,37 @@ extern TEXT("C") {
          //       This will be interpreted as an invalid date and the date will
          //              be displayed as the empty string in the list box.
 
-  BOOL OFC_CALLTYPE FUserDefIteratorChangeVal (LPUDOBJ lpUDObj,
-                                                   LPUDITER lpUDIter,
-                                                   UDTYPES udtype,
-                                                   LPVOID lpv,
-                                                        BOOL fLinkInvalid);
+    BOOL OFC_CALLTYPE FUserDefIteratorChangeVal(LPUDOBJ lpUDObj,
+                                                LPUDITER lpUDIter,
+                                                UDTYPES udtype,
+                                                LPVOID lpv,
+                                                BOOL fLinkInvalid);
 
     // This will return the Property String (name) for the property
-  LPTSTR OFC_CALLTYPE LpszUserDefIteratorName (LPUDITER lpUDIter,
-                                           DWORD cbMax,
-                                           LPTSTR lpsz);
+    LPTSTR OFC_CALLTYPE LpszUserDefIteratorName(LPUDITER lpUDIter,
+                                                DWORD cbMax,
+                                                LPTSTR lpsz);
 
     // Set the string for the given Property String (lpszOld) to the new
     // string (lpszNew).
-  BOOL OFC_CALLTYPE FUserDefIteratorSetPropString (LPUDOBJ lpUDObj,
-                                                       LPUDITER lpUDIter,
-                                                       LPTSTR lpszNew);
+    BOOL OFC_CALLTYPE FUserDefIteratorSetPropString(LPUDOBJ lpUDObj,
+                                                    LPUDITER lpUDIter,
+                                                    LPTSTR lpszNew);
 
 
-// Misc. utility routines
+    // Misc. utility routines
 
 
-  // Routines dealing with hidden Properties.
+      // Routines dealing with hidden Properties.
 
-    // Determine if a Property string is hidden.
-  BOOL OFC_CALLTYPE FUserDefIsHidden (LPUDOBJ lpUDObj, LPTSTR lpsz);
+        // Determine if a Property string is hidden.
+    BOOL OFC_CALLTYPE FUserDefIsHidden(LPUDOBJ lpUDObj, LPTSTR lpsz);
 
     // Make a property visible based on the Property string
-  BOOL OFC_CALLTYPE FUserDefMakeVisible (LPUDOBJ lpUDObj, LPTSTR lpsz);
+    BOOL OFC_CALLTYPE FUserDefMakeVisible(LPUDOBJ lpUDObj, LPTSTR lpsz);
 
     // Hide a Property based on the Property string.
-  BOOL OFC_CALLTYPE FUserDefMakeHidden (LPUDOBJ lpUDObj, LPTSTR lpsz);
+    BOOL OFC_CALLTYPE FUserDefMakeHidden(LPUDOBJ lpUDObj, LPTSTR lpsz);
 
 #ifdef __cplusplus
 }; // extern "C"
@@ -1324,22 +1324,22 @@ extern TEXT("C") {
 extern TEXT("C") {
 #endif
 
-  // Commands for DWQUERYLD
+    // Commands for DWQUERYLD
 #define QLD_CLINKS      1  /* Return the number of links */
 #define QLD_LINKNAME    2  /* Return a pointer to the string for index */
 #define QLD_LINKTYPE    3  /* Returns the type of the value of the index */
 #define QLD_LINKVAL     4  /* Return value for the index, use same
                               rules as for LPVOIDs in UserDef functions */
 
-  // This functions should respond to the above commands by returning the
-  // appropriate value.  For commands that require an index, the
-  // lpszName parameter will be the Name of the link item previously
-  // retrieved from the index, if it is not NULL.
-  // lplpvBuf is the buffer supplied by "us" (the dll) to copy the
-  // value to.  Use the function LpvOfficeCopyValToBuffer() to
-  // copy the data.  This parameter will be NULL for QLD_CLINKS and
-  // QLD_VALTYPE
-typedef DWORD (OFC_CALLBACK *DWQUERYLD)(DWORD dwCommand, DWORD dwi, LPVOID *lplpvBuf, LPTSTR lpszName);
+                              // This functions should respond to the above commands by returning the
+                              // appropriate value.  For commands that require an index, the
+                              // lpszName parameter will be the Name of the link item previously
+                              // retrieved from the index, if it is not NULL.
+                              // lplpvBuf is the buffer supplied by "us" (the dll) to copy the
+                              // value to.  Use the function LpvOfficeCopyValToBuffer() to
+                              // copy the data.  This parameter will be NULL for QLD_CLINKS and
+                              // QLD_VALTYPE
+    typedef DWORD(OFC_CALLBACK* DWQUERYLD)(DWORD dwCommand, DWORD dwi, LPVOID* lplpvBuf, LPTSTR lpszName);
 
 
 
@@ -1347,7 +1347,7 @@ typedef DWORD (OFC_CALLBACK *DWQUERYLD)(DWORD dwCommand, DWORD dwi, LPVOID *lplp
 
 
 
-  // Masks for different options
+    // Masks for different options
 #define OSPD_ALLOWLINKS         0x1    // The Custom dialog will allow fields to be linked if this is set.
 #define OSPD_NOSAVEPREVIEW      0x2    // Don't show the Save Preview Picture checkbox
 #define OSPD_SAVEPREVIEW_ON     0x4    // Save Preview Picture should be on by default
@@ -1396,15 +1396,15 @@ typedef DWORD (OFC_CALLBACK *DWQUERYLD)(DWORD dwCommand, DWORD dwi, LPVOID *lplp
 
     // Note: If lpfnDwQueryLinkData is NULL, the caller must invalidate any linked properties.
 
-  BOOL OFC_CALLTYPE FOfficeShowPropDlg (HWND hWndParent,
-                                     LPTSTR lpszFileName,
-                                     LPSIOBJ lpSIObj,
-                                     LPDSIOBJ lpDSIObj,
-                                     LPUDOBJ FAR *lplpUDObj,
-                                              DWORD dwMask,
-                                     DWQUERYLD lpfnDwQueryLinkData,
-                                     LPPOINT pptCtr,
-                                     LPTSTR lpszCaption);
+    BOOL OFC_CALLTYPE FOfficeShowPropDlg(HWND hWndParent,
+                                         LPTSTR lpszFileName,
+                                         LPSIOBJ lpSIObj,
+                                         LPDSIOBJ lpDSIObj,
+                                         LPUDOBJ FAR * lplpUDObj,
+                                         DWORD dwMask,
+                                         DWQUERYLD lpfnDwQueryLinkData,
+                                         LPPOINT pptCtr,
+                                         LPTSTR lpszCaption);
 
     // Creates and initializes all non-NULL objects.
     // Create the object and return it.  Caller responsible for destruction.
@@ -1474,32 +1474,32 @@ typedef DWORD (OFC_CALLBACK *DWQUERYLD)(DWORD dwCommand, DWORD dwi, LPVOID *lplp
 
 
 
-  BOOL OFC_CALLTYPE FOfficeCreateAndInitObjects (LPSIOBJ *lplpSIObj,
-                                                 LPDSIOBJ *lplpDSIObj,
-                                                 LPUDOBJ *lplpUDObj);
+    BOOL OFC_CALLTYPE FOfficeCreateAndInitObjects(LPSIOBJ * lplpSIObj,
+                                                  LPDSIOBJ * lplpDSIObj,
+                                                  LPUDOBJ * lplpUDObj);
 
     // Clear any non-null objects
-  BOOL OFC_CALLTYPE FOfficeClearObjects (LPSIOBJ lpSIObj,
-                                             LPDSIOBJ lpDSIObj,
-                                             LPUDOBJ lpUDObj);
+    BOOL OFC_CALLTYPE FOfficeClearObjects(LPSIOBJ lpSIObj,
+                                          LPDSIOBJ lpDSIObj,
+                                          LPUDOBJ lpUDObj);
 
     // Destroy any non-null objects
-  BOOL OFC_CALLTYPE FOfficeDestroyObjects (LPSIOBJ *lplpSIObj,
-                                               LPDSIOBJ *lplpDSIObj,
-                                               LPUDOBJ *lplpUDObj);
+    BOOL OFC_CALLTYPE FOfficeDestroyObjects(LPSIOBJ * lplpSIObj,
+                                            LPDSIOBJ * lplpDSIObj,
+                                            LPUDOBJ * lplpUDObj);
 
 
-  // Use these functions to set the dirty flag of the given object.
-  // Note: It's the caller's responsibility to make sure that the
-  //       object is non-NULL
+    // Use these functions to set the dirty flag of the given object.
+    // Note: It's the caller's responsibility to make sure that the
+    //       object is non-NULL
 #ifndef _WIN2000_DOCPROP_
-  VOID OFC_CALLTYPE OfficeDirtySIObj(LPSIOBJ lpSIObj, BOOL fDirty);
-  VOID OFC_CALLTYPE OfficeDirtyDSIObj(LPDSIOBJ lpDSIObj, BOOL fDirty);
+    VOID OFC_CALLTYPE OfficeDirtySIObj(LPSIOBJ lpSIObj, BOOL fDirty);
+    VOID OFC_CALLTYPE OfficeDirtyDSIObj(LPDSIOBJ lpDSIObj, BOOL fDirty);
 #endif //_WIN2000_DOCPROP_
-  VOID OFC_CALLTYPE OfficeDirtyUDObj(LPUDOBJ lpUDObj, BOOL fDirty);
+    VOID OFC_CALLTYPE OfficeDirtyUDObj(LPUDOBJ lpUDObj, BOOL fDirty);
 
 
-// Flags for Load & Save
+    // Flags for Load & Save
 #define OIO_ANSI                0x0001 // The storage is an ANSI storage (UNICODE is the default)
 #define OIO_SAVEIFCHANGEONLY    0x0002 // Only streams that are dirty should be saved.
 #define OIO_SAVESIMPLEDOCFILE   0x0004 // The storage is a simple DOC file.
@@ -1521,15 +1521,15 @@ typedef DWORD (OFC_CALLBACK *DWQUERYLD)(DWORD dwCommand, DWORD dwi, LPVOID *lplp
     // NOTE: If the caller asks to load both streams, MSO_IO_NOSTM will not be returned, as
     //       long as one of the streams exists.
 
-  DWORD OFC_CALLTYPE DwOfficeLoadProperties (LPSTORAGE lpStg,
-                                                 LPSIOBJ lpSIObj,
-                                                 LPDSIOBJ lpDSIObj,
-                                                 LPUDOBJ lpUDObj,
-                                                 DWORD dwFlags,
-                                                 DWORD grfMode);
+    DWORD OFC_CALLTYPE DwOfficeLoadProperties(LPSTORAGE lpStg,
+                                              LPSIOBJ lpSIObj,
+                                              LPDSIOBJ lpDSIObj,
+                                              LPUDOBJ lpUDObj,
+                                              DWORD dwFlags,
+                                              DWORD grfMode);
 
 #ifndef _WIN2000_DOCPROP_
-  DWORD OFC_CALLTYPE DwOfficeLoadIntProperties (LPSTORAGE lpStg,
+    DWORD OFC_CALLTYPE DwOfficeLoadIntProperties(LPSTORAGE lpStg,
                                                  LPSIOBJ lpSIObj,
                                                  LPDSIOBJ lpDSIObj,
                                                  LPUDOBJ lpUDObj,
@@ -1548,34 +1548,34 @@ typedef DWORD (OFC_CALLBACK *DWQUERYLD)(DWORD dwCommand, DWORD dwi, LPVOID *lplp
 
     //          OIO_SAVESIMPLEDOCFILE specifies that the storage is a simple DOC file.
 
-  DWORD OFC_CALLTYPE DwOfficeSaveProperties (LPSTORAGE lpStg,
-                                                 LPSIOBJ lpSIObj,
-                                                 LPDSIOBJ lpDSIObj,
-                                                 LPUDOBJ lpUDObj,
-                                                 DWORD dwFlags,
-                                                 DWORD grfStgMode);
+    DWORD OFC_CALLTYPE DwOfficeSaveProperties(LPSTORAGE lpStg,
+                                              LPSIOBJ lpSIObj,
+                                              LPDSIOBJ lpDSIObj,
+                                              LPUDOBJ lpUDObj,
+                                              DWORD dwFlags,
+                                              DWORD grfStgMode);
 
 
 
-// VB support routines - see spec for details.
+    // VB support routines - see spec for details.
 
 
-    // Creates a Builtin property collection and returns it.
-    // pParent is the parent IDispatch object.
-    // The new IDispatch object is returned via pvarg.
-  BOOL OFC_CALLTYPE FGetBuiltinPropCollection (LCID lcid,
-                                                   LPSIOBJ lpSIObj,
-                                                   LPDSIOBJ lpDSIObj,
-                                                   IDispatch *pParent,
-                                                   VARIANT *pvarg);
+        // Creates a Builtin property collection and returns it.
+        // pParent is the parent IDispatch object.
+        // The new IDispatch object is returned via pvarg.
+    BOOL OFC_CALLTYPE FGetBuiltinPropCollection(LCID lcid,
+                                                LPSIOBJ lpSIObj,
+                                                LPDSIOBJ lpDSIObj,
+                                                IDispatch * pParent,
+                                                VARIANT * pvarg);
 
     // Creates a Custom property collection and returns it.
     // pParent is the parent IDispatch object.
     // The new IDispatch object is returned via pvarg.
-  BOOL OFC_CALLTYPE FGetCustomPropCollection (LCID lcid,
-                                                  LPUDOBJ lpUDObj,
-                                                  IDispatch *pParent,
-                                                  VARIANT *pvarg);
+    BOOL OFC_CALLTYPE FGetCustomPropCollection(LCID lcid,
+                                               LPUDOBJ lpUDObj,
+                                               IDispatch * pParent,
+                                               VARIANT * pvarg);
 
 #ifdef __cplusplus
 }; // extern "C"
@@ -1726,7 +1726,7 @@ typedef DWORD (OFC_CALLBACK *DWQUERYLD)(DWORD dwCommand, DWORD dwi, LPVOID *lplp
 */
 
 /* Data structure where PRT stores its info */
-typedef struct tagPRT * LPPRT;
+typedef struct tagPRT* LPPRT;
 
 #define PRT_FRAME_LEFT          0x01
 #define PRT_FRAME_RIGHT         0x02
@@ -1740,16 +1740,16 @@ typedef struct tagPRT * LPPRT;
 extern TEXT("C") {
 #endif
     LPPRT OFC_CALLTYPE StartPRT(HWND hwnd, HDC hdc,
-                                        const DWORD nMost,
-                                                                                LPCTSTR lpszTitle,
-                                                                                const WORD nFrame);
-        BOOL  OFC_CALLTYPE UpdatePRT(LPPRT lpprt, const DWORD nDone);
-        BOOL  OFC_CALLTYPE RedrawPRT(LPPRT lpprt);
+                                const DWORD nMost,
+                                LPCTSTR lpszTitle,
+                                const WORD nFrame);
+    BOOL  OFC_CALLTYPE UpdatePRT(LPPRT lpprt, const DWORD nDone);
+    BOOL  OFC_CALLTYPE RedrawPRT(LPPRT lpprt);
     BOOL  OFC_CALLTYPE AdjustPRT(LPPRT lprrt, HDC hdc,
-                                         const DWORD nMost,
-                                                                                 LPCTSTR lpszTitle,
-                                                                                 const WORD nFrame);
-        BOOL  OFC_CALLTYPE EndPRT(LPPRT lpprt);
+                                 const DWORD nMost,
+                                 LPCTSTR lpszTitle,
+                                 const WORD nFrame);
+    BOOL  OFC_CALLTYPE EndPRT(LPPRT lpprt);
 #ifdef __cplusplus
 }; //Extern "C"
 #endif
@@ -1811,11 +1811,11 @@ extern TEXT("C") {
 #ifdef __cplusplus
 extern TEXT("C") {
 #endif
-BOOL OFC_CALLTYPE SetTitleBar(HWND hwnd, BOOL fStylized);
-BOOL OFC_CALLTYPE SetTitleBarMDI(HWND hwnd,
-                                                                                                          HWND hwndMDIClient,
-                                                                                                          BOOL fStylized);
-VOID OFC_CALLTYPE MsoSetNCAWParam(WPARAM wParam);
+    BOOL OFC_CALLTYPE SetTitleBar(HWND hwnd, BOOL fStylized);
+    BOOL OFC_CALLTYPE SetTitleBarMDI(HWND hwnd,
+                                     HWND hwndMDIClient,
+                                     BOOL fStylized);
+    VOID OFC_CALLTYPE MsoSetNCAWParam(WPARAM wParam);
 #ifdef __cplusplus
 }; // Extern "C"
 #endif
@@ -1826,41 +1826,41 @@ VOID OFC_CALLTYPE MsoSetNCAWParam(WPARAM wParam);
 #ifdef __cplusplus
 extern TEXT("C") {
 #endif // __cplusplus
-typedef VOID (OFC_CALLBACK *VRECORDVAR)(BOOL fInitCap, BOOL fCapDays, BOOL fReplaceText);
-typedef VOID (OFC_CALLBACK *VRECORDREPL)(int, TCHAR rgSrc[], TCHAR rgDst[]);
-typedef VOID (OFC_CALLBACK *VACADJUST)(int isz, int disz);
+    typedef VOID(OFC_CALLBACK* VRECORDVAR)(BOOL fInitCap, BOOL fCapDays, BOOL fReplaceText);
+    typedef VOID(OFC_CALLBACK* VRECORDREPL)(int, TCHAR rgSrc[], TCHAR rgDst[]);
+    typedef VOID(OFC_CALLBACK* VACADJUST)(int isz, int disz);
 
-// Values passed in pfnRecordRepl (callback of OFCInitAutoCorrect) when ACXcept
+    // Values passed in pfnRecordRepl (callback of OFCInitAutoCorrect) when ACXcept
 #define rgchACXAdd              ((TCHAR *) -1)
 #define rgchACXDelete   ((TCHAR *) -2)
 
 // Initialize AutoCorrect
-LPVOID OFC_CALLTYPE OFCInitAutoCorrect(VRECORDVAR pfnRecordVar, VRECORDREPL pfnRecordRepl, int fFullServices, VACADJUST pfnACAdjust);
+    LPVOID OFC_CALLTYPE OFCInitAutoCorrect(VRECORDVAR pfnRecordVar, VRECORDREPL pfnRecordRepl, int fFullServices, VACADJUST pfnACAdjust);
 
-// Free all AutoCorrect structures (call on exiting)
-VOID OFC_CALLTYPE OFCFreeAutoCorrect(void);
+    // Free all AutoCorrect structures (call on exiting)
+    VOID OFC_CALLTYPE OFCFreeAutoCorrect(void);
 
-// Get pointers to original AC and ACX buffers read from Registry
-BOOL FOFCGetAutoCorrectBuffers(TCHAR FAR * FAR *pchAC, TCHAR FAR * FAR *pchACX, DWORD FAR *pcb);
+    // Get pointers to original AC and ACX buffers read from Registry
+    BOOL FOFCGetAutoCorrectBuffers(TCHAR FAR * FAR * pchAC, TCHAR FAR * FAR * pchACX, DWORD FAR * pcb);
 
-// Check for AutoCorrection of character ch
-// returns: True if there is a correction in pchTo, False if no autocorrection
-// ch should already be in the buffer when this is called
-BOOL OFC_CALLTYPE FOFCAutoCorrect(TCHAR FAR *hpchBuffer, long cchHpch, DWORD ch, TCHAR pchTo[], long *pcchTo, long *pcchSelection);
-int OFC_CALLTYPE CchOFCAutoCorrectString(TCHAR FAR *hpch, long cchHpch, int ichReplaceStart, TCHAR FAR *hpchBuf, long cchBuf);
-int OFC_CALLTYPE IOFCTriggerFromXchXch(int xch1, int xch2);
+    // Check for AutoCorrection of character ch
+    // returns: True if there is a correction in pchTo, False if no autocorrection
+    // ch should already be in the buffer when this is called
+    BOOL OFC_CALLTYPE FOFCAutoCorrect(TCHAR FAR * hpchBuffer, long cchHpch, DWORD ch, TCHAR pchTo[], long* pcchTo, long* pcchSelection);
+    int OFC_CALLTYPE CchOFCAutoCorrectString(TCHAR FAR * hpch, long cchHpch, int ichReplaceStart, TCHAR FAR * hpchBuf, long cchBuf);
+    int OFC_CALLTYPE IOFCTriggerFromXchXch(int xch1, int xch2);
 
-// Return the count of items in the ReplacementList
-long OFC_CALLTYPE OFCAutoCorrectListCount(void);
+    // Return the count of items in the ReplacementList
+    long OFC_CALLTYPE OFCAutoCorrectListCount(void);
 
-// Get item i from ReplacementList
-// fTrue=success, fFalse means invalid i
-BOOL OFC_CALLTYPE FOFCGetAutoCorrectItemSz(long i, TCHAR szFrom[], long cchFrom, TCHAR szTo[], long cchTo);
+    // Get item i from ReplacementList
+    // fTrue=success, fFalse means invalid i
+    BOOL OFC_CALLTYPE FOFCGetAutoCorrectItemSz(long i, TCHAR szFrom[], long cchFrom, TCHAR szTo[], long cchTo);
 
-// Add a replacement
-BOOL OFC_CALLTYPE FOFCAddAutoCorrection(TCHAR FAR *hpchFrom, long cchFrom, TCHAR FAR *hpchTo, long cchTo, short grfac, int *pi);
+    // Add a replacement
+    BOOL OFC_CALLTYPE FOFCAddAutoCorrection(TCHAR FAR * hpchFrom, long cchFrom, TCHAR FAR * hpchTo, long cchTo, short grfac, int* pi);
 
-// Flags for Shared Office AutoCorrect bit mask grfac
+    // Flags for Shared Office AutoCorrect bit mask grfac
 #define facACTextRepl                   0x0000                                  // Regular AC repl
 #define facACX                          0x0001                                  // AC Exception
 #define facACStatic                     0x1000                                  // Do not free storage
@@ -1869,47 +1869,44 @@ BOOL OFC_CALLTYPE FOFCAddAutoCorrection(TCHAR FAR *hpchFrom, long cchFrom, TCHAR
 
 // Delete replacement i
 // fTrue=success, fFalse means invalid i
-BOOL OFC_CALLTYPE FOFCDeleteAutoCorrection(long i);
+    BOOL OFC_CALLTYPE FOFCDeleteAutoCorrection(long i);
 
 
-// Add new AutoCorrect Exception (ACX)
-BOOL OFC_CALLTYPE FOFCAddACXception(int iacx, TCHAR *pch, int cch,
-                                                                                        short grfac);
+    // Add new AutoCorrect Exception (ACX)
+    BOOL OFC_CALLTYPE FOFCAddACXception(int iacx, TCHAR * pch, int cch, short grfac);
 
-// Return the index for the AutoCorrect Exception (ACX)
-BOOL OFC_CALLTYPE FOFCLookupACXception(int iacx, TCHAR *pch, int cch,
-                                                                                           int *pisz);
+    // Return the index for the AutoCorrect Exception (ACX)
+    BOOL OFC_CALLTYPE FOFCLookupACXception(int iacx, TCHAR * pch, int cch, int* pisz);
 
-// Delete existing AutoCorrect Exception (ACX)
-BOOL OFC_CALLTYPE FOFCDeleteACXception(int isz);
+    // Delete existing AutoCorrect Exception (ACX)
+    BOOL OFC_CALLTYPE FOFCDeleteACXception(int isz);
 
+    // Get AutoCorrect settings
+    VOID OFC_CALLTYPE OFCGetAutoCorrectVars(BOOL * pfInitCap, BOOL * pfCapDays, BOOL * pfReplaceText);
 
-// Get AutoCorrect settings
-VOID OFC_CALLTYPE OFCGetAutoCorrectVars(BOOL *pfInitCap, BOOL *pfCapDays, BOOL *pfReplaceText);
+    // Set AutoCorrect settings
+    VOID OFC_CALLTYPE OFCSetAutoCorrectVars(BOOL fInitCap, BOOL fCapDays, BOOL fReplaceText);
 
-// Set AutoCorrect settings
-VOID OFC_CALLTYPE OFCSetAutoCorrectVars(BOOL fInitCap, BOOL fCapDays, BOOL fReplaceText);
+    // Find a Replacement and return in i
+    // fTrue=found replacement, fFalse means couldn't find the replacement
+    BOOL OFC_CALLTYPE FOFCLookupAutoCorrectReplacement(TCHAR rgchFrom[], long cchFrom, long* pi);
 
-// Find a Replacement and return in i
-// fTrue=found replacement, fFalse means couldn't find the replacement
-BOOL OFC_CALLTYPE FOFCLookupAutoCorrectReplacement(TCHAR rgchFrom[], long cchFrom, long *pi);
-
-typedef struct _AUTOCORRDLGARG {
+    typedef struct _AUTOCORRDLGARG {
         HWND  hwndParent; // Parent window of dialog
         LPPOINT pptCtr;      // Center point of dialog
 
-} AUTOCORRDLGARG, FAR * PAUTOCORRDLGARG;
+    } AUTOCORRDLGARG, FAR* PAUTOCORRDLGARG;
 
-// Bring up the Auto Correct dialog
-BOOL OFC_CALLTYPE FOFCAutoCorrectDlg(PAUTOCORRDLGARG pArgs);
+    // Bring up the Auto Correct dialog
+    BOOL OFC_CALLTYPE FOFCAutoCorrectDlg(PAUTOCORRDLGARG pArgs);
 
-// Save the Auto Correct settings to the registry.
-// Should only be called after programmatic changes.
-VOID OFC_CALLTYPE OFCSaveAutoCorrectSettings(void);
+    // Save the Auto Correct settings to the registry.
+    // Should only be called after programmatic changes.
+    VOID OFC_CALLTYPE OFCSaveAutoCorrectSettings(void);
 
-// Synchronize the Auto Correct settings to the Registry.
-// Can be callled even if no programatic changes.
-VOID OFC_CALLTYPE OFCSyncAutoCorrectSettings(void);
+    // Synchronize the Auto Correct settings to the Registry.
+    // Can be callled even if no programatic changes.
+    VOID OFC_CALLTYPE OFCSyncAutoCorrectSettings(void);
 
 #ifdef __cplusplus
 }; // extern "C"
@@ -1922,7 +1919,7 @@ VOID OFC_CALLTYPE OFCSyncAutoCorrectSettings(void);
 extern TEXT("C") {
 #endif // __cplusplus
 
-// Mail Systems
+    // Mail Systems
 #define OFC_MSEXCHANGE   1 // Microsoft Exchange
 #define OFC_16_BIT_NOTES 2 // 16 bit Lotus Notes
 
@@ -1937,65 +1934,65 @@ extern TEXT("C") {
 // NOTE: DO NOT CALL THIS FUNCTION TO FIGURE OUT IF APP CAN POST DOCUMENTS.
 //       CALL DwOFCCanPostDoc INSTEAD.
 
-BOOL OFC_CALLTYPE FOFCMailSystemInstalled(DWORD dwSystem);
+    BOOL OFC_CALLTYPE FOFCMailSystemInstalled(DWORD dwSystem);
 
 
-// Function: DwOFCCanPostDoc
+    // Function: DwOFCCanPostDoc
 
-// Purpose: Check if Post Doc support can be added.
+    // Purpose: Check if Post Doc support can be added.
 
-// Parameters: None.
+    // Parameters: None.
 
-// The function returns:
+    // The function returns:
 #define OFC_NO_POSTDOC                  0               // No Post Doc support
 #define OFC_EMS_POSTDOC                 1               // EMS Post Doc support
 #define OFC_NOTES16_POSTDOC             2               // 16 Bit Notes Post Doc support
 // NOTE: All other values are reserved for current and future use
 
-DWORD OFC_CALLTYPE DwOFCCanPostDoc();
+    DWORD OFC_CALLTYPE DwOFCCanPostDoc();
 
-// Function: DwOFCPostDoc.
+    // Function: DwOFCPostDoc.
 
-// Purpose: Posts the document to either EMS or Notes.
+    // Purpose: Posts the document to either EMS or Notes.
 
-// Parameters:
+    // Parameters:
 
-//      pszFilename - points to a file on disk to be posted,
-//                    i.e. a temporary copy of the file in memory.
+    //      pszFilename - points to a file on disk to be posted,
+    //                    i.e. a temporary copy of the file in memory.
 
-//      pszClassName - Class name of the document (E.g. Word.Document.6).  This can be NULL.
-//                     If NULL, the message icon will be a generic document icon.
+    //      pszClassName - Class name of the document (E.g. Word.Document.6).  This can be NULL.
+    //                     If NULL, the message icon will be a generic document icon.
 
-//      lpSIObj, lpDSIObj, lpUDObj - contains all the extended properties.  These can be
-//                                   the pointers stored in memory since they should con-
-//                                   tain the same info as in the file on disk.
+    //      lpSIObj, lpDSIObj, lpUDObj - contains all the extended properties.  These can be
+    //                                   the pointers stored in memory since they should con-
+    //                                   tain the same info as in the file on disk.
 
 
-//      pszMessSubj  - This will be the subject of the message as it appears in the folder.
-//                     This should be the real filename, i.e. foo.ext. The file extension
-//                     should be correct, i.e. .XLS, .DOC, .PPT, .MDB, etc.  The reason is that
-//                     the filename is used to look up the correct icon via the registry.
-//                     This can be a long filename.
+    //      pszMessSubj  - This will be the subject of the message as it appears in the folder.
+    //                     This should be the real filename, i.e. foo.ext. The file extension
+    //                     should be correct, i.e. .XLS, .DOC, .PPT, .MDB, etc.  The reason is that
+    //                     the filename is used to look up the correct icon via the registry.
+    //                     This can be a long filename.
 
-// !!! NOTE:  THE NEXT 2 PARAMETERS ARE IGNORED.  APP CAN PASS WHATEVER THEY WANT. !!!
-//      pszRecording - the name of the selected database will be copied into this buffer.
-//                     Caller can use this for recording.
+    // !!! NOTE:  THE NEXT 2 PARAMETERS ARE IGNORED.  APP CAN PASS WHATEVER THEY WANT. !!!
+    //      pszRecording - the name of the selected database will be copied into this buffer.
+    //                     Caller can use this for recording.
 
-//      cbRecMax     - number o' bytes in pszRecording.
+    //      cbRecMax     - number o' bytes in pszRecording.
 
-// !!! END O' IGNORANCE !!!
+    // !!! END O' IGNORANCE !!!
 
-//      lhSession - it is the caller's responsibility to log in to EMS.
-//                  If lhSession is 0 (invalid session), DwOFCPostDoc will return an error.
-//                  lhSession will be typecast to a LPMAPISESSION pointer.
+    //      lhSession - it is the caller's responsibility to log in to EMS.
+    //                  If lhSession is 0 (invalid session), DwOFCPostDoc will return an error.
+    //                  lhSession will be typecast to a LPMAPISESSION pointer.
 
-//       NOTE:    - the session handle should be an Extended MAPI session handle.
+    //       NOTE:    - the session handle should be an Extended MAPI session handle.
 
-//       NOTE:    - at this point we are not posting to Notes.
+    //       NOTE:    - at this point we are not posting to Notes.
 
-//      hwndParent - Parent window handle
+    //      hwndParent - Parent window handle
 
-// The function returns:
+    // The function returns:
 #define OFC_ERROR               0           // An error occurred, document was not posted
 #define OFC_CANCEL              1           // User cancelled dialog
 #define OFC_SUCCESS             2           // Document was posted successfully
@@ -2010,15 +2007,15 @@ DWORD OFC_CALLTYPE DwOFCCanPostDoc();
 //            pszFileName was NULL.
 //            pszMessSubj was NULL.
 
-DWORD OFC_CALLTYPE DwOFCPostDoc(LPTSTR pszFilename,      // full path of file on disk to post
-                      LPTSTR pszAppName,   // Name of the application
-                                                    LPSIOBJ lpSIObj,    // Summary Info object
-                                                         LPDSIOBJ lpDSIObj,  // Document Summary Info object
-                                                    LPUDOBJ lpUDObj,    // User Defined properties object
-                                                    LPTSTR pszMessSubj,  // Message Subject
-                                                    LPTSTR pszRecording, //       Ignored
-                                                    DWORD cbRecMax,     //          "
-                                                    LPVOID lhSession,   // Session handle
+    DWORD OFC_CALLTYPE DwOFCPostDoc(LPTSTR pszFilename,      // full path of file on disk to post
+                                    LPTSTR pszAppName,   // Name of the application
+                                    LPSIOBJ lpSIObj,    // Summary Info object
+                                    LPDSIOBJ lpDSIObj,  // Document Summary Info object
+                                    LPUDOBJ lpUDObj,    // User Defined properties object
+                                    LPTSTR pszMessSubj,  // Message Subject
+                                    LPTSTR pszRecording, //       Ignored
+                                    DWORD cbRecMax,     //          "
+                                    LPVOID lhSession,   // Session handle
                                     HWND hwndParent);   // Parent window handle
 
 
@@ -2058,65 +2055,49 @@ DWORD OFC_CALLTYPE DwOFCPostDoc(LPTSTR pszFilename,      // full path of file on
 //             with the appropriate object.  I.e. doc 1 and doc 2 will have
 //             different handles.
 
-HANDLE OFC_CALLTYPE MsoHLoadPropertiesFromNotes(HANDLE hclip,
-                                                     LPSIOBJ lpSIObj,
-                                                     LPDSIOBJ lpDSIObj,
-                                                     LPUDOBJ lpUDObj);
-
-// Function:   MsoWritePropertiesToNotes
-
-// Purpose:    Stuffs the OLE Extended properties into a Notes record.
-
-
-// Parameters: hNote    - handle to a Notes note.  This is the handle
-//                        returned by MsoLoadPropertiesFromNotes
-
-//             lpSIObj  - pointer to a Summary Info object
-//             lpDSIObj - pointer to a Document Summary Info object
-//             lpUDObj  - pointer to a User Defined object
-//             pszClassName - string containing the document's class name (e.g. Excel.Sheet.5)
-//                            This can be NULL.
-
-// Returns:    Nuthin'.
-
-VOID OFC_CALLTYPE MsoWritePropertiesToNotes(HANDLE hNote,
+    HANDLE OFC_CALLTYPE MsoHLoadPropertiesFromNotes(HANDLE hclip,
                                                     LPSIOBJ lpSIObj,
                                                     LPDSIOBJ lpDSIObj,
-                                                    LPUDOBJ lpUDObj,
-                                                    LPTSTR pszClassName);
-// Function:   MsoHUpdatePropertiesInNotes
+                                                    LPUDOBJ lpUDObj);
 
-// Purpose:    Update the data in Notes
+    // Function:   MsoWritePropertiesToNotes
+    // Purpose:    Stuffs the OLE Extended properties into a Notes record.
+    // Parameters: hNote    - handle to a Notes note.  This is the handle
+    //                        returned by MsoLoadPropertiesFromNotes
+    //             lpSIObj  - pointer to a Summary Info object
+    //             lpDSIObj - pointer to a Document Summary Info object
+    //             lpUDObj  - pointer to a User Defined object
+    //             pszClassName - string containing the document's class name (e.g. Excel.Sheet.5)
+    //                            This can be NULL.
+    // Returns:    Nuthin'.
+    VOID OFC_CALLTYPE MsoWritePropertiesToNotes(HANDLE hNote,
+                                                LPSIOBJ lpSIObj,
+                                                LPDSIOBJ lpDSIObj,
+                                                LPUDOBJ lpUDObj,
+                                                LPTSTR pszClassName);
+    // Function:   MsoHUpdatePropertiesInNotes
+    // Purpose:    Update the data in Notes
+    // Parameters: hNote    - handle to a Notes note.  This is the handle
+    //                        returned by MsoLoadPropertiesFromNotes
+    // Returns:    A handle. The caller must use set the lphandle of the
+    //             GetData method to point to the returned handle.
+    //             The returned handle will be NULL on failure.
+    // How To:     When the user selects File/Update from the OLE Server App. the server's
+    //             GetData method will be invoked twice; first with cfFormat == cfNative,
+    //             then with cfFormat set to the appropriate format for displaying the
+    //             object.  Then, once Notes sees that the server is registrered to
+    //             recognize the RequestDataFormats message, the GetData method will be
+    //             invoked a third time with cfFormat == NoteshNote.  In response, the
+    //             app should call this function.
+    HANDLE OFC_CALLTYPE MsoHUpdatePropertiesInNotes(HANDLE hNote);
 
-// Parameters: hNote    - handle to a Notes note.  This is the handle
-//                        returned by MsoLoadPropertiesFromNotes
-
-// Returns:    A handle. The caller must use set the lphandle of the
-//             GetData method to point to the returned handle.
-//             The returned handle will be NULL on failure.
-
-// How To:     When the user selects File/Update from the OLE Server App. the server's
-//             GetData method will be invoked twice; first with cfFormat == cfNative,
-//             then with cfFormat set to the appropriate format for displaying the
-//             object.  Then, once Notes sees that the server is registrered to
-//             recognize the RequestDataFormats message, the GetData method will be
-//             invoked a third time with cfFormat == NoteshNote.  In response, the
-//             app should call this function.
-
-HANDLE OFC_CALLTYPE MsoHUpdatePropertiesInNotes(HANDLE hNote);
-
-// Function:   MsoNotesTerm
-
-// Purpose:    To terminate the Notes session
-
-// Parameters: None.
-
-// Returns:    Nuthin'.
-
-// Note:       This function should be called whenever a object
-//             generated (as requested by Notes) is closed.
-
-VOID OFC_CALLTYPE MsoNotesTerm();
+    // Function:   MsoNotesTerm
+    // Purpose:    To terminate the Notes session
+    // Parameters: None.
+    // Returns:    Nuthin'.
+    // Note:       This function should be called whenever a object
+    //             generated (as requested by Notes) is closed.
+    VOID OFC_CALLTYPE MsoNotesTerm();
 #ifdef __cplusplus
 }; // extern "C"
 #endif // __cplusplus

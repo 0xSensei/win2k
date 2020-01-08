@@ -335,8 +335,7 @@ LZWReadByte(gif_source_ptr sinfo)
         sinfo->symbol_tail[code] = (UINT8)sinfo->firstcode;
         sinfo->max_code++;
         /* Is it time to increase code_size? */
-        if ((sinfo->max_code >= sinfo->limit_code) &&
-            (sinfo->code_size < MAX_LZW_BITS)) {
+        if ((sinfo->max_code >= sinfo->limit_code) && (sinfo->code_size < MAX_LZW_BITS)) {
             sinfo->code_size++;
             sinfo->limit_code <<= 1;    /* keep equal to 2^code_size */
         }

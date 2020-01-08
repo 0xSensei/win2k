@@ -13,7 +13,6 @@
  *        Changes for product update
 
  *  Copyright (C) 1990-1993 Microsoft Corporation
-
 */
 
 //Include Files
@@ -22,8 +21,8 @@
 #include "uniconv.h"
 
 //Definitions
-#define CP_ACCEL    100
-#define CP_MENU     200
+#define CP_ACCEL 100
+#define CP_MENU  200
 
 /* Screen Saver Description String Resource ID */
 #define SAVERDESC 1
@@ -184,7 +183,6 @@
 
 #define WNNC_CON_All (WNNC_CON_AddConnection | WNNC_CON_CancelConnection | WNNC_CON_GetConnections)
 
-
 #define MEASUREMENTSYS       KBD + 4
 #define MEASUREMENTSYSTEMS   2
 
@@ -267,15 +265,13 @@
 #endif
 
 #define MAX_DEC_DIGITS 6
-
 #define MAX_LDF_SEP 6
 
 #ifdef JAPAN    /* V-KeijiY  June.30.1992 */
 #define MAX_SPACE_NUM 4
 #endif
 
-typedef struct tagLDF
-{
+typedef struct tagLDF{
     WORD  Leadin;
     TCHAR LeadinSep[MAX_LDF_SEP];
     WORD  Order[3];
@@ -293,7 +289,6 @@ typedef struct tagLDF
       // Japanese date format will have day string (sunday..) to the tail
     WORD Trailin; // this is used as flag
 #endif
-
 } LDF;
 
 typedef LDF FAR* LPLDF;
@@ -319,22 +314,22 @@ typedef LDF NEAR* PLDF;
 #define SYSTEMICON      37
 #define TYPE1ICON       38
 
-#define FIRSTCHILD          0
-#define CHILD_COLOR         0
-#define CHILD_PRINTER       1
-#define CHILD_FONT          2
-#define CHILD_INTL          3
-#define CHILD_PORTS         4
-#define CHILD_KEYBOARD      5
-#define CHILD_MOUSE         6
-#define CHILD_DATETIME      7
-#define CHILD_DESKTOP       8
-#define CHILD_SOUND         9
-#define CHILD_NETWORK      10
-#define CHILD_WIN386       11
-#define CHILD_SYSTEM       12
-#define LASTCHILD          CHILD_SYSTEM
-#define CATAGORIES          LASTCHILD+1
+#define FIRSTCHILD      0
+#define CHILD_COLOR     0
+#define CHILD_PRINTER   1
+#define CHILD_FONT      2
+#define CHILD_INTL      3
+#define CHILD_PORTS     4
+#define CHILD_KEYBOARD  5
+#define CHILD_MOUSE     6
+#define CHILD_DATETIME  7
+#define CHILD_DESKTOP   8
+#define CHILD_SOUND     9
+#define CHILD_NETWORK   10
+#define CHILD_WIN386    11
+#define CHILD_SYSTEM    12
+#define LASTCHILD       CHILD_SYSTEM
+#define CATAGORIES      LASTCHILD+1
 
 #define DLG_COLOR         100
 #define DLG_PRINTER       1
@@ -534,32 +529,32 @@ typedef LDF NEAR* PLDF;
 
 #define FIRST_COUNTRY     INTL+2       /* international strings */
 
-#define INTL_COUNTRY        200        /* International dialog */
-#define INTL_LANGUAGE       201
-#define INTL_KEYBOARD       202
-#define INTL_MEASUREMENT    203
-#define INTL_RESET          204
-#define INTL_LISTSEP        205
-#define INTL_DATEACCEL      206
-#define INTL_DATECHANGE     207
-#define INTL_DATECHANGE2    208
-#define INTL_DATESAMPLE     209
-#define INTL_DATESAMPLE2    210
-#define INTL_TIMEACCEL      211
-#define INTL_TIMECHANGE     212
-#define INTL_TIMECHANGE2    213
-#define INTL_TIMESAMPLE     214
-#define INTL_NUMACCEL       215
-#define INTL_NUMCHANGE      216
-#define INTL_NUMCHANGE2     217
-#define INTL_NUMSAMPLE      218
-#define INTL_NEGNUMSAMPLE   228    /* ! OUT OF ORDER ! */
-#define INTL_CURACCEL       219
-#define INTL_CURCHANGE      220
-#define INTL_CURCHANGE2     221
-#define INTL_CURSAMPLE      222
-#define INTL_NEGSAMPLE      223
-#define DATE_SEP            224
+#define INTL_COUNTRY      200        /* International dialog */
+#define INTL_LANGUAGE     201
+#define INTL_KEYBOARD     202
+#define INTL_MEASUREMENT  203
+#define INTL_RESET        204
+#define INTL_LISTSEP      205
+#define INTL_DATEACCEL    206
+#define INTL_DATECHANGE   207
+#define INTL_DATECHANGE2  208
+#define INTL_DATESAMPLE   209
+#define INTL_DATESAMPLE2  210
+#define INTL_TIMEACCEL    211
+#define INTL_TIMECHANGE   212
+#define INTL_TIMECHANGE2  213
+#define INTL_TIMESAMPLE   214
+#define INTL_NUMACCEL     215
+#define INTL_NUMCHANGE    216
+#define INTL_NUMCHANGE2   217
+#define INTL_NUMSAMPLE    218
+#define INTL_NEGNUMSAMPLE 228    /* ! OUT OF ORDER ! */
+#define INTL_CURACCEL     219
+#define INTL_CURCHANGE    220
+#define INTL_CURCHANGE2   221
+#define INTL_CURSAMPLE    222
+#define INTL_NEGSAMPLE    223
+#define DATE_SEP          224
 
 #define MDY               231
 #define DMY               232
@@ -847,10 +842,10 @@ typedef LDF NEAR* PLDF;
 #define PORT_COM3RECT   832
 #define PORT_COM4RECT   833
 
-#define PORT_COM1       834
-#define PORT_COM2       835
-#define PORT_COM3       836
-#define PORT_COM4       837
+#define PORT_COM1 834
+#define PORT_COM2 835
+#define PORT_COM3 836
+#define PORT_COM4 837
 
 // NT System Applet
 #define IDD_SYS_COMPUTERNAME   1100
@@ -999,8 +994,6 @@ typedef LDF NEAR* PLDF;
 
 
 //  Font file types used in Fonts applet - installation
-
-
 #define NOT_TT_OR_T1  0 //  Neither TrueType or Type 1 font (FALSE)
 #define TRUETYPE_FONT 1 //  This is a TrueType font (TRUE)
 #define TYPE1_FONT    2 //  This is an Adobe Type1 font
@@ -1008,8 +1001,6 @@ typedef LDF NEAR* PLDF;
 
 
 //  Font file types used in Fonts applet - Main dlg "Installed Fonts" lbox
-
-
 #define IF_OTHER            0       //  TrueType or Bitmap 1 font (FALSE)
 #define IF_TYPE1            1       //  Adobe Type1 font
 #define IF_TYPE1_TT         2       //  Matching TT font for Adobe Type1 font
@@ -1018,8 +1009,6 @@ typedef LDF NEAR* PLDF;
 
 
 //  Return codes from InstallT1Font routine
-
-
 #define TYPE1_INSTALL_IDOK       IDOK        //  User pressed OK from MessageBox error
 #define TYPE1_INSTALL_IDYES      IDYES       //  Same as IDOK
 #define TYPE1_INSTALL_IDNO       IDNO        //  Font not installed - user pressed NO
@@ -1032,10 +1021,8 @@ typedef LDF NEAR* PLDF;
 #define TYPE1_INSTALL_TT_AND_MPS  14         //  PS Font converted to TT and matching
                                              //   PS font already installed.
 
-//                           Typedefs
-
-typedef struct
-{
+//Typedefs
+typedef struct{
     TCHAR name[PATHMAX];
     TCHAR desc[DESCMAX];
     TCHAR ModName[MODNAMEMAX];
@@ -1086,14 +1073,12 @@ typedef struct              /* International section description */
                                  (1.1), -1.1, - 1.1, 1.1-, 1.1 -   */
     TCHAR  sMonThousand[6]; /* Monetary Thousand separator string */
     TCHAR  sMonDecimal[6];  /* Monetary Decimal separator string */
-
 } INTLSTRUCT;
 typedef INTLSTRUCT FAR* LPINTL;
 typedef INTLSTRUCT NEAR* PINTL;
 
 #ifndef NOARROWS
-typedef struct
-{
+typedef struct{
     short lineup;             /* lineup/down, pageup/down are relative */
     short linedown;           /* changes.  top/bottom and the thumb    */
     short pageup;             /* elements are absolute locations, with */
@@ -1119,8 +1104,7 @@ typedef int (*PFNGETNAME)(LPTSTR pszName, LPTSTR pszInf);
 #define TZNAME_SIZE  32
 #define TZDISPLAYZ   65
 
-typedef struct _APPLET_TIME_ZONE_INFORMATION
-{
+typedef struct _APPLET_TIME_ZONE_INFORMATION{
     TCHAR      szRegKey[80];
     TCHAR      szDisplayName[TZDISPLAYZ];
     WCHAR      szStandardName[TZNAME_SIZE];
@@ -1132,8 +1116,7 @@ typedef struct _APPLET_TIME_ZONE_INFORMATION
     SYSTEMTIME DaylightDate;
 } APPLET_TIME_ZONE_INFORMATION, * PAPPLET_TIME_ZONE_INFORMATION;
 
-
-//                              Macros
+//Macros
 
 #define GSM(SM) GetSystemMetrics(SM)
 #define GDC(dc, index) GetDeviceCaps(dc, index)
@@ -1147,7 +1130,7 @@ typedef struct _APPLET_TIME_ZONE_INFORMATION
 #define IsDBCSLeadByte(x) (FALSE)
 
 
-//                         External Declarations
+//External Declarations
 
 //  DATA
 /* exported from cpl.c  */
@@ -1170,7 +1153,7 @@ extern TCHAR pszClose[];
 extern TCHAR pszContinue[];
 
 extern TCHAR szSharedDir[PATHMAX];
-extern char  szFontsDirA[PATHMAX];      // ANSI String!
+extern char  szFontsDirA[PATHMAX]; // ANSI String!
 
 extern TCHAR szIntl[];
 extern TCHAR szFonts[];
@@ -1206,7 +1189,6 @@ extern TCHAR szSetupDir[PATHMAX];
 extern TCHAR szCtlIni[];
 extern TCHAR szSystemIniPath[];
 
-
 extern short nDisk;
 extern TCHAR szDrv[130];
 extern TCHAR szDirOfSrc[PATHMAX];
@@ -1229,7 +1211,6 @@ extern TCHAR* pszSymPlacement[NUM_SYM_PAT];
 
 extern TCHAR szYes[];
 extern TCHAR szNo[];
-
 
 /* color.c  */
 extern BOOL    bTuning;
@@ -1329,8 +1310,7 @@ extern LONG  NumTimeZones;
 /* intl.c  */
 extern INTLSTRUCT IntlDef;
 
-
-//                            Function Prototypes
+//Function Prototypes
 
 /* arrow.c */
 short ArrowVScrollProc(short wScroll, short nCurrent, LPARROWVSCROLL lpAVS);
@@ -1364,7 +1344,6 @@ void  ColorPaint(HWND hWnd, HDC hDC, LPRECT lpPaintRect);
 void  StoreToWin(HWND hWnd);
 void  CPHelp(HWND hwnd);
 DWORD FillFromControlIni(HWND  hWnd, LPTSTR pszSection);
-
 
 /* color2.c */
 void  ChangeColorSettings(HWND  hWnd, DWORD dwRGBcolor);
@@ -1417,8 +1396,7 @@ HANDLE PassedInspection(HANDLE hLogicalFont, LPTSTR szFileName);
 BOOL DeleteT1Install(HWND hDlg, LPTSTR pszDesc, BOOL bDeleteFiles);
 BOOL EnumType1Fonts(HWND hLBox);
 BOOL GetT1Install(HWND hDlg, LPTSTR pszDesc, LPTSTR pszPfmFile, LPTSTR pszPfbFile);
-int  InstallT1Font(HWND hDlg, HWND hLbox, BOOL bCopyTTFile, BOOL bInSharedDir,
-                   LPTSTR szPfmName, LPTSTR szDesc);
+int  InstallT1Font(HWND hDlg, HWND hLbox, BOOL bCopyTTFile, BOOL bInSharedDir, LPTSTR szPfmName, LPTSTR szDesc);
 
 BOOL InitProgress(HWND hwnd);
 BOOL IsPSFont(HWND hDlg, LPTSTR lpszKey, LPTSTR lpszDesc, LPTSTR lpszPfm, LPTSTR lpszPfb, BOOL* pbCreatedPFM, int* lpiFontType);
@@ -1428,7 +1406,6 @@ void ResetProgress();
 void TermProgress();
 void TermPSInstall();
 void UpdateProgress(int iTotalCount, int iFontInstalling, int iProgress);
-
 
 /* font3.c */
 extern LONG  FileLength(LPTSTR);
@@ -1443,8 +1420,7 @@ BOOL ValidFontFile(LPTSTR szFile, LPTSTR szDesc, int* lpiFontType);
 
 #ifdef  LATER
 /* instfls.c */
-typedef int (*INSTALL_PROC)(HWND hDlg, WORD wMsg, int i,
-                            LPTSTR* pszFiles, LPTSTR lpszDir);
+typedef int (*INSTALL_PROC)(HWND hDlg, WORD wMsg, int i, LPTSTR* pszFiles, LPTSTR lpszDir);
 #define IFF_CHECKINI  0x0001
 #define IFF_SRCANDDST 0x0002
 
@@ -1456,9 +1432,8 @@ LPTSTR  CopyString(LPTSTR szStr);
 LPTSTR  MyLoadString(WORD wId);
 LPTSTR CpyToChr(LPTSTR pDest, LPTSTR pSrc, TCHAR cChr, int iMax);
 VOID  GetDiskAndFile(LPTSTR pszInf, int* nDsk, LPTSTR pszDriver, WORD wSize);
-DWORD InstallFiles(HWND hwnd, LPTSTR* pszFiles, int nCount,
-                   INSTALL_PROC lpfnNewFile, WORD wFlags);
-#endif  //  LATER
+DWORD InstallFiles(HWND hwnd, LPTSTR* pszFiles, int nCount, INSTALL_PROC lpfnNewFile, WORD wFlags);
+#endif
 
 /* icur.c */
 BOOL APIENTRY CurIntlDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
@@ -1473,13 +1448,7 @@ void ParseLDF(LPTSTR pszLDate, PLDF pLDF);
 
 BOOL APIENTRY IntlDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
 
-int
-GetLocaleValue(
-    LCID lcid,
-    LCTYPE lcType,
-    TCHAR* pszStr,
-    int size,
-    LPTSTR pszDefault);
+int GetLocaleValue(LCID lcid, LCTYPE lcType, TCHAR* pszStr, int size, LPTSTR pszDefault);
 
 /* inum.c */
 BOOL APIENTRY NumIntlDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
@@ -1500,7 +1469,7 @@ BOOL   ReallocStr(LPTSTR* plpStr, LPTSTR lpStr);
 LPTSTR AllocStrA(LPSTR  lpStr);
 BOOL   FreeStrA(LPSTR  lpStr);
 BOOL   ReallocStrA(LPSTR* plpStr, LPSTR lpStr);
-#endif  // ANSI_FUNCTIONS
+#endif
 
 /* ports.c */
 int SetupCommPort(HWND hDlg, int i);
@@ -1526,8 +1495,7 @@ int    myatoi(LPTSTR pszInt);
 HANDLE StringToLocalHandle(LPTSTR lpStr);
 
 /* util.c */
-int    DoDialogBoxParam(int nDlg, HWND hParent, DLGPROC lpProc,
-                        DWORD dwHelpContext, DWORD dwParam);
+int    DoDialogBoxParam(int nDlg, HWND hParent, DLGPROC lpProc, DWORD dwHelpContext, DWORD dwParam);
 void   HourGlass(BOOL bOn);
 int    MyMessageBox(HWND hWnd, DWORD wText, DWORD wCaption, DWORD wType, ...);
 BOOL   RestartDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
@@ -1541,10 +1509,8 @@ BOOL  APIENTRY WantArrows(HWND hWnd, UINT message, DWORD wParam, LONG lParam);
 BOOL APIENTRY VirtualMemDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
 BOOL APIENTRY CoreDumpDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
 
-
 /* prictl.c */
 BOOL APIENTRY TaskingDlg(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
-
 
 #if DBG
 //#ifndef DbgPrint
@@ -1555,7 +1521,7 @@ void  DbgBreakPoint(void);
 #endif
 #endif
 
-#ifdef JAPAN    /* V-KeijiY  June.30.1992 */
+#ifdef JAPAN /* V-KeijiY  June.30.1992 */
 // for intl.c
 DWORD ConvertEraToJapaneseEra(WORD, WORD, WORD);
 WORD ConvertStringToInteger(LPTSTR far*);
