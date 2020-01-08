@@ -85,25 +85,24 @@
 
 
 
-CTreeNode *
+CTreeNode*
 CMarkup::GetRunOwnerBranch(
-    CTreeNode * pNode,
-    CLayout *   pLayoutContext )
+    CTreeNode* pNode,
+    CLayout* pLayoutContext)
 {
-    CTreeNode * pNodeLayoutOwnerBranch;
-    CTreeNode * pNodeLayoutBranch;
-    CElement  * pElementLytCtx = pLayoutContext ? pLayoutContext->ElementOwner() : NULL;
+    CTreeNode* pNodeLayoutOwnerBranch;
+    CTreeNode* pNodeLayoutBranch;
+    CElement* pElementLytCtx = pLayoutContext ? pLayoutContext->ElementOwner() : NULL;
 
-    Assert( pNode );
-    Assert( pNode->GetUpdatedNearestLayout() );
-    Assert( !pElementLytCtx || pElementLytCtx->IsRunOwner() );
+    Assert(pNode);
+    Assert(pNode->GetUpdatedNearestLayout());
+    Assert(!pElementLytCtx || pElementLytCtx->IsRunOwner());
 
-    pNodeLayoutBranch      = pNode->GetUpdatedNearestLayoutNode();
+    pNodeLayoutBranch = pNode->GetUpdatedNearestLayoutNode();
     pNodeLayoutOwnerBranch = NULL;
 
-    do
-    {
-        CLayout * pLayout;
+    do {
+        CLayout* pLayout;
 
         // set this to the new branch every step
 
@@ -111,19 +110,17 @@ CMarkup::GetRunOwnerBranch(
 
         // if we hit the context get out
 
-        if (SameScope( pNodeLayoutBranch, pElementLytCtx ))
-        {
+        if (SameScope(pNodeLayoutBranch, pElementLytCtx)) {
             // if we don't have an owner yet the context
             // branch is returned
 
-            if(!pNodeLayoutOwnerBranch)
+            if (!pNodeLayoutOwnerBranch)
                 pNodeLayoutOwnerBranch = pNodeLayoutBranch;
 
             break;
         }
 
-        if (pNodeLayoutBranch->Element()->IsRunOwner())
-        {
+        if (pNodeLayoutBranch->Element()->IsRunOwner()) {
             pNodeLayoutOwnerBranch = pNodeLayoutBranch;
 
             if (!pElementLytCtx)
@@ -131,20 +128,18 @@ CMarkup::GetRunOwnerBranch(
         }
 
         pNodeLayoutBranch = pNodeLayoutBranch->GetUpdatedParentLayoutNode();
-    }
-    while ( pNodeLayoutBranch );
+    } while (pNodeLayoutBranch);
 
 #if DBG == 1
-    if (pNodeLayoutBranch)
-    {
-        Assert( pNodeLayoutOwnerBranch );
-        Assert( pNodeLayoutOwnerBranch->Element()->IsRunOwner() );
+    if (pNodeLayoutBranch) {
+        Assert(pNodeLayoutOwnerBranch);
+        Assert(pNodeLayoutOwnerBranch->Element()->IsRunOwner());
     }
 #endif
 
     return (pNodeLayoutBranch
-                ? pNodeLayoutOwnerBranch
-                : NULL);
+            ? pNodeLayoutOwnerBranch
+            : NULL);
 }
 
 
@@ -162,27 +157,23 @@ CMarkup::GetRunOwnerBranch(
 
 
 HRESULT
-CMarkup::ClearCaches ( CTreePos * ptpStart, CTreePos * ptpFinish )
+CMarkup::ClearCaches(CTreePos* ptpStart, CTreePos* ptpFinish)
 {
-    CTreePos * ptpCurr, *ptpAfterFinish = ptpFinish->NextTreePos();
+    CTreePos* ptpCurr, * ptpAfterFinish = ptpFinish->NextTreePos();
 
-    for(ptpCurr = ptpStart;
-        ptpCurr != ptpAfterFinish;
-        ptpCurr = ptpCurr->NextTreePos())
-    {
-        if(ptpCurr->IsBeginNode())
-        {
+    for (ptpCurr = ptpStart;
+         ptpCurr != ptpAfterFinish;
+         ptpCurr = ptpCurr->NextTreePos()) {
+        if (ptpCurr->IsBeginNode()) {
             ptpCurr->Branch()->VoidCachedInfo();
 
-            if (ptpCurr->IsEdgeScope())
-            {
-                CElement * pElementCur = ptpCurr->Branch()->Element();
+            if (ptpCurr->IsEdgeScope()) {
+                CElement* pElementCur = ptpCurr->Branch()->Element();
 
                 // Clear caches on the slave markup
-                if (pElementCur->HasSlaveMarkupPtr())
-                {
-                    CTreePos    *ptpStartSlave, *ptpFinishSlave;
-                    CMarkup     *pMarkupSlave = pElementCur->GetSlaveMarkupPtr();
+                if (pElementCur->HasSlaveMarkupPtr()) {
+                    CTreePos* ptpStartSlave, * ptpFinishSlave;
+                    CMarkup* pMarkupSlave = pElementCur->GetSlaveMarkupPtr();
 
                     pMarkupSlave->GetContentTreeExtent(&ptpStartSlave, &ptpFinishSlave);
                     pMarkupSlave->ClearCaches(ptpStartSlave, ptpFinishSlave);
@@ -195,62 +186,51 @@ CMarkup::ClearCaches ( CTreePos * ptpStart, CTreePos * ptpFinish )
 }
 
 HRESULT
-CMarkup::ClearRunCaches (DWORD dwFlags, CElement *pElement)
+CMarkup::ClearRunCaches(DWORD dwFlags, CElement* pElement)
 {
-    CTreePos * ptpStart = NULL;
-    CTreePos * ptpEnd;
+    CTreePos* ptpStart = NULL;
+    CTreePos* ptpEnd;
     BOOL       fClearAllFormats = dwFlags & ELEMCHNG_CLEARCACHES;
 
     Assert(pElement);
-    pElement->GetTreeExtent( & ptpStart, & ptpEnd );
+    pElement->GetTreeExtent(&ptpStart, &ptpEnd);
 
-    if (ptpStart)
-    {
-        CTreePos *ptpAfterFinish = ptpEnd->NextTreePos();
+    if (ptpStart) {
+        CTreePos* ptpAfterFinish = ptpEnd->NextTreePos();
 
-        for( ; ptpStart != ptpAfterFinish; ptpStart = ptpStart->NextTreePos())
-        {
-            if(ptpStart->IsBeginNode())
-            {
-                CTreeNode * pNodeCur     = ptpStart->Branch();
-                CElement  * pElementCur  = pNodeCur->Element();
+        for (; ptpStart != ptpAfterFinish; ptpStart = ptpStart->NextTreePos()) {
+            if (ptpStart->IsBeginNode()) {
+                CTreeNode* pNodeCur = ptpStart->Branch();
+                CElement* pElementCur = pNodeCur->Element();
                 BOOL        fNotifyFormatChange = FALSE;
 
-                if(fClearAllFormats)
-                {
+                if (fClearAllFormats) {
                     // clear the formats on the node
                     pNodeCur->VoidCachedInfo();
                     fNotifyFormatChange = TRUE;
-                }
-                else if (pElement == pElementCur || pElementCur->_fInheritFF)
-                {
+                } else if (pElement == pElementCur || pElementCur->_fInheritFF) {
                     pNodeCur->VoidFancyFormat();
                     fNotifyFormatChange = pElement == pElementCur;
                 }
 
                 // if the node comming into scope is a new element
                 // notify the element of a format cache change.
-                if (fNotifyFormatChange && ptpStart->IsEdgeScope())
-                {
-                    CLayout * pLayout = pElementCur->GetLayoutPtr();
+                if (fNotifyFormatChange && ptpStart->IsEdgeScope()) {
+                    CLayout* pLayout = pElementCur->GetLayoutPtr();
 
-                    if (pLayout)
-                    {
+                    if (pLayout) {
                         pLayout->OnFormatsChange(dwFlags);
                     }
 
                     // Clear caches on the slave markup
-                    if (pElementCur->HasSlaveMarkupPtr())
-                    {
-                        CMarkup * pMarkupSlave = pElementCur->GetSlaveMarkupPtr();
+                    if (pElementCur->HasSlaveMarkupPtr()) {
+                        CMarkup* pMarkupSlave = pElementCur->GetSlaveMarkupPtr();
                         pMarkupSlave->ClearRunCaches(dwFlags, pMarkupSlave->Root());
                     }
                 }
             }
         }
-    }
-    else if (pElement->GetFirstBranch())
-    {
+    } else if (pElement->GetFirstBranch()) {
         // this could happen, when element's are temporarily parented to the
         // rootsite.
         pElement->GetFirstBranch()->VoidCachedInfo();
@@ -270,27 +250,27 @@ CMarkup::ClearRunCaches (DWORD dwFlags, CElement *pElement)
 
 
 HRESULT
-CMarkup::RangeAffected ( CTreePos *ptpLeft, CTreePos *ptpRight )
+CMarkup::RangeAffected(CTreePos* ptpLeft, CTreePos* ptpRight)
 {
     HRESULT         hr;
     CNotification   nf;
     long            cp, cch;
-    CTreeNode *     pNodeNotify = NULL;
-    CTreePos *      ptpStart = ptpLeft, *ptpAfterLast;
+    CTreeNode* pNodeNotify = NULL;
+    CTreePos* ptpStart = ptpLeft, * ptpAfterLast;
 
     // clear all of the caches
-    hr = THR( ClearCaches( ptpLeft, ptpRight ) );
+    hr = THR(ClearCaches(ptpLeft, ptpRight));
     if (hr)
         goto Cleanup;
 
-    Assert( ptpLeft && ptpRight );
+    Assert(ptpLeft && ptpRight);
     ptpAfterLast = ptpRight->NextTreePos();
 
     // Send the CharsResize notification
-    cp  = ptpStart->GetCp();
+    cp = ptpStart->GetCp();
     cch = 0;
 
-    Assert( cp >= 0 );
+    Assert(cp >= 0);
 
     // Note: notifications for the WCH_NODE characters go
     // to intersting places.  For WCH_NODE characters inside
@@ -300,41 +280,36 @@ CMarkup::RangeAffected ( CTreePos *ptpLeft, CTreePos *ptpRight )
     // This way, noscope elements to not get any notifications
     // in this loop.
 
-    while( ptpStart != ptpAfterLast )
-    {
-        if( ptpStart->IsNode() )
-        {
+    while (ptpStart != ptpAfterLast) {
+        if (ptpStart->IsNode()) {
             // if we are entering an inclusion
             // then remember the first node as the
             // one to send the left half of
             // the notification to
-            if(     ! pNodeNotify
-                &&  ptpStart->IsEndNode()
-                &&  ! ptpStart->IsEdgeScope() )
-            {
+            if (!pNodeNotify
+                && ptpStart->IsEndNode()
+                && !ptpStart->IsEdgeScope()) {
                 pNodeNotify = ptpStart->Branch();
             }
 
-            if( ptpStart->IsBeginNode() )
-            {
+            if (ptpStart->IsBeginNode()) {
                 cch++;
             }
 
             // send a notification if we hit the edge
             // of a layout
-            if(     cch
-                &&  ptpStart->IsEdgeScope()
-                &&  ptpStart->Branch()->HasLayout() )
-            {
-                if( ! pNodeNotify )
+            if (cch
+                && ptpStart->IsEdgeScope()
+                && ptpStart->Branch()->HasLayout()) {
+                if (!pNodeNotify)
                     pNodeNotify = ptpStart->IsBeginNode()
-                        ? ptpStart->Branch()->Parent()
-                        : ptpStart->Branch();
+                    ? ptpStart->Branch()->Parent()
+                    : ptpStart->Branch();
 
-                Assert( !pNodeNotify->Element()->IsNoScope() );
+                Assert(!pNodeNotify->Element()->IsNoScope());
 
-                nf.CharsResize( cp, cch, pNodeNotify );
-                Notify( nf );
+                nf.CharsResize(cp, cch, pNodeNotify);
+                Notify(nf);
 
                 cp += cch;
                 cch = 0;
@@ -343,16 +318,13 @@ CMarkup::RangeAffected ( CTreePos *ptpLeft, CTreePos *ptpRight )
             // If we hit an edge, clear pNodeNotify.  Either we sent
             // a notification or we didn't. Either way, we are done
             // with this inclusion so we don't have to remember pNodeNotify
-            if( ptpStart->IsEdgeScope() )
-            {
+            if (ptpStart->IsEdgeScope()) {
                 pNodeNotify = NULL;
             }
 
-            if( ptpStart->IsEndNode() )
+            if (ptpStart->IsEndNode())
                 cch++;
-        }
-        else if( ptpStart->IsText() )
-        {
+        } else if (ptpStart->IsText()) {
             cch += ptpStart->Cch();
         }
 
@@ -360,24 +332,22 @@ CMarkup::RangeAffected ( CTreePos *ptpLeft, CTreePos *ptpRight )
     }
 
     // Finish off any notification left over
-    if( cch )
-    {
-        if( !pNodeNotify )
-        {
-            CTreePosGap tpg( ptpStart, TPG_LEFT );
+    if (cch) {
+        if (!pNodeNotify) {
+            CTreePosGap tpg(ptpStart, TPG_LEFT);
             pNodeNotify = tpg.Branch();
         }
 
-        nf.CharsResize( cp, cch, pNodeNotify );
-        Notify( nf );
+        nf.CharsResize(cp, cch, pNodeNotify);
+        Notify(nf);
     }
 
 Cleanup:
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 #if 0
-This routine is not currently needed and may not even be correct!
+This routine is not currently neededand may not even be correct!
 
 
 //  Member:     EnsureSidAfterCharsInserted
@@ -394,22 +364,22 @@ This routine is not currently needed and may not even be correct!
 
 
 HRESULT CMarkup::EnsureSidAfterCharsInserted(
-    CTreeNode * pNodeNotify,
-    CTreePos *  ptpText,
+    CTreeNode* pNodeNotify,
+    CTreePos* ptpText,
     long        ichStart,
-    long        cch )
+    long        cch)
 {
-    Assert( ptpText && ptpText->IsText() );
-    Assert( cch > 0 && cch <= ptpText->Cch() );
-    Assert( ichStart < ptpText->Cch() );
+    Assert(ptpText && ptpText->IsText());
+    Assert(cch > 0 && cch <= ptpText->Cch());
+    Assert(ichStart < ptpText->Cch());
 
     HRESULT         hr = S_OK;
-    CMarkupUndo     mu( this );
-    CTxtPtr         tp( this, ptpText->GetCp() + ichStart );
+    CMarkupUndo     mu(this);
+    CTxtPtr         tp(this, ptpText->GetCp() + ichStart);
     long            ichCurr = ichStart;
     long            ichLastAdded = ichStart + cch - 1;
     long            ichLastInRun = ptpText->Cch() - 1;
-    CTreePos *      ptpCurr = ptpText;
+    CTreePos* ptpCurr = ptpText;
     long            sidCurr = ptpText->Sid();
     long            sidOrig = sidCurr;
     TCHAR           chCurr = tp.GetChar();
@@ -419,16 +389,15 @@ HRESULT CMarkup::EnsureSidAfterCharsInserted(
     // Iterate through all of the characters added
 
 
-    for( ; ichCurr <= ichLastAdded; ichCurr++ )
-    {
+    for (; ichCurr <= ichLastAdded; ichCurr++) {
         long    sidNew;
 
-        if( ! fFirst )
+        if (!fFirst)
             chCurr = tp.NextChar();
 
         fFirst = FALSE;
 
-        sidNew = ScriptIDFromCh( chCurr );
+        sidNew = ScriptIDFromCh(chCurr);
 
         // BUGBUG (t-johnh): This can be a LOT smarter about when
         // to split, as right now, we get excessive fragmentation.
@@ -438,19 +407,17 @@ HRESULT CMarkup::EnsureSidAfterCharsInserted(
         // sidCurr should represent the sid of the combination of
         // all characters previous in the text pos.
 
-        sidNew = FoldScriptIDs( sidCurr, sidNew );
+        sidNew = FoldScriptIDs(sidCurr, sidNew);
 
-        if( sidCurr != sidNew )
-        {
-            if( ichCurr )
-            {
+        if (sidCurr != sidNew) {
+            if (ichCurr) {
 
                 // Split the run at this ich
 
 
-                mu.TextPosSplit( ptpCurr );
+                mu.TextPosSplit(ptpCurr);
 
-                hr = THR( Split( ptpCurr, ichCurr, sidNew ) );
+                hr = THR(Split(ptpCurr, ichCurr, sidNew));
                 if (hr)
                     goto Cleanup;
 
@@ -467,25 +434,23 @@ HRESULT CMarkup::EnsureSidAfterCharsInserted(
                 // the new characters start at the beginning of the run,
                 // try to join the left run (with the new characters) with
                 // the previous run
-                if( nRunsAdded == 0 && ichStart == 0)
-                {
-                    CTreePos *ptpPrev = ptpCurr->PreviousTreePos();
+                if (nRunsAdded == 0 && ichStart == 0) {
+                    CTreePos* ptpPrev = ptpCurr->PreviousTreePos();
 
-                    if( ptpPrev->IsText() && ptpPrev->Sid() == ptpCurr->Sid() )
-                    {
-                        Assert( long(tp.GetCp()) - ichCurr == ptpPrev->GetCp() + ptpPrev->Cch() );
-                        nf.RunsJoined( tp.GetCp() - ichCurr, ptpPrev->Index(), ptpPrev->Cch(), pNodeNotify );
-                        mu.TextPosJoined( ptpPrev );
+                    if (ptpPrev->IsText() && ptpPrev->Sid() == ptpCurr->Sid()) {
+                        Assert(long(tp.GetCp()) - ichCurr == ptpPrev->GetCp() + ptpPrev->Cch());
+                        nf.RunsJoined(tp.GetCp() - ichCurr, ptpPrev->Index(), ptpPrev->Cch(), pNodeNotify);
+                        mu.TextPosJoined(ptpPrev);
 
-                        hr = THR( Join( ptpPrev ) );
+                        hr = THR(Join(ptpPrev));
                         if (hr)
                             goto Cleanup;
 
-                        nRunsAdded --;
+                        nRunsAdded--;
 
                         Doc()->InvalidateTreeCache();
 
-                        Notify( nf );
+                        Notify(nf);
 
                         ptpCurr = ptpPrev;
                     }
@@ -495,20 +460,18 @@ HRESULT CMarkup::EnsureSidAfterCharsInserted(
 
                 // We are now examining the added pos
                 ptpCurr = ptpCurr->NextTreePos();
-                Assert( ptpCurr && ptpCurr->IsText() );
+                Assert(ptpCurr && ptpCurr->IsText());
 
                 // Update all of ich's
                 ichLastAdded -= ichCurr;
                 ichLastInRun -= ichCurr;
                 ichCurr = 0;
 
-            }
-            else
-            {
+            } else {
                 // Set the sid for the current run since
                 // the run wasn't split, this didn't get
                 // set that way.
-                mu.TextPosSidChanged( ptpCurr );
+                mu.TextPosSidChanged(ptpCurr);
                 ptpCurr->DataThis()->_sid = sidNew;
             }
         }
@@ -527,15 +490,14 @@ HRESULT CMarkup::EnsureSidAfterCharsInserted(
     // NOTE: we may want to reexamine this later as if everything
     // left is neutral, we don't want to split again.
 
-    Assert( sidCurr == ptpCurr->Sid() );
-    if( sidOrig != sidCurr && ichCurr && ichCurr <= ichLastInRun )
-    {
+    Assert(sidCurr == ptpCurr->Sid());
+    if (sidOrig != sidCurr && ichCurr && ichCurr <= ichLastInRun) {
         // Advance to catch up with the ich
         tp.AdvanceCp(1);
 
-        mu.TextPosSplit( ptpCurr );
+        mu.TextPosSplit(ptpCurr);
 
-        hr = THR( Split( ptpCurr, ichCurr, sidOrig ) );
+        hr = THR(Split(ptpCurr, ichCurr, sidOrig));
         if (hr)
             goto Cleanup;
 
@@ -543,25 +505,23 @@ HRESULT CMarkup::EnsureSidAfterCharsInserted(
 
 #if NEVER
         // Same comment as above
-        if( nRunsAdded == 0 && ichStart == 0)
-        {
-            CTreePos *ptpPrev = ptpCurr->PreviousTreePos();
+        if (nRunsAdded == 0 && ichStart == 0) {
+            CTreePos* ptpPrev = ptpCurr->PreviousTreePos();
 
-            if( ptpPrev->IsText() && ptpPrev->Sid() == ptpCurr->Sid() )
-            {
-                Assert( long(tp.GetCp()) - ichCurr == ptpPrev->GetCp() + ptpPrev->Cch() );
-                nf.RunsJoined( tp.GetCp() - ichCurr, ptpPrev->Index(), ptpPrev->Cch(), pNodeNotify );
-                mu.TextPosJoined( ptpPrev );
+            if (ptpPrev->IsText() && ptpPrev->Sid() == ptpCurr->Sid()) {
+                Assert(long(tp.GetCp()) - ichCurr == ptpPrev->GetCp() + ptpPrev->Cch());
+                nf.RunsJoined(tp.GetCp() - ichCurr, ptpPrev->Index(), ptpPrev->Cch(), pNodeNotify);
+                mu.TextPosJoined(ptpPrev);
 
-                hr = THR( Join( ptpPrev ) );
+                hr = THR(Join(ptpPrev));
                 if (hr)
                     goto Cleanup;
 
-                nRunsAdded --;
+                nRunsAdded--;
 
                 Doc()->InvalidateTreeCache();
 
-                Notify( nf );
+                Notify(nf);
 
                 ptpCurr = ptpPrev;
             }
@@ -589,56 +549,52 @@ Cleanup:
 
 HRESULT
 CMarkup::SetTextID(
-    CTreePosGap *   ptpgStart,
-    CTreePosGap *   ptpgEnd,
-    long *plNewTextID )
+    CTreePosGap* ptpgStart,
+    CTreePosGap* ptpgEnd,
+    long* plNewTextID)
 {
     HRESULT hr = S_OK;
     long lTxtID;
 
-    Assert( ! HasUnembeddedPointers() );
+    Assert(!HasUnembeddedPointers());
 
-    EnsureTotalOrder( ptpgStart, ptpgEnd );
+    EnsureTotalOrder(ptpgStart, ptpgEnd);
 
-    Assert( ptpgStart && ptpgStart->IsPositioned() && ptpgStart->GetAttachedMarkup() == this );
-    Assert( ptpgEnd && ptpgEnd->IsPositioned() && ptpgEnd->GetAttachedMarkup() == this );
+    Assert(ptpgStart && ptpgStart->IsPositioned() && ptpgStart->GetAttachedMarkup() == this);
+    Assert(ptpgEnd && ptpgEnd->IsPositioned() && ptpgEnd->GetAttachedMarkup() == this);
 
-    CTreePos *  ptpFirst, * ptpCurr, *ptpStop;
-    CDoc *      pDoc = Doc();
+    CTreePos* ptpFirst, * ptpCurr, * ptpStop;
+    CDoc* pDoc = Doc();
 
-    if ( !plNewTextID )
+    if (!plNewTextID)
         plNewTextID = &lTxtID;
 
     *plNewTextID = 0;
 
-    ptpFirst = ptpgStart->AdjacentTreePos( TPG_LEFT );
+    ptpFirst = ptpgStart->AdjacentTreePos(TPG_LEFT);
     ptpCurr = ptpFirst;
-    ptpStop = ptpgEnd->AdjacentTreePos( TPG_RIGHT );
+    ptpStop = ptpgEnd->AdjacentTreePos(TPG_RIGHT);
 
     ptpgStart->UnPosition();
     ptpgEnd->UnPosition();
 
-    SplitTextID( ptpCurr, ptpStop );
+    SplitTextID(ptpCurr, ptpStop);
 
     ptpCurr = ptpCurr->NextTreePos();
 
-    while( ptpCurr != ptpStop )
-    {
-        Assert( ptpCurr );
+    while (ptpCurr != ptpStop) {
+        Assert(ptpCurr);
 
-        if( ptpCurr->IsNode() )
-        {
+        if (ptpCurr->IsNode()) {
             *plNewTextID = 0;
         }
 
-        if( ptpCurr->IsText() )
-        {
-            if( *plNewTextID == 0 )
-            {
+        if (ptpCurr->IsText()) {
+            if (*plNewTextID == 0) {
                 *plNewTextID = ++(pDoc->_lLastTextID);
             }
 
-            hr = THR( SetTextPosID( &ptpCurr, *plNewTextID ) );
+            hr = THR(SetTextPosID(&ptpCurr, *plNewTextID));
             if (hr)
                 goto Cleanup;
 
@@ -647,23 +603,22 @@ CMarkup::SetTextID(
         ptpCurr = ptpCurr->NextTreePos();
     }
 
-    if( !*plNewTextID )
-    {
-        CTreePos * ptpNew;
-        CTreePosGap tpgInsert( ptpCurr, TPG_RIGHT );
+    if (!*plNewTextID) {
+        CTreePos* ptpNew;
+        CTreePosGap tpgInsert(ptpCurr, TPG_RIGHT);
 
         ptpNew = NewTextPos(0, sidDefault, *plNewTextID = ++(pDoc->_lLastTextID));
 
         hr = THR(Insert(ptpNew, &tpgInsert));
-        if(hr)
+        if (hr)
             goto Cleanup;
     }
 
-    Verify( ! ptpgStart->MoveTo( ptpFirst, TPG_RIGHT ) );
-    Verify( ! ptpgEnd->MoveTo( ptpStop, TPG_LEFT ) );
+    Verify(!ptpgStart->MoveTo(ptpFirst, TPG_RIGHT));
+    Verify(!ptpgEnd->MoveTo(ptpStop, TPG_LEFT));
 
 Cleanup:
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
@@ -683,19 +638,18 @@ Cleanup:
 
 long
 CMarkup::GetTextID(
-    CTreePosGap * ptpg )
+    CTreePosGap* ptpg)
 {
-    Assert( ptpg && ptpg->IsPositioned() && ptpg->GetAttachedMarkup() == this );
+    Assert(ptpg && ptpg->IsPositioned() && ptpg->GetAttachedMarkup() == this);
 
-    CTreePos * ptp = ptpg->AdjacentTreePos( TPG_RIGHT );
+    CTreePos* ptp = ptpg->AdjacentTreePos(TPG_RIGHT);
 
-    while( ! ptp->IsNode() )
-    {
-        if( ptp->IsText() )
+    while (!ptp->IsNode()) {
+        if (ptp->IsText())
             return ptp->TextID();
 
         ptp = ptp->NextTreePos();
-        Assert( ptp );
+        Assert(ptp);
     }
 
     return -1;
@@ -721,48 +675,39 @@ CMarkup::GetTextID(
 HRESULT
 CMarkup::FindTextID(
     long            lTextID,
-    CTreePosGap *   ptpgStart,
-    CTreePosGap *   ptpgEnd )
+    CTreePosGap* ptpgStart,
+    CTreePosGap* ptpgEnd)
 {
-    Assert( ptpgStart && ptpgStart->IsPositioned() && ptpgStart->GetAttachedMarkup() == this );
-    Assert( ptpgEnd );
+    Assert(ptpgStart && ptpgStart->IsPositioned() && ptpgStart->GetAttachedMarkup() == this);
+    Assert(ptpgEnd);
 
-    CTreePos * ptpLeft, *ptpRight, *ptpFound = NULL;
+    CTreePos* ptpLeft, * ptpRight, * ptpFound = NULL;
 
-    ptpLeft = ptpgStart->AdjacentTreePos( TPG_LEFT );
-    ptpRight = ptpgStart->AdjacentTreePos( TPG_RIGHT );
+    ptpLeft = ptpgStart->AdjacentTreePos(TPG_LEFT);
+    ptpRight = ptpgStart->AdjacentTreePos(TPG_RIGHT);
 
 
     // Start from ptpgStart and search both directions at the same time.
 
 
-    while( ptpLeft || ptpRight )
-    {
-        if( ptpLeft )
-        {
-            if( ptpLeft->IsText() && ptpLeft->TextID() == lTextID )
-            {
+    while (ptpLeft || ptpRight) {
+        if (ptpLeft) {
+            if (ptpLeft->IsText() && ptpLeft->TextID() == lTextID) {
                 ptpRight = ptpLeft;
 
                 // Starting at ptpLeft, loop to the left
                 // looking for all of consecutive text poses
                 // with TextID of lTextID
-                do
-                {
-                    if( ptpLeft->IsText() )
-                    {
-                        if( ptpLeft->TextID() == lTextID )
-                        {
+                do {
+                    if (ptpLeft->IsText()) {
+                        if (ptpLeft->TextID() == lTextID) {
                             ptpFound = ptpLeft;
-                        }
-                        else
-                        {
+                        } else {
                             break;
                         }
                     }
                     ptpLeft = ptpLeft->PreviousTreePos();
-                }
-                while( !ptpLeft->IsNode() );
+                } while (!ptpLeft->IsNode());
 
                 ptpLeft = ptpFound;
 
@@ -772,31 +717,23 @@ CMarkup::FindTextID(
             ptpLeft = ptpLeft->PreviousTreePos();
         }
 
-        if( ptpRight )
-        {
-            if( ptpRight->IsText() && ptpRight->TextID() == lTextID )
-            {
+        if (ptpRight) {
+            if (ptpRight->IsText() && ptpRight->TextID() == lTextID) {
                 ptpLeft = ptpRight;
 
                 // Starting at ptpRight, loop to the right
                 // looking for all of consecutive text poses
                 // with TextID of lTextID
-                do
-                {
-                    if( ptpRight->IsText() )
-                    {
-                        if( ptpRight->TextID() == lTextID )
-                        {
+                do {
+                    if (ptpRight->IsText()) {
+                        if (ptpRight->TextID() == lTextID) {
                             ptpFound = ptpRight;
-                        }
-                        else
-                        {
+                        } else {
                             break;
                         }
                     }
                     ptpRight = ptpRight->NextTreePos();
-                }
-                while( !ptpRight->IsNode() );
+                } while (!ptpRight->IsNode());
 
                 ptpRight = ptpFound;
 
@@ -806,10 +743,9 @@ CMarkup::FindTextID(
         }
     }
 
-    if( ptpFound )
-    {
-        Verify( !ptpgStart->MoveTo( ptpLeft, TPG_LEFT ) );
-        Verify( !ptpgEnd->MoveTo( ptpRight, TPG_RIGHT ) );
+    if (ptpFound) {
+        Verify(!ptpgStart->MoveTo(ptpLeft, TPG_LEFT));
+        Verify(!ptpgEnd->MoveTo(ptpRight, TPG_RIGHT));
 
         return S_OK;
     }
@@ -831,27 +767,24 @@ CMarkup::FindTextID(
 
 void
 CMarkup::SplitTextID(
-    CTreePos *   ptpLeft,
-    CTreePos *   ptpRight )
+    CTreePos* ptpLeft,
+    CTreePos* ptpRight)
 {
-    Assert( ptpLeft && ptpRight );
+    Assert(ptpLeft && ptpRight);
 
-    Assert( ! HasUnembeddedPointers() );
+    Assert(!HasUnembeddedPointers());
 
 
     // Find a text pos to the left if any
 
 
-    while ( ptpLeft )
-    {
-        if( ptpLeft->IsNode() )
-        {
+    while (ptpLeft) {
+        if (ptpLeft->IsNode()) {
             ptpLeft = NULL;
             break;
         }
 
-        if( ptpLeft->IsText() )
-        {
+        if (ptpLeft->IsText()) {
             break;
         }
 
@@ -862,16 +795,13 @@ CMarkup::SplitTextID(
     // Find one to the right
 
 
-    while ( ptpRight )
-    {
-        if( ptpRight->IsNode() )
-        {
+    while (ptpRight) {
+        if (ptpRight->IsNode()) {
             ptpRight = NULL;
             break;
         }
 
-        if( ptpRight->IsText() )
-        {
+        if (ptpRight->IsText()) {
             break;
         }
 
@@ -884,26 +814,20 @@ CMarkup::SplitTextID(
     // to give the fragment to the right a new ID.
 
 
-    if(     ptpLeft
-        &&  ptpRight
-        &&  ptpRight->TextID()
-        &&  ptpLeft->TextID() == ptpRight->TextID() )
-    {
+    if (ptpLeft
+        && ptpRight
+        && ptpRight->TextID()
+        && ptpLeft->TextID() == ptpRight->TextID()) {
         long lCurrTextID = ptpRight->TextID();
         long lNewTextID = ++(Doc()->_lLastTextID);
 
-        while( ptpRight && !ptpRight->IsNode() )
-        {
-            if( ptpRight->IsText() )
-            {
-                if( ptpRight->TextID() == lCurrTextID )
-                {
-                    WHEN_DBG( CTreePos * ptpOld = ptpRight );
-                    Verify( ! SetTextPosID( &ptpRight, lNewTextID ) );
-                    Assert( ptpOld == ptpRight );
-                }
-                else
-                {
+        while (ptpRight && !ptpRight->IsNode()) {
+            if (ptpRight->IsText()) {
+                if (ptpRight->TextID() == lCurrTextID) {
+                    WHEN_DBG(CTreePos * ptpOld = ptpRight);
+                    Verify(!SetTextPosID(&ptpRight, lNewTextID));
+                    Assert(ptpOld == ptpRight);
+                } else {
                     break;
                 }
             }

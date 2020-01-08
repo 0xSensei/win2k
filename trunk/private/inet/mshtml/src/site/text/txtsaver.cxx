@@ -69,56 +69,56 @@ MtDefine(CRangeSaver_local_aryElements_pv, Locals, "CRangeSaver local func aryEl
 
 
 CRangeSaver::CRangeSaver(
-    CMarkupPointer *    pLeft,
-    CMarkupPointer *    pRight,
+    CMarkupPointer* pLeft,
+    CMarkupPointer* pRight,
     DWORD               dwFlags,
-    CStreamWriteBuff *  pswb,
-    CMarkup *           pMarkup,
-    CElement *          pelContainer )
-    : CTreeSaver( pMarkup )
+    CStreamWriteBuff* pswb,
+    CMarkup* pMarkup,
+    CElement* pelContainer)
+    : CTreeSaver(pMarkup)
 {
-    Initialize( pLeft, pRight, dwFlags, pswb, pMarkup, pelContainer );
+    Initialize(pLeft, pRight, dwFlags, pswb, pMarkup, pelContainer);
 }
 
 
 void
 CRangeSaver::Initialize(
-    CMarkupPointer *    pLeft,
-    CMarkupPointer *    pRight,
+    CMarkupPointer* pLeft,
+    CMarkupPointer* pRight,
     DWORD               dwFlags,
-    CStreamWriteBuff *  pswb,
-    CMarkup *           pMarkup,
-    CElement *          pelContainer )
+    CStreamWriteBuff* pswb,
+    CMarkup* pMarkup,
+    CElement* pelContainer)
 {
-    Assert( pLeft && pRight && pswb && pMarkup );
-    Assert( pLeft->IsPositioned() && pRight->IsPositioned() );
-    Assert( pLeft->Markup() == pMarkup );
-    Assert( pRight->Markup() == pMarkup );
+    Assert(pLeft && pRight && pswb && pMarkup);
+    Assert(pLeft->IsPositioned() && pRight->IsPositioned());
+    Assert(pLeft->Markup() == pMarkup);
+    Assert(pRight->Markup() == pMarkup);
 
-    IGNORE_HR( pMarkup->EmbedPointers () );
+    IGNORE_HR(pMarkup->EmbedPointers());
 
     // Set CTreeSaver data
-    _pswb            = pswb;
-    _pMarkup         = pMarkup;
-    _pelContainer    = pelContainer;
-    _fSymmetrical    = TRUE;
+    _pswb = pswb;
+    _pMarkup = pMarkup;
+    _pelContainer = pelContainer;
+    _fSymmetrical = TRUE;
 
-    Verify( ! _tpgStart.MoveTo( pLeft->GetEmbeddedTreePos(), TPG_RIGHT ) );
-    _tpgStart.SetAttachPreference( TPG_RIGHT );
-    Verify( ! _tpgStart.MoveRight( TPG_OKNOTTOMOVE | TPG_SKIPPOINTERS ) );
+    Verify(!_tpgStart.MoveTo(pLeft->GetEmbeddedTreePos(), TPG_RIGHT));
+    _tpgStart.SetAttachPreference(TPG_RIGHT);
+    Verify(!_tpgStart.MoveRight(TPG_OKNOTTOMOVE | TPG_SKIPPOINTERS));
     _fLBStartLeft = FALSE;
 
-    Verify( ! _tpgEnd.MoveTo( pRight->GetEmbeddedTreePos(), TPG_RIGHT ) );
-    _tpgEnd.SetAttachPreference( TPG_RIGHT );
-    Verify( ! _tpgEnd.MoveRight( TPG_OKNOTTOMOVE | TPG_SKIPPOINTERS ) );
+    Verify(!_tpgEnd.MoveTo(pRight->GetEmbeddedTreePos(), TPG_RIGHT));
+    _tpgEnd.SetAttachPreference(TPG_RIGHT);
+    Verify(!_tpgEnd.MoveRight(TPG_OKNOTTOMOVE | TPG_SKIPPOINTERS));
     _fLBEndLeft = FALSE;
 
-    Assert( !_pelContainer
-        ||  (   _tpgStart.Branch()->SearchBranchToRootForScope( pelContainer )
-            &&  _tpgEnd.Branch()->SearchBranchToRootForScope( pelContainer ) ) );
+    Assert(!_pelContainer
+           || (_tpgStart.Branch()->SearchBranchToRootForScope(pelContainer)
+               && _tpgEnd.Branch()->SearchBranchToRootForScope(pelContainer)));
 
     // Set CRangeSaver data
-    _dwFlags         = dwFlags;
+    _dwFlags = dwFlags;
     memset(&_header, 0, sizeof(_header));
 
 #if 0
@@ -127,38 +127,32 @@ CRangeSaver::Initialize(
     // I don't know what this is for either (johnbed)
     // I have no idea what this does.  (Paulpark)
     // BUGBUG (johnv) Hack for memphis - clean up later.
-    CTreeNode * pNodeHint = prange->GetNodeHint();
-    if (pNodeHint)
-    {
+    CTreeNode* pNodeHint = prange->GetNodeHint();
+    if (pNodeHint) {
         _pNodeContextLeft = _pNodeContextRight = _pNodeContext = pNodeHint->Parent();
     }
 #endif // 0
 
-    if( ! (_dwFlags & RSF_NO_IE4_COMPAT_SEL) )
-    {
+    if (!(_dwFlags & RSF_NO_IE4_COMPAT_SEL)) {
         DoIE4SelectionCollapse();
     }
 
     // Compute fragment element
-    if( _dwFlags & RSF_NO_IE4_COMPAT_FRAG )
-    {
-        CTreeNode * pNodeLeft = _tpgStart.Branch();
-        CTreeNode * pNodeRight = _tpgEnd.Branch();
-        CTreeNode * pNodeCommon;
+    if (_dwFlags & RSF_NO_IE4_COMPAT_FRAG) {
+        CTreeNode* pNodeLeft = _tpgStart.Branch();
+        CTreeNode* pNodeRight = _tpgEnd.Branch();
+        CTreeNode* pNodeCommon;
 
-        pNodeCommon = pNodeLeft->GetFirstCommonAncestor( pNodeRight, NULL );
-        Assert( pNodeCommon );
+        pNodeCommon = pNodeLeft->GetFirstCommonAncestor(pNodeRight, NULL);
+        Assert(pNodeCommon);
 
         _pelFragment = pNodeCommon->Element();
-    }
-    else
-    {
+    } else {
         ComputeIE4Fragment();
     }
 
-    if(     !(_dwFlags & RSF_NO_IE4_COMPAT_SEL)
-        &&  _dwFlags & RSF_SELECTION )
-    {
+    if (!(_dwFlags & RSF_NO_IE4_COMPAT_SEL)
+        && _dwFlags & RSF_SELECTION) {
         ComputeIE4Selection();
     }
 }
@@ -173,14 +167,14 @@ CRangeSaver::Initialize(
 
 
 
-CTreeNode *
-CRangeSaver::IE4CompatRangeContext(CTreePos *ptpStart, CTreePos *ptpEnd)
+CTreeNode*
+CRangeSaver::IE4CompatRangeContext(CTreePos* ptpStart, CTreePos* ptpEnd)
 {
 
-    CTreeNode * pNodeReturn;
-    CTreePos * ptpTry;
-    CDoc     * pDoc = _pMarkup->Doc();
-    CBodyElement *pBody;
+    CTreeNode* pNodeReturn;
+    CTreePos* ptpTry;
+    CDoc* pDoc = _pMarkup->Doc();
+    CBodyElement* pBody;
 
     Assert(pDoc);
 
@@ -192,16 +186,14 @@ CRangeSaver::IE4CompatRangeContext(CTreePos *ptpStart, CTreePos *ptpEnd)
     // Move our ptp's out to get to Node pos's
 
 
-    while( !ptpStart->IsNode() || !ptpStart->IsBeginNode() )
-    {
+    while (!ptpStart->IsNode() || !ptpStart->IsBeginNode()) {
         ptpStart = ptpStart->PreviousTreePos();
-        Assert( ptpStart );
+        Assert(ptpStart);
     }
 
-    while( !ptpEnd->IsNode() || !ptpEnd->IsEndNode() )
-    {
+    while (!ptpEnd->IsNode() || !ptpEnd->IsEndNode()) {
         ptpEnd = ptpEnd->NextTreePos();
-        Assert( ptpEnd );
+        Assert(ptpEnd);
     }
 
 
@@ -209,26 +201,24 @@ CRangeSaver::IE4CompatRangeContext(CTreePos *ptpStart, CTreePos *ptpEnd)
 
 
     ptpTry = ptpStart;
-    do
-    {
+    do {
         ptpStart = ptpTry;
         ptpTry = ptpStart->PreviousNonPtrTreePos();
-        Assert( ptpTry );
-    } while( ptpTry->IsNode() && ptpTry->IsBeginNode()
-         && !pBody->GetFlowLayout()->IsElementBlockInContext( ptpTry->Branch()->Element() )
-        );
+        Assert(ptpTry);
+    } while (ptpTry->IsNode() && ptpTry->IsBeginNode()
+             && !pBody->GetFlowLayout()->IsElementBlockInContext(ptpTry->Branch()->Element())
+             );
 
     ptpTry = ptpEnd;
-    do
-    {
+    do {
         ptpEnd = ptpTry;
         ptpTry = ptpEnd->NextNonPtrTreePos();
-        Assert( ptpTry );
-    } while( ptpTry->IsNode() && ptpTry->IsEndNode()
-         && !pBody->GetFlowLayout()->IsElementBlockInContext( ptpTry->Branch()->Element() )
-        );
+        Assert(ptpTry);
+    } while (ptpTry->IsNode() && ptpTry->IsEndNode()
+             && !pBody->GetFlowLayout()->IsElementBlockInContext(ptpTry->Branch()->Element())
+             );
 
-    pNodeReturn= ptpStart->Branch()->GetFirstCommonAncestor( ptpEnd->Branch(), NULL );
+    pNodeReturn = ptpStart->Branch()->GetFirstCommonAncestor(ptpEnd->Branch(), NULL);
 
     return pNodeReturn;
 }
@@ -243,14 +233,12 @@ CRangeSaver::IE4CompatRangeContext(CTreePos *ptpStart, CTreePos *ptpEnd)
 
 
 HRESULT
-CRangeSaver::SaveSelection( BOOL fEnd )
+CRangeSaver::SaveSelection(BOOL fEnd)
 {
     HRESULT hr = S_OK;
 
-    if (_dwFlags & RSF_CFHTML_HEADER)
-    {
-        if (fEnd)
-        {
+    if (_dwFlags & RSF_CFHTML_HEADER) {
+        if (fEnd) {
 
             // Record the offset for the selection end
 
@@ -259,20 +247,16 @@ CRangeSaver::SaveSelection( BOOL fEnd )
                 goto Cleanup;
 
 #if DBG == 1
-            if (IsTagEnabled(tagSaveShowSelection))
-            {
+            if (IsTagEnabled(tagSaveShowSelection)) {
                 _pswb->Write(_T("[SELEND]"));
             }
 #endif
-        }
-        else
-        {
+        } else {
 
             // Record the offset for the selection beginning
 
 #if DBG == 1
-            if (IsTagEnabled(tagSaveShowSelection))
-            {
+            if (IsTagEnabled(tagSaveShowSelection)) {
                 _pswb->Write(_T("[SELSTART]"));
             }
 #endif
@@ -300,61 +284,58 @@ CRangeSaver::DoIE4SelectionCollapse()
     // BUGBUG: handle a range with no content under it!
 
     // Move the start gap in until we hit real content
-    _tpgStart.SetAttachPreference( TPG_RIGHT );
+    _tpgStart.SetAttachPreference(TPG_RIGHT);
 
-    while(  !(  _tpgStart.AttachedTreePos()->IsText()
-            &&  _tpgStart.AttachedTreePos()->Cch() ) )
-    {
+    while (!(_tpgStart.AttachedTreePos()->IsText()
+             && _tpgStart.AttachedTreePos()->Cch())) {
         // never cross container boundries
-        if(     _tpgStart.AttachedTreePos()->IsNode()
-            &&  _tpgStart.AttachedTreePos()->IsEdgeScope()
-            &&  _tpgStart.AttachedTreePos()->Branch()->IsContainer() )
+        if (_tpgStart.AttachedTreePos()->IsNode()
+            && _tpgStart.AttachedTreePos()->IsEdgeScope()
+            && _tpgStart.AttachedTreePos()->Branch()->IsContainer())
             break;
 
         // If we hit a LB char and we don't have it marked
         // on our left, break
-        if(     !_fLBStartLeft
-            &&  LineBreakChar( &_tpgStart ) )
+        if (!_fLBStartLeft
+            && LineBreakChar(&_tpgStart))
             break;
 
         _fLBStartLeft = FALSE;
 
         // BUGBUG: is this IE4 compat?
-        if( _tpgStart == _tpgEnd )
+        if (_tpgStart == _tpgEnd)
             break;
 
-        Verify( ! _tpgStart.MoveRight() );
+        Verify(!_tpgStart.MoveRight());
     }
 
-    Verify( !_tpgStart.MoveLeft( TPG_VALIDGAP | TPG_OKNOTTOMOVE ) );
+    Verify(!_tpgStart.MoveLeft(TPG_VALIDGAP | TPG_OKNOTTOMOVE));
 
     // Move the end gap in until we hit real content
-    _tpgEnd.SetAttachPreference( TPG_LEFT );
+    _tpgEnd.SetAttachPreference(TPG_LEFT);
 
-    while(  !(  _tpgEnd.AttachedTreePos()->IsText()
-            &&  _tpgEnd.AttachedTreePos()->Cch() )
-        &&  ! _fLBEndLeft )
-    {
+    while (!(_tpgEnd.AttachedTreePos()->IsText()
+             && _tpgEnd.AttachedTreePos()->Cch())
+           && !_fLBEndLeft) {
         // never cross container boundries
-        if(     _tpgEnd.AttachedTreePos()->IsNode()
-            &&  _tpgEnd.AttachedTreePos()->IsEdgeScope()
-            &&  _tpgEnd.AttachedTreePos()->Branch()->IsContainer() )
+        if (_tpgEnd.AttachedTreePos()->IsNode()
+            && _tpgEnd.AttachedTreePos()->IsEdgeScope()
+            && _tpgEnd.AttachedTreePos()->Branch()->IsContainer())
             break;
 
         // BUGBUG: is this IE4 compat?
-        if( _tpgStart == _tpgEnd )
+        if (_tpgStart == _tpgEnd)
             break;
 
-        Verify( ! _tpgEnd.MoveLeft() );
+        Verify(!_tpgEnd.MoveLeft());
 
-        if (LineBreakChar( &_tpgEnd ))
-        {
+        if (LineBreakChar(&_tpgEnd)) {
             _fLBEndLeft = TRUE;
             break;
         }
     }
 
-    Verify( !_tpgEnd.MoveRight( TPG_VALIDGAP | TPG_OKNOTTOMOVE ) );
+    Verify(!_tpgEnd.MoveRight(TPG_VALIDGAP | TPG_OKNOTTOMOVE));
 }
 
 
@@ -370,60 +351,58 @@ CRangeSaver::DoIE4SelectionCollapse()
 void
 CRangeSaver::ComputeIE4Fragment()
 {
-    CTreeNode * pNodeLeft = _tpgStart.Branch();
-    CTreeNode * pNodeRight = _tpgEnd.Branch();
+    CTreeNode* pNodeLeft = _tpgStart.Branch();
+    CTreeNode* pNodeRight = _tpgEnd.Branch();
     CTreePosGap tpgLeft, tpgRight;
 
     // Compute the first common element ancestor for the range
-    pNodeLeft = pNodeLeft->GetFirstCommonAncestor( pNodeRight, NULL );
-    Assert( pNodeLeft );
+    pNodeLeft = pNodeLeft->GetFirstCommonAncestor(pNodeRight, NULL);
+    Assert(pNodeLeft);
 
-    pNodeRight = pNodeRight->SearchBranchToRootForScope( pNodeLeft->Element() );
-    Assert( pNodeRight );
+    pNodeRight = pNodeRight->SearchBranchToRootForScope(pNodeLeft->Element());
+    Assert(pNodeRight);
 
     _pelFragment = pNodeRight->Element();
 
     // Include any phrase element which starts at this "run"
-    while(  ! IsElementBlockInContainer( _pelFragment )
-        &&  ! ScopesLeftOfStart( _pelFragment )
-        &&  _pelFragment != _pelContainer )
-    {
+    while (!IsElementBlockInContainer(_pelFragment)
+           && !ScopesLeftOfStart(_pelFragment)
+           && _pelFragment != _pelContainer) {
         // move to the next parent that covers the entire range
         pNodeLeft = pNodeLeft->Parent();
         pNodeRight = pNodeRight->Parent();
 
-        pNodeLeft = pNodeLeft->GetFirstCommonAncestor( pNodeRight, NULL );
-        Assert( pNodeLeft );
+        pNodeLeft = pNodeLeft->GetFirstCommonAncestor(pNodeRight, NULL);
+        Assert(pNodeLeft);
 
-        pNodeRight = pNodeRight->SearchBranchToRootForScope( pNodeLeft->Element() );
-        Assert( pNodeRight );
+        pNodeRight = pNodeRight->SearchBranchToRootForScope(pNodeLeft->Element());
+        Assert(pNodeRight);
 
         _pelFragment = pNodeRight->Element();
     }
 
     // If the fragment is selected completely, move up an element
-    if (    ! ScopesLeftOfStart( _pelFragment )
-        &&  ! ScopesRightOfEnd( _pelFragment )
-        &&  !(  _pelFragment->HasFlowLayout()
-            &&  _pelFragment->GetFlowLayout()->GetContentMarkup() == _pMarkup )
-        &&  _pelFragment != _pelContainer
-        &&  ! _pelFragment->IsRoot() )
-    {
+    if (!ScopesLeftOfStart(_pelFragment)
+        && !ScopesRightOfEnd(_pelFragment)
+        && !(_pelFragment->HasFlowLayout()
+             && _pelFragment->GetFlowLayout()->GetContentMarkup() == _pMarkup)
+        && _pelFragment != _pelContainer
+        && !_pelFragment->IsRoot()) {
         // move to the next parent that covers the entire range
         pNodeLeft = pNodeLeft->Parent();
         pNodeRight = pNodeRight->Parent();
 
-        pNodeLeft = pNodeLeft->GetFirstCommonAncestor( pNodeRight, NULL );
-        Assert( pNodeLeft );
+        pNodeLeft = pNodeLeft->GetFirstCommonAncestor(pNodeRight, NULL);
+        Assert(pNodeLeft);
 
-        pNodeRight = pNodeRight->SearchBranchToRootForScope( pNodeLeft->Element() );
-        Assert( pNodeRight );
+        pNodeRight = pNodeRight->SearchBranchToRootForScope(pNodeLeft->Element());
+        Assert(pNodeRight);
 
         _pelFragment = pNodeRight->Element();
     }
 
-    Assert( _tpgStart.Branch()->SearchBranchToRootForScope( _pelFragment ) );
-    Assert( _tpgEnd.Branch()->SearchBranchToRootForScope( _pelFragment ) );
+    Assert(_tpgStart.Branch()->SearchBranchToRootForScope(_pelFragment));
+    Assert(_tpgEnd.Branch()->SearchBranchToRootForScope(_pelFragment));
 }
 
 
@@ -437,82 +416,78 @@ CRangeSaver::ComputeIE4Fragment()
 void
 CRangeSaver::ComputeIE4Selection()
 {
-    CTreePosGap tpgTemp( TPG_LEFT );
+    CTreePosGap tpgTemp(TPG_LEFT);
     BOOL        fLBLeft;
-    CTreeNode * pNodeAbove;
+    CTreeNode* pNodeAbove;
 
     // Move the start gap in until we hit real content
-    Verify( !tpgTemp.MoveTo( &_tpgStart ) );
+    Verify(!tpgTemp.MoveTo(&_tpgStart));
     fLBLeft = _fLBStartLeft;
 
     pNodeAbove = tpgTemp.Branch();
 
-    while(  !(  tpgTemp.AttachedTreePos()->IsText()
-            &&  tpgTemp.AttachedTreePos()->Cch() )
-        &&  ! fLBLeft )
-    {
+    while (!(tpgTemp.AttachedTreePos()->IsText()
+             && tpgTemp.AttachedTreePos()->Cch())
+           && !fLBLeft) {
         // Never cross container boundries
-        if (    tpgTemp.AttachedTreePos()->IsNode()
-            &&  tpgTemp.AttachedTreePos()->IsEdgeScope()
-            &&  tpgTemp.AttachedTreePos()->Branch()->IsContainer() )
+        if (tpgTemp.AttachedTreePos()->IsNode()
+            && tpgTemp.AttachedTreePos()->IsEdgeScope()
+            && tpgTemp.AttachedTreePos()->Branch()->IsContainer())
             break;
 
-        if( tpgTemp.AttachedTreePos()->IsBeginElementScope()
-           &&   pNodeAbove->SearchBranchToRootForScope(tpgTemp.Branch()->Element()) )
-        {
-            if (tpgTemp.AttachedTreePos()->Branch()->Element() == _pelFragment )
+        if (tpgTemp.AttachedTreePos()->IsBeginElementScope()
+            && pNodeAbove->SearchBranchToRootForScope(tpgTemp.Branch()->Element())) {
+            if (tpgTemp.AttachedTreePos()->Branch()->Element() == _pelFragment)
                 break;
 
-            Verify( ! _tpgStart.MoveTo( tpgTemp.AttachedTreePos(), TPG_LEFT ) );
-            _fLBStartLeft = LineBreakChar( &_tpgStart );
+            Verify(!_tpgStart.MoveTo(tpgTemp.AttachedTreePos(), TPG_LEFT));
+            _fLBStartLeft = LineBreakChar(&_tpgStart);
         }
 
-        Verify( ! tpgTemp.MoveLeft() );
+        Verify(!tpgTemp.MoveLeft());
 
-        if (LineBreakChar( &tpgTemp ))
+        if (LineBreakChar(&tpgTemp))
             fLBLeft = TRUE;
     }
 
-    Verify( !_tpgStart.MoveLeft( TPG_VALIDGAP | TPG_OKNOTTOMOVE ) );
+    Verify(!_tpgStart.MoveLeft(TPG_VALIDGAP | TPG_OKNOTTOMOVE));
 
     // Move the end gap in until we hit real content
-    Verify( !tpgTemp.MoveTo( &_tpgEnd ) );
+    Verify(!tpgTemp.MoveTo(&_tpgEnd));
     fLBLeft = _fLBEndLeft;
 
     pNodeAbove = tpgTemp.Branch();
 
-    tpgTemp.SetAttachPreference( TPG_RIGHT );
+    tpgTemp.SetAttachPreference(TPG_RIGHT);
 
-    while(  !(  tpgTemp.AttachedTreePos()->IsText()
-            &&  tpgTemp.AttachedTreePos()->Cch() ) )
-    {
+    while (!(tpgTemp.AttachedTreePos()->IsText()
+             && tpgTemp.AttachedTreePos()->Cch())) {
         // If we hit a LB char and we don't have it marked
         // on our left, break
-        if (    !fLBLeft
-            &&  LineBreakChar( &tpgTemp ) )
+        if (!fLBLeft
+            && LineBreakChar(&tpgTemp))
             break;
 
         // Never cross container boundries
-        if (    tpgTemp.AttachedTreePos()->IsNode()
-            &&  tpgTemp.AttachedTreePos()->IsEdgeScope()
-            &&  tpgTemp.AttachedTreePos()->Branch()->IsContainer() )
+        if (tpgTemp.AttachedTreePos()->IsNode()
+            && tpgTemp.AttachedTreePos()->IsEdgeScope()
+            && tpgTemp.AttachedTreePos()->Branch()->IsContainer())
             break;
 
-        if(     tpgTemp.AttachedTreePos()->IsEndElementScope()
-           &&   pNodeAbove->SearchBranchToRootForScope(tpgTemp.Branch()->Element()) )
-        {
-            if (tpgTemp.AttachedTreePos()->Branch()->Element() == _pelFragment )
+        if (tpgTemp.AttachedTreePos()->IsEndElementScope()
+            && pNodeAbove->SearchBranchToRootForScope(tpgTemp.Branch()->Element())) {
+            if (tpgTemp.AttachedTreePos()->Branch()->Element() == _pelFragment)
                 break;
 
-            Verify( ! _tpgEnd.MoveTo( tpgTemp.AttachedTreePos(), TPG_RIGHT ) );
+            Verify(!_tpgEnd.MoveTo(tpgTemp.AttachedTreePos(), TPG_RIGHT));
             _fLBEndLeft = FALSE;
         }
 
         fLBLeft = FALSE;
-        Verify( ! tpgTemp.MoveRight() );
+        Verify(!tpgTemp.MoveRight());
     }
 
-    Verify( !_tpgEnd.MoveRight( TPG_VALIDGAP | TPG_OKNOTTOMOVE ) );
+    Verify(!_tpgEnd.MoveRight(TPG_VALIDGAP | TPG_OKNOTTOMOVE));
 }
 
 
@@ -525,20 +500,20 @@ CRangeSaver::ComputeIE4Selection()
 
 
 HRESULT
-CRangeSaver::GetStmOffset(LONG * plOffset)
+CRangeSaver::GetStmOffset(LONG* plOffset)
 {
     HRESULT        hr;
     ULARGE_INTEGER ulRet;
-    LARGE_INTEGER  lSeekZero  = {0,0};
+    LARGE_INTEGER  lSeekZero = {0,0};
 
     hr = _pswb->Seek(lSeekZero, STREAM_SEEK_CUR, &ulRet);
     if (hr)
         goto Cleanup;
 
 #ifdef UNIX
-    *plOffset = U_QUAD_PART(ulRet);
+    * plOffset = U_QUAD_PART(ulRet);
 #else
-    *plOffset = ulRet.QuadPart;
+    * plOffset = ulRet.QuadPart;
 #endif
 
 Cleanup:
@@ -581,20 +556,17 @@ CRangeSaver::Save()
 {
     HRESULT    hr = S_OK;
 
-    if (_dwFlags & RSF_NO_ENTITIZE_UNKNOWN)
-    {
+    if (_dwFlags & RSF_NO_ENTITIZE_UNKNOWN) {
         // Do not entitize unknown characters if asked not to
         _pswb->SetEntitizeUnknownChars(FALSE);
     }
 
-    if (_dwFlags & RSF_FOR_RTF_CONV)
-    {
+    if (_dwFlags & RSF_FOR_RTF_CONV) {
         // The rtf converter requires pampered html
         _pswb->SetFlags(WBF_FOR_RTF_CONV);
     }
 
-    if (_dwFlags & RSF_CFHTML_HEADER)
-    {
+    if (_dwFlags & RSF_CFHTML_HEADER) {
 
         // Write an empty cfhtml header.  We will go back later and fill
         // it out properly once we have the correct offsets.
@@ -612,7 +584,7 @@ CRangeSaver::Save()
     // Open up the context, starting with the doc header.
 
     {
-        if ( !(_dwFlags & RSF_CONTEXT) )
+        if (!(_dwFlags & RSF_CONTEXT))
             _pswb->BeginSuppress();
 
         _pMarkup->Doc()->WriteDocHeader(_pswb);
@@ -621,12 +593,11 @@ CRangeSaver::Save()
         if (hr)
             goto Cleanup;
 
-        if ( !(_dwFlags & RSF_CONTEXT) )
+        if (!(_dwFlags & RSF_CONTEXT))
             _pswb->EndSuppress();
     }
 
-    if (_dwFlags & RSF_FOR_RTF_CONV)
-    {
+    if (_dwFlags & RSF_FOR_RTF_CONV) {
 
         // Save any html header information needed for the rtf converter.
         // For now this is <HTML> and a charset <META> tag.
@@ -634,12 +605,11 @@ CRangeSaver::Save()
         TCHAR achCharset[MAX_MIMECSET_NAME];
 
         if (GetMlangStringFromCodePage(_pswb->GetCodePage(), achCharset,
-            ARRAY_SIZE(achCharset)) == S_OK)
-        {
+                                       ARRAY_SIZE(achCharset)) == S_OK) {
             DWORD dwOldFlags = _pswb->ClearFlags(WBF_ENTITYREF);
 
             _pswb->Write(_T("<HTML><META HTTP-EQUIV=\"content-type\" ")
-                                 _T("CONTENT=\"text/html;charset="));
+                         _T("CONTENT=\"text/html;charset="));
             _pswb->Write(achCharset);
             _pswb->Write(_T("\">"));
             _pswb->NewLine();
@@ -651,8 +621,7 @@ CRangeSaver::Save()
 
     // The real meat -- where we call the superclass.
 
-    if ( (_dwFlags & RSF_FRAGMENT) || (_dwFlags & RSF_SELECTION) )
-    {
+    if ((_dwFlags & RSF_FRAGMENT) || (_dwFlags & RSF_SELECTION)) {
 
 
         // Call the superclass to save the body
@@ -665,28 +634,27 @@ CRangeSaver::Save()
     }
 
     {
-        if ( !(_dwFlags & RSF_CONTEXT) )
+        if (!(_dwFlags & RSF_CONTEXT))
             _pswb->BeginSuppress();
 
         hr = WriteCloseContext();
-        if( hr )
+        if (hr)
             goto Cleanup;
 
-        if ( !(_dwFlags & RSF_CONTEXT) )
+        if (!(_dwFlags & RSF_CONTEXT))
             _pswb->EndSuppress();
     }
 
-    if (_dwFlags & RSF_CFHTML_HEADER)
-    {
+    if (_dwFlags & RSF_CFHTML_HEADER) {
 
 #if 0
 
         // BUGBUG. If the Frag Start and End are 0 - make equal to SelStart and SelEnd
 
-        if ( _header.iFragmentEnd == 0 )
+        if (_header.iFragmentEnd == 0)
             _header.iFragmentEnd = _header.iSelectionEnd;
 
-        if ( _header.iFragmentStart == 0 )
+        if (_header.iFragmentStart == 0)
             _header.iFragmentStart = _header.iSelectionStart;
 #endif
 
@@ -730,8 +698,8 @@ HRESULT
 CRangeSaver::WriteCFHTMLHeader()
 {
     HRESULT hr;
-    TCHAR * pchOut = NULL;
-    DWORD   dwOldFlags = _pswb->ClearFlags( WBF_ENTITYREF  );
+    TCHAR* pchOut = NULL;
+    DWORD   dwOldFlags = _pswb->ClearFlags(WBF_ENTITYREF);
 
     Assert(_dwFlags & RSF_CFHTML_HEADER);
 
@@ -749,7 +717,7 @@ CRangeSaver::WriteCFHTMLHeader()
 
     Format(
         FMT_OUT_ALLOC,
-        & pchOut, 512,
+        &pchOut, 512,
         szCfHtmlHeaderFormat,
         _T("1.0"),
         (long)_header.iHTMLStart, (long)_header.iHTMLEnd, (long)_header.iFragmentStart,
@@ -757,7 +725,7 @@ CRangeSaver::WriteCFHTMLHeader()
 #if defined(WIN16) || defined(UNIX) || defined(_MAC)
         (LPCTSTR)
 #endif
-           _pMarkup->Doc()->_cstrUrl );
+        _pMarkup->Doc()->_cstrUrl);
 
     // Do not let _pswb mess with forced cr/lfs in this string
 
@@ -771,7 +739,7 @@ CRangeSaver::WriteCFHTMLHeader()
     _pswb->EndPre();
 
 Cleanup:
-    delete [] pchOut;
+    delete[] pchOut;
 
     _pswb->RestoreFlags(dwOldFlags);
 
@@ -790,44 +758,41 @@ HRESULT
 CRangeSaver::WriteOpenContext()
 {
     HRESULT hr = S_OK;
-    CStackPtrAry<CElement *, 32> aryElements(Mt(CRangeSaver_local_aryElements_pv));
-    CTreeNode * pNodeCur;
+    CStackPtrAry<CElement*, 32> aryElements(Mt(CRangeSaver_local_aryElements_pv));
+    CTreeNode* pNodeCur;
 
     // First find the context of _pelFragment that is above the start.
     pNodeCur = _tpgStart.Branch();
-    Assert( pNodeCur );
+    Assert(pNodeCur);
 
-    pNodeCur = pNodeCur->SearchBranchToRootForScope( _pelFragment );
-    Assert( pNodeCur );
+    pNodeCur = pNodeCur->SearchBranchToRootForScope(_pelFragment);
+    Assert(pNodeCur);
 
     // build an array of all of the elements that we want to write out
-    for( ; pNodeCur->Tag() != ETAG_ROOT ; pNodeCur = pNodeCur->Parent() )
-    {
-        aryElements.Append( pNodeCur->Element() );
+    for (; pNodeCur->Tag() != ETAG_ROOT; pNodeCur = pNodeCur->Parent()) {
+        aryElements.Append(pNodeCur->Element());
     }
 
     // Write out our array of elements
     {
-        CElement **ppElement;
+        CElement** ppElement;
         int        iElement;
 
-        for( iElement = aryElements.Size(), ppElement = &(aryElements[iElement-1]);
+        for (iElement = aryElements.Size(), ppElement = &(aryElements[iElement - 1]);
              iElement > 0;
-             iElement--, ppElement-- )
-        {
-            if (! *ppElement)
+             iElement--, ppElement--) {
+            if (!*ppElement)
                 continue;
 
-            hr = THR( SaveElement( *ppElement, FALSE ) );
+            hr = THR(SaveElement(*ppElement, FALSE));
             if (hr)
                 goto Cleanup;
 
-            if (*ppElement == _pelFragment)
-            {
+            if (*ppElement == _pelFragment) {
                 DWORD dwFlags = _pswb->ClearFlags(WBF_ENTITYREF);
 
                 hr = _pswb->Write(_T("<!--StartFragment-->"));
-                if( hr )
+                if (hr)
                     goto Cleanup;
 
                 _pswb->RestoreFlags(dwFlags);
@@ -840,21 +805,19 @@ CRangeSaver::WriteOpenContext()
                     _header.iSelectionStart = _header.iFragmentStart;
             }
 
-            if ( (*ppElement)->Tag() == ETAG_HTML && (_dwFlags & RSF_CONTEXT) )
-            {
+            if ((*ppElement)->Tag() == ETAG_HTML && (_dwFlags & RSF_CONTEXT)) {
                 // Make sure not to save out elements we do not want in cfhtml,
                 // such as meta charset tags and styles.
-                CElement * pHead = _pMarkup->GetHeadElement();
+                CElement* pHead = _pMarkup->GetHeadElement();
 
-                if( pHead )
-                {
-                    DWORD dwFlags = _pswb->SetFlags( WBF_NO_CHARSET_META );
+                if (pHead) {
+                    DWORD dwFlags = _pswb->SetFlags(WBF_NO_CHARSET_META);
 
                     pHead->Save(_pswb, FALSE);
                     if (hr)
                         goto Cleanup;
 
-                    CTreeSaver ts( pHead, _pswb );
+                    CTreeSaver ts(pHead, _pswb);
                     hr = ts.Save();
                     if (hr)
                         goto Cleanup;
@@ -869,17 +832,16 @@ CRangeSaver::WriteOpenContext()
                     // over our current stack.  We don't want to write out the
                     // start for these elements twice so zero them out here
                     {
-                        CTreePos * ptpCur;
+                        CTreePos* ptpCur;
 
-                        pHead->GetTreeExtent( NULL, &ptpCur );
-                        Assert( ptpCur );
+                        pHead->GetTreeExtent(NULL, &ptpCur);
+                        Assert(ptpCur);
 
                         ptpCur = ptpCur->NextTreePos();
 
-                        while( ptpCur->IsBeginNode() && ! ptpCur->IsEdgeScope() )
-                        {
-                            int iIndex = aryElements.Find( ptpCur->Branch()->Element() );
-                            if( iIndex != -1 )
+                        while (ptpCur->IsBeginNode() && !ptpCur->IsEdgeScope()) {
+                            int iIndex = aryElements.Find(ptpCur->Branch()->Element());
+                            if (iIndex != -1)
                                 aryElements[iIndex] = NULL;
 
                             ptpCur = ptpCur->NextTreePos();
@@ -888,8 +850,7 @@ CRangeSaver::WriteOpenContext()
                 } // pHead
             } // ETAG_HTML
 
-            if (*ppElement && *ppElement != _pelFragment)
-            {
+            if (*ppElement && *ppElement != _pelFragment) {
                 hr = _pswb->NewLine();
                 if (hr)
                     goto Cleanup;
@@ -913,21 +874,19 @@ HRESULT
 CRangeSaver::WriteCloseContext()
 {
     HRESULT hr = S_OK;
-    CTreeNode * pNodeCur;
+    CTreeNode* pNodeCur;
 
     pNodeCur = _tpgEnd.Branch();
-    Assert( pNodeCur );
+    Assert(pNodeCur);
 
-    pNodeCur = pNodeCur->SearchBranchToRootForScope( _pelFragment );
-    Assert( pNodeCur );
+    pNodeCur = pNodeCur->SearchBranchToRootForScope(_pelFragment);
+    Assert(pNodeCur);
 
     // build an array of all of the elements that we want to write out
-    for( ; pNodeCur->Tag() != ETAG_ROOT ; pNodeCur = pNodeCur->Parent() )
-    {
-        CElement * pElementCur = pNodeCur->Element();
+    for (; pNodeCur->Tag() != ETAG_ROOT; pNodeCur = pNodeCur->Parent()) {
+        CElement* pElementCur = pNodeCur->Element();
 
-        if( pElementCur == _pelFragment )
-        {
+        if (pElementCur == _pelFragment) {
             DWORD dwFlags = _pswb->ClearFlags(WBF_ENTITYREF);
 
             hr = GetStmOffset(&_header.iFragmentEnd);
@@ -944,11 +903,11 @@ CRangeSaver::WriteCloseContext()
             _pswb->RestoreFlags(dwFlags);
         }
 
-        hr = THR( SaveElement( pElementCur, TRUE ) );
+        hr = THR(SaveElement(pElementCur, TRUE));
         if (hr)
             goto Cleanup;
 
-        hr = THR( ForceClose( pElementCur ) );
+        hr = THR(ForceClose(pElementCur));
         if (hr)
             goto Cleanup;
 

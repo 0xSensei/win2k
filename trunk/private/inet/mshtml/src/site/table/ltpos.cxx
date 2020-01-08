@@ -91,9 +91,9 @@ ExternTag(tagLayout);
 
 
 void
-CTableLayout::GetPositionInFlow(CElement *pElement, CPoint  *ppt)
+CTableLayout::GetPositionInFlow(CElement* pElement, CPoint* ppt)
 {
-    CLayout *pLayout = pElement->GetUpdatedLayout();
+    CLayout* pLayout = pElement->GetUpdatedLayout();
     Assert(pLayout && "We are in deep trouble if the element passed in doesn't have a layout");
 
     Assert(DYNCAST(CTableCell, pElement));
@@ -127,13 +127,13 @@ CTableLayout::GetPositionInFlow(CElement *pElement, CPoint  *ppt)
 
 HRESULT
 CTableLayout::AddLayoutDispNode(
-    CLayout *           pLayout,
-    CDispContainer *    pDispContainer,
-    CDispNode *         pDispNodeSibling,
-    const POINT *       ppt,
+    CLayout* pLayout,
+    CDispContainer* pDispContainer,
+    CDispNode* pDispNodeSibling,
+    const POINT* ppt,
     BOOL                fBefore)
- {
-    CDispNode * pDispNode;
+{
+    CDispNode* pDispNode;
     HRESULT     hr = S_OK;
     CPoint      ptTopRight = g_Zero.pt;
 
@@ -154,9 +154,8 @@ CTableLayout::AddLayoutDispNode(
     // We may or may not already have RTL coordinate system on this
     // node. This will prevent RTL getting flipped back to LTR. We need to get the
     // current top right to reset the position after it has been flipped.
-    if(pDispNode->IsRightToLeft())
-    {
-        if(pDispNode->GetParentNode() && pDispNode->GetParentNode()->IsRightToLeft())
+    if (pDispNode->IsRightToLeft()) {
+        if (pDispNode->GetParentNode() && pDispNode->GetParentNode()->IsRightToLeft())
             pDispNode->GetPositionTopRight(&ptTopRight);
 
         // set up for flipping below
@@ -168,47 +167,38 @@ CTableLayout::AddLayoutDispNode(
     Assert(pDispNode->IsOwned());
     Assert(pDispNode->GetLayerType() == DISPNODELAYER_FLOW);
 
-    if (!pLayout->IsDisplayNone())
-    {
-        if (ppt)
-        {
+    if (!pLayout->IsDisplayNone()) {
+        if (ppt) {
             pLayout->SetPosition(*ppt, TRUE);
         }
 
-        if (pDispNodeSibling)
-        {
+        if (pDispNodeSibling) {
             // get parent node and find out if it is RTL
             BOOL fRightToLeft = pDispNodeSibling->GetParentNode() != NULL &&
-                                pDispNodeSibling->GetParentNode()->IsRightToLeft();
+                pDispNodeSibling->GetParentNode()->IsRightToLeft();
 
             // cells are sized before they are inserted. This means that the cell
             // is LTR. We need to change this here.
-            if(fRightToLeft)
-            {
+            if (fRightToLeft) {
                 pDispNode->FlipBounds();
                 pDispNode->SetPositionTopRight(ptTopRight);
             }
             pDispNodeSibling->InsertSiblingNode(pDispNode, fBefore);
 
-        }
-        else
-        {
+        } else {
             // get parent node and find out if it is RTL
             BOOL fRightToLeft = pDispContainer->IsRightToLeft();
 
             // cells are sized before they are inserted. This means that the cell
             // is LTR. We need to change this here.
-            if(fRightToLeft)
-            {
+            if (fRightToLeft) {
                 pDispNode->FlipBounds();
                 pDispNode->SetPositionTopRight(ptTopRight);
             }
             pDispContainer->InsertFirstChildInFlow(pDispNode);
         }
 
-    }
-    else
-    {
+    } else {
         pDispNode->ExtractFromTree();
         hr = S_FALSE;
     }
@@ -236,14 +226,14 @@ Error:
 
 HRESULT
 CTableLayout::EnsureTableDispNode(
-    CDocInfo *  pdci,
+    CDocInfo* pdci,
     BOOL        fForce)
 {
-    CElement *          pElement = ElementOwner();
-    CDispContainer *    pDispNode;
-    CDispNode *         pDispNodeElement;
-    CDispContainer *    pDispNodeTableOuter;
-// BUGBUG: Save this structure throughout table measuring? (brendand)
+    CElement* pElement = ElementOwner();
+    CDispContainer* pDispNode;
+    CDispNode* pDispNodeElement;
+    CDispContainer* pDispNodeTableOuter;
+    // BUGBUG: Save this structure throughout table measuring? (brendand)
     CDispNodeInfo       dni;
     HRESULT             hr = S_OK;
 
@@ -261,26 +251,25 @@ CTableLayout::EnsureTableDispNode(
     //   will be the only unowned node in the flow layer)
 
 
-    pDispNodeElement    = GetElementDispNode();
+    pDispNodeElement = GetElementDispNode();
     pDispNodeTableOuter = GetTableOuterDispNode();
 
 
     //  If a display node is needed to hold CAPTIONs and TCs, ensure one exists
 
 
-    if (    _aryCaptions.Size()
-        &&  (   !_fHasCaptionDispNode
-            ||  fForce
-            ||  dni.HasUserClip() != pDispNodeElement->HasUserClip()
-            ||  dni.IsRTL()       != pDispNodeElement->IsRightToLeft()))
-    {
+    if (_aryCaptions.Size()
+        && (!_fHasCaptionDispNode
+            || fForce
+            || dni.HasUserClip() != pDispNodeElement->HasUserClip()
+            || dni.IsRTL() != pDispNodeElement->IsRightToLeft())) {
         pDispNode = CDispRoot::CreateDispContainer(
-                                    this,
-                                    FALSE,
-                                    dni.HasUserClip(),
-                                    FALSE,
-                                    DISPNODEBORDER_NONE,
-                                    dni.IsRTL());
+            this,
+            FALSE,
+            dni.HasUserClip(),
+            FALSE,
+            DISPNODEBORDER_NONE,
+            dni.IsRTL());
 
         if (!pDispNode)
             goto Error;
@@ -295,16 +284,12 @@ CTableLayout::EnsureTableDispNode(
         // BUGBUG. FATHIT. marka - Fix for Bug 65015 - enabling "Fat" hit testing on tables.
         // Edit team is to provide a better UI-level way of dealing with this problem for post IE5.
 
-        EnsureTableFatHitTest( pDispNode );
+        EnsureTableFatHitTest(pDispNode);
 
-        if (pDispNodeElement)
-        {
-            if (_fHasCaptionDispNode)
-            {
+        if (pDispNodeElement) {
+            if (_fHasCaptionDispNode) {
                 pDispNode->ReplaceNode(pDispNodeElement);
-            }
-            else
-            {
+            } else {
                 pDispNodeElement->InsertParent(pDispNode);
                 pDispNodeElement->SetOwned(FALSE);
                 pDispNodeElement->SetFiltered(FALSE);
@@ -313,11 +298,10 @@ CTableLayout::EnsureTableDispNode(
             }
         }
 
-        if (_pDispNode == pDispNodeElement)
-        {
+        if (_pDispNode == pDispNodeElement) {
             _pDispNode = pDispNode;
         }
-        pDispNodeElement     = pDispNode;
+        pDispNodeElement = pDispNode;
         _fHasCaptionDispNode = TRUE;
 
         hr = S_FALSE;
@@ -329,13 +313,12 @@ CTableLayout::EnsureTableDispNode(
     //   node within the flow layer)
 
 
-    else if (   !_aryCaptions.Size()
-            &&  _fHasCaptionDispNode)
-    {
+    else if (!_aryCaptions.Size()
+             && _fHasCaptionDispNode) {
         pDispNodeTableOuter->ReplaceParent();
 
         pDispNodeElement =
-        _pDispNode       = pDispNodeTableOuter;
+            _pDispNode = pDispNodeTableOuter;
         _pDispNode->SetOwned();
         _pDispNode->SetFiltered(pElement->HasFilterPtr());
         _pDispNode->SetAffectsScrollBounds(!ElementOwner()->IsRelative());
@@ -346,7 +329,7 @@ CTableLayout::EnsureTableDispNode(
         // BUGBUG. FATHIT. marka - Fix for Bug 65015 - enabling "Fat" hit testing on tables.
         // Edit team is to provide a better UI-level way of dealing with this problem for post IE5.
 
-        EnsureTableFatHitTest( _pDispNode );
+        EnsureTableFatHitTest(_pDispNode);
 
         hr = S_FALSE;
     }
@@ -355,43 +338,39 @@ CTableLayout::EnsureTableDispNode(
     //  If no display node for the cells exist or if an interesting property has changed, create a display node
 
 
-    if (    !pDispNodeTableOuter
-        ||  fForce
-        ||  dni.GetBorderType() != pDispNodeTableOuter->GetBorderType()
-        ||  (   !_fHasCaptionDispNode
-            &&  dni.HasUserClip() != pDispNodeTableOuter->HasUserClip())
-        ||  dni.IsRTL()         != pDispNodeTableOuter->IsRightToLeft()
+    if (!pDispNodeTableOuter
+        || fForce
+        || dni.GetBorderType() != pDispNodeTableOuter->GetBorderType()
+        || (!_fHasCaptionDispNode
+            && dni.HasUserClip() != pDispNodeTableOuter->HasUserClip())
+        || dni.IsRTL() != pDispNodeTableOuter->IsRightToLeft()
 
 
         // BUGBUG. FATHIT. marka - Fix for Bug 65015 - enabling "Fat" hit testing on tables.
         // Edit team is to provide a better UI-level way of dealing with this problem for post IE5.
 
-        ||  GetFatHitTest()     != pDispNodeTableOuter->IsFatHitTest() )
-    {
+        || GetFatHitTest() != pDispNodeTableOuter->IsFatHitTest()) {
         BOOL    fHasUserClip;
 
-        fHasUserClip = (    dni.HasUserClip()
-                        &&  !_fHasCaptionDispNode);
+        fHasUserClip = (dni.HasUserClip()
+                        && !_fHasCaptionDispNode);
 
         pDispNode = CDispRoot::CreateDispContainer(
-                                    this,
-                                    FALSE,
-                                    fHasUserClip,
-                                    FALSE,
-                                    dni.GetBorderType(),
-                                    dni.IsRTL());
+            this,
+            FALSE,
+            fHasUserClip,
+            FALSE,
+            dni.GetBorderType(),
+            dni.IsRTL());
 
         if (!pDispNode)
             goto Error;
 
         pDispNode->SetOwned(!_fHasCaptionDispNode);
 
-        if (_fHasCaptionDispNode)
-        {
+        if (_fHasCaptionDispNode) {
             pDispNode->SetLayerType(DISPNODELAYER_FLOW);
-        }
-        else
-        {
+        } else {
             EnsureDispNodeLayer(dni, pDispNode);
             pDispNode->SetFiltered(pElement->HasFilterPtr());
             pDispNode->SetAffectsScrollBounds(!ElementOwner()->IsRelative());
@@ -404,21 +383,17 @@ CTableLayout::EnsureTableDispNode(
         // BUGBUG. FATHIT. marka - Fix for Bug 65015 - enabling "Fat" hit testing on tables.
         // Edit team is to provide a better UI-level way of dealing with this problem for post IE5.
 
-        EnsureTableFatHitTest( pDispNode );
+        EnsureTableFatHitTest(pDispNode);
 
-        if (pDispNodeTableOuter)
-        {
+        if (pDispNodeTableOuter) {
             pDispNode->ReplaceNode(pDispNodeTableOuter);
-        }
-        else if (_fHasCaptionDispNode)
-        {
+        } else if (_fHasCaptionDispNode) {
             Assert(pDispNodeElement);
             DYNCAST(CDispContainer, pDispNodeElement)->InsertChildInFlow(pDispNode);
         }
 
-        if (    !_fHasCaptionDispNode
-            &&  _pDispNode == pDispNodeElement)
-        {
+        if (!_fHasCaptionDispNode
+            && _pDispNode == pDispNodeElement) {
             _pDispNode = pDispNode;
         }
 
@@ -428,13 +403,11 @@ CTableLayout::EnsureTableDispNode(
     return hr;
 
 Error:
-    if (pDispNode)
-    {
+    if (pDispNode) {
         pDispNode->Destroy();
     }
 
-    if (pDispNodeElement)
-    {
+    if (pDispNodeElement) {
         pDispNodeElement->Destroy();
     }
 
@@ -462,12 +435,12 @@ Error:
 HRESULT
 CTableLayout::EnsureTableBorderDispNode()
 {
-    CDispContainer * pDispNodeTableGrid;
+    CDispContainer* pDispNodeTableGrid;
     HRESULT hr = S_OK;
 
     Assert(_pDispNode);
 
-    CElement*  pElement  = ElementOwner();
+    CElement* pElement = ElementOwner();
     CTreeNode* pTreeNode = pElement->GetFirstBranch();
     styleDir         dir = pTreeNode->GetCascadedBlockDirection();
     BOOL            fRTL = (dir == styleDirRightToLeft);
@@ -481,33 +454,27 @@ CTableLayout::EnsureTableBorderDispNode()
 
     Assert(pDispNodeTableGrid);
 
-    if ((_fCollapse || _fRuleOrFrameAffectBorders) && GetRows())
-    {
-        CDispItemPlus * pDispItemNew = NULL;
-        CDispItemPlus * pDispItemCurrent = NULL;
+    if ((_fCollapse || _fRuleOrFrameAffectBorders) && GetRows()) {
+        CDispItemPlus* pDispItemNew = NULL;
+        CDispItemPlus* pDispItemCurrent = NULL;
         CRect   rcClientRect;
         SIZE    size;
 
 
-        if (!_pTableBorderRenderer)
-        {
+        if (!_pTableBorderRenderer) {
             _pTableBorderRenderer = new CTableBorderRenderer(this);
-            if (!_pTableBorderRenderer)
-            {
+            if (!_pTableBorderRenderer) {
                 hr = E_OUTOFMEMORY;
                 goto Cleanup;
             }
-        }
-        else
-        {
-            if(_pTableBorderRenderer->_pDispNode)
+        } else {
+            if (_pTableBorderRenderer->_pDispNode)
                 pDispItemCurrent = DYNCAST(CDispItemPlus, _pTableBorderRenderer->_pDispNode);
         }
 
         // if we don't have a disp node, or are changing directions, create a new node
         if (!_pTableBorderRenderer->_pDispNode ||
-            fRTL != _pTableBorderRenderer->_pDispNode->IsRightToLeft())
-        {
+            fRTL != _pTableBorderRenderer->_pDispNode->IsRightToLeft()) {
             // Create display leaf node.
             pDispItemNew =
                 CDispRoot::CreateDispItemPlus(_pTableBorderRenderer,
@@ -517,8 +484,7 @@ CTableLayout::EnsureTableBorderDispNode()
                                               DISPNODEBORDER_NONE,  // this border dispnode has no border of its own
                                               fRTL);               // not right to left
 
-            if (!pDispItemNew)
-            {
+            if (!pDispItemNew) {
                 hr = E_OUTOFMEMORY;
                 goto Cleanup;
             }
@@ -527,8 +493,7 @@ CTableLayout::EnsureTableBorderDispNode()
             // The border display node is in the flow layer (highest z-order among flow display nodes).
             pDispItemNew->SetLayerType(DISPNODELAYER_FLOW);
 
-            if(pDispItemCurrent)
-            {
+            if (pDispItemCurrent) {
                 // we changed directions. Delete the old node.
                 Assert(fRTL == pDispItemNew->IsRightToLeft());
 
@@ -540,15 +505,12 @@ CTableLayout::EnsureTableBorderDispNode()
             pDispNodeTableGrid->InsertChildInFlow(pDispItemNew);
 
             _pTableBorderRenderer->_pDispNode = pDispItemNew;
-        }
-        else
-        {
+        } else {
             pDispItemNew = DYNCAST(CDispItemPlus, _pTableBorderRenderer->_pDispNode);
             // Make sure border display node is last in list (highest z order among display node FLOW layers).
 
             // If we have a "next" (right) sibling, reinsert the border display node in the last position
-            if (pDispItemNew->GetNextSiblingNode(TRUE))
-            {
+            if (pDispItemNew->GetNextSiblingNode(TRUE)) {
                 pDispItemNew->ExtractFromTree();
                 pDispNodeTableGrid->InsertChildInFlow(pDispItemNew);
 
@@ -564,13 +526,10 @@ CTableLayout::EnsureTableBorderDispNode()
         pDispNodeTableGrid->GetClientRect(&rcClientRect, CLIENTRECT_CONTENT);
         rcClientRect.GetSize(&size);
         pDispItemNew->SetSize(size, FALSE);
-    }
-    else if (_pTableBorderRenderer)
-    {
-        CDispNode * pDispNode = _pTableBorderRenderer->_pDispNode;
+    } else if (_pTableBorderRenderer) {
+        CDispNode* pDispNode = _pTableBorderRenderer->_pDispNode;
 
-        if (pDispNode)
-        {
+        if (pDispNode) {
             pDispNode->Destroy();
         }
 
@@ -586,16 +545,15 @@ Cleanup:
 
 void
 CTableLayout::EnsureContentVisibility(
-    CDispNode * pDispNode,
+    CDispNode* pDispNode,
     BOOL        fVisible)
 {
     // take care of visibility of collapsed border display node
-    if (    pDispNode == GetElementDispNode()
-        &&  (   _fCollapse
-            ||  _fRuleOrFrameAffectBorders)
-        &&  _pTableBorderRenderer
-        &&  _pTableBorderRenderer->_pDispNode)
-    {
+    if (pDispNode == GetElementDispNode()
+        && (_fCollapse
+            || _fRuleOrFrameAffectBorders)
+        && _pTableBorderRenderer
+        && _pTableBorderRenderer->_pDispNode) {
         _pTableBorderRenderer->_pDispNode->SetVisible(fVisible);
     }
 }
@@ -617,9 +575,9 @@ CTableLayout::EnsureContentVisibility(
 HRESULT
 CTableLayout::EnsureTableFatHitTest(CDispNode* pDispNode)
 {
-    pDispNode->SetFatHitTest( GetFatHitTest() );
+    pDispNode->SetFatHitTest(GetFatHitTest());
 
-    RRETURN( S_OK );
+    RRETURN(S_OK);
 }
 
 
@@ -638,11 +596,11 @@ CTableLayout::EnsureTableFatHitTest(CDispNode* pDispNode)
 BOOL
 CTableLayout::GetFatHitTest()
 {
-    return ( Doc()->_fDesignMode &&
-             CellSpacingX() == 0 &&
-             CellSpacingY() == 0 &&
-             BorderX() <= 1 &&
-             BorderY() <= 1 ) ;
+    return (Doc()->_fDesignMode &&
+            CellSpacingX() == 0 &&
+            CellSpacingY() == 0 &&
+            BorderX() <= 1 &&
+            BorderY() <= 1);
 }
 
 
@@ -652,10 +610,10 @@ CTableLayout::GetFatHitTest()
 //  Synopsis:   Find and return the CDispNode which contains TBODY cells
 
 
-CDispContainer *
+CDispContainer*
 CTableLayout::GetTableInnerDispNode()
 {
-// BUGBUG: Not done yet...assume all THEAD/TFOOT/TBODY cells live under the same display node (brendand)
+    // BUGBUG: Not done yet...assume all THEAD/TFOOT/TBODY cells live under the same display node (brendand)
     return GetTableOuterDispNode();
 }
 
@@ -667,14 +625,13 @@ CTableLayout::GetTableInnerDispNode()
 //  Synopsis:   Find and return the CDispNode which contains THEAD/TFOOT cells
 
 
-CDispContainer *
+CDispContainer*
 CTableLayout::GetTableOuterDispNode()
 {
-    CDispContainer *    pDispNodeTableOuter;
+    CDispContainer* pDispNodeTableOuter;
 
-    if (_fHasCaptionDispNode)
-    {
-        CDispNode * pDispNode;
+    if (_fHasCaptionDispNode) {
+        CDispNode* pDispNode;
 
         Assert(GetElementDispNode());
 
@@ -684,9 +641,7 @@ CTableLayout::GetTableOuterDispNode()
         Assert(pDispNode);
 
         pDispNodeTableOuter = DYNCAST(CDispContainer, pDispNode);
-    }
-    else
-    {
+    } else {
         pDispNodeTableOuter = DYNCAST(CDispContainer, GetElementDispNode());
     }
 
@@ -705,20 +660,17 @@ CTableLayout::GetTableOuterDispNode()
 
 void
 CTableLayout::GetTableSize(
-    CSize * psize)
+    CSize* psize)
 {
-    CDispNode * pDispNode;
+    CDispNode* pDispNode;
 
     Assert(psize);
 
     pDispNode = GetTableOuterDispNode();
 
-    if (pDispNode)
-    {
+    if (pDispNode) {
         pDispNode->GetSize(psize);
-    }
-    else
-    {
+    } else {
         *psize = g_Zero.size;
     }
 }
@@ -737,18 +689,18 @@ CTableLayout::GetTableSize(
 
 void
 CTableLayout::SizeTableDispNode(
-    CCalcInfo *     pci,
-    const SIZE &    size,
-    const SIZE &    sizeTable)
+    CCalcInfo* pci,
+    const SIZE& size,
+    const SIZE& sizeTable)
 
 {
-    CElement *          pElement = ElementOwner();
-    CDispContainer *    pDispNodeTableOuter;
-    CDispNode *         pDispNodeElement;
+    CElement* pElement = ElementOwner();
+    CDispContainer* pDispNodeTableOuter;
+    CDispNode* pDispNodeElement;
     BOOL                fInvalidateAll;
     DISPNODEBORDER      dnb;
     CSize               sizeOriginal;
-    CDoc *              pDoc;
+    CDoc* pDoc;
 
     Assert(pci);
 
@@ -761,7 +713,7 @@ CTableLayout::SizeTableDispNode(
     //   will be the only unowned node in the flow layer)
 
 
-    pDispNodeElement    = GetElementDispNode();
+    pDispNodeElement = GetElementDispNode();
     pDispNodeTableOuter = GetTableOuterDispNode();
 
 
@@ -780,11 +732,10 @@ CTableLayout::SizeTableDispNode(
     //        display node's size is set.
 
 
-    dnb            = pDispNodeTableOuter->GetBorderType();
-    pDoc           = Doc();
+    dnb = pDispNodeTableOuter->GetBorderType();
+    pDoc = Doc();
 
-    if (dnb != DISPNODEBORDER_NONE)
-    {
+    if (dnb != DISPNODEBORDER_NONE) {
         CRect       rcBorderWidths;
         CRect       rc;
         CBorderInfo bi;
@@ -793,19 +744,15 @@ CTableLayout::SizeTableDispNode(
 
         pElement->GetBorderInfo(pci, &bi, FALSE);
 
-        rc.left   = pci->DocPixelsFromWindowX(bi.aiWidths[BORDER_LEFT]);
-        rc.top    = pci->DocPixelsFromWindowY(bi.aiWidths[BORDER_TOP]);
-        rc.right  = pci->DocPixelsFromWindowX(bi.aiWidths[BORDER_RIGHT]);
+        rc.left = pci->DocPixelsFromWindowX(bi.aiWidths[BORDER_LEFT]);
+        rc.top = pci->DocPixelsFromWindowY(bi.aiWidths[BORDER_TOP]);
+        rc.right = pci->DocPixelsFromWindowX(bi.aiWidths[BORDER_RIGHT]);
         rc.bottom = pci->DocPixelsFromWindowY(bi.aiWidths[BORDER_BOTTOM]);
 
-        if (rc != rcBorderWidths)
-        {
-            if (dnb == DISPNODEBORDER_SIMPLE)
-            {
+        if (rc != rcBorderWidths) {
+            if (dnb == DISPNODEBORDER_SIMPLE) {
                 pDispNodeTableOuter->SetBorderWidths(rc.top);
-            }
-            else
-            {
+            } else {
                 pDispNodeTableOuter->SetBorderWidths(rc);
             }
 
@@ -819,16 +766,15 @@ CTableLayout::SizeTableDispNode(
     //   background located at a percentage of the width/height)
 
 
-    if (    !fInvalidateAll
-        &&  pDispNodeTableOuter->HasBackground()
-        &&  pDispNodeTableOuter->IsScroller()
-        &&  pDispNodeTableOuter->HasFixedBackground())
-    {
-        const CFancyFormat *    pFF = GetFirstBranch()->GetFancyFormat();
+    if (!fInvalidateAll
+        && pDispNodeTableOuter->HasBackground()
+        && pDispNodeTableOuter->IsScroller()
+        && pDispNodeTableOuter->HasFixedBackground()) {
+        const CFancyFormat* pFF = GetFirstBranch()->GetFancyFormat();
 
-        fInvalidateAll =    pFF->_lImgCtxCookie
-                    &&  (   pFF->_cuvBgPosX.GetUnitType() == CUnitValue::UNIT_PERCENT
-                        ||  pFF->_cuvBgPosY.GetUnitType() == CUnitValue::UNIT_PERCENT);
+        fInvalidateAll = pFF->_lImgCtxCookie
+            && (pFF->_cuvBgPosX.GetUnitType() == CUnitValue::UNIT_PERCENT
+                || pFF->_cuvBgPosY.GetUnitType() == CUnitValue::UNIT_PERCENT);
     }
 
 
@@ -841,8 +787,7 @@ CTableLayout::SizeTableDispNode(
     //  Finally, if CAPTIONs exist, size that node as well
 
 
-    if (_fHasCaptionDispNode)
-    {
+    if (_fHasCaptionDispNode) {
         pDispNodeElement->SetSize(size, fInvalidateAll);
     }
 
@@ -850,8 +795,7 @@ CTableLayout::SizeTableDispNode(
     //  If the display node has an explicit user clip, size it
 
 
-    if (pDispNodeElement->HasUserClip())
-    {
+    if (pDispNodeElement->HasUserClip()) {
         SizeDispNodeUserClip(pci, size, pDispNodeElement);
     }
 
@@ -859,24 +803,20 @@ CTableLayout::SizeTableDispNode(
     //  Fire related events
 
 
-    if (    (CSize &)size != sizeOriginal
-        &&  !IsDisplayNone()
-        &&  pDoc->_state >= OS_INPLACE
-        &&  pDoc->_fFiredOnLoad)
-    {
+    if ((CSize&)size != sizeOriginal
+        && !IsDisplayNone()
+        && pDoc->_state >= OS_INPLACE
+        && pDoc->_fFiredOnLoad) {
         pDoc->GetView()->AddEventTask(pElement, DISPID_EVMETH_ONRESIZE);
     }
 
-    if (pElement->ShouldFireEvents())
-    {
-        if (size.cx != sizeOriginal.cx)
-        {
+    if (pElement->ShouldFireEvents()) {
+        if (size.cx != sizeOriginal.cx) {
             pElement->FireOnChanged(DISPID_IHTMLELEMENT_OFFSETWIDTH);
             pElement->FireOnChanged(DISPID_IHTMLELEMENT2_CLIENTWIDTH);
         }
 
-        if (size.cy != sizeOriginal.cy)
-        {
+        if (size.cy != sizeOriginal.cy) {
             pElement->FireOnChanged(DISPID_IHTMLELEMENT_OFFSETHEIGHT);
             pElement->FireOnChanged(DISPID_IHTMLELEMENT2_CLIENTHEIGHT);
         }

@@ -16,15 +16,14 @@ extern TAG tagDSONotify;
 
 DEFINE_CLASS_MEMBERS(XMLRowsetProvider, _T("XMLRowsetProvider"), GenericBase);
 
-static NameDef *
-GetChildName(Element *pElemShape)
+static NameDef*
+GetChildName(Element* pElemShape)
 {
-    NameDef *pNameDef;
+    NameDef* pNameDef;
 
-    pNameDef = (NameDef*) pElemShape->getAttribute(XMLNames::name(NAME_CHILDNAME));
-    if (pNameDef == null)
-    {
-        pNameDef = (NameDef*) pElemShape->getAttribute(XMLNames::name(NAME_NAME));
+    pNameDef = (NameDef*)pElemShape->getAttribute(XMLNames::name(NAME_CHILDNAME));
+    if (pNameDef == null) {
+        pNameDef = (NameDef*)pElemShape->getAttribute(XMLNames::name(NAME_NAME));
     }
 
     return pNameDef;
@@ -37,29 +36,29 @@ XMLRowsetProvider::XMLRowsetProvider(Document* pDoc, Element* pElement, Document
     Assert(pElement);   // parent of the row nodes (the rowset node)
     Assert(pSchemaDoc);
 
-//    EnableTag(tagXMLrowset, TRUE);              //tag for watching function calls
+    //    EnableTag(tagXMLrowset, TRUE);              //tag for watching function calls
 
     _pDocument = pDoc;
     _pRoot = pElement;
     _pSchemaDoc = pSchemaDoc;
     _pSchema = pSchema;
     _pParent = pParent;
-    if (_pDocument->getReadyStatus()==READYSTATE_COMPLETE)
-        _doneReason=OSPXFER_COMPLETE;           //document is already loaded, store completion code
+    if (_pDocument->getReadyStatus() == READYSTATE_COMPLETE)
+        _doneReason = OSPXFER_COMPLETE;           //document is already loaded, store completion code
 
     // This provider iterates over nodes in root that match the
     // ROWSET name defined in schema.
     _pRowset = GetChildName(_pSchema);
-    _pIter = ElementCollection::newElementCollection(_pRoot,_pRowset->getName());
+    _pIter = ElementCollection::newElementCollection(_pRoot, _pRowset->getName());
     _pIter->Release();                          // born with refcount 1
-    _pNewDataIter = ElementCollection::newElementCollection(_pRoot,_pRowset->getName());
+    _pNewDataIter = ElementCollection::newElementCollection(_pRoot, _pRowset->getName());
     _pNewDataIter->Release();                   // born with refcount 1
     ResetIterator();                            //resets _pCurRow
-    _pCurNewRow=null;
+    _pCurNewRow = null;
     findNewRows();                              //see if any children yet
 
-    TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::XMLRowsetProvider()  new!   Name: %s",this,
-            (char *)AsciiText(_pRowset->getName()->toString())));
+    TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::XMLRowsetProvider()  new!   Name: %s", this,
+        (char*)AsciiText(_pRowset->getName()->toString())));
 }
 
 
@@ -80,7 +79,7 @@ long
 XMLRowsetProvider::getRowCount()
 {
     TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::getRowCount()   Name: %s    Rows: %ld",
-            this,(char *)AsciiText(_pRowset->getName()->toString()), _lNumRows));
+              this, (char*)AsciiText(_pRowset->getName()->toString()), _lNumRows));
     return _lNumRows;
 }
 
@@ -103,53 +102,46 @@ XMLRowsetProvider::getRWStatus(long iRow, long iColumn)
 
 void
 XMLRowsetProvider::getVariant(long iRow, long iColumn, OSPFORMAT format,
-                            VARIANT *pVar)
+                              VARIANT* pVar)
 {
-    TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::getVariant()   iRow=%ld   iColumn=%ld",this, iRow, iColumn));
+    TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::getVariant()   iRow=%ld   iColumn=%ld", this, iRow, iColumn));
     // BUGBUG - what do we do with 'format' ?
     // Do we do a VariantChanegTypeEx ?
     V_VT(pVar) = VT_NULL;
     V_BSTR(pVar) = NULL;
 
-    if (iRow == 0)
-    {
+    if (iRow == 0) {
         // return the column names.
         long cColCount = getColumnCount();
-        if (iColumn <= cColCount)
-        {
-            Element* e = GetChild(_pSchema, iColumn-1);
+        if (iColumn <= cColCount) {
+            Element* e = GetChild(_pSchema, iColumn - 1);
             NameDef* name = (NameDef*)e->getAttribute(XMLNames::name(NAME_NAME));
-            if (name != null)
-            {
-                String *str = name->toString();
+            if (name != null) {
+                String* str = name->toString();
 
-                if (e->getTagName() == XMLNames::name(NAME_ROWSET))
-                {
+                if (e->getTagName() == XMLNames::name(NAME_ROWSET)) {
                     // mark the column as rowset for the OSP...
-                    str = String::add(getPrefix(), str,  getPrefix(), null);
+                    str = String::add(getPrefix(), str, getPrefix(), null);
                 }
 
                 V_VT(pVar) = VT_BSTR;
                 V_BSTR(pVar) = str->getBSTR();
             }
         }
-    }
-    else
-    {
+    } else {
         MoveToRow(iRow); // update current row.
         if (_pRow == null)
             Exception::throwE(E_FAIL); // non-existent row.
-        GetColumn(_pRow, iColumn-1, pVar);
+        GetColumn(_pRow, iColumn - 1, pVar);
 
-//            if (pVar->vt == VT_EMPTY)
-//            {
-//                pVar->vt = VT_BSTR;
-//                V_BSTR(pVar) = getNBSP()->getBSTR();
-//            }
+        //            if (pVar->vt == VT_EMPTY)
+        //            {
+        //                pVar->vt = VT_BSTR;
+        //                V_BSTR(pVar) = getNBSP()->getBSTR();
+        //            }
 
-        // return a BSTR if that's what was requested
-        if (format == OSPFORMAT_FORMATTED && V_VT(pVar) != VT_BSTR)
-        {
+                // return a BSTR if that's what was requested
+        if (format == OSPFORMAT_FORMATTED && V_VT(pVar) != VT_BSTR) {
             VariantChangeTypeEx(pVar, pVar,
                                 GetSystemDefaultLCID(),
                                 VARIANT_NOVALUEPROP,
@@ -161,21 +153,19 @@ XMLRowsetProvider::getVariant(long iRow, long iColumn, OSPFORMAT format,
 
 void
 XMLRowsetProvider::setVariant(long iRow, long iColumn, OSPFORMAT format,
-                            VARIANT Var)
+                              VARIANT Var)
 {
     TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::setVariant()   iRow=%ld   iColumn=%ld    Var.bstrVal: %s",
-            this,iRow, iColumn, (char *)(Var.bstrVal)));
+              this, iRow, iColumn, (char*)(Var.bstrVal)));
     MoveToRow(iRow); // update current row.
     if (_pRow == null)
         Exception::throwE(E_FAIL); // non-existent row.
 
-    Element* pSE = GetChild(_pSchema, iColumn-1);
-    if (pSE->getTagName() == XMLNames::name(NAME_COLUMN))
-    {
+    Element* pSE = GetChild(_pSchema, iColumn - 1);
+    if (pSE->getTagName() == XMLNames::name(NAME_COLUMN)) {
         NameDef* pColNameDef = GetChildName(pSE);
 
-        if (pColNameDef != null)
-        {
+        if (pColNameDef != null) {
             // if this is the $Text column, set the text
             if (pSE->getAttribute(XMLNames::name(NAME_TEXT)))       //if flag is set
             {
@@ -184,27 +174,24 @@ XMLRowsetProvider::setVariant(long iRow, long iColumn, OSPFORMAT format,
 
                 VariantInit(&varText);
                 hr = VariantChangeTypeEx(&varText, &Var,
-                                        GetSystemDefaultLCID(),
-                                        VARIANT_NOVALUEPROP,
-                                        VT_BSTR);
-                if (!hr)
-                {
+                                         GetSystemDefaultLCID(),
+                                         VARIANT_NOVALUEPROP,
+                                         VT_BSTR);
+                if (!hr) {
                     AssertPMATCH(_pRow, ElementNode);
-                    ElementNode * penElem = CAST_TO(ElementNode *, _pRow);
+                    ElementNode* penElem = CAST_TO(ElementNode*, _pRow);
                     TRY
                     {
                         penElem->getNodeData()->setInnerText(V_BSTR(&varText));
                         VariantClear(&varText);
                     }
-                    CATCH
+                        CATCH
                     {
                         VariantClear(&varText);
                         Exception::throwAgain();
                     }
-                    ENDTRY
-                }
-                else
-                {
+                        ENDTRY
+                } else {
                     Exception::throwE(hr);
                 }
 
@@ -212,15 +199,12 @@ XMLRowsetProvider::setVariant(long iRow, long iColumn, OSPFORMAT format,
             }
 
             // if this is an attribute column, set the attribute
-            if (pSE->getAttribute(XMLNames::name(NAME_ATTR)))
-            {
-                if (format==OSPFORMAT_FORMATTED || Var.vt == VT_BSTR)        //then variant is string
+            if (pSE->getAttribute(XMLNames::name(NAME_ATTR))) {
+                if (format == OSPFORMAT_FORMATTED || Var.vt == VT_BSTR)        //then variant is string
                 {
-                    String *strValue = String::newString(V_BSTR(&Var));
+                    String* strValue = String::newString(V_BSTR(&Var));
                     _pRow->setAttribute(pColNameDef->getName(), strValue);
-                }
-                else if (format==OSPFORMAT_RAW)
-                {
+                } else if (format == OSPFORMAT_RAW) {
                     _pRow->setTypedAttribute(pColNameDef->getName(), &Var);
                 }
 
@@ -230,62 +214,50 @@ XMLRowsetProvider::setVariant(long iRow, long iColumn, OSPFORMAT format,
             // otherwise, find the relevant child
             Element* pChild;
 
-            pChild=FindChild(_pRow, pColNameDef->getName());
+            pChild = FindChild(_pRow, pColNameDef->getName());
 
-            if (pChild == null)
-            {
+            if (pChild == null) {
                 // order doesn't actually matter because we always use
                 // FindChild in getVariant.
                 pChild = _pDocument->createElement(NULL, Element::ELEMENT, pColNameDef, NULL);
-                _pRow->addChild(pChild,null);
+                _pRow->addChild(pChild, null);
             }
 
             // give the child the desired value
-            if (pChild != null)
-            {
-                if (pChild->isTyped())
-                {
+            if (pChild != null) {
+                if (pChild->isTyped()) {
                     pChild->setTypedValue(&Var);
                     return;
                 }
 
                 int cElements = pChild->numElements();
 
-                if (cElements == 0)
-                {
+                if (cElements == 0) {
                     Element* pText = _pDocument->createElement(NULL, Element::PCDATA, null, null);
-                    pChild->addChild(pText,null);
+                    pChild->addChild(pText, null);
                     cElements++;
                 }
 
-                if (cElements == 1)
-                {
+                if (cElements == 1) {
                     HANDLE h;
                     Element* pText = pChild->getFirstChild(&h);
-                    if (pText->getType() == Element::PCDATA)
-                    {
-                        if (Var.vt == VT_BSTR)
-                        {
+                    if (pText->getType() == Element::PCDATA) {
+                        if (Var.vt == VT_BSTR) {
                             String* newText = String::newString(V_BSTR(&Var));
                             pText->setText(newText);
-                        }
-                        else if (pText->isTyped())
-                        {
+                        } else if (pText->isTyped()) {
                             pText->setTypedValue(&Var);
-                        }
-                        else
-                        {
+                        } else {
                             VARIANT varString;
                             HRESULT hr;
-                            String *newText;
+                            String* newText;
 
                             VariantInit(&varString);
                             hr = VariantChangeTypeEx(&varString, &Var,
-                                                    GetSystemDefaultLCID(),
-                                                    VARIANT_NOVALUEPROP,
-                                                    VT_BSTR);
-                            if (!hr)
-                            {
+                                                     GetSystemDefaultLCID(),
+                                                     VARIANT_NOVALUEPROP,
+                                                     VT_BSTR);
+                            if (!hr) {
                                 Assert(V_VT(&varString) == VT_BSTR);
                                 TRY
                                 {
@@ -293,15 +265,13 @@ XMLRowsetProvider::setVariant(long iRow, long iColumn, OSPFORMAT format,
                                     VariantClear(&varString);
                                     pText->setText(newText);
                                 }
-                                CATCH
+                                    CATCH
                                 {
                                     VariantClear(&varString);
                                     Exception::throwAgain();
                                 }
-                                ENDTRY
-                            }
-                            else
-                            {
+                                    ENDTRY
+                            } else {
                                 Exception::throwE(hr);
                             }
                         }
@@ -317,14 +287,13 @@ XMLRowsetProvider::setVariant(long iRow, long iColumn, OSPFORMAT format,
 long
 XMLRowsetProvider::deleteRows(long iRow, long cRows)
 {
-    TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::deleteRows()   iRow=%ld   cRows=%ld",this,iRow,cRows));
+    TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::deleteRows()   iRow=%ld   cRows=%ld", this, iRow, cRows));
     int result = 0;
 
-    for (int i = iRow; i < iRow+cRows; i++)     // BUGBUG (sambent) back-to-front?
+    for (int i = iRow; i < iRow + cRows; i++)     // BUGBUG (sambent) back-to-front?
     {
         Element* pRow = MoveToRow(iRow);
-        if (pRow != null)
-        {
+        if (pRow != null) {
             result++;
             _pRoot->removeChild(pRow);
             RemoveChildProvider(pRow);
@@ -340,12 +309,11 @@ XMLRowsetProvider::deleteRows(long iRow, long cRows)
 long
 XMLRowsetProvider::insertRows(long iRow, long cRows)
 {
-    TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::insertRows()   iRow=%ld   cRows=%ld",this,iRow,cRows));
-    for (int i = iRow; i < iRow+cRows; i++)
-    {
+    TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::insertRows()   iRow=%ld   cRows=%ld", this, iRow, cRows));
+    for (int i = iRow; i < iRow + cRows; i++) {
         Element* newRow = _pDocument->createElement(NULL, Element::ELEMENT,
                                                     _pRowset, NULL);
-        _pRoot->addChildAt(newRow, i-1);
+        _pRoot->addChildAt(newRow, i - 1);
     }
     ResetIterator();
 
@@ -355,20 +323,20 @@ XMLRowsetProvider::insertRows(long iRow, long cRows)
 
 void
 XMLRowsetProvider::addOLEDBSimpleProviderListener(
-                        OLEDBSimpleProviderListener *pospIListener)
+    OLEDBSimpleProviderListener* pospIListener)
 {
     _pListener = pospIListener;
 
-                    //if we are at the top level rowset provider, and document is already loaded.
-                    //(we need the getRoot() to see if the document has loaded, because it starts in READYSTATE_COMPLETE)
-    if (_pDocument->getReadyStatus()==READYSTATE_COMPLETE && _pDocument->getRoot() && !_pParent)
+    //if we are at the top level rowset provider, and document is already loaded.
+    //(we need the getRoot() to see if the document has loaded, because it starts in READYSTATE_COMPLETE)
+    if (_pDocument->getReadyStatus() == READYSTATE_COMPLETE && _pDocument->getRoot() && !_pParent)
         fireTransferComplete(_doneReason);                      //we must now tell listener transferComplete()
 }
 
 
 void
 XMLRowsetProvider::removeOLEDBSimpleProviderListener(
-                        OLEDBSimpleProviderListener *pospIListener)
+    OLEDBSimpleProviderListener* pospIListener)
 {
     if (_pListener == (void*)pospIListener)
         _pListener = null;
@@ -387,14 +355,12 @@ XMLRowsetProvider::isAsync()
 void
 XMLRowsetProvider::fireTransferComplete(OSPXFER doneReason) //default doneReason is OSPXFER_COMPLETE
 {
-    _doneReason=doneReason;                                 //store doneReason in case we have no listener
-    if (_pListener)
-    {
-        if (doneReason == OSPXFER_COMPLETE)
-        {
+    _doneReason = doneReason;                                 //store doneReason in case we have no listener
+    if (_pListener) {
+        if (doneReason == OSPXFER_COMPLETE) {
             findNewRows();                                      //check if any new rows
         }
-        TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::fireTransferComplete()    reason=%d",this,doneReason));
+        TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::fireTransferComplete()    reason=%d", this, doneReason));
         _pListener->transferComplete(_doneReason);          //tell it document is done loading
     }
 }
@@ -409,7 +375,7 @@ XMLRowsetProvider::getEstimatedRows()
 void
 XMLRowsetProvider::stopTransfer()
 {
-    TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::stopTransfer()",this));
+    TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::stopTransfer()", this));
     _pDocument->abort(Exception::newException(XMLOM_USERABORT, XMLOM_USERABORT, null));
     fireTransferComplete(OSPXFER_ABORT);        //tell listener doc was aborted
 }
@@ -422,18 +388,14 @@ void
 XMLRowsetProvider::FireCellChange(LONG iRow, LONG iCol, BOOL fBefore)
 {
     TraceTag((tagDSONotify, "%p FireCellChange(%d, %d, %d)",
-                this, iRow, iCol, (LONG)fBefore));
+              this, iRow, iCol, (LONG)fBefore));
 
-    if (_pListener)
-    {
-        if (fBefore)
-        {
+    if (_pListener) {
+        if (fBefore) {
             HRESULT hr = _pListener->aboutToChangeCell(iRow, iCol);
             if (hr)
                 Exception::throwE(hr);
-        }
-        else
-        {
+        } else {
             _pListener->cellChanged(iRow, iCol);
         }
     }
@@ -443,18 +405,14 @@ void
 XMLRowsetProvider::FireRowInsert(LONG iRow, LONG cRows, BOOL fBefore)
 {
     TraceTag((tagDSONotify, "%p FireRowInsert(%d, %d, %d)",
-                this, iRow, cRows, (LONG)fBefore));
+              this, iRow, cRows, (LONG)fBefore));
 
-    if (_pListener)
-    {
-        if (fBefore)
-        {
+    if (_pListener) {
+        if (fBefore) {
             HRESULT hr = _pListener->aboutToInsertRows(iRow, cRows);
             if (hr)
                 Exception::throwE(hr);
-        }
-        else
-        {
+        } else {
             if (iRow <= _iRowIndex + 1)     // adjust index of cached row
                 _iRowIndex += cRows;
 
@@ -468,18 +426,14 @@ void
 XMLRowsetProvider::FireRowDelete(LONG iRow, LONG cRows, BOOL fBefore)
 {
     TraceTag((tagDSONotify, "%p FireRowDelete(%d, %d, %d)",
-                this, iRow, cRows, (LONG)fBefore));
+              this, iRow, cRows, (LONG)fBefore));
 
-    if (_pListener)
-    {
-        if (fBefore)
-        {
+    if (_pListener) {
+        if (fBefore) {
             HRESULT hr = _pListener->aboutToDeleteRows(iRow, cRows);
             if (hr)
                 Exception::throwE(hr);
-        }
-        else
-        {
+        } else {
             if (iRow <= _iRowIndex + 1)     // adjust index of cached row
             {
                 if (iRow + cRows - 1 < _iRowIndex + 1)
@@ -511,8 +465,7 @@ XMLRowsetProvider::GetChild(Element* pParent, int i)
 {
     HANDLE h;
     Element* pElement = pParent->getFirstChild(&h);
-    while (i-- > 0)
-    {
+    while (i-- > 0) {
         pElement = pParent->getNextChild(&h);
     }
     return pElement;
@@ -551,30 +504,24 @@ XMLRowsetProvider::GetColumn(Element* pRow, int iCol, VARIANT* pVar)
     Element* pSE = GetChild(_pSchema, iCol);
     NameDef* pNameDef = GetChildName(pSE);
 
-    if (pSE->getTagName() == XMLNames::name(NAME_COLUMN))
-    {
+    if (pSE->getTagName() == XMLNames::name(NAME_COLUMN)) {
         // if it's the !Text column, return the row's inner text
-        if (pSE->getAttribute(XMLNames::name(NAME_TEXT)))
-        {
+        if (pSE->getAttribute(XMLNames::name(NAME_TEXT))) {
             V_VT(pVar) = VT_BSTR;
             V_BSTR(pVar) = pRow->getText(false, true)->getBSTR();
         }
 
         // if it's an attribute column, get the attribute.
-        else if (pSE->getAttribute(XMLNames::name(NAME_ATTR)))
-        {
-            if (pRow->getAttribute(pNameDef->getName()))
-            {
+        else if (pSE->getAttribute(XMLNames::name(NAME_ATTR))) {
+            if (pRow->getAttribute(pNameDef->getName())) {
                 pRow->getTypedAttribute(pNameDef->getName(), pVar);
             }
         }
 
         // otherwise, it's a child element
-        else
-        {
-            Element *pChild = FindChild(pRow, pNameDef->getName());
-            if (pChild != null)
-            {
+        else {
+            Element* pChild = FindChild(pRow, pNameDef->getName());
+            if (pChild != null) {
                 pChild->getTypedValue(pVar);
             }
         }
@@ -582,16 +529,14 @@ XMLRowsetProvider::GetColumn(Element* pRow, int iCol, VARIANT* pVar)
         return;
     }
 
-    else
-    {
+    else {
         // Must be a rowset, so return a rowset provider.
         // First see if we've already created one for this row.
         OSPWrapper* pChildOSP = FindChildProvider(pRow, iCol);
 
-        if (pChildOSP == null)
-        {
+        if (pChildOSP == null) {
             // Have to create a new rowset provider then.
-            XMLRowsetProvider *pChildProvider;
+            XMLRowsetProvider* pChildProvider;
 
             pChildProvider = new XMLRowsetProvider(_pDocument, _pRow, _pSchemaDoc, pSE, this);
             pChildOSP = new OSPWrapper(pChildProvider, _pDocument->getMutex());
@@ -606,19 +551,17 @@ XMLRowsetProvider::GetColumn(Element* pRow, int iCol, VARIANT* pVar)
     }
 }
 
-XMLRowsetProvider::ChildRecord *
+XMLRowsetProvider::ChildRecord*
 XMLRowsetProvider::FindChildColumn(int iCol)
 {
-    const ChildRecord *pChildRecord = null;
+    const ChildRecord* pChildRecord = null;
     int i;
 
-    if (_paryChildRecord)
-    {
+    if (_paryChildRecord) {
         // look up column index
-        for (i=_paryChildRecord->length(), pChildRecord=_paryChildRecord->getData();
+        for (i = _paryChildRecord->length(), pChildRecord = _paryChildRecord->getData();
              i > 0;
-             --i, ++pChildRecord)
-        {
+             --i, ++pChildRecord) {
             if (pChildRecord->_iColIndex == iCol)
                 break;
         }
@@ -632,46 +575,42 @@ XMLRowsetProvider::FindChildColumn(int iCol)
 OSPWrapper*
 XMLRowsetProvider::FindChildProvider(Element* pRow, int iCol)
 {
-    OSPWrapper *pOSPChild;
-    ChildRecord *pChildRecord;
+    OSPWrapper* pOSPChild;
+    ChildRecord* pChildRecord;
 
     // look up column index
     pChildRecord = FindChildColumn(iCol);
 
-    if (pChildRecord)
-    {
+    if (pChildRecord) {
         // look up row in the column's hashtable
         pOSPChild = (OSPWrapper*)pChildRecord->_pChildProviders->get(pRow);
 
         // get returns a refcounted answer, but FindChildProvider does not
         if (pOSPChild)
             pOSPChild->Release();
-    }
-    else
+    } else
         pOSPChild = null;
 
     return pOSPChild;
 }
 
 void
-XMLRowsetProvider::AddChildProvider(Element *pRow, int iCol, OSPWrapper* pChildOSP)
+XMLRowsetProvider::AddChildProvider(Element* pRow, int iCol, OSPWrapper* pChildOSP)
 {
-    ChildRecord *pChildRecord;
+    ChildRecord* pChildRecord;
 
     // look up column index
     pChildRecord = FindChildColumn(iCol);
 
     // if there's no entry for the column yet, make one
-    if (!pChildRecord)
-    {
+    if (!pChildRecord) {
         int iNew;
 
         if (!_paryChildRecord)      // first make sure the array exists
         {
             iNew = 0;
             _paryChildRecord = new (1) AChildRecord;
-        }
-        else                        // or grow it to hold a new entry
+        } else                        // or grow it to hold a new entry
         {
             iNew = _paryChildRecord->length();
             _paryChildRecord = _paryChildRecord->resize(iNew + 1);
@@ -689,16 +628,14 @@ XMLRowsetProvider::AddChildProvider(Element *pRow, int iCol, OSPWrapper* pChildO
 void
 XMLRowsetProvider::RemoveChildProvider(Element* pRow)
 {
-    if (_paryChildRecord)
-    {
-        const ChildRecord *pChildRecord = null;
+    if (_paryChildRecord) {
+        const ChildRecord* pChildRecord = null;
         int i;
 
         // remove the row from each column
-        for (i=_paryChildRecord->length(), pChildRecord=_paryChildRecord->getData();
+        for (i = _paryChildRecord->length(), pChildRecord = _paryChildRecord->getData();
              i > 0;
-             --i, ++pChildRecord)
-        {
+             --i, ++pChildRecord) {
             pChildRecord->_pChildProviders->remove(pRow);
         }
     }
@@ -713,15 +650,11 @@ XMLRowsetProvider::FindChild(Element* pRow, Name* pTag)
 {
     HANDLE h;
     Element* pElement = pRow->getFirstChild(&h);
-    while (pElement != NULL)
-    {
-        if (pElement->getType() == Element::ELEMENT && pElement->getTagName() == pTag)
-        {
+    while (pElement != NULL) {
+        if (pElement->getType() == Element::ELEMENT && pElement->getTagName() == pTag) {
             return pElement;
-        }
-        else if (pElement->hasChildren())
-        {
-            pElement = FindChild(pElement,pTag);
+        } else if (pElement->hasChildren()) {
+            pElement = FindChild(pElement, pTag);
             if (pElement != null)
                 return pElement;
         }
@@ -745,62 +678,54 @@ XMLRowsetProvider::getNBSP()
 
 void XMLRowsetProvider::findNewRows()
 {
-    long newrows=0;
-    void * pPrevRow=_pCurNewRow;                //trails behind nextrow, in case nextrow is null
-    Node * nextRow=_pNewDataIter->nextNode(&_pCurNewRow);
+    long newrows = 0;
+    void* pPrevRow = _pCurNewRow;                //trails behind nextrow, in case nextrow is null
+    Node* nextRow = _pNewDataIter->nextNode(&_pCurNewRow);
 
-    while (true)
-    {
-        if (nextRow && nextRow->isFinished())
-        {                                       //if next row is finished
-            if (nextRow->getType() == Node::ELEMENT)
-            {
+    while (true) {
+        if (nextRow && nextRow->isFinished()) {                                       //if next row is finished
+            if (nextRow->getType() == Node::ELEMENT) {
                 newrows++;                      //increment number of new rows
             }
-            pPrevRow=_pCurNewRow;
-            nextRow=_pNewDataIter->nextNode(&_pCurNewRow);       //increment iterator
-        }
-        else                                    //otherwise
+            pPrevRow = _pCurNewRow;
+            nextRow = _pNewDataIter->nextNode(&_pCurNewRow);       //increment iterator
+        } else                                    //otherwise
         {
-            _pCurNewRow=pPrevRow;               //move current row pointer back one
+            _pCurNewRow = pPrevRow;               //move current row pointer back one
             break;                              //stop checking
         }
     }
 
-    if (newrows>0)
-    {
-        long startrow=_lNumRows+1;
+    if (newrows > 0) {
+        long startrow = _lNumRows + 1;
         if (_pListener)
             _pListener->rowsAvailable(startrow, newrows);
-        _lNumRows+=newrows;
-        TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::findNewRows()    rows=%ld   startrow=%ld   newrows=%ld",this,_lNumRows,startrow,newrows));
+        _lNumRows += newrows;
+        TraceTag((tagXMLrowset, "%p   XMLRowsetProvider::findNewRows()    rows=%ld   startrow=%ld   newrows=%ld", this, _lNumRows, startrow, newrows));
     }
 
-    if (_paryChildRecord)
-    {
-        const ChildRecord *pChildRecord = null;
+    if (_paryChildRecord) {
+        const ChildRecord* pChildRecord = null;
         int i;
 
         // find new rows in each OSP column
-        for (i=_paryChildRecord->length(), pChildRecord=_paryChildRecord->getData();
+        for (i = _paryChildRecord->length(), pChildRecord = _paryChildRecord->getData();
              i > 0;
-             --i, ++pChildRecord)
-        {
-            UHashtableIter * pChildIter =
+             --i, ++pChildRecord) {
+            UHashtableIter* pChildIter =
                 UHashtableIter::newUHashtableIter(pChildRecord->_pChildProviders);
-            Object * pKey=null;
-            while (pChildIter->hasMoreElements())
-            {
-                OSPWrapper *pOSP = (OSPWrapper *)(pChildIter->nextElement(&pKey));
+            Object* pKey = null;
+            while (pChildIter->hasMoreElements()) {
+                OSPWrapper* pOSP = (OSPWrapper*)(pChildIter->nextElement(&pKey));
                 TRY
                 {
                     pOSP->getProvider()->findNewRows();
                 }
-                CATCH
+                    CATCH
                 {
                 }
                 ENDTRY
-                pOSP->Release();        // UHashtableIter addRefs its return value
+                    pOSP->Release();        // UHashtableIter addRefs its return value
             }
         }
     }

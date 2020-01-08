@@ -78,7 +78,7 @@ class CElement;
 
 struct CONNECTION_POINT_INFO
 {
-    const IID * piid;                  // iid of connection point
+    const IID* piid;                  // iid of connection point
     DISPID      dispid;                // dispid under which to store sinks
 };
 
@@ -113,7 +113,7 @@ struct CONNECTION_POINT_INFO
 struct PROPERTYDESC;
 struct VTABLEDESC
 {
-    const PROPERTYDESC     *pPropDesc;
+    const PROPERTYDESC* pPropDesc;
     UINT                    uVTblEntry;
 };
 
@@ -121,18 +121,18 @@ struct VTABLEDESC
 struct HDLDESC
 {
     // Mondo disp interface IID
-    const GUID                 *_piidOfMondoDispInterface;
+    const GUID* _piidOfMondoDispInterface;
 
     // PropDesc array
-    const PROPERTYDESC * const *ppPropDescs;
+    const PROPERTYDESC* const* ppPropDescs;
     UINT                        uNumPropDescs;  // Max value binary search.
 
     //VTable array
-    VTABLEDESC const           *pVTableArray;
+    VTABLEDESC const* pVTableArray;
     UINT                        uVTblIndex;     // Max value binary search.
     // PropDesc array in Vtbl order
-    const PROPERTYDESC * const *ppVtblPropDescs;
-    const PROPERTYDESC * FindPropDescForName ( LPCTSTR szName, BOOL fCaseSensitive = FALSE, long *pidx = NULL ) const;
+    const PROPERTYDESC* const* ppVtblPropDescs;
+    const PROPERTYDESC* FindPropDescForName(LPCTSTR szName, BOOL fCaseSensitive = FALSE, long* pidx = NULL) const;
 
 };
 
@@ -148,13 +148,13 @@ struct ENUMDESC
     DWORD dwMask;
     struct ENUMPAIR
     {
-        TCHAR * pszName;
+        TCHAR* pszName;
         long     iVal;
     } aenumpairs[MAX_ENUMPAIRS];
 
-    HRESULT EnumFromString ( LPCTSTR pbstr, long *lValue, BOOL fCaseSensitive = FALSE ) const;
-    HRESULT StringFromEnum ( long lValue, BSTR *pbstr ) const;
-    LPCTSTR StringPtrFromEnum ( long lValue ) const;
+    HRESULT EnumFromString(LPCTSTR pbstr, long* lValue, BOOL fCaseSensitive = FALSE) const;
+    HRESULT StringFromEnum(long lValue, BSTR* pbstr) const;
+    LPCTSTR StringPtrFromEnum(long lValue) const;
 };
 
 struct PROPERTYDESC;
@@ -167,39 +167,39 @@ struct BASICPROPPARAMS
     WORD    wInvFunc;       // Index into function Invoke table
     WORD    wMaxstrlen;     // maxlength for string and Variant types that can contain strings
 
-    const PROPERTYDESC *GetPropertyDesc ( void ) const;
-    HRESULT GetAvString (void * pObject, const void * pvParams, CStr *pstr, BOOL *pfValuePresent = NULL ) const;
-    DWORD   GetAvNumber (void * pObject, const void * pvParams, UINT uNumBytes, BOOL *pfValuePresent = NULL  ) const;
-    HRESULT SetAvNumber ( void *pObject, DWORD dwNumber, const void *pvParams, UINT uNumberBytes, WORD wFlags ) const;
+    const PROPERTYDESC* GetPropertyDesc(void) const;
+    HRESULT GetAvString(void* pObject, const void* pvParams, CStr* pstr, BOOL* pfValuePresent = NULL) const;
+    DWORD   GetAvNumber(void* pObject, const void* pvParams, UINT uNumBytes, BOOL* pfValuePresent = NULL) const;
+    HRESULT SetAvNumber(void* pObject, DWORD dwNumber, const void* pvParams, UINT uNumberBytes, WORD wFlags) const;
 
-    void GetGetMethodP(const void * pvParams, void * pfn) const;
-    void GetSetMethodP(const void * pvParams, void * pfn) const;
+    void GetGetMethodP(const void* pvParams, void* pfn) const;
+    void GetSetMethodP(const void* pvParams, void* pfn) const;
 
-    HRESULT GetColor(CVoid * pObject, BSTR * pbstrColor, BOOL fReturnAsHex=FALSE) const;
-    HRESULT GetColor(CVoid * pObject, CStr * pcstr, BOOL fReturnAsHex=FALSE, BOOL *pfValuePresent = NULL) const;
-    HRESULT SetColor(CVoid * pObject, TCHAR * pch, WORD wFlags) const;
-    HRESULT GetColor(CVoid * pObject, DWORD * pdwValue) const;
-    HRESULT SetColor(CVoid * pObject, DWORD dwValue, WORD wFlags) const;
-    HRESULT GetColorProperty(VARIANT * pbstr, CBase * pObject, CVoid * pSubObject) const;
-    HRESULT SetColorProperty(VARIANT bstr, CBase * pObject, CVoid * pSubObject, WORD wFlags = 0)  const;
+    HRESULT GetColor(CVoid* pObject, BSTR* pbstrColor, BOOL fReturnAsHex = FALSE) const;
+    HRESULT GetColor(CVoid* pObject, CStr* pcstr, BOOL fReturnAsHex = FALSE, BOOL* pfValuePresent = NULL) const;
+    HRESULT SetColor(CVoid* pObject, TCHAR* pch, WORD wFlags) const;
+    HRESULT GetColor(CVoid* pObject, DWORD* pdwValue) const;
+    HRESULT SetColor(CVoid* pObject, DWORD dwValue, WORD wFlags) const;
+    HRESULT GetColorProperty(VARIANT* pbstr, CBase* pObject, CVoid* pSubObject) const;
+    HRESULT SetColorProperty(VARIANT bstr, CBase* pObject, CVoid* pSubObject, WORD wFlags = 0)  const;
 
-    HRESULT GetString(CVoid * pObject, CStr * pcstr, BOOL *pfValuePresent = NULL) const;
-    HRESULT SetString(CVoid * pObject, TCHAR * pch, WORD wFlags) const;
-    HRESULT GetStringProperty(BSTR *pbstr, CBase *pObject, CVoid *pSubObject) const;
-    HRESULT SetStringProperty(BSTR bstr, CBase *pObject, CVoid *pSubObject, WORD wFlags = 0) const;
+    HRESULT GetString(CVoid* pObject, CStr* pcstr, BOOL* pfValuePresent = NULL) const;
+    HRESULT SetString(CVoid* pObject, TCHAR* pch, WORD wFlags) const;
+    HRESULT GetStringProperty(BSTR* pbstr, CBase* pObject, CVoid* pSubObject) const;
+    HRESULT SetStringProperty(BSTR bstr, CBase* pObject, CVoid* pSubObject, WORD wFlags = 0) const;
 
-    HRESULT GetUrl(CVoid * pObject, CStr * pcstr) const;
-    HRESULT SetUrl(CVoid * pObject, TCHAR * pch, WORD wFlags) const;
-    HRESULT GetUrlProperty(BSTR *pbstr, CBase *pObject, CVoid *pSubObject) const;
-    HRESULT SetUrlProperty(BSTR bstr, CBase *pObject, CVoid *pSubObject, WORD wFlags = 0) const;
+    HRESULT GetUrl(CVoid* pObject, CStr* pcstr) const;
+    HRESULT SetUrl(CVoid* pObject, TCHAR* pch, WORD wFlags) const;
+    HRESULT GetUrlProperty(BSTR* pbstr, CBase* pObject, CVoid* pSubObject) const;
+    HRESULT SetUrlProperty(BSTR bstr, CBase* pObject, CVoid* pSubObject, WORD wFlags = 0) const;
 
-    HRESULT SetCodeProperty(VARIANT *pvarCode, CBase * pObject, CVoid *) const;
-    HRESULT GetCodeProperty (VARIANT *pvarCode, CBase * pObject, CVoid * pSubObject = NULL) const;
+    HRESULT SetCodeProperty(VARIANT* pvarCode, CBase* pObject, CVoid*) const;
+    HRESULT GetCodeProperty(VARIANT* pvarCode, CBase* pObject, CVoid* pSubObject = NULL) const;
 
-    HRESULT GetStyleComponentProperty(BSTR *pbstr, CBase *pObject, CVoid *pSubObject) const;
-    HRESULT SetStyleComponentProperty(BSTR bstr,   CBase *pObject, CVoid *pSubObject, WORD wFlags = 0) const;
-    HRESULT GetStyleComponentBooleanProperty( VARIANT_BOOL * p, CBase *pObject, CVoid *pSubObject) const;
-    HRESULT SetStyleComponentBooleanProperty( VARIANT_BOOL v,   CBase *pObject, CVoid *pSubObject) const;
+    HRESULT GetStyleComponentProperty(BSTR* pbstr, CBase* pObject, CVoid* pSubObject) const;
+    HRESULT SetStyleComponentProperty(BSTR bstr, CBase* pObject, CVoid* pSubObject, WORD wFlags = 0) const;
+    HRESULT GetStyleComponentBooleanProperty(VARIANT_BOOL* p, CBase* pObject, CVoid* pSubObject) const;
+    HRESULT SetStyleComponentBooleanProperty(VARIANT_BOOL v, CBase* pObject, CVoid* pSubObject) const;
 };
 
 
@@ -212,16 +212,16 @@ struct NUMPROPPARAMS
     LONG            lMin;
     LONG_PTR        lMax;
 
-    const PROPERTYDESC *GetPropertyDesc ( void ) const;
+    const PROPERTYDESC* GetPropertyDesc(void) const;
 
-    HRESULT GetNumber(CBase * pObject, CVoid * pSubObject, long * plNum, BOOL* pfValuePresent = NULL) const;
-    HRESULT SetNumber(CBase * pObject, CVoid * pSubObject, long plNum, WORD wFlags) const;
+    HRESULT GetNumber(CBase* pObject, CVoid* pSubObject, long* plNum, BOOL* pfValuePresent = NULL) const;
+    HRESULT SetNumber(CBase* pObject, CVoid* pSubObject, long plNum, WORD wFlags) const;
 
-    HRESULT ValidateNumberProperty(long *lArg, CBase * pObject ) const;
-    HRESULT GetNumberProperty(void * pv, CBase * pObject, CVoid * pSubObject) const;
-    HRESULT SetNumberProperty(long lValueNew, CBase * pObject, CVoid * pSubObject, BOOL fValidate = TRUE, WORD wFlags = 0 ) const;
-    HRESULT GetEnumStringProperty(BSTR *pbstr, CBase * pObject, CVoid * pSubObject) const;
-    HRESULT SetEnumStringProperty(BSTR bstr,   CBase *pObject, CVoid *pSubObject, WORD wFlags = 0) const;
+    HRESULT ValidateNumberProperty(long* lArg, CBase* pObject) const;
+    HRESULT GetNumberProperty(void* pv, CBase* pObject, CVoid* pSubObject) const;
+    HRESULT SetNumberProperty(long lValueNew, CBase* pObject, CVoid* pSubObject, BOOL fValidate = TRUE, WORD wFlags = 0) const;
+    HRESULT GetEnumStringProperty(BSTR* pbstr, CBase* pObject, CVoid* pSubObject) const;
+    HRESULT SetEnumStringProperty(BSTR bstr, CBase* pObject, CVoid* pSubObject, WORD wFlags = 0) const;
 
 };
 
@@ -239,21 +239,21 @@ public:
     DECLARE_MEMALLOC_NEW_DELETE(Mt(CEnumConnections))
 
     //  IEnum methods
-    STDMETHOD(Next) (ULONG celt, void * reelt, ULONG * pceltFetched);
-    STDMETHOD(Clone) (CBaseEnum ** ppenum);
+    STDMETHOD(Next) (ULONG celt, void* reelt, ULONG* pceltFetched);
+    STDMETHOD(Clone) (CBaseEnum** ppenum);
 
     //  CEnumGeneric methods
     static HRESULT Create(
-            int ccd,
-            CONNECTDATA * pcd,
-            CEnumConnections ** ppenum);
+        int ccd,
+        CONNECTDATA* pcd,
+        CEnumConnections** ppenum);
 
 protected:
     CEnumConnections();
-    CEnumConnections(const CEnumConnections & enumc);
+    CEnumConnections(const CEnumConnections& enumc);
     ~CEnumConnections();
 
-    CEnumConnections& operator=(const CEnumConnections & enumc); // don't define
+    CEnumConnections& operator=(const CEnumConnections& enumc); // don't define
 };
 
 
@@ -261,10 +261,10 @@ struct InlineEvts {
 public:
     InlineEvts() { cScriptlets = 0; }
 
-    HRESULT Connect(CDoc *pDoc, CElement *pElement);
+    HRESULT Connect(CDoc* pDoc, CElement* pElement);
 
     ULONG   aOffsetScriptlets[DISPID_EVPROPS_COUNT];
-    ULONG   aLineScriptlets  [DISPID_EVPROPS_COUNT];
+    ULONG   aLineScriptlets[DISPID_EVPROPS_COUNT];
     DISPID  adispidScriptlets[DISPID_EVPROPS_COUNT];
 
     int     cScriptlets;
@@ -289,8 +289,8 @@ public:
     // Last DISPID handed out by GetIDsOfNames or GetDispID used by
     // custom invoke in CBase::Invoke to eliminate search to find PROPDESC.
     DISPID              _cachedDispidGIN;
-    const VTABLEDESC   *_pCachedVTableDesc;
-    InlineEvts         *_pEventsToHook;
+    const VTABLEDESC* _pCachedVTableDesc;
+    InlineEvts* _pEventsToHook;
 };
 
 class CAttrValue
@@ -311,71 +311,75 @@ public:
         BYTE    _aaVTType;
     };
 
-    enum AATYPE { AA_Attribute,
-                  AA_UnknownAttr,
-                  AA_Expando,
-                  AA_Internal,
-                  AA_AttrArray,
-                  AA_StyleAttribute, // Used to simplify get/set
-                  AA_Expression,
-                  AA_AttachEvent,
-                  AA_Undefined = ~0UL };
+    enum AATYPE {
+        AA_Attribute,
+        AA_UnknownAttr,
+        AA_Expando,
+        AA_Internal,
+        AA_AttrArray,
+        AA_StyleAttribute, // Used to simplify get/set
+        AA_Expression,
+        AA_AttachEvent,
+        AA_Undefined = ~0UL
+    };
 
     enum AAExtraBits {
-        AA_Extra_Empty        = 0x0000,   // No bits set in extrabits area
+        AA_Extra_Empty = 0x0000,   // No bits set in extrabits area
 
-        AA_Extra_Style        = 0x0001,   // The bit used to indicate AA_StyleAttribute
-        AA_Extra_Important    = 0x0002,   // Stylesheets: "! important"
-        AA_Extra_Implied      = 0x0004,   // Stylesheets: implied property, e.g. backgroundColor: transparent in "background: none"
-        AA_Extra_Propdesc     = 0x0008,   // Does the union u1 contain a propdesc * or a dispid?
+        AA_Extra_Style = 0x0001,   // The bit used to indicate AA_StyleAttribute
+        AA_Extra_Important = 0x0002,   // Stylesheets: "! important"
+        AA_Extra_Implied = 0x0004,   // Stylesheets: implied property, e.g. backgroundColor: transparent in "background: none"
+        AA_Extra_Propdesc = 0x0008,   // Does the union u1 contain a propdesc * or a dispid?
 
         AA_Extra_TridentEvent = 0x0010,   // Event sink should use ITridentEventSink.
         AA_Extra_DefaultValue = 0x0020,   // This AV stores a "tag not asssigned" default value
-        AA_Extra_OldEventStyle= 0x0040,   // Event sink supports old style w/o eventObj argument.
-        AA_Extra_Expression   = 0x0080,   // This value is the result of an expression
+        AA_Extra_OldEventStyle = 0x0040,   // Event sink supports old style w/o eventObj argument.
+        AA_Extra_Expression = 0x0080,   // This value is the result of an expression
     };
 
     // other AV types that we use. These are stored in the higher byte of _wFlags
     // in CAttrValue just like the normal VARTYPEs. Their values fall within the range
     // of normal VARIANT types, but are currently not pre-defined.
-    enum { VT_ATTRARRAY = 0x80,
-           VT_AAHEADER  = 0x81 };
+    enum {
+        VT_ATTRARRAY = 0x80,
+        VT_AAHEADER = 0x81
+    };
 
     inline BOOL IsPropdesc() const { return _wFlags._aaExtraBits & AA_Extra_Propdesc; }
-    inline BOOL IsStyleAttribute ( void ) const { return _wFlags._aaExtraBits & AA_Extra_Style; }
-    inline BOOL IsImportant( void ) const { return _wFlags._aaExtraBits & AA_Extra_Important; }
-    inline BOOL IsImplied( void ) const { return _wFlags._aaExtraBits & AA_Extra_Implied; }
-    inline BOOL IsTridentSink( void ) const { return _wFlags._aaExtraBits & AA_Extra_TridentEvent; }
-    inline BOOL IsDefault( void ) const { return _wFlags._aaExtraBits & AA_Extra_DefaultValue; }
-    inline BOOL IsOldEventStyle( void ) const { return _wFlags._aaExtraBits & AA_Extra_OldEventStyle; }
-    inline BOOL IsExpression( void ) const { return _wFlags._aaExtraBits & AA_Extra_Expression; }
+    inline BOOL IsStyleAttribute(void) const { return _wFlags._aaExtraBits & AA_Extra_Style; }
+    inline BOOL IsImportant(void) const { return _wFlags._aaExtraBits & AA_Extra_Important; }
+    inline BOOL IsImplied(void) const { return _wFlags._aaExtraBits & AA_Extra_Implied; }
+    inline BOOL IsTridentSink(void) const { return _wFlags._aaExtraBits & AA_Extra_TridentEvent; }
+    inline BOOL IsDefault(void) const { return _wFlags._aaExtraBits & AA_Extra_DefaultValue; }
+    inline BOOL IsOldEventStyle(void) const { return _wFlags._aaExtraBits & AA_Extra_OldEventStyle; }
+    inline BOOL IsExpression(void) const { return _wFlags._aaExtraBits & AA_Extra_Expression; }
 
-    inline void SetImportant( BOOL fImportant ) {
-        if ( fImportant )
+    inline void SetImportant(BOOL fImportant) {
+        if (fImportant)
             _wFlags._aaExtraBits |= AA_Extra_Important;
         else
             _wFlags._aaExtraBits &= ~AA_Extra_Important;
     }
-    inline void SetImplied( BOOL fImplied ) {
-        if ( fImplied )
+    inline void SetImplied(BOOL fImplied) {
+        if (fImplied)
             _wFlags._aaExtraBits |= AA_Extra_Implied;
         else
             _wFlags._aaExtraBits &= ~AA_Extra_Implied;
     }
-    inline void SetTridentSink( BOOL fTridentSink ) {
-        if ( fTridentSink )
+    inline void SetTridentSink(BOOL fTridentSink) {
+        if (fTridentSink)
             _wFlags._aaExtraBits |= AA_Extra_TridentEvent;
         else
             _wFlags._aaExtraBits &= ~AA_Extra_TridentEvent;
     }
-    inline void SetDefault( BOOL fDefault ) {
-        if ( fDefault )
+    inline void SetDefault(BOOL fDefault) {
+        if (fDefault)
             _wFlags._aaExtraBits |= AA_Extra_DefaultValue;
         else
             _wFlags._aaExtraBits &= ~AA_Extra_DefaultValue;
     }
-    inline void SetOldEventStyle( BOOL fOldEventStyle ) {
-        if ( fOldEventStyle )
+    inline void SetOldEventStyle(BOOL fOldEventStyle) {
+        if (fOldEventStyle)
             _wFlags._aaExtraBits |= AA_Extra_OldEventStyle;
         else
             _wFlags._aaExtraBits &= ~AA_Extra_OldEventStyle;
@@ -388,28 +392,31 @@ public:
     }
 
     // Internal wrapper for AAType - use when you don't care about the style bit
-    AATYPE AAType ( void ) const
+    AATYPE AAType(void) const
     {
         return (AATYPE)(_wFlags._aaType);
     }
     // External wrapper to get AAType - call when need to crack the style bit
-    AATYPE  GetAAType ( void ) const
+    AATYPE  GetAAType(void) const
     {
         AATYPE aa = AAType();
-        if ( aa == AA_Attribute && IsStyleAttribute() )
-        {
+        if (aa == AA_Attribute && IsStyleAttribute()) {
             aa = AA_StyleAttribute;
         }
         return aa;
     }
     void SetAAType(AATYPE aaType);
-    DISPID  GetDISPID ( void ) const;
-    void    SetDISPID ( DISPID dispID )
-        { u1._dispid = dispID; _wFlags._aaExtraBits &= ~AA_Extra_Propdesc; }
+    DISPID  GetDISPID(void) const;
+    void    SetDISPID(DISPID dispID)
+    {
+        u1._dispid = dispID; _wFlags._aaExtraBits &= ~AA_Extra_Propdesc;
+    }
 
-    const PROPERTYDESC *GetPropDesc() const;
-    void SetPropDesc(const PROPERTYDESC *pPropdesc)
-        { u1._pPropertyDesc = pPropdesc; _wFlags._aaExtraBits |= AA_Extra_Propdesc; }
+    const PROPERTYDESC* GetPropDesc() const;
+    void SetPropDesc(const PROPERTYDESC* pPropdesc)
+    {
+        u1._pPropertyDesc = pPropdesc; _wFlags._aaExtraBits |= AA_Extra_Propdesc;
+    }
 
     VARTYPE GetAVType() const
     {
@@ -433,52 +440,52 @@ public:
 
     union
     {
-        const PROPERTYDESC *_pPropertyDesc;
+        const PROPERTYDESC* _pPropertyDesc;
         struct {
             DISPID _dispid;
-        #ifdef _WIN64
+#ifdef _WIN64
             DWORD _dwCookie;        // Used for Advise/Unadvise on Win64 platforms
-        #endif
+#endif
         };
     } u1;
     union
     {
-        IUnknown *_pUnk;
-        IDispatch *_pDisp;
+        IUnknown* _pUnk;
+        IDispatch* _pDisp;
         LONG _lVal;
         BOOL _boolVal;
         SHORT _iVal;
         FLOAT _fltVal;
         LPTSTR _lpstrVal;
         BSTR _bstrVal;
-        VARIANT *_pvarVal;
-        double *_pdblVal;
-        CAttrArray *_pAA;
-        CAttrArrayHeader *_pAAHeader;
-        void *_pvVal;
+        VARIANT* _pvarVal;
+        double* _pdblVal;
+        CAttrArray* _pAA;
+        CAttrArrayHeader* _pAAHeader;
+        void* _pvVal;
     } u2;
 
     CAttrValue() {}
 
-    int CompareWith (DISPID dispID, AATYPE aaType);
+    int CompareWith(DISPID dispID, AATYPE aaType);
 
-    HRESULT Copy(const CAttrValue *pAV);
-    void    CopyEmpty(const CAttrValue *pAV);
-    BOOL    Compare (const CAttrValue *pAV) const;
+    HRESULT Copy(const CAttrValue* pAV);
+    void    CopyEmpty(const CAttrValue* pAV);
+    BOOL    Compare(const CAttrValue* pAV) const;
     void    Free();
-    HRESULT InitVariant ( const VARIANT *pvarNew, BOOL fCloning = FALSE );
-    HRESULT GetIntoVariant (VARIANT * pvar) const;
-    HRESULT GetIntoString ( BSTR *pbStr, LPCTSTR *ppStr ) const;
+    HRESULT InitVariant(const VARIANT* pvarNew, BOOL fCloning = FALSE);
+    HRESULT GetIntoVariant(VARIANT* pvar) const;
+    HRESULT GetIntoString(BSTR* pbStr, LPCTSTR* ppStr) const;
     // copies the attr value into a variant, w/o copying strings or addref'ing objects
-    void GetAsVariantNC (VARIANT *pvar) const;
+    void GetAsVariantNC(VARIANT* pvar) const;
 
     // Sets the value of the AV to the given variant by copying it into a newly allocated
     // VARIANT referenced as a ptr
-    HRESULT SetVariant (const VARIANT *pvar);
-    inline VARIANT *GetVariant() const { Assert(GetAVType() == VT_VARIANT); return u2._pvarVal; }
+    HRESULT SetVariant(const VARIANT* pvar);
+    inline VARIANT* GetVariant() const { Assert(GetAVType() == VT_VARIANT); return u2._pvarVal; }
     HRESULT SetDouble(double dblVal);
     inline double GetDouble() const { Assert(u2._pdblVal); Assert(GetAVType() == VT_R8); return *(u2._pdblVal); }
-    inline double *GetDoublePtr() const { Assert(u2._pdblVal); Assert(GetAVType() == VT_R8); return u2._pdblVal; }
+    inline double* GetDoublePtr() const { Assert(u2._pdblVal); Assert(GetAVType() == VT_R8); return u2._pdblVal; }
 
     // inline put helpers that set the value and type of the AV
     // use these when changing the value as well as the type of an AV
@@ -486,9 +493,9 @@ public:
     inline void SetShort(SHORT iVal, VARTYPE avType) { u2._iVal = iVal; SetAVType(avType); }
     inline void SetBSTR(BSTR bstrVal) { u2._bstrVal = bstrVal; SetAVType(VT_BSTR); }
     inline void SetLPWSTR(LPWSTR lpstrVal) { u2._lpstrVal = lpstrVal; SetAVType(VT_LPWSTR); }
-    inline void SetPointer(void * pvVal, VARTYPE avType) { u2._pvVal = pvVal; SetAVType(avType); }
-    inline void SetAA(CAttrArray *pAA) { u2._pAA = pAA; SetAVType(VT_ATTRARRAY); }
-    inline void SetAAHeader(CAttrArrayHeader *pAAHeader) { u2._pAAHeader = pAAHeader; SetAVType(VT_AAHEADER); }
+    inline void SetPointer(void* pvVal, VARTYPE avType) { u2._pvVal = pvVal; SetAVType(avType); }
+    inline void SetAA(CAttrArray* pAA) { u2._pAA = pAA; SetAVType(VT_ATTRARRAY); }
+    inline void SetAAHeader(CAttrArrayHeader* pAAHeader) { u2._pAAHeader = pAAHeader; SetAVType(VT_AAHEADER); }
 
 #ifdef _WIN64
     inline void SetCookie(DWORD dwCookie) { u1._dwCookie = dwCookie; }
@@ -506,11 +513,11 @@ public:
     inline BSTR GetBSTR() const { Assert(GetAVType() == VT_BSTR); return u2._bstrVal; }
     inline LPTSTR GetLPWSTR() const { Assert(GetAVType() == VT_LPWSTR); return u2._lpstrVal; }
     inline BOOL GetBool() const { Assert(GetAVType() == VT_BOOL); return u2._boolVal; }
-    inline void *GetPointer() const { Assert(GetAVType() == VT_PTR); return u2._pvVal; }
-    inline IUnknown *GetUnknown() const { Assert(GetAVType() == VT_UNKNOWN); return u2._pUnk; }
-    inline IDispatch *GetDispatch() const { Assert(GetAVType() == VT_DISPATCH); return u2._pDisp; }
-    inline CAttrArray *GetAA() const { Assert(GetAVType() == VT_ATTRARRAY); return u2._pAA; }
-    inline CAttrArrayHeader *GetAAHeader() const { Assert(GetAVType() == VT_AAHEADER); return u2._pAAHeader; }
+    inline void* GetPointer() const { Assert(GetAVType() == VT_PTR); return u2._pvVal; }
+    inline IUnknown* GetUnknown() const { Assert(GetAVType() == VT_UNKNOWN); return u2._pUnk; }
+    inline IDispatch* GetDispatch() const { Assert(GetAVType() == VT_DISPATCH); return u2._pDisp; }
+    inline CAttrArray* GetAA() const { Assert(GetAVType() == VT_ATTRARRAY); return u2._pAA; }
+    inline CAttrArrayHeader* GetAAHeader() const { Assert(GetAVType() == VT_AAHEADER); return u2._pAAHeader; }
 
 #ifdef _WIN64
     inline DWORD GetCookie() { return(u1._dwCookie); }
@@ -520,18 +527,18 @@ public:
     // use these when getting the value of an AV whose type is not known
     inline LONG GetlVal() const { return u2._lVal; }
     inline SHORT GetiVal() const { return u2._iVal; }
-    inline IUnknown *GetpUnkVal() const { return u2._pUnk; }
+    inline IUnknown* GetpUnkVal() const { return u2._pUnk; }
     inline LPTSTR GetString() const { return u2._lpstrVal; }
-    inline void * GetPointerVal() const { return u2._pvVal; }
-    inline CAttrArray **GetppAA() const { return (CAttrArray **)(&(u2._pAA)); }
+    inline void* GetPointerVal() const { return u2._pvVal; }
+    inline CAttrArray** GetppAA() const { return (CAttrArray**)(&(u2._pAA)); }
 
     // inline helpers that access the AA header members
     inline void SetCachedDispid(DISPID cachedDispidGIN) { GetAAHeader()->_cachedDispidGIN = cachedDispidGIN; }
-    inline void SetCachedVTblDesc(const VTABLEDESC *pCachedVTableDesc) { GetAAHeader()->_pCachedVTableDesc = pCachedVTableDesc; }
+    inline void SetCachedVTblDesc(const VTABLEDESC* pCachedVTableDesc) { GetAAHeader()->_pCachedVTableDesc = pCachedVTableDesc; }
     inline DISPID GetCachedDispid() const { return GetAAHeader()->_cachedDispidGIN; }
-    inline const VTABLEDESC *GetCachedVTblDesc() const { return GetAAHeader()->_pCachedVTableDesc; }
-    inline void SetEventsToHook(InlineEvts *pEventsToHook) { GetAAHeader()->_pEventsToHook = pEventsToHook; }
-    inline InlineEvts * GetEventsToHook() const { return GetAAHeader()->_pEventsToHook; }
+    inline const VTABLEDESC* GetCachedVTblDesc() const { return GetAAHeader()->_pCachedVTableDesc; }
+    inline void SetEventsToHook(InlineEvts* pEventsToHook) { GetAAHeader()->_pEventsToHook = pEventsToHook; }
+    inline InlineEvts* GetEventsToHook() const { return GetAAHeader()->_pEventsToHook; }
 };
 
 
@@ -552,19 +559,25 @@ class CDispParams : public DISPPARAMS
 {
 public:
     DECLARE_MEMALLOC_NEW_DELETE(Mt(CDispParams))
-    CDispParams (UINT cTotalArgs = 0, UINT cTotalNamedArgs = 0)
-        { rgvarg = NULL; rgdispidNamedArgs = NULL; cArgs = cTotalArgs; cNamedArgs = cTotalNamedArgs; }
-    ~CDispParams ()
-        { delete [] rgvarg; delete [] rgdispidNamedArgs; }
+    CDispParams(UINT cTotalArgs = 0, UINT cTotalNamedArgs = 0)
+    {
+        rgvarg = NULL; rgdispidNamedArgs = NULL; cArgs = cTotalArgs; cNamedArgs = cTotalNamedArgs;
+    }
+    ~CDispParams()
+    {
+        delete[] rgvarg; delete[] rgdispidNamedArgs;
+    }
 
-    void Initialize (UINT cTotalArgs, UINT cTotalNamedArgs)
-        { Assert(!rgvarg && !rgdispidNamedArgs); cArgs = cTotalArgs; cNamedArgs = cTotalNamedArgs; }
+    void Initialize(UINT cTotalArgs, UINT cTotalNamedArgs)
+    {
+        Assert(!rgvarg && !rgdispidNamedArgs); cArgs = cTotalArgs; cNamedArgs = cTotalNamedArgs;
+    }
 
-    HRESULT Create (DISPPARAMS *pOrgDispParams);
+    HRESULT Create(DISPPARAMS* pOrgDispParams);
 
-    HRESULT MoveArgsToDispParams (DISPPARAMS *pOutDispParams, UINT cNumArgs, BOOL fFromEnd = TRUE);
+    HRESULT MoveArgsToDispParams(DISPPARAMS* pOutDispParams, UINT cNumArgs, BOOL fFromEnd = TRUE);
 
-    void ReleaseVariants ();
+    void ReleaseVariants();
 };
 
 
@@ -586,8 +599,8 @@ private:
 
     HRESULT Set(
         DISPID dispID,
-        const PROPERTYDESC *pPropDesc,
-        VARIANT *varNew,
+        const PROPERTYDESC* pPropDesc,
+        VARIANT* varNew,
         CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute,
         WORD wExtraBits = 0,            // Modifiers like "important" or "implied"
         BOOL fAllowMultiple = FALSE);
@@ -597,45 +610,49 @@ protected:
 
 public:
     DECLARE_MEMALLOC_NEW_DELETE(Mt(CAttrArray))
-     CAttrArray();
+    CAttrArray();
     ~CAttrArray()
-      { Free(); }
+    {
+        Free();
+    }
 
     void Free(void);
     void FreeSpecial();
-    void Clear(CAttrArray *pAAUndo);
+    void Clear(CAttrArray* pAAUndo);
 
-    BOOL Compare ( CAttrArray *pAA, DISPID * pdispIDDifferent = NULL ) const;
+    BOOL Compare(CAttrArray* pAA, DISPID* pdispIDDifferent = NULL) const;
 
     BOOL HasAnyAttribute(BOOL fCountExpandosToo = FALSE);
 
-    static HRESULT Set (
-        CAttrArray **ppAA, DISPID dispID,
-        VARIANT *varNew,
-        const PROPERTYDESC *pPropDesc = NULL,
+    static HRESULT Set(
+        CAttrArray** ppAA, DISPID dispID,
+        VARIANT* varNew,
+        const PROPERTYDESC* pPropDesc = NULL,
         CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute,
         WORD wExtraBits = 0,            // Modifiers like "important" or "implied"
         BOOL fAllowMultiple = FALSE);
 
-    HRESULT SetAt (AAINDEX aaIdx, VARIANT *pvarNew);
+    HRESULT SetAt(AAINDEX aaIdx, VARIANT* pvarNew);
 
     CAttrValue* FindAt(AAINDEX aaIdx)
-       { return ((aaIdx >= 0) && (aaIdx < (ULONG)Size())) ? ((CAttrValue*)*this) + aaIdx : NULL; }
+    {
+        return ((aaIdx >= 0) && (aaIdx < (ULONG)Size())) ? ((CAttrValue*)*this) + aaIdx : NULL;
+    }
     CAttrValue* Find(
         DISPID dispID,
         CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute,
-        AAINDEX *paaIdx = NULL,
+        AAINDEX* paaIdx = NULL,
         BOOL fAllowMultiple = FALSE);
-    static BOOL FindSimple ( CAttrArray *pAA, const PROPERTYDESC *pPropertyDesc, DWORD *pdwValue ) ;
-    static BOOL FindString ( CAttrArray *pAA, const PROPERTYDESC *pPropertyDesc, LPCTSTR *ppStr ) ;
+    static BOOL FindSimple(CAttrArray* pAA, const PROPERTYDESC* pPropertyDesc, DWORD* pdwValue);
+    static BOOL FindString(CAttrArray* pAA, const PROPERTYDESC* pPropertyDesc, LPCTSTR* ppStr);
 
-    BOOL FindString ( DISPID dispID, LPCTSTR *ppStr, CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute, const PROPERTYDESC **ppPropertyDesc = NULL  ) ;
-    BOOL FindSimple ( DISPID dispID, DWORD *pdwValue, CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute, const PROPERTYDESC **ppPropertyDesc = NULL  ) ;
-    BOOL FindSimpleInt4AndDelete( DISPID dispID, DWORD *pdwValue, CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute, const PROPERTYDESC **ppPropertyDesc = NULL );
-    BOOL FindSimpleAndDelete( DISPID dispID, CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute, const PROPERTYDESC **ppPropertyDesc = NULL );
+    BOOL FindString(DISPID dispID, LPCTSTR* ppStr, CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute, const PROPERTYDESC** ppPropertyDesc = NULL);
+    BOOL FindSimple(DISPID dispID, DWORD* pdwValue, CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute, const PROPERTYDESC** ppPropertyDesc = NULL);
+    BOOL FindSimpleInt4AndDelete(DISPID dispID, DWORD* pdwValue, CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute, const PROPERTYDESC** ppPropertyDesc = NULL);
+    BOOL FindSimpleAndDelete(DISPID dispID, CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute, const PROPERTYDESC** ppPropertyDesc = NULL);
 
-    static HRESULT SetSimple(CAttrArray **ppAA, const PROPERTYDESC *pPropertyDesc, DWORD dwSimple, WORD wFlags = 0);
-    static HRESULT SetString(CAttrArray **ppAA, const PROPERTYDESC *pPropertyDesc, LPCTSTR pch, BOOL fIsUnknown = FALSE, WORD wFlags = 0 );
+    static HRESULT SetSimple(CAttrArray** ppAA, const PROPERTYDESC* pPropertyDesc, DWORD dwSimple, WORD wFlags = 0);
+    static HRESULT SetString(CAttrArray** ppAA, const PROPERTYDESC* pPropertyDesc, LPCTSTR pch, BOOL fIsUnknown = FALSE, WORD wFlags = 0);
 
     AAINDEX FindAAIndex(
         DISPID dispID,
@@ -643,41 +660,43 @@ public:
         AAINDEX aaLastOne = AA_IDX_UNKNOWN,
         BOOL fAllowMultiple = FALSE);
 
-    HRESULT GetSimpleAt(AAINDEX aaIdx, DWORD *pdwValue);
-    static HRESULT AddSimple( CAttrArray **ppAA, DISPID dispID, DWORD dwSimple,
-        CAttrValue::AATYPE aaType )
+    HRESULT GetSimpleAt(AAINDEX aaIdx, DWORD* pdwValue);
+    static HRESULT AddSimple(CAttrArray** ppAA, DISPID dispID, DWORD dwSimple,
+                             CAttrValue::AATYPE aaType)
     {
         VARIANT varNew;
 
         varNew.vt = VT_I4;
         varNew.lVal = (long)dwSimple;
 
-        RRETURN(CAttrArray::Set(ppAA, dispID, &varNew, NULL, aaType ));
+        RRETURN(CAttrArray::Set(ppAA, dispID, &varNew, NULL, aaType));
     }
 
-    HRESULT Clone(CAttrArray **ppAA) const;
-    HRESULT Merge(CAttrArray **ppAA, CBase *pTarget, CAttrArray *pAAUndo, BOOL fFromUndo = FALSE, BOOL fCopyID = FALSE) const;
+    HRESULT Clone(CAttrArray** ppAA) const;
+    HRESULT Merge(CAttrArray** ppAA, CBase* pTarget, CAttrArray* pAAUndo, BOOL fFromUndo = FALSE, BOOL fCopyID = FALSE) const;
 
     // Copy expandos from given attribute array to current one
-    HRESULT CopyExpandos(CAttrArray *pAA);
+    HRESULT CopyExpandos(CAttrArray* pAA);
 
     // Routines to get and set propDesc and dispid from last GIN or GINEx
-    const VTABLEDESC * FindInGINCache(DISPID dispid)
-    { return (dispid == GetCachedDispidGIN()) ? GetCachedVTableDesc() : 0; }
+    const VTABLEDESC* FindInGINCache(DISPID dispid)
+    {
+        return (dispid == GetCachedDispidGIN()) ? GetCachedVTableDesc() : 0;
+    }
 
-    void SetGINCache(DISPID dispid, const VTABLEDESC *pVTblDesc, BOOL fCreate = TRUE);
+    void SetGINCache(DISPID dispid, const VTABLEDESC* pVTblDesc, BOOL fCreate = TRUE);
 
     DWORD   GetChecksum() const { return _dwChecksum >> 1; }
     // This method is only for the data cache and casts the checksum down to a word
     WORD ComputeCrc() const { return (WORD)GetChecksum(); }
 
-    CAttrValue *EnsureHeader(BOOL fCreate = TRUE);
+    CAttrValue* EnsureHeader(BOOL fCreate = TRUE);
     HRESULT SetHeader();
     DISPID GetCachedDispidGIN();
-    const VTABLEDESC *GetCachedVTableDesc();
+    const VTABLEDESC* GetCachedVTableDesc();
 
-    BOOL IsStylePtrCachePossible()   { return _dwChecksum & 1; }
-    void SetStylePtrCachePossible()  { _dwChecksum |= 1; }
+    BOOL IsStylePtrCachePossible() { return _dwChecksum & 1; }
+    void SetStylePtrCachePossible() { _dwChecksum |= 1; }
 };
 
 // Flag set on Invoke if "new" keyword supplied
@@ -702,26 +721,28 @@ public:
 
     // IUnknown methods
 
-    STDMETHOD(QueryInterface)(REFIID riid, LPVOID * ppv)  { return E_NOINTERFACE; }
-    STDMETHOD_(ULONG, AddRef)(void)                       { return 0; }
-    STDMETHOD_(ULONG, Release)(void)                      { return 0; }
+    STDMETHOD(QueryInterface)(REFIID riid, LPVOID* ppv) { return E_NOINTERFACE; }
+    STDMETHOD_(ULONG, AddRef)(void) { return 0; }
+    STDMETHOD_(ULONG, Release)(void) { return 0; }
 
 
     // IOleUndoManager methods
 
-    STDMETHOD(Open)(IOleParentUndoUnit *pPUU)         { return S_OK; }
-    STDMETHOD(Close)(IOleParentUndoUnit *pPUU, BOOL fCommit) { return S_OK; }
-    STDMETHOD(Add)(IOleUndoUnit * pUU)                  { return S_OK; }
-    STDMETHOD(GetOpenParentState)(DWORD * pdwState)
-                 { *pdwState = UAS_BLOCKED; return S_OK; }
-    STDMETHOD(DiscardFrom)(IOleUndoUnit * pUU)          { return S_OK; }
-    STDMETHOD(UndoTo)(IOleUndoUnit * pUU)               { return S_OK; }
-    STDMETHOD(RedoTo)(IOleUndoUnit * pUU)               { return S_OK; }
-    STDMETHOD(EnumUndoable)(IEnumOleUndoUnits **ppEnum) { return E_NOTIMPL; }
-    STDMETHOD(EnumRedoable)(IEnumOleUndoUnits **ppEnum) { return E_NOTIMPL; }
-    STDMETHOD(GetLastUndoDescription)(BSTR *pstr)         { return E_FAIL; }
-    STDMETHOD(GetLastRedoDescription)(BSTR *pstr)         { return E_FAIL; }
-    STDMETHOD(Enable)(BOOL fEnable)                       { return S_OK; }
+    STDMETHOD(Open)(IOleParentUndoUnit* pPUU) { return S_OK; }
+    STDMETHOD(Close)(IOleParentUndoUnit* pPUU, BOOL fCommit) { return S_OK; }
+    STDMETHOD(Add)(IOleUndoUnit* pUU) { return S_OK; }
+    STDMETHOD(GetOpenParentState)(DWORD* pdwState)
+    {
+        *pdwState = UAS_BLOCKED; return S_OK;
+    }
+    STDMETHOD(DiscardFrom)(IOleUndoUnit* pUU) { return S_OK; }
+    STDMETHOD(UndoTo)(IOleUndoUnit* pUU) { return S_OK; }
+    STDMETHOD(RedoTo)(IOleUndoUnit* pUU) { return S_OK; }
+    STDMETHOD(EnumUndoable)(IEnumOleUndoUnits** ppEnum) { return E_NOTIMPL; }
+    STDMETHOD(EnumRedoable)(IEnumOleUndoUnits** ppEnum) { return E_NOTIMPL; }
+    STDMETHOD(GetLastUndoDescription)(BSTR* pstr) { return E_FAIL; }
+    STDMETHOD(GetLastRedoDescription)(BSTR* pstr) { return E_FAIL; }
+    STDMETHOD(Enable)(BOOL fEnable) { return S_OK; }
 };
 
 extern CDummyUndoManager g_DummyUndoMgr;
@@ -749,32 +770,34 @@ class CBase;
 class CBaseCF : public CClassFactory
 {
 public:
-                                         // pUnkOuter for aggregation
+    // pUnkOuter for aggregation
 
-    // The parens are removed because BoundsChecker blows up on them. (lylec)
+// The parens are removed because BoundsChecker blows up on them. (lylec)
 
-    typedef CBase * FNCREATE(IUnknown *pUnkOuter);
+    typedef CBase* FNCREATE(IUnknown* pUnkOuter);
 
     typedef HRESULT FNINITCLASS(void);
 
-    CBaseCF(FNCREATE *pfnCreate, FNINITCLASS *pfnInitClass = NULL)
-            { _pfnCreate = pfnCreate; _pfnInitClass = pfnInitClass; }
+    CBaseCF(FNCREATE* pfnCreate, FNINITCLASS* pfnInitClass = NULL)
+    {
+        _pfnCreate = pfnCreate; _pfnInitClass = pfnInitClass;
+    }
 
     // IClassFactory methods
     STDMETHOD(CreateInstance)(
-            IUnknown *pUnkOuter,
-            REFIID iid,
-            void **ppvObj);
+        IUnknown* pUnkOuter,
+        REFIID iid,
+        void** ppvObj);
 
 protected:
-    FNCREATE *_pfnCreate;
-    FNINITCLASS * _pfnInitClass;
+    FNCREATE* _pfnCreate;
+    FNINITCLASS* _pfnInitClass;
 };
 
 class CBaseLockCF : public CBaseCF
 {
 public:
-    CBaseLockCF(FNCREATE *pfnCreate, FNINITCLASS *pfnInitClass = NULL) : CBaseCF(pfnCreate, pfnInitClass) { }
+    CBaseLockCF(FNCREATE* pfnCreate, FNINITCLASS* pfnInitClass = NULL) : CBaseCF(pfnCreate, pfnInitClass) { }
     STDMETHOD(LockServer)(BOOL fLock);
 };
 
@@ -788,10 +811,10 @@ public:
 
 enum BASEDESC_FLAG
 {
-    BASEDESC_NOAGG          = 1,
-    BASEDESC_DUALINTERFACE  = 2,
-    BASEDESC_LAST           = BASEDESC_DUALINTERFACE,
-    BASEDESC_MAX            = LONG_MAX    // needed to force enum to be dword
+    BASEDESC_NOAGG = 1,
+    BASEDESC_DUALINTERFACE = 2,
+    BASEDESC_LAST = BASEDESC_DUALINTERFACE,
+    BASEDESC_MAX = LONG_MAX    // needed to force enum to be dword
 };
 
 
@@ -803,7 +826,7 @@ enum BASEDESC_FLAG
 enum BASECHNG_FLAG
 {
     BASECHNG_LAST = 1,
-    BASECHNG_MAX  = LONG_MAX    // needed to force enum to be dword
+    BASECHNG_MAX = LONG_MAX    // needed to force enum to be dword
 };
 
 
@@ -954,7 +977,7 @@ private:
 public:
 
     // Construct/Destruct
-                    CBase();
+    CBase();
     virtual         ~CBase();
     virtual HRESULT Init();
     virtual void    Passivate();
@@ -962,75 +985,84 @@ public:
     // IPrivateUnknown methods
     DECLARE_TEAROFF_METHOD_(ULONG, PrivateAddRef, privateaddref, ());
     DECLARE_TEAROFF_METHOD_(ULONG, PrivateRelease, privaterelease, ());
-    STDMETHOD(PrivateQueryInterface)(REFIID, void **);
+    STDMETHOD(PrivateQueryInterface)(REFIID, void**);
 #ifdef WIN16
     // these need to real virtuals.
     //static ULONG STDMETHODCALLTYPE privateaddref(CBase *pObj)
     //{ return pObj->PrivateAddRef(); }
     //static ULONG STDMETHODCALLTYPE privaterelease(CBase *pObj)
     //{ return pObj->PrivateRelease(); }
-    static HRESULT STDMETHODCALLTYPE privatequeryinterface(CBase *pObj, REFIID refiid, void **pUnk)
-    { return pObj->PrivateQueryInterface(refiid, pUnk); }
-    static NV_STDMETHOD( gettypeinfo )(CBase *pObj, UINT itinfo, ULONG lcid, ITypeInfo ** ppTI)
-        {return DispatchGetTypeInfo(
-                ( *(pObj->BaseDesc())->_apHdlDesc && *(pObj->BaseDesc())->_apHdlDesc->_piidOfMondoDispInterface) ?
-                    *(pObj->BaseDesc())->_apHdlDesc->_piidOfMondoDispInterface) :
-                    *(pObj->BaseDesc())->_piidDispinterface,
-               itinfo,
-                lcid,
-                ppTI);}
-    static NV_STDMETHOD(gettypeinfocount)(CBase *pObj, UINT *pcTinfo)
-        {return DispatchGetTypeInfoCount(pcTinfo);}
+    static HRESULT STDMETHODCALLTYPE privatequeryinterface(CBase* pObj, REFIID refiid, void** pUnk)
+    {
+        return pObj->PrivateQueryInterface(refiid, pUnk);
+    }
+    static NV_STDMETHOD(gettypeinfo)(CBase* pObj, UINT itinfo, ULONG lcid, ITypeInfo** ppTI)
+    {
+        return DispatchGetTypeInfo(
+            (*(pObj->BaseDesc())->_apHdlDesc && *(pObj->BaseDesc())->_apHdlDesc->_piidOfMondoDispInterface) ?
+            *(pObj->BaseDesc())->_apHdlDesc->_piidOfMondoDispInterface) :
+            *(pObj->BaseDesc())->_piidDispinterface,
+            itinfo,
+            lcid,
+            ppTI);
+    }
+    static NV_STDMETHOD(gettypeinfocount)(CBase* pObj, UINT* pcTinfo)
+    {
+        return DispatchGetTypeInfoCount(pcTinfo);
+    }
 #endif // ndef WIN16
 
     //  IDispatch methods
-    NV_STDMETHOD( GetTypeInfo )(UINT itinfo, ULONG lcid, ITypeInfo ** ppTI)
-        {
+    NV_STDMETHOD(GetTypeInfo)(UINT itinfo, ULONG lcid, ITypeInfo** ppTI)
+    {
         return DispatchGetTypeInfo(
-                // Use the Mondo tearoff dispatch interface IID if we have one
-                BaseDesc()->_apHdlDesc && BaseDesc()->_apHdlDesc->_piidOfMondoDispInterface ?
-                    *(BaseDesc()->_apHdlDesc->_piidOfMondoDispInterface) :
-                    *(BaseDesc()->_piidDispinterface),
-                itinfo,
-                lcid,
-                ppTI);}
+            // Use the Mondo tearoff dispatch interface IID if we have one
+            BaseDesc()->_apHdlDesc && BaseDesc()->_apHdlDesc->_piidOfMondoDispInterface ?
+            *(BaseDesc()->_apHdlDesc->_piidOfMondoDispInterface) :
+            *(BaseDesc()->_piidDispinterface),
+            itinfo,
+            lcid,
+            ppTI);
+    }
 
-    NV_STDMETHOD(GetTypeInfoCount)(UINT *pcTinfo)
-        {return DispatchGetTypeInfoCount(pcTinfo);}
+    NV_STDMETHOD(GetTypeInfoCount)(UINT* pcTinfo)
+    {
+        return DispatchGetTypeInfoCount(pcTinfo);
+    }
 
     NV_DECLARE_TEAROFF_METHOD(GetIDsOfNames, getidsofnames, (
-            REFIID riid,
-            LPOLESTR * rgszNames,
-            UINT cNames,
-            LCID lcid,
-            DISPID * rgdispid));
+        REFIID riid,
+        LPOLESTR* rgszNames,
+        UINT cNames,
+        LCID lcid,
+        DISPID* rgdispid));
 
     NV_DECLARE_TEAROFF_METHOD(Invoke, invoke, (
-            DISPID dispidMember,
-            REFIID riid,
-            LCID lcid,
-            WORD wFlags,
-            DISPPARAMS * pdispparams,
-            VARIANT * pvarResult,
-            EXCEPINFO * pexcepinfo,
-            UINT * puArgErr));
+        DISPID dispidMember,
+        REFIID riid,
+        LCID lcid,
+        WORD wFlags,
+        DISPPARAMS* pdispparams,
+        VARIANT* pvarResult,
+        EXCEPINFO* pexcepinfo,
+        UINT* puArgErr));
 
     // The following 5 methods are IDispatchEx:
 
     // Get dispID for names, with options
     NV_DECLARE_TEAROFF_METHOD(GetDispID, getdispid, (
-            BSTR bstrName,
-            DWORD grfdex,
-            DISPID *pid));
+        BSTR bstrName,
+        DWORD grfdex,
+        DISPID* pid));
 
     NV_DECLARE_TEAROFF_METHOD(InvokeEx, invokeex, (
-            DISPID id,
-            LCID lcid,
-            WORD wFlags,
-            DISPPARAMS *pdp,
-            VARIANT *pvarRes,
-            EXCEPINFO *pei,
-            IServiceProvider *pSrvProvider))
+        DISPID id,
+        LCID lcid,
+        WORD wFlags,
+        DISPPARAMS* pdp,
+        VARIANT* pvarRes,
+        EXCEPINFO* pei,
+        IServiceProvider* pSrvProvider))
     {
         return ContextInvokeEx(id,
                                lcid,
@@ -1042,124 +1074,124 @@ public:
                                (IUnknown*)this);
     }
 
-    NV_DECLARE_TEAROFF_METHOD(DeleteMemberByName, deletememberbyname, (BSTR bstr,DWORD grfdex));
+    NV_DECLARE_TEAROFF_METHOD(DeleteMemberByName, deletememberbyname, (BSTR bstr, DWORD grfdex));
     NV_DECLARE_TEAROFF_METHOD(DeleteMemberByDispID, deletememberbydispid, (DISPID id));
 
     NV_DECLARE_TEAROFF_METHOD(GetMemberProperties, getmemberproperties, (
-                DISPID id,
-                DWORD grfdexFetch,
-                DWORD *pgrfdex));
+        DISPID id,
+        DWORD grfdexFetch,
+        DWORD* pgrfdex));
 
     // Enumerate dispIDs and their associated "names".
     // Returns S_FALSE if the enumeration is done, NOERROR if it's not, an
     // error code if the call fails.
     NV_DECLARE_TEAROFF_METHOD(GetNextDispID, getnextdispid, (
-                DWORD grfdex,
-                DISPID id,
-                DISPID *prgid));
+        DWORD grfdex,
+        DISPID id,
+        DISPID* prgid));
 
     NV_DECLARE_TEAROFF_METHOD(GetMemberName, getmembername, (DISPID id,
-                                            BSTR *pbstrName));
+                                                             BSTR* pbstrName));
 
-    NV_DECLARE_TEAROFF_METHOD(GetNameSpaceParent, getnamespaceparent, (IUnknown **ppunk));
+    NV_DECLARE_TEAROFF_METHOD(GetNameSpaceParent, getnamespaceparent, (IUnknown** ppunk));
 
     NV_DECLARE_TEAROFF_METHOD(ContextInvokeEx, contextinvokeex, (
-            DISPID id,
-            LCID lcid,
-            WORD wFlags,
-            DISPPARAMS *pdp,
-            VARIANT *pvarRes,
-            EXCEPINFO *pei,
-            IServiceProvider *pSrvProvider,
-            IUnknown *pUnkContext));
+        DISPID id,
+        LCID lcid,
+        WORD wFlags,
+        DISPPARAMS* pdp,
+        VARIANT* pvarRes,
+        EXCEPINFO* pei,
+        IServiceProvider* pSrvProvider,
+        IUnknown* pUnkContext));
 
     // Get dispID for name with proper scoping and name matching.
     NV_DECLARE_TEAROFF_METHOD(GetInternalDispID, getinternaldispid, (BSTR bstrName,
-            DISPID *pid,
-            DWORD grfDex,
-            IDispatch *pDisp      = NULL,
-            IDispatchEx  *pDispEx = NULL));
+                                                                     DISPID* pid,
+                                                                     DWORD grfDex,
+                                                                     IDispatch* pDisp = NULL,
+                                                                     IDispatchEx* pDispEx = NULL));
 
     // Get dispID for expando name.
 #ifdef VSTUDIO7
     NV_DECLARE_TEAROFF_METHOD(GetExpandoDispID, getexpandodispid, (
-            LPOLESTR pchName,
-            DISPID *pid,
-            DWORD grfdex,
-            CAttrArray *pAA = NULL));
+        LPOLESTR pchName,
+        DISPID* pid,
+        DWORD grfdex,
+        CAttrArray* pAA = NULL));
 #else
     NV_DECLARE_TEAROFF_METHOD(GetExpandoDispID, getexpandodispid, (
-            BSTR bstrName,
-            DISPID *pid,
-            DWORD grfdex,
-            CAttrArray *pAA = NULL));
+        BSTR bstrName,
+        DISPID* pid,
+        DWORD grfdex,
+        CAttrArray* pAA = NULL));
 #endif
 
     // *** IObjectIdentity members ***
-    NV_DECLARE_TEAROFF_METHOD(IsEqualObject, isequalobject, (IUnknown *ppunk));
+    NV_DECLARE_TEAROFF_METHOD(IsEqualObject, isequalobject, (IUnknown* ppunk));
 
     // Enumerate dispIDs and their associated "names".
     // Returns S_FALSE if the enumeration is done, NOERROR if it's not, an
     // error code if the call fails.  This again assume correct scoping rules
     // as GetInternalDispID.
     HRESULT STDMETHODCALLTYPE GetInternalNextDispID(DWORD grfdex,
-            DISPID id,
-            DISPID *prgid,
-            BSTR *prgbstr,
-            IDispatch *pDisp = NULL);
+                                                    DISPID id,
+                                                    DISPID* prgid,
+                                                    BSTR* prgbstr,
+                                                    IDispatch* pDisp = NULL);
 
     // Enumerate through properties of the pDisp typeinfo.
-    HRESULT NextTypeInfoProperty(IDispatch *pDisp,
-            DISPID id,
-            BSTR *pbstrName,
-            DISPID *pid);
+    HRESULT NextTypeInfoProperty(IDispatch* pDisp,
+                                 DISPID id,
+                                 BSTR* pbstrName,
+                                 DISPID* pid);
 
     // Enumerate through expando properties.
     HRESULT GetNextDispIDExpando(DISPID currDispID,
-            BSTR *pStrNextName,
-            DISPID *pNextDispID);
+                                 BSTR* pStrNextName,
+                                 DISPID* pNextDispID);
 
     // Callbacks to implement special Get properties without typeinfo load.
     // BUGBUG (garybu) Move these to CServer::Invoke implementation.
-    STDMETHOD(GetEnabled)(VARIANT_BOOL * pfEnabled);
-    STDMETHOD(GetValid)(VARIANT_BOOL * pfEnabled);
+    STDMETHOD(GetEnabled)(VARIANT_BOOL* pfEnabled);
+    STDMETHOD(GetValid)(VARIANT_BOOL* pfEnabled);
 
     // IProvideMultipleClassInfo methods
-    NV_DECLARE_TEAROFF_METHOD(GetClassInfo, getclassinfo, (ITypeInfo ** ppTI));
-    NV_DECLARE_TEAROFF_METHOD(GetGUID, getguid, (DWORD dwGuidKind, GUID * pGUID));
-    NV_DECLARE_TEAROFF_METHOD(GetMultiTypeInfoCount, getmultitypeinfocount, (ULONG *pcti));
+    NV_DECLARE_TEAROFF_METHOD(GetClassInfo, getclassinfo, (ITypeInfo** ppTI));
+    NV_DECLARE_TEAROFF_METHOD(GetGUID, getguid, (DWORD dwGuidKind, GUID* pGUID));
+    NV_DECLARE_TEAROFF_METHOD(GetMultiTypeInfoCount, getmultitypeinfocount, (ULONG* pcti));
     NV_DECLARE_TEAROFF_METHOD(GetInfoOfIndex, getinfoofindex, (
-            ULONG iti,
-            DWORD dwFlags,
-            ITypeInfo** pptiCoClass,
-            DWORD* pdwTIFlags,
-            ULONG* pcdispidReserved,
-            IID* piidPrimary,
-            IID* piidSource));
+        ULONG iti,
+        DWORD dwFlags,
+        ITypeInfo** pptiCoClass,
+        DWORD* pdwTIFlags,
+        ULONG* pcdispidReserved,
+        IID* piidPrimary,
+        IID* piidSource));
 
     // IProvideMultipleClassInfo helpers
-    HRESULT GetAggMultiTypeInfoCount(ULONG *pcti, IUnknown *pUnkAgg);
+    HRESULT GetAggMultiTypeInfoCount(ULONG* pcti, IUnknown* pUnkAgg);
     HRESULT GetAggInfoOfIndex(
-            ULONG iti,
-            DWORD dwFlags,
-            ITypeInfo** pptiCoClass,
-            DWORD* pdwTIFlags,
-            ULONG* pcdispidReserved,
-            IID* piidPrimary,
-            IID* piidSource,
-            IUnknown *pUnkAgg);
+        ULONG iti,
+        DWORD dwFlags,
+        ITypeInfo** pptiCoClass,
+        DWORD* pdwTIFlags,
+        ULONG* pcdispidReserved,
+        IID* piidPrimary,
+        IID* piidSource,
+        IUnknown* pUnkAgg);
 
     // ISpecifyPropertyPages methods
-    DECLARE_TEAROFF_METHOD(GetPages, getpages, (CAUUID * pPages));
+    DECLARE_TEAROFF_METHOD(GetPages, getpages, (CAUUID* pPages));
 
     // ISpecifyPropertyPages helpers
     BOOL    HasPages();
 
     // IPerPropertyBrowsing methods
-    NV_DECLARE_TEAROFF_METHOD(GetDisplayString, getdisplaystring, (DISPID dispID, BSTR *pBstr));
-    NV_DECLARE_TEAROFF_METHOD(MapPropertyToPage, mappropertyTopage, (DISPID dispID, CLSID *pClsid));
-    NV_DECLARE_TEAROFF_METHOD(GetPredefinedStrings, getpredefinedstrings, (DISPID dispID, CALPOLESTR  *pCaStringsOut, CADWORD *pCaCookiesOut));
-    NV_DECLARE_TEAROFF_METHOD(GetPredefinedValue, getpredefinedvalue, (DISPID dispID, DWORD dwCookie, VARIANT *pVarOut));
+    NV_DECLARE_TEAROFF_METHOD(GetDisplayString, getdisplaystring, (DISPID dispID, BSTR* pBstr));
+    NV_DECLARE_TEAROFF_METHOD(MapPropertyToPage, mappropertyTopage, (DISPID dispID, CLSID* pClsid));
+    NV_DECLARE_TEAROFF_METHOD(GetPredefinedStrings, getpredefinedstrings, (DISPID dispID, CALPOLESTR* pCaStringsOut, CADWORD* pCaCookiesOut));
+    NV_DECLARE_TEAROFF_METHOD(GetPredefinedValue, getpredefinedvalue, (DISPID dispID, DWORD dwCookie, VARIANT* pVarOut));
 
     // IPersist methods
     NV_STDMETHOD(GetClassID)(LPCLSID lpClassID);
@@ -1170,41 +1202,45 @@ public:
     // IOleCommandTarget methods
 
     STDMETHOD(QueryStatus)(
-            GUID * pguidCmdGroup,
-            ULONG cCmds,
-            OLECMD rgCmds[],
-            OLECMDTEXT * pcmdtext)
-        {    return MSOCMDERR_E_NOTSUPPORTED; }
+        GUID* pguidCmdGroup,
+        ULONG cCmds,
+        OLECMD rgCmds[],
+        OLECMDTEXT* pcmdtext)
+    {
+        return MSOCMDERR_E_NOTSUPPORTED;
+    }
     STDMETHOD(Exec)(
-            GUID * pguidCmdGroup,
-            DWORD nCmdID,
-            DWORD nCmdexecopt,
-            VARIANTARG * pvarargIn,
-            VARIANTARG * pvarargOut)
-        {    return MSOCMDERR_E_NOTSUPPORTED; }
+        GUID* pguidCmdGroup,
+        DWORD nCmdID,
+        DWORD nCmdexecopt,
+        VARIANTARG* pvarargIn,
+        VARIANTARG* pvarargOut)
+    {
+        return MSOCMDERR_E_NOTSUPPORTED;
+    }
 
     static int  IDMFromCmdID(
-                const GUID *pguidCmdGroup,
-                ULONG ulCmdID);
+        const GUID* pguidCmdGroup,
+        ULONG ulCmdID);
 
     static BOOL IsCmdGroupSupported(
-                const GUID *pguidCmdGroup);
+        const GUID* pguidCmdGroup);
 
     // Fire an event and get the returned value
     HRESULT FireCancelableEvent(DISPID dispidMethod,
                                 DISPID dispidProp,
-                                IDispatch *pEventObject,
-                                VARIANT_BOOL * pfRetVal,
-                                BYTE * pbTypes,
+                                IDispatch* pEventObject,
+                                VARIANT_BOOL* pfRetVal,
+                                BYTE* pbTypes,
                                 ...);
 
-    HRESULT queryCommandSupported(const BSTR cmdID,VARIANT_BOOL* pfRet);
-    HRESULT queryCommandEnabled(const BSTR cmdID,VARIANT_BOOL* pfRet);
-    HRESULT queryCommandState(const BSTR cmdID,VARIANT_BOOL* pfRet);
-    HRESULT queryCommandIndeterm(const BSTR cmdID,VARIANT_BOOL* pfRet);
-    HRESULT queryCommandText(const BSTR cmdID,BSTR* pcmdText);
-    HRESULT queryCommandValue(const BSTR cmdID,VARIANT* pcmdValue);
-    HRESULT execCommand(const BSTR cmdID,VARIANT_BOOL showUI,VARIANT value);
+    HRESULT queryCommandSupported(const BSTR cmdID, VARIANT_BOOL* pfRet);
+    HRESULT queryCommandEnabled(const BSTR cmdID, VARIANT_BOOL* pfRet);
+    HRESULT queryCommandState(const BSTR cmdID, VARIANT_BOOL* pfRet);
+    HRESULT queryCommandIndeterm(const BSTR cmdID, VARIANT_BOOL* pfRet);
+    HRESULT queryCommandText(const BSTR cmdID, BSTR* pcmdText);
+    HRESULT queryCommandValue(const BSTR cmdID, VARIANT* pcmdValue);
+    HRESULT execCommand(const BSTR cmdID, VARIANT_BOOL showUI, VARIANT value);
     HRESULT execCommandShowHelp(const BSTR cmdID);
 
     // Helpers for non-abstract property get\put
@@ -1219,75 +1255,75 @@ public:
     NV_DECLARE_TEAROFF_METHOD(put_Bool, PUT_Bool, (VARIANT_BOOL v));
     NV_DECLARE_TEAROFF_METHOD(put_Variant, PUT_Variant, (VARIANT v));
     NV_DECLARE_TEAROFF_METHOD(put_DataEvent, PUT_DataEvent, (VARIANT v));
-    NV_DECLARE_TEAROFF_METHOD(get_Url, GET_Url, (BSTR *p));
-    NV_DECLARE_TEAROFF_METHOD(get_StyleComponent, GET_StyleComponent, (BSTR *p));
-    NV_DECLARE_TEAROFF_METHOD(get_Property, GET_Property, (void *p));
+    NV_DECLARE_TEAROFF_METHOD(get_Url, GET_Url, (BSTR* p));
+    NV_DECLARE_TEAROFF_METHOD(get_StyleComponent, GET_StyleComponent, (BSTR* p));
+    NV_DECLARE_TEAROFF_METHOD(get_Property, GET_Property, (void* p));
 
-    NV_DECLARE_TEAROFF_METHOD(put_StyleComponentHelper, PUT_StyleComponentHelper, (BSTR v, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr = NULL));
-    NV_DECLARE_TEAROFF_METHOD(put_UrlHelper, PUT_UrlHelper, (BSTR v, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr = NULL));
-    NV_DECLARE_TEAROFF_METHOD(put_StringHelper, PUT_StringHelper, (BSTR v, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr = NULL));
-    NV_DECLARE_TEAROFF_METHOD(put_ShortHelper, PUT_ShortHelper, (short v, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr = NULL));
-    NV_DECLARE_TEAROFF_METHOD(put_LongHelper, PUT_LongHelper, (long v, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr = NULL));
-    NV_DECLARE_TEAROFF_METHOD(put_BoolHelper, PUT_BoolHelper, (VARIANT_BOOL v, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr = NULL));
-    NV_DECLARE_TEAROFF_METHOD(put_VariantHelper, PUT_VariantHelper, (VARIANT v, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr = NULL));
-    NV_DECLARE_TEAROFF_METHOD(put_DataEventHelper, PUT_DataEventHelper, (VARIANT v, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr = NULL));
-    NV_DECLARE_TEAROFF_METHOD(get_UrlHelper, GET_UrlHelper, (BSTR *p, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr = NULL));
-    NV_DECLARE_TEAROFF_METHOD(get_StyleComponentHelper, GET_StyleComponentHelper, (BSTR *p, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr = NULL));
-    NV_DECLARE_TEAROFF_METHOD(get_PropertyHelper, GET_PropertyHelper, (void *p, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr = NULL));
+    NV_DECLARE_TEAROFF_METHOD(put_StyleComponentHelper, PUT_StyleComponentHelper, (BSTR v, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr = NULL));
+    NV_DECLARE_TEAROFF_METHOD(put_UrlHelper, PUT_UrlHelper, (BSTR v, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr = NULL));
+    NV_DECLARE_TEAROFF_METHOD(put_StringHelper, PUT_StringHelper, (BSTR v, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr = NULL));
+    NV_DECLARE_TEAROFF_METHOD(put_ShortHelper, PUT_ShortHelper, (short v, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr = NULL));
+    NV_DECLARE_TEAROFF_METHOD(put_LongHelper, PUT_LongHelper, (long v, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr = NULL));
+    NV_DECLARE_TEAROFF_METHOD(put_BoolHelper, PUT_BoolHelper, (VARIANT_BOOL v, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr = NULL));
+    NV_DECLARE_TEAROFF_METHOD(put_VariantHelper, PUT_VariantHelper, (VARIANT v, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr = NULL));
+    NV_DECLARE_TEAROFF_METHOD(put_DataEventHelper, PUT_DataEventHelper, (VARIANT v, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr = NULL));
+    NV_DECLARE_TEAROFF_METHOD(get_UrlHelper, GET_UrlHelper, (BSTR* p, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr = NULL));
+    NV_DECLARE_TEAROFF_METHOD(get_StyleComponentHelper, GET_StyleComponentHelper, (BSTR* p, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr = NULL));
+    NV_DECLARE_TEAROFF_METHOD(get_PropertyHelper, GET_PropertyHelper, (void* p, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr = NULL));
 
 protected:
     HRESULT ExecSetGetProperty(
-                VARIANTARG *    pvarargIn,
-                VARIANTARG *    pvarargOut,
-                UINT            uPropName,
-                VARTYPE         vt);
+        VARIANTARG* pvarargIn,
+        VARIANTARG* pvarargOut,
+        UINT            uPropName,
+        VARTYPE         vt);
     HRESULT ExecSetGetKnownProp(
-                VARIANTARG *    pvarargIn,
-                VARIANTARG *    pvarargOut,
-                DISPID          dispidProp,
-                VARTYPE         vt);
+        VARIANTARG* pvarargIn,
+        VARIANTARG* pvarargOut,
+        DISPID          dispidProp,
+        VARTYPE         vt);
     HRESULT ExecSetGetHelper(
-                VARIANTARG *    pvarargIn,
-                VARIANTARG *    pvarargOut,
-                IDispatch  *    pDispatch,
-                DISPID          dispid,
-                VARTYPE         vt);
+        VARIANTARG* pvarargIn,
+        VARIANTARG* pvarargOut,
+        IDispatch* pDispatch,
+        DISPID          dispid,
+        VARTYPE         vt);
 
-    HRESULT ExecSetPropertyCmd (UINT uPropName, DWORD value);
-    HRESULT ExecToggleCmd      (UINT uPropName);
+    HRESULT ExecSetPropertyCmd(UINT uPropName, DWORD value);
+    HRESULT ExecToggleCmd(UINT uPropName);
 
     HRESULT QueryStatusProperty(
-                OLECMD *    pCmd,
-                UINT        uPropName,
-                VARTYPE     vt);
+        OLECMD* pCmd,
+        UINT        uPropName,
+        VARTYPE     vt);
 
-    HRESULT GetDispatchForProp(UINT uPropName, IDispatch ** ppDisp, DISPID * pdispid);
+    HRESULT GetDispatchForProp(UINT uPropName, IDispatch** ppDisp, DISPID* pdispid);
 
     // Translates command name into command ID
-    static HRESULT CmdIDFromCmdName(BSTR cmdName, ULONG *pcmdValue);
+    static HRESULT CmdIDFromCmdName(BSTR cmdName, ULONG* pcmdValue);
 
     // Returns the expected VARIANT type of the command value (like VT_BSTR for font name)
     static VARTYPE GetExpectedCmdValueType(ULONG ulCmdID);
 
     // QueryCommandXXX helper function
-    HRESULT QueryCommandHelper(BSTR cmdID, DWORD *cmdf, BSTR *pcmdTxt);
+    HRESULT QueryCommandHelper(BSTR cmdID, DWORD* cmdf, BSTR* pcmdTxt);
 
     struct CMDINFOSTRUCT
     {
-        TCHAR   *cmdName;
+        TCHAR* cmdName;
         ULONG   cmdID;
     };
 
-    HRESULT GetEnumDescFromDispID(DISPID dispID, const ENUMDESC **ppEnumDesc);
+    HRESULT GetEnumDescFromDispID(DISPID dispID, const ENUMDESC** ppEnumDesc);
 
 protected:
 
-    HRESULT toString(BSTR *bstrString);
+    HRESULT toString(BSTR* bstrString);
 
 public:
 
     // Reference counting.
-    ULONG GetRefs()       { return _ulAllRefs; }
+    ULONG GetRefs() { return _ulAllRefs; }
     ULONG GetObjectRefs() { return _ulRefs; }
 
 #if DBG==1
@@ -1297,107 +1333,113 @@ public:
 #endif
     ULONG SubRelease();
 
-    IUnknown * PunkInner() { return (IUnknown *)(IPrivateUnknown *)this; }
-    virtual IUnknown * PunkOuter() { return PunkInner(); }
+    IUnknown* PunkInner() { return (IUnknown*)(IPrivateUnknown*)this; }
+    virtual IUnknown* PunkOuter() { return PunkInner(); }
 
     // virtual functions
 
     virtual BOOL DesignMode() { return FALSE; }
 
-    virtual HRESULT STDMETHODCALLTYPE QueryService(REFGUID, REFIID, void **ppv);
+    virtual HRESULT STDMETHODCALLTYPE QueryService(REFGUID, REFIID, void** ppv);
 
     // Connection Point Helpers.
     HRESULT DoAdvise(
         REFIID      riid,
         DISPID      dispidBase,
-        IUnknown *  pUnkSinkAdvise,
-        IUnknown ** ppUnkSinkOut,
-        DWORD *     pdwCookie);
+        IUnknown* pUnkSinkAdvise,
+        IUnknown** ppUnkSinkOut,
+        DWORD* pdwCookie);
     HRESULT DoUnadvise(DWORD dwCookie, DISPID dispidBase);
-    HRESULT FindAdviseIndex(DISPID dispidBase, DWORD dwCookie, IUnknown * pUnkCookie, AAINDEX * paaidx);
+    HRESULT FindAdviseIndex(DISPID dispidBase, DWORD dwCookie, IUnknown* pUnkCookie, AAINDEX* paaidx);
 
-    HRESULT GetTheDocument(IHTMLDocument2 **ppDoc);
-    HRESULT FindEventName(ITypeInfo *pTISrc, DISPID dispid, BSTR *pBSTR);
+    HRESULT GetTheDocument(IHTMLDocument2** ppDoc);
+    HRESULT FindEventName(ITypeInfo* pTISrc, DISPID dispid, BSTR* pBSTR);
 
     HRESULT FireEventV(
         DISPID dispidEvent,
         DISPID dispidProp,
-        IDispatch *pEventObject,
-        VARIANT *pv,
-        BYTE * pbTypes,
+        IDispatch* pEventObject,
+        VARIANT* pv,
+        BYTE* pbTypes,
         va_list valParms);
     HRESULT FireEvent(
         DISPID dispidEvent,
         DISPID dispidProp,
-        VARIANT *pvarResult,
-        DISPPARAMS *pdispparams,
-        EXCEPINFO *pexcepinfo,
-        UINT *puArgErr,
-        ITypeInfo *pTIEventSrc = NULL,
-        IDispatch *pEventObject = NULL);
+        VARIANT* pvarResult,
+        DISPPARAMS* pdispparams,
+        EXCEPINFO* pexcepinfo,
+        UINT* puArgErr,
+        ITypeInfo* pTIEventSrc = NULL,
+        IDispatch* pEventObject = NULL);
 
     AAINDEX FindNextAttach(int idx, DISPID dispID);
     HRESULT FireAttachEventV(
         DISPID          dispidEvent,
         DISPID          dispidProp,
-        IDispatch *     pEventObject,
-        VARIANT *       pvRes,
-        CBase *         pDocAccessObject,
-        BYTE *          pbTypes,
+        IDispatch* pEventObject,
+        VARIANT* pvRes,
+        CBase* pDocAccessObject,
+        BYTE* pbTypes,
         va_list         valParms);
     HRESULT FireAttachEvents(
         DISPID          dispidProp,
-        DISPPARAMS *    pdispparams = NULL,
-        VARIANT *       pvarResult = NULL,
-        CBase *         pDocAccessObject = NULL,
-        EXCEPINFO *     pexcepinfo = NULL,
-        UINT *          puArgErr = NULL,
-        IDispatch *     pEventObject = NULL);
+        DISPPARAMS* pdispparams = NULL,
+        VARIANT* pvarResult = NULL,
+        CBase* pDocAccessObject = NULL,
+        EXCEPINFO* pexcepinfo = NULL,
+        UINT* puArgErr = NULL,
+        IDispatch* pEventObject = NULL);
 
     HRESULT FirePropertyNotify(DISPID dispid, BOOL fOnChanged);
-    HRESULT GetEventCode(DISPID dispidEvent, IDispatch ** ppDispCode);
-    HRESULT InvokeDispatchWithThis (
-        IDispatch *     pDisp,
-        VARIANT *       pExtraArg,
+    HRESULT GetEventCode(DISPID dispidEvent, IDispatch** ppDispCode);
+    HRESULT InvokeDispatchWithThis(
+        IDispatch* pDisp,
+        VARIANT* pExtraArg,
         REFIID          riid,
         LCID            lcid,
         WORD            wFlags,
-        DISPPARAMS *    pdispparams,
-        VARIANT *       pvarResult,
-        EXCEPINFO *     pexcepinfo,
-        IServiceProvider *pSrvProvider);
-    HRESULT InvokeDispatchExtraParam (
-        IDispatch *     pDisp,
+        DISPPARAMS* pdispparams,
+        VARIANT* pvarResult,
+        EXCEPINFO* pexcepinfo,
+        IServiceProvider* pSrvProvider);
+    HRESULT InvokeDispatchExtraParam(
+        IDispatch* pDisp,
         REFIID          riid,
         LCID            lcid,
         WORD            wFlags,
-        DISPPARAMS *    pdispparams,
-        VARIANT *       pvarResult,
-        EXCEPINFO *     pexcepinfo,
-        IServiceProvider *pSrvProvider,
-        VARIANT          *pExtraParam);
+        DISPPARAMS* pdispparams,
+        VARIANT* pvarResult,
+        EXCEPINFO* pexcepinfo,
+        IServiceProvider* pSrvProvider,
+        VARIANT* pExtraParam);
     HRESULT InvokeAA(
         DISPID              dispidMember,
         CAttrValue::AATYPE  aaType,
         LCID                lcid,
         WORD                wFlags,
-        DISPPARAMS *        pdispparams,
-        VARIANT *           pvarResult,
-        EXCEPINFO *         pexcepinfo,
-        IServiceProvider *  pSrvProvider);
+        DISPPARAMS* pdispparams,
+        VARIANT* pvarResult,
+        EXCEPINFO* pexcepinfo,
+        IServiceProvider* pSrvProvider);
     HRESULT FireOnChanged(DISPID dispid)
-               { return FirePropertyNotify(dispid, TRUE); }
+    {
+        return FirePropertyNotify(dispid, TRUE);
+    }
     HRESULT FireRequestEdit(DISPID dispid)
-               { return FirePropertyNotify(dispid, FALSE); }
+    {
+        return FirePropertyNotify(dispid, FALSE);
+    }
 
     virtual HRESULT OnPropertyChange(DISPID dispid, DWORD dwFlags)
-                { return S_OK; }
+    {
+        return S_OK;
+    }
 
 
     // Error Helpers
 
     virtual void PreSetErrorInfo()
-                { }
+    { }
     HRESULT SetErrorInfo(HRESULT hr);
     HRESULT SetErrorInfo(HRESULT hr, DISPID dispid, INVOKEKIND invkind, UINT ids, ...);
     HRESULT SetErrorInfoPSet(HRESULT hr, DISPID dispid);
@@ -1407,75 +1449,81 @@ public:
     HRESULT SetErrorInfoPBadValue(DISPID dispid, UINT ids, ...);
     HRESULT CloseErrorInfo(HRESULT hr, DISPID id, INVOKEKIND invkind);
     HRESULT CloseErrorInfoPSet(HRESULT hr, DISPID dispid)
-                { return CloseErrorInfo(hr, dispid, INVOKE_PROPERTYPUT); }
+    {
+        return CloseErrorInfo(hr, dispid, INVOKE_PROPERTYPUT);
+    }
     HRESULT CloseErrorInfoPGet(HRESULT hr, DISPID dispid)
-                { return CloseErrorInfo(hr, dispid, INVOKE_PROPERTYGET); }
+    {
+        return CloseErrorInfo(hr, dispid, INVOKE_PROPERTYGET);
+    }
     HRESULT CloseErrorInfoMCall(HRESULT hr, DISPID dispid)
-                { return CloseErrorInfo(hr, dispid, INVOKE_FUNC); }
+    {
+        return CloseErrorInfo(hr, dispid, INVOKE_FUNC);
+    }
     virtual HRESULT CloseErrorInfo(HRESULT hr);
 
     // Property helpers
 
     //virtual void *  GetPropMemberPtr(const BASICPROPPARAMS * pbpp, const void * pvParams);
-    virtual CVoid * GetSubObject(const BASICPROPPARAMS * ppp, const void * pvParams) { return this; }
+    virtual CVoid* GetSubObject(const BASICPROPPARAMS* ppp, const void* pvParams) { return this; }
 
-    HRESULT SetCodeProperty (DISPID dispidCodeProp, IDispatch *  pDispCode, BOOL *pfAnyDeleted = NULL);
+    HRESULT SetCodeProperty(DISPID dispidCodeProp, IDispatch* pDispCode, BOOL* pfAnyDeleted = NULL);
 
     HRESULT DefaultMembers();
 
     // Helper for removeAttribute (also called by recalc engine)
-    BOOL removeAttributeDispid(DISPID dispid, const PROPERTYDESC * pPropDesc = NULL);
+    BOOL removeAttributeDispid(DISPID dispid, const PROPERTYDESC* pPropDesc = NULL);
 
 #ifndef NO_EDIT
     // Undo helpers
-    virtual IOleUndoManager * UndoManager(void) { return &g_DummyUndoMgr; }
+    virtual IOleUndoManager* UndoManager(void) { return &g_DummyUndoMgr; }
 
     virtual BOOL QueryCreateUndo(BOOL fRequiresParent, BOOL fDirtyChange = TRUE);
 
     HRESULT CreatePropChangeUndo(DISPID             dispidProp,
-                                 VARIANT *          pVar,
-                                 CUndoPropChange ** ppUndo);
+                                 VARIANT* pVar,
+                                 CUndoPropChange** ppUndo);
 
-    CParentUndoUnit *            OpenParentUnit(CBase * pBase, UINT uiID, TCHAR * pchDescription = NULL);
+    CParentUndoUnit* OpenParentUnit(CBase* pBase, UINT uiID, TCHAR* pchDescription = NULL);
 
-    HRESULT                      CloseParentUnit(CParentUndoUnit *pCPUU, HRESULT hrCommit);
+    HRESULT                      CloseParentUnit(CParentUndoUnit* pCPUU, HRESULT hrCommit);
 
-    HRESULT BlockNewUndoUnits(DWORD *pdwCookie);
+    HRESULT BlockNewUndoUnits(DWORD* pdwCookie);
     void    UnblockNewUndoUnits(DWORD dwCookie);
 
-    HRESULT QueryStatusUndoRedo(BOOL fUndo, OLECMD * pcmd, OLECMDTEXT * pcmdtext);
+    HRESULT QueryStatusUndoRedo(BOOL fUndo, OLECMD* pcmd, OLECMDTEXT* pcmdtext);
     HRESULT EditUndo();
     HRESULT EditRedo();
 #endif // NO_EDIT
 
     // Helper functions for IDispatchEx:
-    HRESULT AddExpando (LPOLESTR pszExpandoName, DISPID *pdispID);
-    HRESULT GetExpandoName ( DISPID expandoDISPID, LPCTSTR *lpPropName );
-    HRESULT SetExpando(LPOLESTR pszExpandoName, VARIANT * pvarPropertyValue);
+    HRESULT AddExpando(LPOLESTR pszExpandoName, DISPID* pdispID);
+    HRESULT GetExpandoName(DISPID expandoDISPID, LPCTSTR* lpPropName);
+    HRESULT SetExpando(LPOLESTR pszExpandoName, VARIANT* pvarPropertyValue);
 
-    HRESULT NextProperty (DISPID currDispID, BSTR *pStrNextName, DISPID *pNextDispID);
+    HRESULT NextProperty(DISPID currDispID, BSTR* pStrNextName, DISPID* pNextDispID);
 
-    BOOL IsExpandoDISPID (DISPID dispid, DISPID *pOLESiteExpando = NULL);
+    BOOL IsExpandoDISPID(DISPID dispid, DISPID* pOLESiteExpando = NULL);
 
-    inline const PROPERTYDESC *FindPropDescForName ( LPCTSTR szName, BOOL fCaseSensitive = FALSE, long *pidx = NULL )
+    inline const PROPERTYDESC* FindPropDescForName(LPCTSTR szName, BOOL fCaseSensitive = FALSE, long* pidx = NULL)
     {
-        if ( BaseDesc() && BaseDesc()->_apHdlDesc )
-            return BaseDesc()->_apHdlDesc->FindPropDescForName ( szName, fCaseSensitive, pidx );
+        if (BaseDesc() && BaseDesc()->_apHdlDesc)
+            return BaseDesc()->_apHdlDesc->FindPropDescForName(szName, fCaseSensitive, pidx);
         return NULL;
     }
 
-    const VTABLEDESC * FindVTableEntryForName (LPCTSTR szName, BOOL fCaseSensitive, WORD *pVTblOffset = NULL);
+    const VTABLEDESC* FindVTableEntryForName(LPCTSTR szName, BOOL fCaseSensitive, WORD* pVTblOffset = NULL);
 
-    HRESULT ExpandedRelativeUrlInVariant(VARIANT *pVariantURL);
+    HRESULT ExpandedRelativeUrlInVariant(VARIANT* pVariantURL);
 
     // Helper functions for custom Invoke:
-    HRESULT FindPropDescFromDispID(DISPID dispidMember, PROPERTYDESC **ppDesc, WORD *pwEntry, WORD *pwClassType);
+    HRESULT FindPropDescFromDispID(DISPID dispidMember, PROPERTYDESC** ppDesc, WORD* pwEntry, WORD* pwClassType);
 
     // Recalc helpers
 
     // Call this when you want the scoped recalc engine.
     // Returns S_FALSE if the engine doesn't exist and fCreate is FALSE.
-    HRESULT GetRecalcEngine(BOOL fCreate, IRecalcEngine **ppEngine);
+    HRESULT GetRecalcEngine(BOOL fCreate, IRecalcEngine** ppEngine);
 
     // Does the work for setExpression and the CSS parser
     HRESULT setExpressionHelper(DISPID dispid, BSTR strExpression, BSTR strLanguage);
@@ -1493,93 +1541,101 @@ public:
     class CLock
     {
     public:
-        CLock(CBase *pBase);
+        CLock(CBase* pBase);
         ~CLock();
 
     private:
-        CBase *     _pBase;
+        CBase* _pBase;
     };
 
-    typedef void (*LPFNGETSIZEL) (SIZEL *);
+    typedef void (*LPFNGETSIZEL) (SIZEL*);
 
     // Class Descriptor
     struct CLASSDESC
     {
-        const CLSID *           _pclsid;            // class's unique identifier
+        const CLSID* _pclsid;            // class's unique identifier
         WORD                    _idrBase;           // base resource identifier (see IDOFF_ )
 #ifndef NO_PROPERTY_PAGE
-        const CLSID **          _apclsidPages;      // property page CLSID's, NULL terminated.
+        const CLSID** _apclsidPages;      // property page CLSID's, NULL terminated.
 #endif // NO_PROPERTY_PAGE
-        const CONNECTION_POINT_INFO * _pcpi;        // connection pt info, NULL terminated
+        const CONNECTION_POINT_INFO* _pcpi;        // connection pt info, NULL terminated
         DWORD                   _dwFlags;           // any combination of the above BASEDESC_FLAG
-        const IID *             _piidDispinterface; // class's dispinterface IID
-        HDLDESC               * _apHdlDesc;         // Description arrays (NULL terminated) in .HDL files
+        const IID* _piidDispinterface; // class's dispinterface IID
+        HDLDESC* _apHdlDesc;         // Description arrays (NULL terminated) in .HDL files
 
         BOOL TestFlag(BASEDESC_FLAG dw) const { return (_dwFlags & dw) != 0; }
     };
 
-    virtual const CBase::CLASSDESC *GetClassDesc() const = 0;
-    const CLASSDESC *BaseDesc() const { return GetClassDesc(); }
+    virtual const CBase::CLASSDESC* GetClassDesc() const = 0;
+    const CLASSDESC* BaseDesc() const { return GetClassDesc(); }
 
-    const PROPERTYDESC * const *GetPropDescArray(void)
+    const PROPERTYDESC* const* GetPropDescArray(void)
     {
-        if ( BaseDesc() && BaseDesc()->_apHdlDesc )
+        if (BaseDesc() && BaseDesc()->_apHdlDesc)
             return BaseDesc()->_apHdlDesc->ppPropDescs;
         else
             return NULL;
     }
     UINT GetPropDescCount(void)
     {
-        if ( BaseDesc() && BaseDesc()->_apHdlDesc )
+        if (BaseDesc() && BaseDesc()->_apHdlDesc)
             return BaseDesc()->_apHdlDesc->uNumPropDescs;
         else
             return 0;
     }
 
-    const VTABLEDESC * GetVTableArray(void)
+    const VTABLEDESC* GetVTableArray(void)
     {
-        if ( BaseDesc() && BaseDesc()->_apHdlDesc )
+        if (BaseDesc() && BaseDesc()->_apHdlDesc)
             return BaseDesc()->_apHdlDesc->pVTableArray;
         else
             return NULL;
     }
     UINT GetVTableCount(void)
     {
-        if ( BaseDesc() && BaseDesc()->_apHdlDesc )
+        if (BaseDesc() && BaseDesc()->_apHdlDesc)
             return BaseDesc()->_apHdlDesc->uVTblIndex;
         else
             return 0;
     }
 
-    virtual CAtomTable * GetAtomTable (BOOL * pfExpando = NULL)
-        { if (pfExpando) *pfExpando = TRUE; return NULL; }
+    virtual CAtomTable* GetAtomTable(BOOL* pfExpando = NULL)
+    {
+        if (pfExpando) *pfExpando = TRUE; return NULL;
+    }
 
     // AttrArray accessing functions:
 
-    CAttrArray **GetAttrArray ( ) const { return const_cast<CAttrArray **>(&_pAA); }
-    void SetAttrArray (CAttrArray *pAA) { _pAA = pAA; }
+    CAttrArray** GetAttrArray() const { return const_cast<CAttrArray**>(&_pAA); }
+    void SetAttrArray(CAttrArray* pAA) { _pAA = pAA; }
 
     AAINDEX FindAAIndex(
         DISPID dispID,
         CAttrValue::AATYPE aaType,
         AAINDEX aaLastOne = AA_IDX_UNKNOWN,
         BOOL fAllowMultiple = FALSE)
-        {  return  (_pAA && _pAA->Find(dispID, aaType, &aaLastOne, fAllowMultiple)) ?
-                aaLastOne : AA_IDX_UNKNOWN; }
+    {
+        return  (_pAA && _pAA->Find(dispID, aaType, &aaLastOne, fAllowMultiple)) ?
+            aaLastOne : AA_IDX_UNKNOWN;
+    }
 
     AAINDEX FindAAIndex(
         DISPID dispID,
         CAttrValue::AATYPE aaType,
         AAINDEX aaLastOne,
         BOOL fAllowMultiple,
-        CAttrArray *pAA)
-        {  return (pAA && pAA->Find(dispID, aaType, &aaLastOne, fAllowMultiple)) ?
-                aaLastOne : AA_IDX_UNKNOWN; }
+        CAttrArray* pAA)
+    {
+        return (pAA && pAA->Find(dispID, aaType, &aaLastOne, fAllowMultiple)) ?
+            aaLastOne : AA_IDX_UNKNOWN;
+    }
 
-    BOOL DidFindAAIndexAndDelete (DISPID dispID, CAttrValue::AATYPE aaType);
+    BOOL DidFindAAIndexAndDelete(DISPID dispID, CAttrValue::AATYPE aaType);
 
-    void FindAAIndexAndDelete (DISPID dispID, CAttrValue::AATYPE aaType)
-    { DidFindAAIndexAndDelete (dispID, aaType); }
+    void FindAAIndexAndDelete(DISPID dispID, CAttrValue::AATYPE aaType)
+    {
+        DidFindAAIndexAndDelete(dispID, aaType);
+    }
 
     AAINDEX FindAAType(CAttrValue::AATYPE aaType, AAINDEX lastIndex);
     AAINDEX FindNextAAIndex(
@@ -1587,94 +1643,101 @@ public:
         CAttrValue::AATYPE aatype,
         AAINDEX aaLastOne);
 
-    BOOL FindString ( DISPID dispID, LPCTSTR *ppStr, CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute, const PROPERTYDESC **ppPropertyDesc = NULL  )
+    BOOL FindString(DISPID dispID, LPCTSTR* ppStr, CAttrValue::AATYPE aaType = CAttrValue::AA_Attribute, const PROPERTYDESC** ppPropertyDesc = NULL)
     {
-        if ( _pAA )
-            return _pAA->FindString(dispID,ppStr,aaType,ppPropertyDesc);
+        if (_pAA)
+            return _pAA->FindString(dispID, ppStr, aaType, ppPropertyDesc);
         else
             return FALSE;
     }
 
-    HRESULT GetStringAt(AAINDEX aaIdx, LPCTSTR *ppStr);
-    HRESULT GetIntoStringAt(AAINDEX aaIdx, BSTR *pbStr, LPCTSTR *ppStr);
-    HRESULT GetIntoBSTRAt(AAINDEX aaIdx, BSTR *pbStr );
+    HRESULT GetStringAt(AAINDEX aaIdx, LPCTSTR* ppStr);
+    HRESULT GetIntoStringAt(AAINDEX aaIdx, BSTR* pbStr, LPCTSTR* ppStr);
+    HRESULT GetIntoBSTRAt(AAINDEX aaIdx, BSTR* pbStr);
 
-    HRESULT GetSimpleAt(AAINDEX aaIdx, DWORD *pdwValue)
+    HRESULT GetSimpleAt(AAINDEX aaIdx, DWORD* pdwValue)
     {
-        if ( _pAA )
+        if (_pAA)
             return _pAA->GetSimpleAt(aaIdx, pdwValue);
         else
             return  DISP_E_MEMBERNOTFOUND;
     }
-    HRESULT GetPointerAt(AAINDEX aaIdx, void **pdwValue);
-    HRESULT GetVariantAt(AAINDEX aaIdx, VARIANT *pVar, BOOL fAllowEmptyVariant = TRUE);
-    HRESULT GetUnknownObjectAt(AAINDEX aaIdx, IUnknown **ppUnk)
-        { RRETURN(GetObjectAt(aaIdx, VT_UNKNOWN, (void **)ppUnk)); }
-    HRESULT GetDispatchObjectAt(AAINDEX aaIdx, IDispatch **ppDisp)
-        { RRETURN(GetObjectAt(aaIdx, VT_DISPATCH, (void **)ppDisp)); }
+    HRESULT GetPointerAt(AAINDEX aaIdx, void** pdwValue);
+    HRESULT GetVariantAt(AAINDEX aaIdx, VARIANT* pVar, BOOL fAllowEmptyVariant = TRUE);
+    HRESULT GetUnknownObjectAt(AAINDEX aaIdx, IUnknown** ppUnk)
+    {
+        RRETURN(GetObjectAt(aaIdx, VT_UNKNOWN, (void**)ppUnk));
+    }
+    HRESULT GetDispatchObjectAt(AAINDEX aaIdx, IDispatch** ppDisp)
+    {
+        RRETURN(GetObjectAt(aaIdx, VT_DISPATCH, (void**)ppDisp));
+    }
 
     DISPID  GetDispIDAt(AAINDEX aaIdx)
-        {
-            if (_pAA)
-            {
-                CAttrValue     *pAV;
+    {
+        if (_pAA) {
+            CAttrValue* pAV;
 
-                pAV = _pAA->FindAt(aaIdx);
-                // Found AttrValue?
-                if (pAV)
-                    return pAV->GetDISPID();
-            }
-            return DISPID_UNKNOWN;
+            pAV = _pAA->FindAt(aaIdx);
+            // Found AttrValue?
+            if (pAV)
+                return pAV->GetDISPID();
         }
+        return DISPID_UNKNOWN;
+    }
 
     CAttrValue::AATYPE  GetAAtypeAt(AAINDEX aaIdx);
 
-    CAttrValue * GetAttrValueAt (AAINDEX aaIdx)
-        { return _pAA ? _pAA->FindAt(aaIdx) : NULL; }
+    CAttrValue* GetAttrValueAt(AAINDEX aaIdx)
+    {
+        return _pAA ? _pAA->FindAt(aaIdx) : NULL;
+    }
 
-    UINT GetVariantTypeAt ( AAINDEX aaIdx );
+    UINT GetVariantTypeAt(AAINDEX aaIdx);
 
     void    DeleteAt(AAINDEX aaIdx)
-        { if (_pAA) _pAA->Destroy(aaIdx); }
+    {
+        if (_pAA) _pAA->Destroy(aaIdx);
+    }
 
     HRESULT AddSimple(DISPID dispID, DWORD dwSimple, CAttrValue::AATYPE aaType);
-    HRESULT AddPointer(DISPID dispID, void *pValue, CAttrValue::AATYPE aaType);
+    HRESULT AddPointer(DISPID dispID, void* pValue, CAttrValue::AATYPE aaType);
     HRESULT AddString(DISPID dispID, LPCTSTR pch, CAttrValue::AATYPE aaType);
     HRESULT AddBSTR(DISPID dispID, LPCTSTR pch, CAttrValue::AATYPE aaType);
-    HRESULT AddUnknownObject(DISPID dispID, IUnknown *pUnk, CAttrValue::AATYPE aaType);
-    HRESULT AddDispatchObject(DISPID dispID, IDispatch *pDisp, CAttrValue::AATYPE aaType);
-    HRESULT AddVariant(DISPID dispID, VARIANT *pVar, CAttrValue::AATYPE aaType);
-    HRESULT AddAttrArray(DISPID dispID, CAttrArray *pAttrArray, CAttrValue::AATYPE aaType);
+    HRESULT AddUnknownObject(DISPID dispID, IUnknown* pUnk, CAttrValue::AATYPE aaType);
+    HRESULT AddDispatchObject(DISPID dispID, IDispatch* pDisp, CAttrValue::AATYPE aaType);
+    HRESULT AddVariant(DISPID dispID, VARIANT* pVar, CAttrValue::AATYPE aaType);
+    HRESULT AddAttrArray(DISPID dispID, CAttrArray* pAttrArray, CAttrValue::AATYPE aaType);
     HRESULT AddUnknownObjectMultiple(
-                      DISPID dispid,
-                      IUnknown *pUnk,
-                      CAttrValue::AATYPE aaType,
-                      CAttrValue::AAExtraBits wFlags = CAttrValue::AA_Extra_Empty);
-    HRESULT AddDispatchObjectMultiple(DISPID dispid, IDispatch *pDisp, CAttrValue::AATYPE aaType);
+        DISPID dispid,
+        IUnknown* pUnk,
+        CAttrValue::AATYPE aaType,
+        CAttrValue::AAExtraBits wFlags = CAttrValue::AA_Extra_Empty);
+    HRESULT AddDispatchObjectMultiple(DISPID dispid, IDispatch* pDisp, CAttrValue::AATYPE aaType);
 
     HRESULT ChangeSimpleAt(AAINDEX aaIdx, DWORD dwSimple);
     HRESULT ChangeStringAt(AAINDEX aaIdx, LPCTSTR pch);
-    HRESULT ChangeUnknownObjectAt(AAINDEX aaIdx, IUnknown *pUnk);
-    HRESULT ChangeDispatchObjectAt(AAINDEX aaIdx, IDispatch *pDisp);
-    HRESULT ChangeVariantAt(AAINDEX aaIdx, VARIANT *pVar);
+    HRESULT ChangeUnknownObjectAt(AAINDEX aaIdx, IUnknown* pUnk);
+    HRESULT ChangeDispatchObjectAt(AAINDEX aaIdx, IDispatch* pDisp);
+    HRESULT ChangeVariantAt(AAINDEX aaIdx, VARIANT* pVar);
     HRESULT ChangeAATypeAt(AAINDEX aaIdx, CAttrValue::AATYPE aaType);
 
-    HRESULT FetchObject(CAttrValue *pAV, VARTYPE vt, void **ppvoid);
+    HRESULT FetchObject(CAttrValue* pAV, VARTYPE vt, void** ppvoid);
 
-    HRESULT GetObjectAt(AAINDEX aaIdx, VARTYPE vt, void **ppVoid);
+    HRESULT GetObjectAt(AAINDEX aaIdx, VARTYPE vt, void** ppVoid);
 
 #ifdef _WIN64
-    HRESULT GetCookieAt(AAINDEX aaIdx, DWORD * pdwCookie);
+    HRESULT GetCookieAt(AAINDEX aaIdx, DWORD* pdwCookie);
     HRESULT SetCookieAt(AAINDEX aaIdx, DWORD dwCookie);
 #endif
 
-    HRESULT StoreEventsToHook(InlineEvts *pInlineEvts);
-    InlineEvts * GetEventsToHook();
+    HRESULT StoreEventsToHook(InlineEvts* pInlineEvts);
+    InlineEvts* GetEventsToHook();
 
 protected:
     ULONG       _ulRefs;
     ULONG       _ulAllRefs;
-    CAttrArray *_pAA;
+    CAttrArray* _pAA;
 
 #ifdef OBJCNTCHK
 public:
@@ -1700,10 +1763,10 @@ public:
 protected:
 
     // IHTMLObject methods
-    #define _CBase_
-    #include "types.hdl"
+#define _CBase_
+#include "types.hdl"
 
-    // Tear off interfaces
+// Tear off interfaces
     DECLARE_TEAROFF_TABLE(IDispatchEx)
     DECLARE_TEAROFF_TABLE(ISupportErrorInfo)
     DECLARE_TEAROFF_TABLE(IOleCommandTarget)
@@ -1742,80 +1805,80 @@ COMPILE_TIME_ASSERT(CBase, CBASE_SIZE);
 
 enum PROPPARAM_FLAGS
 {
-    PROPPARAM_MEMBER                = 0x00000001,
-    PROPPARAM_GETMFHandler          = 0x00000004,
-    PROPPARAM_SETMFHandler          = 0x00000008,
-    PROPPARAM_RESTRICTED            = 0x00000020,
-    PROPPARAM_HIDDEN                = 0x00000040,
+    PROPPARAM_MEMBER = 0x00000001,
+    PROPPARAM_GETMFHandler = 0x00000004,
+    PROPPARAM_SETMFHandler = 0x00000008,
+    PROPPARAM_RESTRICTED = 0x00000020,
+    PROPPARAM_HIDDEN = 0x00000040,
     // PROPTYPE_NOPERSIST is used to mark entries in the descriptor table which are
     // no longer supported by the object.  They are not written out, and are
     // only parsed (without actually reading the data) when read in.  This
     // flag should be OR'd together with the original type, so that the data
     // size can be inferred.
 
-    PROPPARAM_NOPERSIST             = 0x00000080,
+    PROPPARAM_NOPERSIST = 0x00000080,
 
     // Property supports Get and/or Put (Read-only, R/W, or Write-only).  This
     // also signals if the the item is a property or method (either set it's a
     // property otherwise a method).
-    PROPPARAM_INVOKEGet             = 0x00000100,
-    PROPPARAM_INVOKESet             = 0x00000200,
+    PROPPARAM_INVOKEGet = 0x00000100,
+    PROPPARAM_INVOKESet = 0x00000200,
 
 
     // The lMax member of NUMPROPPARAMS structure points to the ENUMDESC
     // structure if this flag is set
 
-    PROPPARAM_ENUM                  = 0x00000400,
+    PROPPARAM_ENUM = 0x00000400,
 
     // Value is a CUnitValue-encoded long
-    PROPPARAM_UNITVALUE             = 0x00000800,
+    PROPPARAM_UNITVALUE = 0x00000800,
 
     // Validation masks for PROPPARAM_UNITVALUE types
 
-    PROPPARAM_BITMASK               = 0x00001000,
+    PROPPARAM_BITMASK = 0x00001000,
 
     // Specifies that attribute can represent a relative fontsize 1..7 or -1..+7
-    PROPPARAM_FONTSIZE              = 0x00002000,
+    PROPPARAM_FONTSIZE = 0x00002000,
 
     // Specifies that attribute can represent any legal unit measurement type e.g. 1em, 2px etc.
-    PROPPARAM_LENGTH                = 0x00004000,
+    PROPPARAM_LENGTH = 0x00004000,
 
     // Specifies that attribute can represent a percentage value  e.g. 25%
-    PROPPARAM_PERCENTAGE            = 0x00008000,
+    PROPPARAM_PERCENTAGE = 0x00008000,
 
     // Specifies that attribute can indicate table relative i.e. *
-    PROPPARAM_TIMESRELATIVE         = 0x00010000,
+    PROPPARAM_TIMESRELATIVE = 0x00010000,
 
     // Specifies that attribute can be a number without a unit specified e.g. 1, +1, 23 etc
-    PROPPARAM_ANUMBER               = 0x00020000,
+    PROPPARAM_ANUMBER = 0x00020000,
 
     // specifies whether the ulTagNotAssignedDefault value should be used.  If not, its type will still be used for CUnitValues.
-    PROPPARAM_DONTUSENOTASSIGNED    = 0x00040000,
+    PROPPARAM_DONTUSENOTASSIGNED = 0x00040000,
 
     // specifies whether illegal values should be set to the MIN or to the DEFAULT
-    PROPPARAM_MINOUT                = 0x00080000,
+    PROPPARAM_MINOUT = 0x00080000,
 
     // Specifies that attribute is located in the AttrArray
-    PROPPARAM_ATTRARRAY             = 0x00100000,
+    PROPPARAM_ATTRARRAY = 0x00100000,
 
     // Specifies that attribute is case sensitive (eg. TYPE_TYPE)
-    PROPPARAM_CASESENSITIVE         = 0x00200000,
+    PROPPARAM_CASESENSITIVE = 0x00200000,
 
     // This marks a property as containing a scriptlet.  Uses DISPID_THIS for
     // when invoked.
-    PROPPARAM_SCRIPTLET             = 0x01000000,
+    PROPPARAM_SCRIPTLET = 0x01000000,
 
     // This marks a property as applying to a CF/PF/FF/SF
-    PROPPARAM_STYLISTIC_PROPERTY    = 0x02000000,
+    PROPPARAM_STYLISTIC_PROPERTY = 0x02000000,
 
     // This marks a property as being a stylesheet property (used for quoting, etc.)
-    PROPPARAM_STYLESHEET_PROPERTY   = 0x04000000,
+    PROPPARAM_STYLESHEET_PROPERTY = 0x04000000,
 
     // If this flag is set, when we see "TAG PROPERTY=" OR "PROPERTY"
     // we apply the default ( rather than the noassigndefault ) AND if
     // The property is invalid we apply the noassigndefault (rather than the default)
-    PROPPARAM_INVALIDASNOASSIGN     = 0x08000000,
-    PROPPARAM_NOTPRESENTASDEFAULT   = 0x10000000,
+    PROPPARAM_INVALIDASNOASSIGN = 0x08000000,
+    PROPPARAM_NOTPRESENTASDEFAULT = 0x10000000,
 };
 
 
@@ -1841,48 +1904,48 @@ enum PROPPARAM_FLAGS
 
 enum PROPTYPE_FLAGS
 {
-    PROPTYPE_EMPTY                      = 0,
-        PROPTYPE_NULL                   = 1,
-        PROPTYPE_I2                         = 2,
-        PROPTYPE_I4                         = 3,
-        PROPTYPE_R4                         = 4,
-        PROPTYPE_R8                         = 5,
-        PROPTYPE_CY                         = 6,
-        PROPTYPE_DATE                   = 7,
-        PROPTYPE_BSTR                   = 8,
-        PROPTYPE_DISPATCH               = 9,
-        PROPTYPE_ERROR                  = 10,
-        PROPTYPE_BOOL                   = 11,
-        PROPTYPE_VARIANT                = 12,
-        PROPTYPE_UNKNOWN                = 13,
-        PROPTYPE_DECIMAL                = 14,
-        PROPTYPE_I1                         = 16,
-        PROPTYPE_UI1                    = 17,
-        PROPTYPE_UI2                    = 18,
-        PROPTYPE_UI4                    = 19,
-        PROPTYPE_I8                         = 20,
-        PROPTYPE_UI8            = 21,
-        PROPTYPE_INT            = 22,
-        PROPTYPE_UINT           = 23,
-        PROPTYPE_VOID           = 24,
-        PROPTYPE_HRESULT            = 25,
-        PROPTYPE_PTR            = 26,
-        PROPTYPE_SAFEARRAY          = 27,
-        PROPTYPE_CARRAY         = 28,
-        PROPTYPE_USERDEFINED    = 29,
-        PROPTYPE_LPSTR          = 30,
-        PROPTYPE_LPWSTR         = 31,
+    PROPTYPE_EMPTY = 0,
+    PROPTYPE_NULL = 1,
+    PROPTYPE_I2 = 2,
+    PROPTYPE_I4 = 3,
+    PROPTYPE_R4 = 4,
+    PROPTYPE_R8 = 5,
+    PROPTYPE_CY = 6,
+    PROPTYPE_DATE = 7,
+    PROPTYPE_BSTR = 8,
+    PROPTYPE_DISPATCH = 9,
+    PROPTYPE_ERROR = 10,
+    PROPTYPE_BOOL = 11,
+    PROPTYPE_VARIANT = 12,
+    PROPTYPE_UNKNOWN = 13,
+    PROPTYPE_DECIMAL = 14,
+    PROPTYPE_I1 = 16,
+    PROPTYPE_UI1 = 17,
+    PROPTYPE_UI2 = 18,
+    PROPTYPE_UI4 = 19,
+    PROPTYPE_I8 = 20,
+    PROPTYPE_UI8 = 21,
+    PROPTYPE_INT = 22,
+    PROPTYPE_UINT = 23,
+    PROPTYPE_VOID = 24,
+    PROPTYPE_HRESULT = 25,
+    PROPTYPE_PTR = 26,
+    PROPTYPE_SAFEARRAY = 27,
+    PROPTYPE_CARRAY = 28,
+    PROPTYPE_USERDEFINED = 29,
+    PROPTYPE_LPSTR = 30,
+    PROPTYPE_LPWSTR = 31,
 
     // our private types
 
-    PROPTYPE_HTMLNUM        = 32,   // Private type -- HTML number: %50, etc
-    PROPTYPE_ITEM_ARY       = 33,   // Private type -- array of ItemList's
-    PROPTYPE_BSTR_ARY       = 34,   // Private type -- array of BSTRs
-    PROPTYPE_CSTRING        = 35,   // Private type -- CStr
-    PROPTYPE_CSTR_ARY       = 36,   // Private type -- array of CStr's
+    PROPTYPE_HTMLNUM = 32,   // Private type -- HTML number: %50, etc
+    PROPTYPE_ITEM_ARY = 33,   // Private type -- array of ItemList's
+    PROPTYPE_BSTR_ARY = 34,   // Private type -- array of BSTRs
+    PROPTYPE_CSTRING = 35,   // Private type -- CStr
+    PROPTYPE_CSTR_ARY = 36,   // Private type -- array of CStr's
 
-    PROPTYPE_LAST        = PROPTYPE_LPWSTR,
-    PROPTYPE_MAX        = 0xFFFFFFFF
+    PROPTYPE_LAST = PROPTYPE_LPWSTR,
+    PROPTYPE_MAX = 0xFFFFFFFF
 };
 
 
@@ -1902,24 +1965,24 @@ enum PROPTYPE_FLAGS
 
 enum HANDLEPROP_FLAGS
 {
-    HANDLEPROP_DEFAULT      = 0x001,    // property value to default
-    HANDLEPROP_VALUE        = 0x002,    // property value
-    HANDLEPROP_AUTOMATION   = 0x004,    // property value with validation and extended error handling
-    HANDLEPROP_COMPARE      = 0x008,    // property value compare
-    HANDLEPROP_STREAM       = 0x010,    // use stream
-    HANDLEPROP_OPMASK       = 0x01F,    // mask for operation code above
+    HANDLEPROP_DEFAULT = 0x001,    // property value to default
+    HANDLEPROP_VALUE = 0x002,    // property value
+    HANDLEPROP_AUTOMATION = 0x004,    // property value with validation and extended error handling
+    HANDLEPROP_COMPARE = 0x008,    // property value compare
+    HANDLEPROP_STREAM = 0x010,    // use stream
+    HANDLEPROP_OPMASK = 0x01F,    // mask for operation code above
 
-    HANDLEPROP_SET          = 0x020,    // set
+    HANDLEPROP_SET = 0x020,    // set
 
     HANDLEPROP_DONTVALIDATE = 0x040,    // IMG width&height - don't validate when setting
-    HANDLEPROP_SAMPLE       = 0x080,    // sniffing for a good parse or not
-    HANDLEPROP_IMPORTANT    = 0x100,    // stylesheets: this property is "!important"
-    HANDLEPROP_IMPLIED      = 0x200,    // stylesheets: this property has been implied by another.
+    HANDLEPROP_SAMPLE = 0x080,    // sniffing for a good parse or not
+    HANDLEPROP_IMPORTANT = 0x100,    // stylesheets: this property is "!important"
+    HANDLEPROP_IMPLIED = 0x200,    // stylesheets: this property has been implied by another.
 
-    HANDLEPROP_MERGE        = 0x400,    // property value must case an onPropertyChange
+    HANDLEPROP_MERGE = 0x400,    // property value must case an onPropertyChange
 
-    HANDLEPROP_OPERATION    = 0xFFFF,   // Opcode and extra bits
-    HANDLEPROP_MAX          = 0xFFFFFFFF        // another enum we need to make max for win16.
+    HANDLEPROP_OPERATION = 0xFFFF,   // Opcode and extra bits
+    HANDLEPROP_MAX = 0xFFFFFFFF        // another enum we need to make max for win16.
 };
 
 #define HANDLEPROP_SETHTML (HANDLEPROP_SET | HANDLEPROP_VALUE | (PROPTYPE_LPWSTR << 16))
@@ -1927,12 +1990,12 @@ enum HANDLEPROP_FLAGS
 #define HANDLEPROP_GETHTML (HANDLEPROP_STREAM | (PROPTYPE_LPWSTR << 16))
 
 #ifdef WIN16
-typedef HRESULT (BUGCALL *PFN_HANDLEPROPERTY)(PROPERTYDESC *, DWORD dwOpcode, void * pValue, CBase * pObject, CVoid * pSubObject);
+typedef HRESULT(BUGCALL* PFN_HANDLEPROPERTY)(PROPERTYDESC*, DWORD dwOpcode, void* pValue, CBase* pObject, CVoid* pSubObject);
 #define PROPERTYDESC_METHOD(fn)\
         static HRESULT BUGCALL handle ## fn ## property(PROPERTYDESC *pObj, DWORD dwOpCode, void *pValue, CBase *pObject, CVoid *pSubObject);\
         HRESULT BUGCALL Handle ## fn ## Property(DWORD, void *, CBase *, CVoid *) const;
 #else
-typedef HRESULT (BUGCALL PROPERTYDESC::*PFN_HANDLEPROPERTY)(DWORD dwOpcode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
+typedef HRESULT(BUGCALL PROPERTYDESC::* PFN_HANDLEPROPERTY)(DWORD dwOpcode, void* pValue, CBase* pObject, CVoid* pSubObject) const;
 #define PROPERTYDESC_METHOD(fn)\
         HRESULT BUGCALL Handle ## fn ## Property(DWORD, void *, CBase *, CVoid *) const;
 #endif
@@ -1949,164 +2012,161 @@ struct PROPERTYDESC
     // The pValue is pointing to the 'media' the value is stored for the get and set
 
     PROPERTYDESC_METHOD(Num)      //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
-    PROPERTYDESC_METHOD(String)   //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
-    PROPERTYDESC_METHOD(Enum)     //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
-    PROPERTYDESC_METHOD(Color)    //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
-    PROPERTYDESC_METHOD(Variant)  //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
-    PROPERTYDESC_METHOD(UnitValue)// (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
-    PROPERTYDESC_METHOD(Style)    //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
-    PROPERTYDESC_METHOD(StyleComponent) //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
-    PROPERTYDESC_METHOD(Url)      //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
-    PROPERTYDESC_METHOD(Code)     //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
+        PROPERTYDESC_METHOD(String)   //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
+        PROPERTYDESC_METHOD(Enum)     //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
+        PROPERTYDESC_METHOD(Color)    //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
+        PROPERTYDESC_METHOD(Variant)  //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
+        PROPERTYDESC_METHOD(UnitValue)// (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
+        PROPERTYDESC_METHOD(Style)    //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
+        PROPERTYDESC_METHOD(StyleComponent) //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
+        PROPERTYDESC_METHOD(Url)      //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
+        PROPERTYDESC_METHOD(Code)     //  (DWORD dwOpCode, void * pValue, CBase * pObject, CVoid * pSubObject) const;
 
-    inline HRESULT Default(CBase * pObject) const
-        {
+        inline HRESULT Default(CBase* pObject) const
+    {
 #ifdef WIN16
-            return (pfnHandleProperty ?
-                (pfnHandleProperty) ((PROPERTYDESC *)this, HANDLEPROP_SET | HANDLEPROP_DEFAULT,  NULL, pObject, CVOID_CAST(pObject))  :
+        return (pfnHandleProperty ?
+            (pfnHandleProperty)((PROPERTYDESC*)this, HANDLEPROP_SET | HANDLEPROP_DEFAULT, NULL, pObject, CVOID_CAST(pObject)) :
                 S_OK);
 #else
-            return (pfnHandleProperty ?
-                CALL_METHOD(this, pfnHandleProperty, (HANDLEPROP_SET | HANDLEPROP_DEFAULT,  NULL, pObject, CVOID_CAST(pObject)))  :
+        return (pfnHandleProperty ?
+                CALL_METHOD(this, pfnHandleProperty, (HANDLEPROP_SET | HANDLEPROP_DEFAULT, NULL, pObject, CVOID_CAST(pObject))) :
                 S_OK);
-#endif
-        }
-
-    ENUMDESC *GetEnumDescriptor ( void ) const
-        {
-            ENUMDESC *pEnumDesc;
-            NUMPROPPARAMS *ppp = (NUMPROPPARAMS *)(this+1);
-
-            if ( !(GetPPFlags() & PROPPARAM_ENUM ) )
-                return NULL;
-
-            if ( GetPPFlags() & PROPPARAM_ANUMBER )
-            {
-                // enumref ptr is after the sizeof() member
-                pEnumDesc = *(ENUMDESC **)((BYTE *)(ppp+1)+ sizeof(DWORD_PTR));
-            }
-            else
-            {
-                // enumref is coded in the lMax
-                pEnumDesc = (ENUMDESC *) ppp->lMax;
-            }
-            return pEnumDesc;
-        }
-    const BASICPROPPARAMS* GetBasicPropParams() const
-        {
-            return (const BASICPROPPARAMS*) (this+1);
-        }
-    const NUMPROPPARAMS* GetNumPropParams() const
-        {
-            return (const NUMPROPPARAMS*) (this+1);
-        }
-
-    const DWORD GetPPFlags() const
-        {
-            return GetBasicPropParams()->dwPPFlags;
-        }
-    const DWORD GetdwFlags() const
-        {
-            return GetBasicPropParams()->dwFlags;
-        }
-    const DISPID GetDispid() const
-        {
-            return GetBasicPropParams()->dispid;
-        }
-    HRESULT TryLoadFromString ( DWORD dwOpCode, LPCTSTR szString, CBase *pBaseObject, CAttrArray**ppAA ) const
-        {
-#ifdef WIN16
-            return ( (pfnHandleProperty) ( (PROPERTYDESC *)this, dwOpCode|(PROPTYPE_LPWSTR<<16|HANDLEPROP_SAMPLE),
-                    const_cast<TCHAR *> (szString), pBaseObject,
-                    (CVoid *)(void *)ppAA ) );
-#else
-            return ( CALL_METHOD(this,pfnHandleProperty, ( dwOpCode|(PROPTYPE_LPWSTR<<16|HANDLEPROP_SAMPLE),
-                    const_cast<TCHAR *> (szString), pBaseObject,
-                    (CVoid *)(void *)ppAA )) );
-#endif
-        }
-    HRESULT CallHandler ( CBase *pBaseObject, DWORD dwFlags, void *pvArg ) const
-        {
-            BASICPROPPARAMS *pbpp = (BASICPROPPARAMS *)(this+1);
-#ifdef WIN16
-            return ( (pfnHandleProperty) ( (PROPERTYDESC *)this, dwFlags, pvArg, pBaseObject,
-                pbpp->dwPPFlags & PROPPARAM_ATTRARRAY ?
-                (CVoid *)(void *)pBaseObject->GetAttrArray() : (CVoid *)(void *)pBaseObject ) );
-#else
-            return ( CALL_METHOD(this, pfnHandleProperty, ( dwFlags, pvArg, pBaseObject,
-                pbpp->dwPPFlags & PROPPARAM_ATTRARRAY ?
-                (CVoid *)(void *)pBaseObject->GetAttrArray() : (CVoid *)(void *)pBaseObject ) ));
 #endif
     }
-    HRESULT HandleLoadFromHTMLString ( CBase *pBaseObject, LPTSTR szString ) const
-        {
-            return  CallHandler ( pBaseObject, HANDLEPROP_SETHTML, (void *)szString );
+
+    ENUMDESC* GetEnumDescriptor(void) const
+    {
+        ENUMDESC* pEnumDesc;
+        NUMPROPPARAMS* ppp = (NUMPROPPARAMS*)(this + 1);
+
+        if (!(GetPPFlags() & PROPPARAM_ENUM))
+            return NULL;
+
+        if (GetPPFlags() & PROPPARAM_ANUMBER) {
+            // enumref ptr is after the sizeof() member
+            pEnumDesc = *(ENUMDESC**)((BYTE*)(ppp + 1) + sizeof(DWORD_PTR));
+        } else {
+            // enumref is coded in the lMax
+            pEnumDesc = (ENUMDESC*)ppp->lMax;
         }
-    HRESULT HandleMergeFromHTMLString ( CBase *pBaseObject, LPTSTR szString ) const
-        {
-            return  CallHandler ( pBaseObject, HANDLEPROP_MERGEHTML, (void *)szString );
-        }
-    HRESULT HandleSaveToHTMLStream ( CBase *pBaseObject, void *pStream ) const
-        {
-            return  CallHandler ( pBaseObject, HANDLEPROP_GETHTML, (void *)pStream );
-        }
-    HRESULT HandleCompare ( CBase *pBaseObject, void *pWith ) const
-        {
-            return  CallHandler ( pBaseObject, HANDLEPROP_COMPARE, (void *)pWith );
-        }
+        return pEnumDesc;
+    }
+    const BASICPROPPARAMS* GetBasicPropParams() const
+    {
+        return (const BASICPROPPARAMS*)(this + 1);
+    }
+    const NUMPROPPARAMS* GetNumPropParams() const
+    {
+        return (const NUMPROPPARAMS*)(this + 1);
+    }
+
+    const DWORD GetPPFlags() const
+    {
+        return GetBasicPropParams()->dwPPFlags;
+    }
+    const DWORD GetdwFlags() const
+    {
+        return GetBasicPropParams()->dwFlags;
+    }
+    const DISPID GetDispid() const
+    {
+        return GetBasicPropParams()->dispid;
+    }
+    HRESULT TryLoadFromString(DWORD dwOpCode, LPCTSTR szString, CBase* pBaseObject, CAttrArray** ppAA) const
+    {
+#ifdef WIN16
+        return ((pfnHandleProperty)((PROPERTYDESC*)this, dwOpCode | (PROPTYPE_LPWSTR << 16 | HANDLEPROP_SAMPLE),
+                                    const_cast<TCHAR*> (szString), pBaseObject,
+                                    (CVoid*)(void*)ppAA));
+#else
+        return (CALL_METHOD(this, pfnHandleProperty, (dwOpCode | (PROPTYPE_LPWSTR << 16 | HANDLEPROP_SAMPLE),
+                                                      const_cast<TCHAR*> (szString), pBaseObject,
+                                                      (CVoid*)(void*)ppAA)));
+#endif
+    }
+    HRESULT CallHandler(CBase* pBaseObject, DWORD dwFlags, void* pvArg) const
+    {
+        BASICPROPPARAMS* pbpp = (BASICPROPPARAMS*)(this + 1);
+#ifdef WIN16
+        return ((pfnHandleProperty)((PROPERTYDESC*)this, dwFlags, pvArg, pBaseObject,
+                                    pbpp->dwPPFlags & PROPPARAM_ATTRARRAY ?
+                                    (CVoid*)(void*)pBaseObject->GetAttrArray() : (CVoid*)(void*)pBaseObject));
+#else
+        return (CALL_METHOD(this, pfnHandleProperty, (dwFlags, pvArg, pBaseObject,
+                                                      pbpp->dwPPFlags & PROPPARAM_ATTRARRAY ?
+                                                      (CVoid*)(void*)pBaseObject->GetAttrArray() : (CVoid*)(void*)pBaseObject)));
+#endif
+    }
+    HRESULT HandleLoadFromHTMLString(CBase* pBaseObject, LPTSTR szString) const
+    {
+        return  CallHandler(pBaseObject, HANDLEPROP_SETHTML, (void*)szString);
+    }
+    HRESULT HandleMergeFromHTMLString(CBase* pBaseObject, LPTSTR szString) const
+    {
+        return  CallHandler(pBaseObject, HANDLEPROP_MERGEHTML, (void*)szString);
+    }
+    HRESULT HandleSaveToHTMLStream(CBase* pBaseObject, void* pStream) const
+    {
+        return  CallHandler(pBaseObject, HANDLEPROP_GETHTML, (void*)pStream);
+    }
+    HRESULT HandleCompare(CBase* pBaseObject, void* pWith) const
+    {
+        return  CallHandler(pBaseObject, HANDLEPROP_COMPARE, (void*)pWith);
+    }
     // Gets property into a VARIANT in most compact representation
-    HRESULT HandleGetIntoVARIANT ( CBase *pBaseObject, VARIANT *pVariant ) const
-        {
-            return  CallHandler ( pBaseObject, (HANDLEPROP_VALUE | (PROPTYPE_VARIANT << 16)),
-                (void *)pVariant );
-        }
+    HRESULT HandleGetIntoVARIANT(CBase* pBaseObject, VARIANT* pVariant) const
+    {
+        return  CallHandler(pBaseObject, (HANDLEPROP_VALUE | (PROPTYPE_VARIANT << 16)),
+            (void*)pVariant);
+    }
     // Get property into VARIANT compatable with readinf property thru automation
-    HRESULT HandleGetIntoAutomationVARIANT ( CBase *pBaseObject, VARIANT *pVariant ) const
-        {
-            return  CallHandler ( pBaseObject, (HANDLEPROP_AUTOMATION | (PROPTYPE_VARIANT << 16)),
-                (void *)pVariant );
-        }
-    HRESULT HandleGetIntoBSTR ( CBase *pBaseObject, BSTR *pBSTR ) const
-        {
-            return  CallHandler ( pBaseObject, (HANDLEPROP_VALUE | (PROPTYPE_BSTR << 16)),
-                (void *)pBSTR );
-        }
+    HRESULT HandleGetIntoAutomationVARIANT(CBase* pBaseObject, VARIANT* pVariant) const
+    {
+        return  CallHandler(pBaseObject, (HANDLEPROP_AUTOMATION | (PROPTYPE_VARIANT << 16)),
+            (void*)pVariant);
+    }
+    HRESULT HandleGetIntoBSTR(CBase* pBaseObject, BSTR* pBSTR) const
+    {
+        return  CallHandler(pBaseObject, (HANDLEPROP_VALUE | (PROPTYPE_BSTR << 16)),
+            (void*)pBSTR);
+    }
 
-    BOOL IsBOOLProperty ( void ) const;
-    BOOL IsNotPresentAsDefaultSet ( void ) const
-        {
-            return GetPPFlags() & PROPPARAM_NOTPRESENTASDEFAULT;
-        }
-    BOOL UseNotAssignedValue ( void ) const
-        {
-            return !(GetPPFlags() & PROPPARAM_DONTUSENOTASSIGNED);
-        }
-    BOOL IsInvalidAsNoAssignSet ( void ) const
-        {
-            return GetPPFlags() & PROPPARAM_INVALIDASNOASSIGN;
-        }
-    BOOL IsStyleSheetProperty ( void ) const
-        {
-            return GetPPFlags() & PROPPARAM_STYLESHEET_PROPERTY;
-        }
+    BOOL IsBOOLProperty(void) const;
+    BOOL IsNotPresentAsDefaultSet(void) const
+    {
+        return GetPPFlags() & PROPPARAM_NOTPRESENTASDEFAULT;
+    }
+    BOOL UseNotAssignedValue(void) const
+    {
+        return !(GetPPFlags() & PROPPARAM_DONTUSENOTASSIGNED);
+    }
+    BOOL IsInvalidAsNoAssignSet(void) const
+    {
+        return GetPPFlags() & PROPPARAM_INVALIDASNOASSIGN;
+    }
+    BOOL IsStyleSheetProperty(void) const
+    {
+        return GetPPFlags() & PROPPARAM_STYLESHEET_PROPERTY;
+    }
 
-    ULONG GetNotPresentDefault ( void ) const
-        {
-            if ( IsNotPresentAsDefaultSet() || !UseNotAssignedValue() )
-                return ulTagNotPresentDefault;
-            else
-                return ulTagNotAssignedDefault;
-        }
-    ULONG GetInvalidDefault ( void ) const
-        {
-            if ( IsInvalidAsNoAssignSet() && UseNotAssignedValue() )
-                return ulTagNotAssignedDefault;
-            else
-                return ulTagNotPresentDefault;
-        }
+    ULONG GetNotPresentDefault(void) const
+    {
+        if (IsNotPresentAsDefaultSet() || !UseNotAssignedValue())
+            return ulTagNotPresentDefault;
+        else
+            return ulTagNotAssignedDefault;
+    }
+    ULONG GetInvalidDefault(void) const
+    {
+        if (IsInvalidAsNoAssignSet() && UseNotAssignedValue())
+            return ulTagNotAssignedDefault;
+        else
+            return ulTagNotPresentDefault;
+    }
     PFN_HANDLEPROPERTY  pfnHandleProperty;  // Pointer to the handler function
-    const TCHAR *       pstrName;           // Name of property
-    const TCHAR *       pstrExposedName;    // Exposed name of the property
+    const TCHAR* pstrName;           // Name of property
+    const TCHAR* pstrExposedName;    // Exposed name of the property
     // We have two possible "defaults"
     // The first one is applied if the Tag was just plain missing
     ULONG_PTR           ulTagNotPresentDefault;
@@ -2115,14 +2175,14 @@ struct PROPERTYDESC
     ULONG_PTR           ulTagNotAssignedDefault;
 };
 
-inline const PROPERTYDESC *BASICPROPPARAMS::GetPropertyDesc ( void ) const
+inline const PROPERTYDESC* BASICPROPPARAMS::GetPropertyDesc(void) const
 {
-    return (const PROPERTYDESC *)this -1;
+    return (const PROPERTYDESC*)this - 1;
 }
 
-inline const PROPERTYDESC *NUMPROPPARAMS::GetPropertyDesc ( void ) const
+inline const PROPERTYDESC* NUMPROPPARAMS::GetPropertyDesc(void) const
 {
-    return (const PROPERTYDESC *)this -1;
+    return (const PROPERTYDESC*)this - 1;
 }
 
 // in the new structures lMax points to this ENUMDESC
@@ -2189,7 +2249,7 @@ public:
     };
     struct TypeDesc
     {
-        TCHAR *pszName;
+        TCHAR* pszName;
         UNITVALUETYPE uvt;
         WORD wShiftOffset; // Number of places right to shift dec point when scaling
         WORD wScaleMult; // Scale mult - equals 10^wShiftOffset
@@ -2203,112 +2263,114 @@ public:
     static ConvertTable BasicConversions[6][6];
 
     CUnitValue() { _lValue = 0; }
-    CUnitValue( ULONG lValue ) { _lValue = lValue; }
+    CUnitValue(ULONG lValue) { _lValue = lValue; }
 
 private:
     // The _lValue is the actual long value that encodes the unit & value
     long _lValue;
 
     enum { TYPE_MASK = 0x0F };
-    HRESULT NumberFromString ( LPCTSTR pStr, const PROPERTYDESC *pPropDesc );
+    HRESULT NumberFromString(LPCTSTR pStr, const PROPERTYDESC* pPropDesc);
 
-    static long ConvertTo ( long lValue,
-                                        UNITVALUETYPE uvtFromUnits,
-                                        UNITVALUETYPE uvtTo,
-                                        DIRECTION direction,
-                                        long lFontHeight=1);
+    static long ConvertTo(long lValue,
+                          UNITVALUETYPE uvtFromUnits,
+                          UNITVALUETYPE uvtTo,
+                          DIRECTION direction,
+                          long lFontHeight = 1);
 
-   // Set the value in current working units
-    BOOL SetHimetricMeasureValue ( long lNewValue, DIRECTION direction, long lFontHeight );
-    BOOL SetPercentValue ( long lNewValue, DIRECTION direction, long lPercentOfValue );
-    float GetFloatValueInUnits ( UNITVALUETYPE uvt, DIRECTION dir, long lFontHeight=1 );
-    HRESULT SetFloatValueKeepUnits ( float fValue,
-                                     UNITVALUETYPE uvt,
-                                     long lCurrentPixelValue,
-                                     DIRECTION dir,
-                                     long lFontHeight);
+    // Set the value in current working units
+    BOOL SetHimetricMeasureValue(long lNewValue, DIRECTION direction, long lFontHeight);
+    BOOL SetPercentValue(long lNewValue, DIRECTION direction, long lPercentOfValue);
+    float GetFloatValueInUnits(UNITVALUETYPE uvt, DIRECTION dir, long lFontHeight = 1);
+    HRESULT SetFloatValueKeepUnits(float fValue,
+                                   UNITVALUETYPE uvt,
+                                   long lCurrentPixelValue,
+                                   DIRECTION dir,
+                                   long lFontHeight);
 public:
-    static BOOL IsScalerUnit ( UNITVALUETYPE uvt ) ;
-    HRESULT FormatBuffer ( LPTSTR szBuffer, UINT uMaxLen, const PROPERTYDESC *pPropDesc,
-                            BOOL fAlwaysAppendUnit = FALSE) const;
+    static BOOL IsScalerUnit(UNITVALUETYPE uvt);
+    HRESULT FormatBuffer(LPTSTR szBuffer, UINT uMaxLen, const PROPERTYDESC* pPropDesc,
+                         BOOL fAlwaysAppendUnit = FALSE) const;
     enum { NUM_TYPEBITS = 4 };
-    long SetValue ( long lVal, UNITVALUETYPE uvt );
-    long SetRawValue ( long lVal ) { return ( _lValue = lVal ); }
-    long SetDefaultValue ( void ) { return SetValue ( 0, UNIT_NULLVALUE ); }
-    long GetRawValue  ( void ) const { return _lValue; }
+    long SetValue(long lVal, UNITVALUETYPE uvt);
+    long SetRawValue(long lVal) { return (_lValue = lVal); }
+    long SetDefaultValue(void) { return SetValue(0, UNIT_NULLVALUE); }
+    long GetRawValue(void) const { return _lValue; }
 
     // Get the value in current working units
-    long GetMeasureValue ( DIRECTION direction,
-                           UNITVALUETYPE uvtConvertToUnits = UNIT_PIXELS,
-                           long lFontHiehgt=1 ) const;
-    long GetPercentValue ( DIRECTION direction, long lPercentOfValue ) const;
+    long GetMeasureValue(DIRECTION direction,
+                         UNITVALUETYPE uvtConvertToUnits = UNIT_PIXELS,
+                         long lFontHiehgt = 1) const;
+    long GetPercentValue(DIRECTION direction, long lPercentOfValue) const;
 
-    HRESULT ConvertToUnitType ( UNITVALUETYPE uvt, long lCurrentPixelSize, DIRECTION dir, long lFontHeight = 1 );
-    HRESULT SetFloatUnitValue ( float fValue );
-    float XGetFloatValueInUnits ( UNITVALUETYPE uvt, long lFontHeight=1)
+    HRESULT ConvertToUnitType(UNITVALUETYPE uvt, long lCurrentPixelSize, DIRECTION dir, long lFontHeight = 1);
+    HRESULT SetFloatUnitValue(float fValue);
+    float XGetFloatValueInUnits(UNITVALUETYPE uvt, long lFontHeight = 1)
     {
-        return GetFloatValueInUnits ( uvt, DIRECTION_CX, lFontHeight);
+        return GetFloatValueInUnits(uvt, DIRECTION_CX, lFontHeight);
     }
-    float YGetFloatValueInUnits ( UNITVALUETYPE uvt, long lFontHeight=1)
+    float YGetFloatValueInUnits(UNITVALUETYPE uvt, long lFontHeight = 1)
     {
-        return GetFloatValueInUnits ( uvt, DIRECTION_CY, lFontHeight  );
+        return GetFloatValueInUnits(uvt, DIRECTION_CY, lFontHeight);
     }
-    HRESULT XConvertToUnitType ( UNITVALUETYPE uvt, long lCurrentPixelSize, long lFontHeight )
+    HRESULT XConvertToUnitType(UNITVALUETYPE uvt, long lCurrentPixelSize, long lFontHeight)
     {
-        return ConvertToUnitType ( uvt, lCurrentPixelSize, DIRECTION_CX, lFontHeight );
+        return ConvertToUnitType(uvt, lCurrentPixelSize, DIRECTION_CX, lFontHeight);
     }
-    HRESULT YConvertToUnitType ( UNITVALUETYPE uvt, long lCurrentPixelSize, long lFontHeight )
+    HRESULT YConvertToUnitType(UNITVALUETYPE uvt, long lCurrentPixelSize, long lFontHeight)
     {
-        return ConvertToUnitType ( uvt, lCurrentPixelSize, DIRECTION_CY, lFontHeight );
+        return ConvertToUnitType(uvt, lCurrentPixelSize, DIRECTION_CY, lFontHeight);
     }
-    HRESULT XSetFloatValueKeepUnits ( float fValue, UNITVALUETYPE uvt,
-                                      long lCurrentPixelValue, long lFontHeight=1 )
+    HRESULT XSetFloatValueKeepUnits(float fValue, UNITVALUETYPE uvt,
+                                    long lCurrentPixelValue, long lFontHeight = 1)
     {
-        return SetFloatValueKeepUnits ( fValue, uvt, lCurrentPixelValue, DIRECTION_CX, lFontHeight );
+        return SetFloatValueKeepUnits(fValue, uvt, lCurrentPixelValue, DIRECTION_CX, lFontHeight);
     }
-    HRESULT YSetFloatValueKeepUnits ( float fValue, UNITVALUETYPE uvt,
-                                      long lCurrentPixelValue, long lFontHeight=1 )
+    HRESULT YSetFloatValueKeepUnits(float fValue, UNITVALUETYPE uvt,
+                                    long lCurrentPixelValue, long lFontHeight = 1)
     {
-        return SetFloatValueKeepUnits ( fValue, uvt, lCurrentPixelValue, DIRECTION_CY, lFontHeight );
+        return SetFloatValueKeepUnits(fValue, uvt, lCurrentPixelValue, DIRECTION_CY, lFontHeight);
     }
 
     // Get the PIXEL equiv.
-    long XGetPixelValue ( CTransform *pTransform, long lPercentOfValue, long yHeight ) const
+    long XGetPixelValue(CTransform* pTransform, long lPercentOfValue, long yHeight) const
     {
-        return GetPixelValue ( pTransform, DIRECTION_CX, lPercentOfValue, yHeight );
+        return GetPixelValue(pTransform, DIRECTION_CX, lPercentOfValue, yHeight);
     }
-    long YGetPixelValue ( CTransform *pTransform, long lPercentOfValue, long yHeight) const
+    long YGetPixelValue(CTransform* pTransform, long lPercentOfValue, long yHeight) const
     {
-         return GetPixelValue ( pTransform, DIRECTION_CY, lPercentOfValue, yHeight );
+        return GetPixelValue(pTransform, DIRECTION_CY, lPercentOfValue, yHeight);
     }
-    long ScaleTo ( UNITVALUETYPE uvt )
+    long ScaleTo(UNITVALUETYPE uvt)
     {
-        return SetValue ( MulDivQuick ( GetUnitValue(), TypeNames[uvt].wScaleMult , TypeNames[GetUnitType()].wScaleMult ),
-            uvt );
+        return SetValue(MulDivQuick(GetUnitValue(), TypeNames[uvt].wScaleMult, TypeNames[GetUnitType()].wScaleMult),
+                        uvt);
     }
     // GetUnitValue - we need to know whether it was Null
-    long GetUnitValue ( void ) const { return _lValue >> NUM_TYPEBITS; }
-    HRESULT FromString ( LPCTSTR pStr, const PROPERTYDESC *pPropDesc );
-    UNITVALUETYPE GetUnitType ( void ) const { return (UNITVALUETYPE)(_lValue & TYPE_MASK); }
+    long GetUnitValue(void) const { return _lValue >> NUM_TYPEBITS; }
+    HRESULT FromString(LPCTSTR pStr, const PROPERTYDESC* pPropDesc);
+    UNITVALUETYPE GetUnitType(void) const { return (UNITVALUETYPE)(_lValue & TYPE_MASK); }
 
-    HRESULT Persist ( IStream *pStream, const PROPERTYDESC *pPropDesc ) const;
-    HRESULT IsValid  ( const PROPERTYDESC *pPropDesc ) const;
+    HRESULT Persist(IStream* pStream, const PROPERTYDESC* pPropDesc) const;
+    HRESULT IsValid(const PROPERTYDESC* pPropDesc) const;
 
     // These are the 3 primary methods for interfacing
 
 
     // Check for Null if you allowed Null values in your PROPDESC
-    BOOL IsNull ( void ) const { return GetUnitType() == UNIT_NULLVALUE; }
-    void SetNull ( void ) { SetValue ( 0, UNIT_NULLVALUE ); }
-    BOOL IsNullOrEnum ( void ) const { return (GetUnitType() == UNIT_NULLVALUE)
-                                        || (GetUnitType() == UNIT_ENUM); }
+    BOOL IsNull(void) const { return GetUnitType() == UNIT_NULLVALUE; }
+    void SetNull(void) { SetValue(0, UNIT_NULLVALUE); }
+    BOOL IsNullOrEnum(void) const {
+        return (GetUnitType() == UNIT_NULLVALUE)
+            || (GetUnitType() == UNIT_ENUM);
+    }
 
 
     // Store the equiv of a HIMETRIC value
-    BOOL SetFromHimetricValue ( long lNewValue,
-                                DIRECTION direction = DIRECTION_CX,
-                                long lPercentOfValue = 0,
-                                long lFontHeight =1);
+    BOOL SetFromHimetricValue(long lNewValue,
+                              DIRECTION direction = DIRECTION_CX,
+                              long lPercentOfValue = 0,
+                              long lFontHeight = 1);
 
     BOOL IsPercent() const
     {
@@ -2390,23 +2452,23 @@ public:
         SetValue(l * TypeNames[UNIT_TIMESRELATIVE].wScaleMult, UNIT_TIMESRELATIVE);
     }
 
-    long GetPixelValue ( CTransform *pTransform = NULL ,
-                         DIRECTION direction = DIRECTION_CX,
-                         long lPercentOfValue = 0,
-                         long lBaseFontHeight = 1 ) const
+    long GetPixelValue(CTransform* pTransform = NULL,
+                       DIRECTION direction = DIRECTION_CX,
+                       long lPercentOfValue = 0,
+                       long lBaseFontHeight = 1) const
     {
         return (_lValue & ~TYPE_MASK) == 0 ?
-                0 :
-                GetPixelValueCore(pTransform,
-                                  direction,
-                                  lPercentOfValue,
-                                  lBaseFontHeight );
+            0 :
+            GetPixelValueCore(pTransform,
+                              direction,
+                              lPercentOfValue,
+                              lBaseFontHeight);
     };
 
-    long GetPixelValueCore ( CTransform *pTransform = NULL ,
-                             DIRECTION direction = DIRECTION_CX,
-                             long lPercentOfValue = 0,
-                             long lBaseFontHeight = 1 ) const;
+    long GetPixelValueCore(CTransform* pTransform = NULL,
+                           DIRECTION direction = DIRECTION_CX,
+                           long lPercentOfValue = 0,
+                           long lBaseFontHeight = 1) const;
 };
 
 
@@ -2418,11 +2480,11 @@ public:
 
 
 #ifdef WIN16
-typedef HRESULT (BUGCALL * PFN_NUMPROPGET) (CVoid *, long *pnVal );
-typedef HRESULT (BUGCALL * PFN_NUMPROPSET) ( CVoid *, long   nVal  );
+typedef HRESULT(BUGCALL* PFN_NUMPROPGET) (CVoid*, long* pnVal);
+typedef HRESULT(BUGCALL* PFN_NUMPROPSET) (CVoid*, long   nVal);
 
-typedef HRESULT (BUGCALL * PFNB_NUMPROPGET) ( CBase *, long * pnVal );
-typedef HRESULT (BUGCALL * PFNB_NUMPROPSET) ( CBase *, long   nVal  );
+typedef HRESULT(BUGCALL* PFNB_NUMPROPGET) (CBase*, long* pnVal);
+typedef HRESULT(BUGCALL* PFNB_NUMPROPSET) (CBase*, long   nVal);
 
 #define NV_DECLARE_PROPERTY_METHOD(fn, FN, args)\
             static HRESULT BUGCALL FN args;\
@@ -2431,11 +2493,11 @@ typedef HRESULT (BUGCALL * PFNB_NUMPROPSET) ( CBase *, long   nVal  );
 #define PROPERTY_METHOD(kind, getset, klass, fn, FN)\
             (PFN_##kind##PROP##getset)&klass::FN
 #else
-typedef HRESULT (BUGCALL CVoid::* PFN_NUMPROPGET) ( long * pnVal );
-typedef HRESULT (BUGCALL CVoid::* PFN_NUMPROPSET) ( long   nVal  );
+typedef HRESULT(BUGCALL CVoid::* PFN_NUMPROPGET) (long* pnVal);
+typedef HRESULT(BUGCALL CVoid::* PFN_NUMPROPSET) (long   nVal);
 
-typedef HRESULT (BUGCALL CBase::* PFNB_NUMPROPGET) ( long * pnVal );
-typedef HRESULT (BUGCALL CBase::* PFNB_NUMPROPSET) ( long   nVal  );
+typedef HRESULT(BUGCALL CBase::* PFNB_NUMPROPGET) (long* pnVal);
+typedef HRESULT(BUGCALL CBase::* PFNB_NUMPROPSET) (long   nVal);
 
 #define NV_DECLARE_PROPERTY_METHOD(fn, FN, args)\
             HRESULT BUGCALL fn args
@@ -2456,30 +2518,30 @@ typedef HRESULT (BUGCALL CBase::* PFNB_NUMPROPSET) ( long   nVal  );
 
 
 #ifdef WIN16
-typedef HRESULT (BUGCALL * PFN_BSTRPROPGET) ( CVoid *, BSTR * pbstr );
-typedef HRESULT (BUGCALL * PFN_BSTRPROPSET) ( CVoid *, BSTR   bstr );
+typedef HRESULT(BUGCALL* PFN_BSTRPROPGET) (CVoid*, BSTR* pbstr);
+typedef HRESULT(BUGCALL* PFN_BSTRPROPSET) (CVoid*, BSTR   bstr);
 
-typedef HRESULT (BUGCALL * PFN_CSTRPROPGET) ( CVoid *, CStr * pcstr );
-typedef HRESULT (BUGCALL * PFN_CSTRPROPSET) ( CVoid *, CStr * pcstr );
+typedef HRESULT(BUGCALL* PFN_CSTRPROPGET) (CVoid*, CStr* pcstr);
+typedef HRESULT(BUGCALL* PFN_CSTRPROPSET) (CVoid*, CStr* pcstr);
 
-typedef HRESULT (BUGCALL * PFNB_BSTRPROPGET) ( CBase *, BSTR * pbstr );
-typedef HRESULT (BUGCALL * PFNB_BSTRPROPSET) ( CBase *, BSTR   bstr );
+typedef HRESULT(BUGCALL* PFNB_BSTRPROPGET) (CBase*, BSTR* pbstr);
+typedef HRESULT(BUGCALL* PFNB_BSTRPROPSET) (CBase*, BSTR   bstr);
 
-typedef HRESULT (BUGCALL * PFNB_CSTRPROPGET) ( CBase *, CStr * pcstr );
-typedef HRESULT (BUGCALL * PFNB_CSTRPROPSET) ( CBase *, CStr * pcstr );
+typedef HRESULT(BUGCALL* PFNB_CSTRPROPGET) (CBase*, CStr* pcstr);
+typedef HRESULT(BUGCALL* PFNB_CSTRPROPSET) (CBase*, CStr* pcstr);
 
 #else
-typedef HRESULT (BUGCALL CVoid::* PFN_BSTRPROPGET) ( BSTR * pbstr );
-typedef HRESULT (BUGCALL CVoid::* PFN_BSTRPROPSET) ( BSTR   bstr );
+typedef HRESULT(BUGCALL CVoid::* PFN_BSTRPROPGET) (BSTR* pbstr);
+typedef HRESULT(BUGCALL CVoid::* PFN_BSTRPROPSET) (BSTR   bstr);
 
-typedef HRESULT (BUGCALL CVoid::* PFN_CSTRPROPGET) ( CStr * pcstr );
-typedef HRESULT (BUGCALL CVoid::* PFN_CSTRPROPSET) ( CStr * pcstr );
+typedef HRESULT(BUGCALL CVoid::* PFN_CSTRPROPGET) (CStr* pcstr);
+typedef HRESULT(BUGCALL CVoid::* PFN_CSTRPROPSET) (CStr* pcstr);
 
-typedef HRESULT (BUGCALL CBase::* PFNB_BSTRPROPGET) ( BSTR * pbstr );
-typedef HRESULT (BUGCALL CBase::* PFNB_BSTRPROPSET) ( BSTR   bstr );
+typedef HRESULT(BUGCALL CBase::* PFNB_BSTRPROPGET) (BSTR* pbstr);
+typedef HRESULT(BUGCALL CBase::* PFNB_BSTRPROPSET) (BSTR   bstr);
 
-typedef HRESULT (BUGCALL CBase::* PFNB_CSTRPROPGET) ( CStr * pcstr );
-typedef HRESULT (BUGCALL CBase::* PFNB_CSTRPROPSET) ( CStr * pcstr );
+typedef HRESULT(BUGCALL CBase::* PFNB_CSTRPROPGET) (CStr* pcstr);
+typedef HRESULT(BUGCALL CBase::* PFNB_CSTRPROPSET) (CStr* pcstr);
 #endif
 
 
@@ -2491,12 +2553,12 @@ typedef HRESULT (BUGCALL CBase::* PFNB_CSTRPROPSET) ( CStr * pcstr );
 
 
 #ifdef WIN16
-typedef HRESULT (BUGCALL * PFN_VARIANTPROP) ( CVoid *, VARIANT * pbstr );
-typedef HRESULT (BUGCALL * PFNB_VARIANTPROP) ( CBase *, VARIANT * pbstr );
+typedef HRESULT(BUGCALL* PFN_VARIANTPROP) (CVoid*, VARIANT* pbstr);
+typedef HRESULT(BUGCALL* PFNB_VARIANTPROP) (CBase*, VARIANT* pbstr);
 
 #else
-typedef HRESULT (BUGCALL CVoid::* PFN_VARIANTPROP) ( VARIANT * pbstr );
-typedef HRESULT (BUGCALL CBase::* PFNB_VARIANTPROP) ( VARIANT * pbstr );
+typedef HRESULT(BUGCALL CVoid::* PFN_VARIANTPROP) (VARIANT* pbstr);
+typedef HRESULT(BUGCALL CBase::* PFNB_VARIANTPROP) (VARIANT* pbstr);
 #endif
 
 
@@ -2517,7 +2579,7 @@ struct PROPERTYDESC_METHOD
 {
     PROPERTYDESC            a;
     BASICPROPPARAMS         b;
-    const DEFAULTARGDESC   *c;      // pointer to default value arguments
+    const DEFAULTARGDESC* c;      // pointer to default value arguments
     WORD                    d;      // total argument count
     WORD                    e;      // required count
 };
@@ -2561,7 +2623,7 @@ struct PROPERTYDESC_NUMPROP_ENUMREF
     PROPERTYDESC        a;
     NUMPROPPARAMS       b;
     DWORD_PTR           c;
-    const ENUMDESC     *pE;
+    const ENUMDESC* pE;
 };
 
 struct PROPERTYDESC_CSTR_GETSET
@@ -2591,19 +2653,19 @@ class CInPlace;
 
 enum SERVERDESC_FLAG
 {
-    SERVERDESC_INVAL_ON_RESIZE      = BASEDESC_LAST                  << 1,
-    SERVERDESC_CREATE_UNDOMGR       = SERVERDESC_INVAL_ON_RESIZE     << 1,
-    SERVERDESC_ACTIVATEONENTRY      = SERVERDESC_CREATE_UNDOMGR      << 1,
-    SERVERDESC_DEACTIVATEONLEAVE    = SERVERDESC_ACTIVATEONENTRY     << 1,
-    SERVERDESC_ACTIVATEONDRAG       = SERVERDESC_DEACTIVATEONLEAVE   << 1,
-    SERVERDESC_SUPPORT_DRAG_DROP    = SERVERDESC_ACTIVATEONDRAG      << 1,
-    SERVERDESC_DRAGDROP_DESIGNONLY  = SERVERDESC_SUPPORT_DRAG_DROP   << 1,
-    SERVERDESC_DRAGDROP_EVENTONLY   = SERVERDESC_DRAGDROP_DESIGNONLY << 1,
-    SERVERDESC_HAS_MENU             = SERVERDESC_DRAGDROP_EVENTONLY  << 1,
-    SERVERDESC_HAS_TOOLBAR          = SERVERDESC_HAS_MENU            << 1,
-    SERVERDESC_UIACTIVE_DESIGNONLY  = SERVERDESC_HAS_TOOLBAR         << 1,
-    SERVERDESC_LAST                 = SERVERDESC_UIACTIVE_DESIGNONLY,
-    SERVERDESC_MAX                  = LONG_MAX    // needed to force enum to be dword
+    SERVERDESC_INVAL_ON_RESIZE = BASEDESC_LAST << 1,
+    SERVERDESC_CREATE_UNDOMGR = SERVERDESC_INVAL_ON_RESIZE << 1,
+    SERVERDESC_ACTIVATEONENTRY = SERVERDESC_CREATE_UNDOMGR << 1,
+    SERVERDESC_DEACTIVATEONLEAVE = SERVERDESC_ACTIVATEONENTRY << 1,
+    SERVERDESC_ACTIVATEONDRAG = SERVERDESC_DEACTIVATEONLEAVE << 1,
+    SERVERDESC_SUPPORT_DRAG_DROP = SERVERDESC_ACTIVATEONDRAG << 1,
+    SERVERDESC_DRAGDROP_DESIGNONLY = SERVERDESC_SUPPORT_DRAG_DROP << 1,
+    SERVERDESC_DRAGDROP_EVENTONLY = SERVERDESC_DRAGDROP_DESIGNONLY << 1,
+    SERVERDESC_HAS_MENU = SERVERDESC_DRAGDROP_EVENTONLY << 1,
+    SERVERDESC_HAS_TOOLBAR = SERVERDESC_HAS_MENU << 1,
+    SERVERDESC_UIACTIVE_DESIGNONLY = SERVERDESC_HAS_TOOLBAR << 1,
+    SERVERDESC_LAST = SERVERDESC_UIACTIVE_DESIGNONLY,
+    SERVERDESC_MAX = LONG_MAX    // needed to force enum to be dword
 };
 
 
@@ -2617,8 +2679,8 @@ enum SERVERCHNG_FLAG
     SERVERCHNG_NOPROPCHANGE = BASECHNG_LAST << 1,
     SERVERCHNG_NOVIEWCHANGE = SERVERCHNG_NOPROPCHANGE << 1,
     SERVERCHNG_NODATACHANGE = SERVERCHNG_NOVIEWCHANGE << 1,
-    SERVERCHNG_LAST         = SERVERCHNG_NODATACHANGE,
-    SERVERCHNG_MAX          = LONG_MAX    // needed to force enum to be dword
+    SERVERCHNG_LAST = SERVERCHNG_NODATACHANGE,
+    SERVERCHNG_MAX = LONG_MAX    // needed to force enum to be dword
 };
 
 
@@ -2629,10 +2691,10 @@ enum SERVERCHNG_FLAG
 
 enum FORMCHNG_FLAG
 {
-    FORMCHNG_LAYOUT  = (SERVERCHNG_LAST << 1),
+    FORMCHNG_LAYOUT = (SERVERCHNG_LAST << 1),
     FORMCHNG_NOINVAL = (FORMCHNG_LAYOUT << 1),
-    FORMCHNG_LAST    = FORMCHNG_NOINVAL,
-    FORMCHNG_MAX     = LONG_MAX    // needed to force enum to be dword on macintosh
+    FORMCHNG_LAST = FORMCHNG_NOINVAL,
+    FORMCHNG_MAX = LONG_MAX    // needed to force enum to be dword on macintosh
 };
 
 
@@ -2643,17 +2705,17 @@ enum FORMCHNG_FLAG
 
 enum SERVERLOCK_FLAG
 {
-    SERVERLOCK_STABILIZED       = 1,
-    SERVERLOCK_TRANSITION       = SERVERLOCK_STABILIZED    << 1,
-    SERVERLOCK_PROPNOTIFY       = SERVERLOCK_TRANSITION    << 1,
-    SERVERLOCK_INONPROPCHANGE   = SERVERLOCK_PROPNOTIFY    << 1,
+    SERVERLOCK_STABILIZED = 1,
+    SERVERLOCK_TRANSITION = SERVERLOCK_STABILIZED << 1,
+    SERVERLOCK_PROPNOTIFY = SERVERLOCK_TRANSITION << 1,
+    SERVERLOCK_INONPROPCHANGE = SERVERLOCK_PROPNOTIFY << 1,
     // general purpose recursion blocking flag
-    SERVERLOCK_BLOCKRECURSION   = SERVERLOCK_INONPROPCHANGE << 1,
-    SERVERLOCK_BLOCKPAINT       = SERVERLOCK_BLOCKRECURSION << 1,
-    SERVERLOCK_IGNOREERASEBKGND = SERVERLOCK_BLOCKPAINT     << 1,
-    SERVERLOCK_VIEWCHANGE       = SERVERLOCK_IGNOREERASEBKGND << 1,
-    SERVERLOCK_LAST             = SERVERLOCK_VIEWCHANGE,
-    SERVERLOCK_MAX              = LONG_MAX    // Force enum to 32 bits
+    SERVERLOCK_BLOCKRECURSION = SERVERLOCK_INONPROPCHANGE << 1,
+    SERVERLOCK_BLOCKPAINT = SERVERLOCK_BLOCKRECURSION << 1,
+    SERVERLOCK_IGNOREERASEBKGND = SERVERLOCK_BLOCKPAINT << 1,
+    SERVERLOCK_VIEWCHANGE = SERVERLOCK_IGNOREERASEBKGND << 1,
+    SERVERLOCK_LAST = SERVERLOCK_VIEWCHANGE,
+    SERVERLOCK_MAX = LONG_MAX    // Force enum to 32 bits
 };
 
 
@@ -2665,8 +2727,8 @@ enum SERVERLOCK_FLAG
 
 
 class NOVTABLE CServer :
-        public CBase,
-        public IViewObjectEx
+    public CBase,
+    public IViewObjectEx
 {
     DECLARE_CLASS_TYPES(CServer, CBase)
 
@@ -2695,26 +2757,26 @@ public:
 
     //  Standard verb implementations
 
-    typedef HRESULT (*PFNDOVERB) (CServer *, LONG, LPMSG, IOleClientSite *, LONG, HWND, LPCRECT);
+    typedef HRESULT(*PFNDOVERB) (CServer*, LONG, LPMSG, IOleClientSite*, LONG, HWND, LPCRECT);
 
-    static HRESULT DoShow(CServer *, LONG, LPMSG, IOleClientSite *, LONG, HWND, LPCRECT);
-    static HRESULT DoHide(CServer *, LONG, LPMSG, IOleClientSite *, LONG, HWND, LPCRECT);
-    static HRESULT DoUIActivate(CServer *, LONG, LPMSG, IOleClientSite *, LONG, HWND, LPCRECT);
-    static HRESULT DoInPlaceActivate(CServer *, LONG, LPMSG, IOleClientSite *, LONG, HWND, LPCRECT);
-    static HRESULT DoProperties(CServer *, LONG, LPMSG, IOleClientSite *, LONG, HWND, LPCRECT);
-    static HRESULT DoUIActivateIfDesign(CServer *, LONG, LPMSG, IOleClientSite *, LONG, HWND, LPCRECT);
-    static HRESULT DoInPlaceActivateIfDesign(CServer *, LONG, LPMSG, IOleClientSite *, LONG, HWND, LPCRECT);
+    static HRESULT DoShow(CServer*, LONG, LPMSG, IOleClientSite*, LONG, HWND, LPCRECT);
+    static HRESULT DoHide(CServer*, LONG, LPMSG, IOleClientSite*, LONG, HWND, LPCRECT);
+    static HRESULT DoUIActivate(CServer*, LONG, LPMSG, IOleClientSite*, LONG, HWND, LPCRECT);
+    static HRESULT DoInPlaceActivate(CServer*, LONG, LPMSG, IOleClientSite*, LONG, HWND, LPCRECT);
+    static HRESULT DoProperties(CServer*, LONG, LPMSG, IOleClientSite*, LONG, HWND, LPCRECT);
+    static HRESULT DoUIActivateIfDesign(CServer*, LONG, LPMSG, IOleClientSite*, LONG, HWND, LPCRECT);
+    static HRESULT DoInPlaceActivateIfDesign(CServer*, LONG, LPMSG, IOleClientSite*, LONG, HWND, LPCRECT);
 
     //  Standard Get/Set clipboard format implementations
 
-    typedef HRESULT (*LPFNGETDATA) (CServer *, LPFORMATETC, LPSTGMEDIUM, BOOL);
-    typedef HRESULT (*LPFNSETDATA) (CServer *, LPFORMATETC, LPSTGMEDIUM);
+    typedef HRESULT(*LPFNGETDATA) (CServer*, LPFORMATETC, LPSTGMEDIUM, BOOL);
+    typedef HRESULT(*LPFNSETDATA) (CServer*, LPFORMATETC, LPSTGMEDIUM);
 
-    static HRESULT GetEMBEDDEDOBJECT(CServer *, LPFORMATETC, LPSTGMEDIUM, BOOL);
-    static HRESULT GetMETAFILEPICT(CServer *, LPFORMATETC, LPSTGMEDIUM, BOOL);
-    static HRESULT GetOBJECTDESCRIPTOR(CServer *, LPFORMATETC, LPSTGMEDIUM, BOOL);
-    static HRESULT GetLINKSOURCE(CServer *, LPFORMATETC, LPSTGMEDIUM, BOOL);
-    static HRESULT GetENHMETAFILE(CServer *, LPFORMATETC, LPSTGMEDIUM, BOOL);
+    static HRESULT GetEMBEDDEDOBJECT(CServer*, LPFORMATETC, LPSTGMEDIUM, BOOL);
+    static HRESULT GetMETAFILEPICT(CServer*, LPFORMATETC, LPSTGMEDIUM, BOOL);
+    static HRESULT GetOBJECTDESCRIPTOR(CServer*, LPFORMATETC, LPSTGMEDIUM, BOOL);
+    static HRESULT GetLINKSOURCE(CServer*, LPFORMATETC, LPSTGMEDIUM, BOOL);
+    static HRESULT GetENHMETAFILE(CServer*, LPFORMATETC, LPSTGMEDIUM, BOOL);
 
     // IRunnableObject methods
 
@@ -2729,9 +2791,9 @@ public:
     // IExternalConnection methods
 
 #if FANCY_CONNECTION_STUFF
-    NV_STDMETHOD_(DWORD,AddConnection)(DWORD extconn, DWORD reserved);
-    NV_STDMETHOD_(DWORD,ReleaseConnection)(DWORD extconn,
-            DWORD reserved, BOOL fLastReleaseCloses);
+    NV_STDMETHOD_(DWORD, AddConnection)(DWORD extconn, DWORD reserved);
+    NV_STDMETHOD_(DWORD, ReleaseConnection)(DWORD extconn,
+                                            DWORD reserved, BOOL fLastReleaseCloses);
 #endif
 
     // IPersist* methods
@@ -2739,23 +2801,29 @@ public:
     // Over-ridden in CForm:
     STDMETHOD(IsDirty)();
 #ifdef WIN16
-    static HRESULT STDMETHODCALLTYPE isdirty(CServer *pObj)
-    { return pObj->IsDirty(); }
+    static HRESULT STDMETHODCALLTYPE isdirty(CServer* pObj)
+    {
+        return pObj->IsDirty();
+    }
 #endif // ndef WIN16
 
     // IPersistStreamInit methods
 
     // Over-ridden in CPageSelector:
-    DECLARE_TEAROFF_METHOD(Load, LOAD, (IStream *pStm));
-    NV_DECLARE_TEAROFF_METHOD(Save, SAVE, (IStream *pStm, BOOL fClearDirty));
-    NV_DECLARE_TEAROFF_METHOD(GetSizeMax, GETSIZEMAX, (ULARGE_INTEGER * pcbSize));
+    DECLARE_TEAROFF_METHOD(Load, LOAD, (IStream* pStm));
+    NV_DECLARE_TEAROFF_METHOD(Save, SAVE, (IStream* pStm, BOOL fClearDirty));
+    NV_DECLARE_TEAROFF_METHOD(GetSizeMax, GETSIZEMAX, (ULARGE_INTEGER* pcbSize));
     // Over-ridden in CPageSelector, CMdcText:
     STDMETHOD(InitNew)();
 #ifdef WIN16
-    static HRESULT STDMETHODCALLTYPE initnew(CServer *pObj)
-    {  return pObj->InitNew(); }
-    static HRESULT STDMETHODCALLTYPE getclassid(CServer *pObj, CLSID *pclsid)
-    {  return pObj->GetClassID(pclsid); }
+    static HRESULT STDMETHODCALLTYPE initnew(CServer* pObj)
+    {
+        return pObj->InitNew();
+    }
+    static HRESULT STDMETHODCALLTYPE getclassid(CServer* pObj, CLSID* pclsid)
+    {
+        return pObj->GetClassID(pclsid);
+    }
 #endif
 
     // IPersistStorage methods
@@ -2786,100 +2854,122 @@ public:
         LPFORMATETC pformatetc,
         LPSTGMEDIUM pmedium,
         BOOL fRelease));
-    NV_DECLARE_TEAROFF_METHOD(EnumFormatEtc, enumformatetc, (DWORD dwDirection, LPENUMFORMATETC * ppenum));
+    NV_DECLARE_TEAROFF_METHOD(EnumFormatEtc, enumformatetc, (DWORD dwDirection, LPENUMFORMATETC* ppenum));
     NV_DECLARE_TEAROFF_METHOD(DAdvise, dadvise, (
-        FORMATETC * pFormatetc,
+        FORMATETC* pFormatetc,
         DWORD advf,
         LPADVISESINK pAdvSink,
-        DWORD * pdwConnection));
+        DWORD* pdwConnection));
     NV_DECLARE_TEAROFF_METHOD(DUnadvise, dunadvise, (DWORD dwConnection));
-    NV_DECLARE_TEAROFF_METHOD(EnumDAdvise, enumdadvise, (LPENUMSTATDATA * ppenumAdvise));
+    NV_DECLARE_TEAROFF_METHOD(EnumDAdvise, enumdadvise, (LPENUMSTATDATA* ppenumAdvise));
 
     //  IOleControl methods
 
     // over-ridden in CForm, various controls:
-    STDMETHOD(GetControlInfo)(CONTROLINFO * pCI);
+    STDMETHOD(GetControlInfo)(CONTROLINFO* pCI);
     STDMETHOD(OnMnemonic)(LPMSG pMsg);
     STDMETHOD(OnAmbientPropertyChange)(DISPID dispid);
     // over-ridden in CForm:
     STDMETHOD(FreezeEvents)(BOOL fFreeze);
 #ifdef WIN16
-    static HRESULT STDMETHODCALLTYPE getcontrolinfo(CServer *pObj, CONTROLINFO * pCI)
-    { return pObj->GetControlInfo(pCI); }
-    static HRESULT STDMETHODCALLTYPE onmnemonic(CServer *pObj, LPMSG pMsg)
-    { return pObj->OnMnemonic(pMsg); }
-    static HRESULT STDMETHODCALLTYPE onambientpropertychange(CServer *pObj, DISPID dispid)
-    { return pObj->OnAmbientPropertyChange(dispid); }
+    static HRESULT STDMETHODCALLTYPE getcontrolinfo(CServer* pObj, CONTROLINFO* pCI)
+    {
+        return pObj->GetControlInfo(pCI);
+    }
+    static HRESULT STDMETHODCALLTYPE onmnemonic(CServer* pObj, LPMSG pMsg)
+    {
+        return pObj->OnMnemonic(pMsg);
+    }
+    static HRESULT STDMETHODCALLTYPE onambientpropertychange(CServer* pObj, DISPID dispid)
+    {
+        return pObj->OnAmbientPropertyChange(dispid);
+    }
     // over-ridden in CForm:
-    static HRESULT STDMETHODCALLTYPE freezeevents(CServer *pObj, BOOL fFreeze)
-    { return pObj->FreezeEvents(fFreeze); }
+    static HRESULT STDMETHODCALLTYPE freezeevents(CServer* pObj, BOOL fFreeze)
+    {
+        return pObj->FreezeEvents(fFreeze);
+    }
 #endif // ndef WIN16
 
     //  IOleObject interface methods
 
     // over-ridden in CForm, CWrappedControl:
-    STDMETHOD(SetClientSite)(IOleClientSite * pClientSite);
+    STDMETHOD(SetClientSite)(IOleClientSite* pClientSite);
 #ifdef WIN16
-    static HRESULT STDMETHODCALLTYPE setclientsite(CServer *pObj, IOleClientSite * pClientSite)
-    { return pObj->SetClientSite(pClientSite); }
+    static HRESULT STDMETHODCALLTYPE setclientsite(CServer* pObj, IOleClientSite* pClientSite)
+    {
+        return pObj->SetClientSite(pClientSite);
+    }
 #endif // ndef WIN16
-    NV_DECLARE_TEAROFF_METHOD(GetClientSite, getclientsite, (IOleClientSite * * ppClientSite));
+    NV_DECLARE_TEAROFF_METHOD(GetClientSite, getclientsite, (IOleClientSite** ppClientSite));
     // over-ridden in CForm:
     STDMETHOD(SetHostNames)(LPCTSTR szContainerApp, LPCTSTR szContainerObj);
 #ifdef WIN16
-    static HRESULT STDMETHODCALLTYPE sethostnames(CServer *pObj, LPCTSTR szContainerApp, LPCTSTR szContainerObj)
-    { return pObj->SetHostNames(szContainerApp, szContainerObj); }
-    static HRESULT STDMETHODCALLTYPE close(CServer *pObj, DWORD dwSaveOption)
-    { return pObj->Close(dwSaveOption); }
+    static HRESULT STDMETHODCALLTYPE sethostnames(CServer* pObj, LPCTSTR szContainerApp, LPCTSTR szContainerObj)
+    {
+        return pObj->SetHostNames(szContainerApp, szContainerObj);
+    }
+    static HRESULT STDMETHODCALLTYPE close(CServer* pObj, DWORD dwSaveOption)
+    {
+        return pObj->Close(dwSaveOption);
+    }
 #endif // ndef WIN16
     // over-ridden in CForm and CMdcList:
     STDMETHOD(Close)(DWORD dwSaveOption);
     NV_DECLARE_TEAROFF_METHOD(SetMoniker, setmoniker, (DWORD dwWhichMoniker, LPMONIKER pmk));
     NV_DECLARE_TEAROFF_METHOD(GetMoniker, getmoniker, (
-            DWORD dwAssign,
-            DWORD dwWhichMoniker,
-            LPMONIKER * ppmk));
+        DWORD dwAssign,
+        DWORD dwWhichMoniker,
+        LPMONIKER* ppmk));
     NV_DECLARE_TEAROFF_METHOD(InitFromData, initfromdata, (
-            LPDATAOBJECT pDataObject,
-            BOOL fCreation,
-            DWORD dwReserved));
+        LPDATAOBJECT pDataObject,
+        BOOL fCreation,
+        DWORD dwReserved));
     NV_DECLARE_TEAROFF_METHOD(GetClipboardData, getclipboarddata, (
-            DWORD dwReserved,
-            LPDATAOBJECT * ppDataObject));
+        DWORD dwReserved,
+        LPDATAOBJECT* ppDataObject));
     NV_DECLARE_TEAROFF_METHOD(DoVerb, doverb, (
-            LONG iVerb,
-            LPMSG lpmsg,
-            IOleClientSite * pActiveSite,
-            LONG lindex,
-            HWND hwndParent,
-            LPCOLERECT lprcPosRect));
-    NV_DECLARE_TEAROFF_METHOD(EnumVerbs, enumverbs, (LPENUMOLEVERB * ppenumOleVerb));
+        LONG iVerb,
+        LPMSG lpmsg,
+        IOleClientSite* pActiveSite,
+        LONG lindex,
+        HWND hwndParent,
+        LPCOLERECT lprcPosRect));
+    NV_DECLARE_TEAROFF_METHOD(EnumVerbs, enumverbs, (LPENUMOLEVERB* ppenumOleVerb));
     // over-ridden in CForm:
     STDMETHOD(Update)();
     STDMETHOD(IsUpToDate)();
 #ifdef WIN16
-    static HRESULT STDMETHODCALLTYPE update(CServer *pObj)
-    { return pObj->Update(); }
-    static HRESULT STDMETHODCALLTYPE isuptodate(CServer *pObj)
-    { return pObj->IsUpToDate(); }
-    static HRESULT STDMETHODCALLTYPE setextent(CServer *pObj, DWORD dwDrawAspect, LPSIZEL lpsizel)
-    { return pObj->SetExtent(dwDrawAspect, lpsizel); }
-    static HRESULT STDMETHODCALLTYPE getextent(CServer *pObj, DWORD dwDrawAspect, LPSIZEL lpsizel)
-    { return pObj->GetExtent(dwDrawAspect, lpsizel); }
+    static HRESULT STDMETHODCALLTYPE update(CServer* pObj)
+    {
+        return pObj->Update();
+    }
+    static HRESULT STDMETHODCALLTYPE isuptodate(CServer* pObj)
+    {
+        return pObj->IsUpToDate();
+    }
+    static HRESULT STDMETHODCALLTYPE setextent(CServer* pObj, DWORD dwDrawAspect, LPSIZEL lpsizel)
+    {
+        return pObj->SetExtent(dwDrawAspect, lpsizel);
+    }
+    static HRESULT STDMETHODCALLTYPE getextent(CServer* pObj, DWORD dwDrawAspect, LPSIZEL lpsizel)
+    {
+        return pObj->GetExtent(dwDrawAspect, lpsizel);
+    }
 #endif // ndef WIN16
 
-    DECLARE_TEAROFF_METHOD(GetUserClassID, getuserclassid, (CLSID * pClsid));
-    NV_DECLARE_TEAROFF_METHOD(GetUserType, getusertype, (DWORD dwFormOfType, LPTSTR * pszUserType));
+    DECLARE_TEAROFF_METHOD(GetUserClassID, getuserclassid, (CLSID* pClsid));
+    NV_DECLARE_TEAROFF_METHOD(GetUserType, getusertype, (DWORD dwFormOfType, LPTSTR* pszUserType));
     // over-ridden in CForm, CScrollBar, CPageSelector, CMdcList:
     STDMETHOD(SetExtent)(DWORD dwDrawAspect, LPSIZEL lpsizel);
 
     // over-ridden in CTxtBox (wrapped textbox):
     STDMETHOD(GetExtent)(DWORD dwDrawAspect, LPSIZEL lpsizel);
 
-    NV_DECLARE_TEAROFF_METHOD(Advise, advise, (IAdviseSink * pAdvSink, DWORD * pdwConnection));
+    NV_DECLARE_TEAROFF_METHOD(Advise, advise, (IAdviseSink* pAdvSink, DWORD* pdwConnection));
     NV_DECLARE_TEAROFF_METHOD(Unadvise, unadvise, (DWORD dwConnection));
-    NV_DECLARE_TEAROFF_METHOD(EnumAdvise, enumadvise, (LPENUMSTATDATA * ppenumAdvise));
-    NV_DECLARE_TEAROFF_METHOD(GetMiscStatus, getmiscstatus, (DWORD dwAspect, DWORD * pdwStatus));
+    NV_DECLARE_TEAROFF_METHOD(EnumAdvise, enumadvise, (LPENUMSTATDATA* ppenumAdvise));
+    NV_DECLARE_TEAROFF_METHOD(GetMiscStatus, getmiscstatus, (DWORD dwAspect, DWORD* pdwStatus));
     NV_DECLARE_TEAROFF_METHOD(SetColorScheme, setcolorscheme, (LPLOGPALETTE lpLogpal));
 
     //  IViewObject methods (NOTE - this is NOT a tear-off itf, so the methods
@@ -2890,148 +2980,164 @@ public:
     // this one.
 
     STDMETHOD(Draw)(
-            DWORD dwDrawAspect,
-            LONG lindex,
-            void * pvAspect,
-            DVTARGETDEVICE * ptd,
-            HDC hicTargetDev,
-            HDC hdcDraw,
-            LPCRECTL lprcBounds,
-            LPCRECTL lprcWBounds,
-            BOOL (CALLBACK * pfnContinue) (ULONG_PTR),
-            ULONG_PTR dwContinue);
+        DWORD dwDrawAspect,
+        LONG lindex,
+        void* pvAspect,
+        DVTARGETDEVICE* ptd,
+        HDC hicTargetDev,
+        HDC hdcDraw,
+        LPCRECTL lprcBounds,
+        LPCRECTL lprcWBounds,
+        BOOL(CALLBACK* pfnContinue) (ULONG_PTR),
+        ULONG_PTR dwContinue);
     STDMETHOD(GetColorSet)(
-            DWORD dwDrawAspect,
-            LONG lindex,
-            void * pvAspect,
-            DVTARGETDEVICE * ptd,
-            HDC hicTargetDev,
-            LPLOGPALETTE * ppColorSet);
+        DWORD dwDrawAspect,
+        LONG lindex,
+        void* pvAspect,
+        DVTARGETDEVICE* ptd,
+        HDC hicTargetDev,
+        LPLOGPALETTE* ppColorSet);
     STDMETHOD(Freeze)(
-            DWORD dwDrawAspect,
-            LONG lindex,
-            void * pvAspect,
-            DWORD * pdwFreeze);
+        DWORD dwDrawAspect,
+        LONG lindex,
+        void* pvAspect,
+        DWORD* pdwFreeze);
     STDMETHOD(Unfreeze)(DWORD dwFreeze);
     STDMETHOD(SetAdvise)(DWORD aspects, DWORD advf, LPADVISESINK pAdvSink);
     STDMETHOD(GetAdvise)(
-            DWORD * pAspects,
-            DWORD * pAdvf,
-            LPADVISESINK * ppAdvSink);
+        DWORD* pAspects,
+        DWORD* pAdvf,
+        LPADVISESINK* ppAdvSink);
 
     //  IViewObject2 methods
 
     STDMETHOD(GetExtent)(
-            DWORD dwDrawAspect,
-            LONG lindex,
-            DVTARGETDEVICE* ptd,
-            LPSIZEL lpsizel);
+        DWORD dwDrawAspect,
+        LONG lindex,
+        DVTARGETDEVICE* ptd,
+        LPSIZEL lpsizel);
 
     //  IViewObjectEx methods
 
     STDMETHOD(GetRect)(DWORD dwAspect, LPRECTL pRect);
-    STDMETHOD(GetViewStatus)(DWORD *pdwStatus);
+    STDMETHOD(GetViewStatus)(DWORD* pdwStatus);
     STDMETHOD(QueryHitPoint)(DWORD dwAspect, LPCRECT pRectBounds,
-                             POINT ptLoc, LONG lCloseHint, DWORD *pHitResult);
+                             POINT ptLoc, LONG lCloseHint, DWORD* pHitResult);
     STDMETHOD(QueryHitRect)(DWORD dwAspect, LPCRECT pRectBounds,
-                            LPCRECT prcLoc, LONG lCloseHint, DWORD *pHitResult);
-    STDMETHOD(GetNaturalExtent)(DWORD dwAspect, LONG lindex, DVTARGETDEVICE * ptd, HDC hicTargetDev, DVEXTENTINFO * pExtentInfo, LPSIZEL psizel);
+                            LPCRECT prcLoc, LONG lCloseHint, DWORD* pHitResult);
+    STDMETHOD(GetNaturalExtent)(DWORD dwAspect, LONG lindex, DVTARGETDEVICE* ptd, HDC hicTargetDev, DVEXTENTINFO* pExtentInfo, LPSIZEL psizel);
 
     //  IOleDocument methods
 
-    NV_DECLARE_TEAROFF_METHOD(CreateView, createview,  (
-            IOleInPlaceSite * pIPSite,
-            IStream * pStm,
-            DWORD dwReserved,
-            IOleDocumentView ** ppView));
-    NV_DECLARE_TEAROFF_METHOD(GetDocMiscStatus, getdocmiscstatus,  (DWORD * pdwStatus));
-    NV_DECLARE_TEAROFF_METHOD(EnumViews, enumviews,  (IEnumOleDocumentViews ** ppEnumViews, IOleDocumentView ** ppView));
+    NV_DECLARE_TEAROFF_METHOD(CreateView, createview, (
+        IOleInPlaceSite* pIPSite,
+        IStream* pStm,
+        DWORD dwReserved,
+        IOleDocumentView** ppView));
+    NV_DECLARE_TEAROFF_METHOD(GetDocMiscStatus, getdocmiscstatus, (DWORD* pdwStatus));
+    NV_DECLARE_TEAROFF_METHOD(EnumViews, enumviews, (IEnumOleDocumentViews** ppEnumViews, IOleDocumentView** ppView));
 
     //   IQuickActivate methods
 
     // over-ridden by CForm, CWrappedControl, CCommandButton, CCmdBtn:
     STDMETHOD(QuickActivate)(
-            QACONTAINER *pqacontainer,
-            QACONTROL *pqacontrol);
+        QACONTAINER* pqacontainer,
+        QACONTROL* pqacontrol);
     NV_DECLARE_TEAROFF_METHOD(SetContentExtent, setcontentextent, (LPSIZEL lpsizel));
     NV_DECLARE_TEAROFF_METHOD(GetContentExtent, getcontentextent, (LPSIZEL lpsizel));
 
     //  IOleDocumentView methods
 
-    NV_DECLARE_TEAROFF_METHOD( SetInPlaceSite , setinplacesite ,  (IOleInPlaceSite * pIPSite));
-    NV_DECLARE_TEAROFF_METHOD( GetInPlaceSite , getinplacesite ,  (IOleInPlaceSite ** ppIPSite));
-    NV_DECLARE_TEAROFF_METHOD( GetDocument , getdocument , (IUnknown ** ppUnk));
-    NV_DECLARE_TEAROFF_METHOD( SetRect , setrect , (LPRECT lprcView));
-    NV_DECLARE_TEAROFF_METHOD( GetRect , getrect , (LPRECT lprcView));
-    NV_DECLARE_TEAROFF_METHOD( SetRectComplex , setrectcomplex , (
-                          LPRECT lprcView,
-                          LPRECT lprcHScroll,
-                          LPRECT lprcVScroll,
-                          LPRECT lprcSizeBox));
-    NV_DECLARE_TEAROFF_METHOD( Show , show , (BOOL fShow));
-    NV_DECLARE_TEAROFF_METHOD( UIActivate , uiactivate , (BOOL fActivate));
-    NV_DECLARE_TEAROFF_METHOD( Open , open , ());
-    NV_DECLARE_TEAROFF_METHOD( CloseView , closeview , (DWORD dwReserved));
-    NV_DECLARE_TEAROFF_METHOD( SaveViewState , saveviewstate , (IStream * pStm));
-    NV_DECLARE_TEAROFF_METHOD( ApplyViewState , applyviewstate , (IStream * pStm));
-    NV_DECLARE_TEAROFF_METHOD( Clone , clone , (IOleInPlaceSite * pNewIPSite, IOleDocumentView ** ppNewView));
+    NV_DECLARE_TEAROFF_METHOD(SetInPlaceSite, setinplacesite, (IOleInPlaceSite* pIPSite));
+    NV_DECLARE_TEAROFF_METHOD(GetInPlaceSite, getinplacesite, (IOleInPlaceSite** ppIPSite));
+    NV_DECLARE_TEAROFF_METHOD(GetDocument, getdocument, (IUnknown** ppUnk));
+    NV_DECLARE_TEAROFF_METHOD(SetRect, setrect, (LPRECT lprcView));
+    NV_DECLARE_TEAROFF_METHOD(GetRect, getrect, (LPRECT lprcView));
+    NV_DECLARE_TEAROFF_METHOD(SetRectComplex, setrectcomplex, (
+        LPRECT lprcView,
+        LPRECT lprcHScroll,
+        LPRECT lprcVScroll,
+        LPRECT lprcSizeBox));
+    NV_DECLARE_TEAROFF_METHOD(Show, show, (BOOL fShow));
+    NV_DECLARE_TEAROFF_METHOD(UIActivate, uiactivate, (BOOL fActivate));
+    NV_DECLARE_TEAROFF_METHOD(Open, open, ());
+    NV_DECLARE_TEAROFF_METHOD(CloseView, closeview, (DWORD dwReserved));
+    NV_DECLARE_TEAROFF_METHOD(SaveViewState, saveviewstate, (IStream* pStm));
+    NV_DECLARE_TEAROFF_METHOD(ApplyViewState, applyviewstate, (IStream* pStm));
+    NV_DECLARE_TEAROFF_METHOD(Clone, clone, (IOleInPlaceSite* pNewIPSite, IOleDocumentView** ppNewView));
 
     //  IOleWindow methods
 
-    NV_DECLARE_TEAROFF_METHOD(GetWindow , getwindow , (HWND * lphwnd));
-    NV_DECLARE_TEAROFF_METHOD(ContextSensitiveHelp , contextsensitivehelp , (BOOL fEnterMode));
+    NV_DECLARE_TEAROFF_METHOD(GetWindow, getwindow, (HWND* lphwnd));
+    NV_DECLARE_TEAROFF_METHOD(ContextSensitiveHelp, contextsensitivehelp, (BOOL fEnterMode));
 
     // IOleInPlaceObject methods
 
-    NV_DECLARE_TEAROFF_METHOD( InPlaceDeactivate , inplacedeactivate , ());
-    NV_DECLARE_TEAROFF_METHOD( UIDeactivate, uideactivate, ());
+    NV_DECLARE_TEAROFF_METHOD(InPlaceDeactivate, inplacedeactivate, ());
+    NV_DECLARE_TEAROFF_METHOD(UIDeactivate, uideactivate, ());
     STDMETHOD(SetObjectRects)(LPCOLERECT lprcPosRect, LPCOLERECT lprcClipRect);
     STDMETHOD(ReactivateAndUndo)();
 
 #ifdef WIN16
-    static HRESULT STDMETHODCALLTYPE setobjectrects(CServer *pObj, LPCOLERECT lprcPosRect, LPCOLERECT lprcClipRect)
-    { return pObj->SetObjectRects(lprcPosRect, lprcClipRect); }
-    static HRESULT STDMETHODCALLTYPE reactivateandundo(CServer *pObj)
-    { return pObj->ReactivateAndUndo(); }
+    static HRESULT STDMETHODCALLTYPE setobjectrects(CServer* pObj, LPCOLERECT lprcPosRect, LPCOLERECT lprcClipRect)
+    {
+        return pObj->SetObjectRects(lprcPosRect, lprcClipRect);
+    }
+    static HRESULT STDMETHODCALLTYPE reactivateandundo(CServer* pObj)
+    {
+        return pObj->ReactivateAndUndo();
+    }
 #endif // ndef WIN16
 
     //  IOleInPlaceObjectWindowless methods
 
-    STDMETHOD(OnWindowMessage)(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT *plResult);
-    NV_DECLARE_TEAROFF_METHOD( GetDropTarget, getdroptarget, (IDropTarget **ppDropTarget));
+    STDMETHOD(OnWindowMessage)(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT* plResult);
+    NV_DECLARE_TEAROFF_METHOD(GetDropTarget, getdroptarget, (IDropTarget** ppDropTarget));
 #ifdef WIN16
-    static HRESULT STDMETHODCALLTYPE onwindowmessage(CServer *pObj, UINT msg, WPARAM wParam, LPARAM lParam, LRESULT *plResult)
-    { return pObj->OnWindowMessage(msg, wParam, lParam, plResult); }
+    static HRESULT STDMETHODCALLTYPE onwindowmessage(CServer* pObj, UINT msg, WPARAM wParam, LPARAM lParam, LRESULT* plResult)
+    {
+        return pObj->OnWindowMessage(msg, wParam, lParam, plResult);
+    }
 #endif // ndef WIN16
 
     //  IOleInPlaceActiveObject
 
-    STDMETHOD( TranslateAccelerator )(LPMSG lpmsg);
-    STDMETHOD( OnFrameWindowActivate )(BOOL fActivate);
-    STDMETHOD( OnDocWindowActivate )(BOOL fActivate);
+    STDMETHOD(TranslateAccelerator)(LPMSG lpmsg);
+    STDMETHOD(OnFrameWindowActivate)(BOOL fActivate);
+    STDMETHOD(OnDocWindowActivate)(BOOL fActivate);
     STDMETHOD(ResizeBorder)(LPCOLERECT prcBorder, LPOLEINPLACEUIWINDOW pUIWindow, BOOL fFrameWindow);
     STDMETHOD(EnableModeless)(BOOL fEnable);
 #ifdef WIN16
-    static HRESULT STDMETHODCALLTYPE translateaccelerator(CServer *pObj, LPMSG lpmsg)
-    { return pObj->TranslateAccelerator(lpmsg); }
-    static HRESULT STDMETHODCALLTYPE onframewindowactivate(CServer *pObj, BOOL fActivate)
-    { return pObj->OnFrameWindowActivate(fActivate); }
-    static HRESULT STDMETHODCALLTYPE ondocwindowactivate(CServer *pObj, BOOL fActivate)
-    { return pObj->OnDocWindowActivate(fActivate); }
-    static HRESULT STDMETHODCALLTYPE resizeborder(CServer *pObj, LPCOLERECT prcBorder, LPOLEINPLACEUIWINDOW pUIWindow, BOOL fFrameWindow)
-    { return pObj->ResizeBorder(prcBorder, pUIWindow, fFrameWindow); }
-    static HRESULT STDMETHODCALLTYPE enablemodeless(CServer *pObj, BOOL fEnable)
-    { return pObj->EnableModeless(fEnable); }
+    static HRESULT STDMETHODCALLTYPE translateaccelerator(CServer* pObj, LPMSG lpmsg)
+    {
+        return pObj->TranslateAccelerator(lpmsg);
+    }
+    static HRESULT STDMETHODCALLTYPE onframewindowactivate(CServer* pObj, BOOL fActivate)
+    {
+        return pObj->OnFrameWindowActivate(fActivate);
+    }
+    static HRESULT STDMETHODCALLTYPE ondocwindowactivate(CServer* pObj, BOOL fActivate)
+    {
+        return pObj->OnDocWindowActivate(fActivate);
+    }
+    static HRESULT STDMETHODCALLTYPE resizeborder(CServer* pObj, LPCOLERECT prcBorder, LPOLEINPLACEUIWINDOW pUIWindow, BOOL fFrameWindow)
+    {
+        return pObj->ResizeBorder(prcBorder, pUIWindow, fFrameWindow);
+    }
+    static HRESULT STDMETHODCALLTYPE enablemodeless(CServer* pObj, BOOL fEnable)
+    {
+        return pObj->EnableModeless(fEnable);
+    }
 #endif // ndef WIN16
 
     // IOleCache methods
 
-    NV_DECLARE_TEAROFF_METHOD(Cache, cache, (FORMATETC *pformatetc, DWORD advf, DWORD *pdwConnection));
+    NV_DECLARE_TEAROFF_METHOD(Cache, cache, (FORMATETC* pformatetc, DWORD advf, DWORD* pdwConnection));
     NV_DECLARE_TEAROFF_METHOD(Uncache, uncache, (DWORD dwConnection));
-    NV_DECLARE_TEAROFF_METHOD(EnumCache, enumcache, (IEnumSTATDATA **ppenumSTATDATA));
-    NV_DECLARE_TEAROFF_METHOD(InitCache, initcache, (IDataObject *pDataObject));
+    NV_DECLARE_TEAROFF_METHOD(EnumCache, enumcache, (IEnumSTATDATA** ppenumSTATDATA));
+    NV_DECLARE_TEAROFF_METHOD(InitCache, initcache, (IDataObject* pDataObject));
     // SetData renamed to SetDataCache to avoid conflict IDataObject::SetData.
-    NV_DECLARE_TEAROFF_METHOD(SetDataCache, setdatacache, (FORMATETC *pformatetc, STGMEDIUM *pmedium, BOOL fRelease));
+    NV_DECLARE_TEAROFF_METHOD(SetDataCache, setdatacache, (FORMATETC* pformatetc, STGMEDIUM* pmedium, BOOL fRelease));
 
     // IOleCache2 methods
 
@@ -3042,48 +3148,48 @@ public:
     // need to be virtual, but don't need to be STDMETHODCALLTYPE;
     //  a pain to change.
 
-    STDMETHOD   (DragEnter) (IDataObject * pIDataSource, DWORD grfKeyState, POINTL pt, DWORD * pdwEffect);
-    STDMETHOD   (DragOver)(DWORD grfKeyState, POINTL pt, DWORD * pdwEffect);
-    STDMETHOD   (DragLeave) (BOOL fDrop);
-    STDMETHOD   (Drop) (IDataObject * pIDataSource, DWORD grfKeyState, POINTL pt, DWORD * pdwEffect);
+    STDMETHOD(DragEnter) (IDataObject* pIDataSource, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
+    STDMETHOD(DragOver)(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
+    STDMETHOD(DragLeave) (BOOL fDrop);
+    STDMETHOD(Drop) (IDataObject* pIDataSource, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 
     // IPointerInactive methods
 
-    NV_DECLARE_TEAROFF_METHOD(GetActivationPolicy, getactivationpolicy, (DWORD * pdwPolicy));
+    NV_DECLARE_TEAROFF_METHOD(GetActivationPolicy, getactivationpolicy, (DWORD* pdwPolicy));
     DECLARE_TEAROFF_METHOD(OnInactiveSetCursor, oninactivesetcursor, (LPCRECT pRectBounds,
-                                   long x, long y, DWORD dwMouseMsg, BOOL fSetAlways));
+    long x, long y, DWORD dwMouseMsg, BOOL fSetAlways));
     NV_DECLARE_TEAROFF_METHOD(OnInactiveMouseMove, oninactivemousemove, (LPCRECT pRectBounds,
-                                   long x, long y, DWORD grfKeyState));
+                                                                         long x, long y, DWORD grfKeyState));
 
     // IPerPropertyBrowsing methods
 
     // over-ridden by CMdcButton, CMdcText, CMdcList:
-    DECLARE_TEAROFF_METHOD(GetDisplayString, getdisplaystring, (DISPID dispid, BSTR * lpbstr));
+    DECLARE_TEAROFF_METHOD(GetDisplayString, getdisplaystring, (DISPID dispid, BSTR* lpbstr));
     NV_DECLARE_TEAROFF_METHOD(MapPropertyToPage, mappropertytopage, (DISPID dispid, LPCLSID lpclsid));
     // over-ridden by CMorphDataControl
-    DECLARE_TEAROFF_METHOD(GetPredefinedStrings, getpredefinedstrings, (DISPID dispid, CALPOLESTR * lpcaStringsOut, CADWORD FAR* lpcaCookiesOut));
-    DECLARE_TEAROFF_METHOD(GetPredefinedValue, getpredefinedvalue, (DISPID dispid, DWORD dwCookie, VARIANT * lpvarOut));
+    DECLARE_TEAROFF_METHOD(GetPredefinedStrings, getpredefinedstrings, (DISPID dispid, CALPOLESTR* lpcaStringsOut, CADWORD FAR* lpcaCookiesOut));
+    DECLARE_TEAROFF_METHOD(GetPredefinedValue, getpredefinedvalue, (DISPID dispid, DWORD dwCookie, VARIANT* lpvarOut));
 
     // CBase overrides
 
     DECLARE_PRIVATE_QI_FUNCS(CBase)
-    ULONG SubAddRef()       { return CBase::SubAddRef(); }
-    ULONG SubRelease()      { return CBase::SubRelease();}
-    ULONG GetRefs()         { return CBase::GetRefs();   }
-    ULONG GetObjectRefs()   { return CBase::GetObjectRefs(); }
+    ULONG SubAddRef() { return CBase::SubAddRef(); }
+    ULONG SubRelease() { return CBase::SubRelease(); }
+    ULONG GetRefs() { return CBase::GetRefs(); }
+    ULONG GetObjectRefs() { return CBase::GetObjectRefs(); }
 
     HRESULT FireEvent(
         DISPID dispidEvent,
         DISPID dispidProp,
-        IDispatch *pEventObject,
-        BYTE * pbTypes,
+        IDispatch* pEventObject,
+        BYTE* pbTypes,
         ...);
 
-    STDMETHOD(GetEnabled)(VARIANT_BOOL * pfEnabled);
+    STDMETHOD(GetEnabled)(VARIANT_BOOL* pfEnabled);
 
     // Helper functions
 
-    virtual HRESULT Draw(CDrawInfo * pDI, RECT *prc) { RRETURN(DV_E_DVASPECT); }
+    virtual HRESULT Draw(CDrawInfo* pDI, RECT* prc) { RRETURN(DV_E_DVASPECT); }
 
     virtual HRESULT ActivateInPlace(LPMSG lpmsg);
     virtual HRESULT DeactivateInPlace();
@@ -3106,9 +3212,9 @@ public:
     virtual void    RemoveFrameUI();
 #endif // NO_OLEUI
 
-    STDMETHOD(QueryService)(REFGUID, REFIID, void **);
+    STDMETHOD(QueryService)(REFGUID, REFIID, void**);
 
-    void    DrawHighContrastBackground(HDC hdc, const RECT * prc, COLORREF crBack);
+    void    DrawHighContrastBackground(HDC hdc, const RECT* prc, COLORREF crBack);
 
     HRESULT ActivateView();
     void    PrepareActivationMessage(LPMSG, LPMSG);
@@ -3118,7 +3224,7 @@ public:
 
     //  helper functions for IOleInPlaceSiteWindowless
 
-    HRESULT GetDC(LPRECT prc, DWORD dwFlags, HDC * phDC);
+    HRESULT GetDC(LPRECT prc, DWORD dwFlags, HDC* phDC);
     HRESULT ReleaseDC(HDC hDC);
     HRESULT InvalidateRect(LPCRECT prc, BOOL fErase);
     HRESULT InvalidateRgn(HRGN hrgn, BOOL fErase);
@@ -3138,7 +3244,7 @@ public:
     //  Window management
 
     HWND            GetHWND();
-    virtual HRESULT AttachWin(HWND hWndParent, RECT * prc, HWND * phWnd);
+    virtual HRESULT AttachWin(HWND hWndParent, RECT* prc, HWND* phWnd);
     virtual void    DetachWin();
 
     //  UI Active Border implementation
@@ -3147,7 +3253,7 @@ public:
     void            OnNCPaint();
     BOOL            OnNCSetCursor(HWND hwnd, int nHitTest, UINT msg);
     LONG            OnNCHitTest(POINTS);
-    BOOL            OnNCLButtonDown(int, POINTS, RECT * prcCurrent = NULL);
+    BOOL            OnNCLButtonDown(int, POINTS, RECT* prcCurrent = NULL);
 
     HRESULT         SetActiveObject();
     HRESULT         ClearActiveObject();
@@ -3157,13 +3263,13 @@ public:
     virtual void    OnPaint();
     virtual BOOL    OnEraseBkgnd(HDC hdc);
     virtual void    OnDestroy();
-    HRESULT         OnDefWindowMessage(UINT,WPARAM,LPARAM,LRESULT*);
+    HRESULT         OnDefWindowMessage(UINT, WPARAM, LPARAM, LRESULT*);
 
     static  LRESULT CALLBACK WndProc(
-            HWND hwnd,
-            UINT msg,
-            WPARAM wParam,
-            LPARAM lParam);
+        HWND hwnd,
+        UINT msg,
+        WPARAM wParam,
+        LPARAM lParam);
 
     // Helper functions for translate accelerator
 
@@ -3184,11 +3290,11 @@ public:
     // is being created via the new Chrome specific classid. For normal
     // MSHTML creations this flag will be false and the chrome specific
     // code will be disabled.
-                    CServer(IUnknown *pUnkOuter, BOOL fChrome = FALSE);
+    CServer(IUnknown* pUnkOuter, BOOL fChrome = FALSE);
     virtual         ~CServer();
     virtual void    Passivate();
 
-    IUnknown * PunkOuter() { return _pUnkOuter; }
+    IUnknown* PunkOuter() { return _pUnkOuter; }
     BOOL IsAggregated(void) { return _pUnkOuter != PunkInner(); }
 
     //  Virtual methods implementing the state transitions
@@ -3222,24 +3328,24 @@ public:
     //  Helper methods for derived classes
 
     HRESULT         TransitionTo(
-                            OLE_SERVER_STATE state,
-                            LPMSG lpmsg = NULL);
+        OLE_SERVER_STATE state,
+        LPMSG lpmsg = NULL);
 
     BOOL            GetAmbientBool(
-                            DISPID dispid,
-                            BOOL fDefaultValue);
+        DISPID dispid,
+        BOOL fDefaultValue);
 
     HRESULT         GetAmbientBstr(
-                            DISPID dispid,
-                            BSTR *pbstr);
+        DISPID dispid,
+        BSTR* pbstr);
 
     HRESULT         GetAmbientVariant(
-                            DISPID dispid,
-                            VARIANT * pVar);
+        DISPID dispid,
+        VARIANT* pVar);
 
     HPALETTE        GetAmbientPalette();
 
-    virtual HPALETTE    GetPalette(HDC hdc = 0, BOOL *pfHtPal = NULL);
+    virtual HPALETTE    GetPalette(HDC hdc = 0, BOOL* pfHtPal = NULL);
 
     void            OnDataChange(BOOL fInvalidateView = TRUE);
     void            OnViewChange(DWORD dwAspect = DVASPECT_CONTENT);
@@ -3249,18 +3355,18 @@ public:
 
     // Overwritten by CDoc::ShowMessage.
     virtual HRESULT __cdecl ShowMessage(
-                int   * pnResult,
-                DWORD dwFlags,
-                DWORD dwHelpContext,
-                UINT  idsMessage, ...) = 0;
+        int* pnResult,
+        DWORD dwFlags,
+        DWORD dwHelpContext,
+        UINT  idsMessage, ...) = 0;
 
 #ifndef NO_EDIT
-    HRESULT         GetCanUndo(VARIANT_BOOL * pfCanUndo);
-    HRESULT         GetCanRedo(VARIANT_BOOL * pfCanRedo);
+    HRESULT         GetCanUndo(VARIANT_BOOL* pfCanUndo);
+    HRESULT         GetCanRedo(VARIANT_BOOL* pfCanRedo);
 
     //  Undo helpers
 
-    virtual IOleUndoManager * UndoManager(void) { return _pUndoMgr; }
+    virtual IOleUndoManager* UndoManager(void) { return _pUndoMgr; }
 
     HRESULT CreateUndoManager(void);
 #endif // NO_EDIT
@@ -3271,9 +3377,9 @@ public:
 
     //  Protected data members
 
-    IUnknown *          _pUnkOuter;         //  Outer unknown
+    IUnknown* _pUnkOuter;         //  Outer unknown
 
-    IOleClientSite *    _pClientSite;       //  Pointer to client site
+    IOleClientSite* _pClientSite;       //  Pointer to client site
 
     SIZEL               _sizel;             //  Our Extent
 
@@ -3281,21 +3387,21 @@ public:
 
     LPSTORAGE           _pStg;              //  Pointer to our storage
 
-    CInPlace *          _pInPlace;          //  Pointer to our inplace object.
+    CInPlace* _pInPlace;          //  Pointer to our inplace object.
     DWORD               _dwAspects;         //  Aspects of interest
     DWORD               _dwAdvf;            //  Advise flags
 
-    IPicture *          _pPictureMouse;     //  Custom mouse icon
+    IPicture* _pPictureMouse;     //  Custom mouse icon
 
-    IOleAdviseHolder *  _pOleAdviseHolder;  //  for IOleObject advises
-    IDataAdviseHolder * _pDataAdviseHolder; //  for IDataObject advises
+    IOleAdviseHolder* _pOleAdviseHolder;  //  for IOleObject advises
+    IDataAdviseHolder* _pDataAdviseHolder; //  for IDataObject advises
 
-    IOleCache2 *        _pCache;            // Pointer to default cache implementation.
-    IPersistStorage *   _pPStgCache;        // Pointer to cache's IPStg implementation.
-    IViewObject2 *      _pViewObjectCache;  // Pointer to cache's IViewObj2 impl.
+    IOleCache2* _pCache;            // Pointer to default cache implementation.
+    IPersistStorage* _pPStgCache;        // Pointer to cache's IPStg implementation.
+    IViewObject2* _pViewObjectCache;  // Pointer to cache's IViewObj2 impl.
 
 #ifndef NO_EDIT
-    IOleUndoManager *   _pUndoMgr;          //  Undo manager object
+    IOleUndoManager* _pUndoMgr;          //  Undo manager object
 #endif // NO_EDIT
 
 #ifdef _MAC
@@ -3319,39 +3425,39 @@ public:
 #ifdef WIN16
     OLE_SERVER_STATE    _state;
 #else
-    OLE_SERVER_STATE    _state:4;           //  Current OLE state
+    OLE_SERVER_STATE    _state : 4;           //  Current OLE state
 #endif
 
-    unsigned            _fViewFrozen:1;     //  is IViewObject frozen?
-    unsigned            _fNoScribble:1;     //  between save and save completed?
-    unsigned            _fSameAsLoad:1;     //  IPersistStorage::Save - fSameAsLoad?
-    unsigned            _fInitNewed:1;      //  were we InitNew'd (rather
+    unsigned            _fViewFrozen : 1;     //  is IViewObject frozen?
+    unsigned            _fNoScribble : 1;     //  between save and save completed?
+    unsigned            _fSameAsLoad : 1;     //  IPersistStorage::Save - fSameAsLoad?
+    unsigned            _fInitNewed : 1;      //  were we InitNew'd (rather
                                             //    than Load'd)?
-    unsigned            _fHandsOff:1;       //  are we in Hands-Off mode?
-    unsigned            _fHidden:1;         //  Set by DoVerb(OLEVERB_HIDE)
-    unsigned            _fWindowless:1;     //  can we activate windowlessly?
+    unsigned            _fHandsOff : 1;       //  are we in Hands-Off mode?
+    unsigned            _fHidden : 1;         //  Set by DoVerb(OLEVERB_HIDE)
+    unsigned            _fWindowless : 1;     //  can we activate windowlessly?
     // CHROME
-    unsigned            _fChrome:1;         //  TRUE if we are hosted by Chrome
+    unsigned            _fChrome : 1;         //  TRUE if we are hosted by Chrome
                                             //  needing the CHROME windowless mshtml code
-    unsigned            _fMsoViewExists:1;  //  allow only one view
-    unsigned            _fMsoDocMode:1;     //  True if our container is providing
+    unsigned            _fMsoViewExists : 1;  //  allow only one view
+    unsigned            _fMsoDocMode : 1;     //  True if our container is providing
                                             //    a MsoDocument Site.
-    unsigned            _fUseAdviseSinkEx:1; // do we use IAdviseSinkEx?
-    unsigned            _fUserMode:1;       // True if user mode.
+    unsigned            _fUseAdviseSinkEx : 1; // do we use IAdviseSinkEx?
+    unsigned            _fUserMode : 1;       // True if user mode.
 
     // Flags added here, but used only in derived classes.  There are here so that we can use
     // bits in this class, rather than having the derived class allocate another flags word.
     // Typically, these are in the Morphable Data Control (MDC).
 
-    unsigned             _fUseHighlightColors:1; // Use system highlight colors. Ignore Back and ForeColor.
-    unsigned             _fCurrentPositionUnknown:1; // _dlbCurrentPosition is not valid, even if null.
-    unsigned             _fAlreadyFiredClick:1;      // Click fired for this row, unambiguously.
+    unsigned             _fUseHighlightColors : 1; // Use system highlight colors. Ignore Back and ForeColor.
+    unsigned             _fCurrentPositionUnknown : 1; // _dlbCurrentPosition is not valid, even if null.
+    unsigned             _fAlreadyFiredClick : 1;      // Click fired for this row, unambiguously.
 
     // Some flags used for dragdrop.
-    unsigned             _fDragEnter:1;         // Used to check whether any current dragdrop operation
+    unsigned             _fDragEnter : 1;         // Used to check whether any current dragdrop operation
                                                 // was officially entered by us.
-    unsigned            _fDataChangePosted:1;   // Prevent firing OnDataChange multiple times
-    unsigned            _fViewChangePosted:1;   // Prevent firing OnViewChange multiple times
+    unsigned            _fDataChangePosted : 1;   // Prevent firing OnDataChange multiple times
+    unsigned            _fViewChangePosted : 1;   // Prevent firing OnViewChange multiple times
 
     static ATOM         s_atomWndClass;
 
@@ -3364,12 +3470,12 @@ public:
     class CLock
     {
     public:
-        CLock(CServer *pServer, WORD wLockFlags);
-        CLock(CServer *pServer);
+        CLock(CServer* pServer, WORD wLockFlags);
+        CLock(CServer* pServer);
         ~CLock();
 
     private:
-        CServer *   _pServer;
+        CServer* _pServer;
         WORD        _wLockFlags;
     };
 
@@ -3388,15 +3494,15 @@ public:
 
         int             _cOleVerbTable;     // number of entries in the verb table
         LPOLEVERB       _pOleVerbTable;     // pointer to list of verbs available
-        PFNDOVERB *     _pfnDoVerb;         // DoVerb function table
+        PFNDOVERB* _pfnDoVerb;         // DoVerb function table
 
         int             _cGetFmtTable;      // number of entries in the table
         LPFORMATETC     _pGetFmtTable;      // format table for IDataObject::GetData[Here]
-        LPFNGETDATA *   _pGetFuncs;         // GetData(Here) function table
+        LPFNGETDATA* _pGetFuncs;         // GetData(Here) function table
 
         int             _cSetFmtTable;      // number of entries in the table
         LPFORMATETC     _pSetFmtTable;      // format table for IDataObject::SetData
-        LPFNSETDATA *   _pSetFuncs;         // SetData function table
+        LPFNSETDATA* _pSetFuncs;         // SetData function table
 
         int             _ibItfPrimary;      // offset of primary interface
 
@@ -3418,7 +3524,7 @@ public:
 
     };
 
-    const CLASSDESC *ServerDesc() const { return (const CLASSDESC *)BaseDesc(); }
+    const CLASSDESC* ServerDesc() const { return (const CLASSDESC*)BaseDesc(); }
 
     // GetServerDescFlags -- This virtual method returns flags describing the currently
     // desired behavior of the server. It may change dynamically (e.g. Morphable Data
@@ -3430,9 +3536,13 @@ public:
     // AndrewL -- Feb 16, 1996
 
     virtual SERVERDESC_FLAG GetServerDescFlags()
-                        {return (SERVERDESC_FLAG)ServerDesc()->_classdescBase._dwFlags;};
+    {
+        return (SERVERDESC_FLAG)ServerDesc()->_classdescBase._dwFlags;
+    };
     BOOL            TestServerDescFlag(SERVERDESC_FLAG dw)
-        {return (GetServerDescFlags() & dw) != 0; }
+    {
+        return (GetServerDescFlags() & dw) != 0;
+    }
 
     // CHROME
 public:
@@ -3440,9 +3550,11 @@ public:
     // operation.
     BOOL IsChromeHosted() const
 #ifdef _MAC  // bugbug: fix this to set the _fChrome flag to true for mac so we can eliminate this #ifdef
-    {  return true;  }
+    {
+        return true;
+    }
 #else
-    {  return _fChrome;  }
+    { return _fChrome; }
 #endif
 };
 
@@ -3469,7 +3581,7 @@ public:
 
     // Member Data
 
-    IOleInPlaceSite *       _pInPlaceSite;  //  Pointer to in-place client site
+    IOleInPlaceSite* _pInPlaceSite;  //  Pointer to in-place client site
 
     LPOLEINPLACEFRAME       _pFrame;        //  our in-place active frame
     LPOLEINPLACEUIWINDOW    _pDoc;          //  our in-place active document
@@ -3483,28 +3595,28 @@ public:
 
     HWND                    _hwnd;          //  Our window
 
-    unsigned                _fIPNoDraw:1;
-    unsigned                _fIPPaintBkgnd:1;
-    unsigned                _fIPOffScreen:1;
-    unsigned                _fUseExtendedSite:1;//  use IOleInPlaceSiteEx
-    unsigned                _fCSHelpMode:1;     //  are we in context-sensitive help mode?
-    unsigned                _fChildActivating:1;//  is an embedded obj going UIActive?
-    unsigned                _fChildActive:1;    //  is an embedded object UI Active?
-    unsigned                _fDeactivating:1;   //  are we deactivating?
-    unsigned                _fWindowlessInplace:1;  //  are we windowless & inplace-active
-    unsigned                _fShowBorder:1;     //  show UI Active border?
-    unsigned                _fUIDown:1;         //  Are menu/tools integrated with frame?
-    unsigned                _fFrameActive:1;    //  Is Frame window active?
-    unsigned                _fDocActive:1;      //  Is Doc window active?
-    unsigned                _fAfterDoubleClick:1;// For proper handling of dbl click events
-    unsigned                _fFocus:1;          // True if we have the focus.
-    unsigned                _fUsingWindowRgn:1; // True if clipping with window region.
-    unsigned                _fBubbleInsideOut:1;// True if bubbling was caused from an inside control
-    unsigned                _fMenusMerged:1;    // True if menus have been merged
+    unsigned                _fIPNoDraw : 1;
+    unsigned                _fIPPaintBkgnd : 1;
+    unsigned                _fIPOffScreen : 1;
+    unsigned                _fUseExtendedSite : 1;//  use IOleInPlaceSiteEx
+    unsigned                _fCSHelpMode : 1;     //  are we in context-sensitive help mode?
+    unsigned                _fChildActivating : 1;//  is an embedded obj going UIActive?
+    unsigned                _fChildActive : 1;    //  is an embedded object UI Active?
+    unsigned                _fDeactivating : 1;   //  are we deactivating?
+    unsigned                _fWindowlessInplace : 1;  //  are we windowless & inplace-active
+    unsigned                _fShowBorder : 1;     //  show UI Active border?
+    unsigned                _fUIDown : 1;         //  Are menu/tools integrated with frame?
+    unsigned                _fFrameActive : 1;    //  Is Frame window active?
+    unsigned                _fDocActive : 1;      //  Is Doc window active?
+    unsigned                _fAfterDoubleClick : 1;// For proper handling of dbl click events
+    unsigned                _fFocus : 1;          // True if we have the focus.
+    unsigned                _fUsingWindowRgn : 1; // True if clipping with window region.
+    unsigned                _fBubbleInsideOut : 1;// True if bubbling was caused from an inside control
+    unsigned                _fMenusMerged : 1;    // True if menus have been merged
 
-    COffScreenContext *     _pOSC;
+    COffScreenContext* _pOSC;
     RECT                    _rcPaint;
-    IDataObject *           _pDataObj;          // saved data obj from begin of drop.
+    IDataObject* _pDataObj;          // saved data obj from begin of drop.
 };
 
 
@@ -3516,9 +3628,9 @@ public:
 // Standard - ClassDescriptor initializes with this table.
 
 #ifdef PRODUCT_RT
-    #define C_OLEVERB_STANDARD 5
+#define C_OLEVERB_STANDARD 5
 #else
-    #define C_OLEVERB_STANDARD 7
+#define C_OLEVERB_STANDARD 7
 #endif
 
 extern OLEVERB               g_aOleVerbStandard[C_OLEVERB_STANDARD];
@@ -3527,9 +3639,9 @@ extern CServer::PFNDOVERB    g_apfnDoVerbStandard[C_OLEVERB_STANDARD];
 // NoEdit - Use for objects that don't support editing.
 
 #ifdef PRODUCT_RT
-    #define C_OLEVERB_NOEDIT 4
+#define C_OLEVERB_NOEDIT 4
 #else
-    #define C_OLEVERB_NOEDIT 6
+#define C_OLEVERB_NOEDIT 6
 #endif
 
 extern OLEVERB               g_aOleVerbNoEdit[C_OLEVERB_NOEDIT];
@@ -3538,9 +3650,9 @@ extern CServer::PFNDOVERB    g_apfnDoVerbNoEdit[C_OLEVERB_NOEDIT];
 // EditDesign - Use for objects that support editing in design mode only.
 
 #ifdef PRODUCT_RT
-    #define C_OLEVERB_DESIGNEDIT 6
+#define C_OLEVERB_DESIGNEDIT 6
 #else
-    #define C_OLEVERB_DESIGNEDIT 8
+#define C_OLEVERB_DESIGNEDIT 8
 #endif
 
 extern OLEVERB               g_aOleVerbDesignEdit[C_OLEVERB_DESIGNEDIT];
@@ -3650,13 +3762,13 @@ CServer::Relock(WORD wLockFlags)
 
 ExternTag(tagCServer);
 
-inline DISPID  CAttrValue::GetDISPID ( void ) const
+inline DISPID  CAttrValue::GetDISPID(void) const
 {
     return IsPropdesc() ? u1._pPropertyDesc->GetDispid() : u1._dispid;
 }
 
 
-inline const PROPERTYDESC * CAttrValue::GetPropDesc() const
+inline const PROPERTYDESC* CAttrValue::GetPropDesc() const
 {
     return IsPropdesc() ? u1._pPropertyDesc : NULL;
 }
@@ -3667,11 +3779,11 @@ inline const PROPERTYDESC * CAttrValue::GetPropDesc() const
 // They are used by WriteProps and ReadProps in the PROP_DESC structure.
 
 #ifdef WIN16
-typedef HRESULT (* pfnPropDescGet)(CBase *, ULONG *plVal);
-typedef HRESULT (* pfnPropDescSet)(CBase *, ULONG lVal);
+typedef HRESULT(*pfnPropDescGet)(CBase*, ULONG* plVal);
+typedef HRESULT(*pfnPropDescSet)(CBase*, ULONG lVal);
 #else
-typedef HRESULT (CBase::* pfnPropDescGet)(ULONG *plVal);
-typedef HRESULT (CBase::* pfnPropDescSet)(ULONG lVal);
+typedef HRESULT(CBase::* pfnPropDescGet)(ULONG* plVal);
+typedef HRESULT(CBase::* pfnPropDescSet)(ULONG lVal);
 #endif
 
 #ifdef _WIN64
@@ -3683,7 +3795,7 @@ struct PROP_DESC_GETSET
 {
     pfnPropDescGet pfnGet;
     pfnPropDescSet pfnSet;
-    const IID     *piid;    // Used only for WPI_UNKNOWN
+    const IID* piid;    // Used only for WPI_UNKNOWN
 };
 
 #ifdef _WIN64
@@ -3696,13 +3808,13 @@ struct PROP_DESC_GETSET
 
 struct COLORVALUE_PAIR
 {
-    const TCHAR * szName;
+    const TCHAR* szName;
     DWORD dwValue;
 };
 
-const struct COLORVALUE_PAIR * FindColorByValue( DWORD dwValue );
-const struct COLORVALUE_PAIR * FindColorByColor( DWORD lColor );
-const struct COLORVALUE_PAIR * FindColorByName( const TCHAR * szString );
+const struct COLORVALUE_PAIR* FindColorByValue(DWORD dwValue);
+const struct COLORVALUE_PAIR* FindColorByColor(DWORD lColor);
+const struct COLORVALUE_PAIR* FindColorByName(const TCHAR* szString);
 
 class CColorValue : public CVoid
 {
@@ -3741,29 +3853,32 @@ public:
 
 
 
-    enum TYPE { TYPE_UNDEF     = 0xFF000000,    // color is undefined
-                TYPE_POUND1    = 0xFE000000,
-                TYPE_POUND2    = 0xFD000000,
-                TYPE_POUND3    = 0xFC000000,
-                TYPE_POUND4    = 0xFB000000,
-                TYPE_POUND5    = 0xFA000000,
-                TYPE_RGB       = 0xF9000000,    // color is rgb(r,g,b) or rgb(r%,g%,b%) (or mix)
-                TYPE_TRANSPARENT = 0xF8000000,  // color is "transparent"
-                TYPE_UNIXSYSCOL  = 0x04000000,  // color is unix system colormap entry index
-                TYPE_NAME      = 0x11000000,    // color is named
-                TYPE_SYSINDEX  = 0xC0000000,    // color is a system color (not named)
-                TYPE_SYSNAME   = 0xA0000000,    // color is a named system color needs 29 in high byte
-                TYPE_POUND6    = 0x00000000     // color is #rrggbb
+    enum TYPE {
+        TYPE_UNDEF = 0xFF000000,    // color is undefined
+        TYPE_POUND1 = 0xFE000000,
+        TYPE_POUND2 = 0xFD000000,
+        TYPE_POUND3 = 0xFC000000,
+        TYPE_POUND4 = 0xFB000000,
+        TYPE_POUND5 = 0xFA000000,
+        TYPE_RGB = 0xF9000000,    // color is rgb(r,g,b) or rgb(r%,g%,b%) (or mix)
+        TYPE_TRANSPARENT = 0xF8000000,  // color is "transparent"
+        TYPE_UNIXSYSCOL = 0x04000000,  // color is unix system colormap entry index
+        TYPE_NAME = 0x11000000,    // color is named
+        TYPE_SYSINDEX = 0xC0000000,    // color is a system color (not named)
+        TYPE_SYSNAME = 0xA0000000,    // color is a named system color needs 29 in high byte
+        TYPE_POUND6 = 0x00000000     // color is #rrggbb
     };
 
-    enum MASK { MASK_COLOR      = 0x00ffffff,    // mask to extract color
-                MASK_SYSCOLOR   = 0x1f000000,    // mask to extract the system color
+    enum MASK {
+        MASK_COLOR = 0x00ffffff,    // mask to extract color
+        MASK_SYSCOLOR = 0x1f000000,    // mask to extract the system color
 #ifdef UNIX
-                MASK_UNIX_COLOR = 0x04ffffff,
+        MASK_UNIX_COLOR = 0x04ffffff,
 #endif
-                MASK_FLAG       = 0xff000000 };  // mask to extract type
+        MASK_FLAG = 0xff000000
+    };  // mask to extract type
 
-    #define VALUE_UNDEF 0xFFFFFFFF
+#define VALUE_UNDEF 0xFFFFFFFF
 
     int Index(const DWORD dwValue) const;
 
@@ -3771,23 +3886,23 @@ public:
     BOOL IsMotifColor() const { return (((_dwValue & 0xF0000000) != 0xF0000000) && (_dwValue & 0x04000000)); }
 #endif
 
-    static HRESULT FormatAsPound6Str(BSTR *pszColor, DWORD dwColor);
-    HRESULT FormatBuffer ( LPTSTR szBuffer,
-                           UINT uMaxLen,
-                           const PROPERTYDESC *pPropDesc,
-                           BOOL fReturnAsHex = FALSE) const;
+    static HRESULT FormatAsPound6Str(BSTR* pszColor, DWORD dwColor);
+    HRESULT FormatBuffer(LPTSTR szBuffer,
+                         UINT uMaxLen,
+                         const PROPERTYDESC* pPropDesc,
+                         BOOL fReturnAsHex = FALSE) const;
 
     CColorValue() { _dwValue = VALUE_UNDEF; }
     CColorValue(DWORD dwValue) { _dwValue = dwValue; }
-    CColorValue(VARIANT *);
+    CColorValue(VARIANT*);
 
     // NB: by setting fLookupName to TRUE, we will preferentially
     // map to color names, not numbers.
 
-    long SetValue( long lColor, BOOL fLookupName, TYPE type);
-    long SetValue( long lColor, BOOL fLookupName ){return SetValue(lColor, fLookupName, TYPE_POUND6);}
-    long SetValue( const struct COLORVALUE_PAIR * pColorName );
-    long SetRawValue( DWORD dwValue );
+    long SetValue(long lColor, BOOL fLookupName, TYPE type);
+    long SetValue(long lColor, BOOL fLookupName) { return SetValue(lColor, fLookupName, TYPE_POUND6); }
+    long SetValue(const struct COLORVALUE_PAIR* pColorName);
+    long SetRawValue(DWORD dwValue);
     long SetFromRGB(DWORD dwRGB) { return SetRawValue(((dwRGB & 0xffL) << 16) | (dwRGB & 0xff00L) | ((dwRGB & 0xff0000L) >> 16)); }
     long SetSysColor(int nIndex);
 
@@ -3801,26 +3916,30 @@ public:
     BOOL IsSysColor() const { return ((_dwValue & MASK_FLAG) >= TYPE_SYSNAME && (_dwValue & MASK_FLAG) < TYPE_TRANSPARENT); }
     long GetRawValue() const { return _dwValue; }
 
-    HRESULT FromString( LPCTSTR pch, BOOL fValidOnly = FALSE , int iStrLen = -1);
-    HRESULT RgbColor( LPCTSTR pch, int iStrLen);
-    HRESULT HexColor( LPCTSTR pch, int iStrLen, BOOL fValidOnly );
-    HRESULT NameColor( LPCTSTR pch );
+    HRESULT FromString(LPCTSTR pch, BOOL fValidOnly = FALSE, int iStrLen = -1);
+    HRESULT RgbColor(LPCTSTR pch, int iStrLen);
+    HRESULT HexColor(LPCTSTR pch, int iStrLen, BOOL fValidOnly);
+    HRESULT NameColor(LPCTSTR pch);
 
-    HRESULT Persist( IStream *pStream, const PROPERTYDESC *pPropDesc ) const;
+    HRESULT Persist(IStream* pStream, const PROPERTYDESC* pPropDesc) const;
     HRESULT IsValid() const;
 
 
     // These are the 2 primary methods for interfacing
 
 
-    BOOL IsDefined ( void ) const
-            { return ((VALUE_UNDEF != _dwValue)&&((_dwValue&MASK_FLAG)!=TYPE_TRANSPARENT));}
-    BOOL IsNull ( void ) const
-            { return VALUE_UNDEF == _dwValue; }
+    BOOL IsDefined(void) const
+    {
+        return ((VALUE_UNDEF != _dwValue) && ((_dwValue & MASK_FLAG) != TYPE_TRANSPARENT));
+    }
+    BOOL IsNull(void) const
+    {
+        return VALUE_UNDEF == _dwValue;
+    }
     void Undefine() { _dwValue = VALUE_UNDEF; }
 
     CColorValue& operator=(DWORD dwValue) { _dwValue = dwValue; return *this; }
-    CColorValue(const CColorValue & other) { _dwValue = other._dwValue; }
+    CColorValue(const CColorValue& other) { _dwValue = other._dwValue; }
 
 };
 
@@ -3833,7 +3952,7 @@ public:
 
 #define STRINGPTRFROMENUM(enumname, EnumValue) s_enumdesc##enumname.StringPtrFromEnum ( EnumValue )
 
-HRESULT LookupEnumString ( const NUMPROPPARAMS *ppp, LPCTSTR pstr, long *plNewValue );
+HRESULT LookupEnumString(const NUMPROPPARAMS* ppp, LPCTSTR pstr, long* plNewValue);
 
 
 
@@ -3850,26 +3969,26 @@ HRESULT LookupEnumString ( const NUMPROPPARAMS *ppp, LPCTSTR pstr, long *plNewVa
 STDAPI
 ShowModalDialog(
     HWND        hwndParent,
-    IMoniker *  pMk,
-    VARIANT *   pvarArgIn,
-    TCHAR *     pchOptions,
-    VARIANT *   pvarArgOut);
+    IMoniker* pMk,
+    VARIANT* pvarArgIn,
+    TCHAR* pchOptions,
+    VARIANT* pvarArgOut);
 
 STDAPI
 ShowHTMLDialog(
     HWND        hwndParent,
-    IMoniker *  pMk,
-    VARIANT *   pvarArgIn,
-    TCHAR *     pchOptions,
-    VARIANT *   pvarArgOut);
+    IMoniker* pMk,
+    VARIANT* pvarArgIn,
+    TCHAR* pchOptions,
+    VARIANT* pvarArgOut);
 
 STDAPI
 ShowModelessHTMLDialog(
     HWND        hwndParent,
-    IMoniker *  pMk,
-    VARIANT *   pvarArgIn,
-    VARIANT *   pvarOptions,
-    IHTMLWindow2 **ppDialogWindow);
+    IMoniker* pMk,
+    VARIANT* pvarArgIn,
+    VARIANT* pvarOptions,
+    IHTMLWindow2** ppDialogWindow);
 
 STDAPI
 RunHTMLApplication(
@@ -3882,11 +4001,11 @@ class COptionsHolder;
 
 HRESULT
 ShowModalDialogHelper(
-    CDoc *      pDoc,
-    TCHAR *     pchRID,
-    IDispatch * pDisp,
+    CDoc* pDoc,
+    TCHAR* pchRID,
+    IDispatch* pDisp,
     COptionsHolder* pcoh = NULL,
-    VARIANT *   pvarArgOut = NULL,
+    VARIANT* pvarArgOut = NULL,
     DWORD       dwFlags = HTMLDLG_RESOURCEURL);
 
 class CFunctionPointer : public CBase
@@ -3897,34 +4016,34 @@ public:
 
     DECLARE_MEMALLOC_NEW_DELETE(Mt(CFunctionPointer))
 
-    CFunctionPointer(CBase *pThis, DISPID dispid) : _pThis(pThis), _dispid(dispid)
-      {  }
+    CFunctionPointer(CBase* pThis, DISPID dispid) : _pThis(pThis), _dispid(dispid)
+    {  }
     ~CFunctionPointer()
-      {  }
+    {  }
 
-    #define _CFunctionPointer_
-    #include "types.hdl"
+#define _CFunctionPointer_
+#include "types.hdl"
 
     // IUnknown
     DECLARE_PLAIN_IUNKNOWN(CFunctionPointer);
 
-    STDMETHOD(PrivateQueryInterface)(REFIID, void **);
+    STDMETHOD(PrivateQueryInterface)(REFIID, void**);
 
     // IDispatchEx override.
     HRESULT STDMETHODCALLTYPE InvokeEx(DISPID id,
                                        LCID lcid,
                                        WORD wFlags,
-                                       DISPPARAMS *pdp,
-                                       VARIANT *pvarRes,
-                                       EXCEPINFO *pei,
-                                       IServiceProvider *pSrvProvider);
+                                       DISPPARAMS* pdp,
+                                       VARIANT* pvarRes,
+                                       EXCEPINFO* pei,
+                                       IServiceProvider* pSrvProvider);
 
 private:
-    CBase      *_pThis;
+    CBase* _pThis;
     DISPID      _dispid;
 
     // Override from CBase, placed in private so no one calls this function.
-    virtual const CBase::CLASSDESC *GetClassDesc() const
+    virtual const CBase::CLASSDESC* GetClassDesc() const
     {
         Assert(!"not implemented"); return 0;
     }
@@ -3933,21 +4052,21 @@ private:
 
 // Function used by shdocvw to do a case sensitive compare of a typelibrary.
 STDAPI
-MatchExactGetIDsOfNames(ITypeInfo *pTI,
+MatchExactGetIDsOfNames(ITypeInfo* pTI,
                         REFIID riid,
-                        LPOLESTR *rgszNames,
+                        LPOLESTR* rgszNames,
                         UINT cNames,
                         LCID lcid,
-                        DISPID *rgdispid,
+                        DISPID* rgdispid,
                         BOOL fCaseSensitive);
 
 
 STDAPI CreateHTMLPropertyPage(
-        IMoniker *          pmk,
-        IPropertyPage **    ppPP);
+    IMoniker* pmk,
+    IPropertyPage** ppPP);
 
 // Generic Parsing Helpers
-TCHAR *NextParenthesizedToken( TCHAR *pszToken );
+TCHAR* NextParenthesizedToken(TCHAR* pszToken);
 
 #pragma INCMSG("--- End 'cdbase.hxx'")
 #else

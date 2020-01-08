@@ -19,10 +19,10 @@
 #include "core/util/wsstringbuffer.hxx"
 #endif
 
-extern void GetBaseURL(IXMLNodeSource * pSource,
-                       Document * pDocument, 
-                       const WCHAR **ppBaseURL,
-                       WCHAR **pBuffer);
+extern void GetBaseURL(IXMLNodeSource* pSource,
+                       Document* pDocument,
+                       const WCHAR** ppBaseURL,
+                       WCHAR** pBuffer);
 
 #if PRODUCT_PROF
 #include "core/base/icapexp.h"
@@ -43,9 +43,9 @@ public:
 
 
 NameSpaceNodeFactory::NameSpaceNodeFactory(Document* doc,
-                                           IXMLNodeFactory * f,
+                                           IXMLNodeFactory* f,
                                            DTD* dtd,
-                                           NamespaceMgr * mgr,
+                                           NamespaceMgr* mgr,
                                            bool fIgnoreDTD,
                                            bool fProcessNamespaces)
 {
@@ -98,7 +98,7 @@ NameSpaceNodeFactory::~NameSpaceNodeFactory()
 
 
 HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::NotifyEvent(
-    /* [in] */ IXMLNodeSource __RPC_FAR *pNodeSource,
+    /* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
     /* [in] */ XML_NODEFACTORY_EVENT iEvt)
 {
     HRESULT hr;
@@ -153,7 +153,7 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::NotifyEvent(
         case XMLNF_ENDSCHEMA:
             if (_pNodePending && !_pDoc->getValidateOnParse()) {
                 hr = HandlePending();
-                if (FAILED(hr)) 
+                if (FAILED(hr))
                     goto CleanUp;
             }
             break;
@@ -174,7 +174,7 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::NotifyEvent(
 
 
 HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::BeginChildren(
-    /* [in] */ IXMLNodeSource __RPC_FAR *pNodeSource,
+    /* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
     /* [in] */ XML_NODE_INFO* __RPC_FAR pNodeInfo)
 {
     HRESULT hr = S_OK;
@@ -197,10 +197,10 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::BeginChildren(
 
 
 HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::Error(
-    /* [in] */ IXMLNodeSource __RPC_FAR *pNodeSource,
+    /* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
     /* [in] */ HRESULT hrErrorCode,
     /* [in] */ USHORT cNumRecs,
-    /* [in] */ XML_NODE_INFO __RPC_FAR *__RPC_FAR *apNodeInfo)
+    /* [in] */ XML_NODE_INFO __RPC_FAR* __RPC_FAR* apNodeInfo)
 {
 #if PRODUCT_PROF
     IceCAP cap;
@@ -223,7 +223,7 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::Error(
 }
 
 HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::EndChildren(
-    /* [in] */ IXMLNodeSource __RPC_FAR *pNodeSource,
+    /* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
     /* [in] */ BOOL fEmptyNode,
     /* [in] */ XML_NODE_INFO* __RPC_FAR pNodeInfo)
 {
@@ -248,10 +248,10 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::EndChildren(
 }
 
 HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::CreateNode(
-    /* [in] */ IXMLNodeSource __RPC_FAR *pNodeSource,
+    /* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
     /* [in] */ PVOID pNodeParent,
     /* [in] */ USHORT cNumRecs,
-    /* [in] */ XML_NODE_INFO __RPC_FAR *__RPC_FAR *apNodeInfo)
+    /* [in] */ XML_NODE_INFO __RPC_FAR* __RPC_FAR* apNodeInfo)
 {
 #if PRODUCT_PROF
     IceCAP cap;
@@ -264,8 +264,8 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::CreateNode(
     bool fLoadedSchema = false;
     XML_NODE_INFO* pNodeInfo = *apNodeInfo;
 
-    Atom *pAtomURN = null;
-    Atom *pSrcURN = null;
+    Atom* pAtomURN = null;
+    Atom* pSrcURN = null;
 
     TRY
     {
@@ -300,7 +300,7 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::CreateNode(
                     NameDef* namedef = _pMgr->createNameDef(pNodeInfo->pwcText,
                                                             pNodeInfo->ulLen,
                                                             pNodeInfo->ulNsPrefixLen,
-                                                            fDefaultNS, 
+                                                            fDefaultNS,
                                                             null,
                                                             null);
                     pNodeInfo->pReserved = namedef;
@@ -324,7 +324,7 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::CreateNode(
                     pNodeInfo->pReserved = _pMgr->createNameDef(XMLNames::pszXMLNSCOLON,
                                                                 6,
                                                                 5,
-                                                                null, 
+                                                                null,
                                                                 XMLNames::atomURNXMLNS,
                                                                 XMLNames::atomURNXMLNS);
                     _pDTD->setNeedFixNames(true);
@@ -443,13 +443,13 @@ atomize:
 
                     if (pNodeInfo->dwSubType == XML_XMLLANG) {
                         bool valid = false;
-                        String * pstr;
+                        String* pstr;
                         if (i > 1) {
-                            XML_NODE_INFO * pInfo = pNodeInfo;
+                            XML_NODE_INFO* pInfo = pNodeInfo;
                             int count = i - 1;
 
                             pstr = GetAttributeValue(&apNodeInfo[1], &count, _pDTD);
-                            const WCHAR * pText = pstr->getWCHARPtr();
+                            const WCHAR* pText = pstr->getWCHARPtr();
                             if (pText && isValidLanguageID(pText, pstr->length())) {
                                 valid = true;
                             }
@@ -503,7 +503,7 @@ atomize:
 }
 
 
-HRESULT AbortParse(IXMLNodeSource * pNodeSource, Exception * e, Document * pDoc)
+HRESULT AbortParse(IXMLNodeSource* pNodeSource, Exception* e, Document* pDoc)
 {
     String* msg = e->getMessage();
     if (msg != null) {
@@ -517,7 +517,7 @@ HRESULT AbortParse(IXMLNodeSource * pNodeSource, Exception * e, Document * pDoc)
 
 
 bool NameSpaceNodeFactory::ProcessXMLNSAttributes(IXMLNodeSource* pNodeSource,
-                                                  USHORT count, 
+                                                  USHORT count,
                                                   XML_NODE_INFO** apNodeInfo,
                                                   bool& fLoadedSchema)
 {
@@ -527,7 +527,7 @@ bool NameSpaceNodeFactory::ProcessXMLNSAttributes(IXMLNodeSource* pNodeSource,
         XML_NODE_INFO* pInfo = *apNodeInfo++;
         // check xmlns attributes ( PrefixDef ::= 'xmlns' (':' NCName)? )
         if (XML_ATTRIBUTE == pInfo->dwType && XML_NS == pInfo->dwSubType && 0 != pInfo->ulLen) {
-            Atom *pPrefix, *pURN;
+            Atom* pPrefix, * pURN;
 
             // get prefix
             if (0 == pInfo->ulNsPrefixLen) {
@@ -556,7 +556,7 @@ bool NameSpaceNodeFactory::ProcessXMLNSAttributes(IXMLNodeSource* pNodeSource,
             }
 
 #if DBG == 1
-            char * pchURN = (char*)AsciiText(s);
+            char* pchURN = (char*)AsciiText(s);
 #endif
 
             // AttValue may be empty only if the PrefixDef is simply "xmlns",
@@ -565,7 +565,7 @@ bool NameSpaceNodeFactory::ProcessXMLNSAttributes(IXMLNodeSource* pNodeSource,
                 Exception::throwE(XML_NAMESPACE_URI_EMPTY, XML_NAMESPACE_URI_EMPTY, null);
             }
 
-            Atom * pSrcURN = Atom::create(s);
+            Atom* pSrcURN = Atom::create(s);
             pURN = NamespaceMgr::CanonicalURN(pSrcURN);
             _pMgr->pushScope(pPrefix, pURN, pSrcURN, null);
 
@@ -577,7 +577,7 @@ bool NameSpaceNodeFactory::ProcessXMLNSAttributes(IXMLNodeSource* pNodeSource,
                 !_fHasDTD &&
                 _pDoc->getResolveExternals() &&
                 s->length() > _cSchemaPrefixLen &&
-                (0 == ::memcmp(pwcText, XMLNames::pszSchemaURLPrefix, sizeof(TCHAR)*_cSchemaPrefixLen))) {
+                (0 == ::memcmp(pwcText, XMLNames::pszSchemaURLPrefix, sizeof(TCHAR) * _cSchemaPrefixLen))) {
                 LoadSchema(pNodeSource, pSrcURN);
                 fLoadedSchema = true;
             }
@@ -594,7 +594,7 @@ void NameSpaceNodeFactory::LoadSchema(IXMLNodeSource* pNodeSource, Atom* pURN)
     if (!_pDTD->hasSchema(pURN)) {
         const WCHAR* pwcBaseURL;
         WCHAR* pwcBuffer = NULL;
-        Document * pDoc;
+        Document* pDoc;
 
         GetBaseURL(pNodeSource, _pDoc, &pwcBaseURL, &pwcBuffer);
 
@@ -621,7 +621,7 @@ void NameSpaceNodeFactory::LoadSchema(IXMLNodeSource* pNodeSource, Atom* pURN)
         // find the schema information for the definition method later when we need it.
         _pDTD->addSchemaURN(pURN, (Object*)((GenericBase*)pDoc));
 
-        Exception *e = pDoc->getErrorMsg();
+        Exception* e = pDoc->getErrorMsg();
         if (e)
             e->throwE();
 
@@ -644,11 +644,11 @@ void NameSpaceNodeFactory::LoadSchema(IXMLNodeSource* pNodeSource, Atom* pURN)
     }
 }
 
-String* GetAttributeValue(XML_NODE_INFO** apNodeInfo, int * count, DTD * pDTD)
+String* GetAttributeValue(XML_NODE_INFO** apNodeInfo, int* count, DTD* pDTD)
 {
     bool fInAttrValue = true;
     int i = *count;
-    WSStringBuffer * psb = WSStringBuffer::newWSStringBuffer(32);
+    WSStringBuffer* psb = WSStringBuffer::newWSStringBuffer(32);
 
     do {
         XML_NODE_INFO* pInfo = *apNodeInfo++;
@@ -659,11 +659,11 @@ String* GetAttributeValue(XML_NODE_INFO** apNodeInfo, int * count, DTD * pDTD)
             break;
         case XML_ENTITYREF:
         {
-            Name * pName = Name::create(pInfo->pwcText, pInfo->ulLen);
+            Name* pName = Name::create(pInfo->pwcText, pInfo->ulLen);
             pDTD->checkEntityRef(pName, null, true);
-            Entity * pEnt = pDTD->findEntity(pName, false);
+            Entity* pEnt = pDTD->findEntity(pName, false);
             Assert(pEnt);
-            Node * pNode = (Node*)((Object*)(pEnt->_pNode));
+            Node* pNode = (Node*)((Object*)(pEnt->_pNode));
             Assert(pNode);
             psb->append(pNode->getInnerText(), WSStringBuffer::WS_COLLAPSE);
         }

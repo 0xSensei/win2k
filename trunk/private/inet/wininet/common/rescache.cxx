@@ -135,8 +135,8 @@ Routine Description:
 
 
 BOOL QueryHostentCache(IN LPSTR Name OPTIONAL,
-                       IN LPBYTE Address OPTIONAL, 
-                       OUT LPHOSTENT* Hostent, 
+                       IN LPBYTE Address OPTIONAL,
+                       OUT LPHOSTENT* Hostent,
                        OUT LPDWORD TimeToLive
 )
 /*++
@@ -213,7 +213,7 @@ Return Value:
                 RemoveCacheEntry(cacheEntry);
                 cacheEntry = previousEntry;
             }
-        } else if (ResolverCacheHit(cacheEntry, Name, Address) && 
+        } else if (ResolverCacheHit(cacheEntry, Name, Address) &&
             ((cacheEntry->State == ENTRY_UNUSED) || (cacheEntry->State == ENTRY_IN_USE))) {
             // we found the entry, and it still has time to live. Make it the
             // head of the list (MRU first), set the state to in-use and increase
@@ -522,8 +522,8 @@ Return Value:
 }
 
 
-PRIVATE BOOL ResolverCacheHit(IN LPRESOLVER_CACHE_ENTRY lpCacheEntry, 
-                              IN LPSTR Name OPTIONAL, 
+PRIVATE BOOL ResolverCacheHit(IN LPRESOLVER_CACHE_ENTRY lpCacheEntry,
+                              IN LPSTR Name OPTIONAL,
                               IN LPBYTE Address OPTIONAL
 )
 /*++
@@ -610,7 +610,7 @@ Return Value:
 }
 
 
-PRIVATE LPRESOLVER_CACHE_ENTRY CreateCacheEntry(IN LPSTR lpszHostName, 
+PRIVATE LPRESOLVER_CACHE_ENTRY CreateCacheEntry(IN LPSTR lpszHostName,
                                                 IN LPHOSTENT Hostent,
                                                 IN DWORD TimeToLive
 )

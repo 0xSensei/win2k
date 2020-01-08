@@ -746,7 +746,7 @@ CDbAlloc::Alloc(ULONG cb)
         return NULL;
 #endif //0
 
-    IMallocHeapChecker();    
+    IMallocHeapChecker();
     MemInstance();// ++m_cAllocCalls;
     size = (ULONG)cb;
 

@@ -32,22 +32,19 @@
 //  Notes:
 
 
-STDMETHODIMP CSortPkgList::GetClassID (CLSID *pClassID)
+STDMETHODIMP CSortPkgList::GetClassID(CLSID* pClassID)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::GetClassID\n", this));
     NotfAssert((pClassID));
     HRESULT hr = NOERROR;
 
-    if (!pClassID)
-    {
+    if (!pClassID) {
         hr = E_INVALIDARG;
-    }
-    else
-    {
+    } else {
         *pClassID = CLSID_StdNotificationMgr;
     }
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::GetClassID (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::GetClassID (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -71,9 +68,9 @@ STDMETHODIMP CSortPkgList::IsDirty()
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::IsDirty\n", this));
     HRESULT hr = NOERROR;
 
-    hr =  (_fDirty) ? S_OK : S_FALSE;
+    hr = (_fDirty) ? S_OK : S_FALSE;
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::IsDirty (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::IsDirty (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -92,20 +89,18 @@ STDMETHODIMP CSortPkgList::IsDirty()
 //  Notes:
 
 
-STDMETHODIMP CSortPkgList::Load(IStream *pStm)
+STDMETHODIMP CSortPkgList::Load(IStream* pStm)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::Load\n", this));
     HRESULT hr = NOERROR;
 
     ULONG cCount = 0;
 
-    do
-    {
+    do {
         ULONG i = 0;
         DWORD cbSaved = 0;
 
-        if (!pStm)
-        {
+        if (!pStm) {
             hr = E_INVALIDARG;
             break;
         }
@@ -113,18 +108,16 @@ STDMETHODIMP CSortPkgList::Load(IStream *pStm)
         // get the # of elements saved
         hr = pStm->Read(&cCount, sizeof(ULONG), &cbSaved);
         BREAK_ONERROR(hr);
-        NotfAssert(( sizeof(ULONG) == cbSaved));
+        NotfAssert((sizeof(ULONG) == cbSaved));
 
         // start at the head
         SL_ITEM listitem;
 
-        for (i = 0; i < cCount; i++)
-        {
+        for (i = 0; i < cCount; i++) {
             hr = pStm->Read(&listitem, sizeof(SL_ITEM), &cbSaved);
-            if (hr == NOERROR)
-            {
-                NotfAssert(( sizeof(SL_ITEM) == cbSaved));
-                _XDistList.AddVal(listitem.date,listitem);
+            if (hr == NOERROR) {
+                NotfAssert((sizeof(SL_ITEM) == cbSaved));
+                _XDistList.AddVal(listitem.date, listitem);
             }
         }
 
@@ -133,7 +126,7 @@ STDMETHODIMP CSortPkgList::Load(IStream *pStm)
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::Load (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::Load (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -153,7 +146,7 @@ STDMETHODIMP CSortPkgList::Load(IStream *pStm)
 //  Notes:
 
 
-STDMETHODIMP CSortPkgList::Save(IStream *pStm, BOOL fClearDirty)
+STDMETHODIMP CSortPkgList::Save(IStream* pStm, BOOL fClearDirty)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::Save\n", this));
     HRESULT hr = E_FAIL;
@@ -163,10 +156,8 @@ STDMETHODIMP CSortPkgList::Save(IStream *pStm, BOOL fClearDirty)
 
     ULONG cCount = GetCount();
 
-    do
-    {
-        if (!pStm)
-        {
+    do {
+        if (!pStm) {
             hr = E_INVALIDARG;
             break;
         }
@@ -175,36 +166,31 @@ STDMETHODIMP CSortPkgList::Save(IStream *pStm, BOOL fClearDirty)
         // save the # of elements in the map
         hr = pStm->Write(&cCount, sizeof(ULONG), &cbSaved);
         BREAK_ONERROR(hr);
-        NotfAssert(( sizeof(ULONG) == cbSaved));
+        NotfAssert((sizeof(ULONG) == cbSaved));
 
         // start at the head
         POSITION pos = _XDistList.GetHeadPosition();
         NotfAssert((pos));
         SL_ITEM listitem = _XDistList.GetAt(pos);
 
-        while (pos)
-        {
+        while (pos) {
             hr = pStm->Write(&listitem, sizeof(SL_ITEM), &cbSaved);
-            if (hr == NOERROR)
-            {
-                NotfAssert(( sizeof(SL_ITEM) == cbSaved));
+            if (hr == NOERROR) {
+                NotfAssert((sizeof(SL_ITEM) == cbSaved));
                 listitem = _XDistList.GetNext(pos);
-            }
-            else
-            {
+            } else {
                 pos = 0;
             }
         }
 
-        if (fClearDirty)
-        {
+        if (fClearDirty) {
             _fDirty = FALSE;
         }
 
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::Save (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::Save (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -223,12 +209,12 @@ STDMETHODIMP CSortPkgList::Save(IStream *pStm, BOOL fClearDirty)
 //  Notes:
 
 
-STDMETHODIMP CSortPkgList::GetSizeMax(ULARGE_INTEGER *pcbSize)
+STDMETHODIMP CSortPkgList::GetSizeMax(ULARGE_INTEGER* pcbSize)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::GetSizeMax\n", this));
     HRESULT hr = E_NOTIMPL;
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::GetSizeMax (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::GetSizeMax (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -256,44 +242,39 @@ HRESULT CSortPkgList::Synchronize(BOOL fForceResync)
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::Synchronize\n", this));
     HRESULT hr = NOERROR;
     CLock lck(_mxs);
-    do
-    {
-        if (!fForceResync && IsSynchronized())
-        {
+    do {
+        if (!fForceResync && IsSynchronized()) {
             // nothing to do
             break;
         }
         // the list of this process needs to resynchronized
         //
-        SCHEDLISTITEMKEY *pSchItems = 0;
+        SCHEDLISTITEMKEY* pSchItems = 0;
         ULONG cCount;
 
         hr = _rCNotfMgr.GetAllScheduleItems(&pSchItems, &cCount, _dateLastSync);
         BREAK_ONERROR(hr);
 
-        if (cCount == 0)
-        {
+        if (cCount == 0) {
             NotfAssert((pSchItems == 0));
-            if (pSchItems)
-            {
-                delete [] pSchItems;
+            if (pSchItems) {
+                delete[] pSchItems;
             }
             break;
         }
 
         _XDistList.RemoveAll();
-        for (ULONG i = 0; i < cCount; i++)
-        {
+        for (ULONG i = 0; i < cCount; i++) {
             _XDistList.AddVal(pSchItems[i].date, pSchItems[i]);
         }
         NotfAssert((_XDistList.GetCount() == (int)cCount));
 
-        delete [] pSchItems;
+        delete[] pSchItems;
 
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::Synchronize (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::Synchronize (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -311,7 +292,7 @@ HRESULT CSortPkgList::Synchronize(BOOL fForceResync)
 //  Notes:
 
 
-HRESULT CSortPkgList::HandlePackage(CPackage *pCPackage)
+HRESULT CSortPkgList::HandlePackage(CPackage* pCPackage)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::HandlePackage\n", this));
 
@@ -321,18 +302,15 @@ HRESULT CSortPkgList::HandlePackage(CPackage *pCPackage)
 
     CLock lck(_mxs);
 
-    do
-    {
+    do {
         POSITION UNALIGNED pos = 0;
         POSITION UNALIGNED posRemove = 0;
 
         pos = _XLocalList.GetHeadPosition();
         HRESULT hr1 = E_FAIL;
 
-        while (pos)
-        {
-            if (_XLocalList.GetAt(pos).pCPkg == pCPackage)
-            {
+        while (pos) {
+            if (_XLocalList.GetAt(pos).pCPkg == pCPackage) {
                 hr1 = NOERROR;
                 posRemove = pos;
                 break;
@@ -340,8 +318,7 @@ HRESULT CSortPkgList::HandlePackage(CPackage *pCPackage)
             _XLocalList.GetNext(pos);
         }
 
-        if (hr1 == NOERROR)
-        {
+        if (hr1 == NOERROR) {
             _XLocalList.RemoveAt(posRemove);
             _cElements--;
             RELEASE(pCPackage);
@@ -361,22 +338,18 @@ HRESULT CSortPkgList::HandlePackage(CPackage *pCPackage)
         pos = _XLocalList.GetTailPosition();
 
         hr = E_FAIL;
-        while (pos)
-        {
+        while (pos) {
             PKG_ARG arg = _XLocalList.GetAt(pos);
 
             // check if current position is smaller if so
-            if (arg.date <= newElement.date)
-            {
+            if (arg.date <= newElement.date) {
                 // found the place
                 _XLocalList.InsertAfter(pos, newElement);
                 ADDREF(pCPackage);
                 _cElements++;
                 pos = 0;
                 hr = NOERROR;
-            }
-            else
-            {
+            } else {
                 _XLocalList.GetPrev(pos);   //  pos --;
             }
         }
@@ -384,8 +357,7 @@ HRESULT CSortPkgList::HandlePackage(CPackage *pCPackage)
         // did not find the place
         // add the element at the front
         //
-        if (hr != NOERROR)
-        {
+        if (hr != NOERROR) {
             _XLocalList.AddHead(newElement);
             ADDREF(pCPackage);
             _cElements++;
@@ -395,16 +367,14 @@ HRESULT CSortPkgList::HandlePackage(CPackage *pCPackage)
         //
         // add the item to the global list
 
-        if (hr == NOERROR)
-        {
+        if (hr == NOERROR) {
             //
             // only add the date the cookie - object is not
             // addref'd
             hr = _rCNotfMgr.AddScheduleItem(pCPackage);
         }
 
-        if (hr == NOERROR)
-        {
+        if (hr == NOERROR) {
             //
             // resync the distributed list
             //
@@ -414,7 +384,7 @@ HRESULT CSortPkgList::HandlePackage(CPackage *pCPackage)
     } while (TRUE);
 
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::HandlePackage (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::HandlePackage (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -436,10 +406,10 @@ HRESULT CSortPkgList::HandlePackage(CPackage *pCPackage)
 
 
 HRESULT CSortPkgList::FindFirstPackage(
-                                 PNOTIFICATIONCOOKIE pPosCookie,
-                                 CPackage          **ppCPackage,
-                                 DWORD               dwMode
-                                 )
+    PNOTIFICATIONCOOKIE pPosCookie,
+    CPackage** ppCPackage,
+    DWORD               dwMode
+)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::FindFirstPackage\n", this));
     NotfAssert((pPosCookie && ppCPackage && !dwMode));
@@ -447,11 +417,9 @@ HRESULT CSortPkgList::FindFirstPackage(
     HRESULT hr = E_FAIL;
     NotfAssert((pPosCookie));
 
-    do
-    {
-        if (   !pPosCookie
-            || !ppCPackage)
-        {
+    do {
+        if (!pPosCookie
+            || !ppCPackage) {
             hr = E_INVALIDARG;
             break;
         }
@@ -464,37 +432,34 @@ HRESULT CSortPkgList::FindFirstPackage(
 
         POSITION pos = _XDistList.GetHeadPosition();
 
-        if (!pos)
-        {
+        if (!pos) {
             break;
         }
 
         SCHEDLISTITEMKEY SchItems;
-        CPackage *pCPackage = 0;
+        CPackage* pCPackage = 0;
 
         hr = E_FAIL;
-        do
-        {
+        do {
             SchItems = _XDistList.GetNext(pos);
 
             hr = _rCNotfMgr.LoadScheduleItemPackage(SchItems, &pCPackage);
 
-        } while (pos && (hr != NOERROR) );
+        } while (pos && (hr != NOERROR));
 
-        if (hr == NOERROR)
-        {
-            NotfAssert(( pCPackage));
+        if (hr == NOERROR) {
+            NotfAssert((pCPackage));
             // the package is addref'd already
             *ppCPackage = pCPackage;
             *pPosCookie = SchItems.notfCookie;
 
 
-            hr =  NOERROR;
+            hr = NOERROR;
         }
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::FindFirstPackage (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::FindFirstPackage (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -518,27 +483,24 @@ HRESULT CSortPkgList::FindFirstPackage(
 
 
 HRESULT CSortPkgList::FindNextPackage(
-                                PNOTIFICATIONCOOKIE pPosCookie,
-                                CPackage          **ppCPackage,
-                                DWORD               dwMode
-                                )
+    PNOTIFICATIONCOOKIE pPosCookie,
+    CPackage** ppCPackage,
+    DWORD               dwMode
+)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::FindNextPackage\n", this));
     NotfAssert((pPosCookie && ppCPackage && !dwMode));
 
     HRESULT hr = E_FAIL;
 
-    do
-    {
-        if (   !pPosCookie
-            || !ppCPackage)
-        {
+    do {
+        if (!pPosCookie
+            || !ppCPackage) {
             hr = E_INVALIDARG;
             break;
         }
 
-        if (*pPosCookie == COOKIE_NULL)
-        {
+        if (*pPosCookie == COOKIE_NULL) {
             break;
         }
 
@@ -546,21 +508,18 @@ HRESULT CSortPkgList::FindNextPackage(
 
         SCHEDLISTITEMKEY SchItem;
         SchItem.notfCookie = COOKIE_NULL;
-        CPackage *pCPackage = 0;
+        CPackage* pCPackage = 0;
 
         hr = E_FAIL;
 
-        while (pos)
-        {
+        while (pos) {
             SchItem = _XDistList.GetNext(pos); // return *Position++
 
             // bugbug; need to fix case where the current position gets deleted
-            if (SchItem.notfCookie == *pPosCookie)
-            {
+            if (SchItem.notfCookie == *pPosCookie) {
                 // found current position
                 //
-                if (pos)
-                {
+                if (pos) {
                     SchItem = _XDistList.GetNext(pos);
                     hr = _rCNotfMgr.LoadScheduleItemPackage(SchItem, &pCPackage);
                     pos = 0;
@@ -576,7 +535,7 @@ HRESULT CSortPkgList::FindNextPackage(
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::FindNextPackage (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::FindNextPackage (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -597,20 +556,19 @@ HRESULT CSortPkgList::FindNextPackage(
 
 
 HRESULT CSortPkgList::RevokePackage(
-                                   PNOTIFICATIONCOOKIE pPkgCookie,
-                                   CPackage          **ppCPackage,
-                                   DWORD               dwMode
-                                   )
+    PNOTIFICATIONCOOKIE pPkgCookie,
+    CPackage** ppCPackage,
+    DWORD               dwMode
+)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::RevokePackage\n", this));
     CLock lck(_mxs);
 
     NotfAssert((pPkgCookie && !dwMode));
     HRESULT hr = E_FAIL;
-    CPackage *pCPackage = 0;
+    CPackage* pCPackage = 0;
 
-    do
-    {
+    do {
         // set the position to null
 
         hr = Synchronize(TRUE);
@@ -620,20 +578,17 @@ HRESULT CSortPkgList::RevokePackage(
         POSITION pos = _XDistList.GetHeadPosition();
         POSITION posRemove = 0;
 
-        if (!pos)
-        {
+        if (!pos) {
             break;
         }
 
         SCHEDLISTITEMKEY SchItem;
         SchItem.notfCookie = COOKIE_NULL;
 
-        while (pos)
-        {
+        while (pos) {
             SchItem = _XDistList.GetNext(pos); // return *Position++
 
-            if (SchItem.notfCookie == *pPkgCookie)
-            {
+            if (SchItem.notfCookie == *pPkgCookie) {
                 // found the object
                 //
                 posRemove = pos;
@@ -656,13 +611,11 @@ HRESULT CSortPkgList::RevokePackage(
         //
         // need to remove the package also from the running list
         //
-        if (posRemove)
-        {
+        if (posRemove) {
             Synchronize(TRUE);
         }
 
-        if (ppCPackage)
-        {
+        if (ppCPackage) {
             *ppCPackage = pCPackage;
             pCPackage = 0;
         }
@@ -670,12 +623,11 @@ HRESULT CSortPkgList::RevokePackage(
         break;
     } while (TRUE);
 
-    if (pCPackage)
-    {
+    if (pCPackage) {
         RELEASE(pCPackage);
     }
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::RevokePackage (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::RevokePackage (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -698,22 +650,20 @@ HRESULT CSortPkgList::RevokePackage(
 
 
 HRESULT CSortPkgList::FindPackage(
-                            PNOTIFICATIONCOOKIE pPkgCookie,
-                            CPackage          **ppCPackage,
-                            DWORD               dwMode
-                            )
+    PNOTIFICATIONCOOKIE pPkgCookie,
+    CPackage** ppCPackage,
+    DWORD               dwMode
+)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::FindPackage\n", this));
     NotfAssert((pPkgCookie && ppCPackage));
 
     HRESULT hr = E_FAIL;
     CLock lck(_mxs);
-    CPackage *pCPackage = 0;
+    CPackage* pCPackage = 0;
 
-    do
-    {
-        if (dwMode & LM_LOCALCOPY)
-        {
+    do {
+        if (dwMode & LM_LOCALCOPY) {
             //
             // find the local package
             //
@@ -723,36 +673,30 @@ HRESULT CSortPkgList::FindPackage(
                 pCPackage = _XLocalList.GetAt(pos).pCPkg;
                 _XLocalList.GetNext(pos);
 
-                if (pCPackage)  {
-                    if (pCPackage->GetNotificationCookie() == *pPkgCookie)  {
+                if (pCPackage) {
+                    if (pCPackage->GetNotificationCookie() == *pPkgCookie) {
                         pos = 0;
-                    } else  {
+                    } else {
                         pCPackage = NULL;
                     }
-                } else  {
+                } else {
                     pos = 0;
                 }
             }
 
-            if (pCPackage)
-            {
+            if (pCPackage) {
                 ADDREF(pCPackage);
                 hr = NOERROR;
-            }
-            else
-            {
+            } else {
                 hr = E_FAIL;
             }
-        }
-        else
-        {
+        } else {
             hr = Synchronize(TRUE);
             BREAK_ONERROR(hr);
 
             POSITION pos = _XDistList.GetHeadPosition();
 
-            if (!pos)
-            {
+            if (!pos) {
                 hr = E_FAIL;
                 break;
             }
@@ -761,12 +705,10 @@ HRESULT CSortPkgList::FindPackage(
             SchItem.notfCookie = COOKIE_NULL;
             hr = E_FAIL;
 
-            while (pos)
-            {
+            while (pos) {
                 SchItem = _XDistList.GetNext(pos); // return *Position++
 
-                if (SchItem.notfCookie == *pPkgCookie)
-                {
+                if (SchItem.notfCookie == *pPkgCookie) {
                     // found the object
                     //
                     pos = 0;
@@ -786,7 +728,7 @@ HRESULT CSortPkgList::FindPackage(
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::FindPackage (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::FindPackage (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -809,98 +751,77 @@ HRESULT CSortPkgList::FindPackage(
 
 
 HRESULT CSortPkgList::FindFirstSchedulePackage(
-                    PNOTIFICATIONCOOKIE pPosCookie,
-                    CPackage          **ppCPackage,
-                    DWORD               dwMode
-                    )
+    PNOTIFICATIONCOOKIE pPosCookie,
+    CPackage** ppCPackage,
+    DWORD               dwMode
+)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::FindFirstSchedulePackage\n", this));
     NotfAssert((ppCPackage));
 
     HRESULT hr = E_FAIL;
-    CPackage *pCPkg = 0;
+    CPackage* pCPkg = 0;
 
-    do
-    {
+    do {
 
         CLock lck(_mxs);
         POSITION pos = _XLocalList.GetHeadPosition();
 
-        if (!pos)
-        {
+        if (!pos) {
             break;
         }
 
         pCPkg = _XLocalList.GetAt(pos).pCPkg;
 
-        if (pCPkg)
-        {
-            if (!(pCPkg->GetNotificationState() & (PF_RUNNING | PF_DELIVERED)))
-            {
-                if (pCPkg->IsPersisted(_pszWhere) != NOERROR)
-                {
+        if (pCPkg) {
+            if (!(pCPkg->GetNotificationState() & (PF_RUNNING | PF_DELIVERED))) {
+                if (pCPkg->IsPersisted(_pszWhere) != NOERROR) {
                     RELEASE(pCPkg);
                     pCPkg = 0;
                     RemoveHead();
                     pos = _XLocalList.GetHeadPosition();
                 }
-        //  DZhang fix
-                else if (pCPkg->GetTaskTrigger() == NULL)
-                {
+                //  DZhang fix
+                else if (pCPkg->GetTaskTrigger() == NULL) {
                     pos = _XLocalList.GetHeadPosition();
                     pCPkg = 0;
                 }
-            }
-            else if (pCPkg->GetTaskTrigger() == NULL)
-            {
+            } else if (pCPkg->GetTaskTrigger() == NULL) {
                 pos = _XLocalList.GetHeadPosition();
                 pCPkg = 0;
             }
-        //  End fix
-            else
-            {
+            //  End fix
+            else {
                 pCPkg = 0;
             }
         }
 
-        if (!pCPkg)
-        {
-            do
-            {
-                if (!pCPkg && pos)
-                {
+        if (!pCPkg) {
+            do {
+                if (!pCPkg && pos) {
                     pCPkg = _XLocalList.GetNext(pos).pCPkg;
                 }
 
-                if (pCPkg)
-                {
+                if (pCPkg) {
                     // the package is still in the list
                     // check if it is still persisted
-                    if (!(pCPkg->GetNotificationState() & (PF_RUNNING | PF_DELIVERED)))
-                    {
-                        if (pCPkg->IsPersisted(_pszWhere) != NOERROR)
-                        {
+                    if (!(pCPkg->GetNotificationState() & (PF_RUNNING | PF_DELIVERED))) {
+                        if (pCPkg->IsPersisted(_pszWhere) != NOERROR) {
                             pCPkg = 0;
                         }
-                    //  DZhang fix
-                        else if (pCPkg->GetTaskTrigger() == NULL)
-                        {
+                        //  DZhang fix
+                        else if (pCPkg->GetTaskTrigger() == NULL) {
                             pCPkg = 0;
                         }
-                    //  End fix
-                        else
-                        {
+                        //  End fix
+                        else {
                             pos = 0;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         pCPkg = 0;
                     }
 
-                }
-                else
-                {
+                } else {
                     pos = 0;
                 }
 
@@ -910,19 +831,17 @@ HRESULT CSortPkgList::FindFirstSchedulePackage(
         break;
     } while (TRUE);
 
-    if (pCPkg)
-    {
+    if (pCPkg) {
         ADDREF(pCPkg);
         *ppCPackage = pCPkg;
-        if (pPosCookie)
-        {
+        if (pPosCookie) {
             *pPosCookie = pCPkg->GetNotificationCookie();
         }
 
         hr = NOERROR;
     }
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::FindFirstSchedulePackage (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::FindFirstSchedulePackage (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -944,9 +863,9 @@ HRESULT CSortPkgList::FindFirstSchedulePackage(
 
 
 HRESULT CSortPkgList::RemoveSchedulePackage(
-                        CPackage           *pCPackage,
-                        DWORD               dwMode
-                        )
+    CPackage* pCPackage,
+    DWORD               dwMode
+)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::RemoveSchedulePackage\n", this));
     NotfAssert((pCPackage && !dwMode));
@@ -954,14 +873,12 @@ HRESULT CSortPkgList::RemoveSchedulePackage(
 
     CLock lck(_mxs);
     POSITION pos = _XLocalList.GetHeadPosition();
-    CPackage *pCPkg = 0;
+    CPackage* pCPkg = 0;
 
-    while (pos)
-    {
+    while (pos) {
         pCPkg = _XLocalList.GetAt(pos).pCPkg;
         NotfAssert((pCPkg && _pszWhere));
-        if (pCPkg->GetNotificationCookie() == pCPackage->GetNotificationCookie())
-        {
+        if (pCPkg->GetNotificationCookie() == pCPackage->GetNotificationCookie()) {
             // the package is still in the list
             pCPkg->RemovePersist(_pszWhere);
 
@@ -970,14 +887,12 @@ HRESULT CSortPkgList::RemoveSchedulePackage(
             pCPkg = 0;
             pos = 0;
             hr = NOERROR;
-        }
-        else
-        {
+        } else {
             pCPkg = _XLocalList.GetNext(pos).pCPkg;
         }
     }
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::RemoveSchedulePackage (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::RemoveSchedulePackage (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -998,7 +913,7 @@ HRESULT CSortPkgList::RemoveSchedulePackage(
 //  Notes:
 
 
-HRESULT CSortPkgList::GetPackageCount(ULONG          *pCount)
+HRESULT CSortPkgList::GetPackageCount(ULONG* pCount)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::GetPackageCount\n", this));
     NotfAssert((pCount));
@@ -1006,21 +921,21 @@ HRESULT CSortPkgList::GetPackageCount(ULONG          *pCount)
 
     *pCount = GetCount();
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::GetPackageCount (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::GetPackageCount (hr:%lx)\n", this, hr));
     return hr;
 }
 
-HRESULT CSortPkgList::OnWakeup(WAKEUPTYPE wt, CPackage *pCPackage)
+HRESULT CSortPkgList::OnWakeup(WAKEUPTYPE wt, CPackage* pCPackage)
 {
     NotfDebugOut((DEB_SCHEDLST, "%p _IN CSortPkgList::OnWakeup\n", this));
     HRESULT hr = E_FAIL;
 
-    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::OnWakeup (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDLST, "%p OUT CSortPkgList::OnWakeup (hr:%lx)\n", this, hr));
     return hr;
 }
 
 #if DBG == 1
-void CSortPkgList::Dump(DWORD dwFlags, const char *pszPrefix, HRESULT hr)
+void CSortPkgList::Dump(DWORD dwFlags, const char* pszPrefix, HRESULT hr)
 {
     if (!(TNotfInfoLevel & dwFlags))
         return;     //  no point in wasting time here
@@ -1035,8 +950,7 @@ void CSortPkgList::Dump(DWORD dwFlags, const char *pszPrefix, HRESULT hr)
 
     TNotfDebugOut((dwFlags, "%s 0x%08x\n", pszPrefix, hr));
 
-    while (pos)
-    {
+    while (pos) {
         wsprintf(szIdx, "[%3d]", i++);
 
         PPKG_DUMP(_XLocalList.GetAt(pos).pCPkg, (dwFlags, szIdx));

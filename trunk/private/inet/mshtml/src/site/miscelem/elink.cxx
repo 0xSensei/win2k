@@ -1,14 +1,7 @@
-
-
 //  Microsoft Forms
 //  Copyright (C) Microsoft Corporation, 1994-1996
-
 //  File:       elink.cxx
-
 //  Contents:   CLinkElement & related
-
-
-
 
 #include "headers.hxx"      // for the world
 
@@ -118,14 +111,14 @@ const CElement::CLASSDESC CLinkElement::s_classdesc =
         &IID_IHTMLLinkElement,              // _piidDispinterface
         &s_apHdlDescs,                      // _apHdlDesc
     },
-    (void *)s_apfnpdIHTMLLinkElement,       // _apfnTearOff
+    (void*)s_apfnpdIHTMLLinkElement,       // _apfnTearOff
     NULL,                                   // _pAccelsDesign
     NULL                                    // _pAccelsRun
 };
 
 
-CLinkElement::CLinkElement(CDoc *pDoc)
-      : CElement(ETAG_LINK, pDoc)
+CLinkElement::CLinkElement(CDoc* pDoc)
+    : CElement(ETAG_LINK, pDoc)
 {
     _pStyleSheet = NULL;
     _fIsInitialized = FALSE;
@@ -133,8 +126,8 @@ CLinkElement::CLinkElement(CDoc *pDoc)
 }
 
 HRESULT
-CLinkElement::CreateElement(CHtmTag *pht,
-                              CDoc *pDoc, CElement **ppElementResult)
+CLinkElement::CreateElement(CHtmTag* pht,
+                            CDoc* pDoc, CElement** ppElementResult)
 {
     Assert(ppElementResult);
     *ppElementResult = new CLinkElement(pDoc);
@@ -151,24 +144,23 @@ CLinkElement::CreateElement(CHtmTag *pht,
 
 
 HRESULT
-CLinkElement::PrivateQueryInterface ( REFIID iid, void ** ppv )
+CLinkElement::PrivateQueryInterface(REFIID iid, void** ppv)
 {
     *ppv = NULL;
-    switch(iid.Data1)
-    {
+    switch (iid.Data1) {
         QI_INHERITS2(this, IUnknown, IHTMLLinkElement)
-        QI_HTML_TEAROFF(this, IHTMLElement2, NULL)
-        QI_HTML_TEAROFF(this, IHTMLLinkElement, NULL)
-        QI_HTML_TEAROFF(this, IHTMLLinkElement2, NULL)
-        QI_TEAROFF_DISPEX(this, NULL)
-        default:
-            RRETURN(THR_NOTRACE(super::PrivateQueryInterface(iid, ppv)));
+            QI_HTML_TEAROFF(this, IHTMLElement2, NULL)
+            QI_HTML_TEAROFF(this, IHTMLLinkElement, NULL)
+            QI_HTML_TEAROFF(this, IHTMLLinkElement2, NULL)
+            QI_TEAROFF_DISPEX(this, NULL)
+    default:
+        RRETURN(THR_NOTRACE(super::PrivateQueryInterface(iid, ppv)));
     }
 
     if (!*ppv)
         RRETURN(E_NOINTERFACE);
 
-    ((IUnknown *)*ppv)->AddRef();
+    ((IUnknown*)*ppv)->AddRef();
 
     return S_OK;
 }
@@ -189,35 +181,34 @@ CLinkElement::PrivateQueryInterface ( REFIID iid, void ** ppv )
 
 STDMETHODIMP
 CLinkElement::ContextThunk_InvokeExReady(DISPID dispid,
-                            LCID lcid,
-                            WORD wFlags,
-                            DISPPARAMS *pdispparams,
-                            VARIANT *pvarResult,
-                            EXCEPINFO *pexcepinfo,
-                            IServiceProvider *pSrvProvider)
+                                         LCID lcid,
+                                         WORD wFlags,
+                                         DISPPARAMS* pdispparams,
+                                         VARIANT* pvarResult,
+                                         EXCEPINFO* pexcepinfo,
+                                         IServiceProvider* pSrvProvider)
 {
-    IUnknown * pUnkContext;
+    IUnknown* pUnkContext;
 
     // Magic macro which pulls context out of nowhere (actually eax)
     CONTEXTTHUNK_SETCONTEXT
 
-    HRESULT  hr = S_OK;
+        HRESULT  hr = S_OK;
 
     hr = THR(ValidateInvoke(pdispparams, pvarResult, pexcepinfo, NULL));
     if (hr)
         goto Cleanup;
 
     hr = THR_NOTRACE(ReadyStateInvoke(dispid, wFlags, _readyStateFired, pvarResult));
-    if (hr == S_FALSE)
-    {
+    if (hr == S_FALSE) {
         hr = THR_NOTRACE(super::ContextInvokeEx(dispid,
-                                         lcid,
-                                         wFlags,
-                                         pdispparams,
-                                         pvarResult,
-                                         pexcepinfo,
-                                         pSrvProvider,
-                                         pUnkContext ? pUnkContext : (IUnknown*)this));
+                                                lcid,
+                                                wFlags,
+                                                pdispparams,
+                                                pvarResult,
+                                                pexcepinfo,
+                                                pSrvProvider,
+                                                pUnkContext ? pUnkContext : (IUnknown*)this));
     }
 
 Cleanup:
@@ -237,20 +228,19 @@ Cleanup:
 
 
 void
-CLinkElement::Notify(CNotification *pNF)
+CLinkElement::Notify(CNotification* pNF)
 {
     super::Notify(pNF);
-    switch (pNF->Type())
-    {
+    switch (pNF->Type()) {
     case NTYPE_STOP_1:
-        if ( _pBitsCtx )
-            _pBitsCtx->SetLoad( FALSE, NULL, FALSE );  // stop the directly linked stylesheet
-        if ( _pStyleSheet )
-            _pStyleSheet->StopDownloads( FALSE );  // if the directly linked sheet already came down,
+        if (_pBitsCtx)
+            _pBitsCtx->SetLoad(FALSE, NULL, FALSE);  // stop the directly linked stylesheet
+        if (_pStyleSheet)
+            _pStyleSheet->StopDownloads(FALSE);  // if the directly linked sheet already came down,
         break;
 
     case NTYPE_BASE_URL_CHANGE:
-        OnPropertyChange( DISPID_CLinkElement_href, ((PROPERTYDESC *)&s_propdescCLinkElementhref)->GetdwFlags());
+        OnPropertyChange(DISPID_CLinkElement_href, ((PROPERTYDESC*)&s_propdescCLinkElementhref)->GetdwFlags());
         break;
 
     case NTYPE_ELEMENT_ENTERTREE:
@@ -260,26 +250,21 @@ CLinkElement::Notify(CNotification *pNF)
         // dealing with this notification coming at the wrong time or
         // more than once.  BTW, there is also a matching SN_EXITTREE
         // notification (jbeda)
-        if(!_fIsInitialized)
-        {
+        if (!_fIsInitialized) {
             HRESULT hr;
 
             hr = OnPropertyChange(DISPID_CLinkElement_href, 0);
             if (!hr)
                 _fIsInitialized = TRUE;
-        }
-        else
-        {
+        } else {
             // Insert the existing SS into this Markup
-            CMarkup * pMarkup = GetMarkup();
-            CStyleSheetArray * pStyleSheets = NULL;
+            CMarkup* pMarkup = GetMarkup();
+            CStyleSheetArray* pStyleSheets = NULL;
 
-            if (pMarkup && _pStyleSheet)
-            {
+            if (pMarkup && _pStyleSheet) {
                 // Check for the temporary holding SSA
-                if (_pSSATemp && (_pSSATemp == _pStyleSheet->GetSSAContainer()))
-                {
-                    _pSSATemp->ReleaseStyleSheet( _pStyleSheet, FALSE );
+                if (_pSSATemp && (_pSSATemp == _pStyleSheet->GetSSAContainer())) {
+                    _pSSATemp->ReleaseStyleSheet(_pStyleSheet, FALSE);
 
                     // The Temp SSA's work is now done.
                     _pSSATemp->CBase::PrivateRelease();
@@ -295,35 +280,33 @@ CLinkElement::Notify(CNotification *pNF)
 
                 // When exiting the tree the style rules are disable. Reenable them if they were
                 //     not also disabled on the element.
-                if(!GetAAdisabled())
-                    IGNORE_HR(_pStyleSheet->ChangeStatus(CS_ENABLERULES, FALSE, NULL) );
+                if (!GetAAdisabled())
+                    IGNORE_HR(_pStyleSheet->ChangeStatus(CS_ENABLERULES, FALSE, NULL));
 
             }
         }
         break;
 
     case NTYPE_ELEMENT_EXITTREE_1:
-        {
-            if (_pStyleSheet)
-            {
-                CMarkup * pMarkup = GetMarkup();
-                CStyleSheetArray * pStyleSheets = NULL;
+    {
+        if (_pStyleSheet) {
+            CMarkup* pMarkup = GetMarkup();
+            CStyleSheetArray* pStyleSheets = NULL;
 
-                if (pMarkup && !(pNF->DataAsDWORD() & EXITTREE_DESTROY))
-                    pStyleSheets = pMarkup->GetStyleSheetArray();
+            if (pMarkup && !(pNF->DataAsDWORD() & EXITTREE_DESTROY))
+                pStyleSheets = pMarkup->GetStyleSheetArray();
 
-                // Tell the top-level stylesheet collection to let go of it's reference
-                // Do NOT force a re-render (might be fatal if everyone's passivating around us)
-                if (pStyleSheets)
-                    pStyleSheets->ReleaseStyleSheet( _pStyleSheet, FALSE );
-            }
-
-            if (_dwScriptDownloadCookie)
-            {
-                GetMarkup()->LeaveScriptDownload(&_dwScriptDownloadCookie);
-                _dwScriptDownloadCookie = NULL;
-            }
+            // Tell the top-level stylesheet collection to let go of it's reference
+            // Do NOT force a re-render (might be fatal if everyone's passivating around us)
+            if (pStyleSheets)
+                pStyleSheets->ReleaseStyleSheet(_pStyleSheet, FALSE);
         }
+
+        if (_dwScriptDownloadCookie) {
+            GetMarkup()->LeaveScriptDownload(&_dwScriptDownloadCookie);
+            _dwScriptDownloadCookie = NULL;
+        }
+    }
     }
 }
 
@@ -334,10 +317,9 @@ CLinkElement::Notify(CNotification *pNF)
 
 
 void
-CLinkElement::SetBitsCtx(CBitsCtx * pBitsCtx)
+CLinkElement::SetBitsCtx(CBitsCtx* pBitsCtx)
 {
-    if (_pBitsCtx)
-    {
+    if (_pBitsCtx) {
         _pBitsCtx->SetProgSink(NULL); // detach download from document's load progress
         _pBitsCtx->Disconnect();
         _pBitsCtx->Release();
@@ -345,14 +327,12 @@ CLinkElement::SetBitsCtx(CBitsCtx * pBitsCtx)
 
     _pBitsCtx = pBitsCtx;
 
-    if (pBitsCtx)
-    {
+    if (pBitsCtx) {
         pBitsCtx->AddRef();
 
         if (pBitsCtx->GetState() & (DWNLOAD_COMPLETE | DWNLOAD_ERROR | DWNLOAD_STOPPED))
             OnDwnChan(pBitsCtx);
-        else
-        {
+        else {
             pBitsCtx->SetProgSink(Doc()->GetProgSink());
             pBitsCtx->SetCallback(OnDwnChanCallback, this);
             pBitsCtx->SelectChanges(DWNCHG_COMPLETE, 0, TRUE);
@@ -366,31 +346,27 @@ CLinkElement::SetBitsCtx(CBitsCtx * pBitsCtx)
 
 
 void
-CLinkElement::OnDwnChan(CDwnChan * pDwnChan)
+CLinkElement::OnDwnChan(CDwnChan* pDwnChan)
 {
     ULONG       ulState = _pBitsCtx->GetState();
-    CDoc *      pDoc = Doc();
-    CMarkup *   pMarkup = GetMarkup();
-    IStream *   pStream = NULL;
-    char *      pbBuffer = NULL;
-    TCHAR *     pchSrc = NULL;
+    CDoc* pDoc = Doc();
+    CMarkup* pMarkup = GetMarkup();
+    IStream* pStream = NULL;
+    char* pbBuffer = NULL;
+    TCHAR* pchSrc = NULL;
 
     Assert(pDoc);
 
-    if (ulState & (DWNLOAD_COMPLETE | DWNLOAD_ERROR | DWNLOAD_STOPPED))
-    {
+    if (ulState & (DWNLOAD_COMPLETE | DWNLOAD_ERROR | DWNLOAD_STOPPED)) {
         SetReadyStateLink(READYSTATE_COMPLETE);
         pDoc->LeaveStylesheetDownload(&_dwStyleCookie);
 
-        if (ulState & DWNLOAD_COMPLETE)
-        {
+        if (ulState & DWNLOAD_COMPLETE) {
             // If unsecure download, may need to remove lock icon on Doc
             Doc()->OnSubDownloadSecFlags(_pBitsCtx->GetUrl(), _pBitsCtx->GetSecFlags());
 
-            if (_pStyleSheet)
-            {
-                if ((S_OK == _pBitsCtx->GetStream(&pStream)))
-                {
+            if (_pStyleSheet) {
+                if ((S_OK == _pBitsCtx->GetStream(&pStream))) {
 #ifdef XMV_PARSE
                     CCSSParser  parser(_pStyleSheet, NULL, IsInMarkup() && GetMarkupPtr()->IsXML());
 #else
@@ -400,30 +376,25 @@ CLinkElement::OnDwnChan(CDwnChan * pDwnChan)
                     parser.LoadFromStream(pStream, pDoc->GetCodePage());
 
                     // (this is not always stable moment)
-                    IGNORE_HR( OnCssChange(/*fStable = */ FALSE, /* fRecomputePeers = */TRUE) );
+                    IGNORE_HR(OnCssChange(/*fStable = */ FALSE, /* fRecomputePeers = */TRUE));
                 }
-            }
-            else
+            } else
                 TraceTag((tagError, "CLinkElement::OnChan bitsctx failed to get file!"));
-        }
-        else
+        } else
             TraceTag((tagError, "CLinkElement::OnChan bitsctx failed to complete!"));
 
-        if (_pStyleSheet)
-        {
+        if (_pStyleSheet) {
             _pStyleSheet->CheckImportStatus();
-            if (_dwScriptDownloadCookie)
-            {
-                Assert (pMarkup);
+            if (_dwScriptDownloadCookie) {
+                Assert(pMarkup);
                 pMarkup->LeaveScriptDownload(&_dwScriptDownloadCookie);
                 _dwScriptDownloadCookie = NULL;
             }
         }
 
         _pBitsCtx->SetProgSink(NULL); // detach download from document's load progress
-    }
-    else
-        Assert( "Unknown result returned from CStyleSheet's bitsCtx!" && FALSE );
+    } else
+        Assert("Unknown result returned from CStyleSheet's bitsCtx!" && FALSE);
 
     ReleaseInterface(pStream);
     delete pbBuffer;
@@ -449,8 +420,7 @@ CLinkElement::OnPropertyChange(DISPID dispid, DWORD dwFlags)
 {
     HRESULT hr = S_OK;
 
-    switch (dispid)
-    {
+    switch (dispid) {
     case DISPID_CLinkElement_href:
     case DISPID_CLinkElement_rel:
     case DISPID_CLinkElement_type:
@@ -459,11 +429,10 @@ CLinkElement::OnPropertyChange(DISPID dispid, DWORD dwFlags)
 
     case DISPID_CElement_disabled:
         // Passing ChangeStatus() 0 means disable rules
-        if(_pStyleSheet)
-        {
-            hr = THR( _pStyleSheet->ChangeStatus( GetAAdisabled() ? 0 : CS_ENABLERULES, FALSE, NULL ) );
+        if (_pStyleSheet) {
+            hr = THR(_pStyleSheet->ChangeStatus(GetAAdisabled() ? 0 : CS_ENABLERULES, FALSE, NULL));
             {
-                hr = THR( OnCssChange(/*fStable = */ TRUE, /* fRecomputePeers = */TRUE) );
+                hr = THR(OnCssChange(/*fStable = */ TRUE, /* fRecomputePeers = */TRUE));
                 if (hr)
                     goto Cleanup;
             }
@@ -471,24 +440,23 @@ CLinkElement::OnPropertyChange(DISPID dispid, DWORD dwFlags)
         break;
 
     case DISPID_CLinkElement_media:
-        {
-            if(_pStyleSheet)
-            {
-                LPCTSTR pcszMedia;
+    {
+        if (_pStyleSheet) {
+            LPCTSTR pcszMedia;
 
-                if ( NULL == ( pcszMedia = GetAAmedia() ) )
-                    pcszMedia = _T("all");
+            if (NULL == (pcszMedia = GetAAmedia()))
+                pcszMedia = _T("all");
 
-                hr = THR( _pStyleSheet->SetMediaType( TranslateMediaTypeString( pcszMedia ), FALSE ) );
-                if ( !( OK( hr ) ) )
-                    goto Cleanup;
+            hr = THR(_pStyleSheet->SetMediaType(TranslateMediaTypeString(pcszMedia), FALSE));
+            if (!(OK(hr)))
+                goto Cleanup;
 
-                hr = THR( OnCssChange(/*fStable = */ TRUE, /* fRecomputePeers = */TRUE) );
-                if (hr)
-                    goto Cleanup;
-            }
+            hr = THR(OnCssChange(/*fStable = */ TRUE, /* fRecomputePeers = */TRUE));
+            if (hr)
+                goto Cleanup;
         }
-        break;
+    }
+    break;
     }
 
     if (OK(hr))
@@ -532,20 +500,18 @@ CLinkElement::Passivate(void)
 {
     SetBitsCtx(NULL);
 
-    if (_pStyleSheet)
-    {
+    if (_pStyleSheet) {
         // Removed from StyleSheetArray in the ExitTree notification
 
         // Halt all stylesheet downloading.
-        _pStyleSheet->StopDownloads( TRUE );
+        _pStyleSheet->StopDownloads(TRUE);
 
         // Let go of our reference
         _pStyleSheet->Release();
         _pStyleSheet = NULL;
     }
 
-    if (_pSSATemp)
-    {
+    if (_pSSATemp) {
         _pSSATemp->Release();
         _pSSATemp = NULL;
     }
@@ -567,87 +533,78 @@ HRESULT
 CLinkElement::HandleLinkedObjects(void)
 {
     HRESULT     hr = S_OK;
-    CDoc *      pDoc = Doc();
-    CMarkup *   pMarkup;
+    CDoc* pDoc = Doc();
+    CMarkup* pMarkup;
     LPCTSTR     szUrl = GetAAhref();
     LPCTSTR     pcszMedia;
     LPCTSTR     pcszRel;
     LINKTYPE    linktype;
-    TCHAR *     pchAbsUrl = NULL;
-    CStyleSheetArray *pStyleSheets;
+    TCHAR* pchAbsUrl = NULL;
+    CStyleSheetArray* pStyleSheets;
 
     pMarkup = GetMarkup();
 
-    Assert (pDoc);
+    Assert(pDoc);
 
-    if (pMarkup)
-    {
+    if (pMarkup) {
         pStyleSheets = pMarkup->GetStyleSheetArray();
-    }
-    else
-    {
+    } else {
         pStyleSheets = _pSSATemp;
     }
 
     linktype = GetLinkType();
 
-    if (LINKTYPE_STYLESHEET != linktype || !szUrl || !(*szUrl))
-    {
+    if (LINKTYPE_STYLESHEET != linktype || !szUrl || !(*szUrl)) {
         // If we get here, it means the attributes on the LINK do not qualify it as
         // a linked stylesheet.  We check if we have a current linked stylesheet, and
         // let it go, forcing a re-render.
 
-        if (_pStyleSheet)
-        {
+        if (_pStyleSheet) {
             Assert(pStyleSheets);
             hr = THR(pStyleSheets->ReleaseStyleSheet(
-                    _pStyleSheet,
-                    TRUE));
+                _pStyleSheet,
+                TRUE));
             if (hr)
                 goto Cleanup;
 
             _pStyleSheet->Release();
             _pStyleSheet = NULL;
 
-            if (_pSSATemp)
-            {
+            if (_pSSATemp) {
                 Assert(!pMarkup);
                 _pSSATemp->Release();
                 _pSSATemp = NULL;
             }
         }
 
-        if(LINKTYPE_STYLESHEET != linktype)
+        if (LINKTYPE_STYLESHEET != linktype)
             goto Cleanup; // done
         // Fall through for the empty href case, some pages need to have an empty stylesheet
     }
 
     // If we get here, it means the attributes on the LINK qualify it as a linked stylesheet.
-    SetReadyStateLink( READYSTATE_LOADING );
+    SetReadyStateLink(READYSTATE_LOADING);
 
     // If we're already ref'ing a stylesheet, then it means that the HREF changed (most likely)
     // or there was no TYPE property and now there is (unlikely, in which case the following work
     // is wasted).  We reload our current stylesheet object with the href.
-    if ( _pStyleSheet )
-    {
-        CDoc   *pRootDoc;
+    if (_pStyleSheet) {
+        CDoc* pRootDoc;
 
         pRootDoc = pDoc->GetRootDoc();
 
         // If we're in designMode and the don't downloadCSS flag is set on the main doc
         // then don't initiate download.  Probably thicket saving.
         if (!(pRootDoc->DesignMode() && pRootDoc->_fDontDownloadCSS))
-            hr = _pStyleSheet->LoadFromURL( szUrl, TRUE );
+            hr = _pStyleSheet->LoadFromURL(szUrl, TRUE);
     }
     // We aren't already ref'ing a stylesheet, so we need a new stylesheet object.
-    else
-    {
+    else {
         long nSSInHead = -1;        // default to append
 
-        if (pMarkup)
-        {
+        if (pMarkup) {
             hr = pMarkup->EnsureStyleSheets();
-            if ( hr )
+            if (hr)
                 goto Cleanup;
 
             // Figure out where this <link> stylesheet lives (i.e. what should its index in the
@@ -655,67 +612,56 @@ CLinkElement::HandleLinkedObjects(void)
             // link into a stylesheet link -- if this link is in the process of being constructed
             // then we're guaranteed the stylesheet belongs at the end.
 
-            if ( _fIsInitialized )
-            {
-                Assert( pMarkup );
-                CTreeNode *pNode;
-                CLinkElement *pLink;
-                CStyleElement *pStyle;
+            if (_fIsInitialized) {
+                Assert(pMarkup);
+                CTreeNode* pNode;
+                CLinkElement* pLink;
+                CStyleElement* pStyle;
 
-                Assert( pMarkup->GetHeadElement() );
+                Assert(pMarkup->GetHeadElement());
 
                 nSSInHead = 0;
 
-                CChildIterator ci ( pMarkup->GetHeadElement() );
+                CChildIterator ci(pMarkup->GetHeadElement());
 
-                while ( (pNode = ci.NextChild() ) != NULL )
-                {
-                    if ( pNode->Tag() == ETAG_LINK )
-                    {
-                        pLink = DYNCAST( CLinkElement, pNode->Element() );
-                        if ( pLink == this )
+                while ((pNode = ci.NextChild()) != NULL) {
+                    if (pNode->Tag() == ETAG_LINK) {
+                        pLink = DYNCAST(CLinkElement, pNode->Element());
+                        if (pLink == this)
                             break;
-                        else if ( pLink->_pStyleSheet ) // faster than IsLinkedStyleSheet() and adequate here
+                        else if (pLink->_pStyleSheet) // faster than IsLinkedStyleSheet() and adequate here
                             ++nSSInHead;
-                    }
-                    else if ( pNode->Tag() == ETAG_STYLE )
-                    {
-                        pStyle = DYNCAST( CStyleElement, pNode->Element() );
-                        if ( pStyle->_pStyleSheet ) // Not all STYLE elements create a SS.
+                    } else if (pNode->Tag() == ETAG_STYLE) {
+                        pStyle = DYNCAST(CStyleElement, pNode->Element());
+                        if (pStyle->_pStyleSheet) // Not all STYLE elements create a SS.
                             ++nSSInHead;
                     }
                 }
             }
 
             pStyleSheets = pMarkup->GetStyleSheetArray();
-        }
-        else
-        {
-            if (!_pSSATemp)
-            {
-                pStyleSheets = new CStyleSheetArray( NULL, NULL, 0 );
-                if (!pStyleSheets || pStyleSheets->_fInvalid )
-                {
+        } else {
+            if (!_pSSATemp) {
+                pStyleSheets = new CStyleSheetArray(NULL, NULL, 0);
+                if (!pStyleSheets || pStyleSheets->_fInvalid) {
                     hr = E_OUTOFMEMORY;
                     goto Cleanup;
                 }
                 _pSSATemp = pStyleSheets;
-            }
-            else
+            } else
                 pStyleSheets = _pSSATemp;
 
             nSSInHead = pStyleSheets->Size();
         }
 
-        hr = pStyleSheets->CreateNewStyleSheet( this, &_pStyleSheet, nSSInHead );
-        if ( hr )
+        hr = pStyleSheets->CreateNewStyleSheet(this, &_pStyleSheet, nSSInHead);
+        if (hr)
             goto Cleanup;
 
         _pStyleSheet->AddRef(); // since the link elem is hanging onto the stylesheet ptr
                                 // Note this results in a subref on us.
 
-        if ( szUrl && szUrl[0] )
-        {
+        if (szUrl && szUrl[0]) {
             TCHAR   cBuf[pdlUrlLen];
 
             Assert(!_pStyleSheet->_achAbsoluteHref && "absoluteHref already computed.");
@@ -725,8 +671,7 @@ CLinkElement::HandleLinkedObjects(void)
                 goto Cleanup;
 
             MemAllocString(Mt(CLinkElementHandleLinkedObjects), cBuf, &_pStyleSheet->_achAbsoluteHref);
-            if (_pStyleSheet->_achAbsoluteHref == NULL)
-            {
+            if (_pStyleSheet->_achAbsoluteHref == NULL) {
                 hr = E_OUTOFMEMORY;
                 goto Cleanup;
             }
@@ -735,17 +680,15 @@ CLinkElement::HandleLinkedObjects(void)
         }
     }
 
-    if ( NULL != (pcszMedia = GetAAmedia() ) )
-    {
-        hr = THR( _pStyleSheet->SetMediaType( TranslateMediaTypeString( pcszMedia ), FALSE ) );
+    if (NULL != (pcszMedia = GetAAmedia())) {
+        hr = THR(_pStyleSheet->SetMediaType(TranslateMediaTypeString(pcszMedia), FALSE));
         if (hr)
             goto Cleanup;
     }
 
     pcszRel = GetAArel();
-    if ( GetAAdisabled() || ( pcszRel && !StrCmpIC(_T("alternate stylesheet"), pcszRel ) ) )
-    {
-        hr = THR( _pStyleSheet->ChangeStatus( 0, FALSE, NULL ) );   // 0 means disable rules
+    if (GetAAdisabled() || (pcszRel && !StrCmpIC(_T("alternate stylesheet"), pcszRel))) {
+        hr = THR(_pStyleSheet->ChangeStatus(0, FALSE, NULL));   // 0 means disable rules
     }
 
 Cleanup:
@@ -764,18 +707,17 @@ HRESULT
 CLinkElement::EnsureStyleDownload()
 {
     HRESULT     hr;
-    CDoc *      pDoc = Doc();
-    CBitsCtx *  pBitsCtx = NULL;
+    CDoc* pDoc = Doc();
+    CBitsCtx* pBitsCtx = NULL;
 
     hr = THR(pDoc->NewDwnCtx(DWNCTX_BITS, _pStyleSheet->_achAbsoluteHref,
-                this, (CDwnCtx **)&pBitsCtx));
+                             this, (CDwnCtx**)&pBitsCtx));
 
     pDoc->EnterStylesheetDownload(&_dwStyleCookie);
 
-    if (IsInMarkup())
-    {
+    if (IsInMarkup()) {
         GetMarkup()->EnterScriptDownload(&_dwScriptDownloadCookie);
-        Assert (_dwScriptDownloadCookie);
+        Assert(_dwScriptDownloadCookie);
     }
 
     SetBitsCtx(pBitsCtx);                                   // Save the bits context
@@ -816,10 +758,9 @@ CLinkElement::SetReadyStateLink(long readyStateLink)
 
     _readyStateLink = readyStateLink;
 
-    readyState = min ((long)_readyStateLink, super::GetReadyState());
+    readyState = min((long)_readyStateLink, super::GetReadyState());
 
-    if ((long)_readyStateFired != readyState)
-    {
+    if ((long)_readyStateFired != readyState) {
         _readyStateFired = readyState;
 
         Fire_onreadystatechange();
@@ -838,29 +779,27 @@ CLinkElement::SetReadyStateLink(long readyStateLink)
 
 
 HRESULT
-CLinkElement::get_readyState(BSTR * p)
+CLinkElement::get_readyState(BSTR* p)
 {
     HRESULT hr = S_OK;
 
-    if ( !p )
-    {
+    if (!p) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
-    hr = THR( s_enumdeschtmlReadyState.StringFromEnum(_readyStateFired, p) );
+    hr = THR(s_enumdeschtmlReadyState.StringFromEnum(_readyStateFired, p));
 
 Cleanup:
-    RRETURN( SetErrorInfo(hr) );
+    RRETURN(SetErrorInfo(hr));
 }
 
 HRESULT
-CLinkElement::get_readyState(VARIANT * pVarRes)
+CLinkElement::get_readyState(VARIANT* pVarRes)
 {
     HRESULT hr = S_OK;
 
-    if (!pVarRes)
-    {
+    if (!pVarRes) {
         hr = E_POINTER;
         goto Cleanup;
     }
@@ -875,12 +814,11 @@ Cleanup:
 
 
 HRESULT
-CLinkElement::get_readyStateValue(long *plRetValue)
+CLinkElement::get_readyStateValue(long* plRetValue)
 {
     HRESULT     hr = S_OK;
 
-    if (!plRetValue)
-    {
+    if (!plRetValue) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
@@ -903,22 +841,20 @@ CLinkElement::get_styleSheet(IHTMLStyleSheet** ppHTMLStyleSheet)
 {
     HRESULT hr = S_OK;
 
-    if (!ppHTMLStyleSheet)
-    {
+    if (!ppHTMLStyleSheet) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
     *ppHTMLStyleSheet = NULL;
 
-    if ( _pStyleSheet )
-    {
+    if (_pStyleSheet) {
         hr = _pStyleSheet->QueryInterface(IID_IHTMLStyleSheet,
-                                              (void**)ppHTMLStyleSheet);
+            (void**)ppHTMLStyleSheet);
     }
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -937,14 +873,13 @@ CLinkElement::GetLinkType()
     LPCTSTR     pchHref = GetAAhref();
     LPCTSTR     pchRel = GetAArel();
     LPCTSTR     pchType = GetAAtype();
-    CTreeNode * pNodeContext = GetFirstBranch();
+    CTreeNode* pNodeContext = GetFirstBranch();
 
     if (!pNodeContext || (!IsInPrimaryMarkup() &&
-        pNodeContext->Parent()->Tag() == ETAG_HEAD))
+                          pNodeContext->Parent()->Tag() == ETAG_HEAD))
         return LINKTYPE_UNKNOWN;
 
-    if (pchHref && pchRel)
-    {
+    if (pchHref && pchRel) {
         if (0 == StrCmpIC(_T("stylesheet"), pchRel) ||          // if rel = "stylesheet"
             0 == StrCmpIC(_T("alternate stylesheet"), pchRel))  // or rel = "alternate stylesheet"
         {
