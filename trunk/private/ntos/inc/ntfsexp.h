@@ -57,7 +57,7 @@ typedef struct _FILE_REFERENCE {
 
     USHORT SequenceNumber;                                          //  offset = 0x006
 
-} FILE_REFERENCE, *PFILE_REFERENCE;                   //  sizeof = 0x008
+} FILE_REFERENCE, * PFILE_REFERENCE;                   //  sizeof = 0x008
 
 #endif
 
@@ -96,7 +96,7 @@ typedef struct _FILE_REFERENCE {
 //      an IrpContext.
 
 
-
+
 //  Opaque handle definitions.
 
 
@@ -107,14 +107,14 @@ typedef struct _FILE_REFERENCE {
 //  pass it along?
 
 
-typedef struct _FCB *OBJECT_HANDLE;
-typedef struct _SCB *ATTRIBUTE_HANDLE;
-typedef struct _SCB *INDEX_HANDLE;
-typedef struct _READ_CONTEXT *PREAD_CONTEXT;
+typedef struct _FCB* OBJECT_HANDLE;
+typedef struct _SCB* ATTRIBUTE_HANDLE;
+typedef struct _SCB* INDEX_HANDLE;
+typedef struct _READ_CONTEXT* PREAD_CONTEXT;
 typedef ULONG SECURITY_ID;
-typedef struct _CI_CALL_BACK CI_CALL_BACK, *PCI_CALL_BACK;
-typedef struct _VIEW_CALL_BACK VIEW_CALL_BACK, *PVIEW_CALL_BACK;
-typedef struct _IRP_CONTEXT *PIRP_CONTEXT;
+typedef struct _CI_CALL_BACK CI_CALL_BACK, * PCI_CALL_BACK;
+typedef struct _VIEW_CALL_BACK VIEW_CALL_BACK, * PVIEW_CALL_BACK;
+typedef struct _IRP_CONTEXT* PIRP_CONTEXT;
 
 
 //  Map Handle.  This structure defines a byte range of the file which is mapped
@@ -142,7 +142,7 @@ typedef struct _MAP_HANDLE {
 
     PVOID Bcb;
 
-} MAP_HANDLE, *PMAP_HANDLE;
+} MAP_HANDLE, * PMAP_HANDLE;
 
 
 //  Quick Index Hint.  This is stream offset information returned by
@@ -154,7 +154,7 @@ typedef struct _MAP_HANDLE {
 
 typedef struct _QUICK_INDEX_HINT {
     LONGLONG HintData[3];
-} QUICK_INDEX_HINT, *PQUICK_INDEX_HINT;
+} QUICK_INDEX_HINT, * PQUICK_INDEX_HINT;
 
 
 //  Index structures
@@ -163,17 +163,17 @@ typedef struct _QUICK_INDEX_HINT {
 typedef struct {
     ULONG KeyLength;
     PVOID Key;
-} INDEX_KEY, *PINDEX_KEY;
+} INDEX_KEY, * PINDEX_KEY;
 
 typedef struct {
     ULONG DataLength;
     PVOID Data;
-} INDEX_DATA, *PINDEX_DATA;
+} INDEX_DATA, * PINDEX_DATA;
 
 typedef struct {
     INDEX_KEY KeyPart;
     INDEX_DATA DataPart;
-} INDEX_ROW, *PINDEX_ROW;
+} INDEX_ROW, * PINDEX_ROW;
 
 
 //  COLLATION_FUNCTION returns LessThan if Key1 precedes Key2
@@ -181,11 +181,11 @@ typedef struct {
 //                             GreaterThan if Key1 follows Key2
 
 
-typedef FSRTL_COMPARISON_RESULT (*PCOLLATION_FUNCTION) (
-            IN PINDEX_KEY Key1,
-            IN PINDEX_KEY Key2,
-            IN PVOID CollationData
-            );
+typedef FSRTL_COMPARISON_RESULT(*PCOLLATION_FUNCTION) (
+    IN PINDEX_KEY Key1,
+    IN PINDEX_KEY Key2,
+    IN PVOID CollationData
+    );
 
 typedef struct _UPCASE_TABLE_AND_KEY {
 
@@ -208,7 +208,7 @@ typedef struct _UPCASE_TABLE_AND_KEY {
 
     INDEX_KEY Key;
 
-} UPCASE_TABLE_AND_KEY, *PUPCASE_TABLE_AND_KEY;
+} UPCASE_TABLE_AND_KEY, * PUPCASE_TABLE_AND_KEY;
 
 
 //  Wait for new length block used to synchronize a thread with FileSize
@@ -262,7 +262,7 @@ typedef struct _WAIT_FOR_NEW_LENGTH {
 
     ULONG Flags;
 
-} WAIT_FOR_NEW_LENGTH, *PWAIT_FOR_NEW_LENGTH;
+} WAIT_FOR_NEW_LENGTH, * PWAIT_FOR_NEW_LENGTH;
 
 #define NTFS_WAIT_FLAG_ASYNC                    (0x00000001)
 
@@ -271,66 +271,66 @@ typedef struct _WAIT_FOR_NEW_LENGTH {
 
 
 FSRTL_COMPARISON_RESULT
-NtOfsCollateUlong (             //  Both must be single Ulong
+NtOfsCollateUlong(             //  Both must be single Ulong
+                  IN PINDEX_KEY Key1,
+                  IN PINDEX_KEY Key2,
+                  IN PVOID CollationData      //  Don't care, may be NULL
+);
+
+FSRTL_COMPARISON_RESULT
+NtOfsCollateUlongs(            //  Lengths do not have to be equal
+                   IN PINDEX_KEY Key1,
+                   IN PINDEX_KEY Key2,
+                   IN PVOID CollationData      //  Don't care, may be NULL
+);
+
+FSRTL_COMPARISON_RESULT
+NtOfsCollateSid(
     IN PINDEX_KEY Key1,
     IN PINDEX_KEY Key2,
     IN PVOID CollationData      //  Don't care, may be NULL
-    );
+);
 
 FSRTL_COMPARISON_RESULT
-NtOfsCollateUlongs (            //  Lengths do not have to be equal
-    IN PINDEX_KEY Key1,
-    IN PINDEX_KEY Key2,
-    IN PVOID CollationData      //  Don't care, may be NULL
-    );
-
-FSRTL_COMPARISON_RESULT
-NtOfsCollateSid (
-    IN PINDEX_KEY Key1,
-    IN PINDEX_KEY Key2,
-    IN PVOID CollationData      //  Don't care, may be NULL
-    );
-
-FSRTL_COMPARISON_RESULT
-NtOfsCollateUnicode (
+NtOfsCollateUnicode(
     IN PINDEX_KEY Key1,
     IN PINDEX_KEY Key2,
     IN PVOID CollationData      //  PUPCASE_TABLE_AND_KEY (with no key)
-    );
+);
 
 
 //  Standard match functions for simple indices
 
 
 NTSTATUS
-NtOfsMatchAll (
+NtOfsMatchAll(
     IN PINDEX_ROW IndexRow,
     IN OUT PVOID MatchData      //  Don't care, may be NULL
-    );
+);
 
 NTSTATUS
-NtOfsMatchUlongExact (
+NtOfsMatchUlongExact(
     IN PINDEX_ROW IndexRow,     //  Both must be single Ulong
     IN OUT PVOID MatchData      //  PINDEX_KEY describing Ulong
-    );
+);
 
 NTSTATUS
-NtOfsMatchUlongsExact (         //  Lengths do not have to be equal
-    IN PINDEX_ROW IndexRow,
-    IN OUT PVOID MatchData      //  PINDEX_KEY describing Ulongs
-    );
+NtOfsMatchUlongsExact(         //  Lengths do not have to be equal
+                      IN PINDEX_ROW IndexRow,
+                      IN OUT PVOID MatchData      //  PINDEX_KEY describing Ulongs
+);
 
 NTSTATUS
-NtOfsMatchUnicodeExpression (
+NtOfsMatchUnicodeExpression(
     IN PINDEX_ROW IndexRow,
     IN OUT PVOID MatchData      //  PUPCASE_TABLE_AND_KEY with Uni expression (must have wildcards)
-    );
+);
 
 NTSTATUS
-NtOfsMatchUnicodeString (
+NtOfsMatchUnicodeString(
     IN PINDEX_ROW IndexRow,
     IN OUT PVOID MatchData      //  PUPCASE_TABLE_AND_KEY with Uni string (no wildcards)
-    );
+);
 
 
 //  MATCH_FUNCTION returns
@@ -341,7 +341,7 @@ NtOfsMatchUnicodeString (
 //          should terminate
 
 
-typedef NTSTATUS (*PMATCH_FUNCTION) (IN PINDEX_ROW IndexRow, IN OUT PVOID MatchData);
+typedef NTSTATUS(*PMATCH_FUNCTION) (IN PINDEX_ROW IndexRow, IN OUT PVOID MatchData);
 
 
 //  CREATE_OPTIONS - common flags governing creation/opening of objects
@@ -402,7 +402,7 @@ extern FILE_REFERENCE NtOfsContentIndexSystemFile;
 
 #endif
 
-
+
 
 
 //  Index API - These encapsulate the NtOfs BTree mechanisms.
@@ -426,7 +426,7 @@ extern FILE_REFERENCE NtOfsContentIndexSystemFile;
 
 NTFSAPI
 NTSTATUS
-NtOfsCreateIndex (
+NtOfsCreateIndex(
     IN PIRP_CONTEXT IrpContext,
     IN OBJECT_HANDLE ObjectHandle,
     IN UNICODE_STRING Name,
@@ -435,8 +435,8 @@ NtOfsCreateIndex (
     IN ULONG CollationRule,
     IN PCOLLATION_FUNCTION CollationFunction,
     IN PVOID CollationData OPTIONAL,
-    OUT INDEX_HANDLE *IndexHandle
-    );
+    OUT INDEX_HANDLE* IndexHandle
+);
 
 
 
@@ -446,14 +446,14 @@ NtOfsCreateIndex (
 
 NTFSAPI
 NTSTATUS
-NtOfsFindRecord (
+NtOfsFindRecord(
     IN PIRP_CONTEXT IrpContext,
     IN INDEX_HANDLE IndexHandle,
     IN PINDEX_KEY IndexKey,
     OUT PINDEX_ROW IndexRow,
     OUT PMAP_HANDLE MapHandle,
     IN OUT PQUICK_INDEX_HINT QuickIndexHint OPTIONAL
-    );
+);
 
 
 //  NtOfsFindRecord finds a single record in an index stream for read-only access
@@ -462,13 +462,13 @@ NtOfsFindRecord (
 
 NTFSAPI
 NTSTATUS
-NtOfsFindLastRecord (
+NtOfsFindLastRecord(
     IN PIRP_CONTEXT IrpContext,
     IN INDEX_HANDLE IndexHandle,
     IN PINDEX_KEY MaxIndexKey,
     OUT PINDEX_ROW IndexRow,
     OUT PMAP_HANDLE MapHandle
-    );
+);
 
 
 //  NtOfsAddRecords performs bulk, logged inserts into an index.  The index will
@@ -484,13 +484,13 @@ NtOfsFindLastRecord (
 
 NTFSAPI
 VOID
-NtOfsAddRecords (
+NtOfsAddRecords(
     IN PIRP_CONTEXT IrpContext,
     IN INDEX_HANDLE IndexHandle,
     IN ULONG Count,
     IN PINDEX_ROW IndexRow,
     IN ULONG SequentialInsertMode
-    );
+);
 
 
 //  NtOfsDeleteRecords performs bulk, logged deletion from an index.  The index
@@ -502,12 +502,12 @@ NtOfsAddRecords (
 
 NTFSAPI
 VOID
-NtOfsDeleteRecords (
+NtOfsDeleteRecords(
     IN PIRP_CONTEXT IrpContext,
     IN INDEX_HANDLE IndexHandle,
     IN ULONG Count,
     IN PINDEX_KEY IndexKey
-    );
+);
 
 
 //  NtOfsReadRecords applies a match function to a block of contiguous records in
@@ -543,24 +543,24 @@ NtOfsDeleteRecords (
 
 NTFSAPI
 NTSTATUS
-NtOfsReadRecords (
-        IN PIRP_CONTEXT IrpContext,
-        IN INDEX_HANDLE IndexHandle,
-        IN OUT PREAD_CONTEXT *ReadContext,
-        IN OPTIONAL PINDEX_KEY IndexKey,
-        IN PMATCH_FUNCTION MatchFunction,
-        IN PVOID MatchData,
-        IN OUT ULONG *Count,
-        OUT PINDEX_ROW Rows,
-        IN ULONG BufferLength,
-        OUT PVOID Buffer
-        );
+NtOfsReadRecords(
+    IN PIRP_CONTEXT IrpContext,
+    IN INDEX_HANDLE IndexHandle,
+    IN OUT PREAD_CONTEXT* ReadContext,
+    IN OPTIONAL PINDEX_KEY IndexKey,
+    IN PMATCH_FUNCTION MatchFunction,
+    IN PVOID MatchData,
+    IN OUT ULONG* Count,
+    OUT PINDEX_ROW Rows,
+    IN ULONG BufferLength,
+    OUT PVOID Buffer
+);
 
 NTFSAPI
 VOID
-NtOfsFreeReadContext (
-        IN PREAD_CONTEXT ReadContext
-        );
+NtOfsFreeReadContext(
+    IN PREAD_CONTEXT ReadContext
+);
 
 
 //  NtOfsUpdateRecord updates a single record in place.  It is guaranteed that the
@@ -572,14 +572,14 @@ NtOfsFreeReadContext (
 
 NTFSAPI
 VOID
-NtOfsUpdateRecord (
+NtOfsUpdateRecord(
     IN PIRP_CONTEXT IrpContext,
     IN INDEX_HANDLE IndexHandle,
     IN ULONG Count,
     IN PINDEX_ROW IndexRow,
     IN OUT PQUICK_INDEX_HINT QuickIndexHint OPTIONAL,
     IN OUT PMAP_HANDLE MapHandle OPTIONAL
-    );
+);
 
 
 //  NtOfsCloseIndex closes an index handle.  The index must not be acquired for this
@@ -588,10 +588,10 @@ NtOfsUpdateRecord (
 
 NTFSAPI
 VOID
-NtOfsCloseIndex (
+NtOfsCloseIndex(
     IN PIRP_CONTEXT IrpContext,
     IN INDEX_HANDLE IndexHandle
-    );
+);
 
 
 //  NtOfsDeleteIndex removes an index attribute from an object.  The object will be
@@ -600,13 +600,13 @@ NtOfsCloseIndex (
 
 NTFSAPI
 VOID
-NtOfsDeleteIndex (
+NtOfsDeleteIndex(
     IN PIRP_CONTEXT IrpContext,
     IN OBJECT_HANDLE ObjectHandle,
     IN INDEX_HANDLE IndexHandle
-    );
+);
 
-
+
 
 
 //  Map API - These encapsulate the NtOfs/Cache manager interactions
@@ -636,14 +636,14 @@ NtOfsDeleteIndex (
 #ifndef _NTFSPROC_
 NTFSAPI
 VOID
-NtOfsMapAttribute (
+NtOfsMapAttribute(
     IN PIRP_CONTEXT IrpContext,
     IN ATTRIBUTE_HANDLE Attribute,
     IN LONGLONG Offset,
     IN ULONG Length,
-    OUT PVOID *Buffer,
+    OUT PVOID* Buffer,
     OUT PMAP_HANDLE MapHandle
-    );
+);
 
 #else
 #ifdef MAPCOUNT_DBG
@@ -673,14 +673,14 @@ NtOfsMapAttribute (
 #ifndef _NTFSPROC_
 NTFSAPI
 VOID
-NtOfsPreparePinWrite (
+NtOfsPreparePinWrite(
     IN PIRP_CONTEXT IrpContext,
     IN ATTRIBUTE_HANDLE Attribute,
     IN LONGLONG Offset,
     IN ULONG Length,
-    OUT PVOID *Buffer,
+    OUT PVOID* Buffer,
     OUT PMAP_HANDLE MapHandle
-    );
+);
 
 #else
 #ifdef MAPCOUNT_DBG
@@ -722,7 +722,7 @@ NtOfsPinRead(
     IN LONGLONG Offset,
     IN ULONG Length,
     OUT PMAP_HANDLE MapHandle
-    );
+);
 
 #else
 #ifdef MAPCOUNT_DBG
@@ -768,10 +768,10 @@ NtOfsPinRead(
 #ifndef _NTFSPROC_
 NTFSAPI
 VOID
-NtOfsReleaseMap (
+NtOfsReleaseMap(
     IN PIRP_CONTEXT IrpContext,
     IN PMAP_HANDLE MapHandle
-    );
+);
 
 #else
 
@@ -803,16 +803,16 @@ NtOfsReleaseMap (
 
 NTFSAPI
 VOID
-NtOfsPutData (
+NtOfsPutData(
     IN PIRP_CONTEXT IrpContext,
     IN ATTRIBUTE_HANDLE Attribute,
     IN LONGLONG Offset,
     IN ULONG Length,
     IN PVOID Data OPTIONAL
-    );
+);
 
 
-
+
 
 
 //  Attribute API - These encapsulate access to attributes on files/directories
@@ -830,14 +830,14 @@ NtOfsPutData (
 
 NTFSAPI
 NTSTATUS
-NtOfsCreateAttribute (
+NtOfsCreateAttribute(
     IN PIRP_CONTEXT IrpContext,
     IN OBJECT_HANDLE ObjectHandle,
     IN UNICODE_STRING Name,
     IN CREATE_OPTIONS CreateOptions,
     IN ULONG LogNonresidentToo,
-    OUT ATTRIBUTE_HANDLE *AttributeHandle
-    );
+    OUT ATTRIBUTE_HANDLE* AttributeHandle
+);
 
 
 //  NtOfsCreateAttributeEx will create or open an attribute and return a handle
@@ -852,15 +852,15 @@ NtOfsCreateAttribute (
 
 NTFSAPI
 NTSTATUS
-NtOfsCreateAttributeEx (
+NtOfsCreateAttributeEx(
     IN PIRP_CONTEXT IrpContext,
     IN OBJECT_HANDLE ObjectHandle,
     IN UNICODE_STRING Name,
     IN ULONG AttributeTypeCode,
     IN CREATE_OPTIONS CreateOptions,
     IN ULONG LogNonresidentToo,
-    OUT ATTRIBUTE_HANDLE *AttributeHandle
-    );
+    OUT ATTRIBUTE_HANDLE* AttributeHandle
+);
 
 
 //  Valid AttributeTypeCode values for NtOfsCreateAttributeEx:
@@ -876,10 +876,10 @@ NtOfsCreateAttributeEx (
 
 NTFSAPI
 VOID
-NtOfsCloseAttribute (
+NtOfsCloseAttribute(
     IN PIRP_CONTEXT IrpContext,
     IN ATTRIBUTE_HANDLE AttributeHandle
-    );
+);
 
 
 //  NtOfsDeleteAttribute releases all storage associated with the attribute.  The
@@ -889,11 +889,11 @@ NtOfsCloseAttribute (
 
 NTFSAPI
 VOID
-NtOfsDeleteAttribute (
+NtOfsDeleteAttribute(
     IN PIRP_CONTEXT IrpContext,
     IN OBJECT_HANDLE ObjectHandle,
     IN ATTRIBUTE_HANDLE AttributeHandle
-    );
+);
 
 
 //  NtOfsQueryLength returns the current length of user data within the attribute.
@@ -902,9 +902,9 @@ NtOfsDeleteAttribute (
 
 NTFSAPI
 LONGLONG
-NtOfsQueryLength (
+NtOfsQueryLength(
     IN ATTRIBUTE_HANDLE AttributeHandle
-    );
+);
 
 
 //  NtOfsSetLength sets the current EOF on the given attribute.  The attribute
@@ -914,11 +914,11 @@ NtOfsQueryLength (
 
 NTFSAPI
 VOID
-NtOfsSetLength (
+NtOfsSetLength(
     IN PIRP_CONTEXT IrpContext,
     IN ATTRIBUTE_HANDLE Attribute,
     IN LONGLONG Length
-    );
+);
 
 //  NtOfsWaitForNewLength allows the caller to wait for the specified length to
 //  be exceeded, or optionally timeout, if the specified Irp has not been cancelled.
@@ -926,14 +926,14 @@ NtOfsSetLength (
 
 NTFSAPI
 NTSTATUS
-NtOfsWaitForNewLength (
+NtOfsWaitForNewLength(
     IN ATTRIBUTE_HANDLE Attribute,
     IN LONGLONG Length,
     IN ULONG Async,
     IN PIRP Irp,
     IN PDRIVER_CANCEL CancelRoutine,
     IN PLARGE_INTEGER Timeout OPTIONAL
-    );
+);
 
 
 //  This routine may be called any time FileSize has changed to wake any threads
@@ -942,11 +942,11 @@ NtOfsWaitForNewLength (
 
 
 VOID
-NtOfsPostNewLength (
+NtOfsPostNewLength(
     IN PIRP_CONTEXT IrpContext OPTIONAL,
     IN ATTRIBUTE_HANDLE Attribute,
     IN BOOLEAN WakeAll
-    );
+);
 
 
 //  NtOfsDecommit releases storage associated with a range of the attribute.  It does
@@ -966,12 +966,12 @@ NtOfsPostNewLength (
 
 NTFSAPI
 VOID
-NtOfsDecommit (
+NtOfsDecommit(
     IN PIRP_CONTEXT IrpContext,
     IN ATTRIBUTE_HANDLE Attribute,
     IN LONGLONG Offset,
     IN LONGLONG Length
-    );
+);
 
 
 //  NtOfsFlushAttribute flushes all cached data to the disk and returns upon
@@ -982,11 +982,11 @@ NtOfsDecommit (
 
 NTFSAPI
 VOID
-NtOfsFlushAttribute (
+NtOfsFlushAttribute(
     IN PIRP_CONTEXT IrpContext,
     IN ATTRIBUTE_HANDLE Attribute,
     IN ULONG Purge
-    );
+);
 
 
 //  NtOfsQueryAttributeSecurityId returns the security ID for the attribute if
@@ -995,13 +995,13 @@ NtOfsFlushAttribute (
 
 NTFSAPI
 VOID
-NtOfsQueryAttributeSecurityId (
+NtOfsQueryAttributeSecurityId(
     IN PIRP_CONTEXT IrpContext,
     IN ATTRIBUTE_HANDLE Attribute,
-    OUT SECURITY_ID *SecurityId
-    );
+    OUT SECURITY_ID* SecurityId
+);
 
-
+
 
 
 //  Concurrency control API
@@ -1016,9 +1016,9 @@ NtOfsQueryAttributeSecurityId (
 
 
 VOID
-NtOfsAcquireObjectShared (
+NtOfsAcquireObjectShared(
     HANDLE ObjectHandle
-    );
+);
 
 //  VOID
 //  NtOfsAcquireObjectExclusive (
@@ -1026,23 +1026,23 @@ NtOfsAcquireObjectShared (
 //      );
 
 VOID
-NtOfsReleaseObject (
+NtOfsReleaseObject(
     HANDLE ObjectHandle
-    );
+);
 
 //  Debugging routines
 BOOLEAN
-NtOfsIsObjectAcquiredExclusive (
+NtOfsIsObjectAcquiredExclusive(
     HANDLE ObjectHandle
-    );
+);
 
 BOOLEAN
-NtOfsIsObjectAcquiredShared (
+NtOfsIsObjectAcquiredShared(
     HANDLE ObjectHandle
-    );
+);
 
 
-
+
 
 
 //  File/Directory/Etc API
@@ -1056,12 +1056,12 @@ NtOfsIsObjectAcquiredShared (
 
 NTFSAPI
 NTSTATUS
-NtOfsOpenByFileReference (
+NtOfsOpenByFileReference(
     IN PIRP_CONTEXT IrpContext,
     IN FILE_REFERENCE FileReference,
     IN EXCLUSION Exclusion,
-    OUT OBJECT_HANDLE *ObjectHandle
-    );
+    OUT OBJECT_HANDLE* ObjectHandle
+);
 
 
 //  NtOfsCreateRelativeObject opens or creates an object relative to a specified
@@ -1074,14 +1074,14 @@ NtOfsOpenByFileReference (
 
 NTFSAPI
 NTSTATUS
-NtOfsCreateRelativeObject (
+NtOfsCreateRelativeObject(
     IN PIRP_CONTEXT IrpContext,
     IN OBJECT_HANDLE ParentObjectHandle,
     IN UNICODE_STRING Name,
     IN CREATE_OPTIONS CreateOptions,
     IN EXCLUSION Exclusion,
-    OUT OBJECT_HANDLE *ObjectHandle
-    );
+    OUT OBJECT_HANDLE* ObjectHandle
+);
 
 
 //  NtOfsCloseObject releases the object handle.
@@ -1089,10 +1089,10 @@ NtOfsCreateRelativeObject (
 
 NTFSAPI
 NTSTATUS
-NtOfsCloseObject (
+NtOfsCloseObject(
     IN PIRP_CONTEXT IrpContext,
     IN OBJECT_HANDLE ObjectHandle
-    );
+);
 
 
 //  NtOfsDeleteObject deletes the object.  No user-mode handle is attached to
@@ -1102,10 +1102,10 @@ NtOfsCloseObject (
 
 NTFSAPI
 NTSTATUS
-NtOfsDeleteObject (
+NtOfsDeleteObject(
     IN PIRP_CONTEXT IrpContext,
     IN OBJECT_HANDLE ObjectHandle
-    );
+);
 
 
 //  NtOfsDeleteAllAttributes deletes all attributes of the object.  No attribute
@@ -1114,10 +1114,10 @@ NtOfsDeleteObject (
 
 NTFSAPI
 NTSTATUS
-NtOfsDeleteAllAttributes (
+NtOfsDeleteAllAttributes(
     IN PIRP_CONTEXT IrpContext,
     IN OBJECT_HANDLE ObjectHandle
-    );
+);
 
 
 //  NtOfsQueryPathFromRoot returns *A* path from the root to a node.  In the
@@ -1127,11 +1127,11 @@ NtOfsDeleteAllAttributes (
 
 NTFSAPI
 NTSTATUS
-NtOfsQueryPathFromRoot (
+NtOfsQueryPathFromRoot(
     IN PIRP_CONTEXT IrpContext,
     IN FILE_REFERENCE FileReference,
-    OUT UNICODE_STRING *PathName
-    );
+    OUT UNICODE_STRING* PathName
+);
 
 
 //  NtOfsQueryFileName returns the final component in the path name into a
@@ -1141,11 +1141,11 @@ NtOfsQueryPathFromRoot (
 
 NTFSAPI
 NTSTATUS
-NtOfsQueryFileName (
+NtOfsQueryFileName(
     IN PIRP_CONTEXT IrpContext,
     IN FILE_REFERENCE FileReference,
-    OUT UNICODE_STRING *FileName
-    );
+    OUT UNICODE_STRING* FileName
+);
 
 
 //  NtOfsQueryFileReferenceFromName returns the file reference named by the path
@@ -1153,11 +1153,11 @@ NtOfsQueryFileName (
 
 NTFSAPI
 NTSTATUS
-NtOfsQueryFileReferenceFromName (
+NtOfsQueryFileReferenceFromName(
     IN PIRP_CONTEXT IrpContext,
     IN UNICODE_STRING Name,
-    OUT FILE_REFERENCE *FileReference
-    );
+    OUT FILE_REFERENCE* FileReference
+);
 
 
 //  This call must be very fast;  it is a very common call made by CI/Query.
@@ -1165,10 +1165,10 @@ NtOfsQueryFileReferenceFromName (
 
 NTFSAPI
 NTSTATUS
-NtOfsQueryFileReferenceFromHandle (
+NtOfsQueryFileReferenceFromHandle(
     IN OBJECT_HANDLE Object,
-    OUT FILE_REFERENCE *FileReference
-    );
+    OUT FILE_REFERENCE* FileReference
+);
 
 
 //  NtOfsQueryObjectSecurityId returns the security Id associated with an object.
@@ -1177,14 +1177,14 @@ NtOfsQueryFileReferenceFromHandle (
 
 NTFSAPI
 NTSTATUS
-NtOfsQueryObjectSecurityId (
+NtOfsQueryObjectSecurityId(
     IN PIRP_CONTEXT IrpContext,
     IN OBJECT_HANDLE ObjectHandle,
-    OUT SECURITY_ID *SecurityId
-    );
+    OUT SECURITY_ID* SecurityId
+);
 
 
-
+
 
 
 //  Scope API
@@ -1199,11 +1199,11 @@ NtOfsQueryObjectSecurityId (
 
 NTFSAPI
 NTSTATUS
-NtOfsIsAncestorOf (
+NtOfsIsAncestorOf(
     IN PIRP_CONTEXT IrpContext,
     IN FILE_REFERENCE Ancestor,
     IN FILE_REFERENCE Child
-    );
+);
 
 
 //  NtOfsGetParentFileReferenceFromHandle is used to retrieve the FileReference
@@ -1213,14 +1213,14 @@ NtOfsIsAncestorOf (
 
 NTFSAPI
 NTSTATUS
-NtOfsGetParentFileReferenceFromHandle (
+NtOfsGetParentFileReferenceFromHandle(
     IN PIRP_CONTEXT IrpContext,
     IN OBJECT_HANDLE ChildObject,
-    OUT FILE_REFERENCE *ParentFileReference
-    );
+    OUT FILE_REFERENCE* ParentFileReference
+);
 
 
-
+
 
 
 //  Security API
@@ -1236,9 +1236,9 @@ NtOfsGetParentFileReferenceFromHandle (
 
 NTFSAPI
 NTSTATUS
-NtOfsClearSecurityCache (
+NtOfsClearSecurityCache(
     IN PIRP_CONTEXT IrpContext
-    );
+);
 
 
 //  NtOfsIsAccessGranted uses the Se routines to validate access and caches the
@@ -1251,22 +1251,22 @@ NtOfsClearSecurityCache (
 
 NTFSAPI
 NTSTATUS
-NtOfsIsAccessGranted (
+NtOfsIsAccessGranted(
     IN PIRP_CONTEXT IrpContext,
     IN SECURITY_ID SecurityId,
     IN ACCESS_MASK DesiredAccess,
-    IN ACCESS_STATE *SecurityAccessState
-    );
+    IN ACCESS_STATE* SecurityAccessState
+);
 
 
-
+
 
 
 //  Worker thread stuff.  Worker threads are needed for building new indexes
 
 
 
-
+
 
 
 //  Miscellaneous information query/set
@@ -1279,12 +1279,12 @@ NtOfsIsAccessGranted (
 
 NTFSAPI
 NTSTATUS
-NtOfsMarkVolumeCorrupt (
+NtOfsMarkVolumeCorrupt(
     IN PIRP_CONTEXT IrpContext,
     IN ULONG NewState,
     IN ULONG StateMask,
-    OUT ULONG *OldState
-    );
+    OUT ULONG* OldState
+);
 
 
 //  NtOfsQueryVolumeStatistics returns the current capacity and free space on a
@@ -1294,11 +1294,11 @@ NtOfsMarkVolumeCorrupt (
 
 NTFSAPI
 NTSTATUS
-NtOfsQueryVolumeStatistics (
+NtOfsQueryVolumeStatistics(
     IN PIRP_CONTEXT IrpContext,
-    OUT LONGLONG *TotalClusters,
-    OUT LONGLONG *FreeClusters
-    );
+    OUT LONGLONG* TotalClusters,
+    OUT LONGLONG* FreeClusters
+);
 
 
 //  Query needs to retain some state in the NtOfs Ccb.
@@ -1306,17 +1306,17 @@ NtOfsQueryVolumeStatistics (
 
 NTFSAPI
 NTSTATUS
-NtOfsQueryHandleState (
+NtOfsQueryHandleState(
     IN PIRP_CONTEXT IrpContext,
-    OUT VOID *OldData
-    );
+    OUT VOID* OldData
+);
 
 NTFSAPI
 NTSTATUS
-NtOfsSetHandleState (
+NtOfsSetHandleState(
     IN PIRP_CONTEXT IrpContext,
-    IN VOID *Data
-    );
+    IN VOID* Data
+);
 
 
 //  Generic unwrapping routines that get access to SCB/IRPC and FCB/IRPC
@@ -1325,17 +1325,17 @@ NtOfsSetHandleState (
 
 NTFSAPI
 NTSTATUS
-NtOfsQueryAttributeHandle (
+NtOfsQueryAttributeHandle(
     IN PIRP_CONTEXT IrpContext,
-    OUT ATTRIBUTE_HANDLE *AttributeHandle
-    );
+    OUT ATTRIBUTE_HANDLE* AttributeHandle
+);
 
 NTFSAPI
 NTSTATUS
-NtOfsQueryObjectHandle (
+NtOfsQueryObjectHandle(
     IN PIRP_CONTEXT IrpContext,
-    OUT OBJECT_HANDLE *ObjectHandle
-    );
+    OUT OBJECT_HANDLE* ObjectHandle
+);
 
 
 //  Create a context in which the caller can perform I/O in separate.
@@ -1346,10 +1346,10 @@ NtOfsQueryObjectHandle (
 
 NTFSAPI
 NTSTATUS
-NtOfsCloneIrpContext (
+NtOfsCloneIrpContext(
     IN PIRP_CONTEXT IrpContext,
-    OUT PIRP_CONTEXT *NewIrpContext
-    );
+    OUT PIRP_CONTEXT* NewIrpContext
+);
 
 
 //  NtOfsCompleteRequest completes an IrpContext that has been previously cloned.
@@ -1358,13 +1358,13 @@ NtOfsCloneIrpContext (
 
 NTFSAPI
 NTSTATUS
-NtOfsCompleteRequest (
+NtOfsCompleteRequest(
     IN PIRP_CONTEXT IrpContext,
     NTSTATUS Status
-    );
+);
 
 
-
+
 
 
 //  Iterators.  While each iterator is created through a separate API, each one
@@ -1400,54 +1400,54 @@ typedef struct _USN_ITERATOR USN_ITERATOR;
 
 NTFSAPI
 NTSTATUS
-NtOfsCreateBaseFileSegmentIterator (
+NtOfsCreateBaseFileSegmentIterator(
     IN PIRP_CONTEXT IrpContext,
-    OUT BASE_FILE_SEGMENT_ITERATOR *Iterator
-    );
+    OUT BASE_FILE_SEGMENT_ITERATOR* Iterator
+);
 
 NTFSAPI
 NTSTATUS
-NtOfsNextBaseFileSegmentIteration (
+NtOfsNextBaseFileSegmentIteration(
     IN PIRP_CONTEXT IrpContext,
-    IN BASE_FILE_SEGMENT_ITERATOR *Iterator,
-    IN OUT ULONG *BufferLength,
+    IN BASE_FILE_SEGMENT_ITERATOR* Iterator,
+    IN OUT ULONG* BufferLength,
     IN OUT PVOID Buffer
-    );
+);
 
 NTFSAPI
 NTSTATUS
-NtOfsCloseBaseFileSegmentIterator (
+NtOfsCloseBaseFileSegmentIterator(
     IN PIRP_CONTEXT IrpContext,
-    IN BASE_FILE_SEGMENT_ITERATOR *Iterator
-    );
+    IN BASE_FILE_SEGMENT_ITERATOR* Iterator
+);
 
 NTFSAPI
 NTSTATUS
-NtOfsCreateUsnIterator (
+NtOfsCreateUsnIterator(
     IN PIRP_CONTEXT IrpContext,
     IN USN BeginningUsn,
     IN USN EndingUsn,
-    OUT USN_ITERATOR *Iterator
-    );
+    OUT USN_ITERATOR* Iterator
+);
 
 NTFSAPI
 NTSTATUS
-NtOfsNextUsnIteration (
+NtOfsNextUsnIteration(
     IN PIRP_CONTEXT IrpContext,
-    IN USN_ITERATOR *Iterator,
-    IN OUT ULONG *BufferLength,
+    IN USN_ITERATOR* Iterator,
+    IN OUT ULONG* BufferLength,
     IN OUT PVOID Buffer
-    );
+);
 
 NTFSAPI
 NTSTATUS
-NtOfsCloseUsnIterator (
+NtOfsCloseUsnIterator(
     IN PIRP_CONTEXT IrpContext,
-    IN USN_ITERATOR *Iterator
-    );
+    IN USN_ITERATOR* Iterator
+);
 
 
-
+
 
 
 //  Infrastructure support.
@@ -1461,7 +1461,7 @@ typedef enum _NTFS_ADDON_TYPES {
 } NTFS_ADDON_TYPES;
 
 
-
+
 
 
 //  Encryption
@@ -1516,9 +1516,9 @@ typedef NTSTATUS
     IN PIRP_CONTEXT IrpContext,
     IN PDEVICE_OBJECT VolDo,
     IN PVOID FileKeyContext,
-    IN OUT PVOID *PKeyContext,
-    IN OUT ULONG *ContextLength,
-    IN OUT PVOID *PCreateContext,
+    IN OUT PVOID* PKeyContext,
+    IN OUT ULONG* ContextLength,
+    IN OUT PVOID* PCreateContext,
     IN OUT PBOOLEAN Reserved
     );
 
@@ -1535,7 +1535,7 @@ typedef NTSTATUS
     IN PIRP Irp,
     IN PFILE_OBJECT FileObject,
     IN NTSTATUS Status,
-    IN OUT PVOID *PCreateContext
+    IN OUT PVOID* PCreateContext
     );
 
 typedef NTSTATUS
@@ -1543,7 +1543,7 @@ typedef NTSTATUS
     IN PVOID PInputBuffer OPTIONAL,
     IN ULONG InputDataLength,
     OUT PVOID OutputBuffer OPTIONAL,
-    IN OUT ULONG *OutputBufferLength OPTIONAL,
+    IN OUT ULONG* OutputBufferLength OPTIONAL,
     IN ULONG EncryptionFlag,
     IN ULONG AccessFlag,
     IN ULONG FsControlCode,
@@ -1551,8 +1551,8 @@ typedef NTSTATUS
     IN PIRP_CONTEXT IrpContext,
     IN PDEVICE_OBJECT VolDo,
     IN ATTRIBUTE_HANDLE Attribute,
-    IN OUT PVOID *PContext OPTIONAL,
-    IN OUT ULONG *ContextLength OPTIONAL
+    IN OUT PVOID* PContext OPTIONAL,
+    IN OUT ULONG* ContextLength OPTIONAL
     );
 
 typedef NTSTATUS
@@ -1581,7 +1581,7 @@ typedef NTSTATUS
 
 typedef VOID
 (*ENCRYPTED_FILE_CLEANUP)(
-    IN OUT PVOID *Context
+    IN OUT PVOID* Context
     );
 
 #define ENCRYPTION_CURRENT_INTERFACE_VERSION 3
@@ -1601,7 +1601,7 @@ typedef struct _ENCRYPTION_CALL_BACK {
     ENCRYPTED_FILE_READ AfterReadProcess;
     ENCRYPTED_FILE_WRITE BeforeWriteProcess;
     ENCRYPTED_FILE_CLEANUP CleanUp;
-} ENCRYPTION_CALL_BACK, *PENCRYPTION_CALL_BACK;
+} ENCRYPTION_CALL_BACK, * PENCRYPTION_CALL_BACK;
 
 
 //  NtOfsRegisterCallBacks supplies a call table to NtOfs.  Each table has an
@@ -1611,8 +1611,8 @@ typedef struct _ENCRYPTION_CALL_BACK {
 
 NTFSAPI
 NTSTATUS
-NtOfsRegisterCallBacks (
+NtOfsRegisterCallBacks(
     NTFS_ADDON_TYPES NtfsAddonType,
     PVOID CallBackTable
-    );
+);
 

@@ -57,7 +57,7 @@ AuthDialogProc(
     UINT msg,
     WPARAM wparam,
     LPARAM lparam
-    );
+);
 
 INT_PTR
 CALLBACK
@@ -66,7 +66,7 @@ OkCancelDialogProc(
     UINT msg,
     WPARAM wparam,
     LPARAM lparam
-    );
+);
 
 INT_PTR
 CALLBACK
@@ -75,14 +75,14 @@ InsertCDDialogProc(
     UINT msg,
     WPARAM wparam,
     LPARAM lparam
-    );
+);
 
 
 VOID
 UpdateGlobalSecuritySettings(
     IN DWORD dwCtlId,
     IN DWORD dwFlags
-    );
+);
 
 
 
@@ -94,12 +94,12 @@ UpdateGlobalSecuritySettings(
 
 DWORD
 LaunchAuthPlugInDlg(
-                AUTHCTX * pAuthCtx,
-                HWND hWnd,
-                DWORD dwError,
-                DWORD dwFlags,
-                InvalidPassType *pipAuthUIInfo
-                )
+    AUTHCTX* pAuthCtx,
+    HWND hWnd,
+    DWORD dwError,
+    DWORD dwFlags,
+    InvalidPassType* pipAuthUIInfo
+)
 /*++
 
 Routine Description:
@@ -140,16 +140,16 @@ Return Value:
 
 {
     DEBUG_ENTER((DBG_INET,
-                Dword,
-                "LaunchAuthPlugInDlg",
-                "%#x, %#x, %d (%s), %#x, %#x",
-                pAuthCtx->_pvContext,
-                hWnd,
-                dwError,
-                InternetMapError(dwError),
-                dwFlags,
-                pAuthCtx->_pPWC
-                ));
+                 Dword,
+                 "LaunchAuthPlugInDlg",
+                 "%#x, %#x, %d (%s), %#x, %#x",
+                 pAuthCtx->_pvContext,
+                 hWnd,
+                 dwError,
+                 InternetMapError(dwError),
+                 dwFlags,
+                 pAuthCtx->_pPWC
+                 ));
 
     DWORD error = ERROR_SUCCESS;
 
@@ -158,17 +158,12 @@ Return Value:
     //  to Defer to Its Own Dialog Code.
 
 
-    if (pAuthCtx->GetFlags() & PLUGIN_AUTH_FLAGS_CAN_HANDLE_UI)
-    {
+    if (pAuthCtx->GetFlags() & PLUGIN_AUTH_FLAGS_CAN_HANDLE_UI) {
         // Digest context handles its own ui.
-        if (pAuthCtx->GetSchemeType() == AUTHCTX::SCHEME_DIGEST)
-        {
-            error = ((DIGEST_CTX*) pAuthCtx)->PromptForCreds(hWnd);
-        }
-        else
-        {
-            __try
-            {
+        if (pAuthCtx->GetSchemeType() == AUTHCTX::SCHEME_DIGEST) {
+            error = ((DIGEST_CTX*)pAuthCtx)->PromptForCreds(hWnd);
+        } else {
+            __try {
                 // The package handles it's own UI, possibly generating an auth
                 // header.
 
@@ -181,13 +176,12 @@ Return Value:
                 ssResult = SEC_E_INTERNAL_ERROR;
 
                 error = AuthenticateUserUI
-                    (&pAuthCtx->_pvContext, hWnd, dwError, dwFlags, pipAuthUIInfo,
-                        pAuthCtx->GetScheme(), &ssResult);
+                (&pAuthCtx->_pvContext, hWnd, dwError, dwFlags, pipAuthUIInfo,
+                 pAuthCtx->GetScheme(), &ssResult);
 
 
                 // Transit to the correct auth state.
-                if (ssResult == SEC_E_OK || ssResult == SEC_I_CONTINUE_NEEDED)
-                {
+                if (ssResult == SEC_E_OK || ssResult == SEC_I_CONTINUE_NEEDED) {
                     if (pAuthCtx->GetSchemeType() == AUTHCTX::SCHEME_NEGOTIATE)
                         ((PLUG_CTX*)pAuthCtx)->ResolveProtocol();
 
@@ -195,9 +189,8 @@ Return Value:
                     // Negotiate does not transit to challenge.
                     // Any other protocol + SEC_E_OK only transits to challenge.
                     if ((pAuthCtx->GetSchemeType() == AUTHCTX::SCHEME_KERBEROS
-                        && (ssResult == SEC_E_OK || ssResult == SEC_I_CONTINUE_NEEDED))
-                        || (pAuthCtx->GetSchemeType() != AUTHCTX::SCHEME_NEGOTIATE && ssResult == SEC_E_OK))
-                    {
+                         && (ssResult == SEC_E_OK || ssResult == SEC_I_CONTINUE_NEEDED))
+                        || (pAuthCtx->GetSchemeType() != AUTHCTX::SCHEME_NEGOTIATE && ssResult == SEC_E_OK)) {
                         pAuthCtx->_pRequest->SetAuthState(AUTHSTATE_CHALLENGE);
                     }
                 }
@@ -205,21 +198,18 @@ Return Value:
 
 
             __except (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION
-                            ? EXCEPTION_EXECUTE_HANDLER
-                            : EXCEPTION_CONTINUE_SEARCH )
-            {
+                      ? EXCEPTION_EXECUTE_HANDLER
+                      : EXCEPTION_CONTINUE_SEARCH) {
                 DEBUG_PRINT(HTTP,
-                        ERROR,
-                        ("AuthenticateUserUI call down Faulted, return failure\n"));
+                            ERROR,
+                            ("AuthenticateUserUI call down Faulted, return failure\n"));
 
                 error = ERROR_BAD_FORMAT;
                 goto quit;
             }
             ENDEXCEPT
         }
-    }
-    else
-    {
+    } else {
 
         // I don't expect to be called in this case
 
@@ -237,11 +227,11 @@ quit:
 
 DWORD
 LaunchDlg(
-          IN HWND      hWnd,
-          IN LPVOID    lpParam,
-          IN DWORD     dwDlgResource,
-          IN DLGPROC   pDlgProc
-          )
+    IN HWND      hWnd,
+    IN LPVOID    lpParam,
+    IN DWORD     dwDlgResource,
+    IN DLGPROC   pDlgProc
+)
 /*++
 
 Routine Description:
@@ -270,19 +260,19 @@ Return Value:
 
 {
     DEBUG_ENTER((DBG_INET,
-                Dword,
-                "LaunchDlg",
-                "%#x, %#x, %d %x",
-                hWnd,
-                lpParam,
-                dwDlgResource,
-                pDlgProc
-                ));
+                 Dword,
+                 "LaunchDlg",
+                 "%#x, %#x, %d %x",
+                 hWnd,
+                 lpParam,
+                 dwDlgResource,
+                 pDlgProc
+                 ));
 
     DWORD error = ERROR_SUCCESS;
     INT_PTR result = 0;
 
-    if ( dwDlgResource == IDD_NTLM_AUTH
+    if (dwDlgResource == IDD_NTLM_AUTH
         || dwDlgResource == IDD_REALM_AUTH)
         pDlgProc = AuthDialogProc;
 
@@ -293,13 +283,12 @@ Return Value:
 
 
     result = DialogBoxParamWrapW(GlobalResHandle,
-                            MAKEINTRESOURCEW(dwDlgResource),
-                            hWnd,
-                            (DLGPROC) pDlgProc,
-                            (LPARAM) lpParam);
+                                 MAKEINTRESOURCEW(dwDlgResource),
+                                 hWnd,
+                                 (DLGPROC)pDlgProc,
+                                 (LPARAM)lpParam);
 
-    if ( result == FALSE || result == -1)
-    {
+    if (result == FALSE || result == -1) {
         error = ERROR_CANCELLED;
         goto quit;
     }
@@ -317,8 +306,8 @@ MapWininetErrorToDlgId(
     IN  DWORD        dwError,
     OUT LPDWORD     lpdwDlgId,
     OUT LPDWORD     lpdwDlgFlags,
-    OUT DLGPROC     *ppDlgProc
-    )
+    OUT DLGPROC* ppDlgProc
+)
 
 /*++
 
@@ -382,17 +371,15 @@ Comments:
     INET_ASSERT(lpdwDlgId);
     INET_ASSERT(lpdwDlgFlags);
 
-    *lpdwDlgId    = 0;
+    *lpdwDlgId = 0;
     *lpdwDlgFlags = 0;
-    *ppDlgProc    = 0;
+    *ppDlgProc = 0;
 
-    for ( DWORD i = 0; i < ARRAY_ELEMENTS(MapErrorToDlg); i++ )
-    {
-        if (  dwError == MapErrorToDlg[i].dwWininetError )
-        {
-            *lpdwDlgId    = MapErrorToDlg[i].dwDlgId;
+    for (DWORD i = 0; i < ARRAY_ELEMENTS(MapErrorToDlg); i++) {
+        if (dwError == MapErrorToDlg[i].dwWininetError) {
+            *lpdwDlgId = MapErrorToDlg[i].dwDlgId;
             *lpdwDlgFlags = MapErrorToDlg[i].dwDlgFlags;
-            *ppDlgProc    = MapErrorToDlg[i].pDlgProc;
+            *ppDlgProc = MapErrorToDlg[i].pDlgProc;
             return ERROR_SUCCESS;
         }
     }
@@ -411,22 +398,22 @@ CALLBACK
 ResizeAuthDialogProc(
     HWND hwnd,
     LPARAM lparam
-    )
+)
 {
     // passed lpRect contains top and bottom for inserted region, move all elements
     // below the top down by bottom-top
-    LPRECT lpInsertRect = (LPRECT) lparam;
+    LPRECT lpInsertRect = (LPRECT)lparam;
     RECT ChildRect;
     HWND hwndParent;
 
     hwndParent = GetParent(hwnd);
-    if(!hwndParent)
-       return FALSE;
+    if (!hwndParent)
+        return FALSE;
 
     GetWindowRect(hwnd, &ChildRect);
-    if(ChildRect.top >= lpInsertRect->top) {
-        ScreenToClient(hwndParent, (LPPOINT) &ChildRect.left);
-        SetWindowPos(hwnd, 0, ChildRect.left, ChildRect.top + (lpInsertRect->bottom - lpInsertRect->top), 0, 0, SWP_NOZORDER|SWP_NOSIZE);
+    if (ChildRect.top >= lpInsertRect->top) {
+        ScreenToClient(hwndParent, (LPPOINT)&ChildRect.left);
+        SetWindowPos(hwnd, 0, ChildRect.left, ChildRect.top + (lpInsertRect->bottom - lpInsertRect->top), 0, 0, SWP_NOZORDER | SWP_NOSIZE);
     }
     return TRUE;
 }
@@ -438,7 +425,7 @@ AuthDialogProc(
     UINT msg,
     WPARAM wparam,
     LPARAM lparam
-    )
+)
 
 /*++
 
@@ -485,22 +472,21 @@ Return Value:
     static BOOL fLastCredentialsFromStore = FALSE;
     WCHAR  wszTmp[MAX_FIELD_LENGTH];
 
-    InvalidPassType *ipt;
+    InvalidPassType* ipt;
     PLOCAL_STRINGS plszStrings = FetchLocalStrings();
 
-    switch (msg)
-    {
+    switch (msg) {
 
     case WM_INITDIALOG:
 
         INET_ASSERT(lparam);
 
         CHAR szUsername[MAX_FIELD_LENGTH],
-             szPassword[MAX_FIELD_LENGTH];
+            szPassword[MAX_FIELD_LENGTH];
 
-        CHAR *pUsr, *pDmn, *ptr;
+        CHAR* pUsr, * pDmn, * ptr;
 
-        ipt = (InvalidPassType *)lparam;
+        ipt = (InvalidPassType*)lparam;
 
         SetForegroundWindow(hwnd);
 
@@ -516,17 +502,14 @@ Return Value:
             ShowWindow(GetDlgItem(hwnd, IDC_SAVE_PASSWORD), SW_HIDE);
 
         // If any credentials are passed in, use them.
-        if (*ipt->lpszUsername && *ipt->lpszPassword)
-        {
+        if (*ipt->lpszUsername && *ipt->lpszPassword) {
             // Flag that credentials did not come from
             // persistent store and copy values.
             fLastCredentialsFromStore = FALSE;
-            memcpy(szUsername, ipt->lpszUsername, ipt->ulMaxField-1);
-//            memcpy(szPassword, ipt->lpszPassword, ipt->ulMaxField-1);
+            memcpy(szUsername, ipt->lpszUsername, ipt->ulMaxField - 1);
+            //            memcpy(szPassword, ipt->lpszPassword, ipt->ulMaxField-1);
             *szPassword = '\0';
-        }
-        else
-        {
+        } else {
             // Otherwise, get any persisted credentials for this domain or realm.
 
             // Current credentials are originally blank.
@@ -534,11 +517,9 @@ Return Value:
             *szPassword = '\0';
 
             // Attempt to get credentials from persisted store.
-            if (g_dwCredPersistAvail)
-            {
+            if (g_dwCredPersistAvail) {
                 if (InetGetCachedCredentials(ipt->lpszHost, ipt->lpszRealm,
-                    szUsername, szPassword) == ERROR_SUCCESS)
-                {
+                                             szUsername, szPassword) == ERROR_SUCCESS) {
 #ifdef UNIX
                     /* If the user had not selected to store the password,
                      * we will save the password as NULL, but still save the
@@ -549,19 +530,16 @@ Return Value:
                      * want ie to tell you that you saved a null password ?)
                      */
                     if (!*szPassword) {
-                       fLastCredentialsFromStore = FALSE;
-                       CheckDlgButton(hwnd, IDC_SAVE_PASSWORD, BST_UNCHECKED);
-                    }
-                    else
+                        fLastCredentialsFromStore = FALSE;
+                        CheckDlgButton(hwnd, IDC_SAVE_PASSWORD, BST_UNCHECKED);
+                    } else
 #endif /* UNIX */
                     {
-                       // Record that credentials were retrieved.
-                       CheckDlgButton(hwnd, IDC_SAVE_PASSWORD, BST_CHECKED);
-                       fLastCredentialsFromStore = TRUE;
+                        // Record that credentials were retrieved.
+                        CheckDlgButton(hwnd, IDC_SAVE_PASSWORD, BST_CHECKED);
+                        fLastCredentialsFromStore = TRUE;
                     }
-                }
-                else
-                {
+                } else {
                     // Credentials were not retrieved.
                     fLastCredentialsFromStore = FALSE;
                     CheckDlgButton(hwnd, IDC_SAVE_PASSWORD, BST_UNCHECKED);
@@ -577,70 +555,66 @@ Return Value:
 
         // If the authentication type is NTLM, crack the domain\username stored
         // in ipt->lpszUsername into its constituent parts (domain and username).
-        if (ipt->eAuthType == NTLM_AUTH)
-        {
+        if (ipt->eAuthType == NTLM_AUTH) {
             // Scan Domain\Username for backslash.
             pUsr = strchr(szUsername, DOMAIN_DELIMITER);
 
             // Found backslash - replace with '\0'.
-            if (pUsr)
-            {
+            if (pUsr) {
                 *pUsr = '\0';
                 pUsr++;
                 pDmn = szUsername;
             }
             // No backslash found - take as username.
-            else
-            {
+            else {
                 pUsr = szUsername;
                 pDmn = NULL;
             }
 
             // Set user and domain fields.
             SetWindowTextWrapW(GetDlgItem(hwnd,
-                IDC_DOMAIN_OR_REALM), plszStrings->szDomain);
+                                          IDC_DOMAIN_OR_REALM), plszStrings->szDomain);
 
             // Blindly convert to unicode even tho' we don't know
             // the code page
             wszTmp[0] = TEXT('\0');
-            SHAnsiToUnicode (pUsr, wszTmp, ARRAYSIZE(wszTmp));
-            SetWindowTextWrapW (GetDlgItem(hwnd,IDC_USERNAME), wszTmp);
+            SHAnsiToUnicode(pUsr, wszTmp, ARRAYSIZE(wszTmp));
+            SetWindowTextWrapW(GetDlgItem(hwnd, IDC_USERNAME), wszTmp);
 
             // Indicate field is domain.
             // Blindly convert to unicode even tho' we don't know
             // the code page
             wszTmp[0] = TEXT('\0');
-            SHAnsiToUnicode (pDmn, wszTmp, ARRAYSIZE(wszTmp));
+            SHAnsiToUnicode(pDmn, wszTmp, ARRAYSIZE(wszTmp));
             SetWindowTextWrapW(GetDlgItem(hwnd, IDC_DOMAIN_FIELD), wszTmp);
 
             // Hide IDC_REALM_FIELD which overlays IDC_DOMAIN_FIELD
-            ShowWindow(GetDlgItem(hwnd,IDC_REALM_FIELD), SW_HIDE);
+            ShowWindow(GetDlgItem(hwnd, IDC_REALM_FIELD), SW_HIDE);
         }
 
         // Otherwise if auth type is basic or digest, simply display username.
-        else if (ipt->eAuthType == REALM_AUTH)
-        {
+        else if (ipt->eAuthType == REALM_AUTH) {
             // Set user and realm fields.
             // Blindly convert to unicode even tho' we don't know
             // the code page
             wszTmp[0] = TEXT('\0');
-            SHAnsiToUnicode (szUsername, wszTmp, ARRAYSIZE(wszTmp));
-            SetWindowTextWrapW(GetDlgItem(hwnd,IDC_USERNAME),
-                wszTmp);
+            SHAnsiToUnicode(szUsername, wszTmp, ARRAYSIZE(wszTmp));
+            SetWindowTextWrapW(GetDlgItem(hwnd, IDC_USERNAME),
+                               wszTmp);
 
             // Blindly convert to unicode even tho' we don't know
             // the code page
             wszTmp[0] = TEXT('\0');
-            SHAnsiToUnicode (ipt->lpszRealm, wszTmp, ARRAYSIZE(wszTmp));
+            SHAnsiToUnicode(ipt->lpszRealm, wszTmp, ARRAYSIZE(wszTmp));
             SetWindowTextWrapW(GetDlgItem(hwnd, IDC_REALM_FIELD),
-                wszTmp);
+                               wszTmp);
 
             // Indicate field is realm.
             SetWindowTextWrapW(GetDlgItem(hwnd, IDC_REALM),
-                plszStrings->szRealm);
+                               plszStrings->szRealm);
 
             // qfe 4857 - long realm names are truncated
-            if(ipt->lpszRealm && lstrlen(ipt->lpszRealm) > 20) {
+            if (ipt->lpszRealm && lstrlen(ipt->lpszRealm) > 20) {
                 RECT WndRect;
                 RECT RealmRect;
                 // about 20 chars will fit per line, but bound it at 6 lines
@@ -648,64 +622,59 @@ Return Value:
 
                 //resize window, text box, reposition all lower elements in callback
 
-                GetWindowRect(GetDlgItem(hwnd,IDC_REALM_FIELD), &RealmRect);
+                GetWindowRect(GetDlgItem(hwnd, IDC_REALM_FIELD), &RealmRect);
                 cy *= RealmRect.bottom - RealmRect.top;  // Scale box taller
-                SetWindowPos(GetDlgItem(hwnd,IDC_REALM_FIELD), 0, 0, 0, RealmRect.right- RealmRect.left, RealmRect.bottom- RealmRect.top + cy, SWP_NOZORDER|SWP_NOMOVE);
+                SetWindowPos(GetDlgItem(hwnd, IDC_REALM_FIELD), 0, 0, 0, RealmRect.right - RealmRect.left, RealmRect.bottom - RealmRect.top + cy, SWP_NOZORDER | SWP_NOMOVE);
 
                 GetWindowRect(hwnd, &WndRect);
-                SetWindowPos(hwnd, 0, 0, 0, WndRect.right - WndRect.left, WndRect.bottom - WndRect.top + cy, SWP_NOZORDER|SWP_NOMOVE);
+                SetWindowPos(hwnd, 0, 0, 0, WndRect.right - WndRect.left, WndRect.bottom - WndRect.top + cy, SWP_NOZORDER | SWP_NOMOVE);
 
                 RealmRect.top = RealmRect.bottom;
-                RealmRect.bottom +=cy;   // RealmRect contains the inserted region
-                EnumChildWindows(hwnd, ResizeAuthDialogProc, (LPARAM) &RealmRect);
+                RealmRect.bottom += cy;   // RealmRect contains the inserted region
+                EnumChildWindows(hwnd, ResizeAuthDialogProc, (LPARAM)&RealmRect);
 
 
             }
         }
 
         // Set password field.
-        SetWindowText (GetDlgItem(hwnd,IDC_PASSWORD), szPassword);
+        SetWindowText(GetDlgItem(hwnd, IDC_PASSWORD), szPassword);
 
         // Indicate Site or Firewall as appropriate.
-        if (ipt->fIsProxy)
-        {
-            SetWindowTextWrapW (GetDlgItem(hwnd,IDC_SITE_OR_FIREWALL),
-            plszStrings->szFirewall);
-        }
-        else
-        {
-            SetWindowTextWrapW (GetDlgItem(hwnd,IDC_SITE_OR_FIREWALL),
-            plszStrings->szSite);
+        if (ipt->fIsProxy) {
+            SetWindowTextWrapW(GetDlgItem(hwnd, IDC_SITE_OR_FIREWALL),
+                               plszStrings->szFirewall);
+        } else {
+            SetWindowTextWrapW(GetDlgItem(hwnd, IDC_SITE_OR_FIREWALL),
+                               plszStrings->szSite);
         }
 
         // Finally indicate site/proxy.
-        SetWindowText (GetDlgItem(hwnd,IDC_SERVER_OR_PROXY),
-            ipt->lpszHost);
+        SetWindowText(GetDlgItem(hwnd, IDC_SERVER_OR_PROXY),
+                      ipt->lpszHost);
 
-        (void)SendMessage(GetDlgItem(hwnd,IDC_USERNAME),
+        (void)SendMessage(GetDlgItem(hwnd, IDC_USERNAME),
                           EM_LIMITTEXT,
-                          (WPARAM)ipt->ulMaxField-1,
+                          (WPARAM)ipt->ulMaxField - 1,
                           0L);
 
-        (void)SendMessage(GetDlgItem(hwnd,IDC_PASSWORD),
+        (void)SendMessage(GetDlgItem(hwnd, IDC_PASSWORD),
                           EM_LIMITTEXT,
-                          (WPARAM)ipt->ulMaxField-1,
+                          (WPARAM)ipt->ulMaxField - 1,
                           0L);
 
         // If we already have a username, select
         // current password and put caret at end.
-        if (*szUsername)
-        {
+        if (*szUsername) {
             SendMessage(GetDlgItem(hwnd, IDC_PASSWORD),
-                EM_SETSEL, 0, -1);
+                        EM_SETSEL, 0, -1);
 
             SetFocus(GetDlgItem(hwnd, IDC_PASSWORD));
         }
         // Otherwise, select username
-        else
-        {
+        else {
             SendMessage(GetDlgItem(hwnd, IDC_USERNAME),
-                EM_SETSEL, 0, -1);
+                        EM_SETSEL, 0, -1);
 
             SetFocus(GetDlgItem(hwnd, IDC_USERNAME));
         }
@@ -714,149 +683,139 @@ Return Value:
         return FALSE;
 
     case WM_COMMAND:
-        {
+    {
 
         WORD wID = LOWORD(wparam);
         WORD wNotificationCode = HIWORD(wparam);
-        HWND hWndCtrl = (HWND) lparam;
+        HWND hWndCtrl = (HWND)lparam;
         DWORD cbUsr, cbPass, cbDmn;
 
         ipt =
-            (InvalidPassType *) GetWindowLongPtr(hwnd,DWLP_USER);
+            (InvalidPassType*)GetWindowLongPtr(hwnd, DWLP_USER);
 
-            switch (wID)
-            {
-                case IDOK:
+        switch (wID) {
+        case IDOK:
 
-                    INET_ASSERT(ipt);
-                    INET_ASSERT(ipt->ulMaxField > 0 );
-                    INET_ASSERT(ipt->lpszUsername);
-                    INET_ASSERT(ipt->lpszPassword);
+            INET_ASSERT(ipt);
+            INET_ASSERT(ipt->ulMaxField > 0);
+            INET_ASSERT(ipt->lpszUsername);
+            INET_ASSERT(ipt->lpszPassword);
 
-                    if (ipt->eAuthType == REALM_AUTH)
-                    {
-                        // Basic or digest auth - not much to do.
-                        cbDmn = 0;
+            if (ipt->eAuthType == REALM_AUTH) {
+                // Basic or digest auth - not much to do.
+                cbDmn = 0;
 
-                        // Does not include null.
+                // Does not include null.
 
-                        cbUsr = GetWindowTextWrapW(GetDlgItem(hwnd,IDC_USERNAME),
-                                              wszTmp,
-                                              ARRAYSIZE(wszTmp));
+                cbUsr = GetWindowTextWrapW(GetDlgItem(hwnd, IDC_USERNAME),
+                                           wszTmp,
+                                           ARRAYSIZE(wszTmp));
 
-                        INET_ASSERT(MAX_FIELD_LENGTH >= ipt->ulMaxField);
-                        // Convert this  blindly to ANSI
-                        SHUnicodeToAnsi(wszTmp, ipt->lpszUsername, ipt->ulMaxField);
-                    }
-
-                    // NTLM auth - separate domain and username if necessary.
-                    else if (ipt->eAuthType == NTLM_AUTH)
-                    {
-                        // Does not include null.
-
-
-
-                        cbDmn = GetWindowTextWrapW(GetDlgItem(hwnd,IDC_DOMAIN_FIELD),
-                                              wszTmp,
-                                              ARRAYSIZE(wszTmp));
-
-                        // Convert this blindly to ANSI
-                        SHUnicodeToAnsi(wszTmp, ipt->lpszUsername, ipt->ulMaxField);
-                        // Domain was typed in.
-                        if (cbDmn)
-                        {
-                            // Check for backslash.
-                            ptr = strchr(ipt->lpszUsername, DOMAIN_DELIMITER);
-                            if (!ptr)
-                            {
-                                // No backslash - append one.
-                                *(ipt->lpszUsername + cbDmn) = DOMAIN_DELIMITER;
-                                *(ipt->lpszUsername + cbDmn + 1) = '\0';
-                            }
-                            // Found a backslash.
-                            else
-                            {
-                                // Strip after backslash.
-                                cbDmn = (DWORD)(ptr - ipt->lpszUsername);
-                                *(ptr+1) = '\0';
-                            }
-
-                            cbDmn++;
-                        }
-
-                        // Get the username and append to domain.
-                        cbUsr = GetWindowTextWrapW(GetDlgItem(hwnd,IDC_USERNAME),
-                                              wszTmp,
-                                              ARRAYSIZE(wszTmp));
-
-                        // Convert this blindly to ANSI
-                        // BUGBUG - should i
-                        SHUnicodeToAnsi(wszTmp, ipt->lpszUsername + cbDmn, (ipt->ulMaxField - cbDmn));
-
-                    }
-
-
-                    // Get the password.
-                    cbPass = GetWindowTextWrapW(GetDlgItem(hwnd,IDC_PASSWORD),
-                                              wszTmp,
-                                              ARRAYSIZE(wszTmp));
-
-                    SHUnicodeToAnsi(wszTmp, ipt->lpszPassword, ipt->ulMaxField);
-
-
-                    // If save box checked, persist credentials.
-                    if (IsDlgButtonChecked(hwnd, IDC_SAVE_PASSWORD) == BST_CHECKED)
-                    {
-                        InetSetCachedCredentials(ipt->lpszHost, ipt->lpszRealm,
-                            ipt->lpszUsername, ipt->lpszPassword);
-                    }
-                    else
-                    {
-#ifndef UNIX
-                        // Otherwise remove the credentials from persisted
-                        // store, but only if necessary.
-                        if (fLastCredentialsFromStore)
-                        {
-                            // Current and original credentials are same. Remove
-                            // credentials.
-                            InetRemoveCachedCredentials(ipt->lpszHost, ipt->lpszRealm);
-                        }
-#else
-                    /*
-                     * On Unix, we need to save the username/domain and not
-                     * the password in this case
-                     */
-                    {
-                        InetSetCachedCredentials(ipt->lpszHost, ipt->lpszRealm,
-                            ipt->lpszUsername, NULL);
-                    }
-#endif /* UNIX */
-                    }
-
-                    EndDialog(hwnd, TRUE);
-                    break;
-
-                case IDCANCEL:
-
-                    EndDialog(hwnd, FALSE);
-                    break;
+                INET_ASSERT(MAX_FIELD_LENGTH >= ipt->ulMaxField);
+                // Convert this  blindly to ANSI
+                SHUnicodeToAnsi(wszTmp, ipt->lpszUsername, ipt->ulMaxField);
             }
 
-        return TRUE;
+            // NTLM auth - separate domain and username if necessary.
+            else if (ipt->eAuthType == NTLM_AUTH) {
+                // Does not include null.
+
+
+
+                cbDmn = GetWindowTextWrapW(GetDlgItem(hwnd, IDC_DOMAIN_FIELD),
+                                           wszTmp,
+                                           ARRAYSIZE(wszTmp));
+
+                // Convert this blindly to ANSI
+                SHUnicodeToAnsi(wszTmp, ipt->lpszUsername, ipt->ulMaxField);
+                // Domain was typed in.
+                if (cbDmn) {
+                    // Check for backslash.
+                    ptr = strchr(ipt->lpszUsername, DOMAIN_DELIMITER);
+                    if (!ptr) {
+                        // No backslash - append one.
+                        *(ipt->lpszUsername + cbDmn) = DOMAIN_DELIMITER;
+                        *(ipt->lpszUsername + cbDmn + 1) = '\0';
+                    }
+                    // Found a backslash.
+                    else {
+                        // Strip after backslash.
+                        cbDmn = (DWORD)(ptr - ipt->lpszUsername);
+                        *(ptr + 1) = '\0';
+                    }
+
+                    cbDmn++;
+                }
+
+                // Get the username and append to domain.
+                cbUsr = GetWindowTextWrapW(GetDlgItem(hwnd, IDC_USERNAME),
+                                           wszTmp,
+                                           ARRAYSIZE(wszTmp));
+
+                // Convert this blindly to ANSI
+                // BUGBUG - should i
+                SHUnicodeToAnsi(wszTmp, ipt->lpszUsername + cbDmn, (ipt->ulMaxField - cbDmn));
+
+            }
+
+
+            // Get the password.
+            cbPass = GetWindowTextWrapW(GetDlgItem(hwnd, IDC_PASSWORD),
+                                        wszTmp,
+                                        ARRAYSIZE(wszTmp));
+
+            SHUnicodeToAnsi(wszTmp, ipt->lpszPassword, ipt->ulMaxField);
+
+
+            // If save box checked, persist credentials.
+            if (IsDlgButtonChecked(hwnd, IDC_SAVE_PASSWORD) == BST_CHECKED) {
+                InetSetCachedCredentials(ipt->lpszHost, ipt->lpszRealm,
+                                         ipt->lpszUsername, ipt->lpszPassword);
+            } else {
+#ifndef UNIX
+                // Otherwise remove the credentials from persisted
+                // store, but only if necessary.
+                if (fLastCredentialsFromStore) {
+                    // Current and original credentials are same. Remove
+                    // credentials.
+                    InetRemoveCachedCredentials(ipt->lpszHost, ipt->lpszRealm);
+                }
+#else
+                /*
+                 * On Unix, we need to save the username/domain and not
+                 * the password in this case
+                 */
+                {
+                    InetSetCachedCredentials(ipt->lpszHost, ipt->lpszRealm,
+                                             ipt->lpszUsername, NULL);
+                }
+#endif /* UNIX */
+            }
+
+            EndDialog(hwnd, TRUE);
+            break;
+
+        case IDCANCEL:
+
+            EndDialog(hwnd, FALSE);
+            break;
         }
 
+        return TRUE;
+    }
+
     case WM_HELP:               // F1
-        WinHelp((HWND) ((LPHELPINFO) lparam)->hItemHandle,
-                 "iexplore.hlp",
-                 HELP_WM_HELP,
+        WinHelp((HWND)((LPHELPINFO)lparam)->hItemHandle,
+                "iexplore.hlp",
+                HELP_WM_HELP,
                 (ULONG_PTR)(LPSTR)mapIDCsToIDHs);
 
-    break;
+        break;
 
     case WM_CONTEXTMENU:        // right mouse click
-        WinHelp( hwnd,
-                 "iexplore.hlp",
-                 HELP_CONTEXTMENU,
+        WinHelp(hwnd,
+                "iexplore.hlp",
+                HELP_CONTEXTMENU,
                 (ULONG_PTR)(LPSTR)mapIDCsToIDHs);
         break;
     }
@@ -867,7 +826,7 @@ VOID
 UpdateGlobalSecuritySettings(
     IN DWORD dwCtlId,
     IN DWORD dwFlags
-    )
+)
 
 /*++
 
@@ -894,58 +853,57 @@ Return Value:
 --*/
 
 {
-    switch ( dwCtlId )
-    {
-        case IDD_BAD_CN:
-//        case IDD_BAD_CN_SENDING:
+    switch (dwCtlId) {
+    case IDD_BAD_CN:
+        //        case IDD_BAD_CN_SENDING:
 
 
-            // BUGBUG [arthurbi] these are grouped together,
-            //  they should be seperate.
+                    // BUGBUG [arthurbi] these are grouped together,
+                    //  they should be seperate.
 
 
-            GlobalWarnOnBadCertRecving = FALSE;
-            GlobalWarnOnBadCertSending = FALSE;
+        GlobalWarnOnBadCertRecving = FALSE;
+        GlobalWarnOnBadCertSending = FALSE;
 
-            InternetWriteRegistryDword("WarnOnBadCertSending",
-                                      (DWORD)GlobalWarnOnBadCertSending);
+        InternetWriteRegistryDword("WarnOnBadCertSending",
+            (DWORD)GlobalWarnOnBadCertSending);
 
-            InternetWriteRegistryDword("WarnOnBadCertRecving",
-                                      (DWORD)GlobalWarnOnBadCertRecving);
-
-
-            break;
+        InternetWriteRegistryDword("WarnOnBadCertRecving",
+            (DWORD)GlobalWarnOnBadCertRecving);
 
 
-        case IDD_HTTP_TO_HTTPS_ZONE_CROSSING:
-        case IDD_HTTPS_TO_HTTP_ZONE_CROSSING:
-
-            GlobalWarnOnZoneCrossing = FALSE;
+        break;
 
 
-            InternetWriteRegistryDword("WarnOnZoneCrossing",
-                                      (DWORD)GlobalWarnOnZoneCrossing);
+    case IDD_HTTP_TO_HTTPS_ZONE_CROSSING:
+    case IDD_HTTPS_TO_HTTP_ZONE_CROSSING:
 
-            break;
-
-        case IDD_WARN_ON_POST:
-
-            GlobalWarnOnPost = FALSE;
+        GlobalWarnOnZoneCrossing = FALSE;
 
 
-            InternetWriteRegistryDword("WarnOnPost",
-                                      (DWORD)GlobalWarnOnPost);
+        InternetWriteRegistryDword("WarnOnZoneCrossing",
+            (DWORD)GlobalWarnOnZoneCrossing);
 
-            break;
+        break;
 
-        case IDD_HTTP_POST_REDIRECT:
+    case IDD_WARN_ON_POST:
 
-            GlobalWarnOnPostRedirect = FALSE;
+        GlobalWarnOnPost = FALSE;
 
-            InternetWriteRegistryDword("WarnOnPostRedirect",
-                                      (DWORD)GlobalWarnOnPostRedirect);
 
-            break;
+        InternetWriteRegistryDword("WarnOnPost",
+            (DWORD)GlobalWarnOnPost);
+
+        break;
+
+    case IDD_HTTP_POST_REDIRECT:
+
+        GlobalWarnOnPostRedirect = FALSE;
+
+        InternetWriteRegistryDword("WarnOnPostRedirect",
+            (DWORD)GlobalWarnOnPostRedirect);
+
+        break;
 
     }
 }
@@ -972,11 +930,10 @@ SetCertDlgItem(
 
 
     HICON hicon = (HICON)LoadImage(GlobalResHandle,
-                               MAKEINTRESOURCE(fError ? IDI_WARN : IDI_SUCCESS),
+                                   MAKEINTRESOURCE(fError ? IDI_WARN : IDI_SUCCESS),
                                    IMAGE_ICON, 16, 16, 0);
 
-    if (hicon)
-    {
+    if (hicon) {
         HICON hiconOld = (HICON)SendDlgItemMessage(hDlg, dwIconCtl,
                                                    STM_SETIMAGE,
                                                    (WPARAM)IMAGE_ICON,
@@ -991,8 +948,7 @@ SetCertDlgItem(
     // success string if an error didn't occur.
 
 
-    if (!fError)
-    {
+    if (!fError) {
         WCHAR sz[512];
 
         if (LoadStringWrapW(GlobalResHandle, dwString, sz, ARRAY_ELEMENTS(sz)))
@@ -1018,12 +974,9 @@ BOOL InitSecCertErrorsDlg(
 
     DWORD dwFlags;
 
-    if (pDlgInfo->hInternetMapped)
-    {
+    if (pDlgInfo->hInternetMapped) {
         dwFlags = ((HTTP_REQUEST_HANDLE_OBJECT*)pDlgInfo->hInternetMapped)->GetSecureFlags();
-    }
-    else
-    {
+    } else {
         dwFlags = -1; // Display all errors.
     }
 
@@ -1033,24 +986,21 @@ BOOL InitSecCertErrorsDlg(
     // dialog icons and text.
 
 
-    if (dwFlags & DLG_FLAGS_INVALID_CA)
-    {
+    if (dwFlags & DLG_FLAGS_INVALID_CA) {
         pDlgInfo->dwDlgFlags |= DLG_FLAGS_IGNORE_INVALID_CA;
     }
 
     SetCertDlgItem(hDlg, IDC_CERT_TRUST_ICON, IDC_CERT_TRUST_TEXT,
                    IDS_CERT_TRUST, dwFlags & DLG_FLAGS_INVALID_CA);
 
-    if (dwFlags & DLG_FLAGS_SEC_CERT_DATE_INVALID)
-    {
+    if (dwFlags & DLG_FLAGS_SEC_CERT_DATE_INVALID) {
         pDlgInfo->dwDlgFlags |= DLG_FLAGS_IGNORE_CERT_DATE_INVALID;
     }
 
     SetCertDlgItem(hDlg, IDC_CERT_DATE_ICON, IDC_CERT_DATE_TEXT,
                    IDS_CERT_DATE, dwFlags & DLG_FLAGS_SEC_CERT_DATE_INVALID);
 
-    if (dwFlags & DLG_FLAGS_SEC_CERT_CN_INVALID)
-    {
+    if (dwFlags & DLG_FLAGS_SEC_CERT_CN_INVALID) {
         pDlgInfo->dwDlgFlags |= DLG_FLAGS_IGNORE_CERT_CN_INVALID;
     }
 
@@ -1075,7 +1025,7 @@ OkCancelDialogProc(
     UINT msg,
     WPARAM wparam,
     LPARAM lparam
-    )
+)
 
 /*++
 
@@ -1106,8 +1056,7 @@ Return Value:
     BOOL              fRet = FALSE;
     PERRORINFODLGTYPE pDlgInfo;
 
-    switch (msg)
-    {
+    switch (msg) {
 
     case WM_INITDIALOG:
 
@@ -1119,202 +1068,188 @@ Return Value:
 
         pDlgInfo = (PERRORINFODLGTYPE)lparam;
 
-        if (IDD_SEC_CERT_ERRORS == pDlgInfo->dwDlgId)
-        {
+        if (IDD_SEC_CERT_ERRORS == pDlgInfo->dwDlgId) {
             fRet = InitSecCertErrorsDlg(hwnd, pDlgInfo);
-        }
-        else if (IDD_REVOCATION_PROBLEM == pDlgInfo->dwDlgId)
-        {
+        } else if (IDD_REVOCATION_PROBLEM == pDlgInfo->dwDlgId) {
             DWORD dwFlags = 0;
 
             if (pDlgInfo->hInternetMapped)
                 dwFlags = ((HTTP_REQUEST_HANDLE_OBJECT*)pDlgInfo->hInternetMapped)->GetSecureFlags();
             if (dwFlags & DLG_FLAGS_SEC_CERT_REV_FAILED)
                 pDlgInfo->dwDlgFlags |= DLG_FLAGS_IGNORE_FAILED_REVOCATION;
-        }
-        else
-        {
+        } else {
 #ifdef UNIX
-        /* Unix Does not support Context-sensitive help.
-         * Don't show the More Info button
-         */
-        //UnixAdjustButtonSpacing(hwnd, pDlgInfo->dwDlgId);
-        UnixRemoveMoreInfoButton(hwnd, pDlgInfo->dwDlgId);
+            /* Unix Does not support Context-sensitive help.
+             * Don't show the More Info button
+             */
+             //UnixAdjustButtonSpacing(hwnd, pDlgInfo->dwDlgId);
+            UnixRemoveMoreInfoButton(hwnd, pDlgInfo->dwDlgId);
 #endif /* UNIX */
 
             fRet = TRUE;
         }
 
         // set this dialog as foreground if necessary
-        if(pDlgInfo->dwDlgFlags & DLG_FLAGS_BRING_TO_FOREGROUND)
-        {
+        if (pDlgInfo->dwDlgFlags & DLG_FLAGS_BRING_TO_FOREGROUND) {
             SetForegroundWindow(hwnd);
         }
 
         break;
 
     case WM_COMMAND:
-        {
+    {
 
         WORD wID = LOWORD(wparam);
         WORD wNotificationCode = HIWORD(wparam);
-        HWND hWndCtrl = (HWND) lparam;
+        HWND hWndCtrl = (HWND)lparam;
 
         pDlgInfo =
-            (PERRORINFODLGTYPE) GetWindowLongPtr(hwnd,DWLP_USER);
+            (PERRORINFODLGTYPE)GetWindowLongPtr(hwnd, DWLP_USER);
 
-            switch (wID)
-            {
-                case ID_CERT_EDIT:
-
-
-                    // BUGBUG why can't we do this on WM_INITDIALOG?
+        switch (wID) {
+        case ID_CERT_EDIT:
 
 
-                    if ( wNotificationCode == EN_SETFOCUS)
-                    {
-
-                        // clear any selection, caused by it being the first
-                        //  edit control on the dlg page.
+            // BUGBUG why can't we do this on WM_INITDIALOG?
 
 
-                        if ( ! (pDlgInfo->dwDlgFlags & DLG_FLAGS_HAS_DISABLED_SELECTION) )
-                        {
-                            SendDlgItemMessage(hwnd,ID_CERT_EDIT,EM_SETSEL,(WPARAM) (INT)-1,0);
-                            pDlgInfo->dwDlgFlags |= DLG_FLAGS_HAS_DISABLED_SELECTION;
-                        }
-                    }
+            if (wNotificationCode == EN_SETFOCUS) {
 
-                    break;
-
-                case ID_TELL_ME_ABOUT_SECURITY:
-                    {
-
-                    // Launches help for this button.
+                // clear any selection, caused by it being the first
+                //  edit control on the dlg page.
 
 
-
-                    // BUGBUG remove the constant "iexplore.hlp"
-
-                    UINT uiID = 1;
-
-                    switch (pDlgInfo->dwDlgId)
-                    {
-                        case IDD_CONFIRM_COOKIE:
-                            uiID = IDH_SEC_SEND_N_REC_COOKIES;
-                            break;
-
-                        case IDD_HTTP_TO_HTTPS_ZONE_CROSSING:
-                            uiID = IDH_SEC_ENTER_SSL;
-                            break;
-
-                        case IDD_HTTPS_TO_HTTP_ZONE_CROSSING:
-                             uiID = IDH_SEC_ENTER_NON_SECURE_SITE;
-                             break;
-
-                        case IDD_INVALID_CA:
-                            uiID = IDH_SEC_ENTER_SSL_W_INVALIDCERT;
-                            break;
-
-                        case IDD_BAD_CN:
-                            uiID = IDH_SEC_SIGNED_N_INVALID;
-                            break;
-
-                        case IDD_MIXED_SECURITY:
-                            uiID = IDH_SEC_MIXED_DOWNLOAD_FROM_SSL;
-                            break;
-
-                    }
-                    WinHelp(
-                            hwnd,
-                            "iexplore.hlp",
-                            HELP_CONTEXT,
-                            (ULONG_PTR)uiID
-                            );
-                    break;
-                    }
-
-
-                case ID_SHOW_CERTIFICATE:
-
-
-                    // If this dialog supports this behavior, then launch
-                    //  a show certficate dlg.
-
-
-                    if ( (pDlgInfo->dwDlgFlags & DLG_FLAGS_CAN_HAVE_CERT_INFO) &&
-                         wNotificationCode == BN_CLICKED)
-                    {
-                        INTERNET_SECURITY_INFO ciSecInfo;
-
-
-                        if (ERROR_SUCCESS == ((HTTP_REQUEST_HANDLE_OBJECT *)pDlgInfo->hInternetMapped)->GetSecurityInfo(
-                                                    (LPINTERNET_SECURITY_INFO) &ciSecInfo))
-                        {
-
-
-
-                            ShowSecurityInfo(
-                                hwnd,
-                                &ciSecInfo
-                                );
-
-                            CertFreeCertificateContext(ciSecInfo.pCertificate);
-                        }
-                    }
-
-                    break;
-
-                case IDOK:
-                case IDYES:
-
-                    INET_ASSERT(pDlgInfo);
-                    INET_ASSERT(pDlgInfo->dwDlgId != 0);
-
-
-                    // Save flags, and change any global vars,
-                    //  and registry values if needed.
-
-
-                    if (pDlgInfo->hInternetMapped)
-                    {
-                        HTTP_REQUEST_HANDLE_OBJECT *pHttpRequest;
-
-                        pHttpRequest = (HTTP_REQUEST_HANDLE_OBJECT *)
-                                pDlgInfo->hInternetMapped;
-
-                        pHttpRequest->SetSecureFlags(
-                                pDlgInfo->dwDlgFlags
-                                );
-                    }
-
-
-                    // If the user checked the "overide" check-box
-                    //  let us map it, and force a general
-                    //  override of all errors of this type.
-
-
-                    if ( IsDlgButtonChecked(hwnd, IDC_DONT_WANT_WARNING) == BST_CHECKED )
-                    {
-                        UpdateGlobalSecuritySettings(
-                            pDlgInfo->dwDlgId,
-                            pDlgInfo->dwDlgFlags
-                            );
-                    }
-
-                    EndDialog(hwnd, TRUE);
-                    break;
-
-                case IDCANCEL:
-                case IDNO:
-
-                    EndDialog(hwnd, FALSE);
-                    break;
+                if (!(pDlgInfo->dwDlgFlags & DLG_FLAGS_HAS_DISABLED_SELECTION)) {
+                    SendDlgItemMessage(hwnd, ID_CERT_EDIT, EM_SETSEL, (WPARAM)(INT)-1, 0);
+                    pDlgInfo->dwDlgFlags |= DLG_FLAGS_HAS_DISABLED_SELECTION;
+                }
             }
+
+            break;
+
+        case ID_TELL_ME_ABOUT_SECURITY:
+        {
+
+            // Launches help for this button.
+
+
+
+            // BUGBUG remove the constant "iexplore.hlp"
+
+            UINT uiID = 1;
+
+            switch (pDlgInfo->dwDlgId) {
+            case IDD_CONFIRM_COOKIE:
+                uiID = IDH_SEC_SEND_N_REC_COOKIES;
+                break;
+
+            case IDD_HTTP_TO_HTTPS_ZONE_CROSSING:
+                uiID = IDH_SEC_ENTER_SSL;
+                break;
+
+            case IDD_HTTPS_TO_HTTP_ZONE_CROSSING:
+                uiID = IDH_SEC_ENTER_NON_SECURE_SITE;
+                break;
+
+            case IDD_INVALID_CA:
+                uiID = IDH_SEC_ENTER_SSL_W_INVALIDCERT;
+                break;
+
+            case IDD_BAD_CN:
+                uiID = IDH_SEC_SIGNED_N_INVALID;
+                break;
+
+            case IDD_MIXED_SECURITY:
+                uiID = IDH_SEC_MIXED_DOWNLOAD_FROM_SSL;
+                break;
+
+            }
+            WinHelp(
+                hwnd,
+                "iexplore.hlp",
+                HELP_CONTEXT,
+                (ULONG_PTR)uiID
+            );
+            break;
+        }
+
+
+        case ID_SHOW_CERTIFICATE:
+
+
+            // If this dialog supports this behavior, then launch
+            //  a show certficate dlg.
+
+
+            if ((pDlgInfo->dwDlgFlags & DLG_FLAGS_CAN_HAVE_CERT_INFO) &&
+                wNotificationCode == BN_CLICKED) {
+                INTERNET_SECURITY_INFO ciSecInfo;
+
+
+                if (ERROR_SUCCESS == ((HTTP_REQUEST_HANDLE_OBJECT*)pDlgInfo->hInternetMapped)->GetSecurityInfo(
+                    (LPINTERNET_SECURITY_INFO)&ciSecInfo)) {
+
+
+
+                    ShowSecurityInfo(
+                        hwnd,
+                        &ciSecInfo
+                    );
+
+                    CertFreeCertificateContext(ciSecInfo.pCertificate);
+                }
+            }
+
+            break;
+
+        case IDOK:
+        case IDYES:
+
+            INET_ASSERT(pDlgInfo);
+            INET_ASSERT(pDlgInfo->dwDlgId != 0);
+
+
+            // Save flags, and change any global vars,
+            //  and registry values if needed.
+
+
+            if (pDlgInfo->hInternetMapped) {
+                HTTP_REQUEST_HANDLE_OBJECT* pHttpRequest;
+
+                pHttpRequest = (HTTP_REQUEST_HANDLE_OBJECT*)
+                    pDlgInfo->hInternetMapped;
+
+                pHttpRequest->SetSecureFlags(
+                    pDlgInfo->dwDlgFlags
+                );
+            }
+
+
+            // If the user checked the "overide" check-box
+            //  let us map it, and force a general
+            //  override of all errors of this type.
+
+
+            if (IsDlgButtonChecked(hwnd, IDC_DONT_WANT_WARNING) == BST_CHECKED) {
+                UpdateGlobalSecuritySettings(
+                    pDlgInfo->dwDlgId,
+                    pDlgInfo->dwDlgFlags
+                );
+            }
+
+            EndDialog(hwnd, TRUE);
+            break;
+
+        case IDCANCEL:
+        case IDNO:
+
+            EndDialog(hwnd, FALSE);
+            break;
+        }
 
         fRet = TRUE;
         break;
-        }
+    }
     }
 
     return fRet;
@@ -1323,7 +1258,7 @@ Return Value:
 #define ARRAYSIZE(a) (sizeof(a)/sizeof(a[0]))
 
 BOOL
-InitCookieDialog(HWND hwnd,PCOOKIE_DLG_INFO pcdi)
+InitCookieDialog(HWND hwnd, PCOOKIE_DLG_INFO pcdi)
 /*++
     Fills in all of the fields and resizes the cookie dialog correctly
 
@@ -1338,15 +1273,15 @@ InitCookieDialog(HWND hwnd,PCOOKIE_DLG_INFO pcdi)
 
 
     INET_ASSERT(pcdi);
-    if (!pcdi                   ||
-        !pcdi->pszServer        ||
-        !pcdi->pic->pszName      ||
-        !pcdi->pic->pszData      ||
-        !pcdi->pic->pszDomain    ||
-        !pcdi->pic->pszPath      )
+    if (!pcdi ||
+        !pcdi->pszServer ||
+        !pcdi->pic->pszName ||
+        !pcdi->pic->pszData ||
+        !pcdi->pic->pszDomain ||
+        !pcdi->pic->pszPath)
         return FALSE;
 
-    SetWindowLongPtr(hwnd, DWLP_USER, (LONG_PTR) pcdi);
+    SetWindowLongPtr(hwnd, DWLP_USER, (LONG_PTR)pcdi);
 
     //  do init here.  do we need to do a load loadicon??
 
@@ -1360,10 +1295,10 @@ InitCookieDialog(HWND hwnd,PCOOKIE_DLG_INFO pcdi)
     cy = rctDetails.top - rctDlg.top;
 
     SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0,
-        pcdi->cx, cy,
-        SWP_NOMOVE | SWP_NOZORDER);
+                 pcdi->cx, cy,
+                 SWP_NOMOVE | SWP_NOZORDER);
 
-    if( pcdi->pic->dwFlags & INTERNET_COOKIE_IS_SESSION )
+    if (pcdi->pic->dwFlags & INTERNET_COOKIE_IS_SESSION)
         LoadStringWrapW(GlobalResHandle, IDS_SESS_COOKIE, szWarn, sizeof(szWarn));
     else
         LoadStringWrapW(GlobalResHandle, IDS_PERM_COOKIE, szWarn, sizeof(szWarn));
@@ -1371,22 +1306,22 @@ InitCookieDialog(HWND hwnd,PCOOKIE_DLG_INFO pcdi)
 
 
     SetWindowTextWrapW(GetDlgItem(hwnd, IDC_COOKIE_SERVER),
-        pcdi->pszServer);
+                       pcdi->pszServer);
 
     // Convert to W before setting these fields
     WCHAR wszTmp[INTERNET_MAX_URL_LENGTH];
 
-    if(SHAnsiToUnicode(pcdi->pic->pszName, wszTmp, ARRAYSIZE(wszTmp)))
-        SetWindowTextWrapW(GetDlgItem(hwnd, IDC_COOKIE_NAME),wszTmp);
+    if (SHAnsiToUnicode(pcdi->pic->pszName, wszTmp, ARRAYSIZE(wszTmp)))
+        SetWindowTextWrapW(GetDlgItem(hwnd, IDC_COOKIE_NAME), wszTmp);
 
-    if(SHAnsiToUnicode(pcdi->pic->pszData, wszTmp, ARRAYSIZE(wszTmp)))
-        SetWindowTextWrapW(GetDlgItem(hwnd, IDC_COOKIE_DATA),wszTmp);
+    if (SHAnsiToUnicode(pcdi->pic->pszData, wszTmp, ARRAYSIZE(wszTmp)))
+        SetWindowTextWrapW(GetDlgItem(hwnd, IDC_COOKIE_DATA), wszTmp);
 
-    if(SHAnsiToUnicode(pcdi->pic->pszDomain, wszTmp, ARRAYSIZE(wszTmp)))
-        SetWindowTextWrapW(GetDlgItem(hwnd, IDC_COOKIE_DOMAIN),wszTmp);
+    if (SHAnsiToUnicode(pcdi->pic->pszDomain, wszTmp, ARRAYSIZE(wszTmp)))
+        SetWindowTextWrapW(GetDlgItem(hwnd, IDC_COOKIE_DOMAIN), wszTmp);
 
-    if(SHAnsiToUnicode(pcdi->pic->pszPath, wszTmp, ARRAYSIZE(wszTmp)))
-        SetWindowTextWrapW(GetDlgItem(hwnd, IDC_COOKIE_PATH),wszTmp);
+    if (SHAnsiToUnicode(pcdi->pic->pszPath, wszTmp, ARRAYSIZE(wszTmp)))
+        SetWindowTextWrapW(GetDlgItem(hwnd, IDC_COOKIE_PATH), wszTmp);
 
     if (pcdi->pic->dwFlags & INTERNET_COOKIE_IS_SECURE)
         LoadStringWrapW(GlobalResHandle, IDS_YES, szExpires, sizeof(szExpires));
@@ -1394,12 +1329,11 @@ InitCookieDialog(HWND hwnd,PCOOKIE_DLG_INFO pcdi)
         LoadStringWrapW(GlobalResHandle, IDS_NO, szExpires, sizeof(szExpires));
 
     SetWindowTextWrapW(GetDlgItem(hwnd, IDC_COOKIE_SECURE),
-        szExpires);
+                       szExpires);
 
 
-    if(pcdi->pic->pftExpires &&
-        FileTimeToSystemTime(pcdi->pic->pftExpires, &st) )
-    {
+    if (pcdi->pic->pftExpires &&
+        FileTimeToSystemTime(pcdi->pic->pftExpires, &st)) {
         LCID lcid = GetUserDefaultLCID();
         WCHAR szDate[64];
         WCHAR szTime[64];
@@ -1412,12 +1346,11 @@ InitCookieDialog(HWND hwnd,PCOOKIE_DLG_INFO pcdi)
         StrCpyNW(szExpires, szDate, 64);
         StrCatBuffW(szExpires, L" ", ARRAYSIZE(szExpires));
         StrCatBuffW(szExpires, szTime, ARRAYSIZE(szExpires));
-    }
-    else
+    } else
         LoadStringWrapW(GlobalResHandle, IDS_COOKIE_EXPIRES_ENDSESSION, szExpires, sizeof(szExpires));
 
     SetWindowTextWrapW(GetDlgItem(hwnd, IDC_COOKIE_EXPIRES),
-        szExpires);
+                       szExpires);
 
 
     // BUGBUGHACK - we actually should be called with the clients hwnd as parent -zekel 15MAY97
@@ -1439,7 +1372,7 @@ CookieDialogProc(
     UINT msg,
     WPARAM wparam,
     LPARAM lparam
-    )
+)
 
 {
 
@@ -1447,15 +1380,13 @@ CookieDialogProc(
     BOOL fReturn = FALSE;
     PCOOKIE_DLG_INFO pcdi;
 
-    switch (msg)
-    {
+    switch (msg) {
 
     case WM_INITDIALOG:
 
         INET_ASSERT(lparam);
 
-        if(!InitCookieDialog(hwnd, (PCOOKIE_DLG_INFO) lparam))
-        {
+        if (!InitCookieDialog(hwnd, (PCOOKIE_DLG_INFO)lparam)) {
             dwEndDlg = COOKIE_DONT_ALLOW;
         }
 
@@ -1463,81 +1394,75 @@ CookieDialogProc(
         break;
 
     case WM_COMMAND:
-        {
+    {
 
-            pcdi = (PCOOKIE_DLG_INFO) GetWindowLongPtr(hwnd,DWLP_USER);
+        pcdi = (PCOOKIE_DLG_INFO)GetWindowLongPtr(hwnd, DWLP_USER);
 
-            switch (LOWORD(wparam))
-            {
-                case IDYES:
+        switch (LOWORD(wparam)) {
+        case IDYES:
 
-                    if (BST_CHECKED == IsDlgButtonChecked(
-                        hwnd, IDC_COOKIE_ALLOW_ALL))
-                    {
-                        dwEndDlg = COOKIE_ALLOW_ALL;
-                        pcdi->dwStopWarning = 1;
-                    }
-                    else
-                    {
-                        dwEndDlg = COOKIE_ALLOW;
-                    }
-
-                    fReturn = TRUE;
-                    break;
-
-
-                case IDNO:
-
-                    dwEndDlg = COOKIE_DONT_ALLOW;
-
-                    fReturn = TRUE;
-                    break;
-
-                case IDC_COOKIE_HELP:
-
-                    //  TODO: we want to get some help here
-
-
-                    fReturn = TRUE;
-                    break;
-
-                case IDC_COOKIE_DETAILS:
-
-
-                    //  Fold out the bottom of the dialog
-
-
-                    SetWindowPos(hwnd, HWND_TOP, 0, 0,
-                        pcdi->cx, pcdi->cy,
-                        SWP_NOMOVE | SWP_NOZORDER);
-
-                    EnableWindow(GetDlgItem(hwnd, IDC_COOKIE_DETAILS), FALSE);
-
-                    fReturn = TRUE;
-                    break;
-
-                case IDC_COOKIE_ALLOW_ALL:
-
-                    if (BST_CHECKED == IsDlgButtonChecked(
-                        hwnd, IDC_COOKIE_ALLOW_ALL))
-                        EnableWindow(GetDlgItem(hwnd, IDNO), FALSE);
-                    else
-                        EnableWindow(GetDlgItem(hwnd,IDNO), TRUE);
-
-                    fReturn = TRUE;
-                    break;
-
+            if (BST_CHECKED == IsDlgButtonChecked(
+                hwnd, IDC_COOKIE_ALLOW_ALL)) {
+                dwEndDlg = COOKIE_ALLOW_ALL;
+                pcdi->dwStopWarning = 1;
+            } else {
+                dwEndDlg = COOKIE_ALLOW;
             }
-        }
 
-        break;
+            fReturn = TRUE;
+            break;
+
+
+        case IDNO:
+
+            dwEndDlg = COOKIE_DONT_ALLOW;
+
+            fReturn = TRUE;
+            break;
+
+        case IDC_COOKIE_HELP:
+
+            //  TODO: we want to get some help here
+
+
+            fReturn = TRUE;
+            break;
+
+        case IDC_COOKIE_DETAILS:
+
+
+            //  Fold out the bottom of the dialog
+
+
+            SetWindowPos(hwnd, HWND_TOP, 0, 0,
+                         pcdi->cx, pcdi->cy,
+                         SWP_NOMOVE | SWP_NOZORDER);
+
+            EnableWindow(GetDlgItem(hwnd, IDC_COOKIE_DETAILS), FALSE);
+
+            fReturn = TRUE;
+            break;
+
+        case IDC_COOKIE_ALLOW_ALL:
+
+            if (BST_CHECKED == IsDlgButtonChecked(
+                hwnd, IDC_COOKIE_ALLOW_ALL))
+                EnableWindow(GetDlgItem(hwnd, IDNO), FALSE);
+            else
+                EnableWindow(GetDlgItem(hwnd, IDNO), TRUE);
+
+            fReturn = TRUE;
+            break;
+
+        }
+    }
+
+    break;
 
     }
 
-    if(dwEndDlg)
-    {
-        if(COOKIE_ALLOW_ALL == dwEndDlg)
-        {
+    if (dwEndDlg) {
+        if (COOKIE_ALLOW_ALL == dwEndDlg) {
             InternetWriteRegistryDword(vszAllowCookies, 1);
             vfAllowCookies = COOKIES_ALLOW;
         }
@@ -1556,7 +1481,7 @@ InsertCDDialogProc(
     UINT msg,
     WPARAM wparam,
     LPARAM lparam
-    )
+)
 
 {
     PERRORINFODLGTYPE pDlgInfo;
@@ -1569,109 +1494,102 @@ InsertCDDialogProc(
     // Cache container info struct.
     BYTE buf[2048];
     DWORD cbCoI = 2048;
-    LPINTERNET_CACHE_CONTAINER_INFO pCoI = (LPINTERNET_CACHE_CONTAINER_INFO) buf;
+    LPINTERNET_CACHE_CONTAINER_INFO pCoI = (LPINTERNET_CACHE_CONTAINER_INFO)buf;
 
     LPSTR pszUrl;
     BOOL fReturn = FALSE;
 
-    switch (msg)
-    {
+    switch (msg) {
         // On dialog initialize.
-        case WM_INITDIALOG:
-        {
-            INET_ASSERT(lparam);
+    case WM_INITDIALOG:
+    {
+        INET_ASSERT(lparam);
+
+        // Get the http request object.
+        pDlgInfo = (PERRORINFODLGTYPE)lparam;
+        (void)SetWindowLongPtr(hwnd, DWLP_USER, lparam);
+
+        phro = (HTTP_REQUEST_HANDLE_OBJECT*)pDlgInfo->hInternetMapped;
+
+        // Set the dialog window text with the container name.
+        pszUrl = phro->GetURL();
+        if (pszUrl && GetUrlCacheContainerInfo(pszUrl, pCoI, &cbCoI, 0))
+            SetWindowText(GetDlgItem(hwnd, IDC_CD_NAME), pCoI->lpszVolumeTitle);
+
+        fReturn = TRUE;
+        break;
+    }
+
+    // User entered info.
+    case WM_COMMAND:
+    {
+        pDlgInfo = (PERRORINFODLGTYPE)GetWindowLongPtr(hwnd, DWLP_USER);
+        INET_ASSERT(pDlgInfo);
+
+        switch (LOWORD(wparam)) {
+        case IDC_USE_CDROM:
+            dwDlgEnd = ERROR_INTERNET_FORCE_RETRY;
+
+            // Signal that dialog is no longer active.
+            fCD = InterlockedExchange((LONG*)&fCdromDialogActive, (LONG)FALSE);
+            INET_ASSERT(fCD);
+            fReturn = TRUE;
+            break;
+
+        case IDC_CONNECT_TO_INTERNET:
+
+            // Delete all containers with the same volume label.
 
             // Get the http request object.
-            pDlgInfo = (PERRORINFODLGTYPE)lparam;
-            (void)SetWindowLongPtr(hwnd, DWLP_USER, lparam);
-
-            phro = (HTTP_REQUEST_HANDLE_OBJECT*) pDlgInfo->hInternetMapped;
+            phro = (HTTP_REQUEST_HANDLE_OBJECT*)pDlgInfo->hInternetMapped;
 
             // Set the dialog window text with the container name.
             pszUrl = phro->GetURL();
-            if (pszUrl && GetUrlCacheContainerInfo(pszUrl, pCoI, &cbCoI, 0))
-                SetWindowText(GetDlgItem(hwnd,IDC_CD_NAME), pCoI->lpszVolumeTitle);
 
+            // Get the container info for this url.
+            if (pszUrl && GetUrlCacheContainerInfo(pszUrl, pCoI, &cbCoI, 0)) {
+                // Found a volume label:
+                if (*pCoI->lpszVolumeLabel)
+                    strcpy(szVolumeLabel, pCoI->lpszVolumeLabel);
+                else
+                    *szVolumeLabel = '\0';
+
+                // Start an enumeration of containers.
+                DWORD dwOptions, dwModified;
+                dwOptions = dwModified = 0;
+                HANDLE hConFind = FindFirstUrlCacheContainer(&dwModified,
+                                                             pCoI, &(cbCoI = 2048), dwOptions);
+                if (hConFind) {
+                    // If the volume label of the first container found
+                    // match the volume label of the associated url then
+                    // delete this container.
+                    if ((*pCoI->lpszVolumeLabel == '\0')
+                        || (!strcmp(szVolumeLabel, pCoI->lpszVolumeLabel))) {
+                        DeleteUrlCacheContainer(pCoI->lpszName, 0);
+                    }
+                    // Similarly, delete each container which
+                    // is found to have a matching volume label.
+                    while (FindNextUrlCacheContainer(hConFind,
+                                                     pCoI, &(cbCoI = 2048))) {
+                        if ((*pCoI->lpszVolumeLabel == '\0')
+                            || (!strcmp(szVolumeLabel, pCoI->lpszVolumeLabel))) {
+                            DeleteUrlCacheContainer(pCoI->lpszName, 0);
+                        }
+                    }
+                    FindCloseUrlCache(hConFind);
+                }
+            }
+            dwDlgEnd = ERROR_CANCELLED;
+
+            // Signal that dialog is no longer active.
+            fCD = InterlockedExchange((LONG*)&fCdromDialogActive, (LONG)FALSE);
+            INET_ASSERT(fCD);
             fReturn = TRUE;
             break;
         }
+    }
 
-        // User entered info.
-        case WM_COMMAND:
-        {
-            pDlgInfo = (PERRORINFODLGTYPE) GetWindowLongPtr(hwnd,DWLP_USER);
-            INET_ASSERT(pDlgInfo);
-
-            switch (LOWORD(wparam))
-            {
-                case IDC_USE_CDROM:
-                    dwDlgEnd = ERROR_INTERNET_FORCE_RETRY;
-
-                    // Signal that dialog is no longer active.
-                    fCD = InterlockedExchange((LONG*) &fCdromDialogActive, (LONG) FALSE);
-                    INET_ASSERT(fCD);
-                    fReturn = TRUE;
-                    break;
-
-                case IDC_CONNECT_TO_INTERNET:
-
-                    // Delete all containers with the same volume label.
-
-                    // Get the http request object.
-                    phro = (HTTP_REQUEST_HANDLE_OBJECT*) pDlgInfo->hInternetMapped;
-
-                    // Set the dialog window text with the container name.
-                    pszUrl = phro->GetURL();
-
-                    // Get the container info for this url.
-                    if (pszUrl && GetUrlCacheContainerInfo(pszUrl, pCoI, &cbCoI, 0))
-                    {
-                        // Found a volume label:
-                        if (*pCoI->lpszVolumeLabel)
-                            strcpy(szVolumeLabel, pCoI->lpszVolumeLabel);
-                        else
-                            *szVolumeLabel = '\0';
-
-                        // Start an enumeration of containers.
-                        DWORD dwOptions, dwModified;
-                        dwOptions = dwModified = 0;
-                        HANDLE hConFind = FindFirstUrlCacheContainer(&dwModified,
-                            pCoI, &(cbCoI = 2048), dwOptions);
-                        if (hConFind)
-                        {
-                            // If the volume label of the first container found
-                            // match the volume label of the associated url then
-                            // delete this container.
-                            if ((*pCoI->lpszVolumeLabel == '\0')
-                                || (!strcmp(szVolumeLabel, pCoI->lpszVolumeLabel)))
-                            {
-                                DeleteUrlCacheContainer(pCoI->lpszName, 0);
-                            }
-                            // Similarly, delete each container which
-                            // is found to have a matching volume label.
-                            while (FindNextUrlCacheContainer(hConFind,
-                                   pCoI, &(cbCoI = 2048)))
-                            {
-                                if ((*pCoI->lpszVolumeLabel == '\0')
-                                    || (!strcmp(szVolumeLabel, pCoI->lpszVolumeLabel)))
-                                {
-                                    DeleteUrlCacheContainer(pCoI->lpszName, 0);
-                                }
-                            }
-                            FindCloseUrlCache(hConFind);
-                        }
-                    }
-                    dwDlgEnd = ERROR_CANCELLED;
-
-                    // Signal that dialog is no longer active.
-                    fCD = InterlockedExchange((LONG*) &fCdromDialogActive, (LONG) FALSE);
-                    INET_ASSERT(fCD);
-                    fReturn = TRUE;
-                    break;
-            }
-        }
-
-        break;
+    break;
     }
 
     if (dwDlgEnd)

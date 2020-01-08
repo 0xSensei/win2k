@@ -34,7 +34,7 @@ Revision History:
  * Core Dump vars
 */
 BOOL gfCoreDumpChanged;
-VCREG_RET gvcCrashCtrl =  VCREG_ERROR;
+VCREG_RET gvcCrashCtrl = VCREG_ERROR;
 HKEY ghkeyCrashCtrl = NULL;
 int  gcrefCrashCtrl = 0;
 
@@ -55,12 +55,12 @@ COREDMP_FIELD acdfControls[] = {
 #define CCTL_COREDUMP   (sizeof(acdfControls) / sizeof(COREDMP_FIELD))
 
 
-VCREG_RET CoreDumpOpenKey( void )
+VCREG_RET CoreDumpOpenKey(void)
 {
     DOUT("In CoreDumpOpenKey");
 
     if (gvcCrashCtrl == VCREG_ERROR) {
-        gvcCrashCtrl = OpenRegKey( szCrashControl, &ghkeyCrashCtrl );
+        gvcCrashCtrl = OpenRegKey(szCrashControl, &ghkeyCrashCtrl);
     }
 
     if (gvcCrashCtrl != VCREG_ERROR)
@@ -88,7 +88,7 @@ void CoreDumpCloseKey(void)
     if (gcrefCrashCtrl > 0) {
         gcrefCrashCtrl--;
         if (gcrefCrashCtrl == 0) {
-            CloseRegKey( ghkeyCrashCtrl );
+            CloseRegKey(ghkeyCrashCtrl);
             gvcCrashCtrl = VCREG_ERROR;
         }
     }
@@ -97,7 +97,7 @@ void CoreDumpCloseKey(void)
 }
 
 
-BOOL CoreDumpValidFile( HWND hDlg )
+BOOL CoreDumpValidFile(HWND hDlg)
 {
     TCHAR szPath[MAX_PATH];
     TCHAR szExpPath[MAX_PATH];
@@ -109,26 +109,26 @@ BOOL CoreDumpValidFile( HWND hDlg )
         /*
          * get the filename
          */
-        if( GetDlgItemText(hDlg, IDC_STARTUP_CDMP_FILENAME, szPath, ARRAYSIZE(szPath)) == 0) {
-            MsgBoxParam(hDlg, SYSTEM+30, INITS+1, MB_ICONSTOP | MB_OK);
+        if (GetDlgItemText(hDlg, IDC_STARTUP_CDMP_FILENAME, szPath, ARRAYSIZE(szPath)) == 0) {
+            MsgBoxParam(hDlg, SYSTEM + 30, INITS + 1, MB_ICONSTOP | MB_OK);
             return FALSE;
         }
 
         /*
          * Expand any environment vars, and then check to make sure it is a fully quallified path
          */
-        // if it has a '%' in it, then try to expand it
+         // if it has a '%' in it, then try to expand it
         if (ExpandEnvironmentStrings(szPath, szExpPath, ARRAYSIZE(szExpPath)) >= ARRAYSIZE(szExpPath)) {
-            MsgBoxParam(hDlg, SYSTEM+33, INITS+1, MB_ICONSTOP | MB_OK, (DWORD)MAX_PATH);
+            MsgBoxParam(hDlg, SYSTEM + 33, INITS + 1, MB_ICONSTOP | MB_OK, (DWORD)MAX_PATH);
             return FALSE;
         }
 
         // now cannonicalize it
-        GetFullPathName( szExpPath, ARRAYSIZE(szPath), szPath, &psz );
+        GetFullPathName(szExpPath, ARRAYSIZE(szPath), szPath, &psz);
 
         // check to see that it already was cannonicalized
-        if (lstrcmp( szPath, szExpPath ) != 0) {
-            MsgBoxParam(hDlg, SYSTEM+34, INITS+1, MB_ICONSTOP | MB_OK );
+        if (lstrcmp(szPath, szExpPath) != 0) {
+            MsgBoxParam(hDlg, SYSTEM + 34, INITS + 1, MB_ICONSTOP | MB_OK);
             return FALSE;
         }
 
@@ -137,8 +137,9 @@ BOOL CoreDumpValidFile( HWND hDlg )
          */
         ch = szPath[3];
         szPath[3] = TEXT('\0');
-        if (IsPathSep(szPath[0]) || ((uType = GetDriveType(szPath)) != DRIVE_FIXED && uType != DRIVE_REMOVABLE)) {
-            MsgBoxParam(hDlg, SYSTEM+31, INITS+1, MB_ICONSTOP | MB_OK );
+        if (IsPathSep(szPath[0]) || 
+            ((uType = GetDriveType(szPath)) != DRIVE_FIXED && uType != DRIVE_REMOVABLE)) {
+            MsgBoxParam(hDlg, SYSTEM + 31, INITS + 1, MB_ICONSTOP | MB_OK);
             return FALSE;
         }
         szPath[3] = ch;
@@ -146,7 +147,9 @@ BOOL CoreDumpValidFile( HWND hDlg )
         /*
          * if path is non-exstant, tell user and let him decide what to do
          */
-        if (GetFileAttributes(szPath) == 0xFFFFFFFFL && GetLastError() != ERROR_FILE_NOT_FOUND && MsgBoxParam(hDlg, SYSTEM+32, INITS+1, MB_ICONQUESTION | MB_YESNO ) == IDYES) {
+        if (GetFileAttributes(szPath) == 0xFFFFFFFFL && 
+            GetLastError() != ERROR_FILE_NOT_FOUND && 
+            MsgBoxParam(hDlg, SYSTEM + 32, INITS + 1, MB_ICONQUESTION | MB_YESNO) == IDYES) {
             return FALSE;
         }
     }
@@ -203,9 +206,9 @@ BOOL IsAlerterSvcStarted(HWND hDlg)
      * Open the Service Controller
      */
     schSCManager = OpenSCManager(
-         NULL,                   /* local machine           */
-         NULL,                   /* ServicesActive database */
-         SC_MANAGER_ALL_ACCESS); /* full access rights      */
+        NULL,                   /* local machine           */
+        NULL,                   /* ServicesActive database */
+        SC_MANAGER_ALL_ACCESS); /* full access rights      */
     if (schSCManager == NULL) {
         goto iassExit;
     }
@@ -214,11 +217,11 @@ BOOL IsAlerterSvcStarted(HWND hDlg)
      * Try to open the Alerter Service
      */
 
-    /* Open a handle to the service. */
+     /* Open a handle to the service. */
     schService = OpenService(
-         schSCManager,           /* SCManager database  */
-         TEXT("Alerter"),        /* name of service     */
-         SERVICE_QUERY_STATUS);  /* need QUERY access   */
+        schSCManager,           /* SCManager database  */
+        TEXT("Alerter"),        /* name of service     */
+        SERVICE_QUERY_STATUS);  /* need QUERY access   */
     if (schService == NULL) {
         goto iassExit;
     }
@@ -226,7 +229,7 @@ BOOL IsAlerterSvcStarted(HWND hDlg)
     /*
      * Query the Alerter service to see if it has been started
      */
-    if (!QueryServiceStatus(schService, &ssSrvcStat )) {
+    if (!QueryServiceStatus(schService, &ssSrvcStat)) {
         goto iassExit;
     }
 
@@ -247,7 +250,7 @@ BOOL IsAlerterSvcStarted(HWND hDlg)
 
 iassExit:
     if (!fRunning) {
-        MsgBoxParam(hDlg, SYSTEM+38, INITS+1, MB_ICONEXCLAMATION );
+        MsgBoxParam(hDlg, SYSTEM + 38, INITS + 1, MB_ICONEXCLAMATION);
     }
 
     if (schService != NULL) {
@@ -262,12 +265,11 @@ iassExit:
 }
 
 
-int APIENTRY CoreDumpDlgProc( HWND hDlg, UINT message, DWORD wParam, LONG lParam )
+int APIENTRY CoreDumpDlgProc(HWND hDlg, UINT message, DWORD wParam, LONG lParam)
 {
     static BOOL fInitialized = FALSE;
 
-    switch (message)
-    {
+    switch (message) {
     case WM_INITDIALOG:
         g_fStartupInitializing = TRUE;
         fInitialized = CoreDumpInit(hDlg);
@@ -276,48 +278,51 @@ int APIENTRY CoreDumpDlgProc( HWND hDlg, UINT message, DWORD wParam, LONG lParam
         break;
     case WM_COMMAND:
         switch (LOWORD(wParam)) {
-            case IDOK:
-                return(CoreDumpHandleOk(fInitialized, hDlg, wParam, lParam));
-                break;
-            case IDCANCEL:
-                if (fInitialized) {
-                    VirtualFreePageFiles(apf);
-                    VirtualCloseKey();
-                    CoreDumpCloseKey();
-                }
-                // Let the Startup/Recovery dlg proc also handle IDOK
-                return(RET_NO_CHANGE);
-                break;
-            case IDC_STARTUP_CDMP_WRITE: {
-                BOOL fChecked = IsDlgButtonChecked(hDlg, IDC_STARTUP_CDMP_WRITE);
-                EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_FILENAME), fChecked);
-                EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_OVERWRITE), fChecked);
-                EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_KERNELONLY), fChecked);
-                break;
+        case IDOK:
+            return(CoreDumpHandleOk(fInitialized, hDlg, wParam, lParam));
+            break;
+        case IDCANCEL:
+            if (fInitialized) {
+                VirtualFreePageFiles(apf);
+                VirtualCloseKey();
+                CoreDumpCloseKey();
             }
-            default: {
-                // indicat not handled
-                return RET_CONTINUE;
-            }
+            // Let the Startup/Recovery dlg proc also handle IDOK
+            return(RET_NO_CHANGE);
+            break;
+        case IDC_STARTUP_CDMP_WRITE:
+        {
+            BOOL fChecked = IsDlgButtonChecked(hDlg, IDC_STARTUP_CDMP_WRITE);
+            EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_FILENAME), fChecked);
+            EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_OVERWRITE), fChecked);
+            EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_KERNELONLY), fChecked);
+            break;
+        }
+        default:
+        {
+            // indicat not handled
+            return RET_CONTINUE;
+        }
         }
         break;
     case WM_DESTROY:
-        { int i;
-            for( i = 0; i < CCTL_COREDUMP; i++ ) {
-                switch (acdfControls[i].dwType ) {
-                case REG_SZ:
-                case REG_EXPAND_SZ:
-                case REG_MULTI_SZ:
-                    if (acdfControls[i].u.pszValue != NULL)
-                        MemFree(acdfControls[i].u.pszValue);
-                    break;
-                default:
-                    break;
-                }
+    {
+        int i;
+        for (i = 0; i < CCTL_COREDUMP; i++) {
+            switch (acdfControls[i].dwType) {
+            case REG_SZ:
+            case REG_EXPAND_SZ:
+            case REG_MULTI_SZ:
+                if (acdfControls[i].u.pszValue != NULL)
+                    MemFree(acdfControls[i].u.pszValue);
+                break;
+            default:
+                break;
             }
         }
-        return RET_CONTINUE;
-        break;
+    }
+    return RET_CONTINUE;
+    break;
     default:
         return RET_CONTINUE;
     }
@@ -340,7 +345,7 @@ int CoreDumpHandleOk(IN BOOL fInitialized, IN HWND hDlg, IN WPARAM wParam, IN LP
          */
         if (!CoreDumpValidFile(hDlg)) {
             SetFocus(GetDlgItem(hDlg, IDC_STARTUP_CDMP_FILENAME));
-            SetWindowLong (hDlg, DWL_MSGRESULT, PSNRET_INVALID_NOCHANGEPAGE);
+            SetWindowLong(hDlg, DWL_MSGRESULT, PSNRET_INVALID_NOCHANGEPAGE);
             iRet = RET_ERROR;
             return(iRet);
         }
@@ -356,7 +361,8 @@ int CoreDumpHandleOk(IN BOOL fInitialized, IN HWND hDlg, IN WPARAM wParam, IN LP
 
         if (IsDlgButtonChecked(hDlg, acdfControls[CD_WRITE].idCtl)) {
             cMegBootPF = -1;
-        } else if (IsDlgButtonChecked(hDlg, acdfControls[CD_LOG].idCtl) || IsDlgButtonChecked(hDlg, acdfControls[CD_SEND].idCtl)) {
+        } else if (IsDlgButtonChecked(hDlg, acdfControls[CD_LOG].idCtl) ||
+                   IsDlgButtonChecked(hDlg, acdfControls[CD_SEND].idCtl)) {
             cMegBootPF = MIN_SWAPSIZE;
         }
 
@@ -400,17 +406,27 @@ int CoreDumpHandleOk(IN BOOL fInitialized, IN HWND hDlg, IN WPARAM wParam, IN LP
             if (apf[iBootDrive].nMinFileSize < cMegBootPF) {
 
                 //We got the OK... Try to make it bigger
-                if (cMegBootPF >= GetFreeSpaceMB(iBootDrive) ) {
-                    MsgBoxParam(hDlg, SYSTEM+27, INITS+1, MB_ICONEXCLAMATION, cMegBootPF, (TCHAR)(TEXT('A') + iBootDrive));
+                if (cMegBootPF >= GetFreeSpaceMB(iBootDrive)) {
+                    MsgBoxParam(hDlg, 
+                                SYSTEM + 27,
+                                INITS + 1,
+                                MB_ICONEXCLAMATION,
+                                cMegBootPF,
+                                (TCHAR)(TEXT('A') + iBootDrive));
                     iRet = RET_ERROR;
                     return(iRet);
                 }
 
                 //Its too small, ask if we can make it bigger
-                if (MsgBoxParam(hDlg, SYSTEM+28, INITS+1, MB_ICONEXCLAMATION | MB_OKCANCEL, (TCHAR)(iBootDrive+TEXT('A')), cMegBootPF) == IDOK){
+                if (MsgBoxParam(hDlg, 
+                                SYSTEM + 28, 
+                                INITS + 1,
+                                MB_ICONEXCLAMATION | MB_OKCANCEL,
+                                (TCHAR)(iBootDrive + TEXT('A')),
+                                cMegBootPF) == IDOK) {
                     apf[iBootDrive].nMinFileSize = cMegBootPF;
 
-                    if ( apf[iBootDrive].nMaxFileSize < apf[iBootDrive].nMinFileSize) {
+                    if (apf[iBootDrive].nMaxFileSize < apf[iBootDrive].nMinFileSize) {
                         apf[iBootDrive].nMaxFileSize = apf[iBootDrive].nMinFileSize;
                     }
                     VirtualMemUpdateRegistry();
@@ -455,7 +471,7 @@ void CoreDumpGetValue(int i)
     TCHAR szTemp[MAX_PATH];
     TCHAR szTemp2[MAX_PATH];
 
-    switch( acdfControls[i].dwType ) {
+    switch (acdfControls[i].dwType) {
     case REG_DWORD:
         cbTemp = sizeof(dwTemp);
         lpbTemp = (LPBYTE)&dwTemp;
@@ -467,11 +483,16 @@ void CoreDumpGetValue(int i)
         break;
     }
 
-    if (RegQueryValueEx (ghkeyCrashCtrl, acdfControls[i].pszValueName, NULL, &dwType, lpbTemp, &cbTemp) == ERROR_SUCCESS) {
+    if (RegQueryValueEx(ghkeyCrashCtrl, 
+                        acdfControls[i].pszValueName,
+                        NULL, 
+                        &dwType,
+                        lpbTemp,
+                        &cbTemp) == ERROR_SUCCESS) {
         /*
          * Copy the reg data into the array
          */
-        switch( acdfControls[i].dwType) {
+        switch (acdfControls[i].dwType) {
         case REG_DWORD:
             acdfControls[i].u.fValue = (dwTemp == 0) ? FALSE : TRUE;
             break;
@@ -482,7 +503,7 @@ void CoreDumpGetValue(int i)
         }
     } else {
         /* no reg data, use default values */
-        switch( acdfControls[i].dwType) {
+        switch (acdfControls[i].dwType) {
         case REG_DWORD:
             if (acdfControls[i].idCtl == IDC_STARTUP_CDMP_KERNELONLY) {
                 // This is for the case where there is no KERNELONLY value
@@ -494,13 +515,13 @@ void CoreDumpGetValue(int i)
                 // setup guys create the KERNELDUMPONLY only key and set it
                 // according to the default configuration.
                 int j;
-                for (j = 0; j < CCTL_COREDUMP; j++ ) {
+                for (j = 0; j < CCTL_COREDUMP; j++) {
                     if (acdfControls[j].idCtl == IDC_STARTUP_CDMP_WRITE) {
                         break;
                     }
                 }
-                if (RegQueryValueEx (ghkeyCrashCtrl, acdfControls[j].pszValueName, NULL,
-                    &dwType, lpbTemp, &cbTemp) == ERROR_SUCCESS) {
+                if (RegQueryValueEx(ghkeyCrashCtrl, acdfControls[j].pszValueName, NULL,
+                                    &dwType, lpbTemp, &cbTemp) == ERROR_SUCCESS) {
                     if (2 == dwTemp) {
                         acdfControls[i].u.fValue = TRUE;
                     } else {
@@ -515,7 +536,7 @@ void CoreDumpGetValue(int i)
             break;
 
         default:
-            LoadString (hInstance, IDS_DUMPFILE, szDefDumpFile, ARRAYSIZE(szDefDumpFile));
+            LoadString(hInstance, IDS_DUMPFILE, szDefDumpFile, ARRAYSIZE(szDefDumpFile));
             ExpandEnvironmentStrings(szDefDumpFile, szTemp2, MAX_PATH);
             acdfControls[i].u.pszValue = CloneString(szTemp2);
             break;
@@ -530,9 +551,9 @@ BOOL CoreDumpPutValue(int i) {
     DWORD dwTmp;
     BOOL fErr = FALSE;
 
-    switch(acdfControls[i].dwType) {
+    switch (acdfControls[i].dwType) {
     case REG_DWORD:
-        if (acdfControls[i].idCtl == IDC_STARTUP_CDMP_WRITE){
+        if (acdfControls[i].idCtl == IDC_STARTUP_CDMP_WRITE) {
             // Check first if writing a dump file is enabled
             if (acdfControls[i].u.fValue != TRUE)
                 dwTmp = 0;
@@ -540,7 +561,7 @@ BOOL CoreDumpPutValue(int i) {
                 // Now check what type of dump file is to be written
                 // Is it a full dump or just a summary (kernel only) dump
                 int j;
-                for (j = 0; j < CCTL_COREDUMP; j++ ) {
+                for (j = 0; j < CCTL_COREDUMP; j++) {
                     if (acdfControls[j].idCtl == IDC_STARTUP_CDMP_KERNELONLY) {
                         break;
                     }
@@ -558,7 +579,7 @@ BOOL CoreDumpPutValue(int i) {
                 // affected by the "Kernel Only" checkbox
                 int w;
                 DWORD dwTmp2;
-                for (w = 0; w < CCTL_COREDUMP; w++ ) {
+                for (w = 0; w < CCTL_COREDUMP; w++) {
                     if (acdfControls[w].idCtl == IDC_STARTUP_CDMP_WRITE) {
                         break;
                     }
@@ -575,7 +596,12 @@ BOOL CoreDumpPutValue(int i) {
                 }
                 lpb = (LPBYTE)&dwTmp2;
                 cb = sizeof(dwTmp);
-                if (RegSetValueEx (ghkeyCrashCtrl, acdfControls[w].pszValueName, 0, acdfControls[w].dwType, lpb, cb) != ERROR_SUCCESS) {
+                if (RegSetValueEx(ghkeyCrashCtrl, 
+                                  acdfControls[w].pszValueName,
+                                  0, 
+                                  acdfControls[w].dwType,
+                                  lpb, 
+                                  cb) != ERROR_SUCCESS) {
                     fErr = TRUE;
                 }
             }
@@ -590,7 +616,12 @@ BOOL CoreDumpPutValue(int i) {
         break;
     }
 
-    if (RegSetValueEx (ghkeyCrashCtrl, acdfControls[i].pszValueName, 0, acdfControls[i].dwType, lpb, cb) != ERROR_SUCCESS) {
+    if (RegSetValueEx(ghkeyCrashCtrl,
+                      acdfControls[i].pszValueName,
+                      0, 
+                      acdfControls[i].dwType,
+                      lpb,
+                      cb) != ERROR_SUCCESS) {
         fErr = TRUE;
     }
 
@@ -600,22 +631,22 @@ BOOL CoreDumpPutValue(int i) {
 
 void DisableCoreDumpControls(HWND hDlg)
 {
-    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_GRP     ), FALSE);
-    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_TXT1    ), FALSE);
-    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_LOG     ), FALSE);
-    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_SEND    ), FALSE);
-    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_WRITE   ), FALSE);
-    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_KERNELONLY       ), FALSE);
+    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_GRP), FALSE);
+    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_TXT1), FALSE);
+    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_LOG), FALSE);
+    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_SEND), FALSE);
+    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_WRITE), FALSE);
+    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_KERNELONLY), FALSE);
     EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_FILENAME), FALSE);
-    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_OVERWRITE       ), FALSE);
-    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_AUTOREBOOT      ), FALSE);
+    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_OVERWRITE), FALSE);
+    EnableWindow(GetDlgItem(hDlg, IDC_STARTUP_CDMP_AUTOREBOOT), FALSE);
 }
 
 
 void CoreDumpInitErrorExit(HWND hDlg, HKEY hk)
 {
-    MsgBoxParam(hDlg, SYSTEM+22, INITS+1, MB_ICONEXCLAMATION);
-    if( hk == ghkeyMemMgt )
+    MsgBoxParam(hDlg, SYSTEM + 22, INITS + 1, MB_ICONEXCLAMATION);
+    if (hk == ghkeyMemMgt)
         VirtualCloseKey();
 
     DisableCoreDumpControls(hDlg);
@@ -636,12 +667,12 @@ BOOL CoreDumpInit(HWND hDlg)
     HourGlass(TRUE);
     vcVirt = VirtualOpenKey();
 
-    if( vcVirt == VCREG_ERROR ) {
+    if (vcVirt == VCREG_ERROR) {
         CoreDumpInitErrorExit(hDlg, NULL);
         return FALSE;
     }
 
-    if (!VirtualGetPageFiles(apf) ) {
+    if (!VirtualGetPageFiles(apf)) {
         CoreDumpInitErrorExit(hDlg, ghkeyMemMgt);
         return FALSE;
     }
@@ -656,7 +687,7 @@ BOOL CoreDumpInit(HWND hDlg)
         /*
          * Disable some fields, because they only have Read access.
          */
-        for (i = 0; i < CCTL_COREDUMP; i++ ) {
+        for (i = 0; i < CCTL_COREDUMP; i++) {
             EnableWindow(GetDlgItem(hDlg, acdfControls[i].idCtl), FALSE);
         }
     }
@@ -664,7 +695,7 @@ BOOL CoreDumpInit(HWND hDlg)
     /*
      * For each control in the dialog...
      */
-    for( i = 0; i < CCTL_COREDUMP; i++ ) {
+    for (i = 0; i < CCTL_COREDUMP; i++) {
         /*
          * Get the value out of the registry
          */
@@ -673,13 +704,13 @@ BOOL CoreDumpInit(HWND hDlg)
         /*
          * Init the control value in the dialog
          */
-        switch( acdfControls[i].dwType ) {
+        switch (acdfControls[i].dwType) {
         case REG_DWORD:
             CheckDlgButton(hDlg, acdfControls[i].idCtl, acdfControls[i].u.fValue);
             break;
         default:
             SetDlgItemText(hDlg, acdfControls[i].idCtl,
-                    acdfControls[i].u.pszValue);
+                           acdfControls[i].u.pszValue);
             break;
         }
     }
@@ -729,11 +760,12 @@ BOOL CoreDumpUpdateRegistry(HWND hDlg) {
     BOOL fRegChanged = FALSE;
     BOOL fThisChanged;
 
-    for( i = 0; i < CCTL_COREDUMP; i++) {
+    for (i = 0; i < CCTL_COREDUMP; i++) {
         fThisChanged = FALSE;
 
-        switch(acdfControls[i].dwType) {
-        case REG_DWORD: {
+        switch (acdfControls[i].dwType) {
+        case REG_DWORD:
+        {
             BOOL fTmp;
             fTmp = (BOOL)IsDlgButtonChecked(hDlg, acdfControls[i].idCtl);
             if (fTmp != acdfControls[i].u.fValue) {
@@ -765,7 +797,7 @@ BOOL CoreDumpUpdateRegistry(HWND hDlg) {
     }
 
     if (fErr) {
-        MsgBoxParam(hDlg, SYSTEM+24, INITS+1, MB_ICONEXCLAMATION);
+        MsgBoxParam(hDlg, SYSTEM + 24, INITS + 1, MB_ICONEXCLAMATION);
     }
 
     return fRegChanged;

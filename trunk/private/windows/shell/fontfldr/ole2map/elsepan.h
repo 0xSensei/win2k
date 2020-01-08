@@ -540,7 +540,7 @@ extern "C" {
         EW_BYTE jBRangeLast;        /* highest possible B value (table depth) */
         EW_BYTE jReserved;          /* reserved, should be zero */
         EW_BYTE jPenalties[1];      /* penalty table */
-    } EW_PTBL_C0_MEM, EW_FAR *EW_LPPTBL_C0_MEM;
+    } EW_PTBL_C0_MEM, EW_FAR* EW_LPPTBL_C0_MEM;
 
     /* C1 compression == smooth penalty range symetrical about the
      * diagonal where closest to diagonal == 1 and each increment
@@ -570,7 +570,7 @@ extern "C" {
     typedef struct _tagEW_PTBL_C4_MEM {
         EW_BYTE jStart;             /* lowest value in table */
         EW_BYTE jIncrement;         /* increment away from the diagonal */
-    } EW_PTBL_C4_MEM, EW_FAR *EW_LPPTBL_C4_MEM;
+    } EW_PTBL_C4_MEM, EW_FAR* EW_LPPTBL_C4_MEM;
 
     /* Penalty table record, which describes the format of the penalty
      * table and contains its offset and size.  There is an array of
@@ -583,7 +583,7 @@ extern "C" {
         EW_BYTE jCompress;          /* type of compression */
         EW_USHORT unOffsTbl;        /* byte offset to penalty table */
         EW_USHORT unTblSize;        /* # bytes in penalty table */
-    } EW_PTBL_MEM, EW_FAR *EW_LPPTBL_MEM;
+    } EW_PTBL_MEM, EW_FAR* EW_LPPTBL_MEM;
 
     /* The A to B array maps PANOSE digits from one classification to
      * those in another (this happens when the two Family digits are
@@ -592,12 +592,12 @@ extern "C" {
     typedef struct _tagEW_ATOB_ITEM_MEM {
         EW_BYTE jAttrA;             /* PANOSE number index from family A */
         EW_BYTE jAttrB;             /* related PANOSE number ind from family B */
-    } EW_ATOB_ITEM_MEM, EW_FAR *EW_LPATOB_ITEM_MEM;
+    } EW_ATOB_ITEM_MEM, EW_FAR* EW_LPATOB_ITEM_MEM;
 
     typedef struct _tagEW_ATOB_MEM {
         EW_USHORT unNumAtoB;        /* count of array items */
         EW_ATOB_ITEM_MEM AtoBItem[1]; /* remapping array (variable length) */
-    } EW_ATOB_MEM, EW_FAR *EW_LPATOB_MEM;
+    } EW_ATOB_MEM, EW_FAR* EW_LPATOB_MEM;
 
     /* Mapper weights are stored in an array of 10 1-byte values.
      * We include a weight for the family digit even though it is
@@ -622,7 +622,7 @@ extern "C" {
         EW_USHORT unOffsWts;        /* byte offs to mapper weights */
         EW_USHORT unOffsAtoB;       /* byte offs to array relates family A to B */
         EW_USHORT unOffsPTbl;       /* byte offs to penalty tables */
-    } EW_PIND_MEM, EW_FAR *EW_LPPIND_MEM;
+    } EW_PIND_MEM, EW_FAR* EW_LPPIND_MEM;
 
     /* Penalty dictionary header.  This is the header to the entire
      * structure.  Its last item is a variable length array of index
@@ -634,7 +634,7 @@ extern "C" {
         EW_USHORT unNumDicts;       /* number of entries in PANOSE_PINDEX array */
         EW_USHORT unSizeDB;         /* count in bytes of the whole database */
         EW_PIND_MEM pind[1];        /* array of EW_PIND recs (variable len) */
-    } EW_PDICT_MEM, EW_FAR *EW_LPPDICT_MEM;
+    } EW_PDICT_MEM, EW_FAR* EW_LPPDICT_MEM;
 
 #endif  /* ifdef ELSEPENALTYDB */
 
@@ -656,7 +656,7 @@ extern "C" {
         EW_BYTE ajWtRefB[MAX_CUSTOM_WEIGHTS];
         EW_BYTE ajCustomWt[SIZE_PAN1_NUM * MAX_CUSTOM_WEIGHTS];
 #endif
-    } EW_MAPSTATE, EW_FAR *EW_LPMAPSTATE;
+    } EW_MAPSTATE, EW_FAR* EW_LPMAPSTATE;
 
     /*
      * ELSEPAN.C: Core PANOSE 1.0 font mapping routines.

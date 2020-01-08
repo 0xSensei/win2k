@@ -39,7 +39,7 @@
 #include <_fontlnk.h>
 #endif
 
-const SCRIPT_ID asidScriptIDFromCharClass[]=
+const SCRIPT_ID asidScriptIDFromCharClass[] =
 {
     // CC           SCRIPT_ID
     /* WOB_   1*/   sidHan,
@@ -419,16 +419,10 @@ const SCRIPT_ID asidAscii[128] =
 };
 
 
-
 //  Function:   ScriptIDFromCharClass
-
 //  Synopsis:   Given a character class, this function returns the proper
 //              script id.
-
-
-
-SCRIPT_ID
-ScriptIDFromCharClass(CHAR_CLASS cc)
+SCRIPT_ID ScriptIDFromCharClass(CHAR_CLASS cc)
 {
     Assert(cc >= 0 && cc < CHAR_CLASS_MAX);
 
@@ -437,19 +431,13 @@ ScriptIDFromCharClass(CHAR_CLASS cc)
 
 
 // We must not fontlink for sidEUDC -- GDI will handle
-
-
 #define SCRIPT_BIT_CONST ScriptBit(sidEUDC)
 
 
-
 //  Function:       ScriptIDsFromFontSignature
-
 //  Synopsis:       Compute the SCRIPT_IDS information based on the Unicode
 //                  subrange coverage of the TrueType font.
-
 //  Returns:        SCRIPT_IDS
-
 
 
 // NB: sidDefault (==0) is not a legal value here.
@@ -478,9 +466,7 @@ static SCRIPT_ID s_asidUnicodeSubRangeScriptMapping[] =
 
 #define UNICODE_SUBRANGES ARRAY_SIZE(s_asidUnicodeSubRangeScriptMapping)
 
-SCRIPT_IDS
-ScriptIDsFromFontSignature(
-    FONTSIGNATURE * pfs )
+SCRIPT_IDS ScriptIDsFromFontSignature(FONTSIGNATURE* pfs)
 {
     SCRIPT_IDS sids = sidsNotSet;
     int i;
@@ -489,16 +475,11 @@ ScriptIDsFromFontSignature(
 
     dwUsbBits = pfs->fsUsb[0];
 
-    if (dwUsbBits)
-    {
-        for (i=0; i<32; i++)
-        {
-            if (dwUsbBits & 1)
-            {
+    if (dwUsbBits) {
+        for (i = 0; i < 32; i++) {
+            if (dwUsbBits & 1) {
                 SCRIPT_ID sid = s_asidUnicodeSubRangeScriptMapping[i];
-
-                if (sid)
-                {
+                if (sid) {
                     sids |= ScriptBit(sid);
                 }
             }
@@ -509,18 +490,13 @@ ScriptIDsFromFontSignature(
 
     dwUsbBits = pfs->fsUsb[1];
 
-    if (dwUsbBits)
-    {
+    if (dwUsbBits) {
         fHangul = dwUsbBits & 0x01000000; // USR#56 = 32 + 24
 
-        for (i=32; i<64; i++)
-        {
-            if (dwUsbBits & 1)
-            {
+        for (i = 32; i < 64; i++) {
+            if (dwUsbBits & 1) {
                 SCRIPT_ID sid = s_asidUnicodeSubRangeScriptMapping[i];
-
-                if (sid)
-                {
+                if (sid) {
                     sids |= ScriptBit(sid);
                 }
             }
@@ -531,8 +507,7 @@ ScriptIDsFromFontSignature(
 
     dwUsbBits = pfs->fsUsb[2];
 
-    if (dwUsbBits)
-    {
+    if (dwUsbBits) {
         // Hack for half-width Kana; Half-width Kana characters fall in
         // U+FFxx Halfwidth and Fullwidth Forms (Unicode Subrange #68),
         // but the subrange contains a mixture of Hangul/Alphanumeric/Kana
@@ -540,19 +515,15 @@ ScriptIDsFromFontSignature(
         // half-width kana if it claims to support Unicode Subrange #68,
         // but not #56 (Hangul)
 
-        if ( !fHangul && (dwUsbBits & 0x00000010) ) // USR#68 = 64 + 4
+        if (!fHangul && (dwUsbBits & 0x00000010)) // USR#68 = 64 + 4
         {
             sids |= ScriptBit(sidHalfWidthKana);
         }
 
-        for (i=64; i<UNICODE_SUBRANGES; i++)
-        {
-            if (dwUsbBits & 1)
-            {
+        for (i = 64; i < UNICODE_SUBRANGES; i++) {
+            if (dwUsbBits & 1) {
                 SCRIPT_ID sid = s_asidUnicodeSubRangeScriptMapping[i];
-
-                if (sid)
-                {
+                if (sid) {
                     sids |= ScriptBit(sid);
                 }
             }
@@ -561,14 +532,9 @@ ScriptIDsFromFontSignature(
         }
     }
 
-
     // Do some additional tweaking
-
-
-    if (sids)
-    {
-        if (sids & ScriptBit(sidAsciiLatin))
-        {
+    if (sids) {
+        if (sids & ScriptBit(sidAsciiLatin)) {
             // BUGBUG (cthrash) This is a hack.  We want to be able to
             // turn off, via CSS, this bit.  This will allow FE users
             // to pick a Latin font for their punctuation.  For now,
@@ -579,8 +545,7 @@ ScriptIDsFromFontSignature(
             sids |= ScriptBit(sidAsciiSym);
         }
 
-        if (sids & ScriptBit(sidLatin))
-        {
+        if (sids & ScriptBit(sidLatin)) {
             sids |= ScriptBit(sidDefault);
         }
 
@@ -591,75 +556,36 @@ ScriptIDsFromFontSignature(
 }
 
 
-
 //  Function:   ScriptIDsFromCharSet (inline)
-
 //  Synopsis:   Data used by this inline function follows.
-
-
-
 const SCRIPT_IDS s_sidsTable[] =
 {
     #define SIDS_BASIC_LATIN 0
-    ScriptBit(sidDefault) |
-    ScriptBit(sidAsciiLatin) |
-    ScriptBit(sidAsciiSym) |
-    ScriptBit(sidLatin) |
-    SCRIPT_BIT_CONST,
+    ScriptBit(sidDefault) | ScriptBit(sidAsciiLatin) | ScriptBit(sidAsciiSym) | ScriptBit(sidLatin) | SCRIPT_BIT_CONST,
 
     #define SIDS_CYRILLIC 1
-    ScriptBit(sidAsciiLatin) |
-    ScriptBit(sidAsciiSym) |
-    ScriptBit(sidCyrillic) |
-    SCRIPT_BIT_CONST,
+    ScriptBit(sidAsciiLatin) | ScriptBit(sidAsciiSym) | ScriptBit(sidCyrillic) | SCRIPT_BIT_CONST,
 
     #define SIDS_GREEK 2
-    ScriptBit(sidAsciiLatin) |
-    ScriptBit(sidAsciiSym) |
-    ScriptBit(sidGreek) |
-    SCRIPT_BIT_CONST,
+    ScriptBit(sidAsciiLatin) | ScriptBit(sidAsciiSym) | ScriptBit(sidGreek) | SCRIPT_BIT_CONST,
 
     #define SIDS_HEBREW 3
-    ScriptBit(sidAsciiLatin) |
-    ScriptBit(sidAsciiSym) |
-    ScriptBit(sidHebrew) |
-    SCRIPT_BIT_CONST,
+    ScriptBit(sidAsciiLatin) | ScriptBit(sidAsciiSym) | ScriptBit(sidHebrew) | SCRIPT_BIT_CONST,
 
     #define SIDS_ARABIC 4
-    ScriptBit(sidAsciiLatin) |
-    ScriptBit(sidAsciiSym) |
-    ScriptBit(sidArabic) |
-    SCRIPT_BIT_CONST,
+    ScriptBit(sidAsciiLatin) | ScriptBit(sidAsciiSym) | ScriptBit(sidArabic) | SCRIPT_BIT_CONST,
 
     #define SIDS_THAI 5
-    ScriptBit(sidAsciiLatin) |
-    ScriptBit(sidAsciiSym) |
-    ScriptBit(sidThai) |
-    SCRIPT_BIT_CONST,
+    ScriptBit(sidAsciiLatin) | ScriptBit(sidAsciiSym) | ScriptBit(sidThai) | SCRIPT_BIT_CONST,
 
     #define SIDS_JAPANESE 6
-    ScriptBit(sidAsciiLatin) |
-    ScriptBit(sidAsciiSym) |
-    ScriptBit(sidKana) |
-    ScriptBit(sidHalfWidthKana) |
-    ScriptBit(sidHan) |
-    SCRIPT_BIT_CONST,
+    ScriptBit(sidAsciiLatin) | ScriptBit(sidAsciiSym) | ScriptBit(sidKana) | ScriptBit(sidHalfWidthKana) | ScriptBit(sidHan) | SCRIPT_BIT_CONST,
 
     #define SIDS_CHINESE 7
-    ScriptBit(sidAsciiLatin) |
-    ScriptBit(sidAsciiSym) |
-    ScriptBit(sidKana) |
-    ScriptBit(sidBopomofo) |
-    ScriptBit(sidHan) |
-    SCRIPT_BIT_CONST,
+    ScriptBit(sidAsciiLatin) | ScriptBit(sidAsciiSym) | ScriptBit(sidKana) | ScriptBit(sidBopomofo) | ScriptBit(sidHan) | SCRIPT_BIT_CONST,
 
     #define SIDS_HANGUL 8
-    ScriptBit(sidAsciiLatin) |
-    ScriptBit(sidAsciiSym) |
-    ScriptBit(sidHangul) |
-    ScriptBit(sidKana) |
-    ScriptBit(sidHan) |
-    SCRIPT_BIT_CONST,
+    ScriptBit(sidAsciiLatin) | ScriptBit(sidAsciiSym) | ScriptBit(sidHangul) | ScriptBit(sidKana) | ScriptBit(sidHan) | SCRIPT_BIT_CONST,
 
     #define SIDS_ALL 9
     sidsAll
@@ -955,36 +881,31 @@ SCRIPT_IDS
 ScriptIDsFromFont(
     HDC hdc,            // IN
     HFONT hfont,        // IN
-    BOOL fTrueType )    // IN
+    BOOL fTrueType)    // IN
 {
     FONTSIGNATURE fs;
     BYTE uCharSet;
     HGDIOBJ hfontOld;
     SCRIPT_IDS sids;
 
-    hfontOld = SelectObject( hdc, hfont );
-    uCharSet = (BYTE)GetTextCharsetInfo( hdc, &fs, 0 );
-    SelectObject( hdc, hfontOld );
+    hfontOld = SelectObject(hdc, hfont);
+    uCharSet = (BYTE)GetTextCharsetInfo(hdc, &fs, 0);
+    SelectObject(hdc, hfontOld);
 
-    if (fTrueType)
-    {
+    if (fTrueType) {
         sids = ScriptIDsFromFontSignature(&fs);
 
         // NOTE (cthrash) FE fonts will rarely cover enough of the Greek & Cyrillic
         // codepoints.  This hack basically forces us to fontlink for these.
 
-        if (IsFECharset(uCharSet))
-        {
+        if (IsFECharset(uCharSet)) {
             sids &= ~(ScriptBit(sidLatin) | ScriptBit(sidCyrillic) | ScriptBit(sidGreek));
         }
-    }
-    else
-    {
+    } else {
         sids = ScriptIDsFromCharSet(uCharSet);
     }
 
-    if (sids == sidsNotSet)
-    {
+    if (sids == sidsNotSet) {
         sids = sidsAll;
     }
 
@@ -1008,39 +929,24 @@ ScriptIDsFromFont(
 //              share there today.
 
 //  Returns:    Best guess script id.
-
-
-
-SCRIPT_ID
-UnUnifyHan(
-    UINT uiFamilyCodePage,
-    LCID lcid )
+SCRIPT_ID UnUnifyHan(UINT uiFamilyCodePage, LCID lcid)
 {
     SCRIPT_ID sid;
 
-    if ( !lcid )
-    {
+    if (!lcid) {
         // No lang info.  Try codepages
 
-        if (uiFamilyCodePage == CP_UCS_2 || uiFamilyCodePage == CP_UCS_2_BIGENDIAN)
-        {
+        if (uiFamilyCodePage == CP_UCS_2 || uiFamilyCodePage == CP_UCS_2_BIGENDIAN) {
             // Do something here, possibly call MLANG.
         }
 
-        if (uiFamilyCodePage == CP_CHN_GB)
-        {
+        if (uiFamilyCodePage == CP_CHN_GB) {
             lcid = MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED);
-        }
-        else if (uiFamilyCodePage == CP_KOR_5601)
-        {
+        } else if (uiFamilyCodePage == CP_KOR_5601) {
             lcid = MAKELANGID(LANG_KOREAN, SUBLANG_NEUTRAL);
-        }
-        else if (uiFamilyCodePage == CP_TWN)
-        {
+        } else if (uiFamilyCodePage == CP_TWN) {
             lcid = MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL);
-        }
-        else
-        {
+        } else {
             lcid = MAKELANGID(LANG_JAPANESE, SUBLANG_NEUTRAL);
         }
     }
@@ -1048,23 +954,15 @@ UnUnifyHan(
     LANGID lid = LANGIDFROMLCID(lcid);
     WORD plid = PRIMARYLANGID(lid);
 
-    if (plid == LANG_CHINESE)
-    {
-        if (SUBLANGID(lid) == SUBLANG_CHINESE_TRADITIONAL)
-        {
+    if (plid == LANG_CHINESE) {
+        if (SUBLANGID(lid) == SUBLANG_CHINESE_TRADITIONAL) {
             sid = sidBopomofo;
-        }
-        else
-        {
+        } else {
             sid = sidHan;
         }
-    }
-    else if (plid == LANG_KOREAN)
-    {
+    } else if (plid == LANG_KOREAN) {
         sid = sidHangul;
-    }
-    else
-    {
+    } else {
         sid = sidKana;
     }
 
@@ -1081,14 +979,11 @@ UnUnifyHan(
 
 //  Returns:    Best-guess codepage for given information.
 //              Also returns the ununified sid for sidHan.
-
-
-
 CODEPAGE
 DefaultCodePageFromScript(
-    SCRIPT_ID * psid,   // IN/OUT
+    SCRIPT_ID* psid,   // IN/OUT
     CODEPAGE cpDoc,  // IN
-    LCID lcid )         // IN
+    LCID lcid)         // IN
 {
     AssertSz(psid, "Not an optional parameter.");
     AssertSz(cpDoc == WindowsCodePageFromCodePage(cpDoc),
@@ -1097,20 +992,14 @@ DefaultCodePageFromScript(
     CODEPAGE cp;
     SCRIPT_ID sid = *psid;
 
-    if (sid == sidMerge || sid == sidAmbiguous)
-    {
-
+    if (sid == sidMerge || sid == sidAmbiguous) {
         // This is a hack -- the only time we should be called with sidMerge
         // is when the person asking about the font doesn't know what the sid
         // for the run is (e.g. treepos is non-text.)  In this event, we need
         // to pick a codepage which will give us the highest likelyhood of
         // being the correct one for ReExtTextOutW.
-
-
         return cpDoc;
-    }
-    else if (cpDoc == CP_1250 && sid == sidDefault || sid == sidLatin)
-    {
+    } else if (cpDoc == CP_1250 && sid == sidDefault || sid == sidLatin) {
         // HACK (cthrash) CP_1250 (Eastern Europe) doesn't have it's own sid,
         // because its codepoints are covered by AsciiLatin, AsciiSym, and
         // Latin.  When printing, though, we may need to do a WC2MB (on a PCL
@@ -1119,26 +1008,23 @@ DefaultCodePageFromScript(
         // document codepage over cp1252.
 
         cp = CP_1250;
-    }
-    else
-    {
+    } else {
         // NB (cthrash) We assume the sidHan is the unified script for Han.
         // we use the usual heurisitics to pick amongst them.
 
-        sid = (sid != sidHan) ? sid : UnUnifyHan( cpDoc, lcid );
+        sid = (sid != sidHan) ? sid : UnUnifyHan(cpDoc, lcid);
 
-        switch (sid)
-        {
-            default:            cp = CP_1252;       break;
-            case sidGreek:      cp = CP_1253;       break;
-            case sidCyrillic:   cp = CP_1251;       break;
-            case sidHebrew:     cp = CP_1255;       break;
-            case sidArabic:     cp = CP_1256;       break;
-            case sidThai:       cp = CP_THAI;       break;
-            case sidHangul:     cp = CP_KOR_5601;   break;
-            case sidKana:       cp = CP_JPN_SJ;     break;
-            case sidBopomofo:   cp = CP_TWN;        break;
-            case sidHan:        cp = CP_CHN_GB;     break;
+        switch (sid) {
+        default:            cp = CP_1252;       break;
+        case sidGreek:      cp = CP_1253;       break;
+        case sidCyrillic:   cp = CP_1251;       break;
+        case sidHebrew:     cp = CP_1255;       break;
+        case sidArabic:     cp = CP_1256;       break;
+        case sidThai:       cp = CP_THAI;       break;
+        case sidHangul:     cp = CP_KOR_5601;   break;
+        case sidKana:       cp = CP_JPN_SJ;     break;
+        case sidBopomofo:   cp = CP_TWN;        break;
+        case sidHan:        cp = CP_CHN_GB;     break;
         }
 
         *psid = sid;
@@ -1213,34 +1099,25 @@ static const BYTE s_abCharSetDefault[sidTridentLim] =
     SHIFTJIS_CHARSET,     // sidHalfWidthKana (45) *** Trident internal ***
 };
 
-BYTE
-DefaultCharSetFromScriptAndCharset(
-    SCRIPT_ID sid,
-    BYTE bCharSetCF )
+BYTE DefaultCharSetFromScriptAndCharset(SCRIPT_ID sid, BYTE bCharSetCF)
 {
     BYTE bCharSet = s_abCharSetDefault[sid];
 
-    if (bCharSet == SPECIAL_CHARSET)
-    {
-        if (   sid == sidLatin
-            && (   bCharSetCF == TURKISH_CHARSET
+    if (bCharSet == SPECIAL_CHARSET) {
+        if (sid == sidLatin
+            && (bCharSetCF == TURKISH_CHARSET
                 || bCharSetCF == ANSI_CHARSET
                 || bCharSetCF == VIETNAMESE_CHARSET
                 || bCharSetCF == BALTIC_CHARSET
                 || bCharSetCF == EASTEUROPE_CHARSET
-               )
-           )
-        {
+                )
+            ) {
             bCharSet = bCharSetCF;
-        }
-        else if (sid == sidHangul)
-        {
+        } else if (sid == sidHangul) {
             bCharSet = bCharSetCF == JOHAB_CHARSET
-                       ? JOHAB_CHARSET
-                       : HANGUL_CHARSET;
-        }
-        else
-        {
+                ? JOHAB_CHARSET
+                : HANGUL_CHARSET;
+        } else {
             bCharSet = DEFAULT_CHARSET;
         }
     }
@@ -1261,18 +1138,14 @@ static const BYTE s_ab125xCharSets[] =
     VIETNAMESE_CHARSET  // 1258
 };
 
-BYTE
-DefaultCharSetFromScriptAndCodePage(
-    SCRIPT_ID sid,
-    UINT uiFamilyCodePage )
+BYTE DefaultCharSetFromScriptAndCodePage(SCRIPT_ID sid, UINT uiFamilyCodePage)
 {
     BYTE bCharSet = s_abCharSetDefault[sid];
 
-    if (bCharSet == SPECIAL_CHARSET)
-    {
+    if (bCharSet == SPECIAL_CHARSET) {
         bCharSet = (uiFamilyCodePage >= 1250 && uiFamilyCodePage <= 1258)
-                   ? s_ab125xCharSets[uiFamilyCodePage - 1250]
-                   : ANSI_CHARSET;
+            ? s_ab125xCharSets[uiFamilyCodePage - 1250]
+            : ANSI_CHARSET;
     }
 
     return bCharSet;
@@ -1288,53 +1161,47 @@ DefaultCharSetFromScriptAndCodePage(
 
 
 SCRIPT_ID
-DefaultSidForCodePage( UINT uiFamilyCodePage )
+DefaultSidForCodePage(UINT uiFamilyCodePage)
 {
     SCRIPT_ID sid = sidLatin;
 
-    switch (uiFamilyCodePage)
+    switch (uiFamilyCodePage) {
+    case CP_THAI: sid = sidThai; break;
+    case CP_JPN_SJ: sid = sidKana; break;
+    case CP_CHN_GB: sid = sidHan; break;
+    case CP_KOR_5601: sid = sidHangul; break;
+    case CP_TWN: sid = sidBopomofo; break;
+    case CP_1250: sid = sidLatin; break;
+    case CP_1251: sid = sidCyrillic; break;
+    case CP_1252: sid = sidLatin; break;
+    case CP_1253: sid = sidGreek; break;
+    case CP_1254: sid = sidLatin; break;
+    case CP_1255: sid = sidHebrew; break;
+    case CP_1256: sid = sidArabic; break;
+    case CP_1257: sid = sidLatin; break;
+    default:
     {
-        case CP_THAI: sid = sidThai; break;
-        case CP_JPN_SJ: sid = sidKana; break;
-        case CP_CHN_GB: sid = sidHan; break;
-        case CP_KOR_5601: sid = sidHangul; break;
-        case CP_TWN: sid = sidBopomofo; break;
-        case CP_1250: sid = sidLatin; break;
-        case CP_1251: sid = sidCyrillic; break;
-        case CP_1252: sid = sidLatin; break;
-        case CP_1253: sid = sidGreek; break;
-        case CP_1254: sid = sidLatin; break;
-        case CP_1255: sid = sidHebrew; break;
-        case CP_1256: sid = sidArabic; break;
-        case CP_1257: sid = sidLatin; break;
-        default:
-        {
-            extern IMultiLanguage *g_pMultiLanguage;
-            HRESULT hr;
+        extern IMultiLanguage* g_pMultiLanguage;
+        HRESULT hr;
 
-            hr = THR( EnsureMultiLanguage() );
+        hr = THR(EnsureMultiLanguage());
 
-            if (OK(hr) && g_pMultiLanguage != NULL)
-            {
-                IMLangFontLink2 * pMLangFontLink2 = NULL;
+        if (OK(hr) && g_pMultiLanguage != NULL) {
+            IMLangFontLink2* pMLangFontLink2 = NULL;
 
-                hr = THR(g_pMultiLanguage->QueryInterface( IID_IMLangFontLink2,
-                                                           (void **)&pMLangFontLink2) );
-
-                if (OK(hr))
-                {
-                    hr = THR( pMLangFontLink2->CodePageToScriptID( uiFamilyCodePage, &sid ));
-                }
-
-                ReleaseInterface( pMLangFontLink2 );
+            hr = THR(g_pMultiLanguage->QueryInterface(IID_IMLangFontLink2, (void**)&pMLangFontLink2));
+            if (OK(hr)) {
+                hr = THR(pMLangFontLink2->CodePageToScriptID(uiFamilyCodePage, &sid));
             }
 
-            if (FAILED(hr))
-            {
-                sid = sidLatin;
-            }
+            ReleaseInterface(pMLangFontLink2);
         }
-        break;
+
+        if (FAILED(hr)) {
+            sid = sidLatin;
+        }
+    }
+    break;
     }
 
     return sid;
@@ -1351,31 +1218,28 @@ DefaultSidForCodePage( UINT uiFamilyCodePage )
 
 
 SCRIPT_ID
-RegistryAppropriateSidFromSid( SCRIPT_ID sid )
+RegistryAppropriateSidFromSid(SCRIPT_ID sid)
 {
     // Make sure a bad sid isn't being passed in
 
 #ifndef NO_UTF16
-    Assert(   sid == sidHalfWidthKana
-           || sid == sidSurrogateA
-           || sid == sidSurrogateB
-           || sid < sidLim );
+    Assert(sid == sidHalfWidthKana || sid == sidSurrogateA || sid == sidSurrogateB || sid < sidLim);
 #else
-    Assert( sid == sidHalfWidthKana || sid < sidLim );
+    Assert(sid == sidHalfWidthKana || sid < sidLim);
 #endif
 
     // Make sure our sid order hasn't changed.
 
-    Assert(   sidDefault < sidMerge
+    Assert(sidDefault < sidMerge
            && sidMerge < sidAsciiSym
            && sidAsciiSym < sidAsciiLatin
-           && sidAsciiLatin    < sidLatin);
+           && sidAsciiLatin < sidLatin);
 
     return (sid <= sidLatin)
-            ? sidAsciiLatin
-            : (sid == sidHalfWidthKana)
-              ? sidKana
-              : sid;
+        ? sidAsciiLatin
+        : (sid == sidHalfWidthKana)
+        ? sidKana
+        : sid;
 }
 
 
@@ -1493,25 +1357,20 @@ static const SCRIPT_ID s_asidScriptFromLang[] =
     sidDevanagari,  // LANG_NEPALI      0x61
 };
 
-SCRIPT_ID
-DefaultScriptIDFromLang(
-    LANGID lang)
+SCRIPT_ID DefaultScriptIDFromLang(LANGID lang)
 {
     const size_t i = (size_t)PRIMARYLANGID(lang);
 
-    if (i >= 0 && i < sizeof(s_asidScriptFromLang) / sizeof(SCRIPT_ID))
-    {
+    if (i >= 0 && i < sizeof(s_asidScriptFromLang) / sizeof(SCRIPT_ID)) {
         return s_asidScriptFromLang[i];
-    }
-    else
-    {
+    } else {
         return sidDefault;
     }
 }
 
 #if DBG==1
 
-const TCHAR * achSidNames[sidTridentLim] =
+const TCHAR* achSidNames[sidTridentLim] =
 {
     _T("Default"),          // 0
     _T("Merge"),            // 1
@@ -1562,43 +1421,28 @@ const TCHAR * achSidNames[sidTridentLim] =
 };
 
 
-
 //  Functions:  SidName
-
 //  Returns:    Human-intelligible name for a script_id
-
-
-
-const TCHAR *
-SidName( SCRIPT_ID sid )
+const TCHAR* SidName(SCRIPT_ID sid)
 {
-    return ( sid >= 0 && sid < sidTridentLim ) ? achSidNames[sid] : _T("#ERR");
+    return (sid >= 0 && sid < sidTridentLim) ? achSidNames[sid] : _T("#ERR");
 }
 
 
-
 //  Functions:  DumpSids
-
 //  Synopsis:   Dump to the output window a human-intelligible list of names
 //              of scripts coverted by the sids.
-
 //  Returns:    Nada.
-
-
-
-void
-DumpSids( SCRIPT_IDS sids )
+void DumpSids(SCRIPT_IDS sids)
 {
     SCRIPT_ID sid;
 
-    for (sid=0; sid < sidTridentLim; sid++)
-    {
-        if (sids & ScriptBit(sid))
-        {
+    for (sid = 0; sid < sidTridentLim; sid++) {
+        if (sids & ScriptBit(sid)) {
             OutputDebugString(SidName(sid));
             OutputDebugString(_T("\r\n"));
         }
     }
 }
-#endif // DBG==1
 
+#endif // DBG==1

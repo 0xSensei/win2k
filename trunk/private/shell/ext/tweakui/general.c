@@ -6,10 +6,10 @@
 
 #pragma BEGIN_CONST_DATA
 
-KL const c_klSmooth = { &c_hkCU, c_tszRegPathDesktop, c_tszSmoothScroll };
-KL const c_klEngine = { &g_hkCUSMIE, c_tszSearchUrl, 0 };
+KL const c_klSmooth = {&c_hkCU, c_tszRegPathDesktop, c_tszSmoothScroll};
+KL const c_klEngine = {&g_hkCUSMIE, c_tszSearchUrl, 0};
 KL const c_klPaintVersion =
-{ &c_hkCU, c_tszRegPathDesktop, c_tszPaintDesktop };
+{&c_hkCU, c_tszRegPathDesktop, c_tszPaintDesktop};
 
 /* BUGBUG
 Software\Microsoft\Internet Explorer\RestrictUI::Toolbar, ::History
@@ -60,9 +60,9 @@ MAKEKL(Templates);
  *  WARNING!  This must agree with the IDS_FOLDER_* goo in
  *            tweakui.h.
 */
-KL const c_klProgramFiles = { &g_hkLMSMWCV, 0, c_tszProgramFilesDir };
-KL const c_klCommonFiles = { &g_hkLMSMWCV, 0, c_tszCommonFilesDir };
-KL const c_klSourcePath = { &g_hkLMSMWCV, c_tszSetup, c_tszSourcePath };
+KL const c_klProgramFiles = {&g_hkLMSMWCV, 0, c_tszProgramFilesDir};
+KL const c_klCommonFiles = {&g_hkLMSMWCV, 0, c_tszCommonFilesDir};
+KL const c_klSourcePath = {&g_hkLMSMWCV, c_tszSetup, c_tszSourcePath};
 
 #define CSIDL_PROGRAMFILES  CSIDL_COMMON_STARTMENU
 #define CSIDL_COMMONFILES   CSIDL_COMMON_PROGRAMS
@@ -71,7 +71,7 @@ KL const c_klSourcePath = { &g_hkLMSMWCV, c_tszSetup, c_tszSourcePath };
 typedef struct FOLDERDESC {
     UINT csidl;
     PKL pkl;
-} FLDD, *PFLDD;
+} FLDD, * PFLDD;
 
 const FLDD c_rgfldd[] = {
     {    CSIDL_DESKTOPDIRECTORY,    &c_klDesktop },
@@ -95,7 +95,7 @@ const FLDD c_rgfldd[] = {
 typedef struct FOLDERINSTANCE {
     BOOL    fEdited;
     PIDL    pidl;
-} FINST, *PFINST;
+} FINST, * PFINST;
 
 /*
  * Instanced.  We're a cpl so have only one instance, but I declare
@@ -105,7 +105,7 @@ typedef struct FOLDERINSTANCE {
 typedef struct GDII {           /* general_dialog instance info */
     FINST   rgfinst[cfldd];
     TCHAR   tszUrl[1024];    /* Search URL */
-} GDII, *PGDII;
+} GDII, * PGDII;
 
 GDII gdii;
 #define pgdii (&gdii)
@@ -113,17 +113,11 @@ GDII gdii;
 #define DestroyCursor(hcur) SafeDestroyIcon((HICON)(hcur))
 
 /*
-
  *  General_GetAni
-
  *    Determine whether minimize animations are enabled.
-
  *    Always returns exactly 0 or 1.
-
 */
-
-BOOL PASCAL
-General_GetAni(LPARAM lParam, LPVOID pvRef)
+BOOL PASCAL General_GetAni(LPARAM lParam, LPVOID pvRef)
 {
     ANIMATIONINFO anii;
     anii.cbSize = sizeof(anii);
@@ -132,15 +126,10 @@ General_GetAni(LPARAM lParam, LPVOID pvRef)
 }
 
 /*
-
  *  General_SetAni
-
  *    Set the new animation flag.
-
 */
-
-void PASCAL
-General_SetAni(BOOL f, LPARAM lParam, LPVOID pvRef)
+void PASCAL General_SetAni(BOOL f, LPARAM lParam, LPVOID pvRef)
 {
     ANIMATIONINFO anii;
     anii.cbSize = sizeof(anii);
@@ -154,36 +143,24 @@ General_SetAni(BOOL f, LPARAM lParam, LPVOID pvRef)
 }
 
 /*
-
  *  General_GetSmooth
-
  *    Determine whether smooth scrolling is enabled.
-
  *    Always returns exactly 0 or 1.
-
 */
-
-BOOL PASCAL
-General_GetSmooth(LPARAM lParam, LPVOID pvRef)
+BOOL PASCAL General_GetSmooth(LPARAM lParam, LPVOID pvRef)
 {
     if (g_fSmoothScroll) {
         return GetDwordPkl(&c_klSmooth, 1) != 0;
-    }
-    else {
+    } else {
         return -1;
     }
 }
 
 /*
-
  *  General_SetSmooth
-
  *    Set the new smooth-scroll flag.
-
 */
-
-void PASCAL
-General_SetSmooth(BOOL f, LPARAM lParam, LPVOID pvRef)
+void PASCAL General_SetSmooth(BOOL f, LPARAM lParam, LPVOID pvRef)
 {
     SetDwordPkl(&c_klSmooth, f);
     if (pvRef) {
@@ -193,36 +170,24 @@ General_SetSmooth(BOOL f, LPARAM lParam, LPVOID pvRef)
 }
 
 /*
-
  *  General_GetPntVer
-
  *      Determine whether we should paint the version on the desktop.
-
  *    Always returns exactly 0 or 1.
-
 */
-
-BOOL PASCAL
-General_GetPntVer(LPARAM lParam, LPVOID pvRef)
+BOOL PASCAL General_GetPntVer(LPARAM lParam, LPVOID pvRef)
 {
     if (g_fMemphis) {
         return GetIntPkl(0, &c_klPaintVersion) != 0;
-    }
-    else {
+    } else {
         return -1;
     }
 }
 
 /*
-
  *  General_SetPntVer
-
  *      Set the PaintVersion flag.
-
 */
-
-void PASCAL
-General_SetPntVer(BOOL f, LPARAM lParam, LPVOID pvRef)
+void PASCAL General_SetPntVer(BOOL f, LPARAM lParam, LPVOID pvRef)
 {
     SetIntPkl(f, &c_klPaintVersion);
     if (pvRef) {
@@ -232,15 +197,10 @@ General_SetPntVer(BOOL f, LPARAM lParam, LPVOID pvRef)
 }
 
 /*
-
  *  General_GetSpi
-
  *      Return the setting of an SPI.
-
 */
-
-BOOL PASCAL
-General_GetSpi(LPARAM lParam, LPVOID pvRef)
+BOOL PASCAL General_GetSpi(LPARAM lParam, LPVOID pvRef)
 {
     BOOL f;
 
@@ -254,29 +214,22 @@ General_GetSpi(LPARAM lParam, LPVOID pvRef)
      *  Fortunately, the truncation to a WORD yields 0, which is an
      *  invalid parameter.
      */
-    if (HIWORD(lParam) &&
-        !SystemParametersInfo(SPI_GETACTIVEWINDOWTRACKING, 0, &f, 0)) {
+    if (HIWORD(lParam) && !SystemParametersInfo(SPI_GETACTIVEWINDOWTRACKING, 0, &f, 0)) {
         return -1;      /* Win95 - don't crash! */
     }
 
     if (SystemParametersInfo(lParam, 0, &f, 0)) {
         return f;
-    }
-    else {
+    } else {
         return -1;
     }
 }
 
 /*
-
  *  General_SetSpiW
-
  *      Set the SPI value in the wParam.  Only SPI_SETBEEP needs this.
-
 */
-
-void
-General_SetSpiW(BOOL f, LPARAM lParam, LPVOID pvRef)
+void General_SetSpiW(BOOL f, LPARAM lParam, LPVOID pvRef)
 {
     SystemParametersInfo(lParam + 1, f, NULL, SPIF_UPDATEINIFILE);
     if (pvRef) {
@@ -286,15 +239,10 @@ General_SetSpiW(BOOL f, LPARAM lParam, LPVOID pvRef)
 }
 
 /*
-
  *  General_SetSpi
-
  *      Set the SPI value in the lParam.
-
 */
-
-void
-General_SetSpi(BOOL f, LPARAM lParam, LPVOID pvRef)
+void General_SetSpi(BOOL f, LPARAM lParam, LPVOID pvRef)
 {
     SystemParametersInfo(lParam + 1, f, (LPVOID)f, SPIF_UPDATEINIFILE);
     if (pvRef) {
@@ -329,27 +277,18 @@ CHECKLISTITEM c_rgcliGeneral[] = {
 #pragma END_CONST_DATA
 
 /*
-
  *  General_SetDirty
-
  *    Make a control dirty.
-
 */
-
-void INLINE
-General_SetDirty(HWND hdlg)
+void INLINE General_SetDirty(HWND hdlg)
 {
     Common_SetDirty(hdlg);
 }
 
 /*
-
  *  General_FreePidls
-
 */
-
-void PASCAL
-General_FreePidls(HWND hdlg)
+void PASCAL General_FreePidls(HWND hdlg)
 {
     UINT i;
 
@@ -363,15 +302,10 @@ General_FreePidls(HWND hdlg)
 }
 
 /*
-
  *  General_GetDlgItemData
-
  *    Get the current item data from a combo box.
-
 */
-
-int PASCAL
-General_GetDlgItemData(HWND hdlg, UINT idc)
+int PASCAL General_GetDlgItemData(HWND hdlg, UINT idc)
 {
     HWND hwnd = GetDlgItem(hdlg, idc);
     int iItem = ComboBox_GetCurSel(hwnd);
@@ -380,15 +314,10 @@ General_GetDlgItemData(HWND hdlg, UINT idc)
 
 
 /*
-
  *  General_UpdateFolder
-
  *    Update goo since the combo box changed.
-
 */
-
-void PASCAL
-General_UpdateFolder(HWND hdlg)
+void PASCAL General_UpdateFolder(HWND hdlg)
 {
     int icsidl = General_GetDlgItemData(hdlg, IDC_FLDNAMELIST);
     TCHAR tsz[MAX_PATH];
@@ -400,15 +329,10 @@ General_UpdateFolder(HWND hdlg)
 }
 
 /*
-
  *  General_Engine_OnEditChange
-
  *    Enable the OK button if the URL contains exactly one %s.
-
 */
-
-void PASCAL
-General_Engine_OnEditChange(HWND hdlg)
+void PASCAL General_Engine_OnEditChange(HWND hdlg)
 {
     TCHAR tszUrl[cA(pgdii->tszUrl)];
     PTSTR ptsz;
@@ -423,12 +347,10 @@ General_Engine_OnEditChange(HWND hdlg)
     while ((ptsz = ptszStrChr(ptsz, TEXT('%'))) != 0) {
         if (ptsz[1] == TEXT('%')) {
             ptsz += 2;
-        }
-        else if (ptsz[1] == TEXT('s')) {
+        } else if (ptsz[1] == TEXT('s')) {
             cPercentS++;
             ptsz += 2;
-        }
-        else {
+        } else {
             cPercentS = 0; break;    /* Percent-mumble */
         }
     }
@@ -437,39 +359,27 @@ General_Engine_OnEditChange(HWND hdlg)
 }
 
 /*
-
  *  General_Engine_OnOk
-
  *    Save the answer.
-
 */
-
-void INLINE
-General_Engine_OnOk(HWND hdlg)
+void INLINE General_Engine_OnOk(HWND hdlg)
 {
     GetDlgItemText(hdlg, IDC_SEARCHURL, pgdii->tszUrl, cA(pgdii->tszUrl));
 }
 
 /*
-
  *  General_Engine_OnCommand
-
  *    If the edit control changed, update the OK button.
-
 */
-
-void PASCAL
-General_Engine_OnCommand(HWND hdlg, int id, UINT codeNotify)
+void PASCAL General_Engine_OnCommand(HWND hdlg, int id, UINT codeNotify)
 {
     switch (id) {
     case IDCANCEL:
         EndDialog(hdlg, 0); break;
-
     case IDOK:
         General_Engine_OnOk(hdlg);
         EndDialog(hdlg, 1);
         break;
-
     case IDC_SEARCHURL:
         if (codeNotify == EN_CHANGE) General_Engine_OnEditChange(hdlg);
         break;
@@ -477,70 +387,52 @@ General_Engine_OnCommand(HWND hdlg, int id, UINT codeNotify)
 }
 
 /*
-
  *  General_Engine_OnInitDialog
-
  *    Shove the current engine URL in so the user can edit it.
-
 */
-
-void PASCAL
-General_Engine_OnInitDialog(HWND hdlg)
+void PASCAL General_Engine_OnInitDialog(HWND hdlg)
 {
     SetDlgItemTextLimit(hdlg, IDC_SEARCHURL, pgdii->tszUrl, cA(pgdii->tszUrl));
     General_Engine_OnEditChange(hdlg);
 }
 
 /*
-
  *  General_Engine_DlgProc
-
  *    Dialog procedure.
-
 */
-
-BOOL EXPORT
-General_Engine_DlgProc(HWND hdlg, UINT wm, WPARAM wParam, LPARAM lParam)
+BOOL EXPORT General_Engine_DlgProc(HWND hdlg, UINT wm, WPARAM wParam, LPARAM lParam)
 {
     switch (wm) {
-    case WM_INITDIALOG: General_Engine_OnInitDialog(hdlg); break;
-
+    case WM_INITDIALOG: 
+        General_Engine_OnInitDialog(hdlg);
+        break;
     case WM_COMMAND:
         General_Engine_OnCommand(hdlg,
             (int)GET_WM_COMMAND_ID(wParam, lParam),
                                  (UINT)GET_WM_COMMAND_CMD(wParam, lParam));
         break;
-
     default: return 0;    /* Unhandled */
     }
+
     return 1;        /* Handled */
 }
 
 
 /*
-
  *  General_UpdateEngine
-
  *    If the person selected "Custom", then pop up the customize dialog.
-
  *    At any rate, put the matching URL into pgdii->tszUrl.
-
 */
-
-void PASCAL
-General_UpdateEngine(HWND hdlg)
+void PASCAL General_UpdateEngine(HWND hdlg)
 {
     int ieng = General_GetDlgItemData(hdlg, IDC_IE3ENGINE);
 
     if (ieng == 0) {
-        if (DialogBox(hinstCur, MAKEINTRESOURCE(IDD_SEARCHURL), hdlg,
-                      General_Engine_DlgProc)) {
-        }
-        else {
+        if (DialogBox(hinstCur, MAKEINTRESOURCE(IDD_SEARCHURL), hdlg, General_Engine_DlgProc)) {
+        } else {
             goto skip;
         }
-    }
-    else {
+    } else {
         LoadString(hinstCur, IDS_URL + ieng, pgdii->tszUrl, cA(pgdii->tszUrl));
     }
 
@@ -549,16 +441,11 @@ skip:;
 }
 
 /*
-
  *  General_GetFlddPidl
-
  *      Wrapper around SHGetSpecialFolderLocation that also knows how
  *      to read our hacky values.
-
 */
-
-PIDL PASCAL
-General_GetFlddPidl(HWND hdlg, const FLDD *pfldd)
+PIDL PASCAL General_GetFlddPidl(HWND hdlg, const FLDD* pfldd)
 {
     HRESULT hres;
     PIDL pidl;
@@ -570,16 +457,14 @@ General_GetFlddPidl(HWND hdlg, const FLDD *pfldd)
     case CSIDL_SOURCEPATH:
         if (GetStrPkl(tszPath, cbX(tszPath), pfldd->pkl)) {
             pidl = pidlFromPath(psfDesktop, tszPath);
-        }
-        else {
+        } else {
             pidl = NULL;
         }
         break;
 
     default:
         if (SUCCEEDED(SHGetSpecialFolderLocation(hdlg, pfldd->csidl, &pidl))) {
-        }
-        else {
+        } else {
             pidl = NULL;
         }
         break;
@@ -589,18 +474,12 @@ General_GetFlddPidl(HWND hdlg, const FLDD *pfldd)
 }
 
 /*
-
  *  General_Reset
-
  *    Reset all controls to initial values.  This also marks
  *    the control as clean.
-
  *      Note: This doesn't really work any more.
-
 */
-
-BOOL PASCAL
-General_Reset(HWND hdlg)
+BOOL PASCAL General_Reset(HWND hdlg)
 {
     HWND hwnd;
     UINT i;
@@ -635,8 +514,7 @@ General_Reset(HWND hdlg)
                 ComboBox_SetCurSel(hwnd, iItem);
             }
         }
-    }
-    else {
+    } else {
         UINT idc;
         for (idc = IDC_IE3FIRST; idc <= IDC_IE3LAST; idc++) {
             EnableWindow(GetDlgItem(hdlg, idc), 0);
@@ -649,20 +527,13 @@ General_Reset(HWND hdlg)
 }
 
 /*
-
  *  General_UnexpandEnvironmentString
-
- *    If the string begins with the value of the environment string,
- *    then change it to said string.
-
- *    Example:
+ *    If the string begins with the value of the environment string, then change it to said string.
+  *    Example:
  *        In: "C:\WINNT\SYSTEM32\FOO.TXT", "%SystemRoot%"
  *        Out: "%SystemRoot%\SYSTEM32\FOO.TXT"
-
 */
-
-BOOL PASCAL
-General_UnexpandEnvironmentString(LPTSTR ptsz, LPCTSTR ptszEnv)
+BOOL PASCAL General_UnexpandEnvironmentString(LPTSTR ptsz, LPCTSTR ptszEnv)
 {
     TCHAR tszEnv[MAX_PATH];
     DWORD ctch;
@@ -681,33 +552,27 @@ General_UnexpandEnvironmentString(LPTSTR ptsz, LPCTSTR ptszEnv)
      *    accidentally reading past the end of the source.
      */
     if ((DWORD)lstrlen(ptsz) >= ctch) {
-        if (CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE,
-                          tszEnv, ctch, ptsz, ctch) == 2) {
+        if (CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE, tszEnv, ctch, ptsz, ctch) == 2) {
             int ctchEnv = lstrlen(ptszEnv);
             /*
              *    Must use hmemcpy to avoid problems with overlap.
              */
-            hmemcpy(ptsz + ctchEnv, ptsz + ctch,
-                    cbCtch(1 + lstrlen(ptsz + ctch)));
+            hmemcpy(ptsz + ctchEnv, ptsz + ctch, cbCtch(1 + lstrlen(ptsz + ctch)));
             hmemcpy(ptsz, ptszEnv, ctchEnv);
             fRc = 1;
-        }
-        else {
+        } else {
             fRc = 0;
         }
-    }
-    else {
+    } else {
         fRc = 0;
     }
+
     return fRc;
 }
 
 /*
-
  *  General_SetUserShellFolder
-
  *  Don't use REG_EXPAND_SZ if the shell doesn't support it.
-
 */
 
 #pragma BEGIN_CONST_DATA
@@ -717,8 +582,8 @@ TCHAR c_tszSystemRoot[] = TEXT("%SystemRoot%");
 
 #pragma END_CONST_DATA
 
-void PASCAL
-General_SetUserShellFolder(LPTSTR ptsz, LPCTSTR ptszSubkey)
+
+void PASCAL General_SetUserShellFolder(LPTSTR ptsz, LPCTSTR ptszSubkey)
 {
     HKEY hk;
     if (g_fShellSz) {
@@ -728,23 +593,16 @@ General_SetUserShellFolder(LPTSTR ptsz, LPCTSTR ptszSubkey)
     }
 
     if (RegCreateKey(pcdii->hkCUExplorer, c_tszUserShellFolders, &hk) == 0) {
-        RegSetValueEx(hk, ptszSubkey, 0, g_fShellSz ? REG_EXPAND_SZ
-                      : REG_SZ, (LPBYTE)ptsz,
-                      cbCtch(1 + lstrlen(ptsz)));
+        RegSetValueEx(hk, ptszSubkey, 0, g_fShellSz ? REG_EXPAND_SZ : REG_SZ, (LPBYTE)ptsz, cbCtch(1 + lstrlen(ptsz)));
         RegCloseKey(hk);
     }
 }
 
 /*
-
  *  General_Apply
-
  *    Write the changes to the registry.
-
 */
-
-BOOL NEAR PASCAL
-General_OnApply(HWND hdlg)
+BOOL NEAR PASCAL General_OnApply(HWND hdlg)
 {
     BOOL fSendWinIniChange = 0;
     int i;
@@ -752,8 +610,7 @@ General_OnApply(HWND hdlg)
     Checklist_OnApply(hdlg, c_rgcliGeneral, &fSendWinIniChange);
 
     if (fSendWinIniChange) {
-        SendMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
-            (LPARAM)(LPCTSTR)c_tszWindows);
+        SendMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)(LPCTSTR)c_tszWindows);
     }
 
     /*
@@ -779,15 +636,13 @@ General_OnApply(HWND hdlg)
                 tszDefault[ctch++] = TEXT('\\');
             }
 
-            if (LoadString(hinstCur, c_rgfldd[i].csidl + IDS_DEFAULT_BASE,
-                           &tszDefault[ctch], cA(tszDefault) - ctch)) {
+            if (LoadString(hinstCur, c_rgfldd[i].csidl + IDS_DEFAULT_BASE, &tszDefault[ctch], cA(tszDefault) - ctch)) {
                 if (lstrcmpi(tszDefault, tsz) == 0) {
                     /*
                      *  In default location.
                      */
                     DelPkl(c_rgfldd[i].pkl);
-                }
-                else {
+                } else {
                     /*
                      *  In other location.
 
@@ -799,8 +654,7 @@ General_OnApply(HWND hdlg)
 
                 }
                 Common_NeedLogoff(hdlg);
-            }
-            else {
+            } else {
                 SetStrPkl(c_rgfldd[i].pkl, tsz);
             }
         }
@@ -909,8 +763,7 @@ General_OnChangeFolder(HWND hdlg)
             pgdii->rgfinst[icsidl].fEdited = 1;
             General_SetDirty(hdlg);
             General_UpdateFolder(hdlg);
-        }
-        else {
+        } else {
             Ole_Free(pidl);
         }
     }
@@ -959,7 +812,7 @@ General_OnCommand(HWND hdlg, int id, UINT codeNotify)
 */
 
 BOOL PASCAL
-General_OnNotify(HWND hdlg, NMHDR FAR *pnm)
+General_OnNotify(HWND hdlg, NMHDR FAR* pnm)
 {
     switch (pnm->code) {
     case PSN_APPLY:
@@ -1033,7 +886,7 @@ General_DlgProc(HWND hdlg, UINT wm, WPARAM wParam, LPARAM lParam)
             (int)GET_WM_COMMAND_ID(wParam, lParam),
                                  (UINT)GET_WM_COMMAND_CMD(wParam, lParam));
     case WM_NOTIFY:
-        return General_OnNotify(hdlg, (NMHDR FAR *)lParam);
+        return General_OnNotify(hdlg, (NMHDR FAR*)lParam);
 
     case WM_HELP: Common_OnHelp(lParam, &rgdwHelp[0]); break;
 

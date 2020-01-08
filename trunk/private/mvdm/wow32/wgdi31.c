@@ -39,14 +39,14 @@ ULONG FASTCALL WG32AbortDoc(PVDMFRAME pFrame)
     GETARGPTR(pFrame, sizeof(ABORTDOC16), parg16);
 
     // remove any buffered data streams.
-    if(CURRENTPTD()->dwWOWCompatFlagsEx & WOWCFEX_FORMFEEDHACK) {
+    if (CURRENTPTD()->dwWOWCompatFlagsEx & WOWCFEX_FORMFEEDHACK) {
         RemoveFormFeedHack(HDC32(parg16->f1));
     }
 
     ul = GETINT16(AbortDoc(HDC32(parg16->f1)));
 
     if ((INT)ul < 0) {
-        WOW32ASSERT ("WOW::WG32AbortDoc: Failed\n");
+        WOW32ASSERT("WOW::WG32AbortDoc: Failed\n");
     }
 
     FREEARGPTR(parg16);
@@ -93,7 +93,7 @@ ULONG FASTCALL WG32EndDoc(PVDMFRAME pFrame)
     GETARGPTR(pFrame, sizeof(ENDDOC16), parg16);
 
     // send any buffered data streams to the printer.
-    if(CURRENTPTD()->dwWOWCompatFlagsEx & WOWCFEX_FORMFEEDHACK) {
+    if (CURRENTPTD()->dwWOWCompatFlagsEx & WOWCFEX_FORMFEEDHACK) {
         SendFormFeedHack(HDC32(parg16->f1));
     }
 
@@ -107,7 +107,7 @@ ULONG FASTCALL WG32EndDoc(PVDMFRAME pFrame)
 
 ULONG FASTCALL WG32EnumFontFamilies(PVDMFRAME pFrame)
 {
-    return( W32EnumFontHandler(pFrame, TRUE) );
+    return(W32EnumFontHandler(pFrame, TRUE));
 }
 
 
@@ -143,7 +143,7 @@ ULONG FASTCALL WG32GetBitmapDimensionEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -168,7 +168,7 @@ ULONG FASTCALL WG32GetBoundsRect(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -186,13 +186,13 @@ ULONG FASTCALL WG32GetBrushOrgEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
 ULONG FASTCALL WG32GetCharABCWidths(PVDMFRAME pFrame)
 {
-    ULONG    ul=0;
+    ULONG    ul = 0;
     LPABC    lpAbc;
     WORD     cb;
     register PGETCHARABCWIDTHS16 parg16;
@@ -200,7 +200,7 @@ ULONG FASTCALL WG32GetCharABCWidths(PVDMFRAME pFrame)
     GETARGPTR(pFrame, sizeof(GETCHARABCWIDTHS16), parg16);
 
     cb = WORD32(parg16->f3) - WORD32(parg16->f2) + 1;
-    if (lpAbc = (LPABC) malloc_w (sizeof(ABC) * cb)) {
+    if (lpAbc = (LPABC)malloc_w(sizeof(ABC) * cb)) {
         ul = GETBOOL16(GetCharABCWidths(HDC32(parg16->f1),
                                         WORD32(parg16->f2),
                                         WORD32(parg16->f3),
@@ -209,11 +209,11 @@ ULONG FASTCALL WG32GetCharABCWidths(PVDMFRAME pFrame)
             putabcpairs16(parg16->f4, cb, lpAbc);
         }
 
-        free_w (lpAbc);
+        free_w(lpAbc);
     }
 
     FREEARGPTR(parg16);
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -232,7 +232,7 @@ ULONG FASTCALL WG32GetCurrentPositionEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -249,21 +249,21 @@ ULONG FASTCALL WG32GetGlyphOutline(PVDMFRAME pFrame)
     GETVDMPTR(parg16->f6, parg16->f5, lpBuffer);
 
     ul = GETDWORD16(GetGlyphOutlineWow(HDC32(parg16->f1),
-                                    WORD32(parg16->f2),
-                                    WORD32(parg16->f3),
-                                    parg16->f4 ? &Metrics : (GLYPHMETRICS*)NULL,
-                                    DWORD32(parg16->f5),
-                                    lpBuffer,
-                                    &Matrix));
+                                       WORD32(parg16->f2),
+                                       WORD32(parg16->f3),
+                                       parg16->f4 ? &Metrics : (GLYPHMETRICS*)NULL,
+                                       DWORD32(parg16->f5),
+                                       lpBuffer,
+                                       &Matrix));
 
-    if ( FETCHDWORD(parg16->f4) != 0 ) {
+    if (FETCHDWORD(parg16->f4) != 0) {
         PUTGLYPHMETRICS16(FETCHDWORD(parg16->f4), &Metrics);
     }
 
     FREEVDMPTR(lpBuffer);
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -276,11 +276,11 @@ ULONG FASTCALL WG32GetKerningPairs(PVDMFRAME pFrame)
     GETARGPTR(pFrame, sizeof(GETKERNINGPAIRS16), parg16);
 
     if (FETCHDWORD(parg16->f3)) {
-        lpkrnpair = (LPKERNINGPAIR) malloc_w (sizeof(KERNINGPAIR) * (parg16->f2));
+        lpkrnpair = (LPKERNINGPAIR)malloc_w(sizeof(KERNINGPAIR) * (parg16->f2));
         if (!lpkrnpair) {
-            LOGDEBUG (0, ("WOW::WG32GetKeriningPairs: *** MALLOC failed ***\n"));
+            LOGDEBUG(0, ("WOW::WG32GetKeriningPairs: *** MALLOC failed ***\n"));
             FREEARGPTR(parg16);
-            RETURN (0);
+            RETURN(0);
         }
 
     }
@@ -288,12 +288,12 @@ ULONG FASTCALL WG32GetKerningPairs(PVDMFRAME pFrame)
     ul = GetKerningPairs(HDC32(parg16->f1), parg16->f2, lpkrnpair);
 
     if (FETCHDWORD(parg16->f3)) {
-        putkerningpairs16 (FETCHDWORD(parg16->f3), parg16->f2, lpkrnpair);
-        free_w (lpkrnpair);
+        putkerningpairs16(FETCHDWORD(parg16->f3), parg16->f2, lpkrnpair);
+        free_w(lpkrnpair);
     }
 
     FREEARGPTR(parg16);
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -312,11 +312,11 @@ ULONG FASTCALL WG32GetOutlineTextMetrics(PVDMFRAME pFrame)
 
     new_cb = cb = FETCHWORD(parg16->f2);
 
-    if ( vpotm ) {
+    if (vpotm) {
         new_cb += sizeof(OUTLINETEXTMETRIC) - sizeof(OUTLINETEXTMETRIC16);
         if (!(lpBuffer = (LPOUTLINETEXTMETRIC)malloc_w(new_cb))) {
             FREEARGPTR(parg16);
-            RETURN (0);
+            RETURN(0);
         }
     } else {
         lpBuffer = NULL;
@@ -325,18 +325,18 @@ ULONG FASTCALL WG32GetOutlineTextMetrics(PVDMFRAME pFrame)
 
     ul = GETDWORD16(GetOutlineTextMetrics(HDC32(parg16->f1), new_cb, lpBuffer));
 
-    if ( vpotm ) {
+    if (vpotm) {
         PUTOUTLINETEXTMETRIC16(vpotm, cb, lpBuffer);
-        free_w( lpBuffer );
+        free_w(lpBuffer);
     } else {
-        if ( ul != 0 ) {
+        if (ul != 0) {
             ul -= sizeof(OUTLINETEXTMETRIC) - sizeof(OUTLINETEXTMETRIC16);
         }
     }
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 ULONG FASTCALL WG32GetRasterizerCaps(PVDMFRAME pFrame)
@@ -353,7 +353,7 @@ ULONG FASTCALL WG32GetRasterizerCaps(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 #define PUTEXTSIZE16(vp, lp)               \
@@ -398,22 +398,22 @@ ULONG FASTCALL WG32GetTextExtentPoint(PVDMFRAME pFrame)
 
     hDC32 = HDC32(parg16->f1);
 
-// WP tutorial assumes that the font selected in the hDC for desktop window
-// (ie, result of GetDC(NULL)) is the same font as the font selected for
-// drawing the menu. Unfortunetly in SUR this is not true as the user can
-// select any font for the menu. So we remember the hDC returned for GetDC(0)
-// and check for it in GetTextExtentPoint. If the app does try to use it we
-// find the hDC for the current menu window and substitute that. When the app
-// does another GetDC or ReleaseDC we forget the hDC returned for the original
-// GetDC(0).
+    // WP tutorial assumes that the font selected in the hDC for desktop window
+    // (ie, result of GetDC(NULL)) is the same font as the font selected for
+    // drawing the menu. Unfortunetly in SUR this is not true as the user can
+    // select any font for the menu. So we remember the hDC returned for GetDC(0)
+    // and check for it in GetTextExtentPoint. If the app does try to use it we
+    // find the hDC for the current menu window and substitute that. When the app
+    // does another GetDC or ReleaseDC we forget the hDC returned for the original
+    // GetDC(0).
     if ((ptd->dwWOWCompatFlagsEx & WOWCFEX_FIXDCFONT4MENUSIZE) &&
         (parg16->f1 == ptd->ulLastDesktophDC) &&
         ((hDCMenu = GetDC(NULL)) != NULL) &&
         ((ncm.cbSize = sizeof(NONCLIENTMETRICS)) != 0) &&
         (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, (PVOID)&ncm, 0)) &&
         ((hFont = CreateFontIndirect(&(ncm.lfMenuFont))) != NULL)) {
-            hOldFont = SelectObject(hDCMenu, hFont);
-            hDC32 = hDCMenu;
+        hOldFont = SelectObject(hDCMenu, hFont);
+        hDC32 = hDCMenu;
     }
 
     ul = GETBOOL16(GetTextExtentPoint(hDC32,
@@ -436,7 +436,7 @@ ULONG FASTCALL WG32GetTextExtentPoint(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -454,7 +454,7 @@ ULONG FASTCALL WG32GetViewportExtEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -472,7 +472,7 @@ ULONG FASTCALL WG32GetViewportOrgEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -484,13 +484,13 @@ ULONG FASTCALL WG32GetWindowExtEx(PVDMFRAME pFrame)
 
     GETARGPTR(pFrame, sizeof(GETWINDOWEXTEX16), parg16);
 
-    ul = GETBOOL16(GetWindowExtEx( HDC32(parg16->f1),&Size));
+    ul = GETBOOL16(GetWindowExtEx(HDC32(parg16->f1), &Size));
 
     PUTSIZE16(parg16->f2, &Size);
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -508,7 +508,7 @@ ULONG FASTCALL WG32GetWindowOrgEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -535,7 +535,7 @@ ULONG FASTCALL WG32MoveToEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -563,7 +563,7 @@ ULONG FASTCALL WG32OffsetViewportOrgEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -591,7 +591,7 @@ ULONG FASTCALL WG32OffsetWindowOrgEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -603,10 +603,10 @@ ULONG FASTCALL WG32ResetDC(PVDMFRAME pFrame)
 
     GETARGPTR(pFrame, sizeof(RESETDC16), parg16);
 
-    if( lpInitData = ThunkDevMode16to32(FETCHDWORD(parg16->f2)) ) {
+    if (lpInitData = ThunkDevMode16to32(FETCHDWORD(parg16->f2))) {
 
         // send any buffered data streams.
-        if(CURRENTPTD()->dwWOWCompatFlagsEx & WOWCFEX_FORMFEEDHACK) {
+        if (CURRENTPTD()->dwWOWCompatFlagsEx & WOWCFEX_FORMFEEDHACK) {
             SendFormFeedHack(HDC32(parg16->f1));
         }
 
@@ -616,7 +616,7 @@ ULONG FASTCALL WG32ResetDC(PVDMFRAME pFrame)
 
     }
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -645,7 +645,7 @@ ULONG FASTCALL WG32ScaleViewportExtEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -674,7 +674,7 @@ ULONG FASTCALL WG32ScaleWindowExtEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -687,11 +687,11 @@ ULONG FASTCALL WG32SetAbortProc(PVDMFRAME pFrame)
 
     ((PTDB)SEGPTR(pFrame->wTDB, 0))->TDB_vpfnAbortProc = FETCHDWORD(parg16->f2);
 
-    ul = GETINT16(SetAbortProc(HDC32(parg16->f1), (ABORTPROC) W32AbortProc));
+    ul = GETINT16(SetAbortProc(HDC32(parg16->f1), (ABORTPROC)W32AbortProc));
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -718,7 +718,7 @@ ULONG FASTCALL WG32SetBitmapDimensionEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -737,7 +737,7 @@ ULONG FASTCALL WG32SetBoundsRect(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -774,7 +774,7 @@ ULONG FASTCALL WG32SetViewportExtEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -801,7 +801,7 @@ ULONG FASTCALL WG32SetViewportOrgEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -828,7 +828,7 @@ ULONG FASTCALL WG32SetWindowExtEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -856,7 +856,7 @@ ULONG FASTCALL WG32SetWindowOrgEx(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -882,13 +882,13 @@ ULONG FASTCALL WG32StartDoc(PVDMFRAME pFrame)
     DocInfo.cbSize = sizeof(DOCINFO);
 
     vpDocName = FETCHDWORD(pdi16->lpszDocName);
-    vpOutput  = FETCHDWORD(pdi16->lpszOutput);
+    vpOutput = FETCHDWORD(pdi16->lpszOutput);
 
     GETPSZPTR(vpDocName, DocInfo.lpszDocName);
     GETPSZPTR(vpOutput, DocInfo.lpszOutput);
 
     DocInfo.lpszDatatype = NULL;
-    DocInfo.fwType       = 0;
+    DocInfo.fwType = 0;
 
     FREEVDMPTR(pdi16);
 
@@ -899,19 +899,19 @@ ULONG FASTCALL WG32StartDoc(PVDMFRAME pFrame)
         char szBuf[80];
 
         if ((l = ExtEscape(HDC32(parg16->f1),
-                                    GETTECHNOLOGY,
-                                    0,
-                                    NULL,
-                                    sizeof(szBuf),
-                                    szBuf)) > 0) {
+                           GETTECHNOLOGY,
+                           0,
+                           NULL,
+                           sizeof(szBuf),
+                           szBuf)) > 0) {
 
             if (!WOW32_stricmp(szBuf, szPostscript)) {
                 l = ExtEscape(HDC32(parg16->f1),
-                        NOFIRSTSAVE,
-                        0,
-                        NULL,
-                        0,
-                        NULL);
+                              NOFIRSTSAVE,
+                              0,
+                              NULL,
+                              0,
+                              NULL);
 
                 // This HACK is for FH4.0 only. If you have any questions
                 // talk to PingW or ChandanC.
@@ -919,11 +919,11 @@ ULONG FASTCALL WG32StartDoc(PVDMFRAME pFrame)
 
                 if (CURRENTPTD()->dwWOWCompatFlags & WOWCF_ADD_MSTT) {
                     l = ExtEscape(HDC32(parg16->f1),
-                        ADD_MSTT,
-                        0,
-                        NULL,
-                        0,
-                        NULL);
+                                  ADD_MSTT,
+                                  0,
+                                  NULL,
+                                  0,
+                                  NULL);
                 }
             }
         }
@@ -933,7 +933,7 @@ ULONG FASTCALL WG32StartDoc(PVDMFRAME pFrame)
     FREEPSZPTR(DocInfo.lpszOutput);
     FREEARGPTR(parg16);
 
-    RETURN (ul);
+    RETURN(ul);
 }
 
 
@@ -960,13 +960,13 @@ ULONG FASTCALL WG32InquireVisRgn(PVDMFRAME pFrame)
 
     FREEARGPTR(parg16);
 
-    RETURN (GETHRGN16(ghrgnVis));
+    RETURN(GETHRGN16(ghrgnVis));
 }
 
 
 BOOL InitVisRgn()
 {
-    ghrgnVis = CreateRectRgn(0,0,0,0);
+    ghrgnVis = CreateRectRgn(0, 0, 0, 0);
 
     return(ghrgnVis != NULL);
 }
@@ -979,10 +979,10 @@ VOID putabcpairs16(VPABC16 vpAbc, UINT cb, LPABC lpAbc)
 
     GETVDMPTR(vpAbc, sizeof(ABC16), pAbc16);
 
-    for (i=0; i < cb; i++) {
-        pAbc16[i].abcA = (INT16) lpAbc[i].abcA;
-        pAbc16[i].abcB = (WORD)  lpAbc[i].abcB;
-        pAbc16[i].abcC = (INT16) lpAbc[i].abcC;
+    for (i = 0; i < cb; i++) {
+        pAbc16[i].abcA = (INT16)lpAbc[i].abcA;
+        pAbc16[i].abcB = (WORD)lpAbc[i].abcB;
+        pAbc16[i].abcC = (INT16)lpAbc[i].abcC;
     }
 
     FLUSHVDMPTR(vpAbc, sizeof(ABC16), pAbc16);
@@ -1004,11 +1004,11 @@ ULONG FASTCALL WG32GetClipRgn(PVDMFRAME pFrame)
     GETARGPTR(pFrame, sizeof(GETCLIPRGN16), parg16);
 
     if (CURRENTPTD()->hrgnClip == NULL)
-        CURRENTPTD()->hrgnClip = CreateRectRgn(0,0,0,0);
+        CURRENTPTD()->hrgnClip = CreateRectRgn(0, 0, 0, 0);
 
     GetClipRgn(HDC32(parg16->f1), CURRENTPTD()->hrgnClip);
 
     FREEARGPTR(parg16);
 
-    RETURN (GETHRGN16(CURRENTPTD()->hrgnClip));
+    RETURN(GETHRGN16(CURRENTPTD()->hrgnClip));
 }

@@ -24,7 +24,7 @@ typedef enum _SOCKET_STATE
     SocketStateBoundSpecific,           // Datagram only
     SocketStateConnected,               // VC only
     SocketStateClosing
-} SOCKET_STATE, *PSOCKET_STATE;
+} SOCKET_STATE, * PSOCKET_STATE;
 
 // WINSOCK_HELPER_DLL_INFO contains all the necessary information about a socket's helper DLL.
 
@@ -54,18 +54,18 @@ typedef struct _WINSOCK_HELPER_DLL_INFO
     PWSH_IOCTL WSHIoctl;
 
     WCHAR   TransportName[1];
-} WINSOCK_HELPER_DLL_INFO, *PWINSOCK_HELPER_DLL_INFO;
+} WINSOCK_HELPER_DLL_INFO, * PWINSOCK_HELPER_DLL_INFO;
 
 typedef struct _PROTOCOL_INFO_ENTRY
 {
     LIST_ENTRY          Link;
     WSAPROTOCOL_INFOW   Info;
-} PROTOCOL_INFO_ENTRY, *PPROTOCOL_INFO_ENTRY;
+} PROTOCOL_INFO_ENTRY, * PPROTOCOL_INFO_ENTRY;
 
-typedef struct _SOCK_ASYNC_CONNECT_CONTEXT SOCK_ASYNC_CONNECT_CONTEXT, *PSOCK_ASYNC_CONNECT_CONTEXT;
+typedef struct _SOCK_ASYNC_CONNECT_CONTEXT SOCK_ASYNC_CONNECT_CONTEXT, * PSOCK_ASYNC_CONNECT_CONTEXT;
 
 #ifdef _AFD_SAN_SWITCH_
-typedef struct _SOCK_SAN_INFORMATION SOCK_SAN_INFORMATION, *PSOCK_SAN_INFORMATION;
+typedef struct _SOCK_SAN_INFORMATION SOCK_SAN_INFORMATION, * PSOCK_SAN_INFORMATION;
 #endif //_AFD_SAN_SWITCH_
 
 // Part of socket information that needs to shared between processes.
@@ -136,7 +136,7 @@ typedef struct _SOCK_SHARED_INFO
     UINT AsyncSelectwMsg;
     LONG AsyncSelectlEvent;
     LONG DisabledAsyncSelectEvents;
-} SOCK_SHARED_INFO, *PSOCK_SHARED_INFO;
+} SOCK_SHARED_INFO, * PSOCK_SHARED_INFO;
 
 
 // SOCKET_INFORMATION stores information for each socket opened by a process.
@@ -184,7 +184,7 @@ typedef struct _SOCKET_INFORMATION
     PSOCK_SAN_INFORMATION   SanSocket;
     BOOL    DontTrySAN;            // TRUE if non-blocking connect thru SAN failed
 #endif
-} SOCKET_INFORMATION, *PSOCKET_INFORMATION;
+} SOCKET_INFORMATION, * PSOCKET_INFORMATION;
 
 // A typedef for blocking hook functions.
 typedef BOOL(*PBLOCKING_HOOK) (VOID);
@@ -224,7 +224,7 @@ typedef struct _WINSOCK_TLS_DATA
 #if DBG
     ULONG IndentLevel;
 #endif
-} WINSOCK_TLS_DATA, *PWINSOCK_TLS_DATA;
+} WINSOCK_TLS_DATA, * PWINSOCK_TLS_DATA;
 
 struct _SOCK_ASYNC_CONNECT_CONTEXT
 {
@@ -285,7 +285,7 @@ typedef struct _SOCK_RW_LOCK_DEBUG_INFO
     HANDLE  ThreadId;
     PVOID   Caller;
     PVOID   CallersCaller;
-} SOCK_RW_LOCK_DEBUG_INFO, *PSOCK_RW_LOCK_DEBUG_INFO;
+} SOCK_RW_LOCK_DEBUG_INFO, * PSOCK_RW_LOCK_DEBUG_INFO;
 
 
 #endif  // DEBUG_LOCKS
@@ -306,7 +306,7 @@ typedef struct SOCK_RW_LOCK
     LONG                     DebugInfoIdx;
 #endif
     RTL_CRITICAL_SECTION    Lock;
-} SOCK_RW_LOCK, *PSOCK_RW_LOCK;
+} SOCK_RW_LOCK, * PSOCK_RW_LOCK;
 
 
 #ifdef _AFD_SAN_SWITCH_
@@ -319,7 +319,7 @@ typedef struct _WSPEXTPROC_TABLE
     LPFN_WSPDEREGISTERRDMAMEMORY lpWSPDeregisterRdmaMemory;
     LPFN_WSPRDMAWRITE           lpWSPRdmaWrite;
     LPFN_WSPRDMAREAD            lpWSPRdmaRead;
-} WSPEXTPROC_TABLE, *PWSPEXTPROC_TABLE;
+} WSPEXTPROC_TABLE, * PWSPEXTPROC_TABLE;
 
 
 typedef struct _SOCK_SAN_PROVIDER
@@ -337,7 +337,7 @@ typedef struct _SOCK_SAN_PROVIDER
 #if DBG
     WCHAR                   DllName[MAX_PATH];
 #endif
-} SOCK_SAN_PROVIDER, *PSOCK_SAN_PROVIDER;
+} SOCK_SAN_PROVIDER, * PSOCK_SAN_PROVIDER;
 
 typedef struct _SOCK_SAN_SUBNET_MAP
 {
@@ -345,7 +345,7 @@ typedef struct _SOCK_SAN_SUBNET_MAP
     ULONG       Mask;       // IP address mask
     ULONG       Index;      // If index - for qiuck change validation.
     PSOCK_SAN_PROVIDER  Provider;
-} SOCK_SAN_SUBNET_MAP, *PSOCK_SAN_SUBNET_MAP;
+} SOCK_SAN_SUBNET_MAP, * PSOCK_SAN_SUBNET_MAP;
 
 
 // values for Receiver's Mode (RsMode)
@@ -384,7 +384,7 @@ typedef struct _DuplicationContext
         BOOLEAN        LocalAborted : 1;        // Local side did abort
         BOOLEAN        RemoteReset : 1;         // Connection reset by remote
     };
-} SOCK_SAN_DUPLICATION_CONTEXT, *PSOCK_SAN_DUPLICATION_CONTEXT;
+} SOCK_SAN_DUPLICATION_CONTEXT, * PSOCK_SAN_DUPLICATION_CONTEXT;
 
 
 typedef enum
@@ -401,7 +401,7 @@ typedef struct _AcceptContext
     PSOCK_SAN_INFORMATION ListenSwitchSocket;
     PSOCK_SAN_INFORMATION AcceptSwitchSocket;
     AFD_SWITCH_ACCEPT_INFO  AcceptInfo;
-} ACCEPT_CONTEXT, *PACCEPT_CONTEXT;
+} ACCEPT_CONTEXT, * PACCEPT_CONTEXT;
 
 
 typedef struct _AcceptContextIoStatus
@@ -411,7 +411,7 @@ typedef struct _AcceptContextIoStatus
     IO_STATUS_BLOCK    IoStatusBlock;
     AFD_SWITCH_CONNECT_INFO ConnectInfo;
     UCHAR   Addresses[2 * sizeof(TA_IP_ADDRESS) - sizeof(TA_ADDRESS)];
-} ACCEPT_CONTEXT_IO_STATUS, *PACCEPT_CONTEXT_IO_STATUS;
+} ACCEPT_CONTEXT_IO_STATUS, * PACCEPT_CONTEXT_IO_STATUS;
 
 typedef struct _HungSendTracker
 {
@@ -424,7 +424,7 @@ typedef struct _HungSendTracker
     BOOL                      PostponedSend;    // Switch was forced to postpone a send due to
                                             // provider deadlock
     LONG                    TrackerDeletionCount;// synchronize deletion of tracker
-} HUNG_SEND_TRACKER, *PHUNG_SEND_TRACKER;
+} HUNG_SEND_TRACKER, * PHUNG_SEND_TRACKER;
 
 #define WSA_BUF_ARRAY_SIZE        3
 
@@ -432,7 +432,7 @@ typedef struct _SwitchWsaBuf
 {
     LIST_ENTRY    ListEntry;
     WSABUF        WsaBufArray[WSA_BUF_ARRAY_SIZE];
-} SWITCH_WSA_BUF, *PSWITCH_WSA_BUF;
+} SWITCH_WSA_BUF, * PSWITCH_WSA_BUF;
 
 #define WSA_BUF_EX_ARRAY_SIZE        3
 
@@ -440,10 +440,10 @@ typedef struct _SwitchWsaBufEx
 {
     LIST_ENTRY    ListEntry;
     WSABUFEX    WsaBufExArray[WSA_BUF_EX_ARRAY_SIZE];
-} SWITCH_WSA_BUF_EX, *PSWITCH_WSA_BUF_EX;
+} SWITCH_WSA_BUF_EX, * PSWITCH_WSA_BUF_EX;
 
-typedef struct _RegisteredBuffer *PREGISTERED_BUFFER; // defined in flow.h
-typedef struct _ApplicationBufferHeader *PAPPLICATION_BUFFER_HEADER;
+typedef struct _RegisteredBuffer* PREGISTERED_BUFFER; // defined in flow.h
+typedef struct _ApplicationBufferHeader* PAPPLICATION_BUFFER_HEADER;
 
 typedef struct _FCEntry
 {
@@ -452,7 +452,7 @@ typedef struct _FCEntry
     DWORD    LastSmallMsgSeqNum;    // seq number of last small msg seen before FC
                                 //   info was sent.
     char     RdmaHandle[1];        // actual handle length determined at run time
-} FC_ENTRY, *PFC_ENTRY;
+} FC_ENTRY, * PFC_ENTRY;
 
 struct _SOCK_SAN_INFORMATION
 {

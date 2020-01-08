@@ -1,7 +1,5 @@
-/*===========================================================================*/
 /*          Copyright (c) 1987 - 1988, Future Soft Engineering, Inc.         */
 /*                              Houston, Texas                               */
-/*===========================================================================*/
 
 #define  NOGDICAPMASKS     TRUE
 #define  NOVIRTUALKEYCODES TRUE
@@ -29,9 +27,6 @@
 #include "fileopen.h"
 #include "task.h"
 
-
-
-
 #define DCS_OLD_FKEYLEVELS       4
 #define DCS_OLD_NUMFKEYS         8
 #define DCS_OLD_FKEYLEN          64
@@ -39,7 +34,6 @@
 #define DCS_OLD_XTRALEN          44
 #define DCS_OLD_MDMCMDLEN        32
 #define DCS_OLD_MISCSTRLEN       21
-
 
 #define TITLEREC                 struct tagTITLEREC
 
@@ -124,10 +118,9 @@ struct tagOldTrmParams
 };
 
 
-
-
 #define MSSETTINGS               struct tagMSSETTINGS
 #define LPMSSETTINGS             MSSETTINGS FAR *
+
 
 struct tagMSSETTINGS
 {
@@ -156,23 +149,20 @@ struct tagMSSETTINGS
 };
 
 
-
-
 BOOL termInitSetup(HANDLE);                  /* ==> termfile.h */
 VOID termCloseEnable(BOOL);
 BOOL termCloseFile(VOID);
 BOOL termCloseAll(VOID);
 BOOL termSaveFile(BOOL);
-BOOL NEAR termReadFile(BYTE *);
+BOOL NEAR termReadFile(BYTE*);
 VOID NEAR termCloseWindow(VOID);
 BOOL NEAR termCloseFileInternal(VOID);
 INT TF_ErrProc(WORD, WORD, WORD);
 
 BOOL NEAR readTermSettings(INT, WORD);       /* mbbx 2.00: was LONG */
-VOID NEAR convertMSToIBM(LPMSSETTINGS, recTrmParams *);
+VOID NEAR convertMSToIBM(LPMSSETTINGS, recTrmParams*);
 BOOL NEAR writeTermSettings(INT);
 VOID NEAR convertInternalToVirtual(LPSETTINGS, LPSETTINGS); /* rkhx 2.00 */
-
 
 
 /* termInitSetup() -                                                   [mbb] */
@@ -196,11 +186,10 @@ BOOL termInitSetup(HANDLE   hPrevInstance)
 }
 
 
-
 /* termFile() -                                                        [mbb] */
 
 
-BOOL termFile(BYTE *filePath, BYTE *fileName, BYTE *fileExt, BYTE *title, WORD flags)
+BOOL termFile(BYTE* filePath, BYTE* fileName, BYTE* fileExt, BYTE* title, WORD flags)
 {
     BYTE  work[PATHLEN];
     RECT  termRect;
@@ -228,8 +217,7 @@ BOOL termFile(BYTE *filePath, BYTE *fileName, BYTE *fileExt, BYTE *title, WORD f
             return(FALSE);
     }
 
-    if (termCloseFileInternal())
-    {
+    if (termCloseFileInternal()) {
         if ((flags & TF_DEFTITLE) && (strlen(fileName) > 0))
             strcpy(termData.title, fileName);
         else
@@ -245,8 +233,7 @@ BOOL termFile(BYTE *filePath, BYTE *fileName, BYTE *fileExt, BYTE *title, WORD f
         termData.flags = flags | (termData.flags & (TF_DIM | TF_HIDE));
 
         setDefaults();                         /* mbbx 2.00: do this first! */
-        if (strlen(fileName) > 0)
-        {
+        if (strlen(fileName) > 0) {
             if (!termReadFile(work))
                 doFileNew(); /* jtf 3.31 */
         }
@@ -272,7 +259,6 @@ BOOL termFile(BYTE *filePath, BYTE *fileName, BYTE *fileExt, BYTE *title, WORD f
 }
 
 
-
 /* termCloseFile() -                                                   [mbb] */
 
 
@@ -280,8 +266,7 @@ BOOL termCloseFile(VOID)
 {
     BOOL  termCloseFile = TRUE;
 
-    if (activTerm)
-    {
+    if (activTerm) {
         if (termCloseFile = termCloseFileInternal())
             termCloseWindow();
     }
@@ -315,10 +300,8 @@ BOOL termSaveFile(BOOL  bGetName)
 
     SetCursor(LoadCursor(NULL, IDC_WAIT));
 
-    if (activTerm)
-    {
-        if (bGetName || (strlen(termData.fileName) == 0))
-        {
+    if (activTerm) {
+        if (bGetName || (strlen(termData.fileName) == 0)) {
             /* rjs swat - default to *.trm if no default term name */
             if (strlen(termData.fileName))
                 strcpy(fileName, termData.fileName);
@@ -341,12 +324,10 @@ BOOL termSaveFile(BOOL  bGetName)
                 strcpy(termData.fileName, fileName);
         }
 
-        if (termSaveFile)
-        {
+        if (termSaveFile) {
             setFileDocData(FILE_NDX_SETTINGS, termData.filePath, termData.fileName, NULL, NULL);   /* mbbx 2.00: no forced extents... */
 
-            if (termData.flags & TF_DEFTITLE)
-            {
+            if (termData.flags & TF_DEFTITLE) {
                 strcpy(termData.title, termData.fileName);
                 SetWindowText(hTermWnd, (LPSTR)termData.fileName);
                 setAppTitle();                   /* mbbx 1.00 */
@@ -366,23 +347,19 @@ BOOL termSaveFile(BOOL  bGetName)
             DEBOUT("termSaveFile: opening the file[%s]\n", filePath);
             DEBOUT("termSaveFile: with flags      [%lx]\n", O_WRONLY | O_TRUNC | O_CREAT | S_IWRITE);
 #endif
-            if ((hFile = _open((LPSTR)filePath, O_WRONLY | O_TRUNC | O_CREAT, S_IWRITE)) != -1)
-            {
+            if ((hFile = _open((LPSTR)filePath, O_WRONLY | O_TRUNC | O_CREAT, S_IWRITE)) != -1) {
                 if (termSaveFile = writeTermSettings(hFile))
                     termData.flags &= ~TF_CHANGED;
 
                 _close(hFile);
-            }
-            else
+            } else
                 termSaveFile = FALSE;
 
-            if (!termSaveFile)
-            {
+            if (!termSaveFile) {
                 TF_ErrProc(STREWRERR, MB_OK | MB_ICONHAND, 999);
                 strcpy(termData.fileName, "");      /* rjs swat */
             }
-        }
-        else
+        } else
             strcpy(termData.fileName, "");      /* rjs swat */
     }
 
@@ -396,13 +373,13 @@ BOOL termSaveFile(BOOL  bGetName)
 /* termReadFile() -                                                    [mbb] */
 
 
-BOOL NEAR termReadFile(BYTE  *filePath)
+BOOL NEAR termReadFile(BYTE* filePath)
 {
     BOOL        termReadFile = FALSE;
     INT         hFile;
     // sdj: was unref local - OFSTRUCT    ofDummy;
     // sdj: was unref local - LOGFONT    logFont;
-    BYTE        *junk;
+    BYTE* junk;
 
     /* jtf 3.20 */
     DEBOUT("termReadFile: opening the file[%s]\n", filePath);
@@ -411,10 +388,8 @@ BOOL NEAR termReadFile(BYTE  *filePath)
     junk = strrchr(filePath, '.');
     AnsiUpper((LPSTR)junk);
 
-    if ((hFile = _open((LPSTR)filePath, O_RDONLY)) != -1)
-    {
-        if (termReadFile = readTermSettings(hFile, _filelength(hFile)))
-        {
+    if ((hFile = _open((LPSTR)filePath, O_RDONLY)) != -1) {
+        if (termReadFile = readTermSettings(hFile, _filelength(hFile))) {
             resetTermBuffer();               /* mbbx 1.03 */
             icsResetTable((WORD)trmParams.language);    /* mbbx 1.04: ics */
             buildTermFont();                    /* mbbx 2.00: font selection... */
@@ -424,8 +399,7 @@ BOOL NEAR termReadFile(BYTE  *filePath)
         }
 
         _close(hFile);
-    }
-    else
+    } else
         TF_ErrProc(STRFERROPEN, MB_OK | MB_ICONHAND, 999);
 
     return(termReadFile);
@@ -438,10 +412,8 @@ BOOL NEAR termReadFile(BYTE  *filePath)
 
 VOID NEAR termCloseWindow(VOID)
 {
-    if (IsWindowVisible(hTermWnd))
-    {
-        if (childZoomStatus(0x0001, 0) && (countChildWindows(FALSE) == 1))
-        {
+    if (IsWindowVisible(hTermWnd)) {
+        if (childZoomStatus(0x0001, 0) && (countChildWindows(FALSE) == 1)) {
             childZoomStatus(0, 0x4000);
             ShowWindow(hTermWnd, SW_RESTORE);
         }
@@ -459,16 +431,12 @@ VOID NEAR termCloseWindow(VOID)
 BOOL NEAR termCloseFileInternal(VOID)
 {
     BOOL  termCloseFileInternal = TRUE;
-    if (activTerm)
-    {
+    if (activTerm) {
         if (termData.flags & TF_NOCLOSE)        /* mbbx 1.01 */
         {
             termCloseFileInternal = FALSE;
-        }
-        else if (xferFlag != XFRNONE)
-        {
-            if (termCloseFileInternal = (TF_ErrProc(STR_STOPXFER, MB_YESNO | MB_ICONEXCLAMATION, 0) == IDYES))
-            {
+        } else if (xferFlag != XFRNONE) {
+            if (termCloseFileInternal = (TF_ErrProc(STR_STOPXFER, MB_YESNO | MB_ICONEXCLAMATION, 0) == IDYES)) {
                 xferBytes = 0;
                 xferEndTimer = 0;
                 xferWaitEcho = FALSE;
@@ -478,12 +446,9 @@ BOOL NEAR termCloseFileInternal(VOID)
             }
         }
 
-        if (termCloseFileInternal)
-        {
-            if (termData.flags & TF_CHANGED)
-            {
-                switch (TF_ErrProc(STR_SAVECHANGES, MB_YESNOCANCEL | MB_ICONEXCLAMATION, 0))
-                {
+        if (termCloseFileInternal) {
+            if (termData.flags & TF_CHANGED) {
+                switch (TF_ErrProc(STR_SAVECHANGES, MB_YESNOCANCEL | MB_ICONEXCLAMATION, 0)) {
                 case IDYES:
                     termCloseFileInternal = termSaveFile(FALSE);    /* mbbx 2.00 */
                     break;
@@ -493,8 +458,7 @@ BOOL NEAR termCloseFileInternal(VOID)
                 }
             }
 
-            if (termCloseFileInternal)
-            {
+            if (termCloseFileInternal) {
                 exitSerial();
                 activTerm = FALSE;
             }
@@ -524,8 +488,7 @@ INT TF_ErrProc(WORD errMess, WORD errType, WORD  errCode)
 
 
     GetWindowText(hItWnd, (LPSTR)temp2, 80);
-    if (!strchr(temp2, '-'))
-    {
+    if (!strchr(temp2, '-')) {
         sprintf(temp1, " - %s", termData.title);
         strcpy(temp2 + strlen(temp2), temp1);
     }
@@ -560,10 +523,8 @@ BOOL NEAR readTermSettings(INT hFile, WORD fileSize)  /* mbbx 2.00: support NEW 
 
     flag = TRUE;   /* jtf 3.31 */
 
-    if ((hData = GlobalAlloc(GMEM_MOVEABLE, (DWORD)fileSize)) != NULL)
-    {
-        if ((lpData = GlobalLock(hData)) != NULL)
-        {
+    if ((hData = GlobalAlloc(GMEM_MOVEABLE, (DWORD)fileSize)) != NULL) {
+        if ((lpData = GlobalLock(hData)) != NULL) {
 
             /******** this was to debug the 4K trm file/struct compact bug
                   now we can avoid this noise on the debug machine, so
@@ -585,13 +546,11 @@ BOOL NEAR readTermSettings(INT hFile, WORD fileSize)  /* mbbx 2.00: support NEW 
           */
 
 
-            if (_read(hFile, lpData, fileSize) == fileSize)
-            {
+            if (_read(hFile, lpData, fileSize) == fileSize) {
                 readTermSettings = TRUE;         /* mbbx 2.00: read OLD DCS... */
 
 
-                switch (fileSize)
-                {
+                switch (fileSize) {
                     case sizeof(recTrmParams) :
                         lmovmem(lpData, (LPBYTE)&trmParams, fileSize);
                         break;
@@ -638,7 +597,7 @@ BOOL NEAR readTermSettings(INT hFile, WORD fileSize)  /* mbbx 2.00: support NEW 
 #define MS_IDS_SWEDISH     9
 #define MS_IDS_SWISS       10
 
-VOID NEAR convertMSToIBM(LPMSSETTINGS   lpMSSettings, recTrmParams   *ptrTrmParams)
+VOID NEAR convertMSToIBM(LPMSSETTINGS   lpMSSettings, recTrmParams* ptrTrmParams)
 {
 
     ptrTrmParams->outCRLF = (BYTE)lpMSSettings->fNewLine;
@@ -660,8 +619,7 @@ VOID NEAR convertMSToIBM(LPMSSETTINGS   lpMSSettings, recTrmParams   *ptrTrmPara
         break;
     }
 
-    switch (lpMSSettings->iByteSize)
-    {
+    switch (lpMSSettings->iByteSize) {
     case 4:
         ptrTrmParams->dataBits = ITMDATA4;
         break;
@@ -679,8 +637,7 @@ VOID NEAR convertMSToIBM(LPMSSETTINGS   lpMSSettings, recTrmParams   *ptrTrmPara
         break;
     }
 
-    switch (lpMSSettings->iStopBits)
-    {
+    switch (lpMSSettings->iStopBits) {
     case ONE5STOPBITS:
         ptrTrmParams->stopBits = ITMSTOP5;
         break;
@@ -692,8 +649,7 @@ VOID NEAR convertMSToIBM(LPMSSETTINGS   lpMSSettings, recTrmParams   *ptrTrmPara
         break;
     }
 
-    switch (lpMSSettings->iParity)
-    {
+    switch (lpMSSettings->iParity) {
     case EVENPARITY:
         ptrTrmParams->parity = ITMEVENPARITY;
         break;
@@ -711,8 +667,7 @@ VOID NEAR convertMSToIBM(LPMSSETTINGS   lpMSSettings, recTrmParams   *ptrTrmPara
         break;
     }
 
-    switch (lpMSSettings->iHandshake)
-    {
+    switch (lpMSSettings->iHandshake) {
     case MS_HSHARDWARE:
         ptrTrmParams->flowControl = ITMHARDFLOW;
         break;
@@ -727,8 +682,7 @@ VOID NEAR convertMSToIBM(LPMSSETTINGS   lpMSSettings, recTrmParams   *ptrTrmPara
     ptrTrmParams->dlyRetry = (lpMSSettings->iAnswer + lpMSSettings->iToneWait);
     lstrcpy(ptrTrmParams->phone, lpMSSettings->szPhNum);
 
-    switch (lpMSSettings->iCountry)
-    {
+    switch (lpMSSettings->iCountry) {
     case MS_IDS_BRITISH:
         ptrTrmParams->language = ICS_BRITISH;
         break;
@@ -776,10 +730,8 @@ BOOL NEAR writeTermSettings(INT  fileHandle)
     HANDLE      hSettings;
     LPSETTINGS  lpSettings;
 
-    if ((hSettings = GlobalAlloc(GMEM_MOVEABLE, (DWORD) sizeof(recTrmParams))) != NULL)
-    {
-        if (lpSettings = (LPSETTINGS)GlobalLock(hSettings))
-        {
+    if ((hSettings = GlobalAlloc(GMEM_MOVEABLE, (DWORD)sizeof(recTrmParams))) != NULL) {
+        if (lpSettings = (LPSETTINGS)GlobalLock(hSettings)) {
             lmovmem((LPBYTE)&trmParams, (LPBYTE)lpSettings, sizeof(recTrmParams));
 
             /* perform conversions here, if necessary... */

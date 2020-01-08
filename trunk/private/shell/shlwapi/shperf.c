@@ -7,20 +7,20 @@
 #define STOPWATCH_MAX_BUF                  1024
 
 // Perftags defines and typedefs
-typedef PERFTAG(WINAPI *PFN_PERFREGISTER)(char *, char *, char *);
-typedef void (WINAPIV *PFN_PERFLOGFN)(PERFTAG, void *, const char *, ...);
-typedef char *(WINAPI *PFN_DECODEMESSAGE)(INT);
+typedef PERFTAG(WINAPI* PFN_PERFREGISTER)(char*, char*, char*);
+typedef void (WINAPIV* PFN_PERFLOGFN)(PERFTAG, void*, const char*, ...);
+typedef char* (WINAPI* PFN_DECODEMESSAGE)(INT);
 
 // IceCAP function typedefs
-typedef void (WINAPI *PFN_ICAP)(void);
+typedef void (WINAPI* PFN_ICAP)(void);
 
 // MemWatch function typedefs
-typedef HRESULT(WINAPI *PFN_MWCONFIG)(DWORD, DWORD, DWORD);
-typedef HRESULT(WINAPI *PFN_MWBEGIN)(BOOL, BOOL);
-typedef HRESULT(WINAPI *PFN_MWSNAPSHOT)();
-typedef HRESULT(WINAPI *PFN_MWEND)(char *);
-typedef HRESULT(WINAPI *PFN_MWMARK)(char *);
-typedef HRESULT(WINAPI *PFN_MWEXIT)();
+typedef HRESULT(WINAPI* PFN_MWCONFIG)(DWORD, DWORD, DWORD);
+typedef HRESULT(WINAPI* PFN_MWBEGIN)(BOOL, BOOL);
+typedef HRESULT(WINAPI* PFN_MWSNAPSHOT)();
+typedef HRESULT(WINAPI* PFN_MWEND)(char*);
+typedef HRESULT(WINAPI* PFN_MWMARK)(char*);
+typedef HRESULT(WINAPI* PFN_MWEXIT)();
 
 // Stopwatch memory buffer
 typedef struct _STOPWATCH
@@ -31,7 +31,7 @@ typedef struct _STOPWATCH
     DWORD dwCount;  // Tick count
     DWORD dwFlags;  // Node flags - memlog, debugout
     TCHAR szDesc[STOPWATCH_MAX_DESC];
-} STOPWATCH, *PSTOPWATCH;
+} STOPWATCH, * PSTOPWATCH;
 
 // Global stopwatch info data
 typedef struct _STOPWATCHINFO
@@ -50,7 +50,7 @@ typedef struct _STOPWATCHINFO
     DWORD dwStopWatchLastLocation;
     DWORD dwStopWatchTraceMsg;
     DWORD dwStopWatchTraceMsgCnt;
-    DWORD *pdwStopWatchMsgTime;
+    DWORD* pdwStopWatchMsgTime;
 
     // SPMODE_MEMWATCH config data and function pointers
     DWORD dwMemWatchPages;
@@ -83,12 +83,12 @@ typedef struct _STOPWATCHINFO
     PFN_ICAP pfnStopCAPAll;
 
     HANDLE hMapHtmPerfCtl;
-    HTMPERFCTL *pHtmPerfCtl;
-} STOPWATCHINFO, *PSTOPWATCHINFO;
+    HTMPERFCTL* pHtmPerfCtl;
+} STOPWATCHINFO, * PSTOPWATCHINFO;
 
 PSTOPWATCHINFO g_pswi = NULL;
 
-const TCHAR c_szDefClassNames[] = { STOPWATCH_DEFAULT_CLASSNAMES };
+const TCHAR c_szDefClassNames[] = {STOPWATCH_DEFAULT_CLASSNAMES};
 
 void StopWatch_SignalEvent();
 
@@ -98,7 +98,7 @@ void StopWatch_SignalEvent();
 
 
 
-void PerfCtlCallback(DWORD dwArg1, void * pvArg2)
+void PerfCtlCallback(DWORD dwArg1, void* pvArg2)
 {
     const TCHAR c_szFmtBrowserStop[] = TEXT("Browser Frame Stop (%s)");
     TCHAR szTitle[STOPWATCH_MAX_TITLE];
@@ -121,8 +121,7 @@ void PerfCtlCallback(DWORD dwArg1, void * pvArg2)
 #endif
         wnsprintf(szText, ARRAYSIZE(szText), c_szFmtBrowserStop, ptr);
         StopWatch_Stop(SWID_BROWSER_FRAME, szText, SPMODE_BROWSER | SPMODE_DEBUGOUT);
-        if ((g_pswi->dwStopWatchMode & (SPMODE_EVENT | SPMODE_BROWSER)) == (SPMODE_EVENT | SPMODE_BROWSER))
-        {
+        if ((g_pswi->dwStopWatchMode & (SPMODE_EVENT | SPMODE_BROWSER)) == (SPMODE_EVENT | SPMODE_BROWSER)) {
             StopWatch_SignalEvent();
         }
     }
@@ -132,8 +131,7 @@ void PerfCtlCallback(DWORD dwArg1, void * pvArg2)
 
 HRESULT SetPerfCtl(DWORD dwFlags)
 {
-    if (dwFlags == HTMPF_CALLBACK_ONLOAD)
-    {
+    if (dwFlags == HTMPF_CALLBACK_ONLOAD) {
         char achName[sizeof(HTMPERFCTL_NAME) + 8 + 1];
         wsprintfA(achName, "%s%08lX", HTMPERFCTL_NAME, GetCurrentProcessId());
 
@@ -142,7 +140,7 @@ HRESULT SetPerfCtl(DWORD dwFlags)
         if (g_pswi->hMapHtmPerfCtl == NULL)
             return(E_FAIL);
         if (g_pswi->pHtmPerfCtl == NULL)
-            g_pswi->pHtmPerfCtl = (HTMPERFCTL *)MapViewOfFile(g_pswi->hMapHtmPerfCtl, FILE_MAP_WRITE, 0, 0, 0);
+            g_pswi->pHtmPerfCtl = (HTMPERFCTL*)MapViewOfFile(g_pswi->hMapHtmPerfCtl, FILE_MAP_WRITE, 0, 0, 0);
         if (g_pswi->pHtmPerfCtl == NULL)
             return(E_FAIL);
 
@@ -162,8 +160,7 @@ void StopWatch_SignalEvent()
 {
     static HANDLE hEvent = NULL;
 
-    if (hEvent == NULL)
-    {
+    if (hEvent == NULL) {
         TCHAR szEventName[256];
         wnsprintf(szEventName, ARRAYSIZE(szEventName), TEXT("%s%x"), TEXT("STOPWATCH_STOP_EVENT"), GetCurrentProcessId());
         hEvent = CreateEvent((LPSECURITY_ATTRIBUTES)NULL, FALSE, FALSE, szEventName);
@@ -178,10 +175,8 @@ HRESULT DoMemWatchConfig(VOID)
 {
     HRESULT hr = ERROR_SUCCESS;
 
-    if (g_pswi->hModMemWatch == NULL)
-    {
-        if ((g_pswi->hModMemWatch = LoadLibrary("mwshelp.dll")) != NULL)
-        {
+    if (g_pswi->hModMemWatch == NULL) {
+        if ((g_pswi->hModMemWatch = LoadLibrary("mwshelp.dll")) != NULL) {
             g_pswi->pfnMemWatchConfig = (PFN_MWCONFIG)GetProcAddress(g_pswi->hModMemWatch, "MemWatchConfigure");
             g_pswi->pfnMemWatchBegin = (PFN_MWBEGIN)GetProcAddress(g_pswi->hModMemWatch, "MemWatchBegin");
             g_pswi->pfnMemWatchSnapShot = (PFN_MWSNAPSHOT)GetProcAddress(g_pswi->hModMemWatch, "MemWatchSnapShot");
@@ -189,17 +184,14 @@ HRESULT DoMemWatchConfig(VOID)
             g_pswi->pfnMemWatchMark = (PFN_MWMARK)GetProcAddress(g_pswi->hModMemWatch, "MemWatchMark");
             g_pswi->pfnMemWatchExit = (PFN_MWEXIT)GetProcAddress(g_pswi->hModMemWatch, "MemWatchExit");
 
-            if (g_pswi->pfnMemWatchConfig != NULL)
-            {
+            if (g_pswi->pfnMemWatchConfig != NULL) {
                 hr = g_pswi->pfnMemWatchConfig(g_pswi->dwMemWatchPages, g_pswi->dwMemWatchTime, g_pswi->dwMemWatchFlags);
                 if (FAILED(hr))
                     g_pswi->dwStopWatchMode &= ~SPMODE_MEMWATCH;
                 else
                     g_pswi->fMemWatchConfig = TRUE;
             }
-        }
-        else
-        {
+        } else {
             g_pswi->hModMemWatch = (HMODULE)1;
         }
     }
@@ -236,11 +228,9 @@ VOID InitStopWatchMode(VOID)
     TCHAR szDbg[256];
 #endif
 
-    if (NO_ERROR == RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGKEY_PERFMODE, 0L, MAXIMUM_ALLOWED, &hkeyPerfMode))
-    {
+    if (NO_ERROR == RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGKEY_PERFMODE, 0L, MAXIMUM_ALLOWED, &hkeyPerfMode)) {
         cbBuffer = SIZEOF(dwVal);
-        if (NO_ERROR == RegQueryValueEx(hkeyPerfMode, TEXT("Mode"), NULL, &dwType, (LPBYTE)&dwVal, &cbBuffer))
-        {
+        if (NO_ERROR == RegQueryValueEx(hkeyPerfMode, TEXT("Mode"), NULL, &dwType, (LPBYTE)&dwVal, &cbBuffer)) {
             if ((dwVal & SPMODES) == 0)    // Low word is mode, high word is paint timer interval
                 dwVal |= SPMODE_SHELL;
 
@@ -248,8 +238,7 @@ VOID InitStopWatchMode(VOID)
                 dwVal = 0;
         }
 
-        if (dwVal != 0)
-        {
+        if (dwVal != 0) {
             g_pswi->dwStopWatchMode = dwVal;
             g_pswi->dwStopWatchListMax = STOPWATCH_MAX_NODES;
             g_pswi->dwStopWatchPaintInterval = STOPWATCH_DEFAULT_PAINT_INTERVAL;
@@ -268,8 +257,7 @@ VOID InitStopWatchMode(VOID)
             if (NO_ERROR == RegQueryValueEx(hkeyPerfMode, TEXT("Nodes"), NULL, &dwType, (LPBYTE)&dwVal, &cbBuffer))
                 g_pswi->dwStopWatchListMax = dwVal;
             cbBuffer = SIZEOF(szClassNames);
-            if (NO_ERROR == RegQueryValueEx(hkeyPerfMode, TEXT("ClassNames"), NULL, &dwType, (LPBYTE)&szClassNames, &cbBuffer))
-            {
+            if (NO_ERROR == RegQueryValueEx(hkeyPerfMode, TEXT("ClassNames"), NULL, &dwType, (LPBYTE)&szClassNames, &cbBuffer)) {
                 if ((g_pswi->pszClassNames = (LPTSTR)LocalAlloc(LPTR, SIZEOF(LPTSTR) * cbBuffer)) != NULL)
                     CopyMemory(g_pswi->pszClassNames, szClassNames, SIZEOF(LPTSTR) * cbBuffer);
             }
@@ -291,13 +279,11 @@ VOID InitStopWatchMode(VOID)
             if (NO_ERROR == RegQueryValueEx(hkeyPerfMode, TEXT("MWFlags"), NULL, &dwType, (LPBYTE)&dwVal, &cbBuffer))
                 g_pswi->dwMemWatchFlags = dwVal;
 
-            if (g_pswi->dwStopWatchMode & SPMODES)
-            {
+            if (g_pswi->dwStopWatchMode & SPMODES) {
                 SetPerfCtl(HTMPF_CALLBACK_ONLOAD);
             }
 
-            if (g_pswi->dwStopWatchMode & SPMODE_MSGTRACE)
-            {
+            if (g_pswi->dwStopWatchMode & SPMODE_MSGTRACE) {
                 cbBuffer = SIZEOF(dwVal);
                 if (NO_ERROR == RegQueryValueEx(hkeyPerfMode, TEXT("MaxDispatchTime"), NULL, &dwType, (LPBYTE)&dwVal, &cbBuffer))
                     g_pswi->dwStopWatchMaxDispatchTime = dwVal;
@@ -311,24 +297,20 @@ VOID InitStopWatchMode(VOID)
                 if (NO_ERROR == RegQueryValueEx(hkeyPerfMode, TEXT("TraceMsg"), NULL, &dwType, (LPBYTE)&dwVal, &cbBuffer))
                     g_pswi->dwStopWatchTraceMsg = dwVal;
 
-                if ((g_pswi->pdwStopWatchMsgTime = (DWORD *)LocalAlloc(LPTR, sizeof(DWORD) * (g_pswi->dwStopWatchMaxMsgTime / g_pswi->dwStopWatchMsgInterval))) == NULL)
+                if ((g_pswi->pdwStopWatchMsgTime = (DWORD*)LocalAlloc(LPTR, sizeof(DWORD) * (g_pswi->dwStopWatchMaxMsgTime / g_pswi->dwStopWatchMsgInterval))) == NULL)
                     g_pswi->dwStopWatchMode &= ~SPMODE_MSGTRACE;
             }
 
-            if ((g_pswi->pStopWatchList = (PSTOPWATCH)LocalAlloc(LPTR, sizeof(STOPWATCH)* g_pswi->dwStopWatchListMax)) == NULL)
+            if ((g_pswi->pStopWatchList = (PSTOPWATCH)LocalAlloc(LPTR, sizeof(STOPWATCH) * g_pswi->dwStopWatchListMax)) == NULL)
                 g_pswi->dwStopWatchMode = 0;
 
-            if (g_pswi->dwStopWatchMode & SPMODE_PERFTAGS)
-            {
+            if (g_pswi->dwStopWatchMode & SPMODE_PERFTAGS) {
                 HMODULE hMod;
-                if ((hMod = LoadLibrary("mshtmdbg.dll")) != NULL)
-                {
+                if ((hMod = LoadLibrary("mshtmdbg.dll")) != NULL) {
                     g_pswi->pfnPerfRegister = (PFN_PERFREGISTER)GetProcAddress(hMod, "DbgExPerfRegister");
                     g_pswi->pfnPerfLogFn = (PFN_PERFLOGFN)GetProcAddress(hMod, "DbgExPerfLogFn");
                     g_pswi->pfnDecodeMessage = (PFN_DECODEMESSAGE)GetProcAddress(hMod, "DbgExDecodeMessage");
-                }
-                else
-                {
+                } else {
 #if STOPWATCH_DEBUG
                     wnsprintf(szDbg, ARRAYSIZE(szDbg) - 1, "~SPMODE_PERFTAGS loadlib mshtmdbg.dll failed GLE=0x%x\n", GetLastError());
                     OutputDebugString(szDbg);
@@ -336,8 +318,7 @@ VOID InitStopWatchMode(VOID)
                     g_pswi->dwStopWatchMode &= ~SPMODE_PERFTAGS;
                 }
 
-                if (g_pswi->pfnPerfRegister != NULL)
-                {
+                if (g_pswi->pfnPerfRegister != NULL) {
                     g_pswi->tagStopWatchStart = g_pswi->pfnPerfRegister("tagStopWatchStart", "StopWatchStart", "SHLWAPI StopWatch start time");
                     g_pswi->tagStopWatchStop = g_pswi->pfnPerfRegister("tagStopWatchStop", "StopWatchStop", "SHLWAPI StopWatch stop time");
                     g_pswi->tagStopWatchLap = g_pswi->pfnPerfRegister("tagStopWatchLap", "StopWatchLap", "SHLWAPI StopWatch lap time");
@@ -360,29 +341,26 @@ VOID InitStopWatchMode(VOID)
 
                 OutputDebugString(TEXT("Stopwatch ClassNames="));
                 ptr = g_pswi->pszClassNames;
-                while (*ptr)
-                {
+                while (*ptr) {
                     wnsprintf(szDbg, ARRAYSIZE(szDbg) - 1, TEXT("'%s' "), ptr);
                     OutputDebugString(szDbg);
                     ptr = ptr + (lstrlen(ptr) + 1);
                 }
                 OutputDebugString(TEXT("\n"));
 
-                if (g_pswi->dwStopWatchMode & SPMODE_MSGTRACE)
-                {
+                if (g_pswi->dwStopWatchMode & SPMODE_MSGTRACE) {
                     wnsprintf(szDbg,
                               ARRAYSIZE(szDbg) - 1,
                               TEXT("StopWatch MaxDispatchTime=%dms MaxMsgTime=%dms MsgInterval=%dms TraceMsg=0x%x MemBuf=%d bytes\n"),
                               g_pswi->dwStopWatchMaxDispatchTime,
                               g_pswi->dwStopWatchMaxMsgTime,
-                              g_pswi->dwStopWatchMsgInterval, 
+                              g_pswi->dwStopWatchMsgInterval,
                               g_pswi->dwStopWatchTraceMsg,
                               sizeof(DWORD) * (g_pswi->dwStopWatchMaxMsgTime / g_pswi->dwStopWatchMsgInterval));
                     OutputDebugString(szDbg);
                 }
 
-                if (g_pswi->dwStopWatchMode & SPMODE_MEMWATCH)
-                {
+                if (g_pswi->dwStopWatchMode & SPMODE_MEMWATCH) {
                     wnsprintf(szDbg, ARRAYSIZE(szDbg) - 1, TEXT("StopWatch MemWatch Pages=%d Time=%dms Flags=%d\n"),
                               g_pswi->dwMemWatchPages, g_pswi->dwMemWatchTime, g_pswi->dwMemWatchFlags);
                     OutputDebugString(szDbg);
@@ -419,13 +397,12 @@ DWORD WINAPI StopWatchMode(VOID)
 
 const TCHAR c_szBrowserStop[] = TEXT("Browser Frame Stop (%s)");
 
-DWORD MakeStopWatchDesc(DWORD dwId, DWORD dwMarkType, LPCTSTR pszDesc, LPTSTR *ppszText, DWORD dwTextLen)
+DWORD MakeStopWatchDesc(DWORD dwId, DWORD dwMarkType, LPCTSTR pszDesc, LPTSTR* ppszText, DWORD dwTextLen)
 {
     LPSTR lpszFmt = NULL;
     DWORD dwRC = 0;
 
-    switch (SWID(dwId))
-    {
+    switch (SWID(dwId)) {
     case SWID_BROWSER_FRAME:
         lpszFmt = (LPSTR)c_szBrowserStop;
         break;
@@ -452,21 +429,16 @@ DWORD MakeStopWatchDesc(DWORD dwId, DWORD dwMarkType, LPCTSTR pszDesc, LPTSTR *p
 
 VOID CallICAP(DWORD dwFunc)
 {
-    if (g_pswi->hModICAP == NULL)
-    {
-        if ((g_pswi->hModICAP = LoadLibrary("icap.dll")) != NULL)
-        {
+    if (g_pswi->hModICAP == NULL) {
+        if ((g_pswi->hModICAP = LoadLibrary("icap.dll")) != NULL) {
             g_pswi->pfnStartCAPAll = (PFN_ICAP)GetProcAddress(g_pswi->hModICAP, "StartCAPAll");
             g_pswi->pfnStopCAPAll = (PFN_ICAP)GetProcAddress(g_pswi->hModICAP, "StopCAPAll");
-        }
-        else
-        {
+        } else {
             g_pswi->hModICAP = (HMODULE)1;
         }
     }
 
-    switch (dwFunc)
-    {
+    switch (dwFunc) {
     case STARTCAPALL:
         if (g_pswi->pfnStartCAPAll != NULL)
             g_pswi->pfnStartCAPAll();
@@ -482,35 +454,27 @@ VOID CallICAP(DWORD dwFunc)
 
 VOID CapBreak(BOOL fStart)
 {
-    if ((g_pswi->dwStopWatchMode & SPMODE_PROFILE) || (g_pswi->pHtmPerfCtl->dwFlags & HTMPF_ENABLE_PROFILE))
-    {
+    if ((g_pswi->dwStopWatchMode & SPMODE_PROFILE) || (g_pswi->pHtmPerfCtl->dwFlags & HTMPF_ENABLE_PROFILE)) {
         if (fStart)
             iStartCAPAll();
         else
             iStopCAPAll();
     }
 
-    if ((g_pswi->dwStopWatchMode & SPMODE_MEMWATCH) || (g_pswi->pHtmPerfCtl->dwFlags & HTMPF_ENABLE_MEMWATCH))
-    {
+    if ((g_pswi->dwStopWatchMode & SPMODE_MEMWATCH) || (g_pswi->pHtmPerfCtl->dwFlags & HTMPF_ENABLE_MEMWATCH)) {
         if (g_pswi->hModMemWatch == NULL)
             DoMemWatchConfig();
 
-        if (fStart)
-        {
-            if (g_pswi->pfnMemWatchBegin != NULL)
-            {
+        if (fStart) {
+            if (g_pswi->pfnMemWatchBegin != NULL) {
                 g_pswi->pfnMemWatchBegin(TRUE, FALSE);  // synchronous and don't use timer
             }
-        }
-        else
-        {
-            if (g_pswi->pfnMemWatchSnapShot != NULL)
-            {
+        } else {
+            if (g_pswi->pfnMemWatchSnapShot != NULL) {
                 g_pswi->pfnMemWatchSnapShot();
             }
 
-            if (g_pswi->pfnMemWatchEnd != NULL)
-            {
+            if (g_pswi->pfnMemWatchEnd != NULL) {
                 CHAR szOutFile[MAX_PATH];
                 DWORD dwLen;
                 HRESULT hr;
@@ -530,8 +494,7 @@ VOID CapBreak(BOOL fStart)
                 hr = g_pswi->pfnMemWatchEnd(szOutFile);
 
 #if STOPWATCH_DEBUG
-                switch (hr)
-                {
+                switch (hr) {
                 case E_FAIL:
                     wnsprintfA(szDbg, ARRAYSIZE(szDbg) - 1, "MemWatch SaveBuffer:%s failed. GLE:0x%x\n", szOutFile, GetLastError());
                     OutputDebugStringA(szDbg);
@@ -548,8 +511,7 @@ VOID CapBreak(BOOL fStart)
         }
     }
 
-    if (g_pswi->dwStopWatchMode & SPMODE_DEBUGBREAK)
-    {
+    if (g_pswi->dwStopWatchMode & SPMODE_DEBUGBREAK) {
         DebugBreak();
     }
 }
@@ -581,19 +543,16 @@ DWORD _StopWatch(DWORD dwId, LPCTSTR pszDesc, DWORD dwMarkType, DWORD dwFlags, D
     TCHAR szText[STOPWATCH_MAX_DESC];
     LPTSTR psz;
 
-    if ((SWID(dwId) & g_pswi->dwStopWatchProfile) && (dwMarkType == STOP_NODE))
-    {
+    if ((SWID(dwId) & g_pswi->dwStopWatchProfile) && (dwMarkType == STOP_NODE)) {
         CapBreak(FALSE);
     }
 
-    if ((g_pswi->pStopWatchList != NULL) && ((dwFlags & g_pswi->dwStopWatchMode) & SPMODES))
-    {
+    if ((g_pswi->pStopWatchList != NULL) && ((dwFlags & g_pswi->dwStopWatchMode) & SPMODES)) {
         ENTERCRITICAL;
         dwIndex = g_pswi->dwStopWatchListIndex++;
         LEAVECRITICAL;
 
-        if ((dwIndex >= 0) && (dwIndex < (g_pswi->dwStopWatchListMax - 1)))
-        {
+        if ((dwIndex >= 0) && (dwIndex < (g_pswi->dwStopWatchListMax - 1))) {
             psp = g_pswi->pStopWatchList + (dwIndex);
 
             psp->dwCount = (dwCount != 0 ? dwCount : GetPerfTime());       // Save the data
@@ -603,41 +562,36 @@ DWORD _StopWatch(DWORD dwId, LPCTSTR pszDesc, DWORD dwMarkType, DWORD dwFlags, D
             psp->dwFlags = dwFlags;
 
             psz = (LPTSTR)pszDesc;
-            if (dwFlags & SPMODE_FORMATTEXT)
-            {
+            if (dwFlags & SPMODE_FORMATTEXT) {
                 psz = (LPTSTR)szText;
                 MakeStopWatchDesc(dwId, dwMarkType, pszDesc, &psz, ARRAYSIZE(szText));
             }
 
             StrCpyN(psp->szDesc, psz, ARRAYSIZE(psp->szDesc) - 1);
 
-            if ((g_pswi->dwStopWatchMode & SPMODE_PERFTAGS) && (g_pswi->pfnPerfLogFn != NULL))
-            {
+            if ((g_pswi->dwStopWatchMode & SPMODE_PERFTAGS) && (g_pswi->pfnPerfLogFn != NULL)) {
                 if (dwMarkType == START_NODE)
-                    g_pswi->pfnPerfLogFn(g_pswi->tagStopWatchStart, (void *)dwId, psz);
+                    g_pswi->pfnPerfLogFn(g_pswi->tagStopWatchStart, (void*)dwId, psz);
 
                 if (dwMarkType == STOP_NODE)
-                    g_pswi->pfnPerfLogFn(g_pswi->tagStopWatchStop, (void *)dwId, psz);
+                    g_pswi->pfnPerfLogFn(g_pswi->tagStopWatchStop, (void*)dwId, psz);
 
                 if (dwMarkType == LAP_NODE)
-                    g_pswi->pfnPerfLogFn(g_pswi->tagStopWatchLap, (void *)dwId, psz);
+                    g_pswi->pfnPerfLogFn(g_pswi->tagStopWatchLap, (void*)dwId, psz);
             }
 
 #ifdef STOPWATCH_DEBUG
-            if (g_pswi->dwStopWatchMode & SPMODE_DEBUGOUT)
-            {
+            if (g_pswi->dwStopWatchMode & SPMODE_DEBUGOUT) {
                 const TCHAR c_szFmt_StopWatch_DbgOut[] = TEXT("StopWatch: 0x%x: %s: Time: %u ms\r\n");
                 TCHAR szBuf[STOPWATCH_MAX_DESC + ARRAYSIZE(c_szFmt_StopWatch_DbgOut) + 40];    // 8=dwTID 10=dwDelta
 
                 if (psp->dwType > START_NODE)   // Find the previous associated node to get delta time
                 {
                     pspPrev = psp - 1;
-                    while (pspPrev >= g_pswi->pStopWatchList)
-                    {
+                    while (pspPrev >= g_pswi->pStopWatchList) {
                         if ((SWID(pspPrev->dwId) == SWID(psp->dwId)) &&  // Found a match
                             (pspPrev->dwTID == psp->dwTID) &&
-                            (pspPrev->dwType == START_NODE))
-                        {
+                            (pspPrev->dwType == START_NODE)) {
                             dwDelta = psp->dwCount - pspPrev->dwCount;
                             break;
                         }
@@ -650,13 +604,10 @@ DWORD _StopWatch(DWORD dwId, LPCTSTR pszDesc, DWORD dwMarkType, DWORD dwFlags, D
             }
 #endif
 
-            if ((dwMarkType == STOP_NODE) && (g_pswi->dwStopWatchMode & SPMODE_FLUSH) && (SWID(dwId) == SWID_FRAME))
-            {
+            if ((dwMarkType == STOP_NODE) && (g_pswi->dwStopWatchMode & SPMODE_FLUSH) && (SWID(dwId) == SWID_FRAME)) {
                 StopWatchFlush();
             }
-        }
-        else
-        {
+        } else {
             psp = g_pswi->pStopWatchList + (g_pswi->dwStopWatchListMax - 1);  // Set the last node to a message so the user knows we ran out or mem
             psp->dwId = 0;
             psp->dwType = OUT_OF_NODES;
@@ -672,8 +623,7 @@ DWORD _StopWatch(DWORD dwId, LPCTSTR pszDesc, DWORD dwMarkType, DWORD dwFlags, D
         }
     }
 
-    if ((SWID(dwId) & g_pswi->dwStopWatchProfile) && (dwMarkType == START_NODE))
-    {
+    if ((SWID(dwId) & g_pswi->dwStopWatchProfile) && (dwMarkType == START_NODE)) {
         CapBreak(TRUE);
     }
 
@@ -748,23 +698,19 @@ DWORD WINAPI StopWatchFlush(VOID)
     TCHAR szDbg[512];
 #endif
 
-    if ((!g_pswi->dwStopWatchMode) || (g_pswi->pStopWatchList == NULL))
-    {
+    if ((!g_pswi->dwStopWatchMode) || (g_pswi->pStopWatchList == NULL)) {
         SetLastError(ERROR_INVALID_DATA);
         return(ERROR_INVALID_DATA);
     }
 
     GetSystemTime(&st);
 
-    if (g_pswi->dwStopWatchListIndex > 0)
-    {
+    if (g_pswi->dwStopWatchListIndex > 0) {
         ENTERCRITICAL;
-        if (g_pswi->dwStopWatchListIndex > 0)
-        {
+        if (g_pswi->dwStopWatchListIndex > 0) {
             g_pswi->dwStopWatchListIndex = 0;
 
-            if (g_pswi->dwStopWatchMode & SPMODES)
-            {
+            if (g_pswi->dwStopWatchMode & SPMODES) {
 
 #ifdef STOPWATCH_DEBUG
                 if (g_pswi->dwStopWatchMode & SPMODE_DEBUGOUT)
@@ -781,23 +727,19 @@ DWORD WINAPI StopWatchFlush(VOID)
                 StrCpyN(szFileName, TEXT("shperf.log"), ARRAYSIZE(szFileName) - 1);
 #endif
 
-                if ((hFile = CreateFile(szFileName, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE)
-                {
+                if ((hFile = CreateFile(szFileName, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE) {
                     SetFilePointer(hFile, 0, NULL, FILE_END);
 
                     psp = g_pswi->pStopWatchList;
-                    while (psp->dwType != EMPTY_NODE)
-                    {
+                    while (psp->dwType != EMPTY_NODE) {
 #ifdef STOPWATCH_DEBUG
-                        if (g_pswi->dwStopWatchMode & SPMODE_DEBUGOUT)
-                        {
+                        if (g_pswi->dwStopWatchMode & SPMODE_DEBUGOUT) {
                             wnsprintf(szDbg, ARRAYSIZE(szDbg), TEXT("ID:%d TID:0x%x Type:%d Flgs:%d %s\r\n"),
                                       psp->dwId, psp->dwTID, psp->dwType, psp->dwFlags, psp->szDesc);
                             OutputDebugString(szDbg);
                         }
 #endif
-                        if (psp->dwType == START_NODE)
-                        {
+                        if (psp->dwType == START_NODE) {
                             wnsprintf(szBuf, ARRAYSIZE(szBuf), TEXT("%02d%02d%02d%02d%02d%02d\t0x%x\t%s\t%lu\t"),
                                       st.wYear, st.wMonth, st.wDay,
                                       st.wHour, st.wMinute, st.wSecond,
@@ -813,11 +755,9 @@ DWORD WINAPI StopWatchFlush(VOID)
 
                             psp1 = psp + 1;
                             fWroteStartData = FALSE;
-                            while (psp1->dwType != EMPTY_NODE)
-                            {
+                            while (psp1->dwType != EMPTY_NODE) {
 #ifdef STOPWATCH_DEBUG
-                                if (g_pswi->dwStopWatchMode & SPMODE_DEBUGOUT)
-                                {
+                                if (g_pswi->dwStopWatchMode & SPMODE_DEBUGOUT) {
                                     wnsprintf(szDbg, ARRAYSIZE(szDbg), TEXT("  ID:%d TID:0x%x Type:%d Flgs:%d %s\r\n"),
                                               psp1->dwId, psp1->dwTID, psp1->dwType, psp1->dwFlags, psp1->szDesc);
                                     OutputDebugString(szDbg);
@@ -826,13 +766,11 @@ DWORD WINAPI StopWatchFlush(VOID)
                                 if ((SWID(psp1->dwId) == SWID(psp->dwId)) &&
                                     (psp1->dwTID == psp->dwTID))     // Found a matching LAP or STOP node
                                 {
-                                    if (psp1->dwType != START_NODE)
-                                    {
+                                    if (psp1->dwType != START_NODE) {
                                         dwDelta = psp1->dwCount - dwPrevCount;
                                         dwCummDelta += dwDelta;
 
-                                        if (!fWroteStartData)
-                                        {
+                                        if (!fWroteStartData) {
                                             fWroteStartData = TRUE;
                                             WriteFile(hFile, szBuf, lstrlen(szBuf), &dwWritten, NULL);  // Write out start node data
                                         }
@@ -846,11 +784,9 @@ DWORD WINAPI StopWatchFlush(VOID)
 
                                         if (psp1->dwType == STOP_NODE)
                                             break;
-                                    }
-                                    else    // We have another start node that matches our Id/TID and we haven't had a stop.  Log as a missing stop.
+                                    } else    // We have another start node that matches our Id/TID and we haven't had a stop.  Log as a missing stop.
                                     {
-                                        if (!fWroteStartData)
-                                        {
+                                        if (!fWroteStartData) {
                                             fWroteStartData = TRUE;
                                             WriteFile(hFile, szBuf, lstrlen(szBuf), &dwWritten, NULL);  // Write out start node data
                                         }
@@ -864,9 +800,7 @@ DWORD WINAPI StopWatchFlush(VOID)
                             }
 
                             WriteFile(hFile, TEXT("\r\n"), 2, &dwWritten, NULL);
-                        }
-                        else if (psp->dwType == OUT_OF_NODES)
-                        {
+                        } else if (psp->dwType == OUT_OF_NODES) {
                             wnsprintf(szBuf, ARRAYSIZE(szBuf), TEXT("%02d%02d%02d%02d%02d%02d\t0x%x\t%s\n"),
                                       st.wYear, st.wMonth, st.wDay,
                                       st.wHour, st.wMinute, st.wSecond,
@@ -878,21 +812,17 @@ DWORD WINAPI StopWatchFlush(VOID)
                     }
                     FlushFileBuffers(hFile);
                     CloseHandle(hFile);
-                }
-                else
-                {
+                } else {
 #ifdef STOPWATCH_DEBUG
                     wnsprintf(szBuf, ARRAYSIZE(szBuf) - 1, TEXT("CreateFile failed on '%s'.  GLE=%d\n"), szFileName, GetLastError());
                     OutputDebugString(szBuf);
 #endif
                     dwRC = ERROR_NO_DATA;
                 }
-            }
-            else    // !(g_pswi->dwStopWatchMode)
+            } else    // !(g_pswi->dwStopWatchMode)
             {
                 psp = g_pswi->pStopWatchList;
-                while (psp->dwType != EMPTY_NODE)
-                {
+                while (psp->dwType != EMPTY_NODE) {
                     psp->dwType = EMPTY_NODE;
                     psp++;
                 }
@@ -901,8 +831,7 @@ DWORD WINAPI StopWatchFlush(VOID)
         LEAVECRITICAL;
     }
 
-    if (g_pswi->dwStopWatchMode & SPMODE_MSGTRACE)
-    {
+    if (g_pswi->dwStopWatchMode & SPMODE_MSGTRACE) {
         int i;
 
 #ifndef UNIX
@@ -911,12 +840,10 @@ DWORD WINAPI StopWatchFlush(VOID)
         StrCpy(szFileName, TEXT("msgtrace.log"));
 #endif
 
-        if ((hFile = CreateFile(szFileName, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE)
-        {
+        if ((hFile = CreateFile(szFileName, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE) {
             SetFilePointer(hFile, 0, NULL, FILE_END);
 
-            for (i = 0; i < (int)(g_pswi->dwStopWatchMaxMsgTime / g_pswi->dwStopWatchMsgInterval); ++i)
-            {
+            for (i = 0; i < (int)(g_pswi->dwStopWatchMaxMsgTime / g_pswi->dwStopWatchMsgInterval); ++i) {
                 wnsprintf(szBuf,
                           ARRAYSIZE(szBuf) - 1,
                           TEXT("%02d%02d%02d%02d%02d%02d\tMsgTrace\t%4d - %4dms\t%d\r\n"),
@@ -927,7 +854,7 @@ DWORD WINAPI StopWatchFlush(VOID)
                           st.wMinute,
                           st.wSecond,
                           i * g_pswi->dwStopWatchMsgInterval,
-                          (i + 1)*g_pswi->dwStopWatchMsgInterval - 1,
+                          (i + 1) * g_pswi->dwStopWatchMsgInterval - 1,
                           *(g_pswi->pdwStopWatchMsgTime + i));
 
                 WriteFile(hFile, szBuf, lstrlen(szBuf), &dwWritten, NULL);
@@ -947,12 +874,11 @@ DWORD WINAPI StopWatchFlush(VOID)
                 OutputDebugString(szBuf);
 #endif
 
-            if (g_pswi->dwStopWatchTraceMsg > 0)
-            {
-                wnsprintf(szBuf, 
+            if (g_pswi->dwStopWatchTraceMsg > 0) {
+                wnsprintf(szBuf,
                           ARRAYSIZE(szBuf) - 1,
                           TEXT("%02d%02d%02d%02d%02d%02d\tMsgTrace\tmsg 0x%x occured %d times.\r\n"),
-                          st.wYear, 
+                          st.wYear,
                           st.wMonth,
                           st.wDay,
                           st.wHour,
@@ -970,9 +896,7 @@ DWORD WINAPI StopWatchFlush(VOID)
 
             FlushFileBuffers(hFile);
             CloseHandle(hFile);
-        }
-        else
-        {
+        } else {
 #ifdef STOPWATCH_DEBUG
             wnsprintf(szBuf, ARRAYSIZE(szBuf) - 1, TEXT("CreateFile failed on '%s'.  GLE=%d\n"), szFileName, GetLastError());
             OutputDebugString(szBuf);
@@ -1004,25 +928,20 @@ BOOL WINAPI StopWatch_TimerHandler(HWND hwnd, UINT uInc, DWORD dwFlag, MSG* pmsg
     static BOOL bActive = FALSE;
     static BOOL bHaveFirstPaintMsg = FALSE;
 
-    switch (dwFlag)
-    {
+    switch (dwFlag) {
     case SWMSG_PAINT:
-        if (bActive)
-        {
+        if (bActive) {
             dwCnt = GetPerfTime();  // Save tick for last paint message
             iNumTimersRcvd = 0;     // Reset timers received count
 
-            if (!bHaveFirstPaintMsg)
-            {
+            if (!bHaveFirstPaintMsg) {
                 TCHAR szClassName[40];  // If the class matches and its the first paint msg mark a lap time
                 LPCTSTR ptr;
                 GetClassName(pmsg->hwnd, szClassName, ARRAYSIZE(szClassName) - 1);
 
                 ptr = g_pswi->pszClassNames;
-                while (*ptr)
-                {
-                    if (lstrcmpi(szClassName, ptr) == 0)
-                    {
+                while (*ptr) {
+                    if (lstrcmpi(szClassName, ptr) == 0) {
                         bHaveFirstPaintMsg = TRUE;
                         StopWatch_LapTimed(SWID_FRAME, TEXT("Shell Frame 1st Paint"), SPMODE_SHELL | SPMODE_DEBUGOUT, dwCnt);
                         break;
@@ -1048,8 +967,7 @@ BOOL WINAPI StopWatch_TimerHandler(HWND hwnd, UINT uInc, DWORD dwFlag, MSG* pmsg
             bHaveFirstPaintMsg = FALSE;
             bActive = FALSE;  // Done timing
 
-            if ((g_pswi->dwStopWatchMode & (SPMODE_EVENT | SPMODE_SHELL)) == (SPMODE_EVENT | SPMODE_SHELL))
-            {
+            if ((g_pswi->dwStopWatchMode & (SPMODE_EVENT | SPMODE_SHELL)) == (SPMODE_EVENT | SPMODE_SHELL)) {
                 StopWatch_SignalEvent();
             }
         }
@@ -1082,8 +1000,7 @@ VOID WINAPI StopWatch_CheckMsg(HWND hwnd, MSG msg, LPCSTR lpStr)
     }
 #endif
 
-    if (g_pswi->dwStopWatchMode & SPMODE_SHELL)
-    {
+    if (g_pswi->dwStopWatchMode & SPMODE_SHELL) {
         if (!StopWatch_TimerHandler(hwnd, 0, SWMSG_STATUS, &msg) &&
             (((msg.message == WM_KEYDOWN) && (msg.wParam == VK_RETURN)) ||
             ((msg.message == WM_KEYDOWN) && (msg.wParam == VK_BACK)))
@@ -1096,8 +1013,7 @@ VOID WINAPI StopWatch_CheckMsg(HWND hwnd, MSG msg, LPCSTR lpStr)
     }
 
     // Compute the time it took to get the message. Then increment approp MsgTime bucket
-    if (g_pswi->dwStopWatchMode & SPMODE_MSGTRACE)
-    {
+    if (g_pswi->dwStopWatchMode & SPMODE_MSGTRACE) {
         DWORD dwTick = GetTickCount();
         DWORD dwElapsed;
 #ifdef STOPWATCH_DEBUG
@@ -1106,17 +1022,14 @@ VOID WINAPI StopWatch_CheckMsg(HWND hwnd, MSG msg, LPCSTR lpStr)
 
         g_pswi->dwStopWatchLastLocation = 0;
 
-        if (dwTick > msg.time)
-        {
+        if (dwTick > msg.time) {
             dwElapsed = dwTick - msg.time;
 
-            if (dwElapsed >= g_pswi->dwStopWatchMaxMsgTime)
-            {
+            if (dwElapsed >= g_pswi->dwStopWatchMaxMsgTime) {
                 ++g_pswi->dwcStopWatchOverflow;
 
 #ifdef STOPWATCH_DEBUG
-                if (g_pswi->dwStopWatchMode & SPMODE_DEBUGOUT)
-                {
+                if (g_pswi->dwStopWatchMode & SPMODE_DEBUGOUT) {
                     TCHAR szClassName[40];
                     TCHAR szMsgName[20];
 
@@ -1134,7 +1047,7 @@ VOID WINAPI StopWatch_CheckMsg(HWND hwnd, MSG msg, LPCSTR lpStr)
                               dwElapsed,
                               g_pswi->dwStopWatchMaxMsgTime,
                               msg.hwnd,
-                              GetClassLongPtr(msg.hwnd, GCLP_WNDPROC), 
+                              GetClassLongPtr(msg.hwnd, GCLP_WNDPROC),
                               szMsgName,
                               msg.wParam,
                               msg.lParam);
@@ -1142,9 +1055,7 @@ VOID WINAPI StopWatch_CheckMsg(HWND hwnd, MSG msg, LPCSTR lpStr)
                     OutputDebugString(szMsg);
                 }
 #endif
-            }
-            else
-            {
+            } else {
                 ++(*(g_pswi->pdwStopWatchMsgTime + (dwElapsed / g_pswi->dwStopWatchMsgInterval)));
             }
         }
@@ -1171,8 +1082,7 @@ DWORD WINAPI StopWatch_DispatchTime(BOOL fStartTime, MSG msg, DWORD dwStart)
     DWORD dwTime = 0;
     TCHAR szMsg[256];
 
-    if (fStartTime)
-    {
+    if (fStartTime) {
         if (g_pswi->dwStopWatchTraceMsg == msg.message)
             CapBreak(TRUE);
 
@@ -1180,16 +1090,13 @@ DWORD WINAPI StopWatch_DispatchTime(BOOL fStartTime, MSG msg, DWORD dwStart)
 
         dwTime = GetPerfTime();
 
-    }
-    else
-    {
+    } else {
         dwTime = GetPerfTime();
 
         if (g_pswi->dwStopWatchTraceMsg == msg.message)
             CapBreak(FALSE);
 
-        if ((dwTime - dwStart) >= g_pswi->dwStopWatchMaxDispatchTime)
-        {
+        if ((dwTime - dwStart) >= g_pswi->dwStopWatchMaxDispatchTime) {
             TCHAR szClassName[40];
             TCHAR szMsgName[20];
 
@@ -1198,13 +1105,13 @@ DWORD WINAPI StopWatch_DispatchTime(BOOL fStartTime, MSG msg, DWORD dwStart)
                 StrCpyN(szMsgName, g_pswi->pfnDecodeMessage(msg.message), ARRAYSIZE(szMsgName) - 1);
             else
                 wnsprintf(szMsgName, ARRAYSIZE(szMsgName) - 1, "0x%x", msg.message);
-            wnsprintf(szMsg, 
+            wnsprintf(szMsg,
                       ARRAYSIZE(szMsg) - 1,
                       TEXT("-Dispatch (%s) ms=%d > %d, hwnd=%x, wndproc=%x, msg=%s(%x), w=%x, l=%x"),
                       szClassName,
                       dwTime - dwStart,
                       g_pswi->dwStopWatchMaxDispatchTime,
-                      msg.hwnd, 
+                      msg.hwnd,
                       GetClassLongPtr(msg.hwnd, GCLP_WNDPROC),
                       szMsgName,
                       msg.message,
@@ -1214,8 +1121,7 @@ DWORD WINAPI StopWatch_DispatchTime(BOOL fStartTime, MSG msg, DWORD dwStart)
             StopWatch(SWID_MSGDISPATCH, szMsg, STOP_NODE, SPMODE_MSGTRACE | SPMODE_DEBUGOUT, dwTime);
 
 #ifdef STOPWATCH_DEBUG
-            if (g_pswi->dwStopWatchMode & SPMODE_DEBUGOUT)
-            {
+            if (g_pswi->dwStopWatchMode & SPMODE_DEBUGOUT) {
                 lstrcat(szMsg, "\n");
                 OutputDebugString(szMsg);
             }
@@ -1232,8 +1138,7 @@ VOID WINAPI StopWatch_MarkFrameStart(LPCSTR lpExplStr)
 {
     TCHAR szText[80];
     DWORD dwTime = GetPerfTime();
-    if (g_pswi->dwStopWatchMode & SPMODE_SHELL)
-    {
+    if (g_pswi->dwStopWatchMode & SPMODE_SHELL) {
         wnsprintf(szText, ARRAYSIZE(szText), TEXT("Shell Frame Start%s"), lpExplStr);
         StopWatch_StartTimed(SWID_FRAME, szText, SPMODE_SHELL | SPMODE_DEBUGOUT, dwTime);
     }
@@ -1254,8 +1159,7 @@ VOID WINAPI StopWatch_MarkSameFrameStart(HWND hwnd)
 {
     DWORD dwTime = GetPerfTime();
 
-    if (g_pswi->dwStopWatchMode & SPMODE_SHELL)
-    {
+    if (g_pswi->dwStopWatchMode & SPMODE_SHELL) {
         StopWatch_TimerHandler(hwnd, 0, SWMSG_CREATE, NULL);
         StopWatch_StartTimed(SWID_FRAME, TEXT("Shell Frame Same"), SPMODE_SHELL | SPMODE_DEBUGOUT, dwTime);
     }
@@ -1279,10 +1183,8 @@ VOID WINAPI StopWatch_MarkJavaStop(LPCSTR  lpStringToSend, HWND hwnd, BOOL fChTy
     TCHAR szTitle[STOPWATCH_MAX_TITLE];
     TCHAR szText[STOPWATCH_MAX_TITLE + ARRAYSIZE(c_szFmtJavaStop) + 1];
 
-    if (g_pswi->dwStopWatchMode & SPMODE_JAVA)
-    {
-        if ((lpStringToSend != NULL) && (lstrncmpW((LPWSTR)lpStringToSend, TEXTW("Applet started"), ARRAYSIZE(TEXTW("Applet started"))) == 0))
-        {
+    if (g_pswi->dwStopWatchMode & SPMODE_JAVA) {
+        if ((lpStringToSend != NULL) && (lstrncmpW((LPWSTR)lpStringToSend, TEXTW("Applet started"), ARRAYSIZE(TEXTW("Applet started"))) == 0)) {
             GetWindowText(hwnd, szTitle, ARRAYSIZE(szTitle) - 1);
             wnsprintf(szText, ARRAYSIZE(szText), c_szFmtJavaStop, szTitle);
             StopWatch_Stop(SWID_JAVA_APP, szText, SPMODE_SHELL | SPMODE_DEBUGOUT);
@@ -1298,9 +1200,9 @@ DWORD WINAPI GetPerfTime(VOID)
     __int64 curtime;
 
     if (!freq)
-        QueryPerformanceFrequency((LARGE_INTEGER *)&freq);
+        QueryPerformanceFrequency((LARGE_INTEGER*)&freq);
 
-    QueryPerformanceCounter((LARGE_INTEGER *)&curtime);
+    QueryPerformanceCounter((LARGE_INTEGER*)&curtime);
 
     ASSERT((((curtime * 1000) / freq) >> 32) == 0);
 

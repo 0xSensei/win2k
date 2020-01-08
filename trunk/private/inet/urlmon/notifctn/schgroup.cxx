@@ -33,11 +33,11 @@
 
 BOOL IsPredefinedScheduleGroup(REFNOTIFICATIONCOOKIE rGroupCookie)
 {
-    return (   (rGroupCookie == NOTFCOOKIE_SCHEDULE_GROUP_DAILY )
+    return ((rGroupCookie == NOTFCOOKIE_SCHEDULE_GROUP_DAILY)
             || (rGroupCookie == NOTFCOOKIE_SCHEDULE_GROUP_WEEKLY)
             || (rGroupCookie == NOTFCOOKIE_SCHEDULE_GROUP_MONTHLY)
             || (rGroupCookie == NOTFCOOKIE_SCHEDULE_GROUP_MANUAL)
-           );
+            );
 }
 
 
@@ -60,32 +60,30 @@ BOOL IsPredefinedScheduleGroup(REFNOTIFICATIONCOOKIE rGroupCookie)
 HRESULT CScheduleGroup::CreateDefScheduleGroup(REFNOTIFICATIONCOOKIE rGroupCookie,
                                                PTASK_TRIGGER pTaskTrigger, LPCWSTR pwzName)
 {
-    NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::CreateDefScheduleGroup\n",NULL));
+    NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::CreateDefScheduleGroup\n", NULL));
     HRESULT hr = E_INVALIDARG;
-    CScheduleGroup *pCSchedGroup = 0;
+    CScheduleGroup* pCSchedGroup = 0;
 
 
-    do
-    {
+    do {
         SCHEDULEGROUPITEM ScheduleGroupItem;
         DWORD grfGroupCreateFlags = 0;
 
         pCSchedGroup = new CScheduleGroup(GT_STATIC);
 
-        if (!pCSchedGroup)
-        {
+        if (!pCSchedGroup) {
             hr = E_OUTOFMEMORY;
             break;
         }
 
         memset(&ScheduleGroupItem, 0, sizeof(SCHEDULEGROUPITEM));
-        ScheduleGroupItem.cbSize      = sizeof(SCHEDULEGROUPITEM);
-        ScheduleGroupItem.cElements   = 0;
+        ScheduleGroupItem.cbSize = sizeof(SCHEDULEGROUPITEM);
+        ScheduleGroupItem.cElements = 0;
         ScheduleGroupItem.GroupCookie = rGroupCookie;
-        ScheduleGroupItem.grpState    = GS_Initialized;
-        ScheduleGroupItem.grfGroupMode= 0;
+        ScheduleGroupItem.grpState = GS_Initialized;
+        ScheduleGroupItem.grfGroupMode = 0;
         ScheduleGroupItem.TaskTrigger = *pTaskTrigger;
-        ScheduleGroupItem.GroupType   = GT_STATIC;
+        ScheduleGroupItem.GroupType = GT_STATIC;
         ScheduleGroupItem.GroupInfo.cbSize = sizeof(GROUPINFO);
         ScheduleGroupItem.GroupInfo.pwzGroupname = (pwzName) ? OLESTRDuplicate(pwzName) : 0;
 
@@ -122,19 +120,17 @@ HRESULT CScheduleGroup::CreateDefScheduleGroup(REFNOTIFICATIONCOOKIE rGroupCooki
 //  Notes:
 
 
-HRESULT CScheduleGroup::CreateForEnum( CPackage  *pCPackage,
-                                       CScheduleGroup    **ppCSchedGroup,
-                                       DWORD dwReserved)
+HRESULT CScheduleGroup::CreateForEnum(CPackage* pCPackage,
+                                      CScheduleGroup** ppCSchedGroup,
+                                      DWORD dwReserved)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::CreateForEnum\n", NULL));
     HRESULT hr = NOERROR;
-    CScheduleGroup *pCSchGroup = 0;
+    CScheduleGroup* pCSchGroup = 0;
 
-    do
-    {
-        if (   !ppCSchedGroup
-            || !pCPackage->GetGroupCookie())
-        {
+    do {
+        if (!ppCSchedGroup
+            || !pCPackage->GetGroupCookie()) {
             hr = E_INVALIDARG;
             break;
         }
@@ -143,18 +139,15 @@ HRESULT CScheduleGroup::CreateForEnum( CPackage  *pCPackage,
 
         // create an empty group - the group is not scheduled yet
 
-        pCSchGroup = new CScheduleGroup(pGroupCookie,GS_Running);
-        if (!pCSchGroup)
-        {
+        pCSchGroup = new CScheduleGroup(pGroupCookie, GS_Running);
+        if (!pCSchGroup) {
             hr = E_OUTOFMEMORY;
             break;
         }
-        if (pCPackage->GetTaskTrigger())
-        {
+        if (pCPackage->GetTaskTrigger()) {
             pCSchGroup->_TaskTrigger = *pCPackage->GetTaskTrigger();
         }
-        if (pCPackage->GetTaskData())
-        {
+        if (pCPackage->GetTaskData()) {
             pCSchGroup->_TaskData = *pCPackage->GetTaskData();
         }
 
@@ -162,7 +155,7 @@ HRESULT CScheduleGroup::CreateForEnum( CPackage  *pCPackage,
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::CreateForEnum (hr:%lx)\n", pCSchGroup,hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::CreateForEnum (hr:%lx)\n", pCSchGroup, hr));
     return hr;
 }
 
@@ -184,18 +177,16 @@ HRESULT CScheduleGroup::CreateForEnum( CPackage  *pCPackage,
 
 
 HRESULT CScheduleGroup::Create(DWORD  grfGroupCreateFlags,
-                               CScheduleGroup **ppCSchedGroup,
+                               CScheduleGroup** ppCSchedGroup,
                                PNOTIFICATIONCOOKIE pGroupCookie,
                                DWORD dwReserved)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::Create\n", NULL));
     HRESULT hr = NOERROR;
-    CScheduleGroup *pCSchGroup = 0;
+    CScheduleGroup* pCSchGroup = 0;
 
-    do
-    {
-        if (!ppCSchedGroup || !pGroupCookie)
-        {
+    do {
+        if (!ppCSchedGroup || !pGroupCookie) {
             hr = E_INVALIDARG;
             break;
         }
@@ -203,10 +194,9 @@ HRESULT CScheduleGroup::Create(DWORD  grfGroupCreateFlags,
         // create an empty group - the group is not scheduled yet
 
         pCSchGroup = new CScheduleGroup(grfGroupCreateFlags
-                                       ,pGroupCookie
-                                       ,GetDefTaskTrigger());
-        if (!pCSchGroup)
-        {
+                                        , pGroupCookie
+                                        , GetDefTaskTrigger());
+        if (!pCSchGroup) {
             hr = E_OUTOFMEMORY;
             break;
         }
@@ -222,7 +212,7 @@ HRESULT CScheduleGroup::Create(DWORD  grfGroupCreateFlags,
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::Create (hr:%lx)\n", pCSchGroup,hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::Create (hr:%lx)\n", pCSchGroup, hr));
     return hr;
 }
 
@@ -243,26 +233,23 @@ HRESULT CScheduleGroup::Create(DWORD  grfGroupCreateFlags,
 //  Notes:
 
 
-STDMETHODIMP CScheduleGroup::QueryInterface(REFIID riid, void **ppvObj)
+STDMETHODIMP CScheduleGroup::QueryInterface(REFIID riid, void** ppvObj)
 {
-    VDATEPTROUT(ppvObj, void *);
+    VDATEPTROUT(ppvObj, void*);
     VDATETHIS(this);
     HRESULT hr = NOERROR;
 
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::QueryInterface\n", this));
 
     *ppvObj = NULL;
-    if ((riid == IID_IUnknown) || (riid == IID_IScheduleGroup))
-    {
-        *ppvObj = (IScheduleGroup *)this;
+    if ((riid == IID_IUnknown) || (riid == IID_IScheduleGroup)) {
+        *ppvObj = (IScheduleGroup*)this;
         AddRef();
-    }
-    else
-    {
+    } else {
         hr = E_NOINTERFACE;
     }
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::QueryInterface (hr:%lx\n", this,hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::QueryInterface (hr:%lx\n", this, hr));
     return hr;
 }
 
@@ -287,7 +274,7 @@ STDMETHODIMP_(ULONG) CScheduleGroup::AddRef(void)
 
     LONG lRet = ++_CRefs;
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::AddRef (cRefs:%ld)\n", this,lRet));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::AddRef (cRefs:%ld)\n", this, lRet));
     return lRet;
 }
 
@@ -311,12 +298,11 @@ STDMETHODIMP_(ULONG) CScheduleGroup::Release(void)
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::Release\n", this));
     LONG lRet = --_CRefs;
 
-    if (_CRefs == 0)
-    {
+    if (_CRefs == 0) {
         delete this;
     }
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::Release (cRefs:%ld)\n",this,lRet));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::Release (cRefs:%ld)\n", this, lRet));
     return lRet;
 }
 
@@ -349,32 +335,28 @@ STDMETHODIMP CScheduleGroup::SetAttributes(
     PGROUPINFO          pGroupInfo,
     // sequential or parallel
     GROUPMODE           grfGroupMode
-    )
+)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::SetAttributes\n", this));
     HRESULT hr = NOERROR;
 
-    do
-    {
-        if (   !pTaskTrigger
+    do {
+        if (!pTaskTrigger
             || pTaskData        //  We haven't decided how to handle this so fail
             || (grfGroupMode & GM_GROUP_SEQUENTIAL)
-           )
-        {
+            ) {
             // need TaskTrigger and not sequential mode yet
             hr = E_INVALIDARG;
             break;
         }
 
         // validate new TaskTrigger
-        if(FAILED(hr = ValidateTrigger(pTaskTrigger)))
-        {
+        if (FAILED(hr = ValidateTrigger(pTaskTrigger))) {
             break;
         }
 
-        if (    pTaskTrigger
-            && !(pTaskTrigger->rgFlags & TASK_TRIGGER_FLAG_DISABLED))
-        {
+        if (pTaskTrigger
+            && !(pTaskTrigger->rgFlags & TASK_TRIGGER_FLAG_DISABLED)) {
             CFileTime date;
 
             pTaskTrigger->Reserved2 = 0;
@@ -383,24 +365,21 @@ STDMETHODIMP CScheduleGroup::SetAttributes(
         }
         BREAK_ONERROR(hr);
 
-        if (!IsInitialized())
-        {
+        if (!IsInitialized()) {
             hr = InitAttributes(
-                               pTaskTrigger,
-                               NULL,
-                               pGroupCookie,
-                               pGroupInfo,
-                               grfGroupMode);
-        }
-        else
-        {
+                pTaskTrigger,
+                NULL,
+                pGroupCookie,
+                pGroupInfo,
+                grfGroupMode);
+        } else {
 
             hr = ChangeAttributes(
-                               pTaskTrigger,
-                               NULL,
-                               pGroupCookie,
-                               pGroupInfo,
-                               grfGroupMode);
+                pTaskTrigger,
+                NULL,
+                pGroupCookie,
+                pGroupInfo,
+                grfGroupMode);
         }
         BREAK_ONERROR(hr);
         hr = SaveToPersist(c_pszRegKeyScheduleGroup);
@@ -410,7 +389,7 @@ STDMETHODIMP CScheduleGroup::SetAttributes(
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::SetAttributes (hr:%lx)\n", this,hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::SetAttributes (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -443,10 +422,10 @@ STDMETHODIMP CScheduleGroup::GetAttributes(
     // group info
     PGROUPINFO          pGroupInfo,
     // sequential or parallel
-    GROUPMODE          *pgrfGroupMode,
+    GROUPMODE* pgrfGroupMode,
     // number of elements in group
-    LONG               *pElements
-    )
+    LONG* pElements
+)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::GetAttributes\n", this));
     HRESULT hr;
@@ -457,12 +436,9 @@ STDMETHODIMP CScheduleGroup::GetAttributes(
         IS_BAD_WRITEPTR(pGroupInfo, sizeof(GROUPINFO)) ||
         IS_BAD_WRITEPTR(pgrfGroupMode, sizeof(GROUPMODE)) ||
         IS_BAD_WRITEPTR(pElements, sizeof(LONG))
-       )
-    {
+        ) {
         hr = E_INVALIDARG;
-    }
-    else
-    {
+    } else {
         hr = RetrieveAttributes(pTaskTrigger,
                                 pTaskData,
                                 pGroupCookie,
@@ -471,7 +447,7 @@ STDMETHODIMP CScheduleGroup::GetAttributes(
                                 pElements);
     }
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::GetAttributes(hr:%lx\n", this,hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::GetAttributes(hr:%lx\n", this, hr));
     return hr;
 }
 
@@ -498,119 +474,107 @@ STDMETHODIMP CScheduleGroup::GetAttributes(
 
 
 STDMETHODIMP CScheduleGroup::AddNotification(
-                // the notificationid and object
+    // the notificationid and object
     LPNOTIFICATION      pNotification,
-                // destination
+    // destination
     REFCLSID            rNotificationDest,
-                // deliver mode - group and schedule data
+    // deliver mode - group and schedule data
     DELIVERMODE         deliverMode,
-                // info about who the sender
+    // info about who the sender
     LPCLSID             pClsidSender,           // class of sender can be NULL
     LPNOTIFICATIONSINK  pReportNotfctnSink,     // can be null - see mode
                 //the cookie of the new notification
-    LPNOTIFICATIONREPORT *ppNotfctnReport,
-                //the cookie of the new notification
+    LPNOTIFICATIONREPORT* ppNotfctnReport,
+    //the cookie of the new notification
     PNOTIFICATIONCOOKIE pNotificationCookie,
-                // reserved dword
+    // reserved dword
     PTASK_DATA          pTaskData
-    )
+)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::AddNotification\n", this));
     HRESULT hr = E_NOTIMPL;
     SCHEDULEGROUPITEM scheduleGroupItem;
-    CScheduleGroup *pSchedGrp = NULL;
+    CScheduleGroup* pSchedGrp = NULL;
 
-    do
-    {
-        if (!pNotification)
-        {
+    do {
+        if (!pNotification) {
             // need notification, TaskTrigger and can not be delivered imemediately
             hr = E_INVALIDARG;
             break;
         }
 
         // validate task data
-        if(FAILED(hr = ValidateTaskData(pTaskData)))
-        {
+        if (FAILED(hr = ValidateTaskData(pTaskData))) {
             break;
         }
 
         // check if initialized
-        if (!IsInitialized())
-        {
-            hr =  E_FAIL;
+        if (!IsInitialized()) {
+            hr = E_FAIL;
             break;
         }
 
         hr = CScheduleGroup::LoadPersistedGroup(c_pszRegKeyScheduleGroup,
                                                 &_GroupCookie, 0, &pSchedGrp);
 
-        if (hr != NOERROR)
-        {
+        if (hr != NOERROR) {
             break;
         }
 
         scheduleGroupItem.cbSize = sizeof(SCHEDULEGROUPITEM);
         if (FAILED(pSchedGrp->GetScheduleGroupItem(&scheduleGroupItem, FALSE)) ||
-            FAILED(SetScheduleGroupItem(&scheduleGroupItem, FALSE)))
-        {
+            FAILED(SetScheduleGroupItem(&scheduleGroupItem, FALSE))) {
             hr = E_FAIL;
             break;
         }
 
-        if (deliverMode & DM_THROTTLE_MODE)
-        {
+        if (deliverMode & DM_THROTTLE_MODE) {
             deliverMode |= DM_NEED_COMPLETIONREPORT;
             // need a notification sink
 
-            if (!pReportNotfctnSink)
-            {
-                CNotificationMgr *pCNotfMgr = GetNotificationMgr();
+            if (!pReportNotfctnSink) {
+                CNotificationMgr* pCNotfMgr = GetNotificationMgr();
 
                 NotfAssert((pCNotfMgr));
 
                 // used the default one
-                pReportNotfctnSink = (INotificationSink *)pCNotfMgr;
+                pReportNotfctnSink = (INotificationSink*)pCNotfMgr;
                 pReportNotfctnSink->AddRef();
             }
         }
 
 
 
-        CPackage *pCPackage = 0;
+        CPackage* pCPackage = 0;
         hr = CPackage::CreateDeliver(
-                                pClsidSender,       // class of sender
-                                pReportNotfctnSink, // can be null - see mode
-                                pNotification,
-                                deliverMode,
-                                (PNOTIFICATIONCOOKIE)&_CGroupCookie,     //pGroupCookie,
-                                &_TaskTrigger,      //pTaskTrigger,
-                                (pTaskData) ? pTaskData : &_TaskData,
-                                rNotificationDest,
-                                &pCPackage,
-                                PF_SCHEDULED
-                                );
+            pClsidSender,       // class of sender
+            pReportNotfctnSink, // can be null - see mode
+            pNotification,
+            deliverMode,
+            (PNOTIFICATIONCOOKIE)&_CGroupCookie,     //pGroupCookie,
+            &_TaskTrigger,      //pTaskTrigger,
+            (pTaskData) ? pTaskData : &_TaskData,
+            rNotificationDest,
+            &pCPackage,
+            PF_SCHEDULED
+        );
 
-        if (hr != NOERROR)
-        {
+        if (hr != NOERROR) {
             break;
         }
 
         NotfAssert((pCPackage));
 
-        if (pNotificationCookie)
-        {
+        if (pNotificationCookie) {
             *pNotificationCookie = pCPackage->GetNotificationCookie();
         }
 
-        if (ppNotfctnReport)
-        {
+        if (ppNotfctnReport) {
             *ppNotfctnReport = pCPackage->GetNotificationReportSender(TRUE);
-            NotfAssert(( *ppNotfctnReport ));
+            NotfAssert((*ppNotfctnReport));
         }
 
-        if (hr == NOERROR)
-        {
+        if (hr == NOERROR) {
             hr = _SchedListAgent.HandlePackage(pCPackage);
         }
 
@@ -620,20 +584,18 @@ STDMETHODIMP CScheduleGroup::AddNotification(
         pCPackage = 0;
 
         NotfAssert((!pCPackage));
-        if (deliverMode & DM_DELIVER_DEFAULT_PROCESS)
-        {
+        if (deliverMode & DM_DELIVER_DEFAULT_PROCESS) {
             PostSyncDefProcNotifications();
         }
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    if (pSchedGrp)
-    {
+    if (pSchedGrp) {
         pSchedGrp->Release();
     }
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::AddNotification (hr:%lx\n", this,hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::AddNotification (hr:%lx\n", this, hr));
     return hr;
 }
 
@@ -660,40 +622,34 @@ STDMETHODIMP CScheduleGroup::FindNotification(
     // the new object just created
     PNOTIFICATIONITEM   pNotificationItem,
     DWORD               dwMode
-    )
+)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::FindNotification\n", this));
     HRESULT hr = E_INVALIDARG;
 
-    do
-    {
-        if (   !pNotificatioCookie
+    do {
+        if (!pNotificatioCookie
             || !pNotificationItem
-            )
-        {
+            ) {
             break;
         }
 
-        CPackage *pCPackage = 0;
+        CPackage* pCPackage = 0;
         hr = _SchedListAgent.FindPackage(
-                                     pNotificatioCookie
-                                     ,&pCPackage
-                                     ,0
-                                     );
-        if (hr != NOERROR)
-        {
+            pNotificatioCookie
+            , &pCPackage
+            , 0
+        );
+        if (hr != NOERROR) {
             break;
         }
         NotfAssert((pCPackage));
 
-        PNOTIFICATIONCOOKIE pGrpCookie =  pCPackage->GetGroupCookie();
+        PNOTIFICATIONCOOKIE pGrpCookie = pCPackage->GetGroupCookie();
 
-        if (pGrpCookie)
-        {
-            hr = pCPackage->GetNotificationItem(pNotificationItem,(ENUM_FLAGS)dwMode);
-        }
-        else
-        {
+        if (pGrpCookie) {
+            hr = pCPackage->GetNotificationItem(pNotificationItem, (ENUM_FLAGS)dwMode);
+        } else {
             hr = E_FAIL;
         }
 
@@ -702,7 +658,7 @@ STDMETHODIMP CScheduleGroup::FindNotification(
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::FindNotification (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::FindNotification (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -727,53 +683,46 @@ STDMETHODIMP CScheduleGroup::RevokeNotification(
     PNOTIFICATIONCOOKIE      pNotificationCookie,
     PNOTIFICATIONITEM        pNotificationItem,
     DWORD                    dwMode
-    )
+)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::RevokeNotification\n", this));
     HRESULT hr = E_INVALIDARG;
 
-    CPackage *pFoundPackage = NULL,
-             *pSLARevokedPackage = NULL,
-             *pPkgTmp = NULL;
+    CPackage* pFoundPackage = NULL,
+        * pSLARevokedPackage = NULL,
+        * pPkgTmp = NULL;
 
-    do
-    {
-        if (!pNotificationCookie)
-        {
+    do {
+        if (!pNotificationCookie) {
             break;
         }
 
-        CPackage *pCPackage = 0;
+        CPackage* pCPackage = 0;
         hr = _SchedListAgent.FindPackage(
-                                     pNotificationCookie
-                                     ,&pFoundPackage
-                                     ,0
-                                     );
+            pNotificationCookie
+            , &pFoundPackage
+            , 0
+        );
         BREAK_ONERROR(hr);
 
-        if (pNotificationItem)
-        {
+        if (pNotificationItem) {
             hr = _SchedListAgent.RevokePackage(pNotificationCookie,
                                                &pSLARevokedPackage,
                                                dwMode);
-            if (hr == NOERROR)
-            {
+            if (hr == NOERROR) {
                 NotfAssert((pSLARevokedPackage));
                 hr = pSLARevokedPackage->GetNotificationItem(pNotificationItem,
-                                                             (ENUM_FLAGS)dwMode);
+                    (ENUM_FLAGS)dwMode);
                 RELEASE(pSLARevokedPackage);
             }
-        }
-        else
-        {
-            hr = _SchedListAgent.RevokePackage(pNotificationCookie,NULL,dwMode);
+        } else {
+            hr = _SchedListAgent.RevokePackage(pNotificationCookie, NULL, dwMode);
         }
 
         RELEASE(pFoundPackage);
 
         HRESULT hr1 = GetThrottleListAgent()->FindPackage(pNotificationCookie, &pPkgTmp, 0);
-        if (SUCCEEDED(hr1) && pPkgTmp)
-        {
+        if (SUCCEEDED(hr1) && pPkgTmp) {
             DWORD dwState = pPkgTmp->GetNotificationState();
             pPkgTmp->SetNotificationState(dwState | PF_REVOKED);
             RELEASE(pPkgTmp);
@@ -782,7 +731,7 @@ STDMETHODIMP CScheduleGroup::RevokeNotification(
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::RevokeNotification (hr:%lx\n", this,hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::RevokeNotification (hr:%lx\n", this, hr));
     return hr;
 }
 
@@ -805,42 +754,39 @@ STDMETHODIMP CScheduleGroup::RevokeNotification(
 STDMETHODIMP CScheduleGroup::GetEnumNotification(
     // flags which items to enumerate
     DWORD                    grfFlags,
-    LPENUMNOTIFICATION      *ppEnumNotification
-    )
+    LPENUMNOTIFICATION* ppEnumNotification
+)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::GetEnumNotification\n", this));
 
     HRESULT hr = E_FAIL;
 
-    do
-    {
-        if (!ppEnumNotification)
-        {
+    do {
+        if (!ppEnumNotification) {
             hr = E_INVALIDARG;
             break;
         }
 
         *ppEnumNotification = 0;
 
-        CEnumNotification *pCEnum = 0;
+        CEnumNotification* pCEnum = 0;
         hr = CEnumNotification::Create(
-                                   &_SchedListAgent
-                                  ,(ENUM_FLAGS)grfFlags
-                                  ,&pCEnum
-                                  ,EG_GROUPITEMS
-                                  ,&_GroupCookie
-                                  );
+            &_SchedListAgent
+            , (ENUM_FLAGS)grfFlags
+            , &pCEnum
+            , EG_GROUPITEMS
+            , &_GroupCookie
+        );
 
-        if (hr != NOERROR)
-        {
+        if (hr != NOERROR) {
             break;
         }
-        *ppEnumNotification = (IEnumNotification *)pCEnum;
+        *ppEnumNotification = (IEnumNotification*)pCEnum;
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::GetEnumNotification (hr:%lx\n", this,hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::GetEnumNotification (hr:%lx\n", this, hr));
     return hr;
 }
 
@@ -872,31 +818,26 @@ HRESULT CScheduleGroup::InitAttributes(PTASK_TRIGGER       pTaskTrigger,
     NotfAssert((pTaskTrigger));
     HRESULT hr = NOERROR;
 
-    do
-    {
-        if (   !pTaskTrigger
+    do {
+        if (!pTaskTrigger
             || (grfGroupMode & GM_GROUP_SEQUENTIAL)
-           )
-        {
+            ) {
             // no sequential mode yet
             hr = E_INVALIDARG;
             break;
         }
 
-        if (pTaskData)
-        {
-            _TaskData   = *pTaskData;
+        if (pTaskData) {
+            _TaskData = *pTaskData;
         }
 
-        _TaskTrigger    = *pTaskTrigger;
-        _grfGroupMode   = grfGroupMode;
+        _TaskTrigger = *pTaskTrigger;
+        _grfGroupMode = grfGroupMode;
         _grpState = GS_Initialized;
 
-        if (pGroupInfo)
-        {
-            if (!IsStaticGroup())
-            {
-                delete [] _GroupInfo.pwzGroupname;
+        if (pGroupInfo) {
+            if (!IsStaticGroup()) {
+                delete[] _GroupInfo.pwzGroupname;
                 _GroupInfo.pwzGroupname = (pGroupInfo->pwzGroupname) ? OLESTRDuplicate(pGroupInfo->pwzGroupname) : 0;
             }
         }
@@ -907,7 +848,7 @@ HRESULT CScheduleGroup::InitAttributes(PTASK_TRIGGER       pTaskTrigger,
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::InitAttributes (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::InitAttributes (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -937,12 +878,10 @@ HRESULT CScheduleGroup::ChangeAttributes(PTASK_TRIGGER       pTaskTrigger,
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::ChangeAttributes\n", this));
     HRESULT hr = NOERROR;
-    NOTIFICATIONITEM *pnotfItem = 0;
+    NOTIFICATIONITEM* pnotfItem = 0;
 
-    do
-    {
-        if ( grfGroupMode & GM_GROUP_SEQUENTIAL)
-        {
+    do {
+        if (grfGroupMode & GM_GROUP_SEQUENTIAL) {
             // not sequential mode yet
             hr = E_INVALIDARG;
             break;
@@ -951,10 +890,8 @@ HRESULT CScheduleGroup::ChangeAttributes(PTASK_TRIGGER       pTaskTrigger,
         ULONG cElements = 0;
         hr = _SchedListAgent.GetPackageCount(&cElements);
 
-        if (cElements == 0)
-        {
-            if (pTaskTrigger)
-            {
+        if (cElements == 0) {
+            if (pTaskTrigger) {
                 hr = InitAttributes(pTaskTrigger, pTaskData, pGroupCookie, pGroupInfo, grfGroupMode);
             }
 
@@ -962,21 +899,20 @@ HRESULT CScheduleGroup::ChangeAttributes(PTASK_TRIGGER       pTaskTrigger,
             break;
         }
 
-        CEnumNotification *pCEnum = 0;
+        CEnumNotification* pCEnum = 0;
         hr = CEnumNotification::Create(
-                                   &_SchedListAgent
-                                  ,EF_NOT_NOTIFICATION
-                                  ,&pCEnum
-                                  ,EG_GROUPITEMS
-                                  ,&_GroupCookie
-                                  );
+            &_SchedListAgent
+            , EF_NOT_NOTIFICATION
+            , &pCEnum
+            , EG_GROUPITEMS
+            , &_GroupCookie
+        );
 
         BREAK_ONERROR(hr);
 
-        pnotfItem = new NOTIFICATIONITEM [cElements];
+        pnotfItem = new NOTIFICATIONITEM[cElements];
 
-        if (!pnotfItem)
-        {
+        if (!pnotfItem) {
             hr = E_OUTOFMEMORY;
             break;
         }
@@ -987,63 +923,53 @@ HRESULT CScheduleGroup::ChangeAttributes(PTASK_TRIGGER       pTaskTrigger,
         hr = pCEnum->Next(cElements, pnotfItem, &cFetched);
         pCEnum->Release();
 
-        if (FAILED(hr))
-        {
+        if (FAILED(hr)) {
             break;
         }
         hr = NOERROR;
 
         NotfAssert((cElements >= cFetched));
 
-        if (pTaskTrigger)
-        {
-            _TaskTrigger    = *pTaskTrigger;
+        if (pTaskTrigger) {
+            _TaskTrigger = *pTaskTrigger;
         }
-        if (pTaskData)
-        {
-            _TaskData  = *pTaskData;
+        if (pTaskData) {
+            _TaskData = *pTaskData;
         }
-        _grfGroupMode    = grfGroupMode;
+        _grfGroupMode = grfGroupMode;
 
 
-        if (!IsStaticGroup())
-        {
+        if (!IsStaticGroup()) {
 
-            delete [] _GroupInfo.pwzGroupname;
+            delete[] _GroupInfo.pwzGroupname;
             _GroupInfo.pwzGroupname = 0;
 
-            if (pGroupInfo && pGroupInfo->pwzGroupname)
-            {
+            if (pGroupInfo && pGroupInfo->pwzGroupname) {
                 _GroupInfo.pwzGroupname = OLESTRDuplicate(pGroupInfo->pwzGroupname);
             }
         }
 
-        for (ULONG i = 0; i < cFetched; i++)
-        {
+        for (ULONG i = 0; i < cFetched; i++) {
 
-            CPackage *pCPackage = 0;
+            CPackage* pCPackage = 0;
             hr = _SchedListAgent.FindPackage(
-                                  &(pnotfItem+i)->NotificationCookie
-                                 ,&pCPackage
-                                 ,LM_LOCALCOPY
-                                 );
-            if (FAILED(hr) || (!(pCPackage->GetDeliverMode() & DM_DELIVER_DEFAULT_PROCESS)))
-            {
-                if (pCPackage)
-                {
+                &(pnotfItem + i)->NotificationCookie
+                , &pCPackage
+                , LM_LOCALCOPY
+            );
+            if (FAILED(hr) || (!(pCPackage->GetDeliverMode() & DM_DELIVER_DEFAULT_PROCESS))) {
+                if (pCPackage) {
                     RELEASE(pCPackage);
                 }
                 hr = _SchedListAgent.RevokePackage(
-                                      &(pnotfItem+i)->NotificationCookie
-                                     ,&pCPackage
-                                     ,0
-                                     );
+                    &(pnotfItem + i)->NotificationCookie
+                    , &pCPackage
+                    , 0
+                );
             }
 
-            if (hr == NOERROR)
-            {
-                if (pTaskTrigger)
-                {
+            if (hr == NOERROR) {
+                if (pTaskTrigger) {
                     pCPackage->SetTaskTrigger(&_TaskTrigger, NULL);
                     hr = _SchedListAgent.HandlePackage(pCPackage);
                     GetGlobalNotfMgr()->SetLastUpdateDate(pCPackage);
@@ -1061,12 +987,11 @@ HRESULT CScheduleGroup::ChangeAttributes(PTASK_TRIGGER       pTaskTrigger,
     } while (TRUE);
 
 
-    if (pnotfItem)
-    {
+    if (pnotfItem) {
         delete pnotfItem;
     }
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::ChangeAttributes (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::ChangeAttributes (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1089,43 +1014,38 @@ HRESULT CScheduleGroup::ChangeAttributes(PTASK_TRIGGER       pTaskTrigger,
 
 
 HRESULT CScheduleGroup::RetrieveAttributes(
-        PTASK_TRIGGER       pTaskTrigger,
-        PTASK_DATA          pTaskData,
-        PNOTIFICATIONCOOKIE pGroupCookie,
-        PGROUPINFO          pGroupInfo,
-        GROUPMODE          *pgrfGroupMode,
-        LONG               *pElements
-        )
+    PTASK_TRIGGER       pTaskTrigger,
+    PTASK_DATA          pTaskData,
+    PNOTIFICATIONCOOKIE pGroupCookie,
+    PGROUPINFO          pGroupInfo,
+    GROUPMODE* pgrfGroupMode,
+    LONG* pElements
+)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::RetrieveAttributes\n", this));
     HRESULT hr = NOERROR;
 
 
-    if (pTaskTrigger)
-    {
+    if (pTaskTrigger) {
         *pTaskTrigger = _TaskTrigger;
     }
 
-    if (pTaskData)
-    {
-        *pTaskData  = _TaskData;
+    if (pTaskData) {
+        *pTaskData = _TaskData;
     }
 
-    if (pGroupCookie)
-    {
-        *pGroupCookie     = _GroupCookie;
+    if (pGroupCookie) {
+        *pGroupCookie = _GroupCookie;
     }
-    if (pgrfGroupMode)
-    {
-        *pgrfGroupMode    = _grfGroupMode;
+    if (pgrfGroupMode) {
+        *pgrfGroupMode = _grfGroupMode;
     }
-    if (pGroupInfo)
-    {
+    if (pGroupInfo) {
         *pGroupInfo = _GroupInfo;
         pGroupInfo->pwzGroupname = (_GroupInfo.pwzGroupname) ? OLESTRDuplicate(_GroupInfo.pwzGroupname) : 0;
     }
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::RetrieveAttributes (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::RetrieveAttributes (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1158,25 +1078,19 @@ HRESULT CScheduleGroup::RemovePersist(LPCSTR pszWhere,
     LPSTR       pszRegKey = 0;
     LPSTR       pszSubKey = 0;
 
-    do
-    {
-        if (!pszWhere)
-        {
+    do {
+        if (!pszWhere) {
             hr = E_INVALIDARG;
             break;
         }
 
-        if (pszSubKeyIn == 0)
-        {
-            pszSubKey = StringAFromCLSID( _CGroupCookie );
-        }
-        else
-        {
+        if (pszSubKeyIn == 0) {
+            pszSubKey = StringAFromCLSID(_CGroupCookie);
+        } else {
             pszSubKey = pszSubKeyIn;
         }
 
-        if (!pszSubKey)
-        {
+        if (!pszSubKey) {
             hr = E_OUTOFMEMORY;
             break;
         }
@@ -1189,38 +1103,33 @@ HRESULT CScheduleGroup::RemovePersist(LPCSTR pszWhere,
 
             strcpy(szKeyToDelete, pszWhere);
 
-            lRes = RegCreateKeyEx(HKEY_CURRENT_USER,szKeyToDelete,0,NULL,0,HKEY_READ_WRITE_ACCESS, NULL,&hKey,&dwDisposition);
-            if(lRes == ERROR_SUCCESS)
-            {
+            lRes = RegCreateKeyEx(HKEY_CURRENT_USER, szKeyToDelete, 0, NULL, 0, HKEY_READ_WRITE_ACCESS, NULL, &hKey, &dwDisposition);
+            if (lRes == ERROR_SUCCESS) {
                 strcpy(szKeyToDelete, pszSubKey);
                 lRes = RegDeleteValue(hKey, szKeyToDelete);
             }
 
-            if (lRes != ERROR_SUCCESS)
-            {
+            if (lRes != ERROR_SUCCESS) {
                 hr = E_FAIL;
             }
 
-            if (hKey)
-            {
+            if (hKey) {
                 RegCloseKey(hKey);
             }
 
         }
 
-        if (pszRegKey)
-        {
+        if (pszRegKey) {
             delete pszRegKey;
         }
-        if (pszSubKey && !pszSubKeyIn)
-        {
+        if (pszSubKey && !pszSubKeyIn) {
             delete pszSubKey;
         }
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::RemovePersist (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::RemovePersist (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1249,48 +1158,39 @@ HRESULT CScheduleGroup::SaveToPersist(LPCSTR pszWhere,
     NotfAssert((pszWhere));
     // save the package
 
-    CRegStream *pRegStm = 0;
+    CRegStream* pRegStm = 0;
     LPSTR       pszRegKey = 0;
     LPSTR       pszSubKey = 0;
 
-    do
-    {
+    do {
         // BUBUG: need to save the clsid of the current process
         //CLSID clsid = CLSID_StdNotificationMgr;
         //pszRegKey = StringAFromCLSID( &clsid );
-        if (pszSubKeyIn == 0)
-        {
-            pszSubKey = StringAFromCLSID( _CGroupCookie );
-        }
-        else
-        {
+        if (pszSubKeyIn == 0) {
+            pszSubKey = StringAFromCLSID(_CGroupCookie);
+        } else {
             pszSubKey = pszSubKeyIn;
         }
 
-        if (pszSubKey)
-        {
-            pRegStm = new CRegStream(HKEY_CURRENT_USER, pszWhere,pszSubKey, TRUE);
+        if (pszSubKey) {
+            pRegStm = new CRegStream(HKEY_CURRENT_USER, pszWhere, pszSubKey, TRUE);
         }
 
-        if (pszRegKey)
-        {
+        if (pszRegKey) {
             delete pszRegKey;
         }
-        if (pszSubKey && !pszSubKeyIn)
-        {
+        if (pszSubKey && !pszSubKeyIn) {
             delete pszSubKey;
         }
 
-        if (!pRegStm)
-        {
-           hr = E_OUTOFMEMORY;
-           break;
+        if (!pRegStm) {
+            hr = E_OUTOFMEMORY;
+            break;
         }
 
-        IStream *pStm = 0;
+        IStream* pStm = 0;
         hr = pRegStm->GetStream(&pStm);
-        if (hr != NOERROR)
-        {
+        if (hr != NOERROR) {
 
             delete pRegStm;
             break;
@@ -1300,21 +1200,19 @@ HRESULT CScheduleGroup::SaveToPersist(LPCSTR pszWhere,
         hr = Save(pStm, TRUE);
         BREAK_ONERROR(hr);
 
-        if (pStm)
-        {
+        if (pStm) {
             pStm->Release();
         }
 
-        if (pRegStm)
-        {
+        if (pRegStm) {
             pRegStm->SetDirty();
             delete pRegStm;
         }
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::SaveToPersist (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::SaveToPersist (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1337,21 +1235,20 @@ HRESULT CScheduleGroup::SaveToPersist(LPCSTR pszWhere,
 HRESULT CScheduleGroup::LoadFromPersist(LPCSTR pszWhere,
                                         LPSTR pszSubKey,
                                         DWORD dwMode,
-                                        CScheduleGroup **ppCScheduleGroup)
+                                        CScheduleGroup** ppCScheduleGroup)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::LoadFromPersist\n", NULL));
     HRESULT hr = E_INVALIDARG;
     NotfAssert((pszWhere));
     // save the package
 
-    CRegStream *pRegStm = 0;
-    CScheduleGroup *pCPkg = 0;
+    CRegStream* pRegStm = 0;
+    CScheduleGroup* pCPkg = 0;
 
-    do
-    {
-        if (   !pszWhere
+    do {
+        if (!pszWhere
             || !pszSubKey
-            || !ppCScheduleGroup )
+            || !ppCScheduleGroup)
 
         {
             break;
@@ -1362,24 +1259,21 @@ HRESULT CScheduleGroup::LoadFromPersist(LPCSTR pszWhere,
 
         pCPkg = new CScheduleGroup();
 
-        if (!pCPkg)
-        {
+        if (!pCPkg) {
             hr = E_OUTOFMEMORY;
             break;
         }
 
         pRegStm = new CRegStream(HKEY_CURRENT_USER, pszWhere, pszSubKey, FALSE);
 
-        if (!pRegStm)
-        {
-           hr = E_OUTOFMEMORY;
-           break;
+        if (!pRegStm) {
+            hr = E_OUTOFMEMORY;
+            break;
         }
 
-        IStream *pStm = 0;
+        IStream* pStm = 0;
         hr = pRegStm->GetStream(&pStm);
-        if (hr != NOERROR)
-        {
+        if (hr != NOERROR) {
             delete pRegStm;
             break;
         }
@@ -1388,22 +1282,20 @@ HRESULT CScheduleGroup::LoadFromPersist(LPCSTR pszWhere,
         hr = pCPkg->Load(pStm);
         BREAK_ONERROR(hr);
 
-        if (pStm)
-        {
+        if (pStm) {
             pStm->Release();
         }
 
-        if (pRegStm)
-        {
+        if (pRegStm) {
             delete pRegStm;
         }
 
         *ppCScheduleGroup = pCPkg;
 
         break;
-    } while ( TRUE );
+    } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::LoadFromPersist (hr:%lx)\n",pCPkg, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::LoadFromPersist (hr:%lx)\n", pCPkg, hr));
     return hr;
 }
 
@@ -1424,28 +1316,24 @@ HRESULT CScheduleGroup::LoadFromPersist(LPCSTR pszWhere,
 
 
 HRESULT CScheduleGroup::LoadPersistedGroup(
-                       LPCSTR               pszWhere,
-                       PNOTIFICATIONCOOKIE  pNotfCookie,
-                       DWORD                dwMode,
-                       CScheduleGroup **ppCScheduleGroup)
+    LPCSTR               pszWhere,
+    PNOTIFICATIONCOOKIE  pNotfCookie,
+    DWORD                dwMode,
+    CScheduleGroup** ppCScheduleGroup)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::LoadPersistedGroup\n", NULL));
     HRESULT hr = E_FAIL;
     LPSTR szPackageSubKey = 0;
 
-    if (pNotfCookie)
-    {
-        szPackageSubKey = StringAFromCLSID( pNotfCookie);
+    if (pNotfCookie) {
+        szPackageSubKey = StringAFromCLSID(pNotfCookie);
     }
-    if (szPackageSubKey)
-    {
-        hr = LoadFromPersist(pszWhere,szPackageSubKey,
-                             dwMode,ppCScheduleGroup);
+    if (szPackageSubKey) {
+        hr = LoadFromPersist(pszWhere, szPackageSubKey,
+                             dwMode, ppCScheduleGroup);
 
-        delete [] szPackageSubKey;
-    }
-    else
-    {
+        delete[] szPackageSubKey;
+    } else {
         hr = E_OUTOFMEMORY;
     }
 
@@ -1469,14 +1357,14 @@ HRESULT CScheduleGroup::LoadPersistedGroup(
 //  Notes:
 
 
-STDMETHODIMP CScheduleGroup::GetClassID (CLSID *pClassID)
+STDMETHODIMP CScheduleGroup::GetClassID(CLSID* pClassID)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::GetClassID\n", this));
     HRESULT hr = NOERROR;
 
     *pClassID = CLSID_StdNotificationMgr;
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::GetClassID (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::GetClassID (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1502,7 +1390,7 @@ STDMETHODIMP CScheduleGroup::IsDirty(void)
 
     hr = (_fDirty) ? S_OK : S_FALSE;
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup:: (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup:: (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1521,7 +1409,7 @@ STDMETHODIMP CScheduleGroup::IsDirty(void)
 //  Notes:
 
 
-STDMETHODIMP CScheduleGroup::Load(IStream *pStm)
+STDMETHODIMP CScheduleGroup::Load(IStream* pStm)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::Load\n", this));
     HRESULT hr = NOERROR;
@@ -1531,29 +1419,25 @@ STDMETHODIMP CScheduleGroup::Load(IStream *pStm)
     DWORD cbSaved;
     CLSID clsid = CLSID_NULL;
 
-    do
-    {
+    do {
         scheduleGroupItem.cbSize = sizeof(SCHEDULEGROUPITEM);
         // read the notification item
-        hr =  pStm->Read(&scheduleGroupItem, sizeof(SCHEDULEGROUPITEM), &cbSaved);
+        hr = pStm->Read(&scheduleGroupItem, sizeof(SCHEDULEGROUPITEM), &cbSaved);
         BREAK_ONERROR(hr);
-        NotfAssert(( (sizeof(SCHEDULEGROUPITEM) == cbSaved) || (sizeof(SCHEDULEGROUPITEM) - sizeof(GROUPINFO) == cbSaved) ));
+        NotfAssert(((sizeof(SCHEDULEGROUPITEM) == cbSaved) || (sizeof(SCHEDULEGROUPITEM) - sizeof(GROUPINFO) == cbSaved)));
 
         DWORD cblen = 0;
         // old groupitem did not have the group info
-        if  (sizeof(SCHEDULEGROUPITEM) == cbSaved)
-        {
-            hr =  pStm->Read(&cblen, sizeof(DWORD), &cbSaved);
+        if (sizeof(SCHEDULEGROUPITEM) == cbSaved) {
+            hr = pStm->Read(&cblen, sizeof(DWORD), &cbSaved);
             NotfAssert((sizeof(DWORD) == cbSaved));
         }
 
-        if (cblen)
-        {
-            scheduleGroupItem.GroupInfo.pwzGroupname = new WCHAR [cblen];
-            if (scheduleGroupItem.GroupInfo.pwzGroupname)
-            {
-                hr =  pStm->Read((void *)scheduleGroupItem.GroupInfo.pwzGroupname, cblen * sizeof(WCHAR), &cbSaved);
-                NotfAssert(( (cblen * sizeof(WCHAR)) == cbSaved));
+        if (cblen) {
+            scheduleGroupItem.GroupInfo.pwzGroupname = new WCHAR[cblen];
+            if (scheduleGroupItem.GroupInfo.pwzGroupname) {
+                hr = pStm->Read((void*)scheduleGroupItem.GroupInfo.pwzGroupname, cblen * sizeof(WCHAR), &cbSaved);
+                NotfAssert(((cblen * sizeof(WCHAR)) == cbSaved));
             }
         }
 
@@ -1562,7 +1446,7 @@ STDMETHODIMP CScheduleGroup::Load(IStream *pStm)
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::Load (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::Load (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1582,7 +1466,7 @@ STDMETHODIMP CScheduleGroup::Load(IStream *pStm)
 //  Notes:
 
 
-STDMETHODIMP CScheduleGroup::Save(IStream *pStm,BOOL fClearDirty)
+STDMETHODIMP CScheduleGroup::Save(IStream* pStm, BOOL fClearDirty)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::Save\n", this));
     NotfAssert((pStm));
@@ -1591,24 +1475,22 @@ STDMETHODIMP CScheduleGroup::Save(IStream *pStm,BOOL fClearDirty)
     SCHEDULEGROUPITEM       scheduleGroupItem;
     DWORD cbSaved;
 
-    do
-    {
+    do {
         scheduleGroupItem.cbSize = sizeof(SCHEDULEGROUPITEM);
         // get and write the notification item
         hr = GetScheduleGroupItem(&scheduleGroupItem, TRUE);
         BREAK_ONERROR(hr);
-        hr =  pStm->Write(&scheduleGroupItem, sizeof(SCHEDULEGROUPITEM), &cbSaved);
+        hr = pStm->Write(&scheduleGroupItem, sizeof(SCHEDULEGROUPITEM), &cbSaved);
         BREAK_ONERROR(hr);
-        NotfAssert(( sizeof(SCHEDULEGROUPITEM) == cbSaved));
+        NotfAssert((sizeof(SCHEDULEGROUPITEM) == cbSaved));
 
         DWORD cblen = (scheduleGroupItem.GroupInfo.pwzGroupname) ? wcslen(scheduleGroupItem.GroupInfo.pwzGroupname) + 1 : 0;
-        hr =  pStm->Write(&cblen, sizeof(DWORD), &cbSaved);
+        hr = pStm->Write(&cblen, sizeof(DWORD), &cbSaved);
         NotfAssert((sizeof(DWORD) == cbSaved));
 
-        if (cblen)
-        {
+        if (cblen) {
             cblen *= sizeof(WCHAR);
-            hr =  pStm->Write(scheduleGroupItem.GroupInfo.pwzGroupname, cblen, &cbSaved);
+            hr = pStm->Write(scheduleGroupItem.GroupInfo.pwzGroupname, cblen, &cbSaved);
             NotfAssert((cblen == cbSaved));
         }
 
@@ -1617,7 +1499,7 @@ STDMETHODIMP CScheduleGroup::Save(IStream *pStm,BOOL fClearDirty)
         break;
     } while (TRUE);
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::Save (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::Save (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1636,17 +1518,17 @@ STDMETHODIMP CScheduleGroup::Save(IStream *pStm,BOOL fClearDirty)
 //  Notes:
 
 
-STDMETHODIMP CScheduleGroup::GetSizeMax(ULARGE_INTEGER *pcbSize)
+STDMETHODIMP CScheduleGroup::GetSizeMax(ULARGE_INTEGER* pcbSize)
 {
     NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::GetSizeMax\n", this));
     HRESULT hr = NOERROR;
 
-    IPersistStream *pPrstStm = 0;
+    IPersistStream* pPrstStm = 0;
 
     pcbSize->LowPart += sizeof(SCHEDULEGROUPITEM);
     pcbSize->HighPart = 0;
 
-    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::GetSizeMax (hr:%lx)\n",this, hr));
+    NotfDebugOut((DEB_SCHEDGRP, "%p OUT CScheduleGroup::GetSizeMax (hr:%lx)\n", this, hr));
     return hr;
 }
 
@@ -1666,25 +1548,23 @@ STDMETHODIMP CScheduleGroup::GetSizeMax(ULARGE_INTEGER *pcbSize)
 
 
 HRESULT CScheduleGroup::UnPersistScheduleGroups(
-                                                LPCSTR pszWhere,
-                                                LPSTR pszSubKeyIn,
-                                                DWORD dwMode,
-                                                CScheduleGroup *prgCSchdGrp[],
-                                                ULONG cElements,
-                                                ULONG *pcElementFilled
-                                                )
+    LPCSTR pszWhere,
+    LPSTR pszSubKeyIn,
+    DWORD dwMode,
+    CScheduleGroup* prgCSchdGrp[],
+    ULONG cElements,
+    ULONG* pcElementFilled
+)
 {
-    NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::UnPersistScheduleItem\n",NULL));
+    NotfDebugOut((DEB_SCHEDGRP, "%p _IN CScheduleGroup::UnPersistScheduleItem\n", NULL));
     HRESULT hr = E_INVALIDARG;
-    CScheduleGroup *pCSchGrp = 0;
+    CScheduleGroup* pCSchGrp = 0;
     HKEY      hKey = 0;
-    if (!pszWhere)
-    {
+    if (!pszWhere) {
         pszWhere = c_pszRegKeyScheduleGroup;
     }
 
-    do
-    {
+    do {
         // now reload all the peristed packages
         long  lRes;
         DWORD dwDisposition, dwIndex = 0;
@@ -1696,8 +1576,7 @@ HRESULT CScheduleGroup::UnPersistScheduleGroups(
         lRes = RegCreateKeyEx(HKEY_CURRENT_USER, pszWhere, 0, NULL, 0, HKEY_READ_WRITE_ACCESS, NULL, &hKey, &dwDisposition);
 
         // loop over all elements and schedule the elements
-        while ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes))
-        {
+        while ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes)) {
             DWORD dwType;
             DWORD dwNameLen;
 
@@ -1706,14 +1585,12 @@ HRESULT CScheduleGroup::UnPersistScheduleGroups(
                                 NULL, &dwType, NULL, NULL);
             dwIndex++;
 
-            if ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes))
-            {
+            if ((lRes == ERROR_SUCCESS) && (ERROR_NO_MORE_ITEMS != lRes)) {
                 NotfAssert((pCSchGrp == 0));
 
-                hr = CScheduleGroup::LoadFromPersist(pszWhere,szValue, 0, &pCSchGrp);
+                hr = CScheduleGroup::LoadFromPersist(pszWhere, szValue, 0, &pCSchGrp);
 
-                if (hr == NOERROR)
-                {
+                if (hr == NOERROR) {
                     NotfAssert((pCSchGrp));
                     prgCSchdGrp[i] = pCSchGrp;
                     i++;
@@ -1721,8 +1598,7 @@ HRESULT CScheduleGroup::UnPersistScheduleGroups(
                 }
             }
 
-            if (pCSchGrp)
-            {
+            if (pCSchGrp) {
                 pCSchGrp->Release();
                 pCSchGrp = 0;
             }
@@ -1734,13 +1610,11 @@ HRESULT CScheduleGroup::UnPersistScheduleGroups(
         break;
     } while (TRUE);
 
-    if (pCSchGrp)
-    {
+    if (pCSchGrp) {
         pCSchGrp->Release();
     }
 
-    if (hKey)
-    {
+    if (hKey) {
         RegCloseKey(hKey);
     }
 

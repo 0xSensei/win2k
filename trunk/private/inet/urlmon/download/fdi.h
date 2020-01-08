@@ -84,7 +84,7 @@ typedef struct {
 
     BOOL    fError;             // TRUE => error present
 } ERF;      /* erf */
-typedef ERF FAR *PERF;  /* perf */
+typedef ERF FAR* PERF;  /* perf */
 
 #ifdef _DEBUG
 // don't hide statics from map during debugging
@@ -117,10 +117,10 @@ typedef ERF FAR *PERF;  /* perf */
  *           Diamond/FDI may have radically different numbers of
  *           PFNALLOC calls and allocation sizes!
 */
-typedef void HUGE * (FAR DIAMONDAPI *PFNALLOC)(ULONG cb); /* pfna */
+typedef void HUGE* (FAR DIAMONDAPI* PFNALLOC)(ULONG cb); /* pfna */
 #define FNALLOC(fn) void HUGE * FAR DIAMONDAPI fn(ULONG cb)
 
-typedef void (FAR DIAMONDAPI *PFNFREE)(void HUGE *pv); /* pfnf */
+typedef void (FAR DIAMONDAPI* PFNFREE)(void HUGE* pv); /* pfnf */
 #define FNFREE(fn) void FAR DIAMONDAPI fn(void HUGE *pv)
 
 
@@ -377,136 +377,136 @@ typedef unsigned short TCOMP; /* tcomp */
 */
 typedef enum {
     FDIERROR_NONE,
-        // Description: No error
-        // Cause:       Function was successfull.
-        // Response:    Keep going!
+    // Description: No error
+    // Cause:       Function was successfull.
+    // Response:    Keep going!
 
     FDIERROR_CABINET_NOT_FOUND,
-        // Description: Cabinet not found
-        // Cause:       Bad file name or path passed to FDICopy(), or returned
-        //              to fdintNEXT_CABINET.
-        // Response:    To prevent this error, validate the existence of the
-        //              the cabinet *before* passing the path to FDI.
+    // Description: Cabinet not found
+    // Cause:       Bad file name or path passed to FDICopy(), or returned
+    //              to fdintNEXT_CABINET.
+    // Response:    To prevent this error, validate the existence of the
+    //              the cabinet *before* passing the path to FDI.
 
     FDIERROR_NOT_A_CABINET,
-        // Description: Cabinet file does not have the correct format
-        // Cause:       File passed to to FDICopy(), or returned to
-        //              fdintNEXT_CABINET, is too small to be a cabinet file,
-        //              or does not have the cabinet signature in its first
-        //              four bytes.
-        // Response:    To prevent this error, call FDIIsCabinet() to check a
-        //              cabinet before calling FDICopy() or returning the
-        //              cabinet path to fdintNEXT_CABINET.
+    // Description: Cabinet file does not have the correct format
+    // Cause:       File passed to to FDICopy(), or returned to
+    //              fdintNEXT_CABINET, is too small to be a cabinet file,
+    //              or does not have the cabinet signature in its first
+    //              four bytes.
+    // Response:    To prevent this error, call FDIIsCabinet() to check a
+    //              cabinet before calling FDICopy() or returning the
+    //              cabinet path to fdintNEXT_CABINET.
 
     FDIERROR_UNKNOWN_CABINET_VERSION,
-        // Description: Cabinet file has an unknown version number.
-        // Cause:       File passed to to FDICopy(), or returned to
-        //              fdintNEXT_CABINET, has what looks like a cabinet file
-        //              header, but the version of the cabinet file format
-        //              is not one understood by this version of FDI.  The
-        //              erf.erfType field is filled in with the version number
-        //              found in the cabinet file.
-        // Response:    To prevent this error, call FDIIsCabinet() to check a
-        //              cabinet before calling FDICopy() or returning the
-        //              cabinet path to fdintNEXT_CABINET.
+    // Description: Cabinet file has an unknown version number.
+    // Cause:       File passed to to FDICopy(), or returned to
+    //              fdintNEXT_CABINET, has what looks like a cabinet file
+    //              header, but the version of the cabinet file format
+    //              is not one understood by this version of FDI.  The
+    //              erf.erfType field is filled in with the version number
+    //              found in the cabinet file.
+    // Response:    To prevent this error, call FDIIsCabinet() to check a
+    //              cabinet before calling FDICopy() or returning the
+    //              cabinet path to fdintNEXT_CABINET.
 
     FDIERROR_CORRUPT_CABINET,
-        // Description: Cabinet file is corrupt
-        // Cause:       FDI returns this error any time it finds a problem
-        //              with the logical format of a cabinet file, and any
-        //              time one of the passed-in file I/O calls fails when
-        //              operating on a cabinet (PFNOPEN, PFNSEEK, PFNREAD,
-        //              or PFNCLOSE).  The client can distinguish these two
-        //              cases based upon whether the last file I/O call
-        //              failed or not.
-        // Response:    Assuming this is not a real corruption problem in
-        //              a cabinet file, the file I/O functions could attempt
-        //              to do retries on failure (for example, if there is a
-        //              temporary network connection problem).  If this does
-        //              not work, and the file I/O call has to fail, then the
-        //              FDI client will have to clean up and call the
-        //              FDICopy() function again.
+    // Description: Cabinet file is corrupt
+    // Cause:       FDI returns this error any time it finds a problem
+    //              with the logical format of a cabinet file, and any
+    //              time one of the passed-in file I/O calls fails when
+    //              operating on a cabinet (PFNOPEN, PFNSEEK, PFNREAD,
+    //              or PFNCLOSE).  The client can distinguish these two
+    //              cases based upon whether the last file I/O call
+    //              failed or not.
+    // Response:    Assuming this is not a real corruption problem in
+    //              a cabinet file, the file I/O functions could attempt
+    //              to do retries on failure (for example, if there is a
+    //              temporary network connection problem).  If this does
+    //              not work, and the file I/O call has to fail, then the
+    //              FDI client will have to clean up and call the
+    //              FDICopy() function again.
 
     FDIERROR_ALLOC_FAIL,
-        // Description: Could not allocate enough memory
-        // Cause:       FDI tried to allocate memory with the PFNALLOC
-        //              function, but it failed.
-        // Response:    If possible, PFNALLOC should take whatever steps
-        //              are possible to allocate the memory requested.  If
-        //              memory is not immediately available, it might post a
-        //              dialog asking the user to free memory, for example.
-        //              Note that the bulk of FDI's memory allocations are
-        //              made at FDICreate() time and when the first cabinet
-        //              file is opened during FDICopy().
+    // Description: Could not allocate enough memory
+    // Cause:       FDI tried to allocate memory with the PFNALLOC
+    //              function, but it failed.
+    // Response:    If possible, PFNALLOC should take whatever steps
+    //              are possible to allocate the memory requested.  If
+    //              memory is not immediately available, it might post a
+    //              dialog asking the user to free memory, for example.
+    //              Note that the bulk of FDI's memory allocations are
+    //              made at FDICreate() time and when the first cabinet
+    //              file is opened during FDICopy().
 
     FDIERROR_BAD_COMPR_TYPE,
-        // Description: Unknown compression type in a cabinet folder
-        // Cause:       [Should never happen.]  A folder in a cabinet has an
-        //              unknown compression type.  This is probably caused by
-        //              a mismatch between the version of Diamond used to
-        //              create the cabinet and the FDI. LIB used to read the
-        //              cabinet.
-        // Response:    Abort.
+    // Description: Unknown compression type in a cabinet folder
+    // Cause:       [Should never happen.]  A folder in a cabinet has an
+    //              unknown compression type.  This is probably caused by
+    //              a mismatch between the version of Diamond used to
+    //              create the cabinet and the FDI. LIB used to read the
+    //              cabinet.
+    // Response:    Abort.
 
     FDIERROR_MDI_FAIL,
-        // Description: Failure decompressing data from a cabinet file
-        // Cause:       The decompressor found an error in the data coming
-        //              from the file cabinet.  The cabinet file was corrupted.
-        //              [11-Apr-1994 bens When checksuming is turned on, this
-        //              error should never occur.]
-        // Response:    Probably should abort; only other choice is to cleanup
-        //              and call FDICopy() again, and hope there was some
-        //              intermittent data error that will not reoccur.
+    // Description: Failure decompressing data from a cabinet file
+    // Cause:       The decompressor found an error in the data coming
+    //              from the file cabinet.  The cabinet file was corrupted.
+    //              [11-Apr-1994 bens When checksuming is turned on, this
+    //              error should never occur.]
+    // Response:    Probably should abort; only other choice is to cleanup
+    //              and call FDICopy() again, and hope there was some
+    //              intermittent data error that will not reoccur.
 
     FDIERROR_TARGET_FILE,
-        // Description: Failure writing to target file
-        // Cause:       FDI returns this error any time it gets an error back
-        //              from one of the passed-in file I/O calls fails when
-        //              writing to a file being extracted from a cabinet.
-        // Response:    To avoid or minimize this error, the file I/O functions
-        //              could attempt to avoid failing.  A common cause might
-        //              be disk full -- in this case, the PFNWRITE function
-        //              could have a check for free space, and put up a dialog
-        //              asking the user to free some disk space.
+    // Description: Failure writing to target file
+    // Cause:       FDI returns this error any time it gets an error back
+    //              from one of the passed-in file I/O calls fails when
+    //              writing to a file being extracted from a cabinet.
+    // Response:    To avoid or minimize this error, the file I/O functions
+    //              could attempt to avoid failing.  A common cause might
+    //              be disk full -- in this case, the PFNWRITE function
+    //              could have a check for free space, and put up a dialog
+    //              asking the user to free some disk space.
 
     FDIERROR_RESERVE_MISMATCH,
-        // Description: Cabinets in a set do not have the same RESERVE sizes
-        // Cause:       [Should never happen]. FDI requires that the sizes of
-        //              the per-cabinet, per-folder, and per-data block
-        //              RESERVE sections be consistent across all the cabinet
-        //              in a set.  Diamond will only generate cabinet sets
-        //              with these properties.
-        // Response:    Abort.
+    // Description: Cabinets in a set do not have the same RESERVE sizes
+    // Cause:       [Should never happen]. FDI requires that the sizes of
+    //              the per-cabinet, per-folder, and per-data block
+    //              RESERVE sections be consistent across all the cabinet
+    //              in a set.  Diamond will only generate cabinet sets
+    //              with these properties.
+    // Response:    Abort.
 
     FDIERROR_WRONG_CABINET,
-        // Description: Cabinet returned on fdintNEXT_CABINET is incorrect
-        // Cause:       NOTE: THIS ERROR IS NEVER RETURNED BY FDICopy()!
-        //              Rather, FDICopy() keeps calling the fdintNEXT_CABINET
-        //              callback until either the correct cabinet is specified,
-        //              or you return ABORT.
-        //              When FDICopy() is extracting a file that crosses a
-        //              cabinet boundary, it calls fdintNEXT_CABINET to ask
-        //              for the path to the next cabinet.  Not being very
-        //              trusting, FDI then checks to make sure that the
-        //              correct continuation cabinet was supplied!  It does
-        //              this by checking the "setID" and "iCabinet" fields
-        //              in the cabinet.  When DIAMOND.EXE creates a set of
-        //              cabinets, it constructs the "setID" using the sum
-        //              of the bytes of all the destination file names in
-        //              the cabinet set.  FDI makes sure that the 16-bit
-        //              setID of the continuation cabinet matches the
-        //              cabinet file just processed.  FDI then checks that
-        //              the cabinet number (iCabinet) is one more than the
-        //              cabinet number for the cabinet just processed.
-        // Response:    You need code in your fdintNEXT_CABINET (see below)
-        //              handler to do retries if you get recalled with this
-        //              error.  See the sample code (EXTRACT.C) to see how
-        //              this should be handled.
+    // Description: Cabinet returned on fdintNEXT_CABINET is incorrect
+    // Cause:       NOTE: THIS ERROR IS NEVER RETURNED BY FDICopy()!
+    //              Rather, FDICopy() keeps calling the fdintNEXT_CABINET
+    //              callback until either the correct cabinet is specified,
+    //              or you return ABORT.
+    //              When FDICopy() is extracting a file that crosses a
+    //              cabinet boundary, it calls fdintNEXT_CABINET to ask
+    //              for the path to the next cabinet.  Not being very
+    //              trusting, FDI then checks to make sure that the
+    //              correct continuation cabinet was supplied!  It does
+    //              this by checking the "setID" and "iCabinet" fields
+    //              in the cabinet.  When DIAMOND.EXE creates a set of
+    //              cabinets, it constructs the "setID" using the sum
+    //              of the bytes of all the destination file names in
+    //              the cabinet set.  FDI makes sure that the 16-bit
+    //              setID of the continuation cabinet matches the
+    //              cabinet file just processed.  FDI then checks that
+    //              the cabinet number (iCabinet) is one more than the
+    //              cabinet number for the cabinet just processed.
+    // Response:    You need code in your fdintNEXT_CABINET (see below)
+    //              handler to do retries if you get recalled with this
+    //              error.  See the sample code (EXTRACT.C) to see how
+    //              this should be handled.
 
     FDIERROR_USER_ABORT
-        // Description: FDI aborted.
-        // Cause:       An FDI callback returnd -1 (usually).
-        // Response:    Up to client.
+    // Description: FDI aborted.
+    // Cause:       An FDI callback returnd -1 (usually).
+    // Response:    Up to client.
 
 } FDIERROR;
 
@@ -516,7 +516,7 @@ typedef enum {
  *  FDICreate() creates this, and it must be passed to all other FDI
  *  functions.
 */
-typedef void FAR *HFDI; /* hfdi */
+typedef void FAR* HFDI; /* hfdi */
 
 
 /***    FDICABINETINFO - Information about a cabinet
@@ -532,7 +532,7 @@ typedef struct {
     BOOL        hasprev;                // TRUE => Cabinet is chained prev
     BOOL        hasnext;                // TRUE => Cabinet is chained next
 } FDICABINETINFO; /* fdici */
-typedef FDICABINETINFO FAR *PFDICABINETINFO; /* pfdici */
+typedef FDICABINETINFO FAR* PFDICABINETINFO; /* pfdici */
 
 
 /***    FDIDECRYPTTYPE - PFNFDIDECRYPT command types
@@ -550,25 +550,25 @@ typedef enum {
 */
 typedef struct {
     FDIDECRYPTTYPE    fdidt;            // Command type (selects union below)
-    void FAR         *pvUser;           // Decryption context
+    void FAR* pvUser;           // Decryption context
     union {
         struct {                        // fdidtNEW_CABINET
-            void FAR *pHeaderReserve;   // RESERVE section from CFHEADER
+            void FAR* pHeaderReserve;   // RESERVE section from CFHEADER
             USHORT    cbHeaderReserve;  // Size of pHeaderReserve
             USHORT    setID;            // Cabinet set ID
             int       iCabinet;         // Cabinet number in set (0 based)
         } cabinet;
 
         struct {                        // fdidtNEW_FOLDER
-            void FAR *pFolderReserve;   // RESERVE section from CFFOLDER
+            void FAR* pFolderReserve;   // RESERVE section from CFFOLDER
             USHORT    cbFolderReserve;  // Size of pFolderReserve
             USHORT    iFolder;          // Folder number in cabinet (0 based)
         } folder;
 
         struct {                        // fdidtDECRYPT
-            void FAR *pDataReserve;     // RESERVE section from CFDATA
+            void FAR* pDataReserve;     // RESERVE section from CFDATA
             USHORT    cbDataReserve;    // Size of pDataReserve
-            void FAR *pbData;           // Data buffer
+            void FAR* pbData;           // Data buffer
             USHORT    cbData;           // Size of data buffer
             BOOL      fSplit;           // TRUE if this is a split data block
             USHORT    cbPartial;        // 0 if this is not a split block, or
@@ -578,11 +578,11 @@ typedef struct {
         } decrypt;
     }
 #ifdef unix
-MWUNION_TAG
+    MWUNION_TAG
 #endif /* unix */
 
 } FDIDECRYPT; /* fdid */
-typedef FDIDECRYPT FAR *PFDIDECRYPT; /* pfdid */
+typedef FDIDECRYPT FAR* PFDIDECRYPT; /* pfdid */
 
 
 /***    PFNFDIDECRYPT - FDI Decryption callback
@@ -676,7 +676,7 @@ typedef FDIDECRYPT FAR *PFDIDECRYPT; /* pfdid */
  *                    start of the whole block, and cbData+cbPartial is its
  *                    size.
 */
-typedef int (FAR DIAMONDAPI *PFNFDIDECRYPT)(PFDIDECRYPT pfdid); /* pfnfdid */
+typedef int (FAR DIAMONDAPI* PFNFDIDECRYPT)(PFDIDECRYPT pfdid); /* pfnfdid */
 #define FNFDIDECRYPT(fn) int FAR DIAMONDAPI fn(PFDIDECRYPT pfdid)
 
 
@@ -686,17 +686,17 @@ typedef int (FAR DIAMONDAPI *PFNFDIDECRYPT)(PFDIDECRYPT pfdid); /* pfnfdid */
  *  meaning of these fields.
 */
 typedef struct {
-// long fields
+    // long fields
     long      cb;
-    char FAR *psz1;
-    char FAR *psz2;
-    char FAR *psz3;                     // Points to a 256 character buffer
-    void FAR *pv;                       // Value for client
+    char FAR* psz1;
+    char FAR* psz2;
+    char FAR* psz3;                     // Points to a 256 character buffer
+    void FAR* pv;                       // Value for client
 
 // int fields
     INT_PTR   hf;
 
-// short fields
+    // short fields
     USHORT    date;
     USHORT    time;
     USHORT    attribs;
@@ -705,7 +705,7 @@ typedef struct {
     USHORT    iCabinet;                 // Cabinet number (0-based)
 
     FDIERROR  fdie;
-} FDINOTIFICATION, FAR *PFDINOTIFICATION;  /* fdin, pfdin */
+} FDINOTIFICATION, FAR* PFDINOTIFICATION;  /* fdin, pfdin */
 
 
 /***    FDINOTIFICATIONTYPE - FDICopy notification types
@@ -870,8 +870,8 @@ typedef enum {
     fdintNEXT_CABINET               // File continued to next cabinet
 } FDINOTIFICATIONTYPE; /* fdint */
 
-typedef INT_PTR (FAR DIAMONDAPI *PFNFDINOTIFY)(FDINOTIFICATIONTYPE fdint,
-                                           PFDINOTIFICATION    pfdin); /* pfnfdin */
+typedef INT_PTR(FAR DIAMONDAPI* PFNFDINOTIFY)(FDINOTIFICATIONTYPE fdint,
+                                              PFDINOTIFICATION    pfdin); /* pfnfdin */
 
 #define FNFDINOTIFY(fn) INT_PTR FAR DIAMONDAPI fn(FDINOTIFICATIONTYPE fdint, \
                                               PFDINOTIFICATION    pfdin)
@@ -935,11 +935,11 @@ typedef INT_PTR (FAR DIAMONDAPI *PFNFDINOTIFY)(FDINOTIFICATIONTYPE fdint,
  *      "handle" structure.  PFNSEEK will just change the seek position
  *      in your "handle" structure.
 */
-typedef int  (FAR DIAMONDAPI *PFNOPEN) (char FAR *pszFile, int oflag, int pmode);
-typedef UINT (FAR DIAMONDAPI *PFNREAD) (int hf, void FAR *pv, UINT cb);
-typedef UINT (FAR DIAMONDAPI *PFNWRITE)(int hf, void FAR *pv, UINT cb);
-typedef int  (FAR DIAMONDAPI *PFNCLOSE)(int hf);
-typedef long (FAR DIAMONDAPI *PFNSEEK) (int hf, long dist, int seektype);
+typedef int  (FAR DIAMONDAPI* PFNOPEN) (char FAR* pszFile, int oflag, int pmode);
+typedef UINT(FAR DIAMONDAPI* PFNREAD) (int hf, void FAR* pv, UINT cb);
+typedef UINT(FAR DIAMONDAPI* PFNWRITE)(int hf, void FAR* pv, UINT cb);
+typedef int  (FAR DIAMONDAPI* PFNCLOSE)(int hf);
+typedef long (FAR DIAMONDAPI* PFNSEEK) (int hf, long dist, int seektype);
 
 #if !defined(unix) && !defined(_WIN64)
 #pragma pack(1)
@@ -954,7 +954,7 @@ typedef struct {
     char    ach[2];                 // Set to { '*', '\0' }
     long    cbFile;                 // Required spill file size
 } FDISPILLFILE; /* fdisf */
-typedef FDISPILLFILE *PFDISPILLFILE; /* pfdisf */
+typedef FDISPILLFILE* PFDISPILLFILE; /* pfdisf */
 #if !defined(unix) && !defined(_WIN64)
 #pragma pack()
 #endif /* !defined(unix) && !defined(_WIN64) */
@@ -1069,12 +1069,12 @@ BOOL FAR DIAMONDAPI FDIIsCabinet(HFDI            hfdi,
  *      writing it out).
 */
 BOOL FAR DIAMONDAPI FDICopy(HFDI          hfdi,
-                            char FAR     *pszCabinet,
-                            char FAR     *pszCabPath,
+                            char FAR* pszCabinet,
+                            char FAR* pszCabPath,
                             int           flags,
                             PFNFDINOTIFY  pfnfdin,
                             PFNFDIDECRYPT pfnfdid,
-                            void FAR     *pvUser);
+                            void FAR* pvUser);
 
 
 /***    FDIDestroy - Destroy an FDI context

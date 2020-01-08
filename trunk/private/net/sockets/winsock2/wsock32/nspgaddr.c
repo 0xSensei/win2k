@@ -32,36 +32,32 @@ Author:
 #endif            // OLDXBYY
 
 
-INT ConvertProtocols(IN LPINT lpProtocols, OUT PDWORD pdwNumberOfAddresses, OUT LPAFPROTOCOLS * lpafpProtocols);
-VOID CopyCsaddrToUserBuffer(
-    IN PVOID DataBuffer,
-    IN DWORD AddressCount,
-    IN PVOID UserBuffer,
-    IN DWORD UserBufferLength,
-    IN DWORD AddressesInUserBuffer,
-    IN PVOID *BufferTailPointer,
-    OUT PDWORD TotalBytesRequired
-);
+INT ConvertProtocols(IN LPINT lpProtocols, OUT PDWORD pdwNumberOfAddresses, OUT LPAFPROTOCOLS* lpafpProtocols);
+VOID CopyCsaddrToUserBuffer(IN PVOID DataBuffer,
+                            IN DWORD AddressCount,
+                            IN PVOID UserBuffer,
+                            IN DWORD UserBufferLength,
+                            IN DWORD AddressesInUserBuffer,
+                            IN PVOID* BufferTailPointer,
+                            OUT PDWORD TotalBytesRequired);
 
 
 #if OLDXBYY
 DWORD DoParallelResolution(LPVOID lpThreadParameter);
 #endif           // OLDXBYY
 
-INT DoNameResolution(
-    IN     DWORD           dwNameSpace,
-    IN     LPGUID          lpServiceType,
-    IN     LPTSTR          lpServiceName,
-    IN     LPINT           lpiProtocols,
-    IN     DWORD           dwResolution,
-    IN OUT LPVOID          lpCsaddrBuffer,
-    IN OUT LPDWORD         lpdwBufferLength,
-    IN OUT LPTSTR          lpAliasBuffer,
-    IN OUT LPDWORD         lpdwAliasBufferLength
-);
+INT DoNameResolution(IN     DWORD           dwNameSpace,
+                     IN     LPGUID          lpServiceType,
+                     IN     LPTSTR          lpServiceName,
+                     IN     LPINT           lpiProtocols,
+                     IN     DWORD           dwResolution,
+                     IN OUT LPVOID          lpCsaddrBuffer,
+                     IN OUT LPDWORD         lpdwBufferLength,
+                     IN OUT LPTSTR          lpAliasBuffer,
+                     IN OUT LPDWORD         lpdwAliasBufferLength);
 
 
-INT ConvertProtocols(IN LPINT lpProtocols, OUT PDWORD pdwNumberOfAddresses, OUT LPAFPROTOCOLS * lpafpProtocols)
+INT ConvertProtocols(IN LPINT lpProtocols, OUT PDWORD pdwNumberOfAddresses, OUT LPAFPROTOCOLS* lpafpProtocols)
 {
     /*++
     Routine Description:
@@ -101,18 +97,16 @@ INT ConvertProtocols(IN LPINT lpProtocols, OUT PDWORD pdwNumberOfAddresses, OUT 
 #if defined(UNICODE)
 
 
-INT APIENTRY GetAddressByNameA(
-    IN     DWORD                dwNameSpace,
-    IN     LPGUID               lpServiceType,
-    IN     LPSTR                lpServiceName,
-    IN     LPINT                lpiProtocols,
-    IN     DWORD                dwResolution,
-    IN     LPSERVICE_ASYNC_INFO lpServiceAsyncInfo OPTIONAL,
-    IN OUT LPVOID               lpCsaddrBuffer,
-    IN OUT LPDWORD              lpdwBufferLength,
-    IN OUT LPSTR                lpAliasBuffer,
-    IN OUT LPDWORD              lpdwAliasBufferLength
-)
+INT APIENTRY GetAddressByNameA(IN     DWORD                dwNameSpace,
+                               IN     LPGUID               lpServiceType,
+                               IN     LPSTR                lpServiceName,
+                               IN     LPINT                lpiProtocols,
+                               IN     DWORD                dwResolution,
+                               IN     LPSERVICE_ASYNC_INFO lpServiceAsyncInfo OPTIONAL,
+                               IN OUT LPVOID               lpCsaddrBuffer,
+                               IN OUT LPDWORD              lpdwBufferLength,
+                               IN OUT LPSTR                lpAliasBuffer,
+                               IN OUT LPDWORD              lpdwAliasBufferLength)
 {
     LPWSTR unicodeServiceName;
     ANSI_STRING ansiString;
@@ -171,7 +165,8 @@ INT APIENTRY GetAddressByNameA(
 
     // Convert the Unicode alias buffer back to ANSI.
     if (count > 0 && ARGUMENT_PRESENT(lpAliasBuffer)) {
-        for (a = lpAliasBuffer, w = unicodeAliasBuffer; *w != L'\0' && (ULONG_PTR)a - (ULONG_PTR)lpAliasBuffer < *lpdwAliasBufferLength - 1;
+        for (a = lpAliasBuffer, w = unicodeAliasBuffer;
+             *w != L'\0' && (ULONG_PTR)a - (ULONG_PTR)lpAliasBuffer < *lpdwAliasBufferLength - 1;
 #ifdef CHICAGO
              a += FSTRLEN(a) + 1, w += wcslen(w) + 1) {
 #else
@@ -204,18 +199,16 @@ INT APIENTRY GetAddressByNameA(
 #else // defined(UNICODE)
 
 
-INT APIENTRY GetAddressByNameW(
-    IN     DWORD                dwNameSpace,
-    IN     LPGUID               lpServiceType,
-    IN     LPWSTR               lpServiceName,
-    IN     LPINT                lpiProtocols,
-    IN     DWORD                dwResolution,
-    IN     LPSERVICE_ASYNC_INFO lpServiceAsyncInfo OPTIONAL,
-    IN OUT LPVOID               lpCsaddrBuffer,
-    IN OUT LPDWORD              lpdwBufferLength,
-    IN OUT LPWSTR               lpAliasBuffer,
-    IN OUT LPDWORD              lpdwAliasBufferLength
-)
+INT APIENTRY GetAddressByNameW(IN     DWORD                dwNameSpace,
+                               IN     LPGUID               lpServiceType,
+                               IN     LPWSTR               lpServiceName,
+                               IN     LPINT                lpiProtocols,
+                               IN     DWORD                dwResolution,
+                               IN     LPSERVICE_ASYNC_INFO lpServiceAsyncInfo OPTIONAL,
+                               IN OUT LPVOID               lpCsaddrBuffer,
+                               IN OUT LPDWORD              lpdwBufferLength,
+                               IN OUT LPWSTR               lpAliasBuffer,
+                               IN OUT LPDWORD              lpdwAliasBufferLength)
 {
     DLL_PRINT(("GetAddressByNameW not supported.\n"));
 
@@ -227,18 +220,16 @@ INT APIENTRY GetAddressByNameW(
 #endif // defined(UNICODE)
 
 
-INT APIENTRY GetAddressByName(
-    IN     DWORD                dwNameSpace,
-    IN     LPGUID               lpServiceType,
-    IN     LPTSTR               lpServiceName,
-    IN     LPINT                lpiProtocols,
-    IN     DWORD                dwResolution,
-    IN     LPSERVICE_ASYNC_INFO lpServiceAsyncInfo OPTIONAL,
-    IN OUT LPVOID               lpCsaddrBuffer,
-    IN OUT LPDWORD              lpdwBufferLength,
-    IN OUT LPTSTR               lpAliasBuffer,
-    IN OUT LPDWORD              lpdwAliasBufferLength
-)
+INT APIENTRY GetAddressByName(IN     DWORD                dwNameSpace,
+                              IN     LPGUID               lpServiceType,
+                              IN     LPTSTR               lpServiceName,
+                              IN     LPINT                lpiProtocols,
+                              IN     DWORD                dwResolution,
+                              IN     LPSERVICE_ASYNC_INFO lpServiceAsyncInfo OPTIONAL,
+                              IN OUT LPVOID               lpCsaddrBuffer,
+                              IN OUT LPDWORD              lpdwBufferLength,
+                              IN OUT LPTSTR               lpAliasBuffer,
+                              IN OUT LPDWORD              lpdwAliasBufferLength)
 {
     INT count;
     DWORD zero = 0;
@@ -273,7 +264,15 @@ INT APIENTRY GetAddressByName(
         DLL_PRINT(("GetAddressByNameA calling DoNameResolution.\n"));
     }
 
-    count = DoNameResolution(dwNameSpace, lpServiceType, lpServiceName, lpiProtocols, dwResolution, lpCsaddrBuffer, lpdwBufferLength, lpAliasBuffer, lpdwAliasBufferLength);
+    count = DoNameResolution(dwNameSpace, 
+                             lpServiceType,
+                             lpServiceName, 
+                             lpiProtocols,
+                             dwResolution, 
+                             lpCsaddrBuffer,
+                             lpdwBufferLength, 
+                             lpAliasBuffer, 
+                             lpdwAliasBufferLength);
 
     // If we didn't find any entries, determine whether any of the specified protocols are loaded on this machine.
     // If no, fail this request with an appropriate error code.
@@ -300,17 +299,15 @@ INT APIENTRY GetAddressByName(
 #if OLDXBYY
 
 
-INT DoNameResolution(
-    IN     DWORD           dwNameSpace,
-    IN     LPGUID          lpServiceType,
-    IN     LPTSTR          lpServiceName,
-    IN     LPINT           lpiProtocols,
-    IN     DWORD           dwResolution,
-    IN OUT LPVOID          lpCsaddrBuffer,
-    IN OUT LPDWORD         lpdwBufferLength,
-    IN OUT LPTSTR          lpAliasBuffer,
-    IN OUT LPDWORD         lpdwAliasBufferLength
-)
+INT DoNameResolution(IN     DWORD           dwNameSpace,
+                     IN     LPGUID          lpServiceType,
+                     IN     LPTSTR          lpServiceName,
+                     IN     LPINT           lpiProtocols,
+                     IN     DWORD           dwResolution,
+                     IN OUT LPVOID          lpCsaddrBuffer,
+                     IN OUT LPDWORD         lpdwBufferLength,
+                     IN OUT LPTSTR          lpAliasBuffer,
+                     IN OUT LPDWORD         lpdwAliasBufferLength)
 {
     PLIST_ENTRY listEntry;
     DWORD nameSpaceCount;
@@ -415,7 +412,7 @@ INT DoNameResolution(
 
             // Set up the alias buffer size for this iteration.
             if (ARGUMENT_PRESENT(lpdwAliasBufferLength)) {
-                if (aliasBytesUsed > *lpdwAliasBufferLength) {
+                if (aliasBytesUsed > * lpdwAliasBufferLength) {
                     aliasBufferSize = 0;
                 } else {
                     aliasBufferSize = *lpdwAliasBufferLength - aliasBytesUsed;
@@ -431,17 +428,15 @@ INT DoNameResolution(
                 DLL_PRINT(("DoNameResolution calling provider.\n"));
             }
 
-            count = requests[0].NameSpace->GetAddrByNameProc(
-                lpServiceType,
+            count = requests[0].NameSpace->GetAddrByNameProc(lpServiceType,
                 (LPWSTR)lpServiceName,
-                lpiProtocols,
-                dwResolution,
-                buffer,
-                &bufferLength,
-                (LPWSTR)((PBYTE)lpAliasBuffer + aliasBytesUsed),
-                aliasBufferSizePtr,
-                NULL
-            );
+                                                             lpiProtocols,
+                                                             dwResolution,
+                                                             buffer,
+                                                             &bufferLength,
+                                                             (LPWSTR)((PBYTE)lpAliasBuffer + aliasBytesUsed),
+                                                             aliasBufferSizePtr,
+                                                             NULL);
             IF_DEBUG(RESOLVER)
             {
                 DLL_PRINT(("DoNameResolution: provider:count=%d.\n", count));
@@ -462,7 +457,7 @@ INT DoNameResolution(
             // If this routine found something and we don't need to find multiple addresses, we're done.
             if (count > 0 && !findMultiple) {
                 // Check if we overflowed the user buffer.
-                if (bytesUsed > *lpdwBufferLength) {
+                if (bytesUsed > * lpdwBufferLength) {
                     error = ERROR_INSUFFICIENT_BUFFER;
                     goto done;
                 }
@@ -648,7 +643,7 @@ INT DoNameResolution(
                     if (ARGUMENT_PRESENT(lpAliasBuffer) && ARGUMENT_PRESENT(lpdwAliasBufferLength)) {
                         for (w = requests[i].lpAliasBuffer; *w != L'\0'; w += length / sizeof(TCHAR)) {
                             length = (_tcslen(w) + 1) * sizeof(TCHAR);
-                            if (aliasBytesUsed + length > *lpdwAliasBufferLength) {
+                            if (aliasBytesUsed + length > * lpdwAliasBufferLength) {
                                 break;
                             }
 
@@ -676,7 +671,7 @@ INT DoNameResolution(
             // If we only needed to find a single and we successfully did that, we're done.
             if (totalCount > 0 && !findMultiple) {
                 // Check if we overflowed the user buffer.
-                if (bytesUsed > *lpdwBufferLength) {
+                if (bytesUsed > * lpdwBufferLength) {
                     error = ERROR_INSUFFICIENT_BUFFER;
                     goto done;
                 }
@@ -688,7 +683,7 @@ INT DoNameResolution(
     }
 
     // Check if we overflowed the user buffer.
-    if (bytesUsed > *lpdwBufferLength) {
+    if (bytesUsed > * lpdwBufferLength) {
         error = ERROR_INSUFFICIENT_BUFFER;
         goto done;
     }
@@ -762,17 +757,15 @@ DWORD DoParallelResolution(LPVOID lpThreadParameter)
 #else                // OLDXBYY
 
 
-INT DoNameResolution(
-    IN     DWORD           dwNameSpace,
-    IN     LPGUID          lpServiceType,
-    IN     LPTSTR          lpServiceName,
-    IN     LPINT           lpiProtocols,
-    IN     DWORD           dwResolution,
-    IN OUT LPVOID          lpCsaddrBuffer,
-    IN OUT LPDWORD         lpdwBufferLength,
-    IN OUT LPTSTR          lpAliasBuffer,
-    IN OUT LPDWORD         lpdwAliasBufferLength
-)
+INT DoNameResolution(IN     DWORD           dwNameSpace,
+                     IN     LPGUID          lpServiceType,
+                     IN     LPTSTR          lpServiceName,
+                     IN     LPINT           lpiProtocols,
+                     IN     DWORD           dwResolution,
+                     IN OUT LPVOID          lpCsaddrBuffer,
+                     IN OUT LPDWORD         lpdwBufferLength,
+                     IN OUT LPTSTR          lpAliasBuffer,
+                     IN OUT LPDWORD         lpdwAliasBufferLength)
 {
     /*++
     Routine Desciption:
@@ -794,7 +787,7 @@ INT DoNameResolution(
     PTCHAR w;
     DWORD dwAliasBytesLeft;
     DWORD length;
-    WSAQUERYSET  *pwsaq;
+    WSAQUERYSET* pwsaq;
 
     // Initialize locals.
     bytesUsed = 0;
@@ -878,7 +871,7 @@ INT DoNameResolution(
                             if (pwsaq->dwNumberOfCsAddrs) {
                                 CopyCsaddrToUserBuffer(pwsaq->lpcsaBuffer,
                                                        pwsaq->dwNumberOfCsAddrs,
-                                                       lpCsaddrBuffer, 
+                                                       lpCsaddrBuffer,
                                                        *lpdwBufferLength,
                                                        totalCount,
                                                        &addressPointer,
@@ -945,7 +938,7 @@ VOID CopyCsaddrToUserBuffer(
     IN PVOID UserBuffer,
     IN DWORD UserBufferLength,
     IN DWORD AddressesInUserBuffer,
-    IN PVOID *BufferTailPointer,
+    IN PVOID * BufferTailPointer,
     OUT LPDWORD TotalBytesRequired
 )
 {
@@ -1060,7 +1053,7 @@ INT __DoNameResolution(
     PVOID addressPointer;
     INT error = NO_ERROR;
     DWORD dwAliasBytesLeft;
-    WSAQUERYSETA  *pwsaq;
+    WSAQUERYSETA* pwsaq;
 
     // Initialize locals.
     bytesUsed = 0;

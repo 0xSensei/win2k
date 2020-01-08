@@ -75,34 +75,34 @@ _MonitorFromPoint(POINT pt, DWORD dwFlags)
 
         BEGIN_EXCEPTION_HANDLER
 
-        for (   pMonitor = REBASESHAREDPTRALWAYS(GetDispInfo()->pMonitorFirst);
-                pMonitor;
-                pMonitor = REBASESHAREDPTR(pMonitor->pMonitorNext)) {
+            for (pMonitor = REBASESHAREDPTRALWAYS(GetDispInfo()->pMonitorFirst);
+                 pMonitor;
+                 pMonitor = REBASESHAREDPTR(pMonitor->pMonitorNext)) {
 
             if (!(pMonitor->dwMONFlags & MONF_VISIBLE))
                 continue;
 
-            if (PtInRect(&((MONITOR *)pMonitor)->rcMonitor, pt)) {
+            if (PtInRect(&((MONITOR*)pMonitor)->rcMonitor, pt)) {
                 return pMonitor;
             }
         }
 
         END_EXCEPTION_HANDLER_EMPTY
 
-        /*
-         * Return what the user wants if it's not found.
-         */
-        switch (dwFlags) {
-        case MONITOR_DEFAULTTONULL:
-            return NULL;
+            /*
+             * Return what the user wants if it's not found.
+             */
+            switch (dwFlags) {
+            case MONITOR_DEFAULTTONULL:
+                return NULL;
 
-        case MONITOR_DEFAULTTOPRIMARY:
-            return GetPrimaryMonitor();
+            case MONITOR_DEFAULTTOPRIMARY:
+                return GetPrimaryMonitor();
 
-        default:
-            UserAssertMsg0(FALSE, "Logic error in _MonitorFromPoint");
-            break;
-        }
+            default:
+                UserAssertMsg0(FALSE, "Logic error in _MonitorFromPoint");
+                break;
+            }
 
     case MONITOR_DEFAULTTONEAREST:
 
@@ -187,25 +187,25 @@ _MonitorFromPoint(POINT pt, DWORD dwFlags)
         }
 
 #if DBG
-        pMonitorResult = (PMONITOR) -1;
+        pMonitorResult = (PMONITOR)-1;
 #endif
 
-        if (    pt.x < SHRT_MIN || SHRT_MAX < pt.x ||
-                pt.y < SHRT_MIN || SHRT_MAX < pt.y) {
+        if (pt.x < SHRT_MIN || SHRT_MAX < pt.x ||
+            pt.y < SHRT_MIN || SHRT_MAX < pt.y) {
 
             BEGIN_EXCEPTION_HANDLER
-            MONITORFROMPOINTALGORITHM(_UI64_MAX, ULONGLONG, Int32x32To64)
-            END_EXCEPTION_HANDLER
+                MONITORFROMPOINTALGORITHM(_UI64_MAX, ULONGLONG, Int32x32To64)
+                END_EXCEPTION_HANDLER
 
         } else {
 
             BEGIN_EXCEPTION_HANDLER
-            MONITORFROMPOINTALGORITHM(UINT_MAX, UINT, Int32x32To32)
-            END_EXCEPTION_HANDLER
+                MONITORFROMPOINTALGORITHM(UINT_MAX, UINT, Int32x32To32)
+                END_EXCEPTION_HANDLER
 
         }
 
-        UserAssert(pMonitorResult != (PMONITOR) -1);
+        UserAssert(pMonitorResult != (PMONITOR)-1);
         return pMonitorResult;
 
     default:
@@ -269,10 +269,10 @@ _MonitorFromRect(LPCRECT lprc, DWORD dwFlags)
     /*
      * Return the primary monitor if the rectangle covers the desktop.
      */
-    if (    lprc->left   <= pDispInfo->rcScreen.left &&
-            lprc->top    <= pDispInfo->rcScreen.top &&
-            lprc->right  >= pDispInfo->rcScreen.right &&
-            lprc->bottom >= pDispInfo->rcScreen.bottom) {
+    if (lprc->left <= pDispInfo->rcScreen.left &&
+        lprc->top <= pDispInfo->rcScreen.top &&
+        lprc->right >= pDispInfo->rcScreen.right &&
+        lprc->bottom >= pDispInfo->rcScreen.bottom) {
 
         return GetPrimaryMonitor();
     }
@@ -284,15 +284,15 @@ _MonitorFromRect(LPCRECT lprc, DWORD dwFlags)
 
     BEGIN_EXCEPTION_HANDLER
 
-    areaMost = 0;
-    for (   pMonitor = REBASESHAREDPTRALWAYS(GetDispInfo()->pMonitorFirst);
-            pMonitor;
-            pMonitor = REBASESHAREDPTR(pMonitor->pMonitorNext)) {
+        areaMost = 0;
+    for (pMonitor = REBASESHAREDPTRALWAYS(GetDispInfo()->pMonitorFirst);
+         pMonitor;
+         pMonitor = REBASESHAREDPTR(pMonitor->pMonitorNext)) {
 
         if (!(pMonitor->dwMONFlags & MONF_VISIBLE))
             continue;
 
-        if (IntersectRect(&rc, lprc, &((MONITOR *)pMonitor)->rcMonitor)) {
+        if (IntersectRect(&rc, lprc, &((MONITOR*)pMonitor)->rcMonitor)) {
             if (EqualRect(&rc, lprc))
                 return pMonitor;
 
@@ -313,7 +313,7 @@ _MonitorFromRect(LPCRECT lprc, DWORD dwFlags)
 
     END_EXCEPTION_HANDLER
 
-    UserAssert(areaMost >= 0);
+        UserAssert(areaMost >= 0);
     if (areaMost > 0)
         return pMonitorResult;
 
@@ -326,8 +326,8 @@ _MonitorFromRect(LPCRECT lprc, DWORD dwFlags)
         return GetPrimaryMonitor();
 
     case MONITOR_DEFAULTTONEAREST:
-        {
-            int dx, dy;
+    {
+        int dx, dy;
 
 #define MONITORFROMRECTALGORITHM(SUMSQUARESMAX, SUMSQUARESTYPE, POINTMULTIPLY)      \
             SUMSQUARESTYPE  sumsquare;                                              \
@@ -413,29 +413,29 @@ _MonitorFromRect(LPCRECT lprc, DWORD dwFlags)
             }
 
 #if DBG
-            pMonitorResult = (PMONITOR) -1;
+        pMonitorResult = (PMONITOR)-1;
 #endif
 
-            if (    lprc->left < SHRT_MIN || SHRT_MAX < lprc->left ||
-                    lprc->top < SHRT_MIN || SHRT_MAX < lprc->top ||
-                    lprc->right < SHRT_MIN || SHRT_MAX < lprc->right ||
-                    lprc->bottom < SHRT_MIN || SHRT_MAX < lprc->bottom) {
+        if (lprc->left < SHRT_MIN || SHRT_MAX < lprc->left ||
+            lprc->top < SHRT_MIN || SHRT_MAX < lprc->top ||
+            lprc->right < SHRT_MIN || SHRT_MAX < lprc->right ||
+            lprc->bottom < SHRT_MIN || SHRT_MAX < lprc->bottom) {
 
-                BEGIN_EXCEPTION_HANDLER
+            BEGIN_EXCEPTION_HANDLER
                 MONITORFROMRECTALGORITHM(_UI64_MAX, ULONGLONG, Int32x32To64)
                 END_EXCEPTION_HANDLER
 
-            } else {
+        } else {
 
-                BEGIN_EXCEPTION_HANDLER
+            BEGIN_EXCEPTION_HANDLER
                 MONITORFROMRECTALGORITHM(UINT_MAX, UINT, Int32x32To32)
                 END_EXCEPTION_HANDLER
 
-            }
-
-            UserAssert(pMonitorResult != (PMONITOR) -1);
-            return pMonitorResult;
         }
+
+        UserAssert(pMonitorResult != (PMONITOR)-1);
+        return pMonitorResult;
+    }
 
     default:
         UserAssertMsg0(0, "Logic error in _MonitorFromWindow, shouldn't have gotten here.");
@@ -490,12 +490,11 @@ _MonitorFromWindow(PWND pwnd, DWORD dwFlags)
     /*
      * Handle minimized windows.
      */
-    if (TestWF(pwnd, WFMINIMIZED))
-    {
+    if (TestWF(pwnd, WFMINIMIZED)) {
 #ifdef _USERK_
-        CHECKPOINT *    pcp;
+        CHECKPOINT* pcp;
 
-        pcp = (CHECKPOINT *)_GetProp(pwnd, PROP_CHECKPOINT, PROPF_INTERNAL);
+        pcp = (CHECKPOINT*)_GetProp(pwnd, PROP_CHECKPOINT, PROPF_INTERNAL);
         if (pcp) {
             return _MonitorFromRect(&pcp->rcNormal, dwFlags);
         }
@@ -534,7 +533,7 @@ _MonitorFromWindow(PWND pwnd, DWORD dwFlags)
          */
     }
 
-    return _MonitorFromRect(&((WND *)pwnd)->rcWindow, dwFlags);
+    return _MonitorFromRect(&((WND*)pwnd)->rcWindow, dwFlags);
 
 NoWindow:
     if (dwFlags & (MONITOR_DEFAULTTOPRIMARY | MONITOR_DEFAULTTONEAREST)) {

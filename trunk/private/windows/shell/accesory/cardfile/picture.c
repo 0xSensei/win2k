@@ -13,8 +13,8 @@
 #define RINT short
 typedef struct _rrect
 {
-   RINT left, top, right, bottom ;
-} RRECT ;
+    RINT left, top, right, bottom;
+} RRECT;
 #endif
 /* This file contains all the picture operations.  It virtualizes the
  * interface so we deal with pictures instead of old Bitmaps and objects.
@@ -27,7 +27,7 @@ typedef struct _rrect
 
 
 BOOL         fCreateFromFile;
-BYTE         *vpfbmp;
+BYTE* vpfbmp;
 DWORD        vcbLeftToRead;
 DWORD        vcLeft;
 FAKEBITMAP   vfbmp;
@@ -36,7 +36,7 @@ HWND         hwndError;
 LPCARDSTREAM lpStream = NULL;
 LPOLECLIENT  lpclient = NULL;
 LPOLEOBJECT  lpObjectUndo = NULL;
-OBJECTTYPE   otObjectUndo = 0 ;
+OBJECTTYPE   otObjectUndo = 0;
 WORD         cWait = 0;
 TCHAR        szClip[] = TEXT("Clipboard");
 
@@ -56,11 +56,11 @@ TCHAR       szObjFormat[OBJNAMEMAX];
 
 #endif
 
-int          iPos ;
+int          iPos;
 
 NOEXPORT void  NEAR SetFile(HANDLE fh);
-DWORD (pascal far *pfOldRead)  (LPOLESTREAM, LPBYTE, DWORD);
-DWORD (pascal far *pfNewRead)  (LPOLESTREAM, LPBYTE, DWORD);
+DWORD(pascal far* pfOldRead)  (LPOLESTREAM, LPBYTE, DWORD);
+DWORD(pascal far* pfNewRead)  (LPOLESTREAM, LPBYTE, DWORD);
 
 void PicDelete(PCARD pCard)
 {
@@ -74,20 +74,19 @@ void PicDelete(PCARD pCard)
             /* OleRelease() because the object is still
              * part of the Card File.
              */
-            switch (OleError(OleRelease(pCard->lpObject)))
-              {
-                case FOLEERROR_NOTGIVEN:
-                    ErrorMessage(E_FAILED_TO_DELETE_OBJECT);
-                    break;
+            switch (OleError(OleRelease(pCard->lpObject))) {
+            case FOLEERROR_NOTGIVEN:
+                ErrorMessage(E_FAILED_TO_DELETE_OBJECT);
+                break;
 #if 0
-                case FOLEERROR_GIVEN:
-                    break;
+            case FOLEERROR_GIVEN:
+                break;
 #endif
-                case FOLEERROR_OK:
-                    InvalidateRect(hEditWnd, NULL, TRUE);
-                    WaitForObject(pCard->lpObject);
-                    break;
-              }
+            case FOLEERROR_OK:
+                InvalidateRect(hEditWnd, NULL, TRUE);
+                WaitForObject(pCard->lpObject);
+                break;
+            }
         } else
 #if !defined(WIN32)
             DeleteObject((HBITMAP)LOWORD(pCard->lpObject));
@@ -128,32 +127,29 @@ BOOL PicRead(PCARD pCard, HANDLE fh, BOOL fOld)
         {
             lpStream->lpstbl->Get = pfOldRead;
             vcbLeftToRead = ((DWORD)bmSize);
-        }
-        else
+        } else
             MyByteReadFile(fh, &idObject, sizeof(DWORD));
 
-    /* Save current position of file pointer */
+        /* Save current position of file pointer */
         if ((fhLoc = MyFileSeek(fh, 0L, 1)) == -1)
             return FALSE;
 
         /* Synchronously:  Load the new object */
 #ifndef OLE_20
-        wsprintfA (szObjectName, szObjFormat, idObject + 1);
+        wsprintfA(szObjectName, szObjFormat, idObject + 1);
 #else
-        wsprintfW (szObjectName, szObjFormat, idObject + 1);
+        wsprintfW(szObjectName, szObjFormat, idObject + 1);
 #endif
-        olestat = OleLoadFromStream ((LPOLESTREAM)lpStream, szPStdFile,
-                                     lpclient, lhcdoc, szObjectName, &lpObject);
+        olestat = OleLoadFromStream((LPOLESTREAM)lpStream, szPStdFile,
+                                    lpclient, lhcdoc, szObjectName, &lpObject);
 
-        if (olestat == OLE_WAIT_FOR_RELEASE)
-        {
+        if (olestat == OLE_WAIT_FOR_RELEASE) {
             cOleWait++;
-            WaitForObject (lpObject);
+            WaitForObject(lpObject);
             olestat = oleloadstat;
         }
 
-        if (OleError(olestat))
-        {
+        if (OleError(olestat)) {
             /* Reset file pointer, and try again */
             vcbLeftToRead = ((DWORD)bmSize);
             SetFile(fh);
@@ -161,75 +157,66 @@ BOOL PicRead(PCARD pCard, HANDLE fh, BOOL fOld)
                 return FALSE;
 
             /* Synchronously:  Read it with the "Static" protocol */
-            olestat = OleLoadFromStream ((LPOLESTREAM)lpStream, szPStatic,
-                                         lpclient, lhcdoc, szObjectName, &lpObject);
+            olestat = OleLoadFromStream((LPOLESTREAM)lpStream, szPStatic,
+                                        lpclient, lhcdoc, szObjectName, &lpObject);
 
-            if (olestat == OLE_WAIT_FOR_RELEASE)
-            {
+            if (olestat == OLE_WAIT_FOR_RELEASE) {
                 cOleWait++;
-                WaitForObject (lpObject);
+                WaitForObject(lpObject);
                 olestat = oleloadstat;
             }
 
-            if (OleError(olestat))
-            {
+            if (OleError(olestat)) {
                 lpStream->lpstbl->Get = pfNewRead;          /* Restore */
                 return FALSE;
             }
         }
         pCard->lpObject = lpObject;
 
-        if (fOld)
-        {
+        if (fOld) {
             /* Side effect:  pCard->rcObject has already been filled in */
             pCard->otObject = STATIC;
-            MyFileSeek (fh, vcbLeftToRead, 1);    /* For Video 7 bug */
+            MyFileSeek(fh, vcbLeftToRead, 1);    /* For Video 7 bug */
             lpStream->lpstbl->Get = pfNewRead;    /* Restore so new is fastest */
             pCard->idObject = idObjectMax++;
-        }
-        else
-        {
+        } else {
             RINT cx;
             RINT cy;
 
             /* Read the character size when saving, and scale to the
              * current character size.
              */
-            MyByteReadFile (fh, &cx, sizeof(RINT));
-            MyByteReadFile (fh, &cy, sizeof(RINT));
+            MyByteReadFile(fh, &cx, sizeof(RINT));
+            MyByteReadFile(fh, &cy, sizeof(RINT));
 #ifndef WIN32
-            MyByteReadFile (fh, &(pCard->rcObject), sizeof(RECT));
+            MyByteReadFile(fh, &(pCard->rcObject), sizeof(RECT));
 #else
             {
-               RRECT rrec;
+                RRECT rrec;
 
-               MyByteReadFile(fh, &(rrec), 8) ;
-               SetRect (&(pCard->rcObject), (LONG)rrec.left, (LONG)rrec.top,
-                        (LONG)rrec.right, (LONG)rrec.bottom);
+                MyByteReadFile(fh, &(rrec), 8);
+                SetRect(&(pCard->rcObject), (LONG)rrec.left, (LONG)rrec.top,
+                    (LONG)rrec.right, (LONG)rrec.bottom);
             }
 #endif
 
             /* Character width differs, scale in the x direction */
-            if (cx != (RINT)CharFixWidth)
-            {
-                pCard->rcObject.left  = Scale(pCard->rcObject.left, CharFixWidth, cx);
+            if (cx != (RINT)CharFixWidth) {
+                pCard->rcObject.left = Scale(pCard->rcObject.left, CharFixWidth, cx);
                 pCard->rcObject.right = Scale(pCard->rcObject.right, CharFixWidth, cx);
             }
 
             /* Character height differs, scale in the y direction */
-            if (cy != (RINT)CharFixHeight)
-            {
-                pCard->rcObject.top    = Scale(pCard->rcObject.top, CharFixHeight, cy);
+            if (cy != (RINT)CharFixHeight) {
+                pCard->rcObject.top = Scale(pCard->rcObject.top, CharFixHeight, cy);
                 pCard->rcObject.bottom = Scale(pCard->rcObject.bottom, CharFixHeight, cy);
             }
 
             /* Retrieve the object type */
-            MyByteReadFile (fh, &(pCard->otObject), sizeof(OBJECTTYPE));
+            MyByteReadFile(fh, &(pCard->otObject), sizeof(OBJECTTYPE));
             pCard->idObject = idObject;
         }
-    }
-    else
-    {
+    } else {
         HANDLE hBits;
         LPBYTE lpBits;
 
@@ -254,19 +241,16 @@ BOOL PicRead(PCARD pCard, HANDLE fh, BOOL fOld)
         pCard->idObject = idObjectMax++;
 
         /* Read in the BITMAP bits */
-        if (hBits = GlobalAlloc(GHND, (WORD)bmSize))
-        {
-            if (lpBits = (LPBYTE)GlobalLock(hBits))
-            {
+        if (hBits = GlobalAlloc(GHND, (WORD)bmSize)) {
+            if (lpBits = (LPBYTE)GlobalLock(hBits)) {
                 MyByteReadFile(fh, lpBits, bmSize);
                 /* Make the selector zero */
-                pCard->lpObject = (LPOLEOBJECT) MAKELONG(
-                CreateBitmap(cxBitmap, cyBitmap, 1, 1, lpBits), 0);
+                pCard->lpObject = (LPOLEOBJECT)MAKELONG(
+                    CreateBitmap(cxBitmap, cyBitmap, 1, 1, lpBits), 0);
                 GlobalUnlock(hBits);
             }
             GlobalFree(hBits);
-        }
-        else              /* Skip past the object */
+        } else              /* Skip past the object */
             MyFileSeek(fh, (unsigned long)bmSize, 1);
     }
     return TRUE;
@@ -286,24 +270,19 @@ BOOL PicWrite(PCARD pCard, HANDLE fh, BOOL fForceOld) {
     HANDLE  hBits = NULL;
     LPBYTE  lpBits = NULL;
 
-    if (fOLE)
-    {
-        if (fForceOld)
-        {
+    if (fOLE) {
+        if (fForceOld) {
             /* Convert picture to monochrome bitmap (0 colors) */
             hBitmap = MakeObjectCopy(pCard, (HDC)NULL);
             goto OldWrite;
-        }
-        else
-        {
-        /* Write a BOOL so that cardfiles can be compared */
+        } else {
+            /* Write a BOOL so that cardfiles can be compared */
             bmSize = (RINT)!!pCard->lpObject;
 
             if (!MyByteWriteFile(fh, &bmSize, sizeof(RINT)))
                 goto Disk_Full;
 
-            if (bmSize)
-            {
+            if (bmSize) {
                 SetFile(fh);
                 if (!MyByteWriteFile(fh, &(pCard->idObject), sizeof(DWORD)))
                     goto Disk_Full;
@@ -315,38 +294,36 @@ BOOL PicWrite(PCARD pCard, HANDLE fh, BOOL fForceOld) {
                  */
 #ifndef WIN32
                 if (!MyByteWriteFile(fh, &CharFixWidth, sizeof(RINT))
-                 || !MyByteWriteFile(fh, &CharFixHeight, sizeof(RINT))
-                 || !MyByteWriteFile(fh, &(pCard->rcObject), sizeof(RECT))
-                 || !MyByteWriteFile(fh, &(pCard->otObject), sizeof(OBJECTTYPE)))
-                {
+                    || !MyByteWriteFile(fh, &CharFixHeight, sizeof(RINT))
+                    || !MyByteWriteFile(fh, &(pCard->rcObject), sizeof(RECT))
+                    || !MyByteWriteFile(fh, &(pCard->otObject), sizeof(OBJECTTYPE))) {
                     goto Disk_Full;
                 }
 #else
                 if (!MyByteWriteFile(fh, &CharFixWidth, sizeof(RINT))
                     || !MyByteWriteFile(fh, &CharFixHeight, sizeof(RINT)))
-                     goto Disk_Full;
+                    goto Disk_Full;
 
                 {
-                   RRECT rrec;
+                    RRECT rrec;
 
-                   rrec.left   = (short)(pCard->rcObject).left ;
-                   rrec.right  = (short)(pCard->rcObject).right ;
-                   rrec.top    = (short)(pCard->rcObject).top ;
-                   rrec.bottom = (short)(pCard->rcObject).bottom ;
+                    rrec.left = (short)(pCard->rcObject).left;
+                    rrec.right = (short)(pCard->rcObject).right;
+                    rrec.top = (short)(pCard->rcObject).top;
+                    rrec.bottom = (short)(pCard->rcObject).bottom;
 
-                   if(!MyByteWriteFile(fh, &(rrec), 8))
-                      goto Disk_Full ;
+                    if (!MyByteWriteFile(fh, &(rrec), 8))
+                        goto Disk_Full;
 
-                   if(!MyByteWriteFile(fh, &(pCard->otObject), sizeof(OBJECTTYPE)))
-                      goto Disk_Full;
+                    if (!MyByteWriteFile(fh, &(pCard->otObject), sizeof(OBJECTTYPE)))
+                        goto Disk_Full;
                 }
 #endif
             }
         }
-    }
-    else          /* Can only write the old format (sigh) */
+    } else          /* Can only write the old format (sigh) */
     {
-OldWrite:
+    OldWrite:
         if (!hBitmap)
 #if !defined(WIN32)
             hBitmap = (HBITMAP)LOWORD(pCard->lpObject);
@@ -354,16 +331,14 @@ OldWrite:
             hBitmap = (HBITMAP)(pCard->lpObject);
 #endif
 
-        if (hBitmap)
-        {
+        if (hBitmap) {
             /* Calculate the BITMAP dimensions */
-            bmWidth     = (RINT)((pCard->rcObject.right - pCard->rcObject.left) + 1);
-            bmHeight    = (RINT)((pCard->rcObject.bottom - pCard->rcObject.top) + 1);
-            bmSize      = (RINT)((((bmWidth + 0x000f) >> 4) << 1) * bmHeight);
+            bmWidth = (RINT)((pCard->rcObject.right - pCard->rcObject.left) + 1);
+            bmHeight = (RINT)((pCard->rcObject.bottom - pCard->rcObject.top) + 1);
+            bmSize = (RINT)((((bmWidth + 0x000f) >> 4) << 1)* bmHeight);
 
             if ((hBits = GlobalAlloc(GHND, (WORD)bmSize))
-                && (lpBits = (LPBYTE)GlobalLock(hBits)))
-            {
+                && (lpBits = (LPBYTE)GlobalLock(hBits))) {
                 /* Write out the size, width, height */
                 if (!MyByteWriteFile(fh, &bmSize, sizeof(RINT)) ||
                     !MyByteWriteFile(fh, &bmWidth, sizeof(RINT)) ||
@@ -385,10 +360,8 @@ OldWrite:
                     goto Disk_Full;
                 GlobalUnlock(hBits);
                 GlobalFree(hBits);
-            }
-            else
-            {
-Disk_Full:
+            } else {
+            Disk_Full:
                 if (lpBits)
                     GlobalUnlock(hBits);
 
@@ -396,9 +369,7 @@ Disk_Full:
                     GlobalFree(hBits);
                 return FALSE;
             }
-        }
-        else
-        {
+        } else {
             RINT zero = 0;
 
             if (!MyByteWriteFile(fh, &zero, sizeof(RINT)))
@@ -420,8 +391,8 @@ BOOL PicDraw(PCARD pCard, HDC hDC, BOOL fAtOrigin) {
         POINT   pt;
         INT     iPrevStretchMode;
 
-        iPrevStretchMode= SetStretchBltMode( hDC, HALFTONE );
-        SetBrushOrgEx( hDC, 0,0, &pt );
+        iPrevStretchMode = SetStretchBltMode(hDC, HALFTONE);
+        SetBrushOrgEx(hDC, 0, 0, &pt);
 
         rc = pCard->rcObject;
 
@@ -432,12 +403,12 @@ BOOL PicDraw(PCARD pCard, HDC hDC, BOOL fAtOrigin) {
         if (hrgn = CreateRectRgnIndirect(&rc))
             SelectObject(hDC, hrgn);
 
-/* Bug 11290: Don't draw outside the edit window's client area
- *  11 January 1992         Clark R. Cyr
-*/
-        GetClientRect (hEditWnd, &rcClip);
-        IntersectClipRect (hDC, rcClip.left, rcClip.top,
-                           rcClip.right, rcClip.bottom);
+        /* Bug 11290: Don't draw outside the edit window's client area
+         *  11 January 1992         Clark R. Cyr
+        */
+        GetClientRect(hEditWnd, &rcClip);
+        IntersectClipRect(hDC, rcClip.left, rcClip.top,
+                          rcClip.right, rcClip.bottom);
 
         /* Draw the object */
         bSuccess = (OLE_OK == OleDraw(pCard->lpObject, hDC, (LPRECT)&rc, NULL, NULL));
@@ -446,19 +417,17 @@ BOOL PicDraw(PCARD pCard, HDC hDC, BOOL fAtOrigin) {
         if (hrgn)
             DeleteObject(hrgn);
 
-        SetStretchBltMode( hDC, iPrevStretchMode );
-        SetBrushOrgEx( hDC, pt.x, pt.y, NULL );
-    }
-    else         /* If we have a BITMAP, BitBlt it into the DC */
+        SetStretchBltMode(hDC, iPrevStretchMode);
+        SetBrushOrgEx(hDC, pt.x, pt.y, NULL);
+    } else         /* If we have a BITMAP, BitBlt it into the DC */
     {
-        if (pCard->lpObject && (hMemoryDC = CreateCompatibleDC(hDC)))
-        {
+        if (pCard->lpObject && (hMemoryDC = CreateCompatibleDC(hDC))) {
             RINT cxBitmap, cyBitmap;
 
             cxBitmap = (RINT)(pCard->rcObject.right - pCard->rcObject.left) + 1,
-            cyBitmap = (RINT)(pCard->rcObject.bottom - pCard->rcObject.top) + 1,
+                cyBitmap = (RINT)(pCard->rcObject.bottom - pCard->rcObject.top) + 1,
 
-            hOldObject = SelectObject(hMemoryDC, (HBITMAP)(pCard->lpObject));
+                hOldObject = SelectObject(hMemoryDC, (HBITMAP)(pCard->lpObject));
             BitBlt(hDC, pCard->rcObject.left, pCard->rcObject.top,
                    cxBitmap, cyBitmap, hMemoryDC, 0, 0, SRCAND);
             SelectObject(hMemoryDC, hOldObject);
@@ -479,16 +448,15 @@ void PicCutCopy(PCARD pCard, BOOL fCut)
 
     Hourglass(TRUE);
     if (GetObjectType(pCard->lpObject) != OBJ_BITMAP) {
-          if (OLE_OK != OleCopyToClipboard(pCard->lpObject))
+        if (OLE_OK != OleCopyToClipboard(pCard->lpObject))
             IndexOkError(EINSMEMORY);
-    }
-    else if (pCard->lpObject)        /* Old BITMAP */
+    } else if (pCard->lpObject)        /* Old BITMAP */
     {
         BITMAP bm;
         HBITMAP hBitmap;
 
         GetObject((HBITMAP)(pCard->lpObject), sizeof(BITMAP), (LPVOID)&bm);
-        if (!(hBitmap = MakeBitmapCopy((HBITMAP)(pCard->lpObject), &bm, (HDC)NULL )))
+        if (!(hBitmap = MakeBitmapCopy((HBITMAP)(pCard->lpObject), &bm, (HDC)NULL)))
             IndexOkError(EINSMEMORY);
         else
             SetClipboardData(CF_BITMAP, hBitmap);
@@ -505,7 +473,7 @@ void PicCutCopy(PCARD pCard, BOOL fCut)
         OleRename(lpObjectUndo, szUndo);
         pCard->lpObject = NULL;
 
-        InvalidateRect(hEditWnd, (LPRECT)&(pCard->rcObject), TRUE);
+        InvalidateRect(hEditWnd, (LPRECT) & (pCard->rcObject), TRUE);
         CurCardHead.flags |= FDIRTY;
     }
     Hourglass(FALSE);
@@ -547,22 +515,19 @@ void PicPaste(
         return;                /* Couldn't open the clipboard */
 
     Hourglass(TRUE);
-    if (fOLE)
-    {
+    if (fOLE) {
         /* Don't replace the current object unless we're successful */
 #ifndef OLE_20
-        wsprintfA (szObjectName, szObjFormat, idObjectMax + 1);
+        wsprintfA(szObjectName, szObjFormat, idObjectMax + 1);
 #else
-        wsprintfW (szObjectName, szObjFormat, idObjectMax + 1);
+        wsprintfW(szObjectName, szObjFormat, idObjectMax + 1);
 #endif
-        if (fPaste)
-        {
+        if (fPaste) {
             if (ClipFormat) /* Paste a specific format (from PasteSpecial Dlg) */
             {
                 fError = OleError(OleCreateFromClip(szPStatic, lpclient, lhcdoc, szObjectName,
                                                     &lpObject, olerender_format, ClipFormat));
-            }
-            else        /* Paste from Edit.Paste */
+            } else        /* Paste from Edit.Paste */
             {
                 /* Try StdFileEditing protocol */
                 fError = OleError(OleCreateFromClip(szPStdFile, lpclient, lhcdoc, szObjectName,
@@ -572,41 +537,35 @@ void PicPaste(
                     fError = OleError(OleCreateFromClip(szPStatic, lpclient, lhcdoc, szObjectName,
                                                         &lpObject, olerender_draw, 0));
             }
-        } else
-        {
+        } else {
             /* create a link, in response to Edit.PasteLink or
              * PasteLink from PasteSpecial dlg
              */
             if (ClipFormat) /* PasteLink a specific format (from PasteSpecial Dlg) */
             {
                 fError = OleError(OleCreateLinkFromClip(szPStdFile, lpclient, lhcdoc, szObjectName,
-                                                        &lpObject,  olerender_format, ClipFormat));
-            }
-            else    /* PasteLink an object */
+                                                        &lpObject, olerender_format, ClipFormat));
+            } else    /* PasteLink an object */
             {
                 fError = OleError(OleCreateLinkFromClip(szPStdFile, lpclient, lhcdoc, szObjectName,
-                                                        &lpObject,  olerender_draw, 0));
+                                                        &lpObject, olerender_draw, 0));
             }
         }
-        if (fError)
-        {
+        if (fError) {
             lpObject = NULL;
             if (fError == FOLEERROR_NOTGIVEN)
                 ErrorMessage(E_GET_FROM_CLIPBOARD_FAILED);
-        } else
-        {
+        } else {
             /* Figure out what kind of object we have, OleCreateFromLink
              * can create an embedded object */
             OleQueryType(lpObject, &objType);
-            switch (objType)
-            {
-                case OT_EMBEDDED:   otObject = EMBEDDED;    break;
-                case OT_LINK:       otObject = LINK;        break;
-                default:            otObject = STATIC;      break;
+            switch (objType) {
+            case OT_EMBEDDED:   otObject = EMBEDDED;    break;
+            case OT_LINK:       otObject = LINK;        break;
+            default:            otObject = STATIC;      break;
             }
         }
-        if (lpObject)
-        {
+        if (lpObject) {
             if (pCard->lpObject)
                 PicDelete(pCard);
             pCard->lpObject = lpObject;
@@ -617,26 +576,22 @@ void PicPaste(
             SetRect(&(pCard->rcObject), 0, 0, 0, 0);
             CurCardHead.flags |= FDIRTY;
         }
-    }
-    else
-    {            /* Create an old object the hard way */
+    } else {            /* Create an old object the hard way */
         HBITMAP hBitmap;
         BITMAP bm;
 
-        if (hBitmap = (HBITMAP)GetClipboardData(CF_BITMAP))
-        {
+        if (hBitmap = (HBITMAP)GetClipboardData(CF_BITMAP)) {
             GetObject(hBitmap, sizeof(BITMAP), &bm);
-            if (!(hBitmap = MakeBitmapCopy(hBitmap, &bm, (HDC) NULL )))
+            if (!(hBitmap = MakeBitmapCopy(hBitmap, &bm, (HDC)NULL)))
                 IndexOkError(EINSMEMORY);
-            else
-            {
+            else {
                 if (pCard->lpObject)
                     PicDelete(pCard);
 
                 /* Make the selector zero */
                 pCard->lpObject = (LPOLEOBJECT)MAKELONG(hBitmap, 0);
-                SetRect(&(pCard->rcObject), 0, 0, bm.bmWidth-1, bm.bmHeight-1);
-                InvalidateRect(hEditWnd, (LPRECT)&(pCard->rcObject), TRUE);
+                SetRect(&(pCard->rcObject), 0, 0, bm.bmWidth - 1, bm.bmHeight - 1);
+                InvalidateRect(hEditWnd, (LPRECT) & (pCard->rcObject), TRUE);
                 CurCardHead.flags |= FDIRTY;
             }
         }
@@ -652,7 +607,7 @@ void PicPaste(
 
 */
 
-HBITMAP MakeObjectCopy(PCARD pCard, HDC  hDestDC )
+HBITMAP MakeObjectCopy(PCARD pCard, HDC  hDestDC)
 {
     HBITMAP hBitmap = NULL;
     HBRUSH  hBrush = NULL;
@@ -663,30 +618,26 @@ HBITMAP MakeObjectCopy(PCARD pCard, HDC  hDestDC )
     BOOL fError = TRUE;
     HANDLE hObject;
     BITMAP bm;
-    SIZE sz ;
+    SIZE sz;
 
     /* LOWORD(lpObject) is NULL only if no bitmap in 3.0 file */
     if (pCard->lpObject == NULL)
         return NULL;
 
     /* First, try to load a normal BITMAP */
-    if (GetObjectType(pCard->lpObject) != OBJ_BITMAP)
-    {
+    if (GetObjectType(pCard->lpObject) != OBJ_BITMAP) {
         if (OLE_OK != OleGetData(pCard->lpObject, CF_BITMAP, &hBitmap))
             hBitmap = NULL;
-    }
-    else
-    {
+    } else {
         hBitmap = (HBITMAP)(pCard->lpObject);
     }
 
     /* got a bitmap, either this is a bitmap in OLE object OR
        it is a bitmap in 3.0 card file.
        return a copy of the bitmap */
-    if (hBitmap)
-    {
+    if (hBitmap) {
         GetObject(hBitmap, sizeof(BITMAP), &bm);
-        return MakeBitmapCopy(hBitmap, &bm, hDestDC );
+        return MakeBitmapCopy(hBitmap, &bm, hDestDC);
     }
 
     /* Ole Object is not a bitmap. May be a metafile or s'thing else.
@@ -694,15 +645,12 @@ HBITMAP MakeObjectCopy(PCARD pCard, HDC  hDestDC )
     Hourglass(TRUE);
 
     /* If we don't succeed, draw the picture into a monochrome DC */
-    if( hDestDC == NULL )
-    {
+    if (hDestDC == NULL) {
         hDC = GetDC(hIndexWnd);
         hDCDest = CreateCompatibleDC(hDC);
         ReleaseDC(hIndexWnd, hDC);
-    }
-    else
-    {
-        hDCDest= CreateCompatibleDC(hDestDC);
+    } else {
+        hDCDest = CreateCompatibleDC(hDestDC);
     }
     if (!hDCDest)
         goto MakeObjectCopyEnd;
@@ -710,17 +658,13 @@ HBITMAP MakeObjectCopy(PCARD pCard, HDC  hDestDC )
     /* Create a new monochrome BITMAP */
     cxBitmap = (pCard->rcObject.right - pCard->rcObject.left);
     cyBitmap = (pCard->rcObject.bottom - pCard->rcObject.top);
-    if( hDestDC == NULL )
-    {
-        hBitmap= CreateBitmap( cxBitmap, cyBitmap, 1, 1, NULL );
-    }
-    else
-    {
-        hBitmap= CreateCompatibleBitmap( hDestDC,cxBitmap, cyBitmap );
+    if (hDestDC == NULL) {
+        hBitmap = CreateBitmap(cxBitmap, cyBitmap, 1, 1, NULL);
+    } else {
+        hBitmap = CreateCompatibleBitmap(hDestDC, cxBitmap, cyBitmap);
     }
 
-    if( !hBitmap )
-    {
+    if (!hBitmap) {
         goto MakeObjectCopyEnd;
     }
 
@@ -728,11 +672,9 @@ HBITMAP MakeObjectCopy(PCARD pCard, HDC  hDestDC )
     SetWindowExtEx(hDCDest, cxBitmap, cyBitmap, &sz);
 
     /* Draw into the DC */
-    if (hObject = SelectObject(hDCDest, hBitmap))
-    {
+    if (hObject = SelectObject(hDCDest, hBitmap)) {
         /* Start by clearing the DC (white's enough 'cause it's monochrome) */
-        if (hBrush = CreateSolidBrush(GetSysColor(COLOR_WINDOW)))
-        {
+        if (hBrush = CreateSolidBrush(GetSysColor(COLOR_WINDOW))) {
             RECT rc;
 
             rc = pCard->rcObject;
@@ -747,11 +689,9 @@ HBITMAP MakeObjectCopy(PCARD pCard, HDC  hDestDC )
     }
 
 MakeObjectCopyEnd:
-    if (fError)
-    {
+    if (fError) {
         ErrorMessage(E_BITMAP_COPY_FAILED);
-        if (hBitmap)
-        {
+        if (hBitmap) {
             DeleteObject(hBitmap);
             hBitmap = NULL;
         }
@@ -763,7 +703,7 @@ MakeObjectCopyEnd:
     return hBitmap;
 }
 
-NOEXPORT void NEAR SetFile (HANDLE fh)
+NOEXPORT void NEAR SetFile(HANDLE fh)
 {
     lpStream->fh = fh;
     vfbmp.bm.bmType = -1;
@@ -788,15 +728,14 @@ DWORD ReadOldStream(LPCARDSTREAM lpStream, LPBYTE lpbit, DWORD cb)
 {
     int      xTmp, yTmp;
     DWORD    cRead = 0L;
-    short    Temp ;
+    short    Temp;
 
-    if (vfbmp.bm.bmType == -1)
-    {
+    if (vfbmp.bm.bmType == -1) {
         iPos = 0;
         vfbmp.ulVersion = 1L;
         vfbmp.ulWhat = OT_STATIC;
         vfbmp.cbName = 7L;
-        CopyMemory (vfbmp.szName, "BITMAP\0", 7);
+        CopyMemory(vfbmp.szName, "BITMAP\0", 7);
         vfbmp.res[0] = vfbmp.res[1] = vfbmp.res[2] = 0L;
         vfbmp.bm.bmType = 0;
 
@@ -811,92 +750,90 @@ DWORD ReadOldStream(LPCARDSTREAM lpStream, LPBYTE lpbit, DWORD cb)
 
         /* Read in the card position */
         MyByteReadFile(lpStream->fh, &Temp, sizeof(Temp));
-        xTmp = Temp ;
+        xTmp = Temp;
 
         xTmp = (xTmp * CharFixWidth) / 8;
 
         MyByteReadFile(lpStream->fh, &Temp, sizeof(Temp));
-        yTmp = Temp ;
+        yTmp = Temp;
 
         yTmp = (yTmp * CharFixHeight) / 8;
 
         /* We don't scale for compatibility's sake */
         SetRect(&(CurCard.rcObject), xTmp, yTmp,
                 xTmp + vfbmp.bm.bmWidth - 1, yTmp + vfbmp.bm.bmHeight - 1);
-        vcLeft = (DWORD) sizeof(FAKEBITMAP);
-        vpfbmp = (BYTE *)&vfbmp;
+        vcLeft = (DWORD)sizeof(FAKEBITMAP);
+        vpfbmp = (BYTE*)&vfbmp;
     }
 #if 0
-    if (vcLeft)
-    {
+    if (vcLeft) {
         cRead = min(vcLeft, cb);
-        for (i = 0; i < (int) cRead; i++)
+        for (i = 0; i < (int)cRead; i++)
             *lpbit++ = *vpfbmp++;
-            vcLeft -= cRead;
+        vcLeft -= cRead;
         cb -= cRead;
     }
     if (cb) {
         /* Old bitmaps are always under 64K */
-        cRead += (DWORD) MyByteReadFile(lpStream->fh, lpbit + cRead, (int)cb);
+        cRead += (DWORD)MyByteReadFile(lpStream->fh, lpbit + cRead, (int)cb);
         vcbLeftToRead -= cRead;
     }
 
     return cRead;
 #endif
 
-   switch (iPos)
-   {
-      case 0:
-         *(DWORD *)lpbit = vfbmp.ulVersion;
-         break;
+    switch (iPos) {
+    case 0:
+        *(DWORD*)lpbit = vfbmp.ulVersion;
+        break;
 
-      case 1:
-         *(DWORD *)lpbit = vfbmp.ulWhat;
-         break;
+    case 1:
+        *(DWORD*)lpbit = vfbmp.ulWhat;
+        break;
 
-      case 2:
-         *(DWORD *)lpbit = vfbmp.cbName;
-         break;
+    case 2:
+        *(DWORD*)lpbit = vfbmp.cbName;
+        break;
 
-      case 3:
-         lstrcpy ((LPTSTR) lpbit, vfbmp.szName);
-         break;
+    case 3:
+        lstrcpy((LPTSTR)lpbit, vfbmp.szName);
+        break;
 
-      case 4:
-         *(DWORD *)lpbit = vfbmp.res[0];
-         break;
+    case 4:
+        *(DWORD*)lpbit = vfbmp.res[0];
+        break;
 
-      case 5:
-         *(DWORD *)lpbit = vfbmp.res[1];
-         break;
+    case 5:
+        *(DWORD*)lpbit = vfbmp.res[1];
+        break;
 
-      case 6:
-         // This needs to return the amount of data
-         *(DWORD *)lpbit = vcbLeftToRead + sizeof(WIN16BITMAP);
-         break;
+    case 6:
+        // This needs to return the amount of data
+        *(DWORD*)lpbit = vcbLeftToRead + sizeof(WIN16BITMAP);
+        break;
 
-      case 7:
-         // Should now be asking for the 16bit BITMAP Structure
-         // so copy it over
-         CopyMemory(lpbit, &vfbmp.bm, sizeof(WIN16BITMAP));
-         break;
+    case 7:
+        // Should now be asking for the 16bit BITMAP Structure
+        // so copy it over
+        CopyMemory(lpbit, &vfbmp.bm, sizeof(WIN16BITMAP));
+        break;
 
-      case 8:
-         MyByteReadFile(lpStream->fh, lpbit, vcbLeftToRead);
-         vcbLeftToRead = 0;
-         break;
+    case 8:
+        MyByteReadFile(lpStream->fh, lpbit, vcbLeftToRead);
+        vcbLeftToRead = 0;
+        break;
 
-      default:
+    default:
 #if DBG
-         MessageBox( NULL, TEXT("Should not have been called 10 times!"),
-                     TEXT("ReadOldStream"), MB_OK );
+        MessageBox(NULL, TEXT("Should not have been called 10 times!"),
+                   TEXT("ReadOldStream"), MB_OK);
 #endif
-         cb = 0;
-         break;
-   };
-   iPos++;
+        cb = 0;
+        break;
+    };
+    iPos++;
 
-   return cb;
+    return cb;
 }
 
 DWORD ReadStream(LPCARDSTREAM lpStream, LPBYTE lpbit, DWORD cb)
@@ -908,12 +845,12 @@ DWORD ReadStream(LPCARDSTREAM lpStream, LPBYTE lpbit, DWORD cb)
 
 DWORD WriteStream(LPCARDSTREAM lpStream, LPBYTE lpbit, DWORD cb)
 {
-   if (MyByteWriteFile(lpStream->fh, lpbit, cb))
+    if (MyByteWriteFile(lpStream->fh, lpbit, cb))
         return (cb);
     return (0);
 }
 
-HBITMAP MakeBitmapCopy(HBITMAP hbmSrc, PBITMAP pBitmap, HDC hDestDC )
+HBITMAP MakeBitmapCopy(HBITMAP hbmSrc, PBITMAP pBitmap, HDC hDestDC)
 {
     HBITMAP hBitmap = NULL;
     HDC hDCSrc = NULL;
@@ -921,17 +858,14 @@ HBITMAP MakeBitmapCopy(HBITMAP hbmSrc, PBITMAP pBitmap, HDC hDestDC )
     HDC hDC;
     BOOL fError = TRUE;
 
-    if( hDestDC == NULL )
-    {
+    if (hDestDC == NULL) {
         hDC = GetDC(hIndexWnd);
-        hDCSrc  = CreateCompatibleDC(hDC); /* get memory dc */
+        hDCSrc = CreateCompatibleDC(hDC); /* get memory dc */
         hDCDest = CreateCompatibleDC(hDC);
         ReleaseDC(hIndexWnd, hDC);
-    }
-    else
-    {
-        hDCSrc  = CreateCompatibleDC( hDestDC );
-        hDCDest = CreateCompatibleDC( hDestDC );
+    } else {
+        hDCSrc = CreateCompatibleDC(hDestDC);
+        hDCDest = CreateCompatibleDC(hDestDC);
     }
     if (!hDCSrc || !hDCDest)
         goto MakeCopyEnd;
@@ -941,30 +875,26 @@ HBITMAP MakeBitmapCopy(HBITMAP hbmSrc, PBITMAP pBitmap, HDC hDestDC )
         goto MakeCopyEnd;
 
     /* create new monochrome bitmap */
-    hBitmap= CreateBitmap( pBitmap->bmWidth, pBitmap->bmHeight, 1, GetDeviceCaps(hDCDest,NUMCOLORS), NULL );
-    if( !hBitmap )
-    {
+    hBitmap = CreateBitmap(pBitmap->bmWidth, pBitmap->bmHeight, 1, GetDeviceCaps(hDCDest, NUMCOLORS), NULL);
+    if (!hBitmap) {
         goto MakeCopyEnd;
     }
 
     /* Now blt the bitmap contents.  The screen driver in the source will
        "do the right thing" in copying color to black-and-white. */
 
-    if( SelectObject(hDCDest, hBitmap) )
-    {
-        if( BitBlt(hDCDest, 0, 0, pBitmap->bmWidth, pBitmap->bmHeight, hDCSrc, 0, 0, SRCCOPY) )
-        {
-            fError= FALSE;
+    if (SelectObject(hDCDest, hBitmap)) {
+        if (BitBlt(hDCDest, 0, 0, pBitmap->bmWidth, pBitmap->bmHeight, hDCSrc, 0, 0, SRCCOPY)) {
+            fError = FALSE;
         }
     }
-    if( fError )
-    {
+    if (fError) {
 
         DeleteObject(hBitmap);
         hBitmap = NULL;
         goto MakeCopyEnd;
     }
-    fError  = FALSE;
+    fError = FALSE;
 
 MakeCopyEnd:
     if (fError)
@@ -985,71 +915,67 @@ BOOL OleError(
     OLESTATUS olestat)
 {
     switch (olestat) {
-        case OLE_WAIT_FOR_RELEASE:
-            cOleWait++;
+    case OLE_WAIT_FOR_RELEASE:
+        cOleWait++;
 
-        case OLE_OK:
-            return FOLEERROR_OK;
+    case OLE_OK:
+        return FOLEERROR_OK;
 
-        case OLE_ERROR_STATIC:              /* Only happens w/ dbl click */
-            ErrorMessage(W_STATIC_OBJECT);
-            break;
+    case OLE_ERROR_STATIC:              /* Only happens w/ dbl click */
+        ErrorMessage(W_STATIC_OBJECT);
+        break;
 
-        case OLE_ERROR_COMM:
-            ErrorMessage(E_FAILED_TO_LAUNCH_SERVER);
-            break;
+    case OLE_ERROR_COMM:
+        ErrorMessage(E_FAILED_TO_LAUNCH_SERVER);
+        break;
 
-        case OLE_ERROR_REQUEST_NATIVE:
-        case OLE_ERROR_REQUEST_PICT:
-        case OLE_ERROR_ADVISE_NATIVE:
-        case OLE_ERROR_ADVISE_PICT:
-        case OLE_ERROR_OPEN:                /* Invalid link? */
-        case OLE_ERROR_NAME:
-            if (CurCard.otObject == LINK)
-            {
-                if (hwndError == hIndexWnd)
-                {
-                    if (DialogBox(hIndexInstance, (LPTSTR) MAKEINTRESOURCE(DTINVALIDLINK),
-                                  hwndError, (WNDPROC)lpfnInvalidLink) == IDD_LINK)
+    case OLE_ERROR_REQUEST_NATIVE:
+    case OLE_ERROR_REQUEST_PICT:
+    case OLE_ERROR_ADVISE_NATIVE:
+    case OLE_ERROR_ADVISE_PICT:
+    case OLE_ERROR_OPEN:                /* Invalid link? */
+    case OLE_ERROR_NAME:
+        if (CurCard.otObject == LINK) {
+            if (hwndError == hIndexWnd) {
+                if (DialogBox(hIndexInstance, (LPTSTR)MAKEINTRESOURCE(DTINVALIDLINK),
+                              hwndError, (WNDPROC)lpfnInvalidLink) == IDD_LINK)
                     PostMessage(hIndexWnd, WM_COMMAND, LINKSDIALOG, 0L);
-                }
-                else
-                {
-                    /* Failed, but already in LinksDlg!! */
-                    ErrorMessage(E_FAILED_TO_UPDATE_LINK);
-                }
-
-                return FALSE;
+            } else {
+                /* Failed, but already in LinksDlg!! */
+                ErrorMessage(E_FAILED_TO_UPDATE_LINK);
             }
-            break;
 
-        case OLE_BUSY:
-            ErrorMessage(E_SERVER_BUSY);
-            break;
+            return FALSE;
+        }
+        break;
 
-        default:
-            return FOLEERROR_NOTGIVEN;
+    case OLE_BUSY:
+        ErrorMessage(E_SERVER_BUSY);
+        break;
+
+    default:
+        return FOLEERROR_NOTGIVEN;
     }
     return FOLEERROR_GIVEN;
 }
 
 BOOL GetNewLinkName(HWND hwndOwner, PCARD pCard)
 {
-    BOOL    fPath    = FALSE;
+    BOOL    fPath = FALSE;
     BOOL    fSuccess = FALSE;
-    BOOL    fFile    = FALSE;
-    DWORD   dwSize   = 0 ;
+    BOOL    fFile = FALSE;
+    DWORD   dwSize = 0;
     HANDLE  hData;
-    HANDLE  hData2   = NULL;
-    HANDLE  hData3   = NULL;
+    HANDLE  hData2 = NULL;
+    HANDLE  hData3 = NULL;
     HWND    hwndOwnSave = NULL;
-    LPTSTR  lpData2     = NULL;
-    LPTSTR  lpstrData   = NULL;
-    LPTSTR  lpstrFile   = NULL;
-    LPTSTR  lpstrLink   = NULL;
-    LPTSTR  lpstrPath   = NULL;
-    LPTSTR  lpstrTemp   = NULL;
-    OLECHAR*pOleData    = NULL;
+    LPTSTR  lpData2 = NULL;
+    LPTSTR  lpstrData = NULL;
+    LPTSTR  lpstrFile = NULL;
+    LPTSTR  lpstrLink = NULL;
+    LPTSTR  lpstrPath = NULL;
+    LPTSTR  lpstrTemp = NULL;
+    OLECHAR* pOleData = NULL;
     TCHAR   szDocDefExt[10];
     TCHAR   szDocFile[PATHMAX];
     TCHAR   szDocPath[PATHMAX];
@@ -1060,7 +986,7 @@ BOOL GetNewLinkName(HWND hwndOwner, PCARD pCard)
         !(pOleData = GlobalLock(hData)))
         goto Error;
 
-    lpstrData= Ole2Native( pOleData,3 );   // convert to native chars
+    lpstrData = Ole2Native(pOleData, 3);   // convert to native chars
 
     lpstrTemp = lpstrData;
     while (*lpstrTemp++)
@@ -1088,41 +1014,37 @@ BOOL GetNewLinkName(HWND hwndOwner, PCARD pCard)
         lpstrFile++;
 
     /* Make a filter that respects the link's class name */
-    OFN.nFilterIndex    = MakeFilterSpec(lpstrData, lpstrFile, szServerFilter);
+    OFN.nFilterIndex = MakeFilterSpec(lpstrData, lpstrFile, szServerFilter);
     lstrcpy(szDocDefExt, (*lpstrFile) ? lpstrFile + 1 : TEXT(""));
-    OFN.lpstrDefExt       = NULL;
+    OFN.lpstrDefExt = NULL;
     OFN.lpstrCustomFilter = szCustFilterSpec;
-    OFN.lpstrFile       = szDocFile;
-    OFN.lpstrTitle      = szLinkCaption;
-    OFN.lpstrFilter     = szServerFilter;
+    OFN.lpstrFile = szDocFile;
+    OFN.lpstrTitle = szLinkCaption;
+    OFN.lpstrFilter = szServerFilter;
     OFN.lpstrInitialDir = szDocPath;
-    OFN.hwndOwner       = hwndOwner;
-    OFN.Flags             = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST;
+    OFN.hwndOwner = hwndOwner;
+    OFN.Flags = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST;
 
     LockData(0);
     fFile = GetOpenFileName(&OFN);
     UnlockData(0);
-    if (fFile)
-    {
+    if (fFile) {
         if (!(hData2 = GlobalAlloc(GMEM_DDESHARE | GMEM_ZEROINIT, ByteCountOf(PATHMAX * 2)))
-            || !(lpstrLink = lpstrTemp = (LPTSTR) GlobalLock(hData2)))
+            || !(lpstrLink = lpstrTemp = (LPTSTR)GlobalLock(hData2)))
             goto Error;
 
         /* If the user didn't specify an extension, use the default */
-        if (OFN.nFileExtension == lstrlen(szDocFile) && OFN.nFilterIndex)
-        {
+        if (OFN.nFileExtension == lstrlen(szDocFile) && OFN.nFilterIndex) {
             LPTSTR   lpstrFilter = szServerFilter;
 
-            while (*lpstrFilter && --OFN.nFilterIndex)
-            {
-                while (*lpstrFilter++) ;
-                while (*lpstrFilter++) ;
+            while (*lpstrFilter && --OFN.nFilterIndex) {
+                while (*lpstrFilter++);
+                while (*lpstrFilter++);
             }
-            if (*lpstrFilter)
-            {
-                 while (*lpstrFilter++) ;
-                 lpstrFilter++;
-                 lstrcat(szDocFile, lpstrFilter);
+            if (*lpstrFilter) {
+                while (*lpstrFilter++);
+                lpstrFilter++;
+                lstrcat(szDocFile, lpstrFilter);
             }
         }
 
@@ -1132,56 +1054,50 @@ BOOL GetNewLinkName(HWND hwndOwner, PCARD pCard)
         lpstrTemp += lstrlen(lpstrTemp) + 1;
         lpstrData += lstrlen(lpstrData) + 1;
         while (*lpstrTemp++ = *lpstrData++);
-        *lpstrTemp = (TCHAR) 0;
+        *lpstrTemp = (TCHAR)0;
         dwSize = (DWORD)(lpstrTemp - lpstrLink + 1);
 
         // Convert to ascii.  OLE1 doesn't do unicode
         {
-             char buff[400];
-             INT oleSize;
-             oleSize= WideCharToMultiByte(CP_ACP, 0, lpstrLink, dwSize, buff, sizeof(buff), NULL, NULL );
-             CopyMemory( lpstrLink, buff, oleSize );
+            char buff[400];
+            INT oleSize;
+            oleSize = WideCharToMultiByte(CP_ACP, 0, lpstrLink, dwSize, buff, sizeof(buff), NULL, NULL);
+            CopyMemory(lpstrLink, buff, oleSize);
         }
 
         /* Unlock the appropriate memory blocks */
         GlobalUnlock(hData);    /* Unlock, because OleSetData() may free it */
         GlobalUnlock(hData2);
-        GlobalFree( lpstrData );
+        GlobalFree(lpstrData);
         lpstrData = NULL;
 
         /* Compress the block to minimal size */
-        hData3 = GlobalReAlloc(hData2, ByteCountOf(lpstrTemp-lpstrLink+1), GMEM_MOVEABLE);
+        hData3 = GlobalReAlloc(hData2, ByteCountOf(lpstrTemp - lpstrLink + 1), GMEM_MOVEABLE);
         if (!hData3)
             hData3 = hData2;
 
-        if (!OleError(OleSetData(pCard->lpObject, vcfLink, hData3)))
-        {
+        if (!OleError(OleSetData(pCard->lpObject, vcfLink, hData3))) {
             WaitForObject(pCard->lpObject);
             fSuccess = (OleStatusCallBack == OLE_OK);
-            if (fSuccess)
-            {
+            if (fSuccess) {
                 fSuccess = !OleError(OleUpdate(pCard->lpObject));
-                if (fSuccess)
-                {
+                if (fSuccess) {
                     WaitForObject(pCard->lpObject);
-                    if (OleStatusCallBack == OLE_OK)
-                    {
+                    if (OleStatusCallBack == OLE_OK) {
                         CurCardHead.flags |= FDIRTY;
                         fSuccess = TRUE;
-                    }
-                    else
+                    } else
                         fSuccess = FALSE;
                 }
             }
-            if (!fSuccess)
-            {
+            if (!fSuccess) {
                 ErrorMessage(E_FAILED_TO_UPDATE);
                 goto Error;
             }
         }
     }
 
-    if(CommDlgExtendedError()) /* Assumes low memory. */
+    if (CommDlgExtendedError()) /* Assumes low memory. */
         IndexOkError(EINSMEMORY);
 
 Error:
@@ -1192,32 +1108,29 @@ Error:
         if (pOleData)
             GlobalUnlock(hData);
 
-        if( lpstrData )
-            LocalFree( lpstrData );
+        if (lpstrData)
+            LocalFree(lpstrData);
     }
 
-    OFN.hwndOwner       = hwndOwnSave;
+    OFN.hwndOwner = hwndOwnSave;
     return fSuccess;
 }
 
 void PicSaveUndo(PCARD pCard)
 {
-  WORD fOleErrMsg;
+    WORD fOleErrMsg;
 
     /* If Undo object exists, delete it */
     DeleteUndoObject();
 
     /* Clone the current object */
-    if (pCard->lpObject)
-    {
+    if (pCard->lpObject) {
         if (fOleErrMsg = OleError(OleClone(pCard->lpObject, lpclient,
-                 lhcdoc, szUndo, (LPOLEOBJECT FAR *)&lpObjectUndo)))
-        {
+                                           lhcdoc, szUndo, (LPOLEOBJECT FAR*) & lpObjectUndo))) {
             lpObjectUndo = NULL;
             if (fOleErrMsg == FOLEERROR_NOTGIVEN)
                 ErrorMessage(W_FAILED_TO_CLONE_UNDO);
-        }
-        else
+        } else
             otObjectUndo = pCard->otObject;
     }
 }
@@ -1236,8 +1149,7 @@ void ErrorMessage(int id)
 */
 void WaitForObject(LPOLEOBJECT lpObject)
 {
-    if (lpObject)
-    {
+    if (lpObject) {
         while (OleQueryReleaseStatus(lpObject) == OLE_BUSY)
             ProcessMessage(hIndexWnd, hAccel);
     }
@@ -1246,15 +1158,11 @@ void WaitForObject(LPOLEOBJECT lpObject)
 
 void Hourglass(BOOL fOn)
 {
-    if (fOn)
-    {
+    if (fOn) {
         if (!(cWait++))
             hcurOle = SetCursor(hWaitCurs);
-    }
-    else
-    {
-        if (!(--cWait) && hcurOle)
-        {
+    } else {
+        if (!(--cWait) && hcurOle) {
             SetCursor(hcurOle);
             hcurOle = NULL;
         }
@@ -1275,18 +1183,17 @@ void PicCreateFromFile(LPTSTR szPackageClass, LPTSTR szDropFile, BOOL fLink)
 
     /* Don't replace the current object unless we're successful */
 #ifndef OLE_20
-    wsprintfA (szObjectName, szObjFormat, idObjectMax + 1);
+    wsprintfA(szObjectName, szObjFormat, idObjectMax + 1);
 #else
-    wsprintfW (szObjectName, szObjFormat, idObjectMax + 1);
+    wsprintfW(szObjectName, szObjFormat, idObjectMax + 1);
 #endif
 
 #ifndef OLE_20
-    WideCharToMultiByte (CP_ACP, 0, szPackageClass, -1, aszBuf1, PATHMAX, NULL, NULL);
-    WideCharToMultiByte (CP_ACP, 0, szDropFile, -1, aszBuf2, PATHMAX, NULL, NULL);
+    WideCharToMultiByte(CP_ACP, 0, szPackageClass, -1, aszBuf1, PATHMAX, NULL, NULL);
+    WideCharToMultiByte(CP_ACP, 0, szDropFile, -1, aszBuf2, PATHMAX, NULL, NULL);
 #endif
 
-    if (fLink)
-    {
+    if (fLink) {
 #ifndef OLE_20
         fError = OleCreateLinkFromFile(szPStdFile, lpclient, aszBuf1,
                                        aszBuf2, NULL, lhcdoc, szObjectName,
@@ -1296,9 +1203,7 @@ void PicCreateFromFile(LPTSTR szPackageClass, LPTSTR szDropFile, BOOL fLink)
                                        szDropFile, NULL, lhcdoc, szObjectName,
                                        &lpObject, olerender_draw, 0);
 #endif
-    }
-    else
-    {
+    } else {
 #ifndef OLE_20
         fError = OleCreateLinkFromFile(szPStdFile, lpclient, aszBuf1,
                                        aszBuf2, NULL, lhcdoc, szObjectName,
@@ -1311,8 +1216,7 @@ void PicCreateFromFile(LPTSTR szPackageClass, LPTSTR szDropFile, BOOL fLink)
     }
 
     WaitForObject(lpObject);
-    if (fError != OLE_WAIT_FOR_RELEASE)
-    {
+    if (fError != OLE_WAIT_FOR_RELEASE) {
         lpObject = NULL;
         ErrorMessage(E_DRAG_DROP_FAILED);
     } else {
@@ -1321,15 +1225,14 @@ void PicCreateFromFile(LPTSTR szPackageClass, LPTSTR szDropFile, BOOL fLink)
         /* Figure out what kind of object we have */
         OleQueryType(lpObject, &objType);
         switch (objType) {
-            case OT_EMBEDDED:   otObject = EMBEDDED;    break;
-            case OT_LINK:       otObject = LINK;        break;
-            default:            otObject = STATIC;      break;
+        case OT_EMBEDDED:   otObject = EMBEDDED;    break;
+        case OT_LINK:       otObject = LINK;        break;
+        default:            otObject = STATIC;      break;
         }
         DoSetHostNames(lpObject, otObject);
     }
 
-    if (lpObject)
-    {
+    if (lpObject) {
         if (CurCard.lpObject)
             PicDelete(&CurCard);
         CurCard.lpObject = lpObject;
@@ -1348,7 +1251,7 @@ BOOL EditingEmbObject(
     PCARD pCard)
 {
     if (pCard->lpObject && pCard->otObject == EMBEDDED &&
-            OleQueryOpen(pCard->lpObject) == OLE_OK) /* embedded object open for editing */
+        OleQueryOpen(pCard->lpObject) == OLE_OK) /* embedded object open for editing */
         return TRUE;
     else
         return FALSE;
@@ -1362,25 +1265,22 @@ int UpdateEmbObject(
     TCHAR szMsg[100];
 
     /* If an embedded object is open for editing, try to update */
-    if (EditingEmbObject(&CurCard))
-    {
+    if (EditingEmbObject(&CurCard)) {
         LoadString(hIndexInstance, IDS_UPDATEEMBOBJECT, szMsg, CharSizeOf(szMsg));
         Result = MessageBox(hIndexWnd, szMsg, szCardfile, Flags);
-        if (Result == IDYES)
-        {
-            switch (OleError(OleUpdate(CurCard.lpObject)))
-            {
-                case FOLEERROR_NOTGIVEN:
-                    ErrorMessage(E_FAILED_TO_UPDATE);
-                    break;
+        if (Result == IDYES) {
+            switch (OleError(OleUpdate(CurCard.lpObject))) {
+            case FOLEERROR_NOTGIVEN:
+                ErrorMessage(E_FAILED_TO_UPDATE);
+                break;
 #if 0
-                case FOLEERROR_GIVEN:
-                    break;
+            case FOLEERROR_GIVEN:
+                break;
 #endif
-                case FOLEERROR_OK:
-                    WaitForObject(CurCard.lpObject);
-                    CurCardHead.flags |= FDIRTY;
-                    break;
+            case FOLEERROR_OK:
+                WaitForObject(CurCard.lpObject);
+                CurCardHead.flags |= FDIRTY;
+                break;
             }
         }
     }
@@ -1392,8 +1292,7 @@ BOOL InsertObjectInProgress(
 {
     TCHAR szMsg[200];
 
-    if (EditingEmbObject(&CurCard) && !fInsertComplete)
-    {
+    if (EditingEmbObject(&CurCard) && !fInsertComplete) {
         LoadString(hIndexInstance, IDS_RETRYAFTERINSERT, szMsg, CharSizeOf(szMsg));
         MessageBox(hIndexWnd, szMsg, szCardfile, MB_OK);
         return TRUE;
@@ -1405,15 +1304,14 @@ void DoSetHostNames(
     LPOLEOBJECT lpObject,
     OBJECTTYPE otObject)
 {
-    if (lpObject && otObject == EMBEDDED)
-    {
+    if (lpObject && otObject == EMBEDDED) {
 #ifndef OLE_20
         CHAR  aszCardfile[60];
         CHAR  aszBuf[PATHMAX];
 
-        WideCharToMultiByte (CP_ACP, 0, szCardfile, -1, aszCardfile, 60, NULL, NULL);
-        WideCharToMultiByte (CP_ACP, 0, (*CurIFile) ? CurIFile : szUntitled, -1,
-                             aszBuf, PATHMAX, NULL, NULL);
+        WideCharToMultiByte(CP_ACP, 0, szCardfile, -1, aszCardfile, 60, NULL, NULL);
+        WideCharToMultiByte(CP_ACP, 0, (*CurIFile) ? CurIFile : szUntitled, -1,
+                            aszBuf, PATHMAX, NULL, NULL);
 #endif
 
         WaitForObject(lpObject);
@@ -1421,7 +1319,7 @@ void DoSetHostNames(
         OleError(OleSetHostNames(lpObject, aszCardfile, aszBuf));
 #else
         OleError(OleSetHostNames(lpObject, szCardfile,
-                                 (*CurIFile) ? CurIFile : szUntitled));
+            (*CurIFile) ? CurIFile : szUntitled));
 #endif
     }
 }

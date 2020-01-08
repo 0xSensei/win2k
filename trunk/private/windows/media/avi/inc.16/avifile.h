@@ -44,7 +44,7 @@ extern "C" {            /* Assume C declarations for C++ */
 */
 
 #ifndef mmioFOURCC
-    #define mmioFOURCC( ch0, ch1, ch2, ch3 ) \
+#define mmioFOURCC( ch0, ch1, ch2, ch3 ) \
     ( (DWORD)(BYTE)(ch0) | ( (DWORD)(BYTE)(ch1) << 8 ) |    \
     ( (DWORD)(BYTE)(ch2) << 16 ) | ( (DWORD)(BYTE)(ch3) << 24 ) )
 #endif
@@ -76,47 +76,47 @@ extern "C" {            /* Assume C declarations for C++ */
 // end_vfw32
 #ifdef WIN32
 // begin_vfw32
-typedef struct _AVISTREAMINFOW {
-    DWORD        fccType;
-    DWORD               fccHandler;
-    DWORD               dwFlags;        /* Contains AVITF_* flags */
-    DWORD        dwCaps;
-    WORD        wPriority;
-    WORD        wLanguage;
-    DWORD               dwScale;
-    DWORD               dwRate; /* dwRate / dwScale == samples/second */
-    DWORD               dwStart;
-    DWORD               dwLength; /* In units above... */
-    DWORD        dwInitialFrames;
-    DWORD               dwSuggestedBufferSize;
-    DWORD               dwQuality;
-    DWORD               dwSampleSize;
-    RECT                rcFrame;
-    DWORD        dwEditCount;
-    DWORD        dwFormatChangeCount;
-    WCHAR        szName[64];
-} AVISTREAMINFOW, FAR * LPAVISTREAMINFOW;
+    typedef struct _AVISTREAMINFOW {
+        DWORD        fccType;
+        DWORD               fccHandler;
+        DWORD               dwFlags;        /* Contains AVITF_* flags */
+        DWORD        dwCaps;
+        WORD        wPriority;
+        WORD        wLanguage;
+        DWORD               dwScale;
+        DWORD               dwRate; /* dwRate / dwScale == samples/second */
+        DWORD               dwStart;
+        DWORD               dwLength; /* In units above... */
+        DWORD        dwInitialFrames;
+        DWORD               dwSuggestedBufferSize;
+        DWORD               dwQuality;
+        DWORD               dwSampleSize;
+        RECT                rcFrame;
+        DWORD        dwEditCount;
+        DWORD        dwFormatChangeCount;
+        WCHAR        szName[64];
+    } AVISTREAMINFOW, FAR* LPAVISTREAMINFOW;
 
-typedef struct _AVISTREAMINFOA {
-    DWORD        fccType;
-    DWORD               fccHandler;
-    DWORD               dwFlags;        /* Contains AVITF_* flags */
-    DWORD        dwCaps;
-    WORD        wPriority;
-    WORD        wLanguage;
-    DWORD               dwScale;
-    DWORD               dwRate; /* dwRate / dwScale == samples/second */
-    DWORD               dwStart;
-    DWORD               dwLength; /* In units above... */
-    DWORD        dwInitialFrames;
-    DWORD               dwSuggestedBufferSize;
-    DWORD               dwQuality;
-    DWORD               dwSampleSize;
-    RECT                rcFrame;
-    DWORD        dwEditCount;
-    DWORD        dwFormatChangeCount;
-    char        szName[64];
-} AVISTREAMINFOA, FAR * LPAVISTREAMINFOA;
+    typedef struct _AVISTREAMINFOA {
+        DWORD        fccType;
+        DWORD               fccHandler;
+        DWORD               dwFlags;        /* Contains AVITF_* flags */
+        DWORD        dwCaps;
+        WORD        wPriority;
+        WORD        wLanguage;
+        DWORD               dwScale;
+        DWORD               dwRate; /* dwRate / dwScale == samples/second */
+        DWORD               dwStart;
+        DWORD               dwLength; /* In units above... */
+        DWORD        dwInitialFrames;
+        DWORD               dwSuggestedBufferSize;
+        DWORD               dwQuality;
+        DWORD               dwSampleSize;
+        RECT                rcFrame;
+        DWORD        dwEditCount;
+        DWORD        dwFormatChangeCount;
+        char        szName[64];
+    } AVISTREAMINFOA, FAR* LPAVISTREAMINFOA;
 
 #ifdef UNICODE
 #define AVISTREAMINFO    AVISTREAMINFOW
@@ -126,35 +126,35 @@ typedef struct _AVISTREAMINFOA {
 #define LPAVISTREAMINFO    LPAVISTREAMINFOA
 #endif
 
-// end_vfw32
+    // end_vfw32
 
 #else //win16 variant
 
 #define AVISTREAMINFOW    AVISTREAMINFO
-typedef struct _AVISTREAMINFO {
-    DWORD        fccType;
-    DWORD               fccHandler;
-    DWORD               dwFlags;        /* Contains AVITF_* flags */
-    DWORD        dwCaps;
-    WORD        wPriority;
-    WORD        wLanguage;
-    DWORD               dwScale;
-    DWORD               dwRate; /* dwRate / dwScale == samples/second */
-    DWORD               dwStart;
-    DWORD               dwLength; /* In units above... */
-    DWORD        dwInitialFrames;
-    DWORD               dwSuggestedBufferSize;
-    DWORD               dwQuality;
-    DWORD               dwSampleSize;
-    RECT                rcFrame;
-    DWORD        dwEditCount;
-    DWORD        dwFormatChangeCount;
-    char        szName[64];
-} AVISTREAMINFO, FAR * LPAVISTREAMINFO;
+    typedef struct _AVISTREAMINFO {
+        DWORD        fccType;
+        DWORD               fccHandler;
+        DWORD               dwFlags;        /* Contains AVITF_* flags */
+        DWORD        dwCaps;
+        WORD        wPriority;
+        WORD        wLanguage;
+        DWORD               dwScale;
+        DWORD               dwRate; /* dwRate / dwScale == samples/second */
+        DWORD               dwStart;
+        DWORD               dwLength; /* In units above... */
+        DWORD        dwInitialFrames;
+        DWORD               dwSuggestedBufferSize;
+        DWORD               dwQuality;
+        DWORD               dwSampleSize;
+        RECT                rcFrame;
+        DWORD        dwEditCount;
+        DWORD        dwFormatChangeCount;
+        char        szName[64];
+    } AVISTREAMINFO, FAR* LPAVISTREAMINFO;
 
 #endif
 
-// begin_vfw32
+    // begin_vfw32
 
 #define AVISTREAMINFO_DISABLED            0x00000001
 #define AVISTREAMINFO_FORMATCHANGES        0x00010000
@@ -170,43 +170,43 @@ typedef struct _AVISTREAMINFO {
 
 // begin_vfw32
 
-typedef struct _AVIFILEINFOW {
-    DWORD        dwMaxBytesPerSec;    // max. transfer rate
-    DWORD        dwFlags;        // the ever-present flags
-    DWORD        dwCaps;
-    DWORD        dwStreams;
-    DWORD        dwSuggestedBufferSize;
+    typedef struct _AVIFILEINFOW {
+        DWORD        dwMaxBytesPerSec;    // max. transfer rate
+        DWORD        dwFlags;        // the ever-present flags
+        DWORD        dwCaps;
+        DWORD        dwStreams;
+        DWORD        dwSuggestedBufferSize;
 
-    DWORD        dwWidth;
-    DWORD        dwHeight;
+        DWORD        dwWidth;
+        DWORD        dwHeight;
 
-    DWORD        dwScale;
-    DWORD        dwRate;    /* dwRate / dwScale == samples/second */
-    DWORD        dwLength;
+        DWORD        dwScale;
+        DWORD        dwRate;    /* dwRate / dwScale == samples/second */
+        DWORD        dwLength;
 
-    DWORD        dwEditCount;
+        DWORD        dwEditCount;
 
-    WCHAR        szFileType[64];        // descriptive string for file type?
-} AVIFILEINFOW, FAR * LPAVIFILEINFOW;
+        WCHAR        szFileType[64];        // descriptive string for file type?
+    } AVIFILEINFOW, FAR* LPAVIFILEINFOW;
 
-typedef struct _AVIFILEINFOA {
-    DWORD        dwMaxBytesPerSec;    // max. transfer rate
-    DWORD        dwFlags;        // the ever-present flags
-    DWORD        dwCaps;
-    DWORD        dwStreams;
-    DWORD        dwSuggestedBufferSize;
+    typedef struct _AVIFILEINFOA {
+        DWORD        dwMaxBytesPerSec;    // max. transfer rate
+        DWORD        dwFlags;        // the ever-present flags
+        DWORD        dwCaps;
+        DWORD        dwStreams;
+        DWORD        dwSuggestedBufferSize;
 
-    DWORD        dwWidth;
-    DWORD        dwHeight;
+        DWORD        dwWidth;
+        DWORD        dwHeight;
 
-    DWORD        dwScale;
-    DWORD        dwRate;    /* dwRate / dwScale == samples/second */
-    DWORD        dwLength;
+        DWORD        dwScale;
+        DWORD        dwRate;    /* dwRate / dwScale == samples/second */
+        DWORD        dwLength;
 
-    DWORD        dwEditCount;
+        DWORD        dwEditCount;
 
-    char        szFileType[64];        // descriptive string for file type?
-} AVIFILEINFOA, FAR * LPAVIFILEINFOA;
+        char        szFileType[64];        // descriptive string for file type?
+    } AVIFILEINFOA, FAR* LPAVIFILEINFOA;
 
 #ifdef UNICODE
 #define AVIFILEINFO    AVIFILEINFOW
@@ -216,35 +216,35 @@ typedef struct _AVIFILEINFOA {
 #define LPAVIFILEINFO    LPAVIFILEINFOA
 #endif
 
-// end_vfw32
+    // end_vfw32
 
 #else  // win16 variant
 
 #define AVIFILEINFOW    AVIFILEINFO
-typedef struct _AVIFILEINFO {
-    DWORD        dwMaxBytesPerSec;    // max. transfer rate
-    DWORD        dwFlags;        // the ever-present flags
-    DWORD        dwCaps;
-    DWORD        dwStreams;
-    DWORD        dwSuggestedBufferSize;
+    typedef struct _AVIFILEINFO {
+        DWORD        dwMaxBytesPerSec;    // max. transfer rate
+        DWORD        dwFlags;        // the ever-present flags
+        DWORD        dwCaps;
+        DWORD        dwStreams;
+        DWORD        dwSuggestedBufferSize;
 
-    DWORD        dwWidth;
-    DWORD        dwHeight;
+        DWORD        dwWidth;
+        DWORD        dwHeight;
 
-    DWORD        dwScale;
-    DWORD        dwRate;    /* dwRate / dwScale == samples/second */
-    DWORD        dwLength;
+        DWORD        dwScale;
+        DWORD        dwRate;    /* dwRate / dwScale == samples/second */
+        DWORD        dwLength;
 
-    DWORD        dwEditCount;
+        DWORD        dwEditCount;
 
-    char        szFileType[64];        // descriptive string for file type?
-} AVIFILEINFO, FAR * LPAVIFILEINFO;
+        char        szFileType[64];        // descriptive string for file type?
+    } AVIFILEINFO, FAR* LPAVIFILEINFO;
 
 #endif
 
-// begin_vfw32
+    // begin_vfw32
 
-// Flags for dwFlags
+    // Flags for dwFlags
 #define AVIFILEINFO_HASINDEX        0x00000010
 #define AVIFILEINFO_MUSTUSEINDEX    0x00000020
 #define AVIFILEINFO_ISINTERLEAVED    0x00000100
@@ -257,32 +257,32 @@ typedef struct _AVIFILEINFO {
 #define AVIFILECAPS_ALLKEYFRAMES    0x00000010
 #define AVIFILECAPS_NOCOMPRESSION    0x00000020
 
-typedef BOOL (FAR PASCAL * AVISAVECALLBACK)(int);
+    typedef BOOL(FAR PASCAL* AVISAVECALLBACK)(int);
 
-/************************************************************************/
-/* Declaration for the AVICOMPRESSOPTIONS structure.  Make sure it     */
-/* matches the AutoDoc in avisave.c !!!                                */
-/************************************************************************/
+    /************************************************************************/
+    /* Declaration for the AVICOMPRESSOPTIONS structure.  Make sure it     */
+    /* matches the AutoDoc in avisave.c !!!                                */
+    /************************************************************************/
 
-typedef struct {
-    DWORD    fccType;            /* stream type, for consistency */
-    DWORD       fccHandler;                 /* compressor */
-    DWORD       dwKeyFrameEvery;            /* keyframe rate */
-    DWORD       dwQuality;                  /* compress quality 0-10,000 */
-    DWORD       dwBytesPerSecond;           /* bytes per second */
-    DWORD       dwFlags;                    /* flags... see below */
-    LPVOID      lpFormat;                   /* save format */
-    DWORD       cbFormat;
-    LPVOID      lpParms;                    /* compressor options */
-    DWORD       cbParms;
-    DWORD       dwInterleaveEvery;          /* for non-video streams only */
-} AVICOMPRESSOPTIONS, FAR *LPAVICOMPRESSOPTIONS;
+    typedef struct {
+        DWORD    fccType;            /* stream type, for consistency */
+        DWORD       fccHandler;                 /* compressor */
+        DWORD       dwKeyFrameEvery;            /* keyframe rate */
+        DWORD       dwQuality;                  /* compress quality 0-10,000 */
+        DWORD       dwBytesPerSecond;           /* bytes per second */
+        DWORD       dwFlags;                    /* flags... see below */
+        LPVOID      lpFormat;                   /* save format */
+        DWORD       cbFormat;
+        LPVOID      lpParms;                    /* compressor options */
+        DWORD       cbParms;
+        DWORD       dwInterleaveEvery;          /* for non-video streams only */
+    } AVICOMPRESSOPTIONS, FAR* LPAVICOMPRESSOPTIONS;
 
 
-// Defines for the dwFlags field of the AVICOMPRESSOPTIONS struct
-// Each of these flags determines if the appropriate field in the structure
-// (dwInterleaveEvery, dwBytesPerSecond, and dwKeyFrameEvery) is payed
-// attention to.  See the autodoc in avisave.c for details.
+    // Defines for the dwFlags field of the AVICOMPRESSOPTIONS struct
+    // Each of these flags determines if the appropriate field in the structure
+    // (dwInterleaveEvery, dwBytesPerSecond, and dwKeyFrameEvery) is payed
+    // attention to.  See the autodoc in avisave.c for details.
 
 #define AVICOMPRESSF_INTERLEAVE        0x00000001    // interleave
 #define AVICOMPRESSF_DATARATE        0x00000002    // use a data rate
@@ -308,158 +308,158 @@ extern "C" {            /* Assume C declarations for C++ */
 // functions
 
 
-STDAPI_(void) AVIFileInit(void);   // Call this first!
-STDAPI_(void) AVIFileExit(void);
+    STDAPI_(void) AVIFileInit(void);   // Call this first!
+    STDAPI_(void) AVIFileExit(void);
 
-STDAPI_(ULONG) AVIFileAddRef       (PAVIFILE pfile);
-STDAPI_(ULONG) AVIFileRelease      (PAVIFILE pfile);
+    STDAPI_(ULONG) AVIFileAddRef(PAVIFILE pfile);
+    STDAPI_(ULONG) AVIFileRelease(PAVIFILE pfile);
 
 #ifdef WIN32
-STDAPI AVIFileOpenA       (PAVIFILE FAR * ppfile, LPCSTR szFile,
-              UINT uMode, LPCLSID lpHandler);
-STDAPI AVIFileOpenW       (PAVIFILE FAR * ppfile, LPCWSTR szFile,
-              UINT uMode, LPCLSID lpHandler);
+    STDAPI AVIFileOpenA(PAVIFILE FAR* ppfile, LPCSTR szFile,
+                        UINT uMode, LPCLSID lpHandler);
+    STDAPI AVIFileOpenW(PAVIFILE FAR* ppfile, LPCWSTR szFile,
+                        UINT uMode, LPCLSID lpHandler);
 #ifdef UNICODE
 #define AVIFileOpen      AVIFileOpenW
 #else
 #define AVIFileOpen      AVIFileOpenA
 #endif
 #else // win16
-STDAPI AVIFileOpen       (PAVIFILE FAR * ppfile, LPCSTR szFile,
-              UINT uMode, LPCLSID lpHandler);
+    STDAPI AVIFileOpen(PAVIFILE FAR* ppfile, LPCSTR szFile,
+                       UINT uMode, LPCLSID lpHandler);
 #endif
 
 #ifdef WIN32
-STDAPI AVIFileInfoW (PAVIFILE pfile, LPAVIFILEINFOW pfi, LONG lSize);
-STDAPI AVIFileInfoA (PAVIFILE pfile, LPAVIFILEINFOA pfi, LONG lSize);
+    STDAPI AVIFileInfoW(PAVIFILE pfile, LPAVIFILEINFOW pfi, LONG lSize);
+    STDAPI AVIFileInfoA(PAVIFILE pfile, LPAVIFILEINFOA pfi, LONG lSize);
 #ifdef UNICODE
 #define AVIFileInfo    AVIFileInfoW
 #else
 #define AVIFileInfo    AVIFileInfoA
 #endif
 #else //win16 version
-STDAPI AVIFileInfo (PAVIFILE pfile, LPAVIFILEINFO pfi, LONG lSize);
+    STDAPI AVIFileInfo(PAVIFILE pfile, LPAVIFILEINFO pfi, LONG lSize);
 #endif
 
 
-STDAPI AVIFileGetStream     (PAVIFILE pfile, PAVISTREAM FAR * ppavi, DWORD fccType, LONG lParam);
+    STDAPI AVIFileGetStream(PAVIFILE pfile, PAVISTREAM FAR* ppavi, DWORD fccType, LONG lParam);
 
 
-STDAPI AVIFileCreateStream  (PAVIFILE pfile,
-                     PAVISTREAM FAR *ppavi,
-                     AVISTREAMINFOW FAR *psi);
+    STDAPI AVIFileCreateStream(PAVIFILE pfile,
+                               PAVISTREAM FAR* ppavi,
+                               AVISTREAMINFOW FAR* psi);
 
-STDAPI AVIFileWriteData    (PAVIFILE pfile,
-                     DWORD ckid,
-                     LPVOID lpData,
-                     LONG cbData);
-STDAPI AVIFileReadData    (PAVIFILE pfile,
-                     DWORD ckid,
-                     LPVOID lpData,
-                     LONG FAR *lpcbData);
-STDAPI AVIFileEndRecord    (PAVIFILE pfile);
+    STDAPI AVIFileWriteData(PAVIFILE pfile,
+                            DWORD ckid,
+                            LPVOID lpData,
+                            LONG cbData);
+    STDAPI AVIFileReadData(PAVIFILE pfile,
+                           DWORD ckid,
+                           LPVOID lpData,
+                           LONG FAR* lpcbData);
+    STDAPI AVIFileEndRecord(PAVIFILE pfile);
 
-STDAPI_(ULONG) AVIStreamAddRef       (PAVISTREAM pavi);
-STDAPI_(ULONG) AVIStreamRelease      (PAVISTREAM pavi);
+    STDAPI_(ULONG) AVIStreamAddRef(PAVISTREAM pavi);
+    STDAPI_(ULONG) AVIStreamRelease(PAVISTREAM pavi);
 
-// end2_vfw32
+    // end2_vfw32
 
 #ifdef WIN32
 // begin2_vfw32
-STDAPI AVIStreamInfoW (PAVISTREAM pavi, LPAVISTREAMINFOW psi, LONG lSize);
-STDAPI AVIStreamInfoA (PAVISTREAM pavi, LPAVISTREAMINFOA psi, LONG lSize);
+    STDAPI AVIStreamInfoW(PAVISTREAM pavi, LPAVISTREAMINFOW psi, LONG lSize);
+    STDAPI AVIStreamInfoA(PAVISTREAM pavi, LPAVISTREAMINFOA psi, LONG lSize);
 #ifdef UNICODE
 #define AVIStreamInfo    AVIStreamInfoW
 #else
 #define AVIStreamInfo    AVIStreamInfoA
 #endif
-// end2_vfw32
+    // end2_vfw32
 #else // win16
-STDAPI AVIStreamInfo (PAVISTREAM pavi, LPAVISTREAMINFO psi, LONG lSize);
+    STDAPI AVIStreamInfo(PAVISTREAM pavi, LPAVISTREAMINFO psi, LONG lSize);
 #endif
 
-// begin2_vfw32
+    // begin2_vfw32
 
-STDAPI_(LONG) AVIStreamFindSample(PAVISTREAM pavi, LONG lPos, LONG lFlags);
-STDAPI AVIStreamReadFormat   (PAVISTREAM pavi, LONG lPos,LPVOID lpFormat,LONG FAR *lpcbFormat);
-STDAPI AVIStreamSetFormat    (PAVISTREAM pavi, LONG lPos,LPVOID lpFormat,LONG cbFormat);
-STDAPI AVIStreamReadData     (PAVISTREAM pavi, DWORD fcc, LPVOID lp, LONG FAR *lpcb);
-STDAPI AVIStreamWriteData    (PAVISTREAM pavi, DWORD fcc, LPVOID lp, LONG cb);
+    STDAPI_(LONG) AVIStreamFindSample(PAVISTREAM pavi, LONG lPos, LONG lFlags);
+    STDAPI AVIStreamReadFormat(PAVISTREAM pavi, LONG lPos, LPVOID lpFormat, LONG FAR* lpcbFormat);
+    STDAPI AVIStreamSetFormat(PAVISTREAM pavi, LONG lPos, LPVOID lpFormat, LONG cbFormat);
+    STDAPI AVIStreamReadData(PAVISTREAM pavi, DWORD fcc, LPVOID lp, LONG FAR* lpcb);
+    STDAPI AVIStreamWriteData(PAVISTREAM pavi, DWORD fcc, LPVOID lp, LONG cb);
 
-STDAPI AVIStreamRead         (PAVISTREAM pavi,
-                  LONG lStart,
-                  LONG lSamples,
-                  LPVOID lpBuffer,
-                  LONG cbBuffer,
-                  LONG FAR * plBytes,
-                  LONG FAR * plSamples);
+    STDAPI AVIStreamRead(PAVISTREAM pavi,
+                         LONG lStart,
+                         LONG lSamples,
+                         LPVOID lpBuffer,
+                         LONG cbBuffer,
+                         LONG FAR* plBytes,
+                         LONG FAR* plSamples);
 #define AVISTREAMREAD_CONVENIENT    (-1L)
 
-STDAPI AVIStreamWrite        (PAVISTREAM pavi,
-                  LONG lStart, LONG lSamples,
-                  LPVOID lpBuffer, LONG cbBuffer, DWORD dwFlags,
-                  LONG FAR *plSampWritten,
-                  LONG FAR *plBytesWritten);
+    STDAPI AVIStreamWrite(PAVISTREAM pavi,
+                          LONG lStart, LONG lSamples,
+                          LPVOID lpBuffer, LONG cbBuffer, DWORD dwFlags,
+                          LONG FAR* plSampWritten,
+                          LONG FAR* plBytesWritten);
 
-// Right now, these just use AVIStreamInfo() to get information, then
-// return some of it.  Can they be more efficient?
-STDAPI_(LONG) AVIStreamStart        (PAVISTREAM pavi);
-STDAPI_(LONG) AVIStreamLength       (PAVISTREAM pavi);
-STDAPI_(LONG) AVIStreamTimeToSample (PAVISTREAM pavi, LONG lTime);
-STDAPI_(LONG) AVIStreamSampleToTime (PAVISTREAM pavi, LONG lSample);
-
-
-STDAPI AVIStreamBeginStreaming(PAVISTREAM pavi, LONG lStart, LONG lEnd, LONG lRate);
-STDAPI AVIStreamEndStreaming(PAVISTREAM pavi);
+    // Right now, these just use AVIStreamInfo() to get information, then
+    // return some of it.  Can they be more efficient?
+    STDAPI_(LONG) AVIStreamStart(PAVISTREAM pavi);
+    STDAPI_(LONG) AVIStreamLength(PAVISTREAM pavi);
+    STDAPI_(LONG) AVIStreamTimeToSample(PAVISTREAM pavi, LONG lTime);
+    STDAPI_(LONG) AVIStreamSampleToTime(PAVISTREAM pavi, LONG lSample);
 
 
-// helper functions for using IGetFrame
-
-STDAPI_(PGETFRAME) AVIStreamGetFrameOpen(PAVISTREAM pavi,
-                     LPBITMAPINFOHEADER lpbiWanted);
-STDAPI_(LPVOID) AVIStreamGetFrame(PGETFRAME pg, LONG lPos);
-STDAPI AVIStreamGetFrameClose(PGETFRAME pg);
+    STDAPI AVIStreamBeginStreaming(PAVISTREAM pavi, LONG lStart, LONG lEnd, LONG lRate);
+    STDAPI AVIStreamEndStreaming(PAVISTREAM pavi);
 
 
-// !!! We need some way to place an advise on a stream....
-// STDAPI AVIStreamHasChanged   (PAVISTREAM pavi);
+    // helper functions for using IGetFrame
+
+    STDAPI_(PGETFRAME) AVIStreamGetFrameOpen(PAVISTREAM pavi,
+                                             LPBITMAPINFOHEADER lpbiWanted);
+    STDAPI_(LPVOID) AVIStreamGetFrame(PGETFRAME pg, LONG lPos);
+    STDAPI AVIStreamGetFrameClose(PGETFRAME pg);
+
+
+    // !!! We need some way to place an advise on a stream....
+    // STDAPI AVIStreamHasChanged   (PAVISTREAM pavi);
 
 
 
-// Shortcut function
-// end2_vfw32
+    // Shortcut function
+    // end2_vfw32
 #ifdef WIN32
 // begin2_vfw32
-STDAPI AVIStreamOpenFromFileA(PAVISTREAM FAR *ppavi, LPCSTR szFile,
-                 DWORD fccType, LONG lParam,
-                 UINT mode, CLSID FAR *pclsidHandler);
-STDAPI AVIStreamOpenFromFileW(PAVISTREAM FAR *ppavi, LPCWSTR szFile,
-                 DWORD fccType, LONG lParam,
-                 UINT mode, CLSID FAR *pclsidHandler);
+    STDAPI AVIStreamOpenFromFileA(PAVISTREAM FAR* ppavi, LPCSTR szFile,
+                                  DWORD fccType, LONG lParam,
+                                  UINT mode, CLSID FAR* pclsidHandler);
+    STDAPI AVIStreamOpenFromFileW(PAVISTREAM FAR* ppavi, LPCWSTR szFile,
+                                  DWORD fccType, LONG lParam,
+                                  UINT mode, CLSID FAR* pclsidHandler);
 #ifdef UNICODE
 #define AVIStreamOpenFromFile    AVIStreamOpenFromFileW
 #else
 #define AVIStreamOpenFromFile    AVIStreamOpenFromFileA
 #endif
-// end2_vfw32
+    // end2_vfw32
 #else // win16
-STDAPI AVIStreamOpenFromFile(PAVISTREAM FAR *ppavi, LPCSTR szFile,
-                 DWORD fccType, LONG lParam,
-                 UINT mode, CLSID FAR *pclsidHandler);
+    STDAPI AVIStreamOpenFromFile(PAVISTREAM FAR* ppavi, LPCSTR szFile,
+                                 DWORD fccType, LONG lParam,
+                                 UINT mode, CLSID FAR* pclsidHandler);
 #endif
-// begin2_vfw32
+    // begin2_vfw32
 
-// Use to create disembodied streams
-STDAPI AVIStreamCreate(PAVISTREAM FAR *ppavi, LONG lParam1, LONG lParam2,
-               CLSID FAR *pclsidHandler);
-
-
-
-// PHANDLER    AVIAPI AVIGetHandler         (PAVISTREAM pavi, PAVISTREAMHANDLER psh);
-// PAVISTREAM  AVIAPI AVIGetStream          (PHANDLER p);
+    // Use to create disembodied streams
+    STDAPI AVIStreamCreate(PAVISTREAM FAR* ppavi, LONG lParam1, LONG lParam2,
+                           CLSID FAR* pclsidHandler);
 
 
-// flags for AVIStreamFindSample
+
+    // PHANDLER    AVIAPI AVIGetHandler         (PAVISTREAM pavi, PAVISTREAMHANDLER psh);
+    // PAVISTREAM  AVIAPI AVIGetStream          (PHANDLER p);
+
+
+    // flags for AVIStreamFindSample
 
 #define FIND_DIR        0x0000000FL     // direction
 #define FIND_NEXT       0x00000001L     // go forward
@@ -571,43 +571,43 @@ STDAPI AVIStreamCreate(PAVISTREAM FAR *ppavi, LONG lParam1, LONG lParam2,
 #define comptypeDIB         mmioFOURCC('D', 'I', 'B', ' ')
 #endif
 
-STDAPI AVIMakeCompressedStream(
-        PAVISTREAM FAR *        ppsCompressed,
+    STDAPI AVIMakeCompressedStream(
+        PAVISTREAM FAR* ppsCompressed,
         PAVISTREAM            ppsSource,
-        AVICOMPRESSOPTIONS FAR *    lpOptions,
-        CLSID FAR *pclsidHandler);
+        AVICOMPRESSOPTIONS FAR* lpOptions,
+        CLSID FAR* pclsidHandler);
 
-// end2_vfw32
+    // end2_vfw32
 #ifdef WIN32
 // begin2_vfw32
-EXTERN_C HRESULT CDECL AVISaveA (LPCSTR               szFile,
-        CLSID FAR *pclsidHandler,
-        AVISAVECALLBACK     lpfnCallback,
-        int                 nStreams,
-        PAVISTREAM        pfile,
-        LPAVICOMPRESSOPTIONS lpOptions,
-        ...);
+    EXTERN_C HRESULT CDECL AVISaveA(LPCSTR               szFile,
+                                    CLSID FAR* pclsidHandler,
+                                    AVISAVECALLBACK     lpfnCallback,
+                                    int                 nStreams,
+                                    PAVISTREAM        pfile,
+                                    LPAVICOMPRESSOPTIONS lpOptions,
+                                    ...);
 
-STDAPI AVISaveVA(LPCSTR               szFile,
-        CLSID FAR *pclsidHandler,
-        AVISAVECALLBACK     lpfnCallback,
-        int                 nStreams,
-        PAVISTREAM FAR *    ppavi,
-        LPAVICOMPRESSOPTIONS FAR *plpOptions);
-EXTERN_C HRESULT CDECL AVISaveW (LPCWSTR               szFile,
-        CLSID FAR *pclsidHandler,
-        AVISAVECALLBACK     lpfnCallback,
-        int                 nStreams,
-        PAVISTREAM        pfile,
-        LPAVICOMPRESSOPTIONS lpOptions,
-        ...);
+    STDAPI AVISaveVA(LPCSTR               szFile,
+                     CLSID FAR* pclsidHandler,
+                     AVISAVECALLBACK     lpfnCallback,
+                     int                 nStreams,
+                     PAVISTREAM FAR* ppavi,
+                     LPAVICOMPRESSOPTIONS FAR* plpOptions);
+    EXTERN_C HRESULT CDECL AVISaveW(LPCWSTR               szFile,
+                                    CLSID FAR* pclsidHandler,
+                                    AVISAVECALLBACK     lpfnCallback,
+                                    int                 nStreams,
+                                    PAVISTREAM        pfile,
+                                    LPAVICOMPRESSOPTIONS lpOptions,
+                                    ...);
 
-STDAPI AVISaveVW(LPCWSTR               szFile,
-        CLSID FAR *pclsidHandler,
-        AVISAVECALLBACK     lpfnCallback,
-        int                 nStreams,
-        PAVISTREAM FAR *    ppavi,
-        LPAVICOMPRESSOPTIONS FAR *plpOptions);
+    STDAPI AVISaveVW(LPCWSTR               szFile,
+                     CLSID FAR* pclsidHandler,
+                     AVISAVECALLBACK     lpfnCallback,
+                     int                 nStreams,
+                     PAVISTREAM FAR* ppavi,
+                     LPAVICOMPRESSOPTIONS FAR* plpOptions);
 #ifdef UNICODE
 #define AVISave        AVISaveW
 #define AVISaveV    AVISaveVW
@@ -615,102 +615,102 @@ STDAPI AVISaveVW(LPCWSTR               szFile,
 #define AVISave        AVISaveA
 #define AVISaveV    AVISaveVA
 #endif
-// end2_vfw32
+    // end2_vfw32
 #else // Win16
-EXTERN_C HRESULT CDECL AVISave (LPCTSTR               szFile,
-        CLSID FAR *pclsidHandler,
-        AVISAVECALLBACK     lpfnCallback,
-        int                 nStreams,
-        PAVISTREAM        pfile,
-        LPAVICOMPRESSOPTIONS lpOptions,
-        ...);
+    EXTERN_C HRESULT CDECL AVISave(LPCTSTR               szFile,
+                                   CLSID FAR* pclsidHandler,
+                                   AVISAVECALLBACK     lpfnCallback,
+                                   int                 nStreams,
+                                   PAVISTREAM        pfile,
+                                   LPAVICOMPRESSOPTIONS lpOptions,
+                                   ...);
 
-STDAPI AVISaveV(LPCTSTR               szFile,
-        CLSID FAR *pclsidHandler,
-        AVISAVECALLBACK     lpfnCallback,
-        int                 nStreams,
-        PAVISTREAM FAR *    ppavi,
-        LPAVICOMPRESSOPTIONS FAR *plpOptions);
+    STDAPI AVISaveV(LPCTSTR               szFile,
+                    CLSID FAR* pclsidHandler,
+                    AVISAVECALLBACK     lpfnCallback,
+                    int                 nStreams,
+                    PAVISTREAM FAR* ppavi,
+                    LPAVICOMPRESSOPTIONS FAR* plpOptions);
 
 #endif
-// begin2_vfw32
+    // begin2_vfw32
 
 
 
-STDAPI_(BOOL) AVISaveOptions(HWND hwnd,
-                 UINT    uiFlags,
-                 int    nStreams,
-                 PAVISTREAM FAR *ppavi,
-                 LPAVICOMPRESSOPTIONS FAR *plpOptions);
+    STDAPI_(BOOL) AVISaveOptions(HWND hwnd,
+                                 UINT    uiFlags,
+                                 int    nStreams,
+                                 PAVISTREAM FAR* ppavi,
+                                 LPAVICOMPRESSOPTIONS FAR* plpOptions);
 
-STDAPI AVISaveOptionsFree(int nStreams,
-                 LPAVICOMPRESSOPTIONS FAR *plpOptions);
+    STDAPI AVISaveOptionsFree(int nStreams,
+                              LPAVICOMPRESSOPTIONS FAR* plpOptions);
 
-// FLAGS FOR uiFlags:
+    // FLAGS FOR uiFlags:
 
-// Same as the flags for ICCompressorChoose (see compman.h)
-// These determine what the compression options dialog for video streams
-// will look like.
+    // Same as the flags for ICCompressorChoose (see compman.h)
+    // These determine what the compression options dialog for video streams
+    // will look like.
 
-// end2_vfw32
+    // end2_vfw32
 #ifdef WIN32
 // begin2_vfw32
-STDAPI AVIBuildFilterW(LPWSTR lpszFilter, LONG cbFilter, BOOL fSaving);
-STDAPI AVIBuildFilterA(LPSTR lpszFilter, LONG cbFilter, BOOL fSaving);
+    STDAPI AVIBuildFilterW(LPWSTR lpszFilter, LONG cbFilter, BOOL fSaving);
+    STDAPI AVIBuildFilterA(LPSTR lpszFilter, LONG cbFilter, BOOL fSaving);
 #ifdef UNICODE
 #define AVIBuildFilter    AVIBuildFilterW
 #else
 #define AVIBuildFilter    AVIBuildFilterA
 #endif
-// end2_vfw32
+    // end2_vfw32
 #else //win16
-STDAPI AVIBuildFilter(LPTSTR lpszFilter, LONG cbFilter, BOOL fSaving);
+    STDAPI AVIBuildFilter(LPTSTR lpszFilter, LONG cbFilter, BOOL fSaving);
 #endif
 
-// begin2_vfw32
-STDAPI AVIMakeFileFromStreams(PAVIFILE FAR *    ppfile,
-                   int        nStreams,
-                   PAVISTREAM FAR *    papStreams);
+    // begin2_vfw32
+    STDAPI AVIMakeFileFromStreams(PAVIFILE FAR* ppfile,
+                                  int        nStreams,
+                                  PAVISTREAM FAR* papStreams);
 
-STDAPI AVIMakeStreamFromClipboard(UINT cfFormat, HANDLE hGlobal, PAVISTREAM FAR *ppstream);
+    STDAPI AVIMakeStreamFromClipboard(UINT cfFormat, HANDLE hGlobal, PAVISTREAM FAR* ppstream);
 
-/*
+    /*
 
- *  Clipboard routines
+     *  Clipboard routines
 
-*/
+    */
 
-STDAPI AVIPutFileOnClipboard(PAVIFILE pf);
+    STDAPI AVIPutFileOnClipboard(PAVIFILE pf);
 
-STDAPI AVIGetFromClipboard(PAVIFILE FAR * lppf);
+    STDAPI AVIGetFromClipboard(PAVIFILE FAR* lppf);
 
-STDAPI AVIClearClipboard(void);
+    STDAPI AVIClearClipboard(void);
 
-/*
+    /*
 
- *  Editing routines
+     *  Editing routines
 
-*/
-STDAPI CreateEditableStream(
-        PAVISTREAM FAR *        ppsEditable,
+    */
+    STDAPI CreateEditableStream(
+        PAVISTREAM FAR* ppsEditable,
         PAVISTREAM            psSource);
 
-STDAPI EditStreamCut(PAVISTREAM pavi, LONG FAR *plStart, LONG FAR *plLength, PAVISTREAM FAR * ppResult);
+    STDAPI EditStreamCut(PAVISTREAM pavi, LONG FAR* plStart, LONG FAR* plLength, PAVISTREAM FAR* ppResult);
 
-STDAPI EditStreamCopy(PAVISTREAM pavi, LONG FAR *plStart, LONG FAR *plLength, PAVISTREAM FAR * ppResult);
+    STDAPI EditStreamCopy(PAVISTREAM pavi, LONG FAR* plStart, LONG FAR* plLength, PAVISTREAM FAR* ppResult);
 
-STDAPI EditStreamPaste(PAVISTREAM pavi, LONG FAR *plPos, LONG FAR *plLength, PAVISTREAM pstream, LONG lStart, LONG lEnd);
+    STDAPI EditStreamPaste(PAVISTREAM pavi, LONG FAR* plPos, LONG FAR* plLength, PAVISTREAM pstream, LONG lStart, LONG lEnd);
 
-STDAPI EditStreamClone(PAVISTREAM pavi, PAVISTREAM FAR *ppResult);
+    STDAPI EditStreamClone(PAVISTREAM pavi, PAVISTREAM FAR* ppResult);
 
 
-// end2_vfw32
+    // end2_vfw32
 #ifdef WIN32
 // begin2_vfw32
-STDAPI EditStreamSetNameA(PAVISTREAM pavi, LPCSTR lpszName);
-STDAPI EditStreamSetNameW(PAVISTREAM pavi, LPCWSTR lpszName);
-STDAPI EditStreamSetInfoW(PAVISTREAM pavi, LPAVISTREAMINFOW lpInfo, LONG cbInfo);
-STDAPI EditStreamSetInfoA(PAVISTREAM pavi, LPAVISTREAMINFOA lpInfo, LONG cbInfo);
+    STDAPI EditStreamSetNameA(PAVISTREAM pavi, LPCSTR lpszName);
+    STDAPI EditStreamSetNameW(PAVISTREAM pavi, LPCWSTR lpszName);
+    STDAPI EditStreamSetInfoW(PAVISTREAM pavi, LPAVISTREAMINFOW lpInfo, LONG cbInfo);
+    STDAPI EditStreamSetInfoA(PAVISTREAM pavi, LPAVISTREAMINFOA lpInfo, LONG cbInfo);
 #ifdef UNICODE
 #define EditStreamSetInfo    EditStreamSetInfoW
 #define EditStreamSetName    EditStreamSetNameW
@@ -718,10 +718,10 @@ STDAPI EditStreamSetInfoA(PAVISTREAM pavi, LPAVISTREAMINFOA lpInfo, LONG cbInfo)
 #define EditStreamSetInfo    EditStreamSetInfoA
 #define EditStreamSetName    EditStreamSetNameA
 #endif
-// end2_vfw32
+    // end2_vfw32
 #else // win16
-STDAPI EditStreamSetInfo(PAVISTREAM pavi, LPAVISTREAMINFO lpInfo, LONG cbInfo);
-STDAPI EditStreamSetName(PAVISTREAM pavi, LPCTSTR lpszName);
+    STDAPI EditStreamSetInfo(PAVISTREAM pavi, LPAVISTREAMINFO lpInfo, LONG cbInfo);
+    STDAPI EditStreamSetName(PAVISTREAM pavi, LPCTSTR lpszName);
 #endif
 
 

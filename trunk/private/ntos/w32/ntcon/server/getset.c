@@ -26,14 +26,14 @@ VOID
 ReverseMousePointer(
     IN PSCREEN_INFORMATION ScreenInfo,
     IN PSMALL_RECT Region
-    );
+);
 #endif
 
 ULONG
 SrvGetConsoleMode(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_MODE_MSG a = (PCONSOLE_MODE_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -42,7 +42,7 @@ SrvGetConsoleMode(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -51,7 +51,7 @@ SrvGetConsoleMode(
                                  CONSOLE_ANY_HANDLE,
                                  GENERIC_READ,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
 
 
@@ -74,7 +74,7 @@ SrvGetConsoleMode(
         }
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -82,7 +82,7 @@ ULONG
 SrvGetConsoleNumberOfFonts(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETNUMBEROFFONTS_MSG a = (PCONSOLE_GETNUMBEROFFONTS_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -90,7 +90,7 @@ SrvGetConsoleNumberOfFonts(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -108,7 +108,7 @@ ULONG
 SrvGetConsoleNumberOfInputEvents(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETNUMBEROFINPUTEVENTS_MSG a = (PCONSOLE_GETNUMBEROFINPUTEVENTS_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -117,7 +117,7 @@ SrvGetConsoleNumberOfInputEvents(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -126,14 +126,14 @@ SrvGetConsoleNumberOfInputEvents(
                                  CONSOLE_INPUT_HANDLE,
                                  GENERIC_READ,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
         Status = GetNumberOfReadyEvents(HandleData->Buffer.InputBuffer,
-                                      &a->ReadyEvents
-                                     );
+                                        &a->ReadyEvents
+        );
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -141,7 +141,7 @@ ULONG
 SrvGetConsoleScreenBufferInfo(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETSCREENBUFFERINFO_MSG a = (PCONSOLE_GETSCREENBUFFERINFO_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -150,7 +150,7 @@ SrvGetConsoleScreenBufferInfo(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -159,19 +159,19 @@ SrvGetConsoleScreenBufferInfo(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_READ,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
         Status = GetScreenBufferInformation(HandleData->Buffer.ScreenBuffer,
-                                          &a->Size,
-                                          &a->CursorPosition,
-                                          &a->ScrollPosition,
-                                          &a->Attributes,
-                                          &a->CurrentWindowSize,
-                                          &a->MaximumWindowSize
-                                         );
+                                            &a->Size,
+                                            &a->CursorPosition,
+                                            &a->ScrollPosition,
+                                            &a->Attributes,
+                                            &a->CurrentWindowSize,
+                                            &a->MaximumWindowSize
+        );
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -179,7 +179,7 @@ ULONG
 SrvGetConsoleCursorInfo(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETCURSORINFO_MSG a = (PCONSOLE_GETCURSORINFO_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -188,7 +188,7 @@ SrvGetConsoleCursorInfo(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -197,13 +197,13 @@ SrvGetConsoleCursorInfo(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_READ,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
         a->CursorSize = HandleData->Buffer.ScreenBuffer->BufferInfo.TextInfo.CursorSize;
-        a->Visible = (BOOLEAN) HandleData->Buffer.ScreenBuffer->BufferInfo.TextInfo.CursorVisible;
+        a->Visible = (BOOLEAN)HandleData->Buffer.ScreenBuffer->BufferInfo.TextInfo.CursorVisible;
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -211,7 +211,7 @@ ULONG
 SrvGetConsoleMouseInfo(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETMOUSEINFO_MSG a = (PCONSOLE_GETMOUSEINFO_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -219,7 +219,7 @@ SrvGetConsoleMouseInfo(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -233,7 +233,7 @@ ULONG
 SrvGetConsoleFontInfo(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETFONTINFO_MSG a = (PCONSOLE_GETFONTINFO_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -242,7 +242,7 @@ SrvGetConsoleFontInfo(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -257,20 +257,20 @@ SrvGetConsoleFontInfo(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_READ,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
         if (HandleData->Buffer.ScreenBuffer->Console->FullScreenFlags & CONSOLE_FULLSCREEN) {
             Status = STATUS_FULLSCREEN_MODE;
         } else {
             Status = GetAvailableFonts(HandleData->Buffer.ScreenBuffer,
-                                     a->MaximumWindow,
-                                     a->BufPtr,
-                                     &a->NumFonts
-                                    );
+                                       a->MaximumWindow,
+                                       a->BufPtr,
+                                       &a->NumFonts
+            );
         }
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -278,7 +278,7 @@ ULONG
 SrvGetConsoleFontSize(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETFONTSIZE_MSG a = (PCONSOLE_GETFONTSIZE_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -287,7 +287,7 @@ SrvGetConsoleFontSize(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -296,18 +296,18 @@ SrvGetConsoleFontSize(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_READ,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
         if (HandleData->Buffer.ScreenBuffer->Console->FullScreenFlags & CONSOLE_FULLSCREEN) {
             Status = STATUS_FULLSCREEN_MODE;
         } else {
             Status = GetFontSize(a->FontIndex,
-                               &a->FontSize
-                              );
+                                 &a->FontSize
+            );
         }
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -315,7 +315,7 @@ ULONG
 SrvGetConsoleCurrentFont(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETCURRENTFONT_MSG a = (PCONSOLE_GETCURRENTFONT_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -324,7 +324,7 @@ SrvGetConsoleCurrentFont(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -333,20 +333,20 @@ SrvGetConsoleCurrentFont(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_READ,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
         if (HandleData->Buffer.ScreenBuffer->Console->FullScreenFlags & CONSOLE_FULLSCREEN) {
             Status = STATUS_FULLSCREEN_MODE;
         } else {
             Status = GetCurrentFont(HandleData->Buffer.ScreenBuffer,
-                                  a->MaximumWindow,
-                                  &a->FontIndex,
-                                  &a->FontSize
-                                 );
+                                    a->MaximumWindow,
+                                    &a->FontIndex,
+                                    &a->FontSize
+            );
         }
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -354,7 +354,7 @@ ULONG
 SrvSetConsoleMode(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_MODE_MSG a = (PCONSOLE_MODE_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -363,7 +363,7 @@ SrvSetConsoleMode(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -373,7 +373,7 @@ SrvSetConsoleMode(
                                      CONSOLE_ANY_HANDLE,
                                      GENERIC_WRITE,
                                      &HandleData
-                                    );
+        );
         if (!NT_SUCCESS(Status)) {
             leave;
         }
@@ -425,8 +425,7 @@ SrvSetConsoleMode(
             }
 #endif
             HandleData->Buffer.InputBuffer->InputMode = a->Mode & ~PRIVATE_MODES;
-        }
-        else {
+        } else {
             if (a->Mode & ~OUTPUT_MODES) {
                 Status = STATUS_INVALID_PARAMETER;
                 leave;
@@ -444,7 +443,7 @@ ULONG
 SrvGenerateConsoleCtrlEvent(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_CTRLEVENT_MSG a = (PCONSOLE_CTRLEVENT_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -452,7 +451,7 @@ SrvGenerateConsoleCtrlEvent(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -468,7 +467,7 @@ SrvGenerateConsoleCtrlEvent(
             ListHead = &Console->ProcessHandleList;
             ListNext = ListHead->Flink;
             while (ListNext != ListHead) {
-                ProcessHandleRecord = CONTAINING_RECORD( ListNext, CONSOLE_PROCESS_HANDLE, ListLink );
+                ProcessHandleRecord = CONTAINING_RECORD(ListNext, CONSOLE_PROCESS_HANDLE, ListLink);
                 ListNext = ListNext->Flink;
                 if (ProcessHandleRecord->Process->ProcessGroupId == a->ProcessGroupId) {
                     Status = STATUS_SUCCESS;
@@ -492,7 +491,7 @@ ULONG
 SrvSetConsoleActiveScreenBuffer(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_SETACTIVESCREENBUFFER_MSG a = (PCONSOLE_SETACTIVESCREENBUFFER_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -501,7 +500,7 @@ SrvSetConsoleActiveScreenBuffer(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -510,12 +509,12 @@ SrvSetConsoleActiveScreenBuffer(
                                  CONSOLE_GRAPHICS_OUTPUT_HANDLE | CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
         Status = SetActiveScreenBuffer(HandleData->Buffer.ScreenBuffer);
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -524,7 +523,7 @@ ULONG
 SrvFlushConsoleInputBuffer(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_FLUSHINPUTBUFFER_MSG a = (PCONSOLE_FLUSHINPUTBUFFER_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -533,7 +532,7 @@ SrvFlushConsoleInputBuffer(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -542,12 +541,12 @@ SrvFlushConsoleInputBuffer(
                                  CONSOLE_INPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
         Status = FlushInputBuffer(HandleData->Buffer.InputBuffer);
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -555,7 +554,7 @@ ULONG
 SrvGetLargestConsoleWindowSize(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETLARGESTWINDOWSIZE_MSG a = (PCONSOLE_GETLARGESTWINDOWSIZE_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -566,7 +565,7 @@ SrvGetLargestConsoleWindowSize(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -575,7 +574,7 @@ SrvGetLargestConsoleWindowSize(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
         COORD FontSize;
 
@@ -583,7 +582,7 @@ SrvGetLargestConsoleWindowSize(
         if (ScreenInfo->Console->FullScreenFlags & CONSOLE_FULLSCREEN_HARDWARE) {
             a->Size.X = 80;
 #if defined(FE_SB)
-            a->Size.Y = CONSOLE_IS_DBCS_OUTPUTCP(Console)?25:50;
+            a->Size.Y = CONSOLE_IS_DBCS_OUTPUTCP(Console) ? 25 : 50;
 #else
             a->Size.Y = 50;
 #endif
@@ -600,7 +599,7 @@ SrvGetLargestConsoleWindowSize(
         }
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -608,7 +607,7 @@ ULONG
 SrvSetConsoleScreenBufferSize(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_SETSCREENBUFFERSIZE_MSG a = (PCONSOLE_SETSCREENBUFFERSIZE_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -619,7 +618,7 @@ SrvSetConsoleScreenBufferSize(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -628,7 +627,7 @@ SrvSetConsoleScreenBufferSize(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
 
         ScreenInfo = HandleData->Buffer.ScreenBuffer;
@@ -643,18 +642,17 @@ SrvSetConsoleScreenBufferSize(
             a->Size.Y < WindowLimits.MinimumWindowSize.Y ||
             a->Size.X < WindowLimits.MinimumWindowSize.X) {
             Status = STATUS_INVALID_PARAMETER;
-        }
-        else if (a->Size.X == ScreenInfo->ScreenBufferSize.X &&
-                 a->Size.Y == ScreenInfo->ScreenBufferSize.Y) {
+        } else if (a->Size.X == ScreenInfo->ScreenBufferSize.X &&
+                   a->Size.Y == ScreenInfo->ScreenBufferSize.Y) {
             Status = STATUS_SUCCESS;
         } else {
             Status = ResizeScreenBuffer(ScreenInfo,
-                                  a->Size,
-                                  TRUE);
+                                        a->Size,
+                                        TRUE);
         }
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -662,7 +660,7 @@ ULONG
 SrvSetConsoleCursorPosition(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_SETCURSORPOSITION_MSG a = (PCONSOLE_SETCURSORPOSITION_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -673,7 +671,7 @@ SrvSetConsoleCursorPosition(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -682,7 +680,7 @@ SrvSetConsoleCursorPosition(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
 
         ScreenInfo = HandleData->Buffer.ScreenBuffer;
@@ -696,14 +694,14 @@ SrvSetConsoleCursorPosition(
             Status = SetCursorPosition(ScreenInfo,
                                        a->CursorPosition,
                                        TRUE
-                                      );
+            );
         }
         if (NT_SUCCESS(Status)) {
 #if defined(FE_IME)
-            if (ScreenInfo->Console->Flags & CONSOLE_JUST_VDM_UNREGISTERED){
-                if( ScreenInfo->Console->InputBuffer.ImeMode.Open ){
+            if (ScreenInfo->Console->Flags & CONSOLE_JUST_VDM_UNREGISTERED) {
+                if (ScreenInfo->Console->InputBuffer.ImeMode.Open) {
                     SHORT ScrollY = 0;
-                    AdjustCursorPosition(ScreenInfo,a->CursorPosition,TRUE,&ScrollY);
+                    AdjustCursorPosition(ScreenInfo, a->CursorPosition, TRUE, &ScrollY);
                     a->CursorPosition.Y += ScrollY;
                 }
                 Console->Flags &= ~CONSOLE_JUST_VDM_UNREGISTERED;
@@ -713,24 +711,22 @@ SrvSetConsoleCursorPosition(
             WindowOrigin.Y = 0;
             if (ScreenInfo->Window.Left > a->CursorPosition.X) {
                 WindowOrigin.X = a->CursorPosition.X - ScreenInfo->Window.Left;
-            }
-            else if (ScreenInfo->Window.Right < a->CursorPosition.X) {
+            } else if (ScreenInfo->Window.Right < a->CursorPosition.X) {
                 WindowOrigin.X = a->CursorPosition.X - ScreenInfo->Window.Right;
             }
             if (ScreenInfo->Window.Top > a->CursorPosition.Y) {
                 WindowOrigin.Y = a->CursorPosition.Y - ScreenInfo->Window.Top;
-            }
-            else if (ScreenInfo->Window.Bottom < a->CursorPosition.Y) {
+            } else if (ScreenInfo->Window.Bottom < a->CursorPosition.Y) {
                 WindowOrigin.Y = a->CursorPosition.Y - ScreenInfo->Window.Bottom;
             }
             Status = SetWindowOrigin(ScreenInfo,
                                      FALSE,
                                      WindowOrigin
-                                    );
+            );
         }
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -738,7 +734,7 @@ ULONG
 SrvSetConsoleCursorInfo(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_SETCURSORINFO_MSG a = (PCONSOLE_SETCURSORINFO_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -747,7 +743,7 @@ SrvSetConsoleCursorInfo(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -756,16 +752,16 @@ SrvSetConsoleCursorInfo(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
         if (a->CursorSize > 100 || a->CursorSize == 0) {
             Status = STATUS_INVALID_PARAMETER;
         } else {
-            Status = SetCursorInformation(HandleData->Buffer.ScreenBuffer,a->CursorSize,a->Visible);
+            Status = SetCursorInformation(HandleData->Buffer.ScreenBuffer, a->CursorSize, a->Visible);
         }
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -773,7 +769,7 @@ ULONG
 SrvSetConsoleWindowInfo(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_SETWINDOWINFO_MSG a = (PCONSOLE_SETWINDOWINFO_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -785,7 +781,7 @@ SrvSetConsoleWindowInfo(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -794,7 +790,7 @@ SrvSetConsoleWindowInfo(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
         ScreenInfo = HandleData->Buffer.ScreenBuffer;
         if (!a->Absolute) {
@@ -812,7 +808,7 @@ SrvSetConsoleWindowInfo(
             GetWindowLimits(ScreenInfo, &WindowLimits);
             if ((NewWindowSize.X > WindowLimits.MaximumWindowSize.X ||
                  NewWindowSize.Y > WindowLimits.MaximumWindowSize.Y) &&
-                 !(ScreenInfo->Console->FullScreenFlags & CONSOLE_FULLSCREEN)) {
+                !(ScreenInfo->Console->FullScreenFlags & CONSOLE_FULLSCREEN)) {
                 Status = STATUS_INVALID_PARAMETER;
             } else {
 #ifdef i386
@@ -825,30 +821,30 @@ SrvSetConsoleWindowInfo(
                         ULONG ModeIndex;
 
 #if defined(FE_SB)
-                        ModeIndex = MatchWindowSize(ScreenInfo->Console->OutputCP,NewWindowSize,&WindowSize);
+                        ModeIndex = MatchWindowSize(ScreenInfo->Console->OutputCP, NewWindowSize, &WindowSize);
 #else
-                        ModeIndex = MatchWindowSize(NewWindowSize,&WindowSize);
+                        ModeIndex = MatchWindowSize(NewWindowSize, &WindowSize);
 #endif
                         if (NewWindowSize.X != WindowSize.X ||
                             NewWindowSize.Y != WindowSize.Y ||
                             WindowSize.X > ScreenInfo->ScreenBufferSize.X ||
                             WindowSize.Y > ScreenInfo->ScreenBufferSize.Y) {
                             UnlockConsole(Console);
-                            return (ULONG) STATUS_FULLSCREEN_MODE;
+                            return (ULONG)STATUS_FULLSCREEN_MODE;
                         }
                         ScreenInfo->BufferInfo.TextInfo.ModeIndex = ModeIndex;
                         ResizeWindow(ScreenInfo,
                                      &a->Window,
                                      FALSE
-                                    );
+                        );
                         ScreenInfo->BufferInfo.TextInfo.WindowedWindowSize.X =
-                                CONSOLE_WINDOW_SIZE_X(ScreenInfo);
+                            CONSOLE_WINDOW_SIZE_X(ScreenInfo);
                         ScreenInfo->BufferInfo.TextInfo.WindowedWindowSize.Y =
-                                CONSOLE_WINDOW_SIZE_Y(ScreenInfo);
+                            CONSOLE_WINDOW_SIZE_Y(ScreenInfo);
                         if (ScreenInfo->Console->FullScreenFlags & CONSOLE_FULLSCREEN_HARDWARE &&
-                            (!(ScreenInfo->Console->Flags & CONSOLE_VDM_REGISTERED)) ) {
+                            (!(ScreenInfo->Console->Flags & CONSOLE_VDM_REGISTERED))) {
                             SetVideoMode(ScreenInfo);
-                            WriteToScreen(ScreenInfo,&ScreenInfo->Window);
+                            WriteToScreen(ScreenInfo, &ScreenInfo->Window);
                         }
                     } else {
                         NewOrigin.X = a->Window.Left;
@@ -856,7 +852,7 @@ SrvSetConsoleWindowInfo(
                         SetWindowOrigin(ScreenInfo,
                                         TRUE,
                                         NewOrigin
-                                       );
+                        );
                     }
                 } else
 #endif
@@ -864,17 +860,17 @@ SrvSetConsoleWindowInfo(
                     Status = ResizeWindow(ScreenInfo,
                                           &a->Window,
                                           TRUE
-                                         );
+                    );
                     if (ACTIVE_SCREEN_BUFFER(ScreenInfo)) {
                         SetWindowSize(ScreenInfo);
-                        WriteToScreen(ScreenInfo,&ScreenInfo->Window);
+                        WriteToScreen(ScreenInfo, &ScreenInfo->Window);
                     }
                 }
             }
         }
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -882,7 +878,7 @@ ULONG
 SrvScrollConsoleScreenBuffer(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_SCROLLSCREENBUFFER_MSG a = (PCONSOLE_SCROLLSCREENBUFFER_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -892,7 +888,7 @@ SrvScrollConsoleScreenBuffer(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -901,13 +897,12 @@ SrvScrollConsoleScreenBuffer(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
 
         if (a->Clip) {
             ClipRect = &a->ClipRectangle;
-        }
-        else {
+        } else {
             ClipRect = NULL;
         }
         if (!a->Unicode) {
@@ -917,24 +912,24 @@ SrvScrollConsoleScreenBuffer(
                                                    &a->Fill.Char.AsciiChar);
 #else
             a->Fill.Char.UnicodeChar = CharToWchar(
-                    Console->OutputCP, a->Fill.Char.AsciiChar);
+                Console->OutputCP, a->Fill.Char.AsciiChar);
 #endif
         } else if ((Console->CurrentScreenBuffer->Flags & CONSOLE_OEMFONT_DISPLAY) &&
-                !(Console->FullScreenFlags & CONSOLE_FULLSCREEN)) {
+                   !(Console->FullScreenFlags & CONSOLE_FULLSCREEN)) {
             RealUnicodeToFalseUnicode(&a->Fill.Char.UnicodeChar,
-                                    1,
-                                    Console->OutputCP
-                                    );
+                                      1,
+                                      Console->OutputCP
+            );
         }
         Status = ScrollRegion(HandleData->Buffer.ScreenBuffer,
-                            &a->ScrollRectangle,
-                            ClipRect,
-                            a->DestinationOrigin,
-                            a->Fill
-                           );
+                              &a->ScrollRectangle,
+                              ClipRect,
+                              a->DestinationOrigin,
+                              a->Fill
+        );
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -945,7 +940,7 @@ UpdatePopups(
     IN WORD NewPopupAttributes,
     IN WORD OldAttributes,
     IN WORD OldPopupAttributes
-    )
+)
 
 /*
 
@@ -960,28 +955,28 @@ UpdatePopups(
     PLIST_ENTRY PopupListHead, PopupListNext;
     PCOMMAND_HISTORY History;
     PCLE_POPUP Popup;
-    SHORT i,j;
+    SHORT i, j;
     PCHAR_INFO OldContents;
-    WORD InvertedOldPopupAttributes,InvertedNewPopupAttributes;
+    WORD InvertedOldPopupAttributes, InvertedNewPopupAttributes;
 
     InvertedOldPopupAttributes = (WORD)(((OldPopupAttributes << 4) & 0xf0) |
-                                ((OldPopupAttributes >> 4) & 0x0f));
+        ((OldPopupAttributes >> 4) & 0x0f));
     InvertedNewPopupAttributes = (WORD)(((NewPopupAttributes << 4) & 0xf0) |
-                                ((NewPopupAttributes >> 4) & 0x0f));
+        ((NewPopupAttributes >> 4) & 0x0f));
     HistoryListHead = &Console->CommandHistoryList;
     HistoryListNext = HistoryListHead->Blink;
     while (HistoryListNext != HistoryListHead) {
-        History = CONTAINING_RECORD( HistoryListNext, COMMAND_HISTORY, ListLink );
+        History = CONTAINING_RECORD(HistoryListNext, COMMAND_HISTORY, ListLink);
         HistoryListNext = HistoryListNext->Blink;
         if (History->Flags & CLE_ALLOCATED && !CLE_NO_POPUPS(History)) {
             PopupListHead = &History->PopupList;
             PopupListNext = PopupListHead->Blink;
             while (PopupListNext != PopupListHead) {
-                Popup = CONTAINING_RECORD( PopupListNext, CLE_POPUP, ListLink );
+                Popup = CONTAINING_RECORD(PopupListNext, CLE_POPUP, ListLink);
                 PopupListNext = PopupListNext->Blink;
                 OldContents = Popup->OldContents;
-                for (i=Popup->Region.Left;i<=Popup->Region.Right;i++) {
-                    for (j=Popup->Region.Top;j<=Popup->Region.Bottom;j++) {
+                for (i = Popup->Region.Left; i <= Popup->Region.Right; i++) {
+                    for (j = Popup->Region.Top; j <= Popup->Region.Bottom; j++) {
                         if (OldContents->Attributes == OldAttributes) {
                             OldContents->Attributes = NewAttributes;
                         } else if (OldContents->Attributes == OldPopupAttributes) {
@@ -1004,11 +999,11 @@ SetScreenColors(
     IN WORD Attributes,
     IN WORD PopupAttributes,
     IN BOOL UpdateWholeScreen
-    )
+)
 {
-    SHORT i,j;
+    SHORT i, j;
     PROW Row;
-    WORD DefaultAttributes,DefaultPopupAttributes;
+    WORD DefaultAttributes, DefaultPopupAttributes;
     PCONSOLE_INFORMATION Console;
     COLORREF rgbBk;
     COLORREF rgbText;
@@ -1031,23 +1026,23 @@ SetScreenColors(
     ScreenInfo->Attributes = Attributes;
     ScreenInfo->PopupAttributes = PopupAttributes;
 #if defined(FE_IME)
-    SetUndetermineAttribute( Console );
+    SetUndetermineAttribute(Console);
 #endif
 
     if (UpdateWholeScreen && ScreenInfo->Flags & CONSOLE_TEXTMODE_BUFFER) {
-        WORD InvertedOldPopupAttributes,InvertedNewPopupAttributes;
+        WORD InvertedOldPopupAttributes, InvertedNewPopupAttributes;
 
         InvertedOldPopupAttributes = (WORD)(((DefaultPopupAttributes << 4) & 0xf0) |
-                                    ((DefaultPopupAttributes >> 4) & 0x0f));
+            ((DefaultPopupAttributes >> 4) & 0x0f));
         InvertedNewPopupAttributes = (WORD)(((PopupAttributes << 4) & 0xf0) |
-                                    ((PopupAttributes >> 4) & 0x0f));
+            ((PopupAttributes >> 4) & 0x0f));
 
         // change all chars with default color
 
 
-        for (i=0;i<ScreenInfo->ScreenBufferSize.Y;i++) {
+        for (i = 0; i < ScreenInfo->ScreenBufferSize.Y; i++) {
             Row = &ScreenInfo->BufferInfo.TextInfo.Rows[i];
-            for (j=0;j<Row->AttrRow.Length;j++) {
+            for (j = 0; j < Row->AttrRow.Length; j++) {
                 if (Row->AttrRow.Attrs[j].Attr == DefaultAttributes) {
                     Row->AttrRow.Attrs[j].Attr = Attributes;
                 } else if (Row->AttrRow.Attrs[j].Attr == DefaultPopupAttributes) {
@@ -1064,10 +1059,10 @@ SetScreenColors(
                          PopupAttributes,
                          DefaultAttributes,
                          DefaultPopupAttributes
-                         );
+            );
         // force repaint of entire line
         ScreenInfo->BufferInfo.TextInfo.Flags &= ~TEXT_VALID_HINT;
-        WriteToScreen(ScreenInfo,&ScreenInfo->Window);
+        WriteToScreen(ScreenInfo, &ScreenInfo->Window);
         ScreenInfo->BufferInfo.TextInfo.Flags |= TEXT_VALID_HINT;
     }
 
@@ -1078,7 +1073,7 @@ ULONG
 SrvSetConsoleTextAttribute(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_SETTEXTATTRIBUTE_MSG a = (PCONSOLE_SETTEXTATTRIBUTE_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -1087,7 +1082,7 @@ SrvSetConsoleTextAttribute(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -1096,7 +1091,7 @@ SrvSetConsoleTextAttribute(
                                  CONSOLE_OUTPUT_HANDLE,
                                  GENERIC_WRITE,
                                  &HandleData
-                                );
+    );
     if (NT_SUCCESS(Status)) {
 
         if (a->Attributes & ~VALID_TEXT_ATTRIBUTES) {
@@ -1106,11 +1101,11 @@ SrvSetConsoleTextAttribute(
                                      a->Attributes,
                                      HandleData->Buffer.ScreenBuffer->PopupAttributes,
                                      FALSE
-                                    );
+            );
         }
     }
     UnlockConsole(Console);
-    return((ULONG) Status);
+    return((ULONG)Status);
     UNREFERENCED_PARAMETER(ReplyStatus);    // get rid of unreferenced parameter warning message
 }
 
@@ -1118,7 +1113,7 @@ ULONG
 SrvSetConsoleFont(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_SETFONT_MSG a = (PCONSOLE_SETFONT_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -1128,7 +1123,7 @@ SrvSetConsoleFont(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -1138,7 +1133,7 @@ SrvSetConsoleFont(
                                      CONSOLE_OUTPUT_HANDLE,
                                      GENERIC_WRITE,
                                      &HandleData
-                                    );
+        );
         if (!NT_SUCCESS(Status)) {
             leave;
         }
@@ -1148,9 +1143,9 @@ SrvSetConsoleFont(
             Status = STATUS_FULLSCREEN_MODE;
         } else {
 #if defined(FE_SB)
-            Status = SetScreenBufferFont(ScreenInfo,a->FontIndex,ScreenInfo->Console->OutputCP);
+            Status = SetScreenBufferFont(ScreenInfo, a->FontIndex, ScreenInfo->Console->OutputCP);
 #else
-            Status = SetScreenBufferFont(ScreenInfo,a->FontIndex);
+            Status = SetScreenBufferFont(ScreenInfo, a->FontIndex);
 #endif
         }
     } finally {
@@ -1164,7 +1159,7 @@ ULONG
 SrvSetConsoleIcon(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_SETICON_MSG a = (PCONSOLE_SETICON_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -1173,7 +1168,7 @@ SrvSetConsoleIcon(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -1229,7 +1224,7 @@ ULONG
 SrvSetConsoleCP(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_SETCP_MSG a = (PCONSOLE_SETCP_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -1238,19 +1233,19 @@ SrvSetConsoleCP(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
     if (a->hEvent) {
         Status = NtDuplicateObject(CONSOLE_CLIENTPROCESSHANDLE(),
-                       a->hEvent,
-                       NtCurrentProcess(),
-                       &hEvent,
-                       0,
-                       FALSE,
-                       DUPLICATE_SAME_ACCESS
-                       );
+                                   a->hEvent,
+                                   NtCurrentProcess(),
+                                   &hEvent,
+                                   0,
+                                   FALSE,
+                                   DUPLICATE_SAME_ACCESS
+        );
         if (!NT_SUCCESS(Status)) {
             goto SrvSetConsoleCPFailure;
         }
@@ -1260,15 +1255,14 @@ SrvSetConsoleCP(
         Status = STATUS_INVALID_PARAMETER;
         goto SrvSetConsoleCPFailure;
     }
-    if ( IsAvailableFarEastCodePage( a->wCodePageID ) &&
-         OEMCP != a->wCodePageID )
-    {
+    if (IsAvailableFarEastCodePage(a->wCodePageID) &&
+        OEMCP != a->wCodePageID) {
         Status = STATUS_INVALID_PARAMETER;
         goto SrvSetConsoleCPFailure;
     }
 
-    if ( (a->Output && Console->OutputCP != a->wCodePageID) ||
-         (!a->Output && Console->CP != a->wCodePageID)         ) {
+    if ((a->Output && Console->OutputCP != a->wCodePageID) ||
+        (!a->Output && Console->CP != a->wCodePageID)) {
 
         UINT CodePage;
 
@@ -1282,7 +1276,7 @@ SrvSetConsoleCP(
 
             Console->fIsDBCSOutputCP = CONSOLE_IS_DBCS_ENABLED() && IsAvailableFarEastCodePage(Console->OutputCP);
 
-            if (!ReCreateDbcsScreenBuffer(Console, CodePage) ) {
+            if (!ReCreateDbcsScreenBuffer(Console, CodePage)) {
                 RIPMSG1(RIP_WARNING, "SrvSetConsoleCP: ReCreateDbcsScreenBuffer failed. Restoring to CP=%d",
                         CodePage);
                 Console->OutputCP = CodePage;
@@ -1290,12 +1284,12 @@ SrvSetConsoleCP(
                 Status = STATUS_NO_MEMORY;
                 goto SrvSetConsoleCPFailure;
             }
-            SetConsoleCPInfo(Console,a->Output);
+            SetConsoleCPInfo(Console, a->Output);
             Status = QueueConsoleMessage(Console,
-                        CM_SET_IME_CODEPAGE,
-                        (WPARAM)hEvent,
-                        MAKELPARAM(a->Output,CodePage)
-                       );
+                                         CM_SET_IME_CODEPAGE,
+                                         (WPARAM)hEvent,
+                                         MAKELPARAM(a->Output, CodePage)
+            );
             if (!NT_SUCCESS(Status)) {
                 goto SrvSetConsoleCPFailure;
             }
@@ -1308,7 +1302,7 @@ SrvSetConsoleCP(
                 SetROMFontCodePage(Console->OutputCP,
                                    Console->CurrentScreenBuffer->BufferInfo.TextInfo.ModeIndex);
                 WriteRegionToScreenHW(Console->CurrentScreenBuffer,
-                        &Console->CurrentScreenBuffer->Window);
+                                      &Console->CurrentScreenBuffer->Window);
             }
 #endif
 
@@ -1323,18 +1317,17 @@ SrvSetConsoleCP(
 
             Console->fIsDBCSCP = CONSOLE_IS_DBCS_ENABLED() && IsAvailableFarEastCodePage(Console->CP);
 
-            SetConsoleCPInfo(Console,a->Output);
+            SetConsoleCPInfo(Console, a->Output);
             Status = QueueConsoleMessage(Console,
-                        CM_SET_IME_CODEPAGE,
-                        (WPARAM)hEvent,
-                        MAKELPARAM(a->Output,CodePage)
-                       );
+                                         CM_SET_IME_CODEPAGE,
+                                         (WPARAM)hEvent,
+                                         MAKELPARAM(a->Output, CodePage)
+            );
             if (!NT_SUCCESS(Status)) {
                 goto SrvSetConsoleCPFailure;
             }
         }
-    }
-    else {
+    } else {
         if (hEvent) {
             NtSetEvent(hEvent, NULL);
             NtClose(hEvent);
@@ -1359,7 +1352,7 @@ ULONG
 SrvGetConsoleCP(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETCP_MSG a = (PCONSOLE_GETCP_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -1367,7 +1360,7 @@ SrvGetConsoleCP(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -1385,7 +1378,7 @@ ULONG
 SrvGetConsoleKeyboardLayoutName(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETKEYBOARDLAYOUTNAME_MSG a = (PCONSOLE_GETKEYBOARDLAYOUTNAME_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -1393,7 +1386,7 @@ SrvGetConsoleKeyboardLayoutName(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -1424,7 +1417,7 @@ ULONG
 SrvGetConsoleWindow(
     IN OUT PCSR_API_MSG m,
     IN OUT PCSR_REPLY_STATUS ReplyStatus
-    )
+)
 {
     PCONSOLE_GETCONSOLEWINDOW_MSG a = (PCONSOLE_GETCONSOLEWINDOW_MSG)&m->u.ApiMessageData;
     NTSTATUS Status;
@@ -1432,7 +1425,7 @@ SrvGetConsoleWindow(
 
     Status = ApiPreamble(a->ConsoleHandle,
                          &Console
-                        );
+    );
     if (!NT_SUCCESS(Status)) {
         return Status;
     }

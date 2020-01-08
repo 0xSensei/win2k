@@ -41,39 +41,39 @@
 
 #define M_ELSEMEMCPY(dst, src, len) s_lpPANMemCpy((dst), (src), (len))
 LOCAL EW_LPBYTE EW_NEAR EW_PASCAL s_lpPANMemCpy
-   ELSEARGS (( EW_LPBYTE lpDst, EW_LPBYTE lpSrc, EW_USHORT unLen ));
+ELSEARGS((EW_LPBYTE lpDst, EW_LPBYTE lpSrc, EW_USHORT unLen));
 
 #endif
 
 LOCAL EW_LPPIND_MEM EW_NEAR EW_PASCAL s_lpPANGetIndRec
-   ELSEARGS (( EW_LPPDICT_MEM lpPDB, EW_LPBYTE EW_FAR *lplpPanWant,
-      EW_LPBYTE EW_FAR *lplpPanThis ));
+ELSEARGS((EW_LPPDICT_MEM lpPDB, EW_LPBYTE EW_FAR* lplpPanWant,
+          EW_LPBYTE EW_FAR* lplpPanThis));
 
 LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC0
-   ELSEARGS (( EW_LPPIND_MEM lpPanIndRec, EW_LPPTBL_C0_MEM lpPC0,
-      EW_LPUSHORT lpunMatch, EW_USHORT unTblSize, EW_USHORT unAttrA,
-      EW_USHORT unAttrB ));
+ELSEARGS((EW_LPPIND_MEM lpPanIndRec, EW_LPPTBL_C0_MEM lpPC0,
+          EW_LPUSHORT lpunMatch, EW_USHORT unTblSize, EW_USHORT unAttrA,
+          EW_USHORT unAttrB));
 
 LOCAL EW_USHORT EW_NEAR EW_PASCAL s_unPANGetPenaltyC1
-   ELSEARGS (( EW_USHORT unAttrA, EW_USHORT unAttrB ));
+ELSEARGS((EW_USHORT unAttrA, EW_USHORT unAttrB));
 
 LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC2
-   ELSEARGS (( EW_LPPIND_MEM lpPanIndRec, EW_LPBYTE lpPTbl,
-      EW_LPUSHORT lpunMatch, EW_USHORT unTblSize,
-      EW_USHORT unAttrA, EW_USHORT unAttrB ));
+ELSEARGS((EW_LPPIND_MEM lpPanIndRec, EW_LPBYTE lpPTbl,
+          EW_LPUSHORT lpunMatch, EW_USHORT unTblSize,
+          EW_USHORT unAttrA, EW_USHORT unAttrB));
 
 LOCAL EW_USHORT EW_NEAR EW_PASCAL s_unPANGetPenaltyC4
-   ELSEARGS (( EW_LPPTBL_C4_MEM lpPC4, EW_USHORT unAttrA,
-      EW_USHORT unAttrB ));
+ELSEARGS((EW_LPPTBL_C4_MEM lpPC4, EW_USHORT unAttrA,
+          EW_USHORT unAttrB));
 
 LOCAL EW_LPBYTE EW_NEAR EW_PASCAL s_lpPANGetWeights
-   ELSEARGS (( EW_LPMAPSTATE lpMapState, EW_LPPDICT_MEM lpPDB,
-      EW_LPPIND_MEM lpPanIndRec ));
+ELSEARGS((EW_LPMAPSTATE lpMapState, EW_LPPDICT_MEM lpPDB,
+          EW_LPPIND_MEM lpPanIndRec));
 
 LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANMatchDigits
-   ELSEARGS (( EW_LPPDICT_MEM lpPDB, EW_LPUSHORT lpunMatchTotal,
-      EW_LPPIND_MEM lpPanIndRec, EW_LPPTBL_MEM lpPTblRec, EW_USHORT unWt,
-      EW_USHORT unAttrA, EW_USHORT unAttrB ));
+ELSEARGS((EW_LPPDICT_MEM lpPDB, EW_LPUSHORT lpunMatchTotal,
+          EW_LPPIND_MEM lpPanIndRec, EW_LPPTBL_MEM lpPTblRec, EW_USHORT unWt,
+          EW_USHORT unAttrA, EW_USHORT unAttrB));
 
 
 
@@ -86,8 +86,8 @@ LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANMatchDigits
  *           the negative size if the passed in struct was too small.
  *           The function returns zero if it failed to initialize.
 */
-EW_SHORT EW_FAR EW_PASCAL nPANMapInit( EW_LPMAPSTATE lpMapState,
-                                       EW_USHORT unSizeMapState)
+EW_SHORT EW_FAR EW_PASCAL nPANMapInit(EW_LPMAPSTATE lpMapState,
+                                      EW_USHORT unSizeMapState)
 {
     EW_USHORT i;
     EW_LPPDICT_MEM lpPDB;
@@ -99,13 +99,11 @@ EW_SHORT EW_FAR EW_PASCAL nPANMapInit( EW_LPMAPSTATE lpMapState,
     //  Simple version check: make sure we got the right size struct.
 
 
-    if( unSizeMapState < sizeof( EW_MAPSTATE ) )
-    {
-        if( unSizeMapState >= sizeof( EW_ULONG ) )
-        {
+    if (unSizeMapState < sizeof(EW_MAPSTATE)) {
+        if (unSizeMapState >= sizeof(EW_ULONG)) {
             lpMapState->ulSanity = 0L;
         }
-        return( -(EW_SHORT) sizeof( EW_MAPSTATE ) );
+        return(-(EW_SHORT)sizeof(EW_MAPSTATE));
     }
 
     lpMapState->ulSanity = 0L;
@@ -115,8 +113,7 @@ EW_SHORT EW_FAR EW_PASCAL nPANMapInit( EW_LPMAPSTATE lpMapState,
     //  until the mapper is disabled.
 
 
-    if( !( lpMapState->ulhPan1Data = M_lAllocPAN1DATA( ) ) )
-    {
+    if (!(lpMapState->ulhPan1Data = M_lAllocPAN1DATA())) {
         goto errout0;
     }
 
@@ -125,18 +122,16 @@ EW_SHORT EW_FAR EW_PASCAL nPANMapInit( EW_LPMAPSTATE lpMapState,
     //  in the right byte ordering.
 
 
-    if( !( lpPDB = M_lLockPAN1DATA( lpMapState->ulhPan1Data ) ) )
-    {
+    if (!(lpPDB = M_lLockPAN1DATA(lpMapState->ulhPan1Data))) {
         goto errout1;
     }
 
-    if( ( lpPDB->unVersion != PANOSE_PENALTY_VERS ) ||
-         ( lpPDB->unByteOrder != PTBL_BYTE_ORDER ) )
-    {
+    if ((lpPDB->unVersion != PANOSE_PENALTY_VERS) ||
+        (lpPDB->unByteOrder != PTBL_BYTE_ORDER)) {
         goto errout2;
     }
 
-    M_bUnlockPAN1DATA( lpMapState->ulhPan1Data );
+    M_bUnlockPAN1DATA(lpMapState->ulhPan1Data);
 
 
     //  Fill in defaults.
@@ -152,16 +147,16 @@ EW_SHORT EW_FAR EW_PASCAL nPANMapInit( EW_LPMAPSTATE lpMapState,
 
     lpPanDef = lpMapState->ajPanDef;
 
-    lpPanDef[PAN_IND_FAMILY]     = FAMILY_LATTEXT;
-    lpPanDef[PAN_IND_SERIF]      = SERIF_THIN;
-    lpPanDef[PAN_IND_WEIGHT]     = WEIGHT_THIN;
+    lpPanDef[PAN_IND_FAMILY] = FAMILY_LATTEXT;
+    lpPanDef[PAN_IND_SERIF] = SERIF_THIN;
+    lpPanDef[PAN_IND_WEIGHT] = WEIGHT_THIN;
     lpPanDef[PAN_IND_PROPORTION] = PROPORTION_MONOSPACE;
-    lpPanDef[PAN_IND_CONTRAST]   = CONTRAST_NONE;
-    lpPanDef[PAN_IND_STROKE]     = STROKE_GRADVERT;
-    lpPanDef[PAN_IND_ARMSTYLE]   = ARM_STRAIGHTSGLSERIF;
-    lpPanDef[PAN_IND_LTRFORM]    = LTRFORM_NORMCONTACT;
-    lpPanDef[PAN_IND_MIDLINE]    = MIDLINE_STDSERIFED;
-    lpPanDef[PAN_IND_XHEIGHT]    = XHEIGHT_CONSTLARGE;
+    lpPanDef[PAN_IND_CONTRAST] = CONTRAST_NONE;
+    lpPanDef[PAN_IND_STROKE] = STROKE_GRADVERT;
+    lpPanDef[PAN_IND_ARMSTYLE] = ARM_STRAIGHTSGLSERIF;
+    lpPanDef[PAN_IND_LTRFORM] = LTRFORM_NORMCONTACT;
+    lpPanDef[PAN_IND_MIDLINE] = MIDLINE_STDSERIFED;
+    lpPanDef[PAN_IND_XHEIGHT] = XHEIGHT_CONSTLARGE;
 
 
 #ifndef NOELSEWEIGHTS
@@ -169,11 +164,11 @@ EW_SHORT EW_FAR EW_PASCAL nPANMapInit( EW_LPMAPSTATE lpMapState,
     //  Initialize the custom weights array.
 
 
-    for( i = 0, lpjWtA = lpMapState->ajWtRefA,
-          lpjWtB = lpMapState->ajWtRefB;
-          i < MAX_CUSTOM_WEIGHTS;
-          ++i, *lpjWtA++ = PANOSE_ANY, *lpjWtB++ = PANOSE_ANY)
-       ;
+    for (i = 0, lpjWtA = lpMapState->ajWtRefA,
+         lpjWtB = lpMapState->ajWtRefB;
+         i < MAX_CUSTOM_WEIGHTS;
+         ++i, *lpjWtA++ = PANOSE_ANY, *lpjWtB++ = PANOSE_ANY)
+        ;
 
 #endif
 
@@ -188,7 +183,7 @@ EW_SHORT EW_FAR EW_PASCAL nPANMapInit( EW_LPMAPSTATE lpMapState,
     //  Normal return.
 
 
-    return( sizeof( EW_MAPSTATE ) );
+    return(sizeof(EW_MAPSTATE));
 
 errout2:
     M_bUnlockPAN1DATA(lpMapState->ulhPan1Data);
@@ -197,7 +192,7 @@ errout1:
     M_bFreePAN1DATA(lpMapState->ulhPan1Data);
 
 errout0:
-    return( 0 );
+    return(0);
 }
 
 
@@ -212,16 +207,15 @@ errout0:
  *           successfully freed.
 */
 
-EW_BOOL EW_FAR EW_PASCAL bPANMapClose( EW_LPMAPSTATE lpMapState )
+EW_BOOL EW_FAR EW_PASCAL bPANMapClose(EW_LPMAPSTATE lpMapState)
 {
-    if( M_SANE( lpMapState ) )
-    {
-       lpMapState->ulSanity = 0L;
+    if (M_SANE(lpMapState)) {
+        lpMapState->ulSanity = 0L;
 
-       return( M_bFreePAN1DATA( lpMapState->ulhPan1Data ) );
+        return(M_bFreePAN1DATA(lpMapState->ulhPan1Data));
     }
 
-    return( FALSE );
+    return(FALSE);
 }
 
 
@@ -237,26 +231,25 @@ EW_BOOL EW_FAR EW_PASCAL bPANMapClose( EW_LPMAPSTATE lpMapState )
  *           structure too small), or NUM_PAN_DIGITS if it was.
 */
 
-EW_SHORT EW_FAR EW_PASCAL nPANGetMapDefault( EW_LPMAPSTATE lpMapState,
-                                             EW_LPBYTE lpPanDef,
-                                             EW_USHORT unSizePanDef)
+EW_SHORT EW_FAR EW_PASCAL nPANGetMapDefault(EW_LPMAPSTATE lpMapState,
+                                            EW_LPBYTE lpPanDef,
+                                            EW_USHORT unSizePanDef)
 {
 
     //  Sanity checks.
 
 
-    if( !M_SANE( lpMapState ) || ( unSizePanDef < SIZE_PAN1_NUM ) )
-    {
-        return( 0 );
+    if (!M_SANE(lpMapState) || (unSizePanDef < SIZE_PAN1_NUM)) {
+        return(0);
     }
 
 
     //  Copy the number.
 
 
-    M_ELSEMEMCPY( lpPanDef, lpMapState->ajPanDef, SIZE_PAN1_NUM );
+    M_ELSEMEMCPY(lpPanDef, lpMapState->ajPanDef, SIZE_PAN1_NUM);
 
-    return( NUM_PAN_DIGITS );
+    return(NUM_PAN_DIGITS);
 }
 
 
@@ -270,26 +263,25 @@ EW_SHORT EW_FAR EW_PASCAL nPANGetMapDefault( EW_LPMAPSTATE lpMapState,
  *           structure too small), or NUM_PAN_DIGITS if it was.
 */
 
-EW_SHORT EW_FAR EW_PASCAL nPANSetMapDefault( EW_LPMAPSTATE lpMapState,
-                                             EW_LPBYTE lpPanDef,
-                                             EW_USHORT unSizePanDef)
+EW_SHORT EW_FAR EW_PASCAL nPANSetMapDefault(EW_LPMAPSTATE lpMapState,
+                                            EW_LPBYTE lpPanDef,
+                                            EW_USHORT unSizePanDef)
 {
 
     //  Sanity checks.
 
 
-    if( !M_SANE( lpMapState ) || ( unSizePanDef < SIZE_PAN1_NUM ) )
-    {
-       return( 0 );
+    if (!M_SANE(lpMapState) || (unSizePanDef < SIZE_PAN1_NUM)) {
+        return(0);
     }
 
 
     //  Copy the number.
 
 
-    M_ELSEMEMCPY( lpMapState->ajPanDef, lpPanDef, SIZE_PAN1_NUM );
+    M_ELSEMEMCPY(lpMapState->ajPanDef, lpPanDef, SIZE_PAN1_NUM);
 
-    return( NUM_PAN_DIGITS );
+    return(NUM_PAN_DIGITS);
 }
 
 
@@ -302,20 +294,17 @@ EW_SHORT EW_FAR EW_PASCAL nPANSetMapDefault( EW_LPMAPSTATE lpMapState,
  *           an error.
 */
 
-EW_BOOL EW_FAR EW_PASCAL bPANEnableMapDefault( EW_LPMAPSTATE lpMapState,
-                                               EW_BOOL bEnable)
+EW_BOOL EW_FAR EW_PASCAL bPANEnableMapDefault(EW_LPMAPSTATE lpMapState,
+                                              EW_BOOL bEnable)
 {
-    if( M_SANE( lpMapState ) )
-    {
+    if (M_SANE(lpMapState)) {
         EW_BOOL bPrev = lpMapState->bUseDef;
 
         lpMapState->bUseDef = bEnable;
 
-        return( bPrev );
-    }
-    else
-    {
-        return( FALSE );
+        return(bPrev);
+    } else {
+        return(FALSE);
     }
 }
 
@@ -329,9 +318,9 @@ EW_BOOL EW_FAR EW_PASCAL bPANEnableMapDefault( EW_LPMAPSTATE lpMapState,
  *           FALSE if it is not or an error occurred.
 */
 
-EW_BOOL EW_FAR EW_PASCAL bPANIsDefaultEnabled( EW_LPMAPSTATE lpMapState )
+EW_BOOL EW_FAR EW_PASCAL bPANIsDefaultEnabled(EW_LPMAPSTATE lpMapState)
 {
-    return( M_SANE( lpMapState ) && lpMapState->bUseDef );
+    return(M_SANE(lpMapState) && lpMapState->bUseDef);
 }
 
 #endif /* ifndef NOELSEPICKFONTS */
@@ -348,9 +337,9 @@ EW_BOOL EW_FAR EW_PASCAL bPANIsDefaultEnabled( EW_LPMAPSTATE lpMapState )
  * RETURNS:  Return the match threshold, or zero if an error occurred.
 */
 
-EW_USHORT EW_FAR EW_PASCAL unPANGetMapThreshold( EW_LPMAPSTATE lpMapState )
+EW_USHORT EW_FAR EW_PASCAL unPANGetMapThreshold(EW_LPMAPSTATE lpMapState)
 {
-    return( M_SANE( lpMapState ) ? lpMapState->unThreshold : 0 );
+    return(M_SANE(lpMapState) ? lpMapState->unThreshold : 0);
 }
 
 
@@ -364,16 +353,15 @@ EW_USHORT EW_FAR EW_PASCAL unPANGetMapThreshold( EW_LPMAPSTATE lpMapState )
  *           an error occurred.
 */
 
-EW_BOOL EW_FAR EW_PASCAL bPANSetMapThreshold( EW_LPMAPSTATE lpMapState,
-                                              EW_USHORT unThreshold)
+EW_BOOL EW_FAR EW_PASCAL bPANSetMapThreshold(EW_LPMAPSTATE lpMapState,
+                                             EW_USHORT unThreshold)
 {
 
     //  Cannot set a threshold equal to the error value.
 
 
-    if( !M_SANE( lpMapState ) || ( unThreshold == PAN_MATCH_ERROR ) )
-    {
-       return( FALSE );
+    if (!M_SANE(lpMapState) || (unThreshold == PAN_MATCH_ERROR)) {
+        return(FALSE);
     }
 
 
@@ -382,7 +370,7 @@ EW_BOOL EW_FAR EW_PASCAL bPANSetMapThreshold( EW_LPMAPSTATE lpMapState,
 
     lpMapState->unThreshold = unThreshold;
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -396,9 +384,9 @@ EW_BOOL EW_FAR EW_PASCAL bPANSetMapThreshold( EW_LPMAPSTATE lpMapState,
  *           it is not or an error occurred.
 */
 
-EW_BOOL EW_FAR EW_PASCAL bPANIsThresholdRelaxed( EW_LPMAPSTATE lpMapState )
+EW_BOOL EW_FAR EW_PASCAL bPANIsThresholdRelaxed(EW_LPMAPSTATE lpMapState)
 {
-    return( M_SANE( lpMapState ) &&( lpMapState->unRelaxThresholdCount > 0 ) );
+    return(M_SANE(lpMapState) && (lpMapState->unRelaxThresholdCount > 0));
 }
 
 
@@ -411,11 +399,10 @@ EW_BOOL EW_FAR EW_PASCAL bPANIsThresholdRelaxed( EW_LPMAPSTATE lpMapState )
  * RETURNS:  Nothing.
 */
 
-EW_VOID EW_FAR EW_PASCAL vPANRelaxThreshold( EW_LPMAPSTATE lpMapState )
+EW_VOID EW_FAR EW_PASCAL vPANRelaxThreshold(EW_LPMAPSTATE lpMapState)
 {
-    if( M_SANE( lpMapState ) )
-    {
-       ++lpMapState->unRelaxThresholdCount;
+    if (M_SANE(lpMapState)) {
+        ++lpMapState->unRelaxThresholdCount;
     }
 }
 
@@ -431,15 +418,12 @@ EW_VOID EW_FAR EW_PASCAL vPANRelaxThreshold( EW_LPMAPSTATE lpMapState )
  *           rights a 'for' loop restoring until TRUE is returned.
 */
 
-EW_BOOL EW_FAR EW_PASCAL bPANRestoreThreshold( EW_LPMAPSTATE lpMapState )
+EW_BOOL EW_FAR EW_PASCAL bPANRestoreThreshold(EW_LPMAPSTATE lpMapState)
 {
-    if( M_SANE( lpMapState ) &&( lpMapState->unRelaxThresholdCount > 0 ) )
-    {
-       return( --lpMapState->unRelaxThresholdCount == 0 );
-    }
-    else
-    {
-       return( TRUE );
+    if (M_SANE(lpMapState) && (lpMapState->unRelaxThresholdCount > 0)) {
+        return(--lpMapState->unRelaxThresholdCount == 0);
+    } else {
+        return(TRUE);
     }
 }
 
@@ -467,11 +451,11 @@ EW_BOOL EW_FAR EW_PASCAL bPANRestoreThreshold( EW_LPMAPSTATE lpMapState )
  *           if none exist.
 */
 
-EW_BOOL EW_FAR EW_PASCAL bPANGetMapWeights( EW_LPMAPSTATE lpMapState,
-                                            EW_BYTE jFamilyA,
-                                            EW_BYTE jFamilyB,
-                                            EW_LPBYTE lpjWts,
-                                            EW_LPBOOL lpbIsCustom)
+EW_BOOL EW_FAR EW_PASCAL bPANGetMapWeights(EW_LPMAPSTATE lpMapState,
+                                           EW_BYTE jFamilyA,
+                                           EW_BYTE jFamilyB,
+                                           EW_LPBYTE lpjWts,
+                                           EW_LPBOOL lpbIsCustom)
 {
     EW_USHORT      i;
     EW_BOOL        bFound = FALSE;
@@ -485,38 +469,33 @@ EW_BOOL EW_FAR EW_PASCAL bPANGetMapWeights( EW_LPMAPSTATE lpMapState,
     //  Sanity test on the family digits.
 
 
-    if( !M_SANE( lpMapState ) ||
-         ( jFamilyA <= PANOSE_NOFIT ) ||( jFamilyA > MAX_PAN1_FAMILY ) ||
-         ( jFamilyB <= PANOSE_NOFIT ) ||( jFamilyB > MAX_PAN1_FAMILY ) )
-    {
-        return( FALSE );
+    if (!M_SANE(lpMapState) ||
+        (jFamilyA <= PANOSE_NOFIT) || (jFamilyA > MAX_PAN1_FAMILY) ||
+        (jFamilyB <= PANOSE_NOFIT) || (jFamilyB > MAX_PAN1_FAMILY)) {
+        return(FALSE);
     }
 
 
     //  Search for custom weights.
 
 
-    for( i = 0, lpjWtA = lpMapState->ajWtRefA, lpjWtB = lpMapState->ajWtRefB;
-          !bFound && ( i < MAX_CUSTOM_WEIGHTS ) && *lpjWtA;
-          ++i, ++lpjWtA, ++lpjWtB)
-    {
+    for (i = 0, lpjWtA = lpMapState->ajWtRefA, lpjWtB = lpMapState->ajWtRefB;
+         !bFound && (i < MAX_CUSTOM_WEIGHTS) && *lpjWtA;
+         ++i, ++lpjWtA, ++lpjWtB) {
 
         //  If custom weights are found then set *lpbIsCustom to
         //  TRUE, copy the weights, and return success.
 
 
-        if( ( (*lpjWtA == jFamilyA ) &&( *lpjWtB == jFamilyB ) ) ||
-             ( (*lpjWtA == jFamilyB ) &&( *lpjWtB == jFamilyA ) ) )
-        {
-            if( lpjWts )
-            {
-                M_ELSEMEMCPY( lpjWts,
-                              &lpMapState->ajCustomWt[SIZE_PAN1_NUM * i],
-                              SIZE_PAN1_NUM );
+        if (((*lpjWtA == jFamilyA) && (*lpjWtB == jFamilyB)) ||
+            ((*lpjWtA == jFamilyB) && (*lpjWtB == jFamilyA))) {
+            if (lpjWts) {
+                M_ELSEMEMCPY(lpjWts,
+                             &lpMapState->ajCustomWt[SIZE_PAN1_NUM * i],
+                             SIZE_PAN1_NUM);
             }
 
-            if( lpbIsCustom )
-            {
+            if (lpbIsCustom) {
                 *lpbIsCustom = TRUE;
             }
 
@@ -529,28 +508,22 @@ EW_BOOL EW_FAR EW_PASCAL bPANGetMapWeights( EW_LPMAPSTATE lpMapState,
     //  for default weights.
 
 
-    if( !bFound && ( lpPDB = M_lLockPAN1DATA( lpMapState->ulhPan1Data ) ) )
-    {
-        for( i = 0, lpPanIndRec = lpPDB->pind;
-             !bFound && ( i < lpPDB->unNumDicts );
-             ++i, ++lpPanIndRec )
-        {
-            if( ( (lpPanIndRec->jFamilyA == jFamilyA ) &&
-                (  lpPanIndRec->jFamilyB == jFamilyB ) ) ||
-                ( (lpPanIndRec->jFamilyA == jFamilyB ) &&
-                (  lpPanIndRec->jFamilyB == jFamilyA ) ) )
-            {
-                if( lpPanIndRec->unOffsWts )
-                {
-                    if( lpjWts )
-                    {
-                        M_ELSEMEMCPY( lpjWts,
-                                      M_lpjOFFS( lpPDB, lpPanIndRec->unOffsWts ),
-                                      SIZE_PAN1_NUM );
+    if (!bFound && (lpPDB = M_lLockPAN1DATA(lpMapState->ulhPan1Data))) {
+        for (i = 0, lpPanIndRec = lpPDB->pind;
+             !bFound && (i < lpPDB->unNumDicts);
+             ++i, ++lpPanIndRec) {
+            if (((lpPanIndRec->jFamilyA == jFamilyA) &&
+                (lpPanIndRec->jFamilyB == jFamilyB)) ||
+                 ((lpPanIndRec->jFamilyA == jFamilyB) &&
+                (lpPanIndRec->jFamilyB == jFamilyA))) {
+                if (lpPanIndRec->unOffsWts) {
+                    if (lpjWts) {
+                        M_ELSEMEMCPY(lpjWts,
+                                     M_lpjOFFS(lpPDB, lpPanIndRec->unOffsWts),
+                                     SIZE_PAN1_NUM);
                     }
 
-                    if( lpbIsCustom )
-                    {
+                    if (lpbIsCustom) {
                         *lpbIsCustom = FALSE;
                     }
 
@@ -559,14 +532,14 @@ EW_BOOL EW_FAR EW_PASCAL bPANGetMapWeights( EW_LPMAPSTATE lpMapState,
             }
         }
 
-        M_bUnlockPAN1DATA( lpMapState->ulhPan1Data );
+        M_bUnlockPAN1DATA(lpMapState->ulhPan1Data);
     }
 
 
     //  Return the result of the search.
 
 
-    return( bFound );
+    return(bFound);
 }
 
 
@@ -588,10 +561,10 @@ EW_BOOL EW_FAR EW_PASCAL bPANGetMapWeights( EW_LPMAPSTATE lpMapState,
  *           more room for custom mapper weights.
 */
 
-EW_BOOL EW_FAR EW_PASCAL bPANSetMapWeights( EW_LPMAPSTATE lpMapState,
-                                            EW_BYTE jFamilyA,
-                                            EW_BYTE jFamilyB,
-                                            EW_LPBYTE lpjWts )
+EW_BOOL EW_FAR EW_PASCAL bPANSetMapWeights(EW_LPMAPSTATE lpMapState,
+                                           EW_BYTE jFamilyA,
+                                           EW_BYTE jFamilyB,
+                                           EW_LPBYTE lpjWts)
 {
     EW_USHORT      i;
     EW_BOOL        bFound;
@@ -606,11 +579,10 @@ EW_BOOL EW_FAR EW_PASCAL bPANSetMapWeights( EW_LPMAPSTATE lpMapState,
     //  Sanity test on the family digits.
 
 
-    if( !M_SANE( lpMapState ) || !lpjWts ||
-         ( jFamilyA <= PANOSE_NOFIT ) ||( jFamilyA > MAX_PAN1_FAMILY ) ||
-         ( jFamilyB <= PANOSE_NOFIT ) ||( jFamilyB > MAX_PAN1_FAMILY ) )
-    {
-        return( FALSE );
+    if (!M_SANE(lpMapState) || !lpjWts ||
+        (jFamilyA <= PANOSE_NOFIT) || (jFamilyA > MAX_PAN1_FAMILY) ||
+        (jFamilyB <= PANOSE_NOFIT) || (jFamilyB > MAX_PAN1_FAMILY)) {
+        return(FALSE);
     }
 
 
@@ -619,44 +591,36 @@ EW_BOOL EW_FAR EW_PASCAL bPANSetMapWeights( EW_LPMAPSTATE lpMapState,
     //  a family pair we'll never map against).
 
 
-    if( lpPDB = M_lLockPAN1DATA( lpMapState->ulhPan1Data ) )
-    {
-        for( i = 0, bFound = FALSE, lpPanIndRec = lpPDB->pind;
-             i < lpPDB->unNumDicts; ++i, ++lpPanIndRec)
-        {
-            if( ( (lpPanIndRec->jFamilyA == jFamilyA ) &&
-                (  lpPanIndRec->jFamilyB == jFamilyB ) ) ||
-                ( (lpPanIndRec->jFamilyA == jFamilyB ) &&
-                (  lpPanIndRec->jFamilyB == jFamilyA ) ) )
-            {
+    if (lpPDB = M_lLockPAN1DATA(lpMapState->ulhPan1Data)) {
+        for (i = 0, bFound = FALSE, lpPanIndRec = lpPDB->pind;
+             i < lpPDB->unNumDicts; ++i, ++lpPanIndRec) {
+            if (((lpPanIndRec->jFamilyA == jFamilyA) &&
+                (lpPanIndRec->jFamilyB == jFamilyB)) ||
+                 ((lpPanIndRec->jFamilyA == jFamilyB) &&
+                (lpPanIndRec->jFamilyB == jFamilyA))) {
                 bFound = TRUE;
                 break;
             }
         }
 
-        M_bUnlockPAN1DATA( lpMapState->ulhPan1Data );
+        M_bUnlockPAN1DATA(lpMapState->ulhPan1Data);
 
-        if( !bFound )
-        {
-            return( FALSE );
+        if (!bFound) {
+            return(FALSE);
         }
-    }
-    else
-    {
-        return( FALSE );
+    } else {
+        return(FALSE);
     }
 
 
     //  Search for an existing entry.
 
 
-    for( i = 0, lpjWtA = lpMapState->ajWtRefA, lpjWtB = lpMapState->ajWtRefB;
-         ( i < MAX_CUSTOM_WEIGHTS ) && *lpjWtA;
-          ++i, ++lpjWtA, ++lpjWtB)
-    {
-        if( ( (*lpjWtA == jFamilyA ) &&( *lpjWtB == jFamilyB ) ) ||
-            ( (*lpjWtA == jFamilyB ) &&( *lpjWtB == jFamilyA ) ) )
-        {
+    for (i = 0, lpjWtA = lpMapState->ajWtRefA, lpjWtB = lpMapState->ajWtRefB;
+        (i < MAX_CUSTOM_WEIGHTS) && *lpjWtA;
+         ++i, ++lpjWtA, ++lpjWtB) {
+        if (((*lpjWtA == jFamilyA) && (*lpjWtB == jFamilyB)) ||
+            ((*lpjWtA == jFamilyB) && (*lpjWtB == jFamilyA))) {
             break;
         }
     }
@@ -665,9 +629,8 @@ EW_BOOL EW_FAR EW_PASCAL bPANSetMapWeights( EW_LPMAPSTATE lpMapState,
     //  Abort if the weights were not found and there are no free slots.
 
 
-    if( i >= MAX_CUSTOM_WEIGHTS )
-    {
-        return( FALSE );
+    if (i >= MAX_CUSTOM_WEIGHTS) {
+        return(FALSE);
     }
 
 
@@ -679,8 +642,8 @@ EW_BOOL EW_FAR EW_PASCAL bPANSetMapWeights( EW_LPMAPSTATE lpMapState,
     *lpjWtA = jFamilyA;
     *lpjWtB = jFamilyB;
 
-    M_ELSEMEMCPY( lpjWtFam = &lpMapState->ajCustomWt[SIZE_PAN1_NUM * i],
-                  lpjWts, SIZE_PAN1_NUM);
+    M_ELSEMEMCPY(lpjWtFam = &lpMapState->ajCustomWt[SIZE_PAN1_NUM * i],
+                 lpjWts, SIZE_PAN1_NUM);
 
     *lpjWtFam = 0;
 
@@ -688,7 +651,7 @@ EW_BOOL EW_FAR EW_PASCAL bPANSetMapWeights( EW_LPMAPSTATE lpMapState,
     //  Return success.
 
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -704,9 +667,9 @@ EW_BOOL EW_FAR EW_PASCAL bPANSetMapWeights( EW_LPMAPSTATE lpMapState,
  *           digit pair.
 */
 
-EW_BOOL EW_FAR EW_PASCAL bPANClearMapWeights( EW_LPMAPSTATE lpMapState,
-                                              EW_BYTE jFamilyA,
-                                              EW_BYTE jFamilyB )
+EW_BOOL EW_FAR EW_PASCAL bPANClearMapWeights(EW_LPMAPSTATE lpMapState,
+                                             EW_BYTE jFamilyA,
+                                             EW_BYTE jFamilyB)
 {
     EW_USHORT i;
     EW_USHORT j;
@@ -718,33 +681,29 @@ EW_BOOL EW_FAR EW_PASCAL bPANClearMapWeights( EW_LPMAPSTATE lpMapState,
     //  Sanity test on the family digits.
 
 
-    if( !M_SANE( lpMapState ) ||
-         ( jFamilyA <= PANOSE_NOFIT ) ||( jFamilyA > MAX_PAN1_FAMILY ) ||
-         ( jFamilyB <= PANOSE_NOFIT ) ||( jFamilyB > MAX_PAN1_FAMILY ) )
-    {
-        return( FALSE );
+    if (!M_SANE(lpMapState) ||
+        (jFamilyA <= PANOSE_NOFIT) || (jFamilyA > MAX_PAN1_FAMILY) ||
+        (jFamilyB <= PANOSE_NOFIT) || (jFamilyB > MAX_PAN1_FAMILY)) {
+        return(FALSE);
     }
 
 
     //  Search for custom weights.
 
 
-    for( i = 0, lpjWtA = lpMapState->ajWtRefA, lpjWtB = lpMapState->ajWtRefB;
-         ( i < MAX_CUSTOM_WEIGHTS ) && *lpjWtA;
-          ++i, ++lpjWtA, ++lpjWtB)
-    {
+    for (i = 0, lpjWtA = lpMapState->ajWtRefA, lpjWtB = lpMapState->ajWtRefB;
+        (i < MAX_CUSTOM_WEIGHTS) && *lpjWtA;
+         ++i, ++lpjWtA, ++lpjWtB) {
 
         //  If custom weights are found then overwrite them by
         //  shifting other weights forward in the array.
 
 
-        if( ( (*lpjWtA == jFamilyA ) &&( *lpjWtB == jFamilyB ) ) ||
-            ( (*lpjWtA == jFamilyB ) &&( *lpjWtB == jFamilyA ) ) )
-        {
-            for( j = i + 1, ++lpjWtA, ++lpjWtB;
-                 ( j < MAX_CUSTOM_WEIGHTS ) && *lpjWtA;
-                  ++j, ++lpjWtA, ++lpjWtB)
-            {
+        if (((*lpjWtA == jFamilyA) && (*lpjWtB == jFamilyB)) ||
+            ((*lpjWtA == jFamilyB) && (*lpjWtB == jFamilyA))) {
+            for (j = i + 1, ++lpjWtA, ++lpjWtB;
+                (j < MAX_CUSTOM_WEIGHTS) && *lpjWtA;
+                 ++j, ++lpjWtA, ++lpjWtB) {
                 lpjWtA[-1] = *lpjWtA;
                 lpjWtB[-1] = *lpjWtB;
             }
@@ -752,14 +711,13 @@ EW_BOOL EW_FAR EW_PASCAL bPANClearMapWeights( EW_LPMAPSTATE lpMapState,
             lpjWtA[-1] = PANOSE_ANY;
             lpjWtB[-1] = PANOSE_ANY;
 
-            if( i < ( j - 1 ) )
-            {
-                M_ELSEMEMCPY( &lpMapState->ajCustomWt[SIZE_PAN1_NUM * i],
-                              &lpMapState->ajCustomWt[SIZE_PAN1_NUM * (i + 1)],
-                              ( SIZE_PAN1_NUM * (j - i - 1 ) ) );
+            if (i < (j - 1)) {
+                M_ELSEMEMCPY(&lpMapState->ajCustomWt[SIZE_PAN1_NUM * i],
+                             &lpMapState->ajCustomWt[SIZE_PAN1_NUM * (i + 1)],
+                             (SIZE_PAN1_NUM * (j - i - 1)));
             }
 
-            return( TRUE );
+            return(TRUE);
         }
     }
 
@@ -768,7 +726,7 @@ EW_BOOL EW_FAR EW_PASCAL bPANClearMapWeights( EW_LPMAPSTATE lpMapState,
     //  found, return failure.
 
 
-    return( FALSE );
+    return(FALSE);
 }
 
 
@@ -786,12 +744,12 @@ EW_BOOL EW_FAR EW_PASCAL bPANClearMapWeights( EW_LPMAPSTATE lpMapState,
  *           of range.
 */
 
-EW_USHORT EW_FAR EW_PASCAL unPANMatchFonts( EW_LPMAPSTATE lpMapState,
-                                            EW_LPBYTE lpPanWant,
-                                            EW_ULONG ulSizeWant,
-                                            EW_LPBYTE lpPanThis,
-                                            EW_ULONG ulSizeThis,
-                                            EW_BYTE jMapToFamily )
+EW_USHORT EW_FAR EW_PASCAL unPANMatchFonts(EW_LPMAPSTATE lpMapState,
+                                           EW_LPBYTE lpPanWant,
+                                           EW_ULONG ulSizeWant,
+                                           EW_LPBYTE lpPanThis,
+                                           EW_ULONG ulSizeThis,
+                                           EW_BYTE jMapToFamily)
 {
     EW_USHORT unMatch = PAN_MATCH_ERROR;
     EW_USHORT unThreshold;
@@ -811,14 +769,13 @@ EW_USHORT EW_FAR EW_PASCAL unPANMatchFonts( EW_LPMAPSTATE lpMapState,
     //  number must match the map-to family.
 
 
-    if( !M_SANE( lpMapState ) ||
-         ( ulSizeWant != SIZE_PAN1_NUM ) || ( ulSizeThis != SIZE_PAN1_NUM ) ||
-         ( lpPanWant[PAN_IND_FAMILY] <= PANOSE_NOFIT )   ||
-         ( lpPanWant[PAN_IND_FAMILY] > MAX_PAN1_FAMILY ) ||
-         ( lpPanThis[PAN_IND_FAMILY] <= PANOSE_NOFIT )   ||
-         ( lpPanThis[PAN_IND_FAMILY] > MAX_PAN1_FAMILY ) ||
-         ( lpPanThis[PAN_IND_FAMILY] != jMapToFamily ) )
-    {
+    if (!M_SANE(lpMapState) ||
+        (ulSizeWant != SIZE_PAN1_NUM) || (ulSizeThis != SIZE_PAN1_NUM) ||
+        (lpPanWant[PAN_IND_FAMILY] <= PANOSE_NOFIT) ||
+        (lpPanWant[PAN_IND_FAMILY] > MAX_PAN1_FAMILY) ||
+        (lpPanThis[PAN_IND_FAMILY] <= PANOSE_NOFIT) ||
+        (lpPanThis[PAN_IND_FAMILY] > MAX_PAN1_FAMILY) ||
+        (lpPanThis[PAN_IND_FAMILY] != jMapToFamily)) {
         goto backout0;
     }
 
@@ -826,8 +783,7 @@ EW_USHORT EW_FAR EW_PASCAL unPANMatchFonts( EW_LPMAPSTATE lpMapState,
     //  Lock the penalty database.
 
 
-    if( !(lpPDB = M_lLockPAN1DATA( lpMapState->ulhPan1Data ) ) )
-    {
+    if (!(lpPDB = M_lLockPAN1DATA(lpMapState->ulhPan1Data))) {
         goto backout0;
     }
 
@@ -844,15 +800,13 @@ EW_USHORT EW_FAR EW_PASCAL unPANMatchFonts( EW_LPMAPSTATE lpMapState,
     //  value of zero. Otherwise return the usual match error value.
 
 
-    if( !(lpPanIndRec = s_lpPANGetIndRec(lpPDB, &lpPanWant, &lpPanThis ) ) )
-    {
-        for( i = 0; ( i < NUM_PAN_DIGITS ) && ( *lpPanWant == *lpPanThis ) &&
-             ( *lpPanWant != PANOSE_NOFIT );
-              ++i, ++lpPanWant, ++lpPanThis)
-           ;
+    if (!(lpPanIndRec = s_lpPANGetIndRec(lpPDB, &lpPanWant, &lpPanThis))) {
+        for (i = 0; (i < NUM_PAN_DIGITS) && (*lpPanWant == *lpPanThis) &&
+            (*lpPanWant != PANOSE_NOFIT);
+             ++i, ++lpPanWant, ++lpPanThis)
+            ;
 
-        if( i >= NUM_PAN_DIGITS )
-        {
+        if (i >= NUM_PAN_DIGITS) {
             unMatch = 0;
         }
 
@@ -865,8 +819,7 @@ EW_USHORT EW_FAR EW_PASCAL unPANMatchFonts( EW_LPMAPSTATE lpMapState,
     //  database.
 
 
-    if( !( lpjWts = s_lpPANGetWeights( lpMapState, lpPDB, lpPanIndRec ) ) )
-    {
+    if (!(lpjWts = s_lpPANGetWeights(lpMapState, lpPDB, lpPanIndRec))) {
         goto backout1;
     }
 
@@ -875,12 +828,9 @@ EW_USHORT EW_FAR EW_PASCAL unPANMatchFonts( EW_LPMAPSTATE lpMapState,
     //  it to the maximum integer.
 
 
-    if( lpMapState->unRelaxThresholdCount > 0 )
-    {
+    if (lpMapState->unRelaxThresholdCount > 0) {
         unThreshold = ELSEMAXSHORT;
-    }
-    else
-    {
+    } else {
         unThreshold = lpMapState->unThreshold;
     }
 
@@ -888,7 +838,7 @@ EW_USHORT EW_FAR EW_PASCAL unPANMatchFonts( EW_LPMAPSTATE lpMapState,
     //  Index the penalty table array.
 
 
-    lpPTblRec = (EW_LPPTBL_MEM) M_lpjOFFS( lpPDB, lpPanIndRec->unOffsPTbl );
+    lpPTblRec = (EW_LPPTBL_MEM)M_lpjOFFS(lpPDB, lpPanIndRec->unOffsPTbl);
 
 
     //  There are two flavors of walking the digits:
@@ -900,58 +850,51 @@ EW_USHORT EW_FAR EW_PASCAL unPANMatchFonts( EW_LPMAPSTATE lpMapState,
     //  Test for an a-to-b array( cross-family matching ).
 
 
-    if( lpPanIndRec->unOffsAtoB )
-    {
+    if (lpPanIndRec->unOffsAtoB) {
 
         //  This is a cross-family mapping, get the a-to-b array head.
 
 
-        lpAtoBHead = (EW_LPATOB_MEM) M_lpjOFFS( lpPDB, lpPanIndRec->unOffsAtoB );
+        lpAtoBHead = (EW_LPATOB_MEM)M_lpjOFFS(lpPDB, lpPanIndRec->unOffsAtoB);
 
 
         //  Walk the a-to-b array.
 
 
-        for( i = unMatch = 0, j = lpAtoBHead->unNumAtoB,
-              lpAtoB = lpAtoBHead->AtoBItem;
-              i < j;
-              ++i, ++lpPTblRec, ++lpjWts, ++lpAtoB)
-        {
+        for (i = unMatch = 0, j = lpAtoBHead->unNumAtoB,
+             lpAtoB = lpAtoBHead->AtoBItem;
+             i < j;
+             ++i, ++lpPTblRec, ++lpjWts, ++lpAtoB) {
 
             //  Compare the two digits. Abort if the test fails or the
             //  accumulated match value is greater than the threshold.
 
 
-            if( !s_bPANMatchDigits( lpPDB, &unMatch, lpPanIndRec,
-                  lpPTblRec, *lpjWts, lpPanWant[lpAtoB->jAttrA],
-                  lpPanThis[lpAtoB->jAttrB]) ||
-                 ( unMatch > unThreshold ) )
-            {
+            if (!s_bPANMatchDigits(lpPDB, &unMatch, lpPanIndRec,
+                                   lpPTblRec, *lpjWts, lpPanWant[lpAtoB->jAttrA],
+                                   lpPanThis[lpAtoB->jAttrB]) ||
+                                   (unMatch > unThreshold)) {
                 unMatch = PAN_MATCH_ERROR;
                 goto backout1;
             }
         }
-    }
-    else
-    {
+    } else {
 
         //  Normal match: comparing PANOSE numbers from the same
         //  families. Walk the digits accumulating the match result.
 
 
-        for( i = unMatch = 0, ++lpPanWant, ++lpPanThis;
-              i <( NUM_PAN_DIGITS - 1 );
-              ++i, ++lpPTblRec, ++lpjWts, ++lpPanWant, ++lpPanThis )
-        {
+        for (i = unMatch = 0, ++lpPanWant, ++lpPanThis;
+             i < (NUM_PAN_DIGITS - 1);
+             ++i, ++lpPTblRec, ++lpjWts, ++lpPanWant, ++lpPanThis) {
 
             //  Compare the two digits. Abort if the test fails or the
             //  accumulated match value is greater than the threshold.
 
 
-            if( !s_bPANMatchDigits( lpPDB, &unMatch, lpPanIndRec,
-                  lpPTblRec, *lpjWts, *lpPanWant, *lpPanThis) ||
-                 ( unMatch > unThreshold ) )
-            {
+            if (!s_bPANMatchDigits(lpPDB, &unMatch, lpPanIndRec,
+                                   lpPTblRec, *lpjWts, *lpPanWant, *lpPanThis) ||
+                                   (unMatch > unThreshold)) {
                 unMatch = PAN_MATCH_ERROR;
                 goto backout1;
             }
@@ -964,10 +907,10 @@ EW_USHORT EW_FAR EW_PASCAL unPANMatchFonts( EW_LPMAPSTATE lpMapState,
 
 
 backout1:
-    M_bUnlockPAN1DATA( lpMapState->ulhPan1Data );
+    M_bUnlockPAN1DATA(lpMapState->ulhPan1Data);
 
 backout0:
-    return( unMatch );
+    return(unMatch);
 }
 
 
@@ -997,15 +940,15 @@ backout0:
  *           If no suitable match was found and the default font is
  *           disabled, then zero is returned.
 */
-EW_USHORT EW_FAR EW_PASCAL unPANPickFonts( EW_LPMAPSTATE lpMapState,
-                                           EW_LPUSHORT lpIndsBest,
-                                           EW_LPUSHORT lpMatchValues,
-                                           EW_LPBYTE lpPanWant,
-                                           EW_USHORT unNumInds,
-                                           EW_LPBYTE lpPanFirst,
-                                           EW_USHORT unNumAvail,
-                                           EW_SHORT nRecSize,
-                                           EW_BYTE jMapToFamily )
+EW_USHORT EW_FAR EW_PASCAL unPANPickFonts(EW_LPMAPSTATE lpMapState,
+                                          EW_LPUSHORT lpIndsBest,
+                                          EW_LPUSHORT lpMatchValues,
+                                          EW_LPBYTE lpPanWant,
+                                          EW_USHORT unNumInds,
+                                          EW_LPBYTE lpPanFirst,
+                                          EW_USHORT unNumAvail,
+                                          EW_SHORT nRecSize,
+                                          EW_BYTE jMapToFamily)
 {
     EW_USHORT i;
     EW_USHORT j;
@@ -1021,11 +964,10 @@ EW_USHORT EW_FAR EW_PASCAL unPANPickFonts( EW_LPMAPSTATE lpMapState,
     //  Sanity check.
 
 
-    if( !M_SANE( lpMapState ) || ( unNumInds == 0 ) || ( unNumAvail == 0 ) ||
-         ( (nRecSize < 0 ) &&( nRecSize > -(EW_SHORT )SIZE_PAN1_NUM) ) ||
-         ( (nRecSize > 0 ) &&( nRecSize < (EW_SHORT )SIZE_PAN1_NUM) ) )
-    {
-        return( 0 );
+    if (!M_SANE(lpMapState) || (unNumInds == 0) || (unNumAvail == 0) ||
+        ((nRecSize < 0) && (nRecSize > -(EW_SHORT)SIZE_PAN1_NUM)) ||
+        ((nRecSize > 0) && (nRecSize < (EW_SHORT)SIZE_PAN1_NUM))) {
+        return(0);
     }
 
 
@@ -1044,26 +986,24 @@ EW_USHORT EW_FAR EW_PASCAL unPANPickFonts( EW_LPMAPSTATE lpMapState,
     //  the passed-in record size.
 
 
-    for( i = 0, lpPanThis = lpPanFirst; i < unNumAvail;
-         ++i, lpPanThis += nRecSize)
-    {
+    for (i = 0, lpPanThis = lpPanFirst; i < unNumAvail;
+         ++i, lpPanThis += nRecSize) {
 
         //  Get the match value.
 
 
-        if( ( unMatchValue = unPANMatchFonts( lpMapState,
-              lpPanWant, SIZE_PAN1_NUM, lpPanThis, SIZE_PAN1_NUM,
-              jMapToFamily ) ) != PAN_MATCH_ERROR )
-        {
+        if ((unMatchValue = unPANMatchFonts(lpMapState,
+                                            lpPanWant, SIZE_PAN1_NUM, lpPanThis, SIZE_PAN1_NUM,
+                                            jMapToFamily)) != PAN_MATCH_ERROR) {
 
             //  Find the slot in the array where this match value
             //  should reside.
 
 
-            for( j = 0, lpMatches = lpMatchValues;
-                ( j < unNumFound ) &&( *lpMatches < unMatchValue );
-                ++j, ++lpMatches)
-               ;
+            for (j = 0, lpMatches = lpMatchValues;
+                (j < unNumFound) && (*lpMatches < unMatchValue);
+                 ++j, ++lpMatches)
+                ;
 
 
             //  If this match value is better than one of the matches
@@ -1072,14 +1012,12 @@ EW_USHORT EW_FAR EW_PASCAL unPANPickFonts( EW_LPMAPSTATE lpMapState,
             //  that, we shuffle less close matches off the end.
 
 
-            if( j < unNumInds )
-            {
-                if( unNumFound < unNumInds )
-                {
-                   ++unNumFound;
+            if (j < unNumInds) {
+                if (unNumFound < unNumInds) {
+                    ++unNumFound;
                 }
 
-                for( lpInds = &lpIndsBest[k = unNumFound - 1],
+                for (lpInds = &lpIndsBest[k = unNumFound - 1],
                      lpMatches = &lpMatchValues[k];
                      k > j;
                      lpInds[0] = lpInds[-1], lpMatches[0] = lpMatches[-1],
@@ -1100,10 +1038,8 @@ EW_USHORT EW_FAR EW_PASCAL unPANPickFonts( EW_LPMAPSTATE lpMapState,
                 //  not change.
 
 
-                if( unNumFound == unNumInds )
-                {
-                    if( (k = lpMatchValues[unNumFound - 1] ) == 0)
-                    {
+                if (unNumFound == unNumInds) {
+                    if ((k = lpMatchValues[unNumFound - 1]) == 0) {
                         break;
                     }
 
@@ -1121,25 +1057,19 @@ EW_USHORT EW_FAR EW_PASCAL unPANPickFonts( EW_LPMAPSTATE lpMapState,
     //  want to find it.
 
 
-    if( !unNumFound && lpMapState->bUseDef )
-    {
+    if (!unNumFound && lpMapState->bUseDef) {
         lpMapState->unThreshold = ELSEMAXSHORT;
 
-        for( i = 0, lpPanThis = lpPanFirst; i < unNumAvail;
-             ++i, lpPanThis += nRecSize)
-        {
-            if( ( unMatchValue = unPANMatchFonts( lpMapState,
-                lpMapState->ajPanDef, SIZE_PAN1_NUM, lpPanThis, SIZE_PAN1_NUM,
-                lpMapState->ajPanDef[PAN_IND_FAMILY] ) ) != PAN_MATCH_ERROR )
-            {
-                if( unNumFound == 0 )
-                {
+        for (i = 0, lpPanThis = lpPanFirst; i < unNumAvail;
+             ++i, lpPanThis += nRecSize) {
+            if ((unMatchValue = unPANMatchFonts(lpMapState,
+                                                lpMapState->ajPanDef, SIZE_PAN1_NUM, lpPanThis, SIZE_PAN1_NUM,
+                                                lpMapState->ajPanDef[PAN_IND_FAMILY])) != PAN_MATCH_ERROR) {
+                if (unNumFound == 0) {
                     *lpIndsBest = i;
                     lpMapState->unThreshold = *lpMatchValues = unMatchValue;
                     ++unNumFound;
-                }
-                else if( unMatchValue < *lpMatchValues )
-                {
+                } else if (unMatchValue < *lpMatchValues) {
                     *lpIndsBest = i;
                     lpMapState->unThreshold = *lpMatchValues = unMatchValue;
                 }
@@ -1151,8 +1081,7 @@ EW_USHORT EW_FAR EW_PASCAL unPANPickFonts( EW_LPMAPSTATE lpMapState,
         // determine that the default font was substituted.
 
 
-        if( unNumFound > 0 )
-        {
+        if (unNumFound > 0) {
             *lpMatchValues = PAN_MATCH_ERROR;
         }
     }
@@ -1167,8 +1096,7 @@ EW_USHORT EW_FAR EW_PASCAL unPANPickFonts( EW_LPMAPSTATE lpMapState,
     //  If still no match is found then just pick the first font.
 
 
-    if( !unNumFound )
-    {
+    if (!unNumFound) {
         *lpIndsBest = 0;
         *lpMatchValues = PAN_MATCH_ERROR;
         ++unNumFound;
@@ -1179,7 +1107,7 @@ EW_USHORT EW_FAR EW_PASCAL unPANPickFonts( EW_LPMAPSTATE lpMapState,
     //  encountered an error or couldn't find a suitable match.
 
 
-    return( unNumFound );
+    return(unNumFound);
 }
 
 
@@ -1195,17 +1123,17 @@ EW_USHORT EW_FAR EW_PASCAL unPANPickFonts( EW_LPMAPSTATE lpMapState,
  * RETURNS:  Nothing.
 */
 
-EW_VOID EW_FAR EW_PASCAL vPANMakeDummy( EW_LPBYTE lpPanThis,
-                                        EW_USHORT unSize )
+EW_VOID EW_FAR EW_PASCAL vPANMakeDummy(EW_LPBYTE lpPanThis,
+                                       EW_USHORT unSize)
 {
     EW_USHORT i;
     EW_USHORT j;
 
-    unSize /= sizeof( EW_BYTE );
+    unSize /= sizeof(EW_BYTE);
 
-    for( i = j = 0; (i < NUM_PAN_DIGITS ) &&( j < unSize );
-       ++i, j += sizeof( EW_BYTE ), *lpPanThis++ = PANOSE_NOFIT)
-       ;
+    for (i = j = 0; (i < NUM_PAN_DIGITS) && (j < unSize);
+         ++i, j += sizeof(EW_BYTE), *lpPanThis++ = PANOSE_NOFIT)
+        ;
 }
 
 
@@ -1229,13 +1157,13 @@ EW_VOID EW_FAR EW_PASCAL vPANMakeDummy( EW_LPBYTE lpPanThis,
 */
 
 LOCAL EW_LPPIND_MEM EW_NEAR EW_PASCAL s_lpPANGetIndRec(
-                                               EW_LPPDICT_MEM lpPDB,
-                                               EW_LPBYTE EW_FAR *lplpPanWant,
-                                               EW_LPBYTE EW_FAR *lplpPanThis )
+    EW_LPPDICT_MEM lpPDB,
+    EW_LPBYTE EW_FAR* lplpPanWant,
+    EW_LPBYTE EW_FAR* lplpPanThis)
 {
     EW_USHORT i;
-    EW_BYTE jFamilyA =( *lplpPanWant )[PAN_IND_FAMILY];
-    EW_BYTE jFamilyB =( *lplpPanThis )[PAN_IND_FAMILY];
+    EW_BYTE jFamilyA = (*lplpPanWant)[PAN_IND_FAMILY];
+    EW_BYTE jFamilyB = (*lplpPanThis)[PAN_IND_FAMILY];
     EW_LPBYTE lpPanSwitch;
     EW_LPPIND_MEM lpPanIndRec;
 
@@ -1245,22 +1173,18 @@ LOCAL EW_LPPIND_MEM EW_NEAR EW_PASCAL s_lpPANGetIndRec(
     //  a matching family pair.
 
 
-    for( i = 0, lpPanIndRec = lpPDB->pind; i < lpPDB->unNumDicts;
-          ++i, ++lpPanIndRec)
-    {
-        if( ( lpPanIndRec->jFamilyA == jFamilyA ) &&
-            ( lpPanIndRec->jFamilyB == jFamilyB ) )
-        {
+    for (i = 0, lpPanIndRec = lpPDB->pind; i < lpPDB->unNumDicts;
+         ++i, ++lpPanIndRec) {
+        if ((lpPanIndRec->jFamilyA == jFamilyA) &&
+            (lpPanIndRec->jFamilyB == jFamilyB)) {
 
             //  Straight match. Return the index.
 
 
-            return( lpPanIndRec );
+            return(lpPanIndRec);
 
-        }
-        else if( ( lpPanIndRec->jFamilyA == jFamilyB ) &&
-                 ( lpPanIndRec->jFamilyB == jFamilyA ) )
-        {
+        } else if ((lpPanIndRec->jFamilyA == jFamilyB) &&
+            (lpPanIndRec->jFamilyB == jFamilyA)) {
 
             //  There is a match but the families are swapped. Swap
             //  the PANOSE numbers to match the order in the penalty
@@ -1274,7 +1198,7 @@ LOCAL EW_LPPIND_MEM EW_NEAR EW_PASCAL s_lpPANGetIndRec(
             *lplpPanWant = *lplpPanThis;
             *lplpPanThis = lpPanSwitch;
 
-            return( lpPanIndRec );
+            return(lpPanIndRec);
         }
     }
 
@@ -1282,7 +1206,7 @@ LOCAL EW_LPPIND_MEM EW_NEAR EW_PASCAL s_lpPANGetIndRec(
     //  No match found, return an error.
 
 
-    return( NULL );
+    return(NULL);
 }
 
 
@@ -1298,12 +1222,12 @@ LOCAL EW_LPPIND_MEM EW_NEAR EW_PASCAL s_lpPANGetIndRec(
  *           it is out of range.
 */
 
-LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC0( EW_LPPIND_MEM lpPanIndRec,
-                                                    EW_LPPTBL_C0_MEM lpPC0,
-                                                    EW_LPUSHORT lpunMatch,
-                                                    EW_USHORT unTblSize,
-                                                    EW_USHORT unAttrA,
-                                                    EW_USHORT unAttrB )
+LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC0(EW_LPPIND_MEM lpPanIndRec,
+                                                   EW_LPPTBL_C0_MEM lpPC0,
+                                                   EW_LPUSHORT lpunMatch,
+                                                   EW_USHORT unTblSize,
+                                                   EW_USHORT unAttrA,
+                                                   EW_USHORT unAttrB)
 {
     EW_USHORT unInd;
 
@@ -1313,23 +1237,21 @@ LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC0( EW_LPPIND_MEM lpPanIndRec,
     //  be a non-square table.
 
 
-    if( ( unAttrA > lpPC0->jARangeLast ) ||( unAttrB > lpPC0->jBRangeLast ) )
-    {
+    if ((unAttrA > lpPC0->jARangeLast) || (unAttrB > lpPC0->jBRangeLast)) {
         *lpunMatch = lpPanIndRec->jDefNoFitPenalty;
 
-        return( FALSE );
+        return(FALSE);
     }
 
 
     //  Compute the table index.
 
 
-    if( ( unInd = ( (unAttrA - 2 ) *(lpPC0->jBRangeLast - 1 ) )
-                        + unAttrB - 2) >= unTblSize )
-    {
+    if ((unInd = ((unAttrA - 2) * (lpPC0->jBRangeLast - 1))
+         + unAttrB - 2) >= unTblSize) {
         *lpunMatch = lpPanIndRec->jDefNoFitPenalty;
 
-        return( FALSE );
+        return(FALSE);
     }
 
 
@@ -1338,7 +1260,7 @@ LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC0( EW_LPPIND_MEM lpPanIndRec,
 
     *lpunMatch = lpPC0->jPenalties[unInd];
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -1356,8 +1278,8 @@ LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC0( EW_LPPIND_MEM lpPanIndRec,
 
  * RETURNS:  Return the penalty from the table, the function cannot fail.
 */
-LOCAL EW_USHORT EW_NEAR EW_PASCAL s_unPANGetPenaltyC1( EW_USHORT unAttrA,
-                                                       EW_USHORT unAttrB )
+LOCAL EW_USHORT EW_NEAR EW_PASCAL s_unPANGetPenaltyC1(EW_USHORT unAttrA,
+                                                      EW_USHORT unAttrB)
 {
     EW_SHORT nDiff;
 
@@ -1367,12 +1289,11 @@ LOCAL EW_USHORT EW_NEAR EW_PASCAL s_unPANGetPenaltyC1( EW_USHORT unAttrA,
     //  of the difference between the two numbers.
 
 
-    if( ( nDiff = (EW_SHORT) unAttrA - (EW_SHORT) unAttrB ) < 0 )
-    {
+    if ((nDiff = (EW_SHORT)unAttrA - (EW_SHORT)unAttrB) < 0) {
         nDiff = -nDiff;
     }
 
-    return( nDiff );
+    return(nDiff);
 }
 
 
@@ -1393,12 +1314,12 @@ LOCAL EW_USHORT EW_NEAR EW_PASCAL s_unPANGetPenaltyC1( EW_USHORT unAttrA,
  *           it is out of range.
 */
 
-LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC2( EW_LPPIND_MEM lpPanIndRec,
-                                                    EW_LPBYTE lpPTbl,
-                                                    EW_LPUSHORT lpunMatch,
-                                                    EW_USHORT unTblSize,
-                                                    EW_USHORT unAttrA,
-                                                    EW_USHORT unAttrB )
+LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC2(EW_LPPIND_MEM lpPanIndRec,
+                                                   EW_LPBYTE lpPTbl,
+                                                   EW_LPUSHORT lpunMatch,
+                                                   EW_USHORT unTblSize,
+                                                   EW_USHORT unAttrA,
+                                                   EW_USHORT unAttrB)
 {
     EW_USHORT unSwap;
     EW_SHORT nInd;
@@ -1411,11 +1332,10 @@ LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC2( EW_LPPIND_MEM lpPanIndRec,
     //  just switch their values.
 
 
-    if( unAttrA < unAttrB )
-    {
-       unSwap = unAttrA;
-       unAttrA = unAttrB;
-       unAttrB = unSwap;
+    if (unAttrA < unAttrB) {
+        unSwap = unAttrA;
+        unAttrA = unAttrB;
+        unAttrB = unSwap;
     }
 
 
@@ -1435,17 +1355,16 @@ LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC2( EW_LPPIND_MEM lpPanIndRec,
     //  cases above.
 
 
-    if( ( nInd = M_ELSEMULDIV( unAttrA - 3, unAttrA - 2, 2 ) +
-         (EW_SHORT) unAttrB - 2) >= (EW_SHORT) unTblSize )
-    {
+    if ((nInd = M_ELSEMULDIV(unAttrA - 3, unAttrA - 2, 2) +
+        (EW_SHORT)unAttrB - 2) >= (EW_SHORT)unTblSize) {
         *lpunMatch = lpPanIndRec->jDefNoFitPenalty;
 
-        return( FALSE );
+        return(FALSE);
     }
 
     *lpunMatch = lpPTbl[nInd];
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -1462,9 +1381,9 @@ LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANGetPenaltyC2( EW_LPPIND_MEM lpPanIndRec,
  * RETURNS:  Return the penalty from the table, the function cannot fail.
 */
 
-LOCAL EW_USHORT EW_NEAR EW_PASCAL s_unPANGetPenaltyC4( EW_LPPTBL_C4_MEM lpPC4,
-                                                       EW_USHORT unAttrA,
-                                                       EW_USHORT unAttrB )
+LOCAL EW_USHORT EW_NEAR EW_PASCAL s_unPANGetPenaltyC4(EW_LPPTBL_C4_MEM lpPC4,
+                                                      EW_USHORT unAttrA,
+                                                      EW_USHORT unAttrB)
 {
     EW_SHORT nDiff;
 
@@ -1474,22 +1393,20 @@ LOCAL EW_USHORT EW_NEAR EW_PASCAL s_unPANGetPenaltyC4( EW_LPPTBL_C4_MEM lpPC4,
     //  between the two numbers.
 
 
-    if( (nDiff = (EW_SHORT )unAttrA -( EW_SHORT )unAttrB) < 0)
-    {
-       nDiff = -nDiff;
+    if ((nDiff = (EW_SHORT)unAttrA - (EW_SHORT)unAttrB) < 0) {
+        nDiff = -nDiff;
     }
 
 
     //  Then scale by the increment and start values.
 
 
-    if( nDiff > 0 )
-    {
-       nDiff = ( ( nDiff - 1 ) *(EW_SHORT) lpPC4->jIncrement ) +
-                (EW_SHORT) lpPC4->jStart;
+    if (nDiff > 0) {
+        nDiff = ((nDiff - 1) * (EW_SHORT)lpPC4->jIncrement) +
+            (EW_SHORT)lpPC4->jStart;
     }
 
-    return( nDiff );
+    return(nDiff);
 }
 
 
@@ -1503,9 +1420,9 @@ LOCAL EW_USHORT EW_NEAR EW_PASCAL s_unPANGetPenaltyC4( EW_LPPTBL_C4_MEM lpPC4,
  * RETURNS:  Return the pointer to the array of weight values.
 */
 
-LOCAL EW_LPBYTE EW_NEAR EW_PASCAL s_lpPANGetWeights( EW_LPMAPSTATE lpMapState,
-                                                     EW_LPPDICT_MEM lpPDB,
-                                                     EW_LPPIND_MEM lpPanIndRec )
+LOCAL EW_LPBYTE EW_NEAR EW_PASCAL s_lpPANGetWeights(EW_LPMAPSTATE lpMapState,
+                                                    EW_LPPDICT_MEM lpPDB,
+                                                    EW_LPPIND_MEM lpPanIndRec)
 {
     EW_USHORT i;
     EW_LPBYTE lpjWtA;
@@ -1518,10 +1435,9 @@ LOCAL EW_LPBYTE EW_NEAR EW_PASCAL s_lpPANGetWeights( EW_LPMAPSTATE lpMapState,
     //  Search for custom weights.
 
 
-    for( i = 0, lpjWtA = lpMapState->ajWtRefA, lpjWtB = lpMapState->ajWtRefB;
-         ( i < MAX_CUSTOM_WEIGHTS ) && *lpjWtA;
-          ++i, ++lpjWtA, ++lpjWtB )
-    {
+    for (i = 0, lpjWtA = lpMapState->ajWtRefA, lpjWtB = lpMapState->ajWtRefB;
+        (i < MAX_CUSTOM_WEIGHTS) && *lpjWtA;
+         ++i, ++lpjWtA, ++lpjWtB) {
 
         //  If custom weights are found then return a pointer into
         //  the mapstate struct. We store a weight value for the family
@@ -1529,10 +1445,9 @@ LOCAL EW_LPBYTE EW_NEAR EW_PASCAL s_lpPANGetWeights( EW_LPMAPSTATE lpMapState,
         //  digit after the family digit.
 
 
-        if( ( (*lpjWtA == jFamilyA ) &&( *lpjWtB == jFamilyB ) ) ||
-            ( (*lpjWtA == jFamilyB ) &&( *lpjWtB == jFamilyA ) ) )
-        {
-            return( &lpMapState->ajCustomWt[ ( SIZE_PAN1_NUM * i ) + 1] );
+        if (((*lpjWtA == jFamilyA) && (*lpjWtB == jFamilyB)) ||
+            ((*lpjWtA == jFamilyB) && (*lpjWtB == jFamilyA))) {
+            return(&lpMapState->ajCustomWt[(SIZE_PAN1_NUM * i) + 1]);
         }
     }
 #endif
@@ -1542,13 +1457,10 @@ LOCAL EW_LPBYTE EW_NEAR EW_PASCAL s_lpPANGetWeights( EW_LPMAPSTATE lpMapState,
     //  weight from the penalty database.
 
 
-    if( lpPanIndRec->unOffsWts )
-    {
-       return( M_lpjOFFS(lpPDB, lpPanIndRec->unOffsWts + 1 ) );
-    }
-    else
-    {
-       return( NULL );
+    if (lpPanIndRec->unOffsWts) {
+        return(M_lpjOFFS(lpPDB, lpPanIndRec->unOffsWts + 1));
+    } else {
+        return(NULL);
     }
 }
 
@@ -1564,13 +1476,13 @@ LOCAL EW_LPBYTE EW_NEAR EW_PASCAL s_lpPANGetWeights( EW_LPMAPSTATE lpMapState,
  *           set *lpunMatchTotal to the value PAN_MATCH_ERROR.
 */
 
-LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANMatchDigits( EW_LPPDICT_MEM lpPDB,
-                                                   EW_LPUSHORT lpunMatchTotal,
-                                                   EW_LPPIND_MEM lpPanIndRec,
-                                                   EW_LPPTBL_MEM lpPTblRec,
-                                                   EW_USHORT unWt,
-                                                   EW_USHORT unAttrA,
-                                                   EW_USHORT unAttrB )
+LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANMatchDigits(EW_LPPDICT_MEM lpPDB,
+                                                  EW_LPUSHORT lpunMatchTotal,
+                                                  EW_LPPIND_MEM lpPanIndRec,
+                                                  EW_LPPTBL_MEM lpPTblRec,
+                                                  EW_USHORT unWt,
+                                                  EW_USHORT unAttrA,
+                                                  EW_USHORT unAttrB)
 {
     EW_USHORT unLast = lpPTblRec->jRangeLast;
     EW_USHORT unMatch;
@@ -1580,33 +1492,26 @@ LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANMatchDigits( EW_LPPDICT_MEM lpPDB,
     //  First make sure the digit values are not out of range.
 
 
-    if( (unAttrA > unLast ) ||( unAttrB > unLast ) )
-    {
-       goto errout;
+    if ((unAttrA > unLast) || (unAttrB > unLast)) {
+        goto errout;
     }
 
 
     //  Special case no-fit, any, or exact matches.
 
 
-    if( ( unAttrA == PANOSE_NOFIT ) || ( unAttrB == PANOSE_NOFIT ) )
-    {
-        if( lpPTblRec->jCompress != PAN_COMPRESS_C3 )
-        {
-           *lpunMatchTotal += lpPanIndRec->jDefNoFitPenalty * unWt;
-           return( TRUE );
+    if ((unAttrA == PANOSE_NOFIT) || (unAttrB == PANOSE_NOFIT)) {
+        if (lpPTblRec->jCompress != PAN_COMPRESS_C3) {
+            *lpunMatchTotal += lpPanIndRec->jDefNoFitPenalty * unWt;
+            return(TRUE);
         }
-    }
-    else if( ( unAttrA == PANOSE_ANY ) || ( unAttrB == PANOSE_ANY ) )
-    {
+    } else if ((unAttrA == PANOSE_ANY) || (unAttrB == PANOSE_ANY)) {
         *lpunMatchTotal += lpPanIndRec->jDefAnyPenalty * unWt;
-        return( TRUE );
-    }
-    else if( (unAttrA == unAttrB ) &&
-            ( lpPTblRec->jCompress != PAN_COMPRESS_C0 ) )
-    {
+        return(TRUE);
+    } else if ((unAttrA == unAttrB) &&
+        (lpPTblRec->jCompress != PAN_COMPRESS_C0)) {
         *lpunMatchTotal += lpPanIndRec->jDefMatchPenalty * unWt;
-        return( TRUE );
+        return(TRUE);
     }
 
 
@@ -1614,75 +1519,67 @@ LOCAL EW_BOOL EW_NEAR EW_PASCAL s_bPANMatchDigits( EW_LPPDICT_MEM lpPDB,
     //  used for the table.
 
 
-    switch( lpPTblRec->jCompress )
-    {
+    switch (lpPTblRec->jCompress) {
 
-        case PAN_COMPRESS_C0:
-            if( !lpPTblRec->unOffsTbl || !lpPTblRec->unTblSize
-                || !s_bPANGetPenaltyC0( lpPanIndRec,
-                  (EW_LPPTBL_C0_MEM) M_lpjOFFS( lpPDB, lpPTblRec->unOffsTbl ),
-                  &unMatch, lpPTblRec->unTblSize, unAttrA, unAttrB ) )
-            {
-                goto errout;
-            }
+    case PAN_COMPRESS_C0:
+        if (!lpPTblRec->unOffsTbl || !lpPTblRec->unTblSize
+            || !s_bPANGetPenaltyC0(lpPanIndRec,
+            (EW_LPPTBL_C0_MEM)M_lpjOFFS(lpPDB, lpPTblRec->unOffsTbl),
+                                   &unMatch, lpPTblRec->unTblSize, unAttrA, unAttrB)) {
+            goto errout;
+        }
 
-            *lpunMatchTotal += unMatch * unWt;
-            break;
+        *lpunMatchTotal += unMatch * unWt;
+        break;
 
-        case PAN_COMPRESS_C1:
-            *lpunMatchTotal += s_unPANGetPenaltyC1( unAttrA, unAttrB ) * unWt;
-            break;
+    case PAN_COMPRESS_C1:
+        *lpunMatchTotal += s_unPANGetPenaltyC1(unAttrA, unAttrB) * unWt;
+        break;
 
-        case PAN_COMPRESS_C2:
-            if( !lpPTblRec->unOffsTbl || !lpPTblRec->unTblSize ||
-                !s_bPANGetPenaltyC2( lpPanIndRec,
-                  M_lpjOFFS( lpPDB, lpPTblRec->unOffsTbl ), &unMatch,
-                  lpPTblRec->unTblSize, unAttrA, unAttrB ) )
-            {
-                goto errout;
-            }
+    case PAN_COMPRESS_C2:
+        if (!lpPTblRec->unOffsTbl || !lpPTblRec->unTblSize ||
+            !s_bPANGetPenaltyC2(lpPanIndRec,
+                                M_lpjOFFS(lpPDB, lpPTblRec->unOffsTbl), &unMatch,
+                                lpPTblRec->unTblSize, unAttrA, unAttrB)) {
+            goto errout;
+        }
 
-            *lpunMatchTotal += unMatch * unWt;
-            break;
+        *lpunMatchTotal += unMatch * unWt;
+        break;
 
-        case PAN_COMPRESS_C3:
-            if( !lpPTblRec->unOffsTbl || !lpPTblRec->unTblSize )
-            {
-                goto errout;
-            }
+    case PAN_COMPRESS_C3:
+        if (!lpPTblRec->unOffsTbl || !lpPTblRec->unTblSize) {
+            goto errout;
+        }
 
-            if( ( unAttrA == PANOSE_NOFIT ) || ( unAttrB == PANOSE_NOFIT ) )
-            {
-                unMatch = *M_lpjOFFS( lpPDB, lpPTblRec->unOffsTbl );
-            }
-            else if( !s_bPANGetPenaltyC2( lpPanIndRec,
-                     M_lpjOFFS( lpPDB, lpPTblRec->unOffsTbl + 1 ), &unMatch,
-                                (EW_USHORT) ( lpPTblRec->unTblSize - 1 ),
-                                unAttrA, unAttrB ) )
-            {
-                goto errout;
-            }
+        if ((unAttrA == PANOSE_NOFIT) || (unAttrB == PANOSE_NOFIT)) {
+            unMatch = *M_lpjOFFS(lpPDB, lpPTblRec->unOffsTbl);
+        } else if (!s_bPANGetPenaltyC2(lpPanIndRec,
+                                       M_lpjOFFS(lpPDB, lpPTblRec->unOffsTbl + 1), &unMatch,
+                                       (EW_USHORT)(lpPTblRec->unTblSize - 1),
+                                       unAttrA, unAttrB)) {
+            goto errout;
+        }
 
-            *lpunMatchTotal += unMatch * unWt;
-            break;
+        *lpunMatchTotal += unMatch * unWt;
+        break;
 
-        case PAN_COMPRESS_C4:
-            if( !lpPTblRec->unOffsTbl || !lpPTblRec->unTblSize )
-            {
-                goto errout;
-            }
+    case PAN_COMPRESS_C4:
+        if (!lpPTblRec->unOffsTbl || !lpPTblRec->unTblSize) {
+            goto errout;
+        }
 
-            *lpunMatchTotal += s_unPANGetPenaltyC4(
-                (EW_LPPTBL_C4_MEM) M_lpjOFFS( lpPDB, lpPTblRec->unOffsTbl ),
-                unAttrA, unAttrB) * unWt;
-            break;
+        *lpunMatchTotal += s_unPANGetPenaltyC4(
+            (EW_LPPTBL_C4_MEM)M_lpjOFFS(lpPDB, lpPTblRec->unOffsTbl),
+            unAttrA, unAttrB) * unWt;
+        break;
     }
 
 
     //  Match computed, successful return.
 
 
-    return( TRUE );
+    return(TRUE);
 
 
     //  An error occurred, return FALSE.
@@ -1692,7 +1589,7 @@ errout:
 
     *lpunMatchTotal = PAN_MATCH_ERROR;
 
-    return( FALSE );
+    return(FALSE);
 }
 
 
@@ -1705,17 +1602,17 @@ errout:
 */
 
 #ifdef ELSELOCALMEMCPY
-LOCAL EW_LPBYTE EW_NEAR EW_PASCAL s_lpPANMemCpy( EW_LPBYTE lpDst,
-                                                 EW_LPBYTE lpSrc,
-                                                 EW_USHORT unLen)
+LOCAL EW_LPBYTE EW_NEAR EW_PASCAL s_lpPANMemCpy(EW_LPBYTE lpDst,
+                                                EW_LPBYTE lpSrc,
+                                                EW_USHORT unLen)
 {
     EW_LPBYTE lpRet = lpDst;
     EW_USHORT i;
 
-    for( i = 0; i < unLen; ++i, *lpDst++ = *lpSrc++ )
+    for (i = 0; i < unLen; ++i, *lpDst++ = *lpSrc++)
         ;
 
-    return( lpRet );
+    return(lpRet);
 }
 #endif
 

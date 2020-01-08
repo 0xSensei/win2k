@@ -205,8 +205,7 @@ int TestGetNumberFormat()
 
     //  Initialize global variables.
 
-    if (!InitGetNumberFormat())
-    {
+    if (!InitGetNumberFormat()) {
         printf("\nABORTED TestGetNumberFormat: Could not Initialize.\n");
         return (1);
     }
@@ -301,17 +300,17 @@ int GNF_BadParamCheck()
 
 
     //  Variation 1  -  Bad Locale
-    rc = GetNumberFormatW( (LCID)333,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "Bad Locale",
-                         &NumErrors );
+    rc = GetNumberFormatW((LCID)333,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "Bad Locale",
+                        &NumErrors);
 
 
 
@@ -319,30 +318,30 @@ int GNF_BadParamCheck()
 
 
     //  Variation 1  -  lpNumberStr = NULL
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           NULL,
-                           NULL,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "lpNumberStr NULL",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          NULL,
+                          NULL,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "lpNumberStr NULL",
+                        &NumErrors);
 
     //  Variation 2  -  lpValue = NULL
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           NULL,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "lpNumberStr NULL",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          NULL,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "lpNumberStr NULL",
+                        &NumErrors);
 
 
 
@@ -350,17 +349,17 @@ int GNF_BadParamCheck()
 
 
     //  Variation 1  -  cchNumber < 0
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           -1 );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "cchNumber < 0",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          -1);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "cchNumber < 0",
+                        &NumErrors);
 
 
 
@@ -368,43 +367,43 @@ int GNF_BadParamCheck()
 
 
     //  Variation 1  -  dwFlags = invalid
-    rc = GetNumberFormatW( Locale,
-                           GNF_INVALID_FLAGS,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_FLAGS,
-                         "Flag invalid",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          GNF_INVALID_FLAGS,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_FLAGS,
+                        "Flag invalid",
+                        &NumErrors);
 
     //  Variation 2  -  lpFormat and NoUserOverride
-    rc = GetNumberFormatW( Locale,
-                           LOCALE_NOUSEROVERRIDE,
-                           pValue,
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_FLAGS,
-                         "lpFormat and NoUserOverride",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          LOCALE_NOUSEROVERRIDE,
+                          pValue,
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_FLAGS,
+                        "lpFormat and NoUserOverride",
+                        &NumErrors);
 
     //  Variation 3  -  Use CP ACP, lpFormat and NoUserOverride
-    rc = GetNumberFormatW( Locale,
-                           LOCALE_USE_CP_ACP | LOCALE_NOUSEROVERRIDE,
-                           pValue,
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_FLAGS,
-                         "Use CP ACP, lpFormat and NoUserOverride",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          LOCALE_USE_CP_ACP | LOCALE_NOUSEROVERRIDE,
+                          pValue,
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_FLAGS,
+                        "Use CP ACP, lpFormat and NoUserOverride",
+                        &NumErrors);
 
 
 
@@ -412,17 +411,17 @@ int GNF_BadParamCheck()
 
 
     //  Variation 1  -  cchNumber = too small
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           2 );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INSUFFICIENT_BUFFER,
-                         "cchNumber too small",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          2);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INSUFFICIENT_BUFFER,
+                        "cchNumber too small",
+                        &NumErrors);
 
 
 
@@ -436,17 +435,17 @@ int GNF_BadParamCheck()
     MyNumFmt.lpDecimalSep = L"/";
     MyNumFmt.lpThousandSep = L";";
     MyNumFmt.NegativeOrder = 1;
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           &MyNumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "bad NumDigits",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          &MyNumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "bad NumDigits",
+                        &NumErrors);
 
     //  Variation 2  -  bad LeadingZero
     MyNumFmt.NumDigits = 3;
@@ -455,17 +454,17 @@ int GNF_BadParamCheck()
     MyNumFmt.lpDecimalSep = L"/";
     MyNumFmt.lpThousandSep = L";";
     MyNumFmt.NegativeOrder = 1;
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           &MyNumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "bad LeadingZero",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          &MyNumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "bad LeadingZero",
+                        &NumErrors);
 
     //  Variation 3  -  bad Grouping
     MyNumFmt.NumDigits = 3;
@@ -474,17 +473,17 @@ int GNF_BadParamCheck()
     MyNumFmt.lpDecimalSep = L"/";
     MyNumFmt.lpThousandSep = L";";
     MyNumFmt.NegativeOrder = 1;
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           &MyNumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "bad Grouping",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          &MyNumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "bad Grouping",
+                        &NumErrors);
 
     //  Variation 4  -  bad DecimalSep
     MyNumFmt.NumDigits = 3;
@@ -493,17 +492,17 @@ int GNF_BadParamCheck()
     MyNumFmt.lpDecimalSep = NULL;
     MyNumFmt.lpThousandSep = L";";
     MyNumFmt.NegativeOrder = 1;
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           &MyNumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "bad DecimalSep",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          &MyNumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "bad DecimalSep",
+                        &NumErrors);
 
     //  Variation 5  -  bad DecimalSep 2
     MyNumFmt.NumDigits = 3;
@@ -512,17 +511,17 @@ int GNF_BadParamCheck()
     MyNumFmt.lpDecimalSep = L"//";
     MyNumFmt.lpThousandSep = L";";
     MyNumFmt.NegativeOrder = 1;
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           &MyNumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "bad DecimalSep 2",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          &MyNumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "bad DecimalSep 2",
+                        &NumErrors);
 
     //  Variation 6  -  bad DecimalSep 3
     MyNumFmt.NumDigits = 3;
@@ -531,17 +530,17 @@ int GNF_BadParamCheck()
     MyNumFmt.lpDecimalSep = L"6";
     MyNumFmt.lpThousandSep = L";";
     MyNumFmt.NegativeOrder = 1;
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           &MyNumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "bad DecimalSep 3",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          &MyNumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "bad DecimalSep 3",
+                        &NumErrors);
 
     //  Variation 7  -  bad ThousandSep
     MyNumFmt.NumDigits = 3;
@@ -550,17 +549,17 @@ int GNF_BadParamCheck()
     MyNumFmt.lpDecimalSep = L"/";
     MyNumFmt.lpThousandSep = NULL;
     MyNumFmt.NegativeOrder = 1;
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           &MyNumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "bad ThousandSep",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          &MyNumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "bad ThousandSep",
+                        &NumErrors);
 
     //  Variation 8  -  bad ThousandSep 2
     MyNumFmt.NumDigits = 3;
@@ -569,17 +568,17 @@ int GNF_BadParamCheck()
     MyNumFmt.lpDecimalSep = L"/";
     MyNumFmt.lpThousandSep = L";;;;";
     MyNumFmt.NegativeOrder = 1;
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           &MyNumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "bad ThousandSep 2",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          &MyNumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "bad ThousandSep 2",
+                        &NumErrors);
 
     //  Variation 9  -  bad ThousandSep 3
     MyNumFmt.NumDigits = 3;
@@ -588,17 +587,17 @@ int GNF_BadParamCheck()
     MyNumFmt.lpDecimalSep = L"/";
     MyNumFmt.lpThousandSep = L"6";
     MyNumFmt.NegativeOrder = 1;
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           &MyNumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "bad ThousandSep 3",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          &MyNumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "bad ThousandSep 3",
+                        &NumErrors);
 
     //  Variation 10  -  bad negative order
     MyNumFmt.NumDigits = 3;
@@ -607,17 +606,17 @@ int GNF_BadParamCheck()
     MyNumFmt.lpDecimalSep = L"/";
     MyNumFmt.lpThousandSep = L";";
     MyNumFmt.NegativeOrder = 5;
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           &MyNumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "bad negative order",
-                         &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          &MyNumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "bad negative order",
+                        &NumErrors);
 
 
 
@@ -645,7 +644,7 @@ int GNF_NormalCase()
 
 #ifdef PERF
 
-  DbgBreakPoint();
+    DbgBreakPoint();
 
 #endif
 
@@ -655,32 +654,32 @@ int GNF_NormalCase()
 
 
     //  Variation 1  -  System Default Locale
-    rc = GetNumberFormatW( LOCALE_SYSTEM_DEFAULT,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       GNF_ENGLISH_US,
-                       "sys default locale",
-                       &NumErrors );
+    rc = GetNumberFormatW(LOCALE_SYSTEM_DEFAULT,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      GNF_ENGLISH_US,
+                      "sys default locale",
+                      &NumErrors);
 
     //  Variation 2  -  Current User Locale
-    rc = GetNumberFormatW( LOCALE_USER_DEFAULT,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       GNF_ENGLISH_US,
-                       "current user locale",
-                       &NumErrors );
+    rc = GetNumberFormatW(LOCALE_USER_DEFAULT,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      GNF_ENGLISH_US,
+                      "current user locale",
+                      &NumErrors);
 
 
 
@@ -688,74 +687,74 @@ int GNF_NormalCase()
 
 
     //  Variation 1  -  neutral
-    rc = GetNumberFormatW( 0x0000,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       GNF_ENGLISH_US,
-                       "neutral locale",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0000,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      GNF_ENGLISH_US,
+                      "neutral locale",
+                      &NumErrors);
 
     //  Variation 2  -  sys default
-    rc = GetNumberFormatW( 0x0400,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       GNF_ENGLISH_US,
-                       "sys default locale",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0400,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      GNF_ENGLISH_US,
+                      "sys default locale",
+                      &NumErrors);
 
     //  Variation 3  -  user default
-    rc = GetNumberFormatW( 0x0800,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       GNF_ENGLISH_US,
-                       "user default locale",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0800,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      GNF_ENGLISH_US,
+                      "user default locale",
+                      &NumErrors);
 
     //  Variation 4  -  sub lang neutral US
-    rc = GetNumberFormatW( 0x0009,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       GNF_ENGLISH_US,
-                       "sub lang neutral US",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0009,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      GNF_ENGLISH_US,
+                      "sub lang neutral US",
+                      &NumErrors);
 
     //  Variation 5  -  sub lang neutral Czech
-    rc = GetNumberFormatW( 0x0005,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       GNF_CZECH,
-                       "sub lang neutral Czech",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0005,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      GNF_CZECH,
+                      "sub lang neutral Czech",
+                      &NumErrors);
 
 
 
@@ -763,18 +762,18 @@ int GNF_NormalCase()
 
 
     //  Variation 1  -  Use CP ACP, System Default Locale
-    rc = GetNumberFormatW( LOCALE_SYSTEM_DEFAULT,
-                           LOCALE_USE_CP_ACP,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       GNF_ENGLISH_US,
-                       "Use CP ACP, sys default locale",
-                       &NumErrors );
+    rc = GetNumberFormatW(LOCALE_SYSTEM_DEFAULT,
+                          LOCALE_USE_CP_ACP,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      GNF_ENGLISH_US,
+                      "Use CP ACP, sys default locale",
+                      &NumErrors);
 
 
 
@@ -782,47 +781,47 @@ int GNF_NormalCase()
 
 
     //  Variation 1  -  cchNumber = size of lpNumberStr buffer
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       GNF_ENGLISH_US,
-                       "cchNumber = bufsize",
-                       &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      GNF_ENGLISH_US,
+                      "cchNumber = bufsize",
+                      &NumErrors);
 
     //  Variation 2  -  cchNumber = 0
     lpNumberStr[0] = 0x0000;
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           0 );
-    CheckReturnValidW( rc,
-                       -1,
-                       NULL,
-                       GNF_ENGLISH_US,
-                       "cchNumber zero",
-                       &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          0);
+    CheckReturnValidW(rc,
+                      -1,
+                      NULL,
+                      GNF_ENGLISH_US,
+                      "cchNumber zero",
+                      &NumErrors);
 
     //  Variation 3  -  cchNumber = 0, lpNumberStr = NULL
-    rc = GetNumberFormatW( Locale,
-                           0,
-                           pValue,
-                           NULL,
-                           NULL,
-                           0 );
-    CheckReturnValidW( rc,
-                       -1,
-                       NULL,
-                       GNF_ENGLISH_US,
-                       "cchNumber (NULL ptr)",
-                       &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          0,
+                          pValue,
+                          NULL,
+                          NULL,
+                          0);
+    CheckReturnValidW(rc,
+                      -1,
+                      NULL,
+                      GNF_ENGLISH_US,
+                      "cchNumber (NULL ptr)",
+                      &NumErrors);
 
 
 
@@ -837,184 +836,184 @@ int GNF_NormalCase()
 
 
     //  Variation 1  -  lpFormat
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           pValue,
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1;234;567/444",
-                       "lpFormat (1;234;567/444)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          pValue,
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1;234;567/444",
+                      "lpFormat (1;234;567/444)",
+                      &NumErrors);
 
     //  Variation 2  -  lpFormat leading zero
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L".4444",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"0/444",
-                       "lpFormat (0/444)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L".4444",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"0/444",
+                      "lpFormat (0/444)",
+                      &NumErrors);
 
     //  Variation 3  -  lpFormat no decimal
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"1234567",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1;234;567/000",
-                       "lpFormat (1;234;567/000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"1234567",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1;234;567/000",
+                      "lpFormat (1;234;567/000)",
+                      &NumErrors);
 
     //  Variation 4  -  grouping check
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"123456",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"123;456/000",
-                       "lpFormat (123;456/000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"123456",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"123;456/000",
+                      "lpFormat (123;456/000)",
+                      &NumErrors);
 
     //  Variation 5  -  grouping check
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"12",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"12/000",
-                       "grouping (12/000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"12",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"12/000",
+                      "grouping (12/000)",
+                      &NumErrors);
 
     //  Variation 6  -  rounding check
     NumFmt.NumDigits = 0;
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L".9999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1",
-                       "rounding (1)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L".9999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1",
+                      "rounding (1)",
+                      &NumErrors);
     NumFmt.NumDigits = 3;
 
     //  Variation 7  -  rounding check
     NumFmt.NumDigits = 0;
     NumFmt.LeadingZero = 0;
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L".9999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1",
-                       "rounding (1) 2",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L".9999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1",
+                      "rounding (1) 2",
+                      &NumErrors);
     NumFmt.NumDigits = 3;
     NumFmt.LeadingZero = 1;
 
     //  Variation 8  -  rounding check
     NumFmt.NumDigits = 0;
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L".4999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"0",
-                       "rounding (0)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L".4999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"0",
+                      "rounding (0)",
+                      &NumErrors);
     NumFmt.NumDigits = 3;
 
     //  Variation 9  -  rounding check
     NumFmt.NumDigits = 0;
     NumFmt.LeadingZero = 0;
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L".4999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"0",
-                       "rounding (0) 2",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L".4999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"0",
+                      "rounding (0) 2",
+                      &NumErrors);
     NumFmt.NumDigits = 3;
     NumFmt.LeadingZero = 1;
 
     //  Variation 10  -  strip leading zeros
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"000000034.5",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"34/500",
-                       "strip zeros (34/500)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"000000034.5",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"34/500",
+                      "strip zeros (34/500)",
+                      &NumErrors);
 
     //  Variation 11  -  neg zero value
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"-0.0001",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"0/000",
-                       "neg zero (0/000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"-0.0001",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"0/000",
+                      "neg zero (0/000)",
+                      &NumErrors);
 
     //  Variation 12  -  neg zero value
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"-0.0009",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"-0/001",
-                       "neg zero (-0/001)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"-0.0009",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"-0/001",
+                      "neg zero (-0/001)",
+                      &NumErrors);
 
 
 
@@ -1022,39 +1021,38 @@ int GNF_NormalCase()
 
 
     //  Variation 1  -  NOUSEROVERRIDE
-    rc = GetNumberFormatW( Locale,
-                           LOCALE_NOUSEROVERRIDE,
-                           pValue,
-                           NULL,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       GNF_ENGLISH_US,
-                       "NoUserOverride",
-                       &NumErrors );
+    rc = GetNumberFormatW(Locale,
+                          LOCALE_NOUSEROVERRIDE,
+                          pValue,
+                          NULL,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      GNF_ENGLISH_US,
+                      "NoUserOverride",
+                      &NumErrors);
 
 
 
     //  Test all locales - pValue = 1234567.4444
 
 
-    for (ctr = 0; ctr < NumLocales; ctr++)
-    {
-        rc = GetNumberFormatW( pAllLocales[ctr],
-                               0,
-                               pValue,
-                               NULL,
-                               lpNumberStr,
-                               BUFSIZE );
-        CheckReturnValidLoopW( rc,
-                               -1,
-                               lpNumberStr,
-                               pPosNumber[ctr],
-                               "Pos",
-                               pAllLocales[ctr],
-                               &NumErrors );
+    for (ctr = 0; ctr < NumLocales; ctr++) {
+        rc = GetNumberFormatW(pAllLocales[ctr],
+                              0,
+                              pValue,
+                              NULL,
+                              lpNumberStr,
+                              BUFSIZE);
+        CheckReturnValidLoopW(rc,
+                              -1,
+                              lpNumberStr,
+                              pPosNumber[ctr],
+                              "Pos",
+                              pAllLocales[ctr],
+                              &NumErrors);
     }
 
 
@@ -1062,21 +1060,20 @@ int GNF_NormalCase()
     //  Test all locales - pNegValue = -1234567.4444
 
 
-    for (ctr = 0; ctr < NumLocales; ctr++)
-    {
-        rc = GetNumberFormatW( pAllLocales[ctr],
-                               0,
-                               pNegValue,
-                               NULL,
-                               lpNumberStr,
-                               BUFSIZE );
-        CheckReturnValidLoopW( rc,
-                               -1,
-                               lpNumberStr,
-                               pNegNumber[ctr],
-                               "Neg",
-                               pAllLocales[ctr],
-                               &NumErrors );
+    for (ctr = 0; ctr < NumLocales; ctr++) {
+        rc = GetNumberFormatW(pAllLocales[ctr],
+                              0,
+                              pNegValue,
+                              NULL,
+                              lpNumberStr,
+                              BUFSIZE);
+        CheckReturnValidLoopW(rc,
+                              -1,
+                              lpNumberStr,
+                              pNegNumber[ctr],
+                              "Neg",
+                              pAllLocales[ctr],
+                              &NumErrors);
     }
 
 
@@ -1094,18 +1091,18 @@ int GNF_NormalCase()
     NumFmt.lpThousandSep = L",";
     NumFmt.NegativeOrder = 1;
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"799.9999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"800.000",
-                       "rounding (800.000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"799.9999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"800.000",
+                      "rounding (800.000)",
+                      &NumErrors);
 
     NumFmt.NumDigits = 3;
     NumFmt.LeadingZero = 1;
@@ -1114,93 +1111,93 @@ int GNF_NormalCase()
     NumFmt.lpThousandSep = L",";
     NumFmt.NegativeOrder = 1;
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"799.9999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"8,00.000",
-                       "rounding (8,00.000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"799.9999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"8,00.000",
+                      "rounding (8,00.000)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"-799.9999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"-8,00.000",
-                       "rounding (-8,00.000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"-799.9999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"-8,00.000",
+                      "rounding (-8,00.000)",
+                      &NumErrors);
 
 
     //  Variation 2  -  rounding check
 
-    NumFmt.NumDigits = 0 ;
-    NumFmt.LeadingZero = 1 ;
-    NumFmt.Grouping = 2 ;
-    NumFmt.lpDecimalSep = L"." ;
-    NumFmt.lpThousandSep = L"," ;
-    NumFmt.NegativeOrder = 1 ;
+    NumFmt.NumDigits = 0;
+    NumFmt.LeadingZero = 1;
+    NumFmt.Grouping = 2;
+    NumFmt.lpDecimalSep = L".";
+    NumFmt.lpThousandSep = L",";
+    NumFmt.NegativeOrder = 1;
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"9.500",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"10",
-                       "rounding (10)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"9.500",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"10",
+                      "rounding (10)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"-9.500",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"-10",
-                       "rounding (-10)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"-9.500",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"-10",
+                      "rounding (-10)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"99.500",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1,00",
-                       "rounding (1,00)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"99.500",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1,00",
+                      "rounding (1,00)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"-99.500",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"-1,00",
-                       "rounding (-1,00)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"-99.500",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"-1,00",
+                      "rounding (-1,00)",
+                      &NumErrors);
 
 
     //  Variation 3  -  rounding check
@@ -1212,70 +1209,70 @@ int GNF_NormalCase()
     NumFmt.lpDecimalSep = L"/";
     NumFmt.lpThousandSep = L";";
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"1.3",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1/30",
-                       "rounding (1/30)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"1.3",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1/30",
+                      "rounding (1/30)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"1.399",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1/40",
-                       "rounding (1/40)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"1.399",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1/40",
+                      "rounding (1/40)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"0.999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1/00",
-                       "rounding (1/00)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"0.999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1/00",
+                      "rounding (1/00)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L".999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1/00",
-                       "rounding (1/00) 2",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L".999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1/00",
+                      "rounding (1/00) 2",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"-1.3",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"-1/30",
-                       "rounding (-1/30)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"-1.3",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"-1/30",
+                      "rounding (-1/30)",
+                      &NumErrors);
 
 
 
@@ -1290,18 +1287,18 @@ int GNF_NormalCase()
     NumFmt.lpDecimalSep = L".";
     NumFmt.lpThousandSep = L",";
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L".9999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1.000",
-                       "rounding (1.000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L".9999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1.000",
+                      "rounding (1.000)",
+                      &NumErrors);
 
 
     //  Variation 5  -  grouping check
@@ -1313,57 +1310,57 @@ int GNF_NormalCase()
     NumFmt.lpThousandSep = L",";
     NumFmt.NegativeOrder = 1;
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"1234567.999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"12,34,567.999",
-                       "grouping (12,34,567.999)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"1234567.999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"12,34,567.999",
+                      "grouping (12,34,567.999)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"-1234567.999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"-12,34,567.999",
-                       "grouping (-12,34,567.999)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"-1234567.999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"-12,34,567.999",
+                      "grouping (-12,34,567.999)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"9999999.9999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1,00,00,000.000",
-                       "grouping/rounding (1,00,00,000.000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"9999999.9999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1,00,00,000.000",
+                      "grouping/rounding (1,00,00,000.000)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"-9999999.9999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"-1,00,00,000.000",
-                       "grouping/rounding (-1,00,00,000.000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"-9999999.9999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"-1,00,00,000.000",
+                      "grouping/rounding (-1,00,00,000.000)",
+                      &NumErrors);
 
 
     //  Variation 6  -  grouping check
@@ -1375,57 +1372,57 @@ int GNF_NormalCase()
     NumFmt.lpThousandSep = L",";
     NumFmt.NegativeOrder = 1;
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"123456789.999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"1234,56,789.999",
-                       "grouping (1234,56789.999)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"123456789.999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"1234,56,789.999",
+                      "grouping (1234,56789.999)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"-123456789.999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"-1234,56,789.999",
-                       "grouping (-1234,56,789.999)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"-123456789.999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"-1234,56,789.999",
+                      "grouping (-1234,56,789.999)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"9999999.9999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"100,00,000.000",
-                       "grouping/rounding (100,00,000.000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"9999999.9999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"100,00,000.000",
+                      "grouping/rounding (100,00,000.000)",
+                      &NumErrors);
 
-    rc = GetNumberFormatW( 0x0409,
-                           0,
-                           L"-9999999.9999",
-                           &NumFmt,
-                           lpNumberStr,
-                           BUFSIZE );
-    CheckReturnValidW( rc,
-                       -1,
-                       lpNumberStr,
-                       L"-100,00,000.000",
-                       "grouping/rounding (-100,00,000.000)",
-                       &NumErrors );
+    rc = GetNumberFormatW(0x0409,
+                          0,
+                          L"-9999999.9999",
+                          &NumFmt,
+                          lpNumberStr,
+                          BUFSIZE);
+    CheckReturnValidW(rc,
+                      -1,
+                      lpNumberStr,
+                      L"-100,00,000.000",
+                      "grouping/rounding (-100,00,000.000)",
+                      &NumErrors);
 
 
 
@@ -1459,50 +1456,50 @@ int GNF_Ansi()
 
 
     //  Variation 1  -  cchNumber = size of lpNumberStr buffer
-    rc = GetNumberFormatA( Locale,
-                           0,
-                           "123456.789",
-                           NULL,
-                           pNumStrA,
-                           BUFSIZE );
-    CheckReturnValidA( rc,
-                       -1,
-                       pNumStrA,
-                       "123,456.79",
-                       NULL,
-                       "A version cchNumber = bufsize",
-                       &NumErrors );
+    rc = GetNumberFormatA(Locale,
+                          0,
+                          "123456.789",
+                          NULL,
+                          pNumStrA,
+                          BUFSIZE);
+    CheckReturnValidA(rc,
+                      -1,
+                      pNumStrA,
+                      "123,456.79",
+                      NULL,
+                      "A version cchNumber = bufsize",
+                      &NumErrors);
 
     //  Variation 2  -  cchNumber = 0
     pNumStrA[0] = 0x00;
-    rc = GetNumberFormatA( Locale,
-                           0,
-                           "123456.789",
-                           NULL,
-                           pNumStrA,
-                           0 );
-    CheckReturnValidA( rc,
-                       -1,
-                       NULL,
-                       "123,456.79",
-                       NULL,
-                       "A version cchNumber zero",
-                       &NumErrors );
+    rc = GetNumberFormatA(Locale,
+                          0,
+                          "123456.789",
+                          NULL,
+                          pNumStrA,
+                          0);
+    CheckReturnValidA(rc,
+                      -1,
+                      NULL,
+                      "123,456.79",
+                      NULL,
+                      "A version cchNumber zero",
+                      &NumErrors);
 
     //  Variation 3  -  cchNumber = 0, lpNumberStr = NULL
-    rc = GetNumberFormatA( Locale,
-                           0,
-                           "123456.789",
-                           NULL,
-                           NULL,
-                           0 );
-    CheckReturnValidA( rc,
-                       -1,
-                       NULL,
-                       "123,456.79",
-                       NULL,
-                       "A version cchNumber (NULL ptr)",
-                       &NumErrors );
+    rc = GetNumberFormatA(Locale,
+                          0,
+                          "123456.789",
+                          NULL,
+                          NULL,
+                          0);
+    CheckReturnValidA(rc,
+                      -1,
+                      NULL,
+                      "123,456.79",
+                      NULL,
+                      "A version cchNumber (NULL ptr)",
+                      &NumErrors);
 
 
 
@@ -1510,19 +1507,19 @@ int GNF_Ansi()
 
 
     //  Variation 1  -  Use CP ACP, cchNumber = bufsize
-    rc = GetNumberFormatA( Locale,
-                           LOCALE_USE_CP_ACP,
-                           "123456.789",
-                           NULL,
-                           pNumStrA,
-                           BUFSIZE );
-    CheckReturnValidA( rc,
-                       -1,
-                       pNumStrA,
-                       "123,456.79",
-                       NULL,
-                       "A version Use CP ACP, cchNumber = bufsize",
-                       &NumErrors );
+    rc = GetNumberFormatA(Locale,
+                          LOCALE_USE_CP_ACP,
+                          "123456.789",
+                          NULL,
+                          pNumStrA,
+                          BUFSIZE);
+    CheckReturnValidA(rc,
+                      -1,
+                      pNumStrA,
+                      "123,456.79",
+                      NULL,
+                      "A version Use CP ACP, cchNumber = bufsize",
+                      &NumErrors);
 
 
 
@@ -1538,17 +1535,17 @@ int GNF_Ansi()
 
 
     //  Variation 1  -  lpFormat
-    rc = GetNumberFormatA( 0x0409,
-                           0,
-                           "1234567.4444",
-                           &NumFmtA,
-                           pNumStrA,
-                           BUFSIZE );
-    CheckReturnBadParam( rc,
-                         0,
-                         ERROR_INVALID_PARAMETER,
-                         "A version bad ThousandSep",
-                         &NumErrors );
+    rc = GetNumberFormatA(0x0409,
+                          0,
+                          "1234567.4444",
+                          &NumFmtA,
+                          pNumStrA,
+                          BUFSIZE);
+    CheckReturnBadParam(rc,
+                        0,
+                        ERROR_INVALID_PARAMETER,
+                        "A version bad ThousandSep",
+                        &NumErrors);
 
 
     NumFmtA.NumDigits = 3;
@@ -1559,19 +1556,19 @@ int GNF_Ansi()
     NumFmtA.NegativeOrder = 3;
 
     //  Variation 1  -  lpFormat
-    rc = GetNumberFormatA( 0x0409,
-                           0,
-                           "1234567.4444",
-                           &NumFmtA,
-                           pNumStrA,
-                           BUFSIZE );
-    CheckReturnValidA( rc,
-                       -1,
-                       pNumStrA,
-                       "1;234;567/444",
-                       NULL,
-                       "lpFormat (1;234;567/444)",
-                       &NumErrors );
+    rc = GetNumberFormatA(0x0409,
+                          0,
+                          "1234567.4444",
+                          &NumFmtA,
+                          pNumStrA,
+                          BUFSIZE);
+    CheckReturnValidA(rc,
+                      -1,
+                      pNumStrA,
+                      "1;234;567/444",
+                      NULL,
+                      "lpFormat (1;234;567/444)",
+                      &NumErrors);
 
 
 

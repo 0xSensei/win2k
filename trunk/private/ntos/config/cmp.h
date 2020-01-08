@@ -137,18 +137,18 @@ VOID
 HvpMarkBinReadWrite(
     PHHIVE      Hive,
     HCELL_INDEX Cell
-    );
+);
 
 VOID
 HvpChangeBinAllocation(
     PHBIN       Bin,
     BOOLEAN     ReadOnly
-    );
+);
 
 VOID
 CmpMarkAllBinsReadOnly(
     PHHIVE      Hive
-    );
+);
 
 #else
 #define HvpChangeBinAllocation(a,b) //nothing
@@ -191,7 +191,7 @@ CmpAllocateTag(
     ULONG   Size,
     BOOLEAN UseForIo,
     ULONG   Tag
-    );
+);
 #else
 #define CmpAllocateTag(a,b,c) CmpAllocate(a,b)
 #endif
@@ -416,7 +416,7 @@ typedef struct _BOOT_DRIVER_NODE {
     UNICODE_STRING Name;
     ULONG Tag;
     ULONG ErrorControl;
-} BOOT_DRIVER_NODE, *PBOOT_DRIVER_NODE;
+} BOOT_DRIVER_NODE, * PBOOT_DRIVER_NODE;
 
 
 extern  POBJECT_TYPE CmpKeyObjectType;// extern for object type pointer
@@ -445,12 +445,12 @@ struct _CM_NOTIFY_BLOCK; //forward
 typedef struct _CM_KEY_BODY {
     ULONG                   Type;            //恒等于KEY_BODY_TYPE
     PCM_KEY_CONTROL_BLOCK   KeyControlBlock;
-    struct _CM_NOTIFY_BLOCK *NotifyBlock;
+    struct _CM_NOTIFY_BLOCK* NotifyBlock;
     PEPROCESS               Process;         // the owner process
 #ifdef KCB_TO_KEYBODY_LINK
     LIST_ENTRY              KeyBodyList;     // key_nodes using the same kcb
 #endif
-} CM_KEY_BODY, *PCM_KEY_BODY;
+} CM_KEY_BODY, * PCM_KEY_BODY;
 
 
 #ifdef KCB_TO_KEYBODY_LINK
@@ -496,8 +496,8 @@ typedef struct _CM_KEY_BODY {
 
 typedef struct _CM_POST_KEY_BODY {
     LIST_ENTRY                  KeyBodyList;
-    struct _CM_KEY_BODY         *KeyBody;        // this key body object
-} CM_POST_KEY_BODY, *PCM_POST_KEY_BODY;
+    struct _CM_KEY_BODY* KeyBody;        // this key body object
+} CM_POST_KEY_BODY, * PCM_POST_KEY_BODY;
 
 
 
@@ -513,13 +513,13 @@ typedef struct _CM_POST_KEY_BODY {
 typedef struct _CM_NOTIFY_BLOCK {
     LIST_ENTRY                  HiveList;        // sorted list of notifies
     PCM_KEY_CONTROL_BLOCK       KeyControlBlock; // Open instance notify is on
-    struct _CM_KEY_BODY         *KeyBody;        // our owning key handle object
+    struct _CM_KEY_BODY* KeyBody;        // our owning key handle object
     ULONG                       Filter;          // Events of interest
     LIST_ENTRY                  PostList;        // Posts to fill
     SECURITY_SUBJECT_CONTEXT    SubjectContext;  // Security stuff
     BOOLEAN                     WatchTree;
     BOOLEAN                     NotifyPending;
-} CM_NOTIFY_BLOCK, *PCM_NOTIFY_BLOCK;
+} CM_NOTIFY_BLOCK, * PCM_NOTIFY_BLOCK;
 
 
 // CM_POST_BLOCK
@@ -542,25 +542,25 @@ typedef enum _POST_BLOCK_TYPE {
 typedef struct _CM_SYNC_POST_BLOCK {
     PKEVENT                 SystemEvent;
     NTSTATUS                Status;
-} CM_SYNC_POST_BLOCK, *PCM_SYNC_POST_BLOCK;
+} CM_SYNC_POST_BLOCK, * PCM_SYNC_POST_BLOCK;
 
 typedef struct _CM_ASYNC_USER_POST_BLOCK {
     PKEVENT                 UserEvent;
     PKAPC                   Apc;
     PIO_STATUS_BLOCK        IoStatusBlock;
-} CM_ASYNC_USER_POST_BLOCK, *PCM_ASYNC_USER_POST_BLOCK;
+} CM_ASYNC_USER_POST_BLOCK, * PCM_ASYNC_USER_POST_BLOCK;
 
 typedef struct _CM_ASYNC_KERNEL_POST_BLOCK {
     PKEVENT                 Event;
     PWORK_QUEUE_ITEM        WorkItem;
     WORK_QUEUE_TYPE         QueueType;
-} CM_ASYNC_KERNEL_POST_BLOCK, *PCM_ASYNC_KERNEL_POST_BLOCK;
+} CM_ASYNC_KERNEL_POST_BLOCK, * PCM_ASYNC_KERNEL_POST_BLOCK;
 
 typedef union _CM_POST_BLOCK_UNION {
     CM_SYNC_POST_BLOCK  Sync;
     CM_ASYNC_USER_POST_BLOCK AsyncUser;
     CM_ASYNC_KERNEL_POST_BLOCK AsyncKernel;
-} CM_POST_BLOCK_UNION, *PCM_POST_BLOCK_UNION;
+} CM_POST_BLOCK_UNION, * PCM_POST_BLOCK_UNION;
 
 typedef struct _CM_POST_BLOCK {
 #if DBG
@@ -569,10 +569,10 @@ typedef struct _CM_POST_BLOCK {
     LIST_ENTRY                  NotifyList;
     LIST_ENTRY                  ThreadList;
     LIST_ENTRY                  CancelPostList; // slave notifications that are attached to this notification
-    struct _CM_POST_KEY_BODY    *PostKeyBody;
+    struct _CM_POST_KEY_BODY* PostKeyBody;
     ULONG                       NotifyType;
     PCM_POST_BLOCK_UNION        u;
-} CM_POST_BLOCK, *PCM_POST_BLOCK;
+} CM_POST_BLOCK, * PCM_POST_BLOCK;
 
 #define REG_NOTIFY_POST_TYPE_MASK (0x0000FFFFL)   // mask for finding out the type of the post block
 
@@ -603,7 +603,7 @@ typedef struct _CMHIVE {
     LIST_ENTRY      NotifyList;
     LIST_ENTRY      HiveList;           // Used to find hives at shutdown
     PFAST_MUTEX     HiveLock;           // Used to synchronize operations on the hive (NotifyList and Flush)
-} CMHIVE, *PCMHIVE;
+} CMHIVE, * PCMHIVE;
 
 
 // Hive locking support
@@ -699,7 +699,7 @@ typedef struct _REGISTRY_COMMAND {
     POBJECT_NAME_INFORMATION OldName;
     ULONG NameInfoLength;
     PSECURITY_CLIENT_CONTEXT ImpersonationContext;
-} REGISTRY_COMMAND, *PREGISTRY_COMMAND;
+} REGISTRY_COMMAND, * PREGISTRY_COMMAND;
 
 
 
@@ -721,7 +721,7 @@ typedef struct _CM_PARSE_CONTEXT {
     BOOLEAN             CreateLink;
     CM_KEY_REFERENCE    ChildHive;
     HANDLE              PredefinedHandle;
-} CM_PARSE_CONTEXT, *PCM_PARSE_CONTEXT;
+} CM_PARSE_CONTEXT, * PCM_PARSE_CONTEXT;
 
 NTSTATUS
 CmpParseKey(
@@ -734,8 +734,8 @@ CmpParseKey(
     IN OUT PUNICODE_STRING RemainingName,
     IN OUT PVOID Context OPTIONAL,
     IN PSECURITY_QUALITY_OF_SERVICE SecurityQos OPTIONAL,
-    OUT PVOID *Object
-    );
+    OUT PVOID* Object
+);
 
 NTSTATUS
 CmpDoCreate(
@@ -746,8 +746,8 @@ CmpDoCreate(
     IN KPROCESSOR_MODE AccessMode,
     IN PCM_PARSE_CONTEXT Context,
     IN PCM_KEY_CONTROL_BLOCK ParentKcb,
-    OUT PVOID *Object
-    );
+    OUT PVOID* Object
+);
 
 NTSTATUS
 CmpDoCreateChild(
@@ -761,8 +761,8 @@ CmpDoCreateChild(
     IN PCM_KEY_CONTROL_BLOCK ParentKcb,
     IN USHORT Flags,
     OUT PHCELL_INDEX KeyCell,
-    OUT PVOID *Object
-    );
+    OUT PVOID* Object
+);
 
 NTSTATUS
 CmpQueryKeyName(
@@ -771,12 +771,12 @@ CmpQueryKeyName(
     OUT POBJECT_NAME_INFORMATION ObjectNameInfo,
     IN ULONG Length,
     OUT PULONG ReturnLength
-    );
+);
 
 VOID
 CmpDeleteKeyObject(
     IN PVOID Object
-    );
+);
 
 VOID
 CmpCloseKeyObject(
@@ -785,19 +785,19 @@ CmpCloseKeyObject(
     IN ACCESS_MASK GrantedAccess,
     IN ULONG ProcessHandleCount,
     IN ULONG SystemHandleCount
-    );
+);
 
 NTSTATUS
-CmpSecurityMethod (
+CmpSecurityMethod(
     IN PVOID Object,
     IN SECURITY_OPERATION_CODE OperationCode,
     IN PSECURITY_INFORMATION SecurityInformation,
     IN OUT PSECURITY_DESCRIPTOR SecurityDescriptor,
     IN OUT PULONG CapturedLength,
-    IN OUT PSECURITY_DESCRIPTOR *ObjectsSecurityDescriptor,
+    IN OUT PSECURITY_DESCRIPTOR* ObjectsSecurityDescriptor,
     IN POOL_TYPE PoolType,
     IN PGENERIC_MAPPING GenericMapping
-    );
+);
 
 #define KCB_WORKER_CONTINUE     0
 #define KCB_WORKER_DONE         1
@@ -817,7 +817,7 @@ CmpSearchKeyControlBlockTree(
     PKCB_WORKER_ROUTINE WorkerRoutine,
     PVOID               Context1,
     PVOID               Context2
-    );
+);
 
 
 // Wrappers
@@ -827,27 +827,27 @@ PVOID
 CmpAllocate(
     ULONG   Size,
     BOOLEAN UseForIo
-    );
+);
 
 VOID
 CmpFree(
     PVOID   MemoryBlock,
     ULONG   GlobalQuotaSize
-    );
+);
 
 BOOLEAN
 CmpFileSetSize(
     PHHIVE      Hive,
     ULONG       FileType,
     ULONG       FileSize
-    );
+);
 
 NTSTATUS
 CmpDoFileSetSize(
     PHHIVE      Hive,
     ULONG       FileType,
     ULONG       FileSize
-    );
+);
 
 BOOLEAN
 CmpFileWrite(
@@ -856,29 +856,29 @@ CmpFileWrite(
     PCMP_OFFSET_ARRAY offsetArray,
     ULONG offsetArrayCount,
     PULONG      FileOffset
-    );
+);
 
 BOOLEAN
-CmpFileRead (
+CmpFileRead(
     PHHIVE      Hive,
     ULONG       FileType,
     PULONG      FileOffset,
     PVOID       DataBuffer,
     ULONG       DataLength
-    );
+);
 
 BOOLEAN
-CmpFileFlush (
+CmpFileFlush(
     PHHIVE      Hive,
     ULONG       FileType
-    );
+);
 
 NTSTATUS
 CmpCreateEvent(
     IN EVENT_TYPE  eventType,
     OUT PHANDLE eventHandle,
-    OUT PKEVENT *event
-    );
+    OUT PKEVENT* event
+);
 
 
 
@@ -888,13 +888,13 @@ CmpCreateEvent(
 NTSTATUS
 CmDeleteKey(
     IN PCM_KEY_BODY KeyBody
-    );
+);
 
 NTSTATUS
 CmDeleteValueKey(
     IN PCM_KEY_CONTROL_BLOCK KeyControlBlock,
     IN UNICODE_STRING ValueName
-    );
+);
 
 NTSTATUS
 CmEnumerateKey(
@@ -904,7 +904,7 @@ CmEnumerateKey(
     IN PVOID KeyInformation,
     IN ULONG Length,
     IN PULONG ResultLength
-    );
+);
 
 NTSTATUS
 CmEnumerateValueKey(
@@ -914,13 +914,13 @@ CmEnumerateValueKey(
     IN PVOID KeyValueInformation,
     IN ULONG Length,
     IN PULONG ResultLength
-    );
+);
 
 NTSTATUS
 CmFlushKey(
     IN PHHIVE Hive,
     IN HCELL_INDEX Cell
-    );
+);
 
 NTSTATUS
 CmQueryKey(
@@ -929,7 +929,7 @@ CmQueryKey(
     IN PVOID KeyInformation,
     IN ULONG Length,
     IN PULONG ResultLength
-    );
+);
 
 NTSTATUS
 CmQueryValueKey(
@@ -939,7 +939,7 @@ CmQueryValueKey(
     IN PVOID KeyValueInformation,
     IN ULONG Length,
     IN PULONG ResultLength
-    );
+);
 
 NTSTATUS
 CmQueryMultipleValueKey(
@@ -949,7 +949,7 @@ CmQueryMultipleValueKey(
     IN PVOID ValueBuffer,
     IN OUT PULONG BufferLength,
     IN OPTIONAL PULONG ResultLength
-    );
+);
 
 NTSTATUS
 CmRenameValueKey(
@@ -957,7 +957,7 @@ CmRenameValueKey(
     IN UNICODE_STRING SourceValueName,
     IN UNICODE_STRING TargetValueName,
     IN ULONG TargetIndex
-    );
+);
 
 NTSTATUS
 CmReplaceKey(
@@ -965,27 +965,27 @@ CmReplaceKey(
     IN HCELL_INDEX Cell,
     IN PUNICODE_STRING NewHiveName,
     IN PUNICODE_STRING OldFileName
-    );
+);
 
 NTSTATUS
 CmRestoreKey(
     IN PCM_KEY_CONTROL_BLOCK KeyControlBlock,
     IN HANDLE  FileHandle,
     IN ULONG Flags
-    );
+);
 
 NTSTATUS
 CmSaveKey(
     IN PCM_KEY_CONTROL_BLOCK KeyControlBlock,
     IN HANDLE  FileHandle
-    );
+);
 
 NTSTATUS
 CmSaveMergedKeys(
     IN PCM_KEY_CONTROL_BLOCK    HighPrecedenceKcb,
     IN PCM_KEY_CONTROL_BLOCK    LowPrecedenceKcb,
     IN HANDLE   FileHandle
-    );
+);
 
 NTSTATUS
 CmSetValueKey(
@@ -994,13 +994,13 @@ CmSetValueKey(
     IN ULONG Type,
     IN PVOID Data,
     IN ULONG DataSize
-    );
+);
 
 NTSTATUS
 CmSetLastWriteTimeKey(
     IN PCM_KEY_CONTROL_BLOCK KeyControlBlock,
     IN PLARGE_INTEGER LastWriteTime
-    );
+);
 
 NTSTATUS
 CmpNotifyChangeKey(
@@ -1011,21 +1011,21 @@ CmpNotifyChangeKey(
     IN PVOID            Buffer,
     IN ULONG            BufferSize,
     IN PCM_POST_BLOCK   MasterPostBlock
-    );
+);
 
 NTSTATUS
 CmLoadKey(
     IN POBJECT_ATTRIBUTES TargetKey,
     IN POBJECT_ATTRIBUTES SourceFile,
     IN ULONG Flags
-    );
+);
 
 NTSTATUS
 CmUnloadKey(
     IN PHHIVE Hive,
     IN HCELL_INDEX Cell,
     IN PCM_KEY_CONTROL_BLOCK Kcb
-    );
+);
 
 
 // Procedures private to CM
@@ -1052,7 +1052,7 @@ CmpAssignSecurityDescriptor(
     IN HCELL_INDEX Cell,
     IN PCM_KEY_NODE Node,
     IN PSECURITY_DESCRIPTOR SecurityDescriptor
-    );
+);
 
 BOOLEAN
 CmpCheckCreateAccess(
@@ -1062,25 +1062,25 @@ CmpCheckCreateAccess(
     IN KPROCESSOR_MODE PreviousMode,
     IN ACCESS_MASK AdditionalAccess,
     OUT PNTSTATUS AccessStatus
-    );
+);
 
 BOOLEAN
 CmpCheckNotifyAccess(
     IN PCM_NOTIFY_BLOCK NotifyBlock,
     IN PHHIVE Hive,
     IN PCM_KEY_NODE Node
-    );
+);
 
 PSECURITY_DESCRIPTOR
 CmpHiveRootSecurityDescriptor(
     VOID
-    );
+);
 
 VOID
 CmpFreeSecurityDescriptor(
     IN PHHIVE Hive,
     IN HCELL_INDEX Cell
-    );
+);
 
 
 
@@ -1099,30 +1099,30 @@ extern ERESOURCE CmpRegistryLock;
 VOID
 CmpLockRegistryExclusive(
     VOID
-    );
+);
 VOID
 CmpLockRegistry(
     VOID
-    );
+);
 #endif
 BOOLEAN
 CmpIsLastKnownGoodBoot(
     VOID
-    );
+);
 
 VOID
 CmpUnlockRegistry(
-    );
+);
 
 #if DBG
 BOOLEAN
 CmpTestRegistryLock(
     VOID
-    );
+);
 BOOLEAN
 CmpTestRegistryLockExclusive(
     VOID
-    );
+);
 #endif
 
 NTSTATUS
@@ -1133,27 +1133,27 @@ CmpQueryKeyData(
     PVOID KeyInformation,
     ULONG Length,
     PULONG ResultLength
-    );
+);
 
 
 VOID
 CmpFreeKeyBody(
     PHHIVE Hive,
     HCELL_INDEX Cell
-    );
+);
 
 VOID
 CmpFreeValue(
     PHHIVE Hive,
     HCELL_INDEX Cell
-    );
+);
 
 HCELL_INDEX
 CmpFindValueByName(
     PHHIVE Hive,
     PCM_KEY_NODE KeyNode,
     PUNICODE_STRING Name
-    );
+);
 
 #define CmpFindValueByName(h,k,n) CmpFindNameInList(h,&((k)->ValueList),n,NULL,NULL)
 
@@ -1163,23 +1163,23 @@ CmpDeleteChildByName(
     HCELL_INDEX Cell,
     UNICODE_STRING  Name,
     PHCELL_INDEX    ChildCell
-    );
+);
 
 NTSTATUS
 CmpFreeKeyByCell(
     PHHIVE Hive,
     HCELL_INDEX Cell,
     BOOLEAN Unlink
-    );
+);
 
 HCELL_INDEX
 CmpFindNameInList(
     IN PHHIVE  Hive,
     IN PCHILD_LIST ChildList,
     IN PUNICODE_STRING Name,
-    IN OPTIONAL PCELL_DATA *ChildAddress,
+    IN OPTIONAL PCELL_DATA* ChildAddress,
     IN OPTIONAL PULONG ChildIndex
-    );
+);
 
 HCELL_INDEX
 CmpCopyCell(
@@ -1187,7 +1187,7 @@ CmpCopyCell(
     HCELL_INDEX SourceCell,
     PHHIVE  TargetHive,
     HSTORAGE_TYPE   Type
-    );
+);
 
 HCELL_INDEX
 CmpCopyValue(
@@ -1195,7 +1195,7 @@ CmpCopyValue(
     HCELL_INDEX SourceValueCell,
     PHHIVE  TargetHive,
     HSTORAGE_TYPE Type
-    );
+);
 
 HCELL_INDEX
 CmpCopyKeyPartial(
@@ -1204,7 +1204,7 @@ CmpCopyKeyPartial(
     PHHIVE  TargetHive,
     HCELL_INDEX Parent,
     BOOLEAN CopyValues
-    );
+);
 
 BOOLEAN
 CmpCopySyncTree(
@@ -1214,7 +1214,7 @@ CmpCopySyncTree(
     HCELL_INDEX             TargetCell,
     BOOLEAN                 CopyVolatile,
     CMP_COPY_TYPE           CopyType
-    );
+);
 
 
 // BOOLEAN
@@ -1269,22 +1269,22 @@ VOID
 CmpDeleteTree(
     PHHIVE      Hive,
     HCELL_INDEX Cell
-    );
+);
 
 VOID
 CmpSetVersionData(
     VOID
-    );
+);
 
 NTSTATUS
 CmpInitializeHardwareConfiguration(
     IN PLOADER_PARAMETER_BLOCK LoaderBlock
-    );
+);
 
 NTSTATUS
 CmpInitializeMachineDependentConfiguration(
     IN PLOADER_PARAMETER_BLOCK LoaderBlock
-    );
+);
 
 NTSTATUS
 CmpInitializeRegistryNode(
@@ -1294,11 +1294,11 @@ CmpInitializeRegistryNode(
     IN INTERFACE_TYPE InterfaceType,
     IN ULONG BusNumber,
     IN PUSHORT DeviceIndexTable
-    );
+);
 
 NTSTATUS
 CmpInitializeHive(
-    PCMHIVE         *CmHive,
+    PCMHIVE* CmHive,
     ULONG           OperationType,
     ULONG           HiveFlags,
     ULONG           FileType,
@@ -1308,23 +1308,23 @@ CmpInitializeHive(
     HANDLE          Log,
     HANDLE          External,
     PUNICODE_STRING FileName
-    );
+);
 
 BOOLEAN
 CmpDestroyHive(
     IN PHHIVE Hive,
     IN HCELL_INDEX Cell
-    );
+);
 
 VOID
 CmpInitializeRegistryNames(
     VOID
-    );
+);
 
 VOID
 CmpInitializeCache(
     VOID
-    );
+);
 
 PCM_KEY_CONTROL_BLOCK
 CmpCreateKeyControlBlock(
@@ -1334,13 +1334,13 @@ CmpCreateKeyControlBlock(
     PCM_KEY_CONTROL_BLOCK ParentKcb,
     BOOLEAN FakeKey,
     PUNICODE_STRING KeyName
-    );
+);
 
 ULONG
 CmpSearchForOpenSubKeys(
     IN PCM_KEY_CONTROL_BLOCK SearchKey,
     IN SUBKEY_SEARCH_TYPE SearchType
-    );
+);
 
 VOID CmpDereferenceKeyControlBlock(PCM_KEY_CONTROL_BLOCK   KeyControlBlock);
 VOID CmpRemoveKeyControlBlock(PCM_KEY_CONTROL_BLOCK   KeyControlBlock);
@@ -1351,7 +1351,7 @@ CmpReportNotify(
     PHHIVE          Hive,
     HCELL_INDEX     Cell,
     ULONG           NotifyMask
-    );
+);
 
 VOID
 CmpPostNotify(
@@ -1360,7 +1360,7 @@ CmpPostNotify(
     ULONG               Filter,
     NTSTATUS            Status,
     PLIST_ENTRY         ExternalKeyDeref OPTIONAL
-    );
+);
 
 PCM_POST_BLOCK
 CmpAllocatePostBlock(
@@ -1368,7 +1368,7 @@ CmpAllocatePostBlock(
     IN ULONG           PostFlags,
     IN PCM_KEY_BODY    KeyBody,
     IN PCM_POST_BLOCK  MasterBlock
-    );
+);
 
 
 //PCM_POST_BLOCK CmpAllocateMasterPostBlock(IN POST_BLOCK_TYPE BlockType);
@@ -1379,9 +1379,9 @@ CmpAllocatePostBlock(
 #define CmpAllocateSlavePostBlock(b,k,m) CmpAllocatePostBlock(b,0,k,m)
 
 VOID CmpFreePostBlock(IN PCM_POST_BLOCK PostBlock);
-VOID CmpPostApc(struct _KAPC *Apc, PKNORMAL_ROUTINE *NormalRoutine, PVOID *NormalContext, PVOID *SystemArgument1, PVOID *SystemArgument2);
+VOID CmpPostApc(struct _KAPC* Apc, PKNORMAL_ROUTINE* NormalRoutine, PVOID* NormalContext, PVOID* SystemArgument1, PVOID* SystemArgument2);
 VOID CmpFlushNotify(PCM_KEY_BODY    KeyBody);
-VOID CmpPostApcRunDown(struct _KAPC *Apc);
+VOID CmpPostApcRunDown(struct _KAPC* Apc);
 
 NTSTATUS
 CmpOpenHiveFiles(
@@ -1394,7 +1394,7 @@ CmpOpenHiveFiles(
     BOOLEAN             CreateAllowed,
     BOOLEAN             MarkAsSystemHive,
     PULONG              ClusterSize
-    );
+);
 
 NTSTATUS
 CmpLinkHiveToMaster(
@@ -1403,7 +1403,7 @@ CmpLinkHiveToMaster(
     PCMHIVE CmHive,
     BOOLEAN Allocate,
     PSECURITY_DESCRIPTOR SecurityDescriptor
-    );
+);
 
 VOID CmpWorker(IN OUT PREGISTRY_COMMAND Command);
 NTSTATUS CmpSaveBootControlSet(IN USHORT ControlSetNum);
@@ -1472,7 +1472,7 @@ typedef struct _HIVE_LIST_ENTRY {
     PWSTR   BaseName;                       // MACHINE or USER
     PCMHIVE CmHive;
     ULONG   Flags;
-} HIVE_LIST_ENTRY, *PHIVE_LIST_ENTRY;
+} HIVE_LIST_ENTRY, * PHIVE_LIST_ENTRY;
 
 
 // structure definitions shared with the boot loader
@@ -1484,7 +1484,7 @@ typedef struct _CM_HARDWARE_PROFILE {
     ULONG   PreferenceOrder;
     ULONG   Id;
     ULONG   Flags;
-} CM_HARDWARE_PROFILE, *PCM_HARDWARE_PROFILE;
+} CM_HARDWARE_PROFILE, * PCM_HARDWARE_PROFILE;
 
 #define CM_HP_FLAGS_ALIASABLE  1
 #define CM_HP_FLAGS_TRUE_MATCH 2
@@ -1495,41 +1495,41 @@ typedef struct _CM_HARDWARE_PROFILE_LIST {
     ULONG MaxProfileCount;
     ULONG CurrentProfileCount;
     CM_HARDWARE_PROFILE Profile[1];
-} CM_HARDWARE_PROFILE_LIST, *PCM_HARDWARE_PROFILE_LIST;
+} CM_HARDWARE_PROFILE_LIST, * PCM_HARDWARE_PROFILE_LIST;
 
 typedef struct _CM_HARDWARE_PROFILE_ALIAS {
     ULONG   ProfileNumber;
     ULONG   DockState;
     ULONG   DockID;
     ULONG   SerialNumber;
-} CM_HARDWARE_PROFILE_ALIAS, *PCM_HARDWARE_PROFILE_ALIAS;
+} CM_HARDWARE_PROFILE_ALIAS, * PCM_HARDWARE_PROFILE_ALIAS;
 
 typedef struct _CM_HARDWARE_PROFILE_ALIAS_LIST {
     ULONG MaxAliasCount;
     ULONG CurrentAliasCount;
     CM_HARDWARE_PROFILE_ALIAS Alias[1];
-} CM_HARDWARE_PROFILE_ALIAS_LIST, *PCM_HARDWARE_PROFILE_ALIAS_LIST;
+} CM_HARDWARE_PROFILE_ALIAS_LIST, * PCM_HARDWARE_PROFILE_ALIAS_LIST;
 
 typedef struct _CM_HARDWARE_PROFILE_ACPI_ALIAS {
     ULONG   ProfileNumber;
     ULONG   DockState;
     ULONG   SerialLength;
     PCHAR   SerialNumber;
-} CM_HARDWARE_PROFILE_ACPI_ALIAS, *PCM_HARDWARE_PROFILE_ACPI_ALIAS;
+} CM_HARDWARE_PROFILE_ACPI_ALIAS, * PCM_HARDWARE_PROFILE_ACPI_ALIAS;
 
 typedef struct _CM_HARDWARE_PROFILE_ACPI_ALIAS_LIST {
     ULONG   MaxAliasCount;
     ULONG   CurrentAliasCount;
     CM_HARDWARE_PROFILE_ACPI_ALIAS Alias[1];
-} CM_HARDWARE_PROFILE_ACPI_ALIAS_LIST, *PCM_HARDWARE_PROFILE_ACPI_ALIAS_LIST;
+} CM_HARDWARE_PROFILE_ACPI_ALIAS_LIST, * PCM_HARDWARE_PROFILE_ACPI_ALIAS_LIST;
 
 HCELL_INDEX
 CmpFindControlSet(
-     IN PHHIVE SystemHive,
-     IN HCELL_INDEX RootCell,
-     IN PUNICODE_STRING SelectName,
-     OUT PBOOLEAN AutoSelect
-     );
+    IN PHHIVE SystemHive,
+    IN HCELL_INDEX RootCell,
+    IN PUNICODE_STRING SelectName,
+    OUT PBOOLEAN AutoSelect
+);
 
 BOOLEAN
 CmpFindDrivers(
@@ -1538,7 +1538,7 @@ CmpFindDrivers(
     IN SERVICE_LOAD_TYPE LoadType,
     IN PWSTR BootFileSystem OPTIONAL,
     IN PLIST_ENTRY DriverListHead
-    );
+);
 
 BOOLEAN
 CmpFindNLSData(
@@ -1548,98 +1548,98 @@ CmpFindNLSData(
     OUT PUNICODE_STRING OemFilename,
     OUT PUNICODE_STRING CaseTableFilename,
     OUT PUNICODE_STRING OemHalFilename
-    );
+);
 
 HCELL_INDEX
 CmpFindProfileOption(
     IN PHHIVE Hive,
     IN HCELL_INDEX ControlSet,
-    OUT PCM_HARDWARE_PROFILE_LIST *ProfileList,
-    OUT PCM_HARDWARE_PROFILE_ALIAS_LIST *AliasList,
+    OUT PCM_HARDWARE_PROFILE_LIST* ProfileList,
+    OUT PCM_HARDWARE_PROFILE_ALIAS_LIST* AliasList,
     OUT PULONG Timeout
-    );
+);
 
 VOID
 CmpSetCurrentProfile(
     IN PHHIVE Hive,
     IN HCELL_INDEX ControlSet,
     IN PCM_HARDWARE_PROFILE Profile
-    );
+);
 
 BOOLEAN
 CmpResolveDriverDependencies(
     IN PLIST_ENTRY DriverListHead
-    );
+);
 
 BOOLEAN
 CmpSortDriverList(
     IN PHHIVE Hive,
     IN HCELL_INDEX ControlSet,
     IN PLIST_ENTRY DriverListHead
-    );
+);
 
 HCELL_INDEX
 CmpFindSubKeyByName(
     PHHIVE          Hive,
     PCM_KEY_NODE    Parent,
     PUNICODE_STRING SearchName
-    );
+);
 
 HCELL_INDEX
 CmpFindSubKeyByNumber(
     PHHIVE          Hive,
     PCM_KEY_NODE    Parent,
     ULONG           Number
-    );
+);
 
 BOOLEAN
 CmpAddSubKey(
     PHHIVE          Hive,
     HCELL_INDEX     Parent,
     HCELL_INDEX     Child
-    );
+);
 
 BOOLEAN
 CmpMarkIndexDirty(
     PHHIVE          Hive,
     HCELL_INDEX     ParentKey,
     HCELL_INDEX     TargetKey
-    );
+);
 
 BOOLEAN
 CmpRemoveSubKey(
     PHHIVE          Hive,
     HCELL_INDEX     ParentKey,
     HCELL_INDEX     TargetKey
-    );
+);
 
 BOOLEAN
 CmpGetNextName(
     IN OUT PUNICODE_STRING  RemainingName,
     OUT    PUNICODE_STRING  NextName,
     OUT    PBOOLEAN  Last
-    );
+);
 
 NTSTATUS
 CmpAddToHiveFileList(
     PCMHIVE CmHive
-    );
+);
 
 VOID
 CmpRemoveFromHiveFileList(
-    );
+);
 
 NTSTATUS
 CmpInitHiveFromFile(
     IN PUNICODE_STRING FileName,
     IN ULONG HiveFlags,
-    OUT PCMHIVE *CmHive,
+    OUT PCMHIVE* CmHive,
     IN OUT PBOOLEAN Allocate,
     IN OUT PBOOLEAN RegistryLocked
-    );
+);
 
 NTSTATUS
-CmpCloneHwProfile (
+CmpCloneHwProfile(
     IN HANDLE IDConfigDB,
     IN HANDLE Parent,
     IN HANDLE OldProfile,
@@ -1647,15 +1647,15 @@ CmpCloneHwProfile (
     IN USHORT DockingState,
     OUT PHANDLE NewProfile,
     OUT PULONG  NewProfileNumber
-    );
+);
 
 NTSTATUS
-CmpCreateHwProfileFriendlyName (
+CmpCreateHwProfileFriendlyName(
     IN HANDLE IDConfigDB,
     IN ULONG  DockingState,
     IN ULONG  NewProfileNumber,
     OUT PUNICODE_STRING FriendlyName
-    );
+);
 
 typedef
 NTSTATUS
@@ -1666,16 +1666,16 @@ NTSTATUS
     );
 
 NTSTATUS
-CmSetAcpiHwProfile (
+CmSetAcpiHwProfile(
     IN  PPROFILE_ACPI_DOCKING_STATE DockState,
     IN  PCM_ACPI_SELECTION_ROUTINE,
     IN  PVOID Context,
     OUT PHANDLE NewProfile,
     OUT PBOOLEAN ProfileChanged
-    );
+);
 
 NTSTATUS
-CmpAddAcpiAliasEntry (
+CmpAddAcpiAliasEntry(
     IN HANDLE                       IDConfigDB,
     IN PPROFILE_ACPI_DOCKING_STATE  NewDockState,
     IN ULONG                        ProfileNumber,
@@ -1683,7 +1683,7 @@ CmpAddAcpiAliasEntry (
     IN PVOID                        valueBuffer,
     IN ULONG                        valueBufferLength,
     IN BOOLEAN                      PreventDuplication
-    );
+);
 
 
 // Routines for handling registry compressed names
@@ -1716,14 +1716,14 @@ VOID CmpCleanUpKcbValueCache(PCM_KEY_CONTROL_BLOCK   KeyControlBlock);
 VOID CmpCleanUpKcbCacheWithLock(PCM_KEY_CONTROL_BLOCK   KeyControlBlock);
 VOID CmpRemoveFromDelayedClose(IN PCM_KEY_CONTROL_BLOCK kcb);
 PUNICODE_STRING CmpConstructName(PCM_KEY_CONTROL_BLOCK kcb);
-PCELL_DATA CmpGetValueListFromCache(IN PHHIVE  Hive, IN PCACHED_CHILD_LIST ChildList, IN OUT BOOLEAN    *IndexCached);
+PCELL_DATA CmpGetValueListFromCache(IN PHHIVE  Hive, IN PCACHED_CHILD_LIST ChildList, IN OUT BOOLEAN* IndexCached);
 PCM_KEY_VALUE CmpGetValueKeyFromCache(
     IN PHHIVE         Hive,
     IN PCELL_DATA     List,
     IN ULONG          Index,
-    OUT PPCM_CACHED_VALUE *ContainingList,
+    OUT PPCM_CACHED_VALUE* ContainingList,
     IN BOOLEAN        IndexCached,
-    OUT BOOLEAN    *ValueCached
+    OUT BOOLEAN* ValueCached
 );
 
 PCM_KEY_VALUE
@@ -1731,33 +1731,33 @@ CmpFindValueByNameFromCache(
     IN PHHIVE  Hive,
     IN PCACHED_CHILD_LIST ChildList,
     IN PUNICODE_STRING Name,
-    OUT PPCM_CACHED_VALUE *ContainingList,
-    OUT ULONG *Index,
-    OUT BOOLEAN *ValueCached
-    );
+    OUT PPCM_CACHED_VALUE* ContainingList,
+    OUT ULONG* Index,
+    OUT BOOLEAN* ValueCached
+);
 
 NTSTATUS
 CmpQueryKeyValueData(
     PHHIVE Hive,
-    PCM_CACHED_VALUE *ContainingList,
+    PCM_CACHED_VALUE* ContainingList,
     PCM_KEY_VALUE ValueKey,
     BOOLEAN       ValueCached,
     KEY_VALUE_INFORMATION_CLASS KeyValueInformationClass,
     PVOID KeyValueInformation,
     ULONG Length,
     PULONG ResultLength
-    );
+);
 
 BOOLEAN CmpReferenceKeyControlBlock(PCM_KEY_CONTROL_BLOCK   KeyControlBlock);
-VOID CmpInitializeKeyNameString(PCM_KEY_NODE Cell, PUNICODE_STRING KeyName, WCHAR *NameBuffer);
-VOID CmpInitializeValueNameString(PCM_KEY_VALUE Cell, PUNICODE_STRING ValueName, WCHAR *NameBuffer);
+VOID CmpInitializeKeyNameString(PCM_KEY_NODE Cell, PUNICODE_STRING KeyName, WCHAR* NameBuffer);
+VOID CmpInitializeValueNameString(PCM_KEY_VALUE Cell, PUNICODE_STRING ValueName, WCHAR* NameBuffer);
 
 #ifdef KCB_TO_KEYBODY_LINK
 VOID CmpFlushNotifiesOnKeyBodyList(IN PCM_KEY_CONTROL_BLOCK   kcb);
 #endif
 
 extern ULONG CmpHashTableSize;
-extern PCM_KEY_HASH *CmpCacheTable;
+extern PCM_KEY_HASH* CmpCacheTable;
 
 #ifdef _WANT_MACHINE_IDENTIFICATION
 BOOLEAN CmpGetBiosDateFromRegistry(IN PHHIVE Hive, IN HCELL_INDEX ControlSet, OUT PUNICODE_STRING Date);

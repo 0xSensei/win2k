@@ -27,9 +27,9 @@ BOOL
 _SetupQueueDelete(
     IN HSPFILEQ QueueHandle,
     IN PCTSTR   PathPart1,
-    IN PCTSTR   PathPart2,      OPTIONAL
+    IN PCTSTR   PathPart2, OPTIONAL
     IN UINT     Flags
-    )
+)
 
 /*++
 
@@ -80,7 +80,7 @@ Return Value:
     // Allocate a queue structure.
 
     QueueNode = MyMalloc(sizeof(SP_FILE_QUEUE_NODE));
-    if(!QueueNode) {
+    if (!QueueNode) {
         goto clean0;
     }
 
@@ -102,7 +102,7 @@ Return Value:
     // Set internal flag to indicate whether we should queue a delayed delete
     // for this file if it's in-use.
 
-    QueueNode->InternalFlags = (Flags & (DELFLG_IN_USE|DELFLG_IN_USE1)) ?
+    QueueNode->InternalFlags = (Flags & (DELFLG_IN_USE | DELFLG_IN_USE1)) ?
         IQF_DELAYED_DELETE_OK : 0;
 
 
@@ -115,22 +115,22 @@ Return Value:
     // Set up the target directory.
 
     QueueNode->TargetDirectory = StringTableAddString(Queue->StringTable,
-                                                      (PTSTR)PathPart1,
+        (PTSTR)PathPart1,
                                                       STRTAB_CASE_SENSITIVE
-                                                     );
-    if(QueueNode->TargetDirectory == -1) {
+    );
+    if (QueueNode->TargetDirectory == -1) {
         goto clean1;
     }
 
 
     // Set up the target filename.
 
-    if(PathPart2) {
+    if (PathPart2) {
         QueueNode->TargetFilename = StringTableAddString(Queue->StringTable,
-                                                         (PTSTR)PathPart2,
+            (PTSTR)PathPart2,
                                                          STRTAB_CASE_SENSITIVE
-                                                        );
-        if(QueueNode->TargetFilename == -1) {
+        );
+        if (QueueNode->TargetFilename == -1) {
             goto clean1;
         }
     } else {
@@ -141,7 +141,7 @@ Return Value:
     // Link the node onto the end of the delete queue.
 
     QueueNode->Next = NULL;
-    if(Queue->DeleteQueue) {
+    if (Queue->DeleteQueue) {
 
         // Check to see if this same rename operation has already been enqueued,
         // and if so, get rid of the new one, to avoid duplicates.  NOTE: We
@@ -151,12 +151,12 @@ Return Value:
         // previously-existing node should be preserved (i.e., our new node
         // always is created with InternalFlags set to zero).
 
-        for(TempNode=Queue->DeleteQueue, PrevQueueNode = NULL;
-            TempNode;
-            PrevQueueNode = TempNode, TempNode=TempNode->Next) {
+        for (TempNode = Queue->DeleteQueue, PrevQueueNode = NULL;
+             TempNode;
+             PrevQueueNode = TempNode, TempNode = TempNode->Next) {
 
-            if((TempNode->TargetDirectory == QueueNode->TargetDirectory) &&
-               (TempNode->TargetFilename == QueueNode->TargetFilename)) {
+            if ((TempNode->TargetDirectory == QueueNode->TargetDirectory) &&
+                (TempNode->TargetFilename == QueueNode->TargetFilename)) {
 
                 // We've found a duplicate.  However, we need to make sure that
                 // if our new node specifies "delayed delete OK", then the
@@ -164,7 +164,7 @@ Return Value:
 
                 MYASSERT(!(QueueNode->InternalFlags & ~IQF_DELAYED_DELETE_OK));
 
-                if(QueueNode->InternalFlags & IQF_DELAYED_DELETE_OK) {
+                if (QueueNode->InternalFlags & IQF_DELAYED_DELETE_OK) {
                     TempNode->InternalFlags |= IQF_DELAYED_DELETE_OK;
                 }
 
@@ -201,28 +201,28 @@ SetupQueueDeleteA(
     IN HSPFILEQ QueueHandle,
     IN PCSTR    PathPart1,
     IN PCSTR    PathPart2       OPTIONAL
-    )
+)
 {
-    PWSTR p1,p2;
+    PWSTR p1, p2;
     DWORD d;
     BOOL b;
 
     b = FALSE;
-    d = CaptureAndConvertAnsiArg(PathPart1,&p1);
-    if(d == NO_ERROR) {
+    d = CaptureAndConvertAnsiArg(PathPart1, &p1);
+    if (d == NO_ERROR) {
 
-        if(PathPart2) {
-            d = CaptureAndConvertAnsiArg(PathPart2,&p2);
+        if (PathPart2) {
+            d = CaptureAndConvertAnsiArg(PathPart2, &p2);
         } else {
             p2 = NULL;
         }
 
-        if(d == NO_ERROR) {
+        if (d == NO_ERROR) {
 
-            b = _SetupQueueDelete(QueueHandle,p1,p2,0);
+            b = _SetupQueueDelete(QueueHandle, p1, p2, 0);
             d = GetLastError();
 
-            if(p2) {
+            if (p2) {
                 MyFree(p2);
             }
         }
@@ -242,7 +242,7 @@ SetupQueueDeleteW(
     IN HSPFILEQ QueueHandle,
     IN PCWSTR   PathPart1,
     IN PCWSTR   PathPart2       OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(QueueHandle);
     UNREFERENCED_PARAMETER(PathPart1);
@@ -257,7 +257,7 @@ SetupQueueDelete(
     IN HSPFILEQ QueueHandle,
     IN PCTSTR   PathPart1,
     IN PCTSTR   PathPart2       OPTIONAL
-    )
+)
 
 /*++
 
@@ -290,26 +290,26 @@ Return Value:
 --*/
 
 {
-    PTSTR p1,p2;
+    PTSTR p1, p2;
     DWORD d;
     BOOL b;
 
     b = FALSE;
-    d = CaptureStringArg(PathPart1,&p1);
-    if(d == NO_ERROR) {
+    d = CaptureStringArg(PathPart1, &p1);
+    if (d == NO_ERROR) {
 
-        if(PathPart2) {
-            d = CaptureStringArg(PathPart2,&p2);
+        if (PathPart2) {
+            d = CaptureStringArg(PathPart2, &p2);
         } else {
             p2 = NULL;
         }
 
-        if(d == NO_ERROR) {
+        if (d == NO_ERROR) {
 
-            b = _SetupQueueDelete(QueueHandle,p1,p2,0);
+            b = _SetupQueueDelete(QueueHandle, p1, p2, 0);
             d = GetLastError();
 
-            if(p2) {
+            if (p2) {
                 MyFree(p2);
             }
         }
@@ -330,18 +330,18 @@ BOOL
 SetupQueueDeleteSectionA(
     IN HSPFILEQ QueueHandle,
     IN HINF     InfHandle,
-    IN HINF     ListInfHandle,  OPTIONAL
+    IN HINF     ListInfHandle, OPTIONAL
     IN PCSTR    Section
-    )
+)
 {
     PWSTR section;
     DWORD d;
     BOOL b;
 
-    d = CaptureAndConvertAnsiArg(Section,&section);
-    if(d == NO_ERROR) {
+    d = CaptureAndConvertAnsiArg(Section, &section);
+    if (d == NO_ERROR) {
 
-        b = SetupQueueDeleteSectionW(QueueHandle,InfHandle,ListInfHandle,section);
+        b = SetupQueueDeleteSectionW(QueueHandle, InfHandle, ListInfHandle, section);
         d = GetLastError();
 
         MyFree(section);
@@ -361,9 +361,9 @@ BOOL
 SetupQueueDeleteSectionW(
     IN HSPFILEQ QueueHandle,
     IN HINF     InfHandle,
-    IN HINF     ListInfHandle,  OPTIONAL
+    IN HINF     ListInfHandle, OPTIONAL
     IN PCWSTR   Section
-    )
+)
 {
     UNREFERENCED_PARAMETER(QueueHandle);
     UNREFERENCED_PARAMETER(InfHandle);
@@ -378,9 +378,9 @@ BOOL
 SetupQueueDeleteSection(
     IN HSPFILEQ QueueHandle,
     IN HINF     InfHandle,
-    IN HINF     ListInfHandle,   OPTIONAL
+    IN HINF     ListInfHandle, OPTIONAL
     IN PCTSTR   Section
-    )
+)
 
 /*++
 
@@ -419,15 +419,15 @@ Return Value:
     DWORD rc;
     UINT Flags;
 
-    if(!ListInfHandle) {
+    if (!ListInfHandle) {
         ListInfHandle = InfHandle;
     }
 
 
     // The section has to exist and there sas to be at least one line in it.
 
-    b = SetupFindFirstLine(ListInfHandle,Section,NULL,&LineContext);
-    if(!b) {
+    b = SetupFindFirstLine(ListInfHandle, Section, NULL, &LineContext);
+    if (!b) {
         try {
             if (QueueHandle != NULL
                 && QueueHandle != INVALID_HANDLE_VALUE
@@ -453,8 +453,8 @@ Return Value:
 
         // Get the target filename out of the line.
 
-        TargetFilename = pSetupFilenameFromLine(&LineContext,FALSE);
-        if(!TargetFilename) {
+        TargetFilename = pSetupFilenameFromLine(&LineContext, FALSE);
+        if (!TargetFilename) {
             SetLastError(ERROR_INVALID_DATA);
             return(FALSE);
         }
@@ -462,38 +462,38 @@ Return Value:
 
         // Determine the target path for the file.
 
-        b = SetupGetTargetPath(InfHandle,&LineContext,NULL,NULL,0,&SizeRequired);
-        if(!b) {
+        b = SetupGetTargetPath(InfHandle, &LineContext, NULL, NULL, 0, &SizeRequired);
+        if (!b) {
             return(FALSE);
         }
-        TargetDirectory = MyMalloc(SizeRequired*sizeof(TCHAR));
-        if(!TargetDirectory) {
+        TargetDirectory = MyMalloc(SizeRequired * sizeof(TCHAR));
+        if (!TargetDirectory) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             return(FALSE);
         }
-        SetupGetTargetPath(InfHandle,&LineContext,NULL,TargetDirectory,SizeRequired,NULL);
+        SetupGetTargetPath(InfHandle, &LineContext, NULL, TargetDirectory, SizeRequired, NULL);
 
 
         // If present flags are field 4
 
-        if(!SetupGetIntField(&LineContext,4,(PINT)&Flags)) {
+        if (!SetupGetIntField(&LineContext, 4, (PINT)&Flags)) {
             Flags = 0;
         }
 
 
         // Add to queue.
 
-        b = _SetupQueueDelete(QueueHandle,TargetDirectory,TargetFilename,Flags);
+        b = _SetupQueueDelete(QueueHandle, TargetDirectory, TargetFilename, Flags);
 
         rc = GetLastError();
         MyFree(TargetDirectory);
 
-        if(!b) {
+        if (!b) {
             SetLastError(rc);
             return(FALSE);
         }
 
-    } while(SetupFindNextLine(&LineContext,&LineContext));
+    } while (SetupFindNextLine(&LineContext, &LineContext));
 
     return(TRUE);
 }
@@ -508,9 +508,9 @@ SetupQueueRenameA(
     IN HSPFILEQ QueueHandle,
     IN PCSTR    SourcePath,
     IN PCSTR    SourceFilename, OPTIONAL
-    IN PCSTR    TargetPath,     OPTIONAL
+    IN PCSTR    TargetPath, OPTIONAL
     IN PCSTR    TargetFilename
-    )
+)
 {
     PWSTR sourcepath = NULL;
     PWSTR sourcefilename = NULL;
@@ -520,33 +520,33 @@ SetupQueueRenameA(
     BOOL b;
 
     b = FALSE;
-    d = CaptureAndConvertAnsiArg(SourcePath,&sourcepath);
-    if((d == NO_ERROR) && SourceFilename) {
-        d = CaptureAndConvertAnsiArg(SourceFilename,&sourcefilename);
+    d = CaptureAndConvertAnsiArg(SourcePath, &sourcepath);
+    if ((d == NO_ERROR) && SourceFilename) {
+        d = CaptureAndConvertAnsiArg(SourceFilename, &sourcefilename);
     }
-    if((d == NO_ERROR) && TargetPath) {
-        d = CaptureAndConvertAnsiArg(TargetPath,&targetpath);
+    if ((d == NO_ERROR) && TargetPath) {
+        d = CaptureAndConvertAnsiArg(TargetPath, &targetpath);
     }
-    if(d == NO_ERROR) {
-        d = CaptureAndConvertAnsiArg(TargetFilename,&targetfilename);
+    if (d == NO_ERROR) {
+        d = CaptureAndConvertAnsiArg(TargetFilename, &targetfilename);
     }
 
-    if(d == NO_ERROR) {
+    if (d == NO_ERROR) {
 
-        b = SetupQueueRenameW(QueueHandle,sourcepath,sourcefilename,targetpath,targetfilename);
+        b = SetupQueueRenameW(QueueHandle, sourcepath, sourcefilename, targetpath, targetfilename);
         d = GetLastError();
     }
 
-    if(sourcepath) {
+    if (sourcepath) {
         MyFree(sourcepath);
     }
-    if(sourcefilename) {
+    if (sourcefilename) {
         MyFree(sourcefilename);
     }
-    if(targetpath) {
+    if (targetpath) {
         MyFree(targetpath);
     }
-    if(targetfilename) {
+    if (targetfilename) {
         MyFree(targetfilename);
     }
 
@@ -562,9 +562,9 @@ SetupQueueRenameW(
     IN HSPFILEQ QueueHandle,
     IN PCWSTR   SourcePath,
     IN PCWSTR   SourceFilename, OPTIONAL
-    IN PCWSTR   TargetPath,     OPTIONAL
+    IN PCWSTR   TargetPath, OPTIONAL
     IN PCWSTR   TargetFilename
-    )
+)
 {
     UNREFERENCED_PARAMETER(QueueHandle);
     UNREFERENCED_PARAMETER(SourcePath);
@@ -581,9 +581,9 @@ SetupQueueRename(
     IN HSPFILEQ QueueHandle,
     IN PCTSTR   SourcePath,
     IN PCTSTR   SourceFilename, OPTIONAL
-    IN PCTSTR   TargetPath,     OPTIONAL
+    IN PCTSTR   TargetPath, OPTIONAL
     IN PCTSTR   TargetFilename
-    )
+)
 
 /*++
 
@@ -632,7 +632,7 @@ Return Value:
     // Allocate a queue structure.
 
     QueueNode = MyMalloc(sizeof(SP_FILE_QUEUE_NODE));
-    if(!QueueNode) {
+    if (!QueueNode) {
         goto clean0;
     }
 
@@ -658,22 +658,22 @@ Return Value:
     // Set up the source path.
 
     QueueNode->SourcePath = StringTableAddString(Queue->StringTable,
-                                                 (PTSTR)SourcePath,
+        (PTSTR)SourcePath,
                                                  STRTAB_CASE_SENSITIVE
-                                                );
-    if(QueueNode->SourcePath == -1) {
+    );
+    if (QueueNode->SourcePath == -1) {
         goto clean1;
     }
 
 
     // Set up the source filename.
 
-    if(SourceFilename) {
+    if (SourceFilename) {
         QueueNode->SourceFilename = StringTableAddString(Queue->StringTable,
-                                                         (PTSTR)SourceFilename,
+            (PTSTR)SourceFilename,
                                                          STRTAB_CASE_SENSITIVE
-                                                        );
-        if(QueueNode->SourceFilename == -1) {
+        );
+        if (QueueNode->SourceFilename == -1) {
             goto clean1;
         }
     } else {
@@ -683,12 +683,12 @@ Return Value:
 
     // Set up the target directory.
 
-    if(TargetPath) {
+    if (TargetPath) {
         QueueNode->TargetDirectory = StringTableAddString(Queue->StringTable,
-                                                          (PTSTR)TargetPath,
+            (PTSTR)TargetPath,
                                                           STRTAB_CASE_SENSITIVE
-                                                         );
-        if(QueueNode->TargetDirectory == -1) {
+        );
+        if (QueueNode->TargetDirectory == -1) {
             goto clean1;
         }
     } else {
@@ -699,10 +699,10 @@ Return Value:
     // Set up the target filename.
 
     QueueNode->TargetFilename = StringTableAddString(Queue->StringTable,
-                                                     (PTSTR)TargetFilename,
+        (PTSTR)TargetFilename,
                                                      STRTAB_CASE_SENSITIVE
-                                                    );
-    if(QueueNode->TargetFilename == -1) {
+    );
+    if (QueueNode->TargetFilename == -1) {
         goto clean1;
     }
 
@@ -711,7 +711,7 @@ Return Value:
     // Link the node onto the end of the rename queue.
 
     QueueNode->Next = NULL;
-    if(Queue->RenameQueue) {
+    if (Queue->RenameQueue) {
 
         // Check to see if this same rename operation has already been enqueued,
         // and if so, get rid of the new one, to avoid duplicates.  NOTE: We
@@ -721,14 +721,14 @@ Return Value:
         // previously-existing node should be preserved (i.e., our new node
         // always is created with InternalFlags set to zero).
 
-        for(TempNode=Queue->RenameQueue, PrevQueueNode = NULL;
-            TempNode;
-            PrevQueueNode = TempNode, TempNode=TempNode->Next) {
+        for (TempNode = Queue->RenameQueue, PrevQueueNode = NULL;
+             TempNode;
+             PrevQueueNode = TempNode, TempNode = TempNode->Next) {
 
-            if((TempNode->SourcePath == QueueNode->SourcePath) &&
-               (TempNode->SourceFilename == QueueNode->SourceFilename) &&
-               (TempNode->TargetDirectory == QueueNode->TargetDirectory) &&
-               (TempNode->TargetFilename == QueueNode->TargetFilename)) {
+            if ((TempNode->SourcePath == QueueNode->SourcePath) &&
+                (TempNode->SourceFilename == QueueNode->SourceFilename) &&
+                (TempNode->TargetDirectory == QueueNode->TargetDirectory) &&
+                (TempNode->TargetFilename == QueueNode->TargetFilename)) {
 
                 // We have a duplicate--kill the newly-created queue node and
                 // return success.
@@ -764,18 +764,18 @@ BOOL
 SetupQueueRenameSectionA(
     IN HSPFILEQ QueueHandle,
     IN HINF     InfHandle,
-    IN HINF     ListInfHandle,  OPTIONAL
+    IN HINF     ListInfHandle, OPTIONAL
     IN PCSTR    Section
-    )
+)
 {
     PWSTR section;
     DWORD d;
     BOOL b;
 
-    d = CaptureAndConvertAnsiArg(Section,&section);
-    if(d == NO_ERROR) {
+    d = CaptureAndConvertAnsiArg(Section, &section);
+    if (d == NO_ERROR) {
 
-        b = SetupQueueRenameSectionW(QueueHandle,InfHandle,ListInfHandle,section);
+        b = SetupQueueRenameSectionW(QueueHandle, InfHandle, ListInfHandle, section);
         d = GetLastError();
 
         MyFree(section);
@@ -794,9 +794,9 @@ BOOL
 SetupQueueRenameSectionW(
     IN HSPFILEQ QueueHandle,
     IN HINF     InfHandle,
-    IN HINF     ListInfHandle,  OPTIONAL
+    IN HINF     ListInfHandle, OPTIONAL
     IN PCWSTR   Section
-    )
+)
 {
     UNREFERENCED_PARAMETER(QueueHandle);
     UNREFERENCED_PARAMETER(InfHandle);
@@ -811,9 +811,9 @@ BOOL
 SetupQueueRenameSection(
     IN HSPFILEQ QueueHandle,
     IN HINF     InfHandle,
-    IN HINF     ListInfHandle,   OPTIONAL
+    IN HINF     ListInfHandle, OPTIONAL
     IN PCTSTR   Section
-    )
+)
 
 /*++
 
@@ -855,15 +855,15 @@ Return Value:
     DWORD SizeRequired;
     DWORD rc;
 
-    if(!ListInfHandle) {
+    if (!ListInfHandle) {
         ListInfHandle = InfHandle;
     }
 
 
     // The section has to exist and there has to be at least one line in it.
 
-    b = SetupFindFirstLine(ListInfHandle,Section,NULL,&LineContext);
-    if(!b) {
+    b = SetupFindFirstLine(ListInfHandle, Section, NULL, &LineContext);
+    if (!b) {
         try {
             if (QueueHandle != NULL
                 && QueueHandle != INVALID_HANDLE_VALUE
@@ -889,16 +889,16 @@ Return Value:
 
         // Get the target filename out of the line.
 
-        TargetFilename = pSetupFilenameFromLine(&LineContext,FALSE);
-        if(!TargetFilename) {
+        TargetFilename = pSetupFilenameFromLine(&LineContext, FALSE);
+        if (!TargetFilename) {
             SetLastError(ERROR_INVALID_DATA);
             return(FALSE);
         }
 
         // Get source filename out of the line.
 
-        SourceFilename = pSetupFilenameFromLine(&LineContext,TRUE);
-        if(!SourceFilename || (*SourceFilename == 0)) {
+        SourceFilename = pSetupFilenameFromLine(&LineContext, TRUE);
+        if (!SourceFilename || (*SourceFilename == 0)) {
             SetLastError(ERROR_INVALID_DATA);
             return(FALSE);
         }
@@ -906,37 +906,37 @@ Return Value:
 
         // Determine the path of the file.
 
-        b = SetupGetTargetPath(InfHandle,&LineContext,NULL,NULL,0,&SizeRequired);
-        if(!b) {
+        b = SetupGetTargetPath(InfHandle, &LineContext, NULL, NULL, 0, &SizeRequired);
+        if (!b) {
             return(FALSE);
         }
-        Directory = MyMalloc(SizeRequired*sizeof(TCHAR));
-        if(!Directory) {
+        Directory = MyMalloc(SizeRequired * sizeof(TCHAR));
+        if (!Directory) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             return(FALSE);
         }
-        SetupGetTargetPath(InfHandle,&LineContext,NULL,Directory,SizeRequired,NULL);
+        SetupGetTargetPath(InfHandle, &LineContext, NULL, Directory, SizeRequired, NULL);
 
 
         // Add to queue.
 
         b = SetupQueueRename(
-                QueueHandle,
-                Directory,
-                SourceFilename,
-                NULL,
-                TargetFilename
-                );
+            QueueHandle,
+            Directory,
+            SourceFilename,
+            NULL,
+            TargetFilename
+        );
 
         rc = GetLastError();
         MyFree(Directory);
 
-        if(!b) {
+        if (!b) {
             SetLastError(rc);
             return(FALSE);
         }
 
-    } while(SetupFindNextLine(&LineContext,&LineContext));
+    } while (SetupFindNextLine(&LineContext, &LineContext));
 
     return(TRUE);
 }

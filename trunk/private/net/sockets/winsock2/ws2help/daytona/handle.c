@@ -36,14 +36,14 @@ typedef struct _OVERLAPPED_CTX
         CHAR            Buffer[1];
         SOCKET          Handle;
     };
-} OVERLAPPED_CTX, *POVERLAPPED_CTX;
+} OVERLAPPED_CTX, * POVERLAPPED_CTX;
 
 typedef struct _HANDLE_HELPER_CTX
 {
     HANDLE              ProcessFile;
     HANDLE              ThreadHdl;
     HANDLE              LibraryHdl;
-} HANDLE_HELPER_CTX, *PHANDLE_HELPER_CTX;
+} HANDLE_HELPER_CTX, * PHANDLE_HELPER_CTX;
 
 
 /* Private Prototypes */
@@ -93,8 +93,7 @@ BOOL WINAPI DllMain(IN HINSTANCE hinstDll, IN DWORD fdwReason, LPVOID lpvReserve
         DisableThreadLibraryCalls(hinstDll);
         __try {
             InitializeCriticalSection(&StartupSyncronization);
-        } __except (EXCEPTION_EXECUTE_HANDLER)
-        {
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
             WshPrint(DBG_FAILURES, ("ws2help-DllMain: Failed to initialize"
                                     " startup critical section, excpt: %lx\n", GetExceptionCode()));
             LibraryHdl = NULL;
@@ -108,7 +107,8 @@ BOOL WINAPI DllMain(IN HINSTANCE hinstDll, IN DWORD fdwReason, LPVOID lpvReserve
         // The calling process is detaching
         // the DLL from its address space.
 
-        // Note that lpvReserved will be NULL if the detach is due to a FreeLibrary() call, and non-NULL if the detach is due to process cleanup.
+        // Note that lpvReserved will be NULL if the detach is due to a FreeLibrary() call, 
+        // and non-NULL if the detach is due to process cleanup.
         if (lpvReserved == NULL) {
             // Free security descriptor if it was allocated
             if (pSDPipe != NULL)
@@ -215,18 +215,26 @@ Return Value:
                 WshPrint(DBG_PROCESS, ("WS2HELP-%lx WahOpenHandleHelper: Opened handle %p\n", PID, hCtx));
                 return NO_ERROR;
             } else {
-                WshPrint(DBG_PROCESS | DBG_FAILURES, ("WS2HELP-%lx WahOpenHandleHelper: Could not create process file, status %lx\n", PID, status));
+                WshPrint(DBG_PROCESS | DBG_FAILURES,
+                    ("WS2HELP-%lx WahOpenHandleHelper: Could not create process file, status %lx\n", 
+                     PID, 
+                     status));
                 rc = RtlNtStatusToDosError(status);
             }
             hCtx->ProcessFile = NULL;
             ResumeThread(hCtx->ThreadHdl);
         } else {// if (ApcThreadHdl!=NULL)
             rc = GetLastError();
-            WshPrint(DBG_PROCESS | DBG_FAILURES, ("WS2HELP-%lx WahOpenHandleHelper: Could not create APC thread, rc=%ld\n", PID, rc));
+            WshPrint(DBG_PROCESS | DBG_FAILURES, 
+                ("WS2HELP-%lx WahOpenHandleHelper: Could not create APC thread, rc=%ld\n",
+                 PID, 
+                 rc));
         }
         FREE_MEM(hCtx);
     } else {
-        WshPrint(DBG_PROCESS | DBG_FAILURES, ("WS2HELP-%lx WahOpenHandleHelper: Could allocate helper context\n", PID));
+        WshPrint(DBG_PROCESS | DBG_FAILURES,
+            ("WS2HELP-%lx WahOpenHandleHelper: Could allocate helper context\n",
+             PID));
         rc = GetLastError();
     }
 
@@ -261,13 +269,15 @@ Return Value:
         WshPrint(DBG_PROCESS, ("WS2HELP-%lx WahCloseHandleHelper: Queued close APC.\n", PID));
         return NO_ERROR;
     } else {
-        WshPrint(DBG_PROCESS | DBG_FAILURES, ("WS2HELP-%lx WahCloseHandleHelper: Failed to queue close APC.\n", PID));
+        WshPrint(DBG_PROCESS | DBG_FAILURES,
+            ("WS2HELP-%lx WahCloseHandleHelper: Failed to queue close APC.\n",
+             PID));
         return ERROR_GEN_FAILURE;
     }
 }
 
 
-DWORD WINAPI WahCreateSocketHandle(IN HANDLE HelperHandle, OUT SOCKET *s)
+DWORD WINAPI WahCreateSocketHandle(IN HANDLE HelperHandle, OUT SOCKET* s)
 /*++
 Routine Description:
     This function creates IFS socket handle for service provider that cannot do it by itself.
@@ -320,7 +330,7 @@ Return Value:
     GET_WS2IFSL_SOCKET_EA_VALUE(fileEa)->ProcessFile = hCtx->ProcessFile;
     GET_WS2IFSL_SOCKET_EA_VALUE(fileEa)->DllContext = NULL;
 
-    status = NtCreateFile((HANDLE *)s,
+    status = NtCreateFile((HANDLE*)s,
                           FILE_ALL_ACCESS,
                           &fileAttr,
                           &ioStatus,
@@ -348,12 +358,18 @@ Return Value:
         } else {
             error = GetLastError();
             NtClose((HANDLE)*s);
-            WshPrint(DBG_SOCKET | DBG_FAILURES, ("WS2HELP-%lx WahCreateSocketHandle: Could not set context, rc=%ld\n", PID, error));
+            WshPrint(DBG_SOCKET | DBG_FAILURES,
+                ("WS2HELP-%lx WahCreateSocketHandle: Could not set context, rc=%ld\n",
+                 PID, 
+                 error));
             *s = 0;
         }
     } else { // if (NtCreateFile succeded)
         error = RtlNtStatusToDosError(status);
-        WshPrint(DBG_SOCKET | DBG_FAILURES, ("WS2HELP-%lx WahCreateSocketHandle: Could create file, rc=%ld\n", PID, error));
+        WshPrint(DBG_SOCKET | DBG_FAILURES,
+            ("WS2HELP-%lx WahCreateSocketHandle: Could create file, rc=%ld\n", 
+             PID,
+             error));
     }
 
     return error;
@@ -391,7 +407,12 @@ Return Value:
 }
 
 
-DWORD WINAPI WahCompleteRequest(IN HANDLE HelperHandle, IN SOCKET s, IN LPWSAOVERLAPPED lpOverlapped, IN DWORD dwError, IN DWORD cbTransferred)
+DWORD WINAPI WahCompleteRequest(IN HANDLE HelperHandle, 
+                                IN SOCKET s, 
+                                IN LPWSAOVERLAPPED lpOverlapped,
+                                IN DWORD dwError,
+                                IN DWORD cbTransferred
+)
 /*++
 Routine Description:
     This function simmulates completion of overlapped IO request on socket handle created by WasCreateSocketHandle
@@ -434,10 +455,14 @@ Return Value:
                                    0);
     // Be carefull not to touch overlapped after NtDeviceIoControlFile
     if (NT_SUCCESS(status) || (status == IoStatus.Status)) {
-        WshPrint(DBG_COMPLETE, ("WS2HELP-%lx WahCompleteRequest: Handle %p, status %lx, info %ld\n", PID, s, IoStatus.Status, IoStatus.Information));
+        WshPrint(DBG_COMPLETE, 
+            ("WS2HELP-%lx WahCompleteRequest: Handle %p, status %lx, info %ld\n",
+             PID, s, IoStatus.Status, IoStatus.Information));
         return NO_ERROR;
     } else {
-        WshPrint(DBG_COMPLETE | DBG_FAILURES, ("WS2HELP-%lx WahCompleteRequest: Failed on handle %p, status %lx\n", PID, s, status));
+        WshPrint(DBG_COMPLETE | DBG_FAILURES,
+            ("WS2HELP-%lx WahCompleteRequest: Failed on handle %p, status %lx\n", 
+             PID, s, status));
         return ERROR_INVALID_HANDLE;
     }
 }
@@ -465,8 +490,7 @@ Return Value:
     // Use exception handler because of delayload option we use for user32.dll (for hydra compat).
     __try {
         rc = LoadString(LibraryHdl, WS2IFSL_SERVICE_DISPLAY_NAME_STR, WS2IFSL_DISPLAY_NAME, sizeof(WS2IFSL_DISPLAY_NAME));
-    } __except (EXCEPTION_EXECUTE_HANDLER)
-    {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         rc = 0;
     }
 
@@ -556,7 +580,9 @@ Return Value:
             // Could not start it, bail out
             WshPrint(DBG_SERVICE | DBG_FAILURES, ("WS2HELP-%lx WahEnableNonIFSHandleSupport: Could start service, err: %ld\n", PID, rc));
             if (!DeleteService(hWS2IFSL)) {
-                WshPrint(DBG_SERVICE | DBG_FAILURES, ("WS2HELP-%lx WahEnableNonIFSHandleSupport: Could delete service, err: %ld\n", PID, GetLastError()));
+                WshPrint(DBG_SERVICE | DBG_FAILURES,
+                    ("WS2HELP-%lx WahEnableNonIFSHandleSupport: Could delete service, err: %ld\n",
+                     PID, GetLastError()));
             }
             CloseServiceHandle(hWS2IFSL);
             CloseServiceHandle(hSCManager);
@@ -743,7 +769,9 @@ Arguments:
         ctx->Buffer,        // OutputBuffer
         ctx->BufferLen      // OutputBufferLength,
     );
-    WshPrint(DBG_WINSOCK_APC, ("WS2HELP-%lx WinsockApc: Socket %p, id %ld, err %ld, cb %ld, addrlen %ld\n", PID, ctx->SocketFile, ctx->UniqueId, dwError, cbTransferred, ctx->FromLen));
+    WshPrint(DBG_WINSOCK_APC, 
+        ("WS2HELP-%lx WinsockApc: Socket %p, id %ld, err %ld, cb %ld, addrlen %ld\n",
+         PID, ctx->SocketFile, ctx->UniqueId, dwError, cbTransferred, ctx->FromLen));
     FREE_MEM(ctx);
 }
 
@@ -762,10 +790,11 @@ Return Value:
     POVERLAPPED_CTX     ctx;
     PHANDLE_HELPER_CTX  hCtx = PvCtx;
 
-    WshPrint(DBG_REQUEST, ("WS2HELP-%lx DoSocketRequest: id %ld, buflen %ld\n", PID, PtrToUlong(PvRequestId), PtrToUlong(PvBufferLength)));
+    WshPrint(DBG_REQUEST,
+        ("WS2HELP-%lx DoSocketRequest: id %ld, buflen %ld\n", 
+         PID, PtrToUlong(PvRequestId), PtrToUlong(PvBufferLength)));
     params.UniqueId = PtrToUlong(PvRequestId);
     ctx = (POVERLAPPED_CTX)ALLOC_MEM(FIELD_OFFSET(OVERLAPPED_CTX, Buffer[PtrToUlong(PvBufferLength)]));
-
     if (ctx != NULL) {
         ctx->ProcessFile = hCtx->ProcessFile;
         // Use extension field to save driver context
@@ -816,7 +845,8 @@ Return Value:
             flags = 0;
             buf.buf = ctx->Buffer;
             buf.len = params.DataLen;
-            if ((pWSARecv((SOCKET)ctx->SocketFile, &buf, 1, &count, &flags, &ctx->ovlp, WinsockApc) != SOCKET_ERROR) || ((error = pWSAGetLastError()) == WSA_IO_PENDING)) {
+            if ((pWSARecv((SOCKET)ctx->SocketFile, &buf, 1, &count, &flags, &ctx->ovlp, WinsockApc) != SOCKET_ERROR) || 
+                ((error = pWSAGetLastError()) == WSA_IO_PENDING)) {
                 WshPrint(DBG_DRIVER_READ, ("WS2HELP-%lx DoSocketRequest: Read - socket %p, ctx %p,"
                                            " id %ld, len %ld\n", PID, ctx->SocketFile, ctx, ctx->UniqueId, params.DataLen));
                 return;
@@ -825,7 +855,8 @@ Return Value:
         case WS2IFSL_REQUEST_WRITE:
             buf.buf = ctx->Buffer;
             buf.len = params.DataLen;
-            if ((pWSASend((SOCKET)ctx->SocketFile, &buf, 1, &count, 0, &ctx->ovlp, WinsockApc) != SOCKET_ERROR) || ((error = pWSAGetLastError()) == WSA_IO_PENDING)) {
+            if ((pWSASend((SOCKET)ctx->SocketFile, &buf, 1, &count, 0, &ctx->ovlp, WinsockApc) != SOCKET_ERROR) || 
+                ((error = pWSAGetLastError()) == WSA_IO_PENDING)) {
                 WshPrint(DBG_DRIVER_WRITE, ("WS2HELP-%lx DoSocketRequest: Write - socket %p, ctx %p,"
                                             " id %ld, len %ld\n", PID, ctx->SocketFile, ctx, ctx->UniqueId, params.DataLen));
                 return;
@@ -834,10 +865,18 @@ Return Value:
         case WS2IFSL_REQUEST_SENDTO:
             buf.buf = ctx->Buffer;
             buf.len = params.DataLen;
-            if ((pWSASendTo((SOCKET)ctx->SocketFile, &buf, 1, &count, 0, (const struct sockaddr FAR *)&ctx->Buffer[ADDR_ALIGN(params.DataLen)], params.AddrLen, &ctx->ovlp, WinsockApc) != SOCKET_ERROR)
+            if ((pWSASendTo((SOCKET)ctx->SocketFile,
+                            &buf,
+                            1, 
+                            &count,
+                            0, 
+                            (const struct sockaddr FAR*) & ctx->Buffer[ADDR_ALIGN(params.DataLen)],
+                            params.AddrLen,
+                            &ctx->ovlp, WinsockApc) != SOCKET_ERROR)
                 || ((error = pWSAGetLastError()) == WSA_IO_PENDING)) {
                 WshPrint(DBG_DRIVER_SEND, ("WS2HELP-%lx DoSocketRequest: SendTo - socket %p, ctx %p,"
-                                           " id %ld, len %ld, addrlen %ld\n", PID, ctx->SocketFile, ctx, ctx->UniqueId, params.DataLen, params.AddrLen));
+                                           " id %ld, len %ld, addrlen %ld\n", 
+                                           PID, ctx->SocketFile, ctx, ctx->UniqueId, params.DataLen, params.AddrLen));
                 return;
             }
             break;
@@ -846,10 +885,18 @@ Return Value:
             buf.len = params.DataLen;
             flags = params.Flags;
             ctx->FromLen = (INT)params.AddrLen;
-            if ((pWSARecvFrom((SOCKET)ctx->SocketFile, &buf, 1, &count, &flags, (struct sockaddr FAR *)&ctx->Buffer[ADDR_ALIGN(params.DataLen)], &ctx->FromLen, &ctx->ovlp, WinsockApc) != SOCKET_ERROR)
+            if ((pWSARecvFrom((SOCKET)ctx->SocketFile,
+                              &buf,
+                              1,
+                              &count,
+                              &flags,
+                              (struct sockaddr FAR*) & ctx->Buffer[ADDR_ALIGN(params.DataLen)],
+                              &ctx->FromLen,
+                              &ctx->ovlp, WinsockApc) != SOCKET_ERROR)
                 || ((error = pWSAGetLastError()) == WSA_IO_PENDING)) {
                 WshPrint(DBG_DRIVER_RECV, ("WS2HELP-%lx DoSocketRequest: RecvFrom - socket %p, ctx %p,"
-                                           " id %ld, len %ld, addrlen %ld, flags %lx\n", PID, ctx->SocketFile, ctx, ctx->UniqueId, params.DataLen, params.AddrLen, params.Flags));
+                                           " id %ld, len %ld, addrlen %ld, flags %lx\n",
+                                           PID, ctx->SocketFile, ctx, ctx->UniqueId, params.DataLen, params.AddrLen, params.Flags));
                 return;
             }
             break;
@@ -857,15 +904,25 @@ Return Value:
             buf.buf = ctx->Buffer;
             buf.len = params.DataLen;
             flags = params.Flags;
-            if ((pWSARecv((SOCKET)ctx->SocketFile, &buf, 1, &count, &flags, &ctx->ovlp, WinsockApc) != SOCKET_ERROR) || ((error = pWSAGetLastError()) == WSA_IO_PENDING)) {
+            if ((pWSARecv((SOCKET)ctx->SocketFile, &buf, 1, &count, &flags, &ctx->ovlp, WinsockApc) != SOCKET_ERROR) || 
+                ((error = pWSAGetLastError()) == WSA_IO_PENDING)) {
                 WshPrint(DBG_DRIVER_RECV, ("WS2HELP-%lx DoSocketRequest: Recv - socket %p, ctx %p,"
-                                           " id %ld, len %ld, flags %lx\n", PID, ctx->SocketFile, ctx, ctx->UniqueId, params.DataLen, params.Flags));
+                                           " id %ld, len %ld, flags %lx\n", 
+                                           PID, ctx->SocketFile, ctx, ctx->UniqueId, params.DataLen, params.Flags));
                 return;
             }
             break;
         case WS2IFSL_REQUEST_QUERYHANDLE:
             ASSERT(params.DataLen == sizeof(SOCKET));
-            if ((pWSAIoctl((SOCKET)ctx->SocketFile, SIO_QUERY_TARGET_PNP_HANDLE, NULL, 0, &ctx->Handle, sizeof(ctx->Handle), &count, &ctx->ovlp, WinsockApc) != SOCKET_ERROR) || ((error = pWSAGetLastError()) == WSA_IO_PENDING)) {
+            if ((pWSAIoctl((SOCKET)ctx->SocketFile,
+                           SIO_QUERY_TARGET_PNP_HANDLE,
+                           NULL, 
+                           0,
+                           &ctx->Handle, 
+                           sizeof(ctx->Handle),
+                           &count,
+                           &ctx->ovlp, WinsockApc) != SOCKET_ERROR) || 
+                           ((error = pWSAGetLastError()) == WSA_IO_PENDING)) {
                 WshPrint(DBG_CANCEL, ("WS2HELP-%lx DoSocketRequest: PnP - socket %p, ctx %p,"
                                       " id %ld\n", PID, ctx->SocketFile, ctx, ctx->UniqueId));
                 return;
@@ -956,7 +1013,9 @@ Return Value:
     );
     ASSERT(NT_SUCCESS(status));
 
-    WshPrint(DBG_CANCEL, ("WS2HELP-%lx CancelApc: Completed on socket %p, id %ld (status %lx)\n", PID, s, params.UniqueId, status));
+    WshPrint(DBG_CANCEL,
+        ("WS2HELP-%lx CancelApc: Completed on socket %p, id %ld (status %lx)\n",
+                          PID, s, params.UniqueId, status));
     return status;
 }
 

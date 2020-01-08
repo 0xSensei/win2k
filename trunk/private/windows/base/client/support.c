@@ -18,7 +18,8 @@ PLDR_DATA_TABLE_ENTRY BasepExeLdrEntry;
 
 POBJECT_ATTRIBUTES BaseFormatObjectAttributes(OUT POBJECT_ATTRIBUTES ObjectAttributes,
                                               IN PSECURITY_ATTRIBUTES SecurityAttributes,
-                                              IN PUNICODE_STRING ObjectName)
+                                              IN PUNICODE_STRING ObjectName
+)
 /*++
 Routine Description:
     This function transforms a Win32 security attributes structure into an NT object attributes structure.
@@ -84,7 +85,11 @@ Return Value:
 }
 
 
-NTSTATUS BaseCreateStack(IN HANDLE Process, IN SIZE_T StackSize, IN SIZE_T MaximumStackSize, OUT PINITIAL_TEB InitialTeb)
+NTSTATUS BaseCreateStack(IN HANDLE Process, 
+                         IN SIZE_T StackSize,
+                         IN SIZE_T MaximumStackSize, 
+                         OUT PINITIAL_TEB InitialTeb
+)
 /*++
 Routine Description:
     This function creates a stack for the specified process.
@@ -141,17 +146,18 @@ Return Value:
 #if !defined (_IA64_)
     // Reserve address space for the stack
     Stack = NULL,
-        Status = NtAllocateVirtualMemory(Process, (PVOID *)&Stack, 0, &MaximumStackSize, MEM_RESERVE, PAGE_READWRITE);
+        Status = NtAllocateVirtualMemory(Process, (PVOID*)&Stack, 0, &MaximumStackSize, MEM_RESERVE, PAGE_READWRITE);
 #else
     // Take RseStack into consideration.
-    // RSE stack has same size as memory stack, has same StackBase, has a guard page at the end, and grows upwards towards higher memory addresses
+    // RSE stack has same size as memory stack, has same StackBase, 
+    // has a guard page at the end, and grows upwards towards higher memory addresses
 
     // Reserve address space for the two stacks
     {
         SIZE_T TotalStackSize = MaximumStackSize * 2;
 
         Stack = NULL,
-            Status = NtAllocateVirtualMemory(Process, (PVOID *)&Stack, 0, &TotalStackSize, MEM_RESERVE, PAGE_READWRITE);
+            Status = NtAllocateVirtualMemory(Process, (PVOID*)&Stack, 0, &TotalStackSize, MEM_RESERVE, PAGE_READWRITE);
     }
 #endif // IA64
     if (!NT_SUCCESS(Status)) {
@@ -177,19 +183,19 @@ Return Value:
 
     // Commit the initially valid portion of the stack
 #if !defined(_IA64_)
-    Status = NtAllocateVirtualMemory(Process, (PVOID *)&Stack, 0, &StackSize, MEM_COMMIT, PAGE_READWRITE);
+    Status = NtAllocateVirtualMemory(Process, (PVOID*)&Stack, 0, &StackSize, MEM_COMMIT, PAGE_READWRITE);
 #else
     {
         // memory and rse stacks are expected to be contiguous reserver virtual memory for both stack at once
         SIZE_T NewCommittedStackSize = StackSize * 2;
 
-        Status = NtAllocateVirtualMemory(Process, (PVOID *)&Stack, 0, &NewCommittedStackSize, MEM_COMMIT, PAGE_READWRITE);
+        Status = NtAllocateVirtualMemory(Process, (PVOID*)&Stack, 0, &NewCommittedStackSize, MEM_COMMIT, PAGE_READWRITE);
     }
 #endif //IA64
 
     if (!NT_SUCCESS(Status)) {// If the commit fails, then delete the address space for the stack
         RegionSize = 0;
-        NtFreeVirtualMemory(Process, (PVOID *)&Stack, &RegionSize, MEM_RELEASE);
+        NtFreeVirtualMemory(Process, (PVOID*)&Stack, &RegionSize, MEM_RELEASE);
         return Status;
     }
 
@@ -202,7 +208,7 @@ Return Value:
     // if we have space, create a guard page.
     if (GuardPage) {
         RegionSize = PageSize;
-        Status = NtProtectVirtualMemory(Process, (PVOID *)&Stack, &RegionSize, PAGE_GUARD | PAGE_READWRITE, &OldProtect);
+        Status = NtProtectVirtualMemory(Process, (PVOID*)&Stack, &RegionSize, PAGE_GUARD | PAGE_READWRITE, &OldProtect);
         if (!NT_SUCCESS(Status)) {
             return Status;
         }
@@ -212,7 +218,7 @@ Return Value:
         // additional code to Create RSE stack guard page
         Stack = ((PCH)InitialTeb->StackBase) + StackSize - PageSize;
         RegionSize = PageSize;
-        Status = NtProtectVirtualMemory(Process, (PVOID *)&Stack, &RegionSize, PAGE_GUARD | PAGE_READWRITE, &OldProtect);
+        Status = NtProtectVirtualMemory(Process, (PVOID*)&Stack, &RegionSize, PAGE_GUARD | PAGE_READWRITE, &OldProtect);
         if (!NT_SUCCESS(Status)) {
             return Status;
         }
@@ -258,9 +264,11 @@ VOID BaseProcessStart(PPROCESS_START_ROUTINE lpStartAddress)
 /*++
 Routine Description:
     This function is called to start a Win32 process.
-    Its purpose is to call the initial thread of the process, and if the thread returns, to terminate the thread and delete it's stack.
+    Its purpose is to call the initial thread of the process, 
+    and if the thread returns, to terminate the thread and delete it's stack.
 Arguments:
-    lpStartAddress - Supplies the starting address of the new thread.  The address is logically a procedure that never returns.
+    lpStartAddress - Supplies the starting address of the new thread.  
+                     The address is logically a procedure that never returns.
 --*/
 {
     try {
@@ -316,16 +324,24 @@ Arguments:
     }
 #endif
 
-    // Don't worry, no commenting precedent has been set by SteveWo.  this comment was added by an innocent bystander.
+    // Don't worry, no commenting precedent has been set by SteveWo.  
+    // this comment was added by an innocent bystander.
 
-    // NtTerminateThread will return if this thread is the last one in the process.  So ExitProcess will only be called if that is the case.
+    // NtTerminateThread will return if this thread is the last one in the process.
+    // So ExitProcess will only be called if that is the case.
     NtTerminateThread(NULL, (NTSTATUS)ExitCode);
     ExitProcess(ExitCode);
 }
 
 
 #if defined(WX86) || defined(_AXP64_)
-NTSTATUS BaseCreateWx86Tib(HANDLE Process, HANDLE Thread, ULONG InitialPc, ULONG CommittedStackSize, ULONG MaximumStackSize, BOOLEAN EmulateInitialPc)
+NTSTATUS BaseCreateWx86Tib(HANDLE Process, 
+                           HANDLE Thread, 
+                           ULONG InitialPc, 
+                           ULONG CommittedStackSize,
+                           ULONG MaximumStackSize,
+                           BOOLEAN EmulateInitialPc
+)
 /*++
 Routine Description:
     This API is called to create a Wx86Tib for Wx86 emulated threads
@@ -479,7 +495,8 @@ BOOL BasePushProcessParameters(HANDLE Process,
                                LPSTARTUPINFOW lpStartupInfo,
                                DWORD dwCreationFlags,
                                BOOL bInheritHandles,
-                               DWORD dwSubsystem)
+                               DWORD dwSubsystem
+)
 /*++
 Routine Description:
     This function allocates a process parameters record and formats it.
@@ -517,7 +534,7 @@ Return Value:
     PWCHAR s;
     NTSTATUS Status;
     WCHAR FullPathBuffer[MAX_PATH + 5];
-    WCHAR *fp;
+    WCHAR* fp;
     DWORD Rvalue;
     LPWSTR DllPathData;
 
@@ -595,13 +612,22 @@ Return Value:
 
             ProcessParameters->Environment = NULL;
             RegionSize = EnvironmentLength;
-            Status = NtAllocateVirtualMemory(Process, (PVOID *)&ProcessParameters->Environment, 0, &RegionSize, MEM_COMMIT, PAGE_READWRITE);
+            Status = NtAllocateVirtualMemory(Process, 
+                (PVOID*)&ProcessParameters->Environment,
+                                             0, 
+                                             &RegionSize, 
+                                             MEM_COMMIT, 
+                                             PAGE_READWRITE);
             if (!NT_SUCCESS(Status)) {
                 BaseSetLastNTError(Status);
                 return(FALSE);
             }
 
-            Status = NtWriteVirtualMemory(Process, ProcessParameters->Environment, Environment, EnvironmentLength, NULL);
+            Status = NtWriteVirtualMemory(Process,
+                                          ProcessParameters->Environment, 
+                                          Environment, 
+                                          EnvironmentLength,
+                                          NULL);
             if (!NT_SUCCESS(Status)) {
                 BaseSetLastNTError(Status);
                 return(FALSE);
@@ -655,7 +681,12 @@ Return Value:
         // Allocate memory in the new process to push the parameters
         ParametersInNewProcess = NULL;
         RegionSize = ParameterLength;
-        Status = NtAllocateVirtualMemory(Process, (PVOID *)&ParametersInNewProcess, 0, &RegionSize, MEM_COMMIT, PAGE_READWRITE);
+        Status = NtAllocateVirtualMemory(Process,
+            (PVOID*)&ParametersInNewProcess, 
+                                         0, 
+                                         &RegionSize,
+                                         MEM_COMMIT, 
+                                         PAGE_READWRITE);
         ParameterLength = (ULONG)RegionSize;
         if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
@@ -676,14 +707,22 @@ Return Value:
         }
 
         // Push the parameters
-        Status = NtWriteVirtualMemory(Process, ParametersInNewProcess, ProcessParameters, ProcessParameters->Length, NULL);
+        Status = NtWriteVirtualMemory(Process, 
+                                      ParametersInNewProcess, 
+                                      ProcessParameters,
+                                      ProcessParameters->Length,
+                                      NULL);
         if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
             return FALSE;
         }
 
         // Make the processes PEB point to the parameters.
-        Status = NtWriteVirtualMemory(Process, &Peb->ProcessParameters, &ParametersInNewProcess, sizeof(ParametersInNewProcess), NULL);
+        Status = NtWriteVirtualMemory(Process, 
+                                      &Peb->ProcessParameters, 
+                                      &ParametersInNewProcess,
+                                      sizeof(ParametersInNewProcess),
+                                      NULL);
         if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
             return FALSE;
@@ -691,9 +730,13 @@ Return Value:
 
         // Set subsystem type in PEB if requested by caller.  Ignore error
         if (dwSubsystem != 0) {
-            NtWriteVirtualMemory(Process, &Peb->ImageSubsystem, &dwSubsystem, sizeof(Peb->ImageSubsystem), NULL);
+            NtWriteVirtualMemory(Process, 
+                                 &Peb->ImageSubsystem,
+                                 &dwSubsystem,
+                                 sizeof(Peb->ImageSubsystem),
+                                 NULL);
         }
-    } finally{
+    } finally {
         RtlFreeHeap(RtlProcessHeap(), 0, DllPath.Buffer);
         if (ProcessParameters) {
             RtlDestroyProcessParameters(ProcessParameters);
@@ -743,7 +786,9 @@ Return Value:
         DefaultPathLength += BaseDefaultPathAppend.Length;
     } else if (Status == STATUS_BUFFER_TOO_SMALL) {
         // for large paths (~2k), the default path append buffer is too small so dynamically allocate a new path buffer
-        DynamicAppendBuffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(TMP_TAG), BaseDefaultPathAppend.Length + sizeof(UNICODE_NULL));
+        DynamicAppendBuffer = RtlAllocateHeap(RtlProcessHeap(),
+                                              MAKE_TAG(TMP_TAG), 
+                                              BaseDefaultPathAppend.Length + sizeof(UNICODE_NULL));
         if (DynamicAppendBuffer) {
             PathEnv.Buffer = DynamicAppendBuffer;
             PathEnv.Length = BaseDefaultPathAppend.Length + sizeof(UNICODE_NULL);
@@ -762,7 +807,9 @@ Return Value:
     // Determine the path that the program was created from
     RetryOccured = FALSE;
 retry:
-    if (ARGUMENT_PRESENT(ApplicationName) || BasepExeLdrEntry || (RtlGetPerThreadCurdir() && RtlGetPerThreadCurdir()->ImageName)) {
+    if (ARGUMENT_PRESENT(ApplicationName) ||
+        BasepExeLdrEntry || 
+        (RtlGetPerThreadCurdir() && RtlGetPerThreadCurdir()->ImageName)) {
         GetLoaderLock = FALSE;
     } else {
         GetLoaderLock = TRUE;
@@ -834,7 +881,7 @@ retry:
 
             RtlMoveMemory(AllocatedPath, pbase, ApplicationPathLength);
         }
-    } finally{
+    } finally {
         if (GetLoaderLock) {
             RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)NtCurrentPeb()->LoaderLock);
         }
@@ -985,11 +1032,11 @@ typedef struct _BASEP_ACQUIRE_STATE
     PTOKEN_PRIVILEGES OldPrivileges;
     PTOKEN_PRIVILEGES NewPrivileges;
     BYTE OldPrivBuffer[1024];
-} BASEP_ACQUIRE_STATE, *PBASEP_ACQUIRE_STATE;
+} BASEP_ACQUIRE_STATE, * PBASEP_ACQUIRE_STATE;
 
 
 
-NTSTATUS BasepAcquirePrivilege(ULONG Privilege, PVOID *ReturnedState)
+NTSTATUS BasepAcquirePrivilege(ULONG Privilege, PVOID* ReturnedState)
 // BUGBUG: this function is broken because it opens the process token instead of checking for a thread token.
 // It is being left unfixed for the 3.51 release to avoid introducing instabilities in the CreateProcess and other APIs dealing with realtime priority.
 // This routine should be removed and BasepAcquirePrivilegeEx should be renamed BasepAcquirePrivilege as soon as NT 3.51 ships.
@@ -1003,7 +1050,7 @@ NTSTATUS BasepAcquirePrivilege(ULONG Privilege, PVOID *ReturnedState)
     // Make sure we have access to adjust and to get the old token privileges
     *ReturnedState = NULL;
     State = RtlAllocateHeap(RtlProcessHeap(),
-                            MAKE_TAG(TMP_TAG), 
+                            MAKE_TAG(TMP_TAG),
                             sizeof(BASEP_ACQUIRE_STATE) + sizeof(TOKEN_PRIVILEGES) + (1 - ANYSIZE_ARRAY) * sizeof(LUID_AND_ATTRIBUTES));
     if (State == NULL) {
         return STATUS_NO_MEMORY;
@@ -1024,13 +1071,23 @@ NTSTATUS BasepAcquirePrivilege(ULONG Privilege, PVOID *ReturnedState)
 
     // Enable the privilege
     cbNeeded = sizeof(State->OldPrivBuffer);
-    Status = NtAdjustPrivilegesToken(State->Token, FALSE, State->NewPrivileges, cbNeeded, State->OldPrivileges, &cbNeeded);
+    Status = NtAdjustPrivilegesToken(State->Token, 
+                                     FALSE,
+                                     State->NewPrivileges,
+                                     cbNeeded, 
+                                     State->OldPrivileges, 
+                                     &cbNeeded);
     if (Status == STATUS_BUFFER_TOO_SMALL) {
         State->OldPrivileges = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(TMP_TAG), cbNeeded);
         if (State->OldPrivileges == NULL) {
             Status = STATUS_NO_MEMORY;
         } else {
-            Status = NtAdjustPrivilegesToken(State->Token, FALSE, State->NewPrivileges, cbNeeded, State->OldPrivileges, &cbNeeded);
+            Status = NtAdjustPrivilegesToken(State->Token,
+                                             FALSE,
+                                             State->NewPrivileges,
+                                             cbNeeded, 
+                                             State->OldPrivileges, 
+                                             &cbNeeded);
         }
     }
 
@@ -1056,7 +1113,7 @@ NTSTATUS BasepAcquirePrivilege(ULONG Privilege, PVOID *ReturnedState)
 
 
 // This function does the correct thing - it checks for the thread token before opening the process token.
-NTSTATUS BasepAcquirePrivilegeEx(ULONG Privilege, PVOID *ReturnedState)
+NTSTATUS BasepAcquirePrivilegeEx(ULONG Privilege, PVOID* ReturnedState)
 {
     PBASEP_ACQUIRE_STATE State;
     ULONG cbNeeded;
@@ -1093,13 +1150,23 @@ NTSTATUS BasepAcquirePrivilegeEx(ULONG Privilege, PVOID *ReturnedState)
 
     // Enable the privilege
     cbNeeded = sizeof(State->OldPrivBuffer);
-    Status = NtAdjustPrivilegesToken(State->Token, FALSE, State->NewPrivileges, cbNeeded, State->OldPrivileges, &cbNeeded);
+    Status = NtAdjustPrivilegesToken(State->Token, 
+                                     FALSE, 
+                                     State->NewPrivileges,
+                                     cbNeeded,
+                                     State->OldPrivileges,
+                                     &cbNeeded);
     if (Status == STATUS_BUFFER_TOO_SMALL) {
         State->OldPrivileges = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(TMP_TAG), cbNeeded);
         if (State->OldPrivileges == NULL) {
             Status = STATUS_NO_MEMORY;
         } else {
-            Status = NtAdjustPrivilegesToken(State->Token, FALSE, State->NewPrivileges, cbNeeded, State->OldPrivileges, &cbNeeded);
+            Status = NtAdjustPrivilegesToken(State->Token,
+                                             FALSE,
+                                             State->NewPrivileges,
+                                             cbNeeded,
+                                             State->OldPrivileges,
+                                             &cbNeeded);
         }
     }
 

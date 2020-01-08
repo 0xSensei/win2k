@@ -46,12 +46,12 @@ Revision History:
 
     // JDB - Fix to get around C compiler bug - it tries to translate
     //       from Unicode to Ansi
-    #define  CT1_NUMBER          L"\x0084\x0084"
+#define  CT1_NUMBER          L"\x0084\x0084"
 
 #else
 
     // JDB - Fix to get around C compiler bug.
-    WCHAR CT1_NUMBER[] = {0x0084, 0x0084, 0x0000};
+WCHAR CT1_NUMBER[] = {0x0084, 0x0084, 0x0000};
 
 #endif
 
@@ -111,7 +111,7 @@ CheckReturnGetStringType(
     LPWSTR pExpectedString,
     int ExpectedSize,
     LPSTR pErrString,
-    int *pNumErrors);
+    int* pNumErrors);
 
 
 
@@ -139,8 +139,7 @@ int TestGetStringType()
 
     //  Initialize global variables.
 
-    if (!InitGetStringType())
-    {
+    if (!InitGetStringType()) {
         printf("\nABORTED TestGetStringType: Could not Initialize.\n");
         return (1);
     }
@@ -213,26 +212,26 @@ int GST_BadParamCheck()
 
 
     //  Variation 1  -  lpSrcStr = NULL
-    rc = GetStringTypeW( CT_CTYPE1,
-                         NULL,
-                         -1,
-                         pCharType );
-    CheckReturnBadParam( rc,
-                         FALSE,
-                         ERROR_INVALID_PARAMETER,
-                         "lpSrcStr NULL",
-                         &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1,
+                        NULL,
+                        -1,
+                        pCharType);
+    CheckReturnBadParam(rc,
+                        FALSE,
+                        ERROR_INVALID_PARAMETER,
+                        "lpSrcStr NULL",
+                        &NumErrors);
 
     //  Variation 2  -  lpCharType = NULL
-    rc = GetStringTypeW( CT_CTYPE1,
-                         pGSTSrcUpper,
-                         -1,
-                         NULL );
-    CheckReturnBadParam( rc,
-                         FALSE,
-                         ERROR_INVALID_PARAMETER,
-                         "lpCharType NULL",
-                         &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1,
+                        pGSTSrcUpper,
+                        -1,
+                        NULL);
+    CheckReturnBadParam(rc,
+                        FALSE,
+                        ERROR_INVALID_PARAMETER,
+                        "lpCharType NULL",
+                        &NumErrors);
 
 
 
@@ -240,15 +239,15 @@ int GST_BadParamCheck()
 
 
     //  Variation 1  -  cbSrc = 0
-    rc = GetStringTypeW( CT_CTYPE1,
-                         pGSTSrcUpper,
-                         0,
-                         pCharType );
-    CheckReturnBadParam( rc,
-                         FALSE,
-                         ERROR_INVALID_PARAMETER,
-                         "cbSrc = 0",
-                         &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1,
+                        pGSTSrcUpper,
+                        0,
+                        pCharType);
+    CheckReturnBadParam(rc,
+                        FALSE,
+                        ERROR_INVALID_PARAMETER,
+                        "cbSrc = 0",
+                        &NumErrors);
 
 
 
@@ -256,59 +255,59 @@ int GST_BadParamCheck()
 
 
     //  Variation 1  -  dwInfoType = invalid
-    rc = GetStringTypeW( GST_INVALID_FLAGS,
-                         pGSTSrcUpper,
-                         -1,
-                         pCharType );
-    CheckReturnBadParam( rc,
-                         FALSE,
-                         ERROR_INVALID_FLAGS,
-                         "dwInfoType invalid",
-                         &NumErrors );
+    rc = GetStringTypeW(GST_INVALID_FLAGS,
+                        pGSTSrcUpper,
+                        -1,
+                        pCharType);
+    CheckReturnBadParam(rc,
+                        FALSE,
+                        ERROR_INVALID_FLAGS,
+                        "dwInfoType invalid",
+                        &NumErrors);
 
     //  Variation 2  -  dwInfoType = 0
-    rc = GetStringTypeW( 0,
-                         pGSTSrcUpper,
-                         -1,
-                         pCharType );
-    CheckReturnBadParam( rc,
-                         FALSE,
-                         ERROR_INVALID_FLAGS,
-                         "dwInfoType zero",
-                         &NumErrors );
+    rc = GetStringTypeW(0,
+                        pGSTSrcUpper,
+                        -1,
+                        pCharType);
+    CheckReturnBadParam(rc,
+                        FALSE,
+                        ERROR_INVALID_FLAGS,
+                        "dwInfoType zero",
+                        &NumErrors);
 
     //  Variation 3  -  illegal combo case 1,2
-    rc = GetStringTypeW( CT_CTYPE1 | CT_CTYPE2,
-                         pGSTSrcUpper,
-                         -1,
-                         pCharType );
-    CheckReturnBadParam( rc,
-                         FALSE,
-                         ERROR_INVALID_FLAGS,
-                         "illegal combo case 1,2",
-                         &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1 | CT_CTYPE2,
+                        pGSTSrcUpper,
+                        -1,
+                        pCharType);
+    CheckReturnBadParam(rc,
+                        FALSE,
+                        ERROR_INVALID_FLAGS,
+                        "illegal combo case 1,2",
+                        &NumErrors);
 
     //  Variation 4  -  illegal combo case 1,3
-    rc = GetStringTypeW( CT_CTYPE1 | CT_CTYPE3,
-                         pGSTSrcUpper,
-                         -1,
-                         pCharType );
-    CheckReturnBadParam( rc,
-                         FALSE,
-                         ERROR_INVALID_FLAGS,
-                         "illegal combo case 1,3",
-                         &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1 | CT_CTYPE3,
+                        pGSTSrcUpper,
+                        -1,
+                        pCharType);
+    CheckReturnBadParam(rc,
+                        FALSE,
+                        ERROR_INVALID_FLAGS,
+                        "illegal combo case 1,3",
+                        &NumErrors);
 
     //  Variation 5  -  illegal combo case 2,3
-    rc = GetStringTypeW( CT_CTYPE2 | CT_CTYPE3,
-                         pGSTSrcUpper,
-                         -1,
-                         pCharType );
-    CheckReturnBadParam( rc,
-                         FALSE,
-                         ERROR_INVALID_FLAGS,
-                         "illegal combo case 2,3",
-                         &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE2 | CT_CTYPE3,
+                        pGSTSrcUpper,
+                        -1,
+                        pCharType);
+    CheckReturnBadParam(rc,
+                        FALSE,
+                        ERROR_INVALID_FLAGS,
+                        "illegal combo case 2,3",
+                        &NumErrors);
 
 
 
@@ -335,7 +334,7 @@ int GST_NormalCase()
 
 #ifdef PERF
 
-  DbgBreakPoint();
+    DbgBreakPoint();
 
 #endif
 
@@ -349,24 +348,24 @@ int GST_NormalCase()
 
 
     //  Variation 1  -  cbSrc = -1
-    rc = GetStringTypeW( CT_CTYPE1,
-                         pGSTSrcUpper,
-                         -1,
-                         pCharType );
-    CheckReturnEqual( rc,
-                      FALSE,
-                      "cbSrc (-1)",
-                      &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1,
+                        pGSTSrcUpper,
+                        -1,
+                        pCharType);
+    CheckReturnEqual(rc,
+                     FALSE,
+                     "cbSrc (-1)",
+                     &NumErrors);
 
     //  Variation 2  -  cbSrc = value
-    rc = GetStringTypeW( CT_CTYPE1,
-                         pGSTSrcUpper,
-                         WC_STRING_LEN(pGSTSrcUpper),
-                         pCharType );
-    CheckReturnEqual( rc,
-                      FALSE,
-                      "cbSrc (value)",
-                      &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1,
+                        pGSTSrcUpper,
+                        WC_STRING_LEN(pGSTSrcUpper),
+                        pCharType);
+    CheckReturnEqual(rc,
+                     FALSE,
+                     "cbSrc (value)",
+                     &NumErrors);
 
 
 
@@ -374,69 +373,69 @@ int GST_NormalCase()
 
 
     //  Variation 1  -  ctype1, lower
-    rc = GetStringTypeW( CT_CTYPE1,
-                         pGSTSrcLower,
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT1_LOCASE_LETTER,
-                              2,
-                              "ctype1, lower",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1,
+                        pGSTSrcLower,
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT1_LOCASE_LETTER,
+                             2,
+                             "ctype1, lower",
+                             &NumErrors);
 
     //  Variation 2  -  ctype1, upper case letter
-    rc = GetStringTypeW( CT_CTYPE1,
-                         pGSTSrcUpper,
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT1_UPCASE_LETTER,
-                              2,
-                              "ctype1, upper",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1,
+                        pGSTSrcUpper,
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT1_UPCASE_LETTER,
+                             2,
+                             "ctype1, upper",
+                             &NumErrors);
 
     //  Variation 3  -  ctype1, number
-    rc = GetStringTypeW( CT_CTYPE1,
-                         pGSTSrcNumber,
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT1_NUMBER,
-                              2,
-                              "ctype1, number",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1,
+                        pGSTSrcNumber,
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT1_NUMBER,
+                             2,
+                             "ctype1, number",
+                             &NumErrors);
 
     //  Variation 4  -  ctype1, punctuation
-    rc = GetStringTypeW( CT_CTYPE1,
-                         pGSTSrcPunct,
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT1_PUNCTUATION,
-                              2,
-                              "ctype1, punctuation",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1,
+                        pGSTSrcPunct,
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT1_PUNCTUATION,
+                             2,
+                             "ctype1, punctuation",
+                             &NumErrors);
 
     //  Variation 5  -  ctype 1
-    rc = GetStringTypeW( CT_CTYPE1,
-                         L"\xff53",
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x0102\x0020",
-                              2,
-                              "ctype1 (0xff53)",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE1,
+                        L"\xff53",
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x0102\x0020",
+                             2,
+                             "ctype1 (0xff53)",
+                             &NumErrors);
 
 
 
@@ -445,69 +444,69 @@ int GST_NormalCase()
 
 
     //  Variation 1  -  ctype2, lower
-    rc = GetStringTypeW( CT_CTYPE2,
-                         pGSTSrcLower,
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT2_LOCASE_LETTER,
-                              2,
-                              "ctype2, lower",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE2,
+                        pGSTSrcLower,
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT2_LOCASE_LETTER,
+                             2,
+                             "ctype2, lower",
+                             &NumErrors);
 
     //  Variation 2  -  ctype2, upper case letter
-    rc = GetStringTypeW( CT_CTYPE2,
-                         pGSTSrcUpper,
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT2_UPCASE_LETTER,
-                              2,
-                              "ctype2, upper",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE2,
+                        pGSTSrcUpper,
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT2_UPCASE_LETTER,
+                             2,
+                             "ctype2, upper",
+                             &NumErrors);
 
     //  Variation 3  -  ctype2, number
-    rc = GetStringTypeW( CT_CTYPE2,
-                         pGSTSrcNumber,
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT2_NUMBER,
-                              2,
-                              "ctype2, number",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE2,
+                        pGSTSrcNumber,
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT2_NUMBER,
+                             2,
+                             "ctype2, number",
+                             &NumErrors);
 
     //  Variation 4  -  ctype2, punctuation
-    rc = GetStringTypeW( CT_CTYPE2,
-                         pGSTSrcPunct,
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT2_PUNCTUATION,
-                              2,
-                              "ctype2, punctuation",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE2,
+                        pGSTSrcPunct,
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT2_PUNCTUATION,
+                             2,
+                             "ctype2, punctuation",
+                             &NumErrors);
 
     //  Variation 5  -  ctype 2
-    rc = GetStringTypeW( CT_CTYPE2,
-                         L"\xff53",
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x0001\x0000",
-                              2,
-                              "ctype2 (0xff53)",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE2,
+                        L"\xff53",
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x0001\x0000",
+                             2,
+                             "ctype2 (0xff53)",
+                             &NumErrors);
 
 
 
@@ -516,43 +515,43 @@ int GST_NormalCase()
 
 
     //  Variation 1  -  ctype 3 should return zeros
-    rc = GetStringTypeW( CT_CTYPE3,
-                         pGSTSrcLower,
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT3_VALUE,
-                              2,
-                              "ctype3 zero",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE3,
+                        pGSTSrcLower,
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT3_VALUE,
+                             2,
+                             "ctype3 zero",
+                             &NumErrors);
 
     //  Variation 2  -  ctype 3 symbol
-    rc = GetStringTypeW( CT_CTYPE3,
-                         pGSTSrcPunct,
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT3_SYMBOL,
-                              2,
-                              "ctype3 symbol",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE3,
+                        pGSTSrcPunct,
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT3_SYMBOL,
+                             2,
+                             "ctype3 symbol",
+                             &NumErrors);
 
     //  Variation 3  -  ctype 3
-    rc = GetStringTypeW( CT_CTYPE3,
-                         L"\xff53",
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x8080\x0000",
-                              2,
-                              "ctype3 (0xff53)",
-                              &NumErrors );
+    rc = GetStringTypeW(CT_CTYPE3,
+                        L"\xff53",
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x8080\x0000",
+                             2,
+                             "ctype3 (0xff53)",
+                             &NumErrors);
 
 
 
@@ -568,15 +567,15 @@ int GST_NormalCase()
 
 
     //  Variation 1  -  cbSrc = -1
-    rc = GetStringTypeExW( 0x0409,
-                           CT_CTYPE1,
-                           pGSTSrcUpper,
-                           -1,
-                           pCharType );
-    CheckReturnEqual( rc,
-                      FALSE,
-                      "Ex cbSrc (-1)",
-                      &NumErrors );
+    rc = GetStringTypeExW(0x0409,
+                          CT_CTYPE1,
+                          pGSTSrcUpper,
+                          -1,
+                          pCharType);
+    CheckReturnEqual(rc,
+                     FALSE,
+                     "Ex cbSrc (-1)",
+                     &NumErrors);
 
 
 
@@ -584,18 +583,18 @@ int GST_NormalCase()
 
 
     //  Variation 1  -  ctype1, lower
-    rc = GetStringTypeExW( 0x0409,
-                           CT_CTYPE1,
-                           pGSTSrcLower,
-                           -1,
-                           pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT1_LOCASE_LETTER,
-                              2,
-                              "Ex ctype1 lower",
-                              &NumErrors );
+    rc = GetStringTypeExW(0x0409,
+                          CT_CTYPE1,
+                          pGSTSrcLower,
+                          -1,
+                          pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT1_LOCASE_LETTER,
+                             2,
+                             "Ex ctype1 lower",
+                             &NumErrors);
 
 
 
@@ -603,18 +602,18 @@ int GST_NormalCase()
 
 
     //  Variation 1  -  ctype2, lower
-    rc = GetStringTypeExW( 0x0409,
-                           CT_CTYPE2,
-                           pGSTSrcLower,
-                           -1,
-                           pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT2_LOCASE_LETTER,
-                              2,
-                              "Ex ctype2 lower",
-                              &NumErrors );
+    rc = GetStringTypeExW(0x0409,
+                          CT_CTYPE2,
+                          pGSTSrcLower,
+                          -1,
+                          pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT2_LOCASE_LETTER,
+                             2,
+                             "Ex ctype2 lower",
+                             &NumErrors);
 
 
 
@@ -622,18 +621,18 @@ int GST_NormalCase()
 
 
     //  Variation 1  -  ctype 3 should return zeros
-    rc = GetStringTypeExW( 0x0409,
-                           CT_CTYPE3,
-                           pGSTSrcLower,
-                           -1,
-                           pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT3_VALUE,
-                              2,
-                              "Ex ctype3 zero",
-                              &NumErrors );
+    rc = GetStringTypeExW(0x0409,
+                          CT_CTYPE3,
+                          pGSTSrcLower,
+                          -1,
+                          pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT3_VALUE,
+                             2,
+                             "Ex ctype3 zero",
+                             &NumErrors);
 
 
 
@@ -668,32 +667,32 @@ int GST_Ansi()
 
 
     //  Variation 1  -  cbSrc = -1
-    rc = GetStringTypeA( 0x0409,
-                         CT_CTYPE1,
-                         "TH",
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT1_UPCASE_LETTER,
-                              2,
-                              "A version cbSrc (-1)",
-                              &NumErrors );
+    rc = GetStringTypeA(0x0409,
+                        CT_CTYPE1,
+                        "TH",
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT1_UPCASE_LETTER,
+                             2,
+                             "A version cbSrc (-1)",
+                             &NumErrors);
 
     //  Variation 2  -  cbSrc = value
-    rc = GetStringTypeA( 0x0409,
-                         CT_CTYPE1,
-                         "TH",
-                         2,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT1_UPCASE_LETTER,
-                              2,
-                              "A version cbSrc (value)",
-                              &NumErrors );
+    rc = GetStringTypeA(0x0409,
+                        CT_CTYPE1,
+                        "TH",
+                        2,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT1_UPCASE_LETTER,
+                             2,
+                             "A version cbSrc (value)",
+                             &NumErrors);
 
 
 
@@ -701,18 +700,18 @@ int GST_Ansi()
 
 
     //  Variation 1  -  Ab
-    rc = GetStringTypeA( 0x0409,
-                         CT_CTYPE1,
-                         "Ab",
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x0181\x0182\x0020",
-                              3,
-                              "A version ctype1 (Ab)",
-                              &NumErrors );
+    rc = GetStringTypeA(0x0409,
+                        CT_CTYPE1,
+                        "Ab",
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x0181\x0182\x0020",
+                             3,
+                             "A version ctype1 (Ab)",
+                             &NumErrors);
 
 
 
@@ -720,18 +719,18 @@ int GST_Ansi()
 
 
     //  Variation 1  -  Ab
-    rc = GetStringTypeA( 0x0409,
-                         CT_CTYPE2,
-                         "Ab",
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x0001\x0001\x0000",
-                              3,
-                              "A version ctype2 (Ab)",
-                              &NumErrors );
+    rc = GetStringTypeA(0x0409,
+                        CT_CTYPE2,
+                        "Ab",
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x0001\x0001\x0000",
+                             3,
+                             "A version ctype2 (Ab)",
+                             &NumErrors);
 
 
 
@@ -739,18 +738,18 @@ int GST_Ansi()
 
 
     //  Variation 1  -  Ab
-    rc = GetStringTypeA( 0x0409,
-                         CT_CTYPE3,
-                         "Ab",
-                         -1,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x8040\x8040\x0000",
-                              3,
-                              "A version ctype3 (Ab)",
-                              &NumErrors );
+    rc = GetStringTypeA(0x0409,
+                        CT_CTYPE3,
+                        "Ab",
+                        -1,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x8040\x8040\x0000",
+                             3,
+                             "A version ctype3 (Ab)",
+                             &NumErrors);
 
 
 
@@ -758,46 +757,46 @@ int GST_Ansi()
 
 
     //  Variation 1  -  invalid chars
-    rc = GetStringTypeA( 0x0411,
-                         CT_CTYPE1,
-                         "\xa0\xfd\xfe\xff\x85\x40\x81\x02\x81",
-                         9,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x0000\x0000\x0000\x0000\x0000\x0000\x0000",
-                              7,
-                              "A version ctype1 (invalid chars)",
-                              &NumErrors );
+    rc = GetStringTypeA(0x0411,
+                        CT_CTYPE1,
+                        "\xa0\xfd\xfe\xff\x85\x40\x81\x02\x81",
+                        9,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x0000\x0000\x0000\x0000\x0000\x0000\x0000",
+                             7,
+                             "A version ctype1 (invalid chars)",
+                             &NumErrors);
 
     //  Variation 2  -  invalid chars
-    rc = GetStringTypeA( 0x0411,
-                         CT_CTYPE2,
-                         "\xa0\xfd\xfe\xff\x85\x40\x81\x02\x81",
-                         9,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x0000\x0000\x0000\x0000\x0000\x0000\x0000",
-                              7,
-                              "A version ctype2 (invalid chars)",
-                              &NumErrors );
+    rc = GetStringTypeA(0x0411,
+                        CT_CTYPE2,
+                        "\xa0\xfd\xfe\xff\x85\x40\x81\x02\x81",
+                        9,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x0000\x0000\x0000\x0000\x0000\x0000\x0000",
+                             7,
+                             "A version ctype2 (invalid chars)",
+                             &NumErrors);
 
     //  Variation 3  -  invalid chars
-    rc = GetStringTypeA( 0x0411,
-                         CT_CTYPE3,
-                         "\xa0\xfd\xfe\xff\x85\x40\x81\x02\x81",
-                         9,
-                         pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x0000\x0000\x0000\x0000\x0000\x0000\x0000",
-                              7,
-                              "A version ctype3 (invalid chars)",
-                              &NumErrors );
+    rc = GetStringTypeA(0x0411,
+                        CT_CTYPE3,
+                        "\xa0\xfd\xfe\xff\x85\x40\x81\x02\x81",
+                        9,
+                        pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x0000\x0000\x0000\x0000\x0000\x0000\x0000",
+                             7,
+                             "A version ctype3 (invalid chars)",
+                             &NumErrors);
 
 
 
@@ -813,32 +812,32 @@ int GST_Ansi()
 
 
     //  Variation 1  -  cbSrc = -1
-    rc = GetStringTypeExA( 0x0409,
-                           CT_CTYPE1,
-                           "TH",
-                           -1,
-                           pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT1_UPCASE_LETTER,
-                              2,
-                              "Ex A version cbSrc (-1)",
-                              &NumErrors );
+    rc = GetStringTypeExA(0x0409,
+                          CT_CTYPE1,
+                          "TH",
+                          -1,
+                          pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT1_UPCASE_LETTER,
+                             2,
+                             "Ex A version cbSrc (-1)",
+                             &NumErrors);
 
     //  Variation 2  -  cbSrc = value
-    rc = GetStringTypeExA( 0x0409,
-                           CT_CTYPE1,
-                           "TH",
-                           2,
-                           pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              CT1_UPCASE_LETTER,
-                              2,
-                              "Ex A version cbSrc (value)",
-                              &NumErrors );
+    rc = GetStringTypeExA(0x0409,
+                          CT_CTYPE1,
+                          "TH",
+                          2,
+                          pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             CT1_UPCASE_LETTER,
+                             2,
+                             "Ex A version cbSrc (value)",
+                             &NumErrors);
 
 
 
@@ -846,18 +845,18 @@ int GST_Ansi()
 
 
     //  Variation 1  -  Ab
-    rc = GetStringTypeExA( 0x0409,
-                           CT_CTYPE1,
-                           "Ab",
-                           -1,
-                           pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x0181\x0182\x0020",
-                              3,
-                              "Ex A version ctype1 (Ab)",
-                              &NumErrors );
+    rc = GetStringTypeExA(0x0409,
+                          CT_CTYPE1,
+                          "Ab",
+                          -1,
+                          pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x0181\x0182\x0020",
+                             3,
+                             "Ex A version ctype1 (Ab)",
+                             &NumErrors);
 
 
 
@@ -865,18 +864,18 @@ int GST_Ansi()
 
 
     //  Variation 1  -  Ab
-    rc = GetStringTypeExA( 0x0409,
-                           CT_CTYPE2,
-                           "Ab",
-                           -1,
-                           pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x0001\x0001\x0000",
-                              3,
-                              "Ex A version ctype2 (Ab)",
-                              &NumErrors );
+    rc = GetStringTypeExA(0x0409,
+                          CT_CTYPE2,
+                          "Ab",
+                          -1,
+                          pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x0001\x0001\x0000",
+                             3,
+                             "Ex A version ctype2 (Ab)",
+                             &NumErrors);
 
 
 
@@ -884,18 +883,18 @@ int GST_Ansi()
 
 
     //  Variation 1  -  Ab
-    rc = GetStringTypeExA( 0x0409,
-                           CT_CTYPE3,
-                           "Ab",
-                           -1,
-                           pCharType );
-    CheckReturnGetStringType( rc,
-                              TRUE,
-                              pCharType,
-                              L"\x8040\x8040\x0000",
-                              3,
-                              "Ex A version ctype3 (Ab)",
-                              &NumErrors );
+    rc = GetStringTypeExA(0x0409,
+                          CT_CTYPE3,
+                          "Ab",
+                          -1,
+                          pCharType);
+    CheckReturnGetStringType(rc,
+                             TRUE,
+                             pCharType,
+                             L"\x8040\x8040\x0000",
+                             3,
+                             "Ex A version ctype3 (Ab)",
+                             &NumErrors);
 
 
 
@@ -922,23 +921,20 @@ void CheckReturnGetStringType(
     LPWSTR pExpectedString,
     int ExpectedSize,
     LPSTR pErrString,
-    int *pNumErrors)
+    int* pNumErrors)
 {
     int ctr;                 // loop counter
 
 
-    if ( (CurrentReturn != ExpectedReturn) ||
-         ( (pCurrentString != NULL) &&
-           (CompStringsW(pCurrentString, pExpectedString, ExpectedSize)) ) )
-    {
+    if ((CurrentReturn != ExpectedReturn) ||
+        ((pCurrentString != NULL) &&
+        (CompStringsW(pCurrentString, pExpectedString, ExpectedSize)))) {
         printf("ERROR: %s - \n", pErrString);
         printf("  Return = %d, Expected = %d\n", CurrentReturn, ExpectedReturn);
 
-        if (pCurrentString != NULL)
-        {
+        if (pCurrentString != NULL) {
             printf("       ");
-            for (ctr = 0; ctr < ExpectedSize; ctr++)
-            {
+            for (ctr = 0; ctr < ExpectedSize; ctr++) {
                 printf("%x ", pCurrentString[ctr]);
             }
             printf("\n");

@@ -56,8 +56,8 @@ int GetPrgData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPPRG lpPrg, int 
     lpPrg->flPrgInit |= ppl->flProp & (PROP_NOPIF | PROP_DEFAULTPIF | PROP_INFSETTINGS);
 
 #ifdef UNICODE
-    PifMgr_WCtoMBPath( (LPWSTR)szDefIconFile, lpPrg->achIconFile, ARRAYSIZE(lpPrg->achIconFile) );
-    PifMgr_WCtoMBPath( ppl->ofPIF.szPathName, lpPrg->achPIFFile, ARRAYSIZE(lpPrg->achPIFFile) );
+    PifMgr_WCtoMBPath((LPWSTR)szDefIconFile, lpPrg->achIconFile, ARRAYSIZE(lpPrg->achIconFile));
+    PifMgr_WCtoMBPath(ppl->ofPIF.szPathName, lpPrg->achPIFFile, ARRAYSIZE(lpPrg->achPIFFile));
 #else
     lstrcpyA(lpPrg->achIconFile, szDefIconFile);
     lstrcpynA(lpPrg->achPIFFile, ppl->ofPIF.szPathName, ARRAYSIZE(lpPrg->achPIFFile));
@@ -72,15 +72,15 @@ int GetPrgData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPPRG lpPrg, int 
     cb = lstrcpyfnameA(lpPrg->achCmdLine, lppd->stdpifdata.startfile, ARRAYSIZE(lpPrg->achCmdLine));
 
     lpsz = lppd->stdpifdata.params;
-    if (aDataPtrs[ LP386_INDEX ]) {
+    if (aDataPtrs[LP386_INDEX]) {
         lpsz = _LP386_->PfW386params;
 
-        CTASSERTF(PRGINIT_MINIMIZED      == (fMinimized      >> fMinimizedBit));
-        CTASSERTF(PRGINIT_MAXIMIZED      == (fMaximized      >> fMinimizedBit));
-        CTASSERTF(PRGINIT_REALMODE       == (fRealMode       >> fMinimizedBit));
+        CTASSERTF(PRGINIT_MINIMIZED == (fMinimized >> fMinimizedBit));
+        CTASSERTF(PRGINIT_MAXIMIZED == (fMaximized >> fMinimizedBit));
+        CTASSERTF(PRGINIT_REALMODE == (fRealMode >> fMinimizedBit));
         CTASSERTF(PRGINIT_REALMODESILENT == (fRealModeSilent >> fMinimizedBit));
-        CTASSERTF(PRGINIT_QUICKSTART     == (fQuickStart     >> fMinimizedBit));
-        CTASSERTF(PRGINIT_AMBIGUOUSPIF   == (fAmbiguousPIF   >> fMinimizedBit));
+        CTASSERTF(PRGINIT_QUICKSTART == (fQuickStart >> fMinimizedBit));
+        CTASSERTF(PRGINIT_AMBIGUOUSPIF == (fAmbiguousPIF >> fMinimizedBit));
 
         if (_LP386_->PfW386Flags & fWinLie)
             lpPrg->flPrgInit |= PRGINIT_WINLIE;
@@ -88,9 +88,9 @@ int GetPrgData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPPRG lpPrg, int 
         if (_LP386_->PfW386Flags & fNoSuggestMSDOS)
             lpPrg->flPrg |= PRG_NOSUGGESTMSDOS;
 
-        #if (PRGINIT_DEFAULT != 0)
-        #error Defaults in PRGINIT_DEFAULT have changed; may need to clear some bits in flPrgInit first
-        #endif
+#if (PRGINIT_DEFAULT != 0)
+#error Defaults in PRGINIT_DEFAULT have changed; may need to clear some bits in flPrgInit first
+#endif
 
         lpPrg->flPrgInit |= (WORD)((_LP386_->PfW386Flags & (fMinimized | fMaximized | fRealMode | fRealModeSilent | fQuickStart | fAmbiguousPIF)) >> fMinimizedBit);
         if (_LP386_->PfW386Flags & fHasHotKey) {
@@ -99,7 +99,7 @@ int GetPrgData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPPRG lpPrg, int 
             lpPrg->wHotKey = 0;
         }
     }
-    if (*lpsz && ((int)(lstrlenA(lpsz)) < (int)(ARRAYSIZE(lpPrg->achCmdLine)-cb-1))) {
+    if (*lpsz && ((int)(lstrlenA(lpsz)) < (int)(ARRAYSIZE(lpPrg->achCmdLine) - cb - 1))) {
         lstrcatA(lpPrg->achCmdLine, " ");
         lstrcatA(lpPrg->achCmdLine, lpsz);
     }
@@ -152,12 +152,12 @@ int SetPrgData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPPRG lpPrg, int 
     if (lpPrg->flPrg & PRG_CLOSEONEXIT)
         lppd->stdpifdata.MSflags |= EXITMASK;
 
-    CTASSERTF(PRGINIT_MINIMIZED      == (fMinimized      >> fMinimizedBit));
-    CTASSERTF(PRGINIT_MAXIMIZED      == (fMaximized      >> fMinimizedBit));
-    CTASSERTF(PRGINIT_REALMODE       == (fRealMode       >> fMinimizedBit));
+    CTASSERTF(PRGINIT_MINIMIZED == (fMinimized >> fMinimizedBit));
+    CTASSERTF(PRGINIT_MAXIMIZED == (fMaximized >> fMinimizedBit));
+    CTASSERTF(PRGINIT_REALMODE == (fRealMode >> fMinimizedBit));
     CTASSERTF(PRGINIT_REALMODESILENT == (fRealModeSilent >> fMinimizedBit));
-    CTASSERTF(PRGINIT_QUICKSTART     == (fQuickStart     >> fMinimizedBit));
-    CTASSERTF(PRGINIT_AMBIGUOUSPIF   == (fAmbiguousPIF   >> fMinimizedBit));
+    CTASSERTF(PRGINIT_QUICKSTART == (fQuickStart >> fMinimizedBit));
+    CTASSERTF(PRGINIT_AMBIGUOUSPIF == (fAmbiguousPIF >> fMinimizedBit));
 
     _LP386_->PfW386Flags &= ~(fHasHotKey | fWinLie | fMinimized | fMaximized | fRealMode | fRealModeSilent | fQuickStart | fAmbiguousPIF | fNoSuggestMSDOS);
     if (lpPrg->wHotKey)
@@ -173,9 +173,9 @@ int SetPrgData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPPRG lpPrg, int 
     lstrunquotefnameA(lppd->stdpifdata.startfile, lpPrg->achCmdLine, ARRAYSIZE(lppd->stdpifdata.startfile), FALSE);
 
     i = lstrskipfnameA(lpPrg->achCmdLine);
-    i += lstrskipcharA(lpPrg->achCmdLine+i, ' ');
-    lstrcpynA(lppd->stdpifdata.params, lpPrg->achCmdLine+i, ARRAYSIZE(lppd->stdpifdata.params));
-    lstrcpynA(_LP386_->PfW386params, lpPrg->achCmdLine+i, ARRAYSIZE(_LP386_->PfW386params));
+    i += lstrskipcharA(lpPrg->achCmdLine + i, ' ');
+    lstrcpynA(lppd->stdpifdata.params, lpPrg->achCmdLine + i, ARRAYSIZE(lppd->stdpifdata.params));
+    lstrcpynA(_LP386_->PfW386params, lpPrg->achCmdLine + i, ARRAYSIZE(_LP386_->PfW386params));
 
     if (lpPrg->achWorkDir[0] != '\"')
         lstrcpyA(lppd->stdpifdata.defpath, lpPrg->achWorkDir);
@@ -193,11 +193,11 @@ int SetPrgData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPPRG lpPrg, int 
     lstrcpynA(_LPENH_->achOtherFileProp, lpPrg->achOtherFile, ARRAYSIZE(_LPENH_->achOtherFileProp));
 
 #ifdef UNICODE
-    MultiByteToWideChar( CP_ACP, 0,
-                         lpPrg->achPIFFile, -1,
-                         ppl->ofPIF.szPathName,
-                         ARRAYSIZE(ppl->ofPIF.szPathName)
-                        );
+    MultiByteToWideChar(CP_ACP, 0,
+                        lpPrg->achPIFFile, -1,
+                        ppl->ofPIF.szPathName,
+                        ARRAYSIZE(ppl->ofPIF.szPathName)
+    );
 #else
     lstrcpynA(ppl->ofPIF.szPathName, lpPrg->achPIFFile, ARRAYSIZE(ppl->ofPIF.szPathName));
 #endif
@@ -245,9 +245,9 @@ int GetTskData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPTSK lpTsk, int 
 
     if (_LP386_) {
 
-        #if (fEnableClose != TSK_ALLOWCLOSE || fBackground != TSK_BACKGROUND || fExclusive != TSK_EXCLUSIVE)
-        #error Bit mismatch in PIF constants
-        #endif
+#if (fEnableClose != TSK_ALLOWCLOSE || fBackground != TSK_BACKGROUND || fExclusive != TSK_EXCLUSIVE)
+#error Bit mismatch in PIF constants
+#endif
 
         lpTsk->flTsk &= ~(TSK_ALLOWCLOSE | TSK_BACKGROUND | TSK_EXCLUSIVE);
         lpTsk->flTsk |= _LP386_->PfW386Flags & (fEnableClose | fBackground);
@@ -277,9 +277,9 @@ int SetTskData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPTSK lpTsk, int 
 
     _LPENH_->tskProp = *lpTsk;
 
-    #if (fEnableClose != TSK_ALLOWCLOSE || fBackground != TSK_BACKGROUND || fExclusive != TSK_EXCLUSIVE)
-    #error Bit mismatch in PIF constants
-    #endif
+#if (fEnableClose != TSK_ALLOWCLOSE || fBackground != TSK_BACKGROUND || fExclusive != TSK_EXCLUSIVE)
+#error Bit mismatch in PIF constants
+#endif
 
     _LP386_->PfW386Flags &= ~(fEnableClose | fBackground | fExclusive | fPollingDetect);
     _LP386_->PfW386Flags |= (lpTsk->flTsk & (TSK_ALLOWCLOSE | TSK_BACKGROUND));
@@ -322,9 +322,9 @@ int GetVidData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPVID lpVid, int 
 
     if (_LP386_) {
 
-        #if (fVidTxtEmulate != VID_TEXTEMULATE || fVidRetainAllo != VID_RETAINMEMORY)
-        #error Bit mismatch in PIF constants
-        #endif
+#if (fVidTxtEmulate != VID_TEXTEMULATE || fVidRetainAllo != VID_RETAINMEMORY)
+#error Bit mismatch in PIF constants
+#endif
 
         // Clear bits that already existed in the 386 section
 
@@ -363,9 +363,9 @@ int SetVidData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPVID lpVid, int 
     if (lpVid->flVid & VID_FULLSCREEN)
         _LP386_->PfW386Flags |= fFullScreen;
 
-    #if (fVidTxtEmulate != VID_TEXTEMULATE || fVidRetainAllo != VID_RETAINMEMORY)
-    #error Bit mismatch in PIF constants
-    #endif
+#if (fVidTxtEmulate != VID_TEXTEMULATE || fVidRetainAllo != VID_RETAINMEMORY)
+#error Bit mismatch in PIF constants
+#endif
 
     _LP386_->PfW386Flags2 &= ~(fVidTxtEmulate | fVidRetainAllo);
     _LP386_->PfW386Flags2 |= lpVid->flVid & (fVidTxtEmulate | fVidRetainAllo);
@@ -460,12 +460,12 @@ int SetMemData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPMEM lpMem, int 
     FunctionName(SetMemData);
 
     _LP386_->PfW386Flags &= ~(fNoHMA |
-                            fVMLocked |
-                            fEMSLocked |
-                            fXMSLocked |
-                            fGlobalProtect |
-                            fLocalUMBs |
-                            fStrayPtrDetect);
+                              fVMLocked |
+                              fEMSLocked |
+                              fXMSLocked |
+                              fGlobalProtect |
+                              fLocalUMBs |
+                              fStrayPtrDetect);
 
     if (lpMem->flMemInit & MEMINIT_NOHMA)
         _LP386_->PfW386Flags |= fNoHMA;
@@ -491,12 +491,12 @@ int SetMemData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPMEM lpMem, int 
         _LP386_->PfW386Flags |= fStrayPtrDetect;
 
     _LP386_->PfW386minmem = lpMem->wMinLow;
-    _LP386_->PfMinEMMK    = lpMem->wMinEMS;
-    _LP386_->PfMinXmsK    = lpMem->wMinXMS;
+    _LP386_->PfMinEMMK = lpMem->wMinEMS;
+    _LP386_->PfMinXmsK = lpMem->wMinXMS;
 
     _LP386_->PfW386maxmem = lpMem->wMaxLow;
-    _LP386_->PfMaxEMMK    = lpMem->wMaxEMS;
-    _LP386_->PfMaxXmsK    = lpMem->wMaxXMS;
+    _LP386_->PfMaxEMMK = lpMem->wMaxEMS;
+    _LP386_->PfMaxXmsK = lpMem->wMaxXMS;
 
     ppl->flProp |= PROP_DIRTY;
 
@@ -549,22 +549,22 @@ int GetKbdData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPKBD lpKbd, int 
 
         // Clear bits that already exist in the 386 section
 
-        lpKbd->flKbd &= ~(KBD_FASTPASTE  |
-                          KBD_NOALTTAB   |
-                          KBD_NOALTESC   |
+        lpKbd->flKbd &= ~(KBD_FASTPASTE |
+                          KBD_NOALTTAB |
+                          KBD_NOALTESC |
                           KBD_NOALTSPACE |
                           KBD_NOALTENTER |
                           KBD_NOALTPRTSC |
-                          KBD_NOPRTSC    |
+                          KBD_NOPRTSC |
                           KBD_NOCTRLESC);
 
-        #if (KBD_NOALTTAB != fALTTABdis || KBD_NOALTESC != fALTESCdis || KBD_NOALTSPACE != fALTSPACEdis)
-        #error Bit mismatch in PIF constants
-        #endif
+#if (KBD_NOALTTAB != fALTTABdis || KBD_NOALTESC != fALTESCdis || KBD_NOALTSPACE != fALTSPACEdis)
+#error Bit mismatch in PIF constants
+#endif
 
-        #if (KBD_NOALTENTER != fALTENTERdis || KBD_NOALTPRTSC != fALTPRTSCdis || KBD_NOPRTSC != fPRTSCdis || KBD_NOCTRLESC != fCTRLESCdis)
-        #error Bit mismatch in PIF constants
-        #endif
+#if (KBD_NOALTENTER != fALTENTERdis || KBD_NOALTPRTSC != fALTPRTSCdis || KBD_NOPRTSC != fPRTSCdis || KBD_NOCTRLESC != fCTRLESCdis)
+#error Bit mismatch in PIF constants
+#endif
 
         lpKbd->flKbd |= _LP386_->PfW386Flags & (fALTTABdis | fALTESCdis | fALTSPACEdis | fALTENTERdis | fALTPRTSCdis | fPRTSCdis | fCTRLESCdis);
 
@@ -598,13 +598,13 @@ int SetKbdData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPKBD lpKbd, int 
     if (lpKbd->flKbd & KBD_FASTPASTE)
         _LP386_->PfW386Flags |= fINT16Paste;
 
-    #if (KBD_NOALTTAB != fALTTABdis || KBD_NOALTESC != fALTESCdis || KBD_NOALTSPACE != fALTSPACEdis)
-    #error Bit mismatch in PIF constants
-    #endif
+#if (KBD_NOALTTAB != fALTTABdis || KBD_NOALTESC != fALTESCdis || KBD_NOALTSPACE != fALTSPACEdis)
+#error Bit mismatch in PIF constants
+#endif
 
-    #if (KBD_NOALTENTER != fALTENTERdis || KBD_NOALTPRTSC != fALTPRTSCdis || KBD_NOPRTSC != fPRTSCdis || KBD_NOCTRLESC != fCTRLESCdis)
-    #error Bit mismatch in PIF constants
-    #endif
+#if (KBD_NOALTENTER != fALTENTERdis || KBD_NOALTPRTSC != fALTPRTSCdis || KBD_NOPRTSC != fPRTSCdis || KBD_NOCTRLESC != fCTRLESCdis)
+#error Bit mismatch in PIF constants
+#endif
 
     _LP386_->PfW386Flags &= ~(fALTTABdis | fALTESCdis | fALTSPACEdis | fALTENTERdis | fALTPRTSCdis | fPRTSCdis | fCTRLESCdis);
     _LP386_->PfW386Flags |= lpKbd->flKbd & (fALTTABdis | fALTESCdis | fALTSPACEdis | fALTENTERdis | fALTPRTSCdis | fPRTSCdis | fCTRLESCdis);
@@ -743,7 +743,7 @@ int GetFntData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPFNT lpFnt, int 
 #if FNTINIT_DEFAULT != 0
     lpFnt->flFntInit = FNTINIT_DEFAULT;
 #endif
-    lpFnt->wCurrentCP = (WORD) g_uCodePage;
+    lpFnt->wCurrentCP = (WORD)g_uCodePage;
 
     if (_LPENH_) {
 
@@ -774,7 +774,7 @@ int GetFntData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPFNT lpFnt, int 
         // WORDs read.
 
         iCount = GetIniWords(szDOSAPPSection, szDOSAPPDefault,
-                                (WORD*)&iiTemp, INI_WORDS, szDOSAPPINI);
+            (WORD*)&iiTemp, INI_WORDS, szDOSAPPINI);
 
         if (ISVALIDINI(iCount))
             CopyIniWordsToFntData(lpFnt, &iiTemp, iCount);
@@ -784,7 +784,7 @@ int GetFntData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPFNT lpFnt, int 
         // the information if we recognize the number of WORDs read.
 
         iCount = GetIniWords(szDOSAPPSection, ppl->szPathName,
-                                (WORD*)&iiTemp, INI_WORDS, szDOSAPPINI);
+            (WORD*)&iiTemp, INI_WORDS, szDOSAPPINI);
 
         if (ISVALIDINI(iCount))
             CopyIniWordsToFntData(lpFnt, &iiTemp, iCount);
@@ -800,7 +800,7 @@ int GetFntData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPFNT lpFnt, int 
     // irrelevant.
 
     lstrcpyA(lpFnt->achRasterFaceName, szRasterFaceName);
-    lstrcpyA(lpFnt->achTTFaceName, szTTFaceName[IsBilingualCP(lpFnt->wCurrentCP)? 1 : 0]);
+    lstrcpyA(lpFnt->achTTFaceName, szTTFaceName[IsBilingualCP(lpFnt->wCurrentCP) ? 1 : 0]);
 
     return SIZEOF(PROPFNT);
 }
@@ -879,7 +879,7 @@ int GetWinData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPWIN lpWin, int 
         // WORDs read.
 
         iCount = GetIniWords(szDOSAPPSection, szDOSAPPDefault,
-                                (WORD*)&iiTemp, INI_WORDS, szDOSAPPINI);
+            (WORD*)&iiTemp, INI_WORDS, szDOSAPPINI);
 
         if (ISVALIDINI(iCount))
             CopyIniWordsToWinData(lpWin, &iiTemp, iCount);
@@ -889,7 +889,7 @@ int GetWinData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPWIN lpWin, int 
         // the information if we recognize the number of WORDs read.
 
         iCount = GetIniWords(szDOSAPPSection, ppl->szPathName,
-                                (WORD*)&iiTemp, INI_WORDS, szDOSAPPINI);
+            (WORD*)&iiTemp, INI_WORDS, szDOSAPPINI);
 
         if (ISVALIDINI(iCount))
             CopyIniWordsToWinData(lpWin, &iiTemp, iCount);
@@ -963,7 +963,7 @@ int GetEnvData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPENV lpEnv, int 
 
     if (_LPENH_) {
         *lpEnv = _LPENH_->envProp;
-        lpEnv->achBatchFile[ARRAYSIZE(lpEnv->achBatchFile)-1] = TEXT('\0');
+        lpEnv->achBatchFile[ARRAYSIZE(lpEnv->achBatchFile) - 1] = TEXT('\0');
 
     }
     if (!(flOpt & GETPROPS_OEM)) {
@@ -992,7 +992,7 @@ int SetEnvData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPENV lpEnv, int 
     FunctionName(SetEnvData);
 
     _LPENH_->envProp = *lpEnv;
-    _LPENH_->envProp.achBatchFile[ARRAYSIZE(_LPENH_->envProp.achBatchFile)-1] = TEXT('\0');
+    _LPENH_->envProp.achBatchFile[ARRAYSIZE(_LPENH_->envProp.achBatchFile) - 1] = TEXT('\0');
 
     if (!(flOpt & SETPROPS_OEM)) {
         /* Convert all strings from Ansi character set to OEM */
@@ -1021,138 +1021,138 @@ int SetEnvData(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPENV lpEnv, int 
 int GetNt40Data(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPNT40 lpnt40, int cb, UINT flOpt)
 {
     PROPPRG prg;
-    WCHAR   awchTmp[ MAX_PATH ];
+    WCHAR   awchTmp[MAX_PATH];
     FunctionName(GetWntData);
 
 
-    if (GetPrgData( ppl, aDataPtrs, &prg, SIZEOF(prg), flOpt) < SIZEOF(PROPPRG))
+    if (GetPrgData(ppl, aDataPtrs, &prg, SIZEOF(prg), flOpt) < SIZEOF(PROPPRG))
         return 0;
 
     lpnt40->flWnt = _LPWNT40_->nt40Prop.flWnt;
 
     // Initialize Command Line string
 
-    if (lstrcmpA(prg.achCmdLine,_LPWNT40_->nt40Prop.achSaveCmdLine)==0) {
+    if (lstrcmpA(prg.achCmdLine, _LPWNT40_->nt40Prop.achSaveCmdLine) == 0) {
 
-        lstrcpyA(  lpnt40->achSaveCmdLine, _LPWNT40_->nt40Prop.achSaveCmdLine );
-        ualstrcpy( lpnt40->awchCmdLine,    _LPWNT40_->nt40Prop.awchCmdLine );
+        lstrcpyA(lpnt40->achSaveCmdLine, _LPWNT40_->nt40Prop.achSaveCmdLine);
+        ualstrcpy(lpnt40->awchCmdLine, _LPWNT40_->nt40Prop.awchCmdLine);
 
     } else {
 
-        lstrcpyA( lpnt40->achSaveCmdLine,            prg.achCmdLine );
-        lstrcpyA( _LPWNT40_->nt40Prop.achSaveCmdLine, prg.achCmdLine );
-        MultiByteToWideChar( CP_ACP, 0,
-                             prg.achCmdLine, -1,
-                             awchTmp, ARRAYSIZE(lpnt40->awchCmdLine)
-                            );
-        awchTmp[ARRAYSIZE(lpnt40->awchCmdLine)-1] = TEXT('\0');
-        ualstrcpy( lpnt40->awchCmdLine, awchTmp );
-        ualstrcpy( _LPWNT40_->nt40Prop.awchCmdLine, lpnt40->awchCmdLine );
+        lstrcpyA(lpnt40->achSaveCmdLine, prg.achCmdLine);
+        lstrcpyA(_LPWNT40_->nt40Prop.achSaveCmdLine, prg.achCmdLine);
+        MultiByteToWideChar(CP_ACP, 0,
+                            prg.achCmdLine, -1,
+                            awchTmp, ARRAYSIZE(lpnt40->awchCmdLine)
+        );
+        awchTmp[ARRAYSIZE(lpnt40->awchCmdLine) - 1] = TEXT('\0');
+        ualstrcpy(lpnt40->awchCmdLine, awchTmp);
+        ualstrcpy(_LPWNT40_->nt40Prop.awchCmdLine, lpnt40->awchCmdLine);
 
     }
 
     // Initialize Other File string
 
-    if (lstrcmpA(prg.achOtherFile,_LPWNT40_->nt40Prop.achSaveOtherFile)==0) {
+    if (lstrcmpA(prg.achOtherFile, _LPWNT40_->nt40Prop.achSaveOtherFile) == 0) {
 
-        lstrcpyA(  lpnt40->achSaveOtherFile, _LPWNT40_->nt40Prop.achSaveOtherFile );
-        ualstrcpy( lpnt40->awchOtherFile,    _LPWNT40_->nt40Prop.awchOtherFile );
+        lstrcpyA(lpnt40->achSaveOtherFile, _LPWNT40_->nt40Prop.achSaveOtherFile);
+        ualstrcpy(lpnt40->awchOtherFile, _LPWNT40_->nt40Prop.awchOtherFile);
 
     } else {
 
-        lstrcpyA( lpnt40->achSaveOtherFile,            prg.achOtherFile );
-        lstrcpyA( _LPWNT40_->nt40Prop.achSaveOtherFile, prg.achOtherFile );
-        MultiByteToWideChar( CP_ACP, 0,
-                             prg.achOtherFile, -1,
-                             awchTmp, ARRAYSIZE(lpnt40->awchOtherFile)
-                            );
-        awchTmp[ARRAYSIZE(lpnt40->awchOtherFile)-1] = TEXT('\0');
-        ualstrcpy( lpnt40->awchOtherFile, awchTmp );
-        ualstrcpy( _LPWNT40_->nt40Prop.awchOtherFile, lpnt40->awchOtherFile );
+        lstrcpyA(lpnt40->achSaveOtherFile, prg.achOtherFile);
+        lstrcpyA(_LPWNT40_->nt40Prop.achSaveOtherFile, prg.achOtherFile);
+        MultiByteToWideChar(CP_ACP, 0,
+                            prg.achOtherFile, -1,
+                            awchTmp, ARRAYSIZE(lpnt40->awchOtherFile)
+        );
+        awchTmp[ARRAYSIZE(lpnt40->awchOtherFile) - 1] = TEXT('\0');
+        ualstrcpy(lpnt40->awchOtherFile, awchTmp);
+        ualstrcpy(_LPWNT40_->nt40Prop.awchOtherFile, lpnt40->awchOtherFile);
 
     }
 
     // Initialize PIF File string
 
-    if (lstrcmpA(prg.achPIFFile,_LPWNT40_->nt40Prop.achSavePIFFile)==0) {
+    if (lstrcmpA(prg.achPIFFile, _LPWNT40_->nt40Prop.achSavePIFFile) == 0) {
 
-        lstrcpyA(  lpnt40->achSavePIFFile, _LPWNT40_->nt40Prop.achSavePIFFile );
-        ualstrcpy( lpnt40->awchPIFFile,    _LPWNT40_->nt40Prop.awchPIFFile );
+        lstrcpyA(lpnt40->achSavePIFFile, _LPWNT40_->nt40Prop.achSavePIFFile);
+        ualstrcpy(lpnt40->awchPIFFile, _LPWNT40_->nt40Prop.awchPIFFile);
 
     } else {
 
-        lstrcpyA( lpnt40->achSavePIFFile,            prg.achPIFFile );
-        lstrcpyA( _LPWNT40_->nt40Prop.achSavePIFFile, prg.achPIFFile );
-        MultiByteToWideChar( CP_ACP, 0,
-                             prg.achPIFFile, -1,
-                             awchTmp, ARRAYSIZE(lpnt40->awchPIFFile)
-                            );
-        awchTmp[ARRAYSIZE(lpnt40->awchPIFFile)-1] = TEXT('\0');
-        ualstrcpy( lpnt40->awchPIFFile, awchTmp );
-        ualstrcpy( _LPWNT40_->nt40Prop.awchPIFFile, lpnt40->awchPIFFile );
+        lstrcpyA(lpnt40->achSavePIFFile, prg.achPIFFile);
+        lstrcpyA(_LPWNT40_->nt40Prop.achSavePIFFile, prg.achPIFFile);
+        MultiByteToWideChar(CP_ACP, 0,
+                            prg.achPIFFile, -1,
+                            awchTmp, ARRAYSIZE(lpnt40->awchPIFFile)
+        );
+        awchTmp[ARRAYSIZE(lpnt40->awchPIFFile) - 1] = TEXT('\0');
+        ualstrcpy(lpnt40->awchPIFFile, awchTmp);
+        ualstrcpy(_LPWNT40_->nt40Prop.awchPIFFile, lpnt40->awchPIFFile);
 
     }
 
     // Initialize Title string
 
-    if (lstrcmpA(prg.achTitle,_LPWNT40_->nt40Prop.achSaveTitle)==0) {
+    if (lstrcmpA(prg.achTitle, _LPWNT40_->nt40Prop.achSaveTitle) == 0) {
 
-        lstrcpyA(  lpnt40->achSaveTitle, _LPWNT40_->nt40Prop.achSaveTitle );
-        ualstrcpy( lpnt40->awchTitle,    _LPWNT40_->nt40Prop.awchTitle );
+        lstrcpyA(lpnt40->achSaveTitle, _LPWNT40_->nt40Prop.achSaveTitle);
+        ualstrcpy(lpnt40->awchTitle, _LPWNT40_->nt40Prop.awchTitle);
 
     } else {
 
-        lstrcpyA( lpnt40->achSaveTitle,            prg.achTitle );
-        lstrcpyA( _LPWNT40_->nt40Prop.achSaveTitle, prg.achTitle );
-        MultiByteToWideChar( CP_ACP, 0,
-                             prg.achTitle, -1,
-                             awchTmp, ARRAYSIZE(lpnt40->awchTitle)
-                            );
-        awchTmp[ARRAYSIZE(lpnt40->awchTitle)-1] = TEXT('\0');
-        ualstrcpy( lpnt40->awchTitle, awchTmp );
-        ualstrcpy( _LPWNT40_->nt40Prop.awchTitle, lpnt40->awchTitle );
+        lstrcpyA(lpnt40->achSaveTitle, prg.achTitle);
+        lstrcpyA(_LPWNT40_->nt40Prop.achSaveTitle, prg.achTitle);
+        MultiByteToWideChar(CP_ACP, 0,
+                            prg.achTitle, -1,
+                            awchTmp, ARRAYSIZE(lpnt40->awchTitle)
+        );
+        awchTmp[ARRAYSIZE(lpnt40->awchTitle) - 1] = TEXT('\0');
+        ualstrcpy(lpnt40->awchTitle, awchTmp);
+        ualstrcpy(_LPWNT40_->nt40Prop.awchTitle, lpnt40->awchTitle);
 
     }
 
     // Initialize IconFile string
 
-    if (lstrcmpA(prg.achIconFile,_LPWNT40_->nt40Prop.achSaveIconFile)==0) {
+    if (lstrcmpA(prg.achIconFile, _LPWNT40_->nt40Prop.achSaveIconFile) == 0) {
 
-        lstrcpyA(  lpnt40->achSaveIconFile, _LPWNT40_->nt40Prop.achSaveIconFile );
-        ualstrcpy( lpnt40->awchIconFile,    _LPWNT40_->nt40Prop.awchIconFile );
+        lstrcpyA(lpnt40->achSaveIconFile, _LPWNT40_->nt40Prop.achSaveIconFile);
+        ualstrcpy(lpnt40->awchIconFile, _LPWNT40_->nt40Prop.awchIconFile);
 
     } else {
 
-        lstrcpyA( lpnt40->achSaveIconFile,            prg.achIconFile );
-        lstrcpyA( _LPWNT40_->nt40Prop.achSaveIconFile, prg.achIconFile );
-        MultiByteToWideChar( CP_ACP, 0,
-                             prg.achIconFile, -1,
-                             awchTmp, ARRAYSIZE(lpnt40->awchIconFile)
-                            );
-        awchTmp[ARRAYSIZE(lpnt40->awchIconFile)-1] = TEXT('\0');
-        ualstrcpy( lpnt40->awchIconFile, awchTmp );
-        ualstrcpy( _LPWNT40_->nt40Prop.awchIconFile, lpnt40->awchIconFile );
+        lstrcpyA(lpnt40->achSaveIconFile, prg.achIconFile);
+        lstrcpyA(_LPWNT40_->nt40Prop.achSaveIconFile, prg.achIconFile);
+        MultiByteToWideChar(CP_ACP, 0,
+                            prg.achIconFile, -1,
+                            awchTmp, ARRAYSIZE(lpnt40->awchIconFile)
+        );
+        awchTmp[ARRAYSIZE(lpnt40->awchIconFile) - 1] = TEXT('\0');
+        ualstrcpy(lpnt40->awchIconFile, awchTmp);
+        ualstrcpy(_LPWNT40_->nt40Prop.awchIconFile, lpnt40->awchIconFile);
 
     }
 
     // Initialize Working Directory string
 
-    if (lstrcmpA(prg.achWorkDir,_LPWNT40_->nt40Prop.achSaveWorkDir)==0) {
+    if (lstrcmpA(prg.achWorkDir, _LPWNT40_->nt40Prop.achSaveWorkDir) == 0) {
 
-        lstrcpyA(  lpnt40->achSaveWorkDir, _LPWNT40_->nt40Prop.achSaveWorkDir );
-        ualstrcpy( lpnt40->awchWorkDir,    _LPWNT40_->nt40Prop.awchWorkDir );
+        lstrcpyA(lpnt40->achSaveWorkDir, _LPWNT40_->nt40Prop.achSaveWorkDir);
+        ualstrcpy(lpnt40->awchWorkDir, _LPWNT40_->nt40Prop.awchWorkDir);
 
     } else {
 
-        lstrcpyA( lpnt40->achSaveWorkDir,            prg.achWorkDir );
-        lstrcpyA( _LPWNT40_->nt40Prop.achSaveWorkDir, prg.achWorkDir );
-        MultiByteToWideChar( CP_ACP, 0,
-                             prg.achWorkDir, -1,
-                             awchTmp, ARRAYSIZE(lpnt40->awchWorkDir)
-                            );
-        awchTmp[ARRAYSIZE(lpnt40->awchWorkDir)-1] = TEXT('\0');
-        ualstrcpy( lpnt40->awchWorkDir, awchTmp );
-        ualstrcpy( _LPWNT40_->nt40Prop.awchWorkDir, lpnt40->awchWorkDir );
+        lstrcpyA(lpnt40->achSaveWorkDir, prg.achWorkDir);
+        lstrcpyA(_LPWNT40_->nt40Prop.achSaveWorkDir, prg.achWorkDir);
+        MultiByteToWideChar(CP_ACP, 0,
+                            prg.achWorkDir, -1,
+                            awchTmp, ARRAYSIZE(lpnt40->awchWorkDir)
+        );
+        awchTmp[ARRAYSIZE(lpnt40->awchWorkDir) - 1] = TEXT('\0');
+        ualstrcpy(lpnt40->awchWorkDir, awchTmp);
+        ualstrcpy(_LPWNT40_->nt40Prop.awchWorkDir, lpnt40->awchWorkDir);
 
     }
 
@@ -1160,22 +1160,22 @@ int GetNt40Data(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPNT40 lpnt40, i
 
     if (_LPENH_) {
 
-        if (lstrcmpA(_LPENH_->envProp.achBatchFile,_LPWNT40_->nt40Prop.achSaveBatchFile)==0) {
+        if (lstrcmpA(_LPENH_->envProp.achBatchFile, _LPWNT40_->nt40Prop.achSaveBatchFile) == 0) {
 
-            lstrcpyA(  lpnt40->achSaveBatchFile, _LPWNT40_->nt40Prop.achSaveBatchFile );
-            ualstrcpy( lpnt40->awchBatchFile,    _LPWNT40_->nt40Prop.awchBatchFile );
+            lstrcpyA(lpnt40->achSaveBatchFile, _LPWNT40_->nt40Prop.achSaveBatchFile);
+            ualstrcpy(lpnt40->awchBatchFile, _LPWNT40_->nt40Prop.awchBatchFile);
 
         } else {
 
-            lstrcpyA( lpnt40->achSaveBatchFile,            _LPENH_->envProp.achBatchFile );
-            lstrcpyA( _LPWNT40_->nt40Prop.achSaveBatchFile, _LPENH_->envProp.achBatchFile );
-            MultiByteToWideChar( CP_ACP, 0,
-                                 _LPENH_->envProp.achBatchFile, -1,
-                                 awchTmp, ARRAYSIZE(lpnt40->awchBatchFile)
-                                );
-            awchTmp[ARRAYSIZE(lpnt40->awchBatchFile)-1] = TEXT('\0');
-            ualstrcpy( lpnt40->awchBatchFile, awchTmp );
-            ualstrcpy( _LPWNT40_->nt40Prop.awchBatchFile, lpnt40->awchBatchFile );
+            lstrcpyA(lpnt40->achSaveBatchFile, _LPENH_->envProp.achBatchFile);
+            lstrcpyA(_LPWNT40_->nt40Prop.achSaveBatchFile, _LPENH_->envProp.achBatchFile);
+            MultiByteToWideChar(CP_ACP, 0,
+                                _LPENH_->envProp.achBatchFile, -1,
+                                awchTmp, ARRAYSIZE(lpnt40->awchBatchFile)
+            );
+            awchTmp[ARRAYSIZE(lpnt40->awchBatchFile) - 1] = TEXT('\0');
+            ualstrcpy(lpnt40->awchBatchFile, awchTmp);
+            ualstrcpy(_LPWNT40_->nt40Prop.awchBatchFile, lpnt40->awchBatchFile);
 
         }
 
@@ -1190,16 +1190,16 @@ int GetNt40Data(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPNT40 lpnt40, i
 
     // Initialize Console properties
 
-    lpnt40->dwForeColor      = _LPWNT40_->nt40Prop.dwForeColor;
-    lpnt40->dwBackColor      = _LPWNT40_->nt40Prop.dwBackColor;
+    lpnt40->dwForeColor = _LPWNT40_->nt40Prop.dwForeColor;
+    lpnt40->dwBackColor = _LPWNT40_->nt40Prop.dwBackColor;
     lpnt40->dwPopupForeColor = _LPWNT40_->nt40Prop.dwPopupForeColor;
     lpnt40->dwPopupBackColor = _LPWNT40_->nt40Prop.dwPopupBackColor;
-    lpnt40->WinSize          = _LPWNT40_->nt40Prop.WinSize;
-    lpnt40->BuffSize         = _LPWNT40_->nt40Prop.BuffSize;
-    lpnt40->WinPos           = _LPWNT40_->nt40Prop.WinPos;
-    lpnt40->dwCursorSize     = _LPWNT40_->nt40Prop.dwCursorSize;
+    lpnt40->WinSize = _LPWNT40_->nt40Prop.WinSize;
+    lpnt40->BuffSize = _LPWNT40_->nt40Prop.BuffSize;
+    lpnt40->WinPos = _LPWNT40_->nt40Prop.WinPos;
+    lpnt40->dwCursorSize = _LPWNT40_->nt40Prop.dwCursorSize;
     lpnt40->dwCmdHistBufSize = _LPWNT40_->nt40Prop.dwCmdHistBufSize;
-    lpnt40->dwNumCmdHist     = _LPWNT40_->nt40Prop.dwNumCmdHist;
+    lpnt40->dwNumCmdHist = _LPWNT40_->nt40Prop.dwNumCmdHist;
 
     return SIZEOF(PROPNT40);
 }
@@ -1228,52 +1228,52 @@ int SetNt40Data(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPNT40 lpnt40, i
 
     // Set Command Line string
 
-    lstrcpyA(  _LPWNT40_->nt40Prop.achSaveCmdLine, lpnt40->achSaveCmdLine );
-    ualstrcpy( _LPWNT40_->nt40Prop.awchCmdLine,    lpnt40->awchCmdLine );
+    lstrcpyA(_LPWNT40_->nt40Prop.achSaveCmdLine, lpnt40->achSaveCmdLine);
+    ualstrcpy(_LPWNT40_->nt40Prop.awchCmdLine, lpnt40->awchCmdLine);
 
     // Set Other File string
 
-    lstrcpyA(  _LPWNT40_->nt40Prop.achSaveOtherFile, lpnt40->achSaveOtherFile );
-    ualstrcpy( _LPWNT40_->nt40Prop.awchOtherFile,    lpnt40->awchOtherFile );
+    lstrcpyA(_LPWNT40_->nt40Prop.achSaveOtherFile, lpnt40->achSaveOtherFile);
+    ualstrcpy(_LPWNT40_->nt40Prop.awchOtherFile, lpnt40->awchOtherFile);
 
     // Set PIF File string
 
-    lstrcpyA(  _LPWNT40_->nt40Prop.achSavePIFFile, lpnt40->achSavePIFFile );
-    ualstrcpy( _LPWNT40_->nt40Prop.awchPIFFile,    lpnt40->awchPIFFile );
+    lstrcpyA(_LPWNT40_->nt40Prop.achSavePIFFile, lpnt40->achSavePIFFile);
+    ualstrcpy(_LPWNT40_->nt40Prop.awchPIFFile, lpnt40->awchPIFFile);
 
     // Set Title string
 
-    lstrcpyA(  _LPWNT40_->nt40Prop.achSaveTitle, lpnt40->achSaveTitle );
-    ualstrcpy( _LPWNT40_->nt40Prop.awchTitle,    lpnt40->awchTitle );
+    lstrcpyA(_LPWNT40_->nt40Prop.achSaveTitle, lpnt40->achSaveTitle);
+    ualstrcpy(_LPWNT40_->nt40Prop.awchTitle, lpnt40->awchTitle);
 
     // Set IconFile string
 
-    lstrcpyA(  _LPWNT40_->nt40Prop.achSaveIconFile, lpnt40->achSaveIconFile );
-    ualstrcpy( _LPWNT40_->nt40Prop.awchIconFile,    lpnt40->awchIconFile );
+    lstrcpyA(_LPWNT40_->nt40Prop.achSaveIconFile, lpnt40->achSaveIconFile);
+    ualstrcpy(_LPWNT40_->nt40Prop.awchIconFile, lpnt40->awchIconFile);
 
     // Set Working Directory string
 
-    lstrcpyA(  _LPWNT40_->nt40Prop.achSaveWorkDir, lpnt40->achSaveWorkDir );
-    ualstrcpy( _LPWNT40_->nt40Prop.awchWorkDir,    lpnt40->awchWorkDir );
+    lstrcpyA(_LPWNT40_->nt40Prop.achSaveWorkDir, lpnt40->achSaveWorkDir);
+    ualstrcpy(_LPWNT40_->nt40Prop.awchWorkDir, lpnt40->awchWorkDir);
 
     // Set Batch File string
 
-    lstrcpyA(  _LPWNT40_->nt40Prop.achSaveBatchFile, lpnt40->achSaveBatchFile );
-    ualstrcpy( _LPWNT40_->nt40Prop.awchBatchFile,    lpnt40->awchBatchFile );
+    lstrcpyA(_LPWNT40_->nt40Prop.achSaveBatchFile, lpnt40->achSaveBatchFile);
+    ualstrcpy(_LPWNT40_->nt40Prop.awchBatchFile, lpnt40->awchBatchFile);
 
 
     // Set Console properties
 
-    _LPWNT40_->nt40Prop.dwForeColor      = lpnt40->dwForeColor;
-    _LPWNT40_->nt40Prop.dwBackColor      = lpnt40->dwBackColor;
+    _LPWNT40_->nt40Prop.dwForeColor = lpnt40->dwForeColor;
+    _LPWNT40_->nt40Prop.dwBackColor = lpnt40->dwBackColor;
     _LPWNT40_->nt40Prop.dwPopupForeColor = lpnt40->dwPopupForeColor;
     _LPWNT40_->nt40Prop.dwPopupBackColor = lpnt40->dwPopupBackColor;
-    _LPWNT40_->nt40Prop.WinSize          = lpnt40->WinSize;
-    _LPWNT40_->nt40Prop.BuffSize         = lpnt40->BuffSize;
-    _LPWNT40_->nt40Prop.WinPos           = lpnt40->WinPos;
-    _LPWNT40_->nt40Prop.dwCursorSize     = lpnt40->dwCursorSize;
+    _LPWNT40_->nt40Prop.WinSize = lpnt40->WinSize;
+    _LPWNT40_->nt40Prop.BuffSize = lpnt40->BuffSize;
+    _LPWNT40_->nt40Prop.WinPos = lpnt40->WinPos;
+    _LPWNT40_->nt40Prop.dwCursorSize = lpnt40->dwCursorSize;
     _LPWNT40_->nt40Prop.dwCmdHistBufSize = lpnt40->dwCmdHistBufSize;
-    _LPWNT40_->nt40Prop.dwNumCmdHist     = lpnt40->dwNumCmdHist;
+    _LPWNT40_->nt40Prop.dwNumCmdHist = lpnt40->dwNumCmdHist;
 
     ppl->flProp |= PROP_DIRTY;
 
@@ -1299,15 +1299,15 @@ int GetNt31Data(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPNT31 lpnt31, i
     FunctionName(SetWntData);
 
     lpnt31->dwWNTFlags = _LPWNT31_->nt31Prop.dwWNTFlags;
-    lpnt31->dwRes1     = _LPWNT31_->nt31Prop.dwRes1;
-    lpnt31->dwRes2     = _LPWNT31_->nt31Prop.dwRes2;
+    lpnt31->dwRes1 = _LPWNT31_->nt31Prop.dwRes1;
+    lpnt31->dwRes2 = _LPWNT31_->nt31Prop.dwRes2;
 
     // Set Config.sys file string
 
-    lstrcpyA( lpnt31->achConfigFile, _LPWNT31_->nt31Prop.achConfigFile );
+    lstrcpyA(lpnt31->achConfigFile, _LPWNT31_->nt31Prop.achConfigFile);
 
     // Set Autoexec.bat file string
-    lstrcpyA( lpnt31->achAutoexecFile, _LPWNT31_->nt31Prop.achAutoexecFile );
+    lstrcpyA(lpnt31->achAutoexecFile, _LPWNT31_->nt31Prop.achAutoexecFile);
 
     return SIZEOF(PROPNT31);
 }
@@ -1332,15 +1332,15 @@ int SetNt31Data(register PPROPLINK ppl, DATAPTRS aDataPtrs, LPPROPNT31 lpnt31, i
     FunctionName(SetWntData);
 
     _LPWNT31_->nt31Prop.dwWNTFlags = lpnt31->dwWNTFlags;
-    _LPWNT31_->nt31Prop.dwRes1     = lpnt31->dwRes1;
-    _LPWNT31_->nt31Prop.dwRes2     = lpnt31->dwRes2;
+    _LPWNT31_->nt31Prop.dwRes1 = lpnt31->dwRes1;
+    _LPWNT31_->nt31Prop.dwRes2 = lpnt31->dwRes2;
 
     // Set Config.sys file string
 
-    lstrcpyA( _LPWNT31_->nt31Prop.achConfigFile, lpnt31->achConfigFile );
+    lstrcpyA(_LPWNT31_->nt31Prop.achConfigFile, lpnt31->achConfigFile);
 
     // Set Autoexec.bat file string
-    lstrcpyA( _LPWNT31_->nt31Prop.achAutoexecFile, lpnt31->achAutoexecFile );
+    lstrcpyA(_LPWNT31_->nt31Prop.achAutoexecFile, lpnt31->achAutoexecFile);
 
     ppl->flProp |= PROP_DIRTY;
 
@@ -1426,15 +1426,15 @@ void CopyIniWordsToWinData(LPPROPWIN lpWin, LPINIINFO lpii, int cWords)
 
     lpWin->flWinInit &= ~WININIT_NORESTORE;
     if (!(lpWin->flWin & WIN_SAVESETTINGS))
-        lpWin->flWinInit |=  WININIT_NORESTORE;
+        lpWin->flWinInit |= WININIT_NORESTORE;
 
     // cWords is transformed into cBytes (only the name is the same...)
     cWords *= 2;
 
-    if (cWords > FIELD_OFFSET(INIINFO,wWinWidth))
+    if (cWords > FIELD_OFFSET(INIINFO, wWinWidth))
         memcpy(&lpWin->cxWindow, &lpii->wWinWidth,
-                 min(cWords-FIELD_OFFSET(INIINFO,wWinWidth),
-                     SIZEOF(INIINFO)-FIELD_OFFSET(INIINFO,wWinWidth)));
+               min(cWords - FIELD_OFFSET(INIINFO, wWinWidth),
+                   SIZEOF(INIINFO) - FIELD_OFFSET(INIINFO, wWinWidth)));
 }
 
 
@@ -1488,7 +1488,7 @@ WORD GetIniWords(LPCTSTR lpszSection, LPCTSTR lpszEntry,
  *      Returns number of words read, 0 on error.
 */
 
-WORD ParseIniWords(LPCTSTR lpsz, LPWORD lpwBuf, WORD cwBuf, LPTSTR *lplpsz)
+WORD ParseIniWords(LPCTSTR lpsz, LPWORD lpwBuf, WORD cwBuf, LPTSTR* lplpsz)
 {
     WORD wCount = 0;
     FunctionName(ParseIniWords);
@@ -1501,10 +1501,10 @@ WORD ParseIniWords(LPCTSTR lpsz, LPWORD lpwBuf, WORD cwBuf, LPTSTR *lplpsz)
         if (!*lpsz)
             break;              // end of string reached
 
-        *lpwBuf++ = (WORD) _fatoi(lpsz);
+        *lpwBuf++ = (WORD)_fatoi(lpsz);
         ++wCount;
 
-        while (*lpsz == TEXT('-') || *lpsz >= TEXT('0')  && *lpsz <= TEXT('9'))
+        while (*lpsz == TEXT('-') || *lpsz >= TEXT('0') && *lpsz <= TEXT('9'))
             ++lpsz;
     }
     if (lplpsz)

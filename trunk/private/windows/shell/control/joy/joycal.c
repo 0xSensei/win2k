@@ -82,7 +82,7 @@ typedef struct {
     DWORD        pov[JOY_POV_NUMDIRS];
     int            iAxisCount;
     BOOL        bPOVdone;
-} CALVARS, *LPCALVARS;
+} CALVARS, * LPCALVARS;
 
 #define JOY_CALIB_FLAGS    JOY_RETURNX | JOY_RETURNY | JOY_RETURNZ | \
             JOY_RETURNR | JOY_RETURNU | JOY_RETURNV | \
@@ -96,11 +96,11 @@ static void setDefaultButton(HWND hwnd, HWND hwdb)
     DWORD    style;
     int        i;
     HWND    hwb;
-    int        idList [] = { IDC_JOYCALBACK,
+    int        idList[] = {IDC_JOYCALBACK,
         IDC_JOYCALNEXT,
         IDC_JOYPICKPOV,
         IDC_JOYCALDONE,
-        IDC_JOYTEST };
+        IDC_JOYTEST};
     /*
      * turn off the current default push button
      */
@@ -152,8 +152,7 @@ static void setLabel(
         if (type < 0 || type >= pgv->pjd->oemCount) {
             type = -1;
         }
-    }
-    else {
+    } else {
         type = -1;
     }
     switch (id) {
@@ -162,8 +161,7 @@ static void setLabel(
             if (!LoadString(hinst, IDS_XYAXIS_LABEL, str, sizeof(str))) {
                 return;
             }
-        }
-        else {
+        } else {
             strcpy(str, pgv->pjd->oemList[type].xy_label);
         }
         break;
@@ -172,8 +170,7 @@ static void setLabel(
             if (!LoadString(hinst, IDS_ZAXIS_LABEL, str, sizeof(str))) {
                 return;
             }
-        }
-        else {
+        } else {
             strcpy(str, pgv->pjd->oemList[type].z_label);
         }
         break;
@@ -182,8 +179,7 @@ static void setLabel(
             if (!LoadString(hinst, IDS_RAXIS_LABEL, str, sizeof(str))) {
                 return;
             }
-        }
-        else {
+        } else {
             strcpy(str, pgv->pjd->oemList[type].r_label);
         }
         break;
@@ -192,8 +188,7 @@ static void setLabel(
             if (!LoadString(hinst, IDS_UAXIS_LABEL, str, sizeof(str))) {
                 return;
             }
-        }
-        else {
+        } else {
             strcpy(str, pgv->pjd->oemList[type].u_label);
         }
         break;
@@ -202,8 +197,7 @@ static void setLabel(
             if (!LoadString(hinst, IDS_VAXIS_LABEL, str, sizeof(str))) {
                 return;
             }
-        }
-        else {
+        } else {
             strcpy(str, pgv->pjd->oemList[type].v_label);
         }
         break;
@@ -212,8 +206,7 @@ static void setLabel(
             if (!LoadString(hinst, IDS_POVAXIS_LABEL, str, sizeof(str))) {
                 return;
             }
-        }
-        else {
+        } else {
             strcpy(str, pgv->pjd->oemList[type].pov_label);
         }
         break;
@@ -224,7 +217,7 @@ static void setLabel(
      */
     if (pcfg->hwv.dwCalFlags & bit) {
         if (!LoadString(hinst, IDS_JOYCALINDICATOR,
-            calstr, sizeof(calstr))) {
+                        calstr, sizeof(calstr))) {
             return;
         }
         if (strlen(str) + strlen(calstr) + 1 >= sizeof(str)) {
@@ -266,8 +259,7 @@ static void enableCalWindows(
         ShowWindow(hwb, SW_NORMAL);
         SetFocus(hwb);
         setDefaultButton(hwnd, hwb);
-    }
-    else {
+    } else {
         ShowWindow(GetDlgItem(hwnd, IDC_JOYCALNEXT), SW_NORMAL);
         ShowWindow(GetDlgItem(hwnd, IDC_JOYTEST), SW_HIDE);
         EnableWindow(hwb, FALSE);
@@ -402,8 +394,7 @@ static void enableCalWindows(
             iid = IDI_JOYPOV_DOWN;
             break;
         }
-    }
-    else {
+    } else {
         ShowWindow(hwb, SW_HIDE);
         UpdateWindow(hwb);
         iid = IDI_JOYPOV_GRAYED;
@@ -423,32 +414,25 @@ static int getJoyName(LPJOYREGHWCONFIG pcfg, BOOL plural)
     if (pcfg->hws.dwFlags & JOY_HWS_ISYOKE) {
         if (plural) {
             str2id = IDS_JOYCAL_YOKES;
-        }
-        else {
+        } else {
             str2id = IDS_JOYCAL_YOKE;
         }
-    }
-    else if (pcfg->hws.dwFlags & JOY_HWS_ISCARCTRL) {
+    } else if (pcfg->hws.dwFlags & JOY_HWS_ISCARCTRL) {
         if (plural) {
             str2id = IDS_JOYCAL_CARS;
-        }
-        else {
+        } else {
             str2id = IDS_JOYCAL_CAR;
         }
-    }
-    else if (pcfg->hws.dwFlags & JOY_HWS_ISGAMEPAD) {
+    } else if (pcfg->hws.dwFlags & JOY_HWS_ISGAMEPAD) {
         if (plural) {
             str2id = IDS_JOYCAL_GAMEPADS;
-        }
-        else {
+        } else {
             str2id = IDS_JOYCAL_GAMEPAD;
         }
-    }
-    else {
+    } else {
         if (plural) {
             str2id = IDS_JOY2S;
-        }
-        else {
+        } else {
             str2id = IDS_JOY2;
         }
     }
@@ -500,12 +484,12 @@ static BOOL joyCalStateChange(LPCALVARS pcv, HWND hwnd, BOOL back)
             /*
              * init. range variables
              */
-            pcv->jr.jpMin.dwX = (DWORD) -1;
-            pcv->jr.jpMin.dwY = (DWORD) -1;
-            pcv->jr.jpMin.dwZ = (DWORD) -1;
-            pcv->jr.jpMin.dwR = (DWORD) -1;
-            pcv->jr.jpMin.dwU = (DWORD) -1;
-            pcv->jr.jpMin.dwV = (DWORD) -1;
+            pcv->jr.jpMin.dwX = (DWORD)-1;
+            pcv->jr.jpMin.dwY = (DWORD)-1;
+            pcv->jr.jpMin.dwZ = (DWORD)-1;
+            pcv->jr.jpMin.dwR = (DWORD)-1;
+            pcv->jr.jpMin.dwU = (DWORD)-1;
+            pcv->jr.jpMin.dwV = (DWORD)-1;
             pcv->jr.jpMax.dwX = 0;
             pcv->jr.jpMax.dwY = 0;
             pcv->jr.jpMax.dwZ = 0;
@@ -519,14 +503,11 @@ static BOOL joyCalStateChange(LPCALVARS pcv, HWND hwnd, BOOL back)
             stridx = CALSTR1;
             if (pcfg->hws.dwFlags & JOY_HWS_ISYOKE) {
                 strid = IDS_JOYCALXY_CENTERYOKE;
-            }
-            else if (pcfg->hws.dwFlags & JOY_HWS_ISCARCTRL) {
+            } else if (pcfg->hws.dwFlags & JOY_HWS_ISCARCTRL) {
                 strid = IDS_JOYCALXY_CENTERCAR;
-            }
-            else if (pcfg->hws.dwFlags & JOY_HWS_ISGAMEPAD) {
+            } else if (pcfg->hws.dwFlags & JOY_HWS_ISGAMEPAD) {
                 strid = IDS_JOYCALXY_CENTERGAMEPAD;
-            }
-            else {
+            } else {
                 strid = IDS_JOYCALXY_CENTER;
             }
             enableCalWindows(pgv, pcfg, hwnd, JC_XY);
@@ -535,14 +516,11 @@ static BOOL joyCalStateChange(LPCALVARS pcv, HWND hwnd, BOOL back)
             stridx = CALSTR2;
             if (pcfg->hws.dwFlags & JOY_HWS_ISYOKE) {
                 strid = IDS_JOYCALXY_MOVEYOKE;
-            }
-            else if (pcfg->hws.dwFlags & JOY_HWS_ISCARCTRL) {
+            } else if (pcfg->hws.dwFlags & JOY_HWS_ISCARCTRL) {
                 strid = IDS_JOYCALXY_MOVECAR;
-            }
-            else if (pcfg->hws.dwFlags & JOY_HWS_ISGAMEPAD) {
+            } else if (pcfg->hws.dwFlags & JOY_HWS_ISGAMEPAD) {
                 strid = IDS_JOYCALXY_MOVEGAMEPAD;
-            }
-            else {
+            } else {
                 strid = IDS_JOYCALXY_MOVE;
             }
             break;
@@ -550,14 +528,11 @@ static BOOL joyCalStateChange(LPCALVARS pcv, HWND hwnd, BOOL back)
             stridx = CALSTR3;
             if (pcfg->hws.dwFlags & JOY_HWS_ISYOKE) {
                 strid = IDS_JOYCALXY_CENTERYOKE2;
-            }
-            else if (pcfg->hws.dwFlags & JOY_HWS_ISCARCTRL) {
+            } else if (pcfg->hws.dwFlags & JOY_HWS_ISCARCTRL) {
                 strid = IDS_JOYCALXY_CENTERCAR2;
-            }
-            else if (pcfg->hws.dwFlags & JOY_HWS_ISGAMEPAD) {
+            } else if (pcfg->hws.dwFlags & JOY_HWS_ISGAMEPAD) {
                 strid = IDS_JOYCALXY_CENTERGAMEPAD2;
-            }
-            else {
+            } else {
                 strid = IDS_JOYCALXY_CENTER2;
             }
             break;
@@ -566,8 +541,7 @@ static BOOL joyCalStateChange(LPCALVARS pcv, HWND hwnd, BOOL back)
             if (!(pcfg->hws.dwFlags & JOY_HWS_HASZ)) {
                 pcv->cState = JCS_R_MOVE;
                 done = FALSE;
-            }
-            else {
+            } else {
                 enableCalWindows(pgv, pcfg, hwnd, JC_Z);
                 strid = IDS_JOYCALZ_MOVE;
                 str2id = getJoyName(pcfg, TRUE);
@@ -582,8 +556,7 @@ static BOOL joyCalStateChange(LPCALVARS pcv, HWND hwnd, BOOL back)
             if (!(pcfg->hws.dwFlags & JOY_HWS_HASR) && !(pcfg->dwUsageSettings & JOY_US_HASRUDDER)) {
                 pcv->cState = JCS_U_MOVE;
                 done = FALSE;
-            }
-            else {
+            } else {
                 enableCalWindows(pgv, pcfg, hwnd, JC_R);
                 strid = IDS_JOYCALRUDDER_MOVE;
                 str2id = getJoyName(pcfg, TRUE);
@@ -598,8 +571,7 @@ static BOOL joyCalStateChange(LPCALVARS pcv, HWND hwnd, BOOL back)
             if (!(pcfg->hws.dwFlags & JOY_HWS_HASU)) {
                 pcv->cState = JCS_V_MOVE;
                 done = FALSE;
-            }
-            else {
+            } else {
                 enableCalWindows(pgv, pcfg, hwnd, JC_U);
                 strid = IDS_JOYCALU_MOVE;
                 str2id = getJoyName(pcfg, TRUE);
@@ -614,8 +586,7 @@ static BOOL joyCalStateChange(LPCALVARS pcv, HWND hwnd, BOOL back)
             if (!(pcfg->hws.dwFlags & JOY_HWS_HASV)) {
                 pcv->cState = JCS_POV_MOVEUP;
                 done = FALSE;
-            }
-            else {
+            } else {
                 enableCalWindows(pgv, pcfg, hwnd, JC_V);
                 strid = IDS_JOYCALV_MOVE;
                 str2id = getJoyName(pcfg, TRUE);
@@ -630,8 +601,7 @@ static BOOL joyCalStateChange(LPCALVARS pcv, HWND hwnd, BOOL back)
             if (!(pcfg->hws.dwFlags & JOY_HWS_HASPOV)) {
                 pcv->cState = JCS_FINI;
                 done = FALSE;
-            }
-            else {
+            } else {
                 enableCalWindows(pgv, pcfg, hwnd, JC_POV_UP);
                 strid = IDS_JOYCALPOV_MOVE;
                 str2id = IDS_JOYCAL_UP;
@@ -670,35 +640,28 @@ static BOOL joyCalStateChange(LPCALVARS pcv, HWND hwnd, BOOL back)
              */
             if (!(pcfg->hwv.dwCalFlags & JOY_ISCAL_XY)) {
                 isdone = FALSE;
-            }
-            else if ((pcfg->hws.dwFlags & JOY_HWS_HASZ) &&
-                !(pcfg->hwv.dwCalFlags & JOY_ISCAL_Z)) {
+            } else if ((pcfg->hws.dwFlags & JOY_HWS_HASZ) &&
+                       !(pcfg->hwv.dwCalFlags & JOY_ISCAL_Z)) {
                 isdone = FALSE;
-            }
-            else if (((pcfg->hws.dwFlags & JOY_HWS_HASR) ||
+            } else if (((pcfg->hws.dwFlags & JOY_HWS_HASR) ||
                 (pcfg->dwUsageSettings & JOY_US_HASRUDDER)) &&
-                !(pcfg->hwv.dwCalFlags & JOY_ISCAL_R)) {
+                       !(pcfg->hwv.dwCalFlags & JOY_ISCAL_R)) {
                 isdone = FALSE;
-            }
-            else if ((pcfg->hws.dwFlags & JOY_HWS_HASPOV) &&
-                !(pcfg->hwv.dwCalFlags & JOY_ISCAL_POV))  {
+            } else if ((pcfg->hws.dwFlags & JOY_HWS_HASPOV) &&
+                       !(pcfg->hwv.dwCalFlags & JOY_ISCAL_POV)) {
                 isdone = FALSE;
-            }
-            else if ((pcfg->hws.dwFlags & JOY_HWS_HASU) &&
-                !(pcfg->hwv.dwCalFlags & JOY_ISCAL_U))  {
+            } else if ((pcfg->hws.dwFlags & JOY_HWS_HASU) &&
+                       !(pcfg->hwv.dwCalFlags & JOY_ISCAL_U)) {
                 isdone = FALSE;
-            }
-            else if ((pcfg->hws.dwFlags & JOY_HWS_HASV) &&
-                !(pcfg->hwv.dwCalFlags & JOY_ISCAL_V))  {
+            } else if ((pcfg->hws.dwFlags & JOY_HWS_HASV) &&
+                       !(pcfg->hwv.dwCalFlags & JOY_ISCAL_V)) {
                 isdone = FALSE;
-            }
-            else {
+            } else {
                 isdone = TRUE;
             }
             if (isdone) {
                 strid = IDS_JOYCAL_DONE;
-            }
-            else {
+            } else {
                 strid = IDS_JOYCAL_NOTDONE;
             }
             str2id = getJoyName(pcfg, FALSE);
@@ -736,25 +699,22 @@ static BOOL joyCalStateChange(LPCALVARS pcv, HWND hwnd, BOOL back)
                         if (str4id != -1) {
                             if (LoadString(hinst, str4id, str4, sizeof(str4))) {
                                 // wsprintf( buff, str, str2, str3, str4 );
-                                LPSTR lpargs [] = { str2, str3, str4 };
+                                LPSTR lpargs[] = {str2, str3, str4};
 
-                                FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY, (LPSTR) str, 0, 0, buff, sizeof(buff), (va_list *) lpargs);
+                                FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY, (LPSTR)str, 0, 0, buff, sizeof(buff), (va_list*)lpargs);
                                 SetWindowText(hwtext, buff);
                             }
-                        }
-                        else {
+                        } else {
                             wsprintf(buff, str, str2, str3);
                             SetWindowText(hwtext, buff);
                         }
                     }
-                }
-                else {
+                } else {
                     wsprintf(buff, str, str2, str2);
                     SetWindowText(hwtext, buff);
                 }
             }
-        }
-        else {
+        } else {
             SetWindowText(hwtext, str);
         }
     }
@@ -777,32 +737,27 @@ static void joyCalStateSkip(LPCALVARS pcv, HWND hwnd)
         /*
          * if we're calibrating Z, skip to R
          */
-    }
-    else if (pcv->cState < JCS_Z_PLACEHOLDER) {
+    } else if (pcv->cState < JCS_Z_PLACEHOLDER) {
         pcv->cState = JCS_Z_PLACEHOLDER;
         /*
          * if we're calibrating R, skip to U
          */
-    }
-    else if (pcv->cState < JCS_R_PLACEHOLDER) {
+    } else if (pcv->cState < JCS_R_PLACEHOLDER) {
         pcv->cState = JCS_R_PLACEHOLDER;
         /*
          * if we're calibrating U, skip to V
          */
-    }
-    else if (pcv->cState < JCS_U_PLACEHOLDER) {
+    } else if (pcv->cState < JCS_U_PLACEHOLDER) {
         pcv->cState = JCS_U_PLACEHOLDER;
         /*
          * if we're calibrating V, skip to POV
          */
-    }
-    else if (pcv->cState < JCS_V_PLACEHOLDER) {
+    } else if (pcv->cState < JCS_V_PLACEHOLDER) {
         pcv->cState = JCS_V_PLACEHOLDER;
         /*
          * we must be calibration POV, skip to the end
          */
-    }
-    else  {
+    } else {
         pcv->cState = JCS_POV_MOVELEFT;
     }
 
@@ -857,49 +812,42 @@ static void joyCalStateBack(LPCALVARS pcv, HWND hwnd)
             /*
              * if there is V, back up to it
              */
-        }
-        else if (pcfg->hws.dwFlags & JOY_HWS_HASV) {
+        } else if (pcfg->hws.dwFlags & JOY_HWS_HASV) {
             pcv->cState = JCS_U_PLACEHOLDER;
             /*
              * if there is U, back up to it
              */
-        }
-        else if (pcfg->hws.dwFlags & JOY_HWS_HASU) {
+        } else if (pcfg->hws.dwFlags & JOY_HWS_HASU) {
             pcv->cState = JCS_R_PLACEHOLDER;
             /*
              * if there is R, back up to it
              */
-        }
-        else if ((pcfg->hws.dwFlags & JOY_HWS_HASR) ||
+        } else if ((pcfg->hws.dwFlags & JOY_HWS_HASR) ||
             (pcfg->dwUsageSettings & JOY_US_HASRUDDER)) {
             pcv->cState = JCS_Z_PLACEHOLDER;
             /*
              * if there is Z, back up to it
              */
-        }
-        else if (pcfg->hws.dwFlags & JOY_HWS_HASZ) {
+        } else if (pcfg->hws.dwFlags & JOY_HWS_HASZ) {
             pcv->cState = JCS_XY_CENTER2;
             /*
              * no where else to go, back up to XY
              */
-        }
-        else {
+        } else {
             pcv->cState = JCS_INIT;
             back = FALSE;
         }
         /*
          * doing POV, so restart it
          */
-    }
-    else if (pcv->cState > JCS_POV_MOVEUP) {
+    } else if (pcv->cState > JCS_POV_MOVEUP) {
         pcv->cState = JCS_V_PLACEHOLDER;
         //    pcfg->hws.dwFlags &= ~(JOY_HWS_POVISPOLL|JOY_HWS_POVISBUTTONCOMBOS);
         resetCustomPOVFlags(pgv, pcfg);
         /*
          * just starting POV, back up
          */
-    }
-    else if (pcv->cState == JCS_POV_MOVEUP) {
+    } else if (pcv->cState == JCS_POV_MOVEUP) {
         /*
          * if there is V, back up to it
          */
@@ -908,35 +856,30 @@ static void joyCalStateBack(LPCALVARS pcv, HWND hwnd)
             /*
              * if there is U, back up to it
              */
-        }
-        else if (pcfg->hws.dwFlags & JOY_HWS_HASU) {
+        } else if (pcfg->hws.dwFlags & JOY_HWS_HASU) {
             pcv->cState = JCS_R_PLACEHOLDER;
             /*
              * if there is R, back up to it
              */
-        }
-        else if ((pcfg->hws.dwFlags & JOY_HWS_HASR) ||
+        } else if ((pcfg->hws.dwFlags & JOY_HWS_HASR) ||
             (pcfg->dwUsageSettings & JOY_US_HASRUDDER)) {
             pcv->cState = JCS_Z_PLACEHOLDER;
             /*
              * if there is Z, back up to it
              */
-        }
-        else if (pcfg->hws.dwFlags & JOY_HWS_HASZ) {
+        } else if (pcfg->hws.dwFlags & JOY_HWS_HASZ) {
             pcv->cState = JCS_XY_CENTER2;
             /*
              * no where else to go, back up to XY
              */
-        }
-        else {
+        } else {
             pcv->cState = JCS_INIT;
             back = FALSE;
         }
         /*
          * doing V, backup
          */
-    }
-    else if (pcv->cState == JCS_V_MOVE) {
+    } else if (pcv->cState == JCS_V_MOVE) {
         /*
          * if there is U, back up to it
          */
@@ -945,29 +888,25 @@ static void joyCalStateBack(LPCALVARS pcv, HWND hwnd)
             /*
              * if there is R, back up to it
              */
-        }
-        else if ((pcfg->hws.dwFlags & JOY_HWS_HASR) ||
+        } else if ((pcfg->hws.dwFlags & JOY_HWS_HASR) ||
             (pcfg->dwUsageSettings & JOY_US_HASRUDDER)) {
             pcv->cState = JCS_Z_PLACEHOLDER;
             /*
              * if there is Z, back up to it
              */
-        }
-        else if (pcfg->hws.dwFlags & JOY_HWS_HASZ) {
+        } else if (pcfg->hws.dwFlags & JOY_HWS_HASZ) {
             pcv->cState = JCS_XY_CENTER2;
             /*
              * no where else to go, back up to XY
              */
-        }
-        else {
+        } else {
             pcv->cState = JCS_INIT;
             back = FALSE;
         }
         /*
          * doing U, backup
          */
-    }
-    else if (pcv->cState == JCS_U_MOVE) {
+    } else if (pcv->cState == JCS_U_MOVE) {
         /*
          * if there is R, back up to it
          */
@@ -977,22 +916,19 @@ static void joyCalStateBack(LPCALVARS pcv, HWND hwnd)
             /*
              * if there is Z, back up to it
              */
-        }
-        else if (pcfg->hws.dwFlags & JOY_HWS_HASZ) {
+        } else if (pcfg->hws.dwFlags & JOY_HWS_HASZ) {
             pcv->cState = JCS_XY_CENTER2;
             /*
              * no where else to go, back up to XY
              */
-        }
-        else {
+        } else {
             pcv->cState = JCS_INIT;
             back = FALSE;
         }
         /*
          * doing R, backup
          */
-    }
-    else if (pcv->cState == JCS_R_MOVE) {
+    } else if (pcv->cState == JCS_R_MOVE) {
         /*
          * if there is Z, back up to it
          */
@@ -1001,16 +937,14 @@ static void joyCalStateBack(LPCALVARS pcv, HWND hwnd)
             /*
              * no where else to go, back up to XY
              */
-        }
-        else {
+        } else {
             pcv->cState = JCS_INIT;
             back = FALSE;
         }
         /*
          * if we're doing Z or in the middle of XY, backup to XY
          */
-    }
-    else {
+    } else {
         pcv->cState = JCS_INIT;
         back = FALSE;
     }
@@ -1148,8 +1082,8 @@ static BOOL joyCollectCalInfo(LPCALVARS pcv, HWND hwnd, LPJOYINFOEX pji)
     if (((pcv->ji.dwButtons & ALL_BUTTONS) != (pji->dwButtons & ALL_BUTTONS)) &&
         ((pji->dwButtons & JOY_BUTTON1) ||
         (pji->dwButtons & JOY_BUTTON2) ||
-        (pji->dwButtons & JOY_BUTTON3) ||
-        (pji->dwButtons & JOY_BUTTON4))) {
+         (pji->dwButtons & JOY_BUTTON3) ||
+         (pji->dwButtons & JOY_BUTTON4))) {
         /*
          * check and see if we are leaving one calibration to the next;
          * if yes, take time to stop and remember what the user just did
@@ -1219,11 +1153,11 @@ static BOOL joyCalibrateInitDialog(HWND hwnd, LPARAM lParam)
      * set up calibration variables
      */
     pcv = DoAlloc(sizeof(CALVARS));
-    SetWindowLong(hwnd, DWL_USER, (LONG) pcv);
+    SetWindowLong(hwnd, DWL_USER, (LONG)pcv);
     if (pcv == NULL) {
         return FALSE;
     }
-    pgv = (LPGLOBALVARS) lParam;
+    pgv = (LPGLOBALVARS)lParam;
     pcv->pgv = pgv;
 
     /*
@@ -1290,7 +1224,7 @@ static BOOL joyCalibrateInitDialog(HWND hwnd, LPARAM lParam)
 /*
  * setJIFlagsForPOV - get joyinfo flags to allow a raw POV poll
 */
-static void setJIFlagsForPOV(LPCALVARS pcv, LPJOYREGHWCONFIG pcfg, DWORD *pflags)
+static void setJIFlagsForPOV(LPCALVARS pcv, LPJOYREGHWCONFIG pcfg, DWORD* pflags)
 {
     /*
      * for polled POV, we need to specifiy JOY_CAL_READ(3|4) to make
@@ -1301,32 +1235,25 @@ static void setJIFlagsForPOV(LPCALVARS pcv, LPJOYREGHWCONFIG pcfg, DWORD *pflags
         if (pcfg->hws.dwFlags & JOY_HWS_POVISPOLL) {
             if (pcv->iAxisCount == 6) {
                 (*pflags) |= JOY_CAL_READ6;
-            }
-            else if (pcv->iAxisCount == 5) {
+            } else if (pcv->iAxisCount == 5) {
                 (*pflags) |= JOY_CAL_READ5;
-            }
-            else if (pcv->iAxisCount == 4) {
+            } else if (pcv->iAxisCount == 4) {
                 (*pflags) |= JOY_CAL_READ4;
-            }
-            else if (pcv->iAxisCount == 3) {
+            } else if (pcv->iAxisCount == 3) {
                 (*pflags) |= JOY_CAL_READ3;
             }
             /*
              * if we don't have a 3rd or 4th axis on this joystick, try reading
              * another axis anyway to see if the POV hat is on it
              */
-        }
-        else if (!(pcfg->hws.dwFlags & (JOY_HWS_POVISPOLL | JOY_HWS_POVISBUTTONCOMBOS))) {
+        } else if (!(pcfg->hws.dwFlags & (JOY_HWS_POVISPOLL | JOY_HWS_POVISBUTTONCOMBOS))) {
             if (pcv->iAxisCount == 5) {
                 (*pflags) |= JOY_CAL_READ6;
-            }
-            else if (pcv->iAxisCount == 4) {
+            } else if (pcv->iAxisCount == 4) {
                 (*pflags) |= JOY_CAL_READ5;
-            }
-            else if (pcv->iAxisCount == 3) {
+            } else if (pcv->iAxisCount == 3) {
                 (*pflags) |= JOY_CAL_READ4;
-            }
-            else if (pcv->iAxisCount == 2) {
+            } else if (pcv->iAxisCount == 2) {
                 (*pflags) |= JOY_CAL_READ3;
             }
         }
@@ -1355,9 +1282,9 @@ static BOOL tryPOV(LPCALVARS pcv, HWND hwnd)
      * reject call if not in a POV state
      */
     if (!(pcv->cState == JCS_POV_MOVEUP ||
-        pcv->cState == JCS_POV_MOVEDOWN ||
-        pcv->cState == JCS_POV_MOVELEFT ||
-        pcv->cState == JCS_POV_MOVERIGHT)) {
+          pcv->cState == JCS_POV_MOVEDOWN ||
+          pcv->cState == JCS_POV_MOVELEFT ||
+          pcv->cState == JCS_POV_MOVERIGHT)) {
         return FALSE;
     }
 
@@ -1387,15 +1314,13 @@ static BOOL tryPOV(LPCALVARS pcv, HWND hwnd)
             if (rc == JOYERR_NOERROR) {
                 nowaypoll = TRUE;    // pov can't possibly be polled
                 break;
-            }
-            else {
+            } else {
                 if (!JoyError(hwnd)) {
                     return FALSE;
                 }
                 return TRUE;    // have to wait for next "Select POV" to retry
             }
-        }
-        else {
+        } else {
             if (!JoyError(hwnd)) {
                 return FALSE;
             }
@@ -1420,8 +1345,7 @@ static BOOL tryPOV(LPCALVARS pcv, HWND hwnd)
     isb = FALSE;
     if (pcfg->hws.dwFlags & JOY_HWS_POVISPOLL) {
         ispoll = TRUE;
-    }
-    else if (pcfg->hws.dwFlags & JOY_HWS_POVISBUTTONCOMBOS) {
+    } else if (pcfg->hws.dwFlags & JOY_HWS_POVISBUTTONCOMBOS) {
         isb = TRUE;
     }
     if (!isb && !ispoll) {
@@ -1431,11 +1355,10 @@ static BOOL tryPOV(LPCALVARS pcv, HWND hwnd)
         if (nowaypoll ||
             ((ji.dwButtons != 0) && (ji.dwButtons != JOY_BUTTON1) &&
             (ji.dwButtons != JOY_BUTTON2) && (ji.dwButtons != JOY_BUTTON3) &&
-            (ji.dwButtons != JOY_BUTTON4))) {
+             (ji.dwButtons != JOY_BUTTON4))) {
             isb = TRUE;
             pcfg->hws.dwFlags |= JOY_HWS_POVISBUTTONCOMBOS;
-        }
-        else {
+        } else {
             /*
              * we always assume J2 Y for a polling POV if unspecified
              */
@@ -1454,12 +1377,10 @@ static BOOL tryPOV(LPCALVARS pcv, HWND hwnd)
      */
     if (isb) {
         val = ji.dwButtons;
-    }
-    else {
+    } else {
         if (!(pcfg->hws.dwFlags & JOY_HWS_HASZ)) {
             val = ji.dwZpos;
-        }
-        else {
+        } else {
             val = ji.dwRpos;
         }
     }
@@ -1514,7 +1435,7 @@ BOOL CALLBACK CalibrateProc(HWND hwnd, UINT umsg, WPARAM wParam, LPARAM lParam)
     {
         LPCALVARS        pcv;
 
-        pcv = (LPCALVARS) GetWindowLong(hwnd, DWL_USER);
+        pcv = (LPCALVARS)GetWindowLong(hwnd, DWL_USER);
         if (pcv->bUseTimer) {
             JOYINFOEX        ji;
             MMRESULT        rc;
@@ -1574,7 +1495,7 @@ BOOL CALLBACK CalibrateProc(HWND hwnd, UINT umsg, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
     {
         LPCALVARS    pcv;
-        pcv = (LPCALVARS) GetWindowLong(hwnd, DWL_USER);
+        pcv = (LPCALVARS)GetWindowLong(hwnd, DWL_USER);
         DoFree(pcv);
         break;
     }
@@ -1585,7 +1506,7 @@ BOOL CALLBACK CalibrateProc(HWND hwnd, UINT umsg, WPARAM wParam, LPARAM lParam)
 
         rc = joyCalibrateInitDialog(hwnd, lParam);
         if (!rc) {
-            pcv = (LPCALVARS) GetWindowLong(hwnd, DWL_USER);
+            pcv = (LPCALVARS)GetWindowLong(hwnd, DWL_USER);
             if (pcv != NULL && pcv->bHasTimer) {
                 KillTimer(hwnd, TIMER_ID);
                 pcv->bHasTimer = FALSE;
@@ -1598,7 +1519,7 @@ BOOL CALLBACK CalibrateProc(HWND hwnd, UINT umsg, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
     {
         LPCALVARS    pcv;
-        pcv = (LPCALVARS) GetWindowLong(hwnd, DWL_USER);
+        pcv = (LPCALVARS)GetWindowLong(hwnd, DWL_USER);
         CauseRedraw(&pcv->ji, FALSE);
         return FALSE;
     }
@@ -1608,7 +1529,7 @@ BOOL CALLBACK CalibrateProc(HWND hwnd, UINT umsg, WPARAM wParam, LPARAM lParam)
         int         id;
         LPCALVARS    pcv;
 
-        pcv = (LPCALVARS) GetWindowLong(hwnd, DWL_USER);
+        pcv = (LPCALVARS)GetWindowLong(hwnd, DWL_USER);
         id = GET_WM_COMMAND_ID(wParam, lParam);
         switch (id) {
         case IDC_JOYTEST:
@@ -1628,12 +1549,12 @@ BOOL CALLBACK CalibrateProc(HWND hwnd, UINT umsg, WPARAM wParam, LPARAM lParam)
                 KillTimer(hwnd, TIMER_ID);
                 pcv->bHasTimer = FALSE;
             }
-        {
-            LPJOYREGHWCONFIG    pcfg;
-            pcfg = &pcv->pgv->joyHWCurr;
-        }
-        EndDialog(hwnd, (id == IDC_JOYCALDONE));
-        break;
+            {
+                LPJOYREGHWCONFIG    pcfg;
+                pcfg = &pcv->pgv->joyHWCurr;
+            }
+            EndDialog(hwnd, (id == IDC_JOYCALDONE));
+            break;
         case IDC_JOYPICKPOV:
             if (!tryPOV(pcv, hwnd)) {
                 HWND    hwb;
@@ -1697,20 +1618,18 @@ void DoCalibrate(LPGLOBALVARS pgv, HWND hwnd)
 
     if (pgv->joyHWCurr.hws.dwFlags & (JOY_HWS_HASU | JOY_HWS_HASV)) {
         id = IDD_JOYCALIBRATE1;
-    }
-    else {
+    } else {
         id = IDD_JOYCALIBRATE;
     }
-    rc = DialogBoxParam((HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE),
-        MAKEINTRESOURCE(id), hwnd, CalibrateProc, (LONG) pgv);
+    rc = DialogBoxParam((HINSTANCE)GetWindowLong(hwnd, GWL_HINSTANCE),
+                        MAKEINTRESOURCE(id), hwnd, CalibrateProc, (LONG)pgv);
 
     /*
      * update the registry with the new info or the old info
      */
     if (rc) {
         PropSheet_Changed(GetParent(hwnd), hwnd);
-    }
-    else {
+    } else {
         pgv->joyHWCurr = save_joycfg;
     }
     RegSaveCurrentJoyHW(pgv);

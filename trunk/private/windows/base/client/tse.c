@@ -72,8 +72,8 @@ LUID SeRemoteShutdownPrivilege;
 
 VOID TestLookupSid();
 VOID TestLookupName();
-void TestGetPrivNameW(LPWSTR *PrivName, PLUID  lpLuid);
-void TestGetPrivNameA(LPSTR *PrivName, PLUID  lpLuid);
+void TestGetPrivNameW(LPWSTR* PrivName, PLUID  lpLuid);
+void TestGetPrivNameA(LPSTR* PrivName, PLUID  lpLuid);
 VOID TestLookupPrivilegeValue();
 void TestLookupPrivilegeValueW(PLUID lpLuid);
 void TestLookupPrivilegeValueA(PLUID lpLuid);
@@ -83,7 +83,7 @@ void TestLookupPrivilegeNameA(PLUID lpLuid);
 VOID TestLookupPrivilegeDisplayName();
 void TestLookupPrivilegeDisplayNameW(PLUID lpLuid);
 void TestLookupPrivilegeDisplayNameA(PLUID lpLuid);
-void initialize (void);
+void initialize(void);
 void TestLookupSidW(IN PSID Sid);
 void TestLookupSidA(IN PSID Sid);
 void TestLookupNameW(LPWSTR Name);
@@ -92,61 +92,61 @@ VOID DisplayAccountSid(PSID Sid);
 VOID DisplayUse(IN SID_NAME_USE  Use);
 
 
-void initialize (void)
+void initialize(void)
 {
     ULONG SidWithZeroSubAuthorities;
     ULONG SidWithOneSubAuthority;
     ULONG SidWithThreeSubAuthorities;
     ULONG SidWithFourSubAuthorities;
 
-    SID_IDENTIFIER_AUTHORITY NullSidAuthority    = SECURITY_NULL_SID_AUTHORITY;
-    SID_IDENTIFIER_AUTHORITY WorldSidAuthority   = SECURITY_WORLD_SID_AUTHORITY;
-    SID_IDENTIFIER_AUTHORITY LocalSidAuthority   = SECURITY_LOCAL_SID_AUTHORITY;
+    SID_IDENTIFIER_AUTHORITY NullSidAuthority = SECURITY_NULL_SID_AUTHORITY;
+    SID_IDENTIFIER_AUTHORITY WorldSidAuthority = SECURITY_WORLD_SID_AUTHORITY;
+    SID_IDENTIFIER_AUTHORITY LocalSidAuthority = SECURITY_LOCAL_SID_AUTHORITY;
     SID_IDENTIFIER_AUTHORITY CreatorSidAuthority = SECURITY_CREATOR_SID_AUTHORITY;
     SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
 
     //  The following SID sizes need to be allocated
-    SidWithZeroSubAuthorities  = GetSidLengthRequired( 0 );
-    SidWithOneSubAuthority     = GetSidLengthRequired( 1 );
-    SidWithThreeSubAuthorities = GetSidLengthRequired( 3 );
-    SidWithFourSubAuthorities  = GetSidLengthRequired( 4 );
+    SidWithZeroSubAuthorities = GetSidLengthRequired(0);
+    SidWithOneSubAuthority = GetSidLengthRequired(1);
+    SidWithThreeSubAuthorities = GetSidLengthRequired(3);
+    SidWithFourSubAuthorities = GetSidLengthRequired(4);
 
     //  Allocate and initialize the universal SIDs
-    NullSid         = (PSID)RtlAllocateHeap( RtlProcessHeap(), 0,SidWithOneSubAuthority);
-    WorldSid        = (PSID)RtlAllocateHeap( RtlProcessHeap(), 0,SidWithOneSubAuthority);
-    LocalSid        = (PSID)RtlAllocateHeap( RtlProcessHeap(), 0,SidWithOneSubAuthority);
-    CreatorOwnerSid = (PSID)RtlAllocateHeap( RtlProcessHeap(), 0,SidWithOneSubAuthority);
+    NullSid = (PSID)RtlAllocateHeap(RtlProcessHeap(), 0, SidWithOneSubAuthority);
+    WorldSid = (PSID)RtlAllocateHeap(RtlProcessHeap(), 0, SidWithOneSubAuthority);
+    LocalSid = (PSID)RtlAllocateHeap(RtlProcessHeap(), 0, SidWithOneSubAuthority);
+    CreatorOwnerSid = (PSID)RtlAllocateHeap(RtlProcessHeap(), 0, SidWithOneSubAuthority);
 
-    InitializeSid( NullSid,    &NullSidAuthority, 1 );
-    InitializeSid( WorldSid,   &WorldSidAuthority, 1 );
-    InitializeSid( LocalSid,   &LocalSidAuthority, 1 );
-    InitializeSid( CreatorOwnerSid, &CreatorSidAuthority, 1 );
+    InitializeSid(NullSid, &NullSidAuthority, 1);
+    InitializeSid(WorldSid, &WorldSidAuthority, 1);
+    InitializeSid(LocalSid, &LocalSidAuthority, 1);
+    InitializeSid(CreatorOwnerSid, &CreatorSidAuthority, 1);
 
-    *(GetSidSubAuthority( NullSid, 0 ))         = SECURITY_NULL_RID;
-    *(GetSidSubAuthority( WorldSid, 0 ))        = SECURITY_WORLD_RID;
-    *(GetSidSubAuthority( LocalSid, 0 ))        = SECURITY_LOCAL_RID;
-    *(GetSidSubAuthority( CreatorOwnerSid, 0 )) = SECURITY_CREATOR_OWNER_RID;
+    *(GetSidSubAuthority(NullSid, 0)) = SECURITY_NULL_RID;
+    *(GetSidSubAuthority(WorldSid, 0)) = SECURITY_WORLD_RID;
+    *(GetSidSubAuthority(LocalSid, 0)) = SECURITY_LOCAL_RID;
+    *(GetSidSubAuthority(CreatorOwnerSid, 0)) = SECURITY_CREATOR_OWNER_RID;
 
     // Allocate and initialize the NT defined SIDs
-    NtAuthoritySid  = (PSID)RtlAllocateHeap( RtlProcessHeap(), 0,SidWithZeroSubAuthorities);
-    DialupSid       = (PSID)RtlAllocateHeap( RtlProcessHeap(), 0,SidWithOneSubAuthority);
-    NetworkSid      = (PSID)RtlAllocateHeap( RtlProcessHeap(), 0,SidWithOneSubAuthority);
-    BatchSid        = (PSID)RtlAllocateHeap( RtlProcessHeap(), 0,SidWithOneSubAuthority);
-    InteractiveSid  = (PSID)RtlAllocateHeap( RtlProcessHeap(), 0,SidWithOneSubAuthority);
-    LocalSystemSid  = (PSID)RtlAllocateHeap( RtlProcessHeap(), 0,SidWithOneSubAuthority);
+    NtAuthoritySid = (PSID)RtlAllocateHeap(RtlProcessHeap(), 0, SidWithZeroSubAuthorities);
+    DialupSid = (PSID)RtlAllocateHeap(RtlProcessHeap(), 0, SidWithOneSubAuthority);
+    NetworkSid = (PSID)RtlAllocateHeap(RtlProcessHeap(), 0, SidWithOneSubAuthority);
+    BatchSid = (PSID)RtlAllocateHeap(RtlProcessHeap(), 0, SidWithOneSubAuthority);
+    InteractiveSid = (PSID)RtlAllocateHeap(RtlProcessHeap(), 0, SidWithOneSubAuthority);
+    LocalSystemSid = (PSID)RtlAllocateHeap(RtlProcessHeap(), 0, SidWithOneSubAuthority);
 
-    InitializeSid( NtAuthoritySid,   &NtAuthority, 0 );
-    InitializeSid( DialupSid,        &NtAuthority, 1 );
-    InitializeSid( NetworkSid,       &NtAuthority, 1 );
-    InitializeSid( BatchSid,         &NtAuthority, 1 );
-    InitializeSid( InteractiveSid,   &NtAuthority, 1 );
-    InitializeSid( LocalSystemSid,   &NtAuthority, 1 );
+    InitializeSid(NtAuthoritySid, &NtAuthority, 0);
+    InitializeSid(DialupSid, &NtAuthority, 1);
+    InitializeSid(NetworkSid, &NtAuthority, 1);
+    InitializeSid(BatchSid, &NtAuthority, 1);
+    InitializeSid(InteractiveSid, &NtAuthority, 1);
+    InitializeSid(LocalSystemSid, &NtAuthority, 1);
 
-    *(GetSidSubAuthority( DialupSid,       0 )) = SECURITY_DIALUP_RID;
-    *(GetSidSubAuthority( NetworkSid,      0 )) = SECURITY_NETWORK_RID;
-    *(GetSidSubAuthority( BatchSid,        0 )) = SECURITY_BATCH_RID;
-    *(GetSidSubAuthority( InteractiveSid,  0 )) = SECURITY_INTERACTIVE_RID;
-    *(GetSidSubAuthority( LocalSystemSid,  0 )) = SECURITY_LOCAL_SYSTEM_RID;
+    *(GetSidSubAuthority(DialupSid, 0)) = SECURITY_DIALUP_RID;
+    *(GetSidSubAuthority(NetworkSid, 0)) = SECURITY_NETWORK_RID;
+    *(GetSidSubAuthority(BatchSid, 0)) = SECURITY_BATCH_RID;
+    *(GetSidSubAuthority(InteractiveSid, 0)) = SECURITY_INTERACTIVE_RID;
+    *(GetSidSubAuthority(LocalSystemSid, 0)) = SECURITY_LOCAL_SYSTEM_RID;
 
     // Initialize the well known privilege values
     SeCreateTokenPrivilege = RtlConvertLongToLargeInteger(SE_CREATE_TOKEN_PRIVILEGE);
@@ -171,7 +171,7 @@ void initialize (void)
     SeAuditPrivilege = RtlConvertLongToLargeInteger(SE_AUDIT_PRIVILEGE);
     SeSystemEnvironmentPrivilege = RtlConvertLongToLargeInteger(SE_SYSTEM_ENVIRONMENT_PRIVILEGE);
     SeChangeNotifyPrivilege = RtlConvertLongToLargeInteger(SE_CHANGE_NOTIFY_PRIVILEGE);
-    SeRemoteShutdownPrivilege =  RtlConvertLongToLargeInteger(SE_REMOTE_SHUTDOWN_PRIVILEGE);
+    SeRemoteShutdownPrivilege = RtlConvertLongToLargeInteger(SE_REMOTE_SHUTDOWN_PRIVILEGE);
 }
 
 
@@ -191,9 +191,9 @@ void TestLookupSidW(IN PSID Sid)
     cbName = 0;
     cbReferencedDomainName = 0;
 
-    Bool = LookupAccountSidW(NULL, Sid, Name, &cbName, ReferencedDomainName, &cbReferencedDomainName, &peUse );
+    Bool = LookupAccountSidW(NULL, Sid, Name, &cbName, ReferencedDomainName, &cbReferencedDomainName, &peUse);
     // Expect failure here
-    if ( !Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER ) {
+    if (!Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
         printf("** FAILED **\n");
         printf("        First call.\n");
         printf("        Status:             %d\n", GetLastError());
@@ -201,7 +201,7 @@ void TestLookupSidW(IN PSID Sid)
         printf("        Domain Name Length: %d\n", cbReferencedDomainName);
     } else {
         Bool = LookupAccountSidW(NULL, Sid, Name, &cbName, ReferencedDomainName, &cbReferencedDomainName, &peUse);
-        if ( !Bool ) {
+        if (!Bool) {
             printf("** FAILED **\n");
             printf("        Second call.\n");
             printf("        Status:             %d\n", GetLastError());
@@ -211,14 +211,14 @@ void TestLookupSidW(IN PSID Sid)
             printf("Succeeded\n");
             printf("        Name Length:        %d\n", cbName);
             printf("        Name:               *");
-            DumpWCharString( Name );
+            DumpWCharString(Name);
             printf("*\n");
             printf("        Domain Name Length: %d\n", cbReferencedDomainName);
             printf("        Domain Name:        *");
-            DumpWCharString( ReferencedDomainName );
+            DumpWCharString(ReferencedDomainName);
             printf("*\n");
             printf("        Use:                ");
-            DisplayUse( peUse );
+            DisplayUse(peUse);
             printf("\n\n");
         }
     }
@@ -239,7 +239,7 @@ void TestLookupSidA(IN PSID Sid)
     Bool = LookupAccountSidA(NULL, Sid, Name, &cbName, ReferencedDomainName, &cbReferencedDomainName, &peUse);
 
     // Expect failure here
-    if ( !Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER ) {
+    if (!Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
         printf("** FAILED **\n");
         printf("        First call.\n");
         printf("        Status:             %d\n", GetLastError());
@@ -247,7 +247,7 @@ void TestLookupSidA(IN PSID Sid)
         printf("        Domain Name Length: %d\n", cbReferencedDomainName);
     } else {
         Bool = LookupAccountSidA(NULL, Sid, Name, &cbName, ReferencedDomainName, &cbReferencedDomainName, &peUse);
-        if ( !Bool ) {
+        if (!Bool) {
             printf("** FAILED **\n");
             printf("        Second call.\n");
             printf("        Status:             %d\n", GetLastError());
@@ -256,11 +256,11 @@ void TestLookupSidA(IN PSID Sid)
         } else {
             printf("Succeeded\n");
             printf("        Name Length:        %d\n", cbName);
-            printf("        Name:               *%s*\n",Name);
+            printf("        Name:               *%s*\n", Name);
             printf("        Domain Name Length: %d\n", cbReferencedDomainName);
-            printf("        Domain Name:        *%s*\n", ReferencedDomainName );
+            printf("        Domain Name:        *%s*\n", ReferencedDomainName);
             printf("        Use:                ");
-            DisplayUse( peUse );
+            DisplayUse(peUse);
             printf("\n\n");
         }
     }
@@ -281,7 +281,7 @@ void TestLookupNameW(LPWSTR Name)// LookupAccountNameW test
     Bool = LookupAccountNameW(NULL, Name, Sid, &cbSid, ReferencedDomainName, &cbReferencedDomainName, &peUse);
 
     // Expect failure here
-    if ( !Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER ) {
+    if (!Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
         printf("** FAILED **\n");
         printf("        First call.\n");
         printf("        Status:             %d\n", GetLastError());
@@ -289,7 +289,7 @@ void TestLookupNameW(LPWSTR Name)// LookupAccountNameW test
         printf("        Domain Name Length: %d\n", cbReferencedDomainName);
     } else {
         Bool = LookupAccountNameW(NULL, Name, Sid, &cbSid, ReferencedDomainName, &cbReferencedDomainName, &peUse);
-        if ( !Bool ) {
+        if (!Bool) {
             printf("** FAILED **\n");
             printf("        Second call.\n");
             printf("        Status:             %d\n", GetLastError());
@@ -299,14 +299,14 @@ void TestLookupNameW(LPWSTR Name)// LookupAccountNameW test
             printf("Succeeded\n");
             printf("        Sid  Length:        %d\n", cbSid);
             printf("        Sid:                ");
-            DisplayAccountSid( Sid );
+            DisplayAccountSid(Sid);
             printf("\n");
             printf("        Domain Name Length: %d\n", cbReferencedDomainName);
             printf("        Domain Name:        *");
-            DumpWCharString( ReferencedDomainName );
+            DumpWCharString(ReferencedDomainName);
             printf("*\n");
             printf("        Use:                ");
-            DisplayUse( peUse );
+            DisplayUse(peUse);
             printf("\n\n");
         }
     }
@@ -326,7 +326,7 @@ void TestLookupNameA(LPSTR Name)// LookupAccountNameA test
 
     Bool = LookupAccountNameA(NULL, Name, Sid, &cbSid, ReferencedDomainName, &cbReferencedDomainName, &peUse);
     // Expect failure here
-    if ( !Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER ) {
+    if (!Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
         printf("** FAILED **\n");
         printf("        First call.\n");
         printf("        Status:             %d\n", GetLastError());
@@ -334,7 +334,7 @@ void TestLookupNameA(LPSTR Name)// LookupAccountNameA test
         printf("        Domain Name Length: %d\n", cbReferencedDomainName);
     } else {
         Bool = LookupAccountNameA(NULL, Name, Sid, &cbSid, ReferencedDomainName, &cbReferencedDomainName, &peUse);
-        if ( !Bool ) {
+        if (!Bool) {
             printf("** FAILED **\n");
             printf("        Second call.\n");
             printf("        Status:             %d\n", GetLastError());
@@ -344,12 +344,12 @@ void TestLookupNameA(LPSTR Name)// LookupAccountNameA test
             printf("Succeeded\n");
             printf("        Sid  Length:        %d\n", cbSid);
             printf("        Sid:                ");
-            DisplayAccountSid( Sid );
+            DisplayAccountSid(Sid);
             printf("\n");
             printf("        Domain Name Length: %d\n", cbReferencedDomainName);
             printf("        Domain Name:        *%s*\n", ReferencedDomainName);
             printf("        Use:                ");
-            DisplayUse( peUse );
+            DisplayUse(peUse);
             printf("\n\n");
         }
     }
@@ -359,7 +359,7 @@ void TestLookupNameA(LPSTR Name)// LookupAccountNameA test
 void
 TestLookupPrivilegeDisplayNameW(
     PLUID lpLuid
-    )
+)
 
 {
 
@@ -377,20 +377,20 @@ TestLookupPrivilegeDisplayNameW(
     printf("      LookupW call . . . . . . . . . . . . . . . . . ");
 
 
-    TestGetPrivNameW( &PrivName, lpLuid );
+    TestGetPrivNameW(&PrivName, lpLuid);
     Bool = LookupPrivilegeDisplayNameW(
-               NULL,
-               PrivName,
-               Name,
-               &cbName,
-               &LanguageId
-               );
+        NULL,
+        PrivName,
+        Name,
+        &cbName,
+        &LanguageId
+    );
 
 
     // Expect failure here
 
 
-    if ( !Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER ) {
+    if (!Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
         printf("** FAILED **\n");
         printf("        First call.\n");
         printf("        Status:             %d\n", GetLastError());
@@ -399,14 +399,14 @@ TestLookupPrivilegeDisplayNameW(
 
 
         Bool = LookupPrivilegeDisplayNameW(
-                   NULL,
-                   PrivName,
-                   Name,
-                   &cbName,
-                   &LanguageId
-                   );
+            NULL,
+            PrivName,
+            Name,
+            &cbName,
+            &LanguageId
+        );
 
-        if ( !Bool ) {
+        if (!Bool) {
             printf("** FAILED **\n");
             printf("        Second call.\n");
             printf("        Status:             %d\n", GetLastError());
@@ -415,14 +415,14 @@ TestLookupPrivilegeDisplayNameW(
             printf("Succeeded\n");
             printf("        Name Length:        %d\n", cbName);
             printf("        Name:               *");
-            DumpWCharString( Name );
+            DumpWCharString(Name);
             printf("*\n");
             printf("        LanguageID:         %d\n", LanguageId);
             printf("\n\n");
         }
     }
 
-    RtlFreeHeap( RtlProcessHeap(), 0, PrivName );
+    RtlFreeHeap(RtlProcessHeap(), 0, PrivName);
     return;
 }
 
@@ -430,7 +430,7 @@ TestLookupPrivilegeDisplayNameW(
 void
 TestLookupPrivilegeDisplayNameA(
     PLUID lpLuid
-    )
+)
 
 {
 
@@ -448,20 +448,20 @@ TestLookupPrivilegeDisplayNameA(
     printf("      LookupA call . . . . . . . . . . . . . . . . . ");
 
 
-    TestGetPrivNameA( &PrivName, lpLuid );
+    TestGetPrivNameA(&PrivName, lpLuid);
     Bool = LookupPrivilegeDisplayNameA(
-               NULL,
-               PrivName,
-               Name,
-               &cbName,
-               &LanguageId
-               );
+        NULL,
+        PrivName,
+        Name,
+        &cbName,
+        &LanguageId
+    );
 
 
     // Expect failure here
 
 
-    if ( !Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER ) {
+    if (!Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
         printf("** FAILED **\n");
         printf("        First call.\n");
         printf("        Status:             %d\n", GetLastError());
@@ -470,14 +470,14 @@ TestLookupPrivilegeDisplayNameA(
 
 
         Bool = LookupPrivilegeDisplayNameA(
-                   NULL,
-                   PrivName,
-                   Name,
-                   &cbName,
-               &LanguageId
-                   );
+            NULL,
+            PrivName,
+            Name,
+            &cbName,
+            &LanguageId
+        );
 
-        if ( !Bool ) {
+        if (!Bool) {
             printf("** FAILED **\n");
             printf("        Second call.\n");
             printf("        Status:             %d\n", GetLastError());
@@ -491,7 +491,7 @@ TestLookupPrivilegeDisplayNameA(
         }
     }
 
-    RtlFreeHeap( RtlProcessHeap(), 0, PrivName );
+    RtlFreeHeap(RtlProcessHeap(), 0, PrivName);
     return;
 }
 
@@ -499,7 +499,7 @@ TestLookupPrivilegeDisplayNameA(
 void
 TestLookupPrivilegeValueA(
     PLUID lpLuid
-    )
+)
 
 {
 
@@ -512,30 +512,30 @@ TestLookupPrivilegeValueA(
     LUID          ReturnedValue;
 
 
-    TestGetPrivNameA( &PrivName, lpLuid );
+    TestGetPrivNameA(&PrivName, lpLuid);
 
     printf("      LookupA call . . . . . . . . . . . . . . . . . ");
 
 
     Bool = LookupPrivilegeValueA(
-               NULL,
-               PrivName,
-               &ReturnedValue
-               );
+        NULL,
+        PrivName,
+        &ReturnedValue
+    );
 
-    if ( !Bool ) {
+    if (!Bool) {
         printf("** FAILED **\n");
         printf("        Status:             %d\n", GetLastError());
     } else {
 
-        if (ReturnedValue.LowPart  != lpLuid->LowPart ||
+        if (ReturnedValue.LowPart != lpLuid->LowPart ||
             ReturnedValue.HighPart != lpLuid->HighPart) {
             printf("** FAILED **\n");
             printf("        Value mismatch.\n");
             printf("        Passed Value:    {0x%lx, 0x%lx}\n",
-                            lpLuid->HighPart,lpLuid->LowPart);
+                   lpLuid->HighPart, lpLuid->LowPart);
             printf("        Retrieved Value: {0x%lx, 0x%lx}\n",
-                            ReturnedValue.HighPart,ReturnedValue.LowPart);
+                   ReturnedValue.HighPart, ReturnedValue.LowPart);
 
         } else {
             printf("Succeeded\n");
@@ -543,14 +543,14 @@ TestLookupPrivilegeValueA(
     }
     printf("\n\n");
 
-    RtlFreeHeap( RtlProcessHeap(), 0, PrivName );
+    RtlFreeHeap(RtlProcessHeap(), 0, PrivName);
     return;
 }
 
 void
 TestLookupPrivilegeValueW(
     PLUID lpLuid
-    )
+)
 
 {
 
@@ -562,46 +562,46 @@ TestLookupPrivilegeValueW(
     LPWSTR        PrivName;
     LUID          ReturnedValue;
 
-    TestGetPrivNameW( &PrivName, lpLuid );
+    TestGetPrivNameW(&PrivName, lpLuid);
 
     printf("      LookupW call . . . . . . . . . . . . . . . . . ");
 
 
     Bool = LookupPrivilegeValueW(
-               NULL,
-               PrivName,
-               &ReturnedValue
-               );
+        NULL,
+        PrivName,
+        &ReturnedValue
+    );
 
-    if ( !Bool ) {
+    if (!Bool) {
         printf("** FAILED **\n");
         printf("        Status:             %d\n", GetLastError());
     } else {
 
-        if (ReturnedValue.LowPart  != lpLuid->LowPart ||
+        if (ReturnedValue.LowPart != lpLuid->LowPart ||
             ReturnedValue.HighPart != lpLuid->HighPart) {
             printf("** FAILED **\n");
             printf("        Value mismatch.\n");
             printf("        Passed Value:    {0x%lx, 0x%lx}\n",
-                            lpLuid->HighPart,lpLuid->LowPart);
+                   lpLuid->HighPart, lpLuid->LowPart);
             printf("        Retrieved Value: {0x%lx, 0x%lx}\n",
-                            ReturnedValue.HighPart,ReturnedValue.LowPart);
+                   ReturnedValue.HighPart, ReturnedValue.LowPart);
 
         } else {
             printf("Succeeded\n");
         }
     }
 
-    RtlFreeHeap( RtlProcessHeap(), 0, PrivName );
+    RtlFreeHeap(RtlProcessHeap(), 0, PrivName);
     return;
 }
 
 
 void
 TestGetPrivNameW(
-    LPWSTR *PrivName,
+    LPWSTR* PrivName,
     PLUID  lpLuid
-    )
+)
 {
 
 
@@ -611,21 +611,21 @@ TestGetPrivNameW(
 
 
     Bool = LookupPrivilegeNameW(
-               NULL,
-               lpLuid,
-               Name,
-               &cbName
-               );
-    ASSERT( !Bool && GetLastError() == ERROR_INSUFFICIENT_BUFFER );
+        NULL,
+        lpLuid,
+        Name,
+        &cbName
+    );
+    ASSERT(!Bool && GetLastError() == ERROR_INSUFFICIENT_BUFFER);
 
-    Name = RtlAllocateHeap( RtlProcessHeap(), 0, (cbName+1)*sizeof(WCHAR) );
+    Name = RtlAllocateHeap(RtlProcessHeap(), 0, (cbName + 1) * sizeof(WCHAR));
 
     Bool = LookupPrivilegeNameW(
-               NULL,
-               lpLuid,
-               Name,
-               &cbName
-               );
+        NULL,
+        lpLuid,
+        Name,
+        &cbName
+    );
     ASSERT(Bool);
 
     (*PrivName) = (LPWSTR)Name;
@@ -636,9 +636,9 @@ TestGetPrivNameW(
 
 void
 TestGetPrivNameA(
-    LPSTR *PrivName,
+    LPSTR* PrivName,
     PLUID  lpLuid
-    )
+)
 {
 
 
@@ -648,21 +648,21 @@ TestGetPrivNameA(
 
 
     Bool = LookupPrivilegeNameA(
-               NULL,
-               lpLuid,
-               Name,
-               &cbName
-               );
-    ASSERT( !Bool && GetLastError() == ERROR_INSUFFICIENT_BUFFER );
+        NULL,
+        lpLuid,
+        Name,
+        &cbName
+    );
+    ASSERT(!Bool && GetLastError() == ERROR_INSUFFICIENT_BUFFER);
 
-    Name = RtlAllocateHeap( RtlProcessHeap(), 0, (cbName+1)*sizeof(CHAR) );
+    Name = RtlAllocateHeap(RtlProcessHeap(), 0, (cbName + 1) * sizeof(CHAR));
 
     Bool = LookupPrivilegeNameA(
-               NULL,
-               lpLuid,
-               Name,
-               &cbName
-               );
+        NULL,
+        lpLuid,
+        Name,
+        &cbName
+    );
     ASSERT(Bool);
 
     (*PrivName) = (LPSTR)Name;
@@ -674,7 +674,7 @@ TestGetPrivNameA(
 void
 TestLookupPrivilegeNameW(
     PLUID lpLuid
-    )
+)
 
 {
 
@@ -691,17 +691,17 @@ TestLookupPrivilegeNameW(
 
 
     Bool = LookupPrivilegeNameW(
-               NULL,
-               lpLuid,
-               Name,
-               &cbName
-               );
+        NULL,
+        lpLuid,
+        Name,
+        &cbName
+    );
 
 
     // Expect failure here
 
 
-    if ( !Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER ) {
+    if (!Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
         printf("** FAILED **\n");
         printf("        First call.\n");
         printf("        Status:             %d\n", GetLastError());
@@ -710,13 +710,13 @@ TestLookupPrivilegeNameW(
 
 
         Bool = LookupPrivilegeNameW(
-                   NULL,
-                   lpLuid,
-                   Name,
-                   &cbName
-                   );
+            NULL,
+            lpLuid,
+            Name,
+            &cbName
+        );
 
-        if ( !Bool ) {
+        if (!Bool) {
             printf("** FAILED **\n");
             printf("        Second call.\n");
             printf("        Status:             %d\n", GetLastError());
@@ -725,7 +725,7 @@ TestLookupPrivilegeNameW(
             printf("Succeeded\n");
             printf("        Name Length:        %d\n", cbName);
             printf("        Name:               *");
-            DumpWCharString( Name );
+            DumpWCharString(Name);
             printf("*\n");
             printf("\n\n");
         }
@@ -738,7 +738,7 @@ TestLookupPrivilegeNameW(
 void
 TestLookupPrivilegeNameA(
     PLUID lpLuid
-    )
+)
 
 {
 
@@ -755,17 +755,17 @@ TestLookupPrivilegeNameA(
 
 
     Bool = LookupPrivilegeNameA(
-               NULL,
-               lpLuid,
-               Name,
-               &cbName
-               );
+        NULL,
+        lpLuid,
+        Name,
+        &cbName
+    );
 
 
     // Expect failure here
 
 
-    if ( !Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER ) {
+    if (!Bool && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
         printf("** FAILED **\n");
         printf("        First call.\n");
         printf("        Status:             %d\n", GetLastError());
@@ -774,13 +774,13 @@ TestLookupPrivilegeNameA(
 
 
         Bool = LookupPrivilegeNameA(
-                   NULL,
-                   lpLuid,
-                   Name,
-                   &cbName
-                   );
+            NULL,
+            lpLuid,
+            Name,
+            &cbName
+        );
 
-        if ( !Bool ) {
+        if (!Bool) {
             printf("** FAILED **\n");
             printf("        Second call.\n");
             printf("        Status:             %d\n", GetLastError());
@@ -799,7 +799,7 @@ TestLookupPrivilegeNameA(
 VOID
 DisplayUse(
     IN SID_NAME_USE  Use
-    )
+)
 {
 
     switch (Use) {
@@ -845,26 +845,26 @@ DisplayUse(
 void
 DumpWCharString(
     PWSTR String
-    )
+)
 {
     UNICODE_STRING Unicode;
     ANSI_STRING AnsiString;
 
-    RtlInitUnicodeString( &Unicode, String );
-//    DbgPrint("*%Z*\n",&Unicode);
-//    DbgPrint("  Length: %d\n", Unicode.Length);
-//    DbgPrint("  Max: %d\n", Unicode.MaximumLength);
-    RtlUnicodeStringToAnsiString( &AnsiString, &Unicode, TRUE );
-    AnsiString.Buffer[AnsiString.Length]=0; // null terminate it
-    printf("%s", AnsiString.Buffer );
-    RtlFreeAnsiString( &AnsiString );
+    RtlInitUnicodeString(&Unicode, String);
+    //    DbgPrint("*%Z*\n",&Unicode);
+    //    DbgPrint("  Length: %d\n", Unicode.Length);
+    //    DbgPrint("  Max: %d\n", Unicode.MaximumLength);
+    RtlUnicodeStringToAnsiString(&AnsiString, &Unicode, TRUE);
+    AnsiString.Buffer[AnsiString.Length] = 0; // null terminate it
+    printf("%s", AnsiString.Buffer);
+    RtlFreeAnsiString(&AnsiString);
     return;
 }
 
 VOID
 DisplayAccountSid(
     PSID Sid
-    )
+)
 {
     UCHAR i;
     ULONG Tmp;
@@ -881,27 +881,27 @@ DisplayAccountSid(
     // can just cast the pointer.
 
 
-    printf("S-%u-", (USHORT) *((PUCHAR) Sid) );
+    printf("S-%u-", (USHORT) * ((PUCHAR)Sid));
 
-    if (  (IdentifierAuthority->Value[0] != 0)  ||
-          (IdentifierAuthority->Value[1] != 0)     ){
+    if ((IdentifierAuthority->Value[0] != 0) ||
+        (IdentifierAuthority->Value[1] != 0)) {
         printf("0x%02hx%02hx%02hx%02hx%02hx%02hx",
-                    IdentifierAuthority->Value[0],
-                    IdentifierAuthority->Value[1],
-                    IdentifierAuthority->Value[2],
-                    IdentifierAuthority->Value[3],
-                    IdentifierAuthority->Value[4],
-                    IdentifierAuthority->Value[5] );
+               IdentifierAuthority->Value[0],
+               IdentifierAuthority->Value[1],
+               IdentifierAuthority->Value[2],
+               IdentifierAuthority->Value[3],
+               IdentifierAuthority->Value[4],
+               IdentifierAuthority->Value[5]);
     } else {
-        Tmp = IdentifierAuthority->Value[5]          +
-              (IdentifierAuthority->Value[4] <<  8)  +
-              (IdentifierAuthority->Value[3] << 16)  +
-              (IdentifierAuthority->Value[2] << 24);
+        Tmp = IdentifierAuthority->Value[5] +
+            (IdentifierAuthority->Value[4] << 8) +
+            (IdentifierAuthority->Value[3] << 16) +
+            (IdentifierAuthority->Value[2] << 24);
         printf("%lu", Tmp);
     }
 
     SubAuthorityCount = *RtlSubAuthorityCountSid(Sid);
-    for (i=0;i<SubAuthorityCount ;i++ ) {
+    for (i = 0; i < SubAuthorityCount; i++) {
         printf("-%lu", (*RtlSubAuthoritySid(Sid, i)));
     }
     printf("\n");
@@ -916,34 +916,34 @@ VOID TestLookupSid()
     printf("  Sid lookup . . . . . . . . . . . . . . . . . . suite\n");
 
     printf("    Lookup NullSid\n");
-    TestLookupSidW( NullSid ); TestLookupSidA( NullSid );
+    TestLookupSidW(NullSid); TestLookupSidA(NullSid);
 
     printf("    Lookup WorldSid\n");
-    TestLookupSidW( WorldSid ); TestLookupSidA( WorldSid );
+    TestLookupSidW(WorldSid); TestLookupSidA(WorldSid);
 
     printf("    Lookup LocalSid\n");
-    TestLookupSidW( LocalSid ); TestLookupSidA( LocalSid );
+    TestLookupSidW(LocalSid); TestLookupSidA(LocalSid);
 
     printf("    Lookup CreatorOwnerSid\n");
-    TestLookupSidW( CreatorOwnerSid ); TestLookupSidA( CreatorOwnerSid );
+    TestLookupSidW(CreatorOwnerSid); TestLookupSidA(CreatorOwnerSid);
 
     printf("    Lookup NtAuthoritySid\n");
-    TestLookupSidW( NtAuthoritySid ); TestLookupSidA( NtAuthoritySid );
+    TestLookupSidW(NtAuthoritySid); TestLookupSidA(NtAuthoritySid);
 
     printf("    Lookup DialupSid\n");
-    TestLookupSidW( DialupSid ); TestLookupSidA( DialupSid );
+    TestLookupSidW(DialupSid); TestLookupSidA(DialupSid);
 
     printf("    Lookup NetworkSid\n");
-    TestLookupSidW( NetworkSid ); TestLookupSidA( NetworkSid );
+    TestLookupSidW(NetworkSid); TestLookupSidA(NetworkSid);
 
     printf("    Lookup BatchSid\n");
-    TestLookupSidW( BatchSid ); TestLookupSidA( BatchSid );
+    TestLookupSidW(BatchSid); TestLookupSidA(BatchSid);
 
     printf("    Lookup InteractiveSid\n");
-    TestLookupSidW( InteractiveSid ); TestLookupSidA( InteractiveSid );
+    TestLookupSidW(InteractiveSid); TestLookupSidA(InteractiveSid);
 
     printf("    Lookup LocalSystemSid\n");
-    TestLookupSidW( LocalSystemSid ); TestLookupSidA( LocalSystemSid );
+    TestLookupSidW(LocalSystemSid); TestLookupSidA(LocalSystemSid);
 
     printf("\n\n\n");
 }
@@ -956,34 +956,34 @@ VOID TestLookupName()
     printf("  Name Lookup  . . . . . . . . . . . . . . . . . suite\n");
 
     printf("    Lookup Null\n");
-    TestLookupNameW( L"" ); TestLookupNameA( "" );
+    TestLookupNameW(L""); TestLookupNameA("");
 
     printf("    Lookup World\n");
-    TestLookupNameW( L"World" ); TestLookupNameA( "World" );
+    TestLookupNameW(L"World"); TestLookupNameA("World");
 
     printf("    Lookup Local\n");
-    TestLookupNameW( L"Local" ); TestLookupNameA( "Local" );
+    TestLookupNameW(L"Local"); TestLookupNameA("Local");
 
     printf("    Lookup CreatorOwner\n");
-    TestLookupNameW( L"CreatorOwner" ); TestLookupNameA( "CreatorOwner" );
+    TestLookupNameW(L"CreatorOwner"); TestLookupNameA("CreatorOwner");
 
     printf("    Lookup NtAuthority\n");
-    TestLookupNameW( L"NtAuthority" ); TestLookupNameA( "NtAuthority" );
+    TestLookupNameW(L"NtAuthority"); TestLookupNameA("NtAuthority");
 
     printf("    Lookup DialupName\n");
-    TestLookupNameW( L"DialupName" ); TestLookupNameA( "DialupName" );
+    TestLookupNameW(L"DialupName"); TestLookupNameA("DialupName");
 
     printf("    Lookup Network\n");
-    TestLookupNameW( L"Network" ); TestLookupNameA( "Network" );
+    TestLookupNameW(L"Network"); TestLookupNameA("Network");
 
     printf("    Lookup Batch\n");
-    TestLookupNameW( L"Batch" ); TestLookupNameA( "Batch" );
+    TestLookupNameW(L"Batch"); TestLookupNameA("Batch");
 
     printf("    Lookup Interactive\n");
-    TestLookupNameW( L"Interactive" ); TestLookupNameA( "Interactive" );
+    TestLookupNameW(L"Interactive"); TestLookupNameA("Interactive");
 
     printf("    Look up LocalSystem\n");
-    TestLookupNameW( L"LocalSystem" ); TestLookupNameA( "LocalSystem" );
+    TestLookupNameW(L"LocalSystem"); TestLookupNameA("LocalSystem");
 
     printf("\n\n\n");
     return;
@@ -1004,96 +1004,96 @@ TestLookupPrivilegeValue()
     printf("  Privilege Value Lookup . . . . . . . . . . . . suite\n");
 
     printf("    Lookup SeCreateTokenPrivilege\n");
-    TestLookupPrivilegeValueW( &SeCreateTokenPrivilege );
-    TestLookupPrivilegeValueA( &SeCreateTokenPrivilege );
+    TestLookupPrivilegeValueW(&SeCreateTokenPrivilege);
+    TestLookupPrivilegeValueA(&SeCreateTokenPrivilege);
 
     printf("    Lookup SeAssignPrimaryTokenPrivilege\n");
-    TestLookupPrivilegeValueW( &SeAssignPrimaryTokenPrivilege );
-    TestLookupPrivilegeValueA( &SeAssignPrimaryTokenPrivilege );
+    TestLookupPrivilegeValueW(&SeAssignPrimaryTokenPrivilege);
+    TestLookupPrivilegeValueA(&SeAssignPrimaryTokenPrivilege);
 
     printf("    Lookup SeLockMemoryPrivilege\n");
-    TestLookupPrivilegeValueW( &SeLockMemoryPrivilege );
-    TestLookupPrivilegeValueA( &SeLockMemoryPrivilege );
+    TestLookupPrivilegeValueW(&SeLockMemoryPrivilege);
+    TestLookupPrivilegeValueA(&SeLockMemoryPrivilege);
 
     printf("    Lookup SeIncreaseQuotaPrivilege\n");
-    TestLookupPrivilegeValueW( &SeIncreaseQuotaPrivilege );
-    TestLookupPrivilegeValueA( &SeIncreaseQuotaPrivilege );
+    TestLookupPrivilegeValueW(&SeIncreaseQuotaPrivilege);
+    TestLookupPrivilegeValueA(&SeIncreaseQuotaPrivilege);
 
     printf("    Lookup SeUnsolicitedInputPrivilege\n");
-    TestLookupPrivilegeValueW( &SeUnsolicitedInputPrivilege );
-    TestLookupPrivilegeValueA( &SeUnsolicitedInputPrivilege );
+    TestLookupPrivilegeValueW(&SeUnsolicitedInputPrivilege);
+    TestLookupPrivilegeValueA(&SeUnsolicitedInputPrivilege);
 
     printf("    Lookup SeTcbPrivilege\n");
-    TestLookupPrivilegeValueW( &SeTcbPrivilege );
-    TestLookupPrivilegeValueA( &SeTcbPrivilege );
+    TestLookupPrivilegeValueW(&SeTcbPrivilege);
+    TestLookupPrivilegeValueA(&SeTcbPrivilege);
 
     printf("    Lookup SeSecurityPrivilege\n");
-    TestLookupPrivilegeValueW( &SeSecurityPrivilege );
-    TestLookupPrivilegeValueA( &SeSecurityPrivilege );
+    TestLookupPrivilegeValueW(&SeSecurityPrivilege);
+    TestLookupPrivilegeValueA(&SeSecurityPrivilege);
 
     printf("    Lookup SeTakeOwnershipPrivilege\n");
-    TestLookupPrivilegeValueW( &SeTakeOwnershipPrivilege );
-    TestLookupPrivilegeValueA( &SeTakeOwnershipPrivilege );
+    TestLookupPrivilegeValueW(&SeTakeOwnershipPrivilege);
+    TestLookupPrivilegeValueA(&SeTakeOwnershipPrivilege);
 
     printf("    Lookup SeLoadDriverPrivilege\n");
-    TestLookupPrivilegeValueW( &SeLoadDriverPrivilege );
-    TestLookupPrivilegeValueA( &SeLoadDriverPrivilege );
+    TestLookupPrivilegeValueW(&SeLoadDriverPrivilege);
+    TestLookupPrivilegeValueA(&SeLoadDriverPrivilege);
 
     printf("    Lookup SeCreatePagefilePrivilege\n");
-    TestLookupPrivilegeValueW( &SeCreatePagefilePrivilege );
-    TestLookupPrivilegeValueA( &SeCreatePagefilePrivilege );
+    TestLookupPrivilegeValueW(&SeCreatePagefilePrivilege);
+    TestLookupPrivilegeValueA(&SeCreatePagefilePrivilege);
 
     printf("    Lookup SeIncreaseBasePriorityPrivilege\n");
-    TestLookupPrivilegeValueW( &SeIncreaseBasePriorityPrivilege );
-    TestLookupPrivilegeValueA( &SeIncreaseBasePriorityPrivilege );
+    TestLookupPrivilegeValueW(&SeIncreaseBasePriorityPrivilege);
+    TestLookupPrivilegeValueA(&SeIncreaseBasePriorityPrivilege);
 
     printf("    Lookup SeSystemProfilePrivilege\n");
-    TestLookupPrivilegeValueW( &SeSystemProfilePrivilege );
-    TestLookupPrivilegeValueA( &SeSystemProfilePrivilege );
+    TestLookupPrivilegeValueW(&SeSystemProfilePrivilege);
+    TestLookupPrivilegeValueA(&SeSystemProfilePrivilege);
 
     printf("    Lookup SeSystemtimePrivilege\n");
-    TestLookupPrivilegeValueW( &SeSystemtimePrivilege );
-    TestLookupPrivilegeValueA( &SeSystemtimePrivilege );
+    TestLookupPrivilegeValueW(&SeSystemtimePrivilege);
+    TestLookupPrivilegeValueA(&SeSystemtimePrivilege);
 
     printf("    Lookup SeProfileSingleProcessPrivilege\n");
-    TestLookupPrivilegeValueW( &SeProfileSingleProcessPrivilege );
-    TestLookupPrivilegeValueA( &SeProfileSingleProcessPrivilege );
+    TestLookupPrivilegeValueW(&SeProfileSingleProcessPrivilege);
+    TestLookupPrivilegeValueA(&SeProfileSingleProcessPrivilege);
 
     printf("    Lookup SeCreatePermanentPrivilege\n");
-    TestLookupPrivilegeValueW( &SeCreatePermanentPrivilege );
-    TestLookupPrivilegeValueA( &SeCreatePermanentPrivilege );
+    TestLookupPrivilegeValueW(&SeCreatePermanentPrivilege);
+    TestLookupPrivilegeValueA(&SeCreatePermanentPrivilege);
 
     printf("    Lookup SeBackupPrivilege\n");
-    TestLookupPrivilegeValueW( &SeBackupPrivilege );
-    TestLookupPrivilegeValueA( &SeBackupPrivilege );
+    TestLookupPrivilegeValueW(&SeBackupPrivilege);
+    TestLookupPrivilegeValueA(&SeBackupPrivilege);
 
     printf("    Lookup SeRestorePrivilege\n");
-    TestLookupPrivilegeValueW( &SeRestorePrivilege );
-    TestLookupPrivilegeValueA( &SeRestorePrivilege );
+    TestLookupPrivilegeValueW(&SeRestorePrivilege);
+    TestLookupPrivilegeValueA(&SeRestorePrivilege);
 
     printf("    Lookup SeShutdownPrivilege\n");
-    TestLookupPrivilegeValueW( &SeShutdownPrivilege );
-    TestLookupPrivilegeValueA( &SeShutdownPrivilege );
+    TestLookupPrivilegeValueW(&SeShutdownPrivilege);
+    TestLookupPrivilegeValueA(&SeShutdownPrivilege);
 
     printf("    Lookup SeDebugPrivilege\n");
-    TestLookupPrivilegeValueW( &SeDebugPrivilege );
-    TestLookupPrivilegeValueA( &SeDebugPrivilege );
+    TestLookupPrivilegeValueW(&SeDebugPrivilege);
+    TestLookupPrivilegeValueA(&SeDebugPrivilege);
 
     printf("    Lookup SeAuditPrivilege\n");
-    TestLookupPrivilegeValueW( &SeAuditPrivilege );
-    TestLookupPrivilegeValueA( &SeAuditPrivilege );
+    TestLookupPrivilegeValueW(&SeAuditPrivilege);
+    TestLookupPrivilegeValueA(&SeAuditPrivilege);
 
     printf("    Lookup SeSystemEnvironmentPrivilege\n");
-    TestLookupPrivilegeValueW( &SeSystemEnvironmentPrivilege );
-    TestLookupPrivilegeValueA( &SeSystemEnvironmentPrivilege );
+    TestLookupPrivilegeValueW(&SeSystemEnvironmentPrivilege);
+    TestLookupPrivilegeValueA(&SeSystemEnvironmentPrivilege);
 
     printf("    Lookup SeChangeNotifyPrivilege\n");
-    TestLookupPrivilegeValueW( &SeChangeNotifyPrivilege );
-    TestLookupPrivilegeValueA( &SeChangeNotifyPrivilege );
+    TestLookupPrivilegeValueW(&SeChangeNotifyPrivilege);
+    TestLookupPrivilegeValueA(&SeChangeNotifyPrivilege);
 
     printf("    Lookup SeRemoteShutdownPrivilege\n");
-    TestLookupPrivilegeValueW( &SeRemoteShutdownPrivilege );
-    TestLookupPrivilegeValueA( &SeRemoteShutdownPrivilege );
+    TestLookupPrivilegeValueW(&SeRemoteShutdownPrivilege);
+    TestLookupPrivilegeValueA(&SeRemoteShutdownPrivilege);
 
     printf("\n\n\n");
     return;
@@ -1113,97 +1113,97 @@ TestLookupPrivilegeName()
 
 
     printf("    Lookup SeCreateTokenPrivilege\n");
-    TestLookupPrivilegeNameW( &SeCreateTokenPrivilege );
-    TestLookupPrivilegeNameA( &SeCreateTokenPrivilege );
+    TestLookupPrivilegeNameW(&SeCreateTokenPrivilege);
+    TestLookupPrivilegeNameA(&SeCreateTokenPrivilege);
 
     printf("    Lookup SeAssignPrimaryTokenPrivilege\n");
-    TestLookupPrivilegeNameW( &SeAssignPrimaryTokenPrivilege );
-    TestLookupPrivilegeNameA( &SeAssignPrimaryTokenPrivilege );
+    TestLookupPrivilegeNameW(&SeAssignPrimaryTokenPrivilege);
+    TestLookupPrivilegeNameA(&SeAssignPrimaryTokenPrivilege);
 
     printf("    Lookup SeLockMemoryPrivilege\n");
-    TestLookupPrivilegeNameW( &SeLockMemoryPrivilege );
-    TestLookupPrivilegeNameA( &SeLockMemoryPrivilege );
+    TestLookupPrivilegeNameW(&SeLockMemoryPrivilege);
+    TestLookupPrivilegeNameA(&SeLockMemoryPrivilege);
 
     printf("    Lookup SeIncreaseQuotaPrivilege\n");
-    TestLookupPrivilegeNameW( &SeIncreaseQuotaPrivilege );
-    TestLookupPrivilegeNameA( &SeIncreaseQuotaPrivilege );
+    TestLookupPrivilegeNameW(&SeIncreaseQuotaPrivilege);
+    TestLookupPrivilegeNameA(&SeIncreaseQuotaPrivilege);
 
     printf("    Lookup SeUnsolicitedInputPrivilege\n");
-    TestLookupPrivilegeNameW( &SeUnsolicitedInputPrivilege );
-    TestLookupPrivilegeNameA( &SeUnsolicitedInputPrivilege );
+    TestLookupPrivilegeNameW(&SeUnsolicitedInputPrivilege);
+    TestLookupPrivilegeNameA(&SeUnsolicitedInputPrivilege);
 
     printf("    Lookup SeTcbPrivilege\n");
-    TestLookupPrivilegeNameW( &SeTcbPrivilege );
-    TestLookupPrivilegeNameA( &SeTcbPrivilege );
+    TestLookupPrivilegeNameW(&SeTcbPrivilege);
+    TestLookupPrivilegeNameA(&SeTcbPrivilege);
 
     printf("    Lookup SeSecurityPrivilege\n");
-    TestLookupPrivilegeNameW( &SeSecurityPrivilege );
-    TestLookupPrivilegeNameA( &SeSecurityPrivilege );
+    TestLookupPrivilegeNameW(&SeSecurityPrivilege);
+    TestLookupPrivilegeNameA(&SeSecurityPrivilege);
 
     printf("    Lookup SeTakeOwnershipPrivilege\n");
-    TestLookupPrivilegeNameW( &SeTakeOwnershipPrivilege );
-    TestLookupPrivilegeNameA( &SeTakeOwnershipPrivilege );
+    TestLookupPrivilegeNameW(&SeTakeOwnershipPrivilege);
+    TestLookupPrivilegeNameA(&SeTakeOwnershipPrivilege);
 
     printf("    Lookup SeLoadDriverPrivilege\n");
-    TestLookupPrivilegeNameW( &SeLoadDriverPrivilege );
-    TestLookupPrivilegeNameA( &SeLoadDriverPrivilege );
+    TestLookupPrivilegeNameW(&SeLoadDriverPrivilege);
+    TestLookupPrivilegeNameA(&SeLoadDriverPrivilege);
 
 
     printf("    Lookup SeCreatePagefilePrivilege\n");
-    TestLookupPrivilegeNameW( &SeCreatePagefilePrivilege );
-    TestLookupPrivilegeNameA( &SeCreatePagefilePrivilege );
+    TestLookupPrivilegeNameW(&SeCreatePagefilePrivilege);
+    TestLookupPrivilegeNameA(&SeCreatePagefilePrivilege);
 
     printf("    Lookup SeIncreaseBasePriorityPrivilege\n");
-    TestLookupPrivilegeNameW( &SeIncreaseBasePriorityPrivilege );
-    TestLookupPrivilegeNameA( &SeIncreaseBasePriorityPrivilege );
+    TestLookupPrivilegeNameW(&SeIncreaseBasePriorityPrivilege);
+    TestLookupPrivilegeNameA(&SeIncreaseBasePriorityPrivilege);
 
     printf("    Lookup SeSystemProfilePrivilege\n");
-    TestLookupPrivilegeNameW( &SeSystemProfilePrivilege );
-    TestLookupPrivilegeNameA( &SeSystemProfilePrivilege );
+    TestLookupPrivilegeNameW(&SeSystemProfilePrivilege);
+    TestLookupPrivilegeNameA(&SeSystemProfilePrivilege);
 
     printf("    Lookup SeSystemtimePrivilege\n");
-    TestLookupPrivilegeNameW( &SeSystemtimePrivilege );
-    TestLookupPrivilegeNameA( &SeSystemtimePrivilege );
+    TestLookupPrivilegeNameW(&SeSystemtimePrivilege);
+    TestLookupPrivilegeNameA(&SeSystemtimePrivilege);
 
     printf("    Lookup SeProfileSingleProcessPrivilege\n");
-    TestLookupPrivilegeNameW( &SeProfileSingleProcessPrivilege );
-    TestLookupPrivilegeNameA( &SeProfileSingleProcessPrivilege );
+    TestLookupPrivilegeNameW(&SeProfileSingleProcessPrivilege);
+    TestLookupPrivilegeNameA(&SeProfileSingleProcessPrivilege);
 
     printf("    Lookup SeCreatePermanentPrivilege\n");
-    TestLookupPrivilegeNameW( &SeCreatePermanentPrivilege );
-    TestLookupPrivilegeNameA( &SeCreatePermanentPrivilege );
+    TestLookupPrivilegeNameW(&SeCreatePermanentPrivilege);
+    TestLookupPrivilegeNameA(&SeCreatePermanentPrivilege);
 
     printf("    Lookup SeBackupPrivilege\n");
-    TestLookupPrivilegeNameW( &SeBackupPrivilege );
-    TestLookupPrivilegeNameA( &SeBackupPrivilege );
+    TestLookupPrivilegeNameW(&SeBackupPrivilege);
+    TestLookupPrivilegeNameA(&SeBackupPrivilege);
 
     printf("    Lookup SeRestorePrivilege\n");
-    TestLookupPrivilegeNameW( &SeRestorePrivilege );
-    TestLookupPrivilegeNameA( &SeRestorePrivilege );
+    TestLookupPrivilegeNameW(&SeRestorePrivilege);
+    TestLookupPrivilegeNameA(&SeRestorePrivilege);
 
     printf("    Lookup SeShutdownPrivilege\n");
-    TestLookupPrivilegeNameW( &SeShutdownPrivilege );
-    TestLookupPrivilegeNameA( &SeShutdownPrivilege );
+    TestLookupPrivilegeNameW(&SeShutdownPrivilege);
+    TestLookupPrivilegeNameA(&SeShutdownPrivilege);
 
     printf("    Lookup SeDebugPrivilege\n");
-    TestLookupPrivilegeNameW( &SeDebugPrivilege );
-    TestLookupPrivilegeNameA( &SeDebugPrivilege );
+    TestLookupPrivilegeNameW(&SeDebugPrivilege);
+    TestLookupPrivilegeNameA(&SeDebugPrivilege);
 
     printf("    Lookup SeAuditPrivilege\n");
-    TestLookupPrivilegeNameW( &SeAuditPrivilege );
-    TestLookupPrivilegeNameA( &SeAuditPrivilege );
+    TestLookupPrivilegeNameW(&SeAuditPrivilege);
+    TestLookupPrivilegeNameA(&SeAuditPrivilege);
 
     printf("    Lookup SeSystemEnvironmentPrivilege\n");
-    TestLookupPrivilegeNameW( &SeSystemEnvironmentPrivilege );
-    TestLookupPrivilegeNameA( &SeSystemEnvironmentPrivilege );
+    TestLookupPrivilegeNameW(&SeSystemEnvironmentPrivilege);
+    TestLookupPrivilegeNameA(&SeSystemEnvironmentPrivilege);
 
     printf("    Lookup SeChangeNotifyPrivilege\n");
-    TestLookupPrivilegeNameW( &SeChangeNotifyPrivilege );
-    TestLookupPrivilegeNameA( &SeChangeNotifyPrivilege );
+    TestLookupPrivilegeNameW(&SeChangeNotifyPrivilege);
+    TestLookupPrivilegeNameA(&SeChangeNotifyPrivilege);
 
     printf("    Lookup SeRemoteShutdownPrivilege\n");
-    TestLookupPrivilegeNameW( &SeRemoteShutdownPrivilege );
-    TestLookupPrivilegeNameA( &SeRemoteShutdownPrivilege );
+    TestLookupPrivilegeNameW(&SeRemoteShutdownPrivilege);
+    TestLookupPrivilegeNameA(&SeRemoteShutdownPrivilege);
 
     printf("\n\n\n");
     return;
@@ -1222,103 +1222,103 @@ TestLookupPrivilegeDisplayName()
 
 
     printf("    Lookup SeCreateTokenPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeCreateTokenPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeCreateTokenPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeCreateTokenPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeCreateTokenPrivilege);
 
     printf("    Lookup SeAssignPrimaryTokenPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeAssignPrimaryTokenPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeAssignPrimaryTokenPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeAssignPrimaryTokenPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeAssignPrimaryTokenPrivilege);
 
     printf("    Lookup SeLockMemoryPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeLockMemoryPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeLockMemoryPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeLockMemoryPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeLockMemoryPrivilege);
 
     printf("    Lookup SeIncreaseQuotaPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeIncreaseQuotaPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeIncreaseQuotaPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeIncreaseQuotaPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeIncreaseQuotaPrivilege);
 
     printf("    Lookup SeUnsolicitedInputPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeUnsolicitedInputPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeUnsolicitedInputPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeUnsolicitedInputPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeUnsolicitedInputPrivilege);
 
     printf("    Lookup SeTcbPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeTcbPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeTcbPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeTcbPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeTcbPrivilege);
 
     printf("    Lookup SeSecurityPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeSecurityPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeSecurityPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeSecurityPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeSecurityPrivilege);
 
     printf("    Lookup SeTakeOwnershipPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeTakeOwnershipPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeTakeOwnershipPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeTakeOwnershipPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeTakeOwnershipPrivilege);
 
     printf("    Lookup SeLoadDriverPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeLoadDriverPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeLoadDriverPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeLoadDriverPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeLoadDriverPrivilege);
 
     printf("    Lookup SeCreatePagefilePrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeCreatePagefilePrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeCreatePagefilePrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeCreatePagefilePrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeCreatePagefilePrivilege);
 
     printf("    Lookup SeIncreaseBasePriorityPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeIncreaseBasePriorityPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeIncreaseBasePriorityPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeIncreaseBasePriorityPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeIncreaseBasePriorityPrivilege);
 
     printf("    Lookup SeSystemProfilePrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeSystemProfilePrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeSystemProfilePrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeSystemProfilePrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeSystemProfilePrivilege);
 
     printf("    Lookup SeSystemtimePrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeSystemtimePrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeSystemtimePrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeSystemtimePrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeSystemtimePrivilege);
 
     printf("    Lookup SeProfileSingleProcessPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeProfileSingleProcessPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeProfileSingleProcessPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeProfileSingleProcessPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeProfileSingleProcessPrivilege);
 
     printf("    Lookup SeCreatePermanentPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeCreatePermanentPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeCreatePermanentPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeCreatePermanentPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeCreatePermanentPrivilege);
 
     printf("    Lookup SeBackupPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeBackupPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeBackupPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeBackupPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeBackupPrivilege);
 
     printf("    Lookup SeRestorePrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeRestorePrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeRestorePrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeRestorePrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeRestorePrivilege);
 
     printf("    Lookup SeShutdownPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeShutdownPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeShutdownPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeShutdownPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeShutdownPrivilege);
 
     printf("    Lookup SeDebugPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeDebugPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeDebugPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeDebugPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeDebugPrivilege);
 
     printf("    Lookup SeAuditPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeAuditPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeAuditPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeAuditPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeAuditPrivilege);
 
     printf("    Lookup SeSystemEnvironmentPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeSystemEnvironmentPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeSystemEnvironmentPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeSystemEnvironmentPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeSystemEnvironmentPrivilege);
 
     printf("    Lookup SeChangeNotifyPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeChangeNotifyPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeChangeNotifyPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeChangeNotifyPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeChangeNotifyPrivilege);
 
     printf("    Lookup SeRemoteShutdownPrivilege\n");
-    TestLookupPrivilegeDisplayNameW( &SeRemoteShutdownPrivilege );
-    TestLookupPrivilegeDisplayNameA( &SeRemoteShutdownPrivilege );
+    TestLookupPrivilegeDisplayNameW(&SeRemoteShutdownPrivilege);
+    TestLookupPrivilegeDisplayNameA(&SeRemoteShutdownPrivilege);
 
     printf("\n\n\n");
     return;
 }
 
 int
-main (void)
+main(void)
 {
 
     initialize();

@@ -85,7 +85,7 @@ void
 Get844Value(
     P844_ARRAY pArr,
     WORD WChar,
-    WORD *Value);
+    WORD* Value);
 
 void
 InsertCompGrid(
@@ -97,57 +97,57 @@ InsertCompGrid(
 int
 WriteAsciiDigits(
     PUNICODE pUnic,
-    FILE *pOutputFile);
+    FILE* pOutputFile);
 
 int
 WriteFoldCZone(
     PUNICODE pUnic,
-    FILE *pOutputFile);
+    FILE* pOutputFile);
 
 int
 WriteHiragana(
     PUNICODE pUnic,
-    FILE *pOutputFile);
+    FILE* pOutputFile);
 
 int
 WriteKatakana(
     PUNICODE pUnic,
-    FILE *pOutputFile);
+    FILE* pOutputFile);
 
 int
 WriteHalfWidth(
     PUNICODE pUnic,
-    FILE *pOutputFile);
+    FILE* pOutputFile);
 
 int
 WriteFullWidth(
     PUNICODE pUnic,
-    FILE *pOutputFile);
+    FILE* pOutputFile);
 
 int
 WriteTraditional(
     PUNICODE pUnic,
-    FILE *pOutputFile);
+    FILE* pOutputFile);
 
 int
 WriteSimplified(
     PUNICODE pUnic,
-    FILE *pOutputFile);
+    FILE* pOutputFile);
 
 int
 WritePrecomposed(
     PUNICODE pUnic,
-    FILE *pOutputFile);
+    FILE* pOutputFile);
 
 int
 WriteComposite(
     PUNICODE pUnic,
-    FILE *pOutputFile);
+    FILE* pOutputFile);
 
 int
 WriteGrid(
     PUNICODE pUnic,
-    FILE *pOutputFile);
+    FILE* pOutputFile);
 
 
 
@@ -176,10 +176,8 @@ int ParseUnicode(
     int size;                          // size of table to follow
 
 
-    while (fscanf(pInputFile, "%s", pszKeyWord) == 1)
-    {
-        if (_strcmpi(pszKeyWord, "ASCIIDIGITS") == 0)
-        {
+    while (fscanf(pInputFile, "%s", pszKeyWord) == 1) {
+        if (_strcmpi(pszKeyWord, "ASCIIDIGITS") == 0) {
             if (Verbose)
                 printf("\n\nFound ASCIIDIGITS keyword.\n");
 
@@ -201,8 +199,7 @@ int ParseUnicode(
             pUnic->WriteFlags |= F_ADIGIT;
         }
 
-        else if (_strcmpi(pszKeyWord, "FOLDCZONE") == 0)
-        {
+        else if (_strcmpi(pszKeyWord, "FOLDCZONE") == 0) {
             if (Verbose)
                 printf("\n\nFound FOLDCZONE keyword.\n");
 
@@ -224,8 +221,7 @@ int ParseUnicode(
             pUnic->WriteFlags |= F_CZONE;
         }
 
-        else if (_strcmpi(pszKeyWord, "HIRAGANA") == 0)
-        {
+        else if (_strcmpi(pszKeyWord, "HIRAGANA") == 0) {
             if (Verbose)
                 printf("\n\nFound HIRAGANA keyword.\n");
 
@@ -247,8 +243,7 @@ int ParseUnicode(
             pUnic->WriteFlags |= F_HIRAGANA;
         }
 
-        else if (_strcmpi(pszKeyWord, "KATAKANA") == 0)
-        {
+        else if (_strcmpi(pszKeyWord, "KATAKANA") == 0) {
             if (Verbose)
                 printf("\n\nFound KATAKANA keyword.\n");
 
@@ -270,8 +265,7 @@ int ParseUnicode(
             pUnic->WriteFlags |= F_KATAKANA;
         }
 
-        else if (_strcmpi(pszKeyWord, "HALFWIDTH") == 0)
-        {
+        else if (_strcmpi(pszKeyWord, "HALFWIDTH") == 0) {
             if (Verbose)
                 printf("\n\nFound HALFWIDTH keyword.\n");
 
@@ -293,8 +287,7 @@ int ParseUnicode(
             pUnic->WriteFlags |= F_HALFWIDTH;
         }
 
-        else if (_strcmpi(pszKeyWord, "FULLWIDTH") == 0)
-        {
+        else if (_strcmpi(pszKeyWord, "FULLWIDTH") == 0) {
             if (Verbose)
                 printf("\n\nFound FULLWIDTH keyword.\n");
 
@@ -316,8 +309,7 @@ int ParseUnicode(
             pUnic->WriteFlags |= F_FULLWIDTH;
         }
 
-        else if (_strcmpi(pszKeyWord, "TRADITIONAL_CHINESE") == 0)
-        {
+        else if (_strcmpi(pszKeyWord, "TRADITIONAL_CHINESE") == 0) {
             if (Verbose)
                 printf("\n\nFound TRADITIONAL_CHINESE keyword.\n");
 
@@ -339,8 +331,7 @@ int ParseUnicode(
             pUnic->WriteFlags |= F_TRADITIONAL;
         }
 
-        else if (_strcmpi(pszKeyWord, "SIMPLIFIED_CHINESE") == 0)
-        {
+        else if (_strcmpi(pszKeyWord, "SIMPLIFIED_CHINESE") == 0) {
             if (Verbose)
                 printf("\n\nFound SIMPLIFIED_CHINESE keyword.\n");
 
@@ -362,8 +353,7 @@ int ParseUnicode(
             pUnic->WriteFlags |= F_SIMPLIFIED;
         }
 
-        else if (_strcmpi(pszKeyWord, "COMP") == 0)
-        {
+        else if (_strcmpi(pszKeyWord, "COMP") == 0) {
             if (Verbose)
                 printf("\n\nFound COMP keyword.\n");
 
@@ -385,8 +375,7 @@ int ParseUnicode(
             pUnic->WriteFlags |= F_COMP;
         }
 
-        else if (_strcmpi(pszKeyWord, "ENDUNICODE") == 0)
-        {
+        else if (_strcmpi(pszKeyWord, "ENDUNICODE") == 0) {
             if (Verbose)
                 printf("\n\nFound ENDUNICODE keyword.\n");
 
@@ -396,8 +385,7 @@ int ParseUnicode(
             return (0);
         }
 
-        else
-        {
+        else {
             printf("Parse Error: Invalid Instruction '%s'.\n", pszKeyWord);
             return (1);
         }
@@ -425,22 +413,21 @@ int ParseUnicode(
 int WriteUnicode(
     PUNICODE pUnic)
 {
-    FILE *pOutputFile;                 // ptr to output file
+    FILE* pOutputFile;                 // ptr to output file
 
 
 
     //  Make sure all tables are present.
 
     if (!((pUnic->WriteFlags & F_ADIGIT) &&
-          (pUnic->WriteFlags & F_CZONE) &&
+        (pUnic->WriteFlags & F_CZONE) &&
           (pUnic->WriteFlags & F_COMP) &&
           (pUnic->WriteFlags & F_HIRAGANA) &&
           (pUnic->WriteFlags & F_KATAKANA) &&
           (pUnic->WriteFlags & F_HALFWIDTH) &&
           (pUnic->WriteFlags & F_FULLWIDTH) &&
           (pUnic->WriteFlags & F_TRADITIONAL) &&
-          (pUnic->WriteFlags & F_SIMPLIFIED)))
-    {
+          (pUnic->WriteFlags & F_SIMPLIFIED))) {
         printf("Write Error: All tables must be present -\n");
         printf("             Ascii Digits, Compatibility Zone, Composite Tables,\n");
         printf("             Hiragana, Katakana, Half Width, Full Width,\n");
@@ -451,8 +438,7 @@ int WriteUnicode(
 
     //  Make sure output file can be opened for writing.
 
-    if ((pOutputFile = fopen(UNICODE_FILE, "w+b")) == 0)
-    {
+    if ((pOutputFile = fopen(UNICODE_FILE, "w+b")) == 0) {
         printf("Error opening output file %s.\n", UNICODE_FILE);
         return (1);
     }
@@ -463,8 +449,7 @@ int WriteUnicode(
 
     //  Write Ascii Digits Table to output file.
 
-    if (WriteAsciiDigits(pUnic, pOutputFile))
-    {
+    if (WriteAsciiDigits(pUnic, pOutputFile)) {
         fclose(pOutputFile);
         return (1);
     }
@@ -478,8 +463,7 @@ int WriteUnicode(
 
     //  Write Fold Compatibility Zone Table to output file.
 
-    if (WriteFoldCZone(pUnic, pOutputFile))
-    {
+    if (WriteFoldCZone(pUnic, pOutputFile)) {
         fclose(pOutputFile);
         return (1);
     }
@@ -493,8 +477,7 @@ int WriteUnicode(
 
     //  Write Hiragana Table to output file.
 
-    if (WriteHiragana(pUnic, pOutputFile))
-    {
+    if (WriteHiragana(pUnic, pOutputFile)) {
         fclose(pOutputFile);
         return (1);
     }
@@ -508,8 +491,7 @@ int WriteUnicode(
 
     //  Write Katakana Table to output file.
 
-    if (WriteKatakana(pUnic, pOutputFile))
-    {
+    if (WriteKatakana(pUnic, pOutputFile)) {
         fclose(pOutputFile);
         return (1);
     }
@@ -523,8 +505,7 @@ int WriteUnicode(
 
     //  Write Half Width Table to output file.
 
-    if (WriteHalfWidth(pUnic, pOutputFile))
-    {
+    if (WriteHalfWidth(pUnic, pOutputFile)) {
         fclose(pOutputFile);
         return (1);
     }
@@ -538,8 +519,7 @@ int WriteUnicode(
 
     //  Write Full Width Table to output file.
 
-    if (WriteFullWidth(pUnic, pOutputFile))
-    {
+    if (WriteFullWidth(pUnic, pOutputFile)) {
         fclose(pOutputFile);
         return (1);
     }
@@ -553,8 +533,7 @@ int WriteUnicode(
 
     //  Write Traditional Chinese Table to output file.
 
-    if (WriteTraditional(pUnic, pOutputFile))
-    {
+    if (WriteTraditional(pUnic, pOutputFile)) {
         fclose(pOutputFile);
         return (1);
     }
@@ -568,8 +547,7 @@ int WriteUnicode(
 
     //  Write Simplified Chinese Table to output file.
 
-    if (WriteSimplified(pUnic, pOutputFile))
-    {
+    if (WriteSimplified(pUnic, pOutputFile)) {
         fclose(pOutputFile);
         return (1);
     }
@@ -583,8 +561,7 @@ int WriteUnicode(
 
     //  Write Precomposed Table to output file.
 
-    if (WritePrecomposed(pUnic, pOutputFile))
-    {
+    if (WritePrecomposed(pUnic, pOutputFile)) {
         fclose(pOutputFile);
         return (1);
     }
@@ -592,8 +569,7 @@ int WriteUnicode(
 
     //  Write Composite Table to output file.
 
-    if (WriteComposite(pUnic, pOutputFile))
-    {
+    if (WriteComposite(pUnic, pOutputFile)) {
         fclose(pOutputFile);
         return (1);
     }
@@ -604,8 +580,7 @@ int WriteUnicode(
     Free844(pUnic->pPreComp);
     Free844(pUnic->pBase);
     Free844(pUnic->pNonSp);
-    if (pUnic->pCompGrid != NULL)
-    {
+    if (pUnic->pCompGrid != NULL) {
         free(pUnic->pCompGrid);
     }
 
@@ -655,8 +630,7 @@ int GetAsciiDigits(
 
     //  Allocate top buffer for 8:4:4 table - 256 pointers.
 
-    if (Allocate8(&pUnic->pADigit))
-    {
+    if (Allocate8(&pUnic->pADigit)) {
         return (1);
     }
 
@@ -666,17 +640,15 @@ int GetAsciiDigits(
     //  buffers based on wide character value, and store difference
     //  to ascii digit.
 
-    for (Ctr = 0; Ctr < Size; Ctr++)
-    {
+    for (Ctr = 0; Ctr < Size; Ctr++) {
 
         //  Read in digit and ascii digit values.
 
-        NumItems = fscanf( pInputFile,
-                           "%x %x ;%*[^\n]",
-                           &Digit,
-                           &Ascii );
-        if (NumItems != 2)
-        {
+        NumItems = fscanf(pInputFile,
+                          "%x %x ;%*[^\n]",
+                          &Digit,
+                          &Ascii);
+        if (NumItems != 2) {
             printf("Parse Error: Error reading ASCIIDIGITS values.\n");
             return (1);
         }
@@ -687,13 +659,12 @@ int GetAsciiDigits(
 
         //  Insert difference (Ascii - Digit) into 8:4:4 table.
 
-        if (Insert844( pUnic->pADigit,
-                       (WORD)Digit,
-                       (WORD)(Ascii - Digit),
-                       &pUnic->ADBuf2,
-                       &pUnic->ADBuf3,
-                       sizeof(WORD) ))
-        {
+        if (Insert844(pUnic->pADigit,
+            (WORD)Digit,
+                      (WORD)(Ascii - Digit),
+                      &pUnic->ADBuf2,
+                      &pUnic->ADBuf3,
+                      sizeof(WORD))) {
             return (1);
         }
     }
@@ -730,8 +701,7 @@ int GetFoldCZone(
 
     //  Allocate top buffer for 8:4:4 table - 256 pointers.
 
-    if (Allocate8(&pUnic->pCZone))
-    {
+    if (Allocate8(&pUnic->pCZone)) {
         return (1);
     }
 
@@ -741,17 +711,15 @@ int GetFoldCZone(
     //  buffers based on wide character value, and store difference to
     //  ascii value.
 
-    for (Ctr = 0; Ctr < Size; Ctr++)
-    {
+    for (Ctr = 0; Ctr < Size; Ctr++) {
 
         //  Read in CZone and Ascii values.
 
-        NumItems = fscanf( pInputFile,
-                           "%x %x ;%*[^\n]",
-                           &CZone,
-                           &Ascii );
-        if (NumItems != 2)
-        {
+        NumItems = fscanf(pInputFile,
+                          "%x %x ;%*[^\n]",
+                          &CZone,
+                          &Ascii);
+        if (NumItems != 2) {
             printf("Parse Error: Error reading FOLDCZONE values.\n");
             return (1);
         }
@@ -762,13 +730,12 @@ int GetFoldCZone(
 
         //  Insert difference (Ascii - CZone) into 8:4:4 table.
 
-        if (Insert844( pUnic->pCZone,
-                       (WORD)CZone,
-                       (WORD)(Ascii - CZone),
-                       &pUnic->CZBuf2,
-                       &pUnic->CZBuf3,
-                       sizeof(WORD) ))
-        {
+        if (Insert844(pUnic->pCZone,
+            (WORD)CZone,
+                      (WORD)(Ascii - CZone),
+                      &pUnic->CZBuf2,
+                      &pUnic->CZBuf3,
+                      sizeof(WORD))) {
             return (1);
         }
     }
@@ -805,8 +772,7 @@ int GetHiragana(
 
     //  Allocate top buffer for 8:4:4 table - 256 pointers.
 
-    if (Allocate8(&pUnic->pHiragana))
-    {
+    if (Allocate8(&pUnic->pHiragana)) {
         return (1);
     }
 
@@ -816,17 +782,15 @@ int GetHiragana(
     //  buffers based on wide character value, and store difference to
     //  hiragana value.
 
-    for (Ctr = 0; Ctr < Size; Ctr++)
-    {
+    for (Ctr = 0; Ctr < Size; Ctr++) {
 
         //  Read in katakana and hiragana values.
 
-        NumItems = fscanf( pInputFile,
-                           "%x %x ;%*[^\n]",
-                           &Kata,
-                           &Hira );
-        if (NumItems != 2)
-        {
+        NumItems = fscanf(pInputFile,
+                          "%x %x ;%*[^\n]",
+                          &Kata,
+                          &Hira);
+        if (NumItems != 2) {
             printf("Parse Error: Error reading HIRAGANA values.\n");
             return (1);
         }
@@ -837,13 +801,12 @@ int GetHiragana(
 
         //  Insert difference (Kata - Hira) into 8:4:4 table.
 
-        if (Insert844( pUnic->pHiragana,
-                       (WORD)Kata,
-                       (WORD)(Hira - Kata),
-                       &pUnic->HGBuf2,
-                       &pUnic->HGBuf3,
-                       sizeof(WORD) ))
-        {
+        if (Insert844(pUnic->pHiragana,
+            (WORD)Kata,
+                      (WORD)(Hira - Kata),
+                      &pUnic->HGBuf2,
+                      &pUnic->HGBuf3,
+                      sizeof(WORD))) {
             return (1);
         }
     }
@@ -880,8 +843,7 @@ int GetKatakana(
 
     //  Allocate top buffer for 8:4:4 table - 256 pointers.
 
-    if (Allocate8(&pUnic->pKatakana))
-    {
+    if (Allocate8(&pUnic->pKatakana)) {
         return (1);
     }
 
@@ -891,17 +853,15 @@ int GetKatakana(
     //  buffers based on wide character value, and store difference to
     //  katakana value.
 
-    for (Ctr = 0; Ctr < Size; Ctr++)
-    {
+    for (Ctr = 0; Ctr < Size; Ctr++) {
 
         //  Read in hiragana and katakana values.
 
-        NumItems = fscanf( pInputFile,
-                           "%x %x ;%*[^\n]",
-                           &Hira,
-                           &Kata );
-        if (NumItems != 2)
-        {
+        NumItems = fscanf(pInputFile,
+                          "%x %x ;%*[^\n]",
+                          &Hira,
+                          &Kata);
+        if (NumItems != 2) {
             printf("Parse Error: Error reading KATAKANA values.\n");
             return (1);
         }
@@ -912,13 +872,12 @@ int GetKatakana(
 
         //  Insert difference (Hira - Kata) into 8:4:4 table.
 
-        if (Insert844( pUnic->pKatakana,
-                       (WORD)Hira,
-                       (WORD)(Kata - Hira),
-                       &pUnic->KKBuf2,
-                       &pUnic->KKBuf3,
-                       sizeof(WORD) ))
-        {
+        if (Insert844(pUnic->pKatakana,
+            (WORD)Hira,
+                      (WORD)(Kata - Hira),
+                      &pUnic->KKBuf2,
+                      &pUnic->KKBuf3,
+                      sizeof(WORD))) {
             return (1);
         }
     }
@@ -955,8 +914,7 @@ int GetHalfWidth(
 
     //  Allocate top buffer for 8:4:4 table - 256 pointers.
 
-    if (Allocate8(&pUnic->pHalfWidth))
-    {
+    if (Allocate8(&pUnic->pHalfWidth)) {
         return (1);
     }
 
@@ -966,17 +924,15 @@ int GetHalfWidth(
     //  buffers based on wide character value, and store difference to
     //  half width value.
 
-    for (Ctr = 0; Ctr < Size; Ctr++)
-    {
+    for (Ctr = 0; Ctr < Size; Ctr++) {
 
         //  Read in full width and half width values.
 
-        NumItems = fscanf( pInputFile,
-                           "%x %x ;%*[^\n]",
-                           &Full,
-                           &Half );
-        if (NumItems != 2)
-        {
+        NumItems = fscanf(pInputFile,
+                          "%x %x ;%*[^\n]",
+                          &Full,
+                          &Half);
+        if (NumItems != 2) {
             printf("Parse Error: Error reading HALFWIDTH values.\n");
             return (1);
         }
@@ -987,13 +943,12 @@ int GetHalfWidth(
 
         //  Insert difference (Full - Half) into 8:4:4 table.
 
-        if (Insert844( pUnic->pHalfWidth,
-                       (WORD)Full,
-                       (WORD)(Half - Full),
-                       &pUnic->HWBuf2,
-                       &pUnic->HWBuf3,
-                       sizeof(WORD) ))
-        {
+        if (Insert844(pUnic->pHalfWidth,
+            (WORD)Full,
+                      (WORD)(Half - Full),
+                      &pUnic->HWBuf2,
+                      &pUnic->HWBuf3,
+                      sizeof(WORD))) {
             return (1);
         }
     }
@@ -1030,8 +985,7 @@ int GetFullWidth(
 
     //  Allocate top buffer for 8:4:4 table - 256 pointers.
 
-    if (Allocate8(&pUnic->pFullWidth))
-    {
+    if (Allocate8(&pUnic->pFullWidth)) {
         return (1);
     }
 
@@ -1041,17 +995,15 @@ int GetFullWidth(
     //  buffers based on wide character value, and store difference to
     //  full width value.
 
-    for (Ctr = 0; Ctr < Size; Ctr++)
-    {
+    for (Ctr = 0; Ctr < Size; Ctr++) {
 
         //  Read in half width and full width values.
 
-        NumItems = fscanf( pInputFile,
-                           "%x %x ;%*[^\n]",
-                           &Half,
-                           &Full );
-        if (NumItems != 2)
-        {
+        NumItems = fscanf(pInputFile,
+                          "%x %x ;%*[^\n]",
+                          &Half,
+                          &Full);
+        if (NumItems != 2) {
             printf("Parse Error: Error reading FULLWIDTH values.\n");
             return (1);
         }
@@ -1062,13 +1014,12 @@ int GetFullWidth(
 
         //  Insert difference (Half - Full) into 8:4:4 table.
 
-        if (Insert844( pUnic->pFullWidth,
-                       (WORD)Half,
-                       (WORD)(Full - Half),
-                       &pUnic->FWBuf2,
-                       &pUnic->FWBuf3,
-                       sizeof(WORD) ))
-        {
+        if (Insert844(pUnic->pFullWidth,
+            (WORD)Half,
+                      (WORD)(Full - Half),
+                      &pUnic->FWBuf2,
+                      &pUnic->FWBuf3,
+                      sizeof(WORD))) {
             return (1);
         }
     }
@@ -1105,8 +1056,7 @@ int GetTraditional(
 
     //  Allocate top buffer for 8:4:4 table - 256 pointers.
 
-    if (Allocate8(&pUnic->pTraditional))
-    {
+    if (Allocate8(&pUnic->pTraditional)) {
         return (1);
     }
 
@@ -1116,35 +1066,32 @@ int GetTraditional(
     //  buffers based on wide character value, and store difference to
     //  traditional value.
 
-    for (Ctr = 0; Ctr < Size; Ctr++)
-    {
+    for (Ctr = 0; Ctr < Size; Ctr++) {
 
         //  Read in simplified and traditional values.
 
-        NumItems = fscanf( pInputFile,
-                           "%x %x ;%*[^\n]",
-                           &Simplified,
-                           &Traditional );
-        if (NumItems != 2)
-        {
+        NumItems = fscanf(pInputFile,
+                          "%x %x ;%*[^\n]",
+                          &Simplified,
+                          &Traditional);
+        if (NumItems != 2) {
             printf("Parse Error: Error reading TRADITIONAL_CHINESE values.\n");
             return (1);
         }
 
         if (Verbose)
             printf("  Simplified = %x\tTraditional = %x\n",
-                    Simplified, Traditional);
+                   Simplified, Traditional);
 
 
         //  Insert difference (Simplified - Traditional) into 8:4:4 table.
 
-        if (Insert844( pUnic->pTraditional,
-                       (WORD)Simplified,
-                       (WORD)(Traditional - Simplified),
-                       &pUnic->TRBuf2,
-                       &pUnic->TRBuf3,
-                       sizeof(WORD) ))
-        {
+        if (Insert844(pUnic->pTraditional,
+            (WORD)Simplified,
+                      (WORD)(Traditional - Simplified),
+                      &pUnic->TRBuf2,
+                      &pUnic->TRBuf3,
+                      sizeof(WORD))) {
             return (1);
         }
     }
@@ -1181,8 +1128,7 @@ int GetSimplified(
 
     //  Allocate top buffer for 8:4:4 table - 256 pointers.
 
-    if (Allocate8(&pUnic->pSimplified))
-    {
+    if (Allocate8(&pUnic->pSimplified)) {
         return (1);
     }
 
@@ -1192,35 +1138,32 @@ int GetSimplified(
     //  buffers based on wide character value, and store difference to
     //  simplified value.
 
-    for (Ctr = 0; Ctr < Size; Ctr++)
-    {
+    for (Ctr = 0; Ctr < Size; Ctr++) {
 
         //  Read in traditional and simplified values.
 
-        NumItems = fscanf( pInputFile,
-                           "%x %x ;%*[^\n]",
-                           &Traditional,
-                           &Simplified );
-        if (NumItems != 2)
-        {
+        NumItems = fscanf(pInputFile,
+                          "%x %x ;%*[^\n]",
+                          &Traditional,
+                          &Simplified);
+        if (NumItems != 2) {
             printf("Parse Error: Error reading SIMPLIFIED_CHINESE values.\n");
             return (1);
         }
 
         if (Verbose)
             printf("  Traditional = %x\tSimplified = %x\n",
-                    Traditional, Simplified);
+                   Traditional, Simplified);
 
 
         //  Insert difference (Traditional - Simplified) into 8:4:4 table.
 
-        if (Insert844( pUnic->pSimplified,
-                       (WORD)Traditional,
-                       (WORD)(Simplified - Traditional),
-                       &pUnic->SPBuf2,
-                       &pUnic->SPBuf3,
-                       sizeof(WORD) ))
-        {
+        if (Insert844(pUnic->pSimplified,
+            (WORD)Traditional,
+                      (WORD)(Simplified - Traditional),
+                      &pUnic->SPBuf2,
+                      &pUnic->SPBuf3,
+                      sizeof(WORD))) {
             return (1);
         }
     }
@@ -1261,16 +1204,13 @@ int GetCompTable(
 
     //  Allocate top buffers for 8:4:4 tables - 256 pointers.
 
-    if (Allocate8(&pUnic->pPreComp))
-    {
+    if (Allocate8(&pUnic->pPreComp)) {
         return (1);
     }
-    if (Allocate8(&pUnic->pBase))
-    {
+    if (Allocate8(&pUnic->pBase)) {
         return (1);
     }
-    if (Allocate8(&pUnic->pNonSp))
-    {
+    if (Allocate8(&pUnic->pNonSp)) {
         return (1);
     }
 
@@ -1278,8 +1218,7 @@ int GetCompTable(
     //  Allocate 2D grid for Composite table and save Size
     //  in the first position of the grid.
 
-    if (AllocateGrid(&pUnic->pCompGrid, Size))
-    {
+    if (AllocateGrid(&pUnic->pCompGrid, Size)) {
         return (1);
     }
 
@@ -1287,25 +1226,23 @@ int GetCompTable(
     //  For each entry in table, read in precomposed, base, and nonspace
     //  characters from input file and build the necessary tables.
 
-    for (Ctr = 0; Ctr < Size; Ctr++)
-    {
+    for (Ctr = 0; Ctr < Size; Ctr++) {
 
         //  Read in precomposed, base, and nonspace characters.
 
-        NumItems = fscanf( pInputFile,
-                           "%x %x %x ;%*[^\n]",
-                           &PreComp,
-                           &Base,
-                           &NonSp );
-        if (NumItems != 3)
-        {
+        NumItems = fscanf(pInputFile,
+                          "%x %x %x ;%*[^\n]",
+                          &PreComp,
+                          &Base,
+                          &NonSp);
+        if (NumItems != 3) {
             printf("Parse Error: Error reading COMPTABLE values.\n");
             return (1);
         }
 
         if (Verbose)
             printf("  PreComp = %x\tBase = %x\tNonSp = %x\n",
-                      PreComp, Base, NonSp);
+                   PreComp, Base, NonSp);
 
 
         //  PRECOMPOSED TABLE:
@@ -1316,13 +1253,12 @@ int GetCompTable(
         //  Insert Combo information into Precomposed 8:4:4 table.
 
         Combo = MAKE_DWORD((WORD)NonSp, (WORD)Base);
-        if (Insert844( pUnic->pPreComp,
-                       (WORD)PreComp,
-                       Combo,
-                       &pUnic->PCBuf2,
-                       &pUnic->PCBuf3,
-                       sizeof(DWORD) ))
-        {
+        if (Insert844(pUnic->pPreComp,
+            (WORD)PreComp,
+                      Combo,
+                      &pUnic->PCBuf2,
+                      &pUnic->PCBuf3,
+                      sizeof(DWORD))) {
             return (1);
         }
 
@@ -1335,35 +1271,31 @@ int GetCompTable(
         //  Insert offsets into BASE and NONSPACE 8:4:4 tables.
         //  Insert PRECOMPOSED into 2D grid.
 
-        Get844Value( pUnic->pBase,
-                     (WORD)Base,
-                     &BOff );
-        Get844Value( pUnic->pNonSp,
-                     (WORD)NonSp,
-                     &NOff );
-        if (BOff == 0)
-        {
+        Get844Value(pUnic->pBase,
+            (WORD)Base,
+                    &BOff);
+        Get844Value(pUnic->pNonSp,
+            (WORD)NonSp,
+                    &NOff);
+        if (BOff == 0) {
             BOff = (WORD)(++(pUnic->NumBase));
-            if (Insert844( pUnic->pBase,
-                           (WORD)Base,
-                           BOff,
-                           &pUnic->BSBuf2,
-                           &pUnic->BSBuf3,
-                           sizeof(WORD) ))
-            {
+            if (Insert844(pUnic->pBase,
+                (WORD)Base,
+                          BOff,
+                          &pUnic->BSBuf2,
+                          &pUnic->BSBuf3,
+                          sizeof(WORD))) {
                 return (1);
             }
         }
-        if (NOff == 0)
-        {
+        if (NOff == 0) {
             NOff = (WORD)(++(pUnic->NumNonSp));
-            if (Insert844( pUnic->pNonSp,
-                           (WORD)NonSp,
-                           NOff,
-                           &pUnic->NSBuf2,
-                           &pUnic->NSBuf3,
-                           sizeof(WORD) ))
-            {
+            if (Insert844(pUnic->pNonSp,
+                (WORD)NonSp,
+                          NOff,
+                          &pUnic->NSBuf2,
+                          &pUnic->NSBuf3,
+                          sizeof(WORD))) {
                 return (1);
             }
         }
@@ -1371,10 +1303,10 @@ int GetCompTable(
         if (Verbose)
             printf("    BOff = %x\tNOff = %x\n", BOff, NOff);
 
-        InsertCompGrid( pUnic->pCompGrid,
-                        (WORD)PreComp,
-                        BOff,
-                        NOff );
+        InsertCompGrid(pUnic->pCompGrid,
+            (WORD)PreComp,
+                       BOff,
+                       NOff);
     }
 
 
@@ -1398,28 +1330,22 @@ int GetCompTable(
 void Get844Value(
     P844_ARRAY pArr,
     WORD WChar,
-    WORD *Value)
+    WORD* Value)
 {
     P844_ARRAY pMidFour;
-    WORD *pFour;
+    WORD* pFour;
 
 
 
     //  Traverse 8:4:4 table for value.
 
-    if (pMidFour = (P844_ARRAY)(pArr[GET8(WChar)]))
-    {
-        if (pFour = pMidFour[GETHI4(WChar)])
-        {
+    if (pMidFour = (P844_ARRAY)(pArr[GET8(WChar)])) {
+        if (pFour = pMidFour[GETHI4(WChar)]) {
             *Value = pFour[GETLO4(WChar)];
-        }
-        else
-        {
+        } else {
             *Value = 0;
         }
-    }
-    else
-    {
+    } else {
         *Value = 0;
     }
 }
@@ -1477,7 +1403,7 @@ void InsertCompGrid(
 
 int WriteAsciiDigits(
     PUNICODE pUnic,
-    FILE *pOutputFile)
+    FILE* pOutputFile)
 {
     int TblSize;                  // size of table
     WORD wValue;                  // temp storage value
@@ -1489,42 +1415,39 @@ int WriteAsciiDigits(
 
     //  Compute size of table.
 
-    TblSize = Compute844Size( pUnic->ADBuf2,
-                              pUnic->ADBuf3,
-                              sizeof(WORD) ) + 1;
+    TblSize = Compute844Size(pUnic->ADBuf2,
+                             pUnic->ADBuf3,
+                             sizeof(WORD)) + 1;
 
 
     //  Make sure the total size of the table is not greater than 64K.
     //  If it is, then the WORD offsets are too small.
 
-    if (TblSize > MAX_844_TBL_SIZE)
-    {
-       printf("Write Error: Size of Ascii Digits table is greater than 64K.\n");
-       return (1);
+    if (TblSize > MAX_844_TBL_SIZE) {
+        printf("Write Error: Size of Ascii Digits table is greater than 64K.\n");
+        return (1);
     }
 
 
     //  Write the size to the output file.
 
     wValue = (WORD)TblSize;
-    if (FileWrite( pOutputFile,
-                   &wValue,
-                   sizeof(WORD),
-                   1,
-                   "Ascii Digits size" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &wValue,
+                  sizeof(WORD),
+                  1,
+                  "Ascii Digits size")) {
         return (1);
     }
 
 
     //  Write Ascii Digits 8:4:4 table to file.
 
-    if (Write844Table( pOutputFile,
-                       pUnic->pADigit,
-                       pUnic->ADBuf2,
-                       TblSize - 1,
-                       sizeof(WORD) ))
-    {
+    if (Write844Table(pOutputFile,
+                      pUnic->pADigit,
+                      pUnic->ADBuf2,
+                      TblSize - 1,
+                      sizeof(WORD))) {
         return (1);
     }
 
@@ -1548,7 +1471,7 @@ int WriteAsciiDigits(
 
 int WriteFoldCZone(
     PUNICODE pUnic,
-    FILE *pOutputFile)
+    FILE* pOutputFile)
 {
     int TblSize;                  // size of table
     WORD wValue;                  // temp storage value
@@ -1560,42 +1483,39 @@ int WriteFoldCZone(
 
     //  Compute size of table.
 
-    TblSize = Compute844Size( pUnic->CZBuf2,
-                              pUnic->CZBuf3,
-                              sizeof(WORD) ) + 1;
+    TblSize = Compute844Size(pUnic->CZBuf2,
+                             pUnic->CZBuf3,
+                             sizeof(WORD)) + 1;
 
 
     //  Make sure the total size of the table is not greater than 64K.
     //  If it is, then the WORD offsets are too small.
 
-    if (TblSize > MAX_844_TBL_SIZE)
-    {
-       printf("Write Error: Size of Fold CZone table is greater than 64K.\n");
-       return (1);
+    if (TblSize > MAX_844_TBL_SIZE) {
+        printf("Write Error: Size of Fold CZone table is greater than 64K.\n");
+        return (1);
     }
 
 
     //  Write the size to the output file.
 
     wValue = (WORD)TblSize;
-    if (FileWrite( pOutputFile,
-                   &wValue,
-                   sizeof(WORD),
-                   1,
-                   "Fold CZone size" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &wValue,
+                  sizeof(WORD),
+                  1,
+                  "Fold CZone size")) {
         return (1);
     }
 
 
     //  Write Ascii Digits 8:4:4 table to file.
 
-    if (Write844Table( pOutputFile,
-                       pUnic->pCZone,
-                       pUnic->CZBuf2,
-                       TblSize - 1,
-                       sizeof(WORD) ))
-    {
+    if (Write844Table(pOutputFile,
+                      pUnic->pCZone,
+                      pUnic->CZBuf2,
+                      TblSize - 1,
+                      sizeof(WORD))) {
         return (1);
     }
 
@@ -1617,7 +1537,7 @@ int WriteFoldCZone(
 
 int WriteHiragana(
     PUNICODE pUnic,
-    FILE *pOutputFile)
+    FILE* pOutputFile)
 {
     int TblSize;                  // size of table
     WORD wValue;                  // temp storage value
@@ -1629,42 +1549,39 @@ int WriteHiragana(
 
     //  Compute size of table.
 
-    TblSize = Compute844Size( pUnic->HGBuf2,
-                              pUnic->HGBuf3,
-                              sizeof(WORD) ) + 1;
+    TblSize = Compute844Size(pUnic->HGBuf2,
+                             pUnic->HGBuf3,
+                             sizeof(WORD)) + 1;
 
 
     //  Make sure the total size of the table is not greater than 64K.
     //  If it is, then the WORD offsets are too small.
 
-    if (TblSize > MAX_844_TBL_SIZE)
-    {
-       printf("Write Error: Size of Hiragana table is greater than 64K.\n");
-       return (1);
+    if (TblSize > MAX_844_TBL_SIZE) {
+        printf("Write Error: Size of Hiragana table is greater than 64K.\n");
+        return (1);
     }
 
 
     //  Write the size to the output file.
 
     wValue = (WORD)TblSize;
-    if (FileWrite( pOutputFile,
-                   &wValue,
-                   sizeof(WORD),
-                   1,
-                   "Hiragana size" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &wValue,
+                  sizeof(WORD),
+                  1,
+                  "Hiragana size")) {
         return (1);
     }
 
 
     //  Write Hiragana 8:4:4 table to file.
 
-    if (Write844Table( pOutputFile,
-                       pUnic->pHiragana,
-                       pUnic->HGBuf2,
-                       TblSize - 1,
-                       sizeof(WORD) ))
-    {
+    if (Write844Table(pOutputFile,
+                      pUnic->pHiragana,
+                      pUnic->HGBuf2,
+                      TblSize - 1,
+                      sizeof(WORD))) {
         return (1);
     }
 
@@ -1686,7 +1603,7 @@ int WriteHiragana(
 
 int WriteKatakana(
     PUNICODE pUnic,
-    FILE *pOutputFile)
+    FILE* pOutputFile)
 {
     int TblSize;                  // size of table
     WORD wValue;                  // temp storage value
@@ -1698,42 +1615,39 @@ int WriteKatakana(
 
     //  Compute size of table.
 
-    TblSize = Compute844Size( pUnic->KKBuf2,
-                              pUnic->KKBuf3,
-                              sizeof(WORD) ) + 1;
+    TblSize = Compute844Size(pUnic->KKBuf2,
+                             pUnic->KKBuf3,
+                             sizeof(WORD)) + 1;
 
 
     //  Make sure the total size of the table is not greater than 64K.
     //  If it is, then the WORD offsets are too small.
 
-    if (TblSize > MAX_844_TBL_SIZE)
-    {
-       printf("Write Error: Size of Katakana table is greater than 64K.\n");
-       return (1);
+    if (TblSize > MAX_844_TBL_SIZE) {
+        printf("Write Error: Size of Katakana table is greater than 64K.\n");
+        return (1);
     }
 
 
     //  Write the size to the output file.
 
     wValue = (WORD)TblSize;
-    if (FileWrite( pOutputFile,
-                   &wValue,
-                   sizeof(WORD),
-                   1,
-                   "Katakana size" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &wValue,
+                  sizeof(WORD),
+                  1,
+                  "Katakana size")) {
         return (1);
     }
 
 
     //  Write Katakana 8:4:4 table to file.
 
-    if (Write844Table( pOutputFile,
-                       pUnic->pKatakana,
-                       pUnic->KKBuf2,
-                       TblSize - 1,
-                       sizeof(WORD) ))
-    {
+    if (Write844Table(pOutputFile,
+                      pUnic->pKatakana,
+                      pUnic->KKBuf2,
+                      TblSize - 1,
+                      sizeof(WORD))) {
         return (1);
     }
 
@@ -1755,7 +1669,7 @@ int WriteKatakana(
 
 int WriteHalfWidth(
     PUNICODE pUnic,
-    FILE *pOutputFile)
+    FILE* pOutputFile)
 {
     int TblSize;                  // size of table
     WORD wValue;                  // temp storage value
@@ -1767,42 +1681,39 @@ int WriteHalfWidth(
 
     //  Compute size of table.
 
-    TblSize = Compute844Size( pUnic->HWBuf2,
-                              pUnic->HWBuf3,
-                              sizeof(WORD) ) + 1;
+    TblSize = Compute844Size(pUnic->HWBuf2,
+                             pUnic->HWBuf3,
+                             sizeof(WORD)) + 1;
 
 
     //  Make sure the total size of the table is not greater than 64K.
     //  If it is, then the WORD offsets are too small.
 
-    if (TblSize > MAX_844_TBL_SIZE)
-    {
-       printf("Write Error: Size of Half Width table is greater than 64K.\n");
-       return (1);
+    if (TblSize > MAX_844_TBL_SIZE) {
+        printf("Write Error: Size of Half Width table is greater than 64K.\n");
+        return (1);
     }
 
 
     //  Write the size to the output file.
 
     wValue = (WORD)TblSize;
-    if (FileWrite( pOutputFile,
-                   &wValue,
-                   sizeof(WORD),
-                   1,
-                   "Half Width size" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &wValue,
+                  sizeof(WORD),
+                  1,
+                  "Half Width size")) {
         return (1);
     }
 
 
     //  Write Half Width 8:4:4 table to file.
 
-    if (Write844Table( pOutputFile,
-                       pUnic->pHalfWidth,
-                       pUnic->HWBuf2,
-                       TblSize - 1,
-                       sizeof(WORD) ))
-    {
+    if (Write844Table(pOutputFile,
+                      pUnic->pHalfWidth,
+                      pUnic->HWBuf2,
+                      TblSize - 1,
+                      sizeof(WORD))) {
         return (1);
     }
 
@@ -1824,7 +1735,7 @@ int WriteHalfWidth(
 
 int WriteFullWidth(
     PUNICODE pUnic,
-    FILE *pOutputFile)
+    FILE* pOutputFile)
 {
     int TblSize;                  // size of table
     WORD wValue;                  // temp storage value
@@ -1836,42 +1747,39 @@ int WriteFullWidth(
 
     //  Compute size of table.
 
-    TblSize = Compute844Size( pUnic->FWBuf2,
-                              pUnic->FWBuf3,
-                              sizeof(WORD) ) + 1;
+    TblSize = Compute844Size(pUnic->FWBuf2,
+                             pUnic->FWBuf3,
+                             sizeof(WORD)) + 1;
 
 
     //  Make sure the total size of the table is not greater than 64K.
     //  If it is, then the WORD offsets are too small.
 
-    if (TblSize > MAX_844_TBL_SIZE)
-    {
-       printf("Write Error: Size of Full Width table is greater than 64K.\n");
-       return (1);
+    if (TblSize > MAX_844_TBL_SIZE) {
+        printf("Write Error: Size of Full Width table is greater than 64K.\n");
+        return (1);
     }
 
 
     //  Write the size to the output file.
 
     wValue = (WORD)TblSize;
-    if (FileWrite( pOutputFile,
-                   &wValue,
-                   sizeof(WORD),
-                   1,
-                   "Full Width size" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &wValue,
+                  sizeof(WORD),
+                  1,
+                  "Full Width size")) {
         return (1);
     }
 
 
     //  Write Full Width 8:4:4 table to file.
 
-    if (Write844Table( pOutputFile,
-                       pUnic->pFullWidth,
-                       pUnic->FWBuf2,
-                       TblSize - 1,
-                       sizeof(WORD) ))
-    {
+    if (Write844Table(pOutputFile,
+                      pUnic->pFullWidth,
+                      pUnic->FWBuf2,
+                      TblSize - 1,
+                      sizeof(WORD))) {
         return (1);
     }
 
@@ -1893,7 +1801,7 @@ int WriteFullWidth(
 
 int WriteTraditional(
     PUNICODE pUnic,
-    FILE *pOutputFile)
+    FILE* pOutputFile)
 {
     int TblSize;                  // size of table
     WORD wValue;                  // temp storage value
@@ -1905,42 +1813,39 @@ int WriteTraditional(
 
     //  Compute size of table.
 
-    TblSize = Compute844Size( pUnic->TRBuf2,
-                              pUnic->TRBuf3,
-                              sizeof(WORD) ) + 1;
+    TblSize = Compute844Size(pUnic->TRBuf2,
+                             pUnic->TRBuf3,
+                             sizeof(WORD)) + 1;
 
 
     //  Make sure the total size of the table is not greater than 64K.
     //  If it is, then the WORD offsets are too small.
 
-    if (TblSize > MAX_844_TBL_SIZE)
-    {
-       printf("Write Error: Size of Traditional Chinese table is greater than 64K.\n");
-       return (1);
+    if (TblSize > MAX_844_TBL_SIZE) {
+        printf("Write Error: Size of Traditional Chinese table is greater than 64K.\n");
+        return (1);
     }
 
 
     //  Write the size to the output file.
 
     wValue = (WORD)TblSize;
-    if (FileWrite( pOutputFile,
-                   &wValue,
-                   sizeof(WORD),
-                   1,
-                   "Traditional Chinese size" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &wValue,
+                  sizeof(WORD),
+                  1,
+                  "Traditional Chinese size")) {
         return (1);
     }
 
 
     //  Write Traditional 8:4:4 table to file.
 
-    if (Write844Table( pOutputFile,
-                       pUnic->pTraditional,
-                       pUnic->TRBuf2,
-                       TblSize - 1,
-                       sizeof(WORD) ))
-    {
+    if (Write844Table(pOutputFile,
+                      pUnic->pTraditional,
+                      pUnic->TRBuf2,
+                      TblSize - 1,
+                      sizeof(WORD))) {
         return (1);
     }
 
@@ -1962,7 +1867,7 @@ int WriteTraditional(
 
 int WriteSimplified(
     PUNICODE pUnic,
-    FILE *pOutputFile)
+    FILE* pOutputFile)
 {
     int TblSize;                  // size of table
     WORD wValue;                  // temp storage value
@@ -1974,42 +1879,39 @@ int WriteSimplified(
 
     //  Compute size of table.
 
-    TblSize = Compute844Size( pUnic->SPBuf2,
-                              pUnic->SPBuf3,
-                              sizeof(WORD) ) + 1;
+    TblSize = Compute844Size(pUnic->SPBuf2,
+                             pUnic->SPBuf3,
+                             sizeof(WORD)) + 1;
 
 
     //  Make sure the total size of the table is not greater than 64K.
     //  If it is, then the WORD offsets are too small.
 
-    if (TblSize > MAX_844_TBL_SIZE)
-    {
-       printf("Write Error: Size of Simplified Chinese table is greater than 64K.\n");
-       return (1);
+    if (TblSize > MAX_844_TBL_SIZE) {
+        printf("Write Error: Size of Simplified Chinese table is greater than 64K.\n");
+        return (1);
     }
 
 
     //  Write the size to the output file.
 
     wValue = (WORD)TblSize;
-    if (FileWrite( pOutputFile,
-                   &wValue,
-                   sizeof(WORD),
-                   1,
-                   "Simplified Chinese size" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &wValue,
+                  sizeof(WORD),
+                  1,
+                  "Simplified Chinese size")) {
         return (1);
     }
 
 
     //  Write Simplified 8:4:4 table to file.
 
-    if (Write844Table( pOutputFile,
-                       pUnic->pSimplified,
-                       pUnic->SPBuf2,
-                       TblSize - 1,
-                       sizeof(WORD) ))
-    {
+    if (Write844Table(pOutputFile,
+                      pUnic->pSimplified,
+                      pUnic->SPBuf2,
+                      TblSize - 1,
+                      sizeof(WORD))) {
         return (1);
     }
 
@@ -2032,7 +1934,7 @@ int WriteSimplified(
 
 int WritePrecomposed(
     PUNICODE pUnic,
-    FILE *pOutputFile)
+    FILE* pOutputFile)
 {
     int TblSize;                  // size of table
     WORD wValue;                  // temp storage value
@@ -2044,42 +1946,39 @@ int WritePrecomposed(
 
     //  Compute size of table.
 
-    TblSize = Compute844Size( pUnic->PCBuf2,
-                              pUnic->PCBuf3,
-                              sizeof(DWORD) ) + 1;
+    TblSize = Compute844Size(pUnic->PCBuf2,
+                             pUnic->PCBuf3,
+                             sizeof(DWORD)) + 1;
 
 
     //  Make sure the total size of the table is not greater than 64K.
     //  If it is, then the WORD offsets are too small.
 
-    if (TblSize > MAX_844_TBL_SIZE)
-    {
-       printf("Write Error: Size of PRECOMPOSED table is greater than 64K.\n");
-       return (1);
+    if (TblSize > MAX_844_TBL_SIZE) {
+        printf("Write Error: Size of PRECOMPOSED table is greater than 64K.\n");
+        return (1);
     }
 
 
     //  Write the size to the output file.
 
     wValue = (WORD)TblSize;
-    if (FileWrite( pOutputFile,
-                   &wValue,
-                   sizeof(WORD),
-                   1,
-                   "PRECOMPOSED size" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &wValue,
+                  sizeof(WORD),
+                  1,
+                  "PRECOMPOSED size")) {
         return (1);
     }
 
 
     //  Write PRECOMPOSED 8:4:4 table to file.
 
-    if (Write844Table( pOutputFile,
-                       pUnic->pPreComp,
-                       pUnic->PCBuf2,
-                       TblSize - 1,
-                       sizeof(DWORD) ))
-    {
+    if (Write844Table(pOutputFile,
+                      pUnic->pPreComp,
+                      pUnic->PCBuf2,
+                      TblSize - 1,
+                      sizeof(DWORD))) {
         return (1);
     }
 
@@ -2102,7 +2001,7 @@ int WritePrecomposed(
 
 int WriteComposite(
     PUNICODE pUnic,
-    FILE *pOutputFile)
+    FILE* pOutputFile)
 {
     int BaseSize;                 // size of Base table
     int NonSpSize;                // size of NonSpace table
@@ -2116,60 +2015,56 @@ int WriteComposite(
 
     //  Compute size of base table.
 
-    BaseSize = Compute844Size( pUnic->BSBuf2,
-                               pUnic->BSBuf3,
-                               sizeof(WORD) );
+    BaseSize = Compute844Size(pUnic->BSBuf2,
+                              pUnic->BSBuf3,
+                              sizeof(WORD));
 
 
     //  Make sure the total size of the table is not greater than 64K.
     //  If it is, then the WORD offsets are too small.
 
-    if (BaseSize > MAX_844_TBL_SIZE)
-    {
-       printf("Write Error: Size of PRECOMPOSED table is greater than 64K.\n");
-       return (1);
+    if (BaseSize > MAX_844_TBL_SIZE) {
+        printf("Write Error: Size of PRECOMPOSED table is greater than 64K.\n");
+        return (1);
     }
 
 
     //  Write the size to the output file.
 
     wValue = (WORD)BaseSize;
-    if (FileWrite( pOutputFile,
-                   &wValue,
-                   sizeof(WORD),
-                   1,
-                   "COMPOSITE BASE size" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &wValue,
+                  sizeof(WORD),
+                  1,
+                  "COMPOSITE BASE size")) {
         return (1);
     }
 
 
     //  Compute size of nonspace table.
 
-    NonSpSize = Compute844Size( pUnic->NSBuf2,
-                                pUnic->NSBuf3,
-                                sizeof(WORD) );
+    NonSpSize = Compute844Size(pUnic->NSBuf2,
+                               pUnic->NSBuf3,
+                               sizeof(WORD));
 
 
     //  Make sure the total size of the table is not greater than 64K.
     //  If it is, then the WORD offsets are too small.
 
-    if (NonSpSize > MAX_844_TBL_SIZE)
-    {
-       printf("Write Error: Size of PRECOMPOSED table is greater than 64K.\n");
-       return (1);
+    if (NonSpSize > MAX_844_TBL_SIZE) {
+        printf("Write Error: Size of PRECOMPOSED table is greater than 64K.\n");
+        return (1);
     }
 
 
     //  Write the size to the output file.
 
     wValue = (WORD)NonSpSize;
-    if (FileWrite( pOutputFile,
-                   &wValue,
-                   sizeof(WORD),
-                   1,
-                   "COMPOSITE NONSPACE size" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &wValue,
+                  sizeof(WORD),
+                  1,
+                  "COMPOSITE NONSPACE size")) {
         return (1);
     }
 
@@ -2177,12 +2072,11 @@ int WriteComposite(
     //  Write number of base chars to output file.
 
     bValue = (BYTE)(pUnic->NumBase);
-    if (FileWrite( pOutputFile,
-                   &bValue,
-                   sizeof(BYTE),
-                   1,
-                   "COMPOSITE BASE number" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &bValue,
+                  sizeof(BYTE),
+                  1,
+                  "COMPOSITE BASE number")) {
         return (1);
     }
 
@@ -2190,45 +2084,41 @@ int WriteComposite(
     //  Write number of nonspace chars to output file.
 
     bValue = (BYTE)(pUnic->NumNonSp);
-    if (FileWrite( pOutputFile,
-                   &bValue,
-                   sizeof(BYTE),
-                   1,
-                   "COMPOSITE NONSPACE number" ))
-    {
+    if (FileWrite(pOutputFile,
+                  &bValue,
+                  sizeof(BYTE),
+                  1,
+                  "COMPOSITE NONSPACE number")) {
         return (1);
     }
 
 
     //  Write Base Character 8:4:4 table to output file.
 
-    if (Write844Table( pOutputFile,
-                       pUnic->pBase,
-                       pUnic->BSBuf2,
-                       BaseSize,
-                       sizeof(WORD) ))
-    {
+    if (Write844Table(pOutputFile,
+                      pUnic->pBase,
+                      pUnic->BSBuf2,
+                      BaseSize,
+                      sizeof(WORD))) {
         return (1);
     }
 
 
     //  Write NonSpace Character 8:4:4 table to output file.
 
-    if (Write844Table( pOutputFile,
-                       pUnic->pNonSp,
-                       pUnic->NSBuf2,
-                       NonSpSize,
-                       sizeof(WORD) ))
-    {
+    if (Write844Table(pOutputFile,
+                      pUnic->pNonSp,
+                      pUnic->NSBuf2,
+                      NonSpSize,
+                      sizeof(WORD))) {
         return (1);
     }
 
 
     //  Write 2D Grid to output file.
 
-    if (WriteGrid( pUnic,
-                   pOutputFile ))
-    {
+    if (WriteGrid(pUnic,
+                  pOutputFile)) {
         return (1);
     }
 
@@ -2251,7 +2141,7 @@ int WriteComposite(
 
 int WriteGrid(
     PUNICODE pUnic,
-    FILE *pOutputFile)
+    FILE* pOutputFile)
 {
     int GridSize;                      // get matrix size of grid
     register int Ctr;                  // loop counter
@@ -2261,14 +2151,12 @@ int WriteGrid(
     GridSize = (pUnic->pCompGrid)[0];
     ptr = pUnic->pCompGrid + 1;
 
-    for (Ctr = 0; Ctr < pUnic->NumBase; Ctr++)
-    {
-        if (FileWrite( pOutputFile,
-                       ptr,
-                       sizeof(WORD),
-                       pUnic->NumNonSp,
-                       "COMPOSITE GRID" ))
-        {
+    for (Ctr = 0; Ctr < pUnic->NumBase; Ctr++) {
+        if (FileWrite(pOutputFile,
+                      ptr,
+                      sizeof(WORD),
+                      pUnic->NumNonSp,
+                      "COMPOSITE GRID")) {
             return (1);
         }
 

@@ -75,41 +75,41 @@ elements are filled with UNINITIALIZED_BYTE_VALUE.
 #ifdef DEBUG
 
 
-typedef struct _heapelemdesc{/* heap element descriptor structure */
-   TCHAR rgchSize[6];       /* enough for 99,999 lines */
-   TCHAR rgchFile[24];
-   ULONG ulLine;
+typedef struct _heapelemdesc {/* heap element descriptor structure */
+    TCHAR rgchSize[6];       /* enough for 99,999 lines */
+    TCHAR rgchFile[24];
+    ULONG ulLine;
 }HEAPELEMDESC;
 DECLARE_STANDARD_TYPES(HEAPELEMDESC);
 
 
-typedef struct _heapnode{
-   PCVOID pcv;
-   DWORD dwcbSize;
-   struct _heapnode *phnPrev;
-   struct _heapnode *phnNext;
-   HEAPELEMDESC hed;
+typedef struct _heapnode {
+    PCVOID pcv;
+    DWORD dwcbSize;
+    struct _heapnode* phnPrev;
+    struct _heapnode* phnNext;
+    HEAPELEMDESC hed;
 }HEAPNODE;
 DECLARE_STANDARD_TYPES(HEAPNODE);
 
 
-typedef struct _heap{
-   HEAPNODE hnHead;
+typedef struct _heap {
+    HEAPNODE hnHead;
 }HEAP;
 DECLARE_STANDARD_TYPES(HEAP);
 
 
-typedef struct _heapsummary{/* heap summary filled in by AnalyzeHeap() */
-   ULONG ulcUsedElements;
-   DWORD dwcbUsedSize;
+typedef struct _heapsummary {/* heap summary filled in by AnalyzeHeap() */
+    ULONG ulcUsedElements;
+    DWORD dwcbUsedSize;
 }HEAPSUMMARY;
 DECLARE_STANDARD_TYPES(HEAPSUMMARY);
 
 
-typedef enum _memmgrdebugflags{/* debug flags */
-   MEMMGR_DFL_VALIDATE_HEAP_ON_ENTRY   = 0x0001,
-   MEMMGR_DFL_VALIDATE_HEAP_ON_EXIT    = 0x0002,
-   ALL_MEMMGR_DFLAGS                   = (MEMMGR_DFL_VALIDATE_HEAP_ON_ENTRY | MEMMGR_DFL_VALIDATE_HEAP_ON_EXIT)
+typedef enum _memmgrdebugflags {/* debug flags */
+    MEMMGR_DFL_VALIDATE_HEAP_ON_ENTRY = 0x0001,
+    MEMMGR_DFL_VALIDATE_HEAP_ON_EXIT = 0x0002,
+    ALL_MEMMGR_DFLAGS = (MEMMGR_DFL_VALIDATE_HEAP_ON_ENTRY | MEMMGR_DFL_VALIDATE_HEAP_ON_EXIT)
 }
 MEMMGRDEBUGFLAGS;
 
@@ -167,7 +167,7 @@ PRIVATE_DATA DWORD MdwMemoryManagerModuleFlags = 0;
 
 PRIVATE_DATA CONST struct
 {
-   BYTE rgbyte[4];
+    BYTE rgbyte[4];
 }
 MchsPrefix =
 {
@@ -176,7 +176,7 @@ MchsPrefix =
 
 PRIVATE_DATA CONST struct
 {
-   BYTE rgbyte[4];
+    BYTE rgbyte[4];
 }
 MchsSuffix =
 {
@@ -226,7 +226,7 @@ PRIVATE_CODE DWORD GetHeapSize(PCVOID);
 PRIVATE_CODE BOOL AddHeapElement(PCVOID, DWORD);
 PRIVATE_CODE void RemoveHeapElement(PCVOID);
 PRIVATE_CODE void ModifyHeapElement(PCVOID, PCVOID, DWORD);
-PRIVATE_CODE BOOL FindHeapElement(PCVOID, PHEAPNODE *);
+PRIVATE_CODE BOOL FindHeapElement(PCVOID, PHEAPNODE*);
 PRIVATE_CODE void FillNewMemory(PBYTE, DWORD, DWORD);
 PRIVATE_CODE void FillFreedMemory(PBYTE, DWORD);
 PRIVATE_CODE void FillGrownMemory(PBYTE, DWORD, DWORD, DWORD);
@@ -250,54 +250,50 @@ PRIVATE_CODE void AnalyzeHeap(PHEAPSUMMARY, DWORD);
 */
 PRIVATE_CODE BOOL InitPrivateHeapModule(void)
 {
-   BOOL bResult;
-   SYSTEM_INFO si;
+    BOOL bResult;
+    SYSTEM_INFO si;
 
-   ASSERT(! Mhheap);
+    ASSERT(!Mhheap);
 
-   /* Create shared heap. */
+    /* Create shared heap. */
 
-   GetSystemInfo(&si);
+    GetSystemInfo(&si);
 
-   #ifdef WINNT
-   Mhheap = HeapCreate(0, si.dwPageSize, MAX_SHARED_HEAP_SIZE);
+#ifdef WINNT
+    Mhheap = HeapCreate(0, si.dwPageSize, MAX_SHARED_HEAP_SIZE);
 #else
-   Mhheap = HeapCreate(HEAP_SHARED, si.dwPageSize, MAX_SHARED_HEAP_SIZE);
+    Mhheap = HeapCreate(HEAP_SHARED, si.dwPageSize, MAX_SHARED_HEAP_SIZE);
 #endif
 
-   if (Mhheap)
-   {
+    if (Mhheap) {
 #ifdef DEBUG
-      ASSERT(! Mpheap);
+        ASSERT(!Mpheap);
 
-      Mpheap = MEMALLOCATE(sizeof(*Mpheap));
-      if (Mpheap)
-      {
-         FillMemory(Mpheap, sizeof(*Mpheap), 0);
-         bResult = TRUE;
+        Mpheap = MEMALLOCATE(sizeof(*Mpheap));
+        if (Mpheap) {
+            FillMemory(Mpheap, sizeof(*Mpheap), 0);
+            bResult = TRUE;
 
-         TRACE_OUT((TEXT("InitMemoryManagerModule(): Created shared heap, initial size == %lu, maximum size == %lu."), si.dwPageSize, MAX_SHARED_HEAP_SIZE));
-      }
-      else
-      {
-         EVAL(HeapDestroy(Mhheap));
-         Mhheap = NULL;
-         bResult = FALSE;
+            TRACE_OUT((TEXT("InitMemoryManagerModule(): Created shared heap, initial size == %lu, maximum size == %lu."), 
+                       si.dwPageSize,
+                       MAX_SHARED_HEAP_SIZE));
+        } else {
+            EVAL(HeapDestroy(Mhheap));
+            Mhheap = NULL;
+            bResult = FALSE;
 
-         WARNING_OUT((TEXT("InitMemoryManagerModule(): Failed to create shared heap head.")));
-      }
+            WARNING_OUT((TEXT("InitMemoryManagerModule(): Failed to create shared heap head.")));
+        }
 #else    /* DEBUG */
-      bResult = TRUE;
+        bResult = TRUE;
 #endif   /* DEBUG */
-   }
-   else
-   {
-      bResult = FALSE;
+    } else {
+        bResult = FALSE;
 
-      WARNING_OUT((TEXT("InitMemoryManagerModule(): Failed to create shared heap.")));
-   }
+        WARNING_OUT((TEXT("InitMemoryManagerModule(): Failed to create shared heap.")));
+    }
 
-   return(bResult);
+    return(bResult);
 }
 
 
@@ -310,28 +306,26 @@ PRIVATE_CODE BOOL InitPrivateHeapModule(void)
 */
 PRIVATE_CODE BOOL InitHeapModule(void)
 {
-   BOOL bResult;
+    BOOL bResult;
 
 #ifdef DEBUG
 
-   ASSERT(! Mpheap);
+    ASSERT(!Mpheap);
 
-   Mpheap = MEMALLOCATE(sizeof(*Mpheap));
-   if (Mpheap)
-   {
-      FillMemory(Mpheap, sizeof(*Mpheap), 0);
+    Mpheap = MEMALLOCATE(sizeof(*Mpheap));
+    if (Mpheap) {
+        FillMemory(Mpheap, sizeof(*Mpheap), 0);
 
-      TRACE_OUT((TEXT("InitMemoryManagerModule(): Created heap.")));
-   }
-   else
-      WARNING_OUT((TEXT("InitMemoryManagerModule(): Failed to create heap head.")));
+        TRACE_OUT((TEXT("InitMemoryManagerModule(): Created heap.")));
+    } else
+        WARNING_OUT((TEXT("InitMemoryManagerModule(): Failed to create heap head.")));
 
-   bResult = (Mpheap != NULL);
+    bResult = (Mpheap != NULL);
 #else
-   bResult = TRUE;
+    bResult = TRUE;
 #endif
 
-   return(bResult);
+    return(bResult);
 }
 
 
@@ -346,9 +340,9 @@ PRIVATE_CODE BOOL InitHeapModule(void)
 */
 PRIVATE_CODE DWORD CalculatePrivateSize(DWORD dwcbPublicSize)
 {
-   ASSERT(dwcbPublicSize <= DWORD_MAX - sizeof(MchsPrefix) - sizeof(MchsSuffix));
+    ASSERT(dwcbPublicSize <= DWORD_MAX - sizeof(MchsPrefix) - sizeof(MchsSuffix));
 
-   return(dwcbPublicSize + sizeof(MchsPrefix) + sizeof(MchsSuffix));
+    return(dwcbPublicSize + sizeof(MchsPrefix) + sizeof(MchsSuffix));
 }
 
 
@@ -358,9 +352,9 @@ PRIVATE_CODE DWORD CalculatePrivateSize(DWORD dwcbPublicSize)
 */
 PRIVATE_CODE PVOID GetPrivateHeapPtr(PVOID pvPublic)
 {
-   ASSERT((ULONG_PTR)pvPublic > sizeof(MchsPrefix));
+    ASSERT((ULONG_PTR)pvPublic > sizeof(MchsPrefix));
 
-   return((PBYTE)pvPublic - sizeof(MchsPrefix));
+    return((PBYTE)pvPublic - sizeof(MchsPrefix));
 }
 
 
@@ -370,9 +364,9 @@ PRIVATE_CODE PVOID GetPrivateHeapPtr(PVOID pvPublic)
 */
 PRIVATE_CODE PVOID GetPublicHeapPtr(PVOID pvPrivate)
 {
-   ASSERT((PCBYTE)pvPrivate <= (PCBYTE)PTR_MAX - sizeof(MchsPrefix));
+    ASSERT((PCBYTE)pvPrivate <= (PCBYTE)PTR_MAX - sizeof(MchsPrefix));
 
-   return((PBYTE)pvPrivate + sizeof(MchsPrefix));
+    return((PBYTE)pvPrivate + sizeof(MchsPrefix));
 }
 
 
@@ -382,15 +376,15 @@ PRIVATE_CODE PVOID GetPublicHeapPtr(PVOID pvPrivate)
 */
 PRIVATE_CODE DWORD GetHeapSize(PCVOID pcv)
 {
-   PHEAPNODE phn;
-   DWORD dwcbSize;
+    PHEAPNODE phn;
+    DWORD dwcbSize;
 
-   if (EVAL(FindHeapElement(pcv, &phn)))
-      dwcbSize = phn->dwcbSize;
-   else
-      dwcbSize = 0;
+    if (EVAL(FindHeapElement(pcv, &phn)))
+        dwcbSize = phn->dwcbSize;
+    else
+        dwcbSize = 0;
 
-   return(dwcbSize);
+    return(dwcbSize);
 }
 
 
@@ -403,41 +397,38 @@ PRIVATE_CODE DWORD GetHeapSize(PCVOID pcv)
 */
 PRIVATE_CODE BOOL AddHeapElement(PCVOID pcvNew, DWORD dwcbSize)
 {
-   PHEAPNODE phnNew;
+    PHEAPNODE phnNew;
 
-   /* Is the new heap element already in the list? */
-   ASSERT(! FindHeapElement(pcvNew, &phnNew));
+    /* Is the new heap element already in the list? */
+    ASSERT(!FindHeapElement(pcvNew, &phnNew));
 
-   if (Mpheap)
-   {
-      /* Create new heap node. */
-      phnNew = MEMALLOCATE(sizeof(*phnNew));
-      if (phnNew)
-      {
-         /* Fill in heap node fields. */
-         phnNew->pcv = pcvNew;
-         phnNew->dwcbSize = dwcbSize;
+    if (Mpheap) {
+        /* Create new heap node. */
+        phnNew = MEMALLOCATE(sizeof(*phnNew));
+        if (phnNew) {
+            /* Fill in heap node fields. */
+            phnNew->pcv = pcvNew;
+            phnNew->dwcbSize = dwcbSize;
 
-         /* Insert heap node at front of list. */
-         phnNew->phnNext = Mpheap->hnHead.phnNext;
-         phnNew->phnPrev = &(Mpheap->hnHead);
-         Mpheap->hnHead.phnNext = phnNew;
+            /* Insert heap node at front of list. */
+            phnNew->phnNext = Mpheap->hnHead.phnNext;
+            phnNew->phnPrev = &(Mpheap->hnHead);
+            Mpheap->hnHead.phnNext = phnNew;
 
-         if (phnNew->phnNext)
-            phnNew->phnNext->phnPrev = phnNew;
+            if (phnNew->phnNext)
+                phnNew->phnNext->phnPrev = phnNew;
 
-         /* Fill in heap element descriptor fields. */
-         MyLStrCpyN(phnNew->hed.rgchSize, GpcszElemHdrSize, ARRAYSIZE(phnNew->hed.rgchSize));
-         MyLStrCpyN(phnNew->hed.rgchFile, GpcszElemHdrFile, ARRAYSIZE(phnNew->hed.rgchFile));
-         phnNew->hed.ulLine = GulElemHdrLine;
+            /* Fill in heap element descriptor fields. */
+            MyLStrCpyN(phnNew->hed.rgchSize, GpcszElemHdrSize, ARRAYSIZE(phnNew->hed.rgchSize));
+            MyLStrCpyN(phnNew->hed.rgchFile, GpcszElemHdrFile, ARRAYSIZE(phnNew->hed.rgchFile));
+            phnNew->hed.ulLine = GulElemHdrLine;
 
-         ASSERT(IS_VALID_STRUCT_PTR(phnNew, CHEAPNODE));
-      }
-   }
-   else
-      phnNew = NULL;
+            ASSERT(IS_VALID_STRUCT_PTR(phnNew, CHEAPNODE));
+        }
+    } else
+        phnNew = NULL;
 
-   return(phnNew != NULL);
+    return(phnNew != NULL);
 }
 
 
@@ -447,19 +438,18 @@ PRIVATE_CODE BOOL AddHeapElement(PCVOID pcvNew, DWORD dwcbSize)
 */
 PRIVATE_CODE void RemoveHeapElement(PCVOID pcvOld)
 {
-   PHEAPNODE phnOld;
+    PHEAPNODE phnOld;
 
-   if (EVAL(FindHeapElement(pcvOld, &phnOld)))
-   {
-      /* Remove heap node from list. */
+    if (EVAL(FindHeapElement(pcvOld, &phnOld))) {
+        /* Remove heap node from list. */
 
-      phnOld->phnPrev->phnNext = phnOld->phnNext;
+        phnOld->phnPrev->phnNext = phnOld->phnNext;
 
-      if (phnOld->phnNext)
-         phnOld->phnNext->phnPrev = phnOld->phnPrev;
+        if (phnOld->phnNext)
+            phnOld->phnNext->phnPrev = phnOld->phnPrev;
 
-      MEMFREE(phnOld);
-   }
+        MEMFREE(phnOld);
+    }
 }
 
 
@@ -469,13 +459,12 @@ PRIVATE_CODE void RemoveHeapElement(PCVOID pcvOld)
 */
 PRIVATE_CODE void ModifyHeapElement(PCVOID pcvOld, PCVOID pcvNew, DWORD dwcbNewSize)
 {
-   PHEAPNODE phn;
+    PHEAPNODE phn;
 
-   if (EVAL(FindHeapElement(pcvOld, &phn)))
-   {
-      phn->pcv = pcvNew;
-      phn->dwcbSize = dwcbNewSize;
-   }
+    if (EVAL(FindHeapElement(pcvOld, &phn))) {
+        phn->pcv = pcvNew;
+        phn->dwcbSize = dwcbNewSize;
+    }
 }
 
 
@@ -483,38 +472,35 @@ PRIVATE_CODE void ModifyHeapElement(PCVOID pcvOld, PCVOID pcvNew, DWORD dwcbNewS
 ** FindHeapElement()
 ** Side Effects:  none
 */
-PRIVATE_CODE BOOL FindHeapElement(PCVOID pcvTarget, PHEAPNODE *pphn)
+PRIVATE_CODE BOOL FindHeapElement(PCVOID pcvTarget, PHEAPNODE* pphn)
 {
-   BOOL bFound = FALSE;
-   PHEAPNODE phn;
+    BOOL bFound = FALSE;
+    PHEAPNODE phn;
 
-   ASSERT(IS_VALID_WRITE_PTR(pphn, PHEAPNODE));
+    ASSERT(IS_VALID_WRITE_PTR(pphn, PHEAPNODE));
 
-   if (Mpheap)
-   {
-      for (phn = Mpheap->hnHead.phnNext;
-           phn;
-           phn = phn->phnNext)
-      {
-         /*
-          * Verify each HEAPNODE structure carefully.  We may be in the middle of
-          * a ModifyHeapElement() call, in which case just the target HEAPNODE may
-          * be invalid, e.g., after MEMREALLOCATE() in ReallocateMemory().
-          */
+    if (Mpheap) {
+        for (phn = Mpheap->hnHead.phnNext;
+             phn;
+             phn = phn->phnNext) {
+            /*
+             * Verify each HEAPNODE structure carefully.  We may be in the middle of
+             * a ModifyHeapElement() call, in which case just the target HEAPNODE may
+             * be invalid, e.g., after MEMREALLOCATE() in ReallocateMemory().
+             */
 
-         ASSERT((IS_VALID_READ_PTR(phn, CHEAPNODE) && phn->pcv == pcvTarget) ||
-                IS_VALID_STRUCT_PTR(phn, CHEAPNODE));
+            ASSERT((IS_VALID_READ_PTR(phn, CHEAPNODE) && phn->pcv == pcvTarget) ||
+                   IS_VALID_STRUCT_PTR(phn, CHEAPNODE));
 
-         if (phn->pcv == pcvTarget)
-         {
-            *pphn = phn;
-            bFound = TRUE;
-            break;
-         }
-      }
-   }
+            if (phn->pcv == pcvTarget) {
+                *pphn = phn;
+                bFound = TRUE;
+                break;
+            }
+        }
+    }
 
-   return(bFound);
+    return(bFound);
 }
 
 
@@ -523,19 +509,19 @@ PRIVATE_CODE BOOL FindHeapElement(PCVOID pcvTarget, PHEAPNODE *pphn)
 ** Side Effects:  none
 */
 PRIVATE_CODE void FillNewMemory(PBYTE pbyte, DWORD dwcbRequestedSize,
-                           DWORD dwcbAllocatedSize)
+                                DWORD dwcbAllocatedSize)
 {
-   ASSERT(dwcbRequestedSize >= sizeof(MchsPrefix) + sizeof(MchsSuffix));
-   ASSERT(dwcbAllocatedSize >= dwcbRequestedSize);
-   ASSERT(IS_VALID_WRITE_BUFFER_PTR(pbyte, BYTE, (UINT)dwcbAllocatedSize));
+    ASSERT(dwcbRequestedSize >= sizeof(MchsPrefix) + sizeof(MchsSuffix));
+    ASSERT(dwcbAllocatedSize >= dwcbRequestedSize);
+    ASSERT(IS_VALID_WRITE_BUFFER_PTR(pbyte, BYTE, (UINT)dwcbAllocatedSize));
 
-   /* Fill new heap element with the uninitialized byte value. */
-   FillMemory(pbyte, dwcbAllocatedSize, UNINITIALIZED_BYTE_VALUE);
+    /* Fill new heap element with the uninitialized byte value. */
+    FillMemory(pbyte, dwcbAllocatedSize, UNINITIALIZED_BYTE_VALUE);
 
-   /* Copy prefix and suffix heap element sentinels. */
-   CopyMemory(pbyte, &MchsPrefix, sizeof(MchsPrefix));
-   CopyMemory(pbyte + dwcbRequestedSize - sizeof(MchsSuffix), &MchsSuffix,
-              sizeof(MchsSuffix));
+    /* Copy prefix and suffix heap element sentinels. */
+    CopyMemory(pbyte, &MchsPrefix, sizeof(MchsPrefix));
+    CopyMemory(pbyte + dwcbRequestedSize - sizeof(MchsSuffix), &MchsSuffix,
+               sizeof(MchsSuffix));
 }
 
 
@@ -545,10 +531,10 @@ PRIVATE_CODE void FillNewMemory(PBYTE pbyte, DWORD dwcbRequestedSize,
 */
 PRIVATE_CODE void FillFreedMemory(PBYTE pbyte, DWORD dwcbAllocatedSize)
 {
-   ASSERT(IS_VALID_WRITE_BUFFER_PTR(pbyte, BYTE, (UINT)dwcbAllocatedSize));
+    ASSERT(IS_VALID_WRITE_BUFFER_PTR(pbyte, BYTE, (UINT)dwcbAllocatedSize));
 
-   /* Fill old heap element with the freed byte value. */
-   FillMemory(pbyte, dwcbAllocatedSize, FREED_BYTE_VALUE);
+    /* Fill old heap element with the freed byte value. */
+    FillMemory(pbyte, dwcbAllocatedSize, FREED_BYTE_VALUE);
 }
 
 
@@ -556,22 +542,25 @@ PRIVATE_CODE void FillFreedMemory(PBYTE pbyte, DWORD dwcbAllocatedSize)
 ** FillGrownMemory()
 ** Side Effects:  none
 */
-PRIVATE_CODE void FillGrownMemory(PBYTE pbyte, DWORD dwcbOldRequestedSize, DWORD dwcbNewRequestedSize, DWORD dwcbNewAllocatedSize)
+PRIVATE_CODE void FillGrownMemory(PBYTE pbyte,
+                                  DWORD dwcbOldRequestedSize, 
+                                  DWORD dwcbNewRequestedSize, 
+                                  DWORD dwcbNewAllocatedSize)
 {
-   ASSERT(dwcbOldRequestedSize >= sizeof(MchsPrefix) + sizeof(MchsSuffix));
-   ASSERT(dwcbNewRequestedSize > dwcbOldRequestedSize);
-   ASSERT(dwcbNewAllocatedSize >= dwcbNewRequestedSize);
-   ASSERT(IS_VALID_WRITE_BUFFER_PTR(pbyte, BYTE, (UINT)dwcbNewAllocatedSize));
+    ASSERT(dwcbOldRequestedSize >= sizeof(MchsPrefix) + sizeof(MchsSuffix));
+    ASSERT(dwcbNewRequestedSize > dwcbOldRequestedSize);
+    ASSERT(dwcbNewAllocatedSize >= dwcbNewRequestedSize);
+    ASSERT(IS_VALID_WRITE_BUFFER_PTR(pbyte, BYTE, (UINT)dwcbNewAllocatedSize));
 
-   ASSERT(MyMemComp(pbyte, &MchsPrefix, sizeof(MchsPrefix)) == CR_EQUAL);
+    ASSERT(MyMemComp(pbyte, &MchsPrefix, sizeof(MchsPrefix)) == CR_EQUAL);
 
-   /* Fill new heap element tail with the uninitialized byte value. */
-   FillMemory(pbyte + dwcbOldRequestedSize - sizeof(MchsSuffix),
-              dwcbNewRequestedSize - dwcbOldRequestedSize,
-              UNINITIALIZED_BYTE_VALUE);
+    /* Fill new heap element tail with the uninitialized byte value. */
+    FillMemory(pbyte + dwcbOldRequestedSize - sizeof(MchsSuffix),
+               dwcbNewRequestedSize - dwcbOldRequestedSize,
+               UNINITIALIZED_BYTE_VALUE);
 
-   /* Copy suffix heap element sentinel. */
-   CopyMemory(pbyte + dwcbNewRequestedSize - sizeof(MchsSuffix), &MchsSuffix, sizeof(MchsSuffix));
+    /* Copy suffix heap element sentinel. */
+    CopyMemory(pbyte + dwcbNewRequestedSize - sizeof(MchsSuffix), &MchsSuffix, sizeof(MchsSuffix));
 }
 
 
@@ -579,20 +568,23 @@ PRIVATE_CODE void FillGrownMemory(PBYTE pbyte, DWORD dwcbOldRequestedSize, DWORD
 ** FillShrunkenMemory()
 ** Side Effects:  none
 */
-PRIVATE_CODE void FillShrunkenMemory(PBYTE pbyte, DWORD dwcbOldRequestedSize, DWORD dwcbNewRequestedSize, DWORD dwcbNewAllocatedSize)
+PRIVATE_CODE void FillShrunkenMemory(PBYTE pbyte,
+                                     DWORD dwcbOldRequestedSize,
+                                     DWORD dwcbNewRequestedSize, 
+                                     DWORD dwcbNewAllocatedSize)
 {
-   ASSERT(dwcbNewRequestedSize >= sizeof(MchsPrefix) + sizeof(MchsSuffix));
-   ASSERT(dwcbNewRequestedSize < dwcbOldRequestedSize);
-   ASSERT(dwcbNewAllocatedSize >= dwcbNewRequestedSize);
-   ASSERT(IS_VALID_WRITE_BUFFER_PTR(pbyte, BYTE, (UINT)dwcbNewAllocatedSize));
+    ASSERT(dwcbNewRequestedSize >= sizeof(MchsPrefix) + sizeof(MchsSuffix));
+    ASSERT(dwcbNewRequestedSize < dwcbOldRequestedSize);
+    ASSERT(dwcbNewAllocatedSize >= dwcbNewRequestedSize);
+    ASSERT(IS_VALID_WRITE_BUFFER_PTR(pbyte, BYTE, (UINT)dwcbNewAllocatedSize));
 
-   ASSERT(MyMemComp(pbyte, &MchsPrefix, sizeof(MchsPrefix)) == CR_EQUAL);
+    ASSERT(MyMemComp(pbyte, &MchsPrefix, sizeof(MchsPrefix)) == CR_EQUAL);
 
-   /* Fill old heap element tail with the freed byte value. */
-   FillMemory(pbyte + dwcbNewRequestedSize, dwcbOldRequestedSize - dwcbNewRequestedSize, FREED_BYTE_VALUE);
+    /* Fill old heap element tail with the freed byte value. */
+    FillMemory(pbyte + dwcbNewRequestedSize, dwcbOldRequestedSize - dwcbNewRequestedSize, FREED_BYTE_VALUE);
 
-   /* Copy suffix heap element sentinel. */
-   CopyMemory(pbyte + dwcbNewRequestedSize - sizeof(MchsSuffix), &MchsSuffix, sizeof(MchsSuffix));
+    /* Copy suffix heap element sentinel. */
+    CopyMemory(pbyte + dwcbNewRequestedSize - sizeof(MchsSuffix), &MchsSuffix, sizeof(MchsSuffix));
 }
 
 
@@ -602,9 +594,9 @@ PRIVATE_CODE void FillShrunkenMemory(PBYTE pbyte, DWORD dwcbOldRequestedSize, DW
 */
 PRIVATE_CODE BOOL IsValidHeapPtr(PCVOID pcv)
 {
-   PHEAPNODE phnUnused;
+    PHEAPNODE phnUnused;
 
-   return(FindHeapElement(pcv, &phnUnused));
+    return(FindHeapElement(pcv, &phnUnused));
 }
 
 
@@ -614,18 +606,16 @@ PRIVATE_CODE BOOL IsValidHeapPtr(PCVOID pcv)
 */
 PRIVATE_CODE BOOL IsHeapOK(void)
 {
-   PHEAPNODE phn;
+    PHEAPNODE phn;
 
-   if (Mpheap)
-   {
-      for (phn = Mpheap->hnHead.phnNext;
-           phn && IS_VALID_STRUCT_PTR(phn, CHEAPNODE);
-           phn = phn->phnNext)
-   }
-   else
-      phn = (PHEAPNODE)0xFFFF;
+    if (Mpheap) {
+        for (phn = Mpheap->hnHead.phnNext;
+             phn && IS_VALID_STRUCT_PTR(phn, CHEAPNODE);
+             phn = phn->phnNext)
+    } else
+        phn = (PHEAPNODE)0xFFFF;
 
-   return(phn == NULL);
+        return(phn == NULL);
 }
 
 
@@ -635,21 +625,21 @@ PRIVATE_CODE BOOL IsHeapOK(void)
 */
 PRIVATE_CODE BOOL IsValidPCHEAPNODE(PCHEAPNODE pchn)
 {
-   BOOL bResult;
+    BOOL bResult;
 
-   if (IS_VALID_READ_PTR(pchn, CHEAPNODE) &&
-       IS_VALID_READ_PTR(pchn->phnPrev, CHEAPNODE) &&
-       EVAL(pchn->phnPrev->phnNext == pchn) &&
-       EVAL(! pchn->phnNext ||
-            (IS_VALID_READ_PTR(pchn->phnNext, CHEAPNODE) &&
-             EVAL(pchn->phnNext->phnPrev == pchn))) &&
-       EVAL(IsValidHeapElement(pchn->pcv, pchn->dwcbSize, MEMSIZE((PVOID)(pchn->pcv)))) &&
-       IS_VALID_STRUCT_PTR(&(pchn->hed), CHEAPELEMDESC))
-      bResult = TRUE;
-   else
-      bResult = FALSE;
+    if (IS_VALID_READ_PTR(pchn, CHEAPNODE) &&
+        IS_VALID_READ_PTR(pchn->phnPrev, CHEAPNODE) &&
+        EVAL(pchn->phnPrev->phnNext == pchn) &&
+        EVAL(!pchn->phnNext ||
+        (IS_VALID_READ_PTR(pchn->phnNext, CHEAPNODE) &&
+         EVAL(pchn->phnNext->phnPrev == pchn))) &&
+        EVAL(IsValidHeapElement(pchn->pcv, pchn->dwcbSize, MEMSIZE((PVOID)(pchn->pcv)))) &&
+        IS_VALID_STRUCT_PTR(&(pchn->hed), CHEAPELEMDESC))
+        bResult = TRUE;
+    else
+        bResult = FALSE;
 
-   return(bResult);
+    return(bResult);
 }
 
 
@@ -659,16 +649,16 @@ PRIVATE_CODE BOOL IsValidPCHEAPNODE(PCHEAPNODE pchn)
 */
 PRIVATE_CODE BOOL IsValidPCHEAPELEMDESC(PCHEAPELEMDESC pched)
 {
-   BOOL bResult;
+    BOOL bResult;
 
-   /* Any value for pched->ulLine is valid. */
+    /* Any value for pched->ulLine is valid. */
 
-   if (IS_VALID_READ_PTR(pched, CHEAPELEMDESC))
-      bResult = TRUE;
-   else
-      bResult = FALSE;
+    if (IS_VALID_READ_PTR(pched, CHEAPELEMDESC))
+        bResult = TRUE;
+    else
+        bResult = FALSE;
 
-   return(bResult);
+    return(bResult);
 }
 
 
@@ -678,18 +668,18 @@ PRIVATE_CODE BOOL IsValidPCHEAPELEMDESC(PCHEAPELEMDESC pched)
 */
 PRIVATE_CODE BOOL IsValidHeapElement(PCBYTE pcbyte, DWORD dwcbRequestedSize, DWORD dwcbAllocatedSize)
 {
-   BOOL bResult;
+    BOOL bResult;
 
-   if (EVAL(dwcbRequestedSize >= sizeof(MchsPrefix) + sizeof(MchsSuffix)) &&
-       EVAL(dwcbAllocatedSize >= dwcbRequestedSize) &&
-       IS_VALID_READ_PTR(pcbyte, dwcbAllocatedSize) &&
-       EVAL(MyMemComp(pcbyte, &MchsPrefix, sizeof(MchsPrefix)) == CR_EQUAL) &&
-       EVAL(MyMemComp(pcbyte + dwcbRequestedSize - sizeof(MchsSuffix), &MchsSuffix, sizeof(MchsSuffix)) == CR_EQUAL))
-      bResult = TRUE;
-   else
-      bResult = FALSE;
+    if (EVAL(dwcbRequestedSize >= sizeof(MchsPrefix) + sizeof(MchsSuffix)) &&
+        EVAL(dwcbAllocatedSize >= dwcbRequestedSize) &&
+        IS_VALID_READ_PTR(pcbyte, dwcbAllocatedSize) &&
+        EVAL(MyMemComp(pcbyte, &MchsPrefix, sizeof(MchsPrefix)) == CR_EQUAL) &&
+        EVAL(MyMemComp(pcbyte + dwcbRequestedSize - sizeof(MchsSuffix), &MchsSuffix, sizeof(MchsSuffix)) == CR_EQUAL))
+        bResult = TRUE;
+    else
+        bResult = FALSE;
 
-   return(bResult);
+    return(bResult);
 }
 
 
@@ -699,20 +689,20 @@ PRIVATE_CODE BOOL IsValidHeapElement(PCBYTE pcbyte, DWORD dwcbRequestedSize, DWO
 */
 PRIVATE_CODE void SpewHeapElementInfo(PCHEAPNODE pchn)
 {
-   ASSERT(IS_VALID_STRUCT_PTR(pchn, CHEAPNODE));
+    ASSERT(IS_VALID_STRUCT_PTR(pchn, CHEAPNODE));
 
-   TRACE_OUT((TEXT("Used heap element at %#lx:\r\n")
-              TEXT("     %lu bytes requested\r\n")
-              TEXT("     %lu bytes allocated\r\n")
-              TEXT("     originally allocated as '%s' bytes in file %s at line %lu"),
-              pchn->pcv,
-              pchn->dwcbSize,
-              MEMSIZE((PVOID)(pchn->pcv)),
-              pchn->hed.rgchSize,
-              pchn->hed.rgchFile,
-              pchn->hed.ulLine));
+    TRACE_OUT((TEXT("Used heap element at %#lx:\r\n")
+               TEXT("     %lu bytes requested\r\n")
+               TEXT("     %lu bytes allocated\r\n")
+               TEXT("     originally allocated as '%s' bytes in file %s at line %lu"),
+               pchn->pcv,
+               pchn->dwcbSize,
+               MEMSIZE((PVOID)(pchn->pcv)),
+               pchn->hed.rgchSize,
+               pchn->hed.rgchFile,
+               pchn->hed.ulLine));
 
-   return;
+    return;
 }
 
 
@@ -722,43 +712,40 @@ PRIVATE_CODE void SpewHeapElementInfo(PCHEAPNODE pchn)
 */
 PRIVATE_CODE void AnalyzeHeap(PHEAPSUMMARY phs, DWORD dwFlags)
 {
-   PCHEAPNODE pchn;
-   ULONG ulcHeapElements = 0;
-   DWORD dwcbUsed = 0;
+    PCHEAPNODE pchn;
+    ULONG ulcHeapElements = 0;
+    DWORD dwcbUsed = 0;
 
-   ASSERT(IS_VALID_WRITE_PTR(phs, HEAPSUMMARY));
-   ASSERT(FLAGS_ARE_VALID(dwFlags, SHS_FL_SPEW_USED_INFO));
-   ASSERT(IsHeapOK());
+    ASSERT(IS_VALID_WRITE_PTR(phs, HEAPSUMMARY));
+    ASSERT(FLAGS_ARE_VALID(dwFlags, SHS_FL_SPEW_USED_INFO));
+    ASSERT(IsHeapOK());
 
-   TRACE_OUT((TEXT("Starting private heap analysis.")));
+    TRACE_OUT((TEXT("Starting private heap analysis.")));
 
-   if (Mpheap)
-   {
-      for (pchn = Mpheap->hnHead.phnNext;
-           pchn;
-           pchn = pchn->phnNext)
-      {
-         ASSERT(IS_VALID_STRUCT_PTR(pchn, CHEAPNODE));
+    if (Mpheap) {
+        for (pchn = Mpheap->hnHead.phnNext;
+             pchn;
+             pchn = pchn->phnNext) {
+            ASSERT(IS_VALID_STRUCT_PTR(pchn, CHEAPNODE));
 
-         ASSERT(ulcHeapElements < ULONG_MAX);
-         ulcHeapElements++;
+            ASSERT(ulcHeapElements < ULONG_MAX);
+            ulcHeapElements++;
 
-         ASSERT(dwcbUsed < DWORD_MAX - pchn->dwcbSize);
-         dwcbUsed += pchn->dwcbSize;
+            ASSERT(dwcbUsed < DWORD_MAX - pchn->dwcbSize);
+            dwcbUsed += pchn->dwcbSize;
 
-         if (IS_FLAG_SET(dwFlags, SHS_FL_SPEW_USED_INFO))
-            SpewHeapElementInfo(pchn);
-      }
+            if (IS_FLAG_SET(dwFlags, SHS_FL_SPEW_USED_INFO))
+                SpewHeapElementInfo(pchn);
+        }
 
-      phs->ulcUsedElements = ulcHeapElements;
-      phs->dwcbUsedSize = dwcbUsed;
-   }
-   else
-      WARNING_OUT((TEXT("Private heap not allocated!")));
+        phs->ulcUsedElements = ulcHeapElements;
+        phs->dwcbUsedSize = dwcbUsed;
+    } else
+        WARNING_OUT((TEXT("Private heap not allocated!")));
 
-   TRACE_OUT((TEXT("Private heap analysis complete.")));
+    TRACE_OUT((TEXT("Private heap analysis complete.")));
 
-   return;
+    return;
 }
 
 #endif   /* DEBUG */
@@ -779,15 +766,15 @@ PRIVATE_CODE void AnalyzeHeap(PHEAPSUMMARY phs, DWORD dwFlags)
 */
 PUBLIC_CODE BOOL InitMemoryManagerModule(void)
 {
-   BOOL bResult;
+    BOOL bResult;
 
 #ifdef PRIVATE_HEAP
-   bResult = InitPrivateHeapModule();
+    bResult = InitPrivateHeapModule();
 #else  /* PRIVATE_HEAP */
-   bResult = InitHeapModule();
+    bResult = InitHeapModule();
 #endif
 
-   return(bResult);
+    return(bResult);
 }
 
 /*
@@ -805,25 +792,21 @@ PUBLIC_CODE void ExitMemoryManagerModule(void)
 
 #ifdef DEBUG
 
-   if (Mpheap)
-   {
-      MEMFREE(Mpheap);
-      Mpheap = NULL;
-   }
-   else
-      WARNING_OUT((TEXT("ExitMemoryManagerModule() called when Mpheap is NULL.")));
+    if (Mpheap) {
+        MEMFREE(Mpheap);
+        Mpheap = NULL;
+    } else
+        WARNING_OUT((TEXT("ExitMemoryManagerModule() called when Mpheap is NULL.")));
 
 #endif
 
 #ifdef PRIVATE_HEAP
 
-   if (Mhheap)
-   {
-      EVAL(HeapDestroy(Mhheap));
-      Mhheap = NULL;
-   }
-   else
-      WARNING_OUT((TEXT("ExitMemoryManagerModule() called when Mhheap is NULL.")));
+    if (Mhheap) {
+        EVAL(HeapDestroy(Mhheap));
+        Mhheap = NULL;
+    } else
+        WARNING_OUT((TEXT("ExitMemoryManagerModule() called when Mhheap is NULL.")));
 #endif
 }
 
@@ -834,22 +817,21 @@ PUBLIC_CODE void ExitMemoryManagerModule(void)
 */
 PUBLIC_CODE COMPARISONRESULT MyMemComp(PCVOID pcv1, PCVOID pcv2, DWORD dwcbSize)
 {
-   int nResult = 0;
-   PCBYTE pcbyte1 = pcv1;
-   PCBYTE pcbyte2 = pcv2;
+    int nResult = 0;
+    PCBYTE pcbyte1 = pcv1;
+    PCBYTE pcbyte2 = pcv2;
 
-   ASSERT(IS_VALID_READ_BUFFER_PTR(pcv1, BYTE, (UINT)dwcbSize));
-   ASSERT(IS_VALID_READ_BUFFER_PTR(pcv2, BYTE, (UINT)dwcbSize));
+    ASSERT(IS_VALID_READ_BUFFER_PTR(pcv1, BYTE, (UINT)dwcbSize));
+    ASSERT(IS_VALID_READ_BUFFER_PTR(pcv2, BYTE, (UINT)dwcbSize));
 
-   while (dwcbSize > 0 &&
-          ! (nResult = *pcbyte1 - *pcbyte2))
-   {
-      pcbyte1++;
-      pcbyte2++;
-      dwcbSize--;
-   }
+    while (dwcbSize > 0 &&
+           !(nResult = *pcbyte1 - *pcbyte2)) {
+        pcbyte1++;
+        pcbyte2++;
+        dwcbSize--;
+    }
 
-   return(MapIntToComparisonResult(nResult));
+    return(MapIntToComparisonResult(nResult));
 }
 
 
@@ -857,46 +839,42 @@ PUBLIC_CODE COMPARISONRESULT MyMemComp(PCVOID pcv1, PCVOID pcv2, DWORD dwcbSize)
 ** MyAllocateMemory()
 ** Side Effects:  none
 */
-PUBLIC_CODE BOOL MyAllocateMemory(DWORD dwcbSize, PVOID *ppvNew)
+PUBLIC_CODE BOOL MyAllocateMemory(DWORD dwcbSize, PVOID* ppvNew)
 {
 
 #ifdef DEBUG
-   DWORD dwcbRequestedSize = dwcbSize;
+    DWORD dwcbRequestedSize = dwcbSize;
 
-   ASSERT(dwcbSize >= 0);
-   ASSERT(IS_VALID_WRITE_PTR(ppvNew, PVOID));
+    ASSERT(dwcbSize >= 0);
+    ASSERT(IS_VALID_WRITE_PTR(ppvNew, PVOID));
 
-   dwcbSize = CalculatePrivateSize(dwcbSize);
+    dwcbSize = CalculatePrivateSize(dwcbSize);
 
-   if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_ENTRY))
-      ASSERT(IsHeapOK());
+    if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_ENTRY))
+        ASSERT(IsHeapOK());
 #endif
 
-   *ppvNew = MEMALLOCATE(dwcbSize);
+    * ppvNew = MEMALLOCATE(dwcbSize);
 
 #ifdef DEBUG
-   if (*ppvNew)
-   {
-      FillNewMemory(*ppvNew, dwcbSize, MEMSIZE(*ppvNew));
+    if (*ppvNew) {
+        FillNewMemory(*ppvNew, dwcbSize, MEMSIZE(*ppvNew));
 
-      if (AddHeapElement(*ppvNew, dwcbSize))
-      {
-         *ppvNew = GetPublicHeapPtr(*ppvNew);
+        if (AddHeapElement(*ppvNew, dwcbSize)) {
+            *ppvNew = GetPublicHeapPtr(*ppvNew);
 
-         ASSERT(IS_VALID_WRITE_BUFFER_PTR(*ppvNew, BYTE, (UINT)dwcbRequestedSize));
-      }
-      else
-      {
-         EVAL(MEMFREE(*ppvNew));
-         *ppvNew = NULL;
-      }
-   }
+            ASSERT(IS_VALID_WRITE_BUFFER_PTR(*ppvNew, BYTE, (UINT)dwcbRequestedSize));
+        } else {
+            EVAL(MEMFREE(*ppvNew));
+            *ppvNew = NULL;
+        }
+    }
 
-   if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_EXIT))
-      ASSERT(IsHeapOK());
+    if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_EXIT))
+        ASSERT(IsHeapOK());
 #endif
 
-   return(*ppvNew != NULL);
+    return(*ppvNew != NULL);
 }
 
 
@@ -909,24 +887,24 @@ PUBLIC_CODE void FreeMemory(PVOID pvOld)
 
 #ifdef DEBUG
 
-   if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_ENTRY))
-      ASSERT(IsHeapOK());
+    if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_ENTRY))
+        ASSERT(IsHeapOK());
 
-   pvOld = GetPrivateHeapPtr(pvOld);
+    pvOld = GetPrivateHeapPtr(pvOld);
 
-   ASSERT(IsValidHeapPtr(pvOld));
+    ASSERT(IsValidHeapPtr(pvOld));
 
-   RemoveHeapElement(pvOld);
+    RemoveHeapElement(pvOld);
 
-   FillFreedMemory(pvOld, MEMSIZE(pvOld));
+    FillFreedMemory(pvOld, MEMSIZE(pvOld));
 
 #endif
 
-   EVAL(MEMFREE(pvOld));
+    EVAL(MEMFREE(pvOld));
 
 #ifdef DEBUG
-   if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_EXIT))
-      ASSERT(IsHeapOK());
+    if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_EXIT))
+        ASSERT(IsHeapOK());
 #endif   /* DEBUG */
 }
 
@@ -935,52 +913,51 @@ PUBLIC_CODE void FreeMemory(PVOID pvOld)
 ** ReallocateMemory()
 ** Side Effects:  none
 */
-PUBLIC_CODE BOOL ReallocateMemory(PVOID pvOld, DWORD dwcbNewSize, PVOID *ppvNew)
+PUBLIC_CODE BOOL ReallocateMemory(PVOID pvOld, DWORD dwcbNewSize, PVOID* ppvNew)
 {
 #ifdef DEBUG
-   DWORD dwcbRequestedSize = dwcbNewSize;
-   DWORD dwcbOldSize;
+    DWORD dwcbRequestedSize = dwcbNewSize;
+    DWORD dwcbOldSize;
 
-   ASSERT(IS_VALID_WRITE_PTR(ppvNew, PVOID));
+    ASSERT(IS_VALID_WRITE_PTR(ppvNew, PVOID));
 
-   if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_ENTRY))
-      ASSERT(IsHeapOK());
+    if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_ENTRY))
+        ASSERT(IsHeapOK());
 
-   pvOld = GetPrivateHeapPtr(pvOld);
-   ASSERT(IsValidHeapPtr(pvOld));
-   dwcbNewSize = CalculatePrivateSize(dwcbNewSize);
-   dwcbOldSize = GetHeapSize(pvOld);
+    pvOld = GetPrivateHeapPtr(pvOld);
+    ASSERT(IsValidHeapPtr(pvOld));
+    dwcbNewSize = CalculatePrivateSize(dwcbNewSize);
+    dwcbOldSize = GetHeapSize(pvOld);
 
-   if (dwcbNewSize == dwcbOldSize)
-      WARNING_OUT((TEXT("ReallocateMemory(): Size of heap element %#lx is already %lu bytes."),
-                   GetPublicHeapPtr(pvOld),
-                   dwcbNewSize));
+    if (dwcbNewSize == dwcbOldSize)
+        WARNING_OUT((TEXT("ReallocateMemory(): Size of heap element %#lx is already %lu bytes."),
+                     GetPublicHeapPtr(pvOld),
+                     dwcbNewSize));
 
 #endif
 
-   *ppvNew = MEMREALLOCATE(pvOld, dwcbNewSize);
+    * ppvNew = MEMREALLOCATE(pvOld, dwcbNewSize);
 
 #ifdef DEBUG
-   if (*ppvNew)
-   {
-      /* Bigger or smaller? */
-      if (dwcbNewSize > dwcbOldSize)
-         /* Bigger. */
-         FillGrownMemory(*ppvNew, dwcbOldSize, dwcbNewSize, MEMSIZE(*ppvNew));
-      else
-         /* Smaller. */
-         FillShrunkenMemory(*ppvNew, dwcbOldSize, dwcbNewSize, MEMSIZE(*ppvNew));
+    if (*ppvNew) {
+        /* Bigger or smaller? */
+        if (dwcbNewSize > dwcbOldSize)
+            /* Bigger. */
+            FillGrownMemory(*ppvNew, dwcbOldSize, dwcbNewSize, MEMSIZE(*ppvNew));
+        else
+            /* Smaller. */
+            FillShrunkenMemory(*ppvNew, dwcbOldSize, dwcbNewSize, MEMSIZE(*ppvNew));
 
-      ModifyHeapElement(pvOld, *ppvNew, dwcbNewSize);
-      *ppvNew = GetPublicHeapPtr(*ppvNew);
-      ASSERT(IS_VALID_WRITE_BUFFER_PTR(*ppvNew, BYTE, (UINT)dwcbRequestedSize));
-   }
+        ModifyHeapElement(pvOld, *ppvNew, dwcbNewSize);
+        *ppvNew = GetPublicHeapPtr(*ppvNew);
+        ASSERT(IS_VALID_WRITE_BUFFER_PTR(*ppvNew, BYTE, (UINT)dwcbRequestedSize));
+    }
 
-   if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_EXIT))
-      ASSERT(IsHeapOK());
+    if (IS_FLAG_SET(MdwMemoryManagerModuleFlags, MEMMGR_DFL_VALIDATE_HEAP_ON_EXIT))
+        ASSERT(IsHeapOK());
 #endif
 
-   return(*ppvNew != NULL);
+    return(*ppvNew != NULL);
 }
 
 
@@ -989,9 +966,9 @@ PUBLIC_CODE BOOL ReallocateMemory(PVOID pvOld, DWORD dwcbNewSize, PVOID *ppvNew)
 */
 PUBLIC_CODE DWORD GetMemorySize(PVOID pv)
 {
-   ASSERT(IsValidHeapPtr(GetPrivateHeapPtr(pv)));
+    ASSERT(IsValidHeapPtr(GetPrivateHeapPtr(pv)));
 
-   return(MEMSIZE(pv));
+    return(MEMSIZE(pv));
 }
 
 
@@ -1002,13 +979,13 @@ PUBLIC_CODE DWORD GetMemorySize(PVOID pv)
 */
 PUBLIC_CODE BOOL SetMemoryManagerModuleIniSwitches(void)
 {
-   BOOL bResult;
+    BOOL bResult;
 
-   bResult = SetIniSwitches(MrgcpcvisMemoryManagerModule, ARRAY_ELEMENTS(MrgcpcvisMemoryManagerModule));
+    bResult = SetIniSwitches(MrgcpcvisMemoryManagerModule, ARRAY_ELEMENTS(MrgcpcvisMemoryManagerModule));
 
-   ASSERT(FLAGS_ARE_VALID(MdwMemoryManagerModuleFlags, ALL_MEMMGR_DFLAGS));
+    ASSERT(FLAGS_ARE_VALID(MdwMemoryManagerModuleFlags, ALL_MEMMGR_DFLAGS));
 
-   return(bResult);
+    return(bResult);
 }
 
 
@@ -1017,13 +994,13 @@ PUBLIC_CODE BOOL SetMemoryManagerModuleIniSwitches(void)
 */
 PUBLIC_CODE void SpewHeapSummary(DWORD dwFlags)
 {
-   HEAPSUMMARY hs;
+    HEAPSUMMARY hs;
 
-   ASSERT(FLAGS_ARE_VALID(dwFlags, SHS_FL_SPEW_USED_INFO));
+    ASSERT(FLAGS_ARE_VALID(dwFlags, SHS_FL_SPEW_USED_INFO));
 
-   AnalyzeHeap(&hs, dwFlags);
+    AnalyzeHeap(&hs, dwFlags);
 
-   TRACE_OUT((TEXT("Heap summary: %lu bytes in %lu used elements."), hs.dwcbUsedSize, hs.ulcUsedElements));
+    TRACE_OUT((TEXT("Heap summary: %lu bytes in %lu used elements."), hs.dwcbUsedSize, hs.ulcUsedElements));
 }
 
 #endif   /* DEBUG */

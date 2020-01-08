@@ -5,9 +5,7 @@
 #include "fstreex.h"
 #include "copy.h"
 #include "mrsw.h"
-
 #include "treewkcb.h"   // for FolderSize
-
 #include "datautil.h"
 #include "cscuiext.h"
 
@@ -24,7 +22,7 @@ void FOUndo_FileRestored(LPTSTR lpszFile);
 DWORD PathGetClusterSize(LPCTSTR pszPath);
 
 // bitbcksf.c
-int DataObjToFileOpString(IDataObject * pdtobj, LPTSTR * ppszSrc, LPTSTR * ppszDest);
+int DataObjToFileOpString(IDataObject* pdtobj, LPTSTR* ppszSrc, LPTSTR* ppszDest);
 
 
 
@@ -45,7 +43,7 @@ BOOL g_bIsProcessExplorer = FALSE;                  // are we the main explorer 
 PBBSYNCOBJECT g_pBitBucket[MAX_BITBUCKETS] = {0};   // our array of bbso's that protect each bucket
 HANDLE g_hgcGlobalDirtyCount = INVALID_HANDLE_VALUE;// a global counter to tell us if the global settings have changed and we need to re-read them
 LONG g_lProcessDirtyCount = 0;                      // out current dirty count; we compare this to hgcDirtyCount to see if we need to update the settings from the registry
-HANDLE g_hgcNumDeleters= INVALID_HANDLE_VALUE;      // a global counter that indicates the total # of people who are currently doing recycle bin file operations
+HANDLE g_hgcNumDeleters = INVALID_HANDLE_VALUE;      // a global counter that indicates the total # of people who are currently doing recycle bin file operations
 HKEY g_hkBitBucket = NULL;                          // reg key that points to HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\BitBucket
 HKEY g_hkBitBucketPerUser = NULL;                   // reg key that points to HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\BitBucket
 
@@ -59,7 +57,7 @@ BOOL IsFileDeletable(LPCTSTR pszFile);
 BOOL CreateRecyclerDirectory(int idDrive);
 void PurgeOneBitBucket(HWND hwnd, int idDrive, DWORD dwFlags);
 int CountDeletedFilesOnDrive(int idDrive, LPDWORD pdwSize, int iMaxFiles);
-BOOL GetBBDriveSettings(int idDrive, ULONGLONG *pcbDiskSpace);
+BOOL GetBBDriveSettings(int idDrive, ULONGLONG* pcbDiskSpace);
 void DeleteOldBBRegInfo(int idDrive);
 BOOL IsBitBucketInited(int idDrive);
 void FreeBBInfo(PBBSYNCOBJECT pbbso);
@@ -88,16 +86,14 @@ int DriveIDFromBBPath(LPNCTSTR pszPath)
 
     idDrive = PathGetDriveNumber(pszTempPath);
 
-    if ((idDrive == -1) && GetNetHomeDir(szNetHomeDir))
-    {
+    if ((idDrive == -1) && GetNetHomeDir(szNetHomeDir)) {
         int iLen = lstrlen(szNetHomeDir);
 
         // NOTE: we don't want to let you recycle the nethomedir itself, so
         // insure that pszPath is larger than the nethomedir path
         // (neither is trailed with a backslash)
         if ((iLen < lstrlen(pszTempPath)) &&
-            (PathCommonPrefix(szNetHomeDir, pszTempPath, NULL) == iLen))
-        {
+            (PathCommonPrefix(szNetHomeDir, pszTempPath, NULL) == iLen)) {
             // this is a subdir of the nethomedir, so we recycle it to the net home server
             // which is drive 26
             return SERVERDRIVE;
@@ -112,22 +108,16 @@ void DriveIDToBBRoot(int idDrive, LPTSTR szPath)
 {
     ASSERT(idDrive >= 0);
 
-    if (SERVERDRIVE == idDrive)
-    {
+    if (SERVERDRIVE == idDrive) {
         // nethomedir case
-        if (!GetNetHomeDir(szPath))
-        {
+        if (!GetNetHomeDir(szPath)) {
             ASSERT(szPath[0] == 0);
             TraceMsg(TF_BITBUCKET, "BitBucket: Machine does NOT have a NETHOMEDIR");
-        }
-        else
-        {
+        } else {
             // use the nethomedir
             ASSERT(szPath[0] != TEXT('\0'));
         }
-    }
-    else
-    {
+    } else {
         // build up the "C:\" string
         PathBuildRoot(szPath, idDrive);
     }
@@ -146,18 +136,14 @@ void DriveIDToBBPath(int idDrive, LPTSTR pszPath)
 
 #ifdef WINNT
     // NOTE: always append the SID for the SERVERDRIVE case
-    if ((SERVERDRIVE == idDrive) || (CMtPt_IsSecure(idDrive)))
-    {
+    if ((SERVERDRIVE == idDrive) || (CMtPt_IsSecure(idDrive))) {
         LPTSTR pszInmate = GetUserSid(NULL);
-        if (pszInmate)
-        {
+        if (pszInmate) {
             PathAppend(pszPath, TEXT("RECYCLER"));
             PathAppend(pszPath, pszInmate);
             LocalFree((HLOCAL)pszInmate);
             return;
-        }
-        else
-        {
+        } else {
             ASSERTMSG(FALSE, "Bitbuck: unable to get the users SID !!");
         }
     }
@@ -179,8 +165,7 @@ void DriveIDToBBRegKey(int idDrive, LPTSTR lpszValue)
 
     lpszValue[0] = TEXT('A') + (TCHAR)idDrive;
 
-    if (lpszValue[0] == (TEXT('A') + SERVERDRIVE))
-    {
+    if (lpszValue[0] == (TEXT('A') + SERVERDRIVE)) {
         // nethomedir case
         lpszValue[0] = TEXT('@');
     }
@@ -200,37 +185,30 @@ void DriveIDToBBRegKey(int idDrive, LPTSTR lpszValue)
 */
 BOOL GetNetHomeDir(LPTSTR pszNetHomeDir)
 {
-    if (SHGetSpecialFolderPath(NULL, pszNetHomeDir, CSIDL_PERSONAL, FALSE))
-    {
+    if (SHGetSpecialFolderPath(NULL, pszNetHomeDir, CSIDL_PERSONAL, FALSE)) {
         TCHAR szOldBBDir[MAX_PATH];
 
-        if (PathIsUNC(pszNetHomeDir))
-        {
+        if (PathIsUNC(pszNetHomeDir)) {
             // Remove the trailing backslash (if present)
             // because this string will be passed to PathCommonPrefix()
             PathRemoveBackslash(pszNetHomeDir);
-        }
-        else
-        {
+        } else {
             pszNetHomeDir[0] = TEXT('\0');
         }
 
         // check to see if the mydocs path has changed
-        if (g_pBitBucket[SERVERDRIVE]           &&
-            (g_pBitBucket[SERVERDRIVE] != (PBBSYNCOBJECT)-1)   &&
-            g_pBitBucket[SERVERDRIVE]->pidl     &&
-            SHGetPathFromIDList(g_pBitBucket[SERVERDRIVE]->pidl, szOldBBDir))
-        {
+        if (g_pBitBucket[SERVERDRIVE] &&
+            (g_pBitBucket[SERVERDRIVE] != (PBBSYNCOBJECT)-1) &&
+            g_pBitBucket[SERVERDRIVE]->pidl &&
+            SHGetPathFromIDList(g_pBitBucket[SERVERDRIVE]->pidl, szOldBBDir)) {
             // we should always find "\RECYCLER\" because this is an old recycle bin directory.
             LPTSTR pszTemp = StrRStrI(szOldBBDir, NULL, TEXT("\\RECYCLER\\"));
 
             // cut the string off before the "\RECYCLER\<SID>" part so we can compare it to the current mydocs path
             *pszTemp = TEXT('\0');
 
-            if (lstrcmpi(szOldBBDir, pszNetHomeDir) != 0)
-            {
-                if (*pszNetHomeDir)
-                {
+            if (lstrcmpi(szOldBBDir, pszNetHomeDir) != 0) {
+                if (*pszNetHomeDir) {
                     TCHAR szNewBBDir[MAX_PATH];
                     LPITEMIDLIST pidl;
                     WIN32_FIND_DATA fd = {0};
@@ -245,15 +223,13 @@ BOOL GetNetHomeDir(LPTSTR pszNetHomeDir)
                     fd.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
                     lstrcpyn(fd.cFileName, szNewBBDir, ARRAYSIZE(fd.cFileName));
 
-                    if (SUCCEEDED(SHSimpleIDListFromFindData(szNewBBDir, &fd, &pidl)))
-                    {
+                    if (SUCCEEDED(SHSimpleIDListFromFindData(szNewBBDir, &fd, &pidl))) {
                         LPITEMIDLIST pidlOld;
                         ULARGE_INTEGER ulFreeUser, ulTotal, ulFree;
                         DWORD dwClusterSize;
                         BOOL bUpdateSize = FALSE;
 
-                        if (SHGetDiskFreeSpaceEx(pszNetHomeDir, &ulFreeUser, &ulTotal, &ulFree))
-                        {
+                        if (SHGetDiskFreeSpaceEx(pszNetHomeDir, &ulFreeUser, &ulTotal, &ulFree)) {
                             dwClusterSize = PathGetClusterSize(pszNetHomeDir);
                             bUpdateSize = TRUE;
                         }
@@ -270,8 +246,7 @@ BOOL GetNetHomeDir(LPTSTR pszNetHomeDir)
                         g_pBitBucket[SERVERDRIVE]->fInited = TRUE;
 
                         // update the size fields
-                        if (bUpdateSize)
-                        {
+                        if (bUpdateSize) {
                             ULARGE_INTEGER ulMaxSize;
 
                             g_pBitBucket[SERVERDRIVE]->dwClusterSize = dwClusterSize;
@@ -284,31 +259,24 @@ BOOL GetNetHomeDir(LPTSTR pszNetHomeDir)
                         }
                         LEAVECRITICAL;
                     }
-                }
-                else
-                {
+                } else {
                     // mydocs was redireced back to a local path, so flag this drive as not inited so we wont do any more
                     // recycle bin operations on it.
                     ENTERCRITICAL;
                     g_pBitBucket[SERVERDRIVE]->fInited = FALSE;
                     LEAVECRITICAL;
                 }
-            }
-            else
-            {
+            } else {
                 // the mydocs previously to pointed to \\foo\bar, and the user has set it back to that path again.
                 // so flag the drive as inited so we can start using it again.
-                if (g_pBitBucket[SERVERDRIVE]->fInited == FALSE)
-                {
+                if (g_pBitBucket[SERVERDRIVE]->fInited == FALSE) {
                     ENTERCRITICAL;
                     g_pBitBucket[SERVERDRIVE]->fInited = TRUE;
                     LEAVECRITICAL;
                 }
             }
         }
-    }
-    else
-    {
+    } else {
         pszNetHomeDir[0] = TEXT('\0');
     }
 
@@ -322,37 +290,31 @@ STDAPI_(BOOL) IsBitBucketableDrive(int idDrive)
     TCHAR szBBRoot[MAX_PATH];
     TCHAR szFileSystem[MAX_PATH];
 
-    if ((idDrive < 0) || (g_pBitBucket[idDrive] == (PBBSYNCOBJECT)-1))
-    {
+    if ((idDrive < 0) || (g_pBitBucket[idDrive] == (PBBSYNCOBJECT)-1)) {
         // we dont support recycle bin for the general UNC case or we have
         // flagged this drive as not having a recycle bin for one reason or another.
         return FALSE;
     }
 
-    if (IsBitBucketInited(idDrive))
-    {
+    if (IsBitBucketInited(idDrive)) {
         // the struct is allready allocated and inited, so this is a bitbucketable drive
         return TRUE;
     }
 
     bRet = (RealDriveType(idDrive, FALSE) == DRIVE_FIXED ||
-            ((idDrive == SERVERDRIVE) && GetNetHomeDir(szBBRoot)));
+        ((idDrive == SERVERDRIVE) && GetNetHomeDir(szBBRoot)));
 
-    if (bRet && (idDrive != SERVERDRIVE))
-    {
+    if (bRet && (idDrive != SERVERDRIVE)) {
         // also check to make sure that the drive isint RAW (unformatted)
         DriveIDToBBRoot(idDrive, szBBRoot);
 
         if (!GetVolumeInformation(szBBRoot, NULL, 0, NULL, NULL, NULL, szFileSystem, ARRAYSIZE(szFileSystem)) ||
-            lstrcmpi(szFileSystem, TEXT("RAW")) == 0)
-        {
+            lstrcmpi(szFileSystem, TEXT("RAW")) == 0) {
             bRet = FALSE;
-        }
-        else
-        {
+        } else {
             // the drive better be NTFS, FAT or FAT32, else we need to know about it and handle it properly
-            ASSERT((lstrcmpi(szFileSystem, TEXT("NTFS")) == 0)  ||
-                   (lstrcmpi(szFileSystem, TEXT("FAT")) == 0)   ||
+            ASSERT((lstrcmpi(szFileSystem, TEXT("NTFS")) == 0) ||
+                (lstrcmpi(szFileSystem, TEXT("FAT")) == 0) ||
                    (lstrcmpi(szFileSystem, TEXT("FAT32")) == 0));
         }
     }
@@ -384,8 +346,8 @@ __inline BOOL IsBitBucketInited(int idDrive)
     // g_pBitBucket[idDrive]->fInited, to protect against g_pBitBucket[idDrive] being freed
     // in this window we use the crit sec.
     ENTERCRITICAL;
-    bRet = (g_pBitBucket[idDrive]                           &&
-            (g_pBitBucket[idDrive] != (PBBSYNCOBJECT)-1)    &&
+    bRet = (g_pBitBucket[idDrive] &&
+        (g_pBitBucket[idDrive] != (PBBSYNCOBJECT)-1) &&
             g_pBitBucket[idDrive]->fInited);
     LEAVECRITICAL;
 
@@ -396,10 +358,8 @@ __inline BOOL IsBitBucketInited(int idDrive)
 BOOL RevOldBBInfoFileHeader(HANDLE hFile, LPBBDATAHEADER pbbdh)
 {
     // Verify that this is a valid info file
-    if (pbbdh->cbDataEntrySize == SIZEOF(BBDATAENTRY))
-    {
-        if (pbbdh->idVersion == BITBUCKET_WIN95_VERSION || pbbdh->idVersion == BITBUCKET_NT4_VERSION)
-        {
+    if (pbbdh->cbDataEntrySize == SIZEOF(BBDATAENTRY)) {
+        if (pbbdh->idVersion == BITBUCKET_WIN95_VERSION || pbbdh->idVersion == BITBUCKET_NT4_VERSION) {
             DWORD dwBytesWritten;
 
             // now seek back to 0 and write in the new stuff
@@ -433,16 +393,14 @@ BOOL UpdateBBInfoFileHeader(int idDrive)
     // pass 1 for the retry attempt since we are called during shutdown and if another process
     // is using the recycle bin we will hang and get the "End Task" dialog (bad!).
     hFile = OpenBBInfoFile(idDrive, OPENBBINFO_WRITE, 1);
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
+    if (hFile != INVALID_HANDLE_VALUE) {
         BBDATAENTRYW bbdew;
         DWORD dwBytesRead;
 
         SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
         bRet = ReadFile(hFile, &bbdh, SIZEOF(BBDATAHEADER), &dwBytesRead, NULL);
 
-        if (bRet && dwBytesRead == SIZEOF(BBDATAHEADER))
-        {
+        if (bRet && dwBytesRead == SIZEOF(BBDATAHEADER)) {
             DWORD dwSize;
             DWORD dwBytesWritten;
 
@@ -460,11 +418,11 @@ BOOL UpdateBBInfoFileHeader(int idDrive)
         }
 
         ASSERT((g_pBitBucket[idDrive]->fIsUnicode && SIZEOF(BBDATAENTRYW) == bbdh.cbDataEntrySize) ||
-               (!g_pBitBucket[idDrive]->fIsUnicode && SIZEOF(BBDATAENTRYA) == bbdh.cbDataEntrySize));
+            (!g_pBitBucket[idDrive]->fIsUnicode && SIZEOF(BBDATAENTRYA) == bbdh.cbDataEntrySize));
 
         // Since we dont flag entries that were deleted in the info file as deleted
         // immeadeately, we need to go through and mark them as such now
-        while (ReadNextDataEntry(hFile, &bbdew, TRUE, bbdh.cbDataEntrySize, idDrive)){}
+        while (ReadNextDataEntry(hFile, &bbdew, TRUE, bbdh.cbDataEntrySize, idDrive)) {}
 
         CloseBBInfoFile(hFile, idDrive);
     }
@@ -473,8 +431,7 @@ BOOL UpdateBBInfoFileHeader(int idDrive)
     MRSW_LeaveRead(g_pBitBucket[idDrive]->pmrsw);
 #endif // BB_USE_MRSW
 
-    if (!bRet)
-    {
+    if (!bRet) {
         ASSERTMSG(FALSE, "Bitbucket: failed to update drive %d for win98/NT4 compat!!", idDrive);
     }
 
@@ -509,8 +466,7 @@ BOOL CreateInfoFile(idDrive)
 
     hFile = OpenBBInfoFile(idDrive, OPENBBINFO_CREATE, 0);
 
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
+    if (hFile != INVALID_HANDLE_VALUE) {
         ResetInfoFileHeader(hFile, SIZEOF(BBDATAENTRY) == SIZEOF(BBDATAENTRYW));
         CloseHandle(hFile);
 
@@ -549,7 +505,7 @@ PACL GetNT4BBAcl()
     PSID         psidAdmin = NULL;
     DWORD        cbAcl;
     DWORD        aceIndex;
-    ACE_HEADER * lpAceHeader;
+    ACE_HEADER* lpAceHeader;
     UINT         nCnt = 2;  // inheritable; so two ACE's for each user
     BOOL         bSuccess = FALSE;
 
@@ -558,8 +514,7 @@ PACL GetNT4BBAcl()
     // Get the USER token so we can grab its SID for the DACL.
 
     pUser = GetUserToken(NULL);
-    if (!pUser)
-    {
+    if (!pUser) {
         TraceMsg(TF_BITBUCKET, "GetNT4BBAcl: Failed to get user.  Error = %d", GetLastError());
         goto Exit;
     }
@@ -569,8 +524,8 @@ PACL GetNT4BBAcl()
 
     if (!AllocateAndInitializeSid(&authNT, 1, SECURITY_LOCAL_SYSTEM_RID,
                                   0, 0, 0, 0, 0, 0, 0, &psidSystem)) {
-         TraceMsg(TF_BITBUCKET, "GetNT4BBAcl: Failed to initialize system sid.  Error = %d", GetLastError());
-         goto Exit;
+        TraceMsg(TF_BITBUCKET, "GetNT4BBAcl: Failed to initialize system sid.  Error = %d", GetLastError());
+        goto Exit;
     }
 
 
@@ -581,8 +536,8 @@ PACL GetNT4BBAcl()
     if (!AllocateAndInitializeSid(&authNT, 2, SECURITY_BUILTIN_DOMAIN_RID,
                                   DOMAIN_ALIAS_RID_ADMINS, 0, 0,
                                   0, 0, 0, 0, &psidAdmin)) {
-         TraceMsg(TF_BITBUCKET, "GetNT4BBAcl: Failed to initialize admin sid.  Error = %d", GetLastError());
-         goto Exit;
+        TraceMsg(TF_BITBUCKET, "GetNT4BBAcl: Failed to initialize admin sid.  Error = %d", GetLastError());
+        goto Exit;
     }
 
 
@@ -590,10 +545,10 @@ PACL GetNT4BBAcl()
     // Allocate space for the DACL
 
     cbAcl = SIZEOF(ACL) +
-            (nCnt * GetLengthSid(pUser->User.Sid)) +
-            (nCnt * GetLengthSid(psidSystem)) +
-            (nCnt * GetLengthSid(psidAdmin)) +
-            (nCnt * 3 * (sizeof(ACCESS_ALLOWED_ACE) - sizeof(DWORD)));
+        (nCnt * GetLengthSid(pUser->User.Sid)) +
+        (nCnt * GetLengthSid(psidSystem)) +
+        (nCnt * GetLengthSid(psidAdmin)) +
+        (nCnt * 3 * (sizeof(ACCESS_ALLOWED_ACE) - sizeof(DWORD)));
 
     pAcl = (PACL)LocalAlloc(LPTR, cbAcl);
     if (!pAcl) {
@@ -682,8 +637,7 @@ Exit:
     if (psidAdmin)
         FreeSid(psidAdmin);
 
-    if (!bSuccess && pAcl)
-    {
+    if (!bSuccess && pAcl) {
         LocalFree(pAcl);
         pAcl = NULL;
     }
@@ -703,8 +657,7 @@ BOOL CheckRecycleBinAcls(idDrive)
     PSID psidOwner;
     PACL pdaclCurrent;
 
-    if ((idDrive == SERVERDRIVE) || !CMtPt_IsSecure(idDrive))
-    {
+    if ((idDrive == SERVERDRIVE) || !CMtPt_IsSecure(idDrive)) {
         // either redirected mydocs case (no security) or its not an NTFS drive, so no ACL's to check
         return TRUE;
     }
@@ -718,14 +671,11 @@ BOOL CheckRecycleBinAcls(idDrive)
                              NULL,
                              &pdaclCurrent,
                              NULL,
-                             &psdCurrent) == ERROR_SUCCESS)
-    {
+                             &psdCurrent) == ERROR_SUCCESS) {
         PTOKEN_USER pUser = GetUserToken(NULL);
 
-        if (pUser)
-        {
-            if (!EqualSid(psidOwner, pUser->User.Sid))
-            {
+        if (pUser) {
+            if (!EqualSid(psidOwner, pUser->User.Sid)) {
                 // the user is not the owner of the dir, check to see if the owner is the Administrators group or the System
                 // (we consider the directory to be secure if the owner is either of these two)
                 SID_IDENTIFIER_AUTHORITY sia = SECURITY_NT_AUTHORITY;
@@ -733,10 +683,8 @@ BOOL CheckRecycleBinAcls(idDrive)
                 PSID psidSystem = NULL;
 
                 if (AllocateAndInitializeSid(&sia, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &psidAdministrators) &&
-                    AllocateAndInitializeSid(&sia, 1, SECURITY_LOCAL_SYSTEM_RID, 0, 0, 0, 0, 0, 0, 0, &psidSystem))
-                {
-                    if (!EqualSid(psidOwner, psidAdministrators) && !EqualSid(psidOwner, psidSystem))
-                    {
+                    AllocateAndInitializeSid(&sia, 1, SECURITY_LOCAL_SYSTEM_RID, 0, 0, 0, 0, 0, 0, 0, &psidSystem)) {
+                    if (!EqualSid(psidOwner, psidAdministrators) && !EqualSid(psidOwner, psidSystem)) {
                         // directory is not owned by the user, or the Administrators group or the system, we thus consider it unsecure.
                         TraceMsg(TF_BITBUCKET, "CheckRecycleBinAcls: dir %s has possibly unsecure owner!", szBBPath);
                         bIsSecure = FALSE;
@@ -747,79 +695,63 @@ BOOL CheckRecycleBinAcls(idDrive)
 
                     if (psidSystem)
                         FreeSid(psidSystem);
-                }
-                else
-                {
+                } else {
                     TraceMsg(TF_BITBUCKET, "CheckRecycleBinAcls: AllocateAndInitializeSid failed, assuming %s is unsecure", szBBPath);
                     bIsSecure = FALSE;
                 }
             }
 
-            if (bIsSecure)
-            {
+            if (bIsSecure) {
                 // directory owner checked out ok, lets see if the acl is what we expect...
                 SECURITY_DESCRIPTOR* psdRecycle = CreateRecycleBinSecurityDescriptor();
 
-                if (psdRecycle)
-                {
+                if (psdRecycle) {
                     // BUGBUG (reinerf) - lame that all we do is check the size and do a memcmp, but that's all the aclui code does
                     // so we are no worse
                     if ((psdRecycle->Dacl->AclSize != pdaclCurrent->AclSize) ||
-                        (memcmp(psdRecycle->Dacl, pdaclCurrent, pdaclCurrent->AclSize) != 0))
-                    {
+                        (memcmp(psdRecycle->Dacl, pdaclCurrent, pdaclCurrent->AclSize) != 0)) {
                         // acl sizes were different or they didn't memcmp, so check against the old NT4 style acl
                         // (in NT4 we added the ACE's in a different order which causes the memcmp to fail, even
                         // though the ACL is equivilant)
                         PACL pAclNT4 = GetNT4BBAcl();
 
-                        if (pAclNT4)
-                        {
+                        if (pAclNT4) {
                             // do the same lame size / memcmp check
                             if ((pAclNT4->AclSize != pdaclCurrent->AclSize) ||
-                                (memcmp(pAclNT4, pdaclCurrent, pdaclCurrent->AclSize) != 0))
-                            {
+                                (memcmp(pAclNT4, pdaclCurrent, pdaclCurrent->AclSize) != 0)) {
                                 // acl sizes were different or they didn't memcmp, so assume the dir is unsecure
                                 bIsSecure = FALSE;
                             }
 
                             LocalFree(pAclNT4);
-                        }
-                        else
-                        {
+                        } else {
                             TraceMsg(TF_BITBUCKET, "CheckRecycleBinAcls: GetNT4BBSecurityAttributes failed, assuming %s is unsecure", szBBPath);
                             bIsSecure = FALSE;
                         }
                     }
 
                     LocalFree(psdRecycle);
-                }
-                else
-                {
+                } else {
                     TraceMsg(TF_BITBUCKET, "CheckRecycleBinAcls: CreateRecycleBinSecurityDescriptor failed, assuming %s is unsecure", szBBPath);
                     bIsSecure = FALSE;
                 }
             }
 
             LocalFree(pUser);
-        }
-        else
-        {
+        } else {
             // couldnt' get the users sid, so assume the dir is unsecure
             TraceMsg(TF_BITBUCKET, "CheckRecycleBinAcls: failed to get the users sid, assuming %s is unsecure", szBBPath);
             bIsSecure = FALSE;
         }
 
         LocalFree(psdCurrent);
-    }
-    else
-    {
+    } else {
         // GetNamedSecurityInfo failed, assume the dir is unsecure
         TraceMsg(TF_BITBUCKET, "CheckRecycleBinAcls: GetNamedSecurityInfo failed, assuming %s is unsecure", szBBPath);
         bIsSecure = FALSE;
     }
 
-    if (!bIsSecure)
-    {
+    if (!bIsSecure) {
         TCHAR szDriveName[MAX_PATH];
 
         DriveIDToBBRoot(idDrive, szDriveName);
@@ -829,9 +761,8 @@ BOOL CheckRecycleBinAcls(idDrive)
                             MAKEINTRESOURCE(IDS_RECYCLEBININVALIDFORMAT),
                             MAKEINTRESOURCE(IDS_WASTEBASKET),
                             MB_YESNO | MB_ICONEXCLAMATION | MB_SETFOREGROUND,
-                szDriveName) == IDYES)
-        {
-            TCHAR szBBPathToNuke[MAX_PATH+1];
+                            szDriveName) == IDYES) {
+            TCHAR szBBPathToNuke[MAX_PATH + 1];
             SHFILEOPSTRUCT fo = {NULL,
                                  FO_DELETE,
                                  szBBPathToNuke,
@@ -845,11 +776,9 @@ BOOL CheckRecycleBinAcls(idDrive)
             szBBPathToNuke[lstrlen(szBBPathToNuke) + 1] = TEXT('\0'); // double null terminate
 
             // try to nuke the old recycle bin for this drive
-            if (SHFileOperation(&fo) == ERROR_SUCCESS)
-            {
+            if (SHFileOperation(&fo) == ERROR_SUCCESS) {
                 bIsSecure = CreateRecyclerDirectory(idDrive);// now create the new secure one
-                if (bIsSecure)
-                {
+                if (bIsSecure) {
                     // we re-created the recycle bin dir, so we need to reset the info file..
                     VerifyBBInfoFileHeader(idDrive);
                 }
@@ -886,38 +815,32 @@ BOOL VerifyBBInfoFileHeader(int idDrive)
                        FILE_ATTRIBUTE_HIDDEN | FILE_FLAG_RANDOM_ACCESS,
                        NULL);
 
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
+    if (hFile != INVALID_HANDLE_VALUE) {
         DWORD dwBytesRead;
 
         ReadFile(hFile, &bbdh, SIZEOF(BBDATAHEADER), &dwBytesRead, NULL);
-        if (dwBytesRead == SIZEOF(BBDATAHEADER))
-        {
+        if (dwBytesRead == SIZEOF(BBDATAHEADER)) {
             TraceMsg(TF_BITBUCKET, "Bitbucket: migrating info in old database file %s", szInfo);
             fSuccess = RevOldBBInfoFileHeader(hFile, &bbdh);
         }
 
         CloseHandle(hFile);
 
-        if (fSuccess)
-        {
+        if (fSuccess) {
             // rename from INFO -> INFO2
             TCHAR szInfoNew[MAX_PATH];
 
             GetBBInfo2FileSpec(szBBPath, szInfoNew);
             TraceMsg(TF_BITBUCKET, "Bitbucket: renaming %s to %s !!", szInfo, szInfoNew);
             SHMoveFile(szInfo, szInfoNew, SHCNE_RENAMEITEM);
-        }
-        else
-        {
+        } else {
             goto bad_info_file;
         }
     }
 
     // Failed to open or rev the old info file. Next, we check for the existance of the new info2 file
     // to see if the drive has a bitbucket format that is greater than what we can handle
-    if (!fSuccess)
-    {
+    if (!fSuccess) {
         // we are going to be mucking with the info files, so we need to take this.
 #ifdef BB_USE_MRSW
         MRSW_EnterRead(g_pBitBucket[idDrive]->pmrsw);
@@ -925,8 +848,7 @@ BOOL VerifyBBInfoFileHeader(int idDrive)
 
         hFile = OpenBBInfoFile(idDrive, OPENBBINFO_READ, 0);
 
-        if (hFile != INVALID_HANDLE_VALUE)
-        {
+        if (hFile != INVALID_HANDLE_VALUE) {
             DWORD dwBytesRead;
 
             SetFilePointer(hFile, 0, NULL, FILE_BEGIN); // go to the beginning
@@ -937,86 +859,74 @@ BOOL VerifyBBInfoFileHeader(int idDrive)
 #endif // BB_USE_MRSW
 
             if (dwBytesRead != SIZEOF(BBDATAHEADER) ||
-        bbdh.idVersion > BITBUCKET_CURRENT_VERSION ||
-        (bbdh.cbDataEntrySize != SIZEOF(BBDATAENTRYA) && bbdh.cbDataEntrySize != SIZEOF(BBDATAENTRYW)))
-            {
-        TCHAR szDriveName[MAX_PATH];
+                bbdh.idVersion > BITBUCKET_CURRENT_VERSION ||
+                (bbdh.cbDataEntrySize != SIZEOF(BBDATAENTRYA) && bbdh.cbDataEntrySize != SIZEOF(BBDATAENTRYW))) {
+                TCHAR szDriveName[MAX_PATH];
 
                 // either we had a corrupt win95 info file, or an info2 file whose version is greater than ours
                 // so we just empy the recycle bin.
-bad_info_file:
-        // since we failed to read the existing header, assume the native format
-        g_pBitBucket[idDrive]->fIsUnicode = (SIZEOF(BBDATAENTRY) == SIZEOF(BBDATAENTRYW));
+            bad_info_file:
+                // since we failed to read the existing header, assume the native format
+                g_pBitBucket[idDrive]->fIsUnicode = (SIZEOF(BBDATAENTRY) == SIZEOF(BBDATAENTRYW));
 
-        // find out which drive it is that is corrupt
-        DriveIDToBBRoot(idDrive, szDriveName);
+                // find out which drive it is that is corrupt
+                DriveIDToBBRoot(idDrive, szDriveName);
 
                 if (ShellMessageBox(HINST_THISDLL,
                                     NULL,
                                     MAKEINTRESOURCE(IDS_RECYCLEBININVALIDFORMAT),
                                     MAKEINTRESOURCE(IDS_WASTEBASKET),
                                     MB_YESNO | MB_ICONEXCLAMATION | MB_SETFOREGROUND,
-                    szDriveName) == IDYES)
-                {
+                                    szDriveName) == IDYES) {
                     // nuke this bucket since it is hosed
                     PurgeOneBitBucket(NULL, idDrive, SHERB_NOCONFIRMATION);
                     return TRUE;
                 }
 
-        // If the user hit "no", we reset the header but leave all the entries alone.
-        // We do our best to get cbDataEntrySize right, and if the rest of the info file
-        // isint corrupted, then there is a good chance that this will work.
+                // If the user hit "no", we reset the header but leave all the entries alone.
+                // We do our best to get cbDataEntrySize right, and if the rest of the info file
+                // isint corrupted, then there is a good chance that this will work.
 #ifdef BB_USE_MRSW
-        MRSW_EnterWrite(g_pBitBucket[idDrive]->pmrsw);
+                MRSW_EnterWrite(g_pBitBucket[idDrive]->pmrsw);
 #endif // BB_USE_MRSW
-        hFile = OpenBBInfoFile(idDrive, OPENBBINFO_WRITE, 0);
+                hFile = OpenBBInfoFile(idDrive, OPENBBINFO_WRITE, 0);
 
-        if (hFile != INVALID_HANDLE_VALUE)
-        {
-            DWORD dwBytesWritten;
+                if (hFile != INVALID_HANDLE_VALUE) {
+                    DWORD dwBytesWritten;
 
-            bbdh.idVersion = BITBUCKET_CURRENT_VERSION;
+                    bbdh.idVersion = BITBUCKET_CURRENT_VERSION;
 
-            if (bbdh.cbDataEntrySize != SIZEOF(BBDATAENTRYW) &&
-            bbdh.cbDataEntrySize != SIZEOF(BBDATAENTRYA))
-            {
-            // assume the native data entry size
-            bbdh.cbDataEntrySize = SIZEOF(BBDATAENTRY);
-            }
+                    if (bbdh.cbDataEntrySize != SIZEOF(BBDATAENTRYW) &&
+                        bbdh.cbDataEntrySize != SIZEOF(BBDATAENTRYA)) {
+                        // assume the native data entry size
+                        bbdh.cbDataEntrySize = SIZEOF(BBDATAENTRY);
+                    }
 
-            g_pBitBucket[idDrive]->fIsUnicode = (bbdh.cbDataEntrySize == SIZEOF(BBDATAENTRYW));
+                    g_pBitBucket[idDrive]->fIsUnicode = (bbdh.cbDataEntrySize == SIZEOF(BBDATAENTRYW));
 
-            SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
-            WriteFile(hFile, (LPBYTE)&bbdh, SIZEOF(BBDATAHEADER), &dwBytesWritten, NULL);
-            ASSERT(dwBytesWritten == SIZEOF(BBDATAHEADER));
+                    SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+                    WriteFile(hFile, (LPBYTE)&bbdh, SIZEOF(BBDATAHEADER), &dwBytesWritten, NULL);
+                    ASSERT(dwBytesWritten == SIZEOF(BBDATAHEADER));
 
-            CloseBBInfoFile(hFile, idDrive);
-            fSuccess = TRUE;
-        }
-        else
-        {
-            // we are so screwed!
-            fSuccess = FALSE;
-        }
+                    CloseBBInfoFile(hFile, idDrive);
+                    fSuccess = TRUE;
+                } else {
+                    // we are so screwed!
+                    fSuccess = FALSE;
+                }
 
 #ifdef BB_USE_MRSW
-        MRSW_LeaveWrite(g_pBitBucket[idDrive]->pmrsw);
+                MRSW_LeaveWrite(g_pBitBucket[idDrive]->pmrsw);
 #endif // BB_USE_MRSW
 
-            }
-            else if (bbdh.idVersion != BITBUCKET_CURRENT_VERSION)
-            {
+            } else if (bbdh.idVersion != BITBUCKET_CURRENT_VERSION) {
                 // old info2 information (is this case even possible?)
                 fSuccess = RevOldBBInfoFileHeader(hFile, &bbdh);
-            }
-            else
-            {
+            } else {
                 // the header info is current
                 fSuccess = TRUE;
             }
-        }
-        else
-        {
+        } else {
 #ifdef BB_USE_MRSW
             MRSW_LeaveRead(g_pBitBucket[idDrive]->pmrsw);
 #endif // BB_USE_MRSW
@@ -1054,18 +964,13 @@ LONG FindInitialNextFileNum(idDrive)
     if (hFind == INVALID_HANDLE_VALUE)
         return 0;
 
-    do
-    {
-        if (PathIsDotOrDotDot(fd.cFileName) || lstrcmpi(fd.cFileName, c_szDesktopIni) == 0)
-        {
+    do {
+        if (PathIsDotOrDotDot(fd.cFileName) || lstrcmpi(fd.cFileName, c_szDesktopIni) == 0) {
             continue;
-        }
-        else
-        {
+        } else {
             int iCurrent = BBPathToIndex(fd.cFileName);
 
-            if (iCurrent > iRet)
-            {
+            if (iCurrent > iRet) {
                 iRet = iCurrent;
             }
         }
@@ -1097,8 +1002,7 @@ BOOL InitBBDriveInfo(int idDrive)
     lstrcpy(&szName[11], TEXT(".DirtyCount"));
     g_pBitBucket[idDrive]->hgcDirtyCount = SHGlobalCounterCreateNamed(szName, 0); // BitBucket.<drive letter>.DirtyCount
 
-    if (g_pBitBucket[idDrive]->hgcDirtyCount == INVALID_HANDLE_VALUE)
-    {
+    if (g_pBitBucket[idDrive]->hgcDirtyCount == INVALID_HANDLE_VALUE) {
         ASSERTMSG(FALSE, "BitBucket: failed to create hgcDirtyCount for drive %d !!", idDrive);
         return FALSE;
     }
@@ -1120,18 +1024,15 @@ BOOL InitBBDriveInfo(int idDrive)
                        KEY_SET_VALUE | KEY_QUERY_VALUE,
                        NULL,
                        &g_pBitBucket[idDrive]->hkeyPerUser,
-                       &dwDisp) != ERROR_SUCCESS)
-    {
+                       &dwDisp) != ERROR_SUCCESS) {
         ASSERTMSG(FALSE, "BitBucket: Could not create HKCU BitBucket registry key for drive %s", szName);
         g_pBitBucket[idDrive]->hkeyPerUser = NULL;
         return FALSE;
     }
 
-    if (RegCreateKeyEx(g_hkBitBucket, szName, 0, NULL, REG_OPTION_NON_VOLATILE, MAXIMUM_ALLOWED, NULL, &g_pBitBucket[idDrive]->hkey, &dwDisp) != ERROR_SUCCESS)
-    {
+    if (RegCreateKeyEx(g_hkBitBucket, szName, 0, NULL, REG_OPTION_NON_VOLATILE, MAXIMUM_ALLOWED, NULL, &g_pBitBucket[idDrive]->hkey, &dwDisp) != ERROR_SUCCESS) {
         TraceMsg(TF_BITBUCKET, "BitBucket: Could not create HKLM BitBucket registry key for drive %s, falling back to HKLM global key! ", szName);
-        if (RegOpenKeyEx(g_hkBitBucket, NULL, 0, MAXIMUM_ALLOWED, &g_pBitBucket[idDrive]->hkey) != ERROR_SUCCESS)
-        {
+        if (RegOpenKeyEx(g_hkBitBucket, NULL, 0, MAXIMUM_ALLOWED, &g_pBitBucket[idDrive]->hkey) != ERROR_SUCCESS) {
             ASSERTMSG(FALSE, "BitBucket: Could not duplicate HKLM Global Bitbucket key!");
             return FALSE;
         }
@@ -1151,22 +1052,17 @@ BOOL AllocBBDriveInfo(int idDrive)
     DriveIDToBBPath(idDrive, szBBPath);
     pidl = ILCreateFromPath(szBBPath);
 
-    if (!pidl && !PathFileExists(szBBPath))
-    {
-        if (CreateRecyclerDirectory(idDrive))
-        {
+    if (!pidl && !PathFileExists(szBBPath)) {
+        if (CreateRecyclerDirectory(idDrive)) {
             pidl = ILCreateFromPath(szBBPath);
         }
     }
 
-    if (pidl)
-    {
+    if (pidl) {
         PBBSYNCOBJECT pbbso = LocalAlloc(LPTR, SIZEOF(BBSYNCOBJECT));
 
-        if (pbbso)
-        {
-            if (SHInterlockedCompareExchange(&g_pBitBucket[idDrive], pbbso, NULL))
-            {
+        if (pbbso) {
+            if (SHInterlockedCompareExchange(&g_pBitBucket[idDrive], pbbso, NULL)) {
                 DWORD dwInitialTickCount;
                 BOOL bKeepWaiting = TRUE;
 
@@ -1178,10 +1074,8 @@ BOOL AllocBBDriveInfo(int idDrive)
 
                 dwInitialTickCount = GetTickCount();
 
-                do
-                {
-                    if (g_pBitBucket[idDrive] == (PBBSYNCOBJECT)-1)
-                    {
+                do {
+                    if (g_pBitBucket[idDrive] == (PBBSYNCOBJECT)-1) {
                         // this volume is flagged as not being recycleable for some reason...
                         break;
                     }
@@ -1192,8 +1086,7 @@ BOOL AllocBBDriveInfo(int idDrive)
                     bKeepWaiting = !IsBitBucketInited(idDrive);
 
                     // we should never spin more than ~15 seconds
-                    if (GetTickCount() <= (dwInitialTickCount + (15 * 1000)))
-                    {
+                    if (GetTickCount() <= (dwInitialTickCount + (15 * 1000))) {
                         ASSERTMSG(FALSE, "AllocBBDriveInfo: other thread took longer that 15 seconds to init a bitbucket?!?");
                         break;
                     }
@@ -1201,7 +1094,7 @@ BOOL AllocBBDriveInfo(int idDrive)
                 } while (bKeepWaiting);
 
                 return ((g_pBitBucket[idDrive] != NULL) &&
-                        (g_pBitBucket[idDrive] != (PBBSYNCOBJECT)-1));
+                    (g_pBitBucket[idDrive] != (PBBSYNCOBJECT)-1));
             }
 
             ASSERT(g_pBitBucket[idDrive] && (g_pBitBucket[idDrive] != (PBBSYNCOBJECT)-1));
@@ -1209,14 +1102,11 @@ BOOL AllocBBDriveInfo(int idDrive)
             g_pBitBucket[idDrive]->cchBBDir = lstrlen(szBBPath);
 
 
-            if (InitBBDriveInfo(idDrive))
-            {
+            if (InitBBDriveInfo(idDrive)) {
                 // Success!!
                 g_pBitBucket[idDrive]->fInited = TRUE;
                 bRet = TRUE;
-            }
-            else
-            {
+            } else {
                 // we failed for some weird reason
                 TraceMsg(TF_WARNING, "Bitbucket: InitBBDriveInfo() failed on drive %d", idDrive);
                 ILFree(pidl);
@@ -1225,28 +1115,21 @@ BOOL AllocBBDriveInfo(int idDrive)
                 // take the critical section to protect people who call IsBitBucketInited()
                 FreeBBInfo(g_pBitBucket[idDrive]);
 
-                if (idDrive == SERVERDRIVE)
-                {
+                if (idDrive == SERVERDRIVE) {
                     // We set it to null in the serverdrive case so we will always retry. This allows
                     // the user to re-direct and try to recycle on a new location.
                     g_pBitBucket[idDrive] = NULL;
-                }
-                else
-                {
+                } else {
                     // set it to -1 here so we dont try any future recycle operations on this volume
                     g_pBitBucket[idDrive] = (PBBSYNCOBJECT)-1;
                 }
                 LEAVECRITICAL;
             }
-        }
-        else
-        {
+        } else {
             ASSERTMSG(FALSE, "Bitbucket: failed to allocate a BBSYNCOBJECT for drive %d", idDrive);
             ILFree(pidl);
         }
-    }
-    else
-    {
+    } else {
         ASSERTMSG(FALSE, "Bitbucket: failed to create pidl for path %s !!", szBBPath);
     }
 
@@ -1256,23 +1139,19 @@ BOOL AllocBBDriveInfo(int idDrive)
 
 BOOL InitBBGlobals()
 {
-    if (!g_fBBInited)
-    {
+    if (!g_fBBInited) {
         // Save this now beceause at shutdown the desktop window will already be gone,
         // so we need to find out if we are the main explorer process now.
-        if (!g_bIsProcessExplorer)
-        {
+        if (!g_bIsProcessExplorer) {
             g_bIsProcessExplorer = IsWindowInProcess(GetShellWindow());
         }
 
         // do we have our global hkey that points to HKLM\Software\Microsoft\Windows\CurrentVersion\BitBucket yet?
-        if (!g_hkBitBucket)
-        {
+        if (!g_hkBitBucket) {
             DWORD dwDisp = 0;
             HKEY hkExplorer = SHGetExplorerHkey(HKEY_LOCAL_MACHINE, TRUE);
 
-            if (RegCreateKeyEx(hkExplorer, TEXT("BitBucket"), 0, NULL, REG_OPTION_NON_VOLATILE, MAXIMUM_ALLOWED, NULL, &g_hkBitBucket, &dwDisp) != ERROR_SUCCESS)
-            {
+            if (RegCreateKeyEx(hkExplorer, TEXT("BitBucket"), 0, NULL, REG_OPTION_NON_VOLATILE, MAXIMUM_ALLOWED, NULL, &g_hkBitBucket, &dwDisp) != ERROR_SUCCESS) {
                 ASSERTMSG(FALSE, "Bitbucket: Could not create g_hkBitBucket!");
                 return FALSE;
             }
@@ -1281,25 +1160,21 @@ BOOL InitBBGlobals()
         }
 
         // do we have our global hkey that points to HKCU\Software\Microsoft\Windows\CurrentVersion\BitBucket yet?
-        if (!g_hkBitBucketPerUser)
-        {
+        if (!g_hkBitBucketPerUser) {
             DWORD dwDisp = 0;
             HKEY hkExplorer = SHGetExplorerHkey(HKEY_CURRENT_USER, TRUE);
 
-            if (RegCreateKeyEx(hkExplorer, TEXT("BitBucket"), 0, NULL, REG_OPTION_NON_VOLATILE, MAXIMUM_ALLOWED, NULL, &g_hkBitBucketPerUser, &dwDisp) != ERROR_SUCCESS)
-            {
+            if (RegCreateKeyEx(hkExplorer, TEXT("BitBucket"), 0, NULL, REG_OPTION_NON_VOLATILE, MAXIMUM_ALLOWED, NULL, &g_hkBitBucketPerUser, &dwDisp) != ERROR_SUCCESS) {
                 ASSERTMSG(FALSE, "Bitbucket: Could not create g_hkBitBucketPerUser!");
                 return FALSE;
             }
         }
 
         // have we initialized the global settings dirty counter yet
-        if (g_hgcGlobalDirtyCount == INVALID_HANDLE_VALUE)
-        {
+        if (g_hgcGlobalDirtyCount == INVALID_HANDLE_VALUE) {
             g_hgcGlobalDirtyCount = SHGlobalCounterCreateNamed(TEXT("BitBucket.GlobalDirtyCount"), 0);
 
-            if (g_hgcGlobalDirtyCount == INVALID_HANDLE_VALUE)
-            {
+            if (g_hgcGlobalDirtyCount == INVALID_HANDLE_VALUE) {
                 ASSERTMSG(FALSE, "Bitbucket: failed to create g_hgcGlobalDirtyCount!");
                 return FALSE;
             }
@@ -1308,12 +1183,10 @@ BOOL InitBBGlobals()
         }
 
         // have we initialized the global # of people doing recycle bin file operations?
-        if (g_hgcNumDeleters == INVALID_HANDLE_VALUE)
-        {
+        if (g_hgcNumDeleters == INVALID_HANDLE_VALUE) {
             g_hgcNumDeleters = SHGlobalCounterCreateNamed(TEXT("BitBucket.NumDeleters"), 0);
 
-            if (g_hgcGlobalDirtyCount == INVALID_HANDLE_VALUE)
-            {
+            if (g_hgcGlobalDirtyCount == INVALID_HANDLE_VALUE) {
                 ASSERTMSG(FALSE, "Bitbucket: failed to create g_hgcGlobalDirtyCount!");
                 return FALSE;
             }
@@ -1354,8 +1227,7 @@ void FreeBBInfo(PBBSYNCOBJECT pbbso)
 // and we can go save a bunch of state and free all the semaphores.
 STDAPI_(void) SaveRecycleBinInfo()
 {
-    if (g_bIsProcessExplorer)
-    {
+    if (g_bIsProcessExplorer) {
         LONG lGlobalDirtyCount;
         BOOL bGlobalUpdate = FALSE; // did global settings change?
         int i;
@@ -1363,23 +1235,19 @@ STDAPI_(void) SaveRecycleBinInfo()
         // We are going to persist the info to the registry, so check to see if we need to
         // update our info now
         lGlobalDirtyCount = SHGlobalCounterGetValue(g_hgcGlobalDirtyCount);
-        if (g_lProcessDirtyCount < lGlobalDirtyCount)
-        {
+        if (g_lProcessDirtyCount < lGlobalDirtyCount) {
             g_lProcessDirtyCount = lGlobalDirtyCount;
             RefreshAllBBDriveSettings();
             bGlobalUpdate = TRUE;
         }
 
-        for (i = 0; i < MAX_BITBUCKETS ; i++)
-        {
-            if (IsBitBucketInited(i))
-            {
+        for (i = 0; i < MAX_BITBUCKETS; i++) {
+            if (IsBitBucketInited(i)) {
                 LONG lBucketDirtyCount = SHGlobalCounterGetValue(g_pBitBucket[i]->hgcDirtyCount);
 
                 // if we didnt do a global update, check this bucket specifically to see if it is dirty
                 // and we need to update it
-                if (!bGlobalUpdate && g_pBitBucket[i]->lCurrentDirtyCount < lBucketDirtyCount)
-                {
+                if (!bGlobalUpdate && g_pBitBucket[i]->lCurrentDirtyCount < lBucketDirtyCount) {
                     g_pBitBucket[i]->lCurrentDirtyCount = lBucketDirtyCount;
                     RefreshBBDriveSettings(i);
                 }
@@ -1400,10 +1268,8 @@ void BitBucket_Terminate()
     int i;
 
     // free the global recycle bin structs
-    for (i = 0; i < MAX_BITBUCKETS ; i++)
-    {
-        if ((g_pBitBucket[i]) && (g_pBitBucket[i] != (PBBSYNCOBJECT)-1))
-        {
+    for (i = 0; i < MAX_BITBUCKETS; i++) {
+        if ((g_pBitBucket[i]) && (g_pBitBucket[i] != (PBBSYNCOBJECT)-1)) {
             ENTERCRITICAL;
             FreeBBInfo(g_pBitBucket[i]);
             g_pBitBucket[i] = NULL;
@@ -1418,7 +1284,7 @@ void BitBucket_Terminate()
         CloseHandle(g_hgcNumDeleters);
 
     if (g_hkBitBucketPerUser != NULL)
-    RegCloseKey(g_hkBitBucketPerUser);
+        RegCloseKey(g_hkBitBucketPerUser);
 
     if (g_hkBitBucket != NULL)
         RegCloseKey(g_hkBitBucket);
@@ -1432,10 +1298,8 @@ BOOL RefreshAllBBDriveSettings()
     int i;
 
     // since global settings changes affect all the drives, update all the drives
-    for (i = 0; i < MAX_BITBUCKETS; i++)
-    {
-        if ((g_pBitBucket[i]) && (g_pBitBucket[i] != (PBBSYNCOBJECT)-1))
-        {
+    for (i = 0; i < MAX_BITBUCKETS; i++) {
+        if ((g_pBitBucket[i]) && (g_pBitBucket[i] != (PBBSYNCOBJECT)-1)) {
             RefreshBBDriveSettings(i);
         }
     }
@@ -1455,12 +1319,9 @@ BOOL RefreshBBDriveSettings(int idDrive)
 
     RegQueryValueEx(g_hkBitBucket, TEXT("UseGlobalSettings"), NULL, NULL, (LPBYTE)&fUseGlobalSettings, &dwSize);
 
-    if (fUseGlobalSettings)
-    {
+    if (fUseGlobalSettings) {
         hkey = g_hkBitBucket;
-    }
-    else
-    {
+    } else {
         hkey = g_pBitBucket[idDrive]->hkey;
     }
 
@@ -1493,7 +1354,7 @@ BOOL RefreshBBDriveSettings(int idDrive)
 // certain number of bogus entries in the info file, we need to go through and clean up the
 // garbage and compact the file.
 
-DWORD CALLBACK CompactBBInfoFileThread(void *pData)
+DWORD CALLBACK CompactBBInfoFileThread(void* pData)
 {
     int idDrive = PtrToLong(pData);
     HANDLE hFile;
@@ -1510,8 +1371,7 @@ DWORD CALLBACK CompactBBInfoFileThread(void *pData)
 #endif // BB_USE_MRSW
 
     hFile = OpenBBInfoFile(idDrive, OPENBBINFO_WRITE, 0);
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
+    if (hFile != INVALID_HANDLE_VALUE) {
         // work in chunks of 10
         BBDATAENTRYW bbdewArray[10]; // use a unicode array, but it might end up holding BBDATAENTRYA stucts
         LPBBDATAENTRYW pbbdew = bbdewArray;
@@ -1524,15 +1384,13 @@ DWORD CALLBACK CompactBBInfoFileThread(void *pData)
         // save off the inital write pos
         dwWritePos = SetFilePointer(hFile, 0, NULL, FILE_CURRENT);
 
-        while (ReadNextDataEntry(hFile, pbbdew, TRUE, dwDataEntrySize, idDrive))
-        {
+        while (ReadNextDataEntry(hFile, pbbdew, TRUE, dwDataEntrySize, idDrive)) {
             ASSERT(!IsDeletedEntry(pbbdew));
 
             iNumEntries++;
 
             // do we have 10 entries yet?
-            if (iNumEntries == 10)
-            {
+            if (iNumEntries == 10) {
                 iNumEntries = 0;
 
                 TraceMsg(TF_BITBUCKET, "Bitbucket: Compacting drive %d: dwRead = %d, dwWrite = %d, writing 10 entries", idDrive, dwReadPos, dwWritePos);
@@ -1544,8 +1402,7 @@ DWORD CALLBACK CompactBBInfoFileThread(void *pData)
                 SetFilePointer(hFile, dwWritePos, NULL, FILE_BEGIN);
 
                 // write it out
-                if (!WriteFile(hFile, (LPBYTE)bbdewArray, dwDataEntrySize * 10, &dwBytesWritten, NULL) || dwBytesWritten != (dwDataEntrySize * 10))
-                {
+                if (!WriteFile(hFile, (LPBYTE)bbdewArray, dwDataEntrySize * 10, &dwBytesWritten, NULL) || dwBytesWritten != (dwDataEntrySize * 10)) {
                     // we're in big trouble if this happens.
                     // bail completely so that at worst, we only have a few bad records.
                     // if we keep trying to write from this point, but the write point is
@@ -1562,9 +1419,7 @@ DWORD CALLBACK CompactBBInfoFileThread(void *pData)
 
                 // reset our lparray pointer
                 pbbdew = bbdewArray;
-            }
-            else
-            {
+            } else {
                 // dont have 10 entries yet, so keep going
                 pbbdew = (LPBBDATAENTRYW)((LPBYTE)pbbdew + dwDataEntrySize);
             }
@@ -1595,13 +1450,10 @@ void CompactBBInfoFile(int idDrive)
 
     // try to spin up a background thread to do the work for us
     hThread = CreateThread(NULL, 0, CompactBBInfoFileThread, (LPVOID)idDrive, 0, &idThread);
-    if (hThread)
-    {
+    if (hThread) {
         // let the background thread do the work
         CloseHandle(hThread);
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_BITBUCKET, "BBCompact - failed to create backgound thread! Doing work on this thread");
         CompactBBInfoFileThread((LPVOID)idDrive);
     }
@@ -1617,8 +1469,7 @@ void GetDeletedFileName(LPTSTR pszFileName, int idDrive, int iIndex, LPNTSTR psz
 
     TCHAR c = TEXT('a') + idDrive;
 
-    if (c == (TEXT('a') + SERVERDRIVE))
-    {
+    if (c == (TEXT('a') + SERVERDRIVE)) {
         c = TEXT('@');
     }
 
@@ -1631,7 +1482,7 @@ void GetDeletedFileName(LPTSTR pszFileName, int idDrive, int iIndex, LPNTSTR psz
 #else
     wsprintf(pszFileName, TEXT("D%c%d%s"), c, iIndex, PathFindExtension(pszOriginal));
 #endif
-}
+    }
 
 void UpdateIcon(BOOL fFull)
 {
@@ -1654,8 +1505,7 @@ void UpdateIcon(BOOL fFull)
 
     // get the per-user CLSID
     // (HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\CLSID\CLSID_RecycleBin\DefaultIcon)
-    if (FAILED(SHRegGetCLSIDKey(&CLSID_RecycleBin, c_szDefaultIcon, TRUE, FALSE, &hkeyUserCLSID)))
-    {
+    if (FAILED(SHRegGetCLSIDKey(&CLSID_RecycleBin, c_szDefaultIcon, TRUE, FALSE, &hkeyUserCLSID))) {
         // it most likely failed because the reg key dosent exist, so create it now
         if (FAILED(SHRegGetCLSIDKey(&CLSID_RecycleBin, c_szDefaultIcon, TRUE, TRUE, &hkeyUserCLSID)))
             goto error;
@@ -1690,8 +1540,7 @@ void UpdateIcon(BOOL fFull)
     // try the per user first, if we dont find it, then copy the information from HKCR\CLSID\etc...
     // to the per-user location
     cbData = SIZEOF(szTemp);
-    if (RegQueryValueEx(hkeyUserCLSID, NULL, 0, &dwType, (LPBYTE)szTemp, &cbData) != ERROR_SUCCESS)
-    {
+    if (RegQueryValueEx(hkeyUserCLSID, NULL, 0, &dwType, (LPBYTE)szTemp, &cbData) != ERROR_SUCCESS) {
         // get the local machine default icon
         cbData = SIZEOF(szTemp);
         if (RegQueryValueEx(hkeyCLSID, NULL, 0, &dwType, (LPBYTE)szTemp, &cbData) != ERROR_SUCCESS)
@@ -1703,8 +1552,7 @@ void UpdateIcon(BOOL fFull)
     lstrcpy(szValue, szTemp);
 
     cbData = SIZEOF(szTemp);
-    if (RegQueryValueEx(hkeyUserCLSID, fFull ? TEXT("Full") : TEXT("Empty"), 0, &dwType, (LPBYTE)szTemp, &cbData) != ERROR_SUCCESS)
-    {
+    if (RegQueryValueEx(hkeyUserCLSID, fFull ? TEXT("Full") : TEXT("Empty"), 0, &dwType, (LPBYTE)szTemp, &cbData) != ERROR_SUCCESS) {
         cbData = SIZEOF(szTemp);
         if (RegQueryValueEx(hkeyCLSID, fFull ? TEXT("Full") : TEXT("Empty"), 0, &dwType, (LPBYTE)szTemp, &cbData) != ERROR_SUCCESS)
             goto error;
@@ -1714,13 +1562,12 @@ void UpdateIcon(BOOL fFull)
     }
     lstrcpy(szNewValue, szTemp);
 
-    if (lstrcmpi(szNewValue, szValue) != 0)
-    {
+    if (lstrcmpi(szNewValue, szValue) != 0) {
         LPTSTR szIconIndex;
 
 
-//  99/01/05 #257290 vtan: Match the expanded strings but copy the
-//  REG_EXPAND_SZ strings.
+        //  99/01/05 #257290 vtan: Match the expanded strings but copy the
+        //  REG_EXPAND_SZ strings.
 
         cbData = SIZEOF(szTemp);
         TW32(RegQueryValueEx(hkeyUserCLSID, fFull ? TEXT("Full") : TEXT("Empty"), 0, &dwType, (LPBYTE)szTemp, &cbData));
@@ -1729,8 +1576,7 @@ void UpdateIcon(BOOL fFull)
 
         szIconIndex = StrRChr(szValue, NULL, TEXT(','));
 
-        if (szIconIndex)
-        {
+        if (szIconIndex) {
             int id;
             int iNum = StrToInt(szIconIndex + 1);
             LPTSTR pszDllName;
@@ -1757,7 +1603,7 @@ error:
 
 // this loads the settings for this drive.  it obeys the "use global" bit
 
-BOOL GetBBDriveSettings(int idDrive, ULONGLONG *pcbDiskSpace)
+BOOL GetBBDriveSettings(int idDrive, ULONGLONG* pcbDiskSpace)
 {
     TCHAR szDrive[MAX_PATH];
     TCHAR szName[MAX_PATH];
@@ -1779,13 +1625,10 @@ BOOL GetBBDriveSettings(int idDrive, ULONGLONG *pcbDiskSpace)
     DriveIDToBBPath(idDrive, szDrive);
     GetBBInfo2FileSpec(szDrive, szName);
 
-    if (idDrive == SERVERDRIVE)
-    {
+    if (idDrive == SERVERDRIVE) {
         // in the SERVERDRIVE case everything is under HKCU, so use the per-user key
         hkey = g_pBitBucket[idDrive]->hkeyPerUser;
-    }
-    else
-    {
+    } else {
         hkey = g_pBitBucket[idDrive]->hkey;
     }
 
@@ -1793,13 +1636,13 @@ BOOL GetBBDriveSettings(int idDrive, ULONGLONG *pcbDiskSpace)
     // is a new drive
     dwSize1 = SIZEOF(dwSerialNumber);
 
-    if (PathFileExists(szName)                                  &&
+    if (PathFileExists(szName) &&
         (RegQueryValueEx(hkey,
                          TEXT("VolumeSerialNumber"),
                          NULL,
                          NULL,
                          (LPBYTE)&dwSerialNumberFromRegistry,
-                         &dwSize1) == ERROR_SUCCESS)            &&
+                         &dwSize1) == ERROR_SUCCESS) &&
         GetVolumeInformation(szVolume,
                              NULL,
                              0,
@@ -1807,9 +1650,8 @@ BOOL GetBBDriveSettings(int idDrive, ULONGLONG *pcbDiskSpace)
                              NULL,
                              NULL,
                              NULL,
-                             0)                                 &&
-        (dwSerialNumber == dwSerialNumberFromRegistry))
-    {
+                             0) &&
+                             (dwSerialNumber == dwSerialNumberFromRegistry)) {
         // we were able to read the drive serial number and it matched the regsitry, so
         // assume that the cached reg info is valid
         bHaveCachedRegInfo = TRUE;
@@ -1817,19 +1659,16 @@ BOOL GetBBDriveSettings(int idDrive, ULONGLONG *pcbDiskSpace)
 
     // do some extra checks in the SERVERDRIVE case to make sure that the path matches in addition to the volume serial number.
     // (eg nethomedir could be on the same volume but a different path)
-    if (bHaveCachedRegInfo && (SERVERDRIVE == idDrive))
-    {
-        if ((RegQueryValueEx(hkey, TEXT("Path"), NULL, NULL, (LPBYTE) szPath, &dwSizePath) != ERROR_SUCCESS) ||
-            (lstrcmpi(szPath, szDrive) != 0))
-        {
+    if (bHaveCachedRegInfo && (SERVERDRIVE == idDrive)) {
+        if ((RegQueryValueEx(hkey, TEXT("Path"), NULL, NULL, (LPBYTE)szPath, &dwSizePath) != ERROR_SUCCESS) ||
+            (lstrcmpi(szPath, szDrive) != 0)) {
             // couldn't read the path or it didnt match, so no we can't use the cacehed info
             bHaveCachedRegInfo = FALSE;
         }
     }
 
 
-    if (!bHaveCachedRegInfo)
-    {
+    if (!bHaveCachedRegInfo) {
         TraceMsg(TF_BITBUCKET, "Bitbucket: new drive %s detected!!!", szDrive);
         // this is a new volume, so delete any old registry info we had
         DeleteOldBBRegInfo(idDrive);
@@ -1837,13 +1676,10 @@ BOOL GetBBDriveSettings(int idDrive, ULONGLONG *pcbDiskSpace)
         // And also migrate the win95 info if it exists
         // NOTE: this also fills in the g_pBitBucket[idDrive]->fIsUnicode
         VerifyBBInfoFileHeader(idDrive);
-    }
-    else
-    {
+    } else {
         // set g_pBitBucket[idDrive]->fIsUnicode based on the registry info
         dwSize1 = SIZEOF(g_pBitBucket[idDrive]->fIsUnicode);
-        if (RegQueryValueEx(hkey, TEXT("IsUnicode"), NULL, NULL, (LPBYTE)&g_pBitBucket[idDrive]->fIsUnicode, &dwSize1) != ERROR_SUCCESS)
-        {
+        if (RegQueryValueEx(hkey, TEXT("IsUnicode"), NULL, NULL, (LPBYTE)&g_pBitBucket[idDrive]->fIsUnicode, &dwSize1) != ERROR_SUCCESS) {
             ASSERTMSG(FALSE, "Bitbucket: IsUnicode missing from registry for drive %s !!", szDrive);
 
             // instead, try to get this out of the header
@@ -1853,8 +1689,7 @@ BOOL GetBBDriveSettings(int idDrive, ULONGLONG *pcbDiskSpace)
 
 #ifdef WINNT
     // we need to check to make sure that the Recycle Bin folder is properly secured
-    if (!CheckRecycleBinAcls(idDrive))
-    {
+    if (!CheckRecycleBinAcls(idDrive)) {
         // we return false if this fails (meaning we detected an unsecure directory and were unable to
         // fix it or the user didnt want to fix it). This will effectively disable all recycle bin operations
         // on this volume for this session.
@@ -1872,8 +1707,7 @@ BOOL GetBBDriveSettings(int idDrive, ULONGLONG *pcbDiskSpace)
     lstrcpy(&szName[11], TEXT(".NextFileNum"));
     g_pBitBucket[idDrive]->hgcNextFileNum = SHGlobalCounterCreateNamed(szName, lInitialCount); // BitBucket.<drive letter>.NextFileNum
 
-    if (g_pBitBucket[idDrive]->hgcNextFileNum == INVALID_HANDLE_VALUE)
-    {
+    if (g_pBitBucket[idDrive]->hgcNextFileNum == INVALID_HANDLE_VALUE) {
         ASSERTMSG(FALSE, "BitBucket: failed to create hgcNextFileNum for drive %s !!", szDrive);
         return FALSE;
     }
@@ -1881,13 +1715,10 @@ BOOL GetBBDriveSettings(int idDrive, ULONGLONG *pcbDiskSpace)
     dwSize1 = SIZEOF(fUseGlobalSettings);
     RegQueryValueEx(g_hkBitBucket, TEXT("UseGlobalSettings"), NULL, NULL, (LPBYTE)&fUseGlobalSettings, &dwSize1);
 
-    if (fUseGlobalSettings)
-    {
+    if (fUseGlobalSettings) {
         // use the global settings for iPercent and fNukeOnDelete
         hkey = g_hkBitBucket;
-    }
-    else
-    {
+    } else {
         // use the per-bitbucket settings for iPercent and fNukeOnDelete
         hkey = g_pBitBucket[idDrive]->hkey;
     }
@@ -1897,15 +1728,11 @@ retry:
     dwSize2 = SIZEOF(g_pBitBucket[idDrive]->fNukeOnDelete);
 
     if (RegQueryValueEx(hkey, TEXT("Percent"), NULL, NULL, (LPBYTE)&g_pBitBucket[idDrive]->iPercent, &dwSize1) != ERROR_SUCCESS ||
-        RegQueryValueEx(hkey, TEXT("NukeOnDelete"), NULL, NULL, (LPBYTE)&g_pBitBucket[idDrive]->fNukeOnDelete, &dwSize2) != ERROR_SUCCESS)
-    {
-        if (hkey == g_hkBitBucket)
-        {
+        RegQueryValueEx(hkey, TEXT("NukeOnDelete"), NULL, NULL, (LPBYTE)&g_pBitBucket[idDrive]->fNukeOnDelete, &dwSize2) != ERROR_SUCCESS) {
+        if (hkey == g_hkBitBucket) {
             ASSERTMSG(FALSE, "Missing global bitbucket data: run regsvr32 on shell32.dll !!");
             return FALSE;
-        }
-        else
-        {
+        } else {
             // we are missing the per-bitbuckt information, so fall back to the global stuff
             hkey = g_hkBitBucket;
             goto retry;
@@ -1914,8 +1741,7 @@ retry:
 
     // we call SHGetDiskFreeSpaceEx so we can respect quotas on NTFS
     DriveIDToBBRoot(idDrive, szDrive);
-    if (SHGetDiskFreeSpaceEx(szDrive, &ulFreeUser, &ulTotal, &ulFree))
-    {
+    if (SHGetDiskFreeSpaceEx(szDrive, &ulFreeUser, &ulTotal, &ulFree)) {
         ULARGE_INTEGER ulMaxSize;
 
         g_pBitBucket[idDrive]->dwClusterSize = PathGetClusterSize(szDrive);
@@ -1926,36 +1752,28 @@ retry:
         ASSERT(ulMaxSize.HighPart == 0);
         g_pBitBucket[idDrive]->cbMaxSize = ulMaxSize.LowPart;
 
-        if (pcbDiskSpace)
-        {
+        if (pcbDiskSpace) {
             // set the total disk size as well
             *pcbDiskSpace = ulTotal.QuadPart;
         }
-    }
-    else
-    {
+    } else {
         // REVIEW: (chrispi 11/20/98) where did this code come from?  should it be removed?
-        if (idDrive == SERVERDRIVE)
-        {
+        if (idDrive == SERVERDRIVE) {
             g_pBitBucket[idDrive]->dwClusterSize = 2048;
             g_pBitBucket[idDrive]->cbMaxSize = ((0x7FFFFFFF / 1024) * ((1024 * g_pBitBucket[idDrive]->iPercent) / 100));
-            g_pBitBucket[idDrive]->qwDiskSize = (ULONGLONG)((DWORD) -1);
+            g_pBitBucket[idDrive]->qwDiskSize = (ULONGLONG)((DWORD)-1);
 
-            if (pcbDiskSpace)
-            {
+            if (pcbDiskSpace) {
                 *pcbDiskSpace = 0x7FFFFFFF;
             }
-        }
-        else
-        {
+        } else {
             ASSERTMSG(FALSE, "Bitbucket: SHGetDiskFreeSpaceEx failed on %s !!", szDrive);
 
             g_pBitBucket[idDrive]->cbMaxSize = 0;
             g_pBitBucket[idDrive]->dwClusterSize = 0;
             g_pBitBucket[idDrive]->qwDiskSize = 0;
 
-            if (pcbDiskSpace)
-            {
+            if (pcbDiskSpace) {
                 *pcbDiskSpace = 0;
             }
         }
@@ -1995,18 +1813,15 @@ void PersistBBDriveInfo(int idDrive)
     DWORD dwSerialNumber;
     HKEY hkey;
 
-    if (SERVERDRIVE == idDrive)
-    {
+    if (SERVERDRIVE == idDrive) {
         TCHAR szPath[MAX_PATH];
 
         // in the SERVERDRIVE case everything is under HKCU, so use the per-user key
         hkey = g_pBitBucket[idDrive]->hkeyPerUser;
 
         DriveIDToBBPath(idDrive, szPath);
-        RegSetValueEx(hkey, TEXT("Path"), 0, REG_SZ, (LPBYTE) szPath, SIZEOF(TCHAR) * (lstrlen(szPath) + 1));
-    }
-    else
-    {
+        RegSetValueEx(hkey, TEXT("Path"), 0, REG_SZ, (LPBYTE)szPath, SIZEOF(TCHAR) * (lstrlen(szPath) + 1));
+    } else {
         hkey = g_pBitBucket[idDrive]->hkey;
     }
 
@@ -2014,8 +1829,7 @@ void PersistBBDriveInfo(int idDrive)
 
     // write out the volume serial # so we can detect when a new drive comes along and give it the default settings
     // NOTE: we will fail to write out the volume serial # if we are a normal user and HKLM is locked down. Oh well.
-    if (GetVolumeInformation(szVolume, NULL, 0, &dwSerialNumber, NULL, NULL, NULL, 0))
-    {
+    if (GetVolumeInformation(szVolume, NULL, 0, &dwSerialNumber, NULL, NULL, NULL, 0)) {
         RegSetValueEx(hkey, TEXT("VolumeSerialNumber"), 0, REG_DWORD, (LPBYTE)&dwSerialNumber, SIZEOF(dwSerialNumber));
     }
 
@@ -2033,10 +1847,9 @@ BOOL PersistGlobalSettings(BOOL fUseGlobalSettings, BOOL fNukeOnDelete, int iPer
 
     if (RegSetValueEx(g_hkBitBucket, TEXT("Percent"), 0, REG_DWORD, (LPBYTE)&iPercent, SIZEOF(iPercent)) != ERROR_SUCCESS ||
         RegSetValueEx(g_hkBitBucket, TEXT("NukeOnDelete"), 0, REG_DWORD, (LPBYTE)&fNukeOnDelete, SIZEOF(fNukeOnDelete)) != ERROR_SUCCESS ||
-        RegSetValueEx(g_hkBitBucket, TEXT("UseGlobalSettings"), 0, REG_DWORD, (LPBYTE)&fUseGlobalSettings, SIZEOF(fUseGlobalSettings)) != ERROR_SUCCESS)
-    {
-         TraceMsg(TF_BITBUCKET, "Bitbucket: failed to update global bitbucket data in the registry!!");
-         return FALSE;
+        RegSetValueEx(g_hkBitBucket, TEXT("UseGlobalSettings"), 0, REG_DWORD, (LPBYTE)&fUseGlobalSettings, SIZEOF(fUseGlobalSettings)) != ERROR_SUCCESS) {
+        TraceMsg(TF_BITBUCKET, "Bitbucket: failed to update global bitbucket data in the registry!!");
+        return FALSE;
     }
 
     // since we just updated the global drive settings, we need to increment the dirty count and set our own
@@ -2053,8 +1866,7 @@ BOOL PersistGlobalSettings(BOOL fUseGlobalSettings, BOOL fNukeOnDelete, int iPer
 BOOL PersistBBDriveSettings(int idDrive, int iPercent, BOOL fNukeOnDelete)
 {
     if (RegSetValueEx(g_pBitBucket[idDrive]->hkey, TEXT("Percent"), 0, REG_DWORD, (LPBYTE)&iPercent, SIZEOF(iPercent)) != ERROR_SUCCESS ||
-        RegSetValueEx(g_pBitBucket[idDrive]->hkey, TEXT("NukeOnDelete"), 0, REG_DWORD, (LPBYTE)&fNukeOnDelete, SIZEOF(fNukeOnDelete)) != ERROR_SUCCESS)
-    {
+        RegSetValueEx(g_pBitBucket[idDrive]->hkey, TEXT("NukeOnDelete"), 0, REG_DWORD, (LPBYTE)&fNukeOnDelete, SIZEOF(fNukeOnDelete)) != ERROR_SUCCESS) {
         TraceMsg(TF_BITBUCKET, "Bitbucket: unable to persist drive settings for drive %d", idDrive);
         return FALSE;
     }
@@ -2073,12 +1885,10 @@ void BBCheckRestoredFiles(LPTSTR pszSrc)
 {
     LPTSTR pszTemp;
 
-    if (pszSrc && IsFileInBitBucket(pszSrc))
-    {
+    if (pszSrc && IsFileInBitBucket(pszSrc)) {
         pszTemp = pszSrc;
 
-        while (*pszTemp)
-        {
+        while (*pszTemp) {
             FOUndo_FileRestored(pszTemp);
             pszTemp += (lstrlen(pszTemp) + 1);
         }
@@ -2095,8 +1905,7 @@ STDAPI_(BOOL) IsRecycleBinEmpty()
 {
     int i;
 
-    for (i = 0; i < MAX_BITBUCKETS; i++)
-    {
+    for (i = 0; i < MAX_BITBUCKETS; i++) {
         if (CountDeletedFilesOnDrive(i, NULL, 1))
             return FALSE;
     }
@@ -2130,24 +1939,19 @@ int CountDeletedFilesOnDrive(int idDrive, LPDWORD pdwSize, int iMaxFiles)
 
     hFile = FindFirstFile(szBBFileSpec, &wfd);
 
-    if (hFile == INVALID_HANDLE_VALUE)
-    {
+    if (hFile == INVALID_HANDLE_VALUE) {
         return 0;
     }
 
-    do
-    {
-        if (PathIsDotOrDotDot(wfd.cFileName) || lstrcmpi(wfd.cFileName, c_szDesktopIni) == 0)
-        {
+    do {
+        if (PathIsDotOrDotDot(wfd.cFileName) || lstrcmpi(wfd.cFileName, c_szDesktopIni) == 0) {
             continue;
         }
 
         cFiles++;
 
-        if (pdwSize)
-        {
-            if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            {
+        if (pdwSize) {
+            if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
                 FOLDERCONTENTSINFO fci = {0};
                 TCHAR szDir[MAX_PATH];
                 fci.bContinue = TRUE;
@@ -2159,9 +1963,7 @@ int CountDeletedFilesOnDrive(int idDrive, LPDWORD pdwSize, int iMaxFiles)
                 PathAppend(szDir, wfd.cFileName);
                 FolderSize(szDir, &fci);
                 *pdwSize += (DWORD)(fci.cbSize);
-            }
-            else
-            {
+            } else {
                 // simple file case
                 *pdwSize += wfd.nFileSizeLow;
             }
@@ -2200,8 +2002,7 @@ int BBTotalCount(LPINT pidDrive, LPDWORD pdwSize, int iMaxFiles)
     if (pdwSize)
         *pdwSize = 0;
 
-    for (i = 0; i < MAX_BITBUCKETS; i++)
-    {
+    for (i = 0; i < MAX_BITBUCKETS; i++) {
         int nFilesOld = nFiles;
 
         nFiles += CountDeletedFilesOnDrive(i, pdwSize ? &dwSize : NULL, iMaxFiles - nFilesOld);
@@ -2209,8 +2010,7 @@ int BBTotalCount(LPINT pidDrive, LPDWORD pdwSize, int iMaxFiles)
         if (pdwSize)
             *pdwSize += dwSize;
 
-        if (nFilesOld == 0 && nFiles == 1)
-        {
+        if (nFilesOld == 0 && nFiles == 1) {
             // if just one file, set the drive id
             idDrive = i;
         }
@@ -2237,23 +2037,20 @@ SHSTDAPI SHQueryRecycleBin(LPCTSTR pszRootPath, LPSHQUERYRBINFO pSHQueryInfo)
 
     // since this fn is exported, we need to check to see if we need to
     // init our global data first
-    if (!InitBBGlobals())
-    {
+    if (!InitBBGlobals()) {
         return E_OUTOFMEMORY;
     }
 
-    if (!pSHQueryInfo                                   ||
-        (pSHQueryInfo->cbSize < sizeof(SHQUERYRBINFO))  ||
-        !pszRootPath                                    ||
-        (pszRootPath[0] == TEXT('\0')))
-    {
+    if (!pSHQueryInfo ||
+        (pSHQueryInfo->cbSize < sizeof(SHQUERYRBINFO)) ||
+        !pszRootPath ||
+        (pszRootPath[0] == TEXT('\0'))) {
         return E_INVALIDARG;
     }
 
     idDrive = DriveIDFromBBPath(pszRootPath);
 
-    if (MakeBitBucket(idDrive))
-    {
+    if (MakeBitBucket(idDrive)) {
         dwNumItems = CountDeletedFilesOnDrive(idDrive, &dwSize, 0);
     }
 
@@ -2289,31 +2086,25 @@ SHSTDAPI SHEmptyRecycleBin(HWND hWnd, LPCTSTR pszRootPath, DWORD dwFlags)
 {
     // since this fn is exported, we need to check to see if we need to
     // init our global data first
-    if (!InitBBGlobals())
-    {
+    if (!InitBBGlobals()) {
         // this could happen in low memory situations, we have no choice but
         // to abort the empty
         return E_OUTOFMEMORY;
     }
 
-    if ((pszRootPath == NULL) || (*pszRootPath == TEXT('\0')))
-    {
+    if ((pszRootPath == NULL) || (*pszRootPath == TEXT('\0'))) {
         BBPurgeAll(NULL, hWnd, dwFlags);
-    }
-    else
-    {
+    } else {
         int idDrive;
 
         idDrive = DriveIDFromBBPath(pszRootPath);
 
         // note: we include MAX_DRIVES(26) which is SERVERDRIVE case!
-        if ((idDrive < 0) || (idDrive > MAX_DRIVES))
-        {
+        if ((idDrive < 0) || (idDrive > MAX_DRIVES)) {
             return (E_INVALIDARG);
         }
 
-        if (MakeBitBucket(idDrive))
-        {
+        if (MakeBitBucket(idDrive)) {
             PurgeOneBitBucket(hWnd, idDrive, dwFlags);
         }
     }
@@ -2348,16 +2139,12 @@ void MarkBBPurgeAllTime(BOOL bStart)
     if (g_dwStopWatchMode == 0xffffffff)
         g_dwStopWatchMode = StopWatchMode();    // Since the stopwatch funcs live in shdocvw, delay this call so we don't load shdocvw until we need to
 
-    if (g_dwStopWatchMode)
-    {
+    if (g_dwStopWatchMode) {
         lstrcpy((LPTSTR)szText, TEXT("Shell Empty Recycle"));
-        if (bStart)
-        {
+        if (bStart) {
             lstrcat((LPTSTR)szText, TEXT(": Start"));
             StopWatch_Start(SWID_BITBUCKET, (LPCTSTR)szText, SPMODE_SHELL | SPMODE_DEBUGOUT);
-        }
-        else
-        {
+        } else {
             lstrcat((LPTSTR)szText, TEXT(": Stop"));
             StopWatch_Stop(SWID_BITBUCKET, (LPCTSTR)szText, SPMODE_SHELL | SPMODE_DEBUGOUT);
         }
@@ -2365,13 +2152,13 @@ void MarkBBPurgeAllTime(BOOL bStart)
 }
 
 
-void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
+void BBPurgeAll(CBitBucket* this, HWND hwndOwner, DWORD dwFlags)
 {
     TCHAR szPath[MAX_PATH * 2 + 3]; // null space and double null termination
     int nFiles;
     int idDrive;
     BOOL fConfirmed;
-    SHFILEOPSTRUCT sFileOp ={hwndOwner,
+    SHFILEOPSTRUCT sFileOp = {hwndOwner,
                              FO_DELETE,
                              szPath,
                              NULL,
@@ -2381,8 +2168,7 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
                              MAKEINTRESOURCE(IDS_BB_EMPTYINGWASTEBASKET)};
 
     // check to see if we need to init our global data first
-    if (!InitBBGlobals())
-    {
+    if (!InitBBGlobals()) {
         // this could happen in low memory situations, we have no choice but
         // to fail the empty
         return;
@@ -2395,8 +2181,7 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
 
     fConfirmed = (dwFlags & SHERB_NOCONFIRMATION);
 
-    if (!fConfirmed)
-    {
+    if (!fConfirmed) {
         // find out how many files we have...
         BBDATAENTRYW bbdew;
         TCHAR szSrcName[MAX_PATH];
@@ -2407,10 +2192,8 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
 
         nFiles = BBTotalCount(&idDrive, NULL, MAX_EMPTY_FILES);
 
-        if (!nFiles)
-        {
-            if (g_dwStopWatchMode)
-            {
+        if (!nFiles) {
+            if (g_dwStopWatchMode) {
                 MarkBBPurgeAllTime(FALSE);
             }
             return;   // no files to delete
@@ -2422,8 +2205,7 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
         // We have to call IsBitBucketInited() here since we could be in BBPurgeAll as a result
         // of a corrupt bitbucket. In this case, the g_pBitBucket[idDrive] has not been inited and
         // therefore we can't use it yet
-        if (nFiles == 1 && IsBitBucketInited(idDrive))
-        {
+        if (nFiles == 1 && IsBitBucketInited(idDrive)) {
             HANDLE hFile;
             BOOL fSuccess;
 
@@ -2434,8 +2216,7 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
             hFile = OpenBBInfoFile(idDrive, OPENBBINFO_READ, 0);
             fSuccess = (hFile != INVALID_HANDLE_VALUE) && ReadNextDataEntry(hFile, &bbdew, TRUE, g_pBitBucket[idDrive]->fIsUnicode ? SIZEOF(BBDATAENTRYW) : SIZEOF(BBDATAENTRYA), idDrive);
 
-            if (hFile)
-            {
+            if (hFile) {
                 CloseBBInfoFile(hFile, idDrive);
             }
 
@@ -2443,17 +2224,14 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
             MRSW_LeaveRead(g_pBitBucket[idDrive]->pmrsw);
 #endif // BB_USE_MRSW
 
-            if (!fSuccess)
-            {
-                if (g_dwStopWatchMode)
-                {
+            if (!fSuccess) {
+                if (g_dwStopWatchMode) {
                     MarkBBPurgeAllTime(FALSE);
                 }
                 return; // no files to delete
             }
 
-            if (g_pBitBucket[idDrive]->fIsUnicode)
-            {
+            if (g_pBitBucket[idDrive]->fIsUnicode) {
 #ifdef UNICODE
                 // this is a unicode drive, so use the unicode original name
                 pszSrc = bbdew.szOriginal;
@@ -2464,9 +2242,7 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
                                     NULL, NULL);
                 pszSrc = szSrcName;
 #endif
-            }
-            else
-            {
+            } else {
                 LPBBDATAENTRYA pbbdea = (LPBBDATAENTRYA)&bbdew;
 #ifdef UNICODE
                 MultiByteToWideChar(CP_ACP, 0,
@@ -2477,13 +2253,10 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
                 pszSrc = pbbdea->szOriginal;
 #endif
             }
-        }
-        else
-        {
+        } else {
             // If we haven't inited this bucket yet or there are greater than MAX_EMPTY_FILES,
             // then use the generic empty message
-            if (nFiles == 1 || nFiles > MAX_EMPTY_FILES)
-            {
+            if (nFiles == 1 || nFiles > MAX_EMPTY_FILES) {
                 // counting up the total # of files in the bitbucket scales as
                 // the # of files (duh!). This can get pretty expensive, so if there
                 // are more than MAX_EMPTY_FILES in the bin, we just give a generic
@@ -2496,26 +2269,21 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
             pszSrc = (LPTSTR)c_szNULL;
         }
 
-        if (ConfirmFileOp(hwndOwner, NULL, &cd, nFiles, 0, CONFIRM_DELETE_FILE | CONFIRM_WASTEBASKET_PURGE, pszSrc, &fd, NULL, &fd, NULL) == IDYES)
-        {
+        if (ConfirmFileOp(hwndOwner, NULL, &cd, nFiles, 0, CONFIRM_DELETE_FILE | CONFIRM_WASTEBASKET_PURGE, pszSrc, &fd, NULL, &fd, NULL) == IDYES) {
             fConfirmed = TRUE;
         }
     }
 
-    if (fConfirmed)
-    {
+    if (fConfirmed) {
         DECLAREWAITCURSOR;
         SetWaitCursor();
 
-        if (dwFlags & SHERB_NOPROGRESSUI)
-        {
+        if (dwFlags & SHERB_NOPROGRESSUI) {
             sFileOp.fFlags |= FOF_SILENT;
         }
 
-        for (idDrive = 0; (idDrive < MAX_BITBUCKETS) && !sFileOp.fAnyOperationsAborted; idDrive++)
-        {
-            if (MakeBitBucket(idDrive))
-            {
+        for (idDrive = 0; (idDrive < MAX_BITBUCKETS) && !sFileOp.fAnyOperationsAborted; idDrive++) {
+            if (MakeBitBucket(idDrive)) {
                 HANDLE hFile;
 
                 // nuke all the BB files (d*.*)
@@ -2533,18 +2301,14 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
 
                 hFile = OpenBBInfoFile(idDrive, OPENBBINFO_WRITE, 0);
 
-                if (INVALID_HANDLE_VALUE != hFile)
-                {
+                if (INVALID_HANDLE_VALUE != hFile) {
                     // now do the actual delete.
-                    if (SHFileOperation(&sFileOp) || sFileOp.fAnyOperationsAborted)
-                    {
+                    if (SHFileOperation(&sFileOp) || sFileOp.fAnyOperationsAborted) {
                         TraceMsg(TF_BITBUCKET, "Bitbucket: emptying bucket on %s failed or user aborted", szPath);
 
                         // NOTE: the info file may point to some files that have been deleted,
                         // it will be cleaned up later
-                    }
-                    else
-                    {
+                    } else {
                         // reset the info file since we deleted in while emptying
                         ResetInfoFileHeader(hFile, g_pBitBucket[idDrive]->fIsUnicode);
                     }
@@ -2564,8 +2328,7 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
             }
         }
 
-        if (!(dwFlags & SHERB_NOSOUND))
-        {
+        if (!(dwFlags & SHERB_NOSOUND)) {
             SHPlaySound(TEXT("EmptyRecycleBin"));
         }
 
@@ -2573,8 +2336,7 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
         ResetWaitCursor();
     }
 
-    if (g_dwStopWatchMode)
-    {
+    if (g_dwStopWatchMode) {
         MarkBBPurgeAllTime(FALSE);
     }
 }
@@ -2582,8 +2344,7 @@ void BBPurgeAll(CBitBucket *this, HWND hwndOwner, DWORD dwFlags)
 
 BOOL BBNukeFile(LPCTSTR pszPath, DWORD dwAttribs)
 {
-    if (Win32DeleteFile(pszPath))
-    {
+    if (Win32DeleteFile(pszPath)) {
         FOUndo_FileReallyDeleted((LPTSTR)pszPath);
         return TRUE;
     }
@@ -2597,30 +2358,23 @@ BOOL BBNukeFolder(LPCTSTR pszDir)
     TCHAR szPath[MAX_PATH];
     BOOL fRet;
 
-    if (PathCombine(szPath, pszDir, c_szStarDotStar))
-    {
+    if (PathCombine(szPath, pszDir, c_szStarDotStar)) {
         WIN32_FIND_DATA fd;
         HANDLE hfind = FindFirstFile(szPath, &fd);
-        if (hfind != INVALID_HANDLE_VALUE)
-        {
-            do
-            {
+        if (hfind != INVALID_HANDLE_VALUE) {
+            do {
                 LPTSTR pszFile = fd.cAlternateFileName[0] ? fd.cAlternateFileName : fd.cFileName;
 
-                if (pszFile[0] != TEXT('.'))
-                {
+                if (pszFile[0] != TEXT('.')) {
                     // use the short path name so that we
                     // don't have to worry about max path
                     PathCombine(szPath, pszDir, pszFile);
 
-                    if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-                    {
+                    if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
                         // even if this fails, we keep going.
                         // we want to delete as much as possible
                         BBNukeFolder(szPath);
-                    }
-                    else
-                    {
+                    } else {
                         BBNukeFile(szPath, fd.dwFileAttributes);
                     }
                 }
@@ -2633,8 +2387,7 @@ BOOL BBNukeFolder(LPCTSTR pszDir)
     fRet = Win32RemoveDirectory(pszDir);
 
     // if everything was successful, we need to notify any undo stuff about this
-    if (fRet)
-    {
+    if (fRet) {
         FOUndo_FileReallyDeleted((LPTSTR)szPath);
     }
 
@@ -2650,15 +2403,11 @@ BOOL BBNuke(LPCTSTR pszPath)
 
     TraceMsg(TF_BITBUCKET, "Bitbucket: BBNuke called on %s ", pszPath);
 
-    if (dwAttribs != (UINT)-1)
-    {
+    if (dwAttribs != (UINT)-1) {
         // this was a directory, we need to recurse in and delete everything inside
-        if (dwAttribs & FILE_ATTRIBUTE_DIRECTORY)
-        {
+        if (dwAttribs & FILE_ATTRIBUTE_DIRECTORY) {
             fRet = BBNukeFolder(pszPath);
-        }
-        else
-        {
+        } else {
             fRet = BBNukeFile(pszPath, dwAttribs);
         }
     }
@@ -2673,8 +2422,7 @@ DWORD PurgeBBFiles(int idDrive)
 
     CountDeletedFilesOnDrive(idDrive, &dwCurrentSize, 0);
 
-    if (dwCurrentSize > g_pBitBucket[idDrive]->cbMaxSize)
-    {
+    if (dwCurrentSize > g_pBitBucket[idDrive]->cbMaxSize) {
         TCHAR szBBPath[MAX_PATH];
         BBDATAENTRYW bbdew;
         HANDLE hFile;
@@ -2688,11 +2436,9 @@ DWORD PurgeBBFiles(int idDrive)
 
         hFile = OpenBBInfoFile(idDrive, OPENBBINFO_WRITE, 0);
 
-        if (hFile != INVALID_HANDLE_VALUE)
-        {
+        if (hFile != INVALID_HANDLE_VALUE) {
             // while we're too big, find something to delete
-            while (dwCurrentSize > g_pBitBucket[idDrive]->cbMaxSize && ReadNextDataEntry(hFile, &bbdew, TRUE, dwDataEntrySize, idDrive))
-            {
+            while (dwCurrentSize > g_pBitBucket[idDrive]->cbMaxSize&& ReadNextDataEntry(hFile, &bbdew, TRUE, dwDataEntrySize, idDrive)) {
                 TCHAR szOriginalFileName[MAX_PATH];
                 TCHAR szPath[MAX_PATH];
                 TCHAR szDeletedFile[MAX_PATH];
@@ -2700,12 +2446,9 @@ DWORD PurgeBBFiles(int idDrive)
                 // BUGBUG (reinerf) - need a warning that stuff is going to be deleted when the
                 //                    user changes the % size slider and stuff gets nuked.
 
-                if (g_pBitBucket[idDrive]->fIsUnicode)
-                {
+                if (g_pBitBucket[idDrive]->fIsUnicode) {
                     SHUnicodeToTChar(bbdew.szOriginal, szOriginalFileName, ARRAYSIZE(szOriginalFileName));
-                }
-                else
-                {
+                } else {
                     LPBBDATAENTRYA pbbdea = (LPBBDATAENTRYA)&bbdew;
 
                     SHAnsiToTChar(pbbdea->szOriginal, szOriginalFileName, ARRAYSIZE(szOriginalFileName));
@@ -2731,7 +2474,7 @@ DWORD PurgeBBFiles(int idDrive)
     }
 
     return dwCurrentSize;
-}
+    }
 
 
 // converts C:\RECYCLED\Dc19.foo to 19
@@ -2747,20 +2490,16 @@ int BBPathToIndex(LPCTSTR pszPath)
     if (!lstrcmpi(pszFileName, c_szInfo) ||
         !lstrcmpi(pszFileName, c_szInfo2) ||
         !lstrcmpi(pszFileName, c_szDesktopIni) ||
-        !lstrcmpi(pszFileName, c_szRecycled))
-    {
+        !lstrcmpi(pszFileName, c_szRecycled)) {
         return -1;
     }
 
     PathRemoveExtension(pszFileName);
 
     if (((pszFileName[0] == TEXT('D')) || (pszFileName[0] == TEXT('d'))) &&
-        ISDIGIT(pszFileName[2]))
-    {
+        ISDIGIT(pszFileName[2])) {
         return StrToInt(&pszFileName[2]);
-    }
-    else
-    {
+    } else {
         return -1;
     }
 }
@@ -2775,21 +2514,16 @@ BOOL ReadNextDataEntry(HANDLE hFile, LPBBDATAENTRYW pbbdew, BOOL fSkipDeleted, D
     DWORD dwBytesRead;
 
 TryAgain:
-    if (ReadFile(hFile, pbbdew, dwDataEntrySize, &dwBytesRead, NULL) && dwBytesRead == dwDataEntrySize)
-    {
-        if (fSkipDeleted && IsDeletedEntry(pbbdew))
-        {
+    if (ReadFile(hFile, pbbdew, dwDataEntrySize, &dwBytesRead, NULL) && dwBytesRead == dwDataEntrySize) {
+        if (fSkipDeleted && IsDeletedEntry(pbbdew)) {
             goto TryAgain;
         }
 
         // calculate the original file name
-        if (dwDataEntrySize == SIZEOF(BBDATAENTRYW))
-        {
+        if (dwDataEntrySize == SIZEOF(BBDATAENTRYW)) {
             ASSERT(g_pBitBucket[idDrive]->fIsUnicode);
             SHUnicodeToTChar(pbbdew->szOriginal, szOriginalFileName, ARRAYSIZE(szOriginalFileName));
-        }
-        else
-        {
+        } else {
             LPBBDATAENTRYA pbbdea = (LPBBDATAENTRYA)pbbdew;
 
             ASSERT(!g_pBitBucket[idDrive]->fIsUnicode);
@@ -2798,8 +2532,7 @@ TryAgain:
 
         // We check for a drive that has had its letter changed since this record was added.
         // In this case, we want to restore the files that were deleted on this volume to this volume.
-        if (pbbdew->idDrive != idDrive)
-        {
+        if (pbbdew->idDrive != idDrive) {
             TCHAR szNewPath[MAX_PATH];
 
             DriveIDToBBPath(idDrive, szOldPath);
@@ -2814,8 +2547,7 @@ TryAgain:
             TraceMsg(TF_BITBUCKET, "Bitbucket: found entry %s corospoinding to old drive letter, whacking it to be on drive %d !!", szOldPath, idDrive);
 
             // we need to rename the file from d?0.txt to d<idDrive>0.txt
-            if (!Win32MoveFile(szOldPath, szNewPath, GetFileAttributes(szOldPath) & FILE_ATTRIBUTE_DIRECTORY))
-            {
+            if (!Win32MoveFile(szOldPath, szNewPath, GetFileAttributes(szOldPath) & FILE_ATTRIBUTE_DIRECTORY)) {
                 ASSERTMSG(FALSE, "Bitbucket: failed to rename %s to %s, getlasterror = %d", szOldPath, szNewPath, GetLastError());
                 goto DeleteEntry;
             }
@@ -2823,14 +2555,11 @@ TryAgain:
             // whack the rest of the information about this entry to match the new drive ID
             pbbdew->idDrive = idDrive;
             pbbdew->szShortName[0] = 'A' + (CHAR)idDrive;
-            if (g_pBitBucket[idDrive]->fIsUnicode)
-            {
+            if (g_pBitBucket[idDrive]->fIsUnicode) {
                 // for unicode volumes we need to whack the first letter of the long name as well
                 pbbdew->szOriginal[0] = L'A' + (WCHAR)idDrive;
             }
-        }
-        else
-        {
+        } else {
 
             // Starting with NT5, when we delete or restore items, we dont bother updating the info file.
             // So we need to make sure that the entry we have has not been restored or really nuked.
@@ -2839,22 +2568,18 @@ TryAgain:
             GetDeletedFileName(szDeleteFileName, pbbdew->idDrive, pbbdew->iIndex, szOriginalFileName);
             PathAppend(szOldPath, szDeleteFileName);
 
-            if (!PathFileExists(szOldPath))
-            {
-DeleteEntry:
+            if (!PathFileExists(szOldPath)) {
+            DeleteEntry:
                 // this entry is really deleted, so mark it as such now
                 NukeFileInfoBeforePoint(hFile, pbbdew, dwDataEntrySize);
 
-                if (fSkipDeleted)
-                {
+                if (fSkipDeleted) {
                     goto TryAgain;
                 }
             }
         }
         return TRUE;
-    }
-    else
-    {
+    } else {
         return FALSE;
     }
 }
@@ -2872,8 +2597,7 @@ void NukeFileInfoBeforePoint(HANDLE hFile, LPBBDATAENTRYW pbbdew, DWORD dwDataEn
 
     ASSERT((DWORD)lPos >= dwDataEntrySize + SIZEOF(BBDATAHEADER));
 
-    if ((DWORD)lPos >= dwDataEntrySize + SIZEOF(BBDATAHEADER))
-    {
+    if ((DWORD)lPos >= dwDataEntrySize + SIZEOF(BBDATAHEADER)) {
         // found the entry.. back up the file pointer to the beginning
         // of this record and mark it as deleted
         lPos -= dwDataEntrySize;
@@ -2881,12 +2605,9 @@ void NukeFileInfoBeforePoint(HANDLE hFile, LPBBDATAENTRYW pbbdew, DWORD dwDataEn
 
         MarkEntryDeleted(pbbdew);
 
-        if (WriteFile(hFile, (LPBYTE)pbbdew, dwDataEntrySize, &dwBytesWritten, NULL))
-        {
+        if (WriteFile(hFile, (LPBYTE)pbbdew, dwDataEntrySize, &dwBytesWritten, NULL)) {
             ASSERT(dwDataEntrySize == dwBytesWritten);
-        }
-        else
-        {
+        } else {
             TraceMsg(TF_BITBUCKET, "Bitbucket: couldn't nuke file info");
             // move the file pointer back to where it was when we entered this function
             SetFilePointer(hFile, lPos + dwDataEntrySize, NULL, FILE_BEGIN);
@@ -2932,8 +2653,7 @@ HANDLE OpenBBInfoFile(int idDrive, DWORD dwFlags, int iRetryCount)
     DWORD dwLastErr;
     DECLAREWAITCURSOR;
 
-    if ((iRetryCount == 0) || (iRetryCount > BBINFO_OPEN_MAX_RETRIES))
-    {
+    if ((iRetryCount == 0) || (iRetryCount > BBINFO_OPEN_MAX_RETRIES)) {
         // zero retry count means that the caller wants the max # of retries
         iRetryCount = BBINFO_OPEN_MAX_RETRIES;
     }
@@ -2941,8 +2661,7 @@ HANDLE OpenBBInfoFile(int idDrive, DWORD dwFlags, int iRetryCount)
     DriveIDToBBPath(idDrive, szBBPath);
     GetBBInfo2FileSpec(szBBPath, szInfo);
     // If we are hitting a sharing violation, retry many times
-    do
-    {
+    do {
         nAttempts++;
         hFile = CreateFile(szInfo,
                            GENERIC_READ | ((OPENBBINFO_WRITE & dwFlags) ? GENERIC_WRITE : 0),
@@ -2951,30 +2670,26 @@ HANDLE OpenBBInfoFile(int idDrive, DWORD dwFlags, int iRetryCount)
                            (OPENBBINFO_CREATE & dwFlags) ? OPEN_ALWAYS : OPEN_EXISTING,
                            FILE_ATTRIBUTE_HIDDEN | FILE_FLAG_RANDOM_ACCESS,
                            NULL);
-        if (INVALID_HANDLE_VALUE != hFile)
-        {
+        if (INVALID_HANDLE_VALUE != hFile) {
             // success!
             break;
         }
 
         dwLastErr = GetLastError();
-        if (ERROR_SHARING_VIOLATION != dwLastErr)
-        {
+        if (ERROR_SHARING_VIOLATION != dwLastErr) {
             break;
         }
 
         TraceMsg(TF_BITBUCKET, "Bitbucket: sharing violation on info file (retry %d)", nAttempts - 1);
 
-        if (nAttempts < iRetryCount)
-        {
+        if (nAttempts < iRetryCount) {
             SetWaitCursor();
             Sleep(BBINFO_OPEN_RETRY_PERIOD);
             ResetWaitCursor();
         }
     } while (nAttempts < iRetryCount);
 
-    if (hFile == INVALID_HANDLE_VALUE)
-    {
+    if (hFile == INVALID_HANDLE_VALUE) {
         TraceMsg(TF_BITBUCKET, "Bitbucket: could not open a handle to %s - error 0x%08x!!", szInfo, dwLastErr);
         return INVALID_HANDLE_VALUE;
     }
@@ -2994,14 +2709,12 @@ void BBAddDeletedFileInfo(LPTSTR pszOriginal, LPCTSTR pszShortName, int iIndex, 
     HANDLE hFile;
     BOOL fSuccess = FALSE; // assume failure
 
-    if (g_pBitBucket[idDrive]->fIsUnicode)
-    {
+    if (g_pBitBucket[idDrive]->fIsUnicode) {
 #ifdef UNICODE
         // Create a BBDATAENTRYW from a unicode name
         lstrcpy(bbdew.szOriginal, pszOriginal);
 
-        if (!DoesStringRoundTrip(pszOriginal, bbdew.szShortName, ARRAYSIZE(bbdew.szShortName)))
-        {
+        if (!DoesStringRoundTrip(pszOriginal, bbdew.szShortName, ARRAYSIZE(bbdew.szShortName))) {
             SHUnicodeToAnsi(pszShortName, bbdew.szShortName, ARRAYSIZE(bbdew.szShortName));
         }
 #else
@@ -3010,15 +2723,12 @@ void BBAddDeletedFileInfo(LPTSTR pszOriginal, LPCTSTR pszShortName, int iIndex, 
 
         SHAnsiToUnicode(pszOriginal, bbdew.szOriginal, ARRAYSIZE(bbdew.szOriginal));
 #endif
-    }
-    else
-    {
+    } else {
         LPBBDATAENTRYA pbbdea = (LPBBDATAENTRYA)&bbdew;
 
 #ifdef UNICODE
         // Create a BBDATAENTRYA from a unicode name
-        if (!DoesStringRoundTrip(pszOriginal, pbbdea->szOriginal, ARRAYSIZE(pbbdea->szOriginal)))
-        {
+        if (!DoesStringRoundTrip(pszOriginal, pbbdea->szOriginal, ARRAYSIZE(pbbdea->szOriginal))) {
             SHUnicodeToAnsi(pszShortName, pbbdea->szOriginal, ARRAYSIZE(pbbdea->szOriginal));
         }
 #else
@@ -3046,8 +2756,7 @@ void BBAddDeletedFileInfo(LPTSTR pszOriginal, LPCTSTR pszShortName, int iIndex, 
     // now write it to the file
     hFile = OpenBBInfoFile(idDrive, OPENBBINFO_WRITE, 0);
 
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
+    if (hFile != INVALID_HANDLE_VALUE) {
         DWORD dwDataEntrySize = g_pBitBucket[idDrive]->fIsUnicode ? SIZEOF(BBDATAENTRYW) : SIZEOF(BBDATAENTRYA);
 
 
@@ -3055,8 +2764,7 @@ void BBAddDeletedFileInfo(LPTSTR pszOriginal, LPCTSTR pszShortName, int iIndex, 
         // thus the second would not be appending to the file, he would be deleteing the first's changes.
         SetFilePointer(hFile, 0, NULL, FILE_END);
 
-        if (WriteFile(hFile, (LPSTR)&bbdew, dwDataEntrySize, &dwBytesWritten, NULL) && dwDataEntrySize == dwBytesWritten)
-        {
+        if (WriteFile(hFile, (LPSTR)&bbdew, dwDataEntrySize, &dwBytesWritten, NULL) && dwDataEntrySize == dwBytesWritten) {
             fSuccess = TRUE;
         }
 
@@ -3067,8 +2775,7 @@ void BBAddDeletedFileInfo(LPTSTR pszOriginal, LPCTSTR pszShortName, int iIndex, 
     MRSW_LeaveRead(g_pBitBucket[idDrive]->pmrsw);
 #endif // BB_USE_MRSW
 
-    if (!fSuccess)
-    {
+    if (!fSuccess) {
         TCHAR szBBPath[MAX_PATH];
         TCHAR szFileName[MAX_PATH];
 
@@ -3081,9 +2788,7 @@ void BBAddDeletedFileInfo(LPTSTR pszOriginal, LPCTSTR pszShortName, int iIndex, 
 
         // now delete it
         BBNuke(szBBPath);
-    }
-    else
-    {
+    } else {
         BOOL bPurge = TRUE;
 
         // since we sucessfully deleted a file, we set this so at the end of the last SHFileOperation call on this drive
@@ -3142,17 +2847,14 @@ BOOL CreateSecureRecyclerDirectory(LPCTSTR pszPath)
     BOOL fSuccess = FALSE;      // assume failure
     SECURITY_DESCRIPTOR* psd = CreateRecycleBinSecurityDescriptor();
 
-    if (psd)
-    {
+    if (psd) {
         DWORD cbSA = GetSecurityDescriptorLength(psd);
         SECURITY_DESCRIPTOR* psdSelfRelative;
 
         psdSelfRelative = LocalAlloc(LPTR, cbSA);
 
-        if (psdSelfRelative)
-        {
-            if (MakeSelfRelativeSD(psd, psdSelfRelative, &cbSA))
-            {
+        if (psdSelfRelative) {
+            if (MakeSelfRelativeSD(psd, psdSelfRelative, &cbSA)) {
                 SECURITY_ATTRIBUTES sa;
 
                 // Build the security attributes structure
@@ -3189,22 +2891,19 @@ BOOL CreateRecyclerDirectory(int idDrive)
 
     bExists = PathIsDirectory(szPath);
 
-    if (!bExists)
-    {
+    if (!bExists) {
 #ifdef WINNT
         if (CMtPt_IsSecure(idDrive)) // BUGBUG (reinerf) - really need a PathIsSecure(szPath) check instead, that works on UNC's too.
         {
             bExists = CreateSecureRecyclerDirectory(szPath);
-        }
-        else
+        } else
 #endif // WINNT
         {
             bExists = (SHCreateDirectoryEx(NULL, szPath, NULL) == ERROR_SUCCESS);
-        }
     }
+}
 
-    if (bExists)
-    {
+    if (bExists) {
         PathAppend(szPath, c_szDesktopIni);
         // CLSID_RecycleBin
         WritePrivateProfileString(c_szClassInfo, c_szCLSID, TEXT("{645FF040-5081-101B-9F08-00AA002F954E}"), szPath);
@@ -3212,8 +2911,7 @@ BOOL CreateRecyclerDirectory(int idDrive)
 
         PathRemoveFileSpec(szPath);
         // Hide all of the directories along the way until we hit the BB root
-        do
-        {
+        do {
             SetFileAttributes(szPath, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN);
 
             PathRemoveFileSpec(szPath);
@@ -3235,32 +2933,25 @@ BOOL MakeBitBucket(int idDrive)
 {
     BOOL bRet = FALSE;
 
-    if ((idDrive >= 0)  &&  // dont support recycling for the general UNC case
-        IsBitBucketableDrive(idDrive))
-    {
-        if (IsBitBucketInited(idDrive))
-        {
+    if ((idDrive >= 0) &&  // dont support recycling for the general UNC case
+        IsBitBucketableDrive(idDrive)) {
+        if (IsBitBucketInited(idDrive)) {
             LONG lBucketDirtyCount = SHGlobalCounterGetValue(g_pBitBucket[idDrive]->hgcDirtyCount);
             LONG lGlobalDirtyCount = SHGlobalCounterGetValue(g_hgcGlobalDirtyCount);
 
             // check to see if we need to refresh the settings for this bucket
-            if (lGlobalDirtyCount > g_lProcessDirtyCount)
-            {
-        // global settings change, so refresh all buckets
+            if (lGlobalDirtyCount > g_lProcessDirtyCount) {
+                // global settings change, so refresh all buckets
                 g_lProcessDirtyCount = lGlobalDirtyCount;
                 RefreshAllBBDriveSettings();
-            }
-            else if (lBucketDirtyCount > g_pBitBucket[idDrive]->lCurrentDirtyCount)
-            {
-        // just this buckets settings changed, so refresh only this one
+            } else if (lBucketDirtyCount > g_pBitBucket[idDrive]->lCurrentDirtyCount) {
+                // just this buckets settings changed, so refresh only this one
                 g_pBitBucket[idDrive]->lCurrentDirtyCount = lBucketDirtyCount;
                 RefreshBBDriveSettings(idDrive);
             }
 
             bRet = TRUE;
-        }
-        else
-        {
+        } else {
             bRet = AllocBBDriveInfo(idDrive);
         }
     }
@@ -3283,12 +2974,9 @@ BOOL BBWillRecycle(LPCTSTR pszFile, INT* piRet)
     int idDrive = DriveIDFromBBPath(pszFile);
 
     // MakeBitBucket will ensure that the global & per-bucket settings we have are current
-    if (!MakeBitBucket(idDrive) || g_pBitBucket[idDrive]->fNukeOnDelete || (g_pBitBucket[idDrive]->iPercent == 0))
-    {
+    if (!MakeBitBucket(idDrive) || g_pBitBucket[idDrive]->fNukeOnDelete || (g_pBitBucket[idDrive]->iPercent == 0)) {
         iRet = BBDELETE_FORCE_NUKE;
-    }
-    else if (SERVERDRIVE == idDrive)
-    {
+    } else if (SERVERDRIVE == idDrive) {
         // Check to see if the serverdrive is offline (don't recycle while offline to prevent
         // synchronization conflicts when coming back online):
         TCHAR szVolume[MAX_PATH];
@@ -3296,14 +2984,12 @@ BOOL BBWillRecycle(LPCTSTR pszFile, INT* piRet)
         DriveIDToBBVolumeRoot(idDrive, szVolume);
 
         lStatus = GetOfflineShareStatus(szVolume);
-        if ((CSC_SHARESTATUS_OFFLINE == lStatus) || (CSC_SHARESTATUS_SERVERBACK == lStatus))
-        {
+        if ((CSC_SHARESTATUS_OFFLINE == lStatus) || (CSC_SHARESTATUS_SERVERBACK == lStatus)) {
             iRet = BBDELETE_NUKE_OFFLINE;
         }
     }
 
-    if (piRet)
-    {
+    if (piRet) {
         *piRet = iRet;
     }
     return (BBDELETE_SUCCESS == iRet);
@@ -3318,42 +3004,35 @@ void CheckCompactAndPurge()
     TCHAR szBBKey[MAX_PATH];
     HKEY hkBBPerUser;
 
-    for (i = 0; i < MAX_BITBUCKETS ; i++)
-    {
+    for (i = 0; i < MAX_BITBUCKETS; i++) {
         DriveIDToBBRegKey(i, szBBKey);
 
         // NOTE: these function needs to manually construct the key because it would like to avoid calling MakeBitBucket()
         // for drives that it has yet to look at (this is a performance optimization)
-        if (RegOpenKeyEx(g_hkBitBucketPerUser, szBBKey, 0, KEY_QUERY_VALUE |  KEY_SET_VALUE, &hkBBPerUser) == ERROR_SUCCESS)
-        {
+        if (RegOpenKeyEx(g_hkBitBucketPerUser, szBBKey, 0, KEY_QUERY_VALUE | KEY_SET_VALUE, &hkBBPerUser) == ERROR_SUCCESS) {
             BOOL bCompact = FALSE;
             BOOL bPurge = FALSE;
             DWORD dwSize;
 
             dwSize = SIZEOF(bCompact);
-            if (RegQueryValueEx(hkBBPerUser, TEXT("NeedToCompact"), NULL, NULL, (LPBYTE)&bCompact, &dwSize) == ERROR_SUCCESS && bCompact == TRUE)
-            {
+            if (RegQueryValueEx(hkBBPerUser, TEXT("NeedToCompact"), NULL, NULL, (LPBYTE)&bCompact, &dwSize) == ERROR_SUCCESS && bCompact == TRUE) {
                 // reset this key so no one else tries to compact this bitbucket
                 RegDeleteValue(hkBBPerUser, TEXT("NeedToCompact"));
             }
 
             dwSize = SIZEOF(bPurge);
-            if (RegQueryValueEx(hkBBPerUser, TEXT("NeedToPurge"), NULL, NULL, (LPBYTE)&bPurge, &dwSize) == ERROR_SUCCESS && bPurge == TRUE)
-            {
+            if (RegQueryValueEx(hkBBPerUser, TEXT("NeedToPurge"), NULL, NULL, (LPBYTE)&bPurge, &dwSize) == ERROR_SUCCESS && bPurge == TRUE) {
                 // reset this key so no one else tries to purge this bitbucket
                 RegDeleteValue(hkBBPerUser, TEXT("NeedToPurge"));
             }
 
-            if (MakeBitBucket(i))
-            {
-                if (bCompact)
-                {
-                    TraceMsg(TF_BITBUCKET, "Bitbucket: compacting drive %d",i);
+            if (MakeBitBucket(i)) {
+                if (bCompact) {
+                    TraceMsg(TF_BITBUCKET, "Bitbucket: compacting drive %d", i);
                     CompactBBInfoFile(i);
                 }
 
-                if (bPurge)
-                {
+                if (bPurge) {
                     TraceMsg(TF_BITBUCKET, "Bitbucket: purging drive %d", i);
                     PurgeBBFiles(i);
                 }
@@ -3393,7 +3072,7 @@ void CheckCompactAndPurge()
 //                BBDELETE_UNKNOWN_ERROR    - Some other error occured, GetLastError() should explain why we failed.
 
 
-BOOL BBDeleteFile(LPTSTR pszFile, INT* piRet, LPUNDOATOM lpua, BOOL fIsDir, WIN32_FIND_DATA *pfd)
+BOOL BBDeleteFile(LPTSTR pszFile, INT* piRet, LPUNDOATOM lpua, BOOL fIsDir, WIN32_FIND_DATA* pfd)
 {
     int iRet;
     TCHAR szBitBucket[MAX_PATH];
@@ -3405,24 +3084,21 @@ BOOL BBDeleteFile(LPTSTR pszFile, INT* piRet, LPUNDOATOM lpua, BOOL fIsDir, WIN3
     int idDrive = DriveIDFromBBPath(pszFile);
 
     // check to see if we need to init our global data first
-    if (!InitBBGlobals())
-    {
+    if (!InitBBGlobals()) {
         // this could happen in low memory situations, we have no choice but
         // to really nuke the file
         *piRet = BBDELETE_FORCE_NUKE;
         return FALSE;
     }
 
-    if (!BBWillRecycle(pszFile, piRet))
-    {
+    if (!BBWillRecycle(pszFile, piRet)) {
         // We failed to create the recycler directory on the volume, or
         // this is the case where the user has "delete files immeadately" set, or
         // % max size=0, etc.
         return FALSE;
     }
 
-    if (fIsDir)
-    {
+    if (fIsDir) {
         DWORD dwError;
         FOLDERDELETEINFO fdi = {0};
 
@@ -3430,19 +3106,15 @@ BOOL BBDeleteFile(LPTSTR pszFile, INT* piRet, LPUNDOATOM lpua, BOOL fIsDir, WIN3
 
         dwError = CheckFolderSizeAndDeleteability(pszFile, &fdi);
 
-        if (dwError != ERROR_SUCCESS)
-        {
+        if (dwError != ERROR_SUCCESS) {
             // if CheckFolderSizeAndDeleteability can fail if a file cant be recycled.
             // In this case, it appends the name of the file to pszFile, so we know who
             // the undeletable file is.
             if ((dwError == ERROR_FILENAME_EXCED_RANGE) ||
-                (dwError == ERROR_BUFFER_OVERFLOW))
-            {
+                (dwError == ERROR_BUFFER_OVERFLOW)) {
                 // it failed because a new path would be to long after being moveed under the "C:\recycler\sid" directory
                 *piRet = BBDELETE_PATH_TOO_LONG;
-            }
-            else
-            {
+            } else {
                 // must be a non-deletable directory, so set piRet = BBDELETE_CANNOT_DELETE so our caller
                 // can detect this case, also pass the name of the non-deletable file back out so we can give
                 // a better error message to the user
@@ -3455,24 +3127,20 @@ BOOL BBDeleteFile(LPTSTR pszFile, INT* piRet, LPUNDOATOM lpua, BOOL fIsDir, WIN3
         }
 
         ulSize.QuadPart = fdi.cbSize;
-    }
-    else
-    {
-        if (!IsFileDeletable(pszFile))
-        {
+    } else {
+        if (!IsFileDeletable(pszFile)) {
             // We set piRet = BBDELETE_CANNOT_DELETE so our caller can detect
             // that this file cant be recycled.
             *piRet = BBDELETE_CANNOT_DELETE;
             return FALSE;
         }
 
-        ulSize.LowPart  = pfd->nFileSizeLow;
+        ulSize.LowPart = pfd->nFileSizeLow;
         ulSize.HighPart = pfd->nFileSizeHigh;
     }
 
     // check to make sure it's not bigger than the allowed wastebasket..
-    if (ulSize.HighPart || g_pBitBucket[idDrive]->cbMaxSize <= ulSize.LowPart)
-    {
+    if (ulSize.HighPart || g_pBitBucket[idDrive]->cbMaxSize <= ulSize.LowPart) {
         // we set piRet = BBDELETE_SIZE_TOO_BIG so our caller can
         // detect the "file/folder too big" case
         *piRet = BBDELETE_SIZE_TOO_BIG;
@@ -3484,8 +3152,7 @@ BOOL BBDeleteFile(LPTSTR pszFile, INT* piRet, LPUNDOATOM lpua, BOOL fIsDir, WIN3
     // a unicode path and we need the ansi short path in case a win95 machine later tries to
     // restore this file. We can't do this later because GetShortPathName relies on the
     // file actually exising.
-    if (!GetShortPathName(pszFile, szShortFileName, ARRAYSIZE(szShortFileName)))
-    {
+    if (!GetShortPathName(pszFile, szShortFileName, ARRAYSIZE(szShortFileName))) {
         ASSERTMSG(FALSE, "Bitbucket: BBDeleteFile failed to get a short name for %s !", pszFile);
         lstrcpyn(szShortFileName, pszFile, ARRAYSIZE(szShortFileName));
     }
@@ -3497,39 +3164,31 @@ TryMoveAgain:
     GetDeletedFileName(szFileName, idDrive, iIndex, pszFile);
     DriveIDToBBPath(idDrive, szBitBucket);
 
-    if (PathAppend(szBitBucket, szFileName))
-    {
+    if (PathAppend(szBitBucket, szFileName)) {
         iRet = SHMoveFile(pszFile, szBitBucket, fIsDir ? SHCNE_RMDIR : SHCNE_DELETE);
 
         // do GetLastError here so that we don't get the last error from the PathFileExists
         dwLastError = (iRet ? ERROR_SUCCESS : GetLastError());
 
-        if (!iRet)
-        {
-            if (ERROR_ALREADY_EXISTS == dwLastError)
-            {
+        if (!iRet) {
+            if (ERROR_ALREADY_EXISTS == dwLastError) {
                 TraceMsg(TF_BITBUCKET, "Bitbucket: BBDeleteFile found a file of the same name (%s) - skipping", szBitBucket);
                 // generate a new filename and retry
                 goto TryMoveAgain;
-            }
-            else
-            {
+            } else {
                 // is our recycled directory still there?
                 TCHAR szTemp[MAX_PATH];
                 SHGetPathFromIDList(g_pBitBucket[idDrive]->pidl, szTemp);
                 // if it already exists or there was some error in creating it, bail
                 // else try again
-                if (!PathIsDirectory(szTemp) && CreateRecyclerDirectory(idDrive))
-                {
+                if (!PathIsDirectory(szTemp) && CreateRecyclerDirectory(idDrive)) {
                     // if we did just re-create the directory, we need to reset the info
                     // file or the drive will get corrupted.
                     VerifyBBInfoFileHeader(idDrive);
                     goto TryMoveAgain;
                 }
             }
-        }
-        else
-        {
+        } else {
             // success!
             BBAddDeletedFileInfo(pszFile, szShortFileName, iIndex, idDrive, ulSize.LowPart);
 
@@ -3539,9 +3198,7 @@ TryMoveAgain:
             *piRet = BBDELETE_SUCCESS;
             return TRUE;
         }
-    }
-    else
-    {
+    } else {
         // if path append fails, it probably means that the path is too long
         *piRet = BBDELETE_PATH_TOO_LONG;
         return FALSE;
@@ -3566,10 +3223,8 @@ BOOL IsFileInBitBucket(LPCTSTR pszPath)
     TCHAR szPath[MAX_PATH];
     int idDrive = DriveIDFromBBPath(pszPath);
 
-    if (idDrive != -1)
-    {
-        if (IsBitBucketableDrive(idDrive))
-        {
+    if (idDrive != -1) {
+        if (IsBitBucketableDrive(idDrive)) {
             DriveIDToBBPath(idDrive, szPath);
 
             return(PathCommonPrefix(szPath, pszPath, NULL) == lstrlen(szPath));
@@ -3620,13 +3275,11 @@ void PurgeOneBitBucket(HWND hwnd, int idDrive, DWORD dwFlags)
 
     ASSERT(g_pBitBucket[idDrive] && (g_pBitBucket[idDrive] != (PBBSYNCOBJECT)-1));
 
-    if (dwFlags & SHERB_NOCONFIRMATION)
-    {
+    if (dwFlags & SHERB_NOCONFIRMATION) {
         sFileOp.fFlags |= FOF_NOCONFIRMATION;
     }
 
-    if (dwFlags & SHERB_NOPROGRESSUI)
-    {
+    if (dwFlags & SHERB_NOPROGRESSUI) {
         sFileOp.fFlags |= FOF_SILENT;
     }
 
@@ -3639,18 +3292,14 @@ void PurgeOneBitBucket(HWND hwnd, int idDrive, DWORD dwFlags)
 #endif // BB_USE_MRSW
     hFile = OpenBBInfoFile(idDrive, OPENBBINFO_WRITE, 0);
 
-    if (INVALID_HANDLE_VALUE != hFile)
-    {
+    if (INVALID_HANDLE_VALUE != hFile) {
         // now do the actual delete.
-        if (SHFileOperation(&sFileOp) || sFileOp.fAnyOperationsAborted)
-        {
+        if (SHFileOperation(&sFileOp) || sFileOp.fAnyOperationsAborted) {
             TraceMsg(TF_BITBUCKET, "Bitbucket: emptying bucket on %s failed", szPath);
 
             // NOTE: the info file may point to some files that have been deleted,
             // it will be cleaned up later
-        }
-        else
-        {
+        } else {
             // reset the info file since we just emptied this bucket.
             ResetInfoFileHeader(hFile, g_pBitBucket[idDrive]->fIsUnicode);
         }
@@ -3700,13 +3349,11 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
     BOOL fChangedAttribs = FALSE;
 
     // return false for any network drives (allow UNC)
-    if (IsNetDrive(PathGetDriveNumber(pszDir)))
-    {
+    if (IsNetDrive(PathGetDriveNumber(pszDir))) {
         return FALSE;
     }
 
-    if (PathIsUNC(pszDir) && PathIsDirectoryEmpty(pszDir))
-    {
+    if (PathIsUNC(pszDir) && PathIsDirectoryEmpty(pszDir)) {
         // HACKACK - (reinerf) the rdr sucks and will nuke the file when we call
         // NtSetInformationFile to set the deleted bit on an empty directory even
         // though we pass READ_CONTROL and we still have a handle to the object.
@@ -3717,21 +3364,17 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
 
     // check to see if the dir is readonly
     dwAttributes = GetFileAttributes(pszDir);
-    if ((dwAttributes != -1) && (dwAttributes & FILE_ATTRIBUTE_READONLY))
-    {
+    if ((dwAttributes != -1) && (dwAttributes & FILE_ATTRIBUTE_READONLY)) {
         fChangedAttribs = TRUE;
 
-        if (!SetFileAttributes(pszDir, dwAttributes & ~FILE_ATTRIBUTE_READONLY))
-        {
+        if (!SetFileAttributes(pszDir, dwAttributes & ~FILE_ATTRIBUTE_READONLY)) {
             return FALSE;
         }
     }
 
     TranslationStatus = RtlDosPathNameToNtPathName_U(pszDir, &FileName, NULL, &RelativeName);
-    if (!TranslationStatus)
-    {
-        if (fChangedAttribs)
-        {
+    if (!TranslationStatus) {
+        if (fChangedAttribs) {
             // set the attribs back
             SetFileAttributes(pszDir, dwAttributes);
         }
@@ -3742,12 +3385,9 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
 
     FreeBuffer = FileName.Buffer;
 
-    if (RelativeName.RelativeName.Length)
-    {
+    if (RelativeName.RelativeName.Length) {
         FileName = *(PUNICODE_STRING)&RelativeName.RelativeName;
-    }
-    else
-    {
+    } else {
         RelativeName.ContainingDirectory = NULL;
     }
 
@@ -3757,8 +3397,7 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                                RelativeName.ContainingDirectory,
                                NULL);
 
-    if (IsOS(OS_NT5))
-    {
+    if (IsOS(OS_NT5)) {
 
         // on NT5 we need to do some extra repars point munging
 
@@ -3774,16 +3413,14 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                             FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT);
 
-        if (!NT_SUCCESS(Status))
-        {
+        if (!NT_SUCCESS(Status)) {
 
             // Back level file systems may not support reparse points and thus not
             // support symbolic links.
             // We infer this is the case when the Status is STATUS_INVALID_PARAMETER.
 
 
-            if (Status == STATUS_INVALID_PARAMETER)
-            {
+            if (Status == STATUS_INVALID_PARAMETER) {
 
                 // Re-open not inhibiting the reparse behavior and not needing to read the attributes.
 
@@ -3794,12 +3431,10 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                                     FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                                     FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_FOR_BACKUP_INTENT);
 
-                if (!NT_SUCCESS(Status))
-                {
+                if (!NT_SUCCESS(Status)) {
                     RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
 
-                    if (fChangedAttribs)
-                    {
+                    if (fChangedAttribs) {
                         // set the attribs back
                         SetFileAttributes(pszDir, dwAttributes);
                     }
@@ -3807,13 +3442,10 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                     SetLastError(RtlNtStatusToDosError(Status));
                     return FALSE;
                 }
-            }
-            else
-            {
+            } else {
                 RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
 
-                if (fChangedAttribs)
-                {
+                if (fChangedAttribs) {
                     // set the attribs back
                     SetFileAttributes(pszDir, dwAttributes);
                 }
@@ -3821,9 +3453,7 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                 SetLastError(RtlNtStatusToDosError(Status));
                 return FALSE;
             }
-        }
-        else
-        {
+        } else {
 
             // If we found a reparse point that is not a name grafting operation,
             // either a symbolic link or a mount point, we re-open without
@@ -3831,12 +3461,11 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
 
             Status = NtQueryInformationFile(Handle,
                                             &IoStatusBlock,
-                                            (PVOID) &FileTagInformation,
+                                            (PVOID)&FileTagInformation,
                                             sizeof(FileTagInformation),
                                             FileAttributeTagInformation);
 
-            if (!NT_SUCCESS(Status))
-            {
+            if (!NT_SUCCESS(Status)) {
 
                 // Not all File Systems implement all information classes.
                 // The value STATUS_INVALID_PARAMETER is returned when a non-supported
@@ -3848,13 +3477,11 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                 // the file at hand is not a reparse point.
 
 
-                if ((Status != STATUS_NOT_IMPLEMENTED) && (Status != STATUS_INVALID_PARAMETER))
-                {
+                if ((Status != STATUS_NOT_IMPLEMENTED) && (Status != STATUS_INVALID_PARAMETER)) {
                     RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
                     NtClose(Handle);
 
-                    if (fChangedAttribs)
-                    {
+                    if (fChangedAttribs) {
                         // set the attribs back
                         SetFileAttributes(pszDir, dwAttributes);
                     }
@@ -3864,10 +3491,8 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                 }
             }
 
-            if (NT_SUCCESS(Status) && (FileTagInformation.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
-            {
-                if (FileTagInformation.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT)
-                {
+            if (NT_SUCCESS(Status) && (FileTagInformation.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)) {
+                if (FileTagInformation.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
 
                     // We want to make sure that we return FALSE for mounted volumes. This will cause BBDeleteFile
                     // to return BBDELETE_CANNOT_DELETE so that we will actuall delete the mountpoint and not try to
@@ -3876,9 +3501,8 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                     RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
                     NtClose(Handle);
 
-                    if (fChangedAttribs)
-                    {
-                         // set the attribs back
+                    if (fChangedAttribs) {
+                        // set the attribs back
                         SetFileAttributes(pszDir, dwAttributes);
                     }
 
@@ -3888,8 +3512,7 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                 }
             }
 
-            if (NT_SUCCESS(Status) && (FileTagInformation.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
-            {
+            if (NT_SUCCESS(Status) && (FileTagInformation.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)) {
 
                 // Re-open without inhibiting the reparse behavior and not needing to
                 // read the attributes.
@@ -3902,13 +3525,11 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                                     FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                                     FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_FOR_BACKUP_INTENT);
 
-                if (!NT_SUCCESS(Status))
-                {
+                if (!NT_SUCCESS(Status)) {
 
                     // When the FS Filter is absent, delete it any way.
 
-                    if (Status == STATUS_IO_REPARSE_TAG_NOT_HANDLED)
-                    {
+                    if (Status == STATUS_IO_REPARSE_TAG_NOT_HANDLED) {
 
                         // We re-open (possible 3rd open) for delete access inhibiting the reparse behavior.
 
@@ -3920,12 +3541,10 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                                             FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT);
                     }
 
-                    if (!NT_SUCCESS(Status))
-                    {
+                    if (!NT_SUCCESS(Status)) {
                         RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
 
-                        if (fChangedAttribs)
-                        {
+                        if (fChangedAttribs) {
                             // set the attribs back
                             SetFileAttributes(pszDir, dwAttributes);
                         }
@@ -3936,9 +3555,7 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                 }
             }
         }
-    }
-    else
-    {
+    } else {
 
         // This is the code to open the file handle as it shipped in NT4, we dont need to do any of
         // the reparse point stuff since they are not supported on NT4
@@ -3967,8 +3584,7 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                                   sizeof(Disposition),
                                   FileDispositionInformation);
 
-    if (NT_SUCCESS(Status))
-    {
+    if (NT_SUCCESS(Status)) {
 
         // yep, we were able to set the bit, now unset it so its not delted!
 
@@ -3980,15 +3596,12 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
                                       FileDispositionInformation);
         NtClose(Handle);
 
-        if (fChangedAttribs)
-        {
+        if (fChangedAttribs) {
             // set the attribs back
             SetFileAttributes(pszDir, dwAttributes);
         }
         return TRUE;
-    }
-    else
-    {
+    } else {
 
         // nope couldnt set the del bit. can't be deleted
 
@@ -3996,9 +3609,8 @@ BOOL IsDirectoryDeletable(LPCTSTR pszDir)
 
         NtClose(Handle);
 
-        if (fChangedAttribs)
-        {
-             // set the attribs back
+        if (fChangedAttribs) {
+            // set the attribs back
             SetFileAttributes(pszDir, dwAttributes);
         }
 
@@ -4041,32 +3653,26 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
     BOOL fChangedAttribs = FALSE;
 
     // return false for any network drives
-    if (IsNetDrive(PathGetDriveNumber(pszFile)))
-    {
+    if (IsNetDrive(PathGetDriveNumber(pszFile))) {
         return FALSE;
     }
 
     // check to see if the file is readonly or system
     dwAttributes = GetFileAttributes(pszFile);
-    if (dwAttributes != -1)
-    {
-        if (dwAttributes & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM))
-        {
+    if (dwAttributes != -1) {
+        if (dwAttributes & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM)) {
             fChangedAttribs = TRUE;
 
-            if (!SetFileAttributes(pszFile, dwAttributes & ~(FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM)))
-            {
+            if (!SetFileAttributes(pszFile, dwAttributes & ~(FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM))) {
                 return FALSE;
             }
         }
     }
 
     TranslationStatus = RtlDosPathNameToNtPathName_U(pszFile, &FileName, NULL, &RelativeName);
-    if (!TranslationStatus)
-    {
-        if (fChangedAttribs)
-        {
-             // set the attribs back
+    if (!TranslationStatus) {
+        if (fChangedAttribs) {
+            // set the attribs back
             SetFileAttributes(pszFile, dwAttributes);
         }
 
@@ -4076,12 +3682,9 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
 
     FreeBuffer = FileName.Buffer;
 
-    if (RelativeName.RelativeName.Length)
-    {
+    if (RelativeName.RelativeName.Length) {
         FileName = *(PUNICODE_STRING)&RelativeName.RelativeName;
-    }
-    else
-    {
+    } else {
         RelativeName.ContainingDirectory = NULL;
     }
 
@@ -4091,8 +3694,7 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
                                RelativeName.ContainingDirectory,
                                NULL);
 
-    if (IsOS(OS_NT5))
-    {
+    if (IsOS(OS_NT5)) {
 
         // on NT5 we need to do some extra repars point munging
 
@@ -4101,75 +3703,65 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
         // Open the file for delete access
 
         Status = NtOpenFile(&Handle,
-                            (ACCESS_MASK)DELETE | FILE_READ_ATTRIBUTES | READ_CONTROL,
+            (ACCESS_MASK)DELETE | FILE_READ_ATTRIBUTES | READ_CONTROL,
                             &Obja,
                             &IoStatusBlock,
                             FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                             FILE_NON_DIRECTORY_FILE | FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT);
 
-        if (!NT_SUCCESS(Status))
-        {
+        if (!NT_SUCCESS(Status)) {
 
             // Back level file systems may not support reparse points and thus not
             // support symbolic links.
             // We infer this is the case when the Status is STATUS_INVALID_PARAMETER.
 
 
-            if (Status == STATUS_INVALID_PARAMETER)
-            {
+            if (Status == STATUS_INVALID_PARAMETER) {
 
                 // Open without inhibiting the reparse behavior and not needing to
                 // read the attributes.
 
 
                 Status = NtOpenFile(&Handle,
-                                    (ACCESS_MASK)DELETE | READ_CONTROL,
+                    (ACCESS_MASK)DELETE | READ_CONTROL,
                                     &Obja,
                                     &IoStatusBlock,
                                     FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                                     FILE_NON_DIRECTORY_FILE | FILE_OPEN_FOR_BACKUP_INTENT);
 
-                if (!NT_SUCCESS(Status))
-                {
+                if (!NT_SUCCESS(Status)) {
                     RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
 
-                    if (fChangedAttribs)
-                    {
-                         // set the attribs back
+                    if (fChangedAttribs) {
+                        // set the attribs back
                         SetFileAttributes(pszFile, dwAttributes);
                     }
 
                     SetLastError(RtlNtStatusToDosError(Status));
                     return FALSE;
                 }
-            }
-            else
-            {
+            } else {
                 RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
 
-                if (fChangedAttribs)
-                {
-                     // set the attribs back
+                if (fChangedAttribs) {
+                    // set the attribs back
                     SetFileAttributes(pszFile, dwAttributes);
                 }
 
                 SetLastError(RtlNtStatusToDosError(Status));
                 return FALSE;
             }
-        }
-        else
-        {
+        } else {
 
             // If we found a reparse point that is not a symbolic link, we re-open
             // without inhibiting the reparse behavior.
 
             Status = NtQueryInformationFile(Handle,
                                             &IoStatusBlock,
-                                            (PVOID) &FileTagInformation,
+                                            (PVOID)&FileTagInformation,
                                             sizeof(FileTagInformation),
                                             FileAttributeTagInformation);
-            if (!NT_SUCCESS(Status))
-            {
+            if (!NT_SUCCESS(Status)) {
 
                 // Not all File Systems implement all information classes.
                 // The value STATUS_INVALID_PARAMETER is returned when a non-supported
@@ -4181,14 +3773,12 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
                 // the file at hand is not a reparse point.
 
 
-                if ((Status != STATUS_NOT_IMPLEMENTED) && (Status != STATUS_INVALID_PARAMETER))
-                {
+                if ((Status != STATUS_NOT_IMPLEMENTED) && (Status != STATUS_INVALID_PARAMETER)) {
                     RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
                     NtClose(Handle);
 
-                    if (fChangedAttribs)
-                    {
-                         // set the attribs back
+                    if (fChangedAttribs) {
+                        // set the attribs back
                         SetFileAttributes(pszFile, dwAttributes);
                     }
 
@@ -4197,18 +3787,15 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
                 }
             }
 
-            if (NT_SUCCESS(Status) && (FileTagInformation.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
-            {
-                if (FileTagInformation.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT)
-                {
+            if (NT_SUCCESS(Status) && (FileTagInformation.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)) {
+                if (FileTagInformation.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
                     fIsSymbolicLink = TRUE;
                 }
             }
 
-            if (NT_SUCCESS(Status)                                                 &&
+            if (NT_SUCCESS(Status) &&
                 (FileTagInformation.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) &&
-                !fIsSymbolicLink)
-            {
+                !fIsSymbolicLink) {
 
                 // Re-open without inhibiting the reparse behavior and not needing to
                 // read the attributes.
@@ -4216,39 +3803,35 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
 
                 NtClose(Handle);
                 Status = NtOpenFile(&Handle,
-                                    (ACCESS_MASK)DELETE | READ_CONTROL,
+                    (ACCESS_MASK)DELETE | READ_CONTROL,
                                     &Obja,
                                     &IoStatusBlock,
                                     FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                                     FILE_NON_DIRECTORY_FILE | FILE_OPEN_FOR_BACKUP_INTENT);
 
-                if (!NT_SUCCESS(Status))
-                {
+                if (!NT_SUCCESS(Status)) {
 
                     // When the FS Filter is absent, delete it any way.
 
 
-                    if (Status == STATUS_IO_REPARSE_TAG_NOT_HANDLED)
-                    {
+                    if (Status == STATUS_IO_REPARSE_TAG_NOT_HANDLED) {
 
                         // We re-open (possible 3rd open) for delete access inhibiting the reparse behavior.
 
 
                         Status = NtOpenFile(&Handle,
-                                            (ACCESS_MASK)DELETE | READ_CONTROL,
+                            (ACCESS_MASK)DELETE | READ_CONTROL,
                                             &Obja,
                                             &IoStatusBlock,
                                             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                                             FILE_NON_DIRECTORY_FILE | FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT);
                     }
 
-                    if (!NT_SUCCESS(Status))
-                    {
+                    if (!NT_SUCCESS(Status)) {
                         RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
 
-                        if (fChangedAttribs)
-                        {
-                             // set the attribs back
+                        if (fChangedAttribs) {
+                            // set the attribs back
                             SetFileAttributes(pszFile, dwAttributes);
                         }
 
@@ -4258,9 +3841,7 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
                 }
             }
         }
-    }
-    else
-    {
+    } else {
 
         // This is the code to open the file handle as it shipped in NT4, we dont need to do any of
         // the reparse point stuff since they are not supported on NT4
@@ -4270,20 +3851,18 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
         // Open the file for delete access
 
         Status = NtOpenFile(&Handle,
-                            (ACCESS_MASK)DELETE | READ_CONTROL,
+            (ACCESS_MASK)DELETE | READ_CONTROL,
                             &Obja,
                             &IoStatusBlock,
                             FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                             FILE_NON_DIRECTORY_FILE | FILE_OPEN_FOR_BACKUP_INTENT);
 
-        if (!NT_SUCCESS(Status))
-        {
+        if (!NT_SUCCESS(Status)) {
             RtlFreeHeap(RtlProcessHeap(), 0, FreeBuffer);
 
-            if (fChangedAttribs)
-            {
-                 // set the attribs back
-                SetFileAttributes((LPCTSTR) pszFile, dwAttributes);
+            if (fChangedAttribs) {
+                // set the attribs back
+                SetFileAttributes((LPCTSTR)pszFile, dwAttributes);
             }
 
             SetLastError(RtlNtStatusToDosError(Status));
@@ -4306,8 +3885,7 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
                                   sizeof(Disposition),
                                   FileDispositionInformation);
 
-    if (NT_SUCCESS(Status))
-    {
+    if (NT_SUCCESS(Status)) {
 
         // yep, we were able to set the bit, now unset it so its not delted!
 
@@ -4319,15 +3897,12 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
                                       FileDispositionInformation);
         NtClose(Handle);
 
-        if (fChangedAttribs)
-        {
+        if (fChangedAttribs) {
             // set the attribs back
             SetFileAttributes(pszFile, dwAttributes);
         }
         return TRUE;
-    }
-    else
-    {
+    } else {
 
         // nope couldnt set the del bit. can't be deleted
 
@@ -4335,9 +3910,8 @@ BOOL IsFileDeletable(LPCTSTR pszFile)
 
         NtClose(Handle);
 
-        if (fChangedAttribs)
-        {
-             // set the attribs back
+        if (fChangedAttribs) {
+            // set the attribs back
             SetFileAttributes(pszFile, dwAttributes);
         }
 
@@ -4367,8 +3941,7 @@ LONG CheckFolderSizeAndDeleteability(LPCTSTR pszDir, FOLDERDELETEINFO* pfdi)
     BOOL bHasChildren = FALSE;
 
     // do the root specific processing
-    if (!pfdi->bProcessedRoot)
-    {
+    if (!pfdi->bProcessedRoot) {
         // since the the destination folder could be something like "DC100000.oldext", calculate how many characters are
         // going to be in the new destination directory: "C:\recycler\sid" + "\" + "DC100000.oldext" == the new root directory length
 
@@ -4379,27 +3952,21 @@ LONG CheckFolderSizeAndDeleteability(LPCTSTR pszDir, FOLDERDELETEINFO* pfdi)
         pfdi->bProcessedRoot = TRUE;
     }
 
-    if (PathCombine(pfdi->szPath, pszDir, c_szStarDotStar))
-    {
+    if (PathCombine(pfdi->szPath, pszDir, c_szStarDotStar)) {
         HANDLE hfind = FindFirstFile(pfdi->szPath, &pfdi->fd);
 
         // remove the *.* we added, because we will be recycling this buffer
         PathRemoveFileSpec(pfdi->szPath);
 
-        if (hfind != INVALID_HANDLE_VALUE)
-        {
-            do
-            {
-                if (!PathIsDotOrDotDot(pfdi->fd.cFileName))
-                {
+        if (hfind != INVALID_HANDLE_VALUE) {
+            do {
+                if (!PathIsDotOrDotDot(pfdi->fd.cFileName)) {
                     bHasChildren = TRUE;
 
                     // append the subfile/subfolder to the parent path
-                    if (!PathAppend(pfdi->szPath, pfdi->fd.cFileName))
-                    {
+                    if (!PathAppend(pfdi->szPath, pfdi->fd.cFileName)) {
                         // PathAppend failed, try to append the short name
-                        if (!pfdi->fd.cAlternateFileName[0] || !PathAppend(pfdi->szPath, pfdi->fd.cAlternateFileName))
-                        {
+                        if (!pfdi->fd.cAlternateFileName[0] || !PathAppend(pfdi->szPath, pfdi->fd.cAlternateFileName)) {
                             // no alternate name or we failed to append that as well, assume we failed because the path is too long
                             lRet = ERROR_FILENAME_EXCED_RANGE;
 
@@ -4408,8 +3975,7 @@ LONG CheckFolderSizeAndDeleteability(LPCTSTR pszDir, FOLDERDELETEINFO* pfdi)
                         }
                     }
 
-                    if (lRet == ERROR_SUCCESS)
-                    {
+                    if (lRet == ERROR_SUCCESS) {
                         // we have to check to see if the path will exceed MAX_PATH if we were to move this file to the recycle
                         // bin (C:\Recycler\<sid>). the increase in path length due to the recycle bin dir could be enough to
                         // put us over MAX_PATH and we would have problems later.
@@ -4420,21 +3986,15 @@ LONG CheckFolderSizeAndDeleteability(LPCTSTR pszDir, FOLDERDELETEINFO* pfdi)
 
                             // pass back the name of the non-deleteable file/folder in pfdi->szNonDeletableFile
                             lstrcpyn(pfdi->szNonDeletableFile, pfdi->szPath, ARRAYSIZE(pfdi->szNonDeletableFile));
-                        }
-                        else
-                        {
-                            if (pfdi->fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-                            {
+                        } else {
+                            if (pfdi->fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
                                 // its a directory, so recurse
                                 lRet = CheckFolderSizeAndDeleteability(pfdi->szPath, pfdi);
-                            }
-                            else
-                            {
+                            } else {
                                 // its a file.
                                 ULARGE_INTEGER ulTemp;
 
-                                if (!IsFileDeletable(pfdi->szPath))
-                                {
+                                if (!IsFileDeletable(pfdi->szPath)) {
                                     // we cant delete this file, find out why
                                     lRet = GetLastError();
                                     ASSERT(lRet != ERROR_SUCCESS);
@@ -4443,7 +4003,7 @@ LONG CheckFolderSizeAndDeleteability(LPCTSTR pszDir, FOLDERDELETEINFO* pfdi)
                                     lstrcpyn(pfdi->szNonDeletableFile, pfdi->szPath, ARRAYSIZE(pfdi->szNonDeletableFile));
                                 }
 
-                                ulTemp.LowPart  = pfdi->fd.nFileSizeLow;
+                                ulTemp.LowPart = pfdi->fd.nFileSizeLow;
                                 ulTemp.HighPart = pfdi->fd.nFileSizeHigh;
                                 pfdi->cbSize += ulTemp.QuadPart;
                             }
@@ -4459,20 +4019,16 @@ LONG CheckFolderSizeAndDeleteability(LPCTSTR pszDir, FOLDERDELETEINFO* pfdi)
             FindClose(hfind);
 
             // if this dir has no children, see if we can simply delete it
-            if (!bHasChildren && !IsDirectoryDeletable(pszDir))
-            {
+            if (!bHasChildren && !IsDirectoryDeletable(pszDir)) {
                 lRet = GetLastError();
                 ASSERT(lRet != ERROR_SUCCESS);
 
                 // pass back the name of the non-deleteable file in pfdi->szNonDeletableFile
                 lstrcpyn(pfdi->szNonDeletableFile, pszDir, ARRAYSIZE(pfdi->szNonDeletableFile));
             }
-        }
-        else
-        {
+        } else {
             // if FindFirstFile fails, check to see if the directory itself is deleteable
-            if (!IsDirectoryDeletable(pszDir))
-            {
+            if (!IsDirectoryDeletable(pszDir)) {
                 lRet = GetLastError();
                 ASSERT(lRet != ERROR_SUCCESS);
 
@@ -4480,9 +4036,7 @@ LONG CheckFolderSizeAndDeleteability(LPCTSTR pszDir, FOLDERDELETEINFO* pfdi)
                 lstrcpyn(pfdi->szNonDeletableFile, pszDir, ARRAYSIZE(pfdi->szNonDeletableFile));
             }
         }
-    }
-    else
-    {
+    } else {
         // if PathCombine fails, assume its because the path is too long
         lRet = ERROR_FILENAME_EXCED_RANGE;
 

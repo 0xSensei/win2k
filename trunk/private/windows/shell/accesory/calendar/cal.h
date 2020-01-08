@@ -88,29 +88,29 @@ typedef WORD DL;          /*** DL - Date Location.    Bit 15 is 0
 #define BLOCKWRITE 0x0010       /* mask for disallowing other copies of
                       calendar from writing the same file */
 typedef struct
-      {
-      DT        dt;         /* Date */
-      SINT        fMarked;        /* appropriate bit is set if
-                       date is marked. */
-      SINT        cAlarms;        /* Count of alarms set. */
-      DL        dl;         /* Where the date is stored. */
-      WORD        idr;        /* The index into vrghlmDr if
-                       the date is in memory.  If not
-                       in memory, this is IDRNIL.
-                    */
-      DL        dlSave;        /* Used to hold the previous DL
-                       during a Save operation.  This
-                       is used for error recovery.
-                    */
-      } DD;           /*** DD - Date Descriptor */
+{
+    DT        dt;         /* Date */
+    SINT        fMarked;        /* appropriate bit is set if
+                     date is marked. */
+    SINT        cAlarms;        /* Count of alarms set. */
+    DL        dl;         /* Where the date is stored. */
+    WORD        idr;        /* The index into vrghlmDr if
+                     the date is in memory.  If not
+                     in memory, this is IDRNIL.
+                  */
+    DL        dlSave;        /* Used to hold the previous DL
+                     during a Save operation.  This
+                     is used for error recovery.
+                  */
+} DD;           /*** DD - Date Descriptor */
 
 
 typedef struct               /*** D3 - date in three parts */
-       {
-       WORD     wMonth;       /* 0 through 11 */
-       WORD     wDay;       /* 0 through 30 */
-       WORD     wYear;       /* 0 (1980) through 119 (2099) */
-       } D3;
+{
+    WORD     wMonth;       /* 0 through 11 */
+    WORD     wDay;       /* 0 through 30 */
+    WORD     wYear;       /* 0 (1980) through 119 (2099) */
+} D3;
 
 #define MONTHJAN 0          /* Representation of January in a D3.wMonth */
 #define MONTHFEB 1          /* Representation of February in a D3.wMonth */
@@ -127,37 +127,37 @@ typedef SINT TM;           /*** - Time packed into an int - the number of
 #define TMNOON (TM)(12 * 60)
 
 typedef struct
-     {
-     DT   dt;              /* Date */
-     TM   tm;              /* Time */
-     } FT;              /*** FT - Full Time (date and time) */
+{
+    DT   dt;              /* Date */
+    TM   tm;              /* Time */
+} FT;              /*** FT - Full Time (date and time) */
 
 #define OTQRNIL 0xFFFF
 
 #ifndef RC_INVOKED
 #pragma pack(1)
 typedef struct
-     {
-     SINT  cb : 8;          /* Count of bytes in this QR. */
-     SINT  fAlarm : 1;          /* TRUE if alarm set. */
-     SINT  fSpecial : 1;      /* TRUE if special time. */
-     SINT  reserved : 6;      /* Reserved for future use - 0 filled. */
-     TM        tm;          /* Appointment Time. */
-     CHAR      qd [1];          /*** -  QD - Appointment Description.  Up to
-                      CCHQDMAX + 1 chars but declared as a
-                      single char here since storage is
-                      dynamically allocated.  Not AD since
-                      we want to be able to search for this
-                      data type.
-                  */
-     } QR;
-     typedef QR UNALIGNED *PQR;    /*** QR - Appointment Record - not AR since
-                   we want to be able to search for this data type.
-                  */
+{
+    SINT  cb : 8;          /* Count of bytes in this QR. */
+    SINT  fAlarm : 1;          /* TRUE if alarm set. */
+    SINT  fSpecial : 1;      /* TRUE if special time. */
+    SINT  reserved : 6;      /* Reserved for future use - 0 filled. */
+    TM        tm;          /* Appointment Time. */
+    CHAR      qd[1];          /*** -  QD - Appointment Description.  Up to
+                     CCHQDMAX + 1 chars but declared as a
+                     single char here since storage is
+                     dynamically allocated.  Not AD since
+                     we want to be able to search for this
+                     data type.
+                 */
+} QR;
+typedef QR UNALIGNED* PQR;    /*** QR - Appointment Record - not AR since
+              we want to be able to search for this data type.
+             */
 #pragma pack()
 #endif /* RC_INVOKED */
 
-/* Count of bytes in a QR header (everything except the QD). */
+             /* Count of bytes in a QR header (everything except the QD). */
 #define CBQRHEAD (sizeof (QR) - sizeof (char))
 
 
@@ -184,7 +184,7 @@ typedef struct
 #define CCHNONJUST  10          /* size of array containing non-justified
                                  header/footer info */
 
-/* !!! WARNING END */
+                                 /* !!! WARNING END */
 
 
 
@@ -194,25 +194,25 @@ typedef struct
 
 #define CLNNOTES 3          /* The number of lines of notes. */
 
-/* A soft line break takes 3 characters <CR,CR,LF>.  All but the last line
-   of the notes area can end with a soft line break.  This is the count
-   of bytes needed to accomodate that case.
-*/
+                               /* A soft line break takes 3 characters <CR,CR,LF>.  All but the last line
+                                  of the notes area can end with a soft line break.  This is the count
+                                  of bytes needed to accomodate that case.
+                               */
 #define CBSOFTBREAKSMAX (3 * (CLNNOTES - 1))
 
 
-/* The maximum length of the unformatted text of the notes (reserve
-   space for 0 terminator and soft line breaks).
-*/
+                               /* The maximum length of the unformatted text of the notes (reserve
+                                  space for 0 terminator and soft line breaks).
+                               */
 #define CBNOTESTEXTMAX (CBNOTESMAX - 1 - CBSOFTBREAKSMAX)
 
 
 
 typedef struct
-     {
-     TM        tm;          /* Appointment time. */
-     WORD     otqr;          /* Offset into tqr. */
-     } LD;              /*** - Line Descriptor. */
+{
+    TM        tm;          /* Appointment time. */
+    WORD     otqr;          /* Offset into tqr. */
+} LD;              /*** - Line Descriptor. */
 
 
 #define CBBK 64     /*** BK - disk block.  The size of a disk block
@@ -220,12 +220,12 @@ typedef struct
             */
 
 
-/* !!! WARNING - Be sure to adjust CDRHEAD when when modifying the
-   definition of a DR.    Also note that except for the dt member,
-   all members can be initialized to 0 (dt must be set to DTNIL).
-*/
+            /* !!! WARNING - Be sure to adjust CDRHEAD when when modifying the
+               definition of a DR.    Also note that except for the dt member,
+               all members can be initialized to 0 (dt must be set to DTNIL).
+            */
 
-/* The maximum size of a DR.  Must be a multiple of CBBK. */
+            /* The maximum size of a DR.  Must be a multiple of CBBK. */
 #define CBKDRMAX 32
 #define CBDRMAX (CBKDRMAX * CBBK)
 
@@ -239,18 +239,18 @@ typedef struct
 #define CBTQRMAX (CBDRDATAMAX - CBNOTESMAX)
 
 typedef struct
-     {
-     SINT wReserved;           /* Reserved for future use - written out
-                      as 0.
-                   */
-     DT   dt;               /* The associated dt.  DTNIL means this
-                      DR is not in use.
-                   */
-     SINT fDirty;           /* TRUE if modifications have been made. */
-     WORD cbNotes;           /* Length of notes. */
-     WORD cbTqr;           /* Length of tqr. */
-     BYTE rgbData [CBDRDATAMAX];   /* Room for the notes and the tqr. */
-     } DR;         /*** DR - Date Record */
+{
+    SINT wReserved;           /* Reserved for future use - written out
+                     as 0.
+                  */
+    DT   dt;               /* The associated dt.  DTNIL means this
+                     DR is not in use.
+                  */
+    SINT fDirty;           /* TRUE if modifications have been made. */
+    WORD cbNotes;           /* Length of notes. */
+    WORD cbTqr;           /* Length of tqr. */
+    BYTE rgbData[CBDRDATAMAX];   /* Room for the notes and the tqr. */
+} DR;         /*** DR - Date Record */
 
 /* !!! WARNING END */
 
@@ -347,7 +347,7 @@ typedef struct
 #define CALARMBEEPS 4          /* The total number of beeps in an alarm. */
 
 
-/* Menu command ids. */
+                  /* Menu command ids. */
 
 #define IDCM_NEW          0
 #define IDCM_OPEN          1
@@ -433,9 +433,9 @@ typedef struct
 
 
 
-/* !!! WARNING END */
+                   /* !!! WARNING END */
 
-/* Control ids */
+                   /* Control ids */
 
 #define IDCN_IGNORE          -1
 
@@ -487,7 +487,7 @@ typedef struct
 #define IDECNOTES          101    /* ID of notes area edit control. */
 
 #ifndef  BUG_8560
-/* The Child window Id for the scrollbar control  */
+                    /* The Child window Id for the scrollbar control  */
 #define IDHORZSCROLL   201
 #endif
 
@@ -508,7 +508,7 @@ typedef struct
                        this must be changed accordingly.
                     */
 
-/* String ids. */
+                    /* String ids. */
 
 #define IDS_UNTITLED           0
 #define IDS_CALENDAR           1
@@ -599,7 +599,7 @@ typedef struct
                       be increased accordingly.  was 2048
                    */
 
-/* Message posted to self upon receiving activate message */
+                   /* Message posted to self upon receiving activate message */
 #define CM_PROCALARMS          WM_USER+100
 
 

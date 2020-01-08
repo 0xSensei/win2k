@@ -111,46 +111,44 @@ extern FINDCMDITEM  mmAPIFindCmdItem;
 *    as an aid to perform the thunking.
 
 */
-INT ThunkMciCommand16( MCIDEVICEID DeviceID, UINT OrigCommand, DWORD OrigFlags,
-                       DWORD OrigParms, PDWORD pNewParms, LPWSTR *lplpCommand,
-                       PUINT puTable )
+INT ThunkMciCommand16(MCIDEVICEID DeviceID, UINT OrigCommand, DWORD OrigFlags,
+                      DWORD OrigParms, PDWORD pNewParms, LPWSTR* lplpCommand,
+                      PUINT puTable)
 {
 
 
 #if DBG
     register    int             i;
-                int             n;
+    int             n;
 
-    dprintf3(( "ThunkMciCommand16 :" ));
-    dprintf5(( " OrigDevice -> %lX", DeviceID ));
+    dprintf3(("ThunkMciCommand16 :"));
+    dprintf5((" OrigDevice -> %lX", DeviceID));
 
     n = sizeof(mciMessageNames) / sizeof(MCI_MESSAGE_NAMES);
-    for ( i = 0; i < n; i++ ) {
-        if ( mciMessageNames[i].uMsg == OrigCommand ) {
+    for (i = 0; i < n; i++) {
+        if (mciMessageNames[i].uMsg == OrigCommand) {
             break;
         }
     }
-    dprintf3(( "OrigCommand  -> 0x%lX", (DWORD)OrigCommand ));
+    dprintf3(("OrigCommand  -> 0x%lX", (DWORD)OrigCommand));
 
 
     // Special case MCI_STATUS.  I get loads of these from mplayer.
     // I only want to display MCI_STATUS messages if the debug level is
     // set to level 3, that way I won't get swamped with them.
 
-    if ( mciMessageNames[i].uMsg != MCI_STATUS ) {
-        if ( i != n ) {
-            dprintf2(( "Command Name -> %s", mciMessageNames[i].lpstMsgName ));
+    if (mciMessageNames[i].uMsg != MCI_STATUS) {
+        if (i != n) {
+            dprintf2(("Command Name -> %s", mciMessageNames[i].lpstMsgName));
+        } else {
+            dprintf2(("Command Name -> UNKNOWN COMMAND (%x)", OrigCommand));
         }
-        else {
-            dprintf2(( "Command Name -> UNKNOWN COMMAND (%x)", OrigCommand ));
-        }
-    }
-    else {
-        dprintf3(( "Command Name -> MCI_STATUS" ));
+    } else {
+        dprintf3(("Command Name -> MCI_STATUS"));
     }
 
-    dprintf5(( "OrigFlags    -> 0x%lX", OrigFlags ));
-    dprintf5(( "OrigParms    -> 0x%lX", OrigParms ));
+    dprintf5(("OrigFlags    -> 0x%lX", OrigFlags));
+    dprintf5(("OrigParms    -> 0x%lX", OrigParms));
 #endif
 
 
@@ -158,7 +156,7 @@ INT ThunkMciCommand16( MCIDEVICEID DeviceID, UINT OrigCommand, DWORD OrigFlags,
     // notify window handle (if supplied).
 
 
-    if ( (*pNewParms = AllocMciParmBlock( &OrigFlags, OrigParms )) == 0L ) {
+    if ((*pNewParms = AllocMciParmBlock(&OrigFlags, OrigParms)) == 0L) {
         return MCIERR_OUT_OF_MEMORY;
     }
 
@@ -174,48 +172,48 @@ INT ThunkMciCommand16( MCIDEVICEID DeviceID, UINT OrigCommand, DWORD OrigFlags,
 
     // This means that MOST COMMANDS GET THUNKED VIA THE COMMAND TABLE.
 
-    switch ( OrigCommand ) {
+    switch (OrigCommand) {
 
-        case MCI_OPEN:
+    case MCI_OPEN:
 
-            // MCI_OPEN is a special case message that I don't
-            // how to deal with yet.
+        // MCI_OPEN is a special case message that I don't
+        // how to deal with yet.
 
-            ThunkOpenCmd( &OrigFlags, OrigParms, *pNewParms );
-            return 0;
-
-
-            // The next four commands have Reserved padding fields
-            // these have to thunked manually.
+        ThunkOpenCmd(&OrigFlags, OrigParms, *pNewParms);
+        return 0;
 
 
-        case MCI_SET:
-            ThunkSetCmd( DeviceID, &OrigFlags, OrigParms, *pNewParms );
-            break;
-
-        case MCI_WINDOW:
-            ThunkWindowCmd( DeviceID, &OrigFlags, OrigParms, *pNewParms );
-            break;
+        // The next four commands have Reserved padding fields
+        // these have to thunked manually.
 
 
-            // Have to special case this command because the command table
-            // is not correct.
+    case MCI_SET:
+        ThunkSetCmd(DeviceID, &OrigFlags, OrigParms, *pNewParms);
+        break;
 
-        case MCI_SETVIDEO:
-            ThunkSetVideoCmd( DeviceID, &OrigFlags, OrigParms, *pNewParms );
-            break;
+    case MCI_WINDOW:
+        ThunkWindowCmd(DeviceID, &OrigFlags, OrigParms, *pNewParms);
+        break;
 
 
-            // These two commands don't have any command extensions
-            // so we return immediately.
+        // Have to special case this command because the command table
+        // is not correct.
 
-        case MCI_SYSINFO:
-            ThunkSysInfoCmd( &OrigFlags, OrigParms, *pNewParms );
-            return 0;
+    case MCI_SETVIDEO:
+        ThunkSetVideoCmd(DeviceID, &OrigFlags, OrigParms, *pNewParms);
+        break;
 
-        case MCI_BREAK:
-            ThunkBreakCmd( &OrigFlags, OrigParms, *pNewParms );
-            return 0;
+
+        // These two commands don't have any command extensions
+        // so we return immediately.
+
+    case MCI_SYSINFO:
+        ThunkSysInfoCmd(&OrigFlags, OrigParms, *pNewParms);
+        return 0;
+
+    case MCI_BREAK:
+        ThunkBreakCmd(&OrigFlags, OrigParms, *pNewParms);
+        return 0;
     }
 
 
@@ -223,8 +221,8 @@ INT ThunkMciCommand16( MCIDEVICEID DeviceID, UINT OrigCommand, DWORD OrigFlags,
     // We always load the command table this is because the command table is
     // needed for UnThunking.
 
-    *lplpCommand = (*mmAPIFindCmdItem)( DeviceID, NULL, (LPWSTR)OrigCommand,
-                                        NULL, puTable );
+    *lplpCommand = (*mmAPIFindCmdItem)(DeviceID, NULL, (LPWSTR)OrigCommand,
+                                       NULL, puTable);
 
     // If the command table is not found we return straight away.
     // Note that storage has been allocated for pNewParms and that the
@@ -233,25 +231,25 @@ INT ThunkMciCommand16( MCIDEVICEID DeviceID, UINT OrigCommand, DWORD OrigFlags,
     // let it determine a suitable error code, we must also call
     // UnthunkMciCommand to free the allocated storage.
 
-    if ( *lplpCommand == NULL ) {
-        dprintf(( "Command table not found !!" ));
+    if (*lplpCommand == NULL) {
+        dprintf(("Command table not found !!"));
         return 0;
     }
-    dprintf4(( "Command table has been loaded -> 0x%lX", *lplpCommand ));
+    dprintf4(("Command table has been loaded -> 0x%lX", *lplpCommand));
 
 
     // If OrigFlags is not equal to 0 we still have work to do !
     // Note that this will be true for the majority of cases.
 
-    if ( OrigFlags ) {
+    if (OrigFlags) {
 
-        dprintf3(( "Thunking via command table" ));
+        dprintf3(("Thunking via command table"));
 
 
         // Now we thunk the command
 
-        return ThunkCommandViaTable( *lplpCommand, OrigFlags, OrigParms,
-                                     *pNewParms );
+        return ThunkCommandViaTable(*lplpCommand, OrigFlags, OrigParms,
+                                    *pNewParms);
     }
 
     return 0;
@@ -270,7 +268,7 @@ INT ThunkMciCommand16( MCIDEVICEID DeviceID, UINT OrigCommand, DWORD OrigFlags,
 * masked out if it is set.
 
 */
-DWORD AllocMciParmBlock( PDWORD pOrigFlags, DWORD OrigParms )
+DWORD AllocMciParmBlock(PDWORD pOrigFlags, DWORD OrigParms)
 {
 
     LPMCI_GENERIC_PARMS     lpGenParms;
@@ -281,29 +279,29 @@ DWORD AllocMciParmBlock( PDWORD pOrigFlags, DWORD OrigParms )
 
     // Get, check and set the required storage.
 
-    lpGenParms = (LPMCI_GENERIC_PARMS)malloc_w( AllocSize );
-    if ( lpGenParms == NULL ) {
+    lpGenParms = (LPMCI_GENERIC_PARMS)malloc_w(AllocSize);
+    if (lpGenParms == NULL) {
         return 0L;
     }
-    RtlZeroMemory( lpGenParms, AllocSize );
-    dprintf4(( "AllocMciParmBlock: Allocated storage -> 0x%lX", lpGenParms ));
+    RtlZeroMemory(lpGenParms, AllocSize);
+    dprintf4(("AllocMciParmBlock: Allocated storage -> 0x%lX", lpGenParms));
 
 
     // Look for the notify flag and thunk accordingly
 
-    if ( *pOrigFlags & MCI_NOTIFY ) {
+    if (*pOrigFlags & MCI_NOTIFY) {
 
 
-        GETVDMPTR( OrigParms, sizeof(MCI_GENERIC_PARMS16), lpGenParmsOrig );
+        GETVDMPTR(OrigParms, sizeof(MCI_GENERIC_PARMS16), lpGenParmsOrig);
 
-        dprintf4(( "AllocMciParmBlock: Got MCI_NOTIFY flag." ));
+        dprintf4(("AllocMciParmBlock: Got MCI_NOTIFY flag."));
 
         // Note FETCHWORD of a DWORD below, same as LOWORD(FETCHDWORD(dw)),
         // only faster.
         lpGenParms->dwCallback =
-            (DWORD)HWND32( FETCHWORD( lpGenParmsOrig->dwCallback ) );
+            (DWORD)HWND32(FETCHWORD(lpGenParmsOrig->dwCallback));
 
-        FREEVDMPTR( lpGenParmsOrig );
+        FREEVDMPTR(lpGenParmsOrig);
 
         *pOrigFlags ^= MCI_NOTIFY;
     }
@@ -311,8 +309,8 @@ DWORD AllocMciParmBlock( PDWORD pOrigFlags, DWORD OrigParms )
 
     // If the MCI_WAIT flag is present, mask it out.
 
-    if ( *pOrigFlags & MCI_WAIT ) {
-        dprintf4(( "AllocMciParmBlock: Got MCI_WAIT flag." ));
+    if (*pOrigFlags & MCI_WAIT) {
+        dprintf4(("AllocMciParmBlock: Got MCI_WAIT flag."));
         *pOrigFlags ^= MCI_WAIT;
     }
 
@@ -324,18 +322,18 @@ DWORD AllocMciParmBlock( PDWORD pOrigFlags, DWORD OrigParms )
 
 * Thunk the Open mci command parms.
 */
-DWORD ThunkOpenCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
+DWORD ThunkOpenCmd(PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms)
 {
 
     // The purpose of this union is to aid the creation of a 32 bit
     // Open Parms structure that is suitable for all known MCI devices.
 
-    typedef union  {
+    typedef union {
         MCI_OPEN_PARMS          OpenParms;
         MCI_WAVE_OPEN_PARMS     OpenWaveParms;
         MCI_ANIM_OPEN_PARMS     OpenAnimParms;  // Note: Animation and
         MCI_OVLY_OPEN_PARMS     OpenOvlyParms;  // overlay parms are identical
-    } MCI_ALL_OPEN_PARMS, *PMCI_ALL_OPEN_PARMS;
+    } MCI_ALL_OPEN_PARMS, * PMCI_ALL_OPEN_PARMS;
 
 
     // The following pointers will be used to point to
@@ -360,7 +358,7 @@ DWORD ThunkOpenCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
     // We first do the fields that are common to all open requests.
     // Set up the VDM ptr for lpOpenParms16 to point to OrigParms
 
-    GETVDMPTR( OrigParms, sizeof(MCI_OPEN_PARMS16), lpOpenParms16 );
+    GETVDMPTR(OrigParms, sizeof(MCI_OPEN_PARMS16), lpOpenParms16);
 
 
     // Now scan our way thru all the known MCI_OPEN flags, thunking as
@@ -368,22 +366,21 @@ DWORD ThunkOpenCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 
     // Start at the Device Type field
 
-    if ( *pOrigFlags & MCI_OPEN_TYPE ) {
-        if ( *pOrigFlags & MCI_OPEN_TYPE_ID ) {
+    if (*pOrigFlags & MCI_OPEN_TYPE) {
+        if (*pOrigFlags & MCI_OPEN_TYPE_ID) {
 
-            dprintf4(( "ThunkOpenCmd: Got MCI_OPEN_TYPE_ID flag." ));
+            dprintf4(("ThunkOpenCmd: Got MCI_OPEN_TYPE_ID flag."));
             pOp->OpenParms.lpstrDeviceType =
-                (LPSTR)( FETCHDWORD( lpOpenParms16->lpstrDeviceType ) );
-            dprintf5(( "lpstrDeviceType -> %ld", pOp->OpenParms.lpstrDeviceType ));
+                (LPSTR)(FETCHDWORD(lpOpenParms16->lpstrDeviceType));
+            dprintf5(("lpstrDeviceType -> %ld", pOp->OpenParms.lpstrDeviceType));
 
             *pOrigFlags ^= (MCI_OPEN_TYPE | MCI_OPEN_TYPE_ID);
-        }
-        else {
-            dprintf4(( "ThunkOpenCmd: Got MCI_OPEN_TYPE flag" ));
-            GETPSZPTR( lpOpenParms16->lpstrDeviceType,
-                       pOp->OpenParms.lpstrDeviceType );
-            dprintf5(( "lpstrDeviceType -> %s", pOp->OpenParms.lpstrDeviceType ));
-            dprintf5(( "lpstrDeviceType -> 0x%lX", pOp->OpenParms.lpstrDeviceType ));
+        } else {
+            dprintf4(("ThunkOpenCmd: Got MCI_OPEN_TYPE flag"));
+            GETPSZPTR(lpOpenParms16->lpstrDeviceType,
+                      pOp->OpenParms.lpstrDeviceType);
+            dprintf5(("lpstrDeviceType -> %s", pOp->OpenParms.lpstrDeviceType));
+            dprintf5(("lpstrDeviceType -> 0x%lX", pOp->OpenParms.lpstrDeviceType));
 
             *pOrigFlags ^= MCI_OPEN_TYPE;
         }
@@ -392,22 +389,21 @@ DWORD ThunkOpenCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 
     // Now do the Element Name field
 
-    if ( *pOrigFlags & MCI_OPEN_ELEMENT ) {
-        if ( *pOrigFlags & MCI_OPEN_ELEMENT_ID ) {
+    if (*pOrigFlags & MCI_OPEN_ELEMENT) {
+        if (*pOrigFlags & MCI_OPEN_ELEMENT_ID) {
 
-            dprintf4(( "ThunkOpenCmd: Got MCI_OPEN_ELEMENT_ID flag" ));
+            dprintf4(("ThunkOpenCmd: Got MCI_OPEN_ELEMENT_ID flag"));
             pOp->OpenParms.lpstrElementName =
-                (LPSTR)( FETCHDWORD( lpOpenParms16->lpstrElementName ) );
-            dprintf5(( "lpstrElementName -> %ld", pOp->OpenParms.lpstrElementName ));
+                (LPSTR)(FETCHDWORD(lpOpenParms16->lpstrElementName));
+            dprintf5(("lpstrElementName -> %ld", pOp->OpenParms.lpstrElementName));
 
             *pOrigFlags ^= (MCI_OPEN_ELEMENT | MCI_OPEN_ELEMENT_ID);
-        }
-        else {
-            dprintf4(( "ThunkOpenCmd: Got MCI_OPEN_ELEMENT flag" ));
-            GETPSZPTR( lpOpenParms16->lpstrElementName,
-                       pOp->OpenParms.lpstrElementName );
-            dprintf5(( "lpstrElementName -> %s", pOp->OpenParms.lpstrElementName ));
-            dprintf5(( "lpstrElementName -> 0x%lX", pOp->OpenParms.lpstrElementName ));
+        } else {
+            dprintf4(("ThunkOpenCmd: Got MCI_OPEN_ELEMENT flag"));
+            GETPSZPTR(lpOpenParms16->lpstrElementName,
+                      pOp->OpenParms.lpstrElementName);
+            dprintf5(("lpstrElementName -> %s", pOp->OpenParms.lpstrElementName));
+            dprintf5(("lpstrElementName -> 0x%lX", pOp->OpenParms.lpstrElementName));
 
             *pOrigFlags ^= MCI_OPEN_ELEMENT;
         }
@@ -416,11 +412,11 @@ DWORD ThunkOpenCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 
     // Now do the Alias Name field
 
-    if ( *pOrigFlags & MCI_OPEN_ALIAS  ) {
-        dprintf4(( "ThunkOpenCmd: Got MCI_OPEN_ALIAS flag" ));
-        GETPSZPTR( lpOpenParms16->lpstrAlias, pOp->OpenParms.lpstrAlias );
-        dprintf5(( "lpstrAlias -> %s", pOp->OpenParms.lpstrAlias ));
-        dprintf5(( "lpstrAlias -> 0x%lX", pOp->OpenParms.lpstrAlias ));
+    if (*pOrigFlags & MCI_OPEN_ALIAS) {
+        dprintf4(("ThunkOpenCmd: Got MCI_OPEN_ALIAS flag"));
+        GETPSZPTR(lpOpenParms16->lpstrAlias, pOp->OpenParms.lpstrAlias);
+        dprintf5(("lpstrAlias -> %s", pOp->OpenParms.lpstrAlias));
+        dprintf5(("lpstrAlias -> 0x%lX", pOp->OpenParms.lpstrAlias));
 
         *pOrigFlags ^= MCI_OPEN_ALIAS;
     }
@@ -428,20 +424,20 @@ DWORD ThunkOpenCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 
     // Clear the MCI_OPEN_SHAREABLE flag if it is set
 
-    if ( *pOrigFlags & MCI_OPEN_SHAREABLE ) {
-        dprintf4(( "ThunkOpenCmd: Got MCI_OPEN_SHAREABLE flag." ));
+    if (*pOrigFlags & MCI_OPEN_SHAREABLE) {
+        dprintf4(("ThunkOpenCmd: Got MCI_OPEN_SHAREABLE flag."));
         *pOrigFlags ^= MCI_OPEN_SHAREABLE;
     }
 
 
     // Free the VDM pointer before returning
 
-    FREEVDMPTR( lpOpenParms16 );
+    FREEVDMPTR(lpOpenParms16);
 
 
     // If we don't have any extended flags I can return now
 
-    if ( *pOrigFlags == 0 ) {
+    if (*pOrigFlags == 0) {
         return (DWORD)pOp;
     }
 
@@ -462,22 +458,22 @@ DWORD ThunkOpenCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
     // it.  This field is also a DWORD in the other two parms structures.
 
 
-    if ( *pOrigFlags & MCI_WAVE_OPEN_BUFFER ) {
+    if (*pOrigFlags & MCI_WAVE_OPEN_BUFFER) {
 
         // Set up the VDM ptr for lpOpenWaveParms16 to point to OrigParms
 
-        GETVDMPTR( OrigParms, sizeof(MCI_WAVE_OPEN_PARMS16),
-                   lpOpenWaveParms16 );
+        GETVDMPTR(OrigParms, sizeof(MCI_WAVE_OPEN_PARMS16),
+                  lpOpenWaveParms16);
 
-        dprintf4(( "ThunkOpenCmd: Got MCI_WAVE_OPEN_BUFFER flag." ));
+        dprintf4(("ThunkOpenCmd: Got MCI_WAVE_OPEN_BUFFER flag."));
         pOp->OpenWaveParms.dwBufferSeconds =
-                FETCHDWORD( lpOpenWaveParms16->dwBufferSeconds );
-        dprintf5(( "dwBufferSeconds -> %ld", pOp->OpenWaveParms.dwBufferSeconds ));
+            FETCHDWORD(lpOpenWaveParms16->dwBufferSeconds);
+        dprintf5(("dwBufferSeconds -> %ld", pOp->OpenWaveParms.dwBufferSeconds));
 
 
         // Free the VDM pointer before returning
 
-        FREEVDMPTR( lpOpenWaveParms16 );
+        FREEVDMPTR(lpOpenWaveParms16);
 
         *pOrigFlags ^= MCI_WAVE_OPEN_BUFFER;
     }
@@ -485,23 +481,23 @@ DWORD ThunkOpenCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 
     // Now look for MCI_ANIM_OPEN_PARM and MCI_OVLY_OPEN_PARMS extensions.
 
-    if ( (*pOrigFlags & MCI_ANIM_OPEN_PARENT)
-      || (*pOrigFlags & MCI_ANIM_OPEN_WS) ) {
+    if ((*pOrigFlags & MCI_ANIM_OPEN_PARENT)
+        || (*pOrigFlags & MCI_ANIM_OPEN_WS)) {
 
 
         // Set up the VDM ptr for lpOpenAnimParms16 to point to OrigParms
 
-        GETVDMPTR( OrigParms, sizeof(MCI_ANIM_OPEN_PARMS16),
-                   lpOpenAnimParms16 );
+        GETVDMPTR(OrigParms, sizeof(MCI_ANIM_OPEN_PARMS16),
+                  lpOpenAnimParms16);
 
 
         // Check MCI_ANIN_OPEN_PARENT flag, this also checks
         // the MCI_OVLY_OPEN_PARENT flag too.
 
-        if ( *pOrigFlags & MCI_ANIM_OPEN_PARENT ) {
-            dprintf4(( "ThunkOpenCmd: Got MCI_Xxxx_OPEN_PARENT flag." ));
+        if (*pOrigFlags & MCI_ANIM_OPEN_PARENT) {
+            dprintf4(("ThunkOpenCmd: Got MCI_Xxxx_OPEN_PARENT flag."));
             pOp->OpenAnimParms.hWndParent =
-                HWND32(FETCHWORD(lpOpenAnimParms16->hWndParent) );
+                HWND32(FETCHWORD(lpOpenAnimParms16->hWndParent));
 
             *pOrigFlags ^= MCI_ANIM_OPEN_PARENT;
         }
@@ -510,11 +506,11 @@ DWORD ThunkOpenCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
         // Check MCI_ANIN_OPEN_WS flag, this also checks
         // the MCI_OVLY_OPEN_WS flag too.
 
-        if ( *pOrigFlags & MCI_ANIM_OPEN_WS ) {
-            dprintf4(( "ThunkOpenCmd: Got MCI_Xxxx_OPEN_WS flag." ));
+        if (*pOrigFlags & MCI_ANIM_OPEN_WS) {
+            dprintf4(("ThunkOpenCmd: Got MCI_Xxxx_OPEN_WS flag."));
             pOp->OpenAnimParms.dwStyle =
-                FETCHDWORD( lpOpenAnimParms16->dwStyle );
-            dprintf5(( "dwStyle -> %ld", pOp->OpenAnimParms.dwStyle ));
+                FETCHDWORD(lpOpenAnimParms16->dwStyle);
+            dprintf5(("dwStyle -> %ld", pOp->OpenAnimParms.dwStyle));
 
             *pOrigFlags ^= MCI_ANIM_OPEN_WS;
         }
@@ -522,14 +518,14 @@ DWORD ThunkOpenCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 
         // Free the VDM pointer before returning
 
-        FREEVDMPTR( lpOpenAnimParms16 );
+        FREEVDMPTR(lpOpenAnimParms16);
     }
 
 
     // Check the MCI_ANIN_OPEN_NOSTATIC flag
 
-    if ( *pOrigFlags & MCI_ANIM_OPEN_NOSTATIC ) {
-        dprintf4(( "ThunkOpenCmd: Got MCI_ANIM_OPEN_NOSTATIC flag." ));
+    if (*pOrigFlags & MCI_ANIM_OPEN_NOSTATIC) {
+        dprintf4(("ThunkOpenCmd: Got MCI_ANIM_OPEN_NOSTATIC flag."));
         *pOrigFlags ^= MCI_ANIM_OPEN_NOSTATIC;
     }
 
@@ -570,18 +566,18 @@ DWORD ThunkOpenCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 *   MCI_WAVE_SET_SAMPLESPERSEC
 
 */
-DWORD ThunkSetCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
-                   DWORD pNewParms )
+DWORD ThunkSetCmd(MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
+                  DWORD pNewParms)
 {
 
     // This purpose of this union is to aid the creation of a 32 bit Set
     // Parms structure that is suitable for all known MCI devices.
 
-    typedef union  {
+    typedef union {
         MCI_SET_PARMS           SetParms;
         MCI_WAVE_SET_PARMS      SetWaveParms;
         MCI_SEQ_SET_PARMS       SetSeqParms;
-    } MCI_ALL_SET_PARMS, *PMCI_ALL_SET_PARMS;
+    } MCI_ALL_SET_PARMS, * PMCI_ALL_SET_PARMS;
 
 
     // The following pointers will be used to point to the original
@@ -608,16 +604,16 @@ DWORD ThunkSetCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
 
     // Set up the VDM ptr for lpSetParms16 to point to OrigParms
 
-    GETVDMPTR( OrigParms, sizeof(MCI_SET_PARMS16), lpSetParms16 );
+    GETVDMPTR(OrigParms, sizeof(MCI_SET_PARMS16), lpSetParms16);
 
 
     // First do the fields that are common to all devices.  Thunk the
     // dwAudio field.
 
-    if ( *pOrigFlags & MCI_SET_AUDIO ) {
-        dprintf4(( "ThunkSetCmd: Got MCI_SET_AUDIO flag." ));
-        pSet->SetParms.dwAudio = FETCHDWORD( lpSetParms16->dwAudio );
-        dprintf5(( "dwAudio -> %ld", pSet->SetParms.dwAudio ));
+    if (*pOrigFlags & MCI_SET_AUDIO) {
+        dprintf4(("ThunkSetCmd: Got MCI_SET_AUDIO flag."));
+        pSet->SetParms.dwAudio = FETCHDWORD(lpSetParms16->dwAudio);
+        dprintf5(("dwAudio -> %ld", pSet->SetParms.dwAudio));
 
         *pOrigFlags ^= MCI_SET_AUDIO;    // Mask out the flag
     }
@@ -625,10 +621,10 @@ DWORD ThunkSetCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
 
     // Thunk the dwTimeFormat field.
 
-    if ( *pOrigFlags & MCI_SET_TIME_FORMAT ) {
-        dprintf4(( "ThunkSetCmd: Got MCI_SET_TIME_FORMAT flag." ));
-        pSet->SetParms.dwTimeFormat = FETCHDWORD( lpSetParms16->dwTimeFormat );
-        dprintf5(( "dwTimeFormat -> %ld", pSet->SetParms.dwTimeFormat ));
+    if (*pOrigFlags & MCI_SET_TIME_FORMAT) {
+        dprintf4(("ThunkSetCmd: Got MCI_SET_TIME_FORMAT flag."));
+        pSet->SetParms.dwTimeFormat = FETCHDWORD(lpSetParms16->dwTimeFormat);
+        dprintf5(("dwTimeFormat -> %ld", pSet->SetParms.dwTimeFormat));
 
         *pOrigFlags ^= MCI_SET_TIME_FORMAT;    // Mask out the flag
     }
@@ -636,53 +632,53 @@ DWORD ThunkSetCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
 
     // Mask out the MCI_SET_DOOR_CLOSED
 
-    if ( *pOrigFlags & MCI_SET_DOOR_CLOSED ) {
-        dprintf4(( "ThunkSetCmd: Got MCI_SET_DOOR_CLOSED flag." ));
+    if (*pOrigFlags & MCI_SET_DOOR_CLOSED) {
+        dprintf4(("ThunkSetCmd: Got MCI_SET_DOOR_CLOSED flag."));
         *pOrigFlags ^= MCI_SET_DOOR_CLOSED;    // Mask out the flag
     }
 
 
     // Mask out the MCI_SET_DOOR_OPEN
 
-    if ( *pOrigFlags & MCI_SET_DOOR_OPEN ) {
-        dprintf4(( "ThunkSetCmd: Got MCI_SET_DOOR_OPEN flag." ));
+    if (*pOrigFlags & MCI_SET_DOOR_OPEN) {
+        dprintf4(("ThunkSetCmd: Got MCI_SET_DOOR_OPEN flag."));
         *pOrigFlags ^= MCI_SET_DOOR_OPEN;    // Mask out the flag
     }
 
 
     // Mask out the MCI_SET_VIDEO
 
-    if ( *pOrigFlags & MCI_SET_VIDEO ) {
-        dprintf4(( "ThunkSetCmd: Got MCI_SET_VIDEO flag." ));
+    if (*pOrigFlags & MCI_SET_VIDEO) {
+        dprintf4(("ThunkSetCmd: Got MCI_SET_VIDEO flag."));
         *pOrigFlags ^= MCI_SET_VIDEO;    // Mask out the flag
     }
 
 
     // Mask out the MCI_SET_ON
 
-    if ( *pOrigFlags & MCI_SET_ON ) {
-        dprintf4(( "ThunkSetCmd: Got MCI_SET_ON flag." ));
+    if (*pOrigFlags & MCI_SET_ON) {
+        dprintf4(("ThunkSetCmd: Got MCI_SET_ON flag."));
         *pOrigFlags ^= MCI_SET_ON;    // Mask out the flag
     }
 
 
     // Mask out the MCI_SET_OFF
 
-    if ( *pOrigFlags & MCI_SET_OFF ) {
-        dprintf4(( "ThunkSetCmd: Got MCI_SET_OFF flag." ));
+    if (*pOrigFlags & MCI_SET_OFF) {
+        dprintf4(("ThunkSetCmd: Got MCI_SET_OFF flag."));
         *pOrigFlags ^= MCI_SET_OFF;    // Mask out the flag
     }
 
 
     // Free the VDM pointer as we have finished with it
 
-    FREEVDMPTR( lpSetParms16 );
+    FREEVDMPTR(lpSetParms16);
 
 
     // We have done all the standard flags.  If there are any flags
     // still set we must have an extended command.
 
-    if ( *pOrigFlags == 0 ) {
+    if (*pOrigFlags == 0) {
         return (DWORD)pSet;
     }
 
@@ -692,10 +688,10 @@ DWORD ThunkSetCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
     // command to the device. (We might as well use the Unicode
     // version of mciSendCommand and avoid another thunk).
 
-    RtlZeroMemory( &GetDevCaps, sizeof(MCI_GETDEVCAPS_PARMS) );
+    RtlZeroMemory(&GetDevCaps, sizeof(MCI_GETDEVCAPS_PARMS));
     GetDevCaps.dwItem = MCI_GETDEVCAPS_DEVICE_TYPE;
-    dwRetVal = (*mmAPISendCmdW)( DeviceID, MCI_GETDEVCAPS, MCI_GETDEVCAPS_ITEM,
-                                 (DWORD)&GetDevCaps );
+    dwRetVal = (*mmAPISendCmdW)(DeviceID, MCI_GETDEVCAPS, MCI_GETDEVCAPS_ITEM,
+        (DWORD)&GetDevCaps);
 
 
     // What do we do if dwRetCode is not equal to 0 ?  If this is the
@@ -707,174 +703,174 @@ DWORD ThunkSetCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
     // the device ID is duff, mciSendCommand should be able to work out a
     // suitable error code to return to the application.
 
-    if ( dwRetVal ) {
+    if (dwRetVal) {
         *pOrigFlags = 0;
         return (DWORD)pSet;
     }
-    switch ( GetDevCaps.dwReturn ) {
-        case MCI_DEVTYPE_WAVEFORM_AUDIO:
+    switch (GetDevCaps.dwReturn) {
+    case MCI_DEVTYPE_WAVEFORM_AUDIO:
 
-            // Set up the VDM ptr for lpSetWaveParms16 to point to OrigParms
+        // Set up the VDM ptr for lpSetWaveParms16 to point to OrigParms
 
-            dprintf3(( "ThunkSetCmd: Got a WaveAudio device." ));
-            GETVDMPTR( OrigParms, sizeof(MCI_WAVE_SET_PARMS16),
-                       lpSetWaveParms16 );
+        dprintf3(("ThunkSetCmd: Got a WaveAudio device."));
+        GETVDMPTR(OrigParms, sizeof(MCI_WAVE_SET_PARMS16),
+                  lpSetWaveParms16);
 
-            // Thunk the wInput field.
+        // Thunk the wInput field.
 
-            if ( *pOrigFlags & MCI_WAVE_INPUT ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_WAVE_INPUT flag." ));
-                pSet->SetWaveParms.wInput =
-                    FETCHWORD( lpSetWaveParms16->wInput );
-                dprintf5(( "wInput -> %u", pSet->SetWaveParms.wInput ));
-                *pOrigFlags ^= MCI_WAVE_INPUT;
-            }
-
-
-            // Thunk the wOutput field.
-
-            if ( *pOrigFlags & MCI_WAVE_OUTPUT ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_WAVE_OUTPUT flag." ));
-                pSet->SetWaveParms.wOutput =
-                    FETCHWORD( lpSetWaveParms16->wOutput );
-                dprintf5(( "wOutput -> %u", pSet->SetWaveParms.wOutput ));
-                *pOrigFlags ^= MCI_WAVE_OUTPUT;
-            }
+        if (*pOrigFlags & MCI_WAVE_INPUT) {
+            dprintf4(("ThunkSetCmd: Got MCI_WAVE_INPUT flag."));
+            pSet->SetWaveParms.wInput =
+                FETCHWORD(lpSetWaveParms16->wInput);
+            dprintf5(("wInput -> %u", pSet->SetWaveParms.wInput));
+            *pOrigFlags ^= MCI_WAVE_INPUT;
+        }
 
 
-            // Thunk the wFormatTag field.
+        // Thunk the wOutput field.
 
-            if ( *pOrigFlags & MCI_WAVE_SET_FORMATTAG ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_WAVE_SET_FORMATTAG flag." ));
-                pSet->SetWaveParms.wFormatTag =
-                    FETCHWORD( lpSetWaveParms16->wFormatTag );
-                dprintf5(( "wFormatTag -> %u", pSet->SetWaveParms.wFormatTag ));
-                *pOrigFlags ^= MCI_WAVE_SET_FORMATTAG;
-            }
-
-
-            // Thunk the nChannels field.
-
-            if ( *pOrigFlags & MCI_WAVE_SET_CHANNELS ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_WAVE_SET_CHANNELS flag." ));
-                pSet->SetWaveParms.nChannels =
-                    FETCHWORD( lpSetWaveParms16->nChannels );
-                dprintf5(( "nChannels -> %u", pSet->SetWaveParms.nChannels ));
-                *pOrigFlags ^= MCI_WAVE_SET_CHANNELS;
-            }
+        if (*pOrigFlags & MCI_WAVE_OUTPUT) {
+            dprintf4(("ThunkSetCmd: Got MCI_WAVE_OUTPUT flag."));
+            pSet->SetWaveParms.wOutput =
+                FETCHWORD(lpSetWaveParms16->wOutput);
+            dprintf5(("wOutput -> %u", pSet->SetWaveParms.wOutput));
+            *pOrigFlags ^= MCI_WAVE_OUTPUT;
+        }
 
 
-            // Thunk the nSamplesPerSec field.
+        // Thunk the wFormatTag field.
 
-            if ( *pOrigFlags & MCI_WAVE_SET_SAMPLESPERSEC ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_WAVE_SET_SAMPLESPERSEC flag." ));
-                pSet->SetWaveParms.nSamplesPerSec =
-                    FETCHDWORD( lpSetWaveParms16->nSamplesPerSecond );
-                dprintf5(( "nSamplesPerSec -> %u", pSet->SetWaveParms.nSamplesPerSec ));
-                *pOrigFlags ^= MCI_WAVE_SET_SAMPLESPERSEC;
-            }
-
-
-            // Thunk the nAvgBytesPerSec field.
-
-            if ( *pOrigFlags & MCI_WAVE_SET_AVGBYTESPERSEC ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_WAVE_SET_AVGBYTESPERSEC flag." ));
-                pSet->SetWaveParms.nAvgBytesPerSec =
-                    FETCHDWORD( lpSetWaveParms16->nAvgBytesPerSec );
-                dprintf5(( "nAvgBytesPerSec -> %u", pSet->SetWaveParms.nAvgBytesPerSec ));
-                *pOrigFlags ^= MCI_WAVE_SET_AVGBYTESPERSEC;
-            }
+        if (*pOrigFlags & MCI_WAVE_SET_FORMATTAG) {
+            dprintf4(("ThunkSetCmd: Got MCI_WAVE_SET_FORMATTAG flag."));
+            pSet->SetWaveParms.wFormatTag =
+                FETCHWORD(lpSetWaveParms16->wFormatTag);
+            dprintf5(("wFormatTag -> %u", pSet->SetWaveParms.wFormatTag));
+            *pOrigFlags ^= MCI_WAVE_SET_FORMATTAG;
+        }
 
 
-            // Thunk the nBlockAlign field.
+        // Thunk the nChannels field.
 
-            if ( *pOrigFlags & MCI_WAVE_SET_BLOCKALIGN ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_WAVE_SET_BLOCKALIGN flag." ));
-                pSet->SetWaveParms.nBlockAlign =
-                    FETCHWORD( lpSetWaveParms16->nBlockAlign );
-                dprintf5(( "nBlockAlign -> %u", pSet->SetWaveParms.nBlockAlign ));
-                *pOrigFlags ^= MCI_WAVE_SET_BLOCKALIGN;
-            }
-
-
-            // Thunk the nBitsPerSample field.
-
-            if ( *pOrigFlags & MCI_WAVE_SET_BITSPERSAMPLE ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_WAVE_SET_BITSPERSAMPLE flag." ));
-                pSet->SetWaveParms.wBitsPerSample =
-                    FETCHWORD( lpSetWaveParms16->wBitsPerSample );
-                dprintf5(( "wBitsPerSamples -> %u", pSet->SetWaveParms.wBitsPerSample ));
-                *pOrigFlags ^= MCI_WAVE_SET_BITSPERSAMPLE;
-            }
-
-            FREEVDMPTR( lpSetWaveParms16 );
-            break;
-
-        case MCI_DEVTYPE_SEQUENCER:
-
-            // Set up the VDM ptr for lpSetSeqParms16 to point to OrigParms
-
-            dprintf3(( "ThunkSetCmd: Got a Sequencer device." ));
-            GETVDMPTR( OrigParms, sizeof(MCI_WAVE_SET_PARMS16),
-                       lpSetSeqParms16 );
+        if (*pOrigFlags & MCI_WAVE_SET_CHANNELS) {
+            dprintf4(("ThunkSetCmd: Got MCI_WAVE_SET_CHANNELS flag."));
+            pSet->SetWaveParms.nChannels =
+                FETCHWORD(lpSetWaveParms16->nChannels);
+            dprintf5(("nChannels -> %u", pSet->SetWaveParms.nChannels));
+            *pOrigFlags ^= MCI_WAVE_SET_CHANNELS;
+        }
 
 
-            // Thunk the dwMaster field.
+        // Thunk the nSamplesPerSec field.
 
-            if ( *pOrigFlags & MCI_SEQ_SET_MASTER ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_SEQ_SET_MASTER flag." ));
-                pSet->SetSeqParms.dwMaster =
-                    FETCHDWORD( lpSetSeqParms16->dwMaster );
-                dprintf5(( "dwMaster -> %ld", pSet->SetSeqParms.dwMaster ));
-                *pOrigFlags ^= MCI_SEQ_SET_MASTER;
-            }
-
-
-            // Thunk the dwPort field.
-
-            if ( *pOrigFlags & MCI_SEQ_SET_PORT ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_SEQ_SET_PORT flag." ));
-                pSet->SetSeqParms.dwPort =
-                    FETCHDWORD( lpSetSeqParms16->dwPort );
-                dprintf5(( "dwPort -> %ld", pSet->SetSeqParms.dwPort ));
-                *pOrigFlags ^= MCI_SEQ_SET_PORT;
-            }
+        if (*pOrigFlags & MCI_WAVE_SET_SAMPLESPERSEC) {
+            dprintf4(("ThunkSetCmd: Got MCI_WAVE_SET_SAMPLESPERSEC flag."));
+            pSet->SetWaveParms.nSamplesPerSec =
+                FETCHDWORD(lpSetWaveParms16->nSamplesPerSecond);
+            dprintf5(("nSamplesPerSec -> %u", pSet->SetWaveParms.nSamplesPerSec));
+            *pOrigFlags ^= MCI_WAVE_SET_SAMPLESPERSEC;
+        }
 
 
-            // Thunk the dwOffset field.
+        // Thunk the nAvgBytesPerSec field.
 
-            if ( *pOrigFlags & MCI_SEQ_SET_OFFSET ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_SEQ_SET_OFFSET flag." ));
-                pSet->SetSeqParms.dwOffset=
-                    FETCHDWORD( lpSetSeqParms16->dwOffset );
-                dprintf5(( "dwOffset -> %ld", pSet->SetSeqParms.dwOffset ));
-                *pOrigFlags ^= MCI_SEQ_SET_OFFSET;
-            }
-
-
-            // Thunk the dwSlave field.
-
-            if ( *pOrigFlags & MCI_SEQ_SET_SLAVE ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_SEQ_SET_SLAVE flag." ));
-                pSet->SetSeqParms.dwSlave =
-                    FETCHDWORD( lpSetSeqParms16->dwSlave );
-                dprintf5(( "dwSlave -> %ld", pSet->SetSeqParms.dwSlave ));
-                *pOrigFlags ^= MCI_SEQ_SET_SLAVE;
-            }
+        if (*pOrigFlags & MCI_WAVE_SET_AVGBYTESPERSEC) {
+            dprintf4(("ThunkSetCmd: Got MCI_WAVE_SET_AVGBYTESPERSEC flag."));
+            pSet->SetWaveParms.nAvgBytesPerSec =
+                FETCHDWORD(lpSetWaveParms16->nAvgBytesPerSec);
+            dprintf5(("nAvgBytesPerSec -> %u", pSet->SetWaveParms.nAvgBytesPerSec));
+            *pOrigFlags ^= MCI_WAVE_SET_AVGBYTESPERSEC;
+        }
 
 
-            // Thunk the dwTempo field.
+        // Thunk the nBlockAlign field.
 
-            if ( *pOrigFlags & MCI_SEQ_SET_TEMPO ) {
-                dprintf4(( "ThunkSetCmd: Got MCI_SEQ_SET_TEMPO flag." ));
-                pSet->SetSeqParms.dwTempo =
-                    FETCHDWORD( lpSetSeqParms16->dwTempo );
-                dprintf5(( "dwTempo -> %ld", pSet->SetSeqParms.dwTempo ));
-                *pOrigFlags ^= MCI_SEQ_SET_TEMPO;
-            }
+        if (*pOrigFlags & MCI_WAVE_SET_BLOCKALIGN) {
+            dprintf4(("ThunkSetCmd: Got MCI_WAVE_SET_BLOCKALIGN flag."));
+            pSet->SetWaveParms.nBlockAlign =
+                FETCHWORD(lpSetWaveParms16->nBlockAlign);
+            dprintf5(("nBlockAlign -> %u", pSet->SetWaveParms.nBlockAlign));
+            *pOrigFlags ^= MCI_WAVE_SET_BLOCKALIGN;
+        }
 
-            FREEVDMPTR( lpSetSeqParms16 );
-            break;
+
+        // Thunk the nBitsPerSample field.
+
+        if (*pOrigFlags & MCI_WAVE_SET_BITSPERSAMPLE) {
+            dprintf4(("ThunkSetCmd: Got MCI_WAVE_SET_BITSPERSAMPLE flag."));
+            pSet->SetWaveParms.wBitsPerSample =
+                FETCHWORD(lpSetWaveParms16->wBitsPerSample);
+            dprintf5(("wBitsPerSamples -> %u", pSet->SetWaveParms.wBitsPerSample));
+            *pOrigFlags ^= MCI_WAVE_SET_BITSPERSAMPLE;
+        }
+
+        FREEVDMPTR(lpSetWaveParms16);
+        break;
+
+    case MCI_DEVTYPE_SEQUENCER:
+
+        // Set up the VDM ptr for lpSetSeqParms16 to point to OrigParms
+
+        dprintf3(("ThunkSetCmd: Got a Sequencer device."));
+        GETVDMPTR(OrigParms, sizeof(MCI_WAVE_SET_PARMS16),
+                  lpSetSeqParms16);
+
+
+        // Thunk the dwMaster field.
+
+        if (*pOrigFlags & MCI_SEQ_SET_MASTER) {
+            dprintf4(("ThunkSetCmd: Got MCI_SEQ_SET_MASTER flag."));
+            pSet->SetSeqParms.dwMaster =
+                FETCHDWORD(lpSetSeqParms16->dwMaster);
+            dprintf5(("dwMaster -> %ld", pSet->SetSeqParms.dwMaster));
+            *pOrigFlags ^= MCI_SEQ_SET_MASTER;
+        }
+
+
+        // Thunk the dwPort field.
+
+        if (*pOrigFlags & MCI_SEQ_SET_PORT) {
+            dprintf4(("ThunkSetCmd: Got MCI_SEQ_SET_PORT flag."));
+            pSet->SetSeqParms.dwPort =
+                FETCHDWORD(lpSetSeqParms16->dwPort);
+            dprintf5(("dwPort -> %ld", pSet->SetSeqParms.dwPort));
+            *pOrigFlags ^= MCI_SEQ_SET_PORT;
+        }
+
+
+        // Thunk the dwOffset field.
+
+        if (*pOrigFlags & MCI_SEQ_SET_OFFSET) {
+            dprintf4(("ThunkSetCmd: Got MCI_SEQ_SET_OFFSET flag."));
+            pSet->SetSeqParms.dwOffset =
+                FETCHDWORD(lpSetSeqParms16->dwOffset);
+            dprintf5(("dwOffset -> %ld", pSet->SetSeqParms.dwOffset));
+            *pOrigFlags ^= MCI_SEQ_SET_OFFSET;
+        }
+
+
+        // Thunk the dwSlave field.
+
+        if (*pOrigFlags & MCI_SEQ_SET_SLAVE) {
+            dprintf4(("ThunkSetCmd: Got MCI_SEQ_SET_SLAVE flag."));
+            pSet->SetSeqParms.dwSlave =
+                FETCHDWORD(lpSetSeqParms16->dwSlave);
+            dprintf5(("dwSlave -> %ld", pSet->SetSeqParms.dwSlave));
+            *pOrigFlags ^= MCI_SEQ_SET_SLAVE;
+        }
+
+
+        // Thunk the dwTempo field.
+
+        if (*pOrigFlags & MCI_SEQ_SET_TEMPO) {
+            dprintf4(("ThunkSetCmd: Got MCI_SEQ_SET_TEMPO flag."));
+            pSet->SetSeqParms.dwTempo =
+                FETCHDWORD(lpSetSeqParms16->dwTempo);
+            dprintf5(("dwTempo -> %ld", pSet->SetSeqParms.dwTempo));
+            *pOrigFlags ^= MCI_SEQ_SET_TEMPO;
+        }
+
+        FREEVDMPTR(lpSetSeqParms16);
+        break;
     }
 
     return (DWORD)pSet;
@@ -886,8 +882,8 @@ DWORD ThunkSetCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
 * Thunk the SetVideo mci command parms.
 
 */
-DWORD ThunkSetVideoCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags,
-                        DWORD OrigParms, DWORD pNewParms )
+DWORD ThunkSetVideoCmd(MCIDEVICEID DeviceID, PDWORD pOrigFlags,
+                       DWORD OrigParms, DWORD pNewParms)
 {
 
 
@@ -905,33 +901,32 @@ DWORD ThunkSetVideoCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags,
 
     // Set up the VDM ptr for lpSetParms16 to point to OrigParms
 
-    GETVDMPTR( OrigParms, sizeof(MCI_DGV_SETVIDEO_PARMS), lpSetParms16 );
+    GETVDMPTR(OrigParms, sizeof(MCI_DGV_SETVIDEO_PARMS), lpSetParms16);
 
-    if ( *pOrigFlags & MCI_DGV_SETVIDEO_ITEM ) {
+    if (*pOrigFlags & MCI_DGV_SETVIDEO_ITEM) {
 
-        dprintf4(( "ThunkSetVideoCmd: Got MCI_DGV_SETVIDEO_ITEM flag." ));
-        pSet->dwItem = FETCHDWORD( lpSetParms16->dwItem );
-        dprintf5(( "dwItem -> %ld", pSet->dwItem ));
+        dprintf4(("ThunkSetVideoCmd: Got MCI_DGV_SETVIDEO_ITEM flag."));
+        pSet->dwItem = FETCHDWORD(lpSetParms16->dwItem);
+        dprintf5(("dwItem -> %ld", pSet->dwItem));
         *pOrigFlags ^= MCI_DGV_SETVIDEO_ITEM;    // Mask out the flag
     }
 
-    if ( *pOrigFlags & MCI_DGV_SETVIDEO_VALUE ) {
+    if (*pOrigFlags & MCI_DGV_SETVIDEO_VALUE) {
 
-        if ( pSet->dwItem == MCI_DGV_SETVIDEO_PALHANDLE ) {
+        if (pSet->dwItem == MCI_DGV_SETVIDEO_PALHANDLE) {
 
             HPAL16  hpal16;
 
-            dprintf4(( "ThunkSetVideoCmd: Got MCI_DGV_SETVIDEO_PALHANLE." ));
+            dprintf4(("ThunkSetVideoCmd: Got MCI_DGV_SETVIDEO_PALHANLE."));
 
-            hpal16 = (HPAL16)LOWORD( FETCHDWORD( lpSetParms16->dwValue ) );
-            pSet->dwValue = (DWORD)HPALETTE32( hpal16 );
-            dprintf5(( "\t-> 0x%X", hpal16 ));
+            hpal16 = (HPAL16)LOWORD(FETCHDWORD(lpSetParms16->dwValue));
+            pSet->dwValue = (DWORD)HPALETTE32(hpal16);
+            dprintf5(("\t-> 0x%X", hpal16));
 
-        }
-        else {
-            dprintf4(( "ThunkSetVideoCmd: Got an MCI_INTEGER." ));
-            pSet->dwValue = FETCHDWORD( lpSetParms16->dwValue );
-            dprintf5(( "dwValue -> %ld", pSet->dwValue ));
+        } else {
+            dprintf4(("ThunkSetVideoCmd: Got an MCI_INTEGER."));
+            pSet->dwValue = FETCHDWORD(lpSetParms16->dwValue);
+            dprintf5(("dwValue -> %ld", pSet->dwValue));
         }
 
         *pOrigFlags ^= MCI_DGV_SETVIDEO_VALUE;    // Mask out the flag
@@ -940,16 +935,16 @@ DWORD ThunkSetVideoCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags,
 
     // Turn off the MCI_SET_ON FLAG.
 
-    if ( *pOrigFlags & MCI_SET_ON ) {
-        dprintf4(( "ThunkSetVideoCmd: Got MCI_SET_ON flag." ));
+    if (*pOrigFlags & MCI_SET_ON) {
+        dprintf4(("ThunkSetVideoCmd: Got MCI_SET_ON flag."));
         *pOrigFlags ^= MCI_SET_ON;    // Mask out the flag
     }
 
 
     // Turn off the MCI_SET_OFF FLAG.
 
-    if ( *pOrigFlags & MCI_SET_OFF ) {
-        dprintf4(( "ThunkSetVideoCmd: Got MCI_SET_OFF flag." ));
+    if (*pOrigFlags & MCI_SET_OFF) {
+        dprintf4(("ThunkSetVideoCmd: Got MCI_SET_OFF flag."));
         *pOrigFlags ^= MCI_SET_OFF;    // Mask out the flag
     }
 
@@ -962,7 +957,7 @@ DWORD ThunkSetVideoCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags,
 
 * Thunk the SysInfo mci command parms.
 */
-DWORD ThunkSysInfoCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
+DWORD ThunkSysInfoCmd(PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms)
 {
 
     // lpSysInfoParms16 points to the 16 bit parameter block
@@ -979,30 +974,29 @@ DWORD ThunkSysInfoCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 
     // Set up the VDM ptr for lpSysInfoParms16 to point to OrigParms
 
-    GETVDMPTR( OrigParms, sizeof(MCI_SYSINFO_PARMS16), lpSysInfoParms16 );
+    GETVDMPTR(OrigParms, sizeof(MCI_SYSINFO_PARMS16), lpSysInfoParms16);
 
 
     // Thunk the dwRetSize, dwNumber and wDeviceType parameters.
 
-    pSys->dwRetSize = FETCHDWORD( lpSysInfoParms16->dwRetSize );
-    dprintf5(( "dwRetSize -> %ld", pSys->dwRetSize ));
+    pSys->dwRetSize = FETCHDWORD(lpSysInfoParms16->dwRetSize);
+    dprintf5(("dwRetSize -> %ld", pSys->dwRetSize));
 
-    pSys->dwNumber = FETCHDWORD( lpSysInfoParms16->dwNumber );
-    dprintf5(( "dwNumber -> %ld", pSys->dwNumber ));
+    pSys->dwNumber = FETCHDWORD(lpSysInfoParms16->dwNumber);
+    dprintf5(("dwNumber -> %ld", pSys->dwNumber));
 
-    pSys->wDeviceType = (DWORD)FETCHWORD( lpSysInfoParms16->wDeviceType );
-    dprintf5(( "wDeviceType -> %ld", pSys->wDeviceType ));
+    pSys->wDeviceType = (DWORD)FETCHWORD(lpSysInfoParms16->wDeviceType);
+    dprintf5(("wDeviceType -> %ld", pSys->wDeviceType));
 
 
     // Thunk lpstrReturn
 
-    if ( pSys->dwRetSize > 0 ) {
-        GETVDMPTR( lpSysInfoParms16->lpstrReturn, pSys->dwRetSize,
-                   pSys->lpstrReturn );
-        dprintf5(( "lpstrReturn -> 0x%lX", lpSysInfoParms16->lpstrReturn ));
-    }
-    else {
-        dprintf1(( "ThunkSysInfoCmd: lpstrReturn is 0 bytes long !!!" ));
+    if (pSys->dwRetSize > 0) {
+        GETVDMPTR(lpSysInfoParms16->lpstrReturn, pSys->dwRetSize,
+                  pSys->lpstrReturn);
+        dprintf5(("lpstrReturn -> 0x%lX", lpSysInfoParms16->lpstrReturn));
+    } else {
+        dprintf1(("ThunkSysInfoCmd: lpstrReturn is 0 bytes long !!!"));
 
         /* lpstrReturn has been set to NULL by RtlZeroMemory above */
     }
@@ -1010,7 +1004,7 @@ DWORD ThunkSysInfoCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 
     // Free the VDM pointer as we have finished with it
 
-    FREEVDMPTR( lpSysInfoParms16 );
+    FREEVDMPTR(lpSysInfoParms16);
     return (DWORD)pSys;
 
 }
@@ -1020,7 +1014,7 @@ DWORD ThunkSysInfoCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 
 * Thunk the Break mci command parms.
 */
-DWORD ThunkBreakCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
+DWORD ThunkBreakCmd(PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms)
 {
 
     // lpBreakParms16 points to the 16 bit parameter block
@@ -1037,29 +1031,29 @@ DWORD ThunkBreakCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 
     // Set up the VDM ptr for lpBreakParms16 to point to OrigParms
 
-    GETVDMPTR( OrigParms, sizeof(MCI_BREAK_PARMS16), lpBreakParms16 );
+    GETVDMPTR(OrigParms, sizeof(MCI_BREAK_PARMS16), lpBreakParms16);
 
 
     // Check for the MCI_BREAK_KEY flag
 
-    if ( *pOrigFlags & MCI_BREAK_KEY ) {
-        dprintf4(( "ThunkBreakCmd: Got MCI_BREAK_KEY flag." ));
-        pBrk->nVirtKey = (int)FETCHWORD( lpBreakParms16->nVirtKey );
-        dprintf5(( "nVirtKey -> %d", pBrk->nVirtKey ));
+    if (*pOrigFlags & MCI_BREAK_KEY) {
+        dprintf4(("ThunkBreakCmd: Got MCI_BREAK_KEY flag."));
+        pBrk->nVirtKey = (int)FETCHWORD(lpBreakParms16->nVirtKey);
+        dprintf5(("nVirtKey -> %d", pBrk->nVirtKey));
     }
 
 
     // Check for the MCI_BREAK_HWND flag
 
-    if ( *pOrigFlags & MCI_BREAK_HWND ) {
-        dprintf4(( "ThunkBreakCmd: Got MCI_BREAK_HWND flag." ));
+    if (*pOrigFlags & MCI_BREAK_HWND) {
+        dprintf4(("ThunkBreakCmd: Got MCI_BREAK_HWND flag."));
         pBrk->hwndBreak = HWND32(FETCHWORD(lpBreakParms16->hwndBreak));
     }
 
 
     // Free the VDM pointer as we have finished with it
 
-    FREEVDMPTR( lpBreakParms16 );
+    FREEVDMPTR(lpBreakParms16);
     return (DWORD)pBrk;
 
 }
@@ -1069,8 +1063,8 @@ DWORD ThunkBreakCmd( PDWORD pOrigFlags, DWORD OrigParms, DWORD pNewParms )
 
 * Thunk the mci Window command parms.
 */
-DWORD ThunkWindowCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
-                      DWORD pNewParms )
+DWORD ThunkWindowCmd(MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
+                     DWORD pNewParms)
 {
 
     // lpAni will point to the 32 bit Anim Window Parms
@@ -1098,10 +1092,10 @@ DWORD ThunkWindowCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
     // command to the device. (We might as well use the Unicode
     // version of mciSendCommand and avoid another thunk).
 
-    RtlZeroMemory( &GetDevCaps, sizeof(MCI_GETDEVCAPS_PARMS) );
+    RtlZeroMemory(&GetDevCaps, sizeof(MCI_GETDEVCAPS_PARMS));
     GetDevCaps.dwItem = MCI_GETDEVCAPS_DEVICE_TYPE;
-    dwRetVal = (*mmAPISendCmdW)( DeviceID, MCI_GETDEVCAPS, MCI_GETDEVCAPS_ITEM,
-                                (DWORD)&GetDevCaps );
+    dwRetVal = (*mmAPISendCmdW)(DeviceID, MCI_GETDEVCAPS, MCI_GETDEVCAPS_ITEM,
+        (DWORD)&GetDevCaps);
 
     // What do we do if dwRetCode is not equal to 0 ?  If this is the
     // case it probably means that we have been given a duff device ID,
@@ -1112,7 +1106,7 @@ DWORD ThunkWindowCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
     // the device ID is duff, mciSendCommand should be able to work out a
     // suitable error code to return to the application.
 
-    if ( dwRetVal ) {
+    if (dwRetVal) {
         *pOrigFlags = 0;
         return pNewParms;
     }
@@ -1122,26 +1116,26 @@ DWORD ThunkWindowCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
     // Because Animation and Overlay have identical flags and
     // parms structures they can share the same code.
 
-    if ( GetDevCaps.dwReturn == MCI_DEVTYPE_ANIMATION
-      || GetDevCaps.dwReturn == MCI_DEVTYPE_OVERLAY
-      || GetDevCaps.dwReturn == MCI_DEVTYPE_DIGITAL_VIDEO ) {
+    if (GetDevCaps.dwReturn == MCI_DEVTYPE_ANIMATION
+        || GetDevCaps.dwReturn == MCI_DEVTYPE_OVERLAY
+        || GetDevCaps.dwReturn == MCI_DEVTYPE_DIGITAL_VIDEO) {
 
 
         // Set up the VDM ptr for lpWineParms16 to point to OrigParms
 
-        GETVDMPTR( OrigParms, sizeof(MCI_ANIM_WINDOW_PARMS16),
-                   lpAniParms16 );
+        GETVDMPTR(OrigParms, sizeof(MCI_ANIM_WINDOW_PARMS16),
+                  lpAniParms16);
 
 
         // Check for the MCI_ANIM_WINDOW_TEXT
 
-        if ( *pOrigFlags & MCI_ANIM_WINDOW_TEXT ) {
-            dprintf4(( "ThunkWindowCmd: Got MCI_Xxxx_WINDOW_TEXT flag." ));
+        if (*pOrigFlags & MCI_ANIM_WINDOW_TEXT) {
+            dprintf4(("ThunkWindowCmd: Got MCI_Xxxx_WINDOW_TEXT flag."));
 
-            GETPSZPTR( lpAniParms16->lpstrText, lpAni->lpstrText );
+            GETPSZPTR(lpAniParms16->lpstrText, lpAni->lpstrText);
 
-            dprintf5(( "lpstrText -> %s", lpAni->lpstrText ));
-            dprintf5(( "lpstrText -> 0x%lX", lpAni->lpstrText ));
+            dprintf5(("lpstrText -> %s", lpAni->lpstrText));
+            dprintf5(("lpstrText -> 0x%lX", lpAni->lpstrText));
             *pOrigFlags ^= MCI_ANIM_WINDOW_TEXT;
 
         }
@@ -1149,43 +1143,43 @@ DWORD ThunkWindowCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
 
         // Check for the MCI_ANIM_WINDOW_HWND flag
 
-        if ( *pOrigFlags & MCI_ANIM_WINDOW_HWND ) {
-            dprintf4(( "ThunkWindowCmd: Got MCI_Xxxx_WINDOW_HWND flag." ));
-            lpAni->hWnd = HWND32( FETCHWORD( lpAniParms16->hWnd ) );
-            dprintf5(( "hWnd -> 0x%lX", lpAni->hWnd ));
+        if (*pOrigFlags & MCI_ANIM_WINDOW_HWND) {
+            dprintf4(("ThunkWindowCmd: Got MCI_Xxxx_WINDOW_HWND flag."));
+            lpAni->hWnd = HWND32(FETCHWORD(lpAniParms16->hWnd));
+            dprintf5(("hWnd -> 0x%lX", lpAni->hWnd));
             *pOrigFlags ^= MCI_ANIM_WINDOW_HWND;
         }
 
 
         // Check for the MCI_ANIM_WINDOW_STATE flag
 
-        if ( *pOrigFlags & MCI_ANIM_WINDOW_STATE ) {
-            dprintf4(( "ThunkWindowCmd: Got MCI_Xxxx_WINDOW_STATE flag." ));
-            lpAni->nCmdShow = FETCHWORD( lpAniParms16->nCmdShow );
-            dprintf5(( "nCmdShow -> 0x%lX", lpAni->nCmdShow ));
+        if (*pOrigFlags & MCI_ANIM_WINDOW_STATE) {
+            dprintf4(("ThunkWindowCmd: Got MCI_Xxxx_WINDOW_STATE flag."));
+            lpAni->nCmdShow = FETCHWORD(lpAniParms16->nCmdShow);
+            dprintf5(("nCmdShow -> 0x%lX", lpAni->nCmdShow));
             *pOrigFlags ^= MCI_ANIM_WINDOW_STATE;
         }
 
 
         // Check for the MCI_ANIM_WINDOW_DISABLE_STRETCH flag
 
-        if ( *pOrigFlags & MCI_ANIM_WINDOW_DISABLE_STRETCH ) {
-            dprintf4(( "ThunkWindowCmd: Got MCI_Xxxx_WINDOW_DISABLE_STRETCH flag." ));
+        if (*pOrigFlags & MCI_ANIM_WINDOW_DISABLE_STRETCH) {
+            dprintf4(("ThunkWindowCmd: Got MCI_Xxxx_WINDOW_DISABLE_STRETCH flag."));
             *pOrigFlags ^= MCI_ANIM_WINDOW_DISABLE_STRETCH;
         }
 
 
         // Check for the MCI_ANIM_WINDOW_ENABLE_STRETCH flag
 
-        if ( *pOrigFlags & MCI_ANIM_WINDOW_ENABLE_STRETCH ) {
-            dprintf4(( "ThunkWindowCmd: Got MCI_Xxxx_WINDOW_ENABLE_STRETCH flag." ));
+        if (*pOrigFlags & MCI_ANIM_WINDOW_ENABLE_STRETCH) {
+            dprintf4(("ThunkWindowCmd: Got MCI_Xxxx_WINDOW_ENABLE_STRETCH flag."));
             *pOrigFlags ^= MCI_ANIM_WINDOW_ENABLE_STRETCH;
         }
 
 
         // Free the VDM pointer as we have finished with it
 
-        FREEVDMPTR( lpAniParms16 );
+        FREEVDMPTR(lpAniParms16);
         return (DWORD)lpAni;
 
     }
@@ -1198,8 +1192,8 @@ DWORD ThunkWindowCmd( MCIDEVICEID DeviceID, PDWORD pOrigFlags, DWORD OrigParms,
 *  ThunkCommandViaTable
 
 */
-INT ThunkCommandViaTable( LPWSTR lpCommand, DWORD dwFlags, DWORD OrigParms,
-                          DWORD pNewParms )
+INT ThunkCommandViaTable(LPWSTR lpCommand, DWORD dwFlags, DWORD OrigParms,
+                         DWORD pNewParms)
 {
 
 #if DBG
@@ -1226,14 +1220,14 @@ INT ThunkCommandViaTable( LPWSTR lpCommand, DWORD dwFlags, DWORD OrigParms,
     // Calculate the size of this command parameter block in terms
     // of bytes, then get a VDM pointer to the OrigParms.
 
-    GETVDMPTR( OrigParms, GetSizeOfParameter( lpCommand ), pdwOrig16 );
-    dprintf3(( "%s16 bit Parms -> %lX", f_name, pdwOrig16 ));
+    GETVDMPTR(OrigParms, GetSizeOfParameter(lpCommand), pdwOrig16);
+    dprintf3(("%s16 bit Parms -> %lX", f_name, pdwOrig16));
 
 
     // Skip past command entry
 
     lpCommand = (LPWSTR)((LPBYTE)lpCommand +
-                    (*mmAPIEatCmdEntry)( lpCommand, NULL, NULL ));
+        (*mmAPIEatCmdEntry)(lpCommand, NULL, NULL));
 
     // Get the next entry
 
@@ -1245,19 +1239,19 @@ INT ThunkCommandViaTable( LPWSTR lpCommand, DWORD dwFlags, DWORD OrigParms,
     wOffset1stParm32 = wOffset1stParm16 = 4;
 
     lpCommand = (LPWSTR)((LPBYTE)lpCommand +
-                    (*mmAPIEatCmdEntry)( lpCommand, &dwValue, &wID ));
+        (*mmAPIEatCmdEntry)(lpCommand, &dwValue, &wID));
 
     // If it is a return value, skip it
 
-    if ( wID == MCI_RETURN ) {
+    if (wID == MCI_RETURN) {
 
 
         // Look for a string return type, these are a special case.
 
-        if ( dwValue == MCI_STRING ) {
+        if (dwValue == MCI_STRING) {
 
             DWORD   dwStrlen;
-            LPSTR   *lplpStr;
+            LPSTR* lplpStr;
 
 
             // Get string pointer and length
@@ -1268,11 +1262,11 @@ INT ThunkCommandViaTable( LPWSTR lpCommand, DWORD dwFlags, DWORD OrigParms,
 
             // Copy string pointer
 
-            lplpStr = (LPSTR *)((LPBYTE)pNewParms + 4);
-            if ( dwStrlen > 0 ) {
-                GETVDMPTR( dwParm16, dwStrlen, *lplpStr );
-                dprintf5(( "%sReturn string -> 0x%lX", f_name, *lplpStr ));
-                dprintf5(( "%sReturn length -> 0x%lX", f_name, dwStrlen ));
+            lplpStr = (LPSTR*)((LPBYTE)pNewParms + 4);
+            if (dwStrlen > 0) {
+                GETVDMPTR(dwParm16, dwStrlen, *lplpStr);
+                dprintf5(("%sReturn string -> 0x%lX", f_name, *lplpStr));
+                dprintf5(("%sReturn length -> 0x%lX", f_name, dwStrlen));
             }
 
 
@@ -1286,7 +1280,7 @@ INT ThunkCommandViaTable( LPWSTR lpCommand, DWORD dwFlags, DWORD OrigParms,
         // Adjust the offset of the first parameter.  Remember that RECTS
         // are a different size in 16-bit world.
 
-        wParamSize = (*mmAPIGetParamSize)( dwValue, wID );
+        wParamSize = (*mmAPIGetParamSize)(dwValue, wID);
         wOffset1stParm16 += (dwValue == MCI_RECT ? sizeof(RECT16) : wParamSize);
         wOffset1stParm32 += wParamSize;
 
@@ -1299,117 +1293,117 @@ INT ThunkCommandViaTable( LPWSTR lpCommand, DWORD dwFlags, DWORD OrigParms,
 
     // Walk through each flag
 
-    while ( dwMask != 0 ) {
+    while (dwMask != 0) {
 
 
         // Is this bit set?
 
-        if ( (dwFlags & dwMask) != 0 ) {
+        if ((dwFlags & dwMask) != 0) {
 
             wOffset16 = wOffset1stParm16;
             wOffset32 = wOffset1stParm32;
             lpCommand = (LPWSTR)((LPBYTE)lpFirstParameter +
-                                         (*mmAPIEatCmdEntry)( lpFirstParameter,
-                                                              &dwValue, &wID ));
+                (*mmAPIEatCmdEntry)(lpFirstParameter,
+                                    &dwValue, &wID));
 
 
             // What parameter uses this bit?
 
-            while ( wID != MCI_END_COMMAND && dwValue != dwMask ) {
+            while (wID != MCI_END_COMMAND && dwValue != dwMask) {
 
-                wParamSize = (*mmAPIGetParamSize)( dwValue, wID );
-                wOffset16 += (wID == MCI_RECT ? sizeof( RECT16 ) : wParamSize);
+                wParamSize = (*mmAPIGetParamSize)(dwValue, wID);
+                wOffset16 += (wID == MCI_RECT ? sizeof(RECT16) : wParamSize);
                 wOffset32 += wParamSize;
 
-                if ( wID == MCI_CONSTANT ) {
+                if (wID == MCI_CONSTANT) {
 
-                    while ( wID != MCI_END_CONSTANT ) {
+                    while (wID != MCI_END_CONSTANT) {
 
                         lpCommand = (LPWSTR)((LPBYTE)lpCommand +
-                                (*mmAPIEatCmdEntry)( lpCommand, NULL, &wID ));
+                            (*mmAPIEatCmdEntry)(lpCommand, NULL, &wID));
                     }
                 }
                 lpCommand = (LPWSTR)((LPBYTE)lpCommand +
-                             (*mmAPIEatCmdEntry)( lpCommand, &dwValue, &wID ));
+                    (*mmAPIEatCmdEntry)(lpCommand, &dwValue, &wID));
             }
 
-            if ( wID != MCI_END_COMMAND ) {
+            if (wID != MCI_END_COMMAND) {
 
 
                 // Thunk the argument if there is one.  The argument is at
                 // wOffset16 from the start of OrigParms.
                 // This offset is in bytes.
 
-                dprintf5(( "%sOffset 16 -> 0x%lX", f_name, wOffset16 ));
-                dprintf5(( "%sOffset 32 -> 0x%lX", f_name, wOffset32 ));
+                dprintf5(("%sOffset 16 -> 0x%lX", f_name, wOffset16));
+                dprintf5(("%sOffset 32 -> 0x%lX", f_name, wOffset32));
 
-                if ( wID != MCI_FLAG ) {
+                if (wID != MCI_FLAG) {
                     dwParm16 = FETCHDWORD(*(LPDWORD)((LPBYTE)pdwOrig16 + wOffset16));
                     pdwParm32 = (LPDWORD)((LPBYTE)pNewParms + wOffset32);
                 }
 
-                switch ( wID ) {
+                switch (wID) {
 
-                    case MCI_STRING:
-                        {
-                            LPSTR   str16 = (LPSTR)dwParm16;
-                            LPSTR   str32 = (LPSTR)*pdwParm32;
-                            dprintf4(( "%sGot STRING flag -> 0x%lX", f_name, dwMask ));
-                            GETPSZPTR( str16, str32 );
-                            dprintf5(( "%s\t-> 0x%lX", f_name, *pdwParm32 ));
-                            dprintf5(( "%s\t-> %s", f_name, *pdwParm32 ));
-                        }
-                        break;
+                case MCI_STRING:
+                {
+                    LPSTR   str16 = (LPSTR)dwParm16;
+                    LPSTR   str32 = (LPSTR)*pdwParm32;
+                    dprintf4(("%sGot STRING flag -> 0x%lX", f_name, dwMask));
+                    GETPSZPTR(str16, str32);
+                    dprintf5(("%s\t-> 0x%lX", f_name, *pdwParm32));
+                    dprintf5(("%s\t-> %s", f_name, *pdwParm32));
+                }
+                break;
 
-                    case MCI_HWND:
-                        {
-                            HWND16  hwnd16;
-                            dprintf4(( "%sGot HWND flag -> 0x%lX", f_name, dwMask ));
-                            hwnd16 = (HWND16)LOWORD( dwParm16 );
-                            *pdwParm32 = (DWORD)HWND32( hwnd16 );
-                            dprintf5(( "\t-> 0x%X", hwnd16 ));
-                        }
-                        break;
+                case MCI_HWND:
+                {
+                    HWND16  hwnd16;
+                    dprintf4(("%sGot HWND flag -> 0x%lX", f_name, dwMask));
+                    hwnd16 = (HWND16)LOWORD(dwParm16);
+                    *pdwParm32 = (DWORD)HWND32(hwnd16);
+                    dprintf5(("\t-> 0x%X", hwnd16));
+                }
+                break;
 
-                    case MCI_HPAL:
-                        {
-                            HPAL16  hpal16;
-                            dprintf4(( "%sGot HPAL flag -> 0x%lX", f_name, dwMask ));
-                            hpal16 = (HPAL16)LOWORD( dwParm16 );
-                            *pdwParm32 = (DWORD)HPALETTE32( hpal16 );
-                            dprintf5(( "\t-> 0x%X", hpal16 ));
-                        }
-                        break;
+                case MCI_HPAL:
+                {
+                    HPAL16  hpal16;
+                    dprintf4(("%sGot HPAL flag -> 0x%lX", f_name, dwMask));
+                    hpal16 = (HPAL16)LOWORD(dwParm16);
+                    *pdwParm32 = (DWORD)HPALETTE32(hpal16);
+                    dprintf5(("\t-> 0x%X", hpal16));
+                }
+                break;
 
-                    case MCI_HDC:
-                        {
-                            HDC16   hdc16;
-                            dprintf4(( "%sGot HDC flag -> 0x%lX", f_name, dwMask ));
-                            hdc16 = (HDC16)LOWORD( dwParm16 );
-                            *pdwParm32 = (DWORD)HDC32( hdc16 );
-                            dprintf5(( "\t-> 0x%X", hdc16 ));
-                        }
-                        break;
+                case MCI_HDC:
+                {
+                    HDC16   hdc16;
+                    dprintf4(("%sGot HDC flag -> 0x%lX", f_name, dwMask));
+                    hdc16 = (HDC16)LOWORD(dwParm16);
+                    *pdwParm32 = (DWORD)HDC32(hdc16);
+                    dprintf5(("\t-> 0x%X", hdc16));
+                }
+                break;
 
-                    case MCI_RECT:
-                        {
-                            PRECT16 pRect16 = (PRECT16)((LPBYTE)pdwOrig16 + wOffset16);
-                            PRECT   pRect32 = (PRECT)pdwParm32;
+                case MCI_RECT:
+                {
+                    PRECT16 pRect16 = (PRECT16)((LPBYTE)pdwOrig16 + wOffset16);
+                    PRECT   pRect32 = (PRECT)pdwParm32;
 
-                            dprintf4(( "%sGot RECT flag -> 0x%lX", f_name, dwMask ));
-                            pRect32->top    = (LONG)pRect16->top;
-                            pRect32->bottom = (LONG)pRect16->bottom;
-                            pRect32->left   = (LONG)pRect16->left;
-                            pRect32->right  = (LONG)pRect16->right;
-                        }
-                        break;
+                    dprintf4(("%sGot RECT flag -> 0x%lX", f_name, dwMask));
+                    pRect32->top = (LONG)pRect16->top;
+                    pRect32->bottom = (LONG)pRect16->bottom;
+                    pRect32->left = (LONG)pRect16->left;
+                    pRect32->right = (LONG)pRect16->right;
+                }
+                break;
 
-                    case MCI_CONSTANT:
-                    case MCI_INTEGER:
-                        dprintf4(( "%sGot INTEGER flag -> 0x%lX", f_name, dwMask ));
-                        *pdwParm32 = dwParm16;
-                        dprintf5(( "\t-> 0x%lX", dwParm16 ));
-                        break;
+                case MCI_CONSTANT:
+                case MCI_INTEGER:
+                    dprintf4(("%sGot INTEGER flag -> 0x%lX", f_name, dwMask));
+                    *pdwParm32 = dwParm16;
+                    dprintf5(("\t-> 0x%lX", dwParm16));
+                    break;
                 }
             }
         }
@@ -1423,7 +1417,7 @@ INT ThunkCommandViaTable( LPWSTR lpCommand, DWORD dwFlags, DWORD OrigParms,
 
     // Free the VDM pointer as we have finished with it
 
-    FREEVDMPTR( pdwOrig16 );
+    FREEVDMPTR(pdwOrig16);
     return 0;
 }
 
@@ -1431,7 +1425,7 @@ INT ThunkCommandViaTable( LPWSTR lpCommand, DWORD dwFlags, DWORD OrigParms,
 *  GetSizeOfParameter
 
 */
-UINT GetSizeOfParameter( LPWSTR lpCommand )
+UINT GetSizeOfParameter(LPWSTR lpCommand)
 {
 
 #if DBG
@@ -1445,8 +1439,8 @@ UINT GetSizeOfParameter( LPWSTR lpCommand )
 
     // Skip past command entry
 
-    lpCommand = (LPWSTR)((LPBYTE)lpCommand + (*mmAPIEatCmdEntry)( lpCommand,
-                                                                  NULL, NULL ));
+    lpCommand = (LPWSTR)((LPBYTE)lpCommand + (*mmAPIEatCmdEntry)(lpCommand,
+                                                                 NULL, NULL));
 
     // Skip past the DWORD return value
 
@@ -1456,56 +1450,54 @@ UINT GetSizeOfParameter( LPWSTR lpCommand )
     // Get the first parameter slot entry
 
     lpCommand = (LPWSTR)((LPBYTE)lpCommand +
-                    (*mmAPIEatCmdEntry)( lpCommand, &dwValue, &wID ));
+        (*mmAPIEatCmdEntry)(lpCommand, &dwValue, &wID));
 
     // If it is a return value, skip it
 
-    if ( wID == MCI_RETURN ) {
+    if (wID == MCI_RETURN) {
 
 
         // Don't forget that RECT's are smaller in 16-bit world.
         // Other parameters are OK though
 
-        if ( dwValue == MCI_RECT ) {
-            wOffset += sizeof( RECT16 );
-        }
-        else {
-            wOffset += (*mmAPIGetParamSize)( dwValue, wID );
+        if (dwValue == MCI_RECT) {
+            wOffset += sizeof(RECT16);
+        } else {
+            wOffset += (*mmAPIGetParamSize)(dwValue, wID);
         }
 
 
         // Get first proper entry that is not a return field.
 
         lpCommand = (LPWSTR)((LPBYTE)lpCommand +
-                        (*mmAPIEatCmdEntry)( lpCommand, &dwValue, &wID ));
+            (*mmAPIEatCmdEntry)(lpCommand, &dwValue, &wID));
     }
 
 
     // What parameter uses this bit?
 
-    while ( wID != MCI_END_COMMAND ) {
+    while (wID != MCI_END_COMMAND) {
 
 
         // Don't forget that RECT's are smaller in 16-bit world.
         // Other parameters are OK though
 
-        if ( wID == MCI_RECT ) {
-            wOffset += sizeof( RECT16 );
-        }
-        else {
-            wOffset += (*mmAPIGetParamSize)( dwValue, wID );
+        if (wID == MCI_RECT) {
+            wOffset += sizeof(RECT16);
+        } else {
+            wOffset += (*mmAPIGetParamSize)(dwValue, wID);
         }
 
 
         // If we have a constant we need to skip the entries in
         // the command table.
 
-        if ( wID == MCI_CONSTANT ) {
+        if (wID == MCI_CONSTANT) {
 
-            while ( wID != MCI_END_CONSTANT ) {
+            while (wID != MCI_END_CONSTANT) {
 
                 lpCommand = (LPWSTR)((LPBYTE)lpCommand
-                    + (*mmAPIEatCmdEntry)( lpCommand, NULL, &wID ));
+                                     + (*mmAPIEatCmdEntry)(lpCommand, NULL, &wID));
             }
         }
 
@@ -1513,10 +1505,10 @@ UINT GetSizeOfParameter( LPWSTR lpCommand )
         // Get the next entry
 
         lpCommand = (LPWSTR)((LPBYTE)lpCommand
-                     + (*mmAPIEatCmdEntry)( lpCommand, &dwValue, &wID ));
+                             + (*mmAPIEatCmdEntry)(lpCommand, &dwValue, &wID));
     }
 
-    dprintf4(( "%sSizeof Cmd Params -> %u bytes", f_name, wOffset ));
+    dprintf4(("%sSizeof Cmd Params -> %u bytes", f_name, wOffset));
     return wOffset;
 }
 
@@ -1532,7 +1524,7 @@ UINT GetSizeOfParameter( LPWSTR lpCommand )
  * Output a formated message to the debug terminal.
 
 */
-VOID wow32MciDebugOutput( LPSTR lpszFormatStr, ... )
+VOID wow32MciDebugOutput(LPSTR lpszFormatStr, ...)
 {
     CHAR buf[256];
     UINT n;
@@ -1552,7 +1544,7 @@ VOID wow32MciDebugOutput( LPSTR lpszFormatStr, ... )
 
  * Query and set the debug level.
 */
-VOID wow32MciSetDebugLevel( VOID )
+VOID wow32MciSetDebugLevel(VOID)
 {
 
     int DebugLevel;
@@ -1561,7 +1553,7 @@ VOID wow32MciSetDebugLevel( VOID )
     // First see if a specific WOW32MCI key has been defined.
     // If one hasn't been defined DebugLevel will be set to '999'.
 
-    DebugLevel = (int)GetProfileInt( "MMDEBUG", "WOW32MCI", 999 );
+    DebugLevel = (int)GetProfileInt("MMDEBUG", "WOW32MCI", 999);
 
 
     // If DebugLevel == '999' then an WOW32MCI key has not been defined,
@@ -1569,8 +1561,8 @@ VOID wow32MciSetDebugLevel( VOID )
     // set the debug level to 0, ie. no debugging info should be
     // displayed.
 
-    if ( DebugLevel == 999 ) {
-        DebugLevel = (int)GetProfileInt( "MMDEBUG", "WOW32", 0 );
+    if (DebugLevel == 999) {
+        DebugLevel = (int)GetProfileInt("MMDEBUG", "WOW32", 0);
     }
 
     mmDebugLevel = DebugLevel;

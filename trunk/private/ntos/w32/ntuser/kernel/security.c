@@ -21,7 +21,7 @@
 */
 PSECURITY_DESCRIPTOR gpsdInitWinSta;
 
-PRIVILEGE_SET psTcb = { 1, PRIVILEGE_SET_ALL_NECESSARY,
+PRIVILEGE_SET psTcb = {1, PRIVILEGE_SET_ALL_NECESSARY,
     { SE_TCB_PRIVILEGE, 0 }
 };
 
@@ -100,8 +100,8 @@ PSECURITY_DESCRIPTOR CreateSecurityDescriptor(
      * Allocate the security descriptor
      */
     psd = (PSECURITY_DESCRIPTOR)UserAllocPoolWithQuota(
-            cbAce + sizeof(ACL) + SECURITY_DESCRIPTOR_MIN_LENGTH,
-            TAG_SECURITY);
+        cbAce + sizeof(ACL) + SECURITY_DESCRIPTOR_MIN_LENGTH,
+        TAG_SECURITY);
     if (psd == NULL)
         return NULL;
     RtlCreateSecurityDescriptor(psd, SECURITY_DESCRIPTOR_REVISION);
@@ -123,9 +123,9 @@ PSECURITY_DESCRIPTOR CreateSecurityDescriptor(
              * Initialize the SD
              */
             Status = RtlSetDaclSecurityDescriptor(psd, (BOOLEAN)TRUE,
-                    pacl, fDaclDefaulted);
+                                                  pacl, fDaclDefaulted);
             RtlSetSaclSecurityDescriptor(psd, (BOOLEAN)FALSE, NULL,
-                    (BOOLEAN)FALSE);
+                (BOOLEAN)FALSE);
             RtlSetOwnerSecurityDescriptor(psd, NULL, (BOOLEAN)FALSE);
             RtlSetGroupSecurityDescriptor(psd, NULL, (BOOLEAN)FALSE);
         }
@@ -163,20 +163,20 @@ BOOL InitSecurity(
      * Create ACE list.
      */
     paceList = AllocAce(NULL,
-            ACCESS_ALLOWED_ACE_TYPE,
-            CONTAINER_INHERIT_ACE | INHERIT_ONLY_ACE | NO_PROPAGATE_INHERIT_ACE,
-            WinStaMapping.GenericAll,
-            SeExports->SeWorldSid,
-            &dwLength);
+                        ACCESS_ALLOWED_ACE_TYPE,
+                        CONTAINER_INHERIT_ACE | INHERIT_ONLY_ACE | NO_PROPAGATE_INHERIT_ACE,
+                        WinStaMapping.GenericAll,
+                        SeExports->SeWorldSid,
+                        &dwLength);
     if (paceList == NULL)
         return FALSE;
 
     pace = AllocAce(paceList,
-            ACCESS_ALLOWED_ACE_TYPE,
-            CONTAINER_INHERIT_ACE | INHERIT_ONLY_ACE | NO_PROPAGATE_INHERIT_ACE,
-            WinStaMapping.GenericAll,
-            SeExports->SeRestrictedSid,
-            &dwLength);
+                    ACCESS_ALLOWED_ACE_TYPE,
+                    CONTAINER_INHERIT_ACE | INHERIT_ONLY_ACE | NO_PROPAGATE_INHERIT_ACE,
+                    WinStaMapping.GenericAll,
+                    SeExports->SeRestrictedSid,
+                    &dwLength);
     if (pace == NULL) {
         UserFreePool(paceList);
         return FALSE;
@@ -184,8 +184,8 @@ BOOL InitSecurity(
     paceList = pace;
 
     pace = AllocAce(paceList, ACCESS_ALLOWED_ACE_TYPE,
-            OBJECT_INHERIT_ACE | INHERIT_ONLY_ACE,
-            GENERIC_ALL, SeExports->SeWorldSid, &dwLength);
+                    OBJECT_INHERIT_ACE | INHERIT_ONLY_ACE,
+                    GENERIC_ALL, SeExports->SeWorldSid, &dwLength);
     if (pace == NULL) {
         UserFreePool(paceList);
         return FALSE;
@@ -193,8 +193,8 @@ BOOL InitSecurity(
     paceList = pace;
 
     pace = AllocAce(paceList, ACCESS_ALLOWED_ACE_TYPE,
-            OBJECT_INHERIT_ACE | INHERIT_ONLY_ACE,
-            GENERIC_ALL, SeExports->SeRestrictedSid, &dwLength);
+                    OBJECT_INHERIT_ACE | INHERIT_ONLY_ACE,
+                    GENERIC_ALL, SeExports->SeRestrictedSid, &dwLength);
     if (pace == NULL) {
         UserFreePool(paceList);
         return FALSE;
@@ -202,8 +202,8 @@ BOOL InitSecurity(
     paceList = pace;
 
     pace = AllocAce(paceList, ACCESS_ALLOWED_ACE_TYPE,
-            0, DIRECTORY_QUERY | DIRECTORY_CREATE_OBJECT,
-            SeExports->SeAliasAdminsSid, &dwLength);
+                    0, DIRECTORY_QUERY | DIRECTORY_CREATE_OBJECT,
+                    SeExports->SeAliasAdminsSid, &dwLength);
     if (pace == NULL) {
         UserFreePool(paceList);
         return FALSE;
@@ -211,7 +211,7 @@ BOOL InitSecurity(
     paceList = pace;
 
     pace = AllocAce(paceList, ACCESS_ALLOWED_ACE_TYPE,
-            0, DIRECTORY_TRAVERSE, SeExports->SeWorldSid, &dwLength);
+                    0, DIRECTORY_TRAVERSE, SeExports->SeWorldSid, &dwLength);
     if (pace == NULL) {
         UserFreePool(paceList);
         return FALSE;
@@ -219,7 +219,7 @@ BOOL InitSecurity(
     paceList = pace;
 
     pace = AllocAce(paceList, ACCESS_ALLOWED_ACE_TYPE,
-            0, DIRECTORY_TRAVERSE, SeExports->SeRestrictedSid, &dwLength);
+                    0, DIRECTORY_TRAVERSE, SeExports->SeRestrictedSid, &dwLength);
     if (pace == NULL) {
         UserFreePool(paceList);
         return FALSE;
@@ -253,7 +253,7 @@ BOOL InitSecurity(
 NTSTATUS
 TestForInteractiveUser(
     PLUID pluidCaller
-    )
+)
 {
     PWINDOWSTATION pwinsta;
 
@@ -294,7 +294,7 @@ NTSTATUS
 _UserTestForWinStaAccess(
     PUNICODE_STRING pstrWinSta,
     BOOL fInherit
-    )
+)
 {
     PTOKEN_STATISTICS   pStats;
     ULONG               BytesRequired;
@@ -303,7 +303,7 @@ _UserTestForWinStaAccess(
     OBJECT_ATTRIBUTES   ObjAttr;
     POBJECT_ATTRIBUTES  pObjAttr = NULL;
     PUNICODE_STRING     pstrStatic;
-    NTSTATUS            Status =  STATUS_SUCCESS;
+    NTSTATUS            Status = STATUS_SUCCESS;
     SIZE_T              cbObjA;
     UNICODE_STRING      strDefWinSta;
     HANDLE              htoken;
@@ -334,12 +334,12 @@ _UserTestForWinStaAccess(
         }
 
         Status = ZwQueryInformationToken(
-                     htoken,                 // Handle
-                     TokenStatistics,           // TokenInformationClass
-                     NULL,                      // TokenInformation
-                     0,                         // TokenInformationLength
-                     &BytesRequired             // ReturnLength
-                     );
+            htoken,                 // Handle
+            TokenStatistics,           // TokenInformationClass
+            NULL,                      // TokenInformation
+            0,                         // TokenInformationLength
+            &BytesRequired             // ReturnLength
+        );
 
         if (Status != STATUS_BUFFER_TOO_SMALL) {
             ZwClose(htoken);
@@ -362,12 +362,12 @@ _UserTestForWinStaAccess(
 
 
         if (!NT_SUCCESS(Status = ZwQueryInformationToken(
-                     htoken,             // Handle
-                     TokenStatistics,       // TokenInformationClass
-                     pStats,                // TokenInformation
-                     BytesRequired,         // TokenInformationLength
-                     &BytesRequired         // ReturnLength
-                     ))) {
+            htoken,             // Handle
+            TokenStatistics,       // TokenInformationClass
+            pStats,                // TokenInformation
+            BytesRequired,         // TokenInformationLength
+            &BytesRequired         // ReturnLength
+        ))) {
             ZwClose(htoken);
             UserFreePool(pStats);
             return Status;
@@ -395,10 +395,10 @@ _UserTestForWinStaAccess(
              * what fInherit means for a Multi-User system
              */
             if (fInherit) {
-                if ( (RtlEqualLuid(&pStats->AuthenticationId, &pwinsta->luidUser)) ||
-                     (RtlEqualLuid(&pStats->AuthenticationId, &luidSystem)) ||
-                     (AccessCheckObject(pwinsta, GENERIC_EXECUTE, (KPROCESSOR_MODE)(gbSecureDesktop ? UserMode : KernelMode), &WinStaMapping)) )  {
-                   Status = STATUS_SUCCESS;
+                if ((RtlEqualLuid(&pStats->AuthenticationId, &pwinsta->luidUser)) ||
+                    (RtlEqualLuid(&pStats->AuthenticationId, &luidSystem)) ||
+                    (AccessCheckObject(pwinsta, GENERIC_EXECUTE, (KPROCESSOR_MODE)(gbSecureDesktop ? UserMode : KernelMode), &WinStaMapping))) {
+                    Status = STATUS_SUCCESS;
                 }
             } else {
                 /* Bug 42905. Service Controller clears the flag
@@ -408,7 +408,7 @@ _UserTestForWinStaAccess(
                  */
 
                 if (RtlEqualLuid(&pStats->AuthenticationId, &pwinsta->luidUser)) {
-                   Status = STATUS_SUCCESS;
+                    Status = STATUS_SUCCESS;
                 }
             }
         }
@@ -425,7 +425,7 @@ _UserTestForWinStaAccess(
          */
         cbObjA = sizeof(*pObjAttr) + sizeof(*pstrStatic);
         Status = ZwAllocateVirtualMemory(NtCurrentProcess(),
-                &pObjAttr, 0, &cbObjA, MEM_COMMIT, PAGE_READWRITE);
+                                         &pObjAttr, 0, &cbObjA, MEM_COMMIT, PAGE_READWRITE);
         pstrStatic = (PUNICODE_STRING)((PBYTE)pObjAttr + sizeof(*pObjAttr));
 
         if (NT_SUCCESS(Status)) {
@@ -439,13 +439,13 @@ _UserTestForWinStaAccess(
              */
             try {
                 *pstrStatic = *pstrWinSta;
-                InitializeObjectAttributes( pObjAttr,
-                                            pstrStatic,
-                                            OBJ_CASE_INSENSITIVE,
-                                            NULL,
-                                            NULL
-                                            );
-            } except (W32ExceptionHandler(FALSE, RIP_WARNING)) {
+                InitializeObjectAttributes(pObjAttr,
+                                           pstrStatic,
+                                           OBJ_CASE_INSENSITIVE,
+                                           NULL,
+                                           NULL
+                );
+            } except(W32ExceptionHandler(FALSE, RIP_WARNING)) {
                 Status = GetExceptionCode();
             }
 
@@ -458,15 +458,15 @@ _UserTestForWinStaAccess(
 
         if (pObjAttr != NULL) {
             ZwFreeVirtualMemory(NtCurrentProcess(), &pObjAttr, &cbObjA,
-                            MEM_RELEASE);
+                                MEM_RELEASE);
         }
     } else {
-        InitializeObjectAttributes( &ObjAttr,
-                                    pstrWinSta,
-                                    OBJ_CASE_INSENSITIVE,
-                                    NULL,
-                                    NULL
-                                    );
+        InitializeObjectAttributes(&ObjAttr,
+                                   pstrWinSta,
+                                   OBJ_CASE_INSENSITIVE,
+                                   NULL,
+                                   NULL
+        );
         hwsta = _OpenWindowStation(&ObjAttr, GENERIC_EXECUTE, KernelMode);
     }
 
@@ -554,7 +554,7 @@ BOOL AccessCheckObject(
     PVOID pobj,
     ACCESS_MASK amRequest,
     KPROCESSOR_MODE AccessMode,
-    CONST GENERIC_MAPPING *pGenericMapping)
+    CONST GENERIC_MAPPING* pGenericMapping)
 {
     NTSTATUS Status;
     ACCESS_STATE AccessState;
@@ -570,11 +570,11 @@ BOOL AccessCheckObject(
 
     SeCreateAccessState(&AccessState, &AuxData, amRequest, (PGENERIC_MAPPING)pGenericMapping);
     fAccessGranted = ObCheckObjectAccess(
-            pobj,
-            &AccessState,
-            bMutexLocked,
-            AccessMode,
-            &Status);
+        pobj,
+        &AccessState,
+        bMutexLocked,
+        AccessMode,
+        &Status);
     SeDeleteAccessState(&AccessState);
     return (BOOL)(fAccessGranted == TRUE);
 }
@@ -639,12 +639,12 @@ BOOL _GetUserObjectInformation(
      * Validate the object
      */
     Status = ObReferenceObjectByHandle(
-            h,
-            0,
-            NULL,
-            UserMode,   // this is always called from the client side
-            &pObject,
-            &ohi);
+        h,
+        0,
+        NULL,
+        UserMode,   // this is always called from the client side
+        &pObject,
+        &ohi);
     if (!NT_SUCCESS(Status)) {
         RIPNTERR0(Status, RIP_VERBOSE, "ObReferenceObjectByHandle Failed");
         return FALSE;
@@ -652,7 +652,7 @@ BOOL _GetUserObjectInformation(
 
     pHead = OBJECT_TO_OBJECT_HEADER(pObject);
     if (pHead->Type != *ExWindowStationObjectType &&
-            pHead->Type != *ExDesktopObjectType) {
+        pHead->Type != *ExDesktopObjectType) {
         RIPERR0(ERROR_INVALID_FUNCTION, RIP_WARNING, "Object is not a USER object");
         ObDereferenceObject(pObject);
         return FALSE;
@@ -692,7 +692,7 @@ BOOL _GetUserObjectInformation(
 
         case UOI_TYPE:
             pstrInfo = &pHead->Type->Name;
-docopy:
+        docopy:
             if (pstrInfo) {
                 dwLengthNeeded = pstrInfo->Length + sizeof(WCHAR);
                 if (dwLengthNeeded > nLength) {
@@ -730,7 +730,7 @@ docopy:
             fSuccess = FALSE;
             break;
         }
-    } except (W32ExceptionHandler(TRUE, RIP_WARNING)) {
+    } except(W32ExceptionHandler(TRUE, RIP_WARNING)) {
         fSuccess = FALSE;
     }
 
@@ -774,12 +774,12 @@ BOOL _SetUserObjectInformation(
      * Validate the object
      */
     Status = ObReferenceObjectByHandle(
-            h,
-            0,
-            NULL,
-            UserMode,   // this is always called from the client side
-            &pObject,
-            &ohi);
+        h,
+        0,
+        NULL,
+        UserMode,   // this is always called from the client side
+        &pObject,
+        &ohi);
     if (!NT_SUCCESS(Status)) {
         RIPNTERR0(Status, RIP_VERBOSE, "ObReferenceObjectByHandle Failed");
         return FALSE;
@@ -787,7 +787,7 @@ BOOL _SetUserObjectInformation(
 
     pHead = OBJECT_TO_OBJECT_HEADER(pObject);
     if (pHead->Type != *ExWindowStationObjectType &&
-            pHead->Type != *ExDesktopObjectType) {
+        pHead->Type != *ExDesktopObjectType) {
         RIPERR0(ERROR_INVALID_FUNCTION, RIP_WARNING, "Object is not a USER object");
         ObDereferenceObject(pObject);
         return FALSE;
@@ -809,13 +809,13 @@ BOOL _SetUserObjectInformation(
             }
             puof = ccxpvInfo;
             ZwQueryObject(h, ObjectHandleFlagInformation,
-                    &ofi, sizeof(ofi), NULL);
+                          &ofi, sizeof(ofi), NULL);
             ofi.Inherit = (puof->fInherit != FALSE);
             ZwSetInformationObject(h, ObjectHandleFlagInformation,
-                    &ofi, sizeof(ofi));
+                                   &ofi, sizeof(ofi));
             if (pHead->Type == *ExDesktopObjectType) {
                 SetHandleFlag(h, HF_DESKTOPHOOK,
-                        puof->dwFlags & DF_ALLOWOTHERACCOUNTHOOK);
+                              puof->dwFlags & DF_ALLOWOTHERACCOUNTHOOK);
             }
             break;
         default:
@@ -823,7 +823,7 @@ BOOL _SetUserObjectInformation(
             fSuccess = FALSE;
             break;
         }
-    } except (W32ExceptionHandler(TRUE, RIP_WARNING)) {
+    } except(W32ExceptionHandler(TRUE, RIP_WARNING)) {
         fSuccess = FALSE;
     }
 
@@ -858,7 +858,7 @@ BOOL FASTCALL UserScreenAccessCheck(VOID)
     UserAssert(PtiCurrentShared() != NULL);
 
     return (
-            PtiCurrentShared() != NULL && PtiCurrentShared()->rpdesk == grpdeskRitInput &&
-            (W32GetCurrentProcess()->W32PF_Flags & (W32PF_READSCREENACCESSGRANTED | W32PF_IOWINSTA)) ==
-                    (W32PF_READSCREENACCESSGRANTED | W32PF_IOWINSTA));
+        PtiCurrentShared() != NULL && PtiCurrentShared()->rpdesk == grpdeskRitInput &&
+        (W32GetCurrentProcess()->W32PF_Flags & (W32PF_READSCREENACCESSGRANTED | W32PF_IOWINSTA)) ==
+        (W32PF_READSCREENACCESSGRANTED | W32PF_IOWINSTA));
 }

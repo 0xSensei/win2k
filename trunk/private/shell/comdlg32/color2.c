@@ -46,8 +46,7 @@ VOID ChangeColorSettings(
     DWORD dwRGBcolor = pCI->currentRGB;
 
     RGBtoHLS(dwRGBcolor);
-    if (gLum != pCI->currentLum)
-    {
+    if (gLum != pCI->currentLum) {
         hDC = GetDC(hDlg);
         EraseLumArrow(hDC, pCI);
         pCI->currentLum = gLum;
@@ -55,8 +54,7 @@ VOID ChangeColorSettings(
         LumArrowPaint(hDC, pCI->nLumPos, pCI);
         ReleaseDC(hDlg, hDC);
     }
-    if ((gHue != pCI->currentHue) || (gSat != pCI->currentSat))
-    {
+    if ((gHue != pCI->currentHue) || (gSat != pCI->currentSat)) {
         pCI->currentHue = gHue;
         pCI->currentSat = gSat;
         InvalidateRect(hDlg, (LPRECT)&pCI->rLumPaint, FALSE);
@@ -88,8 +86,7 @@ VOID LumArrowPaint(
 
     for (x = pCI->rLumScroll.left + 2, h = 1;
          x < pCI->rLumScroll.right - 2;
-         x++, h += 2)
-    {
+         x++, h += 2) {
         PatBlt(hDC, x, y - h / 2, 1, h, PATCOPY);
     }
 
@@ -110,14 +107,14 @@ VOID EraseLumArrow(
     HBRUSH hBrush;
     RECT Rect;
 
-    hBrush = (HBRUSH)SendMessage( pCI->hDialog,
-                                  WM_CTLCOLORDLG,
-                                  (WPARAM)hDC,
-                                  (LPARAM)pCI->hDialog );
+    hBrush = (HBRUSH)SendMessage(pCI->hDialog,
+                                 WM_CTLCOLORDLG,
+                                 (WPARAM)hDC,
+                                 (LPARAM)pCI->hDialog);
 
-    Rect.left   = pCI->rLumScroll.left + 1;
-    Rect.right  = pCI->rLumScroll.right;
-    Rect.top    = pCI->nLumPos - (pCI->rLumScroll.right - pCI->rLumScroll.left);
+    Rect.left = pCI->rLumScroll.left + 1;
+    Rect.right = pCI->rLumScroll.right;
+    Rect.top = pCI->nLumPos - (pCI->rLumScroll.right - pCI->rLumScroll.left);
     Rect.bottom = pCI->nLumPos + (pCI->rLumScroll.right - pCI->rLumScroll.left) + 1;
 
     FillRect(hDC, &Rect, hBrush);
@@ -143,29 +140,29 @@ VOID EraseCrossHair(
 
     distancex = (WORD)(10 * cxBorder);
     distancey = (WORD)(10 * cyBorder);
-    topy    = ((WORD)rRainbow.top > pCI->nSatPos - distancey)
-                  ? (WORD)rRainbow.top
-                  : pCI->nSatPos - distancey;
+    topy = ((WORD)rRainbow.top > pCI->nSatPos - distancey)
+        ? (WORD)rRainbow.top
+        : pCI->nSatPos - distancey;
     bottomy = ((WORD)rRainbow.bottom < pCI->nSatPos + distancey)
-                  ? (WORD)rRainbow.bottom
-                  : pCI->nSatPos + distancey;
-    leftx   = ((WORD)rRainbow.left > pCI->nHuePos - distancex)
-                  ? (WORD)rRainbow.left
-                  : pCI->nHuePos - distancex;
-    rightx  = ((WORD)rRainbow.right < pCI->nHuePos + distancex)
-                  ? (WORD)rRainbow.right
-                  : pCI->nHuePos + distancex;
+        ? (WORD)rRainbow.bottom
+        : pCI->nSatPos + distancey;
+    leftx = ((WORD)rRainbow.left > pCI->nHuePos - distancex)
+        ? (WORD)rRainbow.left
+        : pCI->nHuePos - distancex;
+    rightx = ((WORD)rRainbow.right < pCI->nHuePos + distancex)
+        ? (WORD)rRainbow.right
+        : pCI->nHuePos + distancex;
 
     hOldBitmap = SelectObject(hDCFastBlt, hRainbowBitmap);
-    BitBlt( hDC,
-            leftx,
-            topy,
-            rightx - leftx,
-            bottomy - topy,
-            hDCFastBlt,
-            leftx - (WORD)rRainbow.left,
-            topy - (WORD)rRainbow.top,
-            SRCCOPY );
+    BitBlt(hDC,
+           leftx,
+           topy,
+           rightx - leftx,
+           bottomy - topy,
+           hDCFastBlt,
+           leftx - (WORD)rRainbow.left,
+           topy - (WORD)rRainbow.top,
+           SRCCOPY);
     SelectObject(hDCFastBlt, hOldBitmap);
 }
 
@@ -190,98 +187,82 @@ VOID CrossHairPaint(
     CopyRect(&rRainbow, &pCI->rRainbow);
     distancex = (SHORT)(5 * cxBorder);
     distancey = (SHORT)(5 * cyBorder);
-    topy     = (SHORT)((rRainbow.top > y - 2 * distancey)
-                         ? rRainbow.top
-                         : y - 2 * distancey);
-    bottomy  = (SHORT)((rRainbow.bottom < y + 2 * distancey)
-                         ? rRainbow.bottom
-                         : y + 2 * distancey);
-    leftx    = (SHORT)((rRainbow.left > x - 2 * distancex)
-                         ? rRainbow.left
-                         : x - 2 * distancex);
-    rightx   = (SHORT)((rRainbow.right < x + 2 * distancex)
-                         ? rRainbow.right
-                         : x + 2 * distancex);
-    topy2    = (SHORT)((rRainbow.top > y - distancey)
-                         ? rRainbow.top
-                         : y - distancey);
+    topy = (SHORT)((rRainbow.top > y - 2 * distancey)
+                   ? rRainbow.top
+                   : y - 2 * distancey);
+    bottomy = (SHORT)((rRainbow.bottom < y + 2 * distancey)
+                      ? rRainbow.bottom
+                      : y + 2 * distancey);
+    leftx = (SHORT)((rRainbow.left > x - 2 * distancex)
+                    ? rRainbow.left
+                    : x - 2 * distancex);
+    rightx = (SHORT)((rRainbow.right < x + 2 * distancex)
+                     ? rRainbow.right
+                     : x + 2 * distancex);
+    topy2 = (SHORT)((rRainbow.top > y - distancey)
+                    ? rRainbow.top
+                    : y - distancey);
     bottomy2 = (SHORT)((rRainbow.bottom < y + distancey)
-                         ? rRainbow.bottom
-                         : y + distancey);
+                       ? rRainbow.bottom
+                       : y + distancey);
     leftx2 = (SHORT)((rRainbow.left > x - distancex)
-                         ? rRainbow.left
-                         : x - distancex);
+                     ? rRainbow.left
+                     : x - distancex);
     rightx2 = (SHORT)((rRainbow.right < x + distancex)
-                         ? rRainbow.right
-                         : x + distancex);
-    if (rRainbow.top < topy2)
-    {
-        if ((x - 1) >= rRainbow.left)
-        {
+                      ? rRainbow.right
+                      : x + distancex);
+    if (rRainbow.top < topy2) {
+        if ((x - 1) >= rRainbow.left) {
             MMoveTo(hDC, x - 1, topy2);
             LineTo(hDC, x - 1, topy);
         }
-        if ((int)x < rRainbow.right)
-        {
+        if ((int)x < rRainbow.right) {
             MMoveTo(hDC, x, topy2);
             LineTo(hDC, x, topy);
         }
-        if ((x + 1) < rRainbow.right)
-        {
+        if ((x + 1) < rRainbow.right) {
             MMoveTo(hDC, x + 1, topy2);
             LineTo(hDC, x + 1, topy);
         }
     }
-    if (rRainbow.bottom > bottomy2)
-    {
-        if ((x - 1) >= rRainbow.left)
-        {
+    if (rRainbow.bottom > bottomy2) {
+        if ((x - 1) >= rRainbow.left) {
             MMoveTo(hDC, x - 1, bottomy2);
             LineTo(hDC, x - 1, bottomy);
         }
-        if ((int)x < rRainbow.right)
-        {
+        if ((int)x < rRainbow.right) {
             MMoveTo(hDC, x, bottomy2);
             LineTo(hDC, x, bottomy);
         }
-        if ((x + 1) < rRainbow.right)
-        {
+        if ((x + 1) < rRainbow.right) {
             MMoveTo(hDC, x + 1, bottomy2);
             LineTo(hDC, x + 1, bottomy);
         }
     }
-    if (rRainbow.left < leftx2)
-    {
-        if ((y - 1) >= rRainbow.top)
-        {
+    if (rRainbow.left < leftx2) {
+        if ((y - 1) >= rRainbow.top) {
             MMoveTo(hDC, leftx2, y - 1);
             LineTo(hDC, leftx, y - 1);
         }
-        if ((int)y < rRainbow.bottom)
-        {
+        if ((int)y < rRainbow.bottom) {
             MMoveTo(hDC, leftx2, y);
             LineTo(hDC, leftx, y);
         }
-        if ((y + 1) < rRainbow.bottom)
-        {
+        if ((y + 1) < rRainbow.bottom) {
             MMoveTo(hDC, leftx2, y + 1);
             LineTo(hDC, leftx, y + 1);
         }
     }
-    if (rRainbow.right > rightx2)
-    {
-        if ((y - 1) >= rRainbow.top)
-        {
+    if (rRainbow.right > rightx2) {
+        if ((y - 1) >= rRainbow.top) {
             MMoveTo(hDC, rightx2, y - 1);
             LineTo(hDC, rightx, y - 1);
         }
-        if ((int)y < rRainbow.bottom)
-        {
+        if ((int)y < rRainbow.bottom) {
             MMoveTo(hDC, rightx2, y);
             LineTo(hDC, rightx, y);
         }
-        if ((y + 1) < rRainbow.bottom)
-        {
+        if ((y + 1) < rRainbow.bottom) {
             MMoveTo(hDC, rightx2, y + 1);
             LineTo(hDC, rightx, y + 1);
         }
@@ -329,40 +310,39 @@ VOID HLSPostoHLS(
     SHORT nHLSEdit,
     register PCOLORINFO pCI)
 {
-    switch (nHLSEdit)
+    switch (nHLSEdit) {
+    case COLOR_HUE:
     {
-        case COLOR_HUE:
-        {
-            pCI->currentHue = (WORD)((pCI->nHuePos - pCI->rRainbow.left) *
-                                     (RANGE - 1) / (pCI->nHueWidth - 1));
-            break;
-        }
-        case COLOR_SAT:
-        {
-            pCI->currentSat = (WORD)(RANGE -
-                                     (pCI->nSatPos - pCI->rRainbow.top) *
-                                     RANGE / (pCI->nSatHeight - 1));
-            break;
-        }
-        case COLOR_LUM:
-        {
-            pCI->currentLum = (WORD)(RANGE -
-                                     (pCI->nLumPos - pCI->rLumPaint.top) *
-                                     RANGE / (pCI->nLumHeight - 1));
-            break;
-        }
-        default:
-        {
-            pCI->currentHue = (WORD)((pCI->nHuePos - pCI->rRainbow.left) *
-                                     (RANGE - 1) / pCI->nHueWidth);
-            pCI->currentSat = (WORD)(RANGE -
-                                     (pCI->nSatPos - pCI->rRainbow.top) *
-                                     RANGE / pCI->nSatHeight);
-            pCI->currentLum = (WORD)(RANGE -
-                                     (pCI->nLumPos - pCI->rLumPaint.top) *
-                                     RANGE / pCI->nLumHeight);
-            break;
-        }
+        pCI->currentHue = (WORD)((pCI->nHuePos - pCI->rRainbow.left) *
+            (RANGE - 1) / (pCI->nHueWidth - 1));
+        break;
+    }
+    case COLOR_SAT:
+    {
+        pCI->currentSat = (WORD)(RANGE -
+            (pCI->nSatPos - pCI->rRainbow.top) *
+                                 RANGE / (pCI->nSatHeight - 1));
+        break;
+    }
+    case COLOR_LUM:
+    {
+        pCI->currentLum = (WORD)(RANGE -
+            (pCI->nLumPos - pCI->rLumPaint.top) *
+                                 RANGE / (pCI->nLumHeight - 1));
+        break;
+    }
+    default:
+    {
+        pCI->currentHue = (WORD)((pCI->nHuePos - pCI->rRainbow.left) *
+            (RANGE - 1) / pCI->nHueWidth);
+        pCI->currentSat = (WORD)(RANGE -
+            (pCI->nSatPos - pCI->rRainbow.top) *
+                                 RANGE / pCI->nSatHeight);
+        pCI->currentLum = (WORD)(RANGE -
+            (pCI->nLumPos - pCI->rLumPaint.top) *
+                                 RANGE / pCI->nLumHeight);
+        break;
+    }
     }
 }
 
@@ -377,40 +357,39 @@ VOID HLStoHLSPos(
     SHORT nHLSEdit,
     register PCOLORINFO pCI)
 {
-    switch (nHLSEdit)
+    switch (nHLSEdit) {
+    case (COLOR_HUE):
     {
-        case ( COLOR_HUE ) :
-        {
-            pCI->nHuePos = (WORD)(pCI->rRainbow.left + pCI->currentHue *
-                                  pCI->nHueWidth / (RANGE - 1));
-            break;
-        }
-        case COLOR_SAT:
-        {
-            pCI->nSatPos = (WORD)(pCI->rRainbow.top +
-                                  (RANGE - pCI->currentSat) *
-                                  (pCI->nSatHeight - 1) / RANGE);
-            break;
-        }
-        case COLOR_LUM:
-        {
-            pCI->nLumPos = (WORD)(pCI->rLumPaint.top +
-                                  (RANGE - pCI->currentLum) *
-                                  (pCI->nLumHeight - 1) / RANGE);
-            break;
-        }
-        default:
-        {
-            pCI->nHuePos = (WORD)(pCI->rRainbow.left + pCI->currentHue *
-                                  pCI->nHueWidth / (RANGE - 1));
-            pCI->nSatPos = (WORD)(pCI->rRainbow.top +
-                                  (RANGE - pCI->currentSat) *
-                                  (pCI->nSatHeight - 1) / RANGE);
-            pCI->nLumPos = (WORD)(pCI->rLumPaint.top +
-                                  (RANGE - pCI->currentLum) *
-                                  (pCI->nLumHeight - 1) / RANGE);
-            break;
-        }
+        pCI->nHuePos = (WORD)(pCI->rRainbow.left + pCI->currentHue *
+                              pCI->nHueWidth / (RANGE - 1));
+        break;
+    }
+    case COLOR_SAT:
+    {
+        pCI->nSatPos = (WORD)(pCI->rRainbow.top +
+            (RANGE - pCI->currentSat) *
+                              (pCI->nSatHeight - 1) / RANGE);
+        break;
+    }
+    case COLOR_LUM:
+    {
+        pCI->nLumPos = (WORD)(pCI->rLumPaint.top +
+            (RANGE - pCI->currentLum) *
+                              (pCI->nLumHeight - 1) / RANGE);
+        break;
+    }
+    default:
+    {
+        pCI->nHuePos = (WORD)(pCI->rRainbow.left + pCI->currentHue *
+                              pCI->nHueWidth / (RANGE - 1));
+        pCI->nSatPos = (WORD)(pCI->rRainbow.top +
+            (RANGE - pCI->currentSat) *
+                              (pCI->nSatHeight - 1) / RANGE);
+        pCI->nLumPos = (WORD)(pCI->rLumPaint.top +
+            (RANGE - pCI->currentLum) *
+                              (pCI->nLumHeight - 1) / RANGE);
+        break;
+    }
     }
 }
 
@@ -427,30 +406,29 @@ VOID SetHLSEdit(
 {
     register HWND hRainbowDlg = pCI->hDialog;
 
-    switch (nHLSEdit)
+    switch (nHLSEdit) {
+    case (COLOR_HUE):
     {
-        case ( COLOR_HUE ) :
-        {
-            SetDlgItemInt(hRainbowDlg, COLOR_HUE, pCI->currentHue, FALSE);
-            break;
-        }
-        case ( COLOR_SAT ) :
-        {
-            SetDlgItemInt(hRainbowDlg, COLOR_SAT, pCI->currentSat, FALSE);
-            break;
-        }
-        case ( COLOR_LUM ) :
-        {
-            SetDlgItemInt(hRainbowDlg, COLOR_LUM, pCI->currentLum, FALSE);
-            break;
-        }
-        default :
-        {
-            SetDlgItemInt(hRainbowDlg, COLOR_HUE, pCI->currentHue, FALSE);
-            SetDlgItemInt(hRainbowDlg, COLOR_SAT, pCI->currentSat, FALSE);
-            SetDlgItemInt(hRainbowDlg, COLOR_LUM, pCI->currentLum, FALSE);
-            break;
-        }
+        SetDlgItemInt(hRainbowDlg, COLOR_HUE, pCI->currentHue, FALSE);
+        break;
+    }
+    case (COLOR_SAT):
+    {
+        SetDlgItemInt(hRainbowDlg, COLOR_SAT, pCI->currentSat, FALSE);
+        break;
+    }
+    case (COLOR_LUM):
+    {
+        SetDlgItemInt(hRainbowDlg, COLOR_LUM, pCI->currentLum, FALSE);
+        break;
+    }
+    default:
+    {
+        SetDlgItemInt(hRainbowDlg, COLOR_HUE, pCI->currentHue, FALSE);
+        SetDlgItemInt(hRainbowDlg, COLOR_SAT, pCI->currentSat, FALSE);
+        SetDlgItemInt(hRainbowDlg, COLOR_LUM, pCI->currentLum, FALSE);
+        break;
+    }
     }
 }
 
@@ -468,30 +446,29 @@ VOID SetRGBEdit(
     register HWND hRainbowDlg = pCI->hDialog;
     DWORD rainbowRGB = pCI->currentRGB;
 
-    switch (nRGBEdit)
+    switch (nRGBEdit) {
+    case (COLOR_RED):
     {
-        case ( COLOR_RED ) :
-        {
-            SetDlgItemInt(hRainbowDlg, COLOR_RED, GetRValue(rainbowRGB), FALSE);
-            break;
-        }
-        case ( COLOR_GREEN ) :
-        {
-            SetDlgItemInt(hRainbowDlg, COLOR_GREEN, GetGValue(rainbowRGB), FALSE);
-            break;
-        }
-        case ( COLOR_BLUE ) :
-        {
-            SetDlgItemInt(hRainbowDlg, COLOR_BLUE, GetBValue(rainbowRGB), FALSE);
-            break;
-        }
-        default :
-        {
-            SetDlgItemInt(hRainbowDlg, COLOR_RED, GetRValue(rainbowRGB), FALSE);
-            SetDlgItemInt(hRainbowDlg, COLOR_GREEN, GetGValue(rainbowRGB), FALSE);
-            SetDlgItemInt(hRainbowDlg, COLOR_BLUE, GetBValue(rainbowRGB), FALSE);
-            break;
-        }
+        SetDlgItemInt(hRainbowDlg, COLOR_RED, GetRValue(rainbowRGB), FALSE);
+        break;
+    }
+    case (COLOR_GREEN):
+    {
+        SetDlgItemInt(hRainbowDlg, COLOR_GREEN, GetGValue(rainbowRGB), FALSE);
+        break;
+    }
+    case (COLOR_BLUE):
+    {
+        SetDlgItemInt(hRainbowDlg, COLOR_BLUE, GetBValue(rainbowRGB), FALSE);
+        break;
+    }
+    default:
+    {
+        SetDlgItemInt(hRainbowDlg, COLOR_RED, GetRValue(rainbowRGB), FALSE);
+        SetDlgItemInt(hRainbowDlg, COLOR_GREEN, GetGValue(rainbowRGB), FALSE);
+        SetDlgItemInt(hRainbowDlg, COLOR_BLUE, GetBValue(rainbowRGB), FALSE);
+        break;
+    }
     }
 }
 
@@ -532,12 +509,10 @@ BOOL InitRainbow(
     SetRGBEdit(0, pCI);
     SetHLSEdit(0, pCI);
 
-    if (!hRainbowBitmap)
-    {
+    if (!hRainbowBitmap) {
         hDC = GetDC(hRainbowDlg);
         hRainbowBitmap = CreateCompatibleBitmap(hDC, nHueWidth, nSatHeight);
-        if (!hRainbowBitmap)
-        {
+        if (!hRainbowBitmap) {
             return (FALSE);
         }
     }
@@ -550,14 +525,12 @@ BOOL InitRainbow(
     //        let such foolishness happen.
 
     Rect.bottom = 0;
-    for (Sat = RANGE; Sat > 0; Sat -= SATINC)
-    {
+    for (Sat = RANGE; Sat > 0; Sat -= SATINC) {
         Rect.top = Rect.bottom;
         Rect.bottom = (nSatHeight * RANGE - (Sat - SATINC) * nSatHeight) / RANGE;
         Rect.right = 0;
 
-        for (Hue = 0; Hue < (RANGE - 1); Hue += HUEINC)
-        {
+        for (Hue = 0; Hue < (RANGE - 1); Hue += HUEINC) {
             Rect.left = Rect.right;
             Rect.right = ((Hue + HUEINC) * nHueWidth) / RANGE;
             hbrSwipe = CreateSolidBrush(HLStoRGB(Hue, RANGE / 2, Sat));
@@ -588,20 +561,19 @@ VOID PaintRainbow(
 {
     HBITMAP hOldBitmap;
 
-    if (!hRainbowBitmap)
-    {
+    if (!hRainbowBitmap) {
         return;
     }
     hOldBitmap = SelectObject(hDCFastBlt, hRainbowBitmap);
-    BitBlt( hDC,
-            lpRect->left,
-            lpRect->top,
-            lpRect->right - lpRect->left,
-            lpRect->bottom - lpRect->top,
-            hDCFastBlt,
-            lpRect->left - pCI->rRainbow.left,
-            lpRect->top - pCI->rRainbow.top,
-            SRCCOPY );
+    BitBlt(hDC,
+           lpRect->left,
+           lpRect->top,
+           lpRect->right - lpRect->left,
+           lpRect->bottom - lpRect->top,
+           hDCFastBlt,
+           lpRect->left - pCI->rRainbow.left,
+           lpRect->top - pCI->rRainbow.top,
+           SRCCOPY);
     SelectObject(hDCFastBlt, hOldBitmap);
     CrossHairPaint(hDC, pCI->nHuePos, pCI->nSatPos, pCI);
     UpdateWindow(pCI->hDialog);
@@ -626,8 +598,7 @@ void RainbowPaint(
 
     //  Paint the Current Color Sample.
 
-    if (IntersectRect((LPRECT)&Rect, lpPaintRect, (LPRECT)&(pCI->rCurrentColor)))
-    {
+    if (IntersectRect((LPRECT)&Rect, lpPaintRect, (LPRECT) & (pCI->rCurrentColor))) {
         hbrSwipe = CreateSolidBrush(pCI->currentRGB);
         FillRect(hDC, (LPRECT)&Rect, hbrSwipe);
         DeleteObject(hbrSwipe);
@@ -636,8 +607,7 @@ void RainbowPaint(
 
     //  Paint the Nearest Pure Color Sample.
 
-    if (IntersectRect((LPRECT)&Rect, lpPaintRect, (LPRECT)&(pCI->rNearestPure)))
-    {
+    if (IntersectRect((LPRECT)&Rect, lpPaintRect, (LPRECT) & (pCI->rNearestPure))) {
         hbrSwipe = CreateSolidBrush(GetNearestColor(hDC, pCI->currentRGB));
         FillRect(hDC, (LPRECT)&Rect, hbrSwipe);
         DeleteObject(hbrSwipe);
@@ -646,47 +616,44 @@ void RainbowPaint(
 
     //  Paint the Luminosity Range.
 
-    if (IntersectRect((LPRECT)&Rect, lpPaintRect, (LPRECT)&(pCI->rLumPaint)))
-    {
+    if (IntersectRect((LPRECT)&Rect, lpPaintRect, (LPRECT) & (pCI->rLumPaint))) {
         Rect.left = pCI->rLumPaint.left;
         Rect.right = pCI->rLumPaint.right;
         Rect.top = pCI->rLumPaint.bottom - LUMINC / 2;
         Rect.bottom = pCI->rLumPaint.bottom;
-        hbrSwipe = CreateSolidBrush(HLStoRGB( pCI->currentHue,
-                                              0,
-                                              pCI->currentSat ));
+        hbrSwipe = CreateSolidBrush(HLStoRGB(pCI->currentHue,
+                                             0,
+                                             pCI->currentSat));
         FillRect(hDC, (LPRECT)&Rect, hbrSwipe);
         DeleteObject(hbrSwipe);
-        for (Lum = LUMINC; Lum < RANGE; Lum += LUMINC)
-        {
+        for (Lum = LUMINC; Lum < RANGE; Lum += LUMINC) {
             Rect.bottom = Rect.top;
             Rect.top = (((pCI->rLumPaint.bottom + LUMINC / 2) * (DWORD)RANGE -
-                         (Lum + LUMINC) * pCI->nLumHeight) / RANGE);
-            hbrSwipe = CreateSolidBrush(HLStoRGB( pCI->currentHue,
-                                                  Lum,
-                                                  pCI->currentSat ));
+                (Lum + LUMINC) * pCI->nLumHeight) / RANGE);
+            hbrSwipe = CreateSolidBrush(HLStoRGB(pCI->currentHue,
+                                                 Lum,
+                                                 pCI->currentSat));
             FillRect(hDC, (LPRECT)&Rect, hbrSwipe);
             DeleteObject(hbrSwipe);
         }
         Rect.bottom = Rect.top;
         Rect.top = pCI->rLumPaint.top;
-        hbrSwipe = CreateSolidBrush(HLStoRGB( pCI->currentHue,
-                                              RANGE,
-                                              pCI->currentSat ));
+        hbrSwipe = CreateSolidBrush(HLStoRGB(pCI->currentHue,
+                                             RANGE,
+                                             pCI->currentSat));
         FillRect(hDC, (LPRECT)&Rect, hbrSwipe);
         DeleteObject(hbrSwipe);
 
 
         //  Paint the bounding rectangle only when it might be necessary.
 
-        if (!EqualRect(lpPaintRect, (LPRECT)&pCI->rLumPaint))
-        {
+        if (!EqualRect(lpPaintRect, (LPRECT)&pCI->rLumPaint)) {
             hbrSwipe = SelectObject(hDC, GetStockObject(NULL_BRUSH));
-            Rectangle( hDC,
-                       pCI->rLumPaint.left - 1,
-                       pCI->rLumPaint.top - 1,
-                       pCI->rLumPaint.right + 1,
-                       pCI->rLumPaint.bottom + 1 );
+            Rectangle(hDC,
+                      pCI->rLumPaint.left - 1,
+                      pCI->rLumPaint.top - 1,
+                      pCI->rLumPaint.right + 1,
+                      pCI->rLumPaint.bottom + 1);
             SelectObject(hDC, hbrSwipe);
         }
     }
@@ -694,13 +661,11 @@ void RainbowPaint(
 
     //  Paint the Luminosity Arrow.
 
-    if (IntersectRect((LPRECT)&Rect, lpPaintRect, (LPRECT)&pCI->rLumScroll))
-    {
+    if (IntersectRect((LPRECT)&Rect, lpPaintRect, (LPRECT)&pCI->rLumScroll)) {
         LumArrowPaint(hDC, pCI->nLumPos, pCI);
     }
 
-    if (IntersectRect((LPRECT)&Rect, lpPaintRect, (LPRECT)&pCI->rRainbow))
-    {
+    if (IntersectRect((LPRECT)&Rect, lpPaintRect, (LPRECT)&pCI->rRainbow)) {
         PaintRainbow(hDC, (LPRECT)&Rect, pCI);
     }
 }
@@ -749,8 +714,8 @@ VOID RGBtoHLS(
     DWORD lRGBColor)
 {
     WORD R, G, B;                 // input RGB values
-    WORD cMax,cMin;               // max and min RGB values
-    WORD cSum,cDif;
+    WORD cMax, cMin;               // max and min RGB values
+    WORD cSum, cDif;
     SHORT Rdelta, Gdelta, Bdelta; // intermediate value: % of spread from max
 
 
@@ -769,16 +734,13 @@ VOID RGBtoHLS(
     gLum = (WORD)(((cSum * (DWORD)HLSMAX) + RGBMAX) / (2 * RGBMAX));
 
     cDif = cMax - cMin;
-    if (!cDif)
-    {
+    if (!cDif) {
 
         //  r = g = b --> Achromatic case.
 
         gSat = 0;                         // saturation
         gHue = UNDEFINED;                 // hue
-    }
-    else
-    {
+    } else {
 
         //  Chromatic case.
 
@@ -789,46 +751,37 @@ VOID RGBtoHLS(
         //  Note: Division by cSum is not a problem, as cSum can only
         //        be 0 if the RGB value is 0L, and that is achromatic.
 
-        if (gLum <= (HLSMAX / 2))
-        {
-            gSat = (WORD)(((cDif * (DWORD) HLSMAX) + (cSum / 2) ) / cSum);
-        }
-        else
-        {
+        if (gLum <= (HLSMAX / 2)) {
+            gSat = (WORD)(((cDif * (DWORD)HLSMAX) + (cSum / 2)) / cSum);
+        } else {
             gSat = (WORD)((DWORD)((cDif * (DWORD)HLSMAX) +
-                               (DWORD)((2 * RGBMAX - cSum) / 2)) /
-                       (2 * RGBMAX - cSum));
+                (DWORD)((2 * RGBMAX - cSum) / 2)) /
+                                  (2 * RGBMAX - cSum));
         }
 
 
         //  Hue.
 
-        Rdelta = (SHORT)((((cMax - R) * (DWORD)(HLSMAX / 6)) + (cDif / 2) ) / cDif);
-        Gdelta = (SHORT)((((cMax - G) * (DWORD)(HLSMAX / 6)) + (cDif / 2) ) / cDif);
-        Bdelta = (SHORT)((((cMax - B) * (DWORD)(HLSMAX / 6)) + (cDif / 2) ) / cDif);
+        Rdelta = (SHORT)((((cMax - R) * (DWORD)(HLSMAX / 6)) + (cDif / 2)) / cDif);
+        Gdelta = (SHORT)((((cMax - G) * (DWORD)(HLSMAX / 6)) + (cDif / 2)) / cDif);
+        Bdelta = (SHORT)((((cMax - B) * (DWORD)(HLSMAX / 6)) + (cDif / 2)) / cDif);
 
-        if (R == cMax)
-        {
+        if (R == cMax) {
             gHue = Bdelta - Gdelta;
-        }
-        else if (G == cMax)
-        {
+        } else if (G == cMax) {
             gHue = (WORD)((HLSMAX / 3) + Rdelta - Bdelta);
-        }
-        else  // (B == cMax)
+        } else  // (B == cMax)
         {
             gHue = (WORD)(((2 * HLSMAX) / 3) + Gdelta - Rdelta);
         }
 
-        if ((short)gHue < 0)
-        {
+        if ((short)gHue < 0) {
 
             //  This can occur when R == cMax and G is > B.
 
             gHue += HLSMAX;
         }
-        if (gHue >= HLSMAX)
-        {
+        if (gHue >= HLSMAX) {
             gHue -= HLSMAX;
         }
     }
@@ -848,29 +801,23 @@ WORD HueToRGB(
     WORD n2,
     WORD hue)
 {
-    if (hue >= HLSMAX)
-    {
+    if (hue >= HLSMAX) {
         hue -= HLSMAX;
     }
 
 
     //  Return r, g, or b value from this tridrant.
 
-    if (hue < (HLSMAX / 6))
-    {
+    if (hue < (HLSMAX / 6)) {
         return ((WORD)(n1 + (((n2 - n1) * hue + (HLSMAX / 12)) / (HLSMAX / 6))));
     }
-    if (hue < (HLSMAX/2))
-    {
+    if (hue < (HLSMAX / 2)) {
         return (n2);
     }
-    if (hue < ((HLSMAX*2)/3))
-    {
+    if (hue < ((HLSMAX * 2) / 3)) {
         return ((WORD)(n1 + (((n2 - n1) * (((HLSMAX * 2) / 3) - hue) +
-                       (HLSMAX / 12)) / (HLSMAX / 6))));
-    }
-    else
-    {
+            (HLSMAX / 12)) / (HLSMAX / 6))));
+    } else {
         return (n1);
     }
 }
@@ -890,15 +837,12 @@ DWORD HLStoRGB(
     WORD R, G, B;                      // RGB component values
     WORD Magic1, Magic2;               // calculated magic numbers
 
-    if (sat == 0)
-    {
+    if (sat == 0) {
 
         //  Achromatic case.
 
         R = G = B = (WORD)((lum * RGBMAX) / HLSMAX);
-    }
-    else
-    {
+    } else {
 
         //  Chromatic case
 
@@ -906,14 +850,11 @@ DWORD HLStoRGB(
 
         //  Set up magic numbers.
 
-        if (lum <= (HLSMAX / 2))
-        {
+        if (lum <= (HLSMAX / 2)) {
             Magic2 = (WORD)((lum * ((DWORD)HLSMAX + sat) + (HLSMAX / 2)) / HLSMAX);
-        }
-        else
-        {
+        } else {
             Magic2 = lum + sat -
-                     (WORD)(((lum * sat) + (DWORD)(HLSMAX / 2)) / HLSMAX);
+                (WORD)(((lum * sat) + (DWORD)(HLSMAX / 2)) / HLSMAX);
         }
         Magic1 = (WORD)(2 * lum - Magic2);
 
@@ -921,11 +862,11 @@ DWORD HLStoRGB(
         //  Get RGB, change units from HLSMAX to RGBMAX.
 
         R = (WORD)(((HueToRGB(Magic1, Magic2, (WORD)(hue + (HLSMAX / 3))) *
-                     (DWORD)RGBMAX + (HLSMAX / 2))) / HLSMAX);
+            (DWORD)RGBMAX + (HLSMAX / 2))) / HLSMAX);
         G = (WORD)(((HueToRGB(Magic1, Magic2, hue) *
-                     (DWORD)RGBMAX + (HLSMAX / 2))) / HLSMAX);
+            (DWORD)RGBMAX + (HLSMAX / 2))) / HLSMAX);
         B = (WORD)(((HueToRGB(Magic1, Magic2, (WORD)(hue - (HLSMAX / 3))) *
-                     (DWORD)RGBMAX + (HLSMAX / 2))) / HLSMAX);
+            (DWORD)RGBMAX + (HLSMAX / 2))) / HLSMAX);
     }
     return (RGB(R, G, B));
 }
@@ -948,42 +889,36 @@ SHORT RGBEditChange(
     PCOLORINFO pCI)
 {
     BOOL bOK;               // check that value in edit control is uint
-    BYTE *currentValue;     // pointer to byte in RGB to change (or reset)
+    BYTE* currentValue;     // pointer to byte in RGB to change (or reset)
     SHORT nVal;
     TCHAR cEdit[3];
     register HWND hDlg = pCI->hDialog;
 
-    currentValue = (BYTE *)&pCI->currentRGB;
-    switch (nDlgID)
+    currentValue = (BYTE*)&pCI->currentRGB;
+    switch (nDlgID) {
+    case (COLOR_GREEN):
     {
-        case ( COLOR_GREEN ) :
-        {
-            currentValue++;
-            break;
-        }
-        case ( COLOR_BLUE ) :
-        {
-            currentValue += 2;
-            break;
-        }
+        currentValue++;
+        break;
     }
-    nVal = (SHORT)GetDlgItemInt(hDlg, nDlgID, (BOOL FAR *)&bOK, FALSE);
-    if (bOK)
+    case (COLOR_BLUE):
     {
-        if (nVal > RGBMAX)
-        {
+        currentValue += 2;
+        break;
+    }
+    }
+    nVal = (SHORT)GetDlgItemInt(hDlg, nDlgID, (BOOL FAR*) & bOK, FALSE);
+    if (bOK) {
+        if (nVal > RGBMAX) {
             nVal = RGBMAX;
             SetDlgItemInt(hDlg, nDlgID, nVal, FALSE);
         }
-        if (nVal != (SHORT) *currentValue)
-        {
+        if (nVal != (SHORT)*currentValue) {
             *currentValue = LOBYTE(nVal);
             ChangeColorSettings(pCI);
             SetHLSEdit(nDlgID, pCI);
         }
-    }
-    else if (GetDlgItemText(hDlg, nDlgID, (LPTSTR)cEdit, 2))
-    {
+    } else if (GetDlgItemText(hDlg, nDlgID, (LPTSTR)cEdit, 2)) {
         SetRGBEdit(nDlgID, pCI);
         SendDlgItemMessage(hDlg, nDlgID, EM_SETSEL, (WPARAM)0, (LPARAM)-1);
     }

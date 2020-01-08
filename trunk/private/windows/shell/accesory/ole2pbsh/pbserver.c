@@ -59,7 +59,7 @@ extern TCHAR fileName[];
 extern TCHAR noFile[];
 extern WORD wFileType;
 extern BOOL imageFlag;
-extern TCHAR *namePtr;
+extern TCHAR* namePtr;
 extern HDC fileDC;
 extern TCHAR filePath[];
 extern HPALETTE hPalette;
@@ -69,11 +69,11 @@ extern HWND zoomOutWnd;
 /* Function prototypes */
 void PUBLIC NewImage(int);               /* MenuCmd.C */
 static void FixMenus(void);                    /* Update, Save Copy As..., Exit and Return */
-static void GetNum(LPTSTR FAR *lplpstrBuf, LPINT lpint);
+static void GetNum(LPTSTR FAR* lplpstrBuf, LPINT lpint);
 static void MakeObjectVisible(
     LPRECT lpItemRect);
-int PelsPerLogMeter(HDC hDC,BOOL bHoriz);
-int PelsToLogHimetric(HDC hDC,BOOL bHoriz, int pels);
+int PelsPerLogMeter(HDC hDC, BOOL bHoriz);
+int PelsToLogHimetric(HDC hDC, BOOL bHoriz, int pels);
 
 /* InitVTbls() is in srvrinit.c */
 
@@ -86,29 +86,31 @@ int PelsToLogHimetric(HDC hDC,BOOL bHoriz, int pels);
 #   define FreeOleString(s)     \
         if((s) == NULL) { /* do nothing */ ; } else LocalFree(s)
 
-BOOL SetOleString(LPTSTR *ppstr, POLESTR postr)  {
+
+BOOL SetOleString(LPTSTR* ppstr, POLESTR postr) 
+{
     int cb;
 
     DB_OUT("In SetOleString ");
 
     *ppstr = NULL;
 
-    DB_OUT2( postr == NULL, "SOS(NULL) ", "SOS(OK) ");
+    DB_OUT2(postr == NULL, "SOS(NULL) ", "SOS(OK) ");
     if (postr == NULL)
         return TRUE;
 
-    DB_OUT( "SOS(call MBTWC 1) " );
+    DB_OUT("SOS(call MBTWC 1) ");
     cb = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, postr, -1, NULL, 0);
 
-    DB_OUT( "SOS(call LA) " );
+    DB_OUT("SOS(call LA) ");
     *ppstr = LocalAlloc(LPTR, cb * sizeof(WCHAR));
 
     if (*ppstr != NULL) {
-        DB_OUT( "SOS(call MBTWC 2) " );
+        DB_OUT("SOS(call MBTWC 2) ");
         MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, postr, -1, *ppstr, cb);
     }
 
-    DB_OUT( "Out SetOleString\n" );
+    DB_OUT("Out SetOleString\n");
     return *ppstr != NULL;
 }
 #else
@@ -116,8 +118,9 @@ BOOL SetOleString(LPTSTR *ppstr, POLESTR postr)  {
 #   define  SetOleString(s,o)   (*s) = o
 #endif
 
-void FreeVTbls(void) {
 
+void FreeVTbls(void) 
+{
     /* Server virtual table */
     FreeProcInstance((FARPROC)vsrvrvtbl.Open);
     FreeProcInstance((FARPROC)vsrvrvtbl.Create);
@@ -174,8 +177,11 @@ void DeleteServer(PPBSRVR psrvr) {
 /* Open a server document.
  * Load the given file and register a server DOC.
 */
-OLESTATUS FAR PASCAL SrvrOpen(LPOLESERVER lpolesrvr, LHSERVERDOC lhdoc,
-                        POLESTR lpOLEdocname, LPOLESERVERDOC FAR *lplpoledoc) {
+OLESTATUS FAR PASCAL SrvrOpen(LPOLESERVER lpolesrvr,
+                              LHSERVERDOC lhdoc,
+                              POLESTR lpOLEdocname,
+                              LPOLESERVERDOC FAR* lplpoledoc) 
+{
     LPTSTR lpDocName;
 
     DB_OUT("In SrvrOpen ");
@@ -186,8 +192,8 @@ OLESTATUS FAR PASCAL SrvrOpen(LPOLESERVER lpolesrvr, LHSERVERDOC lhdoc,
     }
 
     if (!(*lplpoledoc =
-            (LPOLESERVERDOC)CreateDocFromFile((PPBSRVR)lpolesrvr,
-            lpDocName, lhdoc, lpDocName))) {
+        (LPOLESERVERDOC)CreateDocFromFile((PPBSRVR)lpolesrvr,
+                                          lpDocName, lhdoc, lpDocName))) {
         FreeOleString(lpDocName);
         DB_OUT("ERR SrvrOpen\n");
         return OLE_ERROR_BLANK;
@@ -200,8 +206,12 @@ OLESTATUS FAR PASCAL SrvrOpen(LPOLESERVER lpolesrvr, LHSERVERDOC lhdoc,
 }
 
 /* Create a new server doc. */
-OLESTATUS FAR PASCAL SrvrCreate(LPOLESERVER lpolesrvr, LHSERVERDOC lhdoc,
-                POLESTR lpclassname, POLESTR lpdocname, LPOLESERVERDOC FAR *lplpoledoc) {
+OLESTATUS FAR PASCAL SrvrCreate(LPOLESERVER lpolesrvr,
+                                LHSERVERDOC lhdoc,
+                                POLESTR lpclassname,
+                                POLESTR lpdocname, 
+                                LPOLESERVERDOC FAR* lplpoledoc)
+{
     LPTSTR lpDocName;
     DB_OUT("In SrvrCreate ");
 
@@ -214,7 +224,7 @@ OLESTATUS FAR PASCAL SrvrCreate(LPOLESERVER lpolesrvr, LHSERVERDOC lhdoc,
     SendMessage(pbrushWnd[PARENTid], WM_COMMAND, FILEnew, 0L);
 
     if (!(*lplpoledoc =
-           (LPOLESERVERDOC)CreateNewDoc((PPBSRVR)lpolesrvr, lhdoc, lpDocName))){
+        (LPOLESERVERDOC)CreateNewDoc((PPBSRVR)lpolesrvr, lhdoc, lpDocName))) {
         FreeOleString(lpDocName);
         DB_OUT("ERR SrvrCreate\n");
         return OLE_ERROR_MEMORY;
@@ -231,9 +241,12 @@ OLESTATUS FAR PASCAL SrvrCreate(LPOLESERVER lpolesrvr, LHSERVERDOC lhdoc,
  * title is different */
 
 OLESTATUS FAR PASCAL SrvrCreateFromTemplate(LPOLESERVER lpolesrvr,
-                LHSERVERDOC lhdoc, POLESTR lpclassname, POLESTR lpOLEdocname,
-                POLESTR lpOLEtemplatename, LPOLESERVERDOC FAR *lplpoledoc) {
-
+                                            LHSERVERDOC lhdoc,
+                                            POLESTR lpclassname,
+                                            POLESTR lpOLEdocname,
+                                            POLESTR lpOLEtemplatename,
+                                            LPOLESERVERDOC FAR* lplpoledoc) 
+{
     PPBDOC    pdoc;
     LPTSTR lptemplatename;
     LPTSTR lpdocname;
@@ -275,9 +288,12 @@ OLESTATUS FAR PASCAL SrvrCreateFromTemplate(LPOLESERVER lpolesrvr,
 
 /* Create a new server doc. It will be initialized later on by a call
  * to ItemSetData() */
-OLESTATUS FAR PASCAL SrvrEdit(LPOLESERVER lpolesrvr, LHSERVERDOC lhdoc,
-    POLESTR lpOLEclassname, POLESTR lpOLEdocname, LPOLESERVERDOC FAR *lplpoledoc) {
-
+OLESTATUS FAR PASCAL SrvrEdit(LPOLESERVER lpolesrvr, 
+                              LHSERVERDOC lhdoc,
+                              POLESTR lpOLEclassname, 
+                              POLESTR lpOLEdocname, 
+                              LPOLESERVERDOC FAR* lplpoledoc) 
+{
     LPTSTR lpdocname;
 
     DB_OUT("In SrvrEdit ");
@@ -309,7 +325,7 @@ OLESTATUS FAR PASCAL SrvrEdit(LPOLESERVER lpolesrvr, LHSERVERDOC lhdoc,
 
 /* Server should exit */
 OLESTATUS FAR PASCAL SrvrExit(LPOLESERVER lpolesrvr) {
-    PPBSRVR     psrvr = (PPBSRVR) lpolesrvr;
+    PPBSRVR     psrvr = (PPBSRVR)lpolesrvr;
 
     DB_OUT("In SrvrExit ");
     DeleteServer(psrvr);
@@ -322,7 +338,7 @@ OLESTATUS FAR PASCAL SrvrExit(LPOLESERVER lpolesrvr) {
 OLESTATUS FAR PASCAL SrvrRelease(LPOLESERVER lpolesrvr) {
     PPBSRVR   psrvr = (PPBSRVR)lpolesrvr;
 
-    DB_OUT( "In SrvrRelease ");
+    DB_OUT("In SrvrRelease ");
 
     /* If Pbrush is still invisible then it is OK to exit, OR
      * If Pbrush was launched as a server and there are no docs, then exit. */
@@ -340,7 +356,7 @@ OLESTATUS FAR PASCAL SrvrRelease(LPOLESERVER lpolesrvr) {
             DestroyWindow(pbrushWnd[PARENTid]);
     }
 
-    DB_OUT( "Out SrvrRelease\n");
+    DB_OUT("Out SrvrRelease\n");
     return OLE_OK;
 }
 
@@ -363,20 +379,19 @@ void DeleteDoc(PPBDOC pdoc) {
     }
 }
 
-void ChangeDocName(PPBDOC FAR *ppdoc, LPTSTR lpname)
+void ChangeDocName(PPBDOC FAR* ppdoc, LPTSTR lpname)
 {
 #ifndef OLE_20
     CHAR  szAnsi[FILENAMElen + PATHlen];
 #endif
 
-    if (*ppdoc)
-    {
+    if (*ppdoc) {
         if ((*ppdoc)->aName)
             GlobalDeleteAtom((*ppdoc)->aName);
         (*ppdoc)->aName = GlobalAddAtom(lpname);
 
 #ifndef OLE_20
-        WideCharToMultiByte (CP_ACP, 0, lpname, -1, szAnsi, FILENAMElen + PATHlen, NULL, NULL);
+        WideCharToMultiByte(CP_ACP, 0, lpname, -1, szAnsi, FILENAMElen + PATHlen, NULL, NULL);
         OleRenameServerDoc((*ppdoc)->lhdoc, szAnsi);
 #else
         OleRenameServerDoc((*ppdoc)->lhdoc, lpname);
@@ -436,9 +451,11 @@ OLESTATUS FAR PASCAL DocRelease(LPOLESERVERDOC lpoledoc) {
  * An item is a rectangle in a picture.
  * For linked objects, it could be part of an image.
 */
-OLESTATUS FAR PASCAL DocGetObject(LPOLESERVERDOC lpoledoc, POLESTR pitemname,
-        LPOLEOBJECT FAR *lplpoleobject, LPOLECLIENT lpoleclient) {
-
+OLESTATUS FAR PASCAL DocGetObject(LPOLESERVERDOC lpoledoc,
+                                  POLESTR pitemname,
+                                  LPOLEOBJECT FAR* lplpoleobject,
+                                  LPOLECLIENT lpoleclient)
+{
     PITEM   pitem;
     RECT    rcImage;
     LPTSTR  pItemName;
@@ -472,13 +489,13 @@ OLESTATUS FAR PASCAL DocGetObject(LPOLESERVERDOC lpoledoc, POLESTR pitemname,
 
         /* Perform item name validation checks in the linked case */
         if (vfIsLink
-         && (!IntersectRect(&rcIntersect, &pitem->rc, &rcImage)
-          || !EqualRect(&rcIntersect, &pitem->rc)))
+            && (!IntersectRect(&rcIntersect, &pitem->rc, &rcImage)
+                || !EqualRect(&rcIntersect, &pitem->rc)))
             goto errRtn;
 
         pitem->aName = AddAtom(pItemName);
     } else {
-            /* NULL item:  No rectangle to scan, use the image size */
+        /* NULL item:  No rectangle to scan, use the image size */
         pitem->rc = rcImage;
         pitem->aName = 0;
     }
@@ -513,7 +530,8 @@ TCHAR szClientName[MAXCLIENTNAME];
  * Also change the File.Exit to "Exit & Return to <lpdocName>"
 */
 OLESTATUS FAR PASCAL DocSetHostNames(LPOLESERVERDOC lpoledoc,
-                            POLESTR lpOLEclientName, POLESTR lpOLEdocName)
+                                     POLESTR lpOLEclientName,
+                                     POLESTR lpOLEdocName)
 {
     DWORD dwSize = KEYNAMESIZE;
     TCHAR szLoader[OBJSTRINGSMAX];
@@ -539,28 +557,27 @@ OLESTATUS FAR PASCAL DocSetHostNames(LPOLESERVERDOC lpoledoc,
 
     // IDSPicture = "Paintbrush Picture"
     lstrcpy(szClientName, lpclientName);
-    if (RegQueryValue(HKEY_CLASSES_ROOT, TEXT("PBrush"), szClass, (PLONG)&dwSize))
-    {
-         LoadString(hInst, IDSpicture, szClass, CharSizeOf(szClass));
+    if (RegQueryValue(HKEY_CLASSES_ROOT, TEXT("PBrush"), szClass, (PLONG)&dwSize)) {
+        LoadString(hInst, IDSpicture, szClass, CharSizeOf(szClass));
     }
 
-    lstrcpy (lpFile, PFileInPath(lpdocName));
-    if (lpFile[0] == (TCHAR) 0)
+    lstrcpy(lpFile, PFileInPath(lpdocName));
+    if (lpFile[0] == (TCHAR)0)
         LoadString(hInst, IDSuntitled, lpFile, CharSizeOf(lpFile));
 
-    LoadString (hInst, IDSxiny, szLoader, CharSizeOf(szLoader));
+    LoadString(hInst, IDSxiny, szLoader, CharSizeOf(szLoader));
 #ifdef JAPAN // added by Hiraisi (BUG#3989/WIN31)
     wsprintf(szBuffer, szLoader, lpFile);
 #else
-    wsprintf (szBuffer, szLoader, szClass, lpFile);
+    wsprintf(szBuffer, szLoader, szClass, lpFile);
 #endif
-    lstrcpy (fileName, lpFile);
-    SetTitle (szBuffer);
+    lstrcpy(fileName, lpFile);
+    SetTitle(szBuffer);
 
-    LoadString (hInst, IDS_EXITANDRETURN, szMenuStrFormat, CharSizeOf(szMenuStrFormat));
-    wsprintf (szBuffer, szMenuStrFormat, lpFile);
-    hMenu = GetMenu (pbrushWnd[PARENTid]);
-    ModifyMenu (hMenu, FILEexit, MF_BYCOMMAND | MF_STRING, FILEexit, szBuffer);
+    LoadString(hInst, IDS_EXITANDRETURN, szMenuStrFormat, CharSizeOf(szMenuStrFormat));
+    wsprintf(szBuffer, szMenuStrFormat, lpFile);
+    hMenu = GetMenu(pbrushWnd[PARENTid]);
+    ModifyMenu(hMenu, FILEexit, MF_BYCOMMAND | MF_STRING, FILEexit, szBuffer);
 
     FreeOleString(lpdocName);
     FreeOleString(lpclientName);
@@ -584,7 +601,6 @@ OLESTATUS FAR PASCAL DocSetDocDimensions(LPOLESERVERDOC lpoledoc, LPRECT lprc) {
 }
 
 OLESTATUS FAR PASCAL DocSetColorScheme(LPOLESERVERDOC lpoledoc, LPLOGPALETTE lppal) {
-
     HPALETTE    hNewPal;
 
     DB_OUT("In DocSetColorScheme ");
@@ -648,7 +664,7 @@ PITEM CreateNewItem(PPBDOC pdoc) {
     /* Now create the item */
     hitem = GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, sizeof(ITEM));
 
-    if (!hitem || (!(pitem = (PITEM) GlobalLock(hitem))))
+    if (!hitem || (!(pitem = (PITEM)GlobalLock(hitem))))
         goto errRtn;
 
     pitem->hitem = hitem;
@@ -657,7 +673,7 @@ PITEM CreateNewItem(PPBDOC pdoc) {
 
     return pitem;
 
- errRtn:
+errRtn:
     if (pitem)
         GlobalUnlock(hitem);
 
@@ -686,11 +702,11 @@ BOOL SendDocChangeMsg(PPBDOC pdoc, WORD options) {
 
 BOOL SendItemChangeMsg(PITEM pitem, WORD options) {
     if (pitem->lpoleclient) {
-       (*pitem->lpoleclient->lpvtbl->CallBack)
-           (pitem->lpoleclient, options, (LPOLEOBJECT)pitem);
+        (*pitem->lpoleclient->lpvtbl->CallBack)
+            (pitem->lpoleclient, options, (LPOLEOBJECT)pitem);
         return TRUE;
-     }
-     return FALSE;
+    }
+    return FALSE;
 }
 
 /********************* Item VTable Subroutines **************************/
@@ -701,8 +717,7 @@ OLESTATUS FAR PASCAL ItemDelete(LPOLEOBJECT lpoleobject) {
     return OLE_OK;              /* Add error checking later */
 }
 
-OLESTATUS FAR PASCAL ItemGetData(LPOLEOBJECT lpoleobject,
-                                 OLECLIPFORMAT cfFormat, LPHANDLE lphandle) {
+OLESTATUS FAR PASCAL ItemGetData(LPOLEOBJECT lpoleobject, OLECLIPFORMAT cfFormat, LPHANDLE lphandle) {
     HCURSOR hcurOld;
     PITEM pitem = (PITEM)lpoleobject;
 
@@ -726,7 +741,7 @@ OLESTATUS FAR PASCAL ItemGetData(LPOLEOBJECT lpoleobject,
         RECT rc2;
 
         SetRect(&rc2, 0, 0, pitem->rc.right - pitem->rc.left,
-                            pitem->rc.bottom - pitem->rc.top);
+                pitem->rc.bottom - pitem->rc.top);
 
         *lphandle = GetLink(rc2);
     }
@@ -735,13 +750,12 @@ OLESTATUS FAR PASCAL ItemGetData(LPOLEOBJECT lpoleobject,
     return (*lphandle) ? OLE_OK : OLE_ERROR_MEMORY;
 }
 
-OLESTATUS FAR PASCAL ItemSetData(LPOLEOBJECT lpoleobject,
-                                 OLECLIPFORMAT cfFormat, HANDLE hdata) {
-/*
- * Read in the embedded object data in Native format.
- * (or Link format).  Presumably this will not be called
- * unless we are editing the correct document.
-*/
+OLESTATUS FAR PASCAL ItemSetData(LPOLEOBJECT lpoleobject, OLECLIPFORMAT cfFormat, HANDLE hdata) {
+    /*
+     * Read in the embedded object data in Native format.
+     * (or Link format).  Presumably this will not be called
+     * unless we are editing the correct document.
+    */
     BOOL        fError = FALSE;
     PITEM       pitem = (PITEM)lpoleobject;
     HCURSOR     hcurOld;
@@ -787,7 +801,7 @@ OLESTATUS FAR PASCAL ItemShow(LPOLEOBJECT lpoleobject, BOOL fActivate) {
                 SendMessage(zoomOutWnd, WM_KEYDOWN, VK_ESCAPE, 0L);
             else if (inMagnify)
                 SendMessage(pbrushWnd[PARENTid], WM_COMMAND,
-                      GET_WM_COMMAND_MPS(MISCzoomOut, NULL, 0));
+                            GET_WM_COMMAND_MPS(MISCzoomOut, NULL, 0));
 
 #if 0
             /* if item is larger than the paint Window, MAXIMIZE to show the
@@ -802,7 +816,7 @@ OLESTATUS FAR PASCAL ItemShow(LPOLEOBJECT lpoleobject, BOOL fActivate) {
             /* check if the image has to be scrolled into view */
             IntersectRect(&rcTemp, &(pitem->rc), &imageView);
             if (!EqualRect(&rcTemp, &(pitem->rc)))
-                MakeObjectVisible((LPRECT)&(pitem->rc));
+                MakeObjectVisible((LPRECT) & (pitem->rc));
 
             /* Set the tool to "rectangle" selection */
             SendMessage(pbrushWnd[TOOLid], WM_SELECTTOOL, PICKtool, 0L);
@@ -832,8 +846,7 @@ OLESTATUS FAR PASCAL ItemShow(LPOLEOBJECT lpoleobject, BOOL fActivate) {
     return OLE_OK;
 }
 
-static void MakeObjectVisible(
-    LPRECT lpItemRect)
+static void MakeObjectVisible(LPRECT lpItemRect)
 {
     int xPos;
     int yPos;
@@ -856,12 +869,10 @@ static void MakeObjectVisible(
 
     /* Scroll the image */
     if (xPos != imageView.left)
-        SendMessage(pbrushWnd[PAINTid], WM_HSCROLL,
-                    SB_THUMBPOSITION, MAKELONG(xPos, 0));
+        SendMessage(pbrushWnd[PAINTid], WM_HSCROLL, SB_THUMBPOSITION, MAKELONG(xPos, 0));
 
     if (yPos != imageView.top)
-        SendMessage(pbrushWnd[PAINTid], WM_VSCROLL,
-                    SB_THUMBPOSITION, MAKELONG(yPos, 0));
+        SendMessage(pbrushWnd[PAINTid], WM_VSCROLL, SB_THUMBPOSITION, MAKELONG(yPos, 0));
 }
 
 OLESTATUS FAR PASCAL ItemSetBounds(LPOLEOBJECT lpoleobject, LPRECT lprc) {
@@ -886,8 +897,7 @@ OLESTATUS FAR PASCAL ItemSetTargetDevice(LPOLEOBJECT lpoleobject, HANDLE h) {
     return OLE_ERROR_GENERIC;
 }
 
-OLECLIPFORMAT FAR PASCAL ItemEnumFormats(LPOLEOBJECT lpobject,
-                                         OLECLIPFORMAT cfFormat) {
+OLECLIPFORMAT FAR PASCAL ItemEnumFormats(LPOLEOBJECT lpobject, OLECLIPFORMAT cfFormat) {
 
     /* This is called by the OLE libraries to get a format for
      * display on the screen.
@@ -918,9 +928,9 @@ LPVOID FAR PASCAL ItemQueryProtocol(LPOLEOBJECT lpoleobject, POLESTR lpprotocol)
     DB_OUT("In ItemQueryProtocol ");
 
 #ifndef OLE_20
-    lpv =  (!lstrcmpiA(lpprotocol, "StdFileEditing") ? lpoleobject : NULL);
+    lpv = (!lstrcmpiA(lpprotocol, "StdFileEditing") ? lpoleobject : NULL);
 #else
-    lpv =  (!lstrcmpi(lpprotocol, TEXT("StdFileEditing")) ? lpoleobject : NULL);
+    lpv = (!lstrcmpi(lpprotocol, TEXT("StdFileEditing")) ? lpoleobject : NULL);
 #endif
 
     DB_OUT2(lpv == NULL, "ret NULL ", "ret obj ");
@@ -934,8 +944,7 @@ OLESTATUS FAR PASCAL ItemSetColorScheme(LPOLEOBJECT lpoleobject, LPLOGPALETTE lp
     return OLE_ERROR_GENERIC;
 }
 
-OLESTATUS FAR PASCAL ItemDoVerb(LPOLEOBJECT lpoleobject,
-                                WORD wVerb, BOOL fShow, BOOL fActivate) {
+OLESTATUS FAR PASCAL ItemDoVerb(LPOLEOBJECT lpoleobject, WORD wVerb, BOOL fShow, BOOL fActivate) {
 
     OLESTATUS ols = OLE_OK;
 
@@ -945,7 +954,7 @@ OLESTATUS FAR PASCAL ItemDoVerb(LPOLEOBJECT lpoleobject,
     if (fShow)
         ols = (*lpoleobject->lpvtbl->Show)(lpoleobject, fActivate);
 
-    DB_OUT("Out ItemDoVerb\n" );
+    DB_OUT("Out ItemDoVerb\n");
     return ols;
 }
 
@@ -980,7 +989,7 @@ PPBDOC CreateDocFromFile(PPBSRVR psrvr, LPTSTR lpstr, LHSERVERDOC lhdoc, LPTSTR 
         lstrcpy(fileName, lpTmp2);
         *(--lpTmp2) = TEXT('\\'); /* restore it */
     } else {
-        *filePath = (TCHAR) 0;
+        *filePath = (TCHAR)0;
         lstrcpy(fileName, lpstr);
     }
 
@@ -998,17 +1007,17 @@ PPBDOC CreateDocFromFile(PPBSRVR psrvr, LPTSTR lpstr, LHSERVERDOC lhdoc, LPTSTR 
 }
 
 HANDLE GetNative(HDC hDC, HBITMAP hBitmap, RECT rc) {
-/*
- * Derived from SaveBitmapFile()
+    /*
+     * Derived from SaveBitmapFile()
 
- * The native format is the entire DIB file format
- * (it is insufficient to just provide a handle).
-*/
+     * The native format is the entire DIB file format
+     * (it is insufficient to just provide a handle).
+    */
     int       i;
     int       width, height;
     BOOL      error = TRUE;
     LPBYTE      lpBits;
-    BYTE huge *hpBits;
+    BYTE huge* hpBits;
     HDC       parentDC = NULL;
     int       ScanLineSize, InfoSize;
     DWORD     dwImgSize;
@@ -1020,58 +1029,57 @@ HANDLE GetNative(HDC hDC, HBITMAP hBitmap, RECT rc) {
     LPBITMAPFILEHEADER  lpHdr;
     LPBITMAPINFO lpInfo;
     LPBITMAPINFO lpbmInfo = NULL;           /* deal with alignment -- FGS */
-    HANDLE    hbmInfo=NULL;
+    HANDLE    hbmInfo = NULL;
 
     /* Compute the rectangle to be selected */
     width = (rc.right - rc.left);
     height = (rc.bottom - rc.top);
 
-    hOldCursor = SetCursor(LoadCursor(NULL,IDC_WAIT));
+    hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
 
     if (!hDC) {
-        if (!(fileDC = CreateCompatibleDC(NULL)))
-        {
+        if (!(fileDC = CreateCompatibleDC(NULL))) {
             PbrushOkError(IDSNotEnufMem, MB_ICONHAND);
             goto error1;
         }
     }
 
     if (hPalette) {
-       hOldPalette = SelectPalette(hDC? hDC: fileDC, hPalette, 0);
-       RealizePalette(hDC? hDC: fileDC);
+        hOldPalette = SelectPalette(hDC ? hDC : fileDC, hPalette, 0);
+        RealizePalette(hDC ? hDC : fileDC);
     }
 
     switch (wFileType) {
-        case BITMAPFILE24:
-            i = 24;
-            break;
+    case BITMAPFILE24:
+        i = 24;
+        break;
 
-        case BITMAPFILE:
-        case MSPFILE:
-            i = 1;
-            break;
+    case BITMAPFILE:
+    case MSPFILE:
+        i = 1;
+        break;
 
-        case BITMAPFILE4:
-            i = 4;
-            break;
+    case BITMAPFILE4:
+        i = 4;
+        break;
 
-        case BITMAPFILE8:
-            i = 8;
-            break;
-        case PCXFILE:
-            i = imagePlanes * imagePixels;
-            break;
+    case BITMAPFILE8:
+        i = 8;
+        break;
+    case PCXFILE:
+        i = imagePlanes * imagePixels;
+        break;
     }
     /* BITMAPINFOSIZE = size of header + color table. */
     /* no color table for 24 bpp bitmaps. */
     InfoSize = sizeof(BITMAPINFOHEADER) +
-                ((i == 24)? 0: (sizeof(RGBQUAD) << i));
+        ((i == 24) ? 0 : (sizeof(RGBQUAD) << i));
     /* Scan Line should be DWORD aligned and the length is in bytes */
-    ScanLineSize = ((((WORD)width * (WORD)i) + 31)/32) * 4;
+    ScanLineSize = ((((WORD)width * (WORD)i) + 31) / 32) * 4;
 
     /* Allocate memory */
     dwImgSize = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)InfoSize +
-                (DWORD)ScanLineSize * (DWORD)height;
+        (DWORD)ScanLineSize * (DWORD)height;
 
     hLink = GlobalAlloc(GMEM_DDESHARE | GMEM_ZEROINIT, dwImgSize);
     if (!hLink || (!(lpLink = (LPBYTE)GlobalLock(hLink)))) {
@@ -1083,23 +1091,23 @@ HANDLE GetNative(HDC hDC, HBITMAP hBitmap, RECT rc) {
         SimpleMessage(IDSNoMemAvail, fileName, MB_OK | MB_ICONEXCLAMATION);
         goto error2;
     }
-    lpHdr  = (LPBITMAPFILEHEADER)lpLink;
+    lpHdr = (LPBITMAPFILEHEADER)lpLink;
     lpInfo = (LPBITMAPINFO)(lpLink + sizeof(BITMAPFILEHEADER));
     lpBits = (LPBYTE)(lpLink + sizeof(BITMAPFILEHEADER) + InfoSize);
 
     /* fill in image header */
-    lpbmInfo->bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
-    lpbmInfo->bmiHeader.biWidth       = width;
-    lpbmInfo->bmiHeader.biHeight        = height;
-    lpbmInfo->bmiHeader.biPlanes              = 1;
-    lpbmInfo->bmiHeader.biBitCount      = (WORD)i;
-    lpbmInfo->bmiHeader.biCompression   =
-    lpbmInfo->bmiHeader.biClrUsed            =
-    lpbmInfo->bmiHeader.biClrImportant  = 0;
-    lpbmInfo->bmiHeader.biSizeImage     = 0;
+    lpbmInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    lpbmInfo->bmiHeader.biWidth = width;
+    lpbmInfo->bmiHeader.biHeight = height;
+    lpbmInfo->bmiHeader.biPlanes = 1;
+    lpbmInfo->bmiHeader.biBitCount = (WORD)i;
+    lpbmInfo->bmiHeader.biCompression =
+        lpbmInfo->bmiHeader.biClrUsed =
+        lpbmInfo->bmiHeader.biClrImportant = 0;
+    lpbmInfo->bmiHeader.biSizeImage = 0;
     lpHdr->bfOffBits = sizeof(BITMAPFILEHEADER) + InfoSize;
-    lpbmInfo->bmiHeader.biXPelsPerMeter = PelsPerLogMeter(hDC ? hDC : fileDC,TRUE);
-    lpbmInfo->bmiHeader.biYPelsPerMeter = PelsPerLogMeter(hDC ? hDC : fileDC,FALSE);
+    lpbmInfo->bmiHeader.biXPelsPerMeter = PelsPerLogMeter(hDC ? hDC : fileDC, TRUE);
+    lpbmInfo->bmiHeader.biYPelsPerMeter = PelsPerLogMeter(hDC ? hDC : fileDC, FALSE);
 
     if (!hDC) {
         int ht;
@@ -1107,7 +1115,7 @@ HANDLE GetNative(HDC hDC, HBITMAP hBitmap, RECT rc) {
         for (ht = height, fileBitmap = NULL; ht && !fileBitmap; ) {
 
             if (!(fileBitmap = CreateBitmap(width, ht, (BYTE)imagePlanes,
-                                            (BYTE)imagePixels, NULL)))
+                (BYTE)imagePixels, NULL)))
                 ht = ht >> 1;
         }
 
@@ -1116,22 +1124,22 @@ HANDLE GetNative(HDC hDC, HBITMAP hBitmap, RECT rc) {
             goto error2;
         }
 
-        lpbmInfo->bmiHeader.biHeight      = ht;
+        lpbmInfo->bmiHeader.biHeight = ht;
         for (i = height; i; i -= ht) {
             if (ht > i)
                 lpbmInfo->bmiHeader.biHeight = ht = i;
 
-            if(!(hOldBitmap = SelectObject(fileDC, fileBitmap))) {
-               SimpleMessage(IDSUnableSave, fileName, MB_OK | MB_ICONEXCLAMATION);
-               goto error3;
+            if (!(hOldBitmap = SelectObject(fileDC, fileBitmap))) {
+                SimpleMessage(IDSUnableSave, fileName, MB_OK | MB_ICONEXCLAMATION);
+                goto error3;
             }
 
             BitBlt(fileDC, 0, 0, width, ht,
-                    hdcWork, rc.left, rc.top + (i - ht), SRCCOPY);
+                   hdcWork, rc.left, rc.top + (i - ht), SRCCOPY);
 
-            if(!SelectObject(fileDC, hOldBitmap)) {
-               SimpleMessage(IDSUnableSave, fileName, MB_OK | MB_ICONEXCLAMATION);
-               goto error3;
+            if (!SelectObject(fileDC, hOldBitmap)) {
+                SimpleMessage(IDSUnableSave, fileName, MB_OK | MB_ICONEXCLAMATION);
+                goto error3;
             }
 
             GetDIBits(fileDC, fileBitmap, 0, ht, lpBits, lpbmInfo, DIB_RGB_COLORS);
@@ -1139,7 +1147,7 @@ HANDLE GetNative(HDC hDC, HBITMAP hBitmap, RECT rc) {
             hpBits += (DWORD)ht * (DWORD)ScanLineSize;
             lpBits = hpBits;
         }
-        lpbmInfo->bmiHeader.biHeight       = height;
+        lpbmInfo->bmiHeader.biHeight = height;
     } else
         GetDIBits(hDC, hBitmap, 0, height, lpBits, lpbmInfo, DIB_RGB_COLORS);
 
@@ -1148,7 +1156,7 @@ HANDLE GetNative(HDC hDC, HBITMAP hBitmap, RECT rc) {
     lpHdr->bfReserved1 = lpHdr->bfReserved2 = 0;
     lpbmInfo->bmiHeader.biSizeImage = (DWORD)height * (DWORD)ScanLineSize;
 
-    RepeatMove(lpInfo,lpbmInfo,InfoSize);
+    RepeatMove(lpInfo, lpbmInfo, InfoSize);
     error = FALSE;
 
 error3:
@@ -1178,7 +1186,7 @@ error2:
     if (!hDC) {
         if (fileDC) {
             if (hPalette && hOldPalette)
-                SelectPalette(hDC? hDC :fileDC, hOldPalette, 0);
+                SelectPalette(hDC ? hDC : fileDC, hOldPalette, 0);
             DeleteDC(fileDC);
         }
     }
@@ -1191,7 +1199,7 @@ error1:
 BOOL PutNative(PITEM pitem, HWND hWnd, HANDLE hdata) {
     LPBYTE               lpNative;
     LPBITMAPFILEHEADER  lphdr;
-    BITMAPINFO  UNALIGNED * lphdrInfo;
+    BITMAPINFO  UNALIGNED* lphdrInfo;
     LPBITMAPINFO        lpDIBinfo = NULL;               /* needed for alignment */
     BOOL                error = TRUE;
     int                 wplanes, wbitpx, i;
@@ -1205,7 +1213,7 @@ BOOL PutNative(PITEM pitem, HWND hWnd, HANDLE hdata) {
     HPALETTE            hNewPal = NULL;
     LPBYTE               lpTemp;
     int                 rc;
-    BYTE huge           *hpTemp;
+    BYTE huge* hpTemp;
     int                 ht;
 
     if (!(lpNative = GlobalLock(hdata))) {
@@ -1214,7 +1222,7 @@ BOOL PutNative(PITEM pitem, HWND hWnd, HANDLE hdata) {
     }
 
     lphdr = (LPBITMAPFILEHEADER)lpNative;
-    lphdrInfo = (BITMAPINFO UNALIGNED *)(lpNative + sizeof(BITMAPFILEHEADER));
+    lphdrInfo = (BITMAPINFO UNALIGNED*)(lpNative + sizeof(BITMAPFILEHEADER));
 
     if (lphdrInfo->bmiHeader.biPlanes != 1 || lphdr->bfType != DIBID) {
         errmsg = IDSUnableHdr;
@@ -1227,8 +1235,8 @@ BOOL PutNative(PITEM pitem, HWND hWnd, HANDLE hdata) {
     }
 
     if (!(dwNumColors = lphdrInfo->bmiHeader.biClrUsed))
-       if (lphdrInfo->bmiHeader.biBitCount != 24)
-          dwNumColors = (1L << lphdrInfo->bmiHeader.biBitCount);
+        if (lphdrInfo->bmiHeader.biBitCount != 24)
+            dwNumColors = (1L << lphdrInfo->bmiHeader.biBitCount);
 
     if (!(parentdc = GetDisplayDC(hWnd))) {
         errmsg = IDSCantAlloc;
@@ -1246,23 +1254,23 @@ BOOL PutNative(PITEM pitem, HWND hWnd, HANDLE hdata) {
     oldCsr = SetCursor(LoadCursor(NULL, IDC_WAIT));
 
     /* Create a new image with the new sizes, etc. */
-    nNewImageWidth      = LOWORD(lphdrInfo->bmiHeader.biWidth);
-    nNewImageHeight     = LOWORD(lphdrInfo->bmiHeader.biHeight);
-    nNewImagePlanes     = wplanes;
-    nNewImagePixels     = wbitpx;
+    nNewImageWidth = LOWORD(lphdrInfo->bmiHeader.biWidth);
+    nNewImageHeight = LOWORD(lphdrInfo->bmiHeader.biHeight);
+    nNewImagePlanes = wplanes;
+    nNewImagePixels = wbitpx;
 
     rc = AllocImg(nNewImageWidth, nNewImageHeight,
-                      nNewImagePlanes, nNewImagePixels, FALSE);
+                  nNewImagePlanes, nNewImagePixels, FALSE);
 
     dwSize = sizeof(BITMAPINFOHEADER)
-           + dwNumColors * sizeof(RGBQUAD);
+        + dwNumColors * sizeof(RGBQUAD);
 
     if (!(hDIBinfo = GlobalAlloc(GMEM_MOVEABLE, dwSize))) {
         errmsg = IDSCantAlloc;
         goto error2;
     }
 
-    if (!(lpDIBinfo = (LPBITMAPINFO) GlobalLock(hDIBinfo))) {
+    if (!(lpDIBinfo = (LPBITMAPINFO)GlobalLock(hDIBinfo))) {
         errmsg = IDSCantAlloc;
         goto error3;
     }
@@ -1291,9 +1299,7 @@ BOOL PutNative(PITEM pitem, HWND hWnd, HANDLE hdata) {
     }
 
     for (ht = nNewImageHeight, hbitmap = NULL; ht && !hbitmap; ) {
-        if (!(hbitmap = CreateBitmap(nNewImageWidth, ht,
-                                     (BYTE) imagePlanes, (BYTE) imagePixels,
-                                     NULL)))
+        if (!(hbitmap = CreateBitmap(nNewImageWidth, ht, (BYTE)imagePlanes, (BYTE)imagePixels, NULL)))
             ht = ht >> 1;
     }
 
@@ -1303,12 +1309,12 @@ BOOL PutNative(PITEM pitem, HWND hWnd, HANDLE hdata) {
     }
 
     if (hPalette) {
-       SelectPalette(hdc, hPalette, FALSE);
-       RealizePalette(hdc);
+        SelectPalette(hdc, hPalette, FALSE);
+        RealizePalette(hdc);
     }
 
     wSize = ((nNewImageWidth
-                * lphdrInfo->bmiHeader.biBitCount + 31) & (-32)) >> 3;
+              * lphdrInfo->bmiHeader.biBitCount + 31) & (-32)) >> 3;
 
     lpTemp = lpNative + sizeof(BITMAPFILEHEADER) + dwSize;
 
@@ -1322,26 +1328,26 @@ BOOL PutNative(PITEM pitem, HWND hWnd, HANDLE hdata) {
     lpDIBinfo->bmiHeader.biHeight = ht;
     for (i = nNewImageHeight; i; i -= ht) {
         if (i < ht)
-             lpDIBinfo->bmiHeader.biHeight = ht = i;
+            lpDIBinfo->bmiHeader.biHeight = ht = i;
 
-        if(!SelectObject(hdc, htempbit)) {
-           errmsg = IDSNoMemAvail;
-           goto error6;
+        if (!SelectObject(hdc, htempbit)) {
+            errmsg = IDSNoMemAvail;
+            goto error6;
         }
 
-        if(!SetDIBits(hdc, hbitmap, 0, ht, lpTemp, lpDIBinfo, wUsage)) {
+        if (!SetDIBits(hdc, hbitmap, 0, ht, lpTemp, lpDIBinfo, wUsage)) {
             errmsg = IDSNoMemAvail;
             error = TRUE;
             break;
         }
 
-        if(!SelectObject(hdc, hbitmap)) {
-           errmsg = IDSNoMemAvail;
-           goto error6;
+        if (!SelectObject(hdc, hbitmap)) {
+            errmsg = IDSNoMemAvail;
+            goto error6;
         }
 
         BitBlt(hdcWork, 0, i - ht, nNewImageWidth, ht,
-                hdc, 0, 0, SRCCOPY);
+               hdc, 0, 0, SRCCOPY);
 
         hpTemp = lpTemp;
         hpTemp += (DWORD)ht * (DWORD)wSize;
@@ -1350,7 +1356,7 @@ BOOL PutNative(PITEM pitem, HWND hWnd, HANDLE hdata) {
 
     /* Copy the work bitmap into the undo bitmap */
     BitBlt(hdcImage, 0, 0, nNewImageWidth, nNewImageHeight,
-            hdcWork, 0, 0, SRCCOPY);
+           hdcWork, 0, 0, SRCCOPY);
 
     wFileType = GetImageFileType(lphdrInfo->bmiHeader.biBitCount);
 
@@ -1451,10 +1457,10 @@ void ScanRect(LPTSTR lpstr, LPRECT lprc) {
     LPTSTR   lpstrBuf = Buf;
 
     lstrcpy(Buf, lpstr);
-    GetNum(&lpstrBuf, (LPINT)&(lprc->left));
-    GetNum(&lpstrBuf, (LPINT)&(lprc->top));
-    GetNum(&lpstrBuf, (LPINT)&(lprc->right));
-    GetNum(&lpstrBuf, (LPINT)&(lprc->bottom));
+    GetNum(&lpstrBuf, (LPINT) & (lprc->left));
+    GetNum(&lpstrBuf, (LPINT) & (lprc->top));
+    GetNum(&lpstrBuf, (LPINT) & (lprc->right));
+    GetNum(&lpstrBuf, (LPINT) & (lprc->bottom));
 }
 
 int OutRect(LPTSTR lpstr, int cb, RECT rc) {
@@ -1482,21 +1488,21 @@ HANDLE GetLink(RECT rc) {
 
     /* Link data... (PBrush\0<Doc name>\0<Item name>\0\0) */
     lstrcpy(pchlink, pgmName);
-    cblink    = lstrlen(pchlink) + 1;
+    cblink = lstrlen(pchlink) + 1;
 
     /* Copy filePath\fileName */
     lstrcpy((LPTSTR)(pchlink + cblink), filePath);
-    if (filePath[lstrlen(filePath)-1] != TEXT('\\'))
+    if (filePath[lstrlen(filePath) - 1] != TEXT('\\'))
         lstrcat(pchlink + cblink, TEXT("\\"));
     lstrcat(pchlink + cblink, fileName);
     cblink += lstrlen(pchlink + cblink) + 1;
-    cblink   += (int)OutRect(pchlink + cblink, CBLINKMAX - cblink, rc) + 1;
-    pchlink[cblink++] = (TCHAR) 0;       /* throw in another NULL at the end */
+    cblink += (int)OutRect(pchlink + cblink, CBLINKMAX - cblink, rc) + 1;
+    pchlink[cblink++] = (TCHAR)0;       /* throw in another NULL at the end */
 
 #ifndef OLE_20
     cchLink = cblink;
     cblink = WideCharToMultiByte(CP_ACP, 0, pchlink, cchLink, NULL, 0,
-            NULL, NULL);
+                                 NULL, NULL);
 #else
     cblink *= sizeof(TCHAR);
 #endif
@@ -1507,7 +1513,7 @@ HANDLE GetLink(RECT rc) {
         if (lplink = (POLESTR)GlobalLock(hlink)) {
 #ifndef OLE_20
             WideCharToMultiByte(CP_ACP, 0, pchlink, cchLink, lplink, cblink,
-                    NULL, NULL);
+                                NULL, NULL);
 #else
             RepeatMove(lplink, pchlink, (WORD)cblink);
 #endif
@@ -1533,7 +1539,7 @@ HBITMAP GetBitmap(PITEM pitem) {
 
     hdcmem = CreateCompatibleDC(NULL);
     hbitmap = CreateBitmap(cxBitmap, cyBitmap,
-                           (BYTE)imagePlanes, (BYTE)imagePixels, 0);
+        (BYTE)imagePlanes, (BYTE)imagePixels, 0);
     holdbitmap = SelectObject(hdcmem, hbitmap);
 
     MSetWindowOrg(hdcmem, 0, 0);
@@ -1541,7 +1547,7 @@ HBITMAP GetBitmap(PITEM pitem) {
 
     /* Paint directly into the BITMAP */
     BitBlt(hdcmem, 0, 0, cxBitmap, cyBitmap,
-            hdcWork, pitem->rc.left, pitem->rc.top, SRCCOPY);
+           hdcWork, pitem->rc.left, pitem->rc.top, SRCCOPY);
 
     hbitmap = SelectObject(hdcmem, holdbitmap);
     DeleteDC(hdcmem);
@@ -1549,16 +1555,16 @@ HBITMAP GetBitmap(PITEM pitem) {
 }
 
 HANDLE GetMF(HDC hDC, HBITMAP hBitmap, RECT rc) {
-    BOOL            fCreatedDC  = FALSE;
-    BOOL            fError      = TRUE;
-    HANDLE          hmfpict     = NULL;
-    HBITMAP         hbm         = NULL;
-    HBITMAP         hbmOld      = NULL;
+    BOOL            fCreatedDC = FALSE;
+    BOOL            fError = TRUE;
+    HANDLE          hmfpict = NULL;
+    HBITMAP         hbm = NULL;
+    HBITMAP         hbmOld = NULL;
     HPALETTE        hOldPalette = NULL, hDefPalette = NULL;
-    HDC             hdcMF       = NULL;
-    HDC             hdcWnd      = NULL;
-    HWND            hwndFrame   = pbrushWnd[PARENTid];
-    LPMETAFILEPICT  lpmfpict    = NULL;
+    HDC             hdcMF = NULL;
+    HDC             hdcWnd = NULL;
+    HWND            hwndFrame = pbrushWnd[PARENTid];
+    LPMETAFILEPICT  lpmfpict = NULL;
     int             cxImage;
     int             cyImage;
 
@@ -1576,58 +1582,55 @@ HANDLE GetMF(HDC hDC, HBITMAP hBitmap, RECT rc) {
 
         /* Make a DC compatible to the window DC, and initialize a bitmap. */
         if (!(hDC = CreateCompatibleDC(NULL))
-         || !(hbm = CreateCompatibleBitmap(hdcWnd, cxImage, cyImage))
-         || (hPalette && !(hOldPalette = SelectPalette(hDC, hPalette, 0)))
-         || !(hbmOld = SelectObject(hDC, hbm)))
-           goto Error;
+            || !(hbm = CreateCompatibleBitmap(hdcWnd, cxImage, cyImage))
+            || (hPalette && !(hOldPalette = SelectPalette(hDC, hPalette, 0)))
+            || !(hbmOld = SelectObject(hDC, hbm)))
+            goto Error;
 
         if (hPalette)
             RealizePalette(hDC);
         /* Draw the image... */
         BitBlt(hDC, 0, 0, cxImage, cyImage,
-                hdcWork, rc.left, rc.top, SRCCOPY);
-    } else
-    {
+               hdcWork, rc.left, rc.top, SRCCOPY);
+    } else {
         if (hPalette) {
-           hOldPalette = SelectPalette(hDC, hPalette, 0);
-           RealizePalette(hDC);
+            hOldPalette = SelectPalette(hDC, hPalette, 0);
+            RealizePalette(hDC);
         }
         hbmOld = SelectObject(hDC, hBitmap);
     }
 
     /* Create the metafile */
     if (!(hmfpict = GlobalAlloc(GMEM_DDESHARE | GMEM_ZEROINIT, sizeof(METAFILEPICT)))
-     || !(lpmfpict = (LPMETAFILEPICT)GlobalLock(hmfpict))
-     || !(hdcMF = CreateMetaFile(NULL)))
+        || !(lpmfpict = (LPMETAFILEPICT)GlobalLock(hmfpict))
+        || !(hdcMF = CreateMetaFile(NULL)))
         goto Error;
     /* Initialize the metafile */
     MSetWindowOrg(hdcMF, 0, 0);
     MSetWindowExt(hdcMF, cxImage, cyImage);
 
-    if (hPalette)
-    {
-       SelectPalette(hdcMF, hPalette, TRUE);
-       RealizePalette(hdcMF);
+    if (hPalette) {
+        SelectPalette(hdcMF, hPalette, TRUE);
+        RealizePalette(hdcMF);
     }
     /* ... and then write it out to the metafile. */
     StretchBlt(hdcMF, 0, 0, cxImage, cyImage,
                hDC, 0, 0, cxImage, cyImage, SRCCOPY);
 
-    if (hDefPalette = GetStockObject(DEFAULT_PALETTE))
-    {
+    if (hDefPalette = GetStockObject(DEFAULT_PALETTE)) {
         SelectPalette(hdcMF, hDefPalette, TRUE);
         //RealizePalette(hdcMF);
     }
 
     /* Finish filling in the metafile header */
     lpmfpict->mm = MM_ANISOTROPIC;
-    lpmfpict->xExt = PelsToLogHimetric(hdcWnd,TRUE,cxImage);
-    lpmfpict->yExt = PelsToLogHimetric(hdcWnd,FALSE,cyImage);
+    lpmfpict->xExt = PelsToLogHimetric(hdcWnd, TRUE, cxImage);
+    lpmfpict->yExt = PelsToLogHimetric(hdcWnd, FALSE, cyImage);
 
     ReleaseDC(hwndFrame, hdcWnd);
     hdcWnd = NULL;
 
-    lpmfpict->hMF  = CloseMetaFile(hdcMF);
+    lpmfpict->hMF = CloseMetaFile(hdcMF);
 
 
     fError = FALSE;
@@ -1639,8 +1642,7 @@ Error:
         SelectObject(hDC, hbmOld);
     if (hbm)
         DeleteObject(hbm);
-    if (hOldPalette)
-    {
+    if (hOldPalette) {
         SelectPalette(hDC, hOldPalette, 0);
         RealizePalette(hDC);
     }
@@ -1688,7 +1690,7 @@ void FAR UnfixMenus(void) {
     vfIsLink = TRUE;
 }
 
-void GetNum(LPTSTR FAR *lplpstrBuf, int FAR *lpint) {
+void GetNum(LPTSTR FAR* lplpstrBuf, int FAR* lpint) {
     *lpint = 0;
     while (TEXT('0') <= **lplpstrBuf && **lplpstrBuf <= TEXT('9')) {
         *lpint = *lpint * 10 + (**lplpstrBuf - TEXT('0'));
@@ -1703,17 +1705,17 @@ void GetNum(LPTSTR FAR *lplpstrBuf, int FAR *lpint) {
 
 #define nPelsPerLogInch GetDeviceCaps(hDC, bHoriz ? LOGPIXELSX : LOGPIXELSY)
 
-int PelsPerLogMeter(HDC hDC,BOOL bHoriz)
+int PelsPerLogMeter(HDC hDC, BOOL bHoriz)
 {
-    #define nMMPerMeterTimes10 10000
-    #define nMMPerInchTimes10  254
+#define nMMPerMeterTimes10 10000
+#define nMMPerInchTimes10  254
 
     return MulDiv(nPelsPerLogInch, nMMPerMeterTimes10, nMMPerInchTimes10);
 }
 
-int PelsToLogHimetric(HDC hDC,BOOL bHoriz, int pels)
+int PelsToLogHimetric(HDC hDC, BOOL bHoriz, int pels)
 {
-    #define nHMPerInch 2540
+#define nHMPerInch 2540
 
-    return MulDiv(pels,nHMPerInch,nPelsPerLogInch);
+    return MulDiv(pels, nHMPerInch, nPelsPerLogInch);
 }

@@ -28,12 +28,12 @@
 #define         SFSE_FILE       3
 
 /* Local function prototypes... */
-void  NEAR PASCAL SearchForScrEntries     ( UINT, LPCTSTR );
-BOOL  NEAR PASCAL FreeScrEntries          ( void );
-int   NEAR PASCAL lstrncmp                ( LPTSTR, LPTSTR, int );
-LPTSTR NEAR PASCAL FileName                ( LPTSTR szPath);
-LPTSTR NEAR PASCAL StripPathName           ( LPTSTR szPath);
-LPTSTR NEAR PASCAL NiceName                ( LPTSTR szPath);
+void  NEAR PASCAL SearchForScrEntries(UINT, LPCTSTR);
+BOOL  NEAR PASCAL FreeScrEntries(void);
+int   NEAR PASCAL lstrncmp(LPTSTR, LPTSTR, int);
+LPTSTR NEAR PASCAL FileName(LPTSTR szPath);
+LPTSTR NEAR PASCAL StripPathName(LPTSTR szPath);
+LPTSTR NEAR PASCAL NiceName(LPTSTR szPath);
 
 void  NEAR PASCAL AddBackslash(LPTSTR pszPath);
 void  NEAR PASCAL AppendPath(LPTSTR pszPath, LPTSTR pszSpec);
@@ -43,16 +43,16 @@ PTSTR  NEAR PASCAL AllocStr(LPTSTR szCopy);
 void  NEAR PASCAL SaveIni(HWND hDlg);
 void  NEAR PASCAL DoScreenSaver(HWND hDlg, BOOL b);
 
-void NEAR PASCAL ScreenSaver_AdjustTimeouts(HWND hWnd,int BaseControlID);
+void NEAR PASCAL ScreenSaver_AdjustTimeouts(HWND hWnd, int BaseControlID);
 void NEAR PASCAL EnableDisablePowerDelays(HWND hDlg);
 void NEAR PASCAL EnableDisableSetPasswordBtn(HWND hDlg);
 
-TCHAR   szMethodName[]       = TEXT("SCRNSAVE.EXE");     // Method entry
+TCHAR   szMethodName[] = TEXT("SCRNSAVE.EXE");     // Method entry
 TCHAR   szBuffer[BUFFER_SIZE];                     // Shared buffer
 TCHAR   szSaverName[MAX_PATH];                    // Screen Saver EXE
 HICON  hDefaultIcon;
 HICON  hIdleWildIcon;
-BOOL    bWasConfig=0;   // We were configing the screen saver
+BOOL    bWasConfig = 0;   // We were configing the screen saver
 HWND    g_hwndTestButton;
 HWND    g_hwndLastFocus;
 BOOL    g_fPasswordWasPreviouslyEnabled = FALSE;
@@ -87,7 +87,7 @@ static BOOL g_fAdapPwrMgnt = FALSE;
 #   define CB_USE_PWRD_VALUE   (CCH_USE_PWRD_VALUE * SIZEOF(TCHAR))
 
 TCHAR gpwdRegYes[CCH_USE_PWRD_VALUE] = TEXT("1");
-TCHAR gpwdRegNo[CCH_USE_PWRD_VALUE]  = TEXT("0");
+TCHAR gpwdRegNo[CCH_USE_PWRD_VALUE] = TEXT("0");
 
 #define PasswdRegData(f)    ((f) ? (PBYTE)gpwdRegYes : (PBYTE)gpwdRegNo)
 
@@ -97,7 +97,7 @@ TCHAR gpwdRegNo[CCH_USE_PWRD_VALUE]  = TEXT("0");
 #   define CB_USE_PWRD_VALUE   SIZEOF(DWORD)
 
 DWORD gpwdRegYes = 1;
-DWORD gpwdRegNo  = 0;
+DWORD gpwdRegNo = 0;
 
 #define PasswdRegData(f)    ((f) ? (PBYTE)&gpwdRegYes : (PBYTE)&gpwdRegNo)
 
@@ -195,7 +195,7 @@ BOOL g_bChangedSS = FALSE;      // changes have been made
 
  * This function will deal with the differences.
 */
-static BOOL IsPasswdSecure(HKEY hKey, LPTSTR szUsePW ) {
+static BOOL IsPasswdSecure(HKEY hKey, LPTSTR szUsePW) {
     union {
         DWORD dw;
         TCHAR asz[4];
@@ -206,9 +206,9 @@ static BOOL IsPasswdSecure(HKEY hKey, LPTSTR szUsePW ) {
 
     dwSize = SIZEOF(uData);
 
-    RegQueryValueEx(hKey,SZ_USE_PASSWORD,NULL, &dwType, (BYTE *)&uData, &dwSize);
+    RegQueryValueEx(hKey, SZ_USE_PASSWORD, NULL, &dwType, (BYTE*)&uData, &dwSize);
 
-    switch( dwType ) {
+    switch (dwType) {
     case REG_DWORD:
         fSecure = (uData.dw == 1);
         break;
@@ -223,32 +223,30 @@ static BOOL IsPasswdSecure(HKEY hKey, LPTSTR szUsePW ) {
 
 
 static void NEAR
-EnableDlgChild( HWND dlg, HWND kid, BOOL val )
+EnableDlgChild(HWND dlg, HWND kid, BOOL val)
 {
-    if( !val && ( kid == GetFocus() ) )
-    {
+    if (!val && (kid == GetFocus())) {
         // give prev tabstop focus
-        SendMessage( dlg, WM_NEXTDLGCTL, 1, 0L );
+        SendMessage(dlg, WM_NEXTDLGCTL, 1, 0L);
     }
 
-    EnableWindow( kid, val );
+    EnableWindow(kid, val);
 }
 
 static void NEAR
-EnableDlgItem( HWND dlg, int idkid, BOOL val )
+EnableDlgItem(HWND dlg, int idkid, BOOL val)
 {
-    EnableDlgChild( dlg, GetDlgItem( dlg, idkid ), val );
+    EnableDlgChild(dlg, GetDlgItem(dlg, idkid), val);
 }
 
-HWND NEAR PASCAL GetSSDemoParent( HWND page )
+HWND NEAR PASCAL GetSSDemoParent(HWND page)
 {
     static HWND parent = NULL;
 
-    if( !parent || !IsWindow( parent ) )
-    {
-        parent = CreateWindowEx( 0, c_szDemoParentClass,
-            g_szNULL, WS_CHILD | WS_CLIPCHILDREN, 0, 0, 0, 0,
-            GetDlgItem( page, IDC_BIGICON ), NULL, hInstance, NULL );
+    if (!parent || !IsWindow(parent)) {
+        parent = CreateWindowEx(0, c_szDemoParentClass,
+                                g_szNULL, WS_CHILD | WS_CLIPCHILDREN, 0, 0, 0, 0,
+                                GetDlgItem(page, IDC_BIGICON), NULL, hInstance, NULL);
     }
 
     return parent;
@@ -261,20 +259,17 @@ void NEAR PASCAL ForwardSSDemoMsg(HWND hwnd, UINT uMessage, WPARAM wParam, LPARA
     hwnd = GetSSDemoParent(hwnd);
 
     for (hwndChild = GetWindow(hwnd, GW_CHILD); hwndChild != NULL;
-        hwndChild = GetWindow(hwndChild, GW_HWNDNEXT))
-    {
+         hwndChild = GetWindow(hwndChild, GW_HWNDNEXT)) {
         SendMessage(hwndChild, uMessage, wParam, lParam);
     }
 }
 
-void NEAR PASCAL ParseSaverName( LPTSTR lpszName )
+void NEAR PASCAL ParseSaverName(LPTSTR lpszName)
 {
-    if( *lpszName == TEXT('\"') )
-    {
+    if (*lpszName == TEXT('\"')) {
         LPTSTR lpcSrc = lpszName + 1;
 
-        while( *lpcSrc && *lpcSrc != TEXT('\"') )
-        {
+        while (*lpcSrc && *lpcSrc != TEXT('\"')) {
             *lpszName++ = *lpcSrc++;
         }
 
@@ -294,14 +289,12 @@ LRESULT  StaticSubclassProc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp)
     LRESULT result =
         CallWindowProc(g_lpOldStaticProc, wnd, msg, wp, lp);
 
-    if (msg == WM_PAINT)
-    {
+    if (msg == WM_PAINT) {
         HWND demos = GetSSDemoParent(GetParent(wnd));
 
-        if (demos)
-        {
+        if (demos) {
             RedrawWindow(demos, NULL, NULL,
-                RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN);
+                         RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN);
         }
     }
 
@@ -312,7 +305,7 @@ BOOL NEAR PASCAL InitSSDialog(HWND hDlg)
 {
     WNDCLASS wc;
     PTSTR  pszMethod;
-    UINT  wTemp,wLoop;
+    UINT  wTemp, wLoop;
     BOOL  fContinue;
     int   Timeout;
     int   Active;
@@ -320,35 +313,34 @@ BOOL NEAR PASCAL InitSSDialog(HWND hDlg)
     int   ControlID;
     int   wMethod;
     int   ScreenSaveActive;
-    DWORD dwData=0,dwSize = sizeof(dwData);
+    DWORD dwData = 0, dwSize = sizeof(dwData);
     HKEY  hKey;
     HWND  hwnd;
     int   dummy;
 
-    if( !GetClassInfo( hInstance, c_szDemoParentClass, &wc ) )
-    {
+    if (!GetClassInfo(hInstance, c_szDemoParentClass, &wc)) {
         // if two pages put one up, share one dc
         wc.style = 0;
         wc.lpfnWndProc = DefWindowProc;
         wc.cbClsExtra = wc.cbWndExtra = 0;
         wc.hInstance = hInstance;
-        wc.hIcon = (HICON)( wc.hCursor = NULL );
-        wc.hbrBackground = GetStockObject( BLACK_BRUSH );
+        wc.hIcon = (HICON)(wc.hCursor = NULL);
+        wc.hbrBackground = GetStockObject(BLACK_BRUSH);
         wc.lpszMenuName = NULL;
         wc.lpszClassName = c_szDemoParentClass;
 
-        if( !RegisterClass( &wc ) )
+        if (!RegisterClass(&wc))
             return FALSE;
     }
 
     // Fetch the timeout value from the win.ini and adjust between 1:00-60:00
     for (Counter = 0; Counter < (sizeof(g_TimeoutAssociation) /
-             sizeof(TIMEOUT_ASSOCIATION)); Counter++) {
+                                 sizeof(TIMEOUT_ASSOCIATION)); Counter++) {
 
         // Fetch the timeout value from the win.ini and adjust between 1:00-60:00
 
         SystemParametersInfo(g_TimeoutAssociation[Counter].taGetTimeoutAction, 0,
-            &Timeout, 0);
+                             &Timeout, 0);
 
         /*  The Win 3.1 guys decided that 0 is a valid ScreenSaveTimeOut value.
          *  This causes our screen savers not to kick in (who cares?).  In any
@@ -378,13 +370,12 @@ BOOL NEAR PASCAL InitSSDialog(HWND hDlg)
         SendDlgItemMessage(hDlg, ControlID, EM_LIMITTEXT, 2, 0);
 
         SystemParametersInfo(g_TimeoutAssociation[Counter].taGetActiveAction,
-            0, &Active, SPIF_UPDATEINIFILE);
+                             0, &Active, SPIF_UPDATEINIFILE);
 
         if (Counter != TA_SCREENSAVE) {
 
             CheckDlgButton(hDlg, ControlID + BCI_SWITCH, Active);
-        }
-        else {
+        } else {
             ScreenSaveActive = Active;
         }
 
@@ -398,7 +389,7 @@ BOOL NEAR PASCAL InitSSDialog(HWND hDlg)
         ControlID++;
 
         SendDlgItemMessage(hDlg, ControlID, UDM_SETRANGE, 0,
-            MAKELPARAM(MAX_MINUTES, MIN_MINUTES));
+                           MAKELPARAM(MAX_MINUTES, MIN_MINUTES));
         SendDlgItemMessage(hDlg, ControlID, UDM_SETACCEL, 4,
             (LPARAM)(LPUDACCEL)udAccel);
 
@@ -409,7 +400,7 @@ BOOL NEAR PASCAL InitSSDialog(HWND hDlg)
 
     GetPrivateProfileString(g_szBoot, szMethodName, g_szNULL, szSaverName, ARRAYSIZE(szSaverName), g_szSystemIni);
 
-    ParseSaverName( szSaverName );  // remove quotes and params
+    ParseSaverName(szSaverName);  // remove quotes and params
 
     /* Copy all of the variables into their copies... */
     //  lstrcpy(szFileNameCopy, szSaverName);
@@ -423,29 +414,27 @@ BOOL NEAR PASCAL InitSSDialog(HWND hDlg)
     wNumMethods = 0;
     wMethod = -1;
 
-    SearchForScrEntries(SFSE_PRG,NULL);
-    SearchForScrEntries(SFSE_SYSTEM,NULL);
-    SearchForScrEntries(SFSE_WINDOWS,NULL);
-    SearchForScrEntries(SFSE_FILE,szSaverName);
+    SearchForScrEntries(SFSE_PRG, NULL);
+    SearchForScrEntries(SFSE_SYSTEM, NULL);
+    SearchForScrEntries(SFSE_WINDOWS, NULL);
+    SearchForScrEntries(SFSE_FILE, szSaverName);
 
     /* Set up the combo box for the different fields... */
     SendDlgItemMessage(hDlg, IDC_CHOICES, CB_ADDSTRING, 0, (LONG)g_szNone);
-    for (wTemp = 0; wTemp < wNumMethods; wTemp++)
-    {
+    for (wTemp = 0; wTemp < wNumMethods; wTemp++) {
         /* Lock down the information and pass it to the combo box... */
         pszMethod = aszMethods[wTemp];
-        wLoop = SendDlgItemMessage(hDlg,IDC_CHOICES,CB_ADDSTRING,0,
-            (LONG)(pszMethod+1));
-        SendDlgItemMessage(hDlg,IDC_CHOICES,CB_SETITEMDATA,wLoop,
+        wLoop = SendDlgItemMessage(hDlg, IDC_CHOICES, CB_ADDSTRING, 0,
+            (LONG)(pszMethod + 1));
+        SendDlgItemMessage(hDlg, IDC_CHOICES, CB_SETITEMDATA, wLoop,
             (DWORD)wTemp);
 
         /* If we have the correct item, keep a copy so we can select it
             out of the combo box... */
-        // check for filename only as well as full path name
+            // check for filename only as well as full path name
 
-        if( !lstrcmpi( FileName( aszFiles[ wTemp ] ),
-                       FileName( szSaverName       ) ) )
-        {
+        if (!lstrcmpi(FileName(aszFiles[wTemp]),
+                      FileName(szSaverName))) {
             wMethod = wTemp;
             lstrcpy(szBuffer, pszMethod + 1);
         }
@@ -457,8 +446,7 @@ BOOL NEAR PASCAL InitSSDialog(HWND hDlg)
     /* Attempt to select the string we recieved from the
         system.ini entry.  If there is no match, select the
         first item from the list... */
-    if ((wMethod == -1) || (wNumMethods == 0))
-    {
+    if ((wMethod == -1) || (wNumMethods == 0)) {
         fContinue = TRUE;
 
         // fix pszMethod not being init'd when no .SCR
@@ -466,37 +454,33 @@ BOOL NEAR PASCAL InitSSDialog(HWND hDlg)
         // I don't want to figure this garbage out)
         //  THIS ISN'T NEEDED!  NO MORE FORWARD REFERENCES TO IT!
         //  pszMethod = g_szNULL;
-    }
-    else
-    {
+    } else {
         if (SendDlgItemMessage(hDlg, IDC_CHOICES, CB_SELECTSTRING, (WPARAM)-1,
             (LONG)szBuffer) == CB_ERR)
             fContinue = TRUE;
         else
             fContinue = FALSE;
     }
-    if(fContinue)
-    {
-       SendDlgItemMessage(hDlg,IDC_CHOICES,CB_SETCURSEL,0,0l);
-       lstrcpy(szSaverName,g_szNULL);
-       wMethod = -1;
+    if (fContinue) {
+        SendDlgItemMessage(hDlg, IDC_CHOICES, CB_SETCURSEL, 0, 0l);
+        lstrcpy(szSaverName, g_szNULL);
+        wMethod = -1;
     }
 
-    g_hbmDemo = LoadMonitorBitmap( TRUE );
+    g_hbmDemo = LoadMonitorBitmap(TRUE);
 
     if (g_hbmDemo)
-        SendDlgItemMessage(hDlg,IDC_BIGICON,STM_SETIMAGE, IMAGE_BITMAP,(DWORD)g_hbmDemo);
+        SendDlgItemMessage(hDlg, IDC_BIGICON, STM_SETIMAGE, IMAGE_BITMAP, (DWORD)g_hbmDemo);
 
     // Call will fail if monitor or adapter don't support DPMS.
     g_fAdapPwrMgnt = SystemParametersInfo(SPI_GETLOWPOWERACTIVE, 0, &dummy, 0);
 
-    g_hbmEnergyStar = LoadImage( hInstance, MAKEINTRESOURCE( IDB_ENERGYSTAR ),
-        IMAGE_BITMAP, 0, 0, LR_LOADMAP3DCOLORS );
+    g_hbmEnergyStar = LoadImage(hInstance, MAKEINTRESOURCE(IDB_ENERGYSTAR),
+                                IMAGE_BITMAP, 0, 0, LR_LOADMAP3DCOLORS);
 
-    if( g_hbmEnergyStar )
-    {
-        SendDlgItemMessage( hDlg, IDC_ENERGYSTAR_BMP, STM_SETIMAGE,
-            IMAGE_BITMAP, (LPARAM)g_hbmEnergyStar );
+    if (g_hbmEnergyStar) {
+        SendDlgItemMessage(hDlg, IDC_ENERGYSTAR_BMP, STM_SETIMAGE,
+                           IMAGE_BITMAP, (LPARAM)g_hbmEnergyStar);
     }
 
     // Hide/Disable the energy related controls if the adaptor/monitor does not
@@ -504,16 +488,15 @@ BOOL NEAR PASCAL InitSSDialog(HWND hDlg)
     EnableDisablePowerDelays(hDlg);
 
     // initialize the password checkbox
-    if (RegOpenKey(HKEY_CURRENT_USER,REGSTR_PATH_SCREENSAVE,&hKey) == ERROR_SUCCESS) {
-        if (IsPasswdSecure(hKey, SZ_USE_PASSWORD ))
+    if (RegOpenKey(HKEY_CURRENT_USER, REGSTR_PATH_SCREENSAVE, &hKey) == ERROR_SUCCESS) {
+        if (IsPasswdSecure(hKey, SZ_USE_PASSWORD))
             g_fPasswordWasPreviouslyEnabled = TRUE;
         RegCloseKey(hKey);
     }
 
     // subclass the static control so we can synchronize painting
     hwnd = GetDlgItem(hDlg, IDC_BIGICON);
-    if (hwnd)
-    {
+    if (hwnd) {
         g_lpOldStaticProc = (WNDPROC)GetWindowLong(hwnd, GWL_WNDPROC);
         SetWindowLong(hwnd, GWL_WNDPROC, (LONG)(WNDPROC)StaticSubclassProc);
     }
@@ -529,9 +512,9 @@ void NEAR PASCAL SetNewSSDemo(HWND hDlg, int iMethod)
     HWND hwndC;
     HICON hicon;
 
-    RECT rc = {MON_X, MON_Y, MON_X+MON_DX, MON_Y+MON_DY};
+    RECT rc = {MON_X, MON_Y, MON_X + MON_DX, MON_Y + MON_DY};
 
-    hwndDemo = GetSSDemoParent( hDlg );
+    hwndDemo = GetSSDemoParent(hDlg);
 
     // blank out the background with dialog color
     hbmOld = SelectObject(g_hdcMem, g_hbmDemo);
@@ -539,15 +522,14 @@ void NEAR PASCAL SetNewSSDemo(HWND hDlg, int iMethod)
     SelectObject(g_hdcMem, hbmOld);
 
     // kill the old one dammit kill it kill it kill kill kill
-    while( hwndC = GetWindow( hwndDemo, GW_CHILD ) )
+    while (hwndC = GetWindow(hwndDemo, GW_CHILD))
         SendMessage(hwndC, WM_CLOSE, 0, 0);
     Yield(); // paranoid
     Yield(); // really paranoid
     ShowWindow(hwndDemo, SW_HIDE);
     g_fPreviewActive = FALSE;
 
-    if (iMethod >= 0 && aszMethods[iMethod][0] == TEXT('P'))
-    {
+    if (iMethod >= 0 && aszMethods[iMethod][0] == TEXT('P')) {
         RECT rc;
         BITMAP bm;
         UpdateWindow(hDlg);
@@ -555,26 +537,24 @@ void NEAR PASCAL SetNewSSDemo(HWND hDlg, int iMethod)
 
         GetObject(g_hbmDemo, sizeof(bm), &bm);
         GetClientRect(GetDlgItem(hDlg, IDC_BIGICON), &rc);
-        rc.left = ( rc.right - bm.bmWidth ) / 2 + MON_X;
-        rc.top = ( rc.bottom - bm.bmHeight ) / 2 + MON_Y;
+        rc.left = (rc.right - bm.bmWidth) / 2 + MON_X;
+        rc.top = (rc.bottom - bm.bmHeight) / 2 + MON_Y;
         MoveWindow(hwndDemo, rc.left, rc.top, MON_DX, MON_DY, FALSE);
         wsprintf(szBuffer, TEXT("%s /p %d"), szSaverName, hwndDemo);
-        if (WinExecN(szBuffer, SW_NORMAL) > 32)
-        {
+        if (WinExecN(szBuffer, SW_NORMAL) > 32) {
             ShowWindow(hwndDemo, SW_SHOWNA);
             g_fPreviewActive = TRUE;
             return;
         }
     }
 
-    if (iMethod != -1)
-    {
+    if (iMethod != -1) {
         ptIcon.x = GetSystemMetrics(SM_CXICON);
         ptIcon.y = GetSystemMetrics(SM_CYICON);
 
         // draw the icon double size
-        Assert(ptIcon.y*2 <= MON_DY);
-        Assert(ptIcon.x*2 <= MON_DX);
+        Assert(ptIcon.y * 2 <= MON_DY);
+        Assert(ptIcon.x * 2 <= MON_DX);
 
         hicon = hIcons[iMethod];
 
@@ -585,9 +565,9 @@ void NEAR PASCAL SetNewSSDemo(HWND hDlg, int iMethod)
 
         hbmOld = SelectObject(g_hdcMem, g_hbmDemo);
         DrawIconEx(g_hdcMem,
-            MON_X + (MON_DX-ptIcon.x*2)/2,
-            MON_Y + (MON_DY-ptIcon.y*2)/2,
-            hicon, ptIcon.x*2, ptIcon.y*2, 0, NULL, DI_NORMAL);
+                   MON_X + (MON_DX - ptIcon.x * 2) / 2,
+                   MON_Y + (MON_DY - ptIcon.y * 2) / 2,
+                   hicon, ptIcon.x * 2, ptIcon.y * 2, 0, NULL, DI_NORMAL);
         SelectObject(g_hdcMem, hbmOld);
     }
 
@@ -596,282 +576,266 @@ void NEAR PASCAL SetNewSSDemo(HWND hDlg, int iMethod)
 
 static void NEAR PASCAL SS_SomethingChanged(HWND hDlg)
 {
-    if (!g_bInitSS)
-    {
+    if (!g_bInitSS) {
         SendMessage(GetParent(hDlg), PSM_CHANGED, (WPARAM)hDlg, 0L);
     }
 }
 
 static void NEAR PASCAL SetScreenSaverPassword(HWND hDlg, int iMethod)
 {
-    if (iMethod >= 0 && aszMethods[iMethod][0] == TEXT('P'))
-    {
+    if (iMethod >= 0 && aszMethods[iMethod][0] == TEXT('P')) {
         wsprintf(szBuffer, TEXT("%s /a %u"), szSaverName, GetParent(hDlg));
         WinExecN(szBuffer, SW_NORMAL);
     }
 }
 
-BOOL APIENTRY  ScreenSaverDlgProc(HWND hDlg, UINT message , WPARAM wParam, LPARAM lParam)
+BOOL APIENTRY  ScreenSaverDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    NMHDR FAR *lpnm;
+    NMHDR FAR* lpnm;
     PTSTR  pszMethod;
     int   wTemp;
     int   wMethod;
     BOOL  fEnable;
     LPTSTR lpszCmdLine;
 
-    switch(message)
-    {
-        case WM_NOTIFY:
-            lpnm = (NMHDR FAR *)lParam;
-            switch(lpnm->code)
-            {
-                case PSN_APPLY:
-                    /* Make sure the time we have is the last one entered... */
-                    SendMessage(hDlg, WM_COMMAND, MAKELONG( IDC_SCREENSAVEDELAY, EN_KILLFOCUS),
-                            (LPARAM)GetDlgItem(hDlg, IDC_SCREENSAVEDELAY));
+    switch (message) {
+    case WM_NOTIFY:
+        lpnm = (NMHDR FAR*)lParam;
+        switch (lpnm->code) {
+        case PSN_APPLY:
+            /* Make sure the time we have is the last one entered... */
+            SendMessage(hDlg, WM_COMMAND, MAKELONG(IDC_SCREENSAVEDELAY, EN_KILLFOCUS),
+                (LPARAM)GetDlgItem(hDlg, IDC_SCREENSAVEDELAY));
 
-                    /* Try to save the current settings... */
-                    SaveIni(hDlg);
+            /* Try to save the current settings... */
+            SaveIni(hDlg);
 
-                    //RETTRUE(hDlg)
-                    break;
-
-                // nothing to do on cancel...
-                case PSN_RESET:
-                    if (g_fPreviewActive)
-                        SetNewSSDemo(hDlg, -1);
-                    break;
-
-                case PSN_KILLACTIVE:
-                    if (g_fPreviewActive)
-                        SetNewSSDemo(hDlg, -1);
-                    break;
-
-                case PSN_SETACTIVE:
-                    EnableDisablePowerDelays(hDlg);
-
-                    if (!g_fPreviewActive)
-                    {
-                        g_bInitSS = TRUE;
-                        SendMessage(hDlg, WM_COMMAND, MAKELONG(IDC_CHOICES, CBN_SELCHANGE),
-                                    (LPARAM)GetDlgItem(hDlg, IDC_CHOICES));
-                        g_bInitSS = FALSE;
-                    }
-                    break;
-            }
+            //RETTRUE(hDlg)
             break;
 
-        case WM_INITDIALOG:
-            g_bInitSS = TRUE;
-            InitSSDialog(hDlg);
-            g_bInitSS = FALSE;
-            break;
-
-        case WM_DISPLAYCHANGE:
-        case WM_SYSCOLORCHANGE: {
-            HBITMAP hbm;
-
-            hbm = g_hbmDemo;
-
-            g_hbmDemo = LoadMonitorBitmap( TRUE );
-
-            if (g_hbmDemo) {
-                // Got a new bitmap, use it and delete the old one.
-                SendDlgItemMessage(hDlg,IDC_BIGICON,STM_SETIMAGE, IMAGE_BITMAP,(DWORD)g_hbmDemo);
-                if (hbm) {
-                    DeleteObject(hbm);
-                }
-            } else {
-                // Couldn't get a new bitmap, just reuse the old one
-                g_hbmDemo = hbm;
-            }
-
-            break;
-        }
-
-
-        case WM_DESTROY:
-            FreeScrEntries();
+            // nothing to do on cancel...
+        case PSN_RESET:
             if (g_fPreviewActive)
                 SetNewSSDemo(hDlg, -1);
-            if (g_hbmDemo)
-            {
-                SendDlgItemMessage(hDlg,IDC_BIGICON,STM_SETIMAGE,IMAGE_BITMAP,
-                    (LPARAM)NULL);
-                DeleteObject(g_hbmDemo);
-            }
-            if (g_hbmEnergyStar)
-            {
-                SendDlgItemMessage(hDlg,IDC_ENERGYSTAR_BMP,STM_SETIMAGE,
-                    IMAGE_BITMAP, (LPARAM)NULL);
-                DeleteObject(g_hbmEnergyStar);
-            }
             break;
 
-        case WM_VSCROLL:
-            if (LOWORD(wParam) == SB_THUMBPOSITION)
-                ScreenSaver_AdjustTimeouts(hDlg, GetDlgCtrlID((HWND)lParam) - BCI_ARROW);
+        case PSN_KILLACTIVE:
+            if (g_fPreviewActive)
+                SetNewSSDemo(hDlg, -1);
             break;
 
-        case WM_HELP:
-            WinHelp((HWND) ((LPHELPINFO) lParam)->hItemHandle, NULL,
+        case PSN_SETACTIVE:
+            EnableDisablePowerDelays(hDlg);
+
+            if (!g_fPreviewActive) {
+                g_bInitSS = TRUE;
+                SendMessage(hDlg, WM_COMMAND, MAKELONG(IDC_CHOICES, CBN_SELCHANGE),
+                    (LPARAM)GetDlgItem(hDlg, IDC_CHOICES));
+                g_bInitSS = FALSE;
+            }
+            break;
+        }
+        break;
+
+    case WM_INITDIALOG:
+        g_bInitSS = TRUE;
+        InitSSDialog(hDlg);
+        g_bInitSS = FALSE;
+        break;
+
+    case WM_DISPLAYCHANGE:
+    case WM_SYSCOLORCHANGE:
+    {
+        HBITMAP hbm;
+
+        hbm = g_hbmDemo;
+
+        g_hbmDemo = LoadMonitorBitmap(TRUE);
+
+        if (g_hbmDemo) {
+            // Got a new bitmap, use it and delete the old one.
+            SendDlgItemMessage(hDlg, IDC_BIGICON, STM_SETIMAGE, IMAGE_BITMAP, (DWORD)g_hbmDemo);
+            if (hbm) {
+                DeleteObject(hbm);
+            }
+        } else {
+            // Couldn't get a new bitmap, just reuse the old one
+            g_hbmDemo = hbm;
+        }
+
+        break;
+    }
+
+
+    case WM_DESTROY:
+        FreeScrEntries();
+        if (g_fPreviewActive)
+            SetNewSSDemo(hDlg, -1);
+        if (g_hbmDemo) {
+            SendDlgItemMessage(hDlg, IDC_BIGICON, STM_SETIMAGE, IMAGE_BITMAP,
+                (LPARAM)NULL);
+            DeleteObject(g_hbmDemo);
+        }
+        if (g_hbmEnergyStar) {
+            SendDlgItemMessage(hDlg, IDC_ENERGYSTAR_BMP, STM_SETIMAGE,
+                               IMAGE_BITMAP, (LPARAM)NULL);
+            DeleteObject(g_hbmEnergyStar);
+        }
+        break;
+
+    case WM_VSCROLL:
+        if (LOWORD(wParam) == SB_THUMBPOSITION)
+            ScreenSaver_AdjustTimeouts(hDlg, GetDlgCtrlID((HWND)lParam) - BCI_ARROW);
+        break;
+
+    case WM_HELP:
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, NULL,
                 HELP_WM_HELP, (DWORD)aSaverHelpIds);
-            break;
+        break;
 
-        case WM_CONTEXTMENU:      // right mouse click
-            WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU,
-                (DWORD) aSaverHelpIds);
-            break;
+    case WM_CONTEXTMENU:      // right mouse click
+        WinHelp((HWND)wParam, NULL, HELP_CONTEXTMENU,
+            (DWORD)aSaverHelpIds);
+        break;
 
-        case WM_QUERYNEWPALETTE:
-        case WM_PALETTECHANGED:
-            ForwardSSDemoMsg(hDlg, message, wParam, lParam);
-            break;
+    case WM_QUERYNEWPALETTE:
+    case WM_PALETTECHANGED:
+        ForwardSSDemoMsg(hDlg, message, wParam, lParam);
+        break;
 
-        case WM_COMMAND:
-            switch(LOWORD(wParam))
-            {
-                /* Check for a selection change in the combo box. If there is
-                    one, then update the method number as well as the
-                    configure button... */
-                case IDC_CHOICES:
-                    if(HIWORD(wParam) == CBN_SELCHANGE)
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+            /* Check for a selection change in the combo box. If there is
+                one, then update the method number as well as the
+                configure button... */
+        case IDC_CHOICES:
+            if (HIWORD(wParam) == CBN_SELCHANGE) {
+                /* Dump the name of the current selection into
+                    the buffer... */
+                wTemp = SendDlgItemMessage(hDlg, IDC_CHOICES,
+                                           CB_GETCURSEL, 0, 0l);
+                if (wTemp) {
+                    wMethod = SendDlgItemMessage(hDlg, IDC_CHOICES,
+                                                 CB_GETITEMDATA, wTemp, 0l);
+
+                    /* Grey the button accordingly... */
+                    pszMethod = aszMethods[wMethod];
+                    if (pszMethod[0] == TEXT('C') ||       // can config
+                        pszMethod[0] == TEXT('I') ||       // IdleWild
+                        pszMethod[0] == TEXT('P'))        // can preview
+                        EnableDlgItem(hDlg, IDC_SETTING, TRUE);
+                    else
+                        EnableDlgItem(hDlg, IDC_SETTING, FALSE);
+
+
+#ifndef WINNT   // All screen savers on NT can use password protection
+                    if (pszMethod[0] == TEXT('P'))         // is a Win32 4.0 saver
                     {
-                        /* Dump the name of the current selection into
-                            the buffer... */
-                        wTemp = SendDlgItemMessage(hDlg,IDC_CHOICES,
-                            CB_GETCURSEL,0,0l);
-                        if(wTemp)
-                        {
-                            wMethod = SendDlgItemMessage(hDlg,IDC_CHOICES,
-                                CB_GETITEMDATA,wTemp,0l);
-
-                            /* Grey the button accordingly... */
-                            pszMethod = aszMethods[wMethod];
-                            if(pszMethod[0] == TEXT('C') ||       // can config
-                               pszMethod[0] == TEXT('I') ||       // IdleWild
-                               pszMethod[0] == TEXT('P') )        // can preview
-                                EnableDlgItem(hDlg,IDC_SETTING, TRUE);
-                            else
-                                EnableDlgItem(hDlg,IDC_SETTING, FALSE);
-
-
-#ifndef WINNT   // All screen savers on NT can use password protection
-                            if(pszMethod[0] == TEXT('P'))         // is a Win32 4.0 saver
-                            {
 #endif
-                                EnableDlgItem(hDlg,IDC_USEPASSWORD, TRUE);
-                                CheckDlgButton( hDlg, IDC_USEPASSWORD,
-                                    g_fPasswordWasPreviouslyEnabled );
-                                EnableDisableSetPasswordBtn(hDlg);
+                        EnableDlgItem(hDlg, IDC_USEPASSWORD, TRUE);
+                        CheckDlgButton(hDlg, IDC_USEPASSWORD,
+                                       g_fPasswordWasPreviouslyEnabled);
+                        EnableDisableSetPasswordBtn(hDlg);
 #ifndef WINNT   // All screen savers on NT can use password protection
-                            }
-                            else
-                            {
-                                g_fPasswordWasPreviouslyEnabled =
-                                    IsDlgButtonChecked( hDlg, IDC_USEPASSWORD );
-                                CheckDlgButton( hDlg, IDC_USEPASSWORD, FALSE );
-                                EnableDlgItem(hDlg,IDC_USEPASSWORD,FALSE);
-                                EnableDlgItem(hDlg,IDC_SETPASSWORD,FALSE);
-                            }
+                    } else {
+                        g_fPasswordWasPreviouslyEnabled =
+                            IsDlgButtonChecked(hDlg, IDC_USEPASSWORD);
+                        CheckDlgButton(hDlg, IDC_USEPASSWORD, FALSE);
+                        EnableDlgItem(hDlg, IDC_USEPASSWORD, FALSE);
+                        EnableDlgItem(hDlg, IDC_SETPASSWORD, FALSE);
+                    }
 #endif
 
-                            /* For fun, create an extra copy of
-                                szSaverName... */
-                            pszMethod = aszFiles[wMethod];
-                            lstrcpy(szSaverName,pszMethod);
+                    /* For fun, create an extra copy of
+                        szSaverName... */
+                    pszMethod = aszFiles[wMethod];
+                    lstrcpy(szSaverName, pszMethod);
 
-                            fEnable = TRUE;
-                        }
-                        else
-                        {
-                            wMethod = -1;
-                            lstrcpy(szSaverName, g_szNULL);
+                    fEnable = TRUE;
+                } else {
+                    wMethod = -1;
+                    lstrcpy(szSaverName, g_szNULL);
 
-                            EnableDlgItem(hDlg,IDC_SETTING,FALSE);
-                            EnableDlgItem(hDlg,IDC_USEPASSWORD,FALSE);
+                    EnableDlgItem(hDlg, IDC_SETTING, FALSE);
+                    EnableDlgItem(hDlg, IDC_USEPASSWORD, FALSE);
 #ifndef WINNT
-                            EnableDlgItem(hDlg,IDC_SETPASSWORD,FALSE);
+                    EnableDlgItem(hDlg, IDC_SETPASSWORD, FALSE);
 #endif
 
-                            fEnable = FALSE;
-                        }
-
-                        //  Following are enabled as a group... (oh really?)
-                        EnableDlgItem(hDlg,IDC_SSDELAYLABEL,fEnable);
-                        EnableDlgItem(hDlg,IDC_SCREENSAVEDELAY,fEnable);
-                        EnableDlgItem(hDlg,IDC_SCREENSAVEARROW,fEnable);
-                        EnableDlgItem(hDlg,IDC_SSDELAYSCALE,fEnable);
-                        EnableDlgItem(hDlg,IDC_TEST,fEnable);
-
-                        g_iMethod = (int)wMethod;
-                        SetNewSSDemo(hDlg, wMethod);
-                        SS_SomethingChanged(hDlg);
-                    }
-                    break;
-
-                /* If the edit box loses focus, translate... */
-                case IDC_SCREENSAVEDELAY:
-                    if (HIWORD(wParam) == EN_KILLFOCUS)
-                        ScreenSaver_AdjustTimeouts(hDlg, LOWORD(wParam));
-                    break;
-
-                case IDC_LOWPOWERCONFIG:
-                    // Configure the low power timeout event.
-                    WinExec("rundll32 shell32.dll,Control_RunDLL powercfg.cpl,,", SW_SHOWNORMAL);
-                    break;
-
-                /* If the user wishes to test... */
-                 case IDC_TEST:
-                    switch( HIWORD( wParam ) )
-                    {
-                        case BN_CLICKED:
-                        DoScreenSaver(hDlg,TRUE);
-                        break;
-                    }
-                    break;
-
-                /* Tell the DLL that it can do the configure... */
-                case IDC_SETTING:
-                if (HIWORD(wParam) == BN_CLICKED) {
-                    DoScreenSaver(hDlg,FALSE);
-                    break;
+                    fEnable = FALSE;
                 }
 
-                case IDC_USEPASSWORD:
-                if (HIWORD(wParam) == BN_CLICKED) {
+                //  Following are enabled as a group... (oh really?)
+                EnableDlgItem(hDlg, IDC_SSDELAYLABEL, fEnable);
+                EnableDlgItem(hDlg, IDC_SCREENSAVEDELAY, fEnable);
+                EnableDlgItem(hDlg, IDC_SCREENSAVEARROW, fEnable);
+                EnableDlgItem(hDlg, IDC_SSDELAYSCALE, fEnable);
+                EnableDlgItem(hDlg, IDC_TEST, fEnable);
 
-                    g_fPasswordWasPreviouslyEnabled =
-                        IsDlgButtonChecked( hDlg, IDC_USEPASSWORD );
-                    EnableDisableSetPasswordBtn(hDlg);
-                    SS_SomethingChanged(hDlg);
-                    break;
-                }
-
-                case IDC_SETPASSWORD:
-                if (HIWORD(wParam) == BN_CLICKED) {
-
-                    // ask new savers to change passwords
-                    wTemp = SendDlgItemMessage(hDlg,IDC_CHOICES,
-                        CB_GETCURSEL,0,0l);
-                    if(wTemp)
-                    {
-                        SetScreenSaverPassword(hDlg,
-                            (int)SendDlgItemMessage(hDlg,IDC_CHOICES,
-                            CB_GETITEMDATA,wTemp,0l));
-                    }
-                    break;
-                }
+                g_iMethod = (int)wMethod;
+                SetNewSSDemo(hDlg, wMethod);
+                SS_SomethingChanged(hDlg);
             }
             break;
 
-        case WM_CTLCOLORSTATIC:
-            if( (HWND)lParam == GetSSDemoParent( hDlg ) )
-            {
-                return (BOOL)GetStockObject( NULL_BRUSH );
+            /* If the edit box loses focus, translate... */
+        case IDC_SCREENSAVEDELAY:
+            if (HIWORD(wParam) == EN_KILLFOCUS)
+                ScreenSaver_AdjustTimeouts(hDlg, LOWORD(wParam));
+            break;
+
+        case IDC_LOWPOWERCONFIG:
+            // Configure the low power timeout event.
+            WinExec("rundll32 shell32.dll,Control_RunDLL powercfg.cpl,,", SW_SHOWNORMAL);
+            break;
+
+            /* If the user wishes to test... */
+        case IDC_TEST:
+            switch (HIWORD(wParam)) {
+            case BN_CLICKED:
+                DoScreenSaver(hDlg, TRUE);
+                break;
             }
             break;
+
+            /* Tell the DLL that it can do the configure... */
+        case IDC_SETTING:
+            if (HIWORD(wParam) == BN_CLICKED) {
+                DoScreenSaver(hDlg, FALSE);
+                break;
+            }
+
+        case IDC_USEPASSWORD:
+            if (HIWORD(wParam) == BN_CLICKED) {
+
+                g_fPasswordWasPreviouslyEnabled =
+                    IsDlgButtonChecked(hDlg, IDC_USEPASSWORD);
+                EnableDisableSetPasswordBtn(hDlg);
+                SS_SomethingChanged(hDlg);
+                break;
+            }
+
+        case IDC_SETPASSWORD:
+            if (HIWORD(wParam) == BN_CLICKED) {
+
+                // ask new savers to change passwords
+                wTemp = SendDlgItemMessage(hDlg, IDC_CHOICES,
+                                           CB_GETCURSEL, 0, 0l);
+                if (wTemp) {
+                    SetScreenSaverPassword(hDlg,
+                        (int)SendDlgItemMessage(hDlg, IDC_CHOICES,
+                                                CB_GETITEMDATA, wTemp, 0l));
+                }
+                break;
+            }
+        }
+        break;
+
+    case WM_CTLCOLORSTATIC:
+        if ((HWND)lParam == GetSSDemoParent(hDlg)) {
+            return (BOOL)GetStockObject(NULL_BRUSH);
+        }
+        break;
     }
     return FALSE;
 }
@@ -909,10 +873,10 @@ ScreenSaver_AdjustTimeouts(
     //  Get the new timeout for this time control and validate it's contents.
 
 
-    Timeout = (int) GetDlgItemInt(hWnd, BaseControlID + BCI_DELAY, &fTranslated,
-        FALSE);
+    Timeout = (int)GetDlgItemInt(hWnd, BaseControlID + BCI_DELAY, &fTranslated,
+                                 FALSE);
     Timeout = min(max(Timeout, 1), MAX_MINUTES);
-    SetDlgItemInt(hWnd, BaseControlID + BCI_DELAY, (UINT) Timeout, FALSE);
+    SetDlgItemInt(hWnd, BaseControlID + BCI_DELAY, (UINT)Timeout, FALSE);
 
 
     //  Check the new value of this time control against the other timeouts,
@@ -937,7 +901,7 @@ ScreenSaver_AdjustTimeouts(
         if (Timeout < g_Timeout[TA_SCREENSAVE]) {
 
             g_Timeout[TA_SCREENSAVE] = Timeout;
-            SetDlgItemInt(hWnd, IDC_SCREENSAVEDELAY, (UINT) Timeout, FALSE);
+            SetDlgItemInt(hWnd, IDC_SCREENSAVEDELAY, (UINT)Timeout, FALSE);
 
         }
 
@@ -949,15 +913,15 @@ void NEAR PASCAL EnableDisablePowerDelays(HWND hDlg)
 
     int i;
     BOOL fDPMS;
-    static idCtrls[] = { IDC_ENERGY_TEXT,
+    static idCtrls[] = {IDC_ENERGY_TEXT,
                          IDC_ENERGY_TEXT2,
                          IDC_ENERGY_TEXT3,
                          IDC_ENERGYSTAR_BMP,
                          IDC_LOWPOWERCONFIG,
-                         0 };
+                         0};
 
     for (i = 0; idCtrls[i] != 0; i++)
-        ShowWindow( GetDlgItem( hDlg, idCtrls[i] ), g_fAdapPwrMgnt ? SW_SHOWNA : SW_HIDE );
+        ShowWindow(GetDlgItem(hDlg, idCtrls[i]), g_fAdapPwrMgnt ? SW_SHOWNA : SW_HIDE);
 
 }
 
@@ -965,10 +929,10 @@ void NEAR PASCAL EnableDisablePowerDelays(HWND hDlg)
 // according to whether "use password" is checked or not
 void NEAR PASCAL EnableDisableSetPasswordBtn(HWND hDlg)
 {
-    BOOL fEnable = IsDlgButtonChecked( hDlg,IDC_USEPASSWORD );
+    BOOL fEnable = IsDlgButtonChecked(hDlg, IDC_USEPASSWORD);
 
 #ifndef WINNT
-    EnableDlgItem( hDlg, IDC_SETPASSWORD, fEnable );
+    EnableDlgItem(hDlg, IDC_SETPASSWORD, fEnable);
 #endif
 }
 
@@ -983,87 +947,78 @@ void NEAR PASCAL SearchForScrEntries(UINT wDir, LPCTSTR file)
     WIN32_FIND_DATA fd;
 
     // don't do any work if no space left
-    if( wNumMethods >= MAX_METHODS )
+    if (wNumMethods >= MAX_METHODS)
         return;
 
     /* Get the directory where the program resides... */
     GetModuleFileName(hInstance, szPath, ARRAYSIZE(szPath));
     StripPathName(szPath);
 
-    switch ( wDir )
-    {
-        case SFSE_WINDOWS:
-            /* Search the windows directory and place the path with the \ in
-                the szPath variable... */
-            GetWindowsDirectory(szPath2, ARRAYSIZE(szPath2));
+    switch (wDir) {
+    case SFSE_WINDOWS:
+        /* Search the windows directory and place the path with the \ in
+            the szPath variable... */
+        GetWindowsDirectory(szPath2, ARRAYSIZE(szPath2));
 
-sfseSanityCheck:
-            /* if same dir as where it was launched, don't search again */
-            if (!lstrcmpi(szPath, szPath2))
-               return;
+    sfseSanityCheck:
+        /* if same dir as where it was launched, don't search again */
+        if (!lstrcmpi(szPath, szPath2))
+            return;
 
-            lstrcpy(szPath, szPath2);
-            break;
+        lstrcpy(szPath, szPath2);
+        break;
 
-        case SFSE_SYSTEM:
-            /* Search the system directory and place the path with the \ in
-                the szPath variable... */
-            GetSystemDirectory(szPath2, ARRAYSIZE(szPath2));
-            goto sfseSanityCheck;
+    case SFSE_SYSTEM:
+        /* Search the system directory and place the path with the \ in
+            the szPath variable... */
+        GetSystemDirectory(szPath2, ARRAYSIZE(szPath2));
+        goto sfseSanityCheck;
 
-        case SFSE_FILE:
-            /* Search the directory containing 'file' */
-            lstrcpy(szPath2, file);
-            StripPathName(szPath2);
-            goto sfseSanityCheck;
+    case SFSE_FILE:
+        /* Search the directory containing 'file' */
+        lstrcpy(szPath2, file);
+        StripPathName(szPath2);
+        goto sfseSanityCheck;
     }
 
     AppendPath(szPath, TEXT("*.scr"));
 
-    if( ( hfind = FindFirstFile( szPath, &fd ) ) != INVALID_HANDLE_VALUE )
-    {
+    if ((hfind = FindFirstFile(szPath, &fd)) != INVALID_HANDLE_VALUE) {
         StripPathName(szPath);
 
-        do
-        {
+        do {
             PTSTR pszDesc;
             BOOL fLFN;
 
             fLFN = !(fd.cAlternateFileName[0] == 0 ||
-                    lstrcmp(fd.cFileName, fd.cAlternateFileName) == 0);
+                     lstrcmp(fd.cFileName, fd.cAlternateFileName) == 0);
 
             lstrcpy(szPath2, szPath);
             AppendPath(szPath2, fd.cFileName);
 
             // Note: PerformCheck does an alloc
-            if( ( pszDesc = PerformCheck( szPath2, fLFN ) ) != NULL )
-            {
+            if ((pszDesc = PerformCheck(szPath2, fLFN)) != NULL) {
                 BOOL bAdded = FALSE;
                 UINT i;
 
-                for( i = 0; i < wNumMethods; i++ )
-                {
-                    if( !lstrcmpi( pszDesc, aszMethods[ i ] ) )
-                    {
+                for (i = 0; i < wNumMethods; i++) {
+                    if (!lstrcmpi(pszDesc, aszMethods[i])) {
                         bAdded = TRUE;
                         break;
                     }
                 }
 
-                if( !bAdded )
-                {
+                if (!bAdded) {
                     PTSTR pszEntries;
 
                     // COMPATIBILITY: always use short name
                     // otherwise some apps fault when peeking at SYSTEM.INI
-                    if( fLFN )
-                    {
+                    if (fLFN) {
                         lstrcpy(szPath2, szPath);
                         AppendPath(szPath2, fd.cAlternateFileName);
                     }
 
-                    if( ( pszEntries = AllocStr( szPath2 ) ) != NULL )
-                    {
+                    if ((pszEntries = AllocStr(szPath2)) != NULL) {
                         if (pszDesc[0] != TEXT('P'))
                             hIcons[wNumMethods] = ExtractIcon(hInstance, szPath2, 0);
                         else
@@ -1076,11 +1031,11 @@ sfseSanityCheck:
                     }
                 }
 
-                if( !bAdded )
+                if (!bAdded)
                     LocalFree((HLOCAL)pszDesc);
             }
 
-        } while( FindNextFile( hfind, &fd ) && ( wNumMethods < MAX_METHODS ) );
+        } while (FindNextFile(hfind, &fd) && (wNumMethods < MAX_METHODS));
 
         FindClose(hfind);
     }
@@ -1100,7 +1055,7 @@ sfseSanityCheck:
 PTSTR NEAR PASCAL PerformCheck(LPTSTR lpszFilename, BOOL fLFN)
 {
     int  i;
-    TCHAR chConfig=TEXT('C');       // assume configure
+    TCHAR chConfig = TEXT('C');       // assume configure
     LPTSTR pch;
     DWORD dw;
     WORD  Version;
@@ -1114,15 +1069,14 @@ PTSTR NEAR PASCAL PerformCheck(LPTSTR lpszFilename, BOOL fLFN)
     //  if we have a LFN (Long File Name) dont bother getting the
     //  exe descrription
 
-    dw = GetExeInfo(lpszFilename, pch, ARRAYSIZE(szBuffer)-1, fLFN ? GEI_EXPVER : GEI_DESCRIPTION);
+    dw = GetExeInfo(lpszFilename, pch, ARRAYSIZE(szBuffer) - 1, fLFN ? GEI_EXPVER : GEI_DESCRIPTION);
     Version = HIWORD(dw);
-    Magic   = LOWORD(dw);
+    Magic = LOWORD(dw);
 
     if (dw == 0)
         return NULL;
 
-    if (Magic == PEMAGIC || fLFN)
-    {
+    if (Magic == PEMAGIC || fLFN) {
         BOOL fGotName = FALSE;
 
         if (!fLFN) {
@@ -1131,11 +1085,11 @@ PTSTR NEAR PASCAL PerformCheck(LPTSTR lpszFilename, BOOL fLFN)
             // We have a 32 bit screen saver with a short name, look for an NT style
             // decription in it's string table
 
-            if (hSaver = LoadLibrary (lpszFilename)) {
-                if (LoadString (hSaver, IDS_DESCRIPTION, pch, ARRAYSIZE(szBuffer) - (szBuffer - pch))) {
+            if (hSaver = LoadLibrary(lpszFilename)) {
+                if (LoadString(hSaver, IDS_DESCRIPTION, pch, ARRAYSIZE(szBuffer) - (szBuffer - pch))) {
                     fGotName = TRUE;
                 }
-                FreeLibrary (hSaver);
+                FreeLibrary(hSaver);
             }
         }
 
@@ -1150,14 +1104,12 @@ PTSTR NEAR PASCAL PerformCheck(LPTSTR lpszFilename, BOOL fLFN)
 
             pch = FileName(pch);                    // strip path part
 
-            if ( ((TCHAR)CharUpper((LPTSTR)(pch[0]))) == TEXT('S') && ((TCHAR)CharUpper((LPTSTR)(pch[1]))) == TEXT('S'))     // map SSBEZIER.SCR to BEZIER.SCR
-                pch+=2;
+            if (((TCHAR)CharUpper((LPTSTR)(pch[0]))) == TEXT('S') && ((TCHAR)CharUpper((LPTSTR)(pch[1]))) == TEXT('S'))     // map SSBEZIER.SCR to BEZIER.SCR
+                pch += 2;
 
             pch = NiceName(pch);                    // map BEZIER.SCR to Bezier
         }
-    }
-    else
-    {
+    } else {
         LPTSTR pchTemp;
 
 
@@ -1178,53 +1130,51 @@ PTSTR NEAR PASCAL PerformCheck(LPTSTR lpszFilename, BOOL fLFN)
 
         pch = pch + 8;                 // skip over 'SCRNSAVE'
 
-        while (*pch==TEXT(' '))                   // advance over white space
+        while (*pch == TEXT(' '))                   // advance over white space
             pch++;
 
-        if (*pch==TEXT('C') || *pch==TEXT('c'))         // parse the configure flag
+        if (*pch == TEXT('C') || *pch == TEXT('c'))         // parse the configure flag
         {
             chConfig = TEXT('C');
             pch++;
         }
 
-        if (*pch==TEXT('X') || *pch==TEXT('x'))         // parse the don't configure flag
+        if (*pch == TEXT('X') || *pch == TEXT('x'))         // parse the don't configure flag
             chConfig = *pch++;
 
         // we might be pointing at a name or separation goop
         pchTemp = pch;                      // remember this spot
 
-        while (*pch && *pch!=TEXT(':'))           // find separator
+        while (*pch && *pch != TEXT(':'))           // find separator
             pch++;
 
-        while (*pch==TEXT(':') || *pch==TEXT(' '))      // advance over whtspc/last colon
+        while (*pch == TEXT(':') || *pch == TEXT(' '))      // advance over whtspc/last colon
             pch++;
 
         // if we haven't found a name yet fall back on the saved location
         if (!*pch)
             pch = pchTemp;
 
-        while (*pch==TEXT(':') || *pch==TEXT(' '))      // re-advance over whtspc
+        while (*pch == TEXT(':') || *pch == TEXT(' '))      // re-advance over whtspc
             pch++;
 
         /* In case the screen saver has version information information
             embedded after the name, check to see if there is a colon TEXT(':')
             in the description and replace it with a NULL... */
 
-        for (i=0; pch[i]; i++)              //
+        for (i = 0; pch[i]; i++)              //
         {
 #if defined(DBCS) || (defined(FE_SB) && !defined(UNICODE))
-            if (IsDBCSLeadByte(pch[i]))
-            {
+            if (IsDBCSLeadByte(pch[i])) {
                 i++;
-            }
-            else
+            } else
 #endif
-            if (pch[i]==TEXT(':'))
-                pch[i]=0;
+                if (pch[i] == TEXT(':'))
+                    pch[i] = 0;
         }
-// Space is OK for DBCS (FE)
-        while(i>0 && pch[i-1]==TEXT(' '))         // remove trailing space
-            pch[--i]=0;
+        // Space is OK for DBCS (FE)
+        while (i > 0 && pch[i - 1] == TEXT(' '))         // remove trailing space
+            pch[--i] = 0;
     }
 
 #ifdef DEBUG
@@ -1246,21 +1196,20 @@ PTSTR NEAR PASCAL PerformCheck(LPTSTR lpszFilename, BOOL fLFN)
         chConfig = TEXT('P');                     // mark as configurable/preview
 
     pch[-1] = chConfig;
-    return AllocStr(pch-1);
+    return AllocStr(pch - 1);
 }
 
 
-BOOL NEAR PASCAL FreeScrEntries( void )
+BOOL NEAR PASCAL FreeScrEntries(void)
 {
     UINT wLoop;
 
-    for(wLoop = 0; wLoop < wNumMethods; wLoop++)
-    {
-        if(aszMethods[wLoop] != NULL)
+    for (wLoop = 0; wLoop < wNumMethods; wLoop++) {
+        if (aszMethods[wLoop] != NULL)
             LocalFree((HANDLE)aszMethods[wLoop]);
-        if(aszFiles[wLoop] != NULL)
+        if (aszFiles[wLoop] != NULL)
             LocalFree((HANDLE)aszFiles[wLoop]);
-        if(hIcons[wLoop] != NULL)
+        if (hIcons[wLoop] != NULL)
             FreeResource(hIcons[wLoop]);
     }
 
@@ -1270,20 +1219,19 @@ BOOL NEAR PASCAL FreeScrEntries( void )
     if (hIdleWildIcon)
         FreeResource(hIdleWildIcon);
 
-    hDefaultIcon=hIdleWildIcon=NULL;
+    hDefaultIcon = hIdleWildIcon = NULL;
     wNumMethods = 0;
 
     return TRUE;
 }
 
 
-int NEAR PASCAL lstrncmp( LPTSTR lpszString1, LPTSTR lpszString2, int nNum )
+int NEAR PASCAL lstrncmp(LPTSTR lpszString1, LPTSTR lpszString2, int nNum)
 {
     /* While we can still compare characters, compare.  If the strings are
         of different lengths, characters will be different... */
-    while(nNum)
-    {
-        if(*lpszString1 != *lpszString2)
+    while (nNum) {
+        if (*lpszString1 != *lpszString2)
             return *lpszString1 - *lpszString2;
         lpszString1++;
         lpszString2++;
@@ -1293,52 +1241,44 @@ int NEAR PASCAL lstrncmp( LPTSTR lpszString1, LPTSTR lpszString2, int nNum )
 }
 
 
-void NEAR PASCAL SaveIni(HWND hDlg )
+void NEAR PASCAL SaveIni(HWND hDlg)
 {
     LPTSTR pszMethod;
-    int  wMethod,wTemp;
+    int  wMethod, wTemp;
     UINT Counter;
-        HKEY hKey;
+    HKEY hKey;
 
     /* Find the current method selection... */
     wTemp = 0;
-    if(wNumMethods)
-    {
+    if (wNumMethods) {
         /* Dump the name of the current selection into the buffer... */
-        wTemp = SendDlgItemMessage(hDlg,IDC_CHOICES,CB_GETCURSEL,0,0l);
-        if(wTemp)
-        {
+        wTemp = SendDlgItemMessage(hDlg, IDC_CHOICES, CB_GETCURSEL, 0, 0l);
+        if (wTemp) {
             BOOL hasspace = FALSE;
             LPTSTR pc;
 
-            wMethod = SendDlgItemMessage(hDlg,IDC_CHOICES,CB_GETITEMDATA,
-                wTemp,0l);
+            wMethod = SendDlgItemMessage(hDlg, IDC_CHOICES, CB_GETITEMDATA,
+                                         wTemp, 0l);
 
             /* Dump the method name into the buffer... */
             pszMethod = aszFiles[wMethod];
 
-            for( pc = pszMethod; *pc; pc++ )
-            {
-                if( *pc == TEXT(' ') )
-                {
+            for (pc = pszMethod; *pc; pc++) {
+                if (*pc == TEXT(' ')) {
                     hasspace = TRUE;
                     break;
                 }
             }
 
-            if( hasspace )
-            {
+            if (hasspace) {
                 // if we need to add quotes we'll need two sets
                 // because GetBlahBlahProfileBlah APIs strip quotes
-                wsprintf(szBuffer,TEXT("\"\"%s\"\""), pszMethod);
-            }
-            else
+                wsprintf(szBuffer, TEXT("\"\"%s\"\""), pszMethod);
+            } else
                 lstrcpy(szBuffer, pszMethod);
-        }
-        else
+        } else
             szBuffer[0] = TEXT('\0');
-    }
-    else
+    } else
         szBuffer[0] = TEXT('\0');
     /* Save the buffer... */
     WritePrivateProfileString(g_szBoot, szMethodName,
@@ -1347,28 +1287,28 @@ void NEAR PASCAL SaveIni(HWND hDlg )
     SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, wTemp, NULL, SPIF_UPDATEINIFILE);
 
     for (Counter = 0; Counter < (sizeof(g_TimeoutAssociation) /
-        sizeof(TIMEOUT_ASSOCIATION)); Counter++) {
+                                 sizeof(TIMEOUT_ASSOCIATION)); Counter++) {
 
         SystemParametersInfo(g_TimeoutAssociation[Counter].taSetTimeoutAction,
-            (UINT) (g_Timeout[Counter] * 60), NULL, SPIF_UPDATEINIFILE);
+            (UINT)(g_Timeout[Counter] * 60), NULL, SPIF_UPDATEINIFILE);
 
         if (Counter != TA_SCREENSAVE) {
 
             SystemParametersInfo(g_TimeoutAssociation[Counter].taSetActiveAction,
-                IsDlgButtonChecked(hDlg,
-                g_TimeoutAssociation[Counter].taBaseControlID + BCI_SWITCH),
-                NULL, SPIF_UPDATEINIFILE);
+                                 IsDlgButtonChecked(hDlg,
+                                                    g_TimeoutAssociation[Counter].taBaseControlID + BCI_SWITCH),
+                                 NULL, SPIF_UPDATEINIFILE);
 
         }
 
     }
 
     // save the state of the TEXT("use password") checkbox
-    if (RegCreateKey(HKEY_CURRENT_USER,REGSTR_PATH_SCREENSAVE,&hKey) == ERROR_SUCCESS) {
+    if (RegCreateKey(HKEY_CURRENT_USER, REGSTR_PATH_SCREENSAVE, &hKey) == ERROR_SUCCESS) {
 
-        RegSetValueEx(hKey,SZ_USE_PASSWORD, 0, PWRD_REG_TYPE,
-            PasswdRegData(IsDlgButtonChecked(hDlg,IDC_USEPASSWORD)),
-            CB_USE_PWRD_VALUE);
+        RegSetValueEx(hKey, SZ_USE_PASSWORD, 0, PWRD_REG_TYPE,
+                      PasswdRegData(IsDlgButtonChecked(hDlg, IDC_USEPASSWORD)),
+                      CB_USE_PWRD_VALUE);
 
         RegCloseKey(hKey);
     }
@@ -1383,9 +1323,9 @@ void NEAR PASCAL SaveIni(HWND hDlg )
 typedef struct {
     HWND    hDlg;
     TCHAR   szCmdLine[1];
-} SSRUNDATA, *LPSSRUNDATA;
+} SSRUNDATA, * LPSSRUNDATA;
 
-DWORD RunScreenSaverThread( LPVOID lpv ) {
+DWORD RunScreenSaverThread(LPVOID lpv) {
     BOOL bSvrState;
     LPSSRUNDATA lpssrd;
     HWND hwndSettings, hwndPreview;
@@ -1396,53 +1336,53 @@ DWORD RunScreenSaverThread( LPVOID lpv ) {
 
     // Lock ourselves in mem so we don't fault if app unloads us
     GetModuleFileName(hInstance, szPath, ARRAYSIZE(szPath));
-    hiThd = LoadLibrary( szPath );
+    hiThd = LoadLibrary(szPath);
 
     lpssrd = (LPSSRUNDATA)lpv;
 
-    hwndSettings = GetDlgItem( lpssrd->hDlg, IDC_SETTING);
-    hwndPreview  = GetDlgItem( lpssrd->hDlg, IDC_TEST);
+    hwndSettings = GetDlgItem(lpssrd->hDlg, IDC_SETTING);
+    hwndPreview = GetDlgItem(lpssrd->hDlg, IDC_TEST);
 
 
     // Save previous screen saver state
-    SystemParametersInfo( SPI_GETSCREENSAVEACTIVE,0, &bSvrState, FALSE);
+    SystemParametersInfo(SPI_GETSCREENSAVEACTIVE, 0, &bSvrState, FALSE);
 
     // Disable current screen saver
-    if( bSvrState )
-        SystemParametersInfo( SPI_SETSCREENSAVEACTIVE,FALSE, NULL, FALSE );
+    if (bSvrState)
+        SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, FALSE, NULL, FALSE);
 
     // Stop the miniture preview screen saver
     if (g_fPreviewActive)
-        SetNewSSDemo( lpssrd->hDlg, -1);
+        SetNewSSDemo(lpssrd->hDlg, -1);
 
     // Exec the screen saver and wait for it to die
-    ZeroMemory(&StartupInfo,sizeof(StartupInfo));
+    ZeroMemory(&StartupInfo, sizeof(StartupInfo));
     StartupInfo.cb = sizeof(StartupInfo);
     StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
     StartupInfo.wShowWindow = (WORD)SW_NORMAL;
 
-    if (CreateProcess( NULL, lpssrd->szCmdLine, NULL, NULL, FALSE, 0, NULL, NULL, &StartupInfo, &ProcessInformation )){
-        WaitForSingleObject( ProcessInformation.hProcess, INFINITE );
+    if (CreateProcess(NULL, lpssrd->szCmdLine, NULL, NULL, FALSE, 0, NULL, NULL, &StartupInfo, &ProcessInformation)) {
+        WaitForSingleObject(ProcessInformation.hProcess, INFINITE);
         CloseHandle(ProcessInformation.hProcess);
         CloseHandle(ProcessInformation.hThread);
     }
 
     // Restore Screen saver state
-    if( bSvrState )
-        SystemParametersInfo( SPI_SETSCREENSAVEACTIVE, bSvrState, NULL, FALSE );
+    if (bSvrState)
+        SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, bSvrState, NULL, FALSE);
 
     // Restart miniture preview
-    PostMessage( lpssrd->hDlg, WM_COMMAND, MAKELONG(IDC_CHOICES, CBN_SELCHANGE),
-                                    (LPARAM)GetDlgItem( lpssrd->hDlg, IDC_CHOICES));
+    PostMessage(lpssrd->hDlg, WM_COMMAND, MAKELONG(IDC_CHOICES, CBN_SELCHANGE),
+        (LPARAM)GetDlgItem(lpssrd->hDlg, IDC_CHOICES));
 
     // Enable setting and preview buttons
-    EnableWindow( hwndSettings, TRUE );
-    EnableWindow( hwndPreview,  TRUE );
+    EnableWindow(hwndSettings, TRUE);
+    EnableWindow(hwndPreview, TRUE);
 
-    LocalFree( lpv );
+    LocalFree(lpv);
 
     if (hiThd)
-        FreeLibraryAndExitThread( hiThd, 0 );
+        FreeLibraryAndExitThread(hiThd, 0);
 
     return 0;
 }
@@ -1450,44 +1390,44 @@ DWORD RunScreenSaverThread( LPVOID lpv ) {
 
 /* This routine actually calls the screen saver... */
 
-void NEAR PASCAL DoScreenSaver(HWND hWnd, BOOL fSaver )
+void NEAR PASCAL DoScreenSaver(HWND hWnd, BOOL fSaver)
 {
     LPSSRUNDATA lpssrd;
     DWORD id;
     HANDLE hThd;
     HWND hwndSettings, hwndPreview;
 
-    if(szSaverName[0] == TEXT('\0'))
+    if (szSaverName[0] == TEXT('\0'))
         return;
 
-    if(fSaver)
-        wsprintf(szBuffer,TEXT("%s /s"), szSaverName);
+    if (fSaver)
+        wsprintf(szBuffer, TEXT("%s /s"), szSaverName);
     else {
-        wsprintf(szBuffer,TEXT("%s /c:%lu"), szSaverName, (DWORD)hWnd);
+        wsprintf(szBuffer, TEXT("%s /c:%lu"), szSaverName, (DWORD)hWnd);
     }
 
-    lpssrd = LocalAlloc( LMEM_FIXED, sizeof(*lpssrd) + (lstrlen(szBuffer)+1) * sizeof(TCHAR) );
+    lpssrd = LocalAlloc(LMEM_FIXED, sizeof(*lpssrd) + (lstrlen(szBuffer) + 1) * sizeof(TCHAR));
     if (lpssrd == NULL)
         return;
 
     lpssrd->hDlg = hWnd;
-    lstrcpy( lpssrd->szCmdLine, szBuffer );
+    lstrcpy(lpssrd->szCmdLine, szBuffer);
 
     // Disable setting and preview buttons
-    hwndSettings = GetDlgItem( hWnd, IDC_SETTING);
-    hwndPreview  = GetDlgItem( hWnd, IDC_TEST);
+    hwndSettings = GetDlgItem(hWnd, IDC_SETTING);
+    hwndPreview = GetDlgItem(hWnd, IDC_TEST);
 
-    EnableWindow( hwndSettings, FALSE );
-    EnableWindow( hwndPreview,  FALSE );
+    EnableWindow(hwndSettings, FALSE);
+    EnableWindow(hwndPreview, FALSE);
 
     hThd = CreateThread(NULL, 0, RunScreenSaverThread, lpssrd, 0, &id);
     if (hThd != NULL) {
         CloseHandle(hThd);
     } else {
         // Exec failed, re-enable setting and preview buttons and clean up thread params
-        EnableWindow( hwndSettings, TRUE );
-        EnableWindow( hwndPreview,  TRUE );
-        LocalFree( lpssrd );
+        EnableWindow(hwndSettings, TRUE);
+        EnableWindow(hwndPreview, TRUE);
+        LocalFree(lpssrd);
     }
 }
 
@@ -1498,16 +1438,16 @@ LPTSTR NEAR PASCAL FileName(LPTSTR szPath)
 {
     LPTSTR   sz;
 
-    for (sz=szPath; *sz; sz++)
+    for (sz = szPath; *sz; sz++)
         ;
 #if defined(DBCS) || (defined(FE_SB) && !defined(UNICODE))
-    for (; sz>szPath && !SLASH(*sz) && *sz!=TEXT(':'); sz=CharPrev(szPath, sz))
+    for (; sz > szPath && !SLASH(*sz) && *sz != TEXT(':'); sz = CharPrev(szPath, sz))
 #else
-    for (; sz>=szPath && !SLASH(*sz) && *sz!=TEXT(':'); sz--)
+    for (; sz >= szPath && !SLASH(*sz) && *sz != TEXT(':'); sz--)
 #endif
         ;
 #if defined(DBCS) || (defined(FE_SB) && !defined(UNICODE))
-    if ( !IsDBCSLeadByte(*sz) && (SLASH(*sz) || *sz == TEXT(':')) )
+    if (!IsDBCSLeadByte(*sz) && (SLASH(*sz) || *sz == TEXT(':')))
         sz = CharNext(sz);
     return  sz;
 #else
@@ -1520,11 +1460,11 @@ void NEAR PASCAL AddBackslash(LPTSTR pszPath)
 #if defined(DBCS) || (defined(FE_SB) && !defined(UNICODE))
     LPTSTR lpsz = &pszPath[lstrlen(pszPath)];
     lpsz = CharPrev(pszPath, lpsz);
-    if ( *lpsz != TEXT('\\') )
+    if (*lpsz != TEXT('\\'))
 #else
-    if( pszPath[ lstrlen( pszPath ) - 1 ] != TEXT('\\') )
+    if (pszPath[lstrlen(pszPath) - 1] != TEXT('\\'))
 #endif
-        lstrcat( pszPath, TEXT("\\") );
+        lstrcat(pszPath, TEXT("\\"));
 }
 
 
@@ -1538,22 +1478,20 @@ LPTSTR NEAR PASCAL StripPathName(LPTSTR szPath)
 
 #if defined(DBCS) || (defined(FE_SB) && !defined(UNICODE))
     szFile = sz;
-    if ( szFile >szPath+1 )
-    {
-        szFile = CharPrev( szPath, szFile );
-        if (SLASH(*szFile))
-        {
+    if (szFile > szPath + 1) {
+        szFile = CharPrev(szPath, szFile);
+        if (SLASH(*szFile)) {
             szFile = CharPrev(szPath, szFile);
             if (*szFile != TEXT(':'))
                 sz--;
         }
     }
 #else
-    if (sz > szPath+1 && SLASH(sz[-1]) && sz[-2] != TEXT(':'))
+    if (sz > szPath + 1 && SLASH(sz[-1]) && sz[-2] != TEXT(':'))
         sz--;
 #endif
 
-    *sz = 0;
+    * sz = 0;
     return szPath;
 }
 
@@ -1568,8 +1506,8 @@ PTSTR NEAR PASCAL AllocStr(LPTSTR szCopy)
 {
     PTSTR sz;
 
-    if (sz = (PTSTR)LocalAlloc(LPTR, sizeof(TCHAR) * (lstrlen(szCopy)+1)))
-        lstrcpy(sz,szCopy);
+    if (sz = (PTSTR)LocalAlloc(LPTR, sizeof(TCHAR) * (lstrlen(szCopy) + 1)))
+        lstrcpy(sz, szCopy);
 
     return sz;
 }
@@ -1582,12 +1520,11 @@ LPTSTR NEAR PASCAL NiceName(LPTSTR szPath)
 
     sz = FileName(szPath);
 
-    for(lpsztmp = sz; *lpsztmp  && *lpsztmp != TEXT('.'); lpsztmp = CharNext(lpsztmp))
+    for (lpsztmp = sz; *lpsztmp && *lpsztmp != TEXT('.'); lpsztmp = CharNext(lpsztmp))
         ;
     *lpsztmp = TEXT('\0');
 
-    if (IsCharUpper(sz[0]) && IsCharUpper(sz[1]))
-    {
+    if (IsCharUpper(sz[0]) && IsCharUpper(sz[1])) {
         CharLower(sz);
         CharUpperBuff(sz, 1);
     }

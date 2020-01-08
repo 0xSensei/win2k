@@ -87,19 +87,19 @@ HWND        ghDlg;
 
 */
 typedef struct tACMDRIVERSETTINGS
-    {
+{
     HACMDRIVERID        hadid;
     DWORD               fdwSupport;
     DWORD               dwPriority;
-    } ACMDRIVERSETTINGS, FAR *LPACMDRIVERSETTINGS;
+} ACMDRIVERSETTINGS, FAR* LPACMDRIVERSETTINGS;
 
 typedef struct _CplCodecInfo
-    {
+{
     TCHAR szDesc[128];
     ACMDRIVERSETTINGS ads;
     HICON hIcon;
     BOOL  fMadeIcon;
-    }CPLCODECINFO, * PCPLCODECINFO;
+}CPLCODECINFO, * PCPLCODECINFO;
 
 
 
@@ -108,7 +108,7 @@ typedef struct _CplCodecInfo
  * File Globals
 
 */
-static CONST TCHAR      aszFormatNumber[]       = TEXT("%lu");
+static CONST TCHAR      aszFormatNumber[] = TEXT("%lu");
 
 
 //  These hold Window Message IDs for the two messages sent from the
@@ -148,12 +148,12 @@ void WAVEOUTInit(HWND hDlg, PAUDIODLGINFO pai);
 void WAVEINInit(HWND hDlg, PAUDIODLGINFO pai);
 
 
-PCPLCODECINFO acmFindCodecInfo         (WORD, WORD);
-BOOL CALLBACK acmFindCodecInfoCallback (HACMDRIVERID, DWORD, DWORD);
-void          acmFreeCodecInfo         (PCPLCODECINFO);
+PCPLCODECINFO acmFindCodecInfo(WORD, WORD);
+BOOL CALLBACK acmFindCodecInfoCallback(HACMDRIVERID, DWORD, DWORD);
+void          acmFreeCodecInfo(PCPLCODECINFO);
 
-UINT          acmCountCodecs           (void);
-BOOL CALLBACK acmCountCodecsEnum       (HACMDRIVERID, DWORD, DWORD);
+UINT          acmCountCodecs(void);
+BOOL CALLBACK acmCountCodecsEnum(HACMDRIVERID, DWORD, DWORD);
 
 
 #ifndef ACM_DRIVERREMOVEF_UNINSTALL
@@ -165,14 +165,13 @@ BOOL CALLBACK acmCountCodecsEnum       (HACMDRIVERID, DWORD, DWORD);
 
 */
 
-void acmDeleteCodec (WORD wMid, WORD wPid)
+void acmDeleteCodec(WORD wMid, WORD wPid)
 {
     PCPLCODECINFO pci;
 
-    if ((pci = acmFindCodecInfo (wMid, wPid)) != NULL)
-    {
-        acmDriverRemove (pci->ads.hadid, ACM_DRIVERREMOVEF_UNINSTALL);
-        acmFreeCodecInfo (pci);
+    if ((pci = acmFindCodecInfo(wMid, wPid)) != NULL) {
+        acmDriverRemove(pci->ads.hadid, ACM_DRIVERREMOVEF_UNINSTALL);
+        acmFreeCodecInfo(pci);
     }
 }
 
@@ -211,57 +210,54 @@ INT_PTR CALLBACK DlgProcACMAboutBox
     DWORD               dw2;
     UINT                uCmdId;
 
-    switch (uMsg)
+    switch (uMsg) {
+    case WM_INITDIALOG:
     {
-        case WM_INITDIALOG:
-        {
-            padd = (LPACMDRIVERDETAILSW)lParam;
+        padd = (LPACMDRIVERDETAILSW)lParam;
 
-            if (NULL == padd)
-            {
-                DPF(0, "!DlgProcACMAboutBox: NULL driver details passed!");
-                return (TRUE);
-            }
-
-
-            //  fill in all the static text controls with the long info
-            //  returned from the driver
-
-            LoadString(ghInstance, IDS_ABOUT_TITLE, szFormat, sizeof(szFormat)/sizeof(TCHAR));
-            wsprintf(ach, szFormat, (LPTSTR)padd->szShortName);
-            SetWindowText(hwnd, ach);
-
-
-            //  if the driver supplies an icon, then use it..
-
-            if (NULL != padd->hicon)
-            {
-                Static_SetIcon(GetDlgItem(hwnd, IDD_ABOUT_ICON_DRIVER), padd->hicon);
-            }
-
-            SetDlgItemText(hwnd, IDD_ABOUT_TXT_DESCRIPTION, padd->szLongName);
-
-            dw1 = padd->vdwACM;
-            dw2 = padd->vdwDriver;
-            LoadString(ghInstance, IDS_ABOUT_VERSION, szFormat, sizeof(szFormat)/sizeof(TCHAR));
-            wsprintf(ach, szFormat, HIWORD(dw2) >> 8, (BYTE)HIWORD(dw2), HIWORD(dw1) >> 8, (BYTE)HIWORD(dw1));
-            SetDlgItemText(hwnd,IDD_ABOUT_TXT_VERSION, ach);
-            SetDlgItemText(hwnd, IDD_ABOUT_TXT_COPYRIGHT, padd->szCopyright);
-            SetDlgItemText(hwnd, IDD_ABOUT_TXT_LICENSING, padd->szLicensing);
-            SetDlgItemText(hwnd, IDD_ABOUT_TXT_FEATURES, padd->szFeatures);
+        if (NULL == padd) {
+            DPF(0, "!DlgProcACMAboutBox: NULL driver details passed!");
             return (TRUE);
         }
-        break;
 
-        case WM_COMMAND:
-        {
-            uCmdId = GET_WM_COMMAND_ID(wParam,lParam);
 
-            if ((uCmdId == IDOK) || (uCmdId == IDCANCEL))
+        //  fill in all the static text controls with the long info
+        //  returned from the driver
+
+        LoadString(ghInstance, IDS_ABOUT_TITLE, szFormat, sizeof(szFormat) / sizeof(TCHAR));
+        wsprintf(ach, szFormat, (LPTSTR)padd->szShortName);
+        SetWindowText(hwnd, ach);
+
+
+        //  if the driver supplies an icon, then use it..
+
+        if (NULL != padd->hicon) {
+            Static_SetIcon(GetDlgItem(hwnd, IDD_ABOUT_ICON_DRIVER), padd->hicon);
+        }
+
+        SetDlgItemText(hwnd, IDD_ABOUT_TXT_DESCRIPTION, padd->szLongName);
+
+        dw1 = padd->vdwACM;
+        dw2 = padd->vdwDriver;
+        LoadString(ghInstance, IDS_ABOUT_VERSION, szFormat, sizeof(szFormat) / sizeof(TCHAR));
+        wsprintf(ach, szFormat, HIWORD(dw2) >> 8, (BYTE)HIWORD(dw2), HIWORD(dw1) >> 8, (BYTE)HIWORD(dw1));
+        SetDlgItemText(hwnd, IDD_ABOUT_TXT_VERSION, ach);
+        SetDlgItemText(hwnd, IDD_ABOUT_TXT_COPYRIGHT, padd->szCopyright);
+        SetDlgItemText(hwnd, IDD_ABOUT_TXT_LICENSING, padd->szLicensing);
+        SetDlgItemText(hwnd, IDD_ABOUT_TXT_FEATURES, padd->szFeatures);
+        return (TRUE);
+    }
+    break;
+
+    case WM_COMMAND:
+    {
+        uCmdId = GET_WM_COMMAND_ID(wParam, lParam);
+
+        if ((uCmdId == IDOK) || (uCmdId == IDCANCEL))
             EndDialog(hwnd, wParam == uCmdId);
-            return (TRUE);
-        }
-        break;
+        return (TRUE);
+    }
+    break;
 
     }
 
@@ -297,8 +293,7 @@ STATIC void  ControlAboutDriver
     PACMDRIVERDETAILSW   padd;
     MMRESULT             mmr;
 
-    if (NULL == pads)
-    {
+    if (NULL == pads) {
         return;
     }
 
@@ -309,8 +304,7 @@ STATIC void  ControlAboutDriver
 
     mmr = (MMRESULT)acmDriverMessage((HACMDRIVER)pads->hadid, ACMDM_DRIVER_ABOUT, (LPARAM)hwnd, 0L);
 
-    if ((MMRESULT)MMSYSERR_NOTSUPPORTED != mmr)
-    {
+    if ((MMRESULT)MMSYSERR_NOTSUPPORTED != mmr) {
         return;
     }
 
@@ -318,8 +312,7 @@ STATIC void  ControlAboutDriver
     //  alloc some zero-init'd memory to hold the about box info
 
     padd = (PACMDRIVERDETAILS)LocalAlloc(LPTR, sizeof(*padd));
-    if (NULL == padd)
-    {
+    if (NULL == padd) {
         DPF("!PACMDRIVERDETAILSA LocalAlloc failed");
         return;
     }
@@ -328,8 +321,7 @@ STATIC void  ControlAboutDriver
 
     padd->cbStruct = sizeof(*padd);
     mmr = (MMRESULT)acmDriverDetails(pads->hadid, padd, 0L);
-    if (MMSYSERR_NOERROR == mmr)
-    {
+    if (MMSYSERR_NOERROR == mmr) {
         DialogBoxParam(ghInstance, MAKEINTRESOURCE(DLG_ABOUT_MSACM), hwnd, DlgProcACMAboutBox, (LPARAM)(LPVOID)padd);
     }
 
@@ -362,13 +354,11 @@ STATIC BOOL  ControlConfigureDriver
     LPACMDRIVERSETTINGS     pads
 )
 {
-    if (NULL == pads)
-    {
+    if (NULL == pads) {
         return (FALSE);
     }
 
-    if (acmDriverMessage((HACMDRIVER)pads->hadid,DRV_CONFIGURE,(LPARAM)hwnd,0L) == DRVCNF_RESTART)
-    {
+    if (acmDriverMessage((HACMDRIVER)pads->hadid, DRV_CONFIGURE, (LPARAM)hwnd, 0L) == DRVCNF_RESTART) {
         DisplayMessage(hwnd, IDS_CHANGESAVED, IDS_RESTART, MB_OK);
     }
 
@@ -385,8 +375,7 @@ STATIC void CommitCodecChanges(LPACMDRIVERSETTINGS pads)
     DWORD               fdwPriority;
 
     mmr = (MMRESULT)acmDriverPriority(NULL, 0L, ACM_DRIVERPRIORITYF_BEGIN);
-    if (MMSYSERR_NOERROR != mmr)
-    {
+    if (MMSYSERR_NOERROR != mmr) {
         DPF(0, "!ControlApplySettings: acmDriverPriority(end) failed! mmr=%u", mmr);
         return;
     }
@@ -396,10 +385,9 @@ STATIC void CommitCodecChanges(LPACMDRIVERSETTINGS pads)
     fdwPriority = fDisabled ? ACM_DRIVERPRIORITYF_DISABLE : ACM_DRIVERPRIORITYF_ENABLE;
 
     mmr = (MMRESULT)acmDriverPriority(pads->hadid, pads->dwPriority, fdwPriority);
-    if (MMSYSERR_NOERROR != mmr)
-    {
+    if (MMSYSERR_NOERROR != mmr) {
         DPF(0, "!ControlApplySettings: acmDriverPriority(%.04Xh, %lu, %.08lXh) failed! mmr=%u",
-        pads->hadid, pads->dwPriority, fdwPriority, mmr);
+            pads->hadid, pads->dwPriority, fdwPriority, mmr);
     }
 
     mmr = (MMRESULT)acmDriverPriority(NULL, 0L, ACM_DRIVERPRIORITYF_END);
@@ -422,108 +410,101 @@ const static DWORD aACMDlgHelpIds[] = {  // Context Help IDs
 
 INT_PTR CALLBACK ACMDlg(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    NMHDR FAR   *lpnm;
+    NMHDR FAR* lpnm;
     static PCPLCODECINFO pci = NULL;
 
-    switch (uMsg)
+    switch (uMsg) {
+    case WM_NOTIFY:
     {
-        case WM_NOTIFY:
-        {
-            lpnm = (NMHDR FAR *)lParam;
+        lpnm = (NMHDR FAR*)lParam;
 
-            switch(lpnm->code)
-            {
-                case PSN_KILLACTIVE:
-                    FORWARD_WM_COMMAND(hDlg, IDOK, 0, 0, SendMessage);
-                break;
+        switch (lpnm->code) {
+        case PSN_KILLACTIVE:
+            FORWARD_WM_COMMAND(hDlg, IDOK, 0, 0, SendMessage);
+            break;
 
-                case PSN_APPLY:
-                    FORWARD_WM_COMMAND(hDlg, ID_APPLY, 0, 0, SendMessage);
-                break;
+        case PSN_APPLY:
+            FORWARD_WM_COMMAND(hDlg, ID_APPLY, 0, 0, SendMessage);
+            break;
 
-                case PSN_SETACTIVE:
-                    //FORWARD_WM_COMMAND(hDlg, ID_INIT, 0, 0, SendMessage);
-                break;
+        case PSN_SETACTIVE:
+            //FORWARD_WM_COMMAND(hDlg, ID_INIT, 0, 0, SendMessage);
+            break;
 
-                case PSN_RESET:
-                    FORWARD_WM_COMMAND(hDlg, IDCANCEL, 0, 0, SendMessage);
-                break;
-            }
+        case PSN_RESET:
+            FORWARD_WM_COMMAND(hDlg, IDCANCEL, 0, 0, SendMessage);
+            break;
         }
-        break;
+    }
+    break;
 
-        case WM_INITDIALOG:
-        {
-            HWND hwndS = GetDlgItem(hDlg, IDC_DEV_STATUS);
-            LPARAM lpUser = ((LPPROPSHEETPAGE)lParam)->lParam;
+    case WM_INITDIALOG:
+    {
+        HWND hwndS = GetDlgItem(hDlg, IDC_DEV_STATUS);
+        LPARAM lpUser = ((LPPROPSHEETPAGE)lParam)->lParam;
 
-            if ((pci = acmFindCodecInfo (LOWORD(lpUser), HIWORD(lpUser))) == NULL)
-            {
-                FORWARD_WM_COMMAND(hDlg, IDCANCEL, 0, 0, SendMessage);
-                break;
-            }
-
-            acmMetrics((HACMOBJ)pci->ads.hadid, ACM_METRIC_DRIVER_PRIORITY, &(pci->ads.dwPriority));
-            acmMetrics((HACMOBJ)pci->ads.hadid, ACM_METRIC_DRIVER_SUPPORT, &(pci->ads.fdwSupport));
-
-
-            SendDlgItemMessage(hDlg, IDC_DEV_ICON, STM_SETICON, (WPARAM)pci->hIcon, 0L);
-
-            SetWindowLongPtr(hDlg, DWLP_USER, (LPARAM)pci);
-            SetWindowText(GetDlgItem(hDlg, IDC_DEV_DESC), pci->szDesc);
-
-            LoadString (ghInstance, IDS_DEVENABLEDOK, gszDevEnabled, sizeof(gszDevEnabled)/sizeof(TCHAR));
-            LoadString (ghInstance, IDS_DEVDISABLED, gszDevDisabled, sizeof(gszDevDisabled)/sizeof(TCHAR));
-
-            if(pci->ads.fdwSupport & ACMDRIVERDETAILS_SUPPORTF_DISABLED)
-            {
-                SetWindowText(hwndS, gszDevDisabled);
-                CheckRadioButton(hDlg, IDC_ENABLE, IDC_DISABLE, IDC_DISABLE);
-            }
-            else
-            {
-                SetWindowText(hwndS, gszDevEnabled);
-                CheckRadioButton(hDlg, IDC_ENABLE, IDC_DISABLE, IDC_ENABLE);
-            }
-
-            EnableWindow(GetDlgItem(hDlg, ID_DEV_SETTINGS), (MMRESULT)acmDriverMessage((HACMDRIVER)pci->ads.hadid,DRV_QUERYCONFIGURE,0,0));
-
-            FORWARD_WM_COMMAND(hDlg, ID_INIT, 0, 0, SendMessage);
+        if ((pci = acmFindCodecInfo(LOWORD(lpUser), HIWORD(lpUser))) == NULL) {
+            FORWARD_WM_COMMAND(hDlg, IDCANCEL, 0, 0, SendMessage);
+            break;
         }
-        break;
 
-        case WM_DESTROY:
-        {
-            FORWARD_WM_COMMAND(hDlg, ID_REBUILD, 0, 0, SendMessage);
+        acmMetrics((HACMOBJ)pci->ads.hadid, ACM_METRIC_DRIVER_PRIORITY, &(pci->ads.dwPriority));
+        acmMetrics((HACMOBJ)pci->ads.hadid, ACM_METRIC_DRIVER_SUPPORT, &(pci->ads.fdwSupport));
 
-            if (pci != NULL)
-            {
-                acmFreeCodecInfo (pci);
-                pci = NULL;
-            }
+
+        SendDlgItemMessage(hDlg, IDC_DEV_ICON, STM_SETICON, (WPARAM)pci->hIcon, 0L);
+
+        SetWindowLongPtr(hDlg, DWLP_USER, (LPARAM)pci);
+        SetWindowText(GetDlgItem(hDlg, IDC_DEV_DESC), pci->szDesc);
+
+        LoadString(ghInstance, IDS_DEVENABLEDOK, gszDevEnabled, sizeof(gszDevEnabled) / sizeof(TCHAR));
+        LoadString(ghInstance, IDS_DEVDISABLED, gszDevDisabled, sizeof(gszDevDisabled) / sizeof(TCHAR));
+
+        if (pci->ads.fdwSupport & ACMDRIVERDETAILS_SUPPORTF_DISABLED) {
+            SetWindowText(hwndS, gszDevDisabled);
+            CheckRadioButton(hDlg, IDC_ENABLE, IDC_DISABLE, IDC_DISABLE);
+        } else {
+            SetWindowText(hwndS, gszDevEnabled);
+            CheckRadioButton(hDlg, IDC_ENABLE, IDC_DISABLE, IDC_ENABLE);
         }
-        break;
 
-        case WM_CONTEXTMENU:
-        {
-            WinHelp ((HWND) wParam, NULL, HELP_CONTEXTMENU, (UINT_PTR) (LPTSTR) aACMDlgHelpIds);
-            return TRUE;
-        }
-        break;
+        EnableWindow(GetDlgItem(hDlg, ID_DEV_SETTINGS), (MMRESULT)acmDriverMessage((HACMDRIVER)pci->ads.hadid, DRV_QUERYCONFIGURE, 0, 0));
 
-        case WM_HELP:
-        {
-            LPHELPINFO lphi = (LPVOID) lParam;
-            WinHelp (lphi->hItemHandle, NULL, HELP_WM_HELP, (UINT_PTR) (LPTSTR) aACMDlgHelpIds);
-            return TRUE;
-        }
-        break;
+        FORWARD_WM_COMMAND(hDlg, ID_INIT, 0, 0, SendMessage);
+    }
+    break;
 
-        case WM_COMMAND:
-        {
-            HANDLE_WM_COMMAND(hDlg, wParam, lParam, DoACMPropCommand);
+    case WM_DESTROY:
+    {
+        FORWARD_WM_COMMAND(hDlg, ID_REBUILD, 0, 0, SendMessage);
+
+        if (pci != NULL) {
+            acmFreeCodecInfo(pci);
+            pci = NULL;
         }
-        break;
+    }
+    break;
+
+    case WM_CONTEXTMENU:
+    {
+        WinHelp((HWND)wParam, NULL, HELP_CONTEXTMENU, (UINT_PTR)(LPTSTR)aACMDlgHelpIds);
+        return TRUE;
+    }
+    break;
+
+    case WM_HELP:
+    {
+        LPHELPINFO lphi = (LPVOID)lParam;
+        WinHelp(lphi->hItemHandle, NULL, HELP_WM_HELP, (UINT_PTR)(LPTSTR)aACMDlgHelpIds);
+        return TRUE;
+    }
+    break;
+
+    case WM_COMMAND:
+    {
+        HANDLE_WM_COMMAND(hDlg, wParam, lParam, DoACMPropCommand);
+    }
+    break;
     }
     return FALSE;
 }
@@ -536,113 +517,107 @@ BOOL PASCAL DoACMPropCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
     static int              iPriority = 0;
     static BOOL             fDisabled = TRUE;
     static BOOL             fRebuild;
-    HWND hwndS =            GetDlgItem(hDlg, IDC_DEV_STATUS);
+    HWND hwndS = GetDlgItem(hDlg, IDC_DEV_STATUS);
 
-    if ((pci = (PCPLCODECINFO)GetWindowLongPtr(hDlg,DWLP_USER)) == NULL)
-    {
+    if ((pci = (PCPLCODECINFO)GetWindowLongPtr(hDlg, DWLP_USER)) == NULL) {
         return FALSE;
     }
 
     pads = &(pci->ads);
 
-    switch (id)
+    switch (id) {
+    case ID_APPLY:
     {
-        case ID_APPLY:
-        {
-            HWND hcb = GetDlgItem(hDlg, IDD_PRIORITY_COMBO_PRIORITY);
-            if ((fDisabled != Button_GetCheck(GetDlgItem(hDlg, IDC_DISABLE))) || (iPriority != ComboBox_GetCurSel(hcb)+1))
-            {
-                pads->fdwSupport ^= ACMDRIVERDETAILS_SUPPORTF_DISABLED;
-                fDisabled = (0 != (pads->fdwSupport & ACMDRIVERDETAILS_SUPPORTF_DISABLED));
-                iPriority = pads->dwPriority  = ComboBox_GetCurSel(hcb)+1;
-                CommitCodecChanges(pads);
-                fRebuild = TRUE;
-            }
-            return TRUE;
-        }
-
-        case ID_REBUILD:
-        {
-            if (fRebuild && pci)
-            {
-                SetWindowLongPtr(hDlg, DWLP_USER, (LPARAM)0);
-                fRebuild = FALSE;
-            }
-        }
-        break;
-
-        case ID_INIT:
-        {
-            TCHAR achFromTo[80];
-            TCHAR ach[80];
-            HWND hcb;
-            UINT u;
-            UINT nCodecs;
-
-            iPriority = (int)pads->dwPriority;
+        HWND hcb = GetDlgItem(hDlg, IDD_PRIORITY_COMBO_PRIORITY);
+        if ((fDisabled != Button_GetCheck(GetDlgItem(hDlg, IDC_DISABLE))) || (iPriority != ComboBox_GetCurSel(hcb) + 1)) {
+            pads->fdwSupport ^= ACMDRIVERDETAILS_SUPPORTF_DISABLED;
             fDisabled = (0 != (pads->fdwSupport & ACMDRIVERDETAILS_SUPPORTF_DISABLED));
+            iPriority = pads->dwPriority = ComboBox_GetCurSel(hcb) + 1;
+            CommitCodecChanges(pads);
+            fRebuild = TRUE;
+        }
+        return TRUE;
+    }
+
+    case ID_REBUILD:
+    {
+        if (fRebuild && pci) {
+            SetWindowLongPtr(hDlg, DWLP_USER, (LPARAM)0);
             fRebuild = FALSE;
-
-            LoadString(ghInstance, IDS_PRIORITY_FROMTO, achFromTo, sizeof(achFromTo)/sizeof(TCHAR));
-
-            wsprintf(ach, achFromTo, iPriority);
-            SetDlgItemText(hDlg, IDD_PRIORITY_TXT_FROMTO, ach);
-
-            hcb = GetDlgItem(hDlg, IDD_PRIORITY_COMBO_PRIORITY);
-
-            nCodecs = acmCountCodecs();
-
-            for (u = 1; u <= (UINT)nCodecs; u++)
-            {
-                wsprintf(ach, aszFormatNumber, (DWORD)u);
-                ComboBox_AddString(hcb, ach);
-            }
-
-            ComboBox_SetCurSel(hcb, iPriority - 1);
         }
-        break;
+    }
+    break;
 
-        case IDD_PRIORITY_COMBO_PRIORITY:
+    case ID_INIT:
+    {
+        TCHAR achFromTo[80];
+        TCHAR ach[80];
+        HWND hcb;
+        UINT u;
+        UINT nCodecs;
+
+        iPriority = (int)pads->dwPriority;
+        fDisabled = (0 != (pads->fdwSupport & ACMDRIVERDETAILS_SUPPORTF_DISABLED));
+        fRebuild = FALSE;
+
+        LoadString(ghInstance, IDS_PRIORITY_FROMTO, achFromTo, sizeof(achFromTo) / sizeof(TCHAR));
+
+        wsprintf(ach, achFromTo, iPriority);
+        SetDlgItemText(hDlg, IDD_PRIORITY_TXT_FROMTO, ach);
+
+        hcb = GetDlgItem(hDlg, IDD_PRIORITY_COMBO_PRIORITY);
+
+        nCodecs = acmCountCodecs();
+
+        for (u = 1; u <= (UINT)nCodecs; u++) {
+            wsprintf(ach, aszFormatNumber, (DWORD)u);
+            ComboBox_AddString(hcb, ach);
+        }
+
+        ComboBox_SetCurSel(hcb, iPriority - 1);
+    }
+    break;
+
+    case IDD_PRIORITY_COMBO_PRIORITY:
+    {
+        switch (codeNotify) {
+        case CBN_SELCHANGE:
         {
-            switch (codeNotify)
-            {
-                case CBN_SELCHANGE:
-                {
-                    PropSheet_Changed(GetParent(hDlg),hDlg);
-                }
-                break;
-            }
+            PropSheet_Changed(GetParent(hDlg), hDlg);
         }
         break;
-
-
-        case IDC_ENABLE:
-        {
-            SetWindowText(hwndS, gszDevEnabled);
-            CheckRadioButton(hDlg, IDC_ENABLE, IDC_DISABLE, IDC_ENABLE);
-            PropSheet_Changed(GetParent(hDlg),hDlg);
         }
-        break;
+    }
+    break;
 
-        case IDC_DISABLE:
-        {
-            SetWindowText(hwndS, gszDevDisabled);
-            CheckRadioButton(hDlg, IDC_ENABLE, IDC_DISABLE, IDC_DISABLE);
-            PropSheet_Changed(GetParent(hDlg),hDlg);
-        }
-        break;
 
-        case ID_DEV_SETTINGS:
-        {
-            ControlConfigureDriver(hDlg, pads);
-        }
-        break;
+    case IDC_ENABLE:
+    {
+        SetWindowText(hwndS, gszDevEnabled);
+        CheckRadioButton(hDlg, IDC_ENABLE, IDC_DISABLE, IDC_ENABLE);
+        PropSheet_Changed(GetParent(hDlg), hDlg);
+    }
+    break;
 
-        case IDD_CPL_BTN_ABOUT:
-        {
-            ControlAboutDriver(hDlg, pads);
-        }
-        break;
+    case IDC_DISABLE:
+    {
+        SetWindowText(hwndS, gszDevDisabled);
+        CheckRadioButton(hDlg, IDC_ENABLE, IDC_DISABLE, IDC_DISABLE);
+        PropSheet_Changed(GetParent(hDlg), hDlg);
+    }
+    break;
+
+    case ID_DEV_SETTINGS:
+    {
+        ControlConfigureDriver(hDlg, pads);
+    }
+    break;
+
+    case IDD_CPL_BTN_ABOUT:
+    {
+        ControlAboutDriver(hDlg, pads);
+    }
+    break;
     }
 
     return FALSE;
@@ -664,21 +639,19 @@ BOOL PASCAL DoACMPropCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 
 // Microsoft Confidential - DO NOT COPY THIS METHOD INTO ANY APPLICATION, THIS MEANS YOU!!!
 
-DWORD GetWaveOutID(BOOL *pfPreferred)
+DWORD GetWaveOutID(BOOL* pfPreferred)
 {
     MMRESULT        mmr;
     DWORD           dwWaveID;
     DWORD           dwFlags = 0;
 
-    if (pfPreferred)
-    {
+    if (pfPreferred) {
         *pfPreferred = TRUE;
     }
 
-    mmr = waveOutMessage((HWAVEOUT)WAVE_MAPPER, DRVM_MAPPER_PREFERRED_GET, (DWORD_PTR) &dwWaveID, (DWORD_PTR) &dwFlags);
+    mmr = waveOutMessage((HWAVEOUT)WAVE_MAPPER, DRVM_MAPPER_PREFERRED_GET, (DWORD_PTR)&dwWaveID, (DWORD_PTR)&dwFlags);
 
-    if (!mmr && pfPreferred)
-    {
+    if (!mmr && pfPreferred) {
         *pfPreferred = dwFlags & 0x00000001;
     }
 
@@ -702,21 +675,19 @@ void SetWaveOutID(DWORD dwWaveID, BOOL fPrefOnly)
 
 // Microsoft Confidential - DO NOT COPY THIS METHOD INTO ANY APPLICATION, THIS MEANS YOU!!!
 
-DWORD GetWaveInID(BOOL *pfPreferred)
+DWORD GetWaveInID(BOOL* pfPreferred)
 {
     MMRESULT        mmr;
     DWORD           dwWaveID;
     DWORD           dwFlags = 0;
 
-    if (pfPreferred)
-    {
+    if (pfPreferred) {
         *pfPreferred = TRUE;
     }
 
-    mmr = waveInMessage((HWAVEIN)WAVE_MAPPER, DRVM_MAPPER_PREFERRED_GET, (DWORD_PTR) &dwWaveID, (DWORD_PTR) &dwFlags);
+    mmr = waveInMessage((HWAVEIN)WAVE_MAPPER, DRVM_MAPPER_PREFERRED_GET, (DWORD_PTR)&dwWaveID, (DWORD_PTR)&dwFlags);
 
-    if (!mmr && pfPreferred)
-    {
+    if (!mmr && pfPreferred) {
         *pfPreferred = dwFlags & 0x00000001;
     }
 
@@ -746,7 +717,7 @@ DWORD GetMIDIOutID(void)
     DWORD           dwWaveID;
     DWORD           dwFlags = 0;
 
-    mmr = midiOutMessage((HMIDIOUT)WAVE_MAPPER, DRVM_MAPPER_PREFERRED_GET, (DWORD_PTR) &dwWaveID, (DWORD_PTR) &dwFlags);
+    mmr = midiOutMessage((HMIDIOUT)WAVE_MAPPER, DRVM_MAPPER_PREFERRED_GET, (DWORD_PTR)&dwWaveID, (DWORD_PTR)&dwFlags);
 
     return(dwWaveID);
 }
@@ -766,7 +737,7 @@ void SetMIDIOutID(DWORD dwWaveID)
 
 
 
-void GetPrefInfo(PAUDIODLGINFO pai, HWND hDlg )
+void GetPrefInfo(PAUDIODLGINFO pai, HWND hDlg)
 {
     MMRESULT        mmr;
 
@@ -776,12 +747,12 @@ void GetPrefInfo(PAUDIODLGINFO pai, HWND hDlg )
 
 
     // Load WaveIn Info
-    pai->cNumInDevs  = waveInGetNumDevs();
+    pai->cNumInDevs = waveInGetNumDevs();
     pai->uPrefIn = GetWaveInID(NULL);
 
 
     // Load MIDI Out info
-    pai->cNumMIDIOutDevs  = midiOutGetNumDevs();
+    pai->cNumMIDIOutDevs = midiOutGetNumDevs();
     pai->uPrefMIDIOut = GetMIDIOutID();
 }
 
@@ -789,20 +760,20 @@ void GetPrefInfo(PAUDIODLGINFO pai, HWND hDlg )
 
 STATIC void EnablePlayVolCtrls(HWND hDlg, BOOL fEnable)
 {
-    EnableWindow( GetDlgItem(hDlg, IDC_LAUNCH_SNDVOL) , fEnable);
-    EnableWindow( GetDlgItem(hDlg, IDC_PLAYBACK_ADVSETUP) , fEnable);
+    EnableWindow(GetDlgItem(hDlg, IDC_LAUNCH_SNDVOL), fEnable);
+    EnableWindow(GetDlgItem(hDlg, IDC_PLAYBACK_ADVSETUP), fEnable);
 }
 
 STATIC void EnableRecVolCtrls(HWND hDlg, BOOL fEnable)
 {
-    EnableWindow( GetDlgItem(hDlg, IDC_LAUNCH_RECVOL) , fEnable);
-    EnableWindow( GetDlgItem(hDlg, IDC_RECORD_ADVSETUP) , fEnable);
+    EnableWindow(GetDlgItem(hDlg, IDC_LAUNCH_RECVOL), fEnable);
+    EnableWindow(GetDlgItem(hDlg, IDC_RECORD_ADVSETUP), fEnable);
 }
 
 
 STATIC void EnableMIDIVolCtrls(HWND hDlg, BOOL fEnable)
 {
-    EnableWindow( GetDlgItem(hDlg, IDC_LAUNCH_MUSICVOL) , fEnable);
+    EnableWindow(GetDlgItem(hDlg, IDC_LAUNCH_MUSICVOL), fEnable);
 }
 
 
@@ -814,10 +785,8 @@ STATIC void SetDeviceOut(PAUDIODLGINFO pai, UINT uID, HWND hDlg)
 
     pai->uPrefOut = uID;     // New device, lets setup buttons for this device
 
-    if(MMSYSERR_NOERROR == mixerGetID((HMIXEROBJ)(pai->uPrefOut), &uMixID, MIXER_OBJECTF_WAVEOUT))
-    {
-        if(MMSYSERR_NOERROR == mixerOpen(&hMixer, uMixID, 0L, 0L, 0L))
-        {
+    if (MMSYSERR_NOERROR == mixerGetID((HMIXEROBJ)(pai->uPrefOut), &uMixID, MIXER_OBJECTF_WAVEOUT)) {
+        if (MMSYSERR_NOERROR == mixerOpen(&hMixer, uMixID, 0L, 0L, 0L)) {
             fEnabled = TRUE;
             mixerClose(hMixer);
         }
@@ -836,39 +805,32 @@ DWORD CountInputs(DWORD dwMixID)
 
     mmr = mixerGetDevCaps(dwMixID, &mc, sizeof(mc));
 
-    if (mmr == MMSYSERR_NOERROR)
-    {
+    if (mmr == MMSYSERR_NOERROR) {
         MIXERLINE   mlDst;
         DWORD       dwDestination;
         DWORD       cDestinations;
 
         cDestinations = mc.cDestinations;
 
-        for (dwDestination = 0; dwDestination < cDestinations; dwDestination++)
-        {
-            mlDst.cbStruct = sizeof ( mlDst );
+        for (dwDestination = 0; dwDestination < cDestinations; dwDestination++) {
+            mlDst.cbStruct = sizeof(mlDst);
             mlDst.dwDestination = dwDestination;
 
-            if (mixerGetLineInfo((HMIXEROBJ) dwMixID, &mlDst, MIXER_GETLINEINFOF_DESTINATION  ) == MMSYSERR_NOERROR)
-            {
+            if (mixerGetLineInfo((HMIXEROBJ)dwMixID, &mlDst, MIXER_GETLINEINFOF_DESTINATION) == MMSYSERR_NOERROR) {
                 if (mlDst.dwComponentType == (DWORD)MIXERLINE_COMPONENTTYPE_DST_WAVEIN ||    // needs to be a likely output destination
-                    mlDst.dwComponentType == (DWORD)MIXERLINE_COMPONENTTYPE_DST_VOICEIN)
-                {
+                    mlDst.dwComponentType == (DWORD)MIXERLINE_COMPONENTTYPE_DST_VOICEIN) {
                     DWORD cConnections = mlDst.cConnections;
 
                     dwCount += mlDst.cControls;
 
-                    if (cConnections)
-                    {
+                    if (cConnections) {
                         DWORD dwSource;
 
-                        for (dwSource = 0; dwSource < cConnections; dwSource++)
-                        {
+                        for (dwSource = 0; dwSource < cConnections; dwSource++) {
                             mlDst.dwDestination = dwDestination;
                             mlDst.dwSource = dwSource;
 
-                            if (mixerGetLineInfo((HMIXEROBJ) dwMixID, &mlDst, MIXER_GETLINEINFOF_SOURCE ) == MMSYSERR_NOERROR)
-                            {
+                            if (mixerGetLineInfo((HMIXEROBJ)dwMixID, &mlDst, MIXER_GETLINEINFOF_SOURCE) == MMSYSERR_NOERROR) {
                                 dwCount += mlDst.cControls;
                             }
                         }
@@ -890,12 +852,9 @@ STATIC void SetDeviceIn(PAUDIODLGINFO pai, UINT uID, HWND hDlg)
 
     pai->uPrefIn = uID;     // New device, lets setup buttons for this device
 
-    if( (MMSYSERR_NOERROR == mixerGetID((HMIXEROBJ)(pai->uPrefIn),&uMixID, MIXER_OBJECTF_WAVEIN)))
-    {
-        if( MMSYSERR_NOERROR == mixerOpen(&hMixer, uMixID, 0L, 0L, 0L))
-        {
-            if (CountInputs(uMixID))
-            {
+    if ((MMSYSERR_NOERROR == mixerGetID((HMIXEROBJ)(pai->uPrefIn), &uMixID, MIXER_OBJECTF_WAVEIN))) {
+        if (MMSYSERR_NOERROR == mixerOpen(&hMixer, uMixID, 0L, 0L, 0L)) {
+            if (CountInputs(uMixID)) {
                 fEnabled = TRUE;
             }
 
@@ -918,10 +877,8 @@ STATIC void SetMIDIDeviceOut(PAUDIODLGINFO pai, UINT uID, HWND hDlg)
 
     pai->uPrefMIDIOut = uID;     // New device, lets setup buttons for this device
 
-    if(MMSYSERR_NOERROR == mixerGetID((HMIXEROBJ)(pai->uPrefMIDIOut), &uMixID, MIXER_OBJECTF_MIDIOUT))
-    {
-        if(MMSYSERR_NOERROR == mixerOpen(&hMixer, uMixID, 0L, 0L, 0L))
-        {
+    if (MMSYSERR_NOERROR == mixerGetID((HMIXEROBJ)(pai->uPrefMIDIOut), &uMixID, MIXER_OBJECTF_MIDIOUT)) {
+        if (MMSYSERR_NOERROR == mixerOpen(&hMixer, uMixID, 0L, 0L, 0L)) {
             fEnabled = TRUE;
             mixerClose(hMixer);
         }
@@ -932,15 +889,13 @@ STATIC void SetMIDIDeviceOut(PAUDIODLGINFO pai, UINT uID, HWND hDlg)
     fEnabled = FALSE;
     mmr = midiOutGetDevCaps(pai->uPrefMIDIOut, &moc, sizeof(moc));
 
-    if (MMSYSERR_NOERROR == mmr)
-    {
-        if ((moc.wMid == MM_MICROSOFT) && (moc.wPid == MM_MSFT_WDMAUDIO_MIDIOUT) && (moc.wTechnology == MOD_SWSYNTH))
-        {
+    if (MMSYSERR_NOERROR == mmr) {
+        if ((moc.wMid == MM_MICROSOFT) && (moc.wPid == MM_MSFT_WDMAUDIO_MIDIOUT) && (moc.wTechnology == MOD_SWSYNTH)) {
             fEnabled = TRUE;
         }
     }
 
-    EnableWindow( GetDlgItem(hDlg, IDC_MUSIC_ABOUT) , fEnabled);
+    EnableWindow(GetDlgItem(hDlg, IDC_MUSIC_ABOUT), fEnabled);
 }
 
 
@@ -948,23 +903,21 @@ STDAPI_(void) DoRolandAbout(HWND hWnd)
 {
     UINT uWaveID;
 
-    if (GetWaveID(&uWaveID) != (MMRESULT)MMSYSERR_ERROR)
-    {
+    if (GetWaveID(&uWaveID) != (MMRESULT)MMSYSERR_ERROR) {
         WAVEOUTCAPS woc;
 
-        if (waveOutGetDevCaps(uWaveID, &woc, sizeof(woc)) == MMSYSERR_NOERROR)
-        {
+        if (waveOutGetDevCaps(uWaveID, &woc, sizeof(woc)) == MMSYSERR_NOERROR) {
             RolandProp(hWnd, ghInstance, woc.szPname);
         }
     }
 }
 
 
-STATIC void SetPrefInfo(PAUDIODLGINFO pai, HWND hDlg )
+STATIC void SetPrefInfo(PAUDIODLGINFO pai, HWND hDlg)
 {
-    HWND    hwndCBPlay   = GetDlgItem(hDlg, IDC_AUDIO_CB_PLAY);
-    HWND    hwndCBRec    = GetDlgItem(hDlg, IDC_AUDIO_CB_REC);
-    HWND    hwndCBMIDI   = GetDlgItem(hDlg, IDC_MUSIC_CB_PLAY);
+    HWND    hwndCBPlay = GetDlgItem(hDlg, IDC_AUDIO_CB_PLAY);
+    HWND    hwndCBRec = GetDlgItem(hDlg, IDC_AUDIO_CB_REC);
+    HWND    hwndCBMIDI = GetDlgItem(hDlg, IDC_MUSIC_CB_PLAY);
     HKEY    hkeyAcm;
     UINT    item, deviceID;
     TCHAR   szPref[MAXSTR];
@@ -973,11 +926,10 @@ STATIC void SetPrefInfo(PAUDIODLGINFO pai, HWND hDlg )
 
     item = (UINT)ComboBox_GetCurSel(hwndCBPlay);
 
-    if (item != CB_ERR)
-    {
+    if (item != CB_ERR) {
         deviceID = (UINT)ComboBox_GetItemData(hwndCBPlay, item);
 
-        if(deviceID != pai->uPrefOut)             // Make sure device changed
+        if (deviceID != pai->uPrefOut)             // Make sure device changed
         {
             SetDeviceOut(pai, deviceID, hDlg);    // Configure controls for this device
         }
@@ -985,11 +937,10 @@ STATIC void SetPrefInfo(PAUDIODLGINFO pai, HWND hDlg )
 
     item = (UINT)ComboBox_GetCurSel(hwndCBRec);
 
-    if (item != CB_ERR)
-    {
+    if (item != CB_ERR) {
         deviceID = (UINT)ComboBox_GetItemData(hwndCBRec, item);
 
-        if( deviceID != pai->uPrefIn )            // Make sure device changed
+        if (deviceID != pai->uPrefIn)            // Make sure device changed
         {
             SetDeviceIn(pai, deviceID, hDlg);     // Configure controls for this device
         }
@@ -997,11 +948,10 @@ STATIC void SetPrefInfo(PAUDIODLGINFO pai, HWND hDlg )
 
     item = (UINT)ComboBox_GetCurSel(hwndCBMIDI);
 
-    if (item != CB_ERR)
-    {
+    if (item != CB_ERR) {
         deviceID = (UINT)ComboBox_GetItemData(hwndCBMIDI, item);
 
-        if(deviceID != pai->uPrefMIDIOut)         // Make sure device changed
+        if (deviceID != pai->uPrefMIDIOut)         // Make sure device changed
         {
             SetMIDIDeviceOut(pai, deviceID, hDlg);    // Configure controls for this device
         }
@@ -1039,41 +989,34 @@ STATIC void WAVEOUTInit(HWND hDlg, PAUDIODLGINFO pai)
 
     ComboBox_ResetContent(hwndCBPlay);
 
-    if (pai->cNumOutDevs == 0)
-    {
-        LoadString (ghInstance, IDS_NOAUDIOPLAY, szNoAudio, sizeof(szNoAudio)/sizeof(TCHAR));
+    if (pai->cNumOutDevs == 0) {
+        LoadString(ghInstance, IDS_NOAUDIOPLAY, szNoAudio, sizeof(szNoAudio) / sizeof(TCHAR));
         ComboBox_AddString(hwndCBPlay, szNoAudio);
         ComboBox_SetItemData(hwndCBPlay, 0, (LPARAM)-1);
         ComboBox_SetCurSel(hwndCBPlay, 0);
-        EnableWindow( hwndCBPlay, FALSE );
+        EnableWindow(hwndCBPlay, FALSE);
         EnablePlayVolCtrls(hDlg, FALSE);
-    }
-    else
-    {
-        EnableWindow( hwndCBPlay, TRUE );
+    } else {
+        EnableWindow(hwndCBPlay, TRUE);
 
-        for (device = 0; device < pai->cNumOutDevs; device++)
-        {
+        for (device = 0; device < pai->cNumOutDevs; device++) {
             WAVEOUTCAPS     woc;
             int newItem;
 
-            woc.szPname[0]  = TEXT('\0');
+            woc.szPname[0] = TEXT('\0');
 
-            if (waveOutGetDevCapsW(device, &woc, sizeof(woc)))
-            {
+            if (waveOutGetDevCapsW(device, &woc, sizeof(woc))) {
                 continue;
             }
 
-            woc.szPname[sizeof(woc.szPname)/sizeof(TCHAR) - 1] = TEXT('\0');
+            woc.szPname[sizeof(woc.szPname) / sizeof(TCHAR) - 1] = TEXT('\0');
 
             newItem = ComboBox_AddString(hwndCBPlay, woc.szPname);
 
-            if (newItem != CB_ERR && newItem != CB_ERRSPACE)
-            {
+            if (newItem != CB_ERR && newItem != CB_ERRSPACE) {
                 ComboBox_SetItemData(hwndCBPlay, newItem, (LPARAM)device);
 
-                if (device == pai->uPrefOut)
-                {
+                if (device == pai->uPrefOut) {
                     ComboBox_SetCurSel(hwndCBPlay, newItem);
                     SetDeviceOut(pai, device, hDlg);
                 }
@@ -1091,41 +1034,34 @@ STATIC void WAVEINInit(HWND hDlg, PAUDIODLGINFO pai)
 
     ComboBox_ResetContent(hwndCBRec);
 
-    if (pai->cNumInDevs == 0)
-    {
-        LoadString (ghInstance, IDS_NOAUDIOREC, szNoAudio, sizeof(szNoAudio)/sizeof(TCHAR));
+    if (pai->cNumInDevs == 0) {
+        LoadString(ghInstance, IDS_NOAUDIOREC, szNoAudio, sizeof(szNoAudio) / sizeof(TCHAR));
         ComboBox_AddString(hwndCBRec, szNoAudio);
         ComboBox_SetItemData(hwndCBRec, 0, (LPARAM)-1);
         ComboBox_SetCurSel(hwndCBRec, 0);
-        EnableWindow( hwndCBRec, FALSE );
+        EnableWindow(hwndCBRec, FALSE);
         EnableRecVolCtrls(hDlg, FALSE);
-    }
-    else
-    {
-        EnableWindow( hwndCBRec, TRUE );
+    } else {
+        EnableWindow(hwndCBRec, TRUE);
 
-        for (device = 0; device < pai->cNumInDevs; device++)
-        {
+        for (device = 0; device < pai->cNumInDevs; device++) {
             WAVEINCAPSW     wic;
             int newItem;
 
-            wic.szPname[0]  = TEXT('\0');
+            wic.szPname[0] = TEXT('\0');
 
-            if (waveInGetDevCapsW(device, &wic, sizeof(wic)))
-            {
+            if (waveInGetDevCapsW(device, &wic, sizeof(wic))) {
                 continue;
             }
 
-            wic.szPname[sizeof(wic.szPname)/sizeof(TCHAR) - 1] = TEXT('\0');
+            wic.szPname[sizeof(wic.szPname) / sizeof(TCHAR) - 1] = TEXT('\0');
 
             newItem = ComboBox_AddString(hwndCBRec, wic.szPname);
 
-            if (newItem != CB_ERR && newItem != CB_ERRSPACE)
-            {
+            if (newItem != CB_ERR && newItem != CB_ERRSPACE) {
                 ComboBox_SetItemData(hwndCBRec, newItem, (LPARAM)device);
 
-                if (device == pai->uPrefIn)
-                {
+                if (device == pai->uPrefIn) {
                     ComboBox_SetCurSel(hwndCBRec, newItem);
                     SetDeviceIn(pai, device, hDlg);
                 }
@@ -1137,7 +1073,7 @@ STATIC void WAVEINInit(HWND hDlg, PAUDIODLGINFO pai)
 
 STATIC void MIDIInit(HWND hDlg, PAUDIODLGINFO pai)
 {
-    HWND        hwnd  = GetDlgItem(hDlg, IDC_MUSIC_CB_PLAY);
+    HWND        hwnd = GetDlgItem(hDlg, IDC_MUSIC_CB_PLAY);
     MMRESULT    mr;
     UINT        device;
     TCHAR       szNoAudio[128];
@@ -1146,42 +1082,35 @@ STATIC void MIDIInit(HWND hDlg, PAUDIODLGINFO pai)
 
     szNoAudio[0] = TEXT('\0');
 
-    EnableWindow( GetDlgItem(hDlg, IDC_MUSIC_ABOUT) , FALSE);
+    EnableWindow(GetDlgItem(hDlg, IDC_MUSIC_ABOUT), FALSE);
 
-    if (pai->cNumMIDIOutDevs == 0)
-    {
-        LoadString (ghInstance, IDS_NOMIDIPLAY, szNoAudio, sizeof(szNoAudio)/sizeof(TCHAR));
+    if (pai->cNumMIDIOutDevs == 0) {
+        LoadString(ghInstance, IDS_NOMIDIPLAY, szNoAudio, sizeof(szNoAudio) / sizeof(TCHAR));
         ComboBox_AddString(hwnd, szNoAudio);
         ComboBox_SetItemData(hwnd, 0, (LPARAM)-1);
         ComboBox_SetCurSel(hwnd, 0);
-        EnableWindow( hwnd, FALSE );
+        EnableWindow(hwnd, FALSE);
         EnableMIDIVolCtrls(hDlg, FALSE);
-    }
-    else
-    {
-        EnableWindow( hwnd, TRUE );
-        for (device = 0; device < pai->cNumMIDIOutDevs; device++)
-        {
+    } else {
+        EnableWindow(hwnd, TRUE);
+        for (device = 0; device < pai->cNumMIDIOutDevs; device++) {
             MIDIOUTCAPS moc;
             int newItem;
 
-            moc.szPname[0]  = TEXT('\0');
+            moc.szPname[0] = TEXT('\0');
 
-            if (midiOutGetDevCapsW(device, &moc, sizeof(moc)))
-            {
+            if (midiOutGetDevCapsW(device, &moc, sizeof(moc))) {
                 continue;
             }
 
-            moc.szPname[sizeof(moc.szPname)/sizeof(TCHAR) - 1] = TEXT('\0');
+            moc.szPname[sizeof(moc.szPname) / sizeof(TCHAR) - 1] = TEXT('\0');
 
             newItem = ComboBox_AddString(hwnd, moc.szPname);
 
-            if (newItem != CB_ERR && newItem != CB_ERRSPACE)
-            {
+            if (newItem != CB_ERR && newItem != CB_ERRSPACE) {
                 ComboBox_SetItemData(hwnd, newItem, (LPARAM)device);
 
-                if (device == pai->uPrefMIDIOut)
-                {
+                if (device == pai->uPrefMIDIOut) {
                     ComboBox_SetCurSel(hwnd, newItem);
                     SetMIDIDeviceOut(pai, device, hDlg);
                 }
@@ -1199,8 +1128,8 @@ STATIC void AudioDlgInit(HWND hDlg)
 
     //  Register context-sensitive help messages from the Customize dialog.
 
-    guCustomizeContextMenu = RegisterWindowMessage( ACMHELPMSGCONTEXTMENU );
-    guCustomizeContextHelp = RegisterWindowMessage( ACMHELPMSGCONTEXTHELP );
+    guCustomizeContextMenu = RegisterWindowMessage(ACMHELPMSGCONTEXTMENU);
+    guCustomizeContextHelp = RegisterWindowMessage(ACMHELPMSGCONTEXTHELP);
 
     SetWindowLongPtr(hDlg, DWLP_USER, (LPARAM)pai);
 
@@ -1211,8 +1140,7 @@ STATIC void AudioDlgInit(HWND hDlg)
     WAVEINInit(hDlg, pai);
     MIDIInit(hDlg, pai);
 
-    if (!(pai->cNumInDevs || pai->cNumOutDevs || pai->cNumMIDIOutDevs))
-    {
+    if (!(pai->cNumInDevs || pai->cNumOutDevs || pai->cNumMIDIOutDevs)) {
         CheckDlgButton(hDlg, IDC_AUDIO_PREF, FALSE);
         EnableWindow(GetDlgItem(hDlg, IDC_AUDIO_PREF), FALSE);
     }
@@ -1266,7 +1194,7 @@ void WinMMDeviceChange(HWND hDlg)
 {
     PAUDIODLGINFO pai = (PAUDIODLGINFO)GetWindowLongPtr(hDlg, DWLP_USER);
 
-//    MSACM_NotifyMapper();
+    //    MSACM_NotifyMapper();
 
     GetPrefInfo(pai, hDlg);
     CheckDlgButton(hDlg, IDC_AUDIO_PREF, pai->fPrefOnly);
@@ -1275,8 +1203,7 @@ void WinMMDeviceChange(HWND hDlg)
     WAVEINInit(hDlg, pai);
     MIDIInit(hDlg, pai);
 
-    if (!(pai->cNumInDevs || pai->cNumOutDevs || pai->cNumMIDIOutDevs))
-    {
+    if (!(pai->cNumInDevs || pai->cNumOutDevs || pai->cNumMIDIOutDevs)) {
         CheckDlgButton(hDlg, IDC_AUDIO_PREF, FALSE);
         EnableWindow(GetDlgItem(hDlg, IDC_AUDIO_PREF), FALSE);
     }
@@ -1286,143 +1213,131 @@ void WinMMDeviceChange(HWND hDlg)
 
 LRESULT CALLBACK AudioTabProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (iMsg == giDevChange)
-    {
+    if (iMsg == giDevChange) {
         WinMMDeviceChange(ghDlg);
     }
 
-    return CallWindowProc(gfnPSProc,hwnd,iMsg,wParam,lParam);
+    return CallWindowProc(gfnPSProc, hwnd, iMsg, wParam, lParam);
 }
 
 
 void InitDeviceChange(HWND hDlg)
 {
-    gfnPSProc = (WNDPROC) SetWindowLongPtr(GetParent(hDlg),GWLP_WNDPROC,(LONG_PTR)AudioTabProc);
+    gfnPSProc = (WNDPROC)SetWindowLongPtr(GetParent(hDlg), GWLP_WNDPROC, (LONG_PTR)AudioTabProc);
     giDevChange = RegisterWindowMessage(TEXT("winmm_devicechange"));
 }
 
 void UninitDeviceChange(HWND hDlg)
 {
-    SetWindowLongPtr(GetParent(hDlg),GWLP_WNDPROC,(LONG_PTR)gfnPSProc);
+    SetWindowLongPtr(GetParent(hDlg), GWLP_WNDPROC, (LONG_PTR)gfnPSProc);
 }
 
 
 
 
 BOOL CALLBACK AudioDlg(HWND hDlg, UINT uMsg, WPARAM wParam,
-                                LPARAM lParam)
+                       LPARAM lParam)
 {
-    NMHDR FAR   *lpnm;
+    NMHDR FAR* lpnm;
     PAUDIODLGINFO pai;
 
-    switch (uMsg)
+    switch (uMsg) {
+    case WM_NOTIFY:
     {
-        case WM_NOTIFY:
-        {
-            lpnm = (NMHDR FAR *)lParam;
-            switch(lpnm->code)
-            {
-                case PSN_KILLACTIVE:
-                    FORWARD_WM_COMMAND(hDlg, IDOK, 0, 0, SendMessage);
-                break;
+        lpnm = (NMHDR FAR*)lParam;
+        switch (lpnm->code) {
+        case PSN_KILLACTIVE:
+            FORWARD_WM_COMMAND(hDlg, IDOK, 0, 0, SendMessage);
+            break;
 
-                case PSN_APPLY:
-                    FORWARD_WM_COMMAND(hDlg, ID_APPLY, 0, 0, SendMessage);
-                break;
+        case PSN_APPLY:
+            FORWARD_WM_COMMAND(hDlg, ID_APPLY, 0, 0, SendMessage);
+            break;
 
-                case PSN_SETACTIVE:
-                    FORWARD_WM_COMMAND(hDlg, ID_INIT, 0, 0, SendMessage);
-                break;
+        case PSN_SETACTIVE:
+            FORWARD_WM_COMMAND(hDlg, ID_INIT, 0, 0, SendMessage);
+            break;
 
-                case PSN_RESET:
-                    FORWARD_WM_COMMAND(hDlg, IDCANCEL, 0, 0, SendMessage);
-                break;
+        case PSN_RESET:
+            FORWARD_WM_COMMAND(hDlg, IDCANCEL, 0, 0, SendMessage);
+            break;
+        }
+    }
+    break;
+
+    case WM_INITDIALOG:
+    {
+        ghDlg = hDlg;
+
+        InitDeviceChange(hDlg);
+
+        if (!gfLoadedACM) {
+            if (LoadACM()) {
+                gfLoadedACM = TRUE;
+            } else {
+                DPF("****Load ACM failed**\r\n");
+                ASSERT(FALSE);
+                ErrorBox(hDlg, IDS_CANTLOADACM, NULL);
+                ExitThread(0);
             }
         }
-        break;
 
-        case WM_INITDIALOG:
-        {
-            ghDlg = hDlg;
+        AudioDlgInit(hDlg);
+    }
+    break;
 
-            InitDeviceChange(hDlg);
+    case WM_DESTROY:
+    {
+        UninitDeviceChange(hDlg);
 
-            if (!gfLoadedACM)
-            {
-                if (LoadACM())
-                {
-                    gfLoadedACM = TRUE;
-                }
-                else
-                {
-                    DPF("****Load ACM failed**\r\n");
-                    ASSERT(FALSE);
-                    ErrorBox(hDlg, IDS_CANTLOADACM, NULL);
-                    ExitThread(0);
-                }
+        pai = (PAUDIODLGINFO)GetWindowLongPtr(hDlg, DWLP_USER);
+
+        LocalFree((HLOCAL)pai);
+
+        if (gfLoadedACM) {
+            if (!FreeACM()) {
+                DPF("****Free ACM failed**\r\n");
+                ASSERT(FALSE);
             }
 
-            AudioDlgInit(hDlg);
+            gfLoadedACM = FALSE;
         }
-        break;
+    }
+    break;
 
-        case WM_DESTROY:
-        {
-            UninitDeviceChange(hDlg);
+    case WM_CONTEXTMENU:
+    {
+        WinHelp((HWND)wParam, NULL, HELP_CONTEXTMENU, (UINT_PTR)(LPTSTR)aAudioHelpIds);
+        return TRUE;
+    }
+    break;
 
-            pai = (PAUDIODLGINFO)GetWindowLongPtr(hDlg, DWLP_USER);
+    case WM_HELP:
+    {
+        LPHELPINFO lphi = (LPVOID)lParam;
+        WinHelp(lphi->hItemHandle, NULL, HELP_WM_HELP, (UINT_PTR)(LPTSTR)aAudioHelpIds);
+        return TRUE;
+    }
+    break;
 
-            LocalFree((HLOCAL)pai);
+    case WM_COMMAND:
+    {
+        HANDLE_WM_COMMAND(hDlg, wParam, lParam, DoAudioCommand);
+    }
+    break;
 
-            if (gfLoadedACM)
-            {
-                if (!FreeACM())
-                {
-                    DPF("****Free ACM failed**\r\n");
-                    ASSERT(FALSE);
-                }
+    default:
+    {
 
-                gfLoadedACM = FALSE;
-            }
+        //  Handle context-sensitive help messages from Customize dlg.
+
+        if (uMsg == guCustomizeContextMenu) {
+            WinHelp((HWND)wParam, NULL, HELP_CONTEXTMENU, (UINT_PTR)(LPTSTR)aCustomizeHelpIds);
+        } else if (uMsg == guCustomizeContextHelp) {
+            WinHelp(((LPHELPINFO)lParam)->hItemHandle, NULL, HELP_WM_HELP, (UINT_PTR)(LPTSTR)aCustomizeHelpIds);
         }
-        break;
-
-        case WM_CONTEXTMENU:
-        {
-            WinHelp ((HWND) wParam, NULL, HELP_CONTEXTMENU, (UINT_PTR) (LPTSTR) aAudioHelpIds);
-            return TRUE;
-        }
-        break;
-
-        case WM_HELP:
-        {
-            LPHELPINFO lphi = (LPVOID) lParam;
-            WinHelp (lphi->hItemHandle, NULL, HELP_WM_HELP, (UINT_PTR) (LPTSTR) aAudioHelpIds);
-            return TRUE;
-        }
-        break;
-
-        case WM_COMMAND:
-        {
-            HANDLE_WM_COMMAND(hDlg, wParam, lParam, DoAudioCommand);
-        }
-        break;
-
-        default:
-        {
-
-            //  Handle context-sensitive help messages from Customize dlg.
-
-            if( uMsg == guCustomizeContextMenu )
-            {
-                WinHelp( (HWND)wParam, NULL, HELP_CONTEXTMENU, (UINT_PTR)(LPTSTR)aCustomizeHelpIds );
-            }
-            else if( uMsg == guCustomizeContextHelp )
-            {
-                WinHelp( ((LPHELPINFO)lParam)->hItemHandle, NULL, HELP_WM_HELP, (UINT_PTR)(LPTSTR)aCustomizeHelpIds);
-            }
-        }
-        break;
+    }
+    break;
     }
     return FALSE;
 }
@@ -1432,21 +1347,20 @@ void ErrorMsgBox(HWND hDlg, UINT uTitle, UINT uMessage)
     TCHAR szMsg[MAXSTR];
     TCHAR szTitle[MAXSTR];
 
-    LoadString(ghInstance, IDS_ERROR_TITLE, szTitle, sizeof(szTitle)/sizeof(TCHAR));
-    LoadString(ghInstance, IDS_ERROR_NOSNDVOL, szMsg, sizeof(szMsg)/sizeof(TCHAR));
-    MessageBox(hDlg, szMsg,szTitle,MB_OK);
+    LoadString(ghInstance, IDS_ERROR_TITLE, szTitle, sizeof(szTitle) / sizeof(TCHAR));
+    LoadString(ghInstance, IDS_ERROR_NOSNDVOL, szMsg, sizeof(szMsg) / sizeof(TCHAR));
+    MessageBox(hDlg, szMsg, szTitle, MB_OK);
 }
 
 
 void LaunchPlaybackVolume(HWND hDlg)
 {
-    HWND    hwndCBPlay  = GetDlgItem(hDlg, IDC_AUDIO_CB_PLAY);
+    HWND    hwndCBPlay = GetDlgItem(hDlg, IDC_AUDIO_CB_PLAY);
     UINT    item;
 
     item = (UINT)ComboBox_GetCurSel(hwndCBPlay);
 
-    if (item != CB_ERR)
-    {
+    if (item != CB_ERR) {
         TCHAR szCmd[MAXSTR];
         UINT uDeviceID;
         MMRESULT mmr;
@@ -1462,18 +1376,14 @@ void LaunchPlaybackVolume(HWND hDlg)
         uDeviceID = (UINT)ComboBox_GetItemData(hwndCBPlay, item);
         mmr = mixerGetID((HMIXEROBJ)uDeviceID, &uDeviceID, MIXER_OBJECTF_WAVEOUT);
 
-        if (mmr == MMSYSERR_NOERROR)
-        {
-            wsprintf(szCmd,TEXT("sndvol32.exe -D %d"),uDeviceID);
+        if (mmr == MMSYSERR_NOERROR) {
+            wsprintf(szCmd, TEXT("sndvol32.exe -D %d"), uDeviceID);
 
-            if (!CreateProcess(NULL,szCmd,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi))
-            {
-                ErrorMsgBox(hDlg,IDS_ERROR_TITLE,IDS_ERROR_NOSNDVOL);
+            if (!CreateProcess(NULL, szCmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+                ErrorMsgBox(hDlg, IDS_ERROR_TITLE, IDS_ERROR_NOSNDVOL);
             }
-        }
-        else
-        {
-            ErrorMsgBox(hDlg,IDS_ERROR_TITLE,IDS_ERROR_NOMIXER);
+        } else {
+            ErrorMsgBox(hDlg, IDS_ERROR_TITLE, IDS_ERROR_NOMIXER);
         }
     }
 }
@@ -1481,13 +1391,12 @@ void LaunchPlaybackVolume(HWND hDlg)
 
 void LaunchRecordVolume(HWND hDlg)
 {
-    HWND    hwndCBRec  = GetDlgItem(hDlg, IDC_AUDIO_CB_REC);
+    HWND    hwndCBRec = GetDlgItem(hDlg, IDC_AUDIO_CB_REC);
     UINT    item;
 
     item = (UINT)ComboBox_GetCurSel(hwndCBRec);
 
-    if (item != CB_ERR)
-    {
+    if (item != CB_ERR) {
         TCHAR szCmd[MAXSTR];
         UINT uDeviceID;
         MMRESULT mmr;
@@ -1503,31 +1412,26 @@ void LaunchRecordVolume(HWND hDlg)
 
         mmr = mixerGetID((HMIXEROBJ)uDeviceID, &uDeviceID, MIXER_OBJECTF_WAVEIN);
 
-        if (mmr == MMSYSERR_NOERROR)
-        {
-            wsprintf(szCmd,TEXT("sndvol32.exe -R -D %d"),uDeviceID);
+        if (mmr == MMSYSERR_NOERROR) {
+            wsprintf(szCmd, TEXT("sndvol32.exe -R -D %d"), uDeviceID);
 
-            if (!CreateProcess(NULL,szCmd,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi))
-            {
-                ErrorMsgBox(hDlg,IDS_ERROR_TITLE,IDS_ERROR_NOSNDVOL);
+            if (!CreateProcess(NULL, szCmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+                ErrorMsgBox(hDlg, IDS_ERROR_TITLE, IDS_ERROR_NOSNDVOL);
             }
-        }
-        else
-        {
-            ErrorMsgBox(hDlg,IDS_ERROR_TITLE,IDS_ERROR_NOMIXER);
+        } else {
+            ErrorMsgBox(hDlg, IDS_ERROR_TITLE, IDS_ERROR_NOMIXER);
         }
     }
 }
 
 void LaunchMIDIVolume(HWND hDlg)
 {
-    HWND    hwndCBMIDI  = GetDlgItem(hDlg, IDC_MUSIC_CB_PLAY);
+    HWND    hwndCBMIDI = GetDlgItem(hDlg, IDC_MUSIC_CB_PLAY);
     UINT    item;
 
     item = (UINT)ComboBox_GetCurSel(hwndCBMIDI);
 
-    if (item != CB_ERR)
-    {
+    if (item != CB_ERR) {
         TCHAR szCmd[MAXSTR];
         UINT uDeviceID;
         MMRESULT mmr;
@@ -1543,18 +1447,14 @@ void LaunchMIDIVolume(HWND hDlg)
 
         mmr = mixerGetID((HMIXEROBJ)uDeviceID, &uDeviceID, MIXER_OBJECTF_MIDIOUT);
 
-        if (mmr == MMSYSERR_NOERROR)
-        {
-            wsprintf(szCmd,TEXT("sndvol32.exe -D %d"),uDeviceID);
+        if (mmr == MMSYSERR_NOERROR) {
+            wsprintf(szCmd, TEXT("sndvol32.exe -D %d"), uDeviceID);
 
-            if (!CreateProcess(NULL,szCmd,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi))
-            {
-                ErrorMsgBox(hDlg,IDS_ERROR_TITLE,IDS_ERROR_NOSNDVOL);
+            if (!CreateProcess(NULL, szCmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+                ErrorMsgBox(hDlg, IDS_ERROR_TITLE, IDS_ERROR_NOSNDVOL);
             }
-        }
-        else
-        {
-            ErrorMsgBox(hDlg,IDS_ERROR_TITLE,IDS_ERROR_NOMIXER);
+        } else {
+            ErrorMsgBox(hDlg, IDS_ERROR_TITLE, IDS_ERROR_NOMIXER);
         }
     }
 }
@@ -1563,124 +1463,112 @@ BOOL PASCAL DoAudioCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 {
     PAUDIODLGINFO pai = (PAUDIODLGINFO)GetWindowLongPtr(hDlg, DWLP_USER);
 
-    if (!gfLoadedACM)
-    {
+    if (!gfLoadedACM) {
         return FALSE;
     }
 
-    switch (id)
+    switch (id) {
+    case ID_APPLY:
     {
-        case ID_APPLY:
+        SetPrefInfo(pai, hDlg);
+    }
+    break;
+
+    case IDC_AUDIO_CB_PLAY:
+    case IDC_AUDIO_CB_REC:
+    case IDC_MUSIC_CB_PLAY:
+    {
+        switch (codeNotify) {
+        case CBN_SELCHANGE:
         {
-            SetPrefInfo(pai, hDlg);
-        }
-        break;
+            PropSheet_Changed(GetParent(hDlg), hDlg);
 
-        case IDC_AUDIO_CB_PLAY:
-        case IDC_AUDIO_CB_REC:
-        case IDC_MUSIC_CB_PLAY:
-        {
-            switch (codeNotify)
-            {
-                case CBN_SELCHANGE:
-                {
-                    PropSheet_Changed(GetParent(hDlg),hDlg);
+            if ((id == IDC_AUDIO_CB_PLAY) || (id == IDC_AUDIO_CB_REC) || id == IDC_MUSIC_CB_PLAY) {
+                int iIndex;
+                AUDIODLGINFO aiTmp;
+                PAUDIODLGINFO paiTmp = &aiTmp;
 
-                    if ((id ==  IDC_AUDIO_CB_PLAY) || (id ==  IDC_AUDIO_CB_REC) || id == IDC_MUSIC_CB_PLAY)
-                    {
-                        int iIndex;
-                        AUDIODLGINFO aiTmp;
-                        PAUDIODLGINFO paiTmp = &aiTmp;
+                iIndex = ComboBox_GetCurSel(hwndCtl);
 
-                        iIndex = ComboBox_GetCurSel(hwndCtl);
-
-                        if (iIndex != CB_ERR)
-                        {
-                            if (id == IDC_AUDIO_CB_PLAY)
-                            {
-                                paiTmp->uPrefOut = (UINT)ComboBox_GetItemData(hwndCtl, iIndex);
-                                SetDeviceOut(paiTmp, paiTmp->uPrefOut, hDlg);
-                            }
-                            else if (id == IDC_AUDIO_CB_REC)
-                            {
-                                paiTmp->uPrefIn = (UINT)ComboBox_GetItemData(hwndCtl, iIndex);
-                                SetDeviceIn(paiTmp, paiTmp->uPrefIn, hDlg);
-                            }
-                            else if (id == IDC_MUSIC_CB_PLAY)
-                            {
-                                paiTmp->uPrefMIDIOut = (UINT)ComboBox_GetItemData(hwndCtl, iIndex);
-                                SetMIDIDeviceOut(paiTmp, paiTmp->uPrefMIDIOut, hDlg);
-                            }
-                        }
+                if (iIndex != CB_ERR) {
+                    if (id == IDC_AUDIO_CB_PLAY) {
+                        paiTmp->uPrefOut = (UINT)ComboBox_GetItemData(hwndCtl, iIndex);
+                        SetDeviceOut(paiTmp, paiTmp->uPrefOut, hDlg);
+                    } else if (id == IDC_AUDIO_CB_REC) {
+                        paiTmp->uPrefIn = (UINT)ComboBox_GetItemData(hwndCtl, iIndex);
+                        SetDeviceIn(paiTmp, paiTmp->uPrefIn, hDlg);
+                    } else if (id == IDC_MUSIC_CB_PLAY) {
+                        paiTmp->uPrefMIDIOut = (UINT)ComboBox_GetItemData(hwndCtl, iIndex);
+                        SetMIDIDeviceOut(paiTmp, paiTmp->uPrefMIDIOut, hDlg);
                     }
                 }
-                break;
             }
         }
         break;
-
-
-        case IDC_AUDIO_PREF:
-        {
-            PropSheet_Changed(GetParent(hDlg),hDlg);
         }
-        break;
+    }
+    break;
 
-        case IDC_MUSIC_ABOUT:
-        {
-            DoRolandAbout(hDlg);
+
+    case IDC_AUDIO_PREF:
+    {
+        PropSheet_Changed(GetParent(hDlg), hDlg);
+    }
+    break;
+
+    case IDC_MUSIC_ABOUT:
+    {
+        DoRolandAbout(hDlg);
+    }
+    break;
+
+    case IDC_LAUNCH_SNDVOL:
+    {
+        LaunchPlaybackVolume(hDlg);
+    }
+    break;
+
+    case IDC_LAUNCH_RECVOL:
+    {
+        LaunchRecordVolume(hDlg);
+    }
+    break;
+
+    case IDC_LAUNCH_MUSICVOL:
+    {
+        LaunchMIDIVolume(hDlg);
+    }
+    break;
+
+    case IDC_PLAYBACK_ADVSETUP:
+    {
+        HWND    hwndCBPlay = GetDlgItem(hDlg, IDC_AUDIO_CB_PLAY);
+        UINT    u;
+        TCHAR    szPrefOut[MAXSTR];
+
+        u = (UINT)ComboBox_GetCurSel(hwndCBPlay);
+
+        if (u != CB_ERR) {
+            ComboBox_GetLBText(hwndCBPlay, u, (LPARAM)(LPVOID)szPrefOut);
+            AdvancedAudio(hDlg, ghInstance, gszWindowsHlp, szPrefOut, FALSE);
         }
-        break;
+    }
+    break;
 
-        case IDC_LAUNCH_SNDVOL:
-        {
-            LaunchPlaybackVolume(hDlg);
+    case IDC_RECORD_ADVSETUP:
+    {
+        HWND    hwndCBRec = GetDlgItem(hDlg, IDC_AUDIO_CB_REC);
+        UINT    u;
+        TCHAR   szPrefIn[MAXSTR];
+
+        u = (UINT)ComboBox_GetCurSel(hwndCBRec);
+
+        if (u != CB_ERR) {
+            ComboBox_GetLBText(hwndCBRec, u, (LPARAM)(LPVOID)szPrefIn);
+            AdvancedAudio(hDlg, ghInstance, gszWindowsHlp, szPrefIn, TRUE);
         }
-        break;
-
-        case IDC_LAUNCH_RECVOL:
-        {
-            LaunchRecordVolume(hDlg);
-        }
-        break;
-
-        case IDC_LAUNCH_MUSICVOL:
-        {
-            LaunchMIDIVolume(hDlg);
-        }
-        break;
-
-        case IDC_PLAYBACK_ADVSETUP:
-        {
-            HWND    hwndCBPlay  = GetDlgItem(hDlg, IDC_AUDIO_CB_PLAY);
-            UINT    u;
-            TCHAR    szPrefOut[MAXSTR];
-
-            u = (UINT)ComboBox_GetCurSel(hwndCBPlay);
-
-            if (u != CB_ERR)
-            {
-                ComboBox_GetLBText(hwndCBPlay, u, (LPARAM)(LPVOID)szPrefOut);
-                AdvancedAudio(hDlg,  ghInstance, gszWindowsHlp, szPrefOut, FALSE);
-            }
-        }
-        break;
-
-        case IDC_RECORD_ADVSETUP:
-        {
-            HWND    hwndCBRec  = GetDlgItem(hDlg, IDC_AUDIO_CB_REC);
-            UINT    u;
-            TCHAR   szPrefIn[MAXSTR];
-
-            u = (UINT)ComboBox_GetCurSel(hwndCBRec);
-
-            if (u != CB_ERR)
-            {
-                ComboBox_GetLBText(hwndCBRec, u, (LPARAM)(LPVOID)szPrefIn);
-                AdvancedAudio(hDlg,  ghInstance, gszWindowsHlp, szPrefIn, TRUE);
-            }
-        }
-        break;
+    }
+    break;
     }
 
     return FALSE;
@@ -1697,10 +1585,9 @@ BOOL PASCAL CustomizeDialog(HWND hDlg, LPTSTR szNewFormat, DWORD cbSize)
     PWAVEFORMATEX       spWaveFormat;
     TCHAR               szCustomize[64];
 
-    lr = acmMetrics(NULL, ACM_METRIC_MAX_SIZE_FORMAT,(LPVOID)&dwMaxFormatSize);
+    lr = acmMetrics(NULL, ACM_METRIC_MAX_SIZE_FORMAT, (LPVOID)&dwMaxFormatSize);
 
-    if (lr != 0)
-    {
+    if (lr != 0) {
         goto CustomizeOut;
     }
 
@@ -1709,28 +1596,26 @@ BOOL PASCAL CustomizeDialog(HWND hDlg, LPTSTR szNewFormat, DWORD cbSize)
 
     _fmemset(&cwf, 0, sizeof(cwf));
 
-     LoadString(ghInstance, IDS_CUSTOMIZE, szCustomize, sizeof(szCustomize)/sizeof(TCHAR));
-    cwf.cbStruct    = sizeof(cwf);
-    cwf.hwndOwner   = hDlg;
-    cwf.fdwStyle    = ACMFORMATCHOOSE_STYLEF_CONTEXTHELP;
-    cwf.fdwEnum     = ACM_FORMATENUMF_INPUT;
-    cwf.pszTitle    = (LPTSTR)szCustomize;
-    cwf.pwfx        = (LPWAVEFORMATEX)spWaveFormat;
-    cwf.cbwfx       = dwMaxFormatSize;
+    LoadString(ghInstance, IDS_CUSTOMIZE, szCustomize, sizeof(szCustomize) / sizeof(TCHAR));
+    cwf.cbStruct = sizeof(cwf);
+    cwf.hwndOwner = hDlg;
+    cwf.fdwStyle = ACMFORMATCHOOSE_STYLEF_CONTEXTHELP;
+    cwf.fdwEnum = ACM_FORMATENUMF_INPUT;
+    cwf.pszTitle = (LPTSTR)szCustomize;
+    cwf.pwfx = (LPWAVEFORMATEX)spWaveFormat;
+    cwf.cbwfx = dwMaxFormatSize;
 
-    cwf.pszName =     szNewFormat;
+    cwf.pszName = szNewFormat;
     cwf.cchName = cbSize;
 
     lr = acmFormatChooseW(&cwf);
-    if (lr == MMSYSERR_NOERROR)
-    {
+    if (lr == MMSYSERR_NOERROR) {
         fRet = TRUE;
     }
 #ifdef DEBUG
-    else
-    {
+    else {
         TCHAR a[200];
-        wsprintf(a,TEXT("MSACMCPL: acmFormatChoose failed (lr=%u).\n"),lr);
+        wsprintf(a, TEXT("MSACMCPL: acmFormatChoose failed (lr=%u).\n"), lr);
         OutputDebugString(a);
     }
 #endif
@@ -1742,29 +1627,28 @@ CustomizeOut:
 
 
 
-void acmFreeCodecInfo (PCPLCODECINFO pcci)
+void acmFreeCodecInfo(PCPLCODECINFO pcci)
 {
-    if (pcci->fMadeIcon && pcci->hIcon)
-    {
-        DestroyIcon (pcci->hIcon);
+    if (pcci->fMadeIcon && pcci->hIcon) {
+        DestroyIcon(pcci->hIcon);
         pcci->hIcon = NULL;
         pcci->fMadeIcon = FALSE;
     }
 
-   LocalFree ((HANDLE)pcci);
+    LocalFree((HANDLE)pcci);
 }
 
 
 typedef struct // FindCodecData
-    {
+{
     BOOL              fFound;
     ACMDRIVERDETAILSW add;
     WORD              wMid, wPid;
     HACMDRIVERID      hadid;
     DWORD             fdwSupport;
-    } FindCodecData;
+} FindCodecData;
 
-PCPLCODECINFO acmFindCodecInfo (WORD wMidMatch, WORD wPidMatch)
+PCPLCODECINFO acmFindCodecInfo(WORD wMidMatch, WORD wPidMatch)
 {
     MMRESULT      mmr;
     FindCodecData fcd;
@@ -1773,88 +1657,81 @@ PCPLCODECINFO acmFindCodecInfo (WORD wMidMatch, WORD wPidMatch)
     fcd.fFound = FALSE;
     fcd.wMid = wMidMatch;
     fcd.wPid = wPidMatch;
-//  fcd.add is filled in by acmFindCodecCallback during the following enum:
+    //  fcd.add is filled in by acmFindCodecCallback during the following enum:
 
-    mmr = (MMRESULT)acmDriverEnum (acmFindCodecInfoCallback,
-             (DWORD_PTR)&fcd,   // (data passed as arg2 to callback)
-             ACM_DRIVERENUMF_NOLOCAL |
-             ACM_DRIVERENUMF_DISABLED);
+    mmr = (MMRESULT)acmDriverEnum(acmFindCodecInfoCallback,
+        (DWORD_PTR)&fcd,   // (data passed as arg2 to callback)
+                                  ACM_DRIVERENUMF_NOLOCAL |
+                                  ACM_DRIVERENUMF_DISABLED);
 
-    if (MMSYSERR_NOERROR != mmr)
-    {
+    if (MMSYSERR_NOERROR != mmr) {
         return NULL;
     }
 
-    if (!fcd.fFound)
-    {
+    if (!fcd.fFound) {
         return NULL;
     }
 
-     // Congratulations--we found a matching ACM driver.  Now
-     // we need to create a CPLCODECINFO structure to describe it,
-     // so the rest of the code in this file will work without
-     // mods.  <<sigh>>  A CPLCODECINFO structure doesn't have
-     // anything special--it's just a place to track info about
-     // an ACM driver.  The most important thing is the HACMDRIVERID.
+    // Congratulations--we found a matching ACM driver.  Now
+    // we need to create a CPLCODECINFO structure to describe it,
+    // so the rest of the code in this file will work without
+    // mods.  <<sigh>>  A CPLCODECINFO structure doesn't have
+    // anything special--it's just a place to track info about
+    // an ACM driver.  The most important thing is the HACMDRIVERID.
 
-    if ((pcci = (PCPLCODECINFO)LocalAlloc(LPTR, sizeof(CPLCODECINFO))) == NULL)
-    {
+    if ((pcci = (PCPLCODECINFO)LocalAlloc(LPTR, sizeof(CPLCODECINFO))) == NULL) {
         return NULL;
     }
 
-    lstrcpy (pcci->szDesc, fcd.add.szLongName);
+    lstrcpy(pcci->szDesc, fcd.add.szLongName);
     pcci->ads.hadid = fcd.hadid;
     pcci->ads.fdwSupport = fcd.fdwSupport;
 
     pcci->fMadeIcon = FALSE;
 
-    if ((pcci->hIcon = fcd.add.hicon) == NULL)
-    {
-       int cxIcon, cyIcon;
-       cxIcon = (int)GetSystemMetrics (SM_CXICON);
-       cyIcon = (int)GetSystemMetrics (SM_CYICON);
-       pcci->hIcon = LoadImage (myInstance,
-                MAKEINTRESOURCE( IDI_ACM ),
-                IMAGE_ICON, cxIcon, cyIcon, LR_DEFAULTCOLOR);
-       pcci->fMadeIcon = TRUE;
+    if ((pcci->hIcon = fcd.add.hicon) == NULL) {
+        int cxIcon, cyIcon;
+        cxIcon = (int)GetSystemMetrics(SM_CXICON);
+        cyIcon = (int)GetSystemMetrics(SM_CYICON);
+        pcci->hIcon = LoadImage(myInstance,
+                                MAKEINTRESOURCE(IDI_ACM),
+                                IMAGE_ICON, cxIcon, cyIcon, LR_DEFAULTCOLOR);
+        pcci->fMadeIcon = TRUE;
     }
 
-    acmMetrics ((HACMOBJ)pcci->ads.hadid,
-        ACM_METRIC_DRIVER_PRIORITY,
-        &(pcci->ads.dwPriority));
+    acmMetrics((HACMOBJ)pcci->ads.hadid,
+               ACM_METRIC_DRIVER_PRIORITY,
+               &(pcci->ads.dwPriority));
 
     return pcci;
 }
 
 
 
-BOOL CALLBACK acmFindCodecInfoCallback (HACMDRIVERID hadid,
-                    DWORD dwUser,
-                    DWORD fdwSupport)
+BOOL CALLBACK acmFindCodecInfoCallback(HACMDRIVERID hadid,
+                                       DWORD dwUser,
+                                       DWORD fdwSupport)
 {
-    FindCodecData *pfcd;
+    FindCodecData* pfcd;
 
-        // dwUser is really a pointer to a FindCodecData
-        // structure, supplied by the guy who called acmDriverEnum.
+    // dwUser is really a pointer to a FindCodecData
+    // structure, supplied by the guy who called acmDriverEnum.
 
-    if ((pfcd = (FindCodecData *)dwUser) == NULL)
-    {
+    if ((pfcd = (FindCodecData*)dwUser) == NULL) {
         return FALSE;
     }
 
-        // No details?  Try the next driver.
+    // No details?  Try the next driver.
 
     pfcd->add.cbStruct = sizeof(pfcd->add);
-    if (acmDriverDetailsW (hadid, &pfcd->add, 0L) != MMSYSERR_NOERROR)
-    {
+    if (acmDriverDetailsW(hadid, &pfcd->add, 0L) != MMSYSERR_NOERROR) {
         return TRUE;
     }
 
-        // Great.  Now see if the driver we found matches
-        // pfcd->wMid/wPad; if so we're done, else keep searching.
+    // Great.  Now see if the driver we found matches
+    // pfcd->wMid/wPad; if so we're done, else keep searching.
 
-    if ((pfcd->wMid == pfcd->add.wMid) && (pfcd->wPid == pfcd->add.wPid) )
-    {
+    if ((pfcd->wMid == pfcd->add.wMid) && (pfcd->wPid == pfcd->add.wPid)) {
         pfcd->hadid = hadid;
         pfcd->fFound = TRUE;
         pfcd->fdwSupport = fdwSupport;
@@ -1865,18 +1742,17 @@ BOOL CALLBACK acmFindCodecInfoCallback (HACMDRIVERID hadid,
 }
 
 
-UINT acmCountCodecs (void)
+UINT acmCountCodecs(void)
 {
     MMRESULT      mmr;
     UINT          nCodecs = 0;
 
-    mmr = (MMRESULT)acmDriverEnum (acmCountCodecsEnum,
-             (DWORD_PTR)&nCodecs,
-             ACM_DRIVERENUMF_NOLOCAL |
-             ACM_DRIVERENUMF_DISABLED);
+    mmr = (MMRESULT)acmDriverEnum(acmCountCodecsEnum,
+        (DWORD_PTR)&nCodecs,
+                                  ACM_DRIVERENUMF_NOLOCAL |
+                                  ACM_DRIVERENUMF_DISABLED);
 
-    if (MMSYSERR_NOERROR != mmr)
-    {
+    if (MMSYSERR_NOERROR != mmr) {
         return 0;
     }
 
@@ -1885,21 +1761,20 @@ UINT acmCountCodecs (void)
 
 
 
-BOOL CALLBACK acmCountCodecsEnum (HACMDRIVERID hadid,
-                  DWORD dwUser,
-                  DWORD fdwSupport)
+BOOL CALLBACK acmCountCodecsEnum(HACMDRIVERID hadid,
+                                 DWORD dwUser,
+                                 DWORD fdwSupport)
 {
-    UINT *pnCodecs;
+    UINT* pnCodecs;
 
-        // dwUser is really a pointer to a UINT being used to
-        // count the number of codecs we encounter.
+    // dwUser is really a pointer to a UINT being used to
+    // count the number of codecs we encounter.
 
-    if ((pnCodecs = (UINT *)dwUser) == NULL)
-    {
+    if ((pnCodecs = (UINT*)dwUser) == NULL) {
         return FALSE;
     }
 
-    ++ (*pnCodecs);
+    ++(*pnCodecs);
 
     return TRUE; // keep counting
 }

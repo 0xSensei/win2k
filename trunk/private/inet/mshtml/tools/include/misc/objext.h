@@ -55,7 +55,7 @@ DECLARE_INTERFACE_(IClassDesigner, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
@@ -63,14 +63,14 @@ DECLARE_INTERFACE_(IClassDesigner, IUnknown)
     STDMETHOD(SetSite)(THIS_
                        /* [in]  */ IServiceProvider * pSP) PURE;
     STDMETHOD(GetSite)(THIS_
-                       /* [out] */ IServiceProvider** ppSP) PURE;
+                       /* [out] */ IServiceProvider * *ppSP) PURE;
     STDMETHOD(GetCompiler)(THIS_
                            /* [in]  */ REFIID iid,
-                           /* [out] */ void **ppvObj) PURE;
+                           /* [out] */ void** ppvObj) PURE;
     STDMETHOD(ActivateObject)(THIS_ DWORD dwFlags) PURE;
     STDMETHOD(IsObjectShowable)(THIS) PURE;
     STDMETHOD(GetExtensibilityObject)(THIS_
-                                      /* [out] */ IDispatch ** ppDisp) PURE;
+                                      /* [out] */ IDispatch * *ppDisp) PURE;
 };
 
 
@@ -88,15 +88,15 @@ DECLARE_INTERFACE_(IProvideUnmergedClassInfo, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
     // *** IProvideUnmergedClassInfo methods ***
     STDMETHOD(GetClassInfos)(THIS_
-                             /* [out] */ ITypeInfo **pptinfoBase,
-                             /* [out] */ ITypeInfo **pptinfoExtender,
-                             /* [out] */ DWORD *pdwCookie) PURE;
+                             /* [out] */ ITypeInfo * *pptinfoBase,
+                             /* [out] */ ITypeInfo * *pptinfoExtender,
+                             /* [out] */ DWORD * pdwCookie) PURE;
 };
 
 //UNDONE UNDONE: rip this
@@ -109,14 +109,14 @@ DECLARE_INTERFACE_(IProvideUnmergedClassInfoOLD, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
     // *** IProvideUnmergedClassInfo methods ***
     STDMETHOD(GetClassInfos)(THIS_
-                             /* [out] */ ITypeInfo **pptinfoBase,
-                             /* [out] */ ITypeInfo **pptinfoExtender) PURE;
+                             /* [out] */ ITypeInfo * *pptinfoBase,
+                             /* [out] */ ITypeInfo * *pptinfoExtender) PURE;
 };
 
 
@@ -135,15 +135,15 @@ DECLARE_INTERFACE_(IUnmergedClassFactory, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
     // *** IUnmergedClassFactory methods ***
     STDMETHOD(CreateInstance)(THIS_
-                              /* [in]  */ IUnknown *punkOuter,
-                              /* [out] */ IUnknown **ppunkBase,
-                              /* [out] */ IUnknown **ppunkExtender) PURE;
+                              /* [in]  */ IUnknown * punkOuter,
+                              /* [out] */ IUnknown * *ppunkBase,
+                              /* [out] */ IUnknown * *ppunkExtender) PURE;
 };
 
 
@@ -169,7 +169,7 @@ DECLARE_INTERFACE_(IRequireClasses, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
@@ -191,13 +191,13 @@ DECLARE_INTERFACE_(ILicensedClassManager, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
     // *** ILicensedClassManager methods ***
     STDMETHOD(OnChangeInRequiredClasses)(THIS_
-                                         /* [in] */ IRequireClasses *pRequireClasses) PURE;
+                                         /* [in] */ IRequireClasses * pRequireClasses) PURE;
 };
 
 
@@ -219,25 +219,25 @@ DECLARE_INTERFACE_(IFilterMembers, IUnknown)
 {
     BEGIN_INTERFACE
         // IUnknown methods
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, void FAR* FAR* ppv) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, void FAR * FAR * ppv) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
     // IVbaProvideStorage methods
     STDMETHOD(FilterVarDesc)(THIS_ DWORD dwFlags,
-                             ITypeInfo *ptinfo,
+                             ITypeInfo * ptinfo,
                              UINT index,
-                             VARDESC *pvardesc,
+                             VARDESC * pvardesc,
                              DWORD dwReserved) PURE;
     STDMETHOD(FilterFuncDesc)(THIS_ DWORD dwFlags,
-                              ITypeInfo *ptinfo,
+                              ITypeInfo * ptinfo,
                               UINT index,
-                              FUNCDESC *pfuncdesc,
+                              FUNCDESC * pfuncdesc,
                               DWORD dwReserved) PURE;
     STDMETHOD(BeginMerge)(THIS_ DWORD dwFlags,
-                          ITypeInfo *ptinfo) PURE;
+                          ITypeInfo * ptinfo) PURE;
     STDMETHOD(EndMerge)(THIS) PURE;
-    STDMETHOD(UpdateMergedCoClass)(THIS_ ICreateTypeInfo *pictinfo) PURE;
+    STDMETHOD(UpdateMergedCoClass)(THIS_ ICreateTypeInfo * pictinfo) PURE;
 };
 
 
@@ -258,7 +258,7 @@ DECLARE_INTERFACE_(IExtendedTypeLib, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
@@ -266,32 +266,32 @@ DECLARE_INTERFACE_(IExtendedTypeLib, IUnknown)
     STDMETHOD(CreateExtendedTypeLib)(THIS_
                                      /* [in]  */ LPCOLESTR lpstrCtrlLibFileName,
                                      /* [in]  */ LPCOLESTR lpstrLibNamePrepend,
-                                     /* [in]  */ ITypeInfo *ptinfoExtender,
-                                     /* [in]  */ IFilterMembers *pfilter,
+                                     /* [in]  */ ITypeInfo * ptinfoExtender,
+                                     /* [in]  */ IFilterMembers * pfilter,
                                      /* [in]  */ DWORD     dwFlags,
                                      /* [in]  */ LPCOLESTR lpstrDirectoryName,
-                                     /* [out] */ ITypeLib  **pptlib) PURE;
+                                     /* [out] */ ITypeLib * *pptlib) PURE;
 
     STDMETHOD(AddRefExtendedTypeLib)(THIS_
                                      /* [in]  */ LPCOLESTR lpstrCtrlLibFileName,
                                      /* [in]  */ LPCOLESTR lpstrLibNamePrepend,
-                                     /* [in]  */ ITypeInfo *ptinfoExtender,
-                                     /* [in]  */ IFilterMembers *pfilter,
+                                     /* [in]  */ ITypeInfo * ptinfoExtender,
+                                     /* [in]  */ IFilterMembers * pfilter,
                                      /* [in]  */ DWORD     dwFlags,
                                      /* [in]  */ LPCOLESTR lpstrDirectoryName,
-                                     /* [out] */ ITypeLib  **pptlib) PURE;
+                                     /* [out] */ ITypeLib * *pptlib) PURE;
     STDMETHOD(AddRefExtendedTypeLibOfClsid)(THIS_
                                             /* [in]  */ REFCLSID rclsidControl,
                                             /* [in]  */ LPCOLESTR lpstrLibNamePrepend,
-                                            /* [in]  */ ITypeInfo *ptinfoExtender,
-                                            /* [in]  */ IFilterMembers *pfilter,
+                                            /* [in]  */ ITypeInfo * ptinfoExtender,
+                                            /* [in]  */ IFilterMembers * pfilter,
                                             /* [in]  */ DWORD     dwFlags,
                                             /* [in]  */ LPCOLESTR lpstrDirectoryName,
-                                            /* [out] */ ITypeInfo **pptinfo) PURE;
+                                            /* [out] */ ITypeInfo * *pptinfo) PURE;
     STDMETHOD(SetExtenderInfo)(THIS_
                                /* [in]  */ LPCOLESTR lpstrDirectoryName,
-                               /* [in]  */ ITypeInfo *ptinfoExtender,
-                               /* [in]  */ IFilterMembers *pfilter) PURE;
+                               /* [in]  */ ITypeInfo * ptinfoExtender,
+                               /* [in]  */ IFilterMembers * pfilter) PURE;
 };
 
 
@@ -313,16 +313,16 @@ DECLARE_INTERFACE_(ICreateExtension, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
     // *** ICreateExtension methods ***
     STDMETHOD(CreateExtension)(THIS_
-                               /* [in]  */ IUnknown *punkOuter,
-                               /* [in]  */ IUnknown *punkBase,
-                               /* [in]  */ IUnknown *punkExtender,
-                               /* [out] */ IUnknown **ppunkExtension) PURE;
+                               /* [in]  */ IUnknown * punkOuter,
+                               /* [in]  */ IUnknown * punkBase,
+                               /* [in]  */ IUnknown * punkExtender,
+                               /* [out] */ IUnknown * *ppunkExtension) PURE;
 };
 
 
@@ -344,7 +344,7 @@ DECLARE_INTERFACE_(ICodeNavigate, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
@@ -374,7 +374,7 @@ DECLARE_INTERFACE_(ISelectionContainer, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
@@ -385,10 +385,10 @@ DECLARE_INTERFACE_(ISelectionContainer, IUnknown)
     STDMETHOD(GetObjects)(THIS_
                           /* [in]  */ DWORD dwFlags,
                           /* [in]  */ ULONG cObjects,
-                          /* [out] */ IUnknown **apUnkObjects) PURE;
+                          /* [out] */ IUnknown * *apUnkObjects) PURE;
     STDMETHOD(SelectObjects)(THIS_
                              /* [in] */ ULONG cSelect,
-                             /* [in] */ IUnknown **apUnkSelect,
+                             /* [in] */ IUnknown * *apUnkSelect,
                              /* [in] */ DWORD dwFlags) PURE;
 };
 
@@ -402,7 +402,7 @@ DECLARE_INTERFACE_(ITrackSelection, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
@@ -430,7 +430,7 @@ DECLARE_INTERFACE_(ILocalRegistry, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
@@ -440,16 +440,16 @@ DECLARE_INTERFACE_(ILocalRegistry, IUnknown)
                               /* [in]  */ IUnknown * punkOuter,
                               /* [in]  */ REFIID     riid,
                               /* [in]  */ DWORD      dwFlags,
-                              /* [out] */ void **    ppvObj) PURE;
+                              /* [out] */ void** ppvObj) PURE;
     STDMETHOD(GetTypeLibOfClsid)(THIS_
                                  /* [in]  */ CLSID       clsid,
-                                 /* [out] */ ITypeLib ** ptlib) PURE;
+                                 /* [out] */ ITypeLib * *ptlib) PURE;
     STDMETHOD(GetClassObjectOfClsid)(THIS_
                                      /* [in]  */ REFCLSID clsid,
                                      /* [in]  */ DWORD    dwClsCtx,
                                      /* [in]  */ LPVOID   lpReserved,
                                      /* [in]  */ REFIID   riid,
-                                     /* [out] */ void **  ppcClassObject) PURE;
+                                     /* [out] */ void** ppcClassObject) PURE;
 };
 
 
@@ -467,7 +467,7 @@ DECLARE_INTERFACE_(IUIElement, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ****
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
@@ -496,7 +496,7 @@ DECLARE_INTERFACE_(IProfferService, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
@@ -504,7 +504,7 @@ DECLARE_INTERFACE_(IProfferService, IUnknown)
     STDMETHOD(ProfferService)(THIS_
                               /* [in]  */ REFGUID rguidService,
                               /* [in]  */ IServiceProvider * psp,
-                              /* [out] */ DWORD *pdwCookie) PURE;
+                              /* [out] */ DWORD * pdwCookie) PURE;
 
     STDMETHOD(RevokeService)(THIS_ /* [in]  */ DWORD dwCookie) PURE;
 };
@@ -530,7 +530,7 @@ DECLARE_INTERFACE_(IProfferTypeLib, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
@@ -556,16 +556,16 @@ DECLARE_INTERFACE_(IGangConnectWithDefault, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
     // *** IGangConnectWithDefault ***
     STDMETHOD(AdviseWithDefault)(THIS_
                                  ULONG   cSinks,
-                                 DISPID *    adispid,
-                                 IUnknown ** apUnkSink,
-                                 IUnknown ** apUnkDefaultBO) PURE;
+                                 DISPID * adispid,
+                                 IUnknown * *apUnkSink,
+                                 IUnknown * *apUnkDefaultBO) PURE;
 };
 
 // { 6d5140d1-7436-11ce-8034-00aa006009fa }
@@ -577,13 +577,13 @@ DECLARE_INTERFACE_(IProvideDynamicClassInfo, IProvideClassInfo)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
     // *** IProvideDynamicClassInfo ***
-    STDMETHOD(GetDynamicClassInfo_RIP)(THIS_ ITypeInfo ** ppTI) PURE;
-    STDMETHOD(GetDynamicClassInfo)(THIS_ ITypeInfo ** ppTI, DWORD * pdwCookie) PURE;
+    STDMETHOD(GetDynamicClassInfo_RIP)(THIS_ ITypeInfo * *ppTI) PURE;
+    STDMETHOD(GetDynamicClassInfo)(THIS_ ITypeInfo * *ppTI, DWORD * pdwCookie) PURE;
     STDMETHOD(FreezeShape)(void) PURE;
 };
 
@@ -606,18 +606,18 @@ DECLARE_INTERFACE_(ICategorizeProperties, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
     // *** ICategorizeProperties ***
     STDMETHOD(MapPropertyToCategory)(THIS_
                                      /* [in]  */ DISPID dispid,
-                                     /* [out] */ PROPCAT* ppropcat) PURE;
+                                     /* [out] */ PROPCAT * ppropcat) PURE;
     STDMETHOD(GetCategoryName)(THIS_
                                /* [in]  */ PROPCAT propcat,
                                /* [in]  */ LCID lcid,
-                               /* [out] */ BSTR* pbstrName) PURE;
+                               /* [out] */ BSTR * pbstrName) PURE;
 };
 
 typedef ICategorizeProperties FAR* LPCATEGORIZEPROPERTIES;
@@ -676,7 +676,7 @@ DECLARE_INTERFACE_(IHelp, IUnknown)
 {
     BEGIN_INTERFACE
         // *** IUnknown methods ***
-        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR* ppvObj) PURE;
+        STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 

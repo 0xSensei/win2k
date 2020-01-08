@@ -62,8 +62,8 @@ static RGBA matlDimSpecular = {0.5f, 0.5f, 0.5f, 1.0f};
 static RGBA matlNoSpecular = {0.0f, 0.0f, 0.0f, 0.0f};
 static GLfloat light0Pos[] = {20.0f, -10.0f, 20.0f, 0.0f};
 
-static RGBA light1Ambient  = {0.0f, 0.0f, 0.0f, 0.0f};
-static RGBA light1Diffuse  = {0.4f, 0.4f, 0.4f, 1.0f};
+static RGBA light1Ambient = {0.0f, 0.0f, 0.0f, 0.0f};
+static RGBA light1Diffuse = {0.4f, 0.4f, 0.4f, 1.0f};
 static RGBA light1Specular = {0.0f, 0.0f, 0.0f, 0.0f};
 static GLfloat light1Pos[] = {-20.0f, 5.0f, 0.0f, 0.0f};
 
@@ -73,11 +73,11 @@ static RGBA winColors[] = {{0.3f, 0.3f, 0.3f, 1.0f},
                            {0.35f, 0.71f, 0.35f, 1.0f},    // green
                            {0.95f, 0.82f, 0.12f, 1.0f}};   // yellow
 
-static int iPtInList(MESH *mesh, int start,
-                     POINT3D *p, POINT3D *norm, BOOL blend)
+static int iPtInList(MESH* mesh, int start,
+                     POINT3D* p, POINT3D* norm, BOOL blend)
 {
     int i;
-    POINT3D *pts = mesh->pts + start;
+    POINT3D* pts = mesh->pts + start;
 
     if (blend) {
         for (i = start; i < mesh->numPoints; i++, pts++) {
@@ -101,23 +101,23 @@ static int iPtInList(MESH *mesh, int start,
 float getZPos(float x)
 {
     float xAbs = x - xTrans;
-    float angle = (float) (sinAngle + ((2.0 * PI) * (xAbs / WIN_TOTALWIDTH)));
+    float angle = (float)(sinAngle + ((2.0 * PI) * (xAbs / WIN_TOTALWIDTH)));
 
     xAbs += (WIN_TOTALWIDTH / 2.0f);
     xAbs = WIN_TOTALWIDTH - xAbs;
 
     return (float)((sin((double)angle) / 4.0) *
-                   sqrt((double)(xAbs / WIN_TOTALWIDTH )));
+                   sqrt((double)(xAbs / WIN_TOTALWIDTH)));
 }
 
-void AddFace(MESH *mesh, int startBlend, POINT3D *pos, float w, float h)
+void AddFace(MESH* mesh, int startBlend, POINT3D* pos, float w, float h)
 {
 #define FACE_VERTEX(i) \
     iPtInList(mesh, startBlend, pts + i, &mesh->faces[faceCount].norm, TRUE)
 
     int faceCount = mesh->numFaces;
     int numPts = mesh->numPoints;
-    POINT3D *pts = mesh->pts + numPts;
+    POINT3D* pts = mesh->pts + numPts;
     float zLeft = getZPos(pos->x);
     float zRight = getZPos(pos->x + w);
 
@@ -166,7 +166,7 @@ void AddFace(MESH *mesh, int startBlend, POINT3D *pos, float w, float h)
 
 #define DELTA_FACT  (float)10.0
 
-void AddBlock(MESH *mesh, int blendStart, POINT3D *pos,
+void AddBlock(MESH* mesh, int blendStart, POINT3D* pos,
               float w, float h, float d, ULONG flags)
 {
 
@@ -215,7 +215,7 @@ void AddBlock(MESH *mesh, int blendStart, POINT3D *pos,
     pts[7].z = zRight;
 
     if (flags & DELTA_BLEND) {
-    float prevW = w;
+        float prevW = w;
         posPrev = *pos;
 
         w /= DELTA_FACT;
@@ -384,7 +384,7 @@ void AddBlock(MESH *mesh, int blendStart, POINT3D *pos,
 
 }
 
-void genWin(MESH *winMesh, MESH *winStreamer)
+void genWin(MESH* winMesh, MESH* winStreamer)
 {
     POINT3D pos, posCenter;
     float w, h, d;
@@ -611,9 +611,9 @@ void initWinScene()
     glTranslatef(0.0f, 0.0f, -1.5f);
     glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
 
-    glLightfv(GL_LIGHT1, GL_AMBIENT, (GLfloat *) &light1Ambient);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, (GLfloat *) &light1Diffuse);
-    glLightfv(GL_LIGHT1, GL_SPECULAR, (GLfloat *) &light1Specular);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, (GLfloat*)&light1Ambient);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, (GLfloat*)&light1Diffuse);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, (GLfloat*)&light1Specular);
     glLightfv(GL_LIGHT1, GL_POSITION, light1Pos);
     glEnable(GL_LIGHT1);
 
@@ -629,7 +629,7 @@ void initWinScene()
     if (Frames > MAX_FRAMES)
         Frames = MAX_FRAMES;
 
-    angleDelta = (float) ((2.0 * PI) / Frames);
+    angleDelta = (float)((2.0 * PI) / Frames);
     sinAngle = 0.0f;
 
     for (i = 0; i < Frames; i++) {
@@ -650,8 +650,8 @@ void delWinScene()
 
 void updateWinScene(int flags)
 {
-    MESH *mesh;
-    MFACE *faces;
+    MESH* mesh;
+    MFACE* faces;
     int i;
     static double mxrot = 23.0;
     static double myrot = 23.0;
@@ -661,27 +661,27 @@ void updateWinScene(int flags)
     static double mzrotInc = 0.0;
     static int h = 0;
     static int frameNum = 0;
-    POINT3D *pp;
-    POINT3D *pn;
+    POINT3D* pp;
+    POINT3D* pn;
     int lastC, lastD;
     int aOffs, bOffs, cOffs, dOffs;
     int a, b;
 
     if (bColorCycle) {
-        ss_HsvToRgb((float)h, 1.0f, 1.0f, &winColors[0] );
+        ss_HsvToRgb((float)h, 1.0f, 1.0f, &winColors[0]);
 
         h++;
         h %= 360;
     }
 
     glLoadIdentity();
-    glRotatef((GLfloat) mxrot, 1.0f, 0.0f, 0.0f);
-    glRotatef((GLfloat) myrot, 0.0f, 1.0f, 0.0f);
-    glRotatef((GLfloat) mzrot, 0.0f, 0.0f, 1.0f);
+    glRotatef((GLfloat)mxrot, 1.0f, 0.0f, 0.0f);
+    glRotatef((GLfloat)myrot, 0.0f, 1.0f, 0.0f);
+    glRotatef((GLfloat)mzrot, 0.0f, 0.0f, 1.0f);
 
     curMatl = 0;
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, (GLfloat *) &winColors[0]);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat *) &matlBrightSpecular);
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, (GLfloat*)&winColors[0]);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*)&matlBrightSpecular);
     glMaterialf(GL_FRONT, GL_SHININESS, 60.0f);
 
     mesh = &winMesh[frameNum];
@@ -697,14 +697,14 @@ void updateWinScene(int flags)
         a = faces->p[0];
         b = faces->p[1];
 
-    if (!bSmoothShading) {
+        if (!bSmoothShading) {
             if ((a != lastC) || (b != lastD)) {
-                glNormal3fv((GLfloat *)&(faces - 1)->norm);
+                glNormal3fv((GLfloat*)&(faces - 1)->norm);
 
-                glVertex3fv((GLfloat *)((char *)pp +
-                            (lastC << 3) + (lastC << 2)));
-                glVertex3fv((GLfloat *)((char *)pp +
-                            (lastD << 3) + (lastD << 2)));
+                glVertex3fv((GLfloat*)((char*)pp +
+                    (lastC << 3) + (lastC << 2)));
+                glVertex3fv((GLfloat*)((char*)pp +
+                    (lastD << 3) + (lastD << 2)));
                 glEnd();
                 glBegin(GL_QUAD_STRIP);
             }
@@ -712,23 +712,23 @@ void updateWinScene(int flags)
             if (faces->material != curMatl) {
                 curMatl = faces->material;
                 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,
-                             (GLfloat *) &matlNoSpecular);
+                    (GLfloat*)&matlNoSpecular);
                 glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE,
-                             (GLfloat *) &winColors[curMatl]);
+                    (GLfloat*)&winColors[curMatl]);
             }
 
-            glNormal3fv((GLfloat *)&faces->norm);
-            glVertex3fv((GLfloat *)((char *)pp + (a << 3) + (a << 2)));
-            glVertex3fv((GLfloat *)((char *)pp + (b << 3) + (b << 2)));
+            glNormal3fv((GLfloat*)&faces->norm);
+            glVertex3fv((GLfloat*)((char*)pp + (a << 3) + (a << 2)));
+            glVertex3fv((GLfloat*)((char*)pp + (b << 3) + (b << 2)));
         } else {
             if ((a != lastC) || (b != lastD)) {
                 cOffs = (lastC << 3) + (lastC << 2);
                 dOffs = (lastD << 3) + (lastD << 2);
 
-                glNormal3fv((GLfloat *)((char *)pn + cOffs));
-                glVertex3fv((GLfloat *)((char *)pp + cOffs));
-                glNormal3fv((GLfloat *)((char *)pn + dOffs));
-                glVertex3fv((GLfloat *)((char *)pp + dOffs));
+                glNormal3fv((GLfloat*)((char*)pn + cOffs));
+                glVertex3fv((GLfloat*)((char*)pp + cOffs));
+                glNormal3fv((GLfloat*)((char*)pn + dOffs));
+                glVertex3fv((GLfloat*)((char*)pp + dOffs));
                 glEnd();
                 glBegin(GL_QUAD_STRIP);
             }
@@ -739,15 +739,15 @@ void updateWinScene(int flags)
             if (faces->material != curMatl) {
                 curMatl = faces->material;
                 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,
-                             (GLfloat *) &matlNoSpecular);
+                    (GLfloat*)&matlNoSpecular);
                 glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE,
-                             (GLfloat *) &winColors[curMatl]);
+                    (GLfloat*)&winColors[curMatl]);
             }
 
-            glNormal3fv((GLfloat *)((char *)pn + aOffs));
-            glVertex3fv((GLfloat *)((char *)pp + aOffs));
-            glNormal3fv((GLfloat *)((char *)pn + bOffs));
-            glVertex3fv((GLfloat *)((char *)pp + bOffs));
+            glNormal3fv((GLfloat*)((char*)pn + aOffs));
+            glVertex3fv((GLfloat*)((char*)pp + aOffs));
+            glNormal3fv((GLfloat*)((char*)pn + bOffs));
+            glVertex3fv((GLfloat*)((char*)pp + bOffs));
         }
 
         lastC = faces->p[3];
@@ -755,22 +755,22 @@ void updateWinScene(int flags)
     }
 
     if (!bSmoothShading) {
-        glNormal3fv((GLfloat *)&(faces - 1)->norm);
-        glVertex3fv((GLfloat *)((char *)pp + (lastC << 3) + (lastC << 2)));
-        glVertex3fv((GLfloat *)((char *)pp + (lastD << 3) + (lastD << 2)));
+        glNormal3fv((GLfloat*)&(faces - 1)->norm);
+        glVertex3fv((GLfloat*)((char*)pp + (lastC << 3) + (lastC << 2)));
+        glVertex3fv((GLfloat*)((char*)pp + (lastD << 3) + (lastD << 2)));
     } else {
         cOffs = (lastC << 3) + (lastC << 2);
         dOffs = (lastD << 3) + (lastD << 2);
 
-        glNormal3fv((GLfloat *)((char *)pn + cOffs));
-        glVertex3fv((GLfloat *)((char *)pp + cOffs));
-        glNormal3fv((GLfloat *)((char *)pn + dOffs));
-        glVertex3fv((GLfloat *)((char *)pp + dOffs));
+        glNormal3fv((GLfloat*)((char*)pn + cOffs));
+        glVertex3fv((GLfloat*)((char*)pp + cOffs));
+        glNormal3fv((GLfloat*)((char*)pn + dOffs));
+        glVertex3fv((GLfloat*)((char*)pp + dOffs));
     }
 
     glEnd();
 
-    glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat *) &matlDimSpecular);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*)&matlDimSpecular);
 
     glBegin(GL_QUADS);
 
@@ -788,14 +788,14 @@ void updateWinScene(int flags)
         if (faces->material != curMatl) {
             curMatl = faces->material;
             glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE,
-                         (GLfloat *)&winColors[curMatl]);
+                (GLfloat*)&winColors[curMatl]);
         }
 
-        glNormal3fv((GLfloat *)&faces->norm);
-        glVertex3fv((GLfloat *)(mesh->pts + a));
-        glVertex3fv((GLfloat *)(mesh->pts + b));
-        glVertex3fv((GLfloat *)(mesh->pts + c));
-        glVertex3fv((GLfloat *)(mesh->pts + d));
+        glNormal3fv((GLfloat*)&faces->norm);
+        glVertex3fv((GLfloat*)(mesh->pts + a));
+        glVertex3fv((GLfloat*)(mesh->pts + b));
+        glVertex3fv((GLfloat*)(mesh->pts + c));
+        glVertex3fv((GLfloat*)(mesh->pts + d));
     }
 
     glEnd();

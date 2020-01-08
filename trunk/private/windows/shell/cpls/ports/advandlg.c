@@ -1,6 +1,4 @@
-
 // Advanced Dialog Functions
-
 
 #include "ports.h"
 #include "pp.h"
@@ -21,9 +19,9 @@ DWORD PollingPeriods[NUM_POLLING_PERIODS] = {
             10 * SECONDS_CONVERSION_FACTOR,
             30 * SECONDS_CONVERSION_FACTOR,
             60 * SECONDS_CONVERSION_FACTOR
-            };
+};
 
-TCHAR PeriodDescription[NUM_POLLING_PERIODS+1][40] = {
+TCHAR PeriodDescription[NUM_POLLING_PERIODS + 1][40] = {
     { _T("Disabled") },
     { _T("Manually") },
     { _T("Every second") },
@@ -32,14 +30,14 @@ TCHAR PeriodDescription[NUM_POLLING_PERIODS+1][40] = {
     { _T("Every 30 seconds") },
     { _T("Every minute") },
     { _T("Other (every %d sec)") }
-    };
+};
 
-ULONG RxValues[4] = { 1, 4, 8, 14};
+ULONG RxValues[4] = {1, 4, 8, 14};
 
-TCHAR m_szRxFIFO[] =        _T("RxFIFO");
-TCHAR m_szTxFIFO[] =        _T("TxFIFO");
-TCHAR m_szFifoRxMax[] =     _T("FifoRxMax");
-TCHAR m_szFifoTxMax[] =     _T("FifoTxMax");
+TCHAR m_szRxFIFO[] = _T("RxFIFO");
+TCHAR m_szTxFIFO[] = _T("TxFIFO");
+TCHAR m_szFifoRxMax[] = _T("FifoRxMax");
+TCHAR m_szFifoTxMax[] = _T("FifoTxMax");
 
 const DWORD AdvanHelpIDs[] =
 {
@@ -83,112 +81,56 @@ const DWORD AdvanHelpIDs[] =
     (DWORD) SendMessage(hwndTb, TBM_GETPOS, (WPARAM) 0, (LPARAM) 0)
 
 
-
-BOOL
-Advanced_OnCommand(
-    HWND ParentHwnd,
-    int  ControlId,
-    HWND ControlHwnd,
-    UINT NotifyCode
-    );
+BOOL Advanced_OnCommand(HWND ParentHwnd, int  ControlId, HWND ControlHwnd, UINT NotifyCode);
+BOOL Advanced_OnContextMenu(HWND HwndControl, WORD Xpos, WORD Ypos);
+void Advanced_OnHelp(HWND       ParentHwnd, LPHELPINFO HelpInfo);
 
 
-BOOL
-Advanced_OnContextMenu(
-    HWND HwndControl,
-    WORD Xpos,
-    WORD Ypos
-    );
-
-void
-Advanced_OnHelp(
-    HWND       ParentHwnd,
-    LPHELPINFO HelpInfo
-    );
-
-BOOL
-Advanced_OnInitDialog(
-    HWND    ParentHwnd,
-    HWND    FocusHwnd,
-    LPARAM  Lparam
-    );
-
+BOOL Advanced_OnInitDialog(HWND    ParentHwnd, HWND    FocusHwnd, LPARAM  Lparam);
 /*++
-
 Routine Description: AdvancedPortsDlgProc
-
     The windows proc for the Advanced properties window
-
 Arguments:
-
     hDlg, uMessage, wParam, lParam: standard windows DlgProc parameters
-
 Return Value:
-
     BOOL: FALSE if the page could not be created
-
 --*/
-INT_PTR APIENTRY
-AdvancedPortsDlgProc(
-    IN HWND   hDlg,
-    IN UINT   uMessage,
-    IN WPARAM wParam,
-    IN LPARAM lParam
-    )
+INT_PTR APIENTRY AdvancedPortsDlgProc(IN HWND   hDlg, IN UINT   uMessage, IN WPARAM wParam, IN LPARAM lParam)
 {
-    switch(uMessage) {
+    switch (uMessage) {
     case WM_COMMAND:
-        return Advanced_OnCommand(hDlg,
-                                  (int) LOWORD(wParam),
-                                  (HWND)lParam,
-                                  (UINT) HIWORD(wParam));
-
+        return Advanced_OnCommand(hDlg, (int)LOWORD(wParam), (HWND)lParam, (UINT)HIWORD(wParam));
     case WM_CONTEXTMENU:
         return Advanced_OnContextMenu((HWND)wParam, LOWORD(lParam), HIWORD(lParam));
-
     case WM_HELP:
-        Advanced_OnHelp(hDlg, (LPHELPINFO) lParam);
+        Advanced_OnHelp(hDlg, (LPHELPINFO)lParam);
         break;
-
     case WM_HSCROLL:
-        HandleTrackbarChange(hDlg, (HWND) lParam);
+        HandleTrackbarChange(hDlg, (HWND)lParam);
         return TRUE;
-
     case WM_INITDIALOG:
-        return Advanced_OnInitDialog(hDlg, (HWND) wParam, lParam);
+        return Advanced_OnInitDialog(hDlg, (HWND)wParam, lParam);
     }
 
     return FALSE;
 } /* AdvancedPortsDlgProc */
 
-BOOL
-Advanced_OnCommand(
-    HWND ParentHwnd,
-    int  ControlId,
-    HWND ControlHwnd,
-    UINT NotifyCode
-    )
+
+BOOL Advanced_OnCommand(HWND ParentHwnd, int  ControlId, HWND ControlHwnd, UINT NotifyCode)
 {
-    PADVANCED_DATA advancedData =
-        (PADVANCED_DATA) GetWindowLongPtr(ParentHwnd, DWLP_USER);
+    PADVANCED_DATA advancedData = (PADVANCED_DATA)GetWindowLongPtr(ParentHwnd, DWLP_USER);
 
-    switch(ControlId) {
-
+    switch (ControlId) {
     case IDC_FIFO:
-
         // Disable or enable the sliders
-
         EnableFifoControls(ParentHwnd, IsDlgButtonChecked(ParentHwnd, IDC_FIFO));
         return TRUE;
-
     case IDOK:
         SaveAdvancedSettings(ParentHwnd, advancedData);
         // fall through
-
     case IDCANCEL:
         EndDialog(ParentHwnd, ControlId);
         return TRUE;
-
     case IDC_RESTORE:
         RestoreAdvancedDefaultState(ParentHwnd, advancedData);
         return TRUE;
@@ -197,56 +139,35 @@ Advanced_OnCommand(
     return FALSE;
 }
 
-BOOL
-Advanced_OnContextMenu(
-    HWND HwndControl,
-    WORD Xpos,
-    WORD Ypos
-    )
+
+BOOL Advanced_OnContextMenu(HWND HwndControl, WORD Xpos, WORD Ypos)
 {
-    WinHelp(HwndControl,
-            m_szDevMgrHelp,
-            HELP_CONTEXTMENU,
-            (ULONG_PTR) AdvanHelpIDs);
+    WinHelp(HwndControl, m_szDevMgrHelp, HELP_CONTEXTMENU, (ULONG_PTR)AdvanHelpIDs);
 
     return FALSE;
 }
 
-void
-Advanced_OnHelp(
-    HWND       ParentHwnd,
-    LPHELPINFO HelpInfo
-    )
+
+void Advanced_OnHelp(HWND       ParentHwnd, LPHELPINFO HelpInfo)
 {
     if (HelpInfo->iContextType == HELPINFO_WINDOW) {
-        WinHelp((HWND) HelpInfo->hItemHandle,
-                 m_szDevMgrHelp,
-                 HELP_WM_HELP,
-                 (ULONG_PTR) AdvanHelpIDs);
+        WinHelp((HWND)HelpInfo->hItemHandle, m_szDevMgrHelp, HELP_WM_HELP, (ULONG_PTR)AdvanHelpIDs);
     }
 }
 
-BOOL
-Advanced_OnInitDialog(
-    HWND    ParentHwnd,
-    HWND    FocusHwnd,
-    LPARAM  Lparam
-    )
+
+BOOL Advanced_OnInitDialog(HWND    ParentHwnd, HWND    FocusHwnd, LPARAM  Lparam)
 {
     PADVANCED_DATA advancedData;
     TCHAR          szFormat[200];
     TCHAR          szBuffer[200];
-    advancedData = (PADVANCED_DATA) Lparam;
-
+    advancedData = (PADVANCED_DATA)Lparam;
 
     // Initialize the dialog box parameters
-
     FillAdvancedDlg(ParentHwnd, advancedData);
-    SetWindowLongPtr(ParentHwnd, DWLP_USER, (ULONG_PTR) advancedData);
-
+    SetWindowLongPtr(ParentHwnd, DWLP_USER, (ULONG_PTR)advancedData);
 
     // Set up the dialog box with these initialized parameters
-
     InitializeControls(ParentHwnd, advancedData);
 
     LoadString(g_hInst, IDS_ADVANCED_SETTINGS_FOR, szFormat, CharSizeOf(szFormat));
@@ -256,13 +177,14 @@ Advanced_OnInitDialog(
     return TRUE;
 }
 
+
 // @@BEGIN_DDKSPLIT
 LONG
 SerialDisplayAdvancedSettings(
     IN HWND             ParentHwnd,
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData
-    )
+)
 {
     ADVANCED_DATA advancedData;
     HKEY          hDeviceKey;
@@ -286,7 +208,6 @@ SerialDisplayAdvancedSettings(
                                       0,
                                       DIREG_DEV,
                                       KEY_READ);
-
     if (INVALID_HANDLE_VALUE == hDeviceKey)
         return ERROR_ACCESS_DENIED;
 
@@ -295,7 +216,7 @@ SerialDisplayAdvancedSettings(
                         m_szPortName,
                         NULL,
                         NULL,
-                        (PBYTE) advancedData.szComName,
+                        (PBYTE)advancedData.szComName,
                         &dwPortNameSize) != ERROR_SUCCESS) {
         RegCloseKey(hDeviceKey);
         return  ERROR_INVALID_DATA;
@@ -303,14 +224,15 @@ SerialDisplayAdvancedSettings(
     RegCloseKey(hDeviceKey);
 
     return DisplayAdvancedDialog(ParentHwnd, &advancedData) ? ERROR_SUCCESS
-                                                            : ERROR_ACCESS_DENIED;
+        : ERROR_ACCESS_DENIED;
 }
 // @@END_DDKSPLIT
+
 
 BOOL InternalAdvancedDialog(
     IN     HWND           ParentHwnd,
     IN OUT PADVANCED_DATA AdvancedData
-    )
+)
 {
     AdvancedData->hComDB = HCOMDB_INVALID_HANDLE_VALUE;
     ComDBOpen(&AdvancedData->hComDB);
@@ -319,7 +241,7 @@ BOOL InternalAdvancedDialog(
                    MAKEINTRESOURCE(DLG_PP_ADVPORTS),
                    ParentHwnd,
                    AdvancedPortsDlgProc,
-                   (DWORD_PTR) AdvancedData);
+                   (DWORD_PTR)AdvancedData);
 
     ComDBClose(AdvancedData->hComDB);
     AdvancedData->hComDB = HCOMDB_INVALID_HANDLE_VALUE;
@@ -333,25 +255,16 @@ FindAdvancedDialogOverride(
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData,
     IN PTCHAR           Value
-    )
+)
 /*++
-
 Routine Description:
-
     Checks the driver key in the devnode for the override value.
-
 Arguments:
-
     DeviceInfoSet - Supplies a handle to the device information
-
     DeviceInfoData - Supplies the address of the device information element
-
     Value          - Value read in from the registry
-
 Return Value:
-
     If found TRUE, otherwise FALSE
-
 --*/
 {
     HKEY    hKey;
@@ -375,7 +288,7 @@ Return Value:
                         szOverrideName,
                         NULL,
                         &dwDataType,
-                        (PBYTE) &szLine,
+                        (PBYTE)&szLine,
                         &dwSize) != ERROR_SUCCESS ||
         dwDataType != REG_SZ) {
         RegCloseKey(hKey);
@@ -393,7 +306,7 @@ CallAdvancedDialogOverride(
     IN PADVANCED_DATA AdvancedData,
     PTCHAR            Override,
     PBOOL             Success
-    )
+)
 {
     PTCHAR                  szProc = NULL;
     HINSTANCE               hInst = NULL;
@@ -430,9 +343,9 @@ CallAdvancedDialogOverride(
                         NULL,
                         NULL);
 
-    pfnAdvanced = (PPORT_ADVANCED_DIALOG) GetProcAddress(hInst, szFunction);
+    pfnAdvanced = (PPORT_ADVANCED_DIALOG)GetProcAddress(hInst, szFunction);
 #else
-    pfnAdvanced = (PPORT_ADVANCED_DIALOG) GetProcAddress(hInst, szProc);
+    pfnAdvanced = (PPORT_ADVANCED_DIALOG)GetProcAddress(hInst, szProc);
 #endif
     if (!pfnAdvanced) {
         FreeLibrary(hInst);
@@ -448,7 +361,7 @@ CallAdvancedDialogOverride(
                                    NULL);
 
     }
-    _except(UnhandledExceptionFilter(GetExceptionInformation()))
+        _except(UnhandledExceptionFilter(GetExceptionInformation()))
     {
         *Success = FALSE;
     }
@@ -470,7 +383,7 @@ CallAdvancedDialogOverride(
                             m_szPortName,
                             NULL,
                             NULL,
-                            (PBYTE) szNewComName,
+                            (PBYTE)szNewComName,
                             &dwSize) == ERROR_SUCCESS) {
             lstrcpy(AdvancedData->szComName, szNewComName);
         }
@@ -504,7 +417,7 @@ Return Value:
 BOOL DisplayAdvancedDialog(
     IN      HWND           ParentHwnd,
     IN OUT  PADVANCED_DATA AdvancedData
-    )
+)
 {
     AdvancedData->hDeviceKey =
         SetupDiOpenDevRegKey(AdvancedData->DeviceInfoSet,
@@ -520,9 +433,8 @@ BOOL DisplayAdvancedDialog(
                      IDS_NAME_PROPERTIES,
                      MB_OK | MB_ICONINFORMATION);
         return FALSE;
-    }
-    else {
-// @@BEGIN_DDKSPLIT
+    } else {
+        // @@BEGIN_DDKSPLIT
         TCHAR szOverride[LINE_LEN];
         BOOL  success = FALSE;
 
@@ -535,13 +447,12 @@ BOOL DisplayAdvancedDialog(
                                        &success)) {
             RegCloseKey(AdvancedData->hDeviceKey);
             return success;
-        }
-        else {
-// @@END_DDKSPLIT
+        } else {
+            // @@END_DDKSPLIT
             return InternalAdvancedDialog(ParentHwnd, AdvancedData);
-// @@BEGIN_DDKSPLIT
+            // @@BEGIN_DDKSPLIT
         }
-// @@END_DDKSPLIT
+        // @@END_DDKSPLIT
     }
 }
 
@@ -565,35 +476,35 @@ Return Value:
 void EnableFifoControls(IN HWND hDlg,
                         IN BOOL enabled)
 {
-   // The actual trackbar/slider
-   EnableWindow(GetDlgItem(hDlg, IDC_RECEIVE_SLIDER), enabled);
+    // The actual trackbar/slider
+    EnableWindow(GetDlgItem(hDlg, IDC_RECEIVE_SLIDER), enabled);
 
-   // "Low (xxx)" (Receive)
-   EnableWindow(GetDlgItem(hDlg, IDC_RECEIVE_LOW), enabled);
+    // "Low (xxx)" (Receive)
+    EnableWindow(GetDlgItem(hDlg, IDC_RECEIVE_LOW), enabled);
 
-   // "High (xxx)" (Receive)
-   EnableWindow(GetDlgItem(hDlg, IDC_RECEIVE_HIGH), enabled);
+    // "High (xxx)" (Receive)
+    EnableWindow(GetDlgItem(hDlg, IDC_RECEIVE_HIGH), enabled);
 
-   // "Receive Buffer:  "
-   EnableWindow(GetDlgItem(hDlg, IDC_RECEIVE_TEXT), enabled);
+    // "Receive Buffer:  "
+    EnableWindow(GetDlgItem(hDlg, IDC_RECEIVE_TEXT), enabled);
 
-   // "(xxx)" (Actual value of trackbar, Receive)
-   EnableWindow(GetDlgItem(hDlg, IDC_RXVALUE), enabled);
+    // "(xxx)" (Actual value of trackbar, Receive)
+    EnableWindow(GetDlgItem(hDlg, IDC_RXVALUE), enabled);
 
-   // The actual trackbar/slider
-   EnableWindow(GetDlgItem(hDlg, IDC_TRANSMIT_SLIDER), enabled);
+    // The actual trackbar/slider
+    EnableWindow(GetDlgItem(hDlg, IDC_TRANSMIT_SLIDER), enabled);
 
-   // "Low (xxx)" (Transmit)
-   EnableWindow(GetDlgItem(hDlg, IDC_TRANSMIT_LOW), enabled);
+    // "Low (xxx)" (Transmit)
+    EnableWindow(GetDlgItem(hDlg, IDC_TRANSMIT_LOW), enabled);
 
-   // "High (xxx)" (Transmit)
-   EnableWindow(GetDlgItem(hDlg, IDC_TRANSMIT_HIGH), enabled);
+    // "High (xxx)" (Transmit)
+    EnableWindow(GetDlgItem(hDlg, IDC_TRANSMIT_HIGH), enabled);
 
-   // "Transmit Buffer" (Transmit)
-   EnableWindow(GetDlgItem(hDlg, IDC_TRANSMIT_TEXT), enabled);
+    // "Transmit Buffer" (Transmit)
+    EnableWindow(GetDlgItem(hDlg, IDC_TRANSMIT_TEXT), enabled);
 
-   // "(xxx)" (Actual value of trackbar, Trasmist)
-   EnableWindow(GetDlgItem(hDlg, IDC_TXVALUE), enabled);
+    // "(xxx)" (Actual value of trackbar, Trasmist)
+    EnableWindow(GetDlgItem(hDlg, IDC_TXVALUE), enabled);
 }
 
 /*++
@@ -615,7 +526,7 @@ Return Value:
 --*/
 void HandleTrackbarChange(IN HWND hDlg,
                           IN HWND hTrackbar
-                          )
+)
 {
     DWORD ctrlID;
     TCHAR szCurrentValue[10];
@@ -627,10 +538,9 @@ void HandleTrackbarChange(IN HWND hDlg,
 
         // Rx we need to translate the tick position from index to value
 
-        wsprintf(szCurrentValue, TEXT("(%d)"), RxValues[position-1]);
+        wsprintf(szCurrentValue, TEXT("(%d)"), RxValues[position - 1]);
         ctrlID = IDC_RXVALUE;
-    }
-    else {
+    } else {
 
         // Tx is just a straight translation between value and index
 
@@ -642,7 +552,7 @@ void HandleTrackbarChange(IN HWND hDlg,
 
 DWORD
 RxValueToTrackbarPosition(IN OUT PDWORD RxValue
-               )
+)
 {
     switch (*RxValue) {
     case 1:  return 1;
@@ -677,7 +587,7 @@ Return Value:
 void
 SetTxTrackbarTics(
     IN HWND   TrackbarHwnd
-    )
+)
 {
     Trackbar_SetTic(TrackbarHwnd, 6);
     Trackbar_SetTic(TrackbarHwnd, 11);
@@ -710,7 +620,7 @@ SetLabelText(
     IN HWND     LabelHwnd,
     IN DWORD    ResId,
     IN ULONG    Value
-    )
+)
 {
     TCHAR szTemp[258], txt[258];
 
@@ -718,8 +628,7 @@ SetLabelText(
         lstrcpy(txt, szTemp);
         wsprintf(szTemp, _T("%d)"), Value);
         lstrcat(txt, szTemp);
-    }
-    else {
+    } else {
         lstrcpy(txt, _T("Low"));
     }
     SetWindowText(LabelHwnd, txt);
@@ -744,7 +653,7 @@ Return Value:
 void InitializeControls(
     IN HWND           ParentHwnd,
     IN PADVANCED_DATA AdvancedData
-    )
+)
 {
     TCHAR    szCurrentValue[40];
     HWND     hwnd;
@@ -761,15 +670,13 @@ void InitializeControls(
         CheckDlgButton(ParentHwnd, IDC_FIFO, BST_UNCHECKED);
         EnableWindow(GetDlgItem(ParentHwnd, IDC_FIFO), FALSE);
         EnableFifoControls(ParentHwnd, FALSE);
-    }
-    else {
+    } else {
         EnableWindow(GetDlgItem(ParentHwnd, IDC_FIFO), TRUE);
 
         if (!AdvancedData->UseFifoBuffers) {
             EnableFifoControls(ParentHwnd, FALSE);
             CheckDlgButton(ParentHwnd, IDC_FIFO, BST_UNCHECKED);
-        }
-        else {
+        } else {
             EnableFifoControls(ParentHwnd, TRUE);
             CheckDlgButton(ParentHwnd, IDC_FIFO, BST_CHECKED);
         }
@@ -787,8 +694,7 @@ void InitializeControls(
         CheckDlgButton(ParentHwnd, IDC_FIFO, BST_UNCHECKED);
         EnableWindow(GetDlgItem(ParentHwnd, IDC_FIFO), FALSE);
         EnableFifoControls(ParentHwnd, FALSE);
-    }
-    else {
+    } else {
 
         // Set up Rx Slider
 
@@ -854,10 +760,9 @@ void InitializeControls(
         }
 
         ComboBox_SetCurSel(hwnd, periodIdx);
-    }
-    else {
-       ShowWindow(GetDlgItem(ParentHwnd, IDC_POLL_PERIOD), SW_HIDE);
-       ShowWindow(GetDlgItem(ParentHwnd, IDC_POLL_DESC), SW_HIDE);
+    } else {
+        ShowWindow(GetDlgItem(ParentHwnd, IDC_POLL_PERIOD), SW_HIDE);
+        ShowWindow(GetDlgItem(ParentHwnd, IDC_POLL_DESC), SW_HIDE);
     }
 } /* InitializeControls */
 
@@ -880,7 +785,7 @@ Return Value:
 void RestoreAdvancedDefaultState(
     IN HWND           ParentHwnd,
     IN PADVANCED_DATA AdvancedData
-    )
+)
 {
     USHORT ushIndex;
     TCHAR  szCurrentValue[10];
@@ -911,9 +816,9 @@ void RestoreAdvancedDefaultState(
     // Set the COM name to whatever it is currently set to in the registry
 
     ushIndex =
-        (USHORT) ComboBox_FindString(GetDlgItem(ParentHwnd, PP_PORT_NUMBER),
-                                     -1,
-                                     AdvancedData->szComName);
+        (USHORT)ComboBox_FindString(GetDlgItem(ParentHwnd, PP_PORT_NUMBER),
+                                    -1,
+                                    AdvancedData->szComName);
 
     ushIndex = (ushIndex == CB_ERR) ? 0 : ushIndex;
 
@@ -943,15 +848,15 @@ ULONG
 FillPortNameCb(
     HWND            ParentHwnd,
     PADVANCED_DATA  AdvancedData
-    )
+)
 {
-    BYTE  portUsage[MAX_COM_PORT/8];
+    BYTE  portUsage[MAX_COM_PORT / 8];
     DWORD tmp, portsReported;
     int   i, j, nEntries;
     int   nCurPortNum;
     TCHAR szCom[40];
     TCHAR szInUse[40];
-    char  mask, *current;
+    char  mask, * current;
     HWND  portHwnd;
 
     portHwnd = GetDlgItem(ParentHwnd, PP_PORT_NUMBER);
@@ -977,7 +882,7 @@ FillPortNameCb(
 
     // first tally up which ports NOT to offer in list box
 
-    ZeroMemory(portUsage, MAX_COM_PORT/8);
+    ZeroMemory(portUsage, MAX_COM_PORT / 8);
 
     if (AdvancedData->hComDB != HCOMDB_INVALID_HANDLE_VALUE) {
         ComDBGetCurrentPortUsage(AdvancedData->hComDB,
@@ -990,34 +895,33 @@ FillPortNameCb(
 
     // tag the current port as not in use so it shows up in the CB
 
-    current = portUsage + (nCurPortNum-1) / 8;
+    current = portUsage + (nCurPortNum - 1) / 8;
     if ((i = nCurPortNum % 8))
-        *current &= ~(1 << (i-1));
+        *current &= ~(1 << (i - 1));
     else
         *current &= ~(0x80);
 
     current = portUsage;
     mask = 0x1;
-    for(nEntries = j = 0, i = MIN_COM-1; i < MAX_COM_PORT; i++) {
+    for (nEntries = j = 0, i = MIN_COM - 1; i < MAX_COM_PORT; i++) {
 
-       wsprintf(szCom, TEXT("COM%d"), i+1);
-       if (*current & mask) {
-           wcscat(szCom, szInUse);
-       }
+        wsprintf(szCom, TEXT("COM%d"), i + 1);
+        if (*current & mask) {
+            wcscat(szCom, szInUse);
+        }
 
-       if (mask == (char) 0x80) {
-           mask = 0x01;
-           current++;
-       }
-       else {
-           mask <<= 1;
-       }
+        if (mask == (char)0x80) {
+            mask = 0x01;
+            current++;
+        } else {
+            mask <<= 1;
+        }
 
-       ComboBox_AddString(portHwnd, szCom);
-   }
+        ComboBox_AddString(portHwnd, szCom);
+    }
 
-   ComboBox_SetCurSel(portHwnd, nCurPortNum-1);
-   return 0;
+    ComboBox_SetCurSel(portHwnd, nCurPortNum - 1);
+    return 0;
 } /* FillPortNamesCb */
 
 /*++
@@ -1040,264 +944,253 @@ ULONG
 FillAdvancedDlg(
     IN HWND             ParentHwnd,
     IN PADVANCED_DATA   AdvancedData
-    )
+)
 {
-   PSP_DEVINFO_DATA DeviceInfoData = AdvancedData->DeviceInfoData;
-   HKEY  hDeviceKey;
-   DWORD dwSize, dwData, dwFifo, dwError = ERROR_SUCCESS;
+    PSP_DEVINFO_DATA DeviceInfoData = AdvancedData->DeviceInfoData;
+    HKEY  hDeviceKey;
+    DWORD dwSize, dwData, dwFifo, dwError = ERROR_SUCCESS;
 
 
-   // Open the device key for the source device instance
+    // Open the device key for the source device instance
 
-   hDeviceKey = AdvancedData->hDeviceKey;
-
-
-   // Get COM Name
-
-   dwSize = sizeof(AdvancedData->szComName);
-   dwError = RegQueryValueEx(hDeviceKey,
-                             m_szPortName,
-                             NULL,
-                             NULL,
-                             (PBYTE)AdvancedData->szComName,
-                             &dwSize);
-
-   if (dwError != ERROR_SUCCESS) {
-      wsprintf(AdvancedData->szComName, TEXT("COMX"));
-   }
+    hDeviceKey = AdvancedData->hDeviceKey;
 
 
-   // Get ForceFifoEnable information
+    // Get COM Name
 
-   AdvancedData->UseFifoBuffersControl = TRUE;
+    dwSize = sizeof(AdvancedData->szComName);
+    dwError = RegQueryValueEx(hDeviceKey,
+                              m_szPortName,
+                              NULL,
+                              NULL,
+                              (PBYTE)AdvancedData->szComName,
+                              &dwSize);
 
-   dwSize = sizeof(dwFifo);
-   dwError = RegQueryValueEx(hDeviceKey,
-                             m_szFIFO,
-                             NULL,
-                             NULL,
-                             (LPBYTE)(&dwFifo),
-                             &dwSize);
+    if (dwError != ERROR_SUCCESS) {
+        wsprintf(AdvancedData->szComName, TEXT("COMX"));
+    }
 
-   if (dwError == ERROR_SUCCESS) {
 
-      // Save this initial value
+    // Get ForceFifoEnable information
 
-      AdvancedData->UseFifoBuffersControl = TRUE;
-      if (dwFifo == 0) {
-         AdvancedData->UseFifoBuffers = FALSE;
-      }
-      else {
-         AdvancedData->UseFifoBuffers = TRUE;
-      }
-   }
-   else {
+    AdvancedData->UseFifoBuffersControl = TRUE;
 
-      // value does not exist. Create our own
-
-      dwData = 1;
-      dwSize = sizeof(dwSize);
-      dwError = RegSetValueEx(hDeviceKey,
+    dwSize = sizeof(dwFifo);
+    dwError = RegQueryValueEx(hDeviceKey,
                               m_szFIFO,
-                              0,
-                              REG_DWORD,
-                              (CONST BYTE *)(&dwData),
-                              dwSize);
+                              NULL,
+                              NULL,
+                              (LPBYTE)(&dwFifo),
+                              &dwSize);
 
-      if (dwError == ERROR_SUCCESS) {
-         AdvancedData->UseFifoBuffers = TRUE;
-      }
-      else {
-         AdvancedData->UseFifoBuffers = FALSE;
-         AdvancedData->UseFifoBuffersControl = FALSE;
-      }
-   }
+    if (dwError == ERROR_SUCCESS) {
 
+        // Save this initial value
 
-   // Get FifoRxMax information
+        AdvancedData->UseFifoBuffersControl = TRUE;
+        if (dwFifo == 0) {
+            AdvancedData->UseFifoBuffers = FALSE;
+        } else {
+            AdvancedData->UseFifoBuffers = TRUE;
+        }
+    } else {
 
-   dwSize = sizeof(dwFifo);
-   dwError = RegQueryValueEx(hDeviceKey,
-                             m_szFifoRxMax,
-                             NULL,
-                             NULL,
-                             (LPBYTE)(&dwFifo),
-                             &dwFifo);
+        // value does not exist. Create our own
 
-   if (dwError == ERROR_SUCCESS) {
+        dwData = 1;
+        dwSize = sizeof(dwSize);
+        dwError = RegSetValueEx(hDeviceKey,
+                                m_szFIFO,
+                                0,
+                                REG_DWORD,
+                                (CONST BYTE*)(&dwData),
+                                dwSize);
 
-      // Save this initial value
-
-      AdvancedData->FifoRxMax = dwFifo;
-      if (AdvancedData->FifoRxMax > RX_MAX) {
-          AdvancedData->FifoRxMax = RX_MAX;
-      }
-   }
-   else {
-
-      // value does not exist. Create our own
-
-      AdvancedData->FifoRxMax = RX_MAX;
-   }
+        if (dwError == ERROR_SUCCESS) {
+            AdvancedData->UseFifoBuffers = TRUE;
+        } else {
+            AdvancedData->UseFifoBuffers = FALSE;
+            AdvancedData->UseFifoBuffersControl = FALSE;
+        }
+    }
 
 
-   // Get RxFIFO information
+    // Get FifoRxMax information
 
-   dwSize = sizeof(dwFifo);
-   dwError = RegQueryValueEx(hDeviceKey,
-                             m_szFifoTxMax,
-                             NULL,
-                             NULL,
-                             (LPBYTE)(&dwFifo),
-                             &dwSize);
+    dwSize = sizeof(dwFifo);
+    dwError = RegQueryValueEx(hDeviceKey,
+                              m_szFifoRxMax,
+                              NULL,
+                              NULL,
+                              (LPBYTE)(&dwFifo),
+                              &dwFifo);
 
-   if (dwError == ERROR_SUCCESS) {
+    if (dwError == ERROR_SUCCESS) {
 
-      // Save this initial value
+        // Save this initial value
 
-      AdvancedData->FifoTxMax = dwFifo;
-      if (AdvancedData->FifoTxMax > TX_MAX) {
-          AdvancedData->FifoTxMax = TX_MAX;
-      }
-   }
-   else {
+        AdvancedData->FifoRxMax = dwFifo;
+        if (AdvancedData->FifoRxMax > RX_MAX) {
+            AdvancedData->FifoRxMax = RX_MAX;
+        }
+    } else {
 
-      // value does not exist. Create our own
+        // value does not exist. Create our own
 
-      AdvancedData->FifoTxMax = TX_MAX;
-   }
+        AdvancedData->FifoRxMax = RX_MAX;
+    }
 
 
-   // Get RxFIFO information
+    // Get RxFIFO information
 
-   AdvancedData->UseRxFIFOControl = TRUE;
+    dwSize = sizeof(dwFifo);
+    dwError = RegQueryValueEx(hDeviceKey,
+                              m_szFifoTxMax,
+                              NULL,
+                              NULL,
+                              (LPBYTE)(&dwFifo),
+                              &dwSize);
 
-   dwSize = sizeof(dwFifo);
-   dwError = RegQueryValueEx(hDeviceKey,
-                             m_szRxFIFO,
-                             NULL,
-                             NULL,
-                             (LPBYTE)(&dwFifo),
-                             &dwSize);
+    if (dwError == ERROR_SUCCESS) {
 
-   if (dwError == ERROR_SUCCESS) {
+        // Save this initial value
 
-      // Save this initial value
+        AdvancedData->FifoTxMax = dwFifo;
+        if (AdvancedData->FifoTxMax > TX_MAX) {
+            AdvancedData->FifoTxMax = TX_MAX;
+        }
+    } else {
 
-      AdvancedData->RxFIFO = dwFifo;
-      if (AdvancedData->RxFIFO > RX_MAX) {
-          goto SetRxFIFO;
-      }
-   }
-   else {
-SetRxFIFO:
+        // value does not exist. Create our own
 
-      // value does not exist. Create our own
+        AdvancedData->FifoTxMax = TX_MAX;
+    }
 
-      dwData = AdvancedData->FifoRxMax;
-      dwSize = sizeof(dwData);
-      dwError = RegSetValueEx(hDeviceKey,
+
+    // Get RxFIFO information
+
+    AdvancedData->UseRxFIFOControl = TRUE;
+
+    dwSize = sizeof(dwFifo);
+    dwError = RegQueryValueEx(hDeviceKey,
                               m_szRxFIFO,
-                              0,
-                              REG_DWORD,
-                              (CONST BYTE *)(&dwData),
-                              dwSize);
+                              NULL,
+                              NULL,
+                              (LPBYTE)(&dwFifo),
+                              &dwSize);
 
-      if (dwError == ERROR_SUCCESS) {
-         AdvancedData->RxFIFO = AdvancedData->FifoRxMax;
-      }
-      else {
-         AdvancedData->RxFIFO = 0;
-         AdvancedData->UseRxFIFOControl = FALSE;
-      }
-   }
+    if (dwError == ERROR_SUCCESS) {
+
+        // Save this initial value
+
+        AdvancedData->RxFIFO = dwFifo;
+        if (AdvancedData->RxFIFO > RX_MAX) {
+            goto SetRxFIFO;
+        }
+    } else {
+    SetRxFIFO:
+
+        // value does not exist. Create our own
+
+        dwData = AdvancedData->FifoRxMax;
+        dwSize = sizeof(dwData);
+        dwError = RegSetValueEx(hDeviceKey,
+                                m_szRxFIFO,
+                                0,
+                                REG_DWORD,
+                                (CONST BYTE*)(&dwData),
+                                dwSize);
+
+        if (dwError == ERROR_SUCCESS) {
+            AdvancedData->RxFIFO = AdvancedData->FifoRxMax;
+        } else {
+            AdvancedData->RxFIFO = 0;
+            AdvancedData->UseRxFIFOControl = FALSE;
+        }
+    }
 
 
-   // Get TxFIFO information
+    // Get TxFIFO information
 
-   AdvancedData->UseTxFIFOControl = TRUE;
+    AdvancedData->UseTxFIFOControl = TRUE;
 
-   dwSize = sizeof(dwFifo);
-   dwError = RegQueryValueEx(hDeviceKey,
-                             m_szTxFIFO,
-                             NULL,
-                             NULL,
-                             (LPBYTE)(&dwFifo),
-                             &dwSize);
-
-   if (dwError == ERROR_SUCCESS) {
-
-      // Save this initial value
-
-      AdvancedData->TxFIFO = dwFifo;
-      if (AdvancedData->TxFIFO > TX_MAX) {
-          goto SetTxFIFO;
-      }
-   }
-   else {
-SetTxFIFO:
-
-      // value does not exist. Create our own
-
-      dwData = AdvancedData->FifoTxMax;
-      dwSize = sizeof(dwData);
-      dwError = RegSetValueEx(hDeviceKey,
+    dwSize = sizeof(dwFifo);
+    dwError = RegQueryValueEx(hDeviceKey,
                               m_szTxFIFO,
-                              0,
-                              REG_DWORD,
-                              (LPBYTE)(&dwData),
-                              dwSize);
+                              NULL,
+                              NULL,
+                              (LPBYTE)(&dwFifo),
+                              &dwSize);
 
-      if (dwError == ERROR_SUCCESS) {
-         AdvancedData->TxFIFO = AdvancedData->FifoTxMax;
-      }
-      else {
-         AdvancedData->TxFIFO = 0;
-         AdvancedData->UseTxFIFOControl = FALSE;
-      }
-   }
+    if (dwError == ERROR_SUCCESS) {
+
+        // Save this initial value
+
+        AdvancedData->TxFIFO = dwFifo;
+        if (AdvancedData->TxFIFO > TX_MAX) {
+            goto SetTxFIFO;
+        }
+    } else {
+    SetTxFIFO:
+
+        // value does not exist. Create our own
+
+        dwData = AdvancedData->FifoTxMax;
+        dwSize = sizeof(dwData);
+        dwError = RegSetValueEx(hDeviceKey,
+                                m_szTxFIFO,
+                                0,
+                                REG_DWORD,
+                                (LPBYTE)(&dwData),
+                                dwSize);
+
+        if (dwError == ERROR_SUCCESS) {
+            AdvancedData->TxFIFO = AdvancedData->FifoTxMax;
+        } else {
+            AdvancedData->TxFIFO = 0;
+            AdvancedData->UseTxFIFOControl = FALSE;
+        }
+    }
 
 
-   // Get Polling Period information
+    // Get Polling Period information
 
-   AdvancedData->PollingPeriod = PollingPeriods[POLL_PERIOD_DEFAULT_IDX];
+    AdvancedData->PollingPeriod = PollingPeriods[POLL_PERIOD_DEFAULT_IDX];
 
-   dwSize = sizeof(dwFifo);
-   dwError = RegQueryValueEx(hDeviceKey,
-                             m_szPollingPeriod,
-                             NULL,
-                             NULL,
-                             (LPBYTE)(&dwFifo),
-                             &dwSize);
-
-   if (dwError == ERROR_SUCCESS) {
-
-      // Save this initial value
-
-      AdvancedData->PollingPeriod = dwFifo;
-   }
-   else {
-
-      // value does not exist. Create our own
-
-      dwData = AdvancedData->PollingPeriod;
-      dwSize = sizeof(dwData);
-      dwError = RegSetValueEx(hDeviceKey,
+    dwSize = sizeof(dwFifo);
+    dwError = RegQueryValueEx(hDeviceKey,
                               m_szPollingPeriod,
-                              0,
-                              REG_DWORD,
-                              (LPBYTE)(&dwData),
-                              dwSize);
-   }
+                              NULL,
+                              NULL,
+                              (LPBYTE)(&dwFifo),
+                              &dwSize);
 
-   RegCloseKey(hDeviceKey);
+    if (dwError == ERROR_SUCCESS) {
 
-   if (ERROR_SUCCESS != dwError) {
-      return dwError;
-   }
-   else {
-      return ERROR_SUCCESS;
-   }
+        // Save this initial value
+
+        AdvancedData->PollingPeriod = dwFifo;
+    } else {
+
+        // value does not exist. Create our own
+
+        dwData = AdvancedData->PollingPeriod;
+        dwSize = sizeof(dwData);
+        dwError = RegSetValueEx(hDeviceKey,
+                                m_szPollingPeriod,
+                                0,
+                                REG_DWORD,
+                                (LPBYTE)(&dwData),
+                                dwSize);
+    }
+
+    RegCloseKey(hDeviceKey);
+
+    if (ERROR_SUCCESS != dwError) {
+        return dwError;
+    } else {
+        return ERROR_SUCCESS;
+    }
 } /* FillAdvancedDlg*/
 
 void
@@ -1305,7 +1198,7 @@ ChangeParentTitle(
     IN HWND    Hwnd,
     IN LPCTSTR OldComName,
     IN LPCTSTR NewComName
-    )
+)
 {
     INT    textLength, offset, newNameLen, oldNameLen;
     PTCHAR oldTitle = NULL, newTitle = NULL;
@@ -1320,7 +1213,7 @@ ChangeParentTitle(
     // Account for null char and unicode
 
     textLength++;
-    oldTitle = (PTCHAR) LocalAlloc(LPTR, textLength * sizeof(TCHAR));
+    oldTitle = (PTCHAR)LocalAlloc(LPTR, textLength * sizeof(TCHAR));
     if (!oldTitle) {
         return;
     }
@@ -1340,7 +1233,7 @@ ChangeParentTitle(
     if (offset > 0) {
         textLength += offset;
     }
-    newTitle = (PTCHAR) LocalAlloc(LPTR, textLength * sizeof(TCHAR));
+    newTitle = (PTCHAR)LocalAlloc(LPTR, textLength * sizeof(TCHAR));
     if (!newTitle) {
         goto exit;
     }
@@ -1371,7 +1264,7 @@ void
 MigratePortSettings(
     LPCTSTR OldComName,
     LPCTSTR NewComName
-    )
+)
 {
     TCHAR settings[BUFFER_SIZE];
     TCHAR szNew[20], szOld[20];
@@ -1387,15 +1280,14 @@ MigratePortSettings(
                      szOld,
                      TEXT(""),
                      settings,
-                     sizeof(settings) / sizeof(TCHAR) );
+                     sizeof(settings) / sizeof(TCHAR));
 
 
     // Insert the new key based on the old one
 
     if (settings[0] == TEXT('\0')) {
         WriteProfileString(m_szPorts, szNew, m_szDefParams);
-    }
-    else {
+    } else {
         WriteProfileString(m_szPorts, szNew, settings);
     }
 
@@ -1427,7 +1319,7 @@ EnactComNameChanges(
     curComNum = myatoi(AdvancedData->szComName + wcslen(m_szCOM));
 
     if (AdvancedData->hComDB != HCOMDB_INVALID_HANDLE_VALUE) {
-        BYTE   portUsage[MAX_COM_PORT/8];
+        BYTE   portUsage[MAX_COM_PORT / 8];
         DWORD  portsReported;
         char   mask;
 
@@ -1442,10 +1334,10 @@ EnactComNameChanges(
                                  &portsReported);
 
         if ((i = NewComNum % 8))
-            mask = 1 << (i-1);
+            mask = 1 << (i - 1);
         else
-            mask = (char) 0x80;
-        if ((portUsage[(NewComNum-1)/8] & mask) &&
+            mask = (char)0x80;
+        if ((portUsage[(NewComNum - 1) / 8] & mask) &&
             MyMessageBox(ParentHwnd, IDS_PORT_IN_USE, IDS_NAME_PROPERTIES,
                          MB_YESNO | MB_ICONINFORMATION) == IDNO) {
 
@@ -1455,7 +1347,7 @@ EnactComNameChanges(
         }
     }
 
-    if (!QueryDosDevice(AdvancedData->szComName, buffer, BUFFER_SIZE-1)) {
+    if (!QueryDosDevice(AdvancedData->szComName, buffer, BUFFER_SIZE - 1)) {
 
         // The old com name does not exist in the mapping.  Basically, the symbolic
         // link from COMX => \Device\SerialY has been broken.  Just change the
@@ -1463,8 +1355,7 @@ EnactComNameChanges(
         // change the dos symbolic name b/c one does not exist
 
         updateMapping = FALSE;
-    }
-    else {
+    } else {
         TCHAR  szComFileName[20]; // more than enough for "\\.\COMXxxx"
         HANDLE hCom;
 
@@ -1507,7 +1398,7 @@ EnactComNameChanges(
         BOOL removed;
         HKEY hSerialMap;
 
-        if (!QueryDosDevice(AdvancedData->szComName, buffer, BUFFER_SIZE-1)) {
+        if (!QueryDosDevice(AdvancedData->szComName, buffer, BUFFER_SIZE - 1)) {
 
             // This shouldn't happen because the previous QueryDosDevice call
             // succeeded
@@ -1552,12 +1443,12 @@ EnactComNameChanges(
                 dwComSize = sizeof(szCom);
                 dwEnum = RegEnumValue(hSerialMap, i++, szSerial, &dwSerialSize, NULL, &dwType, (LPBYTE)szCom, &dwComSize);
                 if (dwEnum == ERROR_SUCCESS) {
-                    if(dwType != REG_SZ)
+                    if (dwType != REG_SZ)
                         continue;
 
                     if (wcscmp(szCom, AdvancedData->szComName) == 0) {
-                        RegSetValueEx(hSerialMap, szSerial, 0, REG_SZ, (PBYTE) szNewComName, dwNewComNameLen);
-                                        break;
+                        RegSetValueEx(hSerialMap, szSerial, 0, REG_SZ, (PBYTE)szNewComName, dwNewComNameLen);
+                        break;
                     }
                 }
 
@@ -1574,27 +1465,26 @@ EnactComNameChanges(
     // Update the com db
 
     if (AdvancedData->hComDB != HCOMDB_INVALID_HANDLE_VALUE) {
-        ComDBReleasePort(AdvancedData->hComDB, (DWORD) curComNum);
+        ComDBReleasePort(AdvancedData->hComDB, (DWORD)curComNum);
 
-        ComDBClaimPort(AdvancedData->hComDB, (DWORD) NewComNum, TRUE, NULL);
+        ComDBClaimPort(AdvancedData->hComDB, (DWORD)NewComNum, TRUE, NULL);
     }
 
 
     // Set the friendly name in the form of DeviceDesc (COM#)
 
     if (LoadString(g_hInst, IDS_FRIENDLY_FORMAT, szFriendlyNameFormat, CharSizeOf(szFriendlyNameFormat)) &&
-        SetupDiGetDeviceRegistryProperty(AdvancedData->DeviceInfoSet, AdvancedData->DeviceInfoData, SPDRP_DEVICEDESC, NULL, (PBYTE) szDeviceDesc, sizeof(szDeviceDesc), NULL)) {
+        SetupDiGetDeviceRegistryProperty(AdvancedData->DeviceInfoSet, AdvancedData->DeviceInfoData, SPDRP_DEVICEDESC, NULL, (PBYTE)szDeviceDesc, sizeof(szDeviceDesc), NULL)) {
         wsprintf(buffer, szFriendlyNameFormat, szDeviceDesc, szNewComName);
-    }
-    else {
+    } else {
         lstrcpy(buffer, szNewComName);// Use the COM port name straight out
     }
 
     SetupDiSetDeviceRegistryProperty(AdvancedData->DeviceInfoSet,
                                      AdvancedData->DeviceInfoData,
                                      SPDRP_FRIENDLYNAME,
-                                     (PBYTE) buffer,
-                                     ByteCountOf(wcslen(buffer)+1));
+                                     (PBYTE)buffer,
+                                     ByteCountOf(wcslen(buffer) + 1));
 
 
     // Set the parent dialog's title to reflect the change in the com port's name
@@ -1650,161 +1540,159 @@ ULONG
 SaveAdvancedSettings(
     IN HWND ParentHwnd,
     IN PADVANCED_DATA AdvancedData
-    )
+)
 {
-   HKEY   hDeviceKey;
-   DWORD  dwSize, dwData;
+    HKEY   hDeviceKey;
+    DWORD  dwSize, dwData;
 
-   UINT  i = CB_ERR, curComNum, newComNum = CB_ERR;
-   UINT  uiDlgButtonChecked;
-   DWORD dwRxPosition, dwTxPosition, dwPollingPeriod;
+    UINT  i = CB_ERR, curComNum, newComNum = CB_ERR;
+    UINT  uiDlgButtonChecked;
+    DWORD dwRxPosition, dwTxPosition, dwPollingPeriod;
 
-   SP_DEVINSTALL_PARAMS spDevInstall;
-
-
-   // Grab all of the new settings
+    SP_DEVINSTALL_PARAMS spDevInstall;
 
 
-   uiDlgButtonChecked = IsDlgButtonChecked(ParentHwnd, IDC_FIFO);
-
-   dwTxPosition = Trackbar_GetPos(GetDlgItem(ParentHwnd, IDC_TRANSMIT_SLIDER));
-   dwRxPosition = Trackbar_GetPos(GetDlgItem(ParentHwnd, IDC_RECEIVE_SLIDER));
+    // Grab all of the new settings
 
 
-   // Index is actually into the array of values
+    uiDlgButtonChecked = IsDlgButtonChecked(ParentHwnd, IDC_FIFO);
 
-   dwRxPosition = RxValues[dwRxPosition-1];
-
-   curComNum = myatoi(AdvancedData->szComName + wcslen(m_szCOM));
-   newComNum = ComboBox_GetCurSel(GetDlgItem(ParentHwnd, PP_PORT_NUMBER));
-
-   if (newComNum == CB_ERR) {
-       newComNum = curComNum;
-   }
-   else {
-       newComNum++;
-   }
-
-   i = ComboBox_GetCurSel(GetDlgItem(ParentHwnd, IDC_POLL_PERIOD));
-
-   if (i == CB_ERR || i >= NUM_POLLING_PERIODS) {
-       dwPollingPeriod = AdvancedData->PollingPeriod;
-   }
-   else {
-       dwPollingPeriod = PollingPeriods[i];
-   }
+    dwTxPosition = Trackbar_GetPos(GetDlgItem(ParentHwnd, IDC_TRANSMIT_SLIDER));
+    dwRxPosition = Trackbar_GetPos(GetDlgItem(ParentHwnd, IDC_RECEIVE_SLIDER));
 
 
-   // See if they changed anything
+    // Index is actually into the array of values
 
-   if (((AdvancedData->UseFifoBuffers  && uiDlgButtonChecked == BST_CHECKED) ||
+    dwRxPosition = RxValues[dwRxPosition - 1];
+
+    curComNum = myatoi(AdvancedData->szComName + wcslen(m_szCOM));
+    newComNum = ComboBox_GetCurSel(GetDlgItem(ParentHwnd, PP_PORT_NUMBER));
+
+    if (newComNum == CB_ERR) {
+        newComNum = curComNum;
+    } else {
+        newComNum++;
+    }
+
+    i = ComboBox_GetCurSel(GetDlgItem(ParentHwnd, IDC_POLL_PERIOD));
+
+    if (i == CB_ERR || i >= NUM_POLLING_PERIODS) {
+        dwPollingPeriod = AdvancedData->PollingPeriod;
+    } else {
+        dwPollingPeriod = PollingPeriods[i];
+    }
+
+
+    // See if they changed anything
+
+    if (((AdvancedData->UseFifoBuffers && uiDlgButtonChecked == BST_CHECKED) ||
         (!AdvancedData->UseFifoBuffers && uiDlgButtonChecked == BST_UNCHECKED)) &&
-       AdvancedData->RxFIFO == dwRxPosition &&
-       AdvancedData->TxFIFO == dwTxPosition &&
-       AdvancedData->PollingPeriod == dwPollingPeriod &&
-       newComNum == curComNum) {
+        AdvancedData->RxFIFO == dwRxPosition &&
+        AdvancedData->TxFIFO == dwTxPosition &&
+        AdvancedData->PollingPeriod == dwPollingPeriod &&
+        newComNum == curComNum) {
 
-      // They didn't change anything. Just exit.
+        // They didn't change anything. Just exit.
 
-      return ERROR_SUCCESS;
-   }
-
-
-   // Open the device key for the source device instance
-
-   hDeviceKey = SetupDiOpenDevRegKey(AdvancedData->DeviceInfoSet,
-                                     AdvancedData->DeviceInfoData,
-                                     DICS_FLAG_GLOBAL,
-                                     0,
-                                     DIREG_DEV,
-                                     KEY_ALL_ACCESS);
-
-   if (INVALID_HANDLE_VALUE == hDeviceKey) {
-       // BUGBUG
-      return ERROR_SUCCESS;
-   }
+        return ERROR_SUCCESS;
+    }
 
 
-   // Check to see if the user changed the COM port name
+    // Open the device key for the source device instance
 
-   if (newComNum != curComNum) {
-      EnactComNameChanges(ParentHwnd,
-                          AdvancedData,
-                          hDeviceKey,
-                          newComNum);
-   }
+    hDeviceKey = SetupDiOpenDevRegKey(AdvancedData->DeviceInfoSet,
+                                      AdvancedData->DeviceInfoData,
+                                      DICS_FLAG_GLOBAL,
+                                      0,
+                                      DIREG_DEV,
+                                      KEY_ALL_ACCESS);
 
-
-   if ((AdvancedData->UseFifoBuffers  && uiDlgButtonChecked == BST_UNCHECKED) ||
-       (!AdvancedData->UseFifoBuffers && uiDlgButtonChecked == BST_CHECKED)) {
-
-      // They changed the Use Fifo checkbox.
-
-      dwData = (uiDlgButtonChecked == BST_CHECKED) ? 1 : 0;
-      dwSize = sizeof(dwData);
-      RegSetValueEx(hDeviceKey,
-                    m_szFIFO,
-                    0,
-                    REG_DWORD,
-                    (CONST BYTE *)(&dwData),
-                    dwSize);
-   }
-
-   if (AdvancedData->RxFIFO != dwRxPosition) {
-
-      // They changed the RxFIFO setting
-
-      dwData = dwRxPosition;
-      dwSize = sizeof(dwData);
-      RegSetValueEx(hDeviceKey,
-                    m_szRxFIFO,
-                    0,
-                    REG_DWORD,
-                    (CONST BYTE *)(&dwData),
-                    dwSize);
-   }
-
-   if (AdvancedData->TxFIFO != dwTxPosition) {
-
-      // They changed the TxFIFO setting
-
-      dwData = dwTxPosition;
-      dwSize = sizeof(dwData);
-      RegSetValueEx(hDeviceKey,
-                    m_szTxFIFO,
-                    0,
-                    REG_DWORD,
-                    (CONST BYTE *)(&dwData),
-                    dwSize);
-   }
-
-   if (AdvancedData->PollingPeriod != dwPollingPeriod) {
-
-      // They changed the polling period
-
-      dwData = dwPollingPeriod;
-      dwSize = sizeof(dwData);
-      RegSetValueEx(hDeviceKey,
-                    m_szPollingPeriod,
-                    0,
-                    REG_DWORD,
-                    (CONST BYTE *)(&dwData),
-                    dwSize);
+    if (INVALID_HANDLE_VALUE == hDeviceKey) {
+        // BUGBUG
+        return ERROR_SUCCESS;
+    }
 
 
-      // Don't really care if this fails, nothing else we can do
+    // Check to see if the user changed the COM port name
 
-      CM_Reenumerate_DevNode(AdvancedData->DeviceInfoData->DevInst,
-                             CM_REENUMERATE_NORMAL);
-   }
+    if (newComNum != curComNum) {
+        EnactComNameChanges(ParentHwnd,
+                            AdvancedData,
+                            hDeviceKey,
+                            newComNum);
+    }
 
-   RegCloseKey(hDeviceKey);
 
-   SetupDiCallClassInstaller(DIF_PROPERTYCHANGE,
-                             AdvancedData->DeviceInfoSet,
-                             AdvancedData->DeviceInfoData);
+    if ((AdvancedData->UseFifoBuffers && uiDlgButtonChecked == BST_UNCHECKED) ||
+        (!AdvancedData->UseFifoBuffers && uiDlgButtonChecked == BST_CHECKED)) {
 
-   return ERROR_SUCCESS;
+        // They changed the Use Fifo checkbox.
+
+        dwData = (uiDlgButtonChecked == BST_CHECKED) ? 1 : 0;
+        dwSize = sizeof(dwData);
+        RegSetValueEx(hDeviceKey,
+                      m_szFIFO,
+                      0,
+                      REG_DWORD,
+                      (CONST BYTE*)(&dwData),
+                      dwSize);
+    }
+
+    if (AdvancedData->RxFIFO != dwRxPosition) {
+
+        // They changed the RxFIFO setting
+
+        dwData = dwRxPosition;
+        dwSize = sizeof(dwData);
+        RegSetValueEx(hDeviceKey,
+                      m_szRxFIFO,
+                      0,
+                      REG_DWORD,
+                      (CONST BYTE*)(&dwData),
+                      dwSize);
+    }
+
+    if (AdvancedData->TxFIFO != dwTxPosition) {
+
+        // They changed the TxFIFO setting
+
+        dwData = dwTxPosition;
+        dwSize = sizeof(dwData);
+        RegSetValueEx(hDeviceKey,
+                      m_szTxFIFO,
+                      0,
+                      REG_DWORD,
+                      (CONST BYTE*)(&dwData),
+                      dwSize);
+    }
+
+    if (AdvancedData->PollingPeriod != dwPollingPeriod) {
+
+        // They changed the polling period
+
+        dwData = dwPollingPeriod;
+        dwSize = sizeof(dwData);
+        RegSetValueEx(hDeviceKey,
+                      m_szPollingPeriod,
+                      0,
+                      REG_DWORD,
+                      (CONST BYTE*)(&dwData),
+                      dwSize);
+
+
+        // Don't really care if this fails, nothing else we can do
+
+        CM_Reenumerate_DevNode(AdvancedData->DeviceInfoData->DevInst,
+                               CM_REENUMERATE_NORMAL);
+    }
+
+    RegCloseKey(hDeviceKey);
+
+    SetupDiCallClassInstaller(DIF_PROPERTYCHANGE,
+                              AdvancedData->DeviceInfoSet,
+                              AdvancedData->DeviceInfoData);
+
+    return ERROR_SUCCESS;
 } /* SaveAdvancedSettings*/
 
 

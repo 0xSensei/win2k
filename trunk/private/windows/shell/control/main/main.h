@@ -16,15 +16,12 @@
 
 */
 
-//                            Include Files
-
+//Include Files
 #include <windows.h>
 #include "cphelp.h"
 #include "uniconv.h"
 
-
-//                        Definitions
-
+//Definitions
 #define CP_ACCEL    100
 #define CP_MENU     200
 
@@ -57,11 +54,7 @@
 #define COPY_NODISKSPACE  -24
 #define COPY_NOMEMORY     -25
 
-
 //  String Resource IDs
-
-
-
 #define INITS                 0                     // Old string id values
 #define CLASS               (INITS+16)              // 16
 #define WIN_INI             (CLASS+4)               // 20
@@ -99,8 +92,8 @@
 #define CHINESE_FONTSAMPLE      2953
 #define OEM_FONTSAMPLE          2954
 
-/* 2970 - 2979 defined for Wife Font Driver dialog box  and messages used in it
-*/
+                                    /* 2970 - 2979 defined for Wife Font Driver dialog box  and messages used in it
+                                    */
 #define FONT_NODRVINSTALLED     2970
 #define FONT_NODRVSEL           2971
 #define FONT_MULDRVSEL          2972
@@ -122,11 +115,11 @@
 #define IDS_WIFE_UNABLE_CONVERT 2986
 #define IDS_WIFE_UNABLE_INSTALL 2987
 
-//#define DPD_ASK_USE           2988
-//#define DPD_INTER_ERR         2989
-//#define DPD_ASK_OVERWRITE     2990
-//#define DPD_ABORTED           2991
-//#define DPD_ITS_DPD           2992
+                                    //#define DPD_ASK_USE           2988
+                                    //#define DPD_INTER_ERR         2989
+                                    //#define DPD_ASK_OVERWRITE     2990
+                                    //#define DPD_ABORTED           2991
+                                    //#define DPD_ITS_DPD           2992
 
 #define FONTDRIVERSINF          2988
 #define FONTSINF                2989
@@ -283,28 +276,28 @@
 
 typedef struct tagLDF
 {
-  WORD  Leadin;
-  TCHAR LeadinSep[MAX_LDF_SEP];
-  WORD  Order[3];
+    WORD  Leadin;
+    TCHAR LeadinSep[MAX_LDF_SEP];
+    WORD  Order[3];
 
 #ifdef JAPAN    /* V-KeijiY  June.30.1992 */
-// LONG_DATE_FORMAT
-  // additional separator is required
-  TCHAR Sep[3][MAX_LDF_SEP];
+    // LONG_DATE_FORMAT
+      // additional separator is required
+    TCHAR Sep[3][MAX_LDF_SEP];
 #else
-  TCHAR Sep[2][MAX_LDF_SEP];
+    TCHAR Sep[2][MAX_LDF_SEP];
 #endif
 
 #ifdef JAPAN    /* V-KeijiY  June.30.1992 */
-// LONG_DATE_FORMAT
-  // Japanese date format will have day string (sunday..) to the tail
-  WORD Trailin; // this is used as flag
+    // LONG_DATE_FORMAT
+      // Japanese date format will have day string (sunday..) to the tail
+    WORD Trailin; // this is used as flag
 #endif
 
 } LDF;
 
-typedef LDF FAR *LPLDF;
-typedef LDF NEAR *PLDF;
+typedef LDF FAR* LPLDF;
+typedef LDF NEAR* PLDF;
 
 #define CONTROLICON     21
 #define NINEPINICON     23
@@ -428,7 +421,7 @@ typedef LDF NEAR *PLDF;
 
 #define  CHILDBITMAPS   50             /* Bitmaps from 50 - 59 */
 
-// World bitmap for TimeZones
+                                 // World bitmap for TimeZones
 
 #define  WORLD          51
 
@@ -560,7 +553,7 @@ typedef LDF NEAR *PLDF;
 #define INTL_NUMCHANGE      216
 #define INTL_NUMCHANGE2     217
 #define INTL_NUMSAMPLE      218
-#define INTL_NEGNUMSAMPLE       228    /* ! OUT OF ORDER ! */
+#define INTL_NEGNUMSAMPLE   228    /* ! OUT OF ORDER ! */
 #define INTL_CURACCEL       219
 #define INTL_CURCHANGE      220
 #define INTL_CURCHANGE2     221
@@ -820,14 +813,14 @@ typedef LDF NEAR *PLDF;
 #define CURSORSUM       (CURSORMIN+CURSORMAX)
 #define CURSORRANGE     (CURSORMAX-CURSORMIN)
 
-#define LEFTBOXX            16
-#define LEFTBOXY            27
-#define LEFTMOUSEX          22
-#define LEFTMOUSEY          41
-#define RIGHTBOXX           33
-#define RIGHTBOXY           27
-#define RIGHTMOUSEX         40
-#define RIGHTMOUSEY         41
+#define LEFTBOXX    16
+#define LEFTBOXY    27
+#define LEFTMOUSEX  22
+#define LEFTMOUSEY  41
+#define RIGHTBOXX   33
+#define RIGHTBOXY   27
+#define RIGHTMOUSEX 40
+#define RIGHTMOUSEY 41
 
 #define PORT_BAUDRATE   800
 #define PORT_DATABITS   801
@@ -908,8 +901,6 @@ typedef LDF NEAR *PLDF;
 #define IDD_CDMP_BROWSE        1206
 #define IDD_CDMP_MESSAGE       1207
 #define IDD_CDMP_ICON          1208
-
-
 
 #define ID_INSTALLMSG           42
 #define ID_PROGRESSMSG          43
@@ -1010,10 +1001,10 @@ typedef LDF NEAR *PLDF;
 //  Font file types used in Fonts applet - installation
 
 
-#define NOT_TT_OR_T1        0       //  Neither TrueType or Type 1 font (FALSE)
-#define TRUETYPE_FONT       1       //  This is a TrueType font (TRUE)
-#define TYPE1_FONT          2       //  This is an Adobe Type1 font
-#define TYPE1_FONT_NC       3       //  Type1 font that cannot be converted to TT
+#define NOT_TT_OR_T1  0 //  Neither TrueType or Type 1 font (FALSE)
+#define TRUETYPE_FONT 1 //  This is a TrueType font (TRUE)
+#define TYPE1_FONT    2 //  This is an Adobe Type1 font
+#define TYPE1_FONT_NC 3 //  Type1 font that cannot be converted to TT
 
 
 //  Font file types used in Fonts applet - Main dlg "Installed Fonts" lbox
@@ -1041,10 +1032,7 @@ typedef LDF NEAR *PLDF;
 #define TYPE1_INSTALL_TT_AND_MPS  14         //  PS Font converted to TT and matching
                                              //   PS font already installed.
 
-
-
 //                           Typedefs
-
 
 typedef struct
 {
@@ -1053,7 +1041,7 @@ typedef struct
     TCHAR ModName[MODNAMEMAX];
     int ModType;
 } BUFTYPE;
-typedef BUFTYPE NEAR *PBUFTYPE, FAR *LPBUFTYPE;
+typedef BUFTYPE NEAR* PBUFTYPE, FAR* LPBUFTYPE;
 
 /* Suffix length + NULL terminator */
 #define TIMESUF_LEN   9
@@ -1100,8 +1088,8 @@ typedef struct              /* International section description */
     TCHAR  sMonDecimal[6];  /* Monetary Decimal separator string */
 
 } INTLSTRUCT;
-typedef INTLSTRUCT FAR *LPINTL;
-typedef INTLSTRUCT NEAR *PINTL;
+typedef INTLSTRUCT FAR* LPINTL;
+typedef INTLSTRUCT NEAR* PINTL;
 
 #ifndef NOARROWS
 typedef struct
@@ -1116,8 +1104,8 @@ typedef struct
     short thumbtrack;
     BYTE  flags;              /* flags set on return                   */
 } ARROWVSCROLL;
-typedef ARROWVSCROLL NEAR     *NPARROWVSCROLL;
-typedef ARROWVSCROLL FAR      *LPARROWVSCROLL;
+typedef ARROWVSCROLL NEAR* NPARROWVSCROLL;
+typedef ARROWVSCROLL FAR* LPARROWVSCROLL;
 
 #define UNKNOWNCOMMAND 1
 #define OVERFLOW       2
@@ -1142,7 +1130,7 @@ typedef struct _APPLET_TIME_ZONE_INFORMATION
     LONG       DaylightBias;
     SYSTEMTIME StandardDate;
     SYSTEMTIME DaylightDate;
-} APPLET_TIME_ZONE_INFORMATION, *PAPPLET_TIME_ZONE_INFORMATION;
+} APPLET_TIME_ZONE_INFORMATION, * PAPPLET_TIME_ZONE_INFORMATION;
 
 
 //                              Macros
@@ -1234,10 +1222,10 @@ extern INTLSTRUCT IntlDef;
 #define NUM_CUR_PAT    2
 #define NUM_SYM_PAT    4
 
-extern TCHAR *pszNegNumPat[NUM_NEGNUM_PAT];
-extern TCHAR *pszCurPat[NUM_CUR_PAT];
-extern TCHAR *pszNegCurPat[NUM_NEG_PAT];
-extern TCHAR *pszSymPlacement[NUM_SYM_PAT];
+extern TCHAR* pszNegNumPat[NUM_NEGNUM_PAT];
+extern TCHAR* pszCurPat[NUM_CUR_PAT];
+extern TCHAR* pszNegCurPat[NUM_NEG_PAT];
+extern TCHAR* pszSymPlacement[NUM_SYM_PAT];
 
 extern TCHAR szYes[];
 extern TCHAR szNo[];
@@ -1297,11 +1285,11 @@ extern RECT    rScrollFrame;
 extern RECT    rMDIWindow2;
 extern RECT    rMDIWindow, rClient, rClientFrame, rClientText;
 extern RECT    rButton;
-extern RECT    rPullDown,rPullInside,rGrayText,rHighlight;
+extern RECT    rPullDown, rPullInside, rGrayText, rHighlight;
 extern int     cyCaption, cyBorder, cyIcon, cyMenu, cyVScroll, cyVThumb;
 extern int     cxVScroll, cxBorder, cxSize;
 extern TCHAR    szActive[40], szInactive[40], szMenu[40];
-extern TCHAR    szWindow[40],szGrayText[40], szHighlightText[40];
+extern TCHAR    szWindow[40], szGrayText[40], szHighlightText[40];
 extern DWORD   CharHeight, CharWidth;
 extern DWORD   CharExternalLeading, CharDescent;
 extern POINT   ptMenuText, ptTitleText, ptTitleText2;
@@ -1311,8 +1299,8 @@ extern DWORD   rgbBoxColor[];
 extern DWORD   rgbBoxColorDefault[];
 extern HBITMAP hUpArrow, hDownArrow;
 extern HDC     hDCBits;
-extern TCHAR   *pszWinStrings[];
-extern short   H,L,S;
+extern TCHAR* pszWinStrings[];
+extern short   H, L, S;
 extern WORD    currentHue;
 extern WORD    currentSat;
 extern WORD    currentLum;
@@ -1345,118 +1333,118 @@ extern INTLSTRUCT IntlDef;
 //                            Function Prototypes
 
 /* arrow.c */
-short ArrowVScrollProc (short wScroll, short nCurrent, LPARROWVSCROLL lpAVS);
-BOOL  OddArrowWindow (HWND);
+short ArrowVScrollProc(short wScroll, short nCurrent, LPARROWVSCROLL lpAVS);
+BOOL  OddArrowWindow(HWND);
 
 /* color.c */
-BOOL  APIENTRY ColorDlg (HWND hWnd, UINT message, DWORD wParam, LONG lParam);
-BOOL  RemoveMsgBox (HWND  hWnd, LPTSTR lpStr1, WORD  wString);
-DWORD hexatol (LPTSTR psz);
-void  HiLiteBox (HDC hDC, DWORD nBox, DWORD fStyle);
-void  ChangeBoxSelection (HWND hWnd, DWORD nNewBox);
-void  ChangeBoxFocus (HWND hWnd, DWORD nNewBox);
-void  ChangeColorBox (HWND hWnd, DWORD dwRGBcolor);
-void  RetractComboBox (HWND hWnd);
-BOOL  ColorSchemeMatch (HDC hDC, LPTSTR pszScheme);
-short SchemeSelection (HWND hWnd, LPTSTR pszScheme);
-void  UpdateScheme (HWND hWnd);
-BOOL  SaveScheme (HWND hWnd, UINT message, DWORD wParam, LONG lParam);
-DWORD ColorStringFunc (LPTSTR pszScheme);
-BOOL  BoxDrawItem (LPDRAWITEMSTRUCT lpDIS);
-BOOL  ComboDrawItem (LPDRAWITEMSTRUCT lpDIS);
-BOOL  ColorKeyDown (DWORD wParam, DWORD *id);
-DWORD ElementFromPt (POINT pt);
-void  PaintBox (HDC hDC, DWORD i);
-BOOL  SetupScreenDiagram (HWND hWnd);
-BOOL  InitTuning (HWND  hWnd);
-BOOL  InitColor (HWND hWnd);
-void  PaintArrow (HDC hDC, BOOL bArrow);
-void  PaintElement (HWND hWnd, HDC hDC, DWORD nIndex);
-void  ColorPaint (HWND hWnd, HDC hDC, LPRECT lpPaintRect);
-void  StoreToWin (HWND hWnd);
-void  CPHelp (HWND hwnd);
-DWORD FillFromControlIni (HWND  hWnd, LPTSTR pszSection);
+BOOL  APIENTRY ColorDlg(HWND hWnd, UINT message, DWORD wParam, LONG lParam);
+BOOL  RemoveMsgBox(HWND  hWnd, LPTSTR lpStr1, WORD  wString);
+DWORD hexatol(LPTSTR psz);
+void  HiLiteBox(HDC hDC, DWORD nBox, DWORD fStyle);
+void  ChangeBoxSelection(HWND hWnd, DWORD nNewBox);
+void  ChangeBoxFocus(HWND hWnd, DWORD nNewBox);
+void  ChangeColorBox(HWND hWnd, DWORD dwRGBcolor);
+void  RetractComboBox(HWND hWnd);
+BOOL  ColorSchemeMatch(HDC hDC, LPTSTR pszScheme);
+short SchemeSelection(HWND hWnd, LPTSTR pszScheme);
+void  UpdateScheme(HWND hWnd);
+BOOL  SaveScheme(HWND hWnd, UINT message, DWORD wParam, LONG lParam);
+DWORD ColorStringFunc(LPTSTR pszScheme);
+BOOL  BoxDrawItem(LPDRAWITEMSTRUCT lpDIS);
+BOOL  ComboDrawItem(LPDRAWITEMSTRUCT lpDIS);
+BOOL  ColorKeyDown(DWORD wParam, DWORD* id);
+DWORD ElementFromPt(POINT pt);
+void  PaintBox(HDC hDC, DWORD i);
+BOOL  SetupScreenDiagram(HWND hWnd);
+BOOL  InitTuning(HWND  hWnd);
+BOOL  InitColor(HWND hWnd);
+void  PaintArrow(HDC hDC, BOOL bArrow);
+void  PaintElement(HWND hWnd, HDC hDC, DWORD nIndex);
+void  ColorPaint(HWND hWnd, HDC hDC, LPRECT lpPaintRect);
+void  StoreToWin(HWND hWnd);
+void  CPHelp(HWND hwnd);
+DWORD FillFromControlIni(HWND  hWnd, LPTSTR pszSection);
 
 
 /* color2.c */
-void  ChangeColorSettings (HWND  hWnd, DWORD dwRGBcolor);
-void  LumArrowPaint (HDC hDC);
-void  EraseLumArrow (HDC hDC);
-void  EraseCrossHair (HDC hDC);
-void  EraseCrossHair (HDC hDC);
-void  CrossHairPaint (HDC hDC, DWORD x, DWORD y);
-void  NearestSolid (HWND hDlg);
-void  SetupRainbowCapture (HWND  hDlg);
-BOOL  APIENTRY RainbowDlg (HWND hWnd, UINT message, DWORD wParam, LONG lParam);
-void  HLSPostoHLS (DWORD nHLSEdit);
-void  HLStoHLSPos (DWORD nHLSEdit);
-void  SetHLSEdit (DWORD nHLSEdit);
-void  SetRGBEdit (DWORD nRGBEdit);
-BOOL  InitRainbow (HWND hWnd);
-void  PaintRainbow (HDC hDC, LPRECT lpRect);
-void  RainbowPaint (HDC hDC, LPRECT lpPaintRect);
-void  RGBtoHLS (DWORD lRGBColor);
-WORD  HueToRGB (WORD n1, WORD n2, WORD hue);
-DWORD HLStoRGB (WORD hue, WORD lum, WORD sat);
-BOOL  RGBEditChange (HWND  hWnd, DWORD nDlgID);
+void  ChangeColorSettings(HWND  hWnd, DWORD dwRGBcolor);
+void  LumArrowPaint(HDC hDC);
+void  EraseLumArrow(HDC hDC);
+void  EraseCrossHair(HDC hDC);
+void  EraseCrossHair(HDC hDC);
+void  CrossHairPaint(HDC hDC, DWORD x, DWORD y);
+void  NearestSolid(HWND hDlg);
+void  SetupRainbowCapture(HWND  hDlg);
+BOOL  APIENTRY RainbowDlg(HWND hWnd, UINT message, DWORD wParam, LONG lParam);
+void  HLSPostoHLS(DWORD nHLSEdit);
+void  HLStoHLSPos(DWORD nHLSEdit);
+void  SetHLSEdit(DWORD nHLSEdit);
+void  SetRGBEdit(DWORD nRGBEdit);
+BOOL  InitRainbow(HWND hWnd);
+void  PaintRainbow(HDC hDC, LPRECT lpRect);
+void  RainbowPaint(HDC hDC, LPRECT lpPaintRect);
+void  RGBtoHLS(DWORD lRGBColor);
+WORD  HueToRGB(WORD n1, WORD n2, WORD hue);
+DWORD HLStoRGB(WORD hue, WORD lum, WORD sat);
+BOOL  RGBEditChange(HWND  hWnd, DWORD nDlgID);
 
 /* cpl.c */
-extern void  CPHelp (HWND hwnd);
+extern void  CPHelp(HWND hwnd);
 
 /* date.c */
-VOID CentreWindow (HWND hwnd);
-BOOL GetTimeZoneRes (HWND hDlg);
-VOID SetTheTimezone (HWND hDlg, int DaylightOption, PAPPLET_TIME_ZONE_INFORMATION ptzi);
+VOID CentreWindow(HWND hwnd);
+BOOL GetTimeZoneRes(HWND hDlg);
+VOID SetTheTimezone(HWND hDlg, int DaylightOption, PAPPLET_TIME_ZONE_INFORMATION ptzi);
 
 /* desktop.c */
 BOOL CheckVal(HWND hDlg, WORD wID, WORD wMin, WORD wMax, WORD wMsgID);
 
 /* font.c */
-BOOL   DelSharedFile (HWND hDlg, LPTSTR pszFontName, LPTSTR pszFile,
-                                 LPTSTR lpPathName, BOOL bCheckShared);
-VOID   FixupNulls        (LPTSTR);
-void   FontSelChange     (HWND hDlg);
-HANDLE MyOpenSystemFile  (LPTSTR lpName, LPTSTR lpPathName, WORD wFlags);
-HANDLE OpenFileWithShare (LPTSTR lpszFile, LPTSTR lpPathName, WORD wFlags);
-BOOL   TTEnabled         (void);
+BOOL   DelSharedFile(HWND hDlg, LPTSTR pszFontName, LPTSTR pszFile,
+                     LPTSTR lpPathName, BOOL bCheckShared);
+VOID   FixupNulls(LPTSTR);
+void   FontSelChange(HWND hDlg);
+HANDLE MyOpenSystemFile(LPTSTR lpName, LPTSTR lpPathName, WORD wFlags);
+HANDLE OpenFileWithShare(LPTSTR lpszFile, LPTSTR lpPathName, WORD wFlags);
+BOOL   TTEnabled(void);
 
 /* font2.c */
-void   AddBackslash     (LPTSTR lpszFile);
-HANDLE Careful          (LPTSTR lpFileName, LPTSTR lpDestDir);
-HANDLE InspectFontFile  (LPTSTR szFontFile, int *pNumFonts);
-HANDLE PassedInspection (HANDLE hLogicalFont, LPTSTR szFileName);
+void   AddBackslash(LPTSTR lpszFile);
+HANDLE Careful(LPTSTR lpFileName, LPTSTR lpDestDir);
+HANDLE InspectFontFile(LPTSTR szFontFile, int* pNumFonts);
+HANDLE PassedInspection(HANDLE hLogicalFont, LPTSTR szFileName);
 
-BOOL DeleteT1Install (HWND hDlg, LPTSTR pszDesc, BOOL bDeleteFiles);
-BOOL EnumType1Fonts (HWND hLBox);
-BOOL GetT1Install (HWND hDlg, LPTSTR pszDesc, LPTSTR pszPfmFile, LPTSTR pszPfbFile);
-int  InstallT1Font (HWND hDlg, HWND hLbox, BOOL bCopyTTFile, BOOL bInSharedDir,
-                    LPTSTR szPfmName, LPTSTR szDesc);
+BOOL DeleteT1Install(HWND hDlg, LPTSTR pszDesc, BOOL bDeleteFiles);
+BOOL EnumType1Fonts(HWND hLBox);
+BOOL GetT1Install(HWND hDlg, LPTSTR pszDesc, LPTSTR pszPfmFile, LPTSTR pszPfbFile);
+int  InstallT1Font(HWND hDlg, HWND hLbox, BOOL bCopyTTFile, BOOL bInSharedDir,
+                   LPTSTR szPfmName, LPTSTR szDesc);
 
-BOOL InitProgress (HWND hwnd);
-BOOL IsPSFont (HWND hDlg, LPTSTR lpszKey, LPTSTR lpszDesc, LPTSTR lpszPfm, LPTSTR lpszPfb, BOOL *pbCreatedPFM, int *lpiFontType);
-void Progress2 (int PercentDone, LPTSTR szDesc);
-void RemoveDecoration (LPTSTR pszDesc, BOOL bDeleteTrailingSpace);
-void ResetProgress ();
-void TermProgress ();
-void TermPSInstall ();
-void UpdateProgress (int iTotalCount, int iFontInstalling, int iProgress);
+BOOL InitProgress(HWND hwnd);
+BOOL IsPSFont(HWND hDlg, LPTSTR lpszKey, LPTSTR lpszDesc, LPTSTR lpszPfm, LPTSTR lpszPfb, BOOL* pbCreatedPFM, int* lpiFontType);
+void Progress2(int PercentDone, LPTSTR szDesc);
+void RemoveDecoration(LPTSTR pszDesc, BOOL bDeleteTrailingSpace);
+void ResetProgress();
+void TermProgress();
+void TermPSInstall();
+void UpdateProgress(int iTotalCount, int iFontInstalling, int iProgress);
 
 
 /* font3.c */
-extern LONG  FileLength (LPTSTR);
+extern LONG  FileLength(LPTSTR);
 
-VOID   ConvertExtension (LPTSTR pszFile, LPTSTR szExt);
-VOID   FilesToDescs     (VOID);
-void   FontsDropped     (HWND hwnd, HANDLE hDrop);
+VOID   ConvertExtension(LPTSTR pszFile, LPTSTR szExt);
+VOID   FilesToDescs(VOID);
+void   FontsDropped(HWND hwnd, HANDLE hDrop);
 
-BOOL APIENTRY FontHookProc (HWND hDlg, UINT iMessage, WPARAM wParam, LONG lParam);
-BOOL UniqueFilename (LPTSTR lpszDst, LPTSTR lpszSrc, LPTSTR lpszDir);
-BOOL ValidFontFile(LPTSTR szFile, LPTSTR szDesc, int *lpiFontType);
+BOOL APIENTRY FontHookProc(HWND hDlg, UINT iMessage, WPARAM wParam, LONG lParam);
+BOOL UniqueFilename(LPTSTR lpszDst, LPTSTR lpszSrc, LPTSTR lpszDir);
+BOOL ValidFontFile(LPTSTR szFile, LPTSTR szDesc, int* lpiFontType);
 
 #ifdef  LATER
 /* instfls.c */
 typedef int (*INSTALL_PROC)(HWND hDlg, WORD wMsg, int i,
-                                            LPTSTR *pszFiles, LPTSTR lpszDir);
+                            LPTSTR* pszFiles, LPTSTR lpszDir);
 #define IFF_CHECKINI  0x0001
 #define IFF_SRCANDDST 0x0002
 
@@ -1467,51 +1455,51 @@ typedef int (*INSTALL_PROC)(HWND hDlg, WORD wMsg, int i,
 LPTSTR  CopyString(LPTSTR szStr);
 LPTSTR  MyLoadString(WORD wId);
 LPTSTR CpyToChr(LPTSTR pDest, LPTSTR pSrc, TCHAR cChr, int iMax);
-VOID  GetDiskAndFile(LPTSTR pszInf, int *nDsk, LPTSTR pszDriver, WORD wSize);
-DWORD InstallFiles(HWND hwnd, LPTSTR *pszFiles, int nCount,
-                        INSTALL_PROC lpfnNewFile, WORD wFlags);
+VOID  GetDiskAndFile(LPTSTR pszInf, int* nDsk, LPTSTR pszDriver, WORD wSize);
+DWORD InstallFiles(HWND hwnd, LPTSTR* pszFiles, int nCount,
+                   INSTALL_PROC lpfnNewFile, WORD wFlags);
 #endif  //  LATER
 
 /* icur.c */
-BOOL APIENTRY CurIntlDlg (HWND hDlg, UINT message, DWORD wParam, LONG lParam);
+BOOL APIENTRY CurIntlDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
 
 /* idate.c */
-BOOL APIENTRY DateIntlDlg (HWND hDlg, UINT message, DWORD wParam, LONG lParam);
+BOOL APIENTRY DateIntlDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
 
 /* intl.c */
-VOID GetDataString (HWND hCB, int nCurrent, LPTSTR pszString, WORD wDataCmd);
-int NameFromInf (LPTSTR pszName, LPTSTR pszInf);
-void ParseLDF (LPTSTR pszLDate, PLDF pLDF);
+VOID GetDataString(HWND hCB, int nCurrent, LPTSTR pszString, WORD wDataCmd);
+int NameFromInf(LPTSTR pszName, LPTSTR pszInf);
+void ParseLDF(LPTSTR pszLDate, PLDF pLDF);
 
-BOOL APIENTRY IntlDlg (HWND hDlg, UINT message, DWORD wParam, LONG lParam);
+BOOL APIENTRY IntlDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
 
 int
 GetLocaleValue(
     LCID lcid,
     LCTYPE lcType,
-    TCHAR *pszStr,
+    TCHAR* pszStr,
     int size,
     LPTSTR pszDefault);
 
 /* inum.c */
-BOOL APIENTRY NumIntlDlg (HWND hDlg, UINT message, DWORD wParam, LONG lParam);
-BOOL ExistDigits (TCHAR *pszString);
+BOOL APIENTRY NumIntlDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
+BOOL ExistDigits(TCHAR* pszString);
 
 /* itime.c */
-BOOL APIENTRY TimeIntlDlg (HWND hDlg, UINT message, DWORD wParam, LONG lParam);
+BOOL APIENTRY TimeIntlDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
 
 /* memutil.c */
-LPVOID AllocMem    (DWORD cb);
-BOOL   FreeMem     (LPVOID pMem, DWORD  cb);
-LPVOID ReallocMem  (LPVOID lpOldMem, DWORD cbOld, DWORD cbNew);
-LPTSTR AllocStr    (LPTSTR lpStr);
-BOOL   FreeStr     (LPTSTR lpStr);
-BOOL   ReallocStr  (LPTSTR *plpStr, LPTSTR lpStr);
+LPVOID AllocMem(DWORD cb);
+BOOL   FreeMem(LPVOID pMem, DWORD  cb);
+LPVOID ReallocMem(LPVOID lpOldMem, DWORD cbOld, DWORD cbNew);
+LPTSTR AllocStr(LPTSTR lpStr);
+BOOL   FreeStr(LPTSTR lpStr);
+BOOL   ReallocStr(LPTSTR* plpStr, LPTSTR lpStr);
 
 #ifdef ANSI_FUNCTIONS
-LPTSTR AllocStrA   (LPSTR  lpStr);
-BOOL   FreeStrA    (LPSTR  lpStr);
-BOOL   ReallocStrA (LPSTR  *plpStr, LPSTR lpStr);
+LPTSTR AllocStrA(LPSTR  lpStr);
+BOOL   FreeStrA(LPSTR  lpStr);
+BOOL   ReallocStrA(LPSTR* plpStr, LPSTR lpStr);
 #endif  // ANSI_FUNCTIONS
 
 /* ports.c */
@@ -1519,43 +1507,43 @@ int SetupCommPort(HWND hDlg, int i);
 short FillLBWithPorts(HWND hLB, WORD wFlags);
 
 /* utiltext.c */
-void GetDate (void);
-void GetTime (void);
-void SetDate (void);
-void SetTime (void);
+void GetDate(void);
+void GetTime(void);
+void SetDate(void);
+void SetTime(void);
 
-void SetDateTime (void);                // [stevecat] - new functions
-void GetDateTime (void);
+void SetDateTime(void);                // [stevecat] - new functions
+void GetDateTime(void);
 
-DWORD  AddStringToObject (DWORD dwStringObject, LPTSTR lpszSrc, WORD wFlags);
-LPTSTR BackslashTerm (LPTSTR pszPath);
-void   BorderRect (HDC hDC, LPRECT lpRect, HBRUSH hBrush);
-int    Copy (HWND hParent, TCHAR *szSrcFile, TCHAR *szDestFile);
-void   ErrMemDlg (HWND hParent);
-HANDLE FindRHSIni (LPTSTR pFile, LPTSTR pSection, LPTSTR pRHS);
+DWORD  AddStringToObject(DWORD dwStringObject, LPTSTR lpszSrc, WORD wFlags);
+LPTSTR BackslashTerm(LPTSTR pszPath);
+void   BorderRect(HDC hDC, LPRECT lpRect, HBRUSH hBrush);
+int    Copy(HWND hParent, TCHAR* szSrcFile, TCHAR* szDestFile);
+void   ErrMemDlg(HWND hParent);
+HANDLE FindRHSIni(LPTSTR pFile, LPTSTR pSection, LPTSTR pRHS);
 int    GetSection(LPTSTR lpFile, LPTSTR lpSection, LPHANDLE hSection, LPINT pSize);
-int    myatoi (LPTSTR pszInt);
-HANDLE StringToLocalHandle (LPTSTR lpStr);
+int    myatoi(LPTSTR pszInt);
+HANDLE StringToLocalHandle(LPTSTR lpStr);
 
 /* util.c */
-int    DoDialogBoxParam (int nDlg, HWND hParent, DLGPROC lpProc,
-                                        DWORD dwHelpContext, DWORD dwParam);
-void   HourGlass (BOOL bOn);
-int    MyMessageBox (HWND hWnd, DWORD wText, DWORD wCaption, DWORD wType, ...);
-BOOL   RestartDlg (HWND hDlg, UINT message, DWORD wParam, LONG lParam);
-void   SendWinIniChange (LPTSTR szSection);
-int    strpos (LPTSTR,TCHAR);
-TCHAR   *strscan (TCHAR *, TCHAR *);
-void   StripBlanks (TCHAR * );
-BOOL  APIENTRY WantArrows (HWND hWnd, UINT message, DWORD wParam, LONG lParam);
+int    DoDialogBoxParam(int nDlg, HWND hParent, DLGPROC lpProc,
+                        DWORD dwHelpContext, DWORD dwParam);
+void   HourGlass(BOOL bOn);
+int    MyMessageBox(HWND hWnd, DWORD wText, DWORD wCaption, DWORD wType, ...);
+BOOL   RestartDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
+void   SendWinIniChange(LPTSTR szSection);
+int    strpos(LPTSTR, TCHAR);
+TCHAR* strscan(TCHAR*, TCHAR*);
+void   StripBlanks(TCHAR*);
+BOOL  APIENTRY WantArrows(HWND hWnd, UINT message, DWORD wParam, LONG lParam);
 
 /* virtual.c */
-BOOL APIENTRY VirtualMemDlg (HWND hDlg, UINT message, DWORD wParam, LONG lParam);
-BOOL APIENTRY CoreDumpDlg( HWND hDlg, UINT message, DWORD wParam, LONG lParam );
+BOOL APIENTRY VirtualMemDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
+BOOL APIENTRY CoreDumpDlg(HWND hDlg, UINT message, DWORD wParam, LONG lParam);
 
 
 /* prictl.c */
-BOOL APIENTRY TaskingDlg (HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
+BOOL APIENTRY TaskingDlg(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
 
 
 #if DBG
@@ -1563,20 +1551,14 @@ BOOL APIENTRY TaskingDlg (HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam
 //void  DbgPrint( char *, ... );
 //#endif
 #ifndef DbgBreakPoint
-void  DbgBreakPoint( void );
+void  DbgBreakPoint(void);
 #endif
 #endif
 
 #ifdef JAPAN    /* V-KeijiY  June.30.1992 */
 // for intl.c
-DWORD ConvertEraToJapaneseEra(WORD,WORD,WORD);
-WORD ConvertStringToInteger( LPTSTR far * );
+DWORD ConvertEraToJapaneseEra(WORD, WORD, WORD);
+WORD ConvertStringToInteger(LPTSTR far*);
 #endif
 
 #define IDD_SYS_TASKING             96
-
-
-
-
-
-

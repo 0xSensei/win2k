@@ -37,19 +37,19 @@ typedef struct _SCHEME_LIST
     LPTSTR                  lpszName;
     LPTSTR                  lpszDesc;
     PPOWER_POLICY           ppp;
-} SCHEME_LIST, *PSCHEME_LIST;
+} SCHEME_LIST, * PSCHEME_LIST;
 
 // Structure to manage the power scheme dialog proc info.
 typedef struct _POWER_SCHEME_DLG_INFO
 {
     HWND  hwndSchemeList;
-} POWER_SCHEME_DLG_INFO, *PPOWER_SCHEME_DLG_INFO;
+} POWER_SCHEME_DLG_INFO, * PPOWER_SCHEME_DLG_INFO;
 
 // Private functions implemented in PWRSCHEM.C:
 UINT StripBlanks(LPTSTR);
-UINT RangeLimitHiberTimeOuts(UINT uiIdleTimeout, UINT *uiHiberToIDs);
+UINT RangeLimitHiberTimeOuts(UINT uiIdleTimeout, UINT* uiHiberToIDs);
 VOID RefreshSchemes(HWND, PSCHEME_LIST);
-VOID HandleIdleTimeOutChanged(HWND hWnd, UINT uMsg, WPARAM wParam, BOOL *pbDirty);
+VOID HandleIdleTimeOutChanged(HWND hWnd, UINT uMsg, WPARAM wParam, BOOL* pbDirty);
 LONG MsgBoxId(HWND, UINT, UINT, LPTSTR, UINT);
 
 BOOLEAN DoDeleteScheme(HWND, LPTSTR);
@@ -220,7 +220,7 @@ BOOL            g_bSystrayChange;   // A systary change requires PowerSchemeDlgP
 
 // "Power Schemes" Dialog Box (IDD_POWERSCHEME == 100) help arrays:
 
-const DWORD g_PowerSchemeHelpIDs[]=
+const DWORD g_PowerSchemeHelpIDs[] =
 {
     IDC_SCHEMECOMBO,        IDH_100_1000,   // Power Schemes: "Power schemes" (ComboBox)
     IDC_POWERSCHEMESTEXT,   IDH_COMM_GROUPBOX,
@@ -257,7 +257,7 @@ const DWORD g_PowerSchemeHelpIDs[]=
 
 // "Save Scheme" Dialog Box (IDD_SAVE == 109) help array:
 
-const DWORD g_SaveAsHelpIDs[]=
+const DWORD g_SaveAsHelpIDs[] =
 {
     IDC_SAVENAMEEDIT,   IDH_109_1700,   // Save Scheme: "Save name power scheme" (Edit)
     IDC_SAVETEXT,       IDH_109_1700,
@@ -292,57 +292,56 @@ INT_PTR CALLBACK SaveAsDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     static PBOOLEAN pbSavedCurrent;
 
     switch (uMsg) {
-        case WM_INITDIALOG:
-            SetDlgItemText(hWnd, IDC_SAVENAMEEDIT,  g_pslCurSel->lpszName);
-            SendDlgItemMessage(hWnd, IDC_SAVENAMEEDIT, EM_SETSEL, 0, -1);
-            SendDlgItemMessage(hWnd, IDC_SAVENAMEEDIT, EM_LIMITTEXT, MAX_FRIENDLY_NAME_LEN-2, 0L);
-            EnableWindow(GetDlgItem(hWnd, IDOK), (g_pslCurSel->lpszName[0] != TEXT('\0')));
-            pbSavedCurrent = (PBOOLEAN) lParam;
-            *pbSavedCurrent = FALSE;
-            return TRUE;
-        case WM_COMMAND:
-            switch (LOWORD(wParam)) {
-                case IDC_SAVENAMEEDIT:
-                    if (HIWORD(wParam) == EN_CHANGE) {
-                        GetDlgItemText(hWnd, IDC_SAVENAMEEDIT, szBuf, 2);
-                        if (*szBuf) {
-                            EnableWindow(GetDlgItem(hWnd, IDOK), TRUE);
-                        }
-                    }
-                    break;
-                case IDOK:
-                    GetDlgItemText(hWnd, IDC_SAVENAMEEDIT, szBuf, MAX_FRIENDLY_NAME_LEN-1);
-
-                    // Strip trailing blanks, don't allow blank scheme name.
-                    if (!StripBlanks(szBuf)) {
-                        MsgBoxId(hWnd, IDS_SAVESCHEME, IDS_BLANKNAME, NULL, MB_OK | MB_ICONEXCLAMATION);
-                        return TRUE;
-                    }
-
-                    // Insert a new policies element in the policies list.
-                    pslNew = AddScheme(NEWSCHEME, szBuf, STRSIZE(szBuf), TEXT(""), sizeof(TCHAR), g_pslCurSel->ppp);
-
-                    // Write out the Scheme.
-                    if (pslNew) {
-                        if (g_pslCurSel == pslNew) {
-                            *pbSavedCurrent = TRUE;
-                        }
-                        else {
-                            g_pslCurSel = pslNew;
-                        }
-                        WritePwrSchemeReport(hWnd, &(g_pslCurSel->uiID), g_pslCurSel->lpszName, g_pslCurSel->lpszDesc, g_pslCurSel->ppp);
-                    }
-                case IDCANCEL:
-                    EndDialog(hWnd, wParam);
-                    break;
+    case WM_INITDIALOG:
+        SetDlgItemText(hWnd, IDC_SAVENAMEEDIT, g_pslCurSel->lpszName);
+        SendDlgItemMessage(hWnd, IDC_SAVENAMEEDIT, EM_SETSEL, 0, -1);
+        SendDlgItemMessage(hWnd, IDC_SAVENAMEEDIT, EM_LIMITTEXT, MAX_FRIENDLY_NAME_LEN - 2, 0L);
+        EnableWindow(GetDlgItem(hWnd, IDOK), (g_pslCurSel->lpszName[0] != TEXT('\0')));
+        pbSavedCurrent = (PBOOLEAN)lParam;
+        *pbSavedCurrent = FALSE;
+        return TRUE;
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDC_SAVENAMEEDIT:
+            if (HIWORD(wParam) == EN_CHANGE) {
+                GetDlgItemText(hWnd, IDC_SAVENAMEEDIT, szBuf, 2);
+                if (*szBuf) {
+                    EnableWindow(GetDlgItem(hWnd, IDOK), TRUE);
+                }
             }
             break;
-        case WM_HELP:             // F1
-            WinHelp(((LPHELPINFO)lParam)->hItemHandle, PWRMANHLP, HELP_WM_HELP, (ULONG_PTR)(LPTSTR)g_SaveAsHelpIDs);
-            return TRUE;
-        case WM_CONTEXTMENU:      // right mouse click
-            WinHelp((HWND)wParam, PWRMANHLP, HELP_CONTEXTMENU, (ULONG_PTR)(LPTSTR)g_SaveAsHelpIDs);
-            return TRUE;
+        case IDOK:
+            GetDlgItemText(hWnd, IDC_SAVENAMEEDIT, szBuf, MAX_FRIENDLY_NAME_LEN - 1);
+
+            // Strip trailing blanks, don't allow blank scheme name.
+            if (!StripBlanks(szBuf)) {
+                MsgBoxId(hWnd, IDS_SAVESCHEME, IDS_BLANKNAME, NULL, MB_OK | MB_ICONEXCLAMATION);
+                return TRUE;
+            }
+
+            // Insert a new policies element in the policies list.
+            pslNew = AddScheme(NEWSCHEME, szBuf, STRSIZE(szBuf), TEXT(""), sizeof(TCHAR), g_pslCurSel->ppp);
+
+            // Write out the Scheme.
+            if (pslNew) {
+                if (g_pslCurSel == pslNew) {
+                    *pbSavedCurrent = TRUE;
+                } else {
+                    g_pslCurSel = pslNew;
+                }
+                WritePwrSchemeReport(hWnd, &(g_pslCurSel->uiID), g_pslCurSel->lpszName, g_pslCurSel->lpszDesc, g_pslCurSel->ppp);
+            }
+        case IDCANCEL:
+            EndDialog(hWnd, wParam);
+            break;
+        }
+        break;
+    case WM_HELP:             // F1
+        WinHelp(((LPHELPINFO)lParam)->hItemHandle, PWRMANHLP, HELP_WM_HELP, (ULONG_PTR)(LPTSTR)g_SaveAsHelpIDs);
+        return TRUE;
+    case WM_CONTEXTMENU:      // right mouse click
+        WinHelp((HWND)wParam, PWRMANHLP, HELP_CONTEXTMENU, (ULONG_PTR)(LPTSTR)g_SaveAsHelpIDs);
+        return TRUE;
     }
 
     return FALSE;
@@ -355,7 +354,7 @@ INT_PTR CALLBACK PowerSchemeDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 *   Dialog procedure for power scheme page.
 */
 {
-    NMHDR  FAR  *lpnm;
+    NMHDR  FAR* lpnm;
     UINT   uiNewSel, uiNewState;
     LPTSTR pszUPS;
     static POWER_SCHEME_DLG_INFO  psdi;
@@ -367,130 +366,129 @@ INT_PTR CALLBACK PowerSchemeDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
     }
 
     switch (uMsg) {
-        case WM_INITDIALOG:
-            // Set the control count to match the dialog template we're using.
-            if (g_SysPwrCapabilities.SystemBatteriesPresent) {
-                g_uiNumPwrSchemeCntrls = NUM_POWER_SCHEME_CONTROLS;
-                if (g_SysPwrCapabilities.BatteriesAreShortTerm) {
-                   pszUPS = LoadDynamicString(IDS_POWEREDBYUPS);
-                   DisplayFreeStr(hWnd, IDC_RUNNINGONBAT, pszUPS, FREE_STR);
+    case WM_INITDIALOG:
+        // Set the control count to match the dialog template we're using.
+        if (g_SysPwrCapabilities.SystemBatteriesPresent) {
+            g_uiNumPwrSchemeCntrls = NUM_POWER_SCHEME_CONTROLS;
+            if (g_SysPwrCapabilities.BatteriesAreShortTerm) {
+                pszUPS = LoadDynamicString(IDS_POWEREDBYUPS);
+                DisplayFreeStr(hWnd, IDC_RUNNINGONBAT, pszUPS, FREE_STR);
+            }
+        } else {
+            g_uiNumPwrSchemeCntrls = NUM_POWER_SCHEME_CONTROLS_NOBAT;
+        }
+        if (!PowerSchemeDlgInit(hWnd, &psdi)) {
+            bInitFailed = TRUE;
+        }
+        return TRUE;
+    case WM_CHILDACTIVATE:
+        // If Systray changed something while another property page (dialog)
+        // had the focus reinitialize the dialog.
+        if (g_bSystrayChange) {
+            PowerSchemeDlgInit(hWnd, &psdi);
+            g_bSystrayChange = FALSE;
+        }
+
+        // Reinitialize hibernate timer since the hibernate tab
+        // may have changed it's state.
+
+        if (GetPwrCapabilities(&g_SysPwrCapabilities)) {
+            if (g_bRunningUnderNT && g_SysPwrCapabilities.SystemS4 && g_SysPwrCapabilities.SystemS5 && g_SysPwrCapabilities.HiberFilePresent) {
+                uiNewState = CONTROL_ENABLE;
+            } else {
+                uiNewState = CONTROL_HIDE;
+            }
+
+            if (g_bRunningUnderNT && (g_uiStandbyState == CONTROL_HIDE) && (g_SysPwrCapabilities.SystemS1 || g_SysPwrCapabilities.SystemS2 || g_SysPwrCapabilities.SystemS3)) {
+                g_uiStandbyState = CONTROL_ENABLE;
+            }
+        }
+
+        if (g_uiHiberState != uiNewState) {
+            g_uiHiberState = uiNewState;
+            MapHiberTimer(g_pslCurSel->ppp, FALSE);
+            SetControls(hWnd, g_uiNumPwrSchemeCntrls, g_pcPowerScheme);
+        }
+        break;
+    case WM_NOTIFY:
+        lpnm = (NMHDR FAR*)lParam;
+        switch (lpnm->code) {
+        case PSN_APPLY:
+            if (bDirty) {
+                // Do the hibernate PSN_APPLY since the
+                // PowerSchemeDlgProc PSN_APPLY logic depends
+                // on hibernate state.
+                DoHibernateApply();
+
+                GetControls(hWnd, g_uiNumPwrSchemeCntrls, g_pcPowerScheme);
+                MapHiberTimer(g_pslCurSel->ppp, TRUE);
+
+                // Set active scheme.
+                if (SetActivePwrSchemeReport(hWnd, g_pslCurSel->uiID, NULL, g_pslCurSel->ppp)) {
+                    if (g_pslCurSel != g_pslCurActive) {
+                        g_pslCurActive = g_pslCurSel;
+                        RefreshSchemes(hWnd, g_pslCurSel);
+                    }
                 }
-            }
-            else {
-                g_uiNumPwrSchemeCntrls = NUM_POWER_SCHEME_CONTROLS_NOBAT;
-            }
-            if (!PowerSchemeDlgInit(hWnd, &psdi)) {
-                bInitFailed = TRUE;
-            }
-            return TRUE;
-        case WM_CHILDACTIVATE:
-            // If Systray changed something while another property page (dialog)
-            // had the focus reinitialize the dialog.
-            if (g_bSystrayChange) {
-                PowerSchemeDlgInit(hWnd, &psdi);
-                g_bSystrayChange = FALSE;
-            }
+                bDirty = FALSE;
 
-            // Reinitialize hibernate timer since the hibernate tab
-            // may have changed it's state.
-
-            if (GetPwrCapabilities(&g_SysPwrCapabilities)) {
-                if (g_bRunningUnderNT && g_SysPwrCapabilities.SystemS4 && g_SysPwrCapabilities.SystemS5 && g_SysPwrCapabilities.HiberFilePresent) {
-                    uiNewState = CONTROL_ENABLE;
-                } else {
-                    uiNewState = CONTROL_HIDE;
-                }
-
-                if (g_bRunningUnderNT && (g_uiStandbyState == CONTROL_HIDE) && (g_SysPwrCapabilities.SystemS1 || g_SysPwrCapabilities.SystemS2 || g_SysPwrCapabilities.SystemS3)) {
-                    g_uiStandbyState = CONTROL_ENABLE;
-                }
-            }
-
-            if (g_uiHiberState != uiNewState) {
-                g_uiHiberState = uiNewState;
+                // The Power Policy Manager may have changed
+                // the scheme during validation.
                 MapHiberTimer(g_pslCurSel->ppp, FALSE);
                 SetControls(hWnd, g_uiNumPwrSchemeCntrls, g_pcPowerScheme);
             }
             break;
-        case WM_NOTIFY:
-            lpnm = (NMHDR FAR *)lParam;
-            switch(lpnm->code) {
-                case PSN_APPLY:
-                    if (bDirty) {
-                        // Do the hibernate PSN_APPLY since the
-                        // PowerSchemeDlgProc PSN_APPLY logic depends
-                        // on hibernate state.
-                        DoHibernateApply();
-
-                        GetControls(hWnd, g_uiNumPwrSchemeCntrls, g_pcPowerScheme);
-                        MapHiberTimer(g_pslCurSel->ppp, TRUE);
-
-                        // Set active scheme.
-                        if (SetActivePwrSchemeReport(hWnd, g_pslCurSel->uiID, NULL, g_pslCurSel->ppp)) {
-                            if (g_pslCurSel != g_pslCurActive) {
-                                g_pslCurActive = g_pslCurSel;
-                                RefreshSchemes(hWnd, g_pslCurSel);
-                            }
-                        }
-                        bDirty = FALSE;
-
-                        // The Power Policy Manager may have changed
-                        // the scheme during validation.
-                        MapHiberTimer(g_pslCurSel->ppp, FALSE);
-                        SetControls(hWnd, g_uiNumPwrSchemeCntrls, g_pcPowerScheme);
-                    }
-                    break;
+        }
+        break;
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDC_SCHEMECOMBO:
+            if (HIWORD(wParam) == CBN_SELCHANGE) {
+                if (g_pslCurSel = GetCurSchemeFromCombo(hWnd)) {
+                    HandleCurSchemeChanged(hWnd);
+                    MarkSheetDirty(hWnd, &bDirty);
+                }
             }
             break;
-        case WM_COMMAND:
-            switch (LOWORD(wParam)) {
-                case IDC_SCHEMECOMBO:
-                    if (HIWORD(wParam) == CBN_SELCHANGE) {
-                        if (g_pslCurSel = GetCurSchemeFromCombo(hWnd)) {
-                            HandleCurSchemeChanged(hWnd);
-                            MarkSheetDirty(hWnd, &bDirty);
-                        }
-                    }
-                    break;
-                case IDC_STANDBYACCOMBO:
-                case IDC_STANDBYDCCOMBO:
-                    HandleIdleTimeOutChanged(hWnd, uMsg, wParam, &bDirty);
-                    break;
-                case IDC_MONITORACCOMBO:
-                case IDC_MONITORDCCOMBO:
-                case IDC_DISKACCOMBO:
-                case IDC_DISKDCCOMBO:
-                case IDC_HIBERACCOMBO:
-                case IDC_HIBERDCCOMBO:
-                    if (HIWORD(wParam) == CBN_SELCHANGE) {
-                        MarkSheetDirty(hWnd, &bDirty);
-                    }
-                    break;
-                case IDC_SAVEAS:
-                    if (DoSaveScheme(hWnd)) {
-                        HandleCurSchemeChanged(hWnd);
-                        MarkSheetDirty(hWnd, &bDirty);
-                    }
-                    break;
-                case IDC_DELETE:
-                    if (DoDeleteScheme(hWnd, g_pslCurSel->lpszName)) {
-                        HandleCurSchemeChanged(hWnd);
-                    }
-                    break;
-                default:
-                    return FALSE;
+        case IDC_STANDBYACCOMBO:
+        case IDC_STANDBYDCCOMBO:
+            HandleIdleTimeOutChanged(hWnd, uMsg, wParam, &bDirty);
+            break;
+        case IDC_MONITORACCOMBO:
+        case IDC_MONITORDCCOMBO:
+        case IDC_DISKACCOMBO:
+        case IDC_DISKDCCOMBO:
+        case IDC_HIBERACCOMBO:
+        case IDC_HIBERDCCOMBO:
+            if (HIWORD(wParam) == CBN_SELCHANGE) {
+                MarkSheetDirty(hWnd, &bDirty);
             }
             break;
-        case PCWM_NOTIFYPOWER:
-            // Notification from systray, user has changed a PM UI setting.
-            PowerSchemeDlgInit(hWnd, &psdi);
+        case IDC_SAVEAS:
+            if (DoSaveScheme(hWnd)) {
+                HandleCurSchemeChanged(hWnd);
+                MarkSheetDirty(hWnd, &bDirty);
+            }
             break;
-        case WM_HELP:             // F1
-            WinHelp(((LPHELPINFO)lParam)->hItemHandle, PWRMANHLP, HELP_WM_HELP, (ULONG_PTR)(LPTSTR)g_PowerSchemeHelpIDs);
-            return TRUE;
-        case WM_CONTEXTMENU:      // right mouse click
-            WinHelp((HWND)wParam, PWRMANHLP, HELP_CONTEXTMENU, (ULONG_PTR)(LPTSTR)g_PowerSchemeHelpIDs);
-            return TRUE;
+        case IDC_DELETE:
+            if (DoDeleteScheme(hWnd, g_pslCurSel->lpszName)) {
+                HandleCurSchemeChanged(hWnd);
+            }
+            break;
+        default:
+            return FALSE;
+        }
+        break;
+    case PCWM_NOTIFYPOWER:
+        // Notification from systray, user has changed a PM UI setting.
+        PowerSchemeDlgInit(hWnd, &psdi);
+        break;
+    case WM_HELP:             // F1
+        WinHelp(((LPHELPINFO)lParam)->hItemHandle, PWRMANHLP, HELP_WM_HELP, (ULONG_PTR)(LPTSTR)g_PowerSchemeHelpIDs);
+        return TRUE;
+    case WM_CONTEXTMENU:      // right mouse click
+        WinHelp((HWND)wParam, PWRMANHLP, HELP_CONTEXTMENU, (ULONG_PTR)(LPTSTR)g_PowerSchemeHelpIDs);
+        return TRUE;
     }
 
     return FALSE;
@@ -503,7 +501,7 @@ INT_PTR CALLBACK PowerSchemeDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 */
 
 
-VOID HandleIdleTimeOutChanged(HWND hWnd, UINT uMsg, WPARAM wParam, BOOL *pbDirty)
+VOID HandleIdleTimeOutChanged(HWND hWnd, UINT uMsg, WPARAM wParam, BOOL* pbDirty)
 /*
 *  DESCRIPTION:
 *   Range limit the hibernate timeout combo boxes based on the value of the idle timeouts.
@@ -523,8 +521,7 @@ VOID HandleIdleTimeOutChanged(HWND hWnd, UINT uMsg, WPARAM wParam, BOOL *pbDirty
                 g_uiHiberTimeoutAc = uiLimitedTo;
             }
             SetControls(hWnd, 1, &g_pcPowerScheme[ID_HIBERACCOMBO]);
-        }
-        else {
+        } else {
             GetControls(hWnd, 1, &g_pcPowerScheme[ID_STANDBYDCCOMBO]);
             GetControls(hWnd, 1, &g_pcPowerScheme[ID_HIBERDCCOMBO]);
             uiIdleTo = g_uiIdleTimeoutDc;
@@ -538,7 +535,7 @@ VOID HandleIdleTimeOutChanged(HWND hWnd, UINT uMsg, WPARAM wParam, BOOL *pbDirty
 }
 
 
-UINT RangeLimitHiberTimeOuts(UINT uiIdleTimeout, UINT *uiHiberToIDs)
+UINT RangeLimitHiberTimeOuts(UINT uiIdleTimeout, UINT* uiHiberToIDs)
 {
     UINT i, uiNewMin;
 
@@ -551,14 +548,14 @@ UINT RangeLimitHiberTimeOuts(UINT uiIdleTimeout, UINT *uiHiberToIDs)
             if (uiHiberToIDs[i] >= uiIdleTimeout) {
                 i += 2;
                 uiNewMin = uiHiberToIDs[i];
-                RangeLimitIDarray(uiHiberToIDs, uiNewMin, (UINT) -1);
+                RangeLimitIDarray(uiHiberToIDs, uiNewMin, (UINT)-1);
                 return uiNewMin;
             }
             i++;
         }
-        DebugPrint( "RangeLimitHiberTimeOuts: couldn't find value larger than: %d", uiIdleTimeout);
+        DebugPrint("RangeLimitHiberTimeOuts: couldn't find value larger than: %d", uiIdleTimeout);
     }
-    return (UINT) -1;
+    return (UINT)-1;
 }
 
 /*
@@ -589,98 +586,89 @@ UINT RangeLimitHiberTimeOuts(UINT uiIdleTimeout, UINT *uiHiberToIDs)
 
 BOOLEAN MapHiberTimer(PPOWER_POLICY ppp, BOOLEAN Get)
 {
-   if (Get) {
+    if (Get) {
 
-      // Get values from the UI. AC.
-      ppp->mach.DozeS4TimeoutAc =  0;
-      ppp->user.IdleTimeoutAc   =  g_uiIdleTimeoutAc;
-      if (g_uiHiberTimeoutAc) {
-         if (g_uiIdleTimeoutAc) {
-            ppp->mach.DozeS4TimeoutAc = g_uiHiberTimeoutAc - g_uiIdleTimeoutAc;
-         }
-         else {
-            ppp->user.IdleTimeoutAc   = g_uiHiberTimeoutAc;
-         }
-      }
-
-      // DC.
-      ppp->mach.DozeS4TimeoutDc =  0;
-      ppp->user.IdleTimeoutDc   =  g_uiIdleTimeoutDc;
-      if (g_uiHiberTimeoutDc) {
-         if (g_uiIdleTimeoutDc) {
-            ppp->mach.DozeS4TimeoutDc = g_uiHiberTimeoutDc - g_uiIdleTimeoutDc;
-         }
-         else {
-            ppp->user.IdleTimeoutDc   = g_uiHiberTimeoutDc;
-         }
-      }
-
-      // Set the correct idle action. AC.
-      ppp->user.IdleAc.Action = PowerActionNone;
-      if (g_uiIdleTimeoutAc) {
-         ppp->user.IdleAc.Action = PowerActionSleep;
-      }
-      else {
-         if (g_SysPwrCapabilities.HiberFilePresent) {
-            if (g_uiHiberTimeoutAc) {
-               ppp->user.IdleAc.Action = PowerActionHibernate;
+        // Get values from the UI. AC.
+        ppp->mach.DozeS4TimeoutAc = 0;
+        ppp->user.IdleTimeoutAc = g_uiIdleTimeoutAc;
+        if (g_uiHiberTimeoutAc) {
+            if (g_uiIdleTimeoutAc) {
+                ppp->mach.DozeS4TimeoutAc = g_uiHiberTimeoutAc - g_uiIdleTimeoutAc;
+            } else {
+                ppp->user.IdleTimeoutAc = g_uiHiberTimeoutAc;
             }
-         }
-      }
+        }
 
-      // DC.
-      ppp->user.IdleDc.Action = PowerActionNone;
-      if (g_uiIdleTimeoutDc) {
-         ppp->user.IdleDc.Action = PowerActionSleep;
-      }
-      else {
-         if (g_SysPwrCapabilities.HiberFilePresent) {
-            if (g_uiHiberTimeoutDc) {
-               ppp->user.IdleDc.Action = PowerActionHibernate;
+        // DC.
+        ppp->mach.DozeS4TimeoutDc = 0;
+        ppp->user.IdleTimeoutDc = g_uiIdleTimeoutDc;
+        if (g_uiHiberTimeoutDc) {
+            if (g_uiIdleTimeoutDc) {
+                ppp->mach.DozeS4TimeoutDc = g_uiHiberTimeoutDc - g_uiIdleTimeoutDc;
+            } else {
+                ppp->user.IdleTimeoutDc = g_uiHiberTimeoutDc;
             }
-         }
-      }
-   }
-   else {
+        }
 
-      // Set values to the UI. AC.
-      if (ppp->user.IdleAc.Action == PowerActionHibernate) {
-         g_uiHiberTimeoutAc = ppp->user.IdleTimeoutAc;
-         g_uiIdleTimeoutAc  = 0;
-      }
-      else {
-         g_uiIdleTimeoutAc  = ppp->user.IdleTimeoutAc;
-         if (ppp->mach.DozeS4TimeoutAc && g_SysPwrCapabilities.HiberFilePresent) {
-            g_uiHiberTimeoutAc = ppp->user.IdleTimeoutAc +
-                                 ppp->mach.DozeS4TimeoutAc;
-         }
-         else {
-            g_uiHiberTimeoutAc = 0;
-         }
-      }
+        // Set the correct idle action. AC.
+        ppp->user.IdleAc.Action = PowerActionNone;
+        if (g_uiIdleTimeoutAc) {
+            ppp->user.IdleAc.Action = PowerActionSleep;
+        } else {
+            if (g_SysPwrCapabilities.HiberFilePresent) {
+                if (g_uiHiberTimeoutAc) {
+                    ppp->user.IdleAc.Action = PowerActionHibernate;
+                }
+            }
+        }
 
-      // DC.
-      if (ppp->user.IdleDc.Action == PowerActionHibernate) {
-         g_uiHiberTimeoutDc = ppp->user.IdleTimeoutDc;
-         g_uiIdleTimeoutDc  = 0;
-      }
-      else {
-         g_uiIdleTimeoutDc  = ppp->user.IdleTimeoutDc;
-         if (ppp->mach.DozeS4TimeoutDc && g_SysPwrCapabilities.HiberFilePresent) {
-            g_uiHiberTimeoutDc = ppp->user.IdleTimeoutDc +
-                                 ppp->mach.DozeS4TimeoutDc;
-         }
-         else {
-            g_uiHiberTimeoutDc = 0;
-         }
-      }
+        // DC.
+        ppp->user.IdleDc.Action = PowerActionNone;
+        if (g_uiIdleTimeoutDc) {
+            ppp->user.IdleDc.Action = PowerActionSleep;
+        } else {
+            if (g_SysPwrCapabilities.HiberFilePresent) {
+                if (g_uiHiberTimeoutDc) {
+                    ppp->user.IdleDc.Action = PowerActionHibernate;
+                }
+            }
+        }
+    } else {
 
-      // Range limit the hibernate timeout combo boxes based
-      // on the value of the idle timeouts.
-      RangeLimitHiberTimeOuts(g_uiIdleTimeoutAc, g_uiHiberToAcIDs);
-      RangeLimitHiberTimeOuts(g_uiIdleTimeoutDc, g_uiHiberToDcIDs);
-   }
-   return TRUE;
+        // Set values to the UI. AC.
+        if (ppp->user.IdleAc.Action == PowerActionHibernate) {
+            g_uiHiberTimeoutAc = ppp->user.IdleTimeoutAc;
+            g_uiIdleTimeoutAc = 0;
+        } else {
+            g_uiIdleTimeoutAc = ppp->user.IdleTimeoutAc;
+            if (ppp->mach.DozeS4TimeoutAc && g_SysPwrCapabilities.HiberFilePresent) {
+                g_uiHiberTimeoutAc = ppp->user.IdleTimeoutAc +
+                    ppp->mach.DozeS4TimeoutAc;
+            } else {
+                g_uiHiberTimeoutAc = 0;
+            }
+        }
+
+        // DC.
+        if (ppp->user.IdleDc.Action == PowerActionHibernate) {
+            g_uiHiberTimeoutDc = ppp->user.IdleTimeoutDc;
+            g_uiIdleTimeoutDc = 0;
+        } else {
+            g_uiIdleTimeoutDc = ppp->user.IdleTimeoutDc;
+            if (ppp->mach.DozeS4TimeoutDc && g_SysPwrCapabilities.HiberFilePresent) {
+                g_uiHiberTimeoutDc = ppp->user.IdleTimeoutDc +
+                    ppp->mach.DozeS4TimeoutDc;
+            } else {
+                g_uiHiberTimeoutDc = 0;
+            }
+        }
+
+        // Range limit the hibernate timeout combo boxes based
+        // on the value of the idle timeouts.
+        RangeLimitHiberTimeOuts(g_uiIdleTimeoutAc, g_uiHiberToAcIDs);
+        RangeLimitHiberTimeOuts(g_uiIdleTimeoutDc, g_uiHiberToDcIDs);
+    }
+    return TRUE;
 }
 
 /*
@@ -701,12 +689,11 @@ BOOLEAN HandleCurSchemeChanged(HWND hWnd)
     // Update the group box text if enabled.
     if ((g_uiStandbyState != CONTROL_HIDE) ||
         (g_uiMonitorState != CONTROL_HIDE) ||
-        (g_uiDiskState    != CONTROL_HIDE) ||
-        (g_uiHiberState   != CONTROL_HIDE)) {
+        (g_uiDiskState != CONTROL_HIDE) ||
+        (g_uiHiberState != CONTROL_HIDE)) {
         pString = LoadDynamicString(IDS_SETTINGSFORMAT, g_pslCurSel->lpszName);
         DisplayFreeStr(hWnd, IDC_SETTINGSFOR, pString, FREE_STR);
-    }
-    else {
+    } else {
         ShowWindow(GetDlgItem(hWnd, IDC_SETTINGSFOR), SW_HIDE);
     }
 
@@ -730,8 +717,7 @@ BOOLEAN HandleCurSchemeChanged(HWND hWnd)
     // Set the delete push button state.
     if (g_uiSchemeCount < 2) {
         bEnable = FALSE;
-    }
-    else {
+    } else {
         bEnable = TRUE;
     }
     EnableWindow(GetDlgItem(hWnd, IDC_DELETE), bEnable);
@@ -754,15 +740,15 @@ PSCHEME_LIST GetCurSchemeFromCombo(HWND hWnd)
     UINT            uiCBRet;
     PSCHEME_LIST    psl;
 
-    uiCBRet = (UINT) SendDlgItemMessage(hWnd, IDC_SCHEMECOMBO, CB_GETCURSEL, 0, 0);
+    uiCBRet = (UINT)SendDlgItemMessage(hWnd, IDC_SCHEMECOMBO, CB_GETCURSEL, 0, 0);
     if (uiCBRet != CB_ERR) {
-        psl = (PSCHEME_LIST) SendDlgItemMessage(hWnd, IDC_SCHEMECOMBO,
-                                                CB_GETITEMDATA, uiCBRet, 0);
-        if (psl != (PSCHEME_LIST) CB_ERR) {
+        psl = (PSCHEME_LIST)SendDlgItemMessage(hWnd, IDC_SCHEMECOMBO,
+                                               CB_GETITEMDATA, uiCBRet, 0);
+        if (psl != (PSCHEME_LIST)CB_ERR) {
             return FindScheme(psl->lpszName, TRUE);
         }
     }
-    DebugPrint( "GetCurSchemeFromCombo, CB_GETITEMDATA or CB_GETCURSEL failed");
+    DebugPrint("GetCurSchemeFromCombo, CB_GETITEMDATA or CB_GETCURSEL failed");
     return FALSE;
 }
 
@@ -789,11 +775,11 @@ BOOLEAN ClearSchemeList(VOID)
     for (psl = (PSCHEME_LIST)g_leSchemeList.Flink;
          psl != (PSCHEME_LIST)&g_leSchemeList; psl = pslNext) {
 
-        pslNext = (PSCHEME_LIST) psl->leSchemeList.Flink;
+        pslNext = (PSCHEME_LIST)psl->leSchemeList.Flink;
         RemoveScheme(psl, NULL);
     }
-    g_pslCurActive  = NULL;
-    g_pslCurSel     = NULL;
+    g_pslCurActive = NULL;
+    g_pslCurSel = NULL;
     g_uiSchemeCount = 0;
     return TRUE;
 }
@@ -815,7 +801,7 @@ BOOLEAN RemoveScheme(PSCHEME_LIST psl, LPTSTR lpszName)
     }
 
     if (psl == &g_sl) {
-        DebugPrint( "RemoveScheme, Attempted to delete head!");
+        DebugPrint("RemoveScheme, Attempted to delete head!");
         return FALSE;
     }
 
@@ -845,22 +831,22 @@ PSCHEME_LIST FindScheme(LPTSTR lpszName, BOOLEAN bShouldExist)
     PSCHEME_LIST  psl, pslNext;
 
     if (!lpszName) {
-        DebugPrint( "FindScheme, invalid parameters");
+        DebugPrint("FindScheme, invalid parameters");
         return NULL;
     }
 
     // Search by name.
     for (psl = (PSCHEME_LIST)g_leSchemeList.Flink;
-        psl != (PSCHEME_LIST)&g_leSchemeList; psl = pslNext) {
+         psl != (PSCHEME_LIST)&g_leSchemeList; psl = pslNext) {
 
-        pslNext = (PSCHEME_LIST) psl->leSchemeList.Flink;
+        pslNext = (PSCHEME_LIST)psl->leSchemeList.Flink;
 
         if (!lstrcmpi(lpszName, psl->lpszName)) {
             return psl;
         }
     }
     if (bShouldExist) {
-        DebugPrint( "FindScheme, couldn't find: %s", lpszName);
+        DebugPrint("FindScheme, couldn't find: %s", lpszName);
     }
     return NULL;
 }
@@ -887,7 +873,7 @@ PSCHEME_LIST AddScheme(
     PSCHEME_LIST psl;
 
     if (!lpszName || !lpszDesc) {
-        DebugPrint( "AddScheme, invalid parameters");
+        DebugPrint("AddScheme, invalid parameters");
         return NULL;
     }
 
@@ -898,10 +884,10 @@ PSCHEME_LIST AddScheme(
 
     // Allocate and initalize a Scheme element for the scheme list.
     if ((psl = LocalAlloc(0, sizeof(SCHEME_LIST))) != NULL) {
-        psl->uiID     = uiID;
+        psl->uiID = uiID;
         psl->lpszName = LocalAlloc(0, uiNameSize);
         psl->lpszDesc = LocalAlloc(0, uiDescSize);
-        psl->ppp      = LocalAlloc(0, sizeof(POWER_POLICY));
+        psl->ppp = LocalAlloc(0, sizeof(POWER_POLICY));
 
         if (psl->lpszName && psl->lpszDesc && psl->ppp) {
             lstrcpy(psl->lpszName, lpszName);
@@ -989,8 +975,7 @@ BOOLEAN PowerSchemeDlgInit(
     if (CanUserWritePwrScheme()) {
         ShowWindow(GetDlgItem(hWnd, IDC_SAVEAS), SW_SHOW);
         ShowWindow(GetDlgItem(hWnd, IDC_DELETE), SW_SHOW);
-    }
-    else {
+    } else {
         ShowWindow(GetDlgItem(hWnd, IDC_SAVEAS), SW_HIDE);
         ShowWindow(GetDlgItem(hWnd, IDC_DELETE), SW_HIDE);
     }
@@ -1016,26 +1001,23 @@ BOOLEAN PowerSchemeDlgInit(
                     g_SysPwrCapabilities.SystemS3) {
                     g_uiStandbyState = CONTROL_ENABLE;
                     g_uiWhenComputerIsState = CONTROL_ENABLE;
-                }
-                else {
+                } else {
                     g_uiStandbyState = CONTROL_HIDE;
                 }
 
                 if (g_bVideoLowPowerSupported) {
                     g_uiMonitorState = CONTROL_ENABLE;
                     g_uiWhenComputerIsState = CONTROL_ENABLE;
-                }
-                else {
+                } else {
                     g_uiMonitorState = CONTROL_HIDE;
                 }
 
                 if (g_SysPwrCapabilities.DiskSpinDown) {
                     g_uiDiskState = CONTROL_ENABLE;
                     RangeLimitIDarray(g_uiSpinDownIDs,
-                                      HIWORD(g_uiSpindownMaxMin)*60,
-                                      LOWORD(g_uiSpindownMaxMin)*60);
-                }
-                else {
+                                      HIWORD(g_uiSpindownMaxMin) * 60,
+                                      LOWORD(g_uiSpindownMaxMin) * 60);
+                } else {
                     g_uiDiskState = CONTROL_HIDE;
                 }
 
@@ -1044,28 +1026,24 @@ BOOLEAN PowerSchemeDlgInit(
                     g_SysPwrCapabilities.SystemS5 &&
                     g_SysPwrCapabilities.HiberFilePresent) {
                     g_uiHiberState = CONTROL_ENABLE;
-                }
-                else {
+                } else {
                     g_uiHiberState = CONTROL_HIDE;
                 }
 
                 // Update the UI.
                 HandleCurSchemeChanged(hWnd);
                 return TRUE;
-            }
-            else {
-                DebugPrint( "PowerSchemeDlgInit, failure enumerating schemes. g_pslCurActive: %X", g_pslCurActive);
+            } else {
+                DebugPrint("PowerSchemeDlgInit, failure enumerating schemes. g_pslCurActive: %X", g_pslCurActive);
                 if (g_pslValid) {
                     if (SetActivePwrScheme(g_pslValid->uiID, NULL, g_pslValid->ppp)) {
                         uiCurrentSchemeID = g_pslValid->uiID;
                         ClearSchemeList();
+                    } else {
+                        DebugPrint("PowerSchemeDlgInit, unable to set valid scheme");
                     }
-                    else {
-                        DebugPrint( "PowerSchemeDlgInit, unable to set valid scheme");
-                    }
-                }
-                else {
-                    DebugPrint( "PowerSchemeDlgInit, no valid schemes");
+                } else {
+                    DebugPrint("PowerSchemeDlgInit, no valid schemes");
                     break;
                 }
             }
@@ -1102,33 +1080,31 @@ VOID RefreshSchemes(
     for (psl = (PSCHEME_LIST)g_leSchemeList.Flink;
          psl != (PSCHEME_LIST)&g_leSchemeList; psl = pslNext) {
 
-        pslNext = (PSCHEME_LIST) psl->leSchemeList.Flink;
+        pslNext = (PSCHEME_LIST)psl->leSchemeList.Flink;
 
         // Add the schemes to the combo list box.
-        uiIndex = (UINT) SendDlgItemMessage(hWnd, IDC_SCHEMECOMBO, CB_ADDSTRING,
-                                            0, (LPARAM) psl->lpszName);
+        uiIndex = (UINT)SendDlgItemMessage(hWnd, IDC_SCHEMECOMBO, CB_ADDSTRING,
+                                           0, (LPARAM)psl->lpszName);
         if (uiIndex != CB_ERR) {
             SendDlgItemMessage(hWnd, IDC_SCHEMECOMBO, CB_SETITEMDATA,
-                               uiIndex, (LPARAM) psl);
-        }
-        else {
-            DebugPrint( "RefreshSchemes, CB_ADDSTRING failed: %s", psl->lpszName);
+                               uiIndex, (LPARAM)psl);
+        } else {
+            DebugPrint("RefreshSchemes, CB_ADDSTRING failed: %s", psl->lpszName);
         }
     }
 
     // Select the passed entry.
     if (pslSel) {
-        uiIndex = (UINT) SendDlgItemMessage(hWnd, IDC_SCHEMECOMBO, CB_FINDSTRINGEXACT,
-                                            (WPARAM)-1, (LPARAM)pslSel->lpszName);
+        uiIndex = (UINT)SendDlgItemMessage(hWnd, IDC_SCHEMECOMBO, CB_FINDSTRINGEXACT,
+            (WPARAM)-1, (LPARAM)pslSel->lpszName);
         if (uiIndex != CB_ERR) {
-            uiIndex = (UINT) SendDlgItemMessage(hWnd, IDC_SCHEMECOMBO, CB_SETCURSEL,
-                                                (WPARAM)uiIndex, 0);
+            uiIndex = (UINT)SendDlgItemMessage(hWnd, IDC_SCHEMECOMBO, CB_SETCURSEL,
+                (WPARAM)uiIndex, 0);
             if (uiIndex == CB_ERR) {
-                DebugPrint( "RefreshSchemes, CB_SETCURSEL failed: %s, index: %d", psl->lpszName, uiIndex);
+                DebugPrint("RefreshSchemes, CB_SETCURSEL failed: %s, index: %d", psl->lpszName, uiIndex);
             }
-        }
-        else {
-            DebugPrint( "RefreshSchemes, CB_FINDSTRINGEXACT failed: %s", psl->lpszName);
+        } else {
+            DebugPrint("RefreshSchemes, CB_FINDSTRINGEXACT failed: %s", psl->lpszName);
         }
     }
 }
@@ -1149,17 +1125,17 @@ UINT StripBlanks(LPTSTR lpszString)
 
     /* strip leading blanks */
     lpszPosn = lpszString;
-    while(*lpszPosn == TEXT(' ')) {
-            lpszPosn++;
+    while (*lpszPosn == TEXT(' ')) {
+        lpszPosn++;
     }
     if (lpszPosn != lpszString)
         lstrcpy(lpszString, lpszPosn);
 
     /* strip trailing blanks */
-    if ((lpszPosn=lpszString+lstrlen(lpszString)) != lpszString) {
+    if ((lpszPosn = lpszString + lstrlen(lpszString)) != lpszString) {
         lpszPosn = CharPrev(lpszString, lpszPosn);
-        while(*lpszPosn == TEXT(' '))
-           lpszPosn = CharPrev(lpszString, lpszPosn);
+        while (*lpszPosn == TEXT(' '))
+            lpszPosn = CharPrev(lpszString, lpszPosn);
         lpszPosn = CharNext(lpszPosn);
         *lpszPosn = TEXT('\0');
     }
@@ -1230,8 +1206,7 @@ BOOLEAN DoDeleteScheme(HWND hWnd, LPTSTR lpszName)
             if ((psl = FindNextScheme(lpszName)) &&
                 (SetActivePwrSchemeReport(hWnd, psl->uiID, NULL, psl->ppp))) {
                 g_pslCurActive = psl;
-            }
-            else {
+            } else {
                 return FALSE;
             }
         }
@@ -1261,20 +1236,19 @@ PSCHEME_LIST FindNextScheme(LPTSTR lpszName)
     PSCHEME_LIST psl, pslFirst, pslNext;
 
     for (pslFirst = psl = (PSCHEME_LIST)g_leSchemeList.Flink;
-        psl != (PSCHEME_LIST)&g_leSchemeList; psl = pslNext) {
+         psl != (PSCHEME_LIST)&g_leSchemeList; psl = pslNext) {
 
-        pslNext = (PSCHEME_LIST) psl->leSchemeList.Flink;
+        pslNext = (PSCHEME_LIST)psl->leSchemeList.Flink;
 
         if (!lstrcmpi(lpszName, psl->lpszName)) {
             if (pslNext != (PSCHEME_LIST)&g_leSchemeList) {
                 return pslNext;
-            }
-            else {
+            } else {
                 return pslFirst;
             }
         }
     }
-    DebugPrint( "FindNextScheme, unable to find: %s", lpszName);
+    DebugPrint("FindNextScheme, unable to find: %s", lpszName);
     return NULL;
 }
 

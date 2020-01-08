@@ -165,10 +165,10 @@ MtDefine(CPluginSiteCreateObject, CPluginSite, "CPluginSite::CreateObject");
 
 // These are the clsids for the actual plugin.ocx control:
 const GUID CDECL IID_IActiveXPlugin =
-{  0x06DD38D1L,0xD187,0x11CF,{ 0xA8,0x0D,0x00,0xC0,0x4F,0xD7,0x4A,0xD8}};
+{0x06DD38D1L,0xD187,0x11CF,{ 0xA8,0x0D,0x00,0xC0,0x4F,0xD7,0x4A,0xD8}};
 
 const GUID CDECL CLSID_ActiveXPlugin =
-  { 0x06DD38D3L,0xD187,0x11CF, {0xA8,0x0D,0x00,0xC0,0x4F,0xD7,0x4A,0xD8}};
+{0x06DD38D3L,0xD187,0x11CF, {0xA8,0x0D,0x00,0xC0,0x4F,0xD7,0x4A,0xD8}};
 
 const CElement::CLASSDESC CPluginSite::s_classdesc =
 {
@@ -179,26 +179,26 @@ const CElement::CLASSDESC CPluginSite::s_classdesc =
         s_apclsidPages,                // _apClsidPages
 #endif // NO_PROPERTY_PAGE
         s_acpi,                        // _pcpi
-        ELEMENTDESC_NEVERSCROLL    |
+        ELEMENTDESC_NEVERSCROLL |
         ELEMENTDESC_OLESITE,           // _dwFlags
         &IID_IHTMLEmbedElement,        // _piidDispinterface
         &s_apHdlDescs,                 // _apHdlDesc
     },
-    (void *)s_apfnpdIHTMLEmbedElement, // _pfnTearOff
+    (void*)s_apfnpdIHTMLEmbedElement, // _pfnTearOff
     NULL,                              // _pAccelsDesign
     NULL                               // _pAccelsRun
 };
 
 
 HRESULT
-CPluginSite::CreateElement(CHtmTag *pht,
-                              CDoc *pDoc, CElement **ppElement)
+CPluginSite::CreateElement(CHtmTag* pht,
+                           CDoc* pDoc, CElement** ppElement)
 {
     Assert(ppElement);
 
     *ppElement = new CPluginSite(pDoc);
 
-    RRETURN ( (*ppElement) ? S_OK : E_OUTOFMEMORY);
+    RRETURN((*ppElement) ? S_OK : E_OUTOFMEMORY);
 }
 
 
@@ -213,9 +213,9 @@ CPluginSite::CreateElement(CHtmTag *pht,
 
 
 HRESULT
-CPluginSite::get_BaseHref(BSTR *pbstr)
+CPluginSite::get_BaseHref(BSTR* pbstr)
 {
-    RRETURN( SetErrorInfo(GetBaseHref( pbstr )) );
+    RRETURN(SetErrorInfo(GetBaseHref(pbstr)));
 }
 
 
@@ -245,22 +245,22 @@ CPluginSite::get_BaseHref(BSTR *pbstr)
 //              at the pActiveXPlugin->Load() time, or a mixture of the two.
 
 
-BOOL TryAsActiveXControl(CDoc *pDoc, LPCTSTR pszFile, LPTSTR pszClassId,
- LPTSTR *ppszCodeBase, LPCTSTR szMimeTypeIn);
+BOOL TryAsActiveXControl(CDoc* pDoc, LPCTSTR pszFile, LPTSTR pszClassId,
+                         LPTSTR* ppszCodeBase, LPCTSTR szMimeTypeIn);
 
 // This routine is exported by urlmon and should appear in a public header
 // someday:
 STDAPI FindMimeFromData(
-                        LPBC pBC,                   // bind context - can be NULL
-                        LPCWSTR pwzUrl,             // url - can be null
-                        LPVOID pBuffer,             // buffer with data to sniff - can be null (pwzUrl must be valid)
-                        DWORD cbSize,               // size of buffer
-                        LPCWSTR pwzMimeProposed,    // proposed mime if - can be null
-                        DWORD dwMimeFlags,          // will be determined
-                        LPWSTR *ppwzMimeOut,        // the suggested mime
-                        DWORD dwReserved);          // must be 0
+    LPBC pBC,                   // bind context - can be NULL
+    LPCWSTR pwzUrl,             // url - can be null
+    LPVOID pBuffer,             // buffer with data to sniff - can be null (pwzUrl must be valid)
+    DWORD cbSize,               // size of buffer
+    LPCWSTR pwzMimeProposed,    // proposed mime if - can be null
+    DWORD dwMimeFlags,          // will be determined
+    LPWSTR* ppwzMimeOut,        // the suggested mime
+    DWORD dwReserved);          // must be 0
 
-BOOL GetMimeTypeFromUrl(LPCTSTR url, TCHAR *mime);
+BOOL GetMimeTypeFromUrl(LPCTSTR url, TCHAR* mime);
 
 HRESULT
 CPluginSite::CreateObject()
@@ -268,13 +268,13 @@ CPluginSite::CreateObject()
     HRESULT             hr = E_FAIL;
     LPCTSTR             pszSrc = NULL;
     OLECREATEINFO       info;
-    TCHAR               szClassId[2*CLSID_STRLEN];
+    TCHAR               szClassId[2 * CLSID_STRLEN];
     TCHAR               szMime[MAX_PATH];
     LPCTSTR             pszMime = NULL;
     LPTSTR              pszCodeBase = NULL;
-    CDoc *              pDoc = Doc();
+    CDoc* pDoc = Doc();
 
-    GWKillMethodCall((COleSite *)this, ONCALL_METHOD(COleSite, DeferredCreateObject, deferredcreateobject), 0);
+    GWKillMethodCall((COleSite*)this, ONCALL_METHOD(COleSite, DeferredCreateObject, deferredcreateobject), 0);
 
     pDoc->AddRef();
 
@@ -293,8 +293,7 @@ CPluginSite::CreateObject()
     // BUGBUG:  What if the cached file is still being downloaded??  Can we
     //          still hand this to the plugin/control?  Or should we wait until
     //          the file is fully downloaded?  (philco)
-    if (pDoc->_fFullWindowEmbed && pDoc->_pDwnPost)
-    {
+    if (pDoc->_fFullWindowEmbed && pDoc->_pDwnPost) {
         SetAAsrc(pDoc->GetPluginCacheFilename());
     }
 
@@ -303,7 +302,7 @@ CPluginSite::CreateObject()
     pszSrc = GetAAsrc();
     pszMime = GetAAtype();  // 'type' attribute is the mime type.
 
-    if( !pszSrc && !pszMime )
+    if (!pszSrc && !pszMime)
         goto Cleanup;
 
     // Make sure we have at least an empty param bag allocated:
@@ -319,31 +318,26 @@ CPluginSite::CreateObject()
     // This URLMON call does not do a thorough enough job - it stops
     // just short of contacting the server to dertermine the mime type.
     // Thus we do the call just below this.
-    FindMimeFromData( NULL, pszSrc, NULL, 0, NULL, 0, &pszMime, 0 );
+    FindMimeFromData(NULL, pszSrc, NULL, 0, NULL, 0, &pszMime, 0);
 #endif
 
     // Give the plugin the fully qualified URL of the plugin src file:
-    if( pszSrc )
-    {
+    if (pszSrc) {
         TCHAR   cBuf[pdlUrlLen];
         pDoc->ExpandUrl(pszSrc, ARRAY_SIZE(cBuf), cBuf, this);
-        if (!pDoc->ValidateSecureUrl(cBuf, FALSE, FALSE))
-        {
+        if (!pDoc->ValidateSecureUrl(cBuf, FALSE, FALSE)) {
             // If unsecure, NULLify URL
             pszSrc = NULL;
             Assert(!_pszFullUrl);
-        }
-        else
-        {
+        } else {
             // plugin.ocx has buffer overrun issues!!!  Do NOT allow
             // a string greater than INTERNET_MAX_URL_LENGTH to be
             // passed.  We're ensuring this is truncated here as the
             // lower-impact fix since plugin.ocx hasn't been changed
             // in quite some time.
-            cBuf[INTERNET_MAX_URL_LENGTH-1] = _T('\0');
+            cBuf[INTERNET_MAX_URL_LENGTH - 1] = _T('\0');
             MemAllocString(Mt(CPluginSiteCreateObject), cBuf, &_pszFullUrl);
-            if (_pszFullUrl == NULL)
-            {
+            if (_pszFullUrl == NULL) {
                 hr = E_OUTOFMEMORY;
                 goto Cleanup;
             }
@@ -353,26 +347,21 @@ CPluginSite::CreateObject()
     // Track down the mime type.
     // If it is not given explicitly via an attribute of the <embed> tag,
     // then query the server about what it thinks the mime type is.
-    if( !pszMime && GetMimeTypeFromUrl(_pszFullUrl, szMime) )
-    {
+    if (!pszMime && GetMimeTypeFromUrl(_pszFullUrl, szMime)) {
         // Some servers lie about the mime type and return "text/plain" to
         // confuse us.  Therefore we ignore such uninformative returns.
-        if( StrCmpIC( szMime, _T("text/plain") ) && StrCmpIC( szMime, _T("text/html") ))
-        {
+        if (StrCmpIC(szMime, _T("text/plain")) && StrCmpIC(szMime, _T("text/html"))) {
             pszMime = szMime;
             hr = SetAAtype(pszMime);
-            if( FAILED( hr ) )
+            if (FAILED(hr))
                 goto Cleanup;
-        }
-        else
-        {
+        } else {
             // One last chance.  If this is a full-window embed, use the
             // content type reported to the binding used for the plugin data file.
-            if (pDoc->IsFullWindowEmbed())
-            {
+            if (pDoc->IsFullWindowEmbed()) {
                 pszMime = pDoc->GetPluginContentType();
                 hr = SetAAtype(pszMime);
-                if( FAILED( hr ) )
+                if (FAILED(hr))
                     goto Cleanup;
             }
         }
@@ -382,13 +371,11 @@ CPluginSite::CreateObject()
     // First decide if we should actually create an ActiveX control
     // to handle this data.  Notice pszCodeBase is an OUT param which
     // if allocated gets freed in the Cleanup.
-    if( TryAsActiveXControl( pDoc, pszSrc, szClassId, &pszCodeBase, pszMime ) )
-    {   //
+    if (TryAsActiveXControl(pDoc, pszSrc, szClassId, &pszCodeBase, pszMime)) {   //
         // Create ActiveX control directly code path....
 
-        hr = CLSIDFromHtmlString( szClassId, &info.clsid );
-        if (FAILED(hr))
-        {
+        hr = CLSIDFromHtmlString(szClassId, &info.clsid);
+        if (FAILED(hr)) {
             hr = THR(CLSIDFromString(szClassId, &info.clsid));
             if (FAILED(hr))
                 goto Cleanup;
@@ -398,10 +385,9 @@ CPluginSite::CreateObject()
 
         // Set particular parameters based on what we know from other
         // places:
-        if( pszCodeBase )
-        {
+        if (pszCodeBase) {
             hr = SetAAcodeBase(pszCodeBase);
-            if( FAILED( hr ) )
+            if (FAILED(hr))
                 goto Cleanup;
         }
 
@@ -414,13 +400,11 @@ CPluginSite::CreateObject()
         // Right now super:: is COleSite.  If that ever changes you'd
         // better eyeball this whole routine closely.
         _fUsingActiveXControl = TRUE;
-        hr = super::CreateObject( &info );
+        hr = super::CreateObject(&info);
         // Be aware that that CreateObject() call is asynchronous and
         // COleSite will finish creating the object on the CreateObjectNow()
         // callback from CCodeLoad.
-    }
-    else
-    {   //
+    } else {   //
         // Normal plugin.ocx plugin handling code path...
 
         info.clsid = CLSID_ActiveXPlugin;
@@ -456,20 +440,19 @@ Cleanup:
 HRESULT
 CPluginSite::PostLoad()
 {
-    IActiveXPlugin *    pIActiveXPlugin = NULL;
+    IActiveXPlugin* pIActiveXPlugin = NULL;
     HRESULT             hr = S_OK;
 
-    if( !_fUsingActiveXControl )
-    {
+    if (!_fUsingActiveXControl) {
         hr = QueryControlInterface(IID_IActiveXPlugin, (LPVOID*)&pIActiveXPlugin);
         if (hr)
             goto Cleanup;
 
         // _pszFullUrl may be NULL & that's OK.
-        pIActiveXPlugin->Load( _pszFullUrl, FALSE );
+        pIActiveXPlugin->Load(_pszFullUrl, FALSE);
     }
 
-  Cleanup:
+Cleanup:
     ReleaseInterface(pIActiveXPlugin);
     RRETURN(hr);
 }
@@ -487,7 +470,7 @@ CPluginSite::PostLoad()
 void
 CPluginSite::Passivate()
 {
-    MemFree( _pszFullUrl );
+    MemFree(_pszFullUrl);
     _pszFullUrl = NULL;
 
     ReleaseParamBag();
@@ -506,23 +489,21 @@ CPluginSite::Passivate()
 
 
 HRESULT
-CPluginSite::Save(CStreamWriteBuff * pStreamWrBuff, BOOL fEnd)
+CPluginSite::Save(CStreamWriteBuff* pStreamWrBuff, BOOL fEnd)
 {
     HRESULT hr = S_OK;
     DISPID  expandoDISPID = DISPID_UNKNOWN;
 
 
-    if (!fEnd && pStreamWrBuff->TestFlag(WBF_SAVE_FOR_PRINTDOC))
-    {
-        CDoc * pDoc = Doc();
+    if (!fEnd && pStreamWrBuff->TestFlag(WBF_SAVE_FOR_PRINTDOC)) {
+        CDoc* pDoc = Doc();
 
         // Only create expando if no other print jobs are pending, so we don't have to
         // freeze the document for too long.
         if (!pDoc || !pDoc->_fSaveTempfileForPrinting || pDoc->PrintJobsPending())
             goto Cleanup;
 
-        if (OK(ExchangeParamBag(FROMCONTROL)))
-        {
+        if (OK(ExchangeParamBag(FROMCONTROL))) {
             // If we have a marshaled punk, add an expando for it.
 
             VARIANT   var;
@@ -535,12 +516,10 @@ CPluginSite::Save(CStreamWriteBuff * pStreamWrBuff, BOOL fEnd)
 
             // Look for a parameter named "_Marshaled_pUnk"
 
-            if (OK(_pParamBag->Read(1, &propbag, NULL, &var, &hr)) && OK(hr))
-            {
+            if (OK(_pParamBag->Read(1, &propbag, NULL, &var, &hr)) && OK(hr)) {
                 // I think we need it to be a string?
 
-                if (var.vt == VT_I4)
-                {
+                if (var.vt == VT_I4) {
                     wsprintf(szBuf, L"%d", var.ulVal);
                     VariantClear(&var);
 
@@ -554,9 +533,9 @@ CPluginSite::Save(CStreamWriteBuff * pStreamWrBuff, BOOL fEnd)
                         DISPID_ACTIVEX_EXPANDO_BASE;
 
                     hr = THR(AddString(
-                            expandoDISPID,
-                            szBuf,
-                            CAttrValue::AA_Expando));
+                        expandoDISPID,
+                        szBuf,
+                        CAttrValue::AA_Expando));
                     if (hr)
                         goto Cleanup;
 
@@ -601,48 +580,48 @@ Cleanup:
 // a response from the internet server, we set the timeout to be a relatively
 // low 10 seconds.
 
-BOOL GetMimeTypeFromUrl(LPCTSTR url, TCHAR *mime)
+BOOL GetMimeTypeFromUrl(LPCTSTR url, TCHAR* mime)
 {
-   BOOL        bRet = FALSE;
+    BOOL        bRet = FALSE;
 #ifdef WIN16
-   // BUGWIN16
-   TraceTag((tagError, "GetMimeTypeFromUrl - pluginst.cxx, need to plugin ours !!"));
+    // BUGWIN16
+    TraceTag((tagError, "GetMimeTypeFromUrl - pluginst.cxx, need to plugin ours !!"));
 #else
-   HINTERNET   hInternet=NULL;                 // opened connection
-   HINTERNET   hRequest=NULL;                  // opened request
-   DWORD       dwSize  = MAX_PATH;        // size of buffer returned
-   DWORD       dwTimeout = 10000;   // 10 seconds.
+    HINTERNET   hInternet = NULL;                 // opened connection
+    HINTERNET   hRequest = NULL;                  // opened request
+    DWORD       dwSize = MAX_PATH;        // size of buffer returned
+    DWORD       dwTimeout = 10000;   // 10 seconds.
 
-   Assert( mime );
+    Assert(mime);
 
-   if (NULL == url)
-      goto Cleanup;
+    if (NULL == url)
+        goto Cleanup;
 
-   if (NULL == (hInternet = InternetOpen(_T("contype"), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0)))
-      goto Cleanup;
+    if (NULL == (hInternet = InternetOpen(_T("contype"), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0)))
+        goto Cleanup;
 
-   InternetSetOption( hInternet, INTERNET_OPTION_CONNECT_TIMEOUT, (LPVOID)&dwTimeout, sizeof(dwTimeout) );
-   InternetSetOption( hInternet, INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, (LPVOID)&dwTimeout, sizeof(dwTimeout) );
-   InternetSetOption( hInternet, INTERNET_OPTION_SEND_TIMEOUT, (LPVOID)&dwTimeout, sizeof(dwTimeout) );
-   InternetSetOption( hInternet, INTERNET_OPTION_RECEIVE_TIMEOUT, (LPVOID)&dwTimeout, sizeof(dwTimeout) );
+    InternetSetOption(hInternet, INTERNET_OPTION_CONNECT_TIMEOUT, (LPVOID)&dwTimeout, sizeof(dwTimeout));
+    InternetSetOption(hInternet, INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, (LPVOID)&dwTimeout, sizeof(dwTimeout));
+    InternetSetOption(hInternet, INTERNET_OPTION_SEND_TIMEOUT, (LPVOID)&dwTimeout, sizeof(dwTimeout));
+    InternetSetOption(hInternet, INTERNET_OPTION_RECEIVE_TIMEOUT, (LPVOID)&dwTimeout, sizeof(dwTimeout));
 
-   if (NULL == (hRequest  = InternetOpenUrl(hInternet, url, _T("Accept: */*"), (ULONG)-1, 0, 0)))
-      goto Cleanup;
+    if (NULL == (hRequest = InternetOpenUrl(hInternet, url, _T("Accept: */*"), (ULONG)-1, 0, 0)))
+        goto Cleanup;
 
-   if (!HttpQueryInfo(hRequest, HTTP_QUERY_CONTENT_TYPE, mime, &dwSize, NULL))
-      goto Cleanup;
+    if (!HttpQueryInfo(hRequest, HTTP_QUERY_CONTENT_TYPE, mime, &dwSize, NULL))
+        goto Cleanup;
 
-   if (dwSize > 0)
-      bRet = TRUE;
+    if (dwSize > 0)
+        bRet = TRUE;
 
-  Cleanup:
-   if( hRequest )
-      InternetCloseHandle(hRequest);
-   if( hInternet )
-      InternetCloseHandle(hInternet);
+Cleanup:
+    if (hRequest)
+        InternetCloseHandle(hRequest);
+    if (hInternet)
+        InternetCloseHandle(hInternet);
 
 #endif
-   return (bRet);
+    return (bRet);
 }
 
 
@@ -652,71 +631,66 @@ BOOL GetMimeTypeFromUrl(LPCTSTR url, TCHAR *mime)
 typedef struct {
     LPCTSTR  szExt;
     LPCTSTR  szMIMEtype;
-} DLGPLUGDATA, *LPDLGPLUGDATA;
+} DLGPLUGDATA, * LPDLGPLUGDATA;
 
-INT_PTR CALLBACK OCXOrPluginDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam,LPARAM lParam)
+INT_PTR CALLBACK OCXOrPluginDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_INITDIALOG:
-        {
-            LPDLGPLUGDATA lpPlug;
-            lpPlug = (LPDLGPLUGDATA) lParam;
+    {
+        LPDLGPLUGDATA lpPlug;
+        lpPlug = (LPDLGPLUGDATA)lParam;
 
-            // turn checkbox on
-            CheckDlgButton(hDlg, IDC_PLUGIN_UPGRADE_CHECK, TRUE);
+        // turn checkbox on
+        CheckDlgButton(hDlg, IDC_PLUGIN_UPGRADE_CHECK, TRUE);
 
-            // set dialog text for MIME and Extention
-            SetDlgItemText(hDlg, IDC_PLUGIN_UPGRADE_MIME_TYPE,
-                lpPlug->szMIMEtype);
-            SetDlgItemText(hDlg, IDC_PLUGIN_UPGRADE_EXTENSION,
-                lpPlug->szExt);
-        }
-        return FALSE;
+        // set dialog text for MIME and Extention
+        SetDlgItemText(hDlg, IDC_PLUGIN_UPGRADE_MIME_TYPE,
+                       lpPlug->szMIMEtype);
+        SetDlgItemText(hDlg, IDC_PLUGIN_UPGRADE_EXTENSION,
+                       lpPlug->szExt);
+    }
+    return FALSE;
 
     case WM_DESTROY:
         return TRUE;
-/*
-    case WM_HELP:            // F1
-        ResWinHelp( (HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
-        HELP_WM_HELP, (DWORD)(LPSTR)mapIDCsToIDHs);
-        break;
+        /*
+            case WM_HELP:            // F1
+                ResWinHelp( (HWND)((LPHELPINFO)lParam)->hItemHandle, IDS_HELPFILE,
+                HELP_WM_HELP, (DWORD)(LPSTR)mapIDCsToIDHs);
+                break;
 
-    case WM_CONTEXTMENU:        // right mouse click
-        ResWinHelp( (HWND) wParam, IDS_HELPFILE,
-        HELP_CONTEXTMENU, (DWORD)(LPSTR)mapIDCsToIDHs);
-        break;
-*/
+            case WM_CONTEXTMENU:        // right mouse click
+                ResWinHelp( (HWND) wParam, IDS_HELPFILE,
+                HELP_CONTEXTMENU, (DWORD)(LPSTR)mapIDCsToIDHs);
+                break;
+        */
     case WM_COMMAND:
-        switch (GET_WM_COMMAND_ID(wParam, lParam))
-        {
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
 
-            case IDYES:
-                if ( GET_WM_COMMAND_CMD(wParam, lParam) == BN_CLICKED )
-                {
-                    EndDialog(hDlg, IDYES);
-                    return TRUE;
-                }
-                break;
+        case IDYES:
+            if (GET_WM_COMMAND_CMD(wParam, lParam) == BN_CLICKED) {
+                EndDialog(hDlg, IDYES);
+                return TRUE;
+            }
+            break;
 
-            case IDCANCEL:
-                if ( GET_WM_COMMAND_CMD(wParam, lParam) == BN_CLICKED )
-                {
+        case IDCANCEL:
+            if (GET_WM_COMMAND_CMD(wParam, lParam) == BN_CLICKED) {
+                EndDialog(hDlg, IDCANCEL);
+                return TRUE;
+            }
+            break;
+
+        case IDNO:
+            if (GET_WM_COMMAND_CMD(wParam, lParam) == BN_CLICKED) {
+                if (IsDlgButtonChecked(hDlg, IDC_PLUGIN_UPGRADE_CHECK))
                     EndDialog(hDlg, IDCANCEL);
-                    return TRUE;
-                }
-                break;
-
-            case IDNO:
-                if ( GET_WM_COMMAND_CMD(wParam, lParam) == BN_CLICKED )
-                {
-                    if (IsDlgButtonChecked(hDlg, IDC_PLUGIN_UPGRADE_CHECK))
-                        EndDialog(hDlg, IDCANCEL );
-                    else
-                        EndDialog(hDlg, IDNO);
-                    return TRUE;
-                }
-                break;
+                else
+                    EndDialog(hDlg, IDNO);
+                return TRUE;
+            }
+            break;
         }
 
     }
@@ -728,21 +702,21 @@ INT_PTR CALLBACK OCXOrPluginDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam,LPARAM l
 //===== THIS CODE STOLEN FROM IE3.0 SOURCE FILE HTML.C
 
 
-const static TCHAR * szKNOWNCONTROLS =
-    _T("Software\\Microsoft\\Internet Explorer\\EmbedExtnToClsidMappings\\");
+const static TCHAR* szKNOWNCONTROLS =
+_T("Software\\Microsoft\\Internet Explorer\\EmbedExtnToClsidMappings\\");
 
 // MapExtnToKnownControl
 // Looks up a registry mapping for Extn to Clsid + CODEBASE (if available)
 // Returns:
 //  TRUE: if found a clsid for extn
 //  FALSE: not found or any error
-BOOL MapExtnToKnownControl(TCHAR *fileExt, TCHAR *szClassId, TCHAR **ppszCodeBase)
+BOOL MapExtnToKnownControl(TCHAR* fileExt, TCHAR* szClassId, TCHAR** ppszCodeBase)
 {
     DWORD Size = MAX_PATH;
-    DWORD dwType =0;
+    DWORD dwType = 0;
     LONG lResult = ERROR_SUCCESS;
 
-    const static TCHAR * szCODEBASE = _T("CODEBASE");
+    const static TCHAR* szCODEBASE = _T("CODEBASE");
 
     TCHAR szKey[MAX_PATH];
     TCHAR szCodeBase[pdlUrlLen];
@@ -754,13 +728,13 @@ BOOL MapExtnToKnownControl(TCHAR *fileExt, TCHAR *szClassId, TCHAR **ppszCodeBas
     wcscat(szKey, fileExt);
 
     lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, szKey, 0,
-                        KEY_READ, &hKeyExt);
+                           KEY_READ, &hKeyExt);
 
     if (lResult == ERROR_SUCCESS) {
 
         Size = MAX_PATH;
         lResult = RegQueryValueEx(hKeyExt, NULL, NULL, &dwType,
-                            (LPBYTE)szClassId, &Size);
+            (LPBYTE)szClassId, &Size);
 
         if (lResult == ERROR_SUCCESS) {
 
@@ -768,11 +742,11 @@ BOOL MapExtnToKnownControl(TCHAR *fileExt, TCHAR *szClassId, TCHAR **ppszCodeBas
 
             Size = pdlUrlLen;
             lResult = RegQueryValueEx(hKeyExt, szCODEBASE, NULL, &dwType,
-                                (LPBYTE)szCodeBase, &Size);
+                (LPBYTE)szCodeBase, &Size);
 
             if (lResult == ERROR_SUCCESS) {
-                HRESULT hr = MemAllocString( Mt(MapExtnToKnownControl), szCodeBase, ppszCodeBase );
-                if( hr )
+                HRESULT hr = MemAllocString(Mt(MapExtnToKnownControl), szCodeBase, ppszCodeBase);
+                if (hr)
                     fRet = FALSE;
             }
         }
@@ -788,7 +762,7 @@ BOOL MapExtnToKnownControl(TCHAR *fileExt, TCHAR *szClassId, TCHAR **ppszCodeBas
 // BUGBUG: CastadoE has a bug assigned to design the dialog box for this
 // UI and get a developer to make the code change.
 
-BOOL UserPrefersControlOverPlugin(CDoc *pDoc, TCHAR const *szName, TCHAR *fileExt)
+BOOL UserPrefersControlOverPlugin(CDoc* pDoc, TCHAR const* szName, TCHAR* fileExt)
 {
 
     BOOL fRet;
@@ -805,10 +779,10 @@ BOOL UserPrefersControlOverPlugin(CDoc *pDoc, TCHAR const *szName, TCHAR *fileEx
 
         hwndParent = dem._hwnd;
         Choice = DialogBoxParam(GetResourceHInst(),
-                              MAKEINTRESOURCE(IDD_PLUGIN_UPGRADE),
-                              hwndParent,
-                              &OCXOrPluginDlgProc,
-                              (LPARAM)&Plug);
+                                MAKEINTRESOURCE(IDD_PLUGIN_UPGRADE),
+                                hwndParent,
+                                &OCXOrPluginDlgProc,
+                                (LPARAM)&Plug);
     }
 
     switch (Choice) {
@@ -845,38 +819,36 @@ BOOL UserPrefersControlOverPlugin(CDoc *pDoc, TCHAR const *szName, TCHAR *fileEx
 
 // FindPlugin - delegates this call to the plugin OCX
 
-BOOL FindPlugin(TCHAR *szFileExt, TCHAR *szName, TCHAR const *szMime)
+BOOL FindPlugin(TCHAR* szFileExt, TCHAR* szName, TCHAR const* szMime)
 {
-   typedef (WINAPI *PFN_FINDPLUGIN)(char *ext, char *name, char *mime);
-   PFN_FINDPLUGIN pfnFindPlugin;
-   BOOL fRet = FALSE;
+    typedef (WINAPI* PFN_FINDPLUGIN)(char* ext, char* name, char* mime);
+    PFN_FINDPLUGIN pfnFindPlugin;
+    BOOL fRet = FALSE;
 
-   HMODULE hLib = LoadLibraryEx(_T("plugin.ocx"), NULL, 0);
-   if (hLib == NULL)
-   {
-       goto Exit;
-   }
+    HMODULE hLib = LoadLibraryEx(_T("plugin.ocx"), NULL, 0);
+    if (hLib == NULL) {
+        goto Exit;
+    }
 
     // Wowza - I wish there was a FindPluginW() available....
-   pfnFindPlugin = (PFN_FINDPLUGIN)GetProcAddress(hLib, "FindPluginA");
-   if (pfnFindPlugin == NULL)
-   {
-       goto Exit;
-   }
+    pfnFindPlugin = (PFN_FINDPLUGIN)GetProcAddress(hLib, "FindPluginA");
+    if (pfnFindPlugin == NULL) {
+        goto Exit;
+    }
 
-   //BUGWIN16: shortcut, CStrIn is not defined for several reasons.
-   // we need to fix that before enabling this.
+    //BUGWIN16: shortcut, CStrIn is not defined for several reasons.
+    // we need to fix that before enabling this.
 #ifndef WIN16
-   {
+    {
         CStrIn strinFileExt(szFileExt), strinName(szName), strinMime(szMime);
         fRet = pfnFindPlugin(strinFileExt, strinName, strinMime);
-   }
+    }
 #endif // !WIN16
 Exit:
-   if (hLib)
-      FreeLibrary(hLib);
+    if (hLib)
+        FreeLibrary(hLib);
 
-   return fRet;
+    return fRet;
 }
 
 
@@ -886,11 +858,11 @@ Exit:
 
 // For example ActiveMovie doesn't support QuickTime VR .mov files.
 
-BOOL PreferPluginOverControl(TCHAR *szFileExt, TCHAR *szClassId)
+BOOL PreferPluginOverControl(TCHAR* szFileExt, TCHAR* szClassId)
 {
     HKEY hk;
     TCHAR szKeyName[MAX_PATH];
-    TCHAR *pszRealClassId;
+    TCHAR* pszRealClassId;
 
 
     // The real classid name begins at szClassId + strlen("clsid:")
@@ -900,10 +872,9 @@ BOOL PreferPluginOverControl(TCHAR *szFileExt, TCHAR *szClassId)
 
     // notice tricky braces '}' below due to bizarre look of the
     // pszRealClsid we get:
-    Format( 0, szKeyName, MAX_PATH, _T("CLSID\\{<0s>\\EnablePlugin\\<1s>"), pszRealClassId, szFileExt);
+    Format(0, szKeyName, MAX_PATH, _T("CLSID\\{<0s>\\EnablePlugin\\<1s>"), pszRealClassId, szFileExt);
     if (RegOpenKeyEx(HKEY_CLASSES_ROOT, szKeyName, 0, KEY_READ, &hk) ==
-        ERROR_SUCCESS)
-    {
+        ERROR_SUCCESS) {
         RegCloseKey(hk); // Close the key immediately, just test for existance
 
 
@@ -912,15 +883,14 @@ BOOL PreferPluginOverControl(TCHAR *szFileExt, TCHAR *szClassId)
         // plugin that can handle this file extension. The sad assumption is
         // that any plugins will handle this file type better than this control
 
-        if (FindPlugin(szFileExt, NULL, NULL))
-        {
+        if (FindPlugin(szFileExt, NULL, NULL)) {
             return TRUE;
         }
     }
     return FALSE;
 }
 
-BOOL PreferControlOverPlugin(CDoc *pDoc, TCHAR *fileExt, TCHAR const *pszMime)
+BOOL PreferControlOverPlugin(CDoc* pDoc, TCHAR* fileExt, TCHAR const* pszMime)
 {
     TCHAR name[MAX_PATH];
     HKEY hkey = NULL;
@@ -930,19 +900,16 @@ BOOL PreferControlOverPlugin(CDoc *pDoc, TCHAR *fileExt, TCHAR const *pszMime)
 
     name[0] = _T('\0');  // start out fresh and clean.
 
-    if (!FindPlugin(fileExt, name, pszMime))
-    {
+    if (!FindPlugin(fileExt, name, pszMime)) {
         goto Exit;
     }
 
     // check to see if the user has set codedown load to "no"
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, TSZWININETPATH, (DWORD) NULL,
-            KEY_ALL_ACCESS, &hkey) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, TSZWININETPATH, (DWORD)NULL,
+                     KEY_ALL_ACCESS, &hkey) == ERROR_SUCCESS) {
         cb = sizeof(szDoCodeDownload);
         if (RegQueryValueEx(hkey, REGSTR_VAL_CODEDOWNLOAD, NULL,
-                NULL, (LPBYTE)szDoCodeDownload, &cb) == ERROR_SUCCESS)
-        {
+                            NULL, (LPBYTE)szDoCodeDownload, &cb) == ERROR_SUCCESS) {
             goto SkipDefault;
         }
     }
@@ -956,8 +923,7 @@ SkipDefault:
         RegCloseKey(hkey);
 
     // if "no" codedownload... don't ask the question
-    if (!_tcsicmp(szDoCodeDownload, TEXT("no")))
-    {
+    if (!_tcsicmp(szDoCodeDownload, TEXT("no"))) {
         fRet = FALSE;
         goto Exit;  // return FALSE
     }
@@ -983,42 +949,40 @@ Exit:
 #define REGKEY_DISABLEACTIVEX \
  _T("Software\\Microsoft\\Internet Explorer\\Plugins\\DisableActiveXControls")
 
-int GetFileExtension(LPCTSTR szFilename, TCHAR **szExtension);
-BOOL IsActiveXControl(LPCTSTR szFile, TCHAR *szClassId, TCHAR *fileExt, LPCTSTR szMimeTypeIn);
+int GetFileExtension(LPCTSTR szFilename, TCHAR** szExtension);
+BOOL IsActiveXControl(LPCTSTR szFile, TCHAR* szClassId, TCHAR* fileExt, LPCTSTR szMimeTypeIn);
 
-BOOL TryAsActiveXControl(CDoc *pDoc, LPCTSTR pszFile, LPTSTR pszClassId,
- LPTSTR *ppszCodeBase, LPCTSTR szMimeTypeIn)
+BOOL TryAsActiveXControl(CDoc* pDoc, LPCTSTR pszFile, LPTSTR pszClassId,
+                         LPTSTR* ppszCodeBase, LPCTSTR szMimeTypeIn)
 {
-    TCHAR    *fileExt = NULL;    // file extension
-    BOOL    fRet     = FALSE;    // return value
-    HKEY    hKey     = NULL;     // reg key
-    LONG    cbData     = 0;      // bytes to read
+    TCHAR* fileExt = NULL;    // file extension
+    BOOL    fRet = FALSE;    // return value
+    HKEY    hKey = NULL;     // reg key
+    LONG    cbData = 0;      // bytes to read
     TCHAR   szKey[MAX_PATH];
     HRESULT    hr;               // return code
 
     // Determine if searching for activex controls has been disabled...
     hr = RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGKEY_DISABLEACTIVEX, 0, KEY_READ, &hKey);
-    if (ERROR_SUCCESS == hr)
-    {
-       cbData = MAX_PATH;
-       RegQueryValue(hKey, NULL, szKey, &cbData);
-       RegCloseKey(hKey);
-       if (StrCmpIC(szKey, _T("true")) == 0)
-          return (FALSE);
+    if (ERROR_SUCCESS == hr) {
+        cbData = MAX_PATH;
+        RegQueryValue(hKey, NULL, szKey, &cbData);
+        RegCloseKey(hKey);
+        if (StrCmpIC(szKey, _T("true")) == 0)
+            return (FALSE);
     }
 
     // Need to parse the szFile to get the extension.
     // If this fails we carry on since we can also use the mimetype below.
-    if( pszFile )
+    if (pszFile)
         GetFileExtension(pszFile, &fileExt);
 
-    if (fileExt && _tcslen(fileExt) > 50)
-    {
+    if (fileExt && _tcslen(fileExt) > 50) {
         fRet = FALSE;
         goto exit;
     }
 
-    fRet = IsActiveXControl(pszFile, pszClassId,fileExt,szMimeTypeIn);
+    fRet = IsActiveXControl(pszFile, pszClassId, fileExt, szMimeTypeIn);
 
     // If we have no file extension then the processing below is not
     // applicable and we return the fRet just obtained.
@@ -1030,14 +994,10 @@ BOOL TryAsActiveXControl(CDoc *pDoc, LPCTSTR pszFile, LPTSTR pszClassId,
     // tag, we check if there is a plugin that can handle this file extension
     // and if we prefer this plugin over this control. If so return FALSE;
 
-    if (fRet)
-    {
-        if(PreferPluginOverControl(fileExt, pszClassId))
-        {
+    if (fRet) {
+        if (PreferPluginOverControl(fileExt, pszClassId)) {
             fRet = FALSE; // set return value to FALSE so will use the PLUGIN
-        }
-        else
-        {
+        } else {
             ;    // Do nothing as fRet is already TRUE so will use the CONTROL
         }
 
@@ -1080,40 +1040,40 @@ exit:
 
 //    Looks up mimetype->clsid
 
-HRESULT ClsidFromMime( TCHAR *szClassId, LPCTSTR szMimeType)
+HRESULT ClsidFromMime(TCHAR* szClassId, LPCTSTR szMimeType)
 {
-    HKEY     hKeyProgId  = NULL;  // registry key for prog id
+    HKEY     hKeyProgId = NULL;  // registry key for prog id
     LONG     cbData;              // buffer size
     HRESULT  hr;                  // last return from Reg*** function
     DWORD    dwRet;
     TCHAR    pszRegKey[MAX_PATH];   // class id for the object
 
-    Assert( szMimeType );
+    Assert(szMimeType);
 
-    hr = Format(0,pszRegKey,MAX_PATH,_T("MIME\\Database\\Content Type\\<0s>"), szMimeType);
+    hr = Format(0, pszRegKey, MAX_PATH, _T("MIME\\Database\\Content Type\\<0s>"), szMimeType);
     if (FAILED(hr))
         goto CleanupHR;
 
     // Open the registry entry for the prog id
     dwRet = RegOpenKeyEx(HKEY_CLASSES_ROOT, pszRegKey, 0, KEY_READ, &hKeyProgId);
-    if (ERROR_SUCCESS != hr )
+    if (ERROR_SUCCESS != hr)
         goto Cleanup;
 
     cbData = MAX_PATH;
     dwRet = RegQueryValueEx(hKeyProgId, _T("CLSID"), NULL, NULL, (LPBYTE)szClassId, (DWORD*)&cbData);
 
     // Get rid of the trailing '}'
-    if ( ERROR_SUCCESS == dwRet && cbData >= 2 )
+    if (ERROR_SUCCESS == dwRet && cbData >= 2)
         szClassId[cbData - 2] = _T('\0');
 
-  Cleanup:
-    hr = HRESULT_FROM_WIN32( dwRet );
+Cleanup:
+    hr = HRESULT_FROM_WIN32(dwRet);
 
-  CleanupHR:
+CleanupHR:
     if (hKeyProgId != NULL)
         RegCloseKey(hKeyProgId);
 
-    return( hr );
+    return(hr);
 }
 
 
@@ -1137,36 +1097,33 @@ HRESULT ClsidFromMime( TCHAR *szClassId, LPCTSTR szMimeType)
 //    passed in mime type since this is closer to the original IE3
 //    behavior which only used the file extension.
 
-BOOL IsActiveXControl(LPCTSTR szFile, TCHAR *szClassId, TCHAR *fileExt, LPCTSTR szMimeTypeIn)
+BOOL IsActiveXControl(LPCTSTR szFile, TCHAR* szClassId, TCHAR* fileExt, LPCTSTR szMimeTypeIn)
 {
-   HKEY     hKeyFileExt = NULL;  // opened registry key
-   HKEY     hKeyProgId  = NULL;  // registry key for prog id
-   HKEY     hKeyClassId = NULL;  // registry key for class id
-   LONG     cbData;              // buffer size
-   HRESULT  hr;                  // last return from Reg*** function
-   HKEY     hKeyControl = NULL;  // registry key for control under clsid
-   TCHAR    pszControl[MAX_PATH];   // path to control key
-   TCHAR    pszMimeTypeOrProgId[MAX_PATH];  // prog id for the object
-   TCHAR    pszClassId[MAX_PATH];   // class id for the object
+    HKEY     hKeyFileExt = NULL;  // opened registry key
+    HKEY     hKeyProgId = NULL;  // registry key for prog id
+    HKEY     hKeyClassId = NULL;  // registry key for class id
+    LONG     cbData;              // buffer size
+    HRESULT  hr;                  // last return from Reg*** function
+    HKEY     hKeyControl = NULL;  // registry key for control under clsid
+    TCHAR    pszControl[MAX_PATH];   // path to control key
+    TCHAR    pszMimeTypeOrProgId[MAX_PATH];  // prog id for the object
+    TCHAR    pszClassId[MAX_PATH];   // class id for the object
 
     *pszMimeTypeOrProgId = _T('\0');
 
-    if (fileExt)
-    {
+    if (fileExt) {
         // Try to open the key HKEY_CLASSES_ROOT\fileExt. to get mime type.
         //    Example HKEY_CLASSES_ROOT\.xls
         hr = RegOpenKeyEx(HKEY_CLASSES_ROOT, fileExt, 0, KEY_READ, &hKeyFileExt);
-        if (ERROR_SUCCESS == hr)
-        {
-            cbData     = MAX_PATH;
+        if (ERROR_SUCCESS == hr) {
+            cbData = MAX_PATH;
 
             // We found the file extension in the registry... now, we
             // want to get the mime type, if present
             hr = RegQueryValueEx(hKeyFileExt, _T("Content Type"), NULL, NULL, (LPBYTE)pszMimeTypeOrProgId, (DWORD*)&cbData);
-            if (ERROR_SUCCESS == hr)
-            {
-                hr = ClsidFromMime( pszClassId, pszMimeTypeOrProgId );
-                if( !hr )
+            if (ERROR_SUCCESS == hr) {
+                hr = ClsidFromMime(pszClassId, pszMimeTypeOrProgId);
+                if (!hr)
                     goto GotCLSID;
             }
         }
@@ -1182,7 +1139,7 @@ BOOL IsActiveXControl(LPCTSTR szFile, TCHAR *szClassId, TCHAR *fileExt, LPCTSTR 
         goto TryMime;
 
     // Now that we have the prog id, let's go and get the CLSID.
-    pszMimeTypeOrProgId[cbData-1] = _T('\0'); // append the NULL character to our string
+    pszMimeTypeOrProgId[cbData - 1] = _T('\0'); // append the NULL character to our string
 
     // Open the registry entry for the prog id
     hr = RegOpenKeyEx(HKEY_CLASSES_ROOT, pszMimeTypeOrProgId, 0, KEY_READ, &hKeyProgId);
@@ -1203,32 +1160,29 @@ BOOL IsActiveXControl(LPCTSTR szFile, TCHAR *szClassId, TCHAR *fileExt, LPCTSTR 
     // brackets when we return the value of the class id.
     Format(0, pszControl, MAX_PATH, _T("CLSID\\<0s>\\Control"), pszClassId);
     hr = RegOpenKeyEx(HKEY_CLASSES_ROOT, pszControl, 0, KEY_READ, &hKeyControl);
-    if (ERROR_SUCCESS == hr)
-    {
+    if (ERROR_SUCCESS == hr) {
         // The classid does refer to a control.  Get rid of the { } brackets in
         // the classid string:
-        if( cbData >= 2 )
-            pszClassId[cbData-2] = _T('\0');     // add the null to the end of the string where the }
-    }
-    else
-    {
-  TryMime:
+        if (cbData >= 2)
+            pszClassId[cbData - 2] = _T('\0');     // add the null to the end of the string where the }
+    } else {
+    TryMime:
         // Try the passed in mime type directly.
         // if we don't have a mime type, then don't try to execute
         // the GotCLSID piece below, since pszClassId never gets set
         if (!szMimeTypeIn)
             goto Cleanup;   // hr is already an error code, so we'll return FALSE.
 
-        hr = ClsidFromMime( pszClassId, szMimeTypeIn );
-        if( hr )
+        hr = ClsidFromMime(pszClassId, szMimeTypeIn);
+        if (hr)
             goto Cleanup;
     }
 
-  GotCLSID:
+GotCLSID:
     wcscpy(szClassId, _T("clsid:"));    // need to preface with "clsid:"
-    wcscat(szClassId, pszClassId+1);  // copy the value to our out param
+    wcscat(szClassId, pszClassId + 1);  // copy the value to our out param
 
-  Cleanup:
+Cleanup:
     // Close all open reg keys
     if (hKeyFileExt != NULL)
         RegCloseKey(hKeyFileExt);
@@ -1261,47 +1215,44 @@ BOOL IsActiveXControl(LPCTSTR szFile, TCHAR *szClassId, TCHAR *fileExt, LPCTSTR 
 //    This function will return the file extension (including the .). And it
 //    will return the number of characters in the file extension.
 
-int GetFileExtension(LPCTSTR szFilename, TCHAR **szExtension)
+int GetFileExtension(LPCTSTR szFilename, TCHAR** szExtension)
 {
-   int  count   = 0;          // number of characters in extension
-   LPCTSTR szTemp = NULL;       // temp pointer to filename string
-   LPCTSTR szEnd = NULL;
+    int  count = 0;          // number of characters in extension
+    LPCTSTR szTemp = NULL;       // temp pointer to filename string
+    LPCTSTR szEnd = NULL;
 
-   Assert(szFilename);
-   Assert(szExtension);
+    Assert(szFilename);
+    Assert(szExtension);
 
-   if (szFilename == NULL || szExtension == NULL)
-      return (count);
-
-   // move temp pointer to end
-   szTemp = szFilename + wcslen(szFilename);
-   szEnd = szTemp;
-
-   while (szTemp != szFilename)
-   {
-      // This function is essentially duplicated in at least
-      // two other components.  The search behavior here is different
-      // (RTL as opposed to the typical LTR), but I'm not going
-      // to clean this up in a hotfix.
-      // Consequently, when a query or bookmark char is found,
-      // update it as our new end point for the extension string.
-      if ((*szTemp == _T('?')) || (*szTemp == _T('#')))
-      {
-          szEnd = szTemp;
-      }
-
-      // when we have a period, we found the extension
-      else if (*szTemp == _T('.'))
-      {
-        HRESULT hr = FormsAllocStringLen( szTemp, szEnd-szTemp, szExtension );
-        if( FAILED( hr ) )
-            count = 0;
+    if (szFilename == NULL || szExtension == NULL)
         return (count);
-      }
-      --szTemp;
-      ++count;
-   }
-   return (0);
+
+    // move temp pointer to end
+    szTemp = szFilename + wcslen(szFilename);
+    szEnd = szTemp;
+
+    while (szTemp != szFilename) {
+        // This function is essentially duplicated in at least
+        // two other components.  The search behavior here is different
+        // (RTL as opposed to the typical LTR), but I'm not going
+        // to clean this up in a hotfix.
+        // Consequently, when a query or bookmark char is found,
+        // update it as our new end point for the extension string.
+        if ((*szTemp == _T('?')) || (*szTemp == _T('#'))) {
+            szEnd = szTemp;
+        }
+
+        // when we have a period, we found the extension
+        else if (*szTemp == _T('.')) {
+            HRESULT hr = FormsAllocStringLen(szTemp, szEnd - szTemp, szExtension);
+            if (FAILED(hr))
+                count = 0;
+            return (count);
+        }
+        --szTemp;
+        ++count;
+    }
+    return (0);
 }
 
 
@@ -1321,13 +1272,12 @@ CPluginSite::OnPropertyChange(DISPID dispid, DWORD dwFlags)
 {
     HRESULT hr;
 
-    switch (dispid)
+    switch (dispid) {
+    case DISPID_CPluginSite_hidden:
     {
-        case DISPID_CPluginSite_hidden:
-        {
-            _fHidden = GetAAhidden();
-            break;
-        }
+        _fHidden = GetAAhidden();
+        break;
+    }
     }
 
     hr = THR(super::OnPropertyChange(dispid, dwFlags));

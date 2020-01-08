@@ -68,10 +68,10 @@ extern "C" {            /* Assume C declarations for C++ */
 
 ************************************************************************/
 
-    BOOL    VFWAPI ICInfo(DWORD fccType, DWORD fccHandler, ICINFO FAR * lpicinfo);
+    BOOL    VFWAPI ICInfo(DWORD fccType, DWORD fccHandler, ICINFO FAR* lpicinfo);
     BOOL    VFWAPI ICInstall(DWORD fccType, DWORD fccHandler, LPARAM lParam, LPSTR szDesc, UINT wFlags);
     BOOL    VFWAPI ICRemove(DWORD fccType, DWORD fccHandler, UINT wFlags);
-    LRESULT VFWAPI ICGetInfo(HIC hic, ICINFO FAR *picinfo, DWORD cb);
+    LRESULT VFWAPI ICGetInfo(HIC hic, ICINFO FAR* picinfo, DWORD cb);
 
     HIC     VFWAPI ICOpen(DWORD fccType, DWORD fccHandler, UINT wMode);
     HIC     VFWAPI ICOpenFunction(DWORD fccType, DWORD fccHandler, UINT wMode, FARPROC lpfnHandler);
@@ -661,7 +661,7 @@ extern "C" {            /* Assume C declarations for C++ */
             HIC hic,
             DWORD dwFlags,
             LRESULT lParam,
-            LONG(CALLBACK *fpfnStatus)(LPARAM, UINT, LONG))
+            LONG(CALLBACK* fpfnStatus)(LPARAM, UINT, LONG))
     {
         ICSETSTATUSPROC ic;
 
@@ -713,7 +713,7 @@ helper routines for DrawDib and MCIAVI...
         LPVOID              lpBits,     // data to compress
         LPBITMAPINFO        lpbiOut,    // compress to this (NULL ==> default)
         LONG                lQuality,   // quality to use
-        LONG FAR *          plSize);     // compress to this size (0=whatever)
+        LONG FAR* plSize);     // compress to this size (0=whatever)
 
     HANDLE VFWAPI ICImageDecompress(
         HIC                 hic,        // compressor to use
@@ -745,7 +745,7 @@ helper routines for DrawDib and MCIAVI...
         LONG        lKeyCount;
         LPVOID        lpState;    // state of compressor
         LONG        cbState;    // size of the state
-    } COMPVARS, FAR *PCOMPVARS;
+    } COMPVARS, FAR* PCOMPVARS;
 
     // FLAGS for dwFlags element of COMPVARS structure:
     // set this flag if you initialize COMPVARS before calling ICCompressorChoose
@@ -777,8 +777,8 @@ helper routines for DrawDib and MCIAVI...
         PCOMPVARS               pc,         // set by ICCompressorChoose
         UINT                    uiFlags,    // flags
         LPVOID                  lpBits,     // input DIB bits
-        BOOL FAR             *pfKey,    // did it end up being a key frame?
-        LONG FAR            *plSize);    // size to compress to/of returned image
+        BOOL FAR* pfKey,    // did it end up being a key frame?
+        LONG FAR* plSize);    // size to compress to/of returned image
 
     void VFWAPI ICCompressorFree(PCOMPVARS pc);
 

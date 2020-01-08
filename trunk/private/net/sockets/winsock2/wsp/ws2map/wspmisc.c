@@ -32,26 +32,35 @@ Routine Description:
     This routine cancels any outstanding blocking operation for this thread.
     It is normally used in two situations:
 
-        1. A WinSock SPI client is processing a message which has been received while a service provider is implementing pseudo blocking. In this case, WSAIsBlocking() will be true.
+        1. A WinSock SPI client is processing a message which has been received while a service provider is implementing pseudo blocking.
+           In this case, WSAIsBlocking() will be true.
         2. A blocking call is in progress, and the WinSock service provider has called back to the WinSock SPI client's "blocking hook" function (via the callback function retrieved from
-           WPUQueryBlockingCallback()), which in turn is invoking this function. Such a situation might arise, for instance, in implementing a Cancel option for an operation which require an extended time to complete.
+           WPUQueryBlockingCallback()), which in turn is invoking this function.
+           Such a situation might arise, for instance, 
+           in implementing a Cancel option for an operation which require an extended time to complete.
 
     In each case, the original blocking call will terminate as soon as possible with the error WSAEINTR.
     (In (1), the termination will not take place until Windows message scheduling has caused control to revert back to the pseudo blocking routine in WinSock.
     In (2), the blocking call will be terminated as soon as the blocking hook function completes.)
 
-    In the case of a blocking WSPConnect() operation, WinSock will terminate the blocking call as soon as possible, but it may not be possible for the socket resources to be released until the connection has completed
-    (and then been reset) or timed out. This is likely to be noticeable only if the WinSock SPI client immediately tries to open a new socket (if no sockets are available), or to WSPConnect() to the same peer.
+    In the case of a blocking WSPConnect() operation, WinSock will terminate the blocking call as soon as possible,
+    but it may not be possible for the socket resources to be released until the connection has completed
+    (and then been reset) or timed out. 
+    This is likely to be noticeable only if the WinSock SPI client immediately tries to open a new socket (if no sockets are available),
+    or to WSPConnect() to the same peer.
 
     Canceling an WSPAccept() or a WSPSelect() call does not adversely impact the sockets passed to these calls.
-    Only the particular call fails; any operation that was legal before the cancel is legal after the cancel, and the state of the socket is not affected in any way.
+    Only the particular call fails; any operation that was legal before the cancel is legal after the cancel, 
+    and the state of the socket is not affected in any way.
 
     Canceling any operation other than WSPAccept() and WSPSelect() can leave the socket in an indeterminate state.
     If a WinSock SPI client cancels a blocking operation on a socket, the only operation that the WinSock SPI client can depend on being able to perform on the socket is a call to
-    WSPCloseSocket(), although other operations may work on some WinSock service providers. If a WinSock SPI client desires maximum portability, it must be careful not to depend on performing operations after a cancel.
+    WSPCloseSocket(), although other operations may work on some WinSock service providers.
+    If a WinSock SPI client desires maximum portability, it must be careful not to depend on performing operations after a cancel.
     A WinSock SPI client may reset the connection by setting the timeout on SO_LINGER to 0 and calling WSPCloseSocket().
 
-    If a cancel operation compromised the integrity of a SOCK_STREAM's data stream in any way, the WinSock provider will reset the connection and fail all future operations other than WSPCloseSocket() with WSAECONNABORTED.
+    If a cancel operation compromised the integrity of a SOCK_STREAM's data stream in any way, 
+    the WinSock provider will reset the connection and fail all future operations other than WSPCloseSocket() with WSAECONNABORTED.
 
     Note it is acceptable for WSPCancelBlockingCall() to return successfully if the blocking network operation completes prior to being canceled.
     In this case, the blocking operation will return successfully as if WSPCancelBlockingCall() had never been called.
@@ -68,70 +77,81 @@ Return Value:
     INT result;
     PSOCK_TLS_DATA tlsData;
 
-    SOCK_ENTER( "WSPCancelBlockingCall", lpErrno, NULL, NULL, NULL );
-    SOCK_ASSERT( lpErrno != NULL );
+    SOCK_ENTER("WSPCancelBlockingCall", lpErrno, NULL, NULL, NULL);
+    SOCK_ASSERT(lpErrno != NULL);
 
-    err = SockEnterApi( TRUE, TRUE );
-    if( err != NO_ERROR ) {
+    err = SockEnterApi(TRUE, TRUE);
+    if (err != NO_ERROR) {
         *lpErrno = err;
-        SOCK_EXIT( "WSPCancelBlockingCall", SOCKET_ERROR, lpErrno );
+        SOCK_EXIT("WSPCancelBlockingCall", SOCKET_ERROR, lpErrno);
         return SOCKET_ERROR;
     }
 
     tlsData = SOCK_GET_THREAD_DATA();
-    SOCK_ASSERT( tlsData != NULL );
+    SOCK_ASSERT(tlsData != NULL);
 
     // This call is only valid when we are in a blocking call.
-    if( !tlsData->IsBlocking ) {
+    if (!tlsData->IsBlocking) {
         *lpErrno = WSAEINVAL;
-        SOCK_EXIT( "WSPCancelBlockingCall", SOCKET_ERROR, lpErrno );
+        SOCK_EXIT("WSPCancelBlockingCall", SOCKET_ERROR, lpErrno);
         return SOCKET_ERROR;
     }
 
     // The IO should not have been cancelled yet.
-    SOCK_ASSERT( tlsData->ReentrancyFlag );
-    SOCK_ASSERT( !tlsData->IoCancelled );
-    SOCK_ASSERT( tlsData->BlockingSocketInfo != NULL );
+    SOCK_ASSERT(tlsData->ReentrancyFlag);
+    SOCK_ASSERT(!tlsData->IoCancelled);
+    SOCK_ASSERT(tlsData->BlockingSocketInfo != NULL);
 
     // Cancel it.
     result = tlsData->BlockingSocketInfo->Hooker->WSACancelBlockingCall();
-    if( result == SOCKET_ERROR ) {
+    if (result == SOCKET_ERROR) {
         *lpErrno = tlsData->BlockingSocketInfo->Hooker->WSAGetLastError();
-        SOCK_EXIT( "WSPCancelBlockingCall", SOCKET_ERROR, lpErrno );
+        SOCK_EXIT("WSPCancelBlockingCall", SOCKET_ERROR, lpErrno);
         return SOCKET_ERROR;
     }
 
     tlsData->IoCancelled = TRUE;// Remember that we've cancelled it.
-    SOCK_EXIT( "WSPCancelBlockingCall", NO_ERROR, NULL );
+    SOCK_EXIT("WSPCancelBlockingCall", NO_ERROR, NULL);
     return NO_ERROR;
 }   // WSPCancelBlockingCall
 
 
-INT WSPAPI WSPDuplicateSocket(IN SOCKET s, IN DWORD dwProcessId, OUT LPWSAPROTOCOL_INFOW lpProtocolInfo, OUT LPINT lpErrno)
+INT WSPAPI WSPDuplicateSocket(IN SOCKET s,
+                              IN DWORD dwProcessId, 
+                              OUT LPWSAPROTOCOL_INFOW lpProtocolInfo, 
+                              OUT LPINT lpErrno
+)
 /*++
 Routine Description:
     A source process calls WSPDuplicateSocket() to obtain a special WSAPROTOCOL_INFOW structure.
-    It uses some interprocess communications (IPC) mechanism to pass the contents of this structure to a target process, which in turn uses it in a call to WSPSocket() to obtain a
+    It uses some interprocess communications (IPC) mechanism to pass the contents of this structure to a target process, 
+    which in turn uses it in a call to WSPSocket() to obtain a
     descriptor for the duplicated socket. Note that the special WSAPROTOCOL_INFOW structure may only be used once by the target process.
 
-    It is the service provider's responsibility to perform whatever operations are needed in the source process context and to create a WSAPROTOCOL_INFOW structure that will be recognized when it subsequently appears as a
+    It is the service provider's responsibility to perform whatever operations are needed in the source process context and 
+    to create a WSAPROTOCOL_INFOW structure that will be recognized when it subsequently appears as a
     parameter to WSPSocket() in the target processes' context.
     The provider must then return a socket descriptor that references a common underlying socket.
-    The dwProviderReserved field of the WSAPROTOCOL_INFOW struct is available for the service provider's use, and may be used to store any useful context information, including a duplicated handle.
+    The dwProviderReserved field of the WSAPROTOCOL_INFOW struct is available for the service provider's use, 
+    and may be used to store any useful context information, including a duplicated handle.
 
     When new socket descriptors are allocated IFS providers must call WPUModifyIFSHandle() and non-IFS providers must call WPUCreateSocketHandle().
 
     The descriptors that reference a shared socket may be used independently as far as I/O is concerned.
-    However, the WinSock interface does not implement any type of access control, so it is up to the processes involved to coordinate their operations on a shared socket.
-    A typical use for shared sockets is to have one process that is responsible for creating sockets and establishing connections, hand off sockets to other processes which are responsible for information exchange.
+    However, the WinSock interface does not implement any type of access control, 
+    so it is up to the processes involved to coordinate their operations on a shared socket.
+    A typical use for shared sockets is to have one process that is responsible for creating sockets and establishing connections,
+    hand off sockets to other processes which are responsible for information exchange.
 
-    Since what is duplicated are the socket descriptors and not the underlying socket, all of the state associated with a socket is held in common across all the descriptors.
+    Since what is duplicated are the socket descriptors and not the underlying socket, 
+    all of the state associated with a socket is held in common across all the descriptors.
     For example a WSPSetSockOpt() operation performed using one descriptor is subsequently visible using a WSPGetSockOpt() from any or all descriptors.
     A process may call WSPClosesocket() on a duplicated socket and the descriptor will become deallocated.
     The underlying socket, however, will remain open until WSPClosesocket() is called by the last remaining descriptor.
 
     Notification on shared sockets is subject to the usual constraints of WSPAsyncSelect() and WSPEventSelect().
-    Issuing either of these calls using any of the shared descriptors cancels any previous event registration for the socket, regardless of which descriptor was used to make that registration.
+    Issuing either of these calls using any of the shared descriptors cancels any previous event registration for the socket,
+    regardless of which descriptor was used to make that registration.
     Thus, for example, a shared socket cannot deliver FD_READ events to process A and FD_WRITE events to process B.
     For situations when such tight coordination is required, it is suggested that developers use threads instead of separate processes.
 
@@ -150,7 +170,7 @@ Return Value:
 }   // WSPDuplicateSocket
 
 
-BOOL WSPAPI WSPGetOverlappedResult(IN SOCKET s,IN LPWSAOVERLAPPED lpOverlapped,OUT LPDWORD lpcbTransfer,IN BOOL fWait,OUT LPDWORD lpdwFlags,OUT LPINT lpErrno)
+BOOL WSPAPI WSPGetOverlappedResult(IN SOCKET s, IN LPWSAOVERLAPPED lpOverlapped, OUT LPDWORD lpcbTransfer, IN BOOL fWait, OUT LPDWORD lpdwFlags, OUT LPINT lpErrno)
 /*++
 Routine Description:
     The results reported by the WSPGetOverlappedResult() function are those of the specified socket's last overlapped operation to which the specified WSAOVERLAPPED structure was provided,
@@ -183,44 +203,46 @@ Return Value:
     INT err;
     BOOL result;
 
-    SOCK_ENTER( "WSPGetOverlappedResult", (PVOID)s, lpOverlapped, lpcbTransfer, (PVOID)fWait );
-    SOCK_ASSERT( lpErrno != NULL );
+    SOCK_ENTER("WSPGetOverlappedResult", (PVOID)s, lpOverlapped, lpcbTransfer, (PVOID)fWait);
+    SOCK_ASSERT(lpErrno != NULL);
 
-    err = SockEnterApi( TRUE, FALSE );
-    if( err != NO_ERROR ) {
+    err = SockEnterApi(TRUE, FALSE);
+    if (err != NO_ERROR) {
         *lpErrno = err;
-        SOCK_EXIT( "WSPGetOverlappedResult", FALSE, lpErrno );
+        SOCK_EXIT("WSPGetOverlappedResult", FALSE, lpErrno);
         return FALSE;
     }
 
     result = FALSE;// Setup locals so we know how to cleanup on exit.
 
     // Attempt to find the socket in our lookup table.
-    socketInfo = SockFindAndReferenceWS2Socket( s );
-    if( socketInfo == NULL || socketInfo->State == SocketStateClosing ) {
+    socketInfo = SockFindAndReferenceWS2Socket(s);
+    if (socketInfo == NULL || socketInfo->State == SocketStateClosing) {
         IF_DEBUG(OVERLAP) {
-            SOCK_PRINT(("WSPGetOverlappedResult failed on %s handle: %lx\n", socketInfo == NULL ? "unknown" : "closed", s));
+            SOCK_PRINT(("WSPGetOverlappedResult failed on %s handle: %lx\n",
+                        socketInfo == NULL ? "unknown" : "closed", 
+                        s));
         }
 
-        if( socketInfo != NULL ) {
-            SockDereferenceSocket( socketInfo );
+        if (socketInfo != NULL) {
+            SockDereferenceSocket(socketInfo);
         }
 
         *lpErrno = WSAENOTSOCK;
-        SOCK_EXIT( "GetOverlappedResult", FALSE, lpErrno );
+        SOCK_EXIT("GetOverlappedResult", FALSE, lpErrno);
         return FALSE;
     }
 
     // Validate the other arguments.
-    if( lpOverlapped == NULL || lpcbTransfer == NULL || lpdwFlags == NULL ) {
+    if (lpOverlapped == NULL || lpcbTransfer == NULL || lpdwFlags == NULL) {
         err = WSAEFAULT;
         goto exit;
     }
 
     // Interpret the completion status (if any).
-    ioStatus = SOCK_OVERLAPPED_TO_IO_STATUS( lpOverlapped );
-    if( ioStatus->Status == WSA_IO_PENDING ) {
-        if( fWait ) {
+    ioStatus = SOCK_OVERLAPPED_TO_IO_STATUS(lpOverlapped);
+    if (ioStatus->Status == WSA_IO_PENDING) {
+        if (fWait) {
             WaitForSingleObject(lpOverlapped->hEvent, INFINITE);
         } else {
             err = WSA_IO_INCOMPLETE;
@@ -229,9 +251,9 @@ Return Value:
     }
 
     // At this point, ioStatus->Status should have been updated from the IO completion (in SockCompleteRequest()).
-    SOCK_ASSERT( ioStatus->Status != WSA_IO_PENDING );
+    SOCK_ASSERT(ioStatus->Status != WSA_IO_PENDING);
     err = (INT)ioStatus->Status;
-    if( err != NO_ERROR ) {
+    if (err != NO_ERROR) {
         goto exit;
     }
 
@@ -241,18 +263,18 @@ Return Value:
     result = TRUE;
 
 exit:
-    if( err != NO_ERROR ) {
+    if (err != NO_ERROR) {
         *lpErrno = err;
         result = FALSE;
     }
 
-    SockDereferenceSocket( socketInfo );
-    SOCK_EXIT( "WSAGetOverlappedResult", result, result ? NULL : lpErrno );
+    SockDereferenceSocket(socketInfo);
+    SOCK_EXIT("WSAGetOverlappedResult", result, result ? NULL : lpErrno);
     return result;
 }   // WSPGetOverlappedResult
 
 
-BOOL WSPAPI WSPGetQOSByName(IN SOCKET s,IN LPWSABUF lpQOSName,OUT LPQOS lpQOS,OUT LPINT lpErrno)
+BOOL WSPAPI WSPGetQOSByName(IN SOCKET s, IN LPWSABUF lpQOSName, OUT LPQOS lpQOS, OUT LPINT lpErrno)
 /*++
 Routine Description:
     Clients may use this routine to initialize a QOS structure to a set of known values appropriate for a particular service class or media type.
@@ -269,55 +291,54 @@ Return Value:
     INT err;
     DWORD bytesReturned;
 
-    SOCK_ENTER( "WSPGetQOSByName", (PVOID)s, lpQOSName, lpQOS, lpErrno );
-    SOCK_ASSERT( lpErrno != NULL );
+    SOCK_ENTER("WSPGetQOSByName", (PVOID)s, lpQOSName, lpQOS, lpErrno);
+    SOCK_ASSERT(lpErrno != NULL);
 
-    err = SockEnterApi( TRUE, FALSE );
-    if( err != NO_ERROR ) {
+    err = SockEnterApi(TRUE, FALSE);
+    if (err != NO_ERROR) {
         *lpErrno = err;
-        SOCK_EXIT( "WSPGetQOSByName", SOCKET_ERROR, lpErrno );
+        SOCK_EXIT("WSPGetQOSByName", SOCKET_ERROR, lpErrno);
         return SOCKET_ERROR;
     }
 
     // We'll take the totally cheesy way out and just return the default QOS structure associated with the incoming socket.
-    if( WSPIoctl(s,SIO_GET_QOS,NULL,0,lpQOS,sizeof(*lpQOS),&bytesReturned,NULL,NULL,NULL,&err) == SOCKET_ERROR ) {
-        SOCK_ASSERT( err != NO_ERROR );
+    if (WSPIoctl(s, SIO_GET_QOS, NULL, 0, lpQOS, sizeof(*lpQOS), &bytesReturned, NULL, NULL, NULL, &err) == SOCKET_ERROR) {
+        SOCK_ASSERT(err != NO_ERROR);
         goto exit;
     }
 
-    SOCK_ASSERT( err == NO_ERROR );
+    SOCK_ASSERT(err == NO_ERROR);
 
 exit:
     IF_DEBUG(QOS) {
-        if ( err != NO_ERROR ) {
-            SOCK_PRINT(("WSPGetQOSByName on socket %lx failed: %ld.\n",s,err));
+        if (err != NO_ERROR) {
+            SOCK_PRINT(("WSPGetQOSByName on socket %lx failed: %ld.\n", s, err));
         } else {
-            SOCK_PRINT(("WSPGetQOSByName on socket %lx succeeded\n",s));
+            SOCK_PRINT(("WSPGetQOSByName on socket %lx succeeded\n", s));
         }
     }
 
-    if ( err != NO_ERROR ) {
+    if (err != NO_ERROR) {
         *lpErrno = err;
-        SOCK_EXIT( "WSPGetQOSByName", SOCKET_ERROR, lpErrno );
+        SOCK_EXIT("WSPGetQOSByName", SOCKET_ERROR, lpErrno);
         return SOCKET_ERROR;
     }
 
-    SOCK_EXIT( "WSPGetQOSByName", 0, NULL );
+    SOCK_EXIT("WSPGetQOSByName", 0, NULL);
     return 0;
 }   // WSPGetQOSByName
 
 
-SOCKET WSPAPI WSPJoinLeaf(
-    IN SOCKET s,
-    IN const struct sockaddr FAR * name,
-    IN int namelen,
-    IN LPWSABUF lpCallerData,
-    OUT LPWSABUF lpCalleeData,
-    IN LPQOS lpSQOS,
-    IN LPQOS lpGQOS,
-    IN DWORD dwFlags,
-    OUT LPINT lpErrno
-    )
+SOCKET WSPAPI WSPJoinLeaf(IN SOCKET s,
+                          IN const struct sockaddr FAR* name,
+                          IN int namelen,
+                          IN LPWSABUF lpCallerData,
+                          OUT LPWSABUF lpCalleeData,
+                          IN LPQOS lpSQOS,
+                          IN LPQOS lpGQOS,
+                          IN DWORD dwFlags,
+                          OUT LPINT lpErrno
+)
 /*++
 Routine Description:
     This routine is used to join a leaf node to a multipoint session, and to perform a number of other ancillary operations that occur at session join time as well.

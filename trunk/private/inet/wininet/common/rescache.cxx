@@ -124,7 +124,7 @@ Routine Description:
 {
     DEBUG_ENTER((DBG_SOCKETS, None, "TerminateHostentCache", NULL));
 
-    if (InterlockedExchange((LPLONG)&HostentCacheInitialized, FALSE)) {        
+    if (InterlockedExchange((LPLONG)&HostentCacheInitialized, FALSE)) {
         DnsCachingEnabled = FALSE;// short-circuit any other cache attempts (shouldn't be any by now)       
         FlushHostentCache(); // and clear out the list        
         TerminateSerializedList(&ResolverCache);// we are done with the serialized list
@@ -134,10 +134,14 @@ Routine Description:
 }
 
 
-BOOL QueryHostentCache(IN LPSTR Name OPTIONAL, IN LPBYTE Address OPTIONAL, OUT LPHOSTENT * Hostent, OUT LPDWORD TimeToLive)
+BOOL QueryHostentCache(IN LPSTR Name OPTIONAL,
+                       IN LPBYTE Address OPTIONAL, 
+                       OUT LPHOSTENT* Hostent, 
+                       OUT LPDWORD TimeToLive
+)
 /*++
 Routine Description:
-    Checks if Name is stored in the last resolved name cache. 
+    Checks if Name is stored in the last resolved name cache.
     If the entry is found, but has expired then it is removed from the cache
 Arguments:
     Name        - pointer to name string
@@ -197,9 +201,9 @@ Return Value:
                 DEBUG_PRINT(SOCKETS,
                             INFO,
                             ("throwing out stale DNS entry %q, expiry = %s\n",
-                            cacheEntry->Hostent.h_name,
-                            CacheTimestr(cacheEntry->ExpirationTime)
-                            ));
+                             cacheEntry->Hostent.h_name,
+                             CacheTimestr(cacheEntry->ExpirationTime)
+                             ));
 
 
                 // BUGBUG - what happens if ExpirationTime == timeNow?
@@ -209,7 +213,8 @@ Return Value:
                 RemoveCacheEntry(cacheEntry);
                 cacheEntry = previousEntry;
             }
-        } else if (ResolverCacheHit(cacheEntry, Name, Address) && ((cacheEntry->State == ENTRY_UNUSED) || (cacheEntry->State == ENTRY_IN_USE))) {
+        } else if (ResolverCacheHit(cacheEntry, Name, Address) && 
+            ((cacheEntry->State == ENTRY_UNUSED) || (cacheEntry->State == ENTRY_IN_USE))) {
             // we found the entry, and it still has time to live. Make it the
             // head of the list (MRU first), set the state to in-use and increase
             // the reference count
@@ -280,9 +285,7 @@ Return Value:
     INET_ASSERT(lpszHostName != NULL);
 
     if (!QueryHostentCache(lpszHostName, NULL, &lpHostent, &ttl)) {
-
         LPRESOLVER_CACHE_ENTRY cacheEntry;
-
 
         // remove as many entries as we can beginning at the tail of the list.
         // We try to remove enough to get the cache size back below the limit.
@@ -295,9 +298,7 @@ Return Value:
         cacheEntry = (LPRESOLVER_CACHE_ENTRY)TailOfSerializedList(&ResolverCache);
 
         while ((CurrentDnsCacheEntries >= MaximumDnsCacheEntries)
-        && (cacheEntry != (LPRESOLVER_CACHE_ENTRY)SlSelf(&ResolverCache))) {
-
-
+               && (cacheEntry != (LPRESOLVER_CACHE_ENTRY)SlSelf(&ResolverCache))) {
             // cache has maximum entries: throw out the Least Recently Used (its
             // the one at the back of the queue, ma'am) but only if no-one else
             // is currently accessing it
@@ -323,16 +324,13 @@ Return Value:
         // after all. If we fail to allocate memory, its no problem: it'll just
         // take a little longer if this entry would have been hit before we needed
         // to throw out another entry
-
-
         if (cacheEntry = CreateCacheEntry(lpszHostName, Hostent, TimeToLive)) {
-
             DEBUG_PRINT(SOCKETS,
                         INFO,
                         ("caching %q, expiry = %s\n",
-                        CacheHostentStr(&cacheEntry->Hostent),
-                        CacheTimestr(cacheEntry->ExpirationTime)
-                        ));
+                         CacheHostentStr(&cacheEntry->Hostent),
+                         CacheTimestr(cacheEntry->ExpirationTime)
+                         ));
 
             InsertAtHeadOfSerializedList(&ResolverCache, &cacheEntry->ListEntry);
             ++CurrentDnsCacheEntries;
@@ -502,9 +500,9 @@ Return Value:
     DEBUG_PRINT(SOCKETS,
                 INFO,
                 ("throwing out %q, expiry = %s\n",
-                CacheHostentStr(&lpCacheEntry->Hostent),
-                CacheTimestr(lpCacheEntry->ExpirationTime)
-                ));
+                 CacheHostentStr(&lpCacheEntry->Hostent),
+                 CacheTimestr(lpCacheEntry->ExpirationTime)
+                 ));
 
     lpCacheEntry = (LPRESOLVER_CACHE_ENTRY)FREE_MEMORY((HLOCAL)lpCacheEntry);
 
@@ -515,8 +513,8 @@ Return Value:
     DEBUG_PRINT(SOCKETS,
                 INFO,
                 ("CurrentDnsCacheEntries = %d\n",
-                CurrentDnsCacheEntries
-                ));
+                 CurrentDnsCacheEntries
+                 ));
 
     INET_ASSERT((CurrentDnsCacheEntries >= 0) && (CurrentDnsCacheEntries <= MaximumDnsCacheEntries));
 
@@ -524,7 +522,10 @@ Return Value:
 }
 
 
-PRIVATE BOOL ResolverCacheHit(IN LPRESOLVER_CACHE_ENTRY lpCacheEntry, IN LPSTR Name OPTIONAL, IN LPBYTE Address OPTIONAL)
+PRIVATE BOOL ResolverCacheHit(IN LPRESOLVER_CACHE_ENTRY lpCacheEntry, 
+                              IN LPSTR Name OPTIONAL, 
+                              IN LPBYTE Address OPTIONAL
+)
 /*++
 Routine Description:
     Checks this RESOLVER_CACHE_ENTRY for a match with Name or Address. If Name,
@@ -549,8 +550,8 @@ Return Value:
     BOOL found;
 
     if ((Name != NULL)
-    && (lpCacheEntry->HostName != NULL)
-    && (lstrcmpi(lpCacheEntry->HostName, Name) == 0)) {
+        && (lpCacheEntry->HostName != NULL)
+        && (lstrcmpi(lpCacheEntry->HostName, Name) == 0)) {
         DEBUG_PRINT(SOCKETS, INFO, ("matched name %q\n", lpCacheEntry->HostName));
         found = TRUE;
     } else {
@@ -609,7 +610,10 @@ Return Value:
 }
 
 
-PRIVATE LPRESOLVER_CACHE_ENTRY CreateCacheEntry(IN LPSTR lpszHostName, IN LPHOSTENT Hostent, IN DWORD TimeToLive)
+PRIVATE LPRESOLVER_CACHE_ENTRY CreateCacheEntry(IN LPSTR lpszHostName, 
+                                                IN LPHOSTENT Hostent,
+                                                IN DWORD TimeToLive
+)
 /*++
 Routine Description:
     Allocates a RESOLVER_CACHE_ENTRY and packs it with the hostent information and sets the ExpirationTime
@@ -649,7 +653,7 @@ Return Value:
                                                          - sizeof(HOSTENT)
                                                          + hostentSize
                                                          + hostNameSize
-                                                         );
+    );
     if (cacheEntry != NULL) {
         CopyHostentToBuffer((PCHAR)&cacheEntry->Hostent, hostentSize, Hostent);
 
@@ -666,9 +670,9 @@ Return Value:
         // specified as LIVE_FOREVER, which is what we use if the host
         // information didn't originate from DNS
         cacheEntry->ExpirationTime = (TimeToLive == LIVE_FOREVER)
-                                        ? LIVE_FOREVER
-                                        : time(NULL) + ((TimeToLive == LIVE_DEFAULT) ? DnsCacheTimeout : TimeToLive);
-        
+            ? LIVE_FOREVER
+            : time(NULL) + ((TimeToLive == LIVE_DEFAULT) ? DnsCacheTimeout : TimeToLive);
+
         cacheEntry->State = ENTRY_UNUSED;// the entry state is initially unused        
         cacheEntry->ReferenceCount = 0;// and reference is zero
     }
@@ -731,14 +735,14 @@ PRIVATE DWORD BytesInHostent(IN LPHOSTENT Hostent)
 
     // Account for the NULL terminator pointers at the end of the alias and address arrays.
 
-    total += sizeof(char *) + sizeof(char *);
+    total += sizeof(char*) + sizeof(char*);
 
     for (i = 0; Hostent->h_aliases[i] != NULL; i++) {
-        total += lstrlen(Hostent->h_aliases[i]) + 1 + sizeof(char *);
+        total += lstrlen(Hostent->h_aliases[i]) + 1 + sizeof(char*);
     }
 
     for (i = 0; Hostent->h_addr_list[i] != NULL; i++) {
-        total += Hostent->h_length + sizeof(char *);
+        total += Hostent->h_length + sizeof(char*);
     }
 
     // Pad the answer to an eight-byte boundary.
@@ -747,7 +751,7 @@ PRIVATE DWORD BytesInHostent(IN LPHOSTENT Hostent)
 }
 
 
-PRIVATE DWORD CopyHostentToBuffer (OUT PCHAR Buffer, IN UINT BufferLength, IN LPHOSTENT Hostent)
+PRIVATE DWORD CopyHostentToBuffer(OUT PCHAR Buffer, IN UINT BufferLength, IN LPHOSTENT Hostent)
 {
     UINT requiredBufferLength;
     UINT bytesFilled;
@@ -762,22 +766,21 @@ PRIVATE DWORD CopyHostentToBuffer (OUT PCHAR Buffer, IN UINT BufferLength, IN LP
     requiredBufferLength = (UINT)BytesInHostent(Hostent);
 
     // Zero the user buffer.
-    if ( (DWORD)BufferLength > requiredBufferLength ) {
-        RtlZeroMemory( Buffer, requiredBufferLength );
+    if ((DWORD)BufferLength > requiredBufferLength) {
+        RtlZeroMemory(Buffer, requiredBufferLength);
     } else {
-        RtlZeroMemory( Buffer, BufferLength );
+        RtlZeroMemory(Buffer, BufferLength);
     }
-
 
     // Copy over the hostent structure if it fits.
 
     bytesFilled = sizeof(*Hostent);
 
-    if ( bytesFilled > (DWORD)BufferLength ) {
+    if (bytesFilled > (DWORD)BufferLength) {
         return requiredBufferLength;
     }
 
-    RtlCopyMemory( currentLocation, Hostent, sizeof(*Hostent) );
+    RtlCopyMemory(currentLocation, Hostent, sizeof(*Hostent));
     currentLocation = Buffer + bytesFilled;
 
     outputHostent->h_name = NULL;
@@ -787,46 +790,42 @@ PRIVATE DWORD CopyHostentToBuffer (OUT PCHAR Buffer, IN UINT BufferLength, IN LP
 
     // Count the host's aliases and set up an array to hold pointers to
     // them.
-    for ( aliasCount = 0;
-          Hostent->h_aliases[aliasCount] != NULL;
-          aliasCount++ );
+    for (aliasCount = 0;
+         Hostent->h_aliases[aliasCount] != NULL;
+         aliasCount++);
 
-    bytesFilled += (aliasCount+1) * sizeof(char FAR *);
+    bytesFilled += (aliasCount + 1) * sizeof(char FAR*);
 
-    if ( bytesFilled > (DWORD)BufferLength ) {
+    if (bytesFilled > (DWORD)BufferLength) {
         Hostent->h_aliases = NULL;
         return requiredBufferLength;
     }
 
-    outputHostent->h_aliases = (char FAR * FAR *)currentLocation;
+    outputHostent->h_aliases = (char FAR * FAR*)currentLocation;
     currentLocation = Buffer + bytesFilled;
-
 
     // Count the host's addresses and set up an array to hold pointers to
     // them.
-    for ( addressCount = 0;
-          Hostent->h_addr_list[addressCount] != NULL;
-          addressCount++ );
+    for (addressCount = 0;
+         Hostent->h_addr_list[addressCount] != NULL;
+         addressCount++);
 
-    bytesFilled += (addressCount+1) * sizeof(void FAR *);
+    bytesFilled += (addressCount + 1) * sizeof(void FAR*);
 
-    if ( bytesFilled > (DWORD)BufferLength ) {
+    if (bytesFilled > (DWORD)BufferLength) {
         Hostent->h_addr_list = NULL;
         return requiredBufferLength;
     }
 
-    outputHostent->h_addr_list = (char FAR * FAR *)currentLocation;
+    outputHostent->h_addr_list = (char FAR * FAR*)currentLocation;
     currentLocation = Buffer + bytesFilled;
-
 
     // Start filling in addresses.  Do addresses before filling in the
     // host name and aliases in order to avoid alignment problems.
-
-
-    for ( i = 0; i < addressCount; i++ ) {
+    for (i = 0; i < addressCount; i++) {
         bytesFilled += Hostent->h_length;
 
-        if ( bytesFilled > (DWORD)BufferLength ) {
+        if (bytesFilled > (DWORD)BufferLength) {
             outputHostent->h_addr_list[i] = NULL;
             return requiredBufferLength;
         }
@@ -838,12 +837,10 @@ PRIVATE DWORD CopyHostentToBuffer (OUT PCHAR Buffer, IN UINT BufferLength, IN LP
 
     outputHostent->h_addr_list[i] = NULL;
 
-
     // Copy the host name if it fits.
-
     bytesFilled += lstrlen(Hostent->h_name) + 1;
 
-    if ( bytesFilled > (DWORD)BufferLength ) {
+    if (bytesFilled > (DWORD)BufferLength) {
         return requiredBufferLength;
     }
 
@@ -852,13 +849,11 @@ PRIVATE DWORD CopyHostentToBuffer (OUT PCHAR Buffer, IN UINT BufferLength, IN LP
     RtlCopyMemory(currentLocation, Hostent->h_name, lstrlen(Hostent->h_name) + 1);
     currentLocation = Buffer + bytesFilled;
 
-
     // Start filling in aliases.
-
-    for ( i = 0; i < aliasCount; i++ ) {
+    for (i = 0; i < aliasCount; i++) {
         bytesFilled += lstrlen(Hostent->h_aliases[i]) + 1;
 
-        if ( bytesFilled > (DWORD)BufferLength ) {
+        if (bytesFilled > (DWORD)BufferLength) {
             outputHostent->h_aliases[i] = NULL;
             return requiredBufferLength;
         }
@@ -881,7 +876,7 @@ PRIVATE DWORD CopyHostentToBuffer (OUT PCHAR Buffer, IN UINT BufferLength, IN LP
 //          static buffers (but still thread-safe)
 
 
-PRIVATE DEBUG_FUNCTION LPSTR CacheTimestr(IN DWORD Time) 
+PRIVATE DEBUG_FUNCTION LPSTR CacheTimestr(IN DWORD Time)
 {
     // previous code - writes formatted human-sensible date/time to buffer
 
@@ -907,7 +902,7 @@ PRIVATE DEBUG_FUNCTION LPSTR CacheTimestr(IN DWORD Time)
 }
 
 
-PRIVATE DEBUG_FUNCTION LPSTR CacheHostentStr(IN LPHOSTENT Hostent) 
+PRIVATE DEBUG_FUNCTION LPSTR CacheHostentStr(IN LPHOSTENT Hostent)
 {
     static char buf[1024];
     LPSTR p;
@@ -915,11 +910,11 @@ PRIVATE DEBUG_FUNCTION LPSTR CacheHostentStr(IN LPHOSTENT Hostent)
     p = buf;
     p += wsprintf(p, "n=%s", Hostent->h_name);
 
-    for (LPSTR * aliases = (LPSTR *)Hostent->h_aliases; *aliases; ++aliases) {
+    for (LPSTR* aliases = (LPSTR*)Hostent->h_aliases; *aliases; ++aliases) {
         p += wsprintf(p, ", a=%s", *aliases);
     }
 
-    for (LPBYTE * addrs = (LPBYTE *)Hostent->h_addr_list; *addrs; ++addrs) {
+    for (LPBYTE* addrs = (LPBYTE*)Hostent->h_addr_list; *addrs; ++addrs) {
         p += wsprintf(p, ", i=%s", CacheMapIpAddress(*addrs));
     }
 
@@ -927,7 +922,7 @@ PRIVATE DEBUG_FUNCTION LPSTR CacheHostentStr(IN LPHOSTENT Hostent)
 }
 
 
-PRIVATE DEBUG_FUNCTION LPSTR CacheMapIpAddress(IN LPBYTE Address) 
+PRIVATE DEBUG_FUNCTION LPSTR CacheMapIpAddress(IN LPBYTE Address)
 {
     if (!Address) {
         return "";
@@ -1008,7 +1003,7 @@ typedef struct tagNAMERES_CACHE {
     FILETIME            ftLastUsedTime;    // last accesstime, mainly for purging
     FILETIME            ftCreationTime;// When it was created
     ADDRESS_INFO_LIST   sAddrList;     // List of address (defined in ixport.h)
-} NAMERES_CACHE, far *LPNAMERES_CACHE;
+} NAMERES_CACHE, far* LPNAMERES_CACHE;
 
 
 // private variables for name resolution cache
@@ -1081,7 +1076,7 @@ DWORD
 CopyCsaddr(
     LPCSADDR_INFO   lpSrc,
     int             cntAddr,
-    LPCSADDR_INFO   *lplpDst
+    LPCSADDR_INFO* lplpDst
 );
 
 
@@ -1148,13 +1143,12 @@ Return Value:
     if (indx != -1) {
         DeleteNameresCacheEntry(indx);
         PurgeEntries(FALSE);
-    }
-    else {
+    } else {
         // create atleast one hole
         indx = PurgeEntries(TRUE);
     }
 
-    INET_ASSERT((indx >=0 && (indx < vcntNameresCacheEntries)));
+    INET_ASSERT((indx >= 0 && (indx < vcntNameresCacheEntries)));
 
     dwError = CreateNameresCacheEntry(indx, dwNameSpace, lpGuid, lpName, cntAddresses, lpCsaddrInfo);
 
@@ -1185,8 +1179,7 @@ Return Value:
         if (indx != -1) {
             DeleteNameresCacheEntry(indx);
             dwError = ERROR_SUCCESS;
-        }
-        else {
+        } else {
             dwError = ERROR_FILE_NOT_FOUND; //yuk
         }
 
@@ -1214,8 +1207,7 @@ Return Value:
         if (indx != -1) {
             DeleteNameresCacheEntry(indx);
             dwError = ERROR_SUCCESS;
-        }
-        else {
+        } else {
             dwError = ERROR_FILE_NOT_FOUND;
         }
 
@@ -1231,8 +1223,8 @@ GetNameresCacheEntry(
     DWORD    dwNameSpace,
     LPGUID   lpGuid,
     LPSTR    lpName,
-    INT      *lpcntAddresses,
-    LPCSADDR_INFO  *lplpCsaddrInfo
+    INT* lpcntAddresses,
+    LPCSADDR_INFO* lplpCsaddrInfo
 )
 /*++
 Routine Description:
@@ -1303,7 +1295,7 @@ Return Value:
         LEAVECRIT_NAMERESCACHE();
         DeleteCriticalSection(&vcritNameresCache);
     }
-    
+
     return (ERROR_SUCCESS);
 }
 
@@ -1325,7 +1317,7 @@ Return Value:
 {
     DWORD dwError = ERROR_NOT_ENOUGH_MEMORY;
 
-    INET_ASSERT((indx >=0 && (indx < vcntNameresCacheEntries)));
+    INET_ASSERT((indx >= 0 && (indx < vcntNameresCacheEntries)));
 
     INET_ASSERT(IS_EMPTY(indx));
 
@@ -1337,18 +1329,16 @@ Return Value:
 
     // BUGBUG in future we should consider name+GUID+port
     if (lpszName) {
-       vlpNameresCache[indx].lpszName = (LPSTR)ALLOCATE_MEMORY(LPTR, lstrlen(lpszName)+1);
-       if (!vlpNameresCache[indx].lpszName) {
-           goto bailout;
-       }
-       strcpy(vlpNameresCache[indx].lpszName, lpszName);
-    }
-    else if (lpGuid) {
+        vlpNameresCache[indx].lpszName = (LPSTR)ALLOCATE_MEMORY(LPTR, lstrlen(lpszName) + 1);
+        if (!vlpNameresCache[indx].lpszName) {
+            goto bailout;
+        }
+        strcpy(vlpNameresCache[indx].lpszName, lpszName);
+    } else if (lpGuid) {
         INET_ASSERT(FALSE); // rigth now. In future this should go away
         memcpy(&(vlpNameresCache[indx].sGuid), lpGuid, sizeof(GUID));
         vlpNameresCache[indx].dwFlags |= NAMERES_CACHE_USES_GUID;
-    }
-    else {
+    } else {
         dwError = ERROR_INVALID_PARAMETER;
         goto bailout;
     }
@@ -1368,7 +1358,7 @@ Return Value:
     // set the creation and last-used times as now
 
     GetCurrentGmtTime(&(vlpNameresCache[indx].ftCreationTime));
-    vlpNameresCache[indx].ftLastUsedTime = vlpNameresCache[indx].ftCreationTime ;
+    vlpNameresCache[indx].ftLastUsedTime = vlpNameresCache[indx].ftCreationTime;
 
     dwError = ERROR_SUCCESS;
 
@@ -1396,7 +1386,7 @@ Return Value:
     ERROR_SUCCESS if successful.
 --*/
 {
-    INET_ASSERT((indx >=0) && (indx < vcntNameresCacheEntries));
+    INET_ASSERT((indx >= 0) && (indx < vcntNameresCacheEntries));
 
     if (vlpNameresCache[indx].lpszName) {
         FREE_MEMORY(vlpNameresCache[indx].lpszName);
@@ -1428,7 +1418,7 @@ Return Value:
             return (i);
         }
     }
-    
+
     return (-1);
 }
 #endif //MAYBE
@@ -1455,8 +1445,7 @@ Return Value:
                     if (lpszName && !lstrcmpi(lpszName, vlpNameresCache[i].lpszName)) {
                         return (i);
                     }
-                }
-                else{
+                } else {
                     if (lpGuid && !memcmp(lpGuid, &vlpNameresCache[i].sGuid, sizeof(GUID))) {
                         return (i);
                     }
@@ -1464,7 +1453,7 @@ Return Value:
             }
         }
     }
-    
+
     return (-1);
 }
 
@@ -1476,7 +1465,7 @@ Return Value:
     index of a free entry
 --*/
 {
-    int i, indxlru = -1, indxHole=-1;
+    int i, indxlru = -1, indxHole = -1;
     FILETIME ft;
     BOOL fFoundHole = FALSE;
 
@@ -1486,17 +1475,15 @@ Return Value:
         if (!IS_EMPTY(i)) {
 
             // purge stale entries
-            if ( (FT2LL(ft) - FT2LL(vlpNameresCache[i].ftCreationTime))
-                    > FT2LL(vftExpiryDelta)) {
+            if ((FT2LL(ft) - FT2LL(vlpNameresCache[i].ftCreationTime))
+    > FT2LL(vftExpiryDelta)) {
                 DeleteNameresCacheEntry(i);
                 indxHole = i;
-            }
-            else if (FT2LL(vlpNameresCache[i].ftLastUsedTime) <= FT2LL(ft)) {
+            } else if (FT2LL(vlpNameresCache[i].ftLastUsedTime) <= FT2LL(ft)) {
                 ft = vlpNameresCache[i].ftLastUsedTime;
                 indxlru = i; // LRU entry if we need to purge it
             }
-        }
-        else {
+        } else {
             indxHole = i;
         }
     }
@@ -1510,7 +1497,7 @@ Return Value:
             indxHole = indxlru;
         }
     }
-    
+
     return (indxHole);
 }
 
@@ -1518,7 +1505,7 @@ Return Value:
 PRIVATE DWORD CopyCsaddr(
     LPCSADDR_INFO   lpSrc,
     int             cntAddr,
-    LPCSADDR_INFO   *lplpDst
+    LPCSADDR_INFO* lplpDst
 )
 {
     int i;
@@ -1541,9 +1528,9 @@ PRIVATE DWORD CopyCsaddr(
     memcpy(lpDst, lpSrc, uSize);
 
     // now start doing fixups
-    for (i=0; i<cntAddr; ++i) {
-        lpDst[i].LocalAddr.lpSockaddr = (LPSOCKADDR)((LPBYTE)lpDst+((DWORD)(lpSrc[i].LocalAddr.lpSockaddr) - (DWORD)lpSrc));
-        lpDst[i].RemoteAddr.lpSockaddr = (LPSOCKADDR)((LPBYTE)lpDst+((DWORD)(lpSrc[i].RemoteAddr.lpSockaddr) - (DWORD)lpSrc));
+    for (i = 0; i < cntAddr; ++i) {
+        lpDst[i].LocalAddr.lpSockaddr = (LPSOCKADDR)((LPBYTE)lpDst + ((DWORD)(lpSrc[i].LocalAddr.lpSockaddr) - (DWORD)lpSrc));
+        lpDst[i].RemoteAddr.lpSockaddr = (LPSOCKADDR)((LPBYTE)lpDst + ((DWORD)(lpSrc[i].RemoteAddr.lpSockaddr) - (DWORD)lpSrc));
     }
     return (ERROR_SUCCESS);
 }

@@ -34,46 +34,40 @@
 
 struct _SUBCLASS_HEADER;
 
-typedef struct
-{
+typedef struct{
     SUBCLASSPROC    pfnSubclass;        // subclass procedure
     WPARAM          uIdSubclass;        // unique subclass identifier
     DWORD_PTR        dwRefData;          // optional ref data
-
 } SUBCLASS_CALL;
 
-typedef struct _SUBCLASS_FRAME
-{
+typedef struct _SUBCLASS_FRAME{
     UINT uCallIndex;                    // index of next callback to call
     UINT uDeepestCall;                  // deepest uCallIndex on stack
-    struct _SUBCLASS_FRAME *pFramePrev; // previous subclass frame pointer
-    struct _SUBCLASS_HEADER *pHeader;   // header associated with this frame
-
+    struct _SUBCLASS_FRAME* pFramePrev; // previous subclass frame pointer
+    struct _SUBCLASS_HEADER* pHeader;   // header associated with this frame
 } SUBCLASS_FRAME;
 
-typedef struct _SUBCLASS_HEADER
-{
+typedef struct _SUBCLASS_HEADER{
     UINT uRefs;                         // subclass count
     UINT uAlloc;                        // allocated subclass call nodes
     UINT uCleanup;                      // index of call node to clean up
     DWORD dwThreadId;                   // thread id of window we are hooking
-    SUBCLASS_FRAME *pFrameCur;          // current subclass frame pointer
+    SUBCLASS_FRAME* pFrameCur;          // current subclass frame pointer
     SUBCLASS_CALL CallArray[1];         // base of packed call node array
-
 } SUBCLASS_HEADER;
 
 #define CALLBACK_ALLOC_GRAIN (3)        // 1 defproc, 1 subclass, 1 spare
 
 
 #ifdef DEBUG
-BOOL IsValidPSUBCLASS_CALL(SUBCLASS_CALL * pcall)
+BOOL IsValidPSUBCLASS_CALL(SUBCLASS_CALL* pcall)
 {
     return (IS_VALID_WRITE_PTR(pcall, SUBCLASS_CALL) &&
-            (NULL == pcall->pfnSubclass || IS_VALID_CODE_PTR(pcall->pfnSubclass, SUBCLASSPROC)));
+        (NULL == pcall->pfnSubclass || IS_VALID_CODE_PTR(pcall->pfnSubclass, SUBCLASSPROC)));
 }
 
 
-BOOL IsValidPSUBCLASS_FRAME(SUBCLASS_FRAME * pframe)
+BOOL IsValidPSUBCLASS_FRAME(SUBCLASS_FRAME* pframe)
 {
     return (IS_VALID_WRITE_PTR(pframe, SUBCLASS_FRAME) &&
             IS_VALID_WRITE_PTR(pframe->pHeader, SUBCLASS_HEADER) &&
@@ -81,19 +75,17 @@ BOOL IsValidPSUBCLASS_FRAME(SUBCLASS_FRAME * pframe)
 }
 
 
-BOOL IsValidPSUBCLASS_HEADER(SUBCLASS_HEADER * phdr)
+BOOL IsValidPSUBCLASS_HEADER(SUBCLASS_HEADER* phdr)
 {
     BOOL bRet = (IS_VALID_WRITE_PTR(phdr, SUBCLASS_HEADER) &&
-                 (NULL == phdr->pFrameCur || IS_VALID_STRUCT_PTR(phdr->pFrameCur, SUBCLASS_FRAME)) &&
+        (NULL == phdr->pFrameCur || IS_VALID_STRUCT_PTR(phdr->pFrameCur, SUBCLASS_FRAME)) &&
                  IS_VALID_WRITE_BUFFER(phdr->CallArray, SUBCLASS_CALL, phdr->uAlloc));
 
-    if (bRet)
-    {
+    if (bRet) {
         UINT i;
-        SUBCLASS_CALL * pcall = phdr->CallArray;
+        SUBCLASS_CALL* pcall = phdr->CallArray;
 
-        for (i = 0; i < phdr->uRefs; i++, pcall++)
-        {
+        for (i = 0; i < phdr->uRefs; i++, pcall++) {
             if (!IS_VALID_STRUCT_PTR(pcall, SUBCLASS_CALL))
                 return FALSE;
         }
@@ -116,22 +108,18 @@ BOOL IsWindowOnCurrentThread(HWND hWnd)
         // bail if the window is dead so we dont bogusly rip
         return(TRUE);
 
-    if (GetCurrentThreadId() != GetWindowThreadProcessId(hWnd, &foo))
-    {
+    if (GetCurrentThreadId() != GetWindowThreadProcessId(hWnd, &foo)) {
         DebugMsg(TF_ALWAYS, TEXT("wn: WindowSubclass - Called from wrong thread %08X"), hWnd);
         return(FALSE);
-    }
-    else
+    } else
         return(TRUE);
 
 }
 #endif
 
 
-LRESULT CALLBACK MasterSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam,
-    LPARAM lParam);
-LRESULT CallNextSubclassProc(SUBCLASS_HEADER *pHeader, HWND hWnd, UINT uMsg,
-    WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK MasterSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CallNextSubclassProc(SUBCLASS_HEADER* pHeader, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
 // RETAIL_ZOMBIE_MESSAGE_WNDPROC
@@ -168,33 +156,28 @@ LRESULT ZombieWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 LRESULT SubclassDeath(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-
     // WE SHOULD NEVER EVER GET HERE
     // if we do please find francish to debug it immediately
 
     DebugMsg(TF_ALWAYS, TEXT("fatal: SubclassDeath in window %08X"), hWnd);
 
 #ifdef DEBUG
-
     // if we are in a debugger, stop now regardless of break flags
-
-    __try { DebugBreak(); } __except(EXCEPTION_EXECUTE_HANDLER) {;} __endexcept
+    __try { DebugBreak(); } __except (EXCEPTION_EXECUTE_HANDLER) { ; } __endexcept
 #endif
 
-
-    // we call the outside world so prepare to deadlock if we have the critsec
+        // we call the outside world so prepare to deadlock if we have the critsec
 
 #ifdef FREETHREADEDSUBCLASSGOOP
-    ASSERTNONCRITICAL
+        ASSERTNONCRITICAL
 #endif
 
+        // in theory we could save the original wndproc in a separate property
+        // but that just wastes memory for something that should never happen
 
-    // in theory we could save the original wndproc in a separate property
-    // but that just wastes memory for something that should never happen
+        // convert this window to a zombie in hopes that it will get debugged
 
-    // convert this window to a zombie in hopes that it will get debugged
-
-    InvalidateRect(hWnd, NULL, TRUE);
+        InvalidateRect(hWnd, NULL, TRUE);
     SubclassWindow(hWnd, ZombieWndProc);
     return ZombieWndProc(hWnd, uMsg, wParam, lParam);
 }
@@ -275,11 +258,11 @@ extern ATOM g_aCC32Subclass;
 // if the window has no subclass header the return value is NULL.
 
 
-__inline SUBCLASS_HEADER *FastGetSubclassHeader(HWND hWnd)
+__inline SUBCLASS_HEADER* FastGetSubclassHeader(HWND hWnd)
 {
     return  (g_aCC32Subclass ?
-            ((SUBCLASS_HEADER *)GetProp(hWnd, MAKEINTATOM(g_aCC32Subclass))) :
-            NULL);
+        ((SUBCLASS_HEADER*)GetProp(hWnd, MAKEINTATOM(g_aCC32Subclass))) :
+             NULL);
 }
 
 
@@ -290,18 +273,15 @@ __inline SUBCLASS_HEADER *FastGetSubclassHeader(HWND hWnd)
 // get the header from a thread other than the specified window's thread.
 
 
-SUBCLASS_HEADER *GetSubclassHeader(HWND hWnd)
+SUBCLASS_HEADER* GetSubclassHeader(HWND hWnd)
 {
     DWORD dwProcessId;
 
-
     // only return the header if we are in the right process
-
     if (!GetWindowThreadProcessId(hWnd, &dwProcessId))
         dwProcessId = 0;
 
-    if (dwProcessId != GetCurrentProcessId())
-    {
+    if (dwProcessId != GetCurrentProcessId()) {
         if (dwProcessId)
             DebugMsg(TF_ALWAYS, TEXT("error: XxxWindowSubclass - wrong process for window %08X"), hWnd);
 
@@ -309,9 +289,7 @@ SUBCLASS_HEADER *GetSubclassHeader(HWND hWnd)
         return NULL;
     }
 
-
     // return the header
-
     return FastGetSubclassHeader(hWnd);
 }
 
@@ -321,8 +299,7 @@ SUBCLASS_HEADER *GetSubclassHeader(HWND hWnd)
 // this function sets the subclass header for the specified window.
 
 
-BOOL SetSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader,
-    SUBCLASS_FRAME *pFrameFixup)
+BOOL SetSubclassHeader(HWND hWnd, SUBCLASS_HEADER* pHeader, SUBCLASS_FRAME* pFrameFixup)
 {
     ATOM a;
     BOOL fResult = TRUE;    // assume success
@@ -336,45 +313,29 @@ BOOL SetSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader,
     ASSERT(IsWindowOnCurrentThread(hWnd));
 #endif
 
-
     if (g_aCC32Subclass == 0) {
-
         // HACK: we are intentionally incrementing the refcount on this atom
         // WE DO NOT WANT IT TO GO BACK DOWN so we will not delete it in process
         // detach (see comments for g_aCC32Subclass in subclass.c for more info)
-
         if ((a = GlobalAddAtom(c_szCC32Subclass)) != 0)
             g_aCC32Subclass = a;    // in case the old atom got nuked
     }
 
-
-
     // update the frame list if required
-
-    while (pFrameFixup)
-    {
+    while (pFrameFixup) {
         pFrameFixup->pHeader = pHeader;
         pFrameFixup = pFrameFixup->pFramePrev;
     }
 
-
     // do we have a window to update?
-
-    if (hWnd)
-    {
-
+    if (hWnd) {
         // update/remove the property as required
-
-        if (!pHeader)
-        {
-
+        if (!pHeader) {
             // HACK: we remove with an ATOM so the refcount won't drop
             //          (see comments for g_aCC32Subclass above)
 
             RemoveProp(hWnd, MAKEINTATOM(g_aCC32Subclass));
-        }
-        else
-        {
+        } else {
             LPCTSTR lpPropAtomOrStr;
 #ifndef MAINWIN
 
@@ -383,18 +344,17 @@ BOOL SetSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader,
 
             lpPropAtomOrStr = c_szCC32Subclass;
 #else
-            if (! g_aCC32Subclass)
+            if (!g_aCC32Subclass)
                 g_aCC32Subclass = GlobalAddAtom(c_szCC32Subclass);
 
-            if (! g_aCC32Subclass) {
+            if (!g_aCC32Subclass) {
                 DebugMsg(TF_ALWAYS, TEXT("wn: SetWindowSubclass - couldn't subclass window %08X\
                          GlobalAddAtom failed for %s"), hWnd, c_szCC32Subclass);
                 return FALSE;
             }
             lpPropAtomOrStr = g_aCC32Subclass;
 #endif
-            if (!SetProp(hWnd, lpPropAtomOrStr, (HANDLE)pHeader))
-            {
+            if (!SetProp(hWnd, lpPropAtomOrStr, (HANDLE)pHeader)) {
                 DebugMsg(TF_ALWAYS, TEXT("wn: SetWindowSubclass - couldn't subclass window %08X"), hWnd);
                 fResult = FALSE;
             }
@@ -410,7 +370,7 @@ BOOL SetSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader,
 // this function frees the subclass header for the specified window.
 
 
-void FreeSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader)
+void FreeSubclassHeader(HWND hWnd, SUBCLASS_HEADER* pHeader)
 {
 #ifdef FREETHREADEDSUBCLASSGOOP
     ASSERTCRITICAL;                 // we will be removing the subclass header
@@ -418,18 +378,13 @@ void FreeSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader)
     ASSERT(IsWindowOnCurrentThread(hWnd));
 #endif
 
-
     // sanity
-
-    if (!pHeader)
-    {
+    if (!pHeader) {
         ASSERT(FALSE);
         return;
     }
 
-
     // clean up the header
-
     SetSubclassHeader(hWnd, NULL, pHeader->pFrameCur);
     LocalFree((HANDLE)pHeader);
 }
@@ -441,8 +396,7 @@ void FreeSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader)
 // window.
 
 
-SUBCLASS_HEADER *ReAllocSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader,
-    UINT uCallbacks)
+SUBCLASS_HEADER* ReAllocSubclassHeader(HWND hWnd, SUBCLASS_HEADER* pHeader, UINT uCallbacks)
 {
     UINT uAlloc;
 
@@ -454,43 +408,26 @@ SUBCLASS_HEADER *ReAllocSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader,
     ASSERT(IsWindowOnCurrentThread(hWnd));
 #endif
 
-
     // granularize the allocation
-
-    uAlloc = CALLBACK_ALLOC_GRAIN *
-        ((uCallbacks + CALLBACK_ALLOC_GRAIN - 1) / CALLBACK_ALLOC_GRAIN);
-
+    uAlloc = CALLBACK_ALLOC_GRAIN * ((uCallbacks + CALLBACK_ALLOC_GRAIN - 1) / CALLBACK_ALLOC_GRAIN);
 
     // do we need to change the allocation?
-
-    if (!pHeader || (uAlloc != pHeader->uAlloc))
-    {
-
+    if (!pHeader || (uAlloc != pHeader->uAlloc)) {
         // compute bytes required
-
         uCallbacks = uAlloc * sizeof(SUBCLASS_CALL) + sizeof(SUBCLASS_HEADER);
 
-
         // and try to alloc
-
         pHeader = CCLocalReAlloc(pHeader, uCallbacks);
 
-
         // did it work?
-
-        if (pHeader)
-        {
-
+        if (pHeader) {
             // yup, update info
-
             pHeader->uAlloc = uAlloc;
 
-            if (!SetSubclassHeader(hWnd, pHeader, pHeader->pFrameCur))
-            {
+            if (!SetSubclassHeader(hWnd, pHeader, pHeader->pFrameCur)) {
                 FreeSubclassHeader(hWnd, pHeader);
                 pHeader = NULL;
             }
-
         }
     }
 
@@ -505,19 +442,13 @@ SUBCLASS_HEADER *ReAllocSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader,
 // subclass a window.  the original window procedure is installed as the
 // reference data for this callback.  it simply calls the original wndproc and
 // returns its result.
-
-
 LRESULT CALLBACK CallOriginalWndProc(HWND hWnd, UINT uMsg, WPARAM wParam,
-    LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+                                     LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
-
     // dwRefData should be the original window procedure
-
     ASSERT(dwRefData);
 
-
     // and call it
-
     return CallWindowProc((WNDPROC)dwRefData, hWnd, uMsg, wParam, lParam);
 }
 
@@ -530,11 +461,10 @@ LRESULT CALLBACK CallOriginalWndProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 // installs our subclass procedure and associated data structures.
 
 
-SUBCLASS_HEADER *AttachSubclassHeader(HWND hWnd)
+SUBCLASS_HEADER* AttachSubclassHeader(HWND hWnd)
 {
-    SUBCLASS_HEADER *pHeader;
+    SUBCLASS_HEADER* pHeader;
     DWORD dwThreadId;
-
 
     // we party on the subclass call chain here
 
@@ -544,58 +474,44 @@ SUBCLASS_HEADER *AttachSubclassHeader(HWND hWnd)
     ASSERT(IsWindowOnCurrentThread(hWnd));
 #endif
 
-
     // we only call SetWindowLong for the first caller, which would cause this
     // operation to work out of context sometimes and fail others...
     // artifically prevent people from subclassing from the wrong thread
 
     if ((dwThreadId = GetWindowThreadProcessId(hWnd, NULL)) !=
-        GetCurrentThreadId())
-    {
+        GetCurrentThreadId()) {
         AssertMsg(FALSE, TEXT("error: SetWindowSubclass - wrong thread for window %08X"), hWnd);
         return NULL;
     }
 
-
     // if haven't already subclassed the window then do it now
-
-    if ((pHeader = GetSubclassHeader(hWnd)) == NULL)
-    {
+    if ((pHeader = GetSubclassHeader(hWnd)) == NULL) {
         WNDPROC pfnOldWndProc;
-        SUBCLASS_CALL *pCall;
-
+        SUBCLASS_CALL* pCall;
 
         // attach our header data to the window
         // we need space for two callbacks; the subclass and the original proc
-
         if ((pHeader = ReAllocSubclassHeader(hWnd, NULL, 2)) == NULL)
             return NULL;
 
         pHeader->dwThreadId = dwThreadId;
 
-
         // actually subclass the window
-
-        if ((pfnOldWndProc = SubclassWindow(hWnd, MasterSubclassProc)) == NULL)
-        {
+        if ((pfnOldWndProc = SubclassWindow(hWnd, MasterSubclassProc)) == NULL) {
             // clean up and get out
             FreeSubclassHeader(hWnd, pHeader);
             return NULL;
         }
 
-
         // set up the first node in the array to call the original wndproc
-
         ASSERT(pHeader->uAlloc);
 
         pCall = pHeader->CallArray;
         pCall->pfnSubclass = CallOriginalWndProc;
         pCall->uIdSubclass = 0;
-        pCall->dwRefData   = (DWORD_PTR)pfnOldWndProc;
-
+        pCall->dwRefData = (DWORD_PTR)pfnOldWndProc;
 
         // init our subclass refcount...
-
         pHeader->uRefs = 1;
     }
 
@@ -607,13 +523,11 @@ SUBCLASS_HEADER *AttachSubclassHeader(HWND hWnd)
 
 // this procedure attempts to detach the subclass header from the specified
 // window
-
-
-void DetachSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader, BOOL fForce)
+void DetachSubclassHeader(HWND hWnd, SUBCLASS_HEADER* pHeader, BOOL fForce)
 {
     WNDPROC pfnOldWndProc;
 #ifdef DEBUG
-    SUBCLASS_CALL *pCall;
+    SUBCLASS_CALL* pCall;
     UINT uCur;
 #endif
 
@@ -627,57 +541,40 @@ void DetachSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader, BOOL fForce)
 
     // if we are not being forced to remove and the window is still valid then
     // sniff around a little and decide if it's a good idea to detach now
-
-    if (!fForce && hWnd)
-    {
+    if (!fForce && hWnd) {
         ASSERT(pHeader == FastGetSubclassHeader(hWnd)); // paranoia
 
-
         // do we still have active clients?
-
         if (pHeader->uRefs > 1)
             return;
 
         ASSERT(pHeader->uRefs); // should always have the "call original" node
 
-
         // are people on our stack?
-
         if (pHeader->pFrameCur)
             return;
 
-
         // if we are out of context then we should try again later
-
-        if (pHeader->dwThreadId != GetCurrentThreadId())
-        {
+        if (pHeader->dwThreadId != GetCurrentThreadId()) {
             SendNotifyMessage(hWnd, WM_NULL, 0, 0L);
             return;
         }
 
-
         // we keep the original window procedure as refdata for our
         // CallOriginalWndProc subclass callback
-
         pfnOldWndProc = (WNDPROC)pHeader->CallArray[0].dwRefData;
         ASSERT(pfnOldWndProc);
 
-
         // if somebody else is subclassed after us then we can't detach now
-
         if (GetWindowProc(hWnd) != MasterSubclassProc)
             return;
 
-
         // go ahead and try to detach
-
-        if (!SubclassWindow(hWnd, pfnOldWndProc))
-        {
+        if (!SubclassWindow(hWnd, pfnOldWndProc)) {
             ASSERT(FALSE);      // just plain shouldn't happen
             return;
         }
     }
-
 
     // warn about anybody who hasn't unhooked yet
 
@@ -687,20 +584,16 @@ void DetachSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader, BOOL fForce)
     while (--uCur)          // don't complain about our 'call original' node
     {
         pCall--;
-        if (pCall->pfnSubclass)
-        {
+        if (pCall->pfnSubclass) {
 
             // always warn about these they could be leaks
-
             DebugMsg(TF_ALWAYS, TEXT("warning: orphan subclass: fn %08X, id %08X, dw %08X"),
-                pCall->pfnSubclass, pCall->uIdSubclass, pCall->dwRefData);
+                     pCall->pfnSubclass, pCall->uIdSubclass, pCall->dwRefData);
         }
     }
 #endif
 
-
     // free the header now
-
     FreeSubclassHeader(hWnd, pHeader);
 }
 
@@ -710,7 +603,7 @@ void DetachSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader, BOOL fForce)
 // this procedure purges a single dead node in the call array
 
 
-void PurgeSingleCallNode(HWND hWnd, SUBCLASS_HEADER *pHeader)
+void PurgeSingleCallNode(HWND hWnd, SUBCLASS_HEADER* pHeader)
 {
     UINT uRemain;
 
@@ -728,41 +621,27 @@ void PurgeSingleCallNode(HWND hWnd, SUBCLASS_HEADER *pHeader)
         return;
     }
 
-
     // and a little paranoia
-
-    ASSERT(!pHeader->pFrameCur ||
-        (pHeader->uCleanup < pHeader->pFrameCur->uDeepestCall));
-
+    ASSERT(!pHeader->pFrameCur || (pHeader->uCleanup < pHeader->pFrameCur->uDeepestCall));
 
     // are there any call nodes above the one we're about to remove?
-
-    if ((uRemain = (pHeader->uRefs - pHeader->uCleanup)) > 0)
-    {
-
+    if ((uRemain = (pHeader->uRefs - pHeader->uCleanup)) > 0) {
         // yup, need to fix up the array the hard way
-
-        SUBCLASS_CALL *pCall;
-        SUBCLASS_FRAME *pFrame;
+        SUBCLASS_CALL* pCall;
+        SUBCLASS_FRAME* pFrame;
         UINT uCur, uMax;
 
-
         // move the remaining nodes down into the empty space
-
         pCall = pHeader->CallArray + pHeader->uCleanup;
         MoveMemory(pCall, pCall + 1, uRemain * sizeof(SUBCLASS_CALL));
 
         ASSERT(IS_VALID_STRUCT_PTR(pCall, SUBCLASS_CALL));
 
-
         // update the call indices of any active frames
-
         uCur = pHeader->uCleanup;
         pFrame = pHeader->pFrameCur;
-        while (pFrame)
-        {
-            if (pFrame->uCallIndex >= uCur)
-            {
+        while (pFrame) {
+            if (pFrame->uCallIndex >= uCur) {
                 pFrame->uCallIndex--;
 
                 if (pFrame->uDeepestCall >= uCur)
@@ -772,31 +651,22 @@ void PurgeSingleCallNode(HWND hWnd, SUBCLASS_HEADER *pHeader)
             pFrame = pFrame->pFramePrev;
         }
 
-
         // now search for any other dead call nodes in the reamining area
-
         uMax = pHeader->uRefs - 1;  // we haven't decremented uRefs yet
-        while (uCur < uMax)
-        {
+        while (uCur < uMax) {
             if (!pCall->pfnSubclass)
                 break;
 
             pCall++;
             uCur++;
         }
-        pHeader->uCleanup = (uCur < uMax)? uCur : 0;
-    }
-    else
-    {
-
+        pHeader->uCleanup = (uCur < uMax) ? uCur : 0;
+    } else {
         // nope, this case is easy
-
         pHeader->uCleanup = 0;
     }
 
-
     // finally, decrement the client count
-
     pHeader->uRefs--;
 }
 
@@ -807,7 +677,7 @@ void PurgeSingleCallNode(HWND hWnd, SUBCLASS_HEADER *pHeader)
 // subclass header if the array is empty
 
 
-void CompactSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader)
+void CompactSubclassHeader(HWND hWnd, SUBCLASS_HEADER* pHeader)
 {
 #ifdef FREETHREADEDSUBCLASSGOOP
     ASSERTCRITICAL;         // we will try to re-arrange the call array
@@ -817,36 +687,22 @@ void CompactSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader)
 
     ASSERT(IS_VALID_STRUCT_PTR(pHeader, SUBCLASS_HEADER));
 
-
     // we must handle the "window destroyed unexpectedly during callback" case
-
-    if (hWnd)
-    {
-
+    if (hWnd) {
         // clean out as many dead callbacks as possible
-
-        while (pHeader->uCleanup && (!pHeader->pFrameCur ||
-            (pHeader->uCleanup < pHeader->pFrameCur->uDeepestCall)))
-        {
+        while (pHeader->uCleanup && (!pHeader->pFrameCur || (pHeader->uCleanup < pHeader->pFrameCur->uDeepestCall))) {
             PurgeSingleCallNode(hWnd, pHeader);
         }
 
-
         // do we still have clients?
-
-        if (pHeader->uRefs > 1)
-        {
-
+        if (pHeader->uRefs > 1) {
             // yes, shrink our allocation, leaving room for at least one client
-
             ReAllocSubclassHeader(hWnd, pHeader, pHeader->uRefs + 1);
             return;
         }
     }
 
-
     // try to detach and free
-
     DetachSubclassHeader(hWnd, pHeader, FALSE);
 }
 
@@ -856,12 +712,9 @@ void CompactSubclassHeader(HWND hWnd, SUBCLASS_HEADER *pHeader)
 // this procedure searches for a call record with the specified subclass proc
 // and id, and returns its address.  if no such call record is found then NULL
 // is returned.
-
-
-SUBCLASS_CALL *FindCallRecord(SUBCLASS_HEADER *pHeader,
-    SUBCLASSPROC pfnSubclass, WPARAM uIdSubclass)
+SUBCLASS_CALL* FindCallRecord(SUBCLASS_HEADER* pHeader, SUBCLASSPROC pfnSubclass, WPARAM uIdSubclass)
 {
-    SUBCLASS_CALL *pCall;
+    SUBCLASS_CALL* pCall;
     UINT uCallIndex;
 
     ASSERT(IS_VALID_STRUCT_PTR(pHeader, SUBCLASS_HEADER));
@@ -875,17 +728,13 @@ SUBCLASS_CALL *FindCallRecord(SUBCLASS_HEADER *pHeader,
     // one member in the table (our CallOriginalWndProc record)
 
     pCall = pHeader->CallArray + (uCallIndex = pHeader->uRefs);
-    do
-    {
+    do {
         uCallIndex--;
         pCall--;
-        if ((pCall->pfnSubclass == pfnSubclass) &&
-            (pCall->uIdSubclass == uIdSubclass))
-        {
+        if ((pCall->pfnSubclass == pfnSubclass) && (pCall->uIdSubclass == uIdSubclass)) {
             return pCall;
         }
-    }
-    while (uCallIndex != (UINT)-1);
+    } while (uCallIndex != (UINT)-1);
 
     return NULL;
 }
@@ -897,32 +746,25 @@ SUBCLASS_CALL *FindCallRecord(SUBCLASS_HEADER *pHeader,
 // subclass callback
 
 
-BOOL GetWindowSubclass(HWND hWnd, SUBCLASSPROC pfnSubclass, UINT_PTR uIdSubclass,
-    DWORD_PTR *pdwRefData)
+BOOL GetWindowSubclass(HWND hWnd, SUBCLASSPROC pfnSubclass, UINT_PTR uIdSubclass, DWORD_PTR* pdwRefData)
 {
-    SUBCLASS_HEADER *pHeader;
-    SUBCLASS_CALL *pCall;
+    SUBCLASS_HEADER* pHeader;
+    SUBCLASS_CALL* pCall;
     BOOL fResult = FALSE;
     DWORD_PTR dwRefData = 0;
 
-
     // sanity
-
-    if (!IsWindow(hWnd))
-    {
+    if (!IsWindow(hWnd)) {
         AssertMsg(FALSE, TEXT("error: GetWindowSubclass - %08X not a window"), hWnd);
         goto ReturnResult;
     }
 
-
     // more sanity
-
     if (!pfnSubclass
 #ifdef DEBUG
         || IsBadCodePtr((PROC)pfnSubclass)
 #endif
-        )
-    {
+        ) {
         AssertMsg(FALSE, TEXT("error: GetWindowSubclass - invalid callback %08X"), pfnSubclass);
         goto ReturnResult;
     }
@@ -933,15 +775,11 @@ BOOL GetWindowSubclass(HWND hWnd, SUBCLASSPROC pfnSubclass, UINT_PTR uIdSubclass
     ASSERT(IsWindowOnCurrentThread(hWnd));
 #endif
 
-
     // if we've subclassed it and they are a client then get the refdata
 
     if (((pHeader = GetSubclassHeader(hWnd)) != NULL) &&
-        ((pCall = FindCallRecord(pHeader, pfnSubclass, uIdSubclass)) != NULL))
-    {
-
+        ((pCall = FindCallRecord(pHeader, pfnSubclass, uIdSubclass)) != NULL)) {
         // fetch the refdata and note success
-
         dwRefData = pCall->dwRefData;
         fResult = TRUE;
     }
@@ -972,38 +810,29 @@ ReturnResult:
 // changes the refernce data for the pair.
 
 
-BOOL SetWindowSubclass(HWND hWnd, SUBCLASSPROC pfnSubclass, UINT_PTR uIdSubclass,
-    DWORD_PTR dwRefData)
+BOOL SetWindowSubclass(HWND hWnd, SUBCLASSPROC pfnSubclass, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
-    SUBCLASS_HEADER *pHeader;
-    SUBCLASS_CALL *pCall;
+    SUBCLASS_HEADER* pHeader;
+    SUBCLASS_CALL* pCall;
     BOOL bResult;
 
-
     // some sanity
-
-    if (!IsWindow(hWnd))
-    {
+    if (!IsWindow(hWnd)) {
         AssertMsg(FALSE, TEXT("error: SetWindowSubclass - %08X not a window"), hWnd);
         return FALSE;
     }
 
-
     // more sanity
-
     if (!pfnSubclass
 #ifdef DEBUG
         || IsBadCodePtr((PROC)pfnSubclass)
 #endif
-        )
-    {
+        ) {
         AssertMsg(FALSE, TEXT("error: SetWindowSubclass - invalid callback %08X"), pfnSubclass);
         return FALSE;
     }
 
     bResult = FALSE;    // assume failure
-
-
 
     // we party on the subclass call chain here
 
@@ -1020,20 +849,11 @@ BOOL SetWindowSubclass(HWND hWnd, SUBCLASSPROC pfnSubclass, UINT_PTR uIdSubclass
 
 
     // find a call node for this caller
-
-    if ((pCall = FindCallRecord(pHeader, pfnSubclass, uIdSubclass)) == NULL)
-    {
-
+    if ((pCall = FindCallRecord(pHeader, pfnSubclass, uIdSubclass)) == NULL) {
         // not found, alloc a new one
-
-        SUBCLASS_HEADER *pHeaderT =
-            ReAllocSubclassHeader(hWnd, pHeader, pHeader->uRefs + 1);
-
-        if (!pHeaderT)
-        {
-
+        SUBCLASS_HEADER* pHeaderT = ReAllocSubclassHeader(hWnd, pHeader, pHeader->uRefs + 1);
+        if (!pHeaderT) {
             // re-query in case it is already gone
-
             if ((pHeader = FastGetSubclassHeader(hWnd)) != NULL)
                 CompactSubclassHeader(hWnd, pHeader);
 
@@ -1045,12 +865,10 @@ BOOL SetWindowSubclass(HWND hWnd, SUBCLASSPROC pfnSubclass, UINT_PTR uIdSubclass
         pHeader->uRefs++;
     }
 
-
     // fill in the subclass call data
-
     pCall->pfnSubclass = pfnSubclass;
     pCall->uIdSubclass = uIdSubclass;
-    pCall->dwRefData   = dwRefData;
+    pCall->dwRefData = dwRefData;
 
     bResult = TRUE;
 
@@ -1071,25 +889,18 @@ bail:
 
 // this procedure removes a subclass callback from a window.  subclass
 // callbacks are identified by their callback address and id pair.
-
-
-BOOL RemoveWindowSubclass(HWND hWnd, SUBCLASSPROC pfnSubclass,
-    UINT_PTR uIdSubclass)
+BOOL RemoveWindowSubclass(HWND hWnd, SUBCLASSPROC pfnSubclass, UINT_PTR uIdSubclass)
 {
-    SUBCLASS_HEADER *pHeader;
-    SUBCLASS_CALL *pCall;
+    SUBCLASS_HEADER* pHeader;
+    SUBCLASS_CALL* pCall;
     BOOL bResult;
     UINT uCall;
 
-
     // some sanity
-
-    if (!IsWindow(hWnd))
-    {
+    if (!IsWindow(hWnd)) {
         AssertMsg(FALSE, TEXT("error: RemoveWindowSubclass - %08X not a window"), hWnd);
         return FALSE;
     }
-
 
     // more sanity
 
@@ -1097,8 +908,7 @@ BOOL RemoveWindowSubclass(HWND hWnd, SUBCLASSPROC pfnSubclass,
 #ifdef DEBUG
         || IsBadCodePtr((PROC)pfnSubclass)
 #endif
-        )
-    {
+        ) {
         AssertMsg(FALSE, TEXT("error: RemoveWindowSubclass - invalid callback %08X"), pfnSubclass);
         return FALSE;
     }
@@ -1116,26 +926,18 @@ BOOL RemoveWindowSubclass(HWND hWnd, SUBCLASSPROC pfnSubclass,
 
 
     // obtain our subclass data
-
     if ((pHeader = GetSubclassHeader(hWnd)) == NULL)
         goto bail;
 
-
     // find the callback to remove
-
     if ((pCall = FindCallRecord(pHeader, pfnSubclass, uIdSubclass)) == NULL)
         goto bail;
 
-
     // disable this node and remember that we have something to clean up
-
     pCall->pfnSubclass = NULL;
-
-    uCall = (UINT) (pCall - pHeader->CallArray);
-
+    uCall = (UINT)(pCall - pHeader->CallArray);
     if (!pHeader->uCleanup || (uCall < pHeader->uCleanup))
         pHeader->uCleanup = uCall;
-
 
     // now try to clean up any unused nodes
 
@@ -1169,47 +971,34 @@ bail:
 
 LRESULT DefSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    SUBCLASS_HEADER *pHeader;
+    SUBCLASS_HEADER* pHeader;
     LRESULT lResult = 0L;
 
-
     // make sure the window is still valid
-
-    if (!IsWindow(hWnd))
-    {
+    if (!IsWindow(hWnd)) {
         AssertMsg(FALSE, TEXT("warning: DefSubclassProc - %08X not a window"), hWnd);
         goto BailNonCritical;
     }
 
 
     // take the critical section while we figure out who to call next
-
-
 #ifdef FREETHREADEDSUBCLASSGOOP
     ENTERCRITICAL;
 #else
     ASSERT(IsWindowOnCurrentThread(hWnd));
 #endif
 
-
     // complain if we are being called improperly
-
-    if ((pHeader = FastGetSubclassHeader(hWnd)) == NULL)
-    {
+    if ((pHeader = FastGetSubclassHeader(hWnd)) == NULL) {
         AssertMsg(FALSE, TEXT("error: DefSubclassProc - window %08X not subclassed"), hWnd);
         goto BailCritical;
-    }
-    else if (GetCurrentThreadId() != pHeader->dwThreadId)
-    {
+    } else if (GetCurrentThreadId() != pHeader->dwThreadId) {
         AssertMsg(FALSE, TEXT("error: DefSubclassProc - wrong thread for window %08X"), hWnd);
         goto BailCritical;
-    }
-    else if (!pHeader->pFrameCur)
-    {
+    } else if (!pHeader->pFrameCur) {
         AssertMsg(FALSE, TEXT("error: DefSubclassProc - window %08X not in callback"), hWnd);
         goto BailCritical;
     }
-
 
     // call the next proc in the subclass chain
 
@@ -1221,9 +1010,7 @@ LRESULT DefSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     pHeader = NULL;
 #endif
 
-
     // return the result
-
 BailCritical:
 #ifdef FREETHREADEDSUBCLASSGOOP
     LEAVECRITICAL;
@@ -1241,67 +1028,48 @@ BailNonCritical:
 // this procedure updates the deepest call index for the specified frame
 
 
-void UpdateDeepestCall(SUBCLASS_FRAME *pFrame)
+void UpdateDeepestCall(SUBCLASS_FRAME* pFrame)
 {
 #ifdef FREETHREADEDSUBCLASSGOOP
     ASSERTCRITICAL;     // we are partying on the frame list
 #endif
 
-    if (pFrame->pFramePrev &&
-        (pFrame->pFramePrev->uDeepestCall < pFrame->uCallIndex))
-    {
+    if (pFrame->pFramePrev && (pFrame->pFramePrev->uDeepestCall < pFrame->uCallIndex)) {
         pFrame->uDeepestCall = pFrame->pFramePrev->uDeepestCall;
-    }
-    else
+    } else
         pFrame->uDeepestCall = pFrame->uCallIndex;
 }
 
 
-// EnterSubclassFrame
-
-// this procedure sets up a new subclass frame for the specified header, saving
-// away the previous one
-
-
-__inline void EnterSubclassFrame(SUBCLASS_HEADER *pHeader,
-    SUBCLASS_FRAME *pFrame)
+// this procedure sets up a new subclass frame for the specified header, saving away the previous one
+__inline void EnterSubclassFrame(SUBCLASS_HEADER* pHeader, SUBCLASS_FRAME* pFrame)
 {
 #ifdef FREETHREADEDSUBCLASSGOOP
     ASSERTCRITICAL;     // we are partying on the header and frame list
 #endif
 
-
     // fill in the frame and link it into the header
-
-    pFrame->uCallIndex   = pHeader->uRefs;
-    pFrame->pFramePrev   = pHeader->pFrameCur;
-    pFrame->pHeader      = pHeader;
-    pHeader->pFrameCur   = pFrame;
-
+    pFrame->uCallIndex = pHeader->uRefs;
+    pFrame->pFramePrev = pHeader->pFrameCur;
+    pFrame->pHeader = pHeader;
+    pHeader->pFrameCur = pFrame;
 
     // initialize the deepest call index for this frame
-
     UpdateDeepestCall(pFrame);
 }
 
 
-// LeaveSubclassFrame
-
 // this procedure cleans up the current subclass frame for the specified
 // header, restoring the previous one
-
-
-__inline SUBCLASS_HEADER *LeaveSubclassFrame(SUBCLASS_FRAME *pFrame)
+__inline SUBCLASS_HEADER* LeaveSubclassFrame(SUBCLASS_FRAME* pFrame)
 {
-    SUBCLASS_HEADER *pHeader;
+    SUBCLASS_HEADER* pHeader;
 
 #ifdef FREETHREADEDSUBCLASSGOOP
     ASSERTCRITICAL;     // we are partying on the header
 #endif
 
-
     // unlink the frame from its header (if it still exists)
-
     if ((pHeader = pFrame->pHeader) != NULL)
         pHeader->pFrameCur = pFrame->pFramePrev;
 
@@ -1309,17 +1077,10 @@ __inline SUBCLASS_HEADER *LeaveSubclassFrame(SUBCLASS_FRAME *pFrame)
 }
 
 
-// SubclassFrameException
-
 // this procedure cleans up when an exception is thrown from a subclass frame
-
-
-void SubclassFrameException(SUBCLASS_FRAME *pFrame)
+void SubclassFrameException(SUBCLASS_FRAME* pFrame)
 {
-
     // clean up the current subclass frame
-
-
 #ifdef FREETHREADEDSUBCLASSGOOP
     ENTERCRITICAL;
 #endif
@@ -1331,25 +1092,17 @@ void SubclassFrameException(SUBCLASS_FRAME *pFrame)
 }
 
 
-// MasterSubclassProc
-
 // this is the window procedure we install to dispatch subclass callbacks.
 // it maintains a linked list of 'frames' through the stack which allow
 // DefSubclassProc to call the right subclass procedure in multiple-message
 // scenarios.
-
-
-LRESULT CALLBACK MasterSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam,
-    LPARAM lParam)
+LRESULT CALLBACK MasterSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     SUBCLASS_FRAME Frame;
-    SUBCLASS_HEADER *pHeader;
+    SUBCLASS_HEADER* pHeader;
     LRESULT lResult = 0;
 
-
     // prevent people from partying on the callback chain while we look at it
-
-
 #ifdef FREETHREADEDSUBCLASSGOOP
     ENTERCRITICAL;
 #else
@@ -1358,8 +1111,7 @@ LRESULT CALLBACK MasterSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 
     // freak out if we got here and we don't have our data
 
-    if ((pHeader = FastGetSubclassHeader(hWnd)) == NULL)
-    {
+    if ((pHeader = FastGetSubclassHeader(hWnd)) == NULL) {
 #ifdef FREETHREADEDSUBCLASSGOOP
         LEAVECRITICAL;
 #else
@@ -1386,17 +1138,15 @@ LRESULT CALLBACK MasterSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 #ifdef DEBUG
         pHeader = NULL;
 #endif
-    }
-    __except ((SubclassFrameException(&Frame), EXCEPTION_CONTINUE_SEARCH))
-    {
+    } __except ((SubclassFrameException(&Frame), EXCEPTION_CONTINUE_SEARCH)) {
         ASSERT(FALSE);
     }
     __endexcept
 
 #ifdef FREETHREADEDSUBCLASSGOOP
-    ASSERTCRITICAL;
+        ASSERTCRITICAL;
 #else
-    ASSERT(IsWindowOnCurrentThread(hWnd));
+        ASSERT(IsWindowOnCurrentThread(hWnd));
 #endif
 
 
@@ -1413,8 +1163,7 @@ LRESULT CALLBACK MasterSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 
     // was the window nuked (somehow) without us seeing the WM_NCDESTROY?
 
-    if (!IsWindow(hWnd))
-    {
+    if (!IsWindow(hWnd)) {
 
         // EVIL! somebody subclassed after us and didn't pass on WM_NCDESTROY
 
@@ -1428,8 +1177,7 @@ LRESULT CALLBACK MasterSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 
     // if we are returning from a WM_NCDESTROY then we need to clean up
 
-    if (uMsg == WM_NCDESTROY)
-    {
+    if (uMsg == WM_NCDESTROY) {
         DetachSubclassHeader(hWnd, pHeader, TRUE);
         goto BailOut;
     }
@@ -1437,8 +1185,7 @@ LRESULT CALLBACK MasterSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 
     // is there any pending cleanup, or are all our clients gone?
 
-    if (pHeader->uCleanup || (!pHeader->pFrameCur && (pHeader->uRefs <= 1)))
-    {
+    if (pHeader->uCleanup || (!pHeader->pFrameCur && (pHeader->uRefs <= 1))) {
         CompactSubclassHeader(hWnd, pHeader);
 #ifdef DEBUG
         pHeader = NULL;
@@ -1465,10 +1212,10 @@ BailOut:
 // pFrame to indicate that we are calling it
 
 
-UINT EnterSubclassCallback(SUBCLASS_HEADER *pHeader, SUBCLASS_FRAME *pFrame,
-    SUBCLASS_CALL *pCallChosen)
+UINT EnterSubclassCallback(SUBCLASS_HEADER* pHeader, SUBCLASS_FRAME* pFrame,
+                           SUBCLASS_CALL* pCallChosen)
 {
-    SUBCLASS_CALL *pCall;
+    SUBCLASS_CALL* pCall;
     UINT uDepth;
 
 
@@ -1483,8 +1230,7 @@ UINT EnterSubclassCallback(SUBCLASS_HEADER *pHeader, SUBCLASS_FRAME *pFrame,
 
     pCall = pHeader->CallArray + pFrame->uCallIndex;
     uDepth = 0;
-    do
-    {
+    do {
         uDepth++;
         pCall--;
 
@@ -1495,7 +1241,7 @@ UINT EnterSubclassCallback(SUBCLASS_HEADER *pHeader, SUBCLASS_FRAME *pFrame,
 
     pCallChosen->pfnSubclass = pCall->pfnSubclass;
     pCallChosen->uIdSubclass = pCall->uIdSubclass;
-    pCallChosen->dwRefData   = pCall->dwRefData;
+    pCallChosen->dwRefData = pCall->dwRefData;
 
 
     // adjust the frame's call index by the depth we entered
@@ -1516,7 +1262,7 @@ UINT EnterSubclassCallback(SUBCLASS_HEADER *pHeader, SUBCLASS_FRAME *pFrame,
 // this procedure finds the next callback in the cal
 
 
-__inline void LeaveSubclassCallback(SUBCLASS_FRAME *pFrame, UINT uDepth)
+__inline void LeaveSubclassCallback(SUBCLASS_FRAME* pFrame, UINT uDepth)
 {
 
     // we will be updating subclass frame data
@@ -1542,7 +1288,7 @@ __inline void LeaveSubclassCallback(SUBCLASS_FRAME *pFrame, UINT uDepth)
 // this procedure cleans up when a subclass callback throws an exception
 
 
-void SubclassCallbackException(SUBCLASS_FRAME *pFrame, UINT uDepth)
+void SubclassCallbackException(SUBCLASS_FRAME* pFrame, UINT uDepth)
 {
 
     // clean up the current subclass callback
@@ -1567,11 +1313,11 @@ void SubclassCallbackException(SUBCLASS_FRAME *pFrame, UINT uDepth)
 // WARNING: pHeader is invalid when this call returns
 
 
-LRESULT CallNextSubclassProc(SUBCLASS_HEADER *pHeader, HWND hWnd, UINT uMsg,
-    WPARAM wParam, LPARAM lParam)
+LRESULT CallNextSubclassProc(SUBCLASS_HEADER* pHeader, HWND hWnd, UINT uMsg,
+                             WPARAM wParam, LPARAM lParam)
 {
     SUBCLASS_CALL Call;
-    SUBCLASS_FRAME *pFrame;
+    SUBCLASS_FRAME* pFrame;
     LRESULT lResult;
     UINT uDepth;
 
@@ -1618,21 +1364,19 @@ LRESULT CallNextSubclassProc(SUBCLASS_HEADER *pHeader, HWND hWnd, UINT uMsg,
         ASSERT(Call.pfnSubclass);
 
         lResult = Call.pfnSubclass(hWnd, uMsg, wParam, lParam,
-            Call.uIdSubclass, Call.dwRefData);
-    }
-    __except ((SubclassCallbackException(pFrame, uDepth),
-        EXCEPTION_CONTINUE_SEARCH))
-    {
+                                   Call.uIdSubclass, Call.dwRefData);
+    } __except ((SubclassCallbackException(pFrame, uDepth),
+                 EXCEPTION_CONTINUE_SEARCH)) {
         ASSERT(FALSE);
     }
     __endexcept
 
 
-    // we left the critical section before calling out so re-enter it
+        // we left the critical section before calling out so re-enter it
 
 
 #ifdef FREETHREADEDSUBCLASSGOOP
-    ENTERCRITICAL;
+        ENTERCRITICAL;
 #endif
 
 
@@ -1646,67 +1390,63 @@ LRESULT CallNextSubclassProc(SUBCLASS_HEADER *pHeader, HWND hWnd, UINT uMsg,
 
 #if defined(RETAIL_ZOMBIE_MESSAGE_WNDPROC) || defined(DEBUG)
 #ifdef DEBUG
-static const TCHAR c_szZombieMessage[] =                                     \
-    TEXT("This window has encountered an internal error which is preventing ")    \
-    TEXT("it from operating normally.\r\n\nPlease report this problem to ")       \
-    TEXT("FrancisH immediately.");
+static const TCHAR c_szZombieMessage[] = \
+TEXT("This window has encountered an internal error which is preventing ")    \
+TEXT("it from operating normally.\r\n\nPlease report this problem to ")       \
+TEXT("FrancisH immediately.");
 #else
-static const TCHAR c_szZombieMessage[] =                                     \
-    TEXT("This window has encountered an internal error which is preventing ")    \
-    TEXT("it from operating normally.\r\n\nPlease report this as a bug in the ")  \
-    TEXT("COMCTL32 library.");
+static const TCHAR c_szZombieMessage[] = \
+TEXT("This window has encountered an internal error which is preventing ")    \
+TEXT("it from operating normally.\r\n\nPlease report this as a bug in the ")  \
+TEXT("COMCTL32 library.");
 #endif
 
 LRESULT ZombieWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_ERASEBKGND:
-        {
-            HDC hDC = (HDC)wParam;
-            HBRUSH hBrush = CreateSolidBrush(RGB(255,255,0));
+    {
+        HDC hDC = (HDC)wParam;
+        HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 0));
 
-            if (hBrush)
-            {
-                RECT rcErase;
+        if (hBrush) {
+            RECT rcErase;
 
-                switch (GetClipBox(hDC, &rcErase))
-                {
-                default:
-                    FillRect(hDC, &rcErase, hBrush);
-                    break;
-                case NULLREGION:
-                case ERROR:
-                    break;
-                }
-
-                DeleteBrush(hBrush);
+            switch (GetClipBox(hDC, &rcErase)) {
+            default:
+                FillRect(hDC, &rcErase, hBrush);
+                break;
+            case NULLREGION:
+            case ERROR:
+                break;
             }
+
+            DeleteBrush(hBrush);
         }
-        return 1;
+    }
+    return 1;
 
     case WM_PAINT:
-        {
-            RECT rcClient;
-            PAINTSTRUCT ps;
-            HDC hDC = BeginPaint(hWnd, &ps);
+    {
+        RECT rcClient;
+        PAINTSTRUCT ps;
+        HDC hDC = BeginPaint(hWnd, &ps);
 
-            if (hDC && GetClientRect(hWnd, &rcClient))
-            {
-                COLORREF clrBkSave = SetBkColor(hDC, RGB(255,255,0));
-                COLORREF clrFgSave = SetTextColor(hDC, RGB(255,0,0));
+        if (hDC && GetClientRect(hWnd, &rcClient)) {
+            COLORREF clrBkSave = SetBkColor(hDC, RGB(255, 255, 0));
+            COLORREF clrFgSave = SetTextColor(hDC, RGB(255, 0, 0));
 
-                DrawText(hDC, c_szZombieMessage, -1, &rcClient,
-                    DT_LEFT | DT_TOP | DT_NOPREFIX | DT_WORDBREAK |
-                    DT_WORD_ELLIPSIS);
+            DrawText(hDC, c_szZombieMessage, -1, &rcClient,
+                     DT_LEFT | DT_TOP | DT_NOPREFIX | DT_WORDBREAK |
+                     DT_WORD_ELLIPSIS);
 
-                SetTextColor(hDC, clrFgSave);
-                SetBkColor(hDC, clrBkSave);
-            }
-
-            EndPaint(hWnd, &ps);
+            SetTextColor(hDC, clrFgSave);
+            SetBkColor(hDC, clrBkSave);
         }
-        return 0;
+
+        EndPaint(hWnd, &ps);
+    }
+    return 0;
     }
 
     return DefWindowProc(hWnd, uMsg, wParam, lParam);

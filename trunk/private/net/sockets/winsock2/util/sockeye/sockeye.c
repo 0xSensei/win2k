@@ -71,9 +71,9 @@ char  gszDefProtoName[MAX_STRING_PARAM_SIZE];
 char  gszDefServName[MAX_STRING_PARAM_SIZE];
 
 
-char * PASCAL GetTimeStamp(void);
+char* PASCAL GetTimeStamp(void);
 void ShowStructByField(PSTRUCT_FIELD_HEADER    pHeader, BOOL    bSubStructure);
-VOID PASCAL ShowGUID(char    *pszProlog, GUID    *pGuid);
+VOID PASCAL ShowGUID(char* pszProlog, GUID* pGuid);
 void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex);
 
 
@@ -96,10 +96,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE   hPrevInstance, LPSTR lpCmdLi
         wsprintf(gszEnterAs,
                  "Ex: enter x%x as %02x%02x%02x%02x",
                  d,
-                 (DWORD) *((LPBYTE)&d),
-                 (DWORD) *(((LPBYTE)&d) + 1),
-                 (DWORD) *(((LPBYTE)&d) + 2),
-                 (DWORD) *(((LPBYTE)&d) + 3));
+                 (DWORD) * ((LPBYTE)&d),
+                 (DWORD) * (((LPBYTE)&d) + 1),
+                 (DWORD) * (((LPBYTE)&d) + 2),
+                 (DWORD) * (((LPBYTE)&d) + 3));
     }
 
     hwnd = CreateDialog(ghInst, (LPCSTR)MAKEINTRESOURCE(IDD_DIALOG1), (HWND)NULL, (DLGPROC)MainWndProc);
@@ -197,7 +197,7 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
     {
         DWORD   dwMenuID;
         DWORD   dwFlags;
-    } XXX, *PXXX;
+    } XXX, * PXXX;
 
     static XXX aXxx[] =
     {
@@ -241,8 +241,8 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
         {
             typedef struct _DEF_VALUE
             {
-                char far *lpszEntry;
-                char far *lpszDefValue;
+                char far* lpszEntry;
+                char far* lpszDefValue;
                 LPVOID   lp;
             } DEF_VALUE;
 
@@ -392,7 +392,7 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
                     SendMessage(ghwndEdit, EM_SETSEL, (WPARAM)1, (LPARAM)MAKELONG(0, 10000));
 #endif
 
-                    SendMessage(ghwndEdit, EM_REPLACESEL, 0, (LPARAM)(char far *) "");
+                    SendMessage(ghwndEdit, EM_REPLACESEL, 0, (LPARAM)(char far*) "");
 
 #ifdef WIN32
                     SendMessage(ghwndEdit, EM_SETSEL, (WPARAM)0xfffffffd, (LPARAM)0xfffffffe);
@@ -476,7 +476,7 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
 
             SetFocus(hwndNext);
             break;
-            }
+        }
         case IDC_ENTER:
         {
             if (GetFocus() != ghwndEdit) {
@@ -637,14 +637,14 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
         {
             if (hLogFile) {
                 fclose(hLogFile);
-                hLogFile = (FILE *)NULL;
+                hLogFile = (FILE*)NULL;
                 CheckMenuItem(hMenu, IDM_LOGFILE, MF_BYCOMMAND | MF_UNCHECKED);
             } else {
                 OPENFILENAME ofn;
                 char szDirName[256] = ".\\";
                 char szFile[256] = "sockeye.log\0";
                 char szFileTitle[256] = "";
-                static char *szFilter = "Log files (*.log)\0*.log\0All files (*.*)\0*.*\0\0";
+                static char* szFilter = "Log files (*.log)\0*.log\0All files (*.*)\0*.*\0\0";
 
                 ofn.lStructSize = sizeof(OPENFILENAME);
                 ofn.hwndOwner = hwnd;
@@ -667,10 +667,10 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
                     return 0L;
                 }
 
-                if ((hLogFile = fopen(szFile, "at")) == (FILE *)NULL) {
+                if ((hLogFile = fopen(szFile, "at")) == (FILE*)NULL) {
                     MessageBox(hwnd, "Error creating log file", gszSockEye, MB_OK);
                 } else {
-                    struct tm *newtime;
+                    struct tm* newtime;
                     time_t aclock;
 
                     time(&aclock);
@@ -747,19 +747,19 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
                 switch (pAsyncReqInfo->FuncIndex) {
                 case ws_WSAAsyncGetHostByAddr:
                 case ws_WSAAsyncGetHostByName:
-                    ShowHostEnt((struct hostent *) (pAsyncReqInfo + 1));
+                    ShowHostEnt((struct hostent*) (pAsyncReqInfo + 1));
                     break;
                 case ws_WSAAsyncGetProtoByName:
                 case ws_WSAAsyncGetProtoByNumber:
-                    ShowProtoEnt((struct protoent *) (pAsyncReqInfo + 1));
+                    ShowProtoEnt((struct protoent*) (pAsyncReqInfo + 1));
                     break;
                 case ws_WSAAsyncGetServByName:
                 case ws_WSAAsyncGetServByPort:
-                    ShowServEnt((struct servent *) (pAsyncReqInfo + 1));
+                    ShowServEnt((struct servent*) (pAsyncReqInfo + 1));
                     break;
                 }
             } else {
-                char FAR *pszError;
+                char FAR* pszError;
 
                 for (i = 0;
                      WSAGETASYNCERROR(lParam) != aWSAErrors[i].dwVal && aWSAErrors[i].lpszVal;
@@ -1037,7 +1037,7 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
             char buf[32];
             typedef struct _DEF_VALUE2
             {
-                char far    *lpszEntry;
+                char far* lpszEntry;
                 ULONG_PTR   dwValue;
 
             } DEF_VALUE2;
@@ -1113,11 +1113,11 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
         DeleteObject(hFont2);
         PostQuitMessage(0);
         break;
-            }
-        }
+    }
+    }
 
     return FALSE;
-    }
+}
 
 
 INT_PTR CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -1146,7 +1146,7 @@ INT_PTR CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if (HIWORD(lParam) == CTLCOLOR_STATIC) {
             SetBkColor((HDC)wParam, RGB(192, 192, 192));
             return (INT_PTR)GetStockObject(LTGRAY_BRUSH);
-    }
+        }
         break;
     }
 #endif
@@ -1160,10 +1160,10 @@ INT_PTR CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         break;
     }
-}
+    }
 
     return FALSE;
-    }
+}
 
 
 void FAR ShowStr(LPCSTR format, ...)
@@ -1206,7 +1206,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
         PFUNC_PARAM_HEADER pParamsHeader;
         LRESULT lLastSel;
         char szComboText[MAX_STRING_PARAM_SIZE];
-    } DLG_INST_DATA, *PDLG_INST_DATA;
+    } DLG_INST_DATA, * PDLG_INST_DATA;
 
     PDLG_INST_DATA pDlgInstData = (PDLG_INST_DATA)GetWindowLongPtr(hwnd, DWLP_USER);
     static int icxList2, icyList2, icyEdit1;
@@ -1287,7 +1287,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     case WM_COMMAND:
     {
         LRESULT   lLastSel = pDlgInstData->lLastSel;
-        char far *lpszComboText = pDlgInstData->szComboText;
+        char far* lpszComboText = pDlgInstData->szComboText;
         PFUNC_PARAM_HEADER pParamsHeader = pDlgInstData->pParamsHeader;
 
         switch (LOWORD(wParam)) {
@@ -1299,7 +1299,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                 // hiliting other letters and cutting them).
                 HWND    hwndEdit = GetDlgItem(hwnd, IDC_EDIT1);
                 DWORD   dwLength, j;
-                BYTE   *p;
+                BYTE* p;
 
                 dwLength = (DWORD)GetWindowTextLength(hwndEdit);
                 if (dwLength && (p = MyAlloc(dwLength + 1))) {
@@ -1313,7 +1313,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                                 (LPARAM)j + 1  // 0xfffffffe
                             );
 
-                            SendMessage(hwndEdit, EM_REPLACESEL, 0, (LPARAM) "");
+                            SendMessage(hwndEdit, EM_REPLACESEL, 0, (LPARAM)"");
                             SendMessage(hwndEdit, EM_SCROLLCARET, 0, 0);
                             j--;
                         }
@@ -1359,7 +1359,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                     // If there is any text in the "Buffer byte editor"
                     // window then retrieve it, convert it to hexadecimal, and copy it to the buffer
                     DWORD dwLength;
-                    BYTE  *p, *p2, *pBuf = pParamsHeader->aParams[lLastSel].u.ptr;
+                    BYTE* p, * p2, * pBuf = pParamsHeader->aParams[lLastSel].u.ptr;
                     HWND  hwndEdit = GetDlgItem(hwnd, IDC_EDIT1);
 
                     dwLength = (DWORD)GetWindowTextLength(hwndEdit);
@@ -1370,7 +1370,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
                         p2 = p;
 
-                        p[dwLength] = (BYTE) '0';
+                        p[dwLength] = (BYTE)'0';
                         dwLength = (dwLength + 1) & 0xfffffffe;
 
                         for (i = 0; i < dwLength; i++, i++) {
@@ -1415,7 +1415,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
                 for (i = 0; i < dwNumParams; i++) {
                     if (pParam->dwType == PT_STRING && pParam->dwValue != 0 && pParam->dwValue != 0xffffffff) {
-                        int    len = lstrlenA((char *)pParam->dwValue) + 1;
+                        int    len = lstrlenA((char*)pParam->dwValue) + 1;
                         WCHAR  buf[MAX_STRING_PARAM_SIZE / 2];
 
                         MultiByteToWideChar(GetACP(),
@@ -1425,7 +1425,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                                             buf,
                                             MAX_STRING_PARAM_SIZE / 2);
                         buf[MAX_STRING_PARAM_SIZE / 2 - 1] = 0;
-                        lstrcpyW((WCHAR *)pParam->dwValue, buf);
+                        lstrcpyW((WCHAR*)pParam->dwValue, buf);
                     }
 
                     pParam++;
@@ -1480,7 +1480,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                         // If there is any text in the "Buffer byte editor"
                         // window then retrieve it, convert it to hexadecimal, and copy it to the buffer
                         DWORD     dwLength;
-                        BYTE     *p, *p2, *pBuf = pParamsHeader->aParams[lLastSel].u.ptr;
+                        BYTE* p, * p2, * pBuf = pParamsHeader->aParams[lLastSel].u.ptr;
                         HWND      hwndEdit = GetDlgItem(hwnd, IDC_EDIT1);
 
                         dwLength = (DWORD)GetWindowTextLength(hwndEdit);
@@ -1490,7 +1490,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
                             p2 = p;
 
-                            p[dwLength] = (BYTE) '0';
+                            p[dwLength] = (BYTE)'0';
                             dwLength = (dwLength + 1) & 0xfffffffe;
 
                             for (i = 0; i < dwLength; i += 2) {
@@ -1533,7 +1533,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
                 {
                     int         icxL2, icyL2, icxE1, icyE1;
-                    char FAR   *pszS1, *pszS2;
+                    char FAR* pszS1, * pszS2;
                     static char szBitFlags[] = "Bit flags:";
                     static char szOrdinalValues[] = "Ordinal values:";
                     static char szBufByteEdit[] = "Buffer byte editor (use 0-9, a-f, A-F)";
@@ -1580,7 +1580,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                 switch (pParamsHeader->aParams[lSel].dwType) {
                 case PT_STRING:
                 {
-                    char * aszOptions[] =
+                    char* aszOptions[] =
                     {
                         "NULL pointer",
                         "Valid string pointer",
@@ -1609,14 +1609,14 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                 case PT_WSAPROTOCOLINFO:
                 case PT_QOS:
                 case PT_PTRNOEDIT:
-                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM) "00000000");
+                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM)"00000000");
                     sprintf(buf, "%08lx (valid pointer)", pParamsHeader->aParams[lSel].u.dwDefValue);
                     SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM)buf);
-                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM) "ffffffff");
+                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM)"ffffffff");
                     sprintf(buf, "%08lx", pParamsHeader->aParams[lSel].dwValue);
                     break;
                 case PT_DWORD:
-                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM) "0000000");
+                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM)"0000000");
 
                     if (pParamsHeader->aParams[lSel].u.dwDefValue) {
                         // Add the default val string to the combo
@@ -1624,7 +1624,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                         SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM)buf);
                     }
 
-                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM) "ffffffff");
+                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM)"ffffffff");
                     sprintf(buf, "%08lx", pParamsHeader->aParams[lSel].dwValue);
                     break;
                 case PT_FLAGS:
@@ -1639,8 +1639,8 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                         }
                     }
 
-                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM) "select none");
-                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM) "select all");
+                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM)"select none");
+                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM)"select all");
                     sprintf(buf, "%08lx", pParamsHeader->aParams[lSel].dwValue);
                     break;
                 }
@@ -1657,7 +1657,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                         }
                     }
 
-                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM)(char far *) "select none");
+                    SendDlgItemMessage(hwnd, IDC_COMBO1, CB_INSERTSTRING, (WPARAM)-1, (LPARAM)(char far*) "select none");
                     wsprintf(buf, "%08lx", pParamsHeader->aParams[lSel].dwValue);
                     break;
                 }
@@ -1678,12 +1678,12 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                 PLOOKUP pLookup = (PLOOKUP)pParamsHeader->aParams[lLastSel].u.pLookup;
                 char buf[16];
                 DWORD dwValue = 0;
-                int far *ai;
+                int far* ai;
                 LONG i;
                 LRESULT lSelCount = SendDlgItemMessage(hwnd, IDC_LIST2, LB_GETSELCOUNT, 0, 0);
 
                 if (lSelCount) {
-                    ai = (int far *) MyAlloc((size_t)lSelCount * sizeof(int));
+                    ai = (int far*) MyAlloc((size_t)lSelCount * sizeof(int));
 
                     SendDlgItemMessage(hwnd, IDC_LIST2, LB_GETSELITEMS, (WPARAM)lSelCount, (LPARAM)ai);
 
@@ -1756,12 +1756,12 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                     if (bSelect) {
                         PLOOKUP pLookup = (PLOOKUP)pParamsHeader->aParams[lLastSel].u.pLookup;
                         DWORD dwValue = 0;
-                        int far *ai;
+                        int far* ai;
                         LONG i;
                         LRESULT lSelCount = SendDlgItemMessage(hwnd, IDC_LIST2, LB_GETSELCOUNT, 0, 0);
 
                         if (lSelCount) {
-                            ai = (int far *) MyAlloc((size_t)lSelCount * sizeof(int));
+                            ai = (int far*) MyAlloc((size_t)lSelCount * sizeof(int));
 
                             SendDlgItemMessage(hwnd, IDC_LIST2, LB_GETSELITEMS, (WPARAM)lSelCount, (LPARAM)ai);
 
@@ -1891,7 +1891,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
                             if (params[30].dwValue == (ULONG_PTR)szProtocol) {
                                 if (gbWideStringParams) {
-                                    lstrcpyW((WCHAR *)pInfo->szProtocol, (WCHAR *)szProtocol);
+                                    lstrcpyW((WCHAR*)pInfo->szProtocol, (WCHAR*)szProtocol);
                                 } else {
                                     lstrcpyA(pInfo->szProtocol, szProtocol);
                                 }
@@ -2009,7 +2009,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     }
 
     return FALSE;
-    }
+}
 
 
 INT_PTR CALLBACK UserButtonsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -2025,7 +2025,7 @@ INT_PTR CALLBACK UserButtonsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
         if (lParam) {
             // The dlg was invoked because someone pressed a user button that was uninitialized,
             // so only allow chgs on this button
-            iButtonIndex = *((int *)lParam);
+            iButtonIndex = *((int*)lParam);
 
             _itoa(iButtonIndex + 1, buf, 10);
 
@@ -2047,7 +2047,7 @@ INT_PTR CALLBACK UserButtonsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
             SendDlgItemMessage(hwnd, IDC_LIST2, LB_INSERTSTRING, (WPARAM)-1, (LPARAM)aFuncNames[i]);
         }
 
-        SendDlgItemMessage(hwnd, IDC_LIST2, LB_INSERTSTRING, (WPARAM)-1, (LPARAM) "<none>");
+        SendDlgItemMessage(hwnd, IDC_LIST2, LB_INSERTSTRING, (WPARAM)-1, (LPARAM)"<none>");
 
         if (!lParam) {
 #ifdef WIN32
@@ -2056,7 +2056,7 @@ INT_PTR CALLBACK UserButtonsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
             lParam = (LPARAM)MAKELONG(0, LBN_SELCHANGE);
 #endif
             goto IDC_LIST1_selchange;
-    }
+        }
 
         break;
     }
@@ -2074,7 +2074,7 @@ INT_PTR CALLBACK UserButtonsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 
             if (iButtonIndex == MAX_USER_BUTTONS) {
                 iButtonIndex = (int)SendDlgItemMessage(hwnd, IDC_LIST1, LB_GETCURSEL, 0, 0);
-        }
+            }
 
             aUserButtonFuncs[iButtonIndex] = (DWORD)lFuncSel;
             if (lFuncSel == MiscBegin) {
@@ -2106,7 +2106,7 @@ INT_PTR CALLBACK UserButtonsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
                 SetDlgItemText(hwnd, IDC_EDIT1, aUserButtonsText[lButtonSel]);
             }
             break;
-} // switch
+        } // switch
 
         break;
 #ifdef WIN32
@@ -2132,7 +2132,7 @@ INT_PTR CALLBACK UserButtonsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
         EndPaint(hwnd, &ps);
         break;
     }
-} // switch
+    } // switch
 
     return FALSE;
 }
@@ -2144,7 +2144,7 @@ int CALLBACK ConditionProc(LPWSABUF  lpCallerId,
                            LPQOS     lpGQOS,
                            LPWSABUF  lpCalleeId,
                            LPWSABUF  lpCalleeData,
-                           GROUP FAR *g,
+                           GROUP FAR* g,
                            DWORD     dwCallbackData)
 {
     ShowStr("ConditionProc: enter");
@@ -2215,8 +2215,8 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
             SOCKET s;
 
             if ((s = accept((SOCKET)params[0].dwValue,
-                (struct sockaddr FAR *) params[1].dwValue,
-                            (int FAR *) params[2].dwValue)) != INVALID_SOCKET) {
+                (struct sockaddr FAR*) params[1].dwValue,
+                            (int FAR*) params[2].dwValue)) != INVALID_SOCKET) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowStr("  returned socket=x%x", s);
 
@@ -2248,10 +2248,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         FUNC_PARAM_HEADER paramsHeader = {5, funcIndex, params, NULL};
 
         if (LetUserMungeParams(&paramsHeader)) {
-            *((u_short *)pBigBuf) = LOWORD(params[2].dwValue);
+            *((u_short*)pBigBuf) = LOWORD(params[2].dwValue);
 
             if ((i = bind((SOCKET)params[0].dwValue,
-                (struct sockaddr FAR *) params[1].dwValue,
+                (struct sockaddr FAR*) params[1].dwValue,
                           (int)params[4].dwValue)) == 0) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
             } else if (i == SOCKET_ERROR) {
@@ -2321,10 +2321,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         FUNC_PARAM_HEADER paramsHeader = {5, funcIndex, params, NULL};
 
         if (LetUserMungeParams(&paramsHeader)) {
-            *((u_short *)pBigBuf) = LOWORD(params[2].dwValue);
+            *((u_short*)pBigBuf) = LOWORD(params[2].dwValue);
 
             if ((i = connect((SOCKET)params[0].dwValue,
-                (struct sockaddr FAR *) params[1].dwValue,
+                (struct sockaddr FAR*) params[1].dwValue,
                              (int)params[4].dwValue)) == 0) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
             } else if (i == SOCKET_ERROR) {
@@ -2350,10 +2350,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         lstrcpy(szAddress, "xxx");
 
         if (LetUserMungeParams(&paramsHeader)) {
-            struct hostent  *phe;
+            struct hostent* phe;
 
             // note: WinSock owns the returned ptr, don't free/munge it
-            if ((phe = gethostbyaddr((char FAR *) params[0].dwValue,
+            if ((phe = gethostbyaddr((char FAR*) params[0].dwValue,
                 (int)params[1].dwValue,
                                      (int)params[2].dwValue))) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
@@ -2377,11 +2377,11 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         lstrcpyA(szHostName, gszDefHostName);
 
         if (LetUserMungeParams(&paramsHeader)) {
-            struct hostent  *phe;
+            struct hostent* phe;
 
             // note: WinSock owns the returned ptr, don't free/munge it
 
-            if ((phe = gethostbyname((char FAR *) params[0].dwValue))) {
+            if ((phe = gethostbyname((char FAR*) params[0].dwValue))) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowHostEnt(phe);
             } else {
@@ -2402,9 +2402,9 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         FUNC_PARAM_HEADER paramsHeader = {2, funcIndex, params, NULL};
 
         if (LetUserMungeParams(&paramsHeader)) {
-            if ((i = gethostname((char FAR *) params[0].dwValue, (int)params[1].dwValue)) == 0) {
+            if ((i = gethostname((char FAR*) params[0].dwValue, (int)params[1].dwValue)) == 0) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
-                ShowStr("  name=%s", (char FAR *) params[0].dwValue);
+                ShowStr("  name=%s", (char FAR*) params[0].dwValue);
             } else if (i == SOCKET_ERROR) {
                 ShowError(funcIndex, 0);
             } else {
@@ -2428,22 +2428,22 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
 
         if (LetUserMungeParams(&paramsHeader)) {
             if (funcIndex == ws_getpeername) {
-                i = getpeername((SOCKET)params[0].dwValue, (struct sockaddr FAR *) params[1].dwValue, (int *)params[2].dwValue);
+                i = getpeername((SOCKET)params[0].dwValue, (struct sockaddr FAR*) params[1].dwValue, (int*)params[2].dwValue);
             } else {
-                i = getsockname((SOCKET)params[0].dwValue, (struct sockaddr FAR *) params[1].dwValue, (int *)params[2].dwValue);
+                i = getsockname((SOCKET)params[0].dwValue, (struct sockaddr FAR*) params[1].dwValue, (int*)params[2].dwValue);
             }
 
             if (i == 0) {
-                DWORD dwAddressFamily = (DWORD) *((u_short *)params[1].dwValue);
+                DWORD dwAddressFamily = (DWORD) * ((u_short*)params[1].dwValue);
 
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
-                ShowStr("  *lpNameLength=x%x", *((int *)params[2].dwValue));
+                ShowStr("  *lpNameLength=x%x", *((int*)params[2].dwValue));
                 ShowStr("  lpName=x%x", params[1].dwValue);
                 ShowStr("    ->AddressFamiliy=%d, %s",
                         dwAddressFamily,
                         GetStringFromOrdinalValue(dwAddressFamily, aAddressFamilies));
                 ShowStr("    ->Data=");
-                ShowBytes(*((int *)params[2].dwValue) - sizeof(u_short), (LPBYTE)params[1].dwValue + 2, 1);
+                ShowBytes(*((int*)params[2].dwValue) - sizeof(u_short), (LPBYTE)params[1].dwValue + 2, 1);
             } else if (i == SOCKET_ERROR) {
                 ShowError(funcIndex, 0);
             } else {
@@ -2465,10 +2465,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         lstrcpyA(szProtoName, gszDefProtoName);
 
         if (LetUserMungeParams(&paramsHeader)) {
-            struct protoent *ppe;
+            struct protoent* ppe;
 
             // note: WinSock owns the returned ptr, don't free/munge it
-            if ((ppe = getprotobyname((char FAR *) params[0].dwValue))) {
+            if ((ppe = getprotobyname((char FAR*) params[0].dwValue))) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowProtoEnt(ppe);
             } else {
@@ -2487,7 +2487,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         FUNC_PARAM_HEADER paramsHeader = {1, funcIndex, params, NULL};
 
         if (LetUserMungeParams(&paramsHeader)) {
-            struct protoent *ppe;
+            struct protoent* ppe;
 
             // note: WinSock owns the returned ptr, don't free/munge it
             if ((ppe = getprotobynumber((int)params[0].dwValue))) {
@@ -2515,11 +2515,11 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         lstrcpyA(szProtoName, gszDefProtoName);
 
         if (LetUserMungeParams(&paramsHeader)) {
-            struct servent *pse;
+            struct servent* pse;
 
             // note: WinSock owns the returned ptr, don't free/munge it
-            if ((pse = getservbyname((char FAR *) params[0].dwValue,
-                (char FAR *) params[1].dwValue))) {
+            if ((pse = getservbyname((char FAR*) params[0].dwValue,
+                (char FAR*) params[1].dwValue))) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowServEnt(pse);
             } else {
@@ -2542,10 +2542,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         lstrcpyA(szProtoName, gszDefProtoName);
 
         if (LetUserMungeParams(&paramsHeader)) {
-            struct servent *pse;
+            struct servent* pse;
 
             // note: WinSock owns the returned ptr, don't free/munge it
-            if ((pse = getservbyport((int)params[0].dwValue, (char FAR *) params[1].dwValue))) {
+            if ((pse = getservbyport((int)params[0].dwValue, (char FAR*) params[1].dwValue))) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowServEnt(pse);
             } else {
@@ -2572,8 +2572,8 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
             if ((i = getsockopt((SOCKET)params[0].dwValue,
                 (int)params[1].dwValue,
                                 (int)params[2].dwValue,
-                                (char FAR *) params[3].dwValue,
-                                (int FAR *) params[4].dwValue)) == 0) {
+                                (char FAR*) params[3].dwValue,
+                                (int FAR*) params[4].dwValue)) == 0) {
                 // BUGBUG getockopt: format returned OptionBuf data
 
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
@@ -2583,9 +2583,9 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
                         GetStringFromOrdinalValue((DWORD)params[1].dwValue, aSockOptLevels),
                         GetStringFromOrdinalValue((DWORD)params[2].dwValue, aSockOpts)
                 );
-                ShowStr("  *lpiOptionBufLength=x%x", *((int *)params[4].dwValue));
+                ShowStr("  *lpiOptionBufLength=x%x", *((int*)params[4].dwValue));
                 ShowStr("  *lpOptionBuf=");
-                ShowBytes((DWORD) *((int *)params[4].dwValue), (LPVOID)params[3].dwValue, 1);
+                ShowBytes((DWORD) * ((int*)params[4].dwValue), (LPVOID)params[3].dwValue, 1);
             } else if (i == SOCKET_ERROR) {
                 ShowError(funcIndex, 0);
             } else {
@@ -2637,7 +2637,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         FUNC_PARAM_HEADER paramsHeader = {1, funcIndex, params, NULL};
 
         if (LetUserMungeParams(&paramsHeader)) {
-            unsigned long l = inet_addr((char FAR *) params[0].dwValue);
+            unsigned long l = inet_addr((char FAR*) params[0].dwValue);
             if (l != INADDR_NONE) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowStr("  ulInternetAddress=x%x", l);
@@ -2657,7 +2657,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         FUNC_PARAM_HEADER paramsHeader = {1, funcIndex, params, NULL};
 
         if (LetUserMungeParams(&paramsHeader)) {
-            char FAR *pszInetAddr;
+            char FAR* pszInetAddr;
             struct in_addr ia;
 
             CopyMemory(&ia, &params[0].dwValue, sizeof(DWORD));
@@ -2684,7 +2684,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         FUNC_PARAM_HEADER paramsHeader = {3, funcIndex, params, NULL};
 
         if (LetUserMungeParams(&paramsHeader)) {
-            if ((i = ioctlsocket((SOCKET)params[0].dwValue, (long)params[1].dwValue, (u_long FAR *) params[2].dwValue)) == 0) {
+            if ((i = ioctlsocket((SOCKET)params[0].dwValue, (long)params[1].dwValue, (u_long FAR*) params[2].dwValue)) == 0) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowStr("  lCommand=%d, %s", params[1].dwValue, GetStringFromOrdinalValue((DWORD)params[1].dwValue, aIoctlCmds));
                 ShowStr("  *lpData=");
@@ -2764,7 +2764,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
 
         if (LetUserMungeParams(&paramsHeader)) {
             if ((i = recv((SOCKET)params[0].dwValue,
-                (char FAR *) params[1].dwValue,
+                (char FAR*) params[1].dwValue,
                           (int)params[2].dwValue,
                           (int)params[3].dwValue)) != SOCKET_ERROR) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
@@ -2781,7 +2781,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
     case ws_recvfrom:
     {
         int    iSrcAddrLen;
-        struct sockaddr FAR *pSrcAddr = MyAlloc(dwBigBufSize);
+        struct sockaddr FAR* pSrcAddr = MyAlloc(dwBigBufSize);
         FUNC_PARAM params[] =
         {
             { gszSocket,            PT_DWORD,       (ULONG_PTR)gpSelectedSocket->Sock, NULL },
@@ -2799,19 +2799,19 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
 
         if (LetUserMungeParams(&paramsHeader)) {
             if ((i = recvfrom((SOCKET)params[0].dwValue,
-                (char FAR *) params[1].dwValue,
+                (char FAR*) params[1].dwValue,
                               (int)params[2].dwValue,
                               (int)params[3].dwValue,
-                              (struct sockaddr FAR *) params[4].dwValue,
-                              (int FAR *) params[5].dwValue))
+                              (struct sockaddr FAR*) params[4].dwValue,
+                              (int FAR*) params[5].dwValue))
                 != SOCKET_ERROR) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowStr("  NumByteReceived=x%x", i);
                 ShowStr("  *pBuf=");
                 ShowBytes(i, (LPVOID)params[1].dwValue, 1);
-                ShowStr("  *lpiSourceAddrLength=%d", (DWORD) *((int *)params[5].dwValue));
+                ShowStr("  *lpiSourceAddrLength=%d", (DWORD) * ((int*)params[5].dwValue));
                 ShowStr("  *lpSourceAddr=");
-                ShowBytes(*((int *)params[5].dwValue), (LPVOID)params[4].dwValue, 1);
+                ShowBytes(*((int*)params[5].dwValue), (LPVOID)params[4].dwValue, 1);
             } else {
                 ShowError(funcIndex, 0);
             }
@@ -2836,7 +2836,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
 
         if (LetUserMungeParams(&paramsHeader)) {
             if ((i = send((SOCKET)params[0].dwValue,
-                (char FAR *) params[1].dwValue,
+                (char FAR*) params[1].dwValue,
                           (int)params[2].dwValue,
                           (int)params[3].dwValue)) != SOCKET_ERROR) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
@@ -2851,7 +2851,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
     case ws_sendto:
     {
         int    iTargetAddrLen;
-        struct sockaddr FAR *pTargetAddr = MyAlloc(dwBigBufSize);
+        struct sockaddr FAR* pTargetAddr = MyAlloc(dwBigBufSize);
         FUNC_PARAM params[] =
         {
             { gszSocket,            PT_DWORD,   (ULONG_PTR)gpSelectedSocket->Sock, NULL },
@@ -2866,10 +2866,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         if (LetUserMungeParams(&paramsHeader)) {
             if ((i = sendto(
                 (SOCKET)params[0].dwValue,
-                (char FAR *) params[1].dwValue,
+                (char FAR*) params[1].dwValue,
                 (int)params[2].dwValue,
                 (int)params[3].dwValue,
-                (struct sockaddr FAR *) params[4].dwValue,
+                (struct sockaddr FAR*) params[4].dwValue,
                 (int)params[5].dwValue
             )) != SOCKET_ERROR) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
@@ -2898,7 +2898,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
             if ((i = setsockopt((SOCKET)params[0].dwValue,
                 (int)params[1].dwValue,
                                 (int)params[2].dwValue,
-                                (char FAR *) params[3].dwValue,
+                                (char FAR*) params[3].dwValue,
                                 (int)params[4].dwValue)) == 0) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
             } else if (i == SOCKET_ERROR) {
@@ -2992,15 +2992,15 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
             SOCKET s;
 
             if ((s = WSAAccept((SOCKET)params[0].dwValue,
-                (struct sockaddr FAR *) params[1].dwValue,
+                (struct sockaddr FAR*) params[1].dwValue,
                                (LPINT)params[2].dwValue,
                                (LPCONDITIONPROC)params[3].dwValue,
                                params[4].dwValue)) != INVALID_SOCKET) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowStr("  returned socket=x%x", s);
 
-                if (params[1].dwValue  && params[2].dwValue  && *((LPINT)params[2].dwValue)) {
-                    struct sockaddr FAR *pSockAddr = (struct sockaddr FAR *) params[1].dwValue;
+                if (params[1].dwValue && params[2].dwValue && *((LPINT)params[2].dwValue)) {
+                    struct sockaddr FAR* pSockAddr = (struct sockaddr FAR*) params[1].dwValue;
 
                     ShowStr("  lpAddr->AddressFamily=%d, %s",
                         (DWORD)pSockAddr->sa_family,
@@ -3094,10 +3094,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
             if (LetUserMungeParams(&paramsHeader)) {
                 if ((pAsyncReqInfo->hRequest = WSAAsyncGetHostByAddr((HWND)params[0].dwValue,
                     (unsigned int)params[1].dwValue,
-                                                                     (char FAR *) params[2].dwValue,
+                                                                     (char FAR*) params[2].dwValue,
                                                                      (int)params[3].dwValue,
                                                                      (int)params[4].dwValue,
-                                                                     (char FAR *) params[5].dwValue,
+                                                                     (char FAR*) params[5].dwValue,
                                                                      (int)params[6].dwValue))) {
                     ShowStr("%s returned hRequest=x%x", aFuncNames[funcIndex], pAsyncReqInfo->hRequest);
                     pAsyncReqInfo->pszFuncName = aFuncNames[funcIndex];
@@ -3135,8 +3135,8 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
             if (LetUserMungeParams(&paramsHeader)) {
                 if ((pAsyncReqInfo->hRequest = WSAAsyncGetHostByName((HWND)params[0].dwValue,
                     (unsigned int)params[1].dwValue,
-                                                                     (char FAR *) params[2].dwValue,
-                                                                     (char FAR *) params[3].dwValue,
+                                                                     (char FAR*) params[2].dwValue,
+                                                                     (char FAR*) params[3].dwValue,
                                                                      (int)params[4].dwValue))) {
                     ShowStr("%s returned hRequest=x%x", aFuncNames[funcIndex], pAsyncReqInfo->hRequest);
                     pAsyncReqInfo->pszFuncName = aFuncNames[funcIndex];
@@ -3174,8 +3174,8 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
             if (LetUserMungeParams(&paramsHeader)) {
                 if ((pAsyncReqInfo->hRequest = WSAAsyncGetProtoByName((HWND)params[0].dwValue,
                     (unsigned int)params[1].dwValue,
-                                                                      (char FAR *) params[2].dwValue,
-                                                                      (char FAR *) params[3].dwValue,
+                                                                      (char FAR*) params[2].dwValue,
+                                                                      (char FAR*) params[3].dwValue,
                                                                       (int)params[4].dwValue))) {
                     ShowStr("%s returned hRequest=x%x", aFuncNames[funcIndex], pAsyncReqInfo->hRequest);
                     pAsyncReqInfo->pszFuncName = aFuncNames[funcIndex];
@@ -3211,7 +3211,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
                 if ((pAsyncReqInfo->hRequest = WSAAsyncGetProtoByNumber((HWND)params[0].dwValue,
                     (unsigned int)params[1].dwValue,
                                                                         (int)params[2].dwValue,
-                                                                        (char FAR *) params[3].dwValue,
+                                                                        (char FAR*) params[3].dwValue,
                                                                         (int)params[4].dwValue))) {
                     ShowStr("%s returned hRequest=x%x", aFuncNames[funcIndex], pAsyncReqInfo->hRequest);
                     pAsyncReqInfo->pszFuncName = aFuncNames[funcIndex];
@@ -3252,9 +3252,9 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
             if (LetUserMungeParams(&paramsHeader)) {
                 if ((pAsyncReqInfo->hRequest = WSAAsyncGetServByName((HWND)params[0].dwValue,
                     (unsigned int)params[1].dwValue,
-                                                                     (char FAR *) params[2].dwValue,
-                                                                     (char FAR *) params[3].dwValue,
-                                                                     (char FAR *) params[4].dwValue,
+                                                                     (char FAR*) params[2].dwValue,
+                                                                     (char FAR*) params[3].dwValue,
+                                                                     (char FAR*) params[4].dwValue,
                                                                      (int)params[5].dwValue))) {
                     ShowStr("%s returned hRequest=x%x", aFuncNames[funcIndex], pAsyncReqInfo->hRequest);
                     pAsyncReqInfo->pszFuncName = aFuncNames[funcIndex];
@@ -3294,8 +3294,8 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
                 if ((pAsyncReqInfo->hRequest = WSAAsyncGetServByPort((HWND)params[0].dwValue,
                     (unsigned int)params[1].dwValue,
                                                                      (int)params[2].dwValue,
-                                                                     (char FAR *) params[3].dwValue,
-                                                                     (char FAR *) params[4].dwValue,
+                                                                     (char FAR*) params[3].dwValue,
+                                                                     (char FAR*) params[4].dwValue,
                                                                      (int)params[5].dwValue))) {
                     ShowStr("%s returned hRequest=x%x", aFuncNames[funcIndex], pAsyncReqInfo->hRequest);
                     pAsyncReqInfo->pszFuncName = aFuncNames[funcIndex];
@@ -3837,7 +3837,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
 
         if (LetUserMungeParams(&paramsHeader)) {
             pQOSName->len = (u_long)params[2].dwValue;
-            pQOSName->buf = (char FAR *) params[3].dwValue;
+            pQOSName->buf = (char FAR*) params[3].dwValue;
 
             if (WSAGetQOSByName((SOCKET)params[0].dwValue, (LPWSABUF)params[1].dwValue, (LPQOS)params[4].dwValue) == TRUE) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
@@ -4011,10 +4011,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         if (LetUserMungeParams(&paramsHeader)) {
             if ((i = WSAHtonl((SOCKET)params[0].dwValue,
                 (u_long)params[1].dwValue,
-                              (u_long *)params[2].dwValue)) == 0) {
+                              (u_long*)params[2].dwValue)) == 0) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowStr("  hostLong=x%x", params[1].dwValue);
-                ShowStr("  *lpNetLong=x%x", *((u_long *)params[2].dwValue));
+                ShowStr("  *lpNetLong=x%x", *((u_long*)params[2].dwValue));
             } else if (i == SOCKET_ERROR) {
                 ShowError(funcIndex, 0);
             } else {
@@ -4038,10 +4038,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         if (LetUserMungeParams(&paramsHeader)) {
             if ((i = WSAHtons((SOCKET)params[0].dwValue,
                 (u_short)params[1].dwValue,
-                              (u_short *)params[2].dwValue)) == 0) {
+                              (u_short*)params[2].dwValue)) == 0) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowStr("  hostShort=x%x", (DWORD)LOWORD(params[1].dwValue));
-                ShowStr("  *lpNetShort=x%x", (DWORD) *((u_short *)params[2].dwValue));
+                ShowStr("  *lpNetShort=x%x", (DWORD) * ((u_short*)params[2].dwValue));
             } else if (i == SOCKET_ERROR) {
                 ShowError(funcIndex, 0);
             } else {
@@ -4268,10 +4268,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         if (LetUserMungeParams(&paramsHeader)) {
             if ((i = WSANtohl((SOCKET)params[0].dwValue,
                 (u_long)params[1].dwValue,
-                              (u_long *)params[2].dwValue)) == 0) {
+                              (u_long*)params[2].dwValue)) == 0) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowStr("  netLong=x%x", params[1].dwValue);
-                ShowStr("  *lpHostLong=x%x", *((u_long *)params[2].dwValue));
+                ShowStr("  *lpHostLong=x%x", *((u_long*)params[2].dwValue));
             } else if (i == SOCKET_ERROR) {
                 ShowError(funcIndex, 0);
             } else {
@@ -4295,10 +4295,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         if (LetUserMungeParams(&paramsHeader)) {
             if ((i = WSANtohs((SOCKET)params[0].dwValue,
                 (u_short)params[1].dwValue,
-                              (u_short *)params[2].dwValue)) == 0) {
+                              (u_short*)params[2].dwValue)) == 0) {
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
                 ShowStr("  netShort=x%x", (DWORD)LOWORD(params[1].dwValue));
-                ShowStr("  *lpHostShort=x%x", (DWORD) *((u_short *)params[2].dwValue));
+                ShowStr("  *lpHostShort=x%x", (DWORD) * ((u_short*)params[2].dwValue));
             } else if (i == SOCKET_ERROR) {
                 ShowError(funcIndex, 0);
             } else {
@@ -4929,7 +4929,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
 
             if (i >= 0) {
                 char            szProtoInfoN[20], buf[36];
-                PROTOCOL_INFO   *pInfo;
+                PROTOCOL_INFO* pInfo;
 
                 UpdateResults(TRUE);
 
@@ -4937,7 +4937,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
                 ShowStr("iResult=%d", i);
                 ShowStr("*lpdwBufferLength=x%x", *((LPDWORD)params[2].dwValue));
 
-                for (j = 0, pInfo = (PROTOCOL_INFO *)params[1].dwValue; j < i; j++, pInfo++) {
+                for (j = 0, pInfo = (PROTOCOL_INFO*)params[1].dwValue; j < i; j++, pInfo++) {
                     wsprintf(szProtoInfoN, "  protoInfo[%d].", j);
 
                     wsprintf(buf, "%sdwServiceFlags", szProtoInfoN);
@@ -4965,7 +4965,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
                         ShowBytes((lstrlenA(pInfo->lpProtocol) + 1) * sizeof(CHAR), pInfo->lpProtocol, 2);
                     } else {
                         ShowStr("%s*lpProtocol=%ws", szProtoInfoN, pInfo->lpProtocol);
-                        ShowBytes((lstrlenW((WCHAR *)pInfo->lpProtocol) + 1) * sizeof(WCHAR), pInfo->lpProtocol, 2);
+                        ShowBytes((lstrlenW((WCHAR*)pInfo->lpProtocol) + 1) * sizeof(WCHAR), pInfo->lpProtocol, 2);
                     }
                 }
 
@@ -4985,7 +4985,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         GUID    guid[2];
         WCHAR   szSvcName[MAX_STRING_PARAM_SIZE] = L"";
         INT     aiProtocols[32];
-        char    *pBigBuf2 = (char *)LocalAlloc(LPTR, dwBigBufSize);
+        char* pBigBuf2 = (char*)LocalAlloc(LPTR, dwBigBufSize);
         DWORD   dwCsaddrBufLen = dwBigBufSize, dwAliasBufLen = dwBigBufSize;
         FUNC_PARAM params[] =
         {
@@ -5029,7 +5029,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
 
             if (i >= 0) {
                 char        szAddrInfoN[20];
-                CSADDR_INFO *pInfo;
+                CSADDR_INFO* pInfo;
 
                 UpdateResults(TRUE);
 
@@ -5038,7 +5038,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
 
                 ShowStr("*lpdwCsaddrBufLen=x%x", *((LPDWORD)params[7].dwValue));
 
-                for (j = 0, pInfo = (CSADDR_INFO *)params[6].dwValue; j < i; j++, pInfo++) {
+                for (j = 0, pInfo = (CSADDR_INFO*)params[6].dwValue; j < i; j++, pInfo++) {
                     wsprintf(szAddrInfoN, "  addrInfo[%d].", j);
 
                     ShowStr("%sLocalAddr.lpSockaddr=x%x", szAddrInfoN, pInfo->LocalAddr.lpSockaddr);
@@ -5097,9 +5097,9 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
 
                 if (funcIndex == ws_GetNameByTypeA) {
-                    ShowStr("*lpServiceName=%s", (char *)params[1].dwValue);
+                    ShowStr("*lpServiceName=%s", (char*)params[1].dwValue);
                 } else {
-                    ShowStr("*lpServiceName=%ws", (char *)params[1].dwValue);
+                    ShowStr("*lpServiceName=%ws", (char*)params[1].dwValue);
                 }
             } else {
                 ShowError(funcIndex, 0);
@@ -5145,8 +5145,8 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
 
             if (i >= 0) {
                 char            szSvcInfoN[20], buf[36];
-                SERVICE_INFO    *pInfo;
-                SERVICE_ADDRESS *pAddr;
+                SERVICE_INFO* pInfo;
+                SERVICE_ADDRESS* pAddr;
 
                 UpdateResults(TRUE);
 
@@ -5154,7 +5154,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
                 ShowStr("iResult=%d", i);
                 ShowStr("*lpdwBufLen=x%x", *((LPDWORD)params[5].dwValue));
 
-                for (j = 0, pInfo = (SERVICE_INFO *)params[4].dwValue; j < i; j++, pInfo++) {
+                for (j = 0, pInfo = (SERVICE_INFO*)params[4].dwValue; j < i; j++, pInfo++) {
                     wsprintf(szSvcInfoN, "  svcInfo[%d].", j);
                     wsprintf(buf, "%slpServiceType=");
                     ShowGUID(buf, pInfo->lpServiceType);
@@ -5271,7 +5271,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
 }
 
 
-void FAR ShowHostEnt(struct hostent *phe)
+void FAR ShowHostEnt(struct hostent* phe)
 {
     DWORD i, j;
 
@@ -5286,7 +5286,7 @@ void FAR ShowHostEnt(struct hostent *phe)
     ShowStr("  ->h_length=%x", (DWORD)phe->h_length);
 
     for (i = 0; *(phe->h_addr_list + i); i++) {
-        char far *pAddr = *(phe->h_addr_list + i);
+        char far* pAddr = *(phe->h_addr_list + i);
 
         if (phe->h_addrtype == AF_INET) {
             ShowStr("  ->h_addr_list[%d]=", i);
@@ -5298,7 +5298,7 @@ void FAR ShowHostEnt(struct hostent *phe)
 }
 
 
-void FAR ShowProtoEnt(struct protoent *ppe)
+void FAR ShowProtoEnt(struct protoent* ppe)
 {
     DWORD   i;
 
@@ -5313,7 +5313,7 @@ void FAR ShowProtoEnt(struct protoent *ppe)
 }
 
 
-void FAR ShowServEnt(struct servent *pse)
+void FAR ShowServEnt(struct servent* pse)
 {
     DWORD   i;
 
@@ -5360,7 +5360,7 @@ PASYNC_REQUEST_INFO PASCAL DequeueAsyncRequestInfo(HANDLE  hRequest)
 }
 
 
-void PASCAL ShowModBytes(DWORD dwSize, unsigned char far  *lpc, char  *pszTab, char *buf)
+void PASCAL ShowModBytes(DWORD dwSize, unsigned char far* lpc, char* pszTab, char* buf)
 {
     DWORD dwSize2 = dwSize, i, j, k;
 
@@ -5399,7 +5399,7 @@ void PASCAL ShowModBytes(DWORD dwSize, unsigned char far  *lpc, char  *pszTab, c
     buf[k + i] = 0;
 
     ShowStr(buf);
-    }
+}
 
 
 void UpdateResults(BOOL bBegin)
@@ -5463,7 +5463,7 @@ void PASCAL ShowBytes(DWORD dwSize, LPVOID  lp, DWORD dwNumTabs)
     char    buf[80];
     DWORD   i, j, k, dwNumDWORDs, dwMod4 = (DWORD)(((ULONG_PTR)lp) % 4);
     LPDWORD lpdw;
-    unsigned char far *lpc = (unsigned char far *) lp;
+    unsigned char far* lpc = (unsigned char far*) lp;
 
     UpdateResults(TRUE);
 
@@ -5516,7 +5516,7 @@ void PASCAL ShowBytes(DWORD dwSize, LPVOID  lp, DWORD dwNumTabs)
 }
 
 
-void PASCAL ShowFlags(DWORD dwValue, char FAR *pszValueName, PLOOKUP pLookup)
+void PASCAL ShowFlags(DWORD dwValue, char FAR* pszValueName, PLOOKUP pLookup)
 {
     char     buf[80];
     DWORD    i;
@@ -5561,7 +5561,7 @@ LPSTR PASCAL GetStringFromOrdinalValue(DWORD   dwValue, PLOOKUP pLookup)
 }
 
 
-VOID PASCAL ShowGUID(char *pszProlog, GUID *pGuid)
+VOID PASCAL ShowGUID(char* pszProlog, GUID* pGuid)
 {
     ShowStr("%s%08x %04x %04x %02x%02x%02x%02x%02x%02x%02x%02x",
         (ULONG_PTR)pszProlog,
@@ -5584,21 +5584,21 @@ VOID PASCAL ShowGUID(char *pszProlog, GUID *pGuid)
 
         ShowStr("    (%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x)",
             (DWORD)*p,
-                (DWORD) *(p + 1),
-                (DWORD) *(p + 2),
-                (DWORD) *(p + 3),
-                (DWORD) *(p + 4),
-                (DWORD) *(p + 5),
-                (DWORD) *(p + 6),
-                (DWORD) *(p + 7),
-                (DWORD) *(p + 8),
-                (DWORD) *(p + 9),
-                (DWORD) *(p + 10),
-                (DWORD) *(p + 11),
-                (DWORD) *(p + 12),
-                (DWORD) *(p + 13),
-                (DWORD) *(p + 14),
-                (DWORD) *(p + 15));
+                (DWORD) * (p + 1),
+                (DWORD) * (p + 2),
+                (DWORD) * (p + 3),
+                (DWORD) * (p + 4),
+                (DWORD) * (p + 5),
+                (DWORD) * (p + 6),
+                (DWORD) * (p + 7),
+                (DWORD) * (p + 8),
+                (DWORD) * (p + 9),
+                (DWORD) * (p + 10),
+                (DWORD) * (p + 11),
+                (DWORD) * (p + 12),
+                (DWORD) * (p + 13),
+                (DWORD) * (p + 14),
+                (DWORD) * (p + 15));
     }
 }
 

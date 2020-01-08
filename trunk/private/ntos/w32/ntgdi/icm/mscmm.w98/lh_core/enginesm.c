@@ -84,7 +84,7 @@ LH_UINT32 ein_regM;
 LH_UINT32 ein_regC;
 LH_UINT32 ein_regK;
 LH_DATA_IN_TYPE ein_cache[4];
-LH_LUT_DATA_TYPE * paNewVal0;
+LH_LUT_DATA_TYPE* paNewVal0;
 LH_UINT32 ako0;
 LH_UINT32 ako1;
 LH_UINT32 ako2;
@@ -94,21 +94,21 @@ LH_UINT8 Mode;
 LH_UINT32 PixelCount, LineCount, i, j;
 LH_UINT8 LH_DATA_OUT_COUNT;
 long inputOffset, outputOffset;
-LH_DATA_IN_TYPE * input0 = (LH_DATA_IN_TYPE *)calcParam->inputData[0];
-LH_DATA_IN_TYPE * input1 = (LH_DATA_IN_TYPE *)calcParam->inputData[1];
-LH_DATA_IN_TYPE * input2 = (LH_DATA_IN_TYPE *)calcParam->inputData[2];
-LH_DATA_IN_TYPE * input3 = (LH_DATA_IN_TYPE *)calcParam->inputData[3];
-LH_DATA_IN_TYPE * input4 = (LH_DATA_IN_TYPE *)calcParam->inputData[4];
+LH_DATA_IN_TYPE* input0 = (LH_DATA_IN_TYPE*)calcParam->inputData[0];
+LH_DATA_IN_TYPE* input1 = (LH_DATA_IN_TYPE*)calcParam->inputData[1];
+LH_DATA_IN_TYPE* input2 = (LH_DATA_IN_TYPE*)calcParam->inputData[2];
+LH_DATA_IN_TYPE* input3 = (LH_DATA_IN_TYPE*)calcParam->inputData[3];
+LH_DATA_IN_TYPE* input4 = (LH_DATA_IN_TYPE*)calcParam->inputData[4];
 
-LH_DATA_OUT_TYPE * output0 = (LH_DATA_OUT_TYPE *)calcParam->outputData[0];
-LH_DATA_OUT_TYPE * output1 = (LH_DATA_OUT_TYPE *)calcParam->outputData[1];
-LH_DATA_OUT_TYPE * output2 = (LH_DATA_OUT_TYPE *)calcParam->outputData[2];
-LH_DATA_OUT_TYPE * output3 = (LH_DATA_OUT_TYPE *)calcParam->outputData[3];
-LH_DATA_OUT_TYPE * output4 = (LH_DATA_OUT_TYPE *)calcParam->outputData[4];
+LH_DATA_OUT_TYPE* output0 = (LH_DATA_OUT_TYPE*)calcParam->outputData[0];
+LH_DATA_OUT_TYPE* output1 = (LH_DATA_OUT_TYPE*)calcParam->outputData[1];
+LH_DATA_OUT_TYPE* output2 = (LH_DATA_OUT_TYPE*)calcParam->outputData[2];
+LH_DATA_OUT_TYPE* output3 = (LH_DATA_OUT_TYPE*)calcParam->outputData[3];
+LH_DATA_OUT_TYPE* output4 = (LH_DATA_OUT_TYPE*)calcParam->outputData[4];
 
-LH_UINT16 * My_InputLut = (LH_UINT16 *)lutParam->inputLut;
-LH_LUT_DATA_TYPE * My_OutputLut = (LH_LUT_DATA_TYPE *)lutParam->outputLut;
-LH_LUT_DATA_TYPE * My_ColorLut = (LH_LUT_DATA_TYPE *)lutParam->colorLut;
+LH_UINT16* My_InputLut = (LH_UINT16*)lutParam->inputLut;
+LH_LUT_DATA_TYPE* My_OutputLut = (LH_LUT_DATA_TYPE*)lutParam->outputLut;
+LH_LUT_DATA_TYPE* My_ColorLut = (LH_LUT_DATA_TYPE*)lutParam->colorLut;
 
 LH_DATA_OUT_TYPE Mask = (LH_DATA_OUT_TYPE)-1;
 
@@ -246,10 +246,10 @@ while (LineCount) {
         ein_regK = My_InputLut[(ein_cache[3] = *input3) + (3 << LH_ADR_BREIT_EIN_LUT)];
 #endif
 #endif
-        paNewVal0 = (LH_LUT_DATA_TYPE *)My_ColorLut +
+        paNewVal0 = (LH_LUT_DATA_TYPE*)My_ColorLut +
             ((((((((ein_regC & LH_BIT_MASKE_ADR) << LH_BIT_BREIT_ADR) + (ein_regM & LH_BIT_MASKE_ADR)) << LH_BIT_BREIT_ADR) +
             (ein_regY & LH_BIT_MASKE_ADR)) >> (LH_BIT_BREIT_SELEKTOR - LH_BIT_BREIT_ADR)) +
-                (ein_regK >> LH_BIT_BREIT_SELEKTOR))*LH_DATA_OUT_COUNT);
+                (ein_regK >> LH_BIT_BREIT_SELEKTOR))* LH_DATA_OUT_COUNT);
         ein_regC &= LH_BIT_MASKE_SELEKTOR;
         ein_regM &= LH_BIT_MASKE_SELEKTOR;
         ein_regY &= LH_BIT_MASKE_SELEKTOR;
@@ -534,21 +534,21 @@ while (LineCount) {
         aVal = (ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regC + 0] + ako2 * paNewVal0[ein_regM + 0] + ako3 * paNewVal0[ein_regY + 0] + ein_regK * paNewVal0[var_1_1_1_1 + 0]);
         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
         aVal = (ako0 * paNewVal0[1] + ako1 * paNewVal0[ein_regC + 1] + ako2 * paNewVal0[ein_regM + 1] + ako3 * paNewVal0[ein_regY + 1] + ein_regK * paNewVal0[var_1_1_1_1 + 1]);
         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
         aVal = (ako0 * paNewVal0[2] + ako1 * paNewVal0[ein_regC + 2] + ako2 * paNewVal0[ein_regM + 2] + ako3 * paNewVal0[ein_regY + 2] + ein_regK * paNewVal0[var_1_1_1_1 + 2]);
         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -556,14 +556,14 @@ while (LineCount) {
             aVal = (ako0 * paNewVal0[3] + ako1 * paNewVal0[ein_regC + 3] + ako2 * paNewVal0[ein_regM + 3] + ako3 * paNewVal0[ein_regY + 3] + ein_regK * paNewVal0[var_1_1_1_1 + 3]);
             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
         }
 
 #else
-        *output0 = My_OutputLut[((ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regC + 0] + ako2 * paNewVal0[ein_regM + 0] + ako3 * paNewVal0[ein_regY + 0] +
-                                  ein_regK * paNewVal0[var_1_1_1_1 + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+        * output0 = My_OutputLut[((ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regC + 0] + ako2 * paNewVal0[ein_regM + 0] + ako3 * paNewVal0[ein_regY + 0] +
+                                   ein_regK * paNewVal0[var_1_1_1_1 + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
         *output1 = My_OutputLut[((ako0 * paNewVal0[1] + ako1 * paNewVal0[ein_regC + 1] + ako2 * paNewVal0[ein_regM + 1] + ako3 * paNewVal0[ein_regY + 1] +
                                   ein_regK * paNewVal0[var_1_1_1_1 + 1]) >> LH_DATA_SHR) + (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
         *output2 = My_OutputLut[((ako0 * paNewVal0[2] + ako1 * paNewVal0[ein_regC + 2] + ako2 * paNewVal0[ein_regM + 2] + ako3 * paNewVal0[ein_regY + 2] +
@@ -575,8 +575,8 @@ while (LineCount) {
 #endif
 
 #else
-        *output0 = My_OutputLut[((ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regC + 0] + ako2 * paNewVal0[ein_regM + 0] + ako3 * paNewVal0[ein_regY + 0] +
-                                  ein_regK * paNewVal0[var_1_1_1_1 + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)];
+        * output0 = My_OutputLut[((ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regC + 0] + ako2 * paNewVal0[ein_regM + 0] + ako3 * paNewVal0[ein_regY + 0] +
+                                   ein_regK * paNewVal0[var_1_1_1_1 + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)];
         *output1 = My_OutputLut[((ako0 * paNewVal0[1] + ako1 * paNewVal0[ein_regC + 1] + ako2 * paNewVal0[ein_regM + 1] + ako3 * paNewVal0[ein_regY + 1] +
                                   ein_regK * paNewVal0[var_1_1_1_1 + 1]) >> LH_DATA_SHR) + (1 << LH_ADR_BREIT_AUS_LUT)];
         *output2 = My_OutputLut[((ako0 * paNewVal0[2] + ako1 * paNewVal0[ein_regC + 2] + ako2 * paNewVal0[ein_regM + 2] + ako3 * paNewVal0[ein_regY + 2] +
@@ -588,7 +588,7 @@ while (LineCount) {
 #endif
 
 #if LH_DATA_OUT_SIZE_16 && ! LH_LUT_DATA_SIZE_16
-        *output0 |= (*output0 << 8);
+        * output0 |= (*output0 << 8);
         *output1 |= (*output1 << 8);
         *output2 |= (*output2 << 8);
         if (LH_DATA_OUT_COUNT_4) {
@@ -687,18 +687,18 @@ while (LineCount) {
     }
     if (--LineCount) {
         j++;
-        input0 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[0] + j * calcParam->cmInputBytesPerLine);
-        input1 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[1] + j * calcParam->cmInputBytesPerLine);
-        input2 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[2] + j * calcParam->cmInputBytesPerLine);
-        input3 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[3] + j * calcParam->cmInputBytesPerLine);
-        input4 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[4] + j * calcParam->cmInputBytesPerLine);
+        input0 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[0] + j * calcParam->cmInputBytesPerLine);
+        input1 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[1] + j * calcParam->cmInputBytesPerLine);
+        input2 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[2] + j * calcParam->cmInputBytesPerLine);
+        input3 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[3] + j * calcParam->cmInputBytesPerLine);
+        input4 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[4] + j * calcParam->cmInputBytesPerLine);
 
-        output0 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[0] + j * calcParam->cmOutputBytesPerLine);
-        output1 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[1] + j * calcParam->cmOutputBytesPerLine);
-        output2 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[2] + j * calcParam->cmOutputBytesPerLine);
-        output3 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[3] + j * calcParam->cmOutputBytesPerLine);
+        output0 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[0] + j * calcParam->cmOutputBytesPerLine);
+        output1 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[1] + j * calcParam->cmOutputBytesPerLine);
+        output2 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[2] + j * calcParam->cmOutputBytesPerLine);
+        output3 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[3] + j * calcParam->cmOutputBytesPerLine);
         if (LH_DATA_OUT_COUNT_4) {
-            output4 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[4] + j * calcParam->cmOutputBytesPerLine);
+            output4 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[4] + j * calcParam->cmOutputBytesPerLine);
         }
     }
 }
@@ -709,7 +709,7 @@ LH_UINT32 ein_regY;
 LH_UINT32 ein_regM;
 LH_UINT32 ein_regC;
 LH_UINT32 ein_regK;
-LH_LUT_DATA_TYPE * paNewVal0;
+LH_LUT_DATA_TYPE* paNewVal0;
 LH_UINT32 ako0;
 LH_UINT32 ako1;
 LH_UINT32 ako2;
@@ -719,21 +719,21 @@ LH_UINT8 Mode;
 LH_UINT32 PixelCount, LineCount, i, j;
 LH_UINT8 LH_DATA_OUT_COUNT;
 long inputOffset, outputOffset;
-LH_DATA_IN_TYPE * input0 = (LH_DATA_IN_TYPE *)calcParam->inputData[0];
-LH_DATA_IN_TYPE * input1 = (LH_DATA_IN_TYPE *)calcParam->inputData[1];
-LH_DATA_IN_TYPE * input2 = (LH_DATA_IN_TYPE *)calcParam->inputData[2];
-LH_DATA_IN_TYPE * input3 = (LH_DATA_IN_TYPE *)calcParam->inputData[3];
-LH_DATA_IN_TYPE * input4 = (LH_DATA_IN_TYPE *)calcParam->inputData[4];
+LH_DATA_IN_TYPE* input0 = (LH_DATA_IN_TYPE*)calcParam->inputData[0];
+LH_DATA_IN_TYPE* input1 = (LH_DATA_IN_TYPE*)calcParam->inputData[1];
+LH_DATA_IN_TYPE* input2 = (LH_DATA_IN_TYPE*)calcParam->inputData[2];
+LH_DATA_IN_TYPE* input3 = (LH_DATA_IN_TYPE*)calcParam->inputData[3];
+LH_DATA_IN_TYPE* input4 = (LH_DATA_IN_TYPE*)calcParam->inputData[4];
 
-LH_DATA_OUT_TYPE * output0 = (LH_DATA_OUT_TYPE *)calcParam->outputData[0];
-LH_DATA_OUT_TYPE * output1 = (LH_DATA_OUT_TYPE *)calcParam->outputData[1];
-LH_DATA_OUT_TYPE * output2 = (LH_DATA_OUT_TYPE *)calcParam->outputData[2];
-LH_DATA_OUT_TYPE * output3 = (LH_DATA_OUT_TYPE *)calcParam->outputData[3];
-LH_DATA_OUT_TYPE * output4 = (LH_DATA_OUT_TYPE *)calcParam->outputData[4];
+LH_DATA_OUT_TYPE* output0 = (LH_DATA_OUT_TYPE*)calcParam->outputData[0];
+LH_DATA_OUT_TYPE* output1 = (LH_DATA_OUT_TYPE*)calcParam->outputData[1];
+LH_DATA_OUT_TYPE* output2 = (LH_DATA_OUT_TYPE*)calcParam->outputData[2];
+LH_DATA_OUT_TYPE* output3 = (LH_DATA_OUT_TYPE*)calcParam->outputData[3];
+LH_DATA_OUT_TYPE* output4 = (LH_DATA_OUT_TYPE*)calcParam->outputData[4];
 
-LH_UINT16 * My_InputLut = (LH_UINT16 *)lutParam->inputLut;
-LH_LUT_DATA_TYPE * My_OutputLut = (LH_LUT_DATA_TYPE *)lutParam->outputLut;
-LH_LUT_DATA_TYPE * My_ColorLut = (LH_LUT_DATA_TYPE *)lutParam->colorLut;
+LH_UINT16* My_InputLut = (LH_UINT16*)lutParam->inputLut;
+LH_LUT_DATA_TYPE* My_OutputLut = (LH_LUT_DATA_TYPE*)lutParam->outputLut;
+LH_LUT_DATA_TYPE* My_ColorLut = (LH_LUT_DATA_TYPE*)lutParam->colorLut;
 
 LH_DATA_OUT_TYPE Mask = (LH_DATA_OUT_TYPE)-1;
 
@@ -853,9 +853,9 @@ while (LineCount) {
         ein_regK = My_InputLut[(ein_cache[3] = *input3) + (3 << LH_ADR_BREIT_EIN_LUT)];
 #endif
 #endif
-        paNewVal0 = (LH_LUT_DATA_TYPE *)My_ColorLut +
+        paNewVal0 = (LH_LUT_DATA_TYPE*)My_ColorLut +
             ((((((((ein_regC & LH_BIT_MASKE_ADR) << LH_BIT_BREIT_ADR) + (ein_regM & LH_BIT_MASKE_ADR)) << LH_BIT_BREIT_ADR) +
-            (ein_regY & LH_BIT_MASKE_ADR)) >> (LH_BIT_BREIT_SELEKTOR - LH_BIT_BREIT_ADR)) + (ein_regK >> LH_BIT_BREIT_SELEKTOR))*LH_DATA_OUT_COUNT);
+            (ein_regY & LH_BIT_MASKE_ADR)) >> (LH_BIT_BREIT_SELEKTOR - LH_BIT_BREIT_ADR)) + (ein_regK >> LH_BIT_BREIT_SELEKTOR))* LH_DATA_OUT_COUNT);
         ein_regC &= LH_BIT_MASKE_SELEKTOR;
         ein_regM &= LH_BIT_MASKE_SELEKTOR;
         ein_regY &= LH_BIT_MASKE_SELEKTOR;
@@ -879,7 +879,7 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -890,7 +890,7 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -901,7 +901,7 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -913,17 +913,17 @@ while (LineCount) {
                                     ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -944,11 +944,11 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -983,7 +983,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -994,7 +994,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1005,7 +1005,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1017,18 +1017,18 @@ while (LineCount) {
                                     ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -1052,12 +1052,12 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -1095,7 +1095,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1106,7 +1106,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1117,7 +1117,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1129,18 +1129,18 @@ while (LineCount) {
                                     ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -1164,12 +1164,12 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -1206,7 +1206,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1217,7 +1217,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1228,7 +1228,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1240,18 +1240,18 @@ while (LineCount) {
                                     ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -1275,12 +1275,12 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -1319,7 +1319,7 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1330,7 +1330,7 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1341,7 +1341,7 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1353,18 +1353,18 @@ while (LineCount) {
                                     ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -1388,12 +1388,12 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -1431,7 +1431,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1442,7 +1442,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1453,7 +1453,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1465,18 +1465,18 @@ while (LineCount) {
                                     ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -1500,12 +1500,12 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -1543,7 +1543,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1554,7 +1554,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1565,7 +1565,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1577,17 +1577,17 @@ while (LineCount) {
                                     ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -1608,11 +1608,11 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -1646,7 +1646,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1657,7 +1657,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1668,7 +1668,7 @@ while (LineCount) {
                                 ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1680,17 +1680,17 @@ while (LineCount) {
                                     ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -1711,11 +1711,11 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regC * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -1752,7 +1752,7 @@ while (LineCount) {
                             ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1763,7 +1763,7 @@ while (LineCount) {
                             ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1774,7 +1774,7 @@ while (LineCount) {
                             ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1786,29 +1786,29 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                              (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
@@ -1821,12 +1821,12 @@ while (LineCount) {
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)];
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)];
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -1837,7 +1837,7 @@ while (LineCount) {
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)];
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
@@ -1864,7 +1864,7 @@ while (LineCount) {
                             ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1875,7 +1875,7 @@ while (LineCount) {
                             ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1886,7 +1886,7 @@ while (LineCount) {
                             ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1898,65 +1898,65 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                   (3 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     }
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                              (0 << LH_ADR_BREIT_AUS_LUT)];
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)];
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)];
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)];
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                   (3 << LH_ADR_BREIT_AUS_LUT)];
                     }
 #endif
@@ -1976,7 +1976,7 @@ while (LineCount) {
                             ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1987,7 +1987,7 @@ while (LineCount) {
                             ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -1998,7 +1998,7 @@ while (LineCount) {
                             ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2010,23 +2010,23 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                              (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
@@ -2045,12 +2045,12 @@ while (LineCount) {
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                              (0 << LH_ADR_BREIT_AUS_LUT)];
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)];
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -2087,7 +2087,7 @@ while (LineCount) {
                             ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2098,7 +2098,7 @@ while (LineCount) {
                             ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2109,7 +2109,7 @@ while (LineCount) {
                             ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2121,18 +2121,18 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -2143,7 +2143,7 @@ while (LineCount) {
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
@@ -2156,12 +2156,12 @@ while (LineCount) {
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                              (0 << LH_ADR_BREIT_AUS_LUT)];
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)];
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -2179,7 +2179,7 @@ while (LineCount) {
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                   (3 << LH_ADR_BREIT_AUS_LUT)];
                     }
 #endif
@@ -2203,7 +2203,7 @@ while (LineCount) {
                             ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2214,7 +2214,7 @@ while (LineCount) {
                             ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2225,7 +2225,7 @@ while (LineCount) {
                             ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2237,52 +2237,52 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                   (3 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     }
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)];
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)];
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)];
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
@@ -2295,7 +2295,7 @@ while (LineCount) {
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                   (3 << LH_ADR_BREIT_AUS_LUT)];
                     }
 #endif
@@ -2315,7 +2315,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2326,7 +2326,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2337,7 +2337,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2349,18 +2349,18 @@ while (LineCount) {
                                 ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -2384,17 +2384,17 @@ while (LineCount) {
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                              (0 << LH_ADR_BREIT_AUS_LUT)];
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)];
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)];
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
@@ -2407,7 +2407,7 @@ while (LineCount) {
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
-                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                   (3 << LH_ADR_BREIT_AUS_LUT)];
                     }
 #endif
@@ -2427,7 +2427,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2438,7 +2438,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2449,7 +2449,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2461,29 +2461,29 @@ while (LineCount) {
                                 ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
@@ -2496,23 +2496,23 @@ while (LineCount) {
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)];
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)];
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)];
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)];
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
@@ -2538,7 +2538,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2549,7 +2549,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2560,7 +2560,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2572,47 +2572,47 @@ while (LineCount) {
                                 ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
-                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                   (3 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     }
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)];
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)];
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -2623,7 +2623,7 @@ while (LineCount) {
                                               ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)];
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
@@ -2653,7 +2653,7 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2664,7 +2664,7 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2675,7 +2675,7 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2687,52 +2687,52 @@ while (LineCount) {
                                     ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                                   (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                                   (2 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         if (LH_DATA_OUT_COUNT_4) {
                             *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
                                                       ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
-                                                      ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                      ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                       (3 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         }
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                                   (1 << LH_ADR_BREIT_AUS_LUT)];
                         *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
@@ -2745,7 +2745,7 @@ while (LineCount) {
                                                       ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
-                                                      ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                      ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                       (3 << LH_ADR_BREIT_AUS_LUT)];
                         }
 #endif
@@ -2765,7 +2765,7 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2776,7 +2776,7 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2787,7 +2787,7 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2799,18 +2799,18 @@ while (LineCount) {
                                     ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -2828,23 +2828,23 @@ while (LineCount) {
                                                       ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
-                                                      ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                      ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                       (3 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         }
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                                   (1 << LH_ADR_BREIT_AUS_LUT)];
                         *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
@@ -2877,7 +2877,7 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2888,7 +2888,7 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2899,7 +2899,7 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2911,18 +2911,18 @@ while (LineCount) {
                                     ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -2946,30 +2946,30 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                                   (1 << LH_ADR_BREIT_AUS_LUT)];
                         *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                                   (2 << LH_ADR_BREIT_AUS_LUT)];
                         if (LH_DATA_OUT_COUNT_4) {
                             *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
                                                       ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
-                                                      ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                      ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                       (3 << LH_ADR_BREIT_AUS_LUT)];
                         }
 #endif
@@ -2988,7 +2988,7 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -2999,7 +2999,7 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3010,7 +3010,7 @@ while (LineCount) {
                                 ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3022,18 +3022,18 @@ while (LineCount) {
                                     ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -3051,18 +3051,18 @@ while (LineCount) {
                                                       ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
-                                                      ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                      ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                       (3 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         }
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                                  (0 << LH_ADR_BREIT_AUS_LUT)];
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                                   (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -3080,7 +3080,7 @@ while (LineCount) {
                                                       ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
-                                                      ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                      ein_regM * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                       (3 << LH_ADR_BREIT_AUS_LUT)];
                         }
 #endif
@@ -3101,7 +3101,7 @@ while (LineCount) {
                             ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3112,7 +3112,7 @@ while (LineCount) {
                             ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3123,7 +3123,7 @@ while (LineCount) {
                             ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3135,18 +3135,18 @@ while (LineCount) {
                                 ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -3164,18 +3164,18 @@ while (LineCount) {
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                   (3 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     }
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
-                                              (0 << LH_ADR_BREIT_AUS_LUT)];
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)];
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
@@ -3186,14 +3186,14 @@ while (LineCount) {
                                               ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)];
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
-                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                  ein_regK * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                   (3 << LH_ADR_BREIT_AUS_LUT)];
                     }
 #endif
@@ -3213,7 +3213,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3224,7 +3224,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3235,7 +3235,7 @@ while (LineCount) {
                             ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3247,58 +3247,58 @@ while (LineCount) {
                                 ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                              (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 3] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
-                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) + 
+                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) +
                                                   (3 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     }
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                              ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) + 
-                                              (0 << LH_ADR_BREIT_AUS_LUT)];
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                               ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) +
+                                               (0 << LH_ADR_BREIT_AUS_LUT)];
                     *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                               ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) +
                                               (1 << LH_ADR_BREIT_AUS_LUT)];
                     *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                               ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
                                               ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
-                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) + 
+                                              ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]) >> LH_DATA_SHR) +
                                               (2 << LH_ADR_BREIT_AUS_LUT)];
                     if (LH_DATA_OUT_COUNT_4) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[3] +
@@ -3326,7 +3326,7 @@ while (LineCount) {
                                 ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3337,7 +3337,7 @@ while (LineCount) {
                                 ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3348,7 +3348,7 @@ while (LineCount) {
                                 ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3360,23 +3360,23 @@ while (LineCount) {
                                     ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) 
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) 
+                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR)
                             + (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
@@ -3395,17 +3395,17 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) 
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) 
+                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR)
                             + (1 << LH_ADR_BREIT_AUS_LUT)];
                         *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                                   ako1 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT) + 2] +
@@ -3437,7 +3437,7 @@ while (LineCount) {
                                 ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3448,7 +3448,7 @@ while (LineCount) {
                                 ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3459,7 +3459,7 @@ while (LineCount) {
                                 ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3471,23 +3471,23 @@ while (LineCount) {
                                     ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR) 
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
-                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR) 
+                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1]) >> LH_DATA_SHR)
                             + (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         *output2 = My_OutputLut[((ako0 * paNewVal0[2] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 2] +
@@ -3500,17 +3500,17 @@ while (LineCount) {
                                                       ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
                                                       ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3] +
-                                                      ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR) 
+                                                      ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 3]) >> LH_DATA_SHR)
                                 + (3 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         }
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
-                                                  ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR)
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako2 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ako3 * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0] +
+                                                   ein_regY * paNewVal0[(((((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 0]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)];
                         *output1 = My_OutputLut[((ako0 * paNewVal0[1] +
                                                   ako1 * paNewVal0[(((((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT) + 1] +
@@ -3538,7 +3538,7 @@ while (LineCount) {
             }
         }
 #if LH_DATA_OUT_SIZE_16 && ! LH_LUT_DATA_SIZE_16
-        *output0 |= (*output0 << 8);
+        * output0 |= (*output0 << 8);
         *output1 |= (*output1 << 8);
         *output2 |= (*output2 << 8);
         if (LH_DATA_OUT_COUNT_4) {
@@ -3637,18 +3637,18 @@ while (LineCount) {
     }
     if (--LineCount) {
         j++;
-        input0 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[0] + j * calcParam->cmInputBytesPerLine);
-        input1 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[1] + j * calcParam->cmInputBytesPerLine);
-        input2 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[2] + j * calcParam->cmInputBytesPerLine);
-        input3 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[3] + j * calcParam->cmInputBytesPerLine);
-        input4 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[4] + j * calcParam->cmInputBytesPerLine);
+        input0 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[0] + j * calcParam->cmInputBytesPerLine);
+        input1 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[1] + j * calcParam->cmInputBytesPerLine);
+        input2 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[2] + j * calcParam->cmInputBytesPerLine);
+        input3 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[3] + j * calcParam->cmInputBytesPerLine);
+        input4 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[4] + j * calcParam->cmInputBytesPerLine);
 
-        output0 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[0] + j * calcParam->cmOutputBytesPerLine);
-        output1 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[1] + j * calcParam->cmOutputBytesPerLine);
-        output2 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[2] + j * calcParam->cmOutputBytesPerLine);
-        output3 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[3] + j * calcParam->cmOutputBytesPerLine);
+        output0 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[0] + j * calcParam->cmOutputBytesPerLine);
+        output1 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[1] + j * calcParam->cmOutputBytesPerLine);
+        output2 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[2] + j * calcParam->cmOutputBytesPerLine);
+        output3 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[3] + j * calcParam->cmOutputBytesPerLine);
         if (LH_DATA_OUT_COUNT_4) {
-            output4 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[4] + j * calcParam->cmOutputBytesPerLine);
+            output4 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[4] + j * calcParam->cmOutputBytesPerLine);
         }
     }
 }
@@ -3669,7 +3669,7 @@ while (LineCount) {
     LH_UINT32 ein_regg;
     LH_UINT32 ein_regr;
     LH_DATA_IN_TYPE ein_cache[3];
-    LH_LUT_DATA_TYPE * paNewVal0;
+    LH_LUT_DATA_TYPE* paNewVal0;
     LH_UINT32 ako0;
     LH_UINT32 ako1;
     LH_UINT32 ako2;
@@ -3677,18 +3677,18 @@ while (LineCount) {
     LH_UINT32 PixelCount, LineCount, i, j;
     LH_UINT8 LH_DATA_OUT_COUNT;
     long inputOffset, outputOffset;
-    LH_DATA_IN_TYPE * input0 = (LH_DATA_IN_TYPE *)calcParam->inputData[0];
-    LH_DATA_IN_TYPE * input1 = (LH_DATA_IN_TYPE *)calcParam->inputData[1];
-    LH_DATA_IN_TYPE * input2 = (LH_DATA_IN_TYPE *)calcParam->inputData[2];
-    LH_DATA_IN_TYPE * input3 = (LH_DATA_IN_TYPE *)calcParam->inputData[3];
-    LH_DATA_OUT_TYPE * output0 = (LH_DATA_OUT_TYPE *)calcParam->outputData[0];
-    LH_DATA_OUT_TYPE * output1 = (LH_DATA_OUT_TYPE *)calcParam->outputData[1];
-    LH_DATA_OUT_TYPE * output2 = (LH_DATA_OUT_TYPE *)calcParam->outputData[2];
-    LH_DATA_OUT_TYPE * output3 = (LH_DATA_OUT_TYPE *)calcParam->outputData[3];
-    LH_DATA_OUT_TYPE * output4 = (LH_DATA_OUT_TYPE *)calcParam->outputData[4];
-    LH_UINT16 * My_InputLut = (LH_UINT16 *)lutParam->inputLut;
-    LH_LUT_DATA_TYPE * My_OutputLut = (LH_LUT_DATA_TYPE *)lutParam->outputLut;
-    LH_LUT_DATA_TYPE * My_ColorLut = (LH_LUT_DATA_TYPE *)lutParam->colorLut;
+    LH_DATA_IN_TYPE* input0 = (LH_DATA_IN_TYPE*)calcParam->inputData[0];
+    LH_DATA_IN_TYPE* input1 = (LH_DATA_IN_TYPE*)calcParam->inputData[1];
+    LH_DATA_IN_TYPE* input2 = (LH_DATA_IN_TYPE*)calcParam->inputData[2];
+    LH_DATA_IN_TYPE* input3 = (LH_DATA_IN_TYPE*)calcParam->inputData[3];
+    LH_DATA_OUT_TYPE* output0 = (LH_DATA_OUT_TYPE*)calcParam->outputData[0];
+    LH_DATA_OUT_TYPE* output1 = (LH_DATA_OUT_TYPE*)calcParam->outputData[1];
+    LH_DATA_OUT_TYPE* output2 = (LH_DATA_OUT_TYPE*)calcParam->outputData[2];
+    LH_DATA_OUT_TYPE* output3 = (LH_DATA_OUT_TYPE*)calcParam->outputData[3];
+    LH_DATA_OUT_TYPE* output4 = (LH_DATA_OUT_TYPE*)calcParam->outputData[4];
+    LH_UINT16* My_InputLut = (LH_UINT16*)lutParam->inputLut;
+    LH_LUT_DATA_TYPE* My_OutputLut = (LH_LUT_DATA_TYPE*)lutParam->outputLut;
+    LH_LUT_DATA_TYPE* My_ColorLut = (LH_LUT_DATA_TYPE*)lutParam->colorLut;
     LH_DATA_OUT_TYPE Mask = (LH_DATA_OUT_TYPE)-1;
 #ifdef DEBUG_OUTPUT
     CMError err = noErr;
@@ -3725,7 +3725,7 @@ while (LineCount) {
         Mask = 0;
     Mode = LH_CALC_ENGINE_UNDEF_MODE;
 
-    if ((calcParam->cmInputPixelOffset * calcParam->cmPixelPerLine == calcParam->cmInputBytesPerLine) && 
+    if ((calcParam->cmInputPixelOffset * calcParam->cmPixelPerLine == calcParam->cmInputBytesPerLine) &&
         (calcParam->cmOutputPixelOffset * calcParam->cmPixelPerLine == calcParam->cmOutputBytesPerLine)) {
         PixelCount = calcParam->cmPixelPerLine * calcParam->cmLineCount;
         LineCount = 1;
@@ -3802,8 +3802,8 @@ while (LineCount) {
             ein_regb = My_InputLut[(ein_cache[2] = *input2) + (2 << LH_ADR_BREIT_EIN_LUT)];
 #endif
 #endif
-            paNewVal0 = (LH_LUT_DATA_TYPE *)My_ColorLut +
-                ((((((ein_regr & LH_BIT_MASKE_ADR) << LH_BIT_BREIT_ADR) + (ein_regg & LH_BIT_MASKE_ADR)) >> (LH_BIT_BREIT_SELEKTOR - LH_BIT_BREIT_ADR)) + (ein_regb >> LH_BIT_BREIT_SELEKTOR))*LH_DATA_OUT_COUNT);
+            paNewVal0 = (LH_LUT_DATA_TYPE*)My_ColorLut +
+                ((((((ein_regr & LH_BIT_MASKE_ADR) << LH_BIT_BREIT_ADR) + (ein_regg & LH_BIT_MASKE_ADR)) >> (LH_BIT_BREIT_SELEKTOR - LH_BIT_BREIT_ADR)) + (ein_regb >> LH_BIT_BREIT_SELEKTOR))* LH_DATA_OUT_COUNT);
             ein_regr &= LH_BIT_MASKE_SELEKTOR;
             ein_regg &= LH_BIT_MASKE_SELEKTOR;
             ein_regb &= LH_BIT_MASKE_SELEKTOR;
@@ -3862,7 +3862,7 @@ while (LineCount) {
             aVal = (ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regr] + ako2 * paNewVal0[ein_regg] + ein_regb * paNewVal0[var_1_1_1]);
             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
             aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
             *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3870,7 +3870,7 @@ while (LineCount) {
             aVal = (ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regr] + ako2 * paNewVal0[ein_regg] + ein_regb * paNewVal0[var_1_1_1]);
             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
             aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
             *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3878,7 +3878,7 @@ while (LineCount) {
             aVal = (ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regr] + ako2 * paNewVal0[ein_regg] + ein_regb * paNewVal0[var_1_1_1]);
             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
             aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
             *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -3887,13 +3887,13 @@ while (LineCount) {
                 aVal = (ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regr] + ako2 * paNewVal0[ein_regg] + ein_regb * paNewVal0[var_1_1_1]);
                 aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                 aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                 aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                 *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
             }
 #else
-            *output0 = My_OutputLut[((ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regr] + ako2 * paNewVal0[ein_regg] +
-                                      ein_regb * paNewVal0[var_1_1_1]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
+            * output0 = My_OutputLut[((ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regr] + ako2 * paNewVal0[ein_regg] +
+                                       ein_regb * paNewVal0[var_1_1_1]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
             paNewVal0++;
             *output1 = My_OutputLut[((ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regr] + ako2 * paNewVal0[ein_regg] +
                                       ein_regb * paNewVal0[var_1_1_1]) >> LH_DATA_SHR) + (1 << LH_ADR_BREIT_AUS_LUT)] >> 8;
@@ -3909,8 +3909,8 @@ while (LineCount) {
 
 #else
 
-            *output0 = My_OutputLut[((ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regr] + ako2 * paNewVal0[ein_regg] +
-                                      ein_regb * paNewVal0[var_1_1_1]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)];
+            * output0 = My_OutputLut[((ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regr] + ako2 * paNewVal0[ein_regg] +
+                                       ein_regb * paNewVal0[var_1_1_1]) >> LH_DATA_SHR) + (0 << LH_ADR_BREIT_AUS_LUT)];
 
             paNewVal0++;
             *output1 = My_OutputLut[((ako0 * paNewVal0[0] + ako1 * paNewVal0[ein_regr] + ako2 * paNewVal0[ein_regg] +
@@ -3930,7 +3930,7 @@ while (LineCount) {
 #endif
 
 #if LH_DATA_OUT_SIZE_16 && ! LH_LUT_DATA_SIZE_16
-            *output0 |= (*output0 << 8);
+            * output0 |= (*output0 << 8);
             *output1 |= (*output1 << 8);
             *output2 |= (*output2 << 8);
             if (LH_DATA_OUT_COUNT_4) {
@@ -4026,17 +4026,17 @@ while (LineCount) {
         }
         if (--LineCount) {
             j++;
-            input0 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[0] + j * calcParam->cmInputBytesPerLine);
-            input1 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[1] + j * calcParam->cmInputBytesPerLine);
-            input2 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[2] + j * calcParam->cmInputBytesPerLine);
-            input3 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[3] + j * calcParam->cmInputBytesPerLine);
+            input0 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[0] + j * calcParam->cmInputBytesPerLine);
+            input1 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[1] + j * calcParam->cmInputBytesPerLine);
+            input2 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[2] + j * calcParam->cmInputBytesPerLine);
+            input3 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[3] + j * calcParam->cmInputBytesPerLine);
 
-            output0 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[0] + j * calcParam->cmOutputBytesPerLine);
-            output1 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[1] + j * calcParam->cmOutputBytesPerLine);
-            output2 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[2] + j * calcParam->cmOutputBytesPerLine);
-            output3 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[3] + j * calcParam->cmOutputBytesPerLine);
+            output0 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[0] + j * calcParam->cmOutputBytesPerLine);
+            output1 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[1] + j * calcParam->cmOutputBytesPerLine);
+            output2 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[2] + j * calcParam->cmOutputBytesPerLine);
+            output3 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[3] + j * calcParam->cmOutputBytesPerLine);
             if (LH_DATA_OUT_COUNT_4) {
-                output4 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[4] + j * calcParam->cmOutputBytesPerLine);
+                output4 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[4] + j * calcParam->cmOutputBytesPerLine);
             }
         }
     }
@@ -4046,7 +4046,7 @@ while (LineCount) {
     LH_UINT32 ein_regb;
     LH_UINT32 ein_regg;
     LH_UINT32 ein_regr;
-    LH_LUT_DATA_TYPE * paNewVal0;
+    LH_LUT_DATA_TYPE* paNewVal0;
     LH_UINT32 ako0;
     LH_UINT32 ako1;
     LH_UINT32 ako2;
@@ -4055,20 +4055,20 @@ while (LineCount) {
     LH_UINT32 PixelCount, LineCount, i, j;
     LH_UINT8 LH_DATA_OUT_COUNT;
     long inputOffset, outputOffset;
-    LH_DATA_IN_TYPE * input0 = (LH_DATA_IN_TYPE *)calcParam->inputData[0];
-    LH_DATA_IN_TYPE * input1 = (LH_DATA_IN_TYPE *)calcParam->inputData[1];
-    LH_DATA_IN_TYPE * input2 = (LH_DATA_IN_TYPE *)calcParam->inputData[2];
-    LH_DATA_IN_TYPE * input3 = (LH_DATA_IN_TYPE *)calcParam->inputData[3];
+    LH_DATA_IN_TYPE* input0 = (LH_DATA_IN_TYPE*)calcParam->inputData[0];
+    LH_DATA_IN_TYPE* input1 = (LH_DATA_IN_TYPE*)calcParam->inputData[1];
+    LH_DATA_IN_TYPE* input2 = (LH_DATA_IN_TYPE*)calcParam->inputData[2];
+    LH_DATA_IN_TYPE* input3 = (LH_DATA_IN_TYPE*)calcParam->inputData[3];
 
-    LH_DATA_OUT_TYPE * output0 = (LH_DATA_OUT_TYPE *)calcParam->outputData[0];
-    LH_DATA_OUT_TYPE * output1 = (LH_DATA_OUT_TYPE *)calcParam->outputData[1];
-    LH_DATA_OUT_TYPE * output2 = (LH_DATA_OUT_TYPE *)calcParam->outputData[2];
-    LH_DATA_OUT_TYPE * output3 = (LH_DATA_OUT_TYPE *)calcParam->outputData[3];
-    LH_DATA_OUT_TYPE * output4 = (LH_DATA_OUT_TYPE *)calcParam->outputData[4];
+    LH_DATA_OUT_TYPE* output0 = (LH_DATA_OUT_TYPE*)calcParam->outputData[0];
+    LH_DATA_OUT_TYPE* output1 = (LH_DATA_OUT_TYPE*)calcParam->outputData[1];
+    LH_DATA_OUT_TYPE* output2 = (LH_DATA_OUT_TYPE*)calcParam->outputData[2];
+    LH_DATA_OUT_TYPE* output3 = (LH_DATA_OUT_TYPE*)calcParam->outputData[3];
+    LH_DATA_OUT_TYPE* output4 = (LH_DATA_OUT_TYPE*)calcParam->outputData[4];
 
-    LH_UINT16 * My_InputLut = (LH_UINT16 *)lutParam->inputLut;
-    LH_LUT_DATA_TYPE * My_OutputLut = (LH_LUT_DATA_TYPE *)lutParam->outputLut;
-    LH_LUT_DATA_TYPE * My_ColorLut = (LH_LUT_DATA_TYPE *)lutParam->colorLut;
+    LH_UINT16* My_InputLut = (LH_UINT16*)lutParam->inputLut;
+    LH_LUT_DATA_TYPE* My_OutputLut = (LH_LUT_DATA_TYPE*)lutParam->outputLut;
+    LH_LUT_DATA_TYPE* My_ColorLut = (LH_LUT_DATA_TYPE*)lutParam->colorLut;
 
     LH_DATA_OUT_TYPE Mask = (LH_DATA_OUT_TYPE)-1;
 
@@ -4097,7 +4097,7 @@ while (LineCount) {
         Mask = 0;
     Mode = LH_CALC_ENGINE_UNDEF_MODE;
 
-    if ((calcParam->cmInputPixelOffset * calcParam->cmPixelPerLine == calcParam->cmInputBytesPerLine) && 
+    if ((calcParam->cmInputPixelOffset * calcParam->cmPixelPerLine == calcParam->cmInputBytesPerLine) &&
         (calcParam->cmOutputPixelOffset * calcParam->cmPixelPerLine == calcParam->cmOutputBytesPerLine)) {
         PixelCount = calcParam->cmPixelPerLine * calcParam->cmLineCount;
         LineCount = 1;
@@ -4174,8 +4174,8 @@ while (LineCount) {
             ein_regb = My_InputLut[(ein_cache[2] = *input2) + (2 << LH_ADR_BREIT_EIN_LUT)];
 #endif
 #endif
-            paNewVal0 = (LH_LUT_DATA_TYPE *)My_ColorLut +
-                ((((((ein_regr & LH_BIT_MASKE_ADR) << LH_BIT_BREIT_ADR) + (ein_regg & LH_BIT_MASKE_ADR)) >> (LH_BIT_BREIT_SELEKTOR - LH_BIT_BREIT_ADR)) + (ein_regb >> LH_BIT_BREIT_SELEKTOR))*LH_DATA_OUT_COUNT);
+            paNewVal0 = (LH_LUT_DATA_TYPE*)My_ColorLut +
+                ((((((ein_regr & LH_BIT_MASKE_ADR) << LH_BIT_BREIT_ADR) + (ein_regg & LH_BIT_MASKE_ADR)) >> (LH_BIT_BREIT_SELEKTOR - LH_BIT_BREIT_ADR)) + (ein_regb >> LH_BIT_BREIT_SELEKTOR))* LH_DATA_OUT_COUNT);
             ein_regr &= LH_BIT_MASKE_SELEKTOR;
             ein_regg &= LH_BIT_MASKE_SELEKTOR;
             ein_regb &= LH_BIT_MASKE_SELEKTOR;
@@ -4194,7 +4194,7 @@ while (LineCount) {
                                 ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4205,7 +4205,7 @@ while (LineCount) {
                                 ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4216,7 +4216,7 @@ while (LineCount) {
                                 ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4228,16 +4228,16 @@ while (LineCount) {
                                     ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                                  ako2 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                                  ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                                   ako2 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                                   ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         paNewVal0++;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4262,10 +4262,10 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                                  ako2 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                                  ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                                   ako2 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                                   ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)];
                         paNewVal0++;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4301,7 +4301,7 @@ while (LineCount) {
                                 ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4312,7 +4312,7 @@ while (LineCount) {
                                 ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4323,7 +4323,7 @@ while (LineCount) {
                                 ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4335,16 +4335,16 @@ while (LineCount) {
                                     ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                                  ako2 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                                  ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                                   ako2 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                                   ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         paNewVal0++;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4369,10 +4369,10 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                                  ako2 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                                  ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                                   ako2 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                                   ein_regr * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)];
                         paNewVal0++;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4409,7 +4409,7 @@ while (LineCount) {
                             ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4420,7 +4420,7 @@ while (LineCount) {
                             ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4431,7 +4431,7 @@ while (LineCount) {
                             ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4443,16 +4443,16 @@ while (LineCount) {
                                 ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                              ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                              ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR) 
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                               ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                               ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                         + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     paNewVal0++;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4477,10 +4477,10 @@ while (LineCount) {
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                              ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                              ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                               ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                               ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                         + (0 << LH_ADR_BREIT_AUS_LUT)];
                     paNewVal0++;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4492,7 +4492,7 @@ while (LineCount) {
                     *output2 = My_OutputLut[((ako0 * paNewVal0[0] +
                                               ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
                                               ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                              ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR) 
+                                              ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                         + (2 << LH_ADR_BREIT_AUS_LUT)];
                     if (LH_DATA_OUT_COUNT_4) {
                         paNewVal0++;
@@ -4518,7 +4518,7 @@ while (LineCount) {
                             ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                     *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4529,7 +4529,7 @@ while (LineCount) {
                             ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                     *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4540,7 +4540,7 @@ while (LineCount) {
                             ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                     aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                     aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                    ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                    ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                     aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                     *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4552,16 +4552,16 @@ while (LineCount) {
                                 ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                         *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                     }
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                              ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                              ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                               ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                               ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                         + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     paNewVal0++;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4580,16 +4580,16 @@ while (LineCount) {
                         *output3 = My_OutputLut[((ako0 * paNewVal0[0] +
                                                   ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
                                                   ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                                  ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR) 
+                                                  ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                             + (3 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                     }
 #endif
 
 #else
-                    *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                              ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                              ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                              ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
+                    * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                               ako1 * paNewVal0[(((((0 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                               ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                               ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                         + (0 << LH_ADR_BREIT_AUS_LUT)];
                     paNewVal0++;
                     *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4626,7 +4626,7 @@ while (LineCount) {
                                 ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4637,7 +4637,7 @@ while (LineCount) {
                                 ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4648,7 +4648,7 @@ while (LineCount) {
                                 ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4660,16 +4660,16 @@ while (LineCount) {
                                     ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                                  ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                                  ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                                   ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                                   ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         paNewVal0++;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4694,10 +4694,10 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                                  ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
-                                                  ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                                   ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)] +
+                                                   ein_regg * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)];
                         paNewVal0++;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4733,7 +4733,7 @@ while (LineCount) {
                                 ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (0 << LH_ADR_BREIT_AUS_LUT);
                         *output0 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4744,7 +4744,7 @@ while (LineCount) {
                                 ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (1 << LH_ADR_BREIT_AUS_LUT);
                         *output1 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4755,7 +4755,7 @@ while (LineCount) {
                                 ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                         aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                         aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                        ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                        ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                         aVal = (aVal >> (LH_DATA_SHR)) + (2 << LH_ADR_BREIT_AUS_LUT);
                         *output2 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
 
@@ -4767,16 +4767,16 @@ while (LineCount) {
                                     ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]);
                             aVal = aVal + (aVal >> (LH_LUT_DATA_SHR));
                             aVal = aVal - (aVal >> (LH_ADR_BREIT_AUS_LUT));
-                            ko = (aVal >> LH_DATA_SHR_CORR) & ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
+                            ko = (aVal >> LH_DATA_SHR_CORR)& ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - 1);
                             aVal = (aVal >> (LH_DATA_SHR)) + (3 << LH_ADR_BREIT_AUS_LUT);
                             *output3 = (LH_DATA_OUT_TYPE)((My_OutputLut[aVal] * ((1 << (LH_DATA_SHR - LH_DATA_SHR_CORR)) - ko) + My_OutputLut[aVal + 1] * ko) >> (LH_DATA_SHR - LH_DATA_SHR_CORR));
                         }
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                                  ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                                  ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                                   ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                                   ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)] >> 8;
                         paNewVal0++;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4801,10 +4801,10 @@ while (LineCount) {
 #endif
 
 #else
-                        *output0 = My_OutputLut[((ako0 * paNewVal0[0] +
-                                                  ako1 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                                  ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
-                                                  ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
+                        * output0 = My_OutputLut[((ako0 * paNewVal0[0] +
+                                                   ako1 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 0) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                                   ako2 * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 0) * LH_DATA_OUT_COUNT)] +
+                                                   ein_regb * paNewVal0[(((((1 << LH_BIT_BREIT_ADR) | 1) << LH_BIT_BREIT_ADR) | 1) * LH_DATA_OUT_COUNT)]) >> LH_DATA_SHR)
                             + (0 << LH_ADR_BREIT_AUS_LUT)];
                         paNewVal0++;
                         *output1 = My_OutputLut[((ako0 * paNewVal0[0] +
@@ -4831,7 +4831,7 @@ while (LineCount) {
                 }
             }
 #if LH_DATA_OUT_SIZE_16 && ! LH_LUT_DATA_SIZE_16
-            *output0 |= (*output0 << 8);
+            * output0 |= (*output0 << 8);
             *output1 |= (*output1 << 8);
             *output2 |= (*output2 << 8);
             if (LH_DATA_OUT_COUNT_4) {
@@ -4927,17 +4927,17 @@ while (LineCount) {
         }
         if (--LineCount) {
             j++;
-            input0 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[0] + j * calcParam->cmInputBytesPerLine);
-            input1 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[1] + j * calcParam->cmInputBytesPerLine);
-            input2 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[2] + j * calcParam->cmInputBytesPerLine);
-            input3 = (LH_DATA_IN_TYPE *)((LH_UINT8 *)calcParam->inputData[3] + j * calcParam->cmInputBytesPerLine);
+            input0 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[0] + j * calcParam->cmInputBytesPerLine);
+            input1 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[1] + j * calcParam->cmInputBytesPerLine);
+            input2 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[2] + j * calcParam->cmInputBytesPerLine);
+            input3 = (LH_DATA_IN_TYPE*)((LH_UINT8*)calcParam->inputData[3] + j * calcParam->cmInputBytesPerLine);
 
-            output0 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[0] + j * calcParam->cmOutputBytesPerLine);
-            output1 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[1] + j * calcParam->cmOutputBytesPerLine);
-            output2 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[2] + j * calcParam->cmOutputBytesPerLine);
-            output3 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[3] + j * calcParam->cmOutputBytesPerLine);
+            output0 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[0] + j * calcParam->cmOutputBytesPerLine);
+            output1 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[1] + j * calcParam->cmOutputBytesPerLine);
+            output2 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[2] + j * calcParam->cmOutputBytesPerLine);
+            output3 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[3] + j * calcParam->cmOutputBytesPerLine);
             if (LH_DATA_OUT_COUNT_4) {
-                output4 = (LH_DATA_OUT_TYPE *)((LH_UINT8 *)calcParam->outputData[4] + j * calcParam->cmOutputBytesPerLine);
+                output4 = (LH_DATA_OUT_TYPE*)((LH_UINT8*)calcParam->outputData[4] + j * calcParam->cmOutputBytesPerLine);
             }
         }
     }

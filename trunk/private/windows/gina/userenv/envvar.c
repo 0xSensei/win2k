@@ -45,15 +45,15 @@
 
 #define SYS_ENVVARS                TEXT("System\\CurrentControlSet\\Control\\Session Manager\\Environment")
 
-BOOL UpdateSystemEnvironment(PVOID *pEnv);
-BOOL SetEnvironmentVariableInBlock(PVOID *pEnv, LPTSTR lpVariable, LPTSTR lpValue, BOOL bOverwrite);
-BOOL GetUserNameAndDomain(HANDLE hToken, LPTSTR *UserName, LPTSTR *UserDomain);
-BOOL GetUserNameAndDomainSlowly(HANDLE hToken, LPTSTR *UserName, LPTSTR *UserDomain);
+BOOL UpdateSystemEnvironment(PVOID* pEnv);
+BOOL SetEnvironmentVariableInBlock(PVOID* pEnv, LPTSTR lpVariable, LPTSTR lpValue, BOOL bOverwrite);
+BOOL GetUserNameAndDomain(HANDLE hToken, LPTSTR* UserName, LPTSTR* UserDomain);
+BOOL GetUserNameAndDomainSlowly(HANDLE hToken, LPTSTR* UserName, LPTSTR* UserDomain);
 LPTSTR GetUserDNSDomainName(LPTSTR lpDomain);
-LONG GetHKeyCU(HANDLE hToken, HKEY *hKeyCU);
-BOOL ProcessAutoexec(PVOID *pEnv);
-BOOL AppendNTPathWithAutoexecPath(PVOID *pEnv, LPTSTR lpPathVariable, LPTSTR lpAutoexecPath);
-BOOL SetEnvironmentVariables(PVOID *pEnv, LPTSTR lpRegSubKey, HKEY hKeyCU);
+LONG GetHKeyCU(HANDLE hToken, HKEY* hKeyCU);
+BOOL ProcessAutoexec(PVOID* pEnv);
+BOOL AppendNTPathWithAutoexecPath(PVOID* pEnv, LPTSTR lpPathVariable, LPTSTR lpAutoexecPath);
+BOOL SetEnvironmentVariables(PVOID* pEnv, LPTSTR lpRegSubKey, HKEY hKeyCU);
 #ifdef _X86_
 BOOL IsPathIncludeRemovable(LPTSTR lpValue);
 #endif
@@ -78,12 +78,12 @@ BOOL IsPathIncludeRemovable(LPTSTR lpValue);
 
 //  History:    Date        Author     Comment
 //              6/19/96     ericflo    Created
-BOOL WINAPI CreateEnvironmentBlock (LPVOID *pEnv, HANDLE  hToken, BOOL bInherit)
+BOOL WINAPI CreateEnvironmentBlock(LPVOID* pEnv, HANDLE  hToken, BOOL bInherit)
 {
-    TCHAR szBuffer[MAX_PATH+1];
+    TCHAR szBuffer[MAX_PATH + 1];
     TCHAR szValue[1025];
     TCHAR szExpValue[1025];
-    DWORD dwBufferSize = MAX_PATH+1;
+    DWORD dwBufferSize = MAX_PATH + 1;
     NTSTATUS Status;
     LPTSTR UserName = NULL;
     LPTSTR UserDomain = NULL;
@@ -95,7 +95,7 @@ BOOL WINAPI CreateEnvironmentBlock (LPVOID *pEnv, HANDLE  hToken, BOOL bInherit)
 
     // Arg check
     if (!pEnv) {
-        SetLastError (ERROR_INVALID_PARAMETER);
+        SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
@@ -107,13 +107,11 @@ BOOL WINAPI CreateEnvironmentBlock (LPVOID *pEnv, HANDLE  hToken, BOOL bInherit)
     // First start by getting the systemroot and systemdrive values and
     // setting it in the new environment.
 
-    if ( GetEnvironmentVariable(SYSTEMROOT_VARIABLE, szBuffer, dwBufferSize) )
-    {
+    if (GetEnvironmentVariable(SYSTEMROOT_VARIABLE, szBuffer, dwBufferSize)) {
         SetEnvironmentVariableInBlock(pEnv, SYSTEMROOT_VARIABLE, szBuffer, TRUE);
     }
 
-    if ( GetEnvironmentVariable(SYSTEMDRIVE_VARIABLE, szBuffer, dwBufferSize) )
-    {
+    if (GetEnvironmentVariable(SYSTEMDRIVE_VARIABLE, szBuffer, dwBufferSize)) {
         SetEnvironmentVariableInBlock(pEnv, SYSTEMDRIVE_VARIABLE, szBuffer, TRUE);
     }
 
@@ -133,7 +131,7 @@ BOOL WINAPI CreateEnvironmentBlock (LPVOID *pEnv, HANDLE  hToken, BOOL bInherit)
 
     // Set the computername
     dwBufferSize = ARRAYSIZE(szBuffer);
-    if (GetComputerName (szBuffer, &dwBufferSize)) {
+    if (GetComputerName(szBuffer, &dwBufferSize)) {
         SetEnvironmentVariableInBlock(pEnv, COMPUTERNAME_VARIABLE, szBuffer, TRUE);
     }
 
@@ -144,34 +142,34 @@ BOOL WINAPI CreateEnvironmentBlock (LPVOID *pEnv, HANDLE  hToken, BOOL bInherit)
     }
 
     // Set the Program Files environment variable
-    if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, TEXT("Software\\Microsoft\\Windows\\CurrentVersion"), 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Microsoft\\Windows\\CurrentVersion"), 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
         dwSize = sizeof(szValue);
-        if (RegQueryValueEx (hKey, TEXT("ProgramFilesDir"), NULL, &dwType, (LPBYTE) szValue, &dwSize) == ERROR_SUCCESS) {
-            ExpandEnvironmentStrings (szValue, szExpValue, ARRAYSIZE(szExpValue));
+        if (RegQueryValueEx(hKey, TEXT("ProgramFilesDir"), NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS) {
+            ExpandEnvironmentStrings(szValue, szExpValue, ARRAYSIZE(szExpValue));
             SetEnvironmentVariableInBlock(pEnv, PROGRAMFILES_VARIABLE, szExpValue, TRUE);
         }
 
         dwSize = sizeof(szValue);
-        if (RegQueryValueEx (hKey, TEXT("CommonFilesDir"), NULL, &dwType, (LPBYTE) szValue, &dwSize) == ERROR_SUCCESS) {
-            ExpandEnvironmentStrings (szValue, szExpValue, ARRAYSIZE(szExpValue));
+        if (RegQueryValueEx(hKey, TEXT("CommonFilesDir"), NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS) {
+            ExpandEnvironmentStrings(szValue, szExpValue, ARRAYSIZE(szExpValue));
             SetEnvironmentVariableInBlock(pEnv, COMMONPROGRAMFILES_VARIABLE, szExpValue, TRUE);
         }
 
 #ifdef WX86
         dwSize = sizeof(szValue);
-        if (RegQueryValueEx (hKey, TEXT("ProgramFilesDir (x86)"), NULL, &dwType, (LPBYTE) szValue, &dwSize) == ERROR_SUCCESS) {
-            ExpandEnvironmentStrings (szValue, szExpValue, ARRAYSIZE(szExpValue));
+        if (RegQueryValueEx(hKey, TEXT("ProgramFilesDir (x86)"), NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS) {
+            ExpandEnvironmentStrings(szValue, szExpValue, ARRAYSIZE(szExpValue));
             SetEnvironmentVariableInBlock(pEnv, PROGRAMFILESX86_VARIABLE, szExpValue, TRUE);
         }
 
         dwSize = sizeof(szValue);
-        if (RegQueryValueEx (hKey, TEXT("CommonFilesDir (x86)"), NULL, &dwType, (LPBYTE) szValue, &dwSize) == ERROR_SUCCESS) {
-            ExpandEnvironmentStrings (szValue, szExpValue, ARRAYSIZE(szExpValue));
+        if (RegQueryValueEx(hKey, TEXT("CommonFilesDir (x86)"), NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS) {
+            ExpandEnvironmentStrings(szValue, szExpValue, ARRAYSIZE(szExpValue));
             SetEnvironmentVariableInBlock(pEnv, PROGRAMFILESX86_VARIABLE, szExpValue, TRUE);
         }
 #endif
 
-        RegCloseKey (hKey);
+        RegCloseKey(hKey);
     }
 
     // If hToken is NULL, we can exit now since the caller only wants
@@ -199,9 +197,9 @@ BOOL WINAPI CreateEnvironmentBlock (LPVOID *pEnv, HANDLE  hToken, BOOL bInherit)
         GetUserNameAndDomainSlowly(hToken, &UserName, &UserDomain);
     }
     UserDNSDomain = GetUserDNSDomainName(UserDomain);
-    SetEnvironmentVariableInBlock( pEnv, USERNAME_VARIABLE, UserName, TRUE);
-    SetEnvironmentVariableInBlock( pEnv, USERDOMAIN_VARIABLE, UserDomain, TRUE);
-    SetEnvironmentVariableInBlock( pEnv, USERDNSDOMAIN_VARIABLE, UserDNSDomain, TRUE);
+    SetEnvironmentVariableInBlock(pEnv, USERNAME_VARIABLE, UserName, TRUE);
+    SetEnvironmentVariableInBlock(pEnv, USERDOMAIN_VARIABLE, UserDomain, TRUE);
+    SetEnvironmentVariableInBlock(pEnv, USERDNSDOMAIN_VARIABLE, UserDNSDomain, TRUE);
     LocalFree(UserName);
     LocalFree(UserDomain);
     LocalFree(UserDNSDomain);
@@ -213,17 +211,17 @@ BOOL WINAPI CreateEnvironmentBlock (LPVOID *pEnv, HANDLE  hToken, BOOL bInherit)
     }
 
     // Process autoexec.bat
-    lstrcpy (szParseAutoexec, PARSE_AUTOEXEC_DEFAULT);
-    if (RegCreateKeyEx (hKeyCU, PARSE_AUTOEXEC_KEY, 0, 0, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hKey, &dwDisp) == ERROR_SUCCESS) {
+    lstrcpy(szParseAutoexec, PARSE_AUTOEXEC_DEFAULT);
+    if (RegCreateKeyEx(hKeyCU, PARSE_AUTOEXEC_KEY, 0, 0, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hKey, &dwDisp) == ERROR_SUCCESS) {
         // Query the current value.  If it doesn't exist, then add
         // the entry for next time.
-        dwBufferSize = sizeof (TCHAR) * MAX_PARSE_AUTOEXEC_BUFFER;
-        if (RegQueryValueEx (hKey, PARSE_AUTOEXEC_ENTRY, NULL, &dwType, (LPBYTE) szParseAutoexec, &dwBufferSize) != ERROR_SUCCESS) {
-            RegSetValueEx (hKey, PARSE_AUTOEXEC_ENTRY, 0, REG_SZ, (LPBYTE) szParseAutoexec, sizeof (TCHAR) * lstrlen (szParseAutoexec) + 1);// Set the default value
+        dwBufferSize = sizeof(TCHAR) * MAX_PARSE_AUTOEXEC_BUFFER;
+        if (RegQueryValueEx(hKey, PARSE_AUTOEXEC_ENTRY, NULL, &dwType, (LPBYTE)szParseAutoexec, &dwBufferSize) != ERROR_SUCCESS) {
+            RegSetValueEx(hKey, PARSE_AUTOEXEC_ENTRY, 0, REG_SZ, (LPBYTE)szParseAutoexec, sizeof(TCHAR) * lstrlen(szParseAutoexec) + 1);// Set the default value
         }
 
-        RegCloseKey (hKey);// Close key
-     }
+        RegCloseKey(hKey);// Close key
+    }
 
     // Process autoexec if appropriate
     if (szParseAutoexec[0] == TEXT('1')) {
@@ -233,7 +231,7 @@ BOOL WINAPI CreateEnvironmentBlock (LPVOID *pEnv, HANDLE  hToken, BOOL bInherit)
     SetEnvironmentVariables(pEnv, USER_ENV_SUBKEY, hKeyCU);// Set User environment variables.
     SetEnvironmentVariables(pEnv, USER_VOLATILE_ENV_SUBKEY, hKeyCU);// Set User volatile environment variables.
     AppendNTPathWithAutoexecPath(pEnv, PATH_VARIABLE, AUTOEXECPATH_VARIABLE);// Merge the paths
-    RegCloseKey (hKeyCU);
+    RegCloseKey(hKeyCU);
     return TRUE;
 }
 
@@ -257,11 +255,11 @@ BOOL WINAPI CreateEnvironmentBlock (LPVOID *pEnv, HANDLE  hToken, BOOL bInherit)
 
 
 
-BOOL WINAPI DestroyEnvironmentBlock (LPVOID lpEnvironment)
+BOOL WINAPI DestroyEnvironmentBlock(LPVOID lpEnvironment)
 {
 
     if (!lpEnvironment) {
-        SetLastError (ERROR_INVALID_PARAMETER);
+        SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
@@ -287,7 +285,7 @@ BOOL WINAPI DestroyEnvironmentBlock (LPVOID lpEnvironment)
 
 //  History:    Date        Author     Comment
 //              6/21/96     ericflo    Ported
-BOOL UpdateSystemEnvironment(PVOID *pEnv)
+BOOL UpdateSystemEnvironment(PVOID* pEnv)
 {
     HKEY KeyHandle;
     DWORD Result;
@@ -309,67 +307,67 @@ BOOL UpdateSystemEnvironment(PVOID *pEnv)
     DWORD ClassStringSize = MAX_PATH + 1;
     TCHAR Class[MAX_PATH + 1];
 
-    Result = RegOpenKeyEx (HKEY_LOCAL_MACHINE, SYS_ENVVARS, 0, KEY_QUERY_VALUE, &KeyHandle);
-    if ( Result != ERROR_SUCCESS ) {
-        DebugMsg((DM_WARNING, TEXT("UpdateSystemEnvironment:  RegOpenKeyEx failed, error = %d"),Result));
-        return( TRUE );
+    Result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, SYS_ENVVARS, 0, KEY_QUERY_VALUE, &KeyHandle);
+    if (Result != ERROR_SUCCESS) {
+        DebugMsg((DM_WARNING, TEXT("UpdateSystemEnvironment:  RegOpenKeyEx failed, error = %d"), Result));
+        return(TRUE);
     }
 
     Result = RegQueryInfoKey(
-                 KeyHandle,
-                 Class,              /* address of buffer for class string */
-                 &ClassStringSize,   /* address of size of class string buffer */
-                 NULL,               /* reserved */
-                 &junk,              /* address of buffer for number of subkeys */
-                 &junk,              /* address of buffer for longest subkey */
-                 &junk,              /* address of buffer for longest class string length */
-                 &cValues,           /* address of buffer for number of value identifiers */
-                 &chMaxValueName,    /* address of buffer for longest value name length */
-                 &cbMaxValueData,    /* address of buffer for longest value data length */
-                 &junk,              /* address of buffer for descriptor length */
-                 &FileTime           /* address of buffer for last write time */
-                 );
+        KeyHandle,
+        Class,              /* address of buffer for class string */
+        &ClassStringSize,   /* address of size of class string buffer */
+        NULL,               /* reserved */
+        &junk,              /* address of buffer for number of subkeys */
+        &junk,              /* address of buffer for longest subkey */
+        &junk,              /* address of buffer for longest class string length */
+        &cValues,           /* address of buffer for number of value identifiers */
+        &chMaxValueName,    /* address of buffer for longest value name length */
+        &cbMaxValueData,    /* address of buffer for longest value data length */
+        &junk,              /* address of buffer for descriptor length */
+        &FileTime           /* address of buffer for last write time */
+    );
 
-    if ( Result != NO_ERROR && Result != ERROR_MORE_DATA ) {
-        DebugMsg((DM_WARNING, TEXT("UpdateSystemEnvironment:  RegQueryInfoKey failed, error = %d"),Result));
+    if (Result != NO_ERROR && Result != ERROR_MORE_DATA) {
+        DebugMsg((DM_WARNING, TEXT("UpdateSystemEnvironment:  RegQueryInfoKey failed, error = %d"), Result));
         RegCloseKey(KeyHandle);
-        return( TRUE );
+        return(TRUE);
     }
 
     // No need to adjust the datalength for TCHAR issues
     ValueData = LocalAlloc(LPTR, cbMaxValueData);
-    if ( ValueData == NULL ) {
+    if (ValueData == NULL) {
         RegCloseKey(KeyHandle);
-        return( FALSE );
+        return(FALSE);
     }
 
 
     // The maximum value name length comes back in characters, convert to bytes
     // before allocating storage.  Allow for trailing NULL also.
-    ValueName = LocalAlloc(LPTR, (++chMaxValueName) * sizeof( TCHAR ) );
-    if ( ValueName == NULL ) {
+    ValueName = LocalAlloc(LPTR, (++chMaxValueName) * sizeof(TCHAR));
+    if (ValueName == NULL) {
         RegCloseKey(KeyHandle);
-        LocalFree( ValueData );
-        return( FALSE );
+        LocalFree(ValueData);
+        return(FALSE);
     }
 
 
     // To exit from here on, set rc and jump to Cleanup
-    for (i=0; i<cValues ; i++) {
+    for (i = 0; i < cValues; i++) {
         ValueNameLength = chMaxValueName;
-        DataLength      = cbMaxValueData;
+        DataLength = cbMaxValueData;
 
-        Result = RegEnumValue (
-                     KeyHandle,
-                     i,
-                     ValueName,
-                     &ValueNameLength,    // Size in TCHARs
-                     NULL,
-                     &Type,
-                     (LPBYTE)ValueData,
-                     &DataLength          // Size in bytes
-                     );
-        if ( Result != ERROR_SUCCESS ) {
+        Result = RegEnumValue(
+            KeyHandle,
+            i,
+            ValueName,
+            &ValueNameLength,    // Size in TCHARs
+            NULL,
+            &Type,
+            (LPBYTE)ValueData,
+            &DataLength          // Size in bytes
+        );
+        if (Result != ERROR_SUCCESS) {
             // Problem getting the value.  We can either try
             // the rest or punt completely.
             goto Cleanup;
@@ -379,43 +377,43 @@ BOOL UpdateSystemEnvironment(PVOID *pEnv)
         // If the buffer size is greater than the max allowed,
         // terminate the string at MAX_VALUE_LEN - 1.
         if (DataLength >= (MAX_VALUE_LEN * sizeof(TCHAR))) {
-            ValueData[MAX_VALUE_LEN-1] = TEXT('\0');
+            ValueData[MAX_VALUE_LEN - 1] = TEXT('\0');
         }
 
-        switch ( Type ) {
-            case REG_SZ:
-                {
-                    Bool = SetEnvironmentVariableInBlock(pEnv, ValueName, ValueData, TRUE);
-                    if ( !Bool ) {
-                        DebugMsg((DM_WARNING, TEXT("UpdateSystemEnvironment: Failed to set environment variable <%s> to <%s> with %d."), ValueName, ValueData, GetLastError()));
-                    }
+        switch (Type) {
+        case REG_SZ:
+        {
+            Bool = SetEnvironmentVariableInBlock(pEnv, ValueName, ValueData, TRUE);
+            if (!Bool) {
+                DebugMsg((DM_WARNING, TEXT("UpdateSystemEnvironment: Failed to set environment variable <%s> to <%s> with %d."), ValueName, ValueData, GetLastError()));
+            }
 
-                    break;
-                }
-            default:
-                {
-                    continue;
-                }
+            break;
+        }
+        default:
+        {
+            continue;
+        }
         }
     }
 
 
     // To exit from here on, set rc and jump to Cleanup
-    for (i=0; i<cValues ; i++) {
+    for (i = 0; i < cValues; i++) {
         ValueNameLength = chMaxValueName;
-        DataLength      = cbMaxValueData;
+        DataLength = cbMaxValueData;
 
-        Result = RegEnumValue (
-                     KeyHandle,
-                     i,
-                     ValueName,
-                     &ValueNameLength,    // Size in TCHARs
-                     NULL,
-                     &Type,
-                     (LPBYTE)ValueData,
-                     &DataLength          // Size in bytes
-                     );
-        if ( Result != ERROR_SUCCESS ) {
+        Result = RegEnumValue(
+            KeyHandle,
+            i,
+            ValueName,
+            &ValueNameLength,    // Size in TCHARs
+            NULL,
+            &Type,
+            (LPBYTE)ValueData,
+            &DataLength          // Size in bytes
+        );
+        if (Result != ERROR_SUCCESS) {
             // Problem getting the value.  We can either try
             // the rest or punt completely.
             goto Cleanup;
@@ -425,34 +423,34 @@ BOOL UpdateSystemEnvironment(PVOID *pEnv)
         // If the buffer size is greater than the max allowed,
         // terminate the string at MAX_VALUE_LEN - 1.
         if (DataLength >= (MAX_VALUE_LEN * sizeof(TCHAR))) {
-            ValueData[MAX_VALUE_LEN-1] = TEXT('\0');
+            ValueData[MAX_VALUE_LEN - 1] = TEXT('\0');
         }
 
-        switch ( Type ) {
-            case REG_EXPAND_SZ:
-                {
-                    ExpandedValue =  AllocAndExpandEnvironmentStrings( ValueData );
+        switch (Type) {
+        case REG_EXPAND_SZ:
+        {
+            ExpandedValue = AllocAndExpandEnvironmentStrings(ValueData);
 
-                    Bool = SetEnvironmentVariableInBlock(pEnv, ValueName, ExpandedValue, TRUE);
-                    LocalFree( ExpandedValue );
-                    if ( !Bool ) {
-                        DebugMsg((DM_WARNING, TEXT("UpdateSystemEnvironment: Failed to set environment variable <%s> to <%s> with %d."), ValueName, ValueData, GetLastError()));
-                    }
+            Bool = SetEnvironmentVariableInBlock(pEnv, ValueName, ExpandedValue, TRUE);
+            LocalFree(ExpandedValue);
+            if (!Bool) {
+                DebugMsg((DM_WARNING, TEXT("UpdateSystemEnvironment: Failed to set environment variable <%s> to <%s> with %d."), ValueName, ValueData, GetLastError()));
+            }
 
-                    break;
-                }
-            default:
-                {
-                    continue;
-                }
+            break;
+        }
+        default:
+        {
+            continue;
+        }
         }
     }
 
 Cleanup:
     RegCloseKey(KeyHandle);
-    LocalFree( ValueName );
-    LocalFree( ValueData );
-    return( rc );
+    LocalFree(ValueName);
+    LocalFree(ValueData);
+    return(rc);
 }
 
 
@@ -473,7 +471,7 @@ Cleanup:
 
 //  History:    Date        Author     Comment
 //              6/21/96     ericflo    Ported
-BOOL SetEnvironmentVariableInBlock(PVOID *pEnv, LPTSTR lpVariable, LPTSTR lpValue, BOOL bOverwrite)
+BOOL SetEnvironmentVariableInBlock(PVOID* pEnv, LPTSTR lpVariable, LPTSTR lpValue, BOOL bOverwrite)
 {
     NTSTATUS Status;
     UNICODE_STRING Name, Value;
@@ -496,7 +494,7 @@ BOOL SetEnvironmentVariableInBlock(PVOID *pEnv, LPTSTR lpVariable, LPTSTR lpValu
 
         LocalFree(Value.Buffer);
 
-        if ( NT_SUCCESS(Status) && !bOverwrite) {
+        if (NT_SUCCESS(Status) && !bOverwrite) {
             return(TRUE);
         }
     }
@@ -504,17 +502,16 @@ BOOL SetEnvironmentVariableInBlock(PVOID *pEnv, LPTSTR lpVariable, LPTSTR lpValu
     if (lpValue && *lpValue) {
         // Special case TEMP and TMP and shorten the path names
         if ((!lstrcmpi(lpVariable, TEXT("TEMP"))) || (!lstrcmpi(lpVariable, TEXT("TMP")))) {
-             if (!GetShortPathName (lpValue, szValue, 1024)) {
-                 lstrcpyn (szValue, lpValue, 1024);
-             }
+            if (!GetShortPathName(lpValue, szValue, 1024)) {
+                lstrcpyn(szValue, lpValue, 1024);
+            }
         } else {
-            lstrcpyn (szValue, lpValue, 1024);
+            lstrcpyn(szValue, lpValue, 1024);
         }
 
         RtlInitUnicodeString(&Value, szValue);
         Status = RtlSetEnvironmentVariable(pEnv, &Name, &Value);
-    }
-    else {
+    } else {
         Status = RtlSetEnvironmentVariable(pEnv, &Name, NULL);
     }
 
@@ -565,7 +562,7 @@ BOOL IsUNCPath(LPTSTR lpPath)
 
 //  History:    Date        Author     Comment
 //              6/21/96     ericflo    Ported
-BOOL GetUserNameAndDomain(HANDLE hToken, LPTSTR *UserName, LPTSTR *UserDomain)
+BOOL GetUserNameAndDomain(HANDLE hToken, LPTSTR* UserName, LPTSTR* UserDomain)
 {
     BOOL bResult = FALSE;
     LPTSTR lpTemp, lpDomain = NULL;
@@ -579,7 +576,7 @@ BOOL GetUserNameAndDomain(HANDLE hToken, LPTSTR *UserName, LPTSTR *UserDomain)
     }
 
     // Get the username in NT4 format
-    lpDomain = MyGetUserName (NameSamCompatible);
+    lpDomain = MyGetUserName(NameSamCompatible);
     RevertToUser(&hOldToken);
     if (!lpDomain) {
         DebugMsg((DM_WARNING, TEXT("GetUserNameAndDomain  MyGetUserName failed for NT4 style name with %d"), GetLastError()));
@@ -601,22 +598,22 @@ BOOL GetUserNameAndDomain(HANDLE hToken, LPTSTR *UserName, LPTSTR *UserDomain)
     lpTemp++;
 
     // Allocate space for the results
-    lpUserName = LocalAlloc (LPTR, (lstrlen(lpTemp) + 1) * sizeof(TCHAR));
+    lpUserName = LocalAlloc(LPTR, (lstrlen(lpTemp) + 1) * sizeof(TCHAR));
     if (!lpUserName) {
         DebugMsg((DM_WARNING, TEXT("GetUserNameAndDomain  Failed to allocate memory with %d"), GetLastError()));
         goto Exit;
     }
 
-    lstrcpy (lpUserName, lpTemp);
+    lstrcpy(lpUserName, lpTemp);
 
-    lpUserDomain = LocalAlloc (LPTR, (lstrlen(lpDomain) + 1) * sizeof(TCHAR));
+    lpUserDomain = LocalAlloc(LPTR, (lstrlen(lpDomain) + 1) * sizeof(TCHAR));
     if (!lpUserDomain) {
         DebugMsg((DM_WARNING, TEXT("GetUserNameAndDomain  Failed to allocate memory with %d"), GetLastError()));
-        LocalFree (lpUserName);
+        LocalFree(lpUserName);
         goto Exit;
     }
 
-    lstrcpy (lpUserDomain, lpDomain);
+    lstrcpy(lpUserDomain, lpDomain);
 
     // Save the results in the outbound arguments
     *UserName = lpUserName;
@@ -626,7 +623,7 @@ BOOL GetUserNameAndDomain(HANDLE hToken, LPTSTR *UserName, LPTSTR *UserDomain)
 
 Exit:
     if (lpDomain) {
-        LocalFree (lpDomain);
+        LocalFree(lpDomain);
     }
     return(bResult);
 }
@@ -640,7 +637,7 @@ Exit:
 //              FALSE if an error occurs
 //  History:    Date        Author     Comment
 //              6/21/96     ericflo    Ported
-BOOL GetUserNameAndDomainSlowly(HANDLE hToken, LPTSTR *UserName, LPTSTR *UserDomain)
+BOOL GetUserNameAndDomainSlowly(HANDLE hToken, LPTSTR* UserName, LPTSTR* UserDomain)
 {
     LPTSTR lpUserName = NULL;
     LPTSTR lpUserDomain = NULL;
@@ -651,31 +648,31 @@ BOOL GetUserNameAndDomainSlowly(HANDLE hToken, LPTSTR *UserName, LPTSTR *UserDom
     PSID pSid;
 
     // Get the user's sid
-    pSid = GetUserSid (hToken);
+    pSid = GetUserSid(hToken);
     if (!pSid) {
         return FALSE;
     }
 
     // Get the space needed for the User name and the Domain name
-    if (!LookupAccountSid(NULL, pSid, NULL, &cbAccountName, NULL, &cbUserDomain, &SidNameUse) ) {
+    if (!LookupAccountSid(NULL, pSid, NULL, &cbAccountName, NULL, &cbUserDomain, &SidNameUse)) {
         if (GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
             goto Error;
         }
     }
 
-    lpUserName = (LPTSTR)LocalAlloc(LPTR, cbAccountName*sizeof(TCHAR));
+    lpUserName = (LPTSTR)LocalAlloc(LPTR, cbAccountName * sizeof(TCHAR));
     if (!lpUserName) {
         goto Error;
     }
 
-    lpUserDomain = (LPTSTR)LocalAlloc(LPTR, cbUserDomain*sizeof(WCHAR));
+    lpUserDomain = (LPTSTR)LocalAlloc(LPTR, cbUserDomain * sizeof(WCHAR));
     if (!lpUserDomain) {
         LocalFree(lpUserName);
         goto Error;
     }
 
     // Now get the user name and domain name
-    if (!LookupAccountSid(NULL, pSid, lpUserName, &cbAccountName, lpUserDomain, &cbUserDomain, &SidNameUse) ) {
+    if (!LookupAccountSid(NULL, pSid, lpUserName, &cbAccountName, lpUserDomain, &cbUserDomain, &SidNameUse)) {
         LocalFree(lpUserName);
         LocalFree(lpUserDomain);
         goto Error;
@@ -686,7 +683,7 @@ BOOL GetUserNameAndDomainSlowly(HANDLE hToken, LPTSTR *UserName, LPTSTR *UserDom
     bRet = TRUE;
 
 Error:
-    DeleteUserSid (pSid);
+    DeleteUserSid(pSid);
     return(bRet);
 }
 
@@ -710,7 +707,7 @@ LPTSTR GetUserDNSDomainName(LPTSTR lpDomain)
     // a DNS domain name
 
 
-    if (!GetMachineRole (&iRole)) {
+    if (!GetMachineRole(&iRole)) {
         DebugMsg((DM_WARNING, TEXT("GetUserDNSDomainName:  Failed to get the role of the computer.")));
         return NULL;
     }
@@ -727,21 +724,21 @@ LPTSTR GetUserDNSDomainName(LPTSTR lpDomain)
 
     dwBufferSize = ARRAYSIZE(szBuffer);
 
-    if (GetComputerName (szBuffer, &dwBufferSize)) {
+    if (GetComputerName(szBuffer, &dwBufferSize)) {
         if (!lstrcmpi(lpDomain, szBuffer)) {
             DebugMsg((DM_VERBOSE, TEXT("GetUserDNSDomainName:  Local user account.  No DNS domain name available.")));
             return NULL;
         }
     }
 
-    if (LoadString (g_hDllInstance, IDS_NT_AUTHORITY, szBuffer, ARRAYSIZE(szBuffer))) {
+    if (LoadString(g_hDllInstance, IDS_NT_AUTHORITY, szBuffer, ARRAYSIZE(szBuffer))) {
         if (!lstrcmpi(lpDomain, szBuffer)) {
             DebugMsg((DM_VERBOSE, TEXT("GetUserDNSDomainName:  Domain name is NT Authority.  No DNS domain name available.")));
             return NULL;
         }
     }
 
-    if (LoadString (g_hDllInstance, IDS_BUILTIN, szBuffer, ARRAYSIZE(szBuffer))) {
+    if (LoadString(g_hDllInstance, IDS_BUILTIN, szBuffer, ARRAYSIZE(szBuffer))) {
         if (!lstrcmpi(lpDomain, szBuffer)) {
             DebugMsg((DM_VERBOSE, TEXT("GetUserDNSDomainName:  Domain name is BuiltIn.  No DNS domain name available.")));
             return NULL;
@@ -756,18 +753,18 @@ LPTSTR GetUserDNSDomainName(LPTSTR lpDomain)
 
     if (!pNetAPI32) {
         DebugMsg((DM_WARNING, TEXT("GetUserDNSDomainName:  Failed to load netapi32 with %d."),
-                 GetLastError()));
+                  GetLastError()));
         goto Exit;
     }
 
 
 
     dwResult = pNetAPI32->pfnDsGetDcName(NULL, lpDomain, NULL, NULL,
-                                       DS_IP_REQUIRED |
-                                       DS_IS_FLAT_NAME |
-                                       DS_DIRECTORY_SERVICE_PREFERRED |
-                                       DS_RETURN_DNS_NAME,
-                                       &pDCI);
+                                         DS_IP_REQUIRED |
+                                         DS_IS_FLAT_NAME |
+                                         DS_DIRECTORY_SERVICE_PREFERRED |
+                                         DS_RETURN_DNS_NAME,
+                                         &pDCI);
 
     if (dwResult == ERROR_SUCCESS) {
 
@@ -776,7 +773,7 @@ LPTSTR GetUserDNSDomainName(LPTSTR lpDomain)
             lpTemp = (LPTSTR)LocalAlloc(LPTR, (lstrlen(pDCI->DomainName) + 1) * sizeof(TCHAR));
 
             if (lpTemp) {
-                lstrcpy (lpTemp, pDCI->DomainName);
+                lstrcpy(lpTemp, pDCI->DomainName);
             }
         }
 
@@ -806,7 +803,7 @@ Exit:
 
 
 
-LONG GetHKeyCU(HANDLE hToken, HKEY *hKeyCU)
+LONG GetHKeyCU(HANDLE hToken, HKEY* hKeyCU)
 {
     LPTSTR lpSidString;
     LONG    dwError;
@@ -814,13 +811,13 @@ LONG GetHKeyCU(HANDLE hToken, HKEY *hKeyCU)
 
     *hKeyCU = NULL;
 
-    lpSidString = GetSidString (hToken);
+    lpSidString = GetSidString(hToken);
 
     if (!lpSidString) {
         return GetLastError();
     }
 
-    dwError = RegOpenKeyEx (HKEY_USERS, lpSidString, 0, KEY_READ, hKeyCU);
+    dwError = RegOpenKeyEx(HKEY_USERS, lpSidString, 0, KEY_READ, hKeyCU);
 
     if (!(*hKeyCU))
         DebugMsg((DM_VERBOSE, TEXT("GetHkeyCU: RegOpenKey failed with error %d"), dwError));
@@ -844,28 +841,27 @@ ExpandUserEnvironmentStrings(
     LPCTSTR lpSrc,
     LPTSTR lpDst,
     DWORD nSize
-    )
+)
 {
     NTSTATUS Status;
     UNICODE_STRING Source, Destination;
     ULONG Length;
 
-    RtlInitUnicodeString( &Source, lpSrc );
+    RtlInitUnicodeString(&Source, lpSrc);
     Destination.Buffer = lpDst;
     Destination.Length = 0;
-    Destination.MaximumLength = (USHORT)(nSize*sizeof(WCHAR));
+    Destination.MaximumLength = (USHORT)(nSize * sizeof(WCHAR));
     Length = 0;
-    Status = RtlExpandEnvironmentStrings_U( pEnv,
-                                          (PUNICODE_STRING)&Source,
-                                          (PUNICODE_STRING)&Destination,
-                                          &Length
-                                        );
-    if (NT_SUCCESS( Status ) || Status == STATUS_BUFFER_TOO_SMALL) {
-        return( Length );
-        }
-    else {
-        return( 0 );
-        }
+    Status = RtlExpandEnvironmentStrings_U(pEnv,
+        (PUNICODE_STRING)&Source,
+                                           (PUNICODE_STRING)&Destination,
+                                           &Length
+    );
+    if (NT_SUCCESS(Status) || Status == STATUS_BUFFER_TOO_SMALL) {
+        return(Length);
+    } else {
+        return(0);
+    }
 }
 
 /*
@@ -891,7 +887,7 @@ LPTSTR ProcessAutoexecPath(PVOID pEnv, LPTSTR lpValue, DWORD cb)
     DWORD dwTemp, dwCount = 0;
 
     cbt = 1024;
-    lpt = (LPTSTR)LocalAlloc(LPTR, cbt*sizeof(WCHAR));
+    lpt = (LPTSTR)LocalAlloc(LPTR, cbt * sizeof(WCHAR));
     if (!lpt) {
         return(lpValue);
     }
@@ -899,13 +895,13 @@ LPTSTR ProcessAutoexecPath(PVOID pEnv, LPTSTR lpValue, DWORD cb)
     lpStart = lpValue;
 
     RtlInitUnicodeString(&Name, AUTOEXECPATH_VARIABLE);
-    Value.Buffer = (PWCHAR)LocalAlloc(LPTR, cbt*sizeof(WCHAR));
+    Value.Buffer = (PWCHAR)LocalAlloc(LPTR, cbt * sizeof(WCHAR));
     if (!Value.Buffer) {
         goto Fail;
     }
 
-    while (NULL != (lpPath = wcsstr (lpValue, TEXT("%")))) {
-        if (!_wcsnicmp(lpPath+1, TEXT("PATH%"), 5)) {
+    while (NULL != (lpPath = wcsstr(lpValue, TEXT("%")))) {
+        if (!_wcsnicmp(lpPath + 1, TEXT("PATH%"), 5)) {
 
             // check if we have an autoexecpath already set, if not just remove
             // the %path%
@@ -915,13 +911,13 @@ LPTSTR ProcessAutoexecPath(PVOID pEnv, LPTSTR lpValue, DWORD cb)
             bPrevAutoexecPath = (BOOL)!RtlQueryEnvironmentVariable_U(pEnv, &Name, &Value);
 
             *lpPath = 0;
-            dwTemp = dwCount + lstrlen (lpValue);
+            dwTemp = dwCount + lstrlen(lpValue);
             if (dwTemp < cbt) {
-               lstrcat(lpt, lpValue);
-               dwCount = dwTemp;
+                lstrcat(lpt, lpValue);
+                dwCount = dwTemp;
             }
             if (bPrevAutoexecPath) {
-                dwTemp = dwCount + lstrlen (Value.Buffer);
+                dwTemp = dwCount + lstrlen(Value.Buffer);
                 if (dwTemp < cbt) {
                     lstrcat(lpt, Value.Buffer);
                     dwCount = dwTemp;
@@ -931,9 +927,8 @@ LPTSTR ProcessAutoexecPath(PVOID pEnv, LPTSTR lpValue, DWORD cb)
             *lpPath++ = TEXT('%');
             lpPath += 5;  // go passed %path%
             lpValue = lpPath;
-        }
-        else {
-            lpPath = wcsstr(lpPath+1, TEXT("%"));
+        } else {
+            lpPath = wcsstr(lpPath + 1, TEXT("%"));
             if (!lpPath) {
                 lpStart = NULL;
                 goto Fail;
@@ -941,7 +936,7 @@ LPTSTR ProcessAutoexecPath(PVOID pEnv, LPTSTR lpValue, DWORD cb)
             lpPath++;
             ch = *lpPath;
             *lpPath = 0;
-            dwTemp = dwCount + lstrlen (lpValue);
+            dwTemp = dwCount + lstrlen(lpValue);
             if (dwTemp < cbt) {
                 lstrcat(lpt, lpValue);
                 dwCount = dwTemp;
@@ -952,11 +947,11 @@ LPTSTR ProcessAutoexecPath(PVOID pEnv, LPTSTR lpValue, DWORD cb)
     }
 
     if (*lpValue) {
-       dwTemp = dwCount + lstrlen (lpValue);
-       if (dwTemp < cbt) {
-           lstrcat(lpt, lpValue);
-           dwCount = dwTemp;
-       }
+        dwTemp = dwCount + lstrlen(lpValue);
+        if (dwTemp < cbt) {
+            lstrcat(lpt, lpValue);
+            dwCount = dwTemp;
+        }
     }
 
     LocalFree(Value.Buffer);
@@ -975,7 +970,7 @@ Fail:
 * 01-24-92  Johannec     Created.
 
 */
-BOOL ProcessCommand(LPSTR lpStart, PVOID *pEnv)
+BOOL ProcessCommand(LPSTR lpStart, PVOID* pEnv)
 {
     LPTSTR lpt, lptt;
     LPTSTR lpVariable;
@@ -988,7 +983,7 @@ BOOL ProcessCommand(LPSTR lpStart, PVOID *pEnv)
 
     // convert to Unicode
 
-    lpu = (LPTSTR)LocalAlloc(LPTR, (cb=lstrlenA(lpStart)+1)*sizeof(WCHAR));
+    lpu = (LPTSTR)LocalAlloc(LPTR, (cb = lstrlenA(lpStart) + 1) * sizeof(WCHAR));
 
     if (!lpu) {
         return FALSE;
@@ -1003,7 +998,7 @@ BOOL ProcessCommand(LPSTR lpStart, PVOID *pEnv)
         ;
 
     if (!*lpt) {
-        LocalFree (lpu);
+        LocalFree(lpu);
         return(FALSE);
     }
 
@@ -1014,9 +1009,9 @@ BOOL ProcessCommand(LPSTR lpStart, PVOID *pEnv)
 
     c = *lpt;
     *lpt = 0;
-    lpVariable = (LPTSTR)LocalAlloc(LPTR, (lstrlen(lptt) + 1)*sizeof(WCHAR));
+    lpVariable = (LPTSTR)LocalAlloc(LPTR, (lstrlen(lptt) + 1) * sizeof(WCHAR));
     if (!lpVariable) {
-        LocalFree (lpu);
+        LocalFree(lpu);
         return(FALSE);
     }
 
@@ -1030,22 +1025,19 @@ BOOL ProcessCommand(LPSTR lpStart, PVOID *pEnv)
         ;
 
     if (!*lpt) {
-       // if we have a blank path statement in the autoexec file,
-       // then we don't want to pass "PATH" as the environment
-       // variable because it trashes the system's PATH.  Instead
-       // we want to change the variable AutoexecPath.  This would have
-       // be handled below if a value had been assigned to the
-       // environment variable.
-       if (lstrcmpi(lpVariable, PATH_VARIABLE) == 0)
-          {
-          SetEnvironmentVariableInBlock(pEnv, AUTOEXECPATH_VARIABLE, TEXT(""), TRUE);
-          }
-       else
-          {
-          SetEnvironmentVariableInBlock(pEnv, lpVariable, TEXT(""), TRUE);
-          }
-        LocalFree (lpVariable);
-        LocalFree (lpu);
+        // if we have a blank path statement in the autoexec file,
+        // then we don't want to pass "PATH" as the environment
+        // variable because it trashes the system's PATH.  Instead
+        // we want to change the variable AutoexecPath.  This would have
+        // be handled below if a value had been assigned to the
+        // environment variable.
+        if (lstrcmpi(lpVariable, PATH_VARIABLE) == 0) {
+            SetEnvironmentVariableInBlock(pEnv, AUTOEXECPATH_VARIABLE, TEXT(""), TRUE);
+        } else {
+            SetEnvironmentVariableInBlock(pEnv, lpVariable, TEXT(""), TRUE);
+        }
+        LocalFree(lpVariable);
+        LocalFree(lpu);
         return(FALSE);
     }
 
@@ -1055,9 +1047,9 @@ BOOL ProcessCommand(LPSTR lpStart, PVOID *pEnv)
 
     c = *lpt;
     *lpt = 0;
-    lpValue = (LPTSTR)LocalAlloc(LPTR, (lstrlen(lptt) + 1)*sizeof(WCHAR));
+    lpValue = (LPTSTR)LocalAlloc(LPTR, (lstrlen(lptt) + 1) * sizeof(WCHAR));
     if (!lpValue) {
-        LocalFree (lpu);
+        LocalFree(lpu);
         LocalFree(lpVariable);
         return(FALSE);
     }
@@ -1072,7 +1064,7 @@ BOOL ProcessCommand(LPSTR lpStart, PVOID *pEnv)
     //  it is assumed that the drive assignment has changed from DOS.
 
     if (IsNEC_98 && (lstrcmpi(lpVariable, PATH_VARIABLE) == 0) && IsPathIncludeRemovable(lpValue)) {
-        LocalFree (lpu);
+        LocalFree(lpu);
         LocalFree(lpVariable);
         LocalFree(lpValue);
         return(FALSE);
@@ -1080,16 +1072,16 @@ BOOL ProcessCommand(LPSTR lpStart, PVOID *pEnv)
 #endif
 
     cb = 1024;
-    lpExpandedValue = (LPTSTR)LocalAlloc(LPTR, cb*sizeof(WCHAR));
+    lpExpandedValue = (LPTSTR)LocalAlloc(LPTR, cb * sizeof(WCHAR));
     if (lpExpandedValue) {
         if (!lstrcmpi(lpVariable, PATH_VARIABLE)) {
-            lpValue = ProcessAutoexecPath(*pEnv, lpValue, (lstrlen(lpValue)+1)*sizeof(WCHAR));
+            lpValue = ProcessAutoexecPath(*pEnv, lpValue, (lstrlen(lpValue) + 1) * sizeof(WCHAR));
         }
         cbNeeded = ExpandUserEnvironmentStrings(*pEnv, lpValue, lpExpandedValue, cb);
         if (cbNeeded > cb) {
             LocalFree(lpExpandedValue);
             cb = cbNeeded;
-            lpExpandedValue = (LPTSTR)LocalAlloc(LPTR, cb*sizeof(WCHAR));
+            lpExpandedValue = (LPTSTR)LocalAlloc(LPTR, cb * sizeof(WCHAR));
             if (lpExpandedValue) {
                 ExpandUserEnvironmentStrings(*pEnv, lpValue, lpExpandedValue, cb);
             }
@@ -1101,8 +1093,7 @@ BOOL ProcessCommand(LPSTR lpStart, PVOID *pEnv)
     }
     if (lstrcmpi(lpVariable, PATH_VARIABLE)) {
         SetEnvironmentVariableInBlock(pEnv, lpVariable, lpExpandedValue, FALSE);
-    }
-    else {
+    } else {
         SetEnvironmentVariableInBlock(pEnv, AUTOEXECPATH_VARIABLE, lpExpandedValue, TRUE);
 
     }
@@ -1112,7 +1103,7 @@ BOOL ProcessCommand(LPSTR lpStart, PVOID *pEnv)
     }
     LocalFree(lpVariable);
     LocalFree(lpValue);
-    LocalFree (lpu);
+    LocalFree(lpu);
 
     return(TRUE);
 }
@@ -1124,7 +1115,7 @@ BOOL ProcessCommand(LPSTR lpStart, PVOID *pEnv)
 * 01-24-92  Johannec     Created.
 
 */
-BOOL ProcessSetCommand(LPSTR lpStart, PVOID *pEnv)
+BOOL ProcessSetCommand(LPSTR lpStart, PVOID* pEnv)
 {
     LPSTR lpt;
 
@@ -1135,7 +1126,7 @@ BOOL ProcessSetCommand(LPSTR lpStart, PVOID *pEnv)
         ;
 
     if (!*lpt)
-       return(FALSE);
+        return(FALSE);
 
     return (ProcessCommand(lpt, pEnv));
 
@@ -1150,17 +1141,17 @@ BOOL ProcessSetCommand(LPSTR lpStart, PVOID *pEnv)
 */
 BOOL
 ProcessAutoexec(
-    PVOID *pEnv
-    )
+    PVOID* pEnv
+)
 {
     HANDLE fh;
     DWORD dwFileSize;
     DWORD dwBytesRead;
-    CHAR *lpBuffer = NULL;
-    CHAR *token;
+    CHAR* lpBuffer = NULL;
+    CHAR* token;
     CHAR Seps[] = "&\n\r";   // Seperators for tokenizing autoexec.bat
     BOOL Status = FALSE;
-    TCHAR szAutoExecBat [] = TEXT("c:\\autoexec.bat");
+    TCHAR szAutoExecBat[] = TEXT("c:\\autoexec.bat");
 #ifdef _X86_
     TCHAR szTemp[3];
 #endif
@@ -1172,22 +1163,22 @@ ProcessAutoexec(
     // Set the error mode so the user doesn't see the critical error
     // popup and attempt to open the file on c:\.
 
-    uiErrMode = SetErrorMode (SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
+    uiErrMode = SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
 
 #ifdef _X86_
     if (IsNEC_98) {
-        if (GetEnvironmentVariable (TEXT("SystemDrive"), szTemp, 3)) {
-        szAutoExecBat[0] = szTemp[0];
-    }
+        if (GetEnvironmentVariable(TEXT("SystemDrive"), szTemp, 3)) {
+            szAutoExecBat[0] = szTemp[0];
+        }
     }
 #endif
 
-    fh = CreateFile (szAutoExecBat, GENERIC_READ, FILE_SHARE_READ,
-                     NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    fh = CreateFile(szAutoExecBat, GENERIC_READ, FILE_SHARE_READ,
+                    NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
-    SetErrorMode (uiErrMode);
+    SetErrorMode(uiErrMode);
 
-    if (fh ==  INVALID_HANDLE_VALUE) {
+    if (fh == INVALID_HANDLE_VALUE) {
         return(FALSE);  //could not open autoexec.bat file, we're done.
     }
     dwFileSize = GetFileSize(fh, NULL);
@@ -1195,7 +1186,7 @@ ProcessAutoexec(
         goto Exit;      // can't read the file size
     }
 
-    lpBuffer = (PCHAR)LocalAlloc(LPTR, dwFileSize+1);
+    lpBuffer = (PCHAR)LocalAlloc(LPTR, dwFileSize + 1);
     if (!lpBuffer) {
         goto Exit;
     }
@@ -1218,11 +1209,11 @@ ProcessAutoexec(
 
     token = strtok(lpBuffer, Seps);
     while (token != NULL) {
-        for (;*token && *token == ' ';token++) //skip spaces
+        for (; *token && *token == ' '; token++) //skip spaces
             ;
         if (*token == TEXT('@'))
             token++;
-        for (;*token && *token == ' ';token++) //skip spaces
+        for (; *token && *token == ' '; token++) //skip spaces
             ;
         if (!_strnicmp(token, "Path", 4)) {
             ProcessCommand(token, pEnv);
@@ -1251,7 +1242,7 @@ Exit:
 * 2-28-92  Johannec     Created
 
 */
-BOOL BuildEnvironmentPath(PVOID *pEnv,
+BOOL BuildEnvironmentPath(PVOID* pEnv,
                           LPTSTR lpPathVariable,
                           LPTSTR lpPathValue)
 {
@@ -1267,7 +1258,7 @@ BOOL BuildEnvironmentPath(PVOID *pEnv,
     }
     RtlInitUnicodeString(&Name, lpPathVariable);
     cb = 1024;
-    Value.Buffer = (PWCHAR)LocalAlloc(LPTR, cb*sizeof(WCHAR));
+    Value.Buffer = (PWCHAR)LocalAlloc(LPTR, cb * sizeof(WCHAR));
     if (!Value.Buffer) {
         return(FALSE);
     }
@@ -1281,7 +1272,7 @@ BOOL BuildEnvironmentPath(PVOID *pEnv,
     }
     if (Value.Length) {
         lstrcpy(lpTemp, Value.Buffer);
-        if ( *( lpTemp + lstrlen(lpTemp) - 1) != TEXT(';') ) {
+        if (*(lpTemp + lstrlen(lpTemp) - 1) != TEXT(';')) {
             lstrcat(lpTemp, TEXT(";"));
         }
         LocalFree(Value.Buffer);
@@ -1311,10 +1302,10 @@ BOOL BuildEnvironmentPath(PVOID *pEnv,
 */
 BOOL
 AppendNTPathWithAutoexecPath(
-    PVOID *pEnv,
+    PVOID* pEnv,
     LPTSTR lpPathVariable,
     LPTSTR lpAutoexecPath
-    )
+)
 {
     NTSTATUS Status;
     UNICODE_STRING Name;
@@ -1329,7 +1320,7 @@ AppendNTPathWithAutoexecPath(
 
     RtlInitUnicodeString(&Name, lpAutoexecPath);
     cb = 1024;
-    Value.Buffer = (PWCHAR)LocalAlloc(LPTR, cb*sizeof(WCHAR));
+    Value.Buffer = (PWCHAR)LocalAlloc(LPTR, cb * sizeof(WCHAR));
     if (!Value.Buffer) {
         return(FALSE);
     }
@@ -1349,7 +1340,7 @@ AppendNTPathWithAutoexecPath(
     LocalFree(Value.Buffer);
 
     Success = BuildEnvironmentPath(pEnv, lpPathVariable, AutoexecPathValue);
-    RtlSetEnvironmentVariable( pEnv, &Name, NULL);
+    RtlSetEnvironmentVariable(pEnv, &Name, NULL);
 
     return(Success);
 }
@@ -1366,10 +1357,10 @@ AppendNTPathWithAutoexecPath(
 */
 BOOL
 SetEnvironmentVariables(
-    PVOID *pEnv,
+    PVOID* pEnv,
     LPTSTR lpRegSubKey,
     HKEY hKeyCU
-    )
+)
 {
     WCHAR lpValueName[MAX_PATH];
     LPBYTE  lpDataBuffer;
@@ -1388,7 +1379,7 @@ SetEnvironmentVariables(
     }
 
     cbDataBuffer = 4096;
-    lpDataBuffer = (LPBYTE)LocalAlloc(LPTR, cbDataBuffer*sizeof(WCHAR));
+    lpDataBuffer = (LPBYTE)LocalAlloc(LPTR, cbDataBuffer * sizeof(WCHAR));
     if (lpDataBuffer == NULL) {
         RegCloseKey(hkey);
         return(FALSE);
@@ -1404,7 +1395,7 @@ SetEnvironmentVariables(
             // Limit environment variable length
 
 
-            lpData[MAX_VALUE_LEN-1] = TEXT('\0');
+            lpData[MAX_VALUE_LEN - 1] = TEXT('\0');
 
 
             if (dwType == REG_SZ) {
@@ -1413,13 +1404,12 @@ SetEnvironmentVariables(
                 // their values apppended to the system path.
 
 
-                if ( !lstrcmpi(lpValueName, PATH_VARIABLE) ||
-                     !lstrcmpi(lpValueName, LIBPATH_VARIABLE) ||
-                     !lstrcmpi(lpValueName, OS2LIBPATH_VARIABLE) ) {
+                if (!lstrcmpi(lpValueName, PATH_VARIABLE) ||
+                    !lstrcmpi(lpValueName, LIBPATH_VARIABLE) ||
+                    !lstrcmpi(lpValueName, OS2LIBPATH_VARIABLE)) {
 
                     BuildEnvironmentPath(pEnv, lpValueName, (LPTSTR)lpData);
-                }
-                else {
+                } else {
 
 
                     // the other environment variables are just set.
@@ -1447,20 +1437,20 @@ SetEnvironmentVariables(
             // Limit environment variable length
 
 
-            lpData[MAX_VALUE_LEN-1] = TEXT('\0');
+            lpData[MAX_VALUE_LEN - 1] = TEXT('\0');
 
 
             if (dwType == REG_EXPAND_SZ) {
                 DWORD cb, cbNeeded;
 
                 cb = 1024;
-                lpExpandedValue = (LPTSTR)LocalAlloc(LPTR, cb*sizeof(WCHAR));
+                lpExpandedValue = (LPTSTR)LocalAlloc(LPTR, cb * sizeof(WCHAR));
                 if (lpExpandedValue) {
                     cbNeeded = ExpandUserEnvironmentStrings(*pEnv, (LPTSTR)lpData, lpExpandedValue, cb);
                     if (cbNeeded > cb) {
                         LocalFree(lpExpandedValue);
                         cb = cbNeeded;
-                        lpExpandedValue = (LPTSTR)LocalAlloc(LPTR, cb*sizeof(WCHAR));
+                        lpExpandedValue = (LPTSTR)LocalAlloc(LPTR, cb * sizeof(WCHAR));
                         if (lpExpandedValue) {
                             ExpandUserEnvironmentStrings(*pEnv, (LPTSTR)lpData, lpExpandedValue, cb);
                         }
@@ -1478,13 +1468,12 @@ SetEnvironmentVariables(
                 // their values apppended to the system path.
 
 
-                if ( !lstrcmpi(lpValueName, PATH_VARIABLE) ||
-                     !lstrcmpi(lpValueName, LIBPATH_VARIABLE) ||
-                     !lstrcmpi(lpValueName, OS2LIBPATH_VARIABLE) ) {
+                if (!lstrcmpi(lpValueName, PATH_VARIABLE) ||
+                    !lstrcmpi(lpValueName, LIBPATH_VARIABLE) ||
+                    !lstrcmpi(lpValueName, OS2LIBPATH_VARIABLE)) {
 
                     BuildEnvironmentPath(pEnv, lpValueName, (LPTSTR)lpExpandedValue);
-                }
-                else {
+                } else {
 
 
                     // the other environment variables are just set.
@@ -1541,9 +1530,8 @@ BOOL WINAPI ExpandEnvironmentStringsForUser(HANDLE hToken, LPCTSTR lpSrc,
     // Arg check
 
 
-    if ( !lpDest || !lpSrc )
-    {
-        SetLastError (ERROR_INVALID_PARAMETER);
+    if (!lpDest || !lpSrc) {
+        SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
@@ -1552,9 +1540,9 @@ BOOL WINAPI ExpandEnvironmentStringsForUser(HANDLE hToken, LPCTSTR lpSrc,
     // Get the user's environment block
 
 
-    if (!CreateEnvironmentBlock (&pEnv, hToken, FALSE)) {
+    if (!CreateEnvironmentBlock(&pEnv, hToken, FALSE)) {
         DebugMsg((DM_WARNING, TEXT("ExpandEnvironmentStringsForUser:  CreateEnvironmentBlock failed with = %d"),
-                 GetLastError()));
+                  GetLastError()));
         return FALSE;
     }
 
@@ -1568,7 +1556,7 @@ BOOL WINAPI ExpandEnvironmentStringsForUser(HANDLE hToken, LPCTSTR lpSrc,
     if (dwNeeded && (dwNeeded < dwSize)) {
         bResult = TRUE;
     } else {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER );
+        SetLastError(ERROR_INSUFFICIENT_BUFFER);
     }
 
 
@@ -1576,7 +1564,7 @@ BOOL WINAPI ExpandEnvironmentStringsForUser(HANDLE hToken, LPCTSTR lpSrc,
     // Free the environment block
 
 
-    DestroyEnvironmentBlock (pEnv);
+    DestroyEnvironmentBlock(pEnv);
 
 
     return bResult;
@@ -1616,8 +1604,8 @@ BOOL WINAPI GetSystemTempDirectory(LPTSTR lpDir, LPDWORD lpcchSize)
     // Look in the system environment variables
 
 
-    if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, SYS_ENVVARS, 0,
-                      KEY_READ, &hKey) == ERROR_SUCCESS) {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, SYS_ENVVARS, 0,
+                     KEY_READ, &hKey) == ERROR_SUCCESS) {
 
 
         // Check for TEMP
@@ -1625,9 +1613,9 @@ BOOL WINAPI GetSystemTempDirectory(LPTSTR lpDir, LPDWORD lpcchSize)
 
         dwSize = sizeof(szTemp);
 
-        if (RegQueryValueEx (hKey, TEXT("TEMP"), NULL, &dwType,
-                             (LPBYTE) szTemp, &dwSize) == ERROR_SUCCESS) {
-            RegCloseKey (hKey);
+        if (RegQueryValueEx(hKey, TEXT("TEMP"), NULL, &dwType,
+            (LPBYTE)szTemp, &dwSize) == ERROR_SUCCESS) {
+            RegCloseKey(hKey);
             goto FoundTemp;
         }
 
@@ -1638,14 +1626,14 @@ BOOL WINAPI GetSystemTempDirectory(LPTSTR lpDir, LPDWORD lpcchSize)
 
         dwSize = sizeof(szTemp);
 
-        if (RegQueryValueEx (hKey, TEXT("TMP"), NULL, &dwType,
-                             (LPBYTE) szTemp, &dwSize) == ERROR_SUCCESS) {
-            RegCloseKey (hKey);
+        if (RegQueryValueEx(hKey, TEXT("TMP"), NULL, &dwType,
+            (LPBYTE)szTemp, &dwSize) == ERROR_SUCCESS) {
+            RegCloseKey(hKey);
             goto FoundTemp;
         }
 
 
-        RegCloseKey (hKey);
+        RegCloseKey(hKey);
     }
 
 
@@ -1653,10 +1641,10 @@ BOOL WINAPI GetSystemTempDirectory(LPTSTR lpDir, LPDWORD lpcchSize)
     // Check if %SystemRoot%\Temp exists
 
 
-    lstrcpy (szDirectory, TEXT("%SystemRoot%\\Temp"));
-    ExpandEnvironmentStrings (szDirectory, szTemp, ARRAYSIZE (szTemp));
+    lstrcpy(szDirectory, TEXT("%SystemRoot%\\Temp"));
+    ExpandEnvironmentStrings(szDirectory, szTemp, ARRAYSIZE(szTemp));
 
-    if (GetFileAttributesEx (szTemp, GetFileExInfoStandard, &fad) &&
+    if (GetFileAttributesEx(szTemp, GetFileExInfoStandard, &fad) &&
         fad.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 
         goto FoundTemp;
@@ -1667,10 +1655,10 @@ BOOL WINAPI GetSystemTempDirectory(LPTSTR lpDir, LPDWORD lpcchSize)
     // Check if %SystemDrive%\Temp exists
 
 
-    lstrcpy (szDirectory, TEXT("%SystemDrive%\\Temp"));
-    ExpandEnvironmentStrings (szDirectory, szTemp, ARRAYSIZE (szTemp));
+    lstrcpy(szDirectory, TEXT("%SystemDrive%\\Temp"));
+    ExpandEnvironmentStrings(szDirectory, szTemp, ARRAYSIZE(szTemp));
 
-    if (GetFileAttributesEx (szTemp, GetFileExInfoStandard, &fad) &&
+    if (GetFileAttributesEx(szTemp, GetFileExInfoStandard, &fad) &&
         fad.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 
         goto FoundTemp;
@@ -1681,21 +1669,21 @@ BOOL WINAPI GetSystemTempDirectory(LPTSTR lpDir, LPDWORD lpcchSize)
     // Last resort is %SystemRoot%
 
 
-    lstrcpy (szTemp, TEXT("%SystemRoot%"));
+    lstrcpy(szTemp, TEXT("%SystemRoot%"));
 
 
 
 FoundTemp:
 
-    ExpandEnvironmentStrings (szTemp, szDirectory, ARRAYSIZE (szDirectory));
-    GetShortPathName (szDirectory, szTemp, ARRAYSIZE(szTemp));
+    ExpandEnvironmentStrings(szTemp, szDirectory, ARRAYSIZE(szDirectory));
+    GetShortPathName(szDirectory, szTemp, ARRAYSIZE(szTemp));
 
     dwLength = lstrlen(szTemp) + 1;
 
     if (lpDir) {
 
         if (*lpcchSize >= dwLength) {
-            lstrcpy (lpDir, szTemp);
+            lstrcpy(lpDir, szTemp);
             bRetVal = TRUE;
 
         } else {
@@ -1723,33 +1711,33 @@ IsPathIncludeRemovable(LPTSTR lpValue)
     if (!tmp)
         DebugMsg((DM_WARNING, TEXT("IsPathIncludeRemovable : Failed to LocalAlloc (%d)"), GetLastError()));
     else {
-    lstrcpy(tmp, lpValue);
+        lstrcpy(tmp, lpValue);
 
-    lpt = tmp;
-    while (*lpt) {
-        // skip spaces
-        for ( ; *lpt && *lpt == TEXT(' '); lpt++)
-        ;
+        lpt = tmp;
+        while (*lpt) {
+            // skip spaces
+            for (; *lpt && *lpt == TEXT(' '); lpt++)
+                ;
 
-        // check if the drive is removable
-        if (lpt[0] && lpt[1] && lpt[1] == TEXT(':') && lpt[2]) {        // ex) "A:\"
-        c = lpt[3];
-        lpt[3] = 0;
-        if (GetDriveType(lpt) == DRIVE_REMOVABLE) {
-            lpt[3] = c;
-            ret = TRUE;
-            break;
+            // check if the drive is removable
+            if (lpt[0] && lpt[1] && lpt[1] == TEXT(':') && lpt[2]) {        // ex) "A:\"
+                c = lpt[3];
+                lpt[3] = 0;
+                if (GetDriveType(lpt) == DRIVE_REMOVABLE) {
+                    lpt[3] = c;
+                    ret = TRUE;
+                    break;
+                }
+                lpt[3] = c;
+            }
+
+            // skip to the next path
+            for (; *lpt && *lpt != TEXT(';'); lpt++)
+                ;
+            if (*lpt)
+                lpt++;
         }
-        lpt[3] = c;
-        }
-
-        // skip to the next path
-        for ( ; *lpt && *lpt != TEXT(';'); lpt++)
-        ;
-        if (*lpt)
-        lpt++;
-    }
-    LocalFree(tmp);
+        LocalFree(tmp);
     }
     return(ret);
 }

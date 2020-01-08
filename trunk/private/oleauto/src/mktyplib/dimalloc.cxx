@@ -195,18 +195,18 @@ extern "C" {
 #if 0
 // Maintains the hproj/docfile/project substorage relationship.
     typedef struct STGREC {
-        IStorage FAR *pstgFile;
-        IStorage FAR *pstgProj;
+        IStorage FAR* pstgFile;
+        IStorage FAR* pstgProj;
         HPROJECT hproj; // The hproject associated with this storage if known.
         LPSTR bstrName; // The name of the file.
         BOOL isTemp;    // TRUE if this is a temp file that should be deleted
                 // when closed.
     } STGREC;
 
-    STGREC FAR *CreateTmpStorage(void);
+    STGREC FAR* CreateTmpStorage(void);
     EBERR  CopyTmpFileToDest(HPROJECT hproj, LPSTR lpstrFileName);
     void PASCAL FreeStorage(void);
-    STGREC FAR *FindStgRecByName(LPSTR szName);
+    STGREC FAR* FindStgRecByName(LPSTR szName);
     void CloseProjectStorage(HPROJECT hproj);
 
 #if OE_WIN
@@ -224,7 +224,7 @@ extern "C" {
     extern FSSpec fsHelpFile;    //FSSpec for the help file
 #endif
 
-    extern char *g_szTitleText;    // default title bar text
+    extern char* g_szTitleText;    // default title bar text
     extern HWND g_hwndEbActive;    // Active O.B. window.
     extern BOOL g_fAppActive;    // is this application active?
     extern BOOL g_fParentActive;    // is the parent (frame) window active?
@@ -250,7 +250,7 @@ extern "C" {
 
     void CallEbNotifyWindow(HWND hwnd, EBMSG ebmsg, LONG lparam);
     void QuitEbApp();
-    void DebAssertWrite(char *szFileName, char *szMsg);
+    void DebAssertWrite(char* szFileName, char* szMsg);
 
     LPVOID EBCALL CreateNewObject(LPSTR szProjName, LPSTR szClassName);
     BOOL GetDebIMalloc(IMalloc FAR* FAR* ppmalloc);
@@ -258,18 +258,18 @@ extern "C" {
     VOID FAR* EBCALL CreateInstance(BSTR szTlibName, UINT uIndex);
     VOID FAR* CreateInst(BSTR szTlibName, UINT uIndex);
 
-    BOOL GetStringDlg(char **pszString);
-    BOOL RenameDlg(char **pszNewName);
+    BOOL GetStringDlg(char** pszString);
+    BOOL RenameDlg(char** pszNewName);
 
 #if OE_MAC
-    Boolean CheckMacHelpEvent(EventRecord *evtPtr);
-    OSErr GetWDInfoTemp(short wdRefNum, short *pvRefNum, long *pdirid);
+    Boolean CheckMacHelpEvent(EventRecord* evtPtr);
+    OSErr GetWDInfoTemp(short wdRefNum, short* pvRefNum, long* pdirid);
     BOOL MacGetFullPath(long dirid, short vRefNum, LPSTR szPath);
     void InitializeGrafport();
-    BOOL FCalcTextHeight(CHAR *szText, SHORT cx, SHORT *cy);
-    void RectToRECT(const Rect *prcm, RECT *prc);
-    void RECTToRect(const RECT *prc, Rect *prcm);
-    BOOL PaintWindow(EventRecord *pevt);
+    BOOL FCalcTextHeight(CHAR* szText, SHORT cx, SHORT* cy);
+    void RectToRECT(const Rect* prcm, RECT* prc);
+    void RECTToRect(const RECT* prc, Rect* prcm);
+    BOOL PaintWindow(EventRecord* pevt);
 #endif // OE_MAC
 
     DEFINE_GUID(IID_CVARCOLLECT, 0x2d736941, 0xc370, 0x1068, 0xb3, 0x69, 0x08, 0x00, 0x2b, 0x2b, 0x37, 0x87);
@@ -377,9 +377,9 @@ static char szSigMsg[] = "Signature Check Failed";
 #endif
 
 #define Max
-VOID FAR * HugeAlloc(DWORD  bch);
-VOID FAR *HugeRealloc(VOID FAR *pv, DWORD  bchNew);
-VOID FAR *HugeFree(VOID FAR *  pv);
+VOID FAR* HugeAlloc(DWORD  bch);
+VOID FAR* HugeRealloc(VOID FAR* pv, DWORD  bchNew);
+VOID FAR* HugeFree(VOID FAR* pv);
 
 
 
@@ -473,7 +473,7 @@ private:
 class FAR CAddrNode
 {
 public:
-    void FAR*      m_pv;    // instance
+    void FAR* m_pv;    // instance
     ULONG       m_cb;    // size of allocation in BYTES
     ULONG          m_nAlloc;    // the allocation pass count
     CAddrNode FAR* m_next;
@@ -652,15 +652,14 @@ CDbAlloc::QueryInterface(REFIID riid, void FAR* FAR* ppv)
 {
     HRESULT hresult;
 #if OE_MAC
-    long a5Save = SetA5(*((long *)(long)CurrentA5));
+    long a5Save = SetA5(*((long*)(long)CurrentA5));
 #endif // OE_MAC
 
     if (riid == IID_IUnknown) {
         *ppv = this;
         AddRef();
         hresult = NOERROR;
-    }
-    else
+    } else
         hresult = ResultFromScode(E_NOINTERFACE);
 
 #if OE_MAC
@@ -684,7 +683,7 @@ CDbAlloc::Release()
     if (--m_refs == 0) {
 
 #if OE_MAC
-        long a5Save = SetA5(*((long *)(long)CurrentA5));
+        long a5Save = SetA5(*((long*)(long)CurrentA5));
 #endif // OE_MAC
 
         // check for memory leakage
@@ -692,8 +691,7 @@ CDbAlloc::Release()
             m_pdbout->Printf("Memory Leak Detected,\n");
             DumpInstTable();
             ASSERTSZ(FALSE, "Memory leaked");
-        }
-        else {
+        } else {
             // No memory has leaked. If we're running a test script,
             // we want the line "No Memory Leaks." at the end of the
             // script, so that there will be a baseline failure if
@@ -730,6 +728,7 @@ CDbAlloc::Release()
     return m_refs;
 }
 
+
 STDMETHODIMP_(void FAR*)
 CDbAlloc::Alloc(ULONG cb)
 {
@@ -737,7 +736,7 @@ CDbAlloc::Alloc(ULONG cb)
     VOID FAR* pv;
 
 #if OE_MAC
-    long a5Save = SetA5(*((long *)(long)CurrentA5));
+    long a5Save = SetA5(*((long*)(long)CurrentA5));
 #endif // OE_MAC
 
 #if 0
@@ -747,23 +746,17 @@ CDbAlloc::Alloc(ULONG cb)
         return NULL;
 #endif //0
 
-    IMallocHeapChecker();
-
-    // ++m_cAllocCalls;
-    MemInstance();
-
+    IMallocHeapChecker();    
+    MemInstance();// ++m_cAllocCalls;
     size = (ULONG)cb;
 
     // Support for Huge Arrays
     if ((cb + 2 * sizeof(m_rgchSig)) < MAX_SIZE) {
-
         if ((pv = MALLOC((size_t)(size + 2 * sizeof(m_rgchSig)))) == NULL)
             goto Error;
-    }
-    else {
-        if ((pv = (VOID FAR *)HugeAlloc(size + 2 * sizeof(m_rgchSig))) == NULL)
+    } else {
+        if ((pv = (VOID FAR*)HugeAlloc(size + 2 * sizeof(m_rgchSig))) == NULL)
             goto Error;
-
     }
 
     // set allocated block to some non-zero value
@@ -825,7 +818,7 @@ CDbAlloc::Realloc(void FAR* pv, ULONG cb)
     }
 
 #if OE_MAC
-    long a5Save = SetA5(*((long *)(long)CurrentA5));
+    long a5Save = SetA5(*((long*)(long)CurrentA5));
 #endif // OE_MAC
 
     // ++m_cAllocCalls;
@@ -847,7 +840,7 @@ CDbAlloc::Realloc(void FAR* pv, ULONG cb)
     // the middle of a save) and we're trying to increase the size of
     // the allocated block, just return NULL.  We allow decreases, since
     // that can't cause an out of memory error in a real allocator.
-    if (cb > sizeToFree && g_fNoAllocs)
+    if (cb > sizeToFree&& g_fNoAllocs)
         return NULL;
 #endif //0
 
@@ -867,8 +860,7 @@ CDbAlloc::Realloc(void FAR* pv, ULONG cb)
         // allocte enough memory to put the signature also.
         if ((pv = REALLOC(pv, (size_t)(size + 2 * sizeof(m_rgchSig)))) == NULL)
             goto Done;
-    }
-    else {
+    } else {
         if (((sizeToFree + 2 * sizeof(m_rgchSig)) >= MAX_SIZE) &&
             ((size + 2 * sizeof(m_rgchSig)) >= MAX_SIZE)) {
 
@@ -882,9 +874,8 @@ CDbAlloc::Realloc(void FAR* pv, ULONG cb)
             // allocte enough memory to put the signature also.
             if ((pv = HugeRealloc(pv, size + 2 * sizeof(m_rgchSig))) == NULL)
                 goto Done;
-        }
-        else {
-            VOID FAR *pvNew;
+        } else {
+            VOID FAR* pvNew;
             ULONG cbCopy;
 
 
@@ -919,9 +910,7 @@ CDbAlloc::Realloc(void FAR* pv, ULONG cb)
             Free((char FAR*)pv + sizeof(m_rgchSig));
             pv = pvNew;
             goto Done;
-
         }
-
     }
 
     // We do not put the signature at the tail for huge memory allocation
@@ -952,14 +941,14 @@ Done:
     return pv;
 }
 
-STDMETHODIMP_(void)
-CDbAlloc::Free(void FAR* pv)
+
+STDMETHODIMP_(void) CDbAlloc::Free(void FAR* pv)
 {
     CAddrNode FAR* pn;
     ULONG sizeToFree;
 
 #if OE_MAC
-    long a5Save = SetA5(*((long *)(long)CurrentA5));
+    long a5Save = SetA5(*((long*)(long)CurrentA5));
 #endif // OE_MAC
 
     // STORAGE.DLL Calls Free(NULL) alot
@@ -994,9 +983,7 @@ CDbAlloc::Free(void FAR* pv)
             DumpInst(GetInst(pv));
             ASSERTSZ(FALSE, szSigMsg);
         }
-
     }
-
 
     sizeToFree = pn->m_cb;
 
@@ -1017,8 +1004,7 @@ CDbAlloc::Free(void FAR* pv)
     if ((sizeToFree + 2 * sizeof(m_rgchSig)) < MAX_SIZE) {
 
         FREE(pv);
-    }
-    else {
+    } else {
         HugeFree(pv);
     }
 
@@ -1041,7 +1027,6 @@ CDbAlloc::GetSize(void FAR* pv)
 VOID CDbAlloc::MemInstance()
 {
     ++m_cAllocCalls;
-
 }
 
 
@@ -1074,7 +1059,7 @@ CDbAlloc::HeapMinimize()
 {
 #if !OE_WIN32 //UNDONE: what does HeapMinimize mean for WIN32?
 #if OE_MAC
-    long a5Save = SetA5(*((long *)(long)CurrentA5));
+    long a5Save = SetA5(*((long*)(long)CurrentA5));
 #endif // OE_MAC
     HEAPMIN();
 #if OE_MAC
@@ -1084,34 +1069,25 @@ CDbAlloc::HeapMinimize()
 }
 
 
-
 //                      instance table methods
 
 
+void CDbAlloc::AddInst(void FAR* pv, ULONG nAlloc, ULONG cb)
 /*
 *PRIVATE CDbAlloc::AddInst
 *Purpose:
 *  Add the given instance to the address instance table.
-
 *Entry:
 *  pv = the instance to add
 *  nAlloc = the allocation passcount of this instance
-
-*Exit:
-*  None
-
 */
-void
-CDbAlloc::AddInst(void FAR* pv, ULONG nAlloc, ULONG cb)
 {
     UINT hash;
     CAddrNode FAR* pn;
 
-
     ASSERT(pv != NULL);
 
     pn = (CAddrNode FAR*)new FAR CAddrNode();
-
     ASSERT(pn != NULL);
 
     pn->m_pv = pv;
@@ -1124,20 +1100,14 @@ CDbAlloc::AddInst(void FAR* pv, ULONG nAlloc, ULONG cb)
 }
 
 
+void CDbAlloc::DelInst(void FAR* pv)
 /*
 *UNDONE
 *Purpose:
 *  Remove the given instance from the address instance table.
-
 *Entry:
 *  pv = the instance to remove
-
-*Exit:
-*  None
-
 */
-void
-CDbAlloc::DelInst(void FAR* pv)
 {
     CAddrNode FAR* FAR* ppn, FAR* pnDead;
 
@@ -1157,8 +1127,7 @@ CDbAlloc::DelInst(void FAR* pv)
 }
 
 
-CAddrNode FAR*
-CDbAlloc::GetInst(void FAR* pv)
+CAddrNode FAR* CDbAlloc::GetInst(void FAR* pv)
 {
     CAddrNode FAR* pn;
 
@@ -1166,32 +1135,25 @@ CDbAlloc::GetInst(void FAR* pv)
         if (pn->m_pv == pv)
             return pn;
     }
+
     return NULL;
 }
 
 
-void
-CDbAlloc::DumpInst(CAddrNode FAR* pn)
+void CDbAlloc::DumpInst(CAddrNode FAR* pn)
 {
-    m_pdbout->Printf("[%lp]  nAlloc=%ld  size=%ld\n",
-                     pn->m_pv, pn->m_nAlloc, GetSize(pn->m_pv));
+    m_pdbout->Printf("[%lp]  nAlloc=%ld  size=%ld\n", pn->m_pv, pn->m_nAlloc, GetSize(pn->m_pv));
 }
 
 
+BOOL CDbAlloc::IsEmpty()
 /*
 *PRIVATE BOOL IsEmpty
 *Purpose:
 *  Answer if the address instance table is empty.
-
-*Entry:
-*  None
-
 *Exit:
 *  return value = BOOL, TRUE if empty, FALSE otherwise
-
 */
-BOOL
-CDbAlloc::IsEmpty()
 {
     UINT u;
 
@@ -1250,20 +1212,12 @@ CDbAlloc::IsEmpty()
 }
 
 
+void CDbAlloc::DumpInstTable()
 /*
 *PRIVATE CDbAlloc::Dump
 *Purpose:
 *  Print the current contents of the address instance table,
-
-*Entry:
-*  None
-
-*Exit:
-*  None
-
 */
-void
-CDbAlloc::DumpInstTable()
 {
     UINT u;
     CAddrNode FAR* pn;
@@ -1278,20 +1232,16 @@ CDbAlloc::DumpInstTable()
 
 /*
 * GetDebIMalloc()
-
 * Purpose : Walks the Heap and verifies that the heap is not corrupted
-
 */
 VOID CDbAlloc::IMallocHeapChecker()
 {
-
     UINT u;
     CAddrNode FAR* pn;
 
     return;
 
     for (u = 0; u < DIM(m_rganode); ++u) {
-
         for (pn = m_rganode[u]; pn != NULL; pn = pn->m_next) {
             // Verify that the signature are the foot and the head of this
             // instance is correct.
@@ -1358,7 +1308,7 @@ STDMETHODIMP_(void)
 CStdDbOutput::Printf(char FAR* szFmt, ...)
 {
     va_list args;
-    char *pn, FAR* pf;
+    char* pn, FAR* pf;
     char rgchFmtBuf[128];
     char rgchOutputBuf[128];
 
@@ -1378,7 +1328,7 @@ CStdDbOutput::Printf(char FAR* szFmt, ...)
     OutputDebugString(rgchOutputBuf);
 #else
     strcat(rgchOutputBuf, ";g");
-    DebugStr((const unsigned char *)c2pstr(rgchOutputBuf));
+    DebugStr((const unsigned char*)c2pstr(rgchOutputBuf));
 #endif
 }
 
@@ -1444,24 +1394,21 @@ extern "C" {
 
 * Outputs:
 *   Returns an HSYS.  NULL if unsuccessful.
-
 */
 
-VOID FAR * HugeAlloc(DWORD bch)
+VOID FAR* HugeAlloc(DWORD bch)
 {
 #if OE_WIN16
 
-    VOID FAR *pv;
+    VOID FAR* pv;
     HANDLE hMem;
 
     if (((hMem = GlobalAlloc(GMEM_MOVEABLE, bch)) == NULL)) {
         return NULL;
-    }
-    else if ((pv = (VOID FAR *) GlobalLock(hMem)) == NULL) {
+    } else if ((pv = (VOID FAR*) GlobalLock(hMem)) == NULL) {
         return NULL;
-    }
-    else {
-        return (VOID FAR *)pv;
+    } else {
+        return (VOID FAR*)pv;
     }
 
 #elif OE_MACNATIVE
@@ -1501,8 +1448,7 @@ VOID FAR * HugeAlloc(DWORD bch)
 
     if (oserr) {
         return NULL;
-    }
-    else {
+    } else {
         return (HSYS)hMemBlock;
     }
 
@@ -1516,16 +1462,15 @@ VOID FAR * HugeAlloc(DWORD bch)
     oserr = MemError();
     if (oserr) {
         return NULL;
-    }
-    else {
+    } else {
         return (VOID FAR*)hMemBlock;
     }
 
 #elif OE_WIN32
 
-    VOID FAR *pv = NULL;
+    VOID FAR* pv = NULL;
 
-    return (VOID FAR *)VirtualAlloc(pv, bch, MEM_COMMIT, PAGE_READWRITE);
+    return (VOID FAR*)VirtualAlloc(pv, bch, MEM_COMMIT, PAGE_READWRITE);
 
 #else
 #error Bad OE
@@ -1546,16 +1491,14 @@ VOID FAR * HugeAlloc(DWORD bch)
 
 * Outputs:
 *   Returns an HSYS.  NULL if unsuccessful.
-
 */
-
-VOID FAR *HugeRealloc(VOID FAR *pv, DWORD  bchNew)
+VOID FAR* HugeRealloc(VOID FAR* pv, DWORD  bchNew)
 {
 #if OE_WIN16  // TEMPORARY
 #if OE_WIN16
 
     HANDLE hMem, hMemNew;
-    VOID FAR *pvNew;
+    VOID FAR* pvNew;
     USHORT usSel;
     DWORD dwMem;
     DWORD dwNewSize = bchNew;
@@ -1563,14 +1506,12 @@ VOID FAR *HugeRealloc(VOID FAR *pv, DWORD  bchNew)
     ULONG cbOld;
 #endif // ID_DEBUG
 
-
     // Get selector
     usSel = OOB_SELECTOROF((void FAR*)pv);
 
     if ((dwMem = GlobalHandle((WORD)usSel)) == NULL) {
         return NULL;
-    }
-    else {
+    } else {
         // Extract the handle.
         hMem = (HANDLE)LOWORD(dwMem);
 
@@ -1582,12 +1523,10 @@ VOID FAR *HugeRealloc(VOID FAR *pv, DWORD  bchNew)
         if (((hMemNew =
               GlobalReAlloc(hMem, bchNew, GMEM_MOVEABLE)) == NULL)) {
             return NULL;
-        }
-        else if ((pvNew = GlobalLock(hMemNew)) == NULL) {
+        } else if ((pvNew = GlobalLock(hMemNew)) == NULL) {
             return NULL;
-        }
-        else {
-            return (VOID FAR *)pvNew;
+        } else {
+            return (VOID FAR*)pvNew;
         }
     }
 
@@ -1614,23 +1553,18 @@ VOID FAR *HugeRealloc(VOID FAR *pv, DWORD  bchNew)
     oserr = MemError();
     SetZone(pCurrZone);            // restore current zone.
 
-
     if (oserr == memFullErr) {
         // Out of memory
         return NULL;
     }
 
-    DebAssert((MemError() != nilHandleErr),
-              "HsysReallocHsys: NIL master pointer ");
-
-    DebAssert((MemError() != memWZErr),
-              "HsysReallocHsys: Attempt to operate on free Block");
+    DebAssert((MemError() != nilHandleErr), "HsysReallocHsys: NIL master pointer ");
+    DebAssert((MemError() != memWZErr), "HsysReallocHsys: Attempt to operate on free Block");
 
     // anything else would be an undocumented error
-    DebAssert(MemError() == noErr,
-              "HsysReallocHsys: undocumented Mac error");
+    DebAssert(MemError() == noErr, "HsysReallocHsys: undocumented Mac error");
 
-    return (VOID FAR *)hMemBlock;
+    return (VOID FAR*)hMemBlock;
 
 #elif OE_MAC
 
@@ -1655,15 +1589,11 @@ VOID FAR *HugeRealloc(VOID FAR *pv, DWORD  bchNew)
         return NULL;
     }
 
-    DebAssert((MemError() != nilHandleErr),
-              "HsysReallocHsys: NIL master pointer ");
-
-    DebAssert((MemError() != memWZErr),
-              "HsysReallocHsys: Attempt to operate on free Block");
+    DebAssert((MemError() != nilHandleErr), "HsysReallocHsys: NIL master pointer ");
+    DebAssert((MemError() != memWZErr), "HsysReallocHsys: Attempt to operate on free Block");
 
     // anything else would be an undocumented error
-    DebAssert(MemError() == noErr,
-              "HsysReallocHsys: undocumented Mac error");
+    DebAssert(MemError() == noErr, "HsysReallocHsys: undocumented Mac error");
 
     return (HSYS)hMemBlock;
 
@@ -1677,8 +1607,6 @@ VOID FAR *HugeRealloc(VOID FAR *pv, DWORD  bchNew)
 #endif // TEMPORARY
     return NULL;
 }
-
-
 
 
 /*
@@ -1697,30 +1625,26 @@ VOID FAR *HugeRealloc(VOID FAR *pv, DWORD  bchNew)
 * Outputs:
 *   Returns NULL if successful, otherwise on failure
 *    returns the input param.
-
 */
-
-VOID FAR *HugeFree(VOID FAR *  pv)
+VOID FAR* HugeFree(VOID FAR* pv)
 {
 #if OE_WIN16
 
     HANDLE hMem;
     DWORD dwMem;
-    USHORT usSel = OOB_SELECTOROF((VOID FAR *)pv);
+    USHORT usSel = OOB_SELECTOROF((VOID FAR*)pv);
 
     dwMem = GlobalHandle((WORD)usSel);
     if (dwMem == NULL) {
         // error
         return pv;
-    }
-    else {
+    } else {
         hMem = (HANDLE)LOWORD(dwMem);
         GlobalUnlock(hMem);   // Can't fail cos nondiscardable.
         if (GlobalFree(hMem) != NULL) {
             // error
             return pv;
-        }
-        else {
+        } else {
             // ok
             return NULL;
         }
@@ -1743,12 +1667,8 @@ VOID FAR *HugeFree(VOID FAR *  pv)
 
     SetZone(pCurrZone);                            // restore zone.
 
-    DebAssert(oserr != memWZErr,
-              "FreeHsys: attempt to operate on already free block.");
-
-    DebAssert(oserr == noErr,
-              "FreeHsys: unexpected error.");
-
+    DebAssert(oserr != memWZErr, "FreeHsys: attempt to operate on already free block.");
+    DebAssert(oserr == noErr, "FreeHsys: unexpected error.");
     return NULL;
 
 #elif OE_MAC
@@ -1762,11 +1682,8 @@ VOID FAR *HugeFree(VOID FAR *  pv)
 #if ID_DEBUG
     oserr = MemError();                 // SetZone() will destroy MemError() result.
 
-    DebAssert(oserr != memWZErr,
-              "FreeHsys: attempt to operate on already free block.");
-
-    DebAssert(oserr == noErr,
-              "FreeHsys: unexpected error.");
+    DebAssert(oserr != memWZErr, "FreeHsys: attempt to operate on already free block.");
+    DebAssert(oserr == noErr, "FreeHsys: unexpected error.");
 #endif
 
     return NULL;
@@ -1779,7 +1696,6 @@ VOID FAR *HugeFree(VOID FAR *  pv)
 #error Bad OE
 #endif // OE_WIN16
     return NULL;
-
 }
 
 #endif //DEBUG

@@ -42,24 +42,21 @@
 
 
 typedef struct {
-
     /*
     ** This implementation of a file handler is done in C, not C++, so a few
     ** things work differently than in C++.  Our structure contains Vtbls
     ** (pointer to function tables) for three interfaces... Unknown, AVIStream,
     ** and AVIFile, as well as our private data we need to implement the
     ** handler.
-
     */
 
-    IAVIStreamVtbl FAR    *AVIStream;
-    IAVIFileVtbl FAR    *AVIFile;
-    IUnknownVtbl FAR    *Unknown;
-    IPersistFileVtbl FAR    *Persist;
+    IAVIStreamVtbl FAR* AVIStream;
+    IAVIFileVtbl FAR* AVIFile;
+    IUnknownVtbl FAR* Unknown;
+    IPersistFileVtbl FAR* Persist;
 
     // This is our controlling object.
-    IUnknown FAR*    pUnknownOuter;
-
+    IUnknown FAR* pUnknownOuter;
 
     // WaveFile instance data
 
@@ -76,7 +73,7 @@ typedef struct {
     UINT            mode;
     EXTRA            extra;
     AVIFILEINFOW        avihdr;
-} WAVESTUFF, FAR *LPWAVESTUFF;
+} WAVESTUFF, FAR* LPWAVESTUFF;
 
 /*
 ** Whenever a function is called with a pointer to one of our Vtbls, we need
@@ -91,16 +88,13 @@ WAVESTUFF ws;
 #define WAVESTUFF_FROM_STREAM(ps)    (LPWAVESTUFF)((LPBYTE)(ps) - ((LPBYTE)&ws.AVIStream - (LPBYTE)&ws))
 #define WAVESTUFF_FROM_PERSIST(ppf)    (LPWAVESTUFF)((LPBYTE)(ppf) - ((LPBYTE)&ws.Persist - (LPBYTE)&ws))
 
-
-
 extern HINSTANCE    ghMod;
-LPTSTR FAR FileName( LPCTSTR lszPath);
-extern LPTSTR FAR lstrzcpy (LPTSTR pszTgt, LPCTSTR pszSrc, size_t cch);
-extern LPSTR FAR lstrzcpyA (LPSTR pszTgt, LPCSTR pszSrc, size_t cch);
-extern LPWSTR FAR lstrzcpyW (LPWSTR pszTgt, LPCWSTR pszSrc, size_t cch);
-extern LPWSTR FAR lstrzcpyAtoW (LPWSTR pszTgt, LPCSTR pszSrc, size_t cch);
-extern LPSTR FAR lstrzcpyWtoA (LPSTR pszTgt, LPCWSTR pszSrc, size_t cch);
-
+LPTSTR FAR FileName(LPCTSTR lszPath);
+extern LPTSTR FAR lstrzcpy(LPTSTR pszTgt, LPCTSTR pszSrc, size_t cch);
+extern LPSTR FAR lstrzcpyA(LPSTR pszTgt, LPCSTR pszSrc, size_t cch);
+extern LPWSTR FAR lstrzcpyW(LPWSTR pszTgt, LPCWSTR pszSrc, size_t cch);
+extern LPWSTR FAR lstrzcpyAtoW(LPWSTR pszTgt, LPCSTR pszSrc, size_t cch);
+extern LPSTR FAR lstrzcpyWtoA(LPSTR pszTgt, LPCWSTR pszSrc, size_t cch);
 
 // Function prototypes and Vtbl for the Unknown interface
 
@@ -123,15 +117,15 @@ STDMETHODIMP_(ULONG) WaveFileRelease(PAVIFILE pf);
 #ifndef _WIN32
 STDMETHODIMP WaveFileOpen(PAVIFILE pf, LPCSTR szFile, UINT mode);
 #endif
-STDMETHODIMP WaveFileInfo(PAVIFILE pf, AVIFILEINFOW FAR * pfi, LONG lSize);
-STDMETHODIMP WaveFileGetStream(PAVIFILE pf, PAVISTREAM FAR * ppavi, DWORD fccType, LONG lParam);
-STDMETHODIMP WaveFileCreateStream(PAVIFILE pf, PAVISTREAM FAR *ppstream, AVISTREAMINFOW FAR *psi);
+STDMETHODIMP WaveFileInfo(PAVIFILE pf, AVIFILEINFOW FAR* pfi, LONG lSize);
+STDMETHODIMP WaveFileGetStream(PAVIFILE pf, PAVISTREAM FAR* ppavi, DWORD fccType, LONG lParam);
+STDMETHODIMP WaveFileCreateStream(PAVIFILE pf, PAVISTREAM FAR* ppstream, AVISTREAMINFOW FAR* psi);
 #ifndef _WIN32
-STDMETHODIMP WaveFileSave(PAVIFILE pf, LPCSTR szFile, AVICOMPRESSOPTIONS FAR *lpOptions, AVISAVECALLBACK lpfnCallback);
+STDMETHODIMP WaveFileSave(PAVIFILE pf, LPCSTR szFile, AVICOMPRESSOPTIONS FAR* lpOptions, AVISAVECALLBACK lpfnCallback);
 #endif
 
 STDMETHODIMP WaveFileWriteData(PAVIFILE pf, DWORD ckid, LPVOID lpData, LONG cbData);
-STDMETHODIMP WaveFileReadData(PAVIFILE pf, DWORD ckid, LPVOID lpData, LONG FAR *lpcbData);
+STDMETHODIMP WaveFileReadData(PAVIFILE pf, DWORD ckid, LPVOID lpData, LONG FAR* lpcbData);
 STDMETHODIMP WaveFileEndRecord(PAVIFILE pf);
 #ifdef _WIN32
 STDMETHODIMP WaveFileDeleteStream(PAVIFILE pf, DWORD fccType, LONG lParam);
@@ -171,16 +165,12 @@ IAVIFileVtbl FileVtbl = {
 STDMETHODIMP WavePersistQueryInterface(LPPERSISTFILE pf, REFIID iid, void FAR* FAR* ppv);
 STDMETHODIMP_(ULONG) WavePersistAddRef(LPPERSISTFILE pf);
 STDMETHODIMP_(ULONG) WavePersistRelease(LPPERSISTFILE pf);
-STDMETHODIMP WavePersistGetClassID (LPPERSISTFILE ppf, LPCLSID lpClassID);
-STDMETHODIMP WavePersistIsDirty (LPPERSISTFILE ppf);
-STDMETHODIMP WavePersistLoad (LPPERSISTFILE ppf,
-                  LPCOLESTR lpszFileName, DWORD grfMode);
-STDMETHODIMP WavePersistSave (LPPERSISTFILE ppf,
-                  LPCOLESTR lpszFileName, BOOL fRemember);
-STDMETHODIMP WavePersistSaveCompleted (LPPERSISTFILE ppf,
-                       LPCOLESTR lpszFileName);
-STDMETHODIMP WavePersistGetCurFile (LPPERSISTFILE ppf,
-                    LPOLESTR FAR * lplpszFileName);
+STDMETHODIMP WavePersistGetClassID(LPPERSISTFILE ppf, LPCLSID lpClassID);
+STDMETHODIMP WavePersistIsDirty(LPPERSISTFILE ppf);
+STDMETHODIMP WavePersistLoad(LPPERSISTFILE ppf, LPCOLESTR lpszFileName, DWORD grfMode);
+STDMETHODIMP WavePersistSave(LPPERSISTFILE ppf, LPCOLESTR lpszFileName, BOOL fRemember);
+STDMETHODIMP WavePersistSaveCompleted(LPPERSISTFILE ppf, LPCOLESTR lpszFileName);
+STDMETHODIMP WavePersistGetCurFile(LPPERSISTFILE ppf, LPOLESTR FAR* lplpszFileName);
 
 
 IPersistFileVtbl PersistVtbl = {
@@ -202,17 +192,17 @@ STDMETHODIMP WaveStreamQueryInterface(PAVISTREAM ps, REFIID riid, LPVOID FAR* pp
 STDMETHODIMP WaveStreamCreate(PAVISTREAM ps, LPARAM lParam1, LPARAM lParam2);
 STDMETHODIMP_(ULONG) WaveStreamAddRef(PAVISTREAM ps);
 STDMETHODIMP_(ULONG) WaveStreamRelease(PAVISTREAM ps);
-STDMETHODIMP WaveStreamInfo(PAVISTREAM ps, AVISTREAMINFOW FAR * psi, LONG lSize);
+STDMETHODIMP WaveStreamInfo(PAVISTREAM ps, AVISTREAMINFOW FAR* psi, LONG lSize);
 STDMETHODIMP_(LONG) WaveStreamFindSample(PAVISTREAM ps, LONG lPos, LONG lFlags);
-STDMETHODIMP WaveStreamReadFormat(PAVISTREAM ps, LONG lPos, LPVOID lpFormat, LONG FAR *lpcbFormat);
+STDMETHODIMP WaveStreamReadFormat(PAVISTREAM ps, LONG lPos, LPVOID lpFormat, LONG FAR* lpcbFormat);
 STDMETHODIMP WaveStreamSetFormat(PAVISTREAM ps, LONG lPos, LPVOID lpFormat, LONG cbFormat);
-STDMETHODIMP WaveStreamRead(PAVISTREAM ps, LONG lStart, LONG lSamples, LPVOID lpBuffer, LONG cbBuffer, LONG FAR * plBytes,LONG FAR * plSamples);
-STDMETHODIMP WaveStreamWrite(PAVISTREAM ps, LONG lStart, LONG lSamples, LPVOID lpData, LONG cbData, DWORD dwFlags, LONG FAR *plSampWritten, LONG FAR *plBytesWritten);
+STDMETHODIMP WaveStreamRead(PAVISTREAM ps, LONG lStart, LONG lSamples, LPVOID lpBuffer, LONG cbBuffer, LONG FAR* plBytes, LONG FAR* plSamples);
+STDMETHODIMP WaveStreamWrite(PAVISTREAM ps, LONG lStart, LONG lSamples, LPVOID lpData, LONG cbData, DWORD dwFlags, LONG FAR* plSampWritten, LONG FAR* plBytesWritten);
 STDMETHODIMP WaveStreamDelete(PAVISTREAM ps, LONG lStart, LONG lSamples);
-STDMETHODIMP WaveStreamReadData(PAVISTREAM ps, DWORD fcc, LPVOID lp,LONG FAR *lpcb);
-STDMETHODIMP WaveStreamWriteData(PAVISTREAM ps, DWORD fcc, LPVOID lp,LONG cb);
+STDMETHODIMP WaveStreamReadData(PAVISTREAM ps, DWORD fcc, LPVOID lp, LONG FAR* lpcb);
+STDMETHODIMP WaveStreamWriteData(PAVISTREAM ps, DWORD fcc, LPVOID lp, LONG cb);
 #ifdef _WIN32
-STDMETHODIMP WaveStreamSetInfo(PAVISTREAM ps, AVISTREAMINFOW FAR * psi, LONG lSize);
+STDMETHODIMP WaveStreamSetInfo(PAVISTREAM ps, AVISTREAMINFOW FAR* psi, LONG lSize);
 #else
 STDMETHODIMP WaveStreamReserved(PAVISTREAM ps);
 #endif
@@ -244,7 +234,6 @@ IAVIStreamVtbl StreamVtbl = {
 
 
 #if defined _WIN32 && !defined UNICODE
-
 int LoadUnicodeString(HINSTANCE hinst, UINT wID, LPWSTR lpBuffer, int cchBuffer)
 {
     char    ach[256];
@@ -253,43 +242,32 @@ int LoadUnicodeString(HINSTANCE hinst, UINT wID, LPWSTR lpBuffer, int cchBuffer)
     i = LoadString(hinst, wID, ach, NUMELMS(ach));
 
     if (i > 0)
-    MultiByteToWideChar(CP_ACP, 0, ach, -1, lpBuffer, cchBuffer);
+        MultiByteToWideChar(CP_ACP, 0, ach, -1, lpBuffer, cchBuffer);
 
     return i;
 }
-
 #else
 #define LoadUnicodeString   LoadString
 #endif
 
 
-
-
-
-
-/*    -    -    -    -    -    -    -    -    */
-
 UINT    uUseCount;    // the reference count for our objects
 UINT    uLockCount;    // our lock count for LockServer
-
-/*    -    -    -    -    -    -    -    -    */
-
 
 // Create a new instance.  Since this is a C implementation we have to
 // allocate space for our structure ourselves.
 
 HRESULT WaveFileCreate(
-    IUnknown FAR*    pUnknownOuter,
+    IUnknown FAR* pUnknownOuter,
     REFIID        riid,
-    void FAR* FAR*    ppv)
+    void FAR* FAR* ppv)
 {
-    IUnknown FAR*    pUnknown;
+    IUnknown FAR* pUnknown;
     LPWAVESTUFF    pWaveStuff;
     HRESULT    hresult;
 
     // Allocate space for our structure
-    pWaveStuff = (LPWAVESTUFF)GlobalAllocPtr(GMEM_MOVEABLE,
-        sizeof(WAVESTUFF));
+    pWaveStuff = (LPWAVESTUFF)GlobalAllocPtr(GMEM_MOVEABLE, sizeof(WAVESTUFF));
     if (!pWaveStuff)
         return ResultFromScode(E_OUTOFMEMORY);
 
@@ -300,11 +278,11 @@ HRESULT WaveFileCreate(
     pWaveStuff->Persist = &PersistVtbl;
 
     // Set up our controlling object
-    pUnknown = (IUnknown FAR *)&pWaveStuff->Unknown;
+    pUnknown = (IUnknown FAR*) & pWaveStuff->Unknown;
     if (pUnknownOuter)
         pWaveStuff->pUnknownOuter = pUnknownOuter;
     else
-        pWaveStuff->pUnknownOuter =(IUnknown FAR *)&pWaveStuff->Unknown;
+        pWaveStuff->pUnknownOuter = (IUnknown FAR*) & pWaveStuff->Unknown;
 
     // Initial the things in our structure
     pWaveStuff->refs = 0;
@@ -324,8 +302,6 @@ HRESULT WaveFileCreate(
     return hresult;
 }
 
-/*    -    -    -    -    -    -    -    -    */
-
 
 // Query interface from all three interfaces comes here.  We support the
 // Unknown interface, AVIStream and AVIFile.
@@ -333,7 +309,7 @@ HRESULT WaveFileCreate(
 STDMETHODIMP WaveUnknownQueryInterface(
     LPUNKNOWN    pu,
     REFIID        iid,
-    void FAR* FAR*    ppv)
+    void FAR* FAR* ppv)
 {
     // Get a pointer to our structure
     LPWAVESTUFF pWaveStuff = WAVESTUFF_FROM_UNKNOWN(pu);
@@ -352,7 +328,7 @@ STDMETHODIMP WaveUnknownQueryInterface(
     return NOERROR;
 }
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 
 // Increase our reference count.  AddRef for all three interfaces comes here.
@@ -367,7 +343,7 @@ STDMETHODIMP_(ULONG) WaveUnknownAddRef(
     return ++pWaveStuff->refs;
 }
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 
 // Decrease our reference count.  Release for all three interfaces comes here.
@@ -385,88 +361,88 @@ STDMETHODIMP_(ULONG) WaveUnknownRelease(
     // clean-up time!
 
     if (!--p->refs) {
-    LONG lRet = AVIERR_OK;
+        LONG lRet = AVIERR_OK;
 
-    if (p->fDirty) {
-        MMCKINFO ckRIFF;
-        MMCKINFO ck;
+        if (p->fDirty) {
+            MMCKINFO ckRIFF;
+            MMCKINFO ck;
 
-        shfileSeek(p->hshfile, 0, SEEK_SET);
+            shfileSeek(p->hshfile, 0, SEEK_SET);
 
-        /* create the output file RIFF chunk of form type 'WAVE' */
-        ckRIFF.fccType = mmioFOURCC('W', 'A', 'V', 'E');
-        ckRIFF.cksize = 0L;    // let MMIO figure out ck. size
-        if (shfileCreateChunk(p->hshfile, &ckRIFF, MMIO_CREATERIFF) != 0)
-            goto ERROR_CANNOT_WRITE;    // cannot write file, probably
+            /* create the output file RIFF chunk of form type 'WAVE' */
+            ckRIFF.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+            ckRIFF.cksize = 0L;    // let MMIO figure out ck. size
+            if (shfileCreateChunk(p->hshfile, &ckRIFF, MMIO_CREATERIFF) != 0)
+                goto ERROR_CANNOT_WRITE;    // cannot write file, probably
 
-        ck.ckid = mmioFOURCC('f', 'm', 't', ' ');
-        ck.cksize = p->cbFormat;        // we know the size of this ck.
-        if (shfileCreateChunk(p->hshfile, &ck, 0) != 0)
-        goto ERROR_CANNOT_WRITE;    // cannot write file, probably
-
-        if (shfileWrite(p->hshfile, (HPSTR) p->lpFormat, p->cbFormat) != p->cbFormat)
-        goto ERROR_CANNOT_WRITE;    // cannot write file, probably
-
-        /* ascend out of the 'fmt' chunk, back into 'RIFF' chunk */
-        if (shfileAscend(p->hshfile, &ck, 0) != 0)
-        goto ERROR_CANNOT_WRITE;    // cannot write file, probably
-
-        // If there was extra stuff here, we need to fill it!
-        if (shfileSeek(p->hshfile, 0, SEEK_CUR)
-            + 2 * (LRESULT)sizeof(DWORD)
-            != (LRESULT) p->ckData.dwDataOffset) {
-            /* create the 'data' chunk that holds the waveform samples */
-            ck.ckid = mmioFOURCC('J', 'U', 'N', 'K');
-            ck.cksize = 0;
+            ck.ckid = mmioFOURCC('f', 'm', 't', ' ');
+            ck.cksize = p->cbFormat;        // we know the size of this ck.
             if (shfileCreateChunk(p->hshfile, &ck, 0) != 0)
                 goto ERROR_CANNOT_WRITE;    // cannot write file, probably
 
-            shfileSeek(p->hshfile,
-                p->ckData.dwDataOffset - 2 * sizeof(DWORD),
-                SEEK_SET);
+            if (shfileWrite(p->hshfile, (HPSTR)p->lpFormat, p->cbFormat) != p->cbFormat)
+                goto ERROR_CANNOT_WRITE;    // cannot write file, probably
 
+                /* ascend out of the 'fmt' chunk, back into 'RIFF' chunk */
             if (shfileAscend(p->hshfile, &ck, 0) != 0)
                 goto ERROR_CANNOT_WRITE;    // cannot write file, probably
+
+                // If there was extra stuff here, we need to fill it!
+            if (shfileSeek(p->hshfile, 0, SEEK_CUR)
+                + 2 * (LRESULT)sizeof(DWORD)
+                != (LRESULT)p->ckData.dwDataOffset) {
+                /* create the 'data' chunk that holds the waveform samples */
+                ck.ckid = mmioFOURCC('J', 'U', 'N', 'K');
+                ck.cksize = 0;
+                if (shfileCreateChunk(p->hshfile, &ck, 0) != 0)
+                    goto ERROR_CANNOT_WRITE;    // cannot write file, probably
+
+                shfileSeek(p->hshfile,
+                           p->ckData.dwDataOffset - 2 * sizeof(DWORD),
+                           SEEK_SET);
+
+                if (shfileAscend(p->hshfile, &ck, 0) != 0)
+                    goto ERROR_CANNOT_WRITE;    // cannot write file, probably
+            }
+
+            /* create the 'data' chunk that holds the waveform samples */
+            ck.ckid = mmioFOURCC('d', 'a', 't', 'a');
+            ck.cksize = p->ckData.cksize;
+            if (shfileCreateChunk(p->hshfile, &ck, 0) != 0)
+                goto ERROR_CANNOT_WRITE;    // cannot write file, probably
+
+            shfileSeek(p->hshfile, p->ckData.cksize, SEEK_CUR);
+
+            shfileAscend(p->hshfile, &ck, 0);
+
+            if (p->extra.cb) {
+                if (shfileWrite(p->hshfile, (HPSTR)p->extra.lp, p->extra.cb) != p->extra.cb)
+                    goto ERROR_CANNOT_WRITE;
+            }
+
+            if (shfileAscend(p->hshfile, &ckRIFF, 0) != 0)
+                goto ERROR_CANNOT_WRITE;
+
+            if (shfileFlush(p->hshfile, 0) != 0)
+                goto ERROR_CANNOT_WRITE;
         }
 
-        /* create the 'data' chunk that holds the waveform samples */
-        ck.ckid = mmioFOURCC('d', 'a', 't', 'a');
-        ck.cksize = p->ckData.cksize;
-        if (shfileCreateChunk(p->hshfile, &ck, 0) != 0)
-        goto ERROR_CANNOT_WRITE;    // cannot write file, probably
 
-        shfileSeek(p->hshfile, p->ckData.cksize, SEEK_CUR);
-
-        shfileAscend(p->hshfile, &ck, 0);
-
-        if (p->extra.cb) {
-        if (shfileWrite(p->hshfile, (HPSTR) p->extra.lp, p->extra.cb) != p->extra.cb)
-            goto ERROR_CANNOT_WRITE;
-        }
-
-        if (shfileAscend(p->hshfile, &ckRIFF, 0) != 0)
-        goto ERROR_CANNOT_WRITE;
-
-        if (shfileFlush(p->hshfile, 0) != 0)
-        goto ERROR_CANNOT_WRITE;
-    }
-
-
-    goto success;
+        goto success;
 
     ERROR_CANNOT_WRITE:
-    lRet = AVIERR_FILEWRITE;
+        lRet = AVIERR_FILEWRITE;
 
     success:
-    if (p->hshfile)
-        shfileClose(p->hshfile, 0);
+        if (p->hshfile)
+            shfileClose(p->hshfile, 0);
 
-    if (p->lpFormat)
-        GlobalFreePtr(p->lpFormat);
+        if (p->lpFormat)
+            GlobalFreePtr(p->lpFormat);
 
-    // Free the memory for our structure.
-    GlobalFreePtr(p);
-    return 0;
+        // Free the memory for our structure.
+        GlobalFreePtr(p);
+        return 0;
     }
     return p->refs;
 }
@@ -478,7 +454,7 @@ STDMETHODIMP_(ULONG) WaveUnknownRelease(
 STDMETHODIMP WaveFileQueryInterface(
     PAVIFILE    pf,
     REFIID        iid,
-    void FAR* FAR*    ppv)
+    void FAR* FAR* ppv)
 {
     // Get a pointer to our structure
     LPWAVESTUFF pWaveStuff = WAVESTUFF_FROM_FILE(pf);
@@ -487,7 +463,7 @@ STDMETHODIMP WaveFileQueryInterface(
         pWaveStuff->pUnknownOuter, iid, ppv);
 }
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 
 // Use our controlling object to call AddRef on Unknown
@@ -502,7 +478,7 @@ STDMETHODIMP_(ULONG) WaveFileAddRef(
         pWaveStuff->pUnknownOuter);
 }
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 
 // Use our controlling object to call Release on Unknown
@@ -517,7 +493,7 @@ STDMETHODIMP_(ULONG) WaveFileRelease(
         pWaveStuff->pUnknownOuter);
 }
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 
 
@@ -526,7 +502,7 @@ STDMETHODIMP_(ULONG) WaveFileRelease(
 STDMETHODIMP WavePersistQueryInterface(
     LPPERSISTFILE    ppf,
     REFIID        iid,
-    void FAR* FAR*    ppv)
+    void FAR* FAR* ppv)
 {
     // Get a pointer to our structure
     LPWAVESTUFF pWaveStuff = WAVESTUFF_FROM_PERSIST(ppf);
@@ -535,7 +511,7 @@ STDMETHODIMP WavePersistQueryInterface(
         pWaveStuff->pUnknownOuter, iid, ppv);
 }
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 
 // Use our controlling object to call AddRef on Unknown
@@ -550,7 +526,7 @@ STDMETHODIMP_(ULONG) WavePersistAddRef(
         pWaveStuff->pUnknownOuter);
 }
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 
 // Use our controlling object to call Release on Unknown
@@ -565,7 +541,7 @@ STDMETHODIMP_(ULONG) WavePersistRelease(
         pWaveStuff->pUnknownOuter);
 }
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 
 
@@ -575,7 +551,7 @@ STDMETHODIMP_(ULONG) WavePersistRelease(
 STDMETHODIMP WaveStreamQueryInterface(
     PAVISTREAM    ps,
     REFIID        iid,
-    void FAR* FAR*    ppv)
+    void FAR* FAR* ppv)
 {
     // Get a pointer to our structure
     LPWAVESTUFF pWaveStuff = WAVESTUFF_FROM_STREAM(ps);
@@ -584,7 +560,7 @@ STDMETHODIMP WaveStreamQueryInterface(
         pWaveStuff->pUnknownOuter, iid, ppv);
 }
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 
 // Use our controlling object to call AddRef on Unknown
@@ -599,7 +575,7 @@ STDMETHODIMP_(ULONG) WaveStreamAddRef(
         pWaveStuff->pUnknownOuter);
 }
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 
 // Use our controlling object to call Release on Unknown
@@ -614,7 +590,7 @@ STDMETHODIMP_(ULONG) WaveStreamRelease(
         pWaveStuff->pUnknownOuter);
 }
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 #define SLASH(c)    ((c) == TEXT('/') || (c) == TEXT('\\'))
 
@@ -629,17 +605,17 @@ LPTSTR FAR FileName(
     LPCTSTR lszCur;
 
     for (lszCur = lszPath + lstrlen(lszPath); lszCur > lszPath && !SLASH(*lszCur) && *lszCur != ':';)
-    lszCur = CharPrev(lszPath, lszCur);
+        lszCur = CharPrev(lszPath, lszCur);
     if (lszCur == lszPath)
-    return (LPTSTR)lszCur;
+        return (LPTSTR)lszCur;
     else
-    return (LPTSTR)(lszCur + 1);
+        return (LPTSTR)(lszCur + 1);
 }
 
 STDMETHODIMP ParseAUFile(LPWAVESTUFF p);
 
 
-/*    -    -    -    -    -    -    -    -    */
+ 
 
 STDMETHODIMP ParseWaveFile(LPWAVESTUFF p)
 {
@@ -647,35 +623,35 @@ STDMETHODIMP ParseWaveFile(LPWAVESTUFF p)
     MMCKINFO    ckRIFF;
     /* Read RIFF chunk */
     if (shfileDescend(p->hshfile, &ckRIFF, NULL, 0) != 0)
-    goto error;
+        goto error;
 
     if (ckRIFF.ckid != FOURCC_RIFF || ckRIFF.fccType != formtypeWAVE)
-    return ParseAUFile(p);
+        return ParseAUFile(p);
 
     /* Read WAVE format chunk */
     ck.ckid = ckidWAVEFORMAT;
     if (FindChunkAndKeepExtras(&p->extra, p->hshfile, &ck, &ckRIFF, MMIO_FINDCHUNK))
-    goto error;
+        goto error;
 
     p->cbFormat = ck.cksize;
-    p->lpFormat = (LPWAVEFORMATEX) GlobalAllocPtr(GMEM_MOVEABLE, ck.cksize);
+    p->lpFormat = (LPWAVEFORMATEX)GlobalAllocPtr(GMEM_MOVEABLE, ck.cksize);
 
     if (p->lpFormat == NULL)
-    goto error;
+        goto error;
 
     if (shfileRead(p->hshfile,
-        (HPSTR) p->lpFormat,
-        (LONG)ck.cksize) != (LONG)ck.cksize)
-    goto error;
+        (HPSTR)p->lpFormat,
+                   (LONG)ck.cksize) != (LONG)ck.cksize)
+        goto error;
 
     /* Ascend out of stream header */
     if (shfileAscend(p->hshfile, &ck, 0) != 0)
-    goto error;
+        goto error;
 
     /* Find big data chunk */
     p->ckData.ckid = ckidWAVEDATA;
     if (FindChunkAndKeepExtras(&p->extra, p->hshfile, &p->ckData, &ckRIFF, MMIO_FINDCHUNK))
-    goto error;
+        goto error;
 
     p->fDirty = FALSE;
 
@@ -694,14 +670,14 @@ STDMETHODIMP ParseWaveFile(LPWAVESTUFF p)
 
 #ifdef FPSHACK
     p->avihdr.dwLength = muldiv32(p->avistream.dwLength,
-                p->avistream.dwScale * FPSHACK,
-                p->avistream.dwRate);
+                                  p->avistream.dwScale * FPSHACK,
+                                  p->avistream.dwRate);
 #else
     p->avihdr.dwScale = 1;
     p->avihdr.dwRate = p->lpFormat->nSamplesPerSec;
     p->avihdr.dwLength = muldiv32(p->ckData.cksize,
-                p->lpFormat->nSamplesPerSec,
-                p->lpFormat->nAvgBytesPerSec);
+                                  p->lpFormat->nSamplesPerSec,
+                                  p->lpFormat->nAvgBytesPerSec);
 #endif
 
 
@@ -709,7 +685,7 @@ STDMETHODIMP ParseWaveFile(LPWAVESTUFF p)
 
     // Read extra data at end of file....
     if (FindChunkAndKeepExtras(&p->extra, p->hshfile, &ckRIFF, &ck, 0) != AVIERR_OK)
-    goto error;
+        goto error;
 
     return ResultFromScode(0); // success
 
@@ -738,9 +714,9 @@ STDMETHODIMP WaveFileOpen(
     // force the share flags to the 'correct' values
     // If we're writing, use Exclusive mode.  If we're reading, use DenyWrite.
     if (mode & OF_READWRITE) {
-    mode = (mode & ~(MMIO_SHAREMODE)) | OF_SHARE_EXCLUSIVE;
+        mode = (mode & ~(MMIO_SHAREMODE)) | OF_SHARE_EXCLUSIVE;
     } else {
-    mode = (mode & ~(MMIO_SHAREMODE)) | OF_SHARE_DENY_WRITE;
+        mode = (mode & ~(MMIO_SHAREMODE)) | OF_SHARE_DENY_WRITE;
     }
 #endif
 
@@ -752,11 +728,11 @@ STDMETHODIMP WaveFileOpen(
 
     // If the first attempt fails, no system error box, please.
     ui = SetErrorMode(SEM_NOOPENFILEERRORBOX);
-    p->hshfile = shfileOpen((LPTSTR) szFile, NULL, MMIO_ALLOCBUF | mode);
+    p->hshfile = shfileOpen((LPTSTR)szFile, NULL, MMIO_ALLOCBUF | mode);
     if (!p->hshfile && ((mode & MMIO_RWMODE) == OF_READ)) {
-    // if the open fails, try again without the share flags.
-    mode &= ~(MMIO_SHAREMODE);
-    p->hshfile = shfileOpen((LPTSTR) szFile, NULL, MMIO_ALLOCBUF | mode);
+        // if the open fails, try again without the share flags.
+        mode &= ~(MMIO_SHAREMODE);
+        p->hshfile = shfileOpen((LPTSTR)szFile, NULL, MMIO_ALLOCBUF | mode);
     }
     SetErrorMode(ui);
 
@@ -764,13 +740,13 @@ STDMETHODIMP WaveFileOpen(
     p->mode = mode;
 
     if (!p->hshfile)
-    goto error;
+        goto error;
 
     _fmemset(&p->avistream, 0, sizeof(p->avistream));
 
-// If this is defined, we pretend that the data is at FPSHACK "frames"
-// per second in the main header, otherwise we use the sample
-// rate of the audio, which looks somewhat strange in MPlayer.
+    // If this is defined, we pretend that the data is at FPSHACK "frames"
+    // per second in the main header, otherwise we use the sample
+    // rate of the audio, which looks somewhat strange in MPlayer.
 #define FPSHACK    1000
 
     _fmemset(&p->avihdr, 0, sizeof(p->avihdr));
@@ -785,41 +761,41 @@ STDMETHODIMP WaveFileOpen(
 
     p->avihdr.dwStreams = 1;
     LoadUnicodeString(ghMod, IDS_FILETYPE, p->avihdr.szFileType,
-              NUMELMS(p->avihdr.szFileType));
+                      NUMELMS(p->avihdr.szFileType));
 
 
     // Initialize our AVISTREAMHEADER
 
     LoadString(ghMod, IDS_STREAMNAME, ach, NUMELMS(ach));
     {
-    TCHAR   achTemp[MAX_PATH];
+        TCHAR   achTemp[MAX_PATH];
 
-    wsprintf(achTemp, ach, FileName(szFile));
+        wsprintf(achTemp, ach, FileName(szFile));
 
 #ifdef UNICODE
-    lstrzcpy (p->avistream.szName,achTemp,NUMELMS(p->avistream.szName));
+        lstrzcpy(p->avistream.szName, achTemp, NUMELMS(p->avistream.szName));
 #else
-    lstrzcpyAtoW (p->avistream.szName,achTemp,NUMELMS(p->avistream.szName));
+        lstrzcpyAtoW(p->avistream.szName, achTemp, NUMELMS(p->avistream.szName));
 #endif
     }
 
     if (mode & OF_CREATE) {    // Brand new file
-    p->avistream.fccType = streamtypeAUDIO;
-    p->avistream.fccHandler = 0;
-    p->avistream.dwFlags = 0;
-    p->avistream.wPriority = 0;
-    p->avistream.wLanguage = 0;
-    p->avistream.dwInitialFrames = 0;
-    p->avistream.dwScale = 0;
-    p->avistream.dwRate = 0;
-    p->avistream.dwStart = 0;
-    p->avistream.dwLength = 0;
-    p->avistream.dwSuggestedBufferSize = 0;
-    p->avistream.dwSampleSize = 0;
+        p->avistream.fccType = streamtypeAUDIO;
+        p->avistream.fccHandler = 0;
+        p->avistream.dwFlags = 0;
+        p->avistream.wPriority = 0;
+        p->avistream.wLanguage = 0;
+        p->avistream.dwInitialFrames = 0;
+        p->avistream.dwScale = 0;
+        p->avistream.dwRate = 0;
+        p->avistream.dwStart = 0;
+        p->avistream.dwLength = 0;
+        p->avistream.dwSuggestedBufferSize = 0;
+        p->avistream.dwSampleSize = 0;
 
-    p->fDirty = TRUE;
+        p->fDirty = TRUE;
     } else {        // read the existing file to get info
-    hr = ParseWaveFile(p);
+        hr = ParseWaveFile(p);
     }
 
     return hr;
@@ -843,10 +819,10 @@ typedef struct {
 
 #define SWAP(x,y) ( (x)^=(y), (y)^=(x), (x)^=(y) )
 
-void _inline SwapDWORD( DWORD FAR * pdw )
+void _inline SwapDWORD(DWORD FAR* pdw)
 {
-    SWAP(((BYTE FAR *)pdw)[0],((BYTE FAR *)pdw)[3]);
-    SWAP(((BYTE FAR *)pdw)[1],((BYTE FAR *)pdw)[2]);
+    SWAP(((BYTE FAR*)pdw)[0], ((BYTE FAR*)pdw)[3]);
+    SWAP(((BYTE FAR*)pdw)[1], ((BYTE FAR*)pdw)[2]);
 }
 
 STDMETHODIMP ParseAUFile(LPWAVESTUFF p)
@@ -855,13 +831,13 @@ STDMETHODIMP ParseAUFile(LPWAVESTUFF p)
 
     shfileSeek(p->hshfile, 0, SEEK_SET);
 
-    if (shfileRead(p->hshfile, (HPSTR) &header, sizeof(header)) != sizeof(header))
-    goto error;
+    if (shfileRead(p->hshfile, (HPSTR)&header, sizeof(header)) != sizeof(header))
+        goto error;
 
     // validate header
     // !!!
     if (header.magic != mmioFOURCC('.', 's', 'n', 'd'))
-    goto error;
+        goto error;
 
     SwapDWORD(&header.dataFormat);
     SwapDWORD(&header.dataLocation);
@@ -870,7 +846,7 @@ STDMETHODIMP ParseAUFile(LPWAVESTUFF p)
     SwapDWORD(&header.channelCount);
 
     p->cbFormat = sizeof(WAVEFORMATEX);
-    p->lpFormat = (LPWAVEFORMATEX) GlobalAllocPtr(GHND, p->cbFormat);
+    p->lpFormat = (LPWAVEFORMATEX)GlobalAllocPtr(GHND, p->cbFormat);
 
     if (p->lpFormat == NULL)
         goto error;
@@ -879,24 +855,24 @@ STDMETHODIMP ParseAUFile(LPWAVESTUFF p)
 
     // fill in wave format fields
     if (header.dataFormat == SND_FORMAT_MULAW_8) {
-    p->lpFormat->wFormatTag = WAVE_FORMAT_MULAW;
-    p->lpFormat->wBitsPerSample = 8;
+        p->lpFormat->wFormatTag = WAVE_FORMAT_MULAW;
+        p->lpFormat->wBitsPerSample = 8;
 
-    // !!! HACK: if the sampling rate is almost 8KHz, make it be
-    // exactly 8KHz, so that more sound cards will play it right.
-    if (header.samplingRate > 7980 && header.samplingRate < 8020)
-        header.samplingRate = 8000;
+        // !!! HACK: if the sampling rate is almost 8KHz, make it be
+        // exactly 8KHz, so that more sound cards will play it right.
+        if (header.samplingRate > 7980 && header.samplingRate < 8020)
+            header.samplingRate = 8000;
 
     } else if (header.dataFormat == SND_FORMAT_LINEAR_8) {
-    p->lpFormat->wFormatTag = WAVE_FORMAT_PCM;
-    p->lpFormat->wBitsPerSample = 8;
-    // Could support LINEAR_16, but would have to byte-swap everything....
+        p->lpFormat->wFormatTag = WAVE_FORMAT_PCM;
+        p->lpFormat->wBitsPerSample = 8;
+        // Could support LINEAR_16, but would have to byte-swap everything....
     } else
-    goto error;
+        goto error;
 
-    p->lpFormat->nChannels = (UINT) header.channelCount;
+    p->lpFormat->nChannels = (UINT)header.channelCount;
     p->lpFormat->nSamplesPerSec = header.samplingRate;
-    p->lpFormat->nAvgBytesPerSec =  header.samplingRate * p->lpFormat->nChannels;
+    p->lpFormat->nAvgBytesPerSec = header.samplingRate * p->lpFormat->nChannels;
     p->lpFormat->nBlockAlign = 1;
 
     /* Tell rest of handler where data is */
@@ -920,14 +896,14 @@ STDMETHODIMP ParseAUFile(LPWAVESTUFF p)
 
 #ifdef FPSHACK
     p->avihdr.dwLength = muldiv32(p->avistream.dwLength,
-                p->avistream.dwScale * FPSHACK,
-                p->avistream.dwRate);
+                                  p->avistream.dwScale * FPSHACK,
+                                  p->avistream.dwRate);
 #else
     p->avihdr.dwScale = 1;
     p->avihdr.dwRate = p->lpFormat->nSamplesPerSec;
     p->avihdr.dwLength = muldiv32(p->ckData.cksize,
-                p->lpFormat->nSamplesPerSec,
-                p->lpFormat->nAvgBytesPerSec);
+                                  p->lpFormat->nSamplesPerSec,
+                                  p->lpFormat->nAvgBytesPerSec);
 #endif
 
     return ResultFromScode(0); // success
@@ -941,7 +917,7 @@ error:
 
 STDMETHODIMP WaveFileGetStream(
     PAVIFILE pf,
-    PAVISTREAM FAR * ppavi,
+    PAVISTREAM FAR* ppavi,
     DWORD fccType,
     LONG lParam)
 {
@@ -966,7 +942,7 @@ STDMETHODIMP WaveFileGetStream(
     p->AVIStream->AddRef((PAVISTREAM)&p->AVIStream);
 
     // Return a pointer to our stream Vtbl
-    *ppavi = (PAVISTREAM) &(p->AVIStream);
+    *ppavi = (PAVISTREAM) & (p->AVIStream);
     return ResultFromScode(AVIERR_OK);
 }
 
@@ -1003,7 +979,7 @@ STDMETHODIMP WaveFileDeleteStream(PAVIFILE pf, DWORD fccType, LONG lParam)
 STDMETHODIMP WaveFileSave(
     PAVIFILE pf,
     LPCSTR szFile,
-    AVICOMPRESSOPTIONS FAR *lpOptions,
+    AVICOMPRESSOPTIONS FAR* lpOptions,
     AVISAVECALLBACK lpfnCallback)
 {
     return ResultFromScode(AVIERR_UNSUPPORTED);
@@ -1015,8 +991,8 @@ STDMETHODIMP WaveFileSave(
 
 STDMETHODIMP WaveFileCreateStream(
     PAVIFILE pf,
-    PAVISTREAM FAR *ppstream,
-    AVISTREAMINFOW FAR *psi)
+    PAVISTREAM FAR* ppstream,
+    AVISTREAMINFOW FAR* psi)
 {
     // Get a pointer to our structure
     LPWAVESTUFF p = WAVESTUFF_FROM_FILE(pf);
@@ -1036,7 +1012,7 @@ STDMETHODIMP WaveFileCreateStream(
     p->lpFormat = NULL;
 
     // Return a pointer to our stream Vtbl.
-    *ppstream = (PAVISTREAM) &(p->AVIStream);
+    *ppstream = (PAVISTREAM) & (p->AVIStream);
 
     return ResultFromScode(AVIERR_OK);
 }
@@ -1064,7 +1040,7 @@ STDMETHODIMP WaveFileReadData(
     PAVIFILE pf,
     DWORD ckid,
     LPVOID lpData,
-    LONG FAR *lpcbData)
+    LONG FAR* lpcbData)
 {
     // Get a pointer to our structure
     LPWAVESTUFF p = WAVESTUFF_FROM_FILE(pf);
@@ -1089,7 +1065,7 @@ STDMETHODIMP WaveFileEndRecord(
 
 STDMETHODIMP WaveFileInfo(
     PAVIFILE pf,
-    AVIFILEINFOW FAR * pfi,
+    AVIFILEINFOW FAR* pfi,
     LONG lSize)
 {
     // Get a pointer to our structure
@@ -1140,7 +1116,7 @@ STDMETHODIMP WaveStreamReadFormat(
     PAVISTREAM    ps,
     LONG lPos,
     LPVOID lpFormat,
-    LONG FAR *lpcbFormat)
+    LONG FAR* lpcbFormat)
 {
     // Get a pointer to our structure
     LPWAVESTUFF p = WAVESTUFF_FROM_STREAM(ps);
@@ -1168,7 +1144,7 @@ STDMETHODIMP WaveStreamReadFormat(
 
 STDMETHODIMP WaveStreamInfo(
     PAVISTREAM    ps,
-    AVISTREAMINFOW FAR * psi,
+    AVISTREAMINFOW FAR* psi,
     LONG lSize)
 {
     // Get a pointer to our structure
@@ -1180,7 +1156,7 @@ STDMETHODIMP WaveStreamInfo(
 }
 
 
-STDMETHODIMP WaveStreamSetInfo(PAVISTREAM ps, AVISTREAMINFOW FAR * psi, LONG lSize)
+STDMETHODIMP WaveStreamSetInfo(PAVISTREAM ps, AVISTREAMINFOW FAR* psi, LONG lSize)
 {
     return ResultFromScode(AVIERR_UNSUPPORTED);
 }
@@ -1222,8 +1198,8 @@ STDMETHODIMP WaveStreamRead(
     LONG        lSamples,
     LPVOID        lpBuffer,
     LONG        cbBuffer,
-    LONG FAR *    plBytes,
-    LONG FAR *    plSamples)
+    LONG FAR* plBytes,
+    LONG FAR* plSamples)
 {
     // Get a pointer to our structure
     LPWAVESTUFF p = WAVESTUFF_FROM_STREAM(ps);
@@ -1233,8 +1209,8 @@ STDMETHODIMP WaveStreamRead(
     LONG    lRead;
 
     // Invalid position
-    if (lStart < 0 || lStart > (LONG) p->avistream.dwLength) {
-ack:
+    if (lStart < 0 || lStart >(LONG) p->avistream.dwLength) {
+    ack:
         if (plBytes)
             *plBytes = 0;
         if (plSamples)
@@ -1243,7 +1219,7 @@ ack:
     }
 
     // Can't read quite this much data
-    if (lSamples + lStart > (LONG) p->avistream.dwLength)
+    if (lSamples + lStart > (LONG)p->avistream.dwLength)
         lSamples = p->avistream.dwLength - lStart;
 
     lSampleSize = p->avistream.dwSampleSize;
@@ -1255,7 +1231,7 @@ ack:
             // Trim how many samples we'd really be able to read
             lSamples = min(lSamples, cbBuffer / lSampleSize);
         else if (lSamples <= 0)
-                // Use as many as will fit
+            // Use as many as will fit
             lSamples = cbBuffer / lSampleSize;
     } else {
         if (lSamples > 0)
@@ -1292,7 +1268,7 @@ ack:
     if (shfileSeek(p->hshfile, lSeek, SEEK_SET) != lSeek)
         goto ack;
 
-    if (shfileRead(p->hshfile, (HPSTR) lpBuffer, lRead) != lRead)
+    if (shfileRead(p->hshfile, (HPSTR)lpBuffer, lRead) != lRead)
         goto ack;
 
 
@@ -1324,7 +1300,7 @@ STDMETHODIMP WaveStreamSetFormat(
     // We can only do this to an empty wave file
     if (p->lpFormat) {
         if (cbFormat != p->cbFormat ||
-            _fmemcmp(lpFormat, p->lpFormat, (int) cbFormat))
+            _fmemcmp(lpFormat, p->lpFormat, (int)cbFormat))
             return ResultFromScode(AVIERR_UNSUPPORTED);
 
         return NOERROR;
@@ -1333,7 +1309,7 @@ STDMETHODIMP WaveStreamSetFormat(
     // Go ahead and set the format!
 
     p->cbFormat = cbFormat;
-    p->lpFormat = (LPWAVEFORMATEX) GlobalAllocPtr(GMEM_MOVEABLE, cbFormat);
+    p->lpFormat = (LPWAVEFORMATEX)GlobalAllocPtr(GMEM_MOVEABLE, cbFormat);
 
     if (p->lpFormat == NULL)
         return ResultFromScode(AVIERR_MEMORY);
@@ -1364,8 +1340,8 @@ STDMETHODIMP WaveStreamWrite(
     LPVOID lpData,
     LONG cbData,
     DWORD dwFlags,
-    LONG FAR *plSampWritten,
-    LONG FAR *plBytesWritten)
+    LONG FAR* plSampWritten,
+    LONG FAR* plBytesWritten)
 {
     // Get a pointer to our structure
     LPWAVESTUFF p = WAVESTUFF_FROM_STREAM(ps);
@@ -1386,27 +1362,27 @@ STDMETHODIMP WaveStreamWrite(
     p->fDirty = TRUE;
 
     shfileSeek(p->hshfile,
-        p->ckData.dwDataOffset +
-        lStart * p->avistream.dwSampleSize,
-        SEEK_SET);
+               p->ckData.dwDataOffset +
+               lStart * p->avistream.dwSampleSize,
+               SEEK_SET);
 
-    if (shfileWrite(p->hshfile, (HPSTR) lpData, cbData) != cbData)
+    if (shfileWrite(p->hshfile, (HPSTR)lpData, cbData) != cbData)
         return ResultFromScode(AVIERR_FILEWRITE);
 
-    p->avistream.dwLength = max((LONG) p->avistream.dwLength,
-                    lStart + lSamples);
+    p->avistream.dwLength = max((LONG)p->avistream.dwLength,
+                                lStart + lSamples);
 
     p->ckData.cksize = max(p->ckData.cksize,
-                lStart * p->avistream.dwSampleSize + cbData);
+                           lStart * p->avistream.dwSampleSize + cbData);
 
 #ifdef FPSHACK
     p->avihdr.dwLength = muldiv32(p->avistream.dwLength * FPSHACK,
-                p->avistream.dwScale,
-                p->avistream.dwRate);
+                                  p->avistream.dwScale,
+                                  p->avistream.dwRate);
 #else
     p->avihdr.dwLength = muldiv32(p->ckData.cksize,
-                p->lpFormat->nSamplesPerSec,
-                p->lpFormat->nAvgBytesPerSec);
+                                  p->lpFormat->nSamplesPerSec,
+                                  p->lpFormat->nAvgBytesPerSec);
 #endif
 
 
@@ -1439,7 +1415,7 @@ STDMETHODIMP WaveStreamReadData(
     PAVISTREAM ps,
     DWORD fcc,
     LPVOID lp,
-    LONG FAR *lpcb)
+    LONG FAR* lpcb)
 {
     return ResultFromScode(AVIERR_UNSUPPORTED);
 }
@@ -1454,22 +1430,20 @@ STDMETHODIMP WaveStreamWriteData(
 }
 
 
-STDMETHODIMP WaveFileReserved(
-    PAVIFILE pf)
+STDMETHODIMP WaveFileReserved(PAVIFILE pf)
 {
     return ResultFromScode(AVIERR_UNSUPPORTED);
 }
 
-STDMETHODIMP WaveStreamReserved(
-    PAVISTREAM ps)
+STDMETHODIMP WaveStreamReserved(PAVISTREAM ps)
 {
     return ResultFromScode(AVIERR_UNSUPPORTED);
 }
 
-/*      -       -       -       -       -       -       -       -       */
+ 
 
 // *** IPersist methods ***
-STDMETHODIMP WavePersistGetClassID (LPPERSISTFILE ppf, LPCLSID lpClassID)
+STDMETHODIMP WavePersistGetClassID(LPPERSISTFILE ppf, LPCLSID lpClassID)
 {
     // Get a pointer to our structure
     LPWAVESTUFF pfile = WAVESTUFF_FROM_PERSIST(ppf);
@@ -1479,7 +1453,7 @@ STDMETHODIMP WavePersistGetClassID (LPPERSISTFILE ppf, LPCLSID lpClassID)
 }
 
 // *** IPersistFile methods ***
-STDMETHODIMP WavePersistIsDirty (LPPERSISTFILE ppf)
+STDMETHODIMP WavePersistIsDirty(LPPERSISTFILE ppf)
 {
     // Get a pointer to our structure
     LPWAVESTUFF pfile = WAVESTUFF_FROM_PERSIST(ppf);
@@ -1487,8 +1461,8 @@ STDMETHODIMP WavePersistIsDirty (LPPERSISTFILE ppf)
     return pfile->fDirty ? NOERROR : ResultFromScode(S_FALSE);
 }
 
-STDMETHODIMP WavePersistLoad (LPPERSISTFILE ppf,
-                  LPCOLESTR lpszFileName, DWORD grfMode)
+STDMETHODIMP WavePersistLoad(LPPERSISTFILE ppf,
+                             LPCOLESTR lpszFileName, DWORD grfMode)
 {
     // Get a pointer to our structure
     LPWAVESTUFF pfile = WAVESTUFF_FROM_PERSIST(ppf);
@@ -1499,40 +1473,34 @@ STDMETHODIMP WavePersistLoad (LPPERSISTFILE ppf,
 
     // Internally, we're using ANSI, but this interface is defined
     // to always accept UNICODE under _WIN32, so we have to convert.
-    lstrzcpyWtoA (achTemp, lpszFileName, NUMELMS(achTemp));
+    lstrzcpyWtoA(achTemp, lpszFileName, NUMELMS(achTemp));
 #else
-    #define achTemp    lpszFileName
+#define achTemp    lpszFileName
 #endif
 
-    return WaveFileOpen((PAVIFILE) &pfile->AVIFile, achTemp, (UINT) grfMode);
+    return WaveFileOpen((PAVIFILE)&pfile->AVIFile, achTemp, (UINT)grfMode);
 }
 
-STDMETHODIMP WavePersistSave (LPPERSISTFILE ppf,
-                  LPCOLESTR lpszFileName, BOOL fRemember)
+STDMETHODIMP WavePersistSave(LPPERSISTFILE ppf, LPCOLESTR lpszFileName, BOOL fRemember)
 {
     // Get a pointer to our structure
     LPWAVESTUFF pfile = WAVESTUFF_FROM_PERSIST(ppf);
-
 
     return ResultFromScode(E_FAIL);
 }
 
-STDMETHODIMP WavePersistSaveCompleted (LPPERSISTFILE ppf,
-                       LPCOLESTR lpszFileName)
+STDMETHODIMP WavePersistSaveCompleted(LPPERSISTFILE ppf, LPCOLESTR lpszFileName)
 {
     // Get a pointer to our structure
     LPWAVESTUFF pfile = WAVESTUFF_FROM_PERSIST(ppf);
-
 
     return NOERROR;
 }
 
-STDMETHODIMP WavePersistGetCurFile (LPPERSISTFILE ppf,
-                    LPOLESTR FAR * lplpszFileName)
+STDMETHODIMP WavePersistGetCurFile(LPPERSISTFILE ppf, LPOLESTR FAR* lplpszFileName)
 {
     // Get a pointer to our structure
     LPWAVESTUFF pfile = WAVESTUFF_FROM_PERSIST(ppf);
 
     return ResultFromScode(E_FAIL);
 }
-

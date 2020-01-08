@@ -50,7 +50,7 @@ Revision History:
 LONG
 DoLenLen(
     LONG lLen
-    )
+)
 
 /*
 
@@ -88,7 +88,7 @@ Return Values:
 LONG
 FindLenInt(
     AsnInteger32 nValue
-    )
+)
 
 /*
 
@@ -131,7 +131,7 @@ Return Values:
 LONG
 FindLenIntEx(
     AsnInteger32 nValue
-    )
+)
 
 /*
 
@@ -174,7 +174,7 @@ Return Values:
 LONG
 FindLenUInt(
     AsnUnsigned32 nValue
-    )
+)
 
 /*
 
@@ -208,7 +208,7 @@ Return Values:
 LONG
 FindLenUIntEx(
     AsnUnsigned32 nValue
-    )
+)
 
 /*
 
@@ -240,8 +240,8 @@ Return Values:
 
 LONG
 FindLenCntr64(
-    AsnCounter64 * pCntr64
-    )
+    AsnCounter64* pCntr64
+)
 
 /*
 
@@ -280,8 +280,8 @@ Return Values:
 
 LONG
 FindLenCntr64Ex(
-    AsnCounter64 * pCntr64
-    )
+    AsnCounter64* pCntr64
+)
 
 /*
 
@@ -320,8 +320,8 @@ Return Values:
 
 LONG
 FindLenOctets(
-    AsnOctetString * pOctets
-    )
+    AsnOctetString* pOctets
+)
 
 /*
 
@@ -347,8 +347,8 @@ Return Values:
 
 LONG
 FindLenOctetsEx(
-    AsnOctetString * pOctets
-    )
+    AsnOctetString* pOctets
+)
 
 /*
 
@@ -374,16 +374,16 @@ Return Values:
 
     // return total size
     return (lLenLen != BERERR)
-                ? (pOctets->length + lLenLen + 1)
-                : BERERR
-                ;
+        ? (pOctets->length + lLenLen + 1)
+        : BERERR
+        ;
 }
 
 
 LONG
 FindLenOid(
-    AsnObjectIdentifier * pOid
-    )
+    AsnObjectIdentifier* pOid
+)
 
 /*
 
@@ -431,8 +431,8 @@ Return Values:
 
 LONG
 FindLenOidEx(
-    AsnObjectIdentifier * pOid
-    )
+    AsnObjectIdentifier* pOid
+)
 
 /*
 
@@ -479,17 +479,17 @@ Return Values:
 
     // return total size
     return ((lLenLen != BERERR) &&
-            (pOid->idLength >= 2))
-                ? (lDataLen + lLenLen + 1)
-                : BERERR
-                ;
+        (pOid->idLength >= 2))
+        ? (lDataLen + lLenLen + 1)
+        : BERERR
+        ;
 }
 
 
 LONG
 FindLenAsnAny(
-    AsnAny * pAny
-    )
+    AsnAny* pAny
+)
 
 /*
 
@@ -550,8 +550,8 @@ Return Values:
 
 LONG
 FindLenAsnAnyEx(
-    AsnAny * pAny
-    )
+    AsnAny* pAny
+)
 
 /*
 
@@ -612,8 +612,8 @@ Return Values:
 
 LONG
 FindLenVarBind(
-    SnmpVarBind * pVb
-    )
+    SnmpVarBind* pVb
+)
 
 /*
 
@@ -644,17 +644,17 @@ Return Values:
 
     // return total size
     return ((lOidLen != BERERR) &&
-            (lValueLen != BERERR))
-                ? (lOidLen + lValueLen)
-                : BERERR
-                ;
+        (lValueLen != BERERR))
+        ? (lOidLen + lValueLen)
+        : BERERR
+        ;
 }
 
 
 LONG
 FindLenVarBindEx(
-    SnmpVarBind * pVb
-    )
+    SnmpVarBind* pVb
+)
 
 /*
 
@@ -688,18 +688,18 @@ Return Values:
 
     // return total size
     return ((lLenLen != BERERR) &&
-            (lOidLen != BERERR) &&
+        (lOidLen != BERERR) &&
             (lValueLen != BERERR))
-                ? (lOidLen + lValueLen + lLenLen + 1)
-                : BERERR
-                ;
+        ? (lOidLen + lValueLen + lLenLen + 1)
+        : BERERR
+        ;
 }
 
 
 LONG
 FindLenVarBindList(
-    SnmpVarBindList * pVbl
-    )
+    SnmpVarBindList* pVbl
+)
 
 /*
 
@@ -734,16 +734,16 @@ Return Values:
 
     // return total size
     return (lVbLen != BERERR)
-                ? lVblLen
-                : BERERR
-                ;
+        ? lVblLen
+        : BERERR
+        ;
 }
 
 
 LONG
 FindLenVarBindListEx(
-    SnmpVarBindList * pVbl
-    )
+    SnmpVarBindList* pVbl
+)
 
 /*
 
@@ -782,18 +782,18 @@ Return Values:
 
     // return total size
     return ((lVbLen != BERERR) &&
-            (lLenLen != BERERR))
-                ? (lVblLen + lLenLen + 1)
-                : BERERR
-                ;
+        (lLenLen != BERERR))
+        ? (lVblLen + lLenLen + 1)
+        : BERERR
+        ;
 }
 
 
 VOID
 AddNull(
-    LPBYTE * ppByte,
+    LPBYTE* ppByte,
     INT      nType
-    )
+)
 
 /*
 
@@ -822,10 +822,10 @@ Return Values:
 
 VOID
 AddLen(
-    LPBYTE * ppByte,
+    LPBYTE* ppByte,
     LONG     lLenLen,
     LONG     lDataLen
-    )
+)
 
 /*
 
@@ -863,10 +863,10 @@ Return Values:
 
 LONG
 AddInt(
-    LPBYTE *     ppByte,
+    LPBYTE* ppByte,
     INT          nType,
     AsnInteger32 nInteger32
-    )
+)
 
 /*
 
@@ -907,7 +907,7 @@ Return Values:
 
     // add encoded integer
     for (i = 0; i < lDataLen; i++) {
-       *(*ppByte)++ = (BYTE)(nInteger32 >>
+        *(*ppByte)++ = (BYTE)(nInteger32 >>
             (8 * ((lDataLen - 1) - i) & 0xFF));
     }
 
@@ -917,10 +917,10 @@ Return Values:
 
 LONG
 AddUInt(
-    LPBYTE *      ppByte,
+    LPBYTE* ppByte,
     INT           nType,
     AsnUnsigned32 nUnsigned32
-    )
+)
 
 /*
 
@@ -986,10 +986,10 @@ Return Values:
 
 LONG
 AddCntr64(
-    LPBYTE *       ppByte,
+    LPBYTE* ppByte,
     INT            nType,
-    AsnCounter64 * pCntr64
-    )
+    AsnCounter64* pCntr64
+)
 
 /*
 
@@ -1051,10 +1051,10 @@ Return Values:
 
 LONG
 AddOctets(
-    LPBYTE *         ppByte,
+    LPBYTE* ppByte,
     INT              nType,
-    AsnOctetString * pOctets
-    )
+    AsnOctetString* pOctets
+)
 
 /*
 
@@ -1096,14 +1096,11 @@ Return Values:
     AddLen(ppByte, lLenLen, lDataLen);
 
     // usless copy avoided
-    if (*ppByte != pOctets->stream)
-    {
+    if (*ppByte != pOctets->stream) {
         // encode actual octets
         for (i = 0; i < pOctets->length; i++)
             *(*ppByte)++ = pOctets->stream[i];
-    }
-    else
-    {
+    } else {
         (*ppByte) += pOctets->length;
     }
 
@@ -1113,10 +1110,10 @@ Return Values:
 
 LONG
 AddOid(
-    LPBYTE * ppByte,
+    LPBYTE* ppByte,
     INT      nType,
-    AsnObjectIdentifier * pOid
-    )
+    AsnObjectIdentifier* pOid
+)
 
 /*
 
@@ -1159,9 +1156,9 @@ Return Values:
 
     // add first subid
     if (pOid->idLength < 2)
-       *(*ppByte)++ = (BYTE)(pOid->ids[0] * 40);
+        *(*ppByte)++ = (BYTE)(pOid->ids[0] * 40);
     else
-       *(*ppByte)++ = (BYTE)((pOid->ids[0] * 40) + pOid->ids[1]);
+        *(*ppByte)++ = (BYTE)((pOid->ids[0] * 40) + pOid->ids[1]);
 
     // walk remaining subidentifiers
     for (i = 2; i < pOid->idLength; i++) {
@@ -1175,39 +1172,39 @@ Return Values:
 
             // 0x80 - 0x3fff
             *(*ppByte)++ = (BYTE)
-            (((pOid->ids[i]) >> 7) | 0x80);  // set high bit
+                (((pOid->ids[i]) >> 7) | 0x80);  // set high bit
             *(*ppByte)++ = (BYTE)(pOid->ids[i] & 0x7f);
 
         } else if (pOid->ids[i] < 0x200000) {
 
             // 0x4000 - 0x1FFFFF
             *(*ppByte)++ = (BYTE)
-            (((pOid->ids[i]) >> 14) | 0x80); // set high bit
+                (((pOid->ids[i]) >> 14) | 0x80); // set high bit
             *(*ppByte)++ = (BYTE)
-            (((pOid->ids[i]) >> 7) | 0x80);  // set high bit
+                (((pOid->ids[i]) >> 7) | 0x80);  // set high bit
             *(*ppByte)++ = (BYTE)(pOid->ids[i] & 0x7f);
 
         } else if (pOid->ids[i] < 0x10000000) {
 
             // 0x200000 - 0xFFfffff
             *(*ppByte)++ = (BYTE)
-            (((pOid->ids[i]) >> 21) | 0x80); // set high bit
+                (((pOid->ids[i]) >> 21) | 0x80); // set high bit
             *(*ppByte)++ = (BYTE)
-            (((pOid->ids[i]) >> 14) | 0x80); // set high bit
+                (((pOid->ids[i]) >> 14) | 0x80); // set high bit
             *(*ppByte)++ = (BYTE)
-            (((pOid->ids[i]) >> 7) | 0x80);  // set high bit
+                (((pOid->ids[i]) >> 7) | 0x80);  // set high bit
             *(*ppByte)++ = (BYTE)(pOid->ids[i] & 0x7f);
 
         } else {
 
             *(*ppByte)++ = (BYTE)
-            (((pOid->ids[i]) >> 28) | 0x80); // set high bit
+                (((pOid->ids[i]) >> 28) | 0x80); // set high bit
             *(*ppByte)++ = (BYTE)
-            (((pOid->ids[i]) >> 21) | 0x80); // set high bit
+                (((pOid->ids[i]) >> 21) | 0x80); // set high bit
             *(*ppByte)++ = (BYTE)
-            (((pOid->ids[i]) >> 14) | 0x80); // set high bit
+                (((pOid->ids[i]) >> 14) | 0x80); // set high bit
             *(*ppByte)++ = (BYTE)
-            (((pOid->ids[i]) >> 7) | 0x80);  // set high bit
+                (((pOid->ids[i]) >> 7) | 0x80);  // set high bit
             *(*ppByte)++ = (BYTE)(pOid->ids[i] & 0x7f);
         }
     }
@@ -1218,9 +1215,9 @@ Return Values:
 
 LONG
 AddAsnAny(
-    LPBYTE * ppByte,
-    AsnAny * pAny
-    )
+    LPBYTE* ppByte,
+    AsnAny* pAny
+)
 
 /*
 
@@ -1250,44 +1247,44 @@ Return Values:
     case ASN_UNSIGNED32:
 
         return AddUInt(
-                ppByte,
-                (INT)pAny->asnType,
-                pAny->asnValue.unsigned32
-                );
+            ppByte,
+            (INT)pAny->asnType,
+            pAny->asnValue.unsigned32
+        );
 
     case ASN_INTEGER32:
 
         return AddInt(
-                ppByte,
-                (INT)pAny->asnType,
-                pAny->asnValue.number
-                );
+            ppByte,
+            (INT)pAny->asnType,
+            pAny->asnValue.number
+        );
 
     case ASN_OBJECTIDENTIFIER:
 
         return AddOid(
-                ppByte,
-                (INT)pAny->asnType,
-                &pAny->asnValue.object
-                );
+            ppByte,
+            (INT)pAny->asnType,
+            &pAny->asnValue.object
+        );
 
     case ASN_COUNTER64:
 
         return AddCntr64(
-                ppByte,
-                (INT)pAny->asnType,
-                &pAny->asnValue.counter64
-                );
+            ppByte,
+            (INT)pAny->asnType,
+            &pAny->asnValue.counter64
+        );
 
     case ASN_OCTETSTRING:
     case ASN_IPADDRESS:
     case ASN_OPAQUE:
 
         return AddOctets(
-                ppByte,
-                (INT)pAny->asnType,
-                &pAny->asnValue.string
-                );
+            ppByte,
+            (INT)pAny->asnType,
+            &pAny->asnValue.string
+        );
 
     case ASN_NULL:
     case SNMP_EXCEPTION_NOSUCHOBJECT:
@@ -1304,9 +1301,9 @@ Return Values:
 
 LONG
 AddVarBind(
-    LPBYTE *      ppByte,
-    SnmpVarBind * pVb
-    )
+    LPBYTE* ppByte,
+    SnmpVarBind* pVb
+)
 
 /*
 
@@ -1332,11 +1329,11 @@ Return Values:
 
     // determine actual length of varbind data
     if ((lDataLen = FindLenVarBind(pVb)) == BERERR)
-       return BERERR;
+        return BERERR;
 
     // determine length of varbind data length
     if ((lLenLen = DoLenLen(lDataLen)) == BERERR)
-       return BERERR;
+        return BERERR;
 
     // encode as sequence
     *(*ppByte)++ = ASN_SEQUENCE;
@@ -1358,9 +1355,9 @@ Return Values:
 
 LONG
 AddVarBindList(
-    LPBYTE *          ppByte,
-    SnmpVarBindList * pVbl
-    )
+    LPBYTE* ppByte,
+    SnmpVarBindList* pVbl
+)
 
 /*
 
@@ -1395,9 +1392,9 @@ Return Values:
 
 LONG
 ParseLength(
-    LPBYTE * ppByte,
+    LPBYTE* ppByte,
     LPBYTE   pLastByte
-    )
+)
 
 /*
 
@@ -1422,26 +1419,26 @@ Return Values:
     LONG lLenLen;
     LONG lDataLen;
 
-    lDataLen = (LONG)*(*ppByte)++;
+    lDataLen = (LONG) * (*ppByte)++;
 
     if (lDataLen < 0x80)
-       return (lDataLen);
+        return (lDataLen);
 
     // check for long form
     lLenLen = lDataLen & 0x7f;
 
     // validate long form
     if ((lLenLen > 4) || (lLenLen < 1))
-       return BERERR;
+        return BERERR;
 
     lDataLen = 0L;
 
     for (i = 0; i < lLenLen; i++) {
-       lDataLen = (lDataLen << 8) + *(*ppByte)++;
+        lDataLen = (lDataLen << 8) + *(*ppByte)++;
     }
 
     if (*ppByte > pLastByte)
-       return BERERR;
+        return BERERR;
 
     return (lDataLen);
 }
@@ -1449,9 +1446,9 @@ Return Values:
 
 LONG
 ParseType(
-    LPBYTE * ppByte,
+    LPBYTE* ppByte,
     LPBYTE   pLastByte
-    )
+)
 
 /*
 
@@ -1475,7 +1472,7 @@ Return Values:
     SHORT nType = *(*ppByte)++;
 
     if (*ppByte > pLastByte)
-       return BERERR;
+        return BERERR;
 
     switch (nType) {
 
@@ -1515,9 +1512,9 @@ Return Values:
 
 BOOL
 ParseNull(
-    LPBYTE * ppByte,
+    LPBYTE* ppByte,
     LPBYTE   pLastByte
-    )
+)
 
 /*
 
@@ -1558,10 +1555,10 @@ Return Values:
 
 BOOL
 ParseSequence(
-    LPBYTE * ppByte,
+    LPBYTE* ppByte,
     LPBYTE   pLastByte,
-    LONG *   plDataLen
-    )
+    LONG* plDataLen
+)
 
 /*
 
@@ -1604,10 +1601,10 @@ Return Values:
 
 BOOL
 ParseInt(
-    LPBYTE *       ppByte,
+    LPBYTE* ppByte,
     LPBYTE         pLastByte,
-    AsnInteger32 * pInteger32
-    )
+    AsnInteger32* pInteger32
+)
 
 /*
 
@@ -1635,27 +1632,27 @@ Return Values:
     LONG lDataLen;
 
     if (ParseType(ppByte, pLastByte) == BERERR)
-       return (FALSE);
+        return (FALSE);
 
     if ((lDataLen = ParseLength(ppByte, pLastByte)) == BERERR)
-       return (FALSE);
+        return (FALSE);
 
     if (lDataLen > 4)
-       return (FALSE);
+        return (FALSE);
 
     lSign = ((*(*ppByte) & 0x80) == 0x00) ? 0x00 : 0xFF;
 
     *pInteger32 = 0;
 
     for (i = 0; i < lDataLen; i++)
-       *pInteger32 = (*pInteger32 << 8) + (UINT)*(*ppByte)++;
+        *pInteger32 = (*pInteger32 << 8) + (UINT) * (*ppByte)++;
 
     // sign-extend upper bits
     for (i = lDataLen; i < 4; i++)
-       *pInteger32 = *pInteger32 + (lSign << i * 8);
+        *pInteger32 = *pInteger32 + (lSign << i * 8);
 
     if (*ppByte > pLastByte)
-       return (FALSE);
+        return (FALSE);
 
     return (TRUE);
 }
@@ -1663,10 +1660,10 @@ Return Values:
 
 BOOL
 ParseUInt(
-    LPBYTE *        ppByte,
+    LPBYTE* ppByte,
     LPBYTE          pLastByte,
-    AsnUnsigned32 * pUnsigned32
-    )
+    AsnUnsigned32* pUnsigned32
+)
 
 /*
 
@@ -1693,27 +1690,27 @@ Return Values:
     LONG lDataLen;
 
     if (ParseType(ppByte, pLastByte) == BERERR)
-       return (FALSE);
+        return (FALSE);
 
     if ((lDataLen = ParseLength(ppByte, pLastByte)) == BERERR)
-       return (FALSE);
+        return (FALSE);
 
     if ((lDataLen > 5) || ((lDataLen > 4) && (*(*ppByte) != 0x00)))
-       return (FALSE);
+        return (FALSE);
 
     // leading null octet?
-    if (*(*ppByte) == 0x00)  {
-       (*ppByte)++;          // if so, skip it
-       lDataLen--;           // and don't count it
+    if (*(*ppByte) == 0x00) {
+        (*ppByte)++;          // if so, skip it
+        lDataLen--;           // and don't count it
     }
 
     *pUnsigned32 = 0;
 
     for (i = 0; i < lDataLen; i++)
-       *pUnsigned32 = (*pUnsigned32 << 8) + (UINT)*(*ppByte)++;
+        *pUnsigned32 = (*pUnsigned32 << 8) + (UINT) * (*ppByte)++;
 
     if (*ppByte > pLastByte)
-       return (FALSE);
+        return (FALSE);
 
     return (TRUE);
 }
@@ -1721,10 +1718,10 @@ Return Values:
 
 BOOL
 ParseCntr64(
-    LPBYTE *       ppByte,
+    LPBYTE* ppByte,
     LPBYTE         pLastByte,
-    AsnCounter64 * pCntr64
-    )
+    AsnCounter64* pCntr64
+)
 
 /*
 
@@ -1769,19 +1766,19 @@ Return Values:
 
     // leading null octet?
     if (*(*ppByte) == 0x00) {
-       (*ppByte)++;          // if so, skip it
-       lDataLen--;           // and don't count it
+        (*ppByte)++;          // if so, skip it
+        lDataLen--;           // and don't count it
     }
 
     for (i = 0; i < lDataLen; i++) {
         pCntr64->HighPart = (pCntr64->HighPart << 8) +
             (pCntr64->LowPart >> 24);
         pCntr64->LowPart = (pCntr64->LowPart << 8) +
-            (unsigned long) *(*ppByte)++;
+            (unsigned long)*(*ppByte)++;
     }
 
     if (*ppByte > pLastByte)
-       return (FALSE);
+        return (FALSE);
 
     return TRUE;
 }
@@ -1789,10 +1786,10 @@ Return Values:
 
 BOOL
 ParseOctets(
-    LPBYTE *         ppByte,
+    LPBYTE* ppByte,
     LPBYTE           pLastByte,
-    AsnOctetString * pOctets
-    )
+    AsnOctetString* pOctets
+)
 
 /*
 
@@ -1817,8 +1814,8 @@ Return Values:
 {
     LONG errCode;
     // initialize
-    pOctets->length  = 0;
-    pOctets->stream  = NULL;
+    pOctets->length = 0;
+    pOctets->stream = NULL;
     pOctets->dynamic = FALSE;
 
     if (ParseType(ppByte, pLastByte) == BERERR)
@@ -1851,10 +1848,10 @@ Return Values:
 
 BOOL
 ParseOid(
-    LPBYTE *              ppByte,
+    LPBYTE* ppByte,
     LPBYTE                pLastByte,
-    AsnObjectIdentifier * pOid
-    )
+    AsnObjectIdentifier* pOid
+)
 
 /*
 
@@ -1894,7 +1891,7 @@ Return Values:
     if ((lDataLen = ParseLength(ppByte, pLastByte)) == BERERR)
         return (FALSE);
 
-    if (lDataLen == 0 ) //--ft 03/02/98 removed trailing "|| lDataLen > SNMP_MAX_OID_LEN)"
+    if (lDataLen == 0) //--ft 03/02/98 removed trailing "|| lDataLen > SNMP_MAX_OID_LEN)"
         return (FALSE);    // check is done in the for loop below
 
     pOid->ids = SnmpUtilMemAlloc((DWORD)((lDataLen + 2) * sizeof(UINT)));
@@ -1920,8 +1917,7 @@ Return Values:
         }
     }
 
-    if (i < lDataLen - 1 || *ppByte > pLastByte)
-    {
+    if (i < lDataLen - 1 || *ppByte > pLastByte) {
         SnmpUtilMemFree(pOid->ids);
         return (FALSE);
     }
@@ -1932,10 +1928,10 @@ Return Values:
 
 BOOL
 ParseAsnAny(
-    LPBYTE * ppByte,
+    LPBYTE* ppByte,
     LPBYTE   pLastByte,
-    AsnAny * pAny
-    )
+    AsnAny* pAny
+)
 
 /*
 
@@ -1967,44 +1963,44 @@ Return Values:
     case ASN_UNSIGNED32:
 
         return ParseUInt(
-                ppByte,
-                pLastByte,
-                &pAny->asnValue.unsigned32
-                );
+            ppByte,
+            pLastByte,
+            &pAny->asnValue.unsigned32
+        );
 
     case ASN_INTEGER32:
 
         return ParseInt(
-                ppByte,
-                pLastByte,
-                &pAny->asnValue.number
-                );
+            ppByte,
+            pLastByte,
+            &pAny->asnValue.number
+        );
 
     case ASN_OBJECTIDENTIFIER:
 
         return ParseOid(
-                ppByte,
-                pLastByte,
-                &pAny->asnValue.object
-                );
+            ppByte,
+            pLastByte,
+            &pAny->asnValue.object
+        );
 
     case ASN_COUNTER64:
 
         return ParseCntr64(
-                ppByte,
-                pLastByte,
-                &pAny->asnValue.counter64
-                );
+            ppByte,
+            pLastByte,
+            &pAny->asnValue.counter64
+        );
 
     case ASN_OCTETSTRING:
     case ASN_IPADDRESS:
     case ASN_OPAQUE:
 
         return ParseOctets(
-                ppByte,
-                pLastByte,
-                &pAny->asnValue.string
-                );
+            ppByte,
+            pLastByte,
+            &pAny->asnValue.string
+        );
 
     case ASN_NULL:
     case SNMP_EXCEPTION_NOSUCHOBJECT:
@@ -2020,10 +2016,10 @@ Return Values:
 
 BOOL
 ParseVarBind(
-    LPBYTE *      ppByte,
+    LPBYTE* ppByte,
     LPBYTE        pLastByte,
-    SnmpVarBind * pVb
-    )
+    SnmpVarBind* pVb
+)
 
 /*
 
@@ -2052,7 +2048,7 @@ Return Values:
     if (!(ParseOid(ppByte, pLastByte, &pVb->name)))
         return (FALSE);
 
-    pVb->value.asnType = (UINT)*(*ppByte);
+    pVb->value.asnType = (UINT) * (*ppByte);
 
     if (!(ParseAsnAny(ppByte, pLastByte, &pVb->value)))
         return (FALSE);
@@ -2063,10 +2059,10 @@ Return Values:
 
 BOOL
 ParseVarBindList(
-    LPBYTE *          ppByte,
+    LPBYTE* ppByte,
     LPBYTE            pLastByte,
-    SnmpVarBindList * pVbl
-    )
+    SnmpVarBindList* pVbl
+)
 
 /*
 
@@ -2090,7 +2086,7 @@ Return Values:
 
 {
     SnmpVarBind Vb;
-    SnmpVarBind * pVb = NULL;
+    SnmpVarBind* pVb = NULL;
 
     // initialize
     pVbl->list = NULL;
@@ -2133,11 +2129,11 @@ Return Values:
 BOOL
 BuildMessage(
     AsnInteger32      nVersion,
-    AsnOctetString *  pCommunity,
+    AsnOctetString* pCommunity,
     PSNMP_PDU         pPdu,
     PBYTE             pMessage,
     PDWORD            pMessageSize
-    )
+)
 
 /*
 
@@ -2205,22 +2201,22 @@ Return Values:
 
         // calculate bytes required to encode pdu entries
         nPduDataLength = FindLenIntEx(pPdu->Pdu.NormPdu.nRequestId)
-                       + FindLenIntEx(pPdu->Pdu.NormPdu.nErrorStatus)
-                       + FindLenIntEx(pPdu->Pdu.NormPdu.nErrorIndex)
-                       + nVbTotalLength;
+            + FindLenIntEx(pPdu->Pdu.NormPdu.nErrorStatus)
+            + FindLenIntEx(pPdu->Pdu.NormPdu.nErrorIndex)
+            + nVbTotalLength;
         break;
 
     case SNMP_PDU_V1TRAP:
 
         // calculate bytes required to encode pdu entries
         nPduDataLength = FindLenIntEx(pPdu->Pdu.TrapPdu.nGenericTrap)
-                       + FindLenIntEx(pPdu->Pdu.TrapPdu.nSpecificTrap)
-                       + FindLenUIntEx(pPdu->Pdu.TrapPdu.nTimeticks)
-                       + nVbTotalLength;
+            + FindLenIntEx(pPdu->Pdu.TrapPdu.nSpecificTrap)
+            + FindLenUIntEx(pPdu->Pdu.TrapPdu.nTimeticks)
+            + nVbTotalLength;
 
         // find oid length
         if ((nTmpDataLength =
-                FindLenOidEx(&pPdu->Pdu.TrapPdu.EnterpriseOid)) == BERERR)
+             FindLenOidEx(&pPdu->Pdu.TrapPdu.EnterpriseOid)) == BERERR)
             return FALSE;
 
         // add EnterpriseOid oid length
@@ -2228,7 +2224,7 @@ Return Values:
 
         // find address length
         if ((nTmpDataLength =
-                FindLenOctetsEx(&pPdu->Pdu.TrapPdu.AgentAddr)) == BERERR)
+             FindLenOctetsEx(&pPdu->Pdu.TrapPdu.AgentAddr)) == BERERR)
             return FALSE;
 
         // add agent address length
@@ -2248,8 +2244,8 @@ Return Values:
 
     // find length of message data
     nMsgDataLength = FindLenUIntEx(nVersion)
-                   + FindLenOctetsEx(pCommunity)
-                   + nPduTotalLength;
+        + FindLenOctetsEx(pCommunity)
+        + nPduTotalLength;
 
     // find length of message data length
     nMsgLenLength = DoLenLen(nMsgDataLength);
@@ -2264,7 +2260,7 @@ Return Values:
     if (nMsgTotalLength <= nMsgAvailLength) {
         LONG oldLength;    // the length of the request PDU
         LONG delta;        // difference between the request PDU length and the responce PDU length
-        BYTE *newStream;// new location for the community stream inside the response PDU.
+        BYTE* newStream;// new location for the community stream inside the response PDU.
 
         // encode message as asn sequence
         *tmpPtr++ = ASN_SEQUENCE;
@@ -2277,10 +2273,9 @@ Return Values:
         // we shift the community name with a few octets, as many as the difference between the
         // encodings of the two lengths (the length of the outgoing response - the length of the
         // incoming request).
-        if (pPdu->nType != SNMP_PDU_V1TRAP)
-        {
+        if (pPdu->nType != SNMP_PDU_V1TRAP) {
             // here tmpPtr points exactly to the length of the request pdu
-            oldLength = *(LONG *)tmpPtr;
+            oldLength = *(LONG*)tmpPtr;
             // compute the offset the community stream should be shifted with
             delta = nMsgLenLength - ((oldLength & 0x80) ? (oldLength & 0x7f) + 1 : 1);
             newStream = pCommunity->stream + delta;
@@ -2313,15 +2308,15 @@ Return Values:
         case SNMP_PDU_V1TRAP:
 
             if (AddOid(
-                    &tmpPtr,
-                    ASN_OBJECTIDENTIFIER,
-                    &pPdu->Pdu.TrapPdu.EnterpriseOid)== BERERR)
+                &tmpPtr,
+                ASN_OBJECTIDENTIFIER,
+                &pPdu->Pdu.TrapPdu.EnterpriseOid) == BERERR)
                 return FALSE;
 
             if (AddOctets(
-                    &tmpPtr,
-                    ASN_IPADDRESS,
-                    &pPdu->Pdu.TrapPdu.AgentAddr) == BERERR)
+                &tmpPtr,
+                ASN_IPADDRESS,
+                &pPdu->Pdu.TrapPdu.AgentAddr) == BERERR)
                 return FALSE;
 
             AddInt(&tmpPtr, ASN_INTEGER32, pPdu->Pdu.TrapPdu.nGenericTrap);
@@ -2356,12 +2351,12 @@ Return Values:
 
 BOOL
 ParseMessage(
-    AsnInteger32 *   pVersion,
-    AsnOctetString * pCommunity,
+    AsnInteger32* pVersion,
+    AsnOctetString* pCommunity,
     PSNMP_PDU        pPdu,
     PBYTE            pMessage,
     DWORD            dwMessageSize
-    )
+)
 
 /*
 
@@ -2424,8 +2419,7 @@ Return Values:
 
     // validate snmp version
     if ((*pVersion != SNMP_VERSION_1) &&
-        (*pVersion != SNMP_VERSION_2C))
-    {
+        (*pVersion != SNMP_VERSION_2C)) {
         // register version mismatch into the management structure
         mgmtCTick(CsnmpInBadVersions);
 
@@ -2469,7 +2463,7 @@ Return Values:
         // no reason here to have any ErrorStatus and ErrorIndex.
         // initialize error status variables to NOERROR
         pPdu->Pdu.NormPdu.nErrorStatus = SNMP_ERRORSTATUS_NOERROR;
-        pPdu->Pdu.NormPdu.nErrorIndex  = 0;
+        pPdu->Pdu.NormPdu.nErrorIndex = 0;
 
         break;
 
@@ -2499,7 +2493,7 @@ Return Values:
 
         // initialize status information
         pPdu->Pdu.BulkPdu.nErrorStatus = SNMP_ERRORSTATUS_NOERROR;
-        pPdu->Pdu.BulkPdu.nErrorIndex  = 0;
+        pPdu->Pdu.BulkPdu.nErrorIndex = 0;
 
         break;
 

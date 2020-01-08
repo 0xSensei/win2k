@@ -100,83 +100,83 @@ static const UBYTE FontProg[] = {
 
 
 
-/******* SET ZONE FUNCTION
+    /******* SET ZONE FUNCTION
 
- * Args: flat_pos
+     * Args: flat_pos
 
-*/
-FDEF(TTFUN_SET_ZONE)
-   PUSH1(TMPPNT),
-   op_swap,
-   op_miap,
-   PUSH1(TMPPNT),
-   op_mdap | SUBOP_R,
-ENDF
-
-
-
-
-/******* COPY ZONE FUNCTION
-
- * Args: from_cvt, to_cvt
-
-*/
-FDEF(TTFUN_COPY_ZONE)
-   op_rcvt,
-   op_round,
-   op_wcvtp,
-ENDF
+    */
+    FDEF(TTFUN_SET_ZONE)
+       PUSH1(TMPPNT),
+       op_swap,
+       op_miap,
+       PUSH1(TMPPNT),
+       op_mdap | SUBOP_R,
+    ENDF
 
 
 
 
+    /******* COPY ZONE FUNCTION
 
-/******* STEM SNAP WIDTH FUNCTION
+     * Args: from_cvt, to_cvt
 
- * Args: std_ci, std_cvt, snap_ci, snap_cvt, width, storage
+    */
+    FDEF(TTFUN_COPY_ZONE)
+       op_rcvt,
+       op_round,
+       op_wcvtp,
+    ENDF
 
-*/
-FDEF(TTFUN_STEM_SNAP_WIDTH)
-   op_mppem,
-   op_gteq,
-   op_if,
 
-      /* Use std */
-      op_rcvt,
-      op_round,
-      PUSH1(ONEPIXEL/2),
-      op_max,
-      op_swap, op_pop, op_swap, op_pop, op_swap, op_pop,
-      CALL(TTFUN_WRITE_STEM),
 
-   op_else,
-      op_pop,
-      op_mppem,
-      op_gteq,
-      op_if,
 
-         /* Use snap */
-         op_rcvt,
-         op_round,
-         PUSH1(ONEPIXEL/2),
-         op_max,
-    op_swap,
-         op_pop,
-         CALL(TTFUN_WRITE_STEM),
 
-      /* Use real width. */
-      op_else,
-         op_pop,
-         WCVT(TMPCVT),
-         PUSH1(TMPCVT),
-         op_rcvt,
-         op_round,
-         PUSH1(ONEPIXEL/2),
-         op_max,
-         CALL(TTFUN_WRITE_STEM),
-      op_eif,
+    /******* STEM SNAP WIDTH FUNCTION
 
-   op_eif,
+     * Args: std_ci, std_cvt, snap_ci, snap_cvt, width, storage
+
+    */
+    FDEF(TTFUN_STEM_SNAP_WIDTH)
+       op_mppem,
+       op_gteq,
+       op_if,
+
+    /* Use std */
+    op_rcvt,
+    op_round,
+    PUSH1(ONEPIXEL / 2),
+    op_max,
+    op_swap, op_pop, op_swap, op_pop, op_swap, op_pop,
+    CALL(TTFUN_WRITE_STEM),
+
+ op_else,
+    op_pop,
+    op_mppem,
+    op_gteq,
+    op_if,
+
+    /* Use snap */
+    op_rcvt,
+    op_round,
+    PUSH1(ONEPIXEL / 2),
+    op_max,
+op_swap,
+     op_pop,
+     CALL(TTFUN_WRITE_STEM),
+
+    /* Use real width. */
+    op_else,
+       op_pop,
+       WCVT(TMPCVT),
+       PUSH1(TMPCVT),
+       op_rcvt,
+       op_round,
+       PUSH1(ONEPIXEL / 2),
+       op_max,
+       CALL(TTFUN_WRITE_STEM),
+    op_eif,
+
+ op_eif,
 ENDF
 
 
@@ -193,823 +193,823 @@ FDEF(TTFUN_STEM_STD_WIDTH)
    op_gteq,
    op_if,
 
-      /* Use std */
-      op_rcvt,
-      op_round,
-      PUSH1(ONEPIXEL/2),
-      op_max,
-      op_swap,
-      op_pop,
-      CALL(TTFUN_WRITE_STEM),
+    /* Use std */
+    op_rcvt,
+    op_round,
+    PUSH1(ONEPIXEL / 2),
+    op_max,
+    op_swap,
+    op_pop,
+    CALL(TTFUN_WRITE_STEM),
 
-   /* Use real width. */
-   op_else,
-      op_pop,
-      WCVT(TMPCVT),
-      PUSH1(TMPCVT),
-      op_rcvt,
-      op_round,
-      PUSH1(ONEPIXEL/2),
-      op_max,
-      CALL(TTFUN_WRITE_STEM),
-   op_eif,
+    /* Use real width. */
+    op_else,
+       op_pop,
+       WCVT(TMPCVT),
+       PUSH1(TMPCVT),
+       op_rcvt,
+       op_round,
+       PUSH1(ONEPIXEL / 2),
+       op_max,
+       CALL(TTFUN_WRITE_STEM),
+    op_eif,
 
-ENDF
+ ENDF
 
 
 
 
 
-/******* SHIFT BLUE ZONE FUNCTION
+    /******* SHIFT BLUE ZONE FUNCTION
 
- * Args: cvt
+     * Args: cvt
 
-*/
-FDEF(TTFUN_SHIFT_BLUE_ZONE)
-   PUSH5(TMPPNT1, TMPPNT1, TMPPNT, TMPPNT1, 5),
-   op_cindex,
-   op_miap,
-   op_srp0,
-   op_mdrp | SUBOP_mMRGR,
-   op_gc,
-   op_wcvtp,
-ENDF
+    */
+    FDEF(TTFUN_SHIFT_BLUE_ZONE)
+       PUSH5(TMPPNT1, TMPPNT1, TMPPNT, TMPPNT1, 5),
+       op_cindex,
+       op_miap,
+       op_srp0,
+       op_mdrp | SUBOP_mMRGR,
+       op_gc,
+       op_wcvtp,
+    ENDF
 
 
 
 
 
-/******* ALIGN BLUE ZONE FUNCTION
+    /******* ALIGN BLUE ZONE FUNCTION
 
- * Args: cvt
+     * Args: cvt
 
-*/
-FDEF(TTFUN_ALIGN_BLUE_ZONE)
-   PUSH5(TMPPNT1, TMPPNT1, TMPPNT, TMPPNT1, 5),
-   op_cindex,
-   op_miap,
-   op_srp0,
-   op_mdrp | SUBOP_ROUND,
-   op_gc,
-   op_wcvtp,
-ENDF
+    */
+    FDEF(TTFUN_ALIGN_BLUE_ZONE)
+       PUSH5(TMPPNT1, TMPPNT1, TMPPNT, TMPPNT1, 5),
+       op_cindex,
+       op_miap,
+       op_srp0,
+       op_mdrp | SUBOP_ROUND,
+       op_gc,
+       op_wcvtp,
+    ENDF
 
 
 
 
 
-/******* COPY FAMILY FUNCTION
+    /******* COPY FAMILY FUNCTION
 
- * Args: base_cvt
+     * Args: base_cvt
 
-*/
-FDEF(TTFUN_COPY_FAMILY)
-   op_dup,
-   PUSH1(1),
-   op_add,
-   op_rcvt,
-   op_wcvtp,
-ENDF
+    */
+    FDEF(TTFUN_COPY_FAMILY)
+       op_dup,
+       PUSH1(1),
+       op_add,
+       op_rcvt,
+       op_wcvtp,
+    ENDF
 
 
 
 
 
-/******* WRITE STEM FUNCTION
+    /******* WRITE STEM FUNCTION
 
- * Args: width, storage
+     * Args: width, storage
 
-*/
-FDEF(TTFUN_WRITE_STEM)
-   op_dup,    /* -| width, width, storage */
-   op_dup,    /* -| width, width, width, storage */
-   op_add,    /* -| 2*width, width, storage, */
-   op_odd,    /* -| odd/even, width, storage */
-   PUSH2(1, 4),     /* -| 4, 1, odd/even, width, storage */
-   op_cindex,     /* -| storage, 1, odd/even, width, storage */
-   op_add,
-   op_swap,   /* -| odd/even, storage+1, width, storage */
-   op_ws,
-   op_ws,
-ENDF
+    */
+    FDEF(TTFUN_WRITE_STEM)
+       op_dup,    /* -| width, width, storage */
+       op_dup,    /* -| width, width, width, storage */
+       op_add,    /* -| 2*width, width, storage, */
+       op_odd,    /* -| odd/even, width, storage */
+       PUSH2(1, 4),     /* -| 4, 1, odd/even, width, storage */
+       op_cindex,     /* -| storage, 1, odd/even, width, storage */
+       op_add,
+       op_swap,   /* -| odd/even, storage+1, width, storage */
+       op_ws,
+       op_ws,
+    ENDF
 
 
 
 
 
-/******* VERTICAL FUNCTION
+    /******* VERTICAL FUNCTION
 
- * Args: -*none*-
+     * Args: -*none*-
 
-*/
-FDEF(TTFUN_VERTICAL)
-   op_svcta | SUBOP_X,
-   PUSH1(TWILIGHT),
-   op_szps,
-ENDF
+    */
+    FDEF(TTFUN_VERTICAL)
+       op_svcta | SUBOP_X,
+       PUSH1(TWILIGHT),
+       op_szps,
+    ENDF
 
 
 
 
 
-/******* HORIZONTAL FUNCTION
+    /******* HORIZONTAL FUNCTION
 
- * Args: -*none*-
+     * Args: -*none*-
 
-*/
-FDEF(TTFUN_HORIZONTAL)
-   PUSH1(TWILIGHT),
-   op_svcta,
-   op_szps,
-ENDF
+    */
+    FDEF(TTFUN_HORIZONTAL)
+       PUSH1(TWILIGHT),
+       op_svcta,
+       op_szps,
+    ENDF
 
 
 
 
 
-/******* CENTER VSTEM FUNCTION
+    /******* CENTER VSTEM FUNCTION
 
- * Args: p1, p2, p3, p4, c, tz1, width
+     * Args: p1, p2, p3, p4, c, tz1, width
 
-*/
-FDEF(TTFUN_VCENTER)
+    */
+    FDEF(TTFUN_VCENTER)
 
-   /* Set rounding state for the center. */
-   PUSH2(1, 8),
-   op_cindex,
-   op_add,
-   op_rs,
-   op_if,
-       op_rthg,
-   op_else,
-       op_rtg,
-   op_eif,
+    /* Set rounding state for the center. */
+    PUSH2(1, 8),
+    op_cindex,
+    op_add,
+    op_rs,
+    op_if,
+        op_rthg,
+    op_else,
+        op_rtg,
+    op_eif,
 
-   /* Create the stem in the twilight zone. */
-   WCVT(TMPCVT),
-   PUSH2(TMPCVT, 6),
-   op_cindex,
-   op_swap,
-   op_miap,
+    /* Create the stem in the twilight zone. */
+    WCVT(TMPCVT),
+    PUSH2(TMPCVT, 6),
+    op_cindex,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 1, 6),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 1, 6),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 2, 5),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 2, 5),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 3, 4),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 3, 4),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
 
-   /* Move/round center. */
-   WCVT(TMPCVT),     /* c */
-   PUSH2(TMPPNT, TMPCVT),
-   op_miap| SUBOP_R,
-   op_rtg,
+    /* Move/round center. */
+    WCVT(TMPCVT),     /* c */
+    PUSH2(TMPPNT, TMPCVT),
+    op_miap | SUBOP_R,
+    op_rtg,
 
-   /* Align all points to the center. */
-   op_dup, op_dup, PUSH1(1), op_add,
-   op_alignrp, op_alignrp,   /* tz1, tz1+1 */
+    /* Align all points to the center. */
+    op_dup, op_dup, PUSH1(1), op_add,
+    op_alignrp, op_alignrp,   /* tz1, tz1+1 */
 
 
-   /* Compute the width. */
-   op_swap,
-   op_rs,
-   PUSH1(CURVEPHASE),
-   op_sub,
-   op_swap,
+    /* Compute the width. */
+    op_swap,
+    op_rs,
+    PUSH1(CURVEPHASE),
+    op_sub,
+    op_swap,
 
 
-   /* -| tz1, width */
-   op_dup,
-   op_dup,
-   op_dup,
-   op_srp0,
-   PUSH1(4), op_cindex,
-   op_neg,     /* -| (-width/2), tz1, tz1, tz1, width */
-   op_shpix,
-   PUSH1(2),
-   op_add,
-   op_alignrp,    /* -| tz1+2, tz1, width */
+    /* -| tz1, width */
+    op_dup,
+    op_dup,
+    op_dup,
+    op_srp0,
+    PUSH1(4), op_cindex,
+    op_neg,     /* -| (-width/2), tz1, tz1, tz1, width */
+    op_shpix,
+    PUSH1(2),
+    op_add,
+    op_alignrp,    /* -| tz1+2, tz1, width */
 
 
-   /* Do the other side. */
-   /* -| tz1, width */
-   PUSH1(1),
-   op_add,
-   op_dup,
-   op_dup,     /* -| tz1+1, tz1+1, tz1+1, width */
-   op_srp0,
-   op_roll,    /* -| width, tz1+1, tz1+1 */
-   op_shpix,
-   PUSH1(2),
-   op_add,
-   op_alignrp,    /* -| tz1+3 */
+    /* Do the other side. */
+    /* -| tz1, width */
+    PUSH1(1),
+    op_add,
+    op_dup,
+    op_dup,     /* -| tz1+1, tz1+1, tz1+1, width */
+    op_srp0,
+    op_roll,    /* -| width, tz1+1, tz1+1 */
+    op_shpix,
+    PUSH1(2),
+    op_add,
+    op_alignrp,    /* -| tz1+3 */
 
-   /* Done. */
-ENDF
+    /* Done. */
+ ENDF
 
 
 
 
 
 
-/******* CENTER HSTEM FUNCTION
+    /******* CENTER HSTEM FUNCTION
 
- * Args: p1, p2, c, tz1, width
+     * Args: p1, p2, c, tz1, width
 
-*/
-FDEF(TTFUN_HCENTER)
+    */
+    FDEF(TTFUN_HCENTER)
 
-   /* Set,rounding state for the center. */
-   PUSH2(1, 6),
-   op_cindex,
-   op_add,
-   op_rs,
-   op_if,
-       op_rthg,
-   op_else,
-       op_rtg,
-   op_eif,
+    /* Set,rounding state for the center. */
+    PUSH2(1, 6),
+    op_cindex,
+    op_add,
+    op_rs,
+    op_if,
+        op_rthg,
+    op_else,
+        op_rtg,
+    op_eif,
 
-   /* Create the stem in the twilight zone. */
-   WCVT(TMPCVT),
-   PUSH2(TMPCVT, 4),
-   op_cindex,
-   op_swap,
-   op_miap,
+    /* Create the stem in the twilight zone. */
+    WCVT(TMPCVT),
+    PUSH2(TMPCVT, 4),
+    op_cindex,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 1, 4),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 1, 4),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
 
-   /* Move/round center. */
-   WCVT(TMPCVT),  /* c */
-   PUSH2(TMPPNT, TMPCVT),
-   op_miap| SUBOP_R,
-   op_rtg,
+    /* Move/round center. */
+    WCVT(TMPCVT),  /* c */
+    PUSH2(TMPPNT, TMPCVT),
+    op_miap | SUBOP_R,
+    op_rtg,
 
-   /* Align all points to the center. */
-   op_dup, op_dup, PUSH1(1), op_add,
-   op_alignrp, op_alignrp,   /* tz1, tz1+1 */
+    /* Align all points to the center. */
+    op_dup, op_dup, PUSH1(1), op_add,
+    op_alignrp, op_alignrp,   /* tz1, tz1+1 */
 
 
-   /* Compute the width. */
-   op_swap,
-   op_rs,
-   PUSH1(CURVEPHASE),
-   op_sub,
-   op_swap,
+    /* Compute the width. */
+    op_swap,
+    op_rs,
+    PUSH1(CURVEPHASE),
+    op_sub,
+    op_swap,
 
 
-   /* -| tz1, width */
-   op_dup,
-   PUSH1(3), op_cindex,
-   op_neg,     /* -| -width, tz1, tz1, width */
-   op_shpix,
+    /* -| tz1, width */
+    op_dup,
+    PUSH1(3), op_cindex,
+    op_neg,     /* -| -width, tz1, tz1, width */
+    op_shpix,
 
-   /* Do the other side. */
-   /* -| tz1, width */
-   PUSH1(1),
-   op_add,
-   op_swap,    /* -| width, tz1+1 */
-   op_shpix,
+    /* Do the other side. */
+    /* -| tz1, width */
+    PUSH1(1),
+    op_add,
+    op_swap,    /* -| width, tz1+1 */
+    op_shpix,
 
-   /* Done. */
-ENDF
+    /* Done. */
+ ENDF
 
 
 
 
 
-/******* RELATIVE1V STEM FUNCTION
+    /******* RELATIVE1V STEM FUNCTION
 
- * Args: p1, p2, p3, p4, ref, tz1, width
+     * Args: p1, p2, p3, p4, ref, tz1, width
 
-*/
-FDEF(TTFUN_RELATIVE1V)
+    */
+    FDEF(TTFUN_RELATIVE1V)
 
-   /* Create the stem in the twilight zone. */
-   WCVT(TMPCVT),
-   PUSH2(TMPCVT, 6),
-   op_cindex,
-   op_swap,
-   op_miap,
+    /* Create the stem in the twilight zone. */
+    WCVT(TMPCVT),
+    PUSH2(TMPCVT, 6),
+    op_cindex,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 1, 6),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 1, 6),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 2, 5),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 2, 5),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 3, 4),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 3, 4),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
-   /* Move/round side. */
-   op_srp0,
-   op_dup,
-   op_mdrp | SUBOP_MmRGR,
+    /* Move/round side. */
+    op_srp0,
+    op_dup,
+    op_mdrp | SUBOP_MmRGR,
 
-   /* Align points on the left side. */
-   op_dup, PUSH1(1), op_add, op_dup, op_dup, op_dup,
-   PUSH1(1), op_add,  /* -| tz1+2, tz1+1, tz1+1, tz+1, tz, width */
-   op_alignrp,
-   op_alignrp,
+    /* Align points on the left side. */
+    op_dup, PUSH1(1), op_add, op_dup, op_dup, op_dup,
+    PUSH1(1), op_add,  /* -| tz1+2, tz1+1, tz1+1, tz+1, tz, width */
+    op_alignrp,
+    op_alignrp,
 
-   /* Align right side */
-   op_srp0,    /* -| tz1+1, tz1, width */
-   op_roll,
-   op_rs,
-   op_dup,
-   op_add,     /* -| width*2, tz1+1, tz1 */
-   op_shpix,
-   PUSH1(3),
-   op_add,
-   op_alignrp,    /* -| tz1+3 */
+    /* Align right side */
+    op_srp0,    /* -| tz1+1, tz1, width */
+    op_roll,
+    op_rs,
+    op_dup,
+    op_add,     /* -| width*2, tz1+1, tz1 */
+    op_shpix,
+    PUSH1(3),
+    op_add,
+    op_alignrp,    /* -| tz1+3 */
 
-ENDF
+ ENDF
 
 
 
 
 
-/******* RELATIVE2V STEM FUNCTION
+    /******* RELATIVE2V STEM FUNCTION
 
- * Args: p1, p2, p3, p4, ref, tz1, width
+     * Args: p1, p2, p3, p4, ref, tz1, width
 
-*/
-FDEF(TTFUN_RELATIVE2V)
+    */
+    FDEF(TTFUN_RELATIVE2V)
 
-   /* Create the stem in the twilight zone. */
-   WCVT(TMPCVT),
-   PUSH2(TMPCVT, 6),
-   op_cindex,
-   op_swap,
-   op_miap,
+    /* Create the stem in the twilight zone. */
+    WCVT(TMPCVT),
+    PUSH2(TMPCVT, 6),
+    op_cindex,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 1, 6),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 1, 6),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 2, 5),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 2, 5),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 3, 4),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 3, 4),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
 
-   /* Move/round side. */
-   op_srp0,
-   op_dup,
-   PUSH1(1), op_add,
-   op_mdrp | SUBOP_MmRGR,
+    /* Move/round side. */
+    op_srp0,
+    op_dup,
+    PUSH1(1), op_add,
+    op_mdrp | SUBOP_MmRGR,
 
-   /* Align points on the left side. */
-   op_dup, op_dup, op_dup, op_dup,
-   PUSH1(3), op_add,  /* -| tz1+3, tz1, tz1, tz1, tz1, width */
-   op_alignrp,
-   op_alignrp,
+    /* Align points on the left side. */
+    op_dup, op_dup, op_dup, op_dup,
+    PUSH1(3), op_add,  /* -| tz1+3, tz1, tz1, tz1, tz1, width */
+    op_alignrp,
+    op_alignrp,
 
 
-   /* Align left side */
-   op_srp0,    /* -| tz1, tz1, width */
-   op_roll,
-   op_rs,
-   op_dup,
-   op_add,
-   op_neg,
-   op_shpix,      /* -| -2*width, tz1, tz1 */
-   PUSH1(2), op_add,
-   op_alignrp,    /* -| tz1+2 */
+    /* Align left side */
+    op_srp0,    /* -| tz1, tz1, width */
+    op_roll,
+    op_rs,
+    op_dup,
+    op_add,
+    op_neg,
+    op_shpix,      /* -| -2*width, tz1, tz1 */
+    PUSH1(2), op_add,
+    op_alignrp,    /* -| tz1+2 */
 
-ENDF
+ ENDF
 
 
 
 
 
-/******* RELATIVE1H STEM FUNCTION
+    /******* RELATIVE1H STEM FUNCTION
 
- * Args: p1, p2, ref, tz1, width
+     * Args: p1, p2, ref, tz1, width
 
-*/
-FDEF(TTFUN_RELATIVE1H)
+    */
+    FDEF(TTFUN_RELATIVE1H)
 
-   /* Create the stem in the twilight zone. */
-   WCVT(TMPCVT),
-   PUSH2(TMPCVT, 4),
-   op_cindex,
-   op_swap,
-   op_miap,
+    /* Create the stem in the twilight zone. */
+    WCVT(TMPCVT),
+    PUSH2(TMPCVT, 4),
+    op_cindex,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 1, 4),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 1, 4),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
-   /* Move/round side. */
-   op_srp0,
-   op_dup,
-   op_mdrp | SUBOP_MmRGR,
+    /* Move/round side. */
+    op_srp0,
+    op_dup,
+    op_mdrp | SUBOP_MmRGR,
 
 
-   /* Align all point to the lower side. */
-   PUSH1(1), op_add, op_dup,
-   op_alignrp,
+    /* Align all point to the lower side. */
+    PUSH1(1), op_add, op_dup,
+    op_alignrp,
 
-   /* Align right side */
-   op_swap,
-   op_rs,
-   op_dup,
-   op_add,
-   op_shpix,
+    /* Align right side */
+    op_swap,
+    op_rs,
+    op_dup,
+    op_add,
+    op_shpix,
 
-ENDF
+ ENDF
 
 
 
 
 
-/******* RELATIVE2H STEM FUNCTION
+    /******* RELATIVE2H STEM FUNCTION
 
- * Args: p1, p2, ref, tz1, width
+     * Args: p1, p2, ref, tz1, width
 
-*/
-FDEF(TTFUN_RELATIVE2H)
+    */
+    FDEF(TTFUN_RELATIVE2H)
 
-   /* Create the stem in the twilight zone. */
-   WCVT(TMPCVT),
-   PUSH2(TMPCVT, 4),
-   op_cindex,
-   op_swap,
-   op_miap,
+    /* Create the stem in the twilight zone. */
+    WCVT(TMPCVT),
+    PUSH2(TMPCVT, 4),
+    op_cindex,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 1, 4),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 1, 4),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
 
-   /* Move/round side. */
-   op_srp0,
-   op_dup,
-   PUSH1(1), op_add,
-   op_mdrp | SUBOP_MmRGR,
+    /* Move/round side. */
+    op_srp0,
+    op_dup,
+    PUSH1(1), op_add,
+    op_mdrp | SUBOP_MmRGR,
 
-   /* Align all points to the center. */
-   op_dup, op_alignrp,
+    /* Align all points to the center. */
+    op_dup, op_alignrp,
 
-   /* Align left side */
-   op_swap,
-   op_rs,
-   op_dup,
-   op_add,
-   op_neg,
-   op_shpix,
+    /* Align left side */
+    op_swap,
+    op_rs,
+    op_dup,
+    op_add,
+    op_neg,
+    op_shpix,
 
-ENDF
+ ENDF
 
 
 
 
 
-/******* SIDE1 STEM FUNCTION
+    /******* SIDE1 STEM FUNCTION
 
- * Args: p1, p2, zone, tz1, width
+     * Args: p1, p2, zone, tz1, width
 
-*/
-FDEF(TTFUN_SIDE1)
+    */
+    FDEF(TTFUN_SIDE1)
 
-   /* Create the stem in the twilight zone. */
-   WCVT(TMPCVT),
-   PUSH2(TMPCVT, 4),
-   op_cindex,
-   op_swap,
-   op_miap,
+    /* Create the stem in the twilight zone. */
+    WCVT(TMPCVT),
+    PUSH2(TMPCVT, 4),
+    op_cindex,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 1, 4),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 1, 4),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
-   /* Move/round side. */
-   PUSH2(TMPPNT, TMPPNT),
-   op_srp0, op_swap, op_miap | SUBOP_R,
+    /* Move/round side. */
+    PUSH2(TMPPNT, TMPPNT),
+    op_srp0, op_swap, op_miap | SUBOP_R,
 
-   /* Align all points to the side. */
-   op_dup, PUSH1(1), op_add, op_dup, op_roll,
-   op_alignrp, op_alignrp,
+    /* Align all points to the side. */
+    op_dup, PUSH1(1), op_add, op_dup, op_roll,
+    op_alignrp, op_alignrp,
 
-   /* Align first side */
-   op_swap,
-   op_rs,
-   op_dup,
-   op_add,
-   PUSH1(CURVEPHASE),
-   op_sub,
-   op_shpix,
+    /* Align first side */
+    op_swap,
+    op_rs,
+    op_dup,
+    op_add,
+    PUSH1(CURVEPHASE),
+    op_sub,
+    op_shpix,
 
-ENDF
+ ENDF
 
 
 
 
 
-/******* SIDE2 STEM FUNCTION
+    /******* SIDE2 STEM FUNCTION
 
- * Args:  p1, p2, zone, tz1, width
+     * Args:  p1, p2, zone, tz1, width
 
-*/
-FDEF(TTFUN_SIDE2)
+    */
+    FDEF(TTFUN_SIDE2)
 
-   /* Create the stem in the twilight zone. */
-   WCVT(TMPCVT),
-   PUSH2(TMPCVT, 4),
-   op_cindex,
-   op_swap,
-   op_miap,
+    /* Create the stem in the twilight zone. */
+    WCVT(TMPCVT),
+    PUSH2(TMPCVT, 4),
+    op_cindex,
+    op_swap,
+    op_miap,
 
-   WCVT(TMPCVT),
-   PUSH3(TMPCVT, 1, 4),
-   op_cindex,
-   op_add,
-   op_swap,
-   op_miap,
+    WCVT(TMPCVT),
+    PUSH3(TMPCVT, 1, 4),
+    op_cindex,
+    op_add,
+    op_swap,
+    op_miap,
 
 
-   /* Move/round side. */
-   PUSH2(TMPPNT, TMPPNT),
-   op_srp0, op_swap, op_miap | SUBOP_R,
+    /* Move/round side. */
+    PUSH2(TMPPNT, TMPPNT),
+    op_srp0, op_swap, op_miap | SUBOP_R,
 
-   /* Align all points to the side. */
-   op_dup, op_dup, PUSH1(1), op_add,
-   op_alignrp, op_alignrp,
+    /* Align all points to the side. */
+    op_dup, op_dup, PUSH1(1), op_add,
+    op_alignrp, op_alignrp,
 
-   /* Align second side */
-   op_swap,
-   op_rs,
-   op_dup,
-   op_add,
-   PUSH1(CURVEPHASE),
-   op_sub,
-   op_neg,
-   op_shpix,
+    /* Align second side */
+    op_swap,
+    op_rs,
+    op_dup,
+    op_add,
+    PUSH1(CURVEPHASE),
+    op_sub,
+    op_neg,
+    op_shpix,
 
-ENDF
+ ENDF
 
 
 
 
 
-/******* FLEX FUNCTION
+    /******* FLEX FUNCTION
 
- * Args on the stack: pnt_start, pnt_mid, ref_pos, pnt_mid,
- *       pnt_start, pnt_mid, cnt, p1, p2, ....
+     * Args on the stack: pnt_start, pnt_mid, ref_pos, pnt_mid,
+     *       pnt_start, pnt_mid, cnt, p1, p2, ....
 
-*/
-FDEF(TTFUN_FLEX)
-   op_srp0,
-   op_alignrp,
-   op_wcvtf,
-   op_rcvt,
-   op_shpix,
-   op_srp1,
-   op_srp2,
-   op_sloop,
-   op_ip,
-ENDF
+    */
+    FDEF(TTFUN_FLEX)
+       op_srp0,
+       op_alignrp,
+       op_wcvtf,
+       op_rcvt,
+       op_shpix,
+       op_srp1,
+       op_srp2,
+       op_sloop,
+       op_ip,
+    ENDF
 
 
 
 
 
-/******* SCALE3 FUNCTION
+    /******* SCALE3 FUNCTION
 
- * Args: cnt, p1, p2, ...
+     * Args: cnt, p1, p2, ...
 
-*/
-FDEF(TTFUN_SCALE3)
-   PUSH4(GLYPHZONE, TMPPNT1, TMPPNT, TMPPNT1),
-   op_pushw1, HIBYTE(-31), LOBYTE(-31),
-   PUSH3(TMPPNT, 0, TMPPNT1),
-   op_pushw1, HIBYTE(1000), LOBYTE(1000),
-   op_scfs,
-   op_scfs,
-   op_shpix,
-   op_srp1,
-   op_srp2,
-   op_szp2,
-   op_sloop,
-   op_ip,
-ENDF
+    */
+    FDEF(TTFUN_SCALE3)
+       PUSH4(GLYPHZONE, TMPPNT1, TMPPNT, TMPPNT1),
+       op_pushw1, HIBYTE(-31), LOBYTE(-31),
+       PUSH3(TMPPNT, 0, TMPPNT1),
+       op_pushw1, HIBYTE(1000), LOBYTE(1000),
+       op_scfs,
+       op_scfs,
+       op_shpix,
+       op_srp1,
+       op_srp2,
+       op_szp2,
+       op_sloop,
+       op_ip,
+    ENDF
 
 
 
 
 
-/******* SHIFT1 FUNCTION
+    /******* SHIFT1 FUNCTION
 
- * Args: cnt reduction p1 p2 ...
+     * Args: cnt reduction p1 p2 ...
 
-*/
-FDEF(TTFUN_SHIFT1)
-   op_sloop,
-   op_rs,
-   op_neg,
-   op_shpix,
-ENDF
+    */
+    FDEF(TTFUN_SHIFT1)
+       op_sloop,
+       op_rs,
+       op_neg,
+       op_shpix,
+    ENDF
 
 
 
 
 
-/******* SHIFT2 FUNCTION
+    /******* SHIFT2 FUNCTION
 
- * Args: cnt reduction p1 p2 ...
+     * Args: cnt reduction p1 p2 ...
 
-*/
-FDEF(TTFUN_SHIFT2)
-   op_sloop,
-   op_rs,
-   op_shpix,
-ENDF
+    */
+    FDEF(TTFUN_SHIFT2)
+       op_sloop,
+       op_rs,
+       op_shpix,
+    ENDF
 
 
 
 
 
-/******* IP1 FUNCTION
+    /******* IP1 FUNCTION
 
- * Args: rp1, rp2, p1
+     * Args: rp1, rp2, p1
 
-*/
-FDEF(TTFUN_IP1)
-   op_srp1,
-   op_srp2,
-   op_ip,
-ENDF
+    */
+    FDEF(TTFUN_IP1)
+       op_srp1,
+       op_srp2,
+       op_ip,
+    ENDF
 
 
 
 
 
-/******* IP2 FUNCTION
+    /******* IP2 FUNCTION
 
- * Args: rp1, rp2, p1, p2
+     * Args: rp1, rp2, p1, p2
 
-*/
-FDEF(TTFUN_IP2)
-   op_srp1,
-   op_srp2,
-   op_ip,
-   op_ip,
-ENDF
+    */
+    FDEF(TTFUN_IP2)
+       op_srp1,
+       op_srp2,
+       op_ip,
+       op_ip,
+    ENDF
 
 
 
 
 
-/******* IPN FUNCTION
+    /******* IPN FUNCTION
 
- * Args: rp1, rp2, cnt, p1, p2
+     * Args: rp1, rp2, cnt, p1, p2
 
-*/
-FDEF(TTFUN_IPN)
-   op_srp1,
-   op_srp2,
-   op_sloop,
-   op_ip,
-ENDF
+    */
+    FDEF(TTFUN_IPN)
+       op_srp1,
+       op_srp2,
+       op_sloop,
+       op_ip,
+    ENDF
 
 
 
 
 
-/******* SHP1 FUNCTION
+    /******* SHP1 FUNCTION
 
- * Args: rp, p
+     * Args: rp, p
 
-*/
-FDEF(TTFUN_SHP1)
-   op_srp1,
-   op_shp,
-ENDF
+    */
+    FDEF(TTFUN_SHP1)
+       op_srp1,
+       op_shp,
+    ENDF
 
 
 
 
 
-/******* SHP2 FUNCTION
+    /******* SHP2 FUNCTION
 
- * Args: rp, p1, p2
+     * Args: rp, p1, p2
 
-*/
-FDEF(TTFUN_SHP2)
-   op_srp1,
-   op_shp,
-   op_shp,
-ENDF
+    */
+    FDEF(TTFUN_SHP2)
+       op_srp1,
+       op_shp,
+       op_shp,
+    ENDF
 
 
 
 
 
-/******* SHPN FUNCTION
+    /******* SHPN FUNCTION
 
- * Args: rp, cnt, p1, p2
+     * Args: rp, cnt, p1, p2
 
-*/
-FDEF(TTFUN_SHPN)
-   op_srp1,
-   op_sloop,
-   op_shp,
-ENDF
+    */
+    FDEF(TTFUN_SHPN)
+       op_srp1,
+       op_sloop,
+       op_shp,
+    ENDF
 
 
 
 
 
-/******* RANGE FUNCTION
+    /******* RANGE FUNCTION
 
- * Args: p
+     * Args: p
 
-*/
-FDEF(TTFUN_RANGE)
-   op_dup,
-   PUSH1(1),
-   op_add,
-ENDF
+    */
+    FDEF(TTFUN_RANGE)
+       op_dup,
+       PUSH1(1),
+       op_add,
+    ENDF
 
 
 
 
-/******* RANGE FUNCTION
+    /******* RANGE FUNCTION
 
- * Args: pos_x, pos_y,
+     * Args: pos_x, pos_y,
 
-*/
-FDEF(TTFUN_OBLIQUE)
-   op_svcta | SUBOP_Y,
-   PUSH1(TMPPNT1),
-   op_swap,
-   op_scfs,
-   PUSH2(TMPPNT, 0),
-   op_scfs,
-   op_svcta | SUBOP_X,
-   PUSH1(TMPPNT1),
-   op_swap,
-   op_scfs,
-   PUSH2(TMPPNT, 0),
-   op_scfs,
-   PUSH2(TMPPNT, TMPPNT1),
-   op_spvtl,
-ENDF
+    */
+    FDEF(TTFUN_OBLIQUE)
+       op_svcta | SUBOP_Y,
+       PUSH1(TMPPNT1),
+       op_swap,
+       op_scfs,
+       PUSH2(TMPPNT, 0),
+       op_scfs,
+       op_svcta | SUBOP_X,
+       PUSH1(TMPPNT1),
+       op_swap,
+       op_scfs,
+       PUSH2(TMPPNT, 0),
+       op_scfs,
+       PUSH2(TMPPNT, TMPPNT1),
+       op_spvtl,
+    ENDF
 
 };
 
@@ -1026,41 +1026,41 @@ ENDF
 **   This function allocates a storage entry for the
 **   width of a vertical stem;
 */
-static short GetVStemWidth(WeightControl *weight, const funit width)
+static short GetVStemWidth(WeightControl* weight, const funit width)
 {
-   StemWidth *newwidths = NULL;
-   short entry = 0;
-   USHORT j;
+    StemWidth* newwidths = NULL;
+    short entry = 0;
+    USHORT j;
 
-   if (weight->cnt_vw >= weight->max_vw) {
-      newwidths = Realloc(weight->vwidths,
-                          sizeof(StemWidth)*(weight->max_vw+BUFSIZE));
-      if (newwidths == NULL) {
-         entry = NOMEM;
-      } else {
-         weight->vwidths = newwidths;
-         weight->max_vw += BUFSIZE;
-      }
-   }
+    if (weight->cnt_vw >= weight->max_vw) {
+        newwidths = Realloc(weight->vwidths,
+                            sizeof(StemWidth) * (weight->max_vw + BUFSIZE));
+        if (newwidths == NULL) {
+            entry = NOMEM;
+        } else {
+            weight->vwidths = newwidths;
+            weight->max_vw += BUFSIZE;
+        }
+    }
 
-   if (entry != NOMEM) {
-      for (j=0; j<weight->cnt_vw; j++) {
-         if (weight->vwidths[j].width==width) {
-            entry = (short)weight->vwidths[j].storage;
-            break;
-         }
-      }
+    if (entry != NOMEM) {
+        for (j = 0; j < weight->cnt_vw; j++) {
+            if (weight->vwidths[j].width == width) {
+                entry = (short)weight->vwidths[j].storage;
+                break;
+            }
+        }
 
-      if (j==weight->cnt_vw) {
-         weight->vwidths[weight->cnt_vw].storage = weight->storage;
-         weight->vwidths[weight->cnt_vw].width = width;
-         entry = (short)weight->storage;
-         weight->storage += 2;
-         weight->cnt_vw++;
-      }
-   }
+        if (j == weight->cnt_vw) {
+            weight->vwidths[weight->cnt_vw].storage = weight->storage;
+            weight->vwidths[weight->cnt_vw].width = width;
+            entry = (short)weight->storage;
+            weight->storage += 2;
+            weight->cnt_vw++;
+        }
+    }
 
-   return entry;
+    return entry;
 }
 
 
@@ -1071,41 +1071,41 @@ static short GetVStemWidth(WeightControl *weight, const funit width)
 **   This function allocates a storage entry for the
 **   width of a vertical stem;
 */
-static short GetHStemWidth(WeightControl *weight, const funit width)
+static short GetHStemWidth(WeightControl* weight, const funit width)
 {
-   StemWidth *newwidths = NULL;
-   short entry = 0;
-   USHORT j;
+    StemWidth* newwidths = NULL;
+    short entry = 0;
+    USHORT j;
 
-   if (weight->cnt_hw >= weight->max_hw) {
-      newwidths = Realloc(weight->hwidths,
-                          sizeof(StemWidth)*(weight->max_hw+BUFSIZE));
-      if (newwidths == NULL) {
-         entry = NOMEM;
-      } else {
-         weight->hwidths = newwidths;
-         weight->max_hw += BUFSIZE;
-      }
-   }
+    if (weight->cnt_hw >= weight->max_hw) {
+        newwidths = Realloc(weight->hwidths,
+                            sizeof(StemWidth) * (weight->max_hw + BUFSIZE));
+        if (newwidths == NULL) {
+            entry = NOMEM;
+        } else {
+            weight->hwidths = newwidths;
+            weight->max_hw += BUFSIZE;
+        }
+    }
 
-   if (entry != NOMEM) {
-      for (j=0; j<weight->cnt_hw; j++) {
-         if (weight->hwidths[j].width==width) {
-            entry = (short)weight->hwidths[j].storage;
-            break;
-         }
-      }
+    if (entry != NOMEM) {
+        for (j = 0; j < weight->cnt_hw; j++) {
+            if (weight->hwidths[j].width == width) {
+                entry = (short)weight->hwidths[j].storage;
+                break;
+            }
+        }
 
-      if (j==weight->cnt_hw) {
-         weight->hwidths[weight->cnt_hw].storage = weight->storage;
-         weight->hwidths[weight->cnt_hw].width = width;
-         entry = (short)weight->storage;
-         weight->storage += 2;
-         weight->cnt_hw++;
-      }
-   }
+        if (j == weight->cnt_hw) {
+            weight->hwidths[weight->cnt_hw].storage = weight->storage;
+            weight->hwidths[weight->cnt_hw].width = width;
+            entry = (short)weight->storage;
+            weight->storage += 2;
+            weight->cnt_hw++;
+        }
+    }
 
-   return entry;
+    return entry;
 }
 
 
@@ -1121,23 +1121,23 @@ static short GetHStemWidth(WeightControl *weight, const funit width)
 **   by creating an appropriate point in the
 **   twilight zone.
 */
-USHORT SetZone(UBYTE *prep, USHORT tp, const short cvt)
+USHORT SetZone(UBYTE* prep, USHORT tp, const short cvt)
 {
-   /* Set up the zone. */
-   if (cvt>255) {
-      prep[tp++] = op_pushw1;
-      prep[tp++] = HIBYTE(cvt);
-      prep[tp++] = LOBYTE(cvt);
-      prep[tp++] = op_pushb1;
-      prep[tp++] = TTFUN_SET_ZONE;
-   } else {
-      prep[tp++] = op_pushb1 + 1;
-      prep[tp++] = (UBYTE)cvt;
-      prep[tp++] = TTFUN_SET_ZONE;
-   }
-   prep[tp++] = op_call;
+    /* Set up the zone. */
+    if (cvt > 255) {
+        prep[tp++] = op_pushw1;
+        prep[tp++] = HIBYTE(cvt);
+        prep[tp++] = LOBYTE(cvt);
+        prep[tp++] = op_pushb1;
+        prep[tp++] = TTFUN_SET_ZONE;
+    } else {
+        prep[tp++] = op_pushb1 + 1;
+        prep[tp++] = (UBYTE)cvt;
+        prep[tp++] = TTFUN_SET_ZONE;
+    }
+    prep[tp++] = op_call;
 
-   return tp;
+    return tp;
 }
 
 
@@ -1149,14 +1149,14 @@ USHORT SetZone(UBYTE *prep, USHORT tp, const short cvt)
 **   This function copies a cvt entry, representing an
 **   alignment zone, to the cvt used for a particular hstem.
 */
-USHORT CopyZone(UBYTE *prep, short tp, short *args, const short ta)
+USHORT CopyZone(UBYTE* prep, short tp, short* args, const short ta)
 {
-   args[0] = TTFUN_COPY_ZONE;
-   args[1] = (short)((ta-2)/2);
-   AssembleArgs(args, ta, prep, &tp);
-   prep[tp++] = op_loopcall;
+    args[0] = TTFUN_COPY_ZONE;
+    args[1] = (short)((ta - 2) / 2);
+    AssembleArgs(args, ta, prep, &tp);
+    prep[tp++] = op_loopcall;
 
-   return (USHORT)tp;
+    return (USHORT)tp;
 }
 
 
@@ -1168,14 +1168,14 @@ USHORT CopyZone(UBYTE *prep, short tp, short *args, const short ta)
 **   This function copies a cvt entry, representing a
 **   family blue zone, to the cvt used for a particular hstem.
 */
-USHORT CopyFamilyBlue(UBYTE *prep, short tp, short *args, const short ta)
+USHORT CopyFamilyBlue(UBYTE* prep, short tp, short* args, const short ta)
 {
-   args[0] = TTFUN_COPY_FAMILY;
-   args[1] = (short)(ta-2);
-   AssembleArgs(args, ta, prep, &tp);
-   prep[tp++] = op_loopcall;
+    args[0] = TTFUN_COPY_FAMILY;
+    args[1] = (short)(ta - 2);
+    AssembleArgs(args, ta, prep, &tp);
+    prep[tp++] = op_loopcall;
 
-   return (USHORT)tp;
+    return (USHORT)tp;
 }
 
 
@@ -1187,14 +1187,14 @@ USHORT CopyFamilyBlue(UBYTE *prep, short tp, short *args, const short ta)
 **   This function creates a cvt entry for
 **   a particular hstem.
 */
-USHORT AlignFlat(UBYTE *prep, short tp, short *args, const short ta)
+USHORT AlignFlat(UBYTE* prep, short tp, short* args, const short ta)
 {
-   args[0] = TTFUN_ALIGN_BLUE_ZONE;
-   args[1] = (short)(ta-2);
-   AssembleArgs(args, ta, prep, &tp);
-   prep[tp++] = op_loopcall;
+    args[0] = TTFUN_ALIGN_BLUE_ZONE;
+    args[1] = (short)(ta - 2);
+    AssembleArgs(args, ta, prep, &tp);
+    prep[tp++] = op_loopcall;
 
-   return (USHORT)tp;
+    return (USHORT)tp;
 }
 
 
@@ -1206,14 +1206,14 @@ USHORT AlignFlat(UBYTE *prep, short tp, short *args, const short ta)
 **   This function creates a cvt entry for
 **   a particular hstem.
 */
-USHORT AlignOvershoot(UBYTE *prep, short tp, short *args, const short ta)
+USHORT AlignOvershoot(UBYTE* prep, short tp, short* args, const short ta)
 {
-   args[0] = TTFUN_SHIFT_BLUE_ZONE;
-   args[1] = (short)(ta-2);
-   AssembleArgs(args, ta, prep, &tp);
-   prep[tp++] = op_loopcall;
+    args[0] = TTFUN_SHIFT_BLUE_ZONE;
+    args[1] = (short)(ta - 2);
+    AssembleArgs(args, ta, prep, &tp);
+    prep[tp++] = op_loopcall;
 
-   return (USHORT)tp;
+    return (USHORT)tp;
 }
 
 
@@ -1224,53 +1224,53 @@ USHORT AlignOvershoot(UBYTE *prep, short tp, short *args, const short ta)
 **   This function allocates a cvt entry for the
 **   top side of a horizontal stem;
 */
-short GetTopPos(const Blues *blues,
-                AlignmentControl *align,
+short GetTopPos(const Blues* blues,
+                AlignmentControl* align,
                 const funit pos)
 {
-   short entry = UNDEF;
-   const funit *bluevals;
-   short fuzz;
-   USHORT i, j;
+    short entry = UNDEF;
+    const funit* bluevals;
+    short fuzz;
+    USHORT i, j;
 
-   bluevals = &(blues->bluevalues[0]);
-   fuzz = blues->blueFuzz;
+    bluevals = &(blues->bluevalues[0]);
+    fuzz = blues->blueFuzz;
 
-   /* Check if it is within a zone. */
-   for (i=0; i<blues->blue_cnt; i+=2) {
-      if (((bluevals[i]-fuzz)<=pos) && ((bluevals[i+1]+fuzz)>=pos))
-         break;
-   }
-
-   /* Record the position? */
-   if (i!=blues->blue_cnt) {
-      i /= 2;
-
-      /* Is the position already mapped to a cvt entry? */
-      for (j=0; j<align->top[i].cnt; j++) {
-         if (align->top[i].pos[j].y==pos) {
-            entry = (short)align->top[i].pos[j].cvt;
+    /* Check if it is within a zone. */
+    for (i = 0; i < blues->blue_cnt; i += 2) {
+        if (((bluevals[i] - fuzz) <= pos) && ((bluevals[i + 1] + fuzz) >= pos))
             break;
-         }
-      }
+    }
 
-      if (j==align->top[i].cnt) {
+    /* Record the position? */
+    if (i != blues->blue_cnt) {
+        i /= 2;
 
-         /* Allocate the BlueZone cvt's */
-         if (align->top[i].cnt==0) {
-            align->top[i].blue_cvt = align->cvt;
-            align->cvt +=2;
-         }
+        /* Is the position already mapped to a cvt entry? */
+        for (j = 0; j < align->top[i].cnt; j++) {
+            if (align->top[i].pos[j].y == pos) {
+                entry = (short)align->top[i].pos[j].cvt;
+                break;
+            }
+        }
 
-         align->top[i].pos[align->top[i].cnt].cvt = align->cvt;
-         align->top[i].pos[align->top[i].cnt].y = pos;
-         entry = (short)align->cvt;
-         align->cvt+=2;
-         align->top[i].cnt++;
-      }
-   }
+        if (j == align->top[i].cnt) {
 
-   return entry;
+            /* Allocate the BlueZone cvt's */
+            if (align->top[i].cnt == 0) {
+                align->top[i].blue_cvt = align->cvt;
+                align->cvt += 2;
+            }
+
+            align->top[i].pos[align->top[i].cnt].cvt = align->cvt;
+            align->top[i].pos[align->top[i].cnt].y = pos;
+            entry = (short)align->cvt;
+            align->cvt += 2;
+            align->top[i].cnt++;
+        }
+    }
+
+    return entry;
 }
 
 
@@ -1281,53 +1281,53 @@ short GetTopPos(const Blues *blues,
 **   This function allocates a cvt entry for the
 **   top side of a horizontal stem;
 */
-short GetBottomPos(const Blues *blues,
-                   AlignmentControl *align,
+short GetBottomPos(const Blues* blues,
+                   AlignmentControl* align,
                    const funit pos)
 {
-   short entry = UNDEF;
-   const funit *bluevals;
-   short fuzz;
-   USHORT i, j;
+    short entry = UNDEF;
+    const funit* bluevals;
+    short fuzz;
+    USHORT i, j;
 
-   bluevals = &(blues->otherblues[0]);
-   fuzz = blues->blueFuzz;
+    bluevals = &(blues->otherblues[0]);
+    fuzz = blues->blueFuzz;
 
-   /* Check if it is within a zone. */
-   for (i=0; i<blues->oblue_cnt; i+=2) {
-      if (((bluevals[i]-fuzz)<=pos) && ((bluevals[i+1]+fuzz)>=pos))
-         break;
-   }
-
-
-   /* Record the position? */
-   if (i!=blues->oblue_cnt) {
-      i /= 2;
-
-      /* Is the position already mapped to a cvt entry? */
-      for (j=0; j<align->bottom[i].cnt; j++) {
-         if (align->bottom[i].pos[j].y==pos) {
-            entry = (short)align->bottom[i].pos[j].cvt;
+    /* Check if it is within a zone. */
+    for (i = 0; i < blues->oblue_cnt; i += 2) {
+        if (((bluevals[i] - fuzz) <= pos) && ((bluevals[i + 1] + fuzz) >= pos))
             break;
-         }
-      }
+    }
 
-      if (j==align->bottom[i].cnt) {
 
-         /* Allocate the BlueZone and FamilyBlue cvt's */
-         if (align->bottom[i].cnt==0) {
-            align->bottom[i].blue_cvt = align->cvt++;
-         }
+    /* Record the position? */
+    if (i != blues->oblue_cnt) {
+        i /= 2;
 
-         align->bottom[i].pos[align->bottom[i].cnt].cvt = align->cvt;
-         align->bottom[i].pos[align->bottom[i].cnt].y = pos;
-         entry = (short)align->cvt;
-         align->cvt+=2;
-         align->bottom[i].cnt++;
-      }
-   }
+        /* Is the position already mapped to a cvt entry? */
+        for (j = 0; j < align->bottom[i].cnt; j++) {
+            if (align->bottom[i].pos[j].y == pos) {
+                entry = (short)align->bottom[i].pos[j].cvt;
+                break;
+            }
+        }
 
-   return entry;
+        if (j == align->bottom[i].cnt) {
+
+            /* Allocate the BlueZone and FamilyBlue cvt's */
+            if (align->bottom[i].cnt == 0) {
+                align->bottom[i].blue_cvt = align->cvt++;
+            }
+
+            align->bottom[i].pos[align->bottom[i].cnt].cvt = align->cvt;
+            align->bottom[i].pos[align->bottom[i].cnt].y = pos;
+            entry = (short)align->cvt;
+            align->cvt += 2;
+            align->bottom[i].cnt++;
+        }
+    }
+
+    return entry;
 }
 
 
@@ -1346,34 +1346,34 @@ USHORT CutInSize(const funit width,
                  const USHORT tresh,
                  const funit upem)
 {
-   USHORT cis, ci1, ci2;
+    USHORT cis, ci1, ci2;
 
-   /*lint -e776 */
-   if (width > master) {
-      ci1 = (USHORT)((long)upem * SMALL_UPPER / ONEPIXEL /
-                     (long)(width - master));
-      ci2 = (USHORT)((long)upem * LARGE_UPPER / ONEPIXEL /
-                     (long)(width - master));
-   } else if (width < master) {
-      ci1 = (USHORT)((long)upem * SMALL_LOWER / ONEPIXEL /
-                     (long)(master - width));
-      ci2 = (USHORT)((long)upem * LARGE_LOWER / ONEPIXEL /
-                     (long)(master - width));
-   } else {
-      ci1 = INFINITY;
-      ci2 = INFINITY;
-   }
-   /*lint +e776 */
+    /*lint -e776 */
+    if (width > master) {
+        ci1 = (USHORT)((long)upem * SMALL_UPPER / ONEPIXEL /
+            (long)(width - master));
+        ci2 = (USHORT)((long)upem * LARGE_UPPER / ONEPIXEL /
+            (long)(width - master));
+    } else if (width < master) {
+        ci1 = (USHORT)((long)upem * SMALL_LOWER / ONEPIXEL /
+            (long)(master - width));
+        ci2 = (USHORT)((long)upem * LARGE_LOWER / ONEPIXEL /
+            (long)(master - width));
+    } else {
+        ci1 = INFINITY;
+        ci2 = INFINITY;
+    }
+    /*lint +e776 */
 
-   if (ci1 < tresh) {
-      cis = ci1;
-   } else if (ci2 < tresh) {
-      cis = tresh;
-   } else {
-      cis = ci2;
-   }
+    if (ci1 < tresh) {
+        cis = ci1;
+    } else if (ci2 < tresh) {
+        cis = tresh;
+    } else {
+        cis = ci2;
+    }
 
-   return cis;
+    return cis;
 }
 
 
@@ -1383,7 +1383,7 @@ USHORT CutInSize(const funit width,
 ** Description:
 
 */
-USHORT SnapStemArgs(short *args, USHORT ta,
+USHORT SnapStemArgs(short* args, USHORT ta,
                     const funit width,
                     const USHORT std_cvt,
                     const USHORT snap_cvt,
@@ -1391,14 +1391,14 @@ USHORT SnapStemArgs(short *args, USHORT ta,
                     const USHORT snap_ci,
                     const USHORT storage)
 {
-   args[ta++] = (short)std_ci;
-   args[ta++] = (short)std_cvt;
-   args[ta++] = (short)snap_ci;
-   args[ta++] = (short)snap_cvt;
-   args[ta++] = (short)(width/2);
-   args[ta++] = (short)storage;
+    args[ta++] = (short)std_ci;
+    args[ta++] = (short)std_cvt;
+    args[ta++] = (short)snap_ci;
+    args[ta++] = (short)snap_cvt;
+    args[ta++] = (short)(width / 2);
+    args[ta++] = (short)storage;
 
-   return ta;
+    return ta;
 }
 
 
@@ -1409,18 +1409,18 @@ USHORT SnapStemArgs(short *args, USHORT ta,
 ** Description:
 
 */
-USHORT StdStemArgs(short *args, USHORT ta,
+USHORT StdStemArgs(short* args, USHORT ta,
                    const funit width,
                    const USHORT std_cvt,
                    const USHORT std_ci,
                    const USHORT storage)
 {
-   args[ta++] = (short)std_ci;
-   args[ta++] = (short)std_cvt;
-   args[ta++] = (short)(width/2);
-   args[ta++] = (short)storage;
+    args[ta++] = (short)std_ci;
+    args[ta++] = (short)std_cvt;
+    args[ta++] = (short)(width / 2);
+    args[ta++] = (short)storage;
 
-   return ta;
+    return ta;
 }
 
 
@@ -1431,23 +1431,23 @@ USHORT StdStemArgs(short *args, USHORT ta,
 ** Description:
 
 */
-USHORT CreateStdStems(UBYTE *prep, USHORT tp, const short cnt)
+USHORT CreateStdStems(UBYTE* prep, USHORT tp, const short cnt)
 {
-   if (cnt>255) {
-      prep[tp++] = op_pushw1;
-      prep[tp++] = HIBYTE(cnt);
-      prep[tp++] = LOBYTE(cnt);
-      prep[tp++] = op_pushb1;
-      prep[tp++] = TTFUN_STEM_STD_WIDTH;
-   } else {
-      prep[tp++] = op_pushb1 + 1;
-      prep[tp++] = (UBYTE)cnt;
-      prep[tp++] = TTFUN_STEM_STD_WIDTH;
-   }
+    if (cnt > 255) {
+        prep[tp++] = op_pushw1;
+        prep[tp++] = HIBYTE(cnt);
+        prep[tp++] = LOBYTE(cnt);
+        prep[tp++] = op_pushb1;
+        prep[tp++] = TTFUN_STEM_STD_WIDTH;
+    } else {
+        prep[tp++] = op_pushb1 + 1;
+        prep[tp++] = (UBYTE)cnt;
+        prep[tp++] = TTFUN_STEM_STD_WIDTH;
+    }
 
-   prep[tp++] = op_loopcall;
+    prep[tp++] = op_loopcall;
 
-   return tp;
+    return tp;
 }
 
 
@@ -1458,23 +1458,23 @@ USHORT CreateStdStems(UBYTE *prep, USHORT tp, const short cnt)
 ** Description:
 
 */
-USHORT CreateSnapStems(UBYTE *prep, USHORT tp, const short cnt)
+USHORT CreateSnapStems(UBYTE* prep, USHORT tp, const short cnt)
 {
-   if (cnt>255) {
-      prep[tp++] = op_pushw1;
-      prep[tp++] = HIBYTE(cnt);
-      prep[tp++] = LOBYTE(cnt);
-      prep[tp++] = op_pushb1;
-      prep[tp++] = TTFUN_STEM_SNAP_WIDTH;
-   } else {
-      prep[tp++] = op_pushb1 + 1;
-      prep[tp++] = (UBYTE)cnt;
-      prep[tp++] = TTFUN_STEM_SNAP_WIDTH;
-   }
+    if (cnt > 255) {
+        prep[tp++] = op_pushw1;
+        prep[tp++] = HIBYTE(cnt);
+        prep[tp++] = LOBYTE(cnt);
+        prep[tp++] = op_pushb1;
+        prep[tp++] = TTFUN_STEM_SNAP_WIDTH;
+    } else {
+        prep[tp++] = op_pushb1 + 1;
+        prep[tp++] = (UBYTE)cnt;
+        prep[tp++] = TTFUN_STEM_SNAP_WIDTH;
+    }
 
-   prep[tp++] = op_loopcall;
+    prep[tp++] = op_loopcall;
 
-   return tp;
+    return tp;
 }
 
 
@@ -1487,9 +1487,9 @@ USHORT CreateSnapStems(UBYTE *prep, USHORT tp, const short cnt)
 **   This function returns the static font
 **   font program.
 */
-const UBYTE *tt_GetFontProg(void)
+const UBYTE* tt_GetFontProg(void)
 {
-   return FontProg;
+    return FontProg;
 }
 
 
@@ -1504,7 +1504,7 @@ const UBYTE *tt_GetFontProg(void)
 */
 USHORT tt_GetFontProgSize(void)
 {
-   return (USHORT)sizeof(FontProg);
+    return (USHORT)sizeof(FontProg);
 }
 
 
@@ -1519,7 +1519,7 @@ USHORT tt_GetFontProgSize(void)
 */
 USHORT tt_GetNumFuns(void)
 {
-   return (USHORT)TTFUN_NUM;
+    return (USHORT)TTFUN_NUM;
 }
 
 
@@ -1532,34 +1532,34 @@ USHORT tt_GetNumFuns(void)
 **   intruction sequence that will reduce a flex
 **   that is flatter than a given height.
 */
-errcode EmitFlex(short *args,
-                 short *pcd,
+errcode EmitFlex(short* args,
+                 short* pcd,
                  const funit height,
                  const short start,
                  const short mid,
                  const short last)
 {
-   errcode status = SUCCESS;
-   int i;
+    errcode status = SUCCESS;
+    int i;
 
-   /* Enough space for the instructions? */
-   args[(*pcd)++] = TTFUN_FLEX;
-   args[(*pcd)++] = start;
-   args[(*pcd)++] = mid;
-   args[(*pcd)++] = (short)height;
-   args[(*pcd)++] = TMPCVT;
-   args[(*pcd)++] = TMPCVT;
-   args[(*pcd)++] = mid;
-   args[(*pcd)++] = start;
-   args[(*pcd)++] = mid;
+    /* Enough space for the instructions? */
+    args[(*pcd)++] = TTFUN_FLEX;
+    args[(*pcd)++] = start;
+    args[(*pcd)++] = mid;
+    args[(*pcd)++] = (short)height;
+    args[(*pcd)++] = TMPCVT;
+    args[(*pcd)++] = TMPCVT;
+    args[(*pcd)++] = mid;
+    args[(*pcd)++] = start;
+    args[(*pcd)++] = mid;
 
-   /* Push the flex points onto the stack. */
-   args[(*pcd)++] = (short)(last-start-2);
-   for (i=start+(short)1; i<last; i++)
-      if (i!=mid)
-         args[(*pcd)++] = (short)i;
+    /* Push the flex points onto the stack. */
+    args[(*pcd)++] = (short)(last - start - 2);
+    for (i = start + (short)1; i < last; i++)
+        if (i != mid)
+            args[(*pcd)++] = (short)i;
 
-   return status;
+    return status;
 }
 
 
@@ -1574,270 +1574,270 @@ errcode EmitFlex(short *args,
 **   control the width of diagonals. This implementation
 **   can probably be improved.
 */
-short ReduceDiagonals(const Outline *paths,
-                      UBYTE *pgm, short *pc,
-                      short *args,  short *pcd)
+short ReduceDiagonals(const Outline* paths,
+                      UBYTE* pgm, short* pc,
+                      short* args, short* pcd)
 {
-   short cw[MAXTHINPNTS];
-   short ccw[MAXTHINPNTS];
-   short targ[MAXTHINPNTS];
-   const Outline *path;
-   Point *pts;
-   short i,j;
-   short cwi = 0, ccwi = 0;
-   short prev;
-   short n,m;
-   short prev_cw, prev_ccw;
-   short ta;
+    short cw[MAXTHINPNTS];
+    short ccw[MAXTHINPNTS];
+    short targ[MAXTHINPNTS];
+    const Outline* path;
+    Point* pts;
+    short i, j;
+    short cwi = 0, ccwi = 0;
+    short prev;
+    short n, m;
+    short prev_cw, prev_ccw;
+    short ta;
 
 
 
-   /* Collect points on left and right side that are diagonals. */
-   i = 0;
-   for (path = paths; path && ccwi<MAXTHINPNTS && cwi<MAXTHINPNTS;
-   path=path->next) {
+    /* Collect points on left and right side that are diagonals. */
+    i = 0;
+    for (path = paths; path && ccwi < MAXTHINPNTS && cwi < MAXTHINPNTS;
+         path = path->next) {
 
-      pts = &path->pts[0];
-      prev_cw = FALSE;
-      prev_ccw = FALSE;
+        pts = &path->pts[0];
+        prev_cw = FALSE;
+        prev_ccw = FALSE;
 
-      /* Are the first and last point coinciding? */
-      if (pts[path->count-1].x!=pts[0].x ||
-          pts[path->count-1].y!=pts[0].y)
-         prev = (short)(path->count-(short)1);
-      else
-         prev = (short)(path->count-(short)2);
+        /* Are the first and last point coinciding? */
+        if (pts[path->count - 1].x != pts[0].x ||
+            pts[path->count - 1].y != pts[0].y)
+            prev = (short)(path->count - (short)1);
+        else
+            prev = (short)(path->count - (short)2);
 
-      /* Special case the first point. */
-      if (!OnCurve(path->onoff, prev) ||
-          (pts[0].x != pts[prev].x &&
-           ABS(pts[0].x - pts[prev].x) < ABS(pts[0].y - pts[prev].y)*8)) {
-         if (pts[0].y>pts[prev].y+20) {
-            if (pts[prev].y<=pts[prev-1].y)
-               cw[cwi++] = (short)(i+(short)path->count-1);
-            cw[cwi++] = i;
-            prev_cw = TRUE;
-            prev_ccw = FALSE;
-         } else if (pts[0].y<pts[prev].y-20) {
-            if (pts[prev].y>=pts[prev-1].y)
-               ccw[ccwi++] = (short)(i+(short)path->count-1);
-            ccw[ccwi++] = i;
-            prev_cw = FALSE;
-            prev_ccw = TRUE;
-         }
-      }
-
-
-      for (j=1; j<(short)path->count &&
-             ccwi<MAXTHINPNTS && cwi<MAXTHINPNTS; j++) {
-         i++;
-         if (!OnCurve(path->onoff, j-1) ||
-             (pts[j].x != pts[j-1].x &&
-              ABS(pts[j].x - pts[j-1].x) < ABS(pts[j].y - pts[j-1].y)*8)) {
-            if (pts[j].y>pts[j-1].y+20) {
-               if (!prev_cw)
-                  cw[cwi++] = (short)(i-1);
-               cw[cwi++] = i;
-               prev_cw = TRUE;
-               prev_ccw = FALSE;
-            } else if (pts[j].y<pts[j-1].y-20) {
-               if (!prev_ccw)
-                  ccw[ccwi++] = (short)(i-1);
-               ccw[ccwi++] = i;
-               prev_cw = FALSE;
-               prev_ccw = TRUE;
-            } else {
-               prev_cw = FALSE;
-               prev_ccw = FALSE;
+        /* Special case the first point. */
+        if (!OnCurve(path->onoff, prev) ||
+            (pts[0].x != pts[prev].x &&
+             ABS(pts[0].x - pts[prev].x) < ABS(pts[0].y - pts[prev].y) * 8)) {
+            if (pts[0].y > pts[prev].y + 20) {
+                if (pts[prev].y <= pts[prev - 1].y)
+                    cw[cwi++] = (short)(i + (short)path->count - 1);
+                cw[cwi++] = i;
+                prev_cw = TRUE;
+                prev_ccw = FALSE;
+            } else if (pts[0].y < pts[prev].y - 20) {
+                if (pts[prev].y >= pts[prev - 1].y)
+                    ccw[ccwi++] = (short)(i + (short)path->count - 1);
+                ccw[ccwi++] = i;
+                prev_cw = FALSE;
+                prev_ccw = TRUE;
             }
-         } else {
-            prev_cw = FALSE;
-            prev_ccw = FALSE;
-         }
-      }
-      i++;
-   }
+        }
 
 
-   /* Did we get all points? */
-   if (ccwi>=MAXTHINPNTS || cwi>=MAXTHINPNTS) {
-      LogError(MSG_WARNING, MSG_DIAG, NULL);
-   }
+        for (j = 1; j < (short)path->count &&
+             ccwi < MAXTHINPNTS && cwi < MAXTHINPNTS; j++) {
+            i++;
+            if (!OnCurve(path->onoff, j - 1) ||
+                (pts[j].x != pts[j - 1].x &&
+                 ABS(pts[j].x - pts[j - 1].x) < ABS(pts[j].y - pts[j - 1].y) * 8)) {
+                if (pts[j].y > pts[j - 1].y + 20) {
+                    if (!prev_cw)
+                        cw[cwi++] = (short)(i - 1);
+                    cw[cwi++] = i;
+                    prev_cw = TRUE;
+                    prev_ccw = FALSE;
+                } else if (pts[j].y < pts[j - 1].y - 20) {
+                    if (!prev_ccw)
+                        ccw[ccwi++] = (short)(i - 1);
+                    ccw[ccwi++] = i;
+                    prev_cw = FALSE;
+                    prev_ccw = TRUE;
+                } else {
+                    prev_cw = FALSE;
+                    prev_ccw = FALSE;
+                }
+            } else {
+                prev_cw = FALSE;
+                prev_ccw = FALSE;
+            }
+        }
+        i++;
+    }
 
 
-   /* Any points to shift? */
-   if (cwi || ccwi) {
-      args[(*pcd)++] = STORAGE_DIAG;
-      pgm[(*pc)++] = op_rs;
-      pgm[(*pc)++] = op_if;
-      pgm[(*pc)++] = op_svcta + SUBOP_X;
-
-      /* Switch over to GLYPHZONE */
-      pgm[(*pc)++] = op_szp2;
-      args[(*pcd)++] = 1;
+    /* Did we get all points? */
+    if (ccwi >= MAXTHINPNTS || cwi >= MAXTHINPNTS) {
+        LogError(MSG_WARNING, MSG_DIAG, NULL);
+    }
 
 
-      ta = 3;
+    /* Any points to shift? */
+    if (cwi || ccwi) {
+        args[(*pcd)++] = STORAGE_DIAG;
+        pgm[(*pc)++] = op_rs;
+        pgm[(*pc)++] = op_if;
+        pgm[(*pc)++] = op_svcta + SUBOP_X;
 
-      /* Disable "cw[m] may not have been initialized".*/ /*lint -e644 */
-      for (n=0; n<cwi; n=m) {
-         for (m=(short)(n+1); m<cwi && cw[m]==cw[m-1]+1; m++); /*lint +e644 */
-         if (m-n<=4) {
-            for (i=n; i<m; i++)
-               targ[ta++] = cw[i];
-         } else {
-            targ[0] = TTFUN_RANGE;
-            targ[1] = (short)(m-n-1);
-            targ[2] = cw[n];
-            AssembleArgs(targ, ta, pgm, pc);
-            pgm[(*pc)++] = op_loopcall;
-            ta = 3;
-         }
-      }
-      targ[0] = TTFUN_SHIFT1;
-      targ[1] = cwi;
-      targ[2] = STORAGE_DIAG;
-      AssembleArgs(targ, ta, pgm, pc);
-      pgm[(*pc)++] = op_call;
+        /* Switch over to GLYPHZONE */
+        pgm[(*pc)++] = op_szp2;
+        args[(*pcd)++] = 1;
 
 
-      /************ Shift back the left side of the glyph. */
+        ta = 3;
 
-      ta = 3;
+        /* Disable "cw[m] may not have been initialized".*/ /*lint -e644 */
+        for (n = 0; n < cwi; n = m) {
+            for (m = (short)(n + 1); m < cwi && cw[m] == cw[m - 1] + 1; m++); /*lint +e644 */
+            if (m - n <= 4) {
+                for (i = n; i < m; i++)
+                    targ[ta++] = cw[i];
+            } else {
+                targ[0] = TTFUN_RANGE;
+                targ[1] = (short)(m - n - 1);
+                targ[2] = cw[n];
+                AssembleArgs(targ, ta, pgm, pc);
+                pgm[(*pc)++] = op_loopcall;
+                ta = 3;
+            }
+        }
+        targ[0] = TTFUN_SHIFT1;
+        targ[1] = cwi;
+        targ[2] = STORAGE_DIAG;
+        AssembleArgs(targ, ta, pgm, pc);
+        pgm[(*pc)++] = op_call;
 
-      /* Disable "ccw[m] may not have been initialized".*/ /*lint -e644 */
-      for (n=0; n<ccwi; n=m) {
-         for (m=(short)(n+1); m<ccwi && ccw[m]==ccw[m-1]+1; m++); /*lint +e644 */
-         if (m-n<=4) {
-            for (i=n; i<m; i++)
-               targ[ta++] = ccw[i];
-         } else {
-            targ[0] = TTFUN_RANGE;
-            targ[1] = (short)(m-n-1);
-            targ[2] = ccw[n];
-            AssembleArgs(targ, ta, pgm, pc);
-            pgm[(*pc)++] = op_loopcall;
-            ta = 3;
-         }
-      }
-      targ[0] = TTFUN_SHIFT2;
-      targ[1] = ccwi;
-      targ[2] = STORAGE_DIAG;
-      AssembleArgs(targ, ta, pgm, pc);
-      pgm[(*pc)++] = op_call;
+
+        /************ Shift back the left side of the glyph. */
+
+        ta = 3;
+
+        /* Disable "ccw[m] may not have been initialized".*/ /*lint -e644 */
+        for (n = 0; n < ccwi; n = m) {
+            for (m = (short)(n + 1); m < ccwi && ccw[m] == ccw[m - 1] + 1; m++); /*lint +e644 */
+            if (m - n <= 4) {
+                for (i = n; i < m; i++)
+                    targ[ta++] = ccw[i];
+            } else {
+                targ[0] = TTFUN_RANGE;
+                targ[1] = (short)(m - n - 1);
+                targ[2] = ccw[n];
+                AssembleArgs(targ, ta, pgm, pc);
+                pgm[(*pc)++] = op_loopcall;
+                ta = 3;
+            }
+        }
+        targ[0] = TTFUN_SHIFT2;
+        targ[1] = ccwi;
+        targ[2] = STORAGE_DIAG;
+        AssembleArgs(targ, ta, pgm, pc);
+        pgm[(*pc)++] = op_call;
 
 
 #ifdef SYMETRICAL_REDUCTION
 
-      /* The amount that the outline is shrunk is computed once at
-      each size, in the pre-program. The outline is shrunk
-      symetrically by the amount: 1/16 + (12 Funits)*size/UPEm.
+        /* The amount that the outline is shrunk is computed once at
+        each size, in the pre-program. The outline is shrunk
+        symetrically by the amount: 1/16 + (12 Funits)*size/UPEm.
 
-      This approach yields more symmetrical results than shrinking
-      the outline horizontally alone (see separate papers on the topic). */
+        This approach yields more symmetrical results than shrinking
+        the outline horizontally alone (see separate papers on the topic). */
 
 
-      /* Same thing for the height... */
-      i = 0;
-      cwi = 0;
-      ccwi = 0;
-      for (path = paths; path && ccwi<MAXTHINPNTS && cwi<MAXTHINPNTS;
-      path=path->next) {
+        /* Same thing for the height... */
+        i = 0;
+        cwi = 0;
+        ccwi = 0;
+        for (path = paths; path && ccwi < MAXTHINPNTS && cwi < MAXTHINPNTS;
+             path = path->next) {
 
-         pts = &path->pts[0];
+            pts = &path->pts[0];
 
-         /* Are the first and last point coinciding? */
-         if (pts[path->count-1].y!=pts[0].y ||
-             pts[path->count-1].x!=pts[0].x)
-            prev = path->count-1;
-         else
-            prev = path->count-2;
+            /* Are the first and last point coinciding? */
+            if (pts[path->count - 1].y != pts[0].y ||
+                pts[path->count - 1].x != pts[0].x)
+                prev = path->count - 1;
+            else
+                prev = path->count - 2;
 
-         if (!OnCurve(path->onoff, prev) ||
-             (pts[0].y != pts[prev].y &&
-              ABS(pts[0].y - pts[prev].y) < ABS(pts[0].x - pts[prev].x)*8)) {
-            if (pts[0].x>pts[prev].x+20) {
-               if (pts[prev].x<=pts[prev-1].x)
-                  cw[cwi++] = i+path->count-1;
-               cw[cwi++] = i;
-            } else if (pts[0].x<pts[prev].x-20) {
-               if (pts[prev].x>=pts[prev-1].x)
-                  ccw[ccwi++] = i+path->count-1;
-               ccw[ccwi++] = i;
+            if (!OnCurve(path->onoff, prev) ||
+                (pts[0].y != pts[prev].y &&
+                 ABS(pts[0].y - pts[prev].y) < ABS(pts[0].x - pts[prev].x) * 8)) {
+                if (pts[0].x > pts[prev].x + 20) {
+                    if (pts[prev].x <= pts[prev - 1].x)
+                        cw[cwi++] = i + path->count - 1;
+                    cw[cwi++] = i;
+                } else if (pts[0].x < pts[prev].x - 20) {
+                    if (pts[prev].x >= pts[prev - 1].x)
+                        ccw[ccwi++] = i + path->count - 1;
+                    ccw[ccwi++] = i;
+                }
             }
-         }
 
 
-         for (j=1; j<path->count && ccwi<MAXTHINPNTS && cwi<MAXTHINPNTS; j++) {
+            for (j = 1; j < path->count && ccwi < MAXTHINPNTS && cwi < MAXTHINPNTS; j++) {
+                i++;
+                if (!OnCurve(path->onoff, j - 1) ||
+                    (pts[j].y != pts[j - 1].y &&
+                     ABS(pts[j].y - pts[j - 1].y) < ABS(pts[j].x - pts[j - 1].x) * 8)) {
+                    if (pts[j].x > pts[j - 1].x + 20) {
+                        if (!cwi || cw[cwi - 1] != i - 1)
+                            cw[cwi++] = i - 1;
+                        cw[cwi++] = i;
+                    } else if (pts[j].x < pts[j - 1].x - 20) {
+                        if (!ccwi || ccw[ccwi - 1] != i - 1)
+                            ccw[ccwi++] = i - 1;
+                        ccw[ccwi++] = i;
+                    }
+                }
+            }
             i++;
-            if (!OnCurve(path->onoff, j-1) ||
-                (pts[j].y != pts[j-1].y &&
-                 ABS(pts[j].y - pts[j-1].y) < ABS(pts[j].x - pts[j-1].x)*8)) {
-               if (pts[j].x>pts[j-1].x+20) {
-                  if (!cwi || cw[cwi-1]!=i-1)
-                     cw[cwi++] = i-1;
-                  cw[cwi++] = i;
-               } else if (pts[j].x<pts[j-1].x-20) {
-                  if (!ccwi || ccw[ccwi-1]!=i-1)
-                     ccw[ccwi++] = i-1;
-                  ccw[ccwi++] = i;
-               }
+        }
+
+
+        if (ccwi >= MAXTHINPNTS || cwi >= MAXTHINPNTS) {
+            LogError(MSG_WARNING, MSG_DIAG, NULL);
+        }
+
+
+        /* Any points to shift? */
+        if (cwi || ccwi) {
+            pgm[(*pc)++] = op_svcta + SUBOP_Y;
+
+
+            for (n = 0; n < cwi; n = m) {
+                for (m = n + 1; m < cwi && cw[m] == cw[m - 1] + 1; m++);
+                pgm[(*pc)++] = op_pushb1 + 2;
+                pgm[(*pc)++] = cw[n];
+                pgm[(*pc)++] = (UBYTE)(m - n - 1);
+                pgm[(*pc)++] = TTFUN_RANGE;
+                pgm[(*pc)++] = op_loopcall;
             }
-         }
-         i++;
-      }
-
-
-      if (ccwi>=MAXTHINPNTS || cwi>=MAXTHINPNTS) {
-         LogError(MSG_WARNING, MSG_DIAG, NULL);
-      }
-
-
-      /* Any points to shift? */
-      if (cwi || ccwi) {
-         pgm[(*pc)++] = op_svcta + SUBOP_Y;
-
-
-         for (n=0; n<cwi; n=m) {
-            for (m=n+1; m<cwi && cw[m]==cw[m-1]+1; m++);
             pgm[(*pc)++] = op_pushb1 + 2;
-            pgm[(*pc)++] = cw[n];
-            pgm[(*pc)++] = (UBYTE)(m-n-1);
-            pgm[(*pc)++] = TTFUN_RANGE;
-            pgm[(*pc)++] = op_loopcall;
-         }
-         pgm[(*pc)++] = op_pushb1+2;
-         pgm[(*pc)++] = STORAGE_DIAG;
-         pgm[(*pc)++] = cwi;
-         pgm[(*pc)++] = TTFUN_SHIFT2;
-         pgm[(*pc)++] = op_call;
+            pgm[(*pc)++] = STORAGE_DIAG;
+            pgm[(*pc)++] = cwi;
+            pgm[(*pc)++] = TTFUN_SHIFT2;
+            pgm[(*pc)++] = op_call;
 
 
 
-         /************ Shift back the left side of the glyph. */
+            /************ Shift back the left side of the glyph. */
 
 
-         for (n=0; n<ccwi; n=m) {
-            for (m=n+1; m<ccwi && ccw[m]==ccw[m-1]+1; m++);
+            for (n = 0; n < ccwi; n = m) {
+                for (m = n + 1; m < ccwi && ccw[m] == ccw[m - 1] + 1; m++);
+                pgm[(*pc)++] = op_pushb1 + 2;
+                pgm[(*pc)++] = (UBYTE)ccw[n];
+                pgm[(*pc)++] = (UBYTE)(m - n - 1);
+                pgm[(*pc)++] = TTFUN_RANGE;
+                pgm[(*pc)++] = op_loopcall;
+            }
             pgm[(*pc)++] = op_pushb1 + 2;
-            pgm[(*pc)++] = (UBYTE)ccw[n];
-            pgm[(*pc)++] = (UBYTE)(m-n-1);
-            pgm[(*pc)++] = TTFUN_RANGE;
-            pgm[(*pc)++] = op_loopcall;
-         }
-         pgm[(*pc)++] = op_pushb1+2;
-         pgm[(*pc)++] = STORAGE_DIAG;
-         pgm[(*pc)++] = (UBYTE)ccwi;
-         pgm[(*pc)++] = TTFUN_SHIFT1;
-         pgm[(*pc)++] = op_call;
-      }
+            pgm[(*pc)++] = STORAGE_DIAG;
+            pgm[(*pc)++] = (UBYTE)ccwi;
+            pgm[(*pc)++] = TTFUN_SHIFT1;
+            pgm[(*pc)++] = op_call;
+        }
 #endif
 
-      pgm[(*pc)++] = op_eif;
-   }
+        pgm[(*pc)++] = op_eif;
+    }
 
-   /* Args + num of args + function number. */
-   return (short)(MAX(cwi, ccwi)+2);
+    /* Args + num of args + function number. */
+    return (short)(MAX(cwi, ccwi) + 2);
 }
 
 
@@ -1850,35 +1850,35 @@ short ReduceDiagonals(const Outline *paths,
 **   This function generates the TT instructions
 **   that will scale down points 3%.
 */
-void ScaleDown3(const Extremas *extr, const short xcnt,
-                UBYTE *pgm, short *pc,
-                short *args, short *pcd)
+void ScaleDown3(const Extremas* extr, const short xcnt,
+                UBYTE* pgm, short* pc,
+                short* args, short* pcd)
 {
-   short i,j,offset, opc, opcd;
+    short i, j, offset, opc, opcd;
 
-   /* Remember the state of the stacks. */
-   opc = (*pc);
-   opcd = (*pcd);
+    /* Remember the state of the stacks. */
+    opc = (*pc);
+    opcd = (*pcd);
 
-   args[(*pcd)++] = TTFUN_SCALE3;
+    args[(*pcd)++] = TTFUN_SCALE3;
 
-   offset = (*pcd)++;
-   args[offset] = 0;
-   for (i=0; i<xcnt; i++) {
-      if ((extr[i].rp1==UNDEF || extr[i].rp2==UNDEF)) {
-         for (j=0; j<extr[i].n; j++) {
-            args[(*pcd)++] = extr[i].pts[j];
-         }
-         args[offset] = (short)(args[offset] + extr[i].n);
-      }
-   }
-   if (args[offset]>0) {
-      pgm[(*pc)++] = op_call;
-   } else {
-      /* Back track. */
-      (*pc) = opc;
-      (*pcd) = opcd;
-   }
+    offset = (*pcd)++;
+    args[offset] = 0;
+    for (i = 0; i < xcnt; i++) {
+        if ((extr[i].rp1 == UNDEF || extr[i].rp2 == UNDEF)) {
+            for (j = 0; j < extr[i].n; j++) {
+                args[(*pcd)++] = extr[i].pts[j];
+            }
+            args[offset] = (short)(args[offset] + extr[i].n);
+        }
+    }
+    if (args[offset] > 0) {
+        pgm[(*pc)++] = op_call;
+    } else {
+        /* Back track. */
+        (*pc) = opc;
+        (*pcd) = opcd;
+    }
 }
 
 
@@ -1890,203 +1890,203 @@ void ScaleDown3(const Extremas *extr, const short xcnt,
 **   that will interpolate points that are either
 **   within or between stem sides.
 */
-void EmitIP(const Extremas *extr, const short xcnt,
-            UBYTE *pgm, short *pc,
-            short *args, short *pcd,
+void EmitIP(const Extremas* extr, const short xcnt,
+            UBYTE* pgm, short* pc,
+            short* args, short* pcd,
             const short scale3offset)
 {
-   short i,j,num;
-   short ones[MAXIP], twoes[MAXIP], nths[MAXIP];
-   short cnt1, cnt2, cntn;
+    short i, j, num;
+    short ones[MAXIP], twoes[MAXIP], nths[MAXIP];
+    short cnt1, cnt2, cntn;
 
 
-   /*lint -e530 -e644 */
-   /* Shift extrems. */
-   cnt1 = 0; cnt2 = 0; cntn = 0; num = 0;
-   for (i=0; i<xcnt; i++) {
-      short rp;
+    /*lint -e530 -e644 */
+    /* Shift extrems. */
+    cnt1 = 0; cnt2 = 0; cntn = 0; num = 0;
+    for (i = 0; i < xcnt; i++) {
+        short rp;
 
-      /* Skip interpolations. */
-      if (extr[i].rp1!=UNDEF && extr[i].rp2!=UNDEF)
-         continue;
+        /* Skip interpolations. */
+        if (extr[i].rp1 != UNDEF && extr[i].rp2 != UNDEF)
+            continue;
 
-      /* Set the reference points. */
-      if (extr[i].rp1!=UNDEF) {
-         rp = (short)(extr[i].rp1+scale3offset);
-      }  else {
-         rp = (short)(extr[i].rp2+scale3offset);
-      }
+        /* Set the reference points. */
+        if (extr[i].rp1 != UNDEF) {
+            rp = (short)(extr[i].rp1 + scale3offset);
+        } else {
+            rp = (short)(extr[i].rp2 + scale3offset);
+        }
 
-      if (extr[i].n==1) {
-         if ((cnt1+2)>=MAXIP) {
+        if (extr[i].n == 1) {
+            if ((cnt1 + 2) >= MAXIP) {
+                pgm[(*pc)++] = op_loopcall;
+                args[(*pcd)++] = TTFUN_SHP1;
+                args[(*pcd)++] = (short)(cnt1 / 2);
+                for (j = 0; j < cnt1; j++)
+                    args[(*pcd)++] = (short)ones[j];
+                cnt1 = 0;
+            }
+            ones[cnt1++] = rp;
+            ones[cnt1++] = extr[i].pts[0];
+        } else if (extr[i].n == 2) {
+            if ((cnt2 + 3) >= MAXIP) {
+                pgm[(*pc)++] = op_loopcall;
+                args[(*pcd)++] = TTFUN_SHP2;
+                args[(*pcd)++] = (short)(cnt2 / 3);
+                for (j = 0; j < cnt2; j++)
+                    args[(*pcd)++] = (short)twoes[j];
+                cnt2 = 0;
+            }
+            twoes[cnt2++] = rp;
+            twoes[cnt2++] = extr[i].pts[0];
+            twoes[cnt2++] = extr[i].pts[1];
+        } else {
+            if ((cntn + 2 + extr[i].n) >= MAXIP) {
+                pgm[(*pc)++] = op_loopcall;
+                args[(*pcd)++] = TTFUN_SHPN;
+                args[(*pcd)++] = num;
+                for (j = 0; j < cntn; j++)
+                    args[(*pcd)++] = (short)nths[j];
+                cntn = 0;
+                num = 0;
+            }
+            nths[cntn++] = rp;
+            nths[cntn++] = extr[i].n;
+            for (j = 0; j < extr[i].n; j++) {
+                nths[cntn++] = extr[i].pts[j];
+            }
+            num++;
+        }
+    }
+
+    if (cnt1) {
+        if (cnt1 > 2) {
             pgm[(*pc)++] = op_loopcall;
             args[(*pcd)++] = TTFUN_SHP1;
-            args[(*pcd)++] = (short)(cnt1/2);
-            for (j=0; j<cnt1; j++)
-               args[(*pcd)++] = (short)ones[j];
-            cnt1 = 0;
-         }
-         ones[cnt1++] = rp;
-         ones[cnt1++] = extr[i].pts[0];
-      } else if (extr[i].n==2) {
-         if ((cnt2+3)>=MAXIP) {
+            args[(*pcd)++] = (short)(cnt1 / 2);
+        } else {
+            pgm[(*pc)++] = op_call;
+            args[(*pcd)++] = TTFUN_SHP1;
+        }
+        for (i = 0; i < cnt1; i++)
+            args[(*pcd)++] = ones[i];
+    }
+    if (cnt2) {
+        if (cnt2 > 3) {
             pgm[(*pc)++] = op_loopcall;
             args[(*pcd)++] = TTFUN_SHP2;
-            args[(*pcd)++] = (short)(cnt2/3);
-            for (j=0; j<cnt2; j++)
-               args[(*pcd)++] = (short)twoes[j];
-            cnt2 = 0;
-         }
-         twoes[cnt2++] = rp;
-         twoes[cnt2++] = extr[i].pts[0];
-         twoes[cnt2++] = extr[i].pts[1];
-      } else {
-         if ((cntn+2+extr[i].n)>=MAXIP) {
+            args[(*pcd)++] = (short)(cnt2 / 3);
+        } else {
+            pgm[(*pc)++] = op_call;
+            args[(*pcd)++] = TTFUN_SHP2;
+        }
+        for (i = 0; i < cnt2; i++)
+            args[(*pcd)++] = twoes[i];
+    }
+    if (cntn) {
+        if (num > 1) {
             pgm[(*pc)++] = op_loopcall;
             args[(*pcd)++] = TTFUN_SHPN;
             args[(*pcd)++] = num;
-            for (j=0; j<cntn; j++)
-               args[(*pcd)++] = (short)nths[j];
-            cntn = 0;
-            num = 0;
-         }
-         nths[cntn++] = rp;
-         nths[cntn++] = extr[i].n;
-         for (j=0; j<extr[i].n; j++) {
-            nths[cntn++] = extr[i].pts[j];
-         }
-         num++;
-      }
-   }
-
-   if (cnt1) {
-      if (cnt1>2) {
-         pgm[(*pc)++] = op_loopcall;
-         args[(*pcd)++] = TTFUN_SHP1;
-         args[(*pcd)++] = (short)(cnt1/2);
-      } else {
-         pgm[(*pc)++] = op_call;
-         args[(*pcd)++] = TTFUN_SHP1;
-      }
-      for (i=0; i<cnt1; i++)
-         args[(*pcd)++] = ones[i];
-   }
-   if (cnt2) {
-      if (cnt2>3) {
-         pgm[(*pc)++] = op_loopcall;
-         args[(*pcd)++] = TTFUN_SHP2;
-         args[(*pcd)++] = (short)(cnt2/3);
-      } else {
-         pgm[(*pc)++] = op_call;
-         args[(*pcd)++] = TTFUN_SHP2;
-      }
-      for (i=0; i<cnt2; i++)
-         args[(*pcd)++] = twoes[i];
-   }
-   if (cntn) {
-      if (num>1) {
-         pgm[(*pc)++] = op_loopcall;
-         args[(*pcd)++] = TTFUN_SHPN;
-         args[(*pcd)++] = num;
-      } else {
-         pgm[(*pc)++] = op_call;
-         args[(*pcd)++] = TTFUN_SHPN;
-      }
-      for (i=0; i<cntn; i++)
-         args[(*pcd)++] = (short)nths[i];
-   }
+        } else {
+            pgm[(*pc)++] = op_call;
+            args[(*pcd)++] = TTFUN_SHPN;
+        }
+        for (i = 0; i < cntn; i++)
+            args[(*pcd)++] = (short)nths[i];
+    }
 
 
-   /* Interpolate the extrems. */
-   cnt1 = 0; cnt2 = 0; cntn = 0; num = 0;
-   for (i=0; i<xcnt; i++) {
+    /* Interpolate the extrems. */
+    cnt1 = 0; cnt2 = 0; cntn = 0; num = 0;
+    for (i = 0; i < xcnt; i++) {
 
-      /* Skip interpolations. */
-      if (extr[i].rp1==UNDEF || extr[i].rp2==UNDEF)
-         continue;
+        /* Skip interpolations. */
+        if (extr[i].rp1 == UNDEF || extr[i].rp2 == UNDEF)
+            continue;
 
-      if (extr[i].n==1) {
-         if ((cnt1+3)>=MAXIP) {
+        if (extr[i].n == 1) {
+            if ((cnt1 + 3) >= MAXIP) {
+                pgm[(*pc)++] = op_loopcall;
+                args[(*pcd)++] = TTFUN_IP1;
+                args[(*pcd)++] = (short)(cnt1 / 2);
+                for (j = 0; j < cnt1; j++)
+                    args[(*pcd)++] = (short)ones[j];
+                cnt1 = 0;
+            }
+            ones[cnt1++] = extr[i].rp1;
+            ones[cnt1++] = extr[i].rp2;
+            ones[cnt1++] = extr[i].pts[0];
+        } else if (extr[i].n == 2) {
+            if ((cnt2 + 4) >= MAXIP) {
+                pgm[(*pc)++] = op_loopcall;
+                args[(*pcd)++] = TTFUN_IP2;
+                args[(*pcd)++] = (short)(cnt2 / 3);
+                for (j = 0; j < cnt2; j++)
+                    args[(*pcd)++] = (short)twoes[j];
+                cnt2 = 0;
+            }
+            twoes[cnt2++] = extr[i].rp1;
+            twoes[cnt2++] = extr[i].rp2;
+            twoes[cnt2++] = extr[i].pts[0];
+            twoes[cnt2++] = extr[i].pts[1];
+        } else {
+            if ((cntn + 3 + extr[i].n) >= MAXIP) {
+                pgm[(*pc)++] = op_loopcall;
+                args[(*pcd)++] = TTFUN_IPN;
+                args[(*pcd)++] = num;
+                for (j = 0; j < cntn; j++)
+                    args[(*pcd)++] = (short)nths[j];
+                cntn = 0;
+                num = 0;
+            }
+            nths[cntn++] = extr[i].rp1;
+            nths[cntn++] = extr[i].rp2;
+            nths[cntn++] = extr[i].n;
+            for (j = 0; j < extr[i].n; j++) {
+                nths[cntn++] = extr[i].pts[j];
+            }
+            num++;
+        }
+    }
+
+    if (cnt1) {
+        if (cnt1 > 3) {
             pgm[(*pc)++] = op_loopcall;
             args[(*pcd)++] = TTFUN_IP1;
-            args[(*pcd)++] = (short)(cnt1/2);
-            for (j=0; j<cnt1; j++)
-               args[(*pcd)++] = (short)ones[j];
-            cnt1 = 0;
-         }
-         ones[cnt1++] = extr[i].rp1;
-         ones[cnt1++] = extr[i].rp2;
-         ones[cnt1++] = extr[i].pts[0];
-      } else if (extr[i].n==2) {
-         if ((cnt2+4)>=MAXIP) {
+            args[(*pcd)++] = (short)(cnt1 / 3);
+        } else {
+            pgm[(*pc)++] = op_call;
+            args[(*pcd)++] = TTFUN_IP1;
+        }
+        for (i = 0; i < cnt1; i++)
+            args[(*pcd)++] = (short)ones[i];
+    }
+    if (cnt2) {
+        if (cnt2 > 4) {
             pgm[(*pc)++] = op_loopcall;
             args[(*pcd)++] = TTFUN_IP2;
-            args[(*pcd)++] = (short)(cnt2/3);
-            for (j=0; j<cnt2; j++)
-               args[(*pcd)++] = (short)twoes[j];
-            cnt2 = 0;
-         }
-         twoes[cnt2++] = extr[i].rp1;
-         twoes[cnt2++] = extr[i].rp2;
-         twoes[cnt2++] = extr[i].pts[0];
-         twoes[cnt2++] = extr[i].pts[1];
-      } else {
-         if ((cntn+3+extr[i].n)>=MAXIP) {
+            args[(*pcd)++] = (short)(cnt2 / 4);
+        } else {
+            pgm[(*pc)++] = op_call;
+            args[(*pcd)++] = TTFUN_IP2;
+        }
+        for (i = 0; i < cnt2; i++)
+            args[(*pcd)++] = (short)twoes[i];
+    }
+    if (cntn) {
+        if (num > 1) {
             pgm[(*pc)++] = op_loopcall;
             args[(*pcd)++] = TTFUN_IPN;
             args[(*pcd)++] = num;
-            for (j=0; j<cntn; j++)
-               args[(*pcd)++] = (short)nths[j];
-            cntn = 0;
-            num = 0;
-         }
-         nths[cntn++] = extr[i].rp1;
-         nths[cntn++] = extr[i].rp2;
-         nths[cntn++] = extr[i].n;
-         for (j=0; j<extr[i].n; j++) {
-            nths[cntn++] = extr[i].pts[j];
-         }
-         num++;
-      }
-   }
-
-   if (cnt1) {
-      if (cnt1>3) {
-         pgm[(*pc)++] = op_loopcall;
-         args[(*pcd)++] = TTFUN_IP1;
-         args[(*pcd)++] = (short)(cnt1/3);
-      } else {
-         pgm[(*pc)++] = op_call;
-         args[(*pcd)++] = TTFUN_IP1;
-      }
-      for (i=0; i<cnt1; i++)
-         args[(*pcd)++] = (short)ones[i];
-   }
-   if (cnt2) {
-      if (cnt2>4) {
-         pgm[(*pc)++] = op_loopcall;
-         args[(*pcd)++] = TTFUN_IP2;
-         args[(*pcd)++] = (short)(cnt2/4);
-      } else {
-         pgm[(*pc)++] = op_call;
-         args[(*pcd)++] = TTFUN_IP2;
-      }
-      for (i=0; i<cnt2; i++)
-         args[(*pcd)++] = (short)twoes[i];
-   }
-   if (cntn) {
-      if (num>1) {
-         pgm[(*pc)++] = op_loopcall;
-         args[(*pcd)++] = TTFUN_IPN;
-         args[(*pcd)++] = num;
-      } else {
-         pgm[(*pc)++] = op_call;
-         args[(*pcd)++] = TTFUN_IPN;
-      }
-      for (i=0; i<cntn; i++)
-         args[(*pcd)++] = (short)nths[i];
-   }
-   /*lint +e530 +e644 */
+        } else {
+            pgm[(*pc)++] = op_call;
+            args[(*pcd)++] = TTFUN_IPN;
+        }
+        for (i = 0; i < cntn; i++)
+            args[(*pcd)++] = (short)nths[i];
+    }
+    /*lint +e530 +e644 */
 }
 
 
@@ -2101,10 +2101,10 @@ void EmitIP(const Extremas *extr, const short xcnt,
 **   TrueType interpreter for the grid fitting
 **   of vertical stems.
 */
-void EmitVerticalStems(UBYTE *pgm, short *pc, short *args, short *pcd)
+void EmitVerticalStems(UBYTE* pgm, short* pc, short* args, short* pcd)
 {
-   pgm[(*pc)++] = op_call;
-   args[(*pcd)++] = TTFUN_VERTICAL;
+    pgm[(*pc)++] = op_call;
+    args[(*pcd)++] = TTFUN_VERTICAL;
 }
 
 
@@ -2120,10 +2120,10 @@ void EmitVerticalStems(UBYTE *pgm, short *pc, short *args, short *pcd)
 **   TrueType interpreter for the grid fitting
 **   of vertical stems.
 */
-void EmitHorizontalStems(UBYTE *pgm, short *pc, short *args, short *pcd)
+void EmitHorizontalStems(UBYTE* pgm, short* pc, short* args, short* pcd)
 {
-   pgm[(*pc)++] = op_call;
-   args[(*pcd)++] = TTFUN_HORIZONTAL;
+    pgm[(*pc)++] = op_call;
+    args[(*pcd)++] = TTFUN_HORIZONTAL;
 }
 
 
@@ -2138,9 +2138,9 @@ void EmitHorizontalStems(UBYTE *pgm, short *pc, short *args, short *pcd)
 **   will create and grid fit points in the
 **   twilight zone, corresponding to a vstem.
 */
-errcode EmitVStem(UBYTE *pgm, short *pc,
-                  short *args, short *pcd,
-                  struct T1Metrics *t1m,
+errcode EmitVStem(UBYTE* pgm, short* pc,
+                  short* args, short* pcd,
+                  struct T1Metrics* t1m,
                   const funit width,
                   const funit real_side1,
                   const funit real_side2,
@@ -2150,56 +2150,56 @@ errcode EmitVStem(UBYTE *pgm, short *pc,
                   const enum aligntype align,
                   const short ref)
 {
-                     errcode status = SUCCESS;
-                     short w_storage;
+    errcode status = SUCCESS;
+    short w_storage;
 
-                     if ((w_storage = GetVStemWidth(GetWeight(t1m), width))==NOMEM) {
-                        SetError(status = NOMEM);
-                     } else {
+    if ((w_storage = GetVStemWidth(GetWeight(t1m), width)) == NOMEM) {
+        SetError(status = NOMEM);
+    } else {
 
-                        pgm[(*pc)++] = op_call;
-                        switch (align) {
-                           case at_centered:
-                              args[(*pcd)++] = TTFUN_VCENTER;
-                              args[(*pcd)++] = (short)real_side1;
-                              args[(*pcd)++] = (short)real_side2;
-                              args[(*pcd)++] = (short)side1;
-                              args[(*pcd)++] = (short)side2;
-                              args[(*pcd)++] = (short)((side1+side2)/2);
-                              args[(*pcd)++] = rp;
-                              args[(*pcd)++] = w_storage;
-                              break;
+        pgm[(*pc)++] = op_call;
+        switch (align) {
+        case at_centered:
+            args[(*pcd)++] = TTFUN_VCENTER;
+            args[(*pcd)++] = (short)real_side1;
+            args[(*pcd)++] = (short)real_side2;
+            args[(*pcd)++] = (short)side1;
+            args[(*pcd)++] = (short)side2;
+            args[(*pcd)++] = (short)((side1 + side2) / 2);
+            args[(*pcd)++] = rp;
+            args[(*pcd)++] = w_storage;
+            break;
 
-                           case at_relative1:
-                              args[(*pcd)++] = TTFUN_RELATIVE1V;
-                              args[(*pcd)++] = (short)real_side1;
-                              args[(*pcd)++] = (short)real_side2;
-                              args[(*pcd)++] = (short)side1;
-                              args[(*pcd)++] = (short)side2;
-                              args[(*pcd)++] = ref;
-                              args[(*pcd)++] = rp;
-                              args[(*pcd)++] = w_storage;
-                              break;
+        case at_relative1:
+            args[(*pcd)++] = TTFUN_RELATIVE1V;
+            args[(*pcd)++] = (short)real_side1;
+            args[(*pcd)++] = (short)real_side2;
+            args[(*pcd)++] = (short)side1;
+            args[(*pcd)++] = (short)side2;
+            args[(*pcd)++] = ref;
+            args[(*pcd)++] = rp;
+            args[(*pcd)++] = w_storage;
+            break;
 
-                           case at_relative2:
-                              args[(*pcd)++] = TTFUN_RELATIVE2V;
-                              args[(*pcd)++] = (short)real_side1;
-                              args[(*pcd)++] = (short)real_side2;
-                              args[(*pcd)++] = (short)side1;
-                              args[(*pcd)++] = (short)side2;
-                              args[(*pcd)++] = ref;
-                              args[(*pcd)++] = rp;
-                              args[(*pcd)++] = w_storage;
-                              break;
+        case at_relative2:
+            args[(*pcd)++] = TTFUN_RELATIVE2V;
+            args[(*pcd)++] = (short)real_side1;
+            args[(*pcd)++] = (short)real_side2;
+            args[(*pcd)++] = (short)side1;
+            args[(*pcd)++] = (short)side2;
+            args[(*pcd)++] = ref;
+            args[(*pcd)++] = rp;
+            args[(*pcd)++] = w_storage;
+            break;
 
-                           case at_side1:
-                           case at_side2:
-                              LogError(MSG_WARNING, MSG_ALIGN, NULL);
-                              break;
-                        }
-                     }
+        case at_side1:
+        case at_side2:
+            LogError(MSG_WARNING, MSG_ALIGN, NULL);
+            break;
+        }
+    }
 
-                     return status;
+    return status;
 }
 
 
@@ -2213,9 +2213,9 @@ errcode EmitVStem(UBYTE *pgm, short *pc,
 **   will create and grid fit points in the
 **   twilight zone, corresponding to a hstem.
 */
-errcode EmitHStem(UBYTE *pgm, short *pc,
-                  short *args, short *pcd,
-                  struct T1Metrics *t1m,
+errcode EmitHStem(UBYTE* pgm, short* pc,
+                  short* args, short* pcd,
+                  struct T1Metrics* t1m,
                   const funit width,
                   const funit side1,
                   const funit side2,
@@ -2223,17 +2223,17 @@ errcode EmitHStem(UBYTE *pgm, short *pc,
                   const enum aligntype align,
                   const short ref)
 {
-   errcode status = SUCCESS;
-   short w_storage;
+    errcode status = SUCCESS;
+    short w_storage;
 
-   if ((w_storage = GetHStemWidth(GetWeight(t1m), width))==NOMEM) {
-      SetError(status = NOMEM);
-   } else {
+    if ((w_storage = GetHStemWidth(GetWeight(t1m), width)) == NOMEM) {
+        SetError(status = NOMEM);
+    } else {
 
-      pgm[(*pc)++] = op_call;
-      switch (align) {
+        pgm[(*pc)++] = op_call;
+        switch (align) {
 
-         case at_side1:
+        case at_side1:
             args[(*pcd)++] = TTFUN_SIDE1;
             args[(*pcd)++] = (short)side1;
             args[(*pcd)++] = (short)side2;
@@ -2242,7 +2242,7 @@ errcode EmitHStem(UBYTE *pgm, short *pc,
             args[(*pcd)++] = w_storage;
             break;
 
-         case at_side2:
+        case at_side2:
             args[(*pcd)++] = TTFUN_SIDE2;
             args[(*pcd)++] = (short)side1;
             args[(*pcd)++] = (short)side2;
@@ -2251,7 +2251,7 @@ errcode EmitHStem(UBYTE *pgm, short *pc,
             args[(*pcd)++] = w_storage;
             break;
 
-         case at_relative1:
+        case at_relative1:
             args[(*pcd)++] = TTFUN_RELATIVE1H;
             args[(*pcd)++] = (short)side1;
             args[(*pcd)++] = (short)side2;
@@ -2260,7 +2260,7 @@ errcode EmitHStem(UBYTE *pgm, short *pc,
             args[(*pcd)++] = w_storage;
             break;
 
-         case at_relative2:
+        case at_relative2:
             args[(*pcd)++] = TTFUN_RELATIVE2H;
             args[(*pcd)++] = (short)side1;
             args[(*pcd)++] = (short)side2;
@@ -2269,19 +2269,19 @@ errcode EmitHStem(UBYTE *pgm, short *pc,
             args[(*pcd)++] = w_storage;
             break;
 
-         case at_centered:
-         default:
+        case at_centered:
+        default:
             args[(*pcd)++] = TTFUN_HCENTER;
             args[(*pcd)++] = (short)side1;
             args[(*pcd)++] = (short)side2;
-            args[(*pcd)++] = (short)((side1+side2)/2);
+            args[(*pcd)++] = (short)((side1 + side2) / 2);
             args[(*pcd)++] = rp;
             args[(*pcd)++] = w_storage;
             break;
-      }
-   }
+        }
+    }
 
-   return status;
+    return status;
 }
 
 
@@ -2296,22 +2296,22 @@ errcode EmitHStem(UBYTE *pgm, short *pc,
 **   This function generates a branch in the
 **   pre-program.
 */
-USHORT FamilyCutIn(UBYTE *prep,
+USHORT FamilyCutIn(UBYTE* prep,
                    USHORT tp,
                    const short cis)
 {
-   prep[tp++] = op_mppem;
-   if (cis<256) {
-      prep[tp++] = op_pushb1; prep[tp++] = (UBYTE)cis;
-   } else {
-      prep[tp++] = op_pushw1;
-      prep[tp++] = HIBYTE(cis);
-      prep[tp++] = LOBYTE(cis);
-   }
-   prep[tp++] = op_lt;
-   prep[tp++] = op_if;
+    prep[tp++] = op_mppem;
+    if (cis < 256) {
+        prep[tp++] = op_pushb1; prep[tp++] = (UBYTE)cis;
+    } else {
+        prep[tp++] = op_pushw1;
+        prep[tp++] = HIBYTE(cis);
+        prep[tp++] = LOBYTE(cis);
+    }
+    prep[tp++] = op_lt;
+    prep[tp++] = op_if;
 
-   return tp;
+    return tp;
 }
 
 
@@ -2324,14 +2324,14 @@ USHORT FamilyCutIn(UBYTE *prep,
 **   This function generates the TrueType code that
 **   changes the projection vector in oblique typefaces.
 */
-void SetProjection(UBYTE *pgm, short *pc,
-                   short *args, short *pcd,
+void SetProjection(UBYTE* pgm, short* pc,
+                   short* args, short* pcd,
                    const funit x, const funit y)
 {
-   pgm[(*pc)++] = op_call;
-   args[(*pcd)++] = TTFUN_OBLIQUE;
-   args[(*pcd)++] = (short)y;
-   args[(*pcd)++] = (short)x;
+    pgm[(*pc)++] = op_call;
+    args[(*pcd)++] = TTFUN_OBLIQUE;
+    args[(*pcd)++] = (short)y;
+    args[(*pcd)++] = (short)x;
 }
 
 
@@ -2343,53 +2343,53 @@ void SetProjection(UBYTE *pgm, short *pc,
 **   assembles them into a sequence of PUSHB1[], PUSHW1[],
 **   NPUSHB[] and NPUSHW[] instructions.
 */
-void AssembleArgs(short *args, const short pcd, UBYTE *is, short *cnt)
+void AssembleArgs(short* args, const short pcd, UBYTE* is, short* cnt)
 {
-   short bytes;
-   short i,j;
+    short bytes;
+    short i, j;
 
 
-   if ((args[pcd-1] <= UCHAR_MAX && args[pcd-1]>=0)) {
-      bytes = 1;
-   } else {
-      bytes = 0;
-   }
+    if ((args[pcd - 1] <= UCHAR_MAX && args[pcd - 1] >= 0)) {
+        bytes = 1;
+    } else {
+        bytes = 0;
+    }
 
-   for (i=0, j=0; j<pcd; i++) {
+    for (i = 0, j = 0; j < pcd; i++) {
 
-      /* Pack a sequence of bytes? */
-      if (bytes) {
-         if ((i-j)>=255 || i==pcd ||
-             (args[pcd-i-1]>UCHAR_MAX || args[pcd-i-1]<0)) {
-            bytes = 0;
-            if ((i-j)<=8) {
-               is[(*cnt)++] = (UBYTE)(op_pushb1 + (i-j) - 1);
-            } else {
-               is[(*cnt)++] = op_npushb;
-               is[(*cnt)++] = (UBYTE)(i-j);
+        /* Pack a sequence of bytes? */
+        if (bytes) {
+            if ((i - j) >= 255 || i == pcd ||
+                (args[pcd - i - 1] > UCHAR_MAX || args[pcd - i - 1] < 0)) {
+                bytes = 0;
+                if ((i - j) <= 8) {
+                    is[(*cnt)++] = (UBYTE)(op_pushb1 + (i - j) - 1);
+                } else {
+                    is[(*cnt)++] = op_npushb;
+                    is[(*cnt)++] = (UBYTE)(i - j);
+                }
+                while (j < i)
+                    is[(*cnt)++] = (UBYTE)args[pcd - 1 - j++];
             }
-            while (j<i)
-               is[(*cnt)++] = (UBYTE)args[pcd-1-j++];
-         }
 
-         /* Pack a sequence of words? */
-      } else {
-         if ((i-j)>=255 || i==pcd ||
-             (args[pcd-i-1]<=UCHAR_MAX && args[pcd-i-1]>=0)) {
-            bytes = 1;
-            if ((i-j)<=8) {
-               is[(*cnt)++] = (UBYTE)(op_pushw1 + (i-j) - 1);
-            } else {
-               is[(*cnt)++] = op_npushw;
-               is[(*cnt)++] = (UBYTE)(i-j);
+            /* Pack a sequence of words? */
+        } else {
+            if ((i - j) >= 255 || i == pcd ||
+                (args[pcd - i - 1] <= UCHAR_MAX && args[pcd - i - 1] >= 0)) {
+                bytes = 1;
+                if ((i - j) <= 8) {
+                    is[(*cnt)++] = (UBYTE)(op_pushw1 + (i - j) - 1);
+                } else {
+                    is[(*cnt)++] = op_npushw;
+                    is[(*cnt)++] = (UBYTE)(i - j);
+                }
+                while (j < i) {
+                    is[(*cnt)++] = HIBYTE(args[pcd - j - 1]);
+                    is[(*cnt)++] = LOBYTE(args[pcd - j - 1]);
+                    j++;
+                }
             }
-            while (j<i) {
-               is[(*cnt)++] = HIBYTE(args[pcd-j-1]);
-               is[(*cnt)++] = LOBYTE(args[pcd-j-1]);
-               j++;
-            }
-         }
-      }
-   }
+        }
+    }
 }
 

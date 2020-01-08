@@ -49,7 +49,7 @@ Revision History:
 //  Registry valuename linked-list structure
 typedef struct _regval
 {
-    struct _regval *prvNext;
+    struct _regval* prvNext;
     LPTSTR szValueName;
 } REGVAL;
 
@@ -57,11 +57,11 @@ typedef struct _regval
 
 //                             Local Functions
 
-void EVDoCommand(HWND hDlg, HWND hwndCtl, int idCtl, int iNotify );
+void EVDoCommand(HWND hDlg, HWND hwndCtl, int idCtl, int iNotify);
 void EVSave(HWND hDlg);
-void EVCleanUp (HWND hDlg);
+void EVCleanUp(HWND hDlg);
 PENVAR GetVar(HWND hDlg, UINT VarType, int iSelection);
-int  FindVar (HWND hwndLB, LPTSTR szVar);
+int  FindVar(HWND hwndLB, LPTSTR szVar);
 
 void
 SetVar(
@@ -132,8 +132,8 @@ DWORD aEnvVarsHelpIds[] = {
     0, 0
 };
 
-TCHAR szUserEnv[] = TEXT( "Environment" );
-TCHAR szSysEnv[]  = TEXT( "System\\CurrentControlSet\\Control\\Session Manager\\Environment" );
+TCHAR szUserEnv[] = TEXT("Environment");
+TCHAR szSysEnv[] = TEXT("System\\CurrentControlSet\\Control\\Session Manager\\Environment");
 
 
 BOOL
@@ -164,13 +164,13 @@ Return Value:
     DWORD dwSize = MAX_USER_NAME;
     HWND hwndTemp;
     HKEY hkeyEnv;
-    TCHAR  *pszValue;
+    TCHAR* pszValue;
     HANDLE hKey;
     DWORD dwBufz, dwValz, dwIndex, dwType;
     LONG Error;
     TCHAR   szTemp[MAX_PATH];
     LPTSTR  pszString;
-    ENVARS *penvar;
+    ENVARS* penvar;
     int     n;
     LV_COLUMN col;
     LV_ITEM item;
@@ -178,16 +178,16 @@ Return Value:
     int cxFirstCol;
 
 
-    HourGlass (TRUE);
+    HourGlass(TRUE);
 
 
 
     // Create the first column
 
 
-    LoadString (hInstance, SYSTEM + 50, szBuffer1, 200);
+    LoadString(hInstance, SYSTEM + 50, szBuffer1, 200);
 
-    if (!GetClientRect (GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS), &rect)) {
+    if (!GetClientRect(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS), &rect)) {
         rect.right = 300;
     }
 
@@ -199,37 +199,37 @@ Return Value:
     col.pszText = szBuffer1;
     col.iSubItem = 0;
 
-    SendDlgItemMessage (hDlg, IDC_ENVVAR_SYS_LB_SYSVARS, LVM_INSERTCOLUMN,
-                        0, (LPARAM) &col);
+    SendDlgItemMessage(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS, LVM_INSERTCOLUMN,
+                       0, (LPARAM)&col);
 
-    SendDlgItemMessage (hDlg, IDC_ENVVAR_SYS_LB_USERVARS, LVM_INSERTCOLUMN,
-                        0, (LPARAM) &col);
+    SendDlgItemMessage(hDlg, IDC_ENVVAR_SYS_LB_USERVARS, LVM_INSERTCOLUMN,
+                       0, (LPARAM)&col);
 
 
 
     // Create the second column
 
 
-    LoadString (hInstance, SYSTEM + 51, szBuffer1, 200);
+    LoadString(hInstance, SYSTEM + 51, szBuffer1, 200);
 
     col.cx = rect.right - cxFirstCol - GetSystemMetrics(SM_CYHSCROLL);
     col.iSubItem = 1;
 
-    SendDlgItemMessage (hDlg, IDC_ENVVAR_SYS_LB_SYSVARS, LVM_INSERTCOLUMN,
-                        1, (LPARAM) &col);
+    SendDlgItemMessage(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS, LVM_INSERTCOLUMN,
+                       1, (LPARAM)&col);
 
-    SendDlgItemMessage (hDlg, IDC_ENVVAR_SYS_LB_USERVARS, LVM_INSERTCOLUMN,
-                        1, (LPARAM) &col);
+    SendDlgItemMessage(hDlg, IDC_ENVVAR_SYS_LB_USERVARS, LVM_INSERTCOLUMN,
+                       1, (LPARAM)&col);
 
 
 
     // Display System Variables from registry in listbox
 
 
-    hwndTemp = GetDlgItem (hDlg, IDC_ENVVAR_SYS_LB_SYSVARS);
+    hwndTemp = GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS);
 
-    hKey = MemAlloc (LPTR, BUFZ*SIZEOF(TCHAR));
-    pszString = (LPTSTR) MemAlloc (LPTR, BUFZ*sizeof(TCHAR));
+    hKey = MemAlloc(LPTR, BUFZ * SIZEOF(TCHAR));
+    pszString = (LPTSTR)MemAlloc(LPTR, BUFZ * sizeof(TCHAR));
 
     bEditSystemVars = FALSE;
     cxLBSysVars = 0;
@@ -239,18 +239,17 @@ Return Value:
     //  Read AND Write permission.  If successful, then we allow
     //  the User to edit them the same as their own variables
 
-    if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, szSysEnv, 0, KEY_READ | KEY_WRITE, &hkeyEnv) != ERROR_SUCCESS) {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, szSysEnv, 0, KEY_READ | KEY_WRITE, &hkeyEnv) != ERROR_SUCCESS) {
         //  On failure, just try to open it for reading
-        if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, szSysEnv, 0, KEY_READ, &hkeyEnv) != ERROR_SUCCESS) {
+        if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, szSysEnv, 0, KEY_READ, &hkeyEnv) != ERROR_SUCCESS) {
             hkeyEnv = NULL;
         }
     } else {
         bEditSystemVars = TRUE;
     }
 
-    if (hkeyEnv)
-    {
-        pszValue = (TCHAR *) hKey;
+    if (hkeyEnv) {
+        pszValue = (TCHAR*)hKey;
         dwBufz = ARRAYSIZE(szTemp);
         dwValz = BUFZ * SIZEOF(TCHAR);
         dwIndex = 0;
@@ -263,7 +262,7 @@ Return Value:
                              &dwBufz,   // Size of ValueName buffer
                              NULL,      // Title index return
                              &dwType,   // Type code of entry
-                    (LPBYTE) pszValue,  // Ptr to ValueData buffer
+                             (LPBYTE)pszValue,  // Ptr to ValueData buffer
                              &dwValz))  // Size of ValueData buffer
         {
             if ((dwType != REG_SZ) && (dwType != REG_EXPAND_SZ))
@@ -274,25 +273,25 @@ Return Value:
             //  to MAX_VALUE_LEN-1, as necessary.
 
 
-            pszValue[MAX_VALUE_LEN-1] = TEXT('\0');
+            pszValue[MAX_VALUE_LEN - 1] = TEXT('\0');
 
-            ExpandSystemVar (pszValue, pszString, BUFZ);
+            ExpandSystemVar(pszValue, pszString, BUFZ);
 
-            penvar = (ENVARS *) MemAlloc (LPTR, SIZEOF(ENVARS));
+            penvar = (ENVARS*)MemAlloc(LPTR, SIZEOF(ENVARS));
 
-            penvar->dwType      = dwType;
-            penvar->szValueName = CloneString( szTemp );
-            penvar->szValue     = CloneString( pszValue );
-            penvar->szExpValue  = CloneString( pszString );
+            penvar->dwType = dwType;
+            penvar->szValueName = CloneString(szTemp);
+            penvar->szValue = CloneString(pszValue);
+            penvar->szExpValue = CloneString(pszString);
 
 
             item.mask = LVIF_TEXT | LVIF_PARAM;
             item.iItem = (dwIndex - 1);
             item.iSubItem = 0;
             item.pszText = penvar->szValueName;
-            item.lParam = (LPARAM) penvar;
+            item.lParam = (LPARAM)penvar;
 
-            n = SendMessage (hwndTemp, LVM_INSERTITEM, 0, (LPARAM) &item);
+            n = SendMessage(hwndTemp, LVM_INSERTITEM, 0, (LPARAM)&item);
 
             if (n != -1) {
                 item.mask = LVIF_TEXT;
@@ -300,16 +299,16 @@ Return Value:
                 item.iSubItem = 1;
                 item.pszText = penvar->szExpValue;
 
-                SendMessage (hwndTemp, LVM_SETITEMTEXT, n, (LPARAM) &item);
+                SendMessage(hwndTemp, LVM_SETITEMTEXT, n, (LPARAM)&item);
             }
 
-SysLoop:
+        SysLoop:
             //  Reset vars for next iteration
 
             dwBufz = ARRAYSIZE(szTemp);
             dwValz = BUFZ * SIZEOF(TCHAR);
         }
-        RegCloseKey (hkeyEnv);
+        RegCloseKey(hkeyEnv);
 
     }
 
@@ -324,20 +323,19 @@ SysLoop:
 
 
     if (GetUserName(szUserName, &dwSize) &&
-        LoadString (hInstance, IDS_USERENVVARS, szBuffer1, 200)) {
+        LoadString(hInstance, IDS_USERENVVARS, szBuffer1, 200)) {
 
-        wsprintf (szBuffer2, szBuffer1, szUserName);
-        SetDlgItemText (hDlg, IDC_ENVVAR_SYS_USERGROUP, szBuffer2);
+        wsprintf(szBuffer2, szBuffer1, szUserName);
+        SetDlgItemText(hDlg, IDC_ENVVAR_SYS_USERGROUP, szBuffer2);
     }
 
 
-    Error = RegCreateKey (HKEY_CURRENT_USER, szUserEnv, &hkeyEnv);
+    Error = RegCreateKey(HKEY_CURRENT_USER, szUserEnv, &hkeyEnv);
 
-    if (Error == ERROR_SUCCESS)
-    {
-        hwndTemp = GetDlgItem (hDlg, IDC_ENVVAR_SYS_LB_USERVARS);
+    if (Error == ERROR_SUCCESS) {
+        hwndTemp = GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS);
 
-        pszValue = (TCHAR *) hKey;
+        pszValue = (TCHAR*)hKey;
         dwBufz = ARRAYSIZE(szTemp);
         dwValz = BUFZ * SIZEOF(TCHAR);
         dwIndex = 0;
@@ -351,7 +349,7 @@ SysLoop:
                              &dwBufz,   // Size of ValueName buffer
                              NULL,      // Title index return
                              &dwType,   // Type code of entry
-                    (LPBYTE) pszValue,  // Ptr to ValueData buffer
+                             (LPBYTE)pszValue,  // Ptr to ValueData buffer
                              &dwValz))  // Size of ValueData buffer
         {
             if ((dwType != REG_SZ) && (dwType != REG_EXPAND_SZ))
@@ -362,24 +360,24 @@ SysLoop:
             //  to MAX_VALUE_LEN-1, as necessary.
 
 
-            pszValue[MAX_VALUE_LEN-1] = TEXT('\0');
+            pszValue[MAX_VALUE_LEN - 1] = TEXT('\0');
 
-            ExpandEnvironmentStrings (pszValue, pszString, BUFZ);
+            ExpandEnvironmentStrings(pszValue, pszString, BUFZ);
 
-            penvar = (ENVARS *) MemAlloc (LPTR, sizeof(ENVARS));
+            penvar = (ENVARS*)MemAlloc(LPTR, sizeof(ENVARS));
 
-            penvar->dwType      = dwType;
-            penvar->szValueName = CloneString (szTemp);
-            penvar->szValue     = CloneString (pszValue);
-            penvar->szExpValue  = CloneString (pszString);
+            penvar->dwType = dwType;
+            penvar->szValueName = CloneString(szTemp);
+            penvar->szValue = CloneString(pszValue);
+            penvar->szExpValue = CloneString(pszString);
 
             item.mask = LVIF_TEXT | LVIF_PARAM;
             item.iItem = (dwIndex - 1);
             item.iSubItem = 0;
             item.pszText = penvar->szValueName;
-            item.lParam = (LPARAM) penvar;
+            item.lParam = (LPARAM)penvar;
 
-            n = SendMessage (hwndTemp, LVM_INSERTITEM, 0, (LPARAM) &item);
+            n = SendMessage(hwndTemp, LVM_INSERTITEM, 0, (LPARAM)&item);
 
             if (n != -1) {
                 item.mask = LVIF_TEXT;
@@ -387,29 +385,26 @@ SysLoop:
                 item.iSubItem = 1;
                 item.pszText = penvar->szExpValue;
 
-                SendMessage (hwndTemp, LVM_SETITEMTEXT, n, (LPARAM) &item);
+                SendMessage(hwndTemp, LVM_SETITEMTEXT, n, (LPARAM)&item);
             }
 
-UserLoop:
+        UserLoop:
             //  Reset vars for next iteration
 
             dwBufz = ARRAYSIZE(szTemp);
             dwValz = BUFZ * SIZEOF(TCHAR);
 
         }
-        RegCloseKey (hkeyEnv);
-    }
-    else
-    {
+        RegCloseKey(hkeyEnv);
+    } else {
         //  Report opening USER Environment key
-        if (MsgBoxParam (hDlg, SYSTEM+8, INITS+1,
-                          MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
-        {
+        if (MsgBoxParam(hDlg, SYSTEM + 8, INITS + 1,
+                        MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL) {
             //  Free allocated memory since we are returning from here
-            MemFree ((LPVOID)hKey);
-            MemFree (pszString);
+            MemFree((LPVOID)hKey);
+            MemFree(pszString);
 
-            HourGlass (FALSE);
+            HourGlass(FALSE);
             return FALSE;
         }
     }
@@ -429,26 +424,26 @@ UserLoop:
     item.state = LVIS_SELECTED | LVIS_FOCUSED;
     item.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
 
-    SendDlgItemMessage (hDlg, IDC_ENVVAR_SYS_LB_USERVARS,
-                        LVM_SETITEMSTATE, 0, (LPARAM) &item);
+    SendDlgItemMessage(hDlg, IDC_ENVVAR_SYS_LB_USERVARS,
+                       LVM_SETITEMSTATE, 0, (LPARAM)&item);
 
-    SendDlgItemMessage (hDlg, IDC_ENVVAR_SYS_LB_SYSVARS,
-                        LVM_SETITEMSTATE, 0, (LPARAM) &item);
+    SendDlgItemMessage(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS,
+                       LVM_SETITEMSTATE, 0, (LPARAM)&item);
 
 
     // EM_LIMITTEXT of VARIABLE and VALUE editbox
 
-    SendDlgItemMessage (hDlg, IDC_ENVVAR_SYS_VAR, EM_LIMITTEXT, MAX_PATH-1, 0L);
-    SendDlgItemMessage (hDlg, IDC_ENVVAR_SYS_VALUE, EM_LIMITTEXT, MAX_VALUE_LEN-1, 0L);
+    SendDlgItemMessage(hDlg, IDC_ENVVAR_SYS_VAR, EM_LIMITTEXT, MAX_PATH - 1, 0L);
+    SendDlgItemMessage(hDlg, IDC_ENVVAR_SYS_VALUE, EM_LIMITTEXT, MAX_VALUE_LEN - 1, 0L);
 
-    MemFree ((LPVOID)hKey);
-    MemFree (pszString);
+    MemFree((LPVOID)hKey);
+    MemFree(pszString);
 
     // Set extended LV style for whole line selection
     SendDlgItemMessage(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS, LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
     SendDlgItemMessage(hDlg, IDC_ENVVAR_SYS_LB_USERVARS, LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
 
-    HourGlass (FALSE);
+    HourGlass(FALSE);
 
 
     // Disable System Var Editing buttons if
@@ -512,42 +507,40 @@ Return Value:
     INT i = 0;
     HWND hWndTemp = NULL;
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_INITDIALOG:
 
         if (!InitEnvVarsDlg(hDlg)) {
-            EndDialog (hDlg, 0);
+            EndDialog(hDlg, 0);
         }
         break;
 
 
     case WM_NOTIFY:
 
-        switch (((NMHDR FAR*)lParam)->code)
-        {
+        switch (((NMHDR FAR*)lParam)->code) {
         case LVN_KEYDOWN:
             switch (((NMHDR FAR*)lParam)->idFrom) {
-                case IDC_ENVVAR_SYS_LB_USERVARS:
-                    i = IDC_ENVVAR_SYS_NDELUV;
-                    break;
-                case IDC_ENVVAR_SYS_LB_SYSVARS:
-                    i = IDC_ENVVAR_SYS_DELSV;
-                    break;
-                default:
-                    return(FALSE);
-                    break;
+            case IDC_ENVVAR_SYS_LB_USERVARS:
+                i = IDC_ENVVAR_SYS_NDELUV;
+                break;
+            case IDC_ENVVAR_SYS_LB_SYSVARS:
+                i = IDC_ENVVAR_SYS_DELSV;
+                break;
+            default:
+                return(FALSE);
+                break;
             } // switch
 
             hWndTemp = GetDlgItem(hDlg, i);
 
-            if ((VK_DELETE == ((LV_KEYDOWN FAR *) lParam)->wVKey)) {
+            if ((VK_DELETE == ((LV_KEYDOWN FAR*) lParam)->wVKey)) {
                 if (IsWindowEnabled(hWndTemp)) {
                     SendMessage(
                         hDlg,
                         WM_COMMAND,
                         MAKEWPARAM(i, BN_CLICKED),
-                        (LPARAM) hWndTemp
+                        (LPARAM)hWndTemp
                     );
                 } // if (IsWindowEnabled...
                 else {
@@ -559,15 +552,15 @@ Return Value:
 
         case NM_DBLCLK:
             switch (((NMHDR FAR*)lParam)->idFrom) {
-                case IDC_ENVVAR_SYS_LB_USERVARS:
-                    i = IDC_ENVVAR_SYS_EDITUV;
-                    break;
-                case IDC_ENVVAR_SYS_LB_SYSVARS:
-                    i = IDC_ENVVAR_SYS_EDITSV;
-                    break;
-                default:
-                    return(FALSE);
-                    break;
+            case IDC_ENVVAR_SYS_LB_USERVARS:
+                i = IDC_ENVVAR_SYS_EDITUV;
+                break;
+            case IDC_ENVVAR_SYS_LB_SYSVARS:
+                i = IDC_ENVVAR_SYS_EDITSV;
+                break;
+            default:
+                return(FALSE);
+                break;
             } // switch
 
             hWndTemp = GetDlgItem(hDlg, i);
@@ -577,7 +570,7 @@ Return Value:
                     hDlg,
                     WM_COMMAND,
                     MAKEWPARAM(i, BN_CLICKED),
-                    (LPARAM) hWndTemp
+                    (LPARAM)hWndTemp
                 );
             } // if (IsWindowEnabled...
             else {
@@ -596,15 +589,15 @@ Return Value:
         break;
 
     case WM_DESTROY:
-        EVCleanUp (hDlg);
+        EVCleanUp(hDlg);
         break;
 
     case WM_HELP:      // F1
-        WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, HELP_FILE, HELP_WM_HELP, (DWORD) (LPSTR) aEnvVarsHelpIds);
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, HELP_FILE, HELP_WM_HELP, (DWORD)(LPSTR)aEnvVarsHelpIds);
         break;
 
     case WM_CONTEXTMENU:      // right mouse click
-        WinHelp((HWND) wParam, HELP_FILE, HELP_CONTEXTMENU, (DWORD) (LPSTR) aEnvVarsHelpIds);
+        WinHelp((HWND)wParam, HELP_FILE, HELP_CONTEXTMENU, (DWORD)(LPSTR)aEnvVarsHelpIds);
         break;
 
     default:
@@ -653,67 +646,67 @@ Return Value:
     PENVAR  penvar;
 
     switch (idCtl) {
-        case IDOK:
-            EVSave(hDlg);
-            EndDialog(hDlg, 0);
-            break;
+    case IDOK:
+        EVSave(hDlg);
+        EndDialog(hDlg, 0);
+        break;
 
-        case IDCANCEL:
-            EndDialog(hDlg, 0);
-            break;
+    case IDCANCEL:
+        EndDialog(hDlg, 0);
+        break;
 
-        case IDC_ENVVAR_SYS_EDITSV:
-            EVDoEdit(
-                hDlg,
-                SYSTEM_VAR,
-                EDIT_VAR,
-                GetSelectedItem(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS))
-            );
-            SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS));
-            break;
+    case IDC_ENVVAR_SYS_EDITSV:
+        EVDoEdit(
+            hDlg,
+            SYSTEM_VAR,
+            EDIT_VAR,
+            GetSelectedItem(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS))
+        );
+        SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS));
+        break;
 
-        case IDC_ENVVAR_SYS_EDITUV:
-            EVDoEdit(
-                hDlg,
-                USER_VAR,
-                EDIT_VAR,
-                GetSelectedItem(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS))
-            );
-            SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS));
-            break;
+    case IDC_ENVVAR_SYS_EDITUV:
+        EVDoEdit(
+            hDlg,
+            USER_VAR,
+            EDIT_VAR,
+            GetSelectedItem(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS))
+        );
+        SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS));
+        break;
 
-        case IDC_ENVVAR_SYS_NEWSV:
-            EVDoEdit(hDlg, SYSTEM_VAR, NEW_VAR, -1);
-            SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS));
-            break;
+    case IDC_ENVVAR_SYS_NEWSV:
+        EVDoEdit(hDlg, SYSTEM_VAR, NEW_VAR, -1);
+        SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS));
+        break;
 
-        case IDC_ENVVAR_SYS_NEWUV:
-            EVDoEdit(hDlg, USER_VAR, NEW_VAR, -1);
-            SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS));
-            break;
+    case IDC_ENVVAR_SYS_NEWUV:
+        EVDoEdit(hDlg, USER_VAR, NEW_VAR, -1);
+        SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS));
+        break;
 
-        case IDC_ENVVAR_SYS_DELSV:
-            i = GetSelectedItem(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS));
-            if (-1 != i) {
-                penvar = GetVar(hDlg, SYSTEM_VAR, i);
-                ASSERT(penvar);
-                DeleteVar(hDlg, SYSTEM_VAR, penvar->szValueName);
-            } // if
-            SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS));
-            break;
+    case IDC_ENVVAR_SYS_DELSV:
+        i = GetSelectedItem(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS));
+        if (-1 != i) {
+            penvar = GetVar(hDlg, SYSTEM_VAR, i);
+            ASSERT(penvar);
+            DeleteVar(hDlg, SYSTEM_VAR, penvar->szValueName);
+        } // if
+        SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS));
+        break;
 
-        case IDC_ENVVAR_SYS_NDELUV:
-            i = GetSelectedItem(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS));
-            if (-1 != i) {
-                penvar = GetVar(hDlg, USER_VAR, i);
-                ASSERT(penvar);
-                DeleteVar(hDlg, USER_VAR, penvar->szValueName);
-            } // if
-            SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS));
-            break;
+    case IDC_ENVVAR_SYS_NDELUV:
+        i = GetSelectedItem(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS));
+        if (-1 != i) {
+            penvar = GetVar(hDlg, USER_VAR, i);
+            ASSERT(penvar);
+            DeleteVar(hDlg, USER_VAR, penvar->szValueName);
+        } // if
+        SetFocus(GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS));
+        break;
 
-        default:
-            break;
+    default:
+        break;
     } // switch
 
     return;
@@ -751,11 +744,11 @@ Return Value:
 {
     TCHAR   szTemp2[MAX_PATH];
     int     i, n;
-    TCHAR  *bBuffer;
-    TCHAR  *pszTemp;
+    TCHAR* bBuffer;
+    TCHAR* pszTemp;
     LPTSTR  pszString;
     HWND    hwndTemp;
-    ENVARS *penvar;
+    ENVARS* penvar;
     LV_ITEM item;
 
     // Delete listbox entry that matches value in szVarName
@@ -771,23 +764,22 @@ Return Value:
 
     //  Determine which Listbox to use (SYSTEM or USER vars)
     switch (VarType) {
-        case SYSTEM_VAR:
-            i = IDC_ENVVAR_SYS_LB_SYSVARS;
-            break;
+    case SYSTEM_VAR:
+        i = IDC_ENVVAR_SYS_LB_SYSVARS;
+        break;
 
-        case USER_VAR:
-        default:
-            i = IDC_ENVVAR_SYS_LB_USERVARS;
-            break;
+    case USER_VAR:
+    default:
+        i = IDC_ENVVAR_SYS_LB_USERVARS;
+        break;
 
     } // switch (VarType)
 
-    hwndTemp = GetDlgItem (hDlg, i);
+    hwndTemp = GetDlgItem(hDlg, i);
 
-    n = FindVar (hwndTemp, szTemp2);
+    n = FindVar(hwndTemp, szTemp2);
 
-    if (n != -1)
-    {
+    if (n != -1) {
         // Free existing strings (listbox and ours)
 
         item.mask = LVIF_PARAM;
@@ -795,8 +787,8 @@ Return Value:
         item.iSubItem = 0;
 
 
-        if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-            penvar = (ENVARS *) item.lParam;
+        if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+            penvar = (ENVARS*)item.lParam;
 
         } else {
             penvar = NULL;
@@ -804,13 +796,13 @@ Return Value:
 
 
         if (penvar) {
-            MemFree (penvar->szValueName);
-            MemFree (penvar->szValue);
-            MemFree (penvar->szExpValue);
-            MemFree ((LPVOID) penvar);
+            MemFree(penvar->szValueName);
+            MemFree(penvar->szValue);
+            MemFree(penvar->szExpValue);
+            MemFree((LPVOID)penvar);
         }
 
-        SendMessage (hwndTemp, LVM_DELETEITEM, n, 0L);
+        SendMessage(hwndTemp, LVM_DELETEITEM, n, 0L);
         PropSheet_Changed(GetParent(hDlg), hDlg);
 
         //  Fix selection state in listview
@@ -824,8 +816,8 @@ Return Value:
         item.state = LVIS_SELECTED | LVIS_FOCUSED;
         item.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
 
-        SendDlgItemMessage (hDlg, i,
-                            LVM_SETITEMSTATE, n, (LPARAM) &item);
+        SendDlgItemMessage(hDlg, i,
+                           LVM_SETITEMSTATE, n, (LPARAM)&item);
 
     }
 
@@ -870,12 +862,12 @@ Return Value:
 {
     TCHAR   szTemp2[MAX_PATH];
     int     i, n;
-    TCHAR  *bBuffer;
-    TCHAR  *pszTemp;
+    TCHAR* bBuffer;
+    TCHAR* pszTemp;
     LPTSTR  pszString;
     HWND    hwndTemp;
     int     idTemp;
-    ENVARS *penvar;
+    ENVARS* penvar;
     LV_ITEM item;
 
     wsprintf(
@@ -888,8 +880,7 @@ Return Value:
 
     i = lstrlen(szTemp2) - 1;
 
-    while (i >= 0)
-    {
+    while (i >= 0) {
         if (_istspace(szTemp2[i]))
             szTemp2[i--] = TEXT('\0');
         else
@@ -900,7 +891,7 @@ Return Value:
     // Make sure variable name does not contain the "=" sign.
 
 
-    pszTemp = _tcspbrk (szTemp2, TEXT("="));
+    pszTemp = _tcspbrk(szTemp2, TEXT("="));
 
     if (pszTemp)
         *pszTemp = TEXT('\0');
@@ -910,8 +901,8 @@ Return Value:
         return;
 
 
-    bBuffer = (TCHAR *) MemAlloc (LPTR, BUFZ * sizeof(TCHAR));
-    pszString = (LPTSTR) MemAlloc (LPTR, BUFZ * sizeof(TCHAR));
+    bBuffer = (TCHAR*)MemAlloc(LPTR, BUFZ * sizeof(TCHAR));
+    pszString = (LPTSTR)MemAlloc(LPTR, BUFZ * sizeof(TCHAR));
 
     wsprintf(
         bBuffer,
@@ -921,30 +912,29 @@ Return Value:
 
     //  Determine which Listbox to use (SYSTEM or USER vars)
     switch (VarType) {
-        case SYSTEM_VAR:
-            idTemp = IDC_ENVVAR_SYS_LB_SYSVARS;
-            break;
+    case SYSTEM_VAR:
+        idTemp = IDC_ENVVAR_SYS_LB_SYSVARS;
+        break;
 
-        case USER_VAR:
-        default:
-            idTemp = IDC_ENVVAR_SYS_LB_USERVARS;
-            break;
+    case USER_VAR:
+    default:
+        idTemp = IDC_ENVVAR_SYS_LB_USERVARS;
+        break;
 
     } // switch (VarType)
     hwndTemp = GetDlgItem(hDlg, idTemp);
 
-    n = FindVar (hwndTemp, szTemp2);
+    n = FindVar(hwndTemp, szTemp2);
 
-    if (n != -1)
-    {
+    if (n != -1) {
         // Free existing strings (listview and ours)
 
         item.mask = LVIF_PARAM;
         item.iItem = n;
         item.iSubItem = 0;
 
-        if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-            penvar = (ENVARS *) item.lParam;
+        if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+            penvar = (ENVARS*)item.lParam;
 
         } else {
             penvar = NULL;
@@ -952,25 +942,23 @@ Return Value:
 
 
         if (penvar) {
-            MemFree (penvar->szValueName);
-            MemFree (penvar->szValue);
-            MemFree (penvar->szExpValue);
+            MemFree(penvar->szValueName);
+            MemFree(penvar->szValue);
+            MemFree(penvar->szExpValue);
         }
 
-        SendMessage (hwndTemp, LVM_DELETEITEM, n, 0L);
-    }
-    else
-    {
+        SendMessage(hwndTemp, LVM_DELETEITEM, n, 0L);
+    } else {
         //  Get some storage for new Env Var
-        penvar = (ENVARS *) MemAlloc (LPTR, sizeof(ENVARS));
+        penvar = (ENVARS*)MemAlloc(LPTR, sizeof(ENVARS));
     }
 
     //  If there are two '%' chars in string, then this is a
     //  REG_EXPAND_SZ style environment string
 
-    pszTemp = _tcspbrk (bBuffer, TEXT("%"));
+    pszTemp = _tcspbrk(bBuffer, TEXT("%"));
 
-    if (pszTemp && _tcspbrk (pszTemp, TEXT("%")))
+    if (pszTemp && _tcspbrk(pszTemp, TEXT("%")))
         penvar->dwType = REG_EXPAND_SZ;
     else
         penvar->dwType = REG_SZ;
@@ -982,7 +970,7 @@ Return Value:
         break;
 
     case USER_VAR:
-        ExpandEnvironmentStrings (bBuffer, pszString, BUFZ);
+        ExpandEnvironmentStrings(bBuffer, pszString, BUFZ);
         break;
 
     default:
@@ -990,18 +978,18 @@ Return Value:
 
     } /* switch */
 
-    penvar->szValueName = CloneString (szTemp2);
-    penvar->szValue     = CloneString (bBuffer);
-    penvar->szExpValue  = CloneString (pszString);
+    penvar->szValueName = CloneString(szTemp2);
+    penvar->szValue = CloneString(bBuffer);
+    penvar->szExpValue = CloneString(pszString);
 
 
     item.mask = LVIF_TEXT | LVIF_PARAM;
     item.iItem = ListView_GetItemCount(hwndTemp);
     item.iSubItem = 0;
     item.pszText = penvar->szValueName;
-    item.lParam = (LPARAM) penvar;
+    item.lParam = (LPARAM)penvar;
 
-    n = SendMessage (hwndTemp, LVM_INSERTITEM, 0, (LPARAM) &item);
+    n = SendMessage(hwndTemp, LVM_INSERTITEM, 0, (LPARAM)&item);
 
     if (n != -1) {
         item.mask = LVIF_TEXT;
@@ -1009,7 +997,7 @@ Return Value:
         item.iSubItem = 1;
         item.pszText = penvar->szExpValue;
 
-        SendMessage (hwndTemp, LVM_SETITEMTEXT, n, (LPARAM) &item);
+        SendMessage(hwndTemp, LVM_SETITEMTEXT, n, (LPARAM)&item);
 
         item.mask = LVIF_STATE;
         item.iItem = n;
@@ -1017,13 +1005,13 @@ Return Value:
         item.state = LVIS_SELECTED | LVIS_FOCUSED;
         item.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
 
-        SendDlgItemMessage (hDlg, idTemp,
-                            LVM_SETITEMSTATE, n, (LPARAM) &item);
+        SendDlgItemMessage(hDlg, idTemp,
+                           LVM_SETITEMSTATE, n, (LPARAM)&item);
     }
 
 
-    MemFree (bBuffer);
-    MemFree (pszString);
+    MemFree(bBuffer);
+    MemFree(pszString);
 
     return;
 
@@ -1070,7 +1058,7 @@ Return Value:
     int Result = 0;
     BOOL fVarChanged = FALSE;
     HWND hWndLB = NULL;
-    ENVARS *penvar = NULL;
+    ENVARS* penvar = NULL;
     LV_ITEM item;
 
     ASSERT((-1 != iSelection) || (NEW_VAR == EditType));
@@ -1081,39 +1069,39 @@ Return Value:
     penvar = GetVar(hWnd, VarType, iSelection);
 
     switch (EditType) {
-        case NEW_VAR:
-            ZeroMemory((LPVOID) g_szVarName, (DWORD) BUFZ * sizeof(TCHAR));
-            ZeroMemory((LPVOID) g_szVarValue, (DWORD) BUFZ * sizeof(TCHAR));
-            break;
+    case NEW_VAR:
+        ZeroMemory((LPVOID)g_szVarName, (DWORD)BUFZ * sizeof(TCHAR));
+        ZeroMemory((LPVOID)g_szVarValue, (DWORD)BUFZ * sizeof(TCHAR));
+        break;
 
-        case EDIT_VAR:
-            if (penvar) {
-                wsprintf(
-                    g_szVarName,
-                    TEXT("%s"),
-                    penvar->szValueName
-                );
-                wsprintf(
-                    g_szVarValue,
-                    TEXT("%s"),
-                    penvar->szValue
-                );
+    case EDIT_VAR:
+        if (penvar) {
+            wsprintf(
+                g_szVarName,
+                TEXT("%s"),
+                penvar->szValueName
+            );
+            wsprintf(
+                g_szVarValue,
+                TEXT("%s"),
+                penvar->szValue
+            );
 
-            } // if
-            else {
-                MessageBeep(MB_ICONASTERISK);
-                return;
-            } // else
-            break;
-
-        case INVALID_EDIT_TYPE:
-        default:
+        } // if
+        else {
+            MessageBeep(MB_ICONASTERISK);
             return;
+        } // else
+        break;
+
+    case INVALID_EDIT_TYPE:
+    default:
+        return;
     } // switch
 
     Result = DialogBox(
         hInstance,
-        (LPTSTR) MAKEINTRESOURCE(IDD_ENVVAREDIT),
+        (LPTSTR)MAKEINTRESOURCE(IDD_ENVVAREDIT),
         hWnd,
         EnvVarsEditDlg
     );
@@ -1123,29 +1111,29 @@ Return Value:
     // actually changed or created a variable
 
     switch (Result) {
-        case EDIT_CHANGE:
+    case EDIT_CHANGE:
+        if (EDIT_VAR == EditType) {
+            fVarChanged =
+                lstrcmp(penvar->szValueName, g_szVarName) ||
+                lstrcmp(penvar->szValue, g_szVarValue);
+        } // if (EDIT_VAR...
+        else if (NEW_VAR == EditType) {
+            fVarChanged =
+                lstrlen(g_szVarName) && lstrlen(g_szVarValue);
+        } // else if (NEW_VAR...
+        else {
+            fVarChanged = FALSE;
+        } // else
+
+        if (fVarChanged) {
             if (EDIT_VAR == EditType) {
-                fVarChanged =
-                    lstrcmp(penvar->szValueName, g_szVarName) ||
-                    lstrcmp(penvar->szValue, g_szVarValue);
+                DeleteVar(hWnd, VarType, penvar->szValueName);
             } // if (EDIT_VAR...
-            else if (NEW_VAR == EditType) {
-                fVarChanged =
-                    lstrlen(g_szVarName) && lstrlen(g_szVarValue);
-            } // else if (NEW_VAR...
-            else {
-                fVarChanged = FALSE;
-            } // else
+            SetVar(hWnd, VarType, g_szVarName, g_szVarValue);
+        } // if (fVarChanged)
+        break;
 
-            if (fVarChanged) {
-                if (EDIT_VAR == EditType) {
-                    DeleteVar(hWnd, VarType, penvar->szValueName);
-                } // if (EDIT_VAR...
-                SetVar(hWnd, VarType, g_szVarName, g_szVarValue);
-            } // if (fVarChanged)
-            break;
-
-        default:
+    default:
         break;
     } // switch (Result)
 
@@ -1196,30 +1184,30 @@ Return Value:
     LV_ITEM item;
 
     switch (VarType) {
-        case SYSTEM_VAR:
-            hWndLB = GetDlgItem(
-                hDlg,
-                IDC_ENVVAR_SYS_LB_SYSVARS
-            );
-            break;
+    case SYSTEM_VAR:
+        hWndLB = GetDlgItem(
+            hDlg,
+            IDC_ENVVAR_SYS_LB_SYSVARS
+        );
+        break;
 
-        case USER_VAR:
-            hWndLB = GetDlgItem(
-                hDlg,
-                IDC_ENVVAR_SYS_LB_USERVARS
-            );
-            break;
+    case USER_VAR:
+        hWndLB = GetDlgItem(
+            hDlg,
+            IDC_ENVVAR_SYS_LB_USERVARS
+        );
+        break;
 
-        case INVALID_VAR_TYPE:
-        default:
-            return NULL;
+    case INVALID_VAR_TYPE:
+    default:
+        return NULL;
     } // switch (VarType)
 
     item.mask = LVIF_PARAM;
     item.iItem = iSelection;
     item.iSubItem = 0;
-    if (SendMessage (hWndLB, LVM_GETITEM, 0, (LPARAM) &item)) {
-        penvar = (ENVARS *) item.lParam;
+    if (SendMessage(hWndLB, LVM_GETITEM, 0, (LPARAM)&item)) {
+        penvar = (ENVARS*)item.lParam;
 
     } else {
         penvar = NULL;
@@ -1264,7 +1252,7 @@ Return Value:
     FindInfo.flags = LVFI_STRING;
     FindInfo.psz = szVar;
 
-    return (SendMessage (hwndLV, LVM_FINDITEM, (WPARAM) -1, (LPARAM) &FindInfo));
+    return (SendMessage(hwndLV, LVM_FINDITEM, (WPARAM)-1, (LPARAM)&FindInfo));
 }
 
 void
@@ -1291,26 +1279,25 @@ Return Value:
     TCHAR   szTemp[MAX_PATH];
     int     selection;
     int     i, n;
-    TCHAR  *bBuffer;
-    TCHAR  *pszTemp;
+    TCHAR* bBuffer;
+    TCHAR* pszTemp;
     LPTSTR  pszString;
     HWND    hwndTemp;
-    ENVARS *penvar;
-    REGVAL *prvFirst;
-    REGVAL *prvRegVal;
+    ENVARS* penvar;
+    REGVAL* prvFirst;
+    REGVAL* prvRegVal;
     HKEY    hkeyEnv;
     DWORD   dwBufz, dwIndex, dwType;
     LV_ITEM item;
 
-    HourGlass (TRUE);
+    HourGlass(TRUE);
 
 
     //  Set all new USER environment variables to current values
     //  but delete all old environment variables first
 
 
-    if (RegOpenKeyEx (HKEY_CURRENT_USER, szUserEnv, 0, KEY_READ | KEY_WRITE, &hkeyEnv) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, szUserEnv, 0, KEY_READ | KEY_WRITE, &hkeyEnv) == ERROR_SUCCESS) {
         dwBufz = ARRAYSIZE(szTemp) * sizeof(TCHAR);
         dwIndex = 0;
 
@@ -1318,7 +1305,7 @@ Return Value:
 
         //  First: Make a linked list of all USER Env string vars
 
-        prvFirst = (REGVAL *) NULL;
+        prvFirst = (REGVAL*)NULL;
 
         while (!RegEnumValue(hkeyEnv,
                              dwIndex++, // Index'th value name/data
@@ -1332,21 +1319,19 @@ Return Value:
             if ((dwType != REG_SZ) && (dwType != REG_EXPAND_SZ))
                 goto EVSGetNextUserVar;
 
-            if (prvFirst)
-            {
-                prvRegVal->prvNext = (REGVAL *) MemAlloc (LPTR, sizeof(REGVAL));
+            if (prvFirst) {
+                prvRegVal->prvNext = (REGVAL*)MemAlloc(LPTR, sizeof(REGVAL));
                 prvRegVal = prvRegVal->prvNext;
-            }
-            else        // First time thru
+            } else        // First time thru
             {
-                prvFirst = prvRegVal = (REGVAL *) MemAlloc (LPTR, sizeof(REGVAL));
+                prvFirst = prvRegVal = (REGVAL*)MemAlloc(LPTR, sizeof(REGVAL));
             }
 
             prvRegVal->prvNext = NULL;
-            prvRegVal->szValueName = CloneString (szTemp);
+            prvRegVal->szValueName = CloneString(szTemp);
 
             // Reset vars for next call
-EVSGetNextUserVar:
+        EVSGetNextUserVar:
             dwBufz = ARRAYSIZE(szTemp) * sizeof(TCHAR);
         }
 
@@ -1354,68 +1339,62 @@ EVSGetNextUserVar:
 
         prvRegVal = prvFirst;
 
-        while (prvRegVal)
-        {
-            RegDeleteValue (hkeyEnv, prvRegVal->szValueName);
+        while (prvRegVal) {
+            RegDeleteValue(hkeyEnv, prvRegVal->szValueName);
 
-            MemFree (prvRegVal->szValueName);
+            MemFree(prvRegVal->szValueName);
 
-            prvFirst  = prvRegVal;
+            prvFirst = prvRegVal;
             prvRegVal = prvRegVal->prvNext;
 
-            MemFree ((LPVOID) prvFirst);
+            MemFree((LPVOID)prvFirst);
         }
 
 
         //  Set all new USER environment variables to current values
 
 
-        hwndTemp = GetDlgItem (hDlg, IDC_ENVVAR_SYS_LB_USERVARS);
+        hwndTemp = GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS);
 
-        if ((n = SendMessage (hwndTemp, LVM_GETITEMCOUNT, 0, 0L)) != LB_ERR)
-        {
+        if ((n = SendMessage(hwndTemp, LVM_GETITEMCOUNT, 0, 0L)) != LB_ERR) {
 
             item.mask = LVIF_PARAM;
             item.iSubItem = 0;
 
-            for (i = 0; i < n; i++)
-            {
+            for (i = 0; i < n; i++) {
 
                 item.iItem = i;
 
-                if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-                    penvar = (ENVARS *) item.lParam;
+                if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+                    penvar = (ENVARS*)item.lParam;
 
                 } else {
                     penvar = NULL;
                 }
 
                 if (penvar) {
-                    if (RegSetValueEx (hkeyEnv,
-                                       penvar->szValueName,
-                                       0L,
-                                       penvar->dwType,
-                              (LPBYTE) penvar->szValue,
-                                       (lstrlen (penvar->szValue)+1) * sizeof(TCHAR)))
-                    {
+                    if (RegSetValueEx(hkeyEnv,
+                                      penvar->szValueName,
+                                      0L,
+                                      penvar->dwType,
+                                      (LPBYTE)penvar->szValue,
+                                      (lstrlen(penvar->szValue) + 1) * sizeof(TCHAR))) {
                         //  Report error trying to set registry values
 
-                        if (MsgBoxParam (hDlg, SYSTEM+9, INITS+1,
-                            MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
+                        if (MsgBoxParam(hDlg, SYSTEM + 9, INITS + 1,
+                                        MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
                             break;
                     }
                 }
             }
         }
 
-        RegFlushKey (hkeyEnv);
-        RegCloseKey (hkeyEnv);
-    }
-    else
-    {
+        RegFlushKey(hkeyEnv);
+        RegCloseKey(hkeyEnv);
+    } else {
         //  Report opening USER Environment key
-        if (MsgBoxParam (hDlg, SYSTEM+8, INITS+1,
-                       MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
+        if (MsgBoxParam(hDlg, SYSTEM + 8, INITS + 1,
+                        MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
             goto Exit;
     }
 
@@ -1427,8 +1406,7 @@ EVSGetNextUserVar:
     if (!bEditSystemVars)
         goto SkipSystemVars;
 
-    if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, szSysEnv, 0, KEY_READ | KEY_WRITE, &hkeyEnv) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, szSysEnv, 0, KEY_READ | KEY_WRITE, &hkeyEnv) == ERROR_SUCCESS) {
         dwBufz = ARRAYSIZE(szTemp) * sizeof(TCHAR);
         dwIndex = 0;
 
@@ -1436,7 +1414,7 @@ EVSGetNextUserVar:
 
         //  First: Make a linked list of all Env string vars
 
-        prvFirst = (REGVAL *) NULL;
+        prvFirst = (REGVAL*)NULL;
 
         while (!RegEnumValue(hkeyEnv,
                              dwIndex++, // Index'th value name/data
@@ -1450,21 +1428,19 @@ EVSGetNextUserVar:
             if ((dwType != REG_SZ) && (dwType != REG_EXPAND_SZ))
                 goto EVSGetNextSysVar;
 
-            if (prvFirst)
-            {
-                prvRegVal->prvNext = (REGVAL *) MemAlloc (LPTR, sizeof(REGVAL));
+            if (prvFirst) {
+                prvRegVal->prvNext = (REGVAL*)MemAlloc(LPTR, sizeof(REGVAL));
                 prvRegVal = prvRegVal->prvNext;
-            }
-            else        // First time thru
+            } else        // First time thru
             {
-                prvFirst = prvRegVal = (REGVAL *) MemAlloc (LPTR, sizeof(REGVAL));
+                prvFirst = prvRegVal = (REGVAL*)MemAlloc(LPTR, sizeof(REGVAL));
             }
 
             prvRegVal->prvNext = NULL;
-            prvRegVal->szValueName = CloneString (szTemp);
+            prvRegVal->szValueName = CloneString(szTemp);
 
             // Reset vars for next call
-EVSGetNextSysVar:
+        EVSGetNextSysVar:
             dwBufz = ARRAYSIZE(szTemp) * sizeof(TCHAR);
         }
 
@@ -1472,79 +1448,73 @@ EVSGetNextSysVar:
 
         prvRegVal = prvFirst;
 
-        while (prvRegVal)
-        {
-            RegDeleteValue (hkeyEnv, prvRegVal->szValueName);
+        while (prvRegVal) {
+            RegDeleteValue(hkeyEnv, prvRegVal->szValueName);
 
-            MemFree (prvRegVal->szValueName);
+            MemFree(prvRegVal->szValueName);
 
-            prvFirst  = prvRegVal;
+            prvFirst = prvRegVal;
             prvRegVal = prvRegVal->prvNext;
 
-            MemFree ((LPVOID) prvFirst);
+            MemFree((LPVOID)prvFirst);
         }
 
 
         //  Set all new SYSTEM environment variables to current values
 
 
-        hwndTemp = GetDlgItem (hDlg, IDC_ENVVAR_SYS_LB_SYSVARS);
+        hwndTemp = GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS);
 
-        if ((n = SendMessage (hwndTemp, LVM_GETITEMCOUNT, 0, 0L)) != LB_ERR)
-        {
+        if ((n = SendMessage(hwndTemp, LVM_GETITEMCOUNT, 0, 0L)) != LB_ERR) {
             item.mask = LVIF_PARAM;
             item.iSubItem = 0;
 
-            for (i = 0; i < n; i++)
-            {
+            for (i = 0; i < n; i++) {
                 item.iItem = i;
 
-                if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-                    penvar = (ENVARS *) item.lParam;
+                if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+                    penvar = (ENVARS*)item.lParam;
 
                 } else {
                     penvar = NULL;
                 }
 
                 if (penvar) {
-                    if (RegSetValueEx (hkeyEnv,
-                                       penvar->szValueName,
-                                       0L,
-                                       penvar->dwType,
-                              (LPBYTE) penvar->szValue,
-                                       (lstrlen (penvar->szValue)+1) * sizeof(TCHAR)))
-                    {
+                    if (RegSetValueEx(hkeyEnv,
+                                      penvar->szValueName,
+                                      0L,
+                                      penvar->dwType,
+                                      (LPBYTE)penvar->szValue,
+                                      (lstrlen(penvar->szValue) + 1) * sizeof(TCHAR))) {
                         //  Report error trying to set registry values
 
-                        if (MsgBoxParam (hDlg, SYSTEM+9, INITS+1,
-                            MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
+                        if (MsgBoxParam(hDlg, SYSTEM + 9, INITS + 1,
+                                        MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
                             break;
                     }
                 }
             }
         }
 
-        RegFlushKey (hkeyEnv);
-        RegCloseKey (hkeyEnv);
-    }
-    else
-    {
+        RegFlushKey(hkeyEnv);
+        RegCloseKey(hkeyEnv);
+    } else {
         //  Report opening SYSTEM Environment key
-        if (MsgBoxParam (hDlg, SYSTEM+21, INITS+1,
-                       MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
+        if (MsgBoxParam(hDlg, SYSTEM + 21, INITS + 1,
+                        MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
             goto Exit;
     }
 
 SkipSystemVars:
 
     // Send public message announcing change to Environment
-    SendMessageTimeout( (HWND)-1, WM_WININICHANGE, 0L, (LONG)szUserEnv,
-                                            SMTO_ABORTIFHUNG, 1000, NULL );
+    SendMessageTimeout((HWND)-1, WM_WININICHANGE, 0L, (LONG)szUserEnv,
+                       SMTO_ABORTIFHUNG, 1000, NULL);
 
 
 Exit:
 
-    HourGlass (FALSE);
+    HourGlass(FALSE);
 }
 
 
@@ -1571,7 +1541,7 @@ Return Value:
 {
     int     i, n;
     HWND    hwndTemp;
-    ENVARS *penvar;
+    ENVARS* penvar;
     LV_ITEM item;
 
 
@@ -1579,8 +1549,8 @@ Return Value:
     //  Free alloc'd strings and memory for UserEnvVars list box items
 
 
-    hwndTemp = GetDlgItem (hDlg, IDC_ENVVAR_SYS_LB_USERVARS);
-    n = SendMessage (hwndTemp, LVM_GETITEMCOUNT, 0, 0L);
+    hwndTemp = GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_USERVARS);
+    n = SendMessage(hwndTemp, LVM_GETITEMCOUNT, 0, 0L);
 
     item.mask = LVIF_PARAM;
     item.iSubItem = 0;
@@ -1589,18 +1559,18 @@ Return Value:
 
         item.iItem = i;
 
-        if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-            penvar = (ENVARS *) item.lParam;
+        if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+            penvar = (ENVARS*)item.lParam;
 
         } else {
             penvar = NULL;
         }
 
         if (penvar) {
-            MemFree (penvar->szValueName);
-            MemFree (penvar->szValue);
-            MemFree (penvar->szExpValue);
-            MemFree ((LPVOID) penvar);
+            MemFree(penvar->szValueName);
+            MemFree(penvar->szValue);
+            MemFree(penvar->szExpValue);
+            MemFree((LPVOID)penvar);
         }
     }
 
@@ -1609,25 +1579,25 @@ Return Value:
     //  Free alloc'd strings and memory for SysEnvVars list box items
 
 
-    hwndTemp = GetDlgItem (hDlg, IDC_ENVVAR_SYS_LB_SYSVARS);
-    n = SendMessage (hwndTemp, LVM_GETITEMCOUNT, 0, 0L);
+    hwndTemp = GetDlgItem(hDlg, IDC_ENVVAR_SYS_LB_SYSVARS);
+    n = SendMessage(hwndTemp, LVM_GETITEMCOUNT, 0, 0L);
 
     for (i = 0; i < n; i++) {
 
         item.iItem = i;
 
-        if (SendMessage (hwndTemp, LVM_GETITEM, 0, (LPARAM) &item)) {
-            penvar = (ENVARS *) item.lParam;
+        if (SendMessage(hwndTemp, LVM_GETITEM, 0, (LPARAM)&item)) {
+            penvar = (ENVARS*)item.lParam;
 
         } else {
             penvar = NULL;
         }
 
         if (penvar) {
-            MemFree (penvar->szValueName);
-            MemFree (penvar->szValue);
-            MemFree (penvar->szExpValue);
-            MemFree ((LPVOID) penvar);
+            MemFree(penvar->szValueName);
+            MemFree(penvar->szValue);
+            MemFree(penvar->szExpValue);
+            MemFree((LPVOID)penvar);
         }
     }
 }
@@ -1680,7 +1650,7 @@ Return Value:
 
         ch = *pszSrc++;
 
-        if (ch != TEXT('%') ) {
+        if (ch != TEXT('%')) {
 
             // no space left, truncate string and return false
             if (--cchDst == 0) {
@@ -1694,10 +1664,10 @@ Return Value:
             /*
              * Expand variable
              */
-            // look for the next '%'
+             // look for the next '%'
             p = szVar;
-            while( *pszSrc != TEXT('\0') && *pszSrc != TEXT('%') )
-                    *p++ = *pszSrc++;
+            while (*pszSrc != TEXT('\0') && *pszSrc != TEXT('%'))
+                *p++ = *pszSrc++;
 
             *p = TEXT('\0');
 
@@ -1712,7 +1682,7 @@ Return Value:
                 }
 
                 *pszDst++ = TEXT('%');
-                CopyMemory( pszDst, szVar, cch * sizeof(TCHAR));
+                CopyMemory(pszDst, szVar, cch * sizeof(TCHAR));
                 return TRUE;
 
             } else {
@@ -1734,7 +1704,7 @@ Return Value:
                     cch = lstrlen(szVar);
 
                     // no space left, trunc string and return FALSE
-                    if (cch + 2 + 1 > cchDst ) {
+                    if (cch + 2 + 1 > cchDst) {
                         *pszDst = TEXT('\0');
                         return FALSE;
                     }
@@ -1760,7 +1730,7 @@ Return Value:
             }
         }
 
-    } while( ch != TEXT('\0') );
+    } while (ch != TEXT('\0'));
 
     return TRUE;
 }

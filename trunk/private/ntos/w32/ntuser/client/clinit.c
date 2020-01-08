@@ -25,7 +25,7 @@ PDESKTOPINFO pdiLocal;
 BOOL         gbIhaveBeenInited;
 static DWORD gdwLpkEntryPoints;
 
-CONST WCHAR pwszWindowsKey[]      = L"\\Registry\\Machine\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows";
+CONST WCHAR pwszWindowsKey[] = L"\\Registry\\Machine\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows";
 CONST WCHAR szAppInit[] = L"AppInit_DLLs";
 
 CONST WCHAR gwszShimDll[] = L"shim.dll";
@@ -81,7 +81,7 @@ BOOL UserClientDllInitialize(IN PVOID hmod, IN DWORD Reason, IN PCONTEXT pctx OP
 
         gbIhaveBeenInited = TRUE;
 
-        status  = RtlInitializeCriticalSection(&gcsClipboard);
+        status = RtlInitializeCriticalSection(&gcsClipboard);
         status |= RtlInitializeCriticalSection(&gcsLookaside);
         status |= RtlInitializeCriticalSection(&gcsHdc);
         status |= RtlInitializeCriticalSection(&gcsAccelCache);
@@ -94,7 +94,7 @@ BOOL UserClientDllInitialize(IN PVOID hmod, IN DWORD Reason, IN PCONTEXT pctx OP
             return FALSE;
         }
 #if DBG
-        gpDDEMLHeap = RtlCreateHeap(HEAP_GROWABLE | HEAP_CLASS_1 | HEAP_TAIL_CHECKING_ENABLED | HEAP_FREE_CHECKING_ENABLED, 
+        gpDDEMLHeap = RtlCreateHeap(HEAP_GROWABLE | HEAP_CLASS_1 | HEAP_TAIL_CHECKING_ENABLED | HEAP_FREE_CHECKING_ENABLED,
                                     NULL,
                                     8 * 1024, 2 * 1024,
                                     NULL,
@@ -157,8 +157,8 @@ BOOL UserClientDllInitialize(IN PVOID hmod, IN DWORD Reason, IN PCONTEXT pctx OP
 
         pfnFindResourceExA = (PFNFINDA)FindResourceExA;
         pfnFindResourceExW = (PFNFINDW)FindResourceExW;
-        pfnLoadResource    = (PFNLOAD)LoadResource;
-        pfnSizeofResource  = (PFNSIZEOF)SizeofResource;
+        pfnLoadResource = (PFNLOAD)LoadResource;
+        pfnSizeofResource = (PFNSIZEOF)SizeofResource;
 
         /*
          * Register with the base the USER hook it should call when it does a WinExec() (this is soft-linked because some people still use charmode nt!
@@ -179,7 +179,7 @@ BOOL UserClientDllInitialize(IN PVOID hmod, IN DWORD Reason, IN PCONTEXT pctx OP
         NtCurrentPeb()->PostProcessInitRoutine = NULL;
 
         if (SessionId != 0) {
-            swprintf(szWindowStationDirectory,L"%ws\\%ld%ws",SESSION_ROOT,SessionId,WINSTA_DIR);
+            swprintf(szWindowStationDirectory, L"%ws\\%ld%ws", SESSION_ROOT, SessionId, WINSTA_DIR);
             RtlInitUnicodeString(&strRootDirectory, szWindowStationDirectory);
         } else {
             RtlInitUnicodeString(&strRootDirectory, WINSTA_DIR);
@@ -269,15 +269,15 @@ BOOL LoadCursorsAndIcons(VOID)
          * gpsi->hIconSmWindows on the kernel side.
          */
         if (i == OIC_WINLOGO_DEFAULT - OIC_FIRST_DEFAULT) {
-            h = LoadIcoCur(NULL, (LPCWSTR)UIntToPtr( (OIC_FIRST_DEFAULT + i) ), RT_ICON, SYSMET(CXSMICON), SYSMET(CYSMICON), LR_GLOBAL);
+            h = LoadIcoCur(NULL, (LPCWSTR)UIntToPtr((OIC_FIRST_DEFAULT + i)), RT_ICON, SYSMET(CXSMICON), SYSMET(CYSMICON), LR_GLOBAL);
             fSuccess &= !!h;
         }
-        h = LoadIcoCur(NULL, (LPCWSTR)UIntToPtr( (OIC_FIRST_DEFAULT + i) ), RT_ICON, 0, 0, LR_SHARED | LR_GLOBAL);
+        h = LoadIcoCur(NULL, (LPCWSTR)UIntToPtr((OIC_FIRST_DEFAULT + i)), RT_ICON, 0, 0, LR_SHARED | LR_GLOBAL);
         fSuccess &= !!h;
     }
 
     for (i = 0; i < COCR_CONFIGURABLE; i++) {
-        h = LoadIcoCur(NULL, (LPCWSTR)UIntToPtr( (OCR_FIRST_DEFAULT + i) ), RT_CURSOR, 0, 0, LR_SHARED | LR_GLOBAL);
+        h = LoadIcoCur(NULL, (LPCWSTR)UIntToPtr((OCR_FIRST_DEFAULT + i)), RT_CURSOR, 0, 0, LR_SHARED | LR_GLOBAL);
         fSuccess &= !!h;
     }
 
@@ -408,16 +408,16 @@ BOOL RW_RegisterControls(VOID)
      * Classes are registered via the table.
      */
     RtlZeroMemory(&wndcls, sizeof(wndcls));
-    wndcls.cbSize       = sizeof(wndcls);
-    wndcls.hInstance    = hmodUser;
+    wndcls.cbSize = sizeof(wndcls);
+    wndcls.hInstance = hmodUser;
 
-    for (i = 0; i < (sizeof(rc)/sizeof(rc[0])); i++) {
-        wndcls.style        = rc[i].style;
-        wndcls.lpfnWndProc  = rc[i].lpfnWndProcW;
-        wndcls.cbWndExtra   = rc[i].cbWndExtra;
-        wndcls.hCursor      = LoadCursor(NULL, rc[i].lpszCursor);
-        wndcls.hbrBackground= rc[i].hbrBackground;
-        wndcls.lpszClassName= rc[i].lpszClassName;
+    for (i = 0; i < (sizeof(rc) / sizeof(rc[0])); i++) {
+        wndcls.style = rc[i].style;
+        wndcls.lpfnWndProc = rc[i].lpfnWndProcW;
+        wndcls.cbWndExtra = rc[i].cbWndExtra;
+        wndcls.hCursor = LoadCursor(NULL, rc[i].lpszCursor);
+        wndcls.hbrBackground = rc[i].hbrBackground;
+        wndcls.lpszClassName = rc[i].lpszClassName;
 
         fSuccess &= !!RegisterClassExWOWW(&wndcls, NULL, rc[i].fnid);
     }
@@ -443,53 +443,53 @@ BOOL RW_RegisterDDEML(VOID)
     BOOL        fSuccess = TRUE;
 
     RtlZeroMemory(&wndclsw, sizeof(wndclsw));
-    wndclsw.cbSize        = sizeof(wndclsw);
-    wndclsw.lpfnWndProc   = DDEMLMotherWndProc;
-    wndclsw.cbWndExtra    = sizeof(PCL_INSTANCE_INFO);
-    wndclsw.hInstance     = hmodUser;
+    wndclsw.cbSize = sizeof(wndclsw);
+    wndclsw.lpfnWndProc = DDEMLMotherWndProc;
+    wndclsw.cbWndExtra = sizeof(PCL_INSTANCE_INFO);
+    wndclsw.hInstance = hmodUser;
     wndclsw.lpszClassName = L"DDEMLMom";
 
     fSuccess &= !!RegisterClassExWOWW(&wndclsw, NULL, FNID_DDE_BIT);
 
     RtlZeroMemory(&wndclsa, sizeof(wndclsa));
-    wndclsa.cbSize        = sizeof(wndclsa);
-    wndclsa.lpfnWndProc   = DDEMLClientWndProc;
-    wndclsa.cbWndExtra    =
-            sizeof(PCL_CONV_INFO) +     // GWL_PCI
-            sizeof(CONVCONTEXT)   +     // GWL_CONVCONTEXT
-            sizeof(LONG)          +     // GWL_CONVSTATE
-            sizeof(HANDLE)        +     // GWL_CHINST
-            sizeof(HANDLE);             // GWL_SHINST
-    wndclsa.hInstance     = hmodUser;
+    wndclsa.cbSize = sizeof(wndclsa);
+    wndclsa.lpfnWndProc = DDEMLClientWndProc;
+    wndclsa.cbWndExtra =
+        sizeof(PCL_CONV_INFO) +  // GWL_PCI
+        sizeof(CONVCONTEXT) +    // GWL_CONVCONTEXT
+        sizeof(LONG) +     // GWL_CONVSTATE
+        sizeof(HANDLE) +     // GWL_CHINST
+        sizeof(HANDLE);      // GWL_SHINST
+    wndclsa.hInstance = hmodUser;
     wndclsa.lpszClassName = "DDEMLAnsiClient";
 
     fSuccess &= !!RegisterClassExWOWA(&wndclsa, NULL, FNID_DDE_BIT);
 
-    wndclsw.cbSize        = sizeof(wndclsw);
-    wndclsw.lpfnWndProc   = DDEMLClientWndProc;
-    wndclsw.cbWndExtra    =
-            sizeof(PCL_CONV_INFO) +     // GWL_PCI
-            sizeof(CONVCONTEXT)   +     // GWL_CONVCONTEXT
-            sizeof(LONG)          +     // GWL_CONVSTATE
-            sizeof(HANDLE)        +     // GWL_CHINST
-            sizeof(HANDLE);             // GWL_SHINST
-    wndclsw.hInstance     = hmodUser;
+    wndclsw.cbSize = sizeof(wndclsw);
+    wndclsw.lpfnWndProc = DDEMLClientWndProc;
+    wndclsw.cbWndExtra =
+        sizeof(PCL_CONV_INFO) + // GWL_PCI
+        sizeof(CONVCONTEXT) +   // GWL_CONVCONTEXT
+        sizeof(LONG) +     // GWL_CONVSTATE
+        sizeof(HANDLE) +     // GWL_CHINST
+        sizeof(HANDLE);      // GWL_SHINST
+    wndclsw.hInstance = hmodUser;
     wndclsw.lpszClassName = L"DDEMLUnicodeClient";
 
     fSuccess &= !!RegisterClassExWOWW(&wndclsw, NULL, FNID_DDE_BIT);
 
-    wndclsa.cbSize        = sizeof(wndclsa);
-    wndclsa.lpfnWndProc   = DDEMLServerWndProc;
-    wndclsa.cbWndExtra    = sizeof(PSVR_CONV_INFO);     // GWL_PSI
-    wndclsa.hInstance     = hmodUser;
+    wndclsa.cbSize = sizeof(wndclsa);
+    wndclsa.lpfnWndProc = DDEMLServerWndProc;
+    wndclsa.cbWndExtra = sizeof(PSVR_CONV_INFO);// GWL_PSI
+    wndclsa.hInstance = hmodUser;
     wndclsa.lpszClassName = "DDEMLAnsiServer";
 
     fSuccess &= !!RegisterClassExWOWA(&wndclsa, NULL, FNID_DDE_BIT);
 
-    wndclsw.cbSize        = sizeof(wndclsw);
-    wndclsw.lpfnWndProc   = DDEMLServerWndProc;
-    wndclsw.cbWndExtra    = sizeof(PSVR_CONV_INFO);     // GWL_PSI
-    wndclsw.hInstance     = hmodUser;
+    wndclsw.cbSize = sizeof(wndclsw);
+    wndclsw.lpfnWndProc = DDEMLServerWndProc;
+    wndclsw.cbWndExtra = sizeof(PSVR_CONV_INFO);// GWL_PSI
+    wndclsw.hInstance = hmodUser;
     wndclsw.lpszClassName = L"DDEMLUnicodeServer";
 
     fSuccess &= !!RegisterClassExWOWW(&wndclsw, NULL, FNID_DDE_BIT);
@@ -525,7 +525,7 @@ LPSTR GetBadAppCmdLine(IN LPCWSTR lpApplicationName)
     WCHAR               strName[32];
     HANDLE              hkey;
     NTSTATUS            Status;
-    WCHAR*              lpShortName;
+    WCHAR* lpShortName;
     BADAPP_DATA         badAppData;
     BADAPP_PROP         badAppProp;
     ULONG               iValue, cbSize, cbCrtSize;
@@ -575,12 +575,11 @@ LPSTR GetBadAppCmdLine(IN LPCWSTR lpApplicationName)
     /*
      * Now verify that this is the actual version of the app
      */
-
     pKeyValueInformation = NULL;
     cbCrtSize = 0;
 
-    badAppProp.Size     = sizeof(BADAPP_PROP);
-    badAppData.Size     = sizeof(BADAPP_DATA);
+    badAppProp.Size = sizeof(BADAPP_PROP);
+    badAppData.Size = sizeof(BADAPP_DATA);
     badAppData.FilePath = (LPCWSTR)lpApplicationName;
 
     /*
@@ -620,7 +619,7 @@ LPSTR GetBadAppCmdLine(IN LPCWSTR lpApplicationName)
         if (NT_SUCCESS(Status) && pKeyValueInformation->Type == REG_BINARY) {
             RtlCopyMemory(strName, pKeyValueInformation->Name, pKeyValueInformation->NameLength);
             strName[pKeyValueInformation->NameLength / sizeof(WCHAR)] = 0;
-            badAppData.Blob = (PBYTE)pKeyValueInformation +  pKeyValueInformation->DataOffset;
+            badAppData.Blob = (PBYTE)pKeyValueInformation + pKeyValueInformation->DataOffset;
             badAppData.BlobSize = pKeyValueInformation->DataLength;
             if (SHIsBadApp(&badAppData, &badAppProp)) {
                 TAGMSG0(DBGTAG_Shim, "SHIsBadApp returned TRUE");
@@ -698,7 +697,7 @@ Exit:
 }
 
 
-typedef BOOL (*PFNLOADPATCHDLL)(LPSTR pwszPatchDll);
+typedef BOOL(*PFNLOADPATCHDLL)(LPSTR pwszPatchDll);
 
 
 BOOL CheckBadApp(VOID)
@@ -721,8 +720,8 @@ BOOL CheckBadApp(VOID)
     if (pszCmdLine == NULL) {
         return TRUE;
     }
-    if ( _stricmp( pszCmdLine, "disable" ) == 0 ) {
-       return FALSE;
+    if (_stricmp(pszCmdLine, "disable") == 0) {
+        return FALSE;
     }
 
     hMod = LoadLibraryW(gwszShimDll);
@@ -818,18 +817,18 @@ VOID LoadAppDlls(VOID)
         LPWSTR pszBase;
         WCHAR  ch;
 
-    /*
-     * Process the DLL data.
-     */
+        /*
+         * Process the DLL data.
+         */
         pszBase = pszDst = pszSrc = (LPWSTR)lpKeyFile->Data;
         while (*pszSrc != TEXT('\0')) {
-            while (*pszSrc == TEXT(' ') || *pszSrc  == TEXT(','))
+            while (*pszSrc == TEXT(' ') || *pszSrc == TEXT(','))
                 pszSrc++;
 
             if (*pszSrc == TEXT('\0'))
                 break;
 
-            while (*pszSrc != TEXT(',')  && *pszSrc != TEXT('\0') && *pszSrc != TEXT(' ')) {
+            while (*pszSrc != TEXT(',') && *pszSrc != TEXT('\0') && *pszSrc != TEXT(' ')) {
                 *pszDst++ = *pszSrc++;
             }
 
@@ -879,29 +878,27 @@ VOID InitOemXlateTables()
          */
         RtlCopyMemory(OemToAnsi, ach, NCHARS);
         RtlCopyMemory(AnsiToOem, ach, NCHARS);
-    }
-    else
-    {
-        cch = MultiByteToWideChar(CP_ACP,                           // ANSI -> Unicode
-            MB_PRECOMPOSED,                   // map to precomposed
-            ach, NCHARS,                      // source & length
-            awch, NCHARS);                    // destination & length
+    } else {
+        cch = MultiByteToWideChar(CP_ACP,        // ANSI -> Unicode
+                                  MB_PRECOMPOSED,// map to precomposed
+                                  ach, NCHARS,   // source & length
+                                  awch, NCHARS); // destination & length
 
         UserAssert(cch == NCHARS);
 
-        WideCharToMultiByte(CP_OEMCP,                         // Unicode -> OEM
-            0,                                // gives best visual match
-            awch, NCHARS,                     // source & length
-            AnsiToOem, NCHARS,               // dest & max poss. length
-            "_",                              // default char
-            NULL);                            // (don't care whether defaulted)
-        /*
-         * Now generate pOemToAnsi table.
-         */
+        WideCharToMultiByte(CP_OEMCP,         // Unicode -> OEM
+                            0,                // gives best visual match
+                            awch, NCHARS,     // source & length
+                            AnsiToOem, NCHARS,// dest & max poss. length
+                            "_",              // default char
+                            NULL);            // (don't care whether defaulted)
+                        /*
+                         * Now generate pOemToAnsi table.
+                         */
         cch = MultiByteToWideChar(CP_OEMCP,                         // OEM -> Unicode
-            MB_PRECOMPOSED | MB_USEGLYPHCHARS,// visual map to precomposed
-            ach, NCHARS,                      // source & length
-            awch, NCHARS);                    // destination
+                                  MB_PRECOMPOSED | MB_USEGLYPHCHARS,// visual map to precomposed
+                                  ach, NCHARS,                      // source & length
+                                  awch, NCHARS);                    // destination
 
         UserAssert(cch == NCHARS);
 
@@ -916,18 +913,18 @@ VOID InitOemXlateTables()
         awch[0x0F] = 0x00a4;
         awch[0x7f] = 0x007f;
 
-        WideCharToMultiByte(CP_ACP,                           // Unicode -> ANSI
-            0,                                // gives best visual match
-            awch, NCHARS,                     // source & length
-            OemToAnsi, NCHARS,               // dest & max poss. length
-            "_",                              // default char
-            NULL);                            // (don't care whether defaulted)
+        WideCharToMultiByte(CP_ACP,           // Unicode -> ANSI
+                            0,                // gives best visual match
+                            awch, NCHARS,     // source & length
+                            OemToAnsi, NCHARS,// dest & max poss. length
+                            "_",              // default char
+                            NULL);            // (don't care whether defaulted)
 
-        /*
-         * Now for all OEM chars < 0x20 (control chars), test whether the glyph
-         * we have is really in CP_ACP or not.  If not, then restore the
-         * original control character. Note: 0x00 remains 0x00.
-         */
+                        /*
+                         * Now for all OEM chars < 0x20 (control chars), test whether the glyph
+                         * we have is really in CP_ACP or not.  If not, then restore the
+                         * original control character. Note: 0x00 remains 0x00.
+                         */
         MultiByteToWideChar(CP_ACP, 0, OemToAnsi, NCTRLS, awchCtrl, NCTRLS);
 
         for (i = 1; i < NCTRLS; i++) {
@@ -1048,7 +1045,7 @@ BOOL ClientThreadSetup(VOID)
         NTSTATUS    Status;
 
         /*
-         * We know that the shared info is now available in the kernel. 
+         * We know that the shared info is now available in the kernel.
          * Map it into the server process.
          */
         userconnect.ulVersion = USERCURRENTVERSION;
@@ -1061,57 +1058,57 @@ BOOL ClientThreadSetup(VOID)
         gpsi = gSharedInfo.psi;
         UserAssert(gpsi);
 
-        UserAssert(pfnClientA.pfnScrollBarWndProc   == (KPROC)ScrollBarWndProcA);
-        UserAssert(pfnClientA.pfnTitleWndProc       == (KPROC)DefWindowProcA);
-        UserAssert(pfnClientA.pfnMenuWndProc        == (KPROC)MenuWndProcA);
-        UserAssert(pfnClientA.pfnDesktopWndProc     == (KPROC)DesktopWndProcA);
-        UserAssert(pfnClientA.pfnDefWindowProc      == (KPROC)DefWindowProcA);
-        UserAssert(pfnClientA.pfnHkINLPCWPSTRUCT    == (KPROC)fnHkINLPCWPSTRUCTA);
+        UserAssert(pfnClientA.pfnScrollBarWndProc == (KPROC)ScrollBarWndProcA);
+        UserAssert(pfnClientA.pfnTitleWndProc == (KPROC)DefWindowProcA);
+        UserAssert(pfnClientA.pfnMenuWndProc == (KPROC)MenuWndProcA);
+        UserAssert(pfnClientA.pfnDesktopWndProc == (KPROC)DesktopWndProcA);
+        UserAssert(pfnClientA.pfnDefWindowProc == (KPROC)DefWindowProcA);
+        UserAssert(pfnClientA.pfnHkINLPCWPSTRUCT == (KPROC)fnHkINLPCWPSTRUCTA);
         UserAssert(pfnClientA.pfnHkINLPCWPRETSTRUCT == (KPROC)fnHkINLPCWPRETSTRUCTA);
-        UserAssert(pfnClientA.pfnButtonWndProc      == (KPROC)ButtonWndProcA);
-        UserAssert(pfnClientA.pfnComboBoxWndProc    == (KPROC)ComboBoxWndProcA);
-        UserAssert(pfnClientA.pfnComboListBoxProc   == (KPROC)ComboListBoxWndProcA);
-        UserAssert(pfnClientA.pfnDialogWndProc      == (KPROC)DefDlgProcA);
-        UserAssert(pfnClientA.pfnEditWndProc        == (KPROC)EditWndProcA);
-        UserAssert(pfnClientA.pfnListBoxWndProc     == (KPROC)ListBoxWndProcA);
-        UserAssert(pfnClientA.pfnMB_DlgProc         == (KPROC)MB_DlgProcA);
+        UserAssert(pfnClientA.pfnButtonWndProc == (KPROC)ButtonWndProcA);
+        UserAssert(pfnClientA.pfnComboBoxWndProc == (KPROC)ComboBoxWndProcA);
+        UserAssert(pfnClientA.pfnComboListBoxProc == (KPROC)ComboListBoxWndProcA);
+        UserAssert(pfnClientA.pfnDialogWndProc == (KPROC)DefDlgProcA);
+        UserAssert(pfnClientA.pfnEditWndProc == (KPROC)EditWndProcA);
+        UserAssert(pfnClientA.pfnListBoxWndProc == (KPROC)ListBoxWndProcA);
+        UserAssert(pfnClientA.pfnMB_DlgProc == (KPROC)MB_DlgProcA);
         UserAssert(pfnClientA.pfnMDIActivateDlgProc == (KPROC)MDIActivateDlgProcA);
-        UserAssert(pfnClientA.pfnMDIClientWndProc   == (KPROC)MDIClientWndProcA);
-        UserAssert(pfnClientA.pfnStaticWndProc      == (KPROC)StaticWndProcA);
-        UserAssert(pfnClientA.pfnDispatchHook       == (KPROC)DispatchHookA);
-        UserAssert(pfnClientA.pfnDispatchMessage    == (KPROC)DispatchClientMessage);
-        UserAssert(pfnClientA.pfnImeWndProc         == (KPROC)ImeWndProcA);
+        UserAssert(pfnClientA.pfnMDIClientWndProc == (KPROC)MDIClientWndProcA);
+        UserAssert(pfnClientA.pfnStaticWndProc == (KPROC)StaticWndProcA);
+        UserAssert(pfnClientA.pfnDispatchHook == (KPROC)DispatchHookA);
+        UserAssert(pfnClientA.pfnDispatchMessage == (KPROC)DispatchClientMessage);
+        UserAssert(pfnClientA.pfnImeWndProc == (KPROC)ImeWndProcA);
 
-        UserAssert(pfnClientW.pfnScrollBarWndProc   == (KPROC)ScrollBarWndProcW);
-        UserAssert(pfnClientW.pfnTitleWndProc       == (KPROC)DefWindowProcW);
-        UserAssert(pfnClientW.pfnMenuWndProc        == (KPROC)MenuWndProcW);
-        UserAssert(pfnClientW.pfnDesktopWndProc     == (KPROC)DesktopWndProcW);
-        UserAssert(pfnClientW.pfnDefWindowProc      == (KPROC)DefWindowProcW);
-        UserAssert(pfnClientW.pfnHkINLPCWPSTRUCT    == (KPROC)fnHkINLPCWPSTRUCTW);
+        UserAssert(pfnClientW.pfnScrollBarWndProc == (KPROC)ScrollBarWndProcW);
+        UserAssert(pfnClientW.pfnTitleWndProc == (KPROC)DefWindowProcW);
+        UserAssert(pfnClientW.pfnMenuWndProc == (KPROC)MenuWndProcW);
+        UserAssert(pfnClientW.pfnDesktopWndProc == (KPROC)DesktopWndProcW);
+        UserAssert(pfnClientW.pfnDefWindowProc == (KPROC)DefWindowProcW);
+        UserAssert(pfnClientW.pfnHkINLPCWPSTRUCT == (KPROC)fnHkINLPCWPSTRUCTW);
         UserAssert(pfnClientW.pfnHkINLPCWPRETSTRUCT == (KPROC)fnHkINLPCWPRETSTRUCTW);
-        UserAssert(pfnClientW.pfnButtonWndProc      == (KPROC)ButtonWndProcW);
-        UserAssert(pfnClientW.pfnComboBoxWndProc    == (KPROC)ComboBoxWndProcW);
-        UserAssert(pfnClientW.pfnComboListBoxProc   == (KPROC)ComboListBoxWndProcW);
-        UserAssert(pfnClientW.pfnDialogWndProc      == (KPROC)DefDlgProcW);
-        UserAssert(pfnClientW.pfnEditWndProc        == (KPROC)EditWndProcW);
-        UserAssert(pfnClientW.pfnListBoxWndProc     == (KPROC)ListBoxWndProcW);
-        UserAssert(pfnClientW.pfnMB_DlgProc         == (KPROC)MB_DlgProcW);
+        UserAssert(pfnClientW.pfnButtonWndProc == (KPROC)ButtonWndProcW);
+        UserAssert(pfnClientW.pfnComboBoxWndProc == (KPROC)ComboBoxWndProcW);
+        UserAssert(pfnClientW.pfnComboListBoxProc == (KPROC)ComboListBoxWndProcW);
+        UserAssert(pfnClientW.pfnDialogWndProc == (KPROC)DefDlgProcW);
+        UserAssert(pfnClientW.pfnEditWndProc == (KPROC)EditWndProcW);
+        UserAssert(pfnClientW.pfnListBoxWndProc == (KPROC)ListBoxWndProcW);
+        UserAssert(pfnClientW.pfnMB_DlgProc == (KPROC)MB_DlgProcW);
         UserAssert(pfnClientW.pfnMDIActivateDlgProc == (KPROC)MDIActivateDlgProcW);
-        UserAssert(pfnClientW.pfnMDIClientWndProc   == (KPROC)MDIClientWndProcW);
-        UserAssert(pfnClientW.pfnStaticWndProc      == (KPROC)StaticWndProcW);
-        UserAssert(pfnClientW.pfnDispatchHook       == (KPROC)DispatchHookW);
-        UserAssert(pfnClientW.pfnDispatchMessage    == (KPROC)DispatchClientMessage);
-        UserAssert(pfnClientW.pfnImeWndProc         == (KPROC)ImeWndProcW);
+        UserAssert(pfnClientW.pfnMDIClientWndProc == (KPROC)MDIClientWndProcW);
+        UserAssert(pfnClientW.pfnStaticWndProc == (KPROC)StaticWndProcW);
+        UserAssert(pfnClientW.pfnDispatchHook == (KPROC)DispatchHookW);
+        UserAssert(pfnClientW.pfnDispatchMessage == (KPROC)DispatchClientMessage);
+        UserAssert(pfnClientW.pfnImeWndProc == (KPROC)ImeWndProcW);
 
-        UserAssert(pfnClientWorker.pfnButtonWndProc      == (KPROC)ButtonWndProcWorker);
-        UserAssert(pfnClientWorker.pfnComboBoxWndProc    == (KPROC)ComboBoxWndProcWorker);
-        UserAssert(pfnClientWorker.pfnComboListBoxProc   == (KPROC)ListBoxWndProcWorker);
-        UserAssert(pfnClientWorker.pfnDialogWndProc      == (KPROC)DefDlgProcWorker);
-        UserAssert(pfnClientWorker.pfnEditWndProc        == (KPROC)EditWndProcWorker);
-        UserAssert(pfnClientWorker.pfnListBoxWndProc     == (KPROC)ListBoxWndProcWorker);
-        UserAssert(pfnClientWorker.pfnMDIClientWndProc   == (KPROC)MDIClientWndProcWorker);
-        UserAssert(pfnClientWorker.pfnStaticWndProc      == (KPROC)StaticWndProcWorker);
-        UserAssert(pfnClientWorker.pfnImeWndProc         == (KPROC)ImeWndProcWorker);
+        UserAssert(pfnClientWorker.pfnButtonWndProc == (KPROC)ButtonWndProcWorker);
+        UserAssert(pfnClientWorker.pfnComboBoxWndProc == (KPROC)ComboBoxWndProcWorker);
+        UserAssert(pfnClientWorker.pfnComboListBoxProc == (KPROC)ListBoxWndProcWorker);
+        UserAssert(pfnClientWorker.pfnDialogWndProc == (KPROC)DefDlgProcWorker);
+        UserAssert(pfnClientWorker.pfnEditWndProc == (KPROC)EditWndProcWorker);
+        UserAssert(pfnClientWorker.pfnListBoxWndProc == (KPROC)ListBoxWndProcWorker);
+        UserAssert(pfnClientWorker.pfnMDIClientWndProc == (KPROC)MDIClientWndProcWorker);
+        UserAssert(pfnClientWorker.pfnStaticWndProc == (KPROC)StaticWndProcWorker);
+        UserAssert(pfnClientWorker.pfnImeWndProc == (KPROC)ImeWndProcWorker);
 
 #if DBG
         {
@@ -1120,38 +1117,38 @@ BOOL ClientThreadSetup(VOID)
             /*
              * Make sure that everyone got initialized
              */
-            for (pdw = (PULONG_PTR)&pfnClientA; (ULONG_PTR)pdw<(ULONG_PTR)(&pfnClientA) + sizeof(pfnClientA); pdw++) {
+            for (pdw = (PULONG_PTR)&pfnClientA; (ULONG_PTR)pdw < (ULONG_PTR)(&pfnClientA) + sizeof(pfnClientA); pdw++) {
                 UserAssert(*pdw);
             }
 
-            for (pdw = (PULONG_PTR)&pfnClientW; (ULONG_PTR)pdw<(ULONG_PTR)(&pfnClientW) + sizeof(pfnClientW); pdw++) {
+            for (pdw = (PULONG_PTR)&pfnClientW; (ULONG_PTR)pdw < (ULONG_PTR)(&pfnClientW) + sizeof(pfnClientW); pdw++) {
                 UserAssert(*pdw);
             }
         }
 #endif
 
 #if DBG
-    {
-        extern CONST INT gcapfnScSendMessage;
-        BOOLEAN apfnCheckMessage[64];
-        int i;
+        {
+            extern CONST INT gcapfnScSendMessage;
+            BOOLEAN apfnCheckMessage[64];
+            int i;
 
-        /*
-         * Do some verification of the message table. Since we only have
-         * 6 bits to store the function index, the function table can have at most 64 entries.
-         * Also verify that none of the indexes point past the end of the table and that all the function entries are used.
-         */
-        UserAssert(gcapfnScSendMessage <= 64);
-        RtlZeroMemory(apfnCheckMessage, sizeof(apfnCheckMessage));
-        for (i = 0; i < WM_USER; i++) {
-            UserAssert(MessageTable[i].iFunction < gcapfnScSendMessage);
-            apfnCheckMessage[MessageTable[i].iFunction] = TRUE;
-        }
+            /*
+             * Do some verification of the message table. Since we only have
+             * 6 bits to store the function index, the function table can have at most 64 entries.
+             * Also verify that none of the indexes point past the end of the table and that all the function entries are used.
+             */
+            UserAssert(gcapfnScSendMessage <= 64);
+            RtlZeroMemory(apfnCheckMessage, sizeof(apfnCheckMessage));
+            for (i = 0; i < WM_USER; i++) {
+                UserAssert(MessageTable[i].iFunction < gcapfnScSendMessage);
+                apfnCheckMessage[MessageTable[i].iFunction] = TRUE;
+            }
 
-        for (i = 0; i < gcapfnScSendMessage; i++) {
-            UserAssert(apfnCheckMessage[i]);
+            for (i = 0; i < gcapfnScSendMessage; i++) {
+                UserAssert(apfnCheckMessage[i]);
+            }
         }
-    }
 #endif
     }
 
@@ -1162,16 +1159,16 @@ BOOL ClientThreadSetup(VOID)
      * The exception is handled in CsrConnectToUser.
      */
 #if DBG && !defined(BUILD_WOW6432)
-    /*
-     * On debug systems, go to the kernel for all processes to verify we're
-     * loading user32.dll at the right address.
-     */
+     /*
+      * On debug systems, go to the kernel for all processes to verify we're
+      * loading user32.dll at the right address.
+      */
     if (fFirstThread) {
 #elif defined(BUILD_WOW6432)
-    /*
-     * On WOW64 allways register the client fns
-     */
-    {
+     /*
+      * On WOW64 allways register the client fns
+      */
+        {
 #else
     if (gfServerProcess && fFirstThread) {
 #endif
@@ -1251,7 +1248,7 @@ BOOL ClientThreadSetup(VOID)
             InitOemXlateTables();
         }
 
-        if ( ! CheckBadApp() ) {
+        if (!CheckBadApp()) {
             RIPERR0(ERROR_OUTOFMEMORY, RIP_WARNING, "Don't start app for server appliance");
             return FALSE;
         }
@@ -1300,7 +1297,7 @@ HLOCAL WINAPI DispatchLocalAlloc(UINT   uFlags, UINT   uBytes, HANDLE hInstance)
 }
 
 
-HLOCAL WINAPI DispatchLocalReAlloc(HLOCAL hMem, UINT   uBytes, UINT   uFlags, HANDLE hInstance, PVOID* ppv)
+HLOCAL WINAPI DispatchLocalReAlloc(HLOCAL hMem, UINT   uBytes, UINT   uFlags, HANDLE hInstance, PVOID * ppv)
 {
     UNREFERENCED_PARAMETER(hInstance);
     UNREFERENCED_PARAMETER(ppv);
@@ -1411,7 +1408,7 @@ BOOL InitClientDrawing(VOID)
 }
 
 
-VOID InitializeLpkHooks(CONST FARPROC *lpfpLpkHooks)
+VOID InitializeLpkHooks(CONST FARPROC * lpfpLpkHooks)
 {
     /*
      * Called from GdiInitializeLanguagePack().
@@ -1499,9 +1496,9 @@ BOOL CtxInitUser32(VOID)
 
 
 DWORD GetRipComponent(VOID)
- {
+{
     return RIP_USER;
- }
+}
 
 
 DWORD GetDbgTagFlags(int tag)
@@ -1516,12 +1513,12 @@ DWORD GetDbgTagFlags(int tag)
 
 
 DWORD GetRipPID(VOID)
-{ 
+{
     return (gpsi != NULL ? gpsi->wRIPPID : 0);
 }
 
 
-DWORD GetRipFlags(VOID) 
+DWORD GetRipFlags(VOID)
 {
     return (gpsi != NULL ? gpsi->wRIPFlags : RIPF_DEFAULT);
 }

@@ -50,7 +50,7 @@ typedef struct _MMSUPPORT
     ULONG WorkingSetSize;
     ULONG MinimumWorkingSetSize;
     ULONG MaximumWorkingSetSize;
-    struct _MMWSL *VmWorkingSetList;
+    struct _MMWSL* VmWorkingSetList;
     LIST_ENTRY WorkingSetExpansionLinks;
     UCHAR AllowWorkingSetAdjustment;
     BOOLEAN AddressSpaceBeingDeleted;
@@ -71,7 +71,7 @@ typedef struct _MMSUPPORT
     ULONG GrowthSinceLastEstimate;
 } MMSUPPORT;
 
-typedef MMSUPPORT *PMMSUPPORT;
+typedef MMSUPPORT* PMMSUPPORT;
 
 // Client impersonation information
 typedef struct _PS_IMPERSONATION_INFORMATION
@@ -80,7 +80,7 @@ typedef struct _PS_IMPERSONATION_INFORMATION
     BOOLEAN CopyOnOpen;
     BOOLEAN EffectiveOnly;
     SECURITY_IMPERSONATION_LEVEL ImpersonationLevel;
-} PS_IMPERSONATION_INFORMATION, *PPS_IMPERSONATION_INFORMATION;
+} PS_IMPERSONATION_INFORMATION, * PPS_IMPERSONATION_INFORMATION;
 
 // Changes to the EPROCESS structure require that you re-run genoff for x86.
 // This change is needed because Old debugger references the processes debug port.
@@ -97,7 +97,7 @@ typedef struct _EPROCESS_QUOTA_BLOCK
     SIZE_T PeakPagefileUsage;
     SIZE_T PagefileUsage;
     SIZE_T PagefileLimit;
-} EPROCESS_QUOTA_BLOCK, *PEPROCESS_QUOTA_BLOCK;
+} EPROCESS_QUOTA_BLOCK, * PEPROCESS_QUOTA_BLOCK;
 
 #if DEVL
 
@@ -110,7 +110,7 @@ typedef struct _PAGEFAULT_HISTORY
     KSPIN_LOCK SpinLock;
     PVOID Reserved;
     PROCESS_WS_WATCH_INFORMATION WatchInfo[1];
-} PAGEFAULT_HISTORY, *PPAGEFAULT_HISTORY;
+} PAGEFAULT_HISTORY, * PPAGEFAULT_HISTORY;
 #endif // DEVL
 
 #define PS_WS_TRIM_FROM_EXE_HEADER        1
@@ -125,7 +125,7 @@ typedef struct _WOW64_PROCESS
     PULONG AltPermBitmap;
     ULONG AltFlags;
 #endif
-} WOW64_PROCESS, *PWOW64_PROCESS;
+} WOW64_PROCESS, * PWOW64_PROCESS;
 
 #define PS_SET_BITS(Flags, Flag)     ExInterlockedSetBits (Flags, Flag)
 #define PS_CLEAR_BITS(Flags, Flag)     ExInterlockedClearBits (Flags, Flag)
@@ -183,7 +183,7 @@ typedef struct _EPROCESS
     BOOLEAN AddressSpaceDeleted;
     FAST_MUTEX AddressCreationLock;
     KSPIN_LOCK HyperSpaceLock;
-    struct _ETHREAD *ForkInProgress;
+    struct _ETHREAD* ForkInProgress;
     USHORT VmOperation;
     UCHAR ForkWasSuccessful;
     UCHAR MmAgressiveWsTrimMask;
@@ -243,7 +243,7 @@ typedef struct _EPROCESS
         USHORT SubSystemVersion;
     };
     PVOID Win32Process;
-    struct _EJOB *Job;
+    struct _EJOB* Job;
     ULONG JobStatus;
     LIST_ENTRY JobLinks;
     PVOID LockedPagesList;
@@ -276,7 +276,7 @@ typedef struct _EPROCESS
 #define PS_JOB_STATUS_REPORT_COMMIT_CHANGES  0x00000010
 #define PS_JOB_STATUS_LAST_REPORT_MEMORY     0x00000020
 
-typedef EPROCESS *PEPROCESS;
+typedef EPROCESS* PEPROCESS;
 
 
 // Thread Object
@@ -348,7 +348,7 @@ typedef struct _ETHREAD
 
     //  File Systems
     ULONG_PTR TopLevelIrp;  // either NULL, an Irp or a flag defined in FsRtl.h
-    struct _DEVICE_OBJECT *DeviceToVerify;
+    struct _DEVICE_OBJECT* DeviceToVerify;
 
     // Mm
 
@@ -378,7 +378,7 @@ typedef struct _ETHREAD
 
     LIST_ENTRY ThreadListEntry;
 } ETHREAD;
-typedef ETHREAD *PETHREAD;
+typedef ETHREAD* PETHREAD;
 
 // Initial PEB
 typedef struct _INITIAL_PEB
@@ -388,7 +388,7 @@ typedef struct _INITIAL_PEB
     BOOLEAN BeingDebugged;              //
     BOOLEAN SpareBool;                  //
     HANDLE Mutant;                      // PEB structure is also updated.
-} INITIAL_PEB, *PINITIAL_PEB;
+} INITIAL_PEB, * PINITIAL_PEB;
 
 typedef struct _PS_JOB_TOKEN_FILTER
 {
@@ -403,7 +403,7 @@ typedef struct _PS_JOB_TOKEN_FILTER
     ULONG CapturedPrivilegeCount;
     PLUID_AND_ATTRIBUTES CapturedPrivileges;
     ULONG CapturedPrivilegesLength;
-} PS_JOB_TOKEN_FILTER, *PPS_JOB_TOKEN_FILTER;
+} PS_JOB_TOKEN_FILTER, * PPS_JOB_TOKEN_FILTER;
 
 // Job Object
 typedef struct _EJOB
@@ -468,7 +468,7 @@ typedef struct _EJOB
 
     FAST_MUTEX MemoryLimitsLock;
 } EJOB;
-typedef EJOB *PEJOB;
+typedef EJOB* PEJOB;
 
 // Global Variables
 extern ULONG PsPrioritySeperation;
@@ -519,10 +519,10 @@ VOID PsChangeQuantumTable(BOOLEAN ModifyActiveProcesses, ULONG PrioritySeparatio
 
 // Exit special kernel mode APC routine.
 VOID PsExitSpecialApc(IN PKAPC Apc,
-                      IN PKNORMAL_ROUTINE *NormalRoutine,
-                      IN PVOID *NormalContext,
-                      IN PVOID *SystemArgument1,
-                      IN PVOID *SystemArgument2);
+                      IN PKNORMAL_ROUTINE* NormalRoutine,
+                      IN PVOID* NormalContext,
+                      IN PVOID* SystemArgument1,
+                      IN PVOID* SystemArgument2);
 
 // begin_ntddk begin_wdm begin_nthal begin_ntifs
 
@@ -541,8 +541,8 @@ NTKERNELAPI NTSTATUS PsTerminateSystemThread(IN NTSTATUS ExitStatus);
 
 // end_ntddk end_wdm end_nthal end_ntifs
 
-NTSTATUS PsCreateSystemProcess(OUT PHANDLE ProcessHandle, 
-                               IN ULONG DesiredAccess, 
+NTSTATUS PsCreateSystemProcess(OUT PHANDLE ProcessHandle,
+                               IN ULONG DesiredAccess,
                                IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL);
 
 typedef VOID(*PLEGO_NOTIFY_ROUTINE)(PKTHREAD Thread);
@@ -573,7 +573,7 @@ typedef struct _IMAGE_INFO
     ULONG       ImageSelector;
     SIZE_T      ImageSize;
     ULONG       ImageSectionNumber;
-} IMAGE_INFO, *PIMAGE_INFO;
+} IMAGE_INFO, * PIMAGE_INFO;
 
 #define IMAGE_ADDRESSING_MODE_32BIT     3
 
@@ -608,7 +608,7 @@ NTKERNELAPI PACCESS_TOKEN PsReferencePrimaryToken(IN PEPROCESS Process);
 
 NTKERNELAPI PACCESS_TOKEN PsReferenceImpersonationToken(IN PETHREAD Thread,
                                                         OUT PBOOLEAN CopyOnOpen,
-                                                        OUT PBOOLEAN EffectiveOnly, 
+                                                        OUT PBOOLEAN EffectiveOnly,
                                                         OUT PSECURITY_IMPERSONATION_LEVEL ImpersonationLevel);
 PACCESS_TOKEN PsReferenceEffectiveToken(IN PETHREAD Thread,
                                         OUT PTOKEN_TYPE TokenType,
@@ -666,19 +666,19 @@ NTKERNELAPI VOID PsRevertToSelf(VOID);
 
 NTSTATUS PsOpenTokenOfThread(IN HANDLE ThreadHandle,
                              IN BOOLEAN OpenAsSelf,
-                             OUT PACCESS_TOKEN *Token,
+                             OUT PACCESS_TOKEN* Token,
                              OUT PBOOLEAN CopyOnOpen,
                              OUT PBOOLEAN EffectiveOnly,
                              OUT PSECURITY_IMPERSONATION_LEVEL ImpersonationLevel);
 
-NTSTATUS PsOpenTokenOfProcess(IN HANDLE ProcessHandle, OUT PACCESS_TOKEN *Token);
-NTSTATUS PsOpenTokenOfJob(IN HANDLE JobHandle, OUT PACCESS_TOKEN * Token);
+NTSTATUS PsOpenTokenOfProcess(IN HANDLE ProcessHandle, OUT PACCESS_TOKEN* Token);
+NTSTATUS PsOpenTokenOfJob(IN HANDLE JobHandle, OUT PACCESS_TOKEN* Token);
 
 // Cid
 
-NTSTATUS PsLookupProcessThreadByCid(IN PCLIENT_ID Cid, OUT PEPROCESS *Process OPTIONAL, OUT PETHREAD *Thread);
-NTKERNELAPI NTSTATUS PsLookupProcessByProcessId(IN HANDLE ProcessId, OUT PEPROCESS *Process);
-NTKERNELAPI NTSTATUS PsLookupThreadByThreadId(IN HANDLE ThreadId, OUT PETHREAD *Thread);
+NTSTATUS PsLookupProcessThreadByCid(IN PCLIENT_ID Cid, OUT PEPROCESS* Process OPTIONAL, OUT PETHREAD* Thread);
+NTKERNELAPI NTSTATUS PsLookupProcessByProcessId(IN HANDLE ProcessId, OUT PEPROCESS* Process);
+NTKERNELAPI NTSTATUS PsLookupThreadByThreadId(IN HANDLE ThreadId, OUT PETHREAD* Thread);
 
 // begin_ntifs
 
@@ -726,7 +726,7 @@ typedef struct _WIN32_JOBCALLOUT_PARAMETERS
     PVOID Job;
     PSW32JOBCALLOUTTYPE CalloutType;
     IN PVOID Data;
-} WIN32_JOBCALLOUT_PARAMETERS, *PKWIN32_JOBCALLOUT_PARAMETERS;
+} WIN32_JOBCALLOUT_PARAMETERS, * PKWIN32_JOBCALLOUT_PARAMETERS;
 
 
 typedef NTSTATUS(*PKWIN32_JOB_CALLOUT) (IN PKWIN32_JOBCALLOUT_PARAMETERS Parm);
@@ -757,7 +757,7 @@ typedef struct _WIN32_POWEREVENT_PARAMETERS
 {
     PSPOWEREVENTTYPE EventNumber;
     ULONG_PTR Code;
-} WIN32_POWEREVENT_PARAMETERS, *PKWIN32_POWEREVENT_PARAMETERS;
+} WIN32_POWEREVENT_PARAMETERS, * PKWIN32_POWEREVENT_PARAMETERS;
 
 typedef struct _WIN32_POWERSTATE_PARAMETERS
 {
@@ -765,7 +765,7 @@ typedef struct _WIN32_POWERSTATE_PARAMETERS
     POWER_ACTION SystemAction;
     SYSTEM_POWER_STATE MinSystemState;
     ULONG Flags;
-} WIN32_POWERSTATE_PARAMETERS, *PKWIN32_POWERSTATE_PARAMETERS;
+} WIN32_POWERSTATE_PARAMETERS, * PKWIN32_POWERSTATE_PARAMETERS;
 
 typedef NTSTATUS(*PKWIN32_POWEREVENT_CALLOUT) (IN PKWIN32_POWEREVENT_PARAMETERS Parm);
 typedef NTSTATUS(*PKWIN32_POWERSTATE_CALLOUT) (IN PKWIN32_POWERSTATE_PARAMETERS Parm);

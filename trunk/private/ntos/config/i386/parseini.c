@@ -21,12 +21,12 @@ Environment:
 #include "stdlib.h"
 #include "parseini.h"
 
-typedef struct _value   VALUE, *PVALUE;
-typedef struct _line    LINE, *PLINE;
-typedef struct _section SECTION, *PSECTION;
-typedef struct _inf     INF, *PINF;
-typedef struct _token   TOKEN, *PTOKEN;
-typedef enum _tokentype TOKENTYPE, *PTOKENTTYPE;
+typedef struct _value   VALUE, * PVALUE;
+typedef struct _line    LINE, * PLINE;
+typedef struct _section SECTION, * PSECTION;
+typedef struct _inf     INF, * PINF;
+typedef struct _token   TOKEN, * PTOKEN;
+typedef enum _tokentype TOKENTYPE, * PTOKENTTYPE;
 typedef enum _stringsSectionType    STRINGSSECTIONTYPE;;
 
 struct _value
@@ -138,7 +138,7 @@ CmpAppendValue(
 
 VOID
 CmpGetToken(
-    IN OUT PCHAR *Stream,
+    IN OUT PCHAR* Stream,
     IN PCHAR MaxStream,
     IN OUT PULONG LineNumber,
     IN OUT PTOKEN Token
@@ -245,8 +245,7 @@ CmpAppendSection(
 
 
     if (pInf == (PINF)NULL ||
-        pSectionName == (PCHAR)NULL)
-    {
+        pSectionName == (PCHAR)NULL) {
         return (FALSE);
     }
 
@@ -257,16 +256,13 @@ CmpAppendSection(
 
     for (pNewSection = pInf->pSection;
          pNewSection;
-         pNewSection = pNewSection->pNext)
-    {
-        if (pNewSection->pName && _stricmp(pNewSection->pName, pSectionName) == 0)
-        {
+         pNewSection = pNewSection->pNext) {
+        if (pNewSection->pName && _stricmp(pNewSection->pName, pSectionName) == 0) {
             break;
         }
     }
 
-    if (pNewSection)
-    {
+    if (pNewSection) {
 
         // Set pLineRecord to point to the last line currently in the section.
 
@@ -276,17 +272,14 @@ CmpAppendSection(
              pLineRecord = pLineRecord->pNext);
 
         pInf->pLineRecord = pLineRecord;
-    }
-    else
-    {
+    } else {
 
         // Allocate memory for the new section
 
 
         pNewSection = (PSECTION)ExAllocatePoolWithTag(PagedPool, sizeof(SECTION), CM_PARSEINI_TAG);
 
-        if (pNewSection == (PSECTION)NULL)
-        {
+        if (pNewSection == (PSECTION)NULL) {
             ASSERT(pNewSection);
             return (FALSE);
         }
@@ -307,51 +300,37 @@ CmpAppendSection(
         pNewSection->pNext = pInf->pSection;
         pInf->pSection = pNewSection;
 
-        if (_strnicmp(pSectionName, "Strings", 7) == 0)
-        {
+        if (_strnicmp(pSectionName, "Strings", 7) == 0) {
             type = StringsSectionNone;
 
-            if (pSectionName[7] == '.')
-            {
+            if (pSectionName[7] == '.') {
 
                 // The langid part must be in the form of 4 hex digits.
 
 
                 id = (USHORT)strtoul(pSectionName + 8, &p, 16);
-                if (p == (pSectionName + 8 + 5) && *p == '\0')
-                {
+                if (p == (pSectionName + 8 + 5) && *p == '\0') {
                     threadLang = LANGIDFROMLCID(NtCurrentTeb()->CurrentLocale);
 
-                    if (threadLang == id)
-                    {
+                    if (threadLang == id) {
                         type = StringsSectionExactMatch;
-                    }
-                    else
-                    {
-                        if (id == PRIMARYLANGID(threadLang))
-                        {
+                    } else {
+                        if (id == PRIMARYLANGID(threadLang)) {
                             type = StringsSectionExactPrimaryMatch;
-                        }
-                        else
-                        {
-                            if (PRIMARYLANGID(id) == PRIMARYLANGID(threadLang))
-                            {
+                        } else {
+                            if (PRIMARYLANGID(id) == PRIMARYLANGID(threadLang)) {
                                 type = StringsSectionLoosePrimaryMatch;
                             }
                         }
                     }
                 }
-            }
-            else
-            {
-                if (!pSectionName[7])
-                {
+            } else {
+                if (!pSectionName[7]) {
                     type = StringsSectionPlain;
                 }
             }
 
-            if (type > pInf->StringsSectionType)
-            {
+            if (type > pInf->StringsSectionType) {
                 pInf->StringsSection = pNewSection;
             }
         }
@@ -403,8 +382,7 @@ CmpAppendLine(
     // Check to see if current section initialized.
 
 
-    if (pInf->pSectionRecord == (PSECTION)NULL)
-    {
+    if (pInf->pSectionRecord == (PSECTION)NULL) {
         return (FALSE);
     }
 
@@ -413,8 +391,7 @@ CmpAppendLine(
 
 
     pNewLine = (PLINE)ExAllocatePoolWithTag(PagedPool, sizeof(LINE), CM_PARSEINI_TAG);
-    if (pNewLine == (PLINE)NULL)
-    {
+    if (pNewLine == (PLINE)NULL) {
         ASSERT(pNewLine);
         return (FALSE);
     }
@@ -428,12 +405,9 @@ CmpAppendLine(
     pNewLine->pName = pLineKey;
     pNewLine->Allocated = Allocated;
 
-    if (pInf->pLineRecord == (PLINE)NULL)
-    {
+    if (pInf->pLineRecord == (PLINE)NULL) {
         pInf->pSectionRecord->pLine = pNewLine;
-    }
-    else
-    {
+    } else {
         pInf->pLineRecord->pNext = pNewLine;
     }
 
@@ -484,8 +458,7 @@ CmpAppendValue(
 
 
     if (pInf->pLineRecord == (PLINE)NULL ||
-        pValueString == (PCHAR)NULL)
-    {
+        pValueString == (PCHAR)NULL) {
         return (FALSE);
     }
 
@@ -495,8 +468,7 @@ CmpAppendValue(
 
     pNewValue = (PVALUE)ExAllocatePoolWithTag(PagedPool, sizeof(VALUE), CM_PARSEINI_TAG);
 
-    if (pNewValue == (PVALUE)NULL)
-    {
+    if (pNewValue == (PVALUE)NULL) {
         ASSERT(pNewValue);
         return (FALSE);
     }
@@ -509,12 +481,9 @@ CmpAppendValue(
     pNewValue->pName = pValueString;
     pNewValue->Allocated = Allocated;
 
-    if (pInf->pValueRecord == (PVALUE)NULL)
-    {
+    if (pInf->pValueRecord == (PVALUE)NULL) {
         pInf->pLineRecord->pValue = pNewValue;
-    }
-    else
-    {
+    } else {
         pInf->pValueRecord->pNext = pNewValue;
     }
 
@@ -525,7 +494,7 @@ CmpAppendValue(
 
 VOID
 CmpGetToken(
-    IN OUT PCHAR *Stream,
+    IN OUT PCHAR* Stream,
     IN PCHAR MaxStream,
     IN OUT PULONG LineNumber,
     IN OUT PTOKEN Token
@@ -563,8 +532,7 @@ Return Value:
     Token->Allocated = FALSE;
     Token->pValue = NULL;
 
-    do
-    {
+    do {
         done = TRUE;
 
 
@@ -580,10 +548,8 @@ Return Value:
 
 
         if (pch < MaxStream &&
-            (*pch == '#' || *pch == ';'))
-        {
-            while (pch < MaxStream && *pch != '\n')
-            {
+            (*pch == '#' || *pch == ';')) {
+            while (pch < MaxStream && *pch != '\n') {
                 pch++;
             }
         }
@@ -593,8 +559,7 @@ Return Value:
         // value.
 
 
-        if (pch >= MaxStream || *pch == 26)
-        {
+        if (pch >= MaxStream || *pch == 26) {
             *Stream = pch;
             Token->Type = TOK_EOF;
             Token->pValue = NULL;
@@ -602,8 +567,7 @@ Return Value:
             return;
         }
 
-        switch (*pch)
-        {
+        switch (*pch) {
         case '[':
 
             pch++;
@@ -646,12 +610,9 @@ Return Value:
                  pch < MaxStream && (strchr(QStringTerminators, *pch) == NULL);
                  pch++);
 
-            if (pch >= MaxStream || *pch != '\"')
-            {
+            if (pch >= MaxStream || *pch != '\"') {
                 Token->Type = TOK_ERRPARSE;
-            }
-            else
-            {
+            } else {
 
 
                 // We require a quoted string to end with a double-quote.
@@ -667,7 +628,7 @@ Return Value:
                 // double quote.
 
 
-                *pch++ = '\0';
+                * pch++ = '\0';
                 Token->Type = TOK_STRING;
                 Token->pValue = pchStart;
             }
@@ -680,8 +641,7 @@ Return Value:
                  *pchNew != '\n' && isspace(*pchNew);
                  pchNew++);
 
-            if (*pchNew == '\n')
-            {
+            if (*pchNew == '\n') {
                 pch = pchNew + 1;
                 done = FALSE;
                 break;
@@ -697,22 +657,16 @@ Return Value:
                  pch < MaxStream && (strchr(StringTerminators, *pch) == NULL);
                  pch++);
 
-            if (pch == pchStart)
-            {
+            if (pch == pchStart) {
                 pch++;
                 Token->Type = TOK_ERRPARSE;
-            }
-            else
-            {
+            } else {
                 length = (ULONG)(pch - pchStart);
                 pchNew = ExAllocatePoolWithTag(PagedPool, length + 1, CM_PARSEINI_TAG);
-                if (pchNew == NULL)
-                {
+                if (pchNew == NULL) {
                     ASSERT(pchNew);
                     Token->Type = TOK_ERRNOMEM;
-                }
-                else
-                {
+                } else {
                     strncpy(pchNew, pchStart, length);
                     pchNew[length] = 0;
                     Token->Type = TOK_STRING;
@@ -785,8 +739,7 @@ Return Value:
 
     pInf = (PINF)ExAllocatePoolWithTag(PagedPool, sizeof(INF), CM_PARSEINI_TAG);
 
-    if (pInf == NULL)
-    {
+    if (pInf == NULL) {
         ASSERT(pInf);
         return (pInf);
     }
@@ -815,13 +768,11 @@ Return Value:
     // Enter token processing loop.
 
 
-    while (!done)
-    {
+    while (!done) {
 
         CmpGetToken(&stream, maxStream, &infLine, &token);
 
-        switch (state)
-        {
+        switch (state) {
 
             // STATE1: Start of file, this state remains till first
             //         section is found
@@ -831,8 +782,7 @@ Return Value:
 
         case 1:
 
-            switch (token.Type)
-            {
+            switch (token.Type) {
             case TOK_EOL:
 
                 break;
@@ -852,24 +802,18 @@ Return Value:
             case TOK_STRING:
 
                 pchSectionName = ExAllocatePoolWithTag(PagedPool, sizeof(DblSpaceSection), CM_PARSEINI_TAG);
-                if (pchSectionName)
-                {
+                if (pchSectionName) {
                     strcpy(pchSectionName, DblSpaceSection);
                     pchValue = token.pValue;
                     allocated = TRUE;
                     token.Allocated = TRUE;
-                    if (CmpAppendSection(pInf, pchSectionName, TRUE))
-                    {
+                    if (CmpAppendSection(pInf, pchSectionName, TRUE)) {
                         pchSectionName = NULL;
                         state = 6;
-                    }
-                    else
-                    {
+                    } else {
                         error = done = TRUE;
                     }
-                }
-                else
-                {
+                } else {
                     ASSERT(pchSectionName);
                     error = done = TRUE;
                 }
@@ -893,8 +837,7 @@ Return Value:
 
         case 2:
 
-            switch (token.Type)
-            {
+            switch (token.Type) {
             case TOK_STRING:
 
                 state = 3;
@@ -930,8 +873,7 @@ Return Value:
 
         case 3:
 
-            switch (token.Type)
-            {
+            switch (token.Type) {
             case TOK_RBRACE:
 
                 state = 4;
@@ -955,18 +897,14 @@ Return Value:
 
         case 4:
 
-            switch (token.Type)
-            {
+            switch (token.Type) {
 
             case TOK_EOL:
 
-                if (!CmpAppendSection(pInf, pchSectionName, allocated))
-                {
+                if (!CmpAppendSection(pInf, pchSectionName, allocated)) {
 
                     error = done = TRUE;
-                }
-                else
-                {
+                } else {
                     pchSectionName = NULL;
                     state = 5;
                 }
@@ -975,12 +913,9 @@ Return Value:
 
             case TOK_EOF:
 
-                if (!CmpAppendSection(pInf, pchSectionName, allocated))
-                {
+                if (!CmpAppendSection(pInf, pchSectionName, allocated)) {
                     error = done = TRUE;
-                }
-                else
-                {
+                } else {
                     pchSectionName = NULL;
                     done = TRUE;
                 }
@@ -1004,8 +939,7 @@ Return Value:
 
         case 5:
 
-            switch (token.Type)
-            {
+            switch (token.Type) {
             case TOK_EOL:
 
                 break;
@@ -1047,18 +981,14 @@ Return Value:
 
         case 6:
 
-            switch (token.Type)
-            {
+            switch (token.Type) {
 
             case TOK_EOL:
 
                 if (!CmpAppendLine(pInf, NULL, FALSE) ||
-                    !CmpAppendValue(pInf, pchValue, allocated))
-                {
+                    !CmpAppendValue(pInf, pchValue, allocated)) {
                     error = done = TRUE;
-                }
-                else
-                {
+                } else {
                     pchValue = NULL;
                     state = 5;
                 }
@@ -1068,12 +998,9 @@ Return Value:
             case TOK_EOF:
 
                 if (!CmpAppendLine(pInf, NULL, FALSE) ||
-                    !CmpAppendValue(pInf, pchValue, allocated))
-                {
+                    !CmpAppendValue(pInf, pchValue, allocated)) {
                     error = done = TRUE;
-                }
-                else
-                {
+                } else {
                     pchValue = NULL;
                     done = TRUE;
                 }
@@ -1083,12 +1010,9 @@ Return Value:
             case TOK_COMMA:
 
                 if (!CmpAppendLine(pInf, NULL, FALSE) ||
-                    !CmpAppendValue(pInf, pchValue, allocated))
-                {
+                    !CmpAppendValue(pInf, pchValue, allocated)) {
                     error = done = TRUE;
-                }
-                else
-                {
+                } else {
                     pchValue = NULL;
                     state = 7;
                 }
@@ -1097,12 +1021,9 @@ Return Value:
 
             case TOK_EQUAL:
 
-                if (!CmpAppendLine(pInf, pchValue, allocated))
-                {
+                if (!CmpAppendLine(pInf, pchValue, allocated)) {
                     error = done = TRUE;
-                }
-                else
-                {
+                } else {
                     pchValue = NULL;
                     state = 8;
                 }
@@ -1127,16 +1048,14 @@ Return Value:
 
         case 7:
 
-            switch (token.Type)
-            {
+            switch (token.Type) {
 
             case TOK_COMMA:
 
                 token.pValue = EmptyValue;
                 token.Allocated = FALSE;
                 allocated = FALSE;
-                if (!CmpAppendValue(pInf, token.pValue, FALSE))
-                {
+                if (!CmpAppendValue(pInf, token.pValue, FALSE)) {
                     error = done = TRUE;
                 }
 
@@ -1148,12 +1067,9 @@ Return Value:
 
             case TOK_STRING:
 
-                if (!CmpAppendValue(pInf, token.pValue, token.Allocated))
-                {
+                if (!CmpAppendValue(pInf, token.pValue, token.Allocated)) {
                     error = done = TRUE;
-                }
-                else
-                {
+                } else {
                     state = 9;
                 }
 
@@ -1177,15 +1093,13 @@ Return Value:
 
         case 8:
 
-            switch (token.Type)
-            {
+            switch (token.Type) {
             case TOK_EOF:
 
                 token.pValue = EmptyValue;
                 token.Allocated = FALSE;
                 allocated = FALSE;
-                if (!CmpAppendValue(pInf, token.pValue, FALSE))
-                {
+                if (!CmpAppendValue(pInf, token.pValue, FALSE)) {
                     error = TRUE;
                 }
 
@@ -1198,13 +1112,10 @@ Return Value:
                 token.pValue = EmptyValue;
                 token.Allocated = FALSE;
                 allocated = FALSE;
-                if (!CmpAppendValue(pInf, token.pValue, FALSE))
-                {
+                if (!CmpAppendValue(pInf, token.pValue, FALSE)) {
                     error = TRUE;
                     done = TRUE;
-                }
-                else
-                {
+                } else {
                     state = 5;
                 }
 
@@ -1212,12 +1123,9 @@ Return Value:
 
             case TOK_STRING:
 
-                if (!CmpAppendValue(pInf, token.pValue, FALSE))
-                {
+                if (!CmpAppendValue(pInf, token.pValue, FALSE)) {
                     error = done = TRUE;
-                }
-                else
-                {
+                } else {
                     state = 9;
                 }
 
@@ -1240,8 +1148,7 @@ Return Value:
 
         case 9:
 
-            switch (token.Type)
-            {
+            switch (token.Type) {
             case TOK_EOL:
 
                 state = 5;
@@ -1277,8 +1184,7 @@ Return Value:
 
         case 10:
 
-            switch (token.Type)
-            {
+            switch (token.Type) {
             case TOK_EOL:
 
                 state = 5;
@@ -1315,39 +1221,32 @@ Return Value:
         } // END switch(state)
 
 
-        if (error)
-        {
+        if (error) {
             *ErrorLine = infLine;
-            if (pchSectionName != (PCHAR)NULL && allocated)
-            {
+            if (pchSectionName != (PCHAR)NULL && allocated) {
                 ExFreePool(pchSectionName);
             }
 
-            if (pchValue != (PCHAR)NULL && allocated)
-            {
+            if (pchValue != (PCHAR)NULL && allocated) {
                 ExFreePool(pchValue);
             }
 
             ExFreePool(pInf);
 
             pInf = (PINF)NULL;
-        }
-        else
-        {
+        } else {
 
             // Keep track of line numbers for error reporting.
 
 
-            if (token.Type == TOK_EOL)
-            {
+            if (token.Type == TOK_EOL) {
                 infLine++;
             }
         }
 
     } // END while
 
-    if (pInf)
-    {
+    if (pInf) {
         pInf->pSectionRecord = NULL;
     }
 
@@ -1402,21 +1301,17 @@ CmpProcessForSimpleStringSub(
     if (String[0] == '%' &&
         len > 2 &&
         String[len - 1] == '%' &&
-        pSection)
-    {
+        pSection) {
 
-        for (pLine = pSection->pLine; pLine; pLine = pLine->pNext)
-        {
+        for (pLine = pSection->pLine; pLine; pLine = pLine->pNext) {
             if (pLine->pName &&
                 _strnicmp(pLine->pName, String + 1, len - 2) == 0 &&
-                pLine->pName[len - 2] == '\0')
-            {
+                pLine->pName[len - 2] == '\0') {
                 break;
             }
         }
 
-        if (pLine && pLine->pValue && pLine->pValue->pName)
-        {
+        if (pLine && pLine->pValue && pLine->pValue->pName) {
             returnString = pLine->pValue->pName;
         }
     }
@@ -1448,8 +1343,7 @@ CmpFreeValueList(
 {
     PVALUE pNext;
 
-    while (pValue)
-    {
+    while (pValue) {
 
         // Save the next pointer so we dont access memory after it has
         // been freed.
@@ -1461,8 +1355,7 @@ CmpFreeValueList(
         // Free any data inside this value.
 
 
-        if (pValue->Allocated && pValue->pName)
-        {
+        if (pValue->Allocated && pValue->pName) {
             ExFreePool((PVOID)pValue->pName);
         }
 
@@ -1505,8 +1398,7 @@ CmpFreeLineList(
 {
     PLINE pNext;
 
-    while (pLine)
-    {
+    while (pLine) {
 
         // Save the next pointer so we dont access memory after it has
         // been freed.
@@ -1518,8 +1410,7 @@ CmpFreeLineList(
         // Free any data inside this Line.
 
 
-        if (pLine->Allocated && pLine->pName)
-        {
+        if (pLine->Allocated && pLine->pName) {
             ExFreePool((PVOID)pLine->pName);
         }
 
@@ -1568,8 +1459,7 @@ CmpFreeSectionList(
 {
     PSECTION pNext;
 
-    while (pSection)
-    {
+    while (pSection) {
 
         // Save the next pointer so we dont access memory after it has
         // been freed.
@@ -1581,8 +1471,7 @@ CmpFreeSectionList(
         // Free any data inside this Line.
 
 
-        if (pSection->Allocated && pSection->pName)
-        {
+        if (pSection->Allocated && pSection->pName) {
             ExFreePool((PVOID)pSection->pName);
         }
 
@@ -1635,8 +1524,7 @@ CmpSearchValueInLine(
     ULONG   i;
     PVALUE  pValue = NULL;
 
-    if (pLine)
-    {
+    if (pLine) {
         for (i = 0, pValue = pLine->pValue;
              i < ValueIndex && pValue;
              i++, pValue = pValue->pNext);
@@ -1678,8 +1566,7 @@ CmpSearchSectionByName(
     // Validate the parameters passed in.
 
 
-    if (pInf && SectionName)
-    {
+    if (pInf && SectionName) {
 
         // Traverse down the section list searching each section for the
         // section name mentioned.
@@ -1693,26 +1580,21 @@ CmpSearchSectionByName(
         // If we did not find the section, search from the beginning.
 
 
-        if (pSection == NULL)
-        {
+        if (pSection == NULL) {
             for (pSection = pInf->pSection;
                  pSection && pSection != pFirstSearchedSection;
-                 pSection = pSection->pNext)
-            {
-                if (pSection->pName && _stricmp(pSection->pName, SectionName) == 0)
-                {
+                 pSection = pSection->pNext) {
+                if (pSection->pName && _stricmp(pSection->pName, SectionName) == 0) {
                     break;
                 }
             }
 
-            if (pSection == pFirstSearchedSection)
-            {
+            if (pSection == pFirstSearchedSection) {
                 pSection = NULL;
             }
         }
 
-        if (pSection)
-        {
+        if (pSection) {
             pInf->pSectionRecord = pSection;
         }
     }
@@ -1756,8 +1638,7 @@ CmpSearchLineInSectionByIndex(
     // Validate the parameters passed in.
 
 
-    if (pSection)
-    {
+    if (pSection) {
 
 
         // Traverse down the current line list to the LineIndex line.
@@ -1809,8 +1690,7 @@ CmpOpenInfFile(
 
     infHandle = CmpParseInfBuffer(InfImage, ImageSize, &errorLine);
 
-    if (infHandle == NULL)
-    {
+    if (infHandle == NULL) {
         DbgPrint("Error on line %d in CmpOpenInfFile!\n", errorLine);
     }
 
@@ -1840,8 +1720,7 @@ CmpCloseInfFile(
 --*/
 
 {
-    if (InfHandle)
-    {
+    if (InfHandle) {
         CmpFreeSectionList(((PINF)InfHandle)->pSection);
         ExFreePool(InfHandle);
     }
@@ -1911,15 +1790,13 @@ CmpGetKeyName(
 
 
     pSection = CmpSearchSectionByName((PINF)InfHandle, Section);
-    if (pSection)
-    {
+    if (pSection) {
 
         // Get the line in the section.
 
 
         pLine = CmpSearchLineInSectionByIndex(pSection, LineIndex);
-        if (pLine)
-        {
+        if (pLine) {
             return(pLine->pName);
         }
     }
@@ -1963,8 +1840,7 @@ CmpSearchInfLine(
 
 
     pSection = CmpSearchSectionByName((PINF)InfHandle, Section);
-    if (pSection)
-    {
+    if (pSection) {
 
         // Search the line in the section.
 
@@ -2016,22 +1892,19 @@ CmpGetSectionLineIndex(
 
 
     pSection = CmpSearchSectionByName((PINF)InfHandle, Section);
-    if (pSection)
-    {
+    if (pSection) {
 
         // Search the line in the section.
 
 
         pLine = CmpSearchLineInSectionByIndex(pSection, LineIndex);
-        if (pLine)
-        {
+        if (pLine) {
 
             // Search the value in the line.
 
 
             pValue = CmpSearchValueInLine(pLine, ValueIndex);
-            if (pValue)
-            {
+            if (pValue) {
 
                 // The value may need to be replaced by one of the strings
                 // from the string section.
@@ -2083,15 +1956,13 @@ CmpGetSectionLineIndexValueCount(
 
 
     pSection = CmpSearchSectionByName((PINF)InfHandle, Section);
-    if (pSection)
-    {
+    if (pSection) {
 
         // Search the line in the section.
 
 
         pLine = CmpSearchLineInSectionByIndex(pSection, LineIndex);
-        if (pLine)
-        {
+        if (pLine) {
 
             // Count the number of values in this line.
 
@@ -2153,8 +2024,7 @@ CmpGetIntField(
     // If valid value is found, convert it to an integer.
 
 
-    if (valueStr && *valueStr)
-    {
+    if (valueStr && *valueStr) {
         *Data = strtoul(valueStr, NULL, 16);
         return (TRUE);
     }
@@ -2210,55 +2080,33 @@ CmpGetBinaryField(
     ULONG       count;
     PCHAR       valueStr;
 
-
     // Compute the size of buffer required to read in the binary data.
-
-
     requiredSize = (CmpGetSectionLineIndexValueCount(InfHandle,
                                                      Section,
                                                      LineIndex) - ValueIndex) * sizeof(UCHAR);
 
     // Validate input parameters.
-
-
-    if (Buffer && BufferSize >= requiredSize)
-    {
-
+    if (Buffer && BufferSize >= requiredSize) {
         // Search the section in the inf.
-
-
         pSection = CmpSearchSectionByName((PINF)InfHandle, Section);
-        if (pSection)
-        {
-
+        if (pSection) {
             // Search the line in this section.
-
-
             pLine = CmpSearchLineInSectionByIndex(pSection, LineIndex);
-            if (pLine)
-            {
-
+            if (pLine) {
                 // Go to the specified value.
-
-
                 for (pValue = pLine->pValue, count = 0;
                      pValue && count < ValueIndex;
                      pValue = pValue->pNext, count++);
 
-
                 // Read in and convert the binary data.
-
-                for (; pValue; pValue = pValue->pNext)
-                {
+                for (; pValue; pValue = pValue->pNext) {
                     valueStr = CmpGetSectionLineIndex(InfHandle, Section, LineIndex, ValueIndex++);
-                    if (valueStr == NULL)
-                    {
+                    if (valueStr == NULL) {
                         break;
                     }
                     *((PUCHAR)Buffer)++ = (UCHAR)strtoul(valueStr, NULL, 16);
                 }
-                if (valueStr)
-                {
+                if (valueStr) {
                     result = TRUE;
                 }
             }
@@ -2267,10 +2115,7 @@ CmpGetBinaryField(
 
 
     // The caller wants to know the buffer size required.
-
-
-    if (ActualSize)
-    {
+    if (ActualSize) {
         *ActualSize = requiredSize;
         result = TRUE;
     }

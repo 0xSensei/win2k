@@ -10,8 +10,7 @@
 STDAPI_(void) FS_PositionFileFromDrop(HWND hwnd, LPCTSTR pszFile, PDROPHISTORY pdh)
 {
     LPITEMIDLIST pidl = SHSimpleIDListFromPath(pszFile);
-    if (pidl)
-    {
+    if (pidl) {
         LPITEMIDLIST pidlNew = ILFindLastID(pidl);
         SFM_SAP sap;
         HWND hwndView;
@@ -32,11 +31,9 @@ STDAPI_(void) FS_PositionFileFromDrop(HWND hwnd, LPCTSTR pszFile, PDROPHISTORY p
         // If we have a drop history, use it to determine the
         // next point.
 
-        if (pdh)
-        {
+        if (pdh) {
             // fill in the anchor point first...
-            if (!pdh->fInitialized)
-            {
+            if (!pdh->fInitialized) {
                 ITEMSPACING is;
 
                 ShellFolderView_GetDropPoint(hwnd, &pdh->ptOrigin);
@@ -50,17 +47,14 @@ STDAPI_(void) FS_PositionFileFromDrop(HWND hwnd, LPCTSTR pszFile, PDROPHISTORY p
 
                 // Compute the point deltas.
 
-                if (ShellFolderView_GetItemSpacing(hwnd, &is))
-                {
+                if (ShellFolderView_GetItemSpacing(hwnd, &is)) {
                     pdh->cxItem = is.cxSmall;
                     pdh->cyItem = is.cySmall;
                     pdh->xDiv = is.cxLarge;
                     pdh->yDiv = is.cyLarge;
                     pdh->xMul = is.cxSmall;
                     pdh->yMul = is.cySmall;
-                }
-                else
-                {
+                } else {
                     pdh->cxItem = g_cxIcon;
                     pdh->cyItem = g_cyIcon;
                     pdh->xDiv = pdh->yDiv = pdh->xMul = pdh->yMul = 1;
@@ -77,8 +71,7 @@ STDAPI_(void) FS_PositionFileFromDrop(HWND hwnd, LPCTSTR pszFile, PDROPHISTORY p
                 pdh->fInitialized = TRUE;
             }
             // if we have no list of offsets, then just inc by icon size..
-            else if ( !pdh->pptOffset )
-            {
+            else if (!pdh->pptOffset) {
 
                 // Simple computation of the next point.
 
@@ -88,8 +81,7 @@ STDAPI_(void) FS_PositionFileFromDrop(HWND hwnd, LPCTSTR pszFile, PDROPHISTORY p
 
             // do this after the above stuff so that we always get our position relative to the anchor
             // point, if we use the anchor point as the first one things get screwy...
-            if (pdh->pptOffset)
-            {
+            if (pdh->pptOffset) {
 
                 // Transform the old offset to our coordinates.
 
@@ -101,9 +93,7 @@ STDAPI_(void) FS_PositionFileFromDrop(HWND hwnd, LPCTSTR pszFile, PDROPHISTORY p
             // Copy the next point from the drop history.
 
             sap.pt = pdh->pt;
-        }
-        else
-        {
+        } else {
             // Preinitialize this puppy in case the folder view doesn't
             // know what the drop point is (e.g., if it didn't come from
             // a drag/drop but rather from a paste or a ChangeNotify.)
@@ -131,48 +121,42 @@ STDAPI_(void) FS_PositionFileFromDrop(HWND hwnd, LPCTSTR pszFile, PDROPHISTORY p
     }
 }
 
-void FS_FreeMoveCopyList(LPITEMIDLIST *ppidl, UINT cidl)
+void FS_FreeMoveCopyList(LPITEMIDLIST* ppidl, UINT cidl)
 {
     UINT i;
     // free everything
-    for (i = 0; i < cidl; i++)
-    {
+    for (i = 0; i < cidl; i++) {
         ILFree(ppidl[i]);
     }
     LocalFree(ppidl);
 }
 
-void FS_PositionItems(HWND hwndOwner, UINT cidl, const LPITEMIDLIST *ppidl, IDataObject *pdtobj, POINT *pptOrigin, BOOL fMove)
+void FS_PositionItems(HWND hwndOwner, UINT cidl, const LPITEMIDLIST* ppidl, IDataObject* pdtobj, POINT* pptOrigin, BOOL fMove)
 {
-    SFM_SAP *psap;
+    SFM_SAP* psap;
 
     if (!ppidl || !IsWindow(hwndOwner))
         return;
 
     psap = GlobalAlloc(GPTR, SIZEOF(SFM_SAP) * cidl);
-    if (psap)
-    {
+    if (psap) {
         UINT i, cxItem, cyItem;
         int xMul, yMul, xDiv, yDiv;
         STGMEDIUM medium;
-        POINT *pptItems = NULL;
+        POINT* pptItems = NULL;
         POINT pt;
         ITEMSPACING is;
         // select those objects;
         // this had better not fail
         HWND hwnd = DV_HwndMain2HwndView(hwndOwner);
 
-        if (fMove)
-        {
+        if (fMove) {
             FORMATETC fmte = {g_cfOFFSETS, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
             if (SUCCEEDED(pdtobj->lpVtbl->GetData(pdtobj, &fmte, &medium)) &&
-                medium.hGlobal)
-            {
-                pptItems = (POINT *)GlobalLock(medium.hGlobal);
+                medium.hGlobal) {
+                pptItems = (POINT*)GlobalLock(medium.hGlobal);
                 pptItems++; // The first point is the anchor
-            }
-            else
-            {
+            } else {
                 // By default, drop at (-g_cxIcon/2, -g_cyIcon/2), and increase
                 // x and y by icon dimension for each icon
                 pt.x = ((-3 * g_cxIcon) / 2) + pptOrigin->x;
@@ -180,38 +164,29 @@ void FS_PositionItems(HWND hwndOwner, UINT cidl, const LPITEMIDLIST *ppidl, IDat
                 medium.hGlobal = NULL;
             }
 
-            if (ShellFolderView_GetItemSpacing(hwndOwner, &is))
-            {
+            if (ShellFolderView_GetItemSpacing(hwndOwner, &is)) {
                 xDiv = is.cxLarge;
                 yDiv = is.cyLarge;
                 xMul = is.cxSmall;
                 yMul = is.cySmall;
                 cxItem = is.cxSmall;
                 cyItem = is.cySmall;
-            }
-            else
-            {
+            } else {
                 xDiv = yDiv = xMul = yMul = 1;
                 cxItem = g_cxIcon;
                 cyItem = g_cyIcon;
             }
         }
 
-        for (i = 0; i < cidl; i++)
-        {
-            if (ppidl[i])
-            {
+        for (i = 0; i < cidl; i++) {
+            if (ppidl[i]) {
                 psap[i].pidl = ILFindLastID(ppidl[i]);
                 psap[i].fMove = fMove;
-                if (fMove)
-                {
-                    if (pptItems)
-                    {
+                if (fMove) {
+                    if (pptItems) {
                         psap[i].pt.x = ((pptItems[i].x * xMul) / xDiv) + pptOrigin->x;
                         psap[i].pt.y = ((pptItems[i].y * yMul) / yDiv) + pptOrigin->y;
-                    }
-                    else
-                    {
+                    } else {
                         pt.x += cxItem;
                         pt.y += cyItem;
                         psap[i].pt = pt;
@@ -236,7 +211,7 @@ void FS_PositionItems(HWND hwndOwner, UINT cidl, const LPITEMIDLIST *ppidl, IDat
 }
 
 
-void FS_MapName(void *hNameMappings, LPTSTR pszPath)
+void FS_MapName(void* hNameMappings, LPTSTR pszPath)
 {
     int i;
     LPSHNAMEMAPPING pNameMapping;
@@ -244,10 +219,8 @@ void FS_MapName(void *hNameMappings, LPTSTR pszPath)
     if (!hNameMappings)
         return;
 
-    for (i = 0; (pNameMapping = SHGetNameMappingPtr(hNameMappings, i)) != NULL; i++)
-    {
-        if (lstrcmpi(pszPath, pNameMapping->pszOldPath) == 0)
-        {
+    for (i = 0; (pNameMapping = SHGetNameMappingPtr(hNameMappings, i)) != NULL; i++) {
+        if (lstrcmpi(pszPath, pNameMapping->pszOldPath) == 0) {
             lstrcpy(pszPath, pNameMapping->pszNewPath);
             break;
         }
@@ -257,17 +230,15 @@ void FS_MapName(void *hNameMappings, LPTSTR pszPath)
 
 
 // convert null separated/terminated file list to array of pidls
-int FileListToPidlList(LPCTSTR lpszFiles, void *hNameMappings, LPITEMIDLIST **pppidl)
+int FileListToPidlList(LPCTSTR lpszFiles, void* hNameMappings, LPITEMIDLIST** pppidl)
 {
     int nItems = CountFiles(lpszFiles);
     int i = 0;
-    LPITEMIDLIST * ppidl = (void*)LocalAlloc(LPTR, nItems * SIZEOF(LPITEMIDLIST));
-    if (ppidl)
-    {
+    LPITEMIDLIST* ppidl = (void*)LocalAlloc(LPTR, nItems * SIZEOF(LPITEMIDLIST));
+    if (ppidl) {
         *pppidl = ppidl;
 
-        while (*lpszFiles)
-        {
+        while (*lpszFiles) {
             TCHAR szPath[MAX_PATH];
             lstrcpy(szPath, lpszFiles);
             FS_MapName(hNameMappings, szPath);
@@ -295,23 +266,20 @@ int FileListToPidlList(LPCTSTR lpszFiles, void *hNameMappings, LPITEMIDLIST **pp
 //      *pppidl         id array of length return value
 //      # of items in pppida
 
-int FS_CreateMoveCopyList(IDataObject *pdtobj, void *hNameMappings, LPITEMIDLIST **pppidl)
+int FS_CreateMoveCopyList(IDataObject* pdtobj, void* hNameMappings, LPITEMIDLIST** pppidl)
 {
     int nItems = 0;
     STGMEDIUM medium;
     FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
 
     HRESULT hres = pdtobj->lpVtbl->GetData(pdtobj, &fmte, &medium);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         HDROP hDrop = medium.hGlobal;
         nItems = DragQueryFile(hDrop, (UINT)-1, NULL, 0);
         *pppidl = (void*)LocalAlloc(LPTR, nItems * SIZEOF(LPITEMIDLIST));
-        if (*pppidl)
-        {
+        if (*pppidl) {
             int i;
-            for (i=nItems-1; i >= 0; i--)
-            {
+            for (i = nItems - 1; i >= 0; i--) {
                 TCHAR szPath[MAX_PATH];
                 DragQueryFile(hDrop, i, szPath, ARRAYSIZE(szPath));
                 FS_MapName(hNameMappings, szPath);
@@ -331,22 +299,18 @@ int FS_CreateMoveCopyList(IDataObject *pdtobj, void *hNameMappings, LPITEMIDLIST
 //      hNameMappings   name mappings result from the copy operaton
 
 
-void FS_MoveSelectIcons(FSTHREADPARAM *pfsthp, void *hNameMappings, LPCTSTR pszFiles, BOOL fMove)
+void FS_MoveSelectIcons(FSTHREADPARAM* pfsthp, void* hNameMappings, LPCTSTR pszFiles, BOOL fMove)
 {
-    LPITEMIDLIST *ppidl = NULL;
+    LPITEMIDLIST* ppidl = NULL;
     int cidl;
 
-    if (pszFiles)
-    {
+    if (pszFiles) {
         cidl = FileListToPidlList(pszFiles, hNameMappings, &ppidl);
-    }
-    else
-    {
+    } else {
         cidl = FS_CreateMoveCopyList(pfsthp->pDataObj, hNameMappings, &ppidl);
     }
 
-    if (ppidl)
-    {
+    if (ppidl) {
         FS_PositionItems(pfsthp->hwndOwner, cidl, ppidl, pfsthp->pDataObj, &pfsthp->ptDrop, fMove);
         FS_FreeMoveCopyList(ppidl, cidl);
     }
@@ -393,19 +357,16 @@ LPTSTR RemapDestNamesW(LPCTSTR pszDestDir, LPCWSTR pszDestSpecs)
     UINT cbAlloc = SIZEOF(TCHAR);       // for double NULL teriminaion of entire string
 
     // compute length of buffer to aloc
-    for (pszTemp = pszDestSpecs; *pszTemp; pszTemp += lstrlenW(pszTemp) + 1)
-    {
+    for (pszTemp = pszDestSpecs; *pszTemp; pszTemp += lstrlenW(pszTemp) + 1) {
         // +1 for null teriminator
         cbAlloc += cbDestSpec + lstrlenW(pszTemp) * SIZEOF(TCHAR) + SIZEOF(TCHAR);
     }
 
     pszRet = LocalAlloc(LPTR, cbAlloc);
-    if (pszRet)
-    {
+    if (pszRet) {
         LPTSTR pszDest = pszRet;
 
-        for (pszTemp = pszDestSpecs; *pszTemp; pszTemp += lstrlenW(pszTemp) + 1)
-        {
+        for (pszTemp = pszDestSpecs; *pszTemp; pszTemp += lstrlenW(pszTemp) + 1) {
             // PathCombine requires dest buffer of MAX_PATH size or it'll rip in call
             // to PathCanonicalize (IsBadWritePtr)
             TCHAR szTempDest[MAX_PATH];
@@ -419,10 +380,10 @@ LPTSTR RemapDestNamesW(LPCTSTR pszDestDir, LPCWSTR pszDestSpecs)
             lstrcpy(pszDest, szTempDest);
             pszDest += lstrlen(pszDest) + 1;
 
-            ASSERT((UINT)((BYTE *)pszDest - (BYTE *)pszRet) < cbAlloc);
+            ASSERT((UINT)((BYTE*)pszDest - (BYTE*)pszRet) < cbAlloc);
             ASSERT(*pszDest == 0);      // zero init alloc
         }
-        ASSERT((LPTSTR)((BYTE *)pszRet + cbAlloc - SIZEOF(TCHAR)) >= pszDest);
+        ASSERT((LPTSTR)((BYTE*)pszRet + cbAlloc - SIZEOF(TCHAR)) >= pszDest);
         ASSERT(*pszDest == 0);  // zero init alloc
 
     }
@@ -437,19 +398,16 @@ LPTSTR RemapDestNamesA(LPCTSTR pszDestDir, LPCSTR pszDestSpecs)
     UINT cbAlloc = SIZEOF(TCHAR);       // for double NULL teriminaion of entire string
 
     // compute length of buffer to aloc
-    for (pszTemp = pszDestSpecs; *pszTemp; pszTemp += lstrlenA(pszTemp) + 1)
-    {
+    for (pszTemp = pszDestSpecs; *pszTemp; pszTemp += lstrlenA(pszTemp) + 1) {
         // +1 for null teriminator
         cbAlloc += cbDestSpec + lstrlenA(pszTemp) * SIZEOF(TCHAR) + SIZEOF(TCHAR);
     }
 
     pszRet = LocalAlloc(LPTR, cbAlloc);
-    if (pszRet)
-    {
+    if (pszRet) {
         LPTSTR pszDest = pszRet;
 
-        for (pszTemp = pszDestSpecs; *pszTemp; pszTemp += lstrlenA(pszTemp) + 1)
-        {
+        for (pszTemp = pszDestSpecs; *pszTemp; pszTemp += lstrlenA(pszTemp) + 1) {
             // PathCombine requires dest buffer of MAX_PATH size or it'll rip in call
             // to PathCanonicalize (IsBadWritePtr)
             TCHAR szTempDest[MAX_PATH];
@@ -463,26 +421,25 @@ LPTSTR RemapDestNamesA(LPCTSTR pszDestDir, LPCSTR pszDestSpecs)
             lstrcpy(pszDest, szTempDest);
             pszDest += lstrlen(pszDest) + 1;
 
-            ASSERT((UINT)((BYTE *)pszDest - (BYTE *)pszRet) < cbAlloc);
+            ASSERT((UINT)((BYTE*)pszDest - (BYTE*)pszRet) < cbAlloc);
             ASSERT(*pszDest == 0);      // zero init alloc
         }
-        ASSERT((LPTSTR)((BYTE *)pszRet + cbAlloc - SIZEOF(TCHAR)) >= pszDest);
+        ASSERT((LPTSTR)((BYTE*)pszRet + cbAlloc - SIZEOF(TCHAR)) >= pszDest);
         ASSERT(*pszDest == 0);  // zero init alloc
 
     }
     return pszRet;
 }
 
-BOOL HandleSneakernetDrop(FSTHREADPARAM *pfsthp, LPCITEMIDLIST pidlParent, LPCTSTR pszTarget);
+BOOL HandleSneakernetDrop(FSTHREADPARAM* pfsthp, LPCITEMIDLIST pidlParent, LPCTSTR pszTarget);
 
-void _HandleMoveOrCopy(FSTHREADPARAM *pfsthp, HDROP hDrop, LPCTSTR pszPath)
+void _HandleMoveOrCopy(FSTHREADPARAM* pfsthp, HDROP hDrop, LPCTSTR pszPath)
 {
     DRAGINFO di;
 
     // BUGBUG: we don't deal with non TCHAR stuff here
     di.uSize = SIZEOF(di);
-    if (!DragQueryInfo(hDrop, &di))
-    {
+    if (!DragQueryInfo(hDrop, &di)) {
         // NOTE: Win95/NT4 dont have this fix, you will fault if you hit this case!
         AssertMsg(FALSE, TEXT("hDrop contains the opposite TCHAR (UNICODE when on ANSI)"));
         return;
@@ -492,8 +449,7 @@ void _HandleMoveOrCopy(FSTHREADPARAM *pfsthp, HDROP hDrop, LPCTSTR pszPath)
     switch (pfsthp->dwEffect) {
     case DROPEFFECT_MOVE:
 
-        if (pfsthp->fSameHwnd)
-        {
+        if (pfsthp->fSameHwnd) {
             FS_MoveSelectIcons(pfsthp, NULL, NULL, TRUE);
             break;
         }
@@ -501,109 +457,96 @@ void _HandleMoveOrCopy(FSTHREADPARAM *pfsthp, HDROP hDrop, LPCTSTR pszPath)
         // fall through...
 
     case DROPEFFECT_COPY:
-        {
-            SHFILEOPSTRUCT fo = {
-                pfsthp->hwndOwner,
-                (pfsthp->dwEffect == DROPEFFECT_COPY) ? FO_COPY : FO_MOVE,
-                di.lpFileList,
-                pszPath,
-                FOF_WANTMAPPINGHANDLE | FOF_ALLOWUNDO
-            };
-            LPTSTR pszDestNames = NULL;
-            STGMEDIUM medium;
-            FORMATETC fmte = {g_cfFileNameMapW, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
-            HRESULT hres;
+    {
+        SHFILEOPSTRUCT fo = {
+            pfsthp->hwndOwner,
+            (pfsthp->dwEffect == DROPEFFECT_COPY) ? FO_COPY : FO_MOVE,
+            di.lpFileList,
+            pszPath,
+            FOF_WANTMAPPINGHANDLE | FOF_ALLOWUNDO
+        };
+        LPTSTR pszDestNames = NULL;
+        STGMEDIUM medium;
+        FORMATETC fmte = {g_cfFileNameMapW, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+        HRESULT hres;
 
-            // if they are in the same hwnd or to and from
-            // the same directory, turn on the automatic rename on collision flag
-            if (pfsthp->fSameHwnd)
-            {
-                fo.fFlags |=  FOF_RENAMEONCOLLISION;
-            }
-            else
-            {
-                LPIDA pida = DataObj_GetHIDA(pfsthp->pDataObj, &medium);
-                if (pida)
-                {
-                    LPCITEMIDLIST pidlParent = IDA_GetIDListPtr(pida, (UINT)-1);
+        // if they are in the same hwnd or to and from
+        // the same directory, turn on the automatic rename on collision flag
+        if (pfsthp->fSameHwnd) {
+            fo.fFlags |= FOF_RENAMEONCOLLISION;
+        } else {
+            LPIDA pida = DataObj_GetHIDA(pfsthp->pDataObj, &medium);
+            if (pida) {
+                LPCITEMIDLIST pidlParent = IDA_GetIDListPtr(pida, (UINT)-1);
 
-                    // make sure stuff immediately under the desktop
-                    // compares ok to stuff under the desktop directory
-                    if (pidlParent)
-                    {
-                        INT i;
-                        BOOL fMoveToSame = FALSE;
+                // make sure stuff immediately under the desktop
+                // compares ok to stuff under the desktop directory
+                if (pidlParent) {
+                    INT i;
+                    BOOL fMoveToSame = FALSE;
 
-                        for (i = 0; i < (INT)pida->cidl; i++) {
-                            LPCITEMIDLIST pidl   = IDA_GetIDListPtr(pida, (UINT)i);
-                            LPITEMIDLIST pidlAbs = ILCombine (pidlParent, pidl);
-                            if (!pidlAbs)
-                                continue;
+                    for (i = 0; i < (INT)pida->cidl; i++) {
+                        LPCITEMIDLIST pidl = IDA_GetIDListPtr(pida, (UINT)i);
+                        LPITEMIDLIST pidlAbs = ILCombine(pidlParent, pidl);
+                        if (!pidlAbs)
+                            continue;
 
-                            // if we're doing keyboard cut/copy/paste
-                            //  to and from the same directories
-                            // This is needed for common desktop support - BobDay/EricFlo
-                            if (FSILIsParent(pfsthp->pidl, pidlAbs))
-                            {
-                                if (pfsthp->dwEffect == DROPEFFECT_MOVE)
-                                {
-                                    // if they're the same, do nothing on move
-                                    fMoveToSame = TRUE;
-                                }
-                                else
-                                {
-                                    // do rename on collision for copy;
-                                    fo.fFlags |= FOF_RENAMEONCOLLISION;
-                                }
+                        // if we're doing keyboard cut/copy/paste
+                        //  to and from the same directories
+                        // This is needed for common desktop support - BobDay/EricFlo
+                        if (FSILIsParent(pfsthp->pidl, pidlAbs)) {
+                            if (pfsthp->dwEffect == DROPEFFECT_MOVE) {
+                                // if they're the same, do nothing on move
+                                fMoveToSame = TRUE;
+                            } else {
+                                // do rename on collision for copy;
+                                fo.fFlags |= FOF_RENAMEONCOLLISION;
                             }
-                            ILFree(pidlAbs);
                         }
-
-                        if (fMoveToSame)
-                            goto DoneWithData;
-
-                        // Handle sneaker-net for briefcase; did briefcase
-                        // handle it?
-                        if (HandleSneakernetDrop(pfsthp, pidlParent, pszPath))
-                        {
-                            // Yes; don't do anything
-                            DebugMsg(TF_FSTREE, TEXT("Briefcase handled drop"));
-                            HIDA_ReleaseStgMedium(pida, &medium);
-                            goto Exit;
-                        }
+                        ILFree(pidlAbs);
                     }
-DoneWithData:
-                    HIDA_ReleaseStgMedium(pida, &medium);
+
+                    if (fMoveToSame)
+                        goto DoneWithData;
+
+                    // Handle sneaker-net for briefcase; did briefcase
+                    // handle it?
+                    if (HandleSneakernetDrop(pfsthp, pidlParent, pszPath)) {
+                        // Yes; don't do anything
+                        DebugMsg(TF_FSTREE, TEXT("Briefcase handled drop"));
+                        HIDA_ReleaseStgMedium(pida, &medium);
+                        goto Exit;
+                    }
                 }
+            DoneWithData:
+                HIDA_ReleaseStgMedium(pida, &medium);
             }
+        }
 
-            // see if there is a rename mapping from recycle bin (or someone else)
-            ASSERT(fmte.cfFormat == g_cfFileNameMapW);
+        // see if there is a rename mapping from recycle bin (or someone else)
+        ASSERT(fmte.cfFormat == g_cfFileNameMapW);
 
+        hres = pfsthp->pDataObj->lpVtbl->GetData(pfsthp->pDataObj, &fmte, &medium);
+        if (hres != S_OK) {
+            fmte.cfFormat = g_cfFileNameMapA;
             hres = pfsthp->pDataObj->lpVtbl->GetData(pfsthp->pDataObj, &fmte, &medium);
-            if (hres != S_OK)
-            {
-                fmte.cfFormat = g_cfFileNameMapA;
-                hres = pfsthp->pDataObj->lpVtbl->GetData(pfsthp->pDataObj, &fmte, &medium);
-            }
+        }
 
-            if (hres == S_OK)
-            {
-                DebugMsg(TF_FSTREE, TEXT("Got rename mapping"));
+        if (hres == S_OK) {
+            DebugMsg(TF_FSTREE, TEXT("Got rename mapping"));
 
-                if (fmte.cfFormat == g_cfFileNameMapW)
-                    pszDestNames = RemapDestNamesW(pszPath, (LPWSTR)GlobalLock(medium.hGlobal));
-                else
-                    pszDestNames = RemapDestNamesA(pszPath, (LPSTR)GlobalLock(medium.hGlobal));
+            if (fmte.cfFormat == g_cfFileNameMapW)
+                pszDestNames = RemapDestNamesW(pszPath, (LPWSTR)GlobalLock(medium.hGlobal));
+            else
+                pszDestNames = RemapDestNamesA(pszPath, (LPSTR)GlobalLock(medium.hGlobal));
 
-                if (pszDestNames)
-                {
-                    fo.pTo = pszDestNames;
-                    fo.fFlags |= FOF_MULTIDESTFILES;
-                    // HACK, this came from the recycle bin, don't allow undo
-                    fo.fFlags &= ~FOF_ALLOWUNDO;
+            if (pszDestNames) {
+                fo.pTo = pszDestNames;
+                fo.fFlags |= FOF_MULTIDESTFILES;
+                // HACK, this came from the recycle bin, don't allow undo
+                fo.fFlags &= ~FOF_ALLOWUNDO;
 #ifdef DEBUG
-                    {
+                {
                     UINT cFrom = 0, cTo = 0;
                     LPCTSTR pszTemp;
                     for (pszTemp = fo.pTo; *pszTemp; pszTemp += lstrlen(pszTemp) + 1)
@@ -612,41 +555,38 @@ DoneWithData:
                         cFrom++;
 
                     AssertMsg(cFrom == cTo, TEXT("dest count does not equal source"));
-                    }
+                }
 #endif
-                }
-                ReleaseStgMediumHGLOBAL(medium.hGlobal, &medium);
             }
+            ReleaseStgMediumHGLOBAL(medium.hGlobal, &medium);
+        }
 
-            // Check if there were any errors
-            if (SHFileOperation(&fo) == 0 && !fo.fAnyOperationsAborted)
-            {
-                if (pfsthp->fBkDropTarget)
-                    ShellFolderView_SetRedraw(pfsthp->hwndOwner, 0);
+        // Check if there were any errors
+        if (SHFileOperation(&fo) == 0 && !fo.fAnyOperationsAborted) {
+            if (pfsthp->fBkDropTarget)
+                ShellFolderView_SetRedraw(pfsthp->hwndOwner, 0);
 
-                SHChangeNotifyHandleEvents();   // force update now
-                if (pfsthp->fBkDropTarget)
-                {
-                    FS_MoveSelectIcons(pfsthp, fo.hNameMappings, pszDestNames, pfsthp->fDragDrop);
-                    ShellFolderView_SetRedraw(pfsthp->hwndOwner, TRUE);
-                }
-            }
-
-            if (fo.hNameMappings)
-                SHFreeNameMappings(fo.hNameMappings);
-
-            if (pszDestNames)
-            {
-                LocalFree((HLOCAL)pszDestNames);
-
-                // HACK, this usually comes from the bitbucket
-                // but in our shell, we don't handle the moves from the source
-                if (pfsthp->dwEffect == DROPEFFECT_MOVE)
-                    BBCheckRestoredFiles(di.lpFileList);
+            SHChangeNotifyHandleEvents();   // force update now
+            if (pfsthp->fBkDropTarget) {
+                FS_MoveSelectIcons(pfsthp, fo.hNameMappings, pszDestNames, pfsthp->fDragDrop);
+                ShellFolderView_SetRedraw(pfsthp->hwndOwner, TRUE);
             }
         }
 
-        break;
+        if (fo.hNameMappings)
+            SHFreeNameMappings(fo.hNameMappings);
+
+        if (pszDestNames) {
+            LocalFree((HLOCAL)pszDestNames);
+
+            // HACK, this usually comes from the bitbucket
+            // but in our shell, we don't handle the moves from the source
+            if (pfsthp->dwEffect == DROPEFFECT_MOVE)
+                BBCheckRestoredFiles(di.lpFileList);
+        }
+    }
+
+    break;
     }
 Exit:
     SHFree(di.lpFileList);
@@ -682,21 +622,19 @@ BOOL _ShouldCreateFolderShortcut(LPCTSTR pszFolder)
 
 
 // This is the entry of "drop thread"
-DWORD CALLBACK FileDropTargetThreadProc(void *pv)
+DWORD CALLBACK FileDropTargetThreadProc(void* pv)
 {
-    FSTHREADPARAM *pfsthp = (FSTHREADPARAM *)pv;
+    FSTHREADPARAM* pfsthp = (FSTHREADPARAM*)pv;
     HRESULT hr = E_FAIL;
 
     // Sleep(10 * 1000);   // to debug async case
 
-    if (pfsthp->pDataObj == NULL)
-    {
-        CoGetInterfaceAndReleaseStream(pfsthp->pstmDataObj, &IID_IDataObject, (void **)&pfsthp->pDataObj);
+    if (pfsthp->pDataObj == NULL) {
+        CoGetInterfaceAndReleaseStream(pfsthp->pstmDataObj, &IID_IDataObject, (void**)&pfsthp->pDataObj);
         pfsthp->pstmDataObj = NULL;
     }
 
-    if (pfsthp->pDataObj)
-    {
+    if (pfsthp->pDataObj) {
         STGMEDIUM medium;
         FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
 
@@ -704,8 +642,7 @@ DWORD CALLBACK FileDropTargetThreadProc(void *pv)
         // and it is not forced by the user, we should tell the user.
 
         if (((pfsthp->grfKeyState & (MK_LBUTTON | MK_CONTROL | MK_SHIFT | MK_ALT)) ==
-            MK_LBUTTON) && pfsthp->fLinkOnly)
-        {
+             MK_LBUTTON) && pfsthp->fLinkOnly) {
 
             //  Note that we can not pass hwnd, because it might
             // not be activated.
@@ -715,9 +652,9 @@ DWORD CALLBACK FileDropTargetThreadProc(void *pv)
             // when this is up. -BryanSt It's necessary to move this call to a background
             // thread always.
             UINT idMBox = ShellMessageBox(HINST_THISDLL, pfsthp->hwndOwner,
-                    MAKEINTRESOURCE(IDS_WOULDYOUCREATELINK),
-                    MAKEINTRESOURCE(IDS_LINKTITLE),
-                    MB_YESNO | MB_ICONQUESTION);
+                                          MAKEINTRESOURCE(IDS_WOULDYOUCREATELINK),
+                                          MAKEINTRESOURCE(IDS_LINKTITLE),
+                                          MB_YESNO | MB_ICONQUESTION);
 
             ASSERT(pfsthp->dwEffect == DROPEFFECT_LINK);
 
@@ -725,13 +662,11 @@ DWORD CALLBACK FileDropTargetThreadProc(void *pv)
                 pfsthp->dwEffect = 0;
         }
 
-        switch (pfsthp->dwEffect)
-        {
+        switch (pfsthp->dwEffect) {
         case DROPEFFECT_MOVE:
         case DROPEFFECT_COPY:
             hr = pfsthp->pDataObj->lpVtbl->GetData(pfsthp->pDataObj, &fmte, &medium);
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 AssertMsg((NULL != pfsthp->hwndOwner), TEXT("You are calling _HandleMoveOrCopy() with out an hwnd which will prevent us from displaying insert disk UI"));
 
                 _HandleMoveOrCopy(pfsthp, (HDROP)medium.hGlobal, pfsthp->szPath);
@@ -739,40 +674,36 @@ DWORD CALLBACK FileDropTargetThreadProc(void *pv)
             }
             break;
         case DROPEFFECT_LINK:
-            {
-                int i;
-                UINT uCreateFlags = 0;
-                LPITEMIDLIST *ppidl;
+        {
+            int i;
+            UINT uCreateFlags = 0;
+            LPITEMIDLIST* ppidl;
 
-                if (pfsthp->fBkDropTarget)
-                {
-                    i = DataObj_GetHIDACount(pfsthp->pDataObj);
-                    ppidl = (void*)LocalAlloc(LPTR, SIZEOF(LPITEMIDLIST) * i);
-                }
-                else
-                    ppidl = NULL;
+            if (pfsthp->fBkDropTarget) {
+                i = DataObj_GetHIDACount(pfsthp->pDataObj);
+                ppidl = (void*)LocalAlloc(LPTR, SIZEOF(LPITEMIDLIST) * i);
+            } else
+                ppidl = NULL;
 
-                if (pfsthp->grfKeyState)
-                    uCreateFlags = SHCL_USETEMPLATE;
+            if (pfsthp->grfKeyState)
+                uCreateFlags = SHCL_USETEMPLATE;
 
-                if (_ShouldCreateFolderShortcut(pfsthp->szPath))
-                    uCreateFlags |= SHCL_MAKEFOLDERSHORTCUT;
+            if (_ShouldCreateFolderShortcut(pfsthp->szPath))
+                uCreateFlags |= SHCL_MAKEFOLDERSHORTCUT;
 
-                ShellFolderView_SetRedraw(pfsthp->hwndOwner, FALSE);
-                // passing ppidl == NULL is correct in failure case
-                hr = SHCreateLinks(pfsthp->hwndOwner, pfsthp->szPath, pfsthp->pDataObj, uCreateFlags, ppidl);
-                if (ppidl)
-                {
-                    FS_PositionItems(pfsthp->hwndOwner, i, ppidl, pfsthp->pDataObj, &pfsthp->ptDrop, TRUE);
-                    FS_FreeMoveCopyList(ppidl, i);
-                }
-                ShellFolderView_SetRedraw(pfsthp->hwndOwner, TRUE);
+            ShellFolderView_SetRedraw(pfsthp->hwndOwner, FALSE);
+            // passing ppidl == NULL is correct in failure case
+            hr = SHCreateLinks(pfsthp->hwndOwner, pfsthp->szPath, pfsthp->pDataObj, uCreateFlags, ppidl);
+            if (ppidl) {
+                FS_PositionItems(pfsthp->hwndOwner, i, ppidl, pfsthp->pDataObj, &pfsthp->ptDrop, TRUE);
+                FS_FreeMoveCopyList(ppidl, i);
             }
-            break;
+            ShellFolderView_SetRedraw(pfsthp->hwndOwner, TRUE);
+        }
+        break;
         }
 
-        if (SUCCEEDED(hr) && pfsthp->dwEffect)
-        {
+        if (SUCCEEDED(hr) && pfsthp->dwEffect) {
             DataObj_SetDWORD(pfsthp->pDataObj, g_cfLogicalPerformedDropEffect, pfsthp->dwEffect);
             DataObj_SetDWORD(pfsthp->pDataObj, g_cfPerformedDropEffect, pfsthp->dwEffect);
         }
@@ -790,8 +721,7 @@ STDAPI_(BOOL) AllRegisteredPrograms(HDROP hDrop)
     UINT i;
     TCHAR szPath[MAX_PATH];
 
-    for (i = 0; DragQueryFile(hDrop, i, szPath, ARRAYSIZE(szPath)); i++)
-    {
+    for (i = 0; DragQueryFile(hDrop, i, szPath, ARRAYSIZE(szPath)); i++) {
         if (!PathIsRegisteredProgram(szPath))
             return FALSE;
     }
@@ -800,25 +730,22 @@ STDAPI_(BOOL) AllRegisteredPrograms(HDROP hDrop)
 
 #ifdef SYNC_BRIEFCASE
 
-BOOL IsBriefcaseRoot(IDataObject *pDataObj)
+BOOL IsBriefcaseRoot(IDataObject* pDataObj)
 {
     BOOL bRet = FALSE;
     STGMEDIUM medium;
     LPIDA pida = DataObj_GetHIDA(pDataObj, &medium);
-    if (pida)
-    {
+    if (pida) {
         // Is there a briefcase root in this pDataObj?
-        IShellFolder2 *psf;
+        IShellFolder2* psf;
         LPCITEMIDLIST pidlParent = IDA_GetIDListPtr(pida, (UINT)-1);
         if (pidlParent &&
-            SUCCEEDED(SHBindToObject(NULL, &IID_IShellFolder2, pidlParent, (void **)&psf)))
-        {
+            SUCCEEDED(SHBindToObject(NULL, &IID_IShellFolder2, pidlParent, (void**)&psf))) {
             UINT i;
-            for (i = 0; i < pida->cidl; i++)
-            {
+            for (i = 0; i < pida->cidl; i++) {
                 CLSID clsid;
                 bRet = SUCCEEDED(GetItemCLSID(psf, IDA_GetIDListPtr(pida, i), &clsid)) &&
-                        IsEqualCLSID(&clsid, &CLSID_Briefcase);
+                    IsEqualCLSID(&clsid, &CLSID_Briefcase);
                 if (bRet)
                     break;
             }
@@ -837,47 +764,37 @@ BOOL IsBriefcaseRoot(IDataObject *pDataObj)
 //   else if this is a briefcase       -> "move"
 //   else                              -> "copy"
 
-DWORD _PickDefFSOperation(CIDLDropTarget *this)
+DWORD _PickDefFSOperation(CIDLDropTarget* this)
 {
     FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
     DWORD dwDefEffect = 0;      // assume no HDROP
     STGMEDIUM medium;
 
-    if (SUCCEEDED(this->pdtobj->lpVtbl->GetData(this->pdtobj, &fmte, &medium)))
-    {
+    if (SUCCEEDED(this->pdtobj->lpVtbl->GetData(this->pdtobj, &fmte, &medium))) {
         TCHAR szPath[MAX_PATH], szFolder[MAX_PATH];
 
         CIDLDropTarget_GetPath(this, szFolder);
         DragQueryFile(medium.hGlobal, 0, szPath, ARRAYSIZE(szPath)); // focused item
 
         // Determine the default operation depending on the item.
-        if (PathIsRoot(szPath) || AllRegisteredPrograms(medium.hGlobal))
-        {
+        if (PathIsRoot(szPath) || AllRegisteredPrograms(medium.hGlobal)) {
             dwDefEffect = DROPEFFECT_LINK;
-        }
-        else if (PathIsSameRoot(szPath, szFolder))
-        {
+        } else if (PathIsSameRoot(szPath, szFolder)) {
             dwDefEffect = DROPEFFECT_MOVE;
-        }
-        else if (IsBriefcaseRoot(this->pdtobj))
-        {
+        } else if (IsBriefcaseRoot(this->pdtobj)) {
             // a briefcase is in the data object
             // default to "move" even if across volumes
             DebugMsg(TF_FSTREE, TEXT("FS::Drop the object is the briefcase"));
             dwDefEffect = DROPEFFECT_MOVE;
-        }
-        else
-        {
+        } else {
             dwDefEffect = DROPEFFECT_COPY;
         }
         ReleaseStgMedium(&medium);
-    }
-    else // if (SUCCEEDED(...))
+    } else // if (SUCCEEDED(...))
     {
         // GetData failed. Let's see if QueryGetData failed or not.
 
-        if (SUCCEEDED(this->pdtobj->lpVtbl->QueryGetData(this->pdtobj, &fmte)))
-        {
+        if (SUCCEEDED(this->pdtobj->lpVtbl->QueryGetData(this->pdtobj, &fmte))) {
             // this means this data object has HDROP but can't
             // provide it until it is dropped. Let's assume we are copying.
             dwDefEffect = DROPEFFECT_COPY;
@@ -916,7 +833,7 @@ const GUID CLSID_OldPackage = {0x0003000CL, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x
 // This function returns the default effect.
 // This function also modified *pdwEffect to indicate "available" operation.
 
-DWORD CFSIDLDropTarget_GetDefaultEffect(CIDLDropTarget *this, DWORD grfKeyState, LPDWORD pdwEffectInOut, UINT *pidMenu)
+DWORD CFSIDLDropTarget_GetDefaultEffect(CIDLDropTarget* this, DWORD grfKeyState, LPDWORD pdwEffectInOut, UINT* pidMenu)
 {
     DWORD dwDefEffect;
     UINT idMenu = POPUP_NONDEFAULTDD;
@@ -925,8 +842,7 @@ DWORD CFSIDLDropTarget_GetDefaultEffect(CIDLDropTarget *this, DWORD grfKeyState,
 
     // First try file system operation (HDROP).
 
-    if (this->dwData & DTID_HDROP)
-    {
+    if (this->dwData & DTID_HDROP) {
 
         // If HDROP exists, ignore the rest of formats.
 
@@ -943,22 +859,17 @@ DWORD CFSIDLDropTarget_GetDefaultEffect(CIDLDropTarget *this, DWORD grfKeyState,
         dwDefEffect = _PickDefFSOperation(this);
 
         ASSERT(dwDefEffect);
-    }
-    else
-    {
+    } else {
         BOOL fContents = ((this->dwData & (DTID_CONTENTS | DTID_FDESCA)) == (DTID_CONTENTS | DTID_FDESCA) ||
-                          (this->dwData & (DTID_CONTENTS | DTID_FDESCW)) == (DTID_CONTENTS | DTID_FDESCW));
+            (this->dwData & (DTID_CONTENTS | DTID_FDESCW)) == (DTID_CONTENTS | DTID_FDESCW));
 
-        if (fContents || (this->dwData & DTID_HIDA))
-        {
-            if (this->dwData & DTID_HIDA)
-            {
+        if (fContents || (this->dwData & DTID_HIDA)) {
+            if (this->dwData & DTID_HIDA) {
                 dwEffectAvail = DROPEFFECT_LINK;
                 dwDefEffect = DROPEFFECT_LINK;
             }
 
-            if (fContents)
-            {
+            if (fContents) {
 
                 // HACK: if there is a preferred drop effect and no HIDA
                 // then just take the preferred effect as the available effects
@@ -966,18 +877,13 @@ DWORD CFSIDLDropTarget_GetDefaultEffect(CIDLDropTarget *this, DWORD grfKeyState,
                 // back when we assembled dwData! (performance)
 
                 if ((this->dwData & (DTID_PREFERREDEFFECT | DTID_HIDA)) ==
-                    DTID_PREFERREDEFFECT)
-                {
+                    DTID_PREFERREDEFFECT) {
                     dwEffectAvail = this->dwEffectPreferred;
                     // dwDefEffect will be set below
-                }
-                else if (this->dwData & DTID_FD_LINKUI)
-                {
+                } else if (this->dwData & DTID_FD_LINKUI) {
                     dwEffectAvail = DROPEFFECT_LINK;
                     dwDefEffect = DROPEFFECT_LINK;
-                }
-                else
-                {
+                } else {
                     dwEffectAvail |= DROPEFFECT_COPY | DROPEFFECT_MOVE;
                     dwDefEffect = DROPEFFECT_COPY;
                 }
@@ -991,23 +897,18 @@ DWORD CFSIDLDropTarget_GetDefaultEffect(CIDLDropTarget *this, DWORD grfKeyState,
     // (ie anybody provides these formats and OLE provides FILECONTENTS)
     // this will be more important as random containers get implemented
 
-    if (!dwEffectAvail)
-    {
+    if (!dwEffectAvail) {
         BOOL fPackage = FALSE;
-        if (this->dwData & DTID_EMBEDDEDOBJECT)
-        {
+        if (this->dwData & DTID_EMBEDDEDOBJECT) {
             FORMATETC fmte = {g_cfObjectDescriptor, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
             STGMEDIUM medium;
             ASSERT(NULL != this->pdtobj);
-            if (SUCCEEDED(this->pdtobj->lpVtbl->GetData(this->pdtobj, &fmte, &medium)))
-            {
+            if (SUCCEEDED(this->pdtobj->lpVtbl->GetData(this->pdtobj, &fmte, &medium))) {
                 // we've got an object descriptor
                 OBJECTDESCRIPTOR* pOD = GlobalLock(medium.hGlobal);
-                if (pOD)
-                {
+                if (pOD) {
                     if (IsEqualGUID(&CLSID_OldPackage, &pOD->clsid) ||
-                        IsEqualGUID(&CLSID_CPackage, &pOD->clsid))
-                    {
+                        IsEqualGUID(&CLSID_CPackage, &pOD->clsid)) {
                         dwEffectAvail |= DROPEFFECT_COPY | DROPEFFECT_MOVE;
                         dwDefEffect = DROPEFFECT_COPY;
                         idMenu = POPUP_EMBEDDEDOBJECT;
@@ -1018,20 +919,17 @@ DWORD CFSIDLDropTarget_GetDefaultEffect(CIDLDropTarget *this, DWORD grfKeyState,
                 ReleaseStgMedium(&medium);
             }
         }
-        if (!fPackage)
-        {
+        if (!fPackage) {
 
             // Try scrap and doc-shortcut
 
-            if (this->dwData & DTID_OLELINK)
-            {
+            if (this->dwData & DTID_OLELINK) {
                 dwEffectAvail |= DROPEFFECT_LINK;
                 dwDefEffect = DROPEFFECT_LINK;
                 idMenu = POPUP_SCRAP;
             }
 
-            if (this->dwData & DTID_OLEOBJ)
-            {
+            if (this->dwData & DTID_OLEOBJ) {
                 dwEffectAvail |= DROPEFFECT_COPY | DROPEFFECT_MOVE;
                 dwDefEffect = DROPEFFECT_COPY;
                 idMenu = POPUP_SCRAP;
@@ -1044,8 +942,7 @@ DWORD CFSIDLDropTarget_GetDefaultEffect(CIDLDropTarget *this, DWORD grfKeyState,
 
     // Alter the default effect depending on modifier keys.
 
-    switch (grfKeyState & (MK_CONTROL | MK_SHIFT | MK_ALT))
-    {
+    switch (grfKeyState & (MK_CONTROL | MK_SHIFT | MK_ALT)) {
     case MK_CONTROL:            dwDefEffect = DROPEFFECT_COPY; break;
     case MK_SHIFT:              dwDefEffect = DROPEFFECT_MOVE; break;
     case MK_SHIFT | MK_CONTROL: dwDefEffect = DROPEFFECT_LINK; break;
@@ -1055,22 +952,15 @@ DWORD CFSIDLDropTarget_GetDefaultEffect(CIDLDropTarget *this, DWORD grfKeyState,
         // no modifier keys:
         // if the data object contains a preferred drop effect, try to use it
 
-        if (this->dwData & DTID_PREFERREDEFFECT)
-        {
+        if (this->dwData & DTID_PREFERREDEFFECT) {
             DWORD dwPreferred = this->dwEffectPreferred & dwEffectAvail;
 
-            if (dwPreferred)
-            {
-                if (dwPreferred & DROPEFFECT_MOVE)
-                {
+            if (dwPreferred) {
+                if (dwPreferred & DROPEFFECT_MOVE) {
                     dwDefEffect = DROPEFFECT_MOVE;
-                }
-                else if (dwPreferred & DROPEFFECT_COPY)
-                {
+                } else if (dwPreferred & DROPEFFECT_COPY) {
                     dwDefEffect = DROPEFFECT_COPY;
-                }
-                else if (dwPreferred & DROPEFFECT_LINK)
-                {
+                } else if (dwPreferred & DROPEFFECT_LINK) {
                     dwDefEffect = DROPEFFECT_LINK;
                 }
             }
@@ -1092,14 +982,11 @@ BOOL IsInsideBriefcase(LPCITEMIDLIST pidlIn)
 {
     BOOL bRet = FALSE;
     LPITEMIDLIST pidl = ILClone(pidlIn);
-    if (pidl)
-    {
-        do
-        {
+    if (pidl) {
+        do {
             CLSID clsid;
             if (SUCCEEDED(GetCLSIDFromIDList(pidl, &clsid)) &&
-                IsEqualCLSID(&clsid, &CLSID_Briefcase))
-            {
+                IsEqualCLSID(&clsid, &CLSID_Briefcase)) {
                 bRet = TRUE;    // it is a briefcase
                 break;
             }
@@ -1123,14 +1010,11 @@ BOOL IsFromSneakernetBriefcase(LPCITEMIDLIST pidlSource, LPCTSTR pszTarget)
     BOOL bRet = FALSE;
     TCHAR szSource[MAX_PATH];
 
-    if (SHGetPathFromIDList(pidlSource, szSource))
-    {
+    if (SHGetPathFromIDList(pidlSource, szSource)) {
         // is source on removable device?
-        if (IsRemovableDrive(DRIVEID(szSource)))
-        {
+        if (IsRemovableDrive(DRIVEID(szSource))) {
             // is the target fixed media?
-            if (PathIsUNC(pszTarget) || !IsRemovableDrive(DRIVEID(pszTarget)))
-            {
+            if (PathIsUNC(pszTarget) || !IsRemovableDrive(DRIVEID(pszTarget))) {
                 bRet = IsInsideBriefcase(pidlSource);
             }
         }
@@ -1138,7 +1022,7 @@ BOOL IsFromSneakernetBriefcase(LPCITEMIDLIST pidlSource, LPCTSTR pszTarget)
     return bRet;
 }
 
-BOOL HandleSneakernetDrop(FSTHREADPARAM *pfsthp, LPCITEMIDLIST pidlParent, LPCTSTR pszTarget)
+BOOL HandleSneakernetDrop(FSTHREADPARAM* pfsthp, LPCITEMIDLIST pidlParent, LPCTSTR pszTarget)
 {
     BOOL bRet = FALSE;
 
@@ -1146,19 +1030,17 @@ BOOL HandleSneakernetDrop(FSTHREADPARAM *pfsthp, LPCITEMIDLIST pidlParent, LPCTS
     ASSERT(pszTarget);
 
     // Is it being dragged from a mobile briefcase?
-    if ((DROPEFFECT_COPY == pfsthp->dwEffect) && pfsthp->bSyncCopy)
-    {
+    if ((DROPEFFECT_COPY == pfsthp->dwEffect) && pfsthp->bSyncCopy) {
         // Yes
-        IBriefcaseStg *pbrfstg;
+        IBriefcaseStg* pbrfstg;
 
         // Perform a sneakernet addition to the briefcase
-        if (SUCCEEDED(BrfStg_CreateInstance(pidlParent, pfsthp->hwndOwner, &pbrfstg)))
-        {
+        if (SUCCEEDED(BrfStg_CreateInstance(pidlParent, pfsthp->hwndOwner, &pbrfstg))) {
             // (Even if AddObject fails, return TRUE to prevent caller
             // from handling this)
             bRet = (S_FALSE != pbrfstg->lpVtbl->AddObject(pbrfstg, pfsthp->pDataObj, pszTarget,
                 (DDIDM_SYNCCOPYTYPE == pfsthp->idCmd) ? AOF_FILTERPROMPT : AOF_DEFAULT,
-                pfsthp->hwndOwner));
+                                                          pfsthp->hwndOwner));
             pbrfstg->lpVtbl->Release(pbrfstg);
         }
     }
@@ -1167,7 +1049,7 @@ BOOL HandleSneakernetDrop(FSTHREADPARAM *pfsthp, LPCITEMIDLIST pidlParent, LPCTS
 
 extern BOOL DroppingAnyFolders(HDROP hDrop);
 
-void SneakernetHook(IDataObject *pdtobj, LPCTSTR pszTarget, UINT *pidMenu, BOOL *pbSyncCopy)
+void SneakernetHook(IDataObject* pdtobj, LPCTSTR pszTarget, UINT* pidMenu, BOOL* pbSyncCopy)
 {
     // Is this the sneakernet case?
     STGMEDIUM medium;
@@ -1177,19 +1059,15 @@ void SneakernetHook(IDataObject *pdtobj, LPCTSTR pszTarget, UINT *pidMenu, BOOL 
     *pbSyncCopy = FALSE;        // Default
 
     pida = DataObj_GetHIDA(pdtobj, &medium);
-    if (pida)
-    {
+    if (pida) {
         LPCITEMIDLIST pidlParent = IDA_GetIDListPtr(pida, (UINT)-1);
-        if (pidlParent)
-        {
-            if (IsFromSneakernetBriefcase(pidlParent, pszTarget))
-            {
+        if (pidlParent) {
+            if (IsFromSneakernetBriefcase(pidlParent, pszTarget)) {
                 // Yes; show the non-default briefcase cm
                 FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
                 STGMEDIUM mediumT;
 
-                if (SUCCEEDED(pdtobj->lpVtbl->GetData(pdtobj, &fmte, &mediumT)))
-                {
+                if (SUCCEEDED(pdtobj->lpVtbl->GetData(pdtobj, &fmte, &mediumT))) {
                     if (DroppingAnyFolders(mediumT.hGlobal))
                         *pidMenu = POPUP_BRIEFCASE_FOLDER_NONDEFAULTDD;   // Yes
                     else
@@ -1221,9 +1099,8 @@ BOOL ExtractImageURLFromCFHTML(IN LPSTR pszHTML, IN SIZE_T cbHTMLSize, OUT LPSTR
     BOOL fSucceeded = FALSE;
 
     // NT #391669: pszHTML isn't terminated, so terminate it now.
-    LPSTR pszCopiedHTML = (LPSTR) LocalAlloc(LPTR, cbHTMLSize + 1);
-    if (pszCopiedHTML)
-    {
+    LPSTR pszCopiedHTML = (LPSTR)LocalAlloc(LPTR, cbHTMLSize + 1);
+    if (pszCopiedHTML) {
         LPSTR szBase;
         LPSTR szImgSrc;
         LPSTR szTemp;
@@ -1248,49 +1125,42 @@ BOOL ExtractImageURLFromCFHTML(IN LPSTR pszHTML, IN SIZE_T cbHTMLSize, OUT LPSTR
 
         //Pull out the SourceURL
 
-        szBase = StrStrIA(pszCopiedHTML,"SourceURL:"); // Point to the char after :
-        if(szBase)
-        {
-            szBase += sizeof("SourceURL:")-1;
+        szBase = StrStrIA(pszCopiedHTML, "SourceURL:"); // Point to the char after :
+        if (szBase) {
+            szBase += sizeof("SourceURL:") - 1;
 
             //Since each line can be terminated by a CR, CR/LF or LF check each case...
-            szTemp = StrChrA(szBase,'\n');
-            if(!szTemp)
-                szTemp = StrChrA(szBase,'\r');
+            szTemp = StrChrA(szBase, '\n');
+            if (!szTemp)
+                szTemp = StrChrA(szBase, '\r');
 
-            if(szTemp)
+            if (szTemp)
                 *szTemp = '\0';
             szTemp++;
-        }
-        else
+        } else
             szTemp = pszCopiedHTML;
 
 
         //Pull out the Img Src
-        szImgSrc = StrStrIA(szTemp,"IMG");
-        if(szImgSrc != NULL)
-        {
-            szImgSrc = StrStrIA(szImgSrc,"SRC");
-            if(szImgSrc != NULL)
-            {
+        szImgSrc = StrStrIA(szTemp, "IMG");
+        if (szImgSrc != NULL) {
+            szImgSrc = StrStrIA(szImgSrc, "SRC");
+            if (szImgSrc != NULL) {
                 szImgSrcOrig = szImgSrc;
-                szImgSrc = StrChrA(szImgSrc,'\"');
-                if(szImgSrc)
-                {
+                szImgSrc = StrChrA(szImgSrc, '\"');
+                if (szImgSrc) {
                     szImgSrc++;     // Skip over the quote at the beginning of the src path.
-                    szTemp = StrChrA(szImgSrc,'\"');    // Find the end of the path.
-                }
-                else
-                {
+                    szTemp = StrChrA(szImgSrc, '\"');    // Find the end of the path.
+                } else {
                     LPSTR pszTemp1;
                     LPSTR pszTemp2;
 
-                    szImgSrc = StrChrA(szImgSrcOrig,'=');
+                    szImgSrc = StrChrA(szImgSrcOrig, '=');
                     szImgSrc++;     // Skip past the equals to the first char in the path.
                                     // Someday we may need to handle spaces between '=' and the path.
 
-                    pszTemp1 = StrChrA(szImgSrc,' ');   // Since the path doesn't have quotes around it, assume a space will terminate it.
-                    pszTemp2 = StrChrA(szImgSrc,'>');   // Since the path doesn't have quotes around it, assume a space will terminate it.
+                    pszTemp1 = StrChrA(szImgSrc, ' ');   // Since the path doesn't have quotes around it, assume a space will terminate it.
+                    pszTemp2 = StrChrA(szImgSrc, '>');   // Since the path doesn't have quotes around it, assume a space will terminate it.
 
                     szTemp = pszTemp1;      // Assume quote terminates path.
                     if (!pszTemp1)
@@ -1306,14 +1176,11 @@ BOOL ExtractImageURLFromCFHTML(IN LPSTR pszHTML, IN SIZE_T cbHTMLSize, OUT LPSTR
                 //Join them.
 
                 //If this fails, then we don't have a full URL, Only a relative.
-                if(!UrlIsA(szImgSrc,URLIS_URL) && szBase)
-                {
-                    if(SUCCEEDED(UrlCombineA(szBase, szImgSrc, szImg, &dwLen,0)))
+                if (!UrlIsA(szImgSrc, URLIS_URL) && szBase) {
+                    if (SUCCEEDED(UrlCombineA(szBase, szImgSrc, szImg, &dwLen, 0)))
                         fSucceeded = TRUE;
-                }
-                else
-                {
-                    if(lstrlenA(szImgSrc) <= (int)dwSize)
+                } else {
+                    if (lstrlenA(szImgSrc) <= (int)dwSize)
                         lstrcpyA(szImg, szImgSrc);
 
                     fSucceeded = TRUE;

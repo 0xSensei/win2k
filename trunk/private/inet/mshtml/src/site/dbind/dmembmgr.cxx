@@ -97,19 +97,19 @@ class CDbgSimpleDataConverter : public ISimpleDataConverter
 {
 public:
     DECLARE_MEMCLEAR_NEW_DELETE(Mt(CDbgSimpleDataConverter));
-    CDbgSimpleDataConverter(): _ulRefs(1) {}
+    CDbgSimpleDataConverter() : _ulRefs(1) {}
 
     // IUnknown methods
-    HRESULT STDMETHODCALLTYPE   QueryInterface(REFIID riid, void **ppv);
-    ULONG STDMETHODCALLTYPE     AddRef() { return ++ _ulRefs; }
+    HRESULT STDMETHODCALLTYPE   QueryInterface(REFIID riid, void** ppv);
+    ULONG STDMETHODCALLTYPE     AddRef() { return ++_ulRefs; }
     ULONG STDMETHODCALLTYPE     Release();
 
     // ISimpleDataConverter methods
     HRESULT STDMETHODCALLTYPE ConvertData(
         VARIANT varSrc,
         long vtDest,
-        IUnknown __RPC_FAR *pUnknownElement,
-        VARIANT __RPC_FAR *pvarDest);
+        IUnknown __RPC_FAR* pUnknownElement,
+        VARIANT __RPC_FAR* pvarDest);
 
     HRESULT STDMETHODCALLTYPE CanConvertData(
         long vt1,
@@ -120,26 +120,22 @@ private:
 };
 
 HRESULT STDMETHODCALLTYPE
-CDbgSimpleDataConverter::QueryInterface(REFIID riid, void **ppv)
+CDbgSimpleDataConverter::QueryInterface(REFIID riid, void** ppv)
 {
     HRESULT hr;
 
-    if (ppv == NULL)
-    {
+    if (ppv == NULL) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
 
     *ppv = NULL;
 
-    if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ISimpleDataConverter))
-    {
+    if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ISimpleDataConverter)) {
         *ppv = this;
         AddRef();
         hr = S_OK;
-    }
-    else
-    {
+    } else {
         hr = E_NOINTERFACE;
     }
 
@@ -152,8 +148,7 @@ ULONG STDMETHODCALLTYPE
 CDbgSimpleDataConverter::Release()
 {
     ULONG ulRefs = --_ulRefs;
-    if (ulRefs == 0)
-    {
+    if (ulRefs == 0) {
         delete this;
     }
     return ulRefs;
@@ -163,21 +158,16 @@ HRESULT STDMETHODCALLTYPE
 CDbgSimpleDataConverter::ConvertData(
     VARIANT varSrc,
     long vtDest,
-    IUnknown *pUnknownElement,
-    VARIANT *pvarDest)
+    IUnknown* pUnknownElement,
+    VARIANT* pvarDest)
 {
     HRESULT hr;
 
-    if (!pvarDest)
-    {
+    if (!pvarDest) {
         hr = S_OK;
-    }
-    else if (S_OK != CanConvertData(V_VT(&varSrc), vtDest))
-    {
+    } else if (S_OK != CanConvertData(V_VT(&varSrc), vtDest)) {
         hr = E_FAIL;
-    }
-    else
-    {
+    } else {
         hr = VariantChangeTypeEx(pvarDest, &varSrc, g_lcidUserDefault, 0, vtDest);
     }
 
@@ -192,8 +182,7 @@ CDbgSimpleDataConverter::CanConvertData(
     HRESULT hr = S_FALSE;
 
     // one of the types must be BSTR
-    if (vt1 != VT_BSTR)
-    {
+    if (vt1 != VT_BSTR) {
         long vtTemp = vt1;
         vt1 = vt2;
         vt2 = vtTemp;
@@ -203,8 +192,7 @@ CDbgSimpleDataConverter::CanConvertData(
         goto Cleanup;
 
     // the other can be on the list below
-    switch (vt2)
-    {
+    switch (vt2) {
     case VT_DATE:
     case VT_CY:
     case VT_I2:
@@ -239,158 +227,156 @@ Cleanup:
 class COSPProxy : OLEDBSimpleProvider
 {
     int _refs;
-    OLEDBSimpleProvider *_pOSPReal;
-    IUnknown *_pUnkOther;
-    public:
-        DECLARE_MEMALLOC_NEW_DELETE(Mt(COSPProxy))
-        COSPProxy() : _pOSPReal(NULL), _pUnkOther(NULL), _refs(1) { }
+    OLEDBSimpleProvider* _pOSPReal;
+    IUnknown* _pUnkOther;
+public:
+    DECLARE_MEMALLOC_NEW_DELETE(Mt(COSPProxy))
+    COSPProxy() : _pOSPReal(NULL), _pUnkOther(NULL), _refs(1) { }
 
-        HRESULT Init(IUnknown *pOSPReal, IUnknown *pUnkOther)
-        {
-            HRESULT hr = pOSPReal->QueryInterface(IID_OLEDBSimpleProvider, (void**)&_pOSPReal);
-            if (hr)
-                goto Cleanup;
-            _pUnkOther = pUnkOther;
-            _pUnkOther->AddRef();
-        Cleanup:
-            return hr;
-        }
+    HRESULT Init(IUnknown* pOSPReal, IUnknown* pUnkOther)
+    {
+        HRESULT hr = pOSPReal->QueryInterface(IID_OLEDBSimpleProvider, (void**)&_pOSPReal);
+        if (hr)
+            goto Cleanup;
+        _pUnkOther = pUnkOther;
+        _pUnkOther->AddRef();
+    Cleanup:
+        return hr;
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE QueryInterface(
-            /* [in] */ REFIID riid,
-            /* [iid_is][out] */ void __RPC_FAR *__RPC_FAR *ppvObject)
-        {
-            HRESULT hr = E_NOINTERFACE;
-            *ppvObject = NULL;
-            if (riid == IID_IUnknown)
-                *ppvObject = (void**)this;
-            else if (riid == IID_OLEDBSimpleProvider)
-                *ppvObject = (void**)this;
-            if (*ppvObject)
-            {
-                hr = S_OK;
-                AddRef();
-            }
-            return hr;
+    virtual HRESULT STDMETHODCALLTYPE QueryInterface(
+        /* [in] */ REFIID riid,
+        /* [iid_is][out] */ void __RPC_FAR* __RPC_FAR* ppvObject)
+    {
+        HRESULT hr = E_NOINTERFACE;
+        *ppvObject = NULL;
+        if (riid == IID_IUnknown)
+            *ppvObject = (void**)this;
+        else if (riid == IID_OLEDBSimpleProvider)
+            *ppvObject = (void**)this;
+        if (*ppvObject) {
+            hr = S_OK;
+            AddRef();
         }
+        return hr;
+    }
 
-        virtual ULONG STDMETHODCALLTYPE AddRef( void)
-        {
-            return ++_refs;
-        }
+    virtual ULONG STDMETHODCALLTYPE AddRef(void)
+    {
+        return ++_refs;
+    }
 
-        virtual ULONG STDMETHODCALLTYPE Release( void)
-        {
-            if (--_refs == 0)
-            {
-                // this ordering is crucial
-                _pOSPReal->Release();
-                _pUnkOther->Release();
-                delete this;
-                return 0;
-            }
-            return _refs;
+    virtual ULONG STDMETHODCALLTYPE Release(void)
+    {
+        if (--_refs == 0) {
+            // this ordering is crucial
+            _pOSPReal->Release();
+            _pUnkOther->Release();
+            delete this;
+            return 0;
         }
+        return _refs;
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE getRowCount(
-            /* [retval][out] */ DBROWCOUNT __RPC_FAR *pcRows)
-        {
-            return _pOSPReal->getRowCount(pcRows);
-        }
+    virtual HRESULT STDMETHODCALLTYPE getRowCount(
+        /* [retval][out] */ DBROWCOUNT __RPC_FAR* pcRows)
+    {
+        return _pOSPReal->getRowCount(pcRows);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE getColumnCount(
-            /* [retval][out] */ DB_LORDINAL __RPC_FAR *pcColumns)
-        {
-            return _pOSPReal->getColumnCount(pcColumns);
-        }
+    virtual HRESULT STDMETHODCALLTYPE getColumnCount(
+        /* [retval][out] */ DB_LORDINAL __RPC_FAR* pcColumns)
+    {
+        return _pOSPReal->getColumnCount(pcColumns);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE getRWStatus(
-            /* [in] */ DBROWCOUNT iRow,
-            /* [in] */ DB_LORDINAL iColumn,
-            /* [retval][out] */ OSPRW __RPC_FAR *prwStatus)
-        {
-            return _pOSPReal->getRWStatus(iRow, iColumn, prwStatus);
-        }
+    virtual HRESULT STDMETHODCALLTYPE getRWStatus(
+        /* [in] */ DBROWCOUNT iRow,
+        /* [in] */ DB_LORDINAL iColumn,
+        /* [retval][out] */ OSPRW __RPC_FAR* prwStatus)
+    {
+        return _pOSPReal->getRWStatus(iRow, iColumn, prwStatus);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE getVariant(
-            /* [in] */ DBROWCOUNT iRow,
-            /* [in] */ DB_LORDINAL iColumn,
-            /* [in] */ OSPFORMAT format,
-            /* [retval][out] */ VARIANT __RPC_FAR *pVar)
-        {
-            return _pOSPReal->getVariant(iRow, iColumn, format, pVar);
-        }
+    virtual HRESULT STDMETHODCALLTYPE getVariant(
+        /* [in] */ DBROWCOUNT iRow,
+        /* [in] */ DB_LORDINAL iColumn,
+        /* [in] */ OSPFORMAT format,
+        /* [retval][out] */ VARIANT __RPC_FAR* pVar)
+    {
+        return _pOSPReal->getVariant(iRow, iColumn, format, pVar);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE setVariant(
-            /* [in] */ DBROWCOUNT iRow,
-            /* [in] */ DB_LORDINAL iColumn,
-            /* [in] */ OSPFORMAT format,
-            /* [in] */ VARIANT Var)
-        {
-            return _pOSPReal->setVariant(iRow, iColumn, format, Var);
-        }
+    virtual HRESULT STDMETHODCALLTYPE setVariant(
+        /* [in] */ DBROWCOUNT iRow,
+        /* [in] */ DB_LORDINAL iColumn,
+        /* [in] */ OSPFORMAT format,
+        /* [in] */ VARIANT Var)
+    {
+        return _pOSPReal->setVariant(iRow, iColumn, format, Var);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE getLocale(
-            /* [retval][out] */ BSTR __RPC_FAR *pbstrLocale)
-        {
-            return _pOSPReal->getLocale(pbstrLocale);
-        }
+    virtual HRESULT STDMETHODCALLTYPE getLocale(
+        /* [retval][out] */ BSTR __RPC_FAR* pbstrLocale)
+    {
+        return _pOSPReal->getLocale(pbstrLocale);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE deleteRows(
-            /* [in] */ DBROWCOUNT iRow,
-            /* [in] */ DBROWCOUNT cRows,
-            /* [retval][out] */ DBROWCOUNT __RPC_FAR *pcRowsDeleted)
-        {
-            return _pOSPReal->deleteRows(iRow, cRows, pcRowsDeleted);
-        }
+    virtual HRESULT STDMETHODCALLTYPE deleteRows(
+        /* [in] */ DBROWCOUNT iRow,
+        /* [in] */ DBROWCOUNT cRows,
+        /* [retval][out] */ DBROWCOUNT __RPC_FAR* pcRowsDeleted)
+    {
+        return _pOSPReal->deleteRows(iRow, cRows, pcRowsDeleted);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE insertRows(
-            /* [in] */ DBROWCOUNT iRow,
-            /* [in] */ DBROWCOUNT cRows,
-            /* [retval][out] */ DBROWCOUNT __RPC_FAR *pcRowsInserted)
-        {
-            return _pOSPReal->insertRows(iRow, cRows, pcRowsInserted);
-        }
+    virtual HRESULT STDMETHODCALLTYPE insertRows(
+        /* [in] */ DBROWCOUNT iRow,
+        /* [in] */ DBROWCOUNT cRows,
+        /* [retval][out] */ DBROWCOUNT __RPC_FAR* pcRowsInserted)
+    {
+        return _pOSPReal->insertRows(iRow, cRows, pcRowsInserted);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE find(
-            /* [in] */ DBROWCOUNT iRowStart,
-            /* [in] */ DB_LORDINAL iColumn,
-            /* [in] */ VARIANT val,
-            /* [in] */ OSPFIND findFlags,
-            /* [in] */ OSPCOMP compType,
-            /* [retval][out] */ DBROWCOUNT __RPC_FAR *piRowFound)
-        {
-            return _pOSPReal->find(iRowStart, iColumn, val, findFlags, compType, piRowFound);
-        }
+    virtual HRESULT STDMETHODCALLTYPE find(
+        /* [in] */ DBROWCOUNT iRowStart,
+        /* [in] */ DB_LORDINAL iColumn,
+        /* [in] */ VARIANT val,
+        /* [in] */ OSPFIND findFlags,
+        /* [in] */ OSPCOMP compType,
+        /* [retval][out] */ DBROWCOUNT __RPC_FAR* piRowFound)
+    {
+        return _pOSPReal->find(iRowStart, iColumn, val, findFlags, compType, piRowFound);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE addOLEDBSimpleProviderListener(
-            /* [in] */ OLEDBSimpleProviderListener __RPC_FAR *pospIListener)
-        {
-            return _pOSPReal->addOLEDBSimpleProviderListener(pospIListener);
-        }
+    virtual HRESULT STDMETHODCALLTYPE addOLEDBSimpleProviderListener(
+        /* [in] */ OLEDBSimpleProviderListener __RPC_FAR* pospIListener)
+    {
+        return _pOSPReal->addOLEDBSimpleProviderListener(pospIListener);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE removeOLEDBSimpleProviderListener(
-            /* [in] */ OLEDBSimpleProviderListener __RPC_FAR *pospIListener)
-        {
-            return _pOSPReal->removeOLEDBSimpleProviderListener(pospIListener);
-        }
+    virtual HRESULT STDMETHODCALLTYPE removeOLEDBSimpleProviderListener(
+        /* [in] */ OLEDBSimpleProviderListener __RPC_FAR* pospIListener)
+    {
+        return _pOSPReal->removeOLEDBSimpleProviderListener(pospIListener);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE isAsync(
-            /* [retval][out] */ BOOL __RPC_FAR *pbAsynch)
-        {
-            return _pOSPReal->isAsync(pbAsynch);
-        }
+    virtual HRESULT STDMETHODCALLTYPE isAsync(
+        /* [retval][out] */ BOOL __RPC_FAR* pbAsynch)
+    {
+        return _pOSPReal->isAsync(pbAsynch);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE getEstimatedRows(
-            /* [retval][out] */ DBROWCOUNT __RPC_FAR *piRows)
-        {
-            return _pOSPReal->getEstimatedRows(piRows);
-        }
+    virtual HRESULT STDMETHODCALLTYPE getEstimatedRows(
+        /* [retval][out] */ DBROWCOUNT __RPC_FAR* piRows)
+    {
+        return _pOSPReal->getEstimatedRows(piRows);
+    }
 
-        virtual HRESULT STDMETHODCALLTYPE stopTransfer( void)
-        {
-            return _pOSPReal->stopTransfer();
-        }
+    virtual HRESULT STDMETHODCALLTYPE stopTransfer(void)
+    {
+        return _pOSPReal->stopTransfer();
+    }
 };
 
 
@@ -403,14 +389,13 @@ class COSPProxy : OLEDBSimpleProvider
 
 
 HRESULT
-CDataMemberMgr::Create(CElement *pElement, CDataMemberMgr **ppMgr)
+CDataMemberMgr::Create(CElement* pElement, CDataMemberMgr** ppMgr)
 {
     Assert(pElement && ppMgr);
     HRESULT hr = S_OK;
-    CDataMemberMgr *pMgr = NULL;
+    CDataMemberMgr* pMgr = NULL;
 
-    switch (pElement->Tag())
-    {
+    switch (pElement->Tag()) {
     case ETAG_OBJECT:
     case ETAG_APPLET:
     case ETAG_EMBED:
@@ -418,11 +403,9 @@ CDataMemberMgr::Create(CElement *pElement, CDataMemberMgr **ppMgr)
         break;
 
     case ETAG_GENERIC_LITERAL:
-        if (0 == _tcsicmp(pElement->TagName(), _T("XML")))
-        {
+        if (0 == _tcsicmp(pElement->TagName(), _T("XML"))) {
             pMgr = new CDataMemberMgr(ET_XML, pElement);
-        }
-        else
+        } else
             hr = E_INVALIDARG;
         break;
 
@@ -445,7 +428,7 @@ CDataMemberMgr::Create(CElement *pElement, CDataMemberMgr **ppMgr)
 
 
 
-CDataMemberMgr::CDataMemberMgr(ELEMENT_TYPE et, CElement *pElement) :
+CDataMemberMgr::CDataMemberMgr(ELEMENT_TYPE et, CElement* pElement) :
     _ulRefs(1),
     _et(et),
     _pElementOwner(pElement),
@@ -454,8 +437,7 @@ CDataMemberMgr::CDataMemberMgr(ELEMENT_TYPE et, CElement *pElement) :
 {
     Assert(pElement);
 
-    switch (_et)
-    {
+    switch (_et) {
     case ET_OLESITE:
         _pOleSite = DYNCAST(COleSite, pElement);
         break;
@@ -503,42 +485,36 @@ CDataMemberMgr::~CDataMemberMgr()
 
 
 STDMETHODIMP
-CDataMemberMgr::QueryInterface(REFIID iid, void ** ppv)
+CDataMemberMgr::QueryInterface(REFIID iid, void** ppv)
 {
     if (iid == IID_IUnknown ||
-        iid == IID_DataSourceListener)
-    {
-        *ppv = (DataSourceListener *) this;
-    }
-    else if (iid == IID_IDATASRCListener)
-    {
-        *ppv = (IDATASRCListener *) this;
-    }
-    else
-    {
+        iid == IID_DataSourceListener) {
+        *ppv = (DataSourceListener*)this;
+    } else if (iid == IID_IDATASRCListener) {
+        *ppv = (IDATASRCListener*)this;
+    } else {
         *ppv = NULL;
         RRETURN(E_NOINTERFACE);
     }
 
-    ((IUnknown *) *ppv)->AddRef();
+    ((IUnknown*)*ppv)->AddRef();
     return S_OK;
 }
 
 
 STDMETHODIMP_(ULONG)
-CDataMemberMgr::AddRef( )
+CDataMemberMgr::AddRef()
 {
     return ++_ulRefs;
 }
 
 
 STDMETHODIMP_(ULONG)
-CDataMemberMgr::Release( )
+CDataMemberMgr::Release()
 {
     ULONG ulRefs = --_ulRefs;
 
-    if (ulRefs == 0)
-    {
+    if (ulRefs == 0) {
         delete this;
     }
     return ulRefs;
@@ -556,8 +532,7 @@ CDataMemberMgr::Release( )
 BOOL
 CDataMemberMgr::IllegalCall(DWORD dwFlags)
 {
-    switch (_et)
-    {
+    switch (_et) {
     case ET_OLESITE:
         Assert(_pOleSite);
         return _pOleSite->IllegalSiteCall(dwFlags);
@@ -565,8 +540,7 @@ CDataMemberMgr::IllegalCall(DWORD dwFlags)
 
     case ET_XML:
     case ET_SCRIPT:
-        if (_pDoc->_dwTID != GetCurrentThreadId())
-        {
+        if (_pDoc->_dwTID != GetCurrentThreadId()) {
             Assert(0 && "ActiveX control called MSHTML across apartment thread boundary (not an MSHTML bug)");
             return TRUE;
         }
@@ -592,12 +566,10 @@ CDataMemberMgr::IsReady()
     HRESULT hr = S_OK;
     LONG lReadyState;
 
-    switch (_et)
-    {
+    switch (_et) {
     case ET_OLESITE:
         hr = _pOleSite->GetReadyState(&lReadyState);
-        if (hr==S_OK && lReadyState < READYSTATE_LOADED)
-        {
+        if (hr == S_OK && lReadyState < READYSTATE_LOADED) {
             hr = S_FALSE;
         }
         break;
@@ -623,16 +595,14 @@ CDataMemberMgr::IsReady()
 
 
 
-CDataMemberMgr::CDataMemberRecord *
+CDataMemberMgr::CDataMemberRecord*
 CDataMemberMgr::GetDataMemberRecord(BSTR bstrName)
 {
     int i;
-    CDataMemberRecord *pdmr;
+    CDataMemberRecord* pdmr;
 
-    for (pdmr=_aryDataMember, i=_aryDataMember.Size(); i > 0; ++pdmr, --i)
-    {
-        if (FormsStringCmp(bstrName, pdmr->_bstrName) == 0)
-        {
+    for (pdmr = _aryDataMember, i = _aryDataMember.Size(); i > 0; ++pdmr, --i) {
+        if (FormsStringCmp(bstrName, pdmr->_bstrName) == 0) {
             return pdmr;
         }
     }
@@ -650,25 +620,21 @@ CDataMemberMgr::GetDataMemberRecord(BSTR bstrName)
 
 
 
-CDataMemberMgr::CDataMemberRecord *
+CDataMemberMgr::CDataMemberRecord*
 CDataMemberMgr::AddDataMemberRecord(BSTR bstrName)
 {
     HRESULT hr;
-    CDataMemberRecord *pdmrResult;
+    CDataMemberRecord* pdmrResult;
 
     pdmrResult = _aryDataMember.Append();
-    if (pdmrResult)
-    {
+    if (pdmrResult) {
         hr = FormsAllocString(bstrName, &pdmrResult->_bstrName);
-        if (!hr)
-        {
+        if (!hr) {
             pdmrResult->_pdspProvider = NULL;
             pdmrResult->_punkDataBinding = PUNKDB_UNKNOWN;
-        }
-        else
-        {
+        } else {
             pdmrResult = NULL;
-            _aryDataMember.Delete(_aryDataMember.Size()-1);
+            _aryDataMember.Delete(_aryDataMember.Size() - 1);
         }
     }
 
@@ -686,12 +652,12 @@ CDataMemberMgr::AddDataMemberRecord(BSTR bstrName)
 
 
 HRESULT
-CDataMemberMgr::GetDataSourceProvider(BSTR bstrMember, CDataSourceProvider **ppdsp)
+CDataMemberMgr::GetDataSourceProvider(BSTR bstrMember, CDataSourceProvider** ppdsp)
 {
     Assert(ppdsp);
 
     HRESULT hr = S_OK;
-    CDataMemberRecord *pdmr;
+    CDataMemberRecord* pdmr;
 
     *ppdsp = NULL;      // just in case
 
@@ -699,19 +665,16 @@ CDataMemberMgr::GetDataSourceProvider(BSTR bstrMember, CDataSourceProvider **ppd
     pdmr = GetDataMemberRecord(bstrMember);
 
     // if not there, create one
-    if (pdmr == NULL)
-    {
+    if (pdmr == NULL) {
         pdmr = AddDataMemberRecord(bstrMember);
-        if (pdmr == NULL)
-        {
+        if (pdmr == NULL) {
             hr = E_FAIL;
             goto Cleanup;
         }
     }
 
     // Create the top-level provider, if necessary.
-    if (!pdmr->_pdspProvider)
-    {
+    if (!pdmr->_pdspProvider) {
         hr = CDataSourceProvider::Create(this, Doc(), bstrMember, &pdmr->_pdspProvider);
         if (hr)
             goto Cleanup;
@@ -740,9 +703,9 @@ HRESULT
 CDataMemberMgr::ChangeDataBindingInterface(BSTR bstrMember, BOOL fDataAvail)
 {
     HRESULT hr = S_OK;
-    CDataMemberRecord *pdmr = GetDataMemberRecord(bstrMember);
-    CDataSourceProvider *pdspOldProvider;
-    CDataSourceProvider *pdspNewProvider;
+    CDataMemberRecord* pdmr = GetDataMemberRecord(bstrMember);
+    CDataSourceProvider* pdspOldProvider;
+    CDataSourceProvider* pdspNewProvider;
 
     // if my control isn't a data provider or we don't care about data member,
     // just ignore
@@ -751,15 +714,13 @@ CDataMemberMgr::ChangeDataBindingInterface(BSTR bstrMember, BOOL fDataAvail)
 
     // remember the old provider, discard the old interface
     pdspOldProvider = pdmr->_pdspProvider;
-    if (pdmr->_punkDataBinding != PUNKDB_UNKNOWN)
-    {
+    if (pdmr->_punkDataBinding != PUNKDB_UNKNOWN) {
         ClearInterface(&pdmr->_punkDataBinding);
     }
     pdmr->_punkDataBinding = PUNKDB_UNKNOWN;
 
     // get the new interface from the control
-    if (fDataAvail)
-    {
+    if (fDataAvail) {
         IGNORE_HR(EnsureDataBindingInterface(bstrMember));
     }
 
@@ -769,8 +730,7 @@ CDataMemberMgr::ChangeDataBindingInterface(BSTR bstrMember, BOOL fDataAvail)
 
     pdmr->_pdspProvider = NULL;                     // unhook the old provider
     hr = GetDataSourceProvider(bstrMember, &pdspNewProvider);   // hook up a new one
-    if (hr)
-    {
+    if (hr) {
         pdmr->_pdspProvider = pdspOldProvider;      // if error, restore status quo
         goto Cleanup;
     }
@@ -793,8 +753,7 @@ CDataMemberMgr::DATA_PROVIDER_TYPE
 CDataMemberMgr::GetDataProviderType()
 {
     // Do we already know what data provider type this site is hosting?
-    if (_dpt==DPT_UNKNOWN)
-    {
+    if (_dpt == DPT_UNKNOWN) {
         // No. Try to find one.
         FindDataProviderType();
     }
@@ -815,31 +774,27 @@ HRESULT
 CDataMemberMgr::EnsureDataBindingInterface(BSTR bstrMember)
 {
     HRESULT hr = S_OK;
-    CDataMemberRecord *pdmr;
-    IUnknown *punkNew = NULL;
+    CDataMemberRecord* pdmr;
+    IUnknown* punkNew = NULL;
 
     // look up the data member
     pdmr = GetDataMemberRecord(bstrMember);
 
     // if not there, create one
-    if (pdmr == NULL)
-    {
+    if (pdmr == NULL) {
         pdmr = AddDataMemberRecord(bstrMember);
-        if (pdmr == NULL)
-        {
+        if (pdmr == NULL) {
             hr = E_FAIL;
             goto Cleanup;
         }
     }
 
     // get the interface, if not there already
-    if (pdmr->_punkDataBinding == PUNKDB_UNKNOWN)
-    {
-        CLASSINFO *pci;
-        IServiceProvider *pServiceProvider = NULL;
+    if (pdmr->_punkDataBinding == PUNKDB_UNKNOWN) {
+        CLASSINFO* pci;
+        IServiceProvider* pServiceProvider = NULL;
 
-        switch (GetDataProviderType())
-        {
+        switch (GetDataProviderType()) {
         case DPT_DATASOURCE:
             Assert(_pDataSource);
             hr = _pDataSource->getDataMember(bstrMember, IID_IUnknown, &punkNew);
@@ -858,7 +813,7 @@ CDataMemberMgr::EnsureDataBindingInterface(BSTR bstrMember)
                                 &punkNew,
                                 EVENT_PARAM(VTS_BSTR),
                                 bstrMember
-                                );
+            );
             ReleaseInterface(pServiceProvider);
             break;
 
@@ -872,12 +827,11 @@ CDataMemberMgr::EnsureDataBindingInterface(BSTR bstrMember)
             if (pci->dispidSTD != DISPID_UNKNOWN) // offers OLEDBSimpleProvider
             {
                 hr = _pOleSite->GetInterfaceProperty(pci->uGetSTD, pci->dispidSTD,
-                                            IID_OLEDBSimpleProvider, &punkNew);
-            }
-            else if (pci->dispidRowset != DISPID_UNKNOWN)        // offers IRowset
+                                                     IID_OLEDBSimpleProvider, &punkNew);
+            } else if (pci->dispidRowset != DISPID_UNKNOWN)        // offers IRowset
             {
                 hr = _pOleSite->GetInterfaceProperty(pci->uGetRowset, pci->dispidRowset,
-                                            IID_IRowset, &punkNew);
+                                                     IID_IRowset, &punkNew);
             }
             break;
         }
@@ -886,14 +840,12 @@ CDataMemberMgr::EnsureDataBindingInterface(BSTR bstrMember)
         // allow the control to die while references to OSPs are still outstanding.
         // To work around this problem, build a proxy object that artificially
         // increments the refcount of the control throughout the lifetime of the OSP.
-        if (!hr && punkNew)
-        {
-            IUnknown *punkOther = NULL;
-            COSPProxy *pProxy = new COSPProxy();
+        if (!hr && punkNew) {
+            IUnknown* punkOther = NULL;
+            COSPProxy* pProxy = new COSPProxy();
 
             // get a controlling unknown for the DSO
-            switch (_et)
-            {
+            switch (_et) {
             case ET_OLESITE:
                 punkOther = _pOleSite->PunkCtrl();
                 punkOther->AddRef();
@@ -909,12 +861,9 @@ CDataMemberMgr::EnsureDataBindingInterface(BSTR bstrMember)
             // If anything goes wrong (such as if Init() fails because
             // punkNew doesn't implement OLEDBSimpleProvider), then we'll
             // just proceed as normal.
-            if (punkOther == NULL || pProxy == NULL || pProxy->Init(punkNew, punkOther))
-            {
+            if (punkOther == NULL || pProxy == NULL || pProxy->Init(punkNew, punkOther)) {
                 delete pProxy;
-            }
-            else
-            {
+            } else {
                 punkNew->Release();
                 punkNew = (IUnknown*)(void*)pProxy;
             }
@@ -940,18 +889,17 @@ Cleanup:
 
 
 HRESULT
-CDataMemberMgr::GetDataBindingInterface(BSTR bstrMember, IUnknown **ppunkDataBinding)
+CDataMemberMgr::GetDataBindingInterface(BSTR bstrMember, IUnknown** ppunkDataBinding)
 {
     HRESULT hr = S_OK;
-    CDataMemberRecord *pdmr;
-    IUnknown *punkDataBinding = NULL;
+    CDataMemberRecord* pdmr;
+    IUnknown* punkDataBinding = NULL;
 
     // look up the data member
     pdmr = GetDataMemberRecord(bstrMember);
 
     // if this is first request, try to get the dataset
-    if (pdmr == NULL || pdmr->_punkDataBinding == PUNKDB_UNKNOWN)
-    {
+    if (pdmr == NULL || pdmr->_punkDataBinding == PUNKDB_UNKNOWN) {
         hr = EnsureDataBindingInterface(bstrMember);
         if (pdmr == NULL)
             pdmr = GetDataMemberRecord(bstrMember);
@@ -983,21 +931,20 @@ void
 CDataMemberMgr::FindDataProviderType()
 {
     HRESULT hr = S_OK;
-    CLASSINFO *pci;
-    IDispatch *pDisp;
+    CLASSINFO* pci;
+    IDispatch* pDisp;
     DISPID dispid;
-    IUnknown *punkInterface = 0;
-    static OLECHAR * oszMsDATASRCObject = _T("msDataSourceObject");
-    static OLECHAR * oszAddDataSrcListener = _T("addDataSourceListener");
-    DataSource *pDataSource = 0;
-    IServiceProvider *pServiceProvider = 0;
+    IUnknown* punkInterface = 0;
+    static OLECHAR* oszMsDATASRCObject = _T("msDataSourceObject");
+    static OLECHAR* oszAddDataSrcListener = _T("addDataSourceListener");
+    DataSource* pDataSource = 0;
+    IServiceProvider* pServiceProvider = 0;
 
     Assert(_dpt == DPT_UNKNOWN);    // if we already know, why bother
 
     _dpt = DPT_NOTAPROVIDER;        // assume the worst
 
-    switch (_et)
-    {
+    switch (_et) {
     case ET_OLESITE:
         Assert(_pOleSite);
         // must have a valid dispatch for any of our methods
@@ -1012,13 +959,11 @@ CDataMemberMgr::FindDataProviderType()
         // the service provider (if needed) is the doc
         Doc()->PrivateQueryInterface(IID_IServiceProvider, (void**)&pServiceProvider);
 
-        switch (_pOleSite->OlesiteTag())
-        {
+        switch (_pOleSite->OlesiteTag()) {
         case COleSite::OSTAG_ACTIVEX:
             // method 5:  look for DataSource
             hr = _pOleSite->QueryControlInterface(IID_DataSource, (void**)&pDataSource);
-            if (hr == S_OK)
-            {
+            if (hr == S_OK) {
                 _dpt = DPT_DATASOURCE;
                 IGNORE_HR(pDataSource->addDataSourceListener((DataSourceListener*)this));
                 _pDataSource = pDataSource;
@@ -1033,30 +978,28 @@ CDataMemberMgr::FindDataProviderType()
                                 VT_UNKNOWN,
                                 &punkInterface,
                                 EVENT_PARAM(VTS_BSTR),
-                                (BSTR) 0
-                                );
-            if (!DISPID_NOT_FOUND(hr))
-            {
+                                (BSTR)0
+            );
+            if (!DISPID_NOT_FOUND(hr)) {
                 _dpt = DPT_COM;
                 _dispidDataBinding = DISPID_MSDATASRCINTERFACE;
 
                 // listen for DatasrcChanged
                 IGNORE_HR(CallDispMethod(pServiceProvider,
-                                        _pOleSite->_pDisp,
-                                        DISPID_ADVISEDATASRCCHANGEEVENT,
-                                        g_lcidUserDefault,
-                                        VT_VOID,
-                                        NULL,
-                                        EVENT_PARAM(VTS_UNKNOWN),
-                                        (IUnknown*)(DataSourceListener*) this
-                                        ));
+                                         _pOleSite->_pDisp,
+                                         DISPID_ADVISEDATASRCCHANGEEVENT,
+                                         g_lcidUserDefault,
+                                         VT_VOID,
+                                         NULL,
+                                         EVENT_PARAM(VTS_UNKNOWN),
+                                         (IUnknown*)(DataSourceListener*)this
+                ));
                 break;
             }
 
             // method 3:  look for IVBDSC (VB ICursor controls)
             hr = _pOleSite->QueryControlInterface(IID_IVBDSC, (void**)&punkInterface);
-            if (hr == S_OK)
-            {
+            if (hr == S_OK) {
                 _dpt = DPT_ICURSOR;
                 break;
             }
@@ -1075,32 +1018,30 @@ CDataMemberMgr::FindDataProviderType()
                 break;
             }
 
-        break;
+            break;
 
         case COleSite::OSTAG_APPLET:
             // method 2:  look for the msDATASRCObject method (Java applets)
             hr = _pOleSite->_pDisp->GetIDsOfNames(IID_NULL, &oszMsDATASRCObject, 1,
-                                        g_lcidUserDefault, &dispid);
-            if (hr == S_OK)
-            {
-                DataSourceListener *pDSL = 0;
+                                                  g_lcidUserDefault, &dispid);
+            if (hr == S_OK) {
+                DataSourceListener* pDSL = 0;
 
                 _dpt = DPT_JAVA;
                 _dispidDataBinding = dispid;
 
                 // listen for DatasrcChanged
-                if (S_OK ==_pOleSite->_pDisp->GetIDsOfNames(IID_NULL, &oszAddDataSrcListener, 1,
-                                        g_lcidUserDefault, &dispid))
-                {
+                if (S_OK == _pOleSite->_pDisp->GetIDsOfNames(IID_NULL, &oszAddDataSrcListener, 1,
+                                                             g_lcidUserDefault, &dispid)) {
                     IGNORE_HR(CallDispMethod(pServiceProvider,
-                                            _pOleSite->_pDisp,
-                                            dispid,
-                                            g_lcidUserDefault,
-                                            VT_VOID,
-                                            NULL,
-                                            EVENT_PARAM(VTS_UNKNOWN),
-                                            (IUnknown*)(DataSourceListener*) this
-                                            ));
+                                             _pOleSite->_pDisp,
+                                             dispid,
+                                             g_lcidUserDefault,
+                                             VT_VOID,
+                                             NULL,
+                                             EVENT_PARAM(VTS_UNKNOWN),
+                                             (IUnknown*)(DataSourceListener*)this
+                    ));
                     ReleaseInterface(pDSL);
                 }
             }
@@ -1112,20 +1053,19 @@ CDataMemberMgr::FindDataProviderType()
     case ET_XML:
     {
         HRESULT     hr;
-        DataSource *pDataSource = NULL;
+        DataSource* pDataSource = NULL;
         DISPID      dispid;
         VARIANT     varRet;
         EXCEPINFO   excepinfo;
         DISPPARAMS  dispparams = {NULL, NULL, 0, 0};
         UINT        uiError;
-        IXMLDocument *pXMLDocument = NULL;
+        IXMLDocument* pXMLDocument = NULL;
 
 #define QIforDataSource
 #ifdef QIforDataSource
         // get DataSource from the data island
         hr = _pElementOwner->QueryInterface(IID_DataSource, (void**)&pDataSource);
-        if (hr == S_OK)
-        {
+        if (hr == S_OK) {
             _dpt = DPT_DATASOURCE;
             IGNORE_HR(pDataSource->addDataSourceListener((DataSourceListener*)this));
             _pDataSource = pDataSource;
@@ -1139,25 +1079,22 @@ CDataMemberMgr::FindDataProviderType()
         hr = _pElementOwner->GetDispID(_T("XMLDocument"), fdexNameCaseSensitive, &dispid);
         if (!hr)
             hr = _pElementOwner->Invoke(
-                                    dispid,
-                                    IID_NULL,
-                                    LOCALE_SYSTEM_DEFAULT,
-                                    DISPATCH_PROPERTYGET,
-                                    &dispparams,
-                                    &varRet,
-                                    &excepinfo,
-                                    &uiError);
-        if (!hr && (V_VT(&varRet) == VT_DISPATCH || V_VT(&varRet) == VT_UNKNOWN))
-        {
-            pXMLDocument = (IXMLDocument *) V_UNKNOWN(&varRet);
+                dispid,
+                IID_NULL,
+                LOCALE_SYSTEM_DEFAULT,
+                DISPATCH_PROPERTYGET,
+                &dispparams,
+                &varRet,
+                &excepinfo,
+                &uiError);
+        if (!hr && (V_VT(&varRet) == VT_DISPATCH || V_VT(&varRet) == VT_UNKNOWN)) {
+            pXMLDocument = (IXMLDocument*)V_UNKNOWN(&varRet);
         }
 
         // get DataSource from the document
-        if (pXMLDocument)
-        {
+        if (pXMLDocument) {
             hr = pXMLDocument->QueryInterface(IID_DataSource, (void**)&pDataSource);
-            if (hr == S_OK)
-            {
+            if (hr == S_OK) {
                 _dpt = DPT_DATASOURCE;
                 IGNORE_HR(pDataSource->addDataSourceListener((DataSourceListener*)this));
                 _pDataSource = pDataSource;
@@ -1174,24 +1111,21 @@ CDataMemberMgr::FindDataProviderType()
 
 
     // if the DSO uses DataSource, it might also use ISimpleDataConverter
-    if (_dpt == DPT_DATASOURCE)
-    {
-        ISimpleDataConverter *pSDC = NULL;
+    if (_dpt == DPT_DATASOURCE) {
+        ISimpleDataConverter* pSDC = NULL;
 
         hr = _pDataSource->QueryInterface(IID_ISimpleDataConverter, (void**)&pSDC);
 
 #if DBG == 1
         // for debugging, use an internal mock-up of ISimpleDataConverter
-        if (IsTagEnabled(tagUseDebugSDC))
-        {
+        if (IsTagEnabled(tagUseDebugSDC)) {
             ReleaseInterface(pSDC);
             pSDC = new CDbgSimpleDataConverter;
             hr = S_OK;
         }
 #endif
 
-        if (!hr && pSDC)
-        {
+        if (!hr && pSDC) {
             _pSDC = pSDC;
         }
     }
@@ -1214,13 +1148,11 @@ void
 CDataMemberMgr::DetachDataProviders()
 {
     int i;
-    CDataMemberRecord *pdmr;
+    CDataMemberRecord* pdmr;
 
     // disconnect providers
-    for (i=_aryDataMember.Size(), pdmr=_aryDataMember; i>0; --i, ++pdmr)
-    {
-        if (pdmr->_pdspProvider)
-        {
+    for (i = _aryDataMember.Size(), pdmr = _aryDataMember; i > 0; --i, ++pdmr) {
+        if (pdmr->_pdspProvider) {
             pdmr->_pdspProvider->Detach();
             pdmr->_pdspProvider->Release();
             pdmr->_pdspProvider = NULL;
@@ -1240,29 +1172,25 @@ void
 CDataMemberMgr::Detach()
 {
     int i;
-    CDataMemberRecord *pdmr;
+    CDataMemberRecord* pdmr;
 
     // disconnect databinding stuff
-    for (i=_aryDataMember.Size(), pdmr=_aryDataMember; i>0; --i, ++pdmr)
-    {
+    for (i = _aryDataMember.Size(), pdmr = _aryDataMember; i > 0; --i, ++pdmr) {
         FormsFreeString(pdmr->_bstrName);
 
-        if (pdmr->_pdspProvider)
-        {
+        if (pdmr->_pdspProvider) {
             pdmr->_pdspProvider->Detach();
             pdmr->_pdspProvider->Release();
             pdmr->_pdspProvider = NULL;
         }
 
-        if (pdmr->_punkDataBinding != PUNKDB_UNKNOWN)
-        {
+        if (pdmr->_punkDataBinding != PUNKDB_UNKNOWN) {
             ClearInterface(&pdmr->_punkDataBinding);
         }
     }
     _aryDataMember.DeleteAll();
 
-    switch (_dpt)
-    {
+    switch (_dpt) {
     case DPT_DATASOURCE:
         IGNORE_HR(_pDataSource->removeDataSourceListener((DataSourceListener*)this));
         ClearInterface(&_pDataSource);
@@ -1271,20 +1199,20 @@ CDataMemberMgr::Detach()
 
     case DPT_COM:
     case DPT_JAVA:
-        Assert(_et==ET_OLESITE && _pOleSite);
-    // BUGBUG the spec says we're supposed to call addDataSourceListener(NULL)
-    // but TDC, and presumably other controls, barf if we do
+        Assert(_et == ET_OLESITE && _pOleSite);
+        // BUGBUG the spec says we're supposed to call addDataSourceListener(NULL)
+        // but TDC, and presumably other controls, barf if we do
 #if defined(CONTROLS_KNOW_HOW_TO_HANDLE_AddDataSourceListener_NULL)
         Doc()->PrivateQueryInterface(IID_IServiceProvider, (void**)&pServiceProvider);
         IGNORE_HR(CallDispMethod(pServiceProvider,
-                                _pOleSite->_pDisp,
-                                DISPID_ADVISEDATASRCCHANGEEVENT,
-                                g_lcidUserDefault,
-                                VT_VOID,
-                                NULL,
-                                EVENT_PARAM(VTS_UNKNOWN),
-                                NULL
-                                ));
+                                 _pOleSite->_pDisp,
+                                 DISPID_ADVISEDATASRCCHANGEEVENT,
+                                 g_lcidUserDefault,
+                                 VT_VOID,
+                                 NULL,
+                                 EVENT_PARAM(VTS_UNKNOWN),
+                                 NULL
+        ));
         ReleaseInterface(pServiceProvider);
 #endif
         break;
@@ -1304,13 +1232,12 @@ CDataMemberMgr::Detach()
 
 
 void
-CDataMemberMgr::Notify(CNotification * pnf)
+CDataMemberMgr::Notify(CNotification* pnf)
 {
-    CDataMemberRecord * pdmr;
+    CDataMemberRecord* pdmr;
     int                 i;
 
-    switch (pnf->Type())
-    {
+    switch (pnf->Type()) {
     case NTYPE_STOP_1:
         if (_aryDataMember.Size())
             pnf->SetSecondChanceRequested();
@@ -1318,12 +1245,10 @@ CDataMemberMgr::Notify(CNotification * pnf)
 
     case NTYPE_STOP_2:
         // try to stop any data transfers that may be in progress
-        for (i=_aryDataMember.Size(), pdmr=_aryDataMember;
+        for (i = _aryDataMember.Size(), pdmr = _aryDataMember;
              i > 0;
-             --i, ++pdmr)
-        {
-            if (pdmr->_pdspProvider)
-            {
+             --i, ++pdmr) {
+            if (pdmr->_pdspProvider) {
                 IGNORE_HR(pdmr->_pdspProvider->Stop());
             }
         }
@@ -1331,12 +1256,11 @@ CDataMemberMgr::Notify(CNotification * pnf)
 
     case NTYPE_BEFORE_UNLOAD:
         // Databinding spec requires us to fire onrowexit here..
-        for (i=_aryDataMember.Size(), pdmr=_aryDataMember; i>0; --i, ++pdmr)
-        {
+        for (i = _aryDataMember.Size(), pdmr = _aryDataMember; i > 0; --i, ++pdmr) {
             if (pdmr->_pdspProvider)          // Are we a data provider?
             {
                 pdmr->_pdspProvider->FireDataEvent(_T("rowexit"),
-                            DISPID_EVMETH_ONROWEXIT, DISPID_EVPROP_ONROWEXIT);
+                                                   DISPID_EVMETH_ONROWEXIT, DISPID_EVPROP_ONROWEXIT);
             }
         }
         break;
@@ -1363,14 +1287,13 @@ CDataMemberMgr::Notify(CNotification * pnf)
 
 
 HRESULT
-CDataMemberMgr::GetTridentAsOSP(CDoc **ppDocOSP)
+CDataMemberMgr::GetTridentAsOSP(CDoc** ppDocOSP)
 {
     HRESULT hr = S_FALSE;
 
     if (_et == ET_OLESITE &&
         S_OK == _pOleSite->QueryControlInterface(CLSID_HTMLDocument,
-                                                (void**)ppDocOSP))
-    {
+        (void**)ppDocOSP)) {
         hr = S_OK;
     }
 
@@ -1390,17 +1313,15 @@ CDataMemberMgr::GetTridentAsOSP(CDoc **ppDocOSP)
 void
 CDataMemberMgr::EnsureDataEvents()
 {
-    CDataMemberRecord *pdmr = GetDataMemberRecord(NULL);
-    CDataSourceBinder *pdsb;
+    CDataMemberRecord* pdmr = GetDataMemberRecord(NULL);
+    CDataSourceBinder* pdsb;
 
     // if there's already a provider, no need to create a new one
-    if (pdmr==NULL || pdmr->_pdspProvider == NULL)
-    {
+    if (pdmr == NULL || pdmr->_pdspProvider == NULL) {
         // create a provider next time the databinding task list runs
         pdsb = new CDataSourceBinder(_pElementOwner, 0, BINDEROP_ENSURE_DATA_EVENTS);
 
-        if (pdsb)
-        {
+        if (pdsb) {
             DBSPEC dbs;
             memset(&dbs, 0, sizeof(DBSPEC));
             pdsb->Register(&dbs);
@@ -1426,59 +1347,52 @@ CDataMemberMgr::EnsureDataEvents()
 
 HRESULT
 CDataMemberMgr::namedRecordset(BSTR bstrDatamember,
-                               VARIANT *pvarHierarchy,
-                               IDispatch **ppRecordSet)
+                               VARIANT* pvarHierarchy,
+                               IDispatch** ppRecordSet)
 {
-    HRESULT hr=S_OK;
+    HRESULT hr = S_OK;
     BSTR bstrHierarchy = NULL;
 
-    if (ppRecordSet == NULL)
-    {
+    if (ppRecordSet == NULL) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
 
     *ppRecordSet = NULL;                 // Make sure to null on failure.
 
-    if (pvarHierarchy && V_VT(pvarHierarchy) == VT_BSTR)
-    {
+    if (pvarHierarchy && V_VT(pvarHierarchy) == VT_BSTR) {
         bstrHierarchy = V_BSTR(pvarHierarchy);
     }
 
     // normal case, return ADO recordset based on my provider
-    if (IsDataProvider())
-    {
-        CDataSourceProvider *pdsp = NULL;
+    if (IsDataProvider()) {
+        CDataSourceProvider* pdsp = NULL;
 
         // get the top-level provider for the desired data member
         hr = GetDataSourceProvider(bstrDatamember, &pdsp);
 
         // find the inner level of hierarchy, if desired
-        if (!hr && pdsp && !FormsIsEmptyString(bstrHierarchy))
-        {
-            CDataSourceProvider *pdspTop = pdsp;
+        if (!hr && pdsp && !FormsIsEmptyString(bstrHierarchy)) {
+            CDataSourceProvider* pdspTop = pdsp;
             hr = pdspTop->GetSubProvider(&pdsp, bstrHierarchy);
             pdspTop->Release();
         }
 
-        if (pdsp)
-        {
+        if (pdsp) {
             // We then query the CDataSourceProvider to give us back an ADO recordset,
             // if it can.
-            hr = pdsp->QueryDataInterface(IID_IADORecordset15, (void **)ppRecordSet);
+            hr = pdsp->QueryDataInterface(IID_IADORecordset15, (void**)ppRecordSet);
             pdsp->Release();
 
             // We clamp the most obvious failure mode here, so script authors can
             // simply test for recordset being NULL, and not get script errors.
-            if (E_NOINTERFACE == hr)
-            {
+            if (E_NOINTERFACE == hr) {
                 hr = S_OK;
             }
         }
     }
 
-    else
-    {
+    else {
         hr = S_FALSE;
     }
 
@@ -1554,19 +1468,16 @@ CDataMemberMgr::dataMemberRemoved(BSTR bstrDM)
     if (IllegalCall(COleSite::VALIDATE_LOADED))
         RRETURN(E_UNEXPECTED);
 
-    CDataMemberRecord *pdmr = GetDataMemberRecord(bstrDM);
+    CDataMemberRecord* pdmr = GetDataMemberRecord(bstrDM);
 
-    if (pdmr)
-    {
-        if (pdmr->_pdspProvider)
-        {
+    if (pdmr) {
+        if (pdmr->_pdspProvider) {
             pdmr->_pdspProvider->Detach();
             pdmr->_pdspProvider->Release();
             pdmr->_pdspProvider = NULL;
         }
 
-        if (pdmr->_punkDataBinding != PUNKDB_UNKNOWN)
-        {
+        if (pdmr->_punkDataBinding != PUNKDB_UNKNOWN) {
             ClearInterface(&pdmr->_punkDataBinding);
         }
     }
@@ -1614,20 +1525,19 @@ STDMETHODIMP CBase::put_DataEvent(VARIANT v)
 {
     GET_THUNK_PROPDESC
 
-    return put_DataEventHelper(v, pPropDesc);
+        return put_DataEventHelper(v, pPropDesc);
 }
 #ifdef USE_STACK_SPEW
 #pragma check_stack(on)
 #endif
 
-STDMETHODIMP CBase::put_DataEventHelper(VARIANT v, const PROPERTYDESC *pPropDesc, CAttrArray ** ppAttr)
+STDMETHODIMP CBase::put_DataEventHelper(VARIANT v, const PROPERTYDESC* pPropDesc, CAttrArray** ppAttr)
 {
     HRESULT     hr;
 
-    hr = put_VariantHelper(v, pPropDesc,  ppAttr);
+    hr = put_VariantHelper(v, pPropDesc, ppAttr);
 
-    if (!hr)
-    {
+    if (!hr) {
         // if we add a data event to an element, make sure the event can fire
         CDataMemberMgr::EnsureDataEventsFor(this, pPropDesc->GetDispid());
     }
@@ -1649,16 +1559,15 @@ STDMETHODIMP CBase::put_DataEventHelper(VARIANT v, const PROPERTYDESC *pPropDesc
 
 
 void
-CDataMemberMgr::EnsureDataEventsFor(CBase *pBase, DISPID dispid)
+CDataMemberMgr::EnsureDataEventsFor(CBase* pBase, DISPID dispid)
 {
-    CElement *pElement = NULL;
-    CDataMemberMgr *pdmm;
+    CElement* pElement = NULL;
+    CDataMemberMgr* pdmm;
     HRESULT hr;
 
-    switch (dispid)
-    {
-    // this list must agree with the list of events marked "dataevent"
-    // in element.pdl
+    switch (dispid) {
+        // this list must agree with the list of events marked "dataevent"
+        // in element.pdl
     case DISPID_EVPROP_ONROWEXIT:
     case DISPID_EVPROP_ONROWENTER:
     case DISPID_EVPROP_ONDATASETCHANGED:
@@ -1669,12 +1578,10 @@ CDataMemberMgr::EnsureDataEventsFor(CBase *pBase, DISPID dispid)
     case DISPID_EVPROP_ONCELLCHANGE:
 
         hr = pBase->PrivateQueryInterface(CLSID_CElement, (void**)&pElement);
-        if (!hr && pElement)
-        {
+        if (!hr && pElement) {
             pElement->EnsureDataMemberManager();
             pdmm = pElement->GetDataMemberManager();
-            if (pdmm)
-            {
+            if (pdmm) {
                 pdmm->EnsureDataEvents();
             }
         }

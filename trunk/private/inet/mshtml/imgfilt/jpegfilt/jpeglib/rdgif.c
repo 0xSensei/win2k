@@ -107,10 +107,10 @@ typedef struct {
     int firstcode;        /* first byte of oldcode's expansion */
 
     /* LZW symbol table and expansion stack */
-    UINT16 FAR *symbol_head;    /* => table of prefix symbols */
-    UINT8  FAR *symbol_tail;    /* => table of suffix bytes */
-    UINT8  FAR *symbol_stack;    /* => stack for symbol expansions */
-    UINT8  FAR *sp;        /* stack pointer */
+    UINT16 FAR* symbol_head;    /* => table of prefix symbols */
+    UINT8  FAR* symbol_tail;    /* => table of suffix bytes */
+    UINT8  FAR* symbol_stack;    /* => stack for symbol expansions */
+    UINT8  FAR* sp;        /* stack pointer */
 
     /* State for interlaced image processing */
     boolean is_interlaced;    /* TRUE if have interlaced image */
@@ -121,7 +121,7 @@ typedef struct {
     JDIMENSION pass4_offset;    /* # of pixel rows in passes 1,2,3 */
 } gif_source_struct;
 
-typedef gif_source_struct * gif_source_ptr;
+typedef gif_source_struct* gif_source_ptr;
 
 
 /* Forward declarations */
@@ -135,7 +135,7 @@ JPP((j_compress_ptr cinfo, cjpeg_source_ptr sinfo));
 LOCAL(int) ReadByte(gif_source_ptr sinfo)
 /* Read next byte from GIF file */
 {
-    register FILE * infile = sinfo->pub.input_file;
+    register FILE* infile = sinfo->pub.input_file;
     int c;
 
     if ((c = getc(infile)) == EOF)
@@ -145,7 +145,7 @@ LOCAL(int) ReadByte(gif_source_ptr sinfo)
 
 
 LOCAL(int)
-GetDataBlock(gif_source_ptr sinfo, char *buf)
+GetDataBlock(gif_source_ptr sinfo, char* buf)
 /* Read a GIF data block, which has a leading count byte */
 /* A zero-length block marks the end of a data block sequence */
 {
@@ -248,7 +248,7 @@ GetCode(gif_source_ptr sinfo)
 
     /* Right-align cur_bit in accum, then mask off desired number of bits */
     accum >>= (sinfo->cur_bit & 7);
-    ret = ((int) accum) & ((1 << sinfo->code_size) - 1);
+    ret = ((int)accum) & ((1 << sinfo->code_size) - 1);
 
     sinfo->cur_bit += sinfo->code_size;
     return ret;
@@ -267,12 +267,11 @@ LZWReadByte(gif_source_ptr sinfo)
     if (sinfo->first_time) {
         sinfo->first_time = FALSE;
         code = sinfo->clear_code;    /* enables sharing code with Clear case */
-    }
-    else {
+    } else {
 
         /* If any codes are stacked from a previously read symbol, return them */
         if (sinfo->sp > sinfo->symbol_stack)
-            return (int) *(--sinfo->sp);
+            return (int)*(--sinfo->sp);
 
         /* Time to read a new symbol */
         code = GetCode(sinfo);
@@ -317,7 +316,7 @@ LZWReadByte(gif_source_ptr sinfo)
             incode = 0;        /* prevent creation of loops in symbol table */
         }
         /* this symbol will be defined as oldcode/firstcode */
-        *(sinfo->sp++) = (UINT8) sinfo->firstcode;
+        *(sinfo->sp++) = (UINT8)sinfo->firstcode;
         code = sinfo->oldcode;
     }
 
@@ -333,7 +332,7 @@ LZWReadByte(gif_source_ptr sinfo)
     if ((code = sinfo->max_code) < LZW_TABLE_SIZE) {
         /* Define a new symbol = prev sym + head of this sym's expansion */
         sinfo->symbol_head[code] = sinfo->oldcode;
-        sinfo->symbol_tail[code] = (UINT8) sinfo->firstcode;
+        sinfo->symbol_tail[code] = (UINT8)sinfo->firstcode;
         sinfo->max_code++;
         /* Is it time to increase code_size? */
         if ((sinfo->max_code >= sinfo->limit_code) &&
@@ -360,9 +359,9 @@ ReadColorMap(gif_source_ptr sinfo, int cmaplen, JSAMPARRAY cmap)
 #else
 #define UPSCALE(x)  ((x) << (BITS_IN_JSAMPLE-8))
 #endif
-        cmap[CM_RED][i] = (JSAMPLE) UPSCALE(ReadByte(sinfo));
-        cmap[CM_GREEN][i] = (JSAMPLE) UPSCALE(ReadByte(sinfo));
-        cmap[CM_BLUE][i] = (JSAMPLE) UPSCALE(ReadByte(sinfo));
+        cmap[CM_RED][i] = (JSAMPLE)UPSCALE(ReadByte(sinfo));
+        cmap[CM_GREEN][i] = (JSAMPLE)UPSCALE(ReadByte(sinfo));
+        cmap[CM_BLUE][i] = (JSAMPLE)UPSCALE(ReadByte(sinfo));
     }
 }
 
@@ -389,7 +388,7 @@ DoExtension(gif_source_ptr sinfo)
 METHODDEF(void)
 start_input_gif(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
-    gif_source_ptr source = (gif_source_ptr) sinfo;
+    gif_source_ptr source = (gif_source_ptr)sinfo;
     char hdrbuf[10];        /* workspace for reading control blocks */
     unsigned int width, height;    /* image dimensions */
     int colormaplen, aspectRatio;
@@ -397,8 +396,8 @@ start_input_gif(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 
     /* Allocate space to store the colormap */
     source->colormap = (*cinfo->mem->alloc_sarray)
-        ((j_common_ptr) cinfo, JPOOL_IMAGE,
-        (JDIMENSION) MAXCOLORMAPSIZE, (JDIMENSION) NUMCOLORS);
+        ((j_common_ptr)cinfo, JPOOL_IMAGE,
+        (JDIMENSION)MAXCOLORMAPSIZE, (JDIMENSION)NUMCOLORS);
 
     /* Read and verify GIF Header */
     if (!ReadOK(source->pub.input_file, hdrbuf, 6))
@@ -474,15 +473,15 @@ start_input_gif(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
     }
 
     /* Prepare to read selected image: first initialize LZW decompressor */
-    source->symbol_head = (UINT16 FAR *)
-        (*cinfo->mem->alloc_large) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-        LZW_TABLE_SIZE * SIZEOF(UINT16));
-    source->symbol_tail = (UINT8 FAR *)
-        (*cinfo->mem->alloc_large) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-        LZW_TABLE_SIZE * SIZEOF(UINT8));
-    source->symbol_stack = (UINT8 FAR *)
-        (*cinfo->mem->alloc_large) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-        LZW_TABLE_SIZE * SIZEOF(UINT8));
+    source->symbol_head = (UINT16 FAR*)
+        (*cinfo->mem->alloc_large) ((j_common_ptr)cinfo, JPOOL_IMAGE,
+                                    LZW_TABLE_SIZE * SIZEOF(UINT16));
+    source->symbol_tail = (UINT8 FAR*)
+        (*cinfo->mem->alloc_large) ((j_common_ptr)cinfo, JPOOL_IMAGE,
+                                    LZW_TABLE_SIZE * SIZEOF(UINT8));
+    source->symbol_stack = (UINT8 FAR*)
+        (*cinfo->mem->alloc_large) ((j_common_ptr)cinfo, JPOOL_IMAGE,
+                                    LZW_TABLE_SIZE * SIZEOF(UINT8));
     InitLZWCode(source);
 
     /*
@@ -496,22 +495,21 @@ start_input_gif(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
          * image is postponed until the first call to get_pixel_rows.
          */
         source->interlaced_image = (*cinfo->mem->request_virt_sarray)
-            ((j_common_ptr) cinfo, JPOOL_IMAGE, FALSE,
-            (JDIMENSION) width, (JDIMENSION) height, (JDIMENSION) 1);
+            ((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
+            (JDIMENSION)width, (JDIMENSION)height, (JDIMENSION)1);
         if (cinfo->progress != NULL) {
-            cd_progress_ptr progress = (cd_progress_ptr) cinfo->progress;
+            cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
             progress->total_extra_passes++; /* count file input as separate pass */
         }
         source->pub.get_pixel_rows = load_interlaced_image;
-    }
-    else {
+    } else {
         source->pub.get_pixel_rows = get_pixel_rows;
     }
 
     /* Create compressor input buffer. */
     source->pub.buffer = (*cinfo->mem->alloc_sarray)
-        ((j_common_ptr) cinfo, JPOOL_IMAGE,
-        (JDIMENSION) width * NUMCOLORS, (JDIMENSION) 1);
+        ((j_common_ptr)cinfo, JPOOL_IMAGE,
+        (JDIMENSION)width * NUMCOLORS, (JDIMENSION)1);
     source->pub.buffer_height = 1;
 
     /* Return info about the image. */
@@ -534,7 +532,7 @@ start_input_gif(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 METHODDEF(JDIMENSION)
 get_pixel_rows(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
-    gif_source_ptr source = (gif_source_ptr) sinfo;
+    gif_source_ptr source = (gif_source_ptr)sinfo;
     register int c;
     register JSAMPROW ptr;
     register JDIMENSION col;
@@ -560,26 +558,26 @@ get_pixel_rows(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 METHODDEF(JDIMENSION)
 load_interlaced_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
-    gif_source_ptr source = (gif_source_ptr) sinfo;
+    gif_source_ptr source = (gif_source_ptr)sinfo;
     JSAMPARRAY image_ptr;
     register JSAMPROW sptr;
     register JDIMENSION col;
     JDIMENSION row;
-    cd_progress_ptr progress = (cd_progress_ptr) cinfo->progress;
+    cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
 
     /* Read the interlaced image into the virtual array we've created. */
     for (row = 0; row < cinfo->image_height; row++) {
         if (progress != NULL) {
-            progress->pub.pass_counter = (long) row;
-            progress->pub.pass_limit = (long) cinfo->image_height;
-            (*progress->pub.progress_monitor) ((j_common_ptr) cinfo);
+            progress->pub.pass_counter = (long)row;
+            progress->pub.pass_limit = (long)cinfo->image_height;
+            (*progress->pub.progress_monitor) ((j_common_ptr)cinfo);
         }
         image_ptr = (*cinfo->mem->access_virt_sarray)
-            ((j_common_ptr) cinfo, source->interlaced_image,
-            row, (JDIMENSION) 1, TRUE);
+            ((j_common_ptr)cinfo, source->interlaced_image,
+             row, (JDIMENSION)1, TRUE);
         sptr = image_ptr[0];
         for (col = cinfo->image_width; col > 0; col--) {
-            *sptr++ = (JSAMPLE) LZWReadByte(source);
+            *sptr++ = (JSAMPLE)LZWReadByte(source);
         }
     }
     if (progress != NULL)
@@ -606,7 +604,7 @@ load_interlaced_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 METHODDEF(JDIMENSION)
 get_interlaced_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
-    gif_source_ptr source = (gif_source_ptr) sinfo;
+    gif_source_ptr source = (gif_source_ptr)sinfo;
     JSAMPARRAY image_ptr;
     register int c;
     register JSAMPROW sptr, ptr;
@@ -615,7 +613,7 @@ get_interlaced_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
     JDIMENSION irow;
 
     /* Figure out which row of interlaced image is needed, and access it. */
-    switch ((int) (source->cur_row_number & 7)) {
+    switch ((int)(source->cur_row_number & 7)) {
     case 0:            /* first-pass row */
         irow = source->cur_row_number >> 3;
         break;
@@ -631,8 +629,8 @@ get_interlaced_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
         break;
     }
     image_ptr = (*cinfo->mem->access_virt_sarray)
-        ((j_common_ptr) cinfo, source->interlaced_image,
-        irow, (JDIMENSION) 1, FALSE);
+        ((j_common_ptr)cinfo, source->interlaced_image,
+         irow, (JDIMENSION)1, FALSE);
     /* Scan the row, expand colormap, and output */
     sptr = image_ptr[0];
     ptr = source->pub.buffer[0];
@@ -668,14 +666,14 @@ GLOBAL(cjpeg_source_ptr) jinit_read_gif(j_compress_ptr cinfo)
 
     /* Create module interface object */
     source = (gif_source_ptr)
-        (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-        SIZEOF(gif_source_struct));
+        (*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_IMAGE,
+                                    SIZEOF(gif_source_struct));
     source->cinfo = cinfo;    /* make back link for subroutines */
     /* Fill in method ptrs, except get_pixel_rows which start_input sets */
     source->pub.start_input = start_input_gif;
     source->pub.finish_input = finish_input_gif;
 
-    return (cjpeg_source_ptr) source;
+    return (cjpeg_source_ptr)source;
 }
 
 #endif /* GIF_SUPPORTED */

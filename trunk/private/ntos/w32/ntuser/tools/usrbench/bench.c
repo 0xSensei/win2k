@@ -1,23 +1,17 @@
-
 /*++
-
 Copyright (c) 1996  Microsoft Corporation
 
 Module Name
-
    bench.c
 
 Abstract:
-
    Measure time for a number of API calls or small application modules
 
 Author:
-
    Dan Almosnino (danalm) July 96
    Based on code by (MarkE) and DarrinM
 
 Enviornment:
-
    User Mode
 
 Revision History:
@@ -36,7 +30,6 @@ Revision History:
 
 1.  Adapted to the same format as that of GDIbench, including the features above.
 2.  Cleanup some tests.
-
 --*/
 
 #include "precomp.h"
@@ -77,12 +70,12 @@ static void DispErrorMsg(const char* title)
         title = "Error";
     }
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-        NULL,
-        GetLastError(),
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-        (LPTSTR) &msgbuf,
-        0,
-        NULL);
+                  NULL,
+                  GetLastError(),
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                  (LPTSTR)&msgbuf,
+                  0,
+                  NULL);
     MessageBox(NULL, msgbuf, title, MB_OK | MB_ICONEXCLAMATION);
     LocalFree(msgbuf);
 }
@@ -90,12 +83,12 @@ static void DispErrorMsg(const char* title)
 /*
  * Global variables
 */
-CHAR *aszTypical[] = {
+CHAR* aszTypical[] = {
     "change", "alteration", "amendment", "mutation", "permutation",
     "variation", "substitution", "modification", "transposition",
     "transformation"
 };
-INT NStrings = sizeof(aszTypical)/sizeof(aszTypical[0]);
+INT NStrings = sizeof(aszTypical) / sizeof(aszTypical[0]);
 
 BOOL gfSetFocus = TRUE;
 #define PROPCLASSNAME TEXT("PropWindow")
@@ -103,188 +96,134 @@ BOOL gfSetFocus = TRUE;
 /*
  * External global variables.
 */
-
 extern HWND ghwndFrame, ghwndMDIClient;
 extern HANDLE ghinst;
 
 /*++
-
 Routine Description:
-
     Measure start count
-
-Arguments
-
-
-
 Return Value - Performance Count
-
-
 --*/
 extern BOOL gfPentium;
-_int64
-BeginTimeMeasurement()
+_int64 BeginTimeMeasurement()
 {
     _int64 PerformanceCount;
     extern BOOL gfUseCycleCount;
 
 #ifdef _X86_
-                SYSTEM_INFO SystemInfo;
-                GetSystemInfo(&SystemInfo);
-                if(gfUseCycleCount&&(PROCESSOR_INTEL_PENTIUM==SystemInfo.dwProcessorType))
-                        gfPentium = TRUE;
-                else
+    SYSTEM_INFO SystemInfo;
+    GetSystemInfo(&SystemInfo);
+    if (gfUseCycleCount && (PROCESSOR_INTEL_PENTIUM == SystemInfo.dwProcessorType))
+        gfPentium = TRUE;
+    else
 #endif
-                        gfPentium = FALSE;
+        gfPentium = FALSE;
 #ifdef _X86_
-                if(gfPentium)
-                    PerformanceCount = GetCycleCount();
-                else
+    if (gfPentium)
+        PerformanceCount = GetCycleCount();
+    else
 #endif
-                QueryPerformanceCounter((LARGE_INTEGER *)&PerformanceCount);
+        QueryPerformanceCounter((LARGE_INTEGER*)&PerformanceCount);
 
     return(PerformanceCount);
 }
 
 /*++
-
 Routine Description:
-
     Measure stop count and return the calculated time difference
-
 Arguments
-
     StartTime   = Start Time Count
     Iter        = No. of Test Iterations
-
 Return Value - Test Time per Iteration, in 100 nano-second units
-
-
 --*/
-
-ULONGLONG
-EndTimeMeasurement(
-    _int64  StartTime,
-    ULONG      Iter)
+ULONGLONG EndTimeMeasurement(_int64  StartTime, ULONG      Iter)
 {
-
-   _int64 PerformanceCount;
-   extern  _int64 PerformanceFreq;
-   extern  BOOL gfPentium;
-
-#ifdef _X86_
-                if(gfPentium)
-                {
-                    PerformanceCount = GetCycleCount();
-                    PerformanceCount -= CCNT_OVERHEAD;
-                }
-                else
-#endif
-                    QueryPerformanceCounter((LARGE_INTEGER *)&PerformanceCount);
-
-   PerformanceCount -= StartTime ;
+    _int64 PerformanceCount;
+    extern  _int64 PerformanceFreq;
+    extern  BOOL gfPentium;
 
 #ifdef _X86_
-                if(gfPentium)
-                    PerformanceCount /= Iter;
-                else
+    if (gfPentium) {
+        PerformanceCount = GetCycleCount();
+        PerformanceCount -= CCNT_OVERHEAD;
+    } else
 #endif
-                    PerformanceCount /= (PerformanceFreq * Iter); // Result is in 100ns units
-                                                                  // because PerformanceFreq
-                                                                  // was set to Counts/(100ns)
-   return((ULONGLONG)PerformanceCount);
+        QueryPerformanceCounter((LARGE_INTEGER*)&PerformanceCount);
+
+    PerformanceCount -= StartTime;
+
+#ifdef _X86_
+    if (gfPentium)
+        PerformanceCount /= Iter;
+    else
+#endif
+        PerformanceCount /= (PerformanceFreq * Iter); // Result is in 100ns units
+                                                      // because PerformanceFreq
+                                                      // was set to Counts/(100ns)
+    return((ULONGLONG)PerformanceCount);
 }
 
 
 /*++
-
 Routine Description:
-
    Measure APIs
-
 Arguments
-
    hdc   - dc
    iter  - number of times to call
-
 Return Value
-
    time for calls
-
 --*/
-
-/*
-* RegisterClass
-
-
-* History:
-*/
-
-ULONGLONG
-msProfRegisterClass(
-    HDC hdc,
-    ULONG Iter)
+ULONGLONG msProfRegisterClass(HDC hdc, ULONG Iter)
 {
     INIT_TIMER;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = PROPCLASSNAME;
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = PROPCLASSNAME;
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         RegisterClass(&wc);
         UnregisterClass(PROPCLASSNAME, ghinst);
     }
 
     END_TIMER;
-
 }
 
 
-/*
-* Class Query APIs
-
-
-* History:
-*/
-
 ULONGLONG msProfClassGroup(HDC hdc, ULONG Iter)
 {
-
     char szBuf[50];
     HICON hIcon;
     INIT_TIMER;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = PROPCLASSNAME;
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = PROPCLASSNAME;
     RegisterClass(&wc);
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         GetClassInfo(ghinst, PROPCLASSNAME, &wc);
-        GetClassName(ghwndFrame, szBuf, sizeof(szBuf)/sizeof(szBuf[0]));
+        GetClassName(ghwndFrame, szBuf, sizeof(szBuf) / sizeof(szBuf[0]));
         GetClassLongPtr(ghwndFrame, GCLP_HBRBACKGROUND);
         SetClassLongPtr(ghwndFrame, GCLP_HICON, (LONG_PTR)hIcon);
     }
@@ -297,27 +236,18 @@ ULONGLONG msProfClassGroup(HDC hdc, ULONG Iter)
 }
 
 
-/*
-* Clipboard APIs tests
-
-
-* History:
-*/
-
 ULONGLONG msProfClipboardGroup(HDC hdc, ULONG Iter)
 {
-
     INIT_TIMER;
     HGLOBAL h;
     int i;
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         START_OVERHEAD;
         h = GlobalAlloc(GPTR | GMEM_DDESHARE, 80);
-        strcpy( h, "hello");
+        strcpy(h, "hello");
         END_OVERHEAD;
 
         OpenClipboard(ghwndFrame);
@@ -332,26 +262,16 @@ ULONGLONG msProfClipboardGroup(HDC hdc, ULONG Iter)
 }
 
 
-/*
-* ProfAvgDlgDraw
-
-
-* History:
-*/
-
 ULONGLONG msProfAvgDlgDraw(HDC hdc, ULONG Iter)
 {
-
     CHAR szFile[128];
     INIT_TIMER;
 
-    HWND hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(CLEARBOX), ghwndFrame,
-            ClearDlg, MAKELONG(szFile,0));
+    HWND hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(CLEARBOX), ghwndFrame, ClearDlg, MAKELONG(szFile, 0));
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         ShowWindow(hwnd, TRUE);
         UpdateWindow(hwnd);
         ShowWindow(hwnd, FALSE);
@@ -362,23 +282,19 @@ ULONGLONG msProfAvgDlgDraw(HDC hdc, ULONG Iter)
     DestroyWindow(hwnd);
 
     RETURN_STOP_TIME;
-
 }
 
 
 ULONGLONG msProfAvgDlgCreate(HDC hdc, ULONG Iter)
 {
-
     HWND hwnd;
     CHAR szFile[128];
     INIT_TIMER;
 
     START_TIMER;
 
-    while (ix--)
-    {
-        hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(CLEARBOX), ghwndFrame,
-                ClearDlg, MAKELONG(szFile,0));
+    while (ix--) {
+        hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(CLEARBOX), ghwndFrame, ClearDlg, MAKELONG(szFile, 0));
         ShowWindow(hwnd, TRUE);
         UpdateWindow(hwnd);
         DestroyWindow(hwnd);
@@ -392,7 +308,6 @@ ULONGLONG msProfAvgDlgCreate(HDC hdc, ULONG Iter)
 
 ULONGLONG msProfAvgDlgCreateDestroy(HDC hdc, ULONG Iter)
 {
-
     HWND hwnd;
     CHAR szFile[128];
     INIT_TIMER;
@@ -401,10 +316,8 @@ ULONGLONG msProfAvgDlgCreateDestroy(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
-        hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(CLEARBOX), ghwndFrame,
-                ClearDlg, MAKELONG(szFile,0));
+    while (ix--) {
+        hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(CLEARBOX), ghwndFrame, ClearDlg, MAKELONG(szFile, 0));
         DestroyWindow(hwnd);
     }
 
@@ -413,13 +326,11 @@ ULONGLONG msProfAvgDlgCreateDestroy(HDC hdc, ULONG Iter)
     gfSetFocus = TRUE;
 
     RETURN_STOP_TIME;
-
 }
 
 
 ULONGLONG msProfAvgDlgCreateDestroyNoMenu(HDC hdc, ULONG Iter)
 {
-
     HWND hwnd;
     CHAR szFile[128];
     INIT_TIMER;
@@ -428,10 +339,8 @@ ULONGLONG msProfAvgDlgCreateDestroyNoMenu(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
-        hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(CLEARBOXNOMENU), ghwndFrame,
-                ClearDlg, MAKELONG(szFile,0));
+    while (ix--) {
+        hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(CLEARBOXNOMENU), ghwndFrame, ClearDlg, MAKELONG(szFile, 0));
         DestroyWindow(hwnd);
     }
 
@@ -445,7 +354,6 @@ ULONGLONG msProfAvgDlgCreateDestroyNoMenu(HDC hdc, ULONG Iter)
 
 ULONGLONG msProfAvgDlgCreateDestroyNoFont(HDC hdc, ULONG Iter)
 {
-
     HWND hwnd;
     CHAR szFile[128];
     INIT_TIMER;
@@ -454,10 +362,8 @@ ULONGLONG msProfAvgDlgCreateDestroyNoFont(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
-        hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(CLEARBOXNOFONT), ghwndFrame,
-                ClearDlg, MAKELONG(szFile,0));
+    while (ix--) {
+        hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(CLEARBOXNOFONT), ghwndFrame, ClearDlg, MAKELONG(szFile, 0));
         DestroyWindow(hwnd);
     }
 
@@ -466,13 +372,11 @@ ULONGLONG msProfAvgDlgCreateDestroyNoFont(HDC hdc, ULONG Iter)
     gfSetFocus = TRUE;
 
     RETURN_STOP_TIME;
-
 }
 
 
 ULONGLONG msProfAvgDlgCreateDestroyEmpty(HDC hdc, ULONG Iter)
 {
-
     HWND hwnd;
     CHAR szFile[128];
     INIT_TIMER;
@@ -481,10 +385,8 @@ ULONGLONG msProfAvgDlgCreateDestroyEmpty(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
-        hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(EMPTY), ghwndFrame,
-                ClearDlgNoState, MAKELONG(szFile,0));
+    while (ix--) {
+        hwnd = CreateDialogParam(ghinst, MAKEINTRESOURCE(EMPTY), ghwndFrame, ClearDlgNoState, MAKELONG(szFile, 0));
         DestroyWindow(hwnd);
     }
 
@@ -493,7 +395,6 @@ ULONGLONG msProfAvgDlgCreateDestroyEmpty(HDC hdc, ULONG Iter)
     gfSetFocus = TRUE;
 
     RETURN_STOP_TIME;
-
 }
 
 
@@ -505,39 +406,38 @@ ULONGLONG msProfCreateDestroyWindow(HDC hdc, ULONG Iter)
     INIT_TIMER;
     WNDCLASS wc;
 
-    if(!ghinst)MessageBox(GetParent(ghwndMDIClient), "1ghinst==0","ERROR!", MB_OK);
+    if (!ghinst)MessageBox(GetParent(ghwndMDIClient), "1ghinst==0", "ERROR!", MB_OK);
 
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor((HINSTANCE)NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "1RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         hwnd = CreateWindow("CreateDestroyWindow", "Create/DestroyWindow test",
-                WS_OVERLAPPEDWINDOW,
-                CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                NULL, NULL, ghinst, NULL);
+                            WS_OVERLAPPEDWINDOW,
+                            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                            NULL, NULL, ghinst, NULL);
         if (hwnd == NULL) {
             MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                    "ERROR!", MB_OK);
+                       "ERROR!", MB_OK);
             break;
         }
         DestroyWindow(hwnd);
@@ -560,38 +460,37 @@ ULONGLONG msProfCreateDestroyChildWindow(HDC hdc, ULONG Iter)
 
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "2RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwndParent = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                              CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                              ghwndMDIClient, NULL, ghinst, NULL);
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         hwnd = CreateWindow("CreateDestroyWindow", "Create/DestroyWindow test",
-                WS_CHILD,
-                CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                hwndParent, NULL, ghinst, NULL);
+                            WS_CHILD,
+                            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                            hwndParent, NULL, ghinst, NULL);
         if (hwnd == NULL) {
             MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                    "ERROR!", MB_OK);
+                       "ERROR!", MB_OK);
             break;
         }
         DestroyWindow(hwnd);
@@ -679,31 +578,31 @@ ULONGLONG msProfGetWindowLong(HDC hdc, ULONG Iter)
     LONG l;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 4;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 4;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "3RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwnd = CreateWindow("CreateDestroyWindow", "Create/DestroyWindow test",
-            WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            NULL, NULL, ghinst, NULL);
+                        WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                        NULL, NULL, ghinst, NULL);
 
     if (hwnd == NULL) {
         MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
@@ -730,31 +629,31 @@ ULONGLONG msProfSetWindowLong(HDC hdc, ULONG Iter)
     LONG l;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 4;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 4;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "4RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwnd = CreateWindow("CreateDestroyWindow", "Create/DestroyWindow test",
-            WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            NULL, NULL, ghinst, NULL);
+                        WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                        NULL, NULL, ghinst, NULL);
 
     if (hwnd == NULL) {
         MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
@@ -780,36 +679,35 @@ ULONGLONG msProfCreateDestroyListbox(HDC hdc, ULONG Iter)
     INIT_TIMER;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "5RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwndParent = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                              CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                              ghwndMDIClient, NULL, ghinst, NULL);
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         hwnd = CreateWindow("ListBox", NULL, WS_CHILD | LBS_STANDARD | WS_VISIBLE,
-                50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
+                            50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
         if (hwnd == NULL) {
             MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                    "ERROR!", MB_OK);
+                       "ERROR!", MB_OK);
             return (ULONGLONG)(0);
         }
         DestroyWindow(hwnd);
@@ -832,36 +730,35 @@ ULONGLONG msProfCreateDestroyButton(HDC hdc, ULONG Iter)
     INIT_TIMER;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "6RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwndParent = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                              CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                              ghwndMDIClient, NULL, ghinst, NULL);
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         hwnd = CreateWindow("Button", "OK", WS_CHILD | BS_PUSHBUTTON,
-                50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
+                            50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
         if (hwnd == NULL) {
             MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                    "ERROR!", MB_OK);
+                       "ERROR!", MB_OK);
             return (ULONGLONG)(0);
         }
         DestroyWindow(hwnd);
@@ -884,36 +781,35 @@ ULONGLONG msProfCreateDestroyCombobox(HDC hdc, ULONG Iter)
     INIT_TIMER;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "7RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwndParent = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                              CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                              ghwndMDIClient, NULL, ghinst, NULL);
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         hwnd = CreateWindow("Combobox", NULL, WS_CHILD | CBS_SIMPLE | CBS_HASSTRINGS | WS_VISIBLE,
-                50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
+                            50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
         if (hwnd == NULL) {
             MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                    "ERROR!", MB_OK);
+                       "ERROR!", MB_OK);
             return (ULONGLONG)(0);
         }
         DestroyWindow(hwnd);
@@ -936,36 +832,35 @@ ULONGLONG msProfCreateDestroyEdit(HDC hdc, ULONG Iter)
     INIT_TIMER;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "8RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwndParent = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                              CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                              ghwndMDIClient, NULL, ghinst, NULL);
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         hwnd = CreateWindow("Edit", NULL, WS_CHILD | WS_VISIBLE,
-                50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
+                            50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
         if (hwnd == NULL) {
             MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                    "ERROR!", MB_OK);
+                       "ERROR!", MB_OK);
             return (ULONGLONG)(0);
         }
         DestroyWindow(hwnd);
@@ -988,36 +883,35 @@ ULONGLONG msProfCreateDestroyStatic(HDC hdc, ULONG Iter)
     INIT_TIMER;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "9RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwndParent = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                              CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                              ghwndMDIClient, NULL, ghinst, NULL);
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         hwnd = CreateWindow("Static", "Hello", WS_CHILD | SS_SIMPLE,
-                50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
+                            50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
         if (hwnd == NULL) {
             MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                    "ERROR!", MB_OK);
+                       "ERROR!", MB_OK);
             return (ULONGLONG)(0);
         }
         DestroyWindow(hwnd);
@@ -1040,36 +934,35 @@ ULONGLONG msProfCreateDestroyScrollbar(HDC hdc, ULONG Iter)
     INIT_TIMER;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "10RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwndParent = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                              CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                              ghwndMDIClient, NULL, ghinst, NULL);
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         hwnd = CreateWindow("Scrollbar", "Hello", WS_CHILD | SBS_HORZ | SBS_TOPALIGN,
-                50, 50, 100, 100, hwndParent, NULL, ghinst, NULL);
+                            50, 50, 100, 100, hwndParent, NULL, ghinst, NULL);
         if (hwnd == NULL) {
             MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                    "ERROR!", MB_OK);
+                       "ERROR!", MB_OK);
             return (ULONGLONG)(0);
         }
         DestroyWindow(hwnd);
@@ -1092,40 +985,39 @@ ULONGLONG msProfListboxInsert1(HDC hdc, ULONG Iter)
     HWND hwndParent;
     INIT_TIMER;
     WNDCLASS wc;
-    HWND *ahwnd = LocalAlloc(LPTR,Iter*sizeof(HANDLE));
-    if(!ahwnd)
-       MessageBox(GetParent(ghwndMDIClient),
-        "Could not Allocate Memory for Handle Array",
-        "ERROR!", MB_OK);
+    HWND* ahwnd = LocalAlloc(LPTR, Iter * sizeof(HANDLE));
+    if (!ahwnd)
+        MessageBox(GetParent(ghwndMDIClient),
+                   "Could not Allocate Memory for Handle Array",
+                   "ERROR!", MB_OK);
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "11RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwndParent = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                              CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                              ghwndMDIClient, NULL, ghinst, NULL);
 
-    for (i=0; i < Iter; i++)
-    {
+    for (i = 0; i < Iter; i++) {
         ahwnd[i] = CreateWindow("ListBox", NULL, WS_CHILD | LBS_STANDARD,
-                50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
+                                50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
         if (ahwnd[i] == NULL) {
             MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                    "ERROR!", MB_OK);
+                       "ERROR!", MB_OK);
             return (ULONGLONG)(0);
         }
     }
@@ -1156,40 +1048,40 @@ ULONGLONG msProfListboxInsert2(HDC hdc, ULONG Iter)
     HWND hwndParent;
     INIT_TIMER;
     WNDCLASS wc;
-    HWND *ahwnd = LocalAlloc(LPTR,Iter*sizeof(HANDLE));
-    if(!ahwnd)
-       MessageBox(GetParent(ghwndMDIClient),
-        "Could not Allocate Memory for Handle Array",
-        "ERROR!", MB_OK);
+    HWND* ahwnd = LocalAlloc(LPTR, Iter * sizeof(HANDLE));
+    if (!ahwnd)
+        MessageBox(GetParent(ghwndMDIClient),
+                   "Could not Allocate Memory for Handle Array",
+                   "ERROR!", MB_OK);
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "12RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwndParent = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                              CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                              ghwndMDIClient, NULL, ghinst, NULL);
 
     for (i = 0; i < Iter; i++) {
         ahwnd[i] = CreateWindow("ListBox", NULL,
-                WS_CHILD | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS,
-                50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
+                                WS_CHILD | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS,
+                                50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
         if (ahwnd[i] == NULL) {
             MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                    "ERROR!", MB_OK);
+                       "ERROR!", MB_OK);
             return (ULONGLONG)(0);
         }
     }
@@ -1220,40 +1112,40 @@ ULONGLONG msProfListboxInsert3(HDC hdc, ULONG Iter)
     HWND hwndParent;
     INIT_TIMER;
     WNDCLASS wc;
-    HWND *ahwnd = LocalAlloc(LPTR,Iter*sizeof(HANDLE));
-    if(!ahwnd)
-       MessageBox(GetParent(ghwndMDIClient),
-        "Could not Allocate Memory for Handle Array",
-        "ERROR!", MB_OK);
+    HWND* ahwnd = LocalAlloc(LPTR, Iter * sizeof(HANDLE));
+    if (!ahwnd)
+        MessageBox(GetParent(ghwndMDIClient),
+                   "Could not Allocate Memory for Handle Array",
+                   "ERROR!", MB_OK);
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "13RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwndParent = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                              CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                              ghwndMDIClient, NULL, ghinst, NULL);
 
     for (i = 0; i < Iter; i++) {
         ahwnd[i] = CreateWindow("ListBox", NULL,
-                WS_CHILD | LBS_SORT | LBS_OWNERDRAWFIXED,
-                50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
+                                WS_CHILD | LBS_SORT | LBS_OWNERDRAWFIXED,
+                                50, 50, 200, 250, hwndParent, NULL, ghinst, NULL);
         if (ahwnd[i] == NULL) {
             MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-                    "ERROR!", MB_OK);
+                       "ERROR!", MB_OK);
             return (ULONGLONG)(0);
         }
     }
@@ -1302,7 +1194,7 @@ INT_PTR APIENTRY ClearDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         hgt = GetDeviceCaps(dc, VERTRES);
         ReleaseDC(NULL, dc);
 
-        CheckRadioButton (hDlg, ID2, ID256, ID2);
+        CheckRadioButton(hDlg, ID2, ID256, ID2);
 
         EnableWindow(GetDlgItem(hDlg, ID256), FALSE);
         CheckRadioButton(hDlg, ID2, ID256, ID256);
@@ -1369,14 +1261,13 @@ ULONGLONG msProfSize(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         SetWindowPos(hwnd, NULL, rc.left, rc.top,
-                rc.right - rc.left, rc.bottom - rc.top,
-                SWP_NOZORDER | SWP_NOACTIVATE);
+                     rc.right - rc.left, rc.bottom - rc.top,
+                     SWP_NOZORDER | SWP_NOACTIVATE);
         SetWindowPos(hwnd, NULL, rc.left, rc.top,
-                (rc.right - rc.left) / 2, (rc.bottom - rc.top) / 2,
-                SWP_NOZORDER | SWP_NOACTIVATE);
+            (rc.right - rc.left) / 2, (rc.bottom - rc.top) / 2,
+                     SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
     /* time end */
@@ -1399,7 +1290,7 @@ ULONGLONG msProfMove(HDC hdc, ULONG Iter)
 
     GetClientRect(ghwndMDIClient, (LPRECT)&rc);
     InflateRect((LPRECT)&rc, -(rc.right - rc.left) / 4,
-            -(rc.bottom - rc.top) / 4);
+                -(rc.bottom - rc.top) / 4);
 
     hwnd = GetWindow(ghwndMDIClient, GW_CHILD);
     ShowWindow(hwnd, SW_RESTORE);
@@ -1410,13 +1301,12 @@ ULONGLONG msProfMove(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         SetWindowPos(hwnd, NULL, rc.left, rc.top,
-                rc.right - rc.left, rc.bottom - rc.top,
-                SWP_NOZORDER | SWP_NOACTIVATE);
+                     rc.right - rc.left, rc.bottom - rc.top,
+                     SWP_NOZORDER | SWP_NOACTIVATE);
         SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
-                SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
+                     SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
     }
 
     /* time end */
@@ -1450,8 +1340,7 @@ ULONGLONG msProfMenu(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         PostMessage(hwnd, WM_KEYDOWN, VK_ESCAPE, 0L);
         PostMessage(hwnd, WM_KEYDOWN, VK_ESCAPE, 0L);
         PostMessage(hwnd, WM_SYSTIMER, 0, 0L);
@@ -1479,8 +1368,7 @@ ULONGLONG msProfGetClientRect(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         GetClientRect(ghwndMDIClient, &rc);
     }
 
@@ -1499,8 +1387,7 @@ ULONGLONG msProfScreenToClient(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         ScreenToClient(ghwndMDIClient, &pt);
     }
 
@@ -1515,8 +1402,7 @@ ULONGLONG msProfGetInputState(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         GetInputState();
     }
 
@@ -1531,8 +1417,7 @@ ULONGLONG msProfGetKeyState(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         GetKeyState(VK_ESCAPE);
     }
 
@@ -1547,8 +1432,7 @@ ULONGLONG msProfGetAsyncKeyState(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         GetAsyncKeyState(VK_ESCAPE);
     }
 
@@ -1564,26 +1448,26 @@ ULONGLONG msProfDispatchMessage(HDC hdc, ULONG Iter)
     INIT_TIMER;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "14RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwnd = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                        ghwndMDIClient, NULL, ghinst, NULL);
 
     msg.hwnd = hwnd;
     msg.message = WM_MOUSEMOVE;
@@ -1595,8 +1479,7 @@ ULONGLONG msProfDispatchMessage(HDC hdc, ULONG Iter)
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         DispatchMessage(&msg);
     }
 
@@ -1617,32 +1500,31 @@ ULONGLONG msProfCallback(HDC hdc, ULONG Iter)
     INIT_TIMER;
     WNDCLASSW wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProcW;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = L"CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProcW;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = L"CreateDestroyWindow";
 
     if (!RegisterClassW(&wc)) {
-// Fails On Chicago
-//        MessageBox(GetParent(ghwndMDIClient), "15RegisterClass call failed.",
-//                "ERROR!", MB_OK);
+        // Fails On Chicago
+        //        MessageBox(GetParent(ghwndMDIClient), "15RegisterClass call failed.",
+        //                "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwnd = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                        ghwndMDIClient, NULL, ghinst, NULL);
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         SendMessage(hwnd, WM_GETTEXTLENGTH, 0, 0);
     }
 
@@ -1663,31 +1545,30 @@ ULONGLONG msProfSendMessage(HDC hdc, ULONG Iter)
     INIT_TIMER;
     WNDCLASS wc;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "CreateDestroyWindow";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "CreateDestroyWindow";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "16RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return (ULONGLONG)(0);
     }
 
     hwnd = CreateWindow("CreateDestroyWindow", NULL, WS_CHILD,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            ghwndMDIClient, NULL, ghinst, NULL);
+                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                        ghwndMDIClient, NULL, ghinst, NULL);
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         SendMessage(hwnd, WM_MOUSEMOVE, 1, 2);
     }
 
@@ -1708,26 +1589,26 @@ DWORD SendMessageDiffThreadFunc(PVOID pdwData)
     MSG msg;
     BOOL b;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = "SendMessageDiffThread";
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = "SendMessageDiffThread";
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "19RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return FALSE;
     }
 
     hwndShare = CreateWindow("SendMessageDiffThread", NULL, 0,
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-            GetDesktopWindow(), NULL, ghinst, NULL);
+                             CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                             GetDesktopWindow(), NULL, ghinst, NULL);
 
 
     ASSERT(hwndShare);
@@ -1762,25 +1643,24 @@ ULONGLONG msProfSendMessageDiffThread(HDC hdc, ULONG Iter)
 
     hwndShare = (HWND)0;
 
-    hThread = CreateThread( NULL, 0, SendMessageDiffThreadFunc, &hEvent, 0, &id);
+    hThread = CreateThread(NULL, 0, SendMessageDiffThreadFunc, &hEvent, 0, &id);
 
-    WaitForSingleObject( hEvent, 20*1000);
+    WaitForSingleObject(hEvent, 20 * 1000);
 
-    Sleep(10*1000);
+    Sleep(10 * 1000);
 
     ASSERT(hwndShare);
 
     START_TIMER;
 
-    while (ix--)
-    {
+    while (ix--) {
         SendMessage(hwndShare, WM_MOUSEMOVE, 1, 2);
     }
 
     END_TIMER_NO_RETURN;
 
     PostThreadMessage(id, WM_QUIT, 0, 0);
-    WaitForSingleObject(hThread, 2*1000); // Wait for Cleanup before Starting Next Cycle
+    WaitForSingleObject(hThread, 2 * 1000); // Wait for Cleanup before Starting Next Cycle
     CloseHandle(hThread);
 
     RETURN_STOP_TIME;
@@ -1795,31 +1675,31 @@ ULONGLONG msProfUpdateWindow(HDC hDC, ULONG Iter)
     static LPCSTR className = "UpdateWindowTest";
     INIT_TIMER;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = className;
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = className;
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return FALSE;
     }
 
     hwnd = CreateWindow(className, NULL,
-        WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-        NULL, NULL, ghinst, NULL);
+                        WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                        NULL, NULL, ghinst, NULL);
     if (hwnd == NULL) {
         MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-            "ERROR!", MB_OK);
-            return 0;
+                   "ERROR!", MB_OK);
+        return 0;
     }
     GetClientRect(hwnd, &rect);
 
@@ -1854,31 +1734,31 @@ ULONGLONG msProfTranslateMessage(HDC hDC, ULONG Iter)
     };
     INIT_TIMER;
 
-    wc.style            = 0;
-    wc.lpfnWndProc      = CreateDestroyWndProc;
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = ghinst;
-    wc.hIcon            = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground    = (HBRUSH)(COLOR_APPWORKSPACE + 1);
-    wc.lpszMenuName     = NULL;
-    wc.lpszClassName    = className;
+    wc.style = 0;
+    wc.lpfnWndProc = CreateDestroyWndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = ghinst;
+    wc.hIcon = LoadIcon(ghinst, (LPSTR)IDUSERBENCH);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_APPWORKSPACE + 1);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = className;
 
     if (!RegisterClass(&wc)) {
         MessageBox(GetParent(ghwndMDIClient), "RegisterClass call failed.",
-                "ERROR!", MB_OK);
+                   "ERROR!", MB_OK);
         return FALSE;
     }
 
     hwnd = CreateWindow(className, NULL,
-        WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-        NULL, NULL, ghinst, NULL);
+                        WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                        NULL, NULL, ghinst, NULL);
     if (hwnd == NULL) {
         MessageBox(GetParent(ghwndMDIClient), "CreateWindow call failed.",
-            "ERROR!", MB_OK);
-            return 0;
+                   "ERROR!", MB_OK);
+        return 0;
     }
     msgTemplate.hwnd = hwnd;
 
@@ -1984,7 +1864,7 @@ TEST_ENTRY  gTestEntry[] = {
     (PUCHAR)"CharNextW", (PFN_MS)msProfCharNextW, 2000, 0,
     (PUCHAR)"GetMessageW", (PFN_MS)msProfGetMessageW, 5000, 0,
     (PUCHAR)"GetMessageA", (PFN_MS)msProfGetMessageA, 5000, 0,
-// Add New Tests Here
+    // Add New Tests Here
 };
 
 

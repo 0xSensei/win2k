@@ -61,7 +61,7 @@
  * Winsock Comm driver
 
 
- *Design Overview 
+ *Design Overview
 
  This module would do Dr. Frankenstein proud ... it's basic structure is
  taken from WACKER's COMSTD module, but the internal logic is taken from
@@ -131,19 +131,19 @@
 #include <tdll\com.hh>
 
 BOOL WINAPI _CRT_INIT(HINSTANCE hInstDll, DWORD fdwReason, LPVOID lpReserved);
-int wsckResolveAddress(TCHAR *pszRemote, unsigned long *pulAddr);
+int wsckResolveAddress(TCHAR* pszRemote, unsigned long* pulAddr);
 LRESULT FAR PASCAL WndSockWndProc(HWND hWnd, UINT uiMsg, WPARAM uiPar1, LPARAM lPar2);
-BOOL WinSockCreateEventWindow(ST_STDCOM *pstPrivate);
-int FAR PASCAL sndQueueAppend(ST_STDCOM *pstPrivate, VOID FAR *pvBufr, int nBytesToAppend);
-int WinSockConnectSpecial(ST_STDCOM *pstPrivate);
-int WinSockAnswerSpecial(ST_STDCOM *pstPrivate);
+BOOL WinSockCreateEventWindow(ST_STDCOM* pstPrivate);
+int FAR PASCAL sndQueueAppend(ST_STDCOM* pstPrivate, VOID FAR* pvBufr, int nBytesToAppend);
+int WinSockConnectSpecial(ST_STDCOM* pstPrivate);
+int WinSockAnswerSpecial(ST_STDCOM* pstPrivate);
 
 LONG WinSockConnectEvent(ST_STDCOM* pstPrivate, LPARAM lPar);
 LONG WinSockReadEvent(ST_STDCOM* pstPrivate, LPARAM lPar);
-LONG WinSockWriteEvent(ST_STDCOM*pstPrivate, LPARAM lPar);
+LONG WinSockWriteEvent(ST_STDCOM* pstPrivate, LPARAM lPar);
 LONG WinSockResolveEvent(ST_STDCOM* pstPrivate, LPARAM lPar);
 LONG WinSockCloseEvent(ST_STDCOM* pstPrivate, LPARAM lPar);
-LONG WinSockAcceptEvent(ST_STDCOM*pstPrivate, LPARAM lPar);
+LONG WinSockAcceptEvent(ST_STDCOM* pstPrivate, LPARAM lPar);
 
 /* -
  * FUNCTION:
@@ -236,29 +236,25 @@ BOOL WINAPI WsckComWinsockEntry(HINSTANCE hInst, DWORD fdwReason, LPVOID lpReser
 */
 int WINAPI WsckDeviceInitialize(HCOM hCom,
                                 unsigned nInterfaceVersion,
-                                void **ppvDriverData)
+                                void** ppvDriverData)
 {
     int        iRetVal = COM_OK;
     int        ix;
-    ST_STDCOM *pstPrivate = NULL;
+    ST_STDCOM* pstPrivate = NULL;
 
     //              Check version number and compatibility
 
-    if (nInterfaceVersion != COM_VERSION)
-    {
+    if (nInterfaceVersion != COM_VERSION) {
         // This error is reported by Com Routines. We cannot report errors
         // until after DeviceInitialize has completed.
         return COM_DEVICE_VERSION_ERROR;
     }
 
-    if (*ppvDriverData)
-    {
-        pstPrivate = (ST_STDCOM*) *ppvDriverData;
-    }
-    else
-    {
+    if (*ppvDriverData) {
+        pstPrivate = (ST_STDCOM*)*ppvDriverData;
+    } else {
         // Allocate our private storage structure
-        if ((pstPrivate = malloc(sizeof *pstPrivate)) == NULL)
+        if ((pstPrivate = malloc(sizeof * pstPrivate)) == NULL)
             return COM_NOT_ENOUGH_MEMORY;
         *ppvDriverData = pstPrivate;
         pstPrivate->hCom = hCom;
@@ -268,18 +264,16 @@ int WINAPI WsckDeviceInitialize(HCOM hCom,
         pstPrivate->lSndTimer = 0L;
         pstPrivate->lSndLimit = 0L;
         pstPrivate->lSndStuck = 0L;
-        pstPrivate->hwndEvents = (HWND) 0;
+        pstPrivate->hwndEvents = (HWND)0;
         pstPrivate->nRBufrSize = WSOCK_SIZE_INQ;
         pstPrivate->pbBufrStart = NULL;
         pstPrivate->fHaltThread = TRUE;
 
         InitializeCriticalSection(&pstPrivate->csect);
-        for (ix = 0; ix < EVENT_COUNT; ++ix)
-        {
-            pstPrivate->ahEvent[ix] = CreateEvent((LPSECURITY_ATTRIBUTES) 0,
+        for (ix = 0; ix < EVENT_COUNT; ++ix) {
+            pstPrivate->ahEvent[ix] = CreateEvent((LPSECURITY_ATTRIBUTES)0,
                                                   TRUE, FALSE, NULL);
-            if (!pstPrivate->ahEvent[ix])
-            {
+            if (!pstPrivate->ahEvent[ix]) {
                 iRetVal = COM_FAILED;
                 break;
             }
@@ -298,10 +292,8 @@ int WINAPI WsckDeviceInitialize(HCOM hCom,
     pstPrivate->fAnswer = 0;
 #endif
 
-    if (iRetVal != COM_OK)
-    {
-        if (pstPrivate)
-        {
+    if (iRetVal != COM_OK) {
+        if (pstPrivate) {
             free(pstPrivate);
             pstPrivate = NULL;
         }
@@ -326,9 +318,9 @@ int WINAPI WsckDeviceInitialize(HCOM hCom,
  * AUTHOR:
  * mcc 01/19/96
 */
-int WINAPI WsckDeviceClose(void *pvPrivate)
+int WINAPI WsckDeviceClose(void* pvPrivate)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int ix;
 
     // Driver is about to be let go, do any cleanup
@@ -336,8 +328,7 @@ int WINAPI WsckDeviceClose(void *pvPrivate)
     //  check anyway.
     WsckPortDeactivate(pstPrivate);
 
-    for (ix = 0; ix < EVENT_COUNT; ++ix)
-    {
+    for (ix = 0; ix < EVENT_COUNT; ++ix) {
         CloseHandle(pstPrivate->ahEvent[ix]);
     }
     DeleteCriticalSection(&pstPrivate->csect);
@@ -369,22 +360,22 @@ int WINAPI WsckDeviceClose(void *pvPrivate)
  * AUTHOR:
  * mcc 12/26/95    (ported from NPORT)
 */
-int WINAPI WsckDeviceSpecial(void *pvPrivate,
-                             const TCHAR *pszInstructions,
-                             TCHAR *pszResult,
+int WINAPI WsckDeviceSpecial(void* pvPrivate,
+                             const TCHAR* pszInstructions,
+                             TCHAR* pszResult,
                              int   nBufrSize)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int                iRetVal = COM_NOT_SUPPORTED;
     unsigned long   ulSetVal;
-    TCHAR            *pszEnd;
+    TCHAR* pszEnd;
     TCHAR            achInstructions[100];
-    TCHAR            *pszToken = achInstructions;
+    TCHAR* pszToken = achInstructions;
     int                iIndex;
     TCHAR            szResult[100];
     //ULONG            dwThreadID;
 
-    static TCHAR *apszItems [] =
+    static TCHAR* apszItems[] =
     {
         "IPADDR",
         "PORTNUM",
@@ -404,7 +395,7 @@ int WINAPI WsckDeviceSpecial(void *pvPrivate,
 
     //DbgOutStr("DevSpec: %s", pszInstructions, 0,0,0,0);
 
-    if (sizeof(achInstructions) < (size_t) (StrCharGetStrLength(pszInstructions) + 1))
+    if (sizeof(achInstructions) < (size_t)(StrCharGetStrLength(pszInstructions) + 1))
         return COM_NOT_SUPPORTED;
 
     StrCharCopy(achInstructions, pszInstructions);
@@ -418,8 +409,7 @@ int WINAPI WsckDeviceSpecial(void *pvPrivate,
 
     EnterCriticalSection(&pstPrivate->csect);
 
-    if (StrCharCmpi(pszToken, "SET") == 0)
-    {
+    if (StrCharCmpi(pszToken, "SET") == 0) {
         iRetVal = COM_OK;
         pszToken = strtok(NULL, " =");
         if (!pszToken)
@@ -433,59 +423,52 @@ int WINAPI WsckDeviceSpecial(void *pvPrivate,
         // Isolate the new value to be set
         pszToken = strtok(NULL, "\n");
 
-        if (pszToken && *pszToken)
-        {
+        if (pszToken && *pszToken) {
             // Several items take numeric values
             ulSetVal = strtoul(pszToken, &pszEnd, 0);
 
-            switch (iIndex)
-            {
-                case 0: // IPADDR
-                    ulSetVal = (unsigned) StrCharGetByteCount(pszToken);
-                    if (ulSetVal < sizeof(pstPrivate->szRemoteAddr))
-                    {
-                        StrCharCopy(pstPrivate->szRemoteAddr, pszToken);
-                        iRetVal = 0;
-                    }
-                    else
-                        iRetVal = -1;
-                    break;
-
-                case 1: // PORTNUM
-                    pstPrivate->nPort = (short) ulSetVal;
+            switch (iIndex) {
+            case 0: // IPADDR
+                ulSetVal = (unsigned)StrCharGetByteCount(pszToken);
+                if (ulSetVal < sizeof(pstPrivate->szRemoteAddr)) {
+                    StrCharCopy(pstPrivate->szRemoteAddr, pszToken);
                     iRetVal = 0;
-                    break;
+                } else
+                    iRetVal = -1;
+                break;
 
-                case 3: // ESC_FF
-                    pstPrivate->fEscapeFF = (int) atoi(pszToken);
-                    //DbgOutStr("set fEscapeFF = %d (%d) %s %d",
-                    //pstPrivate->fEscapeFF,ulSetVal,pszToken,
-                    //(int) atoi(pszToken),0);
-                    break;
+            case 1: // PORTNUM
+                pstPrivate->nPort = (short)ulSetVal;
+                iRetVal = 0;
+                break;
 
-                case 4: // ANSWER
+            case 3: // ESC_FF
+                pstPrivate->fEscapeFF = (int)atoi(pszToken);
+                //DbgOutStr("set fEscapeFF = %d (%d) %s %d",
+                //pstPrivate->fEscapeFF,ulSetVal,pszToken,
+                //(int) atoi(pszToken),0);
+                break;
+
+            case 4: // ANSWER
 #ifdef INCL_CALL_ANSWERING
-                    pstPrivate->fAnswer = ulSetVal;
-                    iRetVal = 0;
+                pstPrivate->fAnswer = ulSetVal;
+                iRetVal = 0;
 #else
-                    iRetVal = COM_FAILED;
+                iRetVal = COM_FAILED;
 #endif
-                    break;
+                break;
 
-                default:
-                    iRetVal = COM_FAILED;
-                    //DbgOutStr("DevSpec: Unrecognized instructions!", 0,0,0,0,0);
-                    break;
+            default:
+                iRetVal = COM_FAILED;
+                //DbgOutStr("DevSpec: Unrecognized instructions!", 0,0,0,0,0);
+                break;
             }
-        }
-        else    // if (pszToken && *pszToken)
+        } else    // if (pszToken && *pszToken)
         {
             assert(0);
             iRetVal = COM_NOT_SUPPORTED;
         }
-    }
-    else if (StrCharCmpi(pszToken, "QUERY") == 0)
-    {
+    } else if (StrCharCmpi(pszToken, "QUERY") == 0) {
         iRetVal = COM_OK;
         pszToken = strtok(NULL, "\n");
         szResult[0] = '\0';
@@ -495,37 +478,35 @@ int WINAPI WsckDeviceSpecial(void *pvPrivate,
             if (StrCharCmpi(pszToken, apszItems[iIndex]) == 0)
                 break;
 
-        if (*pszToken)
-        {
-            switch (iIndex)
-            {
-                case 0: // IPADDR
-                    StrCharCopy(szResult, pstPrivate->szRemoteAddr);
-                    iRetVal = 0;
-                    break;
+        if (*pszToken) {
+            switch (iIndex) {
+            case 0: // IPADDR
+                StrCharCopy(szResult, pstPrivate->szRemoteAddr);
+                iRetVal = 0;
+                break;
 
-                case 1: // PORTNUM
-                    wsprintf(szResult, "%d", pstPrivate->nPort);
-                    iRetVal = 0;
-                    break;
+            case 1: // PORTNUM
+                wsprintf(szResult, "%d", pstPrivate->nPort);
+                iRetVal = 0;
+                break;
 
-                case 2: // ISCONNECTED
-                    wsprintf(szResult, "%d", pstPrivate->fConnected);
-                    iRetVal = 0;
-                    break;
+            case 2: // ISCONNECTED
+                wsprintf(szResult, "%d", pstPrivate->fConnected);
+                iRetVal = 0;
+                break;
 
-                case 4: // ANSWER
+            case 4: // ANSWER
 #ifdef INCL_CALL_ANSWERING
-                    wsprintf(szResult, "%d", pstPrivate->fAnswer);
-                    iRetVal = 0;
+                wsprintf(szResult, "%d", pstPrivate->fAnswer);
+                iRetVal = 0;
 #else
-                    iRetVal = COM_FAILED;
+                iRetVal = COM_FAILED;
 #endif
-                    break;
+                break;
 
-                default:
-                    iRetVal = COM_FAILED;
-                    break;
+            default:
+                iRetVal = COM_FAILED;
+                break;
             }
             if (iRetVal == 0 && StrCharGetByteCount(szResult) <
                 nBufrSize)
@@ -533,9 +514,7 @@ int WINAPI WsckDeviceSpecial(void *pvPrivate,
             else
                 iRetVal = COM_FAILED;
         }
-    }
-    else if (lstrcmpi(pszInstructions, "Send Break") == 0)
-    {
+    } else if (lstrcmpi(pszInstructions, "Send Break") == 0) {
         // This is the telent "Break" key processing.  When
         // the user presses Ctrl-Break on the terminal sreen
         // with a WinSOck connection, we arrive here.
@@ -548,15 +527,12 @@ int WINAPI WsckDeviceSpecial(void *pvPrivate,
         ach[0] = IAC;
         ach[1] = BREAK;
 
-        if (send(pstPrivate->hSocket, ach, 2, 0) != 2)
-        {
+        if (send(pstPrivate->hSocket, ach, 2, 0) != 2) {
             assert(0);
         }
 
         iRetVal = COM_OK;
-    }
-    else if (lstrcmpi(pszInstructions, "Send IP") == 0)
-    {
+    } else if (lstrcmpi(pszInstructions, "Send IP") == 0) {
         // This is the telent Interrupt Process.  When
         // the user presses Alt-Break on the terminal sreen
         // with a WinSock connection, we arrive here.
@@ -579,24 +555,20 @@ int WINAPI WsckDeviceSpecial(void *pvPrivate,
         ach[0] = IAC;
         ach[1] = IP;
 
-        if (send(pstPrivate->hSocket, ach, 2, 0) != 2)
-        {
+        if (send(pstPrivate->hSocket, ach, 2, 0) != 2) {
             assert(0);
         }
 
         ach[0] = IAC;
         ach[1] = DM;
 
-        if (send(pstPrivate->hSocket, ach, 2, MSG_OOB) != 2)
-        {
+        if (send(pstPrivate->hSocket, ach, 2, MSG_OOB) != 2) {
             assert(0);
         }
 
 
         iRetVal = COM_OK;
-    }
-    else if (lstrcmpi(pszInstructions, "Update Terminal Size") == 0)
-    {
+    } else if (lstrcmpi(pszInstructions, "Update Terminal Size") == 0) {
         // The dimensions of the terminal have changed. If we have negotiated
         // to use the Telnet NAWS option, (Negotiate About Terminal Size), then
         // we must send the new terminal size to the server. This method will
@@ -628,7 +600,7 @@ int WINAPI WsckDeviceSpecial(void *pvPrivate,
  * AUTHOR:
  * mcc 01/19/95
 */
-int WINAPI WsckDeviceLoadHdl(void *pvPrivate, SF_HANDLE sfHdl)
+int WINAPI WsckDeviceLoadHdl(void* pvPrivate, SF_HANDLE sfHdl)
 {
     return SF_OK;
 }/*lint !e715 */
@@ -652,7 +624,7 @@ int WINAPI WsckDeviceLoadHdl(void *pvPrivate, SF_HANDLE sfHdl)
  * AUTHOR:
  * mcc 01/19/95
 */
-int WINAPI WsckDeviceSaveHdl(void *pvPrivate, SF_HANDLE sfHdl)
+int WINAPI WsckDeviceSaveHdl(void* pvPrivate, SF_HANDLE sfHdl)
 {
     return SF_OK;
 }/*lint !e715 */
@@ -674,7 +646,7 @@ int WINAPI WsckDeviceSaveHdl(void *pvPrivate, SF_HANDLE sfHdl)
  * AUTHOR:
  * mcc 12/26/95
 */
-int WINAPI WsckDeviceStub(void *pvPrivate)
+int WINAPI WsckDeviceStub(void* pvPrivate)
 {
     int          iRetVal = COM_OK;
 
@@ -696,16 +668,15 @@ int WINAPI WsckDeviceStub(void *pvPrivate)
  *  COM_DEVICE_ERROR if API errors are encountered
  *  COM_DEVICE_INVALID_SETTING if some user settings are not valid
 */
-int WINAPI WsckPortConfigure(void *pvPrivate)
+int WINAPI WsckPortConfigure(void* pvPrivate)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int          iRetVal = COM_OK;
     unsigned     uOverrides = 0;
 
     // Check for overrides
     ComQueryOverride(pstPrivate->hCom, &uOverrides);
-    if (bittest(uOverrides, COM_OVERRIDE_8BIT))
-    {
+    if (bittest(uOverrides, COM_OVERRIDE_8BIT)) {
         DbgOutStr("Requesting binary Telnet mode\n", 0, 0, 0, 0, 0);
         // Ask the other side to send binary data (default
         // is 7-bit ASCII), and inform them that we will
@@ -734,9 +705,9 @@ int WINAPI WsckPortConfigure(void *pvPrivate)
  * AUTHOR:
  * mcc 01/19/96
 */
-int WINAPI WsckPortConnected(void *pvPrivate)
+int WINAPI WsckPortConnected(void* pvPrivate)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
 
     return pstPrivate->fConnected;
 }
@@ -758,15 +729,14 @@ int WINAPI WsckPortConnected(void *pvPrivate)
  * AUTHOR:
  * mcc 12/26/95
 */
-int WINAPI WsckSndBufrIsBusy(void *pvPrivate)
+int WINAPI WsckSndBufrIsBusy(void* pvPrivate)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int  iRetVal = COM_OK;
 
     EnterCriticalSection(&pstPrivate->csect);
 
-    if (pstPrivate->fSending)
-    {
+    if (pstPrivate->fSending) {
         iRetVal = COM_BUSY;
     }
 
@@ -794,9 +764,9 @@ int WINAPI WsckSndBufrIsBusy(void *pvPrivate)
  * AUTHOR:
  *     mcc 12/26/95
 */
-int WINAPI WsckSndBufrQuery(void *pvPrivate,
-                            unsigned *pafStatus,
-                            long *plHandshakeDelay)
+int WINAPI WsckSndBufrQuery(void* pvPrivate,
+                            unsigned* pafStatus,
+                            long* plHandshakeDelay)
 {
     int     iRetVal = COM_OK;
 
@@ -827,20 +797,19 @@ int WINAPI WsckSndBufrQuery(void *pvPrivate,
  * AUTHOR:
  *     mcc 12/26/95
 */
-int WINAPI WsckPortActivate(void *pvPrivate,
-                            TCHAR *pszPortName,
+int WINAPI WsckPortActivate(void* pvPrivate,
+                            TCHAR* pszPortName,
                             DWORD_PTR dwMediaHdl)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int             iRetVal = COM_OK;
     WNDCLASS wc;
-    ST_COM_CONTROL *pstComCntrl;
+    ST_COM_CONTROL* pstComCntrl;
 
     // Make sure we can get enough memory for buffers before opening device
-    pstPrivate->pbBufrStart = malloc((size_t) pstPrivate->nRBufrSize);
+    pstPrivate->pbBufrStart = malloc((size_t)pstPrivate->nRBufrSize);
 
-    if (pstPrivate->pbBufrStart == NULL)
-    {
+    if (pstPrivate->pbBufrStart == NULL) {
         iRetVal = COM_NOT_ENOUGH_MEMORY;
         //* DeviceReportError(pstPrivate, SID_ERR_NOMEM, 0, TRUE);
         goto checkout;
@@ -853,9 +822,8 @@ int WINAPI WsckPortActivate(void *pvPrivate,
     pstPrivate->nSendBufrLen = 0;
 
 
-    if (iRetVal == COM_OK)
-    {
-        pstComCntrl = (ST_COM_CONTROL *) pstPrivate->hCom;
+    if (iRetVal == COM_OK) {
+        pstComCntrl = (ST_COM_CONTROL*)pstPrivate->hCom;
         pstComCntrl->puchRBData =
             pstComCntrl->puchRBDataLimit =
             pstPrivate->pbBufrStart;
@@ -874,9 +842,9 @@ int WINAPI WsckPortActivate(void *pvPrivate,
     wc.cbClsExtra = 0;
     wc.cbWndExtra = sizeof(ST_STDCOM*);
     wc.hInstance = hinstDLL;
-    wc.hIcon = (HICON) 0;
-    wc.hCursor = (HCURSOR) 0;
-    wc.hbrBackground = (HBRUSH) 0;
+    wc.hIcon = (HICON)0;
+    wc.hCursor = (HCURSOR)0;
+    wc.hbrBackground = (HBRUSH)0;
     wc.lpszMenuName = NULL;
     wc.lpszClassName = WINSOCK_EVENT_WINDOW_CLASS;
 
@@ -887,8 +855,7 @@ int WINAPI WsckPortActivate(void *pvPrivate,
     WinSockCreateNVT(pstPrivate);
 
 
-    if (!WinSockCreateEventWindow(pstPrivate))
-    {
+    if (!WinSockCreateEventWindow(pstPrivate)) {
         iRetVal = COM_DEVICE_ERROR;
         goto checkout;
     }
@@ -921,9 +888,9 @@ checkout:
  * AUTHOR:
  *     mcc 12/26/95
 */
-int WINAPI WsckPortDeactivate(void *pvPrivate)
+int WINAPI WsckPortDeactivate(void* pvPrivate)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int iRetVal = COM_OK;
 
 
@@ -934,15 +901,13 @@ int WINAPI WsckPortDeactivate(void *pvPrivate)
     pstPrivate->hSocket = INVALID_SOCKET;
 
     // Destroy the WINSOCK event window
-    if (pstPrivate->hwndEvents)
-    {
+    if (pstPrivate->hwndEvents) {
         DestroyWindow(pstPrivate->hwndEvents);
         pstPrivate->hwndEvents = 0;
     }
 
     // Destroy the read buffer
-    if (pstPrivate->pbBufrStart)
-    {
+    if (pstPrivate->pbBufrStart) {
         free(pstPrivate->pbBufrStart);
         pstPrivate->pbBufrStart = NULL;
     }
@@ -968,14 +933,14 @@ int WINAPI WsckPortDeactivate(void *pvPrivate)
  * AUTHOR:
  *     mcc 01/18/95 (from HAWIN)
 */
-int WINAPI WsckRcvRefill(void *pvPrivate)
+int WINAPI WsckRcvRefill(void* pvPrivate)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int nIndx;
     int iBytesRead = 0;
     int nNVTRes;
     int nBytesCopied;
-    ST_COM_CONTROL FAR *pstComCntrl;
+    ST_COM_CONTROL FAR* pstComCntrl;
 
     if (pstPrivate->fConnected == 0)
         return FALSE;
@@ -987,23 +952,21 @@ int WINAPI WsckRcvRefill(void *pvPrivate)
     // and set iBytesRead to the number read.
     iBytesRead = 0;
     iBytesRead = recv(pstPrivate->hSocket,
-                      (LPSTR) pstPrivate->pbBufrStart,
-                      (int) pstPrivate->nRBufrSize,
+        (LPSTR)pstPrivate->pbBufrStart,
+                      (int)pstPrivate->nRBufrSize,
                       0);
-    if (iBytesRead == SOCKET_ERROR)
-    {
+    if (iBytesRead == SOCKET_ERROR) {
         int iErr;
 
         iBytesRead = 0;
         iErr = WSAGetLastError();
         if (iErr != WSAEWOULDBLOCK)
             DbgOutStr("Refill: error %d reading %d bytes on socket %d\n", iErr,
-            pstPrivate->nRBufrSize,
-            pstPrivate->hSocket, 0, 0);
+                      pstPrivate->nRBufrSize,
+                      pstPrivate->hSocket, 0, 0);
     }
 
-    if (iBytesRead == 0)
-    {
+    if (iBytesRead == 0) {
         ComNotify(pstPrivate->hCom, NODATA);
         return FALSE;
     }
@@ -1012,25 +975,21 @@ int WINAPI WsckRcvRefill(void *pvPrivate)
     // update the com handle with info on new data. This is implemented
     // this way to allow HA to access these characters quickly
     nBytesCopied = 0;
-    for (nIndx = 0; nIndx < iBytesRead; nIndx++)
-    {
+    for (nIndx = 0; nIndx < iBytesRead; nIndx++) {
         // If we have an FF or we are in the middle of a Telnet
         // command, run this character thru the NVT.  Unless the
         // says to discard the character, we then copy it to the
         // output position.
         if (pstPrivate->pbBufrStart[nIndx] == 0xFF ||
-            pstPrivate->NVTstate != NVT_THRU)
-        {
+            pstPrivate->NVTstate != NVT_THRU) {
             nNVTRes = WinSockNetworkVirtualTerminal(
-                (ECHAR) pstPrivate->pbBufrStart[nIndx],
-                (void far *) pstPrivate);
+                (ECHAR)pstPrivate->pbBufrStart[nIndx],
+                (void far*) pstPrivate);
             //DbgOutStr("NVT returns %d\n", nNVTRes, 0,0,0,0);
-        }
-        else
+        } else
             nNVTRes = NVT_KEEP;
 
-        if (nNVTRes != NVT_DISCARD)
-        {
+        if (nNVTRes != NVT_DISCARD) {
             pstPrivate->pbBufrStart[nBytesCopied] = pstPrivate->pbBufrStart[nIndx];
             nBytesCopied++;
         }
@@ -1039,9 +998,9 @@ int WINAPI WsckRcvRefill(void *pvPrivate)
     // if we got no data (perhaps because data were "eaten" by NVT),
     // make sure we return -1
     if (nBytesCopied == 0)
-        *(pstPrivate->pbBufrStart) = (char) -1;
+        *(pstPrivate->pbBufrStart) = (char)-1;
 
-    pstComCntrl = (ST_COM_CONTROL *) pstPrivate->hCom;
+    pstComCntrl = (ST_COM_CONTROL*)pstPrivate->hCom;
     pstComCntrl->puchRBData = pstPrivate->pbBufrStart;
     pstComCntrl->puchRBDataLimit = pstPrivate->pbBufrStart + nBytesCopied;
 
@@ -1064,11 +1023,11 @@ int WINAPI WsckRcvRefill(void *pvPrivate)
  * AUTHOR:
  * mcc 01/18/96    (taken almost entirely from HAWIN)
 */
-int WINAPI WsckRcvClear(void *pvPrivate)
+int WINAPI WsckRcvClear(void* pvPrivate)
 {
     CHAR ch[128];
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
-    ST_COM_CONTROL *pstComCntrl = (ST_COM_CONTROL *) pstPrivate->hCom;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
+    ST_COM_CONTROL* pstComCntrl = (ST_COM_CONTROL*)pstPrivate->hCom;
 
     if (pstPrivate->fConnected == 0)
         return COM_DEVICE_ERROR;
@@ -1078,8 +1037,7 @@ int WINAPI WsckRcvClear(void *pvPrivate)
 
     // Do whatever is necessary to remove any buffered data from the com port
 
-    while (recv(pstPrivate->hSocket, ch, 128, 0) != SOCKET_ERROR)
-    {
+    while (recv(pstPrivate->hSocket, ch, 128, 0) != SOCKET_ERROR) {
     }
 
     return COM_OK;
@@ -1108,27 +1066,26 @@ int WINAPI WsckRcvClear(void *pvPrivate)
  * AUTHOR:
  *     mcc 01/19/96
 */
-int WINAPI WsckSndBufrSend(void *pvPrivate, void *pvBufr, int  nBytesToSend)
+int WINAPI WsckSndBufrSend(void* pvPrivate, void* pvBufr, int  nBytesToSend)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int     nCount;
     int     nError;
     int         nSize;             // num bytes to send during this pass
     int        usReturnValue = COM_OK;
-    unsigned char *pszPtr = (unsigned char *) pvBufr;
-    unsigned char *pcThisPassData;
+    unsigned char* pszPtr = (unsigned char*)pvBufr;
+    unsigned char* pcThisPassData;
     int        fGotFF = FALSE;    // TRUE if last char detected was an FF
     int        nOffset;
     LPSTR   puchRemains;
     int        fQueueing = FALSE;
 
 
-    assert(pvBufr != (VOID FAR *)0);
+    assert(pvBufr != (VOID FAR*)0);
     assert(nBytesToSend <= WSOCK_SIZE_OUTQ);
 
 
-    if (pstPrivate->fSending)
-    {
+    if (pstPrivate->fSending) {
         DbgOutStr("SBS: Busy = %d\n", pstPrivate->fSending, 0, 0, 0, 0);
         return COM_BUSY;
     }
@@ -1149,46 +1106,38 @@ int WINAPI WsckSndBufrSend(void *pvPrivate, void *pvBufr, int  nBytesToSend)
     // until all the data are sent
     nOffset = 0;
     ComNotify(pstPrivate->hCom, SEND_STARTED);
-    while (nBytesToSend > 0 && usReturnValue == COM_OK)
-    {
-        if (pstPrivate->fEscapeFF)
-        {
+    while (nBytesToSend > 0 && usReturnValue == COM_OK) {
+        if (pstPrivate->fEscapeFF) {
             pcThisPassData = &pszPtr[nOffset];
 
             // If we are processing an FF that was found on the
             // last pass, send it out again by itself.    Otherwise,
             // search for the next FF and send everything up to and
             // including it.
-            if (fGotFF)
-            {
+            if (fGotFF) {
                 //DbgOutStr("SndBufrSend: 2nd FF\n", 0,0,0,0,0);
                 nSize = 1;
                 nOffset++;
                 fGotFF = FALSE;
-            }
-            else
-            {
+            } else {
                 nSize = 0;
                 while (pszPtr[nOffset] != 0xFF && nOffset < nBytesToSend)
                     nSize++, nOffset++;
 
                 // If no FF's were found, send everything
-                if (nOffset >= nBytesToSend)
-                {
+                if (nOffset >= nBytesToSend) {
                     nBytesToSend = 0;
                     fGotFF = 0;
                 }
                 // otherwise, send data up to and including FF
-                else
-                {
+                else {
                     nSize++;          // include the FF!
                     fGotFF = TRUE;    // Send the 2nd FF on next pass
                     //DbgOutStr("SndBufrSend: 1st FF ...", 0,0,0,0,0);
                 }
             }
 
-        }
-        else  // send everything in one pass
+        } else  // send everything in one pass
         {
             nSize = nBytesToSend;
             nBytesToSend = 0;
@@ -1196,31 +1145,26 @@ int WINAPI WsckSndBufrSend(void *pvPrivate, void *pvBufr, int  nBytesToSend)
         }
         // If we already have data queued, don't try to send directly, since
         // it might get out before the queued data do.
-        if (fQueueing)
-        {
+        if (fQueueing) {
             DbgOutStr("SBS queueing output.  Queueing %d bytes\n",
                       nSize, 0, 0, 0, 0);
             if (sndQueueAppend(pstPrivate, pcThisPassData, nSize) != COM_OK)
                 usReturnValue = COM_DEVICE_ERROR;
-        }
-        else
-        {
+        } else {
             // Pass data to TCP/IP
             nCount = 0;
             nCount = send(pstPrivate->hSocket,
-                          pcThisPassData, (int) nSize, 0);
+                          pcThisPassData, (int)nSize, 0);
 
             // If we got a "would block" error, copy the data to send
             // to pstPrivate->auchSndBufr.  (Since the FF processing may
             // cause this block of code to be executed multiple times in
             // one SndBufrSend call, we will append new data to existing
             // data in the buffer).
-            if (nCount == SOCKET_ERROR)
-            {
+            if (nCount == SOCKET_ERROR) {
                 nError = WSAGetLastError();
 
-                if (nError == WSAEWOULDBLOCK)
-                {
+                if (nError == WSAEWOULDBLOCK) {
                     // Winsock won't accept data, so queue it up for
                     // WinSockWriteEvent to handle.  Also, lock the handle
                     // until we are done so that WinSockWriteEvent can't get in
@@ -1232,31 +1176,25 @@ int WINAPI WsckSndBufrSend(void *pvPrivate, void *pvBufr, int  nBytesToSend)
                     EnterCriticalSection(&pstPrivate->csect);
                     if (sndQueueAppend(pstPrivate, pcThisPassData, nSize) != COM_OK)
                         usReturnValue = COM_DEVICE_ERROR;
-                }
-                else
-                {
+                } else {
                     DbgOutStr("WinSock send error %d\r\n", nError, 0, 0, 0, 0);
                     //DeviceReportError(pstPrivate, (UINT)nError, 0, FALSE);
                     usReturnValue = COM_DEVICE_ERROR;
                     DbgOutStr("SBS: Bad error\n", 0, 0, 0, 0, 0);
                 }
-            }
-            else
-            {
+            } else {
                 ComNotify(pstPrivate->hCom, SEND_DONE);
-                if (nCount < (int) nSize)
-                {
+                if (nCount < (int)nSize) {
                     /*
                      * Set stuff up for next time through
                      */
                     DbgOutStr("SBS send incomplete..  Queueing %d bytes\n",
-                              (int) nSize - nCount, 0, 0, 0, 0);
+                        (int)nSize - nCount, 0, 0, 0, 0);
 
                     // Get pointer to remaining data and queue it up
                     puchRemains = pcThisPassData + nCount;
                     if (sndQueueAppend(pstPrivate, puchRemains,
-                        (nSize - nCount)) != COM_OK)
-                    {
+                        (nSize - nCount)) != COM_OK) {
                         usReturnValue = COM_DEVICE_ERROR;
                         DbgOutStr("SBS: Bad error\n", 0, 0, 0, 0, 0);
                     }
@@ -1293,7 +1231,7 @@ int WINAPI WsckSndBufrSend(void *pvPrivate, void *pvBufr, int  nBytesToSend)
 */
 
 int FAR PASCAL sndQueueAppend(ST_STDCOM* pstPrivate,
-                              VOID FAR *pvBufr, int nBytesToAppend)
+                              VOID FAR* pvBufr, int nBytesToAppend)
 
 {
     LPSTR    puchEnd;
@@ -1303,11 +1241,9 @@ int FAR PASCAL sndQueueAppend(ST_STDCOM* pstPrivate,
     assert(pvBufr != NULL);
 
     //jkh 9/11/98 to avoid memcpy with invalid params
-    if (pstPrivate && pvBufr && nBytesToAppend > 0)
-    {
+    if (pstPrivate && pvBufr && nBytesToAppend > 0) {
         if (pstPrivate->nSendBufrLen + nBytesToAppend >
-            (int) sizeof(pstPrivate->abSndBufr))
-        {
+            (int)sizeof(pstPrivate->abSndBufr)) {
             DbgOutStr("SQAPP: buffer full", 0, 0, 0, 0, 0);
             return COM_BUSY;
         }
@@ -1323,7 +1259,7 @@ int FAR PASCAL sndQueueAppend(ST_STDCOM* pstPrivate,
         DbgOutStr("sQA: appending %d bytes to addr = %lx.  Existing buffer is %d bytes at %lx\n",
                   nBytesToAppend, puchEnd, pstPrivate->nSendBufrLen, pstPrivate->pbSendBufr, 0);
         pstPrivate->nSendBufrLen += nBytesToAppend;
-        MemCopy(puchEnd, (LPSTR) pvBufr, (unsigned) nBytesToAppend);
+        MemCopy(puchEnd, (LPSTR)pvBufr, (unsigned)nBytesToAppend);
     }
 
     DbgOutStr("sQA: copy done\n", 0, 0, 0, 0, 0);
@@ -1349,14 +1285,13 @@ int FAR PASCAL sndQueueAppend(ST_STDCOM* pstPrivate,
  * AUTHOR
  *     mcc 01/19/96 (from HAWIN)
 */
-int WINAPI WsckSndBufrClear(ST_STDCOM *pstPrivate)
+int WINAPI WsckSndBufrClear(ST_STDCOM* pstPrivate)
 {
     USHORT usReturnValue = COM_OK;
 
     DbgOutStr("SndBufrClear called", 0, 0, 0, 0, 0);
 
-    if (WsckSndBufrIsBusy(pstPrivate))
-    {
+    if (WsckSndBufrIsBusy(pstPrivate)) {
         pstPrivate->nSendBufrLen = 0;
         pstPrivate->pbSendBufr = 0;
     }
@@ -1385,112 +1320,104 @@ int WINAPI WsckSndBufrClear(ST_STDCOM *pstPrivate)
 */
 LRESULT FAR PASCAL WndSockWndProc(HWND hWnd, UINT uiMsg, WPARAM uiPar1, LPARAM lPar2)
 {
-    ST_STDCOM*pstPrivate;
+    ST_STDCOM* pstPrivate;
     WORD wVersion;
     WSADATA stWsaData;
 
-    switch (uiMsg)
-    {
-        case WM_WINSOCK_STARTUP:
-            pstPrivate = (ST_STDCOM*) GetWindowLongPtr(hWnd, 0);
-            if (pstPrivate == (ST_STDCOM*) 0)
-                break;
+    switch (uiMsg) {
+    case WM_WINSOCK_STARTUP:
+        pstPrivate = (ST_STDCOM*)GetWindowLongPtr(hWnd, 0);
+        if (pstPrivate == (ST_STDCOM*)0)
+            break;
 
-            DbgOutStr("Calling WSAStartup\n", 0, 0, 0, 0, 0);
-            /*
-             * Initialize the Windows Socket DLL
-             */
-            wVersion = 0x0101;            // The version of WinSock that we want
-            if (WSAStartup(wVersion, &stWsaData) != 0)
-            {
-                /* No DLL was available */
-                return COM_DEVICE_ERROR;
-            }
-            DbgOutStr("Done calling WSAStartup\n", 0, 0, 0, 0, 0);
-            //    pstPrivate->fActive = TRUE;
+        DbgOutStr("Calling WSAStartup\n", 0, 0, 0, 0, 0);
+        /*
+         * Initialize the Windows Socket DLL
+         */
+        wVersion = 0x0101;            // The version of WinSock that we want
+        if (WSAStartup(wVersion, &stWsaData) != 0) {
+            /* No DLL was available */
+            return COM_DEVICE_ERROR;
+        }
+        DbgOutStr("Done calling WSAStartup\n", 0, 0, 0, 0, 0);
+        //    pstPrivate->fActive = TRUE;
 
-            /* Confirm that the Windows Socket DLL supports 1.1. */
-            /* Note that if the DLL supports versions greater    */
-            /* than 1.1 in addition to 1.1, it will still return */
-            /* 1.1 in wVersion since that is the version we      */
-            /* requested                                         */
-            if ((LOBYTE(stWsaData.wVersion) != 1) &&
-                (HIBYTE(stWsaData.wVersion) != 1))
-            {
-                /* No acceptable DLL was available */
-                return COM_DEVICE_ERROR;
-            }
+        /* Confirm that the Windows Socket DLL supports 1.1. */
+        /* Note that if the DLL supports versions greater    */
+        /* than 1.1 in addition to 1.1, it will still return */
+        /* 1.1 in wVersion since that is the version we      */
+        /* requested                                         */
+        if ((LOBYTE(stWsaData.wVersion) != 1) &&
+            (HIBYTE(stWsaData.wVersion) != 1)) {
+            /* No acceptable DLL was available */
+            return COM_DEVICE_ERROR;
+        }
 
-            /*
-             * Create a socket for later use.
-             */
-            DbgOutStr("Calling socket\n", 0, 0, 0, 0, 0);
+        /*
+         * Create a socket for later use.
+         */
+        DbgOutStr("Calling socket\n", 0, 0, 0, 0, 0);
 
-            pstPrivate->hSocket = socket(PF_INET, SOCK_STREAM, 0);
-            if (pstPrivate->hSocket == INVALID_SOCKET)
-            {
-                return COM_DEVICE_ERROR;
-            }
-            DbgOutStr("Done calling socket\n", 0, 0, 0, 0, 0);
+        pstPrivate->hSocket = socket(PF_INET, SOCK_STREAM, 0);
+        if (pstPrivate->hSocket == INVALID_SOCKET) {
+            return COM_DEVICE_ERROR;
+        }
+        DbgOutStr("Done calling socket\n", 0, 0, 0, 0, 0);
 
 #ifdef INCL_CALL_ANSWERING
-            if (pstPrivate->fAnswer)
-            {
-                WinSockAnswerSpecial(pstPrivate);
-            }
-            else
-            {
-                WinSockConnectSpecial(pstPrivate);
-            }
-#else
+        if (pstPrivate->fAnswer) {
+            WinSockAnswerSpecial(pstPrivate);
+        } else {
             WinSockConnectSpecial(pstPrivate);
+        }
+#else
+        WinSockConnectSpecial(pstPrivate);
 #endif
+        break;
+
+    case WM_WINSOCK_NOTIFY:
+    {
+        pstPrivate = (ST_STDCOM*)GetWindowLongPtr(hWnd, 0);
+        if (pstPrivate == (ST_STDCOM*)0)
             break;
 
-        case WM_WINSOCK_NOTIFY:
-            {
-                pstPrivate = (ST_STDCOM*) GetWindowLongPtr(hWnd, 0);
-                if (pstPrivate == (ST_STDCOM*) 0)
-                    break;
+        switch (LOWORD(lPar2)) {
+        case FD_READ:
+            return WinSockReadEvent(pstPrivate, lPar2);
 
-                switch (LOWORD(lPar2))
-                {
-                    case FD_READ:
-                        return WinSockReadEvent(pstPrivate, lPar2);
+        case FD_WRITE:
+            return WinSockWriteEvent(pstPrivate, lPar2);
 
-                    case FD_WRITE:
-                        return WinSockWriteEvent(pstPrivate, lPar2);
+        case FD_CLOSE:
+            //DbgOutStr("FD_CLOSE\r\n", 0,0,0,0,0);
+            return WinSockCloseEvent(pstPrivate, lPar2);
 
-                    case FD_CLOSE:
-                        //DbgOutStr("FD_CLOSE\r\n", 0,0,0,0,0);
-                        return WinSockCloseEvent(pstPrivate, lPar2);
+        case FD_CONNECT:
+            //DbgOutStr("FD_CONNECT\r\n", 0,0,0,0,0);
+            return WinSockConnectEvent(pstPrivate, lPar2);
 
-                    case FD_CONNECT:
-                        //DbgOutStr("FD_CONNECT\r\n", 0,0,0,0,0);
-                        return WinSockConnectEvent(pstPrivate, lPar2);
-
-                    case FD_ACCEPT:
-                        //DbgOutStr("FD_ACCEPT\r\n", 0,0,0,0,0);
-                        return WinSockAcceptEvent(pstPrivate, lPar2);
-
-                    default:
-                        break;
-                }
-            }
-            break;
-
-        case WM_WINSOCK_RESOLVE:
-            {
-                /* We get here after a call to WSAAsyncGetHostByName */
-                pstPrivate = (ST_STDCOM*) GetWindowLongPtr(hWnd, 0);
-                if (pstPrivate == (ST_STDCOM*) 0)
-                    break;
-
-                return WinSockResolveEvent(pstPrivate, lPar2);
-            }
+        case FD_ACCEPT:
+            //DbgOutStr("FD_ACCEPT\r\n", 0,0,0,0,0);
+            return WinSockAcceptEvent(pstPrivate, lPar2);
 
         default:
             break;
+        }
+    }
+    break;
+
+    case WM_WINSOCK_RESOLVE:
+    {
+        /* We get here after a call to WSAAsyncGetHostByName */
+        pstPrivate = (ST_STDCOM*)GetWindowLongPtr(hWnd, 0);
+        if (pstPrivate == (ST_STDCOM*)0)
+            break;
+
+        return WinSockResolveEvent(pstPrivate, lPar2);
+    }
+
+    default:
+        break;
     }
 
     return DefWindowProc(hWnd, uiMsg, uiPar1, lPar2);
@@ -1511,12 +1438,11 @@ LRESULT FAR PASCAL WndSockWndProc(HWND hWnd, UINT uiMsg, WPARAM uiPar1, LPARAM l
  * AUTHOR
  *     mcc 01/19/96 (from HAWIN)
 */
-BOOL WinSockCreateEventWindow(ST_STDCOM *pstPrivate)
+BOOL WinSockCreateEventWindow(ST_STDCOM* pstPrivate)
 {
     BOOL fRetVal = TRUE;
 
-    if (fRetVal)
-    {
+    if (fRetVal) {
         pstPrivate->hwndEvents = CreateWindow(
             WINSOCK_EVENT_WINDOW_CLASS,
             "",
@@ -1526,12 +1452,11 @@ BOOL WinSockCreateEventWindow(ST_STDCOM *pstPrivate)
             NULL,
             hinstDLL,
             NULL);
-        fRetVal = (pstPrivate->hwndEvents != (HWND) 0);
+        fRetVal = (pstPrivate->hwndEvents != (HWND)0);
     }
 
-    if (fRetVal)
-    {
-        SetWindowLongPtr(pstPrivate->hwndEvents, 0, (LONG_PTR) pstPrivate);
+    if (fRetVal) {
+        SetWindowLongPtr(pstPrivate->hwndEvents, 0, (LONG_PTR)pstPrivate);
     }
 
     return fRetVal;
@@ -1552,7 +1477,7 @@ BOOL WinSockCreateEventWindow(ST_STDCOM *pstPrivate)
  * AUTHOR
  *     mcc 01/19/96 (from HAWIN)
 */
-VOID WinSockSendBreak(ST_STDCOM*pstPrivate)
+VOID WinSockSendBreak(ST_STDCOM* pstPrivate)
 {
     UCHAR acSendBreak[2];
 
@@ -1572,17 +1497,14 @@ VOID WinSockSendBreak(ST_STDCOM*pstPrivate)
 
  * RETURNS:
 */
-USHORT WinSockSendBreakSpecial(ST_STDCOM *pstPrivate,
+USHORT WinSockSendBreakSpecial(ST_STDCOM* pstPrivate,
                                LPSTR pszData,
                                UINT uiSize)
 {
-    if (pstPrivate->nSendBufrLen > 0)
-    {
+    if (pstPrivate->nSendBufrLen > 0) {
         /* Can't do it now, wait until next time */
         pstPrivate->fSndBreak = TRUE;
-    }
-    else
-    {
+    } else {
         WinSockSendBreak(pstPrivate);
     }
 
@@ -1601,7 +1523,7 @@ USHORT WinSockSendBreakSpecial(ST_STDCOM *pstPrivate,
  * AUTHOR
  *     mcc 01/19/96 (from HAWIN)
 */
-int WinSockConnectSpecial(ST_STDCOM*pstPrivate)
+int WinSockConnectSpecial(ST_STDCOM* pstPrivate)
 {
     USHORT usRetVal;
     int nIndx;
@@ -1620,19 +1542,18 @@ int WinSockConnectSpecial(ST_STDCOM*pstPrivate)
     // Bind the socket to any internet address.  Ignore errors;
     // real ones will be detected later, and this WILL fail
     // if the socket is already bound.
-    usRetVal = (USHORT) bind(pstPrivate->hSocket, (LPSOCKADDR) &cli_addr,
-                             sizeof(cli_addr));
+    usRetVal = (USHORT)bind(pstPrivate->hSocket, (LPSOCKADDR)&cli_addr,
+                            sizeof(cli_addr));
     DbgOutStr("Socket %d bind returns %d\n", pstPrivate->hSocket, usRetVal, 0, 0, 0);
 
     // See if the remote address has been entered in numeric form.  If not,
     // we will have to call WSAAsynchGetHostByName to translate it; in that
     // case, the EventWindow handler will call connect.
     ulAddr = inet_addr(pstPrivate->szRemoteAddr);
-    if ((ulAddr == INADDR_NONE) || (ulAddr == 0))
-    {
+    if ((ulAddr == INADDR_NONE) || (ulAddr == 0)) {
         DbgOutStr("WSCnctSp: calling WSA...HostByName\n", 0, 0, 0, 0, 0);
         /* We take the long way around */
-        hReturn = WSAAsyncGetHostByName(pstPrivate->hwndEvents, WM_WINSOCK_RESOLVE, pstPrivate->szRemoteAddr, (char *) pstPrivate->pstHostBuf, MAXGETHOSTSTRUCT);
+        hReturn = WSAAsyncGetHostByName(pstPrivate->hwndEvents, WM_WINSOCK_RESOLVE, pstPrivate->szRemoteAddr, (char*)pstPrivate->pstHostBuf, MAXGETHOSTSTRUCT);
         if (hReturn == 0)
             nError = WSAGetLastError();
         else
@@ -1648,16 +1569,15 @@ int WinSockConnectSpecial(ST_STDCOM*pstPrivate)
      */
     srv_addr.sin_family = AF_INET;
     srv_addr.sin_addr.s_addr = ulAddr;
-    srv_addr.sin_port = htons((USHORT) pstPrivate->nPort);
+    srv_addr.sin_port = htons((USHORT)pstPrivate->nPort);
 
     nIndx = WSAAsyncSelect(pstPrivate->hSocket,
                            pstPrivate->hwndEvents,
                            WM_WINSOCK_NOTIFY,
                            FD_CONNECT | FD_READ | FD_WRITE | FD_CLOSE
-                           );
+    );
 
-    if (nIndx != 0)
-    {
+    if (nIndx != 0) {
         /* Oops, something goofed */
         usRetVal = COM_DEVICE_ERROR;
         DbgOutStr("WSAAsyncSelect failed\n", 0, 0, 0, 0, 0);
@@ -1665,12 +1585,10 @@ int WinSockConnectSpecial(ST_STDCOM*pstPrivate)
     }
 
     if (connect(pstPrivate->hSocket,
-        (LPSOCKADDR) &srv_addr,
-        sizeof(srv_addr)) == SOCKET_ERROR)
-    {
+        (LPSOCKADDR)&srv_addr,
+                sizeof(srv_addr)) == SOCKET_ERROR) {
         nIndx = WSAGetLastError();
-        if (nIndx != WSAEWOULDBLOCK)
-        {
+        if (nIndx != WSAEWOULDBLOCK) {
             usRetVal = COM_DEVICE_ERROR;
             //DeviceReportError(pstPrivate, (UINT)nIndx, 0, FALSE);
             DbgOutStr("Connect failed (err = %d)\n", nIndx, 0, 0, 0, 0);
@@ -1680,8 +1598,7 @@ int WinSockConnectSpecial(ST_STDCOM*pstPrivate)
 
 WSCSexit:
     //DbgOutStr(" returns %d\r\n", usRetVal, 0,0,0,0);
-    if (usRetVal != COM_OK)
-    {
+    if (usRetVal != COM_OK) {
         closesocket(pstPrivate->hSocket);
     }
 
@@ -1701,7 +1618,7 @@ WSCSexit:
 
  * AUTHOR:  C. Baumgartner, 11/19/96 (ported from HAWin16)
 */
-int WinSockAnswerSpecial(ST_STDCOM*pstPrivate)
+int WinSockAnswerSpecial(ST_STDCOM* pstPrivate)
 {
     int                nError = 0;
     USHORT             usRetVal = COM_OK;
@@ -1711,16 +1628,15 @@ int WinSockAnswerSpecial(ST_STDCOM*pstPrivate)
 
     host_addr.sin_family = AF_INET;
     host_addr.sin_addr.s_addr = INADDR_ANY;
-    host_addr.sin_port = htons((USHORT) pstPrivate->nPort);
+    host_addr.sin_port = htons((USHORT)pstPrivate->nPort);
 
     // Bind the socket to our local address.
 
-    nError = bind(pstPrivate->hSocket, (LPSOCKADDR) &host_addr,
+    nError = bind(pstPrivate->hSocket, (LPSOCKADDR)&host_addr,
                   sizeof(host_addr));
     DbgOutStr("Socket %d bind returns %d\n", pstPrivate->hSocket, nError, 0, 0, 0);
 
-    if (nError != 0)
-    {
+    if (nError != 0) {
         usRetVal = COM_DEVICE_ERROR;
         goto WSASexit;
     }
@@ -1731,23 +1647,20 @@ int WinSockAnswerSpecial(ST_STDCOM*pstPrivate)
     nError = WSAAsyncSelect(pstPrivate->hSocket, pstPrivate->hwndEvents,
                             WM_WINSOCK_NOTIFY, FD_ACCEPT | FD_READ | FD_WRITE | FD_CLOSE);
 
-    if (nError != 0)
-    {
+    if (nError != 0) {
         usRetVal = COM_DEVICE_ERROR;
         goto WSASexit;
     }
 
     // Tell the socket to wait for incoming calls.
 
-    if (listen(pstPrivate->hSocket, 1) != 0)
-    {
+    if (listen(pstPrivate->hSocket, 1) != 0) {
         usRetVal = COM_DEVICE_ERROR;
         goto WSASexit;
     }
 
 WSASexit:
-    if (usRetVal != COM_OK)
-    {
+    if (usRetVal != COM_OK) {
         closesocket(pstPrivate->hSocket);
     }
 
@@ -1781,19 +1694,19 @@ WSASexit:
  return COM_OK;
  } /*lint !e715 */
 
-/*
- * FUNCTION:
+ /*
+  * FUNCTION:
 
- * DESCRIPTION:
+  * DESCRIPTION:
 
- * PARAMETERS:
+  * PARAMETERS:
 
- * RETURNS:
+  * RETURNS:
 
- * AUTHOR
- *     mcc 01/19/96 (from HAWIN)
-*/
-LONG WinSockCloseEvent(ST_STDCOM*pstPrivate, LPARAM lPar)
+  * AUTHOR
+  *     mcc 01/19/96 (from HAWIN)
+ */
+LONG WinSockCloseEvent(ST_STDCOM* pstPrivate, LPARAM lPar)
 {
     pstPrivate->fConnected = 0;
     ComNotify(pstPrivate->hCom, CONNECT);
@@ -1812,17 +1725,14 @@ LONG WinSockCloseEvent(ST_STDCOM*pstPrivate, LPARAM lPar)
 
  * RETURNS:
 */
-LONG WinSockConnectEvent(ST_STDCOM*pstPrivate, LPARAM lPar)
+LONG WinSockConnectEvent(ST_STDCOM* pstPrivate, LPARAM lPar)
 {
     int status;
-    status = (int) HIWORD(lPar);
-    if (status)
-    {
+    status = (int)HIWORD(lPar);
+    if (status) {
         pstPrivate->fConnected = 0;
         ComNotify(pstPrivate->hCom, CONNECT);
-    }
-    else
-    {
+    } else {
         pstPrivate->fConnected = 1;
         ComNotify(pstPrivate->hCom, CONNECT);
     }
@@ -1845,7 +1755,7 @@ LONG WinSockConnectEvent(ST_STDCOM*pstPrivate, LPARAM lPar)
 
  * AUTHOR:  C. Baumgartner, 11/19/96 (ported from HAWin16)
 */
-LONG WinSockAcceptEvent(ST_STDCOM*pstPrivate, LPARAM lPar)
+LONG WinSockAcceptEvent(ST_STDCOM* pstPrivate, LPARAM lPar)
 {
     int    status = HIWORD(lPar);
     SOCKET hAnswer = INVALID_SOCKET;
@@ -1859,8 +1769,7 @@ LONG WinSockAcceptEvent(ST_STDCOM*pstPrivate, LPARAM lPar)
 
     hAnswer = accept(pstPrivate->hSocket, NULL, 0);
 
-    if (hAnswer != INVALID_SOCKET)
-    {
+    if (hAnswer != INVALID_SOCKET) {
         // Now we are connected.
 
         pstPrivate->fConnected = 1;
@@ -1897,7 +1806,7 @@ LONG WinSockAcceptEvent(ST_STDCOM*pstPrivate, LPARAM lPar)
  * AUTHOR
  *     mcc 01/19/96 (from HAWIN)
 */
-LONG WinSockReadEvent(ST_STDCOM*pstPrivate, LPARAM lPar)
+LONG WinSockReadEvent(ST_STDCOM* pstPrivate, LPARAM lPar)
 {
 
     ComNotify(pstPrivate->hCom, DATA_RECEIVED);
@@ -1922,7 +1831,7 @@ LONG WinSockReadEvent(ST_STDCOM*pstPrivate, LPARAM lPar)
  *     mcc 01/19/96 (from HAWIN)
 
 */
-LONG WinSockWriteEvent(ST_STDCOM *pstPrivate, LPARAM lPar)
+LONG WinSockWriteEvent(ST_STDCOM* pstPrivate, LPARAM lPar)
 {
     int nCount;
     int nError;
@@ -1934,21 +1843,19 @@ LONG WinSockWriteEvent(ST_STDCOM *pstPrivate, LPARAM lPar)
     if (pstPrivate->fConnected == 0)
         return 0;
 
-    if (pstPrivate->fSndBreak)
-    {
+    if (pstPrivate->fSndBreak) {
         WinSockSendBreak(pstPrivate);
         pstPrivate->fSndBreak = FALSE;
     }
 
-    if (pstPrivate->nSendBufrLen)
-    {
+    if (pstPrivate->nSendBufrLen) {
         // This is done to keep the "main thread" from updating the buffer
         //  while we send it.  OK, I think, since send won't block.
         EnterCriticalSection(&pstPrivate->csect);
 
         nCount = send(pstPrivate->hSocket,
                       pstPrivate->pbSendBufr,
-                      (int) pstPrivate->nSendBufrLen,
+                      (int)pstPrivate->nSendBufrLen,
                       0);
         LeaveCriticalSection(&pstPrivate->csect);
 
@@ -1957,19 +1864,15 @@ LONG WinSockWriteEvent(ST_STDCOM *pstPrivate, LPARAM lPar)
 
         // assert((int)pstPrivate->SendBufrLen == nCount);
 
-        if (nCount == SOCKET_ERROR)
-        {
+        if (nCount == SOCKET_ERROR) {
             nError = WSAGetLastError();
 
-            if (nError == WSAEWOULDBLOCK)
-            {
+            if (nError == WSAEWOULDBLOCK) {
                 DbgOutStr("  still blocked\n", 0, 0, 0, 0, 0);
                 /*
                  * Nothing to do in this case
                  */
-            }
-            else
-            {
+            } else {
                 // Got some weird error.  Notify interested parties
                 // that our connection is suspect
                 DbgOutStr(" got error %d\r\n", nError, 0, 0, 0, 0);
@@ -1977,26 +1880,20 @@ LONG WinSockWriteEvent(ST_STDCOM *pstPrivate, LPARAM lPar)
                 pstPrivate->pbSendBufr = 0;
                 ComNotify(pstPrivate->hCom, CONNECT);
             }
-        }
-        else
-        {
+        } else {
             DbgOutStr("%d bytes sent.\n", nCount, 0, 0, 0, 0);
 
-            if (nCount < (int) pstPrivate->nSendBufrLen)
-            {
-                pstPrivate->nSendBufrLen -= (USHORT) nCount;
+            if (nCount < (int)pstPrivate->nSendBufrLen) {
+                pstPrivate->nSendBufrLen -= (USHORT)nCount;
                 pstPrivate->pbSendBufr += nCount;
-            }
-            else
-            {
+            } else {
                 pstPrivate->nSendBufrLen = 0;
                 pstPrivate->pbSendBufr = 0;
             }
         }
     }
 
-    if (pstPrivate->nSendBufrLen == 0)
-    {
+    if (pstPrivate->nSendBufrLen == 0) {
         pstPrivate->fSending = FALSE;
 
 
@@ -2025,18 +1922,17 @@ LONG WinSockWriteEvent(ST_STDCOM *pstPrivate, LPARAM lPar)
  * AUTHOR
  *    mcc 01/18/96 (borrowed from HAWIN)
 */
-LONG WinSockResolveEvent(ST_STDCOM *pstPrivate, LPARAM lPar)
+LONG WinSockResolveEvent(ST_STDCOM* pstPrivate, LPARAM lPar)
 {
     int nError;
     struct sockaddr_in    srv_addr;
     LPHOSTENT            pstHost;
-    ULONG                *pulAddress;
+    ULONG* pulAddress;
 
     DbgOutStr("WinSockResolveEvent called\n", 0, 0, 0, 0, 0);
 
     nError = HIWORD(lPar);
-    if (nError)
-    {
+    if (nError) {
         // Notify the connection driver that a change in status may
         // have taken place.  It will follow up and display
         // an appropriate message
@@ -2048,17 +1944,16 @@ LONG WinSockResolveEvent(ST_STDCOM *pstPrivate, LPARAM lPar)
         return 0;
     }
 
-    pstHost = (LPHOSTENT) pstPrivate->pstHostBuf;
-    pulAddress = (ULONG FAR *)*(pstHost->h_addr_list);
+    pstHost = (LPHOSTENT)pstPrivate->pstHostBuf;
+    pulAddress = (ULONG FAR*) * (pstHost->h_addr_list);
 
     nError = WSAAsyncSelect(pstPrivate->hSocket,
                             pstPrivate->hwndEvents,
                             WM_WINSOCK_NOTIFY,
                             FD_CONNECT | FD_READ | FD_WRITE | FD_CLOSE
-                            );
+    );
 
-    if (nError != 0)
-    {
+    if (nError != 0) {
         DbgOutStr("Resolve: WSAAsyncSelect failed\n", 0, 0, 0, 0, 0);
         ComNotify(pstPrivate->hCom, CONNECT);
         return 0;
@@ -2067,15 +1962,13 @@ LONG WinSockResolveEvent(ST_STDCOM *pstPrivate, LPARAM lPar)
 
     srv_addr.sin_family = AF_INET;
     srv_addr.sin_addr.s_addr = *pulAddress;
-    srv_addr.sin_port = (short) htons(pstPrivate->nPort);
+    srv_addr.sin_port = (short)htons(pstPrivate->nPort);
 
     if (connect(pstPrivate->hSocket,
-        (LPSOCKADDR) &srv_addr,
-        sizeof(srv_addr)) == SOCKET_ERROR)
-    {
+        (LPSOCKADDR)&srv_addr,
+                sizeof(srv_addr)) == SOCKET_ERROR) {
         nError = WSAGetLastError();
-        if (nError != WSAEWOULDBLOCK)
-        {
+        if (nError != WSAEWOULDBLOCK) {
             DbgOutStr("Resolve: connect failed, code = %d\n", nError,
                       0, 0, 0, 0);
             //DeviceReportError(pstPrivate, (UINT)nError, 0, FALSE);
@@ -2106,18 +1999,18 @@ LONG WinSockResolveEvent(ST_STDCOM *pstPrivate, LPARAM lPar)
  * AUTHOR
  *    mcc 02/06/96
 */
-VOID WinSockSendMessage(ST_STDCOM * pstPrivate, INT nMsg, INT nChar)
+VOID WinSockSendMessage(ST_STDCOM* pstPrivate, INT nMsg, INT nChar)
 {
     unsigned char     acMsg[3];
 
 #if defined(_DEBUG)
-    char *nNames [] = { "WILL", "WONT", "DO", "DONT" };
+    char* nNames[] = {"WILL", "WONT", "DO", "DONT"};
     assert(nMsg >= WILL && nMsg <= DONT);
     DbgOutStr("Send %s: %lx\r\n", nNames[nMsg - WILL], nChar, 0, 0, 0);
 #endif
     acMsg[0] = IAC;
-    acMsg[1] = (UCHAR) nMsg;
-    acMsg[2] = (UCHAR) nChar;
+    acMsg[1] = (UCHAR)nMsg;
+    acMsg[2] = (UCHAR)nChar;
 
 
     WinSockSendBuffer(pstPrivate, 3, acMsg);
@@ -2143,29 +2036,24 @@ VOID WinSockSendMessage(ST_STDCOM * pstPrivate, INT nMsg, INT nChar)
  * AUTHOR
  *    mcc 02/06/96
 */
-VOID WinSockSendBuffer(ST_STDCOM * pstPrivate, INT nSize, LPSTR pszBuffer)
+VOID WinSockSendBuffer(ST_STDCOM* pstPrivate, INT nSize, LPSTR pszBuffer)
 {
     int nCount, nError;
 
     nCount = send(pstPrivate->hSocket, pszBuffer, nSize, 0);
 
-    if (nCount == SOCKET_ERROR)
-    {
+    if (nCount == SOCKET_ERROR) {
         nError = WSAGetLastError();
 
-        if (nError == WSAEWOULDBLOCK)
-        {
+        if (nError == WSAEWOULDBLOCK) {
             DbgOutStr("WSSB would block.  Queueing 3 bytes\n",
                       0, 0, 0, 0, 0);
             if (sndQueueAppend(pstPrivate, pszBuffer, 3) != COM_OK)
                 ComNotify(pstPrivate->hCom, CONNECT);
-        }
-        else
+        } else
             ComNotify(pstPrivate->hCom, CONNECT);
 
-    }
-    else
-    {
+    } else {
         int i;
         DbgOutStr("%4d >> ", nCount, 0, 0, 0, 0);
         for (i = 0; i < nCount; i++)
@@ -2209,13 +2097,13 @@ VOID WinSockSendBuffer(ST_STDCOM * pstPrivate, INT nSize, LPSTR pszBuffer)
  * AUTHOR:
  * mcc 12/26/95
 */
-int WINAPI WsckPortActivate(void *pvPrivate,
-                            TCHAR *pszPortName,
+int WINAPI WsckPortActivate(void* pvPrivate,
+                            TCHAR* pszPortName,
                             DWORD_PTR dwMediaHdl)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int             iRetVal = COM_OK;
-    ST_COM_CONTROL *pstComCntrl;
+    ST_COM_CONTROL* pstComCntrl;
     DWORD           dwThreadID;
     WORD wVersion;
     WSADATA stWsaData;
@@ -2227,8 +2115,7 @@ int WINAPI WsckPortActivate(void *pvPrivate,
      * Initialize the Windows Socket DLL
      */
     wVersion = 0x0101;            // The version of WinSock that we want
-    if (WSAStartup(wVersion, &stWsaData) != 0)
-    {
+    if (WSAStartup(wVersion, &stWsaData) != 0) {
         /* No DLL was available */
         iRetVal = COM_DEVICE_ERROR;
         goto checkout;
@@ -2241,8 +2128,7 @@ int WINAPI WsckPortActivate(void *pvPrivate,
     /* 1.1 in wVersion since that is the version we      */
     /* requested                                         */
     if ((LOBYTE(stWsaData.wVersion) != 1) &&
-        (HIBYTE(stWsaData.wVersion) != 1))
-    {
+        (HIBYTE(stWsaData.wVersion) != 1)) {
         /* No acceptable DLL was available */
         iRetVal = COM_DEVICE_ERROR;
         goto checkout;
@@ -2252,8 +2138,7 @@ int WINAPI WsckPortActivate(void *pvPrivate,
      * Create a socket for later use.
      */
     pstPrivate->hSocket = socket(PF_INET, SOCK_STREAM, 0);
-    if (pstPrivate->hSocket == INVALID_SOCKET)
-    {
+    if (pstPrivate->hSocket == INVALID_SOCKET) {
         iRetVal = WSAGetLastError();
         DbgOutStr("Error %d creating socket\n", iRetVal, 0, 0, 0, 0);
         iRetVal = COM_DEVICE_ERROR;
@@ -2271,15 +2156,14 @@ int WINAPI WsckPortActivate(void *pvPrivate,
     // Bind the socket to any internet address.  Ignore errors;
     // real ones will be detected later, and this WILL fail
     // if the socket is already bound.
-    iRetVal = bind(pstPrivate->hSocket, (LPSOCKADDR) &cli_addr,
+    iRetVal = bind(pstPrivate->hSocket, (LPSOCKADDR)&cli_addr,
                    sizeof(cli_addr));
     DbgOutStr("Socket %d bind returns %d\n", pstPrivate->hSocket, iRetVal, 0, 0, 0);
 
     // Make sure we can get enough memory for buffers before opening device
-    pstPrivate->pbBufrStart = malloc((size_t) pstPrivate->nRBufrSize);
+    pstPrivate->pbBufrStart = malloc((size_t)pstPrivate->nRBufrSize);
 
-    if (pstPrivate->pbBufrStart == NULL)
-    {
+    if (pstPrivate->pbBufrStart == NULL) {
         iRetVal = COM_NOT_ENOUGH_MEMORY;
         //* DeviceReportError(pstPrivate, SID_ERR_NOMEM, 0, TRUE);
         goto checkout;
@@ -2291,9 +2175,8 @@ int WINAPI WsckPortActivate(void *pvPrivate,
     pstPrivate->fBufrEmpty = TRUE;
 
 
-    if (iRetVal == COM_OK)
-    {
-        pstComCntrl = (ST_COM_CONTROL *) pstPrivate->hCom;
+    if (iRetVal == COM_OK) {
+        pstComCntrl = (ST_COM_CONTROL*)pstPrivate->hCom;
         pstComCntrl->puchRBData =
             pstComCntrl->puchRBDataLimit =
             pstPrivate->pbBufrStart;
@@ -2305,19 +2188,18 @@ int WINAPI WsckPortActivate(void *pvPrivate,
 
         // Start thread to handle Reading, Writing (& 'rithmetic) & events
         pstPrivate->fHaltThread = FALSE;
-        pstPrivate->hComReadThread = CreateThread((LPSECURITY_ATTRIBUTES) 0, 16384, WsckComReadThread, pstPrivate, 0, &dwThreadID);
+        pstPrivate->hComReadThread = CreateThread((LPSECURITY_ATTRIBUTES)0, 16384, WsckComReadThread, pstPrivate, 0, &dwThreadID);
         DBG_THREAD("CreateThread (Read Thread)  returned %08X %08X\r\n",
                    pstPrivate->hComReadThread, 0, 0, 0, 0);
 
-        pstPrivate->hComWriteThread = CreateThread((LPSECURITY_ATTRIBUTES) 0, 16384, WsckComWriteThread, pstPrivate, 0, &dwThreadID);
+        pstPrivate->hComWriteThread = CreateThread((LPSECURITY_ATTRIBUTES)0, 16384, WsckComWriteThread, pstPrivate, 0, &dwThreadID);
         DBG_THREAD("CreateThread  (Write Thread) returned %08X %08X\r\n",
                    pstPrivate->hComWriteThread, 0, 0, 0, 0);
 
         // TODO discuss with JKH what thread priorities should be
 
         // Make sure that we have a valid address to connect to
-        if (wsckResolveAddress(pstPrivate->szRemoteAddr, &pstPrivate->ulAddr) != COM_OK)
-        {
+        if (wsckResolveAddress(pstPrivate->szRemoteAddr, &pstPrivate->ulAddr) != COM_OK) {
             pstPrivate->fConnected = 0;
             ComNotify(pstPrivate->hCom, CONNECT);
             iRetVal = COM_NOT_FOUND;
@@ -2330,18 +2212,15 @@ int WINAPI WsckPortActivate(void *pvPrivate,
         pstPrivate->stHost.sin_port = htons(pstPrivate->nPort);
         //DbgOutStr("About to call connect", 0,0,0,0,0);
         iRetVal = connect(pstPrivate->hSocket,
-                          (struct sockaddr *) &pstPrivate->stHost,
+            (struct sockaddr*) & pstPrivate->stHost,
                           sizeof(pstPrivate->stHost));
-        if (iRetVal == COM_OK)
-        {
+        if (iRetVal == COM_OK) {
             pstPrivate->fConnected = TRUE;
             // Turn loose the read thread
             DbgOutStr("connect OK", 0, 0, 0, 0, 0);
             SetEvent(pstPrivate->ahEvent[EVENT_READ]);
             SetEvent(pstPrivate->ahEvent[EVENT_WRITE]);
-        }
-        else
-        {
+        } else {
             iRetVal = WSAGetLastError();
             DbgOutStr(" connect() failed, rc = %d", iRetVal, 0, 0, 0, 0);
             iRetVal = COM_NOT_FOUND;
@@ -2373,16 +2252,15 @@ checkout:
  * AUTHOR:
  * mcc 12/26/95
 */
-int WINAPI WsckPortDeactivate(void *pvPrivate)
+int WINAPI WsckPortDeactivate(void* pvPrivate)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int iRetVal = COM_OK;
 
 
 
 
-    if (pstPrivate->hComReadThread || pstPrivate->hComWriteThread)
-    {
+    if (pstPrivate->hComReadThread || pstPrivate->hComWriteThread) {
         // Halt the thread by setting a flag for the thread to detect and then
         // forcing WaitCommEvent to return by changing the event mask
         DBG_THREAD("DBG_THREAD: Shutting down ComWinsock thread\r\n", 0, 0, 0, 0, 0);
@@ -2403,8 +2281,7 @@ int WINAPI WsckPortDeactivate(void *pvPrivate)
         DBG_THREAD("DBG_THWrite: ComWriteThread has shut down\r\n", 0, 0, 0, 0, 0);
     }
 
-    if (pstPrivate->pbBufrStart)
-    {
+    if (pstPrivate->pbBufrStart) {
         free(pstPrivate->pbBufrStart);
         pstPrivate->pbBufrStart = NULL;
     }
@@ -2441,11 +2318,11 @@ int WINAPI WsckPortDeactivate(void *pvPrivate)
  * AUTHOR:
  * mcc 12/26/95    (taken almost entirely from comstd.c)
 */
-int WINAPI WsckRcvRefill(void *pvPrivate)
+int WINAPI WsckRcvRefill(void* pvPrivate)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int fRetVal = FALSE;
-    ST_COM_CONTROL *pstComCntrl;
+    ST_COM_CONTROL* pstComCntrl;
 
     EnterCriticalSection(&pstPrivate->csect);
 
@@ -2456,20 +2333,16 @@ int WINAPI WsckRcvRefill(void *pvPrivate)
     DBG_READ("DBG_READ: Refill ComStart==%x, ComEnd==%x (ReadEnd==%x)\r\n",
              pstPrivate->pbComStart, pstPrivate->pbComEnd,
              pstPrivate->pbReadEnd, 0, 0);
-    if (pstPrivate->fBufrFull)
-    {
+    if (pstPrivate->fBufrFull) {
         DBG_READ("DBG_READ: Refill Signalling EVENT_READ\r\n", 0, 0, 0, 0, 0);
         SetEvent(pstPrivate->ahEvent[EVENT_READ]);
     }
-    if (pstPrivate->pbComStart == pstPrivate->pbComEnd)
-    {
+    if (pstPrivate->pbComStart == pstPrivate->pbComEnd) {
         DBG_READ("DBG_READ: Refill setting fBufrEmpty = TRUE\r\n", 0, 0, 0, 0, 0);
         pstPrivate->fBufrEmpty = TRUE;
         ComNotify(pstPrivate->hCom, NODATA);
-    }
-    else
-    {
-        pstComCntrl = (ST_COM_CONTROL *) pstPrivate->hCom;
+    } else {
+        pstComCntrl = (ST_COM_CONTROL*)pstPrivate->hCom;
         pstComCntrl->puchRBData = pstPrivate->pbComStart;
         pstComCntrl->puchRBDataLimit = pstPrivate->pbComEnd;
         fRetVal = TRUE;
@@ -2496,11 +2369,11 @@ int WINAPI WsckRcvRefill(void *pvPrivate)
  * AUTHOR:
  * mcc 12/26/95    (taken almost entirely from comstd.c)
 */
-int WINAPI WsckRcvClear(void *pvPrivate)
+int WINAPI WsckRcvClear(void* pvPrivate)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int iRetVal = COM_OK;
-    ST_COM_CONTROL *pstComCntrl = (ST_COM_CONTROL *) pstPrivate->hCom;
+    ST_COM_CONTROL* pstComCntrl = (ST_COM_CONTROL*)pstPrivate->hCom;
 
     EnterCriticalSection(&pstPrivate->csect);
 
@@ -2538,22 +2411,19 @@ int WINAPI WsckRcvClear(void *pvPrivate)
  * AUTHOR:
  * mcc 12/26/95
 */
-int WINAPI WsckSndBufrSend(void *pvPrivate, void *pvBufr, int  nSize)
+int WINAPI WsckSndBufrSend(void* pvPrivate, void* pvBufr, int  nSize)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int  iRetVal = COM_OK;
     int  iCode;
 
-    assert(pvBufr != (void *) 0);
+    assert(pvBufr != (void*)0);
     assert(nSize <= WSOCK_SIZE_OUTQ);
 
-    if (pstPrivate->fSending)
-    {
+    if (pstPrivate->fSending) {
         DbgOutStr("SBS: Busy", 0, 0, 0, 0, 0);
         return COM_BUSY;
-    }
-    else if (nSize > 0)
-    {
+    } else if (nSize > 0) {
         ComNotify(pstPrivate->hCom, SEND_STARTED);
         EnterCriticalSection(&pstPrivate->csect);
         pstPrivate->pbSendBufr = pvBufr;
@@ -2591,14 +2461,13 @@ int WINAPI WsckSndBufrSend(void *pvPrivate, void *pvBufr, int  nSize)
  * AUTHOR:
  * mcc 12/26/95
 */
-int WINAPI WsckSndBufrClear(void *pvPrivate)
+int WINAPI WsckSndBufrClear(void* pvPrivate)
 {
-    ST_STDCOM *pstPrivate = (ST_STDCOM *) pvPrivate;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvPrivate;
     int iRetVal = COM_OK;
 
     EnterCriticalSection(&pstPrivate->csect);
-    if (WsckSndBufrIsBusy(pstPrivate))
-    {
+    if (WsckSndBufrIsBusy(pstPrivate)) {
         pstPrivate->fClearSendBufr = TRUE;
     }
     LeaveCriticalSection(&pstPrivate->csect);
@@ -2627,14 +2496,14 @@ int WINAPI WsckSndBufrClear(void *pvPrivate)
  * AUTHOR
  *    mcc 12/27/95 (stolen from Northport)
 */
-DWORD  WINAPI WsckComWriteThread(void *pvData)
+DWORD  WINAPI WsckComWriteThread(void* pvData)
 {
-    ST_STDCOM        *pstPrivate = (ST_STDCOM *) pvData;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvData;
     int                nBytesWritten;
     unsigned        uSize, nBytesToSend, nBytesSent;
     int                fRunning = TRUE;
     DWORD            iResult = COM_OK;
-    char            *pchData;
+    char* pchData;
     int                iCode;
 
 
@@ -2643,64 +2512,56 @@ DWORD  WINAPI WsckComWriteThread(void *pvData)
 
     // Initialize the "Something to write" semaphore to Reset, so that
     // we will wait for SndBufrSend to hand something to us
-    if (!ResetEvent(pstPrivate->ahEvent[EVENT_WRITE]))
-    {
+    if (!ResetEvent(pstPrivate->ahEvent[EVENT_WRITE])) {
         assert(0);
     }
 
-    while (fRunning)
-    {
+    while (fRunning) {
         // Wait on a semaphore for something to write
         iCode = WaitForSingleObject(pstPrivate->ahEvent[EVENT_WRITE],
-                                    (unsigned long) 60000);
+            (unsigned long)60000);
 
         DBG_WRITE("WrThread: Got EVENT_WRITE %d\n", iCode, 0, 0, 0, 0);
 
         // Has anybody told us to shut down?
 
-        if (pstPrivate->fHaltThread)
-        {
+        if (pstPrivate->fHaltThread) {
             DBG_WRITE("  WrThread: fHaltThread==TRUE, shutting down", 0, 0, 0, 0, 0);
             ExitThread(0);
         }
 
-        else
-        {
+        else {
             iResult = COM_OK;
             EnterCriticalSection(&pstPrivate->csect);
             pchData = pstPrivate->pbSendBufr;
-            nBytesToSend = (unsigned) pstPrivate->nSendBufrLen;
+            nBytesToSend = (unsigned)pstPrivate->nSendBufrLen;
 
             nBytesSent = 0;
-            if (nBytesToSend > 0)
-            {
+            if (nBytesToSend > 0) {
                 DbgOutStr("WriteThrd: %d to send\n", nBytesToSend, 0, 0, 0, 0);
 
                 // Loop until we send all the requested data
-                while (fRunning && nBytesSent < nBytesToSend)
-                {
+                while (fRunning && nBytesSent < nBytesToSend) {
                     uSize = nBytesToSend - nBytesSent;
                     LeaveCriticalSection(&pstPrivate->csect);
                     assert(uSize > 0 && uSize < 32767);
                     nBytesWritten = send(pstPrivate->hSocket,
-                                         pchData, (int) uSize, 0);
+                                         pchData, (int)uSize, 0);
                     DbgOutStr("WriteThrd: %d bytes of %d sent. 1st 3 = %x %x %x\n",
                               nBytesWritten, uSize, pchData[0], pchData[1], pchData[2]);
 
                     // We have an error -- probably the connection got dropped
                     // report it to the various interested parties
-                    if (nBytesWritten == -1)
-                    {
-                        iResult = (unsigned) WSAGetLastError();
+                    if (nBytesWritten == -1) {
+                        iResult = (unsigned)WSAGetLastError();
                         DbgOutStr("WriteThrd: error %d sending %d bytes (%d - %d). Byebye.\n",
-                                  iResult, (int) uSize, nBytesToSend, nBytesSent, 0);
+                                  iResult, (int)uSize, nBytesToSend, nBytesSent, 0);
                         ComNotify(pstPrivate->hCom, CONNECT);
                         pstPrivate->fConnected = 0;
                         fRunning = 0;
                     }
-                    nBytesSent += (unsigned) nBytesWritten;
-                    if (nBytesSent < nBytesToSend)
-                    {
+                    nBytesSent += (unsigned)nBytesWritten;
+                    if (nBytesSent < nBytesToSend) {
                         DbgOutStr("WrtThrd: can't send all data to socket\n",
                                   0, 0, 0, 0, 0);
                         pchData += nBytesWritten;
@@ -2720,15 +2581,13 @@ DWORD  WINAPI WsckComWriteThread(void *pvData)
                 //DBG_WRITE("  WrThread: posting EVENT_SENT", 0,0,0,0,0);
                 // TOCO:mcc 12/29/95 SetEvent(pstPrivate->ahEvent[EVENT_SENT]);
             }
-            if (pstPrivate->fHaltThread)
-            {
+            if (pstPrivate->fHaltThread) {
                 DBG_WRITE("  WrThread: fHaltThread==TRUE, shutting down", 0, 0, 0, 0, 0);
                 ExitThread(0);
             }
             DbgOutStr("  WrThread: setting fSending=FALSE, resetting EVENT_WRITE\n",
                       0, 0, 0, 0, 0);
-            if (!ResetEvent(pstPrivate->ahEvent[EVENT_WRITE]))
-            {
+            if (!ResetEvent(pstPrivate->ahEvent[EVENT_WRITE])) {
                 assert(0);
             }
             LeaveCriticalSection(&pstPrivate->csect);
@@ -2760,12 +2619,12 @@ DWORD  WINAPI WsckComWriteThread(void *pvData)
  * AUTHOR
  *    mcc 12/27/95 (stolen from Northport)
 */
-DWORD  WINAPI WsckComReadThread(void *pvData)
+DWORD  WINAPI WsckComReadThread(void* pvData)
 {
-    ST_STDCOM            *pstPrivate = (ST_STDCOM *) pvData;
+    ST_STDCOM* pstPrivate = (ST_STDCOM*)pvData;
     int                    fRunning = TRUE;
     int                    fReading = TRUE;
-    char                *pbReadFrom, *pOut;
+    char* pbReadFrom, * pOut;
     unsigned            nReadSize;
     long                lBytesRead, nFFs;
     int                    iResult;
@@ -2785,34 +2644,26 @@ DWORD  WINAPI WsckComReadThread(void *pvData)
     LeaveCriticalSection(&pstPrivate->csect);
 
     pstPrivate->fSeenFF = 0;
-    while (fRunning)
-    {
+    while (fRunning) {
 
         // Wait for a wakeup call if we put ourself to sleep
         //DbgOutStr("ReadThread: Waiting for EVENT_READ", 0,0,0,0,0);
         rc = WaitForSingleObject(pstPrivate->ahEvent[EVENT_READ], 60000);
-        if (rc != 0)
-        {
+        if (rc != 0) {
             DbgOutStr("ReadThread: EVENT_READ timed out. fBufFull=%d",
                       pstPrivate->fBufrFull, 0, 0, 0, 0);
-        }
-        else
-        {
+        } else {
             //DbgOutStr("ReadThread: Got EVENT_READ.", 0,0,0,0,0);
         }
 
         // To get this thread to exit, the deactivate routine forces a
         // fake com event by posting EVENT_READ
-        if (pstPrivate->fHaltThread)
-        {
+        if (pstPrivate->fHaltThread) {
             DBG_THREAD("DBG_THREAD: Comtcp exiting thread", 0, 0, 0, 0, 0);
             fRunning = FALSE;
-        }
-        else
-        {
+        } else {
             EnterCriticalSection(&pstPrivate->csect);
-            if (pstPrivate->fBufrFull)
-            {
+            if (pstPrivate->fBufrFull) {
                 //DbgOutStr("ReadThread: fBufrFull = FALSE", 0,0,0,0,0);
                 pstPrivate->fBufrFull = FALSE;
                 fReading = TRUE;
@@ -2820,34 +2671,29 @@ DWORD  WINAPI WsckComReadThread(void *pvData)
             LeaveCriticalSection(&pstPrivate->csect);
 
             // Do reads until we fill the buffer
-            while (fReading && fRunning)
-            {
+            while (fReading && fRunning) {
                 // Check for wrap around in circular buffer
                 pbReadFrom = (pstPrivate->pbReadEnd >= pstPrivate->pbBufrEnd) ?
                     pstPrivate->pbBufrStart : pstPrivate->pbReadEnd;
 
-                nReadSize = (unsigned) (pbReadFrom < pstPrivate->pbComStart) ?
-                    (unsigned) (pstPrivate->pbComStart - pbReadFrom - 1) :
-                    (unsigned) (pstPrivate->pbBufrEnd - pbReadFrom);
+                nReadSize = (unsigned)(pbReadFrom < pstPrivate->pbComStart) ?
+                    (unsigned)(pstPrivate->pbComStart - pbReadFrom - 1) :
+                    (unsigned)(pstPrivate->pbBufrEnd - pbReadFrom);
 
                 if (nReadSize > WSOCK_MAX_READSIZE)
                     nReadSize = WSOCK_MAX_READSIZE;
 
-                if (!nReadSize)
-                {
+                if (!nReadSize) {
                     DBG_READ("Read Thread -- fBufrFull = TRUE, unsignalling EVENT_READ\r\n",
                              0, 0, 0, 0, 0);
                     pstPrivate->fBufrFull = TRUE;
                     ResetEvent(pstPrivate->ahEvent[EVENT_READ]);
                     break;
-                }
-                else
-                {
+                } else {
                     DBG_READ("ReadThread posting a recv\n", 0, 0, 0, 0, 0);
                     lBytesRead = recv(pstPrivate->hSocket, pbReadFrom,
-                                      (int) nReadSize, 0);
-                    if (lBytesRead > 0)
-                    {
+                        (int)nReadSize, 0);
+                    if (lBytesRead > 0) {
                         pstPrivate->pbReadEnd += lBytesRead;
 
                         if (pstPrivate->pbReadEnd >= pstPrivate->pbBufrEnd)
@@ -2857,44 +2703,34 @@ DWORD  WINAPI WsckComReadThread(void *pvData)
                                  " lBytesRead==%ld, ReadEnd==%x\r\n",
                                  lBytesRead, pstPrivate->pbReadEnd, 0, 0, 0);
 
-                        if (pstPrivate->fBufrEmpty)
-                        {
+                        if (pstPrivate->fBufrEmpty) {
                             DBG_READ("DBG_READ: Thread -- fBufrEmpty = FALSE\r\n", 0, 0, 0, 0, 0);
                             pstPrivate->fBufrEmpty = FALSE;
                             ComNotify(pstPrivate->hCom, DATA_RECEIVED);
                         }
 
-                        if (pstPrivate->fEscapeFF)
-                        {
+                        if (pstPrivate->fEscapeFF) {
                             // The sender escaped FF characters by doubling
                             // them.  Copy the received data buffer onto itself,
                             // skipping every other FF
                             pOut = pbReadFrom;
                             nFFs = 0;
-                            for (nIndx = 0; nIndx < lBytesRead; nIndx += 1)
-                            {
-                                if (pstPrivate->fSeenFF)
-                                {
-                                    if (pbReadFrom[nIndx] == 0xFF)
-                                    {
+                            for (nIndx = 0; nIndx < lBytesRead; nIndx += 1) {
+                                if (pstPrivate->fSeenFF) {
+                                    if (pbReadFrom[nIndx] == 0xFF) {
                                         // Skip this one
                                         nFFs++;
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         // This should not happen, but copy
                                         // anyway
                                         *pOut = pbReadFrom[nIndx];
                                         pOut++;
                                     }
                                     pstPrivate->fSeenFF = FALSE;
-                                }
-                                else
-                                {
+                                } else {
                                     // Test to see if this is an FF; copy
                                     // input to output.
-                                    if (pbReadFrom[nIndx] == 0xFF)
-                                    {
+                                    if (pbReadFrom[nIndx] == 0xFF) {
                                         pstPrivate->fSeenFF = TRUE;
                                     }
                                     *pOut = pbReadFrom[nIndx];
@@ -2909,17 +2745,14 @@ DWORD  WINAPI WsckComReadThread(void *pvData)
                         // Notify application that we got some data
                         // if buffer had been empty
                         EnterCriticalSection(&pstPrivate->csect);
-                        if (pstPrivate->fBufrEmpty)
-                        {
+                        if (pstPrivate->fBufrEmpty) {
                             DBG_READ("DBG_READ: Thread -- fBufrEmpty = FALSE", 0, 0, 0, 0, 0);
                             pstPrivate->fBufrEmpty = FALSE;
                         }
                         LeaveCriticalSection(&pstPrivate->csect);
                         ComNotify(pstPrivate->hCom, DATA_RECEIVED);
 
-                    }
-                    else
-                    {
+                    } else {
 
                         // 0 value from recv indicates that the connection is closed;
                         // -1 indicates another error.  Notify CNCT driver.
@@ -2932,8 +2765,7 @@ DWORD  WINAPI WsckComReadThread(void *pvData)
                             iResult == WSAENETDOWN ||
                             iResult == WSAENOTCONN ||
                             iResult == WSAEHOSTDOWN ||
-                            iResult == WSAETIMEDOUT)
-                        {
+                            iResult == WSAETIMEDOUT) {
                             // Wait until we are told to shut down; don't try to read
                             // anymore!
                             ResetEvent(pstPrivate->ahEvent[EVENT_READ]);
@@ -2948,8 +2780,7 @@ DWORD  WINAPI WsckComReadThread(void *pvData)
                 }
 
 
-                if (pstPrivate->fHaltThread)
-                {
+                if (pstPrivate->fHaltThread) {
                     DBG_THREAD("DBG_THREAD: Comtcp exiting thread", 0, 0, 0, 0, 0);
                     fRunning = FALSE;
                 }
@@ -2987,28 +2818,26 @@ DWORD  WINAPI WsckComReadThread(void *pvData)
  * AUTHOR
  *    mcc 01/09/96 (stolen from Northport)
 */
-int wsckResolveAddress(TCHAR *pszRemote, unsigned long *pulAddr)
+int wsckResolveAddress(TCHAR* pszRemote, unsigned long* pulAddr)
 {
     int                iRetVal = COM_NOT_FOUND;
-    struct hostent  *pstHost;
+    struct hostent* pstHost;
 
     assert(pszRemote);
     assert(pulAddr);
 
-    if (pszRemote && pulAddr)
-    {
+    if (pszRemote && pulAddr) {
 
         // Convert pszRemote to an internet address.  If not successful,
         // assume that the string is a host NAME and try to turn
         // that into an address
         *pulAddr = inet_addr(pszRemote);
-        if ((*pulAddr == INADDR_NONE) || (*pulAddr == 0))
-        {
+        if ((*pulAddr == INADDR_NONE) || (*pulAddr == 0)) {
             // If not a valid network address, it should be a name, so
             // look that up (in the hosts file or via a name server)
             pstHost = gethostbyname(pszRemote);
             if (pstHost)
-                *pulAddr = *((unsigned long *) pstHost->h_addr);
+                *pulAddr = *((unsigned long*)pstHost->h_addr);
         }
         if ((*pulAddr != INADDR_NONE) && (*pulAddr != 0))
             iRetVal = COM_OK;

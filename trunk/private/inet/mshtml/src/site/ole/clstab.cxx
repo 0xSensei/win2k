@@ -35,74 +35,74 @@
 MtDefine(CClassTable, CDoc, "CClassTable")
 MtDefine(CClassTable_aryci_pv, CClassTable, "CClassTable::_aryci::_pv")
 
-EXTERN_C const CLSID CLSID_IE4ShellFolderIcon = { 0xE5DF9D10, 0x3B52, 0x11D1, 0x83, 0xE8, 0x00, 0xA0, 0xC9, 0x0D, 0xC8, 0x49 };
-EXTERN_C const CLSID CLSID_IE4ShellPieChart =   { 0x1D2B4F40, 0x1F10, 0x11D1, 0x9E, 0x88, 0x00, 0xC0, 0x4F, 0xDC, 0xAB, 0x92 };
-EXTERN_C const CLSID CLSID_AppletOCX =          { 0x08B0e5c0, 0x4FCB, 0x11CF, 0xAA, 0xA5, 0x00, 0x40, 0x1C, 0x60, 0x85, 0x01 };
+EXTERN_C const CLSID CLSID_IE4ShellFolderIcon = {0xE5DF9D10, 0x3B52, 0x11D1, 0x83, 0xE8, 0x00, 0xA0, 0xC9, 0x0D, 0xC8, 0x49};
+EXTERN_C const CLSID CLSID_IE4ShellPieChart = {0x1D2B4F40, 0x1F10, 0x11D1, 0x9E, 0x88, 0x00, 0xC0, 0x4F, 0xDC, 0xAB, 0x92};
+EXTERN_C const CLSID CLSID_AppletOCX = {0x08B0e5c0, 0x4FCB, 0x11CF, 0xAA, 0xA5, 0x00, 0x40, 0x1C, 0x60, 0x85, 0x01};
 #if DBG == 1
 EXTERN_C const CLSID CLSID_WebBrowser;
-         const CLSID CLSID_IISForm =            { 0x812AE312, 0x8B8E, 0x11CF, 0x93, 0xC8, 0x00, 0xAA, 0x00, 0xC0, 0x8F, 0xDF };
-         const CLSID CLSID_Forms3Optionbutton = { 0x8BD21D50, 0xEC42, 0x11CE, 0x9E, 0x0D, 0x00, 0xAA, 0x00, 0x60, 0x02, 0xF3 };
-         const CLSID CLSID_Acrobat =            { 0xCA8A9780, 0x280D, 0x11CF, 0xA2, 0x4D, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00 };
-         const CLSID CLSID_SurroundVideo =      { 0x928626A3, 0x6B98, 0x11CF, 0x90, 0xB4, 0x00, 0xAA, 0x00, 0xA4, 0x01, 0x1F };
-         const CLSID CLSID_MSInvestor =         { 0xD2F97240, 0xC9F4, 0x11CF, 0xBF, 0xC4, 0x00, 0xA0, 0xC9, 0x0C, 0x2B, 0xDB };
-         const CLSID CLSID_PowerPointAnimator = { 0xEFBD14F0, 0x6BFB, 0x11CF, 0x91, 0x77, 0x00, 0x80, 0x5F, 0x88, 0x13, 0xFF };
-         const CLSID CLSID_MSInvestorNews =     { 0x025B1052, 0xCB0B, 0x11CF, 0xA0, 0x71, 0x00, 0xA0, 0xC9, 0xA0, 0x6E, 0x05 };
-         const CLSID CLSID_MSTreeView =         { 0xB9D029D3, 0xCDE3, 0x11CF, 0x85, 0x5E, 0x00, 0xA0, 0xC9, 0x08, 0xFA, 0xF9 };
-         const CLSID CLSID_ActiveMovie =        { 0x05589fa1, 0xc356, 0x11ce, 0xbf, 0x01, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a };
-         const CLSID CLSID_MediaPlayer =        { 0x22D6F312, 0xB0F6, 0x11D0, 0x94, 0xAB, 0x00, 0x80, 0xC7, 0x4C, 0x7E, 0x95 };
-         const CLSID CLSID_MCSITree =           { 0xB3F8F451, 0x788A, 0x11D0, 0x89, 0xD9, 0x00, 0xA0, 0xC9, 0x0C, 0x9B, 0x67 };
-         const CLSID CLSID_IEMenu =             { 0x7823A620, 0x9DD9, 0x11CF, 0xA6, 0x62, 0x00, 0xaa, 0x00, 0xC0, 0x66, 0xD2 };
-         const CLSID CLSID_CitrixWinframe =     { 0x238f6f83, 0xb8b4, 0x11cf, 0x87, 0x71, 0x00, 0xa0, 0x24, 0x54, 0x1e, 0xe3 };
-         const CLSID CLSID_VivoViewer =         { 0x02466323, 0x75ed, 0x11cf, 0xa2, 0x67, 0x00, 0x20, 0xaf, 0x25, 0x46, 0xea };
-         const CLSID CLSID_SheridanCommand =    { 0xAAD093B2, 0xF9CA, 0x11CF, 0x9C, 0x85, 0x00, 0x00, 0xC0, 0x93, 0x00, 0xC4 };
-         const CLSID CLSID_VActive =            { 0x5A20858B, 0x000D, 0x11D0, 0x8C, 0x01, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00 };
-         const CLSID CLSID_SaxCanvas =          { 0x1DF67C43, 0xAEAA, 0x11CF, 0xBA, 0x92, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00 };
-         const CLSID CLSID_GregConsDieRoll =    { 0x46646B43, 0xEA16, 0x11CF, 0x87, 0x0C, 0x00, 0x20, 0x18, 0x01, 0xDD, 0xD6 };
-         const CLSID CLSID_NCompassBillboard =  { 0x6059B947, 0xEC52, 0x11CF, 0xB5, 0x09, 0x00, 0xA0, 0x24, 0x48, 0x8F, 0x73 };
-         const CLSID CLSID_NCompassLightboard = { 0xB2F87B84, 0x26A6, 0x11D0, 0xB5, 0x0A, 0x00, 0xA0, 0x24, 0x48, 0x8F, 0x73 };
-         const CLSID CLSID_ProtoviewTreeView =  { 0xB283E214, 0x2CB3, 0x11D0, 0xAD, 0xA6, 0x00, 0x40, 0x05, 0x20, 0x79, 0x9C };
-         const CLSID CLSID_ActiveEarthTime =    { 0x9590092D, 0x8811, 0x11CF, 0x80, 0x75, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00 };
-         const CLSID CLSID_LeadControl =        { 0x00080000, 0xB1BA, 0x11CE, 0xAB, 0xC6, 0xF5, 0xB2, 0xE7, 0x9D, 0x9E, 0x3F };
-         const CLSID CLSID_TextX =              { 0x5B84FC03, 0xE639, 0x11CF, 0xB8, 0xA0, 0x00, 0xA0, 0x24, 0x18, 0x6B, 0xF1 };
-         const CLSID CLSID_Plugin =             { 0x06DD38D3, 0xD187, 0x11CF, 0xA8, 0x0D, 0x00, 0xC0, 0x4F, 0xD7, 0x4A, 0xD8 };
-         const CLSID CLSID_GreetingsUpload =    { 0x03405265, 0xb4e2, 0x11d0, 0x8a, 0x77, 0x00, 0xaa, 0x00, 0xa4, 0xfb, 0xc5 };
-         const CLSID CLSID_GreetingsDownload =  { 0x03405269, 0xb4e2, 0x11d0, 0x8a, 0x77, 0x00, 0xaa, 0x00, 0xa4, 0xfb, 0xc5 };
-         const CLSID CLSID_COMCTLTree =         { 0x0713E8A2, 0x850A, 0x101B, 0xAF, 0xC0, 0x42, 0x10, 0x10, 0x2A, 0x8D, 0xA7 };
-         const CLSID CLSID_COMCTLProg =         { 0x0713E8D2, 0x850A, 0x101B, 0xAF, 0xC0, 0x42, 0x10, 0x10, 0x2A, 0x8D, 0xA7 };
-         const CLSID CLSID_COMCTLImageList =    { 0x58DA8D8F, 0x9D6A, 0x101B, 0xAF, 0xC0, 0x42, 0x10, 0x10, 0x2A, 0x8D, 0xA7 };
-         const CLSID CLSID_COMCTLListview =     { 0x58DA8D8A, 0x9D6A, 0x101B, 0xAF, 0xC0, 0x42, 0x10, 0x10, 0x2A, 0x8D, 0xA7 };
-         const CLSID CLSID_COMCTLSbar =         { 0x6B7E638F, 0x850A, 0x101B, 0xAF, 0xC0, 0x42, 0x10, 0x10, 0x2A, 0x8D, 0xA7 };
-         const CLSID CLSID_MCSIMenu =           { 0x275E2FE0, 0x7486, 0x11D0, 0x89, 0xD6, 0x00, 0xA0, 0xC9, 0x0C, 0x9B, 0x67 };
-         const CLSID CLSID_MSNVer =             { 0xA123D693, 0x256A, 0x11d0, 0x9D, 0xFE, 0x00, 0xC0, 0x4F, 0xD7, 0xBF, 0x41 };
-         const CLSID CLSID_RichTextCtrl =       { 0x3B7C8860, 0xD78F, 0x101B, 0xB9, 0xB5, 0x04, 0x02, 0x1C, 0x00, 0x94, 0x02 };
-         const CLSID CLSID_IETimer =            { 0x59CCB4A0, 0x727D, 0x11CF, 0xAC, 0x36, 0x00, 0xAA, 0x00, 0xA4, 0x7D, 0xD2 };
-         const CLSID CLSID_SubScr =             { 0x78A9B22E, 0xE0F4, 0x11D0, 0xB5, 0xDA, 0x00, 0xC0, 0xF0, 0x0A, 0xD7, 0xF8 };
+const CLSID CLSID_IISForm = {0x812AE312, 0x8B8E, 0x11CF, 0x93, 0xC8, 0x00, 0xAA, 0x00, 0xC0, 0x8F, 0xDF};
+const CLSID CLSID_Forms3Optionbutton = {0x8BD21D50, 0xEC42, 0x11CE, 0x9E, 0x0D, 0x00, 0xAA, 0x00, 0x60, 0x02, 0xF3};
+const CLSID CLSID_Acrobat = {0xCA8A9780, 0x280D, 0x11CF, 0xA2, 0x4D, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00};
+const CLSID CLSID_SurroundVideo = {0x928626A3, 0x6B98, 0x11CF, 0x90, 0xB4, 0x00, 0xAA, 0x00, 0xA4, 0x01, 0x1F};
+const CLSID CLSID_MSInvestor = {0xD2F97240, 0xC9F4, 0x11CF, 0xBF, 0xC4, 0x00, 0xA0, 0xC9, 0x0C, 0x2B, 0xDB};
+const CLSID CLSID_PowerPointAnimator = {0xEFBD14F0, 0x6BFB, 0x11CF, 0x91, 0x77, 0x00, 0x80, 0x5F, 0x88, 0x13, 0xFF};
+const CLSID CLSID_MSInvestorNews = {0x025B1052, 0xCB0B, 0x11CF, 0xA0, 0x71, 0x00, 0xA0, 0xC9, 0xA0, 0x6E, 0x05};
+const CLSID CLSID_MSTreeView = {0xB9D029D3, 0xCDE3, 0x11CF, 0x85, 0x5E, 0x00, 0xA0, 0xC9, 0x08, 0xFA, 0xF9};
+const CLSID CLSID_ActiveMovie = {0x05589fa1, 0xc356, 0x11ce, 0xbf, 0x01, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a};
+const CLSID CLSID_MediaPlayer = {0x22D6F312, 0xB0F6, 0x11D0, 0x94, 0xAB, 0x00, 0x80, 0xC7, 0x4C, 0x7E, 0x95};
+const CLSID CLSID_MCSITree = {0xB3F8F451, 0x788A, 0x11D0, 0x89, 0xD9, 0x00, 0xA0, 0xC9, 0x0C, 0x9B, 0x67};
+const CLSID CLSID_IEMenu = {0x7823A620, 0x9DD9, 0x11CF, 0xA6, 0x62, 0x00, 0xaa, 0x00, 0xC0, 0x66, 0xD2};
+const CLSID CLSID_CitrixWinframe = {0x238f6f83, 0xb8b4, 0x11cf, 0x87, 0x71, 0x00, 0xa0, 0x24, 0x54, 0x1e, 0xe3};
+const CLSID CLSID_VivoViewer = {0x02466323, 0x75ed, 0x11cf, 0xa2, 0x67, 0x00, 0x20, 0xaf, 0x25, 0x46, 0xea};
+const CLSID CLSID_SheridanCommand = {0xAAD093B2, 0xF9CA, 0x11CF, 0x9C, 0x85, 0x00, 0x00, 0xC0, 0x93, 0x00, 0xC4};
+const CLSID CLSID_VActive = {0x5A20858B, 0x000D, 0x11D0, 0x8C, 0x01, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00};
+const CLSID CLSID_SaxCanvas = {0x1DF67C43, 0xAEAA, 0x11CF, 0xBA, 0x92, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00};
+const CLSID CLSID_GregConsDieRoll = {0x46646B43, 0xEA16, 0x11CF, 0x87, 0x0C, 0x00, 0x20, 0x18, 0x01, 0xDD, 0xD6};
+const CLSID CLSID_NCompassBillboard = {0x6059B947, 0xEC52, 0x11CF, 0xB5, 0x09, 0x00, 0xA0, 0x24, 0x48, 0x8F, 0x73};
+const CLSID CLSID_NCompassLightboard = {0xB2F87B84, 0x26A6, 0x11D0, 0xB5, 0x0A, 0x00, 0xA0, 0x24, 0x48, 0x8F, 0x73};
+const CLSID CLSID_ProtoviewTreeView = {0xB283E214, 0x2CB3, 0x11D0, 0xAD, 0xA6, 0x00, 0x40, 0x05, 0x20, 0x79, 0x9C};
+const CLSID CLSID_ActiveEarthTime = {0x9590092D, 0x8811, 0x11CF, 0x80, 0x75, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00};
+const CLSID CLSID_LeadControl = {0x00080000, 0xB1BA, 0x11CE, 0xAB, 0xC6, 0xF5, 0xB2, 0xE7, 0x9D, 0x9E, 0x3F};
+const CLSID CLSID_TextX = {0x5B84FC03, 0xE639, 0x11CF, 0xB8, 0xA0, 0x00, 0xA0, 0x24, 0x18, 0x6B, 0xF1};
+const CLSID CLSID_Plugin = {0x06DD38D3, 0xD187, 0x11CF, 0xA8, 0x0D, 0x00, 0xC0, 0x4F, 0xD7, 0x4A, 0xD8};
+const CLSID CLSID_GreetingsUpload = {0x03405265, 0xb4e2, 0x11d0, 0x8a, 0x77, 0x00, 0xaa, 0x00, 0xa4, 0xfb, 0xc5};
+const CLSID CLSID_GreetingsDownload = {0x03405269, 0xb4e2, 0x11d0, 0x8a, 0x77, 0x00, 0xaa, 0x00, 0xa4, 0xfb, 0xc5};
+const CLSID CLSID_COMCTLTree = {0x0713E8A2, 0x850A, 0x101B, 0xAF, 0xC0, 0x42, 0x10, 0x10, 0x2A, 0x8D, 0xA7};
+const CLSID CLSID_COMCTLProg = {0x0713E8D2, 0x850A, 0x101B, 0xAF, 0xC0, 0x42, 0x10, 0x10, 0x2A, 0x8D, 0xA7};
+const CLSID CLSID_COMCTLImageList = {0x58DA8D8F, 0x9D6A, 0x101B, 0xAF, 0xC0, 0x42, 0x10, 0x10, 0x2A, 0x8D, 0xA7};
+const CLSID CLSID_COMCTLListview = {0x58DA8D8A, 0x9D6A, 0x101B, 0xAF, 0xC0, 0x42, 0x10, 0x10, 0x2A, 0x8D, 0xA7};
+const CLSID CLSID_COMCTLSbar = {0x6B7E638F, 0x850A, 0x101B, 0xAF, 0xC0, 0x42, 0x10, 0x10, 0x2A, 0x8D, 0xA7};
+const CLSID CLSID_MCSIMenu = {0x275E2FE0, 0x7486, 0x11D0, 0x89, 0xD6, 0x00, 0xA0, 0xC9, 0x0C, 0x9B, 0x67};
+const CLSID CLSID_MSNVer = {0xA123D693, 0x256A, 0x11d0, 0x9D, 0xFE, 0x00, 0xC0, 0x4F, 0xD7, 0xBF, 0x41};
+const CLSID CLSID_RichTextCtrl = {0x3B7C8860, 0xD78F, 0x101B, 0xB9, 0xB5, 0x04, 0x02, 0x1C, 0x00, 0x94, 0x02};
+const CLSID CLSID_IETimer = {0x59CCB4A0, 0x727D, 0x11CF, 0xAC, 0x36, 0x00, 0xAA, 0x00, 0xA4, 0x7D, 0xD2};
+const CLSID CLSID_SubScr = {0x78A9B22E, 0xE0F4, 0x11D0, 0xB5, 0xDA, 0x00, 0xC0, 0xF0, 0x0A, 0xD7, 0xF8};
 EXTERN_C const CLSID CLSID_Scriptlet;  //AE24FDAE-03C6-11D1-8B76-0080C744F389
-         const CLSID CLSID_OldXsl =             { 0x2BD0D2F2, 0x52EC, 0x11D1, 0x8C, 0x69, 0x0E, 0x16, 0xBC, 0x00, 0x00, 0x00 };
-         const CLSID CLSID_MMC =                { 0xD306C3B7, 0x2AD5, 0x11D1, 0x9E, 0x9A, 0x00, 0x80, 0x5F, 0x20, 0x00, 0x05 };
-         const CLSID CLSID_RealAudio =          { 0xCFCDAA03, 0x8BE4, 0x11CF, 0xB8, 0x4B, 0x00, 0x20, 0xAF, 0xBB, 0xCC, 0xFA };
-         const CLSID CLSID_WebCalc =            { 0x0002E510, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
-         const CLSID CLSID_AnswerList =         { 0x8F2C1D40, 0xC3CD, 0x11D1, 0xA0, 0x8F, 0x00, 0x60, 0x97, 0xBD, 0x99, 0x70 };
-         const CLSID CLSID_PreLoader =          { 0x16E349E0, 0x702C, 0x11CF, 0xA3, 0xA0, 0x00, 0xA0, 0xC9, 0x03, 0x49, 0x20 };
-         const CLSID CLSID_EyeDog =             { 0x06A7EC63, 0x4E21, 0x11D0, 0xA1, 0x12, 0x00, 0xA0, 0xC9, 0x05, 0x43, 0xAA };
-         const CLSID CLSID_ImgAdmin =           { 0x009541A0, 0x3B81, 0x101C, 0x92, 0xF3, 0x04, 0x02, 0x24, 0x00, 0x9C, 0x02 };
-         const CLSID CLSID_ImgThumb =           { 0xE1A6B8A0, 0x3603, 0x101C, 0xAC, 0x6E, 0x04, 0x02, 0x24, 0x00, 0x9C, 0x02 };
-         const CLSID CLSID_HHOpen =             { 0x130D7743, 0x5F5A, 0x11D1, 0xB6, 0x76, 0x00, 0xA0, 0xC9, 0x69, 0x72, 0x33 };
-         const CLSID CLSID_RegWiz =             { 0x50E5E3D1, 0xC07E, 0x11D0, 0xB9, 0xFD, 0x00, 0xA0, 0x24, 0x9F, 0x6B, 0x00 };
-         const CLSID CLSID_SetupCtl =           { 0xF72A7B0E, 0x0DD8, 0x11D1, 0xBD, 0x6E, 0x00, 0xAA, 0x00, 0xB9, 0x2A, 0xF1 };
-         const CLSID CLSID_ImgEdit =            { 0x6D940280, 0x9F11, 0x11CE, 0x83, 0xFD, 0x02, 0x60, 0x8C, 0x3E, 0xC0, 0x8A };
-         const CLSID CLSID_ImgEdit2 =           { 0x6D940285, 0x9F11, 0x11CE, 0x83, 0xFD, 0x02, 0x60, 0x8C, 0x3E, 0xC0, 0x8A };
-         const CLSID CLSID_ImgScan =            { 0x84926CA0, 0x2941, 0x101C, 0x81, 0x6F, 0x0E, 0x60, 0x13, 0x11, 0x4B, 0x7F };
-         const CLSID CLSID_TlntSvr =            { 0xFE9E48A4, 0xA014, 0x11D1, 0x85, 0x5C, 0x00, 0xA0, 0xC9, 0x44, 0x13, 0x8C };
+const CLSID CLSID_OldXsl = {0x2BD0D2F2, 0x52EC, 0x11D1, 0x8C, 0x69, 0x0E, 0x16, 0xBC, 0x00, 0x00, 0x00};
+const CLSID CLSID_MMC = {0xD306C3B7, 0x2AD5, 0x11D1, 0x9E, 0x9A, 0x00, 0x80, 0x5F, 0x20, 0x00, 0x05};
+const CLSID CLSID_RealAudio = {0xCFCDAA03, 0x8BE4, 0x11CF, 0xB8, 0x4B, 0x00, 0x20, 0xAF, 0xBB, 0xCC, 0xFA};
+const CLSID CLSID_WebCalc = {0x0002E510, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46};
+const CLSID CLSID_AnswerList = {0x8F2C1D40, 0xC3CD, 0x11D1, 0xA0, 0x8F, 0x00, 0x60, 0x97, 0xBD, 0x99, 0x70};
+const CLSID CLSID_PreLoader = {0x16E349E0, 0x702C, 0x11CF, 0xA3, 0xA0, 0x00, 0xA0, 0xC9, 0x03, 0x49, 0x20};
+const CLSID CLSID_EyeDog = {0x06A7EC63, 0x4E21, 0x11D0, 0xA1, 0x12, 0x00, 0xA0, 0xC9, 0x05, 0x43, 0xAA};
+const CLSID CLSID_ImgAdmin = {0x009541A0, 0x3B81, 0x101C, 0x92, 0xF3, 0x04, 0x02, 0x24, 0x00, 0x9C, 0x02};
+const CLSID CLSID_ImgThumb = {0xE1A6B8A0, 0x3603, 0x101C, 0xAC, 0x6E, 0x04, 0x02, 0x24, 0x00, 0x9C, 0x02};
+const CLSID CLSID_HHOpen = {0x130D7743, 0x5F5A, 0x11D1, 0xB6, 0x76, 0x00, 0xA0, 0xC9, 0x69, 0x72, 0x33};
+const CLSID CLSID_RegWiz = {0x50E5E3D1, 0xC07E, 0x11D0, 0xB9, 0xFD, 0x00, 0xA0, 0x24, 0x9F, 0x6B, 0x00};
+const CLSID CLSID_SetupCtl = {0xF72A7B0E, 0x0DD8, 0x11D1, 0xBD, 0x6E, 0x00, 0xAA, 0x00, 0xB9, 0x2A, 0xF1};
+const CLSID CLSID_ImgEdit = {0x6D940280, 0x9F11, 0x11CE, 0x83, 0xFD, 0x02, 0x60, 0x8C, 0x3E, 0xC0, 0x8A};
+const CLSID CLSID_ImgEdit2 = {0x6D940285, 0x9F11, 0x11CE, 0x83, 0xFD, 0x02, 0x60, 0x8C, 0x3E, 0xC0, 0x8A};
+const CLSID CLSID_ImgScan = {0x84926CA0, 0x2941, 0x101C, 0x81, 0x6F, 0x0E, 0x60, 0x13, 0x11, 0x4B, 0x7F};
+const CLSID CLSID_TlntSvr = {0xFE9E48A4, 0xA014, 0x11D1, 0x85, 0x5C, 0x00, 0xA0, 0xC9, 0x44, 0x13, 0x8C};
 
 
-    // This table exists to double check the table in the registry.
-    // It is incredibly easy for a typo to corrupt the copy of this table
-    // that is stored in f3\rsrc\selfreg.inx and gets propagated to the registry.
+// This table exists to double check the table in the registry.
+// It is incredibly easy for a typo to corrupt the copy of this table
+// that is stored in f3\rsrc\selfreg.inx and gets propagated to the registry.
 
 struct CompatibilityTableElementAssert
 {
-    const CLSID *pclsid;
+    const CLSID* pclsid;
     DWORD        dwCompatFlags;
     DWORD        dwMiscStatusFlags;
 } s_aCompatibility[] =
@@ -247,10 +247,10 @@ entries that may have been put there by someone else.
 */
 
 static TCHAR szTableRootKey[] =
-   _T("Software\\Microsoft\\Internet Explorer\\ActiveX Compatibility");
+_T("Software\\Microsoft\\Internet Explorer\\ActiveX Compatibility");
 
-static TCHAR szCompatFlags[] =      _T("Compatibility Flags");
-static TCHAR szMiscStatusFlags[] =  _T("MiscStatus Flags");
+static TCHAR szCompatFlags[] = _T("Compatibility Flags");
+static TCHAR szMiscStatusFlags[] = _T("MiscStatus Flags");
 
 CLASSINFO g_ciNull;
 
@@ -279,18 +279,18 @@ ShouldWeRegisterCompatibilityTable()
     TCHAR szVersion[10];
 
     lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, szTableRootKey, 0, KEY_READ, &hkeyRoot);
-    if( lRet != ERROR_SUCCESS )
-        return( TRUE );
+    if (lRet != ERROR_SUCCESS)
+        return(TRUE);
 
-    dwSize = sizeof( szVersion );
-    lRet = RegQueryValueEx( hkeyRoot, _T("Version"), NULL, &dwType,
-      (LPBYTE)szVersion, &dwSize );
-    if( lRet == ERROR_SUCCESS )
-        fOurRet = (_tcscmp( szVersion, szOurVersion ) < 0);
+    dwSize = sizeof(szVersion);
+    lRet = RegQueryValueEx(hkeyRoot, _T("Version"), NULL, &dwType,
+        (LPBYTE)szVersion, &dwSize);
+    if (lRet == ERROR_SUCCESS)
+        fOurRet = (_tcscmp(szVersion, szOurVersion) < 0);
 
-    RegCloseKey( hkeyRoot );
+    RegCloseKey(hkeyRoot);
 
-    return( fOurRet );
+    return(fOurRet);
 }
 
 #if DBG == 1
@@ -324,64 +324,63 @@ AssertCompatibilityTable()
     int   iVersionNumberComparison;
 
     lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, szTableRootKey, 0, KEY_READ, &hkeyRoot);
-    if( lRet != ERROR_SUCCESS )
+    if (lRet != ERROR_SUCCESS)
         goto Win32ErrorExit;
 
     // Check the version number:
-    dwSize = sizeof( szVersion );
-    lRet = RegQueryValueEx( hkeyRoot, _T("Version"), NULL, &dwType,
-      (LPBYTE)szVersion, &dwSize );
-    if( lRet != ERROR_SUCCESS )
+    dwSize = sizeof(szVersion);
+    lRet = RegQueryValueEx(hkeyRoot, _T("Version"), NULL, &dwType,
+        (LPBYTE)szVersion, &dwSize);
+    if (lRet != ERROR_SUCCESS)
         goto Win32ErrorExit;
 
-    iVersionNumberComparison = _tcscmp( szVersion, szOurVersion );
+    iVersionNumberComparison = _tcscmp(szVersion, szOurVersion);
 
     // The version number should not be less than our internal one:
-    Assert( szVersion >= 0 );
+    Assert(szVersion >= 0);
 
     // First count how many entries there are:
-    lRet = RegQueryInfoKey( hkeyRoot, NULL, NULL, NULL, &cKeys,
-        NULL, NULL, NULL, NULL, NULL, NULL, NULL );
-    if( lRet != ERROR_SUCCESS )
+    lRet = RegQueryInfoKey(hkeyRoot, NULL, NULL, NULL, &cKeys,
+                           NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    if (lRet != ERROR_SUCCESS)
         goto Win32ErrorExit;
 
     // If the version number is the same the count should be the
     // same:
-    if( iVersionNumberComparison == 0 )
-        Assert( cKeys == ARRAY_SIZE( s_aCompatibility ) );
+    if (iVersionNumberComparison == 0)
+        Assert(cKeys == ARRAY_SIZE(s_aCompatibility));
 
     // Read each table entry:
-    for( ; iKey < cKeys; iKey++ )
-    {
-        cbClsid = sizeof( szClsid );
-        lRet = RegEnumKeyEx( hkeyRoot, iKey, szClsid, &cbClsid, NULL, NULL, NULL, NULL );
-        if( lRet != ERROR_SUCCESS )
+    for (; iKey < cKeys; iKey++) {
+        cbClsid = sizeof(szClsid);
+        lRet = RegEnumKeyEx(hkeyRoot, iKey, szClsid, &cbClsid, NULL, NULL, NULL, NULL);
+        if (lRet != ERROR_SUCCESS)
             goto Win32ErrorExit;
 
         // Get the clsid value from the string:
         szClsid[cbClsid] = _T('\0');
-        hr = CLSIDFromString( szClsid, &clsid );
-        if( FAILED(hr) )
+        hr = CLSIDFromString(szClsid, &clsid);
+        if (FAILED(hr))
             goto Exit;
 
-        Assert( *s_aCompatibility[iKey].pclsid == clsid );
+        Assert(*s_aCompatibility[iKey].pclsid == clsid);
 
-        hr = CompatFlagsFromClsid( clsid, &dwCompatFlags, &dwOleMisc );
-        Assert( SUCCEEDED( hr ) );
+        hr = CompatFlagsFromClsid(clsid, &dwCompatFlags, &dwOleMisc);
+        Assert(SUCCEEDED(hr));
 
-        Assert( s_aCompatibility[iKey].dwCompatFlags == dwCompatFlags );
-        Assert( s_aCompatibility[iKey].dwMiscStatusFlags == dwOleMisc );
+        Assert(s_aCompatibility[iKey].dwCompatFlags == dwCompatFlags);
+        Assert(s_aCompatibility[iKey].dwMiscStatusFlags == dwOleMisc);
     }
 
-  Exit:
-    if( hkeyRoot )
-        RegCloseKey( hkeyRoot );
+Exit:
+    if (hkeyRoot)
+        RegCloseKey(hkeyRoot);
 
-    Assert( SUCCEEDED( hr ) );
+    Assert(SUCCEEDED(hr));
     return;
 
-  Win32ErrorExit:  // convert WIN32 error code to HRESULT:
-    hr = HRESULT_FROM_WIN32( lRet );
+Win32ErrorExit:  // convert WIN32 error code to HRESULT:
+    hr = HRESULT_FROM_WIN32(lRet);
     goto Exit;
 #endif
 }
@@ -417,21 +416,20 @@ CompatFlagsFromClsid(REFCLSID clsid, LPDWORD pdwCompatFlags, LPDWORD pdwMiscStat
         TCHAR tch[10];
     } yuckValue;
 
-    Assert( pdwCompatFlags != NULL );
-    Assert( pdwMiscStatusFlags != NULL );
+    Assert(pdwCompatFlags != NULL);
+    Assert(pdwMiscStatusFlags != NULL);
 
     lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, szTableRootKey, 0, KEY_READ, &hkeyRoot);
-    if( lRet != ERROR_SUCCESS )
+    if (lRet != ERROR_SUCCESS)
         goto Win32ErrorExit;
 
-    hr = StringFromCLSID( clsid, &pszClsid );
-    if( FAILED( hr ) )
+    hr = StringFromCLSID(clsid, &pszClsid);
+    if (FAILED(hr))
         goto Exit;
 
     // Open the {####-####-####...} Clsid subkey:
     lRet = RegOpenKeyEx(hkeyRoot, pszClsid, 0, KEY_READ, &hkeyClsid);
-    if( lRet != ERROR_SUCCESS )
-    {
+    if (lRet != ERROR_SUCCESS) {
         hr = S_FALSE;  // if there is no entry in the table that is OK.
         goto Exit;
     }
@@ -441,43 +439,41 @@ CompatFlagsFromClsid(REFCLSID clsid, LPDWORD pdwCompatFlags, LPDWORD pdwMiscStat
     // The yuckValue mechanism is due to the fact that the .inf tools
     // sometimes put STRINGS rather than DWORDS in the registry on win95.
     *pdwCompatFlags = 0;    // default initial value in case we fail anywhere.
-    dwSize = sizeof( yuckValue );
-    lRet = RegQueryValueEx( hkeyClsid, szCompatFlags, NULL, &dwType,
-      (LPBYTE)&yuckValue, &dwSize );
-    if( lRet == ERROR_SUCCESS )
-    {
-        if( dwType == REG_DWORD )
+    dwSize = sizeof(yuckValue);
+    lRet = RegQueryValueEx(hkeyClsid, szCompatFlags, NULL, &dwType,
+        (LPBYTE)&yuckValue, &dwSize);
+    if (lRet == ERROR_SUCCESS) {
+        if (dwType == REG_DWORD)
             *pdwCompatFlags = yuckValue.dw;
-        else if( dwType == REG_SZ && dwSize > 2 )
-            *pdwCompatFlags = _tcstol( yuckValue.tch+2, NULL, 16 );
+        else if (dwType == REG_SZ && dwSize > 2)
+            *pdwCompatFlags = _tcstol(yuckValue.tch + 2, NULL, 16);
     }
 
     *pdwMiscStatusFlags = 0; // default initial value in case we fail anywhere.
-    dwSize = sizeof( yuckValue );
-    lRet = RegQueryValueEx( hkeyClsid, szMiscStatusFlags, NULL, &dwType,
-      (LPBYTE)&yuckValue, &dwSize );
-    if( lRet == ERROR_SUCCESS )
-    {
-        if( dwType == REG_DWORD )
+    dwSize = sizeof(yuckValue);
+    lRet = RegQueryValueEx(hkeyClsid, szMiscStatusFlags, NULL, &dwType,
+        (LPBYTE)&yuckValue, &dwSize);
+    if (lRet == ERROR_SUCCESS) {
+        if (dwType == REG_DWORD)
             *pdwMiscStatusFlags = yuckValue.dw;
-        else if( dwType == REG_SZ && dwSize > 2)
-            *pdwMiscStatusFlags = _tcstol( yuckValue.tch+2, NULL, 16 );
+        else if (dwType == REG_SZ && dwSize > 2)
+            *pdwMiscStatusFlags = _tcstol(yuckValue.tch + 2, NULL, 16);
     }
 
-  Exit:
-    if( hkeyClsid )
-        RegCloseKey( hkeyClsid );
+Exit:
+    if (hkeyClsid)
+        RegCloseKey(hkeyClsid);
 
-    if( hkeyRoot )
-        RegCloseKey( hkeyRoot );
+    if (hkeyRoot)
+        RegCloseKey(hkeyRoot);
 
-    if( pszClsid )
-        CoTaskMemFree( pszClsid );
+    if (pszClsid)
+        CoTaskMemFree(pszClsid);
 
-    return( hr );
+    return(hr);
 
-  Win32ErrorExit:  // convert WIN32 error code to HRESULT:
-    hr = HRESULT_FROM_WIN32( lRet );
+Win32ErrorExit:  // convert WIN32 error code to HRESULT:
+    hr = HRESULT_FROM_WIN32(lRet);
     goto Exit;
 }
 
@@ -496,9 +492,8 @@ CClassTable::Reset()
 {
     int i = _aryci.Size();
 
-    for( ; i > 0; --i )
-    {
-        ClearInterface( &_aryci[i-1]._pTypeInfoEvents );
+    for (; i > 0; --i) {
+        ClearInterface(&_aryci[i - 1]._pTypeInfoEvents);
     }
 
     _aryci.DeleteAll();
@@ -548,8 +543,7 @@ CLASSINFO::Init(REFCLSID rclsid, BOOL fInitCompatFlags)
     dispidSTD = DISPID_UNKNOWN;
 
 #ifndef WIN16
-    if (fInitCompatFlags)
-    {
+    if (fInitCompatFlags) {
         Verify(SUCCEEDED(CompatFlagsFromClsid(rclsid, &dwCompatFlags, &dwMiscStatusFlags)));
     }
 #endif
@@ -570,22 +564,20 @@ CLASSINFO::Init(REFCLSID rclsid, BOOL fInitCompatFlags)
 
 
 HRESULT
-CClassTable::AssignWclsid(CDoc *pDoc, REFCLSID clsid, WORD *pwclsid)
+CClassTable::AssignWclsid(CDoc* pDoc, REFCLSID clsid, WORD* pwclsid)
 {
     int                     wclsid;
-    CLASSINFO *             pci;
+    CLASSINFO* pci;
     HRESULT                 hr = S_OK;
-    ILicensedClassManager * pLCM = NULL;
-    IRequireClasses *       pRC = NULL;
+    ILicensedClassManager* pLCM = NULL;
+    IRequireClasses* pRC = NULL;
 
-    if (clsid == GUID_NULL)
-    {
+    if (clsid == GUID_NULL) {
         wclsid = 0;
         goto Cleanup;
     }
 
-    for (wclsid = 1, pci = _aryci; wclsid <= _aryci.Size(); wclsid++, pci++)
-    {
+    for (wclsid = 1, pci = _aryci; wclsid <= _aryci.Size(); wclsid++, pci++) {
         if (pci->clsid == clsid)
             goto Cleanup;
     }
@@ -605,19 +597,17 @@ CClassTable::AssignWclsid(CDoc *pDoc, REFCLSID clsid, WORD *pwclsid)
     // Notify the world that we have added a class.
 
     if (OK(THR_NOTRACE(pDoc->QueryService(
-            SID_SLicensedClassManager,
-            IID_ILicensedClassManager,
-            (void **)&pLCM))))
-    {
-        if (OK(THR(pDoc->QueryInterface(IID_IRequireClasses, (void **)&pRC))))
-        {
+        SID_SLicensedClassManager,
+        IID_ILicensedClassManager,
+        (void**)&pLCM)))) {
+        if (OK(THR(pDoc->QueryInterface(IID_IRequireClasses, (void**)&pRC)))) {
             IGNORE_HR(pLCM->OnChangeInRequiredClasses(pRC));
             pRC->Release();
         }
         pLCM->Release();
     }
 
- Cleanup:
+Cleanup:
     *pwclsid = (WORD)wclsid;
     RRETURN(hr);
 }
@@ -643,7 +633,7 @@ CClassTable::AssignWclsid(CDoc *pDoc, REFCLSID clsid, WORD *pwclsid)
 
 
 BOOL
-CClassTable::IsInterfaceProperty (ITypeInfo *pTI, TYPEDESC *pTypeDesc, IID *piid)
+CClassTable::IsInterfaceProperty(ITypeInfo* pTI, TYPEDESC* pTypeDesc, IID* piid)
 {
     BOOL        fResult = FALSE;
 
@@ -654,29 +644,25 @@ CClassTable::IsInterfaceProperty (ITypeInfo *pTI, TYPEDESC *pTypeDesc, IID *piid
     // We are looking for a pointer to GUID'd user-defined type
 
     // first, make sure it's a pointer
-    if (!pTypeDesc || pTypeDesc->vt != VT_PTR)
-    {
+    if (!pTypeDesc || pTypeDesc->vt != VT_PTR) {
         goto Cleanup;
     }
 
     // now examine the type of the object pointed to, make sure
     //  it's a user-defined type
     pTypeDesc = pTypeDesc->lptdesc;
-    if (pTypeDesc && pTypeDesc->vt == VT_USERDEFINED)
-    {
+    if (pTypeDesc && pTypeDesc->vt == VT_USERDEFINED) {
         // Yes, so it could be the interface-valued object.
         HREFTYPE    hreftype;
-        ITypeInfo * pUserTI;
+        ITypeInfo* pUserTI;
 
         // We have a property which has a undefined type.
         hreftype = pTypeDesc->hreftype;
 
-        if (!pTI->GetRefTypeInfo(hreftype, &pUserTI))
-        {
-            TYPEATTR *pTypeAttr;
+        if (!pTI->GetRefTypeInfo(hreftype, &pUserTI)) {
+            TYPEATTR* pTypeAttr;
 
-            if (!pUserTI->GetTypeAttr(&pTypeAttr))
-            {
+            if (!pUserTI->GetTypeAttr(&pTypeAttr)) {
                 *piid = pTypeAttr->guid;
                 fResult = TRUE;
 
@@ -708,8 +694,8 @@ Cleanup:
 
 
 void
-CClassTable::GetDefaultBindInfoForGet(CLASSINFO *pci, FUNCDESC *pfDesc,
-                                        CTypeInfoNav& cTINav)
+CClassTable::GetDefaultBindInfoForGet(CLASSINFO* pci, FUNCDESC* pfDesc,
+                                      CTypeInfoNav& cTINav)
 {
     IID iid;
     VARTYPE vtParamType;
@@ -724,13 +710,11 @@ CClassTable::GetDefaultBindInfoForGet(CLASSINFO *pci, FUNCDESC *pfDesc,
 
     // special check for complex data consumers
     if (IsInterfaceProperty(cTINav.getITypeInfo(),
-                                &pfDesc->elemdescFunc.tdesc,
-                                &iid))
-    {
+                            &pfDesc->elemdescFunc.tdesc,
+                            &iid)) {
         if (IsEqualIID(iid, IID_DataSource) ||
             IsEqualIID(iid, IID_OLEDBSimpleProvider) ||
-            IsEqualIID(iid, IID_IRowset))
-        {
+            IsEqualIID(iid, IID_IRowset)) {
             pci->vtBindType = VT_UNKNOWN;
         }
     }
@@ -751,7 +735,7 @@ CClassTable::GetDefaultBindInfoForGet(CLASSINFO *pci, FUNCDESC *pfDesc,
 
 
 void
-CClassTable::GetDefaultBindInfoForPut(CLASSINFO *pci, FUNCDESC *pfDesc)
+CClassTable::GetDefaultBindInfoForPut(CLASSINFO* pci, FUNCDESC* pfDesc)
 {
     VARTYPE vtParamType;
     BOOL fParamIsPointer;
@@ -764,14 +748,13 @@ CClassTable::GetDefaultBindInfoForPut(CLASSINFO *pci, FUNCDESC *pfDesc)
     Assert(pfDesc->cParams == 1);
     vtParamType = pfDesc->lprgelemdescParam->tdesc.vt;
     fParamIsPointer = (vtParamType == VT_PTR);
-    if (fParamIsPointer)
-    {
+    if (fParamIsPointer) {
         vtParamType = pfDesc->lprgelemdescParam->tdesc.lptdesc->vt | VT_BYREF;
     }
 
     // it should agree with the type of the get method (if we've seen it)
     Assert(pci->vtBindType == VT_EMPTY ||
-            (pci->vtBindType & VT_TYPEMASK) == (vtParamType & VT_TYPEMASK));
+        (pci->vtBindType & VT_TYPEMASK) == (vtParamType & VT_TYPEMASK));
     pci->vtBindType = vtParamType;
 }
 
@@ -796,27 +779,24 @@ CClassTable::GetDefaultBindInfoForPut(CLASSINFO *pci, FUNCDESC *pfDesc)
 
 void
 CClassTable::GetDualInfo(
-        CTypeInfoNav & cTINav,
-        FUNCDESC *pfDesc,
-        CLASSINFO *pci)
+    CTypeInfoNav& cTINav,
+    FUNCDESC* pfDesc,
+    CLASSINFO* pci)
 {
     BOOL fValueProp = (pfDesc->memid == DISPID_VALUE);
-    BOOL fDefaultBind = ( (pfDesc->wFuncFlags &
-                                (FUNCFLAG_FBINDABLE|FUNCFLAG_FDEFAULTBIND)) ==
-                            (FUNCFLAG_FBINDABLE | FUNCFLAG_FDEFAULTBIND));
+    BOOL fDefaultBind = ((pfDesc->wFuncFlags &
+        (FUNCFLAG_FBINDABLE | FUNCFLAG_FDEFAULTBIND)) ==
+                          (FUNCFLAG_FBINDABLE | FUNCFLAG_FDEFAULTBIND));
 
-    switch (pfDesc->invkind)
-    {
+    switch (pfDesc->invkind) {
     case INVOKE_PROPERTYGET:
         // Save information about the defaultbind property
-        if (fDefaultBind)
-        {
+        if (fDefaultBind) {
             GetDefaultBindInfoForGet(pci, pfDesc, cTINav);
         }
 
         // Save information about the value property information (DISPID_VALUE)
-        if (fValueProp)
-        {
+        if (fValueProp) {
             pci->uGetValueIndex = pfDesc->oVft;
             pci->vtValueType = pfDesc->elemdescFunc.tdesc.vt;
 
@@ -824,8 +804,7 @@ CClassTable::GetDualInfo(
             // this will be overwritten if the defaultbind property shows up later.
             // The effect is to bind to the value property (if any) if no defaultbind
             // property is present.
-            if (pci->dispIDBind == DISPID_UNKNOWN || pci->dispIDBind == DISPID_VALUE)
-            {
+            if (pci->dispIDBind == DISPID_UNKNOWN || pci->dispIDBind == DISPID_VALUE) {
                 GetDefaultBindInfoForGet(pci, pfDesc, cTINav);
             }
         }
@@ -834,14 +813,12 @@ CClassTable::GetDualInfo(
     case INVOKE_PROPERTYPUT:
     case INVOKE_PROPERTYPUTREF:
         // Save information about the defaultbind property
-        if (fDefaultBind)
-        {
+        if (fDefaultBind) {
             GetDefaultBindInfoForPut(pci, pfDesc);
         }
 
         // Save information about the value property information (DISPID_VALUE)
-        if (fValueProp)
-        {
+        if (fValueProp) {
             pci->uPutValueIndex = pfDesc->oVft;
             pci->dwFlagsValue = pfDesc->invkind;
 
@@ -849,8 +826,7 @@ CClassTable::GetDualInfo(
             // this will be overwritten if the defaultbind property shows up later.
             // The effect is to bind to the value property (if any) if no defaultbind
             // property is present.
-            if (pci->dispIDBind == DISPID_UNKNOWN || pci->dispIDBind == DISPID_VALUE)
-            {
+            if (pci->dispIDBind == DISPID_UNKNOWN || pci->dispIDBind == DISPID_VALUE) {
                 GetDefaultBindInfoForPut(pci, pfDesc);
             }
         }
@@ -885,7 +861,7 @@ CClassTable::GetDualInfo(
 
 
 void
-CClassTable::FindTypelibInfo(ITypeInfo *pTI, CLASSINFO *pci)
+CClassTable::FindTypelibInfo(ITypeInfo* pTI, CLASSINFO* pci)
 {
     HRESULT         hr;
     CTypeInfoNav    cTINav;
@@ -900,39 +876,32 @@ CClassTable::FindTypelibInfo(ITypeInfo *pTI, CLASSINFO *pci)
         goto Cleanup;
 
     // Keep looping through typeinfo until we find a property match.
-    while (!cTINav.Next())
-    {
-        FUNCDESC    *pfDesc;
+    while (!cTINav.Next()) {
+        FUNCDESC* pfDesc;
 
         pfDesc = cTINav.getFuncD();
 
         // Do we have a user defined type?
-        if (pfDesc)
-        {
+        if (pfDesc) {
             // Check for interesting interface-valued Get properties
             // with no paramter types.
             if (pfDesc->invkind == INVOKE_PROPERTYGET &&
-                pfDesc->cParams == 0)
-            {
+                pfDesc->cParams == 0) {
                 IID iid;
 
                 // Check out the return type for a known interface.
                 if (IsInterfaceProperty(pTI,
                                         &pfDesc->elemdescFunc.tdesc,
-                                        &iid))
-                {
-                    if (IsEqualIID(iid, IID_DataSource))
-                    {
+                                        &iid)) {
+                    if (IsEqualIID(iid, IID_DataSource)) {
                         pci->dispidIDataSource = pfDesc->memid;
                         pci->uGetIDataSource = pfDesc->oVft;
                     }
-                    if (IsEqualIID(iid, IID_OLEDBSimpleProvider))
-                    {
+                    if (IsEqualIID(iid, IID_OLEDBSimpleProvider)) {
                         pci->dispidSTD = pfDesc->memid;
                         pci->uGetSTD = pfDesc->oVft;
                     }
-                    if (IsEqualIID(iid, IID_IRowset))
-                    {
+                    if (IsEqualIID(iid, IID_IRowset)) {
                         pci->dispidRowset = pfDesc->memid;
                         pci->uGetRowset = pfDesc->oVft;
                     }
@@ -942,82 +911,62 @@ CClassTable::FindTypelibInfo(ITypeInfo *pTI, CLASSINFO *pci)
             // Check for interesting interface-valued put property.
             if (pfDesc->lprgelemdescParam &&
                 (pfDesc->invkind == INVOKE_PROPERTYPUT ||
-                 pfDesc->invkind == INVOKE_PROPERTYPUTREF))
-            {
+                 pfDesc->invkind == INVOKE_PROPERTYPUTREF)) {
                 IID iid;
 
                 if (IsInterfaceProperty(pTI,
                                         &pfDesc->lprgelemdescParam->tdesc,
-                                        &iid ) )
-                {
-                    if (IsEqualIID(iid, IID_DataSource))
-                    {
+                                        &iid)) {
+                    if (IsEqualIID(iid, IID_DataSource)) {
                         pci->dispidIDataSource = pfDesc->memid;
                         pci->uSetIDataSource = pfDesc->oVft;
                         pci->dwFlagsDataSource = pfDesc->invkind;
                     }
-                    if (IsEqualIID(iid, IID_IRowset))
-                    {
+                    if (IsEqualIID(iid, IID_IRowset)) {
                         pci->dispidRowset = pfDesc->memid;
                         pci->uSetRowset = pfDesc->oVft;
                         pci->dwFlagsRowset = pfDesc->invkind;
-                    }
-                    else if (IsEqualIID(iid, IID_IRowCursor))
-                    {
+                    } else if (IsEqualIID(iid, IID_IRowCursor)) {
                         pci->dispidCursor = pfDesc->memid;
                         pci->uSetCursor = pfDesc->oVft;
                     }
                 }
             }
 
-            if (cTINav.IsDualInterface())
-            {
+            if (cTINav.IsDualInterface()) {
                 GetDualInfo(cTINav, pfDesc, pci);
             }
-        }
-        else
-        {
-            VARDESC *pvDesc;
+        } else {
+            VARDESC* pvDesc;
 
             pvDesc = cTINav.getVarD();
-            if (pvDesc)
-            {
+            if (pvDesc) {
                 IID iid;
 
                 wVFFlags = pvDesc->wVarFlags;
 
                 // Check for the interface-valued properties
                 if (IsInterfaceProperty(pTI, &pvDesc->elemdescVar.tdesc,
-                                        &iid ) )
-                {
-                    if (IsEqualIID(iid, IID_DataSource))
-                    {
+                                        &iid)) {
+                    if (IsEqualIID(iid, IID_DataSource)) {
                         pci->dispidIDataSource = pvDesc->memid;
-                    }
-                    else if (IsEqualIID(iid, IID_IRowset))
-                    {
+                    } else if (IsEqualIID(iid, IID_IRowset)) {
                         pci->dispidRowset = pvDesc->memid;
-                    }
-                    else if(IsEqualIID(iid, IID_OLEDBSimpleProvider))
-                    {
+                    } else if (IsEqualIID(iid, IID_OLEDBSimpleProvider)) {
                         pci->dispidSTD = pvDesc->memid;
-                    }
-                    else if(IsEqualIID(iid, IID_IRowCursor))
-                    {
+                    } else if (IsEqualIID(iid, IID_IRowCursor)) {
                         pci->dispidCursor = pvDesc->memid;
                     }
                 }
             }
 
             // Default bindable property?
-            if (((wVFFlags&(FUNCFLAG_FBINDABLE|FUNCFLAG_FDEFAULTBIND)) ==
-                 (FUNCFLAG_FBINDABLE | FUNCFLAG_FDEFAULTBIND)) ||
-                (pvDesc->memid == 0 && pci->dispIDBind == DISPID_UNKNOWN))
-            {
+            if (((wVFFlags & (FUNCFLAG_FBINDABLE | FUNCFLAG_FDEFAULTBIND)) ==
+                (FUNCFLAG_FBINDABLE | FUNCFLAG_FDEFAULTBIND)) ||
+                 (pvDesc->memid == 0 && pci->dispIDBind == DISPID_UNKNOWN)) {
                 pci->dispIDBind = pvDesc->memid;
                 pci->vtBindType = pvDesc->elemdescVar.tdesc.vt;
-                if (pvDesc->wVarFlags & VARFLAG_FIMMEDIATEBIND)
-                {
+                if (pvDesc->wVarFlags & VARFLAG_FIMMEDIATEBIND) {
                     pci->fImmediateBind = TRUE;
                 }
 
@@ -1026,7 +975,7 @@ CClassTable::FindTypelibInfo(ITypeInfo *pTI, CLASSINFO *pci)
     }
 
     pci->fDualInterface = cTINav.IsDualInterface() &&
-                            pci->uGetBindIndex!=0 && pci->uPutBindIndex!=0;
+        pci->uGetBindIndex != 0 && pci->uPutBindIndex != 0;
 
 Cleanup:
     return;
@@ -1052,13 +1001,13 @@ Cleanup:
 
 
 HRESULT
-CClassTable::InitializeIIDsFromTIDefault(CLASSINFO *pci,
-                                         ITypeInfo *pTIDefault,
-                                         TYPEATTR *ptaDefault)
+CClassTable::InitializeIIDsFromTIDefault(CLASSINFO* pci,
+                                         ITypeInfo* pTIDefault,
+                                         TYPEATTR* ptaDefault)
 {
     HRESULT hr = S_OK;
-    ITypeInfo * pTIDual= NULL;
-    TYPEATTR *  ptaDual = NULL;
+    ITypeInfo* pTIDual = NULL;
+    TYPEATTR* ptaDual = NULL;
     HREFTYPE    hrt;
 
 
@@ -1072,9 +1021,8 @@ CClassTable::InitializeIIDsFromTIDefault(CLASSINFO *pci,
 
     pci->iidDefault = ptaDefault->guid;
 
-    if (ptaDefault->wTypeFlags & TYPEFLAG_FDUAL)
-    {
-        hr = THR(pTIDefault->GetRefTypeOfImplType((UINT) -1, &hrt));
+    if (ptaDefault->wTypeFlags & TYPEFLAG_FDUAL) {
+        hr = THR(pTIDefault->GetRefTypeOfImplType((UINT)-1, &hrt));
         if (hr)
             goto Cleanup;
 
@@ -1086,8 +1034,8 @@ CClassTable::InitializeIIDsFromTIDefault(CLASSINFO *pci,
         if (hr)
             goto Cleanup;
 
-        pci->cMethodsDefault = (int) (ptaDual->cbSizeVft / sizeof(void (*)()));
-// BUGBUG (garybu) Should assert that tearoff table is large enough to thunk to this itf.
+        pci->cMethodsDefault = (int)(ptaDual->cbSizeVft / sizeof(void (*)()));
+        // BUGBUG (garybu) Should assert that tearoff table is large enough to thunk to this itf.
     }
 
 Cleanup:
@@ -1112,20 +1060,19 @@ Cleanup:
 
 
 HRESULT
-CClassTable::InitializeIIDs(CLASSINFO *pci, IUnknown *pUnk)
+CClassTable::InitializeIIDs(CLASSINFO* pci, IUnknown* pUnk)
 {
     HRESULT     hr = S_OK;
     int         i;
-    ITypeInfo * pTIClass = NULL;
-    TYPEATTR *  ptaClass = NULL;
-    IProvideClassInfo *pPCI = NULL;
-    IDispatch * pDispatch = NULL;
+    ITypeInfo* pTIClass = NULL;
+    TYPEATTR* ptaClass = NULL;
+    IProvideClassInfo* pPCI = NULL;
+    IDispatch* pDispatch = NULL;
 
     Assert(!pci->fAllInitialized);
 
     // Should have been set when instantiated the control
-    if (!pUnk)
-    {
+    if (!pUnk) {
         hr = E_FAIL;
         goto Cleanup;
     }
@@ -1135,9 +1082,8 @@ CClassTable::InitializeIIDs(CLASSINFO *pci, IUnknown *pUnk)
     //  IProvideClassInfo?  IDispatch mechanism below won't discover
     //  any eventset.
     if (OK(THR_NOTRACE(pUnk->
-               QueryInterface(IID_IProvideClassInfo,
-                              (void **) &pPCI))))
-    {
+                       QueryInterface(IID_IProvideClassInfo,
+                       (void**)&pPCI)))) {
         hr = THR(pPCI->GetClassInfo(&pTIClass));
         if (hr)
             goto Cleanup;
@@ -1146,18 +1092,16 @@ CClassTable::InitializeIIDs(CLASSINFO *pci, IUnknown *pUnk)
         if (hr)
             goto Cleanup;
 
-        if (ptaClass->typekind != TKIND_COCLASS)
-        {
+        if (ptaClass->typekind != TKIND_COCLASS) {
             hr = E_FAIL;
             goto Cleanup;
         }
 
-        for (i = 0; i < ptaClass->cImplTypes; i++)
-        {
+        for (i = 0; i < ptaClass->cImplTypes; i++) {
             int         implTypeFlags;
             HREFTYPE    hrt;
-            ITypeInfo * pTIDefault = NULL;
-            TYPEATTR *  ptaDefault = NULL;
+            ITypeInfo* pTIDefault = NULL;
+            TYPEATTR* ptaDefault = NULL;
 
             hr = THR(pTIClass->GetImplTypeFlags(i, &implTypeFlags));
             if (hr)
@@ -1181,19 +1125,16 @@ CClassTable::InitializeIIDs(CLASSINFO *pci, IUnknown *pUnk)
             if (!(ptaDefault->typekind & TKIND_DISPATCH))
                 goto LoopCleanup;
 
-            if (implTypeFlags & IMPLTYPEFLAG_FSOURCE)
-            {
+            if (implTypeFlags & IMPLTYPEFLAG_FSOURCE) {
                 pci->_pTypeInfoEvents = pTIDefault;
                 pTIDefault->AddRef();
 
                 pci->iidDispEvent = ptaDefault->guid;
 
-            }
-            else
-            {
+            } else {
                 hr = THR(InitializeIIDsFromTIDefault(pci, pTIDefault, ptaDefault));
             }
-LoopCleanup:
+        LoopCleanup:
             if (ptaDefault)
                 pTIDefault->ReleaseTypeAttr(ptaDefault);
 
@@ -1202,11 +1143,9 @@ LoopCleanup:
                 goto Cleanup;
         }
 
-    }
-    else if (OK(THR_NOTRACE(pUnk->
-               QueryInterface(IID_IDispatch,
-                              (void **) &pDispatch))))
-    {
+    } else if (OK(THR_NOTRACE(pUnk->
+                              QueryInterface(IID_IDispatch,
+                              (void**)&pDispatch)))) {
         // we cheat a little on variable names here; we are using pTIClass
         //  and ptaClass, even though we have the TypeInfo for the Dispatch
         //  itself.  This lets us leverage the cleanup logic below
@@ -1217,8 +1156,7 @@ LoopCleanup:
         if (hr)
             goto Cleanup;
 
-        if (!(ptaClass->typekind & TKIND_DISPATCH))
-        {
+        if (!(ptaClass->typekind & TKIND_DISPATCH)) {
             // BUGBUG: frankman revmoved bogus in 819...Assert(!"IDispatch::GetTypeInfo return isn't TKIND_DISPATCH");
             goto Cleanup;
         }
@@ -1234,8 +1172,7 @@ Cleanup:
     ReleaseInterface(pPCI);
     ReleaseInterface(pDispatch);
 
-    if (hr != E_OUTOFMEMORY)
-    {
+    if (hr != E_OUTOFMEMORY) {
         // we only try to initialize once, unless the problem was E_OUTOFMEMORY, which
         //  might get alleviated for subsequent attempts.
         pci->fAllInitialized = TRUE;
@@ -1254,15 +1191,14 @@ Cleanup:
 
 
 
-CLASSINFO *
-CClassTable::GetClassInfo(int wclsid, IUnknown *pUnk)
+CLASSINFO*
+CClassTable::GetClassInfo(int wclsid, IUnknown* pUnk)
 {
-    CLASSINFO * pci;
+    CLASSINFO* pci;
 
     Assert(0 <= wclsid && wclsid <= _aryci.Size());
 
-    if (wclsid == 0)
-    {
+    if (wclsid == 0) {
         return(&g_ciNull);
     }
 
@@ -1296,17 +1232,16 @@ CClassTable::GetClassInfo(int wclsid, IUnknown *pUnk)
 
 
 
-QUICKCLASSINFO *
-CClassTable::GetQuickClassInfo(int wclsid, IUnknown *pUnk)
+QUICKCLASSINFO*
+CClassTable::GetQuickClassInfo(int wclsid, IUnknown* pUnk)
 {
     Assert(0 <= wclsid && wclsid <= _aryci.Size());
 
     HRESULT             hr;
-    CLASSINFO *         pci;
-    IProvideClassInfo2 *pPCI2 = 0;
+    CLASSINFO* pci;
+    IProvideClassInfo2* pPCI2 = 0;
 
-    if (wclsid == 0)
-    {
+    if (wclsid == 0) {
         pci = &g_ciNull;
         goto Cleanup;
     }
@@ -1336,17 +1271,14 @@ CClassTable::GetQuickClassInfo(int wclsid, IUnknown *pUnk)
 
 
     if ((!pci->fAllInitialized && !pci->fiidDEInitialized) ||
-        (pci->clsid == CLSID_AppletOCX))
-    {
+        (pci->clsid == CLSID_AppletOCX)) {
         if (OK(THR(pUnk->
                    QueryInterface(IID_IProvideClassInfo2,
-                                  (void **) &pPCI2))))
-        {
+                   (void**)&pPCI2)))) {
             hr = pPCI2->GetGUID(GUIDKIND_DEFAULT_SOURCE_DISP_IID,
                                 &pci->iidDispEvent);
 
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 pci->fiidDEInitialized = TRUE;
                 goto Done;
             }
@@ -1365,7 +1297,7 @@ Done:
     ReleaseInterface(pPCI2);
 
 Cleanup:
-    return (QUICKCLASSINFO *) pci;
+    return (QUICKCLASSINFO*)pci;
 }
 
 

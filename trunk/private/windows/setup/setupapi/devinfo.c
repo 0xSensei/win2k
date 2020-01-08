@@ -19,7 +19,7 @@ typedef struct _DEFAULT_DEVCMP_CONTEXT {
     PCS_RESOURCE NewDevCsResource;
     PCS_RESOURCE CurDevCsResource;
     ULONG        CsResourceSize;    // applies to both buffers.
-} DEFAULT_DEVCMP_CONTEXT, *PDEFAULT_DEVCMP_CONTEXT;
+} DEFAULT_DEVCMP_CONTEXT, * PDEFAULT_DEVCMP_CONTEXT;
 
 
 // Private routine prototypes.
@@ -28,34 +28,34 @@ pSetupOpenAndAddNewDevInfoElem(
     IN  PDEVICE_INFO_SET DeviceInfoSet,
     IN  PCTSTR           DeviceInstanceId,
     IN  BOOL             AllowPhantom,
-    IN  CONST GUID      *ClassGuid,              OPTIONAL
-    IN  HWND             hwndParent,             OPTIONAL
-    OUT PDEVINFO_ELEM   *DevInfoElem,
+    IN  CONST GUID* ClassGuid, OPTIONAL
+    IN  HWND             hwndParent, OPTIONAL
+    OUT PDEVINFO_ELEM* DevInfoElem,
     IN  BOOL             CheckIfAlreadyThere,
-    OUT PBOOL            AlreadyPresent,         OPTIONAL
+    OUT PBOOL            AlreadyPresent, OPTIONAL
     IN  BOOL             OpenExistingOnly,
     IN  ULONG            CmLocateFlags,
     IN  PDEVICE_INFO_SET ContainingDeviceInfoSet
-    );
+);
 
 DWORD
 pSetupAddNewDeviceInfoElement(
     IN  PDEVICE_INFO_SET DeviceInfoSet,
     IN  DEVINST          DevInst,
-    IN  CONST GUID      *ClassGuid,
-    IN  PCTSTR           Description,             OPTIONAL
-    IN  HWND             hwndParent,              OPTIONAL
+    IN  CONST GUID* ClassGuid,
+    IN  PCTSTR           Description, OPTIONAL
+    IN  HWND             hwndParent, OPTIONAL
     IN  DWORD            DiElemFlags,
     IN  PDEVICE_INFO_SET ContainingDeviceInfoSet,
-    OUT PDEVINFO_ELEM   *DeviceInfoElement
-    );
+    OUT PDEVINFO_ELEM* DeviceInfoElement
+);
 
 DWORD
 pSetupClassGuidFromDevInst(
     IN  DEVINST DevInst,
     IN  HMACHINE hMachine,
     OUT LPGUID  ClassGuid
-    );
+);
 
 DWORD
 pSetupDupDevCompare(
@@ -63,19 +63,19 @@ pSetupDupDevCompare(
     IN PSP_DEVINFO_DATA NewDeviceData,
     IN PSP_DEVINFO_DATA ExistingDeviceData,
     IN PVOID            CompareContext
-    );
+);
 
 DWORD
 pSetupAddInterfaceDeviceToDevInfoElem(
     IN  PDEVICE_INFO_SET        DeviceInfoSet,
     IN  PDEVINFO_ELEM           DevInfoElem,
-    IN  CONST GUID             *ClassGuid,
+    IN  CONST GUID* ClassGuid,
     IN  PTSTR                   InterfaceDeviceName,
     IN  BOOL                    IsActive,
     IN  BOOL                    StoreTruncateNode,
     IN  BOOL                    OpenExistingOnly,
-    OUT PINTERFACE_DEVICE_NODE *InterfaceDeviceNode  OPTIONAL
-    );
+    OUT PINTERFACE_DEVICE_NODE* InterfaceDeviceNode  OPTIONAL
+);
 
 DWORD
 _SetupDiOpenInterfaceDevice(
@@ -83,16 +83,16 @@ _SetupDiOpenInterfaceDevice(
     IN  PTSTR                     DevicePath,
     IN  DWORD                     OpenFlags,
     OUT PSP_DEVICE_INTERFACE_DATA InterfaceDeviceData OPTIONAL
-    );
+);
 
 DWORD
 pSetupGetDevInstNameAndStatusForInterfaceDevice(
     IN  HKEY   hKeyInterfaceClass,
     IN  PCTSTR InterfaceDeviceName,
-    OUT PTSTR  OwningDevInstName,     OPTIONAL
+    OUT PTSTR  OwningDevInstName, OPTIONAL
     IN  DWORD  OwningDevInstNameSize,
     OUT PBOOL  IsActive               OPTIONAL
-    );
+);
 
 BOOL
 pSetupDiGetOrSetDeviceInfoContext(
@@ -100,10 +100,10 @@ pSetupDiGetOrSetDeviceInfoContext(
     IN  PSP_DEVINFO_DATA DeviceInfoData,
     IN  DWORD            InContext,
     OUT PDWORD           OutContext      OPTIONAL
-    );
+);
 
 
-HDEVINFO WINAPI SetupDiCreateDeviceInfoList(IN CONST GUID *ClassGuid, OPTIONAL IN HWND hwndParent OPTIONAL)
+HDEVINFO WINAPI SetupDiCreateDeviceInfoList(IN CONST GUID* ClassGuid, OPTIONAL IN HWND hwndParent OPTIONAL)
 /*++
 Routine Description:
     This API creates an empty device information set that will contain device device information member elements.
@@ -125,11 +125,11 @@ Return Value:
 HDEVINFO
 WINAPI
 SetupDiCreateDeviceInfoListExA(
-    IN CONST GUID *ClassGuid,   OPTIONAL
-    IN HWND        hwndParent,  OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
+    IN HWND        hwndParent, OPTIONAL
     IN PCSTR       MachineName, OPTIONAL
     IN PVOID       Reserved
-    )
+)
 {
     PCWSTR UnicodeMachineName;
     DWORD rc;
@@ -137,17 +137,17 @@ SetupDiCreateDeviceInfoListExA(
 
     hDevInfo = INVALID_HANDLE_VALUE;
 
-    if(MachineName) {
+    if (MachineName) {
         rc = CaptureAndConvertAnsiArg(MachineName, &UnicodeMachineName);
     } else {
         UnicodeMachineName = NULL;
         rc = NO_ERROR;
     }
 
-    if(rc == NO_ERROR) {
+    if (rc == NO_ERROR) {
         hDevInfo = SetupDiCreateDeviceInfoListExW(ClassGuid, hwndParent, UnicodeMachineName, Reserved);
         rc = GetLastError();
-        if(UnicodeMachineName) {
+        if (UnicodeMachineName) {
             MyFree(UnicodeMachineName);
         }
     }
@@ -160,11 +160,11 @@ SetupDiCreateDeviceInfoListExA(
 HDEVINFO
 WINAPI
 SetupDiCreateDeviceInfoListExW(
-    IN CONST GUID *ClassGuid,   OPTIONAL
-    IN HWND        hwndParent,  OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
+    IN HWND        hwndParent, OPTIONAL
     IN PCWSTR      MachineName, OPTIONAL
     IN PVOID       Reserved
-    )
+)
 {
     UNREFERENCED_PARAMETER(ClassGuid);
     UNREFERENCED_PARAMETER(hwndParent);
@@ -179,11 +179,11 @@ SetupDiCreateDeviceInfoListExW(
 HDEVINFO
 WINAPI
 SetupDiCreateDeviceInfoListEx(
-    IN CONST GUID *ClassGuid,   OPTIONAL
-    IN HWND        hwndParent,  OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
+    IN HWND        hwndParent, OPTIONAL
     IN PCTSTR      MachineName, OPTIONAL
     IN PVOID       Reserved
-    )
+)
 /*++
 Routine Description:
     This API creates an empty device information set that will contain device device information member elements.
@@ -211,16 +211,16 @@ Return Value:
     CONFIGRET cr;
 
     // Make sure the user didn't pass us anything in the Reserved parameter.
-    if(Reserved) {
+    if (Reserved) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return INVALID_HANDLE_VALUE;
     }
 
-    if(DeviceInfoSet = AllocateDeviceInfoSet()) {
+    if (DeviceInfoSet = AllocateDeviceInfoSet()) {
         try {
             // If the user specified the name of a remote machine, connect to that machine now.
-            if(MachineName) {
-                if(CR_SUCCESS != (cr = CM_Connect_Machine(MachineName, &(DeviceInfoSet->hMachine)))) {
+            if (MachineName) {
+                if (CR_SUCCESS != (cr = CM_Connect_Machine(MachineName, &(DeviceInfoSet->hMachine)))) {
                     // Make sure hMachine is still NULL, so we won't try to disconnect later.
                     DeviceInfoSet->hMachine = NULL;
                     Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
@@ -228,13 +228,13 @@ Return Value:
                 }
 
                 // Store the machine name in the string table, so it can be retrieved later via SetupDiGetDeviceInfoListDetail.
-                if(-1 == (DeviceInfoSet->MachineName = pStringTableAddString(DeviceInfoSet->StringTable, (PTSTR)MachineName, STRTAB_CASE_SENSITIVE, NULL, 0))) {
+                if (-1 == (DeviceInfoSet->MachineName = pStringTableAddString(DeviceInfoSet->StringTable, (PTSTR)MachineName, STRTAB_CASE_SENSITIVE, NULL, 0))) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
                 }
             }
 
-            if(ClassGuid) {
+            if (ClassGuid) {
                 // If a class GUID was specified, then store it away in the device information set.
                 CopyMemory(&(DeviceInfoSet->ClassGuid), ClassGuid, sizeof(GUID));
                 DeviceInfoSet->HasClassGuid = TRUE;
@@ -242,7 +242,7 @@ Return Value:
 
             DeviceInfoSet->InstallParamBlock.hwndParent = hwndParent;
 
-clean0:     ;   // nothing to do.
+        clean0:;   // nothing to do.
         } except(EXCEPTION_EXECUTE_HANDLER) {
             Err = ERROR_INVALID_PARAMETER;
             // Reference the following variable so the compiler will respect statement ordering
@@ -250,7 +250,7 @@ clean0:     ;   // nothing to do.
             DeviceInfoSet->hMachine = DeviceInfoSet->hMachine;
         }
 
-        if(Err != NO_ERROR) {
+        if (Err != NO_ERROR) {
             DestroyDeviceInfoSet(NULL, DeviceInfoSet);
         }
     } else {
@@ -281,7 +281,7 @@ Return Value:
     PDEVICE_INFO_SET pDeviceInfoSet;
     DWORD Err;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -289,7 +289,7 @@ Return Value:
     Err = NO_ERROR;
 
     try {
-        if(pDeviceInfoSet->HasClassGuid) {
+        if (pDeviceInfoSet->HasClassGuid) {
             // Copy the GUID to the user-supplied buffer.
             CopyMemory(ClassGuid, &(pDeviceInfoSet->ClassGuid), sizeof(GUID));
         } else {
@@ -313,7 +313,7 @@ WINAPI
 SetupDiGetDeviceInfoListDetailA(
     IN  HDEVINFO                       DeviceInfoSet,
     OUT PSP_DEVINFO_LIST_DETAIL_DATA_A DeviceInfoSetDetailData
-    )
+)
 {
     DWORD rc;
     BOOL b;
@@ -324,9 +324,9 @@ SetupDiGetDeviceInfoListDetailA(
     b = SetupDiGetDeviceInfoListDetailW(DeviceInfoSet, &UnicodeDevInfoSetDetails);
     rc = GetLastError();
 
-    if(b) {
+    if (b) {
         rc = pSetupDiDevInfoSetDetailDataUnicodeToAnsi(&UnicodeDevInfoSetDetails, DeviceInfoSetDetailData);
-        if(rc != NO_ERROR) {
+        if (rc != NO_ERROR) {
             b = FALSE;
         }
     }
@@ -341,7 +341,7 @@ WINAPI
 SetupDiGetDeviceInfoListDetailW(
     IN  HDEVINFO                       DeviceInfoSet,
     OUT PSP_DEVINFO_LIST_DETAIL_DATA_W DeviceInfoSetDetailData
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoSetDetailData);
@@ -356,7 +356,7 @@ WINAPI
 SetupDiGetDeviceInfoListDetail(
     IN  HDEVINFO                       DeviceInfoSet,
     OUT PSP_DEVINFO_LIST_DETAIL_DATA   DeviceInfoSetDetailData
-    )
+)
 /*++
 Routine Description:
     This routine retrieves information about the specified device information set, such as its associated class (if any), and the remote machine it was opened for
@@ -415,7 +415,7 @@ Remarks:
     DWORD Err;
     PCTSTR MachineName;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -423,13 +423,13 @@ Remarks:
     Err = NO_ERROR;
 
     try {
-        if(DeviceInfoSetDetailData->cbSize != sizeof(SP_DEVINFO_LIST_DETAIL_DATA)) {
+        if (DeviceInfoSetDetailData->cbSize != sizeof(SP_DEVINFO_LIST_DETAIL_DATA)) {
             Err = ERROR_INVALID_USER_BUFFER;
             goto clean0;
         }
 
         // Store the set's associated class GUID, or GUID_NULL if there isn't one.
-        if(pDeviceInfoSet->HasClassGuid) {
+        if (pDeviceInfoSet->HasClassGuid) {
             CopyMemory(&(DeviceInfoSetDetailData->ClassGuid), &(pDeviceInfoSet->ClassGuid), sizeof(GUID));
         } else {
             CopyMemory(&(DeviceInfoSetDetailData->ClassGuid), &GUID_NULL, sizeof(GUID));
@@ -438,7 +438,7 @@ Remarks:
         DeviceInfoSetDetailData->RemoteMachineHandle = pDeviceInfoSet->hMachine;
 
         // If this is a remoted HDEVINFO, store the machine name in the caller's buffer, otherwise store an empty string.
-        if(pDeviceInfoSet->hMachine) {
+        if (pDeviceInfoSet->hMachine) {
             MYASSERT(pDeviceInfoSet->MachineName != -1);
             MachineName = pStringTableStringFromId(pDeviceInfoSet->StringTable, pDeviceInfoSet->MachineName);
             lstrcpyn(DeviceInfoSetDetailData->RemoteMachineName, MachineName, SIZECHARS(DeviceInfoSetDetailData->RemoteMachineName));
@@ -447,7 +447,7 @@ Remarks:
             *(DeviceInfoSetDetailData->RemoteMachineName) = TEXT('\0');
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
     }
@@ -474,7 +474,7 @@ Return Value:
     DWORD Err;
     PDEVICE_INFO_SET pDeviceInfoSet;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -497,30 +497,30 @@ WINAPI
 SetupDiCreateDeviceInfoA(
     IN  HDEVINFO          DeviceInfoSet,
     IN  PCSTR             DeviceName,
-    IN  CONST GUID       *ClassGuid,
+    IN  CONST GUID* ClassGuid,
     IN  PCSTR             DeviceDescription, OPTIONAL
-    IN  HWND              hwndParent,        OPTIONAL
+    IN  HWND              hwndParent, OPTIONAL
     IN  DWORD             CreationFlags,
     OUT PSP_DEVINFO_DATA  DeviceInfoData     OPTIONAL
-    )
+)
 {
-    PCWSTR deviceName,deviceDescription;
+    PCWSTR deviceName, deviceDescription;
     DWORD rc;
     BOOL b;
 
     b = FALSE;
-    rc = CaptureAndConvertAnsiArg(DeviceName,&deviceName);
-    if(rc == NO_ERROR) {
-        if(DeviceDescription) {
-            rc = CaptureAndConvertAnsiArg(DeviceDescription,&deviceDescription);
+    rc = CaptureAndConvertAnsiArg(DeviceName, &deviceName);
+    if (rc == NO_ERROR) {
+        if (DeviceDescription) {
+            rc = CaptureAndConvertAnsiArg(DeviceDescription, &deviceDescription);
         } else {
             deviceDescription = NULL;
         }
 
-        if(rc == NO_ERROR) {
+        if (rc == NO_ERROR) {
             b = SetupDiCreateDeviceInfoW(DeviceInfoSet, deviceName, ClassGuid, deviceDescription, hwndParent, CreationFlags, DeviceInfoData);
             rc = GetLastError();
-            if(deviceDescription) {
+            if (deviceDescription) {
                 MyFree(deviceDescription);
             }
         }
@@ -541,12 +541,12 @@ WINAPI
 SetupDiCreateDeviceInfoW(
     IN  HDEVINFO          DeviceInfoSet,
     IN  PCWSTR            DeviceName,
-    IN  CONST GUID       *ClassGuid,
+    IN  CONST GUID* ClassGuid,
     IN  PCWSTR            DeviceDescription, OPTIONAL
-    IN  HWND              hwndParent,        OPTIONAL
+    IN  HWND              hwndParent, OPTIONAL
     IN  DWORD             CreationFlags,
     OUT PSP_DEVINFO_DATA  DeviceInfoData     OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceName);
@@ -566,12 +566,12 @@ WINAPI
 SetupDiCreateDeviceInfo(
     IN  HDEVINFO          DeviceInfoSet,
     IN  PCTSTR            DeviceName,
-    IN  CONST GUID       *ClassGuid,
+    IN  CONST GUID* ClassGuid,
     IN  PCTSTR            DeviceDescription, OPTIONAL
-    IN  HWND              hwndParent,        OPTIONAL
+    IN  HWND              hwndParent, OPTIONAL
     IN  DWORD             CreationFlags,
     OUT PSP_DEVINFO_DATA  DeviceInfoData     OPTIONAL
-    )
+)
 /*++
 Routine Description:
     This API creates a new device information element, and adds it as a new member to the specified set.
@@ -658,12 +658,12 @@ Remarks:
     // that our assumptions about the relative lengths of these two strings continues to be valid.
     MYASSERT(GUID_STRING_LEN >= MAX_CLASS_NAME_LEN);
 
-    if(CreationFlags & ~(DICD_GENERATE_ID | DICD_INHERIT_CLASSDRVS)) {
+    if (CreationFlags & ~(DICD_GENERATE_ID | DICD_INHERIT_CLASSDRVS)) {
         SetLastError(ERROR_INVALID_FLAGS);
         return FALSE;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -678,7 +678,7 @@ Remarks:
         PrevTailDevInfoElem = pDeviceInfoSet->DeviceInfoTail;
 
         // Get a handle to the root device instance, to be used as the parent for the phantom device instance we're about to create.
-        if(CM_Locate_DevInst_Ex(&RootDevInst, NULL, CM_LOCATE_DEVINST_NORMAL, pDeviceInfoSet->hMachine) != CR_SUCCESS) {
+        if (CM_Locate_DevInst_Ex(&RootDevInst, NULL, CM_LOCATE_DEVINST_NORMAL, pDeviceInfoSet->hMachine) != CR_SUCCESS) {
             // We're really hosed if we can't get a handle to the root device instance!
             Err = ERROR_INVALID_DATA;
             goto clean0;
@@ -687,18 +687,18 @@ Remarks:
         // Create a handle to a phantom device instance.
         CmFlags = CM_CREATE_DEVINST_PHANTOM;
 
-        if(CreationFlags & DICD_GENERATE_ID) {
+        if (CreationFlags & DICD_GENERATE_ID) {
             CmFlags |= CM_CREATE_DEVINST_GENERATE_ID;
         }
 
-        if((cr = CM_Create_DevInst_Ex(&DevInst, (DEVINSTID)DeviceName, RootDevInst, CmFlags, pDeviceInfoSet->hMachine)) != CR_SUCCESS) {
+        if ((cr = CM_Create_DevInst_Ex(&DevInst, (DEVINSTID)DeviceName, RootDevInst, CmFlags, pDeviceInfoSet->hMachine)) != CR_SUCCESS) {
             // Make sure DevInst handle is still invalid, so we won't try to delete it later.
             DevInst = 0;
             Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
             goto clean0;
         }
 
-        if(NO_ERROR != (Err = pSetupAddNewDeviceInfoElement(pDeviceInfoSet, DevInst, ClassGuid, DeviceDescription, hwndParent, DIE_IS_PHANTOM, pDeviceInfoSet, &DevInfoElem))) {
+        if (NO_ERROR != (Err = pSetupAddNewDeviceInfoElement(pDeviceInfoSet, DevInst, ClassGuid, DeviceDescription, hwndParent, DIE_IS_PHANTOM, pDeviceInfoSet, &DevInfoElem))) {
             // Make sure DevInfoElem is still NULL, so we won't try to free it later.
             DevInfoElem = NULL;
             goto clean0;
@@ -706,35 +706,35 @@ Remarks:
 
         // Now, set the Class and ClassGUID properties for the new device instance.
         pSetupStringFromGuid(ClassGuid, TempString, SIZECHARS(TempString));
-        CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CLASSGUID, (PVOID)TempString, GUID_STRING_LEN * sizeof(TCHAR), 0,pDeviceInfoSet->hMachine);
+        CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CLASSGUID, (PVOID)TempString, GUID_STRING_LEN * sizeof(TCHAR), 0, pDeviceInfoSet->hMachine);
 
-        if(!IsEqualGUID(ClassGuid, &GUID_NULL) && SetupDiClassNameFromGuid(ClassGuid, TempString, SIZECHARS(TempString), &StringLen)) {
-            CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CLASS, (PVOID)TempString, StringLen * sizeof(TCHAR), 0,pDeviceInfoSet->hMachine);
+        if (!IsEqualGUID(ClassGuid, &GUID_NULL) && SetupDiClassNameFromGuid(ClassGuid, TempString, SIZECHARS(TempString), &StringLen)) {
+            CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CLASS, (PVOID)TempString, StringLen * sizeof(TCHAR), 0, pDeviceInfoSet->hMachine);
         }
 
         // If the caller wants the newly-created devinfo element to inherit the global class driver list, do that now.
-        if((CreationFlags & DICD_INHERIT_CLASSDRVS) && (pDeviceInfoSet->ClassDriverHead)) {
+        if ((CreationFlags & DICD_INHERIT_CLASSDRVS) && (pDeviceInfoSet->ClassDriverHead)) {
             // Find the global class driver list in the devinfo set's list of driver lists.
             CurDrvListObject = GetAssociatedDriverListObject(pDeviceInfoSet->ClassDrvListObjectList, pDeviceInfoSet->ClassDriverHead, NULL);
             MYASSERT(CurDrvListObject && (CurDrvListObject->RefCount > 0));
 
             // We found the driver list object, now do the inheritance, and increment the refcount.
             DevInfoElem->ClassDriverCount = pDeviceInfoSet->ClassDriverCount;
-            DevInfoElem->ClassDriverHead  = pDeviceInfoSet->ClassDriverHead;
-            DevInfoElem->ClassDriverTail  = pDeviceInfoSet->ClassDriverTail;
+            DevInfoElem->ClassDriverHead = pDeviceInfoSet->ClassDriverHead;
+            DevInfoElem->ClassDriverTail = pDeviceInfoSet->ClassDriverTail;
 
-            if(DevInfoElem->SelectedDriver = pDeviceInfoSet->SelectedClassDriver) {
+            if (DevInfoElem->SelectedDriver = pDeviceInfoSet->SelectedClassDriver) {
                 DevInfoElem->SelectedDriverType = SPDIT_CLASSDRIVER;
             }
 
-            DevInfoElem->InstallParamBlock.Flags   |= CurDrvListObject->ListCreationFlags;
+            DevInfoElem->InstallParamBlock.Flags |= CurDrvListObject->ListCreationFlags;
             DevInfoElem->InstallParamBlock.FlagsEx |= CurDrvListObject->ListCreationFlagsEx;
             DevInfoElem->InstallParamBlock.DriverPath = CurDrvListObject->ListCreationDriverPath;
 
             CurDrvListObject->RefCount++;
         }
 
-clean0:
+    clean0:
         ; // Nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -745,27 +745,27 @@ clean0:
         PrevTailDevInfoElem = PrevTailDevInfoElem;
     }
 
-    if(Err == NO_ERROR) {
-        if(DeviceInfoData) {
+    if (Err == NO_ERROR) {
+        if (DeviceInfoData) {
             // The user supplied a buffer to receive a SP_DEVINFO_DATA
             // structure, so fill that in now.
             try {
-                if(!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet, DevInfoElem, DeviceInfoData))) {
+                if (!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet, DevInfoElem, DeviceInfoData))) {
                     Err = ERROR_INVALID_USER_BUFFER;
                 }
             } except(EXCEPTION_EXECUTE_HANDLER) {
                 Err = ERROR_INVALID_USER_BUFFER;
             }
         }
-    } else if(DevInst) {
+    } else if (DevInst) {
         // BUGBUG (jamiehun 21/1/99)
         // is there anything we want to do if this fails?
         cr = CM_Uninstall_DevInst(DevInst, 0);
-        if(DevInfoElem) {
+        if (DevInfoElem) {
             // An error occurred after we created the device information element--clean it up now.
             try {
                 MYASSERT(!DevInfoElem->Next);
-                if(PrevTailDevInfoElem) {
+                if (PrevTailDevInfoElem) {
                     MYASSERT(PrevTailDevInfoElem->Next == DevInfoElem);
                     PrevTailDevInfoElem->Next = NULL;
                     pDeviceInfoSet->DeviceInfoTail = PrevTailDevInfoElem;
@@ -797,17 +797,17 @@ WINAPI
 SetupDiOpenDeviceInfoA(
     IN  HDEVINFO         DeviceInfoSet,
     IN  PCSTR            DeviceInstanceId,
-    IN  HWND             hwndParent,        OPTIONAL
+    IN  HWND             hwndParent, OPTIONAL
     IN  DWORD            OpenFlags,
     OUT PSP_DEVINFO_DATA DeviceInfoData     OPTIONAL
-    )
+)
 {
     PCWSTR deviceInstanceId;
     DWORD rc;
     BOOL b;
 
-    rc = CaptureAndConvertAnsiArg(DeviceInstanceId,&deviceInstanceId);
-    if(rc == NO_ERROR) {
+    rc = CaptureAndConvertAnsiArg(DeviceInstanceId, &deviceInstanceId);
+    if (rc == NO_ERROR) {
         b = SetupDiOpenDeviceInfoW(DeviceInfoSet, deviceInstanceId, hwndParent, OpenFlags, DeviceInfoData);
         rc = GetLastError();
         MyFree(deviceInstanceId);
@@ -825,10 +825,10 @@ WINAPI
 SetupDiOpenDeviceInfoW(
     IN  HDEVINFO         DeviceInfoSet,
     IN  PCWSTR           DeviceInstanceId,
-    IN  HWND             hwndParent,        OPTIONAL
+    IN  HWND             hwndParent, OPTIONAL
     IN  DWORD            OpenFlags,
     OUT PSP_DEVINFO_DATA DeviceInfoData     OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInstanceId);
@@ -846,10 +846,10 @@ WINAPI
 SetupDiOpenDeviceInfo(
     IN  HDEVINFO         DeviceInfoSet,
     IN  PCTSTR           DeviceInstanceId,
-    IN  HWND             hwndParent,       OPTIONAL
+    IN  HWND             hwndParent, OPTIONAL
     IN  DWORD            OpenFlags,
     OUT PSP_DEVINFO_DATA DeviceInfoData    OPTIONAL
-    )
+)
 /*++
 Routine Description:
     This API retrieves information about an existing device instance, and adds it to the specified device information set.
@@ -915,12 +915,12 @@ Remarks:
     PDRIVER_LIST_OBJECT CurDrvListObject;
     BOOL AlreadyPresent;
 
-    if(OpenFlags & ~(DIOD_INHERIT_CLASSDRVS | DIOD_CANCEL_REMOVE)) {
+    if (OpenFlags & ~(DIOD_INHERIT_CLASSDRVS | DIOD_CANCEL_REMOVE)) {
         SetLastError(ERROR_INVALID_FLAGS);
         return FALSE;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -939,19 +939,19 @@ Remarks:
                                              FALSE,
                                              ((OpenFlags & DIOD_CANCEL_REMOVE) ? CM_LOCATE_DEVNODE_CANCELREMOVE : 0),
                                              pDeviceInfoSet
-                                            );
-        if(Err != NO_ERROR) {
+        );
+        if (Err != NO_ERROR) {
             goto clean0;
         }
 
         // If the caller wants the newly-opened devinfo element to inherit the global class driver list, do that now.
-        if(OpenFlags & DIOD_INHERIT_CLASSDRVS) {
+        if (OpenFlags & DIOD_INHERIT_CLASSDRVS) {
             // If this devinfo element already existed, then it may already have a class
             // driver list.  Destroy that list before inheriting from the global class
             // driver list.
-            if(AlreadyPresent) {
+            if (AlreadyPresent) {
                 // If the selected driver is a class driver, then reset the selection.
-                if(DevInfoElem->SelectedDriverType == SPDIT_CLASSDRIVER) {
+                if (DevInfoElem->SelectedDriverType == SPDIT_CLASSDRIVER) {
                     DevInfoElem->SelectedDriverType = SPDIT_NODRIVER;
                     DevInfoElem->SelectedDriver = NULL;
                 }
@@ -960,11 +960,11 @@ Remarks:
                 DereferenceClassDriverList(pDeviceInfoSet, DevInfoElem->ClassDriverHead);
                 DevInfoElem->ClassDriverCount = 0;
                 DevInfoElem->ClassDriverHead = DevInfoElem->ClassDriverTail = NULL;
-                DevInfoElem->InstallParamBlock.Flags   &= ~(DI_DIDCLASS | DI_MULTMFGS);
+                DevInfoElem->InstallParamBlock.Flags &= ~(DI_DIDCLASS | DI_MULTMFGS);
                 DevInfoElem->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDINFOLIST;
             }
 
-            if(pDeviceInfoSet->ClassDriverHead) {
+            if (pDeviceInfoSet->ClassDriverHead) {
                 // Find the global class driver list in the devinfo set's list of driver lists.
                 CurDrvListObject = GetAssociatedDriverListObject(pDeviceInfoSet->ClassDrvListObjectList, pDeviceInfoSet->ClassDriverHead, NULL);
                 MYASSERT(CurDrvListObject && (CurDrvListObject->RefCount > 0));
@@ -973,30 +973,30 @@ Remarks:
                 CurDrvListObject->RefCount++;
 
                 DevInfoElem->ClassDriverCount = pDeviceInfoSet->ClassDriverCount;
-                DevInfoElem->ClassDriverHead  = pDeviceInfoSet->ClassDriverHead;
-                DevInfoElem->ClassDriverTail  = pDeviceInfoSet->ClassDriverTail;
+                DevInfoElem->ClassDriverHead = pDeviceInfoSet->ClassDriverHead;
+                DevInfoElem->ClassDriverTail = pDeviceInfoSet->ClassDriverTail;
 
-                if(pDeviceInfoSet->SelectedClassDriver) {
+                if (pDeviceInfoSet->SelectedClassDriver) {
                     DevInfoElem->SelectedDriver = pDeviceInfoSet->SelectedClassDriver;
                     DevInfoElem->SelectedDriverType = SPDIT_CLASSDRIVER;
                 }
 
-                DevInfoElem->InstallParamBlock.Flags   |= CurDrvListObject->ListCreationFlags;
+                DevInfoElem->InstallParamBlock.Flags |= CurDrvListObject->ListCreationFlags;
                 DevInfoElem->InstallParamBlock.FlagsEx |= CurDrvListObject->ListCreationFlagsEx;
                 DevInfoElem->InstallParamBlock.DriverPath = CurDrvListObject->ListCreationDriverPath;
             }
         }
 
-clean0: ;   // nothing to do
+    clean0:;   // nothing to do
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
     }
 
-    if((Err == NO_ERROR) && DeviceInfoData) {
+    if ((Err == NO_ERROR) && DeviceInfoData) {
         // The user supplied a buffer to receive a SP_DEVINFO_DATA
         // structure, so fill that in now.
         try {
-            if(!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet, DevInfoElem, DeviceInfoData))) {
+            if (!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet, DevInfoElem, DeviceInfoData))) {
                 Err = ERROR_INVALID_USER_BUFFER;
             }
         } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -1016,19 +1016,19 @@ clean0: ;   // nothing to do
 HDEVINFO
 WINAPI
 SetupDiGetClassDevsA(
-    IN CONST GUID *ClassGuid,  OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
     IN PCSTR       Enumerator, OPTIONAL
     IN HWND        hwndParent, OPTIONAL
     IN DWORD       Flags
-    )
+)
 {
     PCWSTR enumerator;
     DWORD rc;
     HDEVINFO h;
 
-    if(Enumerator) {
-        rc = CaptureAndConvertAnsiArg(Enumerator,&enumerator);
-        if(rc != NO_ERROR) {
+    if (Enumerator) {
+        rc = CaptureAndConvertAnsiArg(Enumerator, &enumerator);
+        if (rc != NO_ERROR) {
             SetLastError(rc);
             return INVALID_HANDLE_VALUE;
         }
@@ -1038,7 +1038,7 @@ SetupDiGetClassDevsA(
 
     h = SetupDiGetClassDevsExW(ClassGuid, enumerator, hwndParent, Flags, NULL, NULL, NULL);
     rc = GetLastError();
-    if(enumerator) {
+    if (enumerator) {
         MyFree(enumerator);
     }
 
@@ -1050,11 +1050,11 @@ SetupDiGetClassDevsA(
 HDEVINFO
 WINAPI
 SetupDiGetClassDevsW(
-    IN CONST GUID *ClassGuid,  OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
     IN PCWSTR      Enumerator, OPTIONAL
     IN HWND        hwndParent, OPTIONAL
     IN DWORD       Flags
-    )
+)
 {
     UNREFERENCED_PARAMETER(ClassGuid);
     UNREFERENCED_PARAMETER(Enumerator);
@@ -1069,11 +1069,11 @@ SetupDiGetClassDevsW(
 HDEVINFO
 WINAPI
 SetupDiGetClassDevs(
-    IN CONST GUID *ClassGuid,  OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
     IN PCTSTR      Enumerator, OPTIONAL
     IN HWND        hwndParent, OPTIONAL
     IN DWORD       Flags
-    )
+)
 /*++
 Routine Description:
     See SetupDiGetClassDevsEx for details.
@@ -1088,14 +1088,14 @@ Routine Description:
 HDEVINFO
 WINAPI
 SetupDiGetClassDevsExA(
-    IN CONST GUID *ClassGuid,     OPTIONAL
-    IN PCSTR       Enumerator,    OPTIONAL
-    IN HWND        hwndParent,    OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
+    IN PCSTR       Enumerator, OPTIONAL
+    IN HWND        hwndParent, OPTIONAL
     IN DWORD       Flags,
     IN HDEVINFO    DeviceInfoSet, OPTIONAL
-    IN PCSTR       MachineName,   OPTIONAL
+    IN PCSTR       MachineName, OPTIONAL
     IN PVOID       Reserved
-    )
+)
 {
     PCWSTR UnicodeEnumerator, UnicodeMachineName;
     DWORD rc;
@@ -1103,18 +1103,18 @@ SetupDiGetClassDevsExA(
 
     h = INVALID_HANDLE_VALUE;
 
-    if(Enumerator) {
+    if (Enumerator) {
         rc = CaptureAndConvertAnsiArg(Enumerator, &UnicodeEnumerator);
-        if(rc != NO_ERROR) {
+        if (rc != NO_ERROR) {
             goto clean0;
         }
     } else {
         UnicodeEnumerator = NULL;
     }
 
-    if(MachineName) {
-        rc = CaptureAndConvertAnsiArg(MachineName,&UnicodeMachineName);
-        if(rc != NO_ERROR) {
+    if (MachineName) {
+        rc = CaptureAndConvertAnsiArg(MachineName, &UnicodeMachineName);
+        if (rc != NO_ERROR) {
             goto clean1;
         }
     } else {
@@ -1124,12 +1124,12 @@ SetupDiGetClassDevsExA(
     h = SetupDiGetClassDevsExW(ClassGuid, UnicodeEnumerator, hwndParent, Flags, DeviceInfoSet, UnicodeMachineName, Reserved);
     rc = GetLastError();
 
-    if(UnicodeMachineName) {
+    if (UnicodeMachineName) {
         MyFree(UnicodeMachineName);
     }
 
 clean1:
-    if(UnicodeEnumerator) {
+    if (UnicodeEnumerator) {
         MyFree(UnicodeEnumerator);
     }
 
@@ -1142,14 +1142,14 @@ clean0:
 HDEVINFO
 WINAPI
 SetupDiGetClassDevsExW(
-    IN CONST GUID *ClassGuid,     OPTIONAL
-    IN PCWSTR      Enumerator,    OPTIONAL
-    IN HWND        hwndParent,    OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
+    IN PCWSTR      Enumerator, OPTIONAL
+    IN HWND        hwndParent, OPTIONAL
     IN DWORD       Flags,
     IN HDEVINFO    DeviceInfoSet, OPTIONAL
-    IN PCWSTR      MachineName,   OPTIONAL
+    IN PCWSTR      MachineName, OPTIONAL
     IN PVOID       Reserved
-    )
+)
 {
     UNREFERENCED_PARAMETER(ClassGuid);
     UNREFERENCED_PARAMETER(Enumerator);
@@ -1167,14 +1167,14 @@ SetupDiGetClassDevsExW(
 HDEVINFO
 WINAPI
 SetupDiGetClassDevsEx(
-    IN CONST GUID *ClassGuid,     OPTIONAL
-    IN PCTSTR      Enumerator,    OPTIONAL
-    IN HWND        hwndParent,    OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
+    IN PCTSTR      Enumerator, OPTIONAL
+    IN HWND        hwndParent, OPTIONAL
     IN DWORD       Flags,
     IN HDEVINFO    DeviceInfoSet, OPTIONAL
-    IN PCTSTR      MachineName,   OPTIONAL
+    IN PCTSTR      MachineName, OPTIONAL
     IN PVOID       Reserved
-    )
+)
 /*++
 Routine Description:
     This routine returns a device information set containing all installed devices of the specified class.
@@ -1304,32 +1304,32 @@ Return Value:
     DWORD RegDataType, DataBufferSize;
     BOOL DevInfoAlreadyPresent, IsActive;
     SP_DEVINFO_DATA DeviceInfoData;
-    CONST GUID * ExistingClassGuid;
+    CONST GUID* ExistingClassGuid;
 
     // Make sure the user didn't pass us anything in the Reserved parameter.
-    if(Reserved) {
+    if (Reserved) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return INVALID_HANDLE_VALUE;
     }
 
     // Unless the caller wants a list of all classes, they'd better supply a class GUID.
-    if(!(Flags & DIGCF_ALLCLASSES) && !ClassGuid) {
+    if (!(Flags & DIGCF_ALLCLASSES) && !ClassGuid) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return INVALID_HANDLE_VALUE;
     }
 
     // DIGCF_DEFAULT can only be used in conjunction with DIGCF_DEVICEINTERFACE.
-    if((Flags & (DIGCF_DEFAULT | DIGCF_DEVICEINTERFACE)) == DIGCF_DEFAULT) {
+    if ((Flags & (DIGCF_DEFAULT | DIGCF_DEVICEINTERFACE)) == DIGCF_DEFAULT) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return INVALID_HANDLE_VALUE;
     }
 
-    if(!DeviceInfoSet || (DeviceInfoSet == INVALID_HANDLE_VALUE)) {
+    if (!DeviceInfoSet || (DeviceInfoSet == INVALID_HANDLE_VALUE)) {
         // The caller didn't supply us with a device information set in which to add our newly-retrieved elements, so we need to create our own.
-        if((hDevInfo = SetupDiCreateDeviceInfoListEx((Flags & (DIGCF_ALLCLASSES | DIGCF_DEVICEINTERFACE)) ? NULL : ClassGuid,
-                                                     hwndParent,
-                                                     MachineName,
-                                                     NULL)) == INVALID_HANDLE_VALUE) {
+        if ((hDevInfo = SetupDiCreateDeviceInfoListEx((Flags & (DIGCF_ALLCLASSES | DIGCF_DEVICEINTERFACE)) ? NULL : ClassGuid,
+                                                      hwndParent,
+                                                      MachineName,
+                                                      NULL)) == INVALID_HANDLE_VALUE) {
             // Last error already set.
             return INVALID_HANDLE_VALUE;
         }
@@ -1343,7 +1343,7 @@ Return Value:
         // as doing so will get the original out-of-sync with the current copy we're working with.
         hDevInfo = NULL;
         pDeviceInfoSet = CloneDeviceInfoSet(DeviceInfoSet);
-        if(!pDeviceInfoSet) {
+        if (!pDeviceInfoSet) {
             // Last error already set.
             return INVALID_HANDLE_VALUE;
         }
@@ -1357,19 +1357,19 @@ Return Value:
         // If the caller supplied us with a previously-existing devinfo set in
         // which to add new elements, we need to make sure that the setup class
         // GUID associated with this devinfo set (if any) matches the setup class GUID that the caller supplied.
-        if(hDevInfo) {
+        if (hDevInfo) {
             // We always want the ExistingClassGuid pointer to be NULL when we
             // haven't been passed in a previously-existing device information set.
             ExistingClassGuid = NULL;
         } else {
-            if(pDeviceInfoSet->HasClassGuid) {
+            if (pDeviceInfoSet->HasClassGuid) {
                 // Remember the devinfo set's associated setup class GUID, to
                 // be used later in filtering device interfaces based on the
                 // setup class of their underlying devnode.
                 ExistingClassGuid = &(pDeviceInfoSet->ClassGuid);
 
-                if(ClassGuid && !(Flags & (DIGCF_ALLCLASSES | DIGCF_DEVICEINTERFACE))) {
-                    if(!IsEqualGUID(ExistingClassGuid, ClassGuid)) {
+                if (ClassGuid && !(Flags & (DIGCF_ALLCLASSES | DIGCF_DEVICEINTERFACE))) {
+                    if (!IsEqualGUID(ExistingClassGuid, ClassGuid)) {
                         Err = ERROR_CLASS_MISMATCH;
                         goto clean0;
                     }
@@ -1382,21 +1382,21 @@ Return Value:
             }
         }
 
-        if(GetInterfaceList = (Flags & DIGCF_DEVICEINTERFACE)) {  // yes, we want an assignment here.
+        if (GetInterfaceList = (Flags & DIGCF_DEVICEINTERFACE)) {  // yes, we want an assignment here.
             // Open the root of the DeviceClasses registry branch
             hKeyDevClassRoot = SetupDiOpenClassRegKeyEx(NULL, KEY_READ, DIOCR_INTERFACE, NULL, NULL);
 
-            if(hKeyDevClassRoot == INVALID_HANDLE_VALUE) {
+            if (hKeyDevClassRoot == INVALID_HANDLE_VALUE) {
                 Err = GetLastError();
                 goto clean0;
             }
 
-            if(Flags & DIGCF_ALLCLASSES) {
+            if (Flags & DIGCF_ALLCLASSES) {
                 InterfaceClassKeyIndex = 0;
                 ClassGuid = &GuidBuffer;
             }
 
-            if(Flags & DIGCF_PRESENT) {
+            if (Flags & DIGCF_PRESENT) {
                 // Since we're only going to be retrieving a list of device
                 // interfaces that are currently 'active', we can set the
                 // 'IsActive' flag to always be TRUE.
@@ -1409,31 +1409,31 @@ Return Value:
         DevIdBufferLen = 16384;
 
         do {
-            if(GetInterfaceList) {
-                if(Flags & DIGCF_ALLCLASSES) {
+            if (GetInterfaceList) {
+                if (Flags & DIGCF_ALLCLASSES) {
                     // We have to enumerate through all interface device classes, and retrieve
                     // a list of device interfaces for each one.
                     DataBufferSize = SIZECHARS(InterfaceGuidString);
 
-                    switch(RegEnumKeyEx(hKeyDevClassRoot, InterfaceClassKeyIndex, InterfaceGuidString, &DataBufferSize, NULL, NULL, NULL, &LastWriteTime)) {
-                        case ERROR_SUCCESS :
-                            GetNextInterfaceClass = TRUE;
-                            InterfaceClassKeyIndex++;
-                            break;
-                        case ERROR_NO_MORE_ITEMS :
-                            // We've processed all of the interface class GUIDs--we're done.
-                            GetNextInterfaceClass = FALSE;
-                            continue;
-                        default :
-                            // Some other error occurred.  Skip this subkey, and continue
-                            // with the next one.
-                            GetNextInterfaceClass = TRUE;
-                            InterfaceClassKeyIndex++;
-                            continue;
+                    switch (RegEnumKeyEx(hKeyDevClassRoot, InterfaceClassKeyIndex, InterfaceGuidString, &DataBufferSize, NULL, NULL, NULL, &LastWriteTime)) {
+                    case ERROR_SUCCESS:
+                        GetNextInterfaceClass = TRUE;
+                        InterfaceClassKeyIndex++;
+                        break;
+                    case ERROR_NO_MORE_ITEMS:
+                        // We've processed all of the interface class GUIDs--we're done.
+                        GetNextInterfaceClass = FALSE;
+                        continue;
+                    default:
+                        // Some other error occurred.  Skip this subkey, and continue
+                        // with the next one.
+                        GetNextInterfaceClass = TRUE;
+                        InterfaceClassKeyIndex++;
+                        continue;
                     }
 
                     // Convert the GUID string retrieved above into its binary form, for use below.
-                    if(pSetupGuidFromString(InterfaceGuidString, &GuidBuffer) != NO_ERROR) {
+                    if (pSetupGuidFromString(InterfaceGuidString, &GuidBuffer) != NO_ERROR) {
                         // The subkey we enumerated is not a valid GUID string--skip this
                         // subkey, and continue on with the next one.
                         continue;
@@ -1456,32 +1456,32 @@ Return Value:
             }
 
             // Retrieve a list of device names.
-            while(TRUE) {
-                if(!DevIdBuffer) {
-                    if(!(DevIdBuffer = MyMalloc(DevIdBufferLen * sizeof(TCHAR)))) {
+            while (TRUE) {
+                if (!DevIdBuffer) {
+                    if (!(DevIdBuffer = MyMalloc(DevIdBufferLen * sizeof(TCHAR)))) {
                         Err = ERROR_NOT_ENOUGH_MEMORY;
                         goto clean0;
                     }
                 }
 
-                if(GetInterfaceList) {
+                if (GetInterfaceList) {
                     cr = CM_Get_Device_Interface_List_Ex((LPGUID)ClassGuid,
-                                                         (DEVINSTID)Enumerator,
+                        (DEVINSTID)Enumerator,
                                                          DevIdBuffer,
                                                          DevIdBufferLen,
                                                          (Flags & DIGCF_PRESENT) ? CM_GET_DEVICE_INTERFACE_LIST_PRESENT : CM_GET_DEVICE_INTERFACE_LIST_ALL_DEVICES,
                                                          pDeviceInfoSet->hMachine
-                                                        );
+                    );
                 } else {
                     cr = CM_Get_Device_ID_List_Ex(Enumerator,
                                                   DevIdBuffer,
                                                   DevIdBufferLen,
                                                   Enumerator ? CM_GETIDLIST_FILTER_ENUMERATOR : CM_GETIDLIST_FILTER_NONE,
                                                   pDeviceInfoSet->hMachine
-                                                 );
+                    );
                 }
 
-                if(cr == CR_SUCCESS) {
+                if (cr == CR_SUCCESS) {
                     // Device list successfully retrieved!
                     break;
                 } else {
@@ -1489,25 +1489,25 @@ Return Value:
                     MyFree(DevIdBuffer);
                     DevIdBuffer = NULL;
 
-                    if(cr == CR_BUFFER_SMALL) {
+                    if (cr == CR_BUFFER_SMALL) {
                         // OK, so our buffer wasn't big enough--just how big
                         // does it need to be?
-                        if(GetInterfaceList) {
-                            if(CM_Get_Device_Interface_List_Size_Ex(&DevIdBufferLen,
-                                                                    (LPGUID)ClassGuid,
-                                                                    (DEVINSTID)Enumerator,
-                                                                    (Flags & DIGCF_PRESENT) ? CM_GET_DEVICE_INTERFACE_LIST_PRESENT : CM_GET_DEVICE_INTERFACE_LIST_ALL_DEVICES,
-                                                                    pDeviceInfoSet->hMachine) != CR_SUCCESS) {
+                        if (GetInterfaceList) {
+                            if (CM_Get_Device_Interface_List_Size_Ex(&DevIdBufferLen,
+                                (LPGUID)ClassGuid,
+                                                                     (DEVINSTID)Enumerator,
+                                                                     (Flags & DIGCF_PRESENT) ? CM_GET_DEVICE_INTERFACE_LIST_PRESENT : CM_GET_DEVICE_INTERFACE_LIST_ALL_DEVICES,
+                                                                     pDeviceInfoSet->hMachine) != CR_SUCCESS) {
                                 // Couldn't retrieve the list size--this should
                                 // never happen.
                                 Err = ERROR_INVALID_DATA;
                                 goto clean0;
                             }
                         } else {
-                            if(CM_Get_Device_ID_List_Size_Ex(&DevIdBufferLen,
-                                                          Enumerator,
-                                                          Enumerator ? CM_GETIDLIST_FILTER_ENUMERATOR : CM_GETIDLIST_FILTER_NONE,
-                                                          pDeviceInfoSet->hMachine) != CR_SUCCESS) {
+                            if (CM_Get_Device_ID_List_Size_Ex(&DevIdBufferLen,
+                                                              Enumerator,
+                                                              Enumerator ? CM_GETIDLIST_FILTER_ENUMERATOR : CM_GETIDLIST_FILTER_NONE,
+                                                              pDeviceInfoSet->hMachine) != CR_SUCCESS) {
                                 // Couldn't retrieve the list size--this should
                                 // never happen.
                                 Err = ERROR_INVALID_DATA;
@@ -1525,8 +1525,8 @@ Return Value:
 
             // We have now retrieved a list of all the specified devices.  If
             // these are device interfaces, we need to open the key for this interface class underneath the DeviceClasses key.
-            if(GetInterfaceList) {
-                if(RegOpenKeyEx(hKeyDevClassRoot, InterfaceGuidString, 0, KEY_READ, &hKeyCurDevClass) != ERROR_SUCCESS) {
+            if (GetInterfaceList) {
+                if (RegOpenKeyEx(hKeyDevClassRoot, InterfaceGuidString, 0, KEY_READ, &hKeyCurDevClass) != ERROR_SUCCESS) {
                     // Make sure hKeyCurDevClass is still set to
                     // INVALID_HANDLE_VALUE, so that we'll know not to close it.
                     hKeyCurDevClass = INVALID_HANDLE_VALUE;
@@ -1536,10 +1536,10 @@ Return Value:
             }
 
             // Now create device information elements from the members of this list.
-            for(CurDevId = DevIdBuffer; *CurDevId; CurDevId += lstrlen(CurDevId) + 1) {
+            for (CurDevId = DevIdBuffer; *CurDevId; CurDevId += lstrlen(CurDevId) + 1) {
                 // If this is a device interface, we must retrieve the associated device instance name.
-                if(GetInterfaceList) {
-                    if(NO_ERROR != pSetupGetDevInstNameAndStatusForInterfaceDevice(hKeyCurDevClass, CurDevId, DeviceInstanceId, SIZECHARS(DeviceInstanceId), (Flags & DIGCF_PRESENT) ? NULL : &IsActive)) {
+                if (GetInterfaceList) {
+                    if (NO_ERROR != pSetupGetDevInstNameAndStatusForInterfaceDevice(hKeyCurDevClass, CurDevId, DeviceInstanceId, SIZECHARS(DeviceInstanceId), (Flags & DIGCF_PRESENT) ? NULL : &IsActive)) {
                         // Couldn't retrieve the name of the owning device
                         // instance--skip this device interface.
                         continue;
@@ -1548,11 +1548,11 @@ Return Value:
                     DeviceInstanceToOpen = CurDevId;
                 }
 
-                if(Flags & DIGCF_PROFILE) {
+                if (Flags & DIGCF_PROFILE) {
                     // Verify that this device instance is part of the current
                     // hardware profile.
-                    if(CM_Get_HW_Prof_Flags_Ex(DeviceInstanceToOpen, 0, &CSConfigFlags, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
-                        if(CSConfigFlags & CSCONFIGFLAG_DO_NOT_CREATE) {
+                    if (CM_Get_HW_Prof_Flags_Ex(DeviceInstanceToOpen, 0, &CSConfigFlags, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                        if (CSConfigFlags & CSCONFIGFLAG_DO_NOT_CREATE) {
                             continue;
                         }
                     }
@@ -1583,9 +1583,9 @@ Return Value:
                                                      FALSE,
                                                      0,
                                                      (hDevInfo ? pDeviceInfoSet : (PDEVICE_INFO_SET)DeviceInfoSet)
-                                                    );
-                if(Err != NO_ERROR) {
-                    if(Err == ERROR_NOT_ENOUGH_MEMORY) {
+                );
+                if (Err != NO_ERROR) {
+                    if (Err == ERROR_NOT_ENOUGH_MEMORY) {
                         goto clean0;
                     }
 
@@ -1593,10 +1593,10 @@ Return Value:
                     continue;
                 }
 
-                if(GetInterfaceList) {
+                if (GetInterfaceList) {
                     // Now that we've successfully opened up the device instance that 'owns'
                     // this device interface, add a new interface device node onto this devinfo element's list.
-                    if(NO_ERROR != (Err = pSetupAddInterfaceDeviceToDevInfoElem(pDeviceInfoSet, DevInfoElem, ClassGuid, CurDevId, IsActive, !hDevInfo, FALSE, NULL))) {
+                    if (NO_ERROR != (Err = pSetupAddInterfaceDeviceToDevInfoElem(pDeviceInfoSet, DevInfoElem, ClassGuid, CurDevId, IsActive, !hDevInfo, FALSE, NULL))) {
                         // The only error we should be getting back from this routine is out-of-memory, which is always a fatal error.
                         goto clean0;
                     }
@@ -1604,18 +1604,18 @@ Return Value:
             }
 
             // If we're working with interface devices, we need to close the interface class key we opened above.
-            if(GetInterfaceList) {
+            if (GetInterfaceList) {
                 RegCloseKey(hKeyCurDevClass);
                 hKeyCurDevClass = INVALID_HANDLE_VALUE;
             }
-        } while(GetNextInterfaceClass);
+        } while (GetNextInterfaceClass);
 
-clean0:
+    clean0:
         ; // Nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
 
-        if(hKeyCurDevClass != INVALID_HANDLE_VALUE) {
+        if (hKeyCurDevClass != INVALID_HANDLE_VALUE) {
             RegCloseKey(hKeyCurDevClass);
         }
 
@@ -1624,16 +1624,16 @@ clean0:
         hKeyDevClassRoot = hKeyDevClassRoot;
     }
 
-    if(DevIdBuffer) {
+    if (DevIdBuffer) {
         MyFree(DevIdBuffer);
     }
 
-    if(hKeyDevClassRoot != INVALID_HANDLE_VALUE) {
+    if (hKeyDevClassRoot != INVALID_HANDLE_VALUE) {
         RegCloseKey(hKeyDevClassRoot);
     }
 
-    if(Err != NO_ERROR) {
-        if(hDevInfo) {
+    if (Err != NO_ERROR) {
+        if (hDevInfo) {
             DestroyDeviceInfoSet(hDevInfo, pDeviceInfoSet);
         } else {
             pDeviceInfoSet = RollbackDeviceInfoSet(DeviceInfoSet, pDeviceInfoSet);
@@ -1643,7 +1643,7 @@ clean0:
         SetLastError(Err);
         hDevInfo = INVALID_HANDLE_VALUE;
     } else {
-        if(!hDevInfo) {
+        if (!hDevInfo) {
             // We retrieved additional elements into an existing device
             // information set.  Replace the existing device information set
             // with the new one (i.e., into the same handle), and return the
@@ -1667,13 +1667,13 @@ DWORD
 pSetupAddNewDeviceInfoElement(
     IN  PDEVICE_INFO_SET pDeviceInfoSet,
     IN  DEVINST          DevInst,
-    IN  CONST GUID      *ClassGuid,
-    IN  PCTSTR           Description,             OPTIONAL
-    IN  HWND             hwndParent,              OPTIONAL
+    IN  CONST GUID* ClassGuid,
+    IN  PCTSTR           Description, OPTIONAL
+    IN  HWND             hwndParent, OPTIONAL
     IN  DWORD            DiElemFlags,
     IN  PDEVICE_INFO_SET ContainingDeviceInfoSet,
-    OUT PDEVINFO_ELEM   *DeviceInfoElement
-    )
+    OUT PDEVINFO_ELEM* DeviceInfoElement
+)
 /*++
 Routine Description:
     This routine creates a new device information element based on the
@@ -1714,13 +1714,13 @@ Remarks:
     try {
         // If there is a class associated with this device information set,
         // verify that it is the same as that of the new element.
-        if(pDeviceInfoSet->HasClassGuid && !IsEqualGUID(&(pDeviceInfoSet->ClassGuid), ClassGuid)) {
+        if (pDeviceInfoSet->HasClassGuid && !IsEqualGUID(&(pDeviceInfoSet->ClassGuid), ClassGuid)) {
             Err = ERROR_CLASS_MISMATCH;
             goto clean0;
         }
 
         // Allocate storage for the element.
-        if(!(*DeviceInfoElement = MyMalloc(sizeof(DEVINFO_ELEM)))) {
+        if (!(*DeviceInfoElement = MyMalloc(sizeof(DEVINFO_ELEM)))) {
             Err = ERROR_NOT_ENOUGH_MEMORY;
             goto clean0;
         }
@@ -1736,7 +1736,7 @@ Remarks:
         CopyMemory(&((*DeviceInfoElement)->ClassGuid), ClassGuid, sizeof(GUID));
         (*DeviceInfoElement)->InstallParamBlock.hwndParent = hwndParent;
 
-        if(Description) {
+        if (Description) {
             // Set the device instance's DeviceDesc property to the specified description.
             CM_Set_DevInst_Registry_Property_Ex(DevInst, CM_DRP_DEVICEDESC, Description, (lstrlen(Description) + 1) * sizeof(TCHAR), 0, pDeviceInfoSet->hMachine);
 
@@ -1744,14 +1744,14 @@ Remarks:
             // and the other case-insensitive (for fast lookup).
             lstrcpyn(TempString, Description, SIZECHARS(TempString));
 
-            if((((*DeviceInfoElement)->DeviceDescriptionDisplayName = pStringTableAddString(pDeviceInfoSet->StringTable,
-                                            TempString,
-                                            STRTAB_CASE_SENSITIVE,
-                                            NULL,0)) == -1) ||
-               (((*DeviceInfoElement)->DeviceDescription = pStringTableAddString(pDeviceInfoSet->StringTable,
-                                            TempString,
-                                            STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
-                                            NULL,0)) == -1)) {
+            if ((((*DeviceInfoElement)->DeviceDescriptionDisplayName = pStringTableAddString(pDeviceInfoSet->StringTable,
+                                                                                             TempString,
+                                                                                             STRTAB_CASE_SENSITIVE,
+                                                                                             NULL, 0)) == -1) ||
+                                                                                             (((*DeviceInfoElement)->DeviceDescription = pStringTableAddString(pDeviceInfoSet->StringTable,
+                                                                                                                                                               TempString,
+                                                                                                                                                               STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
+                                                                                                                                                               NULL, 0)) == -1)) {
                 Err = ERROR_NOT_ENOUGH_MEMORY;
                 goto clean0;
             }
@@ -1765,13 +1765,13 @@ Remarks:
         (*DeviceInfoElement)->InstallParamBlock.CoInstallerCount = -1;
 
         // If we're in GUI-mode setup on Windows NT, we'll automatically set the DI_FLAGSEX_IN_SYSTEM_SETUP flag in the devinstall parameter block for this devinfo element.
-        if(GuiSetupInProgress) {
+        if (GuiSetupInProgress) {
             (*DeviceInfoElement)->InstallParamBlock.FlagsEx |= DI_FLAGSEX_IN_SYSTEM_SETUP;
         }
 
         // If we're in non-interactive mode, set the "be quiet" bits.
-        if(GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
-            (*DeviceInfoElement)->InstallParamBlock.Flags   |= DI_QUIETINSTALL;
+        if (GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
+            (*DeviceInfoElement)->InstallParamBlock.Flags |= DI_QUIETINSTALL;
             (*DeviceInfoElement)->InstallParamBlock.FlagsEx |= DI_FLAGSEX_NOUIONQUERYREMOVE;
         }
 
@@ -1780,7 +1780,7 @@ Remarks:
         (*DeviceInfoElement)->CompatDriverEnumHintIndex = INVALID_ENUM_INDEX;
 
         // Create a log context separate from the parent.
-        if(CreateLogContext(NULL, &(*DeviceInfoElement)->InstallParamBlock.LogContext) != NO_ERROR) {
+        if (CreateLogContext(NULL, &(*DeviceInfoElement)->InstallParamBlock.LogContext) != NO_ERROR) {
             // if it failed, we will inheret the log context, since it's better than nothing
             // in theory, this should never happen, or if it does, other things will fail too
             (*DeviceInfoElement)->InstallParamBlock.LogContext = NULL;
@@ -1793,22 +1793,22 @@ Remarks:
 
         // Now, insert the new element at the end of the device
         // information set's list of elements.
-        if(pDeviceInfoSet->DeviceInfoHead) {
+        if (pDeviceInfoSet->DeviceInfoHead) {
             pDeviceInfoSet->DeviceInfoTail->Next = *DeviceInfoElement;
             pDeviceInfoSet->DeviceInfoTail = *DeviceInfoElement;
         } else {
             pDeviceInfoSet->DeviceInfoHead =
-            pDeviceInfoSet->DeviceInfoTail = *DeviceInfoElement;
+                pDeviceInfoSet->DeviceInfoTail = *DeviceInfoElement;
         }
         pDeviceInfoSet->DeviceInfoCount++;
 
-clean0:
+    clean0:
         ; // Nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
     }
 
-    if((Err != NO_ERROR) && *DeviceInfoElement) {
+    if ((Err != NO_ERROR) && *DeviceInfoElement) {
         MyFree(*DeviceInfoElement);
         *DeviceInfoElement = NULL;
     }
@@ -1822,7 +1822,7 @@ pSetupClassGuidFromDevInst(
     IN  DEVINST DevInst,
     IN  HMACHINE hMachine,
     OUT LPGUID  ClassGuid
-    )
+)
 /*++
 
 Routine Description:
@@ -1854,13 +1854,13 @@ Return Value:
     DWORD StringSize;
 
     StringSize = sizeof(TempString);
-    if(CM_Get_DevInst_Registry_Property_Ex(DevInst,
-                                        CM_DRP_CLASSGUID,
-                                        NULL,
-                                        TempString,
-                                        &StringSize,
-                                        0,
-                                        hMachine) == CR_SUCCESS) {
+    if (CM_Get_DevInst_Registry_Property_Ex(DevInst,
+                                            CM_DRP_CLASSGUID,
+                                            NULL,
+                                            TempString,
+                                            &StringSize,
+                                            0,
+                                            hMachine) == CR_SUCCESS) {
 
         // We retrieved the class GUID (in string form) for this device
         // instance--now, convert it into its binary representation.
@@ -1873,18 +1873,18 @@ Return Value:
     // work with.
 
     StringSize = sizeof(TempString);
-    if(CM_Get_DevInst_Registry_Property_Ex(DevInst,
-                                        CM_DRP_CLASS,
-                                        NULL,
-                                        TempString,
-                                        &StringSize,
-                                        0,
-                                        hMachine) == CR_SUCCESS) {
+    if (CM_Get_DevInst_Registry_Property_Ex(DevInst,
+                                            CM_DRP_CLASS,
+                                            NULL,
+                                            TempString,
+                                            &StringSize,
+                                            0,
+                                            hMachine) == CR_SUCCESS) {
 
         // OK, we found out the class name.  Now see if we can find a
         // single class GUID to match it.
 
-        if(SetupDiClassGuidsFromName(TempString, ClassGuid, 1, &NumGuids) && NumGuids) {
+        if (SetupDiClassGuidsFromName(TempString, ClassGuid, 1, &NumGuids) && NumGuids) {
 
             // We found exactly one, so we're happy.
 
@@ -1906,7 +1906,7 @@ WINAPI
 SetupDiDeleteDeviceInfo(
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData
-    )
+)
 /*++
 
 Routine Description:
@@ -1948,7 +1948,7 @@ Remarks:
     DWORD Err;
     PDEVINFO_ELEM ElemToDelete, PrevElem, NextElem;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -1962,13 +1962,13 @@ Remarks:
         ElemToDelete = FindAssociatedDevInfoElem(pDeviceInfoSet,
                                                  DeviceInfoData,
                                                  &PrevElem
-                                                );
-        if(ElemToDelete) {
+        );
+        if (ElemToDelete) {
 
             // Make sure that this element isn't currently locked by
             // a wizard page.
 
-            if(ElemToDelete->DiElemFlags & DIE_IS_LOCKED) {
+            if (ElemToDelete->DiElemFlags & DIE_IS_LOCKED) {
                 Err = ERROR_DEVINFO_DATA_LOCKED;
                 goto clean0;
             }
@@ -1986,13 +1986,13 @@ Remarks:
 
             // Now remove the element from the list.
 
-            if(PrevElem) {
+            if (PrevElem) {
                 PrevElem->Next = NextElem;
             } else {
                 pDeviceInfoSet->DeviceInfoHead = NextElem;
             }
 
-            if(!NextElem) {
+            if (!NextElem) {
                 pDeviceInfoSet->DeviceInfoTail = PrevElem;
             }
 
@@ -2003,7 +2003,7 @@ Remarks:
             // If this element was the currently selected device for this
             // set, then reset the device selection.
 
-            if(pDeviceInfoSet->SelectedDevInfoElem == ElemToDelete) {
+            if (pDeviceInfoSet->SelectedDevInfoElem == ElemToDelete) {
                 pDeviceInfoSet->SelectedDevInfoElem = NULL;
             }
 
@@ -2017,7 +2017,7 @@ Remarks:
             Err = ERROR_INVALID_PARAMETER;
         }
 
-clean0: ;   // nothing to do
+    clean0:;   // nothing to do
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -2036,7 +2036,7 @@ SetupDiEnumDeviceInfo(
     IN  HDEVINFO         DeviceInfoSet,
     IN  DWORD            MemberIndex,
     OUT PSP_DEVINFO_DATA DeviceInfoData
-    )
+)
 /*++
 
 Routine Description:
@@ -2075,7 +2075,7 @@ Remarks:
     DWORD Err, i;
     PDEVINFO_ELEM DevInfoElem;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -2084,7 +2084,7 @@ Remarks:
 
     try {
 
-        if(MemberIndex >= pDeviceInfoSet->DeviceInfoCount) {
+        if (MemberIndex >= pDeviceInfoSet->DeviceInfoCount) {
             Err = ERROR_NO_MORE_ITEMS;
             goto clean0;
         }
@@ -2093,7 +2093,7 @@ Remarks:
         // Find the element corresponding to the specified index (using our
         // enumeration hint optimization, if possible)
 
-        if(pDeviceInfoSet->DeviceInfoEnumHintIndex <= MemberIndex) {
+        if (pDeviceInfoSet->DeviceInfoEnumHintIndex <= MemberIndex) {
             MYASSERT(pDeviceInfoSet->DeviceInfoEnumHint);
             DevInfoElem = pDeviceInfoSet->DeviceInfoEnumHint;
             i = pDeviceInfoSet->DeviceInfoEnumHintIndex;
@@ -2101,13 +2101,13 @@ Remarks:
             DevInfoElem = pDeviceInfoSet->DeviceInfoHead;
             i = 0;
         }
-        for(; i < MemberIndex; i++) {
+        for (; i < MemberIndex; i++) {
             DevInfoElem = DevInfoElem->Next;
         }
 
-        if(!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
-                                              DevInfoElem,
-                                              DeviceInfoData))) {
+        if (!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
+                                               DevInfoElem,
+                                               DeviceInfoData))) {
             Err = ERROR_INVALID_USER_BUFFER;
         }
 
@@ -2117,7 +2117,7 @@ Remarks:
         pDeviceInfoSet->DeviceInfoEnumHintIndex = MemberIndex;
         pDeviceInfoSet->DeviceInfoEnumHint = DevInfoElem;
 
-clean0:
+    clean0:
         ; // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -2137,10 +2137,10 @@ SetupDiRegisterDeviceInfo(
     IN     HDEVINFO           DeviceInfoSet,
     IN OUT PSP_DEVINFO_DATA   DeviceInfoData,
     IN     DWORD              Flags,
-    IN     PSP_DETSIG_CMPPROC CompareProc,      OPTIONAL
-    IN     PVOID              CompareContext,   OPTIONAL
+    IN     PSP_DETSIG_CMPPROC CompareProc, OPTIONAL
+    IN     PVOID              CompareContext, OPTIONAL
     OUT    PSP_DEVINFO_DATA   DupDeviceInfoData OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -2233,12 +2233,12 @@ Remarks:
     LOG_CONF NewDevLogConfig;
     RES_DES NewDevResDes;
 
-    if(Flags & ~SPRDI_FIND_DUPS) {
+    if (Flags & ~SPRDI_FIND_DUPS) {
         SetLastError(ERROR_INVALID_FLAGS);
         return FALSE;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -2258,11 +2258,11 @@ Remarks:
         DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
                                                 DeviceInfoData,
                                                 NULL
-                                               );
-        if(!DevInfoElem) {
+        );
+        if (!DevInfoElem) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
-        } else if(DevInfoElem->DiElemFlags & DIE_IS_REGISTERED) {
+        } else if (DevInfoElem->DiElemFlags & DIE_IS_REGISTERED) {
 
             // Nothing to do--it's already been registered.
 
@@ -2274,29 +2274,29 @@ Remarks:
         // all device instances of this class, and compare each one
         // with the device instance being registered.
 
-        if(Flags & SPRDI_FIND_DUPS) {
+        if (Flags & SPRDI_FIND_DUPS) {
 
             do {
 
-                if(CM_Get_Device_ID_List_Size_Ex(&DevIdBufferLen, NULL, CM_GETIDLIST_FILTER_NONE,
-                                                 pDeviceInfoSet->hMachine) != CR_SUCCESS) {
+                if (CM_Get_Device_ID_List_Size_Ex(&DevIdBufferLen, NULL, CM_GETIDLIST_FILTER_NONE,
+                                                  pDeviceInfoSet->hMachine) != CR_SUCCESS) {
                     Err = ERROR_INVALID_DATA;
                     goto clean0;
-                } else if(!DevIdBufferLen) {
+                } else if (!DevIdBufferLen) {
                     break;
                 }
 
-                if(!(DevIdBuffer = MyMalloc(DevIdBufferLen * sizeof(TCHAR)))) {
+                if (!(DevIdBuffer = MyMalloc(DevIdBufferLen * sizeof(TCHAR)))) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
                 }
 
                 cr = CM_Get_Device_ID_List_Ex(NULL,
-                                           DevIdBuffer,
-                                           DevIdBufferLen,
-                                           CM_GETIDLIST_FILTER_NONE,
-                                           pDeviceInfoSet->hMachine);
-                if(cr == CR_BUFFER_SMALL) {
+                                              DevIdBuffer,
+                                              DevIdBufferLen,
+                                              CM_GETIDLIST_FILTER_NONE,
+                                              pDeviceInfoSet->hMachine);
+                if (cr == CR_BUFFER_SMALL) {
 
                     // This will only happen if a device instance was added between
                     // the time that we calculated the size, and when we attempted
@@ -2305,14 +2305,14 @@ Remarks:
 
                     MyFree(DevIdBuffer);
                     DevIdBuffer = NULL;
-                } else if(cr != CR_SUCCESS) {
+                } else if (cr != CR_SUCCESS) {
                     Err = ERROR_INVALID_DATA;
                     goto clean0;
                 }
 
-            } while(cr == CR_BUFFER_SMALL);
+            } while (cr == CR_BUFFER_SMALL);
 
-            if(!DevIdBufferLen) {
+            if (!DevIdBufferLen) {
                 goto NoDups;
             }
 
@@ -2327,21 +2327,21 @@ Remarks:
             // being registered.
 
 
-            if(!CompareProc) {
+            if (!CompareProc) {
 
                 // We are supposed to do the comparisons, so set up to do our default comparison.
 
-                if((cr = CM_Get_First_Log_Conf_Ex(&NewDevLogConfig,
-                                               DevInfoElem->DevInst,
-                                               BOOT_LOG_CONF,
-                                               pDeviceInfoSet->hMachine)) != CR_SUCCESS) {
+                if ((cr = CM_Get_First_Log_Conf_Ex(&NewDevLogConfig,
+                                                   DevInfoElem->DevInst,
+                                                   BOOT_LOG_CONF,
+                                                   pDeviceInfoSet->hMachine)) != CR_SUCCESS) {
 
                     // Ensure that our NewDevLogConfig handle is still NULL, so we won't try
                     // to free it.
 
                     NewDevLogConfig = (LOG_CONF)NULL;
 
-                    if(cr == CR_INVALID_DEVINST) {
+                    if (cr == CR_INVALID_DEVINST) {
                         Err = ERROR_INVALID_PARAMETER;
                         goto clean0;
                     } else {
@@ -2354,12 +2354,12 @@ Remarks:
                     }
                 }
 
-                if(CM_Get_Next_Res_Des_Ex(&NewDevResDes,
-                                       NewDevLogConfig,
-                                       ResType_ClassSpecific,
-                                       NULL,
-                                       0,
-                                       pDeviceInfoSet->hMachine) != CR_SUCCESS) {
+                if (CM_Get_Next_Res_Des_Ex(&NewDevResDes,
+                                           NewDevLogConfig,
+                                           ResType_ClassSpecific,
+                                           NULL,
+                                           0,
+                                           pDeviceInfoSet->hMachine) != CR_SUCCESS) {
 
                     // Ensure that our NewDevResDes is still NULL, so we won't try to free it.
 
@@ -2376,26 +2376,26 @@ Remarks:
 
                 do {
 
-                    if((CM_Get_Res_Des_Data_Size_Ex(&DevCmpContext.CsResourceSize,
-                                                 NewDevResDes,
-                                                 0,
-                                                 pDeviceInfoSet->hMachine) != CR_SUCCESS) ||
-                       !DevCmpContext.CsResourceSize) {
+                    if ((CM_Get_Res_Des_Data_Size_Ex(&DevCmpContext.CsResourceSize,
+                                                     NewDevResDes,
+                                                     0,
+                                                     pDeviceInfoSet->hMachine) != CR_SUCCESS) ||
+                        !DevCmpContext.CsResourceSize) {
 
                         // Can't find out the size of the data, or there is none--assume no dups.
 
                         goto NoDups;
                     }
 
-                    if(DevCmpContext.NewDevCsResource = MyMalloc(DevCmpContext.CsResourceSize)) {
+                    if (DevCmpContext.NewDevCsResource = MyMalloc(DevCmpContext.CsResourceSize)) {
 
-                        if((cr = CM_Get_Res_Des_Data_Ex(NewDevResDes,
-                                                     DevCmpContext.NewDevCsResource,
-                                                     DevCmpContext.CsResourceSize,
-                                                     0,
-                                                     pDeviceInfoSet->hMachine)) != CR_SUCCESS) {
+                        if ((cr = CM_Get_Res_Des_Data_Ex(NewDevResDes,
+                                                         DevCmpContext.NewDevCsResource,
+                                                         DevCmpContext.CsResourceSize,
+                                                         0,
+                                                         pDeviceInfoSet->hMachine)) != CR_SUCCESS) {
 
-                            if(cr == CR_BUFFER_SMALL) {
+                            if (cr == CR_BUFFER_SMALL) {
 
                                 // Then someone increased the size of the resource data before we
                                 // got a chance to read it.  Free our buffer and try again.
@@ -2418,21 +2418,21 @@ Remarks:
                         goto clean0;
                     }
 
-                } while(cr != CR_SUCCESS);
+                } while (cr != CR_SUCCESS);
 
-                                //Bugbug check the mapping of Res_Des_Data to Res_Des_Data_Ex to verify this is
-                                //still true
+                //Bugbug check the mapping of Res_Des_Data to Res_Des_Data_Ex to verify this is
+                //still true
 
-                // We have successfully retrieved the class-specific resource data for the new
-                // device's boot LogConfig.  Now allocate a buffer of the same size to store the
-                // corresponding resource data for each device instance we're comparing against.
-                // We don't have to worry about devices whose resource data is larger, because
-                // CM_Get_Res_Des_Data_Ex will do a partial fill to a buffer that's not large enough
-                // to contain the entire structure.  Since our default comparison only compares
-                // the PnP detect signature (i.e., it ignores the legacy data at the very end of
-                // the buffer, we're guaranteed that we have enough data to make the determination.
+// We have successfully retrieved the class-specific resource data for the new
+// device's boot LogConfig.  Now allocate a buffer of the same size to store the
+// corresponding resource data for each device instance we're comparing against.
+// We don't have to worry about devices whose resource data is larger, because
+// CM_Get_Res_Des_Data_Ex will do a partial fill to a buffer that's not large enough
+// to contain the entire structure.  Since our default comparison only compares
+// the PnP detect signature (i.e., it ignores the legacy data at the very end of
+// the buffer, we're guaranteed that we have enough data to make the determination.
 
-                if(!(DevCmpContext.CurDevCsResource = MyMalloc(DevCmpContext.CsResourceSize))) {
+                if (!(DevCmpContext.CurDevCsResource = MyMalloc(DevCmpContext.CsResourceSize))) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
                 }
@@ -2441,9 +2441,9 @@ Remarks:
                 CompareContext = &DevCmpContext;
             }
 
-            for(CurDevId = DevIdBuffer;
-                *CurDevId;
-                CurDevId += lstrlen(CurDevId) + 1) {
+            for (CurDevId = DevIdBuffer;
+                 *CurDevId;
+                 CurDevId += lstrlen(CurDevId) + 1) {
 
                 Err = pSetupOpenAndAddNewDevInfoElem(pDeviceInfoSet,
                                                      CurDevId,
@@ -2456,14 +2456,14 @@ Remarks:
                                                      FALSE,
                                                      0,
                                                      pDeviceInfoSet
-                                                    );
+                );
 
-                if(Err == ERROR_NOT_ENOUGH_MEMORY) {
+                if (Err == ERROR_NOT_ENOUGH_MEMORY) {
 
                     // Out-of-memory error is the only one bad enough to get us to abort.
 
                     goto clean0;
-                } else if(Err != NO_ERROR) {
+                } else if (Err != NO_ERROR) {
 
                     // Just ignore this device instance, and move on to the next.
 
@@ -2484,19 +2484,19 @@ Remarks:
                 // may need to be destroyed.  It should be destroyed if it wasn't a duplicate,
                 // or if the duplicate output parameter wasn't supplied.
 
-                if(!AlreadyPresent) {
-                    if((Err != ERROR_DUPLICATE_FOUND) || !DupDeviceInfoData) {
+                if (!AlreadyPresent) {
+                    if ((Err != ERROR_DUPLICATE_FOUND) || !DupDeviceInfoData) {
                         SetupDiDeleteDeviceInfo(DeviceInfoSet, &CurDevInfoData);
                     }
                 }
 
-                if(Err != NO_ERROR) {
+                if (Err != NO_ERROR) {
                     goto clean0;
                 }
             }
         }
 
-NoDups:
+    NoDups:
 
 
         // To turn this phantom device instance into a 'live' device instance, we simply call
@@ -2504,19 +2504,19 @@ NoDups:
         // hardware tree!).
 
         CM_Get_Device_ID_Ex(DevInfoElem->DevInst,
-                         DeviceInstanceId,
-                         SIZECHARS(DeviceInstanceId),
-                         0,
-                         pDeviceInfoSet->hMachine);
+                            DeviceInstanceId,
+                            SIZECHARS(DeviceInstanceId),
+                            0,
+                            pDeviceInfoSet->hMachine);
 
-        CM_Get_Parent_Ex(&ParentDevInst, DevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine);
+        CM_Get_Parent_Ex(&ParentDevInst, DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine);
 
-        if(CM_Create_DevInst_Ex(&(DevInfoElem->DevInst),
-                             DeviceInstanceId,
-                             ParentDevInst,
-                             CM_CREATE_DEVINST_NORMAL |
-                             CM_CREATE_DEVINST_DO_NOT_INSTALL,
-                             pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+        if (CM_Create_DevInst_Ex(&(DevInfoElem->DevInst),
+                                 DeviceInstanceId,
+                                 ParentDevInst,
+                                 CM_CREATE_DEVINST_NORMAL |
+                                 CM_CREATE_DEVINST_DO_NOT_INSTALL,
+                                 pDeviceInfoSet->hMachine) == CR_SUCCESS) {
 
             // Device is no longer a phantom!
 
@@ -2531,7 +2531,7 @@ NoDups:
 
         DevInfoElem->DiElemFlags |= DIE_IS_REGISTERED;
 
-clean0:
+    clean0:
         ; // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -2547,36 +2547,36 @@ clean0:
         NewDevResDes = NewDevResDes;
     }
 
-    if(DevIdBuffer) {
+    if (DevIdBuffer) {
         MyFree(DevIdBuffer);
     }
 
-    if(DevCmpContext.NewDevCsResource) {
+    if (DevCmpContext.NewDevCsResource) {
         MyFree(DevCmpContext.NewDevCsResource);
     }
 
-    if(DevCmpContext.CurDevCsResource) {
+    if (DevCmpContext.CurDevCsResource) {
         MyFree(DevCmpContext.CurDevCsResource);
     }
 
-    if(NewDevResDes) {
+    if (NewDevResDes) {
         CM_Free_Res_Des_Handle(NewDevResDes);
     }
 
-    if(NewDevLogConfig) {
+    if (NewDevLogConfig) {
         CM_Free_Log_Conf_Handle(NewDevLogConfig);
     }
 
-    if((Err == ERROR_DUPLICATE_FOUND) && DupDeviceInfoData) {
+    if ((Err == ERROR_DUPLICATE_FOUND) && DupDeviceInfoData) {
 
         // The user supplied a buffer to receive the SP_DEVINFO_DATA
         // structure for the duplicate.
 
         try {
 
-            if(!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
-                                                  CurDevInfoElem,
-                                                  DupDeviceInfoData))) {
+            if (!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
+                                                   CurDevInfoElem,
+                                                   DupDeviceInfoData))) {
                 Err = ERROR_INVALID_USER_BUFFER;
             }
 
@@ -2597,15 +2597,15 @@ pSetupOpenAndAddNewDevInfoElem(
     IN  PDEVICE_INFO_SET pDeviceInfoSet,
     IN  PCTSTR           DeviceInstanceId,
     IN  BOOL             AllowPhantom,
-    IN  CONST GUID      *ClassGuid,              OPTIONAL
-    IN  HWND             hwndParent,             OPTIONAL
-    OUT PDEVINFO_ELEM   *DevInfoElem,
+    IN  CONST GUID* ClassGuid, OPTIONAL
+    IN  HWND             hwndParent, OPTIONAL
+    OUT PDEVINFO_ELEM* DevInfoElem,
     IN  BOOL             CheckIfAlreadyPresent,
-    OUT PBOOL            AlreadyPresent,         OPTIONAL
+    OUT PBOOL            AlreadyPresent, OPTIONAL
     IN  BOOL             OpenExistingOnly,
     IN  ULONG            CmLocateFlags,
     IN  PDEVICE_INFO_SET ContainingDeviceInfoSet
-    )
+)
 /*++
 
 Routine Description:
@@ -2675,18 +2675,18 @@ Remarks:
     DWORD Err, DiElemFlags;
     GUID GuidBuffer;
 
-    if((cr = CM_Locate_DevInst_Ex(&DevInst,
-                                 (DEVINSTID)DeviceInstanceId,
-                                 CM_LOCATE_DEVINST_NORMAL | CmLocateFlags,
-                                 pDeviceInfoSet->hMachine)) == CR_SUCCESS) {
+    if ((cr = CM_Locate_DevInst_Ex(&DevInst,
+        (DEVINSTID)DeviceInstanceId,
+                                   CM_LOCATE_DEVINST_NORMAL | CmLocateFlags,
+                                   pDeviceInfoSet->hMachine)) == CR_SUCCESS) {
 
         DiElemFlags = DIE_IS_REGISTERED;
 
     } else {
 
-        if(cr == CR_INVALID_DEVICE_ID) {
+        if (cr == CR_INVALID_DEVICE_ID) {
             return ERROR_INVALID_DEVINST_NAME;
-        } else if(!AllowPhantom) {
+        } else if (!AllowPhantom) {
             return ERROR_NO_SUCH_DEVINST;
         }
 
@@ -2695,10 +2695,10 @@ Remarks:
         // not currently 'live'.  If this is the case, we'll be able to get a
         // handle to it by locating it as a phantom device instance.
 
-        if(CM_Locate_DevInst_Ex(&DevInst,
-                                (DEVINSTID)DeviceInstanceId,
-                                CM_LOCATE_DEVINST_PHANTOM | CmLocateFlags,
-                                pDeviceInfoSet->hMachine) != CR_SUCCESS) {
+        if (CM_Locate_DevInst_Ex(&DevInst,
+            (DEVINSTID)DeviceInstanceId,
+                                 CM_LOCATE_DEVINST_PHANTOM | CmLocateFlags,
+                                 pDeviceInfoSet->hMachine) != CR_SUCCESS) {
 
             return ERROR_NO_SUCH_DEVINST;
         }
@@ -2710,25 +2710,25 @@ Remarks:
     // If requested, search through the current list of device information elements
     // to see if this element already exists.
 
-    if(CheckIfAlreadyPresent) {
+    if (CheckIfAlreadyPresent) {
 
-        if(*DevInfoElem = FindDevInfoByDevInst(pDeviceInfoSet, DevInst, NULL)) {
+        if (*DevInfoElem = FindDevInfoByDevInst(pDeviceInfoSet, DevInst, NULL)) {
 
             // Make sure that this device instance is of the proper class, if a class GUID
             // filter was supplied.
 
-            if(ClassGuid && !IsEqualGUID(ClassGuid, &((*DevInfoElem)->ClassGuid))) {
+            if (ClassGuid && !IsEqualGUID(ClassGuid, &((*DevInfoElem)->ClassGuid))) {
                 return ERROR_CLASS_MISMATCH;
             }
 
-            if(AlreadyPresent) {
+            if (AlreadyPresent) {
                 *AlreadyPresent = TRUE;
             }
             return NO_ERROR;
 
-        } else if(AlreadyPresent) {
+        } else if (AlreadyPresent) {
             *AlreadyPresent = FALSE;
-            if(OpenExistingOnly) {
+            if (OpenExistingOnly) {
 
                 // The requested device information element isn't in the set,
                 // so we must fail the call.
@@ -2741,7 +2741,7 @@ Remarks:
 
     // Retrieve the class GUID for this device instance.
 
-    if((Err = pSetupClassGuidFromDevInst(DevInst, pDeviceInfoSet->hMachine,&GuidBuffer)) != NO_ERROR) {
+    if ((Err = pSetupClassGuidFromDevInst(DevInst, pDeviceInfoSet->hMachine, &GuidBuffer)) != NO_ERROR) {
         return Err;
     }
 
@@ -2749,7 +2749,7 @@ Remarks:
     // If a class GUID filter was specified, then make sure that it matches the
     // class GUID for this device instance.
 
-    if(ClassGuid && !IsEqualGUID(ClassGuid, &GuidBuffer)) {
+    if (ClassGuid && !IsEqualGUID(ClassGuid, &GuidBuffer)) {
         return ERROR_CLASS_MISMATCH;
     }
 
@@ -2761,7 +2761,7 @@ Remarks:
                                          DiElemFlags,
                                          ContainingDeviceInfoSet,
                                          DevInfoElem
-                                        );
+    );
 }
 
 
@@ -2771,7 +2771,7 @@ pSetupDupDevCompare(
     IN PSP_DEVINFO_DATA NewDeviceData,
     IN PSP_DEVINFO_DATA ExistingDeviceData,
     IN PVOID            CompareContext
-    )
+)
 /*++
 
 Routine Description:
@@ -2835,7 +2835,7 @@ Return Value:
     DWORD Err;
     HMACHINE hMachine;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -2848,10 +2848,10 @@ Return Value:
 
     // First, retrieve the boot LogConfig for the existing device.
 
-    if(CM_Get_First_Log_Conf_Ex(&ExistingDeviceLogConfig,
-                             ExistingDeviceData->DevInst,
-                             BOOT_LOG_CONF,
-                             hMachine) != CR_SUCCESS) {
+    if (CM_Get_First_Log_Conf_Ex(&ExistingDeviceLogConfig,
+                                 ExistingDeviceData->DevInst,
+                                 BOOT_LOG_CONF,
+                                 hMachine) != CR_SUCCESS) {
 
         // Couldn't get the boot LogConfig--assume this device isn't a duplicate.
 
@@ -2866,12 +2866,12 @@ Return Value:
 
     // Now, retrieve the the ResDes handle for the class-specific resource.
 
-    if(CM_Get_Next_Res_Des_Ex(&ExistingDeviceResDes,
-                           ExistingDeviceLogConfig,
-                           ResType_ClassSpecific,
-                           NULL,
-                           0,
-                           hMachine) != CR_SUCCESS) {
+    if (CM_Get_Next_Res_Des_Ex(&ExistingDeviceResDes,
+                               ExistingDeviceLogConfig,
+                               ResType_ClassSpecific,
+                               NULL,
+                               0,
+                               hMachine) != CR_SUCCESS) {
 
         // Couldn't get the class-specific ResDes handle--assume this device isn't a duplicate
 
@@ -2886,12 +2886,12 @@ Return Value:
     DevCmpContext = (PDEFAULT_DEVCMP_CONTEXT)CompareContext;
 
     cr = CM_Get_Res_Des_Data_Ex(ExistingDeviceResDes,
-                             DevCmpContext->CurDevCsResource,
-                             DevCmpContext->CsResourceSize,
-                             0,
-                             hMachine);
+                                DevCmpContext->CurDevCsResource,
+                                DevCmpContext->CsResourceSize,
+                                0,
+                                hMachine);
 
-    if((cr == CR_SUCCESS) || (cr == CR_BUFFER_SMALL)) {
+    if ((cr == CR_SUCCESS) || (cr == CR_BUFFER_SMALL)) {
 
         // We got _at least_ enough of the buffer to do the comparison.
 
@@ -2901,17 +2901,17 @@ Return Value:
 
         //  First, see if the Plug&Play detect signatures are both the same size.
 
-        if(NewCsDes->CSD_SignatureLength == ExistingCsDes->CSD_SignatureLength) {
+        if (NewCsDes->CSD_SignatureLength == ExistingCsDes->CSD_SignatureLength) {
 
             // See if the class GUIDs are the same.
 
-            if(IsEqualGUID(&(NewCsDes->CSD_ClassGuid), &(ExistingCsDes->CSD_ClassGuid))) {
+            if (IsEqualGUID(&(NewCsDes->CSD_ClassGuid), &(ExistingCsDes->CSD_ClassGuid))) {
 
                 // Finally, see if the PnP detect signatures are identical
 
-                if(!memcmp(NewCsDes->CSD_Signature,
-                           ExistingCsDes->CSD_Signature,
-                           NewCsDes->CSD_SignatureLength)) {
+                if (!memcmp(NewCsDes->CSD_Signature,
+                            ExistingCsDes->CSD_Signature,
+                            NewCsDes->CSD_SignatureLength)) {
 
                     // We have ourselves a duplicate!
 
@@ -2942,7 +2942,7 @@ SetupDiGetDeviceInstanceIdA(
     OUT PSTR             DeviceInstanceId,
     IN  DWORD            DeviceInstanceIdSize,
     OUT PDWORD           RequiredSize          OPTIONAL
-    )
+)
 {
     WCHAR deviceInstanceId[MAX_DEVICE_ID_LEN];
     PSTR deviceInstanceIdA;
@@ -2952,24 +2952,24 @@ SetupDiGetDeviceInstanceIdA(
     DWORD requiredSize;
 
     b = SetupDiGetDeviceInstanceIdW(
-            DeviceInfoSet,
-            DeviceInfoData,
-            deviceInstanceId,
-            MAX_DEVICE_ID_LEN,
-            &requiredSize
-            );
+        DeviceInfoSet,
+        DeviceInfoData,
+        deviceInstanceId,
+        MAX_DEVICE_ID_LEN,
+        &requiredSize
+    );
 
-    if(!b) {
+    if (!b) {
         return(FALSE);
     }
 
     rc = GetLastError();
 
-    if(deviceInstanceIdA = UnicodeToAnsi(deviceInstanceId)) {
+    if (deviceInstanceIdA = UnicodeToAnsi(deviceInstanceId)) {
 
         AnsiLength = lstrlenA(deviceInstanceIdA) + 1;
 
-        if(RequiredSize) {
+        if (RequiredSize) {
             try {
                 *RequiredSize = AnsiLength;
             } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -2978,9 +2978,9 @@ SetupDiGetDeviceInstanceIdA(
             }
         }
 
-        if(DeviceInstanceIdSize >= AnsiLength) {
+        if (DeviceInstanceIdSize >= AnsiLength) {
 
-            if(!lstrcpyA(DeviceInstanceId,deviceInstanceIdA)) {
+            if (!lstrcpyA(DeviceInstanceId, deviceInstanceIdA)) {
 
                 // lstrcpy faulted; assume caller's pointer invalid
 
@@ -3014,7 +3014,7 @@ SetupDiGetDeviceInstanceIdW(
     OUT PWSTR            DeviceInstanceId,
     IN  DWORD            DeviceInstanceIdSize,
     OUT PDWORD           RequiredSize          OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -3034,7 +3034,7 @@ SetupDiGetDeviceInstanceId(
     OUT PTSTR            DeviceInstanceId,
     IN  DWORD            DeviceInstanceIdSize,
     OUT PDWORD           RequiredSize          OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -3073,7 +3073,7 @@ Return Value:
     CONFIGRET cr;
     ULONG ulLen;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -3085,9 +3085,9 @@ Return Value:
 
         // Get a pointer to the element whose ID we are to retrieve.
 
-        if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                     DeviceInfoData,
-                                                     NULL))) {
+        if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                      DeviceInfoData,
+                                                      NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -3098,10 +3098,10 @@ Return Value:
         // a CR_BUFFER_SMALL error if there isn't room for the terminating
         // NULL.
 
-        if((cr = CM_Get_Device_ID_Size_Ex(&ulLen,
-                                       DevInfoElem->DevInst,
-                                       0,
-                                       pDeviceInfoSet->hMachine)) == CR_SUCCESS) {
+        if ((cr = CM_Get_Device_ID_Size_Ex(&ulLen,
+                                           DevInfoElem->DevInst,
+                                           0,
+                                           pDeviceInfoSet->hMachine)) == CR_SUCCESS) {
 
             // The size returned from CM_Get_Device_ID_Size doesn't include
             // the terminating NULL.
@@ -3111,15 +3111,15 @@ Return Value:
         } else {
 
             Err = (cr == CR_INVALID_DEVINST) ? ERROR_NO_SUCH_DEVINST
-                                             : ERROR_INVALID_PARAMETER;
+                : ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
-        if(RequiredSize) {
+        if (RequiredSize) {
             *RequiredSize = ulLen;
         }
 
-        if(DeviceInstanceIdSize < ulLen) {
+        if (DeviceInstanceIdSize < ulLen) {
             Err = ERROR_INSUFFICIENT_BUFFER;
             goto clean0;
         }
@@ -3127,26 +3127,26 @@ Return Value:
 
         // Now retrieve the ID.
 
-        if((cr = CM_Get_Device_ID_Ex(DevInfoElem->DevInst,
-                                  DeviceInstanceId,
-                                  DeviceInstanceIdSize,
-                                  0,
-                                  pDeviceInfoSet->hMachine)) != CR_SUCCESS) {
-            switch(cr) {
+        if ((cr = CM_Get_Device_ID_Ex(DevInfoElem->DevInst,
+                                      DeviceInstanceId,
+                                      DeviceInstanceIdSize,
+                                      0,
+                                      pDeviceInfoSet->hMachine)) != CR_SUCCESS) {
+            switch (cr) {
 
-                case CR_INVALID_POINTER :
-                    Err = ERROR_INVALID_USER_BUFFER;
-                    break;
+            case CR_INVALID_POINTER:
+                Err = ERROR_INVALID_USER_BUFFER;
+                break;
 
-                default :
+            default:
 
-                    // Should never hit this!
+                // Should never hit this!
 
-                    Err = ERROR_INVALID_DATA;
+                Err = ERROR_INVALID_DATA;
             }
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -3163,13 +3163,13 @@ DWORD
 pSetupAddInterfaceDeviceToDevInfoElem(
     IN  PDEVICE_INFO_SET        DeviceInfoSet,
     IN  PDEVINFO_ELEM           DevInfoElem,
-    IN  CONST GUID             *InterfaceClassGuid,
+    IN  CONST GUID* InterfaceClassGuid,
     IN  PTSTR                   InterfaceDeviceName,
     IN  BOOL                    IsActive,
     IN  BOOL                    StoreTruncateNode,
     IN  BOOL                    OpenExistingOnly,
-    OUT PINTERFACE_DEVICE_NODE *InterfaceDeviceNode  OPTIONAL
-    )
+    OUT PINTERFACE_DEVICE_NODE* InterfaceDeviceNode  OPTIONAL
+)
 /*++
 
 Routine Description:
@@ -3222,7 +3222,7 @@ Return Value:
 
     GuidIndex = AddOrGetGuidTableIndex(DeviceInfoSet, InterfaceClassGuid, TRUE);
 
-    if(GuidIndex == -1) {
+    if (GuidIndex == -1) {
         return ERROR_NOT_ENOUGH_MEMORY;
     }
 
@@ -3231,10 +3231,10 @@ Return Value:
     // devinfo element (again, we will create a new (empty) list if it doesn't
     // already exist).
 
-    if(!(InterfaceClassList = AddOrGetInterfaceClassList(DeviceInfoSet,
-                                                         DevInfoElem,
-                                                         GuidIndex,
-                                                         TRUE))) {
+    if (!(InterfaceClassList = AddOrGetInterfaceClassList(DeviceInfoSet,
+                                                          DevInfoElem,
+                                                          GuidIndex,
+                                                          TRUE))) {
         return ERROR_NOT_ENOUGH_MEMORY;
     }
 
@@ -3247,17 +3247,17 @@ Return Value:
                                           STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
                                           NULL,
                                           0
-                                         );
+    );
 
-    if(SymLinkNameId == -1) {
+    if (SymLinkNameId == -1) {
         return ERROR_NOT_ENOUGH_MEMORY;
     }
 
-    for(CurInterfaceDevice = InterfaceClassList->InterfaceDeviceNode, PrevInterfaceDevice = NULL;
-        CurInterfaceDevice;
-        PrevInterfaceDevice = CurInterfaceDevice, CurInterfaceDevice = CurInterfaceDevice->Next) {
+    for (CurInterfaceDevice = InterfaceClassList->InterfaceDeviceNode, PrevInterfaceDevice = NULL;
+         CurInterfaceDevice;
+         PrevInterfaceDevice = CurInterfaceDevice, CurInterfaceDevice = CurInterfaceDevice->Next) {
 
-        if(CurInterfaceDevice->SymLinkName == SymLinkNameId) {
+        if (CurInterfaceDevice->SymLinkName == SymLinkNameId) {
 
             // The node is already in our list, we don't want to add it again.
             // Update the flags for this interface device to reflect whether
@@ -3267,7 +3267,7 @@ Return Value:
 
             // Return this node to the caller.
 
-            if(InterfaceDeviceNode) {
+            if (InterfaceDeviceNode) {
                 *InterfaceDeviceNode = CurInterfaceDevice;
             }
             return NO_ERROR;
@@ -3278,11 +3278,11 @@ Return Value:
     // The device interface node wasn't already in our list--add it (unless
     // we've been told not to)
 
-    if(OpenExistingOnly) {
+    if (OpenExistingOnly) {
         return ERROR_NO_SUCH_DEVICE_INTERFACE;
     }
 
-    if(!(NewInterfaceDeviceNode = MyMalloc(sizeof(INTERFACE_DEVICE_NODE)))) {
+    if (!(NewInterfaceDeviceNode = MyMalloc(sizeof(INTERFACE_DEVICE_NODE)))) {
         return ERROR_NOT_ENOUGH_MEMORY;
     }
 
@@ -3290,7 +3290,7 @@ Return Value:
 
     NewInterfaceDeviceNode->SymLinkName = SymLinkNameId;
 
-    if(PrevInterfaceDevice) {
+    if (PrevInterfaceDevice) {
         PrevInterfaceDevice->Next = NewInterfaceDeviceNode;
     } else {
         InterfaceClassList->InterfaceDeviceNode = NewInterfaceDeviceNode;
@@ -3302,7 +3302,7 @@ Return Value:
     // remember it so we can truncate the list at this point if we later find
     // that we need to rollback (because we encountered some error).
 
-    if(StoreTruncateNode && !InterfaceClassList->InterfaceDeviceTruncateNode) {
+    if (StoreTruncateNode && !InterfaceClassList->InterfaceDeviceTruncateNode) {
         InterfaceClassList->InterfaceDeviceTruncateNode = NewInterfaceDeviceNode;
     }
 
@@ -3328,7 +3328,7 @@ Return Value:
 
     NewInterfaceDeviceNode->OwningDevInfoElem = DevInfoElem;
 
-    if(InterfaceDeviceNode) {
+    if (InterfaceDeviceNode) {
         *InterfaceDeviceNode = NewInterfaceDeviceNode;
     }
 
@@ -3340,11 +3340,11 @@ BOOL
 WINAPI
 SetupDiEnumDeviceInterfaces(
     IN  HDEVINFO                   DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA           DeviceInfoData,     OPTIONAL
-    IN  CONST GUID                *InterfaceClassGuid,
+    IN  PSP_DEVINFO_DATA           DeviceInfoData, OPTIONAL
+    IN  CONST GUID* InterfaceClassGuid,
     IN  DWORD                      MemberIndex,
     OUT PSP_DEVICE_INTERFACE_DATA  DeviceInterfaceData
-    )
+)
 /*++
 
 Routine Description:
@@ -3399,7 +3399,7 @@ Remarks:
     PINTERFACE_CLASS_LIST InterfaceClassList;
     PINTERFACE_DEVICE_NODE InterfaceDeviceNode;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -3410,9 +3410,9 @@ Remarks:
 
         // Retrieve the index of this interface class GUID.
 
-        if((InterfaceClassGuidIndex = AddOrGetGuidTableIndex(pDeviceInfoSet,
-                                                             InterfaceClassGuid,
-                                                             FALSE)) == -1) {
+        if ((InterfaceClassGuidIndex = AddOrGetGuidTableIndex(pDeviceInfoSet,
+                                                              InterfaceClassGuid,
+                                                              FALSE)) == -1) {
             Err = ERROR_NO_MORE_ITEMS;
             goto clean0;
         }
@@ -3420,24 +3420,23 @@ Remarks:
 
         // Find the requested interface device.
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Then we're enumerating only those interface devices that are owned
             // by a particular devinfo element.
 
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                         DeviceInfoData,
-                                                         NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                          DeviceInfoData,
+                                                          NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
 
-            if(!(InterfaceClassList = AddOrGetInterfaceClassList(pDeviceInfoSet,
-                                                                 DevInfoElem,
-                                                                 InterfaceClassGuidIndex,
-                                                                 FALSE))
-               || (MemberIndex >= InterfaceClassList->InterfaceDeviceCount))
-            {
+            if (!(InterfaceClassList = AddOrGetInterfaceClassList(pDeviceInfoSet,
+                                                                  DevInfoElem,
+                                                                  InterfaceClassGuidIndex,
+                                                                  FALSE))
+                || (MemberIndex >= InterfaceClassList->InterfaceDeviceCount)) {
                 Err = ERROR_NO_MORE_ITEMS;
                 goto clean0;
             }
@@ -3447,16 +3446,16 @@ Remarks:
             // We're enumerating across all devinfo elements. Find the appropriate devinfo
             // element, and adjust the member index accordingly.
 
-            for(DevInfoElem = pDeviceInfoSet->DeviceInfoHead;
-                DevInfoElem;
-                DevInfoElem = DevInfoElem->Next) {
+            for (DevInfoElem = pDeviceInfoSet->DeviceInfoHead;
+                 DevInfoElem;
+                 DevInfoElem = DevInfoElem->Next) {
 
-                if(InterfaceClassList = AddOrGetInterfaceClassList(pDeviceInfoSet,
-                                                                   DevInfoElem,
-                                                                   InterfaceClassGuidIndex,
-                                                                   FALSE)) {
+                if (InterfaceClassList = AddOrGetInterfaceClassList(pDeviceInfoSet,
+                                                                    DevInfoElem,
+                                                                    InterfaceClassGuidIndex,
+                                                                    FALSE)) {
 
-                    if(MemberIndex < InterfaceClassList->InterfaceDeviceCount) {
+                    if (MemberIndex < InterfaceClassList->InterfaceDeviceCount) {
 
                         // We've found the devinfo element containing the interface device
                         // we're looking for.
@@ -3474,7 +3473,7 @@ Remarks:
                 }
             }
 
-            if(!DevInfoElem) {
+            if (!DevInfoElem) {
 
                 // Then the specified index was higher than the count of interface devices
                 // in this devinfo set.
@@ -3492,15 +3491,15 @@ Remarks:
 
         InterfaceDeviceNode = InterfaceClassList->InterfaceDeviceNode;
 
-        for(i = 0; i < MemberIndex; i++) {
+        for (i = 0; i < MemberIndex; i++) {
             InterfaceDeviceNode = InterfaceDeviceNode->Next;
         }
 
-        if(!InterfaceDeviceDataFromNode(InterfaceDeviceNode, InterfaceClassGuid, DeviceInterfaceData)) {
+        if (!InterfaceDeviceDataFromNode(InterfaceDeviceNode, InterfaceClassGuid, DeviceInterfaceData)) {
             Err = ERROR_INVALID_USER_BUFFER;
         }
 
-clean0:
+    clean0:
         ; // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -3523,11 +3522,11 @@ WINAPI
 SetupDiGetDeviceInterfaceDetailA(
     IN  HDEVINFO                           DeviceInfoSet,
     IN  PSP_DEVICE_INTERFACE_DATA          DeviceInterfaceData,
-    OUT PSP_DEVICE_INTERFACE_DETAIL_DATA_A DeviceInterfaceDetailData,     OPTIONAL
+    OUT PSP_DEVICE_INTERFACE_DETAIL_DATA_A DeviceInterfaceDetailData, OPTIONAL
     IN  DWORD                              DeviceInterfaceDetailDataSize,
-    OUT PDWORD                             RequiredSize,                  OPTIONAL
+    OUT PDWORD                             RequiredSize, OPTIONAL
     OUT PSP_DEVINFO_DATA                   DeviceInfoData                 OPTIONAL
-    )
+)
 {
 
     // Since the maximum length for both the symbolic link and refstring components
@@ -3550,13 +3549,13 @@ SetupDiGetDeviceInterfaceDetailA(
 
     rc = NO_ERROR;
     try {
-        if(DeviceInterfaceDetailData) {
+        if (DeviceInterfaceDetailData) {
 
             // Check signature and make sure buffer is large enough
             // to hold fixed part and at least a valid empty string.
 
-            if((DeviceInterfaceDetailData->cbSize != sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_A))
-            || (DeviceInterfaceDetailDataSize < (offsetof(SP_DEVICE_INTERFACE_DETAIL_DATA_A,DevicePath)+sizeof(CHAR)))) {
+            if ((DeviceInterfaceDetailData->cbSize != sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_A))
+                || (DeviceInterfaceDetailDataSize < (offsetof(SP_DEVICE_INTERFACE_DETAIL_DATA_A, DevicePath) + sizeof(CHAR)))) {
 
                 rc = ERROR_INVALID_USER_BUFFER;
             }
@@ -3564,7 +3563,7 @@ SetupDiGetDeviceInterfaceDetailA(
 
             // Doesn't want data, size has to be 0.
 
-            if(DeviceInterfaceDetailDataSize) {
+            if (DeviceInterfaceDetailDataSize) {
                 rc = ERROR_INVALID_USER_BUFFER;
             }
         }
@@ -3572,7 +3571,7 @@ SetupDiGetDeviceInterfaceDetailA(
         rc = ERROR_INVALID_USER_BUFFER;
     }
 
-    if(rc != NO_ERROR) {
+    if (rc != NO_ERROR) {
         SetLastError(rc);
         return FALSE;
     }
@@ -3580,12 +3579,12 @@ SetupDiGetDeviceInterfaceDetailA(
     UnicodeDetailData = (PSP_DEVICE_INTERFACE_DETAIL_DATA_W)UnicodeBuffer;
     UnicodeDetailData->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_W);
 
-    if(!SetupDiGetDeviceInterfaceDetailW(DeviceInfoSet,
-                                         DeviceInterfaceData,
-                                         UnicodeDetailData,
-                                         sizeof(UnicodeBuffer),
-                                         &UnicodeRequiredSize,
-                                         DeviceInfoData)) {
+    if (!SetupDiGetDeviceInterfaceDetailW(DeviceInfoSet,
+                                          DeviceInterfaceData,
+                                          UnicodeDetailData,
+                                          sizeof(UnicodeBuffer),
+                                          &UnicodeRequiredSize,
+                                          DeviceInfoData)) {
         return FALSE;
     }
 
@@ -3600,7 +3599,7 @@ SetupDiGetDeviceInterfaceDetailA(
     // Allocate an ANSI buffer to be used during the conversion.  The maximum size the buffer
     // would need to be would be 2 * NumUnicodeChars.
 
-    if(!(AnsiBuffer = MyMalloc(UnicodeRequiredSize * 2))) {
+    if (!(AnsiBuffer = MyMalloc(UnicodeRequiredSize * 2))) {
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return FALSE;
     }
@@ -3615,9 +3614,9 @@ SetupDiGetDeviceInterfaceDetailA(
                                              UnicodeRequiredSize * 2,
                                              NULL,
                                              NULL
-                                             );
+        );
 
-        if(!AnsiStringSize) {
+        if (!AnsiStringSize) {
 
             // This should never happen!
 
@@ -3627,11 +3626,11 @@ SetupDiGetDeviceInterfaceDetailA(
 
         ReturnBufferRequiredSize = AnsiStringSize + offsetof(SP_DEVICE_INTERFACE_DETAIL_DATA_A, DevicePath);
 
-        if(RequiredSize) {
+        if (RequiredSize) {
             *RequiredSize = ReturnBufferRequiredSize;
         }
 
-        if(ReturnBufferRequiredSize > DeviceInterfaceDetailDataSize) {
+        if (ReturnBufferRequiredSize > DeviceInterfaceDetailDataSize) {
             rc = ERROR_INSUFFICIENT_BUFFER;
             goto clean0;
         }
@@ -3643,9 +3642,9 @@ SetupDiGetDeviceInterfaceDetailA(
         CopyMemory(DeviceInterfaceDetailData->DevicePath,
                    AnsiBuffer,
                    AnsiStringSize
-                  );
+        );
 
-clean0:
+    clean0:
         ;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -3666,11 +3665,11 @@ WINAPI
 SetupDiGetDeviceInterfaceDetailW(
     IN  HDEVINFO                           DeviceInfoSet,
     IN  PSP_DEVICE_INTERFACE_DATA          DeviceInterfaceData,
-    OUT PSP_DEVICE_INTERFACE_DETAIL_DATA_W DeviceInterfaceDetailData,     OPTIONAL
+    OUT PSP_DEVICE_INTERFACE_DETAIL_DATA_W DeviceInterfaceDetailData, OPTIONAL
     IN  DWORD                              DeviceInterfaceDetailDataSize,
-    OUT PDWORD                             RequiredSize,                  OPTIONAL
+    OUT PDWORD                             RequiredSize, OPTIONAL
     OUT PSP_DEVINFO_DATA                   DeviceInfoData                 OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInterfaceData);
@@ -3688,11 +3687,11 @@ WINAPI
 SetupDiGetDeviceInterfaceDetail(
     IN  HDEVINFO                           DeviceInfoSet,
     IN  PSP_DEVICE_INTERFACE_DATA          DeviceInterfaceData,
-    OUT PSP_DEVICE_INTERFACE_DETAIL_DATA   DeviceInterfaceDetailData,     OPTIONAL
+    OUT PSP_DEVICE_INTERFACE_DETAIL_DATA   DeviceInterfaceDetailData, OPTIONAL
     IN  DWORD                              DeviceInterfaceDetailDataSize,
-    OUT PDWORD                             RequiredSize,                  OPTIONAL
+    OUT PDWORD                             RequiredSize, OPTIONAL
     OUT PSP_DEVINFO_DATA                   DeviceInfoData                 OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -3758,7 +3757,7 @@ Return Value:
     PCTSTR DevicePath;
     DWORD DevicePathLength, BufferLengthNeeded;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -3771,7 +3770,7 @@ Return Value:
         // is used as a form of validation, and also may be needed later on, if the
         // user supplied us with a DeviceInfoData buffer to be filled in.
 
-        if(!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
+        if (!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -3783,7 +3782,7 @@ Return Value:
 
         DevicePath = pStringTableStringFromId(pDeviceInfoSet->StringTable,
                                               InterfaceDeviceNode->SymLinkName
-                                             );
+        );
 
         DevicePathLength = (lstrlen(DevicePath) + 1) * sizeof(TCHAR);
 
@@ -3792,11 +3791,11 @@ Return Value:
         // whether they requested that the associated devinfo element be returned.  If so,
         // do that first.
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
-            if(!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
-                                                  DevInfoElem,
-                                                  DeviceInfoData))) {
+            if (!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
+                                                   DevInfoElem,
+                                                   DeviceInfoData))) {
                 Err = ERROR_INVALID_USER_BUFFER;
                 goto clean0;
             }
@@ -3805,17 +3804,17 @@ Return Value:
 
         // Validate the caller's buffer.
 
-        if(DeviceInterfaceDetailData) {
+        if (DeviceInterfaceDetailData) {
 
-            if((DeviceInterfaceDetailDataSize <
+            if ((DeviceInterfaceDetailDataSize <
                 (offsetof(SP_DEVICE_INTERFACE_DETAIL_DATA, DevicePath) + sizeof(TCHAR))) ||
-               (DeviceInterfaceDetailData->cbSize != sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA))) {
+                 (DeviceInterfaceDetailData->cbSize != sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA))) {
 
                 Err = ERROR_INVALID_USER_BUFFER;
                 goto clean0;
             }
 
-        } else if(DeviceInterfaceDetailDataSize) {
+        } else if (DeviceInterfaceDetailDataSize) {
             Err = ERROR_INVALID_USER_BUFFER;
             goto clean0;
         }
@@ -3825,18 +3824,18 @@ Return Value:
 
         BufferLengthNeeded = offsetof(SP_DEVICE_INTERFACE_DETAIL_DATA, DevicePath) + DevicePathLength;
 
-        if(RequiredSize) {
+        if (RequiredSize) {
             *RequiredSize = BufferLengthNeeded;
         }
 
-        if(BufferLengthNeeded > DeviceInterfaceDetailDataSize) {
+        if (BufferLengthNeeded > DeviceInterfaceDetailDataSize) {
             Err = ERROR_INSUFFICIENT_BUFFER;
             goto clean0;
         }
 
         CopyMemory(DeviceInterfaceDetailData->DevicePath, DevicePath, DevicePathLength);
 
-clean0: ;   // Nothing to do.
+    clean0:;   // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -3860,19 +3859,19 @@ SetupDiOpenDeviceInterfaceA(
     IN  PCSTR                     DevicePath,
     IN  DWORD                     OpenFlags,
     OUT PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData OPTIONAL
-    )
+)
 {
     PCWSTR UnicodeDevicePath;
     DWORD rc;
 
     rc = CaptureAndConvertAnsiArg(DevicePath, &UnicodeDevicePath);
-    if(rc == NO_ERROR) {
+    if (rc == NO_ERROR) {
 
         rc = _SetupDiOpenInterfaceDevice(DeviceInfoSet,
-                                         (PWSTR)UnicodeDevicePath,
+            (PWSTR)UnicodeDevicePath,
                                          OpenFlags,
                                          DeviceInterfaceData
-                                        );
+        );
 
         MyFree(UnicodeDevicePath);
 
@@ -3892,7 +3891,7 @@ SetupDiOpenDeviceInterfaceW(
     IN  PCWSTR                    DevicePath,
     IN  DWORD                     OpenFlags,
     OUT PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DevicePath);
@@ -3910,7 +3909,7 @@ SetupDiOpenDeviceInterface(
     IN  PCTSTR                    DevicePath,
     IN  DWORD                     OpenFlags,
     OUT PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -3986,13 +3985,13 @@ Remarks:
     DWORD rc;
 
     rc = CaptureStringArg(DevicePath, &WritableDevicePath);
-    if(rc == NO_ERROR) {
+    if (rc == NO_ERROR) {
 
         rc = _SetupDiOpenInterfaceDevice(DeviceInfoSet,
-                                         (PTSTR)WritableDevicePath,
+            (PTSTR)WritableDevicePath,
                                          OpenFlags,
                                          DeviceInterfaceData
-                                        );
+        );
 
         MyFree(WritableDevicePath);
     }
@@ -4008,7 +4007,7 @@ _SetupDiOpenInterfaceDevice(
     IN  PTSTR                     DevicePath,
     IN  DWORD                     OpenFlags,
     OUT PSP_DEVICE_INTERFACE_DATA InterfaceDeviceData OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -4040,11 +4039,11 @@ Return Value:
     PDEVINFO_ELEM DevInfoElem;
     PINTERFACE_DEVICE_NODE InterfaceDeviceNode;
 
-    if(OpenFlags & ~DIODI_NO_ADD) {
+    if (OpenFlags & ~DIODI_NO_ADD) {
         return ERROR_INVALID_FLAGS;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         return ERROR_INVALID_HANDLE;
     }
 
@@ -4066,19 +4065,18 @@ Return Value:
 
         // Move past "\\?\" prefix (also allow "\\.\" until Memphis fixes their code)
 
-        if((DevicePathLen < 4) ||
-           (DevicePath[0] != TEXT('\\')) ||
-           (DevicePath[1] != TEXT('\\')) ||
-           ((DevicePath[2] != TEXT('?')) && (DevicePath[2] != TEXT('.'))) ||
-           (DevicePath[3] != TEXT('\\')))
-        {
+        if ((DevicePathLen < 4) ||
+            (DevicePath[0] != TEXT('\\')) ||
+            (DevicePath[1] != TEXT('\\')) ||
+            ((DevicePath[2] != TEXT('?')) && (DevicePath[2] != TEXT('.'))) ||
+            (DevicePath[3] != TEXT('\\'))) {
             Err = ERROR_BAD_PATHNAME;
             goto clean0;
         }
 
         p = _tcschr(&(DevicePath[4]), TEXT('\\'));
 
-        if(!p) {
+        if (!p) {
 
             // This name has no refstring--set the pointer to the end of the string
 
@@ -4089,14 +4087,14 @@ Return Value:
         // Make sure there are enough characters preceding the current position for a
         // GUID to fit.
 
-        if(p < (DevicePath + 3 + GUID_STRING_LEN)) {
+        if (p < (DevicePath + 3 + GUID_STRING_LEN)) {
             Err = ERROR_BAD_PATHNAME;
             goto clean0;
         }
 
         lstrcpyn(InterfaceGuidString, p - (GUID_STRING_LEN - 1), SIZECHARS(InterfaceGuidString));
 
-        if(pSetupGuidFromString(InterfaceGuidString, &InterfaceGuid) != NO_ERROR) {
+        if (pSetupGuidFromString(InterfaceGuidString, &InterfaceGuid) != NO_ERROR) {
             Err = ERROR_BAD_PATHNAME;
             goto clean0;
         }
@@ -4110,35 +4108,33 @@ Return Value:
                                         DIOCR_INTERFACE,
                                         NULL,
                                         NULL
-                                       );
+        );
 
-        if(hKey == INVALID_HANDLE_VALUE) {
+        if (hKey == INVALID_HANDLE_VALUE) {
             Err = GetLastError();
             goto clean0;
         }
 
-        if(NO_ERROR != (Err = pSetupGetDevInstNameAndStatusForInterfaceDevice(
-                                  hKey,
-                                  DevicePath,
-                                  DeviceInstanceId,
-                                  SIZECHARS(DeviceInstanceId),
-                                  &IsActive)))
-        {
+        if (NO_ERROR != (Err = pSetupGetDevInstNameAndStatusForInterfaceDevice(
+            hKey,
+            DevicePath,
+            DeviceInstanceId,
+            SIZECHARS(DeviceInstanceId),
+            &IsActive))) {
             goto clean0;
         }
 
-        if(NO_ERROR != (Err = pSetupOpenAndAddNewDevInfoElem(pDeviceInfoSet,
-                                                             DeviceInstanceId,
-                                                             TRUE,
-                                                             NULL,
-                                                             NULL,
-                                                             &DevInfoElem,
-                                                             TRUE,
-                                                             &DevInfoAlreadyPresent,
-                                                             (OpenFlags & DIODI_NO_ADD),
-                                                             0,
-                                                             pDeviceInfoSet)))
-        {
+        if (NO_ERROR != (Err = pSetupOpenAndAddNewDevInfoElem(pDeviceInfoSet,
+                                                              DeviceInstanceId,
+                                                              TRUE,
+                                                              NULL,
+                                                              NULL,
+                                                              &DevInfoElem,
+                                                              TRUE,
+                                                              &DevInfoAlreadyPresent,
+                                                              (OpenFlags & DIODI_NO_ADD),
+                                                              0,
+                                                              pDeviceInfoSet))) {
 
             // Make sure DevInfoElem is still NULL, so we won't try to delete it.
 
@@ -4152,16 +4148,15 @@ Return Value:
         // this interface device, add a new interface device node onto this
         // devinfo element's list.
 
-        if((NO_ERROR == (Err = pSetupAddInterfaceDeviceToDevInfoElem(pDeviceInfoSet,
-                                                                     DevInfoElem,
-                                                                     &InterfaceGuid,
-                                                                     DevicePath,
-                                                                     IsActive,
-                                                                     FALSE,
-                                                                     (OpenFlags & DIODI_NO_ADD),
-                                                                     &InterfaceDeviceNode)))
-           || DevInfoAlreadyPresent)
-        {
+        if ((NO_ERROR == (Err = pSetupAddInterfaceDeviceToDevInfoElem(pDeviceInfoSet,
+                                                                      DevInfoElem,
+                                                                      &InterfaceGuid,
+                                                                      DevicePath,
+                                                                      IsActive,
+                                                                      FALSE,
+                                                                      (OpenFlags & DIODI_NO_ADD),
+                                                                      &InterfaceDeviceNode)))
+            || DevInfoAlreadyPresent) {
 
             // Either we successfully added the interface device or the owning devinfo element
             // was already in the set.  In either case, we want to reset the DevInfoElem pointer
@@ -4170,7 +4165,7 @@ Return Value:
             DevInfoElem = NULL;
         }
 
-clean0: ; // nothing to do
+    clean0:; // nothing to do
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -4182,13 +4177,13 @@ clean0: ; // nothing to do
         hKey = hKey;
     }
 
-    if(hKey != INVALID_HANDLE_VALUE) {
+    if (hKey != INVALID_HANDLE_VALUE) {
         RegCloseKey(hKey);
     }
 
-    if(Err != NO_ERROR) {
+    if (Err != NO_ERROR) {
 
-        if(DevInfoElem) {
+        if (DevInfoElem) {
 
             SP_DEVINFO_DATA DeviceInfoData;
 
@@ -4197,11 +4192,11 @@ clean0: ; // nothing to do
             SetupDiDeleteDeviceInfo(DeviceInfoSet, &DeviceInfoData);
         }
 
-    } else if(InterfaceDeviceData) {
+    } else if (InterfaceDeviceData) {
 
         try {
 
-            if(!InterfaceDeviceDataFromNode(InterfaceDeviceNode, &InterfaceGuid, InterfaceDeviceData)) {
+            if (!InterfaceDeviceDataFromNode(InterfaceDeviceNode, &InterfaceGuid, InterfaceDeviceData)) {
                 Err = ERROR_INVALID_USER_BUFFER;
             }
 
@@ -4221,9 +4216,9 @@ WINAPI
 SetupDiGetDeviceInterfaceAlias(
     IN  HDEVINFO                   DeviceInfoSet,
     IN  PSP_DEVICE_INTERFACE_DATA  DeviceInterfaceData,
-    IN  CONST GUID                *AliasInterfaceClassGuid,
+    IN  CONST GUID* AliasInterfaceClassGuid,
     OUT PSP_DEVICE_INTERFACE_DATA  AliasDeviceInterfaceData
-    )
+)
 /*++
 
 Routine Description:
@@ -4277,7 +4272,7 @@ Return Value:
     CONFIGRET cr;
     SP_DEVICE_INTERFACE_DATA TempInterfaceDevData;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -4289,7 +4284,7 @@ Return Value:
 
         // First, find the devinfo element that owns this interface device (for validation).
 
-        if(!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
+        if (!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -4304,7 +4299,7 @@ Return Value:
 
         DevicePath = pStringTableStringFromId(pDeviceInfoSet->StringTable,
                                               InterfaceDeviceNode->SymLinkName
-                                             );
+        );
 
 
         // Choose a buffer size that should always be large enough (we know this is the
@@ -4313,9 +4308,9 @@ Return Value:
 
         AliasPathLength = 512;
 
-        while(TRUE) {
+        while (TRUE) {
 
-            if(!(AliasPath = MyMalloc(AliasPathLength * sizeof(TCHAR)))) {
+            if (!(AliasPath = MyMalloc(AliasPathLength * sizeof(TCHAR)))) {
                 Err = ERROR_NOT_ENOUGH_MEMORY;
                 goto clean0;
             }
@@ -4324,19 +4319,19 @@ Return Value:
             // Now retrieve the name of this interface device's alias in the specified class.
 
             cr = CM_Get_Device_Interface_Alias_Ex(DevicePath,
-                                               (LPGUID)AliasInterfaceClassGuid,
-                                               AliasPath,
-                                               &AliasPathLength,
-                                               0,
-                                               pDeviceInfoSet->hMachine);
+                (LPGUID)AliasInterfaceClassGuid,
+                                                  AliasPath,
+                                                  &AliasPathLength,
+                                                  0,
+                                                  pDeviceInfoSet->hMachine);
 
-            if(cr == CR_SUCCESS) {
+            if (cr == CR_SUCCESS) {
                 break;
             } else {
 
                 // If our buffer was too small, then free it, and try again with a larger buffer.
 
-                if(cr == CR_BUFFER_SMALL) {
+                if (cr == CR_BUFFER_SMALL) {
                     MyFree(AliasPath);
                     AliasPath = NULL;
                 } else {
@@ -4351,10 +4346,10 @@ Return Value:
         // interface device in our device information set.
 
         TempInterfaceDevData.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
-        if(!SetupDiOpenDeviceInterface(DeviceInfoSet,
-                                       AliasPath,
-                                       0,
-                                       &TempInterfaceDevData)) {
+        if (!SetupDiOpenDeviceInterface(DeviceInfoSet,
+                                        AliasPath,
+                                        0,
+                                        &TempInterfaceDevData)) {
 
             // This should never happen.
 
@@ -4375,7 +4370,7 @@ Return Value:
 
         InterfaceDeviceNode = (PINTERFACE_DEVICE_NODE)(TempInterfaceDevData.Reserved);
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -4388,17 +4383,17 @@ clean0: ;   // nothing to do.
 
     UnlockDeviceInfoSet(pDeviceInfoSet);
 
-    if(AliasPath) {
+    if (AliasPath) {
         MyFree(AliasPath);
     }
 
-    if(Err == NO_ERROR) {
+    if (Err == NO_ERROR) {
 
         try {
 
-            if(!InterfaceDeviceDataFromNode(InterfaceDeviceNode,
-                                            AliasInterfaceClassGuid,
-                                            AliasDeviceInterfaceData)) {
+            if (!InterfaceDeviceDataFromNode(InterfaceDeviceNode,
+                                             AliasInterfaceClassGuid,
+                                             AliasDeviceInterfaceData)) {
 
                 Err = ERROR_INVALID_USER_BUFFER;
             }
@@ -4418,10 +4413,10 @@ DWORD
 pSetupGetDevInstNameAndStatusForInterfaceDevice(
     IN  HKEY   hKeyInterfaceClass,
     IN  PCTSTR InterfaceDeviceName,
-    OUT PTSTR  OwningDevInstName,     OPTIONAL
+    OUT PTSTR  OwningDevInstName, OPTIONAL
     IN  DWORD  OwningDevInstNameSize,
     OUT PBOOL  IsActive               OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -4470,9 +4465,9 @@ Return Value:
                                         &hKeyInterfaceDevice,
                                         OwningDevInstName,
                                         &DataBufferSize
-                                       );
+        );
 
-        if(Err != ERROR_SUCCESS) {
+        if (Err != ERROR_SUCCESS) {
 
             // Make sure the key handle is still invalid, so we'll know not to
             // close it.
@@ -4481,7 +4476,7 @@ Return Value:
             goto clean0;
         }
 
-        if(IsActive) {
+        if (IsActive) {
 
             // The user wants to find out whether this interface device is currently active.
             // Check the 'Linked' value entry under the volatile 'Control' subkey to find
@@ -4489,15 +4484,15 @@ Return Value:
 
             *IsActive = FALSE;
 
-            if(ERROR_SUCCESS == RegOpenKeyEx(hKeyInterfaceDevice, pszControl, 0, KEY_READ, &hKeyControl)) {
+            if (ERROR_SUCCESS == RegOpenKeyEx(hKeyInterfaceDevice, pszControl, 0, KEY_READ, &hKeyControl)) {
                 DataBufferSize = sizeof(*IsActive);
-                if(ERROR_SUCCESS != RegQueryValueEx(hKeyControl, pszLinked, NULL, NULL, (PBYTE)IsActive, &DataBufferSize)) {
+                if (ERROR_SUCCESS != RegQueryValueEx(hKeyControl, pszLinked, NULL, NULL, (PBYTE)IsActive, &DataBufferSize)) {
                     *IsActive = FALSE;
                 }
             }
         }
 
-clean0: ;   // nothing to do
+    clean0:;   // nothing to do
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -4509,11 +4504,11 @@ clean0: ;   // nothing to do
         hKeyControl = hKeyControl;
     }
 
-    if(hKeyControl != INVALID_HANDLE_VALUE) {
+    if (hKeyControl != INVALID_HANDLE_VALUE) {
         RegCloseKey(hKeyControl);
     }
 
-    if(hKeyInterfaceDevice != INVALID_HANDLE_VALUE) {
+    if (hKeyInterfaceDevice != INVALID_HANDLE_VALUE) {
         RegCloseKey(hKeyInterfaceDevice);
     }
 
@@ -4528,11 +4523,11 @@ WINAPI
 SetupDiCreateDeviceInterfaceA(
     IN  HDEVINFO                   DeviceInfoSet,
     IN  PSP_DEVINFO_DATA           DeviceInfoData,
-    IN  CONST GUID                *InterfaceClassGuid,
-    IN  PCSTR                      ReferenceString,    OPTIONAL
+    IN  CONST GUID* InterfaceClassGuid,
+    IN  PCSTR                      ReferenceString, OPTIONAL
     IN  DWORD                      CreationFlags,
     OUT PSP_DEVICE_INTERFACE_DATA  DeviceInterfaceData OPTIONAL
-    )
+)
 {
     PCWSTR UnicodeRefString;
     DWORD rc;
@@ -4540,14 +4535,14 @@ SetupDiCreateDeviceInterfaceA(
 
     b = FALSE;
 
-    if(ReferenceString) {
+    if (ReferenceString) {
         rc = CaptureAndConvertAnsiArg(ReferenceString, &UnicodeRefString);
     } else {
         UnicodeRefString = NULL;
         rc = NO_ERROR;
     }
 
-    if(rc == NO_ERROR) {
+    if (rc == NO_ERROR) {
 
         b = SetupDiCreateDeviceInterfaceW(DeviceInfoSet,
                                           DeviceInfoData,
@@ -4555,10 +4550,10 @@ SetupDiCreateDeviceInterfaceA(
                                           UnicodeRefString,
                                           CreationFlags,
                                           DeviceInterfaceData
-                                         );
+        );
         rc = GetLastError();
 
-        if(UnicodeRefString) {
+        if (UnicodeRefString) {
             MyFree(UnicodeRefString);
         }
     }
@@ -4573,11 +4568,11 @@ WINAPI
 SetupDiCreateDeviceInterfaceW(
     IN  HDEVINFO                   DeviceInfoSet,
     IN  PSP_DEVINFO_DATA           DeviceInfoData,
-    IN  CONST GUID                *InterfaceClassGuid,
-    IN  PCWSTR                     ReferenceString,    OPTIONAL
+    IN  CONST GUID* InterfaceClassGuid,
+    IN  PCWSTR                     ReferenceString, OPTIONAL
     IN  DWORD                      CreationFlags,
     OUT PSP_DEVICE_INTERFACE_DATA  DeviceInterfaceData OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -4595,11 +4590,11 @@ WINAPI
 SetupDiCreateDeviceInterface(
     IN  HDEVINFO                   DeviceInfoSet,
     IN  PSP_DEVINFO_DATA           DeviceInfoData,
-    IN  CONST GUID                *InterfaceClassGuid,
-    IN  PCTSTR                     ReferenceString,    OPTIONAL
+    IN  CONST GUID* InterfaceClassGuid,
+    IN  PCTSTR                     ReferenceString, OPTIONAL
     IN  DWORD                      CreationFlags,
     OUT PSP_DEVICE_INTERFACE_DATA  DeviceInterfaceData OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -4656,12 +4651,12 @@ Remarks:
     PINTERFACE_DEVICE_NODE InterfaceDeviceNode;
     HKEY hKey;
 
-    if(CreationFlags) {
+    if (CreationFlags) {
         SetLastError(ERROR_INVALID_FLAGS);
         return FALSE;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -4674,9 +4669,9 @@ Remarks:
         // Get a pointer to the device information element we're registering an
         // interface device for.
 
-        if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                     DeviceInfoData,
-                                                     NULL))) {
+        if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                      DeviceInfoData,
+                                                      NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -4686,14 +4681,14 @@ Remarks:
 
         InterfaceDeviceNameSize = SIZECHARS(InterfaceDeviceName);
         cr = CM_Register_Device_Interface_Ex(DevInfoElem->DevInst,
-                                          (LPGUID)InterfaceClassGuid,
-                                          ReferenceString,
-                                          InterfaceDeviceName,
-                                          &InterfaceDeviceNameSize,
-                                          0,
-                                          pDeviceInfoSet->hMachine);
+            (LPGUID)InterfaceClassGuid,
+                                             ReferenceString,
+                                             InterfaceDeviceName,
+                                             &InterfaceDeviceNameSize,
+                                             0,
+                                             pDeviceInfoSet->hMachine);
 
-        if(cr != CR_SUCCESS) {
+        if (cr != CR_SUCCESS) {
             Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
             goto clean0;
         }
@@ -4704,9 +4699,8 @@ Remarks:
         // whether this device is active.
 
         hKey = SetupDiOpenClassRegKeyEx(InterfaceClassGuid, KEY_READ, DIOCR_INTERFACE, NULL, NULL);
-        if(hKey != INVALID_HANDLE_VALUE) {
-            if(NO_ERROR != pSetupGetDevInstNameAndStatusForInterfaceDevice(hKey, InterfaceDeviceName, NULL, 0, &IsActive))
-            {
+        if (hKey != INVALID_HANDLE_VALUE) {
+            if (NO_ERROR != pSetupGetDevInstNameAndStatusForInterfaceDevice(hKey, InterfaceDeviceName, NULL, 0, &IsActive)) {
 
                 // This shouldn't fail, but if it does, then just assume that the
                 // interface device's status is non-active.
@@ -4734,9 +4728,9 @@ Remarks:
                                                     FALSE,
                                                     FALSE,
                                                     &InterfaceDeviceNode
-                                                   );
+        );
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -4747,13 +4741,13 @@ clean0: ;   // nothing to do.
         hKey = hKey;
     }
 
-    if(hKey != INVALID_HANDLE_VALUE) {
+    if (hKey != INVALID_HANDLE_VALUE) {
         RegCloseKey(hKey);
     }
 
-    if((Err == NO_ERROR) && DeviceInterfaceData) {
+    if ((Err == NO_ERROR) && DeviceInterfaceData) {
         try {
-            if(!InterfaceDeviceDataFromNode(InterfaceDeviceNode, InterfaceClassGuid, DeviceInterfaceData)) {
+            if (!InterfaceDeviceDataFromNode(InterfaceDeviceNode, InterfaceClassGuid, DeviceInterfaceData)) {
                 Err = ERROR_INVALID_USER_BUFFER;
             }
         } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -4773,7 +4767,7 @@ WINAPI
 SetupDiDeleteDeviceInterfaceData(
     IN HDEVINFO                  DeviceInfoSet,
     IN PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData
-    )
+)
 /*++
 
 Routine Description:
@@ -4808,7 +4802,7 @@ Remarks:
     PINTERFACE_DEVICE_NODE InterfaceDeviceNode, CurInterfaceDeviceNode, PrevInterfaceDeviceNode;
     PINTERFACE_CLASS_LIST InterfaceClassList;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -4817,7 +4811,7 @@ Remarks:
 
     try {
         // First, find the devinfo element that owns this interface device.
-        if(!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
+        if (!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -4826,8 +4820,7 @@ Remarks:
         InterfaceDeviceNode = (PINTERFACE_DEVICE_NODE)(DeviceInterfaceData->Reserved);
 
         // Find this devinfo element's interface device list for this class.
-        if(!(InterfaceClassList = AddOrGetInterfaceClassList(pDeviceInfoSet, DevInfoElem, InterfaceDeviceNode->GuidIndex, FALSE)))
-        {
+        if (!(InterfaceClassList = AddOrGetInterfaceClassList(pDeviceInfoSet, DevInfoElem, InterfaceDeviceNode->GuidIndex, FALSE))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -4836,23 +4829,22 @@ Remarks:
         // Find this interface device node in the list of interface devices for this device
         // information element.
 
-        for(CurInterfaceDeviceNode = InterfaceClassList->InterfaceDeviceNode, PrevInterfaceDeviceNode = NULL;
-            CurInterfaceDeviceNode;
-            PrevInterfaceDeviceNode = CurInterfaceDeviceNode, CurInterfaceDeviceNode = CurInterfaceDeviceNode->Next)
-        {
-            if(CurInterfaceDeviceNode == InterfaceDeviceNode) {
+        for (CurInterfaceDeviceNode = InterfaceClassList->InterfaceDeviceNode, PrevInterfaceDeviceNode = NULL;
+             CurInterfaceDeviceNode;
+             PrevInterfaceDeviceNode = CurInterfaceDeviceNode, CurInterfaceDeviceNode = CurInterfaceDeviceNode->Next) {
+            if (CurInterfaceDeviceNode == InterfaceDeviceNode) {
                 break;
             }
         }
 
-        if(!CurInterfaceDeviceNode) {
+        if (!CurInterfaceDeviceNode) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
         MYASSERT(InterfaceClassList->InterfaceDeviceCount);
 
-        if(PrevInterfaceDeviceNode) {
+        if (PrevInterfaceDeviceNode) {
             PrevInterfaceDeviceNode->Next = CurInterfaceDeviceNode->Next;
         } else {
             InterfaceClassList->InterfaceDeviceNode = CurInterfaceDeviceNode->Next;
@@ -4861,7 +4853,7 @@ Remarks:
         MyFree(InterfaceDeviceNode);
         InterfaceClassList->InterfaceDeviceCount--;
 
-clean0: ;   // Nothing to do.
+    clean0:;   // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -4879,7 +4871,7 @@ WINAPI
 SetupDiRemoveDeviceInterface(
     IN     HDEVINFO                  DeviceInfoSet,
     IN OUT PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData
-    )
+)
 /*++
 
 Routine Description:
@@ -4935,7 +4927,7 @@ Remarks:
     PCTSTR DevicePath;
     CONFIGRET cr;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -4947,7 +4939,7 @@ Remarks:
         // Get a pointer to the device information element for the specified
         // interface device.
 
-        if(!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
+        if (!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -4958,28 +4950,28 @@ Remarks:
         // OK, now open the interface device's root storage key.
         DevicePath = pStringTableStringFromId(pDeviceInfoSet->StringTable, InterfaceDeviceNode->SymLinkName);
 
-        cr = CM_Unregister_Device_Interface_Ex(DevicePath, 0,pDeviceInfoSet->hMachine);
-        if(cr != CR_SUCCESS) {
-            switch(cr) {
-                case CR_NO_SUCH_DEVICE_INTERFACE :
+        cr = CM_Unregister_Device_Interface_Ex(DevicePath, 0, pDeviceInfoSet->hMachine);
+        if (cr != CR_SUCCESS) {
+            switch (cr) {
+            case CR_NO_SUCH_DEVICE_INTERFACE:
 
-                    // The device interface was deleted after it was enumerated/opened
-                    // by this client.  In this case, we'll go ahead and succeed this
-                    // call.
+                // The device interface was deleted after it was enumerated/opened
+                // by this client.  In this case, we'll go ahead and succeed this
+                // call.
 
-                    break;
-                case CR_DEVICE_INTERFACE_ACTIVE :
-                    Err = ERROR_DEVICE_INTERFACE_ACTIVE;
+                break;
+            case CR_DEVICE_INTERFACE_ACTIVE:
+                Err = ERROR_DEVICE_INTERFACE_ACTIVE;
 
-                    // If our SPINT_ACTIVE flag isn't set, then that means that the device
-                    // wasn't active the last time we looked.  Update our flag to indicate
-                    // the device's new state.
+                // If our SPINT_ACTIVE flag isn't set, then that means that the device
+                // wasn't active the last time we looked.  Update our flag to indicate
+                // the device's new state.
 
-                    InterfaceDeviceNode->Flags |= SPINT_ACTIVE;
-                    goto clean1;
-                default :
-                    Err = ERROR_INVALID_DATA;
-                    goto clean0;
+                InterfaceDeviceNode->Flags |= SPINT_ACTIVE;
+                goto clean1;
+            default:
+                Err = ERROR_INVALID_DATA;
+                goto clean0;
             }
         }
 
@@ -4999,14 +4991,14 @@ Remarks:
         // BUGBUG (lonnym): If we removed the default device, we need to reset the default!!!
 
 
-clean1:
+    clean1:
 
         // Finally, updated the flags in the caller-supplied buffer to indicate the new status
         // of this interface device.
 
         DeviceInterfaceData->Flags = InterfaceDeviceNode->Flags;
 
-clean0: ;   // nothing to do
+    clean0:;   // nothing to do
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -5024,7 +5016,7 @@ pSetupDiSetDeviceInfoContext(
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData,
     IN DWORD            Context
-    )
+)
 /*++
 
 Routine Description:
@@ -5061,7 +5053,7 @@ pSetupDiGetDeviceInfoContext(
     IN  HDEVINFO         DeviceInfoSet,
     IN  PSP_DEVINFO_DATA DeviceInfoData,
     OUT PDWORD           Context
-    )
+)
 /*++
 
 Routine Description:
@@ -5093,7 +5085,7 @@ Return Value:
 {
     // If we let a NULL context pointer go through to the worker routine, it will
     // think this is a 'set' instead of a 'get'.  Make sure that doesn't happen.
-    if(!Context) {
+    if (!Context) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
@@ -5102,7 +5094,7 @@ Return Value:
                                              DeviceInfoData,
                                              0,               // ignored
                                              Context
-                                            );
+    );
 }
 
 
@@ -5112,7 +5104,7 @@ pSetupDiGetOrSetDeviceInfoContext(
     IN  PSP_DEVINFO_DATA DeviceInfoData,
     IN  DWORD            InContext,
     OUT PDWORD           OutContext      OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -5150,7 +5142,7 @@ Return Value:
     PDEVINFO_ELEM DevInfoElem;
     DWORD Err;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -5159,18 +5151,18 @@ Return Value:
 
     try {
         DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL);
-        if(!DevInfoElem) {
+        if (!DevInfoElem) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
-        if(OutContext) {
+        if (OutContext) {
             *OutContext = DevInfoElem->Context;// Store the context in the caller-supplied buffer.
         } else {
             DevInfoElem->Context = InContext;// Set the context to the caller-supplied value.
         }
 
-clean0:
+    clean0:
         ;   // nothing to do
 
     } except(EXCEPTION_EXECUTE_HANDLER) {

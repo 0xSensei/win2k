@@ -57,18 +57,15 @@ DWORD NEAR DrawDiagonalLine(HDC hdc, LPRECT lprc, int iDirection, int iThickness
     cx = rc.right - rc.left;
 
     if (cy != cx)
-        cy -= iThickness*CYBORDER;
+        cy -= iThickness * CYBORDER;
 
-    if (cy >= cx)
-    {
+    if (cy >= cx) {
         // "slope" is >= 1, so vary x by 1
         cy /= cx;
         pc = &cy;
 
         cx = CXBORDER;
-    }
-    else
-    {
+    } else {
         // "slope" is < 1, so vary y by 1
         cx /= cy;
         pc = &cx;
@@ -92,8 +89,7 @@ DWORD NEAR DrawDiagonalLine(HDC hdc, LPRECT lprc, int iDirection, int iThickness
     else
         py = &rc.bottom;
 
-    while ((rc.left <= rc.right) && (rc.top <= rc.bottom))
-    {
+    while ((rc.left <= rc.right) && (rc.top <= rc.bottom)) {
         PatBlt(hdc, rc.left, *py, cx, cy, PATCOPY);
 
         rc.left += dx;
@@ -137,16 +133,15 @@ void FAR DrawDiagonal(HDC hdc, LPRECT lprc, HBRUSH hbrTL, HBRUSH hbrBR, UINT fla
     else
         hbrT = hbrTL;
 
-    switch (flags & (BF_RECT | BF_DIAGONAL))
-    {
-        case BF_DIAGONAL_ENDTOPLEFT:
-        case BF_DIAGONAL_ENDBOTTOMRIGHT:
-            nDirection = -1;
-            break;
+    switch (flags & (BF_RECT | BF_DIAGONAL)) {
+    case BF_DIAGONAL_ENDTOPLEFT:
+    case BF_DIAGONAL_ENDBOTTOMRIGHT:
+        nDirection = -1;
+        break;
 
-        default:
-            nDirection = 1;
-            break;
+    default:
+        nDirection = 1;
+        break;
     }
 
     hbrT = SelectBrush(hdc, hbrT);
@@ -191,10 +186,9 @@ BOOL NEAR DrawClose(HDC hdc, LPRECT lprc, WORD wControlState)
     cDraw = dMin - ((((dMin - DIM_CAPTIONMIN) / 4) + 1) * 2);
 
     lprc->left += (cx - cDraw + 1) / 2;
-    lprc->top  += (cy - cDraw + 1) / 2;
+    lprc->top += (cy - cDraw + 1) / 2;
 
-    if (wControlState & (DFCS_INACTIVE | DFCS_PUSHED))
-    {
+    if (wControlState & (DFCS_INACTIVE | DFCS_PUSHED)) {
         lprc->left++;
         lprc->top++;
     }
@@ -208,8 +202,7 @@ DrawX:
     DrawDiagonalLine(hdc, lprc, 1, 2);
     DrawDiagonalLine(hdc, lprc, -1, 2);
 
-    if (fDrawDisabled)
-    {
+    if (fDrawDisabled) {
         SelectBrush(hdc, HBR_3DSHADOW);
         OffsetRect(lprc, -1, -1);
         fDrawDisabled = FALSE;
@@ -248,8 +241,7 @@ BOOL NEAR DrawHelp(HDC hdc, LPRECT lprc, WORD wControlState)
     lprc->left += (cx - cDraw + 1) / 2;
     lprc->top += (cy - cDraw + 1) / 2;
 
-    if (wControlState & DFCS_PUSHED)
-    {
+    if (wControlState & DFCS_PUSHED) {
         lprc->left++;
         lprc->top++;
     }
@@ -303,30 +295,25 @@ BOOL NEAR DrawWindowSize(HDC hdc, LPRECT lprc, WORD wControlState)
         cDraw++;
 
     x = lprc->left + (cx - cDraw - 1) / 2;
-    y = lprc->top  + (cy - cDraw - 1) / 2;
+    y = lprc->top + (cy - cDraw - 1) / 2;
 
     cx = cDraw;
     cy = cDraw;
 
-    if (wControlState & DFCS_CAPTIONMIN)
-    {
+    if (wControlState & DFCS_CAPTIONMIN) {
         cDraw /= 3;
         cx -= cDraw;
-        if (wControlState & DFCS_CAPTIONMAX)
-        {
+        if (wControlState & DFCS_CAPTIONMAX) {
             x += cDraw;
             cy -= cDraw;
-        }
-        else
-        {
+        } else {
             // hack -- should be -2 instead of -1
             y += cy - 1;
             cy = 2;
         }
     }
 
-    if (wControlState & DFCS_PUSHED)
-    {
+    if (wControlState & DFCS_PUSHED) {
         x++;
         y++;
     }
@@ -336,8 +323,7 @@ BOOL NEAR DrawWindowSize(HDC hdc, LPRECT lprc, WORD wControlState)
 DrawSize:
     DrawMiniWindow(hdc, x, y, cx, cy);
 
-    if ((wControlState & DFCS_CAPTIONRESTORE) == DFCS_CAPTIONRESTORE)
-    {
+    if ((wControlState & DFCS_CAPTIONRESTORE) == DFCS_CAPTIONRESTORE) {
         RECT rc;
         rc.left = x - cDraw;
         rc.right = rc.left + cx;
@@ -347,8 +333,7 @@ DrawSize:
         DrawMiniWindow(hdc, x - cDraw, y + cDraw, cx, cy);
     }
 
-    if (fDrawDisabled)
-    {
+    if (fDrawDisabled) {
         SelectBrush(hdc, HBR_3DSHADOW);
         x--;
         y--;
@@ -375,16 +360,13 @@ BOOL NEAR DrawArrow(HDC hdc, int x, int y, int cWidth, WORD wStyle)
     if (sign == -1)
         cWidth = (cWidth % 2) ? 1 : 2;
 
-    if (wStyle & DA_VERT)
-    {
+    if (wStyle & DA_VERT) {
         if (sign == -1)
             x += iCount - 1;
 
         for (i = 0; i < iCount; i++, cWidth -= inc, x += sign)
             PatBlt(hdc, x, y++, cWidth, 1, PATCOPY);
-    }
-    else
-    {
+    } else {
         if (sign == -1)
             y += iCount - 1;
 
@@ -411,7 +393,7 @@ BOOL NEAR DrawScrollArrow(HDC hdc, LPRECT lprc, WORD wControlState)
     int iShift = 0;
 
 #if 0
-ComputeArrowSize:
+    ComputeArrowSize:
 #endif
     cx = lprc->right - lprc->left;
     cy = lprc->bottom - lprc->top;
@@ -425,13 +407,10 @@ ComputeArrowSize:
 
     cWidth = cWidthSave = (cLength * 2) - 1;
 
-    if (wControlState & DFCS_SCROLLHORZ)
-    {
+    if (wControlState & DFCS_SCROLLHORZ) {
         cxArrow = cLength;
         cyArrow = cWidth;
-    }
-    else
-    {
+    } else {
         cxArrow = cWidth;
         cyArrow = cLength;
     }
@@ -440,8 +419,7 @@ ComputeArrowSize:
     y = ((cy - cyArrow + 1) / 2) + lprc->top;
 
 #if 0
-    if (wControlState & DFCS_SCROLLLINE)
-    {
+    if (wControlState & DFCS_SCROLLLINE) {
         iLine = lprc->bottom - ((cy - cyArrow) / 2);
         lprc->bottom -= (cy - cyArrow + 1) / 4;
         wControlState &= ~DFCS_SCROLLLINE;
@@ -455,10 +433,10 @@ ComputeArrowSize:
         iShift++;
 
     hOldBrush = SelectBrush(hdc,
-        fDrawDisabled ? HBR_3DHILIGHT : HBR_BTNTEXT);
+                            fDrawDisabled ? HBR_3DHILIGHT : HBR_BTNTEXT);
 
-    wControlState = ((wControlState & DFCS_SCROLLMAX)  ? DA_MAX  : DA_MIN ) |
-                    ((wControlState & DFCS_SCROLLHORZ) ? DA_HORZ : DA_VERT);
+    wControlState = ((wControlState & DFCS_SCROLLMAX) ? DA_MAX : DA_MIN) |
+        ((wControlState & DFCS_SCROLLHORZ) ? DA_HORZ : DA_VERT);
 
 DrawArrow:
     DrawArrow(hdc, x + iShift, y + iShift, cWidth, wControlState);
@@ -466,8 +444,7 @@ DrawArrow:
     if (iLine)
         PatBlt(hdc, x + iShift, iLine + iShift, cWidth, 1, PATCOPY);
 
-    if (fDrawDisabled)
-    {
+    if (fDrawDisabled) {
         SelectBrush(hdc, fDrawDisabled ? HBR_3DSHADOW : HBR_BTNTEXT);
         iShift = 0;
         fDrawDisabled = FALSE;
@@ -522,10 +499,10 @@ BOOL NEAR DrawBullet(HDC hdc, LPRECT lprc)
 #ifndef WIN31
     CopyInflateRect(&rcT, lprc, -CXBORDER, -CYBORDER);
 #else
-    rcT.left    = lprc->left    - CXBORDER;
-    rcT.top     = lprc->top     - CYBORDER;
-    rcT.right   = lprc->right   + CXBORDER;
-    rcT.bottom  = lprc->bottom  + CYBORDER;
+    rcT.left = lprc->left - CXBORDER;
+    rcT.top = lprc->top - CYBORDER;
+    rcT.right = lprc->right + CXBORDER;
+    rcT.bottom = lprc->bottom + CYBORDER;
 #endif
 
     cx = rcT.right - rcT.left;
@@ -565,21 +542,18 @@ BOOL NEAR DrawGrip(register HDC hdc, LPRECT lprc, WORD wState)
     // corner of the square given by (lprc->left, lprc->top, dMin by dMin.
 
 
-    dMin = min(lprc->right-lprc->left, lprc->bottom-lprc->top);
+    dMin = min(lprc->right - lprc->left, lprc->bottom - lprc->top);
     xMax = lprc->left + dMin;
     yMax = lprc->top + dMin;
 
 
     // Setup colors
 
-    if (wState & (DFCS_FLAT | DFCS_MONO))
-    {
+    if (wState & (DFCS_FLAT | DFCS_MONO)) {
         hbrOld = HBR_WINDOW;
         rgbHilight = RGB_WINDOWFRAME;
         rgbShadow = RGB_WINDOWFRAME;
-    }
-    else
-    {
+    } else {
         hbrOld = HBR_3DFACE;
         rgbHilight = RGB_3DHILIGHT;
         rgbShadow = RGB_3DSHADOW;
@@ -590,8 +564,8 @@ BOOL NEAR DrawGrip(register HDC hdc, LPRECT lprc, WORD wState)
 
 
     hbrOld = SelectBrush(hdc, hbrOld);
-    PatBlt(hdc, lprc->left, lprc->top, lprc->right-lprc->left,
-            lprc->bottom-lprc->top, PATCOPY);
+    PatBlt(hdc, lprc->left, lprc->top, lprc->right - lprc->left,
+           lprc->bottom - lprc->top, PATCOPY);
     SelectBrush(hdc, hbrOld);
 
 
@@ -610,8 +584,7 @@ BOOL NEAR DrawGrip(register HDC hdc, LPRECT lprc, WORD wState)
 
     x = lprc->left;
     y = lprc->top;
-    while (x < xMax)
-    {
+    while (x < xMax) {
 
         // Since dMin is the same horz and vert, x < xMax and y < yMax
         // are interchangeable...
@@ -623,7 +596,7 @@ BOOL NEAR DrawGrip(register HDC hdc, LPRECT lprc, WORD wState)
 
 
         MoveTo(hdc, x, yMax);
-        LineTo(hdc, xMax+1, y-1);
+        LineTo(hdc, xMax + 1, y - 1);
 
         // Skip 3 lines in between
         x += 4;
@@ -647,10 +620,9 @@ BOOL NEAR DrawGrip(register HDC hdc, LPRECT lprc, WORD wState)
         return FALSE;
     hpenOld = SelectPen(hdc, hpen);
 
-    x = lprc->left+1;
-    y = lprc->top+1;
-    while (x < xMax)
-    {
+    x = lprc->left + 1;
+    y = lprc->top + 1;
+    while (x < xMax) {
 
         // Draw two diagonal lines touching each other.  Again, we need
         // to draw past the endpoint since LineTo() is [), including the
@@ -658,13 +630,13 @@ BOOL NEAR DrawGrip(register HDC hdc, LPRECT lprc, WORD wState)
 
 
         MoveTo(hdc, x, yMax);
-        LineTo(hdc, xMax+1, y-1);
+        LineTo(hdc, xMax + 1, y - 1);
 
         x++;
         y++;
 
         MoveTo(hdc, x, yMax);
-        LineTo(hdc, xMax+1, y-1);
+        LineTo(hdc, xMax + 1, y - 1);
 
 
         // Skip 2 lines inbetween
@@ -691,15 +663,14 @@ BOOL NEAR DrawBox(HDC hdc, LPRECT lprc, WORD wControlState)
 
     int x = lprc->left;
     int y = lprc->top;
-    int cx = lprc->right  - lprc->left;
+    int cx = lprc->right - lprc->left;
     int cy = lprc->bottom - lprc->top;
     RECT rc;
     int cxRect = CXBORDER * ((wControlState & DFCS_PUSHED) ? 2 : 1);
     int cyRect = CXBORDER * ((wControlState & DFCS_PUSHED) ? 2 : 1);
 
     CopyRect(&rc, lprc);
-    if (wControlState & DFCS_BUTTONRADIO)
-    {
+    if (wControlState & DFCS_BUTTONRADIO) {
         HDC     hdcCompat;
         HBITMAP hbmpCompat;
         DWORD   rgbBk, rgbTx;
@@ -712,9 +683,9 @@ BOOL NEAR DrawBox(HDC hdc, LPRECT lprc, WORD wControlState)
         wControlState &= ~DFCS_BUTTONRADIO;
 
         hdcCompat = CreateCompatibleDC(hdc);
-        hbmpCompat = CreateCompatibleBitmap(hdc, 2*cx, cy);
+        hbmpCompat = CreateCompatibleBitmap(hdc, 2 * cx, cy);
         hbmpCompat = SelectBitmap(hdcCompat, hbmpCompat);
-        PatBlt(hdcCompat, 0, 0, 2*cx, cy, WHITENESS);
+        PatBlt(hdcCompat, 0, 0, 2 * cx, cy, WHITENESS);
 
         // Get the mask & image
         OffsetRect(&rc, -x, -y);
@@ -735,29 +706,22 @@ BOOL NEAR DrawBox(HDC hdc, LPRECT lprc, WORD wControlState)
         hbmpCompat = SelectBitmap(hdcCompat, hbmpCompat);
         DeleteBitmap(hbmpCompat);
         DeleteDC(hdcCompat);
-    }
-    else if (wControlState & DFCS_BUTTONRADIOMASK)
-    {
+    } else if (wControlState & DFCS_BUTTONRADIOMASK) {
         FillRect(hdc, lprc, hbrWhite);
         hOldBrush = SelectBrush(hdc, hbrBlack);
 
-        DrawArrow(hdc, rc.left,            rc.top, cy, DA_MIN | DA_HORZ);
+        DrawArrow(hdc, rc.left, rc.top, cy, DA_MIN | DA_HORZ);
         DrawArrow(hdc, rc.left + (cx / 2), rc.top, cy, DA_MAX | DA_HORZ);
 
         SelectBrush(hdc, hOldBrush);
-    }
-    else if (wControlState & DFCS_BUTTONRADIOIMAGE)
-    {
+    } else if (wControlState & DFCS_BUTTONRADIOIMAGE) {
         HBRUSH  hbrShadow, hbrHilight, hbrDkShadow, hbrLight;
 
         FillRect(hdc, lprc, hbrBlack);
 
-        if (wControlState & (DFCS_MONO | DFCS_FLAT))
-        {
+        if (wControlState & (DFCS_MONO | DFCS_FLAT)) {
             hbrShadow = hbrHilight = hbrDkShadow = hbrLight = HBR_WINDOWFRAME;
-        }
-        else
-        {
+        } else {
             hbrShadow = HBR_3DSHADOW;
             hbrLight = HBR_3DLIGHT;
             hbrHilight = HBR_3DHILIGHT;
@@ -766,7 +730,7 @@ BOOL NEAR DrawBox(HDC hdc, LPRECT lprc, WORD wControlState)
 
         // use the same hbr's as DrawBorder in wmsyserr.c does
         hOldBrush = SelectBrush(hdc, hbrShadow);
-        DrawArrow(hdc, rc.left,            rc.top, cy, DA_MIN | DA_HORZ);
+        DrawArrow(hdc, rc.left, rc.top, cy, DA_MIN | DA_HORZ);
 
         SelectBrush(hdc, hbrHilight);
         DrawArrow(hdc, rc.left + (cx / 2), rc.top, cy, DA_MAX | DA_HORZ);
@@ -775,7 +739,7 @@ BOOL NEAR DrawBox(HDC hdc, LPRECT lprc, WORD wControlState)
         cx = rc.right - rc.left;
         cy = rc.bottom - rc.top;
         SelectBrush(hdc, hbrDkShadow);
-        DrawArrow(hdc, rc.left,            rc.top, cy, DA_MIN | DA_HORZ);
+        DrawArrow(hdc, rc.left, rc.top, cy, DA_MIN | DA_HORZ);
         SelectBrush(hdc, hbrLight);
         DrawArrow(hdc, rc.left + (cx / 2), rc.top, cy, DA_MAX | DA_HORZ);
 
@@ -783,32 +747,27 @@ BOOL NEAR DrawBox(HDC hdc, LPRECT lprc, WORD wControlState)
         cx = rc.right - rc.left;
         cy = rc.bottom - rc.top;
         SelectBrush(hdc, (wControlState & DFCS_PUSHED) ? HBR_3DFACE : HBR_WINDOW);
-        DrawArrow(hdc, rc.left,            rc.top, cy, DA_MIN | DA_HORZ);
+        DrawArrow(hdc, rc.left, rc.top, cy, DA_MIN | DA_HORZ);
         DrawArrow(hdc, rc.left + (cx / 2), rc.top, cy, DA_MAX | DA_HORZ);
 
-        if (wControlState & DFCS_CHECKED)
-        {
+        if (wControlState & DFCS_CHECKED) {
             SelectBrush(hdc, HBR_WINDOWTEXT);
 
             InflateRect(&rc, -CXBORDER, -CYBORDER);
             DrawBullet(hdc, &rc);
         }
         SelectBrush(hdc, hOldBrush);
-    }
-    else
-    {
+    } else {
         DrawEdge(hdc, &rc, EDGE_SUNKEN, BF_RECT | BF_ADJUST |
             (wControlState & (DFCS_MONO | DFCS_FLAT)));
 
         FillRect(hdc, &rc, (wControlState & DFCS_PUSHED) ? HBR_3DFACE : HBR_WINDOW);
         InflateRect(&rc, -CXBORDER, -CYBORDER);
 
-        if (wControlState & DFCS_CHECKED)
-        {
+        if (wControlState & DFCS_CHECKED) {
             if (wControlState & DFCS_BUTTON3STATE)
                 FillRect(hdc, &rc, HBR_GRAYTEXT);
-            else
-            {
+            else {
                 hOldBrush = SelectBrush(hdc, HBR_WINDOWTEXT);
                 DrawCheckMark(hdc, &rc, 3);
                 SelectBrush(hdc, hOldBrush);
@@ -846,7 +805,7 @@ BOOL NEAR DrawMenuMark(HDC hdc, LPRECT lprc, WORD wState)
     else if (wState & DFCS_MENUBULLET)
         DrawBullet(hdc, lprc);
     else
-        DrawArrow(hdc, lprc->left+CXEDGE, lprc->top, lprc->bottom - lprc->top, DA_MAX | DA_HORZ);
+        DrawArrow(hdc, lprc->left + CXEDGE, lprc->top, lprc->bottom - lprc->top, DA_MAX | DA_HORZ);
 
     SelectBrush(hdc, hOldBrush);
 
@@ -878,8 +837,7 @@ BOOL API DrawFrameControl(HDC hdc, LPRECT lprc, UINT wType, UINT wState)
 
     if ((wType != DFC_MENU) &&
         ((wType != DFC_BUTTON) || (wState & DFCS_BUTTONPUSH)) &&
-        ((wType != DFC_SCROLL) || !(wState & DFCS_SCROLLSIZEGRIP)))
-    {
+        ((wType != DFC_SCROLL) || !(wState & DFCS_SCROLLSIZEGRIP))) {
         WORD wBorder = BF_ADJUST;
 
         if (wType != DFC_SCROLL)
@@ -898,8 +856,7 @@ BOOL API DrawFrameControl(HDC hdc, LPRECT lprc, UINT wType, UINT wState)
         fButton = TRUE;
     }
 
-    if (!fButton)
-    {
+    if (!fButton) {
         if (wType == DFC_MENU)
             DrawMenuMark(hdc, &rc, wState);
         else if (wType == DFC_BUTTON)
@@ -908,8 +865,7 @@ BOOL API DrawFrameControl(HDC hdc, LPRECT lprc, UINT wType, UINT wState)
             DrawGrip(hdc, lprc, wState);
     }
 #ifndef WIN31
-    else if (wType == DFC_CAPTION)
-    {
+    else if (wType == DFC_CAPTION) {
         if (wState & DFCS_CAPTIONRESTORE)
             DrawWindowSize(hdc, &rc, wState);
         else if (wState & DFCS_CAPTIONHELP)

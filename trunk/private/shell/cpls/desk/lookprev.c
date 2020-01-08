@@ -1,10 +1,5 @@
 /*  LOOKPREV.C
-
 **  Copyright (C) Microsoft, 1993, All Rights Reserved.
-
-
-**  History:
-
 */
 
 #include "precomp.h"
@@ -56,11 +51,11 @@ int NEAR PASCAL LookPrev_HitTest(POINT pt)
     return i;
 }
 
-// ----------------------------------------------------------------------------
+//  
 // LookPrev_Init
 
 // create the preview bitmap and collect all of the global, non-changing data
-// ----------------------------------------------------------------------------
+//  
 void NEAR PASCAL LookPrev_Init(HWND hwnd)
 {
     RECT rc;
@@ -84,7 +79,7 @@ void NEAR PASCAL LookPrev_Init(HWND hwnd)
     LoadString(hInstance, IDS_SELECTED, g_szSelected, ARRAYSIZE(g_szSelected));
     LoadString(hInstance, IDS_MSGBOX, g_szMsgBox, ARRAYSIZE(g_szMsgBox));
     LoadString(hInstance, IDS_BUTTONTEXT, g_szButton, ARRAYSIZE(g_szButton));
-//    LoadString(hInstance, IDS_SMCAPTION, g_szSmallCaption, ARRAYSIZE(g_szSmallCaption));
+    //    LoadString(hInstance, IDS_SMCAPTION, g_szSmallCaption, ARRAYSIZE(g_szSmallCaption));
     LoadString(hInstance, IDS_WINDOWTEXT, g_szWindowText, ARRAYSIZE(g_szWindowText));
     LoadString(hInstance, IDS_MSGBOXTEXT, g_szMsgBoxText, ARRAYSIZE(g_szMsgBoxText));
 
@@ -101,11 +96,11 @@ void NEAR PASCAL LookPrev_Init(HWND hwnd)
 
 }
 
-// ----------------------------------------------------------------------------
+//  
 // LookPrev_Recalc
 
 // calculate all of the rectangles based on the given window rect
-// ----------------------------------------------------------------------------
+//  
 void FAR PASCAL LookPrev_Recalc(HWND hwnd)
 {
     DWORD cxNormal;
@@ -161,7 +156,7 @@ void FAR PASCAL LookPrev_Recalc(HWND hwnd)
 
     RCZ(ELEMENT_DESKTOP) = rc;
 
-    InflateRect(&rc, -8*cxBorder, -8*cyBorder);
+    InflateRect(&rc, -8 * cxBorder, -8 * cyBorder);
 
 
     // Windows
@@ -169,7 +164,7 @@ void FAR PASCAL LookPrev_Recalc(HWND hwnd)
     rc.bottom -= cyFrame + cyCaption;
     RCZ(ELEMENT_ACTIVEBORDER) = rc;
     OffsetRect(&RCZ(ELEMENT_ACTIVEBORDER), cxFrame,
-                        cyFrame + cyCaption + cyBorder);
+               cyFrame + cyCaption + cyBorder);
     RCZ(ELEMENT_ACTIVEBORDER).bottom -= cyCaption;
 
 
@@ -194,7 +189,7 @@ void FAR PASCAL LookPrev_Recalc(HWND hwnd)
     RCZ(ELEMENT_INACTIVESYSBUT2) = rc;
     RCZ(ELEMENT_INACTIVESYSBUT2).right = RCZ(ELEMENT_INACTIVESYSBUT1).left - cxEdge;
     RCZ(ELEMENT_INACTIVESYSBUT2).left = RCZ(ELEMENT_INACTIVESYSBUT2).right -
-                                                2 * (cyCaption - cxEdge);
+        2 * (cyCaption - cxEdge);
 
 #if 0
 
@@ -212,7 +207,7 @@ void FAR PASCAL LookPrev_Recalc(HWND hwnd)
     RCZ(ELEMENT_SMCAPSYSBUT).top += 2 * cxEdge + cxBorder;
     RCZ(ELEMENT_SMCAPSYSBUT).bottom -= cxEdge + cxBorder;
     RCZ(ELEMENT_SMCAPSYSBUT).left = RCZ(ELEMENT_SMCAPSYSBUT).right -
-                                        (g_sizes[SIZE_SMCAPTION].CurSize - cxEdge);
+        (g_sizes[SIZE_SMCAPTION].CurSize - cxEdge);
 #endif
 
 
@@ -231,13 +226,13 @@ void FAR PASCAL LookPrev_Recalc(HWND hwnd)
     InflateRect(&RCZ(ELEMENT_ACTIVESYSBUT1), -cxEdge, -cyEdge);
     RCZ(ELEMENT_ACTIVESYSBUT1).bottom -= cyBorder;      // compensate for magic line under caption
     RCZ(ELEMENT_ACTIVESYSBUT1).left = RCZ(ELEMENT_ACTIVESYSBUT1).right -
-                                        (cyCaption - cxEdge);
+        (cyCaption - cxEdge);
 
     // min/max buttons
     RCZ(ELEMENT_ACTIVESYSBUT2) = RCZ(ELEMENT_ACTIVESYSBUT1);
     RCZ(ELEMENT_ACTIVESYSBUT2).right = RCZ(ELEMENT_ACTIVESYSBUT1).left - cxEdge;
     RCZ(ELEMENT_ACTIVESYSBUT2).left = RCZ(ELEMENT_ACTIVESYSBUT2).right -
-                                                2 * (cyCaption - cxEdge);
+        2 * (cyCaption - cxEdge);
 
     // Menu
     rc.top = RCZ(ELEMENT_ACTIVECAPTION).bottom;
@@ -247,7 +242,7 @@ void FAR PASCAL LookPrev_Recalc(HWND hwnd)
 
     RCZ(ELEMENT_MENUDISABLED).left = RCZ(ELEMENT_MENUNORMAL).left + cxNormal;
     RCZ(ELEMENT_MENUDISABLED).right = RCZ(ELEMENT_MENUSELECTED).left =
-                        RCZ(ELEMENT_MENUDISABLED).left + cxDisabled;
+        RCZ(ELEMENT_MENUDISABLED).left + cxDisabled;
     RCZ(ELEMENT_MENUSELECTED).right = RCZ(ELEMENT_MENUSELECTED).left + cxSelected;
 
 
@@ -271,9 +266,9 @@ void FAR PASCAL LookPrev_Recalc(HWND hwnd)
     // Message Box
 
     rc.top = RCZ(ELEMENT_WINDOW).top + (RCZ(ELEMENT_WINDOW).bottom - RCZ(ELEMENT_WINDOW).top) / 2;
-    rc.bottom = RCZ(ELEMENT_DESKTOP).bottom - 2*cyEdge;
-    rc.left = RCZ(ELEMENT_WINDOW).left + 2*cyEdge;
-    rc.right = RCZ(ELEMENT_WINDOW).left + (RCZ(ELEMENT_WINDOW).right - RCZ(ELEMENT_WINDOW).left) / 2 + 3*cyCaption;
+    rc.bottom = RCZ(ELEMENT_DESKTOP).bottom - 2 * cyEdge;
+    rc.left = RCZ(ELEMENT_WINDOW).left + 2 * cyEdge;
+    rc.right = RCZ(ELEMENT_WINDOW).left + (RCZ(ELEMENT_WINDOW).right - RCZ(ELEMENT_WINDOW).left) / 2 + 3 * cyCaption;
     RCZ(ELEMENT_MSGBOX) = rc;
 
     // Caption
@@ -286,26 +281,26 @@ void FAR PASCAL LookPrev_Recalc(HWND hwnd)
     RCZ(ELEMENT_MSGBOXSYSBUT) = RCZ(ELEMENT_MSGBOXCAPTION);
     InflateRect(&RCZ(ELEMENT_MSGBOXSYSBUT), -cxEdge, -cyEdge);
     RCZ(ELEMENT_MSGBOXSYSBUT).left = RCZ(ELEMENT_MSGBOXSYSBUT).right -
-                                        (cyCaption - cxEdge);
+        (cyCaption - cxEdge);
     RCZ(ELEMENT_MSGBOXSYSBUT).bottom -= cyBorder;       // line under caption
 
     // Button
-    RCZ(ELEMENT_BUTTON).bottom = RCZ(ELEMENT_MSGBOX).bottom - (4*cyBorder + cyEdge);
+    RCZ(ELEMENT_BUTTON).bottom = RCZ(ELEMENT_MSGBOX).bottom - (4 * cyBorder + cyEdge);
     RCZ(ELEMENT_BUTTON).top = RCZ(ELEMENT_BUTTON).bottom - (sizButton.cy + 8 * cyBorder);
 
     i = (RCZ(ELEMENT_BUTTON).bottom - RCZ(ELEMENT_BUTTON).top) * 3;
-    RCZ(ELEMENT_BUTTON).left = (rc.left + (rc.right - rc.left)/2) - i/2;
+    RCZ(ELEMENT_BUTTON).left = (rc.left + (rc.right - rc.left) / 2) - i / 2;
     RCZ(ELEMENT_BUTTON).right = RCZ(ELEMENT_BUTTON).left + i;
 
 }
 
-// ----------------------------------------------------------------------------
+//  
 
 //  MyDrawFrame() -
 
 //  Draws bordered frame, border size cl, and adjusts passed in rect.
 
-// ----------------------------------------------------------------------------
+//  
 void NEAR PASCAL MyDrawFrame(HDC hdc, LPRECT prc, HBRUSH hbrColor, int cl)
 {
     HBRUSH hbr;
@@ -370,7 +365,7 @@ void NEAR PASCAL DrawFullCaption(HDC hdc, LPRECT prc, LPTSTR lpszTitle, UINT fla
     DrawFrameControl(hdc, prc, DFC_CAPTION, DFCS_CAPTIONCLOSE);
 
     prc->left = prc->right;
-    prc->right = iRight - 2*cxSize;
+    prc->right = iRight - 2 * cxSize;
     iFont = flags & DC_SMALLCAP ? FONT_SMCAPTION : FONT_CAPTION;
     DrawCaptionTemp(NULL, hdc, prc, g_fonts[iFont].hfont, NULL, lpszTitle, flags | DC_ICON | DC_TEXT);
 
@@ -390,8 +385,7 @@ void NEAR PASCAL LookPrev_ShowBitmap(HWND hWnd, HDC hdc)
     HBITMAP hbmOld;
     HPALETTE hpalOld = NULL;
 
-    if (g_hpal3D && !g_bGradient)
-    {
+    if (g_hpal3D && !g_bGradient) {
         hpalOld = SelectPalette(hdc, g_hpal3D, FALSE);
         RealizePalette(hdc);
     }
@@ -401,17 +395,13 @@ void NEAR PASCAL LookPrev_ShowBitmap(HWND hWnd, HDC hdc)
     BitBlt(hdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, g_hdcMem, 0, 0, SRCCOPY);
     SelectObject(g_hdcMem, hbmOld);
 
-    if (hpalOld)
-    {
+    if (hpalOld) {
         SelectPalette(hdc, hpalOld, FALSE);
         RealizePalette(hdc);
     }
 }
 
-// ----------------------------------------------------------------------------
 
-
-// ----------------------------------------------------------------------------
 void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
 {
     RECT rcT;
@@ -425,8 +415,7 @@ void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
 
     SaveDC(hdc);
 
-    if (g_hpal3D && !g_bGradient)
-    {
+    if (g_hpal3D && !g_bGradient) {
         hpalOld = SelectPalette(hdc, g_hpal3D, TRUE);
         RealizePalette(hdc);
     }
@@ -434,8 +423,8 @@ void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
     hOldColors = SetSysColorsTemp(g_rgb, g_brushes, COLOR_MAX);
 
     hiconLogo = LoadImage(NULL, IDI_APPLICATION, IMAGE_ICON,
-                        g_sizes[SIZE_CAPTION].CurSize - 2*cxBorder,
-                        g_sizes[SIZE_CAPTION].CurSize - 2*cyBorder, 0);
+                          g_sizes[SIZE_CAPTION].CurSize - 2 * cxBorder,
+                          g_sizes[SIZE_CAPTION].CurSize - 2 * cyBorder, 0);
 
 
     // Setup drawing stuff
@@ -443,8 +432,8 @@ void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
     nMode = SetBkMode(hdc, TRANSPARENT);
     rgbBk = GetTextColor(hdc);
 
-    cxSize  = GetSystemMetrics(SM_CXSIZE);
-    cySize  = GetSystemMetrics(SM_CYSIZE);
+    cxSize = GetSystemMetrics(SM_CXSIZE);
+    cySize = GetSystemMetrics(SM_CYSIZE);
 
 
     // Desktop
@@ -476,11 +465,11 @@ void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
     rcT.right = rcT.left;
     rcT.left = RCZ(ELEMENT_INACTIVECAPTION).left;
     DrawCaptionTemp(NULL, hdc, &rcT, g_fonts[FONT_CAPTION].hfont, hiconLogo, g_szInactive, DC_ICON | DC_TEXT |
-            (g_bGradient ? DC_GRADIENT : 0));
+        (g_bGradient ? DC_GRADIENT : 0));
 
     DrawFrameControl(hdc, &RCZ(ELEMENT_INACTIVESYSBUT1), DFC_CAPTION, DFCS_CAPTIONCLOSE);
     rcT = RCZ(ELEMENT_INACTIVESYSBUT2);
-    rcT.right -= (rcT.right - rcT.left)/2;
+    rcT.right -= (rcT.right - rcT.left) / 2;
     DrawFrameControl(hdc, &rcT, DFC_CAPTION, DFCS_CAPTIONMIN);
     rcT.left = rcT.right;
     rcT.right = RCZ(ELEMENT_INACTIVESYSBUT2).right;
@@ -493,29 +482,29 @@ void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
 
 
     {
-    HICON hicon;
-    int temp;
+        HICON hicon;
+        int temp;
 
 
-    rcT = RCZ(ELEMENT_SMCAPTION);
-    hicon = LoadImage(NULL, IDI_APPLICATION,
-            IMAGE_ICON,
-                        g_sizes[SIZE_SMCAPTION].CurSize - 2*cxBorder,
-                        g_sizes[SIZE_SMCAPTION].CurSize - 2*cyBorder,
-                    0);
+        rcT = RCZ(ELEMENT_SMCAPTION);
+        hicon = LoadImage(NULL, IDI_APPLICATION,
+                          IMAGE_ICON,
+                          g_sizes[SIZE_SMCAPTION].CurSize - 2 * cxBorder,
+                          g_sizes[SIZE_SMCAPTION].CurSize - 2 * cyBorder,
+                          0);
 
-    DrawEdge(hdc, &rcT, EDGE_RAISED, BF_TOP | BF_LEFT | BF_RIGHT | BF_ADJUST);
-    MyDrawFrame(hdc, &rcT, g_brushes[COLOR_3DFACE], 1);
-    // "clip" the caption title under the buttons
-    temp = rcT.left;  // remember start of actual caption
-    rcT.left = RCZ(ELEMENT_SMCAPSYSBUT).left - cxEdge;
-    FillRect(hdc, &rcT, g_brushes[COLOR_INACTIVECAPTION]);
-    rcT.right = rcT.left;
-    rcT.left = temp;  // start of actual caption
-    DrawCaptionTemp(NULL, hdc, &rcT, g_fonts[FONT_SMCAPTION].hfont, hicon, g_szSmallCaption, DC_SMALLCAP | DC_ICON | DC_TEXT);
-    DestroyIcon(hicon);
+        DrawEdge(hdc, &rcT, EDGE_RAISED, BF_TOP | BF_LEFT | BF_RIGHT | BF_ADJUST);
+        MyDrawFrame(hdc, &rcT, g_brushes[COLOR_3DFACE], 1);
+        // "clip" the caption title under the buttons
+        temp = rcT.left;  // remember start of actual caption
+        rcT.left = RCZ(ELEMENT_SMCAPSYSBUT).left - cxEdge;
+        FillRect(hdc, &rcT, g_brushes[COLOR_INACTIVECAPTION]);
+        rcT.right = rcT.left;
+        rcT.left = temp;  // start of actual caption
+        DrawCaptionTemp(NULL, hdc, &rcT, g_fonts[FONT_SMCAPTION].hfont, hicon, g_szSmallCaption, DC_SMALLCAP | DC_ICON | DC_TEXT);
+        DestroyIcon(hicon);
 
-    DrawFrameControl(hdc, &RCZ(ELEMENT_SMCAPSYSBUT), DFC_CAPTION, DFCS_CAPTIONCLOSE);
+        DrawFrameControl(hdc, &RCZ(ELEMENT_SMCAPSYSBUT), DFC_CAPTION, DFCS_CAPTIONCLOSE);
     }
 #endif
 
@@ -538,11 +527,11 @@ void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
     rcT.right = rcT.left;
     rcT.left = RCZ(ELEMENT_ACTIVECAPTION).left;
     DrawCaptionTemp(NULL, hdc, &rcT, g_fonts[FONT_CAPTION].hfont, hiconLogo, g_szActive, DC_ACTIVE | DC_ICON | DC_TEXT |
-            (g_bGradient ? DC_GRADIENT : 0));
+        (g_bGradient ? DC_GRADIENT : 0));
 
     DrawFrameControl(hdc, &RCZ(ELEMENT_ACTIVESYSBUT1), DFC_CAPTION, DFCS_CAPTIONCLOSE);
     rcT = RCZ(ELEMENT_ACTIVESYSBUT2);
-    rcT.right -= (rcT.right - rcT.left)/2;
+    rcT.right -= (rcT.right - rcT.left) / 2;
     DrawFrameControl(hdc, &rcT, DFC_CAPTION, DFCS_CAPTIONMIN);
     rcT.left = rcT.right;
     rcT.right = RCZ(ELEMENT_ACTIVESYSBUT2).right;
@@ -564,7 +553,7 @@ void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
     // window text
     SetBkMode(hdc, TRANSPARENT);
     SetTextColor(hdc, g_rgb[COLOR_WINDOWTEXT]);
-    TextOut(hdc, RCZ(ELEMENT_WINDOW).left + 2*cxEdge, RCZ(ELEMENT_WINDOW).top + 2*cyEdge, g_szWindowText, lstrlen(g_szWindowText));
+    TextOut(hdc, RCZ(ELEMENT_WINDOW).left + 2 * cxEdge, RCZ(ELEMENT_WINDOW).top + 2 * cyEdge, g_szWindowText, lstrlen(g_szWindowText));
 
 
     // scroll bar
@@ -573,7 +562,7 @@ void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
     //MyDrawFrame(hdc, &rcT, g_brushes[COLOR_3DSHADOW], 1);
     //g_brushes[COLOR_SCROLLBAR]);
     FillRect(hdc, &rcT, g_brushes[COLOR_SCROLLBAR]);
-//    FillRect(hdc, &rcT, (HBRUSH)DefWindowProc(hWnd, WM_CTLCOLOR, (WPARAM)hdc, MAKELONG(hWnd, CTLCOLOR_SCROLLBAR)));
+    //    FillRect(hdc, &rcT, (HBRUSH)DefWindowProc(hWnd, WM_CTLCOLOR, (WPARAM)hdc, MAKELONG(hWnd, CTLCOLOR_SCROLLBAR)));
 
     DrawFrameControl(hdc, &RCZ(ELEMENT_SCROLLUP), DFC_SCROLL, DFCS_SCROLLUP);
     DrawFrameControl(hdc, &RCZ(ELEMENT_SCROLLDOWN), DFC_SCROLL, DFCS_SCROLLDOWN);
@@ -593,15 +582,15 @@ void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
     rcT.right = rcT.left;
     rcT.left = RCZ(ELEMENT_MSGBOXCAPTION).left;
     DrawCaptionTemp(NULL, hdc, &rcT, g_fonts[FONT_CAPTION].hfont, hiconLogo, g_szMsgBox, DC_ACTIVE | DC_ICON | DC_TEXT |
-            (g_bGradient ? DC_GRADIENT : 0));
+        (g_bGradient ? DC_GRADIENT : 0));
     DrawFrameControl(hdc, &RCZ(ELEMENT_MSGBOXSYSBUT), DFC_CAPTION, DFCS_CAPTIONCLOSE);
 
     // message box text
     SetBkMode(hdc, TRANSPARENT);
     SetTextColor(hdc, g_rgb[COLOR_WINDOWTEXT]);
     hfontOld = SelectObject(hdc, g_fonts[FONT_MSGBOX].hfont);
-    TextOut(hdc, RCZ(ELEMENT_MSGBOX).left + 3*cxEdge, RCZ(ELEMENT_MSGBOXCAPTION).bottom + cyEdge,
-                        g_szMsgBoxText, lstrlen(g_szMsgBoxText));
+    TextOut(hdc, RCZ(ELEMENT_MSGBOX).left + 3 * cxEdge, RCZ(ELEMENT_MSGBOXCAPTION).bottom + cyEdge,
+            g_szMsgBoxText, lstrlen(g_szMsgBoxText));
     if (hfontOld)
         SelectObject(hdc, hfontOld);
 
@@ -611,11 +600,11 @@ void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
     rcT = RCZ(ELEMENT_BUTTON);
     DrawFrameControl(hdc, &rcT, DFC_BUTTON, DFCS_BUTTONPUSH);
 
-// ?????? what font should this use ??????
+    // ?????? what font should this use ??????
     SetBkMode(hdc, TRANSPARENT);
     SetTextColor(hdc, g_rgb[COLOR_BTNTEXT]);
     DrawText(hdc, g_szButton, -1, &rcT, DT_CENTER | DT_NOPREFIX |
-        DT_SINGLELINE | DT_VCENTER);
+             DT_SINGLELINE | DT_VCENTER);
 
     SetBkColor(hdc, rgbBk);
     SetBkMode(hdc, nMode);
@@ -625,8 +614,7 @@ void NEAR PASCAL LookPrev_Draw(HWND hWnd, HDC hdc)
 
     SetSysColorsTemp(NULL, NULL, (UINT)hOldColors);
 
-    if (hpalOld)
-    {
+    if (hpalOld) {
         hpalOld = SelectPalette(hdc, hpalOld, FALSE);
         RealizePalette(hdc);
     }
@@ -638,8 +626,7 @@ void FAR PASCAL LookPrev_Repaint(HWND hwnd)
 {
     HBITMAP hbmOld;
 
-    if (g_hbmLook)
-    {
+    if (g_hbmLook) {
         hbmOld = SelectObject(g_hdcMem, g_hbmLook);
         LookPrev_Draw(hwnd, g_hdcMem);
         SelectObject(g_hdcMem, hbmOld);
@@ -647,91 +634,87 @@ void FAR PASCAL LookPrev_Repaint(HWND hwnd)
     InvalidateRect(hwnd, NULL, FALSE);
 }
 
-LONG CALLBACK  LookPreviewWndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LONG CALLBACK  LookPreviewWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     PAINTSTRUCT ps;
     DWORD dw;
     int iEl;
 
-    switch(message)
-    {
-        case WM_NCCREATE:
-            dw = GetWindowLong (hWnd,GWL_STYLE);
-            SetWindowLong (hWnd, GWL_STYLE, dw | WS_BORDER);
-            dw = GetWindowLong (hWnd,GWL_EXSTYLE);
-            SetWindowLong (hWnd, GWL_EXSTYLE, dw | WS_EX_CLIENTEDGE);
-            return TRUE;
+    switch (message) {
+    case WM_NCCREATE:
+        dw = GetWindowLong(hWnd, GWL_STYLE);
+        SetWindowLong(hWnd, GWL_STYLE, dw | WS_BORDER);
+        dw = GetWindowLong(hWnd, GWL_EXSTYLE);
+        SetWindowLong(hWnd, GWL_EXSTYLE, dw | WS_EX_CLIENTEDGE);
+        return TRUE;
 
-        case WM_CREATE:
-            LookPrev_Init(hWnd);
-            break;
-
-        case WM_DESTROY:
-            if (g_hbmLook)
-            {
-                DeleteObject(g_hbmLook);
-                g_hbmLook = NULL;
-            }
-            if (g_hmenuSample)
-            {
-                DestroyMenu(g_hmenuSample);
-                g_hmenuSample = NULL;
-            }
-            break;
-
-        case WM_PALETTECHANGED:
-            if ((HWND)wParam == hWnd)
-                break;
-            //fallthru
-        case WM_QUERYNEWPALETTE:
-            if (g_hpal3D)
-                InvalidateRect(hWnd, NULL, FALSE);
-            break;
-
-        case WM_LBUTTONDOWN:
-        case WM_LBUTTONDBLCLK:
-            { POINT pt;
-                pt.x = LOWORD(lParam);  // horizontal position of cursor
-                pt.y = HIWORD(lParam);  // vertical position of cursor
-
-                iEl = LookPrev_HitTest(pt);
-                Look_SelectElement(GetParent(hWnd), iEl, TRUE);
-            }
-            break;
-
-        case WM_RECREATEBITMAP:
-            if (g_hbmLook)
-            {
-                HDC hdc = GetDC(NULL);
-                if (g_nBitsPixel != GetDeviceCaps(hdc, BITSPIXEL))
-                {
-                    DeleteObject(g_hbmLook);
-                    g_hbmLook = NULL;
-
-                    LookPrev_Init(hWnd);
-
-                    // InvalidateRect(hWnd, NULL, FALSE);
-                    // UpdateWindow(hWnd);
-
-                    LookPrev_Repaint(hWnd);
-                }
-                ReleaseDC(NULL, hdc);
-            }
+    case WM_CREATE:
+        LookPrev_Init(hWnd);
         break;
 
-        case WM_SIZE:
-            break;
+    case WM_DESTROY:
+        if (g_hbmLook) {
+            DeleteObject(g_hbmLook);
+            g_hbmLook = NULL;
+        }
+        if (g_hmenuSample) {
+            DestroyMenu(g_hmenuSample);
+            g_hmenuSample = NULL;
+        }
+        break;
 
-        case WM_PAINT:
-            BeginPaint(hWnd, &ps);
-            if (g_hbmLook)
-                LookPrev_ShowBitmap(hWnd, ps.hdc);
-            else
-                LookPrev_Draw(hWnd, ps.hdc);
-            EndPaint(hWnd, &ps);
+    case WM_PALETTECHANGED:
+        if ((HWND)wParam == hWnd)
             break;
+        //fallthru
+    case WM_QUERYNEWPALETTE:
+        if (g_hpal3D)
+            InvalidateRect(hWnd, NULL, FALSE);
+        break;
+
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONDBLCLK:
+    {
+        POINT pt;
+        pt.x = LOWORD(lParam);  // horizontal position of cursor
+        pt.y = HIWORD(lParam);  // vertical position of cursor
+
+        iEl = LookPrev_HitTest(pt);
+        Look_SelectElement(GetParent(hWnd), iEl, TRUE);
     }
-    return DefWindowProc(hWnd,message,wParam,lParam);
+    break;
+
+    case WM_RECREATEBITMAP:
+        if (g_hbmLook) {
+            HDC hdc = GetDC(NULL);
+            if (g_nBitsPixel != GetDeviceCaps(hdc, BITSPIXEL)) {
+                DeleteObject(g_hbmLook);
+                g_hbmLook = NULL;
+
+                LookPrev_Init(hWnd);
+
+                // InvalidateRect(hWnd, NULL, FALSE);
+                // UpdateWindow(hWnd);
+
+                LookPrev_Repaint(hWnd);
+            }
+            ReleaseDC(NULL, hdc);
+        }
+        break;
+
+    case WM_SIZE:
+        break;
+
+    case WM_PAINT:
+        BeginPaint(hWnd, &ps);
+        if (g_hbmLook)
+            LookPrev_ShowBitmap(hWnd, ps.hdc);
+        else
+            LookPrev_Draw(hWnd, ps.hdc);
+        EndPaint(hWnd, &ps);
+        break;
+    }
+    return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 BOOL FAR PASCAL RegisterLookPreviewClass(HINSTANCE hInst)
@@ -746,7 +729,7 @@ BOOL FAR PASCAL RegisterLookPreviewClass(HINSTANCE hInst)
         wc.hInstance = hInst;
         wc.hIcon = NULL;
         wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-        wc.hbrBackground = (HBRUSH)(COLOR_3DFACE+1);
+        wc.hbrBackground = (HBRUSH)(COLOR_3DFACE + 1);
         wc.lpszMenuName = NULL;
         wc.lpszClassName = LOOKPREV_CLASS;
 

@@ -31,7 +31,7 @@ const TCHAR s_BinaryDataFormatSpec[] = TEXT("%02x ");
 
 const TCHAR s_Ellipsis[] = TEXT("...");
 
-const LPCTSTR s_TypeNames[] = { TEXT("REG_NONE"),
+const LPCTSTR s_TypeNames[] = {TEXT("REG_NONE"),
                                 TEXT("REG_SZ"),
                                 TEXT("REG_EXPAND_SZ"),
                                 TEXT("REG_BINARY"),
@@ -43,7 +43,7 @@ const LPCTSTR s_TypeNames[] = { TEXT("REG_NONE"),
                                 TEXT("REG_FULL_RESOURCE_DESCRIPTOR"),
                                 TEXT("REG_RESOURCE_REQUIREMENTS_LIST"),
                                 TEXT("REG_QWORD")
-                              };
+};
 
 #define MAX_KNOWN_TYPE REG_QWORD
 
@@ -71,14 +71,16 @@ VOID PASCAL RegEdit_OnNewValue(HWND hWnd, DWORD Type)
 
     //  Loop through the registry trying to find a valid temporary name until the user renames the key.
     NewValueNameID = 1;
-    while (NewValueNameID < MAX_VALUENAME_TEMPLATE_ID)
-    {
+    while (NewValueNameID < MAX_VALUENAME_TEMPLATE_ID) {
         wsprintf(ValueName, g_RegEditData.pNewValueTemplate, NewValueNameID);
-        if (RegQueryValueEx(g_RegEditData.hCurrentSelectionKey, ValueName, NULL, &Ignore, NULL, &Ignore) != ERROR_SUCCESS)
-        {
+        if (RegQueryValueEx(g_RegEditData.hCurrentSelectionKey,
+                            ValueName,
+                            NULL,
+                            &Ignore, 
+                            NULL,
+                            &Ignore) != ERROR_SUCCESS) {
             //  For strings, we need to have at least one byte to represent the null.  For binary data, it's okay to have zero-length data.
-            switch (Type)
-            {
+            switch (Type) {
             case REG_SZ:
                 ((PTSTR)g_ValueDataBuffer)[0] = 0;
                 cbValueData = 1;
@@ -92,7 +94,12 @@ VOID PASCAL RegEdit_OnNewValue(HWND hWnd, DWORD Type)
                 break;
             }
 
-            if (RegSetValueEx(g_RegEditData.hCurrentSelectionKey, ValueName, 0, Type, g_ValueDataBuffer, cbValueData) == ERROR_SUCCESS)
+            if (RegSetValueEx(g_RegEditData.hCurrentSelectionKey, 
+                              ValueName, 
+                              0, 
+                              Type,
+                              g_ValueDataBuffer, 
+                              cbValueData) == ERROR_SUCCESS)
                 break;
             else {
                 ErrorStringID = IDS_NEWVALUECANNOTCREATE;
@@ -121,7 +128,11 @@ VOID PASCAL RegEdit_OnNewValue(HWND hWnd, DWORD Type)
     return;
 
 error_ShowDialog:
-    InternalMessageBox(g_hInstance, hWnd, MAKEINTRESOURCE(ErrorStringID), MAKEINTRESOURCE(IDS_NEWVALUEERRORTITLE), MB_ICONERROR | MB_OK);
+    InternalMessageBox(g_hInstance,
+                       hWnd,
+                       MAKEINTRESOURCE(ErrorStringID),
+                       MAKEINTRESOURCE(IDS_NEWVALUEERRORTITLE),
+                       MB_ICONERROR | MB_OK);
 }
 
 
@@ -157,10 +168,10 @@ BOOL PASCAL RegEdit_OnValueListEndLabelEdit(HWND hWnd, LV_DISPINFO FAR* lpLVDisp
     hValueListWnd = g_RegEditData.hValueListWnd;
 
     //  Check to see if the user cancelled the edit.  If so, we don't care so just return.
-    if (lpLVDispInfo-> item.pszText == NULL)
+    if (lpLVDispInfo->item.pszText == NULL)
         return TRUE;
 
-    ListView_GetItemText(hValueListWnd, lpLVDispInfo-> item.iItem, 0, ValueName, sizeof(ValueName)/sizeof(TCHAR));
+    ListView_GetItemText(hValueListWnd, lpLVDispInfo->item.iItem, 0, ValueName, sizeof(ValueName) / sizeof(TCHAR));
 
     //  Check to see if the new value name is empty
     if (lpLVDispInfo->item.pszText[0] == 0) {
@@ -168,19 +179,34 @@ BOOL PASCAL RegEdit_OnValueListEndLabelEdit(HWND hWnd, LV_DISPINFO FAR* lpLVDisp
         goto error_ShowDialog;
     }
 
-    if (RegQueryValueEx(g_RegEditData.hCurrentSelectionKey, lpLVDispInfo->item.pszText, NULL, &Ignore, NULL, &Ignore) != ERROR_FILE_NOT_FOUND) {
+    if (RegQueryValueEx(g_RegEditData.hCurrentSelectionKey,
+                        lpLVDispInfo->item.pszText, 
+                        NULL,
+                        &Ignore,
+                        NULL, 
+                        &Ignore) != ERROR_FILE_NOT_FOUND) {
         ErrorStringID = IDS_RENAMEVALEXISTS;
         goto error_ShowDialog;
     }
 
     cbValueData = sizeof(g_ValueDataBuffer);
 
-    if (RegQueryValueEx(g_RegEditData.hCurrentSelectionKey, ValueName, NULL, &Type, g_ValueDataBuffer, &cbValueData) != ERROR_SUCCESS) {
+    if (RegQueryValueEx(g_RegEditData.hCurrentSelectionKey,
+                        ValueName,
+                        NULL,
+                        &Type, 
+                        g_ValueDataBuffer,
+                        &cbValueData) != ERROR_SUCCESS) {
         ErrorStringID = IDS_RENAMEVALOTHERERROR;
         goto error_ShowDialog;
     }
 
-    if (RegSetValueEx(g_RegEditData.hCurrentSelectionKey, lpLVDispInfo->item.pszText, 0, Type, g_ValueDataBuffer, cbValueData) != ERROR_SUCCESS) {
+    if (RegSetValueEx(g_RegEditData.hCurrentSelectionKey,
+                      lpLVDispInfo->item.pszText,
+                      0, 
+                      Type,
+                      g_ValueDataBuffer,
+                      cbValueData) != ERROR_SUCCESS) {
         ErrorStringID = IDS_RENAMEVALOTHERERROR;
         goto error_ShowDialog;
     }
@@ -193,7 +219,12 @@ BOOL PASCAL RegEdit_OnValueListEndLabelEdit(HWND hWnd, LV_DISPINFO FAR* lpLVDisp
     return TRUE;
 
 error_ShowDialog:
-    InternalMessageBox(g_hInstance, hWnd, MAKEINTRESOURCE(ErrorStringID), MAKEINTRESOURCE(IDS_RENAMEVALERRORTITLE), MB_ICONERROR | MB_OK, (LPTSTR) ValueName);
+    InternalMessageBox(g_hInstance,
+                       hWnd,
+                       MAKEINTRESOURCE(ErrorStringID),
+                       MAKEINTRESOURCE(IDS_RENAMEVALERRORTITLE),
+                       MB_ICONERROR | MB_OK,
+                       (LPTSTR)ValueName);
     return FALSE;
 }
 
@@ -211,8 +242,7 @@ VOID PASCAL RegEdit_OnValueListCommand(HWND hWnd, int MenuCommand)
     if (MenuCommand >= ID_FIRSTMAINMENUITEM && MenuCommand <= ID_LASTMAINMENUITEM)
         RegEdit_OnCommand(hWnd, MenuCommand, NULL, 0);
     else {
-        switch (MenuCommand)
-        {
+        switch (MenuCommand) {
         case ID_CONTEXTMENU:
             RegEdit_OnValueListContextMenu(hWnd, TRUE);
             break;
@@ -251,8 +281,7 @@ VOID PASCAL RegEdit_OnValueListContextMenu(HWND hWnd, BOOL fByAccelerator)
         MessagePoint.y = 0;
         ClientToScreen(hValueListWnd, &MessagePoint);
         ListIndex = ListView_GetNextItem(hValueListWnd, -1, LVNI_SELECTED);
-    }
-    else {
+    } else {
         MessagePos = GetMessagePos();
         MessagePoint.x = GET_X_LPARAM(MessagePos);
         MessagePoint.y = GET_Y_LPARAM(MessagePos);
@@ -273,11 +302,16 @@ VOID PASCAL RegEdit_OnValueListContextMenu(HWND hWnd, BOOL fByAccelerator)
         RegEdit_SetValueListEditMenuItems(hContextMenu, ListIndex);
         SetMenuDefaultItem(hContextPopupMenu, ID_MODIFY, MF_BYCOMMAND);
     }
-        //  BUGBUG:  Fix constant
+    //  BUGBUG:  Fix constant
     else
         RegEdit_SetNewObjectEditMenuItems(GetSubMenu(hContextPopupMenu, 0));
 
-    MenuCommand = TrackPopupMenuEx(hContextPopupMenu, TPM_RETURNCMD | TPM_RIGHTBUTTON | TPM_LEFTALIGN | TPM_TOPALIGN, MessagePoint.x, MessagePoint.y, hWnd, NULL);
+    MenuCommand = TrackPopupMenuEx(hContextPopupMenu, 
+                                   TPM_RETURNCMD | TPM_RIGHTBUTTON | TPM_LEFTALIGN | TPM_TOPALIGN,
+                                   MessagePoint.x,
+                                   MessagePoint.y, 
+                                   hWnd,
+                                   NULL);
     DestroyMenu(hContextMenu);
     RegEdit_OnValueListCommand(hWnd, MenuCommand);
 }
@@ -296,7 +330,8 @@ VOID PASCAL RegEdit_SetValueListEditMenuItems(HMENU hPopupMenu, int SelectedList
 
     SelectedCount = ListView_GetSelectedCount(g_RegEditData.hValueListWnd);
 
-    //  The edit option is only enabled when a single item is selected.  Note that this item is not in the main menu, but this should work fine.
+    //  The edit option is only enabled when a single item is selected. 
+    //  Note that this item is not in the main menu, but this should work fine.
     if (SelectedCount == 1)
         EnableFlags = MF_ENABLED | MF_BYCOMMAND;
     else
@@ -348,7 +383,7 @@ VOID PASCAL RegEdit_OnValueListModify(HWND hWnd)
 
     //  Determine which item we are to edit.
     ListIndex = ListView_GetNextItem(hValueListWnd, -1, LVNI_SELECTED);
-    ListView_GetItemText(hValueListWnd, ListIndex, 0, ValueName, sizeof(ValueName)/sizeof(TCHAR));
+    ListView_GetItemText(hValueListWnd, ListIndex, 0, ValueName, sizeof(ValueName) / sizeof(TCHAR));
 
     //  If this is the default value, zap the first byte to null so that we can do a RegQueryValueEx.
     //  Note that below we replace this "zapped" byte.
@@ -365,7 +400,12 @@ VOID PASCAL RegEdit_OnValueListModify(HWND hWnd)
     // Defend against this problem by making sure the first WCHAR is nulled out
     ((TCHAR*)g_ValueDataBuffer)[0] = '\0';
 
-    RegError = RegQueryValueEx(g_RegEditData.hCurrentSelectionKey, ValueName, NULL, &Type, g_ValueDataBuffer, &EditValueParam.cbValueData);
+    RegError = RegQueryValueEx(g_RegEditData.hCurrentSelectionKey,
+                               ValueName, 
+                               NULL,
+                               &Type, 
+                               g_ValueDataBuffer, 
+                               &EditValueParam.cbValueData);
     if (RegError != ERROR_SUCCESS) {
         //  If this is the default value, then the value may not really exist in the registry, so ignore ERROR_FILE_NOT_FOUND.
         //  We always display the default value in the ListView regardless of its existence.
@@ -387,8 +427,7 @@ VOID PASCAL RegEdit_OnValueListModify(HWND hWnd)
     if (ListIndex == 0)
         ValueName[0] = g_RegEditData.pDefaultValue[0];
 
-    switch (Type)
-    {
+    switch (Type) {
     case REG_SZ:
     case REG_EXPAND_SZ:
         TemplateID = IDD_EDITSTRINGVALUE;
@@ -408,22 +447,40 @@ VOID PASCAL RegEdit_OnValueListModify(HWND hWnd)
         break;
     }
 
-    if (DialogBoxParam(g_hInstance, MAKEINTRESOURCE(TemplateID), hWnd, lpDlgProc, (LPARAM) (LPEDITVALUEPARAM) &EditValueParam) == IDOK) {
+    if (DialogBoxParam(g_hInstance, 
+                       MAKEINTRESOURCE(TemplateID),
+                       hWnd,
+                       lpDlgProc, 
+                       (LPARAM)(LPEDITVALUEPARAM)&EditValueParam) == IDOK) {
         if (ListIndex == 0)
             ValueName[0] = 0;
 
-        if (RegSetValueEx(g_RegEditData.hCurrentSelectionKey, ValueName, 0, Type, EditValueParam.pValueData, EditValueParam.cbValueData) != ERROR_SUCCESS) {
+        if (RegSetValueEx(g_RegEditData.hCurrentSelectionKey, 
+                          ValueName, 
+                          0, 
+                          Type, 
+                          EditValueParam.pValueData,
+                          EditValueParam.cbValueData) != ERROR_SUCCESS) {
             ErrorStringID = IDS_EDITVALCANNOTWRITE;
             goto error_ShowDialog;
         }
 
-        ValueList_SetItemDataText(hValueListWnd, ListIndex, EditValueParam.pValueData, EditValueParam.cbValueData, Type);
+        ValueList_SetItemDataText(hValueListWnd, 
+                                  ListIndex,
+                                  EditValueParam.pValueData,
+                                  EditValueParam.cbValueData, 
+                                  Type);
     }
 
     return;
 
 error_ShowDialog:
-    InternalMessageBox(g_hInstance, hWnd, MAKEINTRESOURCE(ErrorStringID), MAKEINTRESOURCE(IDS_EDITVALERRORTITLE), MB_ICONERROR | MB_OK, (LPTSTR) ValueName);
+    InternalMessageBox(g_hInstance,
+                       hWnd,
+                       MAKEINTRESOURCE(ErrorStringID),
+                       MAKEINTRESOURCE(IDS_EDITVALERRORTITLE),
+                       MB_ICONERROR | MB_OK, 
+                       (LPTSTR)ValueName);
 }
 
 
@@ -437,9 +494,13 @@ VOID PASCAL RegEdit_OnValueListDelete(HWND hWnd)
     TCHAR ValueName[MAXVALUENAME_LENGTH];
 
     hValueListWnd = g_RegEditData.hValueListWnd;
-    ConfirmTextStringID =  (ListView_GetSelectedCount(hValueListWnd) == 1) ? IDS_CONFIRMDELVALTEXT : IDS_CONFIRMDELVALMULTITEXT;
+    ConfirmTextStringID = (ListView_GetSelectedCount(hValueListWnd) == 1) ? IDS_CONFIRMDELVALTEXT : IDS_CONFIRMDELVALMULTITEXT;
 
-    if (InternalMessageBox(g_hInstance, hWnd, MAKEINTRESOURCE(ConfirmTextStringID), MAKEINTRESOURCE(IDS_CONFIRMDELVALTITLE),  MB_ICONWARNING | MB_YESNO) != IDYES)
+    if (InternalMessageBox(g_hInstance,
+                           hWnd,
+                           MAKEINTRESOURCE(ConfirmTextStringID), 
+                           MAKEINTRESOURCE(IDS_CONFIRMDELVALTITLE),
+                           MB_ICONWARNING | MB_YESNO) != IDYES)
         return;
 
     SetWindowRedraw(hValueListWnd, FALSE);
@@ -449,9 +510,8 @@ VOID PASCAL RegEdit_OnValueListDelete(HWND hWnd)
 
     while ((ListIndex = ListView_GetNextItem(hValueListWnd, ListStartIndex, LVNI_SELECTED)) != -1) {
         if (ListIndex != 0) {
-            ListView_GetItemText(hValueListWnd, ListIndex, 0, ValueName, sizeof(ValueName)/sizeof(TCHAR));
-        }
-        else
+            ListView_GetItemText(hValueListWnd, ListIndex, 0, ValueName, sizeof(ValueName) / sizeof(TCHAR));
+        } else
             ValueName[0] = 0;
 
         if (RegDeleteValue(g_RegEditData.hCurrentSelectionKey, ValueName) == ERROR_SUCCESS) {
@@ -461,8 +521,7 @@ VOID PASCAL RegEdit_OnValueListDelete(HWND hWnd)
                 ValueList_SetItemDataText(hValueListWnd, 0, NULL, 0, REG_SZ);
                 ListStartIndex = 0;
             }
-        }
-        else {
+        } else {
             fErrorDeleting = TRUE;
             ListStartIndex = ListIndex;
         }
@@ -471,7 +530,11 @@ VOID PASCAL RegEdit_OnValueListDelete(HWND hWnd)
     SetWindowRedraw(hValueListWnd, TRUE);
 
     if (fErrorDeleting)
-        InternalMessageBox(g_hInstance, hWnd, MAKEINTRESOURCE(IDS_DELETEVALDELETEFAILED), MAKEINTRESOURCE(IDS_DELETEVALERRORTITLE), MB_ICONERROR | MB_OK);
+        InternalMessageBox(g_hInstance, 
+                           hWnd, 
+                           MAKEINTRESOURCE(IDS_DELETEVALDELETEFAILED),
+                           MAKEINTRESOURCE(IDS_DELETEVALERRORTITLE),
+                           MB_ICONERROR | MB_OK);
 }
 
 
@@ -482,7 +545,8 @@ VOID PASCAL RegEdit_OnValueListRename(HWND hWnd)
 
     hValueListWnd = g_RegEditData.hValueListWnd;
 
-    if (ListView_GetSelectedCount(hValueListWnd) == 1 && (ListIndex = ListView_GetNextItem(hValueListWnd, -1, LVNI_SELECTED)) != 0)
+    if (ListView_GetSelectedCount(hValueListWnd) == 1 && 
+        (ListIndex = ListView_GetNextItem(hValueListWnd, -1, LVNI_SELECTED)) != 0)
         ValueList_EditLabel(g_RegEditData.hValueListWnd, ListIndex);
 }
 
@@ -512,7 +576,9 @@ VOID PASCAL RegEdit_OnValueListRefresh(HWND hWnd)
         LVItem.pszText = ValueName;
         LVItem.iSubItem = 0;
 
-        PrevStyle = SetWindowLong(hValueListWnd, GWL_STYLE, GetWindowLong(hValueListWnd, GWL_STYLE) | LVS_SORTASCENDING);
+        PrevStyle = SetWindowLong(hValueListWnd, 
+                                  GWL_STYLE,
+                                  GetWindowLong(hValueListWnd, GWL_STYLE) | LVS_SORTASCENDING);
 
         EnumIndex = 0;
         fInsertedDefaultValue = FALSE;
@@ -527,7 +593,14 @@ VOID PASCAL RegEdit_OnValueListRefresh(HWND hWnd)
             // Defend against this problem by making sure the first WCHAR is nulled out
             ((TCHAR*)g_ValueDataBuffer)[0] = '\0';
 
-            if (RegEnumValue(g_RegEditData.hCurrentSelectionKey, EnumIndex++, ValueName, &cbValueName, NULL, &Type, g_ValueDataBuffer, &cbValueData) != ERROR_SUCCESS)
+            if (RegEnumValue(g_RegEditData.hCurrentSelectionKey,
+                             EnumIndex++,
+                             ValueName,
+                             &cbValueName,
+                             NULL, 
+                             &Type,
+                             g_ValueDataBuffer,
+                             &cbValueData) != ERROR_SUCCESS)
                 break;
 
             if (cbValueName == 0)
@@ -547,8 +620,7 @@ VOID PASCAL RegEdit_OnValueListRefresh(HWND hWnd)
         if (fInsertedDefaultValue) {
             LVItem.mask = LVIF_TEXT;
             ListView_SetItem(hValueListWnd, &LVItem);
-        }
-        else {
+        } else {
             ListView_InsertItem(hValueListWnd, &LVItem);
             ValueList_SetItemDataText(hValueListWnd, 0, NULL, 0, REG_SZ);
         }
@@ -561,7 +633,12 @@ VOID PASCAL RegEdit_OnValueListRefresh(HWND hWnd)
 }
 
 
-VOID PASCAL ValueList_SetItemDataText(HWND hValueListWnd, int ListIndex, PBYTE pValueData, DWORD cbValueData, DWORD Type)
+VOID PASCAL ValueList_SetItemDataText(HWND hValueListWnd,
+                                      int ListIndex, 
+                                      PBYTE pValueData, 
+                                      DWORD cbValueData,
+                                      DWORD Type
+)
 /*
 *  PARAMETERS:
 *     hValueListWnd, handle of ValueList window.
@@ -582,62 +659,59 @@ VOID PASCAL ValueList_SetItemDataText(HWND hValueListWnd, int ListIndex, PBYTE p
     if (pValueData == NULL)
         pString = g_RegEditData.pValueNotSet;
     else if ((Type == REG_SZ) || (Type == REG_EXPAND_SZ)) {
-        wsprintf(DataText, s_StringDataFormatSpec, (LPTSTR) pValueData);
-        if ((cbValueData/sizeof(TCHAR)) > MAXIMUM_STRINGDATATEXT + 1)           //  for null
+        wsprintf(DataText, s_StringDataFormatSpec, (LPTSTR)pValueData);
+        if ((cbValueData / sizeof(TCHAR)) > MAXIMUM_STRINGDATATEXT + 1)           //  for null
             lstrcat(DataText, s_Ellipsis);
 
         pString = DataText;
-    }
-    else if (Type == REG_DWORD) {
+    } else if (Type == REG_DWORD) {
         //  BUGBUG:  Check for invalid cbValueData!
         if (cbValueData == sizeof(DWORD))
-            pString = LoadDynamicString(IDS_DWORDDATAFORMATSPEC, ((LPDWORD) g_ValueDataBuffer)[0]);
+            pString = LoadDynamicString(IDS_DWORDDATAFORMATSPEC, ((LPDWORD)g_ValueDataBuffer)[0]);
         else
             pString = LoadDynamicString(IDS_INVALIDDWORDDATA);
 
         fMustDeleteString = TRUE;
-    }
-    else if (Type == REG_MULTI_SZ) {
+    } else if (Type == REG_MULTI_SZ) {
         int CharsAvailableInBuffer;
         int ComponentLength;
         PTCHAR Start;
 
-        ZeroMemory(DataText,sizeof(DataText));
-        CharsAvailableInBuffer = MAXIMUM_STRINGDATATEXT+1;
+        ZeroMemory(DataText, sizeof(DataText));
+        CharsAvailableInBuffer = MAXIMUM_STRINGDATATEXT + 1;
         Start = DataText;
-        for(pString=(PTSTR)pValueData; *pString; pString+=ComponentLength+1) {
+        for (pString = (PTSTR)pValueData; *pString; pString += ComponentLength + 1) {
             ComponentLength = lstrlen(pString);
 
             // Quirky behavior of lstrcpyn is exactly what we need here.
-            if(CharsAvailableInBuffer > 0) {
-                lstrcpyn(Start,pString,CharsAvailableInBuffer);
+            if (CharsAvailableInBuffer > 0) {
+                lstrcpyn(Start, pString, CharsAvailableInBuffer);
                 Start += ComponentLength;
             }
 
             CharsAvailableInBuffer -= ComponentLength;
 
-            if(CharsAvailableInBuffer > 0) {
-                lstrcpyn(Start,TEXT(" "),CharsAvailableInBuffer);
+            if (CharsAvailableInBuffer > 0) {
+                lstrcpyn(Start, TEXT(" "), CharsAvailableInBuffer);
                 Start += 1;
             }
 
             CharsAvailableInBuffer -= 1;
         }
 
-        if(CharsAvailableInBuffer < 0) {
-            lstrcpy(DataText+MAXIMUM_STRINGDATATEXT,s_Ellipsis);
+        if (CharsAvailableInBuffer < 0) {
+            lstrcpy(DataText + MAXIMUM_STRINGDATATEXT, s_Ellipsis);
         }
 
         pString = DataText;
-    }
-    else {
+    } else {
         if (cbValueData == 0)
             pString = g_RegEditData.pEmptyBinary;
         else {
             BytesToWrite = min(cbValueData, MAXIMUM_BINARYDATABYTES);
             pString = DataText;
             while (BytesToWrite--)
-                pString += wsprintf(pString, s_BinaryDataFormatSpec, (BYTE) *pValueData++);
+                pString += wsprintf(pString, s_BinaryDataFormatSpec, (BYTE)*pValueData++);
 
             *(--pString) = 0;
 
@@ -648,12 +722,12 @@ VOID PASCAL ValueList_SetItemDataText(HWND hValueListWnd, int ListIndex, PBYTE p
         }
     }
 
-    if(Type <= MAX_KNOWN_TYPE) {
+    if (Type <= MAX_KNOWN_TYPE) {
         ListView_SetItemText(hValueListWnd, ListIndex, 1, (LPTSTR)s_TypeNames[Type]);
     } else {
         TCHAR TypeString[24];
 
-        wsprintf(TypeString,TEXT("0x%x"),Type);
+        wsprintf(TypeString, TEXT("0x%x"), Type);
         ListView_SetItemText(hValueListWnd, ListIndex, 1, TypeString);
     }
 

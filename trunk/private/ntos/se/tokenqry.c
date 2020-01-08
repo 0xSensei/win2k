@@ -31,13 +31,13 @@ Revision History:
 
 
 NTSTATUS
-NtQueryInformationToken (
+NtQueryInformationToken(
     IN HANDLE TokenHandle,
     IN TOKEN_INFORMATION_CLASS TokenInformationClass,
     OUT PVOID TokenInformation,
     IN ULONG TokenInformationLength,
     OUT PULONG ReturnLength
-    )
+)
 
 /*++
 
@@ -165,7 +165,7 @@ Return Value:
                 TokenInformation,
                 TokenInformationLength,
                 sizeof(ULONG)
-                );
+            );
 
             ProbeForWriteUlong(ReturnLength);
 
@@ -178,22 +178,22 @@ Return Value:
     // Case on information class.
 
 
-    switch ( TokenInformationClass ) {
+    switch (TokenInformationClass) {
 
     case TokenUser:
 
         LocalUser = (PTOKEN_USER)TokenInformation;
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY,           // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY,           // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
@@ -201,7 +201,7 @@ Return Value:
         //  Gain exclusive access to the token.
 
 
-        SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
 
@@ -210,8 +210,8 @@ Return Value:
         // was provided by the caller and we have to return an error.
 
 
-        RequiredLength = SeLengthSid( Token->UserAndGroups[0].Sid) +
-                         (ULONG)sizeof( TOKEN_USER );
+        RequiredLength = SeLengthSid(Token->UserAndGroups[0].Sid) +
+            (ULONG)sizeof(TOKEN_USER);
 
         try {
 
@@ -219,15 +219,15 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        if ( TokenInformationLength < RequiredLength ) {
+        if (TokenInformationLength < RequiredLength) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return STATUS_BUFFER_TOO_SMALL;
 
         }
@@ -241,7 +241,7 @@ Return Value:
 
             //  Put SID immediately following TOKEN_USER data structure
 
-            PSid = (PSID)( (ULONG_PTR)LocalUser + (ULONG)sizeof(TOKEN_USER) );
+            PSid = (PSID)((ULONG_PTR)LocalUser + (ULONG)sizeof(TOKEN_USER));
 
             RtlCopySidAndAttributesArray(
                 1,
@@ -249,20 +249,20 @@ Return Value:
                 RequiredLength,
                 &(LocalUser->User),
                 PSid,
-                ((PSID *)&Ignore),
+                ((PSID*)&Ignore),
                 ((PULONG)&Ignore)
-                );
+            );
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
 
-        SepReleaseTokenReadLock( Token );
-        ObDereferenceObject( Token );
+        SepReleaseTokenReadLock(Token);
+        ObDereferenceObject(Token);
         return STATUS_SUCCESS;
 
     case TokenGroups:
@@ -270,15 +270,15 @@ Return Value:
         LocalGroups = (PTOKEN_GROUPS)TokenInformation;
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY,           // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY,           // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
@@ -286,7 +286,7 @@ Return Value:
         //  Gain exclusive access to the token.
 
 
-        SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
         // Figure out how much space is needed to return the group SIDs.
@@ -298,13 +298,13 @@ Return Value:
 
 
         RequiredLength = (ULONG)sizeof(TOKEN_GROUPS) +
-                         ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) *
-                         ((ULONG)sizeof(SID_AND_ATTRIBUTES)) );
+            ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) *
+            ((ULONG)sizeof(SID_AND_ATTRIBUTES)));
 
         Index = 1;
         while (Index < Token->UserAndGroupCount) {
 
-            RequiredLength += SeLengthSid( Token->UserAndGroups[Index].Sid );
+            RequiredLength += SeLengthSid(Token->UserAndGroups[Index].Sid);
 
             Index += 1;
 
@@ -321,15 +321,15 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        if ( TokenInformationLength < RequiredLength ) {
+        if (TokenInformationLength < RequiredLength) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return STATUS_BUFFER_TOO_SMALL;
 
         }
@@ -342,11 +342,11 @@ Return Value:
 
             LocalGroups->GroupCount = Token->UserAndGroupCount - 1;
 
-            PSid = (PSID)( (ULONG_PTR)LocalGroups +
-                           (ULONG)sizeof(TOKEN_GROUPS) +
-                           (   (Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) *
-                               (ULONG)sizeof(SID_AND_ATTRIBUTES) )
-                         );
+            PSid = (PSID)((ULONG_PTR)LocalGroups +
+                (ULONG)sizeof(TOKEN_GROUPS) +
+                          ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) *
+                          (ULONG)sizeof(SID_AND_ATTRIBUTES))
+                          );
 
             RtlCopySidAndAttributesArray(
                 (ULONG)(Token->UserAndGroupCount - 1),
@@ -354,20 +354,20 @@ Return Value:
                 RequiredLength,
                 LocalGroups->Groups,
                 PSid,
-                ((PSID *)&Ignore),
+                ((PSID*)&Ignore),
                 ((PULONG)&Ignore)
-                );
+            );
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
 
-        SepReleaseTokenReadLock( Token );
-        ObDereferenceObject( Token );
+        SepReleaseTokenReadLock(Token);
+        ObDereferenceObject(Token);
         return STATUS_SUCCESS;
 
     case TokenRestrictedSids:
@@ -375,15 +375,15 @@ Return Value:
         LocalGroups = (PTOKEN_GROUPS)TokenInformation;
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY,           // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY,           // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
@@ -391,7 +391,7 @@ Return Value:
         //  Gain exclusive access to the token.
 
 
-        SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
         // Figure out how much space is needed to return the group SIDs.
@@ -403,14 +403,14 @@ Return Value:
 
 
         RequiredLength = (ULONG)sizeof(TOKEN_GROUPS) +
-                         ((Token->RestrictedSidCount) *
-                         ((ULONG)sizeof(SID_AND_ATTRIBUTES)) -
-                         ANYSIZE_ARRAY * sizeof(SID_AND_ATTRIBUTES) );
+            ((Token->RestrictedSidCount) *
+            ((ULONG)sizeof(SID_AND_ATTRIBUTES)) -
+             ANYSIZE_ARRAY * sizeof(SID_AND_ATTRIBUTES));
 
         Index = 0;
         while (Index < Token->RestrictedSidCount) {
 
-            RequiredLength += SeLengthSid( Token->RestrictedSids[Index].Sid );
+            RequiredLength += SeLengthSid(Token->RestrictedSids[Index].Sid);
 
             Index += 1;
 
@@ -427,15 +427,15 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        if ( TokenInformationLength < RequiredLength ) {
+        if (TokenInformationLength < RequiredLength) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return STATUS_BUFFER_TOO_SMALL;
 
         }
@@ -448,12 +448,12 @@ Return Value:
 
             LocalGroups->GroupCount = Token->RestrictedSidCount;
 
-            PSid = (PSID)( (ULONG_PTR)LocalGroups +
-                           (ULONG)sizeof(TOKEN_GROUPS) +
-                           (   (Token->RestrictedSidCount ) *
-                               (ULONG)sizeof(SID_AND_ATTRIBUTES) -
-                               ANYSIZE_ARRAY * sizeof(SID_AND_ATTRIBUTES) )
-                         );
+            PSid = (PSID)((ULONG_PTR)LocalGroups +
+                (ULONG)sizeof(TOKEN_GROUPS) +
+                          ((Token->RestrictedSidCount) *
+                          (ULONG)sizeof(SID_AND_ATTRIBUTES) -
+                           ANYSIZE_ARRAY * sizeof(SID_AND_ATTRIBUTES))
+                          );
 
             RtlCopySidAndAttributesArray(
                 (ULONG)(Token->RestrictedSidCount),
@@ -461,20 +461,20 @@ Return Value:
                 RequiredLength,
                 LocalGroups->Groups,
                 PSid,
-                ((PSID *)&Ignore),
+                ((PSID*)&Ignore),
                 ((PULONG)&Ignore)
-                );
+            );
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
 
-        SepReleaseTokenReadLock( Token );
-        ObDereferenceObject( Token );
+        SepReleaseTokenReadLock(Token);
+        ObDereferenceObject(Token);
         return STATUS_SUCCESS;
 
     case TokenPrivileges:
@@ -482,15 +482,15 @@ Return Value:
         LocalPrivileges = (PTOKEN_PRIVILEGES)TokenInformation;
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY,           // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY,           // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
@@ -499,7 +499,7 @@ Return Value:
         //  from occuring to the privileges.
 
 
-        SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
 
@@ -508,8 +508,8 @@ Return Value:
 
 
         RequiredLength = (ULONG)sizeof(TOKEN_PRIVILEGES) +
-                         ((Token->PrivilegeCount - ANYSIZE_ARRAY) *
-                         ((ULONG)sizeof(LUID_AND_ATTRIBUTES)) );
+            ((Token->PrivilegeCount - ANYSIZE_ARRAY) *
+            ((ULONG)sizeof(LUID_AND_ATTRIBUTES)));
 
 
         try {
@@ -518,15 +518,15 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        if ( TokenInformationLength < RequiredLength ) {
+        if (TokenInformationLength < RequiredLength) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return STATUS_BUFFER_TOO_SMALL;
 
         }
@@ -543,18 +543,18 @@ Return Value:
                 Token->PrivilegeCount,
                 Token->Privileges,
                 LocalPrivileges->Privileges
-                );
+            );
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
 
-        SepReleaseTokenReadLock( Token );
-        ObDereferenceObject( Token );
+        SepReleaseTokenReadLock(Token);
+        ObDereferenceObject(Token);
         return STATUS_SUCCESS;
 
     case TokenOwner:
@@ -562,15 +562,15 @@ Return Value:
         LocalOwner = (PTOKEN_OWNER)TokenInformation;
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY,           // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY,           // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
@@ -579,7 +579,7 @@ Return Value:
         //  from occuring to the owner.
 
 
-        SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
         // Return the length required now in case not enough buffer
@@ -588,7 +588,7 @@ Return Value:
 
         PSid = Token->UserAndGroups[Token->DefaultOwnerIndex].Sid;
         RequiredLength = (ULONG)sizeof(TOKEN_OWNER) +
-                         SeLengthSid( PSid );
+            SeLengthSid(PSid);
 
         try {
 
@@ -596,15 +596,15 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        if ( TokenInformationLength < RequiredLength ) {
+        if (TokenInformationLength < RequiredLength) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return STATUS_BUFFER_TOO_SMALL;
 
         }
@@ -614,30 +614,30 @@ Return Value:
 
 
         PSid = (PSID)((ULONG_PTR)LocalOwner +
-                      (ULONG)sizeof(TOKEN_OWNER));
+            (ULONG)sizeof(TOKEN_OWNER));
 
         try {
 
             LocalOwner->Owner = PSid;
 
             Status = RtlCopySid(
-                         (RequiredLength - (ULONG)sizeof(TOKEN_OWNER)),
-                         PSid,
-                         Token->UserAndGroups[Token->DefaultOwnerIndex].Sid
-                         );
+                (RequiredLength - (ULONG)sizeof(TOKEN_OWNER)),
+                PSid,
+                Token->UserAndGroups[Token->DefaultOwnerIndex].Sid
+            );
 
-            ASSERT( NT_SUCCESS(Status) );
+            ASSERT(NT_SUCCESS(Status));
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
 
-        SepReleaseTokenReadLock( Token );
-        ObDereferenceObject( Token );
+        SepReleaseTokenReadLock(Token);
+        ObDereferenceObject(Token);
         return STATUS_SUCCESS;
 
     case TokenPrimaryGroup:
@@ -645,15 +645,15 @@ Return Value:
         LocalPrimaryGroup = (PTOKEN_PRIMARY_GROUP)TokenInformation;
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY,           // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY,           // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
@@ -662,7 +662,7 @@ Return Value:
         //  from occuring to the owner.
 
 
-        SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
         // Return the length required now in case not enough buffer
@@ -670,7 +670,7 @@ Return Value:
 
 
         RequiredLength = (ULONG)sizeof(TOKEN_PRIMARY_GROUP) +
-                         SeLengthSid( Token->PrimaryGroup );
+            SeLengthSid(Token->PrimaryGroup);
 
         try {
 
@@ -678,15 +678,15 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        if ( TokenInformationLength < RequiredLength ) {
+        if (TokenInformationLength < RequiredLength) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return STATUS_BUFFER_TOO_SMALL;
 
         }
@@ -696,29 +696,29 @@ Return Value:
 
 
         PSid = (PSID)((ULONG_PTR)LocalPrimaryGroup +
-                      (ULONG)sizeof(TOKEN_PRIMARY_GROUP));
+            (ULONG)sizeof(TOKEN_PRIMARY_GROUP));
 
         try {
 
             LocalPrimaryGroup->PrimaryGroup = PSid;
 
-            Status = RtlCopySid( (RequiredLength - (ULONG)sizeof(TOKEN_PRIMARY_GROUP)),
-                                 PSid,
-                                 Token->PrimaryGroup
-                                 );
+            Status = RtlCopySid((RequiredLength - (ULONG)sizeof(TOKEN_PRIMARY_GROUP)),
+                                PSid,
+                                Token->PrimaryGroup
+            );
 
-            ASSERT( NT_SUCCESS(Status) );
+            ASSERT(NT_SUCCESS(Status));
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
 
-        SepReleaseTokenReadLock( Token );
-        ObDereferenceObject( Token );
+        SepReleaseTokenReadLock(Token);
+        ObDereferenceObject(Token);
         return STATUS_SUCCESS;
 
     case TokenDefaultDacl:
@@ -726,15 +726,15 @@ Return Value:
         LocalDefaultDacl = (PTOKEN_DEFAULT_DACL)TokenInformation;
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY,           // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY,           // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
@@ -743,7 +743,7 @@ Return Value:
         //  from occuring to the owner.
 
 
-        SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
 
@@ -765,15 +765,15 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        if ( TokenInformationLength < RequiredLength ) {
+        if (TokenInformationLength < RequiredLength) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return STATUS_BUFFER_TOO_SMALL;
 
         }
@@ -783,7 +783,7 @@ Return Value:
 
 
         PAcl = (PACL)((ULONG_PTR)LocalDefaultDacl +
-                      (ULONG)sizeof(TOKEN_DEFAULT_DACL));
+            (ULONG)sizeof(TOKEN_DEFAULT_DACL));
 
         try {
 
@@ -791,10 +791,10 @@ Return Value:
 
                 LocalDefaultDacl->DefaultDacl = PAcl;
 
-                RtlCopyMemory( (PVOID)PAcl,
-                               (PVOID)Token->DefaultDacl,
-                               Token->DefaultDacl->AclSize
-                               );
+                RtlCopyMemory((PVOID)PAcl,
+                    (PVOID)Token->DefaultDacl,
+                              Token->DefaultDacl->AclSize
+                );
             } else {
 
                 LocalDefaultDacl->DefaultDacl = NULL;
@@ -803,14 +803,14 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
 
-        SepReleaseTokenReadLock( Token );
-        ObDereferenceObject( Token );
+        SepReleaseTokenReadLock(Token);
+        ObDereferenceObject(Token);
         return STATUS_SUCCESS;
 
 
@@ -820,15 +820,15 @@ Return Value:
         LocalSource = (PTOKEN_SOURCE)TokenInformation;
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY_SOURCE,    // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY_SOURCE,    // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
@@ -842,7 +842,7 @@ Return Value:
         // was provided by the caller and we have to return an error.
 
 
-        RequiredLength = (ULONG) sizeof(TOKEN_SOURCE);
+        RequiredLength = (ULONG)sizeof(TOKEN_SOURCE);
 
         try {
 
@@ -850,13 +850,13 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            ObDereferenceObject( Token );
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        if ( TokenInformationLength < RequiredLength ) {
+        if (TokenInformationLength < RequiredLength) {
 
-            ObDereferenceObject( Token );
+            ObDereferenceObject(Token);
             return STATUS_BUFFER_TOO_SMALL;
 
         }
@@ -872,12 +872,12 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            ObDereferenceObject( Token );
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
 
-        ObDereferenceObject( Token );
+        ObDereferenceObject(Token);
         return STATUS_SUCCESS;
 
     case TokenType:
@@ -885,15 +885,15 @@ Return Value:
         LocalType = (PTOKEN_TYPE)TokenInformation;
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY,           // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY,           // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
@@ -907,7 +907,7 @@ Return Value:
         // was provided by the caller and we have to return an error.
 
 
-        RequiredLength = (ULONG) sizeof(TOKEN_TYPE);
+        RequiredLength = (ULONG)sizeof(TOKEN_TYPE);
 
         try {
 
@@ -915,13 +915,13 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            ObDereferenceObject( Token );
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        if ( TokenInformationLength < RequiredLength ) {
+        if (TokenInformationLength < RequiredLength) {
 
-            ObDereferenceObject( Token );
+            ObDereferenceObject(Token);
             return STATUS_BUFFER_TOO_SMALL;
 
         }
@@ -937,12 +937,12 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            ObDereferenceObject( Token );
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
 
-        ObDereferenceObject( Token );
+        ObDereferenceObject(Token);
         return STATUS_SUCCESS;
 
 
@@ -951,15 +951,15 @@ Return Value:
         LocalImpersonationLevel = (PSECURITY_IMPERSONATION_LEVEL)TokenInformation;
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY,           // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY,           // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
@@ -975,7 +975,7 @@ Return Value:
 
         if (Token->TokenType != TokenImpersonation) {
 
-            ObDereferenceObject( Token );
+            ObDereferenceObject(Token);
             return STATUS_INVALID_INFO_CLASS;
 
         }
@@ -985,7 +985,7 @@ Return Value:
         // was provided by the caller and we have to return an error.
 
 
-        RequiredLength = (ULONG) sizeof(SECURITY_IMPERSONATION_LEVEL);
+        RequiredLength = (ULONG)sizeof(SECURITY_IMPERSONATION_LEVEL);
 
         try {
 
@@ -993,13 +993,13 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            ObDereferenceObject( Token );
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        if ( TokenInformationLength < RequiredLength ) {
+        if (TokenInformationLength < RequiredLength) {
 
-            ObDereferenceObject( Token );
+            ObDereferenceObject(Token);
             return STATUS_BUFFER_TOO_SMALL;
 
         }
@@ -1015,12 +1015,12 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            ObDereferenceObject( Token );
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
 
-        ObDereferenceObject( Token );
+        ObDereferenceObject(Token);
         return STATUS_SUCCESS;
 
 
@@ -1029,15 +1029,15 @@ Return Value:
         LocalStatistics = (PTOKEN_STATISTICS)TokenInformation;
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY,           // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY,           // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
@@ -1045,7 +1045,7 @@ Return Value:
         //  Gain exclusive access to the token.
 
 
-        SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
 
@@ -1054,7 +1054,7 @@ Return Value:
         // was provided by the caller and we have to return an error.
 
 
-        RequiredLength = (ULONG)sizeof( TOKEN_STATISTICS );
+        RequiredLength = (ULONG)sizeof(TOKEN_STATISTICS);
 
         try {
 
@@ -1062,15 +1062,15 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        if ( TokenInformationLength < RequiredLength ) {
+        if (TokenInformationLength < RequiredLength) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return STATUS_BUFFER_TOO_SMALL;
 
         }
@@ -1081,52 +1081,52 @@ Return Value:
 
         try {
 
-            LocalStatistics->TokenId            = Token->TokenId;
-            LocalStatistics->AuthenticationId   = Token->AuthenticationId;
-            LocalStatistics->ExpirationTime     = Token->ExpirationTime;
-            LocalStatistics->TokenType          = Token->TokenType;
+            LocalStatistics->TokenId = Token->TokenId;
+            LocalStatistics->AuthenticationId = Token->AuthenticationId;
+            LocalStatistics->ExpirationTime = Token->ExpirationTime;
+            LocalStatistics->TokenType = Token->TokenType;
             LocalStatistics->ImpersonationLevel = Token->ImpersonationLevel;
-            LocalStatistics->DynamicCharged     = Token->DynamicCharged;
-            LocalStatistics->DynamicAvailable   = Token->DynamicAvailable;
-            LocalStatistics->GroupCount         = Token->UserAndGroupCount-1;
-            LocalStatistics->PrivilegeCount     = Token->PrivilegeCount;
-            LocalStatistics->ModifiedId         = Token->ModifiedId;
+            LocalStatistics->DynamicCharged = Token->DynamicCharged;
+            LocalStatistics->DynamicAvailable = Token->DynamicAvailable;
+            LocalStatistics->GroupCount = Token->UserAndGroupCount - 1;
+            LocalStatistics->PrivilegeCount = Token->PrivilegeCount;
+            LocalStatistics->ModifiedId = Token->ModifiedId;
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            SepReleaseTokenReadLock( Token );
-            ObDereferenceObject( Token );
+            SepReleaseTokenReadLock(Token);
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
 
-        SepReleaseTokenReadLock( Token );
-        ObDereferenceObject( Token );
+        SepReleaseTokenReadLock(Token);
+        ObDereferenceObject(Token);
         return STATUS_SUCCESS;
 
     case TokenSessionId:
 
-        if ( TokenInformationLength != sizeof(ULONG) )
-            return( STATUS_INFO_LENGTH_MISMATCH );
+        if (TokenInformationLength != sizeof(ULONG))
+            return(STATUS_INFO_LENGTH_MISMATCH);
 
         Status = ObReferenceObjectByHandle(
-                 TokenHandle,           // Handle
-                 TOKEN_QUERY,           // DesiredAccess
-                 SepTokenObjectType,    // ObjectType
-                 PreviousMode,          // AccessMode
-                 (PVOID *)&Token,       // Object
-                 NULL                   // GrantedAccess
-                 );
+            TokenHandle,           // Handle
+            TOKEN_QUERY,           // DesiredAccess
+            SepTokenObjectType,    // ObjectType
+            PreviousMode,          // AccessMode
+            (PVOID*)&Token,       // Object
+            NULL                   // GrantedAccess
+        );
 
-        if ( !NT_SUCCESS(Status) ) {
+        if (!NT_SUCCESS(Status)) {
             return Status;
         }
 
 
         // Get SessionId for the token
 
-        SeQuerySessionIdToken( (PACCESS_TOKEN)Token,
-                               &SessionId);
+        SeQuerySessionIdToken((PACCESS_TOKEN)Token,
+                              &SessionId);
 
         try {
 
@@ -1134,12 +1134,12 @@ Return Value:
             *ReturnLength = sizeof(ULONG);
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
-            ObDereferenceObject( Token );
+            ObDereferenceObject(Token);
             return GetExceptionCode();
         }
 
-        ObDereferenceObject( Token );
-        return( STATUS_SUCCESS );
+        ObDereferenceObject(Token);
+        return(STATUS_SUCCESS);
 
     default:
 
@@ -1152,7 +1152,7 @@ NTSTATUS
 SeQueryAuthenticationIdToken(
     IN PACCESS_TOKEN Token,
     OUT PLUID AuthenticationId
-    )
+)
 
 /*++
 
@@ -1177,20 +1177,20 @@ Return Value:
 {
     PAGED_CODE();
 
-    SepAcquireTokenReadLock( ((PTOKEN)Token) );
+    SepAcquireTokenReadLock(((PTOKEN)Token));
     (*AuthenticationId) = ((PTOKEN)Token)->AuthenticationId;
-    SepReleaseTokenReadLock( ((PTOKEN)Token) );
+    SepReleaseTokenReadLock(((PTOKEN)Token));
     return(STATUS_SUCCESS);
 }
 
 
 
 NTSTATUS
-SeQueryInformationToken (
+SeQueryInformationToken(
     IN PACCESS_TOKEN AccessToken,
     IN TOKEN_INFORMATION_CLASS TokenInformationClass,
-    OUT PVOID *TokenInformation
-    )
+    OUT PVOID* TokenInformation
+)
 
 /*++
 
@@ -1273,480 +1273,480 @@ Return Value:
     // Case on information class.
 
 
-    switch ( TokenInformationClass ) {
+    switch (TokenInformationClass) {
 
-        case TokenUser:
-            {
-                PTOKEN_USER LocalUser;
+    case TokenUser:
+    {
+        PTOKEN_USER LocalUser;
 
 
-                //  Gain exclusive access to the token.
+        //  Gain exclusive access to the token.
 
 
-                SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
-                // Return the length required now in case not enough buffer
-                // was provided by the caller and we have to return an error.
+        // Return the length required now in case not enough buffer
+        // was provided by the caller and we have to return an error.
 
 
-                RequiredLength = SeLengthSid( Token->UserAndGroups[0].Sid) +
-                                 (ULONG)sizeof( TOKEN_USER );
+        RequiredLength = SeLengthSid(Token->UserAndGroups[0].Sid) +
+            (ULONG)sizeof(TOKEN_USER);
 
-                LocalUser = ExAllocatePool( PagedPool, RequiredLength );
-                if (LocalUser == NULL) {
-                    SepReleaseTokenReadLock( Token );
-                    return( STATUS_INSUFFICIENT_RESOURCES );
-                }
+        LocalUser = ExAllocatePool(PagedPool, RequiredLength);
+        if (LocalUser == NULL) {
+            SepReleaseTokenReadLock(Token);
+            return(STATUS_INSUFFICIENT_RESOURCES);
+        }
 
 
-                // Return the user SID
+        // Return the user SID
 
-                //  Put SID immediately following TOKEN_USER data structure
+        //  Put SID immediately following TOKEN_USER data structure
 
 
-                PSid = (PSID)( (ULONG_PTR)LocalUser + (ULONG)sizeof(TOKEN_USER) );
+        PSid = (PSID)((ULONG_PTR)LocalUser + (ULONG)sizeof(TOKEN_USER));
 
-                RtlCopySidAndAttributesArray(
-                    1,
-                    Token->UserAndGroups,
-                    RequiredLength,
-                    &(LocalUser->User),
-                    PSid,
-                    ((PSID *)&Ignore),
-                    ((PULONG)&Ignore)
-                    );
+        RtlCopySidAndAttributesArray(
+            1,
+            Token->UserAndGroups,
+            RequiredLength,
+            &(LocalUser->User),
+            PSid,
+            ((PSID*)&Ignore),
+            ((PULONG)&Ignore)
+        );
 
-                SepReleaseTokenReadLock( Token );
-                *TokenInformation = LocalUser;
-                return STATUS_SUCCESS;
-            }
+        SepReleaseTokenReadLock(Token);
+        *TokenInformation = LocalUser;
+        return STATUS_SUCCESS;
+    }
 
 
-        case TokenGroups:
-            {
-                PTOKEN_GROUPS LocalGroups;
+    case TokenGroups:
+    {
+        PTOKEN_GROUPS LocalGroups;
 
 
-                //  Gain exclusive access to the token.
+        //  Gain exclusive access to the token.
 
 
-                SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
-                // Figure out how much space is needed to return the group SIDs.
-                // That's the size of TOKEN_GROUPS (without any array entries)
-                // plus the size of an SID_AND_ATTRIBUTES times the number of groups.
-                // The number of groups is Token->UserAndGroups-1 (since the count
-                // includes the user ID).  Then the lengths of each individual group
-                // must be added.
+        // Figure out how much space is needed to return the group SIDs.
+        // That's the size of TOKEN_GROUPS (without any array entries)
+        // plus the size of an SID_AND_ATTRIBUTES times the number of groups.
+        // The number of groups is Token->UserAndGroups-1 (since the count
+        // includes the user ID).  Then the lengths of each individual group
+        // must be added.
 
 
-                RequiredLength = (ULONG)sizeof(TOKEN_GROUPS) +
-                                 ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) *
-                                 ((ULONG)sizeof(SID_AND_ATTRIBUTES)) );
+        RequiredLength = (ULONG)sizeof(TOKEN_GROUPS) +
+            ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) *
+            ((ULONG)sizeof(SID_AND_ATTRIBUTES)));
 
-                Index = 1;
-                while (Index < Token->UserAndGroupCount) {
+        Index = 1;
+        while (Index < Token->UserAndGroupCount) {
 
-                    RequiredLength += SeLengthSid( Token->UserAndGroups[Index].Sid );
+            RequiredLength += SeLengthSid(Token->UserAndGroups[Index].Sid);
 
-                    Index += 1;
+            Index += 1;
 
-                } // endwhile
+        } // endwhile
 
-                LocalGroups = ExAllocatePool( PagedPool, RequiredLength );
+        LocalGroups = ExAllocatePool(PagedPool, RequiredLength);
 
-                if (LocalGroups == NULL) {
-                    SepReleaseTokenReadLock( Token );
-                    return( STATUS_INSUFFICIENT_RESOURCES );
-                }
+        if (LocalGroups == NULL) {
+            SepReleaseTokenReadLock(Token);
+            return(STATUS_INSUFFICIENT_RESOURCES);
+        }
 
 
-                // Now copy the groups.
+        // Now copy the groups.
 
 
-                LocalGroups->GroupCount = Token->UserAndGroupCount - 1;
+        LocalGroups->GroupCount = Token->UserAndGroupCount - 1;
 
-                PSid = (PSID)( (ULONG_PTR)LocalGroups +
-                               (ULONG)sizeof(TOKEN_GROUPS) +
-                               (   (Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) *
-                                   (ULONG)sizeof(SID_AND_ATTRIBUTES) )
-                             );
+        PSid = (PSID)((ULONG_PTR)LocalGroups +
+            (ULONG)sizeof(TOKEN_GROUPS) +
+                      ((Token->UserAndGroupCount - ANYSIZE_ARRAY - 1) *
+                      (ULONG)sizeof(SID_AND_ATTRIBUTES))
+                      );
 
-                RtlCopySidAndAttributesArray(
-                    (ULONG)(Token->UserAndGroupCount - 1),
-                    &(Token->UserAndGroups[1]),
-                    RequiredLength,
-                    LocalGroups->Groups,
-                    PSid,
-                    ((PSID *)&Ignore),
-                    ((PULONG)&Ignore)
-                    );
+        RtlCopySidAndAttributesArray(
+            (ULONG)(Token->UserAndGroupCount - 1),
+            &(Token->UserAndGroups[1]),
+            RequiredLength,
+            LocalGroups->Groups,
+            PSid,
+            ((PSID*)&Ignore),
+            ((PULONG)&Ignore)
+        );
 
-                SepReleaseTokenReadLock( Token );
-                *TokenInformation = LocalGroups;
-                return STATUS_SUCCESS;
-            }
+        SepReleaseTokenReadLock(Token);
+        *TokenInformation = LocalGroups;
+        return STATUS_SUCCESS;
+    }
 
 
-        case TokenPrivileges:
-            {
-                PTOKEN_PRIVILEGES LocalPrivileges;
+    case TokenPrivileges:
+    {
+        PTOKEN_PRIVILEGES LocalPrivileges;
 
 
-                //  Gain exclusive access to the token to prevent changes
-                //  from occuring to the privileges.
+        //  Gain exclusive access to the token to prevent changes
+        //  from occuring to the privileges.
 
 
-                SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
-                // Return the length required now in case not enough buffer
-                // was provided by the caller and we have to return an error.
+        // Return the length required now in case not enough buffer
+        // was provided by the caller and we have to return an error.
 
 
-                RequiredLength = (ULONG)sizeof(TOKEN_PRIVILEGES) +
-                                 ((Token->PrivilegeCount - ANYSIZE_ARRAY) *
-                                 ((ULONG)sizeof(LUID_AND_ATTRIBUTES)) );
+        RequiredLength = (ULONG)sizeof(TOKEN_PRIVILEGES) +
+            ((Token->PrivilegeCount - ANYSIZE_ARRAY) *
+            ((ULONG)sizeof(LUID_AND_ATTRIBUTES)));
 
-                LocalPrivileges = ExAllocatePool( PagedPool, RequiredLength );
+        LocalPrivileges = ExAllocatePool(PagedPool, RequiredLength);
 
-                if (LocalPrivileges == NULL) {
-                    SepReleaseTokenReadLock( Token );
-                    return( STATUS_INSUFFICIENT_RESOURCES );
-                }
+        if (LocalPrivileges == NULL) {
+            SepReleaseTokenReadLock(Token);
+            return(STATUS_INSUFFICIENT_RESOURCES);
+        }
 
 
-                // Return the token privileges.
+        // Return the token privileges.
 
 
-                LocalPrivileges->PrivilegeCount = Token->PrivilegeCount;
+        LocalPrivileges->PrivilegeCount = Token->PrivilegeCount;
 
-                RtlCopyLuidAndAttributesArray(
-                    Token->PrivilegeCount,
-                    Token->Privileges,
-                    LocalPrivileges->Privileges
-                    );
+        RtlCopyLuidAndAttributesArray(
+            Token->PrivilegeCount,
+            Token->Privileges,
+            LocalPrivileges->Privileges
+        );
 
-                SepReleaseTokenReadLock( Token );
-                *TokenInformation = LocalPrivileges;
-                return STATUS_SUCCESS;
-            }
+        SepReleaseTokenReadLock(Token);
+        *TokenInformation = LocalPrivileges;
+        return STATUS_SUCCESS;
+    }
 
 
-        case TokenOwner:
-            {
-                PTOKEN_OWNER LocalOwner;
+    case TokenOwner:
+    {
+        PTOKEN_OWNER LocalOwner;
 
 
-                //  Gain exclusive access to the token to prevent changes
-                //  from occuring to the owner.
+        //  Gain exclusive access to the token to prevent changes
+        //  from occuring to the owner.
 
 
-                SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
-                // Return the length required now in case not enough buffer
-                // was provided by the caller and we have to return an error.
+        // Return the length required now in case not enough buffer
+        // was provided by the caller and we have to return an error.
 
 
-                PSid = Token->UserAndGroups[Token->DefaultOwnerIndex].Sid;
-                RequiredLength = (ULONG)sizeof(TOKEN_OWNER) +
-                                 SeLengthSid( PSid );
+        PSid = Token->UserAndGroups[Token->DefaultOwnerIndex].Sid;
+        RequiredLength = (ULONG)sizeof(TOKEN_OWNER) +
+            SeLengthSid(PSid);
 
-                LocalOwner = ExAllocatePool( PagedPool, RequiredLength );
+        LocalOwner = ExAllocatePool(PagedPool, RequiredLength);
 
-                if (LocalOwner == NULL) {
-                    SepReleaseTokenReadLock( Token );
-                    return( STATUS_INSUFFICIENT_RESOURCES );
-                }
+        if (LocalOwner == NULL) {
+            SepReleaseTokenReadLock(Token);
+            return(STATUS_INSUFFICIENT_RESOURCES);
+        }
 
 
-                // Return the owner SID
+        // Return the owner SID
 
 
-                PSid = (PSID)((ULONG_PTR)LocalOwner +
-                              (ULONG)sizeof(TOKEN_OWNER));
+        PSid = (PSID)((ULONG_PTR)LocalOwner +
+            (ULONG)sizeof(TOKEN_OWNER));
 
-                LocalOwner->Owner = PSid;
+        LocalOwner->Owner = PSid;
 
-                Status = RtlCopySid(
-                             (RequiredLength - (ULONG)sizeof(TOKEN_OWNER)),
-                             PSid,
-                             Token->UserAndGroups[Token->DefaultOwnerIndex].Sid
-                             );
+        Status = RtlCopySid(
+            (RequiredLength - (ULONG)sizeof(TOKEN_OWNER)),
+            PSid,
+            Token->UserAndGroups[Token->DefaultOwnerIndex].Sid
+        );
 
-                ASSERT( NT_SUCCESS(Status) );
+        ASSERT(NT_SUCCESS(Status));
 
-                SepReleaseTokenReadLock( Token );
-                *TokenInformation = LocalOwner;
-                return STATUS_SUCCESS;
-            }
+        SepReleaseTokenReadLock(Token);
+        *TokenInformation = LocalOwner;
+        return STATUS_SUCCESS;
+    }
 
 
-        case TokenPrimaryGroup:
-            {
-                PTOKEN_PRIMARY_GROUP LocalPrimaryGroup;
+    case TokenPrimaryGroup:
+    {
+        PTOKEN_PRIMARY_GROUP LocalPrimaryGroup;
 
 
-                //  Gain exclusive access to the token to prevent changes
-                //  from occuring to the owner.
+        //  Gain exclusive access to the token to prevent changes
+        //  from occuring to the owner.
 
 
-                SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
-                // Return the length required now in case not enough buffer
-                // was provided by the caller and we have to return an error.
+        // Return the length required now in case not enough buffer
+        // was provided by the caller and we have to return an error.
 
 
-                RequiredLength = (ULONG)sizeof(TOKEN_PRIMARY_GROUP) +
-                                 SeLengthSid( Token->PrimaryGroup );
+        RequiredLength = (ULONG)sizeof(TOKEN_PRIMARY_GROUP) +
+            SeLengthSid(Token->PrimaryGroup);
 
-                LocalPrimaryGroup = ExAllocatePool( PagedPool, RequiredLength );
+        LocalPrimaryGroup = ExAllocatePool(PagedPool, RequiredLength);
 
-                if (LocalPrimaryGroup == NULL) {
-                    SepReleaseTokenReadLock( Token );
-                    return( STATUS_INSUFFICIENT_RESOURCES );
-                }
+        if (LocalPrimaryGroup == NULL) {
+            SepReleaseTokenReadLock(Token);
+            return(STATUS_INSUFFICIENT_RESOURCES);
+        }
 
 
-                // Return the primary group SID
+        // Return the primary group SID
 
 
-                PSid = (PSID)((ULONG_PTR)LocalPrimaryGroup +
-                              (ULONG)sizeof(TOKEN_PRIMARY_GROUP));
+        PSid = (PSID)((ULONG_PTR)LocalPrimaryGroup +
+            (ULONG)sizeof(TOKEN_PRIMARY_GROUP));
 
-                LocalPrimaryGroup->PrimaryGroup = PSid;
+        LocalPrimaryGroup->PrimaryGroup = PSid;
 
-                Status = RtlCopySid( (RequiredLength - (ULONG)sizeof(TOKEN_PRIMARY_GROUP)),
-                                     PSid,
-                                     Token->PrimaryGroup
-                                     );
+        Status = RtlCopySid((RequiredLength - (ULONG)sizeof(TOKEN_PRIMARY_GROUP)),
+                            PSid,
+                            Token->PrimaryGroup
+        );
 
-                ASSERT( NT_SUCCESS(Status) );
+        ASSERT(NT_SUCCESS(Status));
 
-                SepReleaseTokenReadLock( Token );
-                *TokenInformation = LocalPrimaryGroup;
-                return STATUS_SUCCESS;
-            }
+        SepReleaseTokenReadLock(Token);
+        *TokenInformation = LocalPrimaryGroup;
+        return STATUS_SUCCESS;
+    }
 
 
-        case TokenDefaultDacl:
-            {
-                PTOKEN_DEFAULT_DACL LocalDefaultDacl;
+    case TokenDefaultDacl:
+    {
+        PTOKEN_DEFAULT_DACL LocalDefaultDacl;
 
 
-                //  Gain exclusive access to the token to prevent changes
-                //  from occuring to the owner.
+        //  Gain exclusive access to the token to prevent changes
+        //  from occuring to the owner.
 
 
-                SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
-                // Return the length required now in case not enough buffer
-                // was provided by the caller and we have to return an error.
+        // Return the length required now in case not enough buffer
+        // was provided by the caller and we have to return an error.
 
 
-                RequiredLength = (ULONG)sizeof(TOKEN_DEFAULT_DACL);
+        RequiredLength = (ULONG)sizeof(TOKEN_DEFAULT_DACL);
 
-                if (ARGUMENT_PRESENT(Token->DefaultDacl)) {
-                    RequiredLength += Token->DefaultDacl->AclSize;
-                }
+        if (ARGUMENT_PRESENT(Token->DefaultDacl)) {
+            RequiredLength += Token->DefaultDacl->AclSize;
+        }
 
-                LocalDefaultDacl = ExAllocatePool( PagedPool, RequiredLength );
-                if (LocalDefaultDacl == NULL) {
-                    SepReleaseTokenReadLock( Token );
-                    return( STATUS_INSUFFICIENT_RESOURCES );
-                }
+        LocalDefaultDacl = ExAllocatePool(PagedPool, RequiredLength);
+        if (LocalDefaultDacl == NULL) {
+            SepReleaseTokenReadLock(Token);
+            return(STATUS_INSUFFICIENT_RESOURCES);
+        }
 
 
-                // Return the default Dacl
+        // Return the default Dacl
 
 
-                PAcl = (PACL)((ULONG_PTR)LocalDefaultDacl +
-                              (ULONG)sizeof(TOKEN_DEFAULT_DACL));
+        PAcl = (PACL)((ULONG_PTR)LocalDefaultDacl +
+            (ULONG)sizeof(TOKEN_DEFAULT_DACL));
 
-                if (ARGUMENT_PRESENT(Token->DefaultDacl)) {
+        if (ARGUMENT_PRESENT(Token->DefaultDacl)) {
 
-                    LocalDefaultDacl->DefaultDacl = PAcl;
+            LocalDefaultDacl->DefaultDacl = PAcl;
 
-                    RtlCopyMemory( (PVOID)PAcl,
-                                   (PVOID)Token->DefaultDacl,
-                                   Token->DefaultDacl->AclSize
-                                   );
-                } else {
+            RtlCopyMemory((PVOID)PAcl,
+                (PVOID)Token->DefaultDacl,
+                          Token->DefaultDacl->AclSize
+            );
+        } else {
 
-                    LocalDefaultDacl->DefaultDacl = NULL;
-                }
+            LocalDefaultDacl->DefaultDacl = NULL;
+        }
 
-                SepReleaseTokenReadLock( Token );
-                *TokenInformation = LocalDefaultDacl;
-                return STATUS_SUCCESS;
-            }
+        SepReleaseTokenReadLock(Token);
+        *TokenInformation = LocalDefaultDacl;
+        return STATUS_SUCCESS;
+    }
 
 
-        case TokenSource:
-            {
-                PTOKEN_SOURCE LocalSource;
+    case TokenSource:
+    {
+        PTOKEN_SOURCE LocalSource;
 
 
-                // The type of a token can not be changed, so
-                // exclusive access to the token is not necessary.
+        // The type of a token can not be changed, so
+        // exclusive access to the token is not necessary.
 
 
 
-                // Return the length required now in case not enough buffer
-                // was provided by the caller and we have to return an error.
+        // Return the length required now in case not enough buffer
+        // was provided by the caller and we have to return an error.
 
 
-                RequiredLength = (ULONG) sizeof(TOKEN_SOURCE);
+        RequiredLength = (ULONG)sizeof(TOKEN_SOURCE);
 
-                LocalSource = ExAllocatePool( PagedPool, RequiredLength );
+        LocalSource = ExAllocatePool(PagedPool, RequiredLength);
 
-                if (LocalSource == NULL) {
-                    return( STATUS_INSUFFICIENT_RESOURCES );
-                }
+        if (LocalSource == NULL) {
+            return(STATUS_INSUFFICIENT_RESOURCES);
+        }
 
 
-                // Return the token source
+        // Return the token source
 
 
-                (*LocalSource) = Token->TokenSource;
-                *TokenInformation = LocalSource;
+        (*LocalSource) = Token->TokenSource;
+        *TokenInformation = LocalSource;
 
-                return STATUS_SUCCESS;
-            }
+        return STATUS_SUCCESS;
+    }
 
 
-        case TokenType:
-            {
-                PTOKEN_TYPE LocalType;
+    case TokenType:
+    {
+        PTOKEN_TYPE LocalType;
 
 
-                // The type of a token can not be changed, so
-                // exclusive access to the token is not necessary.
+        // The type of a token can not be changed, so
+        // exclusive access to the token is not necessary.
 
 
 
-                // Return the length required now in case not enough buffer
-                // was provided by the caller and we have to return an error.
+        // Return the length required now in case not enough buffer
+        // was provided by the caller and we have to return an error.
 
 
-                RequiredLength = (ULONG) sizeof(TOKEN_TYPE);
+        RequiredLength = (ULONG)sizeof(TOKEN_TYPE);
 
-                LocalType = ExAllocatePool( PagedPool, RequiredLength );
+        LocalType = ExAllocatePool(PagedPool, RequiredLength);
 
-                if (LocalType == NULL) {
-                    return( STATUS_INSUFFICIENT_RESOURCES );
-                }
+        if (LocalType == NULL) {
+            return(STATUS_INSUFFICIENT_RESOURCES);
+        }
 
 
-                // Return the token type
+        // Return the token type
 
 
-                (*LocalType) = Token->TokenType;
-                *TokenInformation = LocalType;
-                return STATUS_SUCCESS;
-            }
+        (*LocalType) = Token->TokenType;
+        *TokenInformation = LocalType;
+        return STATUS_SUCCESS;
+    }
 
 
-        case TokenImpersonationLevel:
-            {
-                PSECURITY_IMPERSONATION_LEVEL LocalImpersonationLevel;
+    case TokenImpersonationLevel:
+    {
+        PSECURITY_IMPERSONATION_LEVEL LocalImpersonationLevel;
 
 
-                // The impersonation level of a token can not be changed, so
-                // exclusive access to the token is not necessary.
+        // The impersonation level of a token can not be changed, so
+        // exclusive access to the token is not necessary.
 
 
 
-                //  Make sure the token is an appropriate type to be retrieving
-                //  the impersonation level from.
+        //  Make sure the token is an appropriate type to be retrieving
+        //  the impersonation level from.
 
 
-                if (Token->TokenType != TokenImpersonation) {
+        if (Token->TokenType != TokenImpersonation) {
 
-                    return STATUS_INVALID_INFO_CLASS;
-                }
+            return STATUS_INVALID_INFO_CLASS;
+        }
 
 
-                // Return the length required now in case not enough buffer
-                // was provided by the caller and we have to return an error.
+        // Return the length required now in case not enough buffer
+        // was provided by the caller and we have to return an error.
 
 
-                RequiredLength = (ULONG) sizeof(SECURITY_IMPERSONATION_LEVEL);
+        RequiredLength = (ULONG)sizeof(SECURITY_IMPERSONATION_LEVEL);
 
-                LocalImpersonationLevel = ExAllocatePool( PagedPool, RequiredLength );
+        LocalImpersonationLevel = ExAllocatePool(PagedPool, RequiredLength);
 
-                if (LocalImpersonationLevel == NULL) {
-                    return( STATUS_INSUFFICIENT_RESOURCES );
-                }
+        if (LocalImpersonationLevel == NULL) {
+            return(STATUS_INSUFFICIENT_RESOURCES);
+        }
 
 
-                // Return the impersonation level
+        // Return the impersonation level
 
 
-                (*LocalImpersonationLevel) = Token->ImpersonationLevel;
-                *TokenInformation = LocalImpersonationLevel;
-                return STATUS_SUCCESS;
-            }
+        (*LocalImpersonationLevel) = Token->ImpersonationLevel;
+        *TokenInformation = LocalImpersonationLevel;
+        return STATUS_SUCCESS;
+    }
 
 
-        case TokenStatistics:
-            {
-                PTOKEN_STATISTICS LocalStatistics;
+    case TokenStatistics:
+    {
+        PTOKEN_STATISTICS LocalStatistics;
 
 
-                //  Gain exclusive access to the token.
+        //  Gain exclusive access to the token.
 
 
-                SepAcquireTokenReadLock( Token );
+        SepAcquireTokenReadLock(Token);
 
 
-                // Return the length required now in case not enough buffer
-                // was provided by the caller and we have to return an error.
+        // Return the length required now in case not enough buffer
+        // was provided by the caller and we have to return an error.
 
 
-                RequiredLength = (ULONG)sizeof( TOKEN_STATISTICS );
+        RequiredLength = (ULONG)sizeof(TOKEN_STATISTICS);
 
-                LocalStatistics = ExAllocatePool( PagedPool, RequiredLength );
+        LocalStatistics = ExAllocatePool(PagedPool, RequiredLength);
 
-                if (LocalStatistics == NULL) {
-                    SepReleaseTokenReadLock( Token );
-                    return( STATUS_INSUFFICIENT_RESOURCES );
-                }
+        if (LocalStatistics == NULL) {
+            SepReleaseTokenReadLock(Token);
+            return(STATUS_INSUFFICIENT_RESOURCES);
+        }
 
 
-                // Return the statistics
+        // Return the statistics
 
 
-                LocalStatistics->TokenId            = Token->TokenId;
-                LocalStatistics->AuthenticationId   = Token->AuthenticationId;
-                LocalStatistics->ExpirationTime     = Token->ExpirationTime;
-                LocalStatistics->TokenType          = Token->TokenType;
-                LocalStatistics->ImpersonationLevel = Token->ImpersonationLevel;
-                LocalStatistics->DynamicCharged     = Token->DynamicCharged;
-                LocalStatistics->DynamicAvailable   = Token->DynamicAvailable;
-                LocalStatistics->GroupCount         = Token->UserAndGroupCount-1;
-                LocalStatistics->PrivilegeCount     = Token->PrivilegeCount;
-                LocalStatistics->ModifiedId         = Token->ModifiedId;
+        LocalStatistics->TokenId = Token->TokenId;
+        LocalStatistics->AuthenticationId = Token->AuthenticationId;
+        LocalStatistics->ExpirationTime = Token->ExpirationTime;
+        LocalStatistics->TokenType = Token->TokenType;
+        LocalStatistics->ImpersonationLevel = Token->ImpersonationLevel;
+        LocalStatistics->DynamicCharged = Token->DynamicCharged;
+        LocalStatistics->DynamicAvailable = Token->DynamicAvailable;
+        LocalStatistics->GroupCount = Token->UserAndGroupCount - 1;
+        LocalStatistics->PrivilegeCount = Token->PrivilegeCount;
+        LocalStatistics->ModifiedId = Token->ModifiedId;
 
-                SepReleaseTokenReadLock( Token );
-                *TokenInformation = LocalStatistics;
-                return STATUS_SUCCESS;
-            }
+        SepReleaseTokenReadLock(Token);
+        *TokenInformation = LocalStatistics;
+        return STATUS_SUCCESS;
+    }
 
     case TokenSessionId:
 
         /*
          * Get SessionId for the token
          */
-        SeQuerySessionIdToken( (PACCESS_TOKEN)Token,
-                             (PULONG)TokenInformation );
+        SeQuerySessionIdToken((PACCESS_TOKEN)Token,
+            (PULONG)TokenInformation);
 
-        return( STATUS_SUCCESS );
+        return(STATUS_SUCCESS);
 
     default:
 
@@ -1772,8 +1772,8 @@ Return Value:
     /*
      * Get the SessionId.
      */
-    SepAcquireTokenReadLock( ((PTOKEN)Token) );
+    SepAcquireTokenReadLock(((PTOKEN)Token));
     (*SessionId) = ((PTOKEN)Token)->SessionId;
-    SepReleaseTokenReadLock( ((PTOKEN)Token) );
-    return( STATUS_SUCCESS );
+    SepReleaseTokenReadLock(((PTOKEN)Token));
+    return(STATUS_SUCCESS);
 }

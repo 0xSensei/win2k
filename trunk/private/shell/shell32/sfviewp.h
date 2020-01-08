@@ -15,16 +15,18 @@ class CGenList
 {
 public:
     CGenList(UINT cbItem) : m_hList(NULL), m_cbItem(cbItem) {}
-    ~CGenList() {Empty();}
+    ~CGenList() { Empty(); }
 
     LPVOID GetPtr(UINT i)
-        {return(i<GetItemCount() ? DSA_GetItemPtr(m_hList, i) : NULL);}
+    {
+        return(i < GetItemCount() ? DSA_GetItemPtr(m_hList, i) : NULL);
+    }
 
-    UINT GetItemCount() {return(m_hList ? DSA_GetItemCount(m_hList) : 0);}
+    UINT GetItemCount() { return(m_hList ? DSA_GetItemCount(m_hList) : 0); }
 
     int Add(LPVOID pv, int nInsert);
 
-    void Empty() {if (m_hList) DSA_Destroy(m_hList); m_hList=NULL;}
+    void Empty() { if (m_hList) DSA_Destroy(m_hList); m_hList = NULL; }
 
 protected:
     void Steal(CGenList* pList)
@@ -38,13 +40,13 @@ protected:
 private:
     UINT m_cbItem;
     HDSA m_hList;
-} ;
+};
 
 class CViewsList : public CGenList
 {
 public:
     CViewsList() : CGenList(SIZEOF(SFVVIEWSDATA*)), m_bGotDef(FALSE) {}
-    ~CViewsList() {Empty();}
+    ~CViewsList() { Empty(); }
 
     SFVVIEWSDATA* GetPtr(UINT i)
     {
@@ -53,15 +55,15 @@ public:
     }
 
 
-    int Add(const SFVVIEWSDATA*pView, int nInsert, BOOL bCopy);
-    int Add(const SFVVIEWSDATA*pView, BOOL bCopy=TRUE) {return Add(pView, DA_LAST, bCopy);}
-    int Prepend(const SFVVIEWSDATA*pView, BOOL bCopy=TRUE) {return Add(pView, 0, bCopy);}
+    int Add(const SFVVIEWSDATA* pView, int nInsert, BOOL bCopy);
+    int Add(const SFVVIEWSDATA* pView, BOOL bCopy = TRUE) { return Add(pView, DA_LAST, bCopy); }
+    int Prepend(const SFVVIEWSDATA* pView, BOOL bCopy = TRUE) { return Add(pView, 0, bCopy); }
     void AddReg(HKEY hkParent, LPCTSTR pszSubKey);
     void AddCLSID(CLSID const* pclsid);
     void AddIni(LPCTSTR szIniFile, LPCTSTR szPath);
 
-    void SetDef(SHELLVIEWID const *pvid) { m_bGotDef=TRUE; m_vidDef=*pvid; }
-    BOOL GetDef(SHELLVIEWID *pvid) { if (m_bGotDef) *pvid=m_vidDef; return(m_bGotDef); }
+    void SetDef(SHELLVIEWID const* pvid) { m_bGotDef = TRUE; m_vidDef = *pvid; }
+    BOOL GetDef(SHELLVIEWID* pvid) { if (m_bGotDef) *pvid = m_vidDef; return(m_bGotDef); }
 
     void Empty();
 
@@ -73,14 +75,14 @@ public:
 private:
     BOOL m_bGotDef;
     SHELLVIEWID m_vidDef;
-} ;
+};
 
 typedef struct
 {
     LPARAM  lParamSort;
     int iDirection;
     int iLastColumnClick;
-} DVSAVESTATE, *PDVSAVESTATE;
+} DVSAVESTATE, * PDVSAVESTATE;
 
 class DVSAVEHEADER
 {
@@ -95,18 +97,15 @@ public:
 
     UINT GetColumnsInfo(LPBYTE* ppColInfo)
     {
-        if (cbColOffset >= SIZEOF(DVSAVEHEADER))
-        {
+        if (cbColOffset >= SIZEOF(DVSAVEHEADER)) {
             *ppColInfo = ((LPBYTE)this) + cbColOffset;
             return cbPosOffset - cbColOffset;
-        }
-        else
-        {
+        } else {
             *ppColInfo = NULL;
             return 0;
         }
     }
-} ;
+};
 typedef DVSAVEHEADER* PDVSAVEHEADER;
 
 // Even though we don't currently store anything we care
@@ -124,7 +123,7 @@ typedef struct
     DWORD       dwUnused;       // used to be SIZE szExtended (ie4 beta1)
     WORD        cbColOffset;    // overrides DVSAVEHEADER.cbColOffset
     WORD        wAlign;
-} DVSAVEHEADEREX, *PDVSAVEHEADEREX;
+} DVSAVEHEADEREX, * PDVSAVEHEADEREX;
 
 #define DVSAVEHEADEREX_SIGNATURE 0xf0f0f0f0 // don't conflict with CCOLSHEADER_SIGNATURE
 #define DVSAVEHEADEREX_VERSION 3 // for easy versioning
@@ -135,25 +134,25 @@ typedef struct
 class CDVDropTarget // dvdt
 {
 public:
-    HRESULT DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect);
-    HRESULT DragOver(DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect);
+    HRESULT DragEnter(IDataObject* pdtobj, DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect);
+    HRESULT DragOver(DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect);
     HRESULT DragLeave();
-    HRESULT Drop(IDataObject *pdtobj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
+    HRESULT Drop(IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 
-    void LeaveAndReleaseData(class CDefView *that);
+    void LeaveAndReleaseData(class CDefView* that);
     void ReleaseDataObject();
     void ReleaseCurrentDropTarget();
 
-    IDataObject *       pdtobj;         // from DragEnter()/Drop()
+    IDataObject* pdtobj;         // from DragEnter()/Drop()
     RECT                rcLockWindow;   // WindowRect of hwnd for DAD_ENTER
     int                 itemOver;       // item we are visually dragging over
-    IDropTarget *       pdtgtCur;       // current drop target, derived from hit testing
+    IDropTarget* pdtgtCur;       // current drop target, derived from hit testing
     DWORD               dwEffectOut;    // last *pdwEffect out
     DWORD               grfKeyState;    // cached key state
     POINT               ptLast;         // last dragged position
     AUTO_SCROLL_DATA    asd;            // for auto scrolling
     DWORD               dwLastTime;     // for auto-opening folders
-} ;
+};
 
 
 //  This is a proxy IDropTarget object, which wraps Trident's droptarget.
@@ -162,15 +161,15 @@ class CHostDropTarget : public IDropTarget
 {
 public:
     // *** IUnknown methods ***
-    virtual STDMETHODIMP QueryInterface(REFIID riid, void ** ppvObj);
-    virtual STDMETHODIMP_(ULONG) AddRef(void) ;
+    virtual STDMETHODIMP QueryInterface(REFIID riid, void** ppvObj);
+    virtual STDMETHODIMP_(ULONG) AddRef(void);
     virtual STDMETHODIMP_(ULONG) Release(void);
 
     // *** IDropTarget ***
-    virtual STDMETHODIMP DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
-    virtual STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
+    virtual STDMETHODIMP DragEnter(IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
+    virtual STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
     virtual STDMETHODIMP DragLeave(void);
-    virtual STDMETHODIMP Drop(IDataObject *pdtobj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
+    virtual STDMETHODIMP Drop(IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 
     IDropTarget* _pdtDoc;   // Drop target of the trident
     IDropTarget* _pdtFrame; // Drop target of the frame
@@ -178,47 +177,47 @@ public:
 
 
 class CSFVSite : public IOleInPlaceSite,
-                 public IOleClientSite,
-                 public IOleDocumentSite,
-                 public IServiceProvider,
-                 public IOleCommandTarget,
-                 public IDocHostUIHandler,
-                 public IOleControlSite,
-                 public IInternetSecurityManager,
-                 public IDispatch       //For ambient properties.
+    public IOleClientSite,
+    public IOleDocumentSite,
+    public IServiceProvider,
+    public IOleCommandTarget,
+    public IDocHostUIHandler,
+    public IOleControlSite,
+    public IInternetSecurityManager,
+    public IDispatch       //For ambient properties.
 {
     friend CHostDropTarget;
 public:
-    CSFVSite()  { ASSERT(m_peds == NULL); }
+    CSFVSite() { ASSERT(m_peds == NULL); }
     ~CSFVSite() {
-                    if (m_peds) {
-                        m_peds->Release();
-                        m_peds = NULL;
-                    }
-                }
+        if (m_peds) {
+            m_peds->Release();
+            m_peds = NULL;
+        }
+    }
 
     // *** IUnknown methods ***
-    STDMETHOD(QueryInterface)(REFIID riid, void **ppv);
-    STDMETHOD_(ULONG,AddRef)(THIS);
-    STDMETHOD_(ULONG,Release)(THIS);
+    STDMETHOD(QueryInterface)(REFIID riid, void** ppv);
+    STDMETHOD_(ULONG, AddRef)(THIS);
+    STDMETHOD_(ULONG, Release)(THIS);
 
     // IOleWindow
     virtual STDMETHODIMP GetWindow(
-        /* [out] */ HWND *phwnd);
+        /* [out] */ HWND* phwnd);
 
     virtual STDMETHODIMP ContextSensitiveHelp(
         /* [in] */ BOOL fEnterMode);
 
     // IOleInPlaceSite
-    virtual STDMETHODIMP CanInPlaceActivate( void);
+    virtual STDMETHODIMP CanInPlaceActivate(void);
 
-    virtual STDMETHODIMP OnInPlaceActivate( void);
+    virtual STDMETHODIMP OnInPlaceActivate(void);
 
-    virtual STDMETHODIMP OnUIActivate( void);
+    virtual STDMETHODIMP OnUIActivate(void);
 
     virtual STDMETHODIMP GetWindowContext(
-        /* [out] */ IOleInPlaceFrame **ppFrame,
-        /* [out] */ IOleInPlaceUIWindow **ppDoc,
+        /* [out] */ IOleInPlaceFrame** ppFrame,
+        /* [out] */ IOleInPlaceUIWindow** ppDoc,
         /* [out] */ LPRECT lprcPosRect,
         /* [out] */ LPRECT lprcClipRect,
         /* [out][in] */ LPOLEINPLACEFRAMEINFO lpFrameInfo);
@@ -229,113 +228,131 @@ public:
     virtual STDMETHODIMP OnUIDeactivate(
         /* [in] */ BOOL fUndoable);
 
-    virtual STDMETHODIMP OnInPlaceDeactivate( void);
+    virtual STDMETHODIMP OnInPlaceDeactivate(void);
 
-    virtual STDMETHODIMP DiscardUndoState( void);
+    virtual STDMETHODIMP DiscardUndoState(void);
 
-    virtual STDMETHODIMP DeactivateAndUndo( void);
+    virtual STDMETHODIMP DeactivateAndUndo(void);
 
     virtual STDMETHODIMP OnPosRectChange(
         /* [in] */ LPCRECT lprcPosRect);
 
     // IOleClientSite
-    virtual STDMETHODIMP SaveObject( void);
+    virtual STDMETHODIMP SaveObject(void);
 
     virtual STDMETHODIMP GetMoniker(
         /* [in] */ DWORD dwAssign,
         /* [in] */ DWORD dwWhichMoniker,
-        /* [out] */ IMoniker **ppmk);
+        /* [out] */ IMoniker** ppmk);
 
     virtual STDMETHODIMP GetContainer(
-        /* [out] */ IOleContainer **ppContainer);
+        /* [out] */ IOleContainer** ppContainer);
 
-    virtual STDMETHODIMP ShowObject( void);
+    virtual STDMETHODIMP ShowObject(void);
 
     virtual STDMETHODIMP OnShowWindow(
         /* [in] */ BOOL fShow);
 
-    virtual STDMETHODIMP RequestNewObjectLayout( void);
+    virtual STDMETHODIMP RequestNewObjectLayout(void);
 
     // IOleDocumentSite
     virtual STDMETHODIMP ActivateMe(
-        /* [in] */ IOleDocumentView *pviewToActivate);
+        /* [in] */ IOleDocumentView* pviewToActivate);
 
     // IServiceProvider
     virtual STDMETHODIMP QueryService(REFGUID guidService, REFIID riid, LPVOID* ppvObj);
 
     // IOleCommandTarget
-    virtual STDMETHODIMP QueryStatus(const GUID *pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT *pcmdtext);
-    virtual STDMETHODIMP Exec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG *pvarargIn, VARIANTARG *pvarargOut);
+    virtual STDMETHODIMP QueryStatus(const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext);
+    virtual STDMETHODIMP Exec(const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut);
 
     // IOleControlSite
     virtual HRESULT STDMETHODCALLTYPE OnControlInfoChanged()
-        { return E_NOTIMPL; };
+    {
+        return E_NOTIMPL;
+    };
     virtual HRESULT STDMETHODCALLTYPE LockInPlaceActive(BOOL fLock)
-        { return E_NOTIMPL; };
-    virtual HRESULT STDMETHODCALLTYPE GetExtendedControl(IDispatch __RPC_FAR *__RPC_FAR *ppDisp)
-        { *ppDisp = NULL; return E_NOTIMPL; };
-    virtual HRESULT STDMETHODCALLTYPE TransformCoords(POINTL __RPC_FAR *pPtlHimetric, POINTF __RPC_FAR *pPtfContainer,DWORD dwFlags)
-        { return E_NOTIMPL; };
-    virtual HRESULT STDMETHODCALLTYPE TranslateAccelerator(MSG __RPC_FAR *pMsg,DWORD grfModifiers);
+    {
+        return E_NOTIMPL;
+    };
+    virtual HRESULT STDMETHODCALLTYPE GetExtendedControl(IDispatch __RPC_FAR* __RPC_FAR* ppDisp)
+    {
+        *ppDisp = NULL; return E_NOTIMPL;
+    };
+    virtual HRESULT STDMETHODCALLTYPE TransformCoords(POINTL __RPC_FAR* pPtlHimetric, POINTF __RPC_FAR* pPtfContainer, DWORD dwFlags)
+    {
+        return E_NOTIMPL;
+    };
+    virtual HRESULT STDMETHODCALLTYPE TranslateAccelerator(MSG __RPC_FAR* pMsg, DWORD grfModifiers);
 
     virtual HRESULT STDMETHODCALLTYPE OnFocus(BOOL fGotFocus)
-        { return E_NOTIMPL; };
+    {
+        return E_NOTIMPL;
+    };
     virtual HRESULT STDMETHODCALLTYPE ShowPropertyFrame(void)
-        { return E_NOTIMPL; };
+    {
+        return E_NOTIMPL;
+    };
 
     // IDocHostUIHandler
     virtual HRESULT STDMETHODCALLTYPE ShowContextMenu(
-        DWORD dwID, POINT *ppt, IUnknown *pcmdtReserved, IDispatch *pdispReserved);
-    virtual HRESULT STDMETHODCALLTYPE GetHostInfo(DOCHOSTUIINFO *pInfo);
+        DWORD dwID, POINT* ppt, IUnknown* pcmdtReserved, IDispatch* pdispReserved);
+    virtual HRESULT STDMETHODCALLTYPE GetHostInfo(DOCHOSTUIINFO* pInfo);
     virtual HRESULT STDMETHODCALLTYPE ShowUI(
-        DWORD dwID, IOleInPlaceActiveObject *pActiveObject,
-        IOleCommandTarget *pCommandTarget, IOleInPlaceFrame *pFrame,
-        IOleInPlaceUIWindow *pDoc);
+        DWORD dwID, IOleInPlaceActiveObject* pActiveObject,
+        IOleCommandTarget* pCommandTarget, IOleInPlaceFrame* pFrame,
+        IOleInPlaceUIWindow* pDoc);
     virtual HRESULT STDMETHODCALLTYPE HideUI(void);
     virtual HRESULT STDMETHODCALLTYPE UpdateUI(void);
     virtual HRESULT STDMETHODCALLTYPE EnableModeless(BOOL fEnable);
     virtual HRESULT STDMETHODCALLTYPE OnDocWindowActivate(BOOL fActivate);
     virtual HRESULT STDMETHODCALLTYPE OnFrameWindowActivate(BOOL fActivate);
     virtual HRESULT STDMETHODCALLTYPE ResizeBorder(
-        LPCRECT prcBorder, IOleInPlaceUIWindow *pUIWindow, BOOL fRameWindow);
+        LPCRECT prcBorder, IOleInPlaceUIWindow* pUIWindow, BOOL fRameWindow);
     virtual HRESULT STDMETHODCALLTYPE TranslateAccelerator(
-        LPMSG lpMsg, const GUID *pguidCmdGroup, DWORD nCmdID);
-    virtual HRESULT STDMETHODCALLTYPE GetOptionKeyPath(BSTR *pbstrKey, DWORD dw);
+        LPMSG lpMsg, const GUID* pguidCmdGroup, DWORD nCmdID);
+    virtual HRESULT STDMETHODCALLTYPE GetOptionKeyPath(BSTR* pbstrKey, DWORD dw);
     virtual HRESULT STDMETHODCALLTYPE GetDropTarget(
-        IDropTarget *pDropTarget, IDropTarget **ppDropTarget);
-    virtual HRESULT STDMETHODCALLTYPE GetExternal(IDispatch **ppDisp);
-    virtual HRESULT STDMETHODCALLTYPE TranslateUrl(DWORD dwTranslate, OLECHAR *pchURLIn, OLECHAR **ppchURLOut);
-    virtual HRESULT STDMETHODCALLTYPE FilterDataObject(IDataObject *pDO, IDataObject **ppDORet);
+        IDropTarget* pDropTarget, IDropTarget** ppDropTarget);
+    virtual HRESULT STDMETHODCALLTYPE GetExternal(IDispatch** ppDisp);
+    virtual HRESULT STDMETHODCALLTYPE TranslateUrl(DWORD dwTranslate, OLECHAR* pchURLIn, OLECHAR** ppchURLOut);
+    virtual HRESULT STDMETHODCALLTYPE FilterDataObject(IDataObject* pDO, IDataObject** ppDORet);
 
     // IInternetSecurityManager
-    virtual STDMETHODIMP SetSecuritySite(IInternetSecurityMgrSite *pSite) { return INET_E_DEFAULT_ACTION; };
-    virtual STDMETHODIMP GetSecuritySite(IInternetSecurityMgrSite **ppSite) { return INET_E_DEFAULT_ACTION; };
-    virtual STDMETHODIMP MapUrlToZone(LPCWSTR pwszUrl, DWORD * pdwZone, DWORD dwFlags) { return INET_E_DEFAULT_ACTION; };
-    virtual STDMETHODIMP GetSecurityId(LPCWSTR pwszUrl, BYTE * pbSecurityId, DWORD * pcbSecurityId, DWORD_PTR dwReserved) { return INET_E_DEFAULT_ACTION; };
-    virtual STDMETHODIMP ProcessUrlAction(LPCWSTR pwszUrl, DWORD dwAction, BYTE * pPolicy, DWORD cbPolicy, BYTE * pContext, DWORD cbContext, DWORD dwFlags, DWORD dwReserved);
-    virtual STDMETHODIMP QueryCustomPolicy(LPCWSTR pwszUrl, REFGUID guidKey, BYTE ** ppPolicy, DWORD * pcbPolicy, BYTE * pContext, DWORD cbContext, DWORD dwReserved) { return INET_E_DEFAULT_ACTION; };
+    virtual STDMETHODIMP SetSecuritySite(IInternetSecurityMgrSite* pSite) { return INET_E_DEFAULT_ACTION; };
+    virtual STDMETHODIMP GetSecuritySite(IInternetSecurityMgrSite** ppSite) { return INET_E_DEFAULT_ACTION; };
+    virtual STDMETHODIMP MapUrlToZone(LPCWSTR pwszUrl, DWORD* pdwZone, DWORD dwFlags) { return INET_E_DEFAULT_ACTION; };
+    virtual STDMETHODIMP GetSecurityId(LPCWSTR pwszUrl, BYTE* pbSecurityId, DWORD* pcbSecurityId, DWORD_PTR dwReserved) { return INET_E_DEFAULT_ACTION; };
+    virtual STDMETHODIMP ProcessUrlAction(LPCWSTR pwszUrl, DWORD dwAction, BYTE* pPolicy, DWORD cbPolicy, BYTE* pContext, DWORD cbContext, DWORD dwFlags, DWORD dwReserved);
+    virtual STDMETHODIMP QueryCustomPolicy(LPCWSTR pwszUrl, REFGUID guidKey, BYTE** ppPolicy, DWORD* pcbPolicy, BYTE* pContext, DWORD cbContext, DWORD dwReserved) { return INET_E_DEFAULT_ACTION; };
     virtual STDMETHODIMP SetZoneMapping(DWORD dwZone, LPCWSTR lpszPattern, DWORD dwFlags) { return INET_E_DEFAULT_ACTION; };
-    virtual STDMETHODIMP GetZoneMappings(DWORD dwZone, IEnumString ** ppenumString, DWORD dwFlags) { return INET_E_DEFAULT_ACTION; };
+    virtual STDMETHODIMP GetZoneMappings(DWORD dwZone, IEnumString** ppenumString, DWORD dwFlags) { return INET_E_DEFAULT_ACTION; };
 
     // *** IDispatch methods ***
-    STDMETHOD(GetTypeInfoCount) (unsigned int *pctinfo)
-        { return E_NOTIMPL; };
-    STDMETHOD(GetTypeInfo) (unsigned int itinfo, LCID lcid, ITypeInfo **pptinfo)
-        { return E_NOTIMPL; };
+    STDMETHOD(GetTypeInfoCount) (unsigned int* pctinfo)
+    {
+        return E_NOTIMPL;
+    };
+    STDMETHOD(GetTypeInfo) (unsigned int itinfo, LCID lcid, ITypeInfo** pptinfo)
+    {
+        return E_NOTIMPL;
+    };
     STDMETHODIMP GetIDsOfNames(REFIID riid, OLECHAR FAR* FAR* rgszNames, unsigned int cNames, LCID lcid, DISPID FAR* rgdispid)
-        { return E_NOTIMPL; };
+    {
+        return E_NOTIMPL;
+    };
     STDMETHODIMP Invoke(DISPID dispidMember, REFIID iid, LCID lcid, WORD wFlags, DISPPARAMS FAR* pdispparams,
-                        VARIANT FAR* pvarResult,EXCEPINFO FAR* pexcepinfo,UINT FAR* puArgErr);
+                        VARIANT FAR* pvarResult, EXCEPINFO FAR* pexcepinfo, UINT FAR* puArgErr);
 
     CHostDropTarget _dt;
 
-    IExpDispSupport * m_peds;
+    IExpDispSupport* m_peds;
 
-} ;
+};
 
 class CSFVFrame : public IOleInPlaceFrame
-                , public IAdviseSink
-                , public IPropertyNotifySink  //for READYSTATE
+    , public IAdviseSink
+    , public IPropertyNotifySink  //for READYSTATE
 {
 public:
     enum
@@ -343,7 +360,7 @@ public:
         UNDEFINEDVIEW = -3,
         NOEXTVIEW = -2,
         HIDEEXTVIEW = -1,
-    } ;
+    };
 
     CSFVFrame() : m_uView(NOEXTVIEW), m_bEnableStandardViews(TRUE),
         m_pOleObj(NULL), m_pActiveSVExt(NULL), m_pActiveSFV(NULL), m_pDefViewExtInit2(NULL),
@@ -353,19 +370,19 @@ public:
     ~CSFVFrame();
 
     // *** IUnknown methods ***
-    STDMETHOD(QueryInterface)(REFIID riid, void **ppv);
-    STDMETHOD_(ULONG,AddRef)(THIS);
-    STDMETHOD_(ULONG,Release)(THIS);
+    STDMETHOD(QueryInterface)(REFIID riid, void** ppv);
+    STDMETHOD_(ULONG, AddRef)(THIS);
+    STDMETHOD_(ULONG, Release)(THIS);
 
     // IOleWindow
-    STDMETHODIMP GetWindow(HWND *phwnd);
+    STDMETHODIMP GetWindow(HWND* phwnd);
     STDMETHODIMP ContextSensitiveHelp(BOOL fEnterMode);
 
     // IOleInPlaceUIWindow
     STDMETHODIMP GetBorder(LPRECT lprectBorder);
     STDMETHODIMP RequestBorderSpace(LPCBORDERWIDTHS pborderwidths);
     STDMETHODIMP SetBorderSpace(LPCBORDERWIDTHS pborderwidths);
-    STDMETHODIMP SetActiveObject(IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName);
+    STDMETHODIMP SetActiveObject(IOleInPlaceActiveObject* pActiveObject, LPCOLESTR pszObjName);
 
     // IOleInPlaceFrame
     STDMETHODIMP InsertMenus(HMENU hmenuShared, LPOLEMENUGROUPWIDTHS lpMenuWidths);
@@ -376,9 +393,9 @@ public:
     STDMETHODIMP TranslateAccelerator(LPMSG lpmsg, WORD wID);
 
     // IAdviseSink
-    STDMETHODIMP_(void) OnDataChange(FORMATETC *, STGMEDIUM *);
+    STDMETHODIMP_(void) OnDataChange(FORMATETC*, STGMEDIUM*);
     STDMETHODIMP_(void) OnViewChange(DWORD dwAspect, LONG lindex);
-    STDMETHODIMP_(void) OnRename(IMoniker *);
+    STDMETHODIMP_(void) OnRename(IMoniker*);
     STDMETHODIMP_(void) OnSave();
     STDMETHODIMP_(void) OnClose();
 
@@ -394,24 +411,24 @@ private:
     friend class CDefView;
 
     class CBindStatusCallback : public IBindStatusCallback
-                              , public IServiceProvider
+        , public IServiceProvider
     {
         friend CSFVFrame;
     protected:
         // *** IUnknown methods ***
-        virtual STDMETHODIMP QueryInterface(REFIID riid, void ** ppvObj);
-        virtual STDMETHODIMP_(ULONG) AddRef(void) ;
+        virtual STDMETHODIMP QueryInterface(REFIID riid, void** ppvObj);
+        virtual STDMETHODIMP_(ULONG) AddRef(void);
         virtual STDMETHODIMP_(ULONG) Release(void);
 
         // *** IServiceProvider ***
-        virtual STDMETHODIMP QueryService(REFGUID guidService, REFIID riid, void **ppvObj);
+        virtual STDMETHODIMP QueryService(REFGUID guidService, REFIID riid, void** ppvObj);
 
         // *** IBindStatusCallback ***
         virtual STDMETHODIMP OnStartBinding(
             /* [in] */ DWORD grfBSCOption,
-            /* [in] */ IBinding *pib);
+            /* [in] */ IBinding* pib);
         virtual STDMETHODIMP GetPriority(
-            /* [out] */ LONG *pnPriority);
+            /* [out] */ LONG* pnPriority);
         virtual STDMETHODIMP OnLowResource(
             /* [in] */ DWORD reserved);
         virtual STDMETHODIMP OnProgress(
@@ -423,16 +440,16 @@ private:
             /* [in] */ HRESULT hresult,
             /* [in] */ LPCWSTR szError);
         virtual STDMETHODIMP GetBindInfo(
-            /* [out] */ DWORD *grfBINDINFOF,
-            /* [unique][out][in] */ BINDINFO *pbindinfo);
+            /* [out] */ DWORD* grfBINDINFOF,
+            /* [unique][out][in] */ BINDINFO* pbindinfo);
         virtual STDMETHODIMP OnDataAvailable(
             /* [in] */ DWORD grfBSCF,
             /* [in] */ DWORD dwSize,
-            /* [in] */ FORMATETC *pformatetc,
-            /* [in] */ STGMEDIUM *pstgmed);
+            /* [in] */ FORMATETC* pformatetc,
+            /* [in] */ STGMEDIUM* pstgmed);
         virtual STDMETHODIMP OnObjectAvailable(
             /* [in] */ REFIID riid,
-            /* [iid_is][in] */ IUnknown *punk);
+            /* [iid_is][in] */ IUnknown* punk);
     };
 
     friend class CBindStatusCallback;
@@ -440,30 +457,29 @@ private:
 
 
 
-// External views stuff
+    // External views stuff
 
-// We have DocObject extensions and IShellView extensions
-// A (DocObject) extension can
+    // We have DocObject extensions and IShellView extensions
+    // A (DocObject) extension can
 public:
     HRESULT InitObj(IUnknown* pObj, LPCITEMIDLIST pidlHere, int iView);
-    HRESULT _DefaultGetExtViews(SHELLVIEWID * pvid, IEnumSFVViews ** ppev);
-    void GetExtViews(BOOL bForce=FALSE);
-    void MergeExtViewsMenu(HMENU hmenuView, CDefView * pdsv);
+    HRESULT _DefaultGetExtViews(SHELLVIEWID* pvid, IEnumSFVViews** ppev);
+    void GetExtViews(BOOL bForce = FALSE);
+    void MergeExtViewsMenu(HMENU hmenuView, CDefView* pdsv);
     BOOL _StringFromView(int uView, LPTSTR pszString, UINT cb, UINT idString);
-    BOOL _StringFromViewID(SHELLVIEWID const *pvid, LPTSTR pszString, UINT cb, UINT idString);
-    BOOL _ColorFromView(int uView, COLORREF * pcr, int crid);
-    BOOL _ColorFromViewID(SHELLVIEWID const *pvid, COLORREF * pcr, int crid);
+    BOOL _StringFromViewID(SHELLVIEWID const* pvid, LPTSTR pszString, UINT cb, UINT idString);
+    BOOL _ColorFromView(int uView, COLORREF* pcr, int crid);
+    BOOL _ColorFromViewID(SHELLVIEWID const* pvid, COLORREF* pcr, int crid);
     HRESULT ShowExtView(int uView, BOOL bForce);
-    HRESULT ShowExtView(SHELLVIEWID const *pvid, BOOL bForce);
+    HRESULT ShowExtView(SHELLVIEWID const* pvid, BOOL bForce);
     int CmdIdFromUid(int uid);
     int CurExtViewId()   // only works for docobj extended views.
     {
-        if(m_uActiveExtendedView >= 0)
+        if (m_uActiveExtendedView >= 0)
             return CmdIdFromUid(m_uActiveExtendedView);
-        else
-        {
-            if(m_pOleObjNew)
-            return CmdIdFromUid(m_uViewNew);
+        else {
+            if (m_pOleObjNew)
+                return CmdIdFromUid(m_uViewNew);
             else
                 return(-1);
         }
@@ -471,9 +487,9 @@ public:
     UINT UidFromCmdId(UINT cmdid)
     {
         ASSERT((cmdid >= SFVIDM_VIEW_EXTFIRST) &&
-               ((cmdid - SFVIDM_VIEW_EXTFIRST) < (UINT) ARRAYSIZE(m_mpCmdIdToUid)));
+            ((cmdid - SFVIDM_VIEW_EXTFIRST) < (UINT)ARRAYSIZE(m_mpCmdIdToUid)));
         ASSERT(m_mpCmdIdToUid[cmdid - SFVIDM_VIEW_EXTFIRST] != -1)
-        return (m_mpCmdIdToUid[cmdid - SFVIDM_VIEW_EXTFIRST]);
+            return (m_mpCmdIdToUid[cmdid - SFVIDM_VIEW_EXTFIRST]);
     };
     // IsWebView - if the current view is undefined, then we've never
     // switched into an extended view (ie, the window was just created), so
@@ -487,16 +503,16 @@ public:
     BOOL IsWebView(void) { return (UNDEFINEDVIEW == m_uActiveExtendedView ? m_uViewNew != NOEXTVIEW : m_uActiveExtendedView != NOEXTVIEW); }
     BOOL IsSFVExtension(void) { return (NULL != m_pActiveSVExt); }
     HRESULT _HasFocusIO();
-    HRESULT _UIActivateIO(BOOL fActivate, MSG *pMsg);
+    HRESULT _UIActivateIO(BOOL fActivate, MSG* pMsg);
 
-    int  GetViewIdFromGUID(SHELLVIEWID const *pvid, SFVVIEWSDATA** ppItem = NULL);
+    int  GetViewIdFromGUID(SHELLVIEWID const* pvid, SFVVIEWSDATA** ppItem = NULL);
     HWND GetExtendedViewWindow();
 
     // query if the view requires delegation
-    IShellFolderView * GetExtendedISFV( void ) { return m_pActiveSFV; }
-    IShellView2 * GetExtendedISV( void ) { return m_pActiveSVExt; }
+    IShellFolderView* GetExtendedISFV(void) { return m_pActiveSFV; }
+    IShellView2* GetExtendedISV(void) { return m_pActiveSVExt; }
     BOOL IsExtendedSFVModal();
-    HRESULT SFVAutoAutoArrange( DWORD dwReserved);
+    HRESULT SFVAutoAutoArrange(DWORD dwReserved);
     void KillActiveSFV(void);
     BOOL _IsHoster(int uView);
     HRESULT SetViewWindowStyle(DWORD dwBits, DWORD dwVal);
@@ -522,17 +538,17 @@ private:
     int m_uView;                      // these are the sfvextension views.
     int m_uActiveExtendedView;       // toggleable view on???
     UINT m_cSFVExt;
-    UINT m_uState:2;                // SVUIA_* for m_pOleObj (extended view)
+    UINT m_uState : 2;                // SVUIA_* for m_pOleObj (extended view)
     IOleObject* m_pOleObj;
     IOleDocumentView* m_pDocView;
     IOleInPlaceActiveObject* m_pActive;
-    IViewObject *m_pvoActive;
+    IViewObject* m_pvoActive;
 
     // for now, assume only one view-ext, later on, need to keep alive them all...
-    IShellView2 * m_pActiveSVExt;
+    IShellView2* m_pActiveSVExt;
 
     // the IShellfolderView that must be delegated to....
-    IShellFolderView * m_pActiveSFV;
+    IShellFolderView* m_pActiveSFV;
 
     // Implemented by thumbnail
     IDefViewExtInit2* m_pDefViewExtInit2;
@@ -540,23 +556,23 @@ private:
     HWND m_hActiveSVExtHwnd;
 
     friend LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
-    friend void DefView_SetFocus(CDefView * pdsv);
+    friend void DefView_SetFocus(CDefView* pdsv);
 
     void _CleanUpOleObj(IOleObject* pOleObj);
     void _CleanUpOleObjAndDt(IOleObject* pOleObj);
     void _CleanupNewOleObj();
-    void _CleanupOldDocObject( void );
+    void _CleanupOldDocObject(void);
 
     HRESULT _ShowExtView_Helper(IOleObject* pOleObj, int uView);
-    HRESULT _CreateNewOleObj(IOleObject **ppOleObj, int uView);
+    HRESULT _CreateNewOleObj(IOleObject** ppOleObj, int uView);
     HRESULT _SwitchToNewOleObj();
-    HRESULT _UpdateZonesStatusPane(IOleObject *pOleObj);
+    HRESULT _UpdateZonesStatusPane(IOleObject* pOleObj);
 
     //Fields that store details about the new OLE object while we wait for
     //it to reach a READYSTATE_INTERACTIVE.
     IOleObject* m_pOleObjNew;
     int      m_uViewNew;
-    BOOL m_fSwitchedToNewOleObj:1;
+    BOOL m_fSwitchedToNewOleObj : 1;
     int m_mpCmdIdToUid[MAX_EXT_VIEWS];    // map command id's to view list id's
 
     BOOL _SetupReadyStateNotifyCapability();
@@ -566,7 +582,7 @@ private:
     BOOL     m_fReadyStateInteractiveProcessed;
     BOOL     m_fReadyStateComplete;
     IOleObject* m_pOleObjReadyState;
-} ;
+};
 
 
 class CCallback
@@ -583,7 +599,7 @@ public:
             m_psfvcb->Release();
     }
 
-    IShellFolderViewCB *GetSFVCB() { return m_psfvcb; }
+    IShellFolderViewCB* GetSFVCB() { return m_psfvcb; }
 
     HRESULT SetCallback(IShellFolderViewCB* pNewCB, IShellFolderViewCB** ppOldCB)
     {
@@ -605,53 +621,53 @@ public:
 
 private:
     IShellFolderViewCB* m_psfvcb;
-} ;
+};
 
 // class used to provide the background context menu in defview extensions
-HRESULT CBackgrndMenu_CreateInstance( CDefView * pDefView, REFIID riid, void ** ppvObj );
+HRESULT CBackgrndMenu_CreateInstance(CDefView* pDefView, REFIID riid, void** ppvObj);
 
 class CBackgrndMenu : public IContextMenu3,
-                      public IObjectWithSite
+    public IObjectWithSite
 
 {
-    public:
-        friend HRESULT CBackgrndMenu_CreateInstance( CDefView * pDefView, REFIID riid, void ** ppvObj );
+public:
+    friend HRESULT CBackgrndMenu_CreateInstance(CDefView* pDefView, REFIID riid, void** ppvObj);
 
-        STDMETHOD ( QueryInterface ) ( REFIID riid, void ** ppvObj );
-        STDMETHOD_( ULONG, AddRef ) ( void );
-        STDMETHOD_( ULONG, Release ) ( void );
+    STDMETHOD(QueryInterface) (REFIID riid, void** ppvObj);
+    STDMETHOD_(ULONG, AddRef) (void);
+    STDMETHOD_(ULONG, Release) (void);
 
-        STDMETHOD(QueryContextMenu)( HMENU hmenu, UINT indexMenu,
-                                     UINT idCmdFirst, UINT idCmdLast,
-                                     UINT uFlags);
+    STDMETHOD(QueryContextMenu)(HMENU hmenu, UINT indexMenu,
+                                UINT idCmdFirst, UINT idCmdLast,
+                                UINT uFlags);
 
-        STDMETHOD(InvokeCommand)( LPCMINVOKECOMMANDINFO lpici );
+    STDMETHOD(InvokeCommand)(LPCMINVOKECOMMANDINFO lpici);
 
-        STDMETHOD(GetCommandString)( UINT_PTR idCmd, UINT uType,
-                                     UINT * pwReserved, LPSTR pszName,
-                                     UINT cchMax);
+    STDMETHOD(GetCommandString)(UINT_PTR idCmd, UINT uType,
+                                UINT* pwReserved, LPSTR pszName,
+                                UINT cchMax);
 
-        STDMETHOD(HandleMenuMsg)( UINT uMsg,
-                                  WPARAM wParam,
-                                  LPARAM lParam);
-        STDMETHOD(HandleMenuMsg2)( UINT uMsg,
-                                  WPARAM wParam,
-                                  LPARAM lParam,
-                                  LRESULT* plResult);
-        STDMETHOD(SetSite)(IUnknown*);
-        STDMETHOD(GetSite)(REFIID,void**);
+    STDMETHOD(HandleMenuMsg)(UINT uMsg,
+                             WPARAM wParam,
+                             LPARAM lParam);
+    STDMETHOD(HandleMenuMsg2)(UINT uMsg,
+                              WPARAM wParam,
+                              LPARAM lParam,
+                              LRESULT* plResult);
+    STDMETHOD(SetSite)(IUnknown*);
+    STDMETHOD(GetSite)(REFIID, void**);
 
-    protected:
-        CBackgrndMenu( CDefView * pDefView, HRESULT * pHr );
-        ~CBackgrndMenu();
+protected:
+    CBackgrndMenu(CDefView* pDefView, HRESULT* pHr);
+    ~CBackgrndMenu();
 
-        CDefView * m_pDefView;
-        LONG m_cRef;
-        IContextMenu * m_pFolderMenu;
-        IContextMenu * m_pcmSel;
-        IUnknown* m_powsSite;
-        BOOL m_fFlush : 1;
-        BOOL m_fpcmSelAlreadyThere : 1;
+    CDefView* m_pDefView;
+    LONG m_cRef;
+    IContextMenu* m_pFolderMenu;
+    IContextMenu* m_pcmSel;
+    IUnknown* m_powsSite;
+    BOOL m_fFlush : 1;
+    BOOL m_fpcmSelAlreadyThere : 1;
 };
 
 // Variable Column stuff
@@ -673,19 +689,19 @@ typedef struct
 // For communicating with the background property extractor
 class CBackgroundColInfo
 {
-    private:
-        CBackgroundColInfo (void);
-    public:
-        CBackgroundColInfo (LPCITEMIDLIST pidl, UINT uiCol, STRRET& strRet);
-        ~CBackgroundColInfo (void);
+private:
+    CBackgroundColInfo(void);
+public:
+    CBackgroundColInfo(LPCITEMIDLIST pidl, UINT uiCol, STRRET& strRet);
+    ~CBackgroundColInfo(void);
 
-        LPCITEMIDLIST   GetPIDL (void)      const   {   return(_pidl);          }
-        UINT            GetColumn (void)    const   {   return(_uiCol);         }
-        LPCTSTR         GetText (void)      const   {   return(&_szText[0]);    }
-    private:
-        const LPCITEMIDLIST     _pidl;
-        const UINT              _uiCol;
-              TCHAR             _szText[MAX_COLUMN_NAME_LEN];
+    LPCITEMIDLIST   GetPIDL(void)      const { return(_pidl); }
+    UINT            GetColumn(void)    const { return(_uiCol); }
+    LPCTSTR         GetText(void)      const { return(&_szText[0]); }
+private:
+    const LPCITEMIDLIST     _pidl;
+    const UINT              _uiCol;
+    TCHAR             _szText[MAX_COLUMN_NAME_LEN];
 };
 
 
@@ -705,22 +721,22 @@ class CDefView : // dsv
     public IServiceProvider,
     public IDocViewSite,
     public IInternetSecurityMgrSite
-    {
+{
 public:
     CDefView(LPSHELLFOLDER pshf, IShellFolderViewCB* psfvcb, IShellView* psvOuter);
 
     // *** IUnknown methods ***
-    STDMETHOD(QueryInterface)(REFIID riid, void **ppv);
-    STDMETHOD_(ULONG,AddRef)(THIS);
-    STDMETHOD_(ULONG,Release)(THIS);
+    STDMETHOD(QueryInterface)(REFIID riid, void** ppv);
+    STDMETHOD_(ULONG, AddRef)(THIS);
+    STDMETHOD_(ULONG, Release)(THIS);
 
     // IShellView
-    STDMETHODIMP GetWindow(HWND *phwnd);
+    STDMETHODIMP GetWindow(HWND* phwnd);
     STDMETHODIMP ContextSensitiveHelp(BOOL fEnterMode);
     STDMETHODIMP EnableModeless(BOOL fEnable);
     STDMETHODIMP Refresh();
-    STDMETHODIMP CreateViewWindow(IShellView *lpPrevView,
-        LPCFOLDERSETTINGS lpfs, IShellBrowser *psb, RECT *prc, HWND *phWnd);
+    STDMETHODIMP CreateViewWindow(IShellView* lpPrevView,
+                                  LPCFOLDERSETTINGS lpfs, IShellBrowser* psb, RECT* prc, HWND* phWnd);
     STDMETHODIMP DestroyViewWindow();
     STDMETHODIMP UIActivate(UINT uState);
     STDMETHODIMP GetCurrentInfo(LPFOLDERSETTINGS lpfs);
@@ -728,109 +744,117 @@ public:
     STDMETHODIMP AddPropertySheetPages(DWORD dwReserved, LPFNADDPROPSHEETPAGE lpfn, LPARAM lparam);
     STDMETHODIMP SaveViewState();
     STDMETHODIMP SelectItem(LPCITEMIDLIST pidlItem, UINT uFlags);
-    STDMETHODIMP GetItemObject(UINT uItem, REFIID riid, void **ppv);
+    STDMETHODIMP GetItemObject(UINT uItem, REFIID riid, void** ppv);
     // IShellView2
     STDMETHOD(GetView)(SHELLVIEWID* pvid, ULONG uView);
     STDMETHOD(CreateViewWindow2)(LPSV2CVW2_PARAMS pParams);
     STDMETHOD(HandleRename)(LPCITEMIDLIST pidl);
-    STDMETHOD(SelectAndPositionItem)(LPCITEMIDLIST pidlItem, UINT uFlags, POINT *ppt);
+    STDMETHOD(SelectAndPositionItem)(LPCITEMIDLIST pidlItem, UINT uFlags, POINT* ppt);
 
     // *** IShellFolderView methods ***
     STDMETHOD(Rearrange) (LPARAM lParamSort);
-    STDMETHOD(GetArrangeParam) (LPARAM *plParamSort);
+    STDMETHOD(GetArrangeParam) (LPARAM* plParamSort);
     STDMETHOD(ArrangeGrid) (THIS);
     STDMETHOD(AutoArrange) (THIS);
     STDMETHOD(GetAutoArrange) (THIS);
-    STDMETHOD(AddObject) (LPITEMIDLIST pidl, UINT *puItem);
-    STDMETHOD(GetObject) (LPITEMIDLIST *ppidl, UINT uItem);
-    STDMETHOD(RemoveObject) (LPITEMIDLIST pidl, UINT *puItem);
-    STDMETHOD(GetObjectCount) (UINT *puCount);
+    STDMETHOD(AddObject) (LPITEMIDLIST pidl, UINT* puItem);
+    STDMETHOD(GetObject) (LPITEMIDLIST* ppidl, UINT uItem);
+    STDMETHOD(RemoveObject) (LPITEMIDLIST pidl, UINT* puItem);
+    STDMETHOD(GetObjectCount) (UINT* puCount);
     STDMETHOD(SetObjectCount) (UINT uCount, UINT dwFlags);
     STDMETHOD(UpdateObject) (LPITEMIDLIST pidlOld, LPITEMIDLIST pidlNew,
-        UINT *puItem);
-    STDMETHOD(RefreshObject) (LPITEMIDLIST pidl, UINT *puItem);
+                             UINT* puItem);
+    STDMETHOD(RefreshObject) (LPITEMIDLIST pidl, UINT* puItem);
     STDMETHOD(SetRedraw) (BOOL bRedraw);
-    STDMETHOD(GetSelectedCount) (UINT *puSelected);
-    STDMETHOD(GetSelectedObjects) (LPCITEMIDLIST **pppidl, UINT *puItems);
-    STDMETHOD(IsDropOnSource) (IDropTarget *pDropTarget);
-    STDMETHOD(GetDragPoint) (POINT *ppt);
-    STDMETHOD(GetDropPoint) (POINT *ppt);
-    STDMETHOD(MoveIcons) (IDataObject *pDataObject);
-    STDMETHOD(SetItemPos) (LPCITEMIDLIST pidl, POINT *ppt);
-    STDMETHOD(IsBkDropTarget) (IDropTarget *pDropTarget);
+    STDMETHOD(GetSelectedCount) (UINT* puSelected);
+    STDMETHOD(GetSelectedObjects) (LPCITEMIDLIST** pppidl, UINT* puItems);
+    STDMETHOD(IsDropOnSource) (IDropTarget* pDropTarget);
+    STDMETHOD(GetDragPoint) (POINT* ppt);
+    STDMETHOD(GetDropPoint) (POINT* ppt);
+    STDMETHOD(MoveIcons) (IDataObject* pDataObject);
+    STDMETHOD(SetItemPos) (LPCITEMIDLIST pidl, POINT* ppt);
+    STDMETHOD(IsBkDropTarget) (IDropTarget* pDropTarget);
     STDMETHOD(SetClipboard) (BOOL bMove);
-    STDMETHOD(SetPoints) (IDataObject *pDataObject);
-    STDMETHOD(GetItemSpacing) (ITEMSPACING *pSpacing);
+    STDMETHOD(SetPoints) (IDataObject* pDataObject);
+    STDMETHOD(GetItemSpacing) (ITEMSPACING* pSpacing);
     STDMETHOD(SetCallback) (IShellFolderViewCB* pNewCB,
-        IShellFolderViewCB** ppOldCB);
-    STDMETHOD(Select) (UINT dwFlags );
-    STDMETHOD(QuerySupport) (UINT * pdwSupport );
-    STDMETHOD(SetAutomationObject) (IDispatch *pdisp);
+                            IShellFolderViewCB** ppOldCB);
+    STDMETHOD(Select) (UINT dwFlags);
+    STDMETHOD(QuerySupport) (UINT* pdwSupport);
+    STDMETHOD(SetAutomationObject) (IDispatch* pdisp);
 
     // IOleCommandTarget
-    STDMETHODIMP QueryStatus(const GUID *pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT *pcmdtext);
-    STDMETHODIMP Exec(const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG *pvarargIn, VARIANTARG *pvarargOut);
+    STDMETHODIMP QueryStatus(const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext);
+    STDMETHODIMP Exec(const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut);
 
     // IDropTarget
-    STDMETHODIMP DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
-        { return _dvdt.DragEnter(pdtobj, grfKeyState, ptl, pdwEffect); }
-    STDMETHODIMP DragOver(DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
-        { return _dvdt.DragOver(grfKeyState, ptl, pdwEffect); }
+    STDMETHODIMP DragEnter(IDataObject* pdtobj, DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect)
+    {
+        return _dvdt.DragEnter(pdtobj, grfKeyState, ptl, pdwEffect);
+    }
+    STDMETHODIMP DragOver(DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect)
+    {
+        return _dvdt.DragOver(grfKeyState, ptl, pdwEffect);
+    }
     STDMETHODIMP DragLeave()
-        { return _dvdt.DragLeave(); }
-    STDMETHODIMP Drop(IDataObject *pdtobj,
-                    DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
-        { return _dvdt.Drop(pdtobj, grfKeyState, pt, pdwEffect); }
+    {
+        return _dvdt.DragLeave();
+    }
+    STDMETHODIMP Drop(IDataObject* pdtobj,
+                      DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
+    {
+        return _dvdt.Drop(pdtobj, grfKeyState, pt, pdwEffect);
+    }
 
     // IViewObject
-    STDMETHODIMP Draw(DWORD, LONG, void *, DVTARGETDEVICE *, HDC, HDC,
-        const RECTL *, const RECTL *, int (*)(ULONG_PTR), ULONG_PTR);
-    STDMETHODIMP GetColorSet(DWORD, LONG, void *, DVTARGETDEVICE *, HDC,
-        LOGPALETTE **);
-    STDMETHODIMP Freeze(DWORD, LONG, void *, DWORD *);
+    STDMETHODIMP Draw(DWORD, LONG, void*, DVTARGETDEVICE*, HDC, HDC,
+                      const RECTL*, const RECTL*, int (*)(ULONG_PTR), ULONG_PTR);
+    STDMETHODIMP GetColorSet(DWORD, LONG, void*, DVTARGETDEVICE*, HDC,
+                             LOGPALETTE**);
+    STDMETHODIMP Freeze(DWORD, LONG, void*, DWORD*);
     STDMETHODIMP Unfreeze(DWORD);
-    STDMETHODIMP SetAdvise(DWORD, DWORD, IAdviseSink *);
-    STDMETHODIMP GetAdvise(DWORD *, DWORD *, IAdviseSink **);
+    STDMETHODIMP SetAdvise(DWORD, DWORD, IAdviseSink*);
+    STDMETHODIMP GetAdvise(DWORD*, DWORD*, IAdviseSink**);
 
     // IDefViewFrame
-    STDMETHODIMP GetWindowLV(HWND * phwnd);
+    STDMETHODIMP GetWindowLV(HWND* phwnd);
     STDMETHODIMP ReleaseWindowLV(void);
-    STDMETHODIMP GetShellFolder(IShellFolder **ppsf);
+    STDMETHODIMP GetShellFolder(IShellFolder** ppsf);
 
     // IDefViewFrame2
-    STDMETHODIMP GetWindowLV2(HWND * phwnd, IUnknown * punk);
+    STDMETHODIMP GetWindowLV2(HWND* phwnd, IUnknown* punk);
     STDMETHODIMP AutoAutoArrange(DWORD dwReserved);
 
     // IServiceProvider
-    STDMETHODIMP  QueryService(REFGUID guidService, REFIID riid, void **ppvObject);
+    STDMETHODIMP  QueryService(REFGUID guidService, REFIID riid, void** ppvObject);
 
     // *** IDocViewSite methods ***
-    STDMETHOD(OnSetTitle) (VARIANTARG *pvTitle);
+    STDMETHOD(OnSetTitle) (VARIANTARG* pvTitle);
 
-    HRESULT InitializeVariableColumns(DWORD *pdwColList);
+    HRESULT InitializeVariableColumns(DWORD* pdwColList);
     BOOL IsColumnHidden(UINT uCol);
     BOOL IsColumnOn(UINT uCol);
     HRESULT AddColumnsToMenu(HMENU hm, DWORD dwBase);
     HRESULT SetColumnState(UINT uCol, DWORD dwMask, DWORD dwState);
-    HRESULT MapRealToVisibleColumn(UINT uRealCol, UINT *puVisCol);
-    HRESULT MapVisibleToRealColumn(UINT uVisCol, UINT *puReal);
+    HRESULT MapRealToVisibleColumn(UINT uRealCol, UINT* puVisCol);
+    HRESULT MapVisibleToRealColumn(UINT uVisCol, UINT* puReal);
     UINT GetMaxColumns();
 
     // handle messages
     LRESULT _OnCreate(HWND hWnd);
-    LRESULT _OnNotify(NMHDR *pnm);
-    LRESULT _TBNotify(NMHDR *pnm);
-    LRESULT _OnLVNotify(NM_LISTVIEW *plvn);
-    LRESULT _OnBeginDrag(NM_LISTVIEW * lpnm);
+    LRESULT _OnNotify(NMHDR* pnm);
+    LRESULT _TBNotify(NMHDR* pnm);
+    LRESULT _OnLVNotify(NM_LISTVIEW* plvn);
+    LRESULT _OnBeginDrag(NM_LISTVIEW* lpnm);
 
-    int _FindItem(LPCITEMIDLIST pidl, LPITEMIDLIST *ppidlFound, BOOL fSamePtr);
-    int _UpdateObject(LPITEMIDLIST *ppidl, BOOL bCopy = FALSE);
+    int _FindItem(LPCITEMIDLIST pidl, LPITEMIDLIST* ppidlFound, BOOL fSamePtr);
+    int _UpdateObject(LPITEMIDLIST* ppidl, BOOL bCopy = FALSE);
     void _FilterDPAs(HDPA hdpa, HDPA hdpaOld);
-    int _RefreshObject(LPITEMIDLIST *ppidl);
+    int _RefreshObject(LPITEMIDLIST* ppidl);
     int _RemoveObject(LPCITEMIDLIST pidl, BOOL fSamePtr);
-    BOOL _GetItemPosition(LPCITEMIDLIST pidl, POINT *ppt);
+    BOOL _GetItemPosition(LPCITEMIDLIST pidl, POINT* ppt);
 
-    void _OnGetInfoTip(NMLVGETINFOTIP *plvn);
+    void _OnGetInfoTip(NMLVGETINFOTIP* plvn);
 
     void _OnRename(LPCITEMIDLIST* ppidl);
     LPITEMIDLIST _ObjectExists(LPCITEMIDLIST pidl);
@@ -848,13 +872,13 @@ public:
     BOOL _IsReportView();
 
     inline BOOL _IsOwnerData() { return _fs.fFlags & FWF_OWNERDATA; }
-    inline BOOL _IsDesktop()   { return _fs.fFlags & FWF_DESKTOP; }
+    inline BOOL _IsDesktop() { return _fs.fFlags & FWF_DESKTOP; }
 
     int CheckCurrentViewMenuItem(HMENU hmenu);
     void InitViewMenu(HMENU hmInit);
     void CheckToolbar();
     void OnListViewDelete(int iItem, LPITEMIDLIST pidl);
-    void HandleKeyDown(LV_KEYDOWN *lpnmhdr);
+    void HandleKeyDown(LV_KEYDOWN* lpnmhdr);
     BOOL SaveCols(LPSTREAM pstm);
     HRESULT SavePos(LPSTREAM pstm);
     void AddColumns();
@@ -862,13 +886,15 @@ public:
     LRESULT OnInitMenuPopup(HMENU hmInit, int nIndex, BOOL fSystemMenu);
     void _SetUpMenus(UINT uState);
     void SelectSelectedItems();
-    inline BOOL _fDeferSelect() {return
-        (this->_hwndStatic || !_HasNormalView() || (_uState == SVUIA_DEACTIVATE) ||
-                (m_cFrame.m_dwConnectionCookie /*&& !m_cFrame.m_fReadyStateInteractiveProcessed*/ ));}
+    inline BOOL _fDeferSelect() {
+        return
+            (this->_hwndStatic || !_HasNormalView() || (_uState == SVUIA_DEACTIVATE) ||
+            (m_cFrame.m_dwConnectionCookie /*&& !m_cFrame.m_fReadyStateInteractiveProcessed*/));
+    }
     inline BOOL _fItemsDeferred() { return _hdsaSelect != NULL; }
     void _ClearSelectList();
     void DropFiles(HDROP hdrop);
-    LRESULT OldDragMsgs(UINT uMsg, WPARAM wParam, const DROPSTRUCT * lpds);
+    LRESULT OldDragMsgs(UINT uMsg, WPARAM wParam, const DROPSTRUCT* lpds);
     void AddCopyHook();
     int FindCopyHook(BOOL fRemoveInvalid);
     void RemoveCopyHook();
@@ -876,39 +902,45 @@ public:
     LPITEMIDLIST _GetViewPidl(); // return copy of pidl of folder we're viewing
     BOOL _IsViewDesktop();
     BOOL _GetPath(LPTSTR pszPath);
-    HRESULT _GetNameAndFlags(UINT gdnFlags, LPTSTR psz, UINT cch, DWORD *pdwFlags);
+    HRESULT _GetNameAndFlags(UINT gdnFlags, LPTSTR psz, UINT cch, DWORD* pdwFlags);
     int _CheckIfCustomizable();
 
     LRESULT SwitchToHyperText(UINT uID, BOOL fForce);
-    LRESULT Command(IContextMenu *pcmSel, WPARAM wParam, LPARAM lParam);
+    LRESULT Command(IContextMenu* pcmSel, WPARAM wParam, LPARAM lParam);
     LRESULT WndSize(HWND hWnd);
     BOOL EnumerationTimeout(BOOL bRefresh);
     void _ShowListviewIcons();
     void _OnMenuTermination();
     void FillDone(HDPA hdpaNew,
-        PDVSAVEHEADER pSaveHeader, UINT uLen, BOOL bRefresh, BOOL fInteractive);
-    void OnLVSelectionChange(NM_LISTVIEW *plvn);
-    void RegisterSFVEvents(IUnknown * pTarget, BOOL fConnect);
+                  PDVSAVEHEADER pSaveHeader, UINT uLen, BOOL bRefresh, BOOL fInteractive);
+    void OnLVSelectionChange(NM_LISTVIEW* plvn);
+    void RegisterSFVEvents(IUnknown* pTarget, BOOL fConnect);
     HRESULT FillObjects(BOOL bRefresh,
-        PDVSAVEHEADER pSaveHeader, UINT uLen, BOOL fInteractive);
+                        PDVSAVEHEADER pSaveHeader, UINT uLen, BOOL fInteractive);
     HRESULT FillObjectsShowHide(BOOL bRefresh,
-        PDVSAVEHEADER pSaveHeader, UINT uLen, BOOL fInteractive);
+                                PDVSAVEHEADER pSaveHeader, UINT uLen, BOOL fInteractive);
 
-    HRESULT _GetDetailsHelper(int i, DETAILSINFO *pdi);
+    HRESULT _GetDetailsHelper(int i, DETAILSINFO* pdi);
     HRESULT CallCB(UINT uMsg, WPARAM wParam, LPARAM lParam);
-    BOOL HasCB() {return(m_cCallback.HasCB());}
+    BOOL HasCB() { return(m_cCallback.HasCB()); }
     HRESULT NotifyAutomation(DISPID dispid);
     void CheckIfSelectedAndNotifyAutomation(LPCITEMIDLIST pidl, int iItem);
     HRESULT _ReloadListviewContent();
     HRESULT ReloadContent(BOOL fForce = FALSE);
     BOOL _HasNormalView()
-        { return(!m_cFrame.IsWebView() || _fGetWindowLV || _fCombinedView); }
+    {
+        return(!m_cFrame.IsWebView() || _fGetWindowLV || _fCombinedView);
+    }
 
-    HRESULT _SwitchToViewIDPVID(UINT uID, SHELLVIEWID const *pvid, BOOL bForce);
+    HRESULT _SwitchToViewIDPVID(UINT uID, SHELLVIEWID const* pvid, BOOL bForce);
     HRESULT _SwitchToViewID(UINT uID, BOOL bForce)
-        { return(_SwitchToViewIDPVID(uID, NULL, bForce)); }
-    HRESULT _SwitchToViewPVID(SHELLVIEWID const *pvid, BOOL bForce)
-        { return(_SwitchToViewIDPVID(0, pvid, bForce)); }
+    {
+        return(_SwitchToViewIDPVID(uID, NULL, bForce));
+    }
+    HRESULT _SwitchToViewPVID(SHELLVIEWID const* pvid, BOOL bForce)
+    {
+        return(_SwitchToViewIDPVID(0, pvid, bForce));
+    }
     HRESULT _SwitchToViewFVM(UINT fvmNew, DWORD dwStyle, BOOL fForce);
     void _UpdateListviewColors(BOOL fClassic);
     LRESULT _SwitchDesktopHTML(BOOL fOn, BOOL fForce);
@@ -929,14 +961,14 @@ public:
     BOOL _HandleColumnToggle(UINT uCol, BOOL bRefresh);
     void _SameViewMoveIcons();
     void _PostSelChangedMessage();
-    HRESULT _GetIPersistHistoryObject(IPersistHistory **ppph);
+    HRESULT _GetIPersistHistoryObject(IPersistHistory** ppph);
     BOOL _ShouldEnableButton(UINT uiCmd, DWORD dwAttr, int iIndex);
     void _EnableDisableTBButtons();
 
-    HRESULT _SaveViewState(IStream *pstm);
-    HRESULT _GetStorageStream(DWORD grfMode, IStream* *ppIStream);
+    HRESULT _SaveViewState(IStream* pstm);
+    HRESULT _GetStorageStream(DWORD grfMode, IStream** ppIStream);
     HRESULT _SaveGlobalViewState(void);
-    HRESULT _LoadGlobalViewState(IStream* *ppIStream);
+    HRESULT _LoadGlobalViewState(IStream** ppIStream);
     HRESULT _ResetGlobalViewState(void);
     LPITEMIDLIST _GetPIDL(int i);
 
@@ -945,21 +977,21 @@ public:
     BOOL _CanShowWebView();
 
     LONG                    _cRef;
-    SHELLVIEWID const       *_pvidPending;
+    SHELLVIEWID const* _pvidPending;
 
     CDVDropTarget           _dvdt;
 
-    IShellView *            _psvOuter;       // May be NULL
-    IShellFolder            *_pshf;
-    IShellFolder2           *_pshf2;
-    IShellBrowser           *_psb;
-    ICommDlgBrowser         *_pcdb;          // extended ICommDlgBrowser
+    IShellView* _psvOuter;       // May be NULL
+    IShellFolder* _pshf;
+    IShellFolder2* _pshf2;
+    IShellBrowser* _psb;
+    ICommDlgBrowser* _pcdb;          // extended ICommDlgBrowser
     FOLDERSETTINGS          _fs;
-    IContextMenu            *_pcmSel;       // pcm for selected objects.
-    IContextMenu            *_pcmBackground;
+    IContextMenu* _pcmSel;       // pcm for selected objects.
+    IContextMenu* _pcmBackground;
     DWORD                   _dwAttrSel;      // dwAttrs for selected objects
-    IShellIcon *            _psi;            // for getting icon fast
-    IShellIconOverlay *     _psio;           // For getting iconOverlay fast
+    IShellIcon* _psi;            // for getting icon fast
+    IShellIconOverlay* _psio;           // For getting iconOverlay fast
     CLSID                   _clsid;         // the clsid of this pshf;
 
     HWND                    _hwndMain;
@@ -983,13 +1015,13 @@ public:
     POINT                   _ptDragAnchor;   // start of the drag
     int                     _itemCur;        // The current item in the drop target
 
-    IDataObject             *_pdtobjHdrop;   // for 3.1 HDROP drag/drop
-    IDropTarget             *_pdtgtBack;     // of the background (shell folder)
+    IDataObject* _pdtobjHdrop;   // for 3.1 HDROP drag/drop
+    IDropTarget* _pdtgtBack;     // of the background (shell folder)
 
-    IShellDetails          *_psd;
+    IShellDetails* _psd;
     // Officially, _pdr should be an IDelayedRelease interface, but it
     // only has IUnknown member functions, so why bother?
-    IUnknown                *_pdr;
+    IUnknown* _pdr;
     UINT                    _cxChar;
 
     LPCITEMIDLIST           _pidlMonitor;
@@ -998,66 +1030,66 @@ public:
     DVSAVESTATE             _dvState;
     PDVSAVEHEADER           _pSaveHeader;
     UINT                    _uSaveHeaderLen;
-    TBBUTTON*               _pbtn;
+    TBBUTTON* _pbtn;
     int                     _cButtons;          // count of buttons that are showing by default
     int                     _cTotalButtons;     // count of buttons including those hidden by default
 
-    IShellTaskScheduler   * _pScheduler;
+    IShellTaskScheduler* _pScheduler;
     LONG                    _cRefForIdle;    // did idle thread forget
                                             // to release this
 
-    BITBOOL     _bDragSource:1;
-    BITBOOL     _bDropAnchor:1;
+    BITBOOL     _bDragSource : 1;
+    BITBOOL     _bDropAnchor : 1;
 
-    BITBOOL     _bItemsMoved:1;
-    BITBOOL     _bClearItemPos:1;
+    BITBOOL     _bItemsMoved : 1;
+    BITBOOL     _bClearItemPos : 1;
 
-    BITBOOL     _bHaveCutStuff:1;
-    BITBOOL     _bClipViewer:1;
+    BITBOOL     _bHaveCutStuff : 1;
+    BITBOOL     _bClipViewer : 1;
 
-    BITBOOL     _fShowAllObjects:1;
-    BITBOOL     _fInLabelEdit:1;
-    BITBOOL     _fDisabled:1;
+    BITBOOL     _fShowAllObjects : 1;
+    BITBOOL     _fInLabelEdit : 1;
+    BITBOOL     _fDisabled : 1;
 
-    BITBOOL     _bUpdatePending:1;
-    BITBOOL     _bUpdatePendingPending:1;
-    BITBOOL     _bBkFilling:1;
+    BITBOOL     _bUpdatePending : 1;
+    BITBOOL     _bUpdatePendingPending : 1;
+    BITBOOL     _bBkFilling : 1;
 
-    BITBOOL     _bContextMenuMode:1;
-    BITBOOL     _bMouseMenu:1;
-    BITBOOL     _fHasDeskWallPaper:1;
+    BITBOOL     _bContextMenuMode : 1;
+    BITBOOL     _bMouseMenu : 1;
+    BITBOOL     _fHasDeskWallPaper : 1;
 
-    BITBOOL     _fShowCompColor:1;
+    BITBOOL     _fShowCompColor : 1;
 
-    BITBOOL     _bRegisteredDragDrop:1;
+    BITBOOL     _bRegisteredDragDrop : 1;
 
-    BITBOOL     _fEnumFailed:1;    // TRUE if enum failed.
+    BITBOOL     _fEnumFailed : 1;    // TRUE if enum failed.
 
-    BITBOOL     _fGetWindowLV:1;
+    BITBOOL     _fGetWindowLV : 1;
 
-    BITBOOL     _fClassic:1; // SSF_WIN95CLASSIC setting/restriction
+    BITBOOL     _fClassic : 1; // SSF_WIN95CLASSIC setting/restriction
 
-    BITBOOL     _fCombinedView:1;   // Implies a regional listview layered on top of an extended view
-    BITBOOL     _fCycleFocus:1;     // 1=got callback to do CycleFocus
+    BITBOOL     _fCombinedView : 1;   // Implies a regional listview layered on top of an extended view
+    BITBOOL     _fCycleFocus : 1;     // 1=got callback to do CycleFocus
 
-    BITBOOL     _fSelectionChangePending:1;
-    BITBOOL     _fCanActivateNow:1; // FALSE from creation until we can be activated, TRUE implies we can SHDVID_CANACTIVATENOW
-    BITBOOL     _fShowListviewIconsOnActivate:1; // TRUE iff a _ShowListviewIcons() came in while 'invisible'
-    BITBOOL     _fWin95ViewState:1;    // TRUE iff Advanced option set to Win95 behavior
-    BITBOOL     _fDesktopModal:1;      // TRUE iff desktop is in modal state.
-    BITBOOL     _fDesktopRefreshPending:1; // TRUE iff a refresh of desktop was prevented because of modal state.
-    BITBOOL     _fRefreshBuffered:1;   // TRUE iff a buffered refresh is pending!
-    BITBOOL     _fHasListViewFocus:1;
-    BITBOOL     _bExtHasFocus:1;    //TRUE if SFV extension's state is SVUIA_ACTIVATE_FOCUS
-    BITBOOL     _fIsXV:1;           // extended shell view (thumbview) hosted in OC
-    BITBOOL     _bInSortCallBack:1;     // TRUE if defview should not start background task to get extended col data
-    BITBOOL     _bLoadedColumns:1;     // TRUE after we've loaded cols from the savestream. (after we're switched to details)
+    BITBOOL     _fSelectionChangePending : 1;
+    BITBOOL     _fCanActivateNow : 1; // FALSE from creation until we can be activated, TRUE implies we can SHDVID_CANACTIVATENOW
+    BITBOOL     _fShowListviewIconsOnActivate : 1; // TRUE iff a _ShowListviewIcons() came in while 'invisible'
+    BITBOOL     _fWin95ViewState : 1;    // TRUE iff Advanced option set to Win95 behavior
+    BITBOOL     _fDesktopModal : 1;      // TRUE iff desktop is in modal state.
+    BITBOOL     _fDesktopRefreshPending : 1; // TRUE iff a refresh of desktop was prevented because of modal state.
+    BITBOOL     _fRefreshBuffered : 1;   // TRUE iff a buffered refresh is pending!
+    BITBOOL     _fHasListViewFocus : 1;
+    BITBOOL     _bExtHasFocus : 1;    //TRUE if SFV extension's state is SVUIA_ACTIVATE_FOCUS
+    BITBOOL     _fIsXV : 1;           // extended shell view (thumbview) hosted in OC
+    BITBOOL     _bInSortCallBack : 1;     // TRUE if defview should not start background task to get extended col data
+    BITBOOL     _bLoadedColumns : 1;     // TRUE after we've loaded cols from the savestream. (after we're switched to details)
     // Combined view colors that can be specified via registry or desktop.ini
 
-    BITBOOL     _fIsAsyncDefView:1; //TRUE if Defview is Asynchronous
+    BITBOOL     _fIsAsyncDefView : 1; //TRUE if Defview is Asynchronous
     BITBOOL     _bEmptyingScheduler : 1;  // used to stop re-entracny in the task scheduler..
 
-    BITBOOL     _bAutoSelChangeTimerSet:1;  // indicates if the timer to send the sel change notification to the automation obj is set
+    BITBOOL     _bAutoSelChangeTimerSet : 1;  // indicates if the timer to send the sel change notification to the automation obj is set
 
     COLORREF                _crCustomColors[CRID_COLORCOUNT];
 
@@ -1085,8 +1117,8 @@ public:
     ULONG                   _uCachedSelAttrs;
     UINT                    _uCachedSelCount;
 
-    class CColumnPointer *_pcp;
-    COL_INFO    *m_pColItems;
+    class CColumnPointer* _pcp;
+    COL_INFO* m_pColItems;
     UINT        m_cColItems;
     DWORD       m_dwConnectionCookie;
     DWORD       _LastSortColType;   // used in sorting extended columns
@@ -1110,15 +1142,15 @@ public:
 public:     // TODO: Make this protected after we have finished converting the entire file.
     BOOL IsSafeToDefaultVerb(void);
     void _ProcessDblClick(LPNMITEMACTIVATE pnmia);
-    HRESULT _InvokeCommand(IContextMenu *pcm, CMINVOKECOMMANDINFOEX *pici);
+    HRESULT _InvokeCommand(IContextMenu* pcm, CMINVOKECOMMANDINFOEX* pici);
     void _FocusOnSomething(void);
-    void _UpdateIcon(CDVGetIconTask *paid);
-    void _UpdateColData(CBackgroundColInfo *pbgci);
+    void _UpdateIcon(CDVGetIconTask* paid);
+    void _UpdateColData(CBackgroundColInfo* pbgci);
     void _UpdateOverlay(int iList, int iOverlay);
-    HRESULT _GetIconAsync(LPCITEMIDLIST pidl, int *piIcon, BOOL fCanWait);
+    HRESULT _GetIconAsync(LPCITEMIDLIST pidl, int* piIcon, BOOL fCanWait);
     HRESULT _GetOverlayIndexAsync(LPCITEMIDLIST pidl, int iList);
-    HRESULT EmptyBkgrndThread( BOOL fTerminate );
-    IContextMenu *_GetContextMenuFromSelection();
+    HRESULT EmptyBkgrndThread(BOOL fTerminate);
+    IContextMenu* _GetContextMenuFromSelection();
     DWORD _GetNeededSecurityAction(void);
     HRESULT _ZoneCheck(DWORD dwFlags, DWORD dwAllowAction);
     void _ShowAndActivate();
@@ -1135,41 +1167,41 @@ private:
 
     void _PostEnumDoneMessage();
     void _SetCachedToolbarSelectionAttrs(ULONG dwAttrs);
-    BOOL _GetCachedToolbarSelectionAttrs(ULONG *pdwAttr);
+    BOOL _GetCachedToolbarSelectionAttrs(ULONG* pdwAttr);
 
     LRESULT _OnFSNotify(LONG lNotification, LPCITEMIDLIST* ppidl);
 
     BOOL _InternalRearrange(void);
-    BOOL _IsExtendedColumn(INT_PTR iReal, DWORD *pdwState);
+    BOOL _IsExtendedColumn(INT_PTR iReal, DWORD* pdwState);
     void _RestoreState(PDVSAVEHEADER pInSaveHeader, UINT uLen);
     BOOL _RestorePos(PDVSAVEHEADER pSaveHeader, UINT uLen);
     UINT _GetBackgroundTaskCount(REFTASKOWNERID rtid);
     void _SetSortArrows(void);
-    UINT _GetSaveHeader(PDVSAVEHEADER *ppSaveHeader);
+    UINT _GetSaveHeader(PDVSAVEHEADER* ppSaveHeader);
     PFNDPACOMPARE _GetCompareFunction(void);
-    void _GetSortDefaults(DVSAVESTATE *pSaveState);
+    void _GetSortDefaults(DVSAVESTATE* pSaveState);
 
-    static  int CALLBACK _CompareExact(void *p1, void *p2, LPARAM lParam);
-    static  int CALLBACK _Compare(void *p1, void *p2, LPARAM lParam);
+    static  int CALLBACK _CompareExact(void* p1, void* p2, LPARAM lParam);
+    static  int CALLBACK _Compare(void* p1, void* p2, LPARAM lParam);
     static  int CALLBACK _CompareExtended(LPARAM dw1, LPARAM dw2, LPARAM lParam);
-    static  int CALLBACK _DVITEM_Compare(void *p1, void *p2, LPARAM lParam);
+    static  int CALLBACK _DVITEM_Compare(void* p1, void* p2, LPARAM lParam);
 
     friend class CBackgrndMenu;
     friend class CSFVSite;
     friend class CSFVFrame;
     friend class CDVBkgrndEnumTask;
 
-    IWebViewOCWinMan    *_pocWinMan;
+    IWebViewOCWinMan* _pocWinMan;
 
     UINT                m_uCols;
 
-    IDispatch           *m_pauto;      // pointer to idispatch
+    IDispatch* m_pauto;      // pointer to idispatch
 
     BOOL     _fFileListEnumDone : 1;  // wait until the automation object is loaded, to notify it of DISPID_FILELISTENUMDONE
     BOOL     _fEnumDoneNotified : 1;  // make sure that we don't notify DISPID_FILELISTENUMDONE more than once
 
     // advisory connection
-    IAdviseSink *_padvise;
+    IAdviseSink* _padvise;
     DWORD _advise_aspect;
     DWORD _advise_advf;
 
@@ -1179,28 +1211,28 @@ private:
     int   m_iCustomizable;
 
     friend LRESULT CALLBACK DefView_WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
-    friend DWORD DefView_GetAttributesFromSelection(CDefView * pdsv, DWORD dwAttrMask);
-    friend void ViewWindow_BestFit(CDefView * pdsv, BOOL bTimeout);
-    friend void DefView_InitSelectionMode(CDefView * pdsv);
-    friend void DefView_SetViewMode(CDefView * pdsv, UINT fvmNew, DWORD dwStyle);
-    friend void DefView_SetFocus(CDefView * pdsv);
+    friend DWORD DefView_GetAttributesFromSelection(CDefView* pdsv, DWORD dwAttrMask);
+    friend void ViewWindow_BestFit(CDefView* pdsv, BOOL bTimeout);
+    friend void DefView_InitSelectionMode(CDefView* pdsv);
+    friend void DefView_SetViewMode(CDefView* pdsv, UINT fvmNew, DWORD dwStyle);
+    friend void DefView_SetFocus(CDefView* pdsv);
 
 
-    friend void DV_GetMenuHelpText(CDefView * pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText);
-    friend void DV_GetToolTipText(CDefView * pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText);
-    friend void SetDefaultViewSettings(CDefView * pdsv);
-    friend void DV_PaintErrMsg(HWND hWnd, CDefView * pdsv);
-    friend void DV_PaintCombinedView(HWND hWnd, CDefView * pdsv);
-} ;
+    friend void DV_GetMenuHelpText(CDefView* pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText);
+    friend void DV_GetToolTipText(CDefView* pdsv, UINT_PTR id, LPTSTR pszText, UINT cchText);
+    friend void SetDefaultViewSettings(CDefView* pdsv);
+    friend void DV_PaintErrMsg(HWND hWnd, CDefView* pdsv);
+    friend void DV_PaintCombinedView(HWND hWnd, CDefView* pdsv);
+};
 
-void DV_UpdateStatusBar(CDefView *pdsv, BOOL fInitialize);
+void DV_UpdateStatusBar(CDefView* pdsv, BOOL fInitialize);
 
 typedef struct {
     LPITEMIDLIST    pidl;
     UINT            uFlagsSelect;
 } DVDelaySelItem;
 
-HRESULT CreateEnumCViewList(CViewsList *pViews, IEnumSFVViews **ppObj);
+HRESULT CreateEnumCViewList(CViewsList* pViews, IEnumSFVViews** ppObj);
 
 
 // Compatibility with SFV_Message
@@ -1208,13 +1240,13 @@ HRESULT CreateEnumCViewList(CViewsList *pViews, IEnumSFVViews **ppObj);
 class CBaseShellFolderViewCB : public IShellFolderViewCB, public CObjectWithSite
 {
 public:
-    CBaseShellFolderViewCB(IUnknown *punkFolder, LPCITEMIDLIST pidl, LONG lEvents);
+    CBaseShellFolderViewCB(IUnknown* punkFolder, LPCITEMIDLIST pidl, LONG lEvents);
     STDMETHOD(RealMessage)(UINT uMsg, WPARAM wParam, LPARAM lParam) PURE;
 
     // IUnknown
-    STDMETHOD(QueryInterface)(REFIID riid, void **ppv);
-    STDMETHOD_(ULONG,AddRef)();
-    STDMETHOD_(ULONG,Release)();
+    STDMETHOD(QueryInterface)(REFIID riid, void** ppv);
+    STDMETHOD_(ULONG, AddRef)();
+    STDMETHOD_(ULONG, Release)();
 
     // IShellFolderViewCB
     STDMETHODIMP MessageSFVCB(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -1229,22 +1261,21 @@ protected:
     LONG m_cRef;
     LPCITEMIDLIST m_pidl;
     LONG m_lEvents;
-} ;
+};
 
 // Called CSHRegKey because ATL already has a class called CRegKey.
 
 class CSHRegKey
 {
 public:
-    CSHRegKey(HKEY hkParent, LPCTSTR pszSubKey, BOOL bCreate=FALSE)
+    CSHRegKey(HKEY hkParent, LPCTSTR pszSubKey, BOOL bCreate = FALSE)
     {
         DebugMsg(TF_LIFE, TEXT("ctor CSHRegKey(%s) %x"), pszSubKey, this);
-        if ((bCreate ? RegCreateKey(hkParent, pszSubKey, &m_hk) : RegOpenKeyEx(hkParent, pszSubKey, 0, KEY_READ, &m_hk))!=ERROR_SUCCESS)
-        {
+        if ((bCreate ? RegCreateKey(hkParent, pszSubKey, &m_hk) : RegOpenKeyEx(hkParent, pszSubKey, 0, KEY_READ, &m_hk)) != ERROR_SUCCESS) {
             m_hk = NULL;
         }
     }
-    CSHRegKey(HKEY hk) { DebugMsg(TF_LIFE, TEXT("ctor CSHRegKey %x"), this); m_hk=hk; }
+    CSHRegKey(HKEY hk) { DebugMsg(TF_LIFE, TEXT("ctor CSHRegKey %x"), this); m_hk = hk; }
     ~CSHRegKey()
     {
         DebugMsg(TF_LIFE, TEXT("dtor CSHRegKey %x"), this);
@@ -1252,13 +1283,17 @@ public:
     }
 
     operator HKEY() const { return(m_hk); }
-    operator !() const { return(m_hk==NULL); }
+    operator !() const { return(m_hk == NULL); }
 
     HRESULT QueryValue(LPCTSTR szSub, LPTSTR pszVal, LONG cb)
-        { return(SHRegQueryValue(m_hk, szSub, pszVal, &cb)); }
+    {
+        return(SHRegQueryValue(m_hk, szSub, pszVal, &cb));
+    }
 
     HRESULT QueryValueEx(LPCTSTR szSub, LPBYTE pszVal, LONG cb)
-        { return(SHQueryValueEx(m_hk, szSub, 0, NULL, pszVal, (LPDWORD)&cb)); }
+    {
+        return(SHQueryValueEx(m_hk, szSub, 0, NULL, pszVal, (LPDWORD)&cb));
+    }
 
 private:
     HKEY m_hk;
@@ -1269,8 +1304,8 @@ private:
 
 
 // status bar helpers
-STDAPI_(void) ResizeStatus(IUnknown *psite, UINT cx);
-STDAPI_(void) InitializeStatus(IUnknown *psite);
-STDAPI_(void) SetStatusText(IUnknown *psite, LPCTSTR *ppszText, int iStart, int iEnd);
+STDAPI_(void) ResizeStatus(IUnknown* psite, UINT cx);
+STDAPI_(void) InitializeStatus(IUnknown* psite);
+STDAPI_(void) SetStatusText(IUnknown* psite, LPCTSTR* ppszText, int iStart, int iEnd);
 
 #endif // _SFVIEWP_H_

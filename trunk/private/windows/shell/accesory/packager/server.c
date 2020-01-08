@@ -35,7 +35,7 @@ static INT FindItem(LPSAMPITEM lpitem);
 BOOL
 InitServer(
     VOID
-    )
+)
 {
     // Allocate the server block
     if (!(ghServer = LocalAlloc(LMEM_MOVEABLE | LMEM_ZEROINIT, sizeof(PBSRVR)))
@@ -43,39 +43,39 @@ InitServer(
         goto errRtn;
 
     // Initialize the server, document, and item virtual tables
-    vsrvrvtbl.Open                  = SrvrOpen;
-    vsrvrvtbl.Create                = SrvrCreate;
-    vsrvrvtbl.CreateFromTemplate    = SrvrCreateFromTemplate;
-    vsrvrvtbl.Edit                  = SrvrEdit;
-    vsrvrvtbl.Exit                  = SrvrExit;
-    vsrvrvtbl.Release               = SrvrRelease;
-    vsrvrvtbl.Execute               = SrvrExecute;
+    vsrvrvtbl.Open = SrvrOpen;
+    vsrvrvtbl.Create = SrvrCreate;
+    vsrvrvtbl.CreateFromTemplate = SrvrCreateFromTemplate;
+    vsrvrvtbl.Edit = SrvrEdit;
+    vsrvrvtbl.Exit = SrvrExit;
+    vsrvrvtbl.Release = SrvrRelease;
+    vsrvrvtbl.Execute = SrvrExecute;
 
-    vdocvtbl.Save                   = DocSave;
-    vdocvtbl.Close                  = DocClose;
-    vdocvtbl.SetHostNames           = DocSetHostNames;
-    vdocvtbl.SetDocDimensions       = DocSetDocDimensions;
-    vdocvtbl.GetObject              = DocGetObject;
-    vdocvtbl.Release                = DocRelease;
-    vdocvtbl.SetColorScheme         = DocSetColorScheme;
-    vdocvtbl.Execute                = DocExecute;
+    vdocvtbl.Save = DocSave;
+    vdocvtbl.Close = DocClose;
+    vdocvtbl.SetHostNames = DocSetHostNames;
+    vdocvtbl.SetDocDimensions = DocSetDocDimensions;
+    vdocvtbl.GetObject = DocGetObject;
+    vdocvtbl.Release = DocRelease;
+    vdocvtbl.SetColorScheme = DocSetColorScheme;
+    vdocvtbl.Execute = DocExecute;
 
-    vitemvtbl.QueryProtocol         = ItemQueryProtocol;
-    vitemvtbl.Release               = ItemDelete;
-    vitemvtbl.Show                  = ItemShow;
-    vitemvtbl.DoVerb                = ItemDoVerb;
-    vitemvtbl.GetData               = ItemGetData;
-    vitemvtbl.SetData               = ItemSetData;
-    vitemvtbl.SetTargetDevice       = ItemSetTargetDevice;
-    vitemvtbl.SetBounds             = ItemSetBounds;
-    vitemvtbl.EnumFormats           = ItemEnumFormats;
-    vitemvtbl.SetColorScheme        = ItemSetColorScheme;
+    vitemvtbl.QueryProtocol = ItemQueryProtocol;
+    vitemvtbl.Release = ItemDelete;
+    vitemvtbl.Show = ItemShow;
+    vitemvtbl.DoVerb = ItemDoVerb;
+    vitemvtbl.GetData = ItemGetData;
+    vitemvtbl.SetData = ItemSetData;
+    vitemvtbl.SetTargetDevice = ItemSetTargetDevice;
+    vitemvtbl.SetBounds = ItemSetBounds;
+    vitemvtbl.EnumFormats = ItemEnumFormats;
+    vitemvtbl.SetColorScheme = ItemSetColorScheme;
 
 
     // Try to register the server
     glpsrvr->olesrvr.lpvtbl = &vsrvrvtbl;
     if (Error(OleRegisterServer(gszAppClassName, (LPOLESERVER)glpsrvr,
-        (LONG_PTR * )&glpsrvr->lhsrvr, ghInst, OLE_SERVER_MULTI)))
+        (LONG_PTR*)&glpsrvr->lhsrvr, ghInst, OLE_SERVER_MULTI)))
         goto errRtn;
 
     // Initialize the client name
@@ -87,8 +87,7 @@ errRtn:
     ErrorMessage(E_FAILED_TO_REGISTER_SERVER);
 
     // If we failed, clean up
-    if (glpsrvr)
-    {
+    if (glpsrvr) {
         LocalUnlock(ghServer);
         glpsrvr = NULL;
     }
@@ -108,10 +107,9 @@ errRtn:
 VOID
 DeleteServer(
     LPSAMPSRVR lpsrvr
-    )
+)
 {
-    if (gfServer)
-    {
+    if (gfServer) {
         gfServer = FALSE;
         OleRevokeServer(lpsrvr->lhsrvr);
     }
@@ -124,10 +122,9 @@ DeleteServer(
 VOID
 DestroyServer(
     VOID
-    )
+)
 {
-    if (ghServer)
-    {
+    if (ghServer) {
         // Release the server virtual table and info
         LocalUnlock(ghServer);
         LocalFree(ghServer);
@@ -149,7 +146,7 @@ InitDoc(
     LPSAMPSRVR lpsrvr,
     LHSERVERDOC lhdoc,
     LPSTR lptitle
-    )
+)
 {
     HANDLE hdoc = NULL;
     LPSAMPDOC lpdoc = NULL;
@@ -162,18 +159,15 @@ InitDoc(
     lpdoc->aName = GlobalAddAtom(lptitle);
     lpdoc->oledoc.lpvtbl = &vdocvtbl;
 
-    if (!lhdoc)
-    {
+    if (!lhdoc) {
         if (Error(OleRegisterServerDoc(lpsrvr->lhsrvr, lptitle,
-            (LPOLESERVERDOC)lpdoc, (LHSERVERDOC * ) & lpdoc->lhdoc)))
+            (LPOLESERVERDOC)lpdoc, (LHSERVERDOC*)&lpdoc->lhdoc)))
             goto errRtn;
-    }
-    else
-    {
+    } else {
         lpdoc->lhdoc = lhdoc;
     }
 
-    gfDocExists  = TRUE;
+    gfDocExists = TRUE;
     gfDocCleared = FALSE;
     return lpdoc;
 
@@ -197,7 +191,7 @@ errRtn:
 static VOID
 DeleteDoc(
     LPSAMPDOC lpdoc
-    )
+)
 {
     if (gfOleClosed)
         SendDocChangeMsg(lpdoc, OLE_CLOSED);
@@ -211,13 +205,12 @@ DeleteDoc(
 */
 VOID
 ChangeDocName(
-    LPSAMPDOC *lplpdoc,
+    LPSAMPDOC* lplpdoc,
     LPSTR lpname
-    )
+)
 {
     // If the document exists, delete and re-register.
-    if (*lplpdoc)
-    {
+    if (*lplpdoc) {
         GlobalDeleteAtom((*lplpdoc)->aName);
         (*lplpdoc)->aName = GlobalAddAtom(lpname);
 
@@ -243,13 +236,12 @@ BOOL
 SendDocChangeMsg(
     LPSAMPDOC lpdoc,
     UINT options
-    )
+)
 {
     BOOL fSuccess = FALSE;
     INT i;
 
-    for (i = 0; i < cItems; i++)
-    {
+    for (i = 0; i < cItems; i++) {
         if (SendItemChangeMsg(vlpitem[i], options))
             fSuccess = TRUE;
     }
@@ -270,7 +262,7 @@ CreateNewDoc(
     LPSAMPSRVR lpsrvr,
     LHSERVERDOC lhdoc,
     LPSTR lpstr
-    )
+)
 {
     glpdoc = InitDoc(lpsrvr, lhdoc, lpstr);
     lstrcpy(szUntitled, lpstr);
@@ -294,7 +286,7 @@ CreateDocFromFile(
     LPSAMPSRVR lpsrvr,
     LHSERVERDOC lhdoc,
     LPSTR lpstr
-    )
+)
 {
     // Initialize document
     if (!(glpdoc = InitDoc(lpsrvr, lhdoc, lpstr)) || !(*lpstr))
@@ -314,7 +306,7 @@ CreateDocFromFile(
 BOOL
 CopyObjects(
     VOID
-    )
+)
 {
     HANDLE hdata;
 
@@ -333,16 +325,14 @@ CopyObjects(
     // Start with Native Data - which will just contain all the objects
     // which intersect with the selection rectangle.
 
-    if (hdata = GetNative(TRUE))
-    {
+    if (hdata = GetNative(TRUE)) {
         SetClipboardData(gcfNative, hdata);
         OleSavedClientDoc(lhClipDoc);
     }
 
-    if (lhClipDoc)
-    {
+    if (lhClipDoc) {
         OleRevokeClientDoc(lhClipDoc);
-    lhClipDoc = 0;
+        lhClipDoc = 0;
     }
 
     if (hdata = GetLink())
@@ -370,7 +360,7 @@ CopyObjects(
 LPSAMPITEM
 CreateNewItem(
     LPSAMPDOC lpdoc
-    )
+)
 {
     HANDLE hitem = NULL;
     LPSAMPITEM lpitem = NULL;
@@ -402,10 +392,9 @@ static BOOL
 SendItemChangeMsg(
     LPSAMPITEM lpitem,
     UINT options
-    )
+)
 {
-    if (lpitem->lpoleclient)
-    {
+    if (lpitem->lpoleclient) {
         (*lpitem->lpoleclient->lpvtbl->CallBack)
             (lpitem->lpoleclient, options, (LPOLEOBJECT)lpitem);
 
@@ -434,7 +423,7 @@ SendItemChangeMsg(
 HANDLE
 GetNative(
     BOOL fClip
-    )
+)
 {
     BOOL fSuccess = FALSE;
     DWORD cBytes = 0L;
@@ -451,75 +440,67 @@ GetNative(
     lpaPict = glpobj[APPEARANCE];
     lpcPict = glpobj[CONTENT];
 
-    switch (gpty[APPEARANCE])
-    {
-        case ICON:
-            cBytes += IconWriteToNative(glpobj[APPEARANCE], NULL);
-            break;
+    switch (gpty[APPEARANCE]) {
+    case ICON:
+        cBytes += IconWriteToNative(glpobj[APPEARANCE], NULL);
+        break;
 
-        case PICTURE:
-            if (fClip)
-            {
-                if (Error(OleRegisterClientDoc(
-                    gszAppClassName, szClip, 0L, &lhClipDoc)))
-                    goto Error;
+    case PICTURE:
+        if (fClip) {
+            if (Error(OleRegisterClientDoc(
+                gszAppClassName, szClip, 0L, &lhClipDoc)))
+                goto Error;
 
-                if (Error(OleClone(
-                    lpaPict->lpObject, glpclient, lhClipDoc,
-                    szAppearance, &lpobjapp)))
-                    goto Error;
+            if (Error(OleClone(
+                lpaPict->lpObject, glpclient, lhClipDoc,
+                szAppearance, &lpobjapp)))
+                goto Error;
 
-                cBytes += PicWriteToNative(lpaPict, lpobjapp, NULL);
-            }
-            else
-            {
-                cBytes += PicWriteToNative(lpaPict, lpaPict->lpObject, NULL);
-            }
+            cBytes += PicWriteToNative(lpaPict, lpobjapp, NULL);
+        } else {
+            cBytes += PicWriteToNative(lpaPict, lpaPict->lpObject, NULL);
+        }
 
-            break;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     // Compute the content size
-    switch (gpty[CONTENT])
-    {
-        case CMDLINK:
-            cBytes += CmlWriteToNative(glpobj[CONTENT], NULL);
-            break;
+    switch (gpty[CONTENT]) {
+    case CMDLINK:
+        cBytes += CmlWriteToNative(glpobj[CONTENT], NULL);
+        break;
 
-        case PEMBED:    /* EmbWrite returns -1L if the user cancels */
-            cEmbWrite = EmbWriteToNative(glpobj[CONTENT], NULL);
+    case PEMBED:    /* EmbWrite returns -1L if the user cancels */
+        cEmbWrite = EmbWriteToNative(glpobj[CONTENT], NULL);
 
-            if (cEmbWrite == (DWORD) - 1L)
-                return FALSE;
+        if (cEmbWrite == (DWORD)-1L)
+            return FALSE;
 
-            cBytes += cEmbWrite;
-            break;
+        cBytes += cEmbWrite;
+        break;
 
-        case PICTURE:
-            if (fClip)
-            {
-                if (!lhClipDoc && (Error(OleRegisterClientDoc(
-                    gszAppClassName, szClip, 0L, &lhClipDoc))))
-                    goto Error;
+    case PICTURE:
+        if (fClip) {
+            if (!lhClipDoc && (Error(OleRegisterClientDoc(
+                gszAppClassName, szClip, 0L, &lhClipDoc))))
+                goto Error;
 
-                if (Error(OleClone(lpcPict->lpObject, glpclient,
-                    lhClipDoc, szContent, &lpobjcon)))
-                    goto Error;
+            if (Error(OleClone(lpcPict->lpObject, glpclient,
+                               lhClipDoc, szContent, &lpobjcon)))
+                goto Error;
 
-                cBytes += PicWriteToNative(lpcPict, lpobjcon, NULL);
-            }
-            else
-            {
-                cBytes += PicWriteToNative(lpcPict, lpcPict->lpObject, NULL);
-            }
+            cBytes += PicWriteToNative(lpcPict, lpobjcon, NULL);
+        } else {
+            cBytes += PicWriteToNative(lpcPict, lpcPict->lpObject, NULL);
+        }
 
-            break;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     if (cBytes == 0L) // then no data
@@ -535,64 +516,61 @@ GetNative(
     // Write out the appearance
     w = (WORD)gpty[APPEARANCE];
     MemWrite(&lpdata, (LPSTR)&w, sizeof(WORD));
-    switch (gpty[APPEARANCE])
-    {
-        case ICON:
-            IconWriteToNative(glpobj[APPEARANCE], &lpdata);
-            break;
+    switch (gpty[APPEARANCE]) {
+    case ICON:
+        IconWriteToNative(glpobj[APPEARANCE], &lpdata);
+        break;
 
-        case PICTURE:
-            if (fClip)
-                PicWriteToNative(lpaPict, lpobjapp, &lpdata);
-            else
-                PicWriteToNative(lpaPict, lpaPict->lpObject, &lpdata);
+    case PICTURE:
+        if (fClip)
+            PicWriteToNative(lpaPict, lpobjapp, &lpdata);
+        else
+            PicWriteToNative(lpaPict, lpaPict->lpObject, &lpdata);
 
-            break;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     // Write out the content
     w = (WORD)gpty[CONTENT];
     MemWrite(&lpdata, (LPSTR)&w, sizeof(WORD));
 
-    switch (gpty[CONTENT])
-    {
-        case CMDLINK:
-            CmlWriteToNative(glpobj[CONTENT], &lpdata);
-            break;
+    switch (gpty[CONTENT]) {
+    case CMDLINK:
+        CmlWriteToNative(glpobj[CONTENT], &lpdata);
+        break;
 
-        case PEMBED:
-            EmbWriteToNative(glpobj[CONTENT], &lpdata);
-            break;
+    case PEMBED:
+        EmbWriteToNative(glpobj[CONTENT], &lpdata);
+        break;
 
-        case PICTURE:
-            if (fClip)
-                PicWriteToNative(lpcPict, lpobjcon, &lpdata);
-            else
-                PicWriteToNative(lpcPict, lpcPict->lpObject, &lpdata);
+    case PICTURE:
+        if (fClip)
+            PicWriteToNative(lpcPict, lpobjcon, &lpdata);
+        else
+            PicWriteToNative(lpcPict, lpcPict->lpObject, &lpdata);
 
-            break;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     fSuccess = TRUE;
 
 Error:
     if (lpobjcon)
-        OleRelease (lpobjcon);
+        OleRelease(lpobjcon);
 
     if (lpobjapp)
-        OleRelease (lpobjapp);
+        OleRelease(lpobjapp);
 
     if (lpdata)
         GlobalUnlock(hdata);
 
-    if (!fSuccess && hdata)
-    {
+    if (!fSuccess && hdata) {
         GlobalFree(hdata);
         hdata = NULL;
     }
@@ -612,7 +590,7 @@ Error:
 BOOL
 PutNative(
     HANDLE hdata
-    )
+)
 {
     BOOL fSuccess = FALSE;
     LPSTR lpdata;
@@ -628,56 +606,52 @@ PutNative(
     // Read in the appearance
     MemRead(&lpdata, (LPSTR)&w, sizeof(WORD));
     gpty[APPEARANCE] = w;
-    switch (gpty[APPEARANCE])
-    {
-        case ICON:
-            if (!(glpobj[APPEARANCE] = IconReadFromNative(&lpdata)))
-                gpty[APPEARANCE] = NOTHING;
-
-            break;
-
-        case PICTURE:
-            if (glpobj[APPEARANCE] =
-                PicReadFromNative(&lpdata, gszCaption[APPEARANCE]))
-            {
-                SendMessage(ghwndPane[APPEARANCE], WM_FIXSCROLL, 0, 0L);
-                break;
-            }
-
-        default:
+    switch (gpty[APPEARANCE]) {
+    case ICON:
+        if (!(glpobj[APPEARANCE] = IconReadFromNative(&lpdata)))
             gpty[APPEARANCE] = NOTHING;
+
+        break;
+
+    case PICTURE:
+        if (glpobj[APPEARANCE] =
+            PicReadFromNative(&lpdata, gszCaption[APPEARANCE])) {
+            SendMessage(ghwndPane[APPEARANCE], WM_FIXSCROLL, 0, 0L);
             break;
+        }
+
+    default:
+        gpty[APPEARANCE] = NOTHING;
+        break;
     }
 
     // Read the content
     MemRead(&lpdata, (LPSTR)&w, sizeof(WORD));
     gpty[CONTENT] = w;
-    switch (gpty[CONTENT])
-    {
-        case CMDLINK:
-            if (!(glpobj[CONTENT] = CmlReadFromNative(&lpdata)))
-                gpty[CONTENT] = NOTHING;
-
-            break;
-
-        case PEMBED:
-            if (!(glpobj[CONTENT] = (LPVOID)EmbReadFromNative(&lpdata)))
-                gpty[CONTENT] = NOTHING;
-
-            break;
-
-        case PICTURE:
-            if (glpobj[CONTENT] =
-                (LPVOID)PicReadFromNative(&lpdata, gszCaption[CONTENT]))
-            {
-                SendMessage(ghwndPane[CONTENT], WM_FIXSCROLL, 0, 0L);
-                EnableWindow(ghwndPict, TRUE);
-                break;
-            }
-
-        default:
+    switch (gpty[CONTENT]) {
+    case CMDLINK:
+        if (!(glpobj[CONTENT] = CmlReadFromNative(&lpdata)))
             gpty[CONTENT] = NOTHING;
+
+        break;
+
+    case PEMBED:
+        if (!(glpobj[CONTENT] = (LPVOID)EmbReadFromNative(&lpdata)))
+            gpty[CONTENT] = NOTHING;
+
+        break;
+
+    case PICTURE:
+        if (glpobj[CONTENT] =
+            (LPVOID)PicReadFromNative(&lpdata, gszCaption[CONTENT])) {
+            SendMessage(ghwndPane[CONTENT], WM_FIXSCROLL, 0, 0L);
+            EnableWindow(ghwndPict, TRUE);
             break;
+        }
+
+    default:
+        gpty[CONTENT] = NOTHING;
+        break;
     }
 
     fSuccess = TRUE;
@@ -699,7 +673,7 @@ Error:
 HANDLE
 GetLink(
     VOID
-    )
+)
 {
     CHAR pchlink[CBLINKMAX];
     INT cblink;
@@ -747,7 +721,7 @@ Error:
 HANDLE
 GetMF(
     VOID
-    )
+)
 {
     BOOL fError = TRUE;
     HANDLE hdata = NULL;
@@ -770,8 +744,7 @@ GetMF(
     lpmfpict = (LPMETAFILEPICT)GlobalLock(hmfpict);
 
     // If the picture has a metafile, use it!
-    if (gpty[APPEARANCE] == PICTURE)
-    {
+    if (gpty[APPEARANCE] == PICTURE) {
         LPMETAFILEPICT  lpmfpictOrg = NULL;
 
         if (Error(OleGetData(
@@ -789,7 +762,7 @@ GetMF(
             goto NoPicture;
 
         // Finish filling in the metafile header
-        lpmfpict->mm   = lpmfpictOrg->mm;
+        lpmfpict->mm = lpmfpictOrg->mm;
         lpmfpict->xExt = lpmfpictOrg->xExt;
         lpmfpict->yExt = lpmfpictOrg->yExt;
 
@@ -802,41 +775,40 @@ NoPicture:
     if (!(hdcWnd = GetDC(NULL)))
         goto Error;
 
-    switch (gpty[APPEARANCE])
-    {
-        case ICON:
-            lpic = (LPIC)glpobj[APPEARANCE];
+    switch (gpty[APPEARANCE]) {
+    case ICON:
+        lpic = (LPIC)glpobj[APPEARANCE];
 
-            // Set the icon text rectangle, and the icon font
-            SetRect(&rcText, 0, 0, gcxArrange, gcyArrange);
-            hfont = SelectObject(hdcWnd, ghfontTitle);
+        // Set the icon text rectangle, and the icon font
+        SetRect(&rcText, 0, 0, gcxArrange, gcyArrange);
+        hfont = SelectObject(hdcWnd, ghfontTitle);
 
-            // Figure out how large the text region will be
-            // since this is going in a metafile we will not wrap
-            // the icon text
+        // Figure out how large the text region will be
+        // since this is going in a metafile we will not wrap
+        // the icon text
 
-            DrawText(hdcWnd, lpic->szIconText, -1, &rcText,
-                DT_CALCRECT | DT_WORDBREAK | DT_NOPREFIX | DT_SINGLELINE);
+        DrawText(hdcWnd, lpic->szIconText, -1, &rcText,
+                 DT_CALCRECT | DT_WORDBREAK | DT_NOPREFIX | DT_SINGLELINE);
 
-            if (hfont)
-                SelectObject(hdcWnd, hfont);
+        if (hfont)
+            SelectObject(hdcWnd, hfont);
 
-            // Compute the image size
-            rcText.right++;
-            cxImage = (rcText.right > gcxIcon) ? rcText.right : gcxIcon;
-            cyImage = gcyIcon + rcText.bottom + 1;
-            break;
+        // Compute the image size
+        rcText.right++;
+        cxImage = (rcText.right > gcxIcon) ? rcText.right : gcxIcon;
+        cyImage = gcyIcon + rcText.bottom + 1;
+        break;
 
-        case PICTURE:
-            lppict  = (LPPICT)glpobj[APPEARANCE];
-            cxImage = lppict->rc.right - lppict->rc.left + 1;
-            cyImage = lppict->rc.bottom - lppict->rc.top + 1;
-            break;
+    case PICTURE:
+        lppict = (LPPICT)glpobj[APPEARANCE];
+        cxImage = lppict->rc.right - lppict->rc.left + 1;
+        cyImage = lppict->rc.bottom - lppict->rc.top + 1;
+        break;
 
-        default:
-            cxImage = GetSystemMetrics(SM_CXICON);
-            cyImage = GetSystemMetrics(SM_CYICON);
-            break;
+    default:
+        cxImage = GetSystemMetrics(SM_CXICON);
+        cyImage = GetSystemMetrics(SM_CYICON);
+        break;
     }
 
     cxImage += cxImage / 4; // grow the image a bit
@@ -857,19 +829,18 @@ NoPicture:
     // We displace back to (0, 0) because that's where the BITMAP resides.
 
     SetRect(&rcTemp, 0, 0, cxImage, cyImage);
-    switch (gpty[APPEARANCE])
-    {
-        case ICON:
-            IconDraw(glpobj[APPEARANCE], hdcMF, &rcTemp, FALSE, cxImage, cyImage);
-            break;
+    switch (gpty[APPEARANCE]) {
+    case ICON:
+        IconDraw(glpobj[APPEARANCE], hdcMF, &rcTemp, FALSE, cxImage, cyImage);
+        break;
 
-        case PICTURE:
-            PicDraw(glpobj[APPEARANCE], hdcMF, &rcTemp, 0, 0, TRUE, FALSE);
-            break;
+    case PICTURE:
+        PicDraw(glpobj[APPEARANCE], hdcMF, &rcTemp, 0, 0, TRUE, FALSE);
+        break;
 
-        default:
-            DrawIcon(hdcMF, 0, 0, LoadIcon(ghInst, MAKEINTRESOURCE(ID_APPLICATION)));
-            break;
+    default:
+        DrawIcon(hdcMF, 0, 0, LoadIcon(ghInst, MAKEINTRESOURCE(ID_APPLICATION)));
+        break;
     }
 
     // Map to device independent coordinates
@@ -891,8 +862,7 @@ Error:
         ReleaseDC(NULL, hdcWnd);
 
     // If we had an error, return NULL
-    if (fError && hmfpict)
-    {
+    if (fError && hmfpict) {
         GlobalUnlock(hmfpict);
         GlobalFree(hmfpict);
         hmfpict = NULL;
@@ -910,7 +880,7 @@ Error:
 VOID
 InitEmbedded(
     BOOL fCreate
-    )
+)
 {
     HMENU hmenu;
 
@@ -928,29 +898,23 @@ InitEmbedded(
 LPSAMPITEM
 AddItem(
     LPSAMPITEM lpitem
-    )
+)
 {
     INT i;
     HANDLE hitem;
 
     i = FindItem((LPSAMPITEM)lpitem);
-    if (i < cItems)
-    {
+    if (i < cItems) {
         vlpitem[i]->ref++;
 
         // Free the duplicate item
         GlobalUnlock(hitem = lpitem->hitem);
         GlobalFree(hitem);
-    }
-    else
-    {
-        if (i < CITEMSMAX)
-        {
+    } else {
+        if (i < CITEMSMAX) {
             vlpitem[cItems] = (LPSAMPITEM)lpitem;
             vlpitem[cItems++]->ref = 1;
-        }
-        else
-        {
+        } else {
             return NULL;
         }
     }
@@ -967,7 +931,7 @@ AddItem(
 BOOL
 DeleteItem(
     LPSAMPITEM lpitem
-    )
+)
 {
     BOOL fFound;
     HANDLE hitem;
@@ -976,15 +940,14 @@ DeleteItem(
     i = FindItem(lpitem);
 
     if ((fFound = (i < cItems && vlpitem[i]->ref))
-        && !(--vlpitem[i]->ref))
-    {
+        && !(--vlpitem[i]->ref)) {
         // Free the item
         GlobalUnlock(hitem = vlpitem[i]->hitem);
         GlobalFree(hitem);
 
         // Shift everything else down
         cItems--;
-        for ( ; i < cItems; i++)
+        for (; i < cItems; i++)
             vlpitem[i] = vlpitem[i + 1];
     }
 
@@ -998,19 +961,15 @@ DeleteItem(
 static INT
 FindItem(
     LPSAMPITEM lpitem
-    )
+)
 {
     BOOL fFound = FALSE;
     INT i;
 
-    for (i = 0; i < cItems && !fFound;)
-    {
-        if (lpitem->aName == vlpitem[i]->aName)
-        {
+    for (i = 0; i < cItems && !fFound;) {
+        if (lpitem->aName == vlpitem[i]->aName) {
             fFound = TRUE;
-        }
-        else
-        {
+        } else {
             i++;
         }
     }
@@ -1027,7 +986,7 @@ FindItem(
 VOID
 EndEmbedding(
     VOID
-    )
+)
 {
     HMENU hmenu;
 

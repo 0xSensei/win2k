@@ -27,7 +27,7 @@ typedef struct _OUR_PROP_PARAMS
     HKEY                hkDrivers;  // Key to classguid\0000\Drivers
     BOOL                bClosing;   // Set to TRUE while dialog is closing
     TCHAR szSubClasses[256];         // Subclasses to process
-} OUR_PROP_PARAMS, *POUR_PROP_PARAMS;
+} OUR_PROP_PARAMS, * POUR_PROP_PARAMS;
 
 typedef enum
 {
@@ -38,8 +38,8 @@ typedef enum
 
 // Tree node. One per node on tree.
 typedef struct _DMTREE_NODE;
-typedef BOOL (*PFNCONFIG)     (HWND ParentHwnd, struct _DMTREE_NODE *pTreeNode);
-typedef BOOL (*PFNQUERYCONFIG)(HWND ParentHwnd, struct _DMTREE_NODE *pTreeNode);
+typedef BOOL(*PFNCONFIG)     (HWND ParentHwnd, struct _DMTREE_NODE* pTreeNode);
+typedef BOOL(*PFNQUERYCONFIG)(HWND ParentHwnd, struct _DMTREE_NODE* pTreeNode);
 typedef struct _DMTREE_NODE
 {
     NODETYPE NodeType;              // Type of node
@@ -53,77 +53,77 @@ typedef struct _DMTREE_NODE
     WCHAR wszAlias[MAXSTR];         // Wide char alias
     DriverClass dc;                 // Legacy-style driver class, if available
     HTREEITEM hti;                  // For use with MIDI prop sheet callback
-} DMTREE_NODE, *PDMTREE_NODE;
+} DMTREE_NODE, * PDMTREE_NODE;
 
 INT_PTR APIENTRY DmAdvPropPageDlgProc(IN HWND   hDlg,
                                       IN UINT   uMessage,
                                       IN WPARAM wParam,
                                       IN LPARAM lParam
-                                     );
+);
 
 UINT CALLBACK DmAdvPropPageDlgCallback(HWND hwnd,
                                        UINT uMsg,
                                        LPPROPSHEETPAGE ppsp
-                                      );
+);
 
 BOOL DmAdvPropPage_OnCommand(
-                            HWND ParentHwnd,
-                            int  ControlId,
-                            HWND ControlHwnd,
-                            UINT NotifyCode
-                            );
+    HWND ParentHwnd,
+    int  ControlId,
+    HWND ControlHwnd,
+    UINT NotifyCode
+);
 
 BOOL DmAdvPropPage_OnContextMenu(
-                                HWND HwndControl,
-                                WORD Xpos,
-                                WORD Ypos
-                                );
+    HWND HwndControl,
+    WORD Xpos,
+    WORD Ypos
+);
 
 BOOL DmAdvPropPage_OnHelp(
-                         HWND       ParentHwnd,
-                         LPHELPINFO HelpInfo
-                         );
+    HWND       ParentHwnd,
+    LPHELPINFO HelpInfo
+);
 
 BOOL DmAdvPropPage_OnInitDialog(
-                               HWND    ParentHwnd,
-                               HWND    FocusHwnd,
-                               LPARAM  Lparam
-                               );
+    HWND    ParentHwnd,
+    HWND    FocusHwnd,
+    LPARAM  Lparam
+);
 
 BOOL DmAdvPropPage_OnNotify(
-                           HWND    ParentHwnd,
-                           LPNMHDR NmHdr
-                           );
+    HWND    ParentHwnd,
+    LPNMHDR NmHdr
+);
 
 void DmAdvPropPage_OnPropertiesClicked(
-                                      HWND             ParentHwnd,
-                                      POUR_PROP_PARAMS Params
-                                      );
+    HWND             ParentHwnd,
+    POUR_PROP_PARAMS Params
+);
 
 
 BOOL DmOverrideResourcesPage(LPVOID        Info,
                              LPFNADDPROPSHEETPAGE AddFunc,
                              LPARAM               Lparam,
                              POUR_PROP_PARAMS     Params
-                            );
+);
 
-BOOL AddCDROMPropertyPage( HDEVINFO             hDeviceInfoSet,
-                           PSP_DEVINFO_DATA     pDeviceInfoData,
-                           LPFNADDPROPSHEETPAGE AddFunc,
-                           LPARAM               Lparam
-                          );
+BOOL AddCDROMPropertyPage(HDEVINFO             hDeviceInfoSet,
+                          PSP_DEVINFO_DATA     pDeviceInfoData,
+                          LPFNADDPROPSHEETPAGE AddFunc,
+                          LPARAM               Lparam
+);
 
-BOOL AddSpecialPropertyPage( DWORD                SpecialDriverType,
-                             LPFNADDPROPSHEETPAGE AddFunc,
-                             LPARAM               Lparam
-                            );
+BOOL AddSpecialPropertyPage(DWORD                SpecialDriverType,
+                            LPFNADDPROPSHEETPAGE AddFunc,
+                            LPARAM               Lparam
+);
 
 BOOL DmInitDeviceTree(HWND hwndTree, POUR_PROP_PARAMS Params);
 
 BOOL DmAdvPropPage_OnDestroy(
-                            HWND    ParentHwnd,
-                            LPNMHDR NmHdr
-                            );
+    HWND    ParentHwnd,
+    LPNMHDR NmHdr
+);
 
 void DoProperties(HWND ParentHwnd, HWND hWndI, HTREEITEM htiCur);
 
@@ -131,19 +131,17 @@ BOOL QueryConfigDriver(HWND ParentHwnd, PDMTREE_NODE pTreeNode)
 {
     HANDLE       hDriver;
 
-    if (pTreeNode->NodeType!=NodeTypeDriver)
-    {
+    if (pTreeNode->NodeType != NodeTypeDriver) {
         return FALSE;
     }
 
-    if (pTreeNode->QueryConfigInfo==0)  // if 0, the we haven't checked yet
+    if (pTreeNode->QueryConfigInfo == 0)  // if 0, the we haven't checked yet
     {
         INT_PTR IsConfigurable;
 
         //  open the driver
         hDriver = OpenDriver(pTreeNode->wszDriver, NULL, 0L);
-        if (!hDriver)
-        {
+        if (!hDriver) {
             return FALSE;
         }
 
@@ -159,31 +157,29 @@ BOOL QueryConfigDriver(HWND ParentHwnd, PDMTREE_NODE pTreeNode)
         pTreeNode->QueryConfigInfo = IsConfigurable ? 1 : -1;
     }
 
-    return (pTreeNode->QueryConfigInfo>0);
+    return (pTreeNode->QueryConfigInfo > 0);
 }
 
 BOOL PNPDriverToIResource(PDMTREE_NODE pTreeNode, IRESOURCE* pir)
 {
     IDRIVER tempIDriver;
 
-    if ((pir->pcn = (PCLASSNODE)LocalAlloc (LPTR, sizeof(CLASSNODE))) == NULL)
-    {
+    if ((pir->pcn = (PCLASSNODE)LocalAlloc(LPTR, sizeof(CLASSNODE))) == NULL) {
         return FALSE;
     }
 
-    if (!DriverClassToClassNode(pir->pcn, pTreeNode->dc))
-    {
-        LocalFree ((HANDLE)pir->pcn);
+    if (!DriverClassToClassNode(pir->pcn, pTreeNode->dc)) {
+        LocalFree((HANDLE)pir->pcn);
         return FALSE;
     }
 
     pir->iNode = 2;   // 1=class, 2=device, 3=acm, 4=instmt
 
-    lstrcpy (pir->szFriendlyName, pTreeNode->szDescription);
-    lstrcpy (pir->szDesc,         pTreeNode->szDescription);
-    lstrcpy (pir->szFile,         pTreeNode->szDriver);
-    lstrcpy (pir->szDrvEntry,     pTreeNode->szAlias);
-    lstrcpy (pir->szClass,        pir->pcn->szClass);
+    lstrcpy(pir->szFriendlyName, pTreeNode->szDescription);
+    lstrcpy(pir->szDesc, pTreeNode->szDescription);
+    lstrcpy(pir->szFile, pTreeNode->szDriver);
+    lstrcpy(pir->szDrvEntry, pTreeNode->szAlias);
+    lstrcpy(pir->szClass, pir->pcn->szClass);
 
     pir->fQueryable = (short)QueryConfigDriver(NULL, pTreeNode);
     pir->iClassID = (short)DriverClassToOldClassID(pTreeNode->dc);
@@ -196,17 +192,17 @@ BOOL PNPDriverToIResource(PDMTREE_NODE pTreeNode, IRESOURCE* pir)
     // mmcpl.h), but those are tied with PNP.  Here, we use the
     // dwStatus* flags:
 
-    ZeroMemory(&tempIDriver,sizeof(IDRIVER));
+    ZeroMemory(&tempIDriver, sizeof(IDRIVER));
 
-    lstrcpy(tempIDriver.wszAlias,pTreeNode->wszAlias);
-    lstrcpy(tempIDriver.szAlias,pTreeNode->szAlias);
-    lstrcpy(tempIDriver.wszFile,pTreeNode->wszDriver);
-    lstrcpy(tempIDriver.szFile,pTreeNode->szDriver);
-    lstrcpy(tempIDriver.szDesc,pTreeNode->szDescription);
-    lstrcpy(tempIDriver.szSection,wcsstr(pTreeNode->szDescription, TEXT("MCI")) ? szMCI : szDrivers);
-    lstrcpy(tempIDriver.wszSection,wcsstr(pTreeNode->szDescription, TEXT("MCI")) ? szMCI : szDrivers);
+    lstrcpy(tempIDriver.wszAlias, pTreeNode->wszAlias);
+    lstrcpy(tempIDriver.szAlias, pTreeNode->szAlias);
+    lstrcpy(tempIDriver.wszFile, pTreeNode->wszDriver);
+    lstrcpy(tempIDriver.szFile, pTreeNode->szDriver);
+    lstrcpy(tempIDriver.szDesc, pTreeNode->szDescription);
+    lstrcpy(tempIDriver.szSection, wcsstr(pTreeNode->szDescription, TEXT("MCI")) ? szMCI : szDrivers);
+    lstrcpy(tempIDriver.wszSection, wcsstr(pTreeNode->szDescription, TEXT("MCI")) ? szMCI : szDrivers);
 
-    pir->fStatus = (int)GetDriverStatus (&tempIDriver);
+    pir->fStatus = (int)GetDriverStatus(&tempIDriver);
 
     return TRUE;
 }
@@ -216,38 +212,35 @@ BOOL ConfigDriver(HWND ParentHwnd, PDMTREE_NODE pTreeNode)
     //need to pop up the legacy properties dialog
     IRESOURCE ir;
     DEVTREENODE dtn;
-    TCHAR        szTab[ cchRESOURCE ];
+    TCHAR        szTab[cchRESOURCE];
 
-    if ((pTreeNode->NodeType == NodeTypeDriver) && (pTreeNode->dc != dcINVALID))
-    {
-        if (PNPDriverToIResource(pTreeNode, &ir))
-        {
-            GetString (szTab, IDS_GENERAL);
+    if ((pTreeNode->NodeType == NodeTypeDriver) && (pTreeNode->dc != dcINVALID)) {
+        if (PNPDriverToIResource(pTreeNode, &ir)) {
+            GetString(szTab, IDS_GENERAL);
 
             dtn.lParam = (LPARAM)&ir;
             dtn.hwndTree = ParentHwnd;
 
             //must call this function twice to fill in the array of PIDRIVERs in drivers.c
             //otherwise, many of the "settings" calls won't work
-            InitInstalled (GetParent (ParentHwnd), szDrivers);
-            InitInstalled (GetParent (ParentHwnd), szMCI);
+            InitInstalled(GetParent(ParentHwnd), szDrivers);
+            InitInstalled(GetParent(ParentHwnd), szMCI);
 
-            switch (pTreeNode->dc)
-            {
-                case dcMIDI :
-                   ShowWithMidiDevPropSheet (szTab,
-                                             DevPropDlg,
-                                             DLG_DEV_PROP,
-                                             ParentHwnd,
-                                             pTreeNode->szDescription,
-                                             pTreeNode->hti,
-                                             (LPARAM)&dtn,
-                                             (LPARAM)&ir,
-                                             (LPARAM)ParentHwnd);
+            switch (pTreeNode->dc) {
+            case dcMIDI:
+                ShowWithMidiDevPropSheet(szTab,
+                                         DevPropDlg,
+                                         DLG_DEV_PROP,
+                                         ParentHwnd,
+                                         pTreeNode->szDescription,
+                                         pTreeNode->hti,
+                                         (LPARAM)&dtn,
+                                         (LPARAM)&ir,
+                                         (LPARAM)ParentHwnd);
                 break;
 
-                case dcWAVE :
-                    ShowPropSheet (szTab,
+            case dcWAVE:
+                ShowPropSheet(szTab,
                               DevPropDlg,
                               DLG_WAVDEV_PROP,
                               ParentHwnd,
@@ -255,17 +248,17 @@ BOOL ConfigDriver(HWND ParentHwnd, PDMTREE_NODE pTreeNode)
                               (LPARAM)&dtn);
                 break;
 
-                default:
-                   ShowPropSheet (szTab,
-                                  DevPropDlg,
-                                  DLG_DEV_PROP,
-                                  ParentHwnd,
-                                  pTreeNode->szDescription,
-                                  (LPARAM)&dtn);
+            default:
+                ShowPropSheet(szTab,
+                              DevPropDlg,
+                              DLG_DEV_PROP,
+                              ParentHwnd,
+                              pTreeNode->szDescription,
+                              (LPARAM)&dtn);
                 break;
             } //end switch
 
-            FreeIResource (&ir);
+            FreeIResource(&ir);
         }
     }
 
@@ -285,7 +278,7 @@ const static DWORD aDMPropHelpIds[] = {  // Context Help IDs
 // Subtype info. Array of one per device class subtype
 typedef struct _SUBTYPE_INFO
 {
-    TCHAR *szClass;
+    TCHAR* szClass;
     DWORD DescId;
     DWORD IconId;
     PFNCONFIG pfnConfig;
@@ -336,20 +329,19 @@ BOOL LoadSubtypeInfo(HWND hwndTree)
     if (!hImagelist)
         return FALSE;
 
-    for (i=0;i<SUBTYPE_INFO_SIZE;i++)
-    {
+    for (i = 0; i < SUBTYPE_INFO_SIZE; i++) {
         HICON hIcon;
 
         // Load the description
         LoadString(ghInstance, SubtypeInfo[i].DescId, SubtypeInfo[i].szDescription, 64);
 
         // Load the image into the image list
-        hIcon = LoadImage (ghInstance,
-                           MAKEINTRESOURCE( SubtypeInfo[i].IconId ),
-                           IMAGE_ICON,
-                           cxMiniIcon,
-                           cyMiniIcon,
-                           LR_DEFAULTCOLOR);
+        hIcon = LoadImage(ghInstance,
+                          MAKEINTRESOURCE(SubtypeInfo[i].IconId),
+                          IMAGE_ICON,
+                          cxMiniIcon,
+                          cyMiniIcon,
+                          LR_DEFAULTCOLOR);
 
         SubtypeInfo[i].IconIndex = ImageList_AddIcon(hImagelist, hIcon);
         DestroyIcon(hIcon);
@@ -361,14 +353,12 @@ BOOL LoadSubtypeInfo(HWND hwndTree)
     return TRUE;
 }
 
-SUBTYPE_INFO *GetSubtypeInfo(TCHAR *pszClass)
+SUBTYPE_INFO* GetSubtypeInfo(TCHAR* pszClass)
 {
     UINT iClass;
-    if (pszClass)
-    {
-        for (iClass=0;iClass<SUBTYPE_INFO_SIZE;iClass++)
-        {
-            if (!lstrcmpi(pszClass,SubtypeInfo[iClass].szClass))
+    if (pszClass) {
+        for (iClass = 0; iClass < SUBTYPE_INFO_SIZE; iClass++) {
+            if (!lstrcmpi(pszClass, SubtypeInfo[iClass].szClass))
                 return &SubtypeInfo[iClass];
         }
     }
@@ -403,7 +393,7 @@ Return Value:
 BOOL APIENTRY MediaPropPageProvider(LPVOID               Info,
                                     LPFNADDPROPSHEETPAGE AddFunc,
                                     LPARAM               Lparam
-                                   )
+)
 {
     PSP_PROPSHEETPAGE_REQUEST pprPropPageRequest;
     PROPSHEETPAGE             psp;
@@ -417,28 +407,25 @@ BOOL APIENTRY MediaPropPageProvider(LPVOID               Info,
     HKEY hkDrivers;
     DWORD cbLen;
 
-    pprPropPageRequest = (PSP_PROPSHEETPAGE_REQUEST) Info;
+    pprPropPageRequest = (PSP_PROPSHEETPAGE_REQUEST)Info;
 
-    if (pprPropPageRequest->PageRequested != SPPSR_ENUM_ADV_DEVICE_PROPERTIES)
-    {
+    if (pprPropPageRequest->PageRequested != SPPSR_ENUM_ADV_DEVICE_PROPERTIES) {
         return TRUE;
     }
 
-    DeviceInfoSet  = pprPropPageRequest->DeviceInfoSet;
+    DeviceInfoSet = pprPropPageRequest->DeviceInfoSet;
     DeviceInfoData = pprPropPageRequest->DeviceInfoData;
 
     // This API is called for both devices and the class as a whole
     // (when someone right-clicks on the class and chooses properties).
     // In the class case the DeviceInfoData field of the propPageRequest structure is NULL.
     // We don't do anything in that case, so just return.
-    if (!DeviceInfoData)
-    {
+    if (!DeviceInfoData) {
         return TRUE;
     }
 
     SpecialDriverType = IsSpecialDriver(DeviceInfoSet, DeviceInfoData);
-    if (SpecialDriverType)
-    {
+    if (SpecialDriverType) {
         SP_DEVINSTALL_PARAMS DeviceInstallParams;
 
         DeviceInstallParams.cbSize = sizeof(DeviceInstallParams);
@@ -449,8 +436,7 @@ BOOL APIENTRY MediaPropPageProvider(LPVOID               Info,
         return TRUE;
     }
 
-    if (AddCDROMPropertyPage(DeviceInfoSet,DeviceInfoData, AddFunc, Lparam))
-    {
+    if (AddCDROMPropertyPage(DeviceInfoSet, DeviceInfoData, AddFunc, Lparam)) {
         return TRUE;
     }
 
@@ -466,16 +452,15 @@ BOOL APIENTRY MediaPropPageProvider(LPVOID               Info,
 
     // Allocate and zero out memory for the struct that will contain page specific data
     Params = (POUR_PROP_PARAMS)LocalAlloc(LPTR, sizeof(OUR_PROP_PARAMS));
-    if (!Params)
-    {
+    if (!Params) {
         RegCloseKey(hkDrv);
         return FALSE;
     }
 
     // Initialize Params structure
-    Params->DeviceInfoSet  = DeviceInfoSet;
+    Params->DeviceInfoSet = DeviceInfoSet;
     Params->DeviceInfoData = DeviceInfoData;
-    Params->hkDrv          = hkDrv;
+    Params->hkDrv = hkDrv;
 
     // Override Resource page if this is not a WDM (PNP) driver
     DmOverrideResourcesPage(Info, AddFunc, Lparam, Params);
@@ -484,46 +469,42 @@ BOOL APIENTRY MediaPropPageProvider(LPVOID               Info,
     // and cache the results
 
     // Try to open up the Drivers subkey
-    if (RegOpenKey(Params->hkDrv, TEXT("Drivers"), &hkDrivers))
-    {
+    if (RegOpenKey(Params->hkDrv, TEXT("Drivers"), &hkDrivers)) {
         RegCloseKey(hkDrv);
         LocalFree(Params);
         return TRUE;
     }
 
     // Try to read the SubClasses key to determine which subclasses to process
-    cbLen=sizeof(Params->szSubClasses);
-    if (RegQueryValueEx(hkDrivers, TEXT("Subclasses"), NULL, NULL, (LPBYTE)Params->szSubClasses, &cbLen))
-    {
+    cbLen = sizeof(Params->szSubClasses);
+    if (RegQueryValueEx(hkDrivers, TEXT("Subclasses"), NULL, NULL, (LPBYTE)Params->szSubClasses, &cbLen)) {
         RegCloseKey(hkDrv);
         RegCloseKey(hkDrivers);
         LocalFree(Params);
         return TRUE;
     }
 
-    Params->hkDrivers      = hkDrivers;
+    Params->hkDrivers = hkDrivers;
 
     // Initialize the property sheet page
-    psp.dwSize      = sizeof(PROPSHEETPAGE);
-    psp.dwFlags     = PSP_USECALLBACK; // | PSP_HASHELP;
-    psp.hInstance   = ghInstance;
+    psp.dwSize = sizeof(PROPSHEETPAGE);
+    psp.dwFlags = PSP_USECALLBACK; // | PSP_HASHELP;
+    psp.hInstance = ghInstance;
     psp.pszTemplate = MAKEINTRESOURCE(DLG_DM_ADVDLG);
-    psp.pfnDlgProc  = DmAdvPropPageDlgProc;     // dlg window proc
-    psp.lParam      = (LPARAM) Params;
+    psp.pfnDlgProc = DmAdvPropPageDlgProc;     // dlg window proc
+    psp.lParam = (LPARAM)Params;
     psp.pfnCallback = DmAdvPropPageDlgCallback; // control callback of the dlg window proc
 
     // Create the page & get back a handle
     hpsp = CreatePropertySheetPage(&psp);
-    if (!hpsp)
-    {
+    if (!hpsp) {
         RegCloseKey(hkDrv);
         LocalFree(Params);
         return FALSE;
     }
 
     // Add the property page
-    if (!(*AddFunc)(hpsp, Lparam))
-    {
+    if (!(*AddFunc)(hpsp, Lparam)) {
         DestroyPropertySheetPage(hpsp);
         return FALSE;
     }
@@ -537,13 +518,12 @@ UINT CALLBACK DmAdvPropPageDlgCallback(HWND hwnd,
 {
     POUR_PROP_PARAMS Params;
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case PSPCB_CREATE:  // This gets called when the page is created
         return TRUE;    // return TRUE to continue with creation of page
 
     case PSPCB_RELEASE: // This gets called when the page is destroyed
-        Params = (POUR_PROP_PARAMS) ppsp->lParam;
+        Params = (POUR_PROP_PARAMS)ppsp->lParam;
         RegCloseKey(Params->hkDrv);
         RegCloseKey(Params->hkDrivers);
         LocalFree(Params);  // Free our local params
@@ -577,42 +557,40 @@ INT_PTR APIENTRY DmAdvPropPageDlgProc(IN HWND   hDlg,
                                       IN WPARAM wParam,
                                       IN LPARAM lParam)
 {
-    switch (uMessage)
-    {
+    switch (uMessage) {
     case WM_COMMAND:
-        return DmAdvPropPage_OnCommand(hDlg, (int) LOWORD(wParam), (HWND)lParam, (UINT)HIWORD(wParam));
+        return DmAdvPropPage_OnCommand(hDlg, (int)LOWORD(wParam), (HWND)lParam, (UINT)HIWORD(wParam));
 
     case WM_CONTEXTMENU:
         return DmAdvPropPage_OnContextMenu((HWND)wParam, LOWORD(lParam), HIWORD(lParam));
 
     case WM_HELP:
-        return DmAdvPropPage_OnHelp(hDlg, (LPHELPINFO) lParam);
+        return DmAdvPropPage_OnHelp(hDlg, (LPHELPINFO)lParam);
 
     case WM_INITDIALOG:
         return DmAdvPropPage_OnInitDialog(hDlg, (HWND)wParam, lParam);
 
     case WM_NOTIFY:
-        return DmAdvPropPage_OnNotify(hDlg,  (NMHDR *)lParam);
+        return DmAdvPropPage_OnNotify(hDlg, (NMHDR*)lParam);
 
     case WM_DESTROY:
-        return DmAdvPropPage_OnDestroy(hDlg, (NMHDR *)lParam);
+        return DmAdvPropPage_OnDestroy(hDlg, (NMHDR*)lParam);
     }
 
     return FALSE;
 } /* DmAdvPropPageDlgProc */
 
 BOOL DmAdvPropPage_OnCommand(
-                            HWND ParentHwnd,
-                            int  ControlId,
-                            HWND ControlHwnd,
-                            UINT NotifyCode
-                            )
+    HWND ParentHwnd,
+    int  ControlId,
+    HWND ControlHwnd,
+    UINT NotifyCode
+)
 {
     POUR_PROP_PARAMS params =
-        (POUR_PROP_PARAMS) GetWindowLongPtr(ParentHwnd, DWLP_USER);
+        (POUR_PROP_PARAMS)GetWindowLongPtr(ParentHwnd, DWLP_USER);
 
-    switch (ControlId)
-    {
+    switch (ControlId) {
     case ID_ADV_PROP:
         DmAdvPropPage_OnPropertiesClicked(ParentHwnd, params);
         break;
@@ -622,38 +600,37 @@ BOOL DmAdvPropPage_OnCommand(
 }
 
 BOOL DmAdvPropPage_OnContextMenu(
-                                HWND HwndControl,
-                                WORD Xpos,
-                                WORD Ypos
-                                )
+    HWND HwndControl,
+    WORD Xpos,
+    WORD Ypos
+)
 {
     WinHelp(HwndControl,
             gszWindowsHlp,
             HELP_CONTEXTMENU,
-            (ULONG_PTR) aDMPropHelpIds);
+            (ULONG_PTR)aDMPropHelpIds);
     return FALSE;
 }
 
 BOOL DmAdvPropPage_OnHelp(
-                         HWND       ParentHwnd,
-                         LPHELPINFO HelpInfo
-                         )
+    HWND       ParentHwnd,
+    LPHELPINFO HelpInfo
+)
 {
-    if (HelpInfo->iContextType == HELPINFO_WINDOW)
-    {
-        WinHelp((HWND) HelpInfo->hItemHandle,
+    if (HelpInfo->iContextType == HELPINFO_WINDOW) {
+        WinHelp((HWND)HelpInfo->hItemHandle,
                 gszWindowsHlp,
                 HELP_WM_HELP,
-                (ULONG_PTR) aDMPropHelpIds);
+                (ULONG_PTR)aDMPropHelpIds);
     }
     return FALSE;
 }
 
 BOOL DmAdvPropPage_OnInitDialog(
-                               HWND    ParentHwnd,
-                               HWND    FocusHwnd,
-                               LPARAM  Lparam
-                               )
+    HWND    ParentHwnd,
+    HWND    FocusHwnd,
+    LPARAM  Lparam
+)
 {
     HWND hwndTree;
     POUR_PROP_PARAMS Params;
@@ -666,11 +643,11 @@ BOOL DmAdvPropPage_OnInitDialog(
     // caller. When I created the property sheet, I passed in a pointer
     // to a struct containing information about the device. Save this in
     // the user window long so I can access it on later messages.
-    Params = (POUR_PROP_PARAMS) ((LPPROPSHEETPAGE)Lparam)->lParam;
-    SetWindowLongPtr(ParentHwnd, DWLP_USER, (ULONG_PTR) Params);
+    Params = (POUR_PROP_PARAMS)((LPPROPSHEETPAGE)Lparam)->lParam;
+    SetWindowLongPtr(ParentHwnd, DWLP_USER, (ULONG_PTR)Params);
 
     // Put up the wait cursor
-    hCursor = SetCursor(LoadCursor(NULL,IDC_WAIT));
+    hCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
 
     //create the device tree.
     hwndTree = GetDlgItem(ParentHwnd, IDC_ADV_TREE);
@@ -688,14 +665,13 @@ BOOL DmAdvPropPage_OnInitDialog(
 }
 
 BOOL DmAdvPropPage_OnNotify(
-                           HWND    ParentHwnd,
-                           LPNMHDR NmHdr
-                           )
+    HWND    ParentHwnd,
+    LPNMHDR NmHdr
+)
 {
-    POUR_PROP_PARAMS Params = (POUR_PROP_PARAMS) GetWindowLongPtr(ParentHwnd, DWLP_USER);
+    POUR_PROP_PARAMS Params = (POUR_PROP_PARAMS)GetWindowLongPtr(ParentHwnd, DWLP_USER);
 
-    switch (NmHdr->code)
-    {
+    switch (NmHdr->code) {
     case PSN_APPLY:    // Sent when the user clicks on Apply OR OK !!
         SetWindowLongPtr(ParentHwnd, DWLP_MSGRESULT, (LONG_PTR)PSNRET_NOERROR);
         return TRUE;
@@ -703,36 +679,33 @@ BOOL DmAdvPropPage_OnNotify(
     case TVN_SELCHANGED:
         //Don't bother if we are closing. This helps avoid irritating
         //redraw problems as destroy causes several of these messages to be sent.
-        if (!Params->bClosing)
-        {
+        if (!Params->bClosing) {
             LPNM_TREEVIEW   lpnmtv;
             TV_ITEM         tvi;
             PDMTREE_NODE    pTreeNode;
             BOOL            fEnablePropButton;
             HWND            hwndProp;
 
-            lpnmtv    = (LPNM_TREEVIEW)NmHdr;
-            tvi       = lpnmtv->itemNew;
+            lpnmtv = (LPNM_TREEVIEW)NmHdr;
+            tvi = lpnmtv->itemNew;
             pTreeNode = (PDMTREE_NODE)tvi.lParam;
             fEnablePropButton = pTreeNode->pfnQueryConfig(ParentHwnd, pTreeNode);
 
             //override the enabling for driver entries
-            if ((pTreeNode->NodeType == NodeTypeDriver) && (pTreeNode->dc != dcINVALID))
-            {
+            if ((pTreeNode->NodeType == NodeTypeDriver) && (pTreeNode->dc != dcINVALID)) {
                 fEnablePropButton = TRUE;
             }
 
             // Enable or disable the Properties button depending upon
             // whether this driver can be configured
-            hwndProp  = GetDlgItem(ParentHwnd, ID_ADV_PROP);
+            hwndProp = GetDlgItem(ParentHwnd, ID_ADV_PROP);
             EnableWindow(hwndProp, fEnablePropButton);
         }
         break;
 
     case NM_DBLCLK:
         //show properties on a double-click
-        if (NmHdr->idFrom == (DWORD)IDC_ADV_TREE)
-        {
+        if (NmHdr->idFrom == (DWORD)IDC_ADV_TREE) {
             HWND            hwndTree;
             TV_HITTESTINFO  tvht;
 
@@ -742,8 +715,7 @@ BOOL DmAdvPropPage_OnNotify(
             GetCursorPos(&tvht.pt);
             ScreenToClient(hwndTree, &tvht.pt);
             TreeView_HitTest(hwndTree, &tvht);
-            if (tvht.flags & TVHT_ONITEM)
-            {
+            if (tvht.flags & TVHT_ONITEM) {
                 DoProperties(ParentHwnd, hwndTree, tvht.hItem);
             }
         }
@@ -767,39 +739,34 @@ BOOL DmAdvPropPage_OnNotify(
         break;
 
     case TVN_ITEMEXPANDING:
-        {
-            TV_ITEM tvi;
-            HWND hwndTree = GetDlgItem(hDlg,IDC_ADV_TREE);
+    {
+        TV_ITEM tvi;
+        HWND hwndTree = GetDlgItem(hDlg, IDC_ADV_TREE);
 
-            tvi = lpnmtv->itemNew;
-            tvi.mask = TVIF_PARAM;
-            if (!TreeView_GetItem(hwndTree, &tvi))
-                break;
+        tvi = lpnmtv->itemNew;
+        tvi.mask = TVIF_PARAM;
+        if (!TreeView_GetItem(hwndTree, &tvi))
+            break;
 
-            if (!tvi.lParam || IsBadReadPtr((LPVOID)tvi.lParam, 2))
-            {
-                DPF("****TVN_ITEMEXPANDING: lParam = 0 || BadReadPtr***\r\n");
-                break;
-            }
-            if (*((short *)(tvi.lParam)) == 1)
-            {
-                //re-enum ACM codecs on expand because their states could have been programmatically changed.
-                PCLASSNODE     pcn = (PCLASSNODE)(tvi.lParam);
-
-                if (lpnmtv->action == TVE_EXPAND && !lstrcmpi(pcn->szClass, ACM))
-                {
-                    if (gfLoadedACM)
-                        ACMNodeChange(hDlg);
-                }
-            }
-            else if (!tvi.lParam && lpnmtv->action == TVE_COLLAPSE)
-            {
-                //dont let the root collapse.
-                SetWindowLongPtr(hDlg, DWLP_MSGRESULT, (LPARAM)(LRESULT)TRUE);
-                return TRUE;
-            }
+        if (!tvi.lParam || IsBadReadPtr((LPVOID)tvi.lParam, 2)) {
+            DPF("****TVN_ITEMEXPANDING: lParam = 0 || BadReadPtr***\r\n");
             break;
         }
+        if (*((short*)(tvi.lParam)) == 1) {
+            //re-enum ACM codecs on expand because their states could have been programmatically changed.
+            PCLASSNODE     pcn = (PCLASSNODE)(tvi.lParam);
+
+            if (lpnmtv->action == TVE_EXPAND && !lstrcmpi(pcn->szClass, ACM)) {
+                if (gfLoadedACM)
+                    ACMNodeChange(hDlg);
+            }
+        } else if (!tvi.lParam && lpnmtv->action == TVE_COLLAPSE) {
+            //dont let the root collapse.
+            SetWindowLongPtr(hDlg, DWLP_MSGRESULT, (LPARAM)(LRESULT)TRUE);
+            return TRUE;
+        }
+        break;
+    }
 
 
     case TVN_BEGINLABELEDIT:
@@ -810,56 +777,51 @@ BOOL DmAdvPropPage_OnNotify(
         return TRUE;
 
     case TVN_ENDLABELEDIT:
-        {
-            HWND hwndTree;
-            LPSTR pszFriendlyName = ((TV_DISPINFO *) lpnm)->item.pszText;
-            TV_ITEM item;
-            HTREEITEM hti;
-            PIRESOURCE pIResource;
-            char szWarn[128];
-            char ach[MAXSTR];
+    {
+        HWND hwndTree;
+        LPSTR pszFriendlyName = ((TV_DISPINFO*)lpnm)->item.pszText;
+        TV_ITEM item;
+        HTREEITEM hti;
+        PIRESOURCE pIResource;
+        char szWarn[128];
+        char ach[MAXSTR];
 
-            //user has chosen a new friendly name. COnfirm with the user and put it in the
-            //registry. ALso unhook KB hook which was used to track Esc and Return
-            if (gfnKBHook)
-            {
-                UnhookWindowsHookEx(gfnKBHook);
-                gfnKBHook = NULL;
-            }
-            if (!pszFriendlyName)
-                return FALSE;
-            hwndTree = GetDlgItem(hDlg, IDC_ADV_TREE);
-            hti = TreeView_GetSelection(hwndTree);
-            item.hItem =  hti;
-            item.mask = TVIF_PARAM;
-            TreeView_GetItem(hwndTree, &item);
-
-            LoadString(ghInstance, IDS_FRIENDLYWARNING, szWarn, sizeof(szWarn));
-            wsprintf(ach, szWarn, pszFriendlyName);
-            LoadString(ghInstance, IDS_FRIENDLYNAME, szWarn, sizeof(szWarn));
-            if (mmse_MessageBox(hDlg, ach, szWarn, MMSE_YESNO) == MMSE_NO)
-            {
-                SetFocus(hwndTree);
-                return FALSE;
-            }
-            if (*((short *)(item.lParam)) == 2)
-            {
-                pIResource = (PIRESOURCE)item.lParam;
-                lstrcpy(pIResource->szFriendlyName, pszFriendlyName);
-                SaveDevFriendlyName(pIResource);
-            }
-            else
-            {
-                PINSTRUMENT pInstr = (PINSTRUMENT)item.lParam;
-                lstrcpy(pInstr->szFriendlyName, pszFriendlyName);
-                SaveInstrFriendlyName(pInstr);
-            }
-            SetWindowLongPtr(hDlg, DWLP_MSGRESULT, (LPARAM)(LRESULT)TRUE);
-            return TRUE;
+        //user has chosen a new friendly name. COnfirm with the user and put it in the
+        //registry. ALso unhook KB hook which was used to track Esc and Return
+        if (gfnKBHook) {
+            UnhookWindowsHookEx(gfnKBHook);
+            gfnKBHook = NULL;
         }
+        if (!pszFriendlyName)
+            return FALSE;
+        hwndTree = GetDlgItem(hDlg, IDC_ADV_TREE);
+        hti = TreeView_GetSelection(hwndTree);
+        item.hItem = hti;
+        item.mask = TVIF_PARAM;
+        TreeView_GetItem(hwndTree, &item);
+
+        LoadString(ghInstance, IDS_FRIENDLYWARNING, szWarn, sizeof(szWarn));
+        wsprintf(ach, szWarn, pszFriendlyName);
+        LoadString(ghInstance, IDS_FRIENDLYNAME, szWarn, sizeof(szWarn));
+        if (mmse_MessageBox(hDlg, ach, szWarn, MMSE_YESNO) == MMSE_NO) {
+            SetFocus(hwndTree);
+            return FALSE;
+        }
+        if (*((short*)(item.lParam)) == 2) {
+            pIResource = (PIRESOURCE)item.lParam;
+            lstrcpy(pIResource->szFriendlyName, pszFriendlyName);
+            SaveDevFriendlyName(pIResource);
+        } else {
+            PINSTRUMENT pInstr = (PINSTRUMENT)item.lParam;
+            lstrcpy(pInstr->szFriendlyName, pszFriendlyName);
+            SaveInstrFriendlyName(pInstr);
+        }
+        SetWindowLongPtr(hDlg, DWLP_MSGRESULT, (LPARAM)(LRESULT)TRUE);
+        return TRUE;
+    }
     case NM_RCLICK:
         //popup context menu.
-        TreeContextMenu(hDlg,  GetDlgItem(hDlg, IDC_ADV_TREE));
+        TreeContextMenu(hDlg, GetDlgItem(hDlg, IDC_ADV_TREE));
         return TRUE;
 
 #endif
@@ -880,15 +842,12 @@ void DoProperties(HWND ParentHwnd, HWND hWndI, HTREEITEM htiCur)
     // Get item struct attached to selected node
     tvi.mask = TVIF_PARAM;
     tvi.hItem = htiCur;
-    if (TreeView_GetItem (hWndI, &tvi))
-    {
+    if (TreeView_GetItem(hWndI, &tvi)) {
         // Get my private data structure from item struct
         pTreeNode = (PDMTREE_NODE)tvi.lParam;
 
-        if (pTreeNode->NodeType != NodeTypeDriver)
-        {
-            if (!pTreeNode->pfnQueryConfig(ParentHwnd, pTreeNode))
-            {
+        if (pTreeNode->NodeType != NodeTypeDriver) {
+            if (!pTreeNode->pfnQueryConfig(ParentHwnd, pTreeNode)) {
                 return;
             }
         }
@@ -897,8 +856,7 @@ void DoProperties(HWND ParentHwnd, HWND hWndI, HTREEITEM htiCur)
         pTreeNode->hti = htiCur; //this allows us to work with the legacy MIDI setup code
         bRestart = pTreeNode->pfnConfig(ParentHwnd, pTreeNode);
 
-        if (bRestart)
-        {
+        if (bRestart) {
             PropSheet_Changed(GetParent(ParentHwnd), ParentHwnd);
         }
     }
@@ -907,21 +865,20 @@ void DoProperties(HWND ParentHwnd, HWND hWndI, HTREEITEM htiCur)
 }
 
 void DmAdvPropPage_OnPropertiesClicked(
-                                      HWND             ParentHwnd,
-                                      POUR_PROP_PARAMS Params
-                                      )
+    HWND             ParentHwnd,
+    POUR_PROP_PARAMS Params
+)
 {
     HWND         hWndI;
     HTREEITEM    htiCur;
 
     // Get handle to treeview control
-    hWndI  = GetDlgItem(ParentHwnd, IDC_ADV_TREE);
+    hWndI = GetDlgItem(ParentHwnd, IDC_ADV_TREE);
 
     // Get handle to currently selected node
-    htiCur = TreeView_GetSelection (hWndI);
+    htiCur = TreeView_GetSelection(hWndI);
 
-    if (htiCur != NULL)
-    {
+    if (htiCur != NULL) {
         DoProperties(ParentHwnd, hWndI, htiCur);
     }
 
@@ -941,16 +898,15 @@ INT_PTR APIENTRY DmResourcesPageDlgProc(IN HWND   hDlg,
 INT_PTR CALLBACK CDDlg(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
-BOOL AddCDROMPropertyPage( HDEVINFO             hDeviceInfoSet,
-                           PSP_DEVINFO_DATA     pDeviceInfoData,
-                           LPFNADDPROPSHEETPAGE AddFunc,
-                           LPARAM               Lparam
-                          )
+BOOL AddCDROMPropertyPage(HDEVINFO             hDeviceInfoSet,
+                          PSP_DEVINFO_DATA     pDeviceInfoData,
+                          LPFNADDPROPSHEETPAGE AddFunc,
+                          LPARAM               Lparam
+)
 {
     BOOL fHandled = FALSE;
 
-    if (IsEqualGUID(&pDeviceInfoData->ClassGuid,&GUID_DEVCLASS_CDROM))
-    {
+    if (IsEqualGUID(&pDeviceInfoData->ClassGuid, &GUID_DEVCLASS_CDROM)) {
         PROPSHEETPAGE    psp;
         HPROPSHEETPAGE   hpsp;
         PALLDEVINFO      padi;
@@ -962,22 +918,19 @@ BOOL AddCDROMPropertyPage( HDEVINFO             hDeviceInfoSet,
 
         // Add our own page for DLG_DM_LEGACY_RESOURCES
         // Initialize the property sheet page
-        psp.dwSize      = sizeof(PROPSHEETPAGE);
-        psp.dwFlags     = 0;
-        psp.hInstance   = ghInstance;
+        psp.dwSize = sizeof(PROPSHEETPAGE);
+        psp.dwFlags = 0;
+        psp.hInstance = ghInstance;
         psp.pszTemplate = MAKEINTRESOURCE(DM_CDDLG);
-        psp.pfnDlgProc  = CDDlg;                       // dlg window proc
-        psp.lParam      = (LPARAM) padi;
+        psp.pfnDlgProc = CDDlg;                       // dlg window proc
+        psp.lParam = (LPARAM)padi;
         psp.pfnCallback = 0;                          // control callback of the dlg window proc
 
         // Create the page & get back a handle
         hpsp = CreatePropertySheetPage(&psp);
-        if (!hpsp)
-        {
+        if (!hpsp) {
             fHandled = TRUE;
-        }
-        else if (!(*AddFunc)(hpsp, Lparam))
-        {
+        } else if (!(*AddFunc)(hpsp, Lparam)) {
             GlobalFreePtr(padi);
             DestroyPropertySheetPage(hpsp);
             fHandled = FALSE;
@@ -991,34 +944,32 @@ INT_PTR CALLBACK AdvDlg(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
 
-BOOL AddSpecialPropertyPage( DWORD                SpecialDriverType,
-                             LPFNADDPROPSHEETPAGE AddFunc,
-                             LPARAM               Lparam
-                            )
+BOOL AddSpecialPropertyPage(DWORD                SpecialDriverType,
+                            LPFNADDPROPSHEETPAGE AddFunc,
+                            LPARAM               Lparam
+)
 {
     PROPSHEETPAGE    psp;
     HPROPSHEETPAGE   hpsp;
 
     // Add our own page for DLG_DM_LEGACY_RESOURCES
     // Initialize the property sheet page
-    psp.dwSize      = sizeof(PROPSHEETPAGE);
-    psp.dwFlags     = 0;
-    psp.hInstance   = ghInstance;
+    psp.dwSize = sizeof(PROPSHEETPAGE);
+    psp.dwFlags = 0;
+    psp.hInstance = ghInstance;
     psp.pszTemplate = MAKEINTRESOURCE(DM_ADVDLG);
-    psp.pfnDlgProc  = AdvDlg;                       // dlg window proc
-    psp.lParam      = (LPARAM)SpecialDriverType;
+    psp.pfnDlgProc = AdvDlg;                       // dlg window proc
+    psp.lParam = (LPARAM)SpecialDriverType;
     psp.pfnCallback = 0;                          // control callback of the dlg window proc
 
     // Create the page & get back a handle
     hpsp = CreatePropertySheetPage(&psp);
-    if (!hpsp)
-    {
+    if (!hpsp) {
         return FALSE;
     }
 
     // Add the property page
-    if (!(*AddFunc)(hpsp, Lparam))
-    {
+    if (!(*AddFunc)(hpsp, Lparam)) {
         DestroyPropertySheetPage(hpsp);
         return FALSE;
     }
@@ -1032,7 +983,7 @@ BOOL DmOverrideResourcesPage(LPVOID        Info,
                              LPFNADDPROPSHEETPAGE AddFunc,
                              LPARAM               Lparam,
                              POUR_PROP_PARAMS     Params
-                            )
+)
 {
     HKEY             hkDrv;
     HDEVINFO         DeviceInfoSet;
@@ -1044,16 +995,14 @@ BOOL DmOverrideResourcesPage(LPVOID        Info,
     TCHAR szDriverType[16];
     DWORD cbLen;
 
-    hkDrv          = Params->hkDrv;
-    DeviceInfoSet  = Params->DeviceInfoSet;
+    hkDrv = Params->hkDrv;
+    DeviceInfoSet = Params->DeviceInfoSet;
     DeviceInfoData = Params->DeviceInfoData;
 
     // Query value of DriverType field to decide if this is a WDM driver
     cbLen = sizeof(szDriverType);
-    if (!RegQueryValueEx(hkDrv, TEXT("DriverType"), NULL, NULL, (LPBYTE)szDriverType, &cbLen))
-    {
-        if ( lstrcmpi(szDriverType,TEXT("Legacy")) || lstrcmpi(szDriverType,TEXT("PNPISA")) )
-        {
+    if (!RegQueryValueEx(hkDrv, TEXT("DriverType"), NULL, NULL, (LPBYTE)szDriverType, &cbLen)) {
+        if (lstrcmpi(szDriverType, TEXT("Legacy")) || lstrcmpi(szDriverType, TEXT("PNPISA"))) {
             // This is a PNPISA or Legacy device. Override resource page.
             DeviceInstallParams.cbSize = sizeof(SP_DEVINSTALL_PARAMS);
             SetupDiGetDeviceInstallParams(DeviceInfoSet, DeviceInfoData, &DeviceInstallParams);
@@ -1062,24 +1011,22 @@ BOOL DmOverrideResourcesPage(LPVOID        Info,
 
             // Add our own page for DLG_DM_LEGACY_RESOURCES
             // Initialize the property sheet page
-            psp.dwSize      = sizeof(PROPSHEETPAGE);
-            psp.dwFlags     = 0;
-            psp.hInstance   = ghInstance;
+            psp.dwSize = sizeof(PROPSHEETPAGE);
+            psp.dwFlags = 0;
+            psp.hInstance = ghInstance;
             psp.pszTemplate = MAKEINTRESOURCE(DLG_DM_LEGACY_RESOURCES);
-            psp.pfnDlgProc  = DmResourcesPageDlgProc;     // dlg window proc
-            psp.lParam      = (LPARAM)0;
+            psp.pfnDlgProc = DmResourcesPageDlgProc;     // dlg window proc
+            psp.lParam = (LPARAM)0;
             psp.pfnCallback = 0;                          // control callback of the dlg window proc
 
             // Create the page & get back a handle
             hpsp = CreatePropertySheetPage(&psp);
-            if (!hpsp)
-            {
+            if (!hpsp) {
                 return FALSE;
             }
 
             // Add the property page
-            if (!(*AddFunc)(hpsp, Lparam))
-            {
+            if (!(*AddFunc)(hpsp, Lparam)) {
                 DestroyPropertySheetPage(hpsp);
                 return FALSE;
             }
@@ -1107,8 +1054,8 @@ BOOL DmInitDeviceTree(HWND hwndTree, POUR_PROP_PARAMS Params)
     HDEVINFO         DeviceInfoSet;
     PSP_DEVINFO_DATA DeviceInfoData;
 
-    TCHAR *strtok_State;         // strtok state
-    TCHAR *pszClass;             // Information about e.g. classguid\0000\Drivers\wave
+    TCHAR* strtok_State;         // strtok state
+    TCHAR* pszClass;             // Information about e.g. classguid\0000\Drivers\wave
     HKEY hkClass;
 
     DWORD idxR3DriverName;      // Information about e.g. classguid\0000\Drivers\wave\foo.drv
@@ -1119,7 +1066,7 @@ BOOL DmInitDeviceTree(HWND hwndTree, POUR_PROP_PARAMS Params)
 
     PDMTREE_NODE pTreeNode;
 
-    SUBTYPE_INFO *pSubtypeInfo;
+    SUBTYPE_INFO* pSubtypeInfo;
 
     HTREEITEM htiRoot;
     HTREEITEM htiClass;
@@ -1133,8 +1080,7 @@ BOOL DmInitDeviceTree(HWND hwndTree, POUR_PROP_PARAMS Params)
 
     // Allocate my private data structure for this class
     pTreeNode = (PDMTREE_NODE)LocalAlloc(LPTR, sizeof(DMTREE_NODE));
-    if (!pTreeNode)
-    {
+    if (!pTreeNode) {
         return FALSE;
     }
 
@@ -1155,25 +1101,22 @@ BOOL DmInitDeviceTree(HWND hwndTree, POUR_PROP_PARAMS Params)
 
     // Enumerate all the subclasses
     for (
-        pszClass = mystrtok(Params->szSubClasses,NULL,&strtok_State);
+        pszClass = mystrtok(Params->szSubClasses, NULL, &strtok_State);
         pszClass;
-        pszClass = mystrtok(NULL,NULL,&strtok_State)
-        )
-    {
+        pszClass = mystrtok(NULL, NULL, &strtok_State)
+        ) {
 
         // Get an ID for this class
         pSubtypeInfo = GetSubtypeInfo(pszClass);
 
         // Open up each subclass
-        if (RegOpenKey(Params->hkDrivers, pszClass, &hkClass))
-        {
+        if (RegOpenKey(Params->hkDrivers, pszClass, &hkClass)) {
             continue;
         }
 
         // Allocate my private data structure for this class
         pTreeNode = (PDMTREE_NODE)LocalAlloc(LPTR, sizeof(DMTREE_NODE));
-        if (!pTreeNode)
-        {
+        if (!pTreeNode) {
             RegCloseKey(hkClass);
             continue;
         }
@@ -1196,13 +1139,11 @@ BOOL DmInitDeviceTree(HWND hwndTree, POUR_PROP_PARAMS Params)
         // Under each class is a set of driver name subkeys.
         // For each driver (e.g. foo1.drv, foo2.drv, etc.)
         for (idxR3DriverName = 0;
-            !RegEnumKey(hkClass, idxR3DriverName, szR3DriverName, sizeof(szR3DriverName)/sizeof(TCHAR));
-            idxR3DriverName++)
-        {
+             !RegEnumKey(hkClass, idxR3DriverName, szR3DriverName, sizeof(szR3DriverName) / sizeof(TCHAR));
+             idxR3DriverName++) {
 
             // Open the key to the driver name
-            if (RegOpenKey(hkClass, szR3DriverName, &hkR3DriverName))
-            {
+            if (RegOpenKey(hkClass, szR3DriverName, &hkR3DriverName)) {
                 continue;
             }
 
@@ -1253,42 +1194,40 @@ BOOL DmInitDeviceTree(HWND hwndTree, POUR_PROP_PARAMS Params)
 
 
 // Free up the tree
-void DmFreeAdvDlgTree (HWND hTree, HTREEITEM hti)
+void DmFreeAdvDlgTree(HWND hTree, HTREEITEM hti)
 {
     HTREEITEM htiChild;
     TV_ITEM tvi;
 
     // Delete all children by calling myself recursively
-    while ((htiChild = TreeView_GetChild(hTree, hti)) != NULL)
-    {
+    while ((htiChild = TreeView_GetChild(hTree, hti)) != NULL) {
         DmFreeAdvDlgTree(hTree, htiChild);
     }
 
-    if (hti!=TVI_ROOT)
-    {
+    if (hti != TVI_ROOT) {
         // Delete my attached data structures
         tvi.mask = TVIF_PARAM;
         tvi.hItem = hti;
         tvi.lParam = 0;
         TreeView_GetItem(hTree, &tvi);
         if (tvi.lParam != 0)
-            LocalFree ((HANDLE)tvi.lParam);
+            LocalFree((HANDLE)tvi.lParam);
 
         // Delete myself
-        TreeView_DeleteItem (hTree, hti);
+        TreeView_DeleteItem(hTree, hti);
     }
 
     return;
 }
 
 BOOL DmAdvPropPage_OnDestroy(
-                            HWND    ParentHwnd,
-                            LPNMHDR NmHdr
-                            )
+    HWND    ParentHwnd,
+    LPNMHDR NmHdr
+)
 {
     HWND hTree;
     HIMAGELIST hImageList;
-    POUR_PROP_PARAMS Params = (POUR_PROP_PARAMS) GetWindowLongPtr(ParentHwnd, DWLP_USER);
+    POUR_PROP_PARAMS Params = (POUR_PROP_PARAMS)GetWindowLongPtr(ParentHwnd, DWLP_USER);
 
     Params->bClosing = TRUE;    // Remember that we're now closing
 
@@ -1296,14 +1235,13 @@ BOOL DmAdvPropPage_OnDestroy(
     hTree = GetDlgItem(ParentHwnd, IDC_ADV_TREE);
 
     // Free all the entries on the control
-    DmFreeAdvDlgTree(hTree,TVI_ROOT);
+    DmFreeAdvDlgTree(hTree, TVI_ROOT);
 
     // Free up the image list attached to the control
     hImageList = TreeView_GetImageList(hTree, TVSIL_NORMAL);
-    if (hImageList)
-    {
+    if (hImageList) {
         TreeView_SetImageList(hTree, NULL, TVSIL_NORMAL);
-        ImageList_Destroy (hImageList);
+        ImageList_Destroy(hImageList);
     }
 
     return FALSE;

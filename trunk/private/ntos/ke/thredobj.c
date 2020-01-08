@@ -33,40 +33,41 @@ VOID KeInitializeThread(IN PKTHREAD Thread,
                         IN PVOID StartContext OPTIONAL,
                         IN PCONTEXT ContextFrame OPTIONAL,
                         IN PVOID Teb OPTIONAL,
-                        IN PKPROCESS Process)
-    /*++
-    Routine Description:
-        This function initializes a thread object.
-        The priority, affinity, and initial quantum are taken from the parent process object.
-        The thread object is inserted at the end of the thread list for the parent process.
-        N.B. This routine is carefully written so that if an access violation occurs while reading the specified context frame,
-             then no kernel data structures will have been modified.
-             It is the responsibility of the caller to handle the exception and provide necessary clean up.
-        N.B. It is assumed that the thread object is zeroed.
-    Arguments:
+                        IN PKPROCESS Process
+)
+/*++
+Routine Description:
+    This function initializes a thread object.
+    The priority, affinity, and initial quantum are taken from the parent process object.
+    The thread object is inserted at the end of the thread list for the parent process.
+    N.B. This routine is carefully written so that if an access violation occurs while reading the specified context frame,
+         then no kernel data structures will have been modified.
+         It is the responsibility of the caller to handle the exception and provide necessary clean up.
+    N.B. It is assumed that the thread object is zeroed.
+Arguments:
 
-        Thread - Supplies a pointer to a dispatcher object of type thread.
+    Thread - Supplies a pointer to a dispatcher object of type thread.
 
-        KernelStack - Supplies a pointer to the base of a kernel stack on which the context frame for the thread is to be constructed.
+    KernelStack - Supplies a pointer to the base of a kernel stack on which the context frame for the thread is to be constructed.
 
-        SystemRoutine - Supplies a pointer to the system function that is to be called when the thread is first scheduled for execution.
+    SystemRoutine - Supplies a pointer to the system function that is to be called when the thread is first scheduled for execution.
 
-        StartRoutine - Supplies an optional pointer to a function that is to be called after the system has finished initializing the thread.
-            This parameter is specified if the thread is a system thread and will execute totally in kernel mode.
+    StartRoutine - Supplies an optional pointer to a function that is to be called after the system has finished initializing the thread.
+        This parameter is specified if the thread is a system thread and will execute totally in kernel mode.
 
-        StartContext - Supplies an optional pointer to an arbitrary data structure which will be passed to the StartRoutine as a parameter.
-            This parameter is specified if the thread is a system thread and will execute totally in kernel mode.
+    StartContext - Supplies an optional pointer to an arbitrary data structure which will be passed to the StartRoutine as a parameter.
+        This parameter is specified if the thread is a system thread and will execute totally in kernel mode.
 
-        ContextFrame - Supplies an optional pointer a context frame which contains the initial user mode state of the thread.
-            This parameter is specified if the thread is a user thread and will execute in user mode.
-            If this parameter is not specified, then the Teb parameter is ignored.
+    ContextFrame - Supplies an optional pointer a context frame which contains the initial user mode state of the thread.
+        This parameter is specified if the thread is a user thread and will execute in user mode.
+        If this parameter is not specified, then the Teb parameter is ignored.
 
-        Teb - Supplies an optional pointer to the user mode thread environment block.
-            This parameter is specified if the thread is a user thread and will execute in user mode.
-            This parameter is ignored if the ContextFrame parameter is not specified.
+    Teb - Supplies an optional pointer to the user mode thread environment block.
+        This parameter is specified if the thread is a user thread and will execute in user mode.
+        This parameter is ignored if the ContextFrame parameter is not specified.
 
-        Process - Supplies a pointer to a control object of type process.
-    --*/
+    Process - Supplies a pointer to a control object of type process.
+--*/
 {
     ULONG Index;
     KIRQL OldIrql;
@@ -139,7 +140,8 @@ VOID KeInitializeThread(IN PKTHREAD Thread,
     Thread->StackLimit = (PVOID)((ULONG_PTR)KernelStack - KERNEL_STACK_SIZE);
     KiInitializeContextThread(Thread, SystemRoutine, StartRoutine, StartContext, ContextFrame);
 
-    // Set the base thread priority, the thread priority, the thread affinity, the thread quantum, and the scheduling state.
+    // Set the base thread priority, the thread priority, the thread affinity, the thread quantum, 
+    // and the scheduling state.
     Thread->BasePriority = Process->BasePriority;
     Thread->Priority = Thread->BasePriority;
     Thread->Affinity = Process->Affinity;
@@ -202,7 +204,8 @@ Return Value:
     // If the alerted state for the specified processor mode is Not-Alerted, then attempt to alert the thread.
     if (Alerted == FALSE) {
         // If the thread is currently in a Wait state, the Wait is alertable, 
-        // and the specified processor mode is less than or equal to the Wait mode, then the thread is unwaited with a status of "alerted".
+        // and the specified processor mode is less than or equal to the Wait mode, 
+        // then the thread is unwaited with a status of "alerted".
         if ((Thread->State == Waiting) && (Thread->Alertable == TRUE) && (AlertMode <= Thread->WaitMode)) {
             KiUnwaitThread(Thread, STATUS_ALERTED, ALERT_INCREMENT);
         } else {
@@ -221,7 +224,8 @@ Return Value:
 ULONG KeAlertResumeThread(IN PKTHREAD Thread)
 /*++
 Routine Description:
-    This function attempts to alert a thread in kernel mode and cause its execution to be continued if it is currently in an alertable Wait state.
+    This function attempts to alert a thread in kernel mode and 
+    cause its execution to be continued if it is currently in an alertable Wait state.
     In addition, a resume operation is performed on the specified thread.
 Arguments:
     Thread  - Supplies a pointer to a dispatcher object of type thread.
@@ -241,7 +245,8 @@ Return Value:
 
     // If the kernel mode alerted state is FALSE, then attempt to alert the thread for kernel mode.
     if (Thread->Alerted[KernelMode] == FALSE) {
-        // If the thread is currently in a Wait state and the Wait is alertable, then the thread is unwaited with a status of "alerted".
+        // If the thread is currently in a Wait state and the Wait is alertable,
+        // then the thread is unwaited with a status of "alerted".
         // Else set the kernel mode alerted variable.
         if ((Thread->State == Waiting) && (Thread->Alertable == TRUE)) {
             KiUnwaitThread(Thread, STATUS_ALERTED, ALERT_INCREMENT);
@@ -257,14 +262,16 @@ Return Value:
     if (OldCount != 0) {
         Thread->SuspendCount -= 1;
 
-        // If the resultant suspend count is zero and the freeze count is zero, then resume the thread by releasing its suspend semaphore.
+        // If the resultant suspend count is zero and the freeze count is zero,
+        // then resume the thread by releasing its suspend semaphore.
         if ((Thread->SuspendCount == 0) && (Thread->FreezeCount == 0)) {
             Thread->SuspendSemaphore.Header.SignalState += 1;
             KiWaitTest(&Thread->SuspendSemaphore, RESUME_INCREMENT);
         }
     }
 
-    // Unlock APC queue, unlock dispatcher database, lower IRQL to its previous value, and return the previous suspend count.
+    // Unlock APC queue, unlock dispatcher database, lower IRQL to its previous value,
+    // and return the previous suspend count.
     KiReleaseSpinLock(&Thread->ApcQueueLock);
     KiUnlockDispatcherDatabase(OldIrql);
     return OldCount;
@@ -274,7 +281,8 @@ Return Value:
 VOID KeBoostPriorityThread(IN PKTHREAD Thread, IN KPRIORITY Increment)
 /*++
 Routine Description:
-    This function boosts the priority of the specified thread using the same algorithm used when a thread gets a boost from a wait operation.
+    This function boosts the priority of the specified thread using the same algorithm used when
+    a thread gets a boost from a wait operation.
 Arguments:
     Thread  - Supplies a pointer to a dispatcher object of type thread.
     Increment - Supplies the priority increment that is to be applied to the thread's priority.
@@ -433,15 +441,18 @@ Routine Description:
 
     ASSERT(KeGetCurrentIrql() <= DISPATCH_LEVEL);
 
-    // Get the address of the current thread object, the current process object, raise IRQL to dispatch level, lock dispatcher database,
+    // Get the address of the current thread object, the current process object, 
+    // raise IRQL to dispatch level, lock dispatcher database,
     // and freeze the execution of all threads in the process except the current thread.
     CurrentThread = KeGetCurrentThread();
     Process = CurrentThread->ApcState.Process;
     KiLockDispatcherDatabase(&OldIrql);
 
-    // If the freeze count of the current thread is not zero, then there is another thread that is trying to freeze this thread.
+    // If the freeze count of the current thread is not zero, 
+    // then there is another thread that is trying to freeze this thread.
     // Unlock the dispatcher, lower IRQL to its previous value, 
-    // allow the suspend APC to occur, then raise IRQL to dispatch level, lock the dispatcher database, and try again.
+    // allow the suspend APC to occur, then raise IRQL to dispatch level,
+    // lock the dispatcher database, and try again.
     while (CurrentThread->FreezeCount != 0) {
         KiUnlockDispatcherDatabase(OldIrql);
         KiLockDispatcherDatabase(&OldIrql);
@@ -460,7 +471,8 @@ Routine Description:
             if (EThread->ThreadListEntry.Flink == NULL) {
                 ;
             } else {
-                // Increment the freeze count. If the thread was not previously suspended, then queue the thread's suspend APC.
+                // Increment the freeze count. If the thread was not previously suspended, 
+                // then queue the thread's suspend APC.
                 OldCount = Thread->FreezeCount;
 
                 ASSERT(OldCount != MAXIMUM_SUSPEND_COUNT);
@@ -606,7 +618,8 @@ Return Value:
     if (OldCount != 0) {
         Thread->SuspendCount -= 1;
 
-        // If the resultant suspend count is zero and the freeze count is zero, then resume the thread by releasing its suspend semaphore.
+        // If the resultant suspend count is zero and the freeze count is zero, 
+        // then resume the thread by releasing its suspend semaphore.
         if ((Thread->SuspendCount == 0) && (Thread->FreezeCount == 0)) {
             Thread->SuspendSemaphore.Header.SignalState += 1;
             KiWaitTest(&Thread->SuspendSemaphore, RESUME_INCREMENT);
@@ -638,7 +651,8 @@ Routine Description:
 
     // Set the current affinity to the user affinity.
 
-    // If the current processor is not in the new affinity set and another thread has not already been selected for execution on the current processor, 
+    // If the current processor is not in the new affinity set and a
+    // nother thread has not already been selected for execution on the current processor, 
     // then select a new thread for the current processor.
     CurrentThread->Affinity = CurrentThread->UserAffinity;
     CurrentThread->SystemAffinityActive = FALSE;
@@ -656,7 +670,8 @@ Routine Description:
 VOID KeRundownThread()
 /*++
 Routine Description:
-    This function is called by the executive to rundown thread structures which must be guarded by the dispatcher database lock and which must be processed before actually terminating the thread.
+    This function is called by the executive to rundown thread structures which must be guarded by the dispatcher database lock and
+    which must be processed before actually terminating the thread.
     An example of such a structure is the mutant ownership list that is anchored in the kernel thread object.
 --*/
 {
@@ -706,9 +721,11 @@ KAFFINITY KeSetAffinityThread(IN PKTHREAD Thread, IN KAFFINITY Affinity)
 /*++
 Routine Description:
     This function sets the affinity of a specified thread to a new value.
-    If the new affinity is not a proper subset of the parent process affinity, or is null, then an error condition is raised.
-    If the specified thread is running on, 
-    or about to run on, a processor for which it is no longer able to run, then the target processor is rescheduled.
+    If the new affinity is not a proper subset of the parent process affinity, 
+    or is null, then an error condition is raised.
+    If the specified thread is running on,
+    or about to run on, a processor for which it is no longer able to run, 
+    then the target processor is rescheduled.
     If the specified thread is in a ready state and is not in the parent process ready queue,
     then it is rereadied to reevaluate any additional processors it may run on.
 Arguments:
@@ -736,14 +753,16 @@ Return Value:
     OldAffinity = Thread->UserAffinity;
     Process = Thread->ApcStatePointer[0]->Process;
 
-    // If new affinity is not a proper subset of the parent process affinity, or the new affinity is null, then bugcheck.
+    // If new affinity is not a proper subset of the parent process affinity, 
+    // or the new affinity is null, then bugcheck.
     if (((Affinity & Process->Affinity) != (Affinity)) || (!Affinity)) {
         KeBugCheck(INVALID_AFFINITY_SET);
     }
 
     // Set the thread user affinity to the specified value.
 
-    // If the thread is not current executing with system affinity active, then set the thread current affinity and switch on the thread state.
+    // If the thread is not current executing with system affinity active, 
+    // then set the thread current affinity and switch on the thread state.
     Thread->UserAffinity = Affinity;
     if (Thread->SystemAffinityActive == FALSE) {
         Thread->Affinity = Affinity;
@@ -766,7 +785,8 @@ Return Value:
 
             // Standby State.
 
-            // If the target processor is not in the new affinity set, then set the next thread to null for the target processor, 
+            // If the target processor is not in the new affinity set, 
+            // then set the next thread to null for the target processor, 
             // select a new thread to run on the target processor, and reready the thread for execution.
         case Standby:
             Processor = Thread->NextProcessor;
@@ -783,8 +803,10 @@ Return Value:
 
             // Running State.
 
-            // If the target processor is not in the new affinity set and another thread has not already been selected for execution
-            // on the target processor, then select a new thread for the target processor, and cause the target processor to be redispatched.
+            // If the target processor is not in the new affinity set and 
+            // another thread has not already been selected for execution
+            // on the target processor, then select a new thread for the target processor, 
+            // and cause the target processor to be redispatched.
         case Running:
             Processor = Thread->NextProcessor;
             Prcb = KiProcessorBlock[Processor];
@@ -831,7 +853,8 @@ Arguments:
 
     // Set the current affinity to the specified affinity.
 
-    // If the current processor is not in the new affinity set and another thread has not already been selected for execution on the current processor, 
+    // If the current processor is not in the new affinity set and 
+    // another thread has not already been selected for execution on the current processor, 
     // then select a new thread for the current processor.
     CurrentThread->Affinity = Affinity;
     CurrentThread->SystemAffinityActive = TRUE;
@@ -905,7 +928,8 @@ Return Value:
         }
 
         // Compute the new thread priority. 
-        // If the new priority is outside the variable class, then set the new priority to the highest variable priority.
+        // If the new priority is outside the variable class, 
+        // then set the new priority to the highest variable priority.
         if (Thread->Saturation != 0) {
             NewPriority = NewBase;
         } else {
@@ -1087,7 +1111,8 @@ Return Value:
         ExRaiseStatus(STATUS_SUSPEND_COUNT_EXCEEDED);
     }
 
-    // Increment the suspend count. If the thread was not previously suspended, then queue the thread's suspend APC.
+    // Increment the suspend count. 
+    // If the thread was not previously suspended, then queue the thread's suspend APC.
     Thread->SuspendCount += 1;
     if ((OldCount == 0) && (Thread->FreezeCount == 0)) {
         if (KiInsertQueueApc(&Thread->SuspendApc, RESUME_INCREMENT) == FALSE) {
@@ -1105,7 +1130,8 @@ VOID KeTerminateThread(IN KPRIORITY Increment)
 Routine Description:
     This function terminates the execution of the current thread,
     sets the signal state of the thread to Signaled, and attempts to satisfy as many Waits as possible.
-    The scheduling state of the thread is set to terminated, and a new thread is selected to run on the current processor.
+    The scheduling state of the thread is set to terminated,
+    and a new thread is selected to run on the current processor.
     There is no return from this function.
 Arguments:
     None.
@@ -1175,7 +1201,8 @@ Arguments:
 BOOLEAN KeTestAlertThread(IN KPROCESSOR_MODE AlertMode)
 /*++
 Routine Description:
-    This function tests to determine if the alerted variable for the specified processor mode has a value of TRUE or whether a user mode APC should be delivered to the current thread.
+    This function tests to determine if the alerted variable for the specified processor mode has a value of TRUE or
+    whether a user mode APC should be delivered to the current thread.
 Arguments:
     AlertMode - Supplies the processor mode which is to be tested for an alerted condition.
 Return Value:
@@ -1202,7 +1229,8 @@ Return Value:
         Thread->ApcState.UserApcPending = TRUE;
     }
 
-    // Unlock APC queue, unlock dispatcher database, lower IRQL to its previous value, and return the previous alerted state for the specified mode.
+    // Unlock APC queue, unlock dispatcher database, lower IRQL to its previous value, 
+    // and return the previous alerted state for the specified mode.
     KiReleaseSpinLock(&Thread->ApcQueueLock);
     KiUnlockDispatcherDatabase(OldIrql);
     return Alerted;
@@ -1238,7 +1266,8 @@ Routine Description:
         if (OldCount != 0) {
             Thread->FreezeCount -= 1;
 
-            // If the resultant suspend count is zero and the freeze count is zero, then resume the thread by releasing its suspend semaphore.
+            // If the resultant suspend count is zero and the freeze count is zero, 
+            // then resume the thread by releasing its suspend semaphore.
             if ((Thread->SuspendCount == 0) && (Thread->FreezeCount == 0)) {
                 Thread->SuspendSemaphore.Header.SignalState += 1;
                 KiWaitTest(&Thread->SuspendSemaphore, RESUME_INCREMENT);

@@ -1,9 +1,6 @@
 /*
 * Module Name: kbd106.c
-
 * Copyright (c) 1985-92, Microsoft Corporation
-
-* History:
 */
 
 #include <windows.h>
@@ -23,7 +20,6 @@
 /*
 * ausVK[] - Virtual Scan Code to Virtual Key conversion table for 106
 */
-
 static ALLOC_SECTION_LDATA USHORT ausVK[] = {
     T00, T01, T02, T03, T04, T05, T06, T07,
     T08, T09, T0A, T0B, T0C, T0D, T0E, T0F,
@@ -35,9 +31,7 @@ static ALLOC_SECTION_LDATA USHORT ausVK[] = {
     /*
      * Hankaku/Zenkaku/Kanji key must have KBDSPECIAL bit set (NLS key)
      */
-    T29 | KBDSPECIAL,
-
-              T2A, T2B, T2C, T2D, T2E, T2F,
+    T29 | KBDSPECIAL, T2A, T2B, T2C, T2D, T2E, T2F,
     T30, T31, T32, T33, T34, T35,
 
     /*
@@ -55,9 +49,7 @@ static ALLOC_SECTION_LDATA USHORT ausVK[] = {
     /*
      * Alphanumeric/CapsLock key must have KBDSPECIAL bit set (NLS key)
      */
-    T3A | KBDSPECIAL,
-
-                   T3B, T3C, T3D, T3E, T3F,
+    T3A | KBDSPECIAL, T3B, T3C, T3D, T3E, T3F,
     T40, T41, T42, T43, T44,
 
     /*
@@ -108,60 +100,60 @@ static ALLOC_SECTION_LDATA USHORT ausVK[] = {
 
                                   T7A,
 
-    /*
-     * Non-Conversion key must have KBDSPECIAL bit set (NLS key)
-     */
-    T7B | KBDSPECIAL,
+                                  /*
+                                   * Non-Conversion key must have KBDSPECIAL bit set (NLS key)
+                                   */
+                                  T7B | KBDSPECIAL,
 
-    T7C, T7D, T7E, T7F
+                                  T7C, T7D, T7E, T7F
 
 };
 
 static ALLOC_SECTION_LDATA VSC_VK aE0VscToVk[] = {
-        { 0x10, X10 | KBDEXT              },  // Speedracer: Previous Track
-        { 0x19, X19 | KBDEXT              },  // Speedracer: Next Track
-        { 0x1C, X1C | KBDEXT              },  // Numpad Enter
-        { 0x1D, X1D | KBDEXT              },  // RControl
-        { 0x20, X20 | KBDEXT              },  // Speedracer: Volume Mute
-        { 0x21, X21 | KBDEXT              },  // Speedracer: Launch App 2
-        { 0x22, X22 | KBDEXT              },  // Speedracer: Media Play/Pause
-        { 0x24, X24 | KBDEXT              },  // Speedracer: Media Stop
-        { 0x2E, X2E | KBDEXT              },  // Speedracer: Volume Down
-        { 0x30, X30 | KBDEXT              },  // Speedracer: Volume Up
-        { 0x32, X32 | KBDEXT              },  // Speedracer: Browser Home
-        { 0x35, X35 | KBDEXT              },  // Numpad Divide
-        { 0x37, X37 | KBDEXT              },  // Snapshot
-        { 0x38, X38 | KBDEXT              },  // RMenu
-        { 0x46, X46 | KBDEXT              },  // Break (Ctrl + Pause)
-        { 0x47, X47 | KBDEXT              },  // Home
-        { 0x48, X48 | KBDEXT              },  // Up
-        { 0x49, X49 | KBDEXT              },  // Prior
-        { 0x4B, X4B | KBDEXT              },  // Left
-        { 0x4D, X4D | KBDEXT              },  // Right
-        { 0x4F, X4F | KBDEXT              },  // End
-        { 0x50, X50 | KBDEXT              },  // Down
-        { 0x51, X51 | KBDEXT              },  // Next
-        { 0x52, X52 | KBDEXT              },  // Insert
-        { 0x53, X53 | KBDEXT              },  // Delete
-        { 0x5B, X5B | KBDEXT              },  // Left Win
-        { 0x5C, X5C | KBDEXT              },  // Right Win
-        { 0x5D, X5D | KBDEXT              },  // Application
-        { 0x5F, X5F | KBDEXT              },  // Speedracer: Sleep
-        { 0x65, X65 | KBDEXT              },  // Speedracer: Browser Search
-        { 0x66, X66 | KBDEXT              },  // Speedracer: Browser Favorites
-        { 0x67, X67 | KBDEXT              },  // Speedracer: Browser Refresh
-        { 0x68, X68 | KBDEXT              },  // Speedracer: Browser Stop
-        { 0x69, X69 | KBDEXT              },  // Speedracer: Browser Forward
-        { 0x6A, X6A | KBDEXT              },  // Speedracer: Browser Back
-        { 0x6B, X6B | KBDEXT              },  // Speedracer: Launch App 1
-        { 0x6C, X6C | KBDEXT              },  // Speedracer: Launch Mail
-        { 0x6D, X6D | KBDEXT              },  // Speedracer: Launch Media Selector
-        { 0,      0                       }
+        { 0x10, X10 | KBDEXT},  // Speedracer: Previous Track
+        { 0x19, X19 | KBDEXT},  // Speedracer: Next Track
+        { 0x1C, X1C | KBDEXT},  // Numpad Enter
+        { 0x1D, X1D | KBDEXT},  // RControl
+        { 0x20, X20 | KBDEXT},  // Speedracer: Volume Mute
+        { 0x21, X21 | KBDEXT},  // Speedracer: Launch App 2
+        { 0x22, X22 | KBDEXT},  // Speedracer: Media Play/Pause
+        { 0x24, X24 | KBDEXT},  // Speedracer: Media Stop
+        { 0x2E, X2E | KBDEXT},  // Speedracer: Volume Down
+        { 0x30, X30 | KBDEXT},  // Speedracer: Volume Up
+        { 0x32, X32 | KBDEXT},  // Speedracer: Browser Home
+        { 0x35, X35 | KBDEXT},  // Numpad Divide
+        { 0x37, X37 | KBDEXT},  // Snapshot
+        { 0x38, X38 | KBDEXT},  // RMenu
+        { 0x46, X46 | KBDEXT},  // Break (Ctrl + Pause)
+        { 0x47, X47 | KBDEXT},  // Home
+        { 0x48, X48 | KBDEXT},  // Up
+        { 0x49, X49 | KBDEXT},  // Prior
+        { 0x4B, X4B | KBDEXT},  // Left
+        { 0x4D, X4D | KBDEXT},  // Right
+        { 0x4F, X4F | KBDEXT},  // End
+        { 0x50, X50 | KBDEXT},  // Down
+        { 0x51, X51 | KBDEXT},  // Next
+        { 0x52, X52 | KBDEXT},  // Insert
+        { 0x53, X53 | KBDEXT},  // Delete
+        { 0x5B, X5B | KBDEXT},  // Left Win
+        { 0x5C, X5C | KBDEXT},  // Right Win
+        { 0x5D, X5D | KBDEXT},  // Application
+        { 0x5F, X5F | KBDEXT},  // Speedracer: Sleep
+        { 0x65, X65 | KBDEXT},  // Speedracer: Browser Search
+        { 0x66, X66 | KBDEXT},  // Speedracer: Browser Favorites
+        { 0x67, X67 | KBDEXT},  // Speedracer: Browser Refresh
+        { 0x68, X68 | KBDEXT},  // Speedracer: Browser Stop
+        { 0x69, X69 | KBDEXT},  // Speedracer: Browser Forward
+        { 0x6A, X6A | KBDEXT},  // Speedracer: Browser Back
+        { 0x6B, X6B | KBDEXT},  // Speedracer: Launch App 1
+        { 0x6C, X6C | KBDEXT},  // Speedracer: Launch Mail
+        { 0x6D, X6D | KBDEXT},  // Speedracer: Launch Media Selector
+        { 0,      0         }
 };
 
 static ALLOC_SECTION_LDATA VSC_VK aE1VscToVk[] = {
-        { 0x1D, Y1D                       },  // Pause
-        { 0   ,   0                       }
+        { 0x1D, Y1D},  // Pause
+        { 0   ,   0}
 };
 
 /*
@@ -516,24 +508,24 @@ static ALLOC_SECTION_LDATA VK_F VkToFuncTable_106[] = {
         KBDNLS_INDEX_NORMAL, // NLSFEProcCurrent
         0x0,                 // NLSFEProcSwitch
         {                    // NLSFEProc
-            {KBDNLS_HIRAGANA,0},             // Base
-            {KBDNLS_KATAKANA,0},             // Shift
-            {KBDNLS_HIRAGANA,0},             // Control
-            {KBDNLS_KATAKANA,0},             // Shift+Control
-            {KBDNLS_ROMAN,0},                // Alt
-            {KBDNLS_ROMAN,0},                // Shift+Alt
-            {KBDNLS_ROMAN,0},                // Control+Alt
-            {KBDNLS_NOEVENT,0}               // Shift+Control+Alt
+            {KBDNLS_HIRAGANA,0}, // Base
+            {KBDNLS_KATAKANA,0}, // Shift
+            {KBDNLS_HIRAGANA,0}, // Control
+            {KBDNLS_KATAKANA,0}, // Shift+Control
+            {KBDNLS_ROMAN,0},    // Alt
+            {KBDNLS_ROMAN,0},    // Shift+Alt
+            {KBDNLS_ROMAN,0},    // Control+Alt
+            {KBDNLS_NOEVENT,0}   // Shift+Control+Alt
         },
         {                    // NLSFEProcIndexAlt
-            {KBDNLS_NULL,0},                 // Base
-            {KBDNLS_NULL,0},                 // Shift
-            {KBDNLS_NULL,0},                 // Control
-            {KBDNLS_NULL,0},                 // Shift+Control
-            {KBDNLS_NULL,0},                 // Alt
-            {KBDNLS_NULL,0},                 // Shift+Alt
-            {KBDNLS_NULL,0},                 // Control+Alt
-            {KBDNLS_NULL,0}                  // Shift+Control+Alt
+            {KBDNLS_NULL,0},// Base
+            {KBDNLS_NULL,0},// Shift
+            {KBDNLS_NULL,0},// Control
+            {KBDNLS_NULL,0},// Shift+Control
+            {KBDNLS_NULL,0},// Alt
+            {KBDNLS_NULL,0},// Shift+Alt
+            {KBDNLS_NULL,0},// Control+Alt
+            {KBDNLS_NULL,0} // Shift+Control+Alt
         }
     },
     {
@@ -568,12 +560,12 @@ static ALLOC_SECTION_LDATA VK_F VkToFuncTable_106[] = {
         KBDNLS_INDEX_NORMAL, // NLSFEProcCurrent
         0x0,                 // NLSFEProcSwitch
         {                    // NLSFEProc
-            {KBDNLS_SEND_BASE_VK,0},         // Base
-            {KBDNLS_SEND_BASE_VK,0},         // Shift
-            {KBDNLS_SEND_BASE_VK,0},         // Control
-            {KBDNLS_SEND_BASE_VK,0},         // Shift+Control
-            {KBDNLS_SEND_BASE_VK,0},         // Alt
-            {KBDNLS_SEND_BASE_VK,0},         // Shift+Alt
+            {KBDNLS_SEND_BASE_VK,0},// Base
+            {KBDNLS_SEND_BASE_VK,0},// Shift
+            {KBDNLS_SEND_BASE_VK,0},// Control
+            {KBDNLS_SEND_BASE_VK,0},// Shift+Control
+            {KBDNLS_SEND_BASE_VK,0},// Alt
+            {KBDNLS_SEND_BASE_VK,0},// Shift+Alt
             {KBDNLS_SEND_PARAM_VK,VK_DBE_ENTERWORDREGISTERMODE}, // Control+Alt
             {KBDNLS_SEND_PARAM_VK,VK_DBE_ENTERWORDREGISTERMODE}  // Shift+Control+Alt
         },
@@ -590,22 +582,18 @@ static ALLOC_SECTION_LDATA VK_F VkToFuncTable_106[] = {
     }
 };
 
-/*
-* KbdNlsTables
-
-*/
 
 static ALLOC_SECTION_LDATA KBDNLSTABLES KbdNlsTables = {
-    0,                      // OEM ID (0 = Microsoft)
-    0,                      // Information
-    4,                      // Number of VK_F entry
-    VkToFuncTable_106,      // Pointer to VK_F array
-    0,                      // Number of MouseVk entry
-    NULL                    // Pointer to MouseVk array
+    0,                // OEM ID (0 = Microsoft)
+    0,                // Information
+    4,                // Number of VK_F entry
+    VkToFuncTable_106,// Pointer to VK_F array
+    0,                // Number of MouseVk entry
+    NULL              // Pointer to MouseVk array
 };
+
 
 PKBDNLSTABLES KbdNlsLayerDescriptor(VOID)
 {
     return &KbdNlsTables;
 }
-

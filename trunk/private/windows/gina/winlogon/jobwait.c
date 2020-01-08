@@ -11,10 +11,10 @@
 #pragma hdrstop
 
 
-HANDLE IoPort ;
-LIST_ENTRY JobList ;
-CRITICAL_SECTION JobLock ;
-HANDLE hJobThread ;
+HANDLE IoPort;
+LIST_ENTRY JobList;
+CRITICAL_SECTION JobLock;
+HANDLE hJobThread;
 
 #define WINLOGON_JOB_TERMINATE_ON_TIMEOUT       0x00000001
 #define WINLOGON_JOB_SIGNAL_ON_TERMINATE        0x00000002
@@ -37,57 +37,52 @@ VOID JobRootProcessTermCallback(PVOID Context, BOOLEAN Timeout);
 //  History:    9-11-98   RichardW   Created
 BOOL InitializeJobControl(VOID)
 {
-    NTSTATUS Status ;
+    NTSTATUS Status;
 
-    Status = RtlInitializeCriticalSection( &JobLock );
-    InitializeListHead( &JobList );
-    return NT_SUCCESS( Status );
+    Status = RtlInitializeCriticalSection(&JobLock);
+    InitializeListHead(&JobList);
+    return NT_SUCCESS(Status);
 }
 
 
 VOID
 DerefWinlogonJob(
     PWINLOGON_JOB Job
-    )
+)
 {
-    EnterCriticalSection( &JobLock );
+    EnterCriticalSection(&JobLock);
 
     DebugLog((DEB_TRACE_JOB, "Deref job %x:%x, current ref %d\n",
-                Job->UniqueId.HighPart, Job->UniqueId.LowPart,
-                Job->RefCount ));
+              Job->UniqueId.HighPart, Job->UniqueId.LowPart,
+              Job->RefCount));
 
-    Job->RefCount-- ;
+    Job->RefCount--;
 
-    if ( Job->RefCount == 0 )
-    {
-        if ( Job->Job )
-        {
-            CloseHandle( Job->Job );
+    if (Job->RefCount == 0) {
+        if (Job->Job) {
+            CloseHandle(Job->Job);
         }
 
-        if ( Job->Event )
-        {
-            CloseHandle( Job->Event );
+        if (Job->Event) {
+            CloseHandle(Job->Event);
         }
 
-        if ( Job->RootProcess )
-        {
-            CloseHandle( Job->RootProcess );
+        if (Job->RootProcess) {
+            CloseHandle(Job->RootProcess);
         }
 
-        if ( Job->List.Flink )
-        {
-            RemoveEntryList( &Job->List );
+        if (Job->List.Flink) {
+            RemoveEntryList(&Job->List);
 
-            Job->List.Flink = NULL ;
-            Job->List.Blink = NULL ;
+            Job->List.Flink = NULL;
+            Job->List.Blink = NULL;
         }
 
-        LocalFree( Job );
+        LocalFree(Job);
 
     }
 
-    LeaveCriticalSection( &JobLock );
+    LeaveCriticalSection(&JobLock);
 }
 
 
@@ -98,88 +93,74 @@ DerefWinlogonJob(
 //  History:    6-21-98   RichardW   Created
 DWORD JobThread(PVOID Ignored)
 {
-    LPOVERLAPPED lpOverlapped ;
-    OVERLAPPED Overlapped ;
-    PLIST_ENTRY Scan ;
-    DWORD MinWait ;
-    PWINLOGON_JOB Job ;
-    DWORD CurrentTick ;
-    DWORD DeltaTime ;
-    DWORD CompletionCode ;
-    PVOID CompletionKey ;
-    PWINLOGON_JOB WaitJob = NULL ;
-    JOBOBJECT_BASIC_PROCESS_ID_LIST JobInfo ;
-    NTSTATUS Status ;
-    ULONG ProcessStatus ;
+    LPOVERLAPPED lpOverlapped;
+    OVERLAPPED Overlapped;
+    PLIST_ENTRY Scan;
+    DWORD MinWait;
+    PWINLOGON_JOB Job;
+    DWORD CurrentTick;
+    DWORD DeltaTime;
+    DWORD CompletionCode;
+    PVOID CompletionKey;
+    PWINLOGON_JOB WaitJob = NULL;
+    JOBOBJECT_BASIC_PROCESS_ID_LIST JobInfo;
+    NTSTATUS Status;
+    ULONG ProcessStatus;
 
-    do
-    {
-        MinWait = INFINITE ;
+    do {
+        MinWait = INFINITE;
 
         CurrentTick = GetTickCount();
 
-        EnterCriticalSection( &JobLock );
+        EnterCriticalSection(&JobLock);
 
-        if ( IsListEmpty( &JobList ) )
-        {
-            LeaveCriticalSection( &JobLock );
-            DebugLog(( DEB_TRACE_JOB, "No more jobs, job thread shutting down\n" ));
+        if (IsListEmpty(&JobList)) {
+            LeaveCriticalSection(&JobLock);
+            DebugLog((DEB_TRACE_JOB, "No more jobs, job thread shutting down\n"));
             break;
         }
 
-        Scan = JobList.Flink ;
+        Scan = JobList.Flink;
 
-        while ( Scan != &JobList )
-        {
-            Job = CONTAINING_RECORD( Scan, WINLOGON_JOB, List );
-            if ( Job->Timeout != INFINITE )
-            {
+        while (Scan != &JobList) {
+            Job = CONTAINING_RECORD(Scan, WINLOGON_JOB, List);
+            if (Job->Timeout != INFINITE) {
                 // Absolute value:
-                if ( Job->Timeout > CurrentTick )
-                {
-                    DeltaTime = Job->Timeout - CurrentTick ;
-                }
-                else
-                {
-                    DeltaTime = CurrentTick - Job->Timeout ;
+                if (Job->Timeout > CurrentTick) {
+                    DeltaTime = Job->Timeout - CurrentTick;
+                } else {
+                    DeltaTime = CurrentTick - Job->Timeout;
                 }
 
-                if ( MinWait > DeltaTime )
-                {
-                    MinWait = DeltaTime ;
-                    WaitJob = Job ;
+                if (MinWait > DeltaTime) {
+                    MinWait = DeltaTime;
+                    WaitJob = Job;
                 }
             }
 
-            Scan = Scan->Flink ;
+            Scan = Scan->Flink;
         }
 
-        LeaveCriticalSection( &JobLock );
+        LeaveCriticalSection(&JobLock);
 
         // Computed correct timeout value.  Wait to see if something comes up from the job object.
-        if ( WaitJob )
-        {
-            DebugLog(( DEB_TRACE_JOB, "WaitJob (%x:%x) timeout in %x\n", WaitJob->UniqueId.HighPart, WaitJob->UniqueId.LowPart, MinWait ));
-        }
-        else
-        {
-            DebugLog(( DEB_TRACE_JOB, "No timeout\n" ));
+        if (WaitJob) {
+            DebugLog((DEB_TRACE_JOB, "WaitJob (%x:%x) timeout in %x\n", WaitJob->UniqueId.HighPart, WaitJob->UniqueId.LowPart, MinWait));
+        } else {
+            DebugLog((DEB_TRACE_JOB, "No timeout\n"));
         }
 
-        if (!GetQueuedCompletionStatus( IoPort, &CompletionCode, (PULONG_PTR) &CompletionKey, &lpOverlapped, MinWait ) )
-        {
-            if ( GetLastError() == WAIT_TIMEOUT )
-            {
+        if (!GetQueuedCompletionStatus(IoPort, &CompletionCode, (PULONG_PTR)&CompletionKey, &lpOverlapped, MinWait)) {
+            if (GetLastError() == WAIT_TIMEOUT) {
                 // Timeout:
-                if ( WaitJob->Flags & WINLOGON_JOB_TERMINATE_ON_TIMEOUT )
-                {
+                if (WaitJob->Flags & WINLOGON_JOB_TERMINATE_ON_TIMEOUT) {
                     // Fudge the timeout so that we will always re-wait.
-                    WaitJob->Timeout = INFINITE ;
+                    WaitJob->Timeout = INFINITE;
 
-                    DebugLog(( DEB_TRACE_JOB, "Job %x:%x timed out, posting a kill\n", WaitJob->UniqueId.HighPart, WaitJob->UniqueId.LowPart ));
+                    DebugLog((DEB_TRACE_JOB, "Job %x:%x timed out, posting a kill\n", WaitJob->UniqueId.HighPart, WaitJob->UniqueId.LowPart));
 
                     // Post a private message indicating that we want to kill the job.
-                    PostQueuedCompletionStatus( IoPort, JOB_OBJECT_MSG_WINLOGON_TERMINATE_JOB, (ULONG_PTR) WaitJob, &Overlapped );
+                    PostQueuedCompletionStatus(IoPort, JOB_OBJECT_MSG_WINLOGON_TERMINATE_JOB, (ULONG_PTR)WaitJob, &Overlapped);
                     // Let the work happen in the normal place
                 }
 
@@ -190,196 +171,186 @@ DWORD JobThread(PVOID Ignored)
             break;
         }
 
-        Job = (PWINLOGON_JOB) CompletionKey ;
+        Job = (PWINLOGON_JOB)CompletionKey;
 
-        switch ( CompletionCode )
-        {
-            case JOB_OBJECT_MSG_WINLOGON_TERMINATE_JOB:
-            case JOB_OBJECT_MSG_WINLOGON_KILL_JOB:
+        switch (CompletionCode) {
+        case JOB_OBJECT_MSG_WINLOGON_TERMINATE_JOB:
+        case JOB_OBJECT_MSG_WINLOGON_KILL_JOB:
 
-                DebugLog(( DEB_TRACE_JOB, "%s termination for job %x:%x\n",
-                           (CompletionCode == JOB_OBJECT_MSG_WINLOGON_TERMINATE_JOB ? "Timeout" : "Root-died" ),
-                           Job->UniqueId.HighPart,
-                           Job->UniqueId.LowPart ));
+            DebugLog((DEB_TRACE_JOB, "%s termination for job %x:%x\n",
+                (CompletionCode == JOB_OBJECT_MSG_WINLOGON_TERMINATE_JOB ? "Timeout" : "Root-died"),
+                      Job->UniqueId.HighPart,
+                      Job->UniqueId.LowPart));
 
-                TerminateJobObject( Job->Job, STATUS_TIMEOUT );
+            TerminateJobObject(Job->Job, STATUS_TIMEOUT);
 
-                EnterCriticalSection( &JobLock );
+            EnterCriticalSection(&JobLock);
 
-                Job->Flags |= WINLOGON_JOB_TERMINATED | WINLOGON_JOB_KILLED ;
-                Job->Timeout = INFINITE ;
+            Job->Flags |= WINLOGON_JOB_TERMINATED | WINLOGON_JOB_KILLED;
+            Job->Timeout = INFINITE;
 
-                // Bump the ref count.  This way, it will stick around if messages come in out of order.
+            // Bump the ref count.  This way, it will stick around if messages come in out of order.
 
-                Job->RefCount++ ;
-                LeaveCriticalSection( &JobLock );
+            Job->RefCount++;
+            LeaveCriticalSection(&JobLock);
 
-                // Need to cycle around again.  Calling TerminateJobObject will still generate the message when the count goes to 0
+            // Need to cycle around again.  Calling TerminateJobObject will still generate the message when the count goes to 0
 
-                PostQueuedCompletionStatus( IoPort, JOB_OBJECT_MSG_WINLOGON_TERMINATED, (ULONG_PTR) Job, &Overlapped );
-                continue;
-                break;
-            case JOB_OBJECT_MSG_EXIT_PROCESS:
-            case JOB_OBJECT_MSG_ABNORMAL_EXIT_PROCESS:
-                EnterCriticalSection( &JobLock );
-                if ( Job->Flags & WINLOGON_JOB_WATCH_PROCESS )
-                {
-                    if ( GetExitCodeProcess( Job->RootProcess, &ProcessStatus ) && ( ProcessStatus != STATUS_PENDING ) )
-                    {
-                        // Close the handle so the job can terminate
-                        // if it needs to
-                        NtClose( Job->RootProcess );
-                        Job->RootProcess = NULL ;
+            PostQueuedCompletionStatus(IoPort, JOB_OBJECT_MSG_WINLOGON_TERMINATED, (ULONG_PTR)Job, &Overlapped);
+            continue;
+            break;
+        case JOB_OBJECT_MSG_EXIT_PROCESS:
+        case JOB_OBJECT_MSG_ABNORMAL_EXIT_PROCESS:
+            EnterCriticalSection(&JobLock);
+            if (Job->Flags & WINLOGON_JOB_WATCH_PROCESS) {
+                if (GetExitCodeProcess(Job->RootProcess, &ProcessStatus) && (ProcessStatus != STATUS_PENDING)) {
+                    // Close the handle so the job can terminate
+                    // if it needs to
+                    NtClose(Job->RootProcess);
+                    Job->RootProcess = NULL;
 
 
-                        // The initial process has terminated,
-                        // and we're watching it.  If there are other
-                        // processes still in the job, we need to kill
-                        // them.
+                    // The initial process has terminated,
+                    // and we're watching it.  If there are other
+                    // processes still in the job, we need to kill
+                    // them.
 
 
-                        Status = NtQueryInformationJobObject(
-                                    Job->Job,
-                                    JobObjectBasicProcessIdList,
-                                    &JobInfo,
-                                    sizeof( JobInfo ),
-                                    NULL );
+                    Status = NtQueryInformationJobObject(
+                        Job->Job,
+                        JobObjectBasicProcessIdList,
+                        &JobInfo,
+                        sizeof(JobInfo),
+                        NULL);
 
-                        if ( ( Status == STATUS_SUCCESS ) ||
-                             ( Status == STATUS_BUFFER_OVERFLOW ) )
-                        {
+                    if ((Status == STATUS_SUCCESS) ||
+                        (Status == STATUS_BUFFER_OVERFLOW)) {
 
-                            // bugbug, 0 or 1?
+                        // bugbug, 0 or 1?
 
-                            if ( JobInfo.NumberOfAssignedProcesses > 0 )
-                            {
-                                DebugLog(( DEB_TRACE_JOB, "Job %x:%x root process terminated\n",
-                                           Job->UniqueId.HighPart,
-                                           Job->UniqueId.LowPart ));
+                        if (JobInfo.NumberOfAssignedProcesses > 0) {
+                            DebugLog((DEB_TRACE_JOB, "Job %x:%x root process terminated\n",
+                                      Job->UniqueId.HighPart,
+                                      Job->UniqueId.LowPart));
 
 
-                                // Post a private message indicating that we want to kill
-                                // the job.
+                            // Post a private message indicating that we want to kill
+                            // the job.
 
 
-                                PostQueuedCompletionStatus( IoPort,
-                                                            JOB_OBJECT_MSG_WINLOGON_KILL_JOB,
-                                                            (ULONG_PTR) Job,
-                                                            &Overlapped );
+                            PostQueuedCompletionStatus(IoPort,
+                                                       JOB_OBJECT_MSG_WINLOGON_KILL_JOB,
+                                                       (ULONG_PTR)Job,
+                                                       &Overlapped);
 
-                                // Let the work happen in the normal place
+                            // Let the work happen in the normal place
 
 
-                            }
                         }
-
                     }
 
                 }
 
-                LeaveCriticalSection( &JobLock );
+            }
+
+            LeaveCriticalSection(&JobLock);
+
+            continue;
+
+            break;
+
+        case JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO:
+        case JOB_OBJECT_MSG_WINLOGON_TERMINATED:
+
+            DebugLog((DEB_TRACE_JOB, "Job %x:%x completed\n",
+                      Job->UniqueId.HighPart,
+                      Job->UniqueId.LowPart));
+
+            EnterCriticalSection(&JobLock);
+
+            Job->Flags |= WINLOGON_JOB_TERMINATED;
+
+            LeaveCriticalSection(&JobLock);
+
+            if ((CompletionCode == JOB_OBJECT_MSG_WINLOGON_TERMINATED) ||
+                ((Job->Flags & WINLOGON_JOB_KILLED) == 0) ||
+                ((Job->Flags & WINLOGON_JOB_CALLBACKS_DONE) == 0)) {
+                if (Job->Event) {
+                    SetEvent(Job->Event);
+                }
+                if (Job->Callback) {
+                    Job->Callback(Job->Parameter);
+                }
+
+                Job->Flags |= WINLOGON_JOB_CALLBACKS_DONE;
+
+            }
+
+            if (CompletionCode == JOB_OBJECT_MSG_WINLOGON_TERMINATED) {
+
+                // For these, we need to keep waiting until the
+                // job object actually empties.  Take away the ref
+                // that we added when this message was posted, and
+                // continue waiting.
+
+
+                Job->Timeout = INFINITE;
+
+                DerefWinlogonJob(Job);
 
                 continue;
-
-                break;
-
-            case JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO:
-            case JOB_OBJECT_MSG_WINLOGON_TERMINATED:
-
-                DebugLog(( DEB_TRACE_JOB, "Job %x:%x completed\n",
-                           Job->UniqueId.HighPart,
-                           Job->UniqueId.LowPart ));
-
-                EnterCriticalSection( &JobLock );
-
-                Job->Flags |= WINLOGON_JOB_TERMINATED ;
-
-                LeaveCriticalSection( &JobLock );
-
-                if ( ( CompletionCode == JOB_OBJECT_MSG_WINLOGON_TERMINATED ) ||
-                     ( (Job->Flags & WINLOGON_JOB_KILLED) == 0 ) ||
-                     ( (Job->Flags & WINLOGON_JOB_CALLBACKS_DONE) == 0 ))
-                {
-                    if ( Job->Event )
-                    {
-                        SetEvent( Job->Event );
-                    }
-                    if ( Job->Callback )
-                    {
-                        Job->Callback( Job->Parameter );
-                    }
-
-                    Job->Flags |= WINLOGON_JOB_CALLBACKS_DONE ;
-
-                }
-
-                if ( CompletionCode == JOB_OBJECT_MSG_WINLOGON_TERMINATED )
-                {
-
-                    // For these, we need to keep waiting until the
-                    // job object actually empties.  Take away the ref
-                    // that we added when this message was posted, and
-                    // continue waiting.
-
-
-                    Job->Timeout = INFINITE ;
-
-                    DerefWinlogonJob( Job );
-
-                    continue;
-                }
+            }
 
 
 
-                break;
+            break;
 
 
-            default:
+        default:
 
 
-                // Not a message we care about
+            // Not a message we care about
 
 
-                continue;
+            continue;
         }
 
-        EnterCriticalSection( &JobLock );
+        EnterCriticalSection(&JobLock);
 
-        DebugLog(( DEB_TRACE_JOB, "Unlinking Job %x:%x\n",
-                   Job->UniqueId.HighPart,
-                   Job->UniqueId.LowPart ));
+        DebugLog((DEB_TRACE_JOB, "Unlinking Job %x:%x\n",
+                  Job->UniqueId.HighPart,
+                  Job->UniqueId.LowPart));
 
-        if ( Job->List.Flink )
-        {
+        if (Job->List.Flink) {
 
-            RemoveEntryList( &Job->List );
+            RemoveEntryList(&Job->List);
 
-            Job->List.Flink = NULL ;
-            Job->List.Blink = NULL ;
+            Job->List.Flink = NULL;
+            Job->List.Blink = NULL;
 
         }
 
-        DerefWinlogonJob( Job );
+        DerefWinlogonJob(Job);
 
-        LeaveCriticalSection( &JobLock );
+        LeaveCriticalSection(&JobLock);
 
-    } while ( TRUE );
+    } while (TRUE);
 
 
     // Thread cleanup:
 
 
-    EnterCriticalSection( &JobLock );
+    EnterCriticalSection(&JobLock);
 
-    CloseHandle( IoPort );
+    CloseHandle(IoPort);
 
-    IoPort = NULL ;
+    IoPort = NULL;
 
-    CloseHandle( hJobThread );
+    CloseHandle(hJobThread);
 
-    hJobThread = NULL ;
+    hJobThread = NULL;
 
-    LeaveCriticalSection( &JobLock );
+    LeaveCriticalSection(&JobLock);
 
     return 0;
 }
@@ -391,55 +362,46 @@ DWORD JobThread(PVOID Ignored)
 //  History:    6-21-98   RichardW   Created
 BOOL InsertJob(PWINLOGON_JOB Job)
 {
-    DWORD Tid ;
+    DWORD Tid;
     JOBOBJECT_ASSOCIATE_COMPLETION_PORT CompletionPort;
-    BOOL Ret ;
+    BOOL Ret;
 
-    EnterCriticalSection( &JobLock );
+    EnterCriticalSection(&JobLock);
 
-    if ( IoPort == NULL )
-    {
-        IoPort = CreateIoCompletionPort( INVALID_HANDLE_VALUE,NULL,(ULONG_PTR) Job,1 );
-        if ( IoPort )
-        {
-            hJobThread = CreateThread( NULL, 0,JobThread, NULL,0, &Tid );
-            if ( !hJobThread )
-            {
-                CloseHandle( IoPort );
-                IoPort = NULL ;
+    if (IoPort == NULL) {
+        IoPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, (ULONG_PTR)Job, 1);
+        if (IoPort) {
+            hJobThread = CreateThread(NULL, 0, JobThread, NULL, 0, &Tid);
+            if (!hJobThread) {
+                CloseHandle(IoPort);
+                IoPort = NULL;
             }
         }
     }
 
     // We may have failed to create the thread or port, so we need to check again:
 
-    if ( IoPort != NULL )
-    {
-        InsertHeadList( &JobList, &Job->List );
-        CompletionPort.CompletionKey = Job ;
+    if (IoPort != NULL) {
+        InsertHeadList(&JobList, &Job->List);
+        CompletionPort.CompletionKey = Job;
         CompletionPort.CompletionPort = IoPort;
-        if (!SetInformationJobObject( Job->Job,JobObjectAssociateCompletionPortInformation,&CompletionPort,sizeof(CompletionPort) ) )
-        {
+        if (!SetInformationJobObject(Job->Job, JobObjectAssociateCompletionPortInformation, &CompletionPort, sizeof(CompletionPort))) {
             DebugLog((DEB_WARN, "Failed to set completion port with %d\n", GetLastError()));
-            RemoveEntryList( &Job->List );
-            Job->List.Flink = Job->List.Blink = NULL ;
-            Ret = FALSE ;
-        }
-        else
-        {
+            RemoveEntryList(&Job->List);
+            Job->List.Flink = Job->List.Blink = NULL;
+            Ret = FALSE;
+        } else {
             // Bump the ref count.  As long as the job object is active, that is, in the list.
-            Job->RefCount++ ;
-            Ret = TRUE ;
+            Job->RefCount++;
+            Ret = TRUE;
         }
-    }
-    else
-    {
-        Ret = FALSE ;
+    } else {
+        Ret = FALSE;
     }
 
-    LeaveCriticalSection( &JobLock );
+    LeaveCriticalSection(&JobLock);
 
-    return Ret ;
+    return Ret;
 }
 
 
@@ -449,49 +411,45 @@ BOOL InsertJob(PWINLOGON_JOB Job)
 //  History:    9-11-98   RichardW   Created
 PWINLOGON_JOB CreateWinlogonJob(VOID)
 {
-    PWINLOGON_JOB Job ;
-    WCHAR JobName[ 64 ];
+    PWINLOGON_JOB Job;
+    WCHAR JobName[64];
     JOBOBJECT_END_OF_JOB_TIME_INFORMATION JobTime;
 
-    Job = LocalAlloc( LMEM_FIXED | LMEM_ZEROINIT, sizeof( WINLOGON_JOB ) );
+    Job = LocalAlloc(LMEM_FIXED | LMEM_ZEROINIT, sizeof(WINLOGON_JOB));
 
-    if ( Job )
-    {
+    if (Job) {
         // Generate a unique name so we don't overlap with other winlogons or
         // threads
 
-        AllocateLocallyUniqueId( &Job->UniqueId );
+        AllocateLocallyUniqueId(&Job->UniqueId);
 
-        wsprintf( JobName, TEXT("Winlogon Job %x-%x"), Job->UniqueId.HighPart, Job->UniqueId.LowPart );
+        wsprintf(JobName, TEXT("Winlogon Job %x-%x"), Job->UniqueId.HighPart, Job->UniqueId.LowPart);
 
-        Job->Timeout = INFINITE ;
-        Job->Flags = WINLOGON_JOB_TERMINATE_ON_TIMEOUT | WINLOGON_JOB_SIGNAL_ON_TERMINATE ;
+        Job->Timeout = INFINITE;
+        Job->Flags = WINLOGON_JOB_TERMINATE_ON_TIMEOUT | WINLOGON_JOB_SIGNAL_ON_TERMINATE;
         Job->RefCount = 1;
-        Job->Job = CreateJobObject( NULL, JobName );
+        Job->Job = CreateJobObject(NULL, JobName);
 
-        if ( Job->Job )
-        {
+        if (Job->Job) {
             // Excellent.  Add the Job the the list of jobs we're monitoring.  This
             // may also create a thread to do the monitoring.
 
             JobTime.EndOfJobTimeAction = JOB_OBJECT_POST_AT_END_OF_JOB;
 
-            if (SetInformationJobObject( Job->Job, JobObjectEndOfJobTimeInformation, &JobTime, sizeof(JobTime) ) )
-            {
-                if ( InsertJob( Job ) )
-                {
+            if (SetInformationJobObject(Job->Job, JobObjectEndOfJobTimeInformation, &JobTime, sizeof(JobTime))) {
+                if (InsertJob(Job)) {
                     // Done!
-                    return Job ;
+                    return Job;
                 }
             }
 
-            CloseHandle( Job->Job );
+            CloseHandle(Job->Job);
         }
 
-        LocalFree( Job );
+        LocalFree(Job);
     }
 
-    return NULL ;
+    return NULL;
 }
 
 
@@ -506,29 +464,25 @@ BOOL SetWinlogonJobTimeout(PWINLOGON_JOB pJob, ULONG Timeout)
 {
     JOBOBJECT_END_OF_JOB_TIME_INFORMATION JobTime;
 
-    EnterCriticalSection( &JobLock );
+    EnterCriticalSection(&JobLock);
 
     JobTime.EndOfJobTimeAction = JOB_OBJECT_POST_AT_END_OF_JOB;
 
-    if (!SetInformationJobObject(pJob->Job, JobObjectEndOfJobTimeInformation, &JobTime, sizeof(JobTime) ) )
-    {
-        DebugLog(( DEB_WARN, "Failed to set job end behavior, %d\n", GetLastError() ));
-        LeaveCriticalSection( &JobLock );
-        return FALSE ;
+    if (!SetInformationJobObject(pJob->Job, JobObjectEndOfJobTimeInformation, &JobTime, sizeof(JobTime))) {
+        DebugLog((DEB_WARN, "Failed to set job end behavior, %d\n", GetLastError()));
+        LeaveCriticalSection(&JobLock);
+        return FALSE;
     }
 
-    if ( Timeout == INFINITE )
-    {
-        pJob->Timeout = INFINITE ;
-    }
-    else
-    {
-        pJob->Timeout = GetTickCount() + Timeout ;
+    if (Timeout == INFINITE) {
+        pJob->Timeout = INFINITE;
+    } else {
+        pJob->Timeout = GetTickCount() + Timeout;
     }
 
-    LeaveCriticalSection( &JobLock );
+    LeaveCriticalSection(&JobLock);
 
-    return TRUE ;
+    return TRUE;
 }
 
 
@@ -559,72 +513,67 @@ StartProcessInJob(
     IN DWORD Flags,
     IN DWORD StartFlags,
     IN PWINLOGON_JOB pJob
-    )
+)
 {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     BOOL Result = FALSE;
-    HANDLE ImpersonationHandle = NULL ;
-    HANDLE ProcessToken, Token ;
+    HANDLE ImpersonationHandle = NULL;
+    HANDLE ProcessToken, Token;
     DWORD dwSize, dwType;
-    NTSTATUS Status ;
-    TOKEN_GROUPS TokenGroups ;
+    NTSTATUS Status;
+    TOKEN_GROUPS TokenGroups;
 
     // Initialize process startup info
-    ZeroMemory (&si, sizeof(si));
+    ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(STARTUPINFO);
     si.wShowWindow = SW_SHOWMINIMIZED;
     si.lpDesktop = lpDesktop;
-    si.dwFlags = StartFlags ;
+    si.dwFlags = StartFlags;
 
     // Create the app suspended
-    if ( ProcessType != ProcessAsSystem ) {
+    if (ProcessType != ProcessAsSystem) {
         // Impersonate the user so we get access checked correctly on
         // the file we're trying to execute
-        if ( ProcessType == ProcessAsUser )
-        {
+        if (ProcessType == ProcessAsUser) {
             ImpersonationHandle = ImpersonateUser(&pTerm->pWinStaWinlogon->UserProcessData, NULL);
-            Token = pTerm->pWinStaWinlogon->UserProcessData.UserToken ;
+            Token = pTerm->pWinStaWinlogon->UserProcessData.UserToken;
 
             if (ImpersonationHandle == NULL) {
-                DebugLog(( DEB_TRACE, "Unable to impersonate user\n" ));
-                return FALSE ;
+                DebugLog((DEB_TRACE, "Unable to impersonate user\n"));
+                return FALSE;
             }
-        }
-        else
-        {
-            Status = NtOpenProcessToken(NtCurrentProcess(), TOKEN_ALL_ACCESS, &ProcessToken );
-            if ( NT_SUCCESS( Status ) )
-            {
-                TokenGroups.GroupCount = 1 ;
-                TokenGroups.Groups[ 0 ].Attributes = 0 ;
-                TokenGroups.Groups[ 0 ].Sid = gAdminSid ;
+        } else {
+            Status = NtOpenProcessToken(NtCurrentProcess(), TOKEN_ALL_ACCESS, &ProcessToken);
+            if (NT_SUCCESS(Status)) {
+                TokenGroups.GroupCount = 1;
+                TokenGroups.Groups[0].Attributes = 0;
+                TokenGroups.Groups[0].Sid = gAdminSid;
 
-                Status = NtFilterToken(ProcessToken, DISABLE_MAX_PRIVILEGE, &TokenGroups, NULL, NULL, &Token );
-                NtClose( ProcessToken );
+                Status = NtFilterToken(ProcessToken, DISABLE_MAX_PRIVILEGE, &TokenGroups, NULL, NULL, &Token);
+                NtClose(ProcessToken);
             }
 
-            if ( !NT_SUCCESS( Status ) )
-            {
-                DebugLog(( DEB_TRACE, "Unable to filter token, %x\n", Status ));
-                return FALSE ;
+            if (!NT_SUCCESS(Status)) {
+                DebugLog((DEB_TRACE, "Unable to filter token, %x\n", Status));
+                return FALSE;
             }
 
             // don't worry about impersonating
         }
 
         Result = CreateProcessAsUser(
-                          Token,
-                          NULL,
-                          lpCmdLine,
-                          NULL,
-                          NULL,
-                          FALSE,
-                          Flags | CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT,
-                          pEnvironment,
-                          NULL,
-                          &si,
-                          &pi);
+            Token,
+            NULL,
+            lpCmdLine,
+            NULL,
+            NULL,
+            FALSE,
+            Flags | CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT,
+            pEnvironment,
+            NULL,
+            &si,
+            &pi);
 
 
         // If we are impersonating, then we are launching as a user, so
@@ -632,52 +581,42 @@ StartProcessInJob(
         // so close it when we're done with it.
 
 
-        if ( ImpersonationHandle )
-        {
-            StopImpersonating( ImpersonationHandle );
-        }
-        else
-        {
-            NtClose( Token );
+        if (ImpersonationHandle) {
+            StopImpersonating(ImpersonationHandle);
+        } else {
+            NtClose(Token);
         }
     } else {
         Result = CreateProcess(NULL, lpCmdLine, NULL, NULL, FALSE, CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT, pEnvironment, NULL, &si, &pi);
     }
 
     // If the app was started, assign the process to the job
-    if ( Result )
-    {
-        EnterCriticalSection( &JobLock );
+    if (Result) {
+        EnterCriticalSection(&JobLock);
 
-        if ( AssignProcessToJobObject( pJob->Job, pi.hProcess ) )
-        {
-            pJob->Flags |= WINLOGON_JOB_PROCESS_STARTED ;
+        if (AssignProcessToJobObject(pJob->Job, pi.hProcess)) {
+            pJob->Flags |= WINLOGON_JOB_PROCESS_STARTED;
 
-            ResumeThread( pi.hThread );
-        }
-        else
-        {
-            DebugLog(( DEB_WARN, "Could not assign process '%ws' to job, %d\n", lpCmdLine, GetLastError() ));
+            ResumeThread(pi.hThread);
+        } else {
+            DebugLog((DEB_WARN, "Could not assign process '%ws' to job, %d\n", lpCmdLine, GetLastError()));
 
             // Nuke the process
-            TerminateProcess( pi.hProcess, ERROR_ACCESS_DENIED );
-            Result = FALSE ;
+            TerminateProcess(pi.hProcess, ERROR_ACCESS_DENIED);
+            Result = FALSE;
 
         }
 
-        if ( pJob->Flags & WINLOGON_JOB_WATCH_PROCESS )
-        {
-            pJob->RootProcess = pi.hProcess ;
+        if (pJob->Flags & WINLOGON_JOB_WATCH_PROCESS) {
+            pJob->RootProcess = pi.hProcess;
 
-        }
-        else
-        {
-            CloseHandle( pi.hProcess );
+        } else {
+            CloseHandle(pi.hProcess);
         }
 
-        LeaveCriticalSection( &JobLock );
+        LeaveCriticalSection(&JobLock);
 
-        CloseHandle( pi.hThread );
+        CloseHandle(pi.hThread);
     }
 
     return Result;
@@ -694,33 +633,32 @@ StartProcessInJob(
 BOOL CreateJobEvent(PWINLOGON_JOB Job)
 {
 #if DBG
-    WCHAR EventName[ 128 ];
+    WCHAR EventName[128];
 #endif
 
-    EnterCriticalSection( &JobLock );
+    EnterCriticalSection(&JobLock);
 
-    if ( Job->Event != NULL )
-    {
-        LeaveCriticalSection( &JobLock );
+    if (Job->Event != NULL) {
+        LeaveCriticalSection(&JobLock);
 
-        return TRUE ;
+        return TRUE;
     }
 
 #if DBG
-    _snwprintf( EventName, 128, L"Event for Winlogon Job %x-%x",
-                Job->UniqueId.HighPart, Job->UniqueId.LowPart );
+    _snwprintf(EventName, 128, L"Event for Winlogon Job %x-%x",
+               Job->UniqueId.HighPart, Job->UniqueId.LowPart);
 
-    Job->Event = CreateEvent( NULL, FALSE, FALSE, EventName );
+    Job->Event = CreateEvent(NULL, FALSE, FALSE, EventName);
 
 #else
 
-    Job->Event = CreateEvent( NULL, FALSE, FALSE, NULL );
+    Job->Event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
 #endif
 
-    LeaveCriticalSection( &JobLock );
+    LeaveCriticalSection(&JobLock);
 
-    return (Job->Event != NULL );
+    return (Job->Event != NULL);
 
 }
 
@@ -735,21 +673,18 @@ BOOL CreateJobEvent(PWINLOGON_JOB Job)
 //  Notes:
 BOOL WaitForJob(PWINLOGON_JOB Job, DWORD Timeout)
 {
-    if ( Job->Flags & WINLOGON_JOB_PROCESS_STARTED )
-    {
-        if ( CreateJobEvent( Job ) )
-        {
-            if ( SetWinlogonJobTimeout( Job, Timeout ) )
-            {
-                WaitForSingleObjectEx( Job->Event, INFINITE, FALSE );
+    if (Job->Flags & WINLOGON_JOB_PROCESS_STARTED) {
+        if (CreateJobEvent(Job)) {
+            if (SetWinlogonJobTimeout(Job, Timeout)) {
+                WaitForSingleObjectEx(Job->Event, INFINITE, FALSE);
 
-                return TRUE ;
+                return TRUE;
 
             }
         }
     }
 
-    return FALSE ;
+    return FALSE;
 }
 
 
@@ -761,39 +696,33 @@ BOOL WaitForJob(PWINLOGON_JOB Job, DWORD Timeout)
 //  Notes:
 BOOL TerminateJob(PWINLOGON_JOB Job, DWORD ExitCode)
 {
-    BOOL Termed ;
+    BOOL Termed;
 
-    if ( (Job->Flags & WINLOGON_JOB_PROCESS_STARTED) == 0 )
-    {
-        return FALSE ;
+    if ((Job->Flags & WINLOGON_JOB_PROCESS_STARTED) == 0) {
+        return FALSE;
     }
 
-    if ( Job->Flags & WINLOGON_JOB_TERMINATED )
-    {
-        DebugLog(( DEB_ERROR, "TerminateJob called on a job that has already completed\n" ));
+    if (Job->Flags & WINLOGON_JOB_TERMINATED) {
+        DebugLog((DEB_ERROR, "TerminateJob called on a job that has already completed\n"));
 
-        return FALSE ;
+        return FALSE;
     }
 
-    EnterCriticalSection( &JobLock );
-    CreateJobEvent( Job );
-    Termed = TerminateJobObject( Job->Job, ExitCode );
-    LeaveCriticalSection( &JobLock );
+    EnterCriticalSection(&JobLock);
+    CreateJobEvent(Job);
+    Termed = TerminateJobObject(Job->Job, ExitCode);
+    LeaveCriticalSection(&JobLock);
 
-    if ( Termed )
-    {
-        if ( Job->Event )
-        {
-            WaitForSingleObjectEx( Job->Event, INFINITE, FALSE );
-        }
-        else
-        {
+    if (Termed) {
+        if (Job->Event) {
+            WaitForSingleObjectEx(Job->Event, INFINITE, FALSE);
+        } else {
             // Spin and wait for a while?
-            NOTHING ;
+            NOTHING;
         }
     }
 
-    return Termed ;
+    return Termed;
 }
 
 
@@ -817,14 +746,14 @@ SetJobCallback(
     IN PWINLOGON_JOB Job,
     IN LPTHREAD_START_ROUTINE Callback,
     IN PVOID Parameter
-    )
+)
 {
-    EnterCriticalSection( &JobLock );
-    Job->Callback = Callback ;
-    Job->Parameter = Parameter ;
-    LeaveCriticalSection( &JobLock );
+    EnterCriticalSection(&JobLock);
+    Job->Callback = Callback;
+    Job->Parameter = Parameter;
+    LeaveCriticalSection(&JobLock);
 
-    return TRUE ;
+    return TRUE;
 }
 
 
@@ -835,68 +764,63 @@ SetJobCallback(
 //  Notes:
 BOOL DeleteJob(PWINLOGON_JOB Job)
 {
-    EnterCriticalSection( &JobLock );
+    EnterCriticalSection(&JobLock);
 
-    if ( ( Job->Flags & WINLOGON_JOB_RUN_ON_DELETE ) == 0 )
-    {
-        if ( ( Job->Flags & WINLOGON_JOB_TERMINATED ) == 0 )
-        {
-            LeaveCriticalSection( &JobLock );
+    if ((Job->Flags & WINLOGON_JOB_RUN_ON_DELETE) == 0) {
+        if ((Job->Flags & WINLOGON_JOB_TERMINATED) == 0) {
+            LeaveCriticalSection(&JobLock);
 
-            TerminateJob( Job, 0 );
+            TerminateJob(Job, 0);
 
-            EnterCriticalSection( &JobLock );
+            EnterCriticalSection(&JobLock);
         }
 
-        CloseHandle( Job->Job );
+        CloseHandle(Job->Job);
 
-        Job->Job = NULL ;
+        Job->Job = NULL;
     }
 
-    DerefWinlogonJob( Job );
+    DerefWinlogonJob(Job);
 
-    LeaveCriticalSection( &JobLock );
+    LeaveCriticalSection(&JobLock);
 
-    return TRUE ;
+    return TRUE;
 }
 
 
 BOOL IsJobActive(PWINLOGON_JOB Job)
 {
-    BOOL Status ;
+    BOOL Status;
 
-    EnterCriticalSection( &JobLock );
-    Status = ((Job->Flags & WINLOGON_JOB_TERMINATED) == 0 );
-    LeaveCriticalSection( &JobLock );
+    EnterCriticalSection(&JobLock);
+    Status = ((Job->Flags & WINLOGON_JOB_TERMINATED) == 0);
+    LeaveCriticalSection(&JobLock);
 
-    DebugLog(( DEB_TRACE_JOB, "IsJobActive: Job %x:%x is %s.\n", Job->UniqueId.HighPart, Job->UniqueId.LowPart, Status ? "active" : "terminated" ));
+    DebugLog((DEB_TRACE_JOB, "IsJobActive: Job %x:%x is %s.\n", Job->UniqueId.HighPart, Job->UniqueId.LowPart, Status ? "active" : "terminated"));
 
-    return Status ;
+    return Status;
 }
 
 
 BOOL SetWinlogonJobOption(PWINLOGON_JOB Job, ULONG Options)
 {
-    BOOL Ret = FALSE ;
+    BOOL Ret = FALSE;
 
-    EnterCriticalSection( &JobLock );
+    EnterCriticalSection(&JobLock);
 
-    if ( Options & WINLOGON_JOB_MONITOR_ROOT_PROCESS )
-    {
-        if ( (Job->Flags & WINLOGON_JOB_PROCESS_STARTED ) == 0 )
-        {
-            Job->Flags |= WINLOGON_JOB_WATCH_PROCESS ;
-            Ret = TRUE ;
+    if (Options & WINLOGON_JOB_MONITOR_ROOT_PROCESS) {
+        if ((Job->Flags & WINLOGON_JOB_PROCESS_STARTED) == 0) {
+            Job->Flags |= WINLOGON_JOB_WATCH_PROCESS;
+            Ret = TRUE;
         }
     }
 
-    if ( Options & WINLOGON_JOB_AUTONOMOUS )
-    {
-        Job->Flags |= WINLOGON_JOB_RUN_ON_DELETE ;
-        Ret = TRUE ;
+    if (Options & WINLOGON_JOB_AUTONOMOUS) {
+        Job->Flags |= WINLOGON_JOB_RUN_ON_DELETE;
+        Ret = TRUE;
     }
 
-    LeaveCriticalSection( &JobLock );
+    LeaveCriticalSection(&JobLock);
 
-    return Ret ;
+    return Ret;
 }

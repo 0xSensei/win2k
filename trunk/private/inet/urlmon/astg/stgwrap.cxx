@@ -42,16 +42,15 @@ SCODE CAsyncStorage::Notify(void)
     ULONG ulFailurePoint;
 
     HANDLE hNotifyEvent;
-    CSinkList *pslTemp;
+    CSinkList* pslTemp;
 
     _pflb->GetFailureInfo(&ulWaterMark,
                           &ulFailurePoint);
 
-    pslTemp =_cpoint.GetHead();
+    pslTemp = _cpoint.GetHead();
 
     while ((pslTemp == NULL) ||
-           (sc = pslTemp->GetProgressNotify()->OnProgress(ulWaterMark, ulFailurePoint,  FALSE)) ==S_OK)
-    {
+        (sc = pslTemp->GetProgressNotify()->OnProgress(ulWaterMark, ulFailurePoint, FALSE)) == S_OK) {
         DWORD dwFlags;
 
         // wait for an event to signal
@@ -60,15 +59,15 @@ SCODE CAsyncStorage::Notify(void)
 
         _pflb->GetTerminationStatus(&dwFlags);
         // client terminated call?
-        if (dwFlags ==    TERMINATED_ABNORMAL)
-                return STG_E_TERMINATED;
+        if (dwFlags == TERMINATED_ABNORMAL)
+            return STG_E_TERMINATED;
 
         // download is complete
-        else if (dwFlags ==    TERMINATED_NORMAL)
-                break;
+        else if (dwFlags == TERMINATED_NORMAL)
+            break;
 
-        else
-        {    _pflb->GetFailureInfo(&ulWaterMark,
+        else {
+            _pflb->GetFailureInfo(&ulWaterMark,
                                   &ulFailurePoint);
 
             // all the data is available now
@@ -101,17 +100,16 @@ SCODE CAsyncStream::Notify(void)
     SCODE sc = S_OK;
     ULONG ulWaterMark;
     ULONG ulFailurePoint;
-    CSinkList *pslTemp;
+    CSinkList* pslTemp;
     HANDLE hNotifyEvent;
 
     _pflb->GetFailureInfo(&ulWaterMark,
                           &ulFailurePoint);
 
-    pslTemp =_cpoint.GetHead();
+    pslTemp = _cpoint.GetHead();
 
     while ((pslTemp == NULL) ||
-           (sc = pslTemp->GetProgressNotify()->OnProgress(ulWaterMark, ulFailurePoint,  FALSE)) ==S_OK)
-    {
+        (sc = pslTemp->GetProgressNotify()->OnProgress(ulWaterMark, ulFailurePoint, FALSE)) == S_OK) {
         DWORD dwFlags;
 
         // wait for an event to signal
@@ -120,15 +118,15 @@ SCODE CAsyncStream::Notify(void)
 
         _pflb->GetTerminationStatus(&dwFlags);
         // client terminated call?
-        if (dwFlags ==    TERMINATED_ABNORMAL)
-                return STG_E_TERMINATED;
+        if (dwFlags == TERMINATED_ABNORMAL)
+            return STG_E_TERMINATED;
 
         // download is complete
-        else if (dwFlags ==    TERMINATED_NORMAL)
-                break;
+        else if (dwFlags == TERMINATED_NORMAL)
+            break;
 
-        else
-        {    _pflb->GetFailureInfo(&ulWaterMark,
+        else {
+            _pflb->GetFailureInfo(&ulWaterMark,
                                   &ulFailurePoint);
 
             // all the data is available now
@@ -159,17 +157,16 @@ SCODE CAsyncEnum::Notify(void)
     SCODE sc = S_OK;
     ULONG ulWaterMark;
     ULONG ulFailurePoint;
-    CSinkList *pslTemp;
+    CSinkList* pslTemp;
     HANDLE hNotifyEvent;
 
     _pflb->GetFailureInfo(&ulWaterMark,
                           &ulFailurePoint);
 
-    pslTemp =_cpoint.GetHead();
+    pslTemp = _cpoint.GetHead();
 
     while ((pslTemp == NULL) ||
-           (sc = pslTemp->GetProgressNotify()->OnProgress(ulWaterMark, ulFailurePoint,  FALSE)) ==S_OK)
-    {
+        (sc = pslTemp->GetProgressNotify()->OnProgress(ulWaterMark, ulFailurePoint, FALSE)) == S_OK) {
         DWORD dwFlags;
 
         // wait for an event to signal
@@ -178,15 +175,15 @@ SCODE CAsyncEnum::Notify(void)
 
         _pflb->GetTerminationStatus(&dwFlags);
         // client terminated call?
-        if (dwFlags ==    TERMINATED_ABNORMAL)
-                return STG_E_TERMINATED;
+        if (dwFlags == TERMINATED_ABNORMAL)
+            return STG_E_TERMINATED;
 
         // download is complete
-        else if (dwFlags ==    TERMINATED_NORMAL)
-                break;
+        else if (dwFlags == TERMINATED_NORMAL)
+            break;
 
-        else
-        {    _pflb->GetFailureInfo(&ulWaterMark,
+        else {
+            _pflb->GetFailureInfo(&ulWaterMark,
                                   &ulFailurePoint);
 
             // all the data is available now
@@ -213,7 +210,7 @@ SCODE CAsyncEnum::Notify(void)
 
 
 
-STDMETHODIMP CAsyncStorage::QueryInterface(REFIID iid, void **ppvObj)
+STDMETHODIMP CAsyncStorage::QueryInterface(REFIID iid, void** ppvObj)
 {
     SCODE sc = S_OK;
     *ppvObj = NULL;
@@ -223,23 +220,16 @@ STDMETHODIMP CAsyncStorage::QueryInterface(REFIID iid, void **ppvObj)
     if (IsEqualIID(iid, IID_IUnknown))
 
     {
-        *ppvObj = (IStorage *)this;
-    }
-    else if (IsEqualIID(iid, IID_IStorage))
-    {
-        *ppvObj = (IStorage *)this;
-    }
-    else if (IsEqualIID(iid, IID_IConnectionPointContainer))
-    {
-        *ppvObj = (IConnectionPointContainer *)this;
-    }
-    else
-    {
+        *ppvObj = (IStorage*)this;
+    } else if (IsEqualIID(iid, IID_IStorage)) {
+        *ppvObj = (IStorage*)this;
+    } else if (IsEqualIID(iid, IID_IConnectionPointContainer)) {
+        *ppvObj = (IConnectionPointContainer*)this;
+    } else {
         sc = E_NOINTERFACE;
     }
 
-    if (SUCCEEDED(sc))
-    {
+    if (SUCCEEDED(sc)) {
         AddRef();
     }
     astgDebugOut((DEB_ITRACE, "Out  CAsyncStorage::QueryInterface:%p()\n", this));
@@ -287,11 +277,9 @@ STDMETHODIMP_(ULONG) CAsyncStorage::Release(void)
 
     lRet = InterlockedDecrement(&_cReferences);
     _pRealStg->Release();
-    if (lRet == 0)
-    {
+    if (lRet == 0) {
         delete this;
-    }
-    else if (lRet < 0)
+    } else if (lRet < 0)
         lRet = 0;
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::Release\n"));
     return (ULONG)lRet;
@@ -309,38 +297,36 @@ STDMETHODIMP_(ULONG) CAsyncStorage::Release(void)
 
 
 
-STDMETHODIMP CAsyncStorage::CreateStream(OLECHAR const *pwcsName,
+STDMETHODIMP CAsyncStorage::CreateStream(OLECHAR const* pwcsName,
                                          DWORD grfMode,
                                          DWORD reserved1,
                                          DWORD reserved2,
-                                         IStream **ppstm)
+                                         IStream** ppstm)
 {
 
     SCODE sc = S_OK,
-          sc2 = S_OK;
+        sc2 = S_OK;
 
-    CAsyncStream *pwstm;
+    CAsyncStream* pwstm;
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::CreateStream:%p()\n", this));
 
-    do
-    {
+    do {
         sc = _pRealStg->CreateStream(pwcsName,
-                                 grfMode,
-                                 reserved1,
-                                 reserved2,
-                                 ppstm);
+                                     grfMode,
+                                     reserved1,
+                                     reserved2,
+                                     ppstm);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
-    if (SUCCEEDED(sc))
-    {
-        CAsyncStream *pwstm = new CAsyncStream(*ppstm, _pflb);
-        *ppstm = (IStream *)pwstm;
+    if (SUCCEEDED(sc)) {
+        CAsyncStream* pwstm = new CAsyncStream(*ppstm, _pflb);
+        *ppstm = (IStream*)pwstm;
 
     }
     astgDebugOut((DEB_ITRACE, "Out  CAsyncStorage::CreateStream:%p()\n", this));
@@ -360,37 +346,35 @@ STDMETHODIMP CAsyncStorage::CreateStream(OLECHAR const *pwcsName,
 
 
 
-STDMETHODIMP CAsyncStorage::OpenStream(OLECHAR const *pwcsName,
-                                       void *reserved1,
+STDMETHODIMP CAsyncStorage::OpenStream(OLECHAR const* pwcsName,
+                                       void* reserved1,
                                        DWORD grfMode,
                                        DWORD reserved2,
-                                       IStream **ppstm)
+                                       IStream** ppstm)
 {
-    CAsyncStream *pwstm;
+    CAsyncStream* pwstm;
     SCODE sc = S_OK;
     SCODE sc2 = S_OK;
 
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::OpenStream:%p()\n", this));
 
-    do
-    {
+    do {
         sc = _pRealStg->OpenStream(pwcsName,
-                               reserved1,
-                               grfMode,
-                               reserved2,
-                               ppstm);
+                                   reserved1,
+                                   grfMode,
+                                   reserved2,
+                                   ppstm);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
-    if (SUCCEEDED(sc))
-    {
-        CAsyncStream *pwstm = new CAsyncStream(*ppstm, _pflb);
-        *ppstm = (IStream *)pwstm;
+    if (SUCCEEDED(sc)) {
+        CAsyncStream* pwstm = new CAsyncStream(*ppstm, _pflb);
+        *ppstm = (IStream*)pwstm;
     }
 
     astgDebugOut((DEB_ITRACE, "Out  CAsyncStorage::OpenStream:%p()\n", this));
@@ -409,11 +393,11 @@ STDMETHODIMP CAsyncStorage::OpenStream(OLECHAR const *pwcsName,
 
 
 
-STDMETHODIMP CAsyncStorage::CreateStorage(OLECHAR const *pwcsName,
+STDMETHODIMP CAsyncStorage::CreateStorage(OLECHAR const* pwcsName,
                                           DWORD grfMode,
                                           DWORD reserved1,
                                           LPSTGSECURITY reserved2,
-                                          IStorage **ppstg)
+                                          IStorage** ppstg)
 {
 
     SCODE sc = S_OK;
@@ -423,23 +407,22 @@ STDMETHODIMP CAsyncStorage::CreateStorage(OLECHAR const *pwcsName,
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::CreateStorage:%p()\n", this));
 
-    do
-    {    sc = _pRealStg->CreateStorage( pwcsName,
-                                   grfMode,
-                                   reserved1,
-                                   reserved2,
-                                   ppstg);
+    do {
+        sc = _pRealStg->CreateStorage(pwcsName,
+                                      grfMode,
+                                      reserved1,
+                                      reserved2,
+                                      ppstg);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
 
-    }   while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
-    if (SUCCEEDED(sc))
-    {
-        CAsyncStorage *pwstg = new CAsyncStorage(*ppstg, _pflb);
-        *ppstg = (IStorage *) pwstg;
+    if (SUCCEEDED(sc)) {
+        CAsyncStorage* pwstg = new CAsyncStorage(*ppstg, _pflb);
+        *ppstg = (IStorage*)pwstg;
 
     }
 
@@ -462,12 +445,12 @@ STDMETHODIMP CAsyncStorage::CreateStorage(OLECHAR const *pwcsName,
 
 
 
-STDMETHODIMP CAsyncStorage::OpenStorage(OLECHAR const *pwcsName,
-                                        IStorage *pstgPriority,
+STDMETHODIMP CAsyncStorage::OpenStorage(OLECHAR const* pwcsName,
+                                        IStorage* pstgPriority,
                                         DWORD grfMode,
                                         SNB snbExclude,
                                         DWORD reserved,
-                                        IStorage **ppstg)
+                                        IStorage** ppstg)
 {
 
     SCODE sc = S_OK;
@@ -477,24 +460,23 @@ STDMETHODIMP CAsyncStorage::OpenStorage(OLECHAR const *pwcsName,
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::OpenStorage:%p()\n", this));
 
 
-    do
-    {    sc = _pRealStg->OpenStorage( pwcsName,
-                                 pstgPriority,
-                                 grfMode,
-                                 snbExclude,
-                                 reserved,
-                                 ppstg);
+    do {
+        sc = _pRealStg->OpenStorage(pwcsName,
+                                    pstgPriority,
+                                    grfMode,
+                                    snbExclude,
+                                    reserved,
+                                    ppstg);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
 
-    }   while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
-    if (SUCCEEDED(sc))
-    {
-        CAsyncStorage *pwstg = new CAsyncStorage(*ppstg, _pflb);
-        *ppstg = (IStorage *) pwstg;
+    if (SUCCEEDED(sc)) {
+        CAsyncStorage* pwstg = new CAsyncStorage(*ppstg, _pflb);
+        *ppstg = (IStorage*)pwstg;
     }
 
     astgDebugOut((DEB_ITRACE, "Out  CAsyncStorage::OpenStorage:%p()\n", this));
@@ -513,9 +495,9 @@ STDMETHODIMP CAsyncStorage::OpenStorage(OLECHAR const *pwcsName,
 
 
 STDMETHODIMP CAsyncStorage::CopyTo(DWORD ciidExclude,
-                                   IID const *rgiidExclude,
+                                   IID const* rgiidExclude,
                                    SNB snbExclude,
-                                   IStorage *pstgDest)
+                                   IStorage* pstgDest)
 {
 
     SCODE sc = S_OK;
@@ -526,18 +508,17 @@ STDMETHODIMP CAsyncStorage::CopyTo(DWORD ciidExclude,
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::CopyTo%p()\n", this));
 
 
-    do
-    {
-        sc = _pRealStg->CopyTo( ciidExclude,
-                              rgiidExclude,
-                              snbExclude,
-                              pstgDest);
+    do {
+        sc = _pRealStg->CopyTo(ciidExclude,
+                               rgiidExclude,
+                               snbExclude,
+                               pstgDest);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::CopyTo\n"));
     return ResultFromScode(sc);
@@ -553,9 +534,9 @@ STDMETHODIMP CAsyncStorage::CopyTo(DWORD ciidExclude,
 //  History:    01-Jan-96    SusiA    Created
 
 
-STDMETHODIMP CAsyncStorage::MoveElementTo(OLECHAR const *lpszName,
-                                          IStorage *pstgDest,
-                                          OLECHAR const *lpszNewName,
+STDMETHODIMP CAsyncStorage::MoveElementTo(OLECHAR const* lpszName,
+                                          IStorage* pstgDest,
+                                          OLECHAR const* lpszNewName,
                                           DWORD grfFlags)
 {
 
@@ -565,18 +546,16 @@ STDMETHODIMP CAsyncStorage::MoveElementTo(OLECHAR const *lpszName,
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::MoveElementTo%p()\n", this));
 
 
-    do
-    {
+    do {
 
         sc = _pRealStg->MoveElementTo(lpszName,
-                                    pstgDest,
-                                    lpszNewName,
-                                    grfFlags) ;
+                                      pstgDest,
+                                      lpszNewName,
+                                      grfFlags);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
-    }
-    while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::MoveElementTo\n"));
     return ResultFromScode(sc);
@@ -602,14 +581,13 @@ STDMETHODIMP CAsyncStorage::Commit(DWORD grfCommitFlags)
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::Commit%p()\n", this));
 
 
-    do
-    {
+    do {
         sc = _pRealStg->Commit(grfCommitFlags);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }  while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::Commit\n"));
     return ResultFromScode(sc);
@@ -634,13 +612,12 @@ STDMETHODIMP CAsyncStorage::Revert(void)
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::Revert%p()\n", this));
 
 
-    do
-    {
+    do {
         sc = _pRealStg->Revert();
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }  while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::Revert\n"));
     return ResultFromScode(sc);
@@ -658,9 +635,9 @@ STDMETHODIMP CAsyncStorage::Revert(void)
 
 
 STDMETHODIMP CAsyncStorage::EnumElements(DWORD reserved1,
-                                         void *reserved2,
+                                         void* reserved2,
                                          DWORD reserved3,
-                                         IEnumSTATSTG **ppenm)
+                                         IEnumSTATSTG** ppenm)
 {
 
     SCODE sc = S_OK;
@@ -668,22 +645,20 @@ STDMETHODIMP CAsyncStorage::EnumElements(DWORD reserved1,
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::EnumElements%p()\n", this));
 
-    do
-    {
+    do {
         sc = _pRealStg->EnumElements(reserved1,
-                                   reserved2,
-                                   reserved3,
-                                   ppenm);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+                                     reserved2,
+                                     reserved3,
+                                     ppenm);
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
 
-    }   while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
-    if (SUCCEEDED(sc))
-    {
-        CAsyncEnum *pwenum = new CAsyncEnum(*ppenm, _pflb);
-        *ppenm = (IEnumSTATSTG *)pwenum;
+    if (SUCCEEDED(sc)) {
+        CAsyncEnum* pwenum = new CAsyncEnum(*ppenm, _pflb);
+        *ppenm = (IEnumSTATSTG*)pwenum;
 
     }
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::EnumElements\n"));
@@ -700,7 +675,7 @@ STDMETHODIMP CAsyncStorage::EnumElements(DWORD reserved1,
 //  History:    01-Jan-96    SusiA    Created
 
 
-STDMETHODIMP CAsyncStorage::DestroyElement(OLECHAR const *pwcsName)
+STDMETHODIMP CAsyncStorage::DestroyElement(OLECHAR const* pwcsName)
 {
 
     SCODE sc = S_OK;
@@ -709,34 +684,32 @@ STDMETHODIMP CAsyncStorage::DestroyElement(OLECHAR const *pwcsName)
     ULONG ulFailurePoint;
 
     HANDLE hNotifyEvent;
-    CSinkList *pslTemp;
+    CSinkList* pslTemp;
 
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::DestroyElement%p()\n", this));
 
-    pslTemp =_cpoint.GetHead();
+    pslTemp = _cpoint.GetHead();
 
-    while (1)
-    {
+    while (1) {
         DWORD dwFlags;
 
         _pflb->GetTerminationStatus(&dwFlags);
         // client terminated call?
-        if (dwFlags ==    TERMINATED_ABNORMAL)
-                return STG_E_TERMINATED;
+        if (dwFlags == TERMINATED_ABNORMAL)
+            return STG_E_TERMINATED;
 
         // download is complete
-        else if (dwFlags ==    TERMINATED_NORMAL)
-                break;
+        else if (dwFlags == TERMINATED_NORMAL)
+            break;
         // wait for an event to signal
         hNotifyEvent = _pflb->GetNotificationEvent();
         WaitForSingleObject(hNotifyEvent, INFINITE);
 
-        if (pslTemp != NULL)
-        {
+        if (pslTemp != NULL) {
             _pflb->GetFailureInfo(&ulWaterMark,
-                          &ulFailurePoint);
-            pslTemp->GetProgressNotify()->OnProgress(ulWaterMark, (ULONG) -1 ,  FALSE);
+                                  &ulFailurePoint);
+            pslTemp->GetProgressNotify()->OnProgress(ulWaterMark, (ULONG)-1, FALSE);
 
         }
 
@@ -758,8 +731,8 @@ STDMETHODIMP CAsyncStorage::DestroyElement(OLECHAR const *pwcsName)
 //  History:    01-Jan-96    SusiA    Created
 
 
-STDMETHODIMP CAsyncStorage::RenameElement(OLECHAR const *pwcsOldName,
-                                          OLECHAR const *pwcsNewName)
+STDMETHODIMP CAsyncStorage::RenameElement(OLECHAR const* pwcsOldName,
+                                          OLECHAR const* pwcsNewName)
 {
 
     SCODE sc = S_OK;
@@ -767,15 +740,14 @@ STDMETHODIMP CAsyncStorage::RenameElement(OLECHAR const *pwcsOldName,
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::RenameElement%p()\n", this));
 
-    do
-    {
+    do {
 
         sc = _pRealStg->RenameElement(pwcsOldName,
-                                    pwcsNewName);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+                                      pwcsNewName);
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }   while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::RenameElement\n"));
     return ResultFromScode(sc);
@@ -791,10 +763,10 @@ STDMETHODIMP CAsyncStorage::RenameElement(OLECHAR const *pwcsOldName,
 //  History:    01-Jan-96    SusiA    Created
 
 
-STDMETHODIMP CAsyncStorage::SetElementTimes(const OLECHAR *lpszName,
-                                            FILETIME const *pctime,
-                                            FILETIME const *patime,
-                                            FILETIME const *pmtime)
+STDMETHODIMP CAsyncStorage::SetElementTimes(const OLECHAR* lpszName,
+                                            FILETIME const* pctime,
+                                            FILETIME const* patime,
+                                            FILETIME const* pmtime)
 {
 
     SCODE sc = S_OK;
@@ -803,17 +775,16 @@ STDMETHODIMP CAsyncStorage::SetElementTimes(const OLECHAR *lpszName,
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::SetElementTimes%p()\n", this));
 
 
-    do
-    {
+    do {
         sc = _pRealStg->SetElementTimes(lpszName,
-                                      pctime,
-                                      patime,
-                                      pmtime);
+                                        pctime,
+                                        patime,
+                                        pmtime);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }   while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::SetElementTimes\n"));
     return ResultFromScode(sc);
@@ -838,14 +809,13 @@ STDMETHODIMP CAsyncStorage::SetClass(REFCLSID clsid)
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::SetClass%p()\n", this));
 
 
-    do
-    {
+    do {
         sc = _pRealStg->SetClass(clsid);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::SetClass\n"));
     return ResultFromScode(sc);
@@ -870,14 +840,14 @@ STDMETHODIMP CAsyncStorage::SetStateBits(DWORD grfStateBits, DWORD grfMask)
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::SetStateBits%p()\n", this));
 
 
-    do
-    {    sc = _pRealStg->SetStateBits(grfStateBits, grfMask);
+    do {
+        sc = _pRealStg->SetStateBits(grfStateBits, grfMask);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::SetStateBits\n"));
     return ResultFromScode(sc);
 }
@@ -892,7 +862,7 @@ STDMETHODIMP CAsyncStorage::SetStateBits(DWORD grfStateBits, DWORD grfMask)
 //  History:    01-Jan-96    SusiA    Created
 
 
-STDMETHODIMP CAsyncStorage::Stat(STATSTG *pstatstg, DWORD grfStatFlag)
+STDMETHODIMP CAsyncStorage::Stat(STATSTG* pstatstg, DWORD grfStatFlag)
 {
 
     SCODE sc = S_OK;
@@ -901,12 +871,12 @@ STDMETHODIMP CAsyncStorage::Stat(STATSTG *pstatstg, DWORD grfStatFlag)
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::Stat%p()\n", this));
 
 
-    do
-    {    sc = _pRealStg->Stat( pstatstg,  grfStatFlag);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+    do {
+        sc = _pRealStg->Stat(pstatstg, grfStatFlag);
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }   while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::Stat\n"));
     return ResultFromScode(sc);
@@ -927,7 +897,7 @@ STDMETHODIMP CAsyncStorage::Stat(STATSTG *pstatstg, DWORD grfStatFlag)
 
 
 STDMETHODIMP CAsyncStorage::EnumConnectionPoints(
-    IEnumConnectionPoints **ppEnum)
+    IEnumConnectionPoints** ppEnum)
 {
     astgDebugOut((DEB_ITRACE,
                   "In  CAsyncStorage::EnumConnectionPoints:%p()\n",
@@ -954,20 +924,17 @@ STDMETHODIMP CAsyncStorage::EnumConnectionPoints(
 
 STDMETHODIMP CAsyncStorage::FindConnectionPoint(
     REFIID iid,
-    IConnectionPoint **ppCP)
+    IConnectionPoint** ppCP)
 {
     astgDebugOut((DEB_ITRACE,
                   "In  CAsyncStorage::FindConnectionPoint:%p()\n",
                   this));
 
-    CConnectionPoint *pcp;
+    CConnectionPoint* pcp;
 
-    if (IsEqualIID(iid, IID_IProgressNotify))
-    {
+    if (IsEqualIID(iid, IID_IProgressNotify)) {
         pcp = &_cpoint;
-    }
-    else
-    {
+    } else {
         *ppCP = NULL;
         return E_NOINTERFACE;
     }
@@ -992,7 +959,7 @@ STDMETHODIMP CAsyncStorage::FindConnectionPoint(
 
 
 
-STDMETHODIMP CAsyncRootStorage::QueryInterface(REFIID iid, void **ppvObj)
+STDMETHODIMP CAsyncRootStorage::QueryInterface(REFIID iid, void** ppvObj)
 {
 
     SCODE sc = S_OK;
@@ -1002,27 +969,18 @@ STDMETHODIMP CAsyncRootStorage::QueryInterface(REFIID iid, void **ppvObj)
     if (IsEqualIID(iid, IID_IUnknown))
 
     {
-        *ppvObj = (IStorage *)this;
-    }
-    else if (IsEqualIID(iid, IID_IStorage))
-    {
-        *ppvObj = (IStorage *)this;
-    }
-    else if (IsEqualIID(iid, IID_IRootStorage))
-    {
-        *ppvObj = (IRootStorage *)this;
-    }
-    else if (IsEqualIID(iid, IID_IConnectionPointContainer))
-    {
-        *ppvObj = (IConnectionPointContainer *)this;
-    }
-    else
-    {
+        *ppvObj = (IStorage*)this;
+    } else if (IsEqualIID(iid, IID_IStorage)) {
+        *ppvObj = (IStorage*)this;
+    } else if (IsEqualIID(iid, IID_IRootStorage)) {
+        *ppvObj = (IRootStorage*)this;
+    } else if (IsEqualIID(iid, IID_IConnectionPointContainer)) {
+        *ppvObj = (IConnectionPointContainer*)this;
+    } else {
         sc = E_NOINTERFACE;
     }
 
-    if (SUCCEEDED(sc))
-    {
+    if (SUCCEEDED(sc)) {
         AddRef();
     }
     astgDebugOut((DEB_ITRACE, "Out  CAsyncRootStorage::QueryInterface:%p()\n", this));
@@ -1070,11 +1028,9 @@ STDMETHODIMP_(ULONG) CAsyncRootStorage::Release(void)
 
     lRet = InterlockedDecrement(&_cReferences);
     _pRealStg->Release();
-    if (lRet == 0)
-    {
+    if (lRet == 0) {
         delete this;
-    }
-    else if (lRet < 0)
+    } else if (lRet < 0)
         lRet = 0;
     astgDebugOut((DEB_ITRACE, "Out CAsyncRootStorage::Release\n"));
     return (ULONG)lRet;
@@ -1092,26 +1048,25 @@ STDMETHODIMP_(ULONG) CAsyncRootStorage::Release(void)
 
 
 
-STDMETHODIMP CAsyncRootStorage::SwitchToFile(OLECHAR *ptcsFile)
+STDMETHODIMP CAsyncRootStorage::SwitchToFile(OLECHAR* ptcsFile)
 {
 
     SCODE sc = S_OK;
     SCODE sc2 = S_OK;
-    IRootStorage *prstg;
+    IRootStorage* prstg;
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStorage::%p()\n", this));
 
 
-    if (!SUCCEEDED( _pRealStg->QueryInterface(IID_IRootStorage, (void **) &prstg)))
+    if (!SUCCEEDED(_pRealStg->QueryInterface(IID_IRootStorage, (void**)&prstg)))
         return E_NOINTERFACE;
 
-    do
-    {
+    do {
         sc = prstg->SwitchToFile(ptcsFile);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStorage::\n"));
     return ResultFromScode(sc);
@@ -1131,7 +1086,7 @@ STDMETHODIMP CAsyncRootStorage::SwitchToFile(OLECHAR *ptcsFile)
 
 
 
-STDMETHODIMP CAsyncStream::QueryInterface(REFIID iid, void **ppvObj)
+STDMETHODIMP CAsyncStream::QueryInterface(REFIID iid, void** ppvObj)
 {
     SCODE sc = S_OK;
     *ppvObj = NULL;
@@ -1140,23 +1095,16 @@ STDMETHODIMP CAsyncStream::QueryInterface(REFIID iid, void **ppvObj)
     if (IsEqualIID(iid, IID_IUnknown))
 
     {
-        *ppvObj = (IStream *)this;
-    }
-    else if (IsEqualIID(iid, IID_IStream))
-    {
-        *ppvObj = (IStream *)this;
-    }
-    else if (IsEqualIID(iid, IID_IConnectionPointContainer))
-    {
-        *ppvObj = (IConnectionPointContainer *)this;
-    }
-    else
-    {
+        *ppvObj = (IStream*)this;
+    } else if (IsEqualIID(iid, IID_IStream)) {
+        *ppvObj = (IStream*)this;
+    } else if (IsEqualIID(iid, IID_IConnectionPointContainer)) {
+        *ppvObj = (IConnectionPointContainer*)this;
+    } else {
         sc = E_NOINTERFACE;
     }
 
-    if (SUCCEEDED(sc))
-    {
+    if (SUCCEEDED(sc)) {
         AddRef();
         _pRealStm->AddRef();
     }
@@ -1204,11 +1152,9 @@ STDMETHODIMP_(ULONG) CAsyncStream::Release(void)
 
     lRet = InterlockedDecrement(&_cReferences);
     _pRealStm->Release();
-    if (lRet == 0)
-    {
+    if (lRet == 0) {
         delete this;
-    }
-    else if (lRet < 0)
+    } else if (lRet < 0)
         lRet = 0;
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::Release\n"));
     return (ULONG)lRet;
@@ -1226,9 +1172,9 @@ STDMETHODIMP_(ULONG) CAsyncStream::Release(void)
 
 
 
-STDMETHODIMP CAsyncStream::Read(VOID HUGEP *pv,
+STDMETHODIMP CAsyncStream::Read(VOID HUGEP* pv,
                                 ULONG cb,
-                                ULONG *pcbRead)
+                                ULONG* pcbRead)
 {
     SCODE sc = S_OK;
     SCODE sc2 = S_OK;
@@ -1236,13 +1182,12 @@ STDMETHODIMP CAsyncStream::Read(VOID HUGEP *pv,
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStream::Read:%p()\n", this));
 
-    do
-    {
-        sc = _pRealStm->Read(pv,cb,pcbRead);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+    do {
+        sc = _pRealStm->Read(pv, cb, pcbRead);
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::Read\n"));
     return ResultFromScode(sc);
@@ -1259,9 +1204,9 @@ STDMETHODIMP CAsyncStream::Read(VOID HUGEP *pv,
 
 
 
-STDMETHODIMP CAsyncStream::Write(VOID const HUGEP *pv,
+STDMETHODIMP CAsyncStream::Write(VOID const HUGEP* pv,
                                  ULONG cb,
-                                 ULONG *pcbWritten)
+                                 ULONG* pcbWritten)
 {
     SCODE sc = S_OK;
     SCODE sc2 = S_OK;
@@ -1270,12 +1215,12 @@ STDMETHODIMP CAsyncStream::Write(VOID const HUGEP *pv,
     astgDebugOut((DEB_ITRACE, "In  CAsyncStream::Write:%p()\n", this));
 
 
-    do
-    {    sc = _pRealStm->Write(pv,cb,pcbWritten);
+    do {
+        sc = _pRealStm->Write(pv, cb, pcbWritten);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
-    }  while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::Write\n"));
     return ResultFromScode(sc);
@@ -1296,7 +1241,7 @@ STDMETHODIMP CAsyncStream::Write(VOID const HUGEP *pv,
 
 STDMETHODIMP CAsyncStream::Seek(LARGE_INTEGER dlibMove,
                                 DWORD dwOrigin,
-                                ULARGE_INTEGER *plibNewPosition)
+                                ULARGE_INTEGER* plibNewPosition)
 {
     SCODE sc = S_OK;
     SCODE sc2 = S_OK;
@@ -1304,14 +1249,13 @@ STDMETHODIMP CAsyncStream::Seek(LARGE_INTEGER dlibMove,
     astgDebugOut((DEB_ITRACE, "In  CAsyncStream::Seek:%p()\n", this));
 
 
-    do
-    {
-        sc = _pRealStm->Seek(dlibMove, dwOrigin,plibNewPosition);
+    do {
+        sc = _pRealStm->Seek(dlibMove, dwOrigin, plibNewPosition);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }  while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::Seek\n"));
     return ResultFromScode(sc);
@@ -1329,23 +1273,23 @@ STDMETHODIMP CAsyncStream::Seek(LARGE_INTEGER dlibMove,
 //  History:    01-Jan-96    SusiA    Created
 
 
-STDMETHODIMP CAsyncStream::CopyTo(IStream *pstm,
+STDMETHODIMP CAsyncStream::CopyTo(IStream* pstm,
                                   ULARGE_INTEGER cb,
-                                  ULARGE_INTEGER *pcbRead,
-                                  ULARGE_INTEGER *pcbWritten)
+                                  ULARGE_INTEGER* pcbRead,
+                                  ULARGE_INTEGER* pcbWritten)
 {
     SCODE sc = S_OK;
     SCODE sc2 = S_OK;
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStream::CopyTo:%p()\n", this));
 
-    do
-    {    sc = _pRealStm->CopyTo(pstm, cb,pcbRead, pcbWritten);
+    do {
+        sc = _pRealStm->CopyTo(pstm, cb, pcbRead, pcbWritten);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }   while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::CopyTo\n"));
     return ResultFromScode(sc);
@@ -1372,12 +1316,12 @@ STDMETHODIMP CAsyncStream::SetSize(ULARGE_INTEGER cb)
     astgDebugOut((DEB_ITRACE, "In  CAsyncStream::SetSize%p()\n", this));
 
 
-    do
-    {    sc = _pRealStm->SetSize(cb);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+    do {
+        sc = _pRealStm->SetSize(cb);
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::SetSize\n"));
     return ResultFromScode(sc);
@@ -1401,13 +1345,12 @@ STDMETHODIMP CAsyncStream::Commit(DWORD grfCommitFlags)
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStream::Commit%p()\n", this));
 
-    do
-    {
+    do {
         sc = _pRealStm->Commit(grfCommitFlags);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }  while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::Commit\n"));
     return ResultFromScode(sc);
@@ -1431,13 +1374,12 @@ STDMETHODIMP CAsyncStream::Revert(void)
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStream::Revert%p()\n", this));
 
-    do
-    {
+    do {
         sc = _pRealStm->Revert();
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::Revert\n"));
     return ResultFromScode(sc);
@@ -1464,15 +1406,15 @@ STDMETHODIMP CAsyncStream::LockRegion(ULARGE_INTEGER libOffset,
     astgDebugOut((DEB_ITRACE, "In  CAsyncStream::LockRegion%p()\n", this));
 
 
-   do
-   {    sc = _pRealStm->LockRegion(libOffset,
-                                 cb,
-                                 dwLockType);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+    do {
+        sc = _pRealStm->LockRegion(libOffset,
+                                   cb,
+                                   dwLockType);
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::LockRegion\n"));
     return ResultFromScode(sc);
@@ -1497,15 +1439,14 @@ STDMETHODIMP CAsyncStream::UnlockRegion(ULARGE_INTEGER libOffset,
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStream::UnlockRegion%p()\n", this));
 
-    do
-    {
+    do {
         sc = _pRealStm->UnlockRegion(libOffset,
-                                   cb,
-                                   dwLockType);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+                                     cb,
+                                     dwLockType);
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }  while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::UnlockRegion\n"));
     return ResultFromScode(sc);
@@ -1521,7 +1462,7 @@ STDMETHODIMP CAsyncStream::UnlockRegion(ULARGE_INTEGER libOffset,
 //  History:    01-Jan-96    SusiA    Created
 
 
-STDMETHODIMP CAsyncStream::Stat(STATSTG *pstatstg, DWORD grfStatFlag)
+STDMETHODIMP CAsyncStream::Stat(STATSTG* pstatstg, DWORD grfStatFlag)
 {
     SCODE sc = S_OK;
     SCODE sc2 = S_OK;
@@ -1530,12 +1471,12 @@ STDMETHODIMP CAsyncStream::Stat(STATSTG *pstatstg, DWORD grfStatFlag)
     astgDebugOut((DEB_ITRACE, "In  CAsyncStream::Stat%p()\n", this));
 
 
-    do
-    {    sc = _pRealStm->Stat(pstatstg, grfStatFlag);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+    do {
+        sc = _pRealStm->Stat(pstatstg, grfStatFlag);
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }  while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::Stat\n"));
     return ResultFromScode(sc);
@@ -1555,26 +1496,24 @@ STDMETHODIMP CAsyncStream::Stat(STATSTG *pstatstg, DWORD grfStatFlag)
 
 
 
-STDMETHODIMP CAsyncStream::Clone(IStream **ppstm)
+STDMETHODIMP CAsyncStream::Clone(IStream** ppstm)
 {
     SCODE sc = S_OK;
     SCODE sc2 = S_OK;
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncStream::Clone:%p()\n", this));
-    do
-    {
+    do {
         sc = _pRealStm->Clone(ppstm);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }  while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
 
 
-    if (SUCCEEDED(sc))
-    {
-        CAsyncStream *pwstm = new CAsyncStream(*ppstm, _pflb);
-        *ppstm = (IStream *) pwstm;
+    if (SUCCEEDED(sc)) {
+        CAsyncStream* pwstm = new CAsyncStream(*ppstm, _pflb);
+        *ppstm = (IStream*)pwstm;
 
     }
     astgDebugOut((DEB_ITRACE, "Out CAsyncStream::Clone\n"));
@@ -1596,7 +1535,7 @@ STDMETHODIMP CAsyncStream::Clone(IStream **ppstm)
 
 
 STDMETHODIMP CAsyncStream::EnumConnectionPoints(
-    IEnumConnectionPoints **ppEnum)
+    IEnumConnectionPoints** ppEnum)
 {
     astgDebugOut((DEB_ITRACE,
                   "In  CAsyncStream::EnumConnectionPoints:%p()\n",
@@ -1624,20 +1563,17 @@ STDMETHODIMP CAsyncStream::EnumConnectionPoints(
 
 STDMETHODIMP CAsyncStream::FindConnectionPoint(
     REFIID iid,
-    IConnectionPoint **ppCP)
+    IConnectionPoint** ppCP)
 {
     astgDebugOut((DEB_ITRACE,
                   "In  CAsyncStream::FindConnectionPoint:%p()\n",
                   this));
 
-    CConnectionPoint *pcp;
+    CConnectionPoint* pcp;
 
-    if (IsEqualIID(iid, IID_IProgressNotify))
-    {
+    if (IsEqualIID(iid, IID_IProgressNotify)) {
         pcp = &_cpoint;
-    }
-    else
-    {
+    } else {
         *ppCP = NULL;
         return E_NOINTERFACE;
     }
@@ -1663,7 +1599,7 @@ STDMETHODIMP CAsyncStream::FindConnectionPoint(
 
 
 
-STDMETHODIMP CAsyncEnum::QueryInterface(REFIID iid, void **ppvObj)
+STDMETHODIMP CAsyncEnum::QueryInterface(REFIID iid, void** ppvObj)
 {
     SCODE sc = S_OK;
     *ppvObj = NULL;
@@ -1672,23 +1608,16 @@ STDMETHODIMP CAsyncEnum::QueryInterface(REFIID iid, void **ppvObj)
     if (IsEqualIID(iid, IID_IUnknown))
 
     {
-        *ppvObj = (IEnumSTATSTG *)this;
-    }
-    else if (IsEqualIID(iid, IID_IEnumSTATSTG))
-    {
-        *ppvObj = (IEnumSTATSTG *)this;
-    }
-    else if (IsEqualIID(iid, IID_IConnectionPointContainer))
-    {
-        *ppvObj = (IConnectionPointContainer *)this;
-    }
-    else
-    {
+        *ppvObj = (IEnumSTATSTG*)this;
+    } else if (IsEqualIID(iid, IID_IEnumSTATSTG)) {
+        *ppvObj = (IEnumSTATSTG*)this;
+    } else if (IsEqualIID(iid, IID_IConnectionPointContainer)) {
+        *ppvObj = (IConnectionPointContainer*)this;
+    } else {
         sc = E_NOINTERFACE;
     }
 
-    if (SUCCEEDED(sc))
-    {
+    if (SUCCEEDED(sc)) {
         AddRef();
         _pRealEnum->AddRef();
     }
@@ -1736,11 +1665,9 @@ STDMETHODIMP_(ULONG) CAsyncEnum::Release(void)
 
     lRet = InterlockedDecrement(&_cReferences);
     _pRealEnum->Release();
-    if (lRet == 0)
-    {
+    if (lRet == 0) {
         delete this;
-    }
-    else if (lRet < 0)
+    } else if (lRet < 0)
         lRet = 0;
     astgDebugOut((DEB_ITRACE, "Out CAsyncEnum::Release\n"));
     return (ULONG)lRet;
@@ -1762,7 +1689,7 @@ STDMETHODIMP_(ULONG) CAsyncEnum::Release(void)
 
 
 STDMETHODIMP CAsyncEnum::EnumConnectionPoints(
-    IEnumConnectionPoints **ppEnum)
+    IEnumConnectionPoints** ppEnum)
 {
     astgDebugOut((DEB_ITRACE,
                   "In  CAsyncEnum::EnumConnectionPoints:%p()\n",
@@ -1790,20 +1717,17 @@ STDMETHODIMP CAsyncEnum::EnumConnectionPoints(
 
 STDMETHODIMP CAsyncEnum::FindConnectionPoint(
     REFIID iid,
-    IConnectionPoint **ppCP)
+    IConnectionPoint** ppCP)
 {
     astgDebugOut((DEB_ITRACE,
                   "In  CAsyncEnum::FindConnectionPoint:%p()\n",
                   this));
 
-    CConnectionPoint *pcp;
+    CConnectionPoint* pcp;
 
-    if (IsEqualIID(iid, IID_IProgressNotify))
-    {
+    if (IsEqualIID(iid, IID_IProgressNotify)) {
         pcp = &_cpoint;
-    }
-    else
-    {
+    } else {
         *ppCP = NULL;
         return E_NOINTERFACE;
     }
@@ -1827,7 +1751,7 @@ STDMETHODIMP CAsyncEnum::FindConnectionPoint(
 //  History:    01-Jan-96    SusiA    Created
 
 
-STDMETHODIMP CAsyncEnum::Next(ULONG celt, STATSTG FAR *rgelt, ULONG *pceltFetched)
+STDMETHODIMP CAsyncEnum::Next(ULONG celt, STATSTG FAR* rgelt, ULONG* pceltFetched)
 {
 
     SCODE sc = S_OK;
@@ -1835,11 +1759,11 @@ STDMETHODIMP CAsyncEnum::Next(ULONG celt, STATSTG FAR *rgelt, ULONG *pceltFetche
 
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncEnum::Next:%p()\n", this));
-    do
-    {    sc = _pRealEnum->Next(celt, rgelt, pceltFetched);
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+    do {
+        sc = _pRealEnum->Next(celt, rgelt, pceltFetched);
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncEnum::Next\n"));
     return ResultFromScode(sc);
@@ -1865,14 +1789,13 @@ STDMETHODIMP CAsyncEnum::Skip(ULONG celt)
     astgDebugOut((DEB_ITRACE, "In  CAsyncEnum::Skip:%p()\n", this));
     sc = _pRealEnum->Skip(celt);
 
-    do
-    {
+    do {
         sc = _pRealEnum->Reset();
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncEnum::Skip\n"));
     return ResultFromScode(sc);
@@ -1896,14 +1819,13 @@ STDMETHODIMP CAsyncEnum::Reset(void)
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncEnum::Reset:%p()\n", this));
 
-    do
-    {
+    do {
         sc = _pRealEnum->Reset();
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    } while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
     astgDebugOut((DEB_ITRACE, "Out CAsyncEnum::Reset\n"));
     return ResultFromScode(sc);
@@ -1919,7 +1841,7 @@ STDMETHODIMP CAsyncEnum::Reset(void)
 //  History:    01-Jan-96    SusiA    Created
 
 
-STDMETHODIMP CAsyncEnum::Clone(IEnumSTATSTG **ppenm)
+STDMETHODIMP CAsyncEnum::Clone(IEnumSTATSTG** ppenm)
 {
 
     SCODE sc = S_OK;
@@ -1927,21 +1849,19 @@ STDMETHODIMP CAsyncEnum::Clone(IEnumSTATSTG **ppenm)
 
     astgDebugOut((DEB_ITRACE, "In  CAsyncEnum::Clone:%p()\n", this));
 
-    do
-    {
+    do {
 
         sc = _pRealEnum->Clone(ppenm);
 
-        if (( STG_E_PENDING==sc) && ((sc2 = Notify())!= S_OK))
+        if ((STG_E_PENDING == sc) && ((sc2 = Notify()) != S_OK))
             return ResultFromScode(sc2);
 
-    }  while (sc == STG_E_PENDING );
+    } while (sc == STG_E_PENDING);
 
 
-    if (SUCCEEDED(sc))
-    {
-        CAsyncEnum *pwenum = new CAsyncEnum(*ppenm, _pflb);
-        *ppenm = (IEnumSTATSTG *) pwenum;
+    if (SUCCEEDED(sc)) {
+        CAsyncEnum* pwenum = new CAsyncEnum(*ppenm, _pflb);
+        *ppenm = (IEnumSTATSTG*)pwenum;
 
     }
     astgDebugOut((DEB_ITRACE, "Out CAsyncEnum::Clone\n"));

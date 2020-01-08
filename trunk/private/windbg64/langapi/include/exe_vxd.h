@@ -22,9 +22,9 @@
 #endif
 
 
-    /*_________________________________________________________________*
-     |    OS/2 .EXE FILE HEADER DEFINITION - 386 version 0:32           |
-     *                                                                 */
+/*_________________________________________________________________*
+ |    OS/2 .EXE FILE HEADER DEFINITION - 386 version 0:32           |
+ *                                                                 */
 
 
 #define BITPERWORD    16
@@ -95,13 +95,13 @@ struct e32_exe {            /* New 32-bit .EXE header */
     unsigned long    e32_instdemand; /* Number of instance pages in demand load section of .EXE file */
     unsigned long    e32_heapsize;    /* Size of heap - for 16-bit apps */
     unsigned char    e32_res3[E32RESBYTES3 - 4 - 8];
-                    /* Pad structure to 192 bytes */
-    unsigned long    e32_winresoff ;
-    unsigned long    e32_winreslen ;
+    /* Pad structure to 192 bytes */
+    unsigned long    e32_winresoff;
+    unsigned long    e32_winreslen;
     unsigned short    Dev386_Device_ID;
-                    /* Device ID for VxD */
+    /* Device ID for VxD */
     unsigned short    Dev386_DDK_Version;
-                    /* DDK version for VxD */
+    /* DDK version for VxD */
 };
 
 
@@ -217,7 +217,7 @@ typedef union _offset
     unsigned short offset16;
     unsigned long  offset32;
 }
-    offset;                /* 16-bit or 32-bit offset */
+offset;                /* 16-bit or 32-bit offset */
 
 
 /***ET+    r32_rlc - Relocation item */
@@ -229,9 +229,9 @@ struct r32_rlc {            /* Relocation item */
     unsigned short r32_objmod;        /* Target obj. no. or Module ordinal */
 
     union targetid {            /* BEGIN UNION */
-    unsigned long intref;        /* Internal fixup offset */
-    unsigned long proc;        /* Procedure name offset */
-    unsigned long ord;         /* Procedure ordinal */
+        unsigned long intref;        /* Internal fixup offset */
+        unsigned long proc;        /* Procedure name offset */
+        unsigned long ord;         /* Procedure ordinal */
     } r32_target;            /* END UNION */
     unsigned long addval;        /* Value added to the address */
     unsigned short r32_srccount;    /* Number of chained fixup records */
@@ -289,7 +289,7 @@ struct r32_rlc {            /* Relocation item */
 
 #if FALSE
 
-        /* DEFINED in newexe.h !!! */
+/* DEFINED in newexe.h !!! */
 
 #define NRSTYP        0x0f        /* Source type mask */
 #define NRSBYT        0x00        /* lo byte (8-bits)*/
@@ -327,7 +327,7 @@ struct r32_rlc {            /* Relocation item */
 
 #if FALSE
 
-        /* DEFINED in newexe.h !!! */
+/* DEFINED in newexe.h !!! */
 
 #define NRADD        0x04        /* Additive fixup */
 #define NRRTYP        0x03        /* Reference type mask */
@@ -361,7 +361,7 @@ typedef struct _OBJPAGEDIR
     DWORD   next;            /* Virtual pointer to next dir on list */
     WORD    ht[PAGEPERDIR];        /* Pointers to individual hash tables */
 }
-    OBJPAGEDIR;
+OBJPAGEDIR;
 
 
 
@@ -422,7 +422,7 @@ struct o32_obj                /* Flat .EXE object table entry */
 #define OBJRSRC     0x0008L         /* Resource Object     */
 #define OBJINVALID    0x0080L         /* Object has invalid pages  */
 #define OBJNONPERM    0x0600L         /* Object is nonpermanent - should be */
-                        /* zero in the .EXE but internally we use 6 */
+/* zero in the .EXE but internally we use 6 */
 #define OBJPERM     0x0100L         /* Object is permanent and swappable */
 #define OBJRESIDENT    0x0200L         /* Object is permanent and resident */
 #define OBJCONTIG    0x0300L         /* Object is resident and contiguous */
@@ -513,21 +513,21 @@ struct e32_entry
     unsigned char    e32_flags;    /* Entry point flags */
     union entrykind
     {
-    offset        e32_offset;    /* 16-bit/32-bit offset entry */
-    struct
-    {
-        unsigned short offset;    /* Offset in segment */
-        unsigned short callgate;    /* Callgate selector */
+        offset        e32_offset;    /* 16-bit/32-bit offset entry */
+        struct
+        {
+            unsigned short offset;    /* Offset in segment */
+            unsigned short callgate;    /* Callgate selector */
+        }
+        e32_callgate;    /* 286 (16-bit) call gate */
+        struct
+        {
+            unsigned short  modord;    /* Module ordinal number */
+            unsigned long   value;    /* Proc name offset or ordinal */
+        }
+        e32_fwd;    /* Forwarder */
     }
-            e32_callgate;    /* 286 (16-bit) call gate */
-    struct
-    {
-        unsigned short  modord;    /* Module ordinal number */
-        unsigned long   value;    /* Proc name offset or ordinal */
-    }
-            e32_fwd;    /* Forwarder */
-    }
-            e32_variant;    /* Entry variant */
+    e32_variant;    /* Entry variant */
 };
 
 #pragma pack()                /* Stop packing */

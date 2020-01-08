@@ -70,8 +70,8 @@
 #endif
 
 #define DEF_FRAMEMARGIN     LXTODX(TWIPS_FROM_POINTS(2))
-// BRECREC_COUNT should be the maximum number of ILS objects we can embed one
-// inside the other. Currently that is (16 reverse) + (1 NOBR) + (1 Ruby).
+ // BRECREC_COUNT should be the maximum number of ILS objects we can embed one
+ // inside the other. Currently that is (16 reverse) + (1 NOBR) + (1 Ruby).
 #define BRECREC_COUNT       20
 
 MtDefine(CLSMeasurer, Layout, "CLSMeasurer")
@@ -88,33 +88,31 @@ MtDefine(CLSLineChunk, Layout, "CLSLineChunk")
 // Synopsis:    Ctors for CLSMeasurer
 
 
-CLSMeasurer::CLSMeasurer (const CDisplay* const pdp, CCalcInfo * pci)
+CLSMeasurer::CLSMeasurer(const CDisplay* const pdp, CCalcInfo* pci)
 {
-    CTreePos *ptpFirst, *ptpLast;
+    CTreePos* ptpFirst, * ptpLast;
 
     Init(pdp, pci, TRUE);
     _pFlowLayout->GetContentTreeExtent(&ptpFirst, &ptpLast);
-    do
-    {
+    do {
         ptpFirst = ptpFirst->NextTreePos();
-    }
-    while (ptpFirst->GetCch() == 0);
+    } while (ptpFirst->GetCch() == 0);
     SetPtp(ptpFirst, -1);
 }
 
-CLSMeasurer::CLSMeasurer (const CDisplay* const pdp, LONG cp, CCalcInfo * pci)
+CLSMeasurer::CLSMeasurer(const CDisplay* const pdp, LONG cp, CCalcInfo* pci)
 {
     Init(pdp, pci, TRUE);
     SetCp(cp, NULL);
 }
 
-CLSMeasurer::CLSMeasurer (const CDisplay* const pdp, CDocInfo * pdci, BOOL fStartUpLSDLL)
+CLSMeasurer::CLSMeasurer(const CDisplay* const pdp, CDocInfo* pdci, BOOL fStartUpLSDLL)
 {
     Init(pdp, CalcInfoFromDocInfo(pdp, pdci), fStartUpLSDLL);
     SetCp(pdp->GetFirstCp(), NULL);
 }
 
-CLSMeasurer::CLSMeasurer (const CDisplay* const pdp, LONG cp, CDocInfo * pdci)
+CLSMeasurer::CLSMeasurer(const CDisplay* const pdp, LONG cp, CDocInfo* pdci)
 {
     Init(pdp, CalcInfoFromDocInfo(pdp, pdci), TRUE);
     SetCp(cp, NULL);
@@ -128,21 +126,21 @@ CLSMeasurer::CLSMeasurer (const CDisplay* const pdp, LONG cp, CDocInfo * pdci)
 
 
 void
-CLSMeasurer::Init(const CDisplay * pdp, CCalcInfo *pci, BOOL fStartUpLSDLL)
+CLSMeasurer::Init(const CDisplay* pdp, CCalcInfo* pci, BOOL fStartUpLSDLL)
 {
-    _pFlowLayout        = pdp->GetFlowLayout();
-    _cp                 = _pFlowLayout->GetContentFirstCp();
+    _pFlowLayout = pdp->GetFlowLayout();
+    _cp = _pFlowLayout->GetContentFirstCp();
     _pFlowLayout->GetContentTreeExtent(&_ptpCurrent, NULL);
-    _cpEnd              = _pFlowLayout->GetContentLastCp();
-    _cchPreChars        = 0;
-    _pdp                = pdp;
-    _fLastWasBreak      = FALSE;
-    _pci                = NULL;
-    _hdc                = NULL;
-    _fBrowseMode        = !pdp->GetFlowLayout()->IsEditable();
+    _cpEnd = _pFlowLayout->GetContentLastCp();
+    _cchPreChars = 0;
+    _pdp = pdp;
+    _fLastWasBreak = FALSE;
+    _pci = NULL;
+    _hdc = NULL;
+    _fBrowseMode = !pdp->GetFlowLayout()->IsEditable();
     _fMeasureFromTheStart = FALSE;
-    _yEmptyLineHeight   = -1;
-    _pRunOwner          = _pFlowLayout;
+    _yEmptyLineHeight = -1;
+    _pRunOwner = _pFlowLayout;
     SetCalcInfo(pci);
     _hdc = _pci->_hdc;
 
@@ -160,9 +158,9 @@ CLSMeasurer::Init(const CDisplay * pdp, CCalcInfo *pci, BOOL fStartUpLSDLL)
 
 
 void
-CLSMeasurer::Reinit(const CDisplay * pdp, CCalcInfo *pci)
+CLSMeasurer::Reinit(const CDisplay* pdp, CCalcInfo* pci)
 {
-    CTreePos *ptpFirst, *ptpLast;
+    CTreePos* ptpFirst, * ptpLast;
 
     Assert(pdp);
 
@@ -174,11 +172,9 @@ CLSMeasurer::Reinit(const CDisplay * pdp, CCalcInfo *pci)
 
     // 2. setup the cp and _ptp
     _pFlowLayout->GetContentTreeExtent(&ptpFirst, &ptpLast);
-    do
-    {
+    do {
         ptpFirst = ptpFirst->NextTreePos();
-    }
-    while (ptpFirst->GetCch() == 0);
+    } while (ptpFirst->GetCch() == 0);
     SetPtp(ptpFirst, -1);
 
     Assert(_pdp);
@@ -195,8 +191,7 @@ CLSMeasurer::Reinit(const CDisplay * pdp, CCalcInfo *pci)
 void
 CLSMeasurer::Deinit()
 {
-    if (_pLS)
-    {
+    if (_pLS) {
         _pLS->ClearPOLS();
 
         if (_pdp)
@@ -214,15 +209,12 @@ CLSMeasurer::Deinit()
 
 
 void
-CLSMeasurer::SetCalcInfo(CCalcInfo * pci)
+CLSMeasurer::SetCalcInfo(CCalcInfo* pci)
 {
-    if (!pci)
-    {
+    if (!pci) {
         _CI.Init(_pFlowLayout);
         _pci = &_CI;
-    }
-    else
-    {
+    } else {
         _pci = pci;
     }
 }
@@ -234,16 +226,13 @@ CLSMeasurer::SetCalcInfo(CCalcInfo * pci)
 // Synopsis:
 
 
-CCalcInfo *
-CLSMeasurer::CalcInfoFromDocInfo(const CDisplay *pdp, CDocInfo * pdci)
+CCalcInfo*
+CLSMeasurer::CalcInfoFromDocInfo(const CDisplay* pdp, CDocInfo* pdci)
 {
     _pFlowLayout = pdp->GetFlowLayout();
-    if (!pdci)
-    {
+    if (!pdci) {
         _CI.Init(pdp->GetFlowLayout());
-    }
-    else
-    {
+    } else {
         _CI.Init(pdci, pdp->GetFlowLayout());
         _CI.SizeToParent(pdp->GetFlowLayout());
     }
@@ -271,22 +260,19 @@ CLSMeasurer::~CLSMeasurer()
 
 
 void
-CLSMeasurer::SetCp(LONG cp, CTreePos *ptp)
+CLSMeasurer::SetCp(LONG cp, CTreePos* ptp)
 {
     _cp = cp;
-    if (ptp == NULL)
-    {
-         LONG notNeeded;
+    if (ptp == NULL) {
+        LONG notNeeded;
         _ptpCurrent = _pFlowLayout->GetContentMarkup()->TreePosAtCp(cp, &notNeeded);
-    }
-    else
-    {
+    } else {
         _ptpCurrent = ptp;
     }
     Assert(_ptpCurrent);
-    Assert(   _ptpCurrent->GetCp() <= _cp
+    Assert(_ptpCurrent->GetCp() <= _cp
            && _ptpCurrent->GetCp() + _ptpCurrent->GetCch() >= _cp
-          );
+    );
 }
 
 
@@ -299,16 +285,16 @@ CLSMeasurer::SetCp(LONG cp, CTreePos *ptp)
 
 
 void
-CLSMeasurer::SetPtp(CTreePos *ptp, LONG cp)
+CLSMeasurer::SetPtp(CTreePos* ptp, LONG cp)
 {
     Assert(ptp);
     _ptpCurrent = ptp;
     _cp = (cp == -1) ? ptp->GetCp() : cp;
 
     Assert(_ptpCurrent);
-    Assert(   _ptpCurrent->GetCp() <= _cp
+    Assert(_ptpCurrent->GetCp() <= _cp
            && _ptpCurrent->GetCp() + _ptpCurrent->GetCch() >= _cp
-          );
+    );
 }
 
 
@@ -320,21 +306,18 @@ CLSMeasurer::SetPtp(CTreePos *ptp, LONG cp)
 
 
 void
-CLSMeasurer::Advance(long cch, CTreePos *ptp /* = NULL */)
+CLSMeasurer::Advance(long cch, CTreePos* ptp /* = NULL */)
 {
     _cp += cch;
-    if (ptp)
-    {
+    if (ptp) {
         _ptpCurrent = ptp;
-    }
-    else
-    {
+    } else {
         SetCp(_cp, NULL);
     }
     Assert(_ptpCurrent);
-    Assert(   _ptpCurrent->GetCp() <= _cp
+    Assert(_ptpCurrent->GetCp() <= _cp
            && _ptpCurrent->GetCp() + _ptpCurrent->GetCch() >= _cp
-          );
+    );
 }
 
 
@@ -349,20 +332,20 @@ CLSMeasurer::Advance(long cch, CTreePos *ptp /* = NULL */)
 
 
 void
-CLSMeasurer::InitLineSpace(const CLSMeasurer *pMe, CLinePtr &rpOld)
+CLSMeasurer::InitLineSpace(const CLSMeasurer* pMe, CLinePtr& rpOld)
 {
     // Zero it all out.
     NewLine(FALSE);
 
     // Set up the current cache from the given measurer.
-    _fLastWasBreak   = pMe->_fLastWasBreak;
+    _fLastWasBreak = pMe->_fLastWasBreak;
 
     // Flags given separately.
     _li._dwFlags() = rpOld->_dwFlags();
     _li._fPartOfRelChunk = rpOld->_fPartOfRelChunk;
 
     // Setup the pf
-    CTreeNode *pNode = _pdp->FormattingNodeForLine(GetCp(), GetPtp(), rpOld->_cch, NULL, NULL, NULL);
+    CTreeNode* pNode = _pdp->FormattingNodeForLine(GetCp(), GetPtp(), rpOld->_cch, NULL, NULL, NULL);
     MeasureSetPF(pNode->GetParaFormat(), SameScope(pNode, _pdp->GetFlowLayout()->ElementContent()));
 }
 
@@ -379,7 +362,7 @@ void CLSMeasurer::NewLine(
 {
     _li.Init();                     // Zero all members
 
-    if(fFirstInPara)
+    if (fFirstInPara)
         _li._fFirstInPara = TRUE;   // Need to know if first in para
 
     // Can't calculate xLeft till we get an HDC.
@@ -397,16 +380,16 @@ void CLSMeasurer::NewLine(
 
 
 void CLSMeasurer::NewLine(
-    const CLine &li)
+    const CLine& li)
 {
-    _li           = li;
-    _li._cch      = 0;
+    _li = li;
+    _li._cch = 0;
     _li._cchWhite = 0;
-    _li._xWidth   = 0;
+    _li._xWidth = 0;
 
     // Can't calculate xLeft or xRight till we get an HDC
-    _li._xLeft    = 0;
-    _li._xRight   = 0;
+    _li._xLeft = 0;
+    _li._xRight = 0;
 }
 
 
@@ -434,40 +417,37 @@ LONG CLSMeasurer::MeasureText(
     LONG cch,
     LONG cchLine,       // Number of characters to measure
     BOOL fAfterPrevCp,  // Return the trailing point of the previous cp (for an ambigous bidi cp)
-    BOOL *pfComplexLine,
-    BOOL *pfRTLFlow,
-    RubyInfo *pRubyInfo)  // = NULL (default)
+    BOOL* pfComplexLine,
+    BOOL* pfRTLFlow,
+    RubyInfo* pRubyInfo)  // = NULL (default)
 {
 
     CMarginInfo marginInfo;
-    LONG xLeft  = _li._xLeft;
+    LONG xLeft = _li._xLeft;
     LONG xRight = _li._xRight;
-    LONG lRet   = -1;
+    LONG lRet = -1;
     LONG cpStart = GetCp();
     LONG cpStartContainerLine;
     LSERR lserr = lserrNone;
     LONG cpToMeasureTill;
-    CLine *pliContainer;
+    CLine* pliContainer;
     DWORD uiFlags = 0;
 
-    if ( _pFlowLayout->GetDisplay()->GetWordWrap() &&
-         _pFlowLayout->GetDisplay()->GetWrapLongLines() )
-    {
+    if (_pFlowLayout->GetDisplay()->GetWordWrap() &&
+        _pFlowLayout->GetDisplay()->GetWrapLongLines()) {
         uiFlags |= MEASURE_BREAKLONGLINES;
     }
 
 
     // Dont do anything if we have no characters to measure
 
-    if (cch == 0)
-    {
+    if (cch == 0) {
         lRet = 0;
         goto Cleanup;
     }
 
     lserr = PrepAndMeasureLine(&_li, &pliContainer, &cpStartContainerLine, &marginInfo, cchLine, uiFlags);
-    if (lserr != lserrNone)
-    {
+    if (lserr != lserrNone) {
         lRet = 0;
         goto Cleanup;
     }
@@ -475,40 +455,32 @@ LONG CLSMeasurer::MeasureText(
     if (pfComplexLine)
         *pfComplexLine = (_pLS->_pBidiLine != NULL);
 
-    if(pfRTLFlow)
+    if (pfRTLFlow)
         *pfRTLFlow = _li._fRTL;
 
     cpToMeasureTill = cpStart + cch;
 
-    if(cpToMeasureTill > cpStartContainerLine || _pLS->_pBidiLine != NULL)
-    {
+    if (cpToMeasureTill > cpStartContainerLine || _pLS->_pBidiLine != NULL) {
         BOOL fRTLFlow;
         lRet = _pLS->CalculateXPositionOfCp(cpToMeasureTill, fAfterPrevCp, &fRTLFlow);
 
-        if(!_pdp->IsRTL())
-        {
+        if (!_pdp->IsRTL()) {
             lRet -= xLeft - pliContainer->_xLeft;
-        }
-        else
-        {
+        } else {
             lRet -= xRight - pliContainer->_xRight;
         }
-        if(pfRTLFlow)
+        if (pfRTLFlow)
             *pfRTLFlow = fRTLFlow;
-    }
-    else
+    } else
         lRet = 0;
 
     Assert(lRet >= 0);
 
     Advance(cch);
-    if((_pLS->_lineFlags.GetLineFlags(_cp) & FLAG_HAS_RUBY) && pRubyInfo)
-    {
-        if(CurrBranch()->GetCharFormat()->_fIsRubyText)
-        {
-            RubyInfo *pTempRubyInfo = _pLS->GetRubyInfoFromCp(_cp);
-            if(pTempRubyInfo)
-            {
+    if ((_pLS->_lineFlags.GetLineFlags(_cp) & FLAG_HAS_RUBY) && pRubyInfo) {
+        if (CurrBranch()->GetCharFormat()->_fIsRubyText) {
+            RubyInfo* pTempRubyInfo = _pLS->GetRubyInfoFromCp(_cp);
+            if (pTempRubyInfo) {
                 memcpy(pRubyInfo, pTempRubyInfo, sizeof(RubyInfo));
             }
         }
@@ -547,9 +519,9 @@ LONG
 CLSMeasurer::MeasureRangeOnLine(
     LONG ich,                       // Offset to first character in the range
     LONG cch,                       // Number of characters in the range
-    const CLine &li,                // Information about the line
+    const CLine& li,                // Information about the line
     LONG yPos,                      // The yPos of the line
-    CDataAry<RECT> * paryChunks,    // Array of chunks to return
+    CDataAry<RECT>* paryChunks,    // Array of chunks to return
     DWORD dwFlags)                  // RFE_FLAGS
 {
     CMarginInfo marginInfo;
@@ -558,30 +530,24 @@ CLSMeasurer::MeasureRangeOnLine(
     LONG cpStartContainerLine;
     LSERR lserr;
     LONG cChunk;
-    CLine * pliContainer;
+    CLine* pliContainer;
     LONG xShift = 0;
 
     Assert(paryChunks != NULL);
 
     lserr = PrepAndMeasureLine(&_li, &pliContainer, &cpStartContainerLine, &marginInfo, li._cch, 0);
 
-    if (lserr == lserrNone)
-    {
-        if (!pliContainer->IsRTL())
-        {
+    if (lserr == lserrNone) {
+        if (!pliContainer->IsRTL()) {
             xShift = pliContainer->_xLeft - li._xLeft;
-        }
-        else
-        {
+        } else {
             xShift = pliContainer->_xRight - li._xRight;
         }
-        if(dwFlags & RFE_TIGHT_RECTS)
+        if (dwFlags & RFE_TIGHT_RECTS)
             cChunk = _pLS->CalcRectsOfRangeOnLine(cpStart, cpEnd, xShift, yPos, paryChunks, dwFlags);
         else
             cChunk = _pLS->CalcPositionsOfRangeOnLine(cpStart, cpEnd, xShift, paryChunks);
-    }
-    else
-    {
+    } else {
         cChunk = 0;
     }
 
@@ -604,8 +570,8 @@ BOOL CLSMeasurer::MeasureLine(
     LONG xWidthMax,     // max width to process (-1 uses CDisplay width)
     LONG cchMax,        // Max chars to process (-1 if no limit)
     UINT uiFlags,       // Flags controlling the process (see Measure())
-    CMarginInfo *pMarginInfo,
-    LONG *pxMinLine)    // returns min line width required for tables(optional)
+    CMarginInfo* pMarginInfo,
+    LONG* pxMinLine)    // returns min line width required for tables(optional)
 {
     BOOL fRet = TRUE;
     LONG lRet;
@@ -614,9 +580,8 @@ BOOL CLSMeasurer::MeasureLine(
     lRet = Measure(xWidthMax, cchMax, uiFlags, pMarginInfo, pxMinLine);
 
     // Stop here if failed
-    if(lRet == MRET_FAILED)
-    {
-        AssertSz(0,"Measure returned MRET_FAILED");
+    if (lRet == MRET_FAILED) {
+        AssertSz(0, "Measure returned MRET_FAILED");
         fRet = FALSE;
         goto Cleanup;
     }
@@ -642,15 +607,15 @@ Cleanup:
 HRESULT
 CLSMeasurer::LSDoCreateLine(
     LONG cp,                  // IN
-    CTreePos *ptp,            // IN
-    CMarginInfo *pMarginInfo, // IN
+    CTreePos* ptp,            // IN
+    CMarginInfo* pMarginInfo, // IN
     LONG xWidthMaxIn,         // IN
-    const CLine * pli,        // IN
+    const CLine* pli,        // IN
     BOOL fMinMaxPass,         // IN
-    LSLINFO *plslinfo)        // OUT
+    LSLINFO* plslinfo)        // OUT
 {
-    PLSC        plsc  = _pLS->GetContext();
-    CCalcInfo  *pci   = GetCalcInfo();
+    PLSC        plsc = _pLS->GetContext();
+    CCalcInfo* pci = GetCalcInfo();
     HRESULT     hr;
     LSDEVRES    lsdevres;
     BREAKREC    rgBreakRec[BRECREC_COUNT];
@@ -669,7 +634,7 @@ CLSMeasurer::LSDoCreateLine(
         goto Cleanup;
 
     if (plslinfo == NULL)
-        plslinfo = & lslinfo;
+        plslinfo = &lslinfo;
 
     hr = THR(_pLS->CheckSetTables());
     if (hr)
@@ -678,23 +643,22 @@ CLSMeasurer::LSDoCreateLine(
     // REVIEW IE5_ZOOM: perform WYSIWYG layout using proper, unzoomed, target units and rendering units
     lsdevres.dxpInch = lsdevres.dxrInch = pci->_sizeInch.cx;
     lsdevres.dypInch = lsdevres.dyrInch = pci->_sizeInch.cy;
-    hr = HRFromLSERR(LsSetDoc( plsc, TRUE, TRUE, &lsdevres ));
+    hr = HRFromLSERR(LsSetDoc(plsc, TRUE, TRUE, &lsdevres));
     if (hr)
         goto Cleanup;
 
-    hr = HRFromLSERR(LsCreateLine( plsc, cp, pci->TwipsFromDeviceCX(_pLS->_xWidthMaxAvail),
-                                   NULL, 0, sizeof(rgBreakRec)/sizeof(BREAKREC), rgBreakRec, &nBreakRec,
-                                   plslinfo, &_pLS->_plsline ) );
+    hr = HRFromLSERR(LsCreateLine(plsc, cp, pci->TwipsFromDeviceCX(_pLS->_xWidthMaxAvail),
+                                  NULL, 0, sizeof(rgBreakRec) / sizeof(BREAKREC), rgBreakRec, &nBreakRec,
+                                  plslinfo, &_pLS->_plsline));
     if (hr)
         goto Cleanup;
 
     _pLS->_lscpLim = plslinfo->cpLim;
-    _pLS->_cpLim   = _pLS->CPFromLSCP(_pLS->_lscpLim);
+    _pLS->_cpLim = _pLS->CPFromLSCP(_pLS->_lscpLim);
 
     // PaulNel - We need to set this up in order to put widths into line
     // for bidi lines.
-    if(_pLS->_pBidiLine)
-    {
+    if (_pLS->_pBidiLine) {
         long durWithTrailing, durWithoutTrailing;
 
         hr = _pLS->GetLineWidth(&durWithTrailing, &durWithoutTrailing);
@@ -719,20 +683,20 @@ Cleanup:
 
 HRESULT
 CLSMeasurer::LSMeasure(
-    CMarginInfo *pMarginInfo,
+    CMarginInfo* pMarginInfo,
     LONG xWidthMaxIn,
-    LONG * pxMinLineWidth )
+    LONG* pxMinLineWidth)
 {
-    long           cp    = GetCp();
-    HRESULT        hr    = S_OK;
+    long           cp = GetCp();
+    HRESULT        hr = S_OK;
     LSLINFO        lslinfo;
     long           durWithTrailing, durWithoutTrailing;
     long           dvAscent, dvDescent;
     DWORD          dwlf;
     BOOL           fLineHasBR;
 
-    hr = THR( LSDoCreateLine(GetCp(), GetPtp(), pMarginInfo, xWidthMaxIn, NULL,
-                             pxMinLineWidth != NULL, &lslinfo) );
+    hr = THR(LSDoCreateLine(GetCp(), GetPtp(), pMarginInfo, xWidthMaxIn, NULL,
+                            pxMinLineWidth != NULL, &lslinfo));
     if (hr)
         goto Cleanup;
 
@@ -761,30 +725,25 @@ CLSMeasurer::LSMeasure(
         // since the justification rules can hinge on whether there's a BR on
         // the line or not.  Since Nav doesn't support text-justify, there's no
         // concert for compat.
-        if (   fLineHasBR
+        if (fLineHasBR
             && !g_fInMoney98
             && !_pLS->_li._fJustified
-           )
-        {
+            ) {
             // Note: this call modifies _pLS->_cpLim
             _pLS->AdjustCpLimForNavBRBug(xWidthMaxIn, &lslinfo);
             fRetakeFlags = _pLS->_cpLim < cpLimOld;
         }
 
-        if (   (dwlf & FLAG_HAS_RELATIVE)
-            &&  lslinfo.endr == endrNormal
-           )
-        {
+        if ((dwlf & FLAG_HAS_RELATIVE)
+            && lslinfo.endr == endrNormal
+            ) {
             _pLS->AdjustForRelElementAtEnd();
             fRetakeFlags = _pLS->_cpLim < cpLimOld;
         }
 
-        if (fRetakeFlags)
-        {
+        if (fRetakeFlags) {
             dwlf = _pLS->_lineFlags.GetLineFlags(_pLS->_cpLim);
-        }
-        else
-        {
+        } else {
             Assert(_pLS->_cpLim == cpLimOld);
         }
     }
@@ -796,8 +755,7 @@ CLSMeasurer::LSMeasure(
     // Note that this is true even when there are aligned sites because
     // We will use that information to truncate the full min pass.
 
-    if (pxMinLineWidth)
-    {
+    if (pxMinLineWidth) {
         Assert(_pLS->_fMinMaxPass);
 
         LONG dxMaxDelta;
@@ -812,7 +770,7 @@ CLSMeasurer::LSMeasure(
         // compute the true maximum width.
 
 
-        hr = HRFromLSERR(_pLS->GetMinDurBreaks( pxMinLineWidth, &dxMaxDelta ));
+        hr = HRFromLSERR(_pLS->GetMinDurBreaks(pxMinLineWidth, &dxMaxDelta));
         if (hr)
             goto Cleanup;
 
@@ -837,7 +795,7 @@ CLSMeasurer::LSMeasure(
     // any additional ptp's in CalcAfterSpace. Hence when we have a BR we
     // set _fEndSplayNotMeasured to be true.
 
-    _fEndSplayNotMeasured =  lslinfo.endr == endrNormal || fLineHasBR || _pLS->_li._fSingleSite;
+    _fEndSplayNotMeasured = lslinfo.endr == endrNormal || fLineHasBR || _pLS->_li._fSingleSite;
 
     // LONG_MAX is the return value when (a) the only text on the line is
     // white, and (b) fFmiSpacesInfluenceHeight is not set in the PAP.
@@ -849,9 +807,9 @@ CLSMeasurer::LSMeasure(
     // but dvpMultiLineHeight is not set.
     //Assert(lslinfo.dvpMultiLineHeight != LONG_MAX);
 
-    dvDescent = max( lslinfo.dvpDescent, long(_pLS->_li._yDescent) );
-    dvAscent  = max( lslinfo.dvpAscent,
-                     long(_pLS->_li._yHeight) - long(_pLS->_li._yDescent) );
+    dvDescent = max(lslinfo.dvpDescent, long(_pLS->_li._yDescent));
+    dvAscent = max(lslinfo.dvpAscent,
+                   long(_pLS->_li._yHeight) - long(_pLS->_li._yDescent));
 
     _pLS->_li._yHeight = dvAscent + dvDescent;
     _pLS->_li._yDescent = dvDescent;
@@ -878,7 +836,7 @@ Cleanup:
 LONG
 CLSMeasurer::InitForMeasure(UINT uiFlags)
 {
-    CElement *pElementFL = _pFlowLayout->ElementContent();
+    CElement* pElementFL = _pFlowLayout->ElementContent();
     _fLastWasBreak = FALSE;
     _xLeftFrameMargin = 0;
     _xRightFrameMargin = 0;
@@ -887,16 +845,14 @@ CLSMeasurer::InitForMeasure(UINT uiFlags)
     _cAlignedSitesAtBeginningOfLine = 0;
     _cchWhiteAtBeginningOfLine = 0;
 
-    CTreeNode *pNode = CurrBranch();
+    CTreeNode* pNode = CurrBranch();
     MeasureSetPF(pNode->GetParaFormat(), SameScope(pNode, pElementFL));
 
     // Get the device context
-    if(!_hdc)
-    {
+    if (!_hdc) {
         _hdc = _pci->_hdc;
 
-        if(!_hdc)
-        {
+        if (!_hdc) {
             AssertSz(FALSE, "CLSMeasurer::Measure could not get DC");
             return MRET_FAILED;
         }
@@ -937,16 +893,16 @@ LONG CLSMeasurer::Measure(
     LONG    xWidthMaxIn,
     LONG    cchMax,
     UINT    uiFlags,
-    CMarginInfo *pMarginInfo,
-    LONG *  pxMinLineWidth)
+    CMarginInfo* pMarginInfo,
+    LONG* pxMinLineWidth)
 {
-    LONG      xWidthMax  = xWidthMaxIn;
+    LONG      xWidthMax = xWidthMaxIn;
     LONG      xLineShift = 0;
-    LONG      lRet       = 0;
-    CLine    *pli;
+    LONG      lRet = 0;
+    CLine* pli;
 #if DBG==1
     LONG    cpStart = GetCp();
-    CTxtPtr txtptr( _pFlowLayout->GetContentMarkup(), cpStart );
+    CTxtPtr txtptr(_pFlowLayout->GetContentMarkup(), cpStart);
 #endif
 
     AssertSz(pMarginInfo, "Margin info should never be NULL");
@@ -955,7 +911,7 @@ LONG CLSMeasurer::Measure(
                       CLineServices::LSMODE_HITTEST :
                       CLineServices::LSMODE_MEASURER,
                       uiFlags & MEASURE_BREAKLONGLINES ? TRUE : FALSE
-                     );
+    );
     if (0 != InitForMeasure(uiFlags))
         return MRET_FAILED;
 
@@ -963,11 +919,11 @@ LONG CLSMeasurer::Measure(
     _li._fFirstFragInLine = TRUE;
     _li._xWhite = 0;
     _li._fClearBefore = FALSE;
-    _li._fClearAfter  = FALSE;
+    _li._fClearAfter = FALSE;
 
     // Always force a newline by default
     _li._fForceNewLine = TRUE;
-    _li._fDummyLine    = FALSE;
+    _li._fDummyLine = FALSE;
 
     // Set the line direction here
     _li._fRTL = _pLS->_pPFFirst->HasRTL(_pLS->_fInnerPFFirst);
@@ -976,26 +932,22 @@ LONG CLSMeasurer::Measure(
     // is computed is computed and available in the line.
 
     // Compute width to break out at
-    if (uiFlags & MEASURE_BREAKATWORD)
-    {
+    if (uiFlags & MEASURE_BREAKATWORD) {
         // Adjust left indent
         MeasureListIndent();
 
-        if (pMarginInfo->HasLeftFrameMargin())
-        {
+        if (pMarginInfo->HasLeftFrameMargin()) {
             _xLeftFrameMargin = DEF_FRAMEMARGIN;
         }
-        if (pMarginInfo->HasRightFrameMargin())
-        {
+        if (pMarginInfo->HasRightFrameMargin()) {
             _xRightFrameMargin = DEF_FRAMEMARGIN;
         }
 
-        if(xWidthMax != MAXLONG ||
+        if (xWidthMax != MAXLONG ||
             (_li._xRight + _li._xLeft + _pdp->GetCaret() +
-                        _xLeftFrameMargin + _xRightFrameMargin) > 0)
-        {
+             _xLeftFrameMargin + _xRightFrameMargin) > 0) {
             xWidthMax -= _li._xRight + _li._xLeft +
-                        _xLeftFrameMargin + _xRightFrameMargin;
+                _xLeftFrameMargin + _xRightFrameMargin;
         }
     }
 
@@ -1017,8 +969,7 @@ LONG CLSMeasurer::Measure(
     // case, I am going to put in a band-aid fix.
 
     //-------------- HACK HACK (SujalP) --------------------------
-    if (_pLS->_cpStart + _pLS->_li._cch > _pLS->_treeInfo._cpLayoutLast)
-    {
+    if (_pLS->_cpStart + _pLS->_li._cch > _pLS->_treeInfo._cpLayoutLast) {
         AssertSz(0, "This should not happen ... ever!");
         _pLS->_li._cch = _pLS->_treeInfo._cpLayoutLast - _pLS->_cpStart;
     }
@@ -1026,21 +977,20 @@ LONG CLSMeasurer::Measure(
     // If we can auto clear and the given space does not fit a word,
     // let's auto clear.
     if (pli->_xWidth > xWidthMax &&
-        (uiFlags & MEASURE_AUTOCLEAR))
-    {
+        (uiFlags & MEASURE_AUTOCLEAR)) {
         pMarginInfo->_fAutoClear = TRUE;
 
         // BUGBUG (srinib) - do we need to reset anymore flags.
-        pli->_cch      = _pLS->CchSkipAtBOL();
-        pli->_xWidth   = 0;
-        pli->_xWhite   = 0;
+        pli->_cch = _pLS->CchSkipAtBOL();
+        pli->_xWidth = 0;
+        pli->_xWhite = 0;
         pli->_cchWhite = _pLS->CchSkipAtBOL();
         _pLS->DeleteChunks();
-        Advance( pli->_cch );
+        Advance(pli->_cch);
         goto Cleanup;
     }
 
-    Advance( _pLS->_li._cch, _pLS->FigureNextPtp(_pLS->_cpStart + _pLS->_li._cch) );
+    Advance(_pLS->_li._cch, _pLS->FigureNextPtp(_pLS->_cpStart + _pLS->_li._cch));
 
     // If the line is completely empty or the line contains
     // nothing but noscope element and potentially
@@ -1052,31 +1002,27 @@ LONG CLSMeasurer::Measure(
     // element, but end up bailing immediately.  Unfortunately, we will
     // have already bumped up the _cWhiteAtBOL when we looked at the
     // begin node character of this block element.
-    if (   !pli->_fHidden
+    if (!pli->_fHidden
         && (!(pli->_cch + (_fBrowseMode ? _cchPreChars : 0))
-            || (   (   pli->_fHasBreak
-                    || pli->_fHasBulletOrNum
-                   )
+            || ((pli->_fHasBreak
+                 || pli->_fHasBulletOrNum
+                 )
                 && pli->_cch <= _pLS->CchSkipAtBOL()
-               )
-           )
-       )
-    {
+                )
+            )
+        ) {
         // Possibly use the compose font for default line height.
-        if (!_fBrowseMode)
-        {
+        if (!_fBrowseMode) {
             // Have to load the empty line height.
-            if (_yEmptyLineHeight == -1)
-            {
-                extern long GetSpringLoadedHeight(CCalcInfo *, CFlowLayout *, CTreePos *, long, short *);
+            if (_yEmptyLineHeight == -1) {
+                extern long GetSpringLoadedHeight(CCalcInfo*, CFlowLayout*, CTreePos*, long, short*);
                 _yEmptyLineHeight = GetSpringLoadedHeight(
-                                        GetCalcInfo(),
-                                        _pFlowLayout,
-                                        GetPtp(), GetCp() /* BUGBUG: Is this still needed(?):  -(int)_pLS->_fFoundBreakChar */,
-                                        &_yEmptyLineDescent);
+                    GetCalcInfo(),
+                    _pFlowLayout,
+                    GetPtp(), GetCp() /* BUGBUG: Is this still needed(?):  -(int)_pLS->_fFoundBreakChar */,
+                    &_yEmptyLineDescent);
 
-                if (_yEmptyLineHeight == -1)
-                {
+                if (_yEmptyLineHeight == -1) {
                     _yEmptyLineHeight = pli->_yHeight;//24;
                     _yEmptyLineDescent = pli->_yDescent; //4;
                 }
@@ -1084,34 +1030,28 @@ LONG CLSMeasurer::Measure(
             // BUGBUG: Arye.
             // Should probably do this for the browse mode case, too.
             // However, this close to ship, why risk it?
-            if (pli->_fHasBulletOrNum)
-            {
+            if (pli->_fHasBulletOrNum) {
                 pli->_yHeight = max(pli->_yHeight, _yEmptyLineHeight);
                 pli->_yDescent = max(pli->_yDescent, _yEmptyLineDescent);
-            }
-            else
-            {
+            } else {
                 pli->_yHeight = _yEmptyLineHeight;
                 pli->_yDescent = _yEmptyLineDescent;
             }
-        }
-        else
-        {
+        } else {
             // BUGBUG(SujalP): This may not work if we added in chars in
             // the post processing stages ...
-            COneRun *por;
-            CCalcInfo *pci = GetCalcInfo();
+            COneRun* por;
+            CCalcInfo* pci = GetCalcInfo();
 
             por = _pLS->_listFree.GetFreeOneRun(NULL);
             if (!por)
                 goto Cleanup;
             por->_pCF = (CCharFormat*)_pLS->_treeInfo._pCF;
-            CCcs *pccs = _pLS->GetCcs(por, pci->_hdc, pci );
+            CCcs* pccs = _pLS->GetCcs(por, pci->_hdc, pci);
 
-            if (pccs)
-            {
-                CBaseCcs *pBaseCcs = pccs->GetBaseCcs();
-                pli->_yHeight  = pBaseCcs->_yHeight;
+            if (pccs) {
+                CBaseCcs* pBaseCcs = pccs->GetBaseCcs();
+                pli->_yHeight = pBaseCcs->_yHeight;
                 pli->_yDescent = pBaseCcs->_yDescent;
                 pli->_fDummyLine = FALSE;
                 pli->_fForceNewLine = TRUE;
@@ -1126,51 +1066,44 @@ LONG CLSMeasurer::Measure(
 
     // Line with only white space (only occurs in table cells with aligned
     // images), set the height to zero.
-    else if (_pLS->IsDummyLine(GetCp()))
-    {
+    else if (_pLS->IsDummyLine(GetCp())) {
         pli->_yHeight = pli->_yDescent = _pLS->_lMaxLineHeight = 0;
     }
 
     pli->_yTxtDescent = pli->_yDescent;
 
-    if (!lRet && pli->_cch && pli->_fForceNewLine && pli->_xWidth != 0)
-    {
-        if(!_pdp->IsRTL())
+    if (!lRet && pli->_cch && pli->_fForceNewLine && pli->_xWidth != 0) {
+        if (!_pdp->IsRTL())
             xLineShift = _xLeftFrameMargin;
         else
             xLineShift = _xRightFrameMargin;
 
-        pli->_xLeft   += _xLeftFrameMargin;
-        pli->_xRight  += _xRightFrameMargin;
+        pli->_xLeft += _xLeftFrameMargin;
+        pli->_xRight += _xRightFrameMargin;
     }
 
-    if( (pli->_fForceNewLine || (pli->_fDummyLine && _fBrowseMode)))
-    {
-        BOOL fMinMax = uiFlags & (MEASURE_MINWIDTH|MEASURE_MAXWIDTH);
+    if ((pli->_fForceNewLine || (pli->_fDummyLine && _fBrowseMode))) {
+        BOOL fMinMax = uiFlags & (MEASURE_MINWIDTH | MEASURE_MAXWIDTH);
         long xShift;
         long xRemainder = 0;
 
-        if(!(uiFlags & MEASURE_MINWIDTH))
+        if (!(uiFlags & MEASURE_MINWIDTH))
             xShift = _pLS->MeasureLineShift(
-                               GetCp(),
-                               xWidthMaxIn,
-                               fMinMax || _pLS->_pFlowLayout->_fSizeToContent,
-                               &xRemainder);
+                GetCp(),
+                xWidthMaxIn,
+                fMinMax || _pLS->_pFlowLayout->_fSizeToContent,
+                &xRemainder);
         else
             xShift = 0;
 
         // Now that we know the line width, compute line shift due
         // to alignment, and add it to the left position
-        if (!fMinMax)
-        {
-            if(!_pdp->IsRTL())
-            {
+        if (!fMinMax) {
+            if (!_pdp->IsRTL()) {
                 pli->_xLeft += xShift;
                 pli->_xRight += max(xRemainder, 0L);
                 xLineShift += pli->_xLeft;
-            }
-            else
-            {
+            } else {
                 pli->_xRight += xShift;
                 pli->_xLeft += max(xRemainder, 0L);
                 xLineShift += pli->_xRight;
@@ -1181,10 +1114,9 @@ LONG CLSMeasurer::Measure(
     _pLS->_fHasRelative |= !!_fRelativePreChars;
     _pLS->_pFlowLayout->_fContainsRelative |= !!_fRelativePreChars;
 
-    if (   (_pLS->_cInlinedSites || _pLS->_cAbsoluteSites || _cchAbsPosdPreChars || _pLS->_fHasRelative)
-        &&  _pLS->_lsMode == CLineServices::LSMODE_MEASURER
-       )
-    {
+    if ((_pLS->_cInlinedSites || _pLS->_cAbsoluteSites || _cchAbsPosdPreChars || _pLS->_fHasRelative)
+        && _pLS->_lsMode == CLineServices::LSMODE_MEASURER
+        ) {
         pli->_fRelative = _pLS->_fHasRelative;
         // Assume there are only sites in the line if the number of characters
         // is less than the number of characters given to sites, plus those
@@ -1192,12 +1124,10 @@ LONG CLSMeasurer::Measure(
         // is used since whitespace which occurs at the end of the line is not
         // counted in the cch for the line.)
         _pLS->VerticalAlignObjects(*this,
-                                   _pLS->_cInlinedSites  + _pLS->_cAlignedSites +
+                                   _pLS->_cInlinedSites + _pLS->_cAlignedSites +
                                    _pLS->_cAbsoluteSites + _cchAbsPosdPreChars,
                                    xLineShift);
-    }
-    else
-    {
+    } else {
         // Allow last minute adjustment to line height
         _pLS->AdjustLineHeight();
     }
@@ -1211,20 +1141,19 @@ Cleanup:
 
 #pragma optimize("", on)
 
-CLine *
+CLine*
 CLSMeasurer::AccountForRelativeLines(CLine& li,                     // IN
-                                     LONG *pcpStartContainerLine,   // OUT
-                                     LONG *pxWidthContainerLine,    // OUT
-                                     LONG *pcpStartRender,          // OUT
-                                     LONG *pcpStopRender,           // OUT
-                                     LONG *pcchTotal                // OUT
-                                    ) const
+                                     LONG* pcpStartContainerLine,   // OUT
+                                     LONG* pxWidthContainerLine,    // OUT
+                                     LONG* pcpStartRender,          // OUT
+                                     LONG* pcpStopRender,           // OUT
+                                     LONG* pcchTotal                // OUT
+) const
 {
-    CLine *pliContainer = &li;
+    CLine* pliContainer = &li;
 
-    if (li._fPartOfRelChunk)
-    {
-        CLinePtr rp((CDisplay *)_pdp);
+    if (li._fPartOfRelChunk) {
+        CLinePtr rp((CDisplay*)_pdp);
         BOOL fRet;
 
         // NOTE(SujalP): The li and the cp should be in sync. on calling
@@ -1237,8 +1166,7 @@ CLSMeasurer::AccountForRelativeLines(CLine& li,                     // IN
 
         // Navigate backwards all the way so that we reach the start of
         // the current container line
-        while(!rp->_fFirstFragInLine)
-        {
+        while (!rp->_fFirstFragInLine) {
             Verify(rp.PrevLine(FALSE, FALSE));
             *pcpStartContainerLine -= rp->_cch;
             Assert(rp->_fPartOfRelChunk);
@@ -1249,38 +1177,28 @@ CLSMeasurer::AccountForRelativeLines(CLine& li,                     // IN
         // Navigate forward till the end of this container line
         // collecting all the interesting information along the way
         fRet = TRUE;
-        if(!rp->_fRTL)
-        {
+        if (!rp->_fRTL) {
             *pxWidthContainerLine = -rp->_xLeft;
-        }
-        else
-        {
+        } else {
             *pxWidthContainerLine = -rp->_xRight;
         }
         *pcchTotal = 0;
-        while (fRet)
-        {
+        while (fRet) {
             *pcchTotal += rp->_cch;
             fRet = rp.NextLine(FALSE, FALSE);
-            if (!fRet || rp->_fFirstFragInLine)
-            {
+            if (!fRet || rp->_fFirstFragInLine) {
                 if (fRet)
                     Verify(rp.PrevLine(FALSE, FALSE));
-                if(!rp->_fRTL)
-                {
+                if (!rp->_fRTL) {
                     *pxWidthContainerLine += rp->_xLineWidth - rp->_xRight;
-                }
-                else
-                {
+                } else {
                     *pxWidthContainerLine += rp->_xLineWidth - rp->_xLeft;
                 }
                 break;
             }
             Assert(rp->IsFrame() || rp->_fPartOfRelChunk);
         }
-    }
-    else
-    {
+    } else {
         *pcchTotal = li._cch;
         *pcpStartRender = *pcpStartContainerLine = GetCp();
 
@@ -1292,20 +1210,18 @@ CLSMeasurer::AccountForRelativeLines(CLine& li,                     // IN
         // width to which we need to measure, if the _xWhite hangs off the
         // _xLineWidth, then we need to add it in to the width of the line.
 
-        *pxWidthContainerLine  = li._xLineWidth - (li._xLeft + li._xRight);
-        if (li._xWidth + li._xWhite + li._xLeft + _li._xRight > _li._xLineWidth)
-        {
+        *pxWidthContainerLine = li._xLineWidth - (li._xLeft + li._xRight);
+        if (li._xWidth + li._xWhite + li._xLeft + _li._xRight > _li._xLineWidth) {
             // Make sure were not full justified, since we *don't* want to
             // include the xWhite in the line width in that case.
 
-            if (li._fJustified != JUSTIFY_FULL)
-            {
+            if (li._fJustified != JUSTIFY_FULL) {
                 *pxWidthContainerLine += li._xWhite;
             }
         }
 
     }
-    *pcpStopRender  = *pcpStartRender + li._cch;
+    *pcpStopRender = *pcpStartRender + li._cch;
 
     Assert(pliContainer);
     return pliContainer;
@@ -1317,13 +1233,13 @@ BOOL
 CLSMeasurer::AdvanceToNextAlignedObject()
 {
     BOOL fFound = FALSE;
-    CTreePos *ptp;
-    CTreeNode *pNode;
-    CTreePos *ptpStop = NULL;
-    CTreePos *ptpStart = NULL;
-    CTreePos *ptpPrev;
-    const CCharFormat *pCF;
-    CElement *pElement;
+    CTreePos* ptp;
+    CTreeNode* pNode;
+    CTreePos* ptpStop = NULL;
+    CTreePos* ptpStart = NULL;
+    CTreePos* ptpPrev;
+    const CCharFormat* pCF;
+    CElement* pElement;
 
     Assert(_pFlowLayout);
     _pFlowLayout->GetContentTreeExtent(&ptpStart, &ptpStop);
@@ -1334,13 +1250,11 @@ CLSMeasurer::AdvanceToNextAlignedObject()
 
     // Need to make sure that the ambiguous measurer cp is taken
     // and then moved back to the appropriate non-text node.
-    if (ptp->IsText() && _cp == ptp->GetCp() || ptp->IsPointer())
-    {
+    if (ptp->IsText() && _cp == ptp->GetCp() || ptp->IsPointer()) {
         for (ptpPrev = ptp->PreviousTreePos();
              ptpPrev != ptpStart && ptpPrev->IsBeginNode();
              ptpPrev = ptp->PreviousTreePos()
-                     )
-        {
+             ) {
             ptp = ptpPrev;
         }
     }
@@ -1348,48 +1262,37 @@ CLSMeasurer::AdvanceToNextAlignedObject()
 #if DBG == 1
     {
         // We will never be positioned inside a nested run owner.
-        CLayout *pRunOwner;
-        CTreePos *ptpTemp;
+        CLayout* pRunOwner;
+        CTreePos* ptpTemp;
 
         pRunOwner = _pFlowLayout->GetContentMarkup()->GetRunOwner(ptp->GetBranch(), _pFlowLayout);
-        if (pRunOwner != _pFlowLayout)
-        {
+        if (pRunOwner != _pFlowLayout) {
             pRunOwner->GetContentTreeExtent(&ptpTemp, NULL);
             Assert(ptp == ptpTemp);
         }
     }
 #endif
 
-    while (ptp != ptpStop)
-    {
-        if (ptp->IsNode())
-        {
+    while (ptp != ptpStop) {
+        if (ptp->IsNode()) {
             pNode = ptp->Branch();
             pElement = pNode->Element();
             pCF = pNode->GetCharFormat();
-            if (pCF->IsDisplayNone())
-            {
+            if (pCF->IsDisplayNone()) {
                 pElement->GetTreeExtent(NULL, &ptp);
-            }
-            else if (ptp->IsBeginElementScope())
-            {
-                if (pNode->NeedsLayout())
-                {
-                    Assert (pElement != _pFlowLayout->ElementContent());
-                    if (pElement->IsRunOwner())
-                    {
-                        if (pElement->GetElementCch())
-                        {
+            } else if (ptp->IsBeginElementScope()) {
+                if (pNode->NeedsLayout()) {
+                    Assert(pElement != _pFlowLayout->ElementContent());
+                    if (pElement->IsRunOwner()) {
+                        if (pElement->GetElementCch()) {
                             fFound = TRUE;
                         }
-                    }
-                    else
+                    } else
                         fFound = TRUE;
 
                     // We've found a site and it is has content, is it aligned?
                     // If not, then we don't want to measure around it.
-                    if (fFound)
-                    {
+                    if (fFound) {
                         if (!pNode->GetFancyFormat()->_fAlignedLayout)
                             fFound = FALSE;
                         else
@@ -1420,10 +1323,10 @@ CLSMeasurer::AdvanceToNextAlignedObject()
 
 
 LSERR CLSMeasurer::PrepAndMeasureLine(
-    CLine *pliIn,                 // CLine passed in
-    CLine **ppliOut,              // CLine passed out (first frag or container)
-    LONG  *pcpStartContainerLine,
-    CMarginInfo *pMarginInfo,     // Margin information
+    CLine* pliIn,                 // CLine passed in
+    CLine** ppliOut,              // CLine passed out (first frag or container)
+    LONG* pcpStartContainerLine,
+    CMarginInfo* pMarginInfo,     // Margin information
     LONG   cchLine,               // number of characters in the line
     UINT   uiFlags)               // MEASURE_ flags
 {
@@ -1434,10 +1337,10 @@ LSERR CLSMeasurer::PrepAndMeasureLine(
     LONG xRightForLineOut;
     LONG cchForLine, cchWhiteForLine;
     LONG cchTotal;
-    CTreePos *ptp;
+    CTreePos* ptp;
     LONG cpOriginal = GetCp();
-    CTreePos *ptpOriginal = GetPtp();
-    const CLine * pliMeasure;
+    CTreePos* ptpOriginal = GetPtp();
+    const CLine* pliMeasure;
     CLine li;
 
     *ppliOut = AccountForRelativeLines(*pliIn,
@@ -1446,28 +1349,23 @@ LSERR CLSMeasurer::PrepAndMeasureLine(
                                        &cpIgnore,
                                        &cpIgnore,
                                        &cchTotal
-                                      );
+    );
     if (*pcpStartContainerLine != GetCp())
         SetCp(*pcpStartContainerLine, NULL);
     _cchPreChars = 0;
     _pdp->FormattingNodeForLine(GetCp(), GetPtp(), cchLine, &_cchPreChars, &ptp, &_fMeasureFromTheStart);
-    if (!_fMeasureFromTheStart)
-    {
+    if (!_fMeasureFromTheStart) {
         *pcpStartContainerLine += _cchPreChars;
         SetPtp(ptp, *pcpStartContainerLine);
-        if (cchTotal == _cchPreChars)
-        {
+        if (cchTotal == _cchPreChars) {
             lserr = lserrInvalidLine;
             goto Cleanup;
         }
     }
 
-    if (_cchPreChars == 0 || _fMeasureFromTheStart)
-    {
+    if (_cchPreChars == 0 || _fMeasureFromTheStart) {
         pliMeasure = *ppliOut;
-    }
-    else
-    {
+    } else {
         li = **ppliOut;
         li._cch -= _cchPreChars;
         pliMeasure = &li;
@@ -1492,7 +1390,7 @@ LSERR CLSMeasurer::PrepAndMeasureLine(
     (*ppliOut)->_cch = cchForLine;
     (*ppliOut)->_cchWhite = cchWhiteForLine;
 
-    _pLS->SetMeasurer(this,  CLineServices::LSMODE_HITTEST, uiFlags & MEASURE_BREAKLONGLINES ? TRUE : FALSE);
+    _pLS->SetMeasurer(this, CLineServices::LSMODE_HITTEST, uiFlags & MEASURE_BREAKLONGLINES ? TRUE : FALSE);
 
     InitForMeasure(uiFlags);
 

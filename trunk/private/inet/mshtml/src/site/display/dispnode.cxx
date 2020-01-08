@@ -1,5 +1,3 @@
-
-
 //  Microsoft Internet Explorer
 //  Copyright (C) Microsoft Corporation, 1997-1998
 
@@ -81,7 +79,7 @@
 // If this number is too small, regions may get very complex as tiny holes
 // are poked in them by small opaque items.  Complex regions take more memory
 // and more CPU cycles to process.
-const ULONG MINIMUM_OPAQUE_PIXELS = 50*50;
+const ULONG MINIMUM_OPAQUE_PIXELS = 50 * 50;
 
 
 ExternTag(tagHackGDICoords);
@@ -127,19 +125,15 @@ CDispNode::Destroy()
 
     // if we have a parent, delay destruction until destructor of parent or
     // recalc
-    if (_pParentNode != NULL)
-    {
-        if (!IsSet(CDispFlags::s_inval))
-        {
+    if (_pParentNode != NULL) {
+        if (!IsSet(CDispFlags::s_inval)) {
             Invalidate(_rcVisBounds, COORDSYS_PARENT);
         }
         SetFlag(CDispFlags::s_destructAndInval);
         _pParentNode->_cChildren--;
         _pParentNode->SetFlag(CDispFlags::s_destructChildren);
         RequestRecalc();
-    }
-    else
-    {
+    } else {
 #if DBG==1
         _flags = CDispFlags::s_debugDestruct;
 #endif
@@ -167,8 +161,7 @@ CDispNode::GetParentNode() const
 {
     // find first parent that isn't a balance node
     CDispInteriorNode* pParent = _pParentNode;
-    while (pParent != NULL && pParent->IsBalanceNode())
-    {
+    while (pParent != NULL && pParent->IsBalanceNode()) {
         pParent = pParent->_pParentNode;
     }
 
@@ -200,17 +193,14 @@ CDispNode::GetPreviousSiblingNode() const
     CDispNode* pPrevious = _pPreviousSiblingNode;
     CDispInteriorNode* pParent = _pParentNode;
 
-    for (;;)
-    {
+    for (;;) {
         // bypass destructed nodes
-        while (pPrevious != NULL && pPrevious->IsSet(CDispFlags::s_destruct))
-        {
+        while (pPrevious != NULL && pPrevious->IsSet(CDispFlags::s_destruct)) {
             pPrevious = pPrevious->_pPreviousSiblingNode;
         }
 
         // found a non-destruct previous sibling
-        if (pPrevious != NULL)
-        {
+        if (pPrevious != NULL) {
             // simple case: it's not a balance node
             if (!pPrevious->IsBalanceNode())
                 break;
@@ -226,8 +216,7 @@ CDispNode::GetPreviousSiblingNode() const
         }
 
         // no previous sibling at this level
-        else
-        {
+        else {
             // if we didn't find a previous sibling at this level, and the parent
             // node is a balance node, continue search up one level in the tree
             if (pParent == NULL || !pParent->IsBalanceNode())
@@ -263,7 +252,7 @@ CDispNode::GetPreviousSiblingNode(BOOL fRestrictToLayer) const
 {
     CDispNode* pPrevious = GetPreviousSiblingNode();
     return (pPrevious == NULL ||
-            (fRestrictToLayer && pPrevious->GetLayerType() != GetLayerType()))
+        (fRestrictToLayer && pPrevious->GetLayerType() != GetLayerType()))
         ? NULL
         : pPrevious;
 }
@@ -290,17 +279,14 @@ CDispNode::GetNextSiblingNode() const
     CDispNode* pNext = _pNextSiblingNode;
     CDispInteriorNode* pParent = _pParentNode;
 
-    for (;;)
-    {
+    for (;;) {
         // bypass destructed nodes
-        while (pNext != NULL && pNext->IsSet(CDispFlags::s_destruct))
-        {
+        while (pNext != NULL && pNext->IsSet(CDispFlags::s_destruct)) {
             pNext = pNext->_pNextSiblingNode;
         }
 
         // found a non-destruct next sibling
-        if (pNext != NULL)
-        {
+        if (pNext != NULL) {
             // simple case: it's not a balance node
             if (!pNext->IsBalanceNode())
                 break;
@@ -316,8 +302,7 @@ CDispNode::GetNextSiblingNode() const
         }
 
         // no next sibling at this level
-        else
-        {
+        else {
             // if we didn't find a next sibling at this level, and the parent
             // node is a balance node, continue search up one level in the tree
             if (pParent == NULL || !pParent->IsBalanceNode())
@@ -353,7 +338,7 @@ CDispNode::GetNextSiblingNode(BOOL fRestrictToLayer) const
 {
     CDispNode* pNext = GetNextSiblingNode();
     return (pNext == NULL ||
-            (fRestrictToLayer && pNext->GetLayerType() != GetLayerType()))
+        (fRestrictToLayer && pNext->GetLayerType() != GetLayerType()))
         ? NULL
         : pNext;
 }
@@ -377,9 +362,8 @@ CDispNode::GetNextSiblingNode(BOOL fRestrictToLayer) const
 CDispNode*
 CDispNode::GetRootNode() const
 {
-    CDispNode* pNode = (CDispNode*) this;
-    while (pNode->_pParentNode != NULL)
-    {
+    CDispNode* pNode = (CDispNode*)this;
+    while (pNode->_pParentNode != NULL) {
         pNode = pNode->_pParentNode;
     }
     return pNode;
@@ -405,11 +389,9 @@ CDispNode*
 CDispNode::GetNextNodeInZOrder() const
 {
     const CDispNode* pNode = this;
-    while (pNode)
-    {
+    while (pNode) {
         CDispNode* pNextNode = pNode->_pNextSiblingNode;
-        while (pNextNode)
-        {
+        while (pNextNode) {
             if (!pNextNode->IsSet(CDispFlags::s_destruct))
                 return pNextNode;
             pNextNode = pNextNode->_pNextSiblingNode;
@@ -441,26 +423,22 @@ CDispNode::TraverseTreeTopToBottom(void* pClientData)
 {
     Assert(!IsSet(CDispFlags::s_destruct));
 
-    if (IsInteriorNode())
-    {
+    if (IsInteriorNode()) {
         CDispInteriorNode* pInterior = DYNCAST(CDispInteriorNode, this);
         for (CDispNode* pChild = pInterior->_pLastChildNode;
              pChild != NULL;
-             pChild = pChild->_pPreviousSiblingNode)
-        {
+             pChild = pChild->_pPreviousSiblingNode) {
             if (pChild->IsSet(CDispFlags::s_destruct))
                 continue;
 
-            if (!pChild->TraverseTreeTopToBottom(pClientData))
-            {
+            if (!pChild->TraverseTreeTopToBottom(pClientData)) {
                 return FALSE;
             }
         }
     }
 
     CDispClient* pClient = GetDispClient();
-    if (pClient && !pClient->ProcessDisplayTreeTraversal(pClientData))
-    {
+    if (pClient && !pClient->ProcessDisplayTreeTraversal(pClientData)) {
         return FALSE;
     }
 
@@ -487,11 +465,9 @@ CDispNode::InsertPreviousSiblingNode(CDispNode* pNewSibling)
     Assert(_pParentNode != NULL);
     Assert(pNewSibling != NULL);
 
-    if (pNewSibling != this)
-    {
+    if (pNewSibling != this) {
         // is the new sibling already in the tree?
-        if (pNewSibling->_pParentNode != NULL)
-        {
+        if (pNewSibling->_pParentNode != NULL) {
             // is the new sibling already this node's previous sibling?
             if (_pPreviousSiblingNode == pNewSibling ||
                 GetPreviousSiblingNode() == pNewSibling)
@@ -512,19 +488,15 @@ CDispNode::InsertPreviousSiblingNode(CDispNode* pNewSibling)
         pNewSibling->_pPreviousSiblingNode = pOldSibling;
         pNewSibling->_pNextSiblingNode = this;
         _pPreviousSiblingNode = pNewSibling;
-        if (pOldSibling)
-        {
+        if (pOldSibling) {
             pOldSibling->_pNextSiblingNode = pNewSibling;
-        }
-        else
-        {
+        } else {
             _pParentNode->_pFirstChildNode = pNewSibling;
         }
 
         // if a insertion-aware leaf node, note the change
         if (pNewSibling->IsInsertionAware() &&
-            pNewSibling->IsLeafNode())
-        {
+            pNewSibling->IsLeafNode()) {
             pNewSibling->SetFlag(CDispFlags::s_justInserted);
         }
 
@@ -558,13 +530,11 @@ CDispNode::InsertNextSiblingNode(CDispNode* pNewSibling)
     Assert(_pParentNode != NULL);
     Assert(pNewSibling != NULL);
 
-    if (   pNewSibling != this
+    if (pNewSibling != this
         && pNewSibling
-        && _pParentNode)
-    {
+        && _pParentNode) {
         // is the new sibling already in the tree?
-        if (pNewSibling->_pParentNode != NULL)
-        {
+        if (pNewSibling->_pParentNode != NULL) {
             // is the new sibling already this node's next sibling?
             if (_pNextSiblingNode == pNewSibling ||
                 GetNextSiblingNode() == pNewSibling)
@@ -585,19 +555,15 @@ CDispNode::InsertNextSiblingNode(CDispNode* pNewSibling)
         pNewSibling->_pNextSiblingNode = pOldSibling;
         pNewSibling->_pPreviousSiblingNode = this;
         _pNextSiblingNode = pNewSibling;
-        if (pOldSibling)
-        {
+        if (pOldSibling) {
             pOldSibling->_pPreviousSiblingNode = pNewSibling;
-        }
-        else
-        {
+        } else {
             _pParentNode->_pLastChildNode = pNewSibling;
         }
 
         // if a insertion-aware leaf node, note the change
         if (pNewSibling->IsInsertionAware() &&
-            pNewSibling->IsLeafNode())
-        {
+            pNewSibling->IsLeafNode()) {
             pNewSibling->SetFlag(CDispFlags::s_justInserted);
         }
 
@@ -628,8 +594,7 @@ void
 CDispNode::ExtractFromTree()
 {
     // check to see if this node is actually in a tree
-    if (_pParentNode == NULL)
-    {
+    if (_pParentNode == NULL) {
         Assert(_pPreviousSiblingNode == NULL);
         Assert(_pNextSiblingNode == NULL);
         return;
@@ -646,33 +611,25 @@ CDispNode::ExtractFromTree()
     _pParentNode->_cChildren--;
 
     // remove this node from parent's list of children
-    if (_pPreviousSiblingNode)
-    {
+    if (_pPreviousSiblingNode) {
         _pPreviousSiblingNode->_pNextSiblingNode =
             _pNextSiblingNode;
-        if (_pNextSiblingNode)
-        {
+        if (_pNextSiblingNode) {
             _pNextSiblingNode->_pPreviousSiblingNode =
                 _pPreviousSiblingNode;
             _pNextSiblingNode = NULL;
-        }
-        else
-        {
+        } else {
             _pParentNode->_pLastChildNode =
                 _pPreviousSiblingNode;
         }
         _pPreviousSiblingNode = NULL;
-    }
-    else if (_pNextSiblingNode)
-    {
+    } else if (_pNextSiblingNode) {
         _pNextSiblingNode->_pPreviousSiblingNode =
             _pPreviousSiblingNode;
         _pParentNode->_pFirstChildNode =
             _pNextSiblingNode;
         _pNextSiblingNode = NULL;
-    }
-    else
-    {
+    } else {
         // this node was the parent's only child
         Assert(_pParentNode->_cChildren == 0);
         _pParentNode->_pFirstChildNode =
@@ -680,8 +637,7 @@ CDispNode::ExtractFromTree()
 
         // remove all empty balance nodes above this node
         CDispInteriorNode* pParent = _pParentNode;
-        while (pParent->IsBalanceNode() && pParent->_cChildren == 0)
-        {
+        while (pParent->IsBalanceNode() && pParent->_cChildren == 0) {
             pParent->SetFlag(CDispFlags::s_destruct);
             pParent = pParent->_pParentNode;
             if (pParent == NULL)
@@ -694,8 +650,7 @@ CDispNode::ExtractFromTree()
     _pParentNode = NULL;
 
     // destruct any children of the extracted node
-    if (IsInteriorNode() && IsSet(CDispFlags::s_destructChildren))
-    {
+    if (IsInteriorNode() && IsSet(CDispFlags::s_destructChildren)) {
         CDispInteriorNode* pInterior = DYNCAST(CDispInteriorNode, this);
         pInterior->DestroyChildren();
     }
@@ -729,27 +684,23 @@ CDispNode::ReplaceNode(CDispNode* pOldNode, BOOL fKeep, BOOL fTakeChildren)
         pOldNode->IsSet(CDispFlags::s_visibleNodeAndBranch);
 
     // invalidate bounds of old node
-    if (fMustInval)
-    {
+    if (fMustInval) {
         pOldNode->Invalidate(pOldNode->_rcVisBounds, COORDSYS_PARENT);
     }
 
     // delete destroyed children of old node
     CDispInteriorNode* pOldInterior = NULL;
-    if (pOldNode->IsInteriorNode())
-    {
+    if (pOldNode->IsInteriorNode()) {
         pOldInterior = DYNCAST(CDispInteriorNode, pOldNode);
-        if (pOldInterior->IsSet(CDispFlags::s_destructChildren))
-        {
+        if (pOldInterior->IsSet(CDispFlags::s_destructChildren)) {
             pOldInterior->DestroyChildren();
         }
     }
 
     // transfer children if requested
-    if (    fTakeChildren
-        &&  IsInteriorNode()
-        &&  pOldInterior)
-    {
+    if (fTakeChildren
+        && IsInteriorNode()
+        && pOldInterior) {
         CDispInteriorNode* pInterior = DYNCAST(CDispInteriorNode, this);
         Assert(pInterior->_cChildren == 0);
         Assert(pInterior->_pFirstChildNode == NULL);
@@ -765,8 +716,7 @@ CDispNode::ReplaceNode(CDispNode* pOldNode, BOOL fKeep, BOOL fTakeChildren)
         _pPreviousSiblingNode->_pNextSiblingNode = this;
     if (_pNextSiblingNode != NULL)
         _pNextSiblingNode->_pPreviousSiblingNode = this;
-    if (_pParentNode != NULL)
-    {
+    if (_pParentNode != NULL) {
         if (_pParentNode->_pFirstChildNode == pOldNode)
             _pParentNode->_pFirstChildNode = this;
         if (_pParentNode->_pLastChildNode == pOldNode)
@@ -777,14 +727,11 @@ CDispNode::ReplaceNode(CDispNode* pOldNode, BOOL fKeep, BOOL fTakeChildren)
     // use the top/right coordinate to set the position. Recalcing will
     // properly size the new node.
     // REMEMBER: Nodes get the coordinate system of their PARENT.
-    if(pOldNode->_pParentNode && pOldNode->_pParentNode->IsRightToLeft())
-    {
+    if (pOldNode->_pParentNode && pOldNode->_pParentNode->IsRightToLeft()) {
         CPoint pt;
         pOldNode->GetPositionTopRight(&pt);
         SetPositionTopRight(pt);
-    }
-    else
-    {
+    } else {
         SetPosition(pOldNode->GetPosition());
     }
 
@@ -793,8 +740,7 @@ CDispNode::ReplaceNode(CDispNode* pOldNode, BOOL fKeep, BOOL fTakeChildren)
     SetSize(size, TRUE);
 
     // if requested, delete old node
-    if (!fKeep)
-    {
+    if (!fKeep) {
 #if DBG==1
         pOldNode->_flags = CDispFlags::s_debugDestruct;
         pOldNode->_pParentNode = NULL;
@@ -804,8 +750,7 @@ CDispNode::ReplaceNode(CDispNode* pOldNode, BOOL fKeep, BOOL fTakeChildren)
     }
 
     // invalidate new bounds
-    if (fMustInval)
-    {
+    if (fMustInval) {
         RequestRecalc();
         SetFlag(CDispFlags::s_inval);
     }
@@ -831,8 +776,7 @@ CDispNode::ReplaceParent()
     CDispInteriorNode* pParent = _pParentNode;
 
     // skip balance nodes between this node and its true parent
-    while (pParent->IsBalanceNode())
-    {
+    while (pParent->IsBalanceNode()) {
         pParent = pParent->_pParentNode;
     }
 
@@ -847,20 +791,16 @@ CDispNode::ReplaceParent()
 
     // delete the parent and its unowned children (but make this node owned
     // so it doesn't get deleted)
-    if (!IsOwned())
-    {
+    if (!IsOwned()) {
         SetOwned(TRUE);
         pParent->Destroy();
         SetOwned(FALSE);
-    }
-    else
-    {
+    } else {
         pParent->Destroy();
     }
 
     // now insert under old parent's parent node
-    if (pGrandparent)
-    {
+    if (pGrandparent) {
         pGrandparent->InsertChildNode(this, pPrevious, pNext);
     }
 }
@@ -888,8 +828,7 @@ CDispNode::InsertParent(CDispInteriorNode* pNewParent)
     Assert(pNewParent->_pFirstChildNode == NULL);
     Assert(pNewParent->_pLastChildNode == NULL);
 
-    if (_pParentNode == NULL)
-    {
+    if (_pParentNode == NULL) {
         Assert(_pPreviousSiblingNode == NULL);
         Assert(_pNextSiblingNode == NULL);
 
@@ -899,24 +838,20 @@ CDispNode::InsertParent(CDispInteriorNode* pNewParent)
 
     // place in tree
     pNewParent->_pParentNode = _pParentNode;
-    if (_pParentNode->_pFirstChildNode == this)
-    {
+    if (_pParentNode->_pFirstChildNode == this) {
         _pParentNode->_pFirstChildNode = pNewParent;
     }
-    if (_pParentNode->_pLastChildNode == this)
-    {
+    if (_pParentNode->_pLastChildNode == this) {
         _pParentNode->_pLastChildNode = pNewParent;
     }
     _pParentNode = pNewParent;
     pNewParent->_pPreviousSiblingNode = _pPreviousSiblingNode;
-    if (_pPreviousSiblingNode != NULL)
-    {
+    if (_pPreviousSiblingNode != NULL) {
         _pPreviousSiblingNode->_pNextSiblingNode = pNewParent;
         _pPreviousSiblingNode = NULL;
     }
     pNewParent->_pNextSiblingNode = _pNextSiblingNode;
-    if (_pNextSiblingNode != NULL)
-    {
+    if (_pNextSiblingNode != NULL) {
         _pNextSiblingNode->_pPreviousSiblingNode = pNewParent;
         _pNextSiblingNode = NULL;
     }
@@ -947,8 +882,8 @@ CDispNode::InsertParent(CDispInteriorNode* pNewParent)
 
 void
 CDispNode::GetBounds(
-        RECT* prcBounds,
-        COORDINATE_SYSTEM coordinateSystem) const
+    RECT* prcBounds,
+    COORDINATE_SYSTEM coordinateSystem) const
 {
     GetBounds(prcBounds);
     CSize offset;
@@ -973,8 +908,8 @@ CDispNode::GetBounds(
 
 void
 CDispNode::GetClippedBounds(
-        RECT* prcBounds,
-        COORDINATE_SYSTEM coordinateSystem) const
+    RECT* prcBounds,
+    COORDINATE_SYSTEM coordinateSystem) const
 {
     CDispContext context;
 
@@ -982,18 +917,14 @@ CDispNode::GetClippedBounds(
     GetNodeTransform(&context, COORDSYS_PARENT, COORDSYS_GLOBAL);
     ((CRect*)prcBounds)->IntersectRect(context._rcClip);
 
-    if (((CRect*)prcBounds)->IsEmpty())
-    {
+    if (((CRect*)prcBounds)->IsEmpty()) {
         *prcBounds = g_Zero.rc;
-    }
-    else if (coordinateSystem != COORDSYS_PARENT)
-    {
+    } else if (coordinateSystem != COORDSYS_PARENT) {
         CSize offset;
         GetTransformOffset(&offset, COORDSYS_PARENT, coordinateSystem);
         ((CRect*)prcBounds)->OffsetRect(offset);
-        if (    IsRightToLeft()
-            &&  coordinateSystem != COORDSYS_GLOBAL)
-        {
+        if (IsRightToLeft()
+            && coordinateSystem != COORDSYS_GLOBAL) {
             ((CRect*)prcBounds)->MirrorX();
         }
     }
@@ -1029,8 +960,7 @@ CDispNode::PreDraw(CDispDrawContext* pContext)
     Assert(!IsSet(CDispFlags::s_generalFlagsNotSetInDraw));
 
     // if this node isn't visible, opacity doesn't matter
-    if (!IsVisible())
-    {
+    if (!IsVisible()) {
         return FALSE;
     }
 
@@ -1045,8 +975,7 @@ CDispNode::PreDraw(CDispDrawContext* pContext)
     const CRegion* prgnRedraw = pContext->GetRedrawRegion();
     CRect rcGlobal;
     GetBounds(&rcGlobal);
-    if (HasUserClip())
-    {
+    if (HasUserClip()) {
         rcGlobal.IntersectRect(GetUserClip());
     }
     pContext->Transform(&rcGlobal);
@@ -1066,17 +995,15 @@ CDispNode::PreDraw(CDispDrawContext* pContext)
         rcGlobal.bottom < -32768 || rcGlobal.bottom > 32767)
         return FALSE;
 
-    if (prgnRedraw->BoundsInside(rcGlobal))
-    {
+    if (prgnRedraw->BoundsInside(rcGlobal)) {
         // add this node to the redraw region stack
-        Verify(!pContext->PushRedrawRegion(rcGlobal,this));
+        Verify(!pContext->PushRedrawRegion(rcGlobal, this));
         return TRUE;
     }
 
     CRegion rgnGlobal(rcGlobal);
     rgnGlobal.Intersect(*prgnRedraw);
-    if (rgnGlobal.GetBounds().Area() < MINIMUM_OPAQUE_PIXELS)
-    {
+    if (rgnGlobal.GetBounds().Area() < MINIMUM_OPAQUE_PIXELS) {
         // intersection isn't big enough, simply continue processing
         return FALSE;
     }
@@ -1085,8 +1012,7 @@ CDispNode::PreDraw(CDispDrawContext* pContext)
     // subtracting itself from a rectangular redraw region and producing
     // a non-rectangular result.  Non-rectangular regions are just too
     // slow for Windows to deal with.
-    switch (prgnRedraw->ResultOfSubtract(rgnGlobal))
-    {
+    switch (prgnRedraw->ResultOfSubtract(rgnGlobal)) {
     case CRegion::SUB_EMPTY:
         // this case should have been identified already above
         Assert(FALSE);
@@ -1094,7 +1020,7 @@ CDispNode::PreDraw(CDispDrawContext* pContext)
     case CRegion::SUB_RECTANGLE:
         // subtract this item's region and continue predraw processing
         SetBranchFlag(CDispFlags::s_savedRedrawRegion);
-        if (!pContext->PushRedrawRegion(rgnGlobal,this))
+        if (!pContext->PushRedrawRegion(rgnGlobal, this))
             return TRUE;
         break;
     case CRegion::SUB_REGION:
@@ -1102,18 +1028,14 @@ CDispNode::PreDraw(CDispDrawContext* pContext)
         break;
     case CRegion::SUB_UNKNOWN:
         // see if we can get back to a simple rectangular redraw region
-        if (!pContext->PushRedrawRegion(rgnGlobal,this))
-        {
+        if (!pContext->PushRedrawRegion(rgnGlobal, this)) {
             SetBranchFlag(CDispFlags::s_savedRedrawRegion);
             return TRUE;
         }
         prgnRedraw = pContext->GetRedrawRegion();
-        if (prgnRedraw->IsRegion())
-        {
+        if (prgnRedraw->IsRegion()) {
             pContext->RestorePreviousRedrawRegion();
-        }
-        else
-        {
+        } else {
             SetBranchFlag(CDispFlags::s_savedRedrawRegion);
         }
         break;
@@ -1124,7 +1046,7 @@ CDispNode::PreDraw(CDispDrawContext* pContext)
 #ifdef NEVER
     // subtract the item's clipped and offset bounds from the redraw region
     SetBranchFlag(CDispFlags::s_savedRedrawRegion);
-    if (!pContext->PushRedrawRegion(rgnGlobal,this))
+    if (!pContext->PushRedrawRegion(rgnGlobal, this))
         return TRUE;
 #endif
 
@@ -1158,14 +1080,12 @@ CDispNode::Draw(CDispDrawContext* pContext, CDispNode* pChild)
 
     rcClipOld.SetRectEmpty();
 
-    if (fHasUserClip)
-    {
+    if (fHasUserClip) {
         // combine user clip with clip rect passed from parent
         CRect rcClipNew(GetUserClip());
         rcClipNew.OffsetRect(GetBounds().TopLeft().AsSize());
         rcClipNew.IntersectRect(pContext->GetClipRect());
-        if (rcClipNew.IsEmpty())
-        {
+        if (rcClipNew.IsEmpty()) {
             // this node shouldn't have saved a redraw region, since it is
             // completely clipped out
             Assert(!IsSet(CDispFlags::s_savedRedrawRegion));
@@ -1177,8 +1097,7 @@ CDispNode::Draw(CDispDrawContext* pContext, CDispNode* pChild)
     }
 
     // do the clipped bounds of this node intersect the redraw region?
-    if (!IsSet(CDispFlags::s_savedRedrawRegion))
-    {
+    if (!IsSet(CDispFlags::s_savedRedrawRegion)) {
         CRect rcBounds(_rcVisBounds);
         rcBounds.IntersectRect(pContext->GetClipRect());
         if (!pContext->IntersectsRedrawRegion(rcBounds))
@@ -1186,21 +1105,17 @@ CDispNode::Draw(CDispDrawContext* pContext, CDispNode* pChild)
     }
 
     // redirect for filtering
-    if (!IsFiltered() || pContext->_fBypassFilter)
-    {
+    if (!IsFiltered() || pContext->_fBypassFilter) {
         pContext->_fBypassFilter = FALSE;
         DrawSelf(pContext, pChild);
-    }
-    else
-    {
+    } else {
         Assert(pChild == NULL);
         GetFilter()->DrawFiltered(pContext);
     }
 
 done:
     // restore previous clip rect if necessary
-    if (fHasUserClip)
-    {
+    if (fHasUserClip) {
         pContext->_rcClip = rcClipOld;
     }
 }
@@ -1224,9 +1139,9 @@ done:
 
 void
 CDispNode::DrawNodeForFilter(
-        CDispDrawContext* pContext,
-        HDC hdc,
-        const CPoint& ptOrg)
+    CDispDrawContext* pContext,
+    HDC hdc,
+    const CPoint& ptOrg)
 {
     Assert(pContext != NULL);
     Assert(hdc != NULL);
@@ -1241,8 +1156,7 @@ CDispNode::DrawNodeForFilter(
 
     // if the filter gave us our own HDC, we don't have to do any special
     // clipping
-    if (pContext->_pDispSurface->GetRawDC() == hdc)
-    {
+    if (pContext->_pDispSurface->GetRawDC() == hdc) {
         // does this disabled filter really intersect the redraw region?
         pContext->_rcClip.IntersectRect(GetBounds());
         Assert(pContext->IntersectsRedrawRegion(pContext->_rcClip));
@@ -1262,13 +1176,11 @@ CDispNode::DrawNodeForFilter(
         pContext->_pDispSurface->ForceClip();
     }
 
-    else
-    {
+    else {
         CDispSurface* pSaveSurface = pContext->_pDispSurface;
         pContext->_pDispSurface = new CDispSurface(hdc);
 
-        if (pContext->_pDispSurface != NULL)
-        {
+        if (pContext->_pDispSurface != NULL) {
             pContext->_rcClip = GetBounds();
             pContext->_offset = ptOrg - pContext->_rcClip.TopLeft();
 
@@ -1312,8 +1224,7 @@ CDispNode::DrawNodeForFilter(
 void
 CDispNode::SetVisible(BOOL fVisible)
 {
-    if (fVisible != IsVisible())
-    {
+    if (fVisible != IsVisible()) {
         SetBoolean(CDispFlags::s_visibleNodeAndBranch, fVisible);
         RequestRecalc();
 
@@ -1322,21 +1233,16 @@ CDispNode::SetVisible(BOOL fVisible)
         // visibility change.
 
         if (IsLeafNode() &&
-            IsSet(CDispFlags::s_inViewChange))
-        {
+            IsSet(CDispFlags::s_inViewChange)) {
             SetFlag(CDispFlags::s_positionHasChanged);
         }
 
         // if going invisible, invalidate current bounds
-        if (!fVisible)
-        {
-            if (!IsSet(CDispFlags::s_inval))
-            {
+        if (!fVisible) {
+            if (!IsSet(CDispFlags::s_inval)) {
                 PrivateInvalidate(_rcVisBounds, COORDSYS_PARENT);
             }
-        }
-        else
-        {
+        } else {
             SetFlag(CDispFlags::s_inval);
         }
     }
@@ -1360,8 +1266,7 @@ CDispNode::SetVisible(BOOL fVisible)
 void
 CDispNode::UnfilteredSetOpaque(BOOL fOpaque)
 {
-    if (fOpaque != IsSet(CDispFlags::s_opaqueNode))
-    {
+    if (fOpaque != IsSet(CDispFlags::s_opaqueNode)) {
         SetBoolean(CDispFlags::s_opaqueNode, fOpaque);
         // note: s_opaqueBranch will be set appropriately in Recalc
         RequestRecalc();
@@ -1386,9 +1291,8 @@ CDispNode::SetBranchFlag(const CDispFlags& flag)
     // node or a node that already has it set
     SetFlag(flag);
     for (CDispNode* pParent = _pParentNode;
-        pParent && !pParent->AllSet(flag);
-        pParent = pParent->_pParentNode)
-    {
+         pParent && !pParent->AllSet(flag);
+         pParent = pParent->_pParentNode) {
         pParent->SetFlag(flag);
     }
 }
@@ -1413,15 +1317,13 @@ CDispNode::ClearBranchFlag(const CDispFlags& flag)
 
     CDispFlags clearFlag(flag);
     for (CDispInteriorNode* pParent = _pParentNode;
-        pParent != NULL;
-        pParent = pParent->_pParentNode)
-    {
+         pParent != NULL;
+         pParent = pParent->_pParentNode) {
         // if this node has any children with flag set, it stays set in the node
         CDispNode* pChild;
         for (pChild = pParent->_pFirstChildNode;
-            pChild != NULL;
-            pChild = pChild->_pNextSiblingNode)
-        {
+             pChild != NULL;
+             pChild = pChild->_pNextSiblingNode) {
             clearFlag.Clear(pChild->_flags);
             if (!clearFlag.IsAnySet())
                 return;
@@ -1449,9 +1351,8 @@ void
 CDispNode::ClearFlagToRoot(const CDispFlags& flag)
 {
     for (CDispNode* pNode = this;
-        pNode != NULL && pNode->IsSet(flag);
-        pNode = pNode->_pParentNode)
-    {
+         pNode != NULL && pNode->IsSet(flag);
+         pNode = pNode->_pParentNode) {
         pNode->ClearFlag(flag);
     }
 }
@@ -1478,8 +1379,7 @@ CDispNode::RequestRecalc()
     // or a recalc flag already set
     SetFlag(CDispFlags::s_recalc);
     CDispNode* pParent = _pParentNode;
-    while (pParent && !pParent->IsSet(CDispFlags::s_recalc))
-    {
+    while (pParent && !pParent->IsSet(CDispFlags::s_recalc)) {
 #if DBG==1
         pNode = pParent;
 #endif
@@ -1493,12 +1393,11 @@ CDispNode::RequestRecalc()
 
     // check tree open state
     pNode = pNode->GetRootNode();
-    if (pNode->IsDispRoot())
-    {
-        AssertSz(DYNCAST(CDispRoot,pNode)->_cOpen > 0,
-            "Display Tree not properly opened before tree modification");
-        AssertSz(!DYNCAST(CDispRoot,pNode)->_fDrawLock,
-            "Display Tree RequestRecalc called during Draw");
+    if (pNode->IsDispRoot()) {
+        AssertSz(DYNCAST(CDispRoot, pNode)->_cOpen > 0,
+                 "Display Tree not properly opened before tree modification");
+        AssertSz(!DYNCAST(CDispRoot, pNode)->_fDrawLock,
+                 "Display Tree RequestRecalc called during Draw");
     }
 #endif
 }
@@ -1551,8 +1450,7 @@ CDispNode::GetClippedClientRect(RECT* prc, CLIENTRECT type) const
     GetNodeTransform(&context, COORDSYS_CONTENT, COORDSYS_GLOBAL);
     ((CRect*)prc)->IntersectRect(context._rcClip);
 
-    if (((CRect*)prc)->IsEmpty())
-    {
+    if (((CRect*)prc)->IsEmpty()) {
         *prc = g_Zero.rc;
     }
 }
@@ -1575,10 +1473,10 @@ CDispNode::GetClippedClientRect(RECT* prc, CLIENTRECT type) const
 
 void
 CDispNode::PrivateInvalidate(
-        const CRect& rcInvalid,
-        COORDINATE_SYSTEM coordinateSystem,
-        BOOL fSynchronousRedraw,
-        BOOL fIgnoreFilter)
+    const CRect& rcInvalid,
+    COORDINATE_SYSTEM coordinateSystem,
+    BOOL fSynchronousRedraw,
+    BOOL fIgnoreFilter)
 {
     // conditions under which no invalidation is necessary:
     // 1. rcInvalid is empty
@@ -1602,14 +1500,12 @@ CDispNode::PrivateInvalidate(
     // the display node is expanding.
     BOOL fClip = (coordinateSystem >= COORDSYS_CONTAINER);
 
-    if (coordinateSystem != COORDSYS_CONTAINER)
-    {
+    if (coordinateSystem != COORDSYS_CONTAINER) {
         TransformRect(&rc, coordinateSystem, COORDSYS_CONTAINER, fClip);
     }
 
     // clip to userclip
-    if (HasUserClip())
-    {
+    if (HasUserClip()) {
         rc.IntersectRect(GetUserClip());
     }
 
@@ -1622,14 +1518,11 @@ CDispNode::PrivateInvalidate(
 
     // traverse tree to root, clipping rect as necessary
     for (pParent = _pParentNode;
-        pParent != NULL;
-        pChild = pParent, pParent = pParent->_pParentNode)
-    {
+         pParent != NULL;
+         pChild = pParent, pParent = pParent->_pParentNode) {
         // hand off to filter
-        if (!fIgnoreFilter)
-        {
-            if (pChild->IsFiltered())
-            {
+        if (!fIgnoreFilter) {
+            if (pChild->IsFiltered()) {
                 pChild->TransformRect(
                     &rc,
                     COORDSYS_PARENT,
@@ -1638,9 +1531,7 @@ CDispNode::PrivateInvalidate(
                 pChild->GetFilter()->Invalidate(rc, fSynchronousRedraw);
                 return;
             }
-        }
-        else
-        {
+        } else {
             // don't ignore filters of parent nodes further up this branch
             fIgnoreFilter = FALSE;
         }
@@ -1656,9 +1547,8 @@ CDispNode::PrivateInvalidate(
     }
 
     // we made it to the root with a non-empty rect
-    if (pChild->GetNodeType() == DISPNODETYPE_ROOT)
-    {
-        CDispRoot* pRoot = DYNCAST(CDispRoot,pChild);
+    if (pChild->GetNodeType() == DISPNODETYPE_ROOT) {
+        CDispRoot* pRoot = DYNCAST(CDispRoot, pChild);
         pRoot->InvalidateRoot(rc, fSynchronousRedraw, FALSE);
     }
 
@@ -1683,10 +1573,10 @@ CDispNode::PrivateInvalidate(
 
 void
 CDispNode::PrivateInvalidate(
-        const CRegion& rgnInvalid,
-        COORDINATE_SYSTEM coordinateSystem,
-        BOOL fSynchronousRedraw,
-        BOOL fIgnoreFilter)
+    const CRegion& rgnInvalid,
+    COORDINATE_SYSTEM coordinateSystem,
+    BOOL fSynchronousRedraw,
+    BOOL fIgnoreFilter)
 {
     // conditions under which no invalidation is necessary:
     // 1. rcInvalid is empty
@@ -1708,14 +1598,12 @@ CDispNode::PrivateInvalidate(
     // the display node is expanding.
     BOOL fClip = (coordinateSystem >= COORDSYS_CONTAINER);
 
-    if (coordinateSystem != COORDSYS_CONTAINER)
-    {
+    if (coordinateSystem != COORDSYS_CONTAINER) {
         TransformRegion(&rgn, coordinateSystem, COORDSYS_CONTAINER, fClip);
     }
 
     // clip to userclip
-    if (HasUserClip())
-    {
+    if (HasUserClip()) {
         rgn.Intersect(GetUserClip());
     }
 
@@ -1728,33 +1616,25 @@ CDispNode::PrivateInvalidate(
 
     // traverse tree to root, clipping rect as necessary
     for (pParent = _pParentNode;
-        pParent != NULL;
-        pChild = pParent, pParent = pParent->_pParentNode)
-    {
+         pParent != NULL;
+         pChild = pParent, pParent = pParent->_pParentNode) {
         // hand off to filter
-        if (!fIgnoreFilter)
-        {
-            if (pChild->IsFiltered())
-            {
+        if (!fIgnoreFilter) {
+            if (pChild->IsFiltered()) {
                 pChild->TransformRegion(
                     &rgn,
                     COORDSYS_PARENT,
                     COORDSYS_CONTAINER,
                     FALSE);
-                if (rgn.IsRegion())
-                {
+                if (rgn.IsRegion()) {
                     HRGN hrgn = rgn.GetRegionAlias();
                     pChild->GetFilter()->Invalidate(hrgn, fSynchronousRedraw);
-                }
-                else
-                {
+                } else {
                     pChild->GetFilter()->Invalidate(rgn.AsRect(), fSynchronousRedraw);
                 }
                 goto Done;
             }
-        }
-        else
-        {
+        } else {
             // don't ignore filters of parent nodes further up this branch
             fIgnoreFilter = FALSE;
         }
@@ -1770,9 +1650,8 @@ CDispNode::PrivateInvalidate(
     }
 
     // we made it to the root with a non-empty rect
-    if (pChild->GetNodeType() == DISPNODETYPE_ROOT)
-    {
-        CDispRoot* pRoot = DYNCAST(CDispRoot,pChild);
+    if (pChild->GetNodeType() == DISPNODETYPE_ROOT) {
+        CDispRoot* pRoot = DYNCAST(CDispRoot, pChild);
         pRoot->InvalidateRoot(rgn, fSynchronousRedraw, FALSE);
     }
 
@@ -1809,11 +1688,11 @@ Done:
 
 BOOL
 CDispNode::HitTest(
-        CPoint* pptHit,
-        COORDINATE_SYSTEM coordinateSystem,
-        void* pClientData,
-        BOOL fHitContent,
-        long cFuzzyHitTest)
+    CPoint* pptHit,
+    COORDINATE_SYSTEM coordinateSystem,
+    void* pClientData,
+    BOOL fHitContent,
+    long cFuzzyHitTest)
 {
     // create hit context
     CDispHitContext hitContext;
@@ -1823,8 +1702,7 @@ CDispNode::HitTest(
     hitContext.SetToIdentity();
 
     // translate to parent coordinates
-    if (coordinateSystem != COORDSYS_PARENT)
-    {
+    if (coordinateSystem != COORDSYS_PARENT) {
         TransformPoint(
             &hitContext._ptHitTest,
             coordinateSystem,
@@ -1834,14 +1712,12 @@ CDispNode::HitTest(
     BOOL fHit = FALSE;
 
     // must be a visible node somewhere
-    if (IsSet(CDispFlags::s_visibleBranch))
-    {
+    if (IsSet(CDispFlags::s_visibleBranch)) {
         CPoint ptOriginal(hitContext._ptHitTest);
 
         // are we hit testing content?  If not, take clipping into account for
         // this node and its parents.
-        if (!fHitContent)
-        {
+        if (!fHitContent) {
             GetNodeTransform(&hitContext, COORDSYS_PARENT, COORDSYS_GLOBAL);
 
 
@@ -1851,11 +1727,9 @@ CDispNode::HitTest(
 
 
             fHit =
-                hitContext.FuzzyRectIsHit(_rcVisBounds, IsFatHitTest() ) &&
+                hitContext.FuzzyRectIsHit(_rcVisBounds, IsFatHitTest()) &&
                 HitTestPoint(&hitContext);
-        }
-        else if (IsLeafNode())
-        {
+        } else if (IsLeafNode()) {
 
             // BUGBUG. FATHIT. marka - Fix for Bug 65015 - enabling "Fat" hit testing on tables.
             // Edit team is to provide a better UI-level way of dealing with this problem for post IE5.
@@ -1863,11 +1737,9 @@ CDispNode::HitTest(
 
 
             fHit =
-                hitContext.FuzzyRectIsHit(_rcVisBounds, IsFatHitTest() ) &&
+                hitContext.FuzzyRectIsHit(_rcVisBounds, IsFatHitTest()) &&
                 HitTestPoint(&hitContext);
-        }
-        else
-        {
+        } else {
             CDispInteriorNode* pInterior = DYNCAST(CDispInteriorNode, this);
 
             // calculate clip and position info
@@ -1882,19 +1754,16 @@ CDispNode::HitTest(
             int lastLayer = DISPNODELAYER_POSITIVEZ;
             for (CDispNode* pChild = pInterior->_pLastChildNode;
                  pChild != NULL;
-                 pChild = pChild->_pPreviousSiblingNode)
-            {
+                 pChild = pChild->_pPreviousSiblingNode) {
                 // branch must have a visible node, else skip it
                 if (!pChild->IsSet(CDispFlags::s_visibleBranch))
                     continue;
 
                 // translate hit point between different layer types
-                int childLayer = (int) pChild->GetLayerType();
-                if (childLayer != lastLayer)
-                {
+                int childLayer = (int)pChild->GetLayerType();
+                if (childLayer != lastLayer) {
                     Assert(lastLayer > childLayer);
-                    switch (childLayer)
-                    {
+                    switch (childLayer) {
                     case DISPNODELAYER_NEGATIVEZ:
                         if (lastLayer == DISPNODELAYER_FLOW)
                             hitContext._ptHitTest += *di._pInsetOffset;
@@ -1908,17 +1777,14 @@ CDispNode::HitTest(
 
                 // restrict hits to inside user clip rect
                 CRect rcChild;
-                if (pChild->HasUserClip())
-                {
+                if (pChild->HasUserClip()) {
                     // BUGBUG (donmarsh) -- the bounds of the user clip will be
                     // be used for the fuzzy hit test, which means we could hit
                     // outside the user clip rect
                     rcChild = pChild->GetUserClip();
                     rcChild.OffsetRect(pChild->GetBounds().TopLeft().AsSize());
                     rcChild.IntersectRect(pChild->_rcVisBounds);
-                }
-                else
-                {
+                } else {
                     rcChild = pChild->_rcVisBounds;
                 }
 
@@ -1929,7 +1795,7 @@ CDispNode::HitTest(
 
 
                 fHit =
-                    hitContext.FuzzyRectIsHit(rcChild, IsFatHitTest() ) &&
+                    hitContext.FuzzyRectIsHit(rcChild, IsFatHitTest()) &&
                     pChild->HitTestPoint(&hitContext);
 
                 if (fHit)
@@ -1941,11 +1807,9 @@ CDispNode::HitTest(
             // but HitTextContent can only be called if the point is over the
             // element. e.g. (-500, -500) should just be !fHit
 
-            if (!fHit && GetBounds().Contains(ptOriginal))
-            {
+            if (!fHit && GetBounds().Contains(ptOriginal)) {
                 CDispClient* pClient = GetDispClient();
-                if (pClient != NULL)
-                {
+                if (pClient != NULL) {
                     fHit = pClient->HitTestContent(
                         &hitContext._ptHitTest,
                         this,
@@ -1981,15 +1845,14 @@ CDispNode::HitTest(
 
 void
 CDispNode::GetTransformOffset(
-        CSize* pOffset,
-        COORDINATE_SYSTEM source,
-        COORDINATE_SYSTEM destination) const
+    CSize* pOffset,
+    COORDINATE_SYSTEM source,
+    COORDINATE_SYSTEM destination) const
 {
     if (destination < source)
         GetNodeTransform(pOffset, source, destination);
 
-    else if (destination > source)
-    {
+    else if (destination > source) {
         // reverse the transform and then negate the offset
         GetNodeTransform(pOffset, destination, source);
 
@@ -2020,15 +1883,14 @@ CDispNode::GetTransformOffset(
 
 void
 CDispNode::GetTransformContext(
-        CDispContext* pContext,
-        COORDINATE_SYSTEM source,
-        COORDINATE_SYSTEM destination) const
+    CDispContext* pContext,
+    COORDINATE_SYSTEM source,
+    COORDINATE_SYSTEM destination) const
 {
     if (destination < source)
         GetNodeTransform(pContext, source, destination);
 
-    else if (destination > source)
-    {
+    else if (destination > source) {
         GetNodeTransform(pContext, destination, source);
         pContext->_rcClip.OffsetRect(pContext->_offset);
         pContext->_offset = -pContext->_offset;
@@ -2057,13 +1919,12 @@ CDispNode::GetTransformContext(
 
 void
 CDispNode::TransformRect(
-        CRect* prc,
-        COORDINATE_SYSTEM source,
-        COORDINATE_SYSTEM destination,
-        BOOL fClip) const
+    CRect* prc,
+    COORDINATE_SYSTEM source,
+    COORDINATE_SYSTEM destination,
+    BOOL fClip) const
 {
-    if (fClip)
-    {
+    if (fClip) {
         CDispContext context;
         GetTransformContext(&context, source, destination);
         context.Transform(prc);
@@ -2071,8 +1932,7 @@ CDispNode::TransformRect(
 
     // special case here for !fClip, because GetTransformOffset is significantly
     // faster than GetTransformContext
-    else
-    {
+    else {
         CSize offset;
         GetTransformOffset(&offset, source, destination);
         prc->OffsetRect(offset);
@@ -2098,13 +1958,12 @@ CDispNode::TransformRect(
 
 void
 CDispNode::TransformRegion(
-        CRegion* prgn,
-        COORDINATE_SYSTEM source,
-        COORDINATE_SYSTEM destination,
-        BOOL fClip) const
+    CRegion* prgn,
+    COORDINATE_SYSTEM source,
+    COORDINATE_SYSTEM destination,
+    BOOL fClip) const
 {
-    if (fClip)
-    {
+    if (fClip) {
         CDispContext context;
         GetTransformContext(&context, source, destination);
         context.Transform(prgn);
@@ -2112,8 +1971,7 @@ CDispNode::TransformRegion(
 
     // special case here for !fClip, because GetTransformOffset is significantly
     // faster than GetTransformContext
-    else
-    {
+    else {
         CSize offset;
         GetTransformOffset(&offset, source, destination);
         prgn->Offset(offset);
@@ -2139,9 +1997,9 @@ CDispNode::TransformRegion(
 
 void
 CDispNode::GetNodeTransform(
-        CSize* pOffset,
-        COORDINATE_SYSTEM source,
-        COORDINATE_SYSTEM destination) const
+    CSize* pOffset,
+    COORDINATE_SYSTEM source,
+    COORDINATE_SYSTEM destination) const
 {
     Assert(destination < source);
     Assert(source != COORDSYS_GLOBAL);
@@ -2177,9 +2035,9 @@ CDispNode::GetNodeTransform(
 
 void
 CDispNode::GetNodeTransform(
-        CDispContext* pContext,
-        COORDINATE_SYSTEM source,
-        COORDINATE_SYSTEM destination) const
+    CDispContext* pContext,
+    COORDINATE_SYSTEM source,
+    COORDINATE_SYSTEM destination) const
 {
     Assert(destination < source);
     Assert(source != COORDSYS_GLOBAL);
@@ -2218,11 +2076,11 @@ CDispNode::GetNodeTransform(
 
 BOOL
 CDispNode::ScrollRectIntoView(
-        const CRect& rc,
-        CRect::SCROLLPIN spVert,
-        CRect::SCROLLPIN spHorz,
-        COORDINATE_SYSTEM coordSystem,
-        BOOL fScrollBits)
+    const CRect& rc,
+    CRect::SCROLLPIN spVert,
+    CRect::SCROLLPIN spHorz,
+    COORDINATE_SYSTEM coordSystem,
+    BOOL fScrollBits)
 {
     Assert(coordSystem == COORDSYS_CONTENT ||
            coordSystem == COORDSYS_NONFLOWCONTENT);
@@ -2294,21 +2152,16 @@ CDispNode::SubtractOpaqueSiblings(CRegion* pRegion)
 
     for (CDispNode* pSibling = _pNextSiblingNode;
          pSibling != NULL && !pRegion->IsEmpty();
-         pSibling = pSibling->_pNextSiblingNode)
-    {
+         pSibling = pSibling->_pNextSiblingNode) {
         // only visible, inview, opaque branches are of interest
-        if (pSibling->AllSet(CDispFlags::s_subtractOpaqueSelector))
-        {
+        if (pSibling->AllSet(CDispFlags::s_subtractOpaqueSelector)) {
             if (pSibling->IsLeafNode() ||
-                pSibling->IsSet(CDispFlags::s_opaqueNode))
-            {
+                pSibling->IsSet(CDispFlags::s_opaqueNode)) {
                 pRegion->Subtract(pSibling->GetBounds());
                 pRegion->GetBounds(&rcRegionBounds);
-            }
-            else if (rcRegionBounds.Intersects(pSibling->_rcVisBounds))
-            {
+            } else if (rcRegionBounds.Intersects(pSibling->_rcVisBounds)) {
                 CDispInteriorNode* pInterior =
-                    DYNCAST(CDispInteriorNode,pSibling);
+                    DYNCAST(CDispInteriorNode, pSibling);
                 if (!pInterior->SubtractOpaqueChildren(pRegion, &context))
                     return FALSE;
             }
@@ -2337,9 +2190,9 @@ CDispNode::SubtractOpaqueSiblings(CRegion* pRegion)
 
 void
 CDispNode::Recalc(
-        BOOL fForceRecalc,
-        BOOL fSuppressInval,
-        CDispDrawContext* pContext)
+    BOOL fForceRecalc,
+    BOOL fSuppressInval,
+    CDispDrawContext* pContext)
 {
     Assert(fForceRecalc || IsSet(CDispFlags::s_recalc));
 
@@ -2349,8 +2202,7 @@ CDispNode::Recalc(
     CApplyUserClip applyUC(this, pContext);
 
     // set visible flag and invalidate if this node is a visible item
-    if (IsLeafNode())
-    {
+    if (IsLeafNode()) {
         // is this item in view?
         BOOL fInView = IsSet(CDispFlags::s_visibleNode) && _rcVisBounds.Intersects(pContext->_rcClip);
         BOOL fWasInView = IsSet(CDispFlags::s_inView);
@@ -2358,8 +2210,7 @@ CDispNode::Recalc(
         SetBoolean(CDispFlags::s_inView, fInView);
 
         // notify client of visibility changes if requested
-        if ( IsSet(CDispFlags::s_inViewChangeOrNeedsInsertedNotify) )
-        {
+        if (IsSet(CDispFlags::s_inViewChangeOrNeedsInsertedNotify)) {
             // if our parent moved and forced recalc of its children, the
             // children may have moved
             if (fForceRecalc)
@@ -2367,8 +2218,7 @@ CDispNode::Recalc(
 
             if (fInView != fWasInView ||
                 (fInView && IsSet(CDispFlags::s_positionHasChanged)) ||
-                IsSet(CDispFlags::s_justInserted))
-            {
+                IsSet(CDispFlags::s_justInserted)) {
                 CDispLeafNode* pLeaf = DYNCAST(CDispLeafNode, this);
                 pLeaf->NotifyInViewChange(
                     pContext,
@@ -2381,19 +2231,16 @@ CDispNode::Recalc(
         }
     }
 
-    else
-    {
-        CDispInteriorNode* pInterior = DYNCAST(CDispInteriorNode,this);
+    else {
+        CDispInteriorNode* pInterior = DYNCAST(CDispInteriorNode, this);
 
         // get rid of destroyed children
-        if (IsSet(CDispFlags::s_destructChildren))
-        {
+        if (IsSet(CDispFlags::s_destructChildren)) {
             pInterior->DestroyChildren();
         }
 
         // check for tree balance
-        if (pInterior->_cChildren > MAX_CHILDREN_BEFORE_BALANCE)
-        {
+        if (pInterior->_cChildren > MAX_CHILDREN_BEFORE_BALANCE) {
             pInterior->BalanceTree();
         }
 
@@ -2405,22 +2252,19 @@ CDispNode::Recalc(
 
         // set in-view status
         if (!IsSet(CDispFlags::s_inView) &&
-            pContext->_rcClip.Intersects(_rcVisBounds))
-        {
+            pContext->_rcClip.Intersects(_rcVisBounds)) {
             SetFlag(CDispFlags::s_inView);
         }
     }
 
     // add to invalid area if necessary
-    if (fInval && !fSuppressInval && _flags.AllSet(CDispFlags::s_visible))
-    {
+    if (fInval && !fSuppressInval && _flags.AllSet(CDispFlags::s_visible)) {
         pContext->AddToRedrawRegion(_rcVisBounds);
     }
 
     // set opaque branch flag
     if (GetFlag(CDispFlags::s_opaqueNodeAndBranch) == CDispFlags::s_opaqueNode &&
-        GetBounds().Area() >= MINIMUM_OPAQUE_PIXELS)
-    {
+        GetBounds().Area() >= MINIMUM_OPAQUE_PIXELS) {
         SetFlag(CDispFlags::s_opaqueBranch);
     }
 
@@ -2429,8 +2273,7 @@ CDispNode::Recalc(
     // want to return the size of _rcVisBounds here, but that doesn't match
     // the container coordinate system we ask filters to render themselves in.
     // Eventually, we should notify the filter of the size of each layer.
-    if (IsFiltered())
-    {
+    if (IsFiltered()) {
         GetFilter()->SetSize(GetBounds().Size());
     }
 }
@@ -2457,8 +2300,7 @@ CDispNode::MustInvalidate() const
 {
     for (const CDispNode* pNode = this;
          pNode != NULL;
-         pNode = pNode->_pParentNode)
-    {
+         pNode = pNode->_pParentNode) {
         if (pNode->IsSet(CDispFlags::s_inval))
             return FALSE;
     }
@@ -2484,36 +2326,30 @@ CDispNode::MustInvalidate() const
 
 void
 CDispNode::InvalidateEdges(
-        const CRect& rcOld,
-        const CRect& rcNew,
-        const CRect& rcBorderWidths,
-        BOOL fRightToLeft)
+    const CRect& rcOld,
+    const CRect& rcNew,
+    const CRect& rcBorderWidths,
+    BOOL fRightToLeft)
 {
     CRect rcInval;
 
     // invalidate edges that are changing
-    if (rcOld.right != rcNew.right)
-    {
+    if (rcOld.right != rcNew.right) {
         rcInval.SetRect(
             min(rcOld.right, rcNew.right) - rcBorderWidths.right,
             rcOld.top,
             max(rcOld.right, rcNew.right),
             max(rcOld.bottom, rcNew.bottom) - rcBorderWidths.bottom);
         Invalidate(rcInval, COORDSYS_PARENT);
-    }
-    else if (rcOld.left != rcNew.left)
-    {
+    } else if (rcOld.left != rcNew.left) {
         rcInval.SetRect(
             min(rcOld.left, rcNew.left),
             rcOld.top,
             max(rcOld.left, rcNew.left) + rcBorderWidths.left,
             max(rcOld.bottom, rcNew.bottom) - rcBorderWidths.bottom);
         Invalidate(rcInval, COORDSYS_PARENT);
-    }
-    else if (!fRightToLeft)
-    {
-        if (rcBorderWidths.right != 0)
-        {
+    } else if (!fRightToLeft) {
+        if (rcBorderWidths.right != 0) {
             rcInval.SetRect(
                 rcNew.right - rcBorderWidths.right,
                 rcNew.top,
@@ -2521,21 +2357,18 @@ CDispNode::InvalidateEdges(
                 rcNew.bottom);
             Invalidate(rcInval, COORDSYS_PARENT);
         }
-    }
-    else
-    {
-        if (rcBorderWidths.left != 0)
-        {
+    } else {
+        if (rcBorderWidths.left != 0) {
 #if 1
-// BUGBUG (donmarsh) -- this is bogus!
+            // BUGBUG (donmarsh) -- this is bogus!
             rcInval.SetRect(
                 rcNew.left + rcBorderWidths.left,
                 rcNew.top,
                 rcNew.left,
                 rcNew.bottom);
 #else
-// BUGBUG (donmarsh) -- this is the way it really should be, but
-// checkin is delayed until IE 5.x to prevent regressions on 5.0
+            // BUGBUG (donmarsh) -- this is the way it really should be, but
+            // checkin is delayed until IE 5.x to prevent regressions on 5.0
             rcInval.SetRect(
                 rcNew.left,
                 rcNew.top,
@@ -2546,17 +2379,14 @@ CDispNode::InvalidateEdges(
         }
     }
 
-    if (rcOld.bottom != rcNew.bottom)
-    {
+    if (rcOld.bottom != rcNew.bottom) {
         rcInval.SetRect(
             rcOld.left,
             min(rcOld.bottom, rcNew.bottom) - rcBorderWidths.bottom,
             rcOld.right,
             max(rcOld.bottom, rcNew.bottom));
         Invalidate(rcInval, COORDSYS_PARENT);
-    }
-    else if (rcBorderWidths.bottom > 0)
-    {
+    } else if (rcBorderWidths.bottom > 0) {
         rcInval.SetRect(
             rcNew.left,
             rcNew.bottom - rcBorderWidths.bottom,
@@ -2585,8 +2415,7 @@ CDispNode::SetUserClip(const RECT& rcUserClip, CDispExtras* pExtras)
 {
     Assert(pExtras != NULL);
 
-    if (!IsSet(CDispFlags::s_inval) && IsSet(CDispFlags::s_visibleBranchAndInView))
-    {
+    if (!IsSet(CDispFlags::s_inval) && IsSet(CDispFlags::s_visibleBranchAndInView)) {
         // invalidate area that was exposed before (in case it will be clipped
         // now and the background needs to be repainted)
         Invalidate((const CRect&)(pExtras->GetUserClip()), COORDSYS_CONTAINER);
@@ -2619,8 +2448,7 @@ CDispNode::SetFiltered(BOOL fFiltered)
 {
     Assert(GetNodeType() != DISPNODETYPE_ROOT);
 
-    if (fFiltered != IsFiltered())
-    {
+    if (fFiltered != IsFiltered()) {
         SetBoolean(CDispFlags::s_filtered, fFiltered);
         SetFlag(CDispFlags::s_inval);
         RequestRecalc();
@@ -2644,29 +2472,26 @@ CDispNode::SetFiltered(BOOL fFiltered)
 void
 CDispNode::DumpDisplayTree()
 {
-    HANDLE              hfile    = CreateFile(_T("c:\\displaytree.htm"),
-                                        GENERIC_WRITE | GENERIC_READ,
-                                        FILE_SHARE_WRITE | FILE_SHARE_READ,
-                                        NULL,
-                                        OPEN_ALWAYS,
-                                        FILE_ATTRIBUTE_NORMAL,
-                                        NULL);
+    HANDLE              hfile = CreateFile(_T("c:\\displaytree.htm"),
+                                           GENERIC_WRITE | GENERIC_READ,
+                                           FILE_SHARE_WRITE | FILE_SHARE_READ,
+                                           NULL,
+                                           OPEN_ALWAYS,
+                                           FILE_ATTRIBUTE_NORMAL,
+                                           NULL);
 
-    if (hfile == INVALID_HANDLE_VALUE)
-    {
+    if (hfile == INVALID_HANDLE_VALUE) {
         return;
     }
 
-    SetFilePointer( hfile, GetFileSize( hfile, 0 ), 0, 0 );
+    SetFilePointer(hfile, GetFileSize(hfile, 0), 0, 0);
 
     CDispNode* pRoot = GetRootNode();
-    if (pRoot != NULL)
-    {
+    if (pRoot != NULL) {
         pRoot->DumpStart(hfile);
-        if (pRoot->IsDispRoot())
-        {
+        if (pRoot->IsDispRoot()) {
             WriteString(hfile, _T("<h5>"));
-            WriteString(hfile, (LPTSTR) *((CStr*)(DYNCAST(CDispRoot,pRoot)->_debugUrl)));
+            WriteString(hfile, (LPTSTR) * ((CStr*)(DYNCAST(CDispRoot, pRoot)->_debugUrl)));
             WriteString(hfile, _T("</h5>\r\n"));
         }
         pRoot->Dump(hfile, 0, MAXLONG, 0);
@@ -2693,20 +2518,19 @@ CDispNode::DumpDisplayTree()
 void
 CDispNode::DumpDisplayNode()
 {
-    HANDLE              hfile    = CreateFile(_T("c:\\displaytree.htm"),
-                                        GENERIC_WRITE | GENERIC_READ,
-                                        FILE_SHARE_WRITE | FILE_SHARE_READ,
-                                        NULL,
-                                        OPEN_ALWAYS,
-                                        FILE_ATTRIBUTE_NORMAL,
-                                        NULL);
+    HANDLE              hfile = CreateFile(_T("c:\\displaytree.htm"),
+                                           GENERIC_WRITE | GENERIC_READ,
+                                           FILE_SHARE_WRITE | FILE_SHARE_READ,
+                                           NULL,
+                                           OPEN_ALWAYS,
+                                           FILE_ATTRIBUTE_NORMAL,
+                                           NULL);
 
-    if (hfile == INVALID_HANDLE_VALUE)
-    {
+    if (hfile == INVALID_HANDLE_VALUE) {
         return;
     }
 
-    SetFilePointer( hfile, GetFileSize( hfile, 0 ), 0, 0 );
+    SetFilePointer(hfile, GetFileSize(hfile, 0), 0, 0);
 
     DumpStart(hfile);
     Dump(hfile, 0, 1, 0);
@@ -2835,18 +2659,14 @@ CDispNode::DumpEnd(HANDLE hFile)
 void
 CDispNode::Dump(HANDLE hFile, long level, long maxLevel, long childNumber)
 {
-    if (level == 0)
-    {
+    if (level == 0) {
         WriteString(hFile, _T("<div class=root"));
-    }
-    else
-    {
+    } else {
         WriteHelp(hFile, _T("<<div class=c<0d>"), level % 6);
     }
 
     // change cursor for node with children
-    if (IsInteriorNode() && DYNCAST(CDispInteriorNode,this)->_cChildren > 0)
-    {
+    if (IsInteriorNode() && DYNCAST(CDispInteriorNode, this)->_cChildren > 0) {
         WriteString(hFile, _T(" style='cursor:hand'"));
     }
     WriteString(hFile, _T(">\r\n"));
@@ -2857,36 +2677,29 @@ CDispNode::Dump(HANDLE hFile, long level, long maxLevel, long childNumber)
     DumpBounds(hFile, level, childNumber);
     DumpFlags(hFile, level, childNumber);
     CDispExtras* pExtras = GetExtras();
-    if (pExtras != NULL)
-    {
+    if (pExtras != NULL) {
         CDispInfo di(pExtras);
 
-        if (HasUserClip())
-        {
+        if (HasUserClip()) {
             WriteString(hFile, _T("<i>user clip:</i>"));
             DumpRect(hFile, GetUserClip(pExtras));
         }
-        if (GetBorderType(pExtras) == DISPNODEBORDER_SIMPLE)
-        {
+        if (GetBorderType(pExtras) == DISPNODEBORDER_SIMPLE) {
             WriteHelp(hFile, _T("<<i>uniform border:<</i> <0d>"),
                       di._prcBorderWidths->left);
             DumpEndLine(hFile);
-        }
-        else if (GetBorderType(pExtras) == DISPNODEBORDER_COMPLEX)
-        {
+        } else if (GetBorderType(pExtras) == DISPNODEBORDER_COMPLEX) {
             WriteString(hFile, _T("<i>border widths:</i>"));
             DumpRect(hFile, *di._prcBorderWidths);
         }
-        if (HasInset(pExtras))
-        {
+        if (HasInset(pExtras)) {
             WriteHelp(hFile, _T("<<i>inset:<</i> x:<0d>, y:<1d>"),
                       di._pInsetOffset->cx, di._pInsetOffset->cy);
             DumpEndLine(hFile);
         }
-        if (HasExtraCookie(pExtras))
-        {
+        if (HasExtraCookie(pExtras)) {
             WriteHelp(hFile, _T("<<i>extra cookie:<</i> <0d> (0x<1d>)"),
-                      (LONG)(LONG_PTR)GetExtraCookie(pExtras),
+                (LONG)(LONG_PTR)GetExtraCookie(pExtras),
                       (LONG)(LONG_PTR)GetExtraCookie(pExtras));
             DumpEndLine(hFile);
         }
@@ -2916,16 +2729,14 @@ void
 CDispNode::DumpClassName(HANDLE hFile, long level, long childNumber)
 {
     // print child number
-    WriteHelp(hFile, _T("<<b><0d>. "), childNumber+1);
+    WriteHelp(hFile, _T("<<b><0d>. "), childNumber + 1);
 
-    if (IsInteriorNode() && DYNCAST(CDispInteriorNode,this)->_cChildren > 0)
-    {
+    if (IsInteriorNode() && DYNCAST(CDispInteriorNode, this)->_cChildren > 0) {
         WriteString(hFile, _T("<u>"));
     }
 
     // print node type
-    switch (GetNodeType())
-    {
+    switch (GetNodeType()) {
     case DISPNODETYPE_BALANCE:
         WriteString(hFile, _T("<i>balance</i>"));
         break;
@@ -2954,21 +2765,15 @@ CDispNode::DumpClassName(HANDLE hFile, long level, long childNumber)
         WriteString(hFile, _T("UNKNOWN NODE TYPE"));
         break;
     }
-    if (IsInteriorNode())
-    {
-        CDispInteriorNode* pInterior = DYNCAST(CDispInteriorNode,this);
-        if (pInterior->_cChildren > 0)
-        {
+    if (IsInteriorNode()) {
+        CDispInteriorNode* pInterior = DYNCAST(CDispInteriorNode, this);
+        if (pInterior->_cChildren > 0) {
             WriteString(hFile, _T("</u>"));
             WriteHelp(hFile, _T("<</b>  0x<0x>  (children: <1d>)"), this, pInterior->_cChildren);
-        }
-        else
-        {
+        } else {
             WriteHelp(hFile, _T("<</b>  0x<0x>"), this);
         }
-    }
-    else
-    {
+    } else {
         WriteHelp(hFile, _T("<</b>  0x<0x>"), this);
     }
 }
@@ -3013,13 +2818,11 @@ void
 CDispNode::DumpCoord(HANDLE hFile, TCHAR* pszLabel, LONG coord, BOOL fHighlight)
 {
     WriteHelp(hFile, _T(" <0s>:"), pszLabel);
-    if (fHighlight)
-    {
+    if (fHighlight) {
         WriteString(hFile, _T("<font class=s0>"));
     }
     WriteHelp(hFile, _T("<0d>"), coord);
-    if (fHighlight)
-    {
+    if (fHighlight) {
         WriteString(hFile, _T("</font>"));
     }
 }
@@ -3078,8 +2881,7 @@ CDispNode::DumpFlags(HANDLE hFile, long level, long childNumber)
     WriteString(hFile, _T("<i>flags:</i>"));
 
     // general flags
-    switch (GetLayerType())
-    {
+    switch (GetLayerType()) {
     case DISPNODELAYER_NEGATIVEZ:
         WriteString(hFile, _T(" -z"));
         break;
@@ -3094,105 +2896,81 @@ CDispNode::DumpFlags(HANDLE hFile, long level, long childNumber)
         break;
     }
 
-    if (!AffectsScrollBounds())
-    {
+    if (!AffectsScrollBounds()) {
         WriteString(hFile, _T(" !AFFECTSSCROLLBOUNDS"));
     }
-    if (!IsVisible())
-    {
+    if (!IsVisible()) {
         WriteString(hFile, _T(" INVISIBLE"));
     }
-    if (IsRightToLeft())
-    {
+    if (IsRightToLeft()) {
         WriteString(hFile, _T(" RTL"));
     }
-    if (IsSet(CDispFlags::s_owned))
-    {
+    if (IsSet(CDispFlags::s_owned)) {
         WriteString(hFile, _T(" OWNED"));
     }
-    if (IsSet(CDispFlags::s_destruct))
-    {
+    if (IsSet(CDispFlags::s_destruct)) {
         WriteString(hFile, _T(" <b>DESTRUCT</b>"));
     }
-    if (IsSet(CDispFlags::s_hasBackground))
-    {
+    if (IsSet(CDispFlags::s_hasBackground)) {
         WriteString(hFile, _T(" HASBACKGROUND"));
     }
-    if (IsSet(CDispFlags::s_hasLookaside))
-    {
+    if (IsSet(CDispFlags::s_hasLookaside)) {
         WriteString(hFile, _T(" LOOKASIDE"));
     }
-    if (IsSet(CDispFlags::s_bufferInvalid))
-    {
+    if (IsSet(CDispFlags::s_bufferInvalid)) {
         WriteString(hFile, _T(" BUFFERINVALID"));
     }
-    if (IsSet(CDispFlags::s_savedRedrawRegion) && IsSet(CDispFlags::s_opaqueNode))
-    {
+    if (IsSet(CDispFlags::s_savedRedrawRegion) && IsSet(CDispFlags::s_opaqueNode)) {
         WriteString(hFile, _T(" SAVEDREDRAWREGION"));
     }
-    if (IsSet(CDispFlags::s_inval))
-    {
+    if (IsSet(CDispFlags::s_inval)) {
         WriteString(hFile, _T(" INVAL"));
     }
-    if (IsSet(CDispFlags::s_recalcChildren))
-    {
+    if (IsSet(CDispFlags::s_recalcChildren)) {
         WriteString(hFile, _T(" RECALCCHILDREN"));
     }
-    if (IsSet(CDispFlags::s_opaqueNode))
-    {
+    if (IsSet(CDispFlags::s_opaqueNode)) {
         WriteString(hFile, _T(" OPAQUENODE"));
     }
-    if (IsSet(CDispFlags::s_filtered))
-    {
+    if (IsSet(CDispFlags::s_filtered)) {
         WriteString(hFile, _T("<b><i> FILTERED</i></b>"));
     }
 
     // leaf flags
-    if (IsLeafNode())
-    {
+    if (IsLeafNode()) {
         // no leaf node flags right now...
     }
 
     // interior flags
-    else
-    {
-        if (IsSet(CDispFlags::s_destructChildren))
-        {
+    else {
+        if (IsSet(CDispFlags::s_destructChildren)) {
             WriteString(hFile, _T(" <b>DESTRUCTCHILDREN</b>"));
         }
-        if (IsSet(CDispFlags::s_fixedBackground))
-        {
+        if (IsSet(CDispFlags::s_fixedBackground)) {
             WriteString(hFile, _T(" FIXEDBKGD"));
         }
     }
 
     // propagated flags
-    if (IsSet(CDispFlags::s_recalc))
-    {
+    if (IsSet(CDispFlags::s_recalc)) {
         WriteString(hFile, _T(" RECALC"));
     }
-    if (!IsSet(CDispFlags::s_inView))
-    {
+    if (!IsSet(CDispFlags::s_inView)) {
         WriteString(hFile, _T(" !INVIEW"));
     }
-    if (!IsSet(CDispFlags::s_visibleBranch))
-    {
+    if (!IsSet(CDispFlags::s_visibleBranch)) {
         WriteString(hFile, _T(" INVISIBLEBRANCH"));
     }
-    if (IsSet(CDispFlags::s_opaqueBranch))
-    {
+    if (IsSet(CDispFlags::s_opaqueBranch)) {
         WriteString(hFile, _T(" OPAQUEBRANCH"));
     }
-    if (IsSet(CDispFlags::s_buffered))
-    {
+    if (IsSet(CDispFlags::s_buffered)) {
         WriteString(hFile, _T(" BUFFERED"));
     }
-    if (IsSet(CDispFlags::s_positionChange))
-    {
+    if (IsSet(CDispFlags::s_positionChange)) {
         WriteString(hFile, _T(" POSCHANGE"));
     }
-    if (IsSet(CDispFlags::s_inViewChange))
-    {
+    if (IsSet(CDispFlags::s_inViewChange)) {
         WriteString(hFile, _T(" INVIEWCHANGE"));
     }
 
@@ -3220,15 +2998,13 @@ CDispNode::DumpChildren(HANDLE hFile, long level, long maxLevel, long childNumbe
 {
     // dump children
     if (level < maxLevel &&
-        IsInteriorNode() && DYNCAST(CDispInteriorNode,this)->_cChildren > 0)
-    {
+        IsInteriorNode() && DYNCAST(CDispInteriorNode, this)->_cChildren > 0) {
         WriteString(hFile, _T("<span class=c style='display:none'>\r\n"));
         long i = 0;
-        for (CDispNode* pChild = DYNCAST(CDispInteriorNode,this)->_pFirstChildNode;
+        for (CDispNode* pChild = DYNCAST(CDispInteriorNode, this)->_pFirstChildNode;
              pChild != NULL;
-             pChild = pChild->_pNextSiblingNode)
-        {
-            pChild->Dump(hFile, level+1, maxLevel, i);
+             pChild = pChild->_pNextSiblingNode) {
+            pChild->Dump(hFile, level + 1, maxLevel, i);
             i++;
         }
         WriteString(hFile, _T("</span>\r\n"));
@@ -3252,24 +3028,21 @@ CDispNode::DumpChildren(HANDLE hFile, long level, long maxLevel, long childNumbe
 void
 CDispNode::VerifyTreeCorrectness() const
 {
-    const CDispNode * pChild  = this;
-    const CDispNode * pParent = _pParentNode;
+    const CDispNode* pChild = this;
+    const CDispNode* pParent = _pParentNode;
     for (;
          pParent != NULL;
-         pChild = pParent, pParent = pParent->_pParentNode)
-    {
+         pChild = pParent, pParent = pParent->_pParentNode) {
         AssertSz(pParent != pChild, "FATAL ERROR: Cycle in Display Tree will cause infinite loop");
         AssertSz(pParent != this, "FATAL ERROR: Cycle in Display Tree will cause infinite loop");
         Assert(pParent->IsBalanceNode() == (pParent->GetNodeType() == DISPNODETYPE_BALANCE));
     }
 
-    if (_pPreviousSiblingNode != NULL)
-    {
+    if (_pPreviousSiblingNode != NULL) {
         AssertSz(_pPreviousSiblingNode->GetLayerType() <= GetLayerType(), "Invalid layer ordering");
     }
 
-    if (_pNextSiblingNode != NULL)
-    {
+    if (_pNextSiblingNode != NULL) {
         AssertSz(_pNextSiblingNode->GetLayerType() >= GetLayerType(), "Invalid layer ordering");
     }
 }
@@ -3293,8 +3066,7 @@ CDispNode::VerifyRecalc() const
 {
     for (const CDispNode* pNode = this;
          pNode != NULL;
-         pNode = pNode->_pParentNode)
-    {
+         pNode = pNode->_pParentNode) {
         Assert(pNode->IsSet(CDispFlags::s_recalc));
     }
 }

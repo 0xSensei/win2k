@@ -1,5 +1,3 @@
-
-
 //  Microsoft Forms
 //  Copyright (C) Microsoft Corporation, 1994-1996
 
@@ -138,7 +136,7 @@ MtDefine(CStyleSheetAddImportedStyleSheet_pszParsedURL, Locals, "CStyleSheet::Ad
 MtDefine(CStyleSheetChangeStatus_pFound, Locals, "CStyleSheet::ChangeStatus pFound")
 
 
-DeclareTag(tagStyleSheet,                    "Style Sheet", "trace Style Sheet operations")
+DeclareTag(tagStyleSheet, "Style Sheet", "trace Style Sheet operations")
 
 
 //  Class Declaration:  CStyleSelector
@@ -152,10 +150,10 @@ DeclareTag(tagStyleSheet,                    "Style Sheet", "trace Style Sheet o
 //  member variables.
 
 #ifdef XMV_PARSE
-CStyleSelector::CStyleSelector( const TCHAR *pcszSelectorString, CStyleSelector *pParent,
-                                 BOOL fXMLGeneric )
+CStyleSelector::CStyleSelector(const TCHAR* pcszSelectorString, CStyleSelector* pParent,
+                               BOOL fXMLGeneric)
 #else
-CStyleSelector::CStyleSelector( const TCHAR *pcszSelectorString, CStyleSelector *pParent)
+CStyleSelector::CStyleSelector(const TCHAR* pcszSelectorString, CStyleSelector* pParent)
 #endif
 {
     _pParent = pParent;
@@ -164,18 +162,18 @@ CStyleSelector::CStyleSelector( const TCHAR *pcszSelectorString, CStyleSelector 
     _ePseudoclass = pclassNone;
     _ePseudoElement = pelemNone;
 
-    if ( pcszSelectorString )
+    if (pcszSelectorString)
 #ifdef XMV_PARSE
-        Init( pcszSelectorString, fXMLGeneric);
+        Init(pcszSelectorString, fXMLGeneric);
 #else
-        Init( pcszSelectorString);
+        Init(pcszSelectorString);
 #endif
 }
 
 
 //  CStyleSelector::~CStyleSelector()
 
-CStyleSelector::~CStyleSelector( void )
+CStyleSelector::~CStyleSelector(void)
 {
     delete _pParent;
     delete _pSibling;
@@ -187,112 +185,93 @@ CStyleSelector::~CStyleSelector( void )
 //  member data variables.
 
 #ifdef XMV_PARSE
-HRESULT CStyleSelector::Init( const TCHAR *pcszSelectorString, BOOL fXMLGeneric )
+HRESULT CStyleSelector::Init(const TCHAR* pcszSelectorString, BOOL fXMLGeneric)
 #else
-HRESULT CStyleSelector::Init( const TCHAR *pcszSelectorString)
+HRESULT CStyleSelector::Init(const TCHAR* pcszSelectorString)
 #endif
 {
     HRESULT hr = S_OK;
-    const TCHAR *pcszBegin;
-    const TCHAR *pcszNext;
+    const TCHAR* pcszBegin;
+    const TCHAR* pcszNext;
 
-    Assert( pcszSelectorString != NULL );
+    Assert(pcszSelectorString != NULL);
 
     pcszNext = pcszBegin = pcszSelectorString;
 
-    while ( *pcszBegin )
-    {
+    while (*pcszBegin) {
         pcszNext = pcszBegin + 1;   // Need to skip over any special characters
 
         // Get the next token
-        while ( *pcszNext && (*pcszNext != _T('#')) && (*pcszNext != _T(':')) && (*pcszNext != _T('.')))
-        {
-            if(*pcszNext == _T('\\') && *(pcszNext + 1) == _T(':'))
+        while (*pcszNext && (*pcszNext != _T('#')) && (*pcszNext != _T(':')) && (*pcszNext != _T('.'))) {
+            if (*pcszNext == _T('\\') && *(pcszNext + 1) == _T(':'))
                 break;
             pcszNext++;
         }
 
-        if ( *pcszBegin == _T('*') )
-        {
-            if(_Nmsp.IsEmpty())
+        if (*pcszBegin == _T('*')) {
+            if (_Nmsp.IsEmpty())
                 _eElementType = ETAG_UNKNOWN;      // Wildcard
             else
                 _eElementType = ETAG_GENERIC;
-            _cstrTagName.Set (pcszBegin, pcszNext - pcszBegin);
-        }
-        else   if ( _istalnum( *pcszBegin ) )
-        {   // tag name
+            _cstrTagName.Set(pcszBegin, pcszNext - pcszBegin);
+        } else   if (_istalnum(*pcszBegin)) {   // tag name
 #ifdef XMV_PARSE
-            if (fXMLGeneric)
-            {
+            if (fXMLGeneric) {
                 _eElementType = ETAG_NULL;
-                if ((*pcszNext == _T('\\')) && (!_tcsnicmp( _T("HTML"), 4, pcszBegin, (int)(pcszNext - pcszBegin))))
-                {
+                if ((*pcszNext == _T('\\')) && (!_tcsnicmp(_T("HTML"), 4, pcszBegin, (int)(pcszNext - pcszBegin)))) {
                     // from the html namespace
                     // just skip past the HTML\: and continue the normal HTML parse
                     fXMLGeneric = FALSE;
                     pcszBegin = pcszNext + 2;
                     continue;
                 }
-            }
-            else
+            } else
 #endif
-                _eElementType = EtagFromName ( pcszBegin, pcszNext - pcszBegin );
+                _eElementType = EtagFromName(pcszBegin, pcszNext - pcszBegin);
 
-            if (_eElementType == ETAG_NULL || !_Nmsp.IsEmpty() || *pcszNext == _T('\\') )
-            {
+            if (_eElementType == ETAG_NULL || !_Nmsp.IsEmpty() || *pcszNext == _T('\\')) {
                 _eElementType = ETAG_GENERIC;
-                if(*pcszNext == _T('\\'))
-                {
+                if (*pcszNext == _T('\\')) {
                     // The selector has scope\:name syntax
                     _Nmsp.SetShortName(pcszBegin, pcszNext - pcszBegin);
                     // + 2 to skip "\:"
                     pcszBegin = pcszNext + 2;
                     continue;
                 }
-                _cstrTagName.Set (pcszBegin, pcszNext - pcszBegin);
+                _cstrTagName.Set(pcszBegin, pcszNext - pcszBegin);
             }
-        }
-        else if ( *pcszBegin == _T(':') )
-        {   // Pseudoclass or Pseudoelement
+        } else if (*pcszBegin == _T(':')) {   // Pseudoclass or Pseudoelement
             pcszBegin++;
-            if ( !_tcsnicmp( _T("active"), 6, pcszBegin, (int)(pcszNext - pcszBegin) ) )
+            if (!_tcsnicmp(_T("active"), 6, pcszBegin, (int)(pcszNext - pcszBegin)))
                 _ePseudoclass = pclassActive;
-            else if ( !_tcsnicmp( _T("visited"), 7, pcszBegin, (int)(pcszNext - pcszBegin) ) )
+            else if (!_tcsnicmp(_T("visited"), 7, pcszBegin, (int)(pcszNext - pcszBegin)))
                 _ePseudoclass = pclassVisited;
-            else if ( !_tcsnicmp( _T("hover"), 5, pcszBegin, (int)(pcszNext - pcszBegin) ) )
+            else if (!_tcsnicmp(_T("hover"), 5, pcszBegin, (int)(pcszNext - pcszBegin)))
                 _ePseudoclass = pclassHover;
-            else if ( !_tcsnicmp( _T("link"), 4, pcszBegin, (int)(pcszNext - pcszBegin) ) )
+            else if (!_tcsnicmp(_T("link"), 4, pcszBegin, (int)(pcszNext - pcszBegin)))
                 _ePseudoclass = pclassLink;
-            else if ( !_tcsnicmp( _T("first-letter"), 12, pcszBegin, (int)(pcszNext - pcszBegin) ) )
+            else if (!_tcsnicmp(_T("first-letter"), 12, pcszBegin, (int)(pcszNext - pcszBegin)))
                 _ePseudoElement = pelemFirstLetter;
-            else if ( !_tcsnicmp( _T("first-line"), 10, pcszBegin, (int)(pcszNext - pcszBegin) ) )
+            else if (!_tcsnicmp(_T("first-line"), 10, pcszBegin, (int)(pcszNext - pcszBegin)))
                 _ePseudoElement = pelemFirstLine;
-            else
-            {
+            else {
                 // Unrecognized Pseudoclass/Pseudoelement name!
                 _ePseudoElement = pelemUnknown;
             }
-        }
-        else if ( *pcszBegin == _T('#') )
-        {   // ID
+        } else if (*pcszBegin == _T('#')) {   // ID
             pcszBegin++;
-            _cstrID.Set( pcszBegin, pcszNext - pcszBegin );
-        }
-        else if ( *pcszBegin == _T('.') )
-        {   // Class
+            _cstrID.Set(pcszBegin, pcszNext - pcszBegin);
+        } else if (*pcszBegin == _T('.')) {   // Class
             pcszBegin++;
-            _cstrClass.Set( pcszBegin, pcszNext - pcszBegin );
-        }
-        else
-        {
+            _cstrClass.Set(pcszBegin, pcszNext - pcszBegin);
+        } else {
             // Unrecognized token in selector string!
             hr = S_FALSE;
         }
 
         pcszBegin = pcszNext;
     }
-    RRETURN1( hr, S_FALSE );
+    RRETURN1(hr, S_FALSE);
 }
 
 
@@ -300,18 +279,17 @@ HRESULT CStyleSelector::Init( const TCHAR *pcszSelectorString)
 //      This method computes the cascade order specificity from the
 //  number of tagnames, IDs, classes, etc. in the selector.
 
-DWORD CStyleSelector::GetSpecificity( void )
+DWORD CStyleSelector::GetSpecificity(void)
 {
     DWORD dwRet = 0;
 
-    if ( _eElementType != ETAG_UNKNOWN )
+    if (_eElementType != ETAG_UNKNOWN)
         dwRet += SPECIFICITY_TAG;
-    if ( _cstrClass.Length() )
+    if (_cstrClass.Length())
         dwRet += SPECIFICITY_CLASS;
-    if ( _cstrID.Length() )
+    if (_cstrID.Length())
         dwRet += SPECIFICITY_ID;
-    switch ( _ePseudoclass )
-    {
+    switch (_ePseudoclass) {
     case pclassActive:
     case pclassVisited:
     case pclassHover:
@@ -321,8 +299,7 @@ DWORD CStyleSelector::GetSpecificity( void )
         dwRet += SPECIFICITY_PSEUDOCLASS;
         break;
     }
-    switch ( _ePseudoElement )
-    {
+    switch (_ePseudoElement) {
     case pelemFirstLetter:
         dwRet += SPECIFICITY_PSEUDOELEMENT;
         //Intentional fall-through
@@ -331,7 +308,7 @@ DWORD CStyleSelector::GetSpecificity( void )
         break;
     }
 
-    if ( _pParent )
+    if (_pParent)
         dwRet += _pParent->GetSpecificity();
 
     return dwRet;
@@ -342,44 +319,41 @@ DWORD CStyleSelector::GetSpecificity( void )
 //  CStyleSelector::MatchSimple()
 //      This method compares a simple selector with an element.
 
-BOOL CStyleSelector::MatchSimple( CElement *pElement, CStyleClassIDCache *pCIDCache, int iCacheSlot, EPseudoclass *pePseudoclass )
+BOOL CStyleSelector::MatchSimple(CElement* pElement, CStyleClassIDCache* pCIDCache, int iCacheSlot, EPseudoclass* pePseudoclass)
 {
     // If that element tag doesn't match what's specified in the selector, then NO match.
-    if ( ( _eElementType != ETAG_UNKNOWN ) && ( _eElementType != pElement->TagType() ) )
+    if ((_eElementType != ETAG_UNKNOWN) && (_eElementType != pElement->TagType()))
         return FALSE;
 
     LPCTSTR pszClass;
     LPCTSTR pszID;
 
     // if an extended tag, match scope name and tag name
-    if ((_eElementType == ETAG_GENERIC))
-    {
+    if ((_eElementType == ETAG_GENERIC)) {
         // CONSIDER: the _tcsicmp-s below is a potential perf problem. Use atom table for the
         // scope name and tag name to speed this up.
-        if(0 != _tcsicmp(pElement->NamespaceHtml(), _Nmsp.GetNamespaceString()))
+        if (0 != _tcsicmp(pElement->NamespaceHtml(), _Nmsp.GetNamespaceString()))
             // Namespaces don't match
             return FALSE;
-        if(0 != _tcsicmp(_T("*"), _cstrTagName) &&                       // not a wild card and
-             0 != _tcsicmp(pElement->TagName(), _cstrTagName))           //   tag name does not match
+        if (0 != _tcsicmp(_T("*"), _cstrTagName) &&                       // not a wild card and
+            0 != _tcsicmp(pElement->TagName(), _cstrTagName))           //   tag name does not match
             return FALSE;                                                // then report no match
     }
 
     INT nLen = _cstrClass.Length();
     // Only worry about classes on the element if the selector has a class
-    if ( nLen )
-    {
+    if (nLen) {
         pszClass = pCIDCache->GetClass(iCacheSlot);
         // No match if the selector has a class but the element doesn't.
-        if ( !pszClass )
+        if (!pszClass)
             return FALSE;
         // If we don't know the class of the element, get it now.
-        if (pszClass == UNKNOWN_CLASS_OR_ID)
-        {
+        if (pszClass == UNKNOWN_CLASS_OR_ID) {
             HRESULT hr;
 
             hr = pElement->GetStringAt(
-                    pElement->FindAAIndex(DISPID_CElement_className, CAttrValue::AA_Attribute),
-                    &pszClass);
+                pElement->FindAAIndex(DISPID_CElement_className, CAttrValue::AA_Attribute),
+                &pszClass);
 
             if (S_OK != hr || !pszClass)
                 return FALSE;
@@ -387,14 +361,13 @@ BOOL CStyleSelector::MatchSimple( CElement *pElement, CStyleClassIDCache *pCIDCa
             pCIDCache->PutClass(pszClass, iCacheSlot);
         }
 
-        CDataListEnumerator classNames ( pszClass );
+        CDataListEnumerator classNames(pszClass);
 
         LPCTSTR pszThisClass = NULL; INT nThisLength = 0;
 
         // Allow for comma,seperated ClassName
-        while ( classNames.GetNext ( &pszThisClass, &nThisLength ) )
-        {
-            if ( nThisLength && !_tcsnicmp ( (LPTSTR)_cstrClass, nLen, pszThisClass, nThisLength ) )
+        while (classNames.GetNext(&pszThisClass, &nThisLength)) {
+            if (nThisLength && !_tcsnicmp((LPTSTR)_cstrClass, nLen, pszThisClass, nThisLength))
                 goto CompareIDs;
         }
         return FALSE;
@@ -402,60 +375,56 @@ BOOL CStyleSelector::MatchSimple( CElement *pElement, CStyleClassIDCache *pCIDCa
 
 CompareIDs:
     // Only worry about ids on the element if the selector has an id
-    if ( _cstrID.Length() )
-    {
+    if (_cstrID.Length()) {
         pszID = pCIDCache->GetID(iCacheSlot);
         // No match if the selector has an ID but the element doesn't.
-        if ( !pszID )
+        if (!pszID)
             return FALSE;
         // If we don't know the ID of the element, get it now.
-        if (pszID == UNKNOWN_CLASS_OR_ID)
-        {
-            if ( S_OK != pElement->GetStringAt( pElement->FindAAIndex( DISPID_CElement_id, CAttrValue::AA_Attribute ),
-                &pszID) || !pszID )
+        if (pszID == UNKNOWN_CLASS_OR_ID) {
+            if (S_OK != pElement->GetStringAt(pElement->FindAAIndex(DISPID_CElement_id, CAttrValue::AA_Attribute),
+                                              &pszID) || !pszID)
                 return FALSE;
             pCIDCache->PutID(pszID, iCacheSlot);
         }
-        if ( _tcsicmp( _cstrID, pszID ) )
+        if (_tcsicmp(_cstrID, pszID))
             return FALSE;
     }
 
-    if ( _ePseudoclass != pclassNone )
-    {
+    if (_ePseudoclass != pclassNone) {
         AAINDEX idx;
 
-        if ( pElement->TagType() != ETAG_A )    // BUGBUG: Eventually, we should allow other hyperlink types here, like form submit buttons or LINKs.
+        if (pElement->TagType() != ETAG_A)    // BUGBUG: Eventually, we should allow other hyperlink types here, like form submit buttons or LINKs.
             return FALSE;                       // When we do, change the block below as well.
 
-        if ( pePseudoclass )
-        {
-            if ( *pePseudoclass == _ePseudoclass )
+        if (pePseudoclass) {
+            if (*pePseudoclass == _ePseudoclass)
                 return TRUE;
             else
                 return FALSE;
         }
 
-        if ( !*(pElement->GetAttrArray()) )
+        if (!*(pElement->GetAttrArray()))
             return FALSE;
 
-                                                // The following is the block that has to change:
-        idx = pElement->FindAAIndex( DISPID_CAnchorElement_href, CAttrValue::AA_Attribute );
-        if ( idx == AA_IDX_UNKNOWN )
+        // The following is the block that has to change:
+        idx = pElement->FindAAIndex(DISPID_CAnchorElement_href, CAttrValue::AA_Attribute);
+        if (idx == AA_IDX_UNKNOWN)
             return FALSE;   // No HREF - must be a target anchor, not a source anchor.
 
-        CAnchorElement *pAElem = DYNCAST( CAnchorElement, pElement );
+        CAnchorElement* pAElem = DYNCAST(CAnchorElement, pElement);
         EPseudoclass psc = pAElem->IsVisited() ? pclassVisited : pclassLink;
 
         // Hover and Active are applied in addition to either visited or link
         // Hover is ignored if anchor is active.
-        if (    _ePseudoclass == psc
-            ||  (pAElem->IsActive()  && _ePseudoclass == pclassActive)
-            ||  (pAElem->IsHovered() && _ePseudoclass == pclassHover) )
+        if (_ePseudoclass == psc
+            || (pAElem->IsActive() && _ePseudoclass == pclassActive)
+            || (pAElem->IsHovered() && _ePseudoclass == pclassHover))
             return TRUE;
         return FALSE;
     }
 
-    if ( _ePseudoElement != pelemNone )
+    if (_ePseudoElement != pelemNone)
         return FALSE;   // BUGBUG: need to do pseudoelements here
     return TRUE;
 }
@@ -464,13 +433,13 @@ CompareIDs:
 //  CStyleSelector::Match()
 //      This method compares a contextual selector with an element context.
 
-BOOL CStyleSelector::Match( CTreeNode * pNode, CStyleClassIDCache *pCIDCache, EPseudoclass *pePseudoclass /*=NULL*/ )
+BOOL CStyleSelector::Match(CTreeNode* pNode, CStyleClassIDCache* pCIDCache, EPseudoclass* pePseudoclass /*=NULL*/)
 {
-    CStyleSelector *pCurrSelector = this;
+    CStyleSelector* pCurrSelector = this;
     int iCacheSlot = 0;
 
     // Cache slot 0 stores the original elem's class/id
-    if ( !pCurrSelector->MatchSimple( pNode->Element(), pCIDCache, iCacheSlot, pePseudoclass ) )
+    if (!pCurrSelector->MatchSimple(pNode->Element(), pCIDCache, iCacheSlot, pePseudoclass))
         return FALSE;
 
     pCurrSelector = pCurrSelector->_pParent;
@@ -481,92 +450,85 @@ BOOL CStyleSelector::Match( CTreeNode * pNode, CStyleClassIDCache *pCIDCache, EP
     // the remainder of the contextual selector (if it exists), testing whether our
     // element's containers satisfy the remainder of the contextual selector.  MatchSimple()
     // stores our containers' class/id in cache according to their containment level.
-    while ( pCurrSelector && pNode )
-    {
-        if ( pCurrSelector->MatchSimple( pNode->Element(), pCIDCache, iCacheSlot, pePseudoclass ) )
+    while (pCurrSelector && pNode) {
+        if (pCurrSelector->MatchSimple(pNode->Element(), pCIDCache, iCacheSlot, pePseudoclass))
             pCurrSelector = pCurrSelector->_pParent;
 
         pNode = pNode->Parent();
         ++iCacheSlot;
     }
-    if ( !pCurrSelector )
+    if (!pCurrSelector)
         return TRUE;
     return FALSE;
 }
 
-HRESULT CStyleSelector::GetString( CStr *pResult )
+HRESULT CStyleSelector::GetString(CStr* pResult)
 {
-    Assert( pResult );
+    Assert(pResult);
 
-    if ( _pParent )     // This buys us the context selectors.
-        _pParent->GetString( pResult );
+    if (_pParent)     // This buys us the context selectors.
+        _pParent->GetString(pResult);
 
-    switch ( _eElementType )
-    {
+    switch (_eElementType) {
     case ETAG_UNKNOWN:  // Wildcard - don't write tag name.
         break;
     case ETAG_NULL:     // Unknown tag name - write it out as "UNKNOWN".
-        pResult->Append( _T("UNKNOWN") );
+        pResult->Append(_T("UNKNOWN"));
         break;
     case ETAG_GENERIC:     // Peer
-        if(!_Nmsp.IsEmpty())
-        {
+        if (!_Nmsp.IsEmpty()) {
             pResult->Append(_Nmsp.GetNamespaceString());
             pResult->Append(_T("\\:"));
         }
         pResult->Append(_cstrTagName);
         break;
     default:
-        pResult->Append( NameFromEtag( _eElementType ) );
+        pResult->Append(NameFromEtag(_eElementType));
         break;
     }
 
-    if ( _cstrClass.Length() )
-    {
-        pResult->Append( _T(".") );
-        pResult->Append( _cstrClass );
+    if (_cstrClass.Length()) {
+        pResult->Append(_T("."));
+        pResult->Append(_cstrClass);
     }
-    if ( _cstrID.Length() )
-    {
-        pResult->Append( _T("#") );
-        pResult->Append( _cstrID );
+    if (_cstrID.Length()) {
+        pResult->Append(_T("#"));
+        pResult->Append(_cstrID);
     }
-    switch ( _ePseudoclass )
-    {
+    switch (_ePseudoclass) {
     case pclassActive:
-        pResult->Append( _T(":active") );
+        pResult->Append(_T(":active"));
         break;
     case pclassVisited:
-        pResult->Append( _T(":visited") );
+        pResult->Append(_T(":visited"));
         break;
     case pclassLink:
-        pResult->Append( _T(":link") );
+        pResult->Append(_T(":link"));
         break;
     case pclassHover:
-        pResult->Append( _T(":hover") );
+        pResult->Append(_T(":hover"));
         break;
 #ifdef DEBUG
     default:
         Assertsz(0, "Unknown pseudoclass");
 #endif
     }
-    switch ( _ePseudoElement )
-    {
+    switch (_ePseudoElement) {
     case pelemFirstLetter:
-        pResult->Append( _T(":first-letter") );
+        pResult->Append(_T(":first-letter"));
         break;
     case pelemFirstLine:
-        pResult->Append( _T(":first-line") );
+        pResult->Append(_T(":first-line"));
         break;
     case pelemUnknown:
-        pResult->Append( _T(":unknown") );
+        pResult->Append(_T(":unknown"));
         break;
 #ifdef DEBUG
     default:
         Assertsz(0, "Unknown pseudoelement");
 #endif
     }
-    pResult->Append( _T(" ") );
+    pResult->Append(_T(" "));
     return S_OK;
 }
 
@@ -580,12 +542,12 @@ HRESULT CStyleSelector::GetString( CStr *pResult )
 
 //  CStyleRule::CStyleRule()
 
-CStyleRule::CStyleRule( CStyleSelector *pSelector )
+CStyleRule::CStyleRule(CStyleSelector* pSelector)
 {
     _dwSpecificity = 0;
     _pSelector = NULL;
-    if ( pSelector )
-        SetSelector( pSelector );
+    if (pSelector)
+        SetSelector(pSelector);
     _paaStyleProperties = NULL;
     _sidRule = 0;
     _dwFlags = 0;
@@ -597,29 +559,27 @@ CStyleRule::CStyleRule( CStyleSelector *pSelector )
 CStyleRule::~CStyleRule()
 {
     // Make sure we don't die while still attached to a selector
-    Assert( (_pSelector == NULL) || (_pSelector == (CStyleSelector*)(LONG_PTR)(-1)) );
+    Assert((_pSelector == NULL) || (_pSelector == (CStyleSelector*)(LONG_PTR)(-1)));
 }
 
 
 //  CStyleRule::Free()
 //      This method deletes all members of CStyleRule.
 
-void CStyleRule::Free( void )
+void CStyleRule::Free(void)
 {
-    if ( _pSelector )
-    {
-        delete( _pSelector );
+    if (_pSelector) {
+        delete(_pSelector);
         _pSelector = NULL;
     }
 
-    if ( _paaStyleProperties )
-    {
-        delete( _paaStyleProperties );
-        _paaStyleProperties  = NULL;
+    if (_paaStyleProperties) {
+        delete(_paaStyleProperties);
+        _paaStyleProperties = NULL;
     }
 #ifdef DBG
-    _pSelector = (CStyleSelector *)(LONG_PTR)(-1);
-    _paaStyleProperties = (CAttrArray *)(LONG_PTR)(-1);
+    _pSelector = (CStyleSelector*)(LONG_PTR)(-1);
+    _paaStyleProperties = (CAttrArray*)(LONG_PTR)(-1);
 #endif
 }
 
@@ -628,46 +588,45 @@ void CStyleRule::Free( void )
 //      This method sets the selector used for this rule.  Note that
 //  this method should only be called once on any given CStyleRule object.
 
-void CStyleRule::SetSelector( CStyleSelector *pSelector )
+void CStyleRule::SetSelector(CStyleSelector* pSelector)
 {
-    Assert( "Selector is already set for this rule!" && !_pSelector );
-    Assert( "Can't set a NULL selector!" && pSelector );
+    Assert("Selector is already set for this rule!" && !_pSelector);
+    Assert("Can't set a NULL selector!" && pSelector);
 
     _pSelector = pSelector;
     _dwSpecificity = pSelector->GetSpecificity();
 }
 
-HRESULT CStyleRule::GetString( CBase *pBase, CStr *pResult )
+HRESULT CStyleRule::GetString(CBase* pBase, CStr* pResult)
 {
     HRESULT hr;
     BSTR bstr;
 
-    Assert( pResult );
+    Assert(pResult);
 
-    if ( !_pSelector )
+    if (!_pSelector)
         return E_FAIL;
-    _pSelector->GetString( pResult );
+    _pSelector->GetString(pResult);
 
-    pResult->Append( _T("{\r\n\t") );
+    pResult->Append(_T("{\r\n\t"));
 
-    hr = WriteStyleToBSTR( pBase, _paaStyleProperties, &bstr, FALSE );
-    if ( hr != S_OK )
+    hr = WriteStyleToBSTR(pBase, _paaStyleProperties, &bstr, FALSE);
+    if (hr != S_OK)
         goto Cleanup;
 
-    if ( bstr )
-    {
-        if ( *bstr )
-            pResult->Append( bstr );
-        FormsFreeString( bstr );
+    if (bstr) {
+        if (*bstr)
+            pResult->Append(bstr);
+        FormsFreeString(bstr);
     }
 
-    pResult->Append( _T("\r\n}\r\n") );
+    pResult->Append(_T("\r\n}\r\n"));
 Cleanup:
     RRETURN(hr);
 }
 
 
-HRESULT CStyleRule::GetMediaString(DWORD dwCurMedia, CBufferedStr *pstrMediaString)
+HRESULT CStyleRule::GetMediaString(DWORD dwCurMedia, CBufferedStr* pstrMediaString)
 {
     HRESULT     hr = S_OK;
     int         i;
@@ -677,30 +636,24 @@ HRESULT CStyleRule::GetMediaString(DWORD dwCurMedia, CBufferedStr *pstrMediaStri
 
     dwCurMedia = dwCurMedia & (DWORD)MEDIA_Bits;
 
-    if(dwCurMedia == (DWORD)MEDIA_All)
-    {
+    if (dwCurMedia == (DWORD)MEDIA_All) {
         AssertSz(cssMediaTypeTable[0]._mediaType == MEDIA_All, "MEDIA_ALL must me element 0 in the array");
         hr = THR(pstrMediaString->Set(cssMediaTypeTable[0]._szName));
         goto Cleanup;
     }
 
-    for(i = 1; i < ARRAY_SIZE(cssMediaTypeTable); i++)
-    {
-        if(cssMediaTypeTable[i]._mediaType & dwCurMedia)
-        {
-            if(fFirst)
-            {
+    for (i = 1; i < ARRAY_SIZE(cssMediaTypeTable); i++) {
+        if (cssMediaTypeTable[i]._mediaType & dwCurMedia) {
+            if (fFirst) {
                 pstrMediaString->Set(NULL);
                 fFirst = FALSE;
-            }
-            else
-            {
+            } else {
                 hr = THR(pstrMediaString->QuickAppend(_T(", ")));
             }
-            if(hr)
+            if (hr)
                 break;
             hr = THR(pstrMediaString->QuickAppend(cssMediaTypeTable[i]._szName));
-            if(hr)
+            if (hr)
                 break;
         }
     }
@@ -714,7 +667,7 @@ Cleanup:
 //  CStyleRule::GetNamespace
 //      Returns the namespace name that this rule belongs, NULL if none
 
-const CNamespace *
+const CNamespace*
 CStyleRule::GetNamespace() const
 {
     Assert(_pSelector);
@@ -731,7 +684,7 @@ CStyleRule::GetNamespace() const
 //  CStyleRuleArray::Free()
 //      This method deletes all members of CStyleRuleArray.
 
-void CStyleRuleArray::Free( )
+void CStyleRuleArray::Free()
 {
     // Just forget about the Rules, they will be freed by the Style Sheet
     DeleteAll();
@@ -744,42 +697,32 @@ void CStyleRuleArray::Free( )
 //  DESCENDING preference (most important rules first) - this is due to
 //  the mechanics of our Apply functions.
 
-HRESULT CStyleRuleArray::InsertStyleRule( CStyleRule *pNewRule, BOOL fDefeatPrevious )
+HRESULT CStyleRuleArray::InsertStyleRule(CStyleRule* pNewRule, BOOL fDefeatPrevious)
 {
     int z;
-    CStyleRule *pRule;
+    CStyleRule* pRule;
 
-    Assert( "Style Rule is NULL!" && pNewRule );
-    Assert( "Style Selector is NULL!" && pNewRule->_pSelector );
-    Assert( "Style ID isn't set!" && (pNewRule->_sidRule != 0) );
+    Assert("Style Rule is NULL!" && pNewRule);
+    Assert("Style Selector is NULL!" && pNewRule->_pSelector);
+    Assert("Style ID isn't set!" && (pNewRule->_sidRule != 0));
 
     // Sort by specificity, then by source order (i.e. rule ID).  Note that
     // rule ID of 0 indicates a dead rule, and we want to skip by them for
     // insertion purposes.
 
-    for ( z = 0; z < Size(); ++z)
-    {
+    for (z = 0; z < Size(); ++z) {
         pRule = Item(z);
-        if (pRule)
-        {
-            if ( fDefeatPrevious )
-            {
-                if ( pRule->_dwSpecificity == pNewRule->_dwSpecificity )
-                {
-                    if ( pRule->_sidRule && (pRule->_sidRule < pNewRule->_sidRule) )
-                    {
+        if (pRule) {
+            if (fDefeatPrevious) {
+                if (pRule->_dwSpecificity == pNewRule->_dwSpecificity) {
+                    if (pRule->_sidRule && (pRule->_sidRule < pNewRule->_sidRule)) {
                         break;
                     }
-                }
-                else if ( pRule->_dwSpecificity < pNewRule->_dwSpecificity )
+                } else if (pRule->_dwSpecificity < pNewRule->_dwSpecificity)
                     break;
-            }
-            else
-            {
-                if ( pRule->_dwSpecificity < pNewRule->_dwSpecificity )
-                {
-                    if ( pRule->_sidRule && (pRule->_sidRule < pNewRule->_sidRule) )
-                    {
+            } else {
+                if (pRule->_dwSpecificity < pNewRule->_dwSpecificity) {
+                    if (pRule->_sidRule && (pRule->_sidRule < pNewRule->_sidRule)) {
                         break;
                     }
                 }
@@ -788,7 +731,7 @@ HRESULT CStyleRuleArray::InsertStyleRule( CStyleRule *pNewRule, BOOL fDefeatPrev
     }
 
 
-    return Insert( z, pNewRule );
+    return Insert(z, pNewRule);
 }
 
 
@@ -813,7 +756,7 @@ const CStyleSheet::CLASSDESC CStyleSheet::s_classdesc =
         &IID_IHTMLStyleSheet,                // _piidDispinterface
         &s_apHdlDescs                        // _apHdlDesc
     },
-    (void *)s_apfnIHTMLStyleSheet                    // _apfnTearOff
+    (void*)s_apfnIHTMLStyleSheet                    // _apfnTearOff
 };
 
 
@@ -825,8 +768,8 @@ const CStyleSheet::CLASSDESC CStyleSheet::s_classdesc =
 //  a friend?  But then we lose access protection from CSSA..
 
 CStyleSheet::CStyleSheet(
-    CElement *pParentElem,
-    CStyleSheetArray * const pSSAContainer)
+    CElement* pParentElem,
+    CStyleSheetArray* const pSSAContainer)
     :
     _pParentElement(pParentElem),
     _pParentStyleSheet(NULL),
@@ -843,7 +786,7 @@ CStyleSheet::CStyleSheet(
     _pOMRulesArray(NULL),
     _achAbsoluteHref(NULL)
 {
-    Assert( "Stylesheet must have container!" && _pSSAContainer );
+    Assert("Stylesheet must have container!" && _pSSAContainer);
     // Stylesheet starts internally w/ ref count of 1, and subrefs its parent.
     // This maintains consistency with the addref/release implementations.
     if (_pParentElement)
@@ -856,7 +799,7 @@ CStyleSheet::~CStyleSheet()
 {
     // This will free the Imports because ins ref counts are always one
     //  (it ref counts its parent for other purposes
-    if(_pImportedStyleSheets)
+    if (_pImportedStyleSheets)
         _pImportedStyleSheets->CBase::PrivateRelease();
 }
 
@@ -877,7 +820,7 @@ void CStyleSheet::Passivate()
 
     // Perform CBase passivation last - we need access to the SSA container.
     super::Passivate();
- }
+}
 
 
 //  CStyleSheet::Free()
@@ -885,12 +828,11 @@ void CStyleSheet::Passivate()
 //  so all the stylesheet itself is responsible for is any imported style
 //  sheets.  It may be advisable to take over management of our own rules?
 
-void CStyleSheet::Free( void )
+void CStyleSheet::Free(void)
 {
     SetBitsCtx(NULL);
-    if ( _pImportedStyleSheets )
-    {
-        _pImportedStyleSheets->Free( );  // Force our stylesheets collection to release its
+    if (_pImportedStyleSheets) {
+        _pImportedStyleSheets->Free();  // Force our stylesheets collection to release its
                                             // refs on imported stylesheets.
         _pImportedStyleSheets->Release();   // this will subrel us
 
@@ -898,42 +840,36 @@ void CStyleSheet::Free( void )
     _pParentElement = NULL;
     _pParentStyleSheet = NULL;
 
-    if ( _pOMRulesArray )
+    if (_pOMRulesArray)
         _pOMRulesArray->StyleSheetRelease();
     _pOMRulesArray = NULL;
     int idx = _apRulesList.Size();
-    while ( idx )
-    {
-        if ( _apRulesList[ idx-1 ].pAutomationRule )
-        {
-            _apRulesList[ idx-1 ].pAutomationRule->StyleSheetRelease();
-            _apRulesList[ idx-1 ].pAutomationRule = NULL;
+    while (idx) {
+        if (_apRulesList[idx - 1].pAutomationRule) {
+            _apRulesList[idx - 1].pAutomationRule->StyleSheetRelease();
+            _apRulesList[idx - 1].pAutomationRule = NULL;
         }
 
-        _apRulesList[ idx-1]._pRule->Free();
-        delete _apRulesList[ idx-1]._pRule;
+        _apRulesList[idx - 1]._pRule->Free();
+        delete _apRulesList[idx - 1]._pRule;
         idx--;
     }
     _apRulesList.DeleteAll();
 
     // Free any font faces.
-    CStyleSheetArray *pContainer = GetRootContainer();
-    if ( pContainer )
-    {
+    CStyleSheetArray* pContainer = GetRootContainer();
+    if (pContainer) {
         int n = pContainer->_apFontFaces.Size();
         int i;
-        CFontFace *pFace;
+        CFontFace* pFace;
 
-        for( i=0; i < n; )
-        {
-            pFace = ((CFontFace **)(pContainer->_apFontFaces))[ i ];
-            if ( pFace->ParentStyleSheet() == this )
-            {
+        for (i = 0; i < n; ) {
+            pFace = ((CFontFace**)(pContainer->_apFontFaces))[i];
+            if (pFace->ParentStyleSheet() == this) {
                 pFace->PrivateRelease();
-                pContainer->_apFontFaces.Delete( i );
+                pContainer->_apFontFaces.Delete(i);
                 n--;
-            }
-            else
+            } else
                 i++;
         }
     }
@@ -943,36 +879,32 @@ void CStyleSheet::Free( void )
 //      CStyleSheet::PrivateQueryInterface()
 
 HRESULT
-CStyleSheet::PrivateQueryInterface(REFIID iid, void **ppv)
+CStyleSheet::PrivateQueryInterface(REFIID iid, void** ppv)
 {
     *ppv = NULL;
-    switch (iid.Data1)
-    {
-        QI_INHERITS((IPrivateUnknown *)this, IUnknown)
-        QI_TEAROFF_DISPEX(this, NULL)
-        QI_TEAROFF(this, IObjectIdentity, NULL)
-        default:
+    switch (iid.Data1) {
+        QI_INHERITS((IPrivateUnknown*)this, IUnknown)
+            QI_TEAROFF_DISPEX(this, NULL)
+            QI_TEAROFF(this, IObjectIdentity, NULL)
+    default:
         {
-            const CLASSDESC *pclassdesc = ElementDesc();
+            const CLASSDESC* pclassdesc = ElementDesc();
 
             if (pclassdesc &&
                 pclassdesc->_apfnTearOff &&
                 pclassdesc->_classdescBase._piidDispinterface &&
-                iid == *pclassdesc->_classdescBase._piidDispinterface)
-            {
-                HRESULT hr = THR(CreateTearOffThunk(this, (void *)(pclassdesc->_apfnTearOff), NULL, ppv));
+                iid == *pclassdesc->_classdescBase._piidDispinterface) {
+                HRESULT hr = THR(CreateTearOffThunk(this, (void*)(pclassdesc->_apfnTearOff), NULL, ppv));
                 if (hr)
                     RRETURN(hr);
             }
         }
     }
 
-    if (*ppv)
-    {
-        Assert( _pParentElement );
-        if ( !_pParentStyleSheet && ( _pParentElement->Tag() == ETAG_STYLE ) )
-        {
-            CStyleElement *pStyle = DYNCAST( CStyleElement, _pParentElement );
+    if (*ppv) {
+        Assert(_pParentElement);
+        if (!_pParentStyleSheet && (_pParentElement->Tag() == ETAG_STYLE)) {
+            CStyleElement* pStyle = DYNCAST(CStyleElement, _pParentElement);
             pStyle->SetDirty(); // Force us to build from our internal representation for persisting.
         }
         (*(IUnknown**)ppv)->AddRef();
@@ -982,31 +914,31 @@ CStyleSheet::PrivateQueryInterface(REFIID iid, void **ppv)
     return E_NOINTERFACE;
 }
 
-ULONG CStyleSheet::PrivateAddRef( void )
+ULONG CStyleSheet::PrivateAddRef(void)
 {
     if (_pParentElement)
         _pParentElement->SubAddRef();
     return CBase::PrivateAddRef();
 }
 
-ULONG CStyleSheet::PrivateRelease( void )
+ULONG CStyleSheet::PrivateRelease(void)
 {
     if (_pParentElement)
         _pParentElement->SubRelease();
     return CBase::PrivateRelease();
 }
 
-CStyleSheetArray *CStyleSheet::GetRootContainer( void )
+CStyleSheetArray* CStyleSheet::GetRootContainer(void)
 {
     return _pSSAContainer ? _pSSAContainer->_pSSARuleManager : NULL;
 }
 
-CDoc *CStyleSheet::GetDocument( void )
+CDoc* CStyleSheet::GetDocument(void)
 {
     return _pParentElement->Doc();
 }
 
-CMarkup *CStyleSheet::GetMarkup( void )
+CMarkup* CStyleSheet::GetMarkup(void)
 {
     return _pParentElement->GetMarkup();
 }
@@ -1025,19 +957,18 @@ CMarkup *CStyleSheet::GetMarkup( void )
 
 //  NOTE:  If there are any problems, the CStyleRule will auto-destruct.
 
-HRESULT CStyleSheet::AddStyleRule( CStyleRule *pRule, BOOL fDefeatPrevious /*=TRUE*/, long lIdx /*=-1*/ )
+HRESULT CStyleSheet::AddStyleRule(CStyleRule* pRule, BOOL fDefeatPrevious /*=TRUE*/, long lIdx /*=-1*/)
 {
     HRESULT hr = S_OK;
-    CStyleSelector *pNextSelector;
+    CStyleSelector* pNextSelector;
     CRuleEntry re;
 
-    Assert( "Style Rule is NULL!" && pRule );
-    Assert( "Style Selector is NULL!" && pRule->_pSelector );
-    Assert( "Stylesheet must have a container!" && _pSSAContainer );
-    Assert( "Style ID for StyleSheet has not been set" && _sidSheet );
+    Assert("Style Rule is NULL!" && pRule);
+    Assert("Style Selector is NULL!" && pRule->_pSelector);
+    Assert("Stylesheet must have a container!" && _pSSAContainer);
+    Assert("Style ID for StyleSheet has not been set" && _sidSheet);
 
-    if (pRule->_paaStyleProperties)
-    {
+    if (pRule->_paaStyleProperties) {
 
         // If the rule has the behavior attribute set, turn on the flag on the doc
         // which forever enables behaviors.
@@ -1049,15 +980,13 @@ HRESULT CStyleSheet::AddStyleRule( CStyleRule *pRule, BOOL fDefeatPrevious /*=TR
                 _pParentElement->Doc()->SetPeersPossible();
     }
 
-    do
-    {
-        CStyleRule *pSiblingRule = NULL;
+    do {
+        CStyleRule* pSiblingRule = NULL;
 
         pNextSelector = pRule->_pSelector->_pSibling;
         pRule->_pSelector->_pSibling = NULL;
 
-        if ( _apRulesList.Size() >= MAX_RULES_PER_SHEET )
-        {
+        if (_apRulesList.Size() >= MAX_RULES_PER_SHEET) {
             hr = E_INVALIDARG;
             break;
         }
@@ -1075,45 +1004,40 @@ HRESULT CStyleSheet::AddStyleRule( CStyleRule *pRule, BOOL fDefeatPrevious /*=TR
         // with level #'s, though technically they could start at 0.
         pRule->_sidRule = _sidSheet;        // add the sheet level fields
 
-        if ( ( lIdx < 0 ) || ( lIdx >= _apRulesList.Size() ) )   // Add at the end
+        if ((lIdx < 0) || (lIdx >= _apRulesList.Size()))   // Add at the end
         {
             lIdx = _apRulesList.Size();
-            pRule->_sidRule.SetRule( lIdx + 1 );
-        }
-        else
-        {
-            CRuleEntry *pRE;
-            BOOL abFound[ ETAG_LAST ];
+            pRule->_sidRule.SetRule(lIdx + 1);
+        } else {
+            CRuleEntry* pRE;
+            BOOL abFound[ETAG_LAST];
             int i, nRules;
 
-            memset( abFound, 0, sizeof(BOOL) * ETAG_LAST );
-            pRule->_sidRule.SetRule( lIdx + 1 );
+            memset(abFound, 0, sizeof(BOOL) * ETAG_LAST);
+            pRule->_sidRule.SetRule(lIdx + 1);
 
-            for ( pRE = (CRuleEntry *)_apRulesList + lIdx, i = lIdx, nRules = _apRulesList.Size();
-                  i < nRules; i++, pRE++ )
-            {
-                abFound[ (int)(pRE->_eTag) ] = TRUE;
-                if ( pRE->pAutomationRule )
-                {   // Need to fix up automation rule's sid.
+            for (pRE = (CRuleEntry*)_apRulesList + lIdx, i = lIdx, nRules = _apRulesList.Size();
+                 i < nRules; i++, pRE++) {
+                abFound[(int)(pRE->_eTag)] = TRUE;
+                if (pRE->pAutomationRule) {   // Need to fix up automation rule's sid.
                     pRE->pAutomationRule->_dwID++;
                 }
             }
 
-            _pSSAContainer->ShiftRules( CStyleSheetArray::ruleInsert, FALSE, abFound, pRule->_sidRule );
+            _pSSAContainer->ShiftRules(CStyleSheetArray::ruleInsert, FALSE, abFound, pRule->_sidRule);
         }
 
 #if DBG==1
-    if (IsTagEnabled(tagStyleSheet))
-    {
-        CStr        strRule;
-        CHAR        szBuffer[2000];
+        if (IsTagEnabled(tagStyleSheet)) {
+            CStr        strRule;
+            CHAR        szBuffer[2000];
 
-        pRule->GetString(this, &strRule);
-        WideCharToMultiByte(CP_ACP, 0, strRule, -1, szBuffer, sizeof(szBuffer), NULL, NULL);
+            pRule->GetString(this, &strRule);
+            WideCharToMultiByte(CP_ACP, 0, strRule, -1, szBuffer, sizeof(szBuffer), NULL, NULL);
 
-        TraceTag((tagStyleSheet, "AddStyleRule  SheetID: %08lX  RuleID: %08lX  TagName: %s  Rule: %s",
-            (DWORD) _sidSheet, (DWORD) pRule->_sidRule, pRule->_pSelector->_cstrTagName, szBuffer));
-    }
+            TraceTag((tagStyleSheet, "AddStyleRule  SheetID: %08lX  RuleID: %08lX  TagName: %s  Rule: %s",
+                (DWORD)_sidSheet, (DWORD)pRule->_sidRule, pRule->_pSelector->_cstrTagName, szBuffer));
+        }
 #endif
 
         // _Track_ the rule in our internal list.  This list lets us enumerate in
@@ -1123,29 +1047,27 @@ HRESULT CStyleSheet::AddStyleRule( CStyleRule *pRule, BOOL fDefeatPrevious /*=TR
         re._pRule = pRule;
         re._eTag = pRule->_pSelector->_eElementType;
         re.pAutomationRule = NULL;
-        if ( ( lIdx < 0 ) || ( lIdx >= _apRulesList.Size() ) )   // Add at the end
-            _apRulesList.AppendIndirect( &re );
+        if ((lIdx < 0) || (lIdx >= _apRulesList.Size()))   // Add at the end
+            _apRulesList.AppendIndirect(&re);
         else
-            _apRulesList.InsertIndirect( lIdx, &re );
+            _apRulesList.InsertIndirect(lIdx, &re);
 
         // _Store_ the rule in our container
-        hr = _pSSAContainer->AddStyleRule( pRule, fDefeatPrevious );
-        if ( hr != S_OK )
+        hr = _pSSAContainer->AddStyleRule(pRule, fDefeatPrevious);
+        if (hr != S_OK)
             break;
-        if ( pNextSelector )
-        {
-            pSiblingRule = new CStyleRule( pNextSelector );
-            if ( !pSiblingRule )
-            {
+        if (pNextSelector) {
+            pSiblingRule = new CStyleRule(pNextSelector);
+            if (!pSiblingRule) {
                 hr = E_OUTOFMEMORY;
                 goto Cleanup;
             }
 
             // Copy the recognized style properties from the original rule's attr array
             pSiblingRule->_paaStyleProperties = NULL;
-            if ( pRule->_paaStyleProperties )
-                hr = pRule->_paaStyleProperties->Clone( &(pSiblingRule->_paaStyleProperties) );
-            if ( hr != S_OK )
+            if (pRule->_paaStyleProperties)
+                hr = pRule->_paaStyleProperties->Clone(&(pSiblingRule->_paaStyleProperties));
+            if (hr != S_OK)
                 break;
 
             // Copy any unknown properties
@@ -1154,13 +1076,13 @@ HRESULT CStyleSheet::AddStyleRule( CStyleRule *pRule, BOOL fDefeatPrevious /*=TR
             //  break;
         }
 
-        if ( pNextSelector )
+        if (pNextSelector)
             pRule = pSiblingRule;
 
-    } while ( pNextSelector );
+    } while (pNextSelector);
 
 Cleanup:
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
@@ -1170,23 +1092,22 @@ Cleanup:
 //  (which is created if necessary), and kicks off a download of the
 //  imported stylesheet.
 
-HRESULT CStyleSheet::AddImportedStyleSheet( TCHAR *pszURL, long lPos /*=-1*/, long *plNewPos /*=NULL*/ )
+HRESULT CStyleSheet::AddImportedStyleSheet(TCHAR* pszURL, long lPos /*=-1*/, long* plNewPos /*=NULL*/)
 {
-    CStyleSheet *pStyleSheet = NULL;
-    CBitsCtx *pBitsCtx = NULL;
+    CStyleSheet* pStyleSheet = NULL;
+    CBitsCtx* pBitsCtx = NULL;
     HRESULT hr = E_FAIL;
 
     // Do not support imported SS in User SS as there is no doc!
     if (!_pParentElement)
         goto Cleanup;
 
-    if ( plNewPos )
+    if (plNewPos)
         *plNewPos = -1;     // -1 means failed to add sheet
 
     // Bail if we're max'ed out on nesting.
-    if ((long)_sidSheet.FindNestingLevel() >= MAX_IMPORT_NESTING)
-    {
-        Assert( "Maximum import nesting exceeded! (informational)" && FALSE );
+    if ((long)_sidSheet.FindNestingLevel() >= MAX_IMPORT_NESTING) {
+        Assert("Maximum import nesting exceeded! (informational)" && FALSE);
         goto Cleanup;
     }
 
@@ -1194,22 +1115,20 @@ HRESULT CStyleSheet::AddImportedStyleSheet( TCHAR *pszURL, long lPos /*=-1*/, lo
     // and ")" off back.  Otherwise assume it'a a straight URL.
     // This function modifies the parameter string pointer
     hr = RemoveStyleUrlFromStr(&pszURL);
-    if(FAILED(hr))
+    if (FAILED(hr))
         goto Cleanup;
 
     hr = E_FAIL;
 
     // The imports array could already exist because of previous @imports,
     // or because the imports collection was previously requested from script.
-    if ( !_pImportedStyleSheets )
-    {
+    if (!_pImportedStyleSheets) {
         // Imported stylesheets don't manage their own rules.
-        _pImportedStyleSheets = new CStyleSheetArray( this, _pSSAContainer, _sidSheet );
-        Assert( "Failure to allocate imported stylesheets array! (informational)" && _pImportedStyleSheets );
+        _pImportedStyleSheets = new CStyleSheetArray(this, _pSSAContainer, _sidSheet);
+        Assert("Failure to allocate imported stylesheets array! (informational)" && _pImportedStyleSheets);
         if (!_pImportedStyleSheets)
             goto Cleanup;
-        if (_pImportedStyleSheets->_fInvalid)
-        {
+        if (_pImportedStyleSheets->_fInvalid) {
             _pImportedStyleSheets->CBase::PrivateRelease();
             goto Cleanup;
         }
@@ -1217,32 +1136,27 @@ HRESULT CStyleSheet::AddImportedStyleSheet( TCHAR *pszURL, long lPos /*=-1*/, lo
 
     // Create the stylesheet in the "imported array".  Note that its rules will be kept in the
     // root doc's CSSA since when we created the "imported array" above, we designated a container
-    hr = _pImportedStyleSheets->CreateNewStyleSheet( _pParentElement, &pStyleSheet, lPos, plNewPos );
-    if ( hr == S_OK )
-    {
+    hr = _pImportedStyleSheets->CreateNewStyleSheet(_pParentElement, &pStyleSheet, lPos, plNewPos);
+    if (hr == S_OK) {
         // Fix up new SS to reflect the fact that it's imported (give it parent, set its import href)
         pStyleSheet->_pParentStyleSheet = this;
         pStyleSheet->_cstrImportHref.Set(pszURL);
 
         // Kick off the download of the imported sheet
-        if ( pszURL && pszURL[0])
-        {
-            CDoc *  pDoc = _pParentElement->Doc();
+        if (pszURL && pszURL[0]) {
+            CDoc* pDoc = _pParentElement->Doc();
 
             Assert(!pStyleSheet->_achAbsoluteHref && "absoluteHref already computed.");
-            TCHAR *pAbsURL;
+            TCHAR* pAbsURL;
 
-            if(pStyleSheet->_pParentStyleSheet->_achAbsoluteHref)
-            {
+            if (pStyleSheet->_pParentStyleSheet->_achAbsoluteHref) {
                 hr = ExpandUrlWithBaseUrl(pStyleSheet->_pParentStyleSheet->_achAbsoluteHref,
                                           pszURL,
                                           &pStyleSheet->_achAbsoluteHref);
                 if (hr)
                     goto Cleanup;
                 pAbsURL = pStyleSheet->_achAbsoluteHref;
-            }
-            else
-            {
+            } else {
                 pAbsURL = pszURL;
             }
 
@@ -1251,9 +1165,8 @@ HRESULT CStyleSheet::AddImportedStyleSheet( TCHAR *pszURL, long lPos /*=-1*/, lo
             // We will track this @import statement.
             ++_nExpectedImports;
             hr = THR(pDoc->NewDwnCtx(DWNCTX_BITS, pAbsURL, _pParentElement,
-                                    (CDwnCtx **)&pBitsCtx));
-            if (hr == S_OK)
-            {
+                (CDwnCtx**)&pBitsCtx));
+            if (hr == S_OK) {
                 // For rendering purposes, having an @imported sheet pending is just like having
                 // a linked sheet pending.
                 pDoc->EnterStylesheetDownload(&(pStyleSheet->_dwStyleCookie));
@@ -1279,28 +1192,24 @@ HRESULT CStyleSheet::ChangeStatus(
     DWORD dwAction,               // CS_ flags as defined in sheets.hxx
     BOOL fForceRender /*=TRUE*/,  // should we force everyone to update their formats and re-render?
                                   // We want to avoid forcing a re-render when the doc/tree is unloading/dying etc.
-    BOOL *pFound /*=NULL*/)     // array of bools used to track which tags have rules to be disabled
+    BOOL* pFound /*=NULL*/)     // array of bools used to track which tags have rules to be disabled
                                 // Should only be non-NULL on recursive calls (ext. callers use NULL)
 {
-    CRuleEntry *pRE;
+    CRuleEntry* pRE;
     int nRules;
     int z;
     BOOL bRootStyleSheet = FALSE;
-    CStyleSheet *pSS;
+    CStyleSheet* pSS;
 
     // Allocate array if we're the first call and we're not detaching.
-    if (!pFound)
-    {
-        if (!(dwAction & CS_PATCHRULES))
-        {
-            pFound = new(Mt(CStyleSheetChangeStatus_pFound)) BOOL[ ETAG_LAST ];
+    if (!pFound) {
+        if (!(dwAction & CS_PATCHRULES)) {
+            pFound = new(Mt(CStyleSheetChangeStatus_pFound)) BOOL[ETAG_LAST];
             if (!pFound)
                 return E_OUTOFMEMORY;
-            memset(pFound, 0, sizeof(BOOL)*ETAG_LAST);
-        }
-        else
-        {
-            pFound = (BOOL *)(-1);
+            memset(pFound, 0, sizeof(BOOL) * ETAG_LAST);
+        } else {
+            pFound = (BOOL*)(-1);
         }
         bRootStyleSheet = TRUE;
     }
@@ -1309,32 +1218,27 @@ HRESULT CStyleSheet::ChangeStatus(
     _fDisabled = !(dwAction & CS_ENABLERULES);
 
     // Scan rules directly specified by this SS and mark the appropriate bool
-    if (!(dwAction & CS_PATCHRULES))
-    {
-        for (pRE=(CRuleEntry *)_apRulesList, z=0, nRules=_apRulesList.Size() ; z < nRules ; ++z, ++pRE)
-        {
-            pFound[ (int)(pRE->_eTag) ] = TRUE;
+    if (!(dwAction & CS_PATCHRULES)) {
+        for (pRE = (CRuleEntry*)_apRulesList, z = 0, nRules = _apRulesList.Size(); z < nRules; ++z, ++pRE) {
+            pFound[(int)(pRE->_eTag)] = TRUE;
         }
     }
 
     // Recursively scan rules of our imports
-    if (_pImportedStyleSheets)
-    {
-        for ( z=0 ; (pSS=(_pImportedStyleSheets->Get(z))) != NULL ; ++z)
-        {
-            pSS->ChangeStatus( dwAction, fForceRender, pFound );
+    if (_pImportedStyleSheets) {
+        for (z = 0; (pSS = (_pImportedStyleSheets->Get(z))) != NULL; ++z) {
+            pSS->ChangeStatus(dwAction, fForceRender, pFound);
         }
     }
 
-    if ( MEDIATYPE(dwAction) )
-    {   // Need to set media type.
-        _eMediaType = (EMediaType)MEDIATYPE( dwAction );
+    if (MEDIATYPE(dwAction)) {   // Need to set media type.
+        _eMediaType = (EMediaType)MEDIATYPE(dwAction);
     }
 
     if (bRootStyleSheet) {
-        _pSSAContainer->ChangeRulesStatus( dwAction, fForceRender, pFound, _sidSheet );
+        _pSSAContainer->ChangeRulesStatus(dwAction, fForceRender, pFound, _sidSheet);
         if (!(dwAction & CS_PATCHRULES))
-            delete [] pFound;
+            delete[] pFound;
     }
 
     return S_OK;
@@ -1351,11 +1255,10 @@ CStyleSheet::InsertExistingRules()
 {
     HRESULT         hr = S_OK;
     int             i;
-    CStyleRule *    pRule;
-    CStyleSheet *   pSS;
+    CStyleRule* pRule;
+    CStyleSheet* pSS;
 
-    for (i = 0; i < _apRulesList.Size(); i++)
-    {
+    for (i = 0; i < _apRulesList.Size(); i++) {
         pRule = _apRulesList[i]._pRule;
         Assert(pRule);
 
@@ -1364,10 +1267,8 @@ CStyleSheet::InsertExistingRules()
             goto Cleanup;
     }
 
-    if (_pImportedStyleSheets)
-    {
-        for ( i = 0 ; (pSS=(_pImportedStyleSheets->Get(i))) != NULL ; ++i)
-        {
+    if (_pImportedStyleSheets) {
+        for (i = 0; (pSS = (_pImportedStyleSheets->Get(i))) != NULL; ++i) {
             hr = THR(pSS->InsertExistingRules());
             if (hr)
                 goto Cleanup;
@@ -1386,18 +1287,16 @@ Cleanup:
 //  the container StyleSheetArray, including the one for imported sheets
 
 void
-CStyleSheet::ChangeContainer(CStyleSheetArray * pSSANewContainer)
+CStyleSheet::ChangeContainer(CStyleSheetArray* pSSANewContainer)
 {
     int             z;
-    CStyleSheet *   pSS;
+    CStyleSheet* pSS;
 
     Assert(pSSANewContainer);
     _pSSAContainer = pSSANewContainer;
 
-    if (_pImportedStyleSheets)
-    {
-        for ( z=0 ; (pSS=(_pImportedStyleSheets->Get(z))) != NULL ; ++z)
-        {
+    if (_pImportedStyleSheets) {
+        for (z = 0; (pSS = (_pImportedStyleSheets->Get(z))) != NULL; ++z) {
             pSS->ChangeContainer(pSSANewContainer);
         }
     }
@@ -1413,35 +1312,33 @@ MtDefine(LoadFromURL, Utilities, "CStyleSheet::LoadFromURL");
 //  that collection object is reused (i.e. any existing imported SS are
 //  released).
 
-HRESULT CStyleSheet::LoadFromURL( const TCHAR *pszURL, BOOL fAutoEnable /*=FALSE*/ )
+HRESULT CStyleSheet::LoadFromURL(const TCHAR* pszURL, BOOL fAutoEnable /*=FALSE*/)
 {
     HRESULT     hr;
-    CBitsCtx    *pBitsCtx = NULL;
+    CBitsCtx* pBitsCtx = NULL;
 
     BOOL fDisabled = _fDisabled;    // remember our current disable value.
 
     // Force all our rules (and rules of our imports) to be marked as out of the tree ("dead"),
     // but don't patch other rules to fill in the ID hole.
     // Don't force a re-render since we will immediately be loading new rules.
-    hr = ChangeStatus( CS_CLEARRULES, FALSE, NULL );   // disabling, detached from tree, no re-render
-    if ( hr )
+    hr = ChangeStatus(CS_CLEARRULES, FALSE, NULL);   // disabling, detached from tree, no re-render
+    if (hr)
         goto Cleanup;
 
     // Note: the ChangeStatus call above will have set us as disabled.  Restore our original disable value.
-    _fDisabled = fAutoEnable? FALSE : fDisabled;
+    _fDisabled = fAutoEnable ? FALSE : fDisabled;
 
     // If we have an imports collection, clear it out, but keep the collection
     // object itself (i.e. don't release _pImportedStyleSheets).
-    if (_pImportedStyleSheets)
-    {
-        _pImportedStyleSheets->Free( );
+    if (_pImportedStyleSheets) {
+        _pImportedStyleSheets->Free();
     }
 
     // Clear our local rules tracking list
-    CStyleRule *    pRule;
+    CStyleRule* pRule;
     int             i;
-    for (i = 0; i < _apRulesList.Size(); i++)
-    {
+    for (i = 0; i < _apRulesList.Size(); i++) {
         pRule = _apRulesList[i]._pRule;
         pRule->Free();
         delete pRule;
@@ -1453,8 +1350,7 @@ HRESULT CStyleSheet::LoadFromURL( const TCHAR *pszURL, BOOL fAutoEnable /*=FALSE
     _nExpectedImports = 0;
     _nCompletedImports = 0;
 
-    if(_achAbsoluteHref)
-    {
+    if (_achAbsoluteHref) {
         MemFreeString(_achAbsoluteHref);
         _achAbsoluteHref = NULL;
     }
@@ -1464,38 +1360,33 @@ HRESULT CStyleSheet::LoadFromURL( const TCHAR *pszURL, BOOL fAutoEnable /*=FALSE
 
 
     // Kick off the download of the URL
-    if ( pszURL && pszURL[0] )
-    {
-        CDoc *  pDoc = _pParentElement->Doc();
+    if (pszURL && pszURL[0]) {
+        CDoc* pDoc = _pParentElement->Doc();
         TCHAR   cBuf[pdlUrlLen];
 
         hr = pDoc->ExpandUrl(pszURL, ARRAY_SIZE(cBuf), cBuf, NULL);
         if (hr)
             goto Cleanup;
         MemAllocString(Mt(LoadFromURL), cBuf, &_achAbsoluteHref);
-        if (_achAbsoluteHref == NULL)
-        {
+        if (_achAbsoluteHref == NULL) {
             hr = E_OUTOFMEMORY;
             goto Cleanup;
         }
 
         hr = THR(pDoc->NewDwnCtx(DWNCTX_BITS, pszURL,
-                    _pParentElement, (CDwnCtx **)&pBitsCtx));
-        if (hr == S_OK)
-        {
+                                 _pParentElement, (CDwnCtx**)&pBitsCtx));
+        if (hr == S_OK) {
             // Block rendering while we load..
             pDoc->EnterStylesheetDownload(&_dwStyleCookie);
             pDoc->PrimaryMarkup()->EnterScriptDownload(&_dwScriptCookie);
-            if ( IsAnImport() )
+            if (IsAnImport())
                 (_pParentStyleSheet->_nCompletedImports)--;
 
             // We own the bits context..
             SetBitsCtx(pBitsCtx);
         }
-    }
-    else
-    {
-        SetBitsCtx( NULL );
+    } else {
+        SetBitsCtx(NULL);
         Fire_onerror();
         CheckImportStatus();
     }
@@ -1504,7 +1395,7 @@ Cleanup:
     if (pBitsCtx)
         pBitsCtx->Release();
 
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
@@ -1517,33 +1408,30 @@ void CStyleSheet::PatchID(
     unsigned long ulValue,       // Value level will be given
     BOOL fRecursiveCall)        // Is this a recursive call? (FALSE for ext. callers).
 {
-    Assert (ulLevel > 0 && ulLevel <= MAX_IMPORT_NESTING );
-    Assert (ulValue >= 0 && ulValue <= MAX_SHEETS_PER_LEVEL );
+    Assert(ulLevel > 0 && ulLevel <= MAX_IMPORT_NESTING);
+    Assert(ulValue >= 0 && ulValue <= MAX_SHEETS_PER_LEVEL);
 
     long i = 0;
-    CStyleSheet *pISS;
+    CStyleSheet* pISS;
 
     // Fix our own ID
-    _sidSheet.SetLevel( ulLevel, ulValue );
-    Assert( _sidSheet );    // should never become 0
+    _sidSheet.SetLevel(ulLevel, ulValue);
+    Assert(_sidSheet);    // should never become 0
 
     // Everyone nested below the sheet for which PatchID was first called needs
     // to be patched at the same level with a value that's 1 less.
-    if (!fRecursiveCall)
-    {
+    if (!fRecursiveCall) {
         fRecursiveCall = TRUE;
         --ulValue;
     }
 
     // If we have imports, ask them to fix all of their IDs.
-    if ( _pImportedStyleSheets )
-    {
+    if (_pImportedStyleSheets) {
         // Fix ID that imports collection will use to build new imports
-        _pImportedStyleSheets->_sidForOurSheets.SetLevel( ulLevel, ulValue );
+        _pImportedStyleSheets->_sidForOurSheets.SetLevel(ulLevel, ulValue);
         // Recursively fix imported stylesheets
-        while ( (pISS = _pImportedStyleSheets->Get(i++)) != NULL )
-        {
-            pISS->PatchID( ulLevel, ulValue, fRecursiveCall );
+        while ((pISS = _pImportedStyleSheets->Get(i++)) != NULL) {
+            pISS->PatchID(ulLevel, ulValue, fRecursiveCall);
         }
     }
 }
@@ -1555,17 +1443,16 @@ void CStyleSheet::PatchID(
 void CStyleSheet::ChangeID(CStyleID const idNew)
 {
     int             i;
-    CStyleRule *    pRule;
+    CStyleRule* pRule;
     CStyleID        idNewLevel;
-    CStyleSheet *   pSS;
+    CStyleSheet* pSS;
 
     // Clear the low bits, as we only want the level numbers
     idNewLevel = idNew & ~RULE_MASK;
 
     // Change all the Rules
     // Assume that the rules are *NOT* in a RuleArray, as that won't be updated with these changes
-    for (i = 0; i < _apRulesList.Size(); i++)
-    {
+    for (i = 0; i < _apRulesList.Size(); i++) {
         pRule = _apRulesList[i]._pRule;
         Assert(pRule);
 
@@ -1573,10 +1460,8 @@ void CStyleSheet::ChangeID(CStyleID const idNew)
     }
 
     // Change the Imported sheets
-    if (_pImportedStyleSheets)
-    {
-        for ( i = 0 ; (pSS=(_pImportedStyleSheets->Get(i))) != NULL ; ++i)
-        {
+    if (_pImportedStyleSheets) {
+        for (i = 0; (pSS = (_pImportedStyleSheets->Get(i))) != NULL; ++i) {
             pSS->ChangeID(idNew);
         }
     }
@@ -1590,13 +1475,11 @@ void CStyleSheet::ChangeID(CStyleID const idNew)
 //  Sets ownership and callback information for a BitsCtx.  A stylesheet
 //  will have a non-NULL BitsCtx if it's @import'ed.
 
-void CStyleSheet::SetBitsCtx(CBitsCtx * pBitsCtx)
+void CStyleSheet::SetBitsCtx(CBitsCtx* pBitsCtx)
 {
-    if (_pBitsCtx)
-    {   // If we're tromping on an in-progress download, fix the completed count up.
+    if (_pBitsCtx) {   // If we're tromping on an in-progress download, fix the completed count up.
 
-        if (!_fComplete)
-        {
+        if (!_fComplete) {
             if (IsAnImport())
                 (_pParentStyleSheet->_nCompletedImports)++;
             _pParentElement->Doc()->LeaveStylesheetDownload(&_dwStyleCookie);
@@ -1609,19 +1492,17 @@ void CStyleSheet::SetBitsCtx(CBitsCtx * pBitsCtx)
     _fComplete = FALSE;
     _pBitsCtx = pBitsCtx;
 
-    if (pBitsCtx)
-    {
+    if (pBitsCtx) {
         pBitsCtx->AddRef();
 
         pBitsCtx->AddRef();     // Keep ourselves alive
-        SetReadyState( READYSTATE_LOADING );
+        SetReadyState(READYSTATE_LOADING);
 
-        if ( pBitsCtx == _pBitsCtx )    // Make sure we're still the bitsctx for this stylesheet -
+        if (pBitsCtx == _pBitsCtx)    // Make sure we're still the bitsctx for this stylesheet -
         {                               // it's possible SetReadyState fired and changed the bitsctx.
             if (pBitsCtx->GetState() & (DWNLOAD_COMPLETE | DWNLOAD_ERROR | DWNLOAD_STOPPED))
                 OnDwnChan(pBitsCtx);
-            else
-            {
+            else {
                 pBitsCtx->SetProgSink(_pParentElement->Doc()->GetProgSink());
                 pBitsCtx->SetCallback(OnDwnChanCallback, this);
                 pBitsCtx->SelectChanges(DWNCHG_COMPLETE, 0, TRUE);
@@ -1639,11 +1520,11 @@ void CStyleSheet::SetBitsCtx(CBitsCtx * pBitsCtx)
 //  the HREF on a linked stylesheet changes (we reuse the CStyleSheet
 //  object and setup a new bitsctx on it)
 
-void CStyleSheet::OnDwnChan(CDwnChan * pDwnChan)
+void CStyleSheet::OnDwnChan(CDwnChan* pDwnChan)
 {
     ULONG ulState = _pBitsCtx->GetState();
-    CMarkup *pMarkup;
-    CDoc *pDoc;
+    CMarkup* pMarkup;
+    CDoc* pDoc;
 
     Assert(_pParentElement);
     _pParentElement->EnsureInMarkup();
@@ -1653,56 +1534,49 @@ void CStyleSheet::OnDwnChan(CDwnChan * pDwnChan)
 
     pDoc = pMarkup->Doc();
 
-    if ( IsAnImport() )
+    if (IsAnImport())
         _fDisabled = _pParentStyleSheet->_fDisabled;
 
-    if ( ulState & (DWNLOAD_COMPLETE | DWNLOAD_ERROR | DWNLOAD_STOPPED) )
-    {
+    if (ulState & (DWNLOAD_COMPLETE | DWNLOAD_ERROR | DWNLOAD_STOPPED)) {
         _fComplete = TRUE;
 
         pDoc->LeaveStylesheetDownload(&_dwStyleCookie);
 
         // This sheet has finished, one way or another.
-        if ( IsAnImport() )
+        if (IsAnImport())
             _pParentStyleSheet->_nCompletedImports++;
 
-        if (ulState & DWNLOAD_COMPLETE)
-        {
-            IStream * pStream;
+        if (ulState & DWNLOAD_COMPLETE) {
+            IStream* pStream;
 
             // If unsecure download, may need to remove lock icon on Doc
             pDoc->OnSubDownloadSecFlags(_pBitsCtx->GetUrl(), _pBitsCtx->GetSecFlags());
 
-            if ( S_OK == _pBitsCtx->GetStream(&pStream) )
-            {
+            if (S_OK == _pBitsCtx->GetStream(&pStream)) {
 #ifdef XMV_PARSE
-                CCSSParser parser( this, NULL, IsXML() );
+                CCSSParser parser(this, NULL, IsXML());
 #else
-                CCSSParser parser( this, NULL );
+                CCSSParser parser(this, NULL);
 #endif
 
-                parser.LoadFromStream( pStream, pDoc->GetCodePage() );
+                parser.LoadFromStream(pStream, pDoc->GetCodePage());
                 pStream->Release();
-            }
-            else
-            {
+            } else {
                 _eParsingStatus = CSSPARSESTATUS_DONE;   // Need to make sure we'll walk up to our parent in CheckImportStatus()
                 TraceTag((tagError, "CStyleSheet::OnChan bitsctx failed to get file!"));
                 Fire_onerror();
             }
-        }
-        else
-        {
+        } else {
             _eParsingStatus = CSSPARSESTATUS_DONE;      // Need to make sure we'll walk up to our parent in CheckImportStatus()
             TraceTag((tagError, "CStyleSheet::OnChan bitsctx failed to complete!"));
-            if ( ulState & DWNLOAD_ERROR )
+            if (ulState & DWNLOAD_ERROR)
                 Fire_onerror();
         }
 
         // Relayout the doc; new rules may have been loaded (e.g. DWNLOAD_COMPLETE),
         // or we may have killed off rules w/o re-rendering before starting the load
         // for this sheet (e.g. changing src of an existing sheet).
-        IGNORE_HR( pMarkup->OnCssChange( /*fStable = */ TRUE, /* fRecomputePeers = */ TRUE) );
+        IGNORE_HR(pMarkup->OnCssChange( /*fStable = */ TRUE, /* fRecomputePeers = */ TRUE));
 
         CheckImportStatus();    // Needed e.g. if all imports were cached, their OnChan's would all be called
                                 // before parsing finished.
@@ -1710,10 +1584,8 @@ void CStyleSheet::OnDwnChan(CDwnChan * pDwnChan)
         pMarkup->LeaveScriptDownload(&_dwScriptCookie);
 
         _pBitsCtx->SetProgSink(NULL); // detach download from document's load progress
-    }
-    else
-    {
-        Assert( "Unknown result returned from CStyleSheet's bitsCtx!" && FALSE );
+    } else {
+        Assert("Unknown result returned from CStyleSheet's bitsCtx!" && FALSE);
     }
 }
 
@@ -1723,18 +1595,15 @@ void CStyleSheet::OnDwnChan(CDwnChan * pDwnChan)
 
 void CStyleSheet::Fire_onerror()
 {
-    if ( !_pParentElement )
+    if (!_pParentElement)
         return;    // In case we're a user stylesheet
 
-    if (_pParentElement->Tag() == ETAG_STYLE)
-    {
-        CStyleElement *pStyle = DYNCAST( CStyleElement, _pParentElement );
+    if (_pParentElement->Tag() == ETAG_STYLE) {
+        CStyleElement* pStyle = DYNCAST(CStyleElement, _pParentElement);
         pStyle->Fire_onerror();
-    }
-    else
-    {
-        Assert( _pParentElement->Tag() == ETAG_LINK );
-        CLinkElement *pLink = DYNCAST( CLinkElement, _pParentElement );
+    } else {
+        Assert(_pParentElement->Tag() == ETAG_LINK);
+        CLinkElement* pLink = DYNCAST(CLinkElement, _pParentElement);
         pLink->Fire_onerror();
     }
 }
@@ -1756,21 +1625,18 @@ BOOL CStyleSheet::IsXML(void)
 //      Handles passing readystate changes to our parent element, which
 //  may cause our parent element to fire the onreadystatechange event.
 
-HRESULT CStyleSheet::SetReadyState( long readyState )
+HRESULT CStyleSheet::SetReadyState(long readyState)
 {
-    if ( !_pParentElement )
+    if (!_pParentElement)
         return S_OK;    // In case we're a user stylesheet
 
-    if (_pParentElement->Tag() == ETAG_STYLE)
-    {
-        CStyleElement *pStyle = DYNCAST( CStyleElement, _pParentElement );
-        return pStyle->SetReadyStateStyle( readyState );
-    }
-    else
-    {
-        Assert( _pParentElement->Tag() == ETAG_LINK );
-        CLinkElement *pLink = DYNCAST( CLinkElement, _pParentElement );
-        return pLink->SetReadyStateLink( readyState );
+    if (_pParentElement->Tag() == ETAG_STYLE) {
+        CStyleElement* pStyle = DYNCAST(CStyleElement, _pParentElement);
+        return pStyle->SetReadyStateStyle(readyState);
+    } else {
+        Assert(_pParentElement->Tag() == ETAG_LINK);
+        CLinkElement* pLink = DYNCAST(CLinkElement, _pParentElement);
+        return pLink->SetReadyStateLink(readyState);
     }
 }
 
@@ -1780,25 +1646,20 @@ HRESULT CStyleSheet::SetReadyState( long readyState )
 //  if necessary.  This ultimately includes causing our parent element
 //  to fire events.
 
-void CStyleSheet::CheckImportStatus( void )
+void CStyleSheet::CheckImportStatus(void)
 {
     // If all stylesheets nested below us are finished d/ling..
-    if ( _eParsingStatus != CSSPARSESTATUS_PARSING && (_nExpectedImports == _nCompletedImports) )
-    {
-        if ( IsAnImport() )
-        {
+    if (_eParsingStatus != CSSPARSESTATUS_PARSING && (_nExpectedImports == _nCompletedImports)) {
+        if (IsAnImport()) {
             // If we've hit a break in our parentSS chain, just stop..
-            if ( !IsDisconnectedFromParentSS() )
-            {
+            if (!IsDisconnectedFromParentSS()) {
                 // Notify our parent that we are finished.
                 _pParentStyleSheet->CheckImportStatus();
             }
-        }
-        else
-        {
+        } else {
             // We are a top-level SS!  Since everything below us is
             // finished, we can fire.
-            SetReadyState( READYSTATE_COMPLETE );
+            SetReadyState(READYSTATE_COMPLETE);
         }
     }
 }
@@ -1807,52 +1668,47 @@ void CStyleSheet::CheckImportStatus( void )
 //  CStyleSheet::StopDownloads
 //      Halt all downloading of stylesheets, including all nested imports.
 
-void CStyleSheet::StopDownloads( BOOL fReleaseBitsCtx )
+void CStyleSheet::StopDownloads(BOOL fReleaseBitsCtx)
 {
     long z;
-    CStyleSheet *pSS;
+    CStyleSheet* pSS;
 
-    if ( _pBitsCtx )
-    {
-        CMarkup *pMarkup;
+    if (_pBitsCtx) {
+        CMarkup* pMarkup;
 
         _pBitsCtx->SetProgSink(NULL); // detach download from document's load progress
-        _pBitsCtx->SetLoad( FALSE, NULL, FALSE );
+        _pBitsCtx->SetLoad(FALSE, NULL, FALSE);
 
         pMarkup = _pParentElement->GetMarkup();
-        if(pMarkup)
+        if (pMarkup)
             pMarkup->Doc()->LeaveStylesheetDownload(&_dwStyleCookie);
 
-         // This sheet has finished, one way or another.
-         if ( IsAnImport() )
-             _pParentStyleSheet->_nCompletedImports++;
-         _eParsingStatus = CSSPARSESTATUS_DONE;   // Need to make sure we'll walk up to our parent in CheckImportStatus()
+        // This sheet has finished, one way or another.
+        if (IsAnImport())
+            _pParentStyleSheet->_nCompletedImports++;
+        _eParsingStatus = CSSPARSESTATUS_DONE;   // Need to make sure we'll walk up to our parent in CheckImportStatus()
 
-        if ( fReleaseBitsCtx )
+        if (fReleaseBitsCtx)
             SetBitsCtx(NULL);
     }
 
 
-    if ( _pImportedStyleSheets )
-    {
-        for ( z=0 ; (pSS=(_pImportedStyleSheets->Get(z))) != NULL ; ++z)
-            pSS->StopDownloads( fReleaseBitsCtx );
+    if (_pImportedStyleSheets) {
+        for (z = 0; (pSS = (_pImportedStyleSheets->Get(z))) != NULL; ++z)
+            pSS->StopDownloads(fReleaseBitsCtx);
     }
 
 #ifndef NO_FONT_DOWNLOAD
     // If we initiated any downloads of embedded fonts, stop those too
-    CStyleSheetArray *pContainer = GetRootContainer();
-    if ( pContainer )
-    {
+    CStyleSheetArray* pContainer = GetRootContainer();
+    if (pContainer) {
         int n = pContainer->_apFontFaces.Size();
         int i;
-        CFontFace *pFace;
+        CFontFace* pFace;
 
-        for( i=0; i < n; i++)
-        {
-            pFace = ((CFontFace **)(pContainer->_apFontFaces))[ i ];
-            if ( pFace->ParentStyleSheet() == this )
-            {
+        for (i = 0; i < n; i++) {
+            pFace = ((CFontFace**)(pContainer->_apFontFaces))[i];
+            if (pFace->ParentStyleSheet() == this) {
                 pFace->StopDownloads();
             }
         }
@@ -1866,22 +1722,21 @@ void CStyleSheet::StopDownloads( BOOL fReleaseBitsCtx )
 //  the automation object if necessary and caching it in the RuleEntry.
 //  If the index is out of range, may return NULL.
 
-HRESULT CStyleSheet::GetOMRule( long lIdx, IHTMLStyleSheetRule **ppSSRule )
+HRESULT CStyleSheet::GetOMRule(long lIdx, IHTMLStyleSheetRule** ppSSRule)
 {
-    Assert( ppSSRule );
+    Assert(ppSSRule);
 
     *ppSSRule = NULL;
-    if ( lIdx < 0 || lIdx >= _apRulesList.Size() )
+    if (lIdx < 0 || lIdx >= _apRulesList.Size())
         return E_INVALIDARG;
 
-    if ( !_apRulesList[ lIdx ].pAutomationRule )
-    {
-        _apRulesList[ lIdx ].pAutomationRule = new CStyleSheetRule( this,
-                ((DWORD)_apRulesList[ lIdx ].GetStyleID())|((DWORD)_sidSheet) , _apRulesList[ lIdx ]._eTag );
-        if ( !_apRulesList[ lIdx ].pAutomationRule )
+    if (!_apRulesList[lIdx].pAutomationRule) {
+        _apRulesList[lIdx].pAutomationRule = new CStyleSheetRule(this,
+            ((DWORD)_apRulesList[lIdx].GetStyleID()) | ((DWORD)_sidSheet), _apRulesList[lIdx]._eTag);
+        if (!_apRulesList[lIdx].pAutomationRule)
             return E_OUTOFMEMORY;
     }
-    return _apRulesList[ lIdx ].pAutomationRule->QueryInterface( IID_IHTMLStyleSheetRule, (void **)ppSSRule );
+    return _apRulesList[lIdx].pAutomationRule->QueryInterface(IID_IHTMLStyleSheetRule, (void**)ppSSRule);
 }
 
 
@@ -1890,28 +1745,27 @@ HRESULT CStyleSheet::GetOMRule( long lIdx, IHTMLStyleSheetRule **ppSSRule )
 
 
 HRESULT
-CStyleSheet::get_title(BSTR *pBSTR)
+CStyleSheet::get_title(BSTR* pBSTR)
 {
     HRESULT hr = S_OK;
 
-    if (!pBSTR)
-    {
+    if (!pBSTR) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
     *pBSTR = NULL;
 
-    Assert( "All sheets must have a parent element!" && _pParentElement );
+    Assert("All sheets must have a parent element!" && _pParentElement);
 
     // Imports don't support the title property; just return NULL string.
-    if ( IsAnImport() )
+    if (IsAnImport())
         goto Cleanup;
 
-    hr = _pParentElement->get_PropertyHelper( pBSTR, (PROPERTYDESC *)&s_propdescCElementtitle );
+    hr = _pParentElement->get_PropertyHelper(pBSTR, (PROPERTYDESC*)&s_propdescCElementtitle);
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 HRESULT
@@ -1919,19 +1773,18 @@ CStyleSheet::put_title(BSTR bstr)
 {
     HRESULT hr = S_OK;
 
-    Assert( "All sheets must have a parent element!" && _pParentElement );
+    Assert("All sheets must have a parent element!" && _pParentElement);
 
     // We don't support the title prop on imports.
-    if ( IsAnImport() )
-    {
+    if (IsAnImport()) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
 
-    hr = _pParentElement->put_StringHelper( bstr, (PROPERTYDESC *)&s_propdescCElementtitle );
+    hr = _pParentElement->put_StringHelper(bstr, (PROPERTYDESC*)&s_propdescCElementtitle);
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -1939,34 +1792,30 @@ Cleanup:
 //      IHTMLStyleSheet interface method
 
 HRESULT
-CStyleSheet::get_media(BSTR *pBSTR)
+CStyleSheet::get_media(BSTR* pBSTR)
 {
     HRESULT hr = S_OK;
 
-    if (!pBSTR)
-    {
+    if (!pBSTR) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
     *pBSTR = NULL;
 
-    Assert( "All sheets must have a parent element!" && _pParentElement );
+    Assert("All sheets must have a parent element!" && _pParentElement);
 
-    if (_pParentElement->Tag() == ETAG_STYLE)
-    {
-        CStyleElement *pStyle = DYNCAST( CStyleElement, _pParentElement );
-        hr = pStyle->get_PropertyHelper( pBSTR, (PROPERTYDESC *)&s_propdescCStyleElementmedia );
-    }
-    else
-    {
-        Assert( _pParentElement->Tag() == ETAG_LINK );
-        CLinkElement *pLink = DYNCAST( CLinkElement, _pParentElement );
-        hr = pLink->get_PropertyHelper( pBSTR, (PROPERTYDESC *)&s_propdescCLinkElementmedia );
+    if (_pParentElement->Tag() == ETAG_STYLE) {
+        CStyleElement* pStyle = DYNCAST(CStyleElement, _pParentElement);
+        hr = pStyle->get_PropertyHelper(pBSTR, (PROPERTYDESC*)&s_propdescCStyleElementmedia);
+    } else {
+        Assert(_pParentElement->Tag() == ETAG_LINK);
+        CLinkElement* pLink = DYNCAST(CLinkElement, _pParentElement);
+        hr = pLink->get_PropertyHelper(pBSTR, (PROPERTYDESC*)&s_propdescCLinkElementmedia);
     }
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 HRESULT
@@ -1974,21 +1823,18 @@ CStyleSheet::put_media(BSTR bstr)
 {
     HRESULT hr = S_OK;
 
-    Assert( "All sheets must have a parent element!" && _pParentElement );
+    Assert("All sheets must have a parent element!" && _pParentElement);
 
-    if (_pParentElement->Tag() == ETAG_STYLE)
-    {
-        CStyleElement *pStyle = DYNCAST( CStyleElement, _pParentElement );
-        hr = pStyle->put_StringHelper( bstr, (PROPERTYDESC *)&s_propdescCStyleElementmedia );
-    }
-    else
-    {
-        Assert( _pParentElement->Tag() == ETAG_LINK );
-        CLinkElement *pLink = DYNCAST( CLinkElement, _pParentElement );
-        hr = pLink->put_StringHelper( bstr, (PROPERTYDESC *)&s_propdescCLinkElementmedia );
+    if (_pParentElement->Tag() == ETAG_STYLE) {
+        CStyleElement* pStyle = DYNCAST(CStyleElement, _pParentElement);
+        hr = pStyle->put_StringHelper(bstr, (PROPERTYDESC*)&s_propdescCStyleElementmedia);
+    } else {
+        Assert(_pParentElement->Tag() == ETAG_LINK);
+        CLinkElement* pLink = DYNCAST(CLinkElement, _pParentElement);
+        hr = pLink->put_StringHelper(bstr, (PROPERTYDESC*)&s_propdescCLinkElementmedia);
     }
 
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -1996,28 +1842,27 @@ CStyleSheet::put_media(BSTR bstr)
 //      IHTMLStyleSheet interface method
 
 HRESULT
-CStyleSheet::get_cssText(BSTR *pBSTR)
+CStyleSheet::get_cssText(BSTR* pBSTR)
 {
     HRESULT hr = S_OK;
     CStr cstr;
 
-    if (!pBSTR)
-    {
+    if (!pBSTR) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
     *pBSTR = NULL;
 
-    hr = GetString( &cstr );
+    hr = GetString(&cstr);
 
-    if ( hr != S_OK )
+    if (hr != S_OK)
         goto Cleanup;
 
-    hr = cstr.AllocBSTR( pBSTR );
+    hr = cstr.AllocBSTR(pBSTR);
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2028,16 +1873,16 @@ HRESULT
 CStyleSheet::put_cssText(BSTR bstr)
 {
     HRESULT hr = S_OK;
-    CElement *pParentElement = _pParentElement;
-    CStyleSheet *pParentSS = _pParentStyleSheet;
-    CMarkup *pMarkup;
+    CElement* pParentElement = _pParentElement;
+    CStyleSheet* pParentSS = _pParentStyleSheet;
+    CMarkup* pMarkup;
     BOOL fDisabled = _fDisabled;
-    CCSSParser *parser;
+    CCSSParser* parser;
     Assert(pParentElement);
 
     // Remove all the rules
-    hr = ChangeStatus( CS_CLEARRULES, FALSE, NULL );   // disabling, detached from tree, no re-render
-    if ( hr )
+    hr = ChangeStatus(CS_CLEARRULES, FALSE, NULL);   // disabling, detached from tree, no re-render
+    if (hr)
         goto Cleanup;
     // Now go destroy our rules ref list, release its OMs, and destroy associated font-faces.
     Free();
@@ -2049,27 +1894,26 @@ CStyleSheet::put_cssText(BSTR bstr)
 
     // Parse the new style string!
 #ifdef XMV_PARSE
-    parser = new CCSSParser( this, NULL, IsXML());
+    parser = new CCSSParser(this, NULL, IsXML());
 #else
-    parser = new CCSSParser( this, NULL);
+    parser = new CCSSParser(this, NULL);
 #endif
-    if ( !parser )
-    {
+    if (!parser) {
         hr = E_OUTOFMEMORY;
         goto Cleanup;
     }
     parser->Open();
-    parser->Write( bstr, _tcslen( bstr ) );
+    parser->Write(bstr, _tcslen(bstr));
     parser->Close();
     delete parser;
 
     // Reformat and rerender.
 
     pMarkup = pParentElement->GetMarkup();
-    hr = THR( pMarkup->OnCssChange(/*fStable = */ TRUE, /* fRecomputePeers = */ TRUE) );
+    hr = THR(pMarkup->OnCssChange(/*fStable = */ TRUE, /* fRecomputePeers = */ TRUE));
 
 Cleanup:
-    RRETURN( hr );
+    RRETURN(hr);
 }
 
 
@@ -2082,8 +1926,7 @@ CStyleSheet::get_parentStyleSheet(IHTMLStyleSheet** ppHTMLStyleSheet)
 {
     HRESULT hr = S_OK;
 
-    if (!ppHTMLStyleSheet)
-    {
+    if (!ppHTMLStyleSheet) {
         hr = E_POINTER;
         goto Cleanup;
     }
@@ -2091,14 +1934,13 @@ CStyleSheet::get_parentStyleSheet(IHTMLStyleSheet** ppHTMLStyleSheet)
     *ppHTMLStyleSheet = NULL;
 
     // BUGBUG: Just return self if we're disconnected?
-    if ( IsAnImport() && !IsDisconnectedFromParentSS() )
-    {
+    if (IsAnImport() && !IsDisconnectedFromParentSS()) {
         hr = _pParentStyleSheet->QueryInterface(IID_IHTMLStyleSheet,
-                                              (void**)ppHTMLStyleSheet);
+            (void**)ppHTMLStyleSheet);
     }
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2111,21 +1953,20 @@ CStyleSheet::get_owningElement(IHTMLElement** ppHTMLElement)
 {
     HRESULT hr = S_OK;
 
-    if (!ppHTMLElement)
-    {
+    if (!ppHTMLElement) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
     *ppHTMLElement = NULL;
 
-    Assert( "All sheets must have a parent element!" && _pParentElement );
+    Assert("All sheets must have a parent element!" && _pParentElement);
 
     hr = _pParentElement->QueryInterface(IID_IHTMLElement,
-                                          (void**)ppHTMLElement);
+        (void**)ppHTMLElement);
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2138,8 +1979,7 @@ CStyleSheet::get_disabled(VARIANT_BOOL* pvbDisabled)
 {
     HRESULT hr = S_OK;
 
-    if (!pvbDisabled)
-    {
+    if (!pvbDisabled) {
         hr = E_POINTER;
         goto Cleanup;
     }
@@ -2147,7 +1987,7 @@ CStyleSheet::get_disabled(VARIANT_BOOL* pvbDisabled)
     *pvbDisabled = (_fDisabled ? VB_TRUE : VB_FALSE);
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 HRESULT
@@ -2157,25 +1997,23 @@ CStyleSheet::put_disabled(VARIANT_BOOL vbDisabled)
     DWORD   dwAction;
 
     // If the enable/disable status isn't changing, do nothing.
-    if ( (_fDisabled ? VB_TRUE : VB_FALSE) != vbDisabled )
-    {
+    if ((_fDisabled ? VB_TRUE : VB_FALSE) != vbDisabled) {
         dwAction = (vbDisabled ? 0 : CS_ENABLERULES);   // 0 means disable rules
-        hr = ChangeStatus( dwAction, TRUE, NULL);   // Force a rerender
+        hr = ChangeStatus(dwAction, TRUE, NULL);   // Force a rerender
 
         // We have to stuff these into the AA by hand in order to avoid
         // firing an OnPropertyChange (which would put us into a recursive loop).
-        if ( _pParentElement->Tag() == ETAG_STYLE )
-            hr = THR(s_propdescCElementdisabled.b.SetNumber( _pParentElement,
-                     CVOID_CAST(_pParentElement->GetAttrArray()), vbDisabled, 0 ));
-        else
-        {
-            Assert( _pParentElement->Tag() == ETAG_LINK );
-            hr = THR(s_propdescCElementdisabled.b.SetNumber( _pParentElement,
-                     CVOID_CAST(_pParentElement->GetAttrArray()), vbDisabled, 0 ));
+        if (_pParentElement->Tag() == ETAG_STYLE)
+            hr = THR(s_propdescCElementdisabled.b.SetNumber(_pParentElement,
+                                                            CVOID_CAST(_pParentElement->GetAttrArray()), vbDisabled, 0));
+        else {
+            Assert(_pParentElement->Tag() == ETAG_LINK);
+            hr = THR(s_propdescCElementdisabled.b.SetNumber(_pParentElement,
+                                                            CVOID_CAST(_pParentElement->GetAttrArray()), vbDisabled, 0));
         }
     }
 
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2188,22 +2026,21 @@ CStyleSheet::get_readOnly(VARIANT_BOOL* pvbReadOnly)
 {
     HRESULT hr = S_OK;
 
-    if (!pvbReadOnly)
-    {
+    if (!pvbReadOnly) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
-    Assert( "All sheets must have a parent element!" && _pParentElement );
+    Assert("All sheets must have a parent element!" && _pParentElement);
 
     // Imports are readonly.  Also, if we have a parent element of type LINK, we must
     // be a linked stylesheet, and thus readonly.
 
-    *pvbReadOnly = ( IsAnImport() || (_pParentElement->Tag() == ETAG_LINK) ) ?
-                        VB_TRUE : VB_FALSE;
+    *pvbReadOnly = (IsAnImport() || (_pParentElement->Tag() == ETAG_LINK)) ?
+        VB_TRUE : VB_FALSE;
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2216,8 +2053,7 @@ CStyleSheet::get_imports(IHTMLStyleSheetsCollection** ppHTMLStyleSheetsCollectio
 {
     HRESULT hr = S_OK;
 
-    if (!ppHTMLStyleSheetsCollection)
-    {
+    if (!ppHTMLStyleSheetsCollection) {
         hr = E_POINTER;
         goto Cleanup;
     }
@@ -2225,18 +2061,15 @@ CStyleSheet::get_imports(IHTMLStyleSheetsCollection** ppHTMLStyleSheetsCollectio
     *ppHTMLStyleSheetsCollection = NULL;
 
     // If we don't already have an imports collection instantiated, do so now.
-    if ( !_pImportedStyleSheets )
-    {
+    if (!_pImportedStyleSheets) {
         // Imported stylesheets don't manage their own rules.
-        _pImportedStyleSheets = new CStyleSheetArray( this, _pSSAContainer, _sidSheet );
-        Assert( "Failure to allocate imported stylesheets array! (informational)" && _pImportedStyleSheets );
-        if (!_pImportedStyleSheets)
-        {
+        _pImportedStyleSheets = new CStyleSheetArray(this, _pSSAContainer, _sidSheet);
+        Assert("Failure to allocate imported stylesheets array! (informational)" && _pImportedStyleSheets);
+        if (!_pImportedStyleSheets) {
             hr = E_OUTOFMEMORY;
             goto Cleanup;
         }
-        if (_pImportedStyleSheets->_fInvalid)
-        {
+        if (_pImportedStyleSheets->_fInvalid) {
             hr = E_OUTOFMEMORY;
             _pImportedStyleSheets->CBase::PrivateRelease();
             goto Cleanup;
@@ -2244,10 +2077,10 @@ CStyleSheet::get_imports(IHTMLStyleSheetsCollection** ppHTMLStyleSheetsCollectio
     }
 
     hr = _pImportedStyleSheets->QueryInterface(IID_IHTMLStyleSheetsCollection,
-                                            (void**)ppHTMLStyleSheetsCollection);
+        (void**)ppHTMLStyleSheetsCollection);
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2259,8 +2092,7 @@ CStyleSheet::get_rules(IHTMLStyleSheetRulesCollection** ppHTMLStyleSheetRulesCol
 {
     HRESULT hr = S_OK;
 
-    if (!ppHTMLStyleSheetRulesCollection)
-    {
+    if (!ppHTMLStyleSheetRulesCollection) {
         hr = E_POINTER;
         goto Cleanup;
     }
@@ -2268,21 +2100,19 @@ CStyleSheet::get_rules(IHTMLStyleSheetRulesCollection** ppHTMLStyleSheetRulesCol
     *ppHTMLStyleSheetRulesCollection = NULL;
 
     // If we don't already have a rules collection instantiated, do so now.
-    if ( !_pOMRulesArray )
-    {
-        _pOMRulesArray = new CStyleSheetRuleArray( this );
-        if ( !_pOMRulesArray )
-        {
+    if (!_pOMRulesArray) {
+        _pOMRulesArray = new CStyleSheetRuleArray(this);
+        if (!_pOMRulesArray) {
             hr = E_OUTOFMEMORY;
             goto Cleanup;
         }
     }
 
-    hr = _pOMRulesArray->QueryInterface( IID_IHTMLStyleSheetRulesCollection,
-                                            (void**)ppHTMLStyleSheetRulesCollection);
+    hr = _pOMRulesArray->QueryInterface(IID_IHTMLStyleSheetRulesCollection,
+        (void**)ppHTMLStyleSheetRulesCollection);
 
 Cleanup:
-    RRETURN( SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2291,38 +2121,34 @@ Cleanup:
 
 
 HRESULT
-CStyleSheet::get_href(BSTR *pBSTR)
+CStyleSheet::get_href(BSTR* pBSTR)
 {
     HRESULT hr = S_OK;
 
-    if (!pBSTR)
-    {
+    if (!pBSTR) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
     *pBSTR = NULL;
 
-    Assert( "All sheets must have a parent element!" && _pParentElement );
+    Assert("All sheets must have a parent element!" && _pParentElement);
 
     // If we're an import..
-    if ( IsAnImport() )
+    if (IsAnImport()) {
+        hr = _cstrImportHref.AllocBSTR(pBSTR);
+    } else if (_pParentElement->Tag() == ETAG_LINK) // .. if we're a <link>
     {
-        hr = _cstrImportHref.AllocBSTR( pBSTR );
-    }
-    else if ( _pParentElement->Tag() == ETAG_LINK ) // .. if we're a <link>
+        CLinkElement* pLink = DYNCAST(CLinkElement, _pParentElement);
+        hr = pLink->get_UrlHelper(pBSTR, (PROPERTYDESC*)&s_propdescCLinkElementhref);
+    } else    // .. we must be a <style>, and have no href.
     {
-        CLinkElement *pLink = DYNCAST( CLinkElement, _pParentElement );
-        hr = pLink->get_UrlHelper( pBSTR, (PROPERTYDESC *)&s_propdescCLinkElementhref );
-    }
-    else    // .. we must be a <style>, and have no href.
-    {
-        Assert( "Bad element type associated with stylesheet!" && _pParentElement->Tag() == ETAG_STYLE );
+        Assert("Bad element type associated with stylesheet!" && _pParentElement->Tag() == ETAG_STYLE);
         goto Cleanup;
     }
 
 Cleanup:
-    RRETURN(SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 HRESULT
@@ -2331,37 +2157,33 @@ CStyleSheet::put_href(BSTR bstr)
     HRESULT hr = S_OK;
 
     // Are we an import?
-    if ( IsAnImport() )
-    {
-        if ( _pParentStyleSheet->IsAnImport() || (_pParentElement->Tag() == ETAG_LINK) )
-        {
+    if (IsAnImport()) {
+        if (_pParentStyleSheet->IsAnImport() || (_pParentElement->Tag() == ETAG_LINK)) {
             // If we're an import, but our parent isn't a top-level stylesheet,
             // (i.e. our parent is also an import), or if we're an import of a linked
             // stylesheet then our href is readonly.
             goto Cleanup;
         }
 
-        hr = LoadFromURL( (LPTSTR)bstr );
-        if ( hr )
+        hr = LoadFromURL((LPTSTR)bstr);
+        if (hr)
             goto Cleanup;
 
-        _cstrImportHref.Set( bstr );
+        _cstrImportHref.Set(bstr);
     }
     // Are we a linked stylesheet?
-    else if ( _pParentElement->Tag() == ETAG_LINK )
-    {
-        CLinkElement *pLink = DYNCAST( CLinkElement, _pParentElement );
-        hr = pLink->put_UrlHelper( bstr, (PROPERTYDESC *)&s_propdescCLinkElementhref );
+    else if (_pParentElement->Tag() == ETAG_LINK) {
+        CLinkElement* pLink = DYNCAST(CLinkElement, _pParentElement);
+        hr = pLink->put_UrlHelper(bstr, (PROPERTYDESC*)&s_propdescCLinkElementhref);
     }
     // Otherwise we must be a <style>, and have no href.
-    else
-    {
-        Assert( "Bad element type associated with stylesheet!" && _pParentElement->Tag() == ETAG_STYLE );
+    else {
+        Assert("Bad element type associated with stylesheet!" && _pParentElement->Tag() == ETAG_STYLE);
         goto Cleanup;
     }
 
 Cleanup:
-    RRETURN(SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2370,41 +2192,35 @@ Cleanup:
 
 
 HRESULT
-CStyleSheet::get_type(BSTR *pBSTR)
+CStyleSheet::get_type(BSTR* pBSTR)
 {
     HRESULT hr = S_OK;
 
-    if (!pBSTR)
-    {
+    if (!pBSTR) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
     *pBSTR = NULL;
 
-    Assert( _pParentElement );
+    Assert(_pParentElement);
 
     // BUGBUG: we currently return the top-level SS's HTML type attribute for imports;
     // this is OK for now since we only support text/css, but in theory stylesheets of
     // one type could import stylesheets of a different type.
 
-    if ( _pParentElement->Tag() == ETAG_STYLE )
-    {
-        CStyleElement *pStyle = DYNCAST( CStyleElement, _pParentElement );
-        hr = pStyle->get_PropertyHelper( pBSTR, (PROPERTYDESC *)&s_propdescCStyleElementtype );
-    }
-    else if ( _pParentElement->Tag() == ETAG_LINK )
-    {
-        CLinkElement *pLink = DYNCAST( CLinkElement, _pParentElement );
-        hr = pLink->get_PropertyHelper( pBSTR, (PROPERTYDESC *)&s_propdescCLinkElementtype );
-    }
-    else
-    {
-        Assert( "Bad element type associated with stylesheet!" && FALSE );
+    if (_pParentElement->Tag() == ETAG_STYLE) {
+        CStyleElement* pStyle = DYNCAST(CStyleElement, _pParentElement);
+        hr = pStyle->get_PropertyHelper(pBSTR, (PROPERTYDESC*)&s_propdescCStyleElementtype);
+    } else if (_pParentElement->Tag() == ETAG_LINK) {
+        CLinkElement* pLink = DYNCAST(CLinkElement, _pParentElement);
+        hr = pLink->get_PropertyHelper(pBSTR, (PROPERTYDESC*)&s_propdescCLinkElementtype);
+    } else {
+        Assert("Bad element type associated with stylesheet!" && FALSE);
     }
 
 Cleanup:
-    RRETURN(SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2413,32 +2229,30 @@ Cleanup:
 
 
 HRESULT
-CStyleSheet::get_id(BSTR *pBSTR)
+CStyleSheet::get_id(BSTR* pBSTR)
 {
     HRESULT hr = S_OK;
 
-    if (!pBSTR)
-    {
+    if (!pBSTR) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
     *pBSTR = NULL;
 
-    Assert( _pParentElement );
+    Assert(_pParentElement);
 
     // Imports have no id; we don't return the parent element's id
     // because that would suggest you could use the id to get to the
     // import (when it would actually get you to the top-level SS).
-    if ( IsAnImport() )
-    {
+    if (IsAnImport()) {
         goto Cleanup;
     }
 
-    hr = THR( _pParentElement->get_PropertyHelper( pBSTR, (PROPERTYDESC *)&s_propdescCElementid ) );
+    hr = THR(_pParentElement->get_PropertyHelper(pBSTR, (PROPERTYDESC*)&s_propdescCElementid));
 
 Cleanup:
-    RRETURN(SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2447,12 +2261,11 @@ Cleanup:
 
 
 HRESULT
-CStyleSheet::addImport(BSTR bstrURL, long lIndex, long *plNewIndex)
+CStyleSheet::addImport(BSTR bstrURL, long lIndex, long* plNewIndex)
 {
     HRESULT hr = S_OK;
 
-    if ( !plNewIndex )
-    {
+    if (!plNewIndex) {
         hr = E_POINTER;
 
         goto Cleanup;
@@ -2462,47 +2275,44 @@ CStyleSheet::addImport(BSTR bstrURL, long lIndex, long *plNewIndex)
     *plNewIndex = -1;
 
     // Check for zero-length URL, which we ignore.
-    if ( FormsStringLen(bstrURL) == 0 )
-    {
+    if (FormsStringLen(bstrURL) == 0) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
 
     // If requested index out of bounds, just append the import
-    if ( (lIndex < -1) ||
-         (_pImportedStyleSheets && (lIndex > _pImportedStyleSheets->Size())) ||
-         (!_pImportedStyleSheets && (lIndex > 0)) )
-    {
+    if ((lIndex < -1) ||
+        (_pImportedStyleSheets && (lIndex > _pImportedStyleSheets->Size())) ||
+        (!_pImportedStyleSheets && (lIndex > 0))) {
         lIndex = -1;
     }
 
-    hr = AddImportedStyleSheet( (LPTSTR)bstrURL, lIndex, plNewIndex );
-    if ( hr )
+    hr = AddImportedStyleSheet((LPTSTR)bstrURL, lIndex, plNewIndex);
+    if (hr)
         goto Cleanup;
 
 Cleanup:
-    RRETURN(SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
-HRESULT CStyleSheet::removeImport( long lIndex )
+HRESULT CStyleSheet::removeImport(long lIndex)
 {
     HRESULT hr = S_OK;
 
-    CStyleSheet *pImportedStyleSheet;
+    CStyleSheet* pImportedStyleSheet;
 
     // If requested index out of bounds, error out
-    if ( !_pImportedStyleSheets || (lIndex < 0) || (lIndex >= _pImportedStyleSheets->Size()))
-    {
+    if (!_pImportedStyleSheets || (lIndex < 0) || (lIndex >= _pImportedStyleSheets->Size())) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
 
     pImportedStyleSheet = _pImportedStyleSheets->_aStyleSheets[lIndex];
     pImportedStyleSheet->StopDownloads(TRUE);
-    hr = _pImportedStyleSheets->ReleaseStyleSheet( pImportedStyleSheet, TRUE );
+    hr = _pImportedStyleSheets->ReleaseStyleSheet(pImportedStyleSheet, TRUE);
 
 Cleanup:
-    RRETURN(SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2511,13 +2321,13 @@ Cleanup:
 
 
 HRESULT
-CStyleSheet::addRule(BSTR bstrSelector, BSTR bstrStyle, long lIndex, long *plNewIndex)
+CStyleSheet::addRule(BSTR bstrSelector, BSTR bstrStyle, long lIndex, long* plNewIndex)
 {
     HRESULT         hr = E_OUTOFMEMORY;
-    CStyleSelector *pNewSelector = NULL;
-    CStyleSelector *pChildSelector = NULL;
-    CStyleRule     *pNewRule = NULL;
-    CCSSParser     *ps = NULL;
+    CStyleSelector* pNewSelector = NULL;
+    CStyleSelector* pChildSelector = NULL;
+    CStyleRule* pNewRule = NULL;
+    CCSSParser* ps = NULL;
     BOOL           fEatingWhitespace = TRUE;
     TCHAR          chChar;
     CStr           csSelectorText;
@@ -2525,16 +2335,14 @@ CStyleSheet::addRule(BSTR bstrSelector, BSTR bstrStyle, long lIndex, long *plNew
     LPTSTR         lpszSelectorWalker;
     LPTSTR         lpszStyleText = (LPTSTR)bstrStyle;
 
-    if ( !plNewIndex || !bstrSelector || !bstrStyle )
-    {
+    if (!plNewIndex || !bstrSelector || !bstrStyle) {
         hr = E_POINTER;
         goto Cleanup;
     }
 
     *plNewIndex = -1;
 
-    if ( !(*bstrSelector) || !(*bstrStyle) )
-    {
+    if (!(*bstrSelector) || !(*bstrStyle)) {
         // Strings shouldn't be empty
         hr = E_INVALIDARG;
         goto Cleanup;
@@ -2542,82 +2350,75 @@ CStyleSheet::addRule(BSTR bstrSelector, BSTR bstrStyle, long lIndex, long *plNew
 
     // Make a copy of the string, so it is not changed during parsing (we insert 0s)
     hr = THR(csSelectorText.Set((LPTSTR)bstrSelector));
-    if(hr)
+    if (hr)
         goto Cleanup;
 
     lpszSelectorText = lpszSelectorWalker = (LPTSTR)csSelectorText;
 
     // Parse selector string to handle contextual selectors
-    do
-    {
+    do {
         chChar = *lpszSelectorWalker;
-        if ( _istalnum( chChar ) || ( chChar == _T('.') ) || ( chChar == _T(':') ) || ( chChar == _T('-') ) || ( chChar == _T('#') ) )
+        if (_istalnum(chChar) || (chChar == _T('.')) || (chChar == _T(':')) || (chChar == _T('-')) || (chChar == _T('#')))
             fEatingWhitespace = FALSE;      // after we've started a selector, whitespace acts a delimiter
-        else if (chChar == _T(','))
-        {
+        else if (chChar == _T(',')) {
             // We do not support grouping of selectors through addRule
             hr = E_INVALIDARG;
             goto Cleanup;
-        }
-        else if ( _istspace( chChar ) || (chChar == _T('\0')) )   // we allow contextual selectors, but not siblings
+        } else if (_istspace(chChar) || (chChar == _T('\0')))   // we allow contextual selectors, but not siblings
         {
-            if ( fEatingWhitespace )
+            if (fEatingWhitespace)
                 ++lpszSelectorText;
-            else
-            {
+            else {
                 // Done with this selector name.  Terminate the selector with a NUL.
                 *lpszSelectorWalker = _T('\0');
 #ifdef XMV_PARSE
                 // the parent element may have been detached, is there a problem here?
-                pChildSelector = new CStyleSelector( lpszSelectorText, pNewSelector, IsXML());
+                pChildSelector = new CStyleSelector(lpszSelectorText, pNewSelector, IsXML());
 #else
-                pChildSelector = new CStyleSelector( lpszSelectorText, pNewSelector );
+                pChildSelector = new CStyleSelector(lpszSelectorText, pNewSelector);
 #endif
-                if ( !pChildSelector )
-                {
+                if (!pChildSelector) {
                     hr = E_OUTOFMEMORY;
                     goto Cleanup;
                 }
                 pNewSelector = pChildSelector;
-                lpszSelectorText = lpszSelectorWalker+1;    // step 1 past the selector we just handled
+                lpszSelectorText = lpszSelectorWalker + 1;    // step 1 past the selector we just handled
                 fEatingWhitespace = TRUE;   // go back to eating whitespace until we start another selector
             }
         }
         ++lpszSelectorWalker;
-    } while ( chChar != _T('\0') );
+    } while (chChar != _T('\0'));
 
-    if ( !pNewSelector )
-    {   // Selector was invalid or empty
+    if (!pNewSelector) {   // Selector was invalid or empty
         hr = E_INVALIDARG;
         goto Cleanup;
     }
 
-    pNewRule = new CStyleRule( pNewSelector );
-    if ( !pNewRule )
+    pNewRule = new CStyleRule(pNewSelector);
+    if (!pNewRule)
         goto Cleanup;
 
     // Actually parse the style text
 #ifdef XMV_PARSE
-    ps = new CCSSParser( this, &(pNewRule->_paaStyleProperties), IsXML(), eSingleStyle, &CStyle::s_apHdlDescs,
-                       this, HANDLEPROP_SET|HANDLEPROP_VALUE );
+    ps = new CCSSParser(this, &(pNewRule->_paaStyleProperties), IsXML(), eSingleStyle, &CStyle::s_apHdlDescs,
+                        this, HANDLEPROP_SET | HANDLEPROP_VALUE);
 #else
-    ps = new CCSSParser( this, &(pNewRule->_paaStyleProperties), eSingleStyle, &CStyle::s_apHdlDescs,
-                       this, HANDLEPROP_SET|HANDLEPROP_VALUE );
+    ps = new CCSSParser(this, &(pNewRule->_paaStyleProperties), eSingleStyle, &CStyle::s_apHdlDescs,
+                        this, HANDLEPROP_SET | HANDLEPROP_VALUE);
 #endif
-    if ( !ps )
+    if (!ps)
         goto Cleanup;
 
     ps->Open();
-    ps->Write( lpszStyleText, lstrlen( lpszStyleText ) );
+    ps->Write(lpszStyleText, lstrlen(lpszStyleText));
     ps->Close();
 
     delete ps;
 
     // Add the rule to our stylesheet, and get the index
-    hr = AddStyleRule( pNewRule, TRUE, lIndex );
+    hr = AddStyleRule(pNewRule, TRUE, lIndex);
     // The AddStyleRule call will have deleted the new rule for us, so we're OK.
-    if ( hr )
-    {
+    if (hr) {
         pNewRule = NULL;    // already deleted by AddStyleRule _even when it fails_
         goto Cleanup;
     }
@@ -2625,15 +2426,14 @@ CStyleSheet::addRule(BSTR bstrSelector, BSTR bstrStyle, long lIndex, long *plNew
     hr = THR(_pParentElement->OnCssChange( /*fStable = */ TRUE, /* fRecomputePeers = */ TRUE));
 
 Cleanup:
-    if ( hr )
-    {
-        if ( pNewSelector )
+    if (hr) {
+        if (pNewSelector)
             delete pNewSelector;
-        if ( pNewRule )
+        if (pNewRule)
             delete pNewRule;
     }
 
-    RRETURN(SetErrorInfo( hr ));
+    RRETURN(SetErrorInfo(hr));
 }
 
 
@@ -2642,19 +2442,18 @@ Cleanup:
 //      This method remove a rule from CStyleRuleArray in the hash table
 //  as well as the CRuleEntryArray.
 
-HRESULT CStyleSheet::removeRule( long lIndex )
+HRESULT CStyleSheet::removeRule(long lIndex)
 {
-    CRuleEntry *pRE;
-    BOOL abFound[ ETAG_LAST ];
+    CRuleEntry* pRE;
+    BOOL abFound[ETAG_LAST];
     int i, nRules;
     CStyleID sid;
     HRESULT     hr = S_OK;
 
-    Assert( "Stylesheet must have a container!" && _pSSAContainer );
+    Assert("Stylesheet must have a container!" && _pSSAContainer);
 
     // Make sure the index is valid.
-    if ( ( lIndex < 0 ) || ( lIndex >= _apRulesList.Size() ) )
-    {
+    if ((lIndex < 0) || (lIndex >= _apRulesList.Size())) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
@@ -2662,79 +2461,70 @@ HRESULT CStyleSheet::removeRule( long lIndex )
     // Cook up the absolute id of the rule to destroy.  We could index
     // in the array and get it, but this is quicker.
     sid = _sidSheet;
-    sid.SetRule( lIndex + 1 );
+    sid.SetRule(lIndex + 1);
 
     // Cook up an array of which slots we need to search for rules in.
-    memset( abFound, 0, sizeof(BOOL) * ETAG_LAST );
-    for ( pRE = (CRuleEntry *)_apRulesList + lIndex, i = lIndex, nRules = _apRulesList.Size();
-          i < nRules; i++, pRE++ )
-    {
-        abFound[ (int)(pRE->_eTag) ] = TRUE;
-        if ( pRE->pAutomationRule )
-        {   // Need to fix up automation rule's sid.
+    memset(abFound, 0, sizeof(BOOL) * ETAG_LAST);
+    for (pRE = (CRuleEntry*)_apRulesList + lIndex, i = lIndex, nRules = _apRulesList.Size();
+         i < nRules; i++, pRE++) {
+        abFound[(int)(pRE->_eTag)] = TRUE;
+        if (pRE->pAutomationRule) {   // Need to fix up automation rule's sid.
             pRE->pAutomationRule->_dwID--;
         }
     }
 
-    if(_apRulesList[lIndex].pAutomationRule)
-    {
+    if (_apRulesList[lIndex].pAutomationRule) {
         _apRulesList[lIndex].pAutomationRule->StyleSheetRelease();
         _apRulesList[lIndex].pAutomationRule = NULL;
     }
 
     // Get rid of the rule in the big pool of rules - this will actually destroy it.
-    _pSSAContainer->ShiftRules( CStyleSheetArray::ruleRemove, TRUE, abFound, sid );
+    _pSSAContainer->ShiftRules(CStyleSheetArray::ruleRemove, TRUE, abFound, sid);
 
     _apRulesList[lIndex]._pRule->Free();
     delete _apRulesList[lIndex]._pRule;
-    _apRulesList.Delete( lIndex );
+    _apRulesList.Delete(lIndex);
 
 Cleanup:
     RRETURN(SetErrorInfo(hr));
 }
 
-HRESULT CStyleSheet::GetString( CStr *pResult )
+HRESULT CStyleSheet::GetString(CStr* pResult)
 {
-    CStyleRule *pRule;
-    CRuleEntry *pRE;
+    CStyleRule* pRule;
+    CRuleEntry* pRE;
     int i, nRules;
 
     // Handle @imports.
-    if ( _pImportedStyleSheets )
-    {
+    if (_pImportedStyleSheets) {
         int nImports = _pImportedStyleSheets->Size();
-        for ( i = 0; i < nImports; i++ )
-        {
-            CStyleSheet *pImport = _pImportedStyleSheets->Get( i );
-            if ( pImport )
-            {
-                pResult->Append( _T("@import url( ") );
-                pResult->Append( pImport->_cstrImportHref );
-                pResult->Append( _T(" );\r\n") );
+        for (i = 0; i < nImports; i++) {
+            CStyleSheet* pImport = _pImportedStyleSheets->Get(i);
+            if (pImport) {
+                pResult->Append(_T("@import url( "));
+                pResult->Append(pImport->_cstrImportHref);
+                pResult->Append(_T(" );\r\n"));
             }
         }
     }
 
     int nFonts = _pSSAContainer->_apFontFaces.Size();
-    CFontFace **ppFaces = (CFontFace **)_pSSAContainer->_apFontFaces;
-    CFontFace *pFace;
+    CFontFace** ppFaces = (CFontFace**)_pSSAContainer->_apFontFaces;
+    CFontFace* pFace;
     LPCTSTR pcszURL;
 
-    for( i=0; i < nFonts; i++ )
-    {
+    for (i = 0; i < nFonts; i++) {
         pFace = ppFaces[i];
-        if ( pFace->ParentStyleSheet() == this )
-        {
+        if (pFace->ParentStyleSheet() == this) {
             pcszURL = pFace->GetSrc();
-            pResult->Append( _T("@font-face {\r\n\tfont-family: ") );
-            pResult->Append( pFace->GetFriendlyName() );
-            if ( pcszURL )
-            {
-                pResult->Append( _T(";\r\n\tsrc:url(") );
-                pResult->Append( pcszURL );
-                pResult->Append( _T(")") );
+            pResult->Append(_T("@font-face {\r\n\tfont-family: "));
+            pResult->Append(pFace->GetFriendlyName());
+            if (pcszURL) {
+                pResult->Append(_T(";\r\n\tsrc:url("));
+                pResult->Append(pcszURL);
+                pResult->Append(_T(")"));
             }
-            pResult->Append( _T(";\r\n}\r\n") );
+            pResult->Append(_T(";\r\n}\r\n"));
         }
     }
 
@@ -2743,62 +2533,55 @@ HRESULT CStyleSheet::GetString( CStr *pResult )
     CBufferedStr    strMediaString;
 
     // Handle rules.
-    for ( pRE = (CRuleEntry *)_apRulesList, i = 0, nRules = _apRulesList.Size();
-          i < nRules; i++, pRE++ )
-    {
-        CStyleID sid(((DWORD)_sidSheet)|((DWORD)pRE->GetStyleID()));
+    for (pRE = (CRuleEntry*)_apRulesList, i = 0, nRules = _apRulesList.Size();
+         i < nRules; i++, pRE++) {
+        CStyleID sid(((DWORD)_sidSheet) | ((DWORD)pRE->GetStyleID()));
         pRule = pRE->_pRule;    // _pSSAContainer->GetRule( pRE->_eTag, sid );
-        if ( pRule )
-        {
+        if (pRule) {
             // Write the media type string if it has changed from previous rule
             dwCurMedia = pRule->GetLastAtMediaTypeBits();
-            if(dwCurMedia != MEDIA_NotSet)
-            {
-                if(dwCurMedia != dwPrevMedia)
-                {
+            if (dwCurMedia != MEDIA_NotSet) {
+                if (dwCurMedia != dwPrevMedia) {
                     // Media type has changed, close the previous if needed and open a new one
-                    if(dwPrevMedia != MEDIA_NotSet)
-                        pResult->Append( _T("\r\n}\r\n") );
+                    if (dwPrevMedia != MEDIA_NotSet)
+                        pResult->Append(_T("\r\n}\r\n"));
 
-                    pResult->Append( _T("\r\n@media ") );
+                    pResult->Append(_T("\r\n@media "));
                     pRule->GetMediaString(dwCurMedia, &strMediaString);
                     pResult->Append(strMediaString);
-                    pResult->Append( _T("    \r\n{\r\n") );
+                    pResult->Append(_T("    \r\n{\r\n"));
                 }
-            }
-            else
-            {
+            } else {
                 // Close the old one if it is there
-                if(dwPrevMedia != MEDIA_NotSet)
-                    pResult->Append( _T("    }\r\n") );
+                if (dwPrevMedia != MEDIA_NotSet)
+                    pResult->Append(_T("    }\r\n"));
             }
 
             // Save the new namespace as the current one
             dwPrevMedia = dwCurMedia;
 
             // Now append the rest of the rule
-            pRule->GetString( this, pResult );
+            pRule->GetString(this, pResult);
         }
     }
 
     // If we have not closed the last namespace, close it
-    if(dwPrevMedia != MEDIA_NotSet)
-        pResult->Append( _T("\r\n}\r\n") );
+    if (dwPrevMedia != MEDIA_NotSet)
+        pResult->Append(_T("\r\n}\r\n"));
 
     return S_OK;
 }
 
 
-CStyleRule *CStyleSheet::GetRule( ELEMENT_TAG eTag, CStyleID ruleID )
+CStyleRule* CStyleSheet::GetRule(ELEMENT_TAG eTag, CStyleID ruleID)
 {
-    CStyleRule *pRule = NULL;
-    CRuleEntry *pRE;
+    CStyleRule* pRule = NULL;
+    CRuleEntry* pRE;
     int i, nRules;
 
-    for ( pRE = (CRuleEntry *)_apRulesList, i = 0, nRules = _apRulesList.Size();
-          (i < nRules) && !pRule;
-          i++, pRE++ )
-    {
+    for (pRE = (CRuleEntry*)_apRulesList, i = 0, nRules = _apRulesList.Size();
+        (i < nRules) && !pRule;
+         i++, pRE++) {
         if ((pRE->_eTag == eTag) && (pRE->GetStyleID() == ruleID))
             pRule = pRE->_pRule;
     }
@@ -2823,13 +2606,13 @@ CStyleRule *CStyleSheet::GetRule( ELEMENT_TAG eTag, CStyleID ruleID )
 
 
 CStyleID::CStyleID(const unsigned long l1, const unsigned long l2,
-                    const unsigned long l3, const unsigned long l4, const unsigned long r)
+                   const unsigned long l3, const unsigned long l4, const unsigned long r)
 {
-    Assert( "Maximum of 31 stylesheets per level!" && l1 <= MAX_SHEETS_PER_LEVEL && l2 <= MAX_SHEETS_PER_LEVEL && l3 <= MAX_SHEETS_PER_LEVEL && l4 <= MAX_SHEETS_PER_LEVEL );
-    Assert( "Maximum of 4095 rules per stylesheet!" && r <= MAX_RULES_PER_SHEET );
+    Assert("Maximum of 31 stylesheets per level!" && l1 <= MAX_SHEETS_PER_LEVEL && l2 <= MAX_SHEETS_PER_LEVEL && l3 <= MAX_SHEETS_PER_LEVEL && l4 <= MAX_SHEETS_PER_LEVEL);
+    Assert("Maximum of 4095 rules per stylesheet!" && r <= MAX_RULES_PER_SHEET);
 
-    _dwID = ((l1<<27) & LEVEL1_MASK) | ((l2<<22) & LEVEL2_MASK) | ((l3<<17) & LEVEL3_MASK) |
-            ((l4<<12) & LEVEL4_MASK) | (r & RULE_MASK);
+    _dwID = ((l1 << 27) & LEVEL1_MASK) | ((l2 << 22) & LEVEL2_MASK) | ((l3 << 17) & LEVEL3_MASK) |
+        ((l4 << 12) & LEVEL4_MASK) | (r & RULE_MASK);
 }
 
 
@@ -2838,27 +2621,26 @@ CStyleID::CStyleID(const unsigned long l1, const unsigned long l2,
 
 void CStyleID::SetLevel(const unsigned long level, const unsigned long value)
 {
-    Assert( "Maximum of 31 stylesheets per level!" && value <= MAX_SHEETS_PER_LEVEL );
-    switch( level )
-    {
-        case 1:
-            _dwID &= ~LEVEL1_MASK;
-            _dwID |= ((value<<27) & LEVEL1_MASK);
-            break;
-        case 2:
-            _dwID &= ~LEVEL2_MASK;
-            _dwID |= ((value<<22) & LEVEL2_MASK);
-            break;
-        case 3:
-            _dwID &= ~LEVEL3_MASK;
-            _dwID |= ((value<<17) & LEVEL3_MASK);
-            break;
-        case 4:
-            _dwID &= ~LEVEL4_MASK;
-            _dwID |= ((value<<12) & LEVEL4_MASK);
-            break;
-        default:
-            Assert( "Invalid Level for style ID" && FALSE );
+    Assert("Maximum of 31 stylesheets per level!" && value <= MAX_SHEETS_PER_LEVEL);
+    switch (level) {
+    case 1:
+        _dwID &= ~LEVEL1_MASK;
+        _dwID |= ((value << 27) & LEVEL1_MASK);
+        break;
+    case 2:
+        _dwID &= ~LEVEL2_MASK;
+        _dwID |= ((value << 22) & LEVEL2_MASK);
+        break;
+    case 3:
+        _dwID &= ~LEVEL3_MASK;
+        _dwID |= ((value << 17) & LEVEL3_MASK);
+        break;
+    case 4:
+        _dwID &= ~LEVEL4_MASK;
+        _dwID |= ((value << 12) & LEVEL4_MASK);
+        break;
+    default:
+        Assert("Invalid Level for style ID" && FALSE);
     }
 }
 
@@ -2868,19 +2650,18 @@ void CStyleID::SetLevel(const unsigned long level, const unsigned long value)
 
 unsigned long CStyleID::GetLevel(const unsigned long level) const
 {
-    switch( level )
-    {
-        case 1:
-            return ((_dwID>>27)&0x1F);
-        case 2:
-            return ((_dwID>>22)&0x1F);
-        case 3:
-            return ((_dwID>>17)&0x1F);
-        case 4:
-            return ((_dwID>>12)&0x1F);
-        default:
-            Assert( "Invalid Level for style ID" && FALSE );
-            return 0;
+    switch (level) {
+    case 1:
+        return ((_dwID >> 27) & 0x1F);
+    case 2:
+        return ((_dwID >> 22) & 0x1F);
+    case 3:
+        return ((_dwID >> 17) & 0x1F);
+    case 4:
+        return ((_dwID >> 12) & 0x1F);
+    default:
+        Assert("Invalid Level for style ID" && FALSE);
+        return 0;
     }
 }
 
@@ -2888,42 +2669,40 @@ unsigned long CStyleID::GetLevel(const unsigned long level) const
 // TranslateMediaTypeString()
 //      Parses a MEDIA attribute and builds the correct EMediaType from it.
 
-DWORD TranslateMediaTypeString( LPCTSTR pcszMedia )
+DWORD TranslateMediaTypeString(LPCTSTR pcszMedia)
 {
     DWORD dwRet = 0;
-    LPTSTR pszMedia = _tcsdup ( pcszMedia );
+    LPTSTR pszMedia = _tcsdup(pcszMedia);
     LPTSTR pszString = pszMedia;
     LPTSTR pszNextToken;
     LPTSTR pszLastChar;
 
-    for ( ; pszString && *pszString; pszString = pszNextToken )
-    {
-        while ( _istspace( *pszString ) )
+    for (; pszString && *pszString; pszString = pszNextToken) {
+        while (_istspace(*pszString))
             pszString++;
         pszNextToken = pszString;
-        while ( *pszNextToken && *pszNextToken != _T(',') )
+        while (*pszNextToken && *pszNextToken != _T(','))
             pszNextToken++;
-        if ( pszNextToken > pszString )
-        {
+        if (pszNextToken > pszString) {
             pszLastChar = pszNextToken - 1;
-            while ( isspace( *pszLastChar ) && ( pszLastChar >= pszString ) )
+            while (isspace(*pszLastChar) && (pszLastChar >= pszString))
                 *pszLastChar-- = _T('\0');
         }
-        if ( *pszNextToken )
+        if (*pszNextToken)
             *pszNextToken++ = _T('\0');
-        if ( !*pszString )
+        if (!*pszString)
             continue;   // This is so empty MEDIA strings will default to All instead of Unknown.
         dwRet |= CSSMediaTypeFromName(pszString);
     }
 
-    if ( !dwRet )
+    if (!dwRet)
         dwRet = MEDIA_All;
-    MemFree( pszMedia );
-    return ( dwRet );
+    MemFree(pszMedia);
+    return (dwRet);
 }
 
 HRESULT
-CDoc::createStyleSheet ( BSTR bstrHref /*=""*/, long lIndex/*=-1*/, IHTMLStyleSheet ** ppnewStyleSheet )
+CDoc::createStyleSheet(BSTR bstrHref /*=""*/, long lIndex/*=-1*/, IHTMLStyleSheet** ppnewStyleSheet)
 {
     Assert(_pPrimaryMarkup);
     RRETURN(_pPrimaryMarkup->createStyleSheet(bstrHref, lIndex, ppnewStyleSheet));
@@ -2947,8 +2726,7 @@ CNamespace::SetNamespace(LPCTSTR pchStr)
     pStr = (LPTSTR)strWork;
 
     hr = THR(RemoveStyleUrlFromStr(&pStr));
-    if(SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         _strNamespace.Set(pStr);
         hr = S_OK;
     }
@@ -2964,11 +2742,10 @@ CNamespace::SetNamespace(LPCTSTR pchStr)
 // Returns TRUE if the namspaces  are equal
 
 BOOL
-CNamespace::IsEqual(const CNamespace * pNmsp) const
+CNamespace::IsEqual(const CNamespace* pNmsp) const
 {
-    if(!pNmsp || pNmsp->IsEmpty())
-    {
-        if(IsEmpty())
+    if (!pNmsp || pNmsp->IsEmpty()) {
+        if (IsEmpty())
             return TRUE;
         else
             return FALSE;
@@ -2979,10 +2756,9 @@ CNamespace::IsEqual(const CNamespace * pNmsp) const
 
 
 const CNamespace&
-CNamespace::operator=(const CNamespace & nmsp)
+CNamespace::operator=(const CNamespace& nmsp)
 {
-    if(&nmsp != this)
-    {
+    if (&nmsp != this) {
         _strNamespace.Set(nmsp._strNamespace);
     }
 

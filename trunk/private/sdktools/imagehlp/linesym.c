@@ -25,8 +25,8 @@ Environment:
 int
 __cdecl
 CompareLineAddresses(
-    const void *v1,
-    const void *v2
+    const void* v1,
+    const void* v2
 )
 {
     PSOURCE_LINE Line1 = (PSOURCE_LINE)v1;
@@ -34,11 +34,9 @@ CompareLineAddresses(
 
     if (Line1->Addr < Line2->Addr) {
         return -1;
-    }
-    else if (Line1->Addr > Line2->Addr) {
+    } else if (Line1->Addr > Line2->Addr) {
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
@@ -56,11 +54,9 @@ AddSourceEntry(
     // Check for overlap between SOURCE_ENTRY address ranges.
     for (SrcCur = mi->SourceFiles;
          SrcCur != NULL;
-         SrcCur = SrcCur->Next)
-    {
+         SrcCur = SrcCur->Next) {
         if (!(SrcCur->MinAddr > Src->MaxAddr ||
-              SrcCur->MaxAddr < Src->MinAddr))
-        {
+              SrcCur->MaxAddr < Src->MinAddr)) {
             DbgPrint("SOURCE_ENTRY overlap between %08X:%08X and %08X:%08X\n",
                      Src->MinAddr, Src->MaxAddr,
                      SrcCur->MinAddr, SrcCur->MaxAddr);
@@ -78,8 +74,7 @@ AddSourceEntry(
     SrcPrev = NULL;
     for (SrcCur = mi->SourceFiles;
          SrcCur != NULL;
-         SrcPrev = SrcCur, SrcCur = SrcCur->Next)
-    {
+         SrcPrev = SrcCur, SrcCur = SrcCur->Next) {
         if (SrcCur->MinAddr > Src->MinAddr) {
             break;
         }
@@ -88,8 +83,7 @@ AddSourceEntry(
     Src->Next = SrcCur;
     if (SrcPrev != NULL) {
         SrcPrev->Next = Src;
-    }
-    else {
+    } else {
         mi->SourceFiles = Src;
     }
 
@@ -114,7 +108,7 @@ AddLinesForCoff(
     PIMAGE_LINENUMBER LineNumbers
 )
 {
-    PIMAGE_LINENUMBER *SecLines;
+    PIMAGE_LINENUMBER* SecLines;
     BOOL Ret;
     PIMAGE_SECTION_HEADER sh;
     ULONG i;
@@ -122,7 +116,7 @@ AddLinesForCoff(
     ULONG LowestPointer;
 
     // Allocate some space for per-section data.
-    SecLines = MemAlloc(sizeof(PIMAGE_LINENUMBER)*mi->NumSections);
+    SecLines = MemAlloc(sizeof(PIMAGE_LINENUMBER) * mi->NumSections);
     if (SecLines == NULL) {
         return FALSE;
     }
@@ -141,8 +135,7 @@ AddLinesForCoff(
     for (i = 0; i < mi->NumSections; i++, sh++) {
         if (sh->NumberOfLinenumbers > 0 &&
             sh->PointerToLinenumbers != 0 &&
-            sh->PointerToLinenumbers < LowestPointer)
-        {
+            sh->PointerToLinenumbers < LowestPointer) {
             LowestPointer = sh->PointerToLinenumbers;
         }
     }
@@ -154,8 +147,7 @@ AddLinesForCoff(
     sh = mi->SectionHdrs;
     for (i = 0; i < mi->NumSections; i++, sh++) {
         if (sh->NumberOfLinenumbers > 0 &&
-            sh->PointerToLinenumbers != 0)
-        {
+            sh->PointerToLinenumbers != 0) {
             SecLines[i] = (PIMAGE_LINENUMBER)
                 (sh->PointerToLinenumbers - LowestPointer + (DWORD_PTR)LineNumbers);
 
@@ -163,8 +155,7 @@ AddLinesForCoff(
             //DbgPrint("Section %d: %d lines at %08X\n",
                      //i, sh->NumberOfLinenumbers, SecLines[i]);
 #endif
-        }
-        else {
+        } else {
             SecLines[i] = NULL;
         }
     }
@@ -209,8 +200,7 @@ AddLinesForCoff(
 
         if (Symbol->Value == 0 || Symbol->Value <= i) {
             iNextFile = numberOfSymbols;
-        }
-        else {
+        } else {
             iNextFile = Symbol->Value;
         }
 
@@ -230,8 +220,7 @@ AddLinesForCoff(
             DWORD Addr;
 
             if (IS_SECTION_SYM(CurSym) &&
-                SecLines[CurSym->SectionNumber - 1] != NULL)
-            {
+                SecLines[CurSym->SectionNumber - 1] != NULL) {
                 AuxSym = (PIMAGE_AUX_SYMBOL)(CurSym + 1);
 
                 Lines += AuxSym->Section.NumberOfLinenumbers;
@@ -269,7 +258,7 @@ AddLinesForCoff(
             FileNameLen = strlen(FileName);
 
             Src = MemAlloc(sizeof(SOURCE_ENTRY) +
-                           sizeof(SOURCE_LINE)*Lines +
+                           sizeof(SOURCE_LINE) * Lines +
                            FileNameLen + 1);
             if (Src == NULL) {
                 goto EH_FreeSecLines;
@@ -305,8 +294,7 @@ AddLinesForCoff(
 
                     for (iLine = 0;
                          iLine < AuxSym->Section.NumberOfLinenumbers;
-                         iLine++)
-                    {
+                         iLine++) {
                         SrcLine->Addr = CoffLine->Type.VirtualAddress +
                             mi->BaseOfDll;
                         SrcLine->Line = CoffLine->Linenumber;
@@ -348,8 +336,8 @@ EH_FreeSecLines:
 BOOL
 AddLinesForOmfSourceModule(
     PMODULE_ENTRY mi,
-    BYTE *Base,
-    OMFSourceModule *OmfSrcMod,
+    BYTE* Base,
+    OMFSourceModule* OmfSrcMod,
     PVOID PdbModule
 )
 {
@@ -359,18 +347,18 @@ AddLinesForOmfSourceModule(
     Ret = FALSE;
 
     for (iFile = 0; iFile < (ULONG)OmfSrcMod->cFile; iFile++) {
-        OMFSourceFile *OmfSrcFile;
+        OMFSourceFile* OmfSrcFile;
         BYTE OmfFileNameLen;
         LPSTR OmfFileName;
         PULONG OmfAddrRanges;
-        OMFSourceLine *OmfSrcLine;
+        OMFSourceLine* OmfSrcLine;
         ULONG iSeg;
         PSOURCE_ENTRY Src;
         PSOURCE_ENTRY Seg0Src;
         PSOURCE_LINE SrcLine;
         ULONG NameAllocLen;
 
-        OmfSrcFile = (OMFSourceFile *)(Base + OmfSrcMod->baseSrcFile[iFile]);
+        OmfSrcFile = (OMFSourceFile*)(Base + OmfSrcMod->baseSrcFile[iFile]);
 
         // The baseSrcLn array of offsets is immediately followed by
         // SVA pairs which define the address ranges for the segments.
@@ -379,7 +367,7 @@ AddLinesForOmfSourceModule(
         // The name length and data immediately follows the address
         // range information.
         OmfFileName = (LPSTR)(OmfAddrRanges + 2 * OmfSrcFile->cSeg) + 1;
-        OmfFileNameLen = *(BYTE *)(OmfFileName - 1);
+        OmfFileNameLen = *(BYTE*)(OmfFileName - 1);
 
         // The compiler can potentially generate a lot of segments
         // per file.  The segments within a file have disjoint
@@ -399,10 +387,10 @@ AddLinesForOmfSourceModule(
             ULONG iLine;
             PIMAGE_SECTION_HEADER sh;
 
-            OmfSrcLine = (OMFSourceLine *)(Base + OmfSrcFile->baseSrcLn[iSeg]);
+            OmfSrcLine = (OMFSourceLine*)(Base + OmfSrcFile->baseSrcLn[iSeg]);
 
             Src = MemAlloc(sizeof(SOURCE_ENTRY) +
-                           sizeof(SOURCE_LINE)*OmfSrcLine->cLnOff +
+                           sizeof(SOURCE_LINE) * OmfSrcLine->cLnOff +
                            NameAllocLen);
             if (Src == NULL) {
                 return Ret;
@@ -420,11 +408,11 @@ AddLinesForOmfSourceModule(
             // Retrieve line numbers and offsets from raw data and
             // process them into current pointers.
 
-            SrcLine = (SOURCE_LINE *)(Src + 1);
+            SrcLine = (SOURCE_LINE*)(Src + 1);
             Src->LineInfo = SrcLine;
 
-            Off = (ULONG *)&OmfSrcLine->offset[0];
-            Ln = (USHORT *)(Off + OmfSrcLine->cLnOff);
+            Off = (ULONG*)&OmfSrcLine->offset[0];
+            Ln = (USHORT*)(Off + OmfSrcLine->cLnOff);
 
             for (iLine = 0; iLine < OmfSrcLine->cLnOff; iLine++) {
                 SrcLine->Line = *Ln++;
@@ -443,8 +431,7 @@ AddLinesForOmfSourceModule(
                 // space so they don't need to alloc their own.
                 NameAllocLen = 0;
                 Seg0Src = Src;
-            }
-            else {
+            } else {
                 Src->File = Seg0Src->File;
             }
 
@@ -502,7 +489,7 @@ AddLinesForPdbMod(
 
     ModQueryLines(Module, Buf, &Size);
 
-    Ret = AddLinesForOmfSourceModule(mi, Buf, (OMFSourceModule *)Buf,
+    Ret = AddLinesForOmfSourceModule(mi, Buf, (OMFSourceModule*)Buf,
         (PVOID)ModIdx);
 
     MemFree(Buf);
@@ -520,7 +507,7 @@ AddLinesForPdbModAtAddr(
     DWORD Bias;
     PIMAGE_SECTION_HEADER sh;
     DWORD i;
-    Mod * Module;
+    Mod* Module;
 
     Addr = ConvertOmapToSrc(mi, Addr, &Bias, FALSE);
 
@@ -577,8 +564,8 @@ AddLinesForAllPdbMod(
     PMODULE_ENTRY mi
 )
 {
-    Mod * Module;
-    Mod * PrevModule;
+    Mod* Module;
+    Mod* PrevModule;
     BOOL Ret;
 
     Ret = FALSE;
@@ -640,12 +627,10 @@ FindLineInSource(
 
         if (Addr < SrcLine->Addr) {
             High = Middle - 1;
-        }
-        else if (Middle < Src->Lines - 1 &&
-                 Addr >= (SrcLine + 1)->Addr) {
+        } else if (Middle < Src->Lines - 1 &&
+                   Addr >= (SrcLine + 1)->Addr) {
             Low = Middle + 1;
-        }
-        else {
+        } else {
             return SrcLine;
         }
     }
@@ -669,8 +654,7 @@ FindSourceEntryForAddr(
             // means that the address will not be found later and
             // we can stop checking.
             return NULL;
-        }
-        else if (Addr <= Src->MaxAddr) {
+        } else if (Addr <= Src->MaxAddr) {
             // Found one.
             return Src;
         }
@@ -772,10 +756,8 @@ FindSourceEntryForFile(
     PSOURCE_ENTRY Src;
 
     Src = SearchFrom != NULL ? SearchFrom->Next : mi->SourceFiles;
-    while (Src != NULL)
-    {
-        if (SymMatchFileName(Src->File, FileStr, NULL, NULL))
-        {
+    while (Src != NULL) {
+        if (SymMatchFileName(Src->File, FileStr, NULL, NULL)) {
             return Src;
         }
 
@@ -797,13 +779,11 @@ FindLineByName(
     PSOURCE_ENTRY Src;
     BOOL TryLoad;
 
-    if (mi == NULL)
-    {
+    if (mi == NULL) {
         return FALSE;
     }
 
-    if (FileName == NULL)
-    {
+    if (FileName == NULL) {
         // If no file was given then it's assumed that the file
         // is the same as for the line information passed in.
         FileName = Line->FileName;
@@ -813,8 +793,7 @@ FindLineByName(
     TryLoad = mi->SymType == SymPdb &&
         (SymOptions & SYMOPT_LOAD_LINES) != 0;
 
-    for (;;)
-    {
+    for (;;) {
         ULONG Disp;
         ULONG BestDisp;
         PSOURCE_ENTRY BestSrc;
@@ -830,8 +809,7 @@ FindLineByName(
         Src = NULL;
         BestDisp = 0x7fffffff;
         BestSrcLine = NULL;
-        while (Src = FindSourceEntryForFile(mi, FileName, Src))
-        {
+        while (Src = FindSourceEntryForFile(mi, FileName, Src)) {
             PSOURCE_LINE SrcLine;
             ULONG i;
 
@@ -841,24 +819,18 @@ FindLineByName(
             // this linear search.
 
             SrcLine = Src->LineInfo;
-            for (i = 0; i < Src->Lines; i++)
-            {
-                if (LineNumber > SrcLine->Line)
-                {
+            for (i = 0; i < Src->Lines; i++) {
+                if (LineNumber > SrcLine->Line) {
                     Disp = LineNumber - SrcLine->Line;
-                }
-                else
-                {
+                } else {
                     Disp = SrcLine->Line - LineNumber;
                 }
 
-                if (Disp < BestDisp)
-                {
+                if (Disp < BestDisp) {
                     BestDisp = Disp;
                     BestSrc = Src;
                     BestSrcLine = SrcLine;
-                    if (Disp == 0)
-                    {
+                    if (Disp == 0) {
                         break;
                     }
                 }
@@ -867,23 +839,20 @@ FindLineByName(
             }
 
             // If we found an exact match we can stop.
-            if (BestDisp == 0)
-            {
+            if (BestDisp == 0) {
                 break;
             }
         }
 
         // Only accept displaced answers if there's no more symbol
         // information to load.
-        if (BestSrcLine != NULL && (BestDisp == 0 || !TryLoad))
-        {
+        if (BestSrcLine != NULL && (BestDisp == 0 || !TryLoad)) {
             FillLineInfo(BestSrc, BestSrcLine, Line);
             *Displacement = (LONG)(LineNumber - BestSrcLine->Line);
             return TRUE;
         }
 
-        if (!TryLoad)
-        {
+        if (!TryLoad) {
             // There's no more line information to try and load so
             // we're out of luck.
             return FALSE;
@@ -896,8 +865,7 @@ FindLineByName(
         // that can be much different from the source filename.
         // Just load the info all PDB modules.
 
-        if (!AddLinesForAllPdbMod(mi))
-        {
+        if (!AddLinesForAllPdbMod(mi)) {
             return FALSE;
         }
     }

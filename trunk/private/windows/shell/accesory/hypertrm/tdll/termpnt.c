@@ -24,16 +24,16 @@ void TextAttrOut(const HHTERM      hhTerm,
                  const HDC          hDC,
                  const int          x,
                  const int          y,
-                 const ECHAR      *lpachText,
+                 const ECHAR* lpachText,
                  const PSTATTR      apstAttrs,
                  const int        fForceRight,
                  const int          nCount,
                  const int          iRow,
                  const int          iCol);
-static int MapCells(const ECHAR *each, const int nStrLen, const int nCellPos);
+static int MapCells(const ECHAR* each, const int nStrLen, const int nCellPos);
 
 void termPaint(const HHTERM hhTerm, const HWND hwnd)
-    {
+{
     PAINTSTRUCT ps;
     RECT rc, rci;
     HBRUSH hBrush;
@@ -43,7 +43,7 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
     int iPaintBeg;
     int iPaintEnd;
     int xr, xl;
-    ECHAR **fplpstrTxt;
+    ECHAR** fplpstrTxt;
     POINT ptTemp;
     const int iScrlInc = hhTerm->yChar;
     const HDC hdc = BeginPaint(hwnd, &ps);
@@ -58,11 +58,11 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
     hFont = (HFONT)SelectObject(hdc, hhTerm->hFont);
 
     iPaintBeg = max(hhTerm->iVScrlMin,
-        hhTerm->iVScrlPos + (ps.rcPaint.top / hhTerm->yChar));
+                    hhTerm->iVScrlPos + (ps.rcPaint.top / hhTerm->yChar));
 
     iPaintEnd = min(hhTerm->iRows + 1, hhTerm->iVScrlPos +
-            ((min(hhTerm->iTermHite * hhTerm->yChar, ps.rcPaint.bottom) +
-                hhTerm->yChar - 1) / hhTerm->yChar));
+        ((min(hhTerm->iTermHite * hhTerm->yChar, ps.rcPaint.bottom) +
+          hhTerm->yChar - 1) / hhTerm->yChar));
 
     rc = ps.rcPaint;
 
@@ -73,7 +73,7 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
 
     else
         xl = min(0, -(hhTerm->iHScrlPos * hhTerm->xChar)
-                - hhTerm->xBezel + hhTerm->xChar);
+                 - hhTerm->xBezel + hhTerm->xChar);
 
     /* -------------- xr = right edge of text. ------------- */
 
@@ -81,40 +81,37 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
         + hhTerm->xBezel;
 
     if (ps.rcPaint.bottom > (i = ((hhTerm->iTermHite
-            - (hhTerm->xBezel ? 1 : 0)) * hhTerm->yChar)))
-        {
+                                   - (hhTerm->xBezel ? 1 : 0)) * hhTerm->yChar))) {
         // Only draw between bottom line and top of the bezel, since the
         // bezel gets drawn below anyway.  If no bezel, fill to the bottom
         // of the terminal window.
 
-        rc.top      = max(rc.top, i);
+        rc.top = max(rc.top, i);
 
         rc.bottom = min(rc.bottom,
-                    hhTerm->cy - ((hhTerm->iVScrlMax == hhTerm->iVScrlPos) ?
-                    hhTerm->xBezel : 0));
+                        hhTerm->cy - ((hhTerm->iVScrlMax == hhTerm->iVScrlPos) ?
+                                      hhTerm->xBezel : 0));
 
-        rc.left  += (xl == 0 && iPaintEnd > 0 && rc.left == 0) ?
-                    hhTerm->xBezel : 0;
+        rc.left += (xl == 0 && iPaintEnd > 0 && rc.left == 0) ?
+            hhTerm->xBezel : 0;
 
-        rc.right  = min(rc.right, xr + hhTerm->xIndent);
+        rc.right = min(rc.right, xr + hhTerm->xIndent);
 
         FillRect(hdc, &rc, (iPaintEnd < 0) ? hhTerm->hbrushBackScrl :
-                                             hhTerm->hbrushTerminal);
-        }
+                 hhTerm->hbrushTerminal);
+    }
 
     // Could be space beyond the emulator screen (ie. hi-res monitor)
     // that needs filling with the approproiate color.
 
-    if (ps.rcPaint.right > xr)
-        {
+    if (ps.rcPaint.right > xr) {
         rc.left = xr;
 
         ptTemp.x = 0;
         ptTemp.y = hhTerm->yBrushOrg;
         ClientToScreen(hwnd, &ptTemp);
 
-        if (iPaintBeg <= 0)
-            {
+        if (iPaintBeg <= 0) {
             rc.top = (-hhTerm->iVScrlPos + iPaintBeg) * hhTerm->yChar;
 
             rc.bottom = (iPaintEnd <= 0) ? ps.rcPaint.bottom :
@@ -125,8 +122,7 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
             FillRect(hdc, &rc, hhTerm->hbrushBackScrl);
             rc.right = ps.rcPaint.right;
 
-            if (i)
-                {
+            if (i) {
                 SetBkColor(hdc, hhTerm->crBackScrl);
                 SetBrushOrgEx(hdc, ptTemp.x, ptTemp.y, NULL);
                 rc.left += hhTerm->xIndent + hhTerm->xBezel;
@@ -139,13 +135,12 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
 
 
                 rc.left -= hhTerm->xIndent + hhTerm->xBezel;
-                }
             }
+        }
 
-        if (iPaintEnd >= 0)
-            {
+        if (iPaintEnd >= 0) {
             rc.top = (-hhTerm->iVScrlPos + max(1, iPaintBeg)) * hhTerm->yChar
-                            - hhTerm->yChar/2;
+                - hhTerm->yChar / 2;
 
             rc.bottom = ps.rcPaint.bottom;
             rc.right = rc.left + hhTerm->xIndent;
@@ -153,8 +148,7 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
             FillRect(hdc, &rc, hhTerm->hbrushTerminal);
             rc.right = ps.rcPaint.right;
 
-            if (i)
-                {
+            if (i) {
                 SetBkColor(hdc, hhTerm->crTerm);
                 SetBrushOrgEx(hdc, ptTemp.x, ptTemp.y, 0);
                 rc.left += hhTerm->xIndent + hhTerm->xBezel;
@@ -164,68 +158,62 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
 
                 else
                     FillRect(hdc, &rc, hhTerm->hbrushTermHatch);
-                }
             }
         }
+    }
 
     // Fill in the indent margin along the left side of the terminal.
 
     if (ps.rcPaint.left < (hhTerm->xIndent +
-            (hhTerm->iHScrlPos ? 0 : hhTerm->xBezel)))
-        {
+        (hhTerm->iHScrlPos ? 0 : hhTerm->xBezel))) {
         rc.left = ps.rcPaint.left;
         rc.right = hhTerm->xIndent + (hhTerm->iHScrlPos ? 0 : hhTerm->xBezel);
 
         // When scrolling down during marking, corners were left unpainted.
         // This guy corrects that. - mrw
 
-        if (iPaintBeg < 0)
-            {
+        if (iPaintBeg < 0) {
             rc.top = (-hhTerm->iVScrlPos + iPaintBeg) * hhTerm->yChar;
-            rc.bottom = (-hhTerm->iVScrlPos + min(0,iPaintEnd)) * hhTerm->yChar;
+            rc.bottom = (-hhTerm->iVScrlPos + min(0, iPaintEnd)) * hhTerm->yChar;
             FillRect(hdc, &rc, hhTerm->hbrushBackScrl);
-            }
+        }
 
-        if (iPaintEnd > 0)
-            {
+        if (iPaintEnd > 0) {
             // The top & bottom should only redraw from & to the bezel.
             // that is all that's needed...
 
-            rc.top      = (-hhTerm->iVScrlPos + max(1, iPaintBeg)) *
-                            hhTerm->yChar;
+            rc.top = (-hhTerm->iVScrlPos + max(1, iPaintBeg)) *
+                hhTerm->yChar;
 
             rc.bottom = (hhTerm->iVScrlPos == hhTerm->iVScrlMax) ?
-                            hhTerm->cy - hhTerm->xBezel : ps.rcPaint.bottom;
+                hhTerm->cy - hhTerm->xBezel : ps.rcPaint.bottom;
 
-            rc.left   = max(ps.rcPaint.left,
-                            ((hhTerm->iHScrlPos == 0) ? hhTerm->xBezel : 0));
+            rc.left = max(ps.rcPaint.left,
+                ((hhTerm->iHScrlPos == 0) ? hhTerm->xBezel : 0));
 
             FillRect(hdc, &rc, hhTerm->hbrushTerminal);
-            }
+        }
 
         // New outdented bezel style requires filling with gray between
         // bezel and left edge.
 
         if (hhTerm->iHScrlPos == 0 && ps.rcPaint.left <= OUTDENT &&
-                iPaintEnd > 0)
-            {
-            rc.top       = (-hhTerm->iVScrlPos + max(0, iPaintBeg)) * hhTerm->yChar;
-            rc.bottom    = (-hhTerm->iVScrlPos + iPaintEnd + 2) * hhTerm->yChar;
-            rc.right     = OUTDENT;
-            rc.left     = ps.rcPaint.left;
+            iPaintEnd > 0) {
+            rc.top = (-hhTerm->iVScrlPos + max(0, iPaintBeg)) * hhTerm->yChar;
+            rc.bottom = (-hhTerm->iVScrlPos + iPaintEnd + 2) * hhTerm->yChar;
+            rc.right = OUTDENT;
+            rc.left = ps.rcPaint.left;
 
             FillRect(hdc, &rc, hhTerm->hbrushBackScrl);
-            }
         }
+    }
 
     /* -------------- Paint bezel here ------------- */
 
-    if (hhTerm->xBezel)
-        {
+    if (hhTerm->xBezel) {
         /* -------------- Left edge ------------- */
 
-        if (iPaintEnd >= 0)
-            {
+        if (iPaintEnd >= 0) {
             // n is the width of the thick gray section of the bezel.
             // we surround the thick gray part with four lines of
             // of white and gray lines.  That's why we subtract 4.
@@ -238,13 +226,12 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
             rc.right = rc.left + hhTerm->xBezel;
 
             k = ((hhTerm->iVScrlMax - hhTerm->iVScrlPos + hhTerm->iTermHite)
-                    * hhTerm->yChar) + (hhTerm->cy % hhTerm->yChar);
+                 * hhTerm->yChar) + (hhTerm->cy % hhTerm->yChar);
 
             rc.top = (-hhTerm->iVScrlPos * hhTerm->yChar) + OUTDENT;
             rc.bottom = k - OUTDENT;
 
-            if (IntersectRect(&rci, &rc, &ps.rcPaint))
-                {
+            if (IntersectRect(&rci, &rc, &ps.rcPaint)) {
                 /* --- Paint outer border --- */
 
                 SelectObject(hdc, hhTerm->hWhitePen);
@@ -271,7 +258,7 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
                 SelectObject(hdc, hhTerm->hBlackPen);
                 MoveToEx(hdc, rc.left, rc.top, NULL);
                 LineTo(hdc, rc.left, rc.bottom);
-                }
+            }
 
             /* -------------- Bottom edge ------------- */
 
@@ -282,8 +269,7 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
             rc.bottom = k;
             rc.top = rc.bottom - hhTerm->xBezel;
 
-            if (IntersectRect(&rci, &rc, &ps.rcPaint))
-                {
+            if (IntersectRect(&rci, &rc, &ps.rcPaint)) {
                 /* --- Paint from bezel to bottom of screen --- */
 
                 m = rc.top;
@@ -307,7 +293,7 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
                 rc.top = rc.bottom - n;
                 FillRect(hdc, &rc, hhTerm->hbrushBackScrl);
                 rc.left += n;
-                rc.right -= n-1;
+                rc.right -= n - 1;
                 rc.bottom -= n;
 
                 /* --- Paint inner border --- */
@@ -331,7 +317,7 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
                 rc.right = l + 1;
 
                 FillRect(hdc, &rc, hhTerm->hbrushBackScrl);
-                }
+            }
 
             /* -------------- Right edge ------------- */
 
@@ -340,8 +326,7 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
             rc.right = l + OUTDENT + 1;
             rc.left = rc.right - hhTerm->xBezel;
 
-            if (IntersectRect(&rci, &rc, &ps.rcPaint))
-                {
+            if (IntersectRect(&rci, &rc, &ps.rcPaint)) {
                 /* --- Paint outdent region --- */
 
                 rc.left = l;
@@ -363,9 +348,9 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
 
                 rc.left = rc.right - n;
                 FillRect(hdc, &rc, hhTerm->hbrushBackScrl);
-                rc.top += n-1;
+                rc.top += n - 1;
                 rc.right -= n;
-                rc.bottom -= n-1;
+                rc.bottom -= n - 1;
 
                 /* --- Paint inner border --- */
 
@@ -388,9 +373,9 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
                 rc.bottom = k + OUTDENT;
 
                 FillRect(hdc, &rc, hhTerm->hbrushBackScrl);
-                }
             }
         }
+    }
 
     // Paint backscroll buffer.  Stuff going into the backscroll
     // region is always on a line basis.   You'll notice that the
@@ -401,17 +386,16 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
 
     i = iPaintBeg;
 
-    if (i < iPaintEnd && i < 0)
-        {
+    if (i < iPaintEnd && i < 0) {
         j = (ps.rcPaint.left - hhTerm->xIndent
-            - (hhTerm->iHScrlPos ? 0 : hhTerm->xBezel)) / hhTerm->xChar;
+             - (hhTerm->iHScrlPos ? 0 : hhTerm->xBezel)) / hhTerm->xChar;
 
         j = max(j, 0);
 
         k = (j * hhTerm->xChar) + hhTerm->xIndent
-                + (hhTerm->iHScrlPos ? 0 : hhTerm->xBezel);
+            + (hhTerm->iHScrlPos ? 0 : hhTerm->xBezel);
 
-        j += hhTerm->iHScrlPos - (hhTerm->xBezel && hhTerm->iHScrlPos ? 1:0);
+        j += hhTerm->iHScrlPos - (hhTerm->xBezel && hhTerm->iHScrlPos ? 1 : 0);
 
         l = min(hhTerm->iCols - j,
             (ps.rcPaint.right + hhTerm->xChar - 1 - k) / hhTerm->xChar);
@@ -428,14 +412,13 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
         n = iScrlInc * (-hhTerm->iVScrlPos + i);
 
 #ifdef CHAR_NARROW
-        for ( ; i < iPaintEnd && i < 0 ; i+=1, n+=iScrlInc)
-            {
-            TextAttrOut(hhTerm, hdc, k, n, fplpstrTxt[iOffset]+j,
+        for (; i < iPaintEnd && i < 0; i += 1, n += iScrlInc) {
+            TextAttrOut(hhTerm, hdc, k, n, fplpstrTxt[iOffset] + j,
                 (PSTATTR)0, FALSE, l, i, j);
 
             if (++iOffset >= m)
                 iOffset = 0;
-            }
+        }
 #else
         // This little hack is here to display wide (Kanji) characters in
         // the backscroll, without all of the fuss of adding attributes.
@@ -446,48 +429,41 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
         j = max(j, 0);
 
         k = (j * hhTerm->xChar) + OUTDENT
-                + (hhTerm->iHScrlPos ? 0 : hhTerm->xBezel);
-        j += hhTerm->iHScrlPos - (hhTerm->xBezel && hhTerm->iHScrlPos ? 1:0);
+            + (hhTerm->iHScrlPos ? 0 : hhTerm->xBezel);
+        j += hhTerm->iHScrlPos - (hhTerm->xBezel && hhTerm->iHScrlPos ? 1 : 0);
         l = hhTerm->iCols - j;
 
-        for ( ; i < iPaintEnd && i < 0 ; i+=1, n+=iScrlInc)
-            {
+        for (; i < iPaintEnd && i < 0; i += 1, n += iScrlInc) {
             // Hack for starting on the right half of a DB char
             fRight = FALSE;
 
-            for (x = 0; x <= j; )
-                {
-                if (isDBCSChar(*(fplpstrTxt[iOffset]+x)))
-                    {
+            for (x = 0; x <= j; ) {
+                if (isDBCSChar(*(fplpstrTxt[iOffset] + x))) {
                     fRight = (x == j) ? FALSE : TRUE;
                     x += 2;
-                    }
-                else
-                    {
+                } else {
                     fRight = FALSE;
                     x += 1;
-                    }
                 }
+            }
 
             memset(aechTmpBuf, 0, sizeof(aechTmpBuf));
             StrCharStripDBCSString(aechTmpBuf, sizeof(aechTmpBuf),
-                fplpstrTxt[iOffset]+j); //mpt:12-11-97 too many parameters? , l * sizeof(ECHAR));
+                                   fplpstrTxt[iOffset] + j); //mpt:12-11-97 too many parameters? , l * sizeof(ECHAR));
 
             TextAttrOut(hhTerm, hdc, k, n, aechTmpBuf,
                 (PSTATTR)0, fRight, l, i, j);
 
             if (++iOffset >= m)
                 iOffset = 0;
-            }
-#endif
         }
+#endif
+    }
 
     /* -------------- Paint divider bar if necessary ------------- */
 
-    for ( ; i == 0 ; ++i)
-        {
-        if (hhTerm->xBezel)
-            {
+    for (; i == 0; ++i) {
+        if (hhTerm->xBezel) {
             // n is the width of the thick gray section of the bezel.
             // we surround the thick gray part with four lines of
             // of white and gray lines.  That's why we subtract 4.
@@ -509,10 +485,9 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
             /* --- If hightlighting, paint gap above divider --- */
 
             if (min(hhTerm->ptBeg.y, hhTerm->ptEnd.y) < 0 &&
-                    max(hhTerm->ptBeg.y, hhTerm->ptEnd.y) > 0)
-                {
+                max(hhTerm->ptBeg.y, hhTerm->ptEnd.y) > 0) {
                 FillRect(hdc, &rc, hhTerm->hbrushHighlight);
-                }
+            }
 
             rc.left = xl + OUTDENT;
             rc.right = xr + hhTerm->xIndent + hhTerm->xBezel - OUTDENT - 1;
@@ -556,32 +531,28 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
             FillRect(hdc, &rc, hhTerm->hbrushTerminal);
 
             if (min(hhTerm->ptBeg.y, hhTerm->ptEnd.y) < 0 &&
-                    max(hhTerm->ptBeg.y, hhTerm->ptEnd.y) > 0)
-                {
+                max(hhTerm->ptBeg.y, hhTerm->ptEnd.y) > 0) {
                 rc.left = hhTerm->xIndent;
                 rc.left += (hhTerm->iHScrlPos) ? 0 : hhTerm->xBezel;
                 rc.right -= hhTerm->xIndent;
                 FillRect(hdc, &rc, hhTerm->hbrushHighlight);
-                }
             }
+        }
 
-        else
-            {
+        else {
             j = (hhTerm->yChar * -hhTerm->iVScrlPos);
             k = (hhTerm->yChar) / 3;
 
             // Create highlight brush if textmarking crosses divider
 
             if (min(hhTerm->ptBeg.y, hhTerm->ptEnd.y) < 0 &&
-                    max(hhTerm->ptBeg.y, hhTerm->ptEnd.y) > 0)
-                {
+                max(hhTerm->ptBeg.y, hhTerm->ptEnd.y) > 0) {
                 hBrush = hhTerm->hbrushHighlight;
-                }
+            }
 
-            else
-                {
+            else {
                 hBrush = 0;
-                }
+            }
 
             rc = ps.rcPaint;
 
@@ -589,13 +560,13 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
             rc.bottom = j + k + (hhTerm->yChar % 3);
 
             l = rc.right =
-                    ((hhTerm->iCols - hhTerm->iHScrlPos) * hhTerm->xChar)
-                        + hhTerm->xIndent + hhTerm->xIndent +
-                            hhTerm->xBezel + hhTerm->xBezel;
+                ((hhTerm->iCols - hhTerm->iHScrlPos) * hhTerm->xChar)
+                + hhTerm->xIndent + hhTerm->xIndent +
+                hhTerm->xBezel + hhTerm->xBezel;
 
             FillRect(hdc, &rc, (hBrush != (HBRUSH)0) ?
-                                                hBrush :
-                                                hhTerm->hbrushBackScrl);
+                     hBrush :
+                     hhTerm->hbrushBackScrl);
 
             rc.top = rc.bottom;
             rc.bottom = rc.top + k;
@@ -606,24 +577,23 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
             rc.bottom = j + hhTerm->yChar;
             rc.right = l;
             FillRect(hdc, &rc, (hBrush != (HBRUSH)0) ?
-                                                hBrush :
-                                                hhTerm->hbrushTerminal);
-            }
+                     hBrush :
+                     hhTerm->hbrushTerminal);
         }
+    }
 
     /* -------------- Paint the active terminal portion. ------------- */
 
     xl = (hhTerm->iHScrlPos) ? 0 : hhTerm->xBezel;
 
-    if (i < iPaintEnd)
-        {
+    if (i < iPaintEnd) {
         j = (ps.rcPaint.left - hhTerm->xIndent - xl) / hhTerm->xChar;
 
         j = max(j, 0);
 
         k = (j * hhTerm->xChar) + hhTerm->xIndent + xl;
 
-        j += hhTerm->iHScrlPos - (hhTerm->xBezel && hhTerm->iHScrlPos ? 1:0);
+        j += hhTerm->iHScrlPos - (hhTerm->xBezel && hhTerm->iHScrlPos ? 1 : 0);
 
         l = min(hhTerm->iCols - j,
             (ps.rcPaint.right + hhTerm->xChar - 1 - k) / hhTerm->xChar);
@@ -636,29 +606,26 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
         iOffset = (i - 1 + hhTerm->iTopline) % MAX_EMUROWS;
         n = iScrlInc * (-hhTerm->iVScrlPos + i);
 
-        for ( ; i < iPaintEnd ; i += 1, n += iScrlInc)
-            {
-            TextAttrOut(hhTerm, hdc, k, n, hhTerm->fplpstrTxt[iOffset]+j,
-                hhTerm->fppstAttr[iOffset]+j, FALSE, l, i, j);
+        for (; i < iPaintEnd; i += 1, n += iScrlInc) {
+            TextAttrOut(hhTerm, hdc, k, n, hhTerm->fplpstrTxt[iOffset] + j,
+                        hhTerm->fppstAttr[iOffset] + j, FALSE, l, i, j);
 
             if (++iOffset >= MAX_EMUROWS)
                 iOffset = 0;
-            }
         }
+    }
 
     /* --- Draw cursors --- */
 
-    if (hhTerm->fHstCurOn)
-        {
+    if (hhTerm->fHstCurOn) {
         hhTerm->fHstCurOn = FALSE;
         PaintHostCursor(hhTerm, TRUE, hdc);
-        }
+    }
 
-    if (hhTerm->fLclCurOn)
-        {
+    if (hhTerm->fLclCurOn) {
         hhTerm->fLclCurOn = FALSE;
         PaintLocalCursor(hhTerm, TRUE, hdc);
-        }
+    }
 
     /* --- cleanup time --- */
 
@@ -668,7 +635,7 @@ void termPaint(const HHTERM hhTerm, const HWND hwnd)
 
     EndPaint(hwnd, &ps);
     return;
-    }
+}
 
 /*
  * FUNCTION:
@@ -699,17 +666,17 @@ static void TextAttrOut(const HHTERM     hhTerm,
                         const HDC         hdc,
                         const int         x,
                         const int         y,
-                        const ECHAR         *lpachText,
+                        const ECHAR* lpachText,
                         const PSTATTR     apstAttrs,
                         const int        fForceRight,
                         const int         nCount,
                         const int         iRow,
                         const int         iCol)
-    {
+{
     int              i = 0,             // track of how many chars drawn.
-                     j,                 // number of characters in a run.
-                     k,                 // offset where run began.
-                     nXPos;
+        j,                 // number of characters in a run.
+        k,                 // offset where run began.
+        nXPos;
     int              nXStart, nYStart;    // screen pos where chars are drawn.
 #ifndef CHAR_NARROW
     int        nByteCount = 0;
@@ -719,7 +686,7 @@ static void TextAttrOut(const HHTERM     hhTerm,
     int                 nStrLen = 0;
     TCHAR            achBuf[MAX_EMUCOLS * 2];
     ECHAR             aechTmp[MAX_EMUCOLS + 1];
-    PSTATTR          pstAttr         = 0;
+    PSTATTR          pstAttr = 0;
     unsigned int     uTxtclr, uBkclr;
     BOOL             fUnderlnFont = FALSE;
     BOOL             fSymbolFont = FALSE;
@@ -727,22 +694,20 @@ static void TextAttrOut(const HHTERM     hhTerm,
     BOOL             fDblHiLo = FALSE;
     BOOL             fDblWiLf = FALSE;
     BOOL             fDblWiRt = FALSE;
-    BOOL             fWiLf      = FALSE;
-    BOOL             fWiRt       = FALSE;
+    BOOL             fWiLf = FALSE;
+    BOOL             fWiRt = FALSE;
     BOOL             fFirstPass = TRUE;
     RECT             rc;
 
     DbgOutStr("TAO %d\r\n", iRow, 0, 0, 0, 0);
 
-    while (i < nCount)
-        {
+    while (i < nCount) {
         k = i;    // save offset of where this run begins in k.
-        if (iRow < 0)
-            {
+        if (iRow < 0) {
             int      nCurPos;
             long  l,
-                  lBeg,
-                  lEnd;
+                lBeg,
+                lEnd;
             BOOL  fMarking = FALSE;
 
             // Store the positions of the 1st char to draw
@@ -761,20 +726,18 @@ static void TextAttrOut(const HHTERM     hhTerm,
 
             if (hhTerm->fMarkingLock == FALSE &&
                 hhTerm->fBackscrlLock == FALSE &&
-                hhTerm->iEvenFont == TRUE)
-                {
+                hhTerm->iEvenFont == TRUE) {
                 SetBkColor(hdc, hhTerm->crBackScrl);
                 SetTextColor(hdc, hhTerm->crBackScrlTxt);
                 i = j = nCount;
-                }
+            }
 
-            else
-                {
-            #ifdef CHAR_NARROW
+            else {
+#ifdef CHAR_NARROW
                 lBeg = hhTerm->ptBeg.y * hhTerm->iCols + hhTerm->ptBeg.x;
                 lEnd = hhTerm->ptEnd.y * hhTerm->iCols + hhTerm->ptEnd.x;
 
-            #else
+#else
                 // Hack city man :)
                 // In the mouse handling routines, we modify the selection
                 // cursor position so that you can't put it into the middle
@@ -788,37 +751,31 @@ static void TextAttrOut(const HHTERM     hhTerm,
                 lBeg = hhTerm->ptBeg.x;
                 lEnd = hhTerm->ptEnd.x;
 
-                if (hhTerm->ptBeg.y == iRow)
-                    {
-                    lBeg = MapCells(lpachText , hhTerm->iCols, hhTerm->ptBeg.x);
-                    }
+                if (hhTerm->ptBeg.y == iRow) {
+                    lBeg = MapCells(lpachText, hhTerm->iCols, hhTerm->ptBeg.x);
+                }
 
-                if (hhTerm->ptEnd.y == iRow)
-                    {
-                    lEnd = MapCells(lpachText , hhTerm->iCols, hhTerm->ptEnd.x);
-                    }
+                if (hhTerm->ptEnd.y == iRow) {
+                    lEnd = MapCells(lpachText, hhTerm->iCols, hhTerm->ptEnd.x);
+                }
 
-                if (hhTerm->iEvenFont)
-                    {
+                if (hhTerm->iEvenFont) {
                     nBegAdj = lBeg - hhTerm->ptBeg.x;
                     nEndAdj = lEnd - hhTerm->ptEnd.x;
-                    }
-                else
-                    {
+                } else {
                     nBegAdj = 0;
                     nEndAdj = 0;
-                    }
+                }
 
                 lBeg = hhTerm->ptBeg.y * hhTerm->iCols + lBeg;
                 lEnd = hhTerm->ptEnd.y * hhTerm->iCols + lEnd;
 #endif
 
-                if (lBeg > lEnd)
-                    {
+                if (lBeg > lEnd) {
                     l = lEnd;
                     lEnd = lBeg;
                     lBeg = l;
-                    }
+                }
 
                 // IN_RANGE macro is inclusive so subtract one from sEnd
                 // which at this point is known to be larger than sBeg
@@ -828,99 +785,84 @@ static void TextAttrOut(const HHTERM     hhTerm,
                 l = iRow * hhTerm->iCols + i + iCol;
                 fMarking = (BOOL)IN_RANGE(l, lBeg, lEnd);
 
-                if (fMarking)
-                    {
+                if (fMarking) {
                     SetBkColor(hdc, GetSysColor(COLOR_HIGHLIGHT));
                     SetTextColor(hdc, GetSysColor(COLOR_HIGHLIGHTTEXT));
-                    }
-                else
-                    {
+                } else {
                     SetBkColor(hdc, hhTerm->crBackScrl);
                     SetTextColor(hdc, hhTerm->crBackScrlTxt);
-                    }
+                }
 
                 // For Far East we have to force the backscroll to paint every
                 // character individualy.  This is becuase MicroSquish is not
                 // able to provide fixed pitch fonts that are fixed pitch for
                 // DBCS characters.
-                if (hhTerm->iEvenFont)
-                    {
-                    for (j = 0 ; i < nCount ; ++i, ++j, ++l)
-                        {
+                if (hhTerm->iEvenFont) {
+                    for (j = 0; i < nCount; ++i, ++j, ++l) {
                         if (fMarking != (BOOL)IN_RANGE(l, lBeg, lEnd))
                             break;
-                        }
                     }
-                else
-                    {
+                } else {
                     i++;
                     j = 1;
-                    }
                 }
+            }
 
             nXPos = k = i - j;
 
 #ifndef CHAR_NARROW
-            MemCopy(aechTmp, lpachText , (unsigned)nCurPos * sizeof(ECHAR));
+            MemCopy(aechTmp, lpachText, (unsigned)nCurPos * sizeof(ECHAR));
             nXPos = CnvrtECHARtoMBCS(achBuf, sizeof(achBuf), aechTmp, (unsigned)nCurPos * sizeof(ECHAR));
             //nXPos = StrCharGetByteCount(achBuf); // mrw;5/17/95
             // 18-May-1995    DLW
             // Added for the case where a DBCS string is started with half of
             // the character, like when scrolling to the right
-            if (fForceRight && fFirstPass)
-                {
+            if (fForceRight && fFirstPass) {
                 fWiRt = TRUE;
-                }
-            else
-                {
+            } else {
                 if (fForceRight)
                     nXPos = max(0, nXPos - 1);
-                }
-#endif
             }
+#endif
+        }
 
         // At this point we know were not painting in the backscrl area.
         // Since the terminal area has attributes that backscrl does not
         // have (ie. color, underlining, etc.) we need to do more work.
 
-        else
-            {
-            pstAttr = apstAttrs+i;
+        else {
+            pstAttr = apstAttrs + i;
             uTxtclr = pstAttr->txtclr;
-            uBkclr    = pstAttr->bkclr;
+            uBkclr = pstAttr->bkclr;
 
             // Test for attributes
 
-            if (pstAttr->revvid)
-                {
+            if (pstAttr->revvid) {
                 unsigned uTmp = uTxtclr;
                 uTxtclr = uBkclr;
-                uBkclr    = uTmp;
-                }
+                uBkclr = uTmp;
+            }
 
-            if (pstAttr->hilite)
-                {
+            if (pstAttr->hilite) {
                 // Colors are arranged so that high intensity colors are
                 // in the lower half of the color array (currently 16
                 // colors corresponding to the IBM PC colors).    This
                 // guy sets the color to the opposite intensity.
 
-                uTxtclr = (uTxtclr + (MAX_EMUCOLORS/2)) % MAX_EMUCOLORS;
+                uTxtclr = (uTxtclr + (MAX_EMUCOLORS / 2)) % MAX_EMUCOLORS;
 
                 if (uTxtclr == uBkclr)
                     uTxtclr = (uTxtclr + 1) % MAX_EMUCOLORS;
-                }
+            }
 
-            if (pstAttr->bklite)
-                {
-                uBkclr = (uBkclr + (MAX_EMUCOLORS/2)) % MAX_EMUCOLORS;
+            if (pstAttr->bklite) {
+                uBkclr = (uBkclr + (MAX_EMUCOLORS / 2)) % MAX_EMUCOLORS;
 
                 if (uBkclr == uTxtclr)
                     uBkclr = (uBkclr + 1) % MAX_EMUCOLORS;
-                }
+            }
 
-            if (pstAttr->blink)
-                {
+            if (pstAttr->blink) {
                 int iBufRow;
 
                 if (hhTerm->iBlink == 0)
@@ -931,7 +873,7 @@ static void TextAttrOut(const HHTERM     hhTerm,
 
                 iBufRow = (iRow - 1 + hhTerm->iTopline) % MAX_EMUROWS;
                 hhTerm->abBlink[iBufRow] = (BYTE)TRUE;
-                }
+            }
 
             if (pstAttr->undrln)
                 fUnderlnFont = TRUE;
@@ -970,98 +912,84 @@ static void TextAttrOut(const HHTERM     hhTerm,
 
             // Find the longest run of characters with the same attributes.
 
-            for (j = 0 ; i < nCount ; ++i, ++j)
-                {
-                if (memcmp(pstAttr, apstAttrs+i, sizeof(STATTR)) != 0)
+            for (j = 0; i < nCount; ++i, ++j) {
+                if (memcmp(pstAttr, apstAttrs + i, sizeof(STATTR)) != 0)
                     break;
-                }
+            }
 
             /* --- Set text and background colors --- */
 
-            if (pstAttr->txtmrk)
-                {
+            if (pstAttr->txtmrk) {
                 SetBkColor(hdc, GetSysColor(COLOR_HIGHLIGHT));
                 SetTextColor(hdc, GetSysColor(COLOR_HIGHLIGHTTEXT));
-                }
+            }
 
-            else
-                {
+            else {
                 SetBkColor(hdc, hhTerm->pacrEmuColors[uBkclr]);
                 SetTextColor(hdc, hhTerm->pacrEmuColors[uTxtclr]);
-                }
+            }
 
             /* --- How hard can it be to pick a font? --- */
 
-            if (fDblHiHi || fDblHiLo)
-                {
-                if (fDblWiLf || fDblWiRt)
-                    {
-                    if (fSymbolFont)
-                        {
+            if (fDblHiHi || fDblHiLo) {
+                if (fDblWiLf || fDblWiRt) {
+                    if (fSymbolFont) {
                         if (hhTerm->hSymDblHiWiFont == 0)
                             hhTerm->hSymDblHiWiFont = termMakeFont(hhTerm, 0, 1, 1, 1);
 
                         SelectObject(hdc, hhTerm->hSymDblHiWiFont);
-                        }
+                    }
 
-                    else
-                        {
+                    else {
                         if (hhTerm->hDblHiWiFont == 0)
                             hhTerm->hDblHiWiFont = termMakeFont(hhTerm, 0, 1, 1, 0);
 
                         SelectObject(hdc, hhTerm->hDblHiWiFont);
-                        }
                     }
+                }
 
-                else
-                    {
-                    if (fSymbolFont)
-                        {
+                else {
+                    if (fSymbolFont) {
                         if (hhTerm->hSymDblHiFont == 0)
                             hhTerm->hSymDblHiFont = termMakeFont(hhTerm, 0, 1, 0, 1);
 
                         SelectObject(hdc, hhTerm->hSymDblHiFont);
-                        }
+                    }
 
-                    else
-                        {
+                    else {
                         if (hhTerm->hDblHiFont == 0)
                             hhTerm->hDblHiFont = termMakeFont(hhTerm, 0, 1, 0, 0);
 
                         SelectObject(hdc, hhTerm->hDblHiFont);
-                        }
                     }
                 }
+            }
 
-            else if (fDblWiLf || fDblWiRt)
-                {
-                if (fSymbolFont)
-                    {
+            else if (fDblWiLf || fDblWiRt) {
+                if (fSymbolFont) {
                     if (hhTerm->hSymDblWiFont == 0)
                         hhTerm->hSymDblWiFont = termMakeFont(hhTerm, 0, 0, 1, 1);
 
                     SelectObject(hdc, hhTerm->hSymDblWiFont);
-                    }
+                }
 
-                else
-                    {
+                else {
                     if (hhTerm->hDblWiFont == 0)
                         hhTerm->hDblWiFont = termMakeFont(hhTerm, 0, 0, 1, 0);
 
                     SelectObject(hdc, hhTerm->hDblWiFont);
-                    }
                 }
+            }
 
-            else if (fSymbolFont)
-                {
+            else if (fSymbolFont) {
                 if (hhTerm->hSymFont == 0)
                     hhTerm->hSymFont = termMakeFont(hhTerm, 0, 0, 0, 1);
 
                 SelectObject(hdc, hhTerm->hSymFont);
-                }
+            }
 
             nXPos = k = i - j;
-            }
+        }
 
         // Ok, go ahead, paint that text, make my day...
 
@@ -1076,19 +1004,19 @@ static void TextAttrOut(const HHTERM     hhTerm,
         // is drawn only where I say it can draw.  This amounts in extra
         // work but the end result seems no slower. - mrw
 
-        rc.left   = x + (nXPos * hhTerm->xChar);
+        rc.left = x + (nXPos * hhTerm->xChar);
 
 #if defined(FAR_EAST)
         if (rc.left > (x + (hhTerm->iCols * hhTerm->xChar)))
             rc.left = x + (hhTerm->iCols * hhTerm->xChar);
 #endif
 
-        rc.right  = rc.left + ((j - nEndAdj) * hhTerm->xChar);
+        rc.right = rc.left + ((j - nEndAdj) * hhTerm->xChar);
 
         if (rc.right > (x + (hhTerm->iCols * hhTerm->xChar)))
             rc.right = x + (hhTerm->iCols * hhTerm->xChar);
 
-        rc.top      = y;
+        rc.top = y;
         rc.bottom = y + hhTerm->yChar;
 
         // If we're painting the bottom half of a double high character,
@@ -1124,21 +1052,19 @@ static void TextAttrOut(const HHTERM     hhTerm,
 
         achBuf[nStrLen] = TEXT('\0');
 
-        #if defined(FAR_EAST) // mrw:10/10/95 - ifdef'ed this code
-        if (!hhTerm->iEvenFont && !(fForceRight && fFirstPass))
-            {
+#if defined(FAR_EAST) // mrw:10/10/95 - ifdef'ed this code
+        if (!hhTerm->iEvenFont && !(fForceRight && fFirstPass)) {
             // If this is a DBCS character we are painting, then we want to paint 2 cells
             // instead of 1 (makes sense, DBCS characters are twice as wide as SBCS).
-            if (IsDBCSLeadByte(*achBuf))
-                {
+            if (IsDBCSLeadByte(*achBuf)) {
                 rc.right += hhTerm->xChar;
                 rc.right = min(rc.right, x + (hhTerm->iCols * hhTerm->xChar));
-                }
             }
-        #endif
+        }
+#endif
 
         ExtTextOut(hdc, nXStart, nYStart, ETO_CLIPPED | ETO_OPAQUE,
-            &rc, achBuf, (unsigned)nStrLen, 0);
+                   &rc, achBuf, (unsigned)nStrLen, 0);
 
         // Experiment.    Most terminals underline their fonts by placing
         // underscores under the characters.  The Windows underline font
@@ -1148,47 +1074,40 @@ static void TextAttrOut(const HHTERM     hhTerm,
         // envelope and don't give the apperance of part of the characters
         // bleeding through. - mrw
 
-        if (fUnderlnFont)
-            {
+        if (fUnderlnFont) {
             // The double height makes the underscores too thick yet we
             // want to maintain the double-wide or symbol font we may be
             // using so check and recast the font to the samething without
             // the height component. - mrw
 
-            if (fDblHiHi || fDblHiLo)
-                {
-                if (fDblWiLf || fDblWiRt)
-                    {
-                    if (fSymbolFont)
-                        {
+            if (fDblHiHi || fDblHiLo) {
+                if (fDblWiLf || fDblWiRt) {
+                    if (fSymbolFont) {
                         if (hhTerm->hSymDblWiFont == 0)
                             hhTerm->hSymDblWiFont = termMakeFont(hhTerm, 0, 0, 1, 1);
 
                         SelectObject(hdc, hhTerm->hSymDblWiFont);
-                        }
+                    }
 
-                    else
-                        {
+                    else {
                         if (hhTerm->hDblWiFont == 0)
                             hhTerm->hDblWiFont = termMakeFont(hhTerm, 0, 0, 1, 0);
 
                         SelectObject(hdc, hhTerm->hDblWiFont);
-                        }
                     }
+                }
 
-                else if (fSymbolFont)
-                    {
+                else if (fSymbolFont) {
                     if (hhTerm->hSymFont == 0)
                         hhTerm->hSymFont = termMakeFont(hhTerm, 0, 0, 0, 1);
 
                     SelectObject(hdc, hhTerm->hSymFont);
-                    }
-
-                else
-                    {
-                    SelectObject(hdc, hhTerm->hFont);
-                    }
                 }
+
+                else {
+                    SelectObject(hdc, hhTerm->hFont);
+                }
+            }
 
             // Set background to transparent so only the underscore
             // portion overpaints the character cell.
@@ -1196,16 +1115,15 @@ static void TextAttrOut(const HHTERM     hhTerm,
             SetBkMode(hdc, TRANSPARENT);
 
             ExtTextOut(hdc, nXStart, nYStart, ETO_CLIPPED,
-                &rc, hhTerm->underscores, (unsigned)j, 0);
+                       &rc, hhTerm->underscores, (unsigned)j, 0);
 
             SetBkMode(hdc, OPAQUE);
-            }
+        }
 
         /* --- Reselect the regular font only if we had to switch --- */
 
         if (fUnderlnFont || fDblHiHi || fDblHiLo || fDblWiLf || fDblWiRt
-                || fSymbolFont)
-            {
+            || fSymbolFont) {
             SelectObject(hdc, hhTerm->hFont);
             fUnderlnFont = FALSE;
             fSymbolFont = FALSE;
@@ -1213,15 +1131,15 @@ static void TextAttrOut(const HHTERM     hhTerm,
             fDblHiLo = FALSE;
             fDblWiLf = FALSE;
             fDblWiRt = FALSE;
-            }
+        }
 
         fWiRt = FALSE;
         fWiLf = FALSE;
         fFirstPass = FALSE;
-        }
+    }
 
     return;
-    }
+}
 
 /*
  * FUNCTION:
@@ -1239,26 +1157,21 @@ static void TextAttrOut(const HHTERM     hhTerm,
  *    void
 
 */
-static int MapCells(const ECHAR *each, const int nStrLen, const int nCellPos)
-    {
+static int MapCells(const ECHAR* each, const int nStrLen, const int nCellPos)
+{
     int i, nCount;
 
-    if (each == NULL)
-        {
+    if (each == NULL) {
         assert(FALSE);
         return 0;
-        }
-
-    for (i = 0, nCount = 0; nCount < nCellPos && i < nStrLen; i++)
-        {
-        if (isDBCSChar(each[i]))
-            {
-            nCount += 2;
-            }
-        else
-            {
-            nCount += 1;
-            }
-        }
-    return i;
     }
+
+    for (i = 0, nCount = 0; nCount < nCellPos && i < nStrLen; i++) {
+        if (isDBCSChar(each[i])) {
+            nCount += 2;
+        } else {
+            nCount += 1;
+        }
+    }
+    return i;
+}

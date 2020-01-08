@@ -41,38 +41,38 @@ DELAY_LOAD_SHELL(g_hinstShell32,
                  LPSHChangeNotificationLock,
                  _SHChangeNotification_Lock,
                  644,
-(HANDLE hChangeNotification, DWORD dwProcessId, LPITEMIDLIST **pppidl, LONG *plEvent),
-(hChangeNotification, dwProcessId, pppidl, plEvent), 
-SHChangeNotification_Lock)
+                 (HANDLE hChangeNotification, DWORD dwProcessId, LPITEMIDLIST** pppidl, LONG* plEvent),
+                 (hChangeNotification, dwProcessId, pppidl, plEvent),
+                 SHChangeNotification_Lock)
 
-DELAY_LOAD_SHELL(g_hinstShell32, shell32, BOOL, _SHChangeNotification_Unlock, 645,
-(LPSHChangeNotificationLock pshcnl), (pshcnl), SHChangeNotification_Unlock)
+    DELAY_LOAD_SHELL(g_hinstShell32, shell32, BOOL, _SHChangeNotification_Unlock, 645,
+    (LPSHChangeNotificationLock pshcnl), (pshcnl), SHChangeNotification_Unlock)
 
-// 653 WINSHELLAPI LONG WINAPI PathProcessCommand( LPCTSTR lpSrc, LPTSTR lpDest, int iMax, DWORD dwFlags );
-DELAY_LOAD_SHELL_ERR(g_hinstShell32, shell32, LONG, _PathProcessCommand, 653,
-(LPCTSTR lpSrc, LPTSTR lpDest, int iMax, DWORD dwFlags), (lpSrc, lpDest, iMax, dwFlags), -1, PathProcessCommand)
-// SHStringFromGUIDA->shlwapi
-// 3 SHSTDAPI  SHDefExtractIconA(LPCSTR pszIconFile, int iIndex, UINT uFlags, HICON * phiconLarge, HICON * phiconSmall, UINT nIconSize);
-DELAY_LOAD_SHELL_HRESULT(g_hinstShell32, shell32, SHDefExtractIconA, 3,
-(LPCSTR pszIconFile, int iIndex, UINT uFlags, HICON * phiconLarge, HICON * phiconSmall, UINT nIconSize),
-(pszIconFile, iIndex, uFlags, phiconLarge, phiconSmall, nIconSize), SHDefExtractIconA)
-// 7 SHSTDAPI_(int)  SHLookupIconIndexA(LPCSTR pszFile, int iIconIndex, UINT uFlags);
-DELAY_LOAD_SHELL(g_hinstShell32, shell32, int, _SHLookupIconIndexA, 7,
-(LPCSTR pszFile, int iIconIndex, UINT uFlags),
-(pszFile, iIconIndex, uFlags), SHLookupIconIndexA)
+    // 653 WINSHELLAPI LONG WINAPI PathProcessCommand( LPCTSTR lpSrc, LPTSTR lpDest, int iMax, DWORD dwFlags );
+    DELAY_LOAD_SHELL_ERR(g_hinstShell32, shell32, LONG, _PathProcessCommand, 653,
+    (LPCTSTR lpSrc, LPTSTR lpDest, int iMax, DWORD dwFlags), (lpSrc, lpDest, iMax, dwFlags), -1, PathProcessCommand)
+    // SHStringFromGUIDA->shlwapi
+    // 3 SHSTDAPI  SHDefExtractIconA(LPCSTR pszIconFile, int iIndex, UINT uFlags, HICON * phiconLarge, HICON * phiconSmall, UINT nIconSize);
+    DELAY_LOAD_SHELL_HRESULT(g_hinstShell32, shell32, SHDefExtractIconA, 3,
+    (LPCSTR pszIconFile, int iIndex, UINT uFlags, HICON* phiconLarge, HICON* phiconSmall, UINT nIconSize),
+                             (pszIconFile, iIndex, uFlags, phiconLarge, phiconSmall, nIconSize), SHDefExtractIconA)
+    // 7 SHSTDAPI_(int)  SHLookupIconIndexA(LPCSTR pszFile, int iIconIndex, UINT uFlags);
+    DELAY_LOAD_SHELL(g_hinstShell32, shell32, int, _SHLookupIconIndexA, 7,
+    (LPCSTR pszFile, int iIconIndex, UINT uFlags),
+                     (pszFile, iIconIndex, uFlags), SHLookupIconIndexA)
 
-// 8 SHSTDAPI_(int)  SHLookupIconIndexW(LPCWSTR pszFile, int iIconIndex, UINT uFlags);
-DELAY_LOAD_SHELL(g_hinstShell32, shell32, int, _SHLookupIconIndexW, 8,
-(LPCWSTR pszFile, int iIconIndex, UINT uFlags),
-(pszFile, iIconIndex, uFlags), SHLookupIconIndexA)
-// 12 SHSTDAPI SHStartNetConnectionDialogA(HWND hwnd, LPCSTR pszRemoteName, DWORD dwType);
-DELAY_LOAD_SHELL(g_hinstShell32, shell32, HRESULT, SHStartNetConnectionDialogA, 12,
-(HWND hwnd, LPCSTR pszRemoteName, DWORD dwType),
-(hwnd, pszRemoteName, dwType), SHStartNetConnectionDialogA)
+    // 8 SHSTDAPI_(int)  SHLookupIconIndexW(LPCWSTR pszFile, int iIconIndex, UINT uFlags);
+    DELAY_LOAD_SHELL(g_hinstShell32, shell32, int, _SHLookupIconIndexW, 8,
+    (LPCWSTR pszFile, int iIconIndex, UINT uFlags),
+                     (pszFile, iIconIndex, uFlags), SHLookupIconIndexA)
+    // 12 SHSTDAPI SHStartNetConnectionDialogA(HWND hwnd, LPCSTR pszRemoteName, DWORD dwType);
+    DELAY_LOAD_SHELL(g_hinstShell32, shell32, HRESULT, SHStartNetConnectionDialogA, 12,
+    (HWND hwnd, LPCSTR pszRemoteName, DWORD dwType),
+                     (hwnd, pszRemoteName, dwType), SHStartNetConnectionDialogA)
 
-DELAY_LOAD_NAME_HRESULT(g_hinstShell32, shell32, _SHPathPrepareForWriteW, SHPathPrepareForWriteW,
-(HWND hwnd, IUnknown *punkEnableModless, LPCWSTR pwzPath, DWORD dwFlags),
-(hwnd, punkEnableModless, pwzPath, dwFlags));
+    DELAY_LOAD_NAME_HRESULT(g_hinstShell32, shell32, _SHPathPrepareForWriteW, SHPathPrepareForWriteW,
+    (HWND hwnd, IUnknown* punkEnableModless, LPCWSTR pwzPath, DWORD dwFlags),
+                            (hwnd, punkEnableModless, pwzPath, dwFlags));
 
 
 //  These functions are new for the NT5 shell and therefore must be
@@ -81,17 +81,15 @@ DELAY_LOAD_NAME_HRESULT(g_hinstShell32, shell32, _SHPathPrepareForWriteW, SHPath
 // 22 STDAPI_(BOOL) DAD_DragEnterEx2(HWND hwndTarget, const POINT ptStart, IDataObject *pdtObject)
 
 DELAY_LOAD_SHELL(g_hinstShell32, shell32, BOOL, __DAD_DragEnterEx2, 22,
-(HWND hwndTarget, const POINT ptStart, IDataObject *pdtObject),
+(HWND hwndTarget, const POINT ptStart, IDataObject* pdtObject),
 (hwndTarget, ptStart, pdtObject), _DAD_DragEnterEx2);
 
-STDAPI_(BOOL) DAD_DragEnterEx2(HWND hwndTarget, const POINT ptStart, IDataObject *pdtObject)
+STDAPI_(BOOL) DAD_DragEnterEx2(HWND hwndTarget, const POINT ptStart, IDataObject* pdtObject)
 {
-    if (GetUIVersion() >= 5)
-    {
+    if (GetUIVersion() >= 5) {
         // BUGBUG: this should really test the shell32 version, not just the UI setting
         return __DAD_DragEnterEx2(hwndTarget, ptStart, pdtObject);
-    }
-    else
+    } else
         return DAD_DragEnterEx(hwndTarget, ptStart);
 }
 
@@ -112,12 +110,12 @@ HINSTANCE g_hinstBrowseui = NULL;
 DELAY_LOAD_IE_ORD(g_hinstBrowseui, BROWSEUI, BOOL, SHOpenFolderWindow, 102, (IETHREADPARAM* pieiIn), (pieiIn))
 
 DELAY_LOAD_IE_ORD(g_hinstBrowseui,
-                  BROWSEUI, 
+                  BROWSEUI,
                   HRESULT,
                   SHOpenNewFrame,
-                  103, 
+                  103,
                   (LPITEMIDLIST pidlNew,
-                   ITravelLog *ptl,
+                   ITravelLog* ptl,
                    DWORD dwBrowserIndex,
                    UINT uFlags),
                    (pidlNew, ptl, dwBrowserIndex, uFlags))
@@ -126,7 +124,7 @@ DELAY_LOAD_IE_ORD(g_hinstBrowseui,
                           BROWSEUI,
                           SHGetSetDefFolderSettings,
                           107,
-                          (DEFFOLDERSETTINGS *pdfs, int cbDfs, UINT flags),
+                          (DEFFOLDERSETTINGS* pdfs, int cbDfs, UINT flags),
                           (pdfs, cbDfs, flags))
 
     DELAY_LOAD_IE_ORD(g_hinstBrowseui,
@@ -141,33 +139,33 @@ DELAY_LOAD_IE_ORD_VOID(g_hinstBrowseui, BROWSEUI, SHCreateSavedWindows, 105, (),
 
 DELAY_LOAD_IE_ORD(g_hinstBrowseui, BROWSEUI, BOOL, SHOnCWMCommandLine, 127, (LPARAM lParam), (lParam))
 
-    DELAY_LOAD_IE_ORD(g_hinstBrowseui, BROWSEUI, BOOL, SHCreateFromDesktop, 106, (PNEWFOLDERINFO pfi), (pfi))
+DELAY_LOAD_IE_ORD(g_hinstBrowseui, BROWSEUI, BOOL, SHCreateFromDesktop, 106, (PNEWFOLDERINFO pfi), (pfi))
 
-    DELAY_LOAD_IE_ORD(g_hinstBrowseui,
-                      BROWSEUI,
-                      IETHREADPARAM*,
-                      SHCreateIETHREADPARAM,
-                      123,
-                      (LPCWSTR pszCmdLineIn, int nCmdShowIn, ITravelLog *ptlIn, IEFreeThreadedHandShake* piehsIn),
-                      (pszCmdLineIn, nCmdShowIn, ptlIn, piehsIn))
+DELAY_LOAD_IE_ORD(g_hinstBrowseui,
+                  BROWSEUI,
+                  IETHREADPARAM*,
+                  SHCreateIETHREADPARAM,
+                  123,
+                  (LPCWSTR pszCmdLineIn, int nCmdShowIn, ITravelLog* ptlIn, IEFreeThreadedHandShake* piehsIn),
+                  (pszCmdLineIn, nCmdShowIn, ptlIn, piehsIn))
 
     DELAY_LOAD_IE_ORD(g_hinstBrowseui,
                       BROWSEUI,
                       BOOL,
                       SHParseIECommandLine,
                       125,
-                      (LPCWSTR * ppszCmdLine, IETHREADPARAM * piei),
+                      (LPCWSTR* ppszCmdLine, IETHREADPARAM* piei),
                       (ppszCmdLine, piei))
 
     DELAY_LOAD_IE_ORD_VOID(g_hinstBrowseui, BROWSEUI, SHDestroyIETHREADPARAM, 126, (IETHREADPARAM* piei), (piei))
 
     DELAY_LOAD_IE_ORD(g_hinstBrowseui, BROWSEUI, LPITEMIDLIST, Channel_GetFolderPidl, 128, (void), ())
 
-    DELAY_LOAD_IE_ORD(g_hinstBrowseui, BROWSEUI, IDeskBand *, ChannelBand_Create, 129, (LPCITEMIDLIST pidlDefault), (pidlDefault))
+    DELAY_LOAD_IE_ORD(g_hinstBrowseui, BROWSEUI, IDeskBand*, ChannelBand_Create, 129, (LPCITEMIDLIST pidlDefault), (pidlDefault))
 
     DELAY_LOAD_IE_ORD_VOID(g_hinstBrowseui, BROWSEUI, Channels_SetBandInfoSFB, 130, (IUnknown* punkBand), (punkBand))
 
-    DELAY_LOAD_IE_ORD(g_hinstBrowseui, BROWSEUI, HRESULT, IUnknown_SetBandInfoSFB, 131, (IUnknown *punkBand, BANDINFOSFB *pbi), (punkBand, pbi))
+    DELAY_LOAD_IE_ORD(g_hinstBrowseui, BROWSEUI, HRESULT, IUnknown_SetBandInfoSFB, 131, (IUnknown* punkBand, BANDINFOSFB* pbi), (punkBand, pbi))
 
 #ifdef NO_MARSHALLING
     DELAY_LOAD_IE_ORD_VOID(g_hinstBrowseui, BROWSEUI, IEFrameNewWindowSameThread, 105,
@@ -181,12 +179,12 @@ DELAY_LOAD_IE_ORD(g_hinstBrowseui, BROWSEUI, BOOL, SHOnCWMCommandLine, 127, (LPA
                       HRESULT,
                       SHGetNavigateTarget,
                       134,
-                      (IShellFolder *psf, LPCITEMIDLIST pidl, LPITEMIDLIST *ppidl, DWORD *pdwAttribs),
+                      (IShellFolder* psf, LPCITEMIDLIST pidl, LPITEMIDLIST* ppidl, DWORD* pdwAttribs),
                       (psf, pidl, ppidl, pdwAttribs))
 
 
     DELAY_LOAD_IE_ORD(g_hinstBrowseui,
-                      BROWSEUI, 
+                      BROWSEUI,
                       BOOL,
                       GetInfoTip,
                       135,
@@ -208,96 +206,96 @@ DELAY_LOAD(g_hinstCOMDLG32, COMDLG32, DWORD, CommDlgExtendedError, (void), ());
 HINSTANCE g_hinstOLEAUT32 = NULL;
 
 DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, RegisterTypeLib,
-(ITypeLib *ptlib, OLECHAR *szFullPath, OLECHAR *szHelpDir),
+(ITypeLib* ptlib, OLECHAR* szFullPath, OLECHAR* szHelpDir),
 (ptlib, szFullPath, szHelpDir))
 
 DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, LoadTypeLib,
-(const OLECHAR *szFile, ITypeLib **pptlib), (szFile, pptlib))
+(const OLECHAR* szFile, ITypeLib** pptlib), (szFile, pptlib))
 
 DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, SetErrorInfo,
-(unsigned long dwReserved, IErrorInfo*perrinfo), (dwReserved, perrinfo))
+(unsigned long dwReserved, IErrorInfo* perrinfo), (dwReserved, perrinfo))
 
 DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, LoadRegTypeLib,
-(REFGUID rguid, WORD wVerMajor, WORD wVerMinor, LCID lcid, ITypeLib **pptlib),
+(REFGUID rguid, WORD wVerMajor, WORD wVerMinor, LCID lcid, ITypeLib** pptlib),
 (rguid, wVerMajor, wVerMinor, lcid, pptlib))
 
 #undef VariantClear
 #undef VariantCopy
 
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, VariantClear, (VARIANTARG *pvarg), (pvarg))
+DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, VariantClear, (VARIANTARG* pvarg), (pvarg))
 
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, VariantCopy, (VARIANTARG *pvargDest, VARIANTARG *pvargSrc), (pvargDest, pvargSrc))
+DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, VariantCopy, (VARIANTARG* pvargDest, VARIANTARG* pvargSrc), (pvargDest, pvargSrc))
 
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, VariantCopyInd, (VARIANT * pvarDest, VARIANTARG * pvargSrc), (pvarDest, pvargSrc))
-
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32,
-                   OLEAUT32, 
-                   VariantChangeType,
-                   (VARIANTARG *pvargDest, VARIANTARG *pvarSrc, unsigned short wFlags, VARTYPE vt),
-                   (pvargDest, pvarSrc, wFlags, vt))
-
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32,
-                   OLEAUT32, 
-                   VariantChangeTypeEx,
-                   (VARIANTARG *pvargDest, VARIANTARG *pvarSrc, LCID lcid, unsigned short wFlags, VARTYPE vt),
-                   (pvargDest, pvarSrc, lcid, wFlags, vt))
-
-DELAY_LOAD_INT(g_hinstOLEAUT32, OLEAUT32, VariantTimeToSystemTime,(DOUBLE vtime, LPSYSTEMTIME lpSystemTime), (vtime, lpSystemTime))
-
-DELAY_LOAD(g_hinstOLEAUT32, OLEAUT32, BSTR, SysAllocStringLen, (const OLECHAR*pch, unsigned int i), (pch, i))
-
-DELAY_LOAD(g_hinstOLEAUT32, OLEAUT32, BSTR, SysAllocString, (const OLECHAR*pch), (pch))
-
-DELAY_LOAD(g_hinstOLEAUT32, OLEAUT32, BSTR, SysAllocStringByteLen, (LPCSTR psz, UINT i), (psz, i))
-
-DELAY_LOAD_UINT(g_hinstOLEAUT32, OLEAUT32, SysStringByteLen, (BSTR bstr), (bstr))
-
-DELAY_LOAD_VOID(g_hinstOLEAUT32, OLEAUT32, SysFreeString, (BSTR bs), (bs))
+DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, VariantCopyInd, (VARIANT* pvarDest, VARIANTARG* pvargSrc), (pvarDest, pvargSrc))
 
 DELAY_LOAD_HRESULT(g_hinstOLEAUT32,
                    OLEAUT32,
-                   DispGetIDsOfNames,
-                   (ITypeInfo*ptinfo, OLECHAR **rgszNames, UINT cNames, DISPID*rgdispid),
-                   (ptinfo, rgszNames, cNames, rgdispid))
+                   VariantChangeType,
+                   (VARIANTARG* pvargDest, VARIANTARG* pvarSrc, unsigned short wFlags, VARTYPE vt),
+                   (pvargDest, pvarSrc, wFlags, vt))
 
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, CreateErrorInfo,(ICreateErrorInfo **pperrinfo), (pperrinfo))
+    DELAY_LOAD_HRESULT(g_hinstOLEAUT32,
+                       OLEAUT32,
+                       VariantChangeTypeEx,
+                       (VARIANTARG* pvargDest, VARIANTARG* pvarSrc, LCID lcid, unsigned short wFlags, VARTYPE vt),
+                       (pvargDest, pvarSrc, lcid, wFlags, vt))
 
-DELAY_LOAD_SAFEARRAY(g_hinstOLEAUT32,
-                     OLEAUT32,
-                     SafeArrayCreateVector,
-                     (VARTYPE vt, long iBound, ULONG cElements),
-                     (vt, iBound, cElements))
+    DELAY_LOAD_INT(g_hinstOLEAUT32, OLEAUT32, VariantTimeToSystemTime, (DOUBLE vtime, LPSYSTEMTIME lpSystemTime), (vtime, lpSystemTime))
+
+    DELAY_LOAD(g_hinstOLEAUT32, OLEAUT32, BSTR, SysAllocStringLen, (const OLECHAR* pch, unsigned int i), (pch, i))
+
+    DELAY_LOAD(g_hinstOLEAUT32, OLEAUT32, BSTR, SysAllocString, (const OLECHAR* pch), (pch))
+
+    DELAY_LOAD(g_hinstOLEAUT32, OLEAUT32, BSTR, SysAllocStringByteLen, (LPCSTR psz, UINT i), (psz, i))
+
+    DELAY_LOAD_UINT(g_hinstOLEAUT32, OLEAUT32, SysStringByteLen, (BSTR bstr), (bstr))
+
+    DELAY_LOAD_VOID(g_hinstOLEAUT32, OLEAUT32, SysFreeString, (BSTR bs), (bs))
+
+    DELAY_LOAD_HRESULT(g_hinstOLEAUT32,
+                       OLEAUT32,
+                       DispGetIDsOfNames,
+                       (ITypeInfo* ptinfo, OLECHAR** rgszNames, UINT cNames, DISPID* rgdispid),
+                       (ptinfo, rgszNames, cNames, rgdispid))
+
+    DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, CreateErrorInfo, (ICreateErrorInfo** pperrinfo), (pperrinfo))
+
+    DELAY_LOAD_SAFEARRAY(g_hinstOLEAUT32,
+                         OLEAUT32,
+                         SafeArrayCreateVector,
+                         (VARTYPE vt, long iBound, ULONG cElements),
+                         (vt, iBound, cElements))
+
+    DELAY_LOAD_HRESULT(g_hinstOLEAUT32,
+                       OLEAUT32,
+                       SafeArrayAccessData,
+                       (SAFEARRAY* psa, void HUGEP** ppvData),
+                       (psa, ppvData))
+
+    DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, SafeArrayUnaccessData, (SAFEARRAY* psa), (psa))
+
+    DELAY_LOAD_SAFEARRAY(g_hinstOLEAUT32, OLEAUT32, SafeArrayCreate, (VARTYPE vt, UINT cDims, SAFEARRAYBOUND* rgsabound), (vt, cDims, rgsabound));
+
+DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, SafeArrayPutElement, (SAFEARRAY* psa, LONG* rgIndices, void* pv), (psa, rgIndices, pv));
+
+DELAY_LOAD_UINT(g_hinstOLEAUT32, OLEAUT32, SafeArrayGetElemsize, (SAFEARRAY* psa), (psa))
+
+DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, SafeArrayGetUBound, (SAFEARRAY* psa, UINT nDim, LONG* plUBound), (psa, nDim, plUBound))
+
+DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, SafeArrayGetElement, (SAFEARRAY* psa, LONG* rgIndices, void* pv), (psa, rgIndices, pv))
+
+DELAY_LOAD_UINT(g_hinstOLEAUT32, OLEAUT32, SafeArrayGetDim, (SAFEARRAY* psa), (psa))
+
+DELAY_LOAD_UINT(g_hinstOLEAUT32, OLEAUT32, SysStringLen, (BSTR bstr), (bstr))
+
+DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, SafeArrayDestroy, (SAFEARRAY* psa), (psa))
+
+DELAY_LOAD_INT(g_hinstOLEAUT32, OLEAUT32, DosDateTimeToVariantTime, (USHORT wDosDate, USHORT wDosTime, DOUBLE* pvtime), (wDosDate, wDosTime, pvtime))
 
 DELAY_LOAD_HRESULT(g_hinstOLEAUT32,
-                   OLEAUT32, 
-                   SafeArrayAccessData,
-                   (SAFEARRAY * psa, void HUGEP** ppvData),
-                   (psa, ppvData))
-
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, SafeArrayUnaccessData,(SAFEARRAY * psa), (psa))
-
-DELAY_LOAD_SAFEARRAY(g_hinstOLEAUT32, OLEAUT32, SafeArrayCreate,(VARTYPE vt, UINT cDims, SAFEARRAYBOUND * rgsabound), (vt, cDims, rgsabound));
-
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, SafeArrayPutElement,(SAFEARRAY * psa, LONG * rgIndices, void * pv), (psa, rgIndices, pv));
-
-DELAY_LOAD_UINT(g_hinstOLEAUT32, OLEAUT32, SafeArrayGetElemsize,(SAFEARRAY * psa), (psa))
-
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, SafeArrayGetUBound,(SAFEARRAY * psa, UINT nDim, LONG * plUBound),(psa, nDim, plUBound))
-
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, SafeArrayGetElement,(SAFEARRAY * psa, LONG * rgIndices, void * pv), (psa, rgIndices, pv))
-
-DELAY_LOAD_UINT(g_hinstOLEAUT32, OLEAUT32, SafeArrayGetDim,(SAFEARRAY * psa), (psa))
-
-DELAY_LOAD_UINT(g_hinstOLEAUT32, OLEAUT32, SysStringLen,(BSTR bstr), (bstr))
-
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32, OLEAUT32, SafeArrayDestroy,(SAFEARRAY * psa), (psa))
-
-DELAY_LOAD_INT(g_hinstOLEAUT32, OLEAUT32, DosDateTimeToVariantTime,(USHORT wDosDate, USHORT wDosTime, DOUBLE * pvtime), (wDosDate, wDosTime, pvtime))
-
-DELAY_LOAD_HRESULT(g_hinstOLEAUT32, 
-                   OLEAUT32, 
+                   OLEAUT32,
                    VarI4FromStr,
-                   (OLECHAR FAR * strIn, LCID lcid, DWORD dwFlags, LONG * plOut), 
+                   (OLECHAR FAR* strIn, LCID lcid, DWORD dwFlags, LONG* plOut),
                    (strIn, lcid, dwFlags, plOut));
 
 
@@ -311,104 +309,104 @@ DELAY_LOAD_HRESULT(g_hinstOLEAUT32,
 
 HINSTANCE g_hinstWININET = NULL;
 
-DELAY_LOAD(g_hinstWININET, 
-           WININET, 
-           BOOL, 
+DELAY_LOAD(g_hinstWININET,
+           WININET,
+           BOOL,
            InternetCanonicalizeUrlW,
            (LPCWSTR lpszUrl, LPWSTR lpszBuffer, LPDWORD lpdwBufferLength, DWORD dwFlags),
            (lpszUrl, lpszBuffer, lpdwBufferLength, dwFlags))
 
-DELAY_LOAD(g_hinstWININET,
-           WININET,
-           BOOL, 
-           InternetCrackUrlW,
-           (LPCWSTR lpszUrl, DWORD dwUrlLength, DWORD dwFlags, LPURL_COMPONENTSW lpUrlComponents),
-           (lpszUrl, dwUrlLength, dwFlags, lpUrlComponents))
+    DELAY_LOAD(g_hinstWININET,
+               WININET,
+               BOOL,
+               InternetCrackUrlW,
+               (LPCWSTR lpszUrl, DWORD dwUrlLength, DWORD dwFlags, LPURL_COMPONENTSW lpUrlComponents),
+               (lpszUrl, dwUrlLength, dwFlags, lpUrlComponents))
 
-DELAY_LOAD(g_hinstWININET,
-           WININET, 
-           BOOL,
-           InternetCrackUrlA,
-           (LPCSTR lpszUrl, DWORD dwUrlLength, DWORD dwFlags, LPURL_COMPONENTSA lpUrlComponents),
-           (lpszUrl, dwUrlLength, dwFlags, lpUrlComponents))
+    DELAY_LOAD(g_hinstWININET,
+               WININET,
+               BOOL,
+               InternetCrackUrlA,
+               (LPCSTR lpszUrl, DWORD dwUrlLength, DWORD dwFlags, LPURL_COMPONENTSA lpUrlComponents),
+               (lpszUrl, dwUrlLength, dwFlags, lpUrlComponents))
 
-DELAY_LOAD(g_hinstWININET,
-           WININET,
-           BOOL,
-           InternetCombineUrlA,
-           (const char* lpszBaseUrl, const char* lpszRelativeUrl, char *lpszBuffer, DWORD *len, DWORD dwFlags),
-           (lpszBaseUrl, lpszRelativeUrl, lpszBuffer, len, dwFlags))
+    DELAY_LOAD(g_hinstWININET,
+               WININET,
+               BOOL,
+               InternetCombineUrlA,
+               (const char* lpszBaseUrl, const char* lpszRelativeUrl, char* lpszBuffer, DWORD* len, DWORD dwFlags),
+               (lpszBaseUrl, lpszRelativeUrl, lpszBuffer, len, dwFlags))
 
-DELAY_LOAD(g_hinstWININET,
-           WININET,
-           BOOL, 
-           InternetCreateUrlA,
-           (LPURL_COMPONENTSA lpUrlComponents, DWORD dwFlags, char *p, DWORD *len),
-           (lpUrlComponents, dwFlags, p, len))
+    DELAY_LOAD(g_hinstWININET,
+               WININET,
+               BOOL,
+               InternetCreateUrlA,
+               (LPURL_COMPONENTSA lpUrlComponents, DWORD dwFlags, char* p, DWORD* len),
+               (lpUrlComponents, dwFlags, p, len))
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetCreateUrlW,
-(LPURL_COMPONENTSW lpUrlComponents, DWORD dwFlags, WCHAR *p, DWORD *len),
-(lpUrlComponents, dwFlags, p, len))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetCreateUrlW,
+    (LPURL_COMPONENTSW lpUrlComponents, DWORD dwFlags, WCHAR* p, DWORD* len),
+               (lpUrlComponents, dwFlags, p, len))
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetGoOnline,
-(LPTSTR lpszURL, HWND hwndParent, DWORD    dwReserved),
-(lpszURL, hwndParent, dwReserved))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetGoOnline,
+    (LPTSTR lpszURL, HWND hwndParent, DWORD    dwReserved),
+               (lpszURL, hwndParent, dwReserved))
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetInitializeAutoProxyDll,
-(DWORD dwReserved),
-(dwReserved))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetInitializeAutoProxyDll,
+    (DWORD dwReserved),
+               (dwReserved))
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetGetConnectedStateExA,
-(LPDWORD lpdwFlags, LPSTR lpszConnectionName, DWORD dwBufLen, DWORD dwCrap),
-(lpdwFlags, lpszConnectionName, dwBufLen, dwCrap))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetGetConnectedStateExA,
+    (LPDWORD lpdwFlags, LPSTR lpszConnectionName, DWORD dwBufLen, DWORD dwCrap),
+               (lpdwFlags, lpszConnectionName, dwBufLen, dwCrap))
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetSetOptionA,
-(HINTERNET hInternet, DWORD dwOption, LPVOID lpBuffer, DWORD dwBufferLength),
-(hInternet, dwOption, lpBuffer, dwBufferLength))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetSetOptionA,
+    (HINTERNET hInternet, DWORD dwOption, LPVOID lpBuffer, DWORD dwBufferLength),
+               (hInternet, dwOption, lpBuffer, dwBufferLength))
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetQueryOptionA,
-(HINTERNET hInternet, DWORD dwOption, LPVOID lpBuffer, LPDWORD lpdwBufferLength),
-(hInternet, dwOption, lpBuffer, lpdwBufferLength))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetQueryOptionA,
+    (HINTERNET hInternet, DWORD dwOption, LPVOID lpBuffer, LPDWORD lpdwBufferLength),
+               (hInternet, dwOption, lpBuffer, lpdwBufferLength))
 
-DELAY_LOAD(g_hinstWININET, WININET, DWORD, InternetConfirmZoneCrossing,
-(HWND hWnd, LPWSTR szUrlPrev, LPWSTR szUrlNew, BOOL bPost),
-(hWnd, szUrlPrev, szUrlNew, bPost))
+    DELAY_LOAD(g_hinstWININET, WININET, DWORD, InternetConfirmZoneCrossing,
+    (HWND hWnd, LPWSTR szUrlPrev, LPWSTR szUrlNew, BOOL bPost),
+               (hWnd, szUrlPrev, szUrlNew, bPost))
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, FindCloseUrlCache,
-(HANDLE hEnumHandle),
-(hEnumHandle))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, FindCloseUrlCache,
+    (HANDLE hEnumHandle),
+               (hEnumHandle))
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, DeleteUrlCacheEntryW,
-(LPCWSTR lpszUrlName),
-(lpszUrlName))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, DeleteUrlCacheEntryW,
+    (LPCWSTR lpszUrlName),
+               (lpszUrlName))
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, DeleteUrlCacheEntryA,
-(LPCSTR lpszUrlName),
-(lpszUrlName))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, DeleteUrlCacheEntryA,
+    (LPCSTR lpszUrlName),
+               (lpszUrlName))
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, FindNextUrlCacheEntryW,
-(HANDLE hEnumHandle, LPINTERNET_CACHE_ENTRY_INFOW lpNextCacheEntryInfo, LPDWORD lpdwNextCacheEntryInfoBufferSize),
-(hEnumHandle, lpNextCacheEntryInfo, lpdwNextCacheEntryInfoBufferSize))
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, FindNextUrlCacheEntryA,
-(HANDLE hEnumHandle, LPINTERNET_CACHE_ENTRY_INFOA lpNextCacheEntryInfo, LPDWORD lpdwNextCacheEntryInfoBufferSize),
-(hEnumHandle, lpNextCacheEntryInfo, lpdwNextCacheEntryInfoBufferSize))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, FindNextUrlCacheEntryW,
+    (HANDLE hEnumHandle, LPINTERNET_CACHE_ENTRY_INFOW lpNextCacheEntryInfo, LPDWORD lpdwNextCacheEntryInfoBufferSize),
+               (hEnumHandle, lpNextCacheEntryInfo, lpdwNextCacheEntryInfoBufferSize))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, FindNextUrlCacheEntryA,
+    (HANDLE hEnumHandle, LPINTERNET_CACHE_ENTRY_INFOA lpNextCacheEntryInfo, LPDWORD lpdwNextCacheEntryInfoBufferSize),
+               (hEnumHandle, lpNextCacheEntryInfo, lpdwNextCacheEntryInfoBufferSize))
 
-DELAY_LOAD(g_hinstWININET, WININET, HANDLE, FindFirstUrlCacheEntryW,
-(LPCWSTR lpszUrlSearchPattern, LPINTERNET_CACHE_ENTRY_INFOW lpFirstCacheEntryInfo, LPDWORD lpdwFirstCacheEntryInfoBufferSize),
-(lpszUrlSearchPattern, lpFirstCacheEntryInfo, lpdwFirstCacheEntryInfoBufferSize))
-DELAY_LOAD(g_hinstWININET, WININET, HANDLE, FindFirstUrlCacheEntryA,
-(LPCSTR lpszUrlSearchPattern, LPINTERNET_CACHE_ENTRY_INFOA lpFirstCacheEntryInfo, LPDWORD lpdwFirstCacheEntryInfoBufferSize),
-(lpszUrlSearchPattern, lpFirstCacheEntryInfo, lpdwFirstCacheEntryInfoBufferSize))
+    DELAY_LOAD(g_hinstWININET, WININET, HANDLE, FindFirstUrlCacheEntryW,
+    (LPCWSTR lpszUrlSearchPattern, LPINTERNET_CACHE_ENTRY_INFOW lpFirstCacheEntryInfo, LPDWORD lpdwFirstCacheEntryInfoBufferSize),
+               (lpszUrlSearchPattern, lpFirstCacheEntryInfo, lpdwFirstCacheEntryInfoBufferSize))
+    DELAY_LOAD(g_hinstWININET, WININET, HANDLE, FindFirstUrlCacheEntryA,
+    (LPCSTR lpszUrlSearchPattern, LPINTERNET_CACHE_ENTRY_INFOA lpFirstCacheEntryInfo, LPDWORD lpdwFirstCacheEntryInfoBufferSize),
+               (lpszUrlSearchPattern, lpFirstCacheEntryInfo, lpdwFirstCacheEntryInfoBufferSize))
 
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, GetUrlCacheEntryInfoA,
-(LPCSTR lpszUrlName, LPINTERNET_CACHE_ENTRY_INFOA lpCacheEntryInfo, LPDWORD lpdwCacheEntryInfoBufferSize),
-(lpszUrlName, lpCacheEntryInfo, lpdwCacheEntryInfoBufferSize))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, GetUrlCacheEntryInfoA,
+    (LPCSTR lpszUrlName, LPINTERNET_CACHE_ENTRY_INFOA lpCacheEntryInfo, LPDWORD lpdwCacheEntryInfoBufferSize),
+               (lpszUrlName, lpCacheEntryInfo, lpdwCacheEntryInfoBufferSize))
 
-DELAY_LOAD(g_hinstWININET, WININET, BOOL, GetUrlCacheEntryInfoExW,
-(LPCWSTR lpszUrlName, LPINTERNET_CACHE_ENTRY_INFOW lpCacheEntryInfo, LPDWORD lpdwCacheEntryInfoBufferSize,
- LPWSTR lpszRedirectUrl, LPDWORD lpdwRedirectUrlBufSize, LPVOID lpReserved, DWORD dwReserved),
- (lpszUrlName, lpCacheEntryInfo, lpdwCacheEntryInfoBufferSize, lpszRedirectUrl, lpdwRedirectUrlBufSize, lpReserved, dwReserved))
+    DELAY_LOAD(g_hinstWININET, WININET, BOOL, GetUrlCacheEntryInfoExW,
+    (LPCWSTR lpszUrlName, LPINTERNET_CACHE_ENTRY_INFOW lpCacheEntryInfo, LPDWORD lpdwCacheEntryInfoBufferSize,
+     LPWSTR lpszRedirectUrl, LPDWORD lpdwRedirectUrlBufSize, LPVOID lpReserved, DWORD dwReserved),
+     (lpszUrlName, lpCacheEntryInfo, lpdwCacheEntryInfoBufferSize, lpszRedirectUrl, lpdwRedirectUrlBufSize, lpReserved, dwReserved))
 
     DELAY_LOAD(g_hinstWININET, WININET, BOOL, GetUrlCacheEntryInfoExA,
     (LPCSTR lpszUrlName, LPINTERNET_CACHE_ENTRY_INFOA lpCacheEntryInfo, LPDWORD lpdwCacheEntryInfoBufferSize,
@@ -441,7 +439,7 @@ DELAY_LOAD(g_hinstWININET, WININET, BOOL, CommitUrlCacheEntryW,
 
     DELAY_LOAD(g_hinstWININET,
                WININET,
-               BOOL, 
+               BOOL,
                CreateUrlCacheContainerA,
                (LPCSTR Name, LPCSTR lpCachePrefix, LPCSTR lpszCachePath, DWORD KBCacheLimit, DWORD dwContainerType, DWORD dwOptions, LPVOID pvBuffer, LPDWORD cbBuffer),
                (Name, lpCachePrefix, lpszCachePath, KBCacheLimit, dwContainerType, dwOptions, pvBuffer, cbBuffer))
@@ -476,9 +474,9 @@ DELAY_LOAD(g_hinstWININET, WININET, BOOL, CommitUrlCacheEntryW,
 
     DELAY_LOAD(g_hinstWININET,
                WININET,
-               BOOL, 
+               BOOL,
                GetUrlCacheConfigInfoW,
-               (LPINTERNET_CACHE_CONFIG_INFOW lpCacheConfigInfo, LPDWORD lpdwCacheConfigInfoBufferSize, DWORD dwFieldControl), 
+               (LPINTERNET_CACHE_CONFIG_INFOW lpCacheConfigInfo, LPDWORD lpdwCacheConfigInfoBufferSize, DWORD dwFieldControl),
                (lpCacheConfigInfo, lpdwCacheConfigInfoBufferSize, dwFieldControl))
 
     DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetSetOptionW,
@@ -495,7 +493,7 @@ DELAY_LOAD(g_hinstWININET, WININET, BOOL, CommitUrlCacheEntryW,
                (lpszURL, lpszCertText, dwcbCertText))
 
     DELAY_LOAD(g_hinstWININET, WININET, BOOL, InternetTimeToSystemTime,
-    (LPCWSTR lpszTime, SYSTEMTIME *pst, DWORD dwReserved),
+    (LPCWSTR lpszTime, SYSTEMTIME* pst, DWORD dwReserved),
                (lpszTime, pst, dwReserved))
 
     DELAY_LOAD(g_hinstWININET, WININET, BOOL, FreeUrlCacheSpace,
@@ -516,17 +514,17 @@ DELAY_LOAD(g_hinstWININET, WININET, BOOL, CommitUrlCacheEntryW,
                (lpszAgent, dwAccessType, lpszProxy OPTIONAL, lpszProxyBypass OPTIONAL, dwFlags))
 
     DELAY_LOAD(g_hinstWININET,
-               WININET, 
+               WININET,
                HINTERNET,
                InternetConnectA,
                (HINTERNET hInternet, LPCSTR lpszServerName, INTERNET_PORT nServerPort, LPCSTR lpszUserName OPTIONAL, LPCSTR lpszPassword OPTIONAL, DWORD dwService, DWORD dwFlags, DWORD_PTR dwContext),
                (hInternet, lpszServerName, nServerPort, lpszUserName OPTIONAL, lpszPassword OPTIONAL, dwService, dwFlags, dwContext))
 
     DELAY_LOAD(g_hinstWININET,
-               WININET, 
+               WININET,
                HINTERNET,
                HttpOpenRequestA,
-               (HINTERNET hConnect, LPCSTR lpszVerb, LPCSTR lpszObjectName, LPCSTR lpszVersion, LPCSTR lpszReferrer OPTIONAL, LPCSTR FAR * lplpszAcceptTypes OPTIONAL, DWORD dwFlags, DWORD_PTR dwContext),
+               (HINTERNET hConnect, LPCSTR lpszVerb, LPCSTR lpszObjectName, LPCSTR lpszVersion, LPCSTR lpszReferrer OPTIONAL, LPCSTR FAR* lplpszAcceptTypes OPTIONAL, DWORD dwFlags, DWORD_PTR dwContext),
                (hConnect, lpszVerb, lpszObjectName, lpszVersion, lpszReferrer OPTIONAL, lplpszAcceptTypes OPTIONAL, dwFlags, dwContext))
 
     DELAY_LOAD(g_hinstWININET, WININET, BOOL, HttpAddRequestHeadersA,
@@ -552,7 +550,7 @@ DELAY_LOAD(g_hinstWININET, WININET, BOOL, CommitUrlCacheEntryW,
 #ifdef UNIX
 
     DELAY_LOAD_VOID(g_hinstWININET, WININET, unixGetWininetCacheLockStatus,
-    (BOOL *pBoolReadOnly, char **ppszLockingHost),
+    (BOOL* pBoolReadOnly, char** ppszLockingHost),
                     (pBoolReadOnly, ppszLockingHost))
 
     DELAY_LOAD_VOID(g_hinstWININET, WININET, unixCleanupWininetCacheLockFile,
@@ -674,102 +672,102 @@ DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, RegisterMediaTypes,
 (ctypes, rgszTypes, rgcfTypes))
 
 DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, RegisterFormatEnumerator,
-(LPBC pBC, IEnumFORMATETC *pEFetc, DWORD reserved), (pBC, pEFetc, reserved))
+(LPBC pBC, IEnumFORMATETC* pEFetc, DWORD reserved), (pBC, pEFetc, reserved))
 
 DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CreateURLMoniker,
-(IMoniker* pMkCtx, LPCWSTR pwsURL, IMoniker ** ppimk), (pMkCtx, pwsURL, ppimk))
+(IMoniker* pMkCtx, LPCWSTR pwsURL, IMoniker** ppimk), (pMkCtx, pwsURL, ppimk))
 
 DELAY_LOAD_HRESULT(g_hinstURLMON,
                    URLMON,
                    CreateAsyncBindCtxEx,
-                   (IBindCtx *pbc, DWORD dwOption, IBindStatusCallback *pBSCb, IEnumFORMATETC *pEnum, IBindCtx **ppBC, DWORD reserved),
+                   (IBindCtx* pbc, DWORD dwOption, IBindStatusCallback* pBSCb, IEnumFORMATETC* pEnum, IBindCtx** ppBC, DWORD reserved),
                    (pbc, dwOption, pBSCb, pEnum, ppBC, reserved))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, RegisterBindStatusCallback,
-(LPBC pBC, IBindStatusCallback *pBSCb, IBindStatusCallback **ppBSCbPrev, DWORD dwReserved), (pBC, pBSCb, ppBSCbPrev, dwReserved))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, RegisterBindStatusCallback,
+    (LPBC pBC, IBindStatusCallback* pBSCb, IBindStatusCallback** ppBSCbPrev, DWORD dwReserved), (pBC, pBSCb, ppBSCbPrev, dwReserved))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, RevokeBindStatusCallback,
-(LPBC pBC, IBindStatusCallback *pBSCb), (pBC, pBSCb))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, RevokeBindStatusCallback,
+    (LPBC pBC, IBindStatusCallback* pBSCb), (pBC, pBSCb))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, RegisterMediaTypeClass,
-(LPBC pBC, UINT ctypes, const LPCSTR* rgszTypes, CLSID *rgclsID, DWORD reserved),
-(pBC, ctypes, rgszTypes, rgclsID, reserved))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, RegisterMediaTypeClass,
+    (LPBC pBC, UINT ctypes, const LPCSTR* rgszTypes, CLSID* rgclsID, DWORD reserved),
+                       (pBC, ctypes, rgszTypes, rgclsID, reserved))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, GetClassFileOrMime,
-(LPBC pBC, LPCWSTR szFilename, LPVOID pBuffer, DWORD cbSize, LPCWSTR szMime, DWORD dwReserved, CLSID *pclsid),
-(pBC, szFilename, pBuffer, cbSize, szMime, dwReserved, pclsid))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, GetClassFileOrMime,
+    (LPBC pBC, LPCWSTR szFilename, LPVOID pBuffer, DWORD cbSize, LPCWSTR szMime, DWORD dwReserved, CLSID* pclsid),
+                       (pBC, szFilename, pBuffer, cbSize, szMime, dwReserved, pclsid))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, IsValidURL,
-(LPBC pBC, LPCWSTR szURL, DWORD dwReserved),
-(pBC, szURL, dwReserved))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, IsValidURL,
+    (LPBC pBC, LPCWSTR szURL, DWORD dwReserved),
+                       (pBC, szURL, dwReserved))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, URLDownloadToCacheFile,
-(IUnknown *pCaller, LPCTSTR szURL, LPTSTR szFileName, DWORD fCache, DWORD dwResv, LPBINDSTATUSCALLBACK lpfnCB),
-(pCaller, szURL, szFileName, fCache, dwResv, lpfnCB))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, URLDownloadToCacheFile,
+    (IUnknown* pCaller, LPCTSTR szURL, LPTSTR szFileName, DWORD fCache, DWORD dwResv, LPBINDSTATUSCALLBACK lpfnCB),
+                       (pCaller, szURL, szFileName, fCache, dwResv, lpfnCB))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, GetSoftwareUpdateInfo,
-(LPCWSTR szDistUnit, LPSOFTDISTINFO psdi),
-(szDistUnit, psdi))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, GetSoftwareUpdateInfo,
+    (LPCWSTR szDistUnit, LPSOFTDISTINFO psdi),
+                       (szDistUnit, psdi))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, SetSoftwareUpdateAdvertisementState,
-(LPCWSTR szDistUnit, DWORD dwAdState, DWORD dwAdvertisedVersionMS, DWORD dwAdvertisedVersionLS),
-(szDistUnit, dwAdState, dwAdvertisedVersionMS, dwAdvertisedVersionLS))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, SetSoftwareUpdateAdvertisementState,
+    (LPCWSTR szDistUnit, DWORD dwAdState, DWORD dwAdvertisedVersionMS, DWORD dwAdvertisedVersionLS),
+                       (szDistUnit, dwAdState, dwAdvertisedVersionMS, dwAdvertisedVersionLS))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CoInternetQueryInfo,
-(LPCWSTR pwzUrl, QUERYOPTION QueryOptions, DWORD dwQueryFlags, LPVOID pvBuffer, DWORD cbBuffer, DWORD *pcbBuffer, DWORD dwReserved),
-(pwzUrl, QueryOptions, dwQueryFlags, pvBuffer, cbBuffer, pcbBuffer, dwReserved))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CoInternetQueryInfo,
+    (LPCWSTR pwzUrl, QUERYOPTION QueryOptions, DWORD dwQueryFlags, LPVOID pvBuffer, DWORD cbBuffer, DWORD* pcbBuffer, DWORD dwReserved),
+                       (pwzUrl, QueryOptions, dwQueryFlags, pvBuffer, cbBuffer, pcbBuffer, dwReserved))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, ObtainUserAgentString,
-(DWORD dwOption, LPSTR pszUAOut, DWORD* cbSize),
-(dwOption, pszUAOut, cbSize))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, ObtainUserAgentString,
+    (DWORD dwOption, LPSTR pszUAOut, DWORD* cbSize),
+                       (dwOption, pszUAOut, cbSize))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CoInternetGetSecurityUrl,
-(LPCWSTR pwzUrl, LPWSTR *ppwzSecUrl, PSUACTION psuAction, DWORD dwReserved),
-(pwzUrl, ppwzSecUrl, psuAction, dwReserved))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CoInternetGetSecurityUrl,
+    (LPCWSTR pwzUrl, LPWSTR* ppwzSecUrl, PSUACTION psuAction, DWORD dwReserved),
+                       (pwzUrl, ppwzSecUrl, psuAction, dwReserved))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CoInternetParseUrl,
-(LPCWSTR pwzUrl, PARSEACTION ParseAction, DWORD dwFlags, LPWSTR pszResult, DWORD cchResult, DWORD *pcchResult, DWORD dwReserved),
-(pwzUrl, ParseAction, dwFlags, pszResult, cchResult, pcchResult, dwReserved))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CoInternetParseUrl,
+    (LPCWSTR pwzUrl, PARSEACTION ParseAction, DWORD dwFlags, LPWSTR pszResult, DWORD cchResult, DWORD* pcchResult, DWORD dwReserved),
+                       (pwzUrl, ParseAction, dwFlags, pszResult, cchResult, pcchResult, dwReserved))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CopyStgMedium,
-(const STGMEDIUM * pcstgmedSrc, STGMEDIUM * pstgmedDest),
-(pcstgmedSrc, pstgmedDest))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CopyStgMedium,
+    (const STGMEDIUM* pcstgmedSrc, STGMEDIUM* pstgmedDest),
+                       (pcstgmedSrc, pstgmedDest))
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CopyBindInfo,
-(const BINDINFO * pcbiSrc, BINDINFO * pbiDest),
-(pcbiSrc, pbiDest))
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CopyBindInfo,
+    (const BINDINFO* pcbiSrc, BINDINFO* pbiDest),
+                       (pcbiSrc, pbiDest))
 
-DELAY_LOAD_VOID(g_hinstURLMON, URLMON, ReleaseBindInfo,
-(BINDINFO * pbindinfo),
-(pbindinfo))
+    DELAY_LOAD_VOID(g_hinstURLMON, URLMON, ReleaseBindInfo,
+    (BINDINFO* pbindinfo),
+                    (pbindinfo))
 
 
-DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, FaultInIEFeature,
-(HWND hWnd, uCLSSPEC *pClassSpec, QUERYCONTEXT *pQuery, DWORD dwFlags),
-(hWnd, pClassSpec, pQuery, dwFlags));
+    DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, FaultInIEFeature,
+    (HWND hWnd, uCLSSPEC* pClassSpec, QUERYCONTEXT* pQuery, DWORD dwFlags),
+                       (hWnd, pClassSpec, pQuery, dwFlags));
 
 DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, URLDownloadToFile,
-(IUnknown *pCaller, LPCTSTR szURL, LPCTSTR szFileName, DWORD dwResv, LPBINDSTATUSCALLBACK lpfnCB),
+(IUnknown* pCaller, LPCTSTR szURL, LPCTSTR szFileName, DWORD dwResv, LPBINDSTATUSCALLBACK lpfnCB),
 (pCaller, szURL, szFileName, dwResv, lpfnCB));
 
 DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, CoInternetCreateSecurityManager,
-(IServiceProvider *pSP, IInternetSecurityManager **ppSM, DWORD dwReserved),
+(IServiceProvider* pSP, IInternetSecurityManager** ppSM, DWORD dwReserved),
 (pSP, ppSM, dwReserved));
 
 DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, GetMarkOfTheWeb,
-(LPCSTR pszURL, LPCSTR pszFile, DWORD dwFlags, LPSTR *ppszMark),
+(LPCSTR pszURL, LPCSTR pszFile, DWORD dwFlags, LPSTR* ppszMark),
 (pszURL, pszFile, dwFlags, ppszMark));
 
 DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, URLOpenBlockingStreamW,
-(IUnknown *lpunk, LPCWSTR lpcstrURL, IStream **ppstm, DWORD dw, LPBINDSTATUSCALLBACK bsc),
+(IUnknown* lpunk, LPCWSTR lpcstrURL, IStream** ppstm, DWORD dw, LPBINDSTATUSCALLBACK bsc),
 (lpunk, lpcstrURL, ppstm, dw, bsc));
 
 DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, FindMimeFromData,
-(LPBC pBC, LPCWSTR pwzUrl, void *pBuffer, DWORD cbSize, LPCWSTR pwzMimeProposed, DWORD dwMimeFlags, LPWSTR *ppwzMimeOut, DWORD dwReserved),
+(LPBC pBC, LPCWSTR pwzUrl, void* pBuffer, DWORD cbSize, LPCWSTR pwzMimeProposed, DWORD dwMimeFlags, LPWSTR* ppwzMimeOut, DWORD dwReserved),
 (pBC, pwzUrl, pBuffer, cbSize, pwzMimeProposed, dwMimeFlags, ppwzMimeOut, dwReserved));
 
 DELAY_LOAD_HRESULT(g_hinstURLMON, URLMON, UrlMkGetSessionOption,
-(DWORD dwOption, LPVOID pBuffer, DWORD dwBufferLength, DWORD *pdwBufferLength, DWORD dwReserved),
+(DWORD dwOption, LPVOID pBuffer, DWORD dwBufferLength, DWORD* pdwBufferLength, DWORD dwReserved),
 (dwOption, pBuffer, dwBufferLength, pdwBufferLength, dwReserved));
 #ifdef FEATURE_PICS
 
@@ -781,17 +779,17 @@ DELAY_LOAD_HRESULT(g_hinstMSRATING, MSRATING, RatingEnabledQuery,
 ())
 DELAY_LOAD_HRESULT(g_hinstMSRATING, MSRATING, RatingCheckUserAccess,
 (LPCSTR pszUsername, LPCSTR pszURL, LPCSTR pszRatingInfo, LPBYTE pData,
- DWORD cbData, void **ppRatingDetails),
+ DWORD cbData, void** ppRatingDetails),
  (pszUsername, pszURL, pszRatingInfo, pData, cbData, ppRatingDetails))
     DELAY_LOAD_HRESULT(g_hinstMSRATING, MSRATING, RatingAccessDeniedDialog,
     (HWND hDlg, LPCSTR pszUsername, LPCSTR pszContentDescription,
-     void *pRatingDetails),
+     void* pRatingDetails),
      (hDlg, pszUsername, pszContentDescription, pRatingDetails))
     DELAY_LOAD_HRESULT(g_hinstMSRATING, MSRATING, RatingAccessDeniedDialog2,
-    (HWND hDlg, LPCSTR pszUsername, void *pRatingDetails),
+    (HWND hDlg, LPCSTR pszUsername, void* pRatingDetails),
                        (hDlg, pszUsername, pRatingDetails))
     DELAY_LOAD_HRESULT(g_hinstMSRATING, MSRATING, RatingFreeDetails,
-    (void *pRatingDetails),
+    (void* pRatingDetails),
                        (pRatingDetails))
     DELAY_LOAD_HRESULT(g_hinstMSRATING, MSRATING, RatingObtainCancel,
     (HANDLE hRatingObtainQuery),
@@ -799,7 +797,7 @@ DELAY_LOAD_HRESULT(g_hinstMSRATING, MSRATING, RatingCheckUserAccess,
     DELAY_LOAD_HRESULT(g_hinstMSRATING,
                        MSRATING,
                        RatingObtainQuery,
-                       (LPCTSTR pszTargetUrl, DWORD dwUserData, void(*fCallback)(DWORD dwUserData, HRESULT hr, LPCTSTR pszRating, void *lpvRatingDetails), HANDLE *phRatingObtainQuery),
+                       (LPCTSTR pszTargetUrl, DWORD dwUserData, void(*fCallback)(DWORD dwUserData, HRESULT hr, LPCTSTR pszRating, void* lpvRatingDetails), HANDLE* phRatingObtainQuery),
                        (pszTargetUrl, dwUserData, fCallback, phRatingObtainQuery))
 
 #endif
@@ -810,15 +808,15 @@ DELAY_LOAD_VOID(g_hinstMSJAVA, MSJAVA, ShowJavaConsole, (), ())
 // --------- MSHTML.DLL ---------------
 HINSTANCE g_hinstMSHTML = NULL;
 DELAY_LOAD_HRESULT(g_hinstMSHTML, MSHTML, ShowHTMLDialog,
-(HWND hwndParent, IMoniker *pmk, VARIANT *pvarArgIn, WCHAR* pchOptions, VARIANT *pvArgOut),
+(HWND hwndParent, IMoniker* pmk, VARIANT* pvarArgIn, WCHAR* pchOptions, VARIANT* pvArgOut),
 (hwndParent, pmk, pvarArgIn, pchOptions, pvArgOut))
 
 DELAY_LOAD_HRESULT(g_hinstMSHTML, MSHTML, ShowModelessHTMLDialog,
-(HWND hwndParent, IMoniker *pmk, VARIANT *pvarArgIn, VARIANT* pvarOptions, IHTMLWindow2 **ppWindow),
+(HWND hwndParent, IMoniker* pmk, VARIANT* pvarArgIn, VARIANT* pvarOptions, IHTMLWindow2** ppWindow),
 (hwndParent, pmk, pvarArgIn, pvarOptions, ppWindow))
 
 DELAY_LOAD_HRESULT(g_hinstMSHTML, MSHTML, CreateHTMLPropertyPage,
-(IMoniker * pmk, IPropertyPage ** ppPP),
+(IMoniker* pmk, IPropertyPage** ppPP),
 (pmk, ppPP))
 
 // --------- MLANG.DLL ---------------
@@ -839,7 +837,7 @@ DELAY_LOAD_HRESULT(g_hinstMLANG, MLANG, LcidToRfc1766W,
 (Locale, pszRfc1766, nChar))
 
 DELAY_LOAD_HRESULT(g_hinstMLANG, MLANG, Rfc1766ToLcidW,
-(LCID *pLocale, LPCWSTR pszRfc1766),
+(LCID* pLocale, LPCWSTR pszRfc1766),
 (pLocale, pszRfc1766))
 
 // --------- IMM32.DLL ---------------
@@ -851,7 +849,7 @@ DELAY_LOAD(g_hinstImm32, IMM32, UINT, ImmGetVirtualKey,
 HINSTANCE g_hinstVERSION = NULL;
 
 DELAY_LOAD(g_hinstVERSION, VERSION, BOOL,
-           VerQueryValueA, (LPVOID pBlock, LPSTR lpSubBlock, LPVOID * lplpBuffer, PUINT puLen),
+           VerQueryValueA, (LPVOID pBlock, LPSTR lpSubBlock, LPVOID* lplpBuffer, PUINT puLen),
            (pBlock, lpSubBlock, lplpBuffer, puLen))
 
     DELAY_LOAD(g_hinstVERSION, VERSION, DWORD,
@@ -879,15 +877,15 @@ DELAY_LOAD(g_hinstNTDLL, NTDLL, BOOLEAN, RtlGetNtProductType,
 HINSTANCE g_hinstINETCOMM = NULL;
 
 DELAY_LOAD_HRESULT(g_hinstINETCOMM, INETCOMM, MimeOleCreateMessage,
-(IUnknown  *pUnkOuter, IMimeMessage **ppMessage),
+(IUnknown* pUnkOuter, IMimeMessage** ppMessage),
 (pUnkOuter, ppMessage));
 
 DELAY_LOAD_HRESULT(g_hinstINETCOMM, INETCOMM, MimeOleParseMhtmlUrl,
-(LPSTR pszUrl, LPSTR *ppszRootUrl, LPSTR *ppszBodyUrl),
+(LPSTR pszUrl, LPSTR* ppszRootUrl, LPSTR* ppszBodyUrl),
 (pszUrl, ppszRootUrl, ppszBodyUrl));
 
 DELAY_LOAD_HRESULT(g_hinstINETCOMM, INETCOMM, MimeOleCreateVirtualStream,
-(IStream **ppStream),
+(IStream** ppStream),
 (ppStream));
 
 DELAY_LOAD_HRESULT(g_hinstINETCOMM, INETCOMM, MimeOleSetCompatMode,
@@ -899,7 +897,7 @@ DELAY_LOAD_HRESULT(g_hinstINETCOMM, INETCOMM, MimeOleSetCompatMode,
 HINSTANCE g_hinstOLEPRO32 = NULL;
 
 DELAY_LOAD_HRESULT(g_hinstOLEPRO32, OLEPRO32, OleCreatePropertyFrameIndirect,
-(OCPFIPARAMS * pParams),
+(OCPFIPARAMS* pParams),
 (pParams));
 
 #ifdef UNIX_FEATURE_ALIAS
@@ -923,7 +921,7 @@ DELAY_LOAD(g_hinstINETCPL, inetcpl, BOOL, FindAliasByURLA,
 HINSTANCE g_hinstOLE32 = NULL;
 
 DELAY_LOAD_HRESULT(g_hinstOLE32, OLE32, CoAllowSetForegroundWindow,
-(IUnknown *pUnk, void* lpvReserved),
+(IUnknown* pUnk, void* lpvReserved),
 (pUnk, lpvReserved));
 
 
@@ -936,7 +934,7 @@ DELAY_LOAD(
     ADVPACK,
     HRESULT,
     RunSetupCommand,
-    (HWND hWnd, LPCSTR szCmdName, LPCSTR szInfSection, LPCSTR szDir, LPCSTR lpszTitle, HANDLE *phEXE, DWORD dwFlags, LPVOID pvReserved),
+    (HWND hWnd, LPCSTR szCmdName, LPCSTR szInfSection, LPCSTR szDir, LPCSTR lpszTitle, HANDLE* phEXE, DWORD dwFlags, LPVOID pvReserved),
     (hWnd, szCmdName, szInfSection, szDir, lpszTitle, phEXE, dwFlags, pvReserved))
 
     void FreeDynamicLibraries()

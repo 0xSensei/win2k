@@ -17,26 +17,26 @@
 CONST BYTE bSKT1VirtKey[SKT1_TOTAL_KEY_NUM] = {     // Virtual Key for Letter Buttons
 //  `          1    2    3    4    5    6    7    8    9    0
     VK_OEM_3, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-//  -             =             \\                line 1 letter above
-    VK_OEM_MINUS, VK_OEM_EQUAL, VK_OEM_BSLASH,
-//   q    w    e    r    t    y    u    i    o    p
-    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
-//  [                ]                            line 2 letter above
-    VK_OEM_LBRACKET, VK_OEM_RBRACKET,
-//   a    s    d    f    g    h    j    k    l
-    'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
-//   ;               '                            line 3 letter above
-    VK_OEM_SEMICLN, VK_OEM_QUOTE,
-//   z    x    c    v    b    n    m
-    'Z', 'X', 'C', 'V', 'B', 'N', 'M',
-//  ,              .              /               line 4 letter above
-    VK_OEM_COMMA,  VK_OEM_PERIOD, VK_OEM_SLASH,
-//  <-       tab     caps        enter
-    VK_BACK, VK_TAB, VK_CAPITAL, VK_RETURN,
-//  shift1    shift2    ctrl1       ctrl2
-    VK_SHIFT, VK_SHIFT, VK_CONTROL, VK_CONTROL,
-//  alt1     alt2     esc        space            special key above
-    VK_MENU, VK_MENU, VK_ESCAPE, VK_SPACE
+    //  -             =             \\                line 1 letter above
+        VK_OEM_MINUS, VK_OEM_EQUAL, VK_OEM_BSLASH,
+        //   q    w    e    r    t    y    u    i    o    p
+            'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
+            //  [                ]                            line 2 letter above
+                VK_OEM_LBRACKET, VK_OEM_RBRACKET,
+                //   a    s    d    f    g    h    j    k    l
+                    'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
+                    //   ;               '                            line 3 letter above
+                        VK_OEM_SEMICLN, VK_OEM_QUOTE,
+                        //   z    x    c    v    b    n    m
+                            'Z', 'X', 'C', 'V', 'B', 'N', 'M',
+                            //  ,              .              /               line 4 letter above
+                                VK_OEM_COMMA,  VK_OEM_PERIOD, VK_OEM_SLASH,
+                                //  <-       tab     caps        enter
+                                    VK_BACK, VK_TAB, VK_CAPITAL, VK_RETURN,
+                                    //  shift1    shift2    ctrl1       ctrl2
+                                        VK_SHIFT, VK_SHIFT, VK_CONTROL, VK_CONTROL,
+                                        //  alt1     alt2     esc        space            special key above
+                                            VK_MENU, VK_MENU, VK_ESCAPE, VK_SPACE
 };
 
 
@@ -60,7 +60,7 @@ void GetSKT1TextMetric(LPTEXTMETRIC   lptm)
     lfSKT1Font.lfOutPrecision = OUT_TT_ONLY_PRECIS;
     lfSKT1Font.lfClipPrecision = CLIP_DEFAULT_PRECIS;
     lfSKT1Font.lfQuality = PROOF_QUALITY;
-    lfSKT1Font.lfPitchAndFamily = FIXED_PITCH|FF_MODERN;
+    lfSKT1Font.lfPitchAndFamily = FIXED_PITCH | FF_MODERN;
 
     hOldFont = (HFONT)SelectObject(hDC, CreateFontIndirect(&lfSKT1Font));
 
@@ -92,16 +92,16 @@ void InitSKT1ButtonPos(LPSKT1CTXT lpSKT1Ctxt)
 
 #define INIT_WIDTH(name, width)             lpSKT1Ctxt->nButtonWidth[SKT1_ ## name ## _TYPE] = (width)
 
-    INIT_WIDTH(LETTER,      nButtonWidthUnit * SKT1_LETTER_WIDTH_TIMES / 2);
-    INIT_WIDTH(BACKSPACE,   nButtonWidthUnit * SKT1_BACKSPACE_WIDTH_TIMES / 2 + 1);
-    INIT_WIDTH(TAB,         nButtonWidthUnit * SKT1_TAB_WIDTH_TIMES / 2 + (SKT1_XIN + 1) / 2);
-    INIT_WIDTH(CAPS,        nButtonWidthUnit * SKT1_CAPS_WIDTH_TIMES / 2 + SKT1_XIN);
-    INIT_WIDTH(ENTER,       nButtonWidthUnit * SKT1_ENTER_WIDTH_TIMES / 2 + (SKT1_XIN + 1) / 2);
-    INIT_WIDTH(SHIFT,       nButtonWidthUnit * SKT1_SHIFT_WIDTH_TIMES / 2 + SKT1_XIN + (SKT1_XIN + 1) / 2);
-    INIT_WIDTH(CTRL,        nButtonWidthUnit * SKT1_CTRL_WIDTH_TIMES / 2 + (SKT1_XIN + 1) / 2);
-    INIT_WIDTH(ALT,         nButtonWidthUnit * SKT1_ALT_WIDTH_TIMES / 2 + (SKT1_XIN + 1) / 2);
-    INIT_WIDTH(ESC,         nButtonWidthUnit * SKT1_ESC_WIDTH_TIMES / 2 + SKT1_XIN / 2);
-    INIT_WIDTH(SPACE,       nButtonWidthUnit * SKT1_SPACE_WIDTH_TIMES / 2 + SKT1_XIN * 5);
+    INIT_WIDTH(LETTER, nButtonWidthUnit * SKT1_LETTER_WIDTH_TIMES / 2);
+    INIT_WIDTH(BACKSPACE, nButtonWidthUnit * SKT1_BACKSPACE_WIDTH_TIMES / 2 + 1);
+    INIT_WIDTH(TAB, nButtonWidthUnit * SKT1_TAB_WIDTH_TIMES / 2 + (SKT1_XIN + 1) / 2);
+    INIT_WIDTH(CAPS, nButtonWidthUnit * SKT1_CAPS_WIDTH_TIMES / 2 + SKT1_XIN);
+    INIT_WIDTH(ENTER, nButtonWidthUnit * SKT1_ENTER_WIDTH_TIMES / 2 + (SKT1_XIN + 1) / 2);
+    INIT_WIDTH(SHIFT, nButtonWidthUnit * SKT1_SHIFT_WIDTH_TIMES / 2 + SKT1_XIN + (SKT1_XIN + 1) / 2);
+    INIT_WIDTH(CTRL, nButtonWidthUnit * SKT1_CTRL_WIDTH_TIMES / 2 + (SKT1_XIN + 1) / 2);
+    INIT_WIDTH(ALT, nButtonWidthUnit * SKT1_ALT_WIDTH_TIMES / 2 + (SKT1_XIN + 1) / 2);
+    INIT_WIDTH(ESC, nButtonWidthUnit * SKT1_ESC_WIDTH_TIMES / 2 + SKT1_XIN / 2);
+    INIT_WIDTH(SPACE, nButtonWidthUnit * SKT1_SPACE_WIDTH_TIMES / 2 + SKT1_XIN * 5);
 
 #undef INIT_WIDTH
 
@@ -247,7 +247,7 @@ void SKT1DrawConvexRect(HDC hDC, int x, int y, int nWidth, int nHeight)
 
     // 2
     PatBlt(hDC, x, y + nHeight, 1, -nHeight, WHITENESS);
-    PatBlt(hDC, x, y, nWidth , 1, WHITENESS);
+    PatBlt(hDC, x, y, nWidth, 1, WHITENESS);
     // 3
     SelectObject(hDC, GetStockObject(GRAY_BRUSH));
     PatBlt(hDC, x, y + nHeight, nWidth, -1, PATCOPY);
@@ -263,7 +263,7 @@ void SKT1DrawBitmap(HDC hDC, int x, int y, int nWidth, int nHeight, LPCWSTR lpsz
     hBitmap = (HBITMAP)LoadBitmap(ghInst, lpszBitmap);
     hMemDC = CreateCompatibleDC(hDC);
     hOldBmp = (HBITMAP)SelectObject(hMemDC, hBitmap);
-    BitBlt(hDC, x, y, nWidth, nHeight, hMemDC, 0 , 0, SRCCOPY);
+    BitBlt(hDC, x, y, nWidth, nHeight, hMemDC, 0, 0, SRCCOPY);
     SelectObject(hMemDC, hOldBmp);
     DeleteObject(hBitmap);
     DeleteDC(hMemDC);
@@ -314,172 +314,172 @@ void InitSKT1Bitmap(HWND hSKWnd, LPSKT1CTXT lpSKT1Ctxt)
     // ctrl 1   -> line 5 special key
     SKT1DrawConvexRect(hMemDC, lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX].x, lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX].y, lpSKT1Ctxt->nButtonWidth[SKT1_CTRL_TYPE], lpSKT1Ctxt->nButtonHeight[0]);
     SKT1DrawBitmap(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX].x +
-        lpSKT1Ctxt->nButtonWidth[SKT1_CTRL_TYPE] / 2 - SKT1_CTRL_BMP_X / 2,
-        lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX].y +
-        lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_CTRL_BMP_Y / 2,
-        SKT1_CTRL_BMP_X,
-        SKT1_CTRL_BMP_Y,
-        MAKEINTRESOURCEW(CTRL_T1));
+                   lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX].x +
+                   lpSKT1Ctxt->nButtonWidth[SKT1_CTRL_TYPE] / 2 - SKT1_CTRL_BMP_X / 2,
+                   lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX].y +
+                   lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_CTRL_BMP_Y / 2,
+                   SKT1_CTRL_BMP_X,
+                   SKT1_CTRL_BMP_Y,
+                   MAKEINTRESOURCEW(CTRL_T1));
 
     // ctrl 2
     SKT1DrawConvexRect(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX + 1].x,
-        lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX + 1].y,
-        lpSKT1Ctxt->nButtonWidth[SKT1_CTRL_TYPE],
-        lpSKT1Ctxt->nButtonHeight[0]);
+                       lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX + 1].x,
+                       lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX + 1].y,
+                       lpSKT1Ctxt->nButtonWidth[SKT1_CTRL_TYPE],
+                       lpSKT1Ctxt->nButtonHeight[0]);
     SKT1DrawBitmap(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX + 1].x +
-        lpSKT1Ctxt->nButtonWidth[SKT1_CTRL_TYPE] / 2 - SKT1_CTRL_BMP_X / 2,
-        lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX + 1].y +
-        lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_CTRL_BMP_Y / 2,
-        SKT1_CTRL_BMP_X, SKT1_CTRL_BMP_Y,
-        MAKEINTRESOURCEW(CTRL_T1));
+                   lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX + 1].x +
+                   lpSKT1Ctxt->nButtonWidth[SKT1_CTRL_TYPE] / 2 - SKT1_CTRL_BMP_X / 2,
+                   lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX + 1].y +
+                   lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_CTRL_BMP_Y / 2,
+                   SKT1_CTRL_BMP_X, SKT1_CTRL_BMP_Y,
+                   MAKEINTRESOURCEW(CTRL_T1));
 
     // esc
     SKT1DrawConvexRect(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ESC_INDEX].x,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ESC_INDEX].y,
-        lpSKT1Ctxt->nButtonWidth[SKT1_ESC_TYPE],
-        lpSKT1Ctxt->nButtonHeight[0]);
+                       lpSKT1Ctxt->ptButtonPos[SKT1_ESC_INDEX].x,
+                       lpSKT1Ctxt->ptButtonPos[SKT1_ESC_INDEX].y,
+                       lpSKT1Ctxt->nButtonWidth[SKT1_ESC_TYPE],
+                       lpSKT1Ctxt->nButtonHeight[0]);
     SKT1DrawBitmap(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ESC_INDEX].x +
-        lpSKT1Ctxt->nButtonWidth[SKT1_ESC_TYPE] / 2 - SKT1_ESC_BMP_X / 2,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ESC_INDEX].y +
-        lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_ESC_BMP_Y / 2,
-        SKT1_ESC_BMP_X, SKT1_ESC_BMP_Y,
-        MAKEINTRESOURCEW(ESC_T1));
+                   lpSKT1Ctxt->ptButtonPos[SKT1_ESC_INDEX].x +
+                   lpSKT1Ctxt->nButtonWidth[SKT1_ESC_TYPE] / 2 - SKT1_ESC_BMP_X / 2,
+                   lpSKT1Ctxt->ptButtonPos[SKT1_ESC_INDEX].y +
+                   lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_ESC_BMP_Y / 2,
+                   SKT1_ESC_BMP_X, SKT1_ESC_BMP_Y,
+                   MAKEINTRESOURCEW(ESC_T1));
 
     // alt 1
     SKT1DrawConvexRect(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX].x,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX].y,
-        lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE],
-        lpSKT1Ctxt->nButtonHeight[0]);
+                       lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX].x,
+                       lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX].y,
+                       lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE],
+                       lpSKT1Ctxt->nButtonHeight[0]);
     SKT1DrawBitmap(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX].x +
-        lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE] / 2 - SKT1_ALT_BMP_X / 2,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX].y +
-        lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_ALT_BMP_Y / 2,
-        SKT1_ALT_BMP_X, SKT1_ALT_BMP_Y,
-        MAKEINTRESOURCEW(ALT_T1));
+                   lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX].x +
+                   lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE] / 2 - SKT1_ALT_BMP_X / 2,
+                   lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX].y +
+                   lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_ALT_BMP_Y / 2,
+                   SKT1_ALT_BMP_X, SKT1_ALT_BMP_Y,
+                   MAKEINTRESOURCEW(ALT_T1));
 
     // alt 2
     SKT1DrawConvexRect(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX + 1].x,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX + 1].y,
-        lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE],
-        lpSKT1Ctxt->nButtonHeight[0]);
+                       lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX + 1].x,
+                       lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX + 1].y,
+                       lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE],
+                       lpSKT1Ctxt->nButtonHeight[0]);
     SKT1DrawBitmap(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX + 1].x +
-        lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE] / 2 - SKT1_ALT_BMP_X / 2,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX + 1].y +
-        lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_ALT_BMP_Y / 2,
-        SKT1_ALT_BMP_X, SKT1_ALT_BMP_Y,
-        MAKEINTRESOURCEW(ALT_T1));
+                   lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX + 1].x +
+                   lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE] / 2 - SKT1_ALT_BMP_X / 2,
+                   lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX + 1].y +
+                   lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_ALT_BMP_Y / 2,
+                   SKT1_ALT_BMP_X, SKT1_ALT_BMP_Y,
+                   MAKEINTRESOURCEW(ALT_T1));
 
     // space
     SKT1DrawConvexRect(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_SPACE_INDEX].x,
-        lpSKT1Ctxt->ptButtonPos[SKT1_SPACE_INDEX].y,
-        lpSKT1Ctxt->nButtonWidth[SKT1_SPACE_TYPE],
-        lpSKT1Ctxt->nButtonHeight[0]);
+                       lpSKT1Ctxt->ptButtonPos[SKT1_SPACE_INDEX].x,
+                       lpSKT1Ctxt->ptButtonPos[SKT1_SPACE_INDEX].y,
+                       lpSKT1Ctxt->nButtonWidth[SKT1_SPACE_TYPE],
+                       lpSKT1Ctxt->nButtonHeight[0]);
 
     // line 4
     // shift 1
     SKT1DrawConvexRect(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX].x,
-        lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX].y,
-        lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE],
-        lpSKT1Ctxt->nButtonHeight[0]);
+                       lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX].x,
+                       lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX].y,
+                       lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE],
+                       lpSKT1Ctxt->nButtonHeight[0]);
     SKT1DrawBitmap(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX].x +
-        lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE] / 2 - SKT1_SHIFT_BMP_X / 2,
-        lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX].y +
-        lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_SHIFT_BMP_Y / 2,
-        SKT1_SHIFT_BMP_X, SKT1_SHIFT_BMP_Y,
-        MAKEINTRESOURCEW(SHIFT_T1));
+                   lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX].x +
+                   lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE] / 2 - SKT1_SHIFT_BMP_X / 2,
+                   lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX].y +
+                   lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_SHIFT_BMP_Y / 2,
+                   SKT1_SHIFT_BMP_X, SKT1_SHIFT_BMP_Y,
+                   MAKEINTRESOURCEW(SHIFT_T1));
 
     // shift 2
     SKT1DrawConvexRect(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX + 1].x,
-        lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX + 1].y,
-        lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE],
-        lpSKT1Ctxt->nButtonHeight[0]);
+                       lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX + 1].x,
+                       lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX + 1].y,
+                       lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE],
+                       lpSKT1Ctxt->nButtonHeight[0]);
     SKT1DrawBitmap(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX + 1].x +
-        lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE] / 2 - SKT1_SHIFT_BMP_X / 2,
-        lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX + 1].y +
-        lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_SHIFT_BMP_Y / 2,
-        SKT1_SHIFT_BMP_X, SKT1_SHIFT_BMP_Y,
-        MAKEINTRESOURCEW(SHIFT_T1));
+                   lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX + 1].x +
+                   lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE] / 2 - SKT1_SHIFT_BMP_X / 2,
+                   lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX + 1].y +
+                   lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_SHIFT_BMP_Y / 2,
+                   SKT1_SHIFT_BMP_X, SKT1_SHIFT_BMP_Y,
+                   MAKEINTRESOURCEW(SHIFT_T1));
 
     // line 3
     // caps
     SKT1DrawConvexRect(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_CAPS_INDEX].x,
-        lpSKT1Ctxt->ptButtonPos[SKT1_CAPS_INDEX].y,
-        lpSKT1Ctxt->nButtonWidth[SKT1_CAPS_TYPE],
-        lpSKT1Ctxt->nButtonHeight[0]);
+                       lpSKT1Ctxt->ptButtonPos[SKT1_CAPS_INDEX].x,
+                       lpSKT1Ctxt->ptButtonPos[SKT1_CAPS_INDEX].y,
+                       lpSKT1Ctxt->nButtonWidth[SKT1_CAPS_TYPE],
+                       lpSKT1Ctxt->nButtonHeight[0]);
     SKT1DrawBitmap(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_CAPS_INDEX].x +
-        lpSKT1Ctxt->nButtonWidth[SKT1_CAPS_TYPE] / 2 - SKT1_CAPS_BMP_X / 2,
-        lpSKT1Ctxt->ptButtonPos[SKT1_CAPS_INDEX].y +
-        lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_CAPS_BMP_Y / 2,
-        SKT1_CAPS_BMP_X, SKT1_CAPS_BMP_Y,
-        MAKEINTRESOURCEW(CAPS_T1));
+                   lpSKT1Ctxt->ptButtonPos[SKT1_CAPS_INDEX].x +
+                   lpSKT1Ctxt->nButtonWidth[SKT1_CAPS_TYPE] / 2 - SKT1_CAPS_BMP_X / 2,
+                   lpSKT1Ctxt->ptButtonPos[SKT1_CAPS_INDEX].y +
+                   lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_CAPS_BMP_Y / 2,
+                   SKT1_CAPS_BMP_X, SKT1_CAPS_BMP_Y,
+                   MAKEINTRESOURCEW(CAPS_T1));
 
     // line 2
     // tab
     SKT1DrawConvexRect(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_TAB_INDEX].x,
-        lpSKT1Ctxt->ptButtonPos[SKT1_TAB_INDEX].y,
-        lpSKT1Ctxt->nButtonWidth[SKT1_TAB_TYPE],
-        lpSKT1Ctxt->nButtonHeight[0]);
+                       lpSKT1Ctxt->ptButtonPos[SKT1_TAB_INDEX].x,
+                       lpSKT1Ctxt->ptButtonPos[SKT1_TAB_INDEX].y,
+                       lpSKT1Ctxt->nButtonWidth[SKT1_TAB_TYPE],
+                       lpSKT1Ctxt->nButtonHeight[0]);
     SKT1DrawBitmap(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_TAB_INDEX].x +
-        lpSKT1Ctxt->nButtonWidth[SKT1_TAB_TYPE] / 2 - SKT1_TAB_BMP_X / 2,
-        lpSKT1Ctxt->ptButtonPos[SKT1_TAB_INDEX].y +
-        lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_TAB_BMP_Y / 2,
-        SKT1_TAB_BMP_X, SKT1_TAB_BMP_Y,
-        MAKEINTRESOURCEW(TAB_T1));
+                   lpSKT1Ctxt->ptButtonPos[SKT1_TAB_INDEX].x +
+                   lpSKT1Ctxt->nButtonWidth[SKT1_TAB_TYPE] / 2 - SKT1_TAB_BMP_X / 2,
+                   lpSKT1Ctxt->ptButtonPos[SKT1_TAB_INDEX].y +
+                   lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_TAB_BMP_Y / 2,
+                   SKT1_TAB_BMP_X, SKT1_TAB_BMP_Y,
+                   MAKEINTRESOURCEW(TAB_T1));
 
     // enter
     SKT1DrawConvexRect(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ENTER_INDEX].x,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ENTER_INDEX].y,
-        lpSKT1Ctxt->nButtonWidth[SKT1_ENTER_TYPE],
-        lpSKT1Ctxt->nButtonHeight[1]);
+                       lpSKT1Ctxt->ptButtonPos[SKT1_ENTER_INDEX].x,
+                       lpSKT1Ctxt->ptButtonPos[SKT1_ENTER_INDEX].y,
+                       lpSKT1Ctxt->nButtonWidth[SKT1_ENTER_TYPE],
+                       lpSKT1Ctxt->nButtonHeight[1]);
     SKT1DrawBitmap(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ENTER_INDEX].x +
-        lpSKT1Ctxt->nButtonWidth[SKT1_ENTER_TYPE] / 2 - SKT1_ENTER_BMP_X / 2,
-        lpSKT1Ctxt->ptButtonPos[SKT1_ENTER_INDEX].y +
-        lpSKT1Ctxt->nButtonHeight[1] / 2 - SKT1_ENTER_BMP_Y / 2,
-        SKT1_ENTER_BMP_X, SKT1_ENTER_BMP_Y,
-        MAKEINTRESOURCEW(ENTER_T1));
+                   lpSKT1Ctxt->ptButtonPos[SKT1_ENTER_INDEX].x +
+                   lpSKT1Ctxt->nButtonWidth[SKT1_ENTER_TYPE] / 2 - SKT1_ENTER_BMP_X / 2,
+                   lpSKT1Ctxt->ptButtonPos[SKT1_ENTER_INDEX].y +
+                   lpSKT1Ctxt->nButtonHeight[1] / 2 - SKT1_ENTER_BMP_Y / 2,
+                   SKT1_ENTER_BMP_X, SKT1_ENTER_BMP_Y,
+                   MAKEINTRESOURCEW(ENTER_T1));
 
     // line 1
     // backspace
     SKT1DrawConvexRect(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_BACKSPACE_INDEX].x,
-        lpSKT1Ctxt->ptButtonPos[SKT1_BACKSPACE_INDEX].y,
-        lpSKT1Ctxt->nButtonWidth[SKT1_BACKSPACE_TYPE],
-        lpSKT1Ctxt->nButtonHeight[0]);
+                       lpSKT1Ctxt->ptButtonPos[SKT1_BACKSPACE_INDEX].x,
+                       lpSKT1Ctxt->ptButtonPos[SKT1_BACKSPACE_INDEX].y,
+                       lpSKT1Ctxt->nButtonWidth[SKT1_BACKSPACE_TYPE],
+                       lpSKT1Ctxt->nButtonHeight[0]);
     SKT1DrawBitmap(hMemDC,
-        lpSKT1Ctxt->ptButtonPos[SKT1_BACKSPACE_INDEX].x +
-        lpSKT1Ctxt->nButtonWidth[SKT1_BACKSPACE_TYPE] / 2 - SKT1_BACKSPACE_BMP_X / 2,
-        lpSKT1Ctxt->ptButtonPos[SKT1_BACKSPACE_INDEX].y +
-        lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_BACKSPACE_BMP_Y / 2,
-        SKT1_BACKSPACE_BMP_X, SKT1_BACKSPACE_BMP_Y,
-        MAKEINTRESOURCEW(BACK_T1));
+                   lpSKT1Ctxt->ptButtonPos[SKT1_BACKSPACE_INDEX].x +
+                   lpSKT1Ctxt->nButtonWidth[SKT1_BACKSPACE_TYPE] / 2 - SKT1_BACKSPACE_BMP_X / 2,
+                   lpSKT1Ctxt->ptButtonPos[SKT1_BACKSPACE_INDEX].y +
+                   lpSKT1Ctxt->nButtonHeight[0] / 2 - SKT1_BACKSPACE_BMP_Y / 2,
+                   SKT1_BACKSPACE_BMP_X, SKT1_BACKSPACE_BMP_Y,
+                   MAKEINTRESOURCEW(BACK_T1));
 
     // draw letter buttons
-    for (i = SKT1_LETTER_KEY_NUM - 1; i >= 0 ; i--) {
+    for (i = SKT1_LETTER_KEY_NUM - 1; i >= 0; i--) {
         SKT1DrawConvexRect(hMemDC,
-            lpSKT1Ctxt->ptButtonPos[i].x,
-            lpSKT1Ctxt->ptButtonPos[i].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_LETTER_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0]);
+                           lpSKT1Ctxt->ptButtonPos[i].x,
+                           lpSKT1Ctxt->ptButtonPos[i].y,
+                           lpSKT1Ctxt->nButtonWidth[SKT1_LETTER_TYPE],
+                           lpSKT1Ctxt->nButtonHeight[0]);
     }
 
     // draw latter label
@@ -549,7 +549,7 @@ void SKT1DrawDragBorder(
     // _>
     PatBlt(hDC, x + cxBorder, y + rcWnd.bottom - rcWnd.top, rcWnd.right - rcWnd.left - cxBorder, -cyBorder, PATINVERT);
     //  v
-    PatBlt(hDC, x + rcWnd.right - rcWnd.left, y, - cxBorder, rcWnd.bottom - rcWnd.top - cyBorder, PATINVERT);
+    PatBlt(hDC, x + rcWnd.right - rcWnd.left, y, -cxBorder, rcWnd.bottom - rcWnd.top - cyBorder, PATINVERT);
 
     DeleteDC(hDC);
 }
@@ -621,7 +621,7 @@ void SKT1InvertButton(
             break;
         case SKT1_CAPS_INDEX:
             nWidth = 0;
-            MessageBeep((UINT) -1);
+            MessageBeep((UINT)-1);
             break;
         case SKT1_ENTER_INDEX:
             nWidth = lpSKT1Ctxt->nButtonWidth[SKT1_ENTER_TYPE];
@@ -633,7 +633,7 @@ void SKT1InvertButton(
         case SKT1_ALT_INDEX:
         case SKT1_ALT_INDEX + 1:
             nWidth = 0;
-            MessageBeep((UINT) -1);
+            MessageBeep((UINT)-1);
             break;
         case SKT1_ESC_INDEX:
             nWidth = lpSKT1Ctxt->nButtonWidth[SKT1_ESC_TYPE];
@@ -700,119 +700,119 @@ UINT SKT1MousePosition(LPSKT1CTXT lpSKT1Ctxt, LPPOINT    lpptCursor)
     // check letter button
     for (i = 0; i < SKT1_LETTER_KEY_NUM; i++) {
         if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[i].x,
-                lpSKT1Ctxt->ptButtonPos[i].y,
-                lpSKT1Ctxt->nButtonWidth[SKT1_LETTER_TYPE],
-                lpSKT1Ctxt->nButtonHeight[0],
-                lpptCursor)) {
+                        lpSKT1Ctxt->ptButtonPos[i].y,
+                        lpSKT1Ctxt->nButtonWidth[SKT1_LETTER_TYPE],
+                        lpSKT1Ctxt->nButtonHeight[0],
+                        lpptCursor)) {
             return i;
         }
     }
 
     // backSapce
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_BACKSPACE_INDEX].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_BACKSPACE_INDEX].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_BACKSPACE_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_BACKSPACE_INDEX].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_BACKSPACE_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[0],
+                    lpptCursor)) {
         return SKT1_BACKSPACE_INDEX;
     }
 
     // tab
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_TAB_INDEX].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_TAB_INDEX].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_TAB_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_TAB_INDEX].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_TAB_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[0],
+                    lpptCursor)) {
         return SKT1_TAB_INDEX;
     }
 
     // caps
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_CAPS_INDEX].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_CAPS_INDEX].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_CAPS_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_CAPS_INDEX].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_CAPS_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[0],
+                    lpptCursor)) {
         return SKT1_CAPS_INDEX;
     }
 
     // enter
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_ENTER_INDEX].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_ENTER_INDEX].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_ENTER_TYPE],
-            lpSKT1Ctxt->nButtonHeight[1],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_ENTER_INDEX].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_ENTER_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[1],
+                    lpptCursor)) {
         return SKT1_ENTER_INDEX;
     }
 
     // shift 1
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[0],
+                    lpptCursor)) {
         return SKT1_SHIFT_INDEX;
     }
 
     // shift 2
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX + 1].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX + 1].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_SHIFT_INDEX + 1].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_SHIFT_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[0],
+                    lpptCursor)) {
         return SKT1_SHIFT_INDEX;
     }
 
     // ctrl 1
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_CTRL_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_CTRL_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[0],
+                    lpptCursor)) {
         return SKT1_CTRL_INDEX;
     }
 
     // ctrl 2
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX + 1].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX + 1].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_CTRL_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_CTRL_INDEX + 1].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_CTRL_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[0],
+                    lpptCursor)) {
         return SKT1_CTRL_INDEX;
     }
 
     // alt 1
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[0],
+                    lpptCursor)) {
         return SKT1_ALT_INDEX;
     }
 
     // alt 2
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX + 1].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX + 1].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_ALT_INDEX + 1].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_ALT_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[0],
+                    lpptCursor)) {
         return SKT1_ALT_INDEX;
     }
 
     // esc
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_ESC_INDEX].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_ESC_INDEX].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_ESC_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_ESC_INDEX].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_ESC_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[0],
+                    lpptCursor)) {
         return SKT1_ESC_INDEX;
     }
 
     // space
     if (ImmPtInRect(lpSKT1Ctxt->ptButtonPos[SKT1_SPACE_INDEX].x,
-            lpSKT1Ctxt->ptButtonPos[SKT1_SPACE_INDEX].y,
-            lpSKT1Ctxt->nButtonWidth[SKT1_SPACE_TYPE],
-            lpSKT1Ctxt->nButtonHeight[0],
-            lpptCursor)) {
+                    lpSKT1Ctxt->ptButtonPos[SKT1_SPACE_INDEX].y,
+                    lpSKT1Ctxt->nButtonWidth[SKT1_SPACE_TYPE],
+                    lpSKT1Ctxt->nButtonHeight[0],
+                    lpptCursor)) {
         return SKT1_SPACE_INDEX;
     }
 
@@ -1004,9 +1004,9 @@ BOOL SKT1ButtonUp(HWND hSKWnd)
     SKT1DrawDragBorder(hSKWnd, &lpSKT1Ctxt->ptSkCursor, &lpSKT1Ctxt->ptSkOffset);
 
     pt.x = lpSKT1Ctxt->ptSkCursor.x - lpSKT1Ctxt->ptSkOffset.x,
-    pt.y = lpSKT1Ctxt->ptSkCursor.y - lpSKT1Ctxt->ptSkOffset.y,
+        pt.y = lpSKT1Ctxt->ptSkCursor.y - lpSKT1Ctxt->ptSkOffset.y,
 
-    SetWindowPos(hSKWnd, (HWND)NULL, pt.x, pt.y, 0, 0, SWP_NOACTIVATE|SWP_NOSIZE|SWP_NOZORDER);
+        SetWindowPos(hSKWnd, (HWND)NULL, pt.x, pt.y, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
 
     lpSKT1Ctxt->ptSkOffset.x = SKT1_NOT_DRAG;
     lpSKT1Ctxt->ptSkOffset.y = SKT1_NOT_DRAG;
@@ -1066,11 +1066,10 @@ LRESULT SetSKT1Data(HWND          hSKWnd, LPSOFTKBDDATA lpSoftKbdData)
 
     if (lpSKT1Ctxt->lfCharSet != DEFAULT_CHARSET) {
         LOGFONT lfFont;
-        CopyMemory(&lfFont, &lfSKT1Font, sizeof (LOGFONT));
+        CopyMemory(&lfFont, &lfSKT1Font, sizeof(LOGFONT));
         lfFont.lfCharSet = (BYTE)lpSKT1Ctxt->lfCharSet;
         hOldFont = (HFONT)SelectObject(hMemDC, CreateFontIndirect(&lfFont));
-    }
-    else {
+    } else {
         hOldFont = (HFONT)SelectObject(hMemDC, CreateFontIndirect(&lfSKT1Font));
     }
 
@@ -1104,15 +1103,15 @@ LRESULT CALLBACK SKWndProcT1(HWND   hSKWnd, UINT   uMsg, WPARAM wParam, LPARAM l
         DestroyT1Window(hSKWnd);
         break;
     case WM_PAINT:
-        {
-            HDC         hDC;
-            PAINTSTRUCT ps;
+    {
+        HDC         hDC;
+        PAINTSTRUCT ps;
 
-            hDC = BeginPaint(hSKWnd, &ps);
-            UpdateSKT1Window(hDC, hSKWnd);
-            EndPaint(hSKWnd, &ps);
-        }
-        break;
+        hDC = BeginPaint(hSKWnd, &ps);
+        UpdateSKT1Window(hDC, hSKWnd);
+        EndPaint(hSKWnd, &ps);
+    }
+    break;
     case WM_SETCURSOR:
         if (!SKT1SetCursor(hSKWnd, lParam)) {
             return DefWindowProc(hSKWnd, uMsg, wParam, lParam);
@@ -1142,143 +1141,143 @@ LRESULT CALLBACK SKWndProcT1(HWND   hSKWnd, UINT   uMsg, WPARAM wParam, LPARAM l
     case WM_IME_CONTROL:
         switch (wParam) {
         case IMC_GETSOFTKBDFONT:
-            {
+        {
+            HGLOBAL    hSKT1Ctxt;
+            LPSKT1CTXT lpSKT1Ctxt;
+            BYTE       lfCharSet;
+
+            hSKT1Ctxt = (HGLOBAL)GetWindowLongPtr(hSKWnd, SKT1_CONTEXT);
+            if (!hSKT1Ctxt) {
+                return (1);
+            }
+
+            lpSKT1Ctxt = (LPSKT1CTXT)GlobalLock(hSKT1Ctxt);
+            if (!lpSKT1Ctxt) {
+                return (1);
+            }
+
+            lfCharSet = (BYTE)lpSKT1Ctxt->lfCharSet;
+
+            GlobalUnlock(hSKT1Ctxt);
+
+            *(LPLOGFONT)lParam = lfSKT1Font;
+
+            if (lfCharSet != DEFAULT_CHARSET) {
+                ((LPLOGFONT)lParam)->lfCharSet = lfCharSet;
+            }
+
+            return (0);
+        }
+        break;
+        case IMC_SETSOFTKBDFONT:
+        {
+            // in differet version of Windows
+            if (lfSKT1Font.lfCharSet != ((LPLOGFONT)lParam)->lfCharSet) {
                 HGLOBAL    hSKT1Ctxt;
                 LPSKT1CTXT lpSKT1Ctxt;
-                BYTE       lfCharSet;
 
-                hSKT1Ctxt = (HGLOBAL)GetWindowLongPtr(hSKWnd, SKT1_CONTEXT);
+                hSKT1Ctxt = (HGLOBAL)GetWindowLongPtr(hSKWnd,
+                                                      SKT1_CONTEXT);
                 if (!hSKT1Ctxt) {
-                    return (1);
+                    return 1;
                 }
 
                 lpSKT1Ctxt = (LPSKT1CTXT)GlobalLock(hSKT1Ctxt);
                 if (!lpSKT1Ctxt) {
-                    return (1);
+                    return 1;
                 }
 
-                lfCharSet = (BYTE)lpSKT1Ctxt->lfCharSet;
+                lpSKT1Ctxt->lfCharSet = ((LPLOGFONT)lParam)->lfCharSet;
 
                 GlobalUnlock(hSKT1Ctxt);
-
-                *(LPLOGFONT)lParam = lfSKT1Font;
-
-                if (lfCharSet != DEFAULT_CHARSET) {
-                    ((LPLOGFONT)lParam)->lfCharSet = lfCharSet;
-                }
-
-                return (0);
             }
-            break;
-        case IMC_SETSOFTKBDFONT:
-            {
-                // in differet version of Windows
-                if (lfSKT1Font.lfCharSet != ((LPLOGFONT)lParam)->lfCharSet) {
-                    HGLOBAL    hSKT1Ctxt;
-                    LPSKT1CTXT lpSKT1Ctxt;
-
-                    hSKT1Ctxt = (HGLOBAL)GetWindowLongPtr(hSKWnd,
-                        SKT1_CONTEXT);
-                    if (!hSKT1Ctxt) {
-                        return 1;
-                    }
-
-                    lpSKT1Ctxt = (LPSKT1CTXT)GlobalLock(hSKT1Ctxt);
-                    if (!lpSKT1Ctxt) {
-                        return 1;
-                    }
-
-                    lpSKT1Ctxt->lfCharSet = ((LPLOGFONT)lParam)->lfCharSet;
-
-                    GlobalUnlock(hSKT1Ctxt);
-                }
-            }
-            break;
+        }
+        break;
         case IMC_GETSOFTKBDPOS:
-            {
-                RECT rcWnd;
+        {
+            RECT rcWnd;
 
-                GetWindowRect(hSKWnd, &rcWnd);
-                return MAKELRESULT(rcWnd.left, rcWnd.top);
-            }
-            break;
+            GetWindowRect(hSKWnd, &rcWnd);
+            return MAKELRESULT(rcWnd.left, rcWnd.top);
+        }
+        break;
         case IMC_SETSOFTKBDPOS:
-            {
-                POINT          ptSoftKbdPos;
-                HWND           hUIWnd;
-                HIMC           hIMC;
-                LPINPUTCONTEXT lpIMC;
+        {
+            POINT          ptSoftKbdPos;
+            HWND           hUIWnd;
+            HIMC           hIMC;
+            LPINPUTCONTEXT lpIMC;
 
-                ptSoftKbdPos.x = ((LPPOINTS)lParam)->x;
-                ptSoftKbdPos.y = ((LPPOINTS)lParam)->y;
+            ptSoftKbdPos.x = ((LPPOINTS)lParam)->x;
+            ptSoftKbdPos.y = ((LPPOINTS)lParam)->y;
 
-                SetWindowPos(hSKWnd, NULL, ptSoftKbdPos.x, ptSoftKbdPos.y, 0, 0, SWP_NOACTIVATE|SWP_NOSIZE|SWP_NOZORDER);
+            SetWindowPos(hSKWnd, NULL, ptSoftKbdPos.x, ptSoftKbdPos.y, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
 
-                // Here we want to get - the owner or parent window
-                hUIWnd = GetParent(hSKWnd);
-                if (!hUIWnd) {
-                    return (1);
-                }
-
-                hIMC = (HIMC) GetWindowLongPtr(hUIWnd, IMMGWLP_IMC);
-                if (!hIMC) {
-                    return (1);
-                }
-
-                lpIMC = (LPINPUTCONTEXT)ImmLockIMC(hIMC);
-                if (!lpIMC) {
-                    return (1);
-                }
-
-                lpIMC->ptSoftKbdPos = ptSoftKbdPos;
-                ImmUnlockIMC(hIMC);
-                return (0);
+            // Here we want to get - the owner or parent window
+            hUIWnd = GetParent(hSKWnd);
+            if (!hUIWnd) {
+                return (1);
             }
-            break;
+
+            hIMC = (HIMC)GetWindowLongPtr(hUIWnd, IMMGWLP_IMC);
+            if (!hIMC) {
+                return (1);
+            }
+
+            lpIMC = (LPINPUTCONTEXT)ImmLockIMC(hIMC);
+            if (!lpIMC) {
+                return (1);
+            }
+
+            lpIMC->ptSoftKbdPos = ptSoftKbdPos;
+            ImmUnlockIMC(hIMC);
+            return (0);
+        }
+        break;
         case IMC_SETSOFTKBDDATA:
-            {
-                LRESULT lRet;
+        {
+            LRESULT lRet;
 
-                lRet = SetSKT1Data(hSKWnd, (LPSOFTKBDDATA)lParam);
-                if (!lRet) {
-                    InvalidateRect(hSKWnd, NULL, FALSE);
-                    PostMessage(hSKWnd, WM_PAINT, 0, 0);
-                }
-                return (lRet);
+            lRet = SetSKT1Data(hSKWnd, (LPSOFTKBDDATA)lParam);
+            if (!lRet) {
+                InvalidateRect(hSKWnd, NULL, FALSE);
+                PostMessage(hSKWnd, WM_PAINT, 0, 0);
             }
-            break;
+            return (lRet);
+        }
+        break;
         case IMC_GETSOFTKBDSUBTYPE:
         case IMC_SETSOFTKBDSUBTYPE:
-            {
-                HGLOBAL    hSKT1Ctxt;
-                LPSKT1CTXT lpSKT1Ctxt;
-                LRESULT    lRet;
+        {
+            HGLOBAL    hSKT1Ctxt;
+            LPSKT1CTXT lpSKT1Ctxt;
+            LRESULT    lRet;
 
-                lRet = -1;
+            lRet = -1;
 
-                hSKT1Ctxt = (HGLOBAL)GetWindowLongPtr(hSKWnd, SKT1_CONTEXT);
-                if (!hSKT1Ctxt) {
-                    return (lRet);
-                }
-
-                lpSKT1Ctxt = (LPSKT1CTXT)GlobalLock(hSKT1Ctxt);
-                if (!lpSKT1Ctxt) {
-                    return (lRet);
-                }
-
-                if (wParam == IMC_GETSOFTKBDSUBTYPE) {
-                    lRet = lpSKT1Ctxt->uSubType;
-                } else if (wParam == IMC_SETSOFTKBDSUBTYPE) {
-                    lRet = lpSKT1Ctxt->uSubType;
-                    lpSKT1Ctxt->uSubType = (UINT)lParam;
-                } else {
-                    lRet = -1;
-                }
-
-                GlobalUnlock(hSKT1Ctxt);
+            hSKT1Ctxt = (HGLOBAL)GetWindowLongPtr(hSKWnd, SKT1_CONTEXT);
+            if (!hSKT1Ctxt) {
                 return (lRet);
             }
-            break;
+
+            lpSKT1Ctxt = (LPSKT1CTXT)GlobalLock(hSKT1Ctxt);
+            if (!lpSKT1Ctxt) {
+                return (lRet);
+            }
+
+            if (wParam == IMC_GETSOFTKBDSUBTYPE) {
+                lRet = lpSKT1Ctxt->uSubType;
+            } else if (wParam == IMC_SETSOFTKBDSUBTYPE) {
+                lRet = lpSKT1Ctxt->uSubType;
+                lpSKT1Ctxt->uSubType = (UINT)lParam;
+            } else {
+                lRet = -1;
+            }
+
+            GlobalUnlock(hSKT1Ctxt);
+            return (lRet);
+        }
+        break;
         default:
             break;
         }

@@ -67,29 +67,29 @@ const IID IID_IRequest = {0xD97A6DA0,0xA861,0x11cf,{0x93,0xAE,0x00,0xA0,0xC9,0x0
 extern INVOKE_METHOD s_rgDOMNodeMethods[];
 extern BYTE s_cDOMNodeMethodLen;
 
-static VARTYPE s_argTypes_DOMDocument_documentElement[] =       { VT_DISPATCH };
-static VARTYPE s_argTypes_DOMDocument_createElement[] =         { VT_BSTR };
-static VARTYPE s_argTypes_DOMDocument_createTextNode[] =        { VT_BSTR };
-static VARTYPE s_argTypes_DOMDocument_createComment[] =         { VT_BSTR };
-static VARTYPE s_argTypes_DOMDocument_createCDATASection[] =    { VT_BSTR };
-static VARTYPE s_argTypes_DOMDocument_createProcessingInstruction[] =   { VT_BSTR, VT_BSTR };
-static VARTYPE s_argTypes_DOMDocument_createAttribute[] =       { VT_BSTR };
-static VARTYPE s_argTypes_DOMDocument_createEntityReference[] = { VT_BSTR };
-static VARTYPE s_argTypes_DOMDocument_getByTagName[] =          { VT_BSTR };
-static VARTYPE s_argTypes_DOMDocument_createNode[] =            { VT_VARIANT, VT_BSTR, VT_BSTR };
-static VARTYPE s_argTypes_DOMDocument_nodeFromID[] =            { VT_BSTR };
-static VARTYPE s_argTypes_DOMDocument_load[] =                  { VT_VARIANT };
-static VARTYPE s_argTypes_DOMDocument_async[] =                 { VT_BOOL };
-static VARTYPE s_argTypes_DOMDocument_loadXML[] =               { VT_BSTR };
-static VARTYPE s_argTypes_DOMDocument_save[] =                  { VT_VARIANT };
-static VARTYPE s_argTypes_DOMDocument_validateOnParse[] =       { VT_BOOL };
-static VARTYPE s_argTypes_DOMDocument_resolveExternals[] =      { VT_BOOL };
-static VARTYPE s_argTypes_DOMDocument_preserveWhiteSpace[] =    { VT_BOOL };
-static VARTYPE s_argTypes_DOMDocument_onreadystatechange[] =    { VT_VARIANT };
-static VARTYPE s_argTypes_DOMDocument_ondataavailable[] =       { VT_VARIANT };
-static VARTYPE s_argTypes_DOMDocument_ontransformnode[] =       { VT_VARIANT };
+static VARTYPE s_argTypes_DOMDocument_documentElement[] = {VT_DISPATCH};
+static VARTYPE s_argTypes_DOMDocument_createElement[] = {VT_BSTR};
+static VARTYPE s_argTypes_DOMDocument_createTextNode[] = {VT_BSTR};
+static VARTYPE s_argTypes_DOMDocument_createComment[] = {VT_BSTR};
+static VARTYPE s_argTypes_DOMDocument_createCDATASection[] = {VT_BSTR};
+static VARTYPE s_argTypes_DOMDocument_createProcessingInstruction[] = {VT_BSTR, VT_BSTR};
+static VARTYPE s_argTypes_DOMDocument_createAttribute[] = {VT_BSTR};
+static VARTYPE s_argTypes_DOMDocument_createEntityReference[] = {VT_BSTR};
+static VARTYPE s_argTypes_DOMDocument_getByTagName[] = {VT_BSTR};
+static VARTYPE s_argTypes_DOMDocument_createNode[] = {VT_VARIANT, VT_BSTR, VT_BSTR};
+static VARTYPE s_argTypes_DOMDocument_nodeFromID[] = {VT_BSTR};
+static VARTYPE s_argTypes_DOMDocument_load[] = {VT_VARIANT};
+static VARTYPE s_argTypes_DOMDocument_async[] = {VT_BOOL};
+static VARTYPE s_argTypes_DOMDocument_loadXML[] = {VT_BSTR};
+static VARTYPE s_argTypes_DOMDocument_save[] = {VT_VARIANT};
+static VARTYPE s_argTypes_DOMDocument_validateOnParse[] = {VT_BOOL};
+static VARTYPE s_argTypes_DOMDocument_resolveExternals[] = {VT_BOOL};
+static VARTYPE s_argTypes_DOMDocument_preserveWhiteSpace[] = {VT_BOOL};
+static VARTYPE s_argTypes_DOMDocument_onreadystatechange[] = {VT_VARIANT};
+static VARTYPE s_argTypes_DOMDocument_ondataavailable[] = {VT_VARIANT};
+static VARTYPE s_argTypes_DOMDocument_ontransformnode[] = {VT_VARIANT};
 
-static const IID*   s_argTypeIds_DOMDocument_documentElement[] = { &IID_IXMLDOMElement };
+static const IID* s_argTypeIds_DOMDocument_documentElement[] = {&IID_IXMLDOMElement};
 
 static INVOKE_METHOD
 s_rgDOMDocumentMethods[] =
@@ -184,21 +184,21 @@ DISPATCHINFO _dispatchexport<Document, IXMLDOMDocument, &LIBID_MSXML, ORD_MSXML,
 // DOMDocumentWrapper
 
 
-DOMDocumentWrapper::DOMDocumentWrapper(Document * p) : _dispatchexport<Document, IXMLDOMDocument, &LIBID_MSXML, ORD_MSXML, &IID_IXMLDOMDocument>(p), DOMNode(p->getDocNode())
+DOMDocumentWrapper::DOMDocumentWrapper(Document* p) : _dispatchexport<Document, IXMLDOMDocument, &LIBID_MSXML, ORD_MSXML, &IID_IXMLDOMDocument>(p), DOMNode(p->getDocNode())
 {
     // This must be here to correctly initialize s_dispatchinfo under Unix
 }
 
 
 HRESULT STDMETHODCALLTYPE
-DOMDocumentWrapper::QueryInterface(REFIID iid, void ** ppvObject)
+DOMDocumentWrapper::QueryInterface(REFIID iid, void** ppvObject)
 {
     STACK_ENTRY_WRAPPED;
 
     HRESULT hr = S_OK;
     TraceTag((tagDOMOM, "DOMDocumentWrapper::QueryInterface"));
 
-    hr = getNodeData()->QIHelper( this, (DOMNode *)this, NULL, NULL, iid, ppvObject);
+    hr = getNodeData()->QIHelper(this, (DOMNode*)this, NULL, NULL, iid, ppvObject);
 
     return hr;
 }
@@ -207,23 +207,22 @@ DOMDocumentWrapper::QueryInterface(REFIID iid, void ** ppvObject)
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::GetIDsOfNames(
     /* [in] */ REFIID riid,
-    /* [size_is][in] */ LPOLESTR __RPC_FAR *rgszNames,
+    /* [size_is][in] */ LPOLESTR __RPC_FAR* rgszNames,
     /* [in] */ UINT cNames,
     /* [in] */ LCID lcid,
-    /* [size_is][out] */ DISPID __RPC_FAR *rgDispId)
+    /* [size_is][out] */ DISPID __RPC_FAR* rgDispId)
 {
     STACK_ENTRY_WRAPPED;
     HRESULT hr;
     Assert(GetComponentCount());
 
     // document methods?
-    hr = _dispatchImpl::FindIdsOfNames( rgszNames, cNames, s_rgDOMDocumentMethods,
-                                        NUMELEM(s_rgDOMDocumentMethods), lcid, rgDispId, false);
+    hr = _dispatchImpl::FindIdsOfNames(rgszNames, cNames, s_rgDOMDocumentMethods,
+                                       NUMELEM(s_rgDOMDocumentMethods), lcid, rgDispId, false);
     // IXMLDOMNode methods?
-    if (DISP_E_UNKNOWNNAME == hr)
-    {
-        hr = _dispatchImpl::FindIdsOfNames( rgszNames, cNames, s_rgDOMNodeMethods,
-                                            s_cDOMNodeMethodLen, lcid, rgDispId, false);
+    if (DISP_E_UNKNOWNNAME == hr) {
+        hr = _dispatchImpl::FindIdsOfNames(rgszNames, cNames, s_rgDOMNodeMethods,
+                                           s_cDOMNodeMethodLen, lcid, rgDispId, false);
     }
 
     return hr;
@@ -236,24 +235,22 @@ DOMDocumentWrapper::Invoke(
     /* [in] */ REFIID riid,
     /* [in] */ LCID lcid,
     /* [in] */ WORD wFlags,
-    /* [out][in] */ DISPPARAMS __RPC_FAR *pDispParams,
-    /* [out] */ VARIANT __RPC_FAR *pVarResult,
-    /* [out] */ EXCEPINFO __RPC_FAR *pExcepInfo,
-    /* [out] */ UINT __RPC_FAR *puArgErr)
+    /* [out][in] */ DISPPARAMS __RPC_FAR* pDispParams,
+    /* [out] */ VARIANT __RPC_FAR* pVarResult,
+    /* [out] */ EXCEPINFO __RPC_FAR* pExcepInfo,
+    /* [out] */ UINT __RPC_FAR* puArgErr)
 {
     STACK_ENTRY_WRAPPED;
     HRESULT hr;
     Assert(GetComponentCount());
 
-    if (dispIdMember > DISPID_DOM_NODE && dispIdMember < DISPID_XMLDOM_NODE__TOP) // IXMLDOMNode method?
+    if (dispIdMember > DISPID_DOM_NODE&& dispIdMember < DISPID_XMLDOM_NODE__TOP) // IXMLDOMNode method?
     {
         hr = DOMNode::Invoke(dispIdMember, riid, lcid, wFlags,
                              pDispParams, pVarResult, pExcepInfo, puArgErr);
-    }
-    else
-    {
+    } else {
         hr = _dispatchImpl::Invoke(&_dispatchexport<Document, IXMLDOMDocument, &LIBID_MSXML, ORD_MSXML, &IID_IXMLDOMDocument>::s_dispatchinfo,
-                                   (IXMLDOMDocument*)this, dispIdMember, riid, lcid, wFlags, pDispParams,
+            (IXMLDOMDocument*)this, dispIdMember, riid, lcid, wFlags, pDispParams,
                                    pVarResult, pExcepInfo, puArgErr);
     }
     return hr;
@@ -262,146 +259,145 @@ DOMDocumentWrapper::Invoke(
 
 HRESULT
 DOMDocumentWrapper::_invoke(
-    void * pTarget,
+    void* pTarget,
     DISPID dispIdMember,
-    INVOKE_ARG *rgArgs,
+    INVOKE_ARG* rgArgs,
     WORD wInvokeType,
-    VARIANT *pVarResult,
+    VARIANT* pVarResult,
     UINT cArgs)
 {
     HRESULT hr;
-    IXMLDOMDocument * pObj = (IXMLDOMDocument*)pTarget;
+    IXMLDOMDocument* pObj = (IXMLDOMDocument*)pTarget;
 
     TEST_METHOD_TABLE(s_rgDOMDocumentMethods, NUMELEM(s_rgDOMDocumentMethods), s_DOMDocument_DispIdMap, NUMELEM(s_DOMDocument_DispIdMap));
 
-    switch( dispIdMember )
-    {
-        case DISPID_READYSTATE:
-            hr = pObj->get_readyState((long*)&pVarResult->lVal);
-            break;
+    switch (dispIdMember) {
+    case DISPID_READYSTATE:
+        hr = pObj->get_readyState((long*)&pVarResult->lVal);
+        break;
 
-        case DISPID_DOM_DOCUMENT_DOCTYPE:
-            hr = pObj->get_doctype((IXMLDOMDocumentType**) &pVarResult->pdispVal);
-            break;
+    case DISPID_DOM_DOCUMENT_DOCTYPE:
+        hr = pObj->get_doctype((IXMLDOMDocumentType**)&pVarResult->pdispVal);
+        break;
 
-        case DISPID_DOM_DOCUMENT_IMPLEMENTATION:
-            hr = pObj->get_implementation((IXMLDOMImplementation**) &pVarResult->pdispVal);
-            break;
+    case DISPID_DOM_DOCUMENT_IMPLEMENTATION:
+        hr = pObj->get_implementation((IXMLDOMImplementation**)&pVarResult->pdispVal);
+        break;
 
-        case DISPID_DOM_DOCUMENT_DOCUMENTELEMENT:
-            if ( DISPATCH_PROPERTYGET == wInvokeType )
-                hr = pObj->get_documentElement( (IXMLDOMElement**) &pVarResult->pdispVal );
-            else
-                hr = pObj->putref_documentElement( (IXMLDOMElement*) VARMEMBER(&rgArgs[0].vArg, pdispVal) );
-            break;
+    case DISPID_DOM_DOCUMENT_DOCUMENTELEMENT:
+        if (DISPATCH_PROPERTYGET == wInvokeType)
+            hr = pObj->get_documentElement((IXMLDOMElement**)&pVarResult->pdispVal);
+        else
+            hr = pObj->putref_documentElement((IXMLDOMElement*)VARMEMBER(&rgArgs[0].vArg, pdispVal));
+        break;
 
-        case DISPID_DOM_DOCUMENT_CREATEELEMENT:
-            METHOD_INVOKE_1( pObj, createElement, bstrVal, BSTR, IXMLDOMElement*);
-            break;
+    case DISPID_DOM_DOCUMENT_CREATEELEMENT:
+        METHOD_INVOKE_1(pObj, createElement, bstrVal, BSTR, IXMLDOMElement*);
+        break;
 
-        case DISPID_DOM_DOCUMENT_CREATEDOCUMENTFRAGMENT:
-            hr = pObj->createDocumentFragment((IXMLDOMDocumentFragment**) &pVarResult->pdispVal);
-            break;
+    case DISPID_DOM_DOCUMENT_CREATEDOCUMENTFRAGMENT:
+        hr = pObj->createDocumentFragment((IXMLDOMDocumentFragment**)&pVarResult->pdispVal);
+        break;
 
-        case DISPID_DOM_DOCUMENT_CREATETEXTNODE:
-            METHOD_INVOKE_1( pObj, createTextNode, bstrVal, BSTR, IXMLDOMText*);
-            break;
+    case DISPID_DOM_DOCUMENT_CREATETEXTNODE:
+        METHOD_INVOKE_1(pObj, createTextNode, bstrVal, BSTR, IXMLDOMText*);
+        break;
 
-        case DISPID_DOM_DOCUMENT_CREATECOMMENT:
-            METHOD_INVOKE_1( pObj, createComment, bstrVal, BSTR, IXMLDOMComment*);
-            break;
+    case DISPID_DOM_DOCUMENT_CREATECOMMENT:
+        METHOD_INVOKE_1(pObj, createComment, bstrVal, BSTR, IXMLDOMComment*);
+        break;
 
-        case DISPID_DOM_DOCUMENT_CREATECDATASECTION:
-            METHOD_INVOKE_1( pObj, createCDATASection, bstrVal, BSTR, IXMLDOMCDATASection*);
-            break;
+    case DISPID_DOM_DOCUMENT_CREATECDATASECTION:
+        METHOD_INVOKE_1(pObj, createCDATASection, bstrVal, BSTR, IXMLDOMCDATASection*);
+        break;
 
-        case DISPID_DOM_DOCUMENT_CREATEPROCESSINGINSTRUCTION:
-            hr = pObj->createProcessingInstruction((BSTR) VARMEMBER( &rgArgs[0].vArg, bstrVal),
-                                             (BSTR) VARMEMBER( &rgArgs[1].vArg, bstrVal),
-                                             (IXMLDOMProcessingInstruction**) &pVarResult->pdispVal);
-            break;
+    case DISPID_DOM_DOCUMENT_CREATEPROCESSINGINSTRUCTION:
+        hr = pObj->createProcessingInstruction((BSTR)VARMEMBER(&rgArgs[0].vArg, bstrVal),
+            (BSTR)VARMEMBER(&rgArgs[1].vArg, bstrVal),
+                                               (IXMLDOMProcessingInstruction**)&pVarResult->pdispVal);
+        break;
 
-        case DISPID_DOM_DOCUMENT_CREATEATTRIBUTE:
-            METHOD_INVOKE_1( pObj, createAttribute, bstrVal, BSTR, IXMLDOMAttribute*);
-            break;
+    case DISPID_DOM_DOCUMENT_CREATEATTRIBUTE:
+        METHOD_INVOKE_1(pObj, createAttribute, bstrVal, BSTR, IXMLDOMAttribute*);
+        break;
 
-        case DISPID_DOM_DOCUMENT_CREATEENTITYREFERENCE:
-            METHOD_INVOKE_1( pObj, createEntityReference, bstrVal, BSTR, IXMLDOMEntityReference*);
-            break;
+    case DISPID_DOM_DOCUMENT_CREATEENTITYREFERENCE:
+        METHOD_INVOKE_1(pObj, createEntityReference, bstrVal, BSTR, IXMLDOMEntityReference*);
+        break;
 
-        case DISPID_DOM_DOCUMENT_GETELEMENTSBYTAGNAME:
-            hr = pObj->getElementsByTagName((BSTR) VARMEMBER( &rgArgs[0].vArg, bstrVal),
-                                     (IXMLDOMNodeList**) &pVarResult->pdispVal);
-            break;
+    case DISPID_DOM_DOCUMENT_GETELEMENTSBYTAGNAME:
+        hr = pObj->getElementsByTagName((BSTR)VARMEMBER(&rgArgs[0].vArg, bstrVal),
+            (IXMLDOMNodeList**)&pVarResult->pdispVal);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_CREATENODE:
-            hr = pObj->createNode( rgArgs[0].vArg,
-                            (BSTR) VARMEMBER( &rgArgs[1].vArg, bstrVal),
-                            (BSTR) VARMEMBER( &rgArgs[2].vArg, bstrVal),
-                            (IXMLDOMNode**) &pVarResult->pdispVal);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_CREATENODE:
+        hr = pObj->createNode(rgArgs[0].vArg,
+            (BSTR)VARMEMBER(&rgArgs[1].vArg, bstrVal),
+                              (BSTR)VARMEMBER(&rgArgs[2].vArg, bstrVal),
+                              (IXMLDOMNode**)&pVarResult->pdispVal);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_NODEFROMID:
-            hr = pObj->nodeFromID((BSTR) VARMEMBER( &rgArgs[0].vArg, bstrVal),
-                            (IXMLDOMNode**) &pVarResult->pdispVal);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_NODEFROMID:
+        hr = pObj->nodeFromID((BSTR)VARMEMBER(&rgArgs[0].vArg, bstrVal),
+            (IXMLDOMNode**)&pVarResult->pdispVal);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_LOAD:
-            hr = pObj->load( rgArgs[0].vArg, (VARIANT_BOOL*) &pVarResult->boolVal );
-            break;
+    case DISPID_XMLDOM_DOCUMENT_LOAD:
+        hr = pObj->load(rgArgs[0].vArg, (VARIANT_BOOL*)&pVarResult->boolVal);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_PARSEERROR:
-            hr = pObj->get_parseError((IXMLDOMParseError**) &pVarResult->pdispVal);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_PARSEERROR:
+        hr = pObj->get_parseError((IXMLDOMParseError**)&pVarResult->pdispVal);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_URL:
-            hr = pObj->get_url(&pVarResult->bstrVal);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_URL:
+        hr = pObj->get_url(&pVarResult->bstrVal);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_ASYNC:
-            PROPERTY_INVOKE_READWRITE( pObj, async, boolVal, VARIANT_BOOL);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_ASYNC:
+        PROPERTY_INVOKE_READWRITE(pObj, async, boolVal, VARIANT_BOOL);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_ABORT:
-            hr = pObj->abort();
-            break;
+    case DISPID_XMLDOM_DOCUMENT_ABORT:
+        hr = pObj->abort();
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_LOADXML:
-            hr = pObj->loadXML( (BSTR) VARMEMBER( &rgArgs[0].vArg, bstrVal),
-                          &pVarResult->boolVal);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_LOADXML:
+        hr = pObj->loadXML((BSTR)VARMEMBER(&rgArgs[0].vArg, bstrVal),
+                           &pVarResult->boolVal);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_SAVE:
-            hr = pObj->save(rgArgs[0].vArg);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_SAVE:
+        hr = pObj->save(rgArgs[0].vArg);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_VALIDATE:
-            PROPERTY_INVOKE_READWRITE( pObj, validateOnParse, boolVal, VARIANT_BOOL);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_VALIDATE:
+        PROPERTY_INVOKE_READWRITE(pObj, validateOnParse, boolVal, VARIANT_BOOL);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_RESOLVENAMESPACE:
-            PROPERTY_INVOKE_READWRITE( pObj, resolveExternals, boolVal, VARIANT_BOOL);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_RESOLVENAMESPACE:
+        PROPERTY_INVOKE_READWRITE(pObj, resolveExternals, boolVal, VARIANT_BOOL);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_PRESERVEWHITESPACE:
-            PROPERTY_INVOKE_READWRITE( pObj, preserveWhiteSpace, boolVal, VARIANT_BOOL);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_PRESERVEWHITESPACE:
+        PROPERTY_INVOKE_READWRITE(pObj, preserveWhiteSpace, boolVal, VARIANT_BOOL);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_ONREADYSTATECHANGE:
-            hr = pObj->put_onreadystatechange(rgArgs[0].vArg);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_ONREADYSTATECHANGE:
+        hr = pObj->put_onreadystatechange(rgArgs[0].vArg);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_ONDATAAVAILABLE:
-            hr = pObj->put_ondataavailable(rgArgs[0].vArg);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_ONDATAAVAILABLE:
+        hr = pObj->put_ondataavailable(rgArgs[0].vArg);
+        break;
 
-        case DISPID_XMLDOM_DOCUMENT_ONTRANSFORMNODE:
-            hr = pObj->put_ontransformnode(rgArgs[0].vArg);
-            break;
+    case DISPID_XMLDOM_DOCUMENT_ONTRANSFORMNODE:
+        hr = pObj->put_ontransformnode(rgArgs[0].vArg);
+        break;
 
-        default:
-            hr = DISP_E_MEMBERNOTFOUND;
-            break;
+    default:
+        hr = DISP_E_MEMBERNOTFOUND;
+        break;
     }
 
     return hr;
@@ -411,7 +407,7 @@ HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::GetDispID(
     /* [in] */ BSTR bstrName,
     /* [in] */ DWORD grfdex,
-    /* [out] */ DISPID __RPC_FAR *pid)
+    /* [out] */ DISPID __RPC_FAR* pid)
 {
     STACK_ENTRY_WRAPPED;
     HRESULT hr;
@@ -420,13 +416,12 @@ DOMDocumentWrapper::GetDispID(
     // Our typelibs should never be localized, so it's safe to assume a LCID of 0x409
 
     // IXMLDOMDocument method?
-    hr = _dispatchImpl::FindIdsOfNames( &bstrName, 1, s_rgDOMDocumentMethods, NUMELEM(s_rgDOMDocumentMethods),
-                                        0x409, pid, grfdex & fdexNameCaseSensitive);
+    hr = _dispatchImpl::FindIdsOfNames(&bstrName, 1, s_rgDOMDocumentMethods, NUMELEM(s_rgDOMDocumentMethods),
+                                       0x409, pid, grfdex & fdexNameCaseSensitive);
     // IXMLDOMNode method?
-    if ( DISP_E_UNKNOWNNAME == hr )
-    {
-        hr = _dispatchImpl::FindIdsOfNames( &bstrName, 1, s_rgDOMNodeMethods, s_cDOMNodeMethodLen,
-                                            0x409, pid, grfdex & fdexNameCaseSensitive);
+    if (DISP_E_UNKNOWNNAME == hr) {
+        hr = _dispatchImpl::FindIdsOfNames(&bstrName, 1, s_rgDOMNodeMethods, s_cDOMNodeMethodLen,
+                                           0x409, pid, grfdex & fdexNameCaseSensitive);
     }
 
     return hr;
@@ -436,7 +431,7 @@ DOMDocumentWrapper::GetDispID(
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::cloneNode(
     /* [in] */ VARIANT_BOOL deep,
-    /* [retval][out] */ IXMLDOMNode __RPC_FAR *__RPC_FAR *ppCloneRoot)
+    /* [retval][out] */ IXMLDOMNode __RPC_FAR* __RPC_FAR* ppCloneRoot)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
@@ -444,8 +439,7 @@ DOMDocumentWrapper::cloneNode(
     TraceTag((tagDOMOM, "DOMDocumentWrapper::cloneNode()"));
     HRESULT hr = S_OK;
 
-    if (!ppCloneRoot)
-    {
+    if (!ppCloneRoot) {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
@@ -456,54 +450,53 @@ DOMDocumentWrapper::cloneNode(
         Document * doc = getWrapped()->clone(deep == VARIANT_TRUE);
         *ppCloneRoot = doc->getDocNode()->getDOMNodeWrapper();
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-Cleanup:
+        Cleanup :
     return hr;
 }
 
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::get_doctype(
-    /* [retval][out] */ IXMLDOMDocumentType __RPC_FAR *__RPC_FAR * ppDocumentType)
+    /* [retval][out] */ IXMLDOMDocumentType __RPC_FAR* __RPC_FAR* ppDocumentType)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
     TraceTag((tagDOMOM, "DOMDocumentWrapped::get_doctype()"));
     HRESULT hr = S_OK;
 
-    CHECK_ARG( ppDocumentType);
+    CHECK_ARG(ppDocumentType);
     *ppDocumentType = null;
 
     TRY
     {
         Node * docNode = getNodeData();
-        Node * pDocTypeNode = docNode->find(null, Node::DOCTYPE);
-        if ( pDocTypeNode)
-        {
+        Node* pDocTypeNode = docNode->find(null, Node::DOCTYPE);
+        if (pDocTypeNode) {
             hr = pDocTypeNode->QueryInterface(IID_IXMLDOMDocumentType, (void**)ppDocumentType);
             goto Cleanup;
         }
 
         hr = S_FALSE;
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-Cleanup:
+        Cleanup :
     return hr;
 }
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::get_implementation(
-        /* [retval][out] */ IXMLDOMImplementation __RPC_FAR *__RPC_FAR *ppImpl)
+    /* [retval][out] */ IXMLDOMImplementation __RPC_FAR* __RPC_FAR* ppImpl)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
@@ -518,20 +511,20 @@ DOMDocumentWrapper::get_implementation(
         *ppImpl = (IXMLDOMImplementation*)new DOMImplementation();
         hr = S_OK;
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-Cleanup:
+        Cleanup :
     return hr;
 }
 
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::putref_documentElement(
-        /* [in] */ IXMLDOMElement __RPC_FAR * pDOMElement)
+    /* [in] */ IXMLDOMElement __RPC_FAR* pDOMElement)
 {
     STACK_ENTRY;
     OMWRITELOCK(getWrapped());
@@ -545,29 +538,26 @@ DOMDocumentWrapper::putref_documentElement(
     TRY
     {
         Node * pNode = NULL;
-        if (!pDOMElement->QueryInterface(Node::s_IID, (void**)&pNode) && pNode)
-        {
+        if (!pDOMElement->QueryInterface(Node::s_IID, (void**)&pNode) && pNode) {
             getWrapped()->setRoot(pNode);
             hr = S_OK;
-        }
-        else
-        {
+        } else {
             hr = E_INVALIDARG;
         }
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-Cleanup:
+        Cleanup :
     return hr;
 }
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::get_documentElement(
-        /* [retval][out] */ IXMLDOMElement __RPC_FAR *__RPC_FAR * ppDOMElement)
+    /* [retval][out] */ IXMLDOMElement __RPC_FAR* __RPC_FAR* ppDOMElement)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
@@ -577,53 +567,50 @@ DOMDocumentWrapper::get_documentElement(
     TRY
     {
         Node * docNode = getNodeData();
-        Node * pDocElem = docNode->find(null, Node::ELEMENT);
-        if (pDocElem)
-        {
+        Node* pDocElem = docNode->find(null, Node::ELEMENT);
+        if (pDocElem) {
             hr = pDocElem->QueryInterface(IID_IXMLDOMElement, (void**)ppDOMElement);
-        }
-        else
-        {
+        } else {
             *ppDOMElement = null;
             hr = S_FALSE;
         }
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-    return hr;
+        return hr;
 }
 
 static
 HRESULT
-CreateDOMNode( Document * pDoc, Element::NodeType eType, BSTR name, BSTR data, const IID * piid, void ** ppv)
+CreateDOMNode(Document* pDoc, Element::NodeType eType, BSTR name, BSTR data, const IID* piid, void** ppv)
 {
     HRESULT hr;
 
     TRY
     {
-        Node * pNode = pDoc->createNode( eType, name, null, false);
+        Node * pNode = pDoc->createNode(eType, name, null, false);
         if (data)
             pNode->setInnerText(data);
         hr = pNode->QueryInterface(*piid, ppv);
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-    return hr;
+        return hr;
 }
 
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::createElement(
-        /* [in] */ BSTR tagName,
-        /* [retval][out] */ IXMLDOMElement __RPC_FAR *__RPC_FAR *ppNewNode)
+    /* [in] */ BSTR tagName,
+    /* [retval][out] */ IXMLDOMElement __RPC_FAR* __RPC_FAR* ppNewNode)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
@@ -631,10 +618,10 @@ DOMDocumentWrapper::createElement(
 
     HRESULT hr;
 
-    CHECK_ARG( ppNewNode);
-    CHECK_ARG( tagName);
+    CHECK_ARG(ppNewNode);
+    CHECK_ARG(tagName);
 
-    hr = CreateDOMNode( getWrapped(), Node::ELEMENT, tagName, NULL, &IID_IXMLDOMElement, (void **)ppNewNode);
+    hr = CreateDOMNode(getWrapped(), Node::ELEMENT, tagName, NULL, &IID_IXMLDOMElement, (void**)ppNewNode);
 
 Cleanup:
     return hr;
@@ -643,20 +630,20 @@ Cleanup:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::createAttribute(
-        /* [in] */ BSTR attrName,
-        /* [retval][out] */ IXMLDOMAttribute __RPC_FAR *__RPC_FAR *ppNewNode)
+    /* [in] */ BSTR attrName,
+    /* [retval][out] */ IXMLDOMAttribute __RPC_FAR* __RPC_FAR* ppNewNode)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
     TraceTag((tagDOMOM, "DOMDocumentWrapped::createAttribute()"));
 
     HRESULT hr;
-    DOMNode * pDOMNode = null;
+    DOMNode* pDOMNode = null;
 
-    CHECK_ARG( ppNewNode);
-    CHECK_ARG( attrName);
+    CHECK_ARG(ppNewNode);
+    CHECK_ARG(attrName);
 
-    hr = CreateDOMNode( getWrapped(), Node::ATTRIBUTE, attrName, NULL, &IID_IXMLDOMAttribute, (void **)ppNewNode);
+    hr = CreateDOMNode(getWrapped(), Node::ATTRIBUTE, attrName, NULL, &IID_IXMLDOMAttribute, (void**)ppNewNode);
 
 Cleanup:
     return hr;
@@ -665,18 +652,18 @@ Cleanup:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::createDocumentFragment(
-        /* [retval][out] */ IXMLDOMDocumentFragment __RPC_FAR *__RPC_FAR *ppNewNode)
+    /* [retval][out] */ IXMLDOMDocumentFragment __RPC_FAR* __RPC_FAR* ppNewNode)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
     TraceTag((tagDOMOM, "DOMDocumentWrapped::createDocumentFragment()"));
 
     HRESULT hr;
-    DOMNode * pDOMNode = null;
+    DOMNode* pDOMNode = null;
 
-    CHECK_ARG( ppNewNode);
+    CHECK_ARG(ppNewNode);
 
-    hr = CreateDOMNode( getWrapped(), Node::DOCFRAG, NULL, NULL, &IID_IXMLDOMDocumentFragment, (void **)ppNewNode);
+    hr = CreateDOMNode(getWrapped(), Node::DOCFRAG, NULL, NULL, &IID_IXMLDOMDocumentFragment, (void**)ppNewNode);
 
 Cleanup:
     return hr;
@@ -684,19 +671,19 @@ Cleanup:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::createTextNode(
-        /* [in] */ BSTR data,
-        /* [retval][out] */ IXMLDOMText __RPC_FAR *__RPC_FAR *ppNewNode)
+    /* [in] */ BSTR data,
+    /* [retval][out] */ IXMLDOMText __RPC_FAR* __RPC_FAR* ppNewNode)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
     TraceTag((tagDOMOM, "DOMDocumentWrapped::createTextNode()"));
 
     HRESULT hr;
-    DOMNode * pDOMNode = null;
+    DOMNode* pDOMNode = null;
 
-    CHECK_ARG( ppNewNode);
+    CHECK_ARG(ppNewNode);
 
-    hr = CreateDOMNode( getWrapped(), Node::PCDATA, NULL, data, &IID_IXMLDOMText, (void **)ppNewNode);
+    hr = CreateDOMNode(getWrapped(), Node::PCDATA, NULL, data, &IID_IXMLDOMText, (void**)ppNewNode);
 
 Cleanup:
     return hr;
@@ -704,19 +691,19 @@ Cleanup:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::createComment(
-        /* [in] */ BSTR data,
-        /* [retval][out] */ IXMLDOMComment __RPC_FAR *__RPC_FAR *ppNewNode)
+    /* [in] */ BSTR data,
+    /* [retval][out] */ IXMLDOMComment __RPC_FAR* __RPC_FAR* ppNewNode)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
     TraceTag((tagDOMOM, "DOMDocumentWrapped::createComment()"));
 
     HRESULT hr;
-    DOMNode * pDOMNode = null;
+    DOMNode* pDOMNode = null;
 
-    CHECK_ARG( ppNewNode);
+    CHECK_ARG(ppNewNode);
 
-    hr = CreateDOMNode( getWrapped(), Node::COMMENT, NULL, data, &IID_IXMLDOMComment, (void **)ppNewNode);
+    hr = CreateDOMNode(getWrapped(), Node::COMMENT, NULL, data, &IID_IXMLDOMComment, (void**)ppNewNode);
 
 
 Cleanup:
@@ -726,19 +713,19 @@ Cleanup:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::createCDATASection(
-        /* [in] */ BSTR data,
-        /* [retval][out] */ IXMLDOMCDATASection __RPC_FAR *__RPC_FAR *ppNewNode)
+    /* [in] */ BSTR data,
+    /* [retval][out] */ IXMLDOMCDATASection __RPC_FAR* __RPC_FAR* ppNewNode)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
     TraceTag((tagDOMOM, "DOMDocumentWrapped::createCDATASection()"));
 
     HRESULT hr;
-    DOMNode * pDOMNode = null;
+    DOMNode* pDOMNode = null;
 
-    CHECK_ARG( ppNewNode);
+    CHECK_ARG(ppNewNode);
 
-    hr = CreateDOMNode( getWrapped(), Node::CDATA, NULL, data, &IID_IXMLDOMCDATASection, (void **)ppNewNode);
+    hr = CreateDOMNode(getWrapped(), Node::CDATA, NULL, data, &IID_IXMLDOMCDATASection, (void**)ppNewNode);
 
 Cleanup:
     return hr;
@@ -746,54 +733,52 @@ Cleanup:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::createProcessingInstruction(
-        /* [in] */ BSTR target,
-        /* [in] */ BSTR data,
-        /* [retval][out] */ IXMLDOMProcessingInstruction __RPC_FAR *__RPC_FAR *ppNewNode)
+    /* [in] */ BSTR target,
+    /* [in] */ BSTR data,
+    /* [retval][out] */ IXMLDOMProcessingInstruction __RPC_FAR* __RPC_FAR* ppNewNode)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
     TraceTag((tagDOMOM, "DOMDocumentWrapped::createProcessingInstruction()"));
 
     HRESULT hr;
-    DOMNode * pDOMNode = null;
+    DOMNode* pDOMNode = null;
 
-    CHECK_ARG( ppNewNode);
+    CHECK_ARG(ppNewNode);
 
     TRY
     {
-        if (StrCmpW(target,L"xml") == 0)
-        {
+        if (StrCmpW(target,L"xml") == 0) {
             Node* xmldecl = getWrapped()->parseXMLDecl(data);
             hr = xmldecl->QueryInterface(IID_IXMLDOMProcessingInstruction, (void**)ppNewNode);
-        }
-        else
-            hr = CreateDOMNode( getWrapped(), Node::PI, target, data, &IID_IXMLDOMProcessingInstruction, (void **)ppNewNode);
+        } else
+            hr = CreateDOMNode(getWrapped(), Node::PI, target, data, &IID_IXMLDOMProcessingInstruction, (void**)ppNewNode);
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-Cleanup:
+        Cleanup :
     return hr;
 }
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::createEntityReference(
-        /* [in] */ BSTR name,
-        /* [retval][out] */ IXMLDOMEntityReference __RPC_FAR *__RPC_FAR *ppNewNode)
+    /* [in] */ BSTR name,
+    /* [retval][out] */ IXMLDOMEntityReference __RPC_FAR* __RPC_FAR* ppNewNode)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
     TraceTag((tagDOMOM, "DOMDocumentWrapped::createEntityReference()"));
 
     HRESULT hr;
-    DOMNode * pDOMNode = null;
+    DOMNode* pDOMNode = null;
 
-    CHECK_ARG( ppNewNode);
+    CHECK_ARG(ppNewNode);
 
-    hr = CreateDOMNode( getWrapped(), Node::ENTITYREF, name, NULL, &IID_IXMLDOMEntityReference, (void **)ppNewNode);
+    hr = CreateDOMNode(getWrapped(), Node::ENTITYREF, name, NULL, &IID_IXMLDOMEntityReference, (void**)ppNewNode);
 
 Cleanup:
     return hr;
@@ -805,10 +790,9 @@ Cleanup:
 
 static
 bool
-mywcharcmp( const WCHAR * a, const WCHAR * b)
+mywcharcmp(const WCHAR* a, const WCHAR* b)
 {
-    while (*a && *b)
-    {
+    while (*a && *b) {
         if (Character::toLowerCase((TCHAR)*a) != (TCHAR)*b)
             return false;
         a++;
@@ -819,7 +803,7 @@ mywcharcmp( const WCHAR * a, const WCHAR * b)
 
 struct CreateNodeTypeNamesInfo
 {
-    WCHAR * pwc;
+    WCHAR* pwc;
     DOMNodeType eType;
 } createNodeTypeNames[] = {
     L"document", NODE_DOCUMENT,
@@ -874,7 +858,7 @@ DOMDocumentWrapper::createNode(
     /* [in] */ VARIANT Type,
     /* [in] */ BSTR Text,
     /* [in] */ BSTR NameSpaceURI,
-    /* [out][retval] */ IXMLDOMNode __RPC_FAR *__RPC_FAR *ppNode)
+    /* [out][retval] */ IXMLDOMNode __RPC_FAR* __RPC_FAR* ppNode)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
@@ -884,47 +868,38 @@ DOMDocumentWrapper::createNode(
     HRESULT hr = S_OK;
     DOMNodeType eType = NODE_INVALID;
 
-    CHECK_ARG( ppNode);
+    CHECK_ARG(ppNode);
 
-    if (S_OK != VariantChangeType( &vType, &Type, VARIANT_NOVALUEPROP, VT_I4))
-    {
-        if (S_OK != VariantChangeTypeEx( &vType, &Type, GetThreadLocale(), VARIANT_NOVALUEPROP, VT_BSTR))
-        {
-            hr =  E_INVALIDARG;
+    if (S_OK != VariantChangeType(&vType, &Type, VARIANT_NOVALUEPROP, VT_I4)) {
+        if (S_OK != VariantChangeTypeEx(&vType, &Type, GetThreadLocale(), VARIANT_NOVALUEPROP, VT_BSTR)) {
+            hr = E_INVALIDARG;
             goto Cleanup;
         }
         // match text
-        CreateNodeTypeNamesInfo * pInfo = createNodeTypeNames;
-        while (pInfo->pwc)
-        {
-            if (mywcharcmp(V_BSTR(&vType), pInfo->pwc))
-            {
+        CreateNodeTypeNamesInfo* pInfo = createNodeTypeNames;
+        while (pInfo->pwc) {
+            if (mywcharcmp(V_BSTR(&vType), pInfo->pwc)) {
                 eType = pInfo->eType;
                 break;
             }
             pInfo++;
         }
-    }
-    else
-    {
+    } else {
         eType = (DOMNodeType)V_I4(&vType);
     }
 
-    if ((NODE_INVALID < eType) && (eType <= NODE_NOTATION))
-    {
+    if ((NODE_INVALID < eType) && (eType <= NODE_NOTATION)) {
         TRY
         {
-            Node * pNode = getWrapped()->createNode( aXMLType2NT[eType], Text, NameSpaceURI, true);
+            Node * pNode = getWrapped()->createNode(aXMLType2NT[eType], Text, NameSpaceURI, true);
             *ppNode = pNode->getDOMNodeWrapper();
         }
-        CATCH
+            CATCH
         {
             hr = ERESULTINFO;
         }
-        ENDTRY
-    }
-    else
-    {
+            ENDTRY
+    } else {
         hr = E_INVALIDARG;
         goto Cleanup;
     }
@@ -938,7 +913,7 @@ Cleanup:
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::nodeFromID(
     /* [in] */ BSTR pbstrID,
-    /* [out][retval] */ IXMLDOMNode __RPC_FAR *__RPC_FAR *ppNode)
+    /* [out][retval] */ IXMLDOMNode __RPC_FAR* __RPC_FAR* ppNode)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
@@ -950,38 +925,37 @@ DOMDocumentWrapper::nodeFromID(
 
     TRY
     {
-        Node* node = getWrapped()->nodeFromID(Name::create(String::newString(pbstrID)));
-        IXMLDOMNode * pIDOMNode = null;
-        if (node != NULL)
-        {
-            pIDOMNode = (IXMLDOMNode *)node->getDOMNodeWrapper();
+        Node * node = getWrapped()->nodeFromID(Name::create(String::newString(pbstrID)));
+        IXMLDOMNode* pIDOMNode = null;
+        if (node != NULL) {
+            pIDOMNode = (IXMLDOMNode*)node->getDOMNodeWrapper();
         }
         *ppNode = pIDOMNode;
         if (pIDOMNode == null)
             hr = S_FALSE;
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-Cleanup:
+        Cleanup :
     return hr;
 }
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::load(
     /* [in] */ VARIANT vTarget,
-    /* [retval][out] */ VARIANT_BOOL __RPC_FAR *isSuccessful)
+    /* [retval][out] */ VARIANT_BOOL __RPC_FAR* isSuccessful)
 {
     // since there is no standard lock here we have to set up the model
     STACK_ENTRY_WRAPPED;
 
     TraceTag((tagDOMOM, "DOMDocumentWrapped::load(VARIANT)"));
 
-//  Locking is taken care of in Document for this case.
-//    OMREADLOCK(getWrapped());
+    //  Locking is taken care of in Document for this case.
+    //    OMREADLOCK(getWrapped());
 
     HRESULT hr = S_OK;
     VARIANT vURL; vURL.vt = VT_NULL;
@@ -995,64 +969,48 @@ DOMDocumentWrapper::load(
 
     TRY
     {
-        if (vTarget.vt & VT_ARRAY)
-        {
-            if (vTarget.vt != (VT_ARRAY | VT_UI1))
-            {
+        if (vTarget.vt & VT_ARRAY) {
+            if (vTarget.vt != (VT_ARRAY | VT_UI1)) {
                 hr = E_INVALIDARG;
                 goto Cleanup;
-            }
-            else
-            {
+            } else {
                 // wrap the safe array in an IStream and load the document from it.
                 TraceTag((tagDOMOM, "   VARIANT=SAFEARRAY)"));
-                pStm = (IStream *) new DocStream(V_ARRAY(&vTarget));
+                pStm = (IStream*) new DocStream(V_ARRAY(&vTarget));
                 getWrapped()->Load(pStm);
             }
-        }
-        else if (NULL != (pUnk = Variant::getUnknown(&vTarget)))
-        {
+        } else if (NULL != (pUnk = Variant::getUnknown(&vTarget))) {
             // Perhaps it is some object that supports IStream and we need to load the document
             // from that stream (like, say the ASP Request object :-)
-            if (S_OK == pUnk->QueryInterface(IID_IStream, (void**)&pStm))
-            {
+            if (S_OK == pUnk->QueryInterface(IID_IStream, (void**)&pStm)) {
                 TraceTag((tagDOMOM, "   VARIANT=IStream)"));
                 getWrapped()->Load(pStm);
-            }
-            else if ((S_OK == pUnk->QueryInterface(IID_IPersistStream, (void**)&pPS)) ||
-                (S_OK == pUnk->QueryInterface(IID_IPersistStreamInit, (void**)&pPS)))
-            {
+            } else if ((S_OK == pUnk->QueryInterface(IID_IPersistStream, (void**)&pPS)) ||
+                (S_OK == pUnk->QueryInterface(IID_IPersistStreamInit, (void**)&pPS))) {
                 // IPersistStream identical to IPersistStreamInit except it does
                 // not have the InitNew method at the end - to this is vtable compatible
                 // which means it is ok to cast an IPersistStreamInit interface to
                 // IPersistStream since we don't use the InitNew method.
                 TraceTag((tagDOMOM, "   VARIANT=IPersistStream)"));
-                pStm = (IStream *) new DocStream(getWrapped());
+                pStm = (IStream*) new DocStream(getWrapped());
                 // Save the persistable object into this document (hence loading this document)
                 // The persistable object will call Write on our docstream.
                 pPS->Save(pStm,FALSE);
-            }
-            else if (S_OK == pUnk->QueryInterface(IID_IRequest, (void**)&pRequest))
-            {
+            } else if (S_OK == pUnk->QueryInterface(IID_IRequest, (void**)&pRequest)) {
                 // Create an IStream wrapper for the pRequest object so that
                 // we can read from it.
                 TraceTag((tagDOMOM, "   VARIANT=IRequest)"));
-                pStm = (IStream *) new DocStream(pRequest);
+                pStm = (IStream*) new DocStream(pRequest);
                 getWrapped()->Load(pStm);
-            }
-            else
-            {
-                hr =  E_INVALIDARG;
+            } else {
+                hr = E_INVALIDARG;
                 goto Cleanup;
             }
-        }
-        else
-        {
+        } else {
             // Try and convert it to a BSTR then and treat it like a URL.
-            if (S_OK != VariantChangeTypeEx( &vURL, &vTarget, GetThreadLocale(), VARIANT_NOVALUEPROP, VT_BSTR)
-                || NULL == V_BSTR(&vURL))
-            {
-                hr =  E_INVALIDARG;
+            if (S_OK != VariantChangeTypeEx(&vURL, &vTarget, GetThreadLocale(), VARIANT_NOVALUEPROP, VT_BSTR)
+                || NULL == V_BSTR(&vURL)) {
+                hr = E_INVALIDARG;
                 goto Cleanup;
             }
 
@@ -1064,7 +1022,7 @@ DOMDocumentWrapper::load(
             // the document::Load(IStream) does it already.
             getWrapped()->enterDOMLoadLock();
             fLocked = true;
-            String * url = String::newString(V_BSTR(&vURL));
+            String* url = String::newString(V_BSTR(&vURL));
             getWrapped()->load(url, getWrapped()->isAsync());
         }
 
@@ -1073,32 +1031,30 @@ DOMDocumentWrapper::load(
 
         hr = getWrapped()->GetLastError();
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
 
-    TRY
+        TRY
     {
         getWrapped()->setExitedLoad(true);
         if (fLocked) getWrapped()->leaveDOMLoadLock(hr);
     }
-    CATCH
+        CATCH
     {
-        if (hr == S_OK)
-        {
+        if (hr == S_OK) {
             hr = ERESULTINFO;
         }
     }
-    ENDTRY
+        ENDTRY
 
-    // Only return errors if you want a JavaScript client to get a scripting error.
-    if (FAILED(hr) && hr != E_ACCESSDENIED)
-    {
-        hr = S_FALSE;
-    }
+        // Only return errors if you want a JavaScript client to get a scripting error.
+        if (FAILED(hr) && hr != E_ACCESSDENIED) {
+            hr = S_FALSE;
+        }
 
 Cleanup:
     if (S_OK == hr)
@@ -1118,34 +1074,34 @@ Cleanup:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::get_readyState(
-    /* [out][retval] */ long __RPC_FAR *plState)
+    /* [out][retval] */ long __RPC_FAR* plState)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
 
     TraceTag((tagDOMOM, "DOMDocumentWrapped::get_readyState()"));
 
-    CHECK_ARG( plState);
+    CHECK_ARG(plState);
 
     HRESULT hr = S_OK;
 
-    TRY {
+    TRY{
         *plState = getWrapped()->getReadyStatus();
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-CleanUp:
+        CleanUp :
     return hr;
 }
 
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::get_parseError(
-    /* [out][retval] */ IXMLDOMParseError __RPC_FAR *__RPC_FAR *pError)
+    /* [out][retval] */ IXMLDOMParseError __RPC_FAR* __RPC_FAR* pError)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
@@ -1159,26 +1115,26 @@ DOMDocumentWrapper::get_parseError(
     {
         *pError = (IXMLDOMParseError*)new DOMError(getWrapped()->getErrorMsg());
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-Cleanup:
+        Cleanup :
     return hr;
 }
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::get_url(
-    /* [out][retval] */ BSTR __RPC_FAR *pbstrUrl)
+    /* [out][retval] */ BSTR __RPC_FAR* pbstrUrl)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
 
     TraceTag((tagDOMOM, "DOMDocumentWrapped::get_url()"));
 
-    CHECK_ARG( pbstrUrl);
+    CHECK_ARG(pbstrUrl);
     HRESULT hr = S_OK;
 
     TRY
@@ -1186,32 +1142,31 @@ DOMDocumentWrapper::get_url(
         String * pUrl = getWrapped()->getURL();
         if (pUrl != null)
             *pbstrUrl = pUrl->getBSTR();
-        else
-        {
+        else {
             *pbstrUrl = null;
             hr = S_FALSE;
         }
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-Cleanup:
+        Cleanup :
     return hr;
 }
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::get_async(
-    /* [out][retval] */ VARIANT_BOOL __RPC_FAR *pf)
+    /* [out][retval] */ VARIANT_BOOL __RPC_FAR* pf)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
 
     TraceTag((tagDOMOM, "DOMDocumentWrapped::get_async()"));
 
-    CHECK_ARG( pf);
+    CHECK_ARG(pf);
 
     if (getWrapped()->isAsync())
         *pf = VARIANT_TRUE;
@@ -1237,7 +1192,7 @@ Cleanup:
 }
 
 HRESULT STDMETHODCALLTYPE
-DOMDocumentWrapper::abort( void)
+DOMDocumentWrapper::abort(void)
 {
     STACK_ENTRY_WRAPPED;
     HRESULT hr = S_OK;
@@ -1248,26 +1203,26 @@ DOMDocumentWrapper::abort( void)
     {
         getWrapped()->abort(Exception::newException(XMLOM_USERABORT, XMLOM_USERABORT, null));
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-Cleanup:
+        Cleanup :
     return hr;
 }
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::loadXML(
-        /* [in] */ BSTR bstrXML,
-        /* [retval][out] */ VARIANT_BOOL __RPC_FAR *isSuccessful)
+    /* [in] */ BSTR bstrXML,
+    /* [retval][out] */ VARIANT_BOOL __RPC_FAR* isSuccessful)
 {
     // since there is no standard lock here we have to set up the model
     STACK_ENTRY_WRAPPED;
 
-//  Locking is taken care of in Document for this case.
-//    OMREADLOCK(getWrapped());
+    //  Locking is taken care of in Document for this case.
+    //    OMREADLOCK(getWrapped());
 
     TraceTag((tagDOMOM, "DOMDocumentWrapped::loadXML()"));
 
@@ -1280,32 +1235,31 @@ DOMDocumentWrapper::loadXML(
         // and then grab a readlock when it is available
         getWrapped()->enterDOMLoadLock();
 
-        String * s = String::newString(bstrXML); // newString now handles NULL.
+        String* s = String::newString(bstrXML); // newString now handles NULL.
         getWrapped()->loadXML(s);
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-    TRY
+        TRY
     {
         getWrapped()->setExitedLoad(true);
         getWrapped()->leaveDOMLoadLock(hr);
     }
-    CATCH
+        CATCH
     {
-        if (hr == S_OK)
-        {
+        if (hr == S_OK) {
             hr = ERESULTINFO;
         }
     }
-    ENDTRY
+        ENDTRY
 
-    // Only return errors if you want a JavaScript client to get a scripting error.
-    if (FAILED(hr) && hr != E_ACCESSDENIED)
-        hr = S_FALSE;
+        // Only return errors if you want a JavaScript client to get a scripting error.
+        if (FAILED(hr) && hr != E_ACCESSDENIED)
+            hr = S_FALSE;
 
 Cleanup:
     if (S_OK == hr)
@@ -1317,7 +1271,7 @@ Cleanup:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::save(
-        /* [in] */ VARIANT vTarget)
+    /* [in] */ VARIANT vTarget)
 {
     STACK_ENTRY_WRAPPED;
     VARIANT vSrc; vSrc.vt = VT_NULL;
@@ -1329,75 +1283,62 @@ DOMDocumentWrapper::save(
 
     TRY
     {
-        IUnknown* pUnk = Variant::getUnknown(&vTarget);
-        if (NULL != pUnk)
-        {
+        IUnknown * pUnk = Variant::getUnknown(&vTarget);
+        if (NULL != pUnk) {
             // Perhaps it is some object that supports IStream and we need to save the document
             // to that stream (like, say the ASP Response object :-)
             // NOTE: no security needed here since you cannot script into this code path
             // without the help of some other ActiveX control.
-            if (S_OK == pUnk->QueryInterface(IID_IStream, (void**)&pStm))
-            {
+            if (S_OK == pUnk->QueryInterface(IID_IStream, (void**)&pStm)) {
                 getWrapped()->Save(pStm);
-            }
-            else if ((S_OK == pUnk->QueryInterface(IID_IPersistStream, (void**)&pPS)) ||
-                (S_OK == pUnk->QueryInterface(IID_IPersistStreamInit, (void**)&pPS)))
-            {
+            } else if ((S_OK == pUnk->QueryInterface(IID_IPersistStream, (void**)&pPS)) ||
+                (S_OK == pUnk->QueryInterface(IID_IPersistStreamInit, (void**)&pPS))) {
                 // IPersistStream identical to IPersistStreamInit except it does
                 // not have the InitNew method at the end - to this is vtable compatible
                 // which means it is ok to cast an IPersistStreamInit interface to
                 // IPersistStream since we don't use the InitNew method.
                 TraceTag((tagDOMOM, "   VARIANT=IPersistStream)"));
-                pStm = (IStream *) new DocStream(getWrapped());
+                pStm = (IStream*) new DocStream(getWrapped());
                 // load the persistable object from this document (hence saving this document)
                 // the persistable object will call Read on our docstream.
                 pPS->Load(pStm);
-            }
-            else if (S_OK == pUnk->QueryInterface(IID_IResponse, (void**)&pResponse))
-            {
+            } else if (S_OK == pUnk->QueryInterface(IID_IResponse, (void**)&pResponse)) {
                 // Create an IStream wrapper for the pResponse object so that
                 // every buffer full of XML that we generate we send directly
                 // down the wire !!
-                pStm = (IStream *) new DocStream(pResponse);
+                pStm = (IStream*) new DocStream(pResponse);
                 getWrapped()->Save(pStm);
-            }
-            else
-            {
+            } else {
                 hr = E_INVALIDARG;
                 goto CleanUp;
             }
-        }
-        else
-        {
-            if (S_OK != VariantChangeTypeEx( &vSrc, &vTarget, GetThreadLocale(), VARIANT_NOVALUEPROP, VT_BSTR)
-                || NULL == V_BSTR(&vSrc))
-            {
-                hr =  E_INVALIDARG;
+        } else {
+            if (S_OK != VariantChangeTypeEx(&vSrc, &vTarget, GetThreadLocale(), VARIANT_NOVALUEPROP, VT_BSTR)
+                || NULL == V_BSTR(&vSrc)) {
+                hr = E_INVALIDARG;
                 goto CleanUp;
             }
-            if (getWrapped()->isSecure())
-            {
+            if (getWrapped()->isSecure()) {
                 hr = E_ACCESSDENIED;        // cannot write to disk from inside browser.
                 goto CleanUp;
             }
             getWrapped()->save(String::newString(V_BSTR(&vSrc)),null);
         }
         // Force stream to cleanup and catch any last buffer errors (like the empty document case).
-        if (pStm)
-        {
+        if (pStm) {
             pStm->Release();
             pStm = NULL;
             Exception* e = getWrapped()->getErrorMsg();
             if (e) e->throwE(); // so we set the error info properly.
         }
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
-    ENDTRY
+        ENDTRY
 
-CleanUp:
+        CleanUp :
     VariantClear(&vSrc);
     if (pStm)
         pStm->Release();
@@ -1411,7 +1352,7 @@ CleanUp:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::get_validateOnParse(
-        /* [out][retval] */ VARIANT_BOOL __RPC_FAR *isValidating)
+    /* [out][retval] */ VARIANT_BOOL __RPC_FAR* isValidating)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
@@ -1422,12 +1363,12 @@ DOMDocumentWrapper::get_validateOnParse(
 
     TRY
     {
-        if ( getWrapped()->getValidateOnParse())
+        if (getWrapped()->getValidateOnParse())
             *isValidating = VARIANT_TRUE;
         else
             *isValidating = VARIANT_FALSE;
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
@@ -1439,7 +1380,7 @@ Cleanup:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::put_validateOnParse(
-        /* [in] */ VARIANT_BOOL isValidating)
+    /* [in] */ VARIANT_BOOL isValidating)
 {
     STACK_ENTRY;
     OMWRITELOCK(getWrapped());
@@ -1452,7 +1393,7 @@ DOMDocumentWrapper::put_validateOnParse(
     {
         getWrapped()->setValidateOnParse(isValidating == VARIANT_TRUE);
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
@@ -1464,7 +1405,7 @@ Cleanup:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::get_resolveExternals(
-    /* [out][retval] */ VARIANT_BOOL __RPC_FAR *pfResolve)
+    /* [out][retval] */ VARIANT_BOOL __RPC_FAR* pfResolve)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
@@ -1475,12 +1416,12 @@ DOMDocumentWrapper::get_resolveExternals(
 
     TRY
     {
-        if ( getWrapped()->getResolveExternals())
+        if (getWrapped()->getResolveExternals())
             *pfResolve = VARIANT_TRUE;
         else
             *pfResolve = VARIANT_FALSE;
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
@@ -1505,7 +1446,7 @@ DOMDocumentWrapper::put_resolveExternals(
     {
         getWrapped()->setResolveExternals(fResolve == VARIANT_TRUE);
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
@@ -1517,7 +1458,7 @@ Cleanup:
 
 HRESULT STDMETHODCALLTYPE
 DOMDocumentWrapper::get_preserveWhiteSpace(
-    /* [out][retval] */ VARIANT_BOOL __RPC_FAR *pfPreserve)
+    /* [out][retval] */ VARIANT_BOOL __RPC_FAR* pfPreserve)
 {
     STACK_ENTRY;
     OMREADLOCK(getWrapped());
@@ -1533,7 +1474,7 @@ DOMDocumentWrapper::get_preserveWhiteSpace(
         else
             *pfPreserve = VARIANT_FALSE;
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
@@ -1558,7 +1499,7 @@ DOMDocumentWrapper::put_preserveWhiteSpace(
     {
         getWrapped()->setPreserveWhiteSpace(fPreserve == VARIANT_TRUE);
     }
-    CATCH
+        CATCH
     {
         hr = ERESULTINFO;
     }
@@ -1580,8 +1521,7 @@ DOMDocumentWrapper::put_onreadystatechange(
 
     VariantInit(&varTemp);
 
-    if (SUCCEEDED(hr = VariantChangeType(&varTemp, &varFn, VARIANT_NOVALUEPROP, VT_DISPATCH)))
-    {
+    if (SUCCEEDED(hr = VariantChangeType(&varTemp, &varFn, VARIANT_NOVALUEPROP, VT_DISPATCH))) {
         hr = getWrapped()->putOnReadyStateChange(varTemp.pdispVal);
     }
 
@@ -1603,8 +1543,7 @@ DOMDocumentWrapper::put_ondataavailable(
 
     VariantInit(&varTemp);
 
-    if (SUCCEEDED(hr = VariantChangeType(&varTemp, &varFn, VARIANT_NOVALUEPROP, VT_DISPATCH)))
-    {
+    if (SUCCEEDED(hr = VariantChangeType(&varTemp, &varFn, VARIANT_NOVALUEPROP, VT_DISPATCH))) {
         hr = getWrapped()->putOnDataAvailable(varFn.pdispVal);
     }
 
@@ -1626,8 +1565,7 @@ DOMDocumentWrapper::put_ontransformnode(
 
     VariantInit(&varTemp);
 
-    if (SUCCEEDED(hr = VariantChangeType(&varTemp, &varFn, VARIANT_NOVALUEPROP, VT_DISPATCH)))
-    {
+    if (SUCCEEDED(hr = VariantChangeType(&varTemp, &varFn, VARIANT_NOVALUEPROP, VT_DISPATCH))) {
         hr = getWrapped()->putOnTransformNode(varFn.pdispVal);
     }
 

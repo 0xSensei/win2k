@@ -19,16 +19,15 @@ CONST WCHAR szEDITCLASS[] = TEXT("Edit");
 /*
  * Fixed, hard coded literal for Dialog hacks
 */
-const WCHAR gwszShellFont[]  = L"MS Shell Dlg";
+const WCHAR gwszShellFont[] = L"MS Shell Dlg";
 const WCHAR gwszShellFont2[] = L"MS Shell Dlg 2";
 
 
 #ifdef USE_MIRRORING
 #define MIRRORED_HWND(hwnd)   (GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_LAYOUTRTL)
 #endif
-/*
-* DefShortToInt
 
+/*
 * Avoid sign extending 16 bit CW2_USEDEFAULT. We need this because the
 *  dialog resource template uses SHORT fields to store the coordinates
 *  but CreateWindow wants INT values.
@@ -36,7 +35,7 @@ const WCHAR gwszShellFont2[] = L"MS Shell Dlg 2";
 * History:
 * 12/04/96 GerardoB Created
 */
-__inline int DefShortToInt (short s)
+__inline int DefShortToInt(short s)
 {
     if (s == (short)CW2_USEDEFAULT) {
         return (int)(DWORD)(WORD)CW2_USEDEFAULT;
@@ -44,32 +43,27 @@ __inline int DefShortToInt (short s)
         return (int)s;
     }
 }
-/*
-* BYTE FAR *SkipSz(lpsz)
 
-* History:
-*/
 
-PBYTE SkipSz(
-    UTCHAR *lpsz)
+PBYTE SkipSz(UTCHAR* lpsz)
 {
     if (*lpsz == 0xFF)
         return (PBYTE)lpsz + 4;
 
-    while (*lpsz++ != 0) ;
+    while (*lpsz++ != 0);
 
     return (PBYTE)lpsz;
 }
 
-PBYTE WordSkipSz(
-    UTCHAR *lpsz)
+
+PBYTE WordSkipSz(UTCHAR* lpsz)
 {
     PBYTE pb = SkipSz(lpsz);
     return NextWordBoundary(pb);
 }
 
-PBYTE DWordSkipSz(
-    UTCHAR *lpsz)
+
+PBYTE DWordSkipSz(UTCHAR* lpsz)
 {
     PBYTE pb = SkipSz(lpsz);
     return NextDWordBoundary(pb);
@@ -77,31 +71,22 @@ PBYTE DWordSkipSz(
 
 
 /*
-
-* IsFontNotGood()
-
 * If this is a low res device, we need to check if the
 * font we're creating is smaller than the system font.
-
 */
 __inline BOOLEAN IsFontNotGood(LPWSTR szTempBuffer, LPCWSTR lpStrSubst, TEXTMETRIC* ptm)
 {
-
     // For FarEast version, we will allow the font smaller than system font.
-
     return _wcsicmp(szTempBuffer, lpStrSubst) ||
-                (!IS_ANY_DBCS_CHARSET(ptm->tmCharSet) &&
-                    (SYSMET(CXICON) < 32 || SYSMET(CYICON) < 32) &&
-                    ptm->tmHeight < gpsi->cySysFontChar);
+        (!IS_ANY_DBCS_CHARSET(ptm->tmCharSet) &&
+        (SYSMET(CXICON) < 32 || SYSMET(CYICON) < 32) &&
+         ptm->tmHeight < gpsi->cySysFontChar);
 }
 
 
 //  GetCharsetEnumProc()
-
 //  This gets the best asian font for a dialog box.
-
 //  1996-Sep-11 hideyukn     Port from Win95-FE
-
 int CALLBACK GetCharsetEnumProc(
     LPLOGFONT     lpLogFont,
     LPTEXTMETRIC  lptm,
@@ -111,13 +96,10 @@ int CALLBACK GetCharsetEnumProc(
     UNREFERENCED_PARAMETER(lptm);
     UNREFERENCED_PARAMETER(nType);
 
-
     // Use other than FIXED pitch sysfont when the face name isn't specified.
 
-    if ((lpLogFont->lfPitchAndFamily & 3) == FIXED_PITCH)
-    {
-        if (!lstrcmpi(lpLogFont->lfFaceName,L"System") ||
-            !lstrcmpi(lpLogFont->lfFaceName,L"@System"))
+    if ((lpLogFont->lfPitchAndFamily & 3) == FIXED_PITCH) {
+        if (!lstrcmpi(lpLogFont->lfFaceName, L"System") || !lstrcmpi(lpLogFont->lfFaceName, L"@System"))
             return TRUE; // try to get another system font metric
     }
 
@@ -139,7 +121,7 @@ UINT GetACPCharSet()
     }
 
     // Sundown: In the TCI_SRCCODEPAGE case, the GetACP() return value is zero-extended.
-    if (!TranslateCharsetInfo((DWORD*)UIntToPtr( GetACP() ), &csInfo, TCI_SRCCODEPAGE)) {
+    if (!TranslateCharsetInfo((DWORD*)UIntToPtr(GetACP()), &csInfo, TCI_SRCCODEPAGE)) {
         return DEFAULT_CHARSET;
     }
     charset = csInfo.ciCharset;
@@ -152,53 +134,44 @@ BYTE GetCharsetFromResourceLang(LCID lcid)
 {
     CHARSETINFO csInfo;
 
-    if (!TranslateCharsetInfo((DWORD *)lcid, &csInfo, TCI_SRCLOCALE))
+    if (!TranslateCharsetInfo((DWORD*)lcid, &csInfo, TCI_SRCLOCALE))
         return DEFAULT_CHARSET;
     return csInfo.ciCharset;
 }
 #endif
 
 /*
-
 * CreateDlgFont()
-
 * Create the dialog font described at the given location in a resource
-
 */
-
 #define GET_DESKTOP_CHARSET()   (GetTextCharset(hdcDlg))
 
-
 // Reserved Dlg resource version number
-
 #define DLGRSC_VER_NT5COMPAT_RESERVE    10
 
 BOOL FixupDlgLogFont(
-        HDC hdcDlg,
-        LPLOGFONT lpLogFont,
-        LPDLGTEMPLATE2 lpdt,
-        BOOLEAN fUseShellFont2,
-        BOOLEAN* pfWillTryDefaultCharset)
+    HDC hdcDlg,
+    LPLOGFONT lpLogFont,
+    LPDLGTEMPLATE2 lpdt,
+    BOOLEAN fUseShellFont2,
+    BOOLEAN* pfWillTryDefaultCharset)
 {
     switch (lpdt->wDlgVer) {
     case 0:
         // DIALOG statement, which only has a facename.
         // The new applications are not supposed to use DIALOG statement,
         // they should use DIALOGEX instead.
-        lpLogFont->lfWeight  = FW_BOLD;
+        lpLogFont->lfWeight = FW_BOLD;
         if (!fUseShellFont2) {
             lpLogFont->lfCharSet = (BYTE)GET_DESKTOP_CHARSET();
             *pfWillTryDefaultCharset = TRUE;
         }
         break;
     case 1:
-
         // Win4 compatible DLG template
-
         if (!fUseShellFont2) {
             if (IS_DBCS_ENABLED()) {
                 if (lpLogFont->lfCharSet == ANSI_CHARSET) {
-
                     // When resource compiler generates dialog resource data
                     // from DIALOGEX template, it can specify 'charset'. but
                     // optional, if it is not specified, it will be filled
@@ -228,8 +201,7 @@ BOOL FixupDlgLogFont(
             else if (lpLogFont->lfCharSet == ANSI_CHARSET) {
                 // If the first attempt fail, we'll enumerate the charset for the given facename
                 *pfWillTryDefaultCharset = TRUE;
-            }
-            else if (lpLogFont->lfCharSet == DEFAULT_CHARSET) {
+            } else if (lpLogFont->lfCharSet == DEFAULT_CHARSET) {
                 lpLogFont->lfCharSet = (BYTE)GET_DESKTOP_CHARSET();
             }
         }
@@ -239,8 +211,7 @@ BOOL FixupDlgLogFont(
             // we do nothing for the new resource compiler (>= 2.0),
             // since this version of dialogs are guarunteed to have
             // the proper character set for the dialog font.
-        }
-        else {
+        } else {
             RIPMSG1(RIP_WARNING, "Version %d resource is not supported.", lpdt->wDlgVer);
             return FALSE;
         }
@@ -250,35 +221,25 @@ BOOL FixupDlgLogFont(
     return TRUE;
 }
 
-VOID FixupDlgFaceName(
-        LPLOGFONT lpLogFont,
-        BOOLEAN fUseShellFont,
-        BOOLEAN fUseShellFont2,
-        LPCWSTR lpStrSubst)
+
+VOID FixupDlgFaceName(LPLOGFONT lpLogFont, BOOLEAN fUseShellFont, BOOLEAN fUseShellFont2, LPCWSTR lpStrSubst)
 {
     if (fUseShellFont2) {
-
         // OK, we use "MS Shell Dlg 2" as a face name.
-
         wcsncpycch(lpLogFont->lfFaceName, gwszShellFont2, ARRAY_SIZE(gwszShellFont2));
-    }
-    else {
-
+    } else {
         // Otherwise, get the face name from the dialog template.
-
         wcsncpycch(lpLogFont->lfFaceName, lpStrSubst, sizeof(lpLogFont->lfFaceName) / sizeof(WCHAR));
     }
 
-
     // "MS Shell Dlg" and "MS Shell Dlg2" should have native character set ---
-
     if (fUseShellFont || fUseShellFont2) {
         lpLogFont->lfCharSet = (BYTE)GetACPCharSet();
     }
 }
 
 
-HFONT CreateDlgFont(HDC hdcDlg, LPWORD FAR *lplpstr, LPDLGTEMPLATE2 lpdt, DWORD dwExpWinVer, UINT fSCDLGFlags)
+HFONT CreateDlgFont(HDC hdcDlg, LPWORD FAR* lplpstr, LPDLGTEMPLATE2 lpdt, DWORD dwExpWinVer, UINT fSCDLGFlags)
 {
     LOGFONT     LogFont;
     int         fontheight, fheight;
@@ -294,7 +255,7 @@ HFONT CreateDlgFont(HDC hdcDlg, LPWORD FAR *lplpstr, LPDLGTEMPLATE2 lpdt, DWORD 
     UNREFERENCED_PARAMETER(dwExpWinVer);
     UNREFERENCED_PARAMETER(fSCDLGFlags);
 
-    fheight = fontheight = (SHORT)(*((WORD *) *lplpstr)++);
+    fheight = fontheight = (SHORT)(*((WORD*)*lplpstr)++);
 
     if (fontheight == 0x7FFF) {
         // a 0x7FFF height is our special code meaning use the message box font
@@ -302,9 +263,7 @@ HFONT CreateDlgFont(HDC hdcDlg, LPWORD FAR *lplpstr, LPDLGTEMPLATE2 lpdt, DWORD 
         return CreateFontIndirect(&LogFont);
     }
 
-
     // The dialog template contains a font description! Use it.
-
 
     // Fill the LogFont with default values
     RtlZeroMemory(&LogFont, sizeof(LOGFONT));
@@ -313,29 +272,20 @@ HFONT CreateDlgFont(HDC hdcDlg, LPWORD FAR *lplpstr, LPDLGTEMPLATE2 lpdt, DWORD 
     LogFont.lfHeight = fontheight;
 
     if (lpdt->wDlgVer) {
-
-        // If it's DIALOGEX, additional info should be read from
-        // the template.
-
-        LogFont.lfWeight  = *((WORD FAR *) *lplpstr)++;
-        LogFont.lfItalic  = *((BYTE FAR *) *lplpstr)++;
-        LogFont.lfCharSet = *((BYTE FAR *) *lplpstr)++;
+        // If it's DIALOGEX, additional info should be read from the template.
+        LogFont.lfWeight = *((WORD FAR*) * lplpstr)++;
+        LogFont.lfItalic = *((BYTE FAR*) * lplpstr)++;
+        LogFont.lfCharSet = *((BYTE FAR*) * lplpstr)++;
     }
-
 
     // Per shell team request, the dialog who has DS_SETFONT
     // *and* DS_FIXEDSYS (=> DS_SHELLFONT2) should have a font
     // "MS Shell Dlg 2".
-
     lpStrSubst = *lplpstr;
 
-
     // Set the pointer to the next item.
-
     *lplpstr = (WORD*)DWordSkipSz(*lplpstr);
-
     fUseShellFont = _wcsicmp(lpStrSubst, gwszShellFont) == 0;
-
 
     // Later shell team request again, to use "Dlg 2" font only
     // when facename in the dialog template is "MS Shell Dlg".
@@ -347,16 +297,12 @@ HFONT CreateDlgFont(HDC hdcDlg, LPWORD FAR *lplpstr, LPDLGTEMPLATE2 lpdt, DWORD 
         TAGMSG0(DBGTAG_IMM, "CreateDlgFont: fUseShellFont2=TRUE");
     }
 
-
     // Prepare the font character set.
-
     if (!FixupDlgLogFont(hdcDlg, &LogFont, lpdt, fUseShellFont2, &fWillTryDefaultCharset)) {
         return NULL;
     }
 
-
     // Prepare the font facename.
-
     FixupDlgFaceName(&LogFont, fUseShellFont, fUseShellFont2, lpStrSubst);
 
     if (lpdt->wDlgVer < 2 && lpdt->style & DS_3DLOOK)
@@ -364,17 +310,12 @@ HFONT CreateDlgFont(HDC hdcDlg, LPWORD FAR *lplpstr, LPDLGTEMPLATE2 lpdt, DWORD 
 
 TryDefaultCharset:
     if (LogFont.lfCharSet == DEFAULT_CHARSET) {
-
         // Get character set for given facename.
-
-        EnumFonts(hdcDlg, LogFont.lfFaceName,
-                  (FONTENUMPROC)GetCharsetEnumProc, (LPARAM)(&LogFont));
+        EnumFonts(hdcDlg, LogFont.lfFaceName, (FONTENUMPROC)GetCharsetEnumProc, (LPARAM)(&LogFont));
 
         // We already tried default charset.
-
         fWillTryDefaultCharset = FALSE;
     }
-
 
     // [Windows 3.1 FarEast version did this...]
 
@@ -384,49 +325,38 @@ TryDefaultCharset:
     if ((!(lpdt->wDlgVer)) && // not DIALOGEX template ?
         (IS_ANY_DBCS_CHARSET(LogFont.lfCharSet)) && // any FarEast font ?
         (LogFont.lfWeight != FW_NORMAL)) { // already FW_NORMAL ?
-
-
         // Set weight to FW_NORMAL.
-
         LogFont.lfWeight = FW_NORMAL;
     }
 
-    if (!(hFont = CreateFontIndirect((LPLOGFONT) &LogFont)))
+    if (!(hFont = CreateFontIndirect((LPLOGFONT)&LogFont)))
         return(NULL);
 
     fDeleteFont = FALSE;
 
     if ((hOldFont = SelectFont(hdcDlg, hFont)) == NULL) {
         fDeleteFont = TRUE;
-    }
-    else {
-
+    } else {
         // If this dialog has DS_SHELLFONT style, or the font is
         // "MS Shell Dlg", we don't judge the font integrity,
         // for they have been given the ACP based character set.
-
         if (!fUseShellFont) {
             if (!GetTextMetrics(hdcDlg, &tm)) {
                 RIPMSG0(RIP_WARNING, "CreateDlgFont: GetTextMetrics failed");
                 fDeleteFont = TRUE;
-            }
-            else {
-                GetTextFaceAliasW(hdcDlg, sizeof(szTempBuffer)/sizeof(WCHAR), szTempBuffer);
-
+            } else {
+                GetTextFaceAliasW(hdcDlg, sizeof(szTempBuffer) / sizeof(WCHAR), szTempBuffer);
 
                 // If this is a low res device, we need to check if the
                 // font we're creating is smaller than the system font.
                 // If so, just use the system font.
-
                 if (IsFontNotGood(szTempBuffer, lpStrSubst, &tm)) {
-
                     // Couldn't find a font with the height or facename
                     // the app wanted so use the system font instead. Note
                     // that we need to make sure the app knows it is
                     // getting the system font via the WM_SETFONT message
                     // so we still need to act as if a new font is being
                     // sent to the dialog box.
-
                     fDeleteFont = TRUE;
                 }
             }
@@ -440,22 +370,17 @@ TryDefaultCharset:
         DeleteFont(hFont);
 
         // Font is deleted, Prepare for reTry...
-
         hFont = NULL;
     }
 
     // Font hack:
-
     // 1. We fail to create font.
     // 2. We did *NOT* try to enumerate charset, yet.
     // 3. We want to try to enumerate charset
 
     // if all of answer is 'Yes', we will try...
-
     if (hFont == NULL && fWillTryDefaultCharset) {
-
         // Try DEFAULT_CHARSET.
-
         LogFont.lfCharSet = DEFAULT_CHARSET;
         goto TryDefaultCharset;
     }
@@ -475,26 +400,20 @@ TryDefaultCharset:
 
 /*
 * GetDialogMonitor
-
 * Gets the monitor a dialog should be created on.
-
 * Params:
 *     hwndOwner - the owner of the dialog. May be NULL.
-
 * History:
 * 10-Oct-1996 adams     Created.
 */
-
-PMONITOR
-GetDialogMonitor(HWND hwndOwner, DWORD dwFlags)
+PMONITOR GetDialogMonitor(HWND hwndOwner, DWORD dwFlags)
 {
     PMONITOR    pMonitor;
     PWND        pwnd;
     HWND        hwndForeground;
     DWORD       pid;
 
-    UserAssert(dwFlags == MONITOR_DEFAULTTONULL ||
-               dwFlags == MONITOR_DEFAULTTOPRIMARY);
+    UserAssert(dwFlags == MONITOR_DEFAULTTONULL || dwFlags == MONITOR_DEFAULTTOPRIMARY);
 
     pMonitor = NULL;
     if (hwndOwner) {
@@ -558,20 +477,20 @@ HWND InternalCreateDialog(
     LPARAM lParam,
     UINT fSCDLGFlags)
 {
-    HWND                hwnd;
-    HWND                hwnd2;
-    PWND                pwnd;
-    HWND                hwndNewFocus;
-    HWND                hwndEditFirst = NULL;
-    RECT                rc;
-    WORD                w;
-    UTCHAR              *lpszMenu,
-                        *lpszClass,
-                        *lpszText,
-                        *lpCreateParams,
-                        *lpStr;
+    HWND hwnd;
+    HWND hwnd2;
+    PWND pwnd;
+    HWND hwndNewFocus;
+    HWND hwndEditFirst = NULL;
+    RECT rc;
+    WORD w;
+    UTCHAR* lpszMenu,
+        * lpszClass,
+        * lpszText,
+        * lpCreateParams,
+        * lpStr;
     int                 cxChar,
-                        cyChar;
+        cyChar;
     BOOL                f40Compat;
     HFONT               hNewFont = NULL;
     HFONT               hOldFont;
@@ -596,7 +515,7 @@ HWND InternalCreateDialog(
 
     ConnectIfNecessary();
 
-    UserAssert(!(fSCDLGFlags & ~(SCDLG_CLIENT|SCDLG_ANSI|SCDLG_NOREVALIDATE|SCDLG_16BIT)));    // These are the only valid flags
+    UserAssert(!(fSCDLGFlags & ~(SCDLG_CLIENT | SCDLG_ANSI | SCDLG_NOREVALIDATE | SCDLG_16BIT)));    // These are the only valid flags
 
     /*
      * Is this a Win4 extended dialog?
@@ -638,9 +557,8 @@ HWND InternalCreateDialog(
      */
     dwExpWinVer = GETEXPWINVER(hmod);
 
-    if ( f40Compat = Is400Compat(dwExpWinVer) ) {
+    if (f40Compat = Is400Compat(dwExpWinVer)) {
         dt.style &= (DS_VALID40 | 0xffff0000);
-
 
         // For old applications:
         //      If DS_COMMONDIALOG isn't set, don't touch DS_3DLOOK style
@@ -666,12 +584,10 @@ HWND InternalCreateDialog(
         if (dt.style != (dt.style & (DS_VALID31 | DS_3DLOOK | 0xffff0000))) {
             RIPMSG1(RIP_WARNING, "CreateDialog: stripping invalid bits %lX", dt.style);
         }
-#endif // DBG
-
+#endif 
 
         /*
          * Don't strip off bits for old apps, they depend on this.  Especially 16 bit MFC apps!
-
          * dt.dwStyle &= (DS_VALID31 | 0xffff0000);
          */
     }
@@ -681,9 +597,7 @@ HWND InternalCreateDialog(
             bFlags |= CD_SETFOREGROUND;
     }
 
-    if (dsStyleOld != LOWORD(dt.style))
-    {
-
+    if (dsStyleOld != LOWORD(dt.style)) {
         RIPMSG1(f40Compat ? RIP_ERROR : RIP_WARNING,
                 "Bad dialog style bits (%x) - please remove.",
                 LOWORD(dt.style));
@@ -694,11 +608,11 @@ HWND InternalCreateDialog(
         }
     }
 
-    if ( dt.style & DS_MODALFRAME) {
+    if (dt.style & DS_MODALFRAME) {
         dt.dwExStyle |= WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE;
     }
 
-    if (( dt.style & DS_CONTEXTHELP) && f40Compat) {
+    if ((dt.style & DS_CONTEXTHELP) && f40Compat) {
         dt.dwExStyle |= WS_EX_CONTEXTHELP;
     }
 
@@ -737,9 +651,8 @@ HWND InternalCreateDialog(
         dt.cy = 0;
     }
 
-
     // If there's a menu name string, load it.
-    lpszMenu = (LPWSTR)(((PBYTE)(lpdt)) + (dt.wDlgVer ? sizeof(DLGTEMPLATE2):sizeof(DLGTEMPLATE)));
+    lpszMenu = (LPWSTR)(((PBYTE)(lpdt)) + (dt.wDlgVer ? sizeof(DLGTEMPLATE2) : sizeof(DLGTEMPLATE)));
 
     /*
      * If the menu id is expressed as an ordinal and not a string,
@@ -752,7 +665,7 @@ HWND InternalCreateDialog(
      */
     if (w != 0) {
         if ((hMenu = LoadMenu(hmod, (w == 0xFFFF) ?
-                MAKEINTRESOURCE(*(WORD *)((PBYTE)lpszMenu + 2)) : lpszMenu)) == NULL) {
+                              MAKEINTRESOURCE(*(WORD*)((PBYTE)lpszMenu + 2)) : lpszMenu)) == NULL) {
             RIPMSG0(RIP_WARNING, "ServerCreateDialog() failed: couldn't load menu");
             goto DeleteFontAndMenuAndFail;
         }
@@ -763,12 +676,11 @@ HWND InternalCreateDialog(
     if (w == 0xFFFF) {
         lpszClass = (LPWSTR)((LPBYTE)lpszMenu + 4);
     } else {
-        lpszClass = (UTCHAR *)WordSkipSz(lpszMenu);
+        lpszClass = (UTCHAR*)WordSkipSz(lpszMenu);
     }
 
-    lpszText = (UTCHAR *)WordSkipSz(lpszClass);
-
-    lpStr = (UTCHAR *)WordSkipSz(lpszText);
+    lpszText = (UTCHAR*)WordSkipSz(lpszClass);
+    lpStr = (UTCHAR*)WordSkipSz(lpszText);
 
     hdcDlg = CreateCompatibleDC(NULL);
     if (hdcDlg == NULL)
@@ -777,7 +689,7 @@ HWND InternalCreateDialog(
     if (dt.style & DS_SETFONT) {
         hNewFont = CreateDlgFont(hdcDlg, &lpStr, &dt, dwExpWinVer, fSCDLGFlags);
         bFlags |= CD_USERFONT;
-        lpdit = (LPDLGITEMTEMPLATE) NextDWordBoundary(lpStr);
+        lpdit = (LPDLGITEMTEMPLATE)NextDWordBoundary(lpStr);
     } else if (Is400Compat(dwExpWinVer) && (dt.style & DS_FIXEDSYS)) {
         // B#2078 -- WISH for fixed width system font in dialog.  We need
         // to tell the dialog that it's using a font different from the
@@ -801,9 +713,8 @@ HWND InternalCreateDialog(
      * don't bother telling them this (via the WM_SETFONT message).
      */
 
-    // Is it anything other than the default system font?  If we can't get
-    // enough memory to select in the new font specified, just use the system
-    // font.
+     // Is it anything other than the default system font?  If we can't get
+     // enough memory to select in the new font specified, just use the system font.
     if (hNewFont && (hOldFont = SelectFont(hdcDlg, hNewFont))) {
         // Get the ave character width and height to be used
         cxChar = GdiGetCharDimensions(hdcDlg, NULL, &cyChar);
@@ -813,13 +724,11 @@ HWND InternalCreateDialog(
             RIPMSG0(RIP_WARNING, "InternalCreateDialog: GdiGetCharDimensions failed");
             goto UseSysFontMetrics;
         }
-    }
-    else
-    {
+    } else {
         if (hNewFont || (bFlags & CD_USERFONT))
             hNewFont = ghFontSys;
 
-UseSysFontMetrics:
+    UseSysFontMetrics:
         cxChar = gpsi->cxSysFontChar;
         cyChar = gpsi->cySysFontChar;
     }
@@ -850,7 +759,7 @@ UseSysFontMetrics:
         UserAssert(pMonitor);
         *((LPPOINT)&rc.left) = gpsi->ptCursor;
         rc.left -= (dt.cx / 2);
-        rc.top  -= (dt.cy / 2);
+        rc.top -= (dt.cy / 2);
     } else {
         BOOL fNoDialogMonitor;
 
@@ -865,7 +774,7 @@ UseSysFontMetrics:
              * Center to the work area of the owner monitor.
              */
             rc.left = (pMonitor->rcWork.left + pMonitor->rcWork.right - dt.cx) / 2;
-            rc.top  = (pMonitor->rcWork.top + pMonitor->rcWork.bottom - dt.cy) / 2;
+            rc.top = (pMonitor->rcWork.top + pMonitor->rcWork.bottom - dt.cy) / 2;
         } else {
             rc.left = XPixFromXDU(dt.x, cxChar);
             rc.top = YPixFromYDU(dt.y, cyChar);
@@ -893,16 +802,15 @@ UseSysFontMetrics:
                  * Position the dialog in screen coordinates. If the dialog's
                  * owner is on a different monitor than specified in the
                  * template, move the dialog to the owner window. If the owner
-                 * doesn't exist, then use the monitor from the dialog's
-                 * template.
+                 * doesn't exist, then use the monitor from the dialog's template.
                  */
 
                 PMONITOR    pMonitorTemplate;
                 RECT        rcTemplate;
 
-                rcTemplate.left  = rc.left;
-                rcTemplate.top   = rc.top;
-                rcTemplate.right  = rc.left + dt.cx;
+                rcTemplate.left = rc.left;
+                rcTemplate.top = rc.top;
+                rcTemplate.right = rc.left + dt.cx;
                 rcTemplate.bottom = rc.top + dt.cy;
 
                 pMonitorTemplate = _MonitorFromRect(&rcTemplate, MONITOR_DEFAULTTOPRIMARY);
@@ -910,40 +818,35 @@ UseSysFontMetrics:
                     pMonitor = pMonitorTemplate;
                 } else if (pMonitorTemplate != pMonitor) {
                     rc.left += pMonitor->rcMonitor.left - pMonitorTemplate->rcMonitor.left;
-                    rc.top  += pMonitor->rcMonitor.top  - pMonitorTemplate->rcMonitor.top;
+                    rc.top += pMonitor->rcMonitor.top - pMonitorTemplate->rcMonitor.top;
                 }
             }
         }
     }
 
-    rc.right  = rc.left + dt.cx;
-    rc.bottom = rc.top  + dt.cy;
+    rc.right = rc.left + dt.cx;
+    rc.bottom = rc.top + dt.cy;
 
     // If the right or bottom coordinate has overflowed, then pin it back to
-    // a valid rectangle.  Likely to happen if a minimized window is the owner of
-    // the dialog.
+    // a valid rectangle.  Likely to happen if a minimized window is the owner of the dialog.
     if (rc.left > rc.right || rc.top > rc.bottom) {
         OffsetRect(&rc, -dt.cx, -dt.cy);
     }
 
-
-    // Need to do this for ALL dialogs, not just top-level, since we used
-    // to in 3.1.
-
+    // Need to do this for ALL dialogs, not just top-level, since we used to in 3.1.
 
     // Clip top level dialogs within working area
     // Start child dialogs at least at (0, 0)
     RepositionRect(pMonitor, &rc, dt.style, dt.dwExStyle);
 
-    dt.x  = (SHORT)((bFlags & CD_USEDEFAULTX) ? CW2_USEDEFAULT : rc.left);
-    dt.y  = (SHORT)(rc.top);
+    dt.x = (SHORT)((bFlags & CD_USEDEFAULTX) ? CW2_USEDEFAULT : rc.left);
+    dt.y = (SHORT)(rc.top);
     dt.cx = (SHORT)((bFlags & CD_USEDEFAULTCX) ? CW2_USEDEFAULT : rc.right - rc.left);
     dt.cy = (SHORT)(rc.bottom - rc.top);
 
     if (*lpszClass != 0) {
         if (IS_PTR(lpszClass)) {
-            RtlInitLargeUnicodeString((PLARGE_UNICODE_STRING)&strClassName,
-                    lpszClass, (UINT)-1);
+            RtlInitLargeUnicodeString((PLARGE_UNICODE_STRING)&strClassName, lpszClass, (UINT)-1);
             pstrClassName = &strClassName;
         } else {
             pstrClassName = (PLARGE_STRING)lpszClass;
@@ -952,27 +855,26 @@ UseSysFontMetrics:
         pstrClassName = (PLARGE_STRING)DIALOGCLASS;
     }
 
-    RtlInitLargeUnicodeString((PLARGE_UNICODE_STRING)&strWindowName,
-            lpszText, (UINT)-1);
+    RtlInitLargeUnicodeString((PLARGE_UNICODE_STRING)&strWindowName, lpszText, (UINT)-1);
 
     UserAssert((dt.dwExStyle & WS_EX_MDICHILD) == 0);
     hwnd = NtUserCreateWindowEx(
-            dt.dwExStyle | ((fSCDLGFlags & SCDLG_ANSI) ? WS_EX_ANSICREATOR : 0),
-            pstrClassName,
-            &strWindowName,
-            dt.style,
-            DefShortToInt(dt.x),
-            dt.y,
-            DefShortToInt(dt.cx),
-            dt.cy,
-            hwndOwner,
-            hMenu,
-            hmod,
-            (LPVOID)NULL,
-            dwExpWinVer);
+        dt.dwExStyle | ((fSCDLGFlags & SCDLG_ANSI) ? WS_EX_ANSICREATOR : 0),
+        pstrClassName,
+        &strWindowName,
+        dt.style,
+        DefShortToInt(dt.x),
+        dt.y,
+        DefShortToInt(dt.cx),
+        dt.cy,
+        hwndOwner,
+        hMenu,
+        hmod,
+        (LPVOID)NULL,
+        dwExpWinVer);
     if (hwnd == NULL) {
         RIPMSG0(RIP_WARNING, "CreateDialog() failed: couldn't create window");
-DeleteFontAndMenuAndFail:
+    DeleteFontAndMenuAndFail:
         if (hMenu != NULL)
             NtUserDestroyMenu(hMenu);
         /*
@@ -989,7 +891,7 @@ DeleteFontAndMenuAndFail:
 
     // tell WOW the hDlg of the Window just created BEFORE they get any messages
     // at WOW32!w32win16wndprocex
-    if(fSCDLGFlags & SCDLG_16BIT) {
+    if (fSCDLGFlags & SCDLG_16BIT) {
         TellWOWThehDlg(hwnd);
     }
 
@@ -1008,7 +910,6 @@ DeleteFontAndMenuAndFail:
      * Set up the system menu on this dialog box if it has one.
      */
     if (TestWF(pwnd, WFSYSMENU)) {
-
         /*
          * For a modal dialog box with a frame and caption, we want to
          * delete the unselectable items from the system menu.
@@ -1016,10 +917,8 @@ DeleteFontAndMenuAndFail:
         UserAssert(HIBYTE(WFSIZEBOX) == HIBYTE(WFMINBOX));
         UserAssert(HIBYTE(WFMINBOX) == HIBYTE(WFMAXBOX));
         if (!TestWF(pwnd, WFSIZEBOX | WFMINBOX | WFMAXBOX)) {
-
             NtUserCallHwndLock(hwnd, SFI_XXXSETDIALOGSYSTEMMENU);
         } else {
-
             /*
              * We have to give this dialog its own copy of the system menu
              * in case it modifies the menu.
@@ -1052,11 +951,11 @@ DeleteFontAndMenuAndFail:
      * before the dialog gets any messages.
      */
 
-    /*
-     * If the app is a Wow app then the Lo Word of the hInstance is the
-     * 16-bit hInstance.  Set the lParam, which no-one should look at
-     * but the app, to the 16 bit value
-     */
+     /*
+      * If the app is a Wow app then the Lo Word of the hInstance is the
+      * 16-bit hInstance.  Set the lParam, which no-one should look at
+      * but the app, to the 16 bit value
+      */
     if (LOWORD((ULONG_PTR)hmod) != 0) {
         fWowWindow = TRUE;
     } else {
@@ -1068,7 +967,6 @@ DeleteFontAndMenuAndFail:
      * it when the dialog is destroyed.
      */
     if (bFlags & CD_USERFONT) {
-
         PDLG(pwnd)->hUserFont = hNewFont;
 
         if (lpfnDialog != NULL) {
@@ -1108,7 +1006,7 @@ DeleteFontAndMenuAndFail:
         dit.cx = XPixFromXDU(dit.cx, cxChar);
         dit.cy = YPixFromYDU(dit.cy, cyChar);
 
-        lpszClass = (LPWSTR)(((PBYTE)(lpdit)) + (dt.wDlgVer ? sizeof(DLGITEMTEMPLATE2):sizeof(DLGITEMTEMPLATE)));
+        lpszClass = (LPWSTR)(((PBYTE)(lpdit)) + (dt.wDlgVer ? sizeof(DLGITEMTEMPLATE2) : sizeof(DLGITEMTEMPLATE)));
 
         /*
          * If the first WORD is 0xFFFF the second word is the encoded class name index.
@@ -1116,11 +1014,11 @@ DeleteFontAndMenuAndFail:
          */
         if (*(LPWORD)lpszClass == 0xFFFF) {
             lpszText = lpszClass + 2;
-            lpszClass = (LPWSTR)(gpsi->atomSysClass[*(((LPWORD)lpszClass)+1) & ~CODEBIT]);
+            lpszClass = (LPWSTR)(gpsi->atomSysClass[*(((LPWORD)lpszClass) + 1) & ~CODEBIT]);
         } else {
-            lpszText = (UTCHAR *)SkipSz(lpszClass);
+            lpszText = (UTCHAR*)SkipSz(lpszClass);
         }
-        lpszText = (UTCHAR *)NextWordBoundary(lpszText); // UINT align lpszText
+        lpszText = (UTCHAR*)NextWordBoundary(lpszText); // UINT align lpszText
 
         dit.dwExStyle |= WS_EX_NOPARENTNOTIFY;
 
@@ -1130,20 +1028,14 @@ DeleteFontAndMenuAndFail:
         // that 4.0 apps--who get 3D stuff automatically--can turn it off on
         // create if they want.
 
-
-
         // HACK!
         // Treat DS_3DLOOK combos like they have a WS_EX_CLIENTEDGE.  Why
         // should we have to draw the borders of a combobox ourselves?
         // We can't do the same thing for WS_BORDER though becaues of
-        // PC Fools--they use the presence of WS_BORDER to distinguish
-        // between lists and combos.
-
+        // PC Fools--they use the presence of WS_BORDER to distinguish between lists and combos.
 
         if (TestWF(pwnd, DF3DLOOK)) {
-            if (    (dit.style & WS_BORDER) ||
-                    (lpszClass == MAKEINTRESOURCE(gpsi->atomSysClass[ICLS_COMBOBOX]))) {
-
+            if ((dit.style & WS_BORDER) || (lpszClass == MAKEINTRESOURCE(gpsi->atomSysClass[ICLS_COMBOBOX]))) {
                 dit.style &= ~WS_BORDER;
                 dit.dwExStyle |= WS_EX_CLIENTEDGE;
             }
@@ -1171,8 +1063,8 @@ DeleteFontAndMenuAndFail:
          * handle to CreateWindowEx().
          */
         if (fWowWindow && (bFlags & CD_GLOBALEDIT) &&
-               ((!IS_PTR(lpszClass) && PTR_TO_ID(lpszClass) == (ATOM)(gpsi->atomSysClass[ICLS_EDIT])) ||
-               (IS_PTR(lpszClass) && (wcscmp(lpszClass, szEDITCLASS) == 0)))) {
+            ((!IS_PTR(lpszClass) && PTR_TO_ID(lpszClass) == (ATOM)(gpsi->atomSysClass[ICLS_EDIT])) ||
+            (IS_PTR(lpszClass) && (wcscmp(lpszClass, szEDITCLASS) == 0)))) {
             /*
              * Allocate only one global object (first time we see editctl.)
              */
@@ -1191,8 +1083,7 @@ DeleteFontAndMenuAndFail:
 
 #if DBG
         if ((dit.dwExStyle & WS_EX_ANSICREATOR) != 0) {
-            RIPMSG1(RIP_WARNING, "Bad WS_EX_ style 0x%x for a control in the dialog",
-                    dit.dwExStyle);
+            RIPMSG1(RIP_WARNING, "Bad WS_EX_ style 0x%x for a control in the dialog", dit.dwExStyle);
         }
 #endif // DBG
 
@@ -1202,16 +1093,15 @@ DeleteFontAndMenuAndFail:
          * For WOW, instead of pointing lpCreateParams at the CreateParams
          * data, set lpCreateParams to whatever DWORD is stored in the 32-bit
          * DLGTEMPLATE's CreateParams.  WOW has already made sure that that
-         * 32-bit value is indeed a 16:16 pointer to the CreateParams in the
-         * 16-bit DLGTEMPLATE.
+         * 32-bit value is indeed a 16:16 pointer to the CreateParams in the 16-bit DLGTEMPLATE.
          */
 
         if (*lpCreateParams) {
             lpCreateParamsData = (LPBYTE)lpCreateParams;
             if (fWowWindow || fSCDLGFlags & SCDLG_16BIT) {
                 lpCreateParamsData =
-                    (LPBYTE)ULongToPtr( *(UNALIGNED DWORD *) /* Sundown WOW: zero-extension */
-                    (lpCreateParamsData + sizeof(WORD)) );
+                    (LPBYTE)ULongToPtr(*(UNALIGNED DWORD*) /* Sundown WOW: zero-extension */
+                    (lpCreateParamsData + sizeof(WORD)));
             }
         } else {
             lpCreateParamsData = NULL;
@@ -1232,8 +1122,7 @@ DeleteFontAndMenuAndFail:
         }
 
         if (IS_PTR(lpszClass)) {
-            RtlInitLargeUnicodeString((PLARGE_UNICODE_STRING)&strClassName,
-                    lpszClass, (UINT)-1);
+            RtlInitLargeUnicodeString((PLARGE_UNICODE_STRING)&strClassName, lpszClass, (UINT)-1);
             pstrClassName = &strClassName;
         } else {
             pstrClassName = (PLARGE_STRING)lpszClass;
@@ -1241,21 +1130,21 @@ DeleteFontAndMenuAndFail:
         UserAssert((dit.dwExStyle & WS_EX_MDICHILD) == 0);
 
         hwnd2 = NtUserCreateWindowEx(
-                dit.dwExStyle | ((fSCDLGFlags & SCDLG_ANSI) ? WS_EX_ANSICREATOR : 0),
-                pstrClassName,
-                &strWindowName,
-                dit.style,
-                DefShortToInt(dit.x),
-                dit.y,
-                DefShortToInt(dit.cx),
-                dit.cy,
-                hwnd,
-                (HMENU)LongToHandle( dit.dwID ),
-                hmodCreate,
-                lpCreateParamsData,
-                dwExpWinVer2);
+            dit.dwExStyle | ((fSCDLGFlags & SCDLG_ANSI) ? WS_EX_ANSICREATOR : 0),
+            pstrClassName,
+            &strWindowName,
+            dit.style,
+            DefShortToInt(dit.x),
+            dit.y,
+            DefShortToInt(dit.cx),
+            dit.cy,
+            hwnd,
+            (HMENU)LongToHandle(dit.dwID),
+            hmodCreate,
+            lpCreateParamsData,
+            dwExpWinVer2);
         if (hwnd2 == NULL) {
-NoCreate:
+        NoCreate:
             /*
              * Couldn't create the window -- return NULL.
              */
@@ -1265,22 +1154,21 @@ NoCreate:
                 return NULL;
             }
         } else {
-
             if (dit.dwHelpID) {
                 NtUserSetWindowContextHelpId(hwnd2, dit.dwHelpID);
             }
 
-        /*
-         * If it is a not a default system font, set the font for all the
-         * child windows of the dialogbox.
-         */
+            /*
+             * If it is a not a default system font, set the font for all the
+             * child windows of the dialogbox.
+             */
             if (hNewFont != NULL) {
                 SendMessage(hwnd2, WM_SETFONT, (WPARAM)hNewFont, 0L);
             }
 
-        /*
-         * Result gets ID of last (hopefully only) defpushbutton.
-         */
+            /*
+             * Result gets ID of last (hopefully only) defpushbutton.
+             */
             if (SendMessage(hwnd2, WM_GETDLGCODE, 0, 0L) & DLGC_DEFPUSHBUTTON) {
                 PDLG(pwnd)->result = dit.dwID;
             }
@@ -1289,8 +1177,7 @@ NoCreate:
         /*
          * Point at next item template
          */
-        lpdit = (LPDLGITEMTEMPLATE)NextDWordBoundary(
-                (LPBYTE)(lpCreateParams + 1) + *lpCreateParams);
+        lpdit = (LPDLGITEMTEMPLATE)NextDWordBoundary((LPBYTE)(lpCreateParams + 1) + *lpCreateParams);
     }
 
     if (!TestWF(pwnd, DFCONTROL)) {
@@ -1299,34 +1186,25 @@ NoCreate:
     }
 
     if (lpfnDialog != NULL) {
-        fSuccess = (BOOL)SendMessageWorker(pwnd, WM_INITDIALOG,
-                               (WPARAM)hwndEditFirst, lParam, FALSE);
-
+        fSuccess = (BOOL)SendMessageWorker(pwnd, WM_INITDIALOG, (WPARAM)hwndEditFirst, lParam, FALSE);
 
         // Make sure the window didn't get nuked during WM_INITDIALOG
-
         if (!RevalidateHwnd(hwnd)) {
             goto CreateDialogReturn;
         }
         if (fSuccess && !PDLG(pwnd)->fEnd) {
-
-
             // To remove the two-default-push-buttons problem, we must make
             // sure CheckDefPushButton() will remove default from other push
             // buttons.  This happens only if hwndEditFirst != hwndNewFocus;
             // So, we make it NULL here. This breaks Designer's install
-            // program(which can't take a DM_GETDEFID.  So, we do a version
-            // check here.
-
+            // program(which can't take a DM_GETDEFID.  So, we do a version check here.
             if (!TestWF(pwnd, DFCONTROL)) {
                 PWND pwndT;
                 if (!IsWindow(hwndEditFirst) || TestWF(pwnd, WFWIN40COMPAT))
                     hwndEditFirst = NULL;
 
-
                 // They could have disabled hwndEditFirst during WM_INITDIALOG.
                 // So, let use obtain the First Tab again.
-
                 pwndT = _GetNextDlgTabItem(pwnd, NULL, FALSE);
                 if (hwndNewFocus = HW(pwndT)) {
                     DlgSetFocus(hwndNewFocus);
@@ -1337,8 +1215,7 @@ NoCreate:
         }
     }
 
-    if (!IsWindow(hwnd))
-    {
+    if (!IsWindow(hwnd)) {
         // Omnis7 relies on a nonzero return even though they nuked this
         // dialog during processing of the WM_INITDIALOG message
         // -- jeffbog -- 2/24/95 -- Win95B B#12368

@@ -37,7 +37,7 @@ public:
     BOOL SetMessage(LPCTSTR Message)
     {
         if (!Message || lstrlen(Message) >= ARRAYLEN(m_Message))
-        return FALSE;
+            return FALSE;
         lstrcpy(m_Message, Message);
         return TRUE;
 
@@ -45,7 +45,7 @@ public:
     BOOL SetCaption(LPCTSTR Caption)
     {
         if (!Caption || lstrlen(Caption) >= ARRAYLEN(m_Caption))
-        return FALSE;
+            return FALSE;
         lstrcpy(m_Caption, Caption);
         return TRUE;
     }
@@ -61,7 +61,7 @@ public:
     void Delete()
     {
         if (!m_Global)
-        delete this;
+            delete this;
     }
 private:
     TCHAR m_Message[128];
@@ -85,7 +85,7 @@ public:
     {}
     ~StringData()
     {
-        delete [] ptsz;
+        delete[] ptsz;
     }
     long AddRef()
     {
@@ -95,14 +95,13 @@ public:
     long Release()
     {
         ASSERT(Ref);
-        if (!(--Ref))
-        {
-        delete this;
-        return 0;
+        if (!(--Ref)) {
+            delete this;
+            return 0;
         }
         return Ref;
     }
-    TCHAR*  ptsz;
+    TCHAR* ptsz;
     long    Len;
 private:
     long    Ref;
@@ -114,31 +113,25 @@ public:
     CBlock(CBlock* BlockHead, UINT unitCount, UINT unitSize)
     {
         data = new BYTE[unitCount * unitSize];
-        if (data)
-        {
-        if (BlockHead)
-        {
-            m_Next = BlockHead->m_Next;
-            BlockHead->m_Next = this;
-        }
-        else
-        {
-            m_Next = NULL;
-        }
-        }
-        else
-        {
-        throw &g_MemoryException;
+        if (data) {
+            if (BlockHead) {
+                m_Next = BlockHead->m_Next;
+                BlockHead->m_Next = this;
+            } else {
+                m_Next = NULL;
+            }
+        } else {
+            throw& g_MemoryException;
         }
     }
     ~CBlock()
     {
         if (data)
-        delete [] data;
+            delete[] data;
         if (m_Next)
-        delete m_Next;
+            delete m_Next;
     }
-    void*   data;
+    void* data;
 
 private:
     CBlock* m_Next;
@@ -151,7 +144,7 @@ private:
 class String
 {
 public:
-// constructors
+    // constructors
     String();
     String(LPCTSTR lptsz);
     String(const String& strSrc);
@@ -159,7 +152,7 @@ public:
     {
         m_pData->Release();
     }
-//operators
+    //operators
 
     TCHAR& operator[](int Index);
     operator LPTSTR();
@@ -231,11 +224,10 @@ public:
     ~CSafeRegistry()
     {
         if (m_hKey)
-        RegCloseKey(m_hKey);
+            RegCloseKey(m_hKey);
 #if 0
-        if (RemoteConnected)
-        {
-        WNetCancelConnection2(TEXT("\\\\server\\ipc$", 0, FALSE);
+        if (RemoteConnected) {
+            WNetCancelConnection2(TEXT("\\\\server\\ipc$", 0, FALSE);
         }
 #endif
     }
@@ -247,13 +239,13 @@ public:
     void Close()
     {
         if (m_hKey)
-        RegCloseKey(m_hKey);
+            RegCloseKey(m_hKey);
         m_hKey = NULL;
     }
     BOOL Create(HKEY hKeyAncestor, LPCTSTR KeyName,
-             REGSAM Access = KEY_ALL_ACCESS,
-             DWORD * pDisposition = NULL, DWORD  Options = 0,
-             LPSECURITY_ATTRIBUTES pSecurity = NULL);
+                REGSAM Access = KEY_ALL_ACCESS,
+                DWORD* pDisposition = NULL, DWORD  Options = 0,
+                LPSECURITY_ATTRIBUTES pSecurity = NULL);
     BOOL SetValue(LPCTSTR ValueName, DWORD Type, PBYTE pData, DWORD DataLen);
     BOOL SetValue(LPCTSTR ValueName, LPCTSTR Value);
     BOOL GetValue(LPCTSTR ValueName, DWORD* pType, PBYTE Buffer, DWORD* BufferLen);
@@ -266,7 +258,7 @@ private:
 };
 
 // define iteration context. To be used by CLIST
-struct tagPosition{ };
+struct tagPosition { };
 typedef tagPosition* POSITION;
 
 template<class TYPE>
@@ -274,15 +266,15 @@ inline void ConstructElements(TYPE* pElements, int Count)
 {
     memset((void*)&pElements, 0, Count * sizeof(TYPE));
     for (; Count; Count--, pElements++)
-    // call the contructor -- note the placement
-    ::new((void*)pElements) TYPE;
+        // call the contructor -- note the placement
+        ::new((void*)pElements) TYPE;
 }
 
 template<class TYPE>
 inline void DestructElements(TYPE* pElements, int Count)
 {
     for (; Count; Count--, pElements++)
-    pElements->~TYPE();
+        pElements->~TYPE();
 }
 
 // TEMPLATEs
@@ -303,11 +295,11 @@ protected:
         TYPE data;
     };
 public:
-// Construction
+    // Construction
     CList(int nBlockSize = 10);
 
-// Attributes (head and tail)
-    // count of elements
+    // Attributes (head and tail)
+        // count of elements
     int GetCount() const;
     BOOL IsEmpty() const;
 
@@ -317,8 +309,8 @@ public:
     TYPE& GetTail();
     TYPE GetTail() const;
 
-// Operations
-    // get head or tail (and remove it) - don't call on empty list !
+    // Operations
+        // get head or tail (and remove it) - don't call on empty list !
     TYPE RemoveHead();
     TYPE RemoveTail();
 
@@ -352,7 +344,7 @@ public:
     POSITION InsertAfter(POSITION position, ARG_TYPE newElement);
 
     POSITION FindIndex(int nIndex) const;
-        // get the 'nIndex'th element (may return NULL)
+    // get the 'nIndex'th element (may return NULL)
 
 // Implementation
 protected:
@@ -376,64 +368,94 @@ public:
 
 template<class TYPE, class ARG_TYPE>
 inline int CList<TYPE, ARG_TYPE>::GetCount() const
-    { return m_nCount; }
+{
+    return m_nCount;
+}
 template<class TYPE, class ARG_TYPE>
 inline BOOL CList<TYPE, ARG_TYPE>::IsEmpty() const
-    { return m_nCount == 0; }
+{
+    return m_nCount == 0;
+}
 template<class TYPE, class ARG_TYPE>
 inline TYPE& CList<TYPE, ARG_TYPE>::GetHead()
-    { ASSERT(m_pNodeHead != NULL);
-        return m_pNodeHead->data; }
+{
+    ASSERT(m_pNodeHead != NULL);
+    return m_pNodeHead->data;
+}
 template<class TYPE, class ARG_TYPE>
 inline TYPE CList<TYPE, ARG_TYPE>::GetHead() const
-    { ASSERT(m_pNodeHead != NULL);
-        return m_pNodeHead->data; }
+{
+    ASSERT(m_pNodeHead != NULL);
+    return m_pNodeHead->data;
+}
 template<class TYPE, class ARG_TYPE>
 inline TYPE& CList<TYPE, ARG_TYPE>::GetTail()
-    { ASSERT(m_pNodeTail != NULL);
-        return m_pNodeTail->data; }
+{
+    ASSERT(m_pNodeTail != NULL);
+    return m_pNodeTail->data;
+}
 template<class TYPE, class ARG_TYPE>
 inline TYPE CList<TYPE, ARG_TYPE>::GetTail() const
-    { ASSERT(m_pNodeTail != NULL);
-        return m_pNodeTail->data; }
+{
+    ASSERT(m_pNodeTail != NULL);
+    return m_pNodeTail->data;
+}
 template<class TYPE, class ARG_TYPE>
 inline POSITION CList<TYPE, ARG_TYPE>::GetHeadPosition() const
-    { return (POSITION) m_pNodeHead; }
+{
+    return (POSITION)m_pNodeHead;
+}
 template<class TYPE, class ARG_TYPE>
 inline POSITION CList<TYPE, ARG_TYPE>::GetTailPosition() const
-    { return (POSITION) m_pNodeTail; }
+{
+    return (POSITION)m_pNodeTail;
+}
 template<class TYPE, class ARG_TYPE>
 inline TYPE& CList<TYPE, ARG_TYPE>::GetNext(POSITION& rPosition) // return *Position++
-    { CNode* pNode = (CNode*) rPosition;
-        rPosition = (POSITION) pNode->pNext;
-        return pNode->data; }
+{
+    CNode* pNode = (CNode*)rPosition;
+    rPosition = (POSITION)pNode->pNext;
+    return pNode->data;
+}
 template<class TYPE, class ARG_TYPE>
 inline TYPE CList<TYPE, ARG_TYPE>::GetNext(POSITION& rPosition) const // return *Position++
-    { CNode* pNode = (CNode*) rPosition;
-        rPosition = (POSITION) pNode->pNext;
-        return pNode->data; }
+{
+    CNode* pNode = (CNode*)rPosition;
+    rPosition = (POSITION)pNode->pNext;
+    return pNode->data;
+}
 template<class TYPE, class ARG_TYPE>
 inline TYPE& CList<TYPE, ARG_TYPE>::GetPrev(POSITION& rPosition) // return *Position--
-    { CNode* pNode = (CNode*) rPosition;
-        rPosition = (POSITION) pNode->pPrev;
-        return pNode->data; }
+{
+    CNode* pNode = (CNode*)rPosition;
+    rPosition = (POSITION)pNode->pPrev;
+    return pNode->data;
+}
 template<class TYPE, class ARG_TYPE>
 inline TYPE CList<TYPE, ARG_TYPE>::GetPrev(POSITION& rPosition) const // return *Position--
-    { CNode* pNode = (CNode*) rPosition;
-        rPosition = (POSITION) pNode->pPrev;
-        return pNode->data; }
+{
+    CNode* pNode = (CNode*)rPosition;
+    rPosition = (POSITION)pNode->pPrev;
+    return pNode->data;
+}
 template<class TYPE, class ARG_TYPE>
 inline TYPE& CList<TYPE, ARG_TYPE>::GetAt(POSITION position)
-    { CNode* pNode = (CNode*) position;
-        return pNode->data; }
+{
+    CNode* pNode = (CNode*)position;
+    return pNode->data;
+}
 template<class TYPE, class ARG_TYPE>
 inline TYPE CList<TYPE, ARG_TYPE>::GetAt(POSITION position) const
-    { CNode* pNode = (CNode*) position;
-        return pNode->data; }
+{
+    CNode* pNode = (CNode*)position;
+    return pNode->data;
+}
 template<class TYPE, class ARG_TYPE>
 inline void CList<TYPE, ARG_TYPE>::SetAt(POSITION pos, ARG_TYPE newElement)
-    { CNode* pNode = (CNode*) pos;
-        pNode->data = newElement; }
+{
+    CNode* pNode = (CNode*)pos;
+    pNode->data = newElement;
+}
 
 template<class TYPE, class ARG_TYPE>
 CList<TYPE, ARG_TYPE>::CList(int nBlockSize)
@@ -475,22 +497,19 @@ template<class TYPE, class ARG_TYPE>
 CList<TYPE, ARG_TYPE>::CNode*
 CList<TYPE, ARG_TYPE>::NewNode(CList::CNode* pPrev, CList::CNode* pNext)
 {
-    if (m_pNodeFree == NULL)
-    {
+    if (m_pNodeFree == NULL) {
         // add another block
         CBlock* pNewBlock = new CBlock(m_pBlocks, m_nBlockSize,
-                           sizeof(CNode));
-                if (m_pBlocks == NULL)
-                {
-                    m_pBlocks = pNewBlock;
-                }
+                                       sizeof(CNode));
+        if (m_pBlocks == NULL) {
+            m_pBlocks = pNewBlock;
+        }
 
         // chain them into free list
-        CNode* pNode = (CNode*) pNewBlock->data;
+        CNode* pNode = (CNode*)pNewBlock->data;
         // free in reverse order to make it easier to debug
         pNode += m_nBlockSize - 1;
-        for (int i = m_nBlockSize-1; i >= 0; i--, pNode--)
-        {
+        for (int i = m_nBlockSize - 1; i >= 0; i--, pNode--) {
             pNode->pNext = m_pNodeFree;
             m_pNodeFree = pNode;
         }
@@ -532,7 +551,7 @@ POSITION CList<TYPE, ARG_TYPE>::AddHead(ARG_TYPE newElement)
     else
         m_pNodeTail = pNewNode;
     m_pNodeHead = pNewNode;
-    return (POSITION) pNewNode;
+    return (POSITION)pNewNode;
 }
 
 template<class TYPE, class ARG_TYPE>
@@ -545,7 +564,7 @@ POSITION CList<TYPE, ARG_TYPE>::AddTail(ARG_TYPE newElement)
     else
         m_pNodeHead = pNewNode;
     m_pNodeTail = pNewNode;
-    return (POSITION) pNewNode;
+    return (POSITION)pNewNode;
 }
 
 template<class TYPE, class ARG_TYPE>
@@ -612,21 +631,18 @@ POSITION CList<TYPE, ARG_TYPE>::InsertBefore(POSITION position, ARG_TYPE newElem
         return AddHead(newElement); // insert before nothing -> head of the list
 
     // Insert it before position
-    CNode* pOldNode = (CNode*) position;
+    CNode* pOldNode = (CNode*)position;
     CNode* pNewNode = NewNode(pOldNode->pPrev, pOldNode);
     pNewNode->data = newElement;
 
-    if (pOldNode->pPrev != NULL)
-    {
+    if (pOldNode->pPrev != NULL) {
         pOldNode->pPrev->pNext = pNewNode;
-    }
-    else
-    {
+    } else {
         ASSERT(pOldNode == m_pNodeHead);
         m_pNodeHead = pNewNode;
     }
     pOldNode->pPrev = pNewNode;
-    return (POSITION) pNewNode;
+    return (POSITION)pNewNode;
 }
 
 template<class TYPE, class ARG_TYPE>
@@ -637,44 +653,35 @@ POSITION CList<TYPE, ARG_TYPE>::InsertAfter(POSITION position, ARG_TYPE newEleme
         return AddTail(newElement); // insert after nothing -> tail of the list
 
     // Insert it before position
-    CNode* pOldNode = (CNode*) position;
+    CNode* pOldNode = (CNode*)position;
     CNode* pNewNode = NewNode(pOldNode, pOldNode->pNext);
     pNewNode->data = newElement;
 
-    if (pOldNode->pNext != NULL)
-    {
+    if (pOldNode->pNext != NULL) {
         pOldNode->pNext->pPrev = pNewNode;
-    }
-    else
-    {
+    } else {
         ASSERT(pOldNode == m_pNodeTail);
         m_pNodeTail = pNewNode;
     }
     pOldNode->pNext = pNewNode;
-    return (POSITION) pNewNode;
+    return (POSITION)pNewNode;
 }
 
 template<class TYPE, class ARG_TYPE>
 void CList<TYPE, ARG_TYPE>::RemoveAt(POSITION position)
 {
 
-    CNode* pOldNode = (CNode*) position;
+    CNode* pOldNode = (CNode*)position;
 
     // remove pOldNode from list
-    if (pOldNode == m_pNodeHead)
-    {
+    if (pOldNode == m_pNodeHead) {
         m_pNodeHead = pOldNode->pNext;
-    }
-    else
-    {
+    } else {
         pOldNode->pPrev->pNext = pOldNode->pNext;
     }
-    if (pOldNode == m_pNodeTail)
-    {
+    if (pOldNode == m_pNodeTail) {
         m_pNodeTail = pOldNode->pPrev;
-    }
-    else
-    {
+    } else {
         pOldNode->pNext->pPrev = pOldNode->pPrev;
     }
     FreeNode(pOldNode);
@@ -690,11 +697,10 @@ POSITION CList<TYPE, ARG_TYPE>::FindIndex(int nIndex) const
         return NULL;  // went too far
 
     CNode* pNode = m_pNodeHead;
-    while (nIndex--)
-    {
+    while (nIndex--) {
         pNode = pNode->pNext;
     }
-    return (POSITION) pNode;
+    return (POSITION)pNode;
 }
 
 
@@ -709,107 +715,107 @@ class BufferPtr
 public:
     BufferPtr(UINT Size) : m_pBase(NULL), m_Size(Size)
     {
-    ASSERT(Size);
-    m_pBase = new T[Size];
-    m_pCur = m_pBase;
-    if (!m_pBase)
-        throw &g_MemoryException;
+        ASSERT(Size);
+        m_pBase = new T[Size];
+        m_pCur = m_pBase;
+        if (!m_pBase)
+            throw& g_MemoryException;
     }
     BufferPtr()
     {
-    m_pBase = NULL;
-    m_pCur = NULL;
-    m_Size = 0;
+        m_pBase = NULL;
+        m_pCur = NULL;
+        m_Size = 0;
     }
     ~BufferPtr()
     {
-    if (m_pBase)
-        delete [] m_pBase;
+        if (m_pBase)
+            delete[] m_pBase;
     }
     // casting operator
-    operator T*()
+    operator T* ()
     {
-    return m_pCur;
+        return m_pCur;
     }
-    operator T&()
+    operator T& ()
     {
-    ASSERT(m_pCur < m_pBase + m_Size);
-    return *m_pCur;
+        ASSERT(m_pCur < m_pBase + m_Size);
+        return *m_pCur;
     }
-    operator void*()
+    operator void* ()
     {
-    return m_pCur;
+        return m_pCur;
     }
     T& operator*()
     {
-    ASSERT(m_pCur < m_pBase + m_Size);
-    return *m_pCur;
+        ASSERT(m_pCur < m_pBase + m_Size);
+        return *m_pCur;
     }
     // increment/decrement
     T* operator+(UINT Inc)
     {
-    ASSERT(m_pBase + m_Size > m_pCur + Inc);
-    return (m_pBase + Inc);
+        ASSERT(m_pBase + m_Size > m_pCur + Inc);
+        return (m_pBase + Inc);
     }
     T* operator-(UINT Dec)
     {
-    ASSERT(m_pBase >= m_pCur - Dec);
-    m_pCur -= Dec;
-    return m_pCur;
+        ASSERT(m_pBase >= m_pCur - Dec);
+        m_pCur -= Dec;
+        return m_pCur;
     }
     //prefix
     T* operator++()
     {
-    ASSERT(m_pBase + m_Size > m_pCur - 1);
-    return ++m_pCur;
+        ASSERT(m_pBase + m_Size > m_pCur - 1);
+        return ++m_pCur;
     }
     //postfix
     T* operator++(int inc)
     {
-    pCur
-    ASSERT(m_pBase + m_Size > m_pCur);
-    return m_pCur++;
+        pCur
+            ASSERT(m_pBase + m_Size > m_pCur);
+        return m_pCur++;
     }
     //prefix
     T* operator--()
     {
-    ASSERT(m_pCur > m_pBase);
-    return --m_pCur;
+        ASSERT(m_pCur > m_pBase);
+        return --m_pCur;
     }
     //postfix
     T* operator--(int inc)
     {
-    ASSERT(m_pCur > m_pBase);
-    return m_pCur--;
+        ASSERT(m_pCur > m_pBase);
+        return m_pCur--;
     }
     T** operator&()
     {
-    return &m_pBase;
+        return &m_pBase;
     }
     // subscripting
     T& operator[](UINT Index)
     {
-    ASSERT(Index < m_Size);
-    return m_pBase[Index];
+        ASSERT(Index < m_Size);
+        return m_pBase[Index];
     }
     void Attach(T* pT, UINT Size = 1)
     {
-    ASSERT(!m_pBase);
-    m_pBase = pT;
-    m_pCur = m_pBase;
-    m_Size = Size;
+        ASSERT(!m_pBase);
+        m_pBase = pT;
+        m_pCur = m_pBase;
+        m_Size = Size;
     }
     void Detach()
     {
-    m_pBase = NULL;
+        m_pBase = NULL;
     }
     UINT GetSize()
     {
-    return m_Size;
+        return m_Size;
     }
 private:
-    T*   m_pBase;
-    T*   m_pCur;
+    T* m_pBase;
+    T* m_pCur;
     UINT    m_Size;
 };
 
@@ -819,49 +825,49 @@ class SafePtr
 public:
     SafePtr(T* p)
     {
-    __p = p;
+        __p = p;
     }
     SafePtr()
     {
-    __p = NULL;
+        __p = NULL;
     }
     ~SafePtr()
     {
-    if (__p)
-        delete __p;
+        if (__p)
+            delete __p;
     }
     void Attach(T* p)
     {
-    ASSERT(NULL == __p);
-    __p = p;
+        ASSERT(NULL == __p);
+        __p = p;
     }
     void Detach()
     {
-    __p = NULL;
+        __p = NULL;
     }
     T* operator->()
     {
-    ASSERT(__p);
+        ASSERT(__p);
 
-    return __p;
+        return __p;
     }
     T& operator*()
     {
-    ASSERT(__p);
+        ASSERT(__p);
 
-    return *__p;
+        return *__p;
     }
-    operator T*()
+    operator T* ()
     {
-    return __p;
+        return __p;
     }
-    operator T&()
+    operator T& ()
     {
-    ASSERT(__p);
-    return *__p;
+        ASSERT(__p);
+        return *__p;
     }
 private:
-    T*  __p;
+    T* __p;
 
 };
 
@@ -939,7 +945,7 @@ public:
     virtual ~CDialog()
     {}
     static INT_PTR CALLBACK DialogWndProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    INT_PTR DoModal(HWND hwndParent, LPARAM lParam )
+    INT_PTR DoModal(HWND hwndParent, LPARAM lParam)
     {
         return DialogBoxParam(g_hInstance, MAKEINTRESOURCE(m_TemplateId), hwndParent, DialogWndProc, lParam);
     }
@@ -988,7 +994,7 @@ public:
     ~CFileHandle()
     {
         if (INVALID_HANDLE_VALUE != m_hFile)
-        CloseHandle(m_hFile);
+            CloseHandle(m_hFile);
     }
     void Open(HANDLE hFile)
     {
@@ -998,7 +1004,7 @@ public:
     void Close()
     {
         if (INVALID_HANDLE_VALUE != m_hFile)
-        CloseHandle(m_hFile);
+            CloseHandle(m_hFile);
     }
     HANDLE hFile()
     {
@@ -1019,24 +1025,23 @@ public:
     BOOL Create(LPCTSTR LogFileName)
     {
         if (!LogFileName)
-        return FALSE;
+            return FALSE;
 
         m_strLogFileName = LogFileName;
         m_hFile = CreateFile(LogFileName,
-                GENERIC_READ | GENERIC_WRITE,
-                0,
-                NULL,
-                CREATE_ALWAYS,
-                FILE_ATTRIBUTE_NORMAL,
-                NULL);
+                             GENERIC_READ | GENERIC_WRITE,
+                             0,
+                             NULL,
+                             CREATE_ALWAYS,
+                             FILE_ATTRIBUTE_NORMAL,
+                             NULL);
         return INVALID_HANDLE_VALUE != m_hFile;
     }
     void Close()
     {
-        if (m_hFile)
-        {
-        CloseHandle(m_hFile);
-        m_hFile = INVALID_HANDLE_VALUE;
+        if (m_hFile) {
+            CloseHandle(m_hFile);
+            m_hFile = INVALID_HANDLE_VALUE;
         }
     }
     LPCTSTR LogFileName()
@@ -1047,7 +1052,7 @@ public:
     {
         Close();
         if (m_strLogFileName)
-        DeleteFile(m_strLogFileName);
+            DeleteFile(m_strLogFileName);
     }
     BOOL LogLastError(LPCTSTR FunctionName);
     BOOL Logf(LPCTSTR Format, ...);
@@ -1063,6 +1068,6 @@ STDAPI_(CONFIGRET) GetLocationInformation(
     LPTSTR Location,
     ULONG LocationLen,  // In characters
     HMACHINE hMachine
-    );
+);
 
 #endif  // __UTILS_H_

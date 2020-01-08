@@ -40,17 +40,17 @@ Environment:
 #define MAPPER_REGISTRY    0x00000010
 #define MAPPER_VERBOSE     0x00008000
 
-ULONG PnPBiosMapperDebugMask =    MAPPER_ERROR       |
-                               // MAPPER_INFORMATION |
-                               // MAPPER_REGISTRY    |
-                               // MAPPER_PNP_ID      |
-                               // MAPPER_RESOURCES   |
-                               // MAPPER_VERBOSE     |
-                               0;
+ULONG PnPBiosMapperDebugMask = MAPPER_ERROR |
+// MAPPER_INFORMATION |
+// MAPPER_REGISTRY    |
+// MAPPER_PNP_ID      |
+// MAPPER_RESOURCES   |
+// MAPPER_VERBOSE     |
+0;
 
 #define DebugPrint(X) PnPBiosDebugPrint X
 
-VOID PnPBiosDebugPrint(ULONG  DebugMask,PCCHAR DebugMessage,...);
+VOID PnPBiosDebugPrint(ULONG  DebugMask, PCCHAR DebugMessage, ...);
 
 #else
 #define DebugPrint(X)
@@ -78,12 +78,12 @@ VOID PnPBiosDebugPrint(ULONG  DebugMask,PCCHAR DebugMessage,...);
 
 #define EXCLUSION_ENTRY(a)  { a, sizeof(a) - sizeof(UNICODE_NULL) }
 
-typedef struct  _EXCLUDED_PNPNODE  {
+typedef struct  _EXCLUDED_PNPNODE {
     PWCHAR  Id;
     ULONG   IdLength;
-} EXCLUDED_PNPNODE, *PEXCLUDED_PNPNODE;
+} EXCLUDED_PNPNODE, * PEXCLUDED_PNPNODE;
 
-EXCLUDED_PNPNODE ExcludedDevices[] =  {
+EXCLUDED_PNPNODE ExcludedDevices[] = {
     EXCLUSION_ENTRY(L"*PNP03"),     // Keyboards
     EXCLUSION_ENTRY(L"*PNP0A"),     // PCI Busses
     EXCLUSION_ENTRY(L"*PNP0E"),     // PCMCIA Busses
@@ -211,28 +211,28 @@ CLASSDATA Class12Descriptions[] = {
 
 #define CLASSLIST_ENTRY(a)   { a, sizeof(a) / sizeof(a[0]) }
 
-struct _CLASS_DESCRIPTIONS_LIST  {
-    CLASSDATA *Descriptions;
+struct _CLASS_DESCRIPTIONS_LIST {
+    CLASSDATA* Descriptions;
     ULONG      Count;
-}   ClassDescriptionsList[] =  {
+}   ClassDescriptionsList[] = {
     { NULL, 0 },
-    CLASSLIST_ENTRY( Class1Descriptions ),
-    CLASSLIST_ENTRY( Class2Descriptions ),
-    CLASSLIST_ENTRY( Class3Descriptions ),
-    CLASSLIST_ENTRY( Class4Descriptions ),
-    CLASSLIST_ENTRY( Class5Descriptions ),
-    CLASSLIST_ENTRY( Class6Descriptions ),
-    CLASSLIST_ENTRY( Class7Descriptions ),
-    CLASSLIST_ENTRY( Class8Descriptions ),
-    CLASSLIST_ENTRY( Class9Descriptions ),
-    CLASSLIST_ENTRY( Class10Descriptions ),
-    CLASSLIST_ENTRY( Class11Descriptions ),
-    CLASSLIST_ENTRY( Class12Descriptions )
+    CLASSLIST_ENTRY(Class1Descriptions),
+    CLASSLIST_ENTRY(Class2Descriptions),
+    CLASSLIST_ENTRY(Class3Descriptions),
+    CLASSLIST_ENTRY(Class4Descriptions),
+    CLASSLIST_ENTRY(Class5Descriptions),
+    CLASSLIST_ENTRY(Class6Descriptions),
+    CLASSLIST_ENTRY(Class7Descriptions),
+    CLASSLIST_ENTRY(Class8Descriptions),
+    CLASSLIST_ENTRY(Class9Descriptions),
+    CLASSLIST_ENTRY(Class10Descriptions),
+    CLASSLIST_ENTRY(Class11Descriptions),
+    CLASSLIST_ENTRY(Class12Descriptions)
 };
 
 #define CLASSLIST_COUNT  ( sizeof(ClassDescriptionsList) / sizeof(ClassDescriptionsList[0]) )
 
-typedef struct _BIOS_DEVNODE_INFO  {
+typedef struct _BIOS_DEVNODE_INFO {
     WCHAR   ProductId[10];  // '*' + 7 char ID + NUL + NUL for REG_MULTI_SZ
     UCHAR   Handle;         // BIOS Node # / Handle
     UCHAR   TypeCode[3];
@@ -246,30 +246,45 @@ typedef struct _BIOS_DEVNODE_INFO  {
     PWSTR                           CompatibleIDs;  // REG_MULTI_SZ list of compatible IDs (including ProductId)
     ULONG                           CompatibleIDsLength;
     BOOLEAN                         FirmwareDisabled; // determined that it's disabled by firmware
-}   BIOS_DEVNODE_INFO, *PBIOS_DEVNODE_INFO;
+}   BIOS_DEVNODE_INFO, * PBIOS_DEVNODE_INFO;
 
-NTSTATUS PbBiosResourcesToNtResources (
+NTSTATUS PbBiosResourcesToNtResources(
     IN ULONG BusNumber,
     IN ULONG SlotNumber,
-    IN OUT PUCHAR *BiosData,
-    OUT PIO_RESOURCE_REQUIREMENTS_LIST *ReturnedList,
+    IN OUT PUCHAR* BiosData,
+    OUT PIO_RESOURCE_REQUIREMENTS_LIST* ReturnedList,
     OUT PULONG ReturnedLength
-    );
-VOID PnPBiosExpandProductId(PUCHAR CompressedId,PWCHAR ProductIDStr);
-NTSTATUS PnPBiosIoResourceListToCmResourceList(IN PIO_RESOURCE_REQUIREMENTS_LIST IoResourceList,OUT PCM_RESOURCE_LIST *CmResourceList,OUT ULONG *CmResourceListSize);
-NTSTATUS PnPBiosExtractCompatibleIDs(IN  PUCHAR *DevNodeData,IN  ULONG DevNodeDataLength,OUT PWSTR *CompatibleIDs,OUT ULONG *CompatibleIDsLength);
-NTSTATUS PnPBiosTranslateInfo(IN VOID *BiosInfo,IN ULONG BiosInfoLength,OUT PBIOS_DEVNODE_INFO *DevNodeInfoList,OUT ULONG *NumberNodes);
-LONG PnPBiosFindMatchingDevNode(IN PWCHAR MapperName,IN PCM_RESOURCE_LIST ResourceList,IN PBIOS_DEVNODE_INFO DevNodeInfoList,IN ULONG NumberNodes);
-NTSTATUS PnPBiosEliminateDupes(IN PBIOS_DEVNODE_INFO DevNodeInfoList,IN ULONG NumberNodes);
+);
+VOID PnPBiosExpandProductId(PUCHAR CompressedId, PWCHAR ProductIDStr);
+NTSTATUS PnPBiosIoResourceListToCmResourceList(IN PIO_RESOURCE_REQUIREMENTS_LIST IoResourceList,
+                                               OUT PCM_RESOURCE_LIST* CmResourceList,
+                                               OUT ULONG* CmResourceListSize);
+NTSTATUS PnPBiosExtractCompatibleIDs(IN  PUCHAR* DevNodeData, 
+                                     IN  ULONG DevNodeDataLength, 
+                                     OUT PWSTR* CompatibleIDs, 
+                                     OUT ULONG* CompatibleIDsLength);
+NTSTATUS PnPBiosTranslateInfo(IN VOID* BiosInfo, 
+                              IN ULONG BiosInfoLength, 
+                              OUT PBIOS_DEVNODE_INFO* DevNodeInfoList,
+                              OUT ULONG* NumberNodes);
+LONG PnPBiosFindMatchingDevNode(IN PWCHAR MapperName, 
+                                IN PCM_RESOURCE_LIST ResourceList, 
+                                IN PBIOS_DEVNODE_INFO DevNodeInfoList,
+                                IN ULONG NumberNodes);
+NTSTATUS PnPBiosEliminateDupes(IN PBIOS_DEVNODE_INFO DevNodeInfoList, IN ULONG NumberNodes);
 PWCHAR PnPBiosGetDescription(IN PBIOS_DEVNODE_INFO DevNodeInfoEntry);
-NTSTATUS PnPBiosWriteInfo(IN PBIOS_DEVNODE_INFO DevNodeInfoList,IN ULONG NumberNodes);
-VOID PnPBiosCopyIoDecode(IN HANDLE EnumRootKey,IN PBIOS_DEVNODE_INFO DevNodeInfo);
-NTSTATUS PnPBiosFreeDevNodeInfo(IN PBIOS_DEVNODE_INFO DevNodeInfoList,IN ULONG NumberNodes);
-NTSTATUS PnPBiosCheckForHardwareDisabled(IN PIO_RESOURCE_REQUIREMENTS_LIST IoResourceList,IN OUT PBOOLEAN Disabled);
-BOOLEAN PnPBiosCheckForExclusion(IN PEXCLUDED_PNPNODE ExclusionArray,IN ULONG ExclusionCount,IN PWCHAR PnpDeviceName,IN PWCHAR PnpCompatIds);
+NTSTATUS PnPBiosWriteInfo(IN PBIOS_DEVNODE_INFO DevNodeInfoList, IN ULONG NumberNodes);
+VOID PnPBiosCopyIoDecode(IN HANDLE EnumRootKey, IN PBIOS_DEVNODE_INFO DevNodeInfo);
+NTSTATUS PnPBiosFreeDevNodeInfo(IN PBIOS_DEVNODE_INFO DevNodeInfoList, IN ULONG NumberNodes);
+NTSTATUS PnPBiosCheckForHardwareDisabled(IN PIO_RESOURCE_REQUIREMENTS_LIST IoResourceList,
+                                         IN OUT PBOOLEAN Disabled);
+BOOLEAN PnPBiosCheckForExclusion(IN PEXCLUDED_PNPNODE ExclusionArray,
+                                 IN ULONG ExclusionCount,
+                                 IN PWCHAR PnpDeviceName, 
+                                 IN PWCHAR PnpCompatIds);
 NTSTATUS PnPBiosMapper(VOID);
-VOID PpFilterNtResource (IN PWCHAR PnpDeviceName,PIO_RESOURCE_REQUIREMENTS_LIST ResReqList);
-NTSTATUS ComPortDBAdd(IN  HANDLE  DeviceParamKey,IN  PWSTR   PortName);
+VOID PpFilterNtResource(IN PWCHAR PnpDeviceName, PIO_RESOURCE_REQUIREMENTS_LIST ResReqList);
+NTSTATUS ComPortDBAdd(IN  HANDLE  DeviceParamKey, IN  PWSTR   PortName);
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(INIT, PnPBiosExpandProductId)
@@ -290,7 +305,7 @@ NTSTATUS ComPortDBAdd(IN  HANDLE  DeviceParamKey,IN  PWSTR   PortName);
 #endif
 
 
-NTSTATUS PnPBiosGetBiosInfo(OUT PVOID *BiosInfo,OUT ULONG *BiosInfoLength)
+NTSTATUS PnPBiosGetBiosInfo(OUT PVOID* BiosInfo, OUT ULONG* BiosInfoLength)
 /*++
 Routine Description:
     This function retrieves the PnP BIOS info accumulated by NTDETECT.COM and placed in the registry.
@@ -318,56 +333,68 @@ Return Value:
     // The PnP BIOS info is written to one of the subkeys under MULTIFUNCTION_KEY_NAME.
     // The appropriate key is determined by enumerating the subkeys and using the first one which has a value named "Identifier" that is "PNP BIOS".
     RtlInitUnicodeString(&multifunctionKeyName, MULTIFUNCTION_KEY_NAME);
-    status = IopOpenRegistryKeyEx( &multifunctionKey,NULL,&multifunctionKeyName,KEY_READ);
+    status = IopOpenRegistryKeyEx(&multifunctionKey, NULL, &multifunctionKeyName, KEY_READ);
     if (!NT_SUCCESS(status)) {
-        DebugPrint( (MAPPER_ERROR, "Could not open %S, status = %8.8X\n", MULTIFUNCTION_KEY_NAME, status) );
+        DebugPrint((MAPPER_ERROR, "Could not open %S, status = %8.8X\n", MULTIFUNCTION_KEY_NAME, status));
         return STATUS_UNSUCCESSFUL;
     }
 
     // Allocate memory for key names returned from ZwEnumerateKey and values returned from ZwQueryValueKey.
     keyBasicInfoLength = sizeof(KEY_BASIC_INFORMATION) + DEFAULT_STRING_SIZE;
     keyBasicInfo = ExAllocatePool(PagedPool, keyBasicInfoLength + sizeof(UNICODE_NULL));
-    if (keyBasicInfo == NULL)  {
-        ZwClose( multifunctionKey );
+    if (keyBasicInfo == NULL) {
+        ZwClose(multifunctionKey);
         return STATUS_NO_MEMORY;
     }
 
     valueInfoLength = sizeof(KEY_VALUE_PARTIAL_INFORMATION) + DEFAULT_STRING_SIZE;
     valueInfo = ExAllocatePool(PagedPool, valueInfoLength);
-    if (valueInfo == NULL)  {
-        ExFreePool( keyBasicInfo );
-        ZwClose( multifunctionKey );
+    if (valueInfo == NULL) {
+        ExFreePool(keyBasicInfo);
+        ZwClose(multifunctionKey);
         return STATUS_NO_MEMORY;
     }
 
     // Enumerate each key under HKLM\HARDWARE\\DESCRIPTION\\System\\MultifunctionAdapter to locate the one representing the PnP BIOS information.
     for (index = 0; ; index++) {
-        status = ZwEnumerateKey( multifunctionKey,   // handle of key to enumerate
-                                 index,              // index of subkey to enumerate
-                                 KeyBasicInformation,
-                                 keyBasicInfo,
-                                 keyBasicInfoLength,
-                                 &returnedLength);
+        status = ZwEnumerateKey(multifunctionKey,   // handle of key to enumerate
+                                index,              // index of subkey to enumerate
+                                KeyBasicInformation,
+                                keyBasicInfo,
+                                keyBasicInfoLength,
+                                &returnedLength);
         if (!NT_SUCCESS(status)) {
-            if (status != STATUS_NO_MORE_ENTRIES)  {
-                DebugPrint( (MAPPER_ERROR, "Could not enumerate under key %S, status = %8.8X\n", MULTIFUNCTION_KEY_NAME, status) );
+            if (status != STATUS_NO_MORE_ENTRIES) {
+                DebugPrint((MAPPER_ERROR, 
+                            "Could not enumerate under key %S, status = %8.8X\n",
+                            MULTIFUNCTION_KEY_NAME,
+                            status));
             }
 
             break;
         }
 
         // We found a subkey, NUL terminate the name and open the subkey.
-        keyBasicInfo->Name[ keyBasicInfo->NameLength / 2 ] = L'\0';
+        keyBasicInfo->Name[keyBasicInfo->NameLength / 2] = L'\0';
         RtlInitUnicodeString(&biosKeyName, keyBasicInfo->Name);
-        status = IopOpenRegistryKeyEx( &biosKey,multifunctionKey,&biosKeyName,KEY_READ);
+        status = IopOpenRegistryKeyEx(&biosKey, multifunctionKey, &biosKeyName, KEY_READ);
         if (!NT_SUCCESS(status)) {
-            DebugPrint( (MAPPER_ERROR,"Could not open registry key %S\\%S, status = %8.8X\n",MULTIFUNCTION_KEY_NAME,keyBasicInfo->Name,status) );
+            DebugPrint((MAPPER_ERROR,
+                        "Could not open registry key %S\\%S, status = %8.8X\n",
+                        MULTIFUNCTION_KEY_NAME,
+                        keyBasicInfo->Name, 
+                        status));
             break;
         }
 
         // Now we need to check the Identifier value in the subkey to see if it is PNP BIOS.
         RtlInitUnicodeString(&valueName, L"Identifier");
-        status = ZwQueryValueKey( biosKey,&valueName,KeyValuePartialInformation,valueInfo,valueInfoLength,&returnedLength);
+        status = ZwQueryValueKey(biosKey,
+                                 &valueName,
+                                 KeyValuePartialInformation,
+                                 valueInfo, 
+                                 valueInfoLength, 
+                                 &returnedLength);
 
         // lets see if its the PNP BIOS identifier
         if (NT_SUCCESS(status)) {
@@ -376,15 +403,25 @@ Return Value:
 
                 // We'll start off with our default value buffer and increase its size if necessary.
                 RtlInitUnicodeString(&valueName, L"Configuration Data");
-                status = ZwQueryValueKey( biosKey,&valueName,KeyValuePartialInformation,valueInfo,valueInfoLength,&returnedLength);
+                status = ZwQueryValueKey(biosKey, 
+                                         &valueName,
+                                         KeyValuePartialInformation, 
+                                         valueInfo, 
+                                         valueInfoLength,
+                                         &returnedLength);
                 if (!NT_SUCCESS(status)) {
                     if (status == STATUS_BUFFER_TOO_SMALL || status == STATUS_BUFFER_OVERFLOW) {
                         // The default buffer was too small, free it and reallocate it to the required size.
-                        ExFreePool( valueInfo );
+                        ExFreePool(valueInfo);
                         valueInfoLength = returnedLength;
-                        valueInfo = ExAllocatePool( PagedPool, valueInfoLength );
-                        if (valueInfo != NULL)  {
-                            status = ZwQueryValueKey( biosKey,&valueName,KeyValuePartialInformation,valueInfo,valueInfoLength,&returnedLength );
+                        valueInfo = ExAllocatePool(PagedPool, valueInfoLength);
+                        if (valueInfo != NULL) {
+                            status = ZwQueryValueKey(biosKey,
+                                                     &valueName,
+                                                     KeyValuePartialInformation,
+                                                     valueInfo, 
+                                                     valueInfoLength, 
+                                                     &returnedLength);
                         } else {
                             status = STATUS_NO_MEMORY;
                         }
@@ -404,14 +441,18 @@ Return Value:
                     *BiosInfoLength = biosValue->PartialResourceList.PartialDescriptors[0].u.DeviceSpecificData.DataSize;
                     *BiosInfo = ExAllocatePool(PagedPool, *BiosInfoLength);
                     if (*BiosInfo != NULL) {
-                        RtlCopyMemory( *BiosInfo,&biosValue->PartialResourceList.PartialDescriptors[1],*BiosInfoLength );
+                        RtlCopyMemory(*BiosInfo, &biosValue->PartialResourceList.PartialDescriptors[1], *BiosInfoLength);
                         status = STATUS_SUCCESS;
                     } else {
                         *BiosInfoLength = 0;
                         status = STATUS_NO_MEMORY;
                     }
                 } else {
-                    DebugPrint( (MAPPER_ERROR,"Error retrieving %S\\%S\\Configuration Data, status = %8.8X\n",MULTIFUNCTION_KEY_NAME,keyBasicInfo->Name,status) );
+                    DebugPrint((MAPPER_ERROR, 
+                                "Error retrieving %S\\%S\\Configuration Data, status = %8.8X\n",
+                                MULTIFUNCTION_KEY_NAME,
+                                keyBasicInfo->Name,
+                                status));
                 }
 
                 // We found the PnP BIOS entry, so close the key handle and return.
@@ -438,7 +479,7 @@ Return Value:
 }
 
 
-VOID PnPBiosExpandProductId(PUCHAR CompressedId,PWCHAR ProductIDStr)
+VOID PnPBiosExpandProductId(PUCHAR CompressedId, PWCHAR ProductIDStr)
 /*++
 Routine Description:
     This function expands a PnP Device ID from the 4 byte compressed form into an 7 character unicode string.
@@ -463,59 +504,59 @@ Return Value:
 }
 
 
-BOOLEAN PnPBiosIgnoreNode (PWCHAR PnpID,PWCHAR excludeNodes)
+BOOLEAN PnPBiosIgnoreNode(PWCHAR PnpID, PWCHAR excludeNodes)
 {
-    BOOLEAN bRet=FALSE;
+    BOOLEAN bRet = FALSE;
     ULONG   keyLen;
     PWCHAR  pTmp;
 
-    ASSERT (excludeNodes);
+    ASSERT(excludeNodes);
 
     //excludeNodes is multi-sz, so walk through each one and check it.
-    pTmp=excludeNodes;
+    pTmp = excludeNodes;
     while (*pTmp != '\0') {
-        keyLen = wcslen (pTmp);
-        if (RtlCompareMemory (PnpID,pTmp,keyLen*sizeof (WCHAR)) == keyLen*sizeof (WCHAR)) {
-            bRet=TRUE;
+        keyLen = wcslen(pTmp);
+        if (RtlCompareMemory(PnpID, pTmp, keyLen * sizeof(WCHAR)) == keyLen * sizeof(WCHAR)) {
+            bRet = TRUE;
             break;
         }
 
-        pTmp=pTmp+keyLen+1;
+        pTmp = pTmp + keyLen + 1;
     }
 
     return bRet;
 }
 
 
-VOID PnPGetDevnodeExcludeList (OUT  PKEY_VALUE_FULL_INFORMATION  *ExcludeList)
+VOID PnPGetDevnodeExcludeList(OUT  PKEY_VALUE_FULL_INFORMATION* ExcludeList)
 {
     UNICODE_STRING biosKeyName;
     HANDLE  biosKey;
     NTSTATUS status;
 
     RtlInitUnicodeString(&biosKeyName, BIOSINFO_KEY_NAME);
-    status = IopOpenRegistryKeyEx( &biosKey,NULL,&biosKeyName,KEY_READ);
+    status = IopOpenRegistryKeyEx(&biosKey, NULL, &biosKeyName, KEY_READ);
     if (!NT_SUCCESS(status)) {
         // Don't really need to complain, likely not there.
         return;
     }
 
-    (VOID) IopGetRegistryValue (biosKey,BIOSINFO_VALUE_NAME,ExcludeList);
+    (VOID)IopGetRegistryValue(biosKey, BIOSINFO_VALUE_NAME, ExcludeList);
 
-    ZwClose (biosKey);
+    ZwClose(biosKey);
 }
 
 
 BOOLEAN PnPCheckFixedIoOverrideDecodes(VOID)
 {
-    PKEY_VALUE_FULL_INFORMATION decodeFlagInfo=NULL;
+    PKEY_VALUE_FULL_INFORMATION decodeFlagInfo = NULL;
     UNICODE_STRING biosKeyName;
     HANDLE  biosKey;
     NTSTATUS status;
     BOOLEAN overrideDecodes = FALSE;
 
     RtlInitUnicodeString(&biosKeyName, BIOSINFO_KEY_NAME);
-    status = IopOpenRegistryKeyEx( &biosKey,NULL,&biosKeyName,KEY_READ);
+    status = IopOpenRegistryKeyEx(&biosKey, NULL, &biosKeyName, KEY_READ);
     if (!NT_SUCCESS(status)) {
         // Don't really need to complain, likely not there.
         return FALSE;
@@ -525,7 +566,7 @@ BOOLEAN PnPCheckFixedIoOverrideDecodes(VOID)
     if (NT_SUCCESS(status)) {
         ASSERT(decodeFlagInfo->Type == REG_DWORD);
         if (decodeFlagInfo->DataLength == sizeof(ULONG)) {
-            overrideDecodes = (BOOLEAN) *((PULONG) decodeFlagInfo->Name);
+            overrideDecodes = (BOOLEAN) * ((PULONG)decodeFlagInfo->Name);
         }
     }
 
@@ -533,23 +574,27 @@ BOOLEAN PnPCheckFixedIoOverrideDecodes(VOID)
         ExFreePool(decodeFlagInfo);
     }
 
-    ZwClose (biosKey);
+    ZwClose(biosKey);
     return overrideDecodes;
 }
 
 
-BOOLEAN PnPBiosCheckForExclusion(IN EXCLUDED_PNPNODE *Exclusions,IN ULONG  ExclusionCount,IN PWCHAR PnpDeviceName,IN PWCHAR PnpCompatIds)
+BOOLEAN PnPBiosCheckForExclusion(IN EXCLUDED_PNPNODE* Exclusions, 
+                                 IN ULONG  ExclusionCount,
+                                 IN PWCHAR PnpDeviceName,
+                                 IN PWCHAR PnpCompatIds
+)
 {
     PWCHAR idPtr;
     ULONG exclusionIndex;
 
     for (exclusionIndex = 0; exclusionIndex < ExclusionCount; exclusionIndex++) {
         idPtr = PnpDeviceName;
-        if (RtlCompareMemory( idPtr, Exclusions[ exclusionIndex ].Id, Exclusions[ exclusionIndex ].IdLength) != Exclusions[ exclusionIndex ].IdLength )  {
+        if (RtlCompareMemory(idPtr, Exclusions[exclusionIndex].Id, Exclusions[exclusionIndex].IdLength) != Exclusions[exclusionIndex].IdLength) {
             idPtr = PnpCompatIds;
-            if (idPtr != NULL)  {
+            if (idPtr != NULL) {
                 while (*idPtr != '\0') {
-                    if (RtlCompareMemory( idPtr, Exclusions[ exclusionIndex ].Id, Exclusions[ exclusionIndex ].IdLength) == Exclusions[ exclusionIndex ].IdLength )  {
+                    if (RtlCompareMemory(idPtr, Exclusions[exclusionIndex].Id, Exclusions[exclusionIndex].IdLength) == Exclusions[exclusionIndex].IdLength) {
                         break;
                     }
 
@@ -562,7 +607,7 @@ BOOLEAN PnPBiosCheckForExclusion(IN EXCLUDED_PNPNODE *Exclusions,IN ULONG  Exclu
             }
         }
 
-        if (idPtr != NULL)  {
+        if (idPtr != NULL) {
             break;
         }
     }
@@ -575,7 +620,10 @@ BOOLEAN PnPBiosCheckForExclusion(IN EXCLUDED_PNPNODE *Exclusions,IN ULONG  Exclu
 }
 
 
-NTSTATUS PnPBiosIoResourceListToCmResourceList(IN PIO_RESOURCE_REQUIREMENTS_LIST IoResourceList,OUT PCM_RESOURCE_LIST *CmResourceList,OUT ULONG *CmResourceListSize)
+NTSTATUS PnPBiosIoResourceListToCmResourceList(IN PIO_RESOURCE_REQUIREMENTS_LIST IoResourceList,
+                                               OUT PCM_RESOURCE_LIST* CmResourceList, 
+                                               OUT ULONG* CmResourceListSize
+)
 /*++
 Routine Description:
     Converts an IO_RESOURCE_REQUIREMENTS_LIST into a CM_RESOURCE_LIST.
@@ -597,8 +645,10 @@ Return Value:
     ASSERT(IoResourceList->AlternativeLists == 1);
 
     // Calculate the size of the translated list and allocate memory for it.
-    *CmResourceListSize = sizeof(CM_RESOURCE_LIST) + (IoResourceList->AlternativeLists - 1) * sizeof(CM_FULL_RESOURCE_DESCRIPTOR) + (IoResourceList->List[0].Count - 1) * sizeof(CM_PARTIAL_RESOURCE_DESCRIPTOR);
-    *CmResourceList = ExAllocatePool( PagedPool, *CmResourceListSize );
+    *CmResourceListSize = sizeof(CM_RESOURCE_LIST) + 
+        (IoResourceList->AlternativeLists - 1) * sizeof(CM_FULL_RESOURCE_DESCRIPTOR) + 
+        (IoResourceList->List[0].Count - 1) * sizeof(CM_PARTIAL_RESOURCE_DESCRIPTOR);
+    *CmResourceList = ExAllocatePool(PagedPool, *CmResourceListSize);
     if (*CmResourceList == NULL) {
         *CmResourceListSize = 0;
         return STATUS_NO_MEMORY;
@@ -607,19 +657,19 @@ Return Value:
     // Copy the header info from the requirements list to the resource list.
     (*CmResourceList)->Count = 1;
 
-    (*CmResourceList)->List[ 0 ].InterfaceType = IoResourceList->InterfaceType;
-    (*CmResourceList)->List[ 0 ].BusNumber = IoResourceList->BusNumber;
+    (*CmResourceList)->List[0].InterfaceType = IoResourceList->InterfaceType;
+    (*CmResourceList)->List[0].BusNumber = IoResourceList->BusNumber;
 
-    partialList = &(*CmResourceList)->List[ 0 ].PartialResourceList;
-    partialList->Version = IoResourceList->List[ 0 ].Version;
-    partialList->Revision = IoResourceList->List[ 0 ].Revision;
+    partialList = &(*CmResourceList)->List[0].PartialResourceList;
+    partialList->Version = IoResourceList->List[0].Version;
+    partialList->Revision = IoResourceList->List[0].Revision;
     partialList->Count = 0;
 
     // Translate each resource descriptor, currently we only handle ports, memory, interrupts, and dma.
     // The current implementation of the routine which converts from ISA PnP Resource data to IO_RESOURCE_REQUIREMENTS won't generate any other descriptor types given the data returned from the BIOS.
-    partialDescriptor = &partialList->PartialDescriptors[ 0 ];
-    for (descIndex = 0; descIndex < IoResourceList->List[ 0 ].Count; descIndex++) {
-        ioDescriptor = &IoResourceList->List[ 0 ].Descriptors[ descIndex ];
+    partialDescriptor = &partialList->PartialDescriptors[0];
+    for (descIndex = 0; descIndex < IoResourceList->List[0].Count; descIndex++) {
+        ioDescriptor = &IoResourceList->List[0].Descriptors[descIndex];
 
         switch (ioDescriptor->Type) {
         case CmResourceTypePort:
@@ -627,7 +677,7 @@ Return Value:
             partialDescriptor->u.Port.Length = ioDescriptor->u.Port.Length;
             break;
         case CmResourceTypeInterrupt:
-            if (ioDescriptor->u.Interrupt.MinimumVector == (ULONG)(IsNEC_98 ? 7 : 2) ) {
+            if (ioDescriptor->u.Interrupt.MinimumVector == (ULONG)(IsNEC_98 ? 7 : 2)) {
                 *CmResourceListSize -= sizeof(CM_PARTIAL_RESOURCE_DESCRIPTOR);
                 continue;
             }
@@ -645,7 +695,7 @@ Return Value:
             partialDescriptor->u.Dma.Reserved1 = 0;
             break;
         default:
-            DebugPrint( (MAPPER_ERROR,"Unexpected ResourceType (%d) in I/O Descriptor\n",ioDescriptor->Type) );
+            DebugPrint((MAPPER_ERROR, "Unexpected ResourceType (%d) in I/O Descriptor\n", ioDescriptor->Type));
 
 #if DBG
             // DbgBreakPoint();
@@ -665,7 +715,11 @@ Return Value:
 }
 
 
-NTSTATUS PnPBiosExtractCompatibleIDs(IN  PUCHAR *DevNodeData,IN  ULONG DevNodeDataLength,OUT PWSTR *CompatibleIDs,OUT ULONG *CompatibleIDsLength)
+NTSTATUS PnPBiosExtractCompatibleIDs(IN  PUCHAR* DevNodeData, 
+                                     IN  ULONG DevNodeDataLength,
+                                     OUT PWSTR* CompatibleIDs, 
+                                     OUT ULONG* CompatibleIDsLength
+)
 {
     PWCHAR  idPtr;
     PUCHAR  currentPtr, endPtr;
@@ -678,7 +732,7 @@ NTSTATUS PnPBiosExtractCompatibleIDs(IN  PUCHAR *DevNodeData,IN  ULONG DevNodeDa
 
     for (currentPtr = *DevNodeData; currentPtr < endPtr; currentPtr += increment) {
         tagName = *currentPtr;
-        if (tagName == TAG_COMPLETE_END)  {
+        if (tagName == TAG_COMPLETE_END) {
             break;
         }
 
@@ -688,7 +742,7 @@ NTSTATUS PnPBiosExtractCompatibleIDs(IN  PUCHAR *DevNodeData,IN  ULONG DevNodeDa
             increment++;     // length of small tag
             tagName &= SMALL_TAG_MASK;
         } else {
-            increment = *(USHORT UNALIGNED *)(&currentPtr[1]);
+            increment = *(USHORT UNALIGNED*)(&currentPtr[1]);
             increment += 3;     // length of large tag
         }
 
@@ -706,7 +760,7 @@ NTSTATUS PnPBiosExtractCompatibleIDs(IN  PUCHAR *DevNodeData,IN  ULONG DevNodeDa
     *CompatibleIDsLength = (compatibleCount * 9 + 1) * sizeof(WCHAR);
     *CompatibleIDs = ExAllocatePool(PagedPool, *CompatibleIDsLength);
 
-    if (*CompatibleIDs == NULL)  {
+    if (*CompatibleIDs == NULL) {
         *CompatibleIDsLength = 0;
         return STATUS_NO_MEMORY;
     }
@@ -715,7 +769,7 @@ NTSTATUS PnPBiosExtractCompatibleIDs(IN  PUCHAR *DevNodeData,IN  ULONG DevNodeDa
 
     for (currentPtr = *DevNodeData; currentPtr < endPtr; currentPtr += increment) {
         tagName = *currentPtr;
-        if (tagName == TAG_COMPLETE_END)  {
+        if (tagName == TAG_COMPLETE_END) {
             break;
         }
 
@@ -725,7 +779,7 @@ NTSTATUS PnPBiosExtractCompatibleIDs(IN  PUCHAR *DevNodeData,IN  ULONG DevNodeDa
             increment++;     // length of small tag
             tagName &= SMALL_TAG_MASK;
         } else {
-            increment = *(USHORT UNALIGNED *)(&currentPtr[1]);
+            increment = *(USHORT UNALIGNED*)(&currentPtr[1]);
             increment += 3;     // length of large tag
         }
 
@@ -742,7 +796,7 @@ NTSTATUS PnPBiosExtractCompatibleIDs(IN  PUCHAR *DevNodeData,IN  ULONG DevNodeDa
 }
 
 
-NTSTATUS PnPBiosTranslateInfo(IN VOID *BiosInfo,IN ULONG BiosInfoLength,OUT PBIOS_DEVNODE_INFO *DevNodeInfoList,OUT ULONG *NumberNodes)
+NTSTATUS PnPBiosTranslateInfo(IN VOID* BiosInfo, IN ULONG BiosInfoLength, OUT PBIOS_DEVNODE_INFO* DevNodeInfoList, OUT ULONG* NumberNodes)
 /*++
 Routine Description:
     Translates the devnode info retrieved from the BIOS.
@@ -761,7 +815,7 @@ Return Value:
     PCM_PNP_BIOS_INSTALLATION_CHECK biosInstallCheck;
     PCM_PNP_BIOS_DEVICE_NODE        devNodeHeader;
     PBIOS_DEVNODE_INFO              devNodeInfo;
-    PKEY_VALUE_FULL_INFORMATION     excludeList=NULL;
+    PKEY_VALUE_FULL_INFORMATION     excludeList = NULL;
     PIO_RESOURCE_REQUIREMENTS_LIST  tempResReqList;
     PUCHAR                          currentPtr;
     LONG                            lengthRemaining;
@@ -776,7 +830,10 @@ Return Value:
     // Make sure the data is at least large enough to hold the BIOS Installation
     // Check structure and check that the PnP signature is correct.
     if (BiosInfoLength < sizeof(CM_PNP_BIOS_INSTALLATION_CHECK)) {
-        DebugPrint( (MAPPER_ERROR, "BiosInfoLength (%d) is smaller than sizeof(PNPBIOS_INSTALLATION_CHECK) (%d)\n", BiosInfoLength, sizeof(CM_PNP_BIOS_INSTALLATION_CHECK)) );
+        DebugPrint((MAPPER_ERROR, 
+                    "BiosInfoLength (%d) is smaller than sizeof(PNPBIOS_INSTALLATION_CHECK) (%d)\n",
+                    BiosInfoLength,
+                    sizeof(CM_PNP_BIOS_INSTALLATION_CHECK)));
         return STATUS_UNSUCCESSFUL;
     }
 
@@ -796,7 +853,11 @@ Return Value:
     for (numNodes = 0; lengthRemaining > sizeof(CM_PNP_BIOS_DEVICE_NODE); numNodes++) {
         devNodeHeader = (PCM_PNP_BIOS_DEVICE_NODE)currentPtr;
         if (devNodeHeader->Size > lengthRemaining) {
-            DebugPrint( (MAPPER_ERROR, "Node # %d, invalid size (%d), length remaining (%d)\n", devNodeHeader->Node, devNodeHeader->Size, lengthRemaining) );
+            DebugPrint((MAPPER_ERROR, 
+                        "Node # %d, invalid size (%d), length remaining (%d)\n",
+                        devNodeHeader->Node, 
+                        devNodeHeader->Size,
+                        lengthRemaining));
             return STATUS_UNSUCCESSFUL;
         }
 
@@ -805,7 +866,7 @@ Return Value:
     }
 
     // Allocate the list of translated devnodes.
-    devNodeInfo = ExAllocatePool( PagedPool, numNodes * sizeof(BIOS_DEVNODE_INFO) );
+    devNodeInfo = ExAllocatePool(PagedPool, numNodes * sizeof(BIOS_DEVNODE_INFO));
     if (devNodeInfo == NULL) {
         return STATUS_NO_MEMORY;
     }
@@ -822,7 +883,11 @@ Return Value:
     for (nodeIndex = 0; nodeIndex < numNodes; nodeIndex++) {
         devNodeHeader = (PCM_PNP_BIOS_DEVICE_NODE)currentPtr;
         if (devNodeHeader->Size > lengthRemaining) {
-            DebugPrint( (MAPPER_ERROR, "Node # %d, invalid size (%d), length remaining (%d)\n", devNodeHeader->Node, devNodeHeader->Size, lengthRemaining) );
+            DebugPrint((MAPPER_ERROR,
+                        "Node # %d, invalid size (%d), length remaining (%d)\n", 
+                        devNodeHeader->Node,
+                        devNodeHeader->Size,
+                        lengthRemaining));
             break;
         }
 
@@ -837,7 +902,7 @@ Return Value:
         devNodeInfo[nodeIndex].Handle = devNodeHeader->Node;
 
         // The type code and attributes aren't currently used but are copied for completeness.
-        RtlCopyMemory( &devNodeInfo[nodeIndex].TypeCode, devNodeHeader->DeviceType, sizeof(devNodeInfo[nodeIndex].TypeCode) );
+        RtlCopyMemory(&devNodeInfo[nodeIndex].TypeCode, devNodeHeader->DeviceType, sizeof(devNodeInfo[nodeIndex].TypeCode));
 
         devNodeInfo[nodeIndex].Attributes = devNodeHeader->DeviceAttributes;
 
@@ -855,50 +920,58 @@ Return Value:
         devNodeInfo[nodeIndex].BootConfig = NULL;
         devNodeInfo[nodeIndex].FirmwareDisabled = FALSE;
 
-        status = PpBiosResourcesToNtResources( 0,            /* BusNumber */
-                                               0,            /* SlotNumber */
-                                               &configPtr,   /* BiosData */
-                                               convertFlags, /* ConvertFlags */
-                                               &tempResReqList, /* ReturnedList */
-                                               &configListLength);    /* ReturnedLength */
+        status = PpBiosResourcesToNtResources(0,            /* BusNumber */
+                                              0,            /* SlotNumber */
+                                              &configPtr,   /* BiosData */
+                                              convertFlags, /* ConvertFlags */
+                                              &tempResReqList, /* ReturnedList */
+                                              &configListLength);    /* ReturnedLength */
 
         remainingNodeLength = devNodeHeader->Size - (LONG)(configPtr - (PUCHAR)devNodeHeader);
 
-        if (NT_SUCCESS( status )) {
+        if (NT_SUCCESS(status)) {
             if (tempResReqList != NULL) {
-                PpFilterNtResource (devNodeInfo[nodeIndex].ProductId, tempResReqList );
+                PpFilterNtResource(devNodeInfo[nodeIndex].ProductId, tempResReqList);
 
                 // Now we need to convert from a IO_RESOURCE_REQUIREMENTS_LIST to a CM_RESOURCE_LIST.
-                status = PnPBiosIoResourceListToCmResourceList( tempResReqList, &devNodeInfo[nodeIndex].BootConfig, &devNodeInfo[nodeIndex].BootConfigLength );
-                status = PnPBiosCheckForHardwareDisabled(tempResReqList,&devNodeInfo[nodeIndex].FirmwareDisabled);
-                ExFreePool( tempResReqList );
+                status = PnPBiosIoResourceListToCmResourceList(tempResReqList,
+                                                               &devNodeInfo[nodeIndex].BootConfig,
+                                                               &devNodeInfo[nodeIndex].BootConfigLength);
+                status = PnPBiosCheckForHardwareDisabled(tempResReqList, &devNodeInfo[nodeIndex].FirmwareDisabled);
+                ExFreePool(tempResReqList);
             }
         } else {
-            DebugPrint( (MAPPER_ERROR, "Error converting allocated resources for devnode # %d, status = %8.8X\n", devNodeInfo[nodeIndex].Handle, status) );
+            DebugPrint((MAPPER_ERROR, 
+                        "Error converting allocated resources for devnode # %d, status = %8.8X\n",
+                        devNodeInfo[nodeIndex].Handle,
+                        status));
         }
 
         // Convert the supported resource configurations from ISA PnP resource descriptor format to an IO_RESOURCE_REQUIREMENTS_LIST.
-        status = PpBiosResourcesToNtResources( 0,            /* BusNumber */
-                                               0,            /* SlotNumber */
-                                               &configPtr,   /* BiosData */
-                                               convertFlags | PPCONVERTFLAG_SET_RESTART_LCPRI, /* ConvertFlags */
-                                               &devNodeInfo[nodeIndex].BasicConfig, /* ReturnedList */
-                                               &devNodeInfo[nodeIndex].BasicConfigLength );  /* ReturnedLength */
+        status = PpBiosResourcesToNtResources(0,            /* BusNumber */
+                                              0,            /* SlotNumber */
+                                              &configPtr,   /* BiosData */
+                                              convertFlags | PPCONVERTFLAG_SET_RESTART_LCPRI, /* ConvertFlags */
+                                              &devNodeInfo[nodeIndex].BasicConfig, /* ReturnedList */
+                                              &devNodeInfo[nodeIndex].BasicConfigLength);  /* ReturnedLength */
         remainingNodeLength = devNodeHeader->Size - (LONG)(configPtr - (PUCHAR)devNodeHeader);
-        if (!NT_SUCCESS( status )) {
+        if (!NT_SUCCESS(status)) {
             devNodeInfo[nodeIndex].BasicConfig = NULL;
-            DebugPrint( (MAPPER_ERROR, "Error converting allowed resources for devnode # %d, status = %8.8X\n", devNodeInfo[nodeIndex].Handle, status) );
+            DebugPrint((MAPPER_ERROR, 
+                        "Error converting allowed resources for devnode # %d, status = %8.8X\n",
+                        devNodeInfo[nodeIndex].Handle, 
+                        status));
         } else {
-            PpFilterNtResource (devNodeInfo[nodeIndex].ProductId, devNodeInfo[nodeIndex].BasicConfig);
+            PpFilterNtResource(devNodeInfo[nodeIndex].ProductId, devNodeInfo[nodeIndex].BasicConfig);
         }
 
         // Convert the list of compatible IDs if present
         ASSERT(remainingNodeLength >= 0);
 
-        status = PnPBiosExtractCompatibleIDs( &configPtr,       // BiosData
-                                              (ULONG)remainingNodeLength,
-                                              &devNodeInfo[nodeIndex].CompatibleIDs,
-                                              &devNodeInfo[nodeIndex].CompatibleIDsLength );
+        status = PnPBiosExtractCompatibleIDs(&configPtr,       // BiosData
+            (ULONG)remainingNodeLength,
+                                             &devNodeInfo[nodeIndex].CompatibleIDs,
+                                             &devNodeInfo[nodeIndex].CompatibleIDsLength);
 
         currentPtr += devNodeHeader->Size;
         lengthRemaining -= devNodeHeader->Size;
@@ -910,7 +983,11 @@ Return Value:
 }
 
 
-LONG PnPBiosFindMatchingDevNode(IN PWCHAR MapperName,IN PCM_RESOURCE_LIST ResourceList,IN PBIOS_DEVNODE_INFO DevNodeInfoList,IN ULONG NumberNodes)
+LONG PnPBiosFindMatchingDevNode(IN PWCHAR MapperName, 
+                                IN PCM_RESOURCE_LIST ResourceList,
+                                IN PBIOS_DEVNODE_INFO DevNodeInfoList,
+                                IN ULONG NumberNodes
+)
 /*++
 Routine Description:
     Given a list of resources this routine finds an entry in the DevNodeInfoList whose BootConfig resources match.
@@ -945,31 +1022,31 @@ Return Value:
 
     // In order to simplify the problem we assume there is only one list.
     // This assumption holds true in the BootConfig structures generated by the current firmware mapper.
-    ASSERT( ResourceList->Count == 1 );
+    ASSERT(ResourceList->Count == 1);
 
     sourceList = &ResourceList->List[0].PartialResourceList;
 
 #if DEBUG_DUP_MATCH
     // For debugging purposes we keep track of which resource entries map to each other.
     // These relationships are stored in a fixed CHAR array, thus the restriction on the number of descriptors.
-    ASSERT( sourceList->Count < 255 );
+    ASSERT(sourceList->Count < 255);
 #endif
 
     // Loop through each devnode and try and match it to the source resource list.
     for (nodeIndex = 0; nodeIndex < NumberNodes; nodeIndex++) {
-        if (DevNodeInfoList[ nodeIndex ].BootConfig == NULL) {
+        if (DevNodeInfoList[nodeIndex].BootConfig == NULL) {
             continue;
         }
 
         // We found at least one potential match.
         // Let's double check if the PNP ids also match.
         // We use a lack of ID match to disqualify entries which don't match at least I/O ports or memory.
-        idPtr = DevNodeInfoList[ nodeIndex ].ProductId;
-        if (RtlCompareMemory( idPtr, MapperName, 12 ) != 12) {
-            idPtr = DevNodeInfoList[ nodeIndex ].CompatibleIDs;
+        idPtr = DevNodeInfoList[nodeIndex].ProductId;
+        if (RtlCompareMemory(idPtr, MapperName, 12) != 12) {
+            idPtr = DevNodeInfoList[nodeIndex].CompatibleIDs;
             if (idPtr != NULL) {
                 while (*idPtr != '\0') {
-                    if (RtlCompareMemory( idPtr, MapperName, 12 ) == 12) {
+                    if (RtlCompareMemory(idPtr, MapperName, 12) == 12) {
                         break;
                     }
 
@@ -983,11 +1060,11 @@ Return Value:
         }
 
         idsMatch = idPtr != NULL;
-        ASSERT( DevNodeInfoList[ nodeIndex ].BootConfig->Count == 1 );
-        targetList = &DevNodeInfoList[ nodeIndex ].BootConfig->List[0].PartialResourceList;
+        ASSERT(DevNodeInfoList[nodeIndex].BootConfig->Count == 1);
+        targetList = &DevNodeInfoList[nodeIndex].BootConfig->List[0].PartialResourceList;
 #if DEBUG_DUP_MATCH
-        RtlFillMemory( sourceMapping, sizeof(sourceMapping), -1 );
-        RtlFillMemory( targetMapping, sizeof(targetMapping), -1 );
+        RtlFillMemory(sourceMapping, sizeof(sourceMapping), -1);
+        RtlFillMemory(targetMapping, sizeof(targetMapping), -1);
 #endif
         numResourcesMatch = 0;
         possibleScore = 0;
@@ -1024,19 +1101,20 @@ Return Value:
                     switch (sourceDescriptor->Type) {
                     case CmResourceTypePort:
                         if ((sourceDescriptor->u.Port.Start.LowPart + sourceDescriptor->u.Port.Length) <=
-                             targetDescriptor->u.Port.Start.LowPart ||
+                            targetDescriptor->u.Port.Start.LowPart ||
                             (targetDescriptor->u.Port.Start.LowPart + targetDescriptor->u.Port.Length) <=
-                             sourceDescriptor->u.Port.Start.LowPart) {
+                            sourceDescriptor->u.Port.Start.LowPart) {
                             continue;
                         }
-                        if (sourceDescriptor->u.Port.Start.LowPart == targetDescriptor->u.Port.Start.LowPart && sourceDescriptor->u.Port.Length == targetDescriptor->u.Port.Length) {
+                        if (sourceDescriptor->u.Port.Start.LowPart == targetDescriptor->u.Port.Start.LowPart && 
+                            sourceDescriptor->u.Port.Length == targetDescriptor->u.Port.Length) {
                             score += 0x1100;
                         } else {
-                            DebugPrint( (MAPPER_INFORMATION, "Overlapping port resources, source = %4.4X-%4.4X, target = %4.4X-%4.4X\n",
+                            DebugPrint((MAPPER_INFORMATION, "Overlapping port resources, source = %4.4X-%4.4X, target = %4.4X-%4.4X\n",
                                         sourceDescriptor->u.Port.Start.LowPart,
                                         sourceDescriptor->u.Port.Start.LowPart + sourceDescriptor->u.Port.Length - 1,
                                         targetDescriptor->u.Port.Start.LowPart,
-                                        targetDescriptor->u.Port.Start.LowPart + targetDescriptor->u.Port.Length - 1) );
+                                        targetDescriptor->u.Port.Start.LowPart + targetDescriptor->u.Port.Length - 1));
 
                             score += 0x1000;
                         }
@@ -1052,7 +1130,8 @@ Return Value:
                             (targetDescriptor->u.Memory.Start.LowPart + targetDescriptor->u.Memory.Length) <= sourceDescriptor->u.Memory.Start.LowPart) {
                             continue;
                         }
-                        if (sourceDescriptor->u.Memory.Start.LowPart == targetDescriptor->u.Memory.Start.LowPart && sourceDescriptor->u.Memory.Length == targetDescriptor->u.Memory.Length) {
+                        if (sourceDescriptor->u.Memory.Start.LowPart == targetDescriptor->u.Memory.Start.LowPart && 
+                            sourceDescriptor->u.Memory.Length == targetDescriptor->u.Memory.Length) {
                             score += 0x1100;
                         } else {
                             score += 0x1000;
@@ -1083,7 +1162,7 @@ Return Value:
                 firstMatch = nodeIndex;
             }
 
-            if ((score > bestScore) || (score == bestScore && !bestIdsMatch && idsMatch))  {
+            if ((score > bestScore) || (score == bestScore && !bestIdsMatch && idsMatch)) {
                 bestScore = score;
                 bestMatch = nodeIndex;
                 bestIdsMatch = idsMatch;
@@ -1093,14 +1172,26 @@ Return Value:
 
     if (bestMatch != -1) {
         if (bestScore == possibleScore) {
-            DebugPrint( (MAPPER_INFORMATION, "Perfect match, score = %4.4X, possible = %4.4X, index = %d\n", bestScore, possibleScore, bestMatch) );
+            DebugPrint((MAPPER_INFORMATION,
+                        "Perfect match, score = %4.4X, possible = %4.4X, index = %d\n",
+                        bestScore,
+                        possibleScore,
+                        bestMatch));
             if (possibleScore < 0x1000 && !bestIdsMatch) {
                 bestMatch = -1;
             }
         } else if (possibleScore > 0x1000 && bestScore >= 0x1000) {
-            DebugPrint( (MAPPER_INFORMATION, "Best match is close enough, score = %4.4X, possible = %4.4X, index = %d\n", bestScore, possibleScore, bestMatch) );
-        } else  {
-            DebugPrint( (MAPPER_INFORMATION, "Best match is less than threshold, score = %4.4X, possible = %4.4X, index = %d\n", bestScore, possibleScore, bestMatch) );
+            DebugPrint((MAPPER_INFORMATION,
+                        "Best match is close enough, score = %4.4X, possible = %4.4X, index = %d\n", 
+                        bestScore, 
+                        possibleScore,
+                        bestMatch));
+        } else {
+            DebugPrint((MAPPER_INFORMATION,
+                        "Best match is less than threshold, score = %4.4X, possible = %4.4X, index = %d\n",
+                        bestScore, 
+                        possibleScore, 
+                        bestMatch));
             bestMatch = -1;
         }
     }
@@ -1109,7 +1200,7 @@ Return Value:
 }
 
 
-NTSTATUS PnPBiosEliminateDupes(IN PBIOS_DEVNODE_INFO DevNodeInfoList,IN ULONG NumberNodes)
+NTSTATUS PnPBiosEliminateDupes(IN PBIOS_DEVNODE_INFO DevNodeInfoList, IN ULONG NumberNodes)
 /*++
 Routine Description:
     This routine enumerates the Firmware Mapper generated devices under Enum\Root.
@@ -1139,9 +1230,9 @@ Return Value:
     NTSTATUS                        status = STATUS_UNSUCCESSFUL;
 
     RtlInitUnicodeString(&enumRootKeyName, ENUMROOT_KEY_NAME);
-    status = IopOpenRegistryKeyEx( &enumRootKey,NULL,&enumRootKeyName,KEY_READ);
+    status = IopOpenRegistryKeyEx(&enumRootKey, NULL, &enumRootKeyName, KEY_READ);
     if (!NT_SUCCESS(status)) {
-        DebugPrint( (MAPPER_ERROR, "Could not open registry key %S, status = %8.8X\n", ENUMROOT_KEY_NAME, status) );
+        DebugPrint((MAPPER_ERROR, "Could not open registry key %S, status = %8.8X\n", ENUMROOT_KEY_NAME, status));
         return STATUS_UNSUCCESSFUL;
     }
 
@@ -1153,10 +1244,10 @@ Return Value:
     valueInfo = ExAllocatePool(PagedPool, valueInfoLength);
     if (deviceBasicInfo != NULL && instanceBasicInfo != NULL && valueInfo != NULL) {
         for (deviceIndex = 0; ; deviceIndex++) {
-            status = ZwEnumerateKey( enumRootKey,deviceIndex,KeyBasicInformation,deviceBasicInfo,deviceBasicInfoLength,&returnedLength);
+            status = ZwEnumerateKey(enumRootKey, deviceIndex, KeyBasicInformation, deviceBasicInfo, deviceBasicInfoLength, &returnedLength);
             if (!NT_SUCCESS(status)) {
-                if (status != STATUS_NO_MORE_ENTRIES)  {
-                    DebugPrint( (MAPPER_ERROR,"Could not enumerate under key %S, status = %8.8X\n",ENUMROOT_KEY_NAME,status) );
+                if (status != STATUS_NO_MORE_ENTRIES) {
+                    DebugPrint((MAPPER_ERROR, "Could not enumerate under key %S, status = %8.8X\n", ENUMROOT_KEY_NAME, status));
                 } else {
                     status = STATUS_SUCCESS;
                 }
@@ -1167,82 +1258,137 @@ Return Value:
                 continue;
             }
 
-            deviceBasicInfo->Name[ deviceBasicInfo->NameLength / 2 ] = L'\0';
+            deviceBasicInfo->Name[deviceBasicInfo->NameLength / 2] = L'\0';
             RtlInitUnicodeString(&deviceKeyName, deviceBasicInfo->Name);
-            status = IopOpenRegistryKeyEx( &deviceKey,enumRootKey,&deviceKeyName,KEY_READ);
+            status = IopOpenRegistryKeyEx(&deviceKey, enumRootKey, &deviceKeyName, KEY_READ);
             if (!NT_SUCCESS(status)) {
-                DebugPrint( (MAPPER_ERROR,"Could not open registry key %S\\%S, status = %8.8X\n",ENUMROOT_KEY_NAME,deviceBasicInfo->Name,status) );
+                DebugPrint((MAPPER_ERROR,
+                            "Could not open registry key %S\\%S, status = %8.8X\n", 
+                            ENUMROOT_KEY_NAME, 
+                            deviceBasicInfo->Name, 
+                            status));
                 break;
             }
 
             for (instanceIndex = 0; ; instanceIndex++) {
-                status = ZwEnumerateKey( deviceKey,instanceIndex,KeyBasicInformation,instanceBasicInfo,instanceBasicInfoLength,&returnedLength);
+                status = ZwEnumerateKey(deviceKey,
+                                        instanceIndex,
+                                        KeyBasicInformation,
+                                        instanceBasicInfo, 
+                                        instanceBasicInfoLength,
+                                        &returnedLength);
                 if (!NT_SUCCESS(status)) {
-                    if (status != STATUS_NO_MORE_ENTRIES)  {
-                        DebugPrint( (MAPPER_ERROR,"Could not enumerate under key %S\\%S, status = %8.8X\n",ENUMROOT_KEY_NAME,deviceBasicInfo->Name,status) );
+                    if (status != STATUS_NO_MORE_ENTRIES) {
+                        DebugPrint((MAPPER_ERROR, 
+                                    "Could not enumerate under key %S\\%S, status = %8.8X\n", 
+                                    ENUMROOT_KEY_NAME, 
+                                    deviceBasicInfo->Name,
+                                    status));
                     } else {
                         status = STATUS_SUCCESS;
                     }
                     break;
                 }
 
-                if (RtlCompareMemory( instanceBasicInfo->Name,INSTANCE_ID_PREFIX,sizeof(INSTANCE_ID_PREFIX) - sizeof(UNICODE_NULL)) == (sizeof(INSTANCE_ID_PREFIX) - sizeof(UNICODE_NULL))) {
+                if (RtlCompareMemory(instanceBasicInfo->Name, 
+                                     INSTANCE_ID_PREFIX, 
+                                     sizeof(INSTANCE_ID_PREFIX) - sizeof(UNICODE_NULL)) == (sizeof(INSTANCE_ID_PREFIX) - sizeof(UNICODE_NULL))) {
                     continue;
                 }
 
-                instanceBasicInfo->Name[ instanceBasicInfo->NameLength / 2 ] = L'\0';
-                RtlCopyMemory( logConfStr,instanceBasicInfo->Name,instanceBasicInfo->NameLength );
-                logConfStr[ instanceBasicInfo->NameLength / 2 ] = L'\\';
-                RtlCopyMemory( &logConfStr[ instanceBasicInfo->NameLength / 2 + 1 ],REGSTR_KEY_LOGCONF,sizeof(REGSTR_KEY_LOGCONF) );
-                RtlInitUnicodeString( &logConfKeyName, logConfStr );
-                status = IopOpenRegistryKeyEx( &logConfKey,deviceKey,&logConfKeyName,KEY_READ);
+                instanceBasicInfo->Name[instanceBasicInfo->NameLength / 2] = L'\0';
+                RtlCopyMemory(logConfStr, instanceBasicInfo->Name, instanceBasicInfo->NameLength);
+                logConfStr[instanceBasicInfo->NameLength / 2] = L'\\';
+                RtlCopyMemory(&logConfStr[instanceBasicInfo->NameLength / 2 + 1], REGSTR_KEY_LOGCONF, sizeof(REGSTR_KEY_LOGCONF));
+                RtlInitUnicodeString(&logConfKeyName, logConfStr);
+                status = IopOpenRegistryKeyEx(&logConfKey, deviceKey, &logConfKeyName, KEY_READ);
                 if (!NT_SUCCESS(status)) {
-                    DebugPrint( (MAPPER_ERROR,"Could not open registry key %S\\%S\\%S, status = %8.8X\n",ENUMROOT_KEY_NAME,deviceBasicInfo->Name,logConfStr,status) );
+                    DebugPrint((MAPPER_ERROR, 
+                                "Could not open registry key %S\\%S\\%S, status = %8.8X\n", 
+                                ENUMROOT_KEY_NAME, 
+                                deviceBasicInfo->Name, 
+                                logConfStr, 
+                                status));
                     continue;
                 }
-                RtlInitUnicodeString( &valueName, REGSTR_VAL_BOOTCONFIG );
-                status = ZwQueryValueKey( logConfKey,&valueName,KeyValuePartialInformation,valueInfo,valueInfoLength,&returnedLength );
+                RtlInitUnicodeString(&valueName, REGSTR_VAL_BOOTCONFIG);
+                status = ZwQueryValueKey(logConfKey, 
+                                         &valueName,
+                                         KeyValuePartialInformation,
+                                         valueInfo, 
+                                         valueInfoLength, 
+                                         &returnedLength);
                 if (!NT_SUCCESS(status)) {
                     if (status == STATUS_BUFFER_TOO_SMALL || status == STATUS_BUFFER_OVERFLOW) {
-                        ExFreePool( valueInfo );
+                        ExFreePool(valueInfo);
                         valueInfoLength = returnedLength;
-                        valueInfo = ExAllocatePool( PagedPool, valueInfoLength );
+                        valueInfo = ExAllocatePool(PagedPool, valueInfoLength);
                         if (valueInfo != NULL) {
-                            status = ZwQueryValueKey( logConfKey,&valueName,KeyValuePartialInformation,valueInfo,valueInfoLength,&returnedLength );
+                            status = ZwQueryValueKey(logConfKey,
+                                                     &valueName,
+                                                     KeyValuePartialInformation, 
+                                                     valueInfo, 
+                                                     valueInfoLength, 
+                                                     &returnedLength);
                         } else {
-                            DebugPrint( (MAPPER_ERROR,"Error allocating memory for %S\\%S\\LogConf\\BootConfig value\n",ENUMROOT_KEY_NAME,deviceBasicInfo->Name) );
+                            DebugPrint((MAPPER_ERROR, 
+                                        "Error allocating memory for %S\\%S\\LogConf\\BootConfig value\n", 
+                                        ENUMROOT_KEY_NAME,
+                                        deviceBasicInfo->Name));
                             valueInfoLength = 0;
                             status = STATUS_NO_MEMORY;
                             break;
                         }
                     } else {
-                        DebugPrint( (MAPPER_ERROR,"Error retrieving %S\\%S\\LogConf\\BootConfig size, status = %8.8X\n",ENUMROOT_KEY_NAME,deviceBasicInfo->Name,status) );
+                        DebugPrint((MAPPER_ERROR, 
+                                    "Error retrieving %S\\%S\\LogConf\\BootConfig size, status = %8.8X\n",
+                                    ENUMROOT_KEY_NAME, 
+                                    deviceBasicInfo->Name, 
+                                    status));
                         status = STATUS_UNSUCCESSFUL;
                     }
                 }
 
-                if (NT_SUCCESS( status )) {
+                if (NT_SUCCESS(status)) {
                     PCM_RESOURCE_LIST   resourceList;
                     LONG                matchingIndex;
 
                     resourceList = (PCM_RESOURCE_LIST)valueInfo->Data;
-                    matchingIndex = PnPBiosFindMatchingDevNode( deviceBasicInfo->Name,resourceList,DevNodeInfoList,NumberNodes );
+                    matchingIndex = PnPBiosFindMatchingDevNode(deviceBasicInfo->Name, resourceList, DevNodeInfoList, NumberNodes);
                     if (matchingIndex != -1) {
-                        DevNodeInfoList[ matchingIndex ].Replaces = ExAllocatePool( PagedPool,deviceBasicInfo->NameLength + instanceBasicInfo->NameLength + 2 * sizeof(UNICODE_NULL));
-                        if (DevNodeInfoList[ matchingIndex ].Replaces != NULL) {
-                            RtlCopyMemory( DevNodeInfoList[ matchingIndex ].Replaces,deviceBasicInfo->Name,deviceBasicInfo->NameLength );
-                            DevNodeInfoList[ matchingIndex ].Replaces[ deviceBasicInfo->NameLength / 2 ] = '\\';
-                            RtlCopyMemory( &DevNodeInfoList[ matchingIndex ].Replaces[ deviceBasicInfo->NameLength / 2 + 1 ],instanceBasicInfo->Name,instanceBasicInfo->NameLength );
-                            DevNodeInfoList[ matchingIndex ].Replaces[ (deviceBasicInfo->NameLength + instanceBasicInfo->NameLength) / 2 + 1 ] = '\0';
-                            DebugPrint( (MAPPER_INFORMATION,"Match found: %S\\%S%d replaces %S\n",DevNodeInfoList[ matchingIndex ].ProductId,INSTANCE_ID_PREFIX,DevNodeInfoList[ matchingIndex ].Handle,DevNodeInfoList[ matchingIndex ].Replaces) );
+                        DevNodeInfoList[matchingIndex].Replaces = ExAllocatePool(PagedPool,
+                                                                                 deviceBasicInfo->NameLength + instanceBasicInfo->NameLength + 2 * sizeof(UNICODE_NULL));
+                        if (DevNodeInfoList[matchingIndex].Replaces != NULL) {
+                            RtlCopyMemory(DevNodeInfoList[matchingIndex].Replaces, deviceBasicInfo->Name, deviceBasicInfo->NameLength);
+                            DevNodeInfoList[matchingIndex].Replaces[deviceBasicInfo->NameLength / 2] = '\\';
+                            RtlCopyMemory(&DevNodeInfoList[matchingIndex].Replaces[deviceBasicInfo->NameLength / 2 + 1], instanceBasicInfo->Name, instanceBasicInfo->NameLength);
+                            DevNodeInfoList[matchingIndex].Replaces[(deviceBasicInfo->NameLength + instanceBasicInfo->NameLength) / 2 + 1] = '\0';
+                            DebugPrint((MAPPER_INFORMATION, 
+                                        "Match found: %S\\%S%d replaces %S\n",
+                                        DevNodeInfoList[matchingIndex].ProductId,
+                                        INSTANCE_ID_PREFIX, 
+                                        DevNodeInfoList[matchingIndex].Handle,
+                                        DevNodeInfoList[matchingIndex].Replaces));
                         } else {
-                            DebugPrint( (MAPPER_ERROR,"Error allocating memory for %S\\%S%d\\Replaces\n",DevNodeInfoList[ matchingIndex ].ProductId,INSTANCE_ID_PREFIX,DevNodeInfoList[ matchingIndex ].Handle) );
+                            DebugPrint((MAPPER_ERROR, 
+                                        "Error allocating memory for %S\\%S%d\\Replaces\n",
+                                        DevNodeInfoList[matchingIndex].ProductId, 
+                                        INSTANCE_ID_PREFIX, 
+                                        DevNodeInfoList[matchingIndex].Handle));
                         }
                     } else {
-                        DebugPrint( (MAPPER_INFORMATION,"No matching PnP Bios DevNode found for FW Enumerated device %S\\%S\n",deviceBasicInfo->Name,instanceBasicInfo->Name) );
+                        DebugPrint((MAPPER_INFORMATION,
+                                    "No matching PnP Bios DevNode found for FW Enumerated device %S\\%S\n", 
+                                    deviceBasicInfo->Name,
+                                    instanceBasicInfo->Name));
                     }
                 } else {
-                    DebugPrint( (MAPPER_ERROR,"Error retrieving %S\\%S\\%S\\BootConfig, status = %8.8X\n",ENUMROOT_KEY_NAME,deviceBasicInfo->Name,logConfStr,status) );
+                    DebugPrint((MAPPER_ERROR,
+                                "Error retrieving %S\\%S\\%S\\BootConfig, status = %8.8X\n",
+                                ENUMROOT_KEY_NAME, 
+                                deviceBasicInfo->Name, 
+                                logConfStr, 
+                                status));
                 }
 
                 ZwClose(logConfKey);
@@ -1286,30 +1432,30 @@ PWCHAR PnPBiosGetDescription(IN PBIOS_DEVNODE_INFO DevNodeInfoEntry)
 {
     ULONG       class, subClass;
     LONG        index;
-    CLASSDATA   *classDescriptions;
+    CLASSDATA* classDescriptions;
     LONG        descriptionCount;
 
     class = DevNodeInfoEntry->TypeCode[0];
     subClass = (DevNodeInfoEntry->TypeCode[1] << 8) | DevNodeInfoEntry->TypeCode[2];
     if (class > 0 && class < CLASSLIST_COUNT) {
-        classDescriptions = ClassDescriptionsList[ class ].Descriptions;
-        descriptionCount = ClassDescriptionsList[ class ].Count;
+        classDescriptions = ClassDescriptionsList[class].Descriptions;
+        descriptionCount = ClassDescriptionsList[class].Count;
 
         // The last description entry is the default so there is no use comparing it, if we get that far just use it.
         for (index = 0; index < (descriptionCount - 1); index++) {
-            if (subClass == classDescriptions[ index ].Value)  {
+            if (subClass == classDescriptions[index].Value) {
                 break;
             }
         }
 
-        return classDescriptions[ index ].Description;
+        return classDescriptions[index].Description;
     }
 
     return DEFAULT_DEVICE_DESCRIPTION;
 }
 
 
-NTSTATUS PnPBiosCopyDeviceParamKey(IN HANDLE EnumRootKey,IN PWCHAR SourcePath,IN PWCHAR DestinationPath)
+NTSTATUS PnPBiosCopyDeviceParamKey(IN HANDLE EnumRootKey, IN PWCHAR SourcePath, IN PWCHAR DestinationPath)
 /*++
 Routine Description:
     Copy the Device Parameters key from the firmware mapper node in DevNodeInfo->Replaces to the BIOS mapper node represented by DevNodeInfo.
@@ -1334,26 +1480,37 @@ Return Value:
     UNICODE_STRING              valueName;
     ULONG                       index;
 
-    RtlInitUnicodeString( &sourceInstanceKeyName, SourcePath );
-    status = IopOpenRegistryKeyEx( &sourceInstanceKey,EnumRootKey,&sourceInstanceKeyName,KEY_ALL_ACCESS);
+    RtlInitUnicodeString(&sourceInstanceKeyName, SourcePath);
+    status = IopOpenRegistryKeyEx(&sourceInstanceKey, EnumRootKey, &sourceInstanceKeyName, KEY_ALL_ACCESS);
     if (!NT_SUCCESS(status)) {
-        DebugPrint( (MAPPER_ERROR, "PnPBiosCopyDeviceParamKey() - Could not open source instance key %S, status = %8.8X\n", SourcePath, status) );
+        DebugPrint((MAPPER_ERROR,
+                    "PnPBiosCopyDeviceParamKey() - Could not open source instance key %S, status = %8.8X\n",
+                    SourcePath, 
+                    status));
         return status;
     }
     RtlInitUnicodeString(&deviceParamKeyName, REGSTR_KEY_DEVICEPARAMETERS);
-    status = IopOpenRegistryKeyEx( &sourceDeviceParamKey,sourceInstanceKey,&deviceParamKeyName,KEY_ALL_ACCESS);
+    status = IopOpenRegistryKeyEx(&sourceDeviceParamKey, sourceInstanceKey, &deviceParamKeyName, KEY_ALL_ACCESS);
     if (!NT_SUCCESS(status)) {
         if (status != STATUS_OBJECT_NAME_NOT_FOUND) {
-            DebugPrint( (MAPPER_ERROR,"PnPBiosCopyDeviceParamKey() - Could not open source device parameter key %S\\%S, status = %8.8X\n",SourcePath,deviceParamKeyName.Buffer,status) );
+            DebugPrint((MAPPER_ERROR,
+                        "PnPBiosCopyDeviceParamKey() - Could not open source device parameter key %S\\%S, status = %8.8X\n",
+                        SourcePath, 
+                        deviceParamKeyName.Buffer,
+                        status));
         }
 
         goto Cleanup;
     }
 
     RtlInitUnicodeString(&destinationInstanceKeyName, DestinationPath);
-    status = IopOpenDeviceParametersSubkey( &destinationDeviceParamKey,EnumRootKey,&destinationInstanceKeyName,KEY_ALL_ACCESS );
+    status = IopOpenDeviceParametersSubkey(&destinationDeviceParamKey, EnumRootKey, &destinationInstanceKeyName, KEY_ALL_ACCESS);
     if (!NT_SUCCESS(status)) {
-        DebugPrint( (MAPPER_ERROR,"PnPBiosCopyDeviceParamKey() - Could not open destination device parameter key %S\\%S, status = %8.8X\n",DestinationPath,REGSTR_KEY_DEVICEPARAMETERS,status) );
+        DebugPrint((MAPPER_ERROR,
+                    "PnPBiosCopyDeviceParamKey() - Could not open destination device parameter key %S\\%S, status = %8.8X\n", 
+                    DestinationPath, 
+                    REGSTR_KEY_DEVICEPARAMETERS,
+                    status));
         goto Cleanup;
     }
 
@@ -1364,7 +1521,12 @@ Return Value:
     }
 
     for (index = 0; ; index++) {
-        status = ZwEnumerateValueKey( sourceDeviceParamKey,index,KeyValueFullInformation,valueFullInfo,valueFullInfoLength,&resultLength );
+        status = ZwEnumerateValueKey(sourceDeviceParamKey,
+                                     index,
+                                     KeyValueFullInformation, 
+                                     valueFullInfo,
+                                     valueFullInfoLength, 
+                                     &resultLength);
         if (NT_SUCCESS(status)) {
             UNICODE_STRING  sourcePathString;
             UNICODE_STRING  serialPrefixString;
@@ -1383,17 +1545,22 @@ Return Value:
 
             if (RtlCompareUnicodeString(&sourcePathString, &serialPrefixString, TRUE) == 0) {
                 RtlInitUnicodeString(&portNameString, L"PortName");
-                if (valueName.Length == 16 && RtlCompareUnicodeString(&valueName, &portNameString, TRUE) == 0)  {
+                if (valueName.Length == 16 && RtlCompareUnicodeString(&valueName, &portNameString, TRUE) == 0) {
                     // ComPortDBRemove(SourcePath, &unicodeValue);
                     ComPortDBAdd(destinationDeviceParamKey, (PWSTR)((PUCHAR)valueFullInfo + valueFullInfo->DataOffset));
                     continue;
                 }
             }
 
-            status = ZwSetValueKey( destinationDeviceParamKey,&valueName,valueFullInfo->TitleIndex,valueFullInfo->Type,(PUCHAR)valueFullInfo + valueFullInfo->DataOffset,valueFullInfo->DataLength );
+            status = ZwSetValueKey(destinationDeviceParamKey, 
+                                   &valueName, 
+                                   valueFullInfo->TitleIndex,
+                                   valueFullInfo->Type, 
+                                   (PUCHAR)valueFullInfo + valueFullInfo->DataOffset, 
+                                   valueFullInfo->DataLength);
         } else {
             if (status == STATUS_BUFFER_OVERFLOW) {
-                ExFreePool( valueFullInfo );
+                ExFreePool(valueFullInfo);
 
                 valueFullInfoLength = resultLength;
                 valueFullInfo = ExAllocatePool(PagedPool, valueFullInfoLength);
@@ -1404,8 +1571,12 @@ Return Value:
                     index--;
                     continue;
                 }
-            } else if (status != STATUS_NO_MORE_ENTRIES)  {
-                DebugPrint( (MAPPER_ERROR,"Could not enumerate under key %S\\%S, status = %8.8X\n",SourcePath,deviceParamKeyName.Buffer,status) );
+            } else if (status != STATUS_NO_MORE_ENTRIES) {
+                DebugPrint((MAPPER_ERROR, 
+                            "Could not enumerate under key %S\\%S, status = %8.8X\n",
+                            SourcePath, 
+                            deviceParamKeyName.Buffer,
+                            status));
             } else {
                 status = STATUS_SUCCESS;
             }
@@ -1416,26 +1587,26 @@ Return Value:
 
 Cleanup:
     if (sourceInstanceKey != NULL) {
-        ZwClose( sourceInstanceKey );
+        ZwClose(sourceInstanceKey);
     }
 
     if (sourceDeviceParamKey != NULL) {
-        ZwClose( sourceDeviceParamKey );
+        ZwClose(sourceDeviceParamKey);
     }
 
     if (destinationDeviceParamKey != NULL) {
-        ZwClose( destinationDeviceParamKey );
+        ZwClose(destinationDeviceParamKey);
     }
 
     if (valueFullInfo != NULL) {
-        ExFreePool( valueFullInfo );
+        ExFreePool(valueFullInfo);
     }
 
     return status;
 }
 
 
-NTSTATUS PnPBiosWriteInfo(IN PBIOS_DEVNODE_INFO DevNodeInfoList,IN ULONG NumberNodes)
+NTSTATUS PnPBiosWriteInfo(IN PBIOS_DEVNODE_INFO DevNodeInfoList, IN ULONG NumberNodes)
 /*++
 Routine Description:
     Creates an entry under Enum\Root for each DevNodeInfoList element.
@@ -1448,7 +1619,7 @@ Return Value:
     STATUS_SUCCESS if no errors, otherwise the appropriate error.
 --*/
 {
-    PKEY_VALUE_FULL_INFORMATION     excludeList=NULL;
+    PKEY_VALUE_FULL_INFORMATION     excludeList = NULL;
     UNICODE_STRING                  enumRootKeyName;
     HANDLE                          enumRootKey;
     WCHAR                           instanceNameStr[DEFAULT_STRING_SIZE];
@@ -1468,9 +1639,9 @@ Return Value:
     BOOLEAN                         isNewDevice;
 
     RtlInitUnicodeString(&enumRootKeyName, ENUMROOT_KEY_NAME);
-    status = IopOpenRegistryKeyEx( &enumRootKey,NULL,&enumRootKeyName,KEY_ALL_ACCESS);
+    status = IopOpenRegistryKeyEx(&enumRootKey, NULL, &enumRootKeyName, KEY_ALL_ACCESS);
     if (!NT_SUCCESS(status)) {
-        DebugPrint( (MAPPER_ERROR,"Could not open registry key %S, status = %8.8X\n",ENUMROOT_KEY_NAME,status) );
+        DebugPrint((MAPPER_ERROR, "Could not open registry key %S, status = %8.8X\n", ENUMROOT_KEY_NAME, status));
         return STATUS_UNSUCCESSFUL;
     }
 
@@ -1479,128 +1650,191 @@ Return Value:
     // * included in CCS\Control\BiosInfo\PnpBios\DisableNodes via biosinfo.inf
     // * resources are disabled and device is included in the
     //   ExcludeIfDisabled array
-    PnPGetDevnodeExcludeList (&excludeList);
+    PnPGetDevnodeExcludeList(&excludeList);
     for (nodeIndex = 0; nodeIndex < NumberNodes; nodeIndex++) {
         // Check if this node is in the 'ignore on this machine' list.
-        if ( excludeList && PnPBiosIgnoreNode( &DevNodeInfoList[ nodeIndex ].ProductId[1], (PWCHAR)((PUCHAR)excludeList+excludeList->DataOffset))) {
+        if (excludeList && PnPBiosIgnoreNode(&DevNodeInfoList[nodeIndex].ProductId[1], (PWCHAR)((PUCHAR)excludeList + excludeList->DataOffset))) {
             continue;
         }
 
         // Checking for nodes we always exclude
-        if ( PnPBiosCheckForExclusion( ExcludedDevices, EXCLUDED_DEVICES_COUNT, DevNodeInfoList[ nodeIndex ].ProductId, DevNodeInfoList[ nodeIndex ].CompatibleIDs)) {
+        if (PnPBiosCheckForExclusion(ExcludedDevices, 
+                                     EXCLUDED_DEVICES_COUNT,
+                                     DevNodeInfoList[nodeIndex].ProductId, 
+                                     DevNodeInfoList[nodeIndex].CompatibleIDs)) {
             // If we are skipping the device, we need to first copy the decode
             // info that the BIOS supplied to the ntdetected device's Boot Config which was generated by the FW mapper.
-            PnPBiosCopyIoDecode( enumRootKey, &DevNodeInfoList[ nodeIndex ] );
+            PnPBiosCopyIoDecode(enumRootKey, &DevNodeInfoList[nodeIndex]);
 
             // Skip excluded devices, ie busses, mice and keyboards for now.
             continue;
         }
 
         // Checking for nodes we exclude if disabled
-        if ( DevNodeInfoList[ nodeIndex ].FirmwareDisabled && PnPBiosCheckForExclusion( ExcludeIfDisabled, EXCLUDE_DISABLED_COUNT, DevNodeInfoList[ nodeIndex ].ProductId, NULL)) {
+        if (DevNodeInfoList[nodeIndex].FirmwareDisabled && 
+            PnPBiosCheckForExclusion(ExcludeIfDisabled, EXCLUDE_DISABLED_COUNT, DevNodeInfoList[nodeIndex].ProductId, NULL)) {
             continue;
         }
 
-        swprintf( instanceNameStr, L"%s\\%s%d", DevNodeInfoList[ nodeIndex ].ProductId, INSTANCE_ID_PREFIX, DevNodeInfoList[ nodeIndex ].Handle );
-        RtlInitUnicodeString( &instanceKeyName, instanceNameStr );
-        status = IopCreateRegistryKeyEx( &instanceKey,enumRootKey,&instanceKeyName,KEY_ALL_ACCESS,REG_OPTION_NON_VOLATILE,&disposition);
-        if (NT_SUCCESS(status))  {
+        swprintf(instanceNameStr,
+                 L"%s\\%s%d",
+                 DevNodeInfoList[nodeIndex].ProductId,
+                 INSTANCE_ID_PREFIX, 
+                 DevNodeInfoList[nodeIndex].Handle);
+        RtlInitUnicodeString(&instanceKeyName, instanceNameStr);
+        status = IopCreateRegistryKeyEx(&instanceKey,
+                                        enumRootKey, 
+                                        &instanceKeyName,
+                                        KEY_ALL_ACCESS, 
+                                        REG_OPTION_NON_VOLATILE,
+                                        &disposition);
+        if (NT_SUCCESS(status)) {
             isNewDevice = disposition == REG_CREATED_NEW_KEY;
             if (isNewDevice) {
-                RtlInitUnicodeString( &valueName, L"DeviceDesc" );
-                descriptionStr = PnPBiosGetDescription( &DevNodeInfoList[ nodeIndex ] );
+                RtlInitUnicodeString(&valueName, L"DeviceDesc");
+                descriptionStr = PnPBiosGetDescription(&DevNodeInfoList[nodeIndex]);
                 descriptionStrLength = wcslen(descriptionStr) * 2 + sizeof(UNICODE_NULL);
-                status = ZwSetValueKey( instanceKey,&valueName,0,REG_SZ,descriptionStr,descriptionStrLength );
+                status = ZwSetValueKey(instanceKey, &valueName, 0, REG_SZ, descriptionStr, descriptionStrLength);
             }
 
-            RtlInitUnicodeString( &valueName, REGSTR_VAL_FIRMWAREIDENTIFIED );
+            RtlInitUnicodeString(&valueName, REGSTR_VAL_FIRMWAREIDENTIFIED);
             dwordValue = 1;
-            status = ZwSetValueKey( instanceKey,&valueName,0,REG_DWORD,&dwordValue,sizeof(dwordValue) );
-            if (isNewDevice)  {
-                RtlInitUnicodeString( &valueName, L"HardwareID" );
-                status = ZwSetValueKey( instanceKey,&valueName,0,REG_MULTI_SZ,DevNodeInfoList[ nodeIndex ].ProductId,sizeof(DevNodeInfoList[ nodeIndex ].ProductId) );
-                if (DevNodeInfoList[ nodeIndex ].CompatibleIDs != NULL) {
-                    RtlInitUnicodeString( &valueName, L"CompatibleIDs" );
-                    status = ZwSetValueKey( instanceKey,&valueName,0,REG_MULTI_SZ,DevNodeInfoList[ nodeIndex ].CompatibleIDs,DevNodeInfoList[ nodeIndex ].CompatibleIDsLength );
+            status = ZwSetValueKey(instanceKey, &valueName, 0, REG_DWORD, &dwordValue, sizeof(dwordValue));
+            if (isNewDevice) {
+                RtlInitUnicodeString(&valueName, L"HardwareID");
+                status = ZwSetValueKey(instanceKey,
+                                       &valueName,
+                                       0, 
+                                       REG_MULTI_SZ,
+                                       DevNodeInfoList[nodeIndex].ProductId, 
+                                       sizeof(DevNodeInfoList[nodeIndex].ProductId));
+                if (DevNodeInfoList[nodeIndex].CompatibleIDs != NULL) {
+                    RtlInitUnicodeString(&valueName, L"CompatibleIDs");
+                    status = ZwSetValueKey(instanceKey, 
+                                           &valueName,
+                                           0,
+                                           REG_MULTI_SZ, 
+                                           DevNodeInfoList[nodeIndex].CompatibleIDs,
+                                           DevNodeInfoList[nodeIndex].CompatibleIDsLength);
                 }
             }
 
-            RtlInitUnicodeString( &valueName, L"Replaces" );
-            if (DevNodeInfoList[ nodeIndex ].Replaces != NULL) {
-                status = ZwSetValueKey( instanceKey,&valueName,0,REG_SZ,DevNodeInfoList[ nodeIndex ].Replaces,wcslen(DevNodeInfoList[ nodeIndex ].Replaces) * 2 + sizeof(UNICODE_NULL) );
+            RtlInitUnicodeString(&valueName, L"Replaces");
+            if (DevNodeInfoList[nodeIndex].Replaces != NULL) {
+                status = ZwSetValueKey(instanceKey, 
+                                       &valueName, 
+                                       0, 
+                                       REG_SZ,
+                                       DevNodeInfoList[nodeIndex].Replaces,
+                                       wcslen(DevNodeInfoList[nodeIndex].Replaces) * 2 + sizeof(UNICODE_NULL));
             } else if (!isNewDevice) {
-                status = ZwDeleteValueKey( instanceKey,&valueName );
+                status = ZwDeleteValueKey(instanceKey, &valueName);
             }
 
-            RtlInitUnicodeString( &controlKeyName, REGSTR_KEY_DEVICECONTROL );
-            status = IopCreateRegistryKeyEx( &controlKey,instanceKey,&controlKeyName,KEY_ALL_ACCESS,REG_OPTION_VOLATILE,NULL);
-            if (NT_SUCCESS(status))  {
-                RtlInitUnicodeString( &valueName, REGSTR_VAL_FIRMWAREMEMBER );
+            RtlInitUnicodeString(&controlKeyName, REGSTR_KEY_DEVICECONTROL);
+            status = IopCreateRegistryKeyEx(&controlKey, 
+                                            instanceKey, 
+                                            &controlKeyName,
+                                            KEY_ALL_ACCESS,
+                                            REG_OPTION_VOLATILE, 
+                                            NULL);
+            if (NT_SUCCESS(status)) {
+                RtlInitUnicodeString(&valueName, REGSTR_VAL_FIRMWAREMEMBER);
                 dwordValue = 1;
-                status = ZwSetValueKey( controlKey,&valueName,0,REG_DWORD,&dwordValue,sizeof(dwordValue) );
-                RtlInitUnicodeString( &valueName, L"PnpBiosDeviceHandle" );
-                dwordValue = DevNodeInfoList[ nodeIndex ].Handle;
-                status = ZwSetValueKey( controlKey,&valueName,0,REG_DWORD,&dwordValue,sizeof(dwordValue) );
-                RtlInitUnicodeString( &valueName, REGSTR_VAL_FIRMWAREDISABLED );
-                dwordValue = DevNodeInfoList[ nodeIndex ].FirmwareDisabled;
-                status = ZwSetValueKey( controlKey,&valueName,0,REG_DWORD,&dwordValue,sizeof(dwordValue) );
-                RtlInitUnicodeString( &valueName, L"PnpBiosDeviceHandle" );
-                dwordValue = DevNodeInfoList[ nodeIndex ].Handle;
-                ZwClose( controlKey );
+                status = ZwSetValueKey(controlKey, &valueName, 0, REG_DWORD, &dwordValue, sizeof(dwordValue));
+                RtlInitUnicodeString(&valueName, L"PnpBiosDeviceHandle");
+                dwordValue = DevNodeInfoList[nodeIndex].Handle;
+                status = ZwSetValueKey(controlKey, &valueName, 0, REG_DWORD, &dwordValue, sizeof(dwordValue));
+                RtlInitUnicodeString(&valueName, REGSTR_VAL_FIRMWAREDISABLED);
+                dwordValue = DevNodeInfoList[nodeIndex].FirmwareDisabled;
+                status = ZwSetValueKey(controlKey, &valueName, 0, REG_DWORD, &dwordValue, sizeof(dwordValue));
+                RtlInitUnicodeString(&valueName, L"PnpBiosDeviceHandle");
+                dwordValue = DevNodeInfoList[nodeIndex].Handle;
+                ZwClose(controlKey);
             } else {
-                DebugPrint( (MAPPER_ERROR,"Could not open registry key %S\\%S\\%S\\Control, status = %8.8X\n",ENUMROOT_KEY_NAME,DevNodeInfoList[ nodeIndex ].ProductId,instanceNameStr,status) );
-                ZwClose( instanceKey );
+                DebugPrint((MAPPER_ERROR,
+                            "Could not open registry key %S\\%S\\%S\\Control, status = %8.8X\n",
+                            ENUMROOT_KEY_NAME, 
+                            DevNodeInfoList[nodeIndex].ProductId, 
+                            instanceNameStr, 
+                            status));
+                ZwClose(instanceKey);
                 status = STATUS_UNSUCCESSFUL;
                 goto Cleanup;
             }
 
-            RtlInitUnicodeString( &logConfKeyName, REGSTR_KEY_LOGCONF );
-            status = IopCreateRegistryKeyEx( &logConfKey,instanceKey,&logConfKeyName,KEY_ALL_ACCESS,REG_OPTION_NON_VOLATILE,NULL);
-            if (NT_SUCCESS(status))  {
-                if (DevNodeInfoList[ nodeIndex ].BootConfig != NULL) {
-                    RtlInitUnicodeString( &valueName, REGSTR_VAL_BOOTCONFIG );
-                    status = ZwSetValueKey( logConfKey,&valueName,0,REG_RESOURCE_LIST,DevNodeInfoList[ nodeIndex ].BootConfig,DevNodeInfoList[ nodeIndex ].BootConfigLength );
+            RtlInitUnicodeString(&logConfKeyName, REGSTR_KEY_LOGCONF);
+            status = IopCreateRegistryKeyEx(&logConfKey,
+                                            instanceKey,
+                                            &logConfKeyName,
+                                            KEY_ALL_ACCESS,
+                                            REG_OPTION_NON_VOLATILE, 
+                                            NULL);
+            if (NT_SUCCESS(status)) {
+                if (DevNodeInfoList[nodeIndex].BootConfig != NULL) {
+                    RtlInitUnicodeString(&valueName, REGSTR_VAL_BOOTCONFIG);
+                    status = ZwSetValueKey(logConfKey,
+                                           &valueName,
+                                           0, 
+                                           REG_RESOURCE_LIST,
+                                           DevNodeInfoList[nodeIndex].BootConfig,
+                                           DevNodeInfoList[nodeIndex].BootConfigLength);
                 }
 
-                if (DevNodeInfoList[ nodeIndex ].BasicConfig != NULL) {
-                    RtlInitUnicodeString( &valueName, REGSTR_VAL_BASICCONFIGVECTOR );
-                    status = ZwSetValueKey( logConfKey,&valueName,0,REG_RESOURCE_REQUIREMENTS_LIST,DevNodeInfoList[ nodeIndex ].BasicConfig,DevNodeInfoList[ nodeIndex ].BasicConfigLength );
+                if (DevNodeInfoList[nodeIndex].BasicConfig != NULL) {
+                    RtlInitUnicodeString(&valueName, REGSTR_VAL_BASICCONFIGVECTOR);
+                    status = ZwSetValueKey(logConfKey,
+                                           &valueName,
+                                           0,
+                                           REG_RESOURCE_REQUIREMENTS_LIST,
+                                           DevNodeInfoList[nodeIndex].BasicConfig,
+                                           DevNodeInfoList[nodeIndex].BasicConfigLength);
                 }
 
-                ZwClose( logConfKey );
+                ZwClose(logConfKey);
             } else {
-                DebugPrint( (MAPPER_ERROR,"Could not open registry key %S\\%S\\%S\\LogConf, status = %8.8X\n",ENUMROOT_KEY_NAME,DevNodeInfoList[ nodeIndex ].ProductId,instanceNameStr,status) );
-                ZwClose( instanceKey );
+                DebugPrint((MAPPER_ERROR, 
+                            "Could not open registry key %S\\%S\\%S\\LogConf, status = %8.8X\n", 
+                            ENUMROOT_KEY_NAME, 
+                            DevNodeInfoList[nodeIndex].ProductId,
+                            instanceNameStr, status));
+                ZwClose(instanceKey);
                 status = STATUS_UNSUCCESSFUL;
                 goto Cleanup;
             }
 
             // If we are replacing a FW Mapper devnode we need to copy the Device Parameters subkey.
-            if (isNewDevice && DevNodeInfoList[ nodeIndex ].Replaces != NULL) {
-                status = PnPBiosCopyDeviceParamKey( enumRootKey,DevNodeInfoList[ nodeIndex ].Replaces,instanceNameStr );
+            if (isNewDevice && DevNodeInfoList[nodeIndex].Replaces != NULL) {
+                status = PnPBiosCopyDeviceParamKey(enumRootKey, DevNodeInfoList[nodeIndex].Replaces, instanceNameStr);
             }
 
-            ZwClose( instanceKey );
+            ZwClose(instanceKey);
         } else {
-            DebugPrint( (MAPPER_ERROR,"Could not open registry key %S\\%S\\%S, status = %8.8X\n",ENUMROOT_KEY_NAME,DevNodeInfoList[ nodeIndex ].ProductId,instanceNameStr,status) );
-            ZwClose( instanceKey );
+            DebugPrint((MAPPER_ERROR,
+                        "Could not open registry key %S\\%S\\%S, status = %8.8X\n",
+                        ENUMROOT_KEY_NAME,
+                        DevNodeInfoList[nodeIndex].ProductId,
+                        instanceNameStr,
+                        status));
+            ZwClose(instanceKey);
             status = STATUS_UNSUCCESSFUL;
             goto Cleanup;
         }
 
-        // Now check if the entry just written duplicates one written by the Firmware Mapper.  If it does then remove the Firmware Mapper entry.
-        if (DevNodeInfoList[ nodeIndex ].Replaces != NULL) {
-            IopDeleteKeyRecursive( enumRootKey, DevNodeInfoList[ nodeIndex ].Replaces );
+        // Now check if the entry just written duplicates one written by the Firmware Mapper.
+        // If it does then remove the Firmware Mapper entry.
+        if (DevNodeInfoList[nodeIndex].Replaces != NULL) {
+            IopDeleteKeyRecursive(enumRootKey, DevNodeInfoList[nodeIndex].Replaces);
         }
     }
 
     status = STATUS_SUCCESS;
 
- Cleanup:
-    ZwClose( enumRootKey );
+Cleanup:
+    ZwClose(enumRootKey);
 
     if (excludeList) {
-        ExFreePool (excludeList);
+        ExFreePool(excludeList);
     }
 
     return status;
@@ -1639,7 +1873,7 @@ VOID PnPBiosCopyIoDecode(IN HANDLE EnumRootKey, IN PBIOS_DEVNODE_INFO DevNodeInf
                        CM_RESOURCE_PORT_16_BIT_DECODE | \
                        CM_RESOURCE_PORT_POSITIVE_DECODE )
 
-    for ( index = 0; index < partialResourceList->Count; index++ ) {
+    for (index = 0; index < partialResourceList->Count; index++) {
         if (partialDescriptor->Type == CmResourceTypePort) {
             if (flags == (USHORT)~0) {
                 flags = partialDescriptor->Flags & DECODE_FLAGS;
@@ -1650,44 +1884,53 @@ VOID PnPBiosCopyIoDecode(IN HANDLE EnumRootKey, IN PBIOS_DEVNODE_INFO DevNodeInf
         partialDescriptor++;
     }
 
-    if (!(flags & (CM_RESOURCE_PORT_16_BIT_DECODE | CM_RESOURCE_PORT_POSITIVE_DECODE)))  {
+    if (!(flags & (CM_RESOURCE_PORT_16_BIT_DECODE | CM_RESOURCE_PORT_POSITIVE_DECODE))) {
         return;
     }
 
-    swprintf( logConfKeyNameStr, L"%s\\%s", DevNodeInfo->Replaces, REGSTR_KEY_LOGCONF);
-    RtlInitUnicodeString( &logConfKeyName, logConfKeyNameStr );
-    status = IopCreateRegistryKeyEx( &logConfKey,EnumRootKey,&logConfKeyName,KEY_ALL_ACCESS,REG_OPTION_NON_VOLATILE,NULL);
+    swprintf(logConfKeyNameStr, L"%s\\%s", DevNodeInfo->Replaces, REGSTR_KEY_LOGCONF);
+    RtlInitUnicodeString(&logConfKeyName, logConfKeyNameStr);
+    status = IopCreateRegistryKeyEx(&logConfKey, EnumRootKey, &logConfKeyName, KEY_ALL_ACCESS, REG_OPTION_NON_VOLATILE, NULL);
     if (!NT_SUCCESS(status)) {
-        DebugPrint( (MAPPER_ERROR, "Could not open registry key %S\\%S\\%S, status = %8.8X\n", ENUMROOT_KEY_NAME,DevNodeInfo->Replaces,REGSTR_KEY_LOGCONF,status) );
+        DebugPrint((MAPPER_ERROR, 
+                    "Could not open registry key %S\\%S\\%S, status = %8.8X\n", 
+                    ENUMROOT_KEY_NAME, 
+                    DevNodeInfo->Replaces, 
+                    REGSTR_KEY_LOGCONF,
+                    status));
         return;
     }
 
     valueInfoLength = sizeof(KEY_VALUE_PARTIAL_INFORMATION) + DEFAULT_STRING_SIZE;
     valueInfo = ExAllocatePool(PagedPool, valueInfoLength);
-    if (valueInfo == NULL)  {
-        ZwClose( logConfKey );
+    if (valueInfo == NULL) {
+        ZwClose(logConfKey);
         return;
     }
 
-    RtlInitUnicodeString( &valueName, REGSTR_VAL_BOOTCONFIG );
-    status = ZwQueryValueKey( logConfKey,&valueName,KeyValuePartialInformation,valueInfo,valueInfoLength,&returnedLength);
+    RtlInitUnicodeString(&valueName, REGSTR_VAL_BOOTCONFIG);
+    status = ZwQueryValueKey(logConfKey, &valueName, KeyValuePartialInformation, valueInfo, valueInfoLength, &returnedLength);
     if (!NT_SUCCESS(status)) {
         if (status == STATUS_BUFFER_TOO_SMALL || status == STATUS_BUFFER_OVERFLOW) {
             // The default buffer was too small, free it and reallocate it to the required size.
-            ExFreePool( valueInfo );
+            ExFreePool(valueInfo);
             valueInfoLength = returnedLength;
-            valueInfo = ExAllocatePool( PagedPool, valueInfoLength );
-            if (valueInfo != NULL)  {
-                status = ZwQueryValueKey( logConfKey,&valueName,KeyValuePartialInformation,valueInfo,valueInfoLength,&returnedLength );
+            valueInfo = ExAllocatePool(PagedPool, valueInfoLength);
+            if (valueInfo != NULL) {
+                status = ZwQueryValueKey(logConfKey, &valueName, KeyValuePartialInformation, valueInfo, valueInfoLength, &returnedLength);
                 if (!NT_SUCCESS(status)) {
-                    DebugPrint( (MAPPER_ERROR,"Could not query registry value %S\\%S\\LogConf\\BootConfig, status = %8.8X\n",ENUMROOT_KEY_NAME,DevNodeInfo->Replaces,status) );
-                    ExFreePool( valueInfo );
-                    ZwClose( logConfKey );
+                    DebugPrint((MAPPER_ERROR,
+                                "Could not query registry value %S\\%S\\LogConf\\BootConfig, status = %8.8X\n", 
+                                ENUMROOT_KEY_NAME, 
+                                DevNodeInfo->Replaces, 
+                                status));
+                    ExFreePool(valueInfo);
+                    ZwClose(logConfKey);
                     return;
                 }
             } else {
-                DebugPrint( (MAPPER_ERROR,"Could not allocate memory for BootConfig value\n") );
-                ZwClose( logConfKey );
+                DebugPrint((MAPPER_ERROR, "Could not allocate memory for BootConfig value\n"));
+                ZwClose(logConfKey);
                 return;
             }
         }
@@ -1695,7 +1938,7 @@ VOID PnPBiosCopyIoDecode(IN HANDLE EnumRootKey, IN PBIOS_DEVNODE_INFO DevNodeInf
 
     partialResourceList = &((PCM_RESOURCE_LIST)valueInfo->Data)->List[0].PartialResourceList;
     partialDescriptor = &partialResourceList->PartialDescriptors[0];
-    for ( index = 0; index < partialResourceList->Count; index++ ) {
+    for (index = 0; index < partialResourceList->Count; index++) {
         if (partialDescriptor->Type == CmResourceTypePort) {
             partialDescriptor->Flags &= ~DECODE_FLAGS;
             partialDescriptor->Flags |= flags;
@@ -1703,9 +1946,13 @@ VOID PnPBiosCopyIoDecode(IN HANDLE EnumRootKey, IN PBIOS_DEVNODE_INFO DevNodeInf
         partialDescriptor++;
     }
 
-    status = ZwSetValueKey( logConfKey,&valueName,0,REG_RESOURCE_LIST,valueInfo->Data,valueInfo->DataLength );
+    status = ZwSetValueKey(logConfKey, &valueName, 0, REG_RESOURCE_LIST, valueInfo->Data, valueInfo->DataLength);
     if (!NT_SUCCESS(status)) {
-        DebugPrint( (MAPPER_ERROR,"Could not set registry value %S\\%S\\LogConf\\BootConfig, status = %8.8X\n",ENUMROOT_KEY_NAME,DevNodeInfo->Replaces,status) );
+        DebugPrint((MAPPER_ERROR, 
+                    "Could not set registry value %S\\%S\\LogConf\\BootConfig, status = %8.8X\n", 
+                    ENUMROOT_KEY_NAME, 
+                    DevNodeInfo->Replaces,
+                    status));
     }
 
     ExFreePool(valueInfo);
@@ -1713,7 +1960,7 @@ VOID PnPBiosCopyIoDecode(IN HANDLE EnumRootKey, IN PBIOS_DEVNODE_INFO DevNodeInf
 }
 
 
-NTSTATUS PnPBiosCheckForHardwareDisabled(IN PIO_RESOURCE_REQUIREMENTS_LIST IoResourceList,IN OUT PBOOLEAN Disabled)
+NTSTATUS PnPBiosCheckForHardwareDisabled(IN PIO_RESOURCE_REQUIREMENTS_LIST IoResourceList, IN OUT PBOOLEAN Disabled)
 /*++
 Routine Description:
     If this device has been assigned one or more resources, and each resource has a length of zero, then it is hardware disabled.
@@ -1736,8 +1983,8 @@ Return Value:
 
     // Translate each resource descriptor, currently we only handle ports, memory, interrupts, and dma.  The current implementation of the routine
     // which converts from ISA PnP Resource data to IO_RESOURCE_REQUIREMENTS won't generate any other descriptor types given the data returned from the BIOS.
-    for (descIndex = 0; descIndex < IoResourceList->List[ 0 ].Count; descIndex++) {
-        ioDescriptor = &IoResourceList->List[ 0 ].Descriptors[ descIndex ];
+    for (descIndex = 0; descIndex < IoResourceList->List[0].Count; descIndex++) {
+        ioDescriptor = &IoResourceList->List[0].Descriptors[descIndex];
         switch (ioDescriptor->Type) {
         case CmResourceTypePort:
             if (ioDescriptor->u.Port.Length) {
@@ -1764,7 +2011,7 @@ Return Value:
             ParsedResource = TRUE;
             break;
         default:
-            DebugPrint( (MAPPER_ERROR, "Unexpected ResourceType (%d) in I/O Descriptor\n", ioDescriptor->Type) );
+            DebugPrint((MAPPER_ERROR, "Unexpected ResourceType (%d) in I/O Descriptor\n", ioDescriptor->Type));
 
 #if DBG
             // DbgBreakPoint();
@@ -1797,23 +2044,23 @@ Return Value:
 
     for (nodeIndex = 0; nodeIndex < NumberNodes; nodeIndex++) {
         if (DevNodeInfoList[nodeIndex].Replaces != NULL) {
-            ExFreePool( DevNodeInfoList[nodeIndex].Replaces );
+            ExFreePool(DevNodeInfoList[nodeIndex].Replaces);
         }
 
         if (DevNodeInfoList[nodeIndex].CompatibleIDs != NULL) {
-            ExFreePool( DevNodeInfoList[nodeIndex].CompatibleIDs );
+            ExFreePool(DevNodeInfoList[nodeIndex].CompatibleIDs);
         }
 
         if (DevNodeInfoList[nodeIndex].BootConfig != NULL) {
-            ExFreePool( DevNodeInfoList[nodeIndex].BootConfig );
+            ExFreePool(DevNodeInfoList[nodeIndex].BootConfig);
         }
 
         if (DevNodeInfoList[nodeIndex].BasicConfig != NULL) {
-            ExFreePool( DevNodeInfoList[nodeIndex].BasicConfig );
+            ExFreePool(DevNodeInfoList[nodeIndex].BasicConfig);
         }
     }
 
-    ExFreePool( DevNodeInfoList );
+    ExFreePool(DevNodeInfoList);
     return STATUS_SUCCESS;
 }
 
@@ -1834,28 +2081,28 @@ Return Value:
     PBIOS_DEVNODE_INFO  devNodeInfoList;
     ULONG               numberNodes;
 
-    status = PnPBiosGetBiosInfo( &biosInfo, &length );
-    if (!NT_SUCCESS( status )) {
+    status = PnPBiosGetBiosInfo(&biosInfo, &length);
+    if (!NT_SUCCESS(status)) {
         return status;
     }
 
-    status = PnPBiosTranslateInfo( biosInfo,length,&devNodeInfoList,&numberNodes );
-    ExFreePool( biosInfo );
-    if (!NT_SUCCESS( status )) {
+    status = PnPBiosTranslateInfo(biosInfo, length, &devNodeInfoList, &numberNodes);
+    ExFreePool(biosInfo);
+    if (!NT_SUCCESS(status)) {
         return status;
     }
 
-    status = PnPBiosEliminateDupes( devNodeInfoList, numberNodes );
-    if (NT_SUCCESS( status )) {
-        status = PnPBiosWriteInfo( devNodeInfoList, numberNodes );
+    status = PnPBiosEliminateDupes(devNodeInfoList, numberNodes);
+    if (NT_SUCCESS(status)) {
+        status = PnPBiosWriteInfo(devNodeInfoList, numberNodes);
     }
 
-    PnPBiosFreeDevNodeInfo( devNodeInfoList, numberNodes );
+    PnPBiosFreeDevNodeInfo(devNodeInfoList, numberNodes);
     return status;
 }
 
 
-VOID PpFilterNtResource (IN PWCHAR PnpDeviceName,PIO_RESOURCE_REQUIREMENTS_LIST ResReqList)
+VOID PpFilterNtResource(IN PWCHAR PnpDeviceName, PIO_RESOURCE_REQUIREMENTS_LIST ResReqList)
 {
     PIO_RESOURCE_LIST ioResourceList;
     PIO_RESOURCE_DESCRIPTOR ioResourceDescriptors;
@@ -1916,14 +2163,15 @@ VOID PpFilterNtResource (IN PWCHAR PnpDeviceName,PIO_RESOURCE_REQUIREMENTS_LIST 
             for (i = 0; i < ioResourceList->Count; i++) {
                 if (ioResourceDescriptors[i].Type == CmResourceTypePort) {
                     // some bios asks for 1 too many io port for ide channel
-                    if ((ioResourceDescriptors[i].u.Port.Length == 2) && (ioResourceDescriptors[i].u.Port.MaximumAddress.QuadPart == (ioResourceDescriptors[i].u.Port.MinimumAddress.QuadPart + 1))) {
-                            ioResourceDescriptors[i].u.Port.Length = 1;
+                    if ((ioResourceDescriptors[i].u.Port.Length == 2) && 
+                        (ioResourceDescriptors[i].u.Port.MaximumAddress.QuadPart == (ioResourceDescriptors[i].u.Port.MinimumAddress.QuadPart + 1))) {
+                        ioResourceDescriptors[i].u.Port.Length = 1;
                         ioResourceDescriptors[i].u.Port.MaximumAddress = ioResourceDescriptors[i].u.Port.MinimumAddress;
                     }
                 }
             }
 
-            ioResourceList = (PIO_RESOURCE_LIST) (ioResourceDescriptors + ioResourceList->Count);
+            ioResourceList = (PIO_RESOURCE_LIST)(ioResourceDescriptors + ioResourceList->Count);
         }
     }
 }
@@ -1941,15 +2189,15 @@ Arguments:
     va_list ap;
     CHAR    buffer[256];
 
-    va_start( ap, DebugMessage );
+    va_start(ap, DebugMessage);
 
 #define DBG_MSG_PREFIX  "BiosMapper: "
 
     strcpy(buffer, DBG_MSG_PREFIX);
 
-    if ( DebugMask & PnPBiosMapperDebugMask ) {
-        _vsnprintf( &buffer[sizeof(DBG_MSG_PREFIX) - 1], sizeof(buffer) - sizeof(DBG_MSG_PREFIX), DebugMessage, ap );
-        DbgPrint( buffer );
+    if (DebugMask & PnPBiosMapperDebugMask) {
+        _vsnprintf(&buffer[sizeof(DBG_MSG_PREFIX) - 1], sizeof(buffer) - sizeof(DBG_MSG_PREFIX), DebugMessage, ap);
+        DbgPrint(buffer);
     }
 
     va_end(ap);

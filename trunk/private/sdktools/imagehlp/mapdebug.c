@@ -29,25 +29,20 @@ LPSTR                  gszSrvParams = NULL;
 PSYMBOLSERVERPROC      gfnSymbolServer = NULL;
 PSYMBOLSERVERCLOSEPROC gfnSymbolServerClose = NULL;
 
-BOOL
-ProcessImageDebugInfo(
-    PIMGHLP_DEBUG_DATA pIDD
-    );
+BOOL ProcessImageDebugInfo(PIMGHLP_DEBUG_DATA pIDD);
 
 
-BOOL
-IsImageMachineType64(
-    DWORD MachineType
-    )
+BOOL IsImageMachineType64(DWORD MachineType)
 {
-   switch(MachineType) {
-   case IMAGE_FILE_MACHINE_AXP64:
-   case IMAGE_FILE_MACHINE_IA64:
-       return TRUE;
-   default:
-       return FALSE;
-   }
+    switch (MachineType) {
+    case IMAGE_FILE_MACHINE_AXP64:
+    case IMAGE_FILE_MACHINE_IA64:
+        return TRUE;
+    default:
+        return FALSE;
+    }
 }
+
 
 ULONG
 ReadImageData(
@@ -56,27 +51,18 @@ ReadImageData(
     IN  ULONG64 addr,
     OUT LPVOID  buffer,
     IN  ULONG   size
-    )
+)
 {
     ULONG bytesread;
 
     if (hprocess) {
-
         ULONG64 base = ul;
-
         BOOL rc;
 
-        rc = ReadInProcMemory(hprocess,
-                              base + addr,
-                              buffer,
-                              size,
-                              &bytesread);
-
+        rc = ReadInProcMemory(hprocess, base + addr, buffer, size, &bytesread);
         if (!rc || (bytesread < (ULONG)size))
             return 0;
-
     } else {
-
         PCHAR p = (PCHAR)ul + addr;
 
         memcpy(buffer, p, size);
@@ -85,18 +71,15 @@ ReadImageData(
     return size;
 }
 
-PVOID
-MapItRO(
-      HANDLE FileHandle
-      )
+
+PVOID MapItRO(HANDLE FileHandle)
 {
     PVOID MappedBase = NULL;
 
     if (FileHandle) {
-
-        HANDLE MappingHandle = CreateFileMapping( FileHandle, NULL, PAGE_READONLY, 0, 0, NULL );
+        HANDLE MappingHandle = CreateFileMapping(FileHandle, NULL, PAGE_READONLY, 0, 0, NULL);
         if (MappingHandle) {
-            MappedBase = MapViewOfFile( MappingHandle, FILE_MAP_READ, 0, 0, 0 );
+            MappedBase = MapViewOfFile(MappingHandle, FILE_MAP_READ, 0, 0, 0);
             CloseHandle(MappingHandle);
         }
     }
@@ -105,10 +88,7 @@ MapItRO(
 }
 
 
-void
-CloseSymbolServer(
-    VOID
-    )
+void CloseSymbolServer(VOID)
 {
     if (!ghSrv)
         return;
@@ -134,10 +114,10 @@ GetSymbolFileFromServer(
     IN  DWORD  num2,
     IN  DWORD  num3,
     OUT LPSTR FilePath
-    )
+)
 {
     BOOL rc;
-    CHAR *params;
+    CHAR* params;
 
     // initialize server, if needed
 
@@ -150,7 +130,7 @@ GetSymbolFileFromServer(
         // now implemented in the local variable, 'params'
         // Still, we need to zero out this location to get gszSrvName.
         gszSrvParams = strchr(gszSrvName, '*');
-        if (!gszSrvParams )
+        if (!gszSrvParams)
             return FALSE;
         *gszSrvParams++ = '\0';
         ghSrv = LoadLibrary(gszSrvName);
@@ -176,31 +156,20 @@ GetSymbolFileFromServer(
     params = strchr(ServerInfo, '*');
     if (!params)
         return FALSE;
-    params = strchr(params+1, '*');
+    params = strchr(params + 1, '*');
     if (!params)
         return FALSE;
-    rc = gfnSymbolServer(params+1, FileName, num1, num2, num3, FilePath);
+    rc = gfnSymbolServer(params + 1, FileName, num1, num2, num3, FilePath);
 
     if (!*FilePath) {
-        DPRINTF(NULL,
-                "SymSrv: %s not in %s, (0x%x 0x%x 0x%x)\n",
-                FileName,
-                params,
-                num1,
-                num2,
-                num3);
+        DPRINTF(NULL, "SymSrv: %s not in %s, (0x%x 0x%x 0x%x)\n", FileName, params, num1, num2, num3);
     }
 
     return rc;
 }
 
 
-__inline
-EC
-SetPDBError(
-    EC ccode,
-    EC ncode
-    )
+__inline EC SetPDBError(EC ccode, EC ncode)
 {
     if (ncode == EC_OK)
         return ncode;
@@ -211,24 +180,24 @@ SetPDBError(
     return ncode;
 }
 
-PDB *
+PDB*
 LocatePdb(
-    char *szPDB,
+    char* szPDB,
     ULONG PdbAge,
     ULONG PdbSignature,
-    char *SymbolPath,
-    char *szImageExt,
+    char* SymbolPath,
+    char* szImageExt,
     BOOL  fImagePathPassed
-    )
+)
 {
-    PDB  *pdb = NULL;
+    PDB* pdb = NULL;
     EC    ec;
     char  szError[cbErrMax] = "";
     char  szPDBSansPath[_MAX_FNAME];
     char  szPDBExt[_MAX_EXT];
     char  szPDBLocal[_MAX_PATH];
     char  szDbgPath[PDB_MAX_PATH];
-    char *SemiColon;
+    char* SemiColon;
     DWORD pass;
     EC    ecode = EC_NOT_FOUND;
     BOOL  symsrv = TRUE;
@@ -236,7 +205,7 @@ LocatePdb(
 
     // SymbolPath is a semicolon delimited path (reference path first)
 
-    strcpy (szPDBLocal, szPDB);
+    strcpy(szPDBLocal, szPDB);
     _splitpath(szPDBLocal, NULL, NULL, szPDBSansPath, szPDBExt);
 
     do {
@@ -254,23 +223,16 @@ LocatePdb(
         }
 
         if (SymbolPath) {
-do_again:
+        do_again:
             if (!_strnicmp(SymbolPath, "SYMSRV*", 7)) {
 
                 *szPDBLocal = 0;
                 sprintf(szPDBName, "%s%s", szPDBSansPath, ".pdb");
                 if (symsrv) {
-                    GetSymbolFileFromServer(SymbolPath,
-                                            szPDBName,
-                                            PdbSignature,
-                                            PdbAge,
-                                            0,
-                                            szPDBLocal);
+                    GetSymbolFileFromServer(SymbolPath, szPDBName, PdbSignature, PdbAge, 0, szPDBLocal);
                     symsrv = FALSE;
                 }
-
             } else {
-
                 strcpy(szPDBLocal, SymbolPath);
                 EnsureTrailingBackslash(szPDBLocal);
 
@@ -280,8 +242,7 @@ do_again:
                 //   %dir%\%ext%\%file%
                 //   %dir%\%file%
 
-                switch (pass)
-                {
+                switch (pass) {
                 case 0:
                     strcat(szPDBLocal, "symbols");
                     EnsureTrailingBackslash(szPDBLocal);
@@ -331,8 +292,8 @@ do_again:
 
         if (SemiColon) {
             *SemiColon = ';';
-             SemiColon++;
-             symsrv = TRUE;
+            SemiColon++;
+            symsrv = TRUE;
         }
 
         SymbolPath = SemiColon;
@@ -365,21 +326,17 @@ do_again:
         SetLastError(NO_ERROR);
     }
 
-
     return pdb;
 }
 
 
-BOOL
-ProcessOldStyleCodeView(
-    PIMGHLP_DEBUG_DATA pIDD
-    )
+BOOL ProcessOldStyleCodeView(PIMGHLP_DEBUG_DATA pIDD)
 {
-    OMFSignature    *omfSig;
-    OMFDirHeader    *omfDirHdr;
-    OMFDirEntry     *omfDirEntry;
-    OMFSegMap       *omfSegMap;
-    OMFSegMapDesc   *omfSegMapDesc;
+    OMFSignature* omfSig;
+    OMFDirHeader* omfDirHdr;
+    OMFDirEntry* omfDirEntry;
+    OMFSegMap* omfSegMap;
+    OMFSegMapDesc* omfSegMapDesc;
     DWORD            i, j, k, SectionSize;
     DWORD            SectionStart;
     PIMAGE_SECTION_HEADER   Section;
@@ -387,32 +344,27 @@ ProcessOldStyleCodeView(
     if (pIDD->cOmapFrom) {
         // If there's omap, we need to generate the original section map
 
-        omfSig = (OMFSignature *)pIDD->pMappedCv;
-        omfDirHdr = (OMFDirHeader*) ((PCHAR)pIDD->pMappedCv + (DWORD)omfSig->filepos);
-        omfDirEntry = (OMFDirEntry*) ((PCHAR)omfDirHdr + sizeof(OMFDirHeader));
+        omfSig = (OMFSignature*)pIDD->pMappedCv;
+        omfDirHdr = (OMFDirHeader*)((PCHAR)pIDD->pMappedCv + (DWORD)omfSig->filepos);
+        omfDirEntry = (OMFDirEntry*)((PCHAR)omfDirHdr + sizeof(OMFDirHeader));
 
-        for (i=0; i<omfDirHdr->cDir; i++,omfDirEntry++) {
+        for (i = 0; i < omfDirHdr->cDir; i++, omfDirEntry++) {
             if (omfDirEntry->SubSection == sstSegMap) {
-
-                omfSegMap = (OMFSegMap*) ((PCHAR)pIDD->pMappedCv + omfDirEntry->lfo);
-
+                omfSegMap = (OMFSegMap*)((PCHAR)pIDD->pMappedCv + omfDirEntry->lfo);
                 omfSegMapDesc = (OMFSegMapDesc*)&omfSegMap->rgDesc[0];
-
-                SectionStart = *(DWORD *)pIDD->pOmapFrom;
-
-                Section = (PIMAGE_SECTION_HEADER) MemAlloc(omfSegMap->cSeg * sizeof(IMAGE_SECTION_HEADER));
+                SectionStart = *(DWORD*)pIDD->pOmapFrom;
+                Section = (PIMAGE_SECTION_HEADER)MemAlloc(omfSegMap->cSeg * sizeof(IMAGE_SECTION_HEADER));
 
                 if (Section) {
-                    for (j=0, k=0; j < omfSegMap->cSeg; j++) {
+                    for (j = 0, k = 0; j < omfSegMap->cSeg; j++) {
                         if (omfSegMapDesc[j].frame) {
                             // The linker sets the frame field to the actual section header number.  Zero is
                             // used to track absolute symbols that don't exist in a real sections.
 
-                            Section[k].Misc.VirtualSize =
-                                SectionSize = omfSegMapDesc[j].cbSeg;
+                            Section[k].Misc.VirtualSize = SectionSize = omfSegMapDesc[j].cbSeg;
                             Section[k].VirtualAddress =
                                 SectionStart =
-                                    SectionStart + ((SectionSize + (pIDD->ImageAlign-1)) & ~(pIDD->ImageAlign-1));
+                                SectionStart + ((SectionSize + (pIDD->ImageAlign - 1)) & ~(pIDD->ImageAlign - 1));
                             k++;
                         }
                     }
@@ -427,17 +379,15 @@ ProcessOldStyleCodeView(
     return TRUE;
 }
 
-BOOL
-ProcessPdbDebugInfo(
-    PIMGHLP_DEBUG_DATA pIDD
-    )
+
+BOOL ProcessPdbDebugInfo(PIMGHLP_DEBUG_DATA pIDD)
 {
-    PDB    *pPdb;
-    Dbg    *pDbg;
-    DBI    *pDbi;
-    GSI    *pGsi;
+    PDB* pPdb;
+    Dbg* pDbg;
+    DBI* pDbi;
+    GSI* pGsi;
     int     DebugCount;
-    void   *DebugData;
+    void* DebugData;
     PCHAR   szLocalSymbolPath = NULL;
     DWORD   cpathlen = 0;
     CHAR    szExt[_MAX_EXT] = {0};
@@ -478,14 +428,14 @@ ProcessPdbDebugInfo(
         return FALSE;
     }
 
-    if (!PDBOpenDBI( pPdb, "r", "", &pDbi )) {
-        PDBClose( pPdb );
+    if (!PDBOpenDBI(pPdb, "r", "", &pDbi)) {
+        PDBClose(pPdb);
         return FALSE;
     }
 
-    if (!DBIOpenPublics( pDbi, &pGsi)) {
-        DBIClose( pDbi );
-        PDBClose( pPdb );
+    if (!DBIOpenPublics(pDbi, &pGsi)) {
+        DBIClose(pDbi);
+        PDBClose(pPdb);
         return FALSE;
     }
 
@@ -494,9 +444,9 @@ ProcessPdbDebugInfo(
     if (DBIOpenDbg(pDbi, dbgtypeOmapFromSrc, &pDbg)) {
         DebugCount = DbgQuerySize(pDbg);
         if (DebugCount) {
-            DebugData = MemAlloc( DebugCount * sizeof(OMAP) );
+            DebugData = MemAlloc(DebugCount * sizeof(OMAP));
 
-            if (DbgQueryNext((Dbg *) pDbg, DebugCount, DebugData)) {
+            if (DbgQueryNext((Dbg*)pDbg, DebugCount, DebugData)) {
                 pIDD->cOmapFrom = DebugCount;
                 pIDD->pOmapFrom = DebugData;
             }
@@ -507,9 +457,9 @@ ProcessPdbDebugInfo(
     if (DBIOpenDbg(pDbi, dbgtypeOmapToSrc, &pDbg)) {
         DebugCount = DbgQuerySize(pDbg);
         if (DebugCount) {
-            DebugData = MemAlloc( DebugCount * sizeof(OMAP) );
+            DebugData = MemAlloc(DebugCount * sizeof(OMAP));
 
-            if (DbgQueryNext((Dbg *) pDbg, DebugCount, DebugData)) {
+            if (DbgQueryNext((Dbg*)pDbg, DebugCount, DebugData)) {
                 pIDD->cOmapTo = DebugCount;
                 pIDD->pOmapTo = DebugData;
             }
@@ -523,9 +473,9 @@ ProcessPdbDebugInfo(
     if (DBIOpenDbg(pDbi, dbgtypeFPO, &pDbg)) {
         DebugCount = DbgQuerySize(pDbg);
         if (DebugCount) {
-            DebugData = MemAlloc( DebugCount * sizeof(FPO_DATA) );
+            DebugData = MemAlloc(DebugCount * sizeof(FPO_DATA));
 
-            if (DbgQueryNext((Dbg *) pDbg, DebugCount, DebugData)) {
+            if (DbgQueryNext((Dbg*)pDbg, DebugCount, DebugData)) {
                 pIDD->cFpo = DebugCount;
                 pIDD->pFpo = DebugData;
             }
@@ -538,9 +488,9 @@ ProcessPdbDebugInfo(
     if (DBIOpenDbg(pDbi, dbgtypeException, &pDbg)) {
         DebugCount = DbgQuerySize(pDbg);
         if (DebugCount) {
-            DebugData = MemAlloc( DebugCount * sizeof(IMAGE_ALPHA64_RUNTIME_FUNCTION_ENTRY) );
+            DebugData = MemAlloc(DebugCount * sizeof(IMAGE_ALPHA64_RUNTIME_FUNCTION_ENTRY));
 
-            if (DbgQueryNext((Dbg *) pDbg, DebugCount, DebugData)) {
+            if (DbgQueryNext((Dbg*)pDbg, DebugCount, DebugData)) {
                 pIDD->NumberOfPdataFunctionEntries = DebugCount;
                 pIDD->pImageFunction = DebugData;
             }
@@ -553,9 +503,9 @@ ProcessPdbDebugInfo(
         if (DBIOpenDbg(pDbi, dbgtypeSectionHdr, &pDbg)) {
             DebugCount = DbgQuerySize(pDbg);
             if (DebugCount) {
-                DebugData = MemAlloc( DebugCount * sizeof(IMAGE_SECTION_HEADER) );
+                DebugData = MemAlloc(DebugCount * sizeof(IMAGE_SECTION_HEADER));
 
-                if (DbgQueryNext((Dbg *) pDbg, DebugCount, DebugData)) {
+                if (DbgQueryNext((Dbg*)pDbg, DebugCount, DebugData)) {
                     pIDD->cCurrentSections = DebugCount;
                     pIDD->pCurrentSections = DebugData;
                 }
@@ -566,27 +516,26 @@ ProcessPdbDebugInfo(
 
     if (pIDD->cOmapFrom) {
         // If the image has omap, we need the original section headers.
-        OMFSegMap *  omfSegMap = NULL;
+        OMFSegMap* omfSegMap = NULL;
 
         // Create the sec map from the CV symbolic.
 
         if (DBIQuerySecMap(pDbi, NULL, &DebugCount) &&
-            (omfSegMap = (OMFSegMap *) MemAlloc (DebugCount)) &&
-            DBIQuerySecMap(pDbi, (char *)omfSegMap, &DebugCount))
-        {
-            OMFSegMapDesc          *omfSegMapDesc = (OMFSegMapDesc*)&omfSegMap->rgDesc[0];
-            DWORD                   j = 0, k=0, SectionSize = 0;
-            DWORD                   SectionStart = *(DWORD *)pIDD->pOmapFrom;
-            PIMAGE_SECTION_HEADER   Section = (PIMAGE_SECTION_HEADER) MemAlloc(omfSegMap->cSeg * sizeof(IMAGE_SECTION_HEADER));
+            (omfSegMap = (OMFSegMap*)MemAlloc(DebugCount)) &&
+            DBIQuerySecMap(pDbi, (char*)omfSegMap, &DebugCount)) {
+            OMFSegMapDesc* omfSegMapDesc = (OMFSegMapDesc*)&omfSegMap->rgDesc[0];
+            DWORD                   j = 0, k = 0, SectionSize = 0;
+            DWORD                   SectionStart = *(DWORD*)pIDD->pOmapFrom;
+            PIMAGE_SECTION_HEADER   Section = (PIMAGE_SECTION_HEADER)MemAlloc(omfSegMap->cSeg * sizeof(IMAGE_SECTION_HEADER));
 
-            for (j=0; j < omfSegMap->cSeg; j++) {
+            for (j = 0; j < omfSegMap->cSeg; j++) {
                 if (omfSegMapDesc[j].frame) {
                     // The linker sets the frame field to the actual section header number.  Zero is
                     // used to track absolute symbols that don't exist in a real sections.
 
                     Section[k].VirtualAddress =
                         SectionStart =
-                            SectionStart + ((SectionSize + (pIDD->ImageAlign-1)) & ~(pIDD->ImageAlign-1));
+                        SectionStart + ((SectionSize + (pIDD->ImageAlign - 1)) & ~(pIDD->ImageAlign - 1));
                     Section[k].Misc.VirtualSize =
                         SectionSize = omfSegMapDesc[j].cbSeg;
                     k++;
@@ -606,11 +555,8 @@ ProcessPdbDebugInfo(
     return TRUE;
 }
 
-__inline
-DWORD
-IsDataInSection (PIMAGE_SECTION_HEADER Section,
-                 PIMAGE_DATA_DIRECTORY Data
-                 )
+
+__inline DWORD IsDataInSection(PIMAGE_SECTION_HEADER Section, PIMAGE_DATA_DIRECTORY Data)
 {
     DWORD RealDataOffset;
     if ((Data->VirtualAddress >= Section->VirtualAddress) &&
@@ -624,13 +570,8 @@ IsDataInSection (PIMAGE_SECTION_HEADER Section,
     return RealDataOffset;
 }
 
-__inline
-DWORD
-SectionContains (
-    HANDLE hp,
-    PIMAGE_SECTION_HEADER pSH,
-    PIMAGE_DATA_DIRECTORY ddir
-    )
+
+__inline DWORD SectionContains(HANDLE hp, PIMAGE_SECTION_HEADER pSH, PIMAGE_DATA_DIRECTORY ddir)
 {
     DWORD rva = 0;
 
@@ -656,13 +597,10 @@ typedef struct NB10I                   // NB10 debug info
     DWORD   age;
 } NB10I;
 
-void
-RetrievePdbInfo(
-    PIMGHLP_DEBUG_DATA pIDD,
-    CHAR const *szReference
-    )
+
+void RetrievePdbInfo(PIMGHLP_DEBUG_DATA pIDD, CHAR const* szReference)
 {
-    NB10I *pNb10 = (NB10I *)pIDD->pMappedCv;
+    NB10I* pNb10 = (NB10I*)pIDD->pMappedCv;
     CHAR szRefDrive[_MAX_DRIVE];
     CHAR szRefPath[_MAX_DIR];
 
@@ -681,7 +619,7 @@ RetrievePdbInfo(
     _makepath(pIDD->PdbReferencePath, szRefDrive, szRefPath, NULL, NULL);
     if (strlen(szRefPath) > 1) {
         // Chop off trailing backslash.
-        pIDD->PdbReferencePath[strlen(pIDD->PdbReferencePath)-1] = '\0';
+        pIDD->PdbReferencePath[strlen(pIDD->PdbReferencePath) - 1] = '\0';
     } else {
         // No path.  Put on at least a dot "."
         strcpy(pIDD->PdbReferencePath, ".");
@@ -689,10 +627,8 @@ RetrievePdbInfo(
     return;
 }
 
-BOOL
-FakePdbName(
-    PIMGHLP_DEBUG_DATA pIDD
-    )
+
+BOOL FakePdbName(PIMGHLP_DEBUG_DATA pIDD)
 {
     CHAR szName[_MAX_FNAME];
 
@@ -718,7 +654,7 @@ FindDebugInfoFileExCallback(
     HANDLE FileHandle,
     PSTR FileName,
     PVOID CallerData
-    )
+)
 {
     PIMGHLP_DEBUG_DATA pIDD;
     PIMAGE_SEPARATE_DEBUG_HEADER DbgHeader;
@@ -744,8 +680,7 @@ FindDebugInfoFileExCallback(
 
     if ((DbgHeader->Signature != IMAGE_SEPARATE_DEBUG_SIGNATURE) ||
         ((DbgHeader->Machine != IMAGE_FILE_MACHINE_I386) &&
-         (DbgHeader->Machine != IMAGE_FILE_MACHINE_ALPHA)))
-    {
+        (DbgHeader->Machine != IMAGE_FILE_MACHINE_ALPHA))) {
         rc = FALSE;
         goto cleanup;
     }
@@ -764,7 +699,7 @@ BOOL
 ProcessDebugInfo(
     PIMGHLP_DEBUG_DATA pIDD,
     DWORD datasrc
-    )
+)
 {
     BOOL                         status;
     ULONG                        cb;
@@ -840,7 +775,7 @@ ProcessDebugInfo(
             goto dbg;
         return FALSE;
 
-dbg:
+    dbg:
 
         // grab the dbg header
 
@@ -851,8 +786,7 @@ dbg:
         // Only support .dbg files for X86 and Alpha (32 bit).
 
         if ((sdh.Machine != IMAGE_FILE_MACHINE_I386)
-            && (sdh.Machine != IMAGE_FILE_MACHINE_ALPHA))
-        {
+            && (sdh.Machine != IMAGE_FILE_MACHINE_ALPHA)) {
             UnmapViewOfFile(pIDD->DbgFileMap);
             pIDD->DbgFileMap = 0;
             return FALSE;
@@ -872,7 +806,7 @@ dbg:
         }
 
         nSections = sdh.NumberOfSections;
-        psh = (PIMAGE_SECTION_HEADER) MemAlloc(nSections * sizeof(IMAGE_SECTION_HEADER));
+        psh = (PIMAGE_SECTION_HEADER)MemAlloc(nSections * sizeof(IMAGE_SECTION_HEADER));
         status = ReadImageData(hp,
                                base,
                                sizeof(IMAGE_SEPARATE_DEBUG_HEADER),
@@ -881,20 +815,20 @@ dbg:
         if (!status)
             goto debugdirs;
 
-        pIDD->pCurrentSections  = (PCHAR)psh;
-        pIDD->cCurrentSections  = nSections;
-//        pIDD->ExportedNamesSize = sdh.ExportedNamesSize;
+        pIDD->pCurrentSections = (PCHAR)psh;
+        pIDD->cCurrentSections = nSections;
+        //        pIDD->ExportedNamesSize = sdh.ExportedNamesSize;
 
         if (sdh.DebugDirectorySize) {
             nDebugDirs = (int)(sdh.DebugDirectorySize / sizeof(IMAGE_DEBUG_DIRECTORY));
             ddva = sizeof(IMAGE_SEPARATE_DEBUG_HEADER)
-                   + (sdh.NumberOfSections * sizeof(IMAGE_SECTION_HEADER))
-                   + sdh.ExportedNamesSize;
+                + (sdh.NumberOfSections * sizeof(IMAGE_SECTION_HEADER))
+                + sdh.ExportedNamesSize;
         }
 
         goto debugdirs;
 
-image:
+    image:
 
         // grab the dos header
 
@@ -951,8 +885,7 @@ image:
                     pIDD->CheckSum = nh64.OptionalHeader.CheckSum;
                 }
                 pIDD->SizeOfImage = nh64.OptionalHeader.SizeOfImage;
-            }
-            else {
+            } else {
                 fh = &nh32.FileHeader;
                 datadir = nh32.OptionalHeader.DataDirectory;
                 shva = dh.e_lfanew + sizeof(nh32);
@@ -971,7 +904,7 @@ image:
         // read the section headers
 
         nSections = fh->NumberOfSections;
-        psh = (PIMAGE_SECTION_HEADER) MemAlloc(nSections * sizeof(IMAGE_SECTION_HEADER));
+        psh = (PIMAGE_SECTION_HEADER)MemAlloc(nSections * sizeof(IMAGE_SECTION_HEADER));
         status = ReadImageData(hp, base, shva, psh, nSections * sizeof(IMAGE_SECTION_HEADER));
         if (!status)
             goto debugdirs;
@@ -992,23 +925,21 @@ image:
         for (i = 0; i < nSections; i++, psh++) {
             DWORD offset;
 
-            if (offset = SectionContains(hp, psh, &datadir[IMAGE_DIRECTORY_ENTRY_EXPORT]))
-            {
+            if (offset = SectionContains(hp, psh, &datadir[IMAGE_DIRECTORY_ENTRY_EXPORT])) {
                 status = ReadImageData(hp, base, offset, &expdir, sizeof(expdir));
                 memcpy(&pIDD->expdir, &expdir, sizeof(expdir));
                 pIDD->pMappedExportDirectory = (PCHAR)&pIDD->expdir;
-//              pIDD->ExportedNamesSize = psh->SizeOfRawData;
+                //              pIDD->ExportedNamesSize = psh->SizeOfRawData;
                 pIDD->dsExports = datasrc;
             }
 
-            if (offset = SectionContains(hp, psh, &datadir[IMAGE_DIRECTORY_ENTRY_DEBUG]))
-            {
+            if (offset = SectionContains(hp, psh, &datadir[IMAGE_DIRECTORY_ENTRY_DEBUG])) {
                 ddva = offset;
                 nDebugDirs = datadir[IMAGE_DIRECTORY_ENTRY_DEBUG].Size / sizeof(IMAGE_DEBUG_DIRECTORY);
             }
         }
 
-debugdirs:
+    debugdirs:
 
         rc = TRUE;
 
@@ -1016,7 +947,7 @@ debugdirs:
 
         if (datasrc == dsImage) {
             pIDD->ddva = ddva;
-            pIDD->cdd  = nDebugDirs;
+            pIDD->cdd = nDebugDirs;
         }
 
         // read the debug directories
@@ -1031,8 +962,7 @@ debugdirs:
 
             // these debug directories are processed both in-proc and from file
 
-            switch (dd.Type)
-            {
+            switch (dd.Type) {
             case IMAGE_DEBUG_TYPE_CODEVIEW:
                 // get info on pdb file
                 if (hp && dd.AddressOfRawData) {
@@ -1079,7 +1009,7 @@ debugdirs:
 
             case IMAGE_DEBUG_TYPE_COFF:
                 if (dd.PointerToRawData < fsize) {
-//                  pIDD->fNeedImage = TRUE;
+                    //                  pIDD->fNeedImage = TRUE;
                     pIDD->pMappedCoff = (PCHAR)base + dd.PointerToRawData;
                     pIDD->cMappedCoff = dd.SizeOfData;
                     pIDD->fCoffMapped = TRUE;
@@ -1127,8 +1057,7 @@ debugdirs:
 
             if (dd.PointerToRawData < fsize) {
 
-                switch (dd.Type)
-                {
+                switch (dd.Type) {
                 case IMAGE_DEBUG_TYPE_FPO:
                     pIDD->pFpo = (PCHAR)base + dd.PointerToRawData;
                     pIDD->cFpo = dd.SizeOfData / SIZEOF_RFPO_DATA;
@@ -1156,7 +1085,7 @@ debugdirs:
                 }
             }
 
-nextdebugdir:
+        nextdebugdir:
 
             ddva += sizeof(IMAGE_DEBUG_DIRECTORY);
             nDebugDirs--;
@@ -1164,8 +1093,8 @@ nextdebugdir:
 
     } __except (EXCEPTION_EXECUTE_HANDLER) {
 
-          // We might have gotten enough information
-          // to be okay.  So don't indicate error.
+        // We might have gotten enough information
+        // to be okay.  So don't indicate error.
     }
 
     return rc;
@@ -1176,7 +1105,7 @@ __inline
 BOOL
 ProcessImageDebugInfo(
     PIMGHLP_DEBUG_DATA pIDD
-    )
+)
 {
     return ProcessDebugInfo(pIDD, dsImage);
 }
@@ -1186,7 +1115,7 @@ __inline
 BOOL
 ProcessInProcDebugInfo(
     PIMGHLP_DEBUG_DATA pIDD
-    )
+)
 {
     return ProcessDebugInfo(pIDD, dsInProc);
 }
@@ -1196,7 +1125,7 @@ __inline
 BOOL
 ProcessDbgDebugInfo(
     PIMGHLP_DEBUG_DATA pIDD
-    )
+)
 {
     return ProcessDebugInfo(pIDD, dsDbg);
 }
@@ -1205,7 +1134,7 @@ ProcessDbgDebugInfo(
 BOOL
 FigureOutImageName(
     PIMGHLP_DEBUG_DATA pIDD
-    )
+)
 /*
     We got here because we didn't get the image name passed in from the original call
     to ImgHlpFindDebugInfo AND we were unable to find the MISC data with the name
@@ -1258,7 +1187,7 @@ FindExecutableImageExCallback(
     HANDLE FileHandle,
     PSTR FileName,
     PVOID CallerData
-    )
+)
 {
     PIMGHLP_DEBUG_DATA pIDD;
     PIMAGE_FILE_HEADER FileHeader = NULL;
@@ -1278,42 +1207,40 @@ FindExecutableImageExCallback(
     // Check the first word.  We're either looking at a normal PE32/PE64 image, or it's
     // a ROM image (no DOS stub) or it's a random file.
     switch (*(PUSHORT)ImageMap) {
-        case IMAGE_FILE_MACHINE_I386:
-            // Must be an X86 ROM image (ie: ntldr)
-            FileHeader = &((PIMAGE_ROM_HEADERS)ImageMap)->FileHeader;
+    case IMAGE_FILE_MACHINE_I386:
+        // Must be an X86 ROM image (ie: ntldr)
+        FileHeader = &((PIMAGE_ROM_HEADERS)ImageMap)->FileHeader;
 
-            // Make sure
-            if (!(FileHeader->SizeOfOptionalHeader == sizeof(IMAGE_OPTIONAL_HEADER32) &&
-                pIDD->iohMagic == IMAGE_NT_OPTIONAL_HDR32_MAGIC))
-            {
-                FileHeader = NULL;
-            }
-            break;
+        // Make sure
+        if (!(FileHeader->SizeOfOptionalHeader == sizeof(IMAGE_OPTIONAL_HEADER32) &&
+              pIDD->iohMagic == IMAGE_NT_OPTIONAL_HDR32_MAGIC)) {
+            FileHeader = NULL;
+        }
+        break;
 
-        case IMAGE_FILE_MACHINE_ALPHA:
-        case IMAGE_FILE_MACHINE_IA64:
-            // Should be an Alpha/IA64 ROM image (ie: osloader.exe)
-            FileHeader = &((PIMAGE_ROM_HEADERS)ImageMap)->FileHeader;
+    case IMAGE_FILE_MACHINE_ALPHA:
+    case IMAGE_FILE_MACHINE_IA64:
+        // Should be an Alpha/IA64 ROM image (ie: osloader.exe)
+        FileHeader = &((PIMAGE_ROM_HEADERS)ImageMap)->FileHeader;
 
-            // Make sure
-            if (!(FileHeader->SizeOfOptionalHeader == sizeof(IMAGE_ROM_OPTIONAL_HEADER) &&
-                 pIDD->iohMagic == IMAGE_ROM_OPTIONAL_HDR_MAGIC))
-            {
-                FileHeader = NULL;
-            }
-            break;
+        // Make sure
+        if (!(FileHeader->SizeOfOptionalHeader == sizeof(IMAGE_ROM_OPTIONAL_HEADER) &&
+              pIDD->iohMagic == IMAGE_ROM_OPTIONAL_HDR_MAGIC)) {
+            FileHeader = NULL;
+        }
+        break;
 
-        case IMAGE_DOS_SIGNATURE:
-            {
-                PIMAGE_NT_HEADERS NtHeaders = ImageNtHeader(ImageMap);
-                if (NtHeaders) {
-                    FileHeader = &NtHeaders->FileHeader;
-                }
-            }
-            break;
+    case IMAGE_DOS_SIGNATURE:
+    {
+        PIMAGE_NT_HEADERS NtHeaders = ImageNtHeader(ImageMap);
+        if (NtHeaders) {
+            FileHeader = &NtHeaders->FileHeader;
+        }
+    }
+    break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     // default return is a match
@@ -1342,7 +1269,7 @@ ImgHlpFindDebugInfo(
     LPSTR   SymbolPath,
     ULONG64 ImageBase,
     ULONG   dwFlags
-    )
+)
 /*
    Given:
      ImageFileHandle - Map the thing.  The only time FileHandle s/b non-null
@@ -1400,23 +1327,21 @@ ImgHlpFindDebugInfo(
         if (FileHandle) {
             // if passed a handle, save it
             if (!DuplicateHandle(
-                                 GetCurrentProcess(),
-                                 FileHandle,
-                                 GetCurrentProcess(),
-                                 &pIDD->ImageFileHandle,
-                                 GENERIC_READ,
-                                 FALSE,
-                                 DUPLICATE_SAME_ACCESS
-                                ))
-            {
+                GetCurrentProcess(),
+                FileHandle,
+                GetCurrentProcess(),
+                &pIDD->ImageFileHandle,
+                GENERIC_READ,
+                FALSE,
+                DUPLICATE_SAME_ACCESS
+            )) {
                 return NULL;
             }
             if (FileName) {
                 strcpy(pIDD->ImageFilePath, FileName);
             }
 
-        } else if (FileName && *FileName && !pIDD->fInProcHeader)
-        {
+        } else if (FileName && *FileName && !pIDD->fInProcHeader) {
             // otherwise use the file name to open the disk image
             // only if we didn't have access to in-proc headers
             pIDD->ImageFileHandle = FindExecutableImageEx(FileName,
@@ -1436,13 +1361,13 @@ ImgHlpFindDebugInfo(
         // search for pdb, if indicated or if we have found no image info, so far
         if (!pIDD->Characteristics || (pIDD->Characteristics & IMAGE_FILE_DEBUG_STRIPPED)) {
             pIDD->DbgFileHandle = fnFindDebugInfoFileEx(
-                                        (*pIDD->OriginalDbgFileName) ? pIDD->OriginalDbgFileName : pIDD->ImageName,
-                                        pIDD->SymbolPath,
-                                        pIDD->DbgFilePath,
-                                        FindDebugInfoFileExCallback,
-                                        pIDD,
-                                        fdifRECURSIVE
-                                        );
+                (*pIDD->OriginalDbgFileName) ? pIDD->OriginalDbgFileName : pIDD->ImageName,
+                pIDD->SymbolPath,
+                pIDD->DbgFilePath,
+                FindDebugInfoFileExCallback,
+                pIDD,
+                fdifRECURSIVE
+            );
         }
 
         // if we have a .dbg file.  See what we can get from it.
@@ -1459,7 +1384,7 @@ ImgHlpFindDebugInfo(
                                                           FindExecutableImageExCallback,
                                                           pIDD);
             if (pIDD->ImageFileHandle) {
-                    ProcessImageDebugInfo(pIDD);
+                ProcessImageDebugInfo(pIDD);
             }
         }
 
@@ -1467,11 +1392,11 @@ ImgHlpFindDebugInfo(
         if (*pIDD->PdbFileName) {
             ProcessPdbDebugInfo(pIDD);
 
-        // otherwise, if old codeview, pull from there
+            // otherwise, if old codeview, pull from there
         } else if (pIDD->pMappedCv) {
             ProcessOldStyleCodeView(pIDD);
 
-        // otherwise if we couldn't read from the image info, look for PDB anyway
+            // otherwise if we couldn't read from the image info, look for PDB anyway
         } else if (!pIDD->ImageFileHandle && !pIDD->DbgFileHandle) {
             if (FakePdbName(pIDD)) {
                 ProcessPdbDebugInfo(pIDD);
@@ -1497,7 +1422,7 @@ void
 ImgHlpReleaseDebugInfo(
     PIMGHLP_DEBUG_DATA pIDD,
     DWORD              dwFlags
-    )
+)
 {
     if (!pIDD)
         return;
@@ -1521,63 +1446,55 @@ ImgHlpReleaseDebugInfo(
     if ((dwFlags & IMGHLP_FREE_FPO) &&
         pIDD->pFpo &&
         !pIDD->fFpoMapped
-       )
-    {
+        ) {
         MemFree(pIDD->pFpo);
     }
 
     if ((dwFlags & IMGHLP_FREE_PDATA) &&
         pIDD->pImageFunction &&
         !pIDD->fImageFunctionMapped
-       )
-    {
+        ) {
         MemFree(pIDD->pImageFunction);
     }
 
     if ((dwFlags & IMGHLP_FREE_PDATA) &&
         pIDD->pMappedCoff &&
         !pIDD->fCoffMapped
-       )
-    {
+        ) {
         MemFree(pIDD->pMappedCoff);
     }
 
     if ((dwFlags & IMGHLP_FREE_PDATA) &&
         pIDD->pMappedCv &&
         !pIDD->fCvMapped
-       )
-    {
+        ) {
         MemFree(pIDD->pMappedCv);
     }
 
     if ((dwFlags & IMGHLP_FREE_OMAPT) &&
         pIDD->pOmapTo &&
         !pIDD->fOmapToMapped
-       )
-    {
+        ) {
         MemFree(pIDD->pOmapTo);
     }
 
     if ((dwFlags & IMGHLP_FREE_OMAPF) &&
         pIDD->pOmapFrom &&
         !pIDD->fOmapFromMapped
-       )
-    {
+        ) {
         MemFree(pIDD->pOmapFrom);
     }
 
     if ((dwFlags & IMGHLP_FREE_OSECT) &&
         pIDD->pOriginalSections
-       )
-    {
+        ) {
         MemFree(pIDD->pOriginalSections);
     }
 
     if ((dwFlags & IMGHLP_FREE_CSECT) &&
         pIDD->pCurrentSections &&
         !pIDD->fCurrentSectionsMapped
-       )
-    {
+        ) {
         MemFree(pIDD->pCurrentSections);
     }
 
@@ -1610,8 +1527,8 @@ void
 __cdecl
 main(
     int argc,
-    char *argv[]
-    )
+    char* argv[]
+)
 {
     CHAR szSymPath[4096];
     PIMGHLP_DEBUG_DATA pDebugInfo;

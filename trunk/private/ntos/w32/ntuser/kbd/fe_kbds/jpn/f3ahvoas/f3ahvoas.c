@@ -114,12 +114,12 @@ static ALLOC_SECTION_LDATA USHORT ausVK[] = {
 
                                   T7A,
 
-    /*
-     * Non-Conversion key must have KBDSPECIAL bit set (NLS key)
-     */
-    T7B | KBDSPECIAL,
+                                  /*
+                                   * Non-Conversion key must have KBDSPECIAL bit set (NLS key)
+                                   */
+                                  T7B | KBDSPECIAL,
 
-    T7C, T7D, T7E, T7F
+                                  T7C, T7D, T7E, T7F
 
 };
 
