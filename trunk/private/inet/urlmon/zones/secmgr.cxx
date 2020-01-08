@@ -3060,8 +3060,7 @@ HRESULT CSecurityManager::CheckProxyBypassRule
     // Convert from unicode to ansi.
     char szHost[MAX_PATH];
     DWORD cbHost;
-    cbHost = WideCharToMultiByte
-    (CP_ACP, 0, pzc->pszSite, cchTotal, szHost, sizeof(szHost), NULL, NULL);
+    cbHost = WideCharToMultiByte(CP_ACP, 0, pzc->pszSite, cchTotal, szHost, sizeof(szHost), NULL, NULL);
     if (!cbHost)
         return S_FALSE;
 

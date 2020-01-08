@@ -565,14 +565,7 @@ SHORT WINAPI GetFileTitleA(
 
     if (!(fResult = GetFileTitleW(lpszFileW, lpszTitleW, cbBuf)))
     {
-        WideCharToMultiByte( CP_ACP,
-                             0,
-                             lpszTitleW,
-                             -1,
-                             lpszTitleA,
-                             cbBuf,
-                             NULL,
-                             NULL );
+        WideCharToMultiByte( CP_ACP, 0, lpszTitleW, -1, lpszTitleA, cbBuf, NULL, NULL );
     }
 
 

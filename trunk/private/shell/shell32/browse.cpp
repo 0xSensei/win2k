@@ -958,26 +958,11 @@ BOOL _BFSFSetSelectionW(PBFSF pbfsf, BOOL blParamIsPath, LPARAM lParam)
         INT cchPathA = 0;
 
         // BUGBUG REVIEW: Why doesn't this just use a MAX_PATH buffer?
-        cchPathA = WideCharToMultiByte(CP_ACP,
-                                       0,
-                                       (LPWSTR)lParam,
-                                       -1,
-                                       NULL,
-                                       0,
-                                       0,
-                                       0);
+        cchPathA = WideCharToMultiByte(CP_ACP, 0, (LPWSTR)lParam, -1, NULL, 0, 0, 0);
         if (0 < cchPathA) {
             lpszPathA = (LPSTR)LocalAlloc(LPTR, cchPathA * sizeof(TCHAR));
             if (NULL != lpszPathA) {
-                WideCharToMultiByte(CP_ACP,
-                                    0,
-                                    (LPWSTR)lParam,
-                                    -1,
-                                    lpszPathA,
-                                    cchPathA,
-                                    0,
-                                    0);
-
+                WideCharToMultiByte(CP_ACP, 0, (LPWSTR)lParam, -1, lpszPathA, cchPathA, 0, 0);
                 lParam = (LPARAM)SHSimpleIDListFromPath(lpszPathA);
                 LocalFree(lpszPathA);
             } else

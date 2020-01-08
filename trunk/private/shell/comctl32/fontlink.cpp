@@ -1115,25 +1115,11 @@ void _RgwchRgdxpCpToRgchRgdxp(const WCHAR* pwchSrc,
     if (pfUsedDefaultChar)
         *pfUsedDefaultChar = 0;
     while (--cchIn >= 0) {
-        cch = WideCharToMultiByte(cpg,
-                                  0,
-                                  pwchSrc++,
-                                  1,
-                                  rgch,
-                                  sizeof(rgch),
-                                  NULL,
-                                  &fUsedDefaultChar);
+        cch = WideCharToMultiByte(cpg, 0, pwchSrc++, 1, rgch, sizeof(rgch), NULL, &fUsedDefaultChar);
         if (pfUsedDefaultChar)
             *pfUsedDefaultChar |= fUsedDefaultChar;
         if (cch == 0) {
-            cch = WideCharToMultiByte(CP_ACP,
-                                      0,
-                                      pwchSrc - 1,
-                                      1,
-                                      rgch,
-                                      sizeof(rgch),
-                                      NULL,
-                                      NULL);
+            cch = WideCharToMultiByte(CP_ACP, 0, pwchSrc - 1, 1, rgch, sizeof(rgch), NULL, NULL);
         }
 
         if (cch == 0) {

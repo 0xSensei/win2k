@@ -201,65 +201,37 @@ PropertySheeDlgProc(
         {
             BOOL bSuccess = FALSE;
 
-
             // LATER: Check we are on Terminal Server client or not.
-
-
             BOOL bLocalConsole = TRUE;
-
             if (bLocalConsole)
             {
-
                 // Get the display device name from IDataObject.
-
-
                 FORMATETC fmte = {(CLIPFORMAT)RegisterClipboardFormat(DESKCPLEXT_DISPLAY_DEVICE),
                                   (DVTARGETDEVICE FAR *) NULL,
                                   DVASPECT_CONTENT,
                                   -1,
                                   TYMED_HGLOBAL};
-
                 STGMEDIUM stgm;
-
                 HRESULT hres = g_lpdoTarget->GetData(&fmte, &stgm);
-
                 if (SUCCEEDED(hres) && stgm.hGlobal)
                 {
-
                     // The storage now contains Display device path (\\.\DisplayX) in UNICODE.
-
-
                     PWSTR pDisplayDevice = (PWSTR) GlobalLock(stgm.hGlobal);
-
                     if (pDisplayDevice)
                     {
-
                         // Copy the data to local buffer.
-
-
                     #ifdef UNICODE
-
                         lstrcpy(gszWinDisplayDevice,pDisplayDevice);
                         bSuccess = TRUE;
-
                     #else
-
-                        bSuccess = (BOOL) WideCharToMultiByte(
-                                            CP_ACP,0,
-                                            pDisplayDevice,lstrlenW(pDisplayDevice)+1,
-                                            gszWinDisplayDevice,MAX_PATH,
-                                            NULL,NULL);
-
+                        bSuccess = (BOOL) WideCharToMultiByte(CP_ACP,0, pDisplayDevice,lstrlenW(pDisplayDevice)+1, gszWinDisplayDevice,MAX_PATH, NULL,NULL);
                     #endif
 
                         GlobalUnlock(stgm.hGlobal);
                     }
                 }
 
-
                 // let's build registry path for its hardware profie.
-
-
                 if (bSuccess)
                 {
                     TCHAR szServicePath[MAX_PATH];
