@@ -286,8 +286,8 @@ static DWORD g_MimeDwnThreadID = NULL;
 void MimeDownloadMsgLoop()
 {
     MSG msg;
-    // process messages
-    while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+
+    while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {// process messages
         ::DispatchMessage(&msg);
     }
 }
@@ -390,8 +390,7 @@ LRESULT MimeCleanupDownload(HWND hwnd, MimeDwnParserAction* pPA)
     // Since the Cleanup is triggered via ::SendMessage while the
     // OnDataAvail is triggered via ::PostMessage, we cannot just blindly
     // terminate. We have to let OnDataAvail messages go through first, because
-    // they write whatever data has been generated and commit the stream from
-    // the trident point of view.
+    // they write whatever data has been generated and commit the stream from the trident point of view.
     while (::PeekMessage(&msg, hwnd, WM_MIMECBDATA, WM_MIMECBDATA, PM_REMOVE))
         ::DispatchMessage(&msg);
 
@@ -409,7 +408,7 @@ LRESULT CALLBACK MimeWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_MIMECBDATA:
         // validity check probably no longer needed, but just in case
         if ((DWORD_PTR)g_pMimeDwnWndMgr && g_pMimeDwnWndMgr->IsGUIWndRegistered(hwnd))
-            ((MIMEBufferedStream*)lParam)->NotifyDataTrident((WORD)wParam);// WIN64, (WORD) is OK, because this really is a word
+            ((MIMEBufferedStream*)lParam)->NotifyDataTrident((WORD)wParam);//WIN64, (WORD) is OK, because this really is a word
         return 0L;
     case WM_MIMECBEND:
         return MimeCleanupDownload(hwnd, (MimeDwnParserAction*)lParam);
@@ -466,8 +465,7 @@ static g_cWindows = 0; // count of live windows !!
 // No harm calling this each time, if already initialized this just returns S_OK
 HRESULT InitializeMimeDwn(void)
 {
-    // create the thread mgr
-    if (!g_pMimeDwnWndMgr) {
+    if (!g_pMimeDwnWndMgr) {//create the thread mgr
         InitializeCriticalSection(&g_MimeDwnCSWndMgr);
 
         g_pMimeDwnWndMgr = new_ne MimeDwnWindowMgr(&g_MimeDwnCSWndMgr);
@@ -491,8 +489,7 @@ HRESULT InitializeMimeDwn(void)
             return E_FAIL;
     }
 
-    // create the queue
-    if (!g_pMimeDwnQueue) {
+    if (!g_pMimeDwnQueue) {//create the queue
         InitializeCriticalSection(&g_MimeDwnCSQueue);
 
         g_pMimeDwnQueue = new_ne MimeDwnQueue(&g_MimeDwnCSQueue);
@@ -542,22 +539,19 @@ void TerminateMimeDwn(void)
         }
     }
 
-    // wipe out the queue
-    if (g_pMimeDwnQueue) {
+    if (g_pMimeDwnQueue) {//wipe out the queue
         g_pMimeDwnQueue->Clear();
         SafeDelete(g_pMimeDwnQueue);
 
         DeleteCriticalSection(&g_MimeDwnCSQueue);// finally the critical sections
     }
 
-    // deregister the class
-    if (g_MimeClassAtom) {
+    if (g_MimeClassAtom) {//deregister the class
         UnregisterClassA(g_MimeWndClassName, g_hInstance);
         g_MimeClassAtom = NULL;
     }
 
-    // the ThreadMgr
-    if (g_pMimeDwnWndMgr) {
+    if (g_pMimeDwnWndMgr) {//the ThreadMgr
         EnterCriticalSection(&g_MimeDwnCSWndMgr);
         SafeDelete(g_pMimeDwnWndMgr);
         LeaveCriticalSection(&g_MimeDwnCSWndMgr);
@@ -618,7 +612,7 @@ void KillMimeDownloadThread(void)
         // But just to be paranoid in case this doesn't happen (who knows what
         // trident might do), we don't risk a total hang of IE.
         MsgWaitForDownloadObjects(1, &g_MimeDwnThread, FALSE, 10000);
-        
+
         CloseHandle(g_MimeDwnThread);// close it
         g_MimeDwnThread = NULL;
     }
@@ -655,12 +649,10 @@ DWORD MsgWaitForDownloadObjects(DWORD count, LPHANDLE lpObjHandle, BOOL fWaitAll
 
 //GUI PER DOWNLOAD MANAGER
 
-// For each GUI thread we create a hidden window which
-// is used to "marshall" the notification from the
+// For each GUI thread we create a hidden window which is used to "marshall" the notification from the
 // worker thread to the gui thread that data is available
 
-// We need a table because there is an option in IE to
-// launch a new browser as part of the same process
+// We need a table because there is an option in IE to launch a new browser as part of the same process
 // one to one corresponce between IE browser windows and a GUI thread
 // (multiple frames in a browser window execute on the same thread)
 MimeDwnWindowMgr::MimeDwnWindowMgr(CRITICAL_SECTION* cs)
@@ -672,8 +664,7 @@ MimeDwnWindowMgr::MimeDwnWindowMgr(CRITICAL_SECTION* cs)
 
 MimeDwnWindowMgr::~MimeDwnWindowMgr()
 {
-    // don't delete the windows. Let the process or gui thread delete the window
-    // as part of its [ab]normal exiting
+    // don't delete the windows. Let the process or gui thread delete the window as part of its [ab]normal exiting
     SafeDelete(_prMimeWnd);
 }
 
@@ -691,8 +682,7 @@ MDHANDLE MimeDwnWindowMgr::AddGUIWnd(void)
     EnterCriticalSection(m_pCS);
     fCS = TRUE;
 
-    // look for unused entry
-    if (_prMimeWnd) {
+    if (_prMimeWnd) {//look for unused entry
         for (i = 0, pSearch = _prMimeWnd; i < m_nSize; i++, pSearch++) {
             if (pSearch->_hWnd == NULL)
                 break;
@@ -701,8 +691,7 @@ MDHANDLE MimeDwnWindowMgr::AddGUIWnd(void)
     } else
         slot = 0;
 
-    // Grow the array we didn't find an unused slot
-    if (slot == m_nSize) {
+    if (slot == m_nSize) {//Grow the array we didn't find an unused slot
         newSize = m_nSize + MTLSCHUNK;
         prNew = new_ne WindInfo[newSize];
         if (!prNew)
@@ -720,22 +709,22 @@ MDHANDLE MimeDwnWindowMgr::AddGUIWnd(void)
     fCS = FALSE;
     LeaveCriticalSection(m_pCS);
 
-    // try and create the window
+    //try and create the window
     h = CreateWindowA(g_MimeWndClassName, NULL, WS_POPUP, 0, 0, 0, 0, NULL, NULL, g_hInstance, NULL);
     if (!h)
         goto CleanUp;
 #ifdef _DEBUG
     g_cWindows++;
 #endif
-    // stuff in the window
-    EnterCriticalSection(m_pCS);
+
+    EnterCriticalSection(m_pCS);//stuff in the window
     fCS = TRUE;
     Assert(_prMimeWnd);
 
     _prMimeWnd[slot]._hWnd = h;
     _prMimeWnd[slot]._ulRefs = 1;
 
-    mdh = slot + 1;// return one-based handle so NULL can be used
+    mdh = slot + 1;//return one-based handle so NULL can be used
 
 CleanUp:
     if (fCS)
@@ -786,7 +775,7 @@ HRESULT MimeDwnWindowMgr::ReleaseGUIWnd(MDHANDLE handle)
 #ifdef _DEBUG
             g_cWindows--;
 #endif
-            ph->_hWnd = NULL;// clear the handle
+            ph->_hWnd = NULL;//clear the handle
         }
         hr = S_OK;
     } else

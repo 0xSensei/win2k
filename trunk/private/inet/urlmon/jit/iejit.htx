@@ -104,11 +104,18 @@
 	</td>
 </tr>
 <tr height="20px" id="DownloadTexts">
-	<td nowrap width="20%" valign="bottom" id="SizeText" helpid="50457" style="padding-left:4px">Download Size:</td>
-	<td width="18%" nowrap align="right" valign="bottom" id="DLSizeText" helpid="50457"><span id="totalDownloadSize"></span></td>
+	<td nowrap width="20%" valign="bottom" id="SizeText" helpid="50457" style="padding-left:4px">
+	Download Size:
+	</td>
+	<td width="18%" nowrap align="right" valign="bottom" id="DLSizeText" helpid="50457">
+	<span id="totalDownloadSize"></span>
+	</td>
 	<td width="10%" id="blanksp1">&nbsp;</td>
 	<td nowrap width="20%" valign="bottom" id="DownloadTimeText" helpid="50458">Download Time:</td>
-	<td width="16%" nowrap align="right" valign="bottom" id="DLTimeText" helpid="50458"><span id="totalDownloadTime"></span></td>
+	<td width="16%" nowrap align="right" valign="bottom" id="DLTimeText" helpid="50458">
+	<span id="totalDownloadTime">
+	</span>
+	</td>
 	<td width="16%" id="blanksp2">&nbsp;</td>
 </tr>
 
@@ -118,8 +125,10 @@
 	<object ID="engine" WIDTH="1" HEIGHT="1" CLASSID="CLSID:6E449683-C509-11CF-AAFA-00AA00B6015C" CODEBASE="actsetup.cab#Version=4,71,1712,0">
 	</object>
 	</td>
-	<td colspan=6><input type="checkbox" title="Never download any of these components." id="checkboxNever" accessKey="V" onclick="CheckClick()" tabindex="3" helpid="50459">
-		<span id="NeverDownloadText" onclick="checkboxNever.click()" style="font-family: MS Shell Dlg; font-size: 8pt; background: buttonface" tabindex="-1" helpid="50459">
+	<td colspan=6><input type="checkbox" title="Never download any of these components." 
+	id="checkboxNever" accessKey="V" onclick="CheckClick()" tabindex="3" helpid="50459">
+		<span id="NeverDownloadText" onclick="checkboxNever.click()" 
+		style="font-family: MS Shell Dlg; font-size: 8pt; background: buttonface" tabindex="-1" helpid="50459">
 			Ne<u>v</u>er download any of these components.
 		</span>
 	</td>
@@ -132,19 +141,22 @@
 		<table style="border-collapse:collapse;" border=0>
 			<tr>
 				<td id="OKButtonbox">
-					<button id="OKButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" onClick="downloadComponents()" tabindex="1" helpid="50510">
+					<button id="OKButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" 
+					onClick="downloadComponents()" tabindex="1" helpid="50510">
 					OK
 					</button>
 				</td>
 				<td id="downloadButtonbox">
-					<button id="downloadButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" onClick="downloadComponents()" tabindex="1" helpid="50461" accessKey="D">
+					<button id="downloadButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button"
+					onClick="downloadComponents()" tabindex="1" helpid="50461" accessKey="D">
 					<u>D</u>
 					ownload
 					</button>
 				</td>
 				<td id="blanksp3">&nbsp;</td>
 				<td>
-					<button id="cancelButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" onClick="verifyCancel()" tabindex="2" helpid="50462">
+					<button id="cancelButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" 
+					onClick="verifyCancel()" tabindex="2" helpid="50462">
 					Cancel
 					</button>
 				</td>

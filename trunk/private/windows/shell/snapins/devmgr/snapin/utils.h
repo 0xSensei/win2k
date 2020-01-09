@@ -17,6 +17,7 @@ Author:
 
 // Memory allocation exception class
 
+
 class CMemoryException
 {
 public:
