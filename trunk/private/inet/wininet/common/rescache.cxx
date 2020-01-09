@@ -86,7 +86,6 @@ PRIVATE DEBUG_FUNCTION LPSTR CacheMapIpAddress(IN LPBYTE Address);
 // functions
 
 
-
 VOID InitializeHostentCache(VOID)
 /*++
 Routine Description:
@@ -107,8 +106,7 @@ Routine Description:
         if (MaximumDnsCacheEntries == 0) {
             DnsCachingEnabled = FALSE;
         }
-    } else {
-        // shouldn't be calling this more than once
+    } else {// shouldn't be calling this more than once
         INET_ASSERT(FALSE);
     }
 
@@ -159,8 +157,7 @@ Return Value:
                  Name,
                  CacheMapIpAddress(Address),
                  Hostent,
-                 TimeToLive
-                 ));
+                 TimeToLive));
 
     BOOL found;
 
@@ -197,18 +194,13 @@ Return Value:
                 // this entry is stale; throw it out
                 // "my hovercraft is full of eels"
 
-
                 DEBUG_PRINT(SOCKETS,
                             INFO,
                             ("throwing out stale DNS entry %q, expiry = %s\n",
                              cacheEntry->Hostent.h_name,
-                             CacheTimestr(cacheEntry->ExpirationTime)
-                             ));
-
+                             CacheTimestr(cacheEntry->ExpirationTime)));
 
                 // BUGBUG - what happens if ExpirationTime == timeNow?
-
-
                 previousEntry = (LPRESOLVER_CACHE_ENTRY)cacheEntry->ListEntry.Blink;
                 RemoveCacheEntry(cacheEntry);
                 cacheEntry = previousEntry;
@@ -216,8 +208,7 @@ Return Value:
         } else if (ResolverCacheHit(cacheEntry, Name, Address) &&
             ((cacheEntry->State == ENTRY_UNUSED) || (cacheEntry->State == ENTRY_IN_USE))) {
             // we found the entry, and it still has time to live. Make it the
-            // head of the list (MRU first), set the state to in-use and increase
-            // the reference count
+            // head of the list (MRU first), set the state to in-use and increase the reference count
 
             RemoveFromSerializedList(&ResolverCache, &cacheEntry->ListEntry);
             InsertAtHeadOfSerializedList(&ResolverCache, &cacheEntry->ListEntry);
@@ -261,8 +252,6 @@ Arguments:
                         LIVE_FOREVER    - don't timeout (but can be discarded)
                         LIVE_DEFAULT    - use the default value
                         anything else   - number of seconds to live
-Return Value:
-    None.
 --*/
 {
     DEBUG_ENTER((DBG_SOCKETS, None, "CacheHostent", "%q, %#x, %d", lpszHostName, Hostent, TimeToLive));
@@ -274,10 +263,8 @@ Return Value:
 
     LockSerializedList(&ResolverCache);
 
-
     // check that the entry is not already in the cache - 2 or more threads may
     // have been simultaneously resolving the same name
-
 
     LPHOSTENT lpHostent;
     DWORD ttl;
@@ -294,15 +281,12 @@ Return Value:
         // DELETE. This may result in the cache list growing until those threads
         // which have referenced cache entries release them
 
-
         cacheEntry = (LPRESOLVER_CACHE_ENTRY)TailOfSerializedList(&ResolverCache);
 
         while ((CurrentDnsCacheEntries >= MaximumDnsCacheEntries)
                && (cacheEntry != (LPRESOLVER_CACHE_ENTRY)SlSelf(&ResolverCache))) {
             // cache has maximum entries: throw out the Least Recently Used (its
-            // the one at the back of the queue, ma'am) but only if no-one else
-            // is currently accessing it
-
+            // the one at the back of the queue, ma'am) but only if no-one else is currently accessing it
 
             if ((cacheEntry->State != ENTRY_IN_USE) && (cacheEntry->ReferenceCount == 0)) {
                 INET_ASSERT((cacheEntry->State == ENTRY_UNUSED) || (cacheEntry->State == ENTRY_DELETE));
@@ -322,15 +306,13 @@ Return Value:
 
         // add the entry at the head of the queue - it is the Most Recently Used
         // after all. If we fail to allocate memory, its no problem: it'll just
-        // take a little longer if this entry would have been hit before we needed
-        // to throw out another entry
+        // take a little longer if this entry would have been hit before we needed to throw out another entry
         if (cacheEntry = CreateCacheEntry(lpszHostName, Hostent, TimeToLive)) {
             DEBUG_PRINT(SOCKETS,
                         INFO,
                         ("caching %q, expiry = %s\n",
                          CacheHostentStr(&cacheEntry->Hostent),
-                         CacheTimestr(cacheEntry->ExpirationTime)
-                         ));
+                         CacheTimestr(cacheEntry->ExpirationTime)));
 
             InsertAtHeadOfSerializedList(&ResolverCache, &cacheEntry->ListEntry);
             ++CurrentDnsCacheEntries;
@@ -354,10 +336,6 @@ VOID FlushHostentCache(VOID)
 /*++
 Routine Description:
     Removes all entries in DNS hostent cache
-Arguments:
-    None.
-Return Value:
-    None.
 --*/
 {
     DEBUG_ENTER((DBG_SOCKETS, None, "FlushHostentCache", NULL));
@@ -393,8 +371,6 @@ Routine Description:
     Either mark a hostent unused or if it is stale, delete it
 Arguments:
     lpHostent   - pointer to hostent to free
-Return Value:
-    None.
 --*/
 {
     DEBUG_ENTER((DBG_SOCKETS, None, "ReleaseHostentCacheEntry", "%#x", lpHostent));
@@ -402,10 +378,7 @@ Return Value:
 
     LockSerializedList(&ResolverCache);
 
-
     // reference count should never go below zero!
-
-
     INET_ASSERT(cacheEntry->ReferenceCount > 0);
 
     if (--cacheEntry->ReferenceCount <= 0) {
@@ -438,8 +411,6 @@ Routine Description:
     we should be able to throw it out
 Arguments:
     lpHostent   - pointer to host entry containing details (name) of entry to throw out
-Return Value:
-    None.
 --*/
 {
     DEBUG_ENTER((DBG_SOCKETS,
@@ -447,8 +418,7 @@ Return Value:
                  "ThrowOutHostentCacheEntry",
                  "%#x [%q]",
                  lpHostent,
-                 lpHostent->h_name
-                 ));
+                 lpHostent->h_name));
 
     if (DnsCachingEnabled) {
         LockSerializedList(&ResolverCache);
@@ -486,8 +456,6 @@ Routine Description:
     N.B.: This function must be called with the resolver cache serialized list already locked
 Arguments:
     lpCacheEntry    - currently queued entry to remove
-Return Value:
-    None.
 --*/
 {
     DEBUG_ENTER((DBG_SOCKETS, None, "RemoveCacheEntry", "%#x", lpCacheEntry));
@@ -501,8 +469,7 @@ Return Value:
                 INFO,
                 ("throwing out %q, expiry = %s\n",
                  CacheHostentStr(&lpCacheEntry->Hostent),
-                 CacheTimestr(lpCacheEntry->ExpirationTime)
-                 ));
+                 CacheTimestr(lpCacheEntry->ExpirationTime)));
 
     lpCacheEntry = (LPRESOLVER_CACHE_ENTRY)FREE_MEMORY((HLOCAL)lpCacheEntry);
 
@@ -513,8 +480,7 @@ Return Value:
     DEBUG_PRINT(SOCKETS,
                 INFO,
                 ("CurrentDnsCacheEntries = %d\n",
-                 CurrentDnsCacheEntries
-                 ));
+                 CurrentDnsCacheEntries));
 
     INET_ASSERT((CurrentDnsCacheEntries >= 0) && (CurrentDnsCacheEntries <= MaximumDnsCacheEntries));
 
@@ -534,8 +500,6 @@ Arguments:
     lpCacheEntry    - pointer to RESOLVER_CACHE_ENTRY to check
     Name            - optional name to check
     Address         - optional server address to check
-Return Value:
-    BOOL
 --*/
 {
     DEBUG_ENTER((DBG_SOCKETS,
@@ -544,8 +508,7 @@ Return Value:
                  "%#x, %q, %s",
                  lpCacheEntry,
                  Name,
-                 CacheMapIpAddress(Address)
-                 ));
+                 CacheMapIpAddress(Address)));
 
     BOOL found;
 
@@ -575,8 +538,6 @@ Arguments:
     Hostent - pointer to hostent to compare
     Name    - pointer to name string
     Address - pointer to IP address in network byte order
-Return Value:
-    BOOL
 --*/
 {
     DEBUG_ENTER((DBG_SOCKETS, Bool, "HostentMatch", "%#x, %q, %s", Hostent, Name, CacheMapIpAddress(Address)));
@@ -628,11 +589,7 @@ Return Value:
     LPRESOLVER_CACHE_ENTRY cacheEntry;
     UINT hostentSize;
 
-
-    // BytesInHostent gives us the size of the fixed and variable parts of the
-    // hostent structure
-
-
+    // BytesInHostent gives us the size of the fixed and variable parts of the hostent structure
     hostentSize = (UINT)BytesInHostent(Hostent);
 
     INET_ASSERT(lpszHostName != NULL);
@@ -652,8 +609,7 @@ Return Value:
                                                          sizeof(RESOLVER_CACHE_ENTRY)
                                                          - sizeof(HOSTENT)
                                                          + hostentSize
-                                                         + hostNameSize
-    );
+                                                         + hostNameSize);
     if (cacheEntry != NULL) {
         CopyHostentToBuffer((PCHAR)&cacheEntry->Hostent, hostentSize, Hostent);
 
@@ -688,8 +644,6 @@ Routine Description:
 Arguments:
     Hostent - pointer to hostent containing names to compare
     Name    - prospective host name
-Return Value:
-    BOOL
 --*/
 {
     DEBUG_ENTER((DBG_SOCKETS, Bool, "CompareHostentNames", "%#x, %q", Hostent, Name));
@@ -732,7 +686,6 @@ PRIVATE DWORD BytesInHostent(IN LPHOSTENT Hostent)
     total = sizeof(HOSTENT);
     total += lstrlen(Hostent->h_name) + 1;
 
-
     // Account for the NULL terminator pointers at the end of the alias and address arrays.
 
     total += sizeof(char*) + sizeof(char*);
@@ -746,7 +699,6 @@ PRIVATE DWORD BytesInHostent(IN LPHOSTENT Hostent)
     }
 
     // Pad the answer to an eight-byte boundary.
-
     return (total + 7) & ~7;
 }
 
@@ -761,7 +713,6 @@ PRIVATE DWORD CopyHostentToBuffer(OUT PCHAR Buffer, IN UINT BufferLength, IN LPH
     UINT i;
     PHOSTENT outputHostent = (PHOSTENT)Buffer;
 
-
     // Determine how many bytes are needed to fully copy the structure.
     requiredBufferLength = (UINT)BytesInHostent(Hostent);
 
@@ -773,7 +724,6 @@ PRIVATE DWORD CopyHostentToBuffer(OUT PCHAR Buffer, IN UINT BufferLength, IN LPH
     }
 
     // Copy over the hostent structure if it fits.
-
     bytesFilled = sizeof(*Hostent);
 
     if (bytesFilled > (DWORD)BufferLength) {
@@ -787,12 +737,8 @@ PRIVATE DWORD CopyHostentToBuffer(OUT PCHAR Buffer, IN UINT BufferLength, IN LPH
     outputHostent->h_aliases = NULL;
     outputHostent->h_addr_list = NULL;
 
-
-    // Count the host's aliases and set up an array to hold pointers to
-    // them.
-    for (aliasCount = 0;
-         Hostent->h_aliases[aliasCount] != NULL;
-         aliasCount++);
+    // Count the host's aliases and set up an array to hold pointers to them.
+    for (aliasCount = 0; Hostent->h_aliases[aliasCount] != NULL; aliasCount++);
 
     bytesFilled += (aliasCount + 1) * sizeof(char FAR*);
 
@@ -804,11 +750,8 @@ PRIVATE DWORD CopyHostentToBuffer(OUT PCHAR Buffer, IN UINT BufferLength, IN LPH
     outputHostent->h_aliases = (char FAR * FAR*)currentLocation;
     currentLocation = Buffer + bytesFilled;
 
-    // Count the host's addresses and set up an array to hold pointers to
-    // them.
-    for (addressCount = 0;
-         Hostent->h_addr_list[addressCount] != NULL;
-         addressCount++);
+    // Count the host's addresses and set up an array to hold pointers to them.
+    for (addressCount = 0; Hostent->h_addr_list[addressCount] != NULL; addressCount++);
 
     bytesFilled += (addressCount + 1) * sizeof(void FAR*);
 
@@ -875,25 +818,19 @@ PRIVATE DWORD CopyHostentToBuffer(OUT PCHAR Buffer, IN UINT BufferLength, IN LPH
 // CAVEAT - can only call these functions once per printf() etc. because of
 //          static buffers (but still thread-safe)
 
-
 PRIVATE DEBUG_FUNCTION LPSTR CacheTimestr(IN DWORD Time)
 {
     // previous code - writes formatted human-sensible date/time to buffer
 
-
     //LPSTR p;
 
-
     // remove the LF from the time string returned by ctime()
-
 
     //p = ctime((const time_t *)&Time);
     //p[strlen(p) - 1] = '\0';
     //return p;
 
-
     // abbreviated CRT version - just write # seconds since 1970 to buffer
-
 
     static char buf[16];
 
@@ -948,7 +885,6 @@ Module Name:
     rescache.c
 
 Abstract:
-
     Contains name resolution cache
 
     Contents:
@@ -964,50 +900,38 @@ Revision History:
         Created
 --*/
 
-
 //BUGBUG: This include should be removed, duplicate of above
-
 #ifndef SPX_SUPPORT
 #include <wininetp.h>
 #endif
 
-
-
 // private manifests
-
-
-#define NAMERES_CACHE_USED            0x00000001
-#define NAMERES_CACHE_USES_GUID       0x00000002
+#define NAMERES_CACHE_USED       0x00000001
+#define NAMERES_CACHE_USES_GUID  0x00000002
 
 #define ENTERCRIT_NAMERESCACHE()  EnterCriticalSection(&vcritNameresCache)
 #define LEAVECRIT_NAMERESCACHE()  LeaveCriticalSection(&vcritNameresCache)
 #define IS_EMPTY(indx)            ((vlpNameresCache[(indx)].dwFlags & NAMERES_CACHE_USED) == 0)
 #define USES_GUID(indx)           ((vlpNameresCache[(indx)].dwFlags & NAMERES_CACHE_USES_GUID))
 
-// number of cache entries
-#define DEFAULT_NAMERES_CACHE_ENTRIES   10
+#define DEFAULT_NAMERES_CACHE_ENTRIES   10// number of cache entries
 
 // expiry time for an addresslist
 #define DEFAULT_EXPIRY_DELTA            (24 * 60 * 60 * (LONGLONG)10000000)
 
-
-
 //  structure definition
-
-
 typedef struct tagNAMERES_CACHE {
-    DWORD               dwFlags;       // general flags to be used as needed
-    DWORD               dwNameSpace;   // namespace ??
-    GUID                sGuid;         // GUID describing service type
-    LPSTR               lpszName;      // ptr to name that needs resolution
-    FILETIME            ftLastUsedTime;    // last accesstime, mainly for purging
-    FILETIME            ftCreationTime;// When it was created
-    ADDRESS_INFO_LIST   sAddrList;     // List of address (defined in ixport.h)
+    DWORD             dwFlags;       // general flags to be used as needed
+    DWORD             dwNameSpace;   // namespace ??
+    GUID              sGuid;         // GUID describing service type
+    LPSTR             lpszName;      // ptr to name that needs resolution
+    FILETIME          ftLastUsedTime;// last accesstime, mainly for purging
+    FILETIME          ftCreationTime;// When it was created
+    ADDRESS_INFO_LIST sAddrList;     // List of address (defined in ixport.h)
 } NAMERES_CACHE, far* LPNAMERES_CACHE;
 
 
 // private variables for name resolution cache
-
 
 // Name cache size allocated in init
 LPNAMERES_CACHE vlpNameresCache = NULL;
@@ -1015,18 +939,15 @@ LPNAMERES_CACHE vlpNameresCache = NULL;
 // Number of elements allowed in the nameres cache
 int vcntNameresCacheEntries = DEFAULT_NAMERES_CACHE_ENTRIES;
 
-
 // time in 100ns after which an address is expired
 LONGLONG vftExpiryDelta = DEFAULT_EXPIRY_DELTA;
 
 BOOL vfNameresCacheInited = FALSE;
 
-// serialization
-CRITICAL_SECTION vcritNameresCache;
+CRITICAL_SECTION vcritNameresCache;// serialization
 
 
 // private function prototypes
-
 
 
 PRIVATE
@@ -1039,49 +960,16 @@ CreateNameresCacheEntry(
     INT     cntAddresses,
     LPCSADDR_INFO  lpCsaddrInfo
 );
-
-
-PRIVATE
-DWORD
-DeleteNameresCacheEntry(
-    int indx
+PRIVATE DWORD DeleteNameresCacheEntry(int indx);
+PRIVATE int FindNameresCacheEntry(DWORD dwNameSpace, LPGUID lpGuid, LPSTR lpszName);
+PRIVATE int FindNameresCacheEntryByAddr(int cntAddr, LPCSADDR_INFO lpCsaddrInfo);
+PRIVATE int PurgeEntries(BOOL    fForce  // purge atleast one entry
 );
 
-
-PRIVATE
-int
-FindNameresCacheEntry(
-    DWORD   dwNameSpace,
-    LPGUID  lpGuid,
-    LPSTR   lpszName
-);
-
-
-PRIVATE
-int
-FindNameresCacheEntryByAddr(
-    int cntAddr,
-    LPCSADDR_INFO lpCsaddrInfo
-);
-
-PRIVATE
-int
-PurgeEntries(
-    BOOL    fForce  // purge atleast one entry
-);
-
-
-PRIVATE
-DWORD
-CopyCsaddr(
-    LPCSADDR_INFO   lpSrc,
-    int             cntAddr,
-    LPCSADDR_INFO* lplpDst
-);
+PRIVATE DWORD CopyCsaddr(LPCSADDR_INFO lpSrc, int cntAddr, LPCSADDR_INFO* lplpDst);
 
 
 // functions
-
 
 
 DWORD InitNameresCache(VOID)
@@ -1111,7 +999,6 @@ Return Value:
     LEAVECRIT_NAMERESCACHE();
 
     return (ERROR_SUCCESS);
-
 }
 
 
@@ -1158,12 +1045,7 @@ Return Value:
 }
 
 
-DWORD
-RemoveNameresCacheEntry(
-    DWORD    dwNameSpace,
-    LPGUID   lpGuid,
-    LPSTR    lpszName
-)
+DWORD RemoveNameresCacheEntry(DWORD dwNameSpace, LPGUID lpGuid, LPSTR lpszName)
 /*++
 Return Value:
     ERROR_SUCCESS if successful.
@@ -1241,23 +1123,16 @@ Return Value:
     }
 
     ENTERCRIT_NAMERESCACHE();
-
-    // is this entry already cached?
-    indx = FindNameresCacheEntry(dwNameSpace, lpGuid, lpName);
-
-
+    
+    indx = FindNameresCacheEntry(dwNameSpace, lpGuid, lpName);// is this entry already cached?
     if (indx != -1) {
         // yes, let use give back the info
-
         *lpcntAddresses = vlpNameresCache[indx].sAddrList.AddressCount;
-
         if ((dwError = CopyCsaddr(vlpNameresCache[indx].sAddrList.Addresses, *lpcntAddresses, lplpCsaddrInfo))
             != ERROR_SUCCESS) {
-
             goto bailout;
         }
-        // update the last used time, we will use this to
-        // age out the entries
+        // update the last used time, we will use this to age out the entries
 
         GetCurrentGmtTime(&(vlpNameresCache[indx].ftLastUsedTime));
         dwError = ERROR_SUCCESS;
@@ -1289,7 +1164,6 @@ Return Value:
         FREE_MEMORY(vlpNameresCache);
 
         vlpNameresCache = NULL;
-
         vfNameresCacheInited = FALSE;
 
         LEAVECRIT_NAMERESCACHE();
@@ -1318,9 +1192,7 @@ Return Value:
     DWORD dwError = ERROR_NOT_ENOUGH_MEMORY;
 
     INET_ASSERT((indx >= 0 && (indx < vcntNameresCacheEntries)));
-
     INET_ASSERT(IS_EMPTY(indx));
-
 
     memset(&vlpNameresCache[indx], 0, sizeof(vlpNameresCache[indx]));
 
@@ -1351,12 +1223,9 @@ Return Value:
     }
 
     vlpNameresCache[indx].sAddrList.AddressCount = cntAddresses;
-
-    // mark this as being non-empty
-    vlpNameresCache[indx].dwFlags |= NAMERES_CACHE_USED;
+    vlpNameresCache[indx].dwFlags |= NAMERES_CACHE_USED;// mark this as being non-empty
 
     // set the creation and last-used times as now
-
     GetCurrentGmtTime(&(vlpNameresCache[indx].ftCreationTime));
     vlpNameresCache[indx].ftLastUsedTime = vlpNameresCache[indx].ftCreationTime;
 
@@ -1424,11 +1293,7 @@ Return Value:
 #endif //MAYBE
 
 
-PRIVATE int FindNameresCacheEntry(
-    DWORD   dwNameSpace,
-    LPGUID  lpGuid,
-    LPSTR   lpszName
-)
+PRIVATE int FindNameresCacheEntry(DWORD dwNameSpace, LPGUID lpGuid, LPSTR lpszName)
 /*++
 Return Value:
     ERROR_SUCCESS if successful.
@@ -1458,7 +1323,7 @@ Return Value:
 }
 
 
-PRIVATE int PurgeEntries(BOOL    fForce  // purge atleast one entry
+PRIVATE int PurgeEntries(BOOL fForce // purge atleast one entry
 )
 /*++
 Return Value:
@@ -1475,8 +1340,7 @@ Return Value:
         if (!IS_EMPTY(i)) {
 
             // purge stale entries
-            if ((FT2LL(ft) - FT2LL(vlpNameresCache[i].ftCreationTime))
-    > FT2LL(vftExpiryDelta)) {
+            if ((FT2LL(ft) - FT2LL(vlpNameresCache[i].ftCreationTime)) > FT2LL(vftExpiryDelta)) {
                 DeleteNameresCacheEntry(i);
                 indxHole = i;
             } else if (FT2LL(vlpNameresCache[i].ftLastUsedTime) <= FT2LL(ft)) {
@@ -1502,11 +1366,7 @@ Return Value:
 }
 
 
-PRIVATE DWORD CopyCsaddr(
-    LPCSADDR_INFO   lpSrc,
-    int             cntAddr,
-    LPCSADDR_INFO* lplpDst
-)
+PRIVATE DWORD CopyCsaddr(LPCSADDR_INFO lpSrc, int cntAddr, LPCSADDR_INFO* lplpDst)
 {
     int i;
     LPCSADDR_INFO lpDst;

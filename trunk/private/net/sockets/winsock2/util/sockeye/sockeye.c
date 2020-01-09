@@ -72,17 +72,17 @@ char  gszDefServName[MAX_STRING_PARAM_SIZE];
 
 
 char* PASCAL GetTimeStamp(void);
-void ShowStructByField(PSTRUCT_FIELD_HEADER    pHeader, BOOL    bSubStructure);
+void ShowStructByField(PSTRUCT_FIELD_HEADER pHeader, BOOL bSubStructure);
 VOID PASCAL ShowGUID(char* pszProlog, GUID* pGuid);
 void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex);
 
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE   hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-    MSG     msg;
-    HWND    hwnd;
-    DWORD   i;
-    HACCEL  hAccel;
+    MSG msg;
+    HWND hwnd;
+    DWORD i;
+    HACCEL hAccel;
 
     ghInst = hInstance;
 
@@ -122,9 +122,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE   hPrevInstance, LPSTR lpCmdLi
 }
 
 
-LPVOID PASCAL MyAlloc(SIZE_T   dwSize)
+LPVOID PASCAL MyAlloc(SIZE_T dwSize)
 {
-    LPVOID  p;
+    LPVOID p;
 
     if (!(p = LocalAlloc(LPTR, dwSize))) {
         ShowStr("LocalAlloc (LPTR, x%x) failed, error=%d", GetLastError());
@@ -134,7 +134,7 @@ LPVOID PASCAL MyAlloc(SIZE_T   dwSize)
 }
 
 
-void PASCAL MyFree(LPVOID  p)
+void PASCAL MyFree(LPVOID p)
 {
     if (p) {
         LocalFree(p);
@@ -144,8 +144,8 @@ void PASCAL MyFree(LPVOID  p)
 
 void GetCurrentSelections(void)
 {
-    LRESULT   lSel = SendMessage(ghwndList1, LB_GETCURSEL, 0, 0);
-    LRESULT   lSelCount = SendMessage(ghwndList3, LB_GETSELCOUNT, 0, 0);
+    LRESULT lSel = SendMessage(ghwndList1, LB_GETCURSEL, 0, 0);
+    LRESULT lSelCount = SendMessage(ghwndList3, LB_GETSELCOUNT, 0, 0);
 
     if ((lSel = SendMessage(ghwndList1, LB_GETCURSEL, 0, 0)) != LB_ERR) {
         glCurrentSelection = lSel;
@@ -177,7 +177,7 @@ BOOL LetUserMungeParams(PFUNC_PARAM_HEADER pParamsHeader)
 }
 
 
-INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam)
+INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     static HICON  hIcon;
     static HMENU  hMenu;
@@ -195,8 +195,8 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
 
     typedef struct _XXX
     {
-        DWORD   dwMenuID;
-        DWORD   dwFlags;
+        DWORD dwMenuID;
+        DWORD dwFlags;
     } XXX, * PXXX;
 
     static XXX aXxx[] =
@@ -210,9 +210,9 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
     switch (msg) {
     case WM_INITDIALOG:
     {
-        RECT    rect;
-        char    buf[64];
-        DWORD   dwInitialized;
+        RECT  rect;
+        char  buf[64];
+        DWORD dwInitialized;
 
         wsprintf(buf, "WinSock API Browser (ProcessID=x%x)", GetCurrentProcessId());
         SetWindowText(hwnd, buf);
@@ -384,7 +384,7 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
                 // Watch to see if the edit control is full, & if so purge the top half of the text to make room for more
                 int length = GetWindowTextLength(ghwndEdit);
 
-                //                if (length > iMaxEditTextLength)
+                //if (length > iMaxEditTextLength)
                 if (length > 29998) {
 #ifdef WIN32
                     SendMessage(ghwndEdit, EM_SETSEL, (WPARAM)0, (LPARAM)10000);
@@ -1044,33 +1044,33 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
 
             DEF_VALUE2 aDefVals[] =
             {
-                { "BufSize",            dwBigBufSize },
-                { "UserButton1",        aUserButtonFuncs[0] },
-                { "UserButton2",        aUserButtonFuncs[1] },
-                { "UserButton3",        aUserButtonFuncs[2] },
-                { "UserButton4",        aUserButtonFuncs[3] },
-                { "UserButton5",        aUserButtonFuncs[4] },
-                { "UserButton6",        aUserButtonFuncs[5] },
-                { "Initialized",        1 },
-                { gszAddressFamily,     gdwDefAddrFamily },
-                { gszSocketType,        gdwDefSocketType },
-                { gszProtocol,          gdwDefProtocol },
-                { gszProtocolNumber,    gdwDefProtoNum },
-                { gszPortNumber,        gdwDefPortNum },
-                { gszIoctlCommand,      gdwDefIoctlCmd },
-                { gszSendFlags,         gdwDefSendFlags },
-                { gszRecvFlags,         gdwDefRecvFlags },
-                { gszWSASocketFlags,    gdwDefWSASocketFlags },
+                { "BufSize",         dwBigBufSize },
+                { "UserButton1",     aUserButtonFuncs[0] },
+                { "UserButton2",     aUserButtonFuncs[1] },
+                { "UserButton3",     aUserButtonFuncs[2] },
+                { "UserButton4",     aUserButtonFuncs[3] },
+                { "UserButton5",     aUserButtonFuncs[4] },
+                { "UserButton6",     aUserButtonFuncs[5] },
+                { "Initialized",     1 },
+                { gszAddressFamily,  gdwDefAddrFamily },
+                { gszSocketType,     gdwDefSocketType },
+                { gszProtocol,       gdwDefProtocol },
+                { gszProtocolNumber, gdwDefProtoNum },
+                { gszPortNumber,     gdwDefPortNum },
+                { gszIoctlCommand,   gdwDefIoctlCmd },
+                { gszSendFlags,      gdwDefSendFlags },
+                { gszRecvFlags,      gdwDefRecvFlags },
+                { gszWSASocketFlags, gdwDefWSASocketFlags },
                 { NULL, 0 },
-                { gszHostName,          (ULONG_PTR)gszDefHostName },
-                { gszProtocolName,      (ULONG_PTR)gszDefProtoName },
-                { gszServiceName,       (ULONG_PTR)gszDefServName },
-                { "UserButton1Text",    (ULONG_PTR)&aUserButtonsText[0] },
-                { "UserButton2Text",    (ULONG_PTR)&aUserButtonsText[1] },
-                { "UserButton3Text",    (ULONG_PTR)&aUserButtonsText[2] },
-                { "UserButton4Text",    (ULONG_PTR)&aUserButtonsText[3] },
-                { "UserButton5Text",    (ULONG_PTR)&aUserButtonsText[4] },
-                { "UserButton6Text",    (ULONG_PTR)&aUserButtonsText[5] },
+                { gszHostName,       (ULONG_PTR)gszDefHostName },
+                { gszProtocolName,   (ULONG_PTR)gszDefProtoName },
+                { gszServiceName,    (ULONG_PTR)gszDefServName },
+                { "UserButton1Text", (ULONG_PTR)&aUserButtonsText[0] },
+                { "UserButton2Text", (ULONG_PTR)&aUserButtonsText[1] },
+                { "UserButton3Text", (ULONG_PTR)&aUserButtonsText[2] },
+                { "UserButton4Text", (ULONG_PTR)&aUserButtonsText[3] },
+                { "UserButton5Text", (ULONG_PTR)&aUserButtonsText[4] },
+                { "UserButton6Text", (ULONG_PTR)&aUserButtonsText[5] },
                 { NULL, 0 }
             };
 
@@ -1078,7 +1078,6 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
 
             for (i = 0; aDefVals[i].lpszEntry; i++) {
                 sprintf(buf, "%lx", aDefVals[i].dwValue);
-
                 WriteProfileString(gszSockEye, aDefVals[i].lpszEntry, buf);
             }
 
@@ -1094,7 +1093,6 @@ INT_PTR CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM  wParam, LPARAM  lParam
                     strcpy(buf, "max");
                 } else {
                     GetWindowRect(hwnd, &rect);
-
                     sprintf(buf, "%d,%d,%d,%d", rect.left, rect.top, rect.right, rect.bottom);
                 }
 
@@ -1201,8 +1199,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 {
     DWORD  i;
 
-    typedef struct _DLG_INST_DATA
-    {
+    typedef struct _DLG_INST_DATA {
         PFUNC_PARAM_HEADER pParamsHeader;
         LRESULT lLastSel;
         char szComboText[MAX_STRING_PARAM_SIZE];
@@ -1270,7 +1267,7 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
         }
 
         {
-            RECT    rect;
+            RECT rect;
 
             GetWindowRect(GetDlgItem(hwnd, IDC_LIST2), &rect);
 
@@ -1297,8 +1294,8 @@ INT_PTR CALLBACK ParamsDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                 // Don't allow the user to enter characters other than
                 // 0-9, a-f, or A-F in the edit control (do this by
                 // hiliting other letters and cutting them).
-                HWND    hwndEdit = GetDlgItem(hwnd, IDC_EDIT1);
-                DWORD   dwLength, j;
+                HWND  hwndEdit = GetDlgItem(hwnd, IDC_EDIT1);
+                DWORD dwLength, j;
                 BYTE* p;
 
                 dwLength = (DWORD)GetWindowTextLength(hwndEdit);
@@ -2239,11 +2236,11 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
     {
         FUNC_PARAM params[] =
         {
-            { gszSocket,        PT_DWORD,       (ULONG_PTR)gpSelectedSocket->Sock, NULL },
-            { "lpName",         PT_PTRNOEDIT,   (ULONG_PTR)pBigBuf, pBigBuf },
-            { "  ->sa_family",  PT_ORDINAL,     (ULONG_PTR)gdwDefAddrFamily, aAddressFamilies },
-            { "  ->sa_data",    PT_POINTER,     (ULONG_PTR)(pBigBuf + 2), pBigBuf + 2 },
-            { "namelen",        PT_DWORD,       (ULONG_PTR)dwBigBufSize, NULL },
+            { gszSocket,        PT_DWORD,     (ULONG_PTR)gpSelectedSocket->Sock, NULL },
+            { "lpName",         PT_PTRNOEDIT, (ULONG_PTR)pBigBuf, pBigBuf },
+            { "  ->sa_family",  PT_ORDINAL,   (ULONG_PTR)gdwDefAddrFamily, aAddressFamilies },
+            { "  ->sa_data",    PT_POINTER,   (ULONG_PTR)(pBigBuf + 2), pBigBuf + 2 },
+            { "namelen",        PT_DWORD,     (ULONG_PTR)dwBigBufSize, NULL },
         };
         FUNC_PARAM_HEADER paramsHeader = {5, funcIndex, params, NULL};
 
@@ -2278,8 +2275,8 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
                 if ((SOCKET)params[0].dwValue != gpSelectedSocket->Sock) {
                     // The user overrode the selected widget, so make sure
                     // we don't delete the wrong string from the list box
-                    int         iNumItems;
-                    PMYSOCKET   ps;
+                    int       iNumItems;
+                    PMYSOCKET ps;
 
                     iNumItems = (int)SendMessage(ghwndList1, LB_GETCOUNT, 0, 0);
                     for (i = 0; i < iNumItems; i++) {
@@ -2312,11 +2309,11 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
     {
         FUNC_PARAM params[] =
         {
-            { gszSocket,        PT_DWORD,       (ULONG_PTR)gpSelectedSocket->Sock, NULL },
-            { "lpName",         PT_PTRNOEDIT,   (ULONG_PTR)pBigBuf, pBigBuf },
-            { "  ->sa_family",  PT_ORDINAL,     (ULONG_PTR)gdwDefAddrFamily, aAddressFamilies },
-            { "  ->sa_data",    PT_POINTER,     (ULONG_PTR)(pBigBuf + 2), pBigBuf + 2 },
-            { "namelen",        PT_DWORD,       (ULONG_PTR)dwBigBufSize, NULL },
+            { gszSocket,        PT_DWORD,     (ULONG_PTR)gpSelectedSocket->Sock, NULL },
+            { "lpName",         PT_PTRNOEDIT, (ULONG_PTR)pBigBuf, pBigBuf },
+            { "  ->sa_family",  PT_ORDINAL,   (ULONG_PTR)gdwDefAddrFamily, aAddressFamilies },
+            { "  ->sa_data",    PT_POINTER,   (ULONG_PTR)(pBigBuf + 2), pBigBuf + 2 },
+            { "namelen",        PT_DWORD,     (ULONG_PTR)dwBigBufSize, NULL },
         };
         FUNC_PARAM_HEADER paramsHeader = {5, funcIndex, params, NULL};
 
@@ -2420,9 +2417,9 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         int     iNameLen = dwBigBufSize;
         FUNC_PARAM params[] =
         {
-            { gszSocket,        PT_DWORD,       (ULONG_PTR)gpSelectedSocket->Sock, NULL },
-            { "lpName",         PT_PTRNOEDIT,   (ULONG_PTR)pBigBuf, pBigBuf },
-            { "lpiNameLength",  PT_PTRNOEDIT,   (ULONG_PTR)&iNameLen, &iNameLen },
+            { gszSocket,        PT_DWORD,     (ULONG_PTR)gpSelectedSocket->Sock, NULL },
+            { "lpName",         PT_PTRNOEDIT, (ULONG_PTR)pBigBuf, pBigBuf },
+            { "lpiNameLength",  PT_PTRNOEDIT, (ULONG_PTR)&iNameLen, &iNameLen },
         };
         FUNC_PARAM_HEADER paramsHeader = {3, funcIndex, params, NULL};
 
@@ -2560,11 +2557,11 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         int iOptionBufLength = dwBigBufSize;
         FUNC_PARAM params[] =
         {
-            { gszSocket,            PT_DWORD,       (ULONG_PTR)gpSelectedSocket->Sock, NULL },
-            { "iLevel",             PT_ORDINAL,     (ULONG_PTR)0, aSockOptLevels },
-            { "iOptionName",        PT_ORDINAL,     (ULONG_PTR)0, aSockOpts },
-            { "lpOptionBuf",        PT_PTRNOEDIT,   (ULONG_PTR)pBigBuf, pBigBuf },
-            { "lpiOptionBufLength", PT_POINTER,     (ULONG_PTR)&iOptionBufLength, &iOptionBufLength },
+            { gszSocket,            PT_DWORD,     (ULONG_PTR)gpSelectedSocket->Sock, NULL },
+            { "iLevel",             PT_ORDINAL,   (ULONG_PTR)0, aSockOptLevels },
+            { "iOptionName",        PT_ORDINAL,   (ULONG_PTR)0, aSockOpts },
+            { "lpOptionBuf",        PT_PTRNOEDIT, (ULONG_PTR)pBigBuf, pBigBuf },
+            { "lpiOptionBufLength", PT_POINTER,   (ULONG_PTR)&iOptionBufLength, &iOptionBufLength },
         };
         FUNC_PARAM_HEADER paramsHeader = {5, funcIndex, params, NULL};
 
@@ -2755,10 +2752,10 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
     {
         FUNC_PARAM params[] =
         {
-            { gszSocket,    PT_DWORD,       (ULONG_PTR)gpSelectedSocket->Sock, NULL },
-            { "lpBuf",      PT_PTRNOEDIT,   (ULONG_PTR)pBigBuf, pBigBuf },
-            { "iBufLength", PT_DWORD,       (ULONG_PTR)dwBigBufSize, NULL },
-            { "iRecvFlags", PT_FLAGS,       (ULONG_PTR)gdwDefRecvFlags, aRecvFlags },
+            { gszSocket,    PT_DWORD,     (ULONG_PTR)gpSelectedSocket->Sock, NULL },
+            { "lpBuf",      PT_PTRNOEDIT, (ULONG_PTR)pBigBuf, pBigBuf },
+            { "iBufLength", PT_DWORD,     (ULONG_PTR)dwBigBufSize, NULL },
+            { "iRecvFlags", PT_FLAGS,     (ULONG_PTR)gdwDefRecvFlags, aRecvFlags },
         };
         FUNC_PARAM_HEADER paramsHeader = {4, funcIndex, params, NULL};
 
@@ -2784,12 +2781,12 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         struct sockaddr FAR* pSrcAddr = MyAlloc(dwBigBufSize);
         FUNC_PARAM params[] =
         {
-            { gszSocket,            PT_DWORD,       (ULONG_PTR)gpSelectedSocket->Sock, NULL },
-            { "lpBuf",              PT_PTRNOEDIT,   (ULONG_PTR)pBigBuf, pBigBuf },
-            { "iBufLength",         PT_DWORD,       (ULONG_PTR)dwBigBufSize, NULL },
-            { "iRecvFlags",         PT_FLAGS,       (ULONG_PTR)gdwDefRecvFlags, aRecvFlags },
-            { "lpSourceAddr",       PT_PTRNOEDIT,   (ULONG_PTR)pSrcAddr, pSrcAddr },
-            { "lpiSourceAddrLength",PT_POINTER,     (ULONG_PTR)&iSrcAddrLen, &iSrcAddrLen },
+            { gszSocket,            PT_DWORD,     (ULONG_PTR)gpSelectedSocket->Sock, NULL },
+            { "lpBuf",              PT_PTRNOEDIT, (ULONG_PTR)pBigBuf, pBigBuf },
+            { "iBufLength",         PT_DWORD,     (ULONG_PTR)dwBigBufSize, NULL },
+            { "iRecvFlags",         PT_FLAGS,     (ULONG_PTR)gdwDefRecvFlags, aRecvFlags },
+            { "lpSourceAddr",       PT_PTRNOEDIT, (ULONG_PTR)pSrcAddr, pSrcAddr },
+            { "lpiSourceAddrLength",PT_POINTER,   (ULONG_PTR)&iSrcAddrLen, &iSrcAddrLen },
         };
         FUNC_PARAM_HEADER paramsHeader = {6, funcIndex, params, NULL};
 
@@ -2951,8 +2948,8 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
             if ((pSocket->Sock = socket((int)params[0].dwValue,
                 (int)params[1].dwValue,
                                         (int)params[2].dwValue)) != INVALID_SOCKET) {
-                char        buf[128];
-                LRESULT     index;
+                char    buf[128];
+                LRESULT index;
 
                 ShowStr(gszXxxSUCCESS, aFuncNames[funcIndex]);
 
@@ -2962,8 +2959,7 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
                 wsprintf(buf, "Socket=x%x (%s %s)",
                          pSocket->Sock,
                          GetStringFromOrdinalValue(pSocket->dwAddressFamily, aAddressFamilies),
-                         GetStringFromOrdinalValue(pSocket->dwSocketType, aSocketTypes)
-                );
+                         GetStringFromOrdinalValue(pSocket->dwSocketType, aSocketTypes));
 
                 index = SendMessage(ghwndList1, LB_ADDSTRING, 0, (LPARAM)buf);
                 SendMessage(ghwndList1, LB_SETITEMDATA, index, (LPARAM)pSocket);
@@ -2980,11 +2976,11 @@ void FAR PASCAL FuncDriver(FUNC_INDEX funcIndex)
         int iAddrLen = dwBigBufSize;
         FUNC_PARAM params[] =
         {
-            { gszSocket,        PT_DWORD,       (ULONG_PTR)gpSelectedSocket->Sock, NULL },
-            { "lpAddr",         PT_PTRNOEDIT,   (ULONG_PTR)pBigBuf, pBigBuf },
-            { "lpiAddrLen",     PT_DWORD,       (ULONG_PTR)&iAddrLen, &iAddrLen },
-            { "lpfnCondition",  PT_DWORD,       (ULONG_PTR)ConditionProc, ConditionProc },
-            { "dwCallbackData", PT_DWORD,       (ULONG_PTR)0, NULL }
+            { gszSocket,        PT_DWORD,     (ULONG_PTR)gpSelectedSocket->Sock, NULL },
+            { "lpAddr",         PT_PTRNOEDIT, (ULONG_PTR)pBigBuf, pBigBuf },
+            { "lpiAddrLen",     PT_DWORD,     (ULONG_PTR)&iAddrLen, &iAddrLen },
+            { "lpfnCondition",  PT_DWORD,     (ULONG_PTR)ConditionProc, ConditionProc },
+            { "dwCallbackData", PT_DWORD,     (ULONG_PTR)0, NULL }
         };
         FUNC_PARAM_HEADER paramsHeader = {5, funcIndex, params, NULL};
 

@@ -75,10 +75,8 @@ VOID LoadPwdDLL(VOID);
 VOID UnloadPwdDLL(VOID);
 
 
-
 // helper for time
-static DWORD
-GetElapsedTime(DWORD from, DWORD to)
+static DWORD GetElapsedTime(DWORD from, DWORD to)
 {
     return (to >= from) ? (to - from) : (1 + to + (((DWORD)-1) - from));
 }
@@ -97,21 +95,17 @@ atoui(LPCTSTR szUINT)
 }
 
 
-
 // Local reboot and hotkey control (on Win95)
 static void
 HogMachine(BOOL value)
 {
     BOOL dummy;
 
-
     // NT is always secure, therefore we don't need to call this on Cairo/NT
-
     if (fOnWin95) {
         SystemParametersInfo(SPI_SCREENSAVERRUNNING, value, &dummy, 0);
     }
 }
-
 
 
 // entry point (duh)
@@ -125,14 +119,12 @@ WinMainN(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int nCmdShow)
     hMainInstance = hInst;
 
     osvi.dwOSVersionInfoSize = sizeof(osvi);
-    fOnWin95 = (GetVersionEx(&osvi) &&
-                osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+    fOnWin95 = (GetVersionEx(&osvi) && osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
 
 #ifdef GL_SCRNSAVE
 
     // the shell sends this message to the foreground window before running an
     // AutoPlay app. we return 1 to cancel autoplay if we are password protected
-
     if (fOnWin95) {
         uShellAutoPlayQueryMessage = RegisterWindowMessage(TEXT("QueryCancelAutoPlay"));
     } else {
@@ -146,14 +138,12 @@ WinMainN(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int nCmdShow)
            case TEXT('S'):
            case TEXT('s'):
                return DoScreenSave(NULL);
-
  #ifdef GL_SCRNSAVE
            case TEXT('W'):
            case TEXT('w'):
                do pch++; while (*pch == TEXT(' '));  // size parameters
                return DoWindowedScreenSave(pch);
  #endif
-
            case TEXT('L'):
            case TEXT('l'):
                // special switch for tests such as WinBench
@@ -167,14 +157,12 @@ WinMainN(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int nCmdShow)
            case TEXT('p'):
                do pch++; while (*pch == TEXT(' '));  // skip to the good stuff
                return DoSaverPreview(pch);
-
            case TEXT('A'):
            case TEXT('a'):
                if (!fOnWin95)
                    return -1;
                do pch++; while (*pch == TEXT(' '));  // skip to the good stuff
                return DoChangePw(pch);
-
            case TEXT('C'):
            case TEXT('c'):
   {
@@ -194,13 +182,11 @@ return DoConfigBox(hwndParent);
 
 case TEXT('\0'):
     return DoConfigBox(NULL);
-
 case TEXT(' '):
 case TEXT('-'):
 case TEXT('/'):
     pch++;   // skip spaces and common switch prefixes
     break;
-
 default:
     return -1;
 }
@@ -210,7 +196,6 @@ default:
         // don't leave local reboot and hotkeys disabled on Win95
         HogMachine(FALSE);
     }
-
 }
 
 
@@ -231,11 +216,9 @@ DefScreenSaverProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     if (!fChildPreview && !fClosing) {
         switch (uMsg) {
         case WM_CLOSE:
-
             // Only do password check if on Windows 95.  WinNT (Cairo) has
             // the password check built into the security desktop for
             // C2 compliance.
-
             if (fOnWin95) {
                 if (!DoPasswordCheck(hWnd)) {
                     GetCursorPos(&ptMouse);  // re-establish
@@ -248,12 +231,10 @@ DefScreenSaverProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             SendMessage(hWnd, SS_WM_CLOSING, 0, 0);
 #endif
             break;
-
         case SCRM_VERIFYPW:
             if (fOnWin95)
                 return (VerifyPassword ? (LRESULT)VerifyPassword(hWnd) : 1L);
             break;
-
         default:
         {
             POINT ptMove, ptCheck;
@@ -266,11 +247,9 @@ DefScreenSaverProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 if ((BOOL)wParam)
                     SetCursor(NULL);
                 break;
-
             case WM_SETCURSOR:
                 SetCursor(NULL);
                 return TRUE;
-
             case WM_MOUSEMOVE:
                 GetCursorPos(&ptCheck);
                 if ((ptMove.x = ptCheck.x - ptMouse.x) && (ptMove.x < 0))
@@ -282,7 +261,6 @@ DefScreenSaverProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     ptMouse = ptCheck;
                 }
                 break;
-
             case WM_POWERBROADCAST:
                 switch (wParam) {
                 case PBT_APMRESUMECRITICAL:
@@ -290,8 +268,7 @@ DefScreenSaverProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 case PBT_APMRESUMESTANDBY:
                 case PBT_APMRESUMEAUTOMATIC:
                     // If the system is resuming from a real suspend
-                    // (as opposed to a failed suspend) deactivate
-                    // the screensaver.
+                    // (as opposed to a failed suspend) deactivate the screensaver.
                     if ((lParam & PBTF_APMRESUMEFROMFAILURE) == 0)
                         goto PostClose;
                     break;
@@ -303,17 +280,13 @@ DefScreenSaverProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     goto PostClose;
                 }
                 break;
-
             case WM_POWER:
-
                 // a critical resume does not generate a WM_POWERBROADCAST
-                // to windows for some reason, but it does generate an old
-                // WM_POWER message.
+                // to windows for some reason, but it does generate an old WM_POWER message.
 
                 if (wParam == PWR_CRITICALRESUME)
                     goto PostClose;
                 break;
-
             case WM_ACTIVATEAPP:
                 if (wParam) break;
             case WM_LBUTTONDOWN:
@@ -329,13 +302,11 @@ DefScreenSaverProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
     }
 
-
     // the shell sends this message to the foreground window before running an
     // AutoPlay app. On Win95, we return 1 to cancel autoplay if we are password protected
 
     // On WinNT, secure screen savers run on a secure separate desktop, and will never see
     // this message, therefore, this code will never get executed.
-
 
     // BUGBUG -
     // On NT we don't want to take down the screen saver unless it is running
@@ -364,9 +335,8 @@ LRESULT WINAPI RealScreenSaverProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
         // screen saver does not need the IME
         if ((hInstImm = GetModuleHandle(szImmDLL)) && (ImmFnc = (IMMASSOCPROC)GetProcAddress(hInstImm, szImmFnc)))
             hPrevImc = ImmFnc(hWnd, (HIMC)0);
-
-        // establish the mouse position
-        GetCursorPos(&ptMouse);
+        
+        GetCursorPos(&ptMouse);// establish the mouse position
 
         if (!fChildPreview)
             SetCursor(NULL);
@@ -388,7 +358,6 @@ LRESULT WINAPI RealScreenSaverProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
         // there.  If this ever changes, we can simply set a bypass flag
         // during WM_NCCREATE processing.
         return FALSE;
-
     case WM_SYSCOMMAND:
         if (!fChildPreview) {
             switch (wParam) {
@@ -453,8 +422,7 @@ InitRealScreenSave()
 #if 0
     HKEY hkey;
 
-    if (RegOpenKey(HKEY_CURRENT_USER, szCoolSaverHacks, &hkey) ==
-        ERROR_SUCCESS) {
+    if (RegOpenKey(HKEY_CURRENT_USER, szCoolSaverHacks, &hkey) == ERROR_SUCCESS) {
         DWORD data, len, type;
 
         len = sizeof(data);
@@ -554,7 +522,6 @@ DoScreenSave(HWND hParent)
         InitRealScreenSave();
     }
 
-
     // the shell sends this message to the foreground window before running an
     // AutoPlay app. we return 1 to cancel autoplay if we are password protected
 
@@ -579,34 +546,26 @@ DoScreenSave(HWND hParent)
             DispatchMessage(&msg);
         }
     }
-
-    // free password-handling DLL if loaded
-    UnloadPwdDLL();
+    
+    UnloadPwdDLL();// free password-handling DLL if loaded
 
     return msg.wParam;
 }
 #endif
 
 
-
-
-static INT_PTR
-DoSaverPreview(LPCTSTR szUINTHandle)
-{
-    // get parent handle from string
-    HWND hParent = (HWND)atoui(szUINTHandle);
+static INT_PTR DoSaverPreview(LPCTSTR szUINTHandle)
+{    
+    HWND hParent = (HWND)atoui(szUINTHandle);// get parent handle from string
 
     // only preview on a valid parent window (NOT full screen)
     return ((hParent && IsWindow(hParent)) ? DoScreenSave(hParent) : -1);
 }
 
 
-
-
 #ifndef GL_SCRNSAVE
 
-static INT_PTR
-DoConfigBox(HWND hParent)
+static INT_PTR DoConfigBox(HWND hParent)
 {
     // let the consumer register any special controls for the dialog
     if (!RegisterDialogClasses(hMainInstance))
@@ -618,19 +577,15 @@ DoConfigBox(HWND hParent)
 #endif
 
 
-
-
-static INT_PTR
-DoChangePw(LPCTSTR szUINTHandle)
+static INT_PTR DoChangePw(LPCTSTR szUINTHandle)
 {
     // get parent handle from string
     HWND hParent = (HWND)atoui(szUINTHandle);
 
     if (!hParent || !IsWindow(hParent))
         hParent = GetForegroundWindow();
-
-    // allow the library to be hooked
-    ScreenSaverChangePassword(hParent);
+    
+    ScreenSaverChangePassword(hParent);// allow the library to be hooked
     return 0;
 }
 
@@ -646,15 +601,14 @@ static const CHAR szPwdChangePW[] = "PwdChangePasswordA"; // not to be localized
 // bogus prototype
 typedef DWORD(FAR PASCAL* PWCHGPROC)(LPCTSTR, HWND, DWORD, LPVOID);
 
-void WINAPI
-ScreenSaverChangePassword(HWND hParent)
+
+void WINAPI ScreenSaverChangePassword(HWND hParent)
 {
     HINSTANCE mpr = LoadLibrary(szMprDll);
 
     if (mpr) {
         // netland hasn't cracked MNRENTRY yet
         PWCHGPROC pwd = (PWCHGPROC)GetProcAddress(mpr, szPwdChangePW);
-
         if (pwd)
             pwd(szProviderName, hParent, 0, NULL);
 
@@ -663,10 +617,7 @@ ScreenSaverChangePassword(HWND hParent)
 }
 
 
-
-
-static BOOL
-DoPasswordCheck(HWND hParent)
+static BOOL DoPasswordCheck(HWND hParent)
 {
     // don't reenter and don't check when we've already decided
     if (fCheckingPassword || fClosing)
@@ -677,20 +628,17 @@ DoPasswordCheck(HWND hParent)
         DWORD curtime = GetTickCount();
         MSG msg;
 
-        if (dwPasswordDelay &&
-            (GetElapsedTime(dwBlankTime, curtime) < dwPasswordDelay)) {
+        if (dwPasswordDelay && (GetElapsedTime(dwBlankTime, curtime) < dwPasswordDelay)) {
             fClosing = TRUE;
             goto _didcheck;
         }
 
         // no rapid checking...
-        if ((lastcheck != (DWORD)-1) &&
-            (GetElapsedTime(lastcheck, curtime) < 200)) {
+        if ((lastcheck != (DWORD)-1) && (GetElapsedTime(lastcheck, curtime) < 200)) {
             goto _didcheck;
         }
-
-        // do the check
-        fCheckingPassword = TRUE;
+        
+        fCheckingPassword = TRUE;// do the check
 
 #ifdef GL_SCRNSAVE
         // Put ss in idle mode during password dialog processing
@@ -706,16 +654,14 @@ DoPasswordCheck(HWND hParent)
 
         fCheckingPassword = FALSE;
 
-#ifdef GL_SCRNSAVE
-        // Restore normal display mode
-        SendMessage(hParent, SS_WM_IDLE, SS_IDLE_OFF, 0L);
+#ifdef GL_SCRNSAVE        
+        SendMessage(hParent, SS_WM_IDLE, SS_IDLE_OFF, 0L);// Restore normal display mode
 #endif
 
         if (!fClosing)
             SetCursor(NULL);
-
-        // curtime may be outdated by now
-        lastcheck = GetTickCount();
+        
+        lastcheck = GetTickCount();// curtime may be outdated by now
     } else {
         // passwords disabled or unable to load handler DLL, always allow exit
         fClosing = TRUE;
@@ -727,9 +673,7 @@ _didcheck:
 
 
 // stolen from the CRT, used to shirink our code
-
-int _stdcall
-DummyEntry(void)
+int _stdcall DummyEntry(void)
 {
     int i;
     STARTUPINFO si;
@@ -737,14 +681,11 @@ DummyEntry(void)
 
     if (*pszCmdLine == TEXT('\"')) {
         /*
-         * Scan, and skip over, subsequent characters until
-         * another double-quote or a null is encountered.
+         * Scan, and skip over, subsequent characters until another double-quote or a null is encountered.
          */
-        while (*(pszCmdLine = CharNext(pszCmdLine)) &&
-            (*pszCmdLine != TEXT('\"')));
+        while (*(pszCmdLine = CharNext(pszCmdLine)) && (*pszCmdLine != TEXT('\"')));
         /*
-         * If we stopped on a double-quote (usual case), skip
-         * over it.
+         * If we stopped on a double-quote (usual case), skip over it.
          */
         if (*pszCmdLine == TEXT('\"'))
             pszCmdLine++;
@@ -767,7 +708,7 @@ DummyEntry(void)
                       si.dwFlags & STARTF_USESHOWWINDOW ? si.wShowWindow : SW_SHOWDEFAULT);
 
     ExitProcess(i);
-    return i;   // We never comes here.
+    return i;// We never comes here.
 }
 
 
@@ -802,20 +743,15 @@ VOID LoadPwdDLL(VOID)
 
     // look in registry to see if password turned on, otherwise don't
     // bother to load password handler DLL
-    if (RegOpenKey(HKEY_CURRENT_USER, szScreenSaverKey, &hKey) ==
-        ERROR_SUCCESS) {
+    if (RegOpenKey(HKEY_CURRENT_USER, szScreenSaverKey, &hKey) == ERROR_SUCCESS) {
         DWORD dwVal, dwSize = sizeof(dwVal);
 
-        if ((RegQueryValueEx(hKey, szPasswordActiveValue,
-                             NULL, NULL, (BYTE*)&dwVal, &dwSize) == ERROR_SUCCESS)
+        if ((RegQueryValueEx(hKey, szPasswordActiveValue, NULL, NULL, (BYTE*)&dwVal, &dwSize) == ERROR_SUCCESS)
             && dwVal) {
-
             // try to load the DLL that contains password proc.
             hInstPwdDLL = LoadLibrary(szPwdDLL);
             if (hInstPwdDLL) {
-                VerifyPassword = (VERIFYPWDPROC)GetProcAddress(hInstPwdDLL,
-                                                               szFnName);
-
+                VerifyPassword = (VERIFYPWDPROC)GetProcAddress(hInstPwdDLL, szFnName);
                 if (VerifyPassword)
                     HogMachine(TRUE);
                 else
@@ -825,8 +761,8 @@ VOID LoadPwdDLL(VOID)
 
         RegCloseKey(hKey);
     }
-
 }
+
 
 VOID UnloadPwdDLL(VOID)
 {
@@ -853,6 +789,5 @@ TCHAR szScreenSaver[22];
 TCHAR szHelpFile[MAXFILELEN];
 TCHAR szNoHelpMemory[BUFFLEN];
 
-// Quick fix for old screen savers that don't know about context
-// sensitive help
+// Quick fix for old screen savers that don't know about context sensitive help
 UINT  MyHelpMessage = WM_HELP;

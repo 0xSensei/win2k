@@ -669,8 +669,11 @@ extern "C" {
         ELSEARGS((EW_LPMAPSTATE lpMapState));
 
     GLOBAL EW_USHORT EW_FAR EW_PASCAL unPANMatchFonts
-        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_LPBYTE lpPanWant,
-                  EW_ULONG ulSizeWant, EW_LPBYTE lpPanThis, EW_ULONG ulSizeThis,
+        ELSEARGS((EW_LPMAPSTATE lpMapState, 
+                  EW_LPBYTE lpPanWant,
+                  EW_ULONG ulSizeWant, 
+                  EW_LPBYTE lpPanThis, 
+                  EW_ULONG ulSizeThis,
                   EW_BYTE jMapToFamily));
 
     GLOBAL EW_VOID EW_FAR EW_PASCAL vPANMakeDummy
@@ -680,12 +683,10 @@ extern "C" {
 #ifndef NOELSEPICKFONTS
 
     GLOBAL EW_SHORT EW_FAR EW_PASCAL nPANGetMapDefault
-        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_LPBYTE lpPanDef,
-                  EW_USHORT unSizePanDef));
+        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_LPBYTE lpPanDef, EW_USHORT unSizePanDef));
 
     GLOBAL EW_SHORT EW_FAR EW_PASCAL nPANSetMapDefault
-        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_LPBYTE lpPanDef,
-                  EW_USHORT unSizePanDef));
+        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_LPBYTE lpPanDef, EW_USHORT unSizePanDef));
 
     GLOBAL EW_BOOL EW_FAR EW_PASCAL bPANEnableMapDefault
         ELSEARGS((EW_LPMAPSTATE lpMapState, EW_BOOL bEnable));
@@ -694,10 +695,15 @@ extern "C" {
         ELSEARGS((EW_LPMAPSTATE lpMapState));
 
     GLOBAL EW_USHORT EW_FAR EW_PASCAL unPANPickFonts
-        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_LPUSHORT lpIndsBest,
-                  EW_LPUSHORT lpMatchValues, EW_LPBYTE lpPanWant,
-                  EW_USHORT unNumInds, EW_LPBYTE lpPanFirst, EW_USHORT unNumAvail,
-                  EW_SHORT nRecSize, EW_BYTE jMapToFamily));
+        ELSEARGS((EW_LPMAPSTATE lpMapState,
+                  EW_LPUSHORT lpIndsBest,
+                  EW_LPUSHORT lpMatchValues,
+                  EW_LPBYTE lpPanWant,
+                  EW_USHORT unNumInds, 
+                  EW_LPBYTE lpPanFirst,
+                  EW_USHORT unNumAvail,
+                  EW_SHORT nRecSize, 
+                  EW_BYTE jMapToFamily));
 
 #endif /* ifndef NOELSEPICKFONTS */
 
@@ -729,12 +735,10 @@ extern "C" {
                   EW_BYTE jFamilyB, EW_LPBYTE lpjWts, EW_LPBOOL lpbIsCustom));
 
     GLOBAL EW_BOOL EW_FAR EW_PASCAL bPANSetMapWeights
-        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_BYTE jFamilyA,
-                  EW_BYTE jFamilyB, EW_LPBYTE lpjWts));
+        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_BYTE jFamilyA, EW_BYTE jFamilyB, EW_LPBYTE lpjWts));
 
     GLOBAL EW_BOOL EW_FAR EW_PASCAL bPANClearMapWeights
-        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_BYTE jFamilyA,
-                  EW_BYTE jFamilyB));
+        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_BYTE jFamilyA, EW_BYTE jFamilyB));
 
 #endif /* ifndef NOELSEWEIGHTS */
 

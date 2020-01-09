@@ -49,12 +49,16 @@
 <!-- Table for the entire dialog box -->
 <table cellspacing=3 width=100% height=99% border=0>
 <tr>
-    <td valign=top style="padding-top:4px; padding-left:6px; padding-right:2px" rowspan=2><img id="alertImage" src="jitalert.gif"></td>
+    <td valign=top style="padding-top:4px; padding-left:6px; padding-right:2px" rowspan=2>
+	<img id="alertImage" src="jitalert.gif">
+	</td>
     <td valign=top colspan=6>
 		<!-- Inner table - the list of components -->
 		<table height="100px" width="100%" style="border-collapse:collapse;" border=0>
 			<tr>
-				<td id="WarningToDownloadText" height=20 style="padding-top:1px; padding-bottom:6px; padding-left:3px">To display this page correctly, you need to download and install the following components:</td>
+				<td id="WarningToDownloadText" height=20 style="padding-top:1px; padding-bottom:6px; padding-left:3px">
+				To display this page correctly, you need to download and install the following components:
+				</td>
 			</tr>
 			<tr>
 				<td height=4></td>
@@ -110,7 +114,10 @@
 
 <!-- Checkbox section -->
 <tr height="20px" align="top">
-	<td rowspan=2><object ID="engine" WIDTH="1" HEIGHT="1" CLASSID="CLSID:6E449683-C509-11CF-AAFA-00AA00B6015C" CODEBASE="actsetup.cab#Version=4,71,1712,0"></object></td>
+	<td rowspan=2>
+	<object ID="engine" WIDTH="1" HEIGHT="1" CLASSID="CLSID:6E449683-C509-11CF-AAFA-00AA00B6015C" CODEBASE="actsetup.cab#Version=4,71,1712,0">
+	</object>
+	</td>
 	<td colspan=6><input type="checkbox" title="Never download any of these components." id="checkboxNever" accessKey="V" onclick="CheckClick()" tabindex="3" helpid="50459">
 		<span id="NeverDownloadText" onclick="checkboxNever.click()" style="font-family: MS Shell Dlg; font-size: 8pt; background: buttonface" tabindex="-1" helpid="50459">
 			Ne<u>v</u>er download any of these components.
@@ -125,14 +132,21 @@
 		<table style="border-collapse:collapse;" border=0>
 			<tr>
 				<td id="OKButtonbox">
-					<button id="OKButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" onClick="downloadComponents()" tabindex="1" helpid="50510">OK</button>
+					<button id="OKButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" onClick="downloadComponents()" tabindex="1" helpid="50510">
+					OK
+					</button>
 				</td>
 				<td id="downloadButtonbox">
-					<button id="downloadButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" onClick="downloadComponents()" tabindex="1" helpid="50461" accessKey="D"><u>D</u>ownload</button>
+					<button id="downloadButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" onClick="downloadComponents()" tabindex="1" helpid="50461" accessKey="D">
+					<u>D</u>
+					ownload
+					</button>
 				</td>
 				<td id="blanksp3">&nbsp;</td>
 				<td>
-					<button id="cancelButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" onClick="verifyCancel()" tabindex="2" helpid="50462">Cancel</button>
+					<button id="cancelButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" onClick="verifyCancel()" tabindex="2" helpid="50462">
+					Cancel
+					</button>
 				</td>
 			</tr>
 		</table>
@@ -334,7 +348,11 @@ function fillArray()
 					if(document.all.idClCap.isComponentInstalled("{22d6f312-b0f6-11d0-94ab-0080c74c7e95}","componentid","5,01,51,0423") != true)
 						document.all("MEDIAPLAYER").style.display='';
 				}
-			else if((compNameStripped == "IELPKTH") || (compNameStripped == "IELPKIW") || (compNameStripped == "IELPKVI") || (compNameStripped == "IELPKAR") || (compNameStripped == "IELPKAD"))
+			else if((compNameStripped == "IELPKTH") || 
+			(compNameStripped == "IELPKIW") || 
+			(compNameStripped == "IELPKVI") || 
+			(compNameStripped == "IELPKAR") ||
+			(compNameStripped == "IELPKAD"))
 				{
 					if(document.all.idClCap.isComponentInstalled("{3bf42070-b3b1-11d1-b5c5-0000f8051515}","componentid",VER_USP10) != true)
 						document.all("USP10").style.display='';

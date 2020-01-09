@@ -7,15 +7,12 @@
  *    5 August 1988
 
  *  Description
-
  *    Data structure definitions for the OS/2
  *    executable file format (flat model).
 
  *  Modification History
-
  *    88/08/05    Wieslaw Kalkus    Initial version
 */
-
 
 #ifndef _VC_VER_INC
 #include "..\include\vcver.h"
@@ -42,7 +39,6 @@
 #define E32CPU286    0x001        /* Intel 80286 or upwardly compatibile */
 #define E32CPU386    0x002        /* Intel 80386 or upwardly compatibile */
 #define E32CPU486    0x003        /* Intel 80486 or upwardly compatibile */
-
 
 
 struct e32_exe {            /* New 32-bit .EXE header */
@@ -168,7 +164,6 @@ struct e32_exe {            /* New 32-bit .EXE header */
  *   +-------------------------------------- Library Module
 */
 
-
 #define E32NOTP      0x8000L    /* Library Module - used as NENOTP */
 #define E32NOLOAD     0x2000L    /* Module not Loadable */
 #define E32PMAPI     0x0300L    /* Uses PM Windowing API */
@@ -182,15 +177,12 @@ struct e32_exe {            /* New 32-bit .EXE header */
 
 /*
  *  Format of E32_MFLAGS(x):
-
  *  High word has the following format:
-
  *  15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0  - bit no
  *                      | |
  *                      | +--- Protected memory library module
  *                      +----- Device driver
 */
-
 #define E32PROTDLL     0x10000L    // Protected memory library module
 #define E32DEVICE     0x20000L    // Device driver
 #define E32MODEXE     0x00000L    // .EXE module
@@ -204,8 +196,6 @@ struct e32_exe {            /* New 32-bit .EXE header */
 /*
  *  RELOCATION DEFINITIONS - RUN-TIME FIXUPS
 */
-
-
 #pragma pack(1)             /* This data must be packed */
 
 
@@ -243,7 +233,6 @@ struct r32_rlc {            /* Relocation item */
  *  In 32-bit .EXE file run-time relocations are written as varying size
  *  records, so we need many size definitions.
 */
-
 #define RINTSIZE16    8
 #define RINTSIZE32    10
 #define RORDSIZE    8
@@ -251,7 +240,6 @@ struct r32_rlc {            /* Relocation item */
 #define RNAMSIZE32    10
 #define RADDSIZE16    10
 #define RADDSIZE32    12
-
 
 
 #if FALSE
@@ -271,7 +259,6 @@ struct r32_rlc {            /* Relocation item */
 #define R32_ADDVAL(x)    (x).addval
 #define R32_SRCCNT(x)     (x).r32_srccount
 #define R32_CHAIN(x)     (x).r32_chain
-
 
 
 /*
@@ -361,7 +348,6 @@ typedef struct _OBJPAGEDIR
 OBJPAGEDIR;
 
 
-
 /*
  *  OBJECT TABLE
 */
@@ -378,15 +364,12 @@ struct o32_obj                /* Flat .EXE object table entry */
     unsigned long    o32_reserved;    /* Reserved */
 };
 
-
 #define O32_SIZE(x)    (x).o32_size
 #define O32_BASE(x)    (x).o32_base
 #define O32_FLAGS(x)    (x).o32_flags
 #define O32_PAGEMAP(x)    (x).o32_pagemap
 #define O32_MAPSIZE(x)    (x).o32_mapsize
 #define O32_RESERVED(x) (x).o32_reserved
-
-
 
 /*
  *  Format of O32_FLAGS(x)
@@ -429,21 +412,21 @@ struct o32_obj                /* Flat .EXE object table entry */
 #define OBJBIGDEF    0x2000L         /* Big/Default bit setting (80x86 specific)        */
 #define OBJIOPL     0x8000L         /* Object I/O privilege level (80x86 specific)     */
 
-#define OBJDISCARD     0x0010L        /* Object is Discardable */
-#define OBJSHARED     0x0020L        /* Object is Shared */
-#define OBJPRELOAD     0x0040L        /* Object has preload pages  */
-#define OBJEXEC      0x0004L        /* Executable Object */
-#define OBJCONFORM     0x4000L        /* Object is conforming for code (80x86 specific)  */
+#define OBJDISCARD   0x0010L /* Object is Discardable */
+#define OBJSHARED    0x0020L /* Object is Shared */
+#define OBJPRELOAD   0x0040L /* Object has preload pages  */
+#define OBJEXEC      0x0004L /* Executable Object */
+#define OBJCONFORM   0x4000L /* Object is conforming for code (80x86 specific)  */
 
 /*
  *  Life will be easier, if we keep the same names for the following flags:
 */
-#define NSDISCARD    OBJDISCARD         /* Object is Discardable */
-#define NSMOVE        NSDISCARD        /* Moveable object is for sure Discardable */
-#define NSSHARED    OBJSHARED         /* Object is Shared */
-#define NSPRELOAD    OBJPRELOAD         /* Object has preload pages  */
-#define NSEXRD        OBJEXEC         /* Executable Object */
-#define NSCONFORM    OBJCONFORM         /* Object is conforming for code (80x86 specific)  */
+#define NSDISCARD OBJDISCARD /* Object is Discardable */
+#define NSMOVE    NSDISCARD  /* Moveable object is for sure Discardable */
+#define NSSHARED  OBJSHARED  /* Object is Shared */
+#define NSPRELOAD OBJPRELOAD /* Object has preload pages  */
+#define NSEXRD    OBJEXEC    /* Executable Object */
+#define NSCONFORM OBJCONFORM /* Object is conforming for code (80x86 specific)  */
 /*end*/
 
 /***ET+    o32_map - Object Page Map entry */
@@ -466,11 +449,11 @@ struct o32_map                    /* Object Page Map entry */
 #define PAGEFLAGS(x)    (x).o32_pageflags
 
 
-#define VALID        0x00            /* Valid Physical Page in .EXE */
-#define ITERDATA    0x01            /* Iterated Data Page */
-#define INVALID     0x02            /* Invalid Page */
-#define ZEROED        0x03            /* Zero Filled Page */
-#define RANGE        0x04            /* Range of pages */
+#define VALID    0x00 /* Valid Physical Page in .EXE */
+#define ITERDATA 0x01 /* Iterated Data Page */
+#define INVALID  0x02 /* Invalid Page */
+#define ZEROED   0x03 /* Zero Filled Page */
+#define RANGE    0x04 /* Range of pages */
 /*end*/
 
 /*
@@ -479,13 +462,13 @@ struct o32_map                    /* Object Page Map entry */
 
 /***ET+    rsrc32 - Resource Table Entry */
 
-struct rsrc32                    /* Resource Table Entry */
+struct rsrc32               /* Resource Table Entry */
 {
-    unsigned short    type;            /* Resource type */
-    unsigned short    name;            /* Resource name */
-    unsigned long    cb;            /* Resource size */
-    unsigned short    obj;            /* Object number */
-    unsigned long    offset;         /* Offset within object */
+    unsigned short    type; /* Resource type */
+    unsigned short    name; /* Resource name */
+    unsigned long    cb;    /* Resource size */
+    unsigned short    obj;  /* Object number */
+    unsigned long    offset;/* Offset within object */
 };
 /*end*/
 
@@ -544,19 +527,19 @@ struct e32_entry
 
 #define FIXENT16    3
 #define FIXENT32    5
-#define GATEENT16    5
-#define FWDENT        7
+#define GATEENT16   5
+#define FWDENT      7
 
 /*
  *  BUNDLE TYPES
 */
 
-#define EMPTY         0x00        /* Empty bundle */
-#define ENTRY16      0x01        /* 16-bit offset entry point */
-#define GATE16         0x02        /* 286 call gate (16-bit IOPL) */
-#define ENTRY32      0x03        /* 32-bit offset entry point */
-#define ENTRYFWD     0x04        /* Forwarder entry point */
-#define TYPEINFO     0x80        /* Typing information present flag */
+#define EMPTY    0x00 /* Empty bundle */
+#define ENTRY16  0x01 /* 16-bit offset entry point */
+#define GATE16   0x02 /* 286 call gate (16-bit IOPL) */
+#define ENTRY32  0x03 /* 32-bit offset entry point */
+#define ENTRYFWD 0x04 /* Forwarder entry point */
+#define TYPEINFO 0x80 /* Typing information present flag */
 
 
 /*
@@ -569,9 +552,9 @@ struct e32_entry
  *     +-+-+-+-+-+------- parameter word count
 */
 
-#define E32EXPORT    0x01        /* Exported entry */
-#define E32SHARED    0x02        /* Uses shared data */
-#define E32PARAMS    0xf8        /* Parameter word count mask */
+#define E32EXPORT 0x01 /* Exported entry */
+#define E32SHARED 0x02 /* Uses shared data */
+#define E32PARAMS 0xf8 /* Parameter word count mask */
 
 /*
  *  Flags for forwarders only:

@@ -93,27 +93,25 @@ MtDefine(CLinkElementHandleLinkedObjects, Elements, "CLinkElement::HandleLinkedO
 EXTERN_C const GUID CLSID_ScriptletConstructor;
 
 
-
 //  Class: CLinkElement
-
 
 
 const CElement::CLASSDESC CLinkElement::s_classdesc =
 {
     {
-        &CLSID_HTMLLinkElement,             // _pclsid
-        0,                                  // _idrBase
+        &CLSID_HTMLLinkElement,      // _pclsid
+        0,                           // _idrBase
 #ifndef NO_PROPERTY_PAGE
-        s_apclsidPages,                     // _apClsidPages
+        s_apclsidPages,              // _apClsidPages
 #endif // NO_PROPERTY_PAGE
-        s_acpi,                             // _pcpi
-        ELEMENTDESC_NOLAYOUT,               // _dwFlags
-        &IID_IHTMLLinkElement,              // _piidDispinterface
-        &s_apHdlDescs,                      // _apHdlDesc
+        s_acpi,                      // _pcpi
+        ELEMENTDESC_NOLAYOUT,        // _dwFlags
+        &IID_IHTMLLinkElement,       // _piidDispinterface
+        &s_apHdlDescs,               // _apHdlDesc
     },
-    (void*)s_apfnpdIHTMLLinkElement,       // _apfnTearOff
-    NULL,                                   // _pAccelsDesign
-    NULL                                    // _pAccelsRun
+    (void*)s_apfnpdIHTMLLinkElement, // _apfnTearOff
+    NULL,                            // _pAccelsDesign
+    NULL                             // _pAccelsRun
 };
 
 
@@ -125,9 +123,8 @@ CLinkElement::CLinkElement(CDoc* pDoc)
     _readyStateLink = READYSTATE_UNINITIALIZED;
 }
 
-HRESULT
-CLinkElement::CreateElement(CHtmTag* pht,
-                            CDoc* pDoc, CElement** ppElementResult)
+
+HRESULT CLinkElement::CreateElement(CHtmTag* pht, CDoc* pDoc, CElement** ppElementResult)
 {
     Assert(ppElementResult);
     *ppElementResult = new CLinkElement(pDoc);
@@ -135,16 +132,9 @@ CLinkElement::CreateElement(CHtmTag* pht,
 }
 
 
-
-
 //  Member:     CLinkElement::PrivateQueryInterface, IUnknown
-
 //  Synopsis:   Private unknown QI.
-
-
-
-HRESULT
-CLinkElement::PrivateQueryInterface(REFIID iid, void** ppv)
+HRESULT CLinkElement::PrivateQueryInterface(REFIID iid, void** ppv)
 {
     *ppv = NULL;
     switch (iid.Data1) {
@@ -166,14 +156,9 @@ CLinkElement::PrivateQueryInterface(REFIID iid, void** ppv)
 }
 
 
-
-
 //  Member:     InvokeExReady
-
 //  Synopsis  :this is only here to handle readyState queries, everything
 //      else is passed on to the super
-
-
 
 #ifdef USE_STACK_SPEW
 #pragma check_stack(off)
@@ -220,15 +205,9 @@ Cleanup:
 #endif
 
 
-
 //  Member:     CLinkElement::Notify
-
 //  Synopsis:   Receive notifications
-
-
-
-void
-CLinkElement::Notify(CNotification* pNF)
+void CLinkElement::Notify(CNotification* pNF)
 {
     super::Notify(pNF);
     switch (pNF->Type()) {
@@ -238,11 +217,9 @@ CLinkElement::Notify(CNotification* pNF)
         if (_pStyleSheet)
             _pStyleSheet->StopDownloads(FALSE);  // if the directly linked sheet already came down,
         break;
-
     case NTYPE_BASE_URL_CHANGE:
         OnPropertyChange(DISPID_CLinkElement_href, ((PROPERTYDESC*)&s_propdescCLinkElementhref)->GetdwFlags());
         break;
-
     case NTYPE_ELEMENT_ENTERTREE:
         // BUGBUG: This code is moved directly from Init2.  While init
         // is always called just once, this notification will be sent
@@ -272,7 +249,6 @@ CLinkElement::Notify(CNotification* pNF)
                 }
 
                 THR(pMarkup->EnsureStyleSheets());
-
                 pStyleSheets = pMarkup->GetStyleSheetArray();
 
                 THR(pStyleSheets->AddStyleSheet(_pStyleSheet));
@@ -282,11 +258,9 @@ CLinkElement::Notify(CNotification* pNF)
                 //     not also disabled on the element.
                 if (!GetAAdisabled())
                     IGNORE_HR(_pStyleSheet->ChangeStatus(CS_ENABLERULES, FALSE, NULL));
-
             }
         }
         break;
-
     case NTYPE_ELEMENT_EXITTREE_1:
     {
         if (_pStyleSheet) {
@@ -311,13 +285,8 @@ CLinkElement::Notify(CNotification* pNF)
 }
 
 
-
-
 //  Method:     CLinkElement::SetBitsCtx
-
-
-void
-CLinkElement::SetBitsCtx(CBitsCtx* pBitsCtx)
+void CLinkElement::SetBitsCtx(CBitsCtx* pBitsCtx)
 {
     if (_pBitsCtx) {
         _pBitsCtx->SetProgSink(NULL); // detach download from document's load progress
@@ -341,12 +310,8 @@ CLinkElement::SetBitsCtx(CBitsCtx* pBitsCtx)
 }
 
 
-
 //  Method:     CLinkElement::OnDwnChan
-
-
-void
-CLinkElement::OnDwnChan(CDwnChan* pDwnChan)
+void CLinkElement::OnDwnChan(CDwnChan* pDwnChan)
 {
     ULONG       ulState = _pBitsCtx->GetState();
     CDoc* pDoc = Doc();
@@ -403,20 +368,12 @@ CLinkElement::OnDwnChan(CDwnChan* pDwnChan)
 }
 
 
-
-
 //  Member:     OnPropertyChange
-
 //  Note:       Called after a property has changed to notify derived classes
 //              of the change.  All properties (except those managed by the
 //              derived class) are consistent before this call.
-
 //              Also, fires a property change notification to the site.
-
-
-
-HRESULT
-CLinkElement::OnPropertyChange(DISPID dispid, DWORD dwFlags)
+HRESULT CLinkElement::OnPropertyChange(DISPID dispid, DWORD dwFlags)
 {
     HRESULT hr = S_OK;
 
@@ -426,7 +383,6 @@ CLinkElement::OnPropertyChange(DISPID dispid, DWORD dwFlags)
     case DISPID_CLinkElement_type:
         hr = HandleLinkedObjects();
         break;
-
     case DISPID_CElement_disabled:
         // Passing ChangeStatus() 0 means disable rules
         if (_pStyleSheet) {
@@ -438,7 +394,6 @@ CLinkElement::OnPropertyChange(DISPID dispid, DWORD dwFlags)
             }
         }
         break;
-
     case DISPID_CLinkElement_media:
     {
         if (_pStyleSheet) {
@@ -467,36 +422,25 @@ Cleanup:
 }
 
 
-
 //  Member:     CLinkElement::SetActivity
-
 //  Synopsis:   Turns activity on or off depending on visibility and
 //              in-place activation.
-
-
-
-void
-CLinkElement::SetActivity()
+void CLinkElement::SetActivity()
 {
+
 }
 
 
 
 //  Method:     CLinkElement::Passivate
-
 //  Synopsis:   Shutdown main object by releasing references to
 //              other objects and generally cleaning up.  This
 //              function is called when the main reference count
 //              goes to zero.  The destructor is called when
 //              the reference count for the main object and all
 //              embedded sub-objects goes to zero.
-
 //              Release any event connections held by the form.
-
-
-
-void
-CLinkElement::Passivate(void)
+void CLinkElement::Passivate(void)
 {
     SetBitsCtx(NULL);
 
@@ -526,11 +470,7 @@ CLinkElement::Passivate(void)
 //  Helper called by OnPropertyChange.  Checks whether the attribute
 //  values on the link tag require us to link to a stylesheet, and
 //  does the appropriate stylesheet creation/release.
-
-
-
-HRESULT
-CLinkElement::HandleLinkedObjects(void)
+HRESULT CLinkElement::HandleLinkedObjects(void)
 {
     HRESULT     hr = S_OK;
     CDoc* pDoc = Doc();
@@ -697,21 +637,14 @@ Cleanup:
 }
 
 
-
-
 //  Member:     CLinkElement::EnsureStyleDownload
-
-
-
-HRESULT
-CLinkElement::EnsureStyleDownload()
+HRESULT CLinkElement::EnsureStyleDownload()
 {
     HRESULT     hr;
     CDoc* pDoc = Doc();
     CBitsCtx* pBitsCtx = NULL;
 
-    hr = THR(pDoc->NewDwnCtx(DWNCTX_BITS, _pStyleSheet->_achAbsoluteHref,
-                             this, (CDwnCtx**)&pBitsCtx));
+    hr = THR(pDoc->NewDwnCtx(DWNCTX_BITS, _pStyleSheet->_achAbsoluteHref, this, (CDwnCtx**)&pBitsCtx));
 
     pDoc->EnterStylesheetDownload(&_dwStyleCookie);
 
@@ -731,11 +664,7 @@ CLinkElement::EnsureStyleDownload()
 
 
 //  Member:     CLinkElement::OnReadyStateChange
-
-
-
-void
-CLinkElement::OnReadyStateChange()
+void CLinkElement::OnReadyStateChange()
 {   // do not call super::OnReadyStateChange here - we handle firing the event ourselves
     SetReadyStateLink(_readyStateLink);
 }
@@ -743,16 +672,10 @@ CLinkElement::OnReadyStateChange()
 
 
 //  Member:     CLinkElement::SetReadyStateLink
-
 //  Synopsis:   Use this to set the ready state;
 //              it fires OnReadyStateChange if needed.
-
 //  Returns:    HRESULT
-
-
-
-HRESULT
-CLinkElement::SetReadyStateLink(long readyStateLink)
+HRESULT CLinkElement::SetReadyStateLink(long readyStateLink)
 {
     long readyState;
 
@@ -775,11 +698,7 @@ CLinkElement::SetReadyStateLink(long readyStateLink)
 
 
 //  Member:     CLinkElement:get_readyState
-
-
-
-HRESULT
-CLinkElement::get_readyState(BSTR* p)
+HRESULT CLinkElement::get_readyState(BSTR* p)
 {
     HRESULT hr = S_OK;
 
@@ -831,13 +750,8 @@ Cleanup:
 
 
 
-
 //  Member:     CLinkElement:get_styleSheet
-
-
-
-HRESULT
-CLinkElement::get_styleSheet(IHTMLStyleSheet** ppHTMLStyleSheet)
+HRESULT CLinkElement::get_styleSheet(IHTMLStyleSheet** ppHTMLStyleSheet)
 {
     HRESULT hr = S_OK;
 
@@ -849,8 +763,7 @@ CLinkElement::get_styleSheet(IHTMLStyleSheet** ppHTMLStyleSheet)
     *ppHTMLStyleSheet = NULL;
 
     if (_pStyleSheet) {
-        hr = _pStyleSheet->QueryInterface(IID_IHTMLStyleSheet,
-            (void**)ppHTMLStyleSheet);
+        hr = _pStyleSheet->QueryInterface(IID_IHTMLStyleSheet, (void**)ppHTMLStyleSheet);
     }
 
 Cleanup:
@@ -858,25 +771,16 @@ Cleanup:
 }
 
 
-
-
-
 //  Member:     CLinkElement::GetLinkType
-
 //  Tests the attributes of the LINK element to determine what type link this is
-
-
-
-CLinkElement::LINKTYPE
-CLinkElement::GetLinkType()
+CLinkElement::LINKTYPE CLinkElement::GetLinkType()
 {
     LPCTSTR     pchHref = GetAAhref();
     LPCTSTR     pchRel = GetAArel();
     LPCTSTR     pchType = GetAAtype();
     CTreeNode* pNodeContext = GetFirstBranch();
 
-    if (!pNodeContext || (!IsInPrimaryMarkup() &&
-                          pNodeContext->Parent()->Tag() == ETAG_HEAD))
+    if (!pNodeContext || (!IsInPrimaryMarkup() && pNodeContext->Parent()->Tag() == ETAG_HEAD))
         return LINKTYPE_UNKNOWN;
 
     if (pchHref && pchRel) {

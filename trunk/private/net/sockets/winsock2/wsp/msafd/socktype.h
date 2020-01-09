@@ -17,8 +17,7 @@ Author:
 // SOCKET_STATE defines the various states a socket may have.
 // Note that not all states are valid for all types of sockets.
 
-typedef enum _SOCKET_STATE
-{
+typedef enum _SOCKET_STATE{
     SocketStateOpen,
     SocketStateBound,
     SocketStateBoundSpecific,           // Datagram only
@@ -56,8 +55,7 @@ typedef struct _WINSOCK_HELPER_DLL_INFO
     WCHAR   TransportName[1];
 } WINSOCK_HELPER_DLL_INFO, * PWINSOCK_HELPER_DLL_INFO;
 
-typedef struct _PROTOCOL_INFO_ENTRY
-{
+typedef struct _PROTOCOL_INFO_ENTRY{
     LIST_ENTRY          Link;
     WSAPROTOCOL_INFOW   Info;
 } PROTOCOL_INFO_ENTRY, * PPROTOCOL_INFO_ENTRY;
@@ -207,8 +205,7 @@ typedef struct _WINSOCK_TLS_DATA
     {
         PAFD_SAN_ACCEPT_INFO AcceptInfo; // Info of socket accepted in
                                     // the current thread for quering
-                                    // connect data from the helper
-                                    // DLL.
+                                    // connect data from the helper DLL.
         DWORD_PTR           Context;
     };
     DWORD    UpcallLevel;
@@ -249,7 +246,7 @@ struct _SOCK_ASYNC_CONNECT_CONTEXT
 };
 
 // Typedef for async completion routine.
-typedef VOID(*PASYNC_COMPLETION_PROC) (PVOID               Context, PIO_STATUS_BLOCK    IoStatus);
+typedef VOID(*PASYNC_COMPLETION_PROC) (PVOID Context, PIO_STATUS_BLOCK IoStatus);
 
 // Special context to terminate async thread.
 #define ASYNC_TERMINATION_PROC ((PASYNC_COMPLETION_PROC)-1)
@@ -321,7 +318,6 @@ typedef struct _WSPEXTPROC_TABLE
     LPFN_WSPRDMAREAD            lpWSPRdmaRead;
 } WSPEXTPROC_TABLE, * PWSPEXTPROC_TABLE;
 
-
 typedef struct _SOCK_SAN_PROVIDER
 {
     LIST_ENTRY              Link;           // Link in the provider list
@@ -362,7 +358,6 @@ typedef struct _SOCK_SAN_SUBNET_MAP
 #define NON_BLOCKING_IN_PROGRESS    2
 #define BLOCKING_IN_PROGRESS        3
 
-
 // different states for socket duplication
 #define SUSPENDING_COMMUNICATION    1  // suspending all data transfers (source proc)
 #define SOCK_MIGRATED                2  // sock now fully owned by some other proc
@@ -378,11 +373,11 @@ typedef struct _DuplicationContext
     };
     struct
     {
-        BOOLEAN        ListeningSock : 1;      // TRUE when socket is listening
-        BOOLEAN        SameProcess : 1;         // Socket is in same process (just switch pointers)
-        BOOLEAN        LocalClose : 1;         // Local side has closed socket
-        BOOLEAN        LocalAborted : 1;        // Local side did abort
-        BOOLEAN        RemoteReset : 1;         // Connection reset by remote
+        BOOLEAN        ListeningSock : 1;// TRUE when socket is listening
+        BOOLEAN        SameProcess : 1;  // Socket is in same process (just switch pointers)
+        BOOLEAN        LocalClose : 1;   // Local side has closed socket
+        BOOLEAN        LocalAborted : 1; // Local side did abort
+        BOOLEAN        RemoteReset : 1;  // Connection reset by remote
     };
 } SOCK_SAN_DUPLICATION_CONTEXT, * PSOCK_SAN_DUPLICATION_CONTEXT;
 
@@ -448,10 +443,10 @@ typedef struct _ApplicationBufferHeader* PAPPLICATION_BUFFER_HEADER;
 typedef struct _FCEntry
 {
     DWORD    Code;
-    DWORD     BufferSize;            // size of (send or recv) buffer
-    DWORD    LastSmallMsgSeqNum;    // seq number of last small msg seen before FC
+    DWORD     BufferSize;       // size of (send or recv) buffer
+    DWORD    LastSmallMsgSeqNum;// seq number of last small msg seen before FC
                                 //   info was sent.
-    char     RdmaHandle[1];        // actual handle length determined at run time
+    char     RdmaHandle[1];     // actual handle length determined at run time
 } FC_ENTRY, * PFC_ENTRY;
 
 struct _SOCK_SAN_INFORMATION
@@ -465,10 +460,8 @@ struct _SOCK_SAN_INFORMATION
     CRITICAL_SECTION CritSec;
     LIST_ENTRY     SockListEntry; // list of socks which haven't been closed
 
-
     // Above variables are NOT reset when TransmitFile does a REUSE.
     // All variables below ARE reset
-
 
     SOCKET      SanSocket;   // This handle is user internally to talk to SAN
 
@@ -478,12 +471,9 @@ struct _SOCK_SAN_INFORMATION
     UINT         ExpeditedBytesBuffered;    // num OOB bytes buffered
     UINT         SendBytesBuffered; // send bytes buffered
 
-
     int         Error;              // The last SAN error on this socket.
 
-
     //  Flags indicating the state of the socket.
-
 
     LONG        RemoteReset;       // Remote end of the socket has been closed abortively.
     BOOLEAN        FlowControlInitialized;
@@ -491,35 +481,30 @@ struct _SOCK_SAN_INFORMATION
     BOOLEAN      StayInSmallRecvLargeRecvMode;  // Set to TRUE if receiving too many
                                 // small sends and too few large sends
 
-    HANDLE        Event;             // To save event on which blocking connect() blocks
-    DWORD        IsConnected;     // 0 or CONNECTED or NON_BLOCKING_IN_PROGRESS
+    HANDLE        Event;      // To save event on which blocking connect() blocks
+    DWORD        IsConnected; // 0 or CONNECTED or NON_BLOCKING_IN_PROGRESS
 
-    ULONG        ConnectTime;     // used for SO_CONNECTTIME option handling
+    ULONG        ConnectTime; // used for SO_CONNECTTIME option handling
 
-    LONG        IsClosing;         // TRUE if CloseSocketExt has been called
-    LONG        CloseCount;          // When reaches 2, then close this socket
-    DWORD        State1;             // to track if non-blocking connect in progress or
-                                 // socket is in listen state
-    int            waitId;             // valid if socket is in listening state
+    LONG        IsClosing;    // TRUE if CloseSocketExt has been called
+    LONG        CloseCount;   // When reaches 2, then close this socket
+    DWORD        State1;      // to track if non-blocking connect in progress or socket is in listen state
+    int            waitId;    // valid if socket is in listening state
 
     DWORD        SockDupState;     // Tracks different states for socket duplication
     PVOID         DuplicationRequestContext; // AFD's context for sock dup
     DWORD        DestinationProcessId; // destination process for sock duplication
     HANDLE        ReclaimDupSock;     // used to get back a just-duplicated sock
 
-    LIST_ENTRY    NonPostedRecvQueue;      // registered recv buffers not yet posted as WSPRecv
-
+    LIST_ENTRY    NonPostedRecvQueue; // registered recv buffers not yet posted as WSPRecv
     AFD_SWITCH_CONTEXT SelectContext; // shared between msafd and afd
 
 
     //  Flow control queues and data.
 
-
-
     // Count variables to serialize execution of certain routines; light-weight
     // synchronization without using critical sections because we can't hold
     // a critical section when calling the provider
-
 
     LONG CheckPendingAppRecvsCount;
     LONG RestartBlockedSendsCount;
@@ -527,44 +512,24 @@ struct _SOCK_SAN_INFORMATION
     LONG HandleCompletedRecvCount;
     LONG PostReceiveCount;
     LONG DataAvailableDoRecvInProgress;
-    LONG ChangeModeToLargeRecvOnly;    // signal from HandleControlMessage() to
-                                    // CheckPendingAppRecvs()
-
-    //  A list of allocated buffer sets
-    LIST_ENTRY AllocatedBufferSetList;
-
-    //  A list of posted receives
-    LIST_ENTRY ReadyRecvQueue;
-
-    //  A list of application posted receive buffers
-    LIST_ENTRY ApplicationRecvQueue;
-
-    //  A list of completed receives, waiting for the application
-    LIST_ENTRY CompletedRecvQueue;
+    LONG ChangeModeToLargeRecvOnly;    // signal from HandleControlMessage() to CheckPendingAppRecvs()
+    
+    LIST_ENTRY AllocatedBufferSetList;//  A list of allocated buffer sets    
+    LIST_ENTRY ReadyRecvQueue;//  A list of posted receives    
+    LIST_ENTRY ApplicationRecvQueue;//  A list of application posted receive buffers    
+    LIST_ENTRY CompletedRecvQueue;//  A list of completed receives, waiting for the application
 
     // For a multi-threaded app, small messages can get out-of-order (because
     // we don't hold any locks when calling Provider's WSPSend). Receiver
-    // uses this list to get data back in order based on SendMessageNumber in
-    // the message header.
+    // uses this list to get data back in order based on SendMessageNumber in the message header.
     LIST_ENTRY ReceivedOutOfOrderQueue;
-
-    //  A list of buffer available for sends
-    LIST_ENTRY ReadySendQueue;
-
-    //  A list of posted sends
-    LIST_ENTRY SendInProgressQueue;
-
-    //  A list of sends waiting for quota
-    LIST_ENTRY BlockedSendQueue;
-
-    //  A list of control messages waiting for quota
-    LIST_ENTRY BlockedControlMessageQueue;
-
-    //  The send credit available for us to send
-    DWORD SendCredit;
-
-    //  The send credit that the receiver has
-    DWORD ReceiversSendCredit;
+    
+    LIST_ENTRY ReadySendQueue;//  A list of buffer available for sends    
+    LIST_ENTRY SendInProgressQueue;//  A list of posted sends    
+    LIST_ENTRY BlockedSendQueue;//  A list of sends waiting for quota    
+    LIST_ENTRY BlockedControlMessageQueue;//  A list of control messages waiting for quota    
+    DWORD SendCredit;//  The send credit available for us to send    
+    DWORD ReceiversSendCredit;//  The send credit that the receiver has
 
     DWORD SendMessageNumber;
     DWORD ReceiveMessageNumber;
@@ -575,15 +540,14 @@ struct _SOCK_SAN_INFORMATION
     DWORD SendCreditReservation;
 
     // Receiver's mode variables for bulk transfer flow control
-    DWORD RsMode;                    // what sender thinks R's mode is
-    DWORD TmpRsMode;                // used while in transition
+    DWORD RsMode;          // what sender thinks R's mode is
+    DWORD TmpRsMode;       // used while in transition
     DWORD TmpRsModeCount;
-    DWORD RsCopyOfSsRsMode;            // receiver's copy of sender's R's mode
-    DWORD xRsMode;                    // Used for delayed setting of RsMode
-    DWORD xBeginRecvFCInfo;            // Delay setting RsMode till BeginRecvFCInfo reaches
-                                    // this value
-    DWORD LargeRecvCount;            // For LARGE_RECV_ONLY_MODE
-    DWORD SmallRecvCount;            // For LARGE_RECV_ONLY_MODE
+    DWORD RsCopyOfSsRsMode;// receiver's copy of sender's R's mode
+    DWORD xRsMode;         // Used for delayed setting of RsMode
+    DWORD xBeginRecvFCInfo;// Delay setting RsMode till BeginRecvFCInfo reaches this value
+    DWORD LargeRecvCount;  // For LARGE_RECV_ONLY_MODE
+    DWORD SmallRecvCount;  // For LARGE_RECV_ONLY_MODE
 
     PAPPLICATION_BUFFER_HEADER LatestSmallRecv;    // non-null if we have a non-RDMA
                                     // recv pending in ApplicationRecvQueue
@@ -596,34 +560,34 @@ struct _SOCK_SAN_INFORMATION
     LIST_ENTRY     WsaBufListHead;        // cache of WSABUFs for overlapped send()'s
     LIST_ENTRY     WsaBufExListHead;    // cache of WSABUFEXs for overlapped send()'s
 
-    PFC_ENTRY    LargeRecvFCInfo;    // recvs available on remote side (per socket)
-    DWORD        BeginRecvFCInfo;    // index of first valid entry
-    DWORD        EndRecvFCInfo;        // index of first free entry
-    DWORD        NumRecvFCEntries;     // number of valid entries in the ring
-    DWORD        NumStale;              // number of entries that can be stale
-    DWORD         LastLastSMSent;        // Value of LastSmallMessageSent last time
-                                    // NumPossiblyStale was calculated
-    DWORD        LastLastSMSeqNum;      // Value of FC->LastSmallMsgSeqNum last time
-    PFC_ENTRY    LargeSendFCInfo;    // sends available on remote side (per socket)
-                                    // NumPossiblyStale was calculated
-    DWORD        BeginSendFCInfo;    // index of first valid entry
-    DWORD        EndSendFCInfo;        // index of first free entry
-    DWORD        NumSendFCEntries;     // number of valid entries in the ring
+    PFC_ENTRY    LargeRecvFCInfo; // recvs available on remote side (per socket)
+    DWORD        BeginRecvFCInfo; // index of first valid entry
+    DWORD        EndRecvFCInfo;   // index of first free entry
+    DWORD        NumRecvFCEntries;// number of valid entries in the ring
+    DWORD        NumStale;        // number of entries that can be stale
+    DWORD         LastLastSMSent; // Value of LastSmallMessageSent last time
+                                  // NumPossiblyStale was calculated
+    DWORD        LastLastSMSeqNum;// Value of FC->LastSmallMsgSeqNum last time
+    PFC_ENTRY    LargeSendFCInfo; // sends available on remote side (per socket)
+                                  // NumPossiblyStale was calculated
+    DWORD        BeginSendFCInfo; // index of first valid entry
+    DWORD        EndSendFCInfo;   // index of first free entry
+    DWORD        NumSendFCEntries;// number of valid entries in the ring
 
     WSABUF wsaBuf;                // persistent WSABUF for accepting socket to do recv()
 
     // For doing overlapped receive for AcceptEx(). Need persistent space
-    OVERLAPPED             Overlapped;
+    OVERLAPPED Overlapped;
 
     union
     {
-        int                MaxListenBacklog;      // We'll buffer this many incoming connects
-        LONG            ContinuingAcceptProcessing; // Used for accepted socket
+        int   MaxListenBacklog;      // We'll buffer this many incoming connects
+        LONG  ContinuingAcceptProcessing; // Used for accepted socket
     };
     union
     {
-        int                CurrentListenBacklog;  // We have this many buffered(for listen sock)
-        ULONG            HalfAcceptRefCount;       // ref count for accept socket
+        int   CurrentListenBacklog;  // We have this many buffered(for listen sock)
+        ULONG HalfAcceptRefCount;       // ref count for accept socket
     };
 
     // For completion port signalling of accept.  Need persistent space
@@ -639,24 +603,24 @@ struct _SOCK_SAN_INFORMATION
     BOOLEAN                dontroute;
 
     // buffers for SO_SNDBUF and SO_RCVBUF buffering
-    PCHAR                NormalDataRegBuf;
-    PCHAR                NormalDataRegBufEnd;
-    PCHAR                NormalFreeStart;
-    PCHAR                NormalInUseStart;
-    PREGISTERED_BUFFER  LastSpecialRecvBuf;    // last special buf in CompletedRecvQueue
-    BOOLEAN                NormalDataRecvsAvailAfterBuffering;        // for wrap-around
+    PCHAR              NormalDataRegBuf;
+    PCHAR              NormalDataRegBufEnd;
+    PCHAR              NormalFreeStart;
+    PCHAR              NormalInUseStart;
+    PREGISTERED_BUFFER LastSpecialRecvBuf;    // last special buf in CompletedRecvQueue
+    BOOLEAN            NormalDataRecvsAvailAfterBuffering;// for wrap-around
 
-    LIST_ENTRY    AppBufferPool;
-    LIST_ENTRY    RdmaDataPool;
-    LIST_ENTRY    ControlMessageStorePool;
+    LIST_ENTRY AppBufferPool;
+    LIST_ENTRY RdmaDataPool;
+    LIST_ENTRY ControlMessageStorePool;
 
     struct
     {
         // for graceful disconnect and WSPShutdown
         BOOLEAN    GracefulDisconnect : 1;// WSPClosesocket has started graceful disconnect
         BOOLEAN    LocalClose : 1;        // local side has called WSPCloseSocket or Shutdown
-        BOOLEAN    LocalAborted : 1;        // local side closed connection due to some error
-        BOOLEAN    CloseMsgSent : 1;        // we've told remote side of (graceful) close
+        BOOLEAN    LocalAborted : 1;      // local side closed connection due to some error
+        BOOLEAN    CloseMsgSent : 1;      // we've told remote side of (graceful) close
         BOOLEAN    TransmitFileReuse : 1;// True when graceful disconnect initiated by TF, i.e.,
                                     // the TCP socket should not be closed
         BOOLEAN    SanSockClosing : 1;   // SockSanCloseSocket() has been called
@@ -674,16 +638,14 @@ struct _SOCK_SAN_INFORMATION
     LONG        RdmaBufStatus[RDMA_CACHE_SIZE]; // >0 if RDMA underway; ==0 if completed
 #endif
 
-    PSOCK_SAN_INFORMATION NextSwitchSocket;    // for linked lists
-    PSOCK_SAN_INFORMATION PrevSwitchSocket;    // for linked lists
+    PSOCK_SAN_INFORMATION NextSwitchSocket;// for linked lists
+    PSOCK_SAN_INFORMATION PrevSwitchSocket;// for linked lists
 };
-
 
 #define MAX_FAST_SAN_ADDRESSES  1
 #define SOCK_SAN_ON_TCP_KEY \
     L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\Winsock\\Parameters\\TCP on SAN"
 
 #endif //_AFD_SAN_SWITCH_
-
 
 #endif // ndef _SOCKTYPE_

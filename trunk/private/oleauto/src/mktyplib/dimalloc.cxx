@@ -20,9 +20,7 @@
 
 *  This implementation also has additional param validation code, as
 *  well as additional check make sure that instances that are passed
-*  to Free() were actually allocated by the corresponding instance
-*  of the allocator.
-
+*  to Free() were actually allocated by the corresponding instance of the allocator.
 
 *  Creating an instance of this debug allocator that uses the default
 *  output interface would look like the following,
@@ -107,7 +105,6 @@
 #endif
 #define _DEBUG 1
 
-
 #if !OE_WIN32
 #include "ole2.h"
 #if !OE_MAC
@@ -122,7 +119,6 @@
 
 typedef VOID* HSYS;
 #define HSYS_Nil ((HSYS)NULL)
-
 
 #endif
 
@@ -158,7 +154,6 @@ extern "C" {
 #include "macos\lists.h"
 #endif // OE_MAC
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -170,7 +165,6 @@ extern "C" {
     else 0 /* useless statement */
 
     void DebAssertShow(LPSTR szFileName, UINT uLine, LPSTR szComment);
-
 
 #define DebAssertNum(fExpr, szComment, nErr) \
     if (!(fExpr)) \
@@ -239,7 +233,6 @@ extern "C" {
 #define EBERR_IdNotFound        0xffff
     extern int g_fDbcs;   // is DBCS support enabled?
 
-
     LPDISPATCH EBCALL Bind(LPVARIANT lpvarRngName);
     LPDISPATCH EBCALL NewPoint(void);
     LPDISPATCH EBCALL NewPoly(void);
@@ -296,11 +289,11 @@ extern "C" {
 #undef _fstrchr
 #endif
 
-#define _fstrcpy      strcpy
-#define _fstrncpy     strncpy
-#define _fstrncat     strncat
-#define _fstrcat      strcat
-#define _fstrchr      strchr
+#define _fstrcpy  strcpy
+#define _fstrncpy strncpy
+#define _fstrncat strncat
+#define _fstrcat  strcat
+#define _fstrchr  strchr
 #endif    //OE_MAC
 
 #if OE_MAC
@@ -332,8 +325,7 @@ interface IDbOutput : public IUnknown
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
-    STDMETHOD_(void, Printf)(THIS_
-                             char FAR* szFmt, ...) PURE;
+    STDMETHOD_(void, Printf)(THIS_ char FAR* szFmt, ...) PURE;
 
     STDMETHOD_(void, Assertion)(THIS_
                                 BOOL cond,
@@ -343,16 +335,11 @@ interface IDbOutput : public IUnknown
                                 char FAR* szMsg) PURE;
 };
 
-
-STDAPI CreateDbAlloc(
-    ULONG options,
-    IDbOutput FAR* pdbout,
-    IMalloc FAR* FAR* ppmalloc);
+STDAPI CreateDbAlloc(ULONG options, IDbOutput FAR* pdbout, IMalloc FAR* FAR* ppmalloc);
 
 // dballoc option flags - these are set at create time.
 
 #define DBALLOC_NONE    0
-
 
 #endif /* } DBALLOC_H_INCLUDED */
 
@@ -369,7 +356,6 @@ static char szSigMsg[] = "Signature Check Failed";
 // arrays thus allowing testing of the array-adjust code in VBA.
 #define    ADJUST_ARRAYS 1
 
-
 #if OE_WIN16
 #define MAX_SIZE 64000
 #else
@@ -380,9 +366,6 @@ static char szSigMsg[] = "Signature Check Failed";
 VOID FAR* HugeAlloc(DWORD  bch);
 VOID FAR* HugeRealloc(VOID FAR* pv, DWORD  bchNew);
 VOID FAR* HugeFree(VOID FAR* pv);
-
-
-
 
 #if defined(WIN32)
 
@@ -429,23 +412,13 @@ public:
     static IDbOutput FAR* Create();
 
     // IUnknown methods
-
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppv);
     STDMETHOD_(ULONG, AddRef)(void);
     STDMETHOD_(ULONG, Release)(void);
 
-
     // IDbOutput methods
-
     STDMETHOD_(void, Printf)(char FAR* szFmt, ...);
-
-    STDMETHOD_(void, Assertion)(
-        BOOL cond,
-        char FAR* szExpr,
-        char FAR* szFile,
-        UINT uLine,
-        char FAR* szMsg);
-
+    STDMETHOD_(void, Assertion)(BOOL cond, char FAR* szExpr, char FAR* szFile, UINT uLine, char FAR* szMsg);
 
     void FAR* operator new(size_t cb) {
         return MALLOC(cb);
@@ -465,9 +438,7 @@ private:
 };
 
 
-
-
-//                implementation of the debug allocator
+//implementation of the debug allocator
 
 
 class FAR CAddrNode
@@ -490,17 +461,14 @@ public:
 class FAR CDbAlloc : public IMalloc
 {
 public:
-    static HRESULT Create(
-        ULONG options, IDbOutput FAR* pdbout, IMalloc FAR* FAR* ppmalloc);
+    static HRESULT Create(ULONG options, IDbOutput FAR* pdbout, IMalloc FAR* FAR* ppmalloc);
 
     // IUnknown methods
-
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppv);
     STDMETHOD_(ULONG, AddRef)(void);
     STDMETHOD_(ULONG, Release)(void);
 
     // IMalloc methods
-
     STDMETHOD_(void FAR*, Alloc)(ULONG cb);
     STDMETHOD_(void FAR*, Realloc)(void FAR* pv, ULONG cb);
     STDMETHOD_(void, Free)(void FAR* pv);
@@ -519,12 +487,10 @@ public:
     }
 
 private:
-
     ULONG m_refs;
     ULONG m_cAllocCalls;        // total count of allocation calls
     IDbOutput FAR* m_pdbout;        // output interface
     CAddrNode FAR* m_rganode[64];    // address instance table
-
 
     // instance table methods
 
@@ -541,21 +507,14 @@ private:
         return ((UINT)((ULONG)pv >> 4)) % DIM(m_rganode);
     }
 
-
     // output method(s)
 
-    inline void Assertion(
-        BOOL cond,
-        char FAR* szExpr,
-        char FAR* szFile,
-        UINT uLine,
-        char FAR* szMsg)
+    inline void Assertion(BOOL cond, char FAR* szExpr, char FAR* szFile, UINT uLine, char FAR* szMsg)
     {
         m_pdbout->Assertion(cond, szExpr, szFile, uLine, szMsg);
     }
 
 #define ASSERT(X) Assertion(X, #X, __FILE__, __LINE__, NULL)
-
 #define ASSERTSZ(X, SZ) Assertion(X, #X, __FILE__, __LINE__, SZ)
 
 #if OE_RISC
@@ -597,28 +556,17 @@ public:
 
 *Exit:
 *  return value = HRESULT
-
 *  *ppmalloc = pointer to an IMalloc interface
-
 */
-STDAPI
-CreateDbAlloc(
-    ULONG options,
-    IDbOutput FAR* pdbout,
-    IMalloc FAR* FAR* ppmalloc)
+STDAPI CreateDbAlloc(ULONG options, IDbOutput FAR* pdbout, IMalloc FAR* FAR* ppmalloc)
 {
     return CDbAlloc::Create(options, pdbout, ppmalloc);
 }
 
-HRESULT
-CDbAlloc::Create(
-    ULONG options,
-    IDbOutput FAR* pdbout,
-    IMalloc FAR* FAR* ppmalloc)
+HRESULT CDbAlloc::Create(ULONG options, IDbOutput FAR* pdbout, IMalloc FAR* FAR* ppmalloc)
 {
     HRESULT hresult;
     CDbAlloc FAR* pmalloc;
-
 
     // default the instance of IDbOutput if the user didn't supply one
     if (pdbout == NULL && ((pdbout = CStdDbOutput::Create()) == NULL)) {
@@ -634,9 +582,7 @@ CDbAlloc::Create(
     }
 
     pmalloc->m_pdbout = pdbout;
-
     *ppmalloc = pmalloc;
-
     return NOERROR;
 
 LError1:;
@@ -647,8 +593,8 @@ LError0:;
     return hresult;
 }
 
-STDMETHODIMP
-CDbAlloc::QueryInterface(REFIID riid, void FAR* FAR* ppv)
+
+STDMETHODIMP CDbAlloc::QueryInterface(REFIID riid, void FAR* FAR* ppv)
 {
     HRESULT hresult;
 #if OE_MAC
@@ -681,7 +627,6 @@ CDbAlloc::Release()
     //    FILE *pfileLog;  // UNDONE stevenl -- not used right now
 
     if (--m_refs == 0) {
-
 #if OE_MAC
         long a5Save = SetA5(*((long*)(long)CurrentA5));
 #endif // OE_MAC
@@ -780,7 +725,6 @@ CDbAlloc::Alloc(ULONG cb)
 
         // put signature at the head of the allocated block
         MEMCPY((char FAR*)pv, m_rgchSig, sizeof(m_rgchSig));
-
     }
 
     // For Huge allocation return the pointer to the beginnig of the seg.
@@ -803,7 +747,6 @@ Error:
 
     return pv;
 }
-
 
 
 STDMETHODIMP_(void FAR*)
@@ -848,9 +791,7 @@ CDbAlloc::Realloc(void FAR* pv, ULONG cb)
 
     // UNDONE : This does not handle the case when  we mix the huge alloc and
     //        and realloc.
-    if (((sizeToFree + 2 * sizeof(m_rgchSig)) < MAX_SIZE) &&
-        ((size + 2 * sizeof(m_rgchSig)) < MAX_SIZE)) {
-
+    if (((sizeToFree + 2 * sizeof(m_rgchSig)) < MAX_SIZE) && ((size + 2 * sizeof(m_rgchSig)) < MAX_SIZE)) {
         // we delete the instance from the table using the address passed in.
         DelInst(pv);
 
@@ -877,7 +818,6 @@ CDbAlloc::Realloc(void FAR* pv, ULONG cb)
         } else {
             VOID FAR* pvNew;
             ULONG cbCopy;
-
 
             if ((pvNew = Alloc(size)) == NULL) {
                 // if the memory to be free is < MAX_SIZE then adjust the pointer
@@ -1045,7 +985,6 @@ VOID CDbAlloc::MemInstance()
 *    0 - did *not* alloc
 *   -1 - dont know (according to the ole2 spec it is always legal
 *        for the allocator to answer "dont know")
-
 */
 STDMETHODIMP_(int)
 CDbAlloc::DidAlloc(void FAR* pv)
@@ -1060,16 +999,16 @@ CDbAlloc::HeapMinimize()
 #if !OE_WIN32 //UNDONE: what does HeapMinimize mean for WIN32?
 #if OE_MAC
     long a5Save = SetA5(*((long*)(long)CurrentA5));
-#endif // OE_MAC
+#endif
     HEAPMIN();
 #if OE_MAC
     SetA5(a5Save);
-#endif // OE_MAC
+#endif
 #endif
 }
 
 
-//                      instance table methods
+// instance table methods
 
 
 void CDbAlloc::AddInst(void FAR* pv, ULONG nAlloc, ULONG cb)
@@ -1121,9 +1060,8 @@ void CDbAlloc::DelInst(void FAR* pv)
             return;
         }
     }
-
-    // didnt find the instance
-    ASSERT(UNREACHED);
+    
+    ASSERT(UNREACHED);// didnt find the instance
 }
 
 
@@ -1193,17 +1131,17 @@ BOOL CDbAlloc::IsEmpty()
             cb = GetSize(pn->m_pv);
 
             if (pn->m_nAlloc == 1 && cb == 320)
-                continue;    // ignore OleInitialize's first memory leak
+                continue;// ignore OleInitialize's first memory leak
             if (pn->m_nAlloc == 3 && cb == 60)
-                continue;    // ignore OleInitialize's second memory leak
+                continue;// ignore OleInitialize's second memory leak
             if (cb == 68)
-                continue;    // ignore OleUninitialize's first memory leak
+                continue;// ignore OleUninitialize's first memory leak
             if (cb == 172)
-                continue;    // ignore OleUninitialize's second memory leak
+                continue;// ignore OleUninitialize's second memory leak
 #endif    //OE_WIN32
 
 #if !FV_UNICODE_OLE     // UNDONE: temporary (ignore the dstrmgr leaks)
-            return FALSE;    // some other leak
+            return FALSE;// some other leak
 #endif //!FV_UNICODE_OLE
         }
     }
@@ -1262,17 +1200,15 @@ VOID CDbAlloc::IMallocHeapChecker()
                     ASSERTSZ(FALSE, szSigMsg);
                 }
             }
-
-        }  // for loop
-    }  // for loop
+        }
+    }
 }
 
 
-//                implementation of CStdDbOutput
+//implementation of CStdDbOutput
 
 
-IDbOutput FAR*
-CStdDbOutput::Create()
+IDbOutput FAR* CStdDbOutput::Create()
 {
     return (IDbOutput FAR*)new FAR CStdDbOutput();
 }
@@ -1333,12 +1269,7 @@ CStdDbOutput::Printf(char FAR* szFmt, ...)
 }
 
 STDMETHODIMP_(void)
-CStdDbOutput::Assertion(
-    BOOL cond,
-    char FAR* szExpr,
-    char FAR* szFile,
-    UINT uLine,
-    char FAR* szMsg)
+CStdDbOutput::Assertion(BOOL cond, char FAR* szExpr, char FAR* szFile, UINT uLine, char FAR* szMsg)
 {
     if (cond)
         return;
@@ -1356,7 +1287,6 @@ extern "C" {
     * GetDebIMalloc()
 
     * Purpose : Creates a debug version of IMalloc
-
     */
     BOOL GetDebIMalloc(IMalloc FAR* FAR* ppmalloc)
     {
@@ -1381,25 +1311,20 @@ extern "C" {
 #endif
 
 
-/*
-* HugeAlloc
-
-* Purpose:
-*   Allocate a system memblock of given size and return its handle.
-*   Note: on Win16 dereferences handle and produce 32-bit
-*       address = selector:offset=0.
-
-* Inputs:
-*   bch     Allocation request.  Can be >64K.
-
-* Outputs:
-*   Returns an HSYS.  NULL if unsuccessful.
-*/
 
 VOID FAR* HugeAlloc(DWORD bch)
+/*
+Purpose:
+  Allocate a system memblock of given size and return its handle.
+  Note: on Win16 dereferences handle and produce 32-bit
+      address = selector:offset=0.
+Inputs:
+  bch     Allocation request.  Can be >64K.
+Outputs:
+  Returns an HSYS.  NULL if unsuccessful.
+*/
 {
 #if OE_WIN16
-
     VOID FAR* pv;
     HANDLE hMem;
 
@@ -1410,13 +1335,11 @@ VOID FAR* HugeAlloc(DWORD bch)
     } else {
         return (VOID FAR*)pv;
     }
-
 #elif OE_MACNATIVE
 
     Handle hMemBlock;
     THz    pCurrZone;
     OSErr  oserr;
-
 
     //        The following is a work-around to our bogus code that
     //        caches pointers to moveable memory.  The basic idea
@@ -1478,21 +1401,19 @@ VOID FAR* HugeAlloc(DWORD bch)
 }
 
 
-/*
-* HsysReallocHsys
 
-* Purpose:
-*   Reallocate a  system memblock given handle to new size.
-*   Shrinking won't move block.
-
-* Inputs:
-*   hsys    Handle to sys memblock they want to realloc.
-*   bchNew  New size they want.   Can be >64K.
-
-* Outputs:
-*   Returns an HSYS.  NULL if unsuccessful.
-*/
 VOID FAR* HugeRealloc(VOID FAR* pv, DWORD  bchNew)
+/*
+HsysReallocHsys
+Purpose:
+  Reallocate a  system memblock given handle to new size.
+  Shrinking won't move block.
+Inputs:
+  hsys    Handle to sys memblock they want to realloc.
+  bchNew  New size they want.   Can be >64K.
+Outputs:
+  Returns an HSYS.  NULL if unsuccessful.
+*/
 {
 #if OE_WIN16  // TEMPORARY
 #if OE_WIN16
@@ -1504,24 +1425,20 @@ VOID FAR* HugeRealloc(VOID FAR* pv, DWORD  bchNew)
     DWORD dwNewSize = bchNew;
 #if ID_DEBUG
     ULONG cbOld;
-#endif // ID_DEBUG
-
-    // Get selector
-    usSel = OOB_SELECTOROF((void FAR*)pv);
+#endif
+    
+    usSel = OOB_SELECTOROF((void FAR*)pv);// Get selector
 
     if ((dwMem = GlobalHandle((WORD)usSel)) == NULL) {
         return NULL;
-    } else {
-        // Extract the handle.
-        hMem = (HANDLE)LOWORD(dwMem);
+    } else {        
+        hMem = (HANDLE)LOWORD(dwMem);// Extract the handle.
 
-#if ID_DEBUG
-        // get the size of the old block
-        cbOld = GlobalSize(hMem);
-#endif // ID_DEBUG
+#if ID_DEBUG        
+        cbOld = GlobalSize(hMem);// get the size of the old block
+#endif 
 
-        if (((hMemNew =
-              GlobalReAlloc(hMem, bchNew, GMEM_MOVEABLE)) == NULL)) {
+        if (((hMemNew = GlobalReAlloc(hMem, bchNew, GMEM_MOVEABLE)) == NULL)) {
             return NULL;
         } else if ((pvNew = GlobalLock(hMemNew)) == NULL) {
             return NULL;
@@ -1537,14 +1454,13 @@ VOID FAR* HugeRealloc(VOID FAR* pv, DWORD  bchNew)
     OSErr   oserr;
 #if ID_DEBUG
     ULONG cbOld;
-#endif // ID_DEBUG
+#endif
 
     hMemBlock = (Handle)hsys;
 
-#if ID_DEBUG
-    // get the size of the old block
-    cbOld = GetHandleSize(hMemBlock);
-#endif // ID_DEBUG
+#if ID_DEBUG    
+    cbOld = GetHandleSize(hMemBlock);// get the size of the old block
+#endif
 
     pCurrZone = GetZone();           // save current zone
     SetZone(HandleZone((Handle)hsys)); // must set proper zone or
@@ -1552,10 +1468,8 @@ VOID FAR* HugeRealloc(VOID FAR* pv, DWORD  bchNew)
                        //  jump to curr zone if it moves.
     oserr = MemError();
     SetZone(pCurrZone);            // restore current zone.
-
-    if (oserr == memFullErr) {
-        // Out of memory
-        return NULL;
+    if (oserr == memFullErr) {        
+        return NULL;// Out of memory
     }
 
     DebAssert((MemError() != nilHandleErr), "HsysReallocHsys: NIL master pointer ");
@@ -1572,21 +1486,18 @@ VOID FAR* HugeRealloc(VOID FAR* pv, DWORD  bchNew)
     OSErr   oserr;
 #if ID_DEBUG
     ULONG cbOld;
-#endif // ID_DEBUG
+#endif
 
     hMemBlock = (Handle)hsys;
 
-#if ID_DEBUG
-    // get the size of the old block
-    cbOld = GetHandleSize(hMemBlock);
-#endif // ID_DEBUG
+#if ID_DEBUG    
+    cbOld = GetHandleSize(hMemBlock);// get the size of the old block
+#endif
 
     SetHandleSize(hMemBlock, bchNew);  //  realloc
     oserr = MemError();
-
     if (oserr == memFullErr) {
-        // Out of memory
-        return NULL;
+        return NULL;// Out of memory
     }
 
     DebAssert((MemError() != nilHandleErr), "HsysReallocHsys: NIL master pointer ");
@@ -1609,24 +1520,24 @@ VOID FAR* HugeRealloc(VOID FAR* pv, DWORD  bchNew)
 }
 
 
-/*
-* FreeHsys
-
-* Purpose:
-*   Free the sys memblock given a handle.
-*   Implementation:
-*    On Win16, get selector part of hsys,
-*     get its handle, unlock and finally free.
-*    On Mac: Just use DisposHandle
-
-* Inputs:
-*   hsys    Handle to memblock they want to free.
-
-* Outputs:
-*   Returns NULL if successful, otherwise on failure
-*    returns the input param.
-*/
 VOID FAR* HugeFree(VOID FAR* pv)
+/*
+FreeHsys
+
+Purpose:
+  Free the sys memblock given a handle.
+  Implementation:
+   On Win16, get selector part of hsys,
+    get its handle, unlock and finally free.
+   On Mac: Just use DisposHandle
+
+Inputs:
+  hsys    Handle to memblock they want to free.
+
+Outputs:
+  Returns NULL if successful, otherwise on failure
+   returns the input param.
+*/
 {
 #if OE_WIN16
 
@@ -1642,11 +1553,9 @@ VOID FAR* HugeFree(VOID FAR* pv)
         hMem = (HANDLE)LOWORD(dwMem);
         GlobalUnlock(hMem);   // Can't fail cos nondiscardable.
         if (GlobalFree(hMem) != NULL) {
-            // error
-            return pv;
+            return pv;// error
         } else {
-            // ok
-            return NULL;
+            return NULL;// ok
         }
     }
 

@@ -1,8 +1,6 @@
 /*
-
 * Copyright (c) 1998,1999 Microsoft Corporation. All rights reserved.
 * EXEMPT: copyright change only, no build required
-
 */
 #include "core.hxx"
 #pragma hdrstop
@@ -21,8 +19,7 @@
 extern HINSTANCE g_hInstance;
 
 
-// *************************************************
-//                   QUEUE CLASS
+//QUEUE CLASS
 
 MimeDwnQueue::MimeDwnQueue(CRITICAL_SECTION* cs)
 {
@@ -157,8 +154,8 @@ void MimeDwnQueue::StopAsync(MDHANDLE handle)
     LeaveCriticalSection(m_pCS);
 }
 
-// *************************************************
-//               PARSER ACTION CLASS
+
+//PARSER ACTION CLASS
 MimeDwnThreadAction::MimeDwnThreadAction(MDHANDLE mdh)
     : _mdh(mdh)
 {
@@ -282,8 +279,8 @@ void MimeDwnParserAction::End(void)
     }
 }
 
-// *************************************************
-//                   WORKER THREAD
+
+//WORKER THREAD
 static DWORD g_MimeDwnThreadID = NULL;
 
 void MimeDownloadMsgLoop()
@@ -316,11 +313,9 @@ Wait:
         // BUGBUG we are possibly in a busy wait loop here.
         // A given download that is waiting on data will continually be taken off the queue
         // and put back on, continually returning E_PENDING (This typically doesn't happen
-        // on high-speed connections).  Better to go to sleep and then post an event
-        // to wake it up.
+        // on high-speed connections).  Better to go to sleep and then post an event to wake it up.
 
-        // keep processing as long as something is in the queue
-        // remove is atomic
+        // keep processing as long as something is in the queue remove is atomic
         while ((pMTA = g_pMimeDwnQueue->Peek()) != NULL) {
             EnsureTls _EnsureTls;
             if (_EnsureTls.getTlsData()) {
@@ -346,8 +341,8 @@ Wait:
                     break;
                 }
             }
-            // give the messages a chance to churn
-            MimeDownloadMsgLoop();
+
+            MimeDownloadMsgLoop();// give the messages a chance to churn
         }
         // nothing left in the queue, so reset the signal and sleep again
         ResetEvent(g_MimeDwnEvents[MDEVT_PROCESS]);
@@ -364,11 +359,10 @@ Wait:
             // clear the queue
             g_pMimeDwnQueue->Clear();
         }
-        // again let the messages clear
-        MimeDownloadMsgLoop();
-        // reset the termination event
-        ResetEvent(g_MimeDwnEvents[MDEVT_TERMINATE]);
-        break;      // exit the thread proc
+
+        MimeDownloadMsgLoop();// again let the messages clear        
+        ResetEvent(g_MimeDwnEvents[MDEVT_TERMINATE]);// reset the termination event
+        break;// exit the thread proc
     }
     case WAIT_OBJECT_0 + 2:
         // process messages
@@ -406,8 +400,8 @@ LRESULT MimeCleanupDownload(HWND hwnd, MimeDwnParserAction* pPA)
     return 0L;
 }
 
-// *************************************************
-//                   UI THREAD WNDPROC
+
+//UI THREAD WNDPROC
 
 LRESULT CALLBACK MimeWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -415,7 +409,7 @@ LRESULT CALLBACK MimeWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_MIMECBDATA:
         // validity check probably no longer needed, but just in case
         if ((DWORD_PTR)g_pMimeDwnWndMgr && g_pMimeDwnWndMgr->IsGUIWndRegistered(hwnd))
-            ((MIMEBufferedStream*)lParam)->NotifyDataTrident((WORD)wParam); // WIN64, (WORD) is OK, because this really is a word
+            ((MIMEBufferedStream*)lParam)->NotifyDataTrident((WORD)wParam);// WIN64, (WORD) is OK, because this really is a word
         return 0L;
     case WM_MIMECBEND:
         return MimeCleanupDownload(hwnd, (MimeDwnParserAction*)lParam);
@@ -425,9 +419,7 @@ LRESULT CALLBACK MimeWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 
-// *************************************************
-//                DOWNLOAD SUBSYSTEM INIT/TERM
-// *************************************************
+//DOWNLOAD SUBSYSTEM INIT/TERM
 
 // global variables which perform the threading and sychronization for the
 // download thread
@@ -440,14 +432,9 @@ LRESULT CALLBACK MimeWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 // The array of Windows for each download initiated from a GUI thread
 MimeDwnWindowMgr* g_pMimeDwnWndMgr = NULL;
 
-// The queue used by the download thread
-MimeDwnQueue* g_pMimeDwnQueue = NULL;
-
-// Critical Section for gui thread manager
-CRITICAL_SECTION g_MimeDwnCSWndMgr;
-
-// Critical Section for queue handling
-static CRITICAL_SECTION g_MimeDwnCSQueue;
+MimeDwnQueue* g_pMimeDwnQueue = NULL;// The queue used by the download thread
+CRITICAL_SECTION g_MimeDwnCSWndMgr;// Critical Section for gui thread manager
+static CRITICAL_SECTION g_MimeDwnCSQueue;// Critical Section for queue handling
 
 // Critical Section for the thread spinner
 static BOOL g_CSSpinInit = FALSE;
@@ -463,8 +450,7 @@ static ATOM g_mimeWndClass = NULL;
 static ATOM g_MimeClassAtom = NULL;
 static char g_MimeWndClassName[] = "XMLMimeWnd";
 
-// Here is the handle to the thread
-static HANDLE g_MimeDwnThread = NULL;
+static HANDLE g_MimeDwnThread = NULL;// Here is the handle to the thread
 
 #ifdef _DEBUG
 static g_cWindows = 0; // count of live windows !!
@@ -477,9 +463,7 @@ static g_cWindows = 0; // count of live windows !!
 // prolog and start to download the heart of the document. It is at that
 // point where it tries to download the rest on the other thread.
 
-// No harm calling this each time, if already initialized this just
-// returns S_OK
-
+// No harm calling this each time, if already initialized this just returns S_OK
 HRESULT InitializeMimeDwn(void)
 {
     // create the thread mgr
@@ -537,11 +521,9 @@ HRESULT InitializeMimeDwn(void)
 // Terminate the thread by sending an event to it
 // Wait for it to return, then close all handles and DeleteCriticalSection
 // do in reverse order to allocate
-
 void TerminateMimeDwn(void)
 {
-    // kill the download thread if there
-    KillMimeDownloadThread();
+    KillMimeDownloadThread();// kill the download thread if there
 
     // Remove the critical section if it's initialized
     if (g_CSSpinInit)
@@ -565,8 +547,7 @@ void TerminateMimeDwn(void)
         g_pMimeDwnQueue->Clear();
         SafeDelete(g_pMimeDwnQueue);
 
-        // finally the critical sections
-        DeleteCriticalSection(&g_MimeDwnCSQueue);
+        DeleteCriticalSection(&g_MimeDwnCSQueue);// finally the critical sections
     }
 
     // deregister the class
@@ -576,14 +557,12 @@ void TerminateMimeDwn(void)
     }
 
     // the ThreadMgr
-
     if (g_pMimeDwnWndMgr) {
         EnterCriticalSection(&g_MimeDwnCSWndMgr);
         SafeDelete(g_pMimeDwnWndMgr);
         LeaveCriticalSection(&g_MimeDwnCSWndMgr);
 
-        // finally the critical sections
-        DeleteCriticalSection(&g_MimeDwnCSWndMgr);
+        DeleteCriticalSection(&g_MimeDwnCSWndMgr);// finally the critical sections
     }
 }
 
@@ -598,7 +577,6 @@ HRESULT StartMimeDownloadThread(void)
 
     EnterCriticalSection(&g_MimeDwnCSSpin);
     if (!g_MimeDwnThread) {
-
         // BUGBUG TODO security attributes?
         // immediate execution
 
@@ -610,7 +588,6 @@ HRESULT StartMimeDownloadThread(void)
     LeaveCriticalSection(&g_MimeDwnCSSpin);
     return hr;
 }
-
 
 
 // Kill the download thread
@@ -641,9 +618,8 @@ void KillMimeDownloadThread(void)
         // But just to be paranoid in case this doesn't happen (who knows what
         // trident might do), we don't risk a total hang of IE.
         MsgWaitForDownloadObjects(1, &g_MimeDwnThread, FALSE, 10000);
-
-        // close it
-        CloseHandle(g_MimeDwnThread);
+        
+        CloseHandle(g_MimeDwnThread);// close it
         g_MimeDwnThread = NULL;
     }
     LeaveCriticalSection(&g_MimeDwnCSSpin);
@@ -677,8 +653,7 @@ DWORD MsgWaitForDownloadObjects(DWORD count, LPHANDLE lpObjHandle, BOOL fWaitAll
 }
 
 
-// *************************************************
-//                   GUI PER DOWNLOAD MANAGER
+//GUI PER DOWNLOAD MANAGER
 
 // For each GUI thread we create a hidden window which
 // is used to "marshall" the notification from the
@@ -760,8 +735,7 @@ MDHANDLE MimeDwnWindowMgr::AddGUIWnd(void)
     _prMimeWnd[slot]._hWnd = h;
     _prMimeWnd[slot]._ulRefs = 1;
 
-    // return one-based handle so NULL can be used
-    mdh = slot + 1;
+    mdh = slot + 1;// return one-based handle so NULL can be used
 
 CleanUp:
     if (fCS)
@@ -780,7 +754,6 @@ HRESULT MimeDwnWindowMgr::AddRefGUIWnd(MDHANDLE handle)
     }
     LeaveCriticalSection(m_pCS);
     return hr;
-
 }
 
 // Get the GUI Window corresponding to the specified GUI thread
@@ -790,7 +763,7 @@ HWND MimeDwnWindowMgr::GetGUIWnd(MDHANDLE handle)
     HWND hRet = NULL;
     EnterCriticalSection(m_pCS);
     if ((_prMimeWnd) && (handle != 0) && (handle - 1 < m_nSize))   // one-based handle
-        hRet = _prMimeWnd[handle - 1]._hWnd;      // if it's null, so be it
+        hRet = _prMimeWnd[handle - 1]._hWnd;// if it's null, so be it
     LeaveCriticalSection(m_pCS);
     return hRet;
 }
@@ -813,7 +786,7 @@ HRESULT MimeDwnWindowMgr::ReleaseGUIWnd(MDHANDLE handle)
 #ifdef _DEBUG
             g_cWindows--;
 #endif
-            ph->_hWnd = NULL;      // clear the handle
+            ph->_hWnd = NULL;// clear the handle
         }
         hr = S_OK;
     } else

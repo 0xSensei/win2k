@@ -97,9 +97,8 @@ NameSpaceNodeFactory::~NameSpaceNodeFactory()
 // IXMLNodeFactory Interface Implementation
 
 
-HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::NotifyEvent(
-    /* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
-    /* [in] */ XML_NODEFACTORY_EVENT iEvt)
+HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::NotifyEvent(/* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
+                                                            /* [in] */ XML_NODEFACTORY_EVENT iEvt)
 {
     HRESULT hr;
 
@@ -173,9 +172,8 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::NotifyEvent(
 }
 
 
-HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::BeginChildren(
-    /* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
-    /* [in] */ XML_NODE_INFO* __RPC_FAR pNodeInfo)
+HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::BeginChildren(/* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
+                                                              /* [in] */ XML_NODE_INFO* __RPC_FAR pNodeInfo)
 {
     HRESULT hr = S_OK;
 
@@ -196,11 +194,10 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::BeginChildren(
 }
 
 
-HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::Error(
-    /* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
-    /* [in] */ HRESULT hrErrorCode,
-    /* [in] */ USHORT cNumRecs,
-    /* [in] */ XML_NODE_INFO __RPC_FAR* __RPC_FAR* apNodeInfo)
+HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::Error(/* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
+                                                      /* [in] */ HRESULT hrErrorCode,
+                                                      /* [in] */ USHORT cNumRecs,
+                                                      /* [in] */ XML_NODE_INFO __RPC_FAR* __RPC_FAR* apNodeInfo)
 {
 #if PRODUCT_PROF
     IceCAP cap;
@@ -222,10 +219,9 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::Error(
 
 }
 
-HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::EndChildren(
-    /* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
-    /* [in] */ BOOL fEmptyNode,
-    /* [in] */ XML_NODE_INFO* __RPC_FAR pNodeInfo)
+HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::EndChildren(/* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
+                                                            /* [in] */ BOOL fEmptyNode,
+                                                            /* [in] */ XML_NODE_INFO* __RPC_FAR pNodeInfo)
 {
 #if PRODUCT_PROF
     IceCAP cap;
@@ -247,11 +243,10 @@ HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::EndChildren(
     return hr;
 }
 
-HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::CreateNode(
-    /* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
-    /* [in] */ PVOID pNodeParent,
-    /* [in] */ USHORT cNumRecs,
-    /* [in] */ XML_NODE_INFO __RPC_FAR* __RPC_FAR* apNodeInfo)
+HRESULT STDMETHODCALLTYPE NameSpaceNodeFactory::CreateNode(/* [in] */ IXMLNodeSource __RPC_FAR* pNodeSource,
+                                                           /* [in] */ PVOID pNodeParent,
+                                                           /* [in] */ USHORT cNumRecs,
+                                                           /* [in] */ XML_NODE_INFO __RPC_FAR* __RPC_FAR* apNodeInfo)
 {
 #if PRODUCT_PROF
     IceCAP cap;
