@@ -352,7 +352,8 @@ extern "C" {
 
 #endif  /* ifndef NOELSEPANSCRIPT */
 
-    /* Kanji PANOSE values.
+    /*
+    Kanji PANOSE values.
     */
 #ifndef NOELSEPANKANJI
 
@@ -731,14 +732,22 @@ extern "C" {
 #ifndef NOELSEWEIGHTS
 
     GLOBAL EW_BOOL EW_FAR EW_PASCAL bPANGetMapWeights
-        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_BYTE jFamilyA,
-                  EW_BYTE jFamilyB, EW_LPBYTE lpjWts, EW_LPBOOL lpbIsCustom));
+        ELSEARGS((EW_LPMAPSTATE lpMapState, 
+                  EW_BYTE jFamilyA,
+                  EW_BYTE jFamilyB, 
+                  EW_LPBYTE lpjWts, 
+                  EW_LPBOOL lpbIsCustom));
 
     GLOBAL EW_BOOL EW_FAR EW_PASCAL bPANSetMapWeights
-        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_BYTE jFamilyA, EW_BYTE jFamilyB, EW_LPBYTE lpjWts));
+        ELSEARGS((EW_LPMAPSTATE lpMapState,
+                  EW_BYTE jFamilyA, 
+                  EW_BYTE jFamilyB,
+                  EW_LPBYTE lpjWts));
 
     GLOBAL EW_BOOL EW_FAR EW_PASCAL bPANClearMapWeights
-        ELSEARGS((EW_LPMAPSTATE lpMapState, EW_BYTE jFamilyA, EW_BYTE jFamilyB));
+        ELSEARGS((EW_LPMAPSTATE lpMapState,
+                  EW_BYTE jFamilyA, 
+                  EW_BYTE jFamilyB));
 
 #endif /* ifndef NOELSEWEIGHTS */
 

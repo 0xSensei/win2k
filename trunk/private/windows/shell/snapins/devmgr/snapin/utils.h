@@ -310,8 +310,9 @@ inline void ConstructElements(TYPE* pElements, int Count)
 template<class TYPE>
 inline void DestructElements(TYPE* pElements, int Count)
 {
-    for (; Count; Count--, pElements++)
+    for (; Count; Count--, pElements++) {
         pElements->~TYPE();
+    }
 }
 
 // TEMPLATEs
@@ -523,8 +524,9 @@ void CList<TYPE, ARG_TYPE>::RemoveAll()
 {
     // destroy elements
     CNode* pNode;
-    for (pNode = m_pNodeHead; pNode != NULL; pNode = pNode->pNext)
+    for (pNode = m_pNodeHead; pNode != NULL; pNode = pNode->pNext) {
         DestructElements<TYPE>(&pNode->data, 1);
+    }
 
     m_nCount = 0;
     m_pNodeHead = m_pNodeTail = m_pNodeFree = NULL;
@@ -556,6 +558,7 @@ CList<TYPE, ARG_TYPE>::NewNode(CList::CNode* pPrev, CList::CNode* pNext)
 
         // chain them into free list
         CNode* pNode = (CNode*)pNewBlock->data;
+
         // free in reverse order to make it easier to debug
         pNode += m_nBlockSize - 1;
         for (int i = m_nBlockSize - 1; i >= 0; i--, pNode--) {
@@ -711,8 +714,9 @@ POSITION CList<TYPE, ARG_TYPE>::InsertBefore(POSITION position, ARG_TYPE newElem
 template<class TYPE, class ARG_TYPE>
 POSITION CList<TYPE, ARG_TYPE>::InsertAfter(POSITION position, ARG_TYPE newElement)
 {
-    if (position == NULL)
+    if (position == NULL) {
         return AddTail(newElement); // insert after nothing -> tail of the list
+    }
 
     // Insert it before position
     CNode* pOldNode = (CNode*)position;
@@ -1067,12 +1071,20 @@ public:
 
     INT_PTR DoModal(HWND hwndParent, LPARAM lParam)
     {
-        return DialogBoxParam(g_hInstance, MAKEINTRESOURCE(m_TemplateId), hwndParent, DialogWndProc, lParam);
+        return DialogBoxParam(g_hInstance,
+                              MAKEINTRESOURCE(m_TemplateId),
+                              hwndParent, 
+                              DialogWndProc,
+                              lParam);
     }
 
     void DoModaless(HWND hwndParent, LPARAM lParam)
     {
-        m_hDlg = CreateDialogParam(g_hInstance, MAKEINTRESOURCE(m_TemplateId), hwndParent, DialogWndProc, lParam);
+        m_hDlg = CreateDialogParam(g_hInstance, 
+                                   MAKEINTRESOURCE(m_TemplateId), 
+                                   hwndParent,
+                                   DialogWndProc,
+                                   lParam);
     }
 
     virtual BOOL OnInitDialog()

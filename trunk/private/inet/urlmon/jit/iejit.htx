@@ -142,22 +142,22 @@
 			<tr>
 				<td id="OKButtonbox">
 					<button id="OKButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" 
-					onClick="downloadComponents()" tabindex="1" helpid="50510">
-					OK
+						onClick="downloadComponents()" tabindex="1" helpid="50510">
+						OK
 					</button>
 				</td>
 				<td id="downloadButtonbox">
 					<button id="downloadButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button"
-					onClick="downloadComponents()" tabindex="1" helpid="50461" accessKey="D">
-					<u>D</u>
-					ownload
+						onClick="downloadComponents()" tabindex="1" helpid="50461" accessKey="D">
+						<u>D</u>
+						ownload
 					</button>
 				</td>
 				<td id="blanksp3">&nbsp;</td>
 				<td>
 					<button id="cancelButton" style="width: 75px; font: 8pt MS Shell Dlg" type="button" 
-					onClick="verifyCancel()" tabindex="2" helpid="50462">
-					Cancel
+						onClick="verifyCancel()" tabindex="2" helpid="50462">
+						Cancel
 					</button>
 				</td>
 			</tr>
