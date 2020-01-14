@@ -22,18 +22,18 @@ extern BOOLEAN gDoDllRedirection; // defined and initialized in baseinit.c
 
 PVOID BasepMapModuleHandle(IN HMODULE hModule OPTIONAL, IN BOOLEAN bResourcesOnly)
 {
-    if (ARGUMENT_PRESENT( hModule )) {
+    if (ARGUMENT_PRESENT(hModule)) {
         if ((ULONG_PTR)hModule & 0x00000001) {
             if (bResourcesOnly) {
-                return( (PVOID)hModule );
+                return((PVOID)hModule);
             } else {
-                return( NULL );
+                return(NULL);
             }
         } else {
-            return( (PVOID)hModule );
+            return((PVOID)hModule);
         }
     } else {
-        return( (PVOID)NtCurrentPeb()->ImageBaseAddress);
+        return((PVOID)NtCurrentPeb()->ImageBaseAddress);
     }
 }
 
@@ -45,7 +45,7 @@ HMODULE LoadLibraryA(LPCSTR lpLibFileName)
     if (_strcmpi(lpLibFileName, "twain_32.dll") == 0) {
         LPSTR pszBuffer;
 
-        pszBuffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( TMP_TAG ), MAX_PATH * sizeof(char));
+        pszBuffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(TMP_TAG), MAX_PATH * sizeof(char));
         if (pszBuffer != NULL) {
             HMODULE hMod;
 
@@ -59,13 +59,13 @@ HMODULE LoadLibraryA(LPCSTR lpLibFileName)
         }
     }
 
-    return LoadLibraryExA( lpLibFileName, NULL, 0 );
+    return LoadLibraryExA(lpLibFileName, NULL, 0);
 }
 
 
 HMODULE LoadLibraryW(LPCWSTR lpwLibFileName)
 {
-    return LoadLibraryExW( lpwLibFileName, NULL, 0 );
+    return LoadLibraryExW(lpwLibFileName, NULL, 0);
 }
 
 
@@ -77,18 +77,18 @@ Routine Description:
 {
     PUNICODE_STRING Unicode;
 
-    Unicode = Basep8BitStringToStaticUnicodeString( lpLibFileName );
+    Unicode = Basep8BitStringToStaticUnicodeString(lpLibFileName);
     if (Unicode == NULL) {
         return NULL;
     }
 
-    return LoadLibraryExW(Unicode->Buffer,hFile,dwFlags);
+    return LoadLibraryExW(Unicode->Buffer, hFile, dwFlags);
 }
 
 
-NTSTATUS BasepLoadLibraryAsDataFile(IN PWSTR DllPath OPTIONAL, IN PUNICODE_STRING DllName, OUT PVOID *DllHandle)
+NTSTATUS BasepLoadLibraryAsDataFile(IN PWSTR DllPath OPTIONAL, IN PUNICODE_STRING DllName, OUT PVOID* DllHandle)
 {
-    WCHAR FullPath[ MAX_PATH ];
+    WCHAR FullPath[MAX_PATH];
     PWSTR FilePart;
     HANDLE FileHandle;
     HANDLE MappingHandle;
@@ -99,30 +99,30 @@ NTSTATUS BasepLoadLibraryAsDataFile(IN PWSTR DllPath OPTIONAL, IN PUNICODE_STRIN
     Teb = NtCurrentTeb();
 
     *DllHandle = NULL;
-    if (!SearchPathW( DllPath, DllName->Buffer, L".DLL", MAX_PATH, FullPath, &FilePart)) {
+    if (!SearchPathW(DllPath, DllName->Buffer, L".DLL", MAX_PATH, FullPath, &FilePart)) {
         return Teb->LastStatusValue;
     }
 
-    FileHandle = CreateFileW( FullPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0, NULL);
+    FileHandle = CreateFileW(FullPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0, NULL);
     if (FileHandle == INVALID_HANDLE_VALUE) {
         return Teb->LastStatusValue;
     }
 
-    MappingHandle = CreateFileMappingW( FileHandle, NULL, PAGE_READONLY, 0, 0, NULL);
-    CloseHandle( FileHandle );
+    MappingHandle = CreateFileMappingW(FileHandle, NULL, PAGE_READONLY, 0, 0, NULL);
+    CloseHandle(FileHandle);
     if (MappingHandle == NULL) {
         return Teb->LastStatusValue;
     }
 
-    DllBase = MapViewOfFileEx( MappingHandle, FILE_MAP_READ, 0, 0, 0, NULL);
-    CloseHandle( MappingHandle );
+    DllBase = MapViewOfFileEx(MappingHandle, FILE_MAP_READ, 0, 0, 0, NULL);
+    CloseHandle(MappingHandle);
     if (DllBase == NULL) {
         return Teb->LastStatusValue;
     }
 
-    NtHeaders = RtlImageNtHeader( DllBase );
+    NtHeaders = RtlImageNtHeader(DllBase);
     if (NtHeaders == NULL) {
-        UnmapViewOfFile( DllBase );
+        UnmapViewOfFile(DllBase);
         return STATUS_INVALID_IMAGE_FORMAT;
     }
 
@@ -144,42 +144,41 @@ Routine Description:
 Arguments:
     DllName - Points to a string that names the library file.
               This can be a fully qualified name or just a base name.
-              We will parse for the base name (the portion after the last '\' or '/' char. Caller guarantees that DllName->Buffer is not a NULL pointer!
+              We will parse for the base name (the portion after the last '\' or '/' char. 
+              Caller guarantees that DllName->Buffer is not a NULL pointer!
     NewDllName - Has fully qualified path based on GetModuleFileNameW(NULL...) and the base name from above.
 Return Value:
     NTSTATUS: Currently: STATUS_NO_MEMORY or STATUS_SUCCESS.
 --*/
 {
-    LPWSTR p, pp1, pp2, pp3 ;
-    USHORT Size1, Size2 ;
-    WCHAR FullNameBuffer[MAX_PATH] ;
+    LPWSTR p, pp1, pp2, pp3;
+    USHORT Size1, Size2;
+    WCHAR FullNameBuffer[MAX_PATH];
 
-    Size1 = (USHORT) GetModuleFileNameW(NULL, FullNameBuffer, sizeof(FullNameBuffer)>>1);
+    Size1 = (USHORT)GetModuleFileNameW(NULL, FullNameBuffer, sizeof(FullNameBuffer) >> 1);
 
     // Find the end of the EXE path (start of its base-name) in pp1.
     p = FullNameBuffer + Size1 - 1; // point to last character of this name
-    while (p != FullNameBuffer)
-    {
+    while (p != FullNameBuffer) {
         if (*p == (WCHAR)'\\') {
             pp1 = p + 1;
             break;
         }
-        p-- ;
+        p--;
     }
 
     // Find the basename portion of the DLL to be loaded in pp2 and the last '.' character if present in the basename.
     pp2 = DllName->Buffer;
-    pp3 = NULL ;
+    pp3 = NULL;
     if (DllName->Length) {
-        p = DllName->Buffer + (DllName->Length>>1) - 1 ; // point to last char
-        while (p != DllName->Buffer)
-        {
-            if (*p == (WCHAR) '.') {
+        p = DllName->Buffer + (DllName->Length >> 1) - 1; // point to last char
+        while (p != DllName->Buffer) {
+            if (*p == (WCHAR)'.') {
                 if (!pp3) {
-                    pp3 = p ;
+                    pp3 = p;
                 }
             } else {
-                if ((*p == (WCHAR) '\\') || (*p == (WCHAR) '/')) {
+                if ((*p == (WCHAR)'\\') || (*p == (WCHAR)'/')) {
                     pp2 = p + 1;
                     break;
                 }
@@ -189,34 +188,35 @@ Return Value:
     }
     // Create a fully qualified path to the DLL name (using pp1 and pp2)
 
-    Size1 = (USHORT)((pp1 - FullNameBuffer) << 1) ;// Size1 = Number of bytes (not including NULL or EXE/process folder)
-    Size2 = (USHORT)(DllName->MaximumLength - ((pp2 - DllName->Buffer) << 1)) ;// Size2 = Number of bytes in base DLL name (including trailing null char)
+    Size1 = (USHORT)((pp1 - FullNameBuffer) << 1);// Size1 = Number of bytes (not including NULL or EXE/process folder)
+    Size2 = (USHORT)(DllName->MaximumLength - ((pp2 - DllName->Buffer) << 1));// Size2 = Number of bytes in base DLL name (including trailing null char)
 
     // Just allocate 8 bytes more in case we decide to tack on the L".DLL" to end of this path
-    p = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( TMP_TAG ), Size1+Size2+sizeof(DLL_EXTENSION)-sizeof(WCHAR));
+    p = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(TMP_TAG), Size1 + Size2 + sizeof(DLL_EXTENSION) - sizeof(WCHAR));
     if (!p) {
-        return STATUS_NO_MEMORY ;
+        return STATUS_NO_MEMORY;
     }
     RtlCopyMemory(p, FullNameBuffer, Size1);
-    RtlCopyMemory(p+(Size1>>1), pp2, Size2) ;
+    RtlCopyMemory(p + (Size1 >> 1), pp2, Size2);
 
     if (!pp3) {
         // If there is no '.' in the basename add the ".DLL" to it.
 
-        //  The -1 will work just as well as - sizeof(WCHAR) as we are dividing by sizeof(WCHAR) and it will be rounded down correctly as Size1 and Size2 are even. The -1 could be more optimal than subtracting sizeof(WCHAR)
-        RtlCopyMemory(p+((Size1+Size2-1)>>1), DLL_EXTENSION, sizeof(DLL_EXTENSION)) ;
-        Size1  = Size1 + sizeof(DLL_EXTENSION) - sizeof(WCHAR) ; // Mark base name as being 8 bytes bigger.
+        //  The -1 will work just as well as - sizeof(WCHAR) as we are dividing by sizeof(WCHAR) and it will be rounded down correctly as Size1 and Size2 are even.
+        //  The -1 could be more optimal than subtracting sizeof(WCHAR)
+        RtlCopyMemory(p + ((Size1 + Size2 - 1) >> 1), DLL_EXTENSION, sizeof(DLL_EXTENSION));
+        Size1 = Size1 + sizeof(DLL_EXTENSION) - sizeof(WCHAR); // Mark base name as being 8 bytes bigger.
     } else {
         // There was '.'. If this is the last character, strip it out.
-        if (*(pp3+1) == UNICODE_NULL) {
-            *pp3 = UNICODE_NULL ;
+        if (*(pp3 + 1) == UNICODE_NULL) {
+            *pp3 = UNICODE_NULL;
         }
     }
 
-    NewDllName->Buffer = p ;
-    NewDllName->MaximumLength = Size1 + Size2 ;
-    NewDllName->Length = NewDllName->MaximumLength - sizeof(WCHAR) ;
-    return STATUS_SUCCESS ;
+    NewDllName->Buffer = p;
+    NewDllName->MaximumLength = Size1 + Size2;
+    NewDllName->Length = NewDllName->MaximumLength - sizeof(WCHAR);
+    return STATUS_SUCCESS;
 }
 
 
@@ -225,9 +225,12 @@ HMODULE LoadLibraryExW(LPCWSTR lpwLibFileName, HANDLE hFile, DWORD dwFlags)
 Routine Description:
     This function loads the library module contained in the specified file and retrieves a handle to the loaded module.
 
-    It is important to note that module handles are NOT global, in that a LoadLibrary call by one application does not produce a handle that another application can use, say in calling GetProcAddress.
+    It is important to note that module handles are NOT global, 
+    in that a LoadLibrary call by one application does not produce a handle that another application can use, 
+    say in calling GetProcAddress.
     The other application would need to do its own call to LoadLibrary for the module before calling GetProcAddress.
-    Module handles will have the same 32-bit value across all processes, but a module handle is only valid in the context of a process after the module has been
+    Module handles will have the same 32-bit value across all processes,
+    but a module handle is only valid in the context of a process after the module has been
     loaded into that process, either as a result of an explicit call to LoadLibrary or as a result of an implicit call caused by a loadtime dynamic link to an entry point in the module.
 
     The library file name does not need to specify an extension.
@@ -249,16 +252,20 @@ Routine Description:
     This allows private dynamic link library files associated with an application to be found without having to add the application's installed directory to the PATH environment variable.
 
     The image file loader optimizes the search by remembering for each loaded library module that unqualified module name that was searched for when a module was loaded into the current process the first time.
-    This unqualified name has nothing to do with the module name that is stored within the library module itself, as specified by the NAME keyword in the .DEF file.
-    This is a change from the Windows 3.1 behavior, where the search was optimized by comparing to the name within the library module itself, which could lead to confusing
+    This unqualified name has nothing to do with the module name that is stored within the library module itself, 
+    as specified by the NAME keyword in the .DEF file.
+    This is a change from the Windows 3.1 behavior, where the search was optimized by comparing to the name within the library module itself, 
+    which could lead to confusing
     result if the internal name differed from the external file name.
 
-    Once a fully qualified path name to a library module file is obtained, a search is made to see if that library module file has been loaded into the current process.
+    Once a fully qualified path name to a library module file is obtained,
+    a search is made to see if that library module file has been loaded into the current process.
     The search is case insensitive and includes the full path name of each library module file.
     If a match is found for the library module file, then it has already been loaded into the current process,
     so this function just increments the reference count for the module and returns the module handle for that library.
 
-    Otherwise, this is the first time the specified module has been loaded for the current process, so the library module's DLL Instance Initialization entry point will be called.
+    Otherwise, this is the first time the specified module has been loaded for the current process, 
+    so the library module's DLL Instance Initialization entry point will be called.
     See the Task Management section for a description of the DLL Instance Initialization entry point.
 
     Fine Point: If DLL re-direction is enabled for the app./process requesting this load, if we find a DLL in the app.
@@ -271,7 +278,8 @@ Arguments:
         DONT_RESOLVE_DLL_REFERENCES - loads the library but does not attempt to resolve any of its DLL references nor does it attempt to call its initialization procedure.
 
 Return Value:
-    The return value identifies the loaded module if the function is successful.  A return value of NULL indicates an error and extended error status is available using the GetLastError function.
+    The return value identifies the loaded module if the function is successful.  
+    A return value of NULL indicates an error and extended error status is available using the GetLastError function.
 --*/
 {
     LPWSTR TrimmedDllName;
@@ -290,25 +298,27 @@ Return Value:
     }
 
     RtlInitUnicodeString(&DllName_U, lpwLibFileName);
-    // Quick check to see if dll being loaded is the main exe. For some reason hook stuff tends to do this and this is worst path through the loader
-    if ( !(dwFlags & LOAD_LIBRARY_AS_DATAFILE) && BasepExeLdrEntry && (DllName_U.Length == BasepExeLdrEntry->FullDllName.Length) ){
-        if ( RtlEqualUnicodeString(&DllName_U,&BasepExeLdrEntry->FullDllName,TRUE) ) {
+    // Quick check to see if dll being loaded is the main exe.
+    // For some reason hook stuff tends to do this and this is worst path through the loader
+    if (!(dwFlags & LOAD_LIBRARY_AS_DATAFILE) && 
+        BasepExeLdrEntry && 
+        (DllName_U.Length == BasepExeLdrEntry->FullDllName.Length)) {
+        if (RtlEqualUnicodeString(&DllName_U, &BasepExeLdrEntry->FullDllName, TRUE)) {
             return (HMODULE)BasepExeLdrEntry->DllBase;
         }
     }
 
     // check to see if there are trailing spaces in the dll name (Win95 compat)
-    if ( DllName_U.Length && DllName_U.Buffer[(DllName_U.Length-1)>>1] == (WCHAR)' ') {
-        TrimmedDllName = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG( TMP_TAG ), DllName_U.MaximumLength);
-        if ( !TrimmedDllName ) {
+    if (DllName_U.Length && DllName_U.Buffer[(DllName_U.Length - 1) >> 1] == (WCHAR)' ') {
+        TrimmedDllName = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(TMP_TAG), DllName_U.MaximumLength);
+        if (!TrimmedDllName) {
             BaseSetLastNTError(STATUS_NO_MEMORY);
             return NULL;
         }
-        RtlCopyMemory(TrimmedDllName,DllName_U.Buffer,DllName_U.MaximumLength);
+        RtlCopyMemory(TrimmedDllName, DllName_U.Buffer, DllName_U.MaximumLength);
         DllName_U.Buffer = TrimmedDllName;
-        while (DllName_U.Length && DllName_U.Buffer[(DllName_U.Length-1)>>1] == (WCHAR)' ')
-        {
-            DllName_U.Buffer[(DllName_U.Length-1)>>1] = UNICODE_NULL;
+        while (DllName_U.Length && DllName_U.Buffer[(DllName_U.Length - 1) >> 1] == (WCHAR)' ') {
+            DllName_U.Buffer[(DllName_U.Length - 1) >> 1] = UNICODE_NULL;
             DllName_U.Length -= sizeof(WCHAR);
             DllName_U.MaximumLength -= sizeof(WCHAR);
         }
@@ -318,9 +328,9 @@ Return Value:
     // (EXE) folder. If so, we load that.
     // Else we fall back to regular search logic.
     if (gDoDllRedirection && DllName_U.Length) {
-        Status = ComputeRedirectedDllName(&DllName_U, &AppPathDllName_U) ;
-        if(!NT_SUCCESS(Status)) {
-            if ( TrimmedDllName ) {
+        Status = ComputeRedirectedDllName(&DllName_U, &AppPathDllName_U);
+        if (!NT_SUCCESS(Status)) {
+            if (TrimmedDllName) {
                 RtlFreeHeap(RtlProcessHeap(), 0, TrimmedDllName);
             }
 
@@ -329,17 +339,18 @@ Return Value:
         }
 
         if (RtlDoesFileExists_U(AppPathDllName_U.Buffer)) {
-            DllName_U.Buffer = AppPathDllName_U.Buffer ;
-            DllName_U.MaximumLength = AppPathDllName_U.MaximumLength ;
+            DllName_U.Buffer = AppPathDllName_U.Buffer;
+            DllName_U.MaximumLength = AppPathDllName_U.MaximumLength;
             DllName_U.Length = AppPathDllName_U.Length;
         }
     }
 
     // Determine the path that the program was created from
-    AllocatedPath = BaseComputeProcessDllPath(dwFlags & LOAD_WITH_ALTERED_SEARCH_PATH ? DllName_U.Buffer : NULL, GetEnvironmentStringsW());
-    if ( !AllocatedPath ) {
+    AllocatedPath = BaseComputeProcessDllPath(dwFlags & LOAD_WITH_ALTERED_SEARCH_PATH ? DllName_U.Buffer : NULL, 
+                                              GetEnvironmentStringsW());
+    if (!AllocatedPath) {
         Status = STATUS_NO_MEMORY;
-        if ( TrimmedDllName ) {
+        if (TrimmedDllName) {
             RtlFreeHeap(RtlProcessHeap(), 0, TrimmedDllName);
         }
         goto bail;
@@ -351,27 +362,27 @@ Return Value:
 #ifdef WX86
             BOOLEAN Wx86KnownDll = NtCurrentTeb()->Wx86Thread.UseKnownWx86Dll;// LdrGetDllHandle clears UseKnownWx86Dll, but the value is needed again by LdrLoadDll.
 #endif
-            Status = LdrGetDllHandle(AllocatedPath_U.Buffer, NULL, &DllName_U, (PVOID *)&hModule);
-            if (NT_SUCCESS( Status )) {
+            Status = LdrGetDllHandle(AllocatedPath_U.Buffer, NULL, &DllName_U, (PVOID*)&hModule);
+            if (NT_SUCCESS(Status)) {
 #ifdef WX86
                 NtCurrentTeb()->Wx86Thread.UseKnownWx86Dll = Wx86KnownDll;
 #endif
                 goto alreadyLoaded;
             }
 
-            Status = BasepLoadLibraryAsDataFile( AllocatedPath_U.Buffer, &DllName_U, (PVOID *)&hModule);
+            Status = BasepLoadLibraryAsDataFile(AllocatedPath_U.Buffer, &DllName_U, (PVOID*)&hModule);
         } else {
-alreadyLoaded:
-            Status = LdrLoadDll(AllocatedPath_U.Buffer, &DllCharacteristics, &DllName_U, (PVOID *)&hModule);
+        alreadyLoaded:
+            Status = LdrLoadDll(AllocatedPath_U.Buffer, &DllCharacteristics, &DllName_U, (PVOID*)&hModule);
         }
-        if ( TrimmedDllName ) {
+        if (TrimmedDllName) {
             RtlFreeHeap(RtlProcessHeap(), 0, TrimmedDllName);
             TrimmedDllName = NULL;
         }
         RtlFreeHeap(RtlProcessHeap(), 0, AllocatedPath);
-    } except (EXCEPTION_EXECUTE_HANDLER) {
+    } except(EXCEPTION_EXECUTE_HANDLER) {
         Status = GetExceptionCode();
-        if ( TrimmedDllName ) {
+        if (TrimmedDllName) {
             RtlFreeHeap(RtlProcessHeap(), 0, TrimmedDllName);
         }
         RtlFreeHeap(RtlProcessHeap(), 0, AllocatedPath);
@@ -382,7 +393,7 @@ bail:
         RtlFreeHeap(RtlProcessHeap(), 0, AppPathDllName_U.Buffer);
     }
 
-    if (!NT_SUCCESS(Status) ) {
+    if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         return NULL;
     } else {
@@ -394,14 +405,17 @@ bail:
 BOOL FreeLibrary(HMODULE hLibModule)
 /*++
 Routine Description:
-    This function decreases the reference count of the loaded library module by one.  The reference count is maintain for each process.
+    This function decreases the reference count of the loaded library module by one.  
+    The reference count is maintain for each process.
 
-    When the reference count for the specified library module is decremented to zero, the library module's DLL Instance Termination entry point is called.
+    When the reference count for the specified library module is decremented to zero,
+    the library module's DLL Instance Termination entry point is called.
     This will allow a library module a chance to cleanup resources that we allocated on behalf of the current process.
     See the Task Management section for a description of the DLL Instance Termination entry point.
     Finally, after the termination entry point returns, the library module is removed from the address space of the current process.
 
-    If more than one process has loaded a library module, then the library module will remain in use until all process's that loaded the module have called FreeLibrary to unload the library.
+    If more than one process has loaded a library module, 
+    then the library module will remain in use until all process's that loaded the module have called FreeLibrary to unload the library.
 Arguments:
     hLibModule - Identifies the loaded library module.
 Return Value:
@@ -411,18 +425,18 @@ Return Value:
 {
     NTSTATUS Status;
 
-    if ( (ULONG_PTR)hLibModule & 0x00000001 ) {
-        if ( RtlImageNtHeader((PVOID)((ULONG_PTR)hLibModule & ~0x00000001)) ) {
-            Status = NtUnmapViewOfSection( NtCurrentProcess(), (PVOID)((ULONG_PTR)hLibModule & ~0x00000001));
+    if ((ULONG_PTR)hLibModule & 0x00000001) {
+        if (RtlImageNtHeader((PVOID)((ULONG_PTR)hLibModule & ~0x00000001))) {
+            Status = NtUnmapViewOfSection(NtCurrentProcess(), (PVOID)((ULONG_PTR)hLibModule & ~0x00000001));
             LdrUnloadAlternateResourceModule(hLibModule);
         } else {
             Status = STATUS_INVALID_IMAGE_FORMAT;
         }
     } else {
-        Status = LdrUnloadDll( (PVOID)hLibModule );
+        Status = LdrUnloadDll((PVOID)hLibModule);
     }
 
-    if ( !NT_SUCCESS(Status) ) {
+    if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         return FALSE;
     } else {
@@ -435,14 +449,17 @@ VOID WINAPI FreeLibraryAndExitThread(HMODULE hLibModule, DWORD dwExitCode)
 /*++
 Routine Description:
     This function decreases the reference count of the loaded library module by one, and then calls ExitThread.
-    The purpose of this function is to allow threads that are created within a dll, and execute within that DLL an opportunity to safely unload the DLL and to exit.
+    The purpose of this function is to allow threads that are created within a dll,
+    and execute within that DLL an opportunity to safely unload the DLL and to exit.
 
-    When the reference count for the specified library module is decremented to zero, the library module's DLL Instance Termination entry point is called.
+    When the reference count for the specified library module is decremented to zero,
+    the library module's DLL Instance Termination entry point is called.
     This will allow a library module a chance to cleanup resources that we allocated on behalf of the current process.
     See the Task Management section for a description of the DLL Instance Termination entry point.
     Finally, after the termination entry point returns, the library module is removed from the address space of the current process.
 
-    If more than one process has loaded a library module, then the library module will remain in use until all process's that loaded the module have called FreeLibrary to unload the library.
+    If more than one process has loaded a library module, 
+    then the library module will remain in use until all process's that loaded the module have called FreeLibrary to unload the library.
 Arguments:
     hLibModule - Identifies the loaded library module.
     dwExitCode - Supplies the exit code for the thread
@@ -450,10 +467,10 @@ Return Value:
     This function never returns. invalid hLibModule values are silently ignored
 --*/
 {
-    if ((ULONG_PTR) hLibModule & 0x00000001) {
-        NtUnmapViewOfSection(NtCurrentProcess(), (PVOID) ((ULONG_PTR) hLibModule & ~0x00000001));
+    if ((ULONG_PTR)hLibModule & 0x00000001) {
+        NtUnmapViewOfSection(NtCurrentProcess(), (PVOID)((ULONG_PTR)hLibModule & ~0x00000001));
     } else {
-        LdrUnloadDll((PVOID) hLibModule);
+        LdrUnloadDll((PVOID)hLibModule);
     }
 
     ExitThread(dwExitCode);
@@ -503,9 +520,9 @@ Return Value:
 --*/
 {
     PLDR_DATA_TABLE_ENTRY Entry;
-    PLIST_ENTRY Head,Next;
+    PLIST_ENTRY Head, Next;
     DWORD ReturnCode;
-    PVOID DllHandle = BasepMapModuleHandle( hModule, FALSE );
+    PVOID DllHandle = BasepMapModuleHandle(hModule, FALSE);
     PUNICODE_STRING Ustr;
 
     ReturnCode = 0;
@@ -515,12 +532,12 @@ Return Value:
     if (!ARGUMENT_PRESENT(hModule)) {
         if (RtlGetPerThreadCurdir() && RtlGetPerThreadCurdir()->ImageName) {
             Ustr = RtlGetPerThreadCurdir()->ImageName;
-            ReturnCode = (DWORD) Ustr->MaximumLength;
+            ReturnCode = (DWORD)Ustr->MaximumLength;
             if (nSize < ReturnCode) {
                 ReturnCode = nSize;
             }
             RtlMoveMemory(lpFilename, Ustr->Buffer, ReturnCode);
-            if (ReturnCode == (DWORD) Ustr->MaximumLength) {
+            if (ReturnCode == (DWORD)Ustr->MaximumLength) {
                 ReturnCode -= sizeof(UNICODE_NULL);
             }
             return ReturnCode / 2;
@@ -528,21 +545,20 @@ Return Value:
     }
 
     try {
-        RtlEnterCriticalSection((PRTL_CRITICAL_SECTION) NtCurrentPeb()->LoaderLock);
+        RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)NtCurrentPeb()->LoaderLock);
         Head = &NtCurrentPeb()->Ldr->InLoadOrderModuleList;
         Next = Head->Flink;
-        while (Next != Head)
-        {
+        while (Next != Head) {
             Entry = CONTAINING_RECORD(Next, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks);
-            if (DllHandle == (PVOID) Entry->DllBase) {
-                ReturnCode = (DWORD) Entry->FullDllName.MaximumLength;
+            if (DllHandle == (PVOID)Entry->DllBase) {
+                ReturnCode = (DWORD)Entry->FullDllName.MaximumLength;
                 if (nSize < ReturnCode) {
                     ReturnCode = nSize;
                 }
 
                 try {
                     RtlMoveMemory(lpFilename, Entry->FullDllName.Buffer, ReturnCode);
-                    if (ReturnCode == (DWORD) Entry->FullDllName.MaximumLength) {
+                    if (ReturnCode == (DWORD)Entry->FullDllName.MaximumLength) {
                         ReturnCode -= sizeof(UNICODE_NULL);
                     }
                     goto finally_exit;
@@ -556,7 +572,7 @@ Return Value:
         }
     finally_exit:;
     } finally {
-        RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION) NtCurrentPeb()->LoaderLock);
+        RtlLeaveCriticalSection((PRTL_CRITICAL_SECTION)NtCurrentPeb()->LoaderLock);
     }
 
     return ReturnCode / 2;
@@ -576,7 +592,7 @@ DWORD GetModuleFileNameA(HMODULE hModule, LPSTR lpFilename, DWORD nSize)
         return 0;
     }
     ReturnCode = GetModuleFileNameW(hModule, UnicodeString.Buffer, nSize);
-    UnicodeString.Length = UnicodeString.MaximumLength = (USHORT) ReturnCode * 2;
+    UnicodeString.Length = UnicodeString.MaximumLength = (USHORT)ReturnCode * 2;
     UnicodeString.MaximumLength++;
     UnicodeString.MaximumLength++;
 
@@ -606,11 +622,11 @@ Routine Description:
 {
     PUNICODE_STRING Unicode;
 
-    if ( !ARGUMENT_PRESENT(lpModuleName) ) {
-        return( (HMODULE)(PVOID)NtCurrentPeb()->ImageBaseAddress );
+    if (!ARGUMENT_PRESENT(lpModuleName)) {
+        return((HMODULE)(PVOID)NtCurrentPeb()->ImageBaseAddress);
     }
 
-    Unicode = Basep8BitStringToStaticUnicodeString( lpModuleName );
+    Unicode = Basep8BitStringToStaticUnicodeString(lpModuleName);
     if (Unicode == NULL) {
         return NULL;
     }
@@ -640,13 +656,13 @@ Return Value:
     Wx86KnownDll = NtCurrentTeb()->Wx86Thread.UseKnownWx86Dll;// LdrGetDllHandle clears UseKnownWx86Dll, but the value is needed again for the second LdrGetDllHandle call.
 #endif
 
-    Status = LdrGetDllHandle((PWSTR)1, NULL, ModuleName, (PVOID *)&hModule);
-    if ( NT_SUCCESS(Status) ) {
+    Status = LdrGetDllHandle((PWSTR)1, NULL, ModuleName, (PVOID*)&hModule);
+    if (NT_SUCCESS(Status)) {
         return hModule;
     }
 
     // Determine the path that the program was created from
-    AllocatedPath = BaseComputeProcessDllPath(NULL,GetEnvironmentStringsW());
+    AllocatedPath = BaseComputeProcessDllPath(NULL, GetEnvironmentStringsW());
     if (!AllocatedPath) {
         Status = STATUS_NO_MEMORY;
         goto bail;
@@ -657,15 +673,15 @@ Return Value:
 #endif
 
     try {
-        Status = LdrGetDllHandle(AllocatedPath, NULL, ModuleName, (PVOID *)&hModule);
+        Status = LdrGetDllHandle(AllocatedPath, NULL, ModuleName, (PVOID*)&hModule);
         RtlFreeHeap(RtlProcessHeap(), 0, AllocatedPath);
-    } except (EXCEPTION_EXECUTE_HANDLER) {
+    } except(EXCEPTION_EXECUTE_HANDLER) {
         Status = GetExceptionCode();
         RtlFreeHeap(RtlProcessHeap(), 0, AllocatedPath);
     }
 
 bail:
-    if (!NT_SUCCESS(Status) ) {
+    if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         return NULL;
     } else {
@@ -679,8 +695,10 @@ HMODULE WINAPI GetModuleHandleW(LPCWSTR lpwModuleName)
 Routine Description:
     This function returns the handle of a module that is loaded into the context of the calling process.
 
-    In a multi-thread environment, this function is not reliable, since while one thread is calling this function and getting back a module
-    handle, another thread in the same process could be calling FreeLibrary for the same module, therefore invalidating the returned module handle for the first thread.
+    In a multi-thread environment, this function is not reliable, 
+    since while one thread is calling this function and getting back a module
+    handle, another thread in the same process could be calling FreeLibrary for the same module,
+    therefore invalidating the returned module handle for the first thread.
 Arguments:
     lpwModuleName - Points to a string that names the library file.
                     The string must be a null-terminated unicode string.
@@ -697,19 +715,19 @@ Return Value:
     UNICODE_STRING DllName_U, AppPathDllName_U;
 
     if (!ARGUMENT_PRESENT(lpwModuleName)) {
-        return( (HMODULE)(PVOID)NtCurrentPeb()->ImageBaseAddress );
+        return((HMODULE)(PVOID)NtCurrentPeb()->ImageBaseAddress);
     }
 
     RtlInitUnicodeString(&DllName_U, lpwModuleName);
 
     if (gDoDllRedirection) {
-        Status = ComputeRedirectedDllName(&DllName_U, &AppPathDllName_U) ;
-        if(!NT_SUCCESS(Status)) {
+        Status = ComputeRedirectedDllName(&DllName_U, &AppPathDllName_U);
+        if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
             return NULL;
         }
 
-        hModule = GetModuleHandleForUnicodeString(&AppPathDllName_U) ;
+        hModule = GetModuleHandleForUnicodeString(&AppPathDllName_U);
         RtlFreeHeap(RtlProcessHeap(), 0, AppPathDllName_U.Buffer);
         if (hModule != NULL) {
             return hModule;
@@ -717,7 +735,7 @@ Return Value:
         // Didn't find any re-directed DLL with this name loaded. Now we can just check for the original name passed in.
     }
 
-    return GetModuleHandleForUnicodeString(&DllName_U) ;
+    return GetModuleHandleForUnicodeString(&DllName_U);
 }
 
 
@@ -725,10 +743,12 @@ FARPROC GetProcAddress(HMODULE hModule, LPCSTR lpProcName)
 /*++
 Routine Description:
     This function retrieves the memory address of the function whose name is pointed to by the lpProcName parameter.
-    The GetProcAddress function searches for the function in the module specified by the hModule parameter, or in the module associated with the current process if hModule is NULL.
+    The GetProcAddress function searches for the function in the module specified by the hModule parameter,
+    or in the module associated with the current process if hModule is NULL.
     The function must be an exported function; the module's definition file must contain an appropriate EXPORTS line for the function.
 
-    If the lpProcName parameter is an ordinal value and a function with the specified ordinal does not exist in the module, GetProcAddress can still return a non-NULL value.
+    If the lpProcName parameter is an ordinal value and a function with the specified ordinal does not exist in the module, 
+    GetProcAddress can still return a non-NULL value.
     In cases where the function may not exist, specify the function by name rather than ordinal value.
 
     Only use GetProcAddress to retrieve addresses of exported functions that belong to library modules.
@@ -751,19 +771,25 @@ Return Value:
     PVOID ProcedureAddress;
     STRING ProcedureName;
 
-    if ( (ULONG_PTR)lpProcName > 0xffff ) {
-        RtlInitString(&ProcedureName,lpProcName);
-        Status = LdrGetProcedureAddress(BasepMapModuleHandle( hModule, FALSE ), &ProcedureName, 0L, &ProcedureAddress);
+    if ((ULONG_PTR)lpProcName > 0xffff) {
+        RtlInitString(&ProcedureName, lpProcName);
+        Status = LdrGetProcedureAddress(BasepMapModuleHandle(hModule, FALSE), 
+                                        &ProcedureName, 
+                                        0L, 
+                                        &ProcedureAddress);
     } else {
-        Status = LdrGetProcedureAddress(BasepMapModuleHandle( hModule, FALSE ),  NULL, PtrToUlong((PVOID)lpProcName), &ProcedureAddress);
+        Status = LdrGetProcedureAddress(BasepMapModuleHandle(hModule, FALSE), 
+                                        NULL, 
+                                        PtrToUlong((PVOID)lpProcName), 
+                                        &ProcedureAddress);
     }
 
-    if ( !NT_SUCCESS(Status) ) {
+    if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         return NULL;
     } else {
-        if ( ProcedureAddress == BasepMapModuleHandle( hModule, FALSE ) ) {
-            if ( (ULONG_PTR)lpProcName > 0xffff ) {
+        if (ProcedureAddress == BasepMapModuleHandle(hModule, FALSE)) {
+            if ((ULONG_PTR)lpProcName > 0xffff) {
                 Status = STATUS_ENTRYPOINT_NOT_FOUND;
             } else {
                 Status = STATUS_ORDINAL_NOT_FOUND;
@@ -799,23 +825,24 @@ WINBASEAPI BOOL WINAPI GetVersionExA(LPOSVERSIONINFOA lpVersionInformation)
     UNICODE_STRING UnicodeString;
     NTSTATUS Status;
 
-    if (lpVersionInformation->dwOSVersionInfoSize != sizeof(OSVERSIONINFOEXA) && lpVersionInformation->dwOSVersionInfoSize != sizeof(*lpVersionInformation)) {
+    if (lpVersionInformation->dwOSVersionInfoSize != sizeof(OSVERSIONINFOEXA) && 
+        lpVersionInformation->dwOSVersionInfoSize != sizeof(*lpVersionInformation)) {
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
         return FALSE;
     }
 
     VersionInformationU.dwOSVersionInfoSize = sizeof(VersionInformationU);
-    if (GetVersionExW((LPOSVERSIONINFOW) &VersionInformationU)) {
+    if (GetVersionExW((LPOSVERSIONINFOW)&VersionInformationU)) {
         lpVersionInformation->dwMajorVersion = VersionInformationU.dwMajorVersion;
         lpVersionInformation->dwMinorVersion = VersionInformationU.dwMinorVersion;
         lpVersionInformation->dwBuildNumber = VersionInformationU.dwBuildNumber;
         lpVersionInformation->dwPlatformId = VersionInformationU.dwPlatformId;
         if (lpVersionInformation->dwOSVersionInfoSize == sizeof(OSVERSIONINFOEXA)) {
-            ((POSVERSIONINFOEXA) lpVersionInformation)->wServicePackMajor = VersionInformationU.wServicePackMajor;
-            ((POSVERSIONINFOEXA) lpVersionInformation)->wServicePackMinor = VersionInformationU.wServicePackMinor;
-            ((POSVERSIONINFOEXA) lpVersionInformation)->wSuiteMask = VersionInformationU.wSuiteMask;
-            ((POSVERSIONINFOEXA) lpVersionInformation)->wProductType = VersionInformationU.wProductType;
-            ((POSVERSIONINFOEXA) lpVersionInformation)->wReserved = VersionInformationU.wReserved;
+            ((POSVERSIONINFOEXA)lpVersionInformation)->wServicePackMajor = VersionInformationU.wServicePackMajor;
+            ((POSVERSIONINFOEXA)lpVersionInformation)->wServicePackMinor = VersionInformationU.wServicePackMinor;
+            ((POSVERSIONINFOEXA)lpVersionInformation)->wSuiteMask = VersionInformationU.wSuiteMask;
+            ((POSVERSIONINFOEXA)lpVersionInformation)->wProductType = VersionInformationU.wProductType;
+            ((POSVERSIONINFOEXA)lpVersionInformation)->wReserved = VersionInformationU.wReserved;
         }
 
         AnsiString.Buffer = lpVersionInformation->szCSDVersion;
@@ -840,7 +867,8 @@ WINBASEAPI BOOL WINAPI GetVersionExW(LPOSVERSIONINFOW lpVersionInformation)
     PPEB Peb;
     NTSTATUS Status;
 
-    if (lpVersionInformation->dwOSVersionInfoSize != sizeof(OSVERSIONINFOEXW) && lpVersionInformation->dwOSVersionInfoSize != sizeof(*lpVersionInformation)) {
+    if (lpVersionInformation->dwOSVersionInfoSize != sizeof(OSVERSIONINFOEXW) && 
+        lpVersionInformation->dwOSVersionInfoSize != sizeof(*lpVersionInformation)) {
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
         return FALSE;
     }
@@ -853,7 +881,7 @@ WINBASEAPI BOOL WINAPI GetVersionExW(LPOSVERSIONINFOW lpVersionInformation)
             wcscpy(lpVersionInformation->szCSDVersion, Peb->CSDVersion.Buffer);
 
         if (lpVersionInformation->dwOSVersionInfoSize == sizeof(OSVERSIONINFOEXW))
-            ((POSVERSIONINFOEXW) lpVersionInformation)->wReserved = (UCHAR) BaseRCNumber;
+            ((POSVERSIONINFOEXW)lpVersionInformation)->wReserved = (UCHAR)BaseRCNumber;
 
         return TRUE;
     } else {
@@ -883,7 +911,7 @@ Return Value:
 
     Status = RtlVerifyVersionInfo(VersionInfo, TypeMask, ConditionMask);
     if (Status == STATUS_INVALID_PARAMETER) {
-        SetLastError( ERROR_BAD_ARGUMENTS );
+        SetLastError(ERROR_BAD_ARGUMENTS);
         return FALSE;
     } else if (Status == STATUS_REVISION_MISMATCH) {
         SetLastError(ERROR_OLD_WIN_VERSION);
@@ -911,16 +939,16 @@ Return Value:
     OSVERSIONINFOEXW VersionInfoW;
 
     VersionInfoW.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
-    VersionInfoW.dwMajorVersion      = VersionInfo->dwMajorVersion;
-    VersionInfoW.dwMinorVersion      = VersionInfo->dwMinorVersion;
-    VersionInfoW.dwBuildNumber       = VersionInfo->dwBuildNumber;
-    VersionInfoW.dwPlatformId        = VersionInfo->dwPlatformId;
-    VersionInfoW.wServicePackMajor   = VersionInfo->wServicePackMajor;
-    VersionInfoW.wServicePackMinor   = VersionInfo->wServicePackMinor;
-    VersionInfoW.wSuiteMask          = VersionInfo->wSuiteMask;
-    VersionInfoW.wProductType        = VersionInfo->wProductType;
-    VersionInfoW.wReserved           = VersionInfo->wReserved;
-    return VerifyVersionInfoW( &VersionInfoW, TypeMask, ConditionMask );
+    VersionInfoW.dwMajorVersion = VersionInfo->dwMajorVersion;
+    VersionInfoW.dwMinorVersion = VersionInfo->dwMinorVersion;
+    VersionInfoW.dwBuildNumber = VersionInfo->dwBuildNumber;
+    VersionInfoW.dwPlatformId = VersionInfo->dwPlatformId;
+    VersionInfoW.wServicePackMajor = VersionInfo->wServicePackMajor;
+    VersionInfoW.wServicePackMinor = VersionInfo->wServicePackMinor;
+    VersionInfoW.wSuiteMask = VersionInfo->wSuiteMask;
+    VersionInfoW.wProductType = VersionInfo->wProductType;
+    VersionInfoW.wReserved = VersionInfo->wReserved;
+    return VerifyVersionInfoW(&VersionInfoW, TypeMask, ConditionMask);
 }
 
 
@@ -935,12 +963,15 @@ Routine Description:
     This function determines the location of a resource in the specified resource file.
     The lpName and lpType parameters define the resource name and type, respectively.
 
-    If the high-order word of the lpName or lpType parameter is zero, the low-order word specifies the integer ID of the name or type of the given resource.
+    If the high-order word of the lpName or lpType parameter is zero, 
+    the low-order word specifies the integer ID of the name or type of the given resource.
     Otherwise, the parameters are pointers to null-terminated character strings.
-    If the first character of the string is a pound sign (#), the remaining characters represent a decimal number that specifies the integer ID of the resource's name or type.
+    If the first character of the string is a pound sign (#), 
+    the remaining characters represent a decimal number that specifies the integer ID of the resource's name or type.
     For example, the string "#258" represents the integer ID 258.
 
-    To reduce the amount of memory required for the resources used by an application, applications should refer to their resources by integer ID instead of by name.
+    To reduce the amount of memory required for the resources used by an application, 
+    applications should refer to their resources by integer ID instead of by name.
 
     An application must not call FindResource and the LoadResource function to load cursor, icon, or string resources.
     Instead, it must load these resources by calling the following functions:
@@ -978,11 +1009,11 @@ Return Value:
 --*/
 {
     NTSTATUS Status;
-    ULONG_PTR IdPath[ 3 ];
+    ULONG_PTR IdPath[3];
     PVOID p;
 
-    IdPath[ 0 ] = 0;
-    IdPath[ 1 ] = 0;
+    IdPath[0] = 0;
+    IdPath[1] = 0;
     try {
         if ((IdPath[0] = BaseDllMapResourceIdA(lpType)) == -1) {
             Status = STATUS_INVALID_PARAMETER;
@@ -991,7 +1022,7 @@ Return Value:
         } else {
             IdPath[2] = 0;
             p = NULL;
-            Status = LdrFindResource_U(BasepMapModuleHandle(hModule, TRUE), IdPath, 3, (PIMAGE_RESOURCE_DATA_ENTRY *) &p);
+            Status = LdrFindResource_U(BasepMapModuleHandle(hModule, TRUE), IdPath, 3, (PIMAGE_RESOURCE_DATA_ENTRY*)&p);
         }
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Status = GetExceptionCode();
@@ -1005,7 +1036,7 @@ Return Value:
         BaseSetLastNTError(Status);
         return(NULL);
     } else {
-        return((HRSRC) p);
+        return((HRSRC)p);
     }
 }
 
@@ -1016,14 +1047,17 @@ Routine Description:
     This function determines the location of a resource in the specified resource file.
     The lpType, lpName and wLanguage parameters define the resource type, name and language respectively.
 
-    If the high-order word of the lpType or lpName parameter is zero, the low-order word specifies the integer ID of the type, name or language of the given resource.
+    If the high-order word of the lpType or lpName parameter is zero, 
+    the low-order word specifies the integer ID of the type, name or language of the given resource.
     Otherwise, the parameters are pointers to null-terminated character strings.
-    If the first character of the string is a pound sign (#), the remaining characters represent a decimal number that specifies the integer ID of the resource's name or type.
+    If the first character of the string is a pound sign (#), 
+    the remaining characters represent a decimal number that specifies the integer ID of the resource's name or type.
     For example, the string "#258" represents the integer ID 258.
 
     If the wLanguage parameter is zero, then the current language associated with the calling thread will be used.
 
-    To reduce the amount of memory required for the resources used by an application, applications should refer to their resources by integer ID instead of by name.
+    To reduce the amount of memory required for the resources used by an application, 
+    applications should refer to their resources by integer ID instead of by name.
 
     An application must not call FindResource and the LoadResource function to load cursor, icon, or string resources.
     Instead, it must load these resources by calling the following functions:
@@ -1051,27 +1085,28 @@ Arguments:
         RT_MENU - Menu resource
         RT_RCDATA - User-defined resource (raw data)
     lpName - Points to a null-terminated character string that represents the name of the resource.
-    wLanguage -  represents the language of the resource.  If this parameter is zero then the current language associated with the calling thread is used.
+    wLanguage -  represents the language of the resource.  
+                 If this parameter is zero then the current language associated with the calling thread is used.
 Return Value:
     The return value identifies the named resource.
     It is NULL if the requested resource cannot be found.
 --*/
 {
     NTSTATUS Status;
-    ULONG_PTR IdPath[ 3 ];
+    ULONG_PTR IdPath[3];
     PVOID p;
 
-    IdPath[ 0 ] = 0;
-    IdPath[ 1 ] = 0;
+    IdPath[0] = 0;
+    IdPath[1] = 0;
     try {
         if ((IdPath[0] = BaseDllMapResourceIdA(lpType)) == -1) {
             Status = STATUS_INVALID_PARAMETER;
         } else if ((IdPath[1] = BaseDllMapResourceIdA(lpName)) == -1) {
             Status = STATUS_INVALID_PARAMETER;
         } else {
-            IdPath[2] = (ULONG_PTR) wLanguage;
+            IdPath[2] = (ULONG_PTR)wLanguage;
             p = NULL;
-            Status = LdrFindResource_U(BasepMapModuleHandle(hModule, TRUE), IdPath, 3, (PIMAGE_RESOURCE_DATA_ENTRY *) &p);
+            Status = LdrFindResource_U(BasepMapModuleHandle(hModule, TRUE), IdPath, 3, (PIMAGE_RESOURCE_DATA_ENTRY*)&p);
         }
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Status = GetExceptionCode();
@@ -1085,7 +1120,7 @@ Return Value:
         BaseSetLastNTError(Status);
         return(NULL);
     } else {
-        return((HRSRC) p);
+        return((HRSRC)p);
     }
 }
 
@@ -1109,7 +1144,7 @@ Return Value:
     PVOID p;
 
     try {
-        Status = LdrAccessResource(BasepMapModuleHandle(hModule, TRUE), (PIMAGE_RESOURCE_DATA_ENTRY) hResInfo, &p, (PULONG) NULL);
+        Status = LdrAccessResource(BasepMapModuleHandle(hModule, TRUE), (PIMAGE_RESOURCE_DATA_ENTRY)hResInfo, &p, (PULONG)NULL);
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Status = GetExceptionCode();
     }
@@ -1118,7 +1153,7 @@ Return Value:
         BaseSetLastNTError(Status);
         return(NULL);
     } else {
-        return((HGLOBAL) p);
+        return((HGLOBAL)p);
     }
 }
 
@@ -1143,7 +1178,7 @@ Return Value:
     ULONG cb;
 
     try {
-        Status = LdrAccessResource(BasepMapModuleHandle(hModule, TRUE), (PIMAGE_RESOURCE_DATA_ENTRY) hResInfo, (PVOID *) NULL, &cb);
+        Status = LdrAccessResource(BasepMapModuleHandle(hModule, TRUE), (PIMAGE_RESOURCE_DATA_ENTRY)hResInfo, (PVOID*)NULL, &cb);
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Status = GetExceptionCode();
     }
@@ -1152,7 +1187,7 @@ Return Value:
         BaseSetLastNTError(Status);
         return(0);
     } else {
-        return((DWORD) cb);
+        return((DWORD)cb);
     }
 }
 
@@ -1169,7 +1204,8 @@ BOOL WINAPI EnumResourceTypesA(HMODULE hModule, ENUMRESTYPEPROCA lpEnumFunc, LON
 Routine Description:
     This function enumerates all of the resource type names contained in a module.
     It enumerates them by passing each type name to the callback function pointed to by the lpEnumFunc parameter.
-    The EnumResourceTypes function continues to enumerate type names until called function returns FALSE or the last type name in the module has been enumerated.
+    The EnumResourceTypes function continues to enumerate type names until called function returns FALSE or 
+    the last type name in the module has been enumerated.
 Arguments:
     hModule - Identifies the module whose executable file contains the resource type names to be enumerated.
         A value of NULL references the module handle associated with the image file that was used to create the current process.
@@ -1219,13 +1255,15 @@ Callback Function:
     ULONG Length;
 
     DllHandle = BasepMapModuleHandle(hModule, TRUE);
-    TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY) RtlImageDirectoryEntryToData((PVOID) DllHandle, TRUE, IMAGE_DIRECTORY_ENTRY_RESOURCE, &i);
+    TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY)RtlImageDirectoryEntryToData((PVOID)DllHandle, 
+                                                                                   TRUE, IMAGE_DIRECTORY_ENTRY_RESOURCE, 
+                                                                                   &i);
     if (!TopResourceDirectory) {
         BaseSetLastNTError(STATUS_RESOURCE_DATA_NOT_FOUND);
         return FALSE;
     }
 
-    Status = LdrFindResourceDirectory_U((PVOID) DllHandle, NULL, 0, &ResourceDirectory);
+    Status = LdrFindResourceDirectory_U((PVOID)DllHandle, NULL, 0, &ResourceDirectory);
     if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         return FALSE;
@@ -1235,10 +1273,10 @@ Callback Function:
     BufferLength = 0;
     Result = TRUE;
     try {
-        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY) (ResourceDirectory + 1);
+        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)(ResourceDirectory + 1);
         for (i = 0; i < ResourceDirectory->NumberOfNamedEntries; i++) {
-            ResourceNameString = (PIMAGE_RESOURCE_DIR_STRING_U) ((PCHAR) TopResourceDirectory + ResourceDirectoryEntry->NameOffset);
-            if ((ULONG) (ResourceNameString->Length + 1) >= BufferLength) {
+            ResourceNameString = (PIMAGE_RESOURCE_DIR_STRING_U)((PCHAR)TopResourceDirectory + ResourceDirectoryEntry->NameOffset);
+            if ((ULONG)(ResourceNameString->Length + 1) >= BufferLength) {
                 if (Buffer) {
                     RtlFreeHeap(RtlProcessHeap(), 0, Buffer);
                     Buffer = NULL;
@@ -1248,7 +1286,11 @@ Callback Function:
                 Buffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(TMP_TAG), BufferLength);
             }
 
-            Status = RtlUnicodeToMultiByteN(Buffer, BufferLength - 1, &Length, ResourceNameString->NameString, ResourceNameString->Length * sizeof(WCHAR));
+            Status = RtlUnicodeToMultiByteN(Buffer,
+                                            BufferLength - 1,
+                                            &Length,
+                                            ResourceNameString->NameString,
+                                            ResourceNameString->Length * sizeof(WCHAR));
             if (!NT_SUCCESS(Status)) {
                 BaseSetLastNTError(Status);
                 return FALSE;
@@ -1256,7 +1298,7 @@ Callback Function:
 
             Buffer[Length] = '\0';
 
-            if (!_ResourceCallEnumTypeRoutine(lpEnumFunc, hModule, (LPSTR) Buffer, lParam)) {
+            if (!_ResourceCallEnumTypeRoutine(lpEnumFunc, hModule, (LPSTR)Buffer, lParam)) {
                 Result = FALSE;
                 break;
             }
@@ -1266,7 +1308,7 @@ Callback Function:
 
         if (Result) {
             for (i = 0; i < ResourceDirectory->NumberOfIdEntries; i++) {
-                lpType = (LPSTR) ResourceDirectoryEntry->Id;
+                lpType = (LPSTR)ResourceDirectoryEntry->Id;
                 if (!_ResourceCallEnumTypeRoutine(lpEnumFunc, hModule, lpType, lParam)) {
                     Result = FALSE;
                     break;
@@ -1304,7 +1346,8 @@ BOOL WINAPI EnumResourceNamesA(HMODULE hModule, LPCSTR lpType, ENUMRESNAMEPROCA 
 Routine Description:
     This function enumerates all of the resource names for a specific resource type name contained in a module.
     It enumerates them by passing each resource name and type name to the callback function pointed to by the lpEnumFunc parameter.
-    The EnumResourceNames function continues to enumerate resource names until called function returns FALSE or the last resource name for the specified resource type name has been enumerated.
+    The EnumResourceNames function continues to enumerate resource names until called function returns FALSE or
+    the last resource name for the specified resource type name has been enumerated.
 Arguments:
     hModule - Identifies the module whose executable file contains the resource names to be enumerated.
         A value of NULL references the module handle associated with the image file that was used to create the current process.
@@ -1354,7 +1397,7 @@ Callback Function:
     BOOL Result;
     NTSTATUS Status;
     ULONG i;
-    ULONG_PTR IdPath[ 1 ];
+    ULONG_PTR IdPath[1];
     HANDLE DllHandle;
     PIMAGE_RESOURCE_DIRECTORY ResourceDirectory, TopResourceDirectory;
     PIMAGE_RESOURCE_DIRECTORY_ENTRY ResourceDirectoryEntry;
@@ -1370,11 +1413,14 @@ Callback Function:
     }
 
     DllHandle = BasepMapModuleHandle(hModule, TRUE);
-    TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY) RtlImageDirectoryEntryToData((PVOID) DllHandle, TRUE, IMAGE_DIRECTORY_ENTRY_RESOURCE, &i);
+    TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY)RtlImageDirectoryEntryToData((PVOID)DllHandle, 
+                                                                                   TRUE, 
+                                                                                   IMAGE_DIRECTORY_ENTRY_RESOURCE,
+                                                                                   &i);
     if (!TopResourceDirectory) {
         Status = STATUS_RESOURCE_DATA_NOT_FOUND;
     } else {
-        Status = LdrFindResourceDirectory_U((PVOID) DllHandle, IdPath, 1, &ResourceDirectory);
+        Status = LdrFindResourceDirectory_U((PVOID)DllHandle, IdPath, 1, &ResourceDirectory);
     }
 
     if (!NT_SUCCESS(Status)) {
@@ -1386,12 +1432,12 @@ Callback Function:
     Buffer = NULL;
     BufferLength = 0;
     Result = TRUE;
-    SetLastError( NO_ERROR );
+    SetLastError(NO_ERROR);
     try {
-        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY) (ResourceDirectory + 1);
+        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)(ResourceDirectory + 1);
         for (i = 0; i < ResourceDirectory->NumberOfNamedEntries; i++) {
-            ResourceNameString = (PIMAGE_RESOURCE_DIR_STRING_U) ((PCHAR) TopResourceDirectory + ResourceDirectoryEntry->NameOffset);
-            if ((ULONG) (ResourceNameString->Length + 1) >= BufferLength) {
+            ResourceNameString = (PIMAGE_RESOURCE_DIR_STRING_U)((PCHAR)TopResourceDirectory + ResourceDirectoryEntry->NameOffset);
+            if ((ULONG)(ResourceNameString->Length + 1) >= BufferLength) {
                 if (Buffer) {
                     RtlFreeHeap(RtlProcessHeap(), 0, Buffer);
                     Buffer = NULL;
@@ -1401,7 +1447,11 @@ Callback Function:
                 Buffer = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(TMP_TAG), BufferLength);
             }
 
-            Status = RtlUnicodeToMultiByteN(Buffer, BufferLength - 1, &Length, ResourceNameString->NameString, ResourceNameString->Length * sizeof(WCHAR));
+            Status = RtlUnicodeToMultiByteN(Buffer, 
+                                            BufferLength - 1,
+                                            &Length,
+                                            ResourceNameString->NameString, 
+                                            ResourceNameString->Length * sizeof(WCHAR));
             if (!NT_SUCCESS(Status)) {
                 BaseSetLastNTError(Status);
                 Result = FALSE;
@@ -1410,7 +1460,7 @@ Callback Function:
 
             Buffer[Length] = '\0';
 
-            if (!_ResourceCallEnumNameRoutine(lpEnumFunc, hModule, lpType, (LPSTR) Buffer, lParam)) {
+            if (!_ResourceCallEnumNameRoutine(lpEnumFunc, hModule, lpType, (LPSTR)Buffer, lParam)) {
                 Result = FALSE;
                 break;
             }
@@ -1420,7 +1470,7 @@ Callback Function:
 
         if (Result) {
             for (i = 0; i < ResourceDirectory->NumberOfIdEntries; i++) {
-                lpName = (LPSTR) ResourceDirectoryEntry->Id;
+                lpName = (LPSTR)ResourceDirectoryEntry->Id;
                 if (!_ResourceCallEnumNameRoutine(lpEnumFunc, hModule, lpType, lpName, lParam)) {
                     Result = FALSE;
                     break;
@@ -1438,25 +1488,37 @@ Callback Function:
         RtlFreeHeap(RtlProcessHeap(), 0, Buffer);
     }
 
-    BaseDllFreeResourceId( IdPath[ 0 ] );// Free any string allocated by BaseDllMapResourceIdA
+    BaseDllFreeResourceId(IdPath[0]);// Free any string allocated by BaseDllMapResourceIdA
     return Result;
 }
 
 
 #ifdef _X86_
-BOOL __stdcall _ResourceCallEnumLangRoutine(ENUMRESLANGPROCA EnumProc, HMODULE hModule, LPCSTR lpType, LPCSTR lpName, WORD wLanguage, LONG lParam);
+BOOL __stdcall _ResourceCallEnumLangRoutine(ENUMRESLANGPROCA EnumProc, 
+                                            HMODULE hModule,
+                                            LPCSTR lpType,
+                                            LPCSTR lpName, 
+                                            WORD wLanguage, 
+                                            LONG lParam);
 #else
-#define _ResourceCallEnumLangRoutine( EnumProc, hModule, lpType, lpName, wLanguage, lParam )     (*EnumProc)(hModule, lpType, lpName, wLanguage, lParam)
+#define _ResourceCallEnumLangRoutine( EnumProc, hModule, lpType, lpName, wLanguage, lParam )  \
+   (*EnumProc)(hModule, lpType, lpName, wLanguage, lParam)
 #endif
 
 
-BOOL WINAPI EnumResourceLanguagesA(HMODULE hModule, LPCSTR lpType, LPCSTR lpName, ENUMRESLANGPROCA lpEnumFunc, LONG_PTR lParam)
+BOOL WINAPI EnumResourceLanguagesA(HMODULE hModule, 
+                                   LPCSTR lpType, 
+                                   LPCSTR lpName,
+                                   ENUMRESLANGPROCA lpEnumFunc,
+                                   LONG_PTR lParam
+)
 /*++
 Routine Description:
     This function enumerates all of the language specific resources contained in a module for a given resource type and name ID.
     It enumerates them by passing each resource type, name and language to the callback function pointed to by the lpEnumFunc parameter.
 
-    The EnumResourceLanguares function continues to enumerate resources until called function returns FALSE or the last resource for the specified language has been enumerated.
+    The EnumResourceLanguares function continues to enumerate resources until called function returns FALSE or 
+    the last resource for the specified language has been enumerated.
 Arguments:
     hModule - Identifies the module whose executable file contains the resource names to be enumerated.
         A value of NULL references the module handle associated with the image file that was used to create the current process.
@@ -1508,7 +1570,7 @@ Callback Function:
     BOOL Result;
     NTSTATUS Status;
     ULONG i;
-    ULONG_PTR IdPath[ 2 ];
+    ULONG_PTR IdPath[2];
     HANDLE DllHandle;
     PIMAGE_RESOURCE_DIRECTORY ResourceDirectory, TopResourceDirectory;
     PIMAGE_RESOURCE_DIRECTORY_ENTRY ResourceDirectoryEntry;
@@ -1521,11 +1583,14 @@ Callback Function:
         Status = STATUS_INVALID_PARAMETER;
     } else {
         DllHandle = BasepMapModuleHandle(hModule, TRUE);
-        TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY) RtlImageDirectoryEntryToData((PVOID) DllHandle, TRUE, IMAGE_DIRECTORY_ENTRY_RESOURCE, &i);
+        TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY)RtlImageDirectoryEntryToData((PVOID)DllHandle, 
+                                                                                       TRUE, 
+                                                                                       IMAGE_DIRECTORY_ENTRY_RESOURCE,
+                                                                                       &i);
         if (!TopResourceDirectory) {
             Status = STATUS_RESOURCE_DATA_NOT_FOUND;
         } else {
-            Status = LdrFindResourceDirectory_U((PVOID) DllHandle, IdPath, 2, &ResourceDirectory);
+            Status = LdrFindResourceDirectory_U((PVOID)DllHandle, IdPath, 2, &ResourceDirectory);
         }
     }
 
@@ -1539,7 +1604,7 @@ Callback Function:
     Result = TRUE;
     SetLastError(NO_ERROR);
     try {
-        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY) (ResourceDirectory + 1);
+        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)(ResourceDirectory + 1);
         if (ResourceDirectory->NumberOfNamedEntries != 0) {
             BaseSetLastNTError(STATUS_INVALID_IMAGE_FORMAT);
             Result = FALSE;
@@ -1560,8 +1625,8 @@ Callback Function:
     }
 
     // Free any strings allocated by BaseDllMapResourceIdA
-    BaseDllFreeResourceId( IdPath[ 0 ] );
-    BaseDllFreeResourceId( IdPath[ 1 ] );
+    BaseDllFreeResourceId(IdPath[0]);
+    BaseDllFreeResourceId(IdPath[1]);
     return Result;
 }
 
@@ -1574,7 +1639,7 @@ BOOL WINAPI FreeResource(HGLOBAL hResData)
 
 LPVOID WINAPI LockResource(HGLOBAL hResData)
 {
-    return( (LPVOID)hResData );
+    return((LPVOID)hResData);
 }
 
 
@@ -1584,12 +1649,15 @@ Routine Description:
     This function determines the location of a resource in the specified resource file.
     The lpName and lpType parameters define the resource name and type, respectively.
 
-    If the high-order word of the lpName or lpType parameter is zero, the low-order word specifies the integer ID of the name or type of the given resource.
+    If the high-order word of the lpName or lpType parameter is zero, 
+    the low-order word specifies the integer ID of the name or type of the given resource.
     Otherwise, the parameters are pointers to null-terminated character strings.
-    If the first character of the string is a pound sign (#), the remaining characters represent a decimal number that specifies the integer ID of the resource's name or type.
+    If the first character of the string is a pound sign (#), 
+    the remaining characters represent a decimal number that specifies the integer ID of the resource's name or type.
     For example, the string "#258" represents the integer ID 258.
 
-    To reduce the amount of memory required for the resources used by an application, applications should refer to their resources by integer ID instead of by name.
+    To reduce the amount of memory required for the resources used by an application, 
+    applications should refer to their resources by integer ID instead of by name.
 
     An application must not call FindResource and the LoadResource function to load cursor, icon, or string resources.
     Instead, it must load these resources by calling the following functions:
@@ -1624,11 +1692,11 @@ Return Value:
 --*/
 {
     NTSTATUS Status;
-    ULONG_PTR IdPath[ 3 ];
+    ULONG_PTR IdPath[3];
     PVOID p;
 
-    IdPath[ 0 ] = 0;
-    IdPath[ 1 ] = 0;
+    IdPath[0] = 0;
+    IdPath[1] = 0;
     try {
         if ((IdPath[0] = BaseDllMapResourceIdW(lpType)) == -1) {
             Status = STATUS_INVALID_PARAMETER;
@@ -1637,7 +1705,10 @@ Return Value:
         } else {
             IdPath[2] = 0;
             p = NULL;
-            Status = LdrFindResource_U(BasepMapModuleHandle(hModule, TRUE), IdPath, 3, (PIMAGE_RESOURCE_DATA_ENTRY *) &p);
+            Status = LdrFindResource_U(BasepMapModuleHandle(hModule, TRUE), 
+                                       IdPath, 
+                                       3, 
+                                       (PIMAGE_RESOURCE_DATA_ENTRY*)&p);
         }
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Status = GetExceptionCode();
@@ -1651,7 +1722,7 @@ Return Value:
         BaseSetLastNTError(Status);
         return(NULL);
     } else {
-        return((HRSRC) p);
+        return((HRSRC)p);
     }
 }
 
@@ -1662,14 +1733,17 @@ Routine Description:
     This function determines the location of a resource in the specified resource file.
     The lpType, lpName and wLanguage parameters define the resource type, name and language respectively.
 
-    If the high-order word of the lpType or lpName parameter is zero, the low-order word specifies the integer ID of the type, name or language of the given resource.
+    If the high-order word of the lpType or lpName parameter is zero, 
+    the low-order word specifies the integer ID of the type, name or language of the given resource.
     Otherwise, the parameters are pointers to null-terminated character strings.
-    If the first character of the string is a pound sign (#), the remaining characters represent a decimal number that specifies the integer ID of the resource's name or type.
+    If the first character of the string is a pound sign (#), 
+    the remaining characters represent a decimal number that specifies the integer ID of the resource's name or type.
     For example, the string "#258" represents the integer ID 258.
 
     If the wLanguage parameter is zero, then the current language associated with the calling thread will be used.
 
-    To reduce the amount of memory required for the resources used by an application, applications should refer to their resources by integer ID instead of by name.
+    To reduce the amount of memory required for the resources used by an application,
+    applications should refer to their resources by integer ID instead of by name.
 
     An application must not call FindResource and the LoadResource function to load cursor, icon, or string resources.
     Instead, it must load these resources by calling the following functions:
@@ -1698,17 +1772,18 @@ Arguments:
         RT_MENU - Menu resource
         RT_RCDATA - User-defined resource (raw data)
     lpName - Points to a null-terminated character string that represents the name of the resource.
-    wLanguage -  represents the language of the resource.  If this parameter is zero then the current language associated with the calling thread is used.
+    wLanguage -  represents the language of the resource. 
+                 If this parameter is zero then the current language associated with the calling thread is used.
 Return Value:
     The return value identifies the named resource.
     It is NULL if the requested resource cannot be found.
 --*/
 {
     NTSTATUS Status;
-    ULONG_PTR IdPath[ 3 ];
+    ULONG_PTR IdPath[3];
     PVOID p;
 
-    IdPath[ 0 ] = 0;
+    IdPath[0] = 0;
     IdPath[1] = 0;
     try {
         if ((IdPath[0] = BaseDllMapResourceIdW(lpType)) == -1) {
@@ -1716,9 +1791,12 @@ Return Value:
         } else if ((IdPath[1] = BaseDllMapResourceIdW(lpName)) == -1) {
             Status = STATUS_INVALID_PARAMETER;
         } else {
-            IdPath[2] = (ULONG_PTR) wLanguage;
+            IdPath[2] = (ULONG_PTR)wLanguage;
             p = NULL;
-            Status = LdrFindResource_U(BasepMapModuleHandle(hModule, TRUE), IdPath, 3, (PIMAGE_RESOURCE_DATA_ENTRY *) &p);
+            Status = LdrFindResource_U(BasepMapModuleHandle(hModule, TRUE),
+                                       IdPath,
+                                       3,
+                                       (PIMAGE_RESOURCE_DATA_ENTRY*)&p);
         }
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Status = GetExceptionCode();
@@ -1732,7 +1810,7 @@ Return Value:
         BaseSetLastNTError(Status);
         return(NULL);
     } else {
-        return((HRSRC) p);
+        return((HRSRC)p);
     }
 }
 
@@ -1743,7 +1821,8 @@ Routine Description:
     This function enumerates all of the resource type names contained in a module.
     It enumerates them by passing each type name to the callback function pointed to by the lpEnumFunc parameter.
 
-    The EnumResourceTypes function continues to enumerate type names until called function returns FALSE or the last type name in the module has been enumerated.
+    The EnumResourceTypes function continues to enumerate type names until called function returns FALSE or
+    the last type name in the module has been enumerated.
 Arguments:
     hModule - Identifies the module whose executable file contains the resource type names to be enumerated.
         A value of NULL references the module handle associated with the image file that was used to create the current process.
@@ -1792,13 +1871,16 @@ Callback Function:
     ULONG BufferLength;
 
     DllHandle = BasepMapModuleHandle(hModule, TRUE);
-    TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY) RtlImageDirectoryEntryToData((PVOID) DllHandle, TRUE, IMAGE_DIRECTORY_ENTRY_RESOURCE, &i);
+    TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY)RtlImageDirectoryEntryToData((PVOID)DllHandle, 
+                                                                                   TRUE, 
+                                                                                   IMAGE_DIRECTORY_ENTRY_RESOURCE,
+                                                                                   &i);
     if (!TopResourceDirectory) {
         BaseSetLastNTError(STATUS_RESOURCE_DATA_NOT_FOUND);
         return FALSE;
     }
 
-    Status = LdrFindResourceDirectory_U((PVOID) DllHandle, NULL, 0, &ResourceDirectory);
+    Status = LdrFindResourceDirectory_U((PVOID)DllHandle, NULL, 0, &ResourceDirectory);
     if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         return FALSE;
@@ -1808,10 +1890,10 @@ Callback Function:
     BufferLength = 0;
     Result = TRUE;
     try {
-        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY) (ResourceDirectory + 1);
+        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)(ResourceDirectory + 1);
         for (i = 0; i < ResourceDirectory->NumberOfNamedEntries; i++) {
-            ResourceNameString = (PIMAGE_RESOURCE_DIR_STRING_U) ((PCHAR) TopResourceDirectory + ResourceDirectoryEntry->NameOffset);
-            if ((ULONG) ((ResourceNameString->Length + 1) * sizeof(WCHAR)) >= BufferLength) {
+            ResourceNameString = (PIMAGE_RESOURCE_DIR_STRING_U)((PCHAR)TopResourceDirectory + ResourceDirectoryEntry->NameOffset);
+            if ((ULONG)((ResourceNameString->Length + 1) * sizeof(WCHAR)) >= BufferLength) {
                 if (Buffer) {
                     RtlFreeHeap(RtlProcessHeap(), 0, Buffer);
                     Buffer = NULL;
@@ -1827,7 +1909,7 @@ Callback Function:
             }
             RtlMoveMemory(Buffer, ResourceNameString->NameString, ResourceNameString->Length * sizeof(WCHAR));
             Buffer[ResourceNameString->Length] = UNICODE_NULL;
-            if (!_ResourceCallEnumTypeRoutine((ENUMRESTYPEPROCA) lpEnumFunc, hModule, (LPSTR) Buffer, lParam)) {
+            if (!_ResourceCallEnumTypeRoutine((ENUMRESTYPEPROCA)lpEnumFunc, hModule, (LPSTR)Buffer, lParam)) {
                 Result = FALSE;
                 break;
             }
@@ -1837,8 +1919,8 @@ Callback Function:
 
         if (Result) {
             for (i = 0; i < ResourceDirectory->NumberOfIdEntries; i++) {
-                lpType = (LPWSTR) ResourceDirectoryEntry->Id;
-                if (!_ResourceCallEnumTypeRoutine((ENUMRESTYPEPROCA) lpEnumFunc, hModule, (LPSTR) lpType, lParam)) {
+                lpType = (LPWSTR)ResourceDirectoryEntry->Id;
+                if (!_ResourceCallEnumTypeRoutine((ENUMRESTYPEPROCA)lpEnumFunc, hModule, (LPSTR)lpType, lParam)) {
                     Result = FALSE;
                     break;
                 }
@@ -1869,7 +1951,8 @@ Routine Description:
     This function enumerates all of the resource names for a specific resource type name contained in a module.
     It enumerates them by passing each resource name and type name to the callback function pointed to by the lpEnumFunc parameter.
 
-    The EnumResourceNames function continues to enumerate resource names until called function returns FALSE or the last resource name for the specified resource type name has been enumerated.
+    The EnumResourceNames function continues to enumerate resource names until called function returns FALSE or
+    the last resource name for the specified resource type name has been enumerated.
 Arguments:
     hModule - Identifies the module whose executable file contains the resource names to be enumerated.
         A value of NULL references the module handle associated with the image file that was used to create the current process.
@@ -1921,7 +2004,7 @@ Callback Function:
     BOOL Result;
     NTSTATUS Status;
     ULONG i;
-    ULONG_PTR IdPath[ 1 ];
+    ULONG_PTR IdPath[1];
     HANDLE DllHandle;
     PIMAGE_RESOURCE_DIRECTORY ResourceDirectory, TopResourceDirectory;
     PIMAGE_RESOURCE_DIRECTORY_ENTRY ResourceDirectoryEntry;
@@ -1934,11 +2017,14 @@ Callback Function:
         Status = STATUS_INVALID_PARAMETER;
     } else {
         DllHandle = BasepMapModuleHandle(hModule, TRUE);
-        TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY) RtlImageDirectoryEntryToData((PVOID) DllHandle, TRUE, IMAGE_DIRECTORY_ENTRY_RESOURCE, &i);
+        TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY)RtlImageDirectoryEntryToData((PVOID)DllHandle, 
+                                                                                       TRUE, 
+                                                                                       IMAGE_DIRECTORY_ENTRY_RESOURCE,
+                                                                                       &i);
         if (!TopResourceDirectory) {
             Status = STATUS_RESOURCE_DATA_NOT_FOUND;
         } else {
-            Status = LdrFindResourceDirectory_U((PVOID) DllHandle, IdPath, 1, &ResourceDirectory);
+            Status = LdrFindResourceDirectory_U((PVOID)DllHandle, IdPath, 1, &ResourceDirectory);
         }
     }
 
@@ -1952,10 +2038,10 @@ Callback Function:
     BufferLength = 0;
     Result = TRUE;
     try {
-        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY) (ResourceDirectory + 1);
+        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)(ResourceDirectory + 1);
         for (i = 0; i < ResourceDirectory->NumberOfNamedEntries; i++) {
-            ResourceNameString = (PIMAGE_RESOURCE_DIR_STRING_U) ((PCHAR) TopResourceDirectory + ResourceDirectoryEntry->NameOffset);
-            if ((ULONG) ((ResourceNameString->Length + 1) * sizeof(WCHAR)) >= BufferLength) {
+            ResourceNameString = (PIMAGE_RESOURCE_DIR_STRING_U)((PCHAR)TopResourceDirectory + ResourceDirectoryEntry->NameOffset);
+            if ((ULONG)((ResourceNameString->Length + 1) * sizeof(WCHAR)) >= BufferLength) {
                 if (Buffer) {
                     RtlFreeHeap(RtlProcessHeap(), 0, Buffer);
                     Buffer = NULL;
@@ -1969,9 +2055,15 @@ Callback Function:
                     break;
                 }
             }
-            RtlMoveMemory(Buffer, ResourceNameString->NameString, ResourceNameString->Length * sizeof(WCHAR));
+            RtlMoveMemory(Buffer, 
+                          ResourceNameString->NameString,
+                          ResourceNameString->Length * sizeof(WCHAR));
             Buffer[ResourceNameString->Length] = UNICODE_NULL;
-            if (!_ResourceCallEnumNameRoutine((ENUMRESNAMEPROCA) lpEnumFunc, hModule, (LPSTR) lpType, (LPSTR) Buffer, lParam)) {
+            if (!_ResourceCallEnumNameRoutine((ENUMRESNAMEPROCA)lpEnumFunc, 
+                                              hModule,
+                                              (LPSTR)lpType,
+                                              (LPSTR)Buffer, 
+                                              lParam)) {
                 Result = FALSE;
                 break;
             }
@@ -1981,8 +2073,12 @@ Callback Function:
 
         if (Result) {
             for (i = 0; i < ResourceDirectory->NumberOfIdEntries; i++) {
-                lpName = (LPWSTR) ResourceDirectoryEntry->Id;
-                if (!_ResourceCallEnumNameRoutine((ENUMRESNAMEPROCA) lpEnumFunc, hModule, (LPSTR) lpType, (LPSTR) lpName, lParam)) {
+                lpName = (LPWSTR)ResourceDirectoryEntry->Id;
+                if (!_ResourceCallEnumNameRoutine((ENUMRESNAMEPROCA)lpEnumFunc, 
+                                                  hModule, 
+                                                  (LPSTR)lpType,
+                                                  (LPSTR)lpName,
+                                                  lParam)) {
                     Result = FALSE;
                     break;
                 }
@@ -2004,13 +2100,19 @@ Callback Function:
 }
 
 
-BOOL APIENTRY EnumResourceLanguagesW(HMODULE hModule, LPCWSTR lpType, LPCWSTR lpName, ENUMRESLANGPROCW lpEnumFunc, LONG_PTR lParam)
+BOOL APIENTRY EnumResourceLanguagesW(HMODULE hModule,
+                                     LPCWSTR lpType,
+                                     LPCWSTR lpName, 
+                                     ENUMRESLANGPROCW lpEnumFunc,
+                                     LONG_PTR lParam
+)
 /*++
 Routine Description:
     This function enumerates all of the language specific resources contained in a module for a given resource type and name ID.
     It enumerates them by passing each resource type, name and language to the callback function pointed to by the lpEnumFunc parameter.
 
-    The EnumResourceLanguares function continues to enumerate resources until called function returns FALSE or the last resource for the specified language has been enumerated.
+    The EnumResourceLanguares function continues to enumerate resources until called function returns FALSE or
+    the last resource for the specified language has been enumerated.
 Arguments:
 
     hModule - Identifies the module whose executable file contains the resource names to be enumerated.
@@ -2068,7 +2170,7 @@ Callback Function:
     BOOL Result;
     NTSTATUS Status;
     ULONG i;
-    ULONG_PTR IdPath[ 2 ];
+    ULONG_PTR IdPath[2];
     HANDLE DllHandle;
     PIMAGE_RESOURCE_DIRECTORY ResourceDirectory, TopResourceDirectory;
     PIMAGE_RESOURCE_DIRECTORY_ENTRY ResourceDirectoryEntry;
@@ -2081,11 +2183,14 @@ Callback Function:
         Status = STATUS_INVALID_PARAMETER;
     } else {
         DllHandle = BasepMapModuleHandle(hModule, TRUE);
-        TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY) RtlImageDirectoryEntryToData((PVOID) DllHandle, TRUE, IMAGE_DIRECTORY_ENTRY_RESOURCE, &i);
+        TopResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY)RtlImageDirectoryEntryToData((PVOID)DllHandle, 
+                                                                                       TRUE,
+                                                                                       IMAGE_DIRECTORY_ENTRY_RESOURCE,
+                                                                                       &i);
         if (!TopResourceDirectory) {
             Status = STATUS_RESOURCE_DATA_NOT_FOUND;
         } else {
-            Status = LdrFindResourceDirectory_U((PVOID) DllHandle, IdPath, 2, &ResourceDirectory);
+            Status = LdrFindResourceDirectory_U((PVOID)DllHandle, IdPath, 2, &ResourceDirectory);
         }
     }
 
@@ -2098,14 +2203,19 @@ Callback Function:
 
     Result = TRUE;
     try {
-        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY) (ResourceDirectory + 1);
+        ResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)(ResourceDirectory + 1);
         if (ResourceDirectory->NumberOfNamedEntries != 0) {
             BaseSetLastNTError(STATUS_INVALID_IMAGE_FORMAT);
             Result = FALSE;
         } else {
             for (i = 0; i < ResourceDirectory->NumberOfIdEntries; i++) {
                 wLanguage = ResourceDirectoryEntry->Id;
-                if (!_ResourceCallEnumLangRoutine((ENUMRESLANGPROCA) lpEnumFunc, hModule, (LPSTR) lpType, (LPSTR) lpName, wLanguage, lParam)) {
+                if (!_ResourceCallEnumLangRoutine((ENUMRESLANGPROCA)lpEnumFunc,
+                                                  hModule, 
+                                                  (LPSTR)lpType,
+                                                  (LPSTR)lpName,
+                                                  wLanguage, 
+                                                  lParam)) {
                     Result = FALSE;
                     break;
                 }
@@ -2135,7 +2245,7 @@ ULONG_PTR BaseDllMapResourceIdA(LPCSTR lpId)
     PWSTR s;
 
     try {
-        if ((ULONG_PTR) lpId >= LDR_RESOURCE_ID_NAME_MINVAL) {
+        if ((ULONG_PTR)lpId >= LDR_RESOURCE_ID_NAME_MINVAL) {
             if (*lpId == '#') {
                 Status = RtlCharToInteger(lpId + 1, 10, &ulId);
                 Id = ulId;
@@ -2144,14 +2254,14 @@ ULONG_PTR BaseDllMapResourceIdA(LPCSTR lpId)
                         Status = STATUS_INVALID_PARAMETER;
                     }
                     BaseSetLastNTError(Status);
-                    Id = (ULONG) -1;
+                    Id = (ULONG)-1;
                 }
             } else {
                 RtlInitAnsiString(&AnsiString, lpId);
                 Status = RtlAnsiStringToUnicodeString(&UnicodeString, &AnsiString, TRUE);
-                if (!NT_SUCCESS(Status)){
+                if (!NT_SUCCESS(Status)) {
                     BaseSetLastNTError(Status);
-                    Id = (ULONG_PTR) -1;
+                    Id = (ULONG_PTR)-1;
                 } else {
                     s = UnicodeString.Buffer;
                     while (*s != UNICODE_NULL) {
@@ -2159,15 +2269,15 @@ ULONG_PTR BaseDllMapResourceIdA(LPCSTR lpId)
                         s++;
                     }
 
-                    Id = (ULONG_PTR) UnicodeString.Buffer;
+                    Id = (ULONG_PTR)UnicodeString.Buffer;
                 }
             }
         } else {
-            Id = (ULONG_PTR) lpId;
+            Id = (ULONG_PTR)lpId;
         }
     } except(EXCEPTION_EXECUTE_HANDLER) {
         BaseSetLastNTError(GetExceptionCode());
-        Id = (ULONG_PTR) -1;
+        Id = (ULONG_PTR)-1;
     }
 
     return Id;
@@ -2183,7 +2293,7 @@ ULONG_PTR BaseDllMapResourceIdW(LPCWSTR lpId)
     PWSTR s;
 
     try {
-        if ((ULONG_PTR) lpId >= LDR_RESOURCE_ID_NAME_MINVAL) {
+        if ((ULONG_PTR)lpId >= LDR_RESOURCE_ID_NAME_MINVAL) {
             if (*lpId == '#') {
                 RtlInitUnicodeString(&UnicodeString, lpId + 1);
                 Status = RtlUnicodeStringToInteger(&UnicodeString, 10, &ulId);
@@ -2193,15 +2303,15 @@ ULONG_PTR BaseDllMapResourceIdW(LPCWSTR lpId)
                         Status = STATUS_INVALID_PARAMETER;
                     }
                     BaseSetLastNTError(Status);
-                    Id = (ULONG_PTR) -1;
+                    Id = (ULONG_PTR)-1;
                 }
             } else {
                 s = RtlAllocateHeap(RtlProcessHeap(), MAKE_TAG(TMP_TAG), (wcslen(lpId) + 1) * sizeof(WCHAR));
                 if (s == NULL) {
                     BaseSetLastNTError(STATUS_NO_MEMORY);
-                    Id = (ULONG_PTR) -1;
+                    Id = (ULONG_PTR)-1;
                 } else {
-                    Id = (ULONG_PTR) s;
+                    Id = (ULONG_PTR)s;
 
                     while (*lpId != UNICODE_NULL) {
                         *s++ = RtlUpcaseUnicodeChar(*lpId++);
@@ -2211,11 +2321,11 @@ ULONG_PTR BaseDllMapResourceIdW(LPCWSTR lpId)
                 }
             }
         } else {
-            Id = (ULONG_PTR) lpId;
+            Id = (ULONG_PTR)lpId;
         }
     } except(EXCEPTION_EXECUTE_HANDLER) {
         BaseSetLastNTError(GetExceptionCode());
-        Id = (ULONG_PTR) -1;
+        Id = (ULONG_PTR)-1;
     }
 
     return Id;
@@ -2227,7 +2337,7 @@ VOID BaseDllFreeResourceId(ULONG_PTR Id)
     UNICODE_STRING UnicodeString;
 
     if (Id >= LDR_RESOURCE_ID_NAME_MINVAL && Id != -1) {
-        UnicodeString.Buffer = (PWSTR) Id;
+        UnicodeString.Buffer = (PWSTR)Id;
         UnicodeString.Length = 0;
         UnicodeString.MaximumLength = 0;
         RtlFreeUnicodeString(&UnicodeString);
@@ -2237,28 +2347,35 @@ VOID BaseDllFreeResourceId(ULONG_PTR Id)
 
 INT_PTR ReturnMem16Data(DWORD dwReserved1, DWORD dwReserved2, DWORD dwReserved3)
 {
-// Since there's _currently_ no other app we know that this will be useful for, we can always return "our" value.
+    // Since there's _currently_ no other app we know that this will be useful for, we can always return "our" value.
 
-    // Elmo's Preschool Deluxe is looking for free physical or virtual mem.  Give it a
-    // Number it will be happy with.
-    // Incoming params from Elmo's (in case they're needed one day):
-    // dwReserved1 will be 0
-    // dwReserved2 will be 1 or 2 (physical/virtual)
-    // dwReserved3 will be 0
+        // Elmo's Preschool Deluxe is looking for free physical or virtual mem.  Give it a
+        // Number it will be happy with.
+        // Incoming params from Elmo's (in case they're needed one day):
+        // dwReserved1 will be 0
+        // dwReserved2 will be 1 or 2 (physical/virtual)
+        // dwReserved3 will be 0
     return 0x2000;
 }
 
 
-BOOL UTRegister(HMODULE hInst32, LPSTR lpszDll16, LPSTR lpszInitFunc, LPSTR lpszThunkFunc, FARPROC *ppfnThunk32Func, FARPROC Callback, PVOID lpvData)
+BOOL UTRegister(HMODULE hInst32,
+                LPSTR lpszDll16, 
+                LPSTR lpszInitFunc, 
+                LPSTR lpszThunkFunc,
+                FARPROC* ppfnThunk32Func,
+                FARPROC Callback, 
+                PVOID lpvData
+)
 {
     // This function is supposed to return an error code.
     // VOID happens to work because the stub would just leave EAX alone.
-    // If something happens and EAX starts getting zero'ed out, it'll cause problems and return type here should be changed to int and success should return NON-ZERO.   - bjm 09/98
+    // If something happens and EAX starts getting zero'ed out,
+    // it'll cause problems and return type here should be changed to int and success should return NON-ZERO.   - bjm 09/98
 
     // Sure, we could have checked this on a compat bit instead, but the ISV is the
     // Children's Television Workshop people and if they do this silliness in any of their other apps, we'll get those fixed "for free".
-    if (0 == lstrcmpi(lpszDll16, (LPCSTR)"mem16.dll") && 0 == lstrcmpi(lpszThunkFunc, (LPCSTR)"GetMemory"))
-    {
+    if (0 == lstrcmpi(lpszDll16, (LPCSTR)"mem16.dll") && 0 == lstrcmpi(lpszThunkFunc, (LPCSTR)"GetMemory")) {
         // Elmo's Preschool Deluxe calls to a 16bit dll they ship just to get physical and virtual mem.
         // Let's give 'em a pointer to our routine that will give it numbers that makes it happy.
         *ppfnThunk32Func = ReturnMem16Data;
