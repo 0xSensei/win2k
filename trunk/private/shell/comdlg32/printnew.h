@@ -324,104 +324,29 @@ DWORD aPrintExChildHelpIDs[] =
 };
 
 
-
-
-
 //  Function Prototypes.
-
-
-HRESULT
-PrintDlgExX(
-    PPRINTINFOEX pPI);
-
-HRESULT
-Print_ReturnDefault(
-    PPRINTINFOEX pPI);
-
-BOOL
-Print_LoadLibraries();
-
-VOID
-Print_UnloadLibraries();
-
-BOOL
-Print_LoadIcons();
-
-BOOL
-Print_InvokePropertySheets(
-    PPRINTINFOEX pPI,
-    LPPRINTDLGEX pPD);
-
-BOOL_PTR
-Print_GeneralDlgProc(
-    HWND hDlg,
-    UINT uMsg,
-    WPARAM wParam,
-    LPARAM lParam);
-
-BOOL_PTR
-Print_GeneralChildDlgProc(
-    HWND hDlg,
-    UINT uMsg,
-    WPARAM wParam,
-    LPARAM lParam);
-
-LRESULT
-Print_MessageHookProc(
-    int nCode,
-    WPARAM wParam,
-    LPARAM lParam);
-
-BOOL
-Print_InitDialog(
-    HWND hDlg,
-    WPARAM wParam,
-    LPARAM lParam);
-
-HRESULT
-Print_ICoCreateInstance(
-    REFCLSID rclsid,
-    REFIID riid,
-    LPVOID *ppv);
-
-BOOL
-Print_SaveDevNames(
-    LPTSTR pCurPrinter,
-    LPPRINTDLGEX pPD);
-
-VOID
-Print_GetPortName(
-    LPTSTR pCurPrinter,
-    LPTSTR pBuffer,
-    int cchBuffer);
-
-HANDLE
-Print_GetDevModeWrapper(
-    LPTSTR pszDeviceName,
-    HANDLE hDevMode);
-
-BOOL
-Print_NewPrintDlg(
-    PPRINTINFO pPI);
+HRESULT PrintDlgExX(PPRINTINFOEX pPI);
+HRESULT Print_ReturnDefault(PPRINTINFOEX pPI);
+BOOL Print_LoadLibraries();
+VOID Print_UnloadLibraries();
+BOOL Print_LoadIcons();
+BOOL Print_InvokePropertySheets(PPRINTINFOEX pPI, LPPRINTDLGEX pPD);
+BOOL_PTR Print_GeneralDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+BOOL_PTR Print_GeneralChildDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT Print_MessageHookProc(int nCode, WPARAM wParam, LPARAM lParam);
+BOOL Print_InitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam);
+HRESULT Print_ICoCreateInstance(REFCLSID rclsid, REFIID riid, LPVOID *ppv);
+BOOL Print_SaveDevNames(LPTSTR pCurPrinter, LPPRINTDLGEX pPD);
+VOID Print_GetPortName(LPTSTR pCurPrinter, LPTSTR pBuffer, int cchBuffer);
+HANDLE Print_GetDevModeWrapper(LPTSTR pszDeviceName, HANDLE hDevMode);
+BOOL Print_NewPrintDlg(PPRINTINFO pPI);
 
 
 #ifdef UNICODE
-  HRESULT
-  ThunkPrintDlgEx(
-      PPRINTINFOEX pPI,
-      LPPRINTDLGEXA pPDA);
-
-  VOID
-  FreeThunkPrintDlgEx(
-      PPRINTINFOEX pPI);
-
-  VOID
-  ThunkPrintDlgExA2W(
-      PPRINTINFOEX pPI);
-
-  VOID
-  ThunkPrintDlgExW2A(
-      PPRINTINFOEX pPI);
+  HRESULT ThunkPrintDlgEx(PPRINTINFOEX pPI, LPPRINTDLGEXA pPDA);
+  VOID FreeThunkPrintDlgEx(PPRINTINFOEX pPI);
+  VOID ThunkPrintDlgExA2W(PPRINTINFOEX pPI);
+  VOID ThunkPrintDlgExW2A(PPRINTINFOEX pPI);
 #endif
 
 #endif   // WINNT

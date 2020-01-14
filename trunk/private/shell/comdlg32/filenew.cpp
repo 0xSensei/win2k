@@ -129,7 +129,7 @@ typedef struct _OFNINITINFO
     BOOL            bSave;
     BOOL            bEnableSizing;
     HRESULT         hrOleInit;
-} OFNINITINFO, *LPOFNINITINFO;
+} OFNINITINFO, * LPOFNINITINFO;
 
 
 #define VC_NEWFOLDER    0
@@ -148,12 +148,12 @@ HACCEL gp_haccOpen = NULL;
 HACCEL gp_haccOpenView = NULL;
 HHOOK gp_hHook = NULL;
 int gp_nHookRef = -1;
-UINT gp_uQueryCancelAutoPlay =0;
+UINT gp_uQueryCancelAutoPlay = 0;
 
 
 
-static int g_cxSmIcon = 0 ;
-static int g_cySmIcon = 0 ;
+static int g_cxSmIcon = 0;
+static int g_cySmIcon = 0;
 static int g_cxGrip;
 static int g_cyGrip;
 
@@ -178,51 +178,15 @@ extern "C"
 }
 
 
-
-
-
 //  Function Prototypes.
-
-
-LRESULT CALLBACK
-OKSubclass(
-    HWND hOK,
-    UINT msg,
-    WPARAM wParam,
-    LPARAM lParam);
-
-void
-GetControlsArea(
-    HWND hDlg,
-    HWND hwndExclude,
-    HWND hwndGrip,
-    POINT *pPtSize,
-    LPINT pTop);
-
-BOOL_PTR CALLBACK
-OpenDlgProc(
-    HWND hDlg,
-    UINT message,
-    WPARAM wParam,
-    LPARAM lParam);
-
-void
-CleanupDialog(
-    HWND hDlg,
-    BOOL fRet);
-
-void
-StoreLengthInString(
-    LPTSTR lpStr,
-    UINT cchLen,
-    UINT cchStore);
-
-
+LRESULT CALLBACK OKSubclass(HWND hOK, UINT msg, WPARAM wParam, LPARAM lParam);
+void GetControlsArea(HWND hDlg, HWND hwndExclude, HWND hwndGrip, POINT* pPtSize, LPINT pTop);
+BOOL_PTR CALLBACK OpenDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+void CleanupDialog(HWND hDlg, BOOL fRet);
+void StoreLengthInString(LPTSTR lpStr, UINT cchLen, UINT cchStore);
 
 
 //  Context Help IDs.
-
-
 DWORD aFileOpenHelpIDs[] =
 {
     stc2,    IDH_OPEN_FILETYPE,   // The positions of these array elements
@@ -239,6 +203,7 @@ DWORD aFileOpenHelpIDs[] =
     ctl1,    IDH_OPEN_SHORTCUT_BAR,
     0, 0
 };
+
 
 DWORD aFileSaveHelpIDs[] =
 {
@@ -273,63 +238,39 @@ WORD CD_SendShareMsg(
     UINT ApiType)
 {
 #ifdef UNICODE
-    if (ApiType == COMDLG_ANSI)
-    {
+    if (ApiType == COMDLG_ANSI) {
         CHAR szFileA[MAX_PATH + 1];
 
-        SHUnicodeToAnsi(szFile,szFileA,SIZECHARS(szFileA));
+        SHUnicodeToAnsi(szFile, szFileA, SIZECHARS(szFileA));
 
-        return ( (WORD)SendMessage( hwnd,
-                                    msgSHAREVIOLATIONA,
-                                    0,
-                                    (LONG_PTR)(LPSTR)(szFileA) ) );
-    }
-    else
+        return ((WORD)SendMessage(hwnd, msgSHAREVIOLATIONA, 0, (LONG_PTR)(LPSTR)(szFileA)));
+    } else
 #endif
     {
-        return ( (WORD)SendMessage( hwnd,
-                                    msgSHAREVIOLATIONW,
-                                    0,
-                                    (LONG_PTR)(LPTSTR)(szFile) ) );
+        return ((WORD)SendMessage(hwnd, msgSHAREVIOLATIONW, 0, (LONG_PTR)(LPTSTR)(szFile)));
     }
 }
-
-
 
 
 //  CD_SendHelpMsg
 
 
 
-VOID CD_SendHelpMsg(
-    LPOPENFILENAME pOFN,
-    HWND hwndDlg,
-    UINT ApiType)
+VOID CD_SendHelpMsg(LPOPENFILENAME pOFN, HWND hwndDlg, UINT ApiType)
 {
 #ifdef UNICODE
-    if (ApiType == COMDLG_ANSI)
-    {
-        if (msgHELPA && pOFN->hwndOwner)
-        {
-            SendMessage( pOFN->hwndOwner,
-                         msgHELPA,
-                         (WPARAM)hwndDlg,
-                         (LPARAM)pOFN );
+    if (ApiType == COMDLG_ANSI) {
+        if (msgHELPA && pOFN->hwndOwner) {
+            SendMessage(pOFN->hwndOwner, msgHELPA, (WPARAM)hwndDlg, (LPARAM)pOFN);
         }
-    }
-    else
+    } else
 #endif
     {
-        if (msgHELPW && pOFN->hwndOwner)
-        {
-            SendMessage( pOFN->hwndOwner,
-                         msgHELPW,
-                         (WPARAM)hwndDlg,
-                         (LPARAM)pOFN );
+        if (msgHELPW && pOFN->hwndOwner) {
+            SendMessage(pOFN->hwndOwner, msgHELPW, (WPARAM)hwndDlg, (LPARAM)pOFN);
         }
     }
 }
-
 
 
 
@@ -345,8 +286,7 @@ LRESULT CD_SendOKMsg(
     LRESULT Result;
 
 #ifdef UNICODE
-    if (pOFI->ApiType == COMDLG_ANSI)
-    {
+    if (pOFI->ApiType == COMDLG_ANSI) {
         ThunkOpenFileNameW2A(pOFI);
         Result = SendMessage(hwnd, msgFILEOKA, 0, (LPARAM)(pOFI->pOFNA));
 
@@ -356,8 +296,7 @@ LRESULT CD_SendOKMsg(
         //  struct after the hook proc is called.
 
         ThunkOpenFileNameA2W(pOFI);
-    }
-    else
+    } else
 #endif
     {
         Result = SendMessage(hwnd, msgFILEOKW, 0, (LPARAM)(pOFN));
@@ -381,11 +320,9 @@ LRESULT CD_SendLBChangeMsg(
     UINT ApiType)
 {
 #ifdef UNICODE
-    if (ApiType == COMDLG_ANSI)
-    {
+    if (ApiType == COMDLG_ANSI) {
         return (SendMessage(hwnd, msgLBCHANGEA, Id, MAKELONG(Index, Code)));
-    }
-    else
+    } else
 #endif
     {
         return (SendMessage(hwnd, msgLBCHANGEW, Id, MAKELONG(Index, Code)));
@@ -443,12 +380,11 @@ LRESULT SendOFNotifyEx(
     OFNOTIFYEX ofnex;
 
 #ifdef UNICODE
-    if (pOFI->ApiType == COMDLG_ANSI)
-    {
+    if (pOFI->ApiType == COMDLG_ANSI) {
         OFNOTIFYEXA ofnexA;
         LRESULT Result;
 
-        ofnexA.psf  = psf;
+        ofnexA.psf = psf;
         ofnexA.pidl = pidl;
 
 
@@ -471,12 +407,11 @@ LRESULT SendOFNotifyEx(
         ThunkOpenFileNameA2W(pOFI);
 
         return (Result);
-    }
-    else
+    } else
 #endif
     {
-        ofnex.psf   = psf;
-        ofnex.pidl  = pidl;
+        ofnex.psf = psf;
+        ofnex.pidl = pidl;
         ofnex.lpOFN = pOFN;
 
 #ifdef NEED_WOWGETNOTIFYSIZE_HELPER
@@ -503,24 +438,20 @@ LRESULT SendOFNotify(
     OFNOTIFY ofn;
 
 #ifdef UNICODE
-    if (pOFI->ApiType == COMDLG_ANSI)
-    {
+    if (pOFI->ApiType == COMDLG_ANSI) {
         OFNOTIFYA ofnA;
         LRESULT Result;
 
 
         //  Convert the file name from Unicode to Ansi.
 
-        if (szFile)
-        {
+        if (szFile) {
             CHAR szFileA[MAX_PATH + 1];
 
-            SHUnicodeToAnsi(szFile,szFileA,SIZECHARS(szFileA));
+            SHUnicodeToAnsi(szFile, szFileA, SIZECHARS(szFileA));
 
             ofnA.pszFile = szFileA;
-        }
-        else
-        {
+        } else {
             ofnA.pszFile = NULL;
         }
 
@@ -544,12 +475,11 @@ LRESULT SendOFNotify(
         ThunkOpenFileNameA2W(pOFI);
 
         return (Result);
-    }
-    else
+    } else
 #endif
     {
         ofn.pszFile = szFile;
-        ofn.lpOFN   = pOFN;
+        ofn.lpOFN = pOFN;
 
 #ifdef NEED_WOWGETNOTIFYSIZE_HELPER
         ASSERT(WOWGetNotifySize(code) == sizeof(OFNOTIFY));
@@ -572,10 +502,8 @@ BOOL TEMPMEM::Resize(
 
     m_uSize = cb;
 
-    if (!cb)
-    {
-        if (m_pMem)
-        {
+    if (!cb) {
+        if (m_pMem) {
             LocalFree(m_pMem);
             m_pMem = NULL;
         }
@@ -583,16 +511,14 @@ BOOL TEMPMEM::Resize(
         return TRUE;
     }
 
-    if (!m_pMem)
-    {
+    if (!m_pMem) {
         m_pMem = LocalAlloc(LPTR, cb);
         return (m_pMem != NULL);
     }
 
     LPVOID pTemp = LocalReAlloc(m_pMem, cb, LHND);
 
-    if (pTemp)
-    {
+    if (pTemp) {
         m_pMem = pTemp;
         return TRUE;
     }
@@ -611,16 +537,14 @@ BOOL TEMPMEM::Resize(
 BOOL TEMPSTR::StrCpy(
     LPCTSTR pszText)
 {
-    if (!pszText)
-    {
+    if (!pszText) {
         StrSize(0);
         return TRUE;
     }
 
     UINT uNewSize = lstrlen(pszText) + 1;
 
-    if (!StrSize(uNewSize))
-    {
+    if (!StrSize(uNewSize)) {
         return FALSE;
     }
 
@@ -639,28 +563,24 @@ BOOL TEMPSTR::StrCpy(
 BOOL TEMPSTR::StrCat(
     LPCTSTR pszText)
 {
-    if (!(LPTSTR)*this)
-    {
+    if (!(LPTSTR)*this) {
 
         //  This should 0 init.
 
-        if (!StrSize(MAX_PATH))
-        {
+        if (!StrSize(MAX_PATH)) {
             return FALSE;
         }
     }
 
     UINT uNewSize = lstrlen(*this) + lstrlen(pszText) + 1;
 
-    if (m_uSize < uNewSize * sizeof(TCHAR))
-    {
+    if (m_uSize < uNewSize * sizeof(TCHAR)) {
 
         //  Add on some more so we do not ReAlloc too often.
 
         uNewSize += MAX_PATH;
 
-        if (!StrSize(uNewSize))
-        {
+        if (!StrSize(uNewSize)) {
             return FALSE;
         }
     }
@@ -686,15 +606,14 @@ BOOL IsVolumeLFN(LPCTSTR pszRoot)
     //  on in order to determine if spaces are valid in a filename
     //  or not.
 
-    if (GetVolumeInformation( pszRoot,
-                              NULL,
-                              0,
-                              &dwVolumeSerialNumber,
-                              &dwMaximumComponentLength,
-                              &dwFileSystemFlags,
-                              NULL,
-                              0 ))
-    {
+    if (GetVolumeInformation(pszRoot,
+                             NULL,
+                             0,
+                             &dwVolumeSerialNumber,
+                             &dwMaximumComponentLength,
+                             &dwFileSystemFlags,
+                             NULL,
+                             0)) {
         if (dwMaximumComponentLength != (MAXDOSFILENAMELEN - 1))
             return TRUE;
     }
@@ -734,8 +653,7 @@ int _cdecl CDMessageBox(
 
 int OFErrFromHresult(HRESULT hr)
 {
-    switch (hr)
-    {
+    switch (hr) {
     case HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND):
         return OF_FILENOTFOUND;
 
@@ -763,118 +681,109 @@ VOID InvalidFileWarningNew(
     int isz;
     BOOL bDriveLetter = FALSE;
 
-    if (lstrlen(szFile) > MAX_PATH)
-    {
+    if (lstrlen(szFile) > MAX_PATH) {
 #ifdef UNICODE
-        *(szFile + MAX_PATH) = CHAR_NULL;
+        * (szFile + MAX_PATH) = CHAR_NULL;
 #else
         EliminateString(szFile, MAX_PATH);
 #endif
     }
 
-    switch (wErrCode)
+    switch (wErrCode) {
+    case (OF_ACCESSDENIED):
     {
-        case ( OF_ACCESSDENIED ) :
-        {
-            isz = iszFileAccessDenied;
-            break;
-        }
-        case ( ERROR_NOT_READY ) :
-        {
-            isz = iszNoDiskInDrive;
-            bDriveLetter = TRUE;
-            break;
-        }
-        case ( OF_NODRIVE ) :
-        {
-            isz = iszDriveDoesNotExist;
-            bDriveLetter = TRUE;
-            break;
-        }
-        case ( OF_NOFILEHANDLES ) :
-        {
-            isz = iszNoFileHandles;
-            break;
-        }
-        case ( OF_PATHNOTFOUND ) :
-        {
-            isz = iszPathNotFound;
-            break;
-        }
-        case ( OF_FILENOTFOUND ) :
-        {
-            isz = iszFileNotFound;
-            break;
-        }
-        case ( OF_DISKFULL ) :
-        case ( OF_DISKFULL2 ) :
-        {
-            isz = iszDiskFull;
-            bDriveLetter = TRUE;
-            break;
-        }
-        case ( OF_WRITEPROTECTION ) :
-        {
-            isz = iszWriteProtection;
-            bDriveLetter = TRUE;
-            break;
-        }
-        case ( OF_SHARINGVIOLATION ) :
-        {
-            isz = iszSharingViolation;
-            break;
-        }
-        case ( OF_CREATENOMODIFY ) :
-        {
-            isz = iszCreateNoModify;
-            break;
-        }
-        case ( OF_NETACCESSDENIED ) :
-        {
-            isz = iszNetworkAccessDenied;
-            break;
-        }
-        case ( OF_PORTNAME ) :
-        {
-            isz = iszPortName;
-            break;
-        }
-        case ( OF_LAZYREADONLY ) :
-        {
-            isz = iszReadOnly;
-            break;
-        }
-        case ( OF_INT24FAILURE ) :
-        {
-            isz = iszInt24Error;
-            break;
-        }
-        default :
-        {
-            isz = iszInvalidFileName;
-            break;
-        }
+        isz = iszFileAccessDenied;
+        break;
+    }
+    case (ERROR_NOT_READY):
+    {
+        isz = iszNoDiskInDrive;
+        bDriveLetter = TRUE;
+        break;
+    }
+    case (OF_NODRIVE):
+    {
+        isz = iszDriveDoesNotExist;
+        bDriveLetter = TRUE;
+        break;
+    }
+    case (OF_NOFILEHANDLES):
+    {
+        isz = iszNoFileHandles;
+        break;
+    }
+    case (OF_PATHNOTFOUND):
+    {
+        isz = iszPathNotFound;
+        break;
+    }
+    case (OF_FILENOTFOUND):
+    {
+        isz = iszFileNotFound;
+        break;
+    }
+    case (OF_DISKFULL):
+    case (OF_DISKFULL2):
+    {
+        isz = iszDiskFull;
+        bDriveLetter = TRUE;
+        break;
+    }
+    case (OF_WRITEPROTECTION):
+    {
+        isz = iszWriteProtection;
+        bDriveLetter = TRUE;
+        break;
+    }
+    case (OF_SHARINGVIOLATION):
+    {
+        isz = iszSharingViolation;
+        break;
+    }
+    case (OF_CREATENOMODIFY):
+    {
+        isz = iszCreateNoModify;
+        break;
+    }
+    case (OF_NETACCESSDENIED):
+    {
+        isz = iszNetworkAccessDenied;
+        break;
+    }
+    case (OF_PORTNAME):
+    {
+        isz = iszPortName;
+        break;
+    }
+    case (OF_LAZYREADONLY):
+    {
+        isz = iszReadOnly;
+        break;
+    }
+    case (OF_INT24FAILURE):
+    {
+        isz = iszInt24Error;
+        break;
+    }
+    default:
+    {
+        isz = iszInvalidFileName;
+        break;
+    }
     }
 
-    if (bDriveLetter)
-    {
+    if (bDriveLetter) {
         CDMessageBox(hWnd, isz, MB_OK | MB_ICONEXCLAMATION, (TCHAR)*szFile);
-    }
-    else
-    {
+    } else {
         CDMessageBox(hWnd, isz, MB_OK | MB_ICONEXCLAMATION, (LPTSTR)szFile);
     }
 
-    if (isz == iszInvalidFileName)
-    {
-        CFileOpenBrowser *pDlgStruct = HwndToBrowser(hWnd);
+    if (isz == iszInvalidFileName) {
+        CFileOpenBrowser* pDlgStruct = HwndToBrowser(hWnd);
 
-        if (pDlgStruct && pDlgStruct->bUseCombo)
-        {
+        if (pDlgStruct && pDlgStruct->bUseCombo) {
             PostMessage(hWnd, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(hWnd, cmb13), 1);
-        }
-        else
-        {
+        } else {
             PostMessage(hWnd, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(hWnd, edt1), 1);
         }
     }
@@ -934,15 +843,12 @@ void HideControl(
 void SelectEditText(
     HWND hwndDlg)
 {
-    CFileOpenBrowser *pDlgStruct = HwndToBrowser(hwndDlg);
+    CFileOpenBrowser* pDlgStruct = HwndToBrowser(hwndDlg);
 
-    if (pDlgStruct && pDlgStruct->bUseCombo)
-    {
+    if (pDlgStruct && pDlgStruct->bUseCombo) {
         HWND hwndEdit = (HWND)SendMessage(GetDlgItem(hwndDlg, cmb13), CBEM_GETEDITCONTROL, 0, 0L);
         Edit_SetSel(hwndEdit, 0, -1);
-    }
-    else
-    {
+    } else {
         Edit_SetSel(GetDlgItem(hwndDlg, edt1), 0, -1);
     }
 }
@@ -955,7 +861,7 @@ void SelectEditText(
 
 
 BOOL GetPathFromLocation(
-    MYLISTBOXITEM *pLocation,
+    MYLISTBOXITEM* pLocation,
     LPTSTR pszBuf)
 {
     BOOL fRet = FALSE;
@@ -970,12 +876,10 @@ BOOL GetPathFromLocation(
 
 
     //See if the IShellFolder we have is a shorcut if so get path from shortcut
-    if (pLocation->psfSub)
-    {
-        IShellLink *psl;
+    if (pLocation->psfSub) {
+        IShellLink* psl;
 
-        if (SUCCEEDED(pLocation->psfSub->QueryInterface(IID_IShellLink, (void **)&psl)))
-        {
+        if (SUCCEEDED(pLocation->psfSub->QueryInterface(IID_IShellLink, (void**)&psl))) {
             fRet = SUCCEEDED(psl->GetPath(pszBuf, MAX_PATH, 0, 0));
             psl->Release();
         }
@@ -984,26 +888,22 @@ BOOL GetPathFromLocation(
     if (!fRet)
         fRet = SHGetPathFromIDList(pLocation->pidlFull, pszBuf);
 
-    if (!fRet)
-    {
+    if (!fRet) {
 
         //  Call GetDisplayNameOf with empty pidl.
 
-        if (pLocation->psfSub)
-        {
+        if (pLocation->psfSub) {
             STRRET Path;
             ITEMIDLIST Id;
 
             Id.mkid.cb = 0;
 
-            if (SUCCEEDED(pLocation->psfSub->GetDisplayNameOf( &Id,
-                                                               SHGDN_FORPARSING,
-                                                               &Path )))
-            {
+            if (SUCCEEDED(pLocation->psfSub->GetDisplayNameOf(&Id,
+                                                              SHGDN_FORPARSING,
+                                                              &Path))) {
                 fRet = TRUE;
                 StrRetToStrN(pszBuf, MAX_PATH, &Path, &Id);
-                if (Path.uType == STRRET_OLESTR)
-                {
+                if (Path.uType == STRRET_OLESTR) {
                     LocalFree(Path.pOleStr);
                 }
             }
@@ -1033,18 +933,18 @@ MYLISTBOXITEM::MYLISTBOXITEM()
 // This is a special Case Init Function for Initializing Recent Files folder at the top
 // of namespace in the look in control.
 BOOL MYLISTBOXITEM::Init(
-        IShellFolder *psf,
-        LPCITEMIDLIST pidl,
-        DWORD c,
-        DWORD f,
-        DWORD dwAttribs,
-        int  iImg,
-        int  iSelImg)
+    IShellFolder* psf,
+    LPCITEMIDLIST pidl,
+    DWORD c,
+    DWORD f,
+    DWORD dwAttribs,
+    int  iImg,
+    int  iSelImg)
 {
     cIndent = c;
     dwFlags = f;
     pidlThis = ILClone(pidl);
-    pidlFull =  ILClone(pidl);
+    pidlFull = ILClone(pidl);
     psfSub = psf;
     psfSub->AddRef();
     dwAttrs = dwAttribs;
@@ -1056,15 +956,14 @@ BOOL MYLISTBOXITEM::Init(
 
 
 BOOL MYLISTBOXITEM::Init(
-        MYLISTBOXITEM *pParentItem,
-        IShellFolder *psf,
-        LPCITEMIDLIST pidl,
-        DWORD c,
-        DWORD f)
+    MYLISTBOXITEM* pParentItem,
+    IShellFolder* psf,
+    LPCITEMIDLIST pidl,
+    DWORD c,
+    DWORD f)
 {
 
-    if (psf == NULL )
-    {
+    if (psf == NULL) {
         // Invalid parameter passed.
         return FALSE;
     }
@@ -1073,26 +972,19 @@ BOOL MYLISTBOXITEM::Init(
     dwFlags = f;
 
     pidlThis = ILClone(pidl);
-    if (pParentItem == NULL)
-    {
+    if (pParentItem == NULL) {
         pidlFull = ILClone(pidl);
-    }
-    else
-    {
+    } else {
         pidlFull = ILCombine(pParentItem->pidlFull, pidl);
     }
 
-    if (pidlThis == NULL || pidlFull == NULL)
-    {
+    if (pidlThis == NULL || pidlFull == NULL) {
         psfSub = NULL;
     }
 
-    if (dwFlags & MLBI_PSFFROMPARENT)
-    {
+    if (dwFlags & MLBI_PSFFROMPARENT) {
         psfParent = psf;
-    }
-    else
-    {
+    } else {
         psfSub = psf;
     }
     psf->AddRef();
@@ -1116,23 +1008,19 @@ BOOL MYLISTBOXITEM::Init(
 
 MYLISTBOXITEM::~MYLISTBOXITEM()
 {
-    if (psfSub != NULL)
-    {
+    if (psfSub != NULL) {
         psfSub->Release();
     }
 
-    if (psfParent != NULL)
-    {
+    if (psfParent != NULL) {
         psfParent->Release();
     }
 
-    if (pidlThis != NULL)
-    {
+    if (pidlThis != NULL) {
         SHFree(pidlThis);
     }
 
-    if (pidlFull != NULL)
-    {
+    if (pidlFull != NULL) {
         SHFree(pidlFull);
     }
 }
@@ -1145,13 +1033,13 @@ MYLISTBOXITEM::~MYLISTBOXITEM()
 
 
 BOOL IsContainer(
-    IShellFolder *psf,
+    IShellFolder* psf,
     LPCITEMIDLIST pidl)
 {
     DWORD dwAttrs = SFGAO_FOLDER | SFGAO_FILESYSANCESTOR | SFGAO_CANMONIKER;
 
     return (SUCCEEDED(psf->GetAttributesOf(1, &pidl, &dwAttrs)) &&
-            (dwAttrs & SFGAO_FOLDER) &&
+        (dwAttrs & SFGAO_FOLDER) &&
             (dwAttrs & (SFGAO_FILESYSANCESTOR | SFGAO_CANMONIKER)));
 }
 
@@ -1163,13 +1051,13 @@ BOOL IsContainer(
 
 
 BOOL IsLink(
-    IShellFolder *psf,
+    IShellFolder* psf,
     LPCITEMIDLIST pidl)
 {
     DWORD dwAttrs = SFGAO_LINK;
 
     return (SUCCEEDED(psf->GetAttributesOf(1, &pidl, &dwAttrs)) &&
-            (dwAttrs & SFGAO_LINK));
+        (dwAttrs & SFGAO_LINK));
 }
 
 
@@ -1179,23 +1067,19 @@ BOOL IsLink(
 
 
 
-IShellFolder *MYLISTBOXITEM::GetShellFolder()
+IShellFolder* MYLISTBOXITEM::GetShellFolder()
 {
-    if (!psfSub)
-    {
+    if (!psfSub) {
         HRESULT hr;
 
         if (ILIsEmpty(pidlThis))    // Some caller passes an empty pidl
-            hr = psfParent->QueryInterface(IID_IShellFolder, (void **) &psfSub);
+            hr = psfParent->QueryInterface(IID_IShellFolder, (void**)&psfSub);
         else
-            hr = psfParent->BindToObject(pidlThis, NULL, IID_IShellFolder, (void **)&psfSub);
+            hr = psfParent->BindToObject(pidlThis, NULL, IID_IShellFolder, (void**)&psfSub);
 
-        if (FAILED(hr))
-        {
+        if (FAILED(hr)) {
             psfSub = NULL;
-        }
-        else
-        {
+        } else {
             psfParent->Release();
             psfParent = NULL;
         }
@@ -1212,21 +1096,17 @@ IShellFolder *MYLISTBOXITEM::GetShellFolder()
 
 
 void MYLISTBOXITEM::SwitchCurrentDirectory(
-    ICurrentWorkingDirectory * pcwd)
+    ICurrentWorkingDirectory* pcwd)
 {
     TCHAR szDir[MAX_PATH + 1];
 
-    if (!pidlFull)
-    {
+    if (!pidlFull) {
         SHGetSpecialFolderPath(NULL, szDir, CSIDL_DESKTOPDIRECTORY, FALSE);
-    }
-    else
-    {
+    } else {
         GetPathFromLocation(this, szDir);
     }
 
-    if (szDir[0])
-    {
+    if (szDir[0]) {
         SetCurrentDirectory(szDir);
 
 
@@ -1244,7 +1124,7 @@ void MYLISTBOXITEM::SwitchCurrentDirectory(
 
 
 BOOL ShouldIncludeObject(
-    CFileOpenBrowser *that,
+    CFileOpenBrowser* that,
     LPSHELLFOLDER psfParent,
     LPCITEMIDLIST pidl,
     DWORD dwFlags)
@@ -1252,28 +1132,24 @@ BOOL ShouldIncludeObject(
     BOOL fInclude = FALSE;
 
 #ifdef FEATURE_MONIKER_SUPPORT
-    DWORD dwAttrs = (dwFlags & OFN_USEMONIKERS) ? SFGAO_CANMONIKER | SFGAO_FOLDER:
+    DWORD dwAttrs = (dwFlags & OFN_USEMONIKERS) ? SFGAO_CANMONIKER | SFGAO_FOLDER :
         SFGAO_FOLDER | SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR;
 #else // !FEATURE_MONIKER_SUPPORT
     DWORD dwAttrs = SFGAO_FOLDER | SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR;
 #endif // FEATURE_MONIKER_SUPPORT
 
-    if (SUCCEEDED(psfParent->GetAttributesOf(1, &pidl, &dwAttrs)))
-    {
-        if ((dwFlags & OFN_ENABLEINCLUDENOTIFY) && that)
-        {
-            fInclude = BOOLFROMPTR(CD_SendIncludeItemNotify( that->hSubDlg,
-                                                        that->hwndDlg,
-                                                        psfParent,
-                                                        pidl,
-                                                        that->lpOFN,
-                                                        that->lpOFI ));
+    if (SUCCEEDED(psfParent->GetAttributesOf(1, &pidl, &dwAttrs))) {
+        if ((dwFlags & OFN_ENABLEINCLUDENOTIFY) && that) {
+            fInclude = BOOLFROMPTR(CD_SendIncludeItemNotify(that->hSubDlg,
+                                                            that->hwndDlg,
+                                                            psfParent,
+                                                            pidl,
+                                                            that->lpOFN,
+                                                            that->lpOFI));
         }
 
-        if (!fInclude)
-        {
-            if (dwAttrs & (SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR | SFGAO_CANMONIKER))
-            {
+        if (!fInclude) {
+            if (dwAttrs & (SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR | SFGAO_CANMONIKER)) {
                 fInclude = TRUE;
             }
         }
@@ -1292,42 +1168,35 @@ void CFileOpenBrowser::EnableFileMRU(BOOL fEnable)
 {
 
     HWND hwnd = NULL;
-    if (fEnable)
-    {
+    if (fEnable) {
         HWND hwndCombo;
         //Make sure combobox is there
         hwndCombo = GetDlgItem(hwndDlg, cmb13);
 
-        if (hwndCombo)
-        {
+        if (hwndCombo) {
             // if we are using the combobox then remove the edit box
             bUseCombo = TRUE;
             SetFocus(hwndCombo);
-            hwnd = GetDlgItem(hwndDlg,edt1);
-        }
-        else
-        {
+            hwnd = GetDlgItem(hwndDlg, edt1);
+        } else {
             goto UseEdit;
         }
 
 
-    }
-    else
-    {
-UseEdit:
+    } else {
+    UseEdit:
         //We are not going to use  combobox.
-        bUseCombo  = FALSE;
+        bUseCombo = FALSE;
 
         //SetFocus to the edit window
-        SetFocus(GetDlgItem(hwndDlg,edt1));
+        SetFocus(GetDlgItem(hwndDlg, edt1));
 
         //Destroy the combo box
         hwnd = GetDlgItem(hwndDlg, cmb13);
 
     }
 
-    if (hwnd)
-    {
+    if (hwnd) {
         DestroyWindow(hwnd);
     }
 
@@ -1345,56 +1214,54 @@ UseEdit:
 BOOL CFileOpenBrowser::CreateToolbar()
 {
 
-   TBBUTTON atbButtons[] =
-   {
-       { 0,                 IDC_BACK,                        0,    BTNS_BUTTON,          { 0, 0 }, 0, -1 },
-       { VIEW_PARENTFOLDER, IDC_PARENT,        TBSTATE_ENABLED,    BTNS_BUTTON,          { 0, 0 }, 0, -1 },
-       { VIEW_NEWFOLDER,    IDC_NEWFOLDER,     TBSTATE_ENABLED,    BTNS_BUTTON,          { 0, 0 }, 0, -1 },
-       { VIEW_LIST,         IDC_VIEWMENU,      TBSTATE_ENABLED,    BTNS_WHOLEDROPDOWN,   { 0, 0 }, 0, -1 },
-   };
-
-   TBBUTTON atbButtonsNT4[] =
-   {
-       { 0, 0, 0, BTNS_SEP, { 0, 0 }, 0, 0 },
-       { VIEW_PARENTFOLDER, IDC_PARENT, TBSTATE_ENABLED, BTNS_BUTTON, { 0, 0 }, 0, -1 },
-       { 0, 0, 0, BTNS_SEP, { 0, 0 }, 0, 0 },
-       { VIEW_NEWFOLDER, IDC_NEWFOLDER, TBSTATE_ENABLED, BTNS_BUTTON, { 0, 0 }, 0, -1 },
-       { 0, 0, 0, BTNS_SEP, { 0, 0 }, 0, 0 },
-       { VIEW_LIST,    IDC_VIEWLIST,    TBSTATE_ENABLED | TBSTATE_CHECKED, BTNS_CHECKGROUP, { 0, 0 }, 0, -1 },
-       { VIEW_DETAILS, IDC_VIEWDETAILS, TBSTATE_ENABLED,                   BTNS_CHECKGROUP, { 0, 0 }, 0, -1 }
-   };
-
-   LPTBBUTTON lpButton = atbButtons;
-   int iNumButtons = ARRAYSIZE(atbButtons);
-   RECT rcToolbar;
-   DWORD dwStyle = TBSTYLE_TOOLTIPS | TBSTYLE_FLAT | WS_CHILD | CCS_NORESIZE |WS_GROUP | CCS_NODIVIDER;
-   BOOL bAppHack =  (CDGetAppCompatFlags() & CDACF_NT40TOOLBAR) ? TRUE : FALSE;
-
-    if (bAppHack)
+    TBBUTTON atbButtons[] =
     {
+        { 0,                 IDC_BACK,                        0,    BTNS_BUTTON,          { 0, 0 }, 0, -1 },
+        { VIEW_PARENTFOLDER, IDC_PARENT,        TBSTATE_ENABLED,    BTNS_BUTTON,          { 0, 0 }, 0, -1 },
+        { VIEW_NEWFOLDER,    IDC_NEWFOLDER,     TBSTATE_ENABLED,    BTNS_BUTTON,          { 0, 0 }, 0, -1 },
+        { VIEW_LIST,         IDC_VIEWMENU,      TBSTATE_ENABLED,    BTNS_WHOLEDROPDOWN,   { 0, 0 }, 0, -1 },
+    };
+
+    TBBUTTON atbButtonsNT4[] =
+    {
+        { 0, 0, 0, BTNS_SEP, { 0, 0 }, 0, 0 },
+        { VIEW_PARENTFOLDER, IDC_PARENT, TBSTATE_ENABLED, BTNS_BUTTON, { 0, 0 }, 0, -1 },
+        { 0, 0, 0, BTNS_SEP, { 0, 0 }, 0, 0 },
+        { VIEW_NEWFOLDER, IDC_NEWFOLDER, TBSTATE_ENABLED, BTNS_BUTTON, { 0, 0 }, 0, -1 },
+        { 0, 0, 0, BTNS_SEP, { 0, 0 }, 0, 0 },
+        { VIEW_LIST,    IDC_VIEWLIST,    TBSTATE_ENABLED | TBSTATE_CHECKED, BTNS_CHECKGROUP, { 0, 0 }, 0, -1 },
+        { VIEW_DETAILS, IDC_VIEWDETAILS, TBSTATE_ENABLED,                   BTNS_CHECKGROUP, { 0, 0 }, 0, -1 }
+    };
+
+    LPTBBUTTON lpButton = atbButtons;
+    int iNumButtons = ARRAYSIZE(atbButtons);
+    RECT rcToolbar;
+    DWORD dwStyle = TBSTYLE_TOOLTIPS | TBSTYLE_FLAT | WS_CHILD | CCS_NORESIZE | WS_GROUP | CCS_NODIVIDER;
+    BOOL bAppHack = (CDGetAppCompatFlags() & CDACF_NT40TOOLBAR) ? TRUE : FALSE;
+
+    if (bAppHack) {
         lpButton = atbButtonsNT4;
-        iNumButtons =ARRAYSIZE(atbButtonsNT4);
+        iNumButtons = ARRAYSIZE(atbButtonsNT4);
         dwStyle &= ~TBSTYLE_FLAT;
     }
 
 
     GetControlRect(hwndDlg, stc1, &rcToolbar);
 
-    hwndToolbar = CreateToolbarEx( hwndDlg,
-                                   dwStyle,
-                                   IDC_TOOLBAR,
-                                   12,
-                                   HINST_COMMCTRL,
-                                   IDB_VIEW_SMALL_COLOR,
-                                   lpButton,
-                                   iNumButtons,
-                                   0,
-                                   0,
-                                   0,
-                                   0,
-                                   sizeof(TBBUTTON) );
-    if (hwndToolbar)
-    {
+    hwndToolbar = CreateToolbarEx(hwndDlg,
+                                  dwStyle,
+                                  IDC_TOOLBAR,
+                                  12,
+                                  HINST_COMMCTRL,
+                                  IDB_VIEW_SMALL_COLOR,
+                                  lpButton,
+                                  iNumButtons,
+                                  0,
+                                  0,
+                                  0,
+                                  0,
+                                  sizeof(TBBUTTON));
+    if (hwndToolbar) {
         TBADDBITMAP ab;
 
         SendMessage(hwndToolbar, TB_SETEXTENDEDSTYLE, TBSTYLE_EX_DRAWDDARROWS, TBSTYLE_EX_DRAWDDARROWS);
@@ -1402,43 +1269,39 @@ BOOL CFileOpenBrowser::CreateToolbar()
         //Documentation says that we need to send TB_BUTTONSTRUCTSIZE before we add bitmaps
         SendMessage(hwndToolbar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), (LPARAM)0);
 
-        SendMessage(hwndToolbar,  TB_SETMAXTEXTROWS, (WPARAM)0, (LPARAM)0);
+        SendMessage(hwndToolbar, TB_SETMAXTEXTROWS, (WPARAM)0, (LPARAM)0);
 
 
 
-        if (!bAppHack)
-        {
-            if (!IsRestricted(REST_NOBACKBUTTON))
-            {
+        if (!bAppHack) {
+            if (!IsRestricted(REST_NOBACKBUTTON)) {
                 //Add the back/forward navigation buttons
                 ab.hInst = HINST_COMMCTRL;
-                ab.nID   = IDB_HIST_SMALL_COLOR;
+                ab.nID = IDB_HIST_SMALL_COLOR;
 
-                int iIndex = (int) SendMessage(hwndToolbar, TB_ADDBITMAP, 5, (LPARAM)&ab);
+                int iIndex = (int)SendMessage(hwndToolbar, TB_ADDBITMAP, 5, (LPARAM)&ab);
 
                 //Now set the image index for back button
                 TBBUTTONINFO tbbi;
                 tbbi.cbSize = sizeof(TBBUTTONINFO);
                 tbbi.dwMask = TBIF_IMAGE | TBIF_BYINDEX;
                 SendMessage(hwndToolbar, TB_GETBUTTONINFO, (WPARAM)0, (LPARAM)&tbbi);
-                tbbi.iImage =  iIndex + HIST_BACK;
+                tbbi.iImage = iIndex + HIST_BACK;
                 SendMessage(hwndToolbar, TB_SETBUTTONINFO, (WPARAM)0, (LPARAM)&tbbi);
-            }
-            else
-            {
+            } else {
                 //Back button is restricted. Delete the back button from the toolbar
                 SendMessage(hwndToolbar, TB_DELETEBUTTON, (WPARAM)0, (LPARAM)0);
             }
 
         }
 
-        ::SetWindowPos( hwndToolbar,
-                        NULL,
-                        rcToolbar.left,
-                        rcToolbar.top,
-                        rcToolbar.right - rcToolbar.left,
-                        rcToolbar.bottom - rcToolbar.top,
-                        SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW );
+        ::SetWindowPos(hwndToolbar,
+                       NULL,
+                       rcToolbar.left,
+                       rcToolbar.top,
+                       rcToolbar.right - rcToolbar.left,
+                       rcToolbar.bottom - rcToolbar.top,
+                       SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW);
         return TRUE;
     }
     return FALSE;
@@ -1449,7 +1312,7 @@ BOOL CFileOpenBrowser::CreateToolbar()
 //  CFileOpenBrowser::_GetPBItemFromCSIDL(DWORD csidl, SHFILEINFO * psfi, LPITEMIDLIST *ppidl )
 //       Gets a SHFileInfo and pidl for a CSIDL which is used in the places bar
 
-BOOL CFileOpenBrowser::_GetPBItemFromCSIDL(DWORD csidl, SHFILEINFO * psfi, LPITEMIDLIST *ppidl)
+BOOL CFileOpenBrowser::_GetPBItemFromCSIDL(DWORD csidl, SHFILEINFO* psfi, LPITEMIDLIST* ppidl)
 {
     BOOL bRet = FALSE;
 
@@ -1458,13 +1321,11 @@ BOOL CFileOpenBrowser::_GetPBItemFromCSIDL(DWORD csidl, SHFILEINFO * psfi, LPITE
     else
         SHGetSpecialFolderLocation(NULL, csidl, ppidl);
 
-    if (*ppidl)
-    {
-        SHGetFileInfo((LPCTSTR)*ppidl, 0, psfi ,sizeof(*psfi), SHGFI_ICON|SHGFI_LARGEICON |SHGFI_PIDL | SHGFI_DISPLAYNAME);
+    if (*ppidl) {
+        SHGetFileInfo((LPCTSTR)*ppidl, 0, psfi, sizeof(*psfi), SHGFI_ICON | SHGFI_LARGEICON | SHGFI_PIDL | SHGFI_DISPLAYNAME);
 
         // more special cases, History for the recent files folder
-        if (csidl == CSIDL_RECENT)
-        {
+        if (csidl == CSIDL_RECENT) {
             CDLoadString(::g_hinst, iszHistory, psfi->szDisplayName, ARRAYSIZE(psfi->szDisplayName));
         }
         bRet = TRUE;
@@ -1478,17 +1339,16 @@ BOOL CFileOpenBrowser::_GetPBItemFromCSIDL(DWORD csidl, SHFILEINFO * psfi, LPITE
 //  CFileOpenBrowser::_GetPBItemFromPath(LPTSTR lpszPath, SHFILEINFO * psfi, LPITEMIDLIST *ppidl )
 //       Gets a SHFileInfo and pidl for a path which is used in the places bar
 
-BOOL CFileOpenBrowser::_GetPBItemFromPath(LPTSTR lpszPath, SHFILEINFO * psfi, LPITEMIDLIST *ppidl )
+BOOL CFileOpenBrowser::_GetPBItemFromPath(LPTSTR lpszPath, SHFILEINFO* psfi, LPITEMIDLIST* ppidl)
 {
     TCHAR szTemp[MAX_PATH];
 
     //Expand environment strings if any
-    if (ExpandEnvironmentStrings(lpszPath, szTemp, SIZECHARS(szTemp)))
-    {
+    if (ExpandEnvironmentStrings(lpszPath, szTemp, SIZECHARS(szTemp))) {
         lstrcpy(lpszPath, szTemp);
     }
 
-    SHGetFileInfo(lpszPath,0,psfi,sizeof(*psfi), SHGFI_ICON|SHGFI_LARGEICON | SHGFI_DISPLAYNAME);
+    SHGetFileInfo(lpszPath, 0, psfi, sizeof(*psfi), SHGFI_ICON | SHGFI_LARGEICON | SHGFI_DISPLAYNAME);
     SHILCreateFromPath(lpszPath, ppidl, NULL);
     return TRUE;
 }
@@ -1498,13 +1358,12 @@ BOOL CFileOpenBrowser::_GetPBItemFromPath(LPTSTR lpszPath, SHFILEINFO * psfi, LP
 //      Enumerates the Place bar item in the registry
 
 
-BOOL CFileOpenBrowser::_EnumPlacesBarItem(HKEY hkey, int i , SHFILEINFO * psfi, LPITEMIDLIST *ppidl)
+BOOL CFileOpenBrowser::_EnumPlacesBarItem(HKEY hkey, int i, SHFILEINFO* psfi, LPITEMIDLIST* ppidl)
 {
     BOOL bRet = FALSE;
 
 
-    if (hkey == NULL)
-    {
+    if (hkey == NULL) {
         const int aPlaces[] =
         {
             CSIDL_RECENT,
@@ -1514,13 +1373,10 @@ BOOL CFileOpenBrowser::_EnumPlacesBarItem(HKEY hkey, int i , SHFILEINFO * psfi, 
             CSIDL_NETWORK,
         };
 
-        if (i >= 0 && i < MAXPLACESBARITEMS)
-        {
-           bRet =  _GetPBItemFromCSIDL(aPlaces[i], psfi, ppidl);
+        if (i >= 0 && i < MAXPLACESBARITEMS) {
+            bRet = _GetPBItemFromCSIDL(aPlaces[i], psfi, ppidl);
         }
-    }
-    else
-    {
+    } else {
 
         TCHAR szName[MAX_PATH];
         TCHAR szValue[MAX_PATH];
@@ -1531,19 +1387,14 @@ BOOL CFileOpenBrowser::_EnumPlacesBarItem(HKEY hkey, int i , SHFILEINFO * psfi, 
 
         wsprintf(szName, TEXT("Place%d"), i);
 
-        if (RegQueryValueEx(hkey, szName, NULL, &dwType, (LPBYTE)szValue, &cbValue) == ERROR_SUCCESS)
-        {
-            if ((dwType != REG_DWORD) && (dwType != REG_EXPAND_SZ) && (dwType != REG_SZ))
-            {
+        if (RegQueryValueEx(hkey, szName, NULL, &dwType, (LPBYTE)szValue, &cbValue) == ERROR_SUCCESS) {
+            if ((dwType != REG_DWORD) && (dwType != REG_EXPAND_SZ) && (dwType != REG_SZ)) {
                 return FALSE;
             }
 
-            if (dwType == REG_DWORD)
-            {
+            if (dwType == REG_DWORD) {
                 bRet = _GetPBItemFromCSIDL((DWORD)*szValue, psfi, ppidl);
-            }
-            else
-            {
+            } else {
                 bRet = _GetPBItemFromPath(szValue, psfi, ppidl);
             }
         }
@@ -1575,24 +1426,20 @@ BOOL CFileOpenBrowser::_GetPlacesBarItemToolTip(int idCmd, LPTSTR pText, DWORD d
 
     pidl = (LPITEMIDLIST)tbbi.lParam;
 
-    if (pidl)
-    {
-        IShellFolder *psf;
+    if (pidl) {
+        IShellFolder* psf;
         HRESULT hres;
         LPITEMIDLIST pidlLast;
 
-        hres= CDBindToIDListParent(pidl,IID_IShellFolder, (void **)&psf,(LPCITEMIDLIST *)&pidlLast);
+        hres = CDBindToIDListParent(pidl, IID_IShellFolder, (void**)&psf, (LPCITEMIDLIST*)&pidlLast);
 
-        if (SUCCEEDED(hres))
-        {
-            IQueryInfo *pqi;
+        if (SUCCEEDED(hres)) {
+            IQueryInfo* pqi;
 
-            if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST *)&pidlLast, IID_IQueryInfo, NULL, (void**)&pqi)))
-            {
-                WCHAR *pwszTip;
+            if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlLast, IID_IQueryInfo, NULL, (void**)&pqi))) {
+                WCHAR* pwszTip;
 
-                if (SUCCEEDED(pqi->GetInfoTip(0, &pwszTip)) && pwszTip)
-                {
+                if (SUCCEEDED(pqi->GetInfoTip(0, &pwszTip)) && pwszTip) {
                     SHUnicodeToTChar(pwszTip, pText, dwSize);
                     SHFree(pwszTip);
                     bRet = TRUE;
@@ -1617,10 +1464,9 @@ HWND CFileOpenBrowser::CreatePlacesbar(HWND  hwndDlg)
 {
 
     HWND hwndTB = GetDlgItem(hwndDlg, ctl1);
-    BOOL  bRetry =  TRUE;
+    BOOL  bRetry = TRUE;
 
-    if (hwndTB)
-    {
+    if (hwndTB) {
 
         //Set the version for the toolbar
         SendMessage(hwndTB, CCM_SETVERSION, COMCTL32_VERSION, 0);
@@ -1630,7 +1476,7 @@ HWND CFileOpenBrowser::CreatePlacesbar(HWND  hwndDlg)
 
         // Set the maximum  bitmap size.
         SendMessage(hwndTB, TB_SETBITMAPSIZE,
-                   0, (LPARAM)MAKELONG(32,32));
+                    0, (LPARAM)MAKELONG(32, 32));
 
         RECT rc;
         GetClientRect(hwndTB, &rc);
@@ -1641,9 +1487,9 @@ HWND CFileOpenBrowser::CreatePlacesbar(HWND  hwndDlg)
         COLORSCHEME cs;
 
         cs.dwSize = SIZEOF(cs);
-        cs.clrBtnHighlight  = GetSysColor(COLOR_BTNHIGHLIGHT);
-        cs.clrBtnShadow     = GetSysColor(COLOR_3DDKSHADOW);
-        SendMessage(hwndTB, TB_SETCOLORSCHEME, 0, (LPARAM) &cs);
+        cs.clrBtnHighlight = GetSysColor(COLOR_BTNHIGHLIGHT);
+        cs.clrBtnShadow = GetSysColor(COLOR_3DDKSHADOW);
+        SendMessage(hwndTB, TB_SETCOLORSCHEME, 0, (LPARAM)&cs);
 
 
         HKEY hkey = NULL;
@@ -1655,46 +1501,42 @@ HWND CFileOpenBrowser::CreatePlacesbar(HWND  hwndDlg)
         //See if Places bar key is available
         RegOpenKey(HKEY_CURRENT_USER, REGSTR_PATH_PLACESBAR, &hkey);
 
-        if(IS_WINDOW_RTL_MIRRORED(hwndDlg))
-        {
+        if (IS_WINDOW_RTL_MIRRORED(hwndDlg)) {
             flags |= ILC_MIRROR;
         }
         // Create, fill, and assign the image list for  buttons.
-        HIMAGELIST himl = ImageList_Create(32,32,flags,0,1);
+        HIMAGELIST himl = ImageList_Create(32, 32, flags, 0, 1);
 
         //Set the background color for the image list
         ImageList_SetBkColor(himl, GetSysColor(COLOR_BTNSHADOW));
 
-        for (i=0; i < MAXPLACESBARITEMS; i++)
-        {
-            if(_EnumPlacesBarItem(hkey, i, &sfi, &pidl))
-            {
-                 //Add the image to the image list
-                 ImageList_AddIcon(himl, sfi.hIcon);
-                 DestroyIcon(sfi.hIcon);
+        for (i = 0; i < MAXPLACESBARITEMS; i++) {
+            if (_EnumPlacesBarItem(hkey, i, &sfi, &pidl)) {
+                //Add the image to the image list
+                ImageList_AddIcon(himl, sfi.hIcon);
+                DestroyIcon(sfi.hIcon);
 
-                 //Now Add the item to the toolbar
-                 tbb.iBitmap   = iCommandID;
-                 tbb.fsState   = TBSTATE_ENABLED;
-                 tbb.fsStyle   = BTNS_BUTTON;
-                 tbb.idCommand =  IDC_PLACESBAR_BASE + iCommandID;
-                 tbb.iString   = (INT_PTR)&sfi.szDisplayName;
-                 tbb.dwData    = (INT_PTR)pidl;
+                //Now Add the item to the toolbar
+                tbb.iBitmap = iCommandID;
+                tbb.fsState = TBSTATE_ENABLED;
+                tbb.fsStyle = BTNS_BUTTON;
+                tbb.idCommand = IDC_PLACESBAR_BASE + iCommandID;
+                tbb.iString = (INT_PTR)&sfi.szDisplayName;
+                tbb.dwData = (INT_PTR)pidl;
 
-                 SendMessage(hwndTB, TB_ADDBUTTONS, (UINT)1, (LPARAM)&tbb);
+                SendMessage(hwndTB, TB_ADDBUTTONS, (UINT)1, (LPARAM)&tbb);
 
-                 //Incremant the command ID
-                 iCommandID++;
+                //Incremant the command ID
+                iCommandID++;
             }
         }
 
         //Close the reg key
-        if (hkey)
-        {
+        if (hkey) {
             RegCloseKey(hkey);
         }
 
-        HIMAGELIST himlOld = (HIMAGELIST) SendMessage(hwndTB, TB_SETIMAGELIST, 0, (LPARAM)himl);
+        HIMAGELIST himlOld = (HIMAGELIST)SendMessage(hwndTB, TB_SETIMAGELIST, 0, (LPARAM)himl);
         if (himlOld)
             ImageList_Destroy(himlOld);
         // Add the buttons
@@ -1718,28 +1560,28 @@ CFileOpenBrowser::CFileOpenBrowser(
     HWND hDlg,
     BOOL fIsSaveAs)
     : _cRef(1),
-      iCurrentLocation(-1),
-      iVersion(OPENFILEVERSION),
-      pCurrentLocation(NULL),
-      psv(NULL),
-      hwndDlg(hDlg),
-      hwndView(NULL),
-      hwndToolbar(NULL),
-      psfCurrent(NULL),
-      bSave(fIsSaveAs),
-      iComboIndex(-1),
-      hwndTips(NULL),
-      ptlog(NULL),
-      iCheckedButton(-1),
-      _pidlSelection(NULL)
+    iCurrentLocation(-1),
+    iVersion(OPENFILEVERSION),
+    pCurrentLocation(NULL),
+    psv(NULL),
+    hwndDlg(hDlg),
+    hwndView(NULL),
+    hwndToolbar(NULL),
+    psfCurrent(NULL),
+    bSave(fIsSaveAs),
+    iComboIndex(-1),
+    hwndTips(NULL),
+    ptlog(NULL),
+    iCheckedButton(-1),
+    _pidlSelection(NULL)
 {
     iNodeDesktop = NODE_DESKTOP;
-    iNodeDrives  = NODE_DRIVES;
+    iNodeDrives = NODE_DRIVES;
 
     szLastFilter[0] = CHAR_NULL;
 
     bEnableSizing = FALSE;
-    bUseCombo     = TRUE;
+    bUseCombo = TRUE;
     hwndGrip = NULL;
     ptLastSize.x = 0;
     ptLastSize.y = 0;
@@ -1751,7 +1593,7 @@ CFileOpenBrowser::CFileOpenBrowser(
     hMenu = GetSystemMenu(hDlg, FALSE);
     DeleteMenu(hMenu, SC_MINIMIZE, MF_BYCOMMAND);
     DeleteMenu(hMenu, SC_MAXIMIZE, MF_BYCOMMAND);
-    DeleteMenu(hMenu, SC_RESTORE,  MF_BYCOMMAND);
+    DeleteMenu(hMenu, SC_RESTORE, MF_BYCOMMAND);
 
     Shell_GetImageLists(NULL, &himl);
 
@@ -1776,8 +1618,7 @@ CFileOpenBrowser::CFileOpenBrowser(
 
 CFileOpenBrowser::~CFileOpenBrowser()
 {
-    if (uRegister)
-    {
+    if (uRegister) {
         SHChangeNotifyDeregister(uRegister);
         uRegister = 0;
     }
@@ -1785,65 +1626,56 @@ CFileOpenBrowser::~CFileOpenBrowser()
 
     //  Ensure that we discard the tooltip window.
 
-    if (hwndTips)
-    {
+    if (hwndTips) {
         DestroyWindow(hwndTips);
         hwndTips = NULL;                // handle is no longer valid
     }
 
-    if (hwndGrip)
-    {
+    if (hwndGrip) {
         DestroyWindow(hwndGrip);
         hwndGrip = NULL;
     }
 
 
     //Free the image list set in the places bar
-    if (hwndPlacesbar)
-    {
+    if (hwndPlacesbar) {
         HIMAGELIST himlOld;
-        himlOld = (HIMAGELIST) SendMessage(hwndPlacesbar, TB_SETIMAGELIST, 0, (LPARAM)0);
+        himlOld = (HIMAGELIST)SendMessage(hwndPlacesbar, TB_SETIMAGELIST, 0, (LPARAM)0);
         TBBUTTONINFO tbbi;
         LPITEMIDLIST pidl;
 
-        for (int i=0; i < MAXPLACESBARITEMS; i++)
-        {
+        for (int i = 0; i < MAXPLACESBARITEMS; i++) {
             tbbi.cbSize = SIZEOF(tbbi);
             tbbi.lParam = 0;
             tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
-            if (SendMessage(hwndPlacesbar, TB_GETBUTTONINFO, i, (LPARAM)&tbbi) >= 0)
-            {
+            if (SendMessage(hwndPlacesbar, TB_GETBUTTONINFO, i, (LPARAM)&tbbi) >= 0) {
                 pidl = (LPITEMIDLIST)tbbi.lParam;
 
-                if (pidl)
-                {
+                if (pidl) {
                     ILFree(pidl);
                 }
             }
         }
 
 
-        if (himlOld)
-        {
+        if (himlOld) {
             ImageList_Destroy(himlOld);
         }
     }
 
-    if (pcwd)
-    {
+    if (pcwd) {
         pcwd->Release();
     }
 
-    if (ptlog)
-    {
-       ptlog->Release();
+    if (ptlog) {
+        ptlog->Release();
     }
 
-    Pidl_Set(&_pidlSelection,NULL);
+    Pidl_Set(&_pidlSelection, NULL);
 
 }
 
-HRESULT CFileOpenBrowser::QueryInterface(REFIID riid, void **ppvObj)
+HRESULT CFileOpenBrowser::QueryInterface(REFIID riid, void** ppvObj)
 {
     static const QITAB qit[] = {
         QITABENT(CFileOpenBrowser, IShellBrowser),                              // IID_IShellBrowser
@@ -1869,7 +1701,7 @@ ULONG CFileOpenBrowser::Release()
     return 0;
 }
 
-STDMETHODIMP CFileOpenBrowser::GetWindow(HWND *phwnd)
+STDMETHODIMP CFileOpenBrowser::GetWindow(HWND* phwnd)
 {
     *phwnd = hwndDlg;
     return S_OK;
@@ -1962,8 +1794,7 @@ BOOL _IsRecentFolder(LPCITEMIDLIST pidl)
     ASSERT(pidl);
     BOOL fRet = FALSE;
     LPITEMIDLIST pidlRecent = SHCloneSpecialIDList(NULL, CSIDL_RECENT, TRUE);
-    if (pidlRecent)
-    {
+    if (pidlRecent) {
         fRet = ILIsEqual(pidlRecent, pidl);
         ILFree(pidlRecent);
     }
@@ -1979,7 +1810,7 @@ BOOL _IsRecentFolder(LPCITEMIDLIST pidl)
 
 STDMETHODIMP CFileOpenBrowser::GetViewStateStream(
     DWORD grfMode,
-    LPSTREAM *pStrm)
+    LPSTREAM* pStrm)
 {
 
     //  BUGBUG: We should implement this so there is some persistence
@@ -1990,11 +1821,10 @@ STDMETHODIMP CFileOpenBrowser::GetViewStateStream(
 
     *pStrm = NULL;
 
-    if ((grfMode == STGM_READ) && _IsRecentFolder(pCurrentLocation->pidlFull))
-    {
+    if ((grfMode == STGM_READ) && _IsRecentFolder(pCurrentLocation->pidlFull)) {
         //  we want to open the stream from the registry...
         *pStrm = SHOpenRegStream(HKEY_LOCAL_MACHINE, TEXT("Software\\microsoft\\windows\\currentversion\\explorer\\recentdocs"),
-            TEXT("ViewStream"), grfMode);
+                                 TEXT("ViewStream"), grfMode);
     }
 
     return (*pStrm ? S_OK : E_FAIL);
@@ -2011,10 +1841,9 @@ STDMETHODIMP CFileOpenBrowser::GetViewStateStream(
 
 STDMETHODIMP CFileOpenBrowser::GetControlWindow(
     UINT id,
-    HWND *lphwnd)
+    HWND* lphwnd)
 {
-    if (id == FCW_TOOLBAR)
-    {
+    if (id == FCW_TOOLBAR) {
         *lphwnd = hwndToolbar;
         return S_OK;
     }
@@ -2034,54 +1863,50 @@ STDMETHODIMP CFileOpenBrowser::SendControlMsg(
     UINT uMsg,
     WPARAM wParam,
     LPARAM lParam,
-    LRESULT *pret)
+    LRESULT* pret)
 {
     LRESULT lres = 0;
 
-    if (id == FCW_TOOLBAR)
-    {
+    if (id == FCW_TOOLBAR) {
 
         //  We need to translate messages from defview intended for these
         //  buttons to our own.
 
-        switch (uMsg)
+        switch (uMsg) {
+        case (TB_CHECKBUTTON):
         {
-            case ( TB_CHECKBUTTON ) :
-            {
 #if 0 // we don't do this anymore because we use the viewmenu dropdown
-                switch (wParam)
-                {
-                    case ( SFVIDM_VIEW_DETAILS ) :
-                    {
-                        wParam = IDC_VIEWDETAILS;
-                        break;
-                    }
-                    case ( SFVIDM_VIEW_LIST ) :
-                    {
-                        wParam = IDC_VIEWLIST;
-                        break;
-                    }
-                    default :
-                    {
-                        goto Bail;
-                    }
-                }
+            switch (wParam) {
+            case (SFVIDM_VIEW_DETAILS):
+            {
+                wParam = IDC_VIEWDETAILS;
                 break;
-#endif
             }
-            default :
+            case (SFVIDM_VIEW_LIST):
+            {
+                wParam = IDC_VIEWLIST;
+                break;
+            }
+            default:
             {
                 goto Bail;
-                break;
             }
+            }
+            break;
+#endif
+        }
+        default:
+        {
+            goto Bail;
+            break;
+        }
         }
 
         lres = SendMessage(hwndToolbar, uMsg, wParam, lParam);
     }
 
 Bail:
-    if (pret)
-    {
+    if (pret) {
         *pret = lres;
     }
 
@@ -2096,10 +1921,9 @@ Bail:
 
 
 STDMETHODIMP CFileOpenBrowser::QueryActiveShellView(
-    LPSHELLVIEW *ppsv)
+    LPSHELLVIEW* ppsv)
 {
-    if (psv)
-    {
+    if (psv) {
         *ppsv = psv;
         psv->AddRef();
         return S_OK;
@@ -2109,74 +1933,37 @@ STDMETHODIMP CFileOpenBrowser::QueryActiveShellView(
 }
 
 
-
-
 //  CFileOpenBrowser::OnViewWindowActive
-
-
-
-STDMETHODIMP CFileOpenBrowser::OnViewWindowActive(
-    LPSHELLVIEW psv)
+STDMETHODIMP CFileOpenBrowser::OnViewWindowActive(LPSHELLVIEW psv)
 {
-
     //  No need to process this. We don't do menus.
-
     return S_OK;
 }
 
 
-
-
 //  CFileOpenBrowser::InsertMenusSB
-
-
-
-STDMETHODIMP CFileOpenBrowser::InsertMenusSB(
-    HMENU hmenuShared,
-    LPOLEMENUGROUPWIDTHS lpMenuWidths)
+STDMETHODIMP CFileOpenBrowser::InsertMenusSB(HMENU hmenuShared, LPOLEMENUGROUPWIDTHS lpMenuWidths)
 {
     return (E_NOTIMPL);
 }
-
-
 
 
 //  CFileOpenBrowser::SetMenuSB
-
-
-
-STDMETHODIMP CFileOpenBrowser::SetMenuSB(
-    HMENU hmenuShared,
-    HOLEMENU holemenu,
-    HWND hwndActiveObject)
+STDMETHODIMP CFileOpenBrowser::SetMenuSB(HMENU hmenuShared, HOLEMENU holemenu, HWND hwndActiveObject)
 {
     return (E_NOTIMPL);
 }
-
-
 
 
 //  CFileOpenBrowser::RemoveMenusSB
-
-
-
-STDMETHODIMP CFileOpenBrowser::RemoveMenusSB(
-    HMENU hmenuShared)
+STDMETHODIMP CFileOpenBrowser::RemoveMenusSB(HMENU hmenuShared)
 {
     return (E_NOTIMPL);
 }
 
 
-
-
 //  CFileOpenBrowser::SetToolbarItems
-
-
-
-STDMETHODIMP CFileOpenBrowser::SetToolbarItems(
-    LPTBBUTTON lpButtons,
-    UINT nButtons,
-    UINT uFlags)
+STDMETHODIMP CFileOpenBrowser::SetToolbarItems(LPTBBUTTON lpButtons, UINT nButtons, UINT uFlags)
 {
 
     //  We don't let containers customize our toolbar.
@@ -2194,10 +1981,9 @@ STDMETHODIMP CFileOpenBrowser::SetToolbarItems(
 
 
 STDMETHODIMP CFileOpenBrowser::OnDefaultCommand(
-    struct IShellView *ppshv)
+    struct IShellView* ppshv)
 {
-    if (ppshv != psv)
-    {
+    if (ppshv != psv) {
         return (E_INVALIDARG);
     }
 
@@ -2212,13 +1998,12 @@ STDMETHODIMP CFileOpenBrowser::OnDefaultCommand(
 
 // ** IServiceProvider methods **
 
-HRESULT CFileOpenBrowser::QueryService(REFGUID guidService, REFIID riid, void **ppvObj)
+HRESULT CFileOpenBrowser::QueryService(REFGUID guidService, REFIID riid, void** ppvObj)
 {
     HRESULT hr = E_FAIL;
     *ppvObj = NULL;
 
-    if (IsEqualGUID(guidService, SID_SCommDlgBrowser))
-    {
+    if (IsEqualGUID(guidService, SID_SCommDlgBrowser)) {
         hr = QueryInterface(riid, ppvObj);
     }
 
@@ -2246,8 +2031,7 @@ void CFileOpenBrowser::SetCurrentFilter(
 
     //  Don't do anything if it's the same filter.
 
-    if (lstrcmp(szLastFilter, pszFilter) == 0)
-    {
+    if (lstrcmp(szLastFilter, pszFilter) == 0) {
         return;
     }
 
@@ -2257,8 +2041,7 @@ void CFileOpenBrowser::SetCurrentFilter(
 
     //  Do nothing if quoted.
 
-    if (Flags & OKBUTTON_QUOTED)
-    {
+    if (Flags & OKBUTTON_QUOTED) {
         return;
     }
 
@@ -2266,22 +2049,17 @@ void CFileOpenBrowser::SetCurrentFilter(
     //  If pszFilter matches a filter spec, select that spec.
 
     HWND hCmb = GetDlgItem(hwndDlg, cmb1);
-    if (hCmb)
-    {
+    if (hCmb) {
         int nMax = ComboBox_GetCount(hCmb);
         int n;
 
         BOOL bCustomFilter = lpOFN->lpstrCustomFilter && *lpOFN->lpstrCustomFilter;
 
-        for (n = 0; n < nMax; n++)
-        {
+        for (n = 0; n < nMax; n++) {
             LPTSTR pFilter = (LPTSTR)ComboBox_GetItemData(hCmb, n);
-            if (pFilter && pFilter != (LPTSTR)CB_ERR)
-            {
-                if (!lstrcmpi(pFilter, pszFilter))
-                {
-                    if (n != ComboBox_GetCurSel(hCmb))
-                    {
+            if (pFilter && pFilter != (LPTSTR)CB_ERR) {
+                if (!lstrcmpi(pFilter, pszFilter)) {
+                    if (n != ComboBox_GetCurSel(hCmb)) {
                         ComboBox_SetCurSel(hCmb, n);
                     }
                     break;
@@ -2293,12 +2071,10 @@ void CFileOpenBrowser::SetCurrentFilter(
 
     //  For LFNs, tack on a '*' after non-wild extensions.
 
-    for (lpNext = szLastFilter; nLeft > 0; )
-    {
+    for (lpNext = szLastFilter; nLeft > 0; ) {
         LPTSTR lpSemiColon = StrChr(lpNext, CHAR_SEMICOLON);
 
-        if (!lpSemiColon)
-        {
+        if (!lpSemiColon) {
             lpSemiColon = lpNext + lstrlen(lpNext);
         }
 
@@ -2310,17 +2086,15 @@ void CFileOpenBrowser::SetCurrentFilter(
 
         //  See if there is an extension that is not wild.
 
-        if (lpDot && *(lpDot + 1) && !IsWild(lpDot))
-        {
+        if (lpDot && *(lpDot + 1) && !IsWild(lpDot)) {
 
             //  Tack on a star.
             //  We know there is still enough room because nLeft > 0.
 
-            if (cTemp != CHAR_NULL)
-            {
-                MoveMemory( lpSemiColon + 2,
-                            lpSemiColon + 1,
-                            lstrlen(lpSemiColon + 1) * sizeof(TCHAR) );
+            if (cTemp != CHAR_NULL) {
+                MoveMemory(lpSemiColon + 2,
+                           lpSemiColon + 1,
+                           lstrlen(lpSemiColon + 1) * sizeof(TCHAR));
             }
             *lpSemiColon = CHAR_STAR;
 
@@ -2329,12 +2103,9 @@ void CFileOpenBrowser::SetCurrentFilter(
         }
 
         *lpSemiColon = cTemp;
-        if (cTemp == CHAR_NULL)
-        {
+        if (cTemp == CHAR_NULL) {
             break;
-        }
-        else
-        {
+        } else {
             lpNext = lpSemiColon + 1;
         }
     }
@@ -2353,23 +2124,19 @@ HWND GetFocusedChild(
 {
     HWND hwndParent;
 
-    if (!hwndDlg)
-    {
+    if (!hwndDlg) {
         return (NULL);
     }
 
-    if (!hwndFocus)
-    {
+    if (!hwndFocus) {
         hwndFocus = ::GetFocus();
     }
 
 
     //  Go up the parent chain until the parent is the main dialog.
 
-    while ((hwndParent = ::GetParent(hwndFocus)) != hwndDlg)
-    {
-        if (!hwndParent)
-        {
+    while ((hwndParent = ::GetParent(hwndFocus)) != hwndDlg) {
+        if (!hwndParent) {
             return (NULL);
         }
 
@@ -2389,24 +2156,21 @@ HWND GetFocusedChild(
 
 
 HRESULT CFileOpenBrowser::SwitchView(
-    IShellFolder *psfNew,
+    IShellFolder* psfNew,
     LPCITEMIDLIST pidlNew,
-    FOLDERSETTINGS *pfs)
+    FOLDERSETTINGS* pfs)
 {
-    IShellView *psvNew;
+    IShellView* psvNew;
     RECT rc;
 
-    if (!psfNew)
-    {
+    if (!psfNew) {
         return (E_INVALIDARG);
     }
 
     GetControlRect(hwndDlg, lst1, &rc);
 
-    if (bEnableSizing)
-    {
-        if (hwndView)
-        {
+    if (bEnableSizing) {
+        if (hwndView) {
 
             //  Don't directly use the rect but instead use the size as
             //  applications like VB may move the window off the screen.
@@ -2418,9 +2182,7 @@ HRESULT CFileOpenBrowser::SwitchView(
             sizeView.cy = rcView.bottom - rcView.top;
             rc.right = rc.left + sizeView.cx;
             rc.bottom = rc.top + sizeView.cy;
-        }
-        else if (bUseSizeView && sizeView.cx)
-        {
+        } else if (bUseSizeView && sizeView.cx) {
 
             //  If we previously failed then use cached size.
 
@@ -2429,16 +2191,12 @@ HRESULT CFileOpenBrowser::SwitchView(
         }
     }
 
-    HRESULT hres = psfNew->CreateViewObject( hwndDlg,
-                                             IID_IShellView,
-                                             (void **)&psvNew );
-
-    if (!SUCCEEDED(hres))
-    {
+    HRESULT hres = psfNew->CreateViewObject(hwndDlg, IID_IShellView, (void**)&psvNew);
+    if (!SUCCEEDED(hres)) {
         return hres;
     }
 
-    IShellView *psvOld;
+    IShellView* psvOld;
     HWND hwndNew;
 
     iWaitCount++;
@@ -2467,8 +2225,7 @@ HRESULT CFileOpenBrowser::SwitchView(
     //  the current one has a background thread going that is trying to
     //  call us back (IncludeObject).
 
-    if (psvOld)
-    {
+    if (psvOld) {
         SendMessage(hwndView, WM_SETREDRAW, FALSE, 0);
         psvOld->DestroyViewWindow();
         hwndView = NULL;
@@ -2491,8 +2248,7 @@ HRESULT CFileOpenBrowser::SwitchView(
     //  subdialog while creating the view window; drawing will be enabled
     //  after the Z-order has been set properly.
 
-    if (hSubDlg)
-    {
+    if (hSubDlg) {
         SendMessage(hSubDlg, WM_SETREDRAW, FALSE, 0);
     }
 
@@ -2506,18 +2262,15 @@ HRESULT CFileOpenBrowser::SwitchView(
 
     bUseSizeView = FAILED(hres);
 
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         hres = psvNew->UIActivate(SVUIA_INPLACEACTIVATE);
     }
 
-    if (psvOld)
-    {
+    if (psvOld) {
         psvOld->Release();
     }
 
-    if (hSubDlg)
-    {
+    if (hSubDlg) {
 
         //  Turn REDRAW back on before changing the focus in case the
         //  SubDlg has the focus.
@@ -2525,8 +2278,7 @@ HRESULT CFileOpenBrowser::SwitchView(
         SendMessage(hSubDlg, WM_SETREDRAW, TRUE, 0);
     }
 
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
 #define REQ_NEWFOLDER_ATTRIBS (SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR | SFGAO_FOLDER)
 
         BOOL bNewFolder;
@@ -2537,27 +2289,24 @@ HRESULT CFileOpenBrowser::SwitchView(
         //Enable / Disable New Folder button
         CDGetAttributesOf(pidlNew, &dwAttr);
 
-        if (REQ_NEWFOLDER_ATTRIBS == (dwAttr & REQ_NEWFOLDER_ATTRIBS))
-        {
+        if (REQ_NEWFOLDER_ATTRIBS == (dwAttr & REQ_NEWFOLDER_ATTRIBS)) {
             bNewFolder = TRUE;
-        }
-        else
-        {
+        } else {
             bNewFolder = FALSE;
         }
 
-        ::SendMessage(hwndToolbar, TB_ENABLEBUTTON, IDC_NEWFOLDER,   bNewFolder);
+        ::SendMessage(hwndToolbar, TB_ENABLEBUTTON, IDC_NEWFOLDER, bNewFolder);
 
 
         //  Move the view window to the right spot in the Z (tab) order.
 
-        SetWindowPos( hwndNew,
-                      GetDlgItem(hwndDlg, lst1),
-                      0,
-                      0,
-                      0,
-                      0,
-                      SWP_NOMOVE | SWP_NOSIZE );
+        SetWindowPos(hwndNew,
+                     GetDlgItem(hwndDlg, lst1),
+                     0,
+                     0,
+                     0,
+                     0,
+                     SWP_NOMOVE | SWP_NOSIZE);
 
 
 
@@ -2565,19 +2314,16 @@ HRESULT CFileOpenBrowser::SwitchView(
 
         SetWindowLong(hwndNew, GWL_ID, lst2);
 
-        ::RedrawWindow( hwndView,
-                        NULL,
-                        NULL,
-                        RDW_INVALIDATE | RDW_ERASE |
-                        RDW_ALLCHILDREN | RDW_UPDATENOW );
+        ::RedrawWindow(hwndView,
+                       NULL,
+                       NULL,
+                       RDW_INVALIDATE | RDW_ERASE |
+                       RDW_ALLCHILDREN | RDW_UPDATENOW);
 
-        if (bViewFocus)
-        {
+        if (bViewFocus) {
             ::SetFocus(hwndView);
         }
-    }
-    else
-    {
+    } else {
         psv = NULL;
         psvNew->Release();
     }
@@ -2586,8 +2332,7 @@ HRESULT CFileOpenBrowser::SwitchView(
     //  Let's draw again!
 
 
-    if (bLocked)
-    {
+    if (bLocked) {
         LockWindowUpdate(NULL);
     }
 
@@ -2608,11 +2353,10 @@ void JustGetToolTipText(
     UINT idCommand,
     LPTOOLTIPTEXT pTtt)
 {
-    if (!CDLoadString( ::g_hinst,
-                     idCommand + MH_TOOLTIPBASE,
-                     pTtt->szText,
-                     ARRAYSIZE(pTtt->szText) ))
-    {
+    if (!CDLoadString(::g_hinst,
+                      idCommand + MH_TOOLTIPBASE,
+                      pTtt->szText,
+                      ARRAYSIZE(pTtt->szText))) {
         *pTtt->lpszText = 0;
     }
 }
@@ -2631,128 +2375,116 @@ LRESULT CFileOpenBrowser::OnNotify(
 {
     LRESULT lres = 0;
 
-    switch (pnm->code)
+    switch (pnm->code) {
+    case (TTN_NEEDTEXT):
     {
-        case ( TTN_NEEDTEXT ) :
-        {
-            HWND hCtrl = GetDlgItem(hwndDlg, cmb2);
-            LPTOOLTIPTEXT lptt = (LPTOOLTIPTEXT)pnm;
-            int iTemp;
+        HWND hCtrl = GetDlgItem(hwndDlg, cmb2);
+        LPTOOLTIPTEXT lptt = (LPTOOLTIPTEXT)pnm;
+        int iTemp;
 
 
-            //  If this is the combo control which shows the current drive,
-            //  then convert this into a suitable tool-tip message giving
-            //  the 'full' path to this object.
+        //  If this is the combo control which shows the current drive,
+        //  then convert this into a suitable tool-tip message giving
+        //  the 'full' path to this object.
 
-            if (pnm->idFrom == (UINT_PTR)hCtrl)
-            {
+        if (pnm->idFrom == (UINT_PTR)hCtrl) {
 
-                //  iTemp will contain index of first path element.
+            //  iTemp will contain index of first path element.
 
-                GetDirectoryFromLB(szTipBuf, &iTemp);
+            GetDirectoryFromLB(szTipBuf, &iTemp);
 
-                lptt->lpszText = szTipBuf;
-                lptt->szText[0] = CHAR_NULL;
-                lptt->hinst = NULL;              // no instance needed
+            lptt->lpszText = szTipBuf;
+            lptt->szText[0] = CHAR_NULL;
+            lptt->hinst = NULL;              // no instance needed
+        } else if (IsInRange(pnm->idFrom, FCIDM_SHVIEWFIRST, FCIDM_SHVIEWLAST)) {
+            if (hwndView) {
+                lres = ::SendMessage(hwndView, WM_NOTIFY, 0, (LPARAM)pnm);
             }
-            else if (IsInRange(pnm->idFrom, FCIDM_SHVIEWFIRST, FCIDM_SHVIEWLAST))
-            {
-                if (hwndView)
-                {
-                    lres = ::SendMessage(hwndView, WM_NOTIFY, 0, (LPARAM)pnm);
-                }
-            }
-            else if (IsInRange(pnm->idFrom, IDC_PLACESBAR_BASE, IDC_PLACESBAR_BASE + iCommandID))
-            {
-                _GetPlacesBarItemToolTip((int)pnm->idFrom, szTipBuf, ARRAYSIZE(szTipBuf));
-                lptt->lpszText = szTipBuf;
-            }
-            else
-            {
-                JustGetToolTipText((UINT) pnm->idFrom, lptt);
-            }
-            lres = TRUE;
-            break;
+        } else if (IsInRange(pnm->idFrom, IDC_PLACESBAR_BASE, IDC_PLACESBAR_BASE + iCommandID)) {
+            _GetPlacesBarItemToolTip((int)pnm->idFrom, szTipBuf, ARRAYSIZE(szTipBuf));
+            lptt->lpszText = szTipBuf;
+        } else {
+            JustGetToolTipText((UINT)pnm->idFrom, lptt);
         }
-        case ( NM_STARTWAIT ) :
-        case ( NM_ENDWAIT ) :
-        {
-            iWaitCount += (pnm->code == NM_STARTWAIT ? 1 : -1);
+        lres = TRUE;
+        break;
+    }
+    case (NM_STARTWAIT):
+    case (NM_ENDWAIT):
+    {
+        iWaitCount += (pnm->code == NM_STARTWAIT ? 1 : -1);
 
 
-            //  What we really want is for the user to simulate a mouse
-            //  move/setcursor.
+        //  What we really want is for the user to simulate a mouse
+        //  move/setcursor.
 
-            SetCursor(LoadCursor(NULL, iWaitCount ? IDC_WAIT : IDC_ARROW));
-            break;
-        }
-        case ( TBN_DROPDOWN ) :
-        {
-            RECT r;
-            VARIANT v = {VT_INT_PTR};
-            TBNOTIFY *ptbn = (TBNOTIFY*)pnm;
-            DFVCMDDATA cd;
+        SetCursor(LoadCursor(NULL, iWaitCount ? IDC_WAIT : IDC_ARROW));
+        break;
+    }
+    case (TBN_DROPDOWN):
+    {
+        RECT r;
+        VARIANT v = {VT_INT_PTR};
+        TBNOTIFY* ptbn = (TBNOTIFY*)pnm;
+        DFVCMDDATA cd;
 
         //  v.vt = VT_I4;
-            v.byref = &r;
+        v.byref = &r;
 
-            SendMessage(hwndToolbar, TB_GETRECT, ptbn->iItem, (LPARAM)&r);
-            MapWindowRect(hwndToolbar, HWND_DESKTOP, &r);
+        SendMessage(hwndToolbar, TB_GETRECT, ptbn->iItem, (LPARAM)&r);
+        MapWindowRect(hwndToolbar, HWND_DESKTOP, &r);
 
-            cd.pva = &v;
-            cd.hwnd = hwndToolbar;
-            cd.nCmdIDTranslated = 0;
-            SendMessage(hwndView, WM_COMMAND, SFVIDM_VIEW_VIEWMENU, (LONG_PTR)&cd);
+        cd.pva = &v;
+        cd.hwnd = hwndToolbar;
+        cd.nCmdIDTranslated = 0;
+        SendMessage(hwndView, WM_COMMAND, SFVIDM_VIEW_VIEWMENU, (LONG_PTR)&cd);
 
-            break;
-        }
+        break;
+    }
 
-        case ( NM_CUSTOMDRAW ) :
-        {
-            LPNMTBCUSTOMDRAW lpcust = (LPNMTBCUSTOMDRAW)pnm;
+    case (NM_CUSTOMDRAW):
+    {
+        LPNMTBCUSTOMDRAW lpcust = (LPNMTBCUSTOMDRAW)pnm;
 
-            //Make sure its from places bar
-            if (lpcust->nmcd.hdr.hwndFrom == hwndPlacesbar )
+        //Make sure its from places bar
+        if (lpcust->nmcd.hdr.hwndFrom == hwndPlacesbar) {
+            switch (lpcust->nmcd.dwDrawStage) {
+            case  (CDDS_PREERASE):
             {
-                switch (lpcust->nmcd.dwDrawStage)
-                {
-                    case  ( CDDS_PREERASE ) :
-                    {
-                        HDC hdc = (HDC)lpcust->nmcd.hdc;
-                        RECT rc;
-                        GetClientRect(hwndPlacesbar, &rc);
-                        SHFillRectClr(hdc, &rc, GetSysColor(COLOR_BTNSHADOW));
-                        lres = CDRF_SKIPDEFAULT;
-                        SetDlgMsgResult(hwndDlg, WM_NOTIFY, lres);
-                        break;
-                    }
+                HDC hdc = (HDC)lpcust->nmcd.hdc;
+                RECT rc;
+                GetClientRect(hwndPlacesbar, &rc);
+                SHFillRectClr(hdc, &rc, GetSysColor(COLOR_BTNSHADOW));
+                lres = CDRF_SKIPDEFAULT;
+                SetDlgMsgResult(hwndDlg, WM_NOTIFY, lres);
+                break;
+            }
 
-                    case  ( CDDS_PREPAINT ) :
-                    {
-                        lres = CDRF_NOTIFYITEMDRAW;
-                        SetDlgMsgResult(hwndDlg, WM_NOTIFY, lres);
-                        break;
-                    }
+            case  (CDDS_PREPAINT):
+            {
+                lres = CDRF_NOTIFYITEMDRAW;
+                SetDlgMsgResult(hwndDlg, WM_NOTIFY, lres);
+                break;
+            }
 
-                    case ( CDDS_ITEMPREPAINT ) :
-                    {
-                        //Set the text color to window
-                        lpcust->clrText    = GetSysColor(COLOR_HIGHLIGHTTEXT);
-                        lpcust->clrBtnFace = GetSysColor(COLOR_BTNSHADOW);
-                        lpcust->nStringBkMode = TRANSPARENT;
-                        lres = CDRF_DODEFAULT;
+            case (CDDS_ITEMPREPAINT):
+            {
+                //Set the text color to window
+                lpcust->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
+                lpcust->clrBtnFace = GetSysColor(COLOR_BTNSHADOW);
+                lpcust->nStringBkMode = TRANSPARENT;
+                lres = CDRF_DODEFAULT;
 
-                        if (lpcust->nmcd.uItemState & CDIS_CHECKED)
-                        {
-                            lpcust->hbrMonoDither = NULL;
-                        }
-                        SetDlgMsgResult(hwndDlg, WM_NOTIFY, lres);
-                        break;
-                    }
-
+                if (lpcust->nmcd.uItemState & CDIS_CHECKED) {
+                    lpcust->hbrMonoDither = NULL;
                 }
+                SetDlgMsgResult(hwndDlg, WM_NOTIFY, lres);
+                break;
+            }
+
             }
         }
+    }
     }
 
     return (lres);
@@ -2768,7 +2500,7 @@ LRESULT CFileOpenBrowser::OnNotify(
 
 
 void GetViewItemText(
-    IShellFolder *psf,
+    IShellFolder* psf,
     LPCITEMIDLIST pidl,
     LPTSTR pBuf,
     UINT cchBuf,
@@ -2776,15 +2508,11 @@ void GetViewItemText(
 {
     STRRET sr;
 
-    if (SUCCEEDED(psf->GetDisplayNameOf(pidl, flags, &sr)))
-    {
-        if (FAILED(StrRetToBuf(&sr, pidl, pBuf, cchBuf)))
-        {
+    if (SUCCEEDED(psf->GetDisplayNameOf(pidl, flags, &sr))) {
+        if (FAILED(StrRetToBuf(&sr, pidl, pBuf, cchBuf))) {
             *pBuf = CHAR_NULL;
         }
-    }
-    else
-    {
+    } else {
         *pBuf = CHAR_NULL;
     }
 
@@ -2799,20 +2527,17 @@ void GetViewItemText(
 
 
 
-MYLISTBOXITEM *GetListboxItem(
+MYLISTBOXITEM* GetListboxItem(
     HWND hCtrl,
     WPARAM iItem)
 {
-    MYLISTBOXITEM *p = (MYLISTBOXITEM *)SendMessage( hCtrl,
-                                                     CB_GETITEMDATA,
-                                                     iItem,
-                                                     NULL );
-    if (p == (MYLISTBOXITEM *)CB_ERR)
-    {
+    MYLISTBOXITEM* p = (MYLISTBOXITEM*)SendMessage(hCtrl,
+                                                   CB_GETITEMDATA,
+                                                   iItem,
+                                                   NULL);
+    if (p == (MYLISTBOXITEM*)CB_ERR) {
         return (NULL);
-    }
-    else
-    {
+    } else {
         return (p);
     }
 }
@@ -2827,27 +2552,23 @@ MYLISTBOXITEM *GetListboxItem(
 HRESULT _ReleaseStgMedium(
     LPSTGMEDIUM pmedium)
 {
-    if (pmedium->pUnkForRelease)
-    {
+    if (pmedium->pUnkForRelease) {
         pmedium->pUnkForRelease->Release();
-    }
-    else
-    {
-        switch (pmedium->tymed)
+    } else {
+        switch (pmedium->tymed) {
+        case (TYMED_HGLOBAL):
         {
-            case ( TYMED_HGLOBAL ) :
-            {
-                GlobalFree(pmedium->hGlobal);
-                break;
-            }
-            default :
-            {
+            GlobalFree(pmedium->hGlobal);
+            break;
+        }
+        default:
+        {
 
-                //  Not fully implemented.
+            //  Not fully implemented.
 
-                MessageBeep(0);
-                break;
-            }
+            MessageBeep(0);
+            break;
+        }
         }
     }
 
@@ -2879,12 +2600,11 @@ void CFileOpenBrowser::RealSetSaveButton(
 {
     MSG msg;
 
-    if (PeekMessage( &msg,
-                     hwndDlg,
-                     CDM_SETSAVEBUTTON,
-                     CDM_SETSAVEBUTTON,
-                     PM_NOREMOVE ))
-    {
+    if (PeekMessage(&msg,
+                    hwndDlg,
+                    CDM_SETSAVEBUTTON,
+                    CDM_SETSAVEBUTTON,
+                    PM_NOREMOVE)) {
 
         //  There is another SETSAVEBUTTON message in the queue, so blow off
         //  this one.
@@ -2892,8 +2612,7 @@ void CFileOpenBrowser::RealSetSaveButton(
         return;
     }
 
-    if (bSave)
-    {
+    if (bSave) {
         TCHAR szTemp[40];
         LPTSTR pszTemp = tszDefSave;
 
@@ -2901,15 +2620,13 @@ void CFileOpenBrowser::RealSetSaveButton(
         //  Load the string if not the "Save" string or there is no
         //  app-specified default.
 
-        if ((idSaveButton != iszFileSaveButton) || !pszTemp)
-        {
+        if ((idSaveButton != iszFileSaveButton) || !pszTemp) {
             CDLoadString(g_hinst, idSaveButton, szTemp, ARRAYSIZE(szTemp));
             pszTemp = szTemp;
         }
 
         GetDlgItemText(hwndDlg, IDOK, szBuf, ARRAYSIZE(szBuf));
-        if (lstrcmp(szBuf, pszTemp))
-        {
+        if (lstrcmp(szBuf, pszTemp)) {
 
             //  Avoid some flicker.
 
@@ -2935,8 +2652,7 @@ void CFileOpenBrowser::SetEditFile(
 
     //  Save the whole file name.
 
-    if (!pszHideExt.StrCpy(pszFile))
-    {
+    if (!pszHideExt.StrCpy(pszFile)) {
         pszHideExt.StrCpy(NULL);
         bShowExt = TRUE;
     }
@@ -2945,11 +2661,9 @@ void CFileOpenBrowser::SetEditFile(
     //  BUGBUG: This is bogus -- we only want to hide KNOWN extensions,
     //          not all extensions.
 
-    if (!bShowExt && !IsWild(pszFile))
-    {
+    if (!bShowExt && !IsWild(pszFile)) {
         LPTSTR pszExt = PathFindExtension(pszFile);
-        if (*pszExt)
-        {
+        if (*pszExt) {
 
             //  If there was an extension, hide it.
 
@@ -2959,13 +2673,10 @@ void CFileOpenBrowser::SetEditFile(
         }
     }
 
-    if (bUseCombo)
-    {
+    if (bUseCombo) {
         HWND hwndEdit = (HWND)SendMessage(GetDlgItem(hwndDlg, cmb13), CBEM_GETEDITCONTROL, 0, 0L);
         SetWindowText(hwndEdit, pszFile);
-    }
-    else
-    {
+    } else {
         SetDlgItemText(hwndDlg, edt1, pszFile);
     }
 
@@ -2975,8 +2686,8 @@ void CFileOpenBrowser::SetEditFile(
     //  extension, we should not do this.
 
     bUseHideExt = (LPTSTR)pszHideExt
-                      ? (bSaveNullExt ? TRUE : bHasHiddenExt)
-                      : FALSE;
+        ? (bSaveNullExt ? TRUE : bHasHiddenExt)
+        : FALSE;
 }
 
 
@@ -2992,8 +2703,7 @@ LPTSTR FindEOF(
     BOOL bQuoted;
     LPTSTR pszBegin = pszFiles;
 
-    while (*pszBegin == CHAR_SPACE)
-    {
+    while (*pszBegin == CHAR_SPACE) {
         ++pszBegin;
     }
 
@@ -3005,8 +2715,7 @@ LPTSTR FindEOF(
 
     bQuoted = TRUE;
 
-    if (*pszBegin == CHAR_QUOTE)
-    {
+    if (*pszBegin == CHAR_QUOTE) {
         ++pszBegin;
     }
 
@@ -3016,34 +2725,31 @@ LPTSTR FindEOF(
 
     //  Find the end of the filename (first quote or unquoted space).
 
-    for ( ; ; pszFiles = CharNext(pszFiles))
-    {
-        switch (*pszFiles)
+    for (; ; pszFiles = CharNext(pszFiles)) {
+        switch (*pszFiles) {
+        case (CHAR_NULL):
         {
-            case ( CHAR_NULL ) :
-            {
+            return (pszFiles);
+        }
+        case (CHAR_SPACE):
+        {
+            if (!bQuoted) {
                 return (pszFiles);
             }
-            case ( CHAR_SPACE ) :
-            {
-                if (!bQuoted)
-                {
-                    return (pszFiles);
-                }
-                break;
-            }
-            case ( CHAR_QUOTE ) :
-            {
+            break;
+        }
+        case (CHAR_QUOTE):
+        {
 
-                //  Note we only support '"' at the very beginning and very
-                //  end of a file name.
+            //  Note we only support '"' at the very beginning and very
+            //  end of a file name.
 
-                return (pszFiles);
-            }
-            default :
-            {
-                break;
-            }
+            return (pszFiles);
+        }
+        default:
+        {
+            break;
+        }
         }
     }
 }
@@ -3064,8 +2770,7 @@ DWORD ConvertToNULLTerm(
     //  The input string is of  the form "file1.ext" "file2.ext" ... "filen.ext"
     //  convert this string of this form into doubly null terminated string
     //  ie file1.ext\0file2.ext\0....filen.ext\0\0
-    for ( ; ; )
-    {
+    for (; ; ) {
         // Finds the end of the first file name in the list of
         // remaining file names.Also this function removes the initial
         // quote character
@@ -3074,21 +2779,17 @@ DWORD ConvertToNULLTerm(
 
         //  Mark the end of the filename with a NULL.
 
-        if (*pchEnd)
-        {
+        if (*pchEnd) {
             *pchEnd = NULL;
             cFiles++;
 
             lstrcpy(pchWrite, pchRead);
             pchWrite += pchEnd - pchRead + 1;
-        }
-        else
-        {
+        } else {
 
             //  Found EOL.  Make sure we did not end with spaces.
 
-            if (*pchRead)
-            {
+            if (*pchRead) {
                 lstrcpy(pchWrite, pchRead);
                 pchWrite += pchEnd - pchRead + 1;
                 cFiles++;
@@ -3125,15 +2826,15 @@ typedef struct _SELFOCUS
 } SELFOCUS;
 
 BOOL SelFocusEnumCB(
-    CFileOpenBrowser *that,
+    CFileOpenBrowser* that,
     LPCITEMIDLIST pidl,
     LPARAM lParam)
 {
-    SELFOCUS *psf = (SELFOCUS *)lParam;
+    SELFOCUS* psf = (SELFOCUS*)lParam;
 
 #ifdef FEATURE_MONIKER_SUPPORT
     //  if we USEMONIKERS then we only accept folders that can use monikers.
-    DWORD dwAttrs = (dwFlags & OFN_USEMONIKERS) ? SFGAO_CANMONIKER | SFGAO_FOLDER:
+    DWORD dwAttrs = (dwFlags & OFN_USEMONIKERS) ? SFGAO_CANMONIKER | SFGAO_FOLDER :
         SFGAO_FOLDER | SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR;
 #else // !FEATURE_MONIKER_SUPPORT
     DWORD dwAttrs = SFGAO_FOLDER | SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR;
@@ -3141,39 +2842,31 @@ BOOL SelFocusEnumCB(
 
     TCHAR szBuf[MAX_PATH + 1];
 
-    if (!pidl)
-    {
+    if (!pidl) {
         return TRUE;
     }
 
-    if (SUCCEEDED(that->psfCurrent->GetAttributesOf(1, &pidl, &dwAttrs)))
-    {
+    if (SUCCEEDED(that->psfCurrent->GetAttributesOf(1, &pidl, &dwAttrs))) {
         if ((dwAttrs & SFGAO_FOLDER) &&
-            (dwAttrs & (SFGAO_FILESYSANCESTOR | SFGAO_CANMONIKER)))
-        {
+            (dwAttrs & (SFGAO_FILESYSANCESTOR | SFGAO_CANMONIKER))) {
             psf->idSaveButton = iszFileOpenButton;
-        }
-        else
-        {
+        } else {
             if (psf->bSelChange && (((that->lpOFN->Flags & OFN_ENABLEINCLUDENOTIFY) &&
-                                     (that->bSelIsObject =
-                                      CD_SendIncludeItemNotify( that->hSubDlg,
-                                                                that->hwndDlg,
-                                                                that->psfCurrent,
-                                                                pidl,
-                                                                that->lpOFN,
-                                                                that->lpOFI ))) ||
-                                    (dwAttrs & (SFGAO_FILESYSTEM | SFGAO_CANMONIKER))))
-            {
+                (that->bSelIsObject =
+                 CD_SendIncludeItemNotify(that->hSubDlg,
+                                          that->hwndDlg,
+                                          that->psfCurrent,
+                                          pidl,
+                                          that->lpOFN,
+                                          that->lpOFI))) ||
+                                          (dwAttrs & (SFGAO_FILESYSTEM | SFGAO_CANMONIKER)))) {
                 ++psf->nSel;
 
-                if (that->lpOFN->Flags & OFN_ALLOWMULTISELECT)
-                {
+                if (that->lpOFN->Flags & OFN_ALLOWMULTISELECT) {
 
                     //  Mark if this is an OBJECT we just selected.
 
-                    if (that->bSelIsObject)
-                    {
+                    if (that->bSelIsObject) {
                         ITEMIDLIST idl;
 
                         idl.mkid.cb = 0;
@@ -3181,13 +2874,12 @@ BOOL SelFocusEnumCB(
 
                         //  Get full path to this folder.
 
-                        GetViewItemText( that->psfCurrent,
-                                         &idl,
-                                         szBuf,
-                                         ARRAYSIZE(szBuf),
-                                         SHGDN_FORPARSING);
-                        if (szBuf[0])
-                        {
+                        GetViewItemText(that->psfCurrent,
+                                        &idl,
+                                        szBuf,
+                                        ARRAYSIZE(szBuf),
+                                        SHGDN_FORPARSING);
+                        if (szBuf[0]) {
                             that->pszObjectCurDir.StrCpy(szBuf);
                         }
 
@@ -3195,73 +2887,63 @@ BOOL SelFocusEnumCB(
                         //  Get full path to this item (in case we only get one
                         //  selection).
 
-                        GetViewItemText( that->psfCurrent,
-                                         pidl,
-                                         szBuf,
-                                         ARRAYSIZE(szBuf),
-                                         SHGDN_FORPARSING);
+                        GetViewItemText(that->psfCurrent,
+                                        pidl,
+                                        szBuf,
+                                        ARRAYSIZE(szBuf),
+                                        SHGDN_FORPARSING);
                         that->pszObjectPath.StrCpy(szBuf);
                     }
 
                     *szBuf = CHAR_QUOTE;
-                    GetViewItemText( that->psfCurrent,
-                                     pidl,
-                                     szBuf + 1,
-                                     ARRAYSIZE(szBuf) - 3 );
+                    GetViewItemText(that->psfCurrent,
+                                    pidl,
+                                    szBuf + 1,
+                                    ARRAYSIZE(szBuf) - 3);
                     lstrcat(szBuf, TEXT("\" "));
 
-                    if (!psf->sHidden.StrCat(szBuf))
-                    {
+                    if (!psf->sHidden.StrCat(szBuf)) {
                         psf->nSel = -1;
                         return FALSE;
                     }
 
-                    if (!that->fShowExtensions)
-                    {
+                    if (!that->fShowExtensions) {
                         LPTSTR pszExt = PathFindExtension(szBuf + 1);
-                        if (*pszExt)
-                        {
+                        if (*pszExt) {
                             *pszExt = 0;
                             lstrcat(szBuf, TEXT("\" "));
                         }
                     }
 
-                    if (!psf->sDisplayed.StrCat(szBuf))
-                    {
+                    if (!psf->sDisplayed.StrCat(szBuf)) {
                         psf->nSel = -1;
                         return FALSE;
                     }
-                }
-                else
-                {
+                } else {
                     SHTCUTINFO info;
 
-                    info.dwAttr      = SFGAO_FOLDER;
-                    info.fReSolve    = FALSE;
+                    info.dwAttr = SFGAO_FOLDER;
+                    info.fReSolve = FALSE;
                     info.pszLinkFile = NULL;
-                    info.cchFile     = 0;
-                    info.ppidl       = NULL;
+                    info.cchFile = 0;
+                    info.ppidl = NULL;
 
-                    if ( (that->GetLinkStatus(pidl, &info)) &&
-                         (info.dwAttr & SFGAO_FOLDER))
-                    {
+                    if ((that->GetLinkStatus(pidl, &info)) &&
+                        (info.dwAttr & SFGAO_FOLDER)) {
                         // This means that the pidl is a link and the link points to a folder
                         // in this case  We Should not update the edit box and treat the link like
                         // a directory
                         psf->idSaveButton = iszFileOpenButton;
-                    }
-                    else
-                    {
+                    } else {
 
                         GetViewItemText(that->psfCurrent, pidl, szBuf, ARRAYSIZE(szBuf));
                         that->SetEditFile(szBuf, that->fShowExtensions);
-                        if (that->bSelIsObject)
-                        {
-                            GetViewItemText( that->psfCurrent,
-                                             pidl,
-                                             szBuf,
-                                             ARRAYSIZE(szBuf),
-                                             SHGDN_FORPARSING);
+                        if (that->bSelIsObject) {
+                            GetViewItemText(that->psfCurrent,
+                                            pidl,
+                                            szBuf,
+                                            ARRAYSIZE(szBuf),
+                                            SHGDN_FORPARSING);
                             that->pszObjectPath.StrCpy(szBuf);
                         }
                     }
@@ -3271,7 +2953,7 @@ BOOL SelFocusEnumCB(
     }
 
     //if there is an item selected then cache that items pidl
-    Pidl_Set(&that->_pidlSelection,pidl);
+    Pidl_Set(&that->_pidlSelection, pidl);
     return TRUE;
 }
 
@@ -3294,48 +2976,46 @@ void CFileOpenBrowser::SelFocusChange(
     bSelIsObject = FALSE;
     EnumItemObjects(SVGIO_SELECTION, SelFocusEnumCB, (LPARAM)&sf);
 
-    if (lpOFN->Flags & OFN_ALLOWMULTISELECT)
-    {
-        switch (sf.nSel)
+    if (lpOFN->Flags & OFN_ALLOWMULTISELECT) {
+        switch (sf.nSel) {
+        case (-1):
         {
-            case ( -1 ) :
-            {
 
-                //  Oops! We ran out of memory.
+            //  Oops! We ran out of memory.
 
-                MessageBeep(0);
-                return;
-            }
-            case ( 0 ) :
-            {
+            MessageBeep(0);
+            return;
+        }
+        case (0):
+        {
 
-                //  No files selected; do not change edit control.
+            //  No files selected; do not change edit control.
 
-                break;
-            }
-            case ( 1 ) :
-            {
+            break;
+        }
+        case (1):
+        {
 
-                //  Strip off quotes so the single file case looks OK.
+            //  Strip off quotes so the single file case looks OK.
 
-                ConvertToNULLTerm(sf.sHidden);
-                SetEditFile(sf.sHidden, fShowExtensions);
+            ConvertToNULLTerm(sf.sHidden);
+            SetEditFile(sf.sHidden, fShowExtensions);
 
-                sf.idSaveButton = iszFileSaveButton;
-                break;
-            }
-            default :
-            {
-                SetEditFile(sf.sDisplayed, TRUE);
-                pszHideExt.StrCpy(sf.sHidden);
+            sf.idSaveButton = iszFileSaveButton;
+            break;
+        }
+        default:
+        {
+            SetEditFile(sf.sDisplayed, TRUE);
+            pszHideExt.StrCpy(sf.sHidden);
 
-                sf.idSaveButton = iszFileSaveButton;
+            sf.idSaveButton = iszFileSaveButton;
 
-                //More than one item selected so free selected item pidl
-                Pidl_Set(&_pidlSelection,NULL);;
+            //More than one item selected so free selected item pidl
+            Pidl_Set(&_pidlSelection, NULL);;
 
-                break;
-            }
+            break;
+        }
         }
     }
 
@@ -3350,21 +3030,18 @@ void CFileOpenBrowser::SelFocusChange(
 
 
 BOOL SelRenameCB(
-    CFileOpenBrowser *that,
+    CFileOpenBrowser* that,
     LPCITEMIDLIST pidl,
     LPARAM lParam)
 {
     DWORD dwAttrs = SFGAO_FOLDER;
 
-    if (!pidl)
-    {
+    if (!pidl) {
         return TRUE;
     }
 
-    if (SUCCEEDED(that->psfCurrent->GetAttributesOf(1, &pidl, &dwAttrs)))
-    {
-        if (!(dwAttrs & SFGAO_FOLDER))
-        {
+    if (SUCCEEDED(that->psfCurrent->GetAttributesOf(1, &pidl, &dwAttrs))) {
+        if (!(dwAttrs & SFGAO_FOLDER)) {
 
             //  If it is not a folder then set the selection to nothing
             //  so that whatever is in the edit box will be used.
@@ -3398,51 +3075,47 @@ void CFileOpenBrowser::SelRename(void)
 
 
 STDMETHODIMP CFileOpenBrowser::OnStateChange(
-    struct IShellView *ppshv,
+    struct IShellView* ppshv,
     ULONG uChange)
 {
-    if (ppshv != psv)
-    {
+    if (ppshv != psv) {
         return (E_INVALIDARG);
     }
 
-    switch (uChange)
+    switch (uChange) {
+    case (CDBOSC_SETFOCUS):
     {
-        case ( CDBOSC_SETFOCUS ) :
-        {
-            if (bSave)
-            {
-                SelFocusChange(FALSE);
-            }
-            break;
+        if (bSave) {
+            SelFocusChange(FALSE);
         }
-        case ( CDBOSC_KILLFOCUS ) :
-        {
-            SetSaveButton(iszFileSaveButton);
-            break;
-        }
-        case ( CDBOSC_SELCHANGE ) :
-        {
+        break;
+    }
+    case (CDBOSC_KILLFOCUS):
+    {
+        SetSaveButton(iszFileSaveButton);
+        break;
+    }
+    case (CDBOSC_SELCHANGE):
+    {
 
-            //  Post one of these messages, since we seem to get a whole bunch
-            //  of them.
+        //  Post one of these messages, since we seem to get a whole bunch
+        //  of them.
 
-            if (!fSelChangedPending)
-            {
-                fSelChangedPending = TRUE;
-                PostMessage(hwndDlg, CDM_SELCHANGE, 0, 0);
-            }
-            break;
+        if (!fSelChangedPending) {
+            fSelChangedPending = TRUE;
+            PostMessage(hwndDlg, CDM_SELCHANGE, 0, 0);
         }
-        case ( CDBOSC_RENAME ) :
-        {
-            SelRename();
-            break;
-        }
-        default :
-        {
-            return (E_NOTIMPL);
-        }
+        break;
+    }
+    case (CDBOSC_RENAME):
+    {
+        SelRename();
+        break;
+    }
+    default:
+    {
+        return (E_NOTIMPL);
+    }
     }
 
     return S_OK;
@@ -3450,7 +3123,7 @@ STDMETHODIMP CFileOpenBrowser::OnStateChange(
 
 
 static const GUID CLSID_PAGISPRO_FOLDER =
-{ 0x7877C8E0, 0x8B13, 0x11D0, { 0x92, 0xC2, 0x00, 0xAA, 0x00, 0x4B, 0x25, 0x6F} };
+{0x7877C8E0, 0x8B13, 0x11D0, { 0x92, 0xC2, 0x00, 0xAA, 0x00, 0x4B, 0x25, 0x6F}};
 
 
 //  CFileOpenBrowser::IncludeObject
@@ -3460,11 +3133,10 @@ static const GUID CLSID_PAGISPRO_FOLDER =
 
 
 STDMETHODIMP CFileOpenBrowser::IncludeObject(
-    struct IShellView *ppshv,
+    struct IShellView* ppshv,
     LPCITEMIDLIST pidl)
 {
-    if (ppshv != psv)
-    {
+    if (ppshv != psv) {
         return (E_INVALIDARG);
     }
 
@@ -3475,24 +3147,21 @@ STDMETHODIMP CFileOpenBrowser::IncludeObject(
 
     //  See if the callback is enabled.
 
-    if (lpOFN->Flags & OFN_ENABLEINCLUDENOTIFY)
-    {
+    if (lpOFN->Flags & OFN_ENABLEINCLUDENOTIFY) {
 
         //  See what the callback says.
 
-        bIncludeItem = BOOLFROMPTR(CD_SendIncludeItemNotify( hSubDlg,
-                                                        hwndDlg,
-                                                        psfCurrent,
-                                                        pidl,
-                                                        lpOFN,
-                                                        lpOFI ));
+        bIncludeItem = BOOLFROMPTR(CD_SendIncludeItemNotify(hSubDlg,
+                                                            hwndDlg,
+                                                            psfCurrent,
+                                                            pidl,
+                                                            lpOFN,
+                                                            lpOFI));
     }
 
     if (!bIncludeItem &&
-        SUCCEEDED(psfCurrent->GetAttributesOf(1, &pidl, &dwAttrs)))
-    {
-        if (!(dwAttrs & (SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR | SFGAO_CANMONIKER)))
-        {
+        SUCCEEDED(psfCurrent->GetAttributesOf(1, &pidl, &dwAttrs))) {
+        if (!(dwAttrs & (SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR | SFGAO_CANMONIKER))) {
             return (S_FALSE);
         }
 
@@ -3505,15 +3174,13 @@ STDMETHODIMP CFileOpenBrowser::IncludeObject(
     // SFGAO_FILESYSANCESTOR or SFGAO_CANMONIKER bit set. This change in implementation broke Pagis Pro
     // This APP HACK basically checks for this condition and provides SFGAO_FILESYSANCESTOR bit for pagis pro folder.
     if (!(dwAttrs & SFGAO_FILESYSANCESTOR) &&
-         ((dwAttrs & (SFGAO_FILESYSTEM | SFGAO_FOLDER)) == (SFGAO_FILESYSTEM | SFGAO_FOLDER)))
-    {
+        ((dwAttrs & (SFGAO_FILESYSTEM | SFGAO_FOLDER)) == (SFGAO_FILESYSTEM | SFGAO_FOLDER))) {
         CLSID clsid;
         HRESULT hr;
 
-        hr = IUnknown_GetClassID(psfCurrent,&clsid);
+        hr = IUnknown_GetClassID(psfCurrent, &clsid);
 
-        if (SUCCEEDED(hr) && IsEqualGUID(clsid, CLSID_PAGISPRO_FOLDER))
-        {
+        if (SUCCEEDED(hr) && IsEqualGUID(clsid, CLSID_PAGISPRO_FOLDER)) {
             dwAttrs |= SFGAO_FILESYSANCESTOR;
         }
     }
@@ -3522,15 +3189,13 @@ STDMETHODIMP CFileOpenBrowser::IncludeObject(
     //  If it is an item that contains filesystem items (SFGAO_FILESYSANCESTOR - typical folder)
     //  OR if it is a folder that canmoniker (ftp folder)
     if (bIncludeItem && *szLastFilter
-    && (dwAttrs & (SFGAO_FILESYSTEM | SFGAO_CANMONIKER))
-    && !(dwAttrs & SFGAO_FILESYSANCESTOR)
-    && (!(dwAttrs & SFGAO_FOLDER) || !(dwAttrs & SFGAO_CANMONIKER)))
-    {
+        && (dwAttrs & (SFGAO_FILESYSTEM | SFGAO_CANMONIKER))
+        && !(dwAttrs & SFGAO_FILESYSANCESTOR)
+        && (!(dwAttrs & SFGAO_FOLDER) || !(dwAttrs & SFGAO_CANMONIKER))) {
         GetViewItemText(psfCurrent, (LPITEMIDLIST)pidl, szBuf, ARRAYSIZE(szBuf));
 
-        if (!LinkMatchSpec(pidl,szLastFilter) &&
-            !PathMatchSpec(szBuf, szLastFilter))
-        {
+        if (!LinkMatchSpec(pidl, szLastFilter) &&
+            !PathMatchSpec(szBuf, szLastFilter)) {
             return (S_FALSE);
         }
     }
@@ -3548,7 +3213,7 @@ STDMETHODIMP CFileOpenBrowser::IncludeObject(
 
 
 STDMETHODIMP CFileOpenBrowser::Notify(
-    struct IShellView *ppshv,
+    struct IShellView* ppshv,
     DWORD dwNotify)
 {
     return S_FALSE;
@@ -3564,8 +3229,8 @@ STDMETHODIMP CFileOpenBrowser::Notify(
 
 
 STDMETHODIMP CFileOpenBrowser::GetDefaultMenuText(
-    struct IShellView *ppshv,
-    WCHAR *pszText,
+    struct IShellView* ppshv,
+    WCHAR* pszText,
     INT cchMax)
 {
     return S_FALSE;
@@ -3579,13 +3244,11 @@ STDMETHODIMP CFileOpenBrowser::GetDefaultMenuText(
 
 
 
-STDMETHODIMP CFileOpenBrowser::GetViewFlags(DWORD *pdwFlags)
+STDMETHODIMP CFileOpenBrowser::GetViewFlags(DWORD* pdwFlags)
 {
     DWORD dwFlags = 0;
-    if (pdwFlags)
-    {
-        if (lpOFN->Flags & OFN_FORCESHOWHIDDEN)
-        {
+    if (pdwFlags) {
+        if (lpOFN->Flags & OFN_FORCESHOWHIDDEN) {
             dwFlags |= CDB2GVF_SHOWALLFILES;
         }
 
@@ -3608,25 +3271,22 @@ STDMETHODIMP CFileOpenBrowser::GetViewFlags(DWORD *pdwFlags)
 BOOL InsertItem(
     HWND hCtrl,
     int iItem,
-    MYLISTBOXITEM *pItem,
-    TCHAR *pszName)
+    MYLISTBOXITEM* pItem,
+    TCHAR* pszName)
 {
     LPTSTR pszChar;
 
-    for (pszChar = pszName; *pszChar != CHAR_NULL; pszChar = CharNext(pszChar))
-    {
-        if (pszChar - pszName >= MAX_DRIVELIST_STRING_LEN - 1)
-        {
+    for (pszChar = pszName; *pszChar != CHAR_NULL; pszChar = CharNext(pszChar)) {
+        if (pszChar - pszName >= MAX_DRIVELIST_STRING_LEN - 1) {
             *pszChar = CHAR_NULL;
             break;
         }
     }
 
-    if (SendMessage( hCtrl,
-                     CB_INSERTSTRING,
-                     iItem,
-                     (LPARAM)(LPCTSTR)pszName ) == CB_ERR)
-    {
+    if (SendMessage(hCtrl,
+                    CB_INSERTSTRING,
+                    iItem,
+                    (LPARAM)(LPCTSTR)pszName) == CB_ERR) {
         return FALSE;
     }
 
@@ -3643,9 +3303,9 @@ BOOL InsertItem(
 
 int CALLBACK LBItemCompareProc(LPVOID p1, LPVOID p2, LPARAM lParam)
 {
-    IShellFolder *psfParent = (IShellFolder *)lParam;
-    MYLISTBOXITEM *pItem1 = (MYLISTBOXITEM *)p1;
-    MYLISTBOXITEM *pItem2 = (MYLISTBOXITEM *)p2;
+    IShellFolder* psfParent = (IShellFolder*)lParam;
+    MYLISTBOXITEM* pItem1 = (MYLISTBOXITEM*)p1;
+    MYLISTBOXITEM* pItem2 = (MYLISTBOXITEM*)p2;
     HRESULT hres = psfParent->CompareIDs(0, pItem1->pidlThis, pItem2->pidlThis);
     return (short)SCODE_CODE(GetScode(hres));
 }
@@ -3662,52 +3322,43 @@ int CALLBACK LBItemCompareProc(LPVOID p1, LPVOID p2, LPARAM lParam)
 void CFileOpenBrowser::UpdateLevel(
     HWND hwndLB,
     int iInsert,
-    MYLISTBOXITEM *pParentItem)
+    MYLISTBOXITEM* pParentItem)
 {
-    if (!pParentItem)
-    {
+    if (!pParentItem) {
         return;
     }
 
     LPENUMIDLIST penum;
     HDPA hdpa;
     DWORD cIndent = pParentItem->cIndent + 1;
-    IShellFolder *psfParent = pParentItem->GetShellFolder();
+    IShellFolder* psfParent = pParentItem->GetShellFolder();
 
     hdpa = DPA_Create(4);
-    if (!hdpa)
-    {
+    if (!hdpa) {
 
         //  No memory: Cannot enum this level.
 
         return;
     }
 
-    if (SUCCEEDED(psfParent->EnumObjects(hwndLB, SHCONTF_FOLDERS, &penum)))
-    {
+    if (SUCCEEDED(psfParent->EnumObjects(hwndLB, SHCONTF_FOLDERS, &penum))) {
         ULONG celt;
         LPITEMIDLIST pidl;
 
-        while (penum->Next(1, &pidl, &celt) == S_OK && celt == 1)
-        {
+        while (penum->Next(1, &pidl, &celt) == S_OK && celt == 1) {
 
             //  Note: We need to avoid creation of pItem if this is not
             //  a file system object (or ancestor) to avoid extra
             //  bindings.
 
-            if (ShouldIncludeObject(this, psfParent, pidl, lpOFN->Flags))
-            {
-                MYLISTBOXITEM *pItem = new MYLISTBOXITEM();
+            if (ShouldIncludeObject(this, psfParent, pidl, lpOFN->Flags)) {
+                MYLISTBOXITEM* pItem = new MYLISTBOXITEM();
 
-                if (pItem != NULL)
-                {
-                    if ( pItem->Init(pParentItem,psfParent,pidl,cIndent,MLBI_PERMANENT | MLBI_PSFFROMPARENT )  &&
-                         (DPA_AppendPtr(hdpa, pItem) >= 0 ))
-                    {
+                if (pItem != NULL) {
+                    if (pItem->Init(pParentItem, psfParent, pidl, cIndent, MLBI_PERMANENT | MLBI_PSFFROMPARENT) &&
+                        (DPA_AppendPtr(hdpa, pItem) >= 0)) {
                         //empty body
-                    }
-                    else
-                    {
+                    } else {
                         delete pItem;
                     }
                 }
@@ -3736,18 +3387,14 @@ void CFileOpenBrowser::UpdateLevel(
 
     //  We're all sorted, so now we can do a merge.
 
-    for (nDPAIndex = 0; ; ++nDPAIndex)
-    {
-        MYLISTBOXITEM *pNewItem;
+    for (nDPAIndex = 0; ; ++nDPAIndex) {
+        MYLISTBOXITEM* pNewItem;
         TCHAR szBuf[MAX_DRIVELIST_STRING_LEN];
-        MYLISTBOXITEM *pOldItem;
+        MYLISTBOXITEM* pOldItem;
 
-        if (nDPAIndex < nDPAItems)
-        {
-            pNewItem = (MYLISTBOXITEM *)DPA_FastGetPtr(hdpa, nDPAIndex);
-        }
-        else
-        {
+        if (nDPAIndex < nDPAItems) {
+            pNewItem = (MYLISTBOXITEM*)DPA_FastGetPtr(hdpa, nDPAIndex);
+        } else {
 
             //  Signal that we got to the end of the list.
 
@@ -3756,19 +3403,15 @@ void CFileOpenBrowser::UpdateLevel(
 
         for (pOldItem = GetListboxItem(hwndLB, nLBIndex);
              pOldItem != NULL;
-             pOldItem = GetListboxItem(hwndLB, ++nLBIndex))
-        {
+             pOldItem = GetListboxItem(hwndLB, ++nLBIndex)) {
             int nCmp;
 
-            if (pOldItem->cIndent < cIndent)
-            {
+            if (pOldItem->cIndent < cIndent) {
 
                 //  We went up a level, so insert here.
 
                 break;
-            }
-            else if (pOldItem->cIndent > cIndent)
-            {
+            } else if (pOldItem->cIndent > cIndent) {
 
                 //  We went down a level so ignore this.
 
@@ -3780,28 +3423,23 @@ void CFileOpenBrowser::UpdateLevel(
             //  at the end.
 
             nCmp = !pNewItem
-                       ? 1
-                       : LBItemCompareProc( pNewItem,
-                                            pOldItem,
-                                            (LPARAM)psfParent );
-            if (nCmp < 0)
-            {
+                ? 1
+                : LBItemCompareProc(pNewItem,
+                                    pOldItem,
+                                    (LPARAM)psfParent);
+            if (nCmp < 0) {
 
                 //  We found the first item greater than the new item, so
                 //  add it in.
 
                 break;
-            }
-            else if (nCmp > 0)
-            {
+            } else if (nCmp > 0) {
 
                 //  Oops! It looks like this item no longer exists, so
                 //  delete it.
 
-                for ( ; ; )
-                {
-                    if (pOldItem == pCurrentLocation)
-                    {
+                for (; ; ) {
+                    if (pOldItem == pCurrentLocation) {
                         bCurItemGone = TRUE;
                         pCurrentLocation = NULL;
                     }
@@ -3811,8 +3449,7 @@ void CFileOpenBrowser::UpdateLevel(
 
                     pOldItem = GetListboxItem(hwndLB, nLBIndex);
 
-                    if (!pOldItem || pOldItem->cIndent <= cIndent)
-                    {
+                    if (!pOldItem || pOldItem->cIndent <= cIndent) {
                         break;
                     }
                 }
@@ -3822,9 +3459,7 @@ void CFileOpenBrowser::UpdateLevel(
                 //  next.
 
                 --nLBIndex;
-            }
-            else
-            {
+            } else {
 
                 //  This item already exists, so no need to add it.
                 //  Make sure we do not check this LB item again.
@@ -3835,34 +3470,29 @@ void CFileOpenBrowser::UpdateLevel(
             }
         }
 
-        if (!pNewItem)
-        {
+        if (!pNewItem) {
 
             //  Got to the end of the list.
 
             break;
         }
 
-        GetViewItemText( psfParent,
-                         pNewItem->pidlThis,
-                         szBuf,
-                         ARRAYSIZE(szBuf),
-                         SHGDN_NORMAL);
-        if (szBuf[0] && InsertItem(hwndLB, nLBIndex, pNewItem, szBuf))
-        {
+        GetViewItemText(psfParent,
+                        pNewItem->pidlThis,
+                        szBuf,
+                        ARRAYSIZE(szBuf),
+                        SHGDN_NORMAL);
+        if (szBuf[0] && InsertItem(hwndLB, nLBIndex, pNewItem, szBuf)) {
             ++nLBIndex;
-        }
-        else
-        {
-NotThisItem:
+        } else {
+        NotThisItem:
             delete pNewItem;
         }
     }
 
     DPA_Destroy(hdpa);
 
-    if (bCurItemGone)
-    {
+    if (bCurItemGone) {
 
         //  If we deleted the current selection, go back to the desktop.
 
@@ -3886,10 +3516,9 @@ void ClearListbox(
     HWND hwndList)
 {
     SendMessage(hwndList, WM_SETREDRAW, FALSE, NULL);
-    int cItems = (int) SendMessage(hwndList, CB_GETCOUNT, NULL, NULL);
-    while (cItems--)
-    {
-        MYLISTBOXITEM *pItem = GetListboxItem(hwndList, 0);
+    int cItems = (int)SendMessage(hwndList, CB_GETCOUNT, NULL, NULL);
+    while (cItems--) {
+        MYLISTBOXITEM* pItem = GetListboxItem(hwndList, 0);
         delete pItem;
         SendMessage(hwndList, CB_DELETESTRING, 0, NULL);
     }
@@ -3917,10 +3546,8 @@ DWORD InitFilterBox(
     UINT nLen;
     HWND hCmb = GetDlgItem(hDlg, cmb1);
 
-    if (hCmb)
-    {
-        while (*lpszFilter)
-        {
+    if (hCmb) {
+        while (*lpszFilter) {
 
             //  First string put in as string to show.
 
@@ -3965,8 +3592,7 @@ void MoveControls(
     HWND hwnd;
     RECT rcWnd;
 
-    if (nXMove == 0 && nYMove == 0)
-    {
+    if (nXMove == 0 && nYMove == 0) {
 
         //  Quick out if nothing to do.
 
@@ -3975,33 +3601,27 @@ void MoveControls(
 
     for (hwnd = GetWindow(hDlg, GW_CHILD);
          hwnd;
-         hwnd = GetWindow(hwnd, GW_HWNDNEXT))
-    {
+         hwnd = GetWindow(hwnd, GW_HWNDNEXT)) {
         GetWindowRect(hwnd, &rcWnd);
         MapWindowRect(HWND_DESKTOP, hDlg, &rcWnd);
 
-        if (bBelow)
-        {
-            if (rcWnd.top < nStart)
-            {
+        if (bBelow) {
+            if (rcWnd.top < nStart) {
                 continue;
             }
-        }
-        else
-        {
-            if (rcWnd.left < nStart)
-            {
+        } else {
+            if (rcWnd.left < nStart) {
                 continue;
             }
         }
 
-        SetWindowPos( hwnd,
-                      NULL,
-                      rcWnd.left + nXMove,
-                      rcWnd.top + nYMove,
-                      0,
-                      0,
-                      SWP_NOZORDER | SWP_NOSIZE );
+        SetWindowPos(hwnd,
+                     NULL,
+                     rcWnd.left + nXMove,
+                     rcWnd.top + nYMove,
+                     0,
+                     0,
+                     SWP_NOZORDER | SWP_NOSIZE);
     }
 }
 
@@ -4018,16 +3638,15 @@ BOOL_PTR CALLBACK DummyDlgProc(
     WPARAM wParam,
     LPARAM lParam)
 {
-    switch (uMsg)
+    switch (uMsg) {
+    case (WM_INITDIALOG):
     {
-        case ( WM_INITDIALOG ) :
-        {
-            break;
-        }
-        default :
-        {
-            return FALSE;
-        }
+        break;
+    }
+    default:
+    {
+        return FALSE;
+    }
     }
 
     return TRUE;
@@ -4048,26 +3667,26 @@ x Open As Read   | Help   |     |  Height by which all controls below view needs
 void CFileOpenBrowser::ReAdjustDialog()
 {
     int iDelta = 0;
-    RECT rc1,rc2;
+    RECT rc1, rc2;
 
 
     //Make sure all our assumptions  are valid
     if ((iVersion < OPENFILEVERSION_NT5) || //if this dialog version is less than NT5  or
-        IsWindowEnabled(GetDlgItem(hwndDlg, chx1))  || // if Open As Read Only is still enabled or
+        IsWindowEnabled(GetDlgItem(hwndDlg, chx1)) || // if Open As Read Only is still enabled or
         IsWindowEnabled(GetDlgItem(hwndDlg, pshHelp))) // If the Help button is still enabled  then
     {
         //Dont do anything
-        return ;
+        return;
     }
 
     GetWindowRect(GetDlgItem(hwndDlg, pshHelp), &rc1);
     GetWindowRect(GetDlgItem(hwndDlg, IDCANCEL), &rc2);
 
     //Add the height of the button
-    iDelta +=  RECTHEIGHT(rc1);
+    iDelta += RECTHEIGHT(rc1);
 
     //Add the gap between buttons
-    iDelta +=  rc1.top - rc2.bottom;
+    iDelta += rc1.top - rc2.bottom;
 
     RECT rcView;
     GetWindowRect(GetDlgItem(hwndDlg, lst1), &rcView);
@@ -4081,48 +3700,44 @@ void CFileOpenBrowser::ReAdjustDialog()
 
     hwnd = ::GetWindow(hwndDlg, GW_CHILD);
 
-    while (hwnd && hdwp)
-    {
+    while (hwnd && hdwp) {
         GetWindowRect(hwnd, &rc);
         MapWindowRect(HWND_DESKTOP, hwndDlg, &rc);
 
-        switch (GetDlgCtrlID(hwnd))
-        {
-            case pshHelp:
-            case chx1:
-                break;
+        switch (GetDlgCtrlID(hwnd)) {
+        case pshHelp:
+        case chx1:
+            break;
 
-            default :
+        default:
 
-                //  See if the control needs to be adjusted.
+            //  See if the control needs to be adjusted.
 
-                if (rc.top > rcView.bottom)
-                {
-                    //Move Y position of these controls
-                    hdwp = DeferWindowPos( hdwp,
-                                           hwnd,
-                                           NULL,
-                                           rc.left,
-                                           rc.top + iDelta,
-                                           RECTWIDTH(rc),
-                                           RECTHEIGHT(rc),
-                                           SWP_NOZORDER );
-                }
+            if (rc.top > rcView.bottom) {
+                //Move Y position of these controls
+                hdwp = DeferWindowPos(hdwp,
+                                      hwnd,
+                                      NULL,
+                                      rc.left,
+                                      rc.top + iDelta,
+                                      RECTWIDTH(rc),
+                                      RECTHEIGHT(rc),
+                                      SWP_NOZORDER);
+            }
         }
         hwnd = ::GetWindow(hwnd, GW_HWNDNEXT);
-   }
+    }
 
     //Adjust the size of the view window
-    if (hdwp)
-    {
-            hdwp = DeferWindowPos( hdwp,
-                                   GetDlgItem(hwndDlg, lst1),
-                                   NULL,
-                                   rcView.left,
-                                   rcView.top,
-                                   RECTWIDTH(rcView),
-                                   RECTHEIGHT(rcView) + iDelta,
-                                   SWP_NOZORDER );
+    if (hdwp) {
+        hdwp = DeferWindowPos(hdwp,
+                              GetDlgItem(hwndDlg, lst1),
+                              NULL,
+                              rcView.left,
+                              rcView.top,
+                              RECTWIDTH(rcView),
+                              RECTHEIGHT(rcView) + iDelta,
+                              SWP_NOZORDER);
 
     }
 
@@ -4184,15 +3799,13 @@ void CFileOpenBrowser::ResetDialogHeight(
 
     int nDiffBottom = nCtlsBottom - ptCurrent.y;
 
-    if (nDiffBottom > 0)
-    {
+    if (nDiffBottom > 0) {
         RECT rcFull;
         int Height;
 
         GetWindowRect(hDlg, &rcFull);
         Height = RECTHEIGHT(rcFull) - nDiffBottom;
-        if (Height >= ptCurrent.y)
-        {
+        if (Height >= ptCurrent.y) {
             // Borland JBuilder hack!  This SetWindowPos will generate
             // a RedrawWindow which the app might not be expecting.
             // Detect this case and create a set of temporary styles
@@ -4212,16 +3825,15 @@ void CFileOpenBrowser::ResetDialogHeight(
                 SetWindowLong(hDlg, GWL_STYLE, lStylePrev | WS_CAPTION);
             }
 
-            SetWindowPos( hDlg,
-                          NULL,
-                          0,
-                          0,
-                          RECTWIDTH(rcFull),
-                          Height,
-                          SWP_NOZORDER | SWP_NOMOVE );
+            SetWindowPos(hDlg,
+                         NULL,
+                         0,
+                         0,
+                         RECTWIDTH(rcFull),
+                         Height,
+                         SWP_NOZORDER | SWP_NOMOVE);
 
-            if (bBorlandHack)
-            {
+            if (bBorlandHack) {
                 // Restore the original style after we temporarily
                 // messed with it.
                 SetWindowLong(hDlg, GWL_STYLE, lStylePrev);
@@ -4238,7 +3850,7 @@ void CFileOpenBrowser::ResetDialogHeight(
 
 
 BOOL CFileOpenBrowser::CreateHookDialog(
-    POINT *pPtSize)
+    POINT* pPtSize)
 {
     DWORD Flags = lpOFN->Flags;
     BOOL bRet = FALSE;
@@ -4251,8 +3863,7 @@ BOOL CFileOpenBrowser::CreateHookDialog(
     DWORD dwStyle;
     DLGPROC lpfnHookProc;
 
-    if (!(Flags & (OFN_ENABLEHOOK | OFN_ENABLETEMPLATE | OFN_ENABLETEMPLATEHANDLE)))
-    {
+    if (!(Flags & (OFN_ENABLEHOOK | OFN_ENABLETEMPLATE | OFN_ENABLETEMPLATEHANDLE))) {
 
         //  No hook or template; nothing to do.
 
@@ -4263,58 +3874,46 @@ BOOL CFileOpenBrowser::CreateHookDialog(
         return TRUE;
     }
 
-    if (Flags & OFN_ENABLETEMPLATEHANDLE)
-    {
+    if (Flags & OFN_ENABLETEMPLATEHANDLE) {
         hTemplate = lpOFN->hInstance;
         hinst = ::g_hinst;
-    }
-    else
-    {
-        if (Flags & OFN_ENABLETEMPLATE)
-        {
-            if (!lpOFN->lpTemplateName)
-            {
+    } else {
+        if (Flags & OFN_ENABLETEMPLATE) {
+            if (!lpOFN->lpTemplateName) {
                 StoreExtendedError(CDERR_NOTEMPLATE);
                 return FALSE;
             }
-            if (!lpOFN->hInstance)
-            {
+            if (!lpOFN->hInstance) {
                 StoreExtendedError(CDERR_NOHINSTANCE);
                 return FALSE;
             }
 
             lpDlg = lpOFN->lpTemplateName;
             hinst = lpOFN->hInstance;
-        }
-        else
-        {
+        } else {
             hinst = ::g_hinst;
             lpDlg = MAKEINTRESOURCE(DUMMYFILEOPENORD);
         }
 
         HRSRC hRes = FindResource(hinst, lpDlg, RT_DIALOG);
 
-        if (hRes == NULL)
-        {
+        if (hRes == NULL) {
             StoreExtendedError(CDERR_FINDRESFAILURE);
             return FALSE;
         }
-        if ((hTemplate = LoadResource(hinst, hRes)) == NULL)
-        {
+        if ((hTemplate = LoadResource(hinst, hRes)) == NULL) {
             StoreExtendedError(CDERR_LOADRESFAILURE);
             return FALSE;
         }
     }
 
-    if (!LockResource(hTemplate))
-    {
+    if (!LockResource(hTemplate)) {
         StoreExtendedError(CDERR_LOADRESFAILURE);
         return FALSE;
     }
 
     dwStyle = ((LPDLGTEMPLATE)hTemplate)->style;
-    if (!(dwStyle & WS_CHILD))
-    {
+    if (!(dwStyle & WS_CHILD)) {
 
         //  I don't want to go poking in their template, and I don't want to
         //  make a copy, so I will just fail.  This also helps us weed out
@@ -4324,12 +3923,9 @@ BOOL CFileOpenBrowser::CreateHookDialog(
         return FALSE;
     }
 
-    if (Flags & OFN_ENABLEHOOK)
-    {
+    if (Flags & OFN_ENABLEHOOK) {
         lpfnHookProc = (DLGPROC)GETHOOKFN(lpOFN);
-    }
-    else
-    {
+    } else {
         lpfnHookProc = DummyDlgProc;
     }
 
@@ -4340,28 +3936,25 @@ BOOL CFileOpenBrowser::CreateHookDialog(
 
 
 #ifdef UNICODE
-    if (lpOFI->ApiType == COMDLG_ANSI)
-    {
+    if (lpOFI->ApiType == COMDLG_ANSI) {
         ThunkOpenFileNameW2A(lpOFI);
-        hSubDlg = CreateDialogIndirectParamA( hinst,
-                                              (LPDLGTEMPLATE)hTemplate,
-                                              hwndDlg,
-                                              lpfnHookProc,
-                                              (LPARAM)(lpOFI->pOFNA) );
-        ThunkOpenFileNameA2W(lpOFI);
-    }
-    else
-#endif
-    {
-        hSubDlg = CreateDialogIndirectParam( hinst,
-                                             (LPDLGTEMPLATE)hTemplate,
+        hSubDlg = CreateDialogIndirectParamA(hinst,
+            (LPDLGTEMPLATE)hTemplate,
                                              hwndDlg,
                                              lpfnHookProc,
-                                             (LPARAM)lpOFN );
+                                             (LPARAM)(lpOFI->pOFNA));
+        ThunkOpenFileNameA2W(lpOFI);
+    } else
+#endif
+    {
+        hSubDlg = CreateDialogIndirectParam(hinst,
+            (LPDLGTEMPLATE)hTemplate,
+                                            hwndDlg,
+                                            lpfnHookProc,
+                                            (LPARAM)lpOFN);
     }
 
-    if (!hSubDlg)
-    {
+    if (!hSubDlg) {
         StoreExtendedError(CDERR_DIALOGFAILURE);
         return FALSE;
     }
@@ -4379,8 +3972,7 @@ BOOL CFileOpenBrowser::CreateHookDialog(
     GetClientRect(hSubDlg, &rcSub);
 
     hCtlCmn = GetDlgItem(hSubDlg, stc32);
-    if (hCtlCmn)
-    {
+    if (hCtlCmn) {
         RECT rcCmn;
 
         GetWindowRect(hCtlCmn, &rcCmn);
@@ -4409,8 +4001,7 @@ BOOL CFileOpenBrowser::CreateHookDialog(
         nXRoom = rcSub.right - (rcCmn.right - rcCmn.left);
         nYRoom = rcSub.bottom - (rcCmn.bottom - rcCmn.top);
 
-        if (nXMove < 0)
-        {
+        if (nXMove < 0) {
 
             //  If the template size is too big, we need more room in the
             //  dialog.
@@ -4418,8 +4009,7 @@ BOOL CFileOpenBrowser::CreateHookDialog(
             nXRoom -= nXMove;
             nXMove = 0;
         }
-        if (nYMove < 0)
-        {
+        if (nYMove < 0) {
 
             //  If the template size is too big, we need more room in the
             //  dialog.
@@ -4432,16 +4022,14 @@ BOOL CFileOpenBrowser::CreateHookDialog(
         //  Resize the "template" control so the hook knows the size of our
         //  stuff.
 
-        SetWindowPos( hCtlCmn,
-                      NULL,
-                      0,
-                      0,
-                      rcReal.right - rcReal.left,
-                      rcReal.bottom - rcReal.top,
-                      SWP_NOMOVE | SWP_NOZORDER );
-    }
-    else
-    {
+        SetWindowPos(hCtlCmn,
+                     NULL,
+                     0,
+                     0,
+                     rcReal.right - rcReal.left,
+                     rcReal.bottom - rcReal.top,
+                     SWP_NOMOVE | SWP_NOZORDER);
+    } else {
 
         //  Extra controls go on the bottom by default.
 
@@ -4463,25 +4051,25 @@ BOOL CFileOpenBrowser::CreateHookDialog(
     ptLastSize.x = (rcReal.right - rcReal.left) + nXRoom;
     ptLastSize.y = (rcReal.bottom - rcReal.top) + nYRoom;
 
-    SetWindowPos( hwndDlg,
-                  NULL,
-                  0,
-                  0,
-                  ptLastSize.x,
-                  ptLastSize.y,
-                  SWP_NOZORDER | SWP_NOMOVE );
+    SetWindowPos(hwndDlg,
+                 NULL,
+                 0,
+                 0,
+                 ptLastSize.x,
+                 ptLastSize.y,
+                 SWP_NOZORDER | SWP_NOMOVE);
 
 
     //  Note that we are moving this to (0,0) and the bottom of the Z order.
 
     GetWindowRect(hSubDlg, &rcReal);
-    SetWindowPos( hSubDlg,
-                  HWND_BOTTOM,
-                  0,
-                  0,
-                  (rcReal.right - rcReal.left) + nXMove,
-                  (rcReal.bottom - rcReal.top) + nYMove,
-                  0 );
+    SetWindowPos(hSubDlg,
+                 HWND_BOTTOM,
+                 0,
+                 0,
+                 (rcReal.right - rcReal.left) + nXMove,
+                 (rcReal.bottom - rcReal.top) + nYMove,
+                 0);
 
     ShowWindow(hSubDlg, SW_SHOW);
 
@@ -4492,8 +4080,7 @@ BOOL CFileOpenBrowser::CreateHookDialog(
     //  the toolbar control and may make it too small now that we added the
     //  View Desktop toolbar button.
 
-    if (hwndToolbar && IsVisible(hwndToolbar))
-    {
+    if (hwndToolbar && IsVisible(hwndToolbar)) {
         LONG Width;
 
 
@@ -4512,14 +4099,13 @@ BOOL CFileOpenBrowser::CreateHookDialog(
         //  toolbar size.
 
         Width = rcToolbar.right - rcToolbar.left;
-        if (Width > (rcAppToolbar.right - rcAppToolbar.left))
-        {
+        if (Width > (rcAppToolbar.right - rcAppToolbar.left)) {
 
             //  Set rcToolbar to be the new toolbar rectangle.
 
-            rcToolbar.left   = rcAppToolbar.left;
-            rcToolbar.top    = rcAppToolbar.top;
-            rcToolbar.right  = rcAppToolbar.left + Width;
+            rcToolbar.left = rcAppToolbar.left;
+            rcToolbar.top = rcAppToolbar.top;
+            rcToolbar.right = rcAppToolbar.left + Width;
             rcToolbar.bottom = rcAppToolbar.bottom;
 
 
@@ -4532,18 +4118,15 @@ BOOL CFileOpenBrowser::CreateHookDialog(
             //  Make sure the new toolbar doesn't go off the end of
             //  the dialog.
 
-            if (rcToolbar.right < rcReal.right)
-            {
+            if (rcToolbar.right < rcReal.right) {
 
                 //  Make sure there are no controls to the right of the
                 //  toolbar that overlap the new toolbar.
 
                 for (hCtlCmn = ::GetWindow(hwndDlg, GW_CHILD);
                      hCtlCmn;
-                     hCtlCmn = ::GetWindow(hCtlCmn, GW_HWNDNEXT))
-                {
-                    if ((hCtlCmn != hwndToolbar) && IsVisible(hCtlCmn))
-                    {
+                     hCtlCmn = ::GetWindow(hCtlCmn, GW_HWNDNEXT)) {
+                    if ((hCtlCmn != hwndToolbar) && IsVisible(hCtlCmn)) {
                         RECT rcTemp;
 
 
@@ -4559,8 +4142,7 @@ BOOL CFileOpenBrowser::CreateHookDialog(
                         //  increase the size of the toolbar.
 
                         if (!IntersectRect(&rcTemp, &rcAppToolbar, &rcSub) &&
-                            IntersectRect(&rcTemp, &rcToolbar, &rcSub))
-                        {
+                            IntersectRect(&rcTemp, &rcToolbar, &rcSub)) {
                             break;
                         }
                     }
@@ -4569,16 +4151,15 @@ BOOL CFileOpenBrowser::CreateHookDialog(
 
                 //  Reset the size of the toolbar if there were no conflicts.
 
-                if (!hCtlCmn)
-                {
-                    ::SetWindowPos( hwndToolbar,
-                                    NULL,
-                                    rcToolbar.left,
-                                    rcToolbar.top,
-                                    Width,
-                                    rcToolbar.bottom - rcToolbar.top,
-                                    SWP_NOACTIVATE | SWP_NOZORDER |
-                                      SWP_SHOWWINDOW );
+                if (!hCtlCmn) {
+                    ::SetWindowPos(hwndToolbar,
+                                   NULL,
+                                   rcToolbar.left,
+                                   rcToolbar.top,
+                                   Width,
+                                   rcToolbar.bottom - rcToolbar.top,
+                                   SWP_NOACTIVATE | SWP_NOZORDER |
+                                   SWP_SHOWWINDOW);
                 }
             }
         }
@@ -4613,20 +4194,18 @@ const struct
 void InitSaveAsControls(
     HWND hDlg)
 {
-    for (UINT iControl = 0; iControl < ARRAYSIZE(aSaveAsControls); iControl++)
-    {
+    for (UINT iControl = 0; iControl < ARRAYSIZE(aSaveAsControls); iControl++) {
         HWND hwnd = hDlg;
         TCHAR szText[80];
 
-        if (aSaveAsControls[iControl].idControl != -1)
-        {
+        if (aSaveAsControls[iControl].idControl != -1) {
             hwnd = GetDlgItem(hDlg, aSaveAsControls[iControl].idControl);
         }
 
-        CDLoadString( g_hinst,
-                    aSaveAsControls[iControl].idString,
-                    szText,
-                    ARRAYSIZE(szText) );
+        CDLoadString(g_hinst,
+                     aSaveAsControls[iControl].idString,
+                     szText,
+                     ARRAYSIZE(szText));
         SetWindowText(hwnd, szText);
     }
 }
@@ -4646,7 +4225,7 @@ GetControlsArea(
     HWND hDlg,
     HWND hwndExclude,
     HWND hwndGrip,
-    POINT *pPtSize,
+    POINT* pPtSize,
     LPINT pTop)
 {
     RECT rc;
@@ -4655,28 +4234,24 @@ GetControlsArea(
     int uRight;
 
     uBottom = 0x80000000;
-    uRight  = 0x80000000;
+    uRight = 0x80000000;
 
     for (hwnd = GetWindow(hDlg, GW_CHILD);
          hwnd;
-         hwnd = GetWindow(hwnd, GW_HWNDNEXT))
-    {
+         hwnd = GetWindow(hwnd, GW_HWNDNEXT)) {
 
         //  Note we cannot use IsWindowVisible, since the parent is not visible.
         //  We do not want the magic static to be included.
 
-        if (!IsVisible(hwnd) || (hwnd == hwndExclude) || (hwnd == hwndGrip))
-        {
+        if (!IsVisible(hwnd) || (hwnd == hwndExclude) || (hwnd == hwndGrip)) {
             continue;
         }
 
         GetWindowRect(hwnd, &rc);
-        if (uRight < rc.right)
-        {
+        if (uRight < rc.right) {
             uRight = rc.right;
         }
-        if (uBottom < rc.bottom)
-        {
+        if (uBottom < rc.bottom) {
             uBottom = rc.bottom;
         }
     }
@@ -4697,14 +4272,11 @@ GetControlsArea(
 STDAPI_(LPITEMIDLIST) CreateMyDocsIDList(void)
 {
     LPITEMIDLIST pidl = NULL;
-    IShellFolder *psf;
-    if (SUCCEEDED(SHGetDesktopFolder(&psf)))
-    {
+    IShellFolder* psf;
+    if (SUCCEEDED(SHGetDesktopFolder(&psf))) {
         DWORD dwAttrib = SFGAO_NONENUMERATED;
-        if (SUCCEEDED(psf->ParseDisplayName(NULL, NULL, L"::" MYDOCS_CLSID, NULL, &pidl, &dwAttrib)))
-        {
-            if (dwAttrib & SFGAO_NONENUMERATED)
-            {
+        if (SUCCEEDED(psf->ParseDisplayName(NULL, NULL, L"::" MYDOCS_CLSID, NULL, &pidl, &dwAttrib))) {
+            if (dwAttrib & SFGAO_NONENUMERATED) {
                 ILFree(pidl);
                 pidl = NULL;
             }
@@ -4726,52 +4298,45 @@ STDAPI_(LPITEMIDLIST) CreateMyDocsIDList(void)
 BOOL CFileOpenBrowser::InitLookIn(HWND hDlg)
 {
     LPITEMIDLIST pidl = NULL;
-    IShellFolder *psf = NULL;
+    IShellFolder* psf = NULL;
     HRESULT hres;
-    MYLISTBOXITEM *pItem = NULL;
-    TCHAR szScratch[MAX_PATH +1];
+    MYLISTBOXITEM* pItem = NULL;
+    TCHAR szScratch[MAX_PATH + 1];
 
     //Get the combobox control
     HWND hCtrl = GetDlgItem(hDlg, cmb2);
 
     //First Add the History Location.
 
-    if (iVersion >= OPENFILEVERSION_NT5)
-    {
+    if (iVersion >= OPENFILEVERSION_NT5) {
         LPITEMIDLIST pidlLast;
-        DWORD dwAttribs  = SFGAO_FOLDER | SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR | SFGAO_SHARE | SFGAO_CANMONIKER;
+        DWORD dwAttribs = SFGAO_FOLDER | SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR | SFGAO_SHARE | SFGAO_CANMONIKER;
         int iImage, iSelectedImage;
-        IShellFolder *psfParent = NULL;
+        IShellFolder* psfParent = NULL;
 
-        if (FAILED(SHGetSpecialFolderLocation(NULL, CSIDL_RECENT, &pidl)))
-        {
+        if (FAILED(SHGetSpecialFolderLocation(NULL, CSIDL_RECENT, &pidl))) {
             return FALSE;
         }
 
-        hres = CDBindToIDListParent(pidl, IID_IShellFolder, (void **)&psfParent,(LPCITEMIDLIST *)&pidlLast);
+        hres = CDBindToIDListParent(pidl, IID_IShellFolder, (void**)&psfParent, (LPCITEMIDLIST*)&pidlLast);
 
-        if (SUCCEEDED(hres))
-        {
-            psfParent->GetAttributesOf(1, (LPCITEMIDLIST *)&pidlLast, &dwAttribs);
+        if (SUCCEEDED(hres)) {
+            psfParent->GetAttributesOf(1, (LPCITEMIDLIST*)&pidlLast, &dwAttribs);
 
             //Get the image corresponding to this pidl
             iImage = SHMapPIDLToSystemImageListIndex(psfParent, pidlLast, &iSelectedImage);
 
-            hres = psfParent->BindToObject(pidlLast,NULL, IID_IShellFolder, (void **)&psf);
+            hres = psfParent->BindToObject(pidlLast, NULL, IID_IShellFolder, (void**)&psf);
             //Release the parent
             psfParent->Release();
             psfParent = NULL;
 
-            if (SUCCEEDED(hres) && (pItem = new MYLISTBOXITEM()))
-            {
-                pItem->Init(psf,pidl,0,MLBI_PERMANENT,dwAttribs,iImage,iSelectedImage);
-                CDLoadString(::g_hinst,iszHistory,szScratch,ARRAYSIZE(szScratch));
-                if (!InsertItem(hCtrl, 0, pItem, szScratch))
-                {
+            if (SUCCEEDED(hres) && (pItem = new MYLISTBOXITEM())) {
+                pItem->Init(psf, pidl, 0, MLBI_PERMANENT, dwAttribs, iImage, iSelectedImage);
+                CDLoadString(::g_hinst, iszHistory, szScratch, ARRAYSIZE(szScratch));
+                if (!InsertItem(hCtrl, 0, pItem, szScratch)) {
                     delete pItem;
-                }
-                else
-                {
+                } else {
                     //Update the index of Desktop in Look In dropdown from 0 to 1
                     iNodeDesktop = 1;
                 }
@@ -4779,14 +4344,12 @@ BOOL CFileOpenBrowser::InitLookIn(HWND hDlg)
             }
         }
 
-        if (pidl)
-        {
+        if (pidl) {
             SHFree(pidl);
             pidl = NULL;
         }
 
-        if (psf)
-        {
+        if (psf) {
             psf->Release();
             psf = NULL;
         }
@@ -4795,20 +4358,13 @@ BOOL CFileOpenBrowser::InitLookIn(HWND hDlg)
 
 
     //Insert the Desktop in the Lookin dropdown
-    if (FAILED(SHCoCreateInstance( NULL,
-                                   &CLSID_ShellDesktop,
-                                   NULL,
-                                   IID_IShellFolder,
-                                   (void **)&psf)))
-    {
-
+    if (FAILED(SHCoCreateInstance(NULL, &CLSID_ShellDesktop, NULL, IID_IShellFolder, (void**)&psf))) {
         ClearListbox(hCtrl);
         return FALSE;
     }
 
     pidl = SHCloneSpecialIDList(hDlg, CSIDL_DESKTOP, FALSE);
-    if (!pidl)
-    {
+    if (!pidl) {
         psf->Release();
         ::ClearListbox(hCtrl);
         return FALSE;
@@ -4820,33 +4376,29 @@ BOOL CFileOpenBrowser::InitLookIn(HWND hDlg)
     pItem = new MYLISTBOXITEM();
 
 
-    if (pItem)
-    {
-         if (!pItem->Init( NULL,
-                           psf,
-                           pidl,
-                           0,
-                           MLBI_PERMANENT ))
-         {
-             delete pItem;
-             pItem = NULL;
-             ClearListbox(hCtrl);
-         }
+    if (pItem) {
+        if (!pItem->Init(NULL,
+                         psf,
+                         pidl,
+                         0,
+                         MLBI_PERMANENT)) {
+            delete pItem;
+            pItem = NULL;
+            ClearListbox(hCtrl);
+        }
     }
 
 
     SHFree(pidl);
 
-    if (pItem == NULL)
-    {
+    if (pItem == NULL) {
         psf->Release();
         ClearListbox(hCtrl);
         return FALSE;
     }
 
-   GetViewItemText(psf, NULL, szScratch, ARRAYSIZE(szScratch));
-    if (!InsertItem(hCtrl, iNodeDesktop, pItem, szScratch))
-    {
+    GetViewItemText(psf, NULL, szScratch, ARRAYSIZE(szScratch));
+    if (!InsertItem(hCtrl, iNodeDesktop, pItem, szScratch)) {
         delete pItem;
         ClearListbox(hCtrl);
         return FALSE;
@@ -4877,28 +4429,23 @@ BOOL InitLocation(
 
     GetControlsArea(hDlg, NULL, NULL, &ptSize, NULL);
 
-    CFileOpenBrowser *pDlgStruct = new CFileOpenBrowser(hDlg, FALSE);
-    if (pDlgStruct == NULL)
-    {
+    CFileOpenBrowser* pDlgStruct = new CFileOpenBrowser(hDlg, FALSE);
+    if (pDlgStruct == NULL) {
         StoreExtendedError(CDERR_INITIALIZATION);
         return FALSE;
     }
     StoreBrowser(hDlg, pDlgStruct);
 
-    if ( (poii->lpOFI->iVersion < OPENFILEVERSION_NT5) &&
-         (poii->lpOFI->pOFN->Flags & (OFN_ENABLEHOOK | OFN_ENABLETEMPLATE | OFN_ENABLETEMPLATEHANDLE)))
-    {
+    if ((poii->lpOFI->iVersion < OPENFILEVERSION_NT5) &&
+        (poii->lpOFI->pOFN->Flags & (OFN_ENABLEHOOK | OFN_ENABLETEMPLATE | OFN_ENABLETEMPLATEHANDLE))) {
         pDlgStruct->iVersion = OPENFILEVERSION_NT4;
     }
 
 
     //See if we need to use dropdown combobox or edit box for filename
-    if (pDlgStruct->iVersion >= OPENFILEVERSION_NT5)
-    {
+    if (pDlgStruct->iVersion >= OPENFILEVERSION_NT5) {
         pDlgStruct->EnableFileMRU(!IsRestricted(REST_NOFILEMRU));
-    }
-    else
-    {
+    } else {
         pDlgStruct->EnableFileMRU(FALSE);
     }
 
@@ -4906,8 +4453,7 @@ BOOL InitLocation(
 
     GetControlsArea(hDlg, NULL, NULL, &ptSize, &pDlgStruct->topOrig);
 
-    if (!pDlgStruct->InitLookIn(hDlg))
-    {
+    if (!pDlgStruct->InitLookIn(hDlg)) {
         StoreExtendedError(CDERR_INITIALIZATION);
         return FALSE;
     }
@@ -4921,16 +4467,13 @@ BOOL InitLocation(
 
     //  Here follows all the caller-parameter-based initialization.
 
-    ::lpOKProc = (WNDPROC)::SetWindowLongPtr( ::GetDlgItem(hDlg, IDOK),
-                                           GWLP_WNDPROC,
-                                           (LONG_PTR)OKSubclass );
+    ::lpOKProc = (WNDPROC)::SetWindowLongPtr(::GetDlgItem(hDlg, IDOK),
+                                             GWLP_WNDPROC,
+                                             (LONG_PTR)OKSubclass);
 
-    if (lpOFN->Flags & OFN_CREATEPROMPT)
-    {
+    if (lpOFN->Flags & OFN_CREATEPROMPT) {
         lpOFN->Flags |= (OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST);
-    }
-    else if (lpOFN->Flags & OFN_FILEMUSTEXIST)
-    {
+    } else if (lpOFN->Flags & OFN_FILEMUSTEXIST) {
         lpOFN->Flags |= OFN_PATHMUSTEXIST;
     }
 
@@ -4938,8 +4481,7 @@ BOOL InitLocation(
 
     //  We need to make sure the Ansi flags are up to date.
 
-    if (poii->lpOFI->ApiType == COMDLG_ANSI)
-    {
+    if (poii->lpOFI->ApiType == COMDLG_ANSI) {
         poii->lpOFI->pOFNA->Flags = lpOFN->Flags;
     }
 #endif
@@ -4949,12 +4491,9 @@ BOOL InitLocation(
     //  the buffer length.  This allows users to type ..\..\.. and move
     //  around when the app gives an extremely small buffer.
 
-    if (pDlgStruct->bUseCombo)
-    {
-        SendDlgItemMessage(hDlg, cmb13, CB_LIMITTEXT, MAX_PATH -1, 0);
-    }
-    else
-    {
+    if (pDlgStruct->bUseCombo) {
+        SendDlgItemMessage(hDlg, cmb13, CB_LIMITTEXT, MAX_PATH - 1, 0);
+    } else {
         SendDlgItemMessage(hDlg, edt1, EM_LIMITTEXT, MAX_PATH - 1, 0);
     }
 
@@ -4965,38 +4504,34 @@ BOOL InitLocation(
     //  Save original directory for later restoration, if necessary.
 
     pDlgStruct->szStartDir[0] = TEXT('\0');
-    GetCurrentDirectory( ARRAYSIZE(pDlgStruct->szStartDir),
-                         pDlgStruct->szStartDir );
+    GetCurrentDirectory(ARRAYSIZE(pDlgStruct->szStartDir),
+                        pDlgStruct->szStartDir);
 
 
     //  Initialize all provided filters.
 
-    if (lpOFN->lpstrCustomFilter && *lpOFN->lpstrCustomFilter)
-    {
-        SendDlgItemMessage( hDlg,
-                            cmb1,
-                            CB_INSERTSTRING,
-                            0,
-                            (LONG_PTR)lpOFN->lpstrCustomFilter );
-        SendDlgItemMessage( hDlg,
-                            cmb1,
-                            CB_SETITEMDATA,
-                            0,
-                            (LPARAM)(lpOFN->lpstrCustomFilter +
-                                     lstrlen(lpOFN->lpstrCustomFilter) + 1) );
-        SendDlgItemMessage( hDlg,
-                            cmb1,
-                            CB_LIMITTEXT,
-                            (WPARAM)(lpOFN->nMaxCustFilter),
-                            0L );
-    }
-    else
-    {
+    if (lpOFN->lpstrCustomFilter && *lpOFN->lpstrCustomFilter) {
+        SendDlgItemMessage(hDlg,
+                           cmb1,
+                           CB_INSERTSTRING,
+                           0,
+                           (LONG_PTR)lpOFN->lpstrCustomFilter);
+        SendDlgItemMessage(hDlg,
+                           cmb1,
+                           CB_SETITEMDATA,
+                           0,
+                           (LPARAM)(lpOFN->lpstrCustomFilter +
+                                    lstrlen(lpOFN->lpstrCustomFilter) + 1));
+        SendDlgItemMessage(hDlg,
+                           cmb1,
+                           CB_LIMITTEXT,
+                           (WPARAM)(lpOFN->nMaxCustFilter),
+                           0L);
+    } else {
 
         //  Given no custom filter, the index will be off by one.
 
-        if (lpOFN->nFilterIndex != 0)
-        {
+        if (lpOFN->nFilterIndex != 0) {
             lpOFN->nFilterIndex--;
         }
     }
@@ -5004,15 +4539,11 @@ BOOL InitLocation(
 
     //  Listed filters next.
 
-    if (lpOFN->lpstrFilter)
-    {
-        if (lpOFN->nFilterIndex > InitFilterBox(hDlg, lpOFN->lpstrFilter))
-        {
+    if (lpOFN->lpstrFilter) {
+        if (lpOFN->nFilterIndex > InitFilterBox(hDlg, lpOFN->lpstrFilter)) {
             lpOFN->nFilterIndex = 0;
         }
-    }
-    else
-    {
+    } else {
         lpOFN->nFilterIndex = 0;
     }
 
@@ -5020,8 +4551,7 @@ BOOL InitLocation(
     //  If an entry exists, select the one indicated by nFilterIndex.
 
     if ((lpOFN->lpstrFilter) ||
-        (lpOFN->lpstrCustomFilter && *lpOFN->lpstrCustomFilter))
-    {
+        (lpOFN->lpstrCustomFilter && *lpOFN->lpstrCustomFilter)) {
         HWND hCmb1 = GetDlgItem(hDlg, cmb1);
 
         ComboBox_SetCurSel(hCmb1, lpOFN->nFilterIndex);
@@ -5030,8 +4560,7 @@ BOOL InitLocation(
     }
 
     //Check if this Object Open Dialog
-    if (lpOFN->Flags & OFN_ENABLEINCLUDENOTIFY)
-    {
+    if (lpOFN->Flags & OFN_ENABLEINCLUDENOTIFY) {
         //Yes, change the text so that it looks like a object open
         TCHAR szTemp[256];
 
@@ -5049,8 +4578,7 @@ BOOL InitLocation(
 
     //  Make sure to do this before checking if there is a title specified.
 
-    if (fIsSaveAs)
-    {
+    if (fIsSaveAs) {
 
         //  Note we can do this even if there is a hook/template.
 
@@ -5060,8 +4588,7 @@ BOOL InitLocation(
         HideControl(hDlg, chx1);
     }
 
-    if (lpOFN->lpstrTitle && *lpOFN->lpstrTitle)
-    {
+    if (lpOFN->lpstrTitle && *lpOFN->lpstrTitle) {
         SetWindowText(hDlg, lpOFN->lpstrTitle);
     }
 
@@ -5071,24 +4598,19 @@ BOOL InitLocation(
     BOOL  fNoReadOnly = FALSE;
     BOOL  fNoHelp = FALSE;
 
-    if (lpOFN->Flags & OFN_HIDEREADONLY)
-    {
+    if (lpOFN->Flags & OFN_HIDEREADONLY) {
         HideControl(hDlg, chx1);
         fNoReadOnly = TRUE;
-    }
-    else
-    {
+    } else {
         CheckDlgButton(hDlg, chx1, (lpOFN->Flags & OFN_READONLY) ? 1 : 0);
     }
 
-    if (!(lpOFN->Flags & OFN_SHOWHELP))
-    {
+    if (!(lpOFN->Flags & OFN_SHOWHELP)) {
         HideControl(hDlg, pshHelp);
         fNoHelp = TRUE;
     }
 
-    if (fNoReadOnly && fNoHelp)
-    {
+    if (fNoReadOnly && fNoHelp) {
         //Readjust the dialog to reclaim space occupied by the Open as Read Only and Help Button controls
         pDlgStruct->ReAdjustDialog();
     }
@@ -5099,26 +4621,24 @@ BOOL InitLocation(
 
     //  If sizing is enabled, then we need to create the sizing grip.
 
-    if (pDlgStruct->bEnableSizing = poii->bEnableSizing)
-    {
+    if (pDlgStruct->bEnableSizing = poii->bEnableSizing) {
         pDlgStruct->hwndGrip =
-            CreateWindow( TEXT("Scrollbar"),
-                          NULL,
-                          WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | WS_GROUP |
-                            WS_CLIPCHILDREN | SBS_BOTTOMALIGN | SBS_SIZEGRIP |
-                            SBS_SIZEBOXBOTTOMRIGHTALIGN,
-                          rc.right - g_cxGrip,
-                          rc.bottom - g_cyGrip,
-                          g_cxGrip,
-                          g_cyGrip,
-                          hDlg,
-                          (HMENU)-1,
-                          g_hinst,
-                          NULL );
+            CreateWindow(TEXT("Scrollbar"),
+                         NULL,
+                         WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | WS_GROUP |
+                         WS_CLIPCHILDREN | SBS_BOTTOMALIGN | SBS_SIZEGRIP |
+                         SBS_SIZEBOXBOTTOMRIGHTALIGN,
+                         rc.right - g_cxGrip,
+                         rc.bottom - g_cyGrip,
+                         g_cxGrip,
+                         g_cyGrip,
+                         hDlg,
+                         (HMENU)-1,
+                         g_hinst,
+                         NULL);
     }
 
-    if (!pDlgStruct->CreateHookDialog(&ptSize))
-    {
+    if (!pDlgStruct->CreateHookDialog(&ptSize)) {
         return FALSE;
     }
 
@@ -5126,12 +4646,9 @@ BOOL InitLocation(
     // from the Hook Procedure if any customization needs to be done
     if ((pDlgStruct->iVersion >= OPENFILEVERSION_NT5) &&
         (!IsRestricted(REST_NOPLACESBAR)) && (!(lpOFN->FlagsEx & OFN_EX_NOPLACESBAR))
-       )
-    {
+        ) {
         pDlgStruct->hwndPlacesbar = pDlgStruct->CreatePlacesbar(pDlgStruct->hwndDlg);
-    }
-    else
-    {
+    } else {
         pDlgStruct->hwndPlacesbar = NULL;
     }
 
@@ -5139,11 +4656,9 @@ BOOL InitLocation(
     pDlgStruct->ptMinTrack.x = rc.right - rc.left;
     pDlgStruct->ptMinTrack.y = rc.bottom - rc.top;
 
-    if (pDlgStruct->bUseCombo)
-    {
+    if (pDlgStruct->bUseCombo) {
         HWND hwndComboBox = GetDlgItem(hDlg, cmb13);
-        if (hwndComboBox)
-        {
+        if (hwndComboBox) {
             HWND hwndEdit = (HWND)SendMessage(hwndComboBox, CBEM_GETEDITCONTROL, 0, 0L);
             AutoComplete(hwndEdit, &(pDlgStruct->pcwd), 0);
 
@@ -5154,12 +4669,9 @@ BOOL InitLocation(
             SetFocus(hwndComboBox);
         }
 
-    }
-    else
-    {
+    } else {
         HWND hwndEdit = GetDlgItem(hDlg, edt1);
-        if (hwndEdit)
-        {
+        if (hwndEdit) {
             AutoComplete(hwndEdit, &(pDlgStruct->pcwd), 0);
 
 
@@ -5177,8 +4689,7 @@ BOOL InitLocation(
     LPCTSTR lpInitialText = pDlgStruct->JumpToInitialLocation(lpOFN->lpstrInitialDir, lpOFN->lpstrFile);
 
     //  make sure we jumped somewhere.
-    if (!pDlgStruct->psv)
-    {
+    if (!pDlgStruct->psv) {
 
         //  This would be very bad.
 
@@ -5201,21 +4712,19 @@ BOOL InitLocation(
 
     ReadCabinetState(&cCabState, SIZEOF(cCabState));
 
-    if (cCabState.fFullPathTitle)
-    {
-        pDlgStruct->hwndTips = CreateWindow( TOOLTIPS_CLASS,
-                                             NULL,
-                                             WS_POPUP | WS_GROUP | TTS_NOPREFIX,
-                                             CW_USEDEFAULT,
-                                             CW_USEDEFAULT,
-                                             CW_USEDEFAULT,
-                                             CW_USEDEFAULT,
-                                             hDlg,
-                                             NULL,
-                                             ::g_hinst,
-                                             NULL );
-        if (pDlgStruct->hwndTips)
-        {
+    if (cCabState.fFullPathTitle) {
+        pDlgStruct->hwndTips = CreateWindow(TOOLTIPS_CLASS,
+                                            NULL,
+                                            WS_POPUP | WS_GROUP | TTS_NOPREFIX,
+                                            CW_USEDEFAULT,
+                                            CW_USEDEFAULT,
+                                            CW_USEDEFAULT,
+                                            CW_USEDEFAULT,
+                                            hDlg,
+                                            NULL,
+                                            ::g_hinst,
+                                            NULL);
+        if (pDlgStruct->hwndTips) {
             TOOLINFO ti;
 
             ti.cbSize = sizeof(ti);
@@ -5225,10 +4734,10 @@ BOOL InitLocation(
             ti.hinst = NULL;
             ti.lpszText = LPSTR_TEXTCALLBACK;
 
-            SendMessage( pDlgStruct->hwndTips,
-                         TTM_ADDTOOL,
-                         0,
-                         (LPARAM)&ti );
+            SendMessage(pDlgStruct->hwndTips,
+                        TTM_ADDTOOL,
+                        0,
+                        (LPARAM)&ti);
         }
     }
 
@@ -5238,24 +4747,20 @@ BOOL InitLocation(
     //  if we have cached in the size of previously opened  dialog then use
     //  the size and position of that window.
 
-    if (pDlgStruct->bEnableSizing && (g_sizeDlg.cx != 0))
-    {
-        ::SetWindowPos( hDlg,
-                        NULL,
-                        0,
-                        0,
-                        g_sizeDlg.cx,
-                        g_sizeDlg.cy,
-                        SWP_NOMOVE);
-    }
-    else
-    {
+    if (pDlgStruct->bEnableSizing && (g_sizeDlg.cx != 0)) {
+        ::SetWindowPos(hDlg,
+                       NULL,
+                       0,
+                       0,
+                       g_sizeDlg.cx,
+                       g_sizeDlg.cy,
+                       SWP_NOMOVE);
+    } else {
         ::ShowWindow(hDlg, SW_SHOW);
         ::UpdateWindow(hDlg);
     }
 
-    if (lpInitialText)
-    {
+    if (lpInitialText) {
 
         //  This is the one time I will show a file spec, since it would be
         //  too strange to have "All Files" showing in the Type box, while
@@ -5279,8 +4784,7 @@ BOOL IsValidPath(LPCTSTR pszPath)
     //  Is the filename invalid?
 
     if ((nFileOffset < 0) &&
-         (nFileOffset != PARSE_EMPTYSTRING) )
-    {
+        (nFileOffset != PARSE_EMPTYSTRING)) {
 
         return FALSE;
     }
@@ -5299,56 +4803,44 @@ LPCTSTR CFileOpenBrowser::JumpToInitialLocation(LPCTSTR pszDir, LPTSTR pszFile)
     LPCTSTR pszRet = NULL;
 
     //If we have  a Directory specified then use that Directory.
-    if (pszDir)
-    {
+    if (pszDir) {
         ExpandEnvironmentStrings(pszDir, szDir, MAX_PATH);
-    }
-    else
-    {
+    } else {
         *szDir = TEXT('\0');
     }
 
     //Check to see if the pszFile contains a Path.
-    if (pszFile && *pszFile)
-    {
+    if (pszFile && *pszFile) {
         //  clean up the path a little
         PathRemoveBlanks(pszFile);
 
         //  WARNING - this must me some kind of APPCOMPAT thing - ZekeL - 13-AUG-98
         //  Apps that are not UNC-aware often pass <C:\\server\share> and
         //  we want to change it to the prettier <\\server\share>. - raymondc
-        if ( DBL_BSLASH(pszFile + 2) &&
-             (*(pszFile + 1) == CHAR_COLON) )
-        {
+        if (DBL_BSLASH(pszFile + 2) &&
+            (*(pszFile + 1) == CHAR_COLON)) {
             lstrcpy(pszFile, pszFile + 2);
         }
 
         pszRet = PathFindFileName(pszFile);
-        if (IsValidPath(pszFile))
-        {
-            if (IsWild(pszRet))
-            {
+        if (IsValidPath(pszFile)) {
+            if (IsWild(pszRet)) {
                 SetCurrentFilter(pszRet);
             }
 
-            if (!PathIsTemporary(pszFile))
-            {
-                DWORD cch = pszRet ? (unsigned long) (pszRet-pszFile) : SIZECHARS(szDir);
+            if (!PathIsTemporary(pszFile)) {
+                DWORD cch = pszRet ? (unsigned long)(pszRet - pszFile) : SIZECHARS(szDir);
                 cch = min(cch, SIZECHARS(szDir));
 
                 //  this will null terminate for us on
                 //  the backslash if pszRet was true
                 StrCpyN(szDir, pszFile, cch);
             }
-        }
-        else if (!(lpOFN->Flags & OFN_NOVALIDATE))
-        {
+        } else if (!(lpOFN->Flags & OFN_NOVALIDATE)) {
             // Failed validation and app wanted validation
             StoreExtendedError(FNERR_INVALIDFILENAME);
             return NULL;
-        }
-        else
-        {
+        } else {
             // Failed validation but app suppressed validation,
             // so continue onward with the "filename" part of the
             // pszFile (even though it's not valid).
@@ -5356,46 +4848,39 @@ LPCTSTR CFileOpenBrowser::JumpToInitialLocation(LPCTSTR pszDir, LPTSTR pszFile)
     }
 
     // if we have a directory  then use that directory
-    if (*szDir)
-    {
-         JumpToPath(szDir, TRUE);
+    if (*szDir) {
+        JumpToPath(szDir, TRUE);
     }
 
 
     //See if this application contains a entry in the registry for the last visited Directory
-    if  (!psv)
-    {
+    if (!psv) {
         //Change the return value to full incoming name.
         pszRet = pszFile;
 
-        if (GetPathFromLastVisitedMRU(szDir, MAX_PATH))
-        {
+        if (GetPathFromLastVisitedMRU(szDir, MAX_PATH)) {
             JumpToPath(szDir, TRUE);
         }
     }
 
     //Try Current Directory
-    if (!psv)
-    {
-       //Does current directory contain any files that match the filter ?
-       if (GetCurrentDirectory(ARRAYSIZE(szDir), szDir)
-           && !PathIsTemporary(szDir) &&  FoundFilterMatch(szLastFilter, IsVolumeLFN(NULL)))
-       {
-           //Yes. Jump to Current Directory.
-           JumpToPath(szDir, TRUE);
-       }
+    if (!psv) {
+        //Does current directory contain any files that match the filter ?
+        if (GetCurrentDirectory(ARRAYSIZE(szDir), szDir)
+            && !PathIsTemporary(szDir) && FoundFilterMatch(szLastFilter, IsVolumeLFN(NULL))) {
+            //Yes. Jump to Current Directory.
+            JumpToPath(szDir, TRUE);
+        }
 
     }
 
     //Try My Documents
-    if (!psv)
-    {
+    if (!psv) {
         LPITEMIDLIST pidl;
 
         pidl = CreateMyDocsIDList();
 
-        if (pidl)
-        {
+        if (pidl) {
             JumpToIDList(pidl, FALSE);
             ILFree(pidl);
         }
@@ -5403,12 +4888,11 @@ LPCTSTR CFileOpenBrowser::JumpToInitialLocation(LPCTSTR pszDir, LPTSTR pszFile)
     }
 
     //  finally try the desktop
-    if (!psv)
-    {
+    if (!psv) {
 
         //  Maybe the curdir has been deleted; try the desktop.
 
-        ITEMIDLIST idl = { 0 };
+        ITEMIDLIST idl = {0};
 
 
         //  Do not try to translate this.
@@ -5419,14 +4903,12 @@ LPCTSTR CFileOpenBrowser::JumpToInitialLocation(LPCTSTR pszDir, LPTSTR pszFile)
 
     //  If nothing worked, then set the error code so our parent knows.
 
-    if (!psv)
-    {
+    if (!psv) {
         StoreExtendedError(CDERR_INITIALIZATION);
     }
 
     //Add the initial directory where we jumped to the travel log
-    if (ptlog && pCurrentLocation && pCurrentLocation->pidlFull)
-    {
+    if (ptlog && pCurrentLocation && pCurrentLocation->pidlFull) {
         ptlog->AddEntry(pCurrentLocation->pidlFull);
     }
 
@@ -5445,10 +4927,9 @@ void CleanupDialog(
     HWND hDlg,
     BOOL fRet)
 {
-    CFileOpenBrowser *pDlgStruct = HwndToBrowser(hDlg);
+    CFileOpenBrowser* pDlgStruct = HwndToBrowser(hDlg);
 
-    if (!pDlgStruct)
-    {
+    if (!pDlgStruct) {
         return;
     }
 
@@ -5457,21 +4938,18 @@ void CleanupDialog(
 
     LPOPENFILENAME lpOFN = pDlgStruct->lpOFN;
 
-    if (lpOFN->lpstrCustomFilter)
-    {
+    if (lpOFN->lpstrCustomFilter) {
         UINT len = lstrlen(lpOFN->lpstrCustomFilter) + 1;
         UINT sCount = lstrlen(pDlgStruct->szLastFilter);
-        if (lpOFN->nMaxCustFilter > sCount + len)
-        {
+        if (lpOFN->nMaxCustFilter > sCount + len) {
             lstrcpy(lpOFN->lpstrCustomFilter + len, pDlgStruct->szLastFilter);
         }
     }
 
-    if ( (fRet == TRUE) &&
-         pDlgStruct->hSubDlg &&
-         ( CD_SendOKNotify(pDlgStruct->hSubDlg, hDlg, lpOFN, pDlgStruct->lpOFI) ||
-           CD_SendOKMsg(pDlgStruct->hSubDlg, lpOFN, pDlgStruct->lpOFI) ) )
-    {
+    if ((fRet == TRUE) &&
+        pDlgStruct->hSubDlg &&
+        (CD_SendOKNotify(pDlgStruct->hSubDlg, hDlg, lpOFN, pDlgStruct->lpOFI) ||
+         CD_SendOKMsg(pDlgStruct->hSubDlg, lpOFN, pDlgStruct->lpOFI))) {
 
         //  Give the hook a chance to validate the file name.
 
@@ -5482,8 +4960,7 @@ void CleanupDialog(
     //  We need to make sure the IShellBrowser is still around during
     //  destruction.
 
-    if (pDlgStruct->psv != NULL)
-    {
+    if (pDlgStruct->psv != NULL) {
         pDlgStruct->psv->DestroyViewWindow();
         pDlgStruct->psv->Release();
 
@@ -5491,8 +4968,7 @@ void CleanupDialog(
     }
 
     if (((lpOFN->Flags & OFN_NOCHANGEDIR) || bUserPressedCancel) &&
-        (*pDlgStruct->szStartDir))
-    {
+        (*pDlgStruct->szStartDir)) {
         SetCurrentDirectory(pDlgStruct->szStartDir);
     }
 
@@ -5509,16 +4985,14 @@ void CleanupDialog(
 
 
 
-MYLISTBOXITEM *GetParentItem(HWND hwndCombo, int *piItem)
+MYLISTBOXITEM* GetParentItem(HWND hwndCombo, int* piItem)
 {
     int iItem = *piItem;
-    MYLISTBOXITEM *pItem = GetListboxItem(hwndCombo, iItem);
+    MYLISTBOXITEM* pItem = GetListboxItem(hwndCombo, iItem);
 
-    for (--iItem; iItem >= 0; iItem--)
-    {
-        MYLISTBOXITEM *pPrev = GetListboxItem(hwndCombo, iItem);
-        if (pPrev->cIndent < pItem->cIndent)
-        {
+    for (--iItem; iItem >= 0; iItem--) {
+        MYLISTBOXITEM* pPrev = GetListboxItem(hwndCombo, iItem);
+        if (pPrev->cIndent < pItem->cIndent) {
             *piItem = iItem;
             return (pPrev);
         }
@@ -5535,34 +5009,28 @@ MYLISTBOXITEM *GetParentItem(HWND hwndCombo, int *piItem)
 
 
 BOOL GetFullPathEnumCB(
-    CFileOpenBrowser *that,
+    CFileOpenBrowser* that,
     LPCITEMIDLIST pidl,
     LPARAM lParam)
 {
     DWORD dwAttrs = SFGAO_FOLDER | SFGAO_FILESYSTEM | SFGAO_FILESYSANCESTOR;
-    MYLISTBOXITEM *pLoc = that->pCurrentLocation;
+    MYLISTBOXITEM* pLoc = that->pCurrentLocation;
 
-    if (!pidl)
-    {
+    if (!pidl) {
         return TRUE;
     }
 
     if ((SUCCEEDED(that->psfCurrent->GetAttributesOf(1, &pidl, &dwAttrs))) &&
-        (dwAttrs & SFGAO_FILESYSTEM))
-    {
+        (dwAttrs & SFGAO_FILESYSTEM)) {
         LPITEMIDLIST pidlFull;
 
-        if (pLoc->pidlFull == NULL)
-        {
+        if (pLoc->pidlFull == NULL) {
             pidlFull = ILClone(pidl);
-        }
-        else
-        {
+        } else {
             pidlFull = ILCombine(pLoc->pidlFull, pidl);
         }
 
-        if (pidlFull != NULL)
-        {
+        if (pidlFull != NULL) {
             SHGetPathFromIDList(pidlFull, (LPTSTR)lParam);
             SHFree(pidlFull);
         }
@@ -5601,7 +5069,7 @@ void CFileOpenBrowser::GetFullPath(
 
 
 void CFileOpenBrowser::RemoveOldPath(
-    int *piNewSel)
+    int* piNewSel)
 {
     HWND hwndCombo = ::GetDlgItem(hwndDlg, cmb2);
     int iStart = *piNewSel;
@@ -5612,12 +5080,10 @@ void CFileOpenBrowser::RemoveOldPath(
 
     //  Flush all non-permanent non-ancestor items before this one.
 
-    for (iItem = ComboBox_GetCount(hwndCombo) - 1; iItem >= 0; --iItem)
-    {
-        MYLISTBOXITEM *pItem = GetListboxItem(hwndCombo, iItem);
+    for (iItem = ComboBox_GetCount(hwndCombo) - 1; iItem >= 0; --iItem) {
+        MYLISTBOXITEM* pItem = GetListboxItem(hwndCombo, iItem);
 
-        if (iItem == iStart)
-        {
+        if (iItem == iStart) {
 
             //  Begin looking for ancestors and adjusting the sel position.
 
@@ -5626,8 +5092,7 @@ void CFileOpenBrowser::RemoveOldPath(
             continue;
         }
 
-        if (pItem->cIndent < cIndent)
-        {
+        if (pItem->cIndent < cIndent) {
 
             //  We went back a level, so this must be an ancestor of the
             //  selected item.
@@ -5639,8 +5104,7 @@ void CFileOpenBrowser::RemoveOldPath(
 
         //  Make sure to check this after adjusting cIndent.
 
-        if (pItem->dwFlags & MLBI_PERMANENT)
-        {
+        if (pItem->dwFlags & MLBI_PERMANENT) {
             continue;
         }
 
@@ -5662,16 +5126,14 @@ void CFileOpenBrowser::RemoveOldPath(
 
 int FindLocation(
     HWND hwndCombo,
-    MYLISTBOXITEM *pFindItem)
+    MYLISTBOXITEM* pFindItem)
 {
     int iItem;
 
-    for (iItem = ComboBox_GetCount(hwndCombo) - 1; iItem >= 0; --iItem)
-    {
-        MYLISTBOXITEM *pItem = GetListboxItem(hwndCombo, iItem);
+    for (iItem = ComboBox_GetCount(hwndCombo) - 1; iItem >= 0; --iItem) {
+        MYLISTBOXITEM* pItem = GetListboxItem(hwndCombo, iItem);
 
-        if (pItem == pFindItem)
-        {
+        if (pItem == pFindItem) {
             break;
         }
     }
@@ -5697,51 +5159,43 @@ BOOL CFileOpenBrowser::OnSelChange(
     HWND hwndCombo = GetDlgItem(hwndDlg, cmb2);
     BOOL bRet = TRUE;
 
-    if (iItem == -1)
-    {
-        iItem = (int) SendMessage(hwndCombo, CB_GETCURSEL, NULL, NULL);
+    if (iItem == -1) {
+        iItem = (int)SendMessage(hwndCombo, CB_GETCURSEL, NULL, NULL);
     }
 
-    MYLISTBOXITEM *pNewLocation = GetListboxItem(hwndCombo, iItem);
-    MYLISTBOXITEM *pOldLocation = pCurrentLocation;
+    MYLISTBOXITEM* pNewLocation = GetListboxItem(hwndCombo, iItem);
+    MYLISTBOXITEM* pOldLocation = pCurrentLocation;
     BOOL bFirstTry = TRUE;
     BOOL bSwitchedBack = FALSE;
 
-    if (bForceUpdate || (pNewLocation != pOldLocation))
-    {
+    if (bForceUpdate || (pNewLocation != pOldLocation)) {
         FOLDERSETTINGS fs;
 
-        if (psv)
-        {
+        if (psv) {
             psv->GetCurrentInfo(&fs);
-        }
-        else
-        {
+        } else {
             fs.ViewMode = FVM_LIST;
             fs.fFlags = lpOFN->Flags & OFN_ALLOWMULTISELECT ? 0 : FWF_SINGLESEL;
         }
 
         //  we always want the recent folder to come up
         //  in details mode
-        if (_IsRecentFolder(pNewLocation->pidlFull))
-        {
+        if (_IsRecentFolder(pNewLocation->pidlFull)) {
             _CachedViewMode = fs.ViewMode;
             fs.ViewMode = FVM_DETAILS;
         }
         //  we dont want to use the existing settings
-        else if (pCurrentLocation && _IsRecentFolder(pCurrentLocation->pidlFull))
-        {
+        else if (pCurrentLocation && _IsRecentFolder(pCurrentLocation->pidlFull)) {
             fs.ViewMode = _CachedViewMode;
         }
 
         iCurrentLocation = iItem;
         pCurrentLocation = pNewLocation;
 
-OnSelChange_TryAgain:
-        if (FAILED(SwitchView( pCurrentLocation->GetShellFolder(),
-                               pCurrentLocation->pidlFull,
-                               &fs )))
-        {
+    OnSelChange_TryAgain:
+        if (FAILED(SwitchView(pCurrentLocation->GetShellFolder(),
+                              pCurrentLocation->pidlFull,
+                              &fs))) {
 
             //  We could not create the view for this location.
 
@@ -5750,23 +5204,18 @@ OnSelChange_TryAgain:
 
             //  Try the previous folder.
 
-            if (bFirstTry)
-            {
+            if (bFirstTry) {
                 bFirstTry = FALSE;
                 pCurrentLocation = pOldLocation;
                 int iOldItem = FindLocation(hwndCombo, pOldLocation);
-                if (iOldItem >= 0)
-                {
+                if (iOldItem >= 0) {
                     iCurrentLocation = iOldItem;
                     ComboBox_SetCurSel(hwndCombo, iCurrentLocation);
 
-                    if (psv)
-                    {
+                    if (psv) {
                         bSwitchedBack = TRUE;
                         goto SwitchedBack;
-                    }
-                    else
-                    {
+                    } else {
                         goto OnSelChange_TryAgain;
                     }
                 }
@@ -5775,8 +5224,7 @@ OnSelChange_TryAgain:
 
             //  Try the parent of the old item.
 
-            if (iCurrentLocation)
-            {
+            if (iCurrentLocation) {
                 pCurrentLocation = GetParentItem(hwndCombo, &iCurrentLocation);
                 ComboBox_SetCurSel(hwndCombo, iCurrentLocation);
                 goto OnSelChange_TryAgain;
@@ -5792,13 +5240,12 @@ OnSelChange_TryAgain:
         }
 
         //if iCurrentLocation is iNodeDesktop then it means we are at Desktop so disable  the IDC_PARENT button
-        ::SendMessage( hwndToolbar,
-                       TB_SETSTATE,
-                       IDC_PARENT,
-                       ((iCurrentLocation == iNodeDesktop) || (iCurrentLocation == 0)) ? 0 :TBSTATE_ENABLED);
+        ::SendMessage(hwndToolbar,
+                      TB_SETSTATE,
+                      IDC_PARENT,
+                      ((iCurrentLocation == iNodeDesktop) || (iCurrentLocation == 0)) ? 0 : TBSTATE_ENABLED);
 
-        if (!iCurrentLocation || (pCurrentLocation->dwAttrs & SFGAO_FILESYSTEM))
-        {
+        if (!iCurrentLocation || (pCurrentLocation->dwAttrs & SFGAO_FILESYSTEM)) {
             pCurrentLocation->SwitchCurrentDirectory(pcwd);
         }
 
@@ -5810,20 +5257,16 @@ OnSelChange_TryAgain:
         //  We've changed folders; we'd better strip whatever is in the edit
         //  box down to the file name.
 
-        if (bUseCombo)
-        {
+        if (bUseCombo) {
             HWND hwndEdit = (HWND)SendMessage(GetDlgItem(hwndDlg, cmb13), CBEM_GETEDITCONTROL, 0, 0L);
             GetWindowText(hwndEdit, szFile, ARRAYSIZE(szFile));
-        }
-        else
-        {
+        } else {
             GetDlgItemText(hwndDlg, edt1, szFile, ARRAYSIZE(szFile));
         }
 
         nFileOffset = ParseFileNew(szFile, NULL, FALSE, TRUE);
 
-        if (nFileOffset > 0 && !IsDirectory(szFile))
-        {
+        if (nFileOffset > 0 && !IsDirectory(szFile)) {
 
             //  The user may have typed an extension, so make sure to show it.
 
@@ -5832,12 +5275,11 @@ OnSelChange_TryAgain:
 
         SetSaveButton(iszFileSaveButton);
 
-SwitchedBack:
+    SwitchedBack:
         RemoveOldPath(&iCurrentLocation);
     }
 
-    if (!bSwitchedBack && hSubDlg)
-    {
+    if (!bSwitchedBack && hSubDlg) {
         CD_SendFolderChangeNotify(hSubDlg, hwndDlg, lpOFN, lpOFI);
     }
 
@@ -5859,7 +5301,7 @@ void CFileOpenBrowser::OnDotDot()
 
     int iItem = ComboBox_GetCurSel(hwndCombo);
 
-    MYLISTBOXITEM *pItem = GetParentItem(hwndCombo, &iItem);
+    MYLISTBOXITEM* pItem = GetParentItem(hwndCombo, &iItem);
 
     SendMessage(hwndCombo, CB_SETCURSEL, iItem, NULL);
 
@@ -5881,27 +5323,24 @@ void CFileOpenBrowser::OnDotDot()
 #define PIDL_FOLDERSEL       (LPCITEMIDLIST)-2
 
 BOOL DblClkEnumCB(
-    CFileOpenBrowser *that,
+    CFileOpenBrowser* that,
     LPCITEMIDLIST pidl,
     LPARAM lParam)
 {
-    MYLISTBOXITEM *pLoc = that->pCurrentLocation;
-    LPCITEMIDLIST *ppidl = (LPCITEMIDLIST *)lParam;
+    MYLISTBOXITEM* pLoc = that->pCurrentLocation;
+    LPCITEMIDLIST* ppidl = (LPCITEMIDLIST*)lParam;
 
-    if (!pidl)
-    {
+    if (!pidl) {
         pidl = *ppidl;
 
-        if (pidl == PIDL_NOTHINGSEL)
-        {
+        if (pidl == PIDL_NOTHINGSEL) {
 
             //  Nothing selected.
 
             return FALSE;
         }
 
-        if (pidl == PIDL_MULTIPLESEL)
-        {
+        if (pidl == PIDL_MULTIPLESEL) {
 
             //  More than one thing selected.
 
@@ -5909,20 +5348,16 @@ BOOL DblClkEnumCB(
         }
 
         // check if the pidl is a container (ie, a folder)
-        if (IsContainer(that->psfCurrent, pidl))
-        {
-            LPITEMIDLIST pidlDest =  ILCombine(pLoc->pidlFull,pidl);
+        if (IsContainer(that->psfCurrent, pidl)) {
+            LPITEMIDLIST pidlDest = ILCombine(pLoc->pidlFull, pidl);
 
-            if (pidlDest)
-            {
+            if (pidlDest) {
                 that->JumpToIDList(pidlDest);
                 SHFree(pidlDest);
             }
 
             *ppidl = PIDL_FOLDERSEL;
-        }
-        else if (IsLink(that->psfCurrent,pidl))
-        {
+        } else if (IsLink(that->psfCurrent, pidl)) {
 
             // This link might be pointing to a folder in which case
             // we want to go ahead and open it. If the link points
@@ -5931,30 +5366,27 @@ BOOL DblClkEnumCB(
             SHTCUTINFO info;
             LPITEMIDLIST  pidlLinkTarget = NULL;
 
-            info.dwAttr      = SFGAO_FOLDER;
-            info.fReSolve    = FALSE;
+            info.dwAttr = SFGAO_FOLDER;
+            info.fReSolve = FALSE;
             info.pszLinkFile = NULL;
-            info.cchFile     = 0;
-            info.ppidl       = &pidlLinkTarget;
+            info.cchFile = 0;
+            info.ppidl = &pidlLinkTarget;
 
-             //psf can be NULL in which case ResolveLink uses psfCurrent IShellFolder
-             if (SUCCEEDED(that->ResolveLink(pidl, &info, that->psfCurrent)))
-             {
-                 if (info.dwAttr & SFGAO_FOLDER)
-                 {
-                     that->JumpToIDList(pidlLinkTarget);
-                     *ppidl = PIDL_FOLDERSEL;
-                 }
-                 Pidl_Set(&pidlLinkTarget, NULL);
-             }
+            //psf can be NULL in which case ResolveLink uses psfCurrent IShellFolder
+            if (SUCCEEDED(that->ResolveLink(pidl, &info, that->psfCurrent))) {
+                if (info.dwAttr & SFGAO_FOLDER) {
+                    that->JumpToIDList(pidlLinkTarget);
+                    *ppidl = PIDL_FOLDERSEL;
+                }
+                Pidl_Set(&pidlLinkTarget, NULL);
+            }
 
         }
 
         return FALSE;
     }
 
-    if (*ppidl)
-    {
+    if (*ppidl) {
 
         //  More than one thing selected.
 
@@ -5982,24 +5414,20 @@ void CFileOpenBrowser::OnDblClick(
 {
     LPCITEMIDLIST pidlFirst = PIDL_NOTHINGSEL;
 
-    if (_pidlSelection)
-    {
+    if (_pidlSelection) {
         if (_ProcessPidlSelection(psfCurrent, _pidlSelection))
-            return ;
+            return;
     }
 
-    if (psv)
-    {
+    if (psv) {
         EnumItemObjects(SVGIO_SELECTION, DblClkEnumCB, (LPARAM)&pidlFirst);
     }
 
-    if (pidlFirst == PIDL_NOTHINGSEL)
-    {
+    if (pidlFirst == PIDL_NOTHINGSEL) {
 
         //  Nothing selected.
 
-        if (bFromOKButton)
-        {
+        if (bFromOKButton) {
 
             //  This means we got an IDOK when the focus was in the view,
             //  but nothing was selected.  Let's get the edit text and go
@@ -6007,9 +5435,7 @@ void CFileOpenBrowser::OnDblClick(
 
             ProcessEdit();
         }
-    }
-    else if (pidlFirst != PIDL_FOLDERSEL)
-    {
+    } else if (pidlFirst != PIDL_FOLDERSEL) {
 
         //  This will change the edit box, but that's OK, since it probably
         //  already has.  This should take care of files with no extension.
@@ -6048,8 +5474,7 @@ BOOL CFileOpenBrowser::JumpToPath(
 
     LPITEMIDLIST pidlNew = ILCreateFromPath(szTemp);
 
-    if (pidlNew == NULL)
-    {
+    if (pidlNew == NULL) {
         return FALSE;
     }
 
@@ -6059,21 +5484,18 @@ BOOL CFileOpenBrowser::JumpToPath(
     //  This must be done before the translation.
 
     DWORD dwAttrib;
-    do
-    {
+    do {
         dwAttrib = SFGAO_FOLDER;
 
         CDGetAttributesOf(pidlNew, &dwAttrib);
 
-        if (!(dwAttrib & SFGAO_FOLDER))
-        {
-           ILRemoveLastID(pidlNew);
+        if (!(dwAttrib & SFGAO_FOLDER)) {
+            ILRemoveLastID(pidlNew);
         }
 
-    } while( !(dwAttrib & SFGAO_FOLDER) && !ILIsEmpty(pidlNew));
+    } while (!(dwAttrib & SFGAO_FOLDER) && !ILIsEmpty(pidlNew));
 
-    if (!(dwAttrib & SFGAO_FOLDER))
-    {
+    if (!(dwAttrib & SFGAO_FOLDER)) {
         SHFree(pidlNew);
         return FALSE;
     }
@@ -6107,15 +5529,13 @@ BOOL CFileOpenBrowser::JumpToIDList(
 {
     LPITEMIDLIST pidlLog = NULL;
 
-    if (bTranslate)
-    {
+    if (bTranslate) {
 
         //  Translate IDList's on the Desktop into the appropriate
         //  logical IDList.
 
         pidlLog = SHLogILFromFSIL(pidlNew);
-        if (pidlLog)
-        {
+        if (pidlLog) {
             pidlNew = pidlLog;
         }
     }
@@ -6125,30 +5545,26 @@ BOOL CFileOpenBrowser::JumpToIDList(
     //  to the new location.
 
     HWND hwndCombo = ::GetDlgItem(hwndDlg, cmb2);
-    MYLISTBOXITEM *pBestParent = GetListboxItem(hwndCombo, 0);
+    MYLISTBOXITEM* pBestParent = GetListboxItem(hwndCombo, 0);
     int iBestParent = 0;
     LPCITEMIDLIST pidlRelative = pidlNew;
 
     UINT cIndent = 0;
     BOOL fExact = FALSE;
 
-    for (UINT iItem = 0; ; iItem++)
-    {
-        MYLISTBOXITEM *pNextItem = GetListboxItem(hwndCombo, iItem);
-        if (pNextItem == NULL)
-        {
+    for (UINT iItem = 0; ; iItem++) {
+        MYLISTBOXITEM* pNextItem = GetListboxItem(hwndCombo, iItem);
+        if (pNextItem == NULL) {
             break;
         }
-        if (pNextItem->cIndent != cIndent)
-        {
+        if (pNextItem->cIndent != cIndent) {
 
             //  Not the depth we want.
 
             continue;
         }
 
-        if (ILIsEqual(pNextItem->pidlFull, pidlNew))
-        {
+        if (ILIsEqual(pNextItem->pidlFull, pidlNew)) {
             // Never treat FTP Pidls as Equal because the username/password may
             // have changed so we need to do the navigation.  The two pidls
             // still pass ILIsEqual() because the server name is the same.
@@ -6159,8 +5575,7 @@ BOOL CFileOpenBrowser::JumpToIDList(
             break;
         }
         LPCITEMIDLIST pidlChild = ILFindChild(pNextItem->pidlFull, pidlNew);
-        if (pidlChild != NULL)
-        {
+        if (pidlChild != NULL) {
             pBestParent = pNextItem;
             iBestParent = iItem;
             cIndent++;
@@ -6172,8 +5587,7 @@ BOOL CFileOpenBrowser::JumpToIDList(
     //  The path provided might have matched an existing item exactly.  In
     //  that case, just select the item.
 
-    if (fExact)
-    {
+    if (fExact) {
         goto FoundIDList;
     }
 
@@ -6183,47 +5597,40 @@ BOOL CFileOpenBrowser::JumpToIDList(
     //  creating new items for the rest of the path.
 
     iBestParent++;                // begin inserting after parent item
-    for ( ; ; )
-    {
+    for (; ; ) {
         LPITEMIDLIST pidlFirst = ILCloneFirst(pidlRelative);
-        if (pidlFirst == NULL)
-        {
+        if (pidlFirst == NULL) {
             break;
         }
-        MYLISTBOXITEM *pNewItem = new MYLISTBOXITEM();
+        MYLISTBOXITEM* pNewItem = new MYLISTBOXITEM();
 
-        if (pNewItem)
-        {
+        if (pNewItem) {
             if (!pNewItem->Init(pBestParent,
                                 pBestParent->GetShellFolder(),
                                 pidlFirst,
                                 cIndent,
-                                MLBI_PSFFROMPARENT ))
-            {
+                                MLBI_PSFFROMPARENT)) {
                 delete pNewItem;
                 pNewItem = NULL;
                 //iBestParent is off by 1 in error case . Correct it
                 iBestParent--;
                 break;
             }
-        }
-        else
-        {
+        } else {
             //iBestParent is off by 1 in error case . Correct it
             iBestParent--;
             break;
         }
 
-        GetViewItemText( pBestParent->psfSub,
-                         pidlFirst,
-                         szBuf,
-                         ARRAYSIZE(szBuf),
-                         SHGDN_NORMAL);
+        GetViewItemText(pBestParent->psfSub,
+                        pidlFirst,
+                        szBuf,
+                        ARRAYSIZE(szBuf),
+                        SHGDN_NORMAL);
         InsertItem(hwndCombo, iBestParent, pNewItem, szBuf);
         SHFree(pidlFirst);
         pidlRelative = ILGetNext(pidlRelative);
-        if (ILIsEmpty(pidlRelative))
-        {
+        if (ILIsEmpty(pidlRelative)) {
             break;
         }
         cIndent++;                // next one is indented one more level
@@ -6234,8 +5641,7 @@ BOOL CFileOpenBrowser::JumpToIDList(
     iItem = iBestParent;
 
 FoundIDList:
-    if (pidlLog)
-    {
+    if (pidlLog) {
         SHFree(pidlLog);
     }
 
@@ -6243,13 +5649,12 @@ FoundIDList:
     BOOL bRet = OnSelChange(iItem, TRUE);
 
     //Update our Navigation stack
-    if (bRet && bAddToNavStack)
-    {
+    if (bRet && bAddToNavStack) {
         UpdateNavigation();
     }
 
     //We naviagated to a new location so invalidate the cached Pidl
-    Pidl_Set(&_pidlSelection,NULL);
+    Pidl_Set(&_pidlSelection, NULL);
 
     return bRet;
 
@@ -6267,12 +5672,11 @@ FoundIDList:
 void CFileOpenBrowser::ViewCommand(
     UINT uIndex)
 {
-    IContextMenu *pcm;
+    IContextMenu* pcm;
 
-    if (SUCCEEDED(psv->GetItemObject( SVGIO_BACKGROUND,
-                                      IID_IContextMenu,
-                                      (void **)&pcm )))
-    {
+    if (SUCCEEDED(psv->GetItemObject(SVGIO_BACKGROUND,
+                                     IID_IContextMenu,
+                                     (void**)&pcm))) {
         CMINVOKECOMMANDINFOEX ici = {0};
 
         ici.cbSize = sizeof(ici);
@@ -6290,11 +5694,10 @@ void CFileOpenBrowser::ViewCommand(
         ici.fMask |= CMIC_MASK_UNICODE;
 #endif
 
-        IObjectWithSite *pObjSite = NULL;
+        IObjectWithSite* pObjSite = NULL;
 
-        if (SUCCEEDED(pcm->QueryInterface(IID_IObjectWithSite, (void**)&pObjSite)))
-        {
-            pObjSite->SetSite(SAFECAST(psv,IShellView*));
+        if (SUCCEEDED(pcm->QueryInterface(IID_IObjectWithSite, (void**)&pObjSite))) {
+            pObjSite->SetSite(SAFECAST(psv, IShellView*));
         }
 
 
@@ -6302,8 +5705,7 @@ void CFileOpenBrowser::ViewCommand(
         pcm->QueryContextMenu(hmContext, 0, 1, 256, 0);
         pcm->InvokeCommand((LPCMINVOKECOMMANDINFO)(&ici));
 
-        if (pObjSite)
-        {
+        if (pObjSite) {
             pObjSite->SetSite(NULL);
             pObjSite->Release();
         }
@@ -6317,44 +5719,37 @@ void CFileOpenBrowser::ViewCommand(
 
 
 
-HRESULT CFileOpenBrowser::ResolveLink(LPCITEMIDLIST pidl, PSHTCUTINFO pinfo, IShellFolder *psf)
+HRESULT CFileOpenBrowser::ResolveLink(LPCITEMIDLIST pidl, PSHTCUTINFO pinfo, IShellFolder* psf)
 {
     BOOL fSetPidl = TRUE;
 
     //Do we have IShellFolder passed to us ?
-    if (!psf)
-    {
+    if (!psf) {
         //No use our current shell folder.
-        psf =  psfCurrent;
+        psf = psfCurrent;
     }
 
     //Get the IShellLink interface pointer corresponding to given file
-    IShellLink *psl;
-    HRESULT hres = psf->GetUIObjectOf(NULL, 1, &pidl, IID_IShellLink, 0, (void **)&psl);
-    if (SUCCEEDED(hres))
-    {
+    IShellLink* psl;
+    HRESULT hres = psf->GetUIObjectOf(NULL, 1, &pidl, IID_IShellLink, 0, (void**)&psl);
+    if (SUCCEEDED(hres)) {
         //Resolve the link
-        if (pinfo->fReSolve)
-        {
+        if (pinfo->fReSolve) {
             hres = psl->Resolve(hwndDlg, 0);
 
             //If the resolve failed then we can't get correct pidl
-            if (hres == S_FALSE)
-            {
+            if (hres == S_FALSE) {
                 fSetPidl = FALSE;
             }
         }
 
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             LPITEMIDLIST pidl;
-            if (SUCCEEDED(psl->GetIDList(&pidl)) && pidl)
-            {
+            if (SUCCEEDED(psl->GetIDList(&pidl)) && pidl) {
                 if (pinfo->dwAttr)
                     hres = CDGetAttributesOf(pidl, &pinfo->dwAttr);
 
-                if (SUCCEEDED(hres) && pinfo->pszLinkFile)
-                {
+                if (SUCCEEDED(hres) && pinfo->pszLinkFile) {
                     // caller wants the path, this may be empty
                     hres = psl->GetPath(pinfo->pszLinkFile, pinfo->cchFile, 0, 0);
                 }
@@ -6363,20 +5758,17 @@ HRESULT CFileOpenBrowser::ResolveLink(LPCITEMIDLIST pidl, PSHTCUTINFO pinfo, ISh
                     *(pinfo->ppidl) = pidl;
                 else
                     ILFree(pidl);
-            }
-            else
+            } else
                 hres = E_FAIL;      // gota have a pidl
         }
         psl->Release();
     }
 
-    if (FAILED(hres))
-    {
+    if (FAILED(hres)) {
         if (pinfo->pszLinkFile)
             *pinfo->pszLinkFile = 0;
 
-        if (pinfo->ppidl && *pinfo->ppidl)
-        {
+        if (pinfo->ppidl && *pinfo->ppidl) {
             ILFree(*pinfo->ppidl);
             *pinfo->ppidl = NULL;
         }
@@ -6404,8 +5796,7 @@ HRESULT CFileOpenBrowser::ResolveLink(LPCITEMIDLIST pidl, PSHTCUTINFO pinfo, ISh
 
 BOOL CFileOpenBrowser::GetLinkStatus(LPCITEMIDLIST pidl, PSHTCUTINFO pinfo)
 {
-    if (IsLink(psfCurrent, pidl))
-    {
+    if (IsLink(psfCurrent, pidl)) {
         return SUCCEEDED(ResolveLink(pidl, pinfo));
     }
     return FALSE;
@@ -6422,17 +5813,15 @@ BOOL CFileOpenBrowser::LinkMatchSpec(LPCITEMIDLIST pidl, LPCTSTR pszSpec)
     TCHAR szFile[MAX_PATH];
     SHTCUTINFO info;
 
-    info.dwAttr       = SFGAO_FOLDER;
-    info.fReSolve     = FALSE;
-    info.pszLinkFile  = szFile;
-    info.cchFile      = ARRAYSIZE(szFile);
-    info.ppidl        = NULL;
+    info.dwAttr = SFGAO_FOLDER;
+    info.fReSolve = FALSE;
+    info.pszLinkFile = szFile;
+    info.cchFile = ARRAYSIZE(szFile);
+    info.ppidl = NULL;
 
-    if (GetLinkStatus(pidl, &info))
-    {
+    if (GetLinkStatus(pidl, &info)) {
         if ((info.dwAttr & SFGAO_FOLDER) ||
-            (szFile[0] && PathMatchSpec(szFile, pszSpec)))
-        {
+            (szFile[0] && PathMatchSpec(szFile, pszSpec))) {
             return TRUE;
         }
     }
@@ -6456,7 +5845,7 @@ BOOL CFileOpenBrowser::LinkMatchSpec(LPCITEMIDLIST pidl, LPCTSTR pszSpec)
 
 void MeasureDriveItems(
     HWND hwndDlg,
-    MEASUREITEMSTRUCT *lpmi)
+    MEASUREITEMSTRUCT* lpmi)
 {
     HDC hdc;
     HFONT hfontOld;
@@ -6464,24 +5853,22 @@ void MeasureDriveItems(
     SIZE siz;
 
     hdc = GetDC(NULL);
-    hfontOld = (HFONT)SelectObject( hdc,
-                                    (HFONT)SendMessage( hwndDlg,
-                                                        WM_GETFONT,
-                                                        0,
-                                                        0 ) );
+    hfontOld = (HFONT)SelectObject(hdc,
+        (HFONT)SendMessage(hwndDlg,
+                           WM_GETFONT,
+                           0,
+                           0));
 
     GetTextExtentPoint(hdc, TEXT("W"), 1, &siz);
     dyDriveItem = siz.cy;
 
-    if (hfontOld)
-    {
+    if (hfontOld) {
         SelectObject(hdc, hfontOld);
     }
     ReleaseDC(NULL, hdc);
 
     dyDriveItem += DRIVELIST_BORDER;
-    if (dyDriveItem < MINIDRIVE_HEIGHT)
-    {
+    if (dyDriveItem < MINIDRIVE_HEIGHT) {
         dyDriveItem = MINIDRIVE_HEIGHT;
     }
 
@@ -6496,7 +5883,7 @@ void MeasureDriveItems(
 
 
 void CFileOpenBrowser::PaintDriveLine(
-    DRAWITEMSTRUCT *lpdis)
+    DRAWITEMSTRUCT* lpdis)
 {
     HDC hdc = lpdis->hDC;
     RECT rc = lpdis->rcItem;
@@ -6505,23 +5892,21 @@ void CFileOpenBrowser::PaintDriveLine(
     int xString, yString, xMiniDrive, dyString;
     SIZE siz;
 
-    if ((int)lpdis->itemID < 0)
-    {
+    if ((int)lpdis->itemID < 0) {
         return;
     }
 
-    MYLISTBOXITEM *pItem = GetListboxItem(lpdis->hwndItem, lpdis->itemID);
-    ::SendDlgItemMessage( hwndDlg,
-                          cmb2,
-                          CB_GETLBTEXT,
-                          lpdis->itemID,
-                          (LPARAM)szText );
+    MYLISTBOXITEM* pItem = GetListboxItem(lpdis->hwndItem, lpdis->itemID);
+    ::SendDlgItemMessage(hwndDlg,
+                         cmb2,
+                         CB_GETLBTEXT,
+                         lpdis->itemID,
+                         (LPARAM)szText);
 
 
     //  Before doing anything, calculate the actual rectangle for the text.
 
-    if (!(lpdis->itemState & ODS_COMBOBOXEDIT))
-    {
+    if (!(lpdis->itemState & ODS_COMBOBOXEDIT)) {
         offset = 10 * pItem->cIndent;
     }
 
@@ -6534,67 +5919,62 @@ void CFileOpenBrowser::PaintDriveLine(
     rc.left--;
     rc.right++;
 
-    if (lpdis->itemAction != ODA_FOCUS)
-    {
+    if (lpdis->itemAction != ODA_FOCUS) {
         FillRect(hdc, &lpdis->rcItem, GetSysColorBrush(COLOR_WINDOW));
 
         yString = rc.top + (rc.bottom - rc.top - dyString) / 2;
 
-        SetBkColor( hdc,
-                    GetSysColor( (lpdis->itemState & ODS_SELECTED)
-                                     ? COLOR_HIGHLIGHT
-                                     : COLOR_WINDOW ) );
-        SetTextColor( hdc,
-                      GetSysColor( (lpdis->itemState & ODS_SELECTED)
-                                       ? COLOR_HIGHLIGHTTEXT
-                                       : COLOR_WINDOWTEXT ) );
+        SetBkColor(hdc,
+                   GetSysColor((lpdis->itemState & ODS_SELECTED)
+                               ? COLOR_HIGHLIGHT
+                               : COLOR_WINDOW));
+        SetTextColor(hdc,
+                     GetSysColor((lpdis->itemState & ODS_SELECTED)
+                                 ? COLOR_HIGHLIGHTTEXT
+                                 : COLOR_WINDOWTEXT));
 
         if ((lpdis->itemState & ODS_COMBOBOXEDIT) &&
-            (rc.right > lpdis->rcItem.right))
-        {
+            (rc.right > lpdis->rcItem.right)) {
 
             //  Need to clip as user does not!
 
             rc.right = lpdis->rcItem.right;
-            ExtTextOut( hdc,
-                        xString,
-                        yString,
-                        ETO_OPAQUE | ETO_CLIPPED,
-                        &rc,
-                        szText,
-                        lstrlen(szText),
-                        NULL );
-        }
-        else
-        {
-            ExtTextOut( hdc,
-                        xString,
-                        yString,
-                        ETO_OPAQUE,
-                        &rc,
-                        szText,
-                        lstrlen(szText),
-                        NULL );
+            ExtTextOut(hdc,
+                       xString,
+                       yString,
+                       ETO_OPAQUE | ETO_CLIPPED,
+                       &rc,
+                       szText,
+                       lstrlen(szText),
+                       NULL);
+        } else {
+            ExtTextOut(hdc,
+                       xString,
+                       yString,
+                       ETO_OPAQUE,
+                       &rc,
+                       szText,
+                       lstrlen(szText),
+                       NULL);
         }
 
-        ImageList_Draw( himl,
-                        (lpdis->itemID == (UINT)iCurrentLocation)
-                            ? pItem->iSelectedImage
-                            : pItem->iImage,
-                        hdc,
-                        xMiniDrive,
-                        rc.top + (rc.bottom - rc.top - MINIDRIVE_HEIGHT) / 2,
-                        (pItem->IsShared()
-                            ? INDEXTOOVERLAYMASK(IDOI_SHARE)
-                            : 0) |
+        ImageList_Draw(himl,
+            (lpdis->itemID == (UINT)iCurrentLocation)
+                       ? pItem->iSelectedImage
+                       : pItem->iImage,
+                       hdc,
+                       xMiniDrive,
+                       rc.top + (rc.bottom - rc.top - MINIDRIVE_HEIGHT) / 2,
+                       (pItem->IsShared()
+                        ? INDEXTOOVERLAYMASK(IDOI_SHARE)
+                        : 0) |
                         ((lpdis->itemState & ODS_SELECTED)
-                            ? (ILD_SELECTED | ILD_FOCUS | ILD_TRANSPARENT)
-                            : ILD_TRANSPARENT) );
+                         ? (ILD_SELECTED | ILD_FOCUS | ILD_TRANSPARENT)
+                         : ILD_TRANSPARENT));
     }
 
     if (lpdis->itemAction == ODA_FOCUS ||
-        (lpdis->itemState & ODS_FOCUS))
-    {
+        (lpdis->itemState & ODS_FOCUS)) {
         DrawFocusRect(hdc, &rc);
     }
 }
@@ -6616,9 +5996,8 @@ void CFileOpenBrowser::RefreshFilter(
 
     lpOFN->Flags &= ~OFN_FILTERDOWN;
 
-    short nIndex = (short) SendMessage(hwndFilter, CB_GETCURSEL, 0, 0L);
-    if (nIndex < 0)
-    {
+    short nIndex = (short)SendMessage(hwndFilter, CB_GETCURSEL, 0, 0L);
+    if (nIndex < 0) {
 
         //  No current selection.
 
@@ -6628,8 +6007,7 @@ void CFileOpenBrowser::RefreshFilter(
     BOOL bCustomFilter = lpOFN->lpstrCustomFilter && *lpOFN->lpstrCustomFilter;
 
     lpOFN->nFilterIndex = nIndex;
-    if (!bCustomFilter)
-    {
+    if (!bCustomFilter) {
         lpOFN->nFilterIndex++;
     }
 
@@ -6640,16 +6018,14 @@ void CFileOpenBrowser::RefreshFilter(
 
     lpFilter = (LPTSTR)ComboBox_GetItemData(hwndFilter, nIndex);
 
-    if (*lpFilter)
-    {
+    if (*lpFilter) {
         SetCurrentFilter(lpFilter);
 
 
         //  Provide dynamic pszDefExt updating when lpstrDefExt is app
         //  initialized.
 
-        if (!bNoInferDefExt && lpOFN->lpstrDefExt)
-        {
+        if (!bNoInferDefExt && lpOFN->lpstrDefExt) {
 
             //  We are looking for "foo*.ext[;...]".  We will grab ext as the
             //  default extension.  If not of this form, use the default
@@ -6660,37 +6036,28 @@ void CFileOpenBrowser::RefreshFilter(
 
             //  Skip past the CHAR_DOT.
 
-            if (lpDot && pszDefExt.StrCpy(lpDot + 1))
-            {
+            if (lpDot && pszDefExt.StrCpy(lpDot + 1)) {
                 LPTSTR lpSemiColon = StrChr(pszDefExt, CHAR_SEMICOLON);
-                if (lpSemiColon)
-                {
+                if (lpSemiColon) {
                     *lpSemiColon = CHAR_NULL;
                 }
 
-                if (IsWild(pszDefExt))
-                {
+                if (IsWild(pszDefExt)) {
                     pszDefExt.StrCpy(lpOFN->lpstrDefExt);
                 }
-            }
-            else
-            {
+            } else {
                 pszDefExt.StrCpy(lpOFN->lpstrDefExt);
             }
         }
 
-        if (bUseCombo)
-        {
+        if (bUseCombo) {
             HWND hwndEdit = (HWND)SendMessage(GetDlgItem(hwndDlg, cmb13), CBEM_GETEDITCONTROL, 0, 0L);
             GetWindowText(hwndEdit, szBuf, ARRAYSIZE(szBuf));
-        }
-        else
-        {
+        } else {
             GetDlgItemText(hwndDlg, edt1, szBuf, ARRAYSIZE(szBuf));
         }
 
-        if (IsWild(szBuf))
-        {
+        if (IsWild(szBuf)) {
 
             //  We should not show a filter that we are not using.
 
@@ -6698,16 +6065,13 @@ void CFileOpenBrowser::RefreshFilter(
             SetEditFile(szBuf, TRUE);
         }
 
-        if (psv)
-        {
+        if (psv) {
             psv->Refresh();
         }
     }
 
-    if (hSubDlg)
-    {
-        if (!CD_SendTypeChangeNotify(hSubDlg, hwndDlg, lpOFN, lpOFI))
-        {
+    if (hSubDlg) {
+        if (!CD_SendTypeChangeNotify(hSubDlg, hwndDlg, lpOFN, lpOFI)) {
             CD_SendLBChangeMsg(hSubDlg, cmb1, nIndex, CD_LBSELCHANGE, lpOFI->ApiType);
         }
     }
@@ -6725,25 +6089,21 @@ void CFileOpenBrowser::RefreshFilter(
 
 UINT CFileOpenBrowser::GetDirectoryFromLB(
     LPTSTR pszBuf,
-    int *pichRoot)
+    int* pichRoot)
 {
     *pszBuf = 0;
-    if (pCurrentLocation->pidlFull != NULL)
-    {
+    if (pCurrentLocation->pidlFull != NULL) {
         GetPathFromLocation(pCurrentLocation, pszBuf);
     }
 
-    if (*pszBuf)
-    {
+    if (*pszBuf) {
         PathAddBackslash(pszBuf);
         LPTSTR pszBackslash = StrChr(pszBuf + 2, CHAR_BSLASH);
-        if (pszBackslash != NULL)
-        {
+        if (pszBackslash != NULL) {
 
             //  For UNC paths, the "root" is on the next backslash.
 
-            if (DBL_BSLASH(pszBuf))
-            {
+            if (DBL_BSLASH(pszBuf)) {
                 pszBackslash = StrChr(pszBackslash + 1, CHAR_BSLASH);
             }
             UINT cchRet = lstrlen(pszBuf);
@@ -6763,8 +6123,8 @@ UINT CFileOpenBrowser::GetDirectoryFromLB(
 
 
 
-typedef BOOL (*EIOCALLBACK)(
-    CFileOpenBrowser *that,
+typedef BOOL(*EIOCALLBACK)(
+    CFileOpenBrowser* that,
     LPCITEMIDLIST pidl,
     LPARAM lParam);
 
@@ -6773,33 +6133,29 @@ BOOL CFileOpenBrowser::EnumItemObjects(
     EIOCALLBACK pfnCallBack,
     LPARAM lParam)
 {
-    FORMATETC fmte = { (CLIPFORMAT) g_cfCIDA, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+    FORMATETC fmte = {(CLIPFORMAT)g_cfCIDA, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
     BOOL bRet = FALSE;
     LPCITEMIDLIST pidl;
     LPIDA pida;
     int cItems, i;
-    IDataObject *pdtobj;
+    IDataObject* pdtobj;
     STGMEDIUM medium;
 
-    if (!psv || FAILED(psv->GetItemObject( uItem,
-                                           IID_IDataObject,
-                                           (void **)&pdtobj )))
-    {
+    if (!psv || FAILED(psv->GetItemObject(uItem,
+                                          IID_IDataObject,
+                                          (void**)&pdtobj))) {
         goto Error0;
     }
 
-    if (FAILED(pdtobj->GetData(&fmte, &medium)))
-    {
+    if (FAILED(pdtobj->GetData(&fmte, &medium))) {
         goto Error1;
     }
 
     pida = (LPIDA)GlobalLock(medium.hGlobal);
     cItems = pida->cidl;
 
-    for (i = 1; ; ++i)
-    {
-        if (i > cItems)
-        {
+    for (i = 1; ; ++i) {
+        if (i > cItems) {
 
             //  We got to the end of the list without a failure.
             //  Call back one last time with NULL.
@@ -6810,8 +6166,7 @@ BOOL CFileOpenBrowser::EnumItemObjects(
 
         pidl = LPIDL_GetIDList(pida, i);
 
-        if (!pfnCallBack(this, pidl, lParam))
-        {
+        if (!pfnCallBack(this, pidl, lParam)) {
             break;
         }
     }
@@ -6849,44 +6204,36 @@ typedef struct _FINDNAMESTRUCT
 
 
 BOOL FindNameEnumCB(
-    CFileOpenBrowser *that,
+    CFileOpenBrowser* that,
     LPCITEMIDLIST pidl,
     LPARAM lParam)
 {
     SHFILEINFO sfi;
-    FINDNAMESTRUCT *pfns = (FINDNAMESTRUCT *)lParam;
+    FINDNAMESTRUCT* pfns = (FINDNAMESTRUCT*)lParam;
 
-    if (!pidl)
-    {
-        if (!pfns->pidlFound)
-        {
+    if (!pidl) {
+        if (!pfns->pidlFound) {
             return FALSE;
         }
 
-        GetViewItemText( that->psfCurrent,
-                         pfns->pidlFound,
-                         pfns->pszFile,
-                         MAX_PATH );
+        GetViewItemText(that->psfCurrent,
+                        pfns->pidlFound,
+                        pfns->pszFile,
+                        MAX_PATH);
 
-        if (IsContainer(that->psfCurrent, pfns->pidlFound))
-        {
-            LPITEMIDLIST pidlFull = ILCombine( that->pCurrentLocation->pidlFull,
-                                               pfns->pidlFound );
+        if (IsContainer(that->psfCurrent, pfns->pidlFound)) {
+            LPITEMIDLIST pidlFull = ILCombine(that->pCurrentLocation->pidlFull,
+                                              pfns->pidlFound);
 
-            if (pidlFull)
-            {
-                if (that->JumpToIDList(pidlFull))
-                {
+            if (pidlFull) {
+                if (that->JumpToIDList(pidlFull)) {
                     pfns->uRet = FE_CHANGEDDIR;
-                }
-                else if (!that->psv)
-                {
+                } else if (!that->psv) {
                     pfns->uRet = FE_OUTOFMEM;
                 }
                 SHFree(pidlFull);
 
-                if (pfns->uRet != FE_INVALID_VALUE)
-                {
+                if (pfns->uRet != FE_INVALID_VALUE) {
                     return TRUE;
                 }
             }
@@ -6896,28 +6243,25 @@ BOOL FindNameEnumCB(
         return TRUE;
     }
 
-    if (!SHGetFileInfo( (LPCTSTR)pidl,
-                        0,
-                        &sfi,
-                        sizeof(sfi),
-                        SHGFI_DISPLAYNAME | SHGFI_PIDL ))
-    {
+    if (!SHGetFileInfo((LPCTSTR)pidl,
+                       0,
+                       &sfi,
+                       sizeof(sfi),
+                       SHGFI_DISPLAYNAME | SHGFI_PIDL)) {
 
         //  This will never happen, right?
 
         return TRUE;
     }
 
-    if (lstrcmpi(sfi.szDisplayName, pfns->pszFile) != 0)
-    {
+    if (lstrcmpi(sfi.szDisplayName, pfns->pszFile) != 0) {
 
         //  Continue the enumeration.
 
         return TRUE;
     }
 
-    if (!pfns->pidlFound)
-    {
+    if (!pfns->pidlFound) {
         pfns->pidlFound = pidl;
 
 
@@ -6933,9 +6277,9 @@ BOOL FindNameEnumCB(
     //  the GetItemObject may not work.
 
     FORWARD_WM_NEXTDLGCTL(that->hwndDlg, that->hwndView, 1, SendMessage);
-    that->psv->SelectItem( pfns->pidlFound,
-                           SVSI_SELECT | SVSI_DESELECTOTHERS |
-                               SVSI_ENSUREVISIBLE | SVSI_FOCUSED );
+    that->psv->SelectItem(pfns->pidlFound,
+                          SVSI_SELECT | SVSI_DESELECTOTHERS |
+                          SVSI_ENSUREVISIBLE | SVSI_FOCUSED);
 
     pfns->pidlFound = NULL;
     pfns->uRet = FE_TOOMANY;
@@ -6986,19 +6330,16 @@ int VerifyOpen(
 
     CDPathQualify(lpFile, pszPathName);
 
-    hf = CreateFile( pszPathName,
-                     GENERIC_READ,
-                     FILE_SHARE_READ | FILE_SHARE_WRITE,
-                     NULL,
-                     OPEN_EXISTING,
-                     FILE_ATTRIBUTE_NORMAL,
-                     NULL );
-    if (hf == INVALID_HANDLE_VALUE)
-    {
+    hf = CreateFile(pszPathName,
+                    GENERIC_READ,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE,
+                    NULL,
+                    OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL,
+                    NULL);
+    if (hf == INVALID_HANDLE_VALUE) {
         return GetLastError();
-    }
-    else
-    {
+    } else {
         CloseHandle(hf);
         return (0);
     }
@@ -7014,8 +6355,7 @@ int VerifyOpen(
 BOOL CFileOpenBrowser::IsKnownExtension(
     LPCTSTR pszExtension)
 {
-    if ((LPTSTR)pszDefExt && lstrcmpi(pszExtension + 1, pszDefExt) == 0)
-    {
+    if ((LPTSTR)pszDefExt && lstrcmpi(pszExtension + 1, pszDefExt) == 0) {
 
         //  It's the default extension, so no need to add it again.
 
@@ -7023,14 +6363,12 @@ BOOL CFileOpenBrowser::IsKnownExtension(
     }
 
 
-    if (lstrcmp(szLastFilter, szStarDotStar) == 0)
-    {
+    if (lstrcmp(szLastFilter, szStarDotStar) == 0) {
         //Current Filter is *.*, so allow whatever extension user enters.
         return TRUE;
     }
 
-    if (RegQueryValue(HKEY_CLASSES_ROOT, pszExtension, NULL, 0) == ERROR_SUCCESS)
-    {
+    if (RegQueryValue(HKEY_CLASSES_ROOT, pszExtension, NULL, 0) == ERROR_SUCCESS) {
 
         //  It's a registered extension, so the user is trying to force
         //  the type.
@@ -7038,12 +6376,10 @@ BOOL CFileOpenBrowser::IsKnownExtension(
         return TRUE;
     }
 
-    if (lpOFN->lpstrFilter)
-    {
+    if (lpOFN->lpstrFilter) {
         LPCTSTR pFilter = lpOFN->lpstrFilter;
 
-        while (*pFilter)
-        {
+        while (*pFilter) {
 
             //  Skip visual.
 
@@ -7052,24 +6388,19 @@ BOOL CFileOpenBrowser::IsKnownExtension(
 
             //  Search extension list.
 
-            while (*pFilter)
-            {
+            while (*pFilter) {
 
                 //  Check extensions of the form '*.ext' only.
 
-                if (*pFilter == CHAR_STAR && *(++pFilter) == CHAR_DOT)
-                {
+                if (*pFilter == CHAR_STAR && *(++pFilter) == CHAR_DOT) {
                     LPCTSTR pExt = pszExtension + 1;
 
                     pFilter++;
 
-                    while (*pExt && *pExt == *pFilter)
-                    {
+                    while (*pExt && *pExt == *pFilter) {
 #ifndef UNICODE
-                        if (IsDBCSLeadByte(*pExt))
-                        {
-                            if (*(pExt + 1) != *(pFilter + 1))
-                            {
+                        if (IsDBCSLeadByte(*pExt)) {
+                            if (*(pExt + 1) != *(pFilter + 1)) {
                                 break;
                             }
                             pExt++;
@@ -7080,8 +6411,7 @@ BOOL CFileOpenBrowser::IsKnownExtension(
                         pFilter++;
                     }
 
-                    if (!*pExt && (*pFilter == CHAR_SEMICOLON || !*pFilter))
-                    {
+                    if (!*pExt && (*pFilter == CHAR_SEMICOLON || !*pFilter)) {
 
                         //  We have a match.
 
@@ -7092,12 +6422,10 @@ BOOL CFileOpenBrowser::IsKnownExtension(
 
                 //  Skip to next extension.
 
-                while (*pFilter)
-                {
+                while (*pFilter) {
                     TCHAR ch = *pFilter;
                     pFilter = CharNext(pFilter);
-                    if (ch == CHAR_SEMICOLON)
-                    {
+                    if (ch == CHAR_SEMICOLON) {
                         break;
                     }
                 }
@@ -7134,7 +6462,7 @@ UINT CFileOpenBrowser::FindNameInView(
     LPTSTR pszPathName,
     int nFileOffset,
     int nExtOffset,
-    int *pnErrCode,
+    int* pnErrCode,
     BOOL bTryAsDir)
 {
     UINT uRet;
@@ -7154,8 +6482,7 @@ UINT CFileOpenBrowser::FindNameInView(
 
     //  If no extension, point at the end of the file name.
 
-    if (!nExtOffset)
-    {
+    if (!nExtOffset) {
         nExtOffset = nNewExt;
     }
 
@@ -7166,15 +6493,12 @@ UINT CFileOpenBrowser::FindNameInView(
 
     int nLoop = NUM_LINKLOOPS;
 
-    if (Flags & (OKBUTTON_NODEFEXT | OKBUTTON_QUOTED))
-    {
+    if (Flags & (OKBUTTON_NODEFEXT | OKBUTTON_QUOTED)) {
         goto VerifyTheName;
     }
 
-    if (bHasExt)
-    {
-        if (IsKnownExtension(pszFile + nExtOffset))
-        {
+    if (bHasExt) {
+        if (IsKnownExtension(pszFile + nExtOffset)) {
             goto VerifyTheName;
         }
 
@@ -7182,8 +6506,7 @@ UINT CFileOpenBrowser::FindNameInView(
         //  Don't attempt 2 extensions on SFN volume.
 
         CDPathQualify(pszFile, pszPathName);
-        if (!IsLFNDrive(pszPathName))
-        {
+        if (!IsLFNDrive(pszPathName)) {
             goto VerifyTheName;
         }
     }
@@ -7191,8 +6514,7 @@ UINT CFileOpenBrowser::FindNameInView(
     bGetOut = FALSE;
 
     if ((LPTSTR)pszDefExt &&
-        ((DWORD)nNewExt + lstrlen(pszDefExt) < lpOFN->nMaxFile))
-    {
+        ((DWORD)nNewExt + lstrlen(pszDefExt) < lpOFN->nMaxFile)) {
         bAddExt = TRUE;
 
 
@@ -7210,7 +6532,7 @@ UINT CFileOpenBrowser::FindNameInView(
         //  switched to it.
 
 
-VerifyTheName:
+    VerifyTheName:
 
         //  Note that this also works for a UNC name, even on a net that
         //  does not support using UNC's directly.  It will also do the
@@ -7218,25 +6540,22 @@ VerifyTheName:
         //  have not dereferenced any links, since that should have
         //  already been done.
 
-        if (bTryAsDir && SetDirRetry(pszFile, nLoop == NUM_LINKLOOPS))
-        {
+        if (bTryAsDir && SetDirRetry(pszFile, nLoop == NUM_LINKLOOPS)) {
             return (FE_CHANGEDDIR);
         }
 
         *pnErrCode = VerifyOpen(pszFile, pszPathName);
 
-        if (*pnErrCode == 0 || *pnErrCode == OF_SHARINGVIOLATION)
-        {
+        if (*pnErrCode == 0 || *pnErrCode == OF_SHARINGVIOLATION) {
 
             //  This may be a link to something, so we should try to
             //  resolve it.
 
-            if (!(lpOFN->Flags & OFN_NODEREFERENCELINKS) && nLoop > 0)
-            {
+            if (!(lpOFN->Flags & OFN_NODEREFERENCELINKS) && nLoop > 0) {
                 --nLoop;
 
                 LPITEMIDLIST pidl;
-                IShellFolder *psf = NULL;
+                IShellFolder* psf = NULL;
                 DWORD dwAttr = SFGAO_LINK;
                 HRESULT hRes;
 
@@ -7245,68 +6564,58 @@ VerifyTheName:
                 //  so just try to parse the name in the current folder if
                 //  possible.
 
-                if (nFileOffset || nLoop < NUM_LINKLOOPS - 1)
-                {
+                if (nFileOffset || nLoop < NUM_LINKLOOPS - 1) {
                     LPITEMIDLIST pidlTemp;
                     hRes = SHILCreateFromPath(pszPathName, &pidlTemp, &dwAttr);
 
                     //We are getting a pidl corresponding to a path. Get the IShellFolder corresponding to this pidl
                     // to pass it to ResolveLink
-                    if (SUCCEEDED(hRes))
-                    {
+                    if (SUCCEEDED(hRes)) {
                         LPCITEMIDLIST pidlLast;
-                        if (SUCCEEDED(hRes = CDBindToIDListParent(pidlTemp, IID_IShellFolder, (void **)&psf, (LPCITEMIDLIST *)&pidlLast)))
-                        {
+                        if (SUCCEEDED(hRes = CDBindToIDListParent(pidlTemp, IID_IShellFolder, (void**)&psf, (LPCITEMIDLIST*)&pidlLast))) {
                             //Get the child pidl relative to the IShellFolder
                             pidl = ILClone(pidlLast);
                         }
                         ILFree(pidlTemp);
                     }
-                }
-                else
-                {
+                } else {
                     WCHAR wszDisplayName[MAX_PATH + 1];
                     ULONG chEaten;
 
-                    SHTCharToUnicode(pszFile, wszDisplayName , ARRAYSIZE(wszDisplayName));
+                    SHTCharToUnicode(pszFile, wszDisplayName, ARRAYSIZE(wszDisplayName));
 
-                    hRes = psfCurrent->ParseDisplayName( NULL,
-                                                         NULL,
-                                                         wszDisplayName,
-                                                         &chEaten,
-                                                         &pidl,
-                                                         &dwAttr );
+                    hRes = psfCurrent->ParseDisplayName(NULL,
+                                                        NULL,
+                                                        wszDisplayName,
+                                                        &chEaten,
+                                                        &pidl,
+                                                        &dwAttr);
                 }
 
-                if (SUCCEEDED(hRes))
-                {
+                if (SUCCEEDED(hRes)) {
 
-                    if (dwAttr & SFGAO_LINK)
-                    {
+                    if (dwAttr & SFGAO_LINK) {
                         SHTCUTINFO info;
 
-                        info.dwAttr      = 0;
-                        info.fReSolve    = FALSE;
+                        info.dwAttr = 0;
+                        info.fReSolve = FALSE;
                         info.pszLinkFile = szTemp;
-                        info.cchFile     = ARRAYSIZE(szTemp);
-                        info.ppidl       = NULL;
+                        info.cchFile = ARRAYSIZE(szTemp);
+                        info.ppidl = NULL;
 
                         //psf can be NULL in which case ResolveLink uses psfCurrent IShellFolder
-                        if (SUCCEEDED(ResolveLink(pidl, &info, psf)) && szTemp[0])
-                        {
+                        if (SUCCEEDED(ResolveLink(pidl, &info, psf)) && szTemp[0]) {
 
                             //  It was a link, and it "dereferenced" to something,
                             //  so we should try again with that new file.
 
                             lstrcpy(pszFile, szTemp);
 
-                            if (pidl)
-                            {
+                            if (pidl) {
                                 SHFree(pidl);
                             }
 
-                            if (psf)
-                            {
+                            if (psf) {
                                 psf->Release();
                                 psf = NULL;
                             }
@@ -7315,13 +6624,11 @@ VerifyTheName:
                         }
                     }
 
-                    if (pidl)
-                    {
+                    if (pidl) {
                         SHFree(pidl);
                     }
 
-                    if (psf)
-                    {
+                    if (psf) {
                         psf->Release();
                         psf = NULL;
                     }
@@ -7332,13 +6639,11 @@ VerifyTheName:
         }
 
         if (bGetOut ||
-            (*pnErrCode != OF_FILENOTFOUND && *pnErrCode != OF_PATHNOTFOUND))
-        {
+            (*pnErrCode != OF_FILENOTFOUND && *pnErrCode != OF_PATHNOTFOUND)) {
             return (FE_FILEERR);
         }
 
-        if (bSave)
-        {
+        if (bSave) {
 
             //  Do no more work if creating a new file.
 
@@ -7351,8 +6656,7 @@ VerifyTheName:
 
     bGetOut = TRUE;
 
-    if (bSave)
-    {
+    if (bSave) {
 
         //  Do no more work if creating a new file.
 
@@ -7361,8 +6665,7 @@ VerifyTheName:
 
     pszFile[nNewExt] = CHAR_NULL;
 
-    if (bTryAsDir && (nFileOffset > 0))
-    {
+    if (bTryAsDir && (nFileOffset > 0)) {
         TCHAR cSave = *(pszFile + nFileOffset);
         *(pszFile + nFileOffset) = CHAR_NULL;
 
@@ -7373,43 +6676,38 @@ VerifyTheName:
         BOOL bOK = JumpToPath(pszFile);
         *(pszFile + nFileOffset) = cSave;
 
-        if (!psv)
-        {
+        if (!psv) {
 
             //  We're dead.
 
             return (FE_OUTOFMEM);
         }
 
-        if (bOK)
-        {
+        if (bOK) {
             lstrcpy(pszFile, pszFile + nFileOffset);
             nNewExt -= nFileOffset;
             SetEditFile(pszFile, TRUE);
-        }
-        else
-        {
+        } else {
             *pnErrCode = OF_PATHNOTFOUND;
             return (FE_FILEERR);
         }
     }
 
     EnumItemObjects(SVGIO_ALLVIEW, FindNameEnumCB, (LPARAM)&fns);
-    switch (fns.uRet)
+    switch (fns.uRet) {
+    case (FE_INVALID_VALUE):
     {
-        case ( FE_INVALID_VALUE ) :
-        {
-            break;
-        }
-        case ( FE_FOUNDNAME ) :
-        {
-            goto VerifyTheName;
-        }
-        default :
-        {
-            uRet = fns.uRet;
-            goto VerifyAndRet;
-        }
+        break;
+    }
+    case (FE_FOUNDNAME):
+    {
+        goto VerifyTheName;
+    }
+    default:
+    {
+        uRet = fns.uRet;
+        goto VerifyAndRet;
+    }
     }
 
 #ifdef FIND_FILES_NOT_IN_VIEW
@@ -7420,8 +6718,7 @@ VerifyTheName:
     int nFilterLen;
 
     nFilterLen = lstrlen(szLastFilter);
-    if (nFilterLen + nNewExt + ARRAYSIZE(szDotStar) < ARRAYSIZE(szLastFilter))
-    {
+    if (nFilterLen + nNewExt + ARRAYSIZE(szDotStar) < ARRAYSIZE(szLastFilter)) {
         TCHAR szSaveFilter[ARRAYSIZE(szLastFilter)];
 
         lstrcpy(szSaveFilter, szLastFilter);
@@ -7443,9 +6740,8 @@ VerifyTheName:
         //  Note we always set the current directory.
 
         if ((pCurrentLocation->dwAttrs & SFGAO_FILESYSTEM) &&
-            (hf = FindFirstFile( szLastFilter + nFilterLen + 1,
-                                 &fd)) != INVALID_HANDLE_VALUE)
-        {
+            (hf = FindFirstFile(szLastFilter + nFilterLen + 1,
+                                &fd)) != INVALID_HANDLE_VALUE) {
             psv->Refresh();
 
             fns.pidlFound = NULL;
@@ -7462,34 +6758,31 @@ VerifyTheName:
 
         lstrcpy(szLastFilter, szSaveFilter);
 
-        switch (fns.uRet)
+        switch (fns.uRet) {
+        case (FE_INVALID_VALUE):
         {
-            case ( FE_INVALID_VALUE ) :
-            {
-                break;
-            }
-            case ( FE_FOUNDNAME ) :
-            {
-                goto VerifyTheName;
-            }
-            default :
-            {
-                uRet = fns.uRet;
-                goto VerifyAndRet;
-            }
+            break;
+        }
+        case (FE_FOUNDNAME):
+        {
+            goto VerifyTheName;
+        }
+        default:
+        {
+            uRet = fns.uRet;
+            goto VerifyAndRet;
+        }
         }
     }
 #endif
 
-    if (bAddExt)
-    {
+    if (bAddExt) {
 
         //  Before we fail, check to see if the file typed sans default
         //  extension exists.
 
         *pnErrCode = VerifyOpen(pszFile, pszPathName);
-        if (*pnErrCode == 0 || *pnErrCode == OF_SHARINGVIOLATION)
-        {
+        if (*pnErrCode == 0 || *pnErrCode == OF_SHARINGVIOLATION) {
 
             //  We will never hit this case for links (because they
             //  have registered extensions), so we don't need
@@ -7523,15 +6816,13 @@ BOOL CFileOpenBrowser::SetDirRetry(
     LPTSTR pszDir,
     BOOL bNoValidate)
 {
-    if (SetCurrentDirectory(pszDir))
-    {
-JumpThere:
+    if (SetCurrentDirectory(pszDir)) {
+    JumpThere:
         JumpToPath(TEXT("."));
         return TRUE;
     }
 
-    if (bNoValidate || !IsUNC(pszDir))
-    {
+    if (bNoValidate || !IsUNC(pszDir)) {
         return FALSE;
     }
 
@@ -7541,54 +6832,51 @@ JumpThere:
     //  Note that if we are on a net that does not support CD'ing to UNC's
     //  directly, this call will connect it to a drive letter.
 
-    if (!SHValidateUNC(hwndDlg, pszDir, 0))
-    {
-        switch (GetLastError())
+    if (!SHValidateUNC(hwndDlg, pszDir, 0)) {
+        switch (GetLastError()) {
+        case ERROR_CANCELLED:
         {
-            case ERROR_CANCELLED:
-            {
 
-                //  We don't want to put up an error message if they
-                //  canceled the password dialog.
+            //  We don't want to put up an error message if they
+            //  canceled the password dialog.
 
-                return TRUE;
-            }
+            return TRUE;
+        }
 
-            case ERROR_NETWORK_UNREACHABLE:
-            {
-                LPTSTR lpMsgBuf;
-                TCHAR szTitle[MAX_PATH];
-                FormatMessage(
-                    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                    NULL,
-                    GetLastError(),
-                    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                    (LPTSTR) &lpMsgBuf,
-                    0,
-                    NULL );
+        case ERROR_NETWORK_UNREACHABLE:
+        {
+            LPTSTR lpMsgBuf;
+            TCHAR szTitle[MAX_PATH];
+            FormatMessage(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL,
+                GetLastError(),
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                (LPTSTR)&lpMsgBuf,
+                0,
+                NULL);
 
-                GetWindowText(hwndDlg, szTitle, ARRAYSIZE(szTitle));
-                MessageBox(NULL, lpMsgBuf, szTitle, MB_OK | MB_ICONINFORMATION );
-                // Free the buffer.
-                LocalFree( lpMsgBuf );
-                return TRUE;
-            }
+            GetWindowText(hwndDlg, szTitle, ARRAYSIZE(szTitle));
+            MessageBox(NULL, lpMsgBuf, szTitle, MB_OK | MB_ICONINFORMATION);
+            // Free the buffer.
+            LocalFree(lpMsgBuf);
+            return TRUE;
+        }
 
-            default:
-            {
+        default:
+        {
 
-                //  Some other error we don't know about.
+            //  Some other error we don't know about.
 
-                return FALSE;
-            }
+            return FALSE;
+        }
         }
     }
 
 
     //  We connected to it, so try to switch to it again.
 
-    if (SetCurrentDirectory(pszDir))
-    {
+    if (SetCurrentDirectory(pszDir)) {
         goto JumpThere;
     }
 
@@ -7616,8 +6904,7 @@ BOOL CFileOpenBrowser::MultiSelectOKButton(
 
     lpOFN->nFileExtension = 0;
 
-    if (!lpOFN->lpstrFile)
-    {
+    if (!lpOFN->lpstrFile) {
         return TRUE;
     }
 
@@ -7626,20 +6913,16 @@ BOOL CFileOpenBrowser::MultiSelectOKButton(
 
     //  Check for space for first full path element.
 
-    if ((lpOFN->Flags & OFN_ENABLEINCLUDENOTIFY) && lstrlen(pszObjectCurDir))
-    {
+    if ((lpOFN->Flags & OFN_ENABLEINCLUDENOTIFY) && lstrlen(pszObjectCurDir)) {
         lpCurDir = pszObjectCurDir;
-    }
-    else
-    {
+    } else {
         lpCurDir = szCurDir;
     }
     cchCurDir = lstrlen(lpCurDir) + 1;
     cchFiles = lstrlen(pszFiles) + 1;
     cch = cchCurDir + cchFiles;
 
-    if (cch > (UINT)lpOFN->nMaxFile)
-    {
+    if (cch > (UINT)lpOFN->nMaxFile) {
 
         //  Buffer is too small, so return the size of the buffer
         //  required to hold the string.
@@ -7654,8 +6937,7 @@ BOOL CFileOpenBrowser::MultiSelectOKButton(
 
     TEMPSTR psFiles(cchFiles + FILE_PADDING);
     pchRead = psFiles;
-    if (!pchRead)
-    {
+    if (!pchRead) {
 
         //  Out of memory.
         //  BUGBUG: There should be some sort of error message here.
@@ -7672,7 +6954,7 @@ BOOL CFileOpenBrowser::MultiSelectOKButton(
 
     //  Set nFileOffset to 1st file.
 
-    lpOFN->nFileOffset = (WORD) cchCurDir;
+    lpOFN->nFileOffset = (WORD)cchCurDir;
     pchWrite = lpOFN->lpstrFile + cchCurDir;
 
 
@@ -7683,14 +6965,12 @@ BOOL CFileOpenBrowser::MultiSelectOKButton(
 
     //  This should only compact the string.
 
-    if (!ConvertToNULLTerm(pchRead))
-    {
+    if (!ConvertToNULLTerm(pchRead)) {
         SetCursor(LoadCursor(NULL, IDC_ARROW));
         return FALSE;
     }
 
-    for ( ; *pchRead; pchRead += lstrlen(pchRead) + 1)
-    {
+    for (; *pchRead; pchRead += lstrlen(pchRead) + 1) {
         int nFileOffset, nExtOffset;
         TCHAR szBasicPath[MAX_PATH];
 
@@ -7698,8 +6978,7 @@ BOOL CFileOpenBrowser::MultiSelectOKButton(
 
         nFileOffset = ParseFileNew(szBasicPath, &nExtOffset, FALSE, TRUE);
 
-        if (nFileOffset < 0)
-        {
+        if (nFileOffset < 0) {
             SetCursor(LoadCursor(NULL, IDC_ARROW));
             InvalidFileWarningNew(hwndDlg, pchRead, nFileOffset);
             return FALSE;
@@ -7709,84 +6988,70 @@ BOOL CFileOpenBrowser::MultiSelectOKButton(
         //  Pass in 0 for the file offset to make sure we do not switch
         //  to another folder.
 
-        switch (FindNameInView( szBasicPath,
-                                Flags,
-                                szPathName,
-                                nFileOffset,
-                                nExtOffset,
-                                &nErrCode,
-                                FALSE ))
+        switch (FindNameInView(szBasicPath,
+                               Flags,
+                               szPathName,
+                               nFileOffset,
+                               nExtOffset,
+                               &nErrCode,
+                               FALSE)) {
+        case (FE_OUTOFMEM):
+        case (FE_CHANGEDDIR):
         {
-            case ( FE_OUTOFMEM ) :
-            case ( FE_CHANGEDDIR ) :
-            {
-                SetCursor(LoadCursor(NULL, IDC_ARROW));
-                return FALSE;
-            }
-            case ( FE_TOOMANY ) :
-            {
-                SetCursor(LoadCursor(NULL, IDC_ARROW));
-                CDMessageBox( hwndDlg,
-                              iszTooManyFiles,
-                              MB_OK | MB_ICONEXCLAMATION,
-                              pchRead );
-                return FALSE;
-            }
-            default :
-            {
-                break;
-            }
+            SetCursor(LoadCursor(NULL, IDC_ARROW));
+            return FALSE;
+        }
+        case (FE_TOOMANY):
+        {
+            SetCursor(LoadCursor(NULL, IDC_ARROW));
+            CDMessageBox(hwndDlg,
+                         iszTooManyFiles,
+                         MB_OK | MB_ICONEXCLAMATION,
+                         pchRead);
+            return FALSE;
+        }
+        default:
+        {
+            break;
+        }
         }
 
-        if ( nErrCode &&
-             ( (lpOFN->Flags & OFN_FILEMUSTEXIST) ||
-               (nErrCode != OF_FILENOTFOUND) ) &&
-             ( (lpOFN->Flags & OFN_PATHMUSTEXIST) ||
-               (nErrCode != OF_PATHNOTFOUND) ) &&
-             ( !(lpOFN->Flags & OFN_SHAREAWARE) ||
-               (nErrCode != OF_SHARINGVIOLATION) ) )
-        {
-            if ((nErrCode == OF_SHARINGVIOLATION) && hSubDlg)
-            {
-                int nShareCode = CD_SendShareNotify( hSubDlg,
-                                                     hwndDlg,
-                                                     szPathName,
-                                                     lpOFN,
-                                                     lpOFI );
+        if (nErrCode &&
+            ((lpOFN->Flags & OFN_FILEMUSTEXIST) ||
+            (nErrCode != OF_FILENOTFOUND)) &&
+             ((lpOFN->Flags & OFN_PATHMUSTEXIST) ||
+            (nErrCode != OF_PATHNOTFOUND)) &&
+              (!(lpOFN->Flags & OFN_SHAREAWARE) ||
+            (nErrCode != OF_SHARINGVIOLATION))) {
+            if ((nErrCode == OF_SHARINGVIOLATION) && hSubDlg) {
+                int nShareCode = CD_SendShareNotify(hSubDlg,
+                                                    hwndDlg,
+                                                    szPathName,
+                                                    lpOFN,
+                                                    lpOFI);
 
-                if (nShareCode == OFN_SHARENOWARN)
-                {
+                if (nShareCode == OFN_SHARENOWARN) {
                     SetCursor(LoadCursor(NULL, IDC_ARROW));
                     return FALSE;
-                }
-                else if (nShareCode == OFN_SHAREFALLTHROUGH)
-                {
+                } else if (nShareCode == OFN_SHAREFALLTHROUGH) {
                     goto EscapedThroughShare;
-                }
-                else
-                {
+                } else {
 
                     //  They might not have handled the notification, so try
                     //  the registered message.
 
                     nShareCode = CD_SendShareMsg(hSubDlg, szPathName, lpOFI->ApiType);
 
-                    if (nShareCode == OFN_SHARENOWARN)
-                    {
+                    if (nShareCode == OFN_SHARENOWARN) {
                         SetCursor(LoadCursor(NULL, IDC_ARROW));
                         return FALSE;
-                    }
-                    else if (nShareCode == OFN_SHAREFALLTHROUGH)
-                    {
+                    } else if (nShareCode == OFN_SHAREFALLTHROUGH) {
                         goto EscapedThroughShare;
                     }
                 }
-            }
-            else if (nErrCode == OF_ACCESSDENIED)
-            {
+            } else if (nErrCode == OF_ACCESSDENIED) {
                 szPathName[0] |= 0x60;
-                if (GetDriveType(szPathName) != DRIVE_REMOVABLE)
-                {
+                if (GetDriveType(szPathName) != DRIVE_REMOVABLE) {
                     nErrCode = OF_NETACCESSDENIED;
                 }
             }
@@ -7795,30 +7060,24 @@ BOOL CFileOpenBrowser::MultiSelectOKButton(
             //  BUGBUG: These will never be set.
 
             if ((nErrCode == OF_WRITEPROTECTION) ||
-                (nErrCode == OF_DISKFULL)        ||
-                (nErrCode == OF_DISKFULL2)       ||
-                (nErrCode == OF_ACCESSDENIED))
-            {
+                (nErrCode == OF_DISKFULL) ||
+                (nErrCode == OF_DISKFULL2) ||
+                (nErrCode == OF_ACCESSDENIED)) {
                 *pchRead = szPathName[0];
             }
 
-MultiWarning:
+        MultiWarning:
             SetCursor(LoadCursor(NULL, IDC_ARROW));
             InvalidFileWarningNew(hwndDlg, pchRead, nErrCode);
             return FALSE;
         }
 
-EscapedThroughShare:
-        if (nErrCode == 0)
-        {
-            if (!_ValidateSelectedFile(szPathName, &nErrCode))
-            {
-                if (nErrCode)
-                {
+    EscapedThroughShare:
+        if (nErrCode == 0) {
+            if (!_ValidateSelectedFile(szPathName, &nErrCode)) {
+                if (nErrCode) {
                     goto MultiWarning;
-                }
-                else
-                {
+                } else {
                     SetCursor(LoadCursor(NULL, IDC_ARROW));
                     return FALSE;
                 }
@@ -7829,8 +7088,7 @@ EscapedThroughShare:
         //  Add some more in case the file name got larger.
 
         cch += lstrlen(szBasicPath) - lstrlen(pchRead);
-        if (cch > (UINT)lpOFN->nMaxFile)
-        {
+        if (cch > (UINT)lpOFN->nMaxFile) {
 
             //  Buffer is too small, so return the size of the buffer
             //  required to hold the string.
@@ -7868,8 +7126,7 @@ void StoreLengthInString(
     UINT cchLen,
     UINT cchStore)
 {
-    if (cchLen >= 3)
-    {
+    if (cchLen >= 3) {
 
         //  For single file requests, we will never go over 64K
         //  because the filesystem is limited to 256.
@@ -7882,19 +7139,15 @@ void StoreLengthInString(
         lpStr[1] = HIBYTE(cchStore);
         lpStr[2] = 0;
 #endif
-    }
-    else
-    {
+    } else {
 #ifdef UNICODE
         lpStr[0] = (TCHAR)LOWORD(cchStore);
-        if (cchLen == 2)
-        {
+        if (cchLen == 2) {
             lpStr[1] = (TCHAR)HIWORD(cchStore);
         }
 #else
         lpStr[0] = LOBYTE(cchStore);
-        if (cchLen == 2)
-        {
+        if (cchLen == 2) {
             lpStr[1] = HIBYTE(cchStore);
         }
 #endif
@@ -7916,8 +7169,7 @@ BOOL CFileOpenBrowser::CheckForRestrictedFolder(LPCTSTR lpszPath, int nFileOffse
     DWORD dwAttrib = SFGAO_FILESYSTEM;
     HRESULT hr = S_OK;
 
-    if (nFileOffset > 0)
-    {
+    if (nFileOffset > 0) {
         //There's a path in the given filename. Get the directory part of the filename.
         lstrcpy(szTemp, lpszPath);
         szTemp[nFileOffset] = 0;
@@ -7927,35 +7179,26 @@ BOOL CFileOpenBrowser::CheckForRestrictedFolder(LPCTSTR lpszPath, int nFileOffse
 
         //Create the pidl for this path as well as get the attributes.
         hr = SHILCreateFromPath(szPath, &pidl, &dwAttrib);
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             bPidlAllocated = TRUE;
-        }
-        else
-        {
+        } else {
             // WE are failing b'cos the user might have typed some path which doesn't exist.
             // if the path doesn't exist then it can't be one of the directory we are trying restrict.
             // let's bail out and let the code that checks for valid path take care of it
             return bRet;
         }
-    }
-    else
-    {
-        IShellLink *psl;
+    } else {
+        IShellLink* psl;
         pidl = pCurrentLocation->pidlFull;
 
-        if (SUCCEEDED(CDGetUIObjectFromFullPIDL(pidl,hwndDlg, IID_IShellLink,(LPVOID *)&psl)))
-        {
+        if (SUCCEEDED(CDGetUIObjectFromFullPIDL(pidl, hwndDlg, IID_IShellLink, (LPVOID*)&psl))) {
             LPITEMIDLIST pidlTarget;
-            if (S_OK == psl->GetIDList(&pidlTarget))
-            {
+            if (S_OK == psl->GetIDList(&pidlTarget)) {
                 CDGetAttributesOf(pidlTarget, &dwAttrib);
                 ILFree(pidlTarget);
             }
             psl->Release();
-        }
-        else
-        {
+        } else {
             CDGetAttributesOf(pidl, &dwAttrib);
         }
     }
@@ -7964,30 +7207,27 @@ BOOL CFileOpenBrowser::CheckForRestrictedFolder(LPCTSTR lpszPath, int nFileOffse
     // 1. We cannot save to the non file system folders.
     // 2. We should not allow user to save in recent files folder as the file might get deleted.
     // 2. We cannot ever save into URLs without IMoniker support
-    if (!(dwAttrib & SFGAO_FILESYSTEM) || _IsRecentFolder(pidl) || UrlIs(lpszPath, URLIS_URL))
-    {
-        int iMessage =  UrlIs(lpszPath, URLIS_URL) ? iszNoSaveToURL : iszSaveRestricted;
+    if (!(dwAttrib & SFGAO_FILESYSTEM) || _IsRecentFolder(pidl) || UrlIs(lpszPath, URLIS_URL)) {
+        int iMessage = UrlIs(lpszPath, URLIS_URL) ? iszNoSaveToURL : iszSaveRestricted;
         HCURSOR hcurOld = SetCursor(LoadCursor(NULL, IDC_ARROW));
         CDMessageBox(hwndDlg, iMessage, MB_OK | MB_ICONEXCLAMATION);
         SetCursor(hcurOld);
         bRet = TRUE;
-     }
+    }
 
-    if (bPidlAllocated)
-    {
+    if (bPidlAllocated) {
         ILFree(pidl);
     }
 
     return bRet;
 }
 
-STDAPI_(LPITEMIDLIST) GetIDListFromFolder(IShellFolder *psf)
+STDAPI_(LPITEMIDLIST) GetIDListFromFolder(IShellFolder* psf)
 {
     LPITEMIDLIST pidl = NULL;
 
-    IPersistFolder2 *ppf;
-    if (psf && SUCCEEDED(psf->QueryInterface(IID_IPersistFolder2, (void **)&ppf)))
-    {
+    IPersistFolder2* ppf;
+    if (psf && SUCCEEDED(psf->QueryInterface(IID_IPersistFolder2, (void**)&ppf))) {
         ppf->GetCurFolder(&pidl);
         ppf->Release();
     }
@@ -8032,29 +7272,23 @@ BOOL CFileOpenBrowser::OKButtonPressed(
     BOOL bRet = FALSE;
     WAIT_CURSOR w;
 
-    if (bSelIsObject)
-    {
-        if ((INT)(lstrlen(pszObjectPath) + 1) <= (INT)lpOFN->nMaxFile)
-        {
+    if (bSelIsObject) {
+        if ((INT)(lstrlen(pszObjectPath) + 1) <= (INT)lpOFN->nMaxFile) {
             lstrcpy((LPTSTR)lpOFN->lpstrFile, (LPTSTR)pszObjectPath);
-        }
-        else
-        {
-            StoreLengthInString( lpOFN->lpstrFile,
-                                 lpOFN->nMaxFile,
-                                 lstrlen(pszObjectPath) + 1 );
+        } else {
+            StoreLengthInString(lpOFN->lpstrFile,
+                                lpOFN->nMaxFile,
+                                lstrlen(pszObjectPath) + 1);
         }
     }
 
 
     //  Expand any environment variables.
 
-    if ((cch = lpOFN->nMaxFile) > MAX_PATH)
-    {
+    if ((cch = lpOFN->nMaxFile) > MAX_PATH) {
         pExpFile = (LPTSTR)LocalAlloc(LPTR, (cch * sizeof(TCHAR)));
     }
-    if (!pExpFile)
-    {
+    if (!pExpFile) {
         pExpFile = szExpFile;
         cch = MAX_PATH;
     }
@@ -8064,8 +7298,7 @@ BOOL CFileOpenBrowser::OKButtonPressed(
 
     //  See if we're in Multi Select mode.
 
-    if (StrChr(pExpFile, CHAR_QUOTE) && (lpOFN->Flags & OFN_ALLOWMULTISELECT))
-    {
+    if (StrChr(pExpFile, CHAR_QUOTE) && (lpOFN->Flags & OFN_ALLOWMULTISELECT)) {
         bRet = MultiSelectOKButton(pExpFile, Flags);
         goto ReturnFromOKButtonPressed;
     }
@@ -8075,8 +7308,7 @@ BOOL CFileOpenBrowser::OKButtonPressed(
     //  multi-select mode & it's an object, we need to do a little
     //  work before continuing...
 
-    if ((lpOFN->Flags & OFN_ALLOWMULTISELECT) && bSelIsObject)
-    {
+    if ((lpOFN->Flags & OFN_ALLOWMULTISELECT) && bSelIsObject) {
         LocalFree(pExpFile);
         pExpFile = pszObjectPath;
     }
@@ -8093,26 +7325,21 @@ BOOL CFileOpenBrowser::OKButtonPressed(
 
         lstrcpyn(szBasicPath, pExpFile, ARRAYSIZE(szBasicPath) - 1);
         nTempOffset = 0;
-    }
-    else
-    {
+    } else {
 
         //  Grab the directory from the listbox.
 
         cch = GetDirectoryFromLB(szBasicPath, &nTempOffset);
 
-        if (pExpFile[0] == CHAR_BSLASH)
-        {
+        if (pExpFile[0] == CHAR_BSLASH) {
 
             //  If a directory from the root was given, put it
             //  immediately off the root (\\server\share or a:).
 
-            lstrcpyn( szBasicPath + nTempOffset,
-                      pExpFile,
-                      ARRAYSIZE(szBasicPath) - nTempOffset - 1 );
-        }
-        else
-        {
+            lstrcpyn(szBasicPath + nTempOffset,
+                     pExpFile,
+                     ARRAYSIZE(szBasicPath) - nTempOffset - 1);
+        } else {
 
             //  Tack the file to the end of the path.
 
@@ -8122,36 +7349,25 @@ BOOL CFileOpenBrowser::OKButtonPressed(
 
     nFileOffset = ParseFileOld(szBasicPath, &nExtOffset, &nOldExt, FALSE, TRUE);
 
-    if (nFileOffset == PARSE_EMPTYSTRING)
-    {
-        if (psv)
-        {
+    if (nFileOffset == PARSE_EMPTYSTRING) {
+        if (psv) {
             psv->Refresh();
         }
         goto ReturnFromOKButtonPressed;
-    }
-    else if ((nFileOffset != PARSE_DIRECTORYNAME) &&
-             (lpOFN->Flags & OFN_NOVALIDATE))
-    {
-        if (bSelIsObject)
-        {
+    } else if ((nFileOffset != PARSE_DIRECTORYNAME) &&
+        (lpOFN->Flags & OFN_NOVALIDATE)) {
+        if (bSelIsObject) {
             lpOFN->nFileOffset = lpOFN->nFileExtension = 0;
-        }
-        else
-        {
-            lpOFN->nFileOffset = (WORD) nFileOffset;
-            lpOFN->nFileExtension = (WORD) nOldExt;
+        } else {
+            lpOFN->nFileOffset = (WORD)nFileOffset;
+            lpOFN->nFileExtension = (WORD)nOldExt;
         }
 
-        if (lpOFN->lpstrFile)
-        {
+        if (lpOFN->lpstrFile) {
             cch = lstrlen(szBasicPath);
-            if (cch <= LOWORD(lpOFN->nMaxFile))
-            {
+            if (cch <= LOWORD(lpOFN->nMaxFile)) {
                 lstrcpy(lpOFN->lpstrFile, szBasicPath);
-            }
-            else
-            {
+            } else {
 
                 //  Buffer is too small, so return the size of the buffer
                 //  required to hold the string.
@@ -8161,16 +7377,12 @@ BOOL CFileOpenBrowser::OKButtonPressed(
         }
         bRet = TRUE;
         goto ReturnFromOKButtonPressed;
-    }
-    else if (nFileOffset == PARSE_DIRECTORYNAME)
-    {
+    } else if (nFileOffset == PARSE_DIRECTORYNAME) {
 
         //  See if it ends in slash.
 
-        if (nExtOffset > 0)
-        {
-            if (ISBACKSLASH(szBasicPath, nExtOffset - 1))
-            {
+        if (nExtOffset > 0) {
+            if (ISBACKSLASH(szBasicPath, nExtOffset - 1)) {
 
                 //  "\\server\share\" and "c:\" keep the trailing backslash,
                 //  all other paths remove the trailing backslash. Note that
@@ -8179,16 +7391,13 @@ BOOL CFileOpenBrowser::OKButtonPressed(
 
                 if ((nExtOffset != 1) &&
                     (szBasicPath[nExtOffset - 2] != CHAR_COLON) &&
-                    (nExtOffset != nTempOffset + 1))
-                {
+                    (nExtOffset != nTempOffset + 1)) {
                     szBasicPath[nExtOffset - 1] = CHAR_NULL;
                 }
-            }
-            else if ( (szBasicPath[nExtOffset - 1] == CHAR_DOT) &&
-                      ( (szBasicPath[nExtOffset - 2] == CHAR_DOT) ||
-                        ISBACKSLASH(szBasicPath, nExtOffset - 2) ) &&
-                      IsUNC(szBasicPath) )
-            {
+            } else if ((szBasicPath[nExtOffset - 1] == CHAR_DOT) &&
+                ((szBasicPath[nExtOffset - 2] == CHAR_DOT) ||
+                 ISBACKSLASH(szBasicPath, nExtOffset - 2)) &&
+                       IsUNC(szBasicPath)) {
 
                 //  Add a trailing slash to UNC paths ending with ".." or "\."
 
@@ -8200,17 +7409,14 @@ BOOL CFileOpenBrowser::OKButtonPressed(
 
         //  Fall through to Directory Checking.
 
-    }
-    else if (nFileOffset < 0)
-    {
+    } else if (nFileOffset < 0) {
         nErrCode = nFileOffset;
 
 
         //  I don't recognize this, so try to jump there.
         //  This is where servers get processed.
 
-        if (JumpToPath(szBasicPath))
-        {
+        if (JumpToPath(szBasicPath)) {
             goto ReturnFromOKButtonPressed;
         }
 
@@ -8218,22 +7424,19 @@ BOOL CFileOpenBrowser::OKButtonPressed(
         //  Fall through to the rest of the processing to warn the user.
 
 
-Warning:
-        if (bUNCName)
-        {
+    Warning:
+        if (bUNCName) {
             cch = lstrlen(szBasicPath) - 1;
             if ((szBasicPath[cch] == CHAR_BSLASH) &&
                 (szBasicPath[cch - 1] == CHAR_DOT) &&
-                (ISBACKSLASH(szBasicPath, cch - 2)))
-            {
+                (ISBACKSLASH(szBasicPath, cch - 2))) {
                 szBasicPath[cch - 2] = CHAR_NULL;
             }
         }
 
         // For file names of form c:filename.txt , we hacked and changed it to c:.\filename.txt
         // check for that hack and if so change the file name back as it was given by user.
-        else if ((nFileOffset == 2) && (szBasicPath[2] == CHAR_DOT))
-        {
+        else if ((nFileOffset == 2) && (szBasicPath[2] == CHAR_DOT)) {
             lstrcpy(szBasicPath + 2, szBasicPath + 4);
         }
 
@@ -8248,8 +7451,7 @@ Warning:
         //  I will assume that if we get error 0 or 1 or removable
         //  that we will assume removable.
 
-        if (nErrCode == OF_ACCESSDENIED)
-        {
+        if (nErrCode == OF_ACCESSDENIED) {
             TCHAR szD[4];
 
             szPathName[0] |= 0x60;
@@ -8257,17 +7459,15 @@ Warning:
             szD[1] = CHAR_COLON;
             szD[2] = CHAR_BSLASH;
             szD[3] = 0;
-            if (bUNCName || GetDriveType(szD) <= DRIVE_REMOVABLE)
-            {
+            if (bUNCName || GetDriveType(szD) <= DRIVE_REMOVABLE) {
                 nErrCode = OF_NETACCESSDENIED;
             }
         }
 
         if ((nErrCode == OF_WRITEPROTECTION) ||
-            (nErrCode == OF_DISKFULL)        ||
-            (nErrCode == OF_DISKFULL2)       ||
-            (nErrCode == OF_ACCESSDENIED))
-        {
+            (nErrCode == OF_DISKFULL) ||
+            (nErrCode == OF_DISKFULL2) ||
+            (nErrCode == OF_ACCESSDENIED)) {
             szBasicPath[0] = szPathName[0];
         }
 
@@ -8276,12 +7476,9 @@ Warning:
         //  to PNF or FNF i think
         // if (nErrCode == OF_PATHNOTFOUND || nErrCode == OF_FILENOTFOUND)
         HRESULT hr;
-        if (bSave)
-        {
+        if (bSave) {
             hr = CheckForRestrictedFolder(pszFile, 0) ? S_FALSE : E_FAIL;
-        }
-        else
-        {
+        } else {
             hr = _TryFakeMoniker(pszFile);
         }
 
@@ -8325,67 +7522,52 @@ Warning:
 
     nTempOffset = nFileOffset;
 
-    if (bIsDir)
-    {
+    if (bIsDir) {
         goto ReturnFromOKButtonPressed;
-    }
-    else if (IsUNC(szBasicPath))
-    {
+    } else if (IsUNC(szBasicPath)) {
 
         //  UNC Name.
 
         bUNCName = TRUE;
-    }
-    else if (nFileOffset > 0)
-    {
+    } else if (nFileOffset > 0) {
         TCHAR szBuf[MAX_PATH];
 
         //  There is a path in the string.
 
-        if ((nFileOffset > 1) && (szBasicPath[nFileOffset - 1] != CHAR_COLON) && (szBasicPath[nFileOffset - 2] != CHAR_COLON))
-        {
+        if ((nFileOffset > 1) && (szBasicPath[nFileOffset - 1] != CHAR_COLON) && (szBasicPath[nFileOffset - 2] != CHAR_COLON)) {
             nTempOffset--;
         }
         GetCurrentDirectory(ARRAYSIZE(szBuf), szBuf);
         ch = szBasicPath[nTempOffset];
         szBasicPath[nTempOffset] = 0;
 
-        if (SetCurrentDirectory(szBasicPath))
-        {
+        if (SetCurrentDirectory(szBasicPath)) {
             SetCurrentDirectory(szBuf);
-        }
-        else
-        {
-            switch (GetLastError())
+        } else {
+            switch (GetLastError()) {
+            case (ERROR_NOT_READY):
             {
-                case ( ERROR_NOT_READY ) :
-                {
-                    eCode = ECODE_BADDRIVE;
-                    break;
-                }
-                default :
-                {
-                    eCode = ECODE_BADPATH;
-                    break;
-                }
+                eCode = ECODE_BADDRIVE;
+                break;
+            }
+            default:
+            {
+                eCode = ECODE_BADPATH;
+                break;
+            }
             }
         }
         szBasicPath[nTempOffset] = ch;
-    }
-    else if (nFileOffset == PARSE_DIRECTORYNAME)
-    {
+    } else if (nFileOffset == PARSE_DIRECTORYNAME) {
         TCHAR szD[4];
 
         szD[0] = *szBasicPath;
         szD[1] = CHAR_COLON;
         szD[2] = CHAR_BSLASH;
         szD[3] = 0;
-        if (PathFileExists(szD))
-        {
+        if (PathFileExists(szD)) {
             eCode = ECODE_BADPATH;
-        }
-        else
-        {
+        } else {
             eCode = ECODE_BADDRIVE;
         }
     }
@@ -8393,16 +7575,11 @@ Warning:
 
     //  Was there a path and did it fail?
 
-    if ( !bUNCName && nFileOffset && eCode != ECODE_S_OK && (lpOFN->Flags & OFN_PATHMUSTEXIST) )
-    {
-        if (eCode == ECODE_BADPATH)
-        {
+    if (!bUNCName && nFileOffset && eCode != ECODE_S_OK && (lpOFN->Flags & OFN_PATHMUSTEXIST)) {
+        if (eCode == ECODE_BADPATH) {
             nErrCode = OF_PATHNOTFOUND;
-        }
-        else if (eCode == ECODE_BADDRIVE)
-        {
+        } else if (eCode == ECODE_BADDRIVE) {
             TCHAR szD[4];
-
 
             //  We can get here without performing an OpenFile call.  As
             //  such the szPathName can be filled with random garbage.
@@ -8413,29 +7590,24 @@ Warning:
             szD[1] = CHAR_COLON;
             szD[2] = CHAR_BSLASH;
             szD[3] = 0;
-            switch (GetDriveType(szD))
+            switch (GetDriveType(szD)) {
+            case (DRIVE_REMOVABLE):
             {
-                case ( DRIVE_REMOVABLE ) :
-                {
-                    nErrCode = ERROR_NOT_READY;
-                    break;
-                }
-                case ( 1 ) :
-                {
-
-                    //  Drive does not exist.
-
-                    nErrCode = OF_NODRIVE;
-                    break;
-                }
-                default :
-                {
-                    nErrCode = OF_PATHNOTFOUND;
-                }
+                nErrCode = ERROR_NOT_READY;
+                break;
             }
-        }
-        else
-        {
+            case (1):
+            {
+                //  Drive does not exist.
+                nErrCode = OF_NODRIVE;
+                break;
+            }
+            default:
+            {
+                nErrCode = OF_PATHNOTFOUND;
+            }
+            }
+        } else {
             nErrCode = OF_FILENOTFOUND;
         }
         goto Warning;
@@ -8444,24 +7616,17 @@ Warning:
 
     //  Full pattern?
 
-    if (IsWild(szBasicPath + nFileOffset))
-    {
-        if (!bUNCName)
-        {
+    if (IsWild(szBasicPath + nFileOffset)) {
+        if (!bUNCName) {
             SetCurrentFilter(szBasicPath + nFileOffset, Flags);
-            if (nTempOffset)
-            {
+            if (nTempOffset) {
                 szBasicPath[nTempOffset] = 0;
                 JumpToPath(szBasicPath);
-            }
-            else if (psv)
-            {
+            } else if (psv) {
                 psv->Refresh();
             }
             goto ReturnFromOKButtonPressed;
-        }
-        else
-        {
+        } else {
             SetCurrentFilter(szBasicPath + nFileOffset, Flags);
 
             szBasicPath[nFileOffset] = CHAR_NULL;
@@ -8471,21 +7636,17 @@ Warning:
         }
     }
 
-    if (PortName(szBasicPath + nFileOffset))
-    {
+    if (PortName(szBasicPath + nFileOffset)) {
         nErrCode = OF_PORTNAME;
         goto Warning;
     }
 
     // In save as dialog check to see if the folder user trying to save a file is
     // a restricted folder (Network Folder). if so bail out
-    if (bSave && CheckForRestrictedFolder(szBasicPath, nFileOffset))
-    {
+    if (bSave && CheckForRestrictedFolder(szBasicPath, nFileOffset)) {
         SetCursor(LoadCursor(NULL, IDC_ARROW));
         goto ReturnFromOKButtonPressed;
     }
-
-
 
     //  Check if we've received a string in the form "C:filename.ext".
     //  If we have, convert it to the form "C:.\filename.ext".  This is done
@@ -8498,8 +7659,7 @@ Warning:
     //  used at the Warning: label to determine if this hack has occurred,
     //  and thus it can strip out the ".\" when putting up the error.
 
-    if ((nFileOffset == 2) && (szBasicPath[1] == CHAR_COLON))
-    {
+    if ((nFileOffset == 2) && (szBasicPath[1] == CHAR_COLON)) {
         lstrcpy(szBuf, szBasicPath + 2);
         lstrcpy(szBasicPath + 4, szBuf);
         szBasicPath[2] = CHAR_DOT;
@@ -8516,211 +7676,178 @@ Warning:
     //  FindNameInView calls VerifyOpen before returning.
 
     szPathName[0] = 0;
-    switch (FindNameInView( szBasicPath,
-                            Flags,
-                            szPathName,
-                            nFileOffset,
-                            nExtOffset,
-                            &nErrCode ))
+    switch (FindNameInView(szBasicPath,
+                           Flags,
+                           szPathName,
+                           nFileOffset,
+                           nExtOffset,
+                           &nErrCode)) {
+    case (FE_OUTOFMEM):
+    case (FE_CHANGEDDIR):
     {
-        case ( FE_OUTOFMEM ) :
-        case ( FE_CHANGEDDIR ) :
-        {
-            goto ReturnFromOKButtonPressed;
-        }
-        case ( FE_TOOMANY ) :
-        {
-            SetCursor(LoadCursor(NULL, IDC_ARROW));
-            CDMessageBox( hwndDlg,
-                          iszTooManyFiles,
-                          MB_OK | MB_ICONEXCLAMATION,
-                          szBasicPath );
-            goto ReturnFromOKButtonPressed;
-        }
-        default :
-        {
-            break;
-        }
+        goto ReturnFromOKButtonPressed;
+    }
+    case (FE_TOOMANY):
+    {
+        SetCursor(LoadCursor(NULL, IDC_ARROW));
+        CDMessageBox(hwndDlg,
+                     iszTooManyFiles,
+                     MB_OK | MB_ICONEXCLAMATION,
+                     szBasicPath);
+        goto ReturnFromOKButtonPressed;
+    }
+    default:
+    {
+        break;
+    }
     }
 
-    switch (nErrCode)
+    switch (nErrCode) {
+    case (0):
     {
-        case ( 0 ) :
-        {
-            if (!_ValidateSelectedFile(szPathName, &nErrCode))
-            {
-                if (nErrCode)
-                {
-                    goto Warning;
-                }
-                else
-                {
+        if (!_ValidateSelectedFile(szPathName, &nErrCode)) {
+            if (nErrCode) {
+                goto Warning;
+            } else {
+                goto ReturnFromOKButtonPressed;
+            }
+        }
+        break;
+    }
+    case (OF_SHARINGVIOLATION):
+    {
+
+        //  If the app is "share aware", fall through.
+        //  Otherwise, ask the hook function.
+
+        if (!(lpOFN->Flags & OFN_SHAREAWARE)) {
+            if (hSubDlg) {
+                int nShareCode = CD_SendShareNotify(hSubDlg,
+                                                    hwndDlg,
+                                                    szPathName,
+                                                    lpOFN,
+                                                    lpOFI);
+                if (nShareCode == OFN_SHARENOWARN) {
                     goto ReturnFromOKButtonPressed;
-                }
-            }
-            break;
-        }
-        case ( OF_SHARINGVIOLATION ) :
-        {
+                } else if (nShareCode != OFN_SHAREFALLTHROUGH) {
 
-            //  If the app is "share aware", fall through.
-            //  Otherwise, ask the hook function.
+                    //  They might not have handled the notification,
+                    //  so try the registered message.
 
-            if (!(lpOFN->Flags & OFN_SHAREAWARE))
-            {
-                if (hSubDlg)
-                {
-                    int nShareCode = CD_SendShareNotify( hSubDlg,
-                                                         hwndDlg,
-                                                         szPathName,
-                                                         lpOFN,
-                                                         lpOFI );
-                    if (nShareCode == OFN_SHARENOWARN)
-                    {
+                    nShareCode = CD_SendShareMsg(hSubDlg, szPathName, lpOFI->ApiType);
+                    if (nShareCode == OFN_SHARENOWARN) {
                         goto ReturnFromOKButtonPressed;
-                    }
-                    else if (nShareCode != OFN_SHAREFALLTHROUGH)
-                    {
-
-                        //  They might not have handled the notification,
-                        //  so try the registered message.
-
-                        nShareCode = CD_SendShareMsg(hSubDlg, szPathName, lpOFI->ApiType);
-                        if (nShareCode == OFN_SHARENOWARN)
-                        {
-                            goto ReturnFromOKButtonPressed;
-                        }
-                        else if (nShareCode != OFN_SHAREFALLTHROUGH)
-                        {
-                            goto Warning;
-                        }
-                    }
-                }
-                else
-                {
-                    goto Warning;
-                }
-            }
-            break;
-        }
-        case ( OF_FILENOTFOUND ) :
-        case ( OF_PATHNOTFOUND ) :
-        {
-            if (!bSave)
-            {
-
-                //  The file or path wasn't found.
-                //  If this is a save dialog, we're ok, but if it's not,
-                //  we're toast.
-
-                if (lpOFN->Flags & OFN_FILEMUSTEXIST)
-                {
-                    if (lpOFN->Flags & OFN_CREATEPROMPT)
-                    {
-                        int nCreateCode = CreateFileDlg(hwndDlg, szBasicPath);
-                        if (nCreateCode != IDYES)
-                        {
-                            goto ReturnFromOKButtonPressed;
-                        }
-                    }
-                    else
-                    {
+                    } else if (nShareCode != OFN_SHAREFALLTHROUGH) {
                         goto Warning;
                     }
                 }
-            }
-            goto VerifyPath;
-        }
-        default :
-        {
-            if (!bSave)
-            {
+            } else {
                 goto Warning;
             }
+        }
+        break;
+    }
+    case (OF_FILENOTFOUND):
+    case (OF_PATHNOTFOUND):
+    {
+        if (!bSave) {
 
+            //  The file or path wasn't found.
+            //  If this is a save dialog, we're ok, but if it's not,
+            //  we're toast.
 
-
-            //  The file doesn't exist.  Can it be created?  This is needed
-            //  because there are many extended characters which are invalid
-            //  which won't be caught by ParseFile.
-
-            //  Two more good reasons:  Write-protected disks & full disks.
-
-            //  BUT, if they don't want the test creation, they can request
-            //  that we not do it using the OFN_NOTESTFILECREATE flag.  If
-            //  they want to create files on a share that has
-            //  create-but-no-modify privileges, they should set this flag
-            //  but be ready for failures that couldn't be caught, such as
-            //  no create privileges, invalid extended characters, a full
-            //  disk, etc.
-
-
-VerifyPath:
-
-            //  Verify the path.
-
-            if (lpOFN->Flags & OFN_PATHMUSTEXIST)
-            {
-                if (!(lpOFN->Flags & OFN_NOTESTFILECREATE))
-                {
-                    HANDLE hf = CreateFile( szBasicPath,
-                                            GENERIC_WRITE,
-                                            FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                            NULL,
-                                            CREATE_NEW,
-                                            FILE_ATTRIBUTE_NORMAL,
-                                            NULL );
-                    if (hf != INVALID_HANDLE_VALUE)
-                    {
-                        CloseHandle(hf);
-
-
-                        //  This test is here to see if we were able to
-                        //  create it, but couldn't delete it.  If so,
-                        //  warn the user that the network admin has given
-                        //  him create-but-no-modify privileges.  As such,
-                        //  the file has just been created, but we can't
-                        //  do anything with it, it's of 0 size.
-
-                        if (!DeleteFile(szBasicPath))
-                        {
-                            nErrCode = OF_CREATENOMODIFY;
-                            goto Warning;
-                        }
+            if (lpOFN->Flags & OFN_FILEMUSTEXIST) {
+                if (lpOFN->Flags & OFN_CREATEPROMPT) {
+                    int nCreateCode = CreateFileDlg(hwndDlg, szBasicPath);
+                    if (nCreateCode != IDYES) {
+                        goto ReturnFromOKButtonPressed;
                     }
-                    else
-                    {
-
-                        //  Unable to create it.
-
-                        //  If it's not write-protection, a full disk,
-                        //  network protection, or the user popping the
-                        //  drive door open, assume that the filename is
-                        //  invalid.
-
-                        nErrCode = GetLastError();
-                        switch (nErrCode)
-                        {
-                            case ( OF_WRITEPROTECTION ) :
-                            case ( OF_DISKFULL ) :
-                            case ( OF_DISKFULL2 ) :
-                            case ( OF_NETACCESSDENIED ) :
-                            case ( OF_ACCESSDENIED ) :
-                            {
-                                break;
-                            }
-                            default :
-                            {
-                                nErrCode = 0;
-                                break;
-                            }
-                        }
-
-                        goto Warning;
-                    }
+                } else {
+                    goto Warning;
                 }
             }
         }
+        goto VerifyPath;
+    }
+    default:
+    {
+        if (!bSave) {
+            goto Warning;
+        }
+
+        //  The file doesn't exist.  Can it be created?  This is needed
+        //  because there are many extended characters which are invalid
+        //  which won't be caught by ParseFile.
+
+        //  Two more good reasons:  Write-protected disks & full disks.
+
+        //  BUT, if they don't want the test creation, they can request
+        //  that we not do it using the OFN_NOTESTFILECREATE flag.  If
+        //  they want to create files on a share that has
+        //  create-but-no-modify privileges, they should set this flag
+        //  but be ready for failures that couldn't be caught, such as
+        //  no create privileges, invalid extended characters, a full
+        //  disk, etc.
+
+    VerifyPath:
+
+        //  Verify the path.
+
+        if (lpOFN->Flags & OFN_PATHMUSTEXIST) {
+            if (!(lpOFN->Flags & OFN_NOTESTFILECREATE)) {
+                HANDLE hf = CreateFile(szBasicPath,
+                                       GENERIC_WRITE,
+                                       FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                       NULL,
+                                       CREATE_NEW,
+                                       FILE_ATTRIBUTE_NORMAL,
+                                       NULL);
+                if (hf != INVALID_HANDLE_VALUE) {
+                    CloseHandle(hf);
+
+
+                    //  This test is here to see if we were able to
+                    //  create it, but couldn't delete it.  If so,
+                    //  warn the user that the network admin has given
+                    //  him create-but-no-modify privileges.  As such,
+                    //  the file has just been created, but we can't
+                    //  do anything with it, it's of 0 size.
+
+                    if (!DeleteFile(szBasicPath)) {
+                        nErrCode = OF_CREATENOMODIFY;
+                        goto Warning;
+                    }
+                } else {
+
+                    //  Unable to create it.
+
+                    //  If it's not write-protection, a full disk,
+                    //  network protection, or the user popping the
+                    //  drive door open, assume that the filename is
+                    //  invalid.
+
+                    nErrCode = GetLastError();
+                    switch (nErrCode) {
+                    case (OF_WRITEPROTECTION):
+                    case (OF_DISKFULL):
+                    case (OF_DISKFULL2):
+                    case (OF_NETACCESSDENIED):
+                    case (OF_ACCESSDENIED):
+                    {
+                        break;
+                    }
+                    default:
+                    {
+                        nErrCode = 0;
+                        break;
+                    }
+                    }
+
+                    goto Warning;
+                }
+            }
+        }
+    }
     }
 
     nFileOffset = _CopyFileNameToOFN(szPathName, NULL);
@@ -8733,8 +7860,7 @@ VerifyPath:
 
 ReturnFromOKButtonPressed:
 
-    if ((pExpFile != szExpFile) && (pExpFile != pszObjectPath))
-    {
+    if ((pExpFile != szExpFile) && (pExpFile != pszObjectPath)) {
         LocalFree(pExpFile);
     }
     return (bRet);
@@ -8748,77 +7874,67 @@ void CFileOpenBrowser::_CopyTitleToOFN(LPCTSTR pszTitle)
     //  Note that it's cut off at whatever the buffer length
     //    is, so if the buffer's too small, no notice is given.
 
-    if (lpOFN->lpstrFileTitle)
-    {
+    if (lpOFN->lpstrFileTitle) {
         StrCpyN(lpOFN->lpstrFileTitle, pszTitle, lpOFN->nMaxFileTitle);
     }
 }
 
-int CFileOpenBrowser::_CopyFileNameToOFN(LPTSTR pszFile, DWORD *pdwError)
+int CFileOpenBrowser::_CopyFileNameToOFN(LPTSTR pszFile, DWORD* pdwError)
 {
     int nExtOffset, nOldExt, nFileOffset = ParseFileOld(pszFile, &nExtOffset, &nOldExt, FALSE, TRUE);
 
     //NULL can be passed in to this function if we don't care about the error condition!
-    if(pdwError)
+    if (pdwError)
         *pdwError = 0; //Assume no error.
 
-    lpOFN->nFileOffset = (WORD) nFileOffset;
-    lpOFN->nFileExtension = (WORD) nOldExt;
+    lpOFN->nFileOffset = (WORD)nFileOffset;
+    lpOFN->nFileExtension = (WORD)nOldExt;
 
     lpOFN->Flags &= ~OFN_EXTENSIONDIFFERENT;
-    if (lpOFN->lpstrDefExt && lpOFN->nFileExtension)
-    {
+    if (lpOFN->lpstrDefExt && lpOFN->nFileExtension) {
         TCHAR szPrivateExt[MIN_DEFEXT_LEN];
 
 
         //  Check against lpOFN->lpstrDefExt, not pszDefExt.
 
         lstrcpyn(szPrivateExt, lpOFN->lpstrDefExt, MIN_DEFEXT_LEN);
-        if (lstrcmpi(szPrivateExt, pszFile + nOldExt))
-        {
+        if (lstrcmpi(szPrivateExt, pszFile + nOldExt)) {
             lpOFN->Flags |= OFN_EXTENSIONDIFFERENT;
         }
     }
 
-    if (lpOFN->lpstrFile)
-    {
+    if (lpOFN->lpstrFile) {
         DWORD cch = lstrlen(pszFile) + 1;
-        if (lpOFN->Flags & OFN_ALLOWMULTISELECT)
-        {
+        if (lpOFN->Flags & OFN_ALLOWMULTISELECT) {
 
             //  Extra room for double-NULL.
 
             ++cch;
         }
 
-        if (cch <= LOWORD(lpOFN->nMaxFile))
-        {
+        if (cch <= LOWORD(lpOFN->nMaxFile)) {
             lstrcpy(lpOFN->lpstrFile, pszFile);
-            if (lpOFN->Flags & OFN_ALLOWMULTISELECT)
-            {
+            if (lpOFN->Flags & OFN_ALLOWMULTISELECT) {
 
                 //  Double-NULL terminate.
 
                 *(lpOFN->lpstrFile + cch - 1) = CHAR_NULL;
             }
 
-            if (!(lpOFN->Flags & OFN_NOCHANGEDIR) && !PathIsUNC(pszFile) && nFileOffset)
-            {
+            if (!(lpOFN->Flags & OFN_NOCHANGEDIR) && !PathIsUNC(pszFile) && nFileOffset) {
                 TCHAR ch = lpOFN->lpstrFile[nFileOffset];
                 lpOFN->lpstrFile[nFileOffset] = CHAR_NULL;
                 SetCurrentDirectory(lpOFN->lpstrFile);
                 lpOFN->lpstrFile[nFileOffset] = ch;
             }
-        }
-        else
-        {
+        } else {
 
             //  Buffer is too small, so return the size of the buffer
             //  required to hold the string.
 
             StoreLengthInString((LPTSTR)lpOFN->lpstrFile, (UINT)lpOFN->nMaxFile, (UINT)cch);
 
-            if(pdwError)
+            if (pdwError)
                 *pdwError = FNERR_BUFFERTOOSMALL; //This is an error!
 
         }
@@ -8829,10 +7945,9 @@ int CFileOpenBrowser::_CopyFileNameToOFN(LPTSTR pszFile, DWORD *pdwError)
 
 HRESULT CFileOpenBrowser::_TryFakeMoniker(LPCTSTR pszFile)
 {
-    IMoniker *pmk;
+    IMoniker* pmk;
     HRESULT hr = _GetMonikerT(psfCurrent, pszFile, &pmk, TRUE);
-    if (S_OK == hr)
-    {
+    if (S_OK == hr) {
 
         //  now we have to create a temp file
         //  to pass back to the client.
@@ -8849,8 +7964,7 @@ HRESULT CFileOpenBrowser::_TryFakeMoniker(LPCTSTR pszFile)
 
         SHTCharToUnicode(pszFile, wzFile, SIZECHARS(wzFile));
         hr = SHCopyMonikerToTemp(pmk, wzFile, wzTemp, SIZECHARS(wzTemp));
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             TCHAR szTemp[MAX_PATH];
 
             SHUnicodeToTChar(wzTemp, szTemp, SIZECHARS(szTemp));
@@ -8878,32 +7992,28 @@ HRESULT CFileOpenBrowser::_TryFakeMoniker(LPCTSTR pszFile)
 //          ERROR    for any problems
 
 
-HRESULT CFileOpenBrowser::_GetMoniker(IShellFolder *psf, LPCOLESTR pszIn, IMoniker **ppmk, BOOL fAllowJump)
+HRESULT CFileOpenBrowser::_GetMoniker(IShellFolder* psf, LPCOLESTR pszIn, IMoniker** ppmk, BOOL fAllowJump)
 {
     HRESULT hr = E_OUTOFMEMORY;
 
-    IShellFolder *psfDesktop = NULL;
-    if (!psf)
-    {
+    IShellFolder* psfDesktop = NULL;
+    if (!psf) {
         SHGetDesktopFolder(&psfDesktop);
         psf = psfDesktop;
     }
 
-    *ppmk= NULL;
+    *ppmk = NULL;
 
-    if (psf)
-    {
+    if (psf) {
         hr = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
 
-        IBindCtx *pbc = NULL;
+        IBindCtx* pbc = NULL;
         DWORD dwAttribs = (SFGAO_CANMONIKER | SFGAO_FOLDER | SFGAO_BROWSABLE | SFGAO_LINK);
         LPITEMIDLIST pidl;
         ULONG cch;
 
-        if (bSave)
-        {
-            if (SUCCEEDED(CreateBindCtx(0, &pbc)))
-            {
+        if (bSave) {
+            if (SUCCEEDED(CreateBindCtx(0, &pbc))) {
                 BIND_OPTS bo = {0};
                 bo.cbStruct = SIZEOF(bo);
                 bo.grfMode = STGM_CREATE;
@@ -8911,72 +8021,57 @@ HRESULT CFileOpenBrowser::_GetMoniker(IShellFolder *psf, LPCOLESTR pszIn, IMonik
             }
         }
 
-        if (S_OK == psf->ParseDisplayName(NULL, pbc, (LPOLESTR)pszIn, &cch, &pidl, &dwAttribs))
-        {
+        if (S_OK == psf->ParseDisplayName(NULL, pbc, (LPOLESTR)pszIn, &cch, &pidl, &dwAttribs)) {
             hr = E_ACCESSDENIED;
 
             ASSERT(pidl);
-            if (dwAttribs & SFGAO_LINK)
-            {
+            if (dwAttribs & SFGAO_LINK) {
                 TCHAR szReal[MAX_PATH];
                 SHTCUTINFO info;
 
-                info.dwAttr      = 0;
-                info.fReSolve    = FALSE;
+                info.dwAttr = 0;
+                info.fReSolve = FALSE;
                 info.pszLinkFile = szReal;
-                info.cchFile     = ARRAYSIZE(szReal);
-                info.ppidl       = NULL;
+                info.cchFile = ARRAYSIZE(szReal);
+                info.ppidl = NULL;
 
-                if (SUCCEEDED(ResolveLink(pidl, &info)) && szReal[0])
-                {
+                if (SUCCEEDED(ResolveLink(pidl, &info)) && szReal[0]) {
                     hr = _GetMonikerT(NULL, szReal, ppmk, fAllowJump);
                 }
-            }
-            else if ((dwAttribs & (SFGAO_CANMONIKER | SFGAO_FOLDER))
-                            == (SFGAO_CANMONIKER | SFGAO_FOLDER))
-            {
+            } else if ((dwAttribs & (SFGAO_CANMONIKER | SFGAO_FOLDER))
+                       == (SFGAO_CANMONIKER | SFGAO_FOLDER)) {
                 //  if we dont have browsable but are a folder then jumpto it
                 //  we have a subfolder that has been selected.
                 //  jumpto it instead
-                if (fAllowJump)
-                {
+                if (fAllowJump) {
                     if (!psfDesktop && SUCCEEDED(SHGetDesktopFolder(&psfDesktop)) &&
                         !(psf == psfDesktop)
-                       )
-                    {
+                        ) {
                         //  we need to get a fully qualified
                         LPITEMIDLIST pidlParent = GetIDListFromFolder(psf);
 
-                        if (pidlParent)
-                        {
+                        if (pidlParent) {
                             LPITEMIDLIST pidlFull = ILCombine(pidlParent, pidl);
-                            if (pidlFull)
-                            {
+                            if (pidlFull) {
                                 JumpToIDList(pidlFull);
                                 ILFree(pidlFull);
                             }
                             ILFree(pidlParent);
                         }
-                    }
-                    else
+                    } else
                         JumpToIDList(pidl);
                 }
 
                 hr = S_FALSE;
-            }
-            else
-            {
+            } else {
                 //  we have the right folder already, and we are going to use it
-                if (S_OK == psf->BindToObject(pidl, NULL, IID_IMoniker, (void **)ppmk))
+                if (S_OK == psf->BindToObject(pidl, NULL, IID_IMoniker, (void**)ppmk))
                     hr = S_OK;
-
             }
 
             ILFree(pidl);
 
-        }
-        else if (!psfDesktop)
-        {
+        } else if (!psfDesktop) {
             hr = _GetMoniker(NULL, pszIn, ppmk, fAllowJump);
         }
 
@@ -8992,7 +8087,7 @@ HRESULT CFileOpenBrowser::_GetMoniker(IShellFolder *psf, LPCOLESTR pszIn, IMonik
 }
 
 
-HRESULT CFileOpenBrowser::_GetMonikerT(IShellFolder *psf, LPCTSTR pszIn, IMoniker **ppmk, BOOL fAllowJump)
+HRESULT CFileOpenBrowser::_GetMonikerT(IShellFolder* psf, LPCTSTR pszIn, IMoniker** ppmk, BOOL fAllowJump)
 {
     HRESULT hr = E_OUTOFMEMORY;
     TCHAR szPath[MAX_PATH];
@@ -9004,8 +8099,7 @@ HRESULT CFileOpenBrowser::_GetMonikerT(IShellFolder *psf, LPCTSTR pszIn, IMonike
     //  in shdocvw, they are picked of in IEParseDisplayName().  however
     //  i didnt want to link to shdocvw if i could help it, so i put this little
     //  check to work around.
-    if (UrlIs(pszIn, URLIS_FILEURL))
-    {
+    if (UrlIs(pszIn, URLIS_FILEURL)) {
         DWORD cch = ARRAYSIZE(szPath);
         if (SUCCEEDED(PathCreateFromUrl(pszIn, szPath, &cch, 0)))
             pszIn = szPath;
@@ -9032,44 +8126,35 @@ HRESULT CFileOpenBrowser::_MonikerOKButtonPressed(LPCTSTR pszFile, OKBUTTONFLAGS
 
     //  Expand any environment variables.
 
-    if ((cch = lpOFN->nMaxFile) > MAX_PATH)
-    {
+    if ((cch = lpOFN->nMaxFile) > MAX_PATH) {
         pExpFile = (LPTSTR)LocalAlloc(LPTR, (cch * sizeof(TCHAR)));
     }
-    if (!pExpFile)
-    {
+    if (!pExpFile) {
         pExpFile = szExpFile;
         cch = MAX_PATH;
     }
     ExpandEnvironmentStrings(pszFile, pExpFile, cch);
     pExpFile[cch - 1] = 0;
 
-
-
     HCURSOR hCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
 
-    if (StrChr(pExpFile, CHAR_QUOTE) && (lpOFN->Flags & OFN_ALLOWMULTISELECT))
-    {
+    if (StrChr(pExpFile, CHAR_QUOTE) && (lpOFN->Flags & OFN_ALLOWMULTISELECT)) {
         //  need to handle MULTISEL here...
         //  pExpFile points to a bunch of quoted strings.
         //  alloc enough for the strings and an extra NULL terminator
-        LPTSTR pszCopy = (LPTSTR) LocalAlloc(LPTR, sizeof(TCHAR) * (lstrlen(pExpFile) + 2));
+        LPTSTR pszCopy = (LPTSTR)LocalAlloc(LPTR, sizeof(TCHAR) * (lstrlen(pExpFile) + 2));
 
-        if (pszCopy)
-        {
+        if (pszCopy) {
             lstrcpy(pszCopy, pExpFile);
             DWORD cFiles = ConvertToNULLTerm(pszCopy);
 
-            if (lpOFN->cMonikers >= cFiles)
-            {
+            if (lpOFN->cMonikers >= cFiles) {
                 LPTSTR pch = pszCopy;
                 //  we have enough room
-                for (DWORD i = 0; cFiles; cFiles--)
-                {
+                for (DWORD i = 0; cFiles; cFiles--) {
                     hr = _GetMonikerT(psfCurrent, pch, &lpOFN->rgpMonikers[i], FALSE);
                     //  go to the next item
-                    if (FAILED(hr))
-                    {
+                    if (FAILED(hr)) {
                         InvalidFileWarningNew(hwndDlg, pch, OFErrFromHresult(hr));
                         break;
                     }
@@ -9081,27 +8166,19 @@ HRESULT CFileOpenBrowser::_MonikerOKButtonPressed(LPCTSTR pszFile, OKBUTTONFLAGS
 
                 if (hr == S_OK)
                     lpOFN->cMonikers = i;
-            }
-            else
-            {
+            } else {
                 hr = E_POINTER;
                 lpOFN->cMonikers = cFiles;
             }
 
-
-
             LocalFree(pszCopy);
-        }
-        else
+        } else
             hr = E_OUTOFMEMORY;
-    }
-    else
-    {
+    } else {
         hr = _GetMonikerT(psfCurrent, pExpFile, &lpOFN->rgpMonikers[0], TRUE);
         if (hr == S_OK)
             lpOFN->cMonikers = 1;
-        else if (FAILED(hr))
-        {
+        else if (FAILED(hr)) {
             //  the warning needs to be able to thrash the incoming buffer
             TCHAR sz[MAX_PATH];
             lstrcpyn(sz, pExpFile, ARRAYSIZE(sz));
@@ -9134,36 +8211,33 @@ void DriveList_OpenClose(
     UINT uAction,
     HWND hwndDriveList)
 {
-    if (!hwndDriveList || !IsWindowVisible(hwndDriveList))
-    {
+    if (!hwndDriveList || !IsWindowVisible(hwndDriveList)) {
         return;
     }
 
 OpenClose_TryAgain:
-    switch (uAction)
+    switch (uAction) {
+    case (OCDL_TOGGLE):
     {
-        case ( OCDL_TOGGLE ) :
-        {
-            uAction = SendMessage(hwndDriveList, CB_GETDROPPEDSTATE, 0, 0L)
-                          ? OCDL_CLOSE
-                          : OCDL_OPEN;
-            goto OpenClose_TryAgain;
-            break;
+        uAction = SendMessage(hwndDriveList, CB_GETDROPPEDSTATE, 0, 0L)
+            ? OCDL_CLOSE
+            : OCDL_OPEN;
+        goto OpenClose_TryAgain;
+        break;
+    }
+    case (OCDL_OPEN):
+    {
+        SetFocus(hwndDriveList);
+        SendMessage(hwndDriveList, CB_SHOWDROPDOWN, TRUE, 0);
+        break;
+    }
+    case (OCDL_CLOSE):
+    {
+        if (SHIsChildOrSelf(hwndDriveList, GetFocus()) == S_OK) {
+            SendMessage(hwndDriveList, CB_SHOWDROPDOWN, FALSE, 0);
         }
-        case ( OCDL_OPEN ) :
-        {
-            SetFocus(hwndDriveList);
-            SendMessage(hwndDriveList, CB_SHOWDROPDOWN, TRUE, 0);
-            break;
-        }
-        case ( OCDL_CLOSE ) :
-        {
-            if (SHIsChildOrSelf(hwndDriveList,GetFocus()) == S_OK)
-            {
-                SendMessage(hwndDriveList, CB_SHOWDROPDOWN, FALSE, 0);
-            }
-            break;
-        }
+        break;
+    }
     }
 }
 
@@ -9180,24 +8254,18 @@ OpenClose_TryAgain:
 UINT CFileOpenBrowser::GetFullEditName(
     LPTSTR pszBuf,
     UINT cLen,
-    TEMPSTR *pTempStr,
-    BOOL *pbNoDefExt)
+    TEMPSTR* pTempStr,
+    BOOL* pbNoDefExt)
 {
     UINT cTotalLen;
     HWND hwndEdit;
 
-    if (bUseHideExt)
-    {
+    if (bUseHideExt) {
         cTotalLen = lstrlen(pszHideExt) + 1;
-    }
-    else
-    {
-        if (bUseCombo)
-        {
+    } else {
+        if (bUseCombo) {
             hwndEdit = (HWND)SendMessage(GetDlgItem(hwndDlg, cmb13), CBEM_GETEDITCONTROL, 0, 0L);
-        }
-        else
-        {
+        } else {
 
             hwndEdit = GetDlgItem(hwndDlg, edt1);
         }
@@ -9205,10 +8273,8 @@ UINT CFileOpenBrowser::GetFullEditName(
         cTotalLen = GetWindowTextLength(hwndEdit) + 1;
     }
 
-    if (pTempStr)
-    {
-        if (!pTempStr->StrSize(cTotalLen))
-        {
+    if (pTempStr) {
+        if (!pTempStr->StrSize(cTotalLen)) {
             return ((UINT)-1);
         }
 
@@ -9216,17 +8282,13 @@ UINT CFileOpenBrowser::GetFullEditName(
         cLen = cTotalLen;
     }
 
-    if (bUseHideExt)
-    {
+    if (bUseHideExt) {
         lstrcpyn(pszBuf, pszHideExt, cLen);
-    }
-    else
-    {
+    } else {
         GetWindowText(hwndEdit, pszBuf, cLen);
     }
 
-    if (pbNoDefExt)
-    {
+    if (pbNoDefExt) {
         *pbNoDefExt = bUseHideExt;
     }
 
@@ -9249,34 +8311,21 @@ void CFileOpenBrowser::ProcessEdit()
     TCHAR szBuf[MAX_PATH + 4];
 
     //if we have a saved pidl then use it instead
-    if (_pidlSelection)
-    {
+    if (_pidlSelection) {
         if (_ProcessPidlSelection(psfCurrent, _pidlSelection))
-            return ;
+            return;
     }
 
-    if (lpOFN->Flags & OFN_ALLOWMULTISELECT)
-    {
-        if (GetFullEditName( szBuf,
-                             ARRAYSIZE(szBuf),
-                             &pMultiSel,
-                             &bNoDefExt ) == (UINT)-1)
-        {
-
+    if (lpOFN->Flags & OFN_ALLOWMULTISELECT) {
+        if (GetFullEditName(szBuf, ARRAYSIZE(szBuf), &pMultiSel, &bNoDefExt) == (UINT)-1) {
             //  BUGBUG: There should be some error message here.
-
             return;
         }
         pszFile = pMultiSel;
-    }
-    else
-    {
-        if (bSelIsObject)
-        {
+    } else {
+        if (bSelIsObject) {
             pszFile = pszObjectPath;
-        }
-        else
-        {
+        } else {
             GetFullEditName(szBuf, ARRAYSIZE(szBuf), NULL, &bNoDefExt);
             pszFile = szBuf;
 
@@ -9284,16 +8333,12 @@ void CFileOpenBrowser::ProcessEdit()
 
             int nLen = lstrlen(pszFile);
 
-            if (*pszFile == CHAR_QUOTE)
-            {
+            if (*pszFile == CHAR_QUOTE) {
                 LPTSTR pPrev = CharPrev(pszFile, pszFile + nLen);
-                if (*pPrev == CHAR_QUOTE && pszFile != pPrev)
-                {
+                if (*pPrev == CHAR_QUOTE && pszFile != pPrev) {
                     Flags |= OKBUTTON_QUOTED;
 
-
                     //  Strip the quotes.
-
                     *pPrev = CHAR_NULL;
                     lstrcpy(pszFile, pszFile + 1);
                 }
@@ -9301,8 +8346,7 @@ void CFileOpenBrowser::ProcessEdit()
         }
     }
 
-    if (bNoDefExt)
-    {
+    if (bNoDefExt) {
         Flags |= OKBUTTON_NODEFEXT;
     }
 
@@ -9313,8 +8357,7 @@ void CFileOpenBrowser::ProcessEdit()
     //  lpstrDefExts here along with whatever else is only needed
     //  in OKButtonPressed.
 
-    if (lpOFI->ApiType == COMDLG_ANSI)
-    {
+    if (lpOFI->ApiType == COMDLG_ANSI) {
         ThunkOpenFileNameA2WDelayed(lpOFI);
     }
 #endif
@@ -9322,68 +8365,50 @@ void CFileOpenBrowser::ProcessEdit()
     //  handle special case parsing right here.
     //  our current folder and the desktop both failed
     //  to figure out what this is.
-    if (PathIsDotOrDotDot(pszFile))
-    {
-        if (pszFile[1] == CHAR_DOT)
-        {
+    if (PathIsDotOrDotDot(pszFile)) {
+        if (pszFile[1] == CHAR_DOT) {
             // this is ".."
             LPITEMIDLIST pidl = GetIDListFromFolder(psfCurrent);
-            if (pidl)
-            {
+            if (pidl) {
                 ILRemoveLastID(pidl);
                 JumpToIDList(pidl);
                 ILFree(pidl);
             }
         }
     }
- #ifdef FEATURE_MONIKER_SUPPORT
-   else if (lpOFN->Flags & OFN_USEMONIKERS)
-    {
+#ifdef FEATURE_MONIKER_SUPPORT
+    else if (lpOFN->Flags & OFN_USEMONIKERS) {
         BOOL fRet = TRUE;
         HRESULT hr = _MonikerOKButtonPressed(pszFile, Flags);
 
-
-
-        switch (hr)
-        {
+        switch (hr) {
         case E_POINTER:
             fRet = FALSE;
             StoreExtendedError(FNERR_BUFFERTOOSMALL);
             //  fall through to exit the dialog.
         case S_OK:
-             CleanupDialog(hwndDlg, fRet);
-             break;
-
+            CleanupDialog(hwndDlg, fRet);
+            break;
         default:
-             //  we ignore all other errors
-             //  where ever it happened, some UI should have come up.
-
-
-             break;
+            //  we ignore all other errors
+            //  where ever it happened, some UI should have come up.
+            break;
         }
-
     }
- #endif // FEATURE_MONIKER_SUPPORT
-    else if (OKButtonPressed(pszFile, Flags))
-    {
+#endif // FEATURE_MONIKER_SUPPORT
+    else if (OKButtonPressed(pszFile, Flags)) {
         BOOL bReturn = TRUE;
 
-        if (lpOFN->lpstrFile)
-        {
-            if (!(lpOFN->Flags & OFN_NOVALIDATE))
-            {
-                if (lpOFN->nMaxFile >= 3)
-                {
+        if (lpOFN->lpstrFile) {
+            if (!(lpOFN->Flags & OFN_NOVALIDATE)) {
+                if (lpOFN->nMaxFile >= 3) {
                     if ((lpOFN->lpstrFile[0] == 0) ||
                         (lpOFN->lpstrFile[1] == 0) ||
-                        (lpOFN->lpstrFile[2] == 0))
-                    {
+                        (lpOFN->lpstrFile[2] == 0)) {
                         bReturn = FALSE;
                         StoreExtendedError(FNERR_BUFFERTOOSMALL);
                     }
-                }
-                else
-                {
+                } else {
                     bReturn = FALSE;
                     StoreExtendedError(FNERR_BUFFERTOOSMALL);
                 }
@@ -9403,9 +8428,8 @@ void CFileOpenBrowser::ProcessEdit()
 
 void CFileOpenBrowser::InitializeDropDown(HWND hwndCtl)
 {
-    if (!bDropped)
-    {
-        MYLISTBOXITEM *pParentItem;
+    if (!bDropped) {
+        MYLISTBOXITEM* pParentItem;
         SHChangeNotifyEntry fsne[2];
 
 
@@ -9422,13 +8446,10 @@ void CFileOpenBrowser::InitializeDropDown(HWND hwndCtl)
         //  be the next one after the Desktop.
 
         LPITEMIDLIST pidlDrives;
-        if (SHGetFolderLocation(NULL, CSIDL_DRIVES, NULL, 0, &pidlDrives) == S_OK)
-        {
+        if (SHGetFolderLocation(NULL, CSIDL_DRIVES, NULL, 0, &pidlDrives) == S_OK) {
             int iNode = iNodeDesktop;
-            while (pParentItem = GetListboxItem(hwndCtl, iNode))
-            {
-                if (ILIsEqual(pParentItem->pidlFull, pidlDrives))
-                {
+            while (pParentItem = GetListboxItem(hwndCtl, iNode)) {
+                if (ILIsEqual(pParentItem->pidlFull, pidlDrives)) {
                     iNodeDrives = iNode;
                     break;
                 }
@@ -9442,10 +8463,9 @@ void CFileOpenBrowser::InitializeDropDown(HWND hwndCtl)
         //  in the first spot after the desktop (this shouldn't happen).
 
         ASSERT(pParentItem);
-        if (pParentItem == NULL)
-        {
+        if (pParentItem == NULL) {
             pParentItem = GetListboxItem(hwndCtl, iNodeDesktop + 1);
-            iNodeDrives = iNodeDesktop +1;
+            iNodeDrives = iNodeDesktop + 1;
         }
 
 
@@ -9459,10 +8479,10 @@ void CFileOpenBrowser::InitializeDropDown(HWND hwndCtl)
         fsne[1].fRecursive = FALSE;
 
         uRegister = SHChangeNotifyRegister(
-                        hwndDlg,
-                        SHCNRF_ShellLevel | SHCNRF_InterruptLevel | SHCNRF_NewDelivery,
-                        SHCNE_ALLEVENTS & ~(SHCNE_CREATE | SHCNE_DELETE | SHCNE_RENAMEITEM),
-                        CDM_FSNOTIFY, ARRAYSIZE(fsne), fsne );
+            hwndDlg,
+            SHCNRF_ShellLevel | SHCNRF_InterruptLevel | SHCNRF_NewDelivery,
+            SHCNE_ALLEVENTS & ~(SHCNE_CREATE | SHCNE_DELETE | SHCNE_RENAMEITEM),
+            CDM_FSNOTIFY, ARRAYSIZE(fsne), fsne);
     }
 }
 
@@ -9481,308 +8501,261 @@ LRESULT CFileOpenBrowser::OnCommandMessage(
 {
     int idCmd = GET_WM_COMMAND_ID(wParam, lParam);
 
-    switch (idCmd)
+    switch (idCmd) {
+    case (edt1):
     {
-        case ( edt1 ) :
+        switch (GET_WM_COMMAND_CMD(wParam, lParam)) {
+        case (EN_CHANGE):
         {
-            switch (GET_WM_COMMAND_CMD(wParam, lParam))
-            {
-                case ( EN_CHANGE ) :
-                {
-                    bUseHideExt = FALSE;
+            bUseHideExt = FALSE;
 
-                    Pidl_Set(&_pidlSelection,NULL);;
-                    break;
-                }
-            }
+            Pidl_Set(&_pidlSelection, NULL);;
             break;
         }
-
-        case ( cmb13 ) :
-        {
-            switch (GET_WM_COMMAND_CMD(wParam, lParam))
-            {
-                case ( CBN_EDITCHANGE ) :
-                {
-                    bUseHideExt = FALSE;
-                    Pidl_Set(&_pidlSelection,NULL);;
-                    break;
-                }
-
-                case ( CBN_DROPDOWN ) :
-                {
-                    LoadMRU( szLastFilter,
-                             GET_WM_COMMAND_HWND(wParam, lParam),
-                             MAX_MRU );
-                    break;
-
-                }
-
-            }
-            break;
         }
-
-        case ( cmb2 ) :
-        {
-            switch (GET_WM_COMMAND_CMD(wParam, lParam))
-            {
-                case ( CBN_CLOSEUP ) :
-                {
-                    OnSelChange();
-                    UpdateNavigation();
-                    SelectEditText(hwndDlg);
-                    return TRUE;
-                }
-                case ( CBN_DROPDOWN ) :
-                {
-                    InitializeDropDown(GET_WM_COMMAND_HWND(wParam, lParam));
-                    break;
-                }
-            }
-            break;
-        }
-
-        case ( cmb1 ) :
-        {
-            switch (GET_WM_COMMAND_CMD(wParam, lParam))
-            {
-                case ( CBN_DROPDOWN ) :
-                {
-                    iComboIndex = (int) SendMessage( GET_WM_COMMAND_HWND(wParam, lParam),
-                                                     CB_GETCURSEL,
-                                                     NULL,
-                                                     NULL );
-                    break;
-                }
-
-                //  We're trying to see if anything changed after
-                //  (and only after) the user is done scrolling through the
-                //  drop down. When the user tabs away from the combobox, we
-                //  do not get a CBN_SELENDOK.
-                //  Why not just use CBN_SELCHANGE? Because then we'd refresh
-                //  the view (very slow) as the user scrolls through the
-                //  combobox.
-
-                case ( CBN_CLOSEUP ) :
-                case ( CBN_SELENDOK ) :
-                {
-
-                    //  Did anything change?
-
-                    if (iComboIndex >= 0 &&
-                        iComboIndex == SendMessage( GET_WM_COMMAND_HWND(wParam, lParam),
-                                                    CB_GETCURSEL,
-                                                    NULL,
-                                                    NULL ))
-                    {
-                        break;
-                    }
-                }
-                case ( MYCBN_DRAW ) :
-                {
-                    RefreshFilter(GET_WM_COMMAND_HWND(wParam, lParam));
-                    iComboIndex = -1;
-                    return TRUE;
-                }
-                default :
-                {
-                    break;
-                }
-            }
-            break;
-        }
-        case ( IDC_PARENT ) :
-        {
-            OnDotDot();
-            SelectEditText(hwndDlg);
-            break;
-        }
-        case ( IDC_NEWFOLDER ) :
-        {
-            ViewCommand(VC_NEWFOLDER);
-            break;
-        }
-
-        case ( IDC_VIEWLIST) :
-        {
-
-            SendMessage(hwndView, WM_COMMAND,  (WPARAM)SFVIDM_VIEW_LIST, 0);
-            break;
-        }
-
-        case (IDC_VIEWDETAILS) :
-        {
-
-            SendMessage(hwndView, WM_COMMAND, (WPARAM)SFVIDM_VIEW_DETAILS,0);
-            break;
-        }
-
-
-        case ( IDC_VIEWMENU ) :
-        {
-
-            //  Pass off the nCmdID to the view for processing / translation.
-
-            DFVCMDDATA cd;
-
-            cd.pva = NULL;
-            cd.hwnd = hwndDlg;
-            cd.nCmdIDTranslated = 0;
-            SendMessage(hwndView, WM_COMMAND, SFVIDM_VIEW_VIEWMENU, (LONG_PTR)&cd);
-
-            break;
-        }
-
-        case ( IDOK ) :
-        {
-            HWND hwndFocus = ::GetFocus();
-
-            if (hwndFocus == ::GetDlgItem(hwndDlg, IDOK))
-            {
-                hwndFocus = hwndLastFocus;
-            }
-
-            hwndFocus = GetFocusedChild(hwndDlg, hwndFocus);
-
-            if (hwndFocus == hwndView)
-            {
-                OnDblClick(TRUE);
-            }
-            else if (hwndPlacesbar && (hwndFocus == hwndPlacesbar))
-            {
-                //Places bar has the focus. Get the current hot item.
-                INT_PTR i = SendMessage(hwndPlacesbar, TB_GETHOTITEM, 0,0);
-                if (i >= 0)
-                {
-                    //Get the Pidl for this button.
-                    TBBUTTONINFO tbbi;
-
-                    tbbi.cbSize = SIZEOF(tbbi);
-                    tbbi.lParam = 0;
-                    tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
-                    if (SendMessage(hwndPlacesbar, TB_GETBUTTONINFO, i, (LPARAM)&tbbi) >= 0)
-                    {
-                        LPITEMIDLIST pidl= (LPITEMIDLIST)tbbi.lParam;
-
-                        if (pidl)
-                        {
-                            //Jump to the location corresponding to this Button
-                            JumpToIDList(pidl, FALSE, TRUE);
-                        }
-                    }
-
-                }
-
-            }
-            else
-            {
-                ProcessEdit();
-            }
-
-            SelectEditText(hwndDlg);
-
-            break;
-        }
-        case ( IDCANCEL ) :
-        {
-            bUserPressedCancel = TRUE;
-            CleanupDialog(hwndDlg, FALSE);
-            return TRUE;
-        }
-        case ( pshHelp ) :
-        {
-            if (hSubDlg)
-            {
-                CD_SendHelpNotify(hSubDlg, hwndDlg, lpOFN, lpOFI);
-            }
-
-            if (lpOFN->hwndOwner)
-            {
-                CD_SendHelpMsg(lpOFN, hwndDlg, lpOFI->ApiType);
-            }
-            break;
-        }
-        case ( IDC_DROPDRIVLIST ) :         // VK_F4
-        {
-
-            //  If focus is on the "File of type" combobox,
-            //  then F4 should open that combobox, not the "Look in" one.
-
-            HWND hwnd = GetFocus();
-
-            if (bUseCombo &&
-                (SHIsChildOrSelf(GetDlgItem(hwndDlg, cmb13), hwnd) == S_OK)
-               )
-            {
-                hwnd = GetDlgItem(hwndDlg, cmb13);
-            }
-
-            if ((hwnd != GetDlgItem(hwndDlg, cmb1)) &&
-                (hwnd != GetDlgItem(hwndDlg, cmb13))
-               )
-            {
-
-                //  We shipped Win95 where F4 *always* opens the "Look in"
-                //  combobox, so keep F4 opening that even when it shouldn't.
-
-                hwnd = GetDlgItem(hwndDlg, cmb2);
-            }
-            DriveList_OpenClose(OCDL_TOGGLE, hwnd);
-            break;
-        }
-        case ( IDC_REFRESH ) :
-        {
-            if (psv)
-            {
-                psv->Refresh();
-            }
-            break;
-        }
-        case ( IDC_PREVIOUSFOLDER ) :
-        {
-            OnDotDot();
-            break;
-        }
-
-         //Back Navigation
-        case ( IDC_BACK ) :
-            // Try to travel in the directtion
-            if (ptlog && SUCCEEDED(ptlog->Travel(TRAVEL_BACK)))
-            {
-                LPITEMIDLIST pidl;
-                //Able to travel in the given direction.
-                //Now Get the new pidl
-                ptlog->GetCurrent(&pidl);
-                //Update the UI to reflect the current state
-                UpdateUI(pidl);
-
-                //Jump to the new location
-                // second paremeter is whether to translate to logical pidl
-                // and third parameter is whether to add to the navigation stack
-                // since this pidl comes from the stack , we should not add this to
-                // the navigation stack
-                JumpToIDList(pidl, FALSE, FALSE);
-                ILFree(pidl);
-            }
-            break;
-
-
+        break;
     }
 
-    if ((idCmd >= IDC_PLACESBAR_BASE)  && (idCmd <= (IDC_PLACESBAR_BASE + iCommandID)))
+    case (cmb13):
     {
+        switch (GET_WM_COMMAND_CMD(wParam, lParam)) {
+        case (CBN_EDITCHANGE):
+        {
+            bUseHideExt = FALSE;
+            Pidl_Set(&_pidlSelection, NULL);;
+            break;
+        }
+
+        case (CBN_DROPDOWN):
+        {
+            LoadMRU(szLastFilter, GET_WM_COMMAND_HWND(wParam, lParam), MAX_MRU);
+            break;
+        }
+
+        }
+        break;
+    }
+    case (cmb2):
+    {
+        switch (GET_WM_COMMAND_CMD(wParam, lParam)) {
+        case (CBN_CLOSEUP):
+        {
+            OnSelChange();
+            UpdateNavigation();
+            SelectEditText(hwndDlg);
+            return TRUE;
+        }
+        case (CBN_DROPDOWN):
+        {
+            InitializeDropDown(GET_WM_COMMAND_HWND(wParam, lParam));
+            break;
+        }
+        }
+        break;
+    }
+    case (cmb1):
+    {
+        switch (GET_WM_COMMAND_CMD(wParam, lParam)) {
+        case (CBN_DROPDOWN):
+        {
+            iComboIndex = (int)SendMessage(GET_WM_COMMAND_HWND(wParam, lParam),
+                                           CB_GETCURSEL,
+                                           NULL,
+                                           NULL);
+            break;
+        }
+
+        //  We're trying to see if anything changed after
+        //  (and only after) the user is done scrolling through the
+        //  drop down. When the user tabs away from the combobox, we
+        //  do not get a CBN_SELENDOK.
+        //  Why not just use CBN_SELCHANGE? Because then we'd refresh
+        //  the view (very slow) as the user scrolls through the
+        //  combobox.
+        case (CBN_CLOSEUP):
+        case (CBN_SELENDOK):
+        {
+            //  Did anything change?
+            if (iComboIndex >= 0 &&
+                iComboIndex == SendMessage(GET_WM_COMMAND_HWND(wParam, lParam), CB_GETCURSEL, NULL, NULL)) {
+                break;
+            }
+        }
+        case (MYCBN_DRAW):
+        {
+            RefreshFilter(GET_WM_COMMAND_HWND(wParam, lParam));
+            iComboIndex = -1;
+            return TRUE;
+        }
+        default:
+        {
+            break;
+        }
+        }
+        break;
+    }
+    case (IDC_PARENT):
+    {
+        OnDotDot();
+        SelectEditText(hwndDlg);
+        break;
+    }
+    case (IDC_NEWFOLDER):
+    {
+        ViewCommand(VC_NEWFOLDER);
+        break;
+    }
+    case (IDC_VIEWLIST):
+    {
+        SendMessage(hwndView, WM_COMMAND, (WPARAM)SFVIDM_VIEW_LIST, 0);
+        break;
+    }
+    case (IDC_VIEWDETAILS):
+    {
+        SendMessage(hwndView, WM_COMMAND, (WPARAM)SFVIDM_VIEW_DETAILS, 0);
+        break;
+    }
+    case (IDC_VIEWMENU):
+    {
+        //  Pass off the nCmdID to the view for processing / translation.
+
+        DFVCMDDATA cd;
+
+        cd.pva = NULL;
+        cd.hwnd = hwndDlg;
+        cd.nCmdIDTranslated = 0;
+        SendMessage(hwndView, WM_COMMAND, SFVIDM_VIEW_VIEWMENU, (LONG_PTR)&cd);
+
+        break;
+    }
+    case (IDOK):
+    {
+        HWND hwndFocus = ::GetFocus();
+
+        if (hwndFocus == ::GetDlgItem(hwndDlg, IDOK)) {
+            hwndFocus = hwndLastFocus;
+        }
+
+        hwndFocus = GetFocusedChild(hwndDlg, hwndFocus);
+
+        if (hwndFocus == hwndView) {
+            OnDblClick(TRUE);
+        } else if (hwndPlacesbar && (hwndFocus == hwndPlacesbar)) {
+            //Places bar has the focus. Get the current hot item.
+            INT_PTR i = SendMessage(hwndPlacesbar, TB_GETHOTITEM, 0, 0);
+            if (i >= 0) {
+                //Get the Pidl for this button.
+                TBBUTTONINFO tbbi;
+
+                tbbi.cbSize = SIZEOF(tbbi);
+                tbbi.lParam = 0;
+                tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
+                if (SendMessage(hwndPlacesbar, TB_GETBUTTONINFO, i, (LPARAM)&tbbi) >= 0) {
+                    LPITEMIDLIST pidl = (LPITEMIDLIST)tbbi.lParam;
+
+                    if (pidl) {
+                        //Jump to the location corresponding to this Button
+                        JumpToIDList(pidl, FALSE, TRUE);
+                    }
+                }
+            }
+        } else {
+            ProcessEdit();
+        }
+
+        SelectEditText(hwndDlg);
+
+        break;
+    }
+    case (IDCANCEL):
+    {
+        bUserPressedCancel = TRUE;
+        CleanupDialog(hwndDlg, FALSE);
+        return TRUE;
+    }
+    case (pshHelp):
+    {
+        if (hSubDlg) {
+            CD_SendHelpNotify(hSubDlg, hwndDlg, lpOFN, lpOFI);
+        }
+
+        if (lpOFN->hwndOwner) {
+            CD_SendHelpMsg(lpOFN, hwndDlg, lpOFI->ApiType);
+        }
+        break;
+    }
+    case (IDC_DROPDRIVLIST):         // VK_F4
+    {
+
+        //  If focus is on the "File of type" combobox,
+        //  then F4 should open that combobox, not the "Look in" one.
+
+        HWND hwnd = GetFocus();
+
+        if (bUseCombo &&
+            (SHIsChildOrSelf(GetDlgItem(hwndDlg, cmb13), hwnd) == S_OK)
+            ) {
+            hwnd = GetDlgItem(hwndDlg, cmb13);
+        }
+
+        if ((hwnd != GetDlgItem(hwndDlg, cmb1)) &&
+            (hwnd != GetDlgItem(hwndDlg, cmb13))
+            ) {
+
+            //  We shipped Win95 where F4 *always* opens the "Look in"
+            //  combobox, so keep F4 opening that even when it shouldn't.
+
+            hwnd = GetDlgItem(hwndDlg, cmb2);
+        }
+        DriveList_OpenClose(OCDL_TOGGLE, hwnd);
+        break;
+    }
+    case (IDC_REFRESH):
+    {
+        if (psv) {
+            psv->Refresh();
+        }
+        break;
+    }
+    case (IDC_PREVIOUSFOLDER):
+    {
+        OnDotDot();
+        break;
+    }
+
+    //Back Navigation
+    case (IDC_BACK):
+        // Try to travel in the directtion
+        if (ptlog && SUCCEEDED(ptlog->Travel(TRAVEL_BACK))) {
+            LPITEMIDLIST pidl;
+            //Able to travel in the given direction.
+            //Now Get the new pidl
+            ptlog->GetCurrent(&pidl);
+            //Update the UI to reflect the current state
+            UpdateUI(pidl);
+
+            //Jump to the new location
+            // second paremeter is whether to translate to logical pidl
+            // and third parameter is whether to add to the navigation stack
+            // since this pidl comes from the stack , we should not add this to
+            // the navigation stack
+            JumpToIDList(pidl, FALSE, FALSE);
+            ILFree(pidl);
+        }
+        break;
+    }
+
+    if ((idCmd >= IDC_PLACESBAR_BASE) && (idCmd <= (IDC_PLACESBAR_BASE + iCommandID))) {
         TBBUTTONINFO tbbi;
         LPITEMIDLIST pidl;
 
         tbbi.cbSize = SIZEOF(tbbi);
         tbbi.lParam = 0;
         tbbi.dwMask = TBIF_LPARAM;
-        if (SendMessage(hwndPlacesbar, TB_GETBUTTONINFO, idCmd, (LPARAM)&tbbi) >= 0)
-        {
+        if (SendMessage(hwndPlacesbar, TB_GETBUTTONINFO, idCmd, (LPARAM)&tbbi) >= 0) {
             pidl = (LPITEMIDLIST)tbbi.lParam;
 
-            if (pidl)
-            {
+            if (pidl) {
                 JumpToIDList(pidl, FALSE, TRUE);
             }
         }
@@ -9813,212 +8786,184 @@ BOOL CFileOpenBrowser::OnCDMessage(
     int cbLen;
 #endif
 
-    switch (uMsg)
+    switch (uMsg) {
+    case (CDM_GETSPEC):
+    case (CDM_GETFILEPATH):
+    case (CDM_GETFOLDERPATH):
     {
-        case ( CDM_GETSPEC ) :
-        case ( CDM_GETFILEPATH ) :
-        case ( CDM_GETFOLDERPATH ) :
-        {
 #ifdef UNICODE
-            if (lpOFI->ApiType == COMDLG_ANSI)
-            {
-                if (pBufW = (LPWSTR)LocalAlloc( LPTR,
-                                                (int)wParam * sizeof(WCHAR) ))
-                {
-                    pBuf = pBufW;
-                }
-                else
-                {
-                    break;
-                }
-            }
-#endif
-            if (uMsg == CDM_GETSPEC)
-            {
-                lResult = GetFullEditName(pBuf, (UINT) wParam, NULL, NULL);
+        if (lpOFI->ApiType == COMDLG_ANSI) {
+            if (pBufW = (LPWSTR)LocalAlloc(LPTR,
+                (int)wParam * sizeof(WCHAR))) {
+                pBuf = pBufW;
+            } else {
                 break;
             }
-
-            // else, fall thru...
         }
-        case ( CDM_GETFOLDERIDLIST ) :
-        {
-            pidl = pCurrentLocation->pidlFull;
-
-            lResult = ILGetSize(pidl);
-
-            if (uMsg == CDM_GETFOLDERIDLIST)
-            {
-                if ((LONG)wParam < lResult)
-                {
-                    break;
-                }
-
-                CopyMemory((LPBYTE)pBuf, (LPBYTE)pidl, lResult);
-                break;
-            }
-
-            TCHAR szDir[MAX_PATH];
-
-            if (!SHGetPathFromIDList(pidl, szDir))
-            {
-                *szDir = 0;
-            }
-
-            if (!*szDir)
-            {
-                lResult = -1;
-                break;
-            }
-
-
-            if (uMsg == CDM_GETFOLDERPATH)
-            {
-CopyAndReturn:
-                lResult = lstrlen(szDir) + 1;
-                if ((LONG)wParam >= lResult)
-                {
-                    lstrcpyn(pBuf, szDir, lResult);
-                }
-#ifdef UNICODE
-                if (lpOFI->ApiType == COMDLG_ANSI)
-                {
-                    lResult = WideCharToMultiByte( CP_ACP,
-                                                   0,
-                                                   szDir,
-                                                   -1,
-                                                   NULL,
-                                                   0,
-                                                   NULL,
-                                                   NULL );
-                }
 #endif
-                if ((int)wParam > lResult)
-                {
-                    wParam = lResult;
-                }
-                break;
-            }
-
-
-            //  We'll just fall through to the error case for now, since
-            //  doing the full combine is not an easy thing.
-
-            TCHAR szFile[MAX_PATH];
-
-            if ( GetFullEditName(szFile, ARRAYSIZE(szFile), NULL, NULL) >
-                 ARRAYSIZE(szFile) - 5 )
-            {
-
-                //  Oops!  It looks like we filled our buffer!
-
-                lResult = -1;
-                break;
-            }
-
-            PathCombine(szDir, szDir, szFile);
-            goto CopyAndReturn;
-        }
-        case ( CDM_SETCONTROLTEXT ) :
-        {
-#ifdef UNICODE
-            if (lpOFI->ApiType == COMDLG_ANSI)
-            {
-
-                //  Need to convert pBuf (lParam) to Unicode.
-
-                cbLen = lstrlenA((LPSTR)pBuf) + 1;
-                if (pBufW = (LPWSTR)LocalAlloc(LPTR, (cbLen * sizeof(WCHAR))))
-                {
-                    SHAnsiToUnicode((LPSTR)pBuf,pBufW,cbLen );
-                    pBuf = pBufW;
-                }
-            }
-#endif
-            //Are we using combobox and the control they are setting is edit box?
-            if (bUseCombo && wParam == edt1)
-            {
-                //Change it to combo box.
-                wParam = cmb13;
-            }
-
-            if (bSave && wParam == IDOK)
-            {
-                tszDefSave.StrCpy(pBuf);
-
-
-                //  Do this to set the OK button correctly.
-
-                SelFocusChange(TRUE);
-            }
-            else
-            {
-                SetDlgItemText(hwndDlg, (int) wParam, pBuf);
-            }
-
+        if (uMsg == CDM_GETSPEC) {
+            lResult = GetFullEditName(pBuf, (UINT)wParam, NULL, NULL);
             break;
         }
-        case ( CDM_HIDECONTROL ) :
-        {
-            //Make sure the control id is not zero (0 is child dialog)
-            if ((int)wParam != 0 )
-            {
-                ShowWindow(GetDlgItem(hwndDlg, (int) wParam), SW_HIDE);
+
+        // else, fall thru...
+    }
+    case (CDM_GETFOLDERIDLIST):
+    {
+        pidl = pCurrentLocation->pidlFull;
+
+        lResult = ILGetSize(pidl);
+
+        if (uMsg == CDM_GETFOLDERIDLIST) {
+            if ((LONG)wParam < lResult) {
+                break;
             }
+
+            CopyMemory((LPBYTE)pBuf, (LPBYTE)pidl, lResult);
             break;
         }
-        case ( CDM_SETDEFEXT ) :
-        {
-#ifdef UNICODE
-            if (lpOFI->ApiType == COMDLG_ANSI)
-            {
 
-                //  Need to convert pBuf (lParam) to Unicode.
+        TCHAR szDir[MAX_PATH];
 
-                cbLen = lstrlenA((LPSTR)pBuf) + 1;
-                if (pBufW = (LPWSTR)LocalAlloc(LPTR, (cbLen * sizeof(WCHAR))))
-                {
-                    SHAnsiToUnicode((LPSTR)pBuf,pBufW,cbLen );
-                    pBuf = pBufW;
-                }
-            }
-#endif
-            pszDefExt.StrCpy(pBuf);
-            bNoInferDefExt = TRUE;
-
-            break;
+        if (!SHGetPathFromIDList(pidl, szDir)) {
+            *szDir = 0;
         }
-        default:
-        {
+
+        if (!*szDir) {
             lResult = -1;
             break;
         }
+
+
+        if (uMsg == CDM_GETFOLDERPATH) {
+        CopyAndReturn:
+            lResult = lstrlen(szDir) + 1;
+            if ((LONG)wParam >= lResult) {
+                lstrcpyn(pBuf, szDir, lResult);
+            }
+#ifdef UNICODE
+            if (lpOFI->ApiType == COMDLG_ANSI) {
+                lResult = WideCharToMultiByte(CP_ACP,
+                                              0,
+                                              szDir,
+                                              -1,
+                                              NULL,
+                                              0,
+                                              NULL,
+                                              NULL);
+            }
+#endif
+            if ((int)wParam > lResult) {
+                wParam = lResult;
+            }
+            break;
+        }
+
+
+        //  We'll just fall through to the error case for now, since
+        //  doing the full combine is not an easy thing.
+
+        TCHAR szFile[MAX_PATH];
+
+        if (GetFullEditName(szFile, ARRAYSIZE(szFile), NULL, NULL) >
+            ARRAYSIZE(szFile) - 5) {
+
+            //  Oops!  It looks like we filled our buffer!
+
+            lResult = -1;
+            break;
+        }
+
+        PathCombine(szDir, szDir, szFile);
+        goto CopyAndReturn;
+    }
+    case (CDM_SETCONTROLTEXT):
+    {
+#ifdef UNICODE
+        if (lpOFI->ApiType == COMDLG_ANSI) {
+
+            //  Need to convert pBuf (lParam) to Unicode.
+
+            cbLen = lstrlenA((LPSTR)pBuf) + 1;
+            if (pBufW = (LPWSTR)LocalAlloc(LPTR, (cbLen * sizeof(WCHAR)))) {
+                SHAnsiToUnicode((LPSTR)pBuf, pBufW, cbLen);
+                pBuf = pBufW;
+            }
+        }
+#endif
+        //Are we using combobox and the control they are setting is edit box?
+        if (bUseCombo && wParam == edt1) {
+            //Change it to combo box.
+            wParam = cmb13;
+        }
+
+        if (bSave && wParam == IDOK) {
+            tszDefSave.StrCpy(pBuf);
+
+
+            //  Do this to set the OK button correctly.
+
+            SelFocusChange(TRUE);
+        } else {
+            SetDlgItemText(hwndDlg, (int)wParam, pBuf);
+        }
+
+        break;
+    }
+    case (CDM_HIDECONTROL):
+    {
+        //Make sure the control id is not zero (0 is child dialog)
+        if ((int)wParam != 0) {
+            ShowWindow(GetDlgItem(hwndDlg, (int)wParam), SW_HIDE);
+        }
+        break;
+    }
+    case (CDM_SETDEFEXT):
+    {
+#ifdef UNICODE
+        if (lpOFI->ApiType == COMDLG_ANSI) {
+
+            //  Need to convert pBuf (lParam) to Unicode.
+
+            cbLen = lstrlenA((LPSTR)pBuf) + 1;
+            if (pBufW = (LPWSTR)LocalAlloc(LPTR, (cbLen * sizeof(WCHAR)))) {
+                SHAnsiToUnicode((LPSTR)pBuf, pBufW, cbLen);
+                pBuf = pBufW;
+            }
+        }
+#endif
+        pszDefExt.StrCpy(pBuf);
+        bNoInferDefExt = TRUE;
+
+        break;
+    }
+    default:
+    {
+        lResult = -1;
+        break;
+    }
     }
 
     SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, lResult);
 
 #ifdef UNICODE
-    if (lpOFI->ApiType == COMDLG_ANSI)
-    {
-        switch (uMsg)
+    if (lpOFI->ApiType == COMDLG_ANSI) {
+        switch (uMsg) {
+        case (CDM_GETSPEC):
+        case (CDM_GETFILEPATH):
+        case (CDM_GETFOLDERPATH):
         {
-            case ( CDM_GETSPEC ) :
-            case ( CDM_GETFILEPATH ) :
-            case ( CDM_GETFOLDERPATH ) :
-            {
 
-                //  Need to convert pBuf (pBufW) to Ansi and store in lParam.
+            //  Need to convert pBuf (pBufW) to Ansi and store in lParam.
 
-                if (wParam && lParam)
-                {
-                    SHUnicodeToAnsi(pBuf,(LPSTR)lParam,(int) wParam);
-                }
-                break;
+            if (wParam && lParam) {
+                SHUnicodeToAnsi(pBuf, (LPSTR)lParam, (int)wParam);
             }
+            break;
+        }
         }
 
-        if (pBufW)
-        {
+        if (pBufW) {
             LocalFree(pBufW);
         }
     }
@@ -10047,18 +8992,16 @@ LRESULT CALLBACK OKSubclass(
     WPARAM wParam,
     LPARAM lParam)
 {
-    switch (msg)
+    switch (msg) {
+    case (WM_SETFOCUS):
     {
-        case ( WM_SETFOCUS ) :
-        {
-            HWND hwndDlg = ::GetParent(hOK);
-            CFileOpenBrowser *pDlgStruct = HwndToBrowser(hwndDlg);
-            if (pDlgStruct)
-            {
-                pDlgStruct->hwndLastFocus = (HWND)wParam;
-            }
+        HWND hwndDlg = ::GetParent(hOK);
+        CFileOpenBrowser* pDlgStruct = HwndToBrowser(hwndDlg);
+        if (pDlgStruct) {
+            pDlgStruct->hwndLastFocus = (HWND)wParam;
         }
-        break;
+    }
+    break;
     }
     return (::CallWindowProc(::lpOKProc, hOK, msg, wParam, lParam));
 }
@@ -10081,12 +9024,10 @@ int CFileOpenBrowser::GetNodeFromIDList(
 
     //  Just check DRIVES and DESKTOP.
 
-    for (i = iNodeDrives; i >= NODE_DESKTOP; --i)
-    {
-        MYLISTBOXITEM *pItem = GetListboxItem(hwndCB, i);
+    for (i = iNodeDrives; i >= NODE_DESKTOP; --i) {
+        MYLISTBOXITEM* pItem = GetListboxItem(hwndCB, i);
 
-        if (pItem && ILIsEqual(pidl, pItem->pidlFull))
-        {
+        if (pItem && ILIsEqual(pidl, pItem->pidlFull)) {
             break;
         }
     }
@@ -10103,60 +9044,57 @@ int CFileOpenBrowser::GetNodeFromIDList(
 
 BOOL CFileOpenBrowser::FSChange(
     LONG lNotification,
-    LPCITEMIDLIST *ppidl)
+    LPCITEMIDLIST* ppidl)
 {
     int iNode = -1;
     LPCITEMIDLIST pidl = ppidl[0];
 
-    switch (lNotification)
+    switch (lNotification) {
+    case (SHCNE_RENAMEFOLDER):
     {
-        case ( SHCNE_RENAMEFOLDER ) :
-        {
-            LPCITEMIDLIST pidlExtra = ppidl[1];
+        LPCITEMIDLIST pidlExtra = ppidl[1];
 
 
-            //  Rename is special.  We need to invalidate both
-            //  the pidl and the pidlExtra, so we call ourselves.
+        //  Rename is special.  We need to invalidate both
+        //  the pidl and the pidlExtra, so we call ourselves.
 
-            FSChange(0, &pidlExtra);
-        }
-        case ( 0 ) :
-        case ( SHCNE_MKDIR ) :
-        case ( SHCNE_RMDIR ) :
-        {
-            LPITEMIDLIST pidlClone = ILClone(pidl);
+        FSChange(0, &pidlExtra);
+    }
+    case (0):
+    case (SHCNE_MKDIR):
+    case (SHCNE_RMDIR):
+    {
+        LPITEMIDLIST pidlClone = ILClone(pidl);
 
-            if (!pidlClone)
-            {
-                break;
-            }
-            ILRemoveLastID(pidlClone);
-
-            iNode = GetNodeFromIDList(pidlClone);
-            ILFree(pidlClone);
+        if (!pidlClone) {
             break;
         }
-        case ( SHCNE_UPDATEITEM ) :
-        case ( SHCNE_NETSHARE ) :
-        case ( SHCNE_NETUNSHARE ) :
-        case ( SHCNE_UPDATEDIR ) :
-        {
-            iNode = GetNodeFromIDList(pidl);
-            break;
-        }
-        case ( SHCNE_DRIVEREMOVED ) :
-        case ( SHCNE_DRIVEADD ) :
-        case ( SHCNE_MEDIAINSERTED ) :
-        case ( SHCNE_MEDIAREMOVED ) :
-        case ( SHCNE_DRIVEADDGUI ) :
-        {
-            iNode = iNodeDrives;
-            break;
-        }
+        ILRemoveLastID(pidlClone);
+
+        iNode = GetNodeFromIDList(pidlClone);
+        ILFree(pidlClone);
+        break;
+    }
+    case (SHCNE_UPDATEITEM):
+    case (SHCNE_NETSHARE):
+    case (SHCNE_NETUNSHARE):
+    case (SHCNE_UPDATEDIR):
+    {
+        iNode = GetNodeFromIDList(pidl);
+        break;
+    }
+    case (SHCNE_DRIVEREMOVED):
+    case (SHCNE_DRIVEADD):
+    case (SHCNE_MEDIAINSERTED):
+    case (SHCNE_MEDIAREMOVED):
+    case (SHCNE_DRIVEADDGUI):
+    {
+        iNode = iNodeDrives;
+        break;
+    }
     }
 
-    if (iNode >= 0)
-    {
+    if (iNode >= 0) {
         //  We want to delay the processing a little because we always do a full update, so we should accumulate.
         SetTimer(hwndDlg, TIMER_FSCHANGE + iNode, 100, NULL);
     }
@@ -10172,20 +9110,20 @@ BOOL CFileOpenBrowser::FSChange(
 
 void CFileOpenBrowser::Timer(WPARAM wID)
 {
-    KillTimer(hwndDlg, (UINT) wID);
+    KillTimer(hwndDlg, (UINT)wID);
 
     wID -= TIMER_FSCHANGE;
 
     ASSERT(this->bDropped);
 
     HWND hwndCB;
-    MYLISTBOXITEM *pParentItem;
+    MYLISTBOXITEM* pParentItem;
 
     hwndCB = GetDlgItem(hwndDlg, cmb2);
 
     pParentItem = GetListboxItem(hwndCB, wID);
 
-    UpdateLevel(hwndCB, (int) wID + 1, pParentItem);
+    UpdateLevel(hwndCB, (int)wID + 1, pParentItem);
 }
 
 
@@ -10196,8 +9134,7 @@ void CFileOpenBrowser::Timer(WPARAM wID)
 
 void CFileOpenBrowser::OnGetMinMax(LPMINMAXINFO pmmi)
 {
-    if ((ptMinTrack.x != 0) || (ptMinTrack.y != 0))
-    {
+    if ((ptMinTrack.x != 0) || (ptMinTrack.y != 0)) {
         pmmi->ptMinTrackSize = ptMinTrack;
     }
 }
@@ -10221,19 +9158,18 @@ void CFileOpenBrowser::OnSize(int width, int height)
 
     //  Set the sizing grip to the correct location.
 
-    SetWindowPos( hwndGrip,
-                  NULL,
-                  width - g_cxGrip,
-                  height - g_cyGrip,
-                  g_cxGrip,
-                  g_cyGrip,
-                  SWP_NOZORDER | SWP_NOACTIVATE );
+    SetWindowPos(hwndGrip,
+                 NULL,
+                 width - g_cxGrip,
+                 height - g_cyGrip,
+                 g_cxGrip,
+                 g_cyGrip,
+                 SWP_NOZORDER | SWP_NOACTIVATE);
 
 
     //  Ignore sizing until we are initialized.
 
-    if ((ptLastSize.x == 0) && (ptLastSize.y == 0))
-    {
+    if ((ptLastSize.x == 0) && (ptLastSize.y == 0)) {
         return;
     }
 
@@ -10248,8 +9184,7 @@ void CFileOpenBrowser::OnSize(int width, int height)
 
 
     //Dont do anything if the size remains the same
-    if ((dx == 0) && (dy == 0))
-    {
+    if ((dx == 0) && (dy == 0)) {
         return;
     }
 
@@ -10266,27 +9201,25 @@ void CFileOpenBrowser::OnSize(int width, int height)
     MapWindowRect(HWND_DESKTOP, hwndDlg, &rcView);
 
     hdwp = BeginDeferWindowPos(10);
-    if (hdwp)
-    {
-        hdwp = DeferWindowPos( hdwp,
-                               hwndGrip,
-                               NULL,
-                               width - g_cxGrip,
-                               height - g_cyGrip,
-                               g_cxGrip,
-                               g_cyGrip,
-                               SWP_NOZORDER | SWP_NOACTIVATE );
+    if (hdwp) {
+        hdwp = DeferWindowPos(hdwp,
+                              hwndGrip,
+                              NULL,
+                              width - g_cxGrip,
+                              height - g_cyGrip,
+                              g_cxGrip,
+                              g_cyGrip,
+                              SWP_NOZORDER | SWP_NOACTIVATE);
 
-        if (hdwp)
-        {
-            hdwp = DeferWindowPos( hdwp,
-                                   hwndView,
-                                   NULL,
-                                   0,
-                                   0,
-                                   rcView.right - rcView.left + dx,  // resize x
-                                   rcView.bottom - rcView.top + dy,  // resize y
-                                   SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE );
+        if (hdwp) {
+            hdwp = DeferWindowPos(hdwp,
+                                  hwndView,
+                                  NULL,
+                                  0,
+                                  0,
+                                  rcView.right - rcView.left + dx,  // resize x
+                                  rcView.bottom - rcView.top + dy,  // resize y
+                                  SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
         }
 #if 0
 
@@ -10295,16 +9228,15 @@ void CFileOpenBrowser::OnSize(int width, int height)
         //  the size of the hwndView above.
 
         hwnd = GetDlgItem(hwndDlg, lst1);
-        if (hdwp)
-        {
-            hdwp = DeferWindowPos( hdwp,
-                                   hwnd,
-                                   NULL,
-                                   0,
-                                   0,
-                                   rcView.right - rcView.left + dx,  // resize x
-                                   rcView.bottom - rcView.top + dy,  // resize y
-                                   SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE );
+        if (hdwp) {
+            hdwp = DeferWindowPos(hdwp,
+                                  hwnd,
+                                  NULL,
+                                  0,
+                                  0,
+                                  rcView.right - rcView.left + dx,  // resize x
+                                  rcView.bottom - rcView.top + dy,  // resize y
+                                  SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
         }
 #endif
     }
@@ -10313,226 +9245,206 @@ void CFileOpenBrowser::OnSize(int width, int height)
     //  Move the controls.
 
     hwnd = ::GetWindow(hwndDlg, GW_CHILD);
-    while (hwnd && hdwp)
-    {
-        if ((hwnd != hSubDlg) && (hwnd != hwndGrip) && (hdwp))
-        {
+    while (hwnd && hdwp) {
+        if ((hwnd != hSubDlg) && (hwnd != hwndGrip) && (hdwp)) {
             GetWindowRect(hwnd, &rc);
             MapWindowRect(HWND_DESKTOP, hwndDlg, &rc);
 
 
             //  See if the control needs to be adjusted.
 
-            if (rc.top > rcView.bottom)
-            {
-                switch (GetDlgCtrlID(hwnd))
+            if (rc.top > rcView.bottom) {
+                switch (GetDlgCtrlID(hwnd)) {
+                case (edt1):
+                case (cmb13):
+                case (cmb1):
                 {
-                    case ( edt1 ) :
-                    case ( cmb13 ) :
-                    case ( cmb1 ) :
-                    {
-                        //Increase the width of these controls
-                        hdwp = DeferWindowPos( hdwp,
-                                               hwnd,
-                                               NULL,
-                                               rc.left,
-                                               rc.top + dy,
-                                               RECTWIDTH(rc) + dx,
-                                               RECTHEIGHT(rc),
-                                               SWP_NOZORDER );
-                        break;
+                    //Increase the width of these controls
+                    hdwp = DeferWindowPos(hdwp,
+                                          hwnd,
+                                          NULL,
+                                          rc.left,
+                                          rc.top + dy,
+                                          RECTWIDTH(rc) + dx,
+                                          RECTHEIGHT(rc),
+                                          SWP_NOZORDER);
+                    break;
 
-                    }
-
-                    case ( IDOK ):
-                    case ( IDCANCEL ):
-                    case ( pshHelp ):
-                    {
-                        //Move these controls to  the right
-                        hdwp = DeferWindowPos( hdwp,
-                                               hwnd,
-                                               NULL,
-                                               rc.left + dx,
-                                               rc.top  + dy,
-                                               0,
-                                               0,
-                                               SWP_NOZORDER | SWP_NOSIZE );
-                        break;
-
-                    }
-
-                    default :
-                    {
-
-                        //  The control is below the view, so adjust the y
-                        //  coordinate appropriately.
-
-                        hdwp = DeferWindowPos( hdwp,
-                                               hwnd,
-                                               NULL,
-                                               rc.left,
-                                               rc.top + dy,
-                                               0,
-                                               0,
-                                               SWP_NOZORDER | SWP_NOSIZE );
-
-                    }
                 }
-            }
-            else if (rc.left > rcView.right)
-            {
+
+                case (IDOK):
+                case (IDCANCEL):
+                case (pshHelp):
+                {
+                    //Move these controls to  the right
+                    hdwp = DeferWindowPos(hdwp,
+                                          hwnd,
+                                          NULL,
+                                          rc.left + dx,
+                                          rc.top + dy,
+                                          0,
+                                          0,
+                                          SWP_NOZORDER | SWP_NOSIZE);
+                    break;
+
+                }
+
+                default:
+                {
+
+                    //  The control is below the view, so adjust the y
+                    //  coordinate appropriately.
+
+                    hdwp = DeferWindowPos(hdwp,
+                                          hwnd,
+                                          NULL,
+                                          rc.left,
+                                          rc.top + dy,
+                                          0,
+                                          0,
+                                          SWP_NOZORDER | SWP_NOSIZE);
+
+                }
+                }
+            } else if (rc.left > rcView.right) {
 
                 //  The control is to the right of the view, so adjust the
                 //  x coordinate appropriately.
 
-                hdwp = DeferWindowPos( hdwp,
-                                       hwnd,
-                                       NULL,
-                                       rc.left + dx,
-                                       rc.top,
-                                       0,
-                                       0,
-                                       SWP_NOZORDER | SWP_NOSIZE );
-            }
-            else
-            {
+                hdwp = DeferWindowPos(hdwp,
+                                      hwnd,
+                                      NULL,
+                                      rc.left + dx,
+                                      rc.top,
+                                      0,
+                                      0,
+                                      SWP_NOZORDER | SWP_NOSIZE);
+            } else {
                 int id = GetDlgCtrlID(hwnd);
 
-                switch (id)
+                switch (id) {
+                case (cmb2):
                 {
-                    case ( cmb2 ) :
-                    {
 
-                        //  Size this one larger.
+                    //  Size this one larger.
 
-                        hdwp = DeferWindowPos( hdwp,
-                                               hwnd,
-                                               NULL,
-                                               0,
-                                               0,
-                                               RECTWIDTH(rc) + dx,
-                                               RECTHEIGHT(rc),
-                                               SWP_NOZORDER | SWP_NOMOVE );
-                        break;
-                    }
-                    case ( IDC_TOOLBAR ) :
-                    case ( stc1 ) :
-                    {
+                    hdwp = DeferWindowPos(hdwp,
+                                          hwnd,
+                                          NULL,
+                                          0,
+                                          0,
+                                          RECTWIDTH(rc) + dx,
+                                          RECTHEIGHT(rc),
+                                          SWP_NOZORDER | SWP_NOMOVE);
+                    break;
+                }
+                case (IDC_TOOLBAR):
+                case (stc1):
+                {
 
-                        //  Move the toolbar right by dx.
+                    //  Move the toolbar right by dx.
 
-                        hdwp = DeferWindowPos( hdwp,
-                                               hwnd,
-                                               NULL,
-                                               rc.left + dx,
-                                               rc.top,
-                                               0,
-                                               0,
-                                               SWP_NOZORDER | SWP_NOSIZE );
-                        break;
-                    }
+                    hdwp = DeferWindowPos(hdwp,
+                                          hwnd,
+                                          NULL,
+                                          rc.left + dx,
+                                          rc.top,
+                                          0,
+                                          0,
+                                          SWP_NOZORDER | SWP_NOSIZE);
+                    break;
+                }
 
-                    case ( ctl1 ) :
-                    {
-                        // Size the places bar vertically
-                        hdwp = DeferWindowPos(hdwp,
-                                              hwnd,
-                                              NULL,
-                                              0,
-                                              0,
-                                              RECTWIDTH(rc),
-                                              RECTHEIGHT(rc) + dy,
-                                              SWP_NOZORDER | SWP_NOMOVE);
-                        break;
-                    }
+                case (ctl1):
+                {
+                    // Size the places bar vertically
+                    hdwp = DeferWindowPos(hdwp,
+                                          hwnd,
+                                          NULL,
+                                          0,
+                                          0,
+                                          RECTWIDTH(rc),
+                                          RECTHEIGHT(rc) + dy,
+                                          SWP_NOZORDER | SWP_NOMOVE);
+                    break;
+                }
                 }
             }
         }
         hwnd = ::GetWindow(hwnd, GW_HWNDNEXT);
     }
 
-    if (!hdwp)
-    {
+    if (!hdwp) {
         return;
     }
     EndDeferWindowPos(hdwp);
 
-    if (hSubDlg)
-    {
+    if (hSubDlg) {
         hdwp = NULL;
 
         hwnd = ::GetWindow(hSubDlg, GW_CHILD);
 
-        while (hwnd)
-        {
+        while (hwnd) {
             GetWindowRect(hwnd, &rc);
             MapWindowRect(HWND_DESKTOP, hSubDlg, &rc);
 
 
             //  See if the control needs to be adjusted.
 
-            if (rc.top > rcView.bottom)
-            {
+            if (rc.top > rcView.bottom) {
 
                 //  The control is below the view, so adjust the y
                 //  coordinate appropriately.
 
 
-                if (hdwp == NULL)
-                {
+                if (hdwp == NULL) {
                     hdwp = BeginDeferWindowPos(10);
                 }
-                if (hdwp)
-                {
-                    hdwp = DeferWindowPos( hdwp,
-                                           hwnd,
-                                           NULL,
-                                           rc.left,
-                                           rc.top + dy,
-                                           0,
-                                           0,
-                                           SWP_NOZORDER | SWP_NOSIZE );
+                if (hdwp) {
+                    hdwp = DeferWindowPos(hdwp,
+                                          hwnd,
+                                          NULL,
+                                          rc.left,
+                                          rc.top + dy,
+                                          0,
+                                          0,
+                                          SWP_NOZORDER | SWP_NOSIZE);
                 }
-            }
-            else if (rc.left > rcView.right)
-            {
+            } else if (rc.left > rcView.right) {
 
                 //  The control is to the right of the view, so adjust the
                 //  x coordinate appropriately.
 
 
-                if (hdwp == NULL)
-                {
+                if (hdwp == NULL) {
                     hdwp = BeginDeferWindowPos(10);
                 }
-                if (hdwp)
-                {
-                    hdwp = DeferWindowPos( hdwp,
-                                           hwnd,
-                                           NULL,
-                                           rc.left + dx,
-                                           rc.top,
-                                           0,
-                                           0,
-                                           SWP_NOZORDER | SWP_NOSIZE );
+                if (hdwp) {
+                    hdwp = DeferWindowPos(hdwp,
+                                          hwnd,
+                                          NULL,
+                                          rc.left + dx,
+                                          rc.top,
+                                          0,
+                                          0,
+                                          SWP_NOZORDER | SWP_NOSIZE);
                 }
             }
             hwnd = ::GetWindow(hwnd, GW_HWNDNEXT);
         }
-        if (hdwp)
-        {
+        if (hdwp) {
             EndDeferWindowPos(hdwp);
 
 
             //  Size the sub dialog.
 
-            SetWindowPos( hSubDlg,
-                          NULL,
-                          0,
-                          0,
-                          ptLastSize.x,         // make it the same
-                          ptLastSize.y,         // make it the same
-                          SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE );
+            SetWindowPos(hSubDlg,
+                         NULL,
+                         0,
+                         0,
+                         ptLastSize.x,         // make it the same
+                         ptLastSize.y,         // make it the same
+                         SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
         }
     }
 }
@@ -10555,34 +9467,28 @@ void CFileOpenBrowser::VerifyListViewPosition()
     GetControlRect(hwndDlg, lst1, &rcList);
     rcView.left = 0;
     if ((!GetWindowRect(hwndView, &rcView)) ||
-        (!MapWindowRect(HWND_DESKTOP, hwndDlg, &rcView)))
-    {
+        (!MapWindowRect(HWND_DESKTOP, hwndDlg, &rcView))) {
         return;
     }
 
 
     //  See if the list view is off the screen and the list box is not.
 
-    if ((rcView.left < 0) && (rcList.left >= 0))
-    {
+    if ((rcView.left < 0) && (rcList.left >= 0)) {
 
         //  Reset the list view to the list box position.
 
-        if (pCurrentLocation)
-        {
-            if (psv)
-            {
+        if (pCurrentLocation) {
+            if (psv) {
                 psv->GetCurrentInfo(&fs);
-            }
-            else
-            {
+            } else {
                 fs.ViewMode = FVM_LIST;
                 fs.fFlags = lpOFN->Flags & OFN_ALLOWMULTISELECT ? 0 : FWF_SINGLESEL;
             }
 
-            SwitchView( pCurrentLocation->GetShellFolder(),
-                        pCurrentLocation->pidlFull,
-                        &fs );
+            SwitchView(pCurrentLocation->GetShellFolder(),
+                       pCurrentLocation->pidlFull,
+                       &fs);
         }
     }
 }
@@ -10596,22 +9502,19 @@ void CFileOpenBrowser::VerifyListViewPosition()
 void CFileOpenBrowser::UpdateNavigation()
 {
     WPARAM iItem;
-    HWND hwndCombo  = GetDlgItem(hwndDlg, cmb2);
+    HWND hwndCombo = GetDlgItem(hwndDlg, cmb2);
     iItem = SendMessage(hwndCombo, CB_GETCURSEL, NULL, NULL);
-    MYLISTBOXITEM *pNewLocation = GetListboxItem(hwndCombo, iItem);
+    MYLISTBOXITEM* pNewLocation = GetListboxItem(hwndCombo, iItem);
 
-    if (ptlog && pNewLocation && pNewLocation->pidlFull)
-    {
+    if (ptlog && pNewLocation && pNewLocation->pidlFull) {
         LPITEMIDLIST pidl;
         ptlog->GetCurrent(&pidl);
 
-        if (pidl && (!ILIsEqual(pNewLocation->pidlFull, pidl)))
-        {
+        if (pidl && (!ILIsEqual(pNewLocation->pidlFull, pidl))) {
             ptlog->AddEntry(pNewLocation->pidlFull);
         }
 
-        if (pidl)
-        {
+        if (pidl) {
             ILFree(pidl);
         }
     }
@@ -10631,43 +9534,37 @@ void CFileOpenBrowser::UpdateUI(LPITEMIDLIST pidlNew)
     TBBUTTONINFO tbbi;
     LPITEMIDLIST pidl;
 
-    ::SendMessage(hwndToolbar, TB_ENABLEBUTTON, IDC_BACK,    ptlog ? ptlog->CanTravel(TRAVEL_BACK)    : 0 );
+    ::SendMessage(hwndToolbar, TB_ENABLEBUTTON, IDC_BACK, ptlog ? ptlog->CanTravel(TRAVEL_BACK) : 0);
 
-    if (iCheckedButton >= 0 )
-    {
+    if (iCheckedButton >= 0) {
         //Reset the Hot Button
-        ::SendMessage(hwndPlacesbar, TB_CHECKBUTTON, (WPARAM)iCheckedButton, MAKELONG(FALSE,0));
+        ::SendMessage(hwndPlacesbar, TB_CHECKBUTTON, (WPARAM)iCheckedButton, MAKELONG(FALSE, 0));
         iCheckedButton = -1;
     }
 
-   if (pidlNew)
-   {
+    if (pidlNew) {
 
         //Get Each Toolbar Buttons pidl and see if the current pidl  matches
-        for (int i=0; i < MAXPLACESBARITEMS; i++)
-        {
+        for (int i = 0; i < MAXPLACESBARITEMS; i++) {
 
             tbbi.cbSize = SIZEOF(tbbi);
             tbbi.lParam = 0;
             tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX | TBIF_COMMAND;
-            if (SendMessage(hwndPlacesbar, TB_GETBUTTONINFO, i, (LPARAM)&tbbi) >= 0)
-            {
+            if (SendMessage(hwndPlacesbar, TB_GETBUTTONINFO, i, (LPARAM)&tbbi) >= 0) {
                 pidl = (LPITEMIDLIST)tbbi.lParam;
 
-                if (pidl && ILIsEqual(pidlNew, pidl))
-                {
+                if (pidl && ILIsEqual(pidlNew, pidl)) {
                     iCheckedButton = tbbi.idCommand;
                     break;
                 }
             }
         }
 
-        if (iCheckedButton >= 0 )
-        {
-            ::SendMessage(hwndPlacesbar, TB_CHECKBUTTON, (WPARAM)iCheckedButton, MAKELONG(TRUE,0));
+        if (iCheckedButton >= 0) {
+            ::SendMessage(hwndPlacesbar, TB_CHECKBUTTON, (WPARAM)iCheckedButton, MAKELONG(TRUE, 0));
         }
 
-   }
+    }
 
 }
 
@@ -10685,302 +9582,274 @@ BOOL_PTR CALLBACK OpenDlgProc(
     WPARAM wParam,           // message-specific information
     LPARAM lParam)
 {
-    CFileOpenBrowser *pDlgStruct = HwndToBrowser(hDlg);
+    CFileOpenBrowser* pDlgStruct = HwndToBrowser(hDlg);
 
-    switch (message)
+    switch (message) {
+    case (WM_INITDIALOG):
     {
-        case ( WM_INITDIALOG ) :
-        {
 
-            //  Initialize dialog box.
+        //  Initialize dialog box.
 
-            LPOFNINITINFO poii = (LPOFNINITINFO)lParam;
+        LPOFNINITINFO poii = (LPOFNINITINFO)lParam;
 
-            if (CDGetAppCompatFlags()  & CDACF_MATHCAD)
-            {
-                CoInitializeEx(NULL, COINIT_DISABLE_OLE1DDE);
-            }
-
-            poii->hrOleInit = SHOleInitialize(0);
-
-
-            if (!InitLocation(hDlg, poii))
-            {
-                ::EndDialog(hDlg, FALSE);
-            }
-
-
-            //  Always return FALSE to indicate we have already set the focus.
-
-            return FALSE;
+        if (CDGetAppCompatFlags() & CDACF_MATHCAD) {
+            CoInitializeEx(NULL, COINIT_DISABLE_OLE1DDE);
         }
-        case ( WM_DESTROY ) :
-        {
-            RECT r;
-            //Cache in this dialogs size and position so that new
-            //dialog are created at this location and size
 
-            GetWindowRect(hDlg, &r);
+        poii->hrOleInit = SHOleInitialize(0);
 
-            if (pDlgStruct && (pDlgStruct->bEnableSizing))
-            {
-                g_sizeDlg.cx = r.right - r.left;
-                g_sizeDlg.cy = r.bottom - r.top;
+
+        if (!InitLocation(hDlg, poii)) {
+            ::EndDialog(hDlg, FALSE);
+        }
+
+
+        //  Always return FALSE to indicate we have already set the focus.
+
+        return FALSE;
+    }
+    case (WM_DESTROY):
+    {
+        RECT r;
+        //Cache in this dialogs size and position so that new
+        //dialog are created at this location and size
+
+        GetWindowRect(hDlg, &r);
+
+        if (pDlgStruct && (pDlgStruct->bEnableSizing)) {
+            g_sizeDlg.cx = r.right - r.left;
+            g_sizeDlg.cy = r.bottom - r.top;
+        }
+
+
+        //  Make sure we do not respond to any more messages.
+
+        StoreBrowser(hDlg, NULL);
+        ClearListbox(GetDlgItem(hDlg, cmb2));
+
+        if (pDlgStruct) {
+            pDlgStruct->Release();
+        }
+
+    }
+    break;
+
+    case (WM_ACTIVATE):
+    {
+        if (wParam == WA_INACTIVE) {
+
+            //  Make sure some other Open dialog has not already grabbed
+            //  the focus.  This is a process global, so it should not
+            //  need to be protected.
+
+            if (gp_hwndActiveOpen == hDlg) {
+                gp_hwndActiveOpen = NULL;
             }
-
-
-            //  Make sure we do not respond to any more messages.
-
-            StoreBrowser(hDlg, NULL);
-            ClearListbox(GetDlgItem(hDlg, cmb2));
-
-            if (pDlgStruct)
-            {
-                pDlgStruct->Release();
-            }
-
+        } else {
+            gp_hwndActiveOpen = hDlg;
         }
         break;
+    }
+    case (WM_COMMAND):
+    {
 
-        case ( WM_ACTIVATE ) :
-        {
-            if (wParam == WA_INACTIVE)
-            {
+        //  Received a command.
 
-                //  Make sure some other Open dialog has not already grabbed
-                //  the focus.  This is a process global, so it should not
-                //  need to be protected.
-
-                if (gp_hwndActiveOpen == hDlg)
-                {
-                    gp_hwndActiveOpen = NULL;
-                }
-            }
-            else
-            {
-                gp_hwndActiveOpen = hDlg;
-            }
-            break;
+        if (pDlgStruct) {
+            return ((BOOL_PTR)pDlgStruct->OnCommandMessage(wParam, lParam));
         }
-        case ( WM_COMMAND ) :
-        {
+        break;
+    }
+    case (WM_DRAWITEM):
+    {
+        if (pDlgStruct) {
+            pDlgStruct->PaintDriveLine((DRAWITEMSTRUCT*)lParam);
 
-            //  Received a command.
 
-            if (pDlgStruct)
-            {
-                return ((BOOL_PTR) pDlgStruct->OnCommandMessage(wParam, lParam));
-            }
-            break;
+            //  Make sure the list view is in the same place as the
+            //  list box.  Apps like VB move the list box off of the
+            //  dialog.  If the list view is placed on the list box
+            //  before the list box gets moved back to the dialog, we
+            //  end up with an ugly gray spot.
+
+            pDlgStruct->VerifyListViewPosition();
         }
-        case ( WM_DRAWITEM ):
-        {
-            if (pDlgStruct)
-            {
-                pDlgStruct->PaintDriveLine((DRAWITEMSTRUCT *)lParam);
+        return TRUE;
+    }
+    case (WM_MEASUREITEM):
+    {
+        if (!g_cxSmIcon && !g_cySmIcon) {
+            HIMAGELIST himl;
+            Shell_GetImageLists(NULL, &himl);
+            ImageList_GetIconSize(himl, &g_cxSmIcon, &g_cySmIcon);
+        }
 
-
-                //  Make sure the list view is in the same place as the
-                //  list box.  Apps like VB move the list box off of the
-                //  dialog.  If the list view is placed on the list box
-                //  before the list box gets moved back to the dialog, we
-                //  end up with an ugly gray spot.
-
-                pDlgStruct->VerifyListViewPosition();
-            }
+        MeasureDriveItems(hDlg, (MEASUREITEMSTRUCT*)lParam);
+        return TRUE;
+    }
+    case (WM_NOTIFY):
+    {
+        if (pDlgStruct) {
+            return (BOOL_PTR)(pDlgStruct->OnNotify((LPNMHDR)lParam));
+        }
+        break;
+    }
+    case (WM_SETCURSOR):
+    {
+        if (pDlgStruct && pDlgStruct->iWaitCount) {
+            SetCursor(LoadCursor(NULL, IDC_WAIT));
+            SetDlgMsgResult(hDlg, message, (LRESULT)TRUE);
             return TRUE;
         }
-        case ( WM_MEASUREITEM ) :
-        {
-            if (!g_cxSmIcon && !g_cySmIcon)
-            {
-                HIMAGELIST himl;
-                Shell_GetImageLists(NULL, &himl);
-                ImageList_GetIconSize(himl, &g_cxSmIcon, &g_cySmIcon);
-            }
-
-            MeasureDriveItems(hDlg, (MEASUREITEMSTRUCT *)lParam);
-            return TRUE;
-        }
-        case ( WM_NOTIFY ) :
-        {
-            if (pDlgStruct)
-            {
-                return (BOOL_PTR)( pDlgStruct->OnNotify((LPNMHDR)lParam));
-            }
-            break;
-        }
-        case ( WM_SETCURSOR ) :
-        {
-            if (pDlgStruct && pDlgStruct->iWaitCount)
-            {
-                SetCursor(LoadCursor(NULL, IDC_WAIT));
-                SetDlgMsgResult(hDlg, message, (LRESULT)TRUE);
-                return TRUE;
-            }
-            break;
-        }
-        case ( WM_HELP ) :
-        {
+        break;
+    }
+    case (WM_HELP):
+    {
+        HWND hwndItem = (HWND)((LPHELPINFO)lParam)->hItemHandle;
+        if (pDlgStruct && (hwndItem != pDlgStruct->hwndToolbar)) {
             HWND hwndItem = (HWND)((LPHELPINFO)lParam)->hItemHandle;
-            if (pDlgStruct && (hwndItem != pDlgStruct->hwndToolbar))
-            {
-                HWND hwndItem = (HWND)((LPHELPINFO)lParam)->hItemHandle;
 
 
-                //  We assume that the defview has one child window that
-                //  covers the entire defview window.
+            //  We assume that the defview has one child window that
+            //  covers the entire defview window.
 
-                HWND hwndDefView = GetDlgItem(hDlg, lst2);
-                if (GetParent(hwndItem) == hwndDefView)
-                {
-                    hwndItem = hwndDefView;
-                }
-
-                WinHelp( hwndItem,
-                         NULL,
-                         HELP_WM_HELP,
-                         (ULONG_PTR)(LPTSTR)(pDlgStruct->bSave
-                                             ? aFileSaveHelpIDs
-                                             : aFileOpenHelpIDs) );
+            HWND hwndDefView = GetDlgItem(hDlg, lst2);
+            if (GetParent(hwndItem) == hwndDefView) {
+                hwndItem = hwndDefView;
             }
+
+            WinHelp(hwndItem,
+                    NULL,
+                    HELP_WM_HELP,
+                    (ULONG_PTR)(LPTSTR)(pDlgStruct->bSave
+                                        ? aFileSaveHelpIDs
+                                        : aFileOpenHelpIDs));
+        }
+        return TRUE;
+    }
+    case (WM_CONTEXTMENU):
+    {
+        if (pDlgStruct && ((HWND)wParam != pDlgStruct->hwndToolbar)) {
+            WinHelp((HWND)wParam,
+                    NULL,
+                    HELP_CONTEXTMENU,
+                    (ULONG_PTR)(LPVOID)(pDlgStruct->bSave
+                                        ? aFileSaveHelpIDs
+                                        : aFileOpenHelpIDs));
+        }
+        return TRUE;
+    }
+    case (CWM_GETISHELLBROWSER):
+    {
+        ::SetWindowLongPtr(hDlg, DWLP_MSGRESULT, (LRESULT)pDlgStruct);
+        return TRUE;
+    }
+    case (CDM_SETSAVEBUTTON):
+    {
+        if (pDlgStruct) {
+            pDlgStruct->RealSetSaveButton((UINT)wParam);
+        }
+        break;
+    }
+    case (CDM_FSNOTIFY):
+    {
+        LPITEMIDLIST* ppidl;
+        LONG lEvent;
+        BOOL bRet;
+        LPSHChangeNotificationLock pLock;
+
+        if (!pDlgStruct) {
+            return FALSE;
+        }
+
+
+        //  Get the change notification info from the shared memory
+        //  block identified by the handle passed in the wParam.
+
+        pLock = SHChangeNotification_Lock((HANDLE)wParam,
+            (DWORD)lParam,
+                                          &ppidl,
+                                          &lEvent);
+        if (pLock == NULL) {
+            pDlgStruct->bDropped = FALSE;
+            return FALSE;
+        }
+
+        bRet = pDlgStruct->FSChange(lEvent, (LPCITEMIDLIST*)ppidl);
+
+
+        //  Release the shared block.
+
+        SHChangeNotification_Unlock(pLock);
+
+        return (bRet);
+    }
+    case (CDM_SELCHANGE):
+    {
+        if (pDlgStruct) {
+            pDlgStruct->fSelChangedPending = FALSE;
+            pDlgStruct->SelFocusChange(TRUE);
+            if (pDlgStruct->hSubDlg) {
+                CD_SendSelChangeNotify(pDlgStruct->hSubDlg,
+                                       hDlg,
+                                       pDlgStruct->lpOFN,
+                                       pDlgStruct->lpOFI);
+            }
+        }
+        break;
+    }
+    case (WM_TIMER):
+    {
+        if (pDlgStruct) {
+            pDlgStruct->Timer(wParam);
+        }
+        break;
+    }
+    case (WM_GETMINMAXINFO):
+    {
+        if (pDlgStruct && (pDlgStruct->bEnableSizing)) {
+            pDlgStruct->OnGetMinMax((LPMINMAXINFO)lParam);
+            return FALSE;
+        }
+        break;
+    }
+    case (WM_SIZE):
+    {
+        if (pDlgStruct && (pDlgStruct->bEnableSizing)) {
+            pDlgStruct->OnSize(LOWORD(lParam), HIWORD(lParam));
             return TRUE;
         }
-        case ( WM_CONTEXTMENU ) :
-        {
-            if (pDlgStruct && ((HWND)wParam != pDlgStruct->hwndToolbar))
-            {
-                WinHelp( (HWND)wParam,
-                         NULL,
-                         HELP_CONTEXTMENU,
-                         (ULONG_PTR)(LPVOID)(pDlgStruct->bSave
-                                             ? aFileSaveHelpIDs
-                                             : aFileOpenHelpIDs) );
-            }
+        break;
+    }
+
+
+    // AppHack for Borland JBuilder:  Need to keep track of whether
+    // any redraw requests have come in.
+
+    case (WM_NCCALCSIZE):
+        pDlgStruct->bAppRedrawn = TRUE;
+        break;
+
+
+    default:
+    {
+        if (IsInRange(message, CDM_FIRST, CDM_LAST) && pDlgStruct) {
+            return (pDlgStruct->OnCDMessage(message, wParam, lParam));
+        }
+
+        //Register QueryCancelAutoPlay message if already not done
+        if (!gp_uQueryCancelAutoPlay) {
+            gp_uQueryCancelAutoPlay = RegisterWindowMessage(TEXT("QueryCancelAutoPlay"));
+        }
+
+        //Is the message QueryCancelAutoPlay ?
+        if (message && message == gp_uQueryCancelAutoPlay) {
+            //Yes, Cancel the Auto Play
+            SetWindowLongPtr(hDlg, DWLP_MSGRESULT, 1);
             return TRUE;
         }
-        case ( CWM_GETISHELLBROWSER ) :
-        {
-            ::SetWindowLongPtr(hDlg, DWLP_MSGRESULT, (LRESULT)pDlgStruct);
-            return TRUE;
-        }
-        case ( CDM_SETSAVEBUTTON ) :
-        {
-            if (pDlgStruct)
-            {
-                pDlgStruct->RealSetSaveButton((UINT)wParam);
-            }
-            break;
-        }
-        case ( CDM_FSNOTIFY ) :
-        {
-            LPITEMIDLIST *ppidl;
-            LONG lEvent;
-            BOOL bRet;
-            LPSHChangeNotificationLock pLock;
-
-            if (!pDlgStruct)
-            {
-                return FALSE;
-            }
-
-
-            //  Get the change notification info from the shared memory
-            //  block identified by the handle passed in the wParam.
-
-            pLock = SHChangeNotification_Lock( (HANDLE)wParam,
-                                               (DWORD)lParam,
-                                               &ppidl,
-                                               &lEvent );
-            if (pLock == NULL)
-            {
-                pDlgStruct->bDropped = FALSE;
-                return FALSE;
-            }
-
-            bRet = pDlgStruct->FSChange(lEvent, (LPCITEMIDLIST *)ppidl);
-
-
-            //  Release the shared block.
-
-            SHChangeNotification_Unlock(pLock);
-
-            return (bRet);
-        }
-        case ( CDM_SELCHANGE ) :
-        {
-            if (pDlgStruct)
-            {
-                pDlgStruct->fSelChangedPending = FALSE;
-                pDlgStruct->SelFocusChange(TRUE);
-                if (pDlgStruct->hSubDlg)
-                {
-                    CD_SendSelChangeNotify( pDlgStruct->hSubDlg,
-                                            hDlg,
-                                            pDlgStruct->lpOFN,
-                                            pDlgStruct->lpOFI );
-                }
-            }
-            break;
-        }
-        case ( WM_TIMER ) :
-        {
-            if (pDlgStruct)
-            {
-                pDlgStruct->Timer(wParam);
-            }
-            break;
-        }
-        case ( WM_GETMINMAXINFO ) :
-        {
-            if (pDlgStruct && (pDlgStruct->bEnableSizing))
-            {
-                pDlgStruct->OnGetMinMax((LPMINMAXINFO)lParam);
-                return FALSE;
-            }
-            break;
-        }
-        case ( WM_SIZE ) :
-        {
-            if (pDlgStruct && (pDlgStruct->bEnableSizing))
-            {
-                pDlgStruct->OnSize(LOWORD(lParam), HIWORD(lParam));
-                return TRUE;
-            }
-            break;
-        }
-
-
-        // AppHack for Borland JBuilder:  Need to keep track of whether
-        // any redraw requests have come in.
-
-        case ( WM_NCCALCSIZE ) :
-            pDlgStruct->bAppRedrawn = TRUE;
-            break;
-
-
-        default:
-        {
-            if (IsInRange(message, CDM_FIRST, CDM_LAST) && pDlgStruct)
-            {
-                return (pDlgStruct->OnCDMessage(message, wParam, lParam));
-            }
-
-            //Register QueryCancelAutoPlay message if already not done
-            if (!gp_uQueryCancelAutoPlay)
-            {
-                gp_uQueryCancelAutoPlay =  RegisterWindowMessage(TEXT("QueryCancelAutoPlay"));
-            }
-
-            //Is the message QueryCancelAutoPlay ?
-            if (message && message == gp_uQueryCancelAutoPlay)
-            {
-                 //Yes, Cancel the Auto Play
-                 SetWindowLongPtr(hDlg, DWLP_MSGRESULT,  1);
-                 return TRUE;
-            }
-            break;
-        }
+        break;
+    }
     }
 
 
@@ -11001,19 +9870,17 @@ LRESULT CALLBACK OpenFileHookProc(
     WPARAM wParam,
     LPARAM lParam)
 {
-    MSG *lpMsg;
+    MSG* lpMsg;
 
-    if (nCode < 0)
-    {
+    if (nCode < 0) {
         return (DefHookProc(nCode, wParam, lParam, &gp_hHook));
     }
 
-    if (nCode != MSGF_DIALOGBOX)
-    {
+    if (nCode != MSGF_DIALOGBOX) {
         return (0);
     }
 
-    lpMsg = (MSG *)lParam;
+    lpMsg = (MSG*)lParam;
 
 
     //  Check if this message is for the last active OpenDialog in this
@@ -11022,33 +9889,25 @@ LRESULT CALLBACK OpenFileHookProc(
     //  Note: This is only done for WM_KEY* messages so that we do not slow
     //        down this window too much.
 
-    if (IsInRange(lpMsg->message, WM_KEYFIRST, WM_KEYLAST))
-    {
+    if (IsInRange(lpMsg->message, WM_KEYFIRST, WM_KEYLAST)) {
         HWND hwndActiveOpen = gp_hwndActiveOpen;
         HWND hwndFocus = GetFocusedChild(hwndActiveOpen, lpMsg->hwnd);
-        CFileOpenBrowser *pDlgStruct;
+        CFileOpenBrowser* pDlgStruct;
 
         if (hwndFocus &&
-            (pDlgStruct = HwndToBrowser(hwndActiveOpen)) != NULL)
-        {
-            if (pDlgStruct->psv && (hwndFocus == pDlgStruct->hwndView))
-            {
-                if (pDlgStruct->psv->TranslateAccelerator(lpMsg) == S_OK)
-                {
+            (pDlgStruct = HwndToBrowser(hwndActiveOpen)) != NULL) {
+            if (pDlgStruct->psv && (hwndFocus == pDlgStruct->hwndView)) {
+                if (pDlgStruct->psv->TranslateAccelerator(lpMsg) == S_OK) {
                     return (1);
                 }
 
                 if (gp_haccOpenView &&
-                    TranslateAccelerator(hwndActiveOpen, gp_haccOpenView, lpMsg))
-                {
+                    TranslateAccelerator(hwndActiveOpen, gp_haccOpenView, lpMsg)) {
                     return (1);
                 }
-            }
-            else
-            {
+            } else {
                 if (gp_haccOpen &&
-                    TranslateAccelerator(hwndActiveOpen, gp_haccOpen, lpMsg))
-                {
+                    TranslateAccelerator(hwndActiveOpen, gp_haccOpen, lpMsg)) {
                     return (1);
                 }
 
@@ -11071,7 +9930,7 @@ LRESULT CALLBACK OpenFileHookProc(
 
 BOOL NewGetFileName(LPOPENFILEINFO lpOFI, BOOL bSave)
 {
-    OFNINITINFO oii = { lpOFI, bSave, FALSE, -1};
+    OFNINITINFO oii = {lpOFI, bSave, FALSE, -1};
     LPOPENFILENAME lpOFN = lpOFI->pOFN;
     BOOL bHooked = FALSE;
     WORD wErrorMode;
@@ -11086,17 +9945,14 @@ BOOL NewGetFileName(LPOPENFILEINFO lpOFI, BOOL bSave)
     icc.dwSize = sizeof(INITCOMMONCONTROLSEX);
     icc.dwICC = ICC_USEREX_CLASSES;  //ComboBoxEx class
     InitCommonControlsEx(&icc);
-    if ((lpOFN->lStructSize != sizeof(OPENFILENAME)))
-    {
+    if ((lpOFN->lStructSize != sizeof(OPENFILENAME))) {
         StoreExtendedError(CDERR_STRUCTSIZE);
         return FALSE;
     }
 
     //  OFN_ENABLEINCLUDENOTIFY requires OFN_EXPLORER and OFN_ENABLEHOOK.
-    if (lpOFN->Flags & OFN_ENABLEINCLUDENOTIFY)
-    {
-        if ((!(lpOFN->Flags & OFN_EXPLORER)) || (!(lpOFN->Flags & OFN_ENABLEHOOK)))
-        {
+    if (lpOFN->Flags & OFN_ENABLEINCLUDENOTIFY) {
+        if ((!(lpOFN->Flags & OFN_EXPLORER)) || (!(lpOFN->Flags & OFN_ENABLEHOOK))) {
             StoreExtendedError(CDERR_INITIALIZATION);
             return FALSE;
         }
@@ -11107,30 +9963,22 @@ BOOL NewGetFileName(LPOPENFILEINFO lpOFI, BOOL bSave)
 
     //  These hooks are REALLY stupid.  I am compelled to keep the hHook in a global because my callback needs it, but I have no lData where I could possibly store it.
     //  Note that we initialize nHookRef to -1 so we know when the first increment is.
-    if (InterlockedIncrement((LPLONG)&gp_nHookRef) == 0)
-    {
-        gp_hHook = SetWindowsHookEx( WH_MSGFILTER, OpenFileHookProc, 0, GetCurrentThreadId() );
-        if (gp_hHook)
-        {
+    if (InterlockedIncrement((LPLONG)&gp_nHookRef) == 0) {
+        gp_hHook = SetWindowsHookEx(WH_MSGFILTER, OpenFileHookProc, 0, GetCurrentThreadId());
+        if (gp_hHook) {
             bHooked = TRUE;
-        }
-        else
-        {
+        } else {
             --gp_nHookRef;
         }
-    }
-    else
-    {
+    } else {
         bHooked = TRUE;
     }
 
-    if (!gp_haccOpen)
-    {
-        gp_haccOpen = LoadAccelerators( g_hinst, MAKEINTRESOURCE(IDA_OPENFILE) );
+    if (!gp_haccOpen) {
+        gp_haccOpen = LoadAccelerators(g_hinst, MAKEINTRESOURCE(IDA_OPENFILE));
     }
-    if (!gp_haccOpenView)
-    {
-        gp_haccOpenView = LoadAccelerators( g_hinst, MAKEINTRESOURCE(IDA_OPENFILEVIEW) );
+    if (!gp_haccOpenView) {
+        gp_haccOpenView = LoadAccelerators(g_hinst, MAKEINTRESOURCE(IDA_OPENFILEVIEW));
     }
 
     g_cxGrip = GetSystemMetrics(SM_CXVSCROLL);
@@ -11145,13 +9993,10 @@ BOOL NewGetFileName(LPOPENFILEINFO lpOFI, BOOL bSave)
     // if the version of the structure passed is older than the current version and the application
     // has specified hook or template or template handle then use template corresponding to that version
     // else use the new file open template
-    if ( ((lpOFI->iVersion < OPENFILEVERSION) && (lpOFI->pOFN->Flags & (OFN_ENABLEHOOK | OFN_ENABLETEMPLATE | OFN_ENABLETEMPLATEHANDLE))) ||
-         (IsRestricted(REST_NOPLACESBAR)) || (lpOFI->pOFN->FlagsEx & OFN_EX_NOPLACESBAR))
-    {
+    if (((lpOFI->iVersion < OPENFILEVERSION) && (lpOFI->pOFN->Flags & (OFN_ENABLEHOOK | OFN_ENABLETEMPLATE | OFN_ENABLETEMPLATEHANDLE))) ||
+        (IsRestricted(REST_NOPLACESBAR)) || (lpOFI->pOFN->FlagsEx & OFN_EX_NOPLACESBAR)) {
         wResID = NEWFILEOPENORD;
-    }
-    else
-    {
+    } else {
         wResID = NEWFILEOPENV2ORD;
     }
 
@@ -11161,57 +10006,50 @@ BOOL NewGetFileName(LPOPENFILEINFO lpOFI, BOOL bSave)
 
     // We have to set g_tlsLangID before any call for CDLoadString
 
-    TlsSetValue(g_tlsLangID, (LPVOID) LangID);
+    TlsSetValue(g_tlsLangID, (LPVOID)LangID);
 
-    if ((hResInfo = FindResourceEx( ::g_hinst,
-                                  RT_DIALOG,
-                                  MAKEINTRESOURCE(wResID),
-                                  LangID)) &&
-        (hDlgTemplate = LoadResource(::g_hinst, hResInfo)) &&
-        (pDlgTemplate = (LPDLGTEMPLATE)LockResource(hDlgTemplate)))
-    {
+    if ((hResInfo = FindResourceEx(::g_hinst,
+                                   RT_DIALOG,
+                                   MAKEINTRESOURCE(wResID),
+                                   LangID)) &&
+                                   (hDlgTemplate = LoadResource(::g_hinst, hResInfo)) &&
+        (pDlgTemplate = (LPDLGTEMPLATE)LockResource(hDlgTemplate))) {
         ULONG cbTemplate = SizeofResource(::g_hinst, hResInfo);
         LPDLGTEMPLATE pDTCopy = (LPDLGTEMPLATE)LocalAlloc(LPTR, cbTemplate);
 
-        if (pDTCopy)
-        {
+        if (pDTCopy) {
             CopyMemory(pDTCopy, pDlgTemplate, cbTemplate);
             UnlockResource(hDlgTemplate);
             FreeResource(hDlgTemplate);
 
-            if ( (lpOFN->Flags & OFN_ENABLESIZING) ||
-                 (!(lpOFN->Flags & (OFN_ENABLEHOOK |
-                                    OFN_ENABLETEMPLATE |
+            if ((lpOFN->Flags & OFN_ENABLESIZING) ||
+                (!(lpOFN->Flags & (OFN_ENABLEHOOK |
+                                   OFN_ENABLETEMPLATE |
 
-                                    OFN_ENABLETEMPLATEHANDLE))) )
-            {
-                                if (((LPDLGTEMPLATE2)pDTCopy)->wSignature == 0xFFFF)
-                                {
-                                        //This is a dialogex template
-                                        ((LPDLGTEMPLATE2)pDTCopy)->style |= WS_SIZEBOX;
-                                }
-                                else
-                                {
-                                        //This is a dialog template
-                                        ((LPDLGTEMPLATE)pDTCopy)->style |= WS_SIZEBOX;
-                                }
+                                   OFN_ENABLETEMPLATEHANDLE)))) {
+                if (((LPDLGTEMPLATE2)pDTCopy)->wSignature == 0xFFFF) {
+                    //This is a dialogex template
+                    ((LPDLGTEMPLATE2)pDTCopy)->style |= WS_SIZEBOX;
+                } else {
+                    //This is a dialog template
+                    ((LPDLGTEMPLATE)pDTCopy)->style |= WS_SIZEBOX;
+                }
                 oii.bEnableSizing = TRUE;
             }
 
 
             oii.hrOleInit = E_FAIL;
 
-            nRet = (BOOL)DialogBoxIndirectParam( ::g_hinst,
-                                           pDTCopy,
-                                           lpOFN->hwndOwner,
-                                           OpenDlgProc,
-                                           (LPARAM)(LPOFNINITINFO)&oii );
+            nRet = (BOOL)DialogBoxIndirectParam(::g_hinst,
+                                                pDTCopy,
+                                                lpOFN->hwndOwner,
+                                                OpenDlgProc,
+                                                (LPARAM)(LPOFNINITINFO)&oii);
 
             //Unintialize OLE
             SHOleUninitialize(oii.hrOleInit);
 
-            if (CDGetAppCompatFlags()  & CDACF_MATHCAD)
-            {
+            if (CDGetAppCompatFlags() & CDACF_MATHCAD) {
                 CoUninitialize();
             }
 
@@ -11219,39 +10057,35 @@ BOOL NewGetFileName(LPOPENFILEINFO lpOFI, BOOL bSave)
         }
     }
 
-    if (bHooked)
-    {
+    if (bHooked) {
 
         //  Put this in a local so we don't need a critical section.
 
         HHOOK hHook = gp_hHook;
 
-        if (InterlockedDecrement((LPLONG)&gp_nHookRef) < 0)
-        {
+        if (InterlockedDecrement((LPLONG)&gp_nHookRef) < 0) {
             UnhookWindowsHookEx(hHook);
         }
     }
 
-    switch (nRet)
+    switch (nRet) {
+    case (TRUE):
     {
-        case ( TRUE ) :
-        {
-            break;
-        }
-        case ( FALSE ) :
-        {
-            if ((!bUserPressedCancel) && (!GetStoredExtendedError()))
-            {
-                StoreExtendedError(CDERR_DIALOGFAILURE);
-            }
-            break;
-        }
-        default :
-        {
+        break;
+    }
+    case (FALSE):
+    {
+        if ((!bUserPressedCancel) && (!GetStoredExtendedError())) {
             StoreExtendedError(CDERR_DIALOGFAILURE);
-            nRet = FALSE;
-            break;
         }
+        break;
+    }
+    default:
+    {
+        StoreExtendedError(CDERR_DIALOGFAILURE);
+        nRet = FALSE;
+        break;
+    }
     }
 
 
@@ -11266,48 +10100,41 @@ BOOL NewGetFileName(LPOPENFILEINFO lpOFI, BOOL bSave)
 
 
 extern "C" {
-//  NewGetOpenFileName
-BOOL NewGetOpenFileName(LPOPENFILEINFO lpOFI)
-{
-    return (NewGetFileName(lpOFI, FALSE));
-}
+    //  NewGetOpenFileName
+    BOOL NewGetOpenFileName(LPOPENFILEINFO lpOFI)
+    {
+        return (NewGetFileName(lpOFI, FALSE));
+    }
 
-//  NewGetSaveFileName
-BOOL NewGetSaveFileName(LPOPENFILEINFO lpOFI)
-{
-    return (NewGetFileName(lpOFI, TRUE));
-}
+    //  NewGetSaveFileName
+    BOOL NewGetSaveFileName(LPOPENFILEINFO lpOFI)
+    {
+        return (NewGetFileName(lpOFI, TRUE));
+    }
 
 }   // extern "C"
 
 
 //  CFileOpenBrowser::_ValidateSelectedFile
-BOOL CFileOpenBrowser::_ValidateSelectedFile(LPCTSTR pszFile, int *pErrCode)
+BOOL CFileOpenBrowser::_ValidateSelectedFile(LPCTSTR pszFile, int* pErrCode)
 {
     //  Successfully opened.
 
-    if ((lpOFN->Flags & OFN_NOREADONLYRETURN) && (GetFileAttributes(pszFile) & FILE_ATTRIBUTE_READONLY))
-    {
+    if ((lpOFN->Flags & OFN_NOREADONLYRETURN) && (GetFileAttributes(pszFile) & FILE_ATTRIBUTE_READONLY)) {
         *pErrCode = OF_LAZYREADONLY;
         return FALSE;
     }
 
-    if ((bSave || (lpOFN->Flags & OFN_NOREADONLYRETURN)) && (*pErrCode = WriteProtectedDirCheck((LPTSTR)pszFile)))
-    {
+    if ((bSave || (lpOFN->Flags & OFN_NOREADONLYRETURN)) && (*pErrCode = WriteProtectedDirCheck((LPTSTR)pszFile))) {
         return FALSE;
     }
 
-    if (lpOFN->Flags & OFN_OVERWRITEPROMPT)
-    {
-        if (bSave && !FOkToWriteOver(hwndDlg, (LPTSTR)pszFile))
-        {
-            if (bUseCombo)
-            {
-                 PostMessage( hwndDlg, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(hwndDlg, cmb13), 1 );
-            }
-            else
-            {
-                  PostMessage( hwndDlg, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(hwndDlg, edt1), 1 );
+    if (lpOFN->Flags & OFN_OVERWRITEPROMPT) {
+        if (bSave && !FOkToWriteOver(hwndDlg, (LPTSTR)pszFile)) {
+            if (bUseCombo) {
+                PostMessage(hwndDlg, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(hwndDlg, cmb13), 1);
+            } else {
+                PostMessage(hwndDlg, WM_NEXTDLGCTL, (WPARAM)GetDlgItem(hwndDlg, edt1), 1);
             }
 
             return FALSE;
@@ -11323,36 +10150,28 @@ BOOL CFileOpenBrowser::_ValidateSelectedFile(LPCTSTR pszFile, int *pErrCode)
 //  CFileOpenBrowser::_ProcessPidlSelection
 
 
-BOOL CFileOpenBrowser::_ProcessPidlSelection(IShellFolder *psf, LPITEMIDLIST pidl)
+BOOL CFileOpenBrowser::_ProcessPidlSelection(IShellFolder* psf, LPITEMIDLIST pidl)
 {
     BOOL bRet = FALSE;
 
-    if (psf && pidl)
-    {
+    if (psf && pidl) {
         DWORD dwAttr = SFGAO_FOLDER | SFGAO_FILESYSTEM | SFGAO_LINK | SFGAO_CANMONIKER | SFGAO_FILESYSANCESTOR;
 
         //Get the attributes of the item
-        if (FAILED(psf->GetAttributesOf(1, (LPCITEMIDLIST *)&pidl,&dwAttr)))
-        {
+        if (FAILED(psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidl, &dwAttr))) {
             return bRet;
         }
 
         //Is this a folder ?
-        if ((dwAttr & SFGAO_FOLDER) && (dwAttr & (SFGAO_FILESYSANCESTOR | SFGAO_CANMONIKER)))
-        {
-            bRet = _ProcessPidlAsFolder(psf,pidl);
-        }
-        else if (dwAttr & SFGAO_LINK)
-        {
-            bRet = _ProcessPidlAsLink(psf,pidl);
+        if ((dwAttr & SFGAO_FOLDER) && (dwAttr & (SFGAO_FILESYSANCESTOR | SFGAO_CANMONIKER))) {
+            bRet = _ProcessPidlAsFolder(psf, pidl);
+        } else if (dwAttr & SFGAO_LINK) {
+            bRet = _ProcessPidlAsLink(psf, pidl);
         }
         // Is this a file system item ?
-        else if (dwAttr & SFGAO_FILESYSTEM)
-        {
+        else if (dwAttr & SFGAO_FILESYSTEM) {
             bRet = _ProcessPidlAsFile(psf, pidl);
-        }
-        else if (dwAttr & SFGAO_CANMONIKER)
-        {
+        } else if (dwAttr & SFGAO_CANMONIKER) {
             bRet = _ProcessPidlAsMoniker(psf, pidl);
         }
     }
@@ -11362,22 +10181,19 @@ BOOL CFileOpenBrowser::_ProcessPidlSelection(IShellFolder *psf, LPITEMIDLIST pid
 
 
 //  CFileOpenBrowser::_ProcessPidlFolder
-BOOL CFileOpenBrowser::_ProcessPidlAsFolder(IShellFolder *psf, LPITEMIDLIST pidl)
+BOOL CFileOpenBrowser::_ProcessPidlAsFolder(IShellFolder* psf, LPITEMIDLIST pidl)
 {
     BOOL bRet = FALSE;
     HRESULT hr;
-    IUnknown *punk;
-    hr = psf->QueryInterface(IID_IUnknown, (void **)&punk);
+    IUnknown* punk;
+    hr = psf->QueryInterface(IID_IUnknown, (void**)&punk);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         LPITEMIDLIST pidlParent;
-        if (SUCCEEDED(SHGetIDListFromUnk(punk , &pidlParent)))
-        {
+        if (SUCCEEDED(SHGetIDListFromUnk(punk, &pidlParent))) {
             LPITEMIDLIST pidlDest = ILCombine(pidlParent, pidl);
 
-            if (pidlDest)
-            {
+            if (pidlDest) {
                 JumpToIDList(pidlDest);
                 Pidl_Set(&pidlDest, NULL);
                 bRet = TRUE;
@@ -11391,80 +10207,68 @@ BOOL CFileOpenBrowser::_ProcessPidlAsFolder(IShellFolder *psf, LPITEMIDLIST pidl
 
 
 //  CFileOpenBrowser::_ProcessPidlAsLink
-BOOL CFileOpenBrowser::_ProcessPidlAsLink(IShellFolder *psf, LPITEMIDLIST pidl)
+BOOL CFileOpenBrowser::_ProcessPidlAsLink(IShellFolder* psf, LPITEMIDLIST pidl)
 {
     BOOL bRet = FALSE;
-    if (pidl)
-    {
+    if (pidl) {
         SHTCUTINFO info;
         LPITEMIDLIST  pidlLinkTarget = NULL;
 
-        info.dwAttr      = SFGAO_FOLDER;
-        info.fReSolve    = FALSE;
+        info.dwAttr = SFGAO_FOLDER;
+        info.fReSolve = FALSE;
         info.pszLinkFile = NULL;
-        info.cchFile     = 0;
-        info.ppidl       = &pidlLinkTarget;
+        info.cchFile = 0;
+        info.ppidl = &pidlLinkTarget;
 
-         //psf can be NULL in which case ResolveLink uses psfCurrent IShellFolder
-         if (SUCCEEDED(ResolveLink(pidl, &info, psf)))
-         {
-             if ((info.dwAttr & SFGAO_FOLDER) ||  !(lpOFN->Flags & OFN_NODEREFERENCELINKS))
-             {
-                IShellFolder * psfParent;
+        //psf can be NULL in which case ResolveLink uses psfCurrent IShellFolder
+        if (SUCCEEDED(ResolveLink(pidl, &info, psf))) {
+            if ((info.dwAttr & SFGAO_FOLDER) || !(lpOFN->Flags & OFN_NODEREFERENCELINKS)) {
+                IShellFolder* psfParent;
                 LPITEMIDLIST pidlLast;
 
-                if (SUCCEEDED(CDBindToIDListParent(pidlLinkTarget,IID_IShellFolder, (void **)&psfParent, (LPCITEMIDLIST *)&pidlLast)))
-                {
+                if (SUCCEEDED(CDBindToIDListParent(pidlLinkTarget, IID_IShellFolder, (void**)&psfParent, (LPCITEMIDLIST*)&pidlLast))) {
                     //Call OurSelves Recursively
-                     if (_ProcessPidlSelection(psfParent, pidlLast))
-                         bRet = TRUE;
+                    if (_ProcessPidlSelection(psfParent, pidlLast))
+                        bRet = TRUE;
                 }
 
                 Pidl_Set(&pidlLinkTarget, NULL);
-             }
-             else
-             {
+            } else {
                 //Treat this pidl like a file  and let ProcessPidlAsFile do the work
-                bRet =  _ProcessPidlAsFile(psf,pidl);
-             }
-         }
+                bRet = _ProcessPidlAsFile(psf, pidl);
+            }
+        }
     }
     return bRet;
 }
 
 
 //  CFileOpenBrowser::_ProcessPidlAsFile
-BOOL CFileOpenBrowser::_ProcessPidlAsFile(IShellFolder *psf, LPITEMIDLIST pidl)
+BOOL CFileOpenBrowser::_ProcessPidlAsFile(IShellFolder* psf, LPITEMIDLIST pidl)
 {
     BOOL bRet = FALSE;
     TCHAR szBuf[MAX_PATH];
 
     //Get the full path of the selected item
     STRRET str;
-    if (SUCCEEDED(psf->GetDisplayNameOf(pidl, SHGDN_FORPARSING, &str)))
-    {
+    if (SUCCEEDED(psf->GetDisplayNameOf(pidl, SHGDN_FORPARSING, &str))) {
         StrRetToStrN(szBuf, ARRAYSIZE(szBuf), &str, pidl);
-    }
-    else
-    {
+    } else {
         szBuf[0] = 0;
     }
 
     int nErrCode = 0;
-    if (_ValidateSelectedFile(szBuf, &nErrCode))
-    {
+    if (_ValidateSelectedFile(szBuf, &nErrCode)) {
         DWORD dwError = 0;
         int nFileOffset = _CopyFileNameToOFN(szBuf, &dwError);
-         _CopyTitleToOFN(szBuf+nFileOffset);
-         _PostProcess(szBuf);
-         if(dwError)
+        _CopyTitleToOFN(szBuf + nFileOffset);
+        _PostProcess(szBuf);
+        if (dwError)
             StoreExtendedError(dwError);
-         //The dialog should return a FALSE in case of an error!
-         CleanupDialog(hwndDlg, (dwError ? FALSE : TRUE));
-         bRet = TRUE;
-    }
-    else
-    {
+        //The dialog should return a FALSE in case of an error!
+        CleanupDialog(hwndDlg, (dwError ? FALSE : TRUE));
+        bRet = TRUE;
+    } else {
         //Check to see if there is an error in the file or user pressed no for overwrite prompt
         // if user pressed no to overwritte prompt then return true
         if (nErrCode == 0)
@@ -11478,7 +10282,7 @@ BOOL CFileOpenBrowser::_ProcessPidlAsFile(IShellFolder *psf, LPITEMIDLIST pidl)
 //  CFileOpenBrowser::_ProcessPidlAsMoniker
 
 
-BOOL CFileOpenBrowser::_ProcessPidlAsMoniker(IShellFolder *psf, LPITEMIDLIST pidl)
+BOOL CFileOpenBrowser::_ProcessPidlAsMoniker(IShellFolder* psf, LPITEMIDLIST pidl)
 {
     BOOL bRet = FALSE;
     WCHAR wzTemp[MAX_PATH];
@@ -11487,22 +10291,17 @@ BOOL CFileOpenBrowser::_ProcessPidlAsMoniker(IShellFolder *psf, LPITEMIDLIST pid
 
     //Get the full path of the selected item
     STRRET str;
-    if (SUCCEEDED(psf->GetDisplayNameOf(pidl, SHGDN_FORPARSING, &str)))
-    {
+    if (SUCCEEDED(psf->GetDisplayNameOf(pidl, SHGDN_FORPARSING, &str))) {
         StrRetToStrN(szBuf, ARRAYSIZE(szBuf), &str, pidl);
-    }
-    else
-    {
+    } else {
         szBuf[0] = 0;
     }
 
-    IMoniker *pmk;
-    if (SUCCEEDED(CDBindToObject(psf,IID_IMoniker,pidl, (void **)&pmk)))
-    {
+    IMoniker* pmk;
+    if (SUCCEEDED(CDBindToObject(psf, IID_IMoniker, pidl, (void**)&pmk))) {
         SHTCharToUnicode(szBuf, wzFile, SIZECHARS(wzFile));
         HRESULT hr = SHCopyMonikerToTemp(pmk, wzFile, wzTemp, SIZECHARS(wzTemp));
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             TCHAR szTemp[MAX_PATH];
             DWORD dwError = 0;
 
@@ -11511,7 +10310,7 @@ BOOL CFileOpenBrowser::_ProcessPidlAsMoniker(IShellFolder *psf, LPITEMIDLIST pid
             _CopyFileNameToOFN(szTemp, &dwError);
             _CopyTitleToOFN(szBuf);
             _PostProcess(szTemp);
-            if(dwError)
+            if (dwError)
                 StoreExtendedError(dwError);
             //The dialog should return a FALSE in case of an error!
             CleanupDialog(hwndDlg, (dwError ? FALSE : TRUE));
@@ -11521,7 +10320,7 @@ BOOL CFileOpenBrowser::_ProcessPidlAsMoniker(IShellFolder *psf, LPITEMIDLIST pid
         pmk->Release();
     }
 
-  return bRet;
+    return bRet;
 }
 
 
@@ -11544,23 +10343,18 @@ BOOL CFileOpenBrowser::_PostProcess(LPTSTR pszFile)
     AddToLastVisitedMRU(pszFile, nFileOffset);
 
     //Add to recent documents.
-    if (!(lpOFN->Flags & OFN_DONTADDTORECENT))
-    {
+    if (!(lpOFN->Flags & OFN_DONTADDTORECENT)) {
         SHAddToRecentDocs(SHARD_PATH, pszFile);
     }
 
     AddToMRU(lpOFN);//Add to the file mru
 
     // Check to see if we need to set Read only bit or not
-    if (!(lpOFN->Flags & OFN_HIDEREADONLY))
-    {
+    if (!(lpOFN->Flags & OFN_HIDEREADONLY)) {
         //  Read-only checkbox visible?
-        if (IsDlgButtonChecked(hwndDlg, chx1))
-        {
-            lpOFN->Flags |=  OFN_READONLY;
-        }
-        else
-        {
+        if (IsDlgButtonChecked(hwndDlg, chx1)) {
+            lpOFN->Flags |= OFN_READONLY;
+        } else {
             lpOFN->Flags &= ~OFN_READONLY;
         }
     }
