@@ -1225,30 +1225,13 @@ EnumInfsInDirectory(
     IN OUT PVOID                        Context
 );
 
-PTSTR
-GetFullyQualifiedMultiSzPathList(
-    IN PCTSTR PathList
-);
-
-BOOL
-ShouldClassBeExcluded(
-    IN LPGUID ClassGuid,
-    IN BOOL   ExcludeNoInstallClass
-);
-
-BOOL
-ClassGuidFromInfVersionNode(
-    IN  PINF_VERSION_NODE VersionNode,
-    OUT LPGUID            ClassGuid
-);
-
-VOID
-AppendLoadIncludedInfs(
-    IN HINF   hDeviceInf,
-    IN PCTSTR InfFileName,
-    IN PCTSTR InfSectionName,
-    IN BOOL   AppendLayoutInfs
-);
+PTSTR GetFullyQualifiedMultiSzPathList(IN PCTSTR PathList);
+BOOL ShouldClassBeExcluded(IN LPGUID ClassGuid, IN BOOL   ExcludeNoInstallClass);
+BOOL ClassGuidFromInfVersionNode(IN  PINF_VERSION_NODE VersionNode, OUT LPGUID            ClassGuid);
+VOID AppendLoadIncludedInfs(IN HINF   hDeviceInf,
+                            IN PCTSTR InfFileName,
+                            IN PCTSTR InfSectionName,
+                            IN BOOL   AppendLayoutInfs);
 
 DWORD
 InstallFromInfSectionAndNeededSections(
@@ -1277,29 +1260,14 @@ MarkQueueForDeviceInstall(
 
 // Icon list manipulation functions.
 
-BOOL
-InitMiniIconList(
-    VOID
-);
-
-BOOL
-DestroyMiniIconList(
-    VOID
-);
-
+BOOL InitMiniIconList(VOID);
+BOOL DestroyMiniIconList(VOID);
 
 
 // "Driver Search In-Progress" list functions.
 
-BOOL
-InitDrvSearchInProgressList(
-    VOID
-);
-
-BOOL
-DestroyDrvSearchInProgressList(
-    VOID
-);
+BOOL InitDrvSearchInProgressList(VOID);
+BOOL DestroyDrvSearchInProgressList(VOID);
 
 
 
@@ -1374,57 +1342,38 @@ pSetupDeleteDevRegKeys(
     IN BOOL    DeleteUserKeys
 );
 
-VOID
-GetRegSubkeysFromDeviceInterfaceName(
-    IN OUT PTSTR  DeviceInterfaceName,
-    OUT    PTSTR* SubKeyName
-);
+VOID GetRegSubkeysFromDeviceInterfaceName(IN OUT PTSTR  DeviceInterfaceName, OUT    PTSTR* SubKeyName);
 
-LONG
-OpenDeviceInterfaceSubKey(
-    IN     HKEY   hKeyInterfaceClass,
-    IN     PCTSTR DeviceInterfaceName,
-    IN     REGSAM samDesired,
-    OUT    PHKEY  phkResult,
-    OUT    PTSTR  OwningDevInstName, OPTIONAL
-    IN OUT PDWORD OwningDevInstNameSize OPTIONAL
-);
+LONG OpenDeviceInterfaceSubKey(IN     HKEY   hKeyInterfaceClass,
+                               IN     PCTSTR DeviceInterfaceName,
+                               IN     REGSAM samDesired,
+                               OUT    PHKEY  phkResult,
+                               OUT    PTSTR  OwningDevInstName, OPTIONAL
+                               IN OUT PDWORD OwningDevInstNameSize OPTIONAL);
 
 
 
 // Guid table routines.
 
-LONG
-AddOrGetGuidTableIndex(
-    IN PDEVICE_INFO_SET  DeviceInfoSet,
-    IN CONST GUID* ClassGuid,
-    IN BOOL              AddIfNotPresent
-);
+LONG AddOrGetGuidTableIndex(IN PDEVICE_INFO_SET  DeviceInfoSet,
+                            IN CONST GUID* ClassGuid,
+                            IN BOOL              AddIfNotPresent);
 
 
 
 // Interface device routines.
 
-PINTERFACE_CLASS_LIST
-AddOrGetInterfaceClassList(
-    IN PDEVICE_INFO_SET DeviceInfoSet,
-    IN PDEVINFO_ELEM    DevInfoElem,
-    IN LONG             InterfaceClassGuidIndex,
-    IN BOOL             AddIfNotPresent
-);
+PINTERFACE_CLASS_LIST AddOrGetInterfaceClassList(IN PDEVICE_INFO_SET DeviceInfoSet,
+                                                 IN PDEVINFO_ELEM    DevInfoElem,
+                                                 IN LONG             InterfaceClassGuidIndex,
+                                                 IN BOOL             AddIfNotPresent);
 
-BOOL
-InterfaceDeviceDataFromNode(
-    IN  PINTERFACE_DEVICE_NODE     InterfaceDeviceNode,
-    IN  CONST GUID* InterfaceClassGuid,
-    OUT PSP_DEVICE_INTERFACE_DATA  InterfaceDeviceData
-);
+BOOL InterfaceDeviceDataFromNode(IN  PINTERFACE_DEVICE_NODE     InterfaceDeviceNode,
+                                 IN  CONST GUID* InterfaceClassGuid,
+                                 OUT PSP_DEVICE_INTERFACE_DATA  InterfaceDeviceData);
 
-PDEVINFO_ELEM
-FindDevInfoElemForInterfaceDevice(
-    IN PDEVICE_INFO_SET          DeviceInfoSet,
-    IN PSP_DEVICE_INTERFACE_DATA InterfaceDeviceData
-);
+PDEVINFO_ELEM FindDevInfoElemForInterfaceDevice(IN PDEVICE_INFO_SET          DeviceInfoSet,
+                                                IN PSP_DEVICE_INTERFACE_DATA InterfaceDeviceData);
 
 
 
@@ -1445,88 +1394,48 @@ typedef struct _SVCNAME_NODE {
 
 #define SPSVCINST_NO_DEVINST_CHECK  (0x80000000)
 
-DWORD
-InstallNtService(
-    IN  PDEVINFO_ELEM    DevInfoElem, OPTIONAL
-    IN  HINF             hDeviceInf,
-    IN  PCTSTR                   InfFileName, OPTIONAL
-    IN  PCTSTR           szSectionName, OPTIONAL
-    OUT PSVCNAME_NODE* ServicesToDelete, OPTIONAL
-    IN  DWORD            Flags,
-    OUT PBOOL            NullDriverInstalled
-);
+DWORD InstallNtService(IN  PDEVINFO_ELEM    DevInfoElem, OPTIONAL
+                       IN  HINF             hDeviceInf,
+                       IN  PCTSTR                   InfFileName, OPTIONAL
+                       IN  PCTSTR           szSectionName, OPTIONAL
+                       OUT PSVCNAME_NODE* ServicesToDelete, OPTIONAL
+                       IN  DWORD            Flags,
+                       OUT PBOOL            NullDriverInstalled);
 
 
 // Ansi/Unicode conversion routines.
 
-DWORD
-pSetupDiDevInstParamsAnsiToUnicode(
-    IN  PSP_DEVINSTALL_PARAMS_A AnsiDevInstParams,
-    OUT PSP_DEVINSTALL_PARAMS_W UnicodeDevInstParams
-);
-
-DWORD
-pSetupDiDevInstParamsUnicodeToAnsi(
-    IN  PSP_DEVINSTALL_PARAMS_W UnicodeDevInstParams,
-    OUT PSP_DEVINSTALL_PARAMS_A AnsiDevInstParams
-);
-
-DWORD
-pSetupDiSelDevParamsAnsiToUnicode(
-    IN  PSP_SELECTDEVICE_PARAMS_A AnsiSelDevParams,
-    OUT PSP_SELECTDEVICE_PARAMS_W UnicodeSelDevParams
-);
-
-DWORD
-pSetupDiSelDevParamsUnicodeToAnsi(
-    IN  PSP_SELECTDEVICE_PARAMS_W UnicodeSelDevParams,
-    OUT PSP_SELECTDEVICE_PARAMS_A AnsiSelDevParams
-);
-
-DWORD
-pSetupDiDrvInfoDataAnsiToUnicode(
-    IN  PSP_DRVINFO_DATA_A AnsiDrvInfoData,
-    OUT PSP_DRVINFO_DATA_W UnicodeDrvInfoData
-);
-
-DWORD
-pSetupDiDrvInfoDataUnicodeToAnsi(
-    IN  PSP_DRVINFO_DATA_W UnicodeDrvInfoData,
-    OUT PSP_DRVINFO_DATA_A AnsiDrvInfoData
-);
-
-DWORD
-pSetupDiDevInfoSetDetailDataUnicodeToAnsi(
-    IN  PSP_DEVINFO_LIST_DETAIL_DATA_W UnicodeDevInfoSetDetails,
-    OUT PSP_DEVINFO_LIST_DETAIL_DATA_A AnsiDevInfoSetDetails
-);
+DWORD pSetupDiDevInstParamsAnsiToUnicode(IN  PSP_DEVINSTALL_PARAMS_A AnsiDevInstParams,
+                                         OUT PSP_DEVINSTALL_PARAMS_W UnicodeDevInstParams);
+DWORD pSetupDiDevInstParamsUnicodeToAnsi(IN  PSP_DEVINSTALL_PARAMS_W UnicodeDevInstParams,
+                                         OUT PSP_DEVINSTALL_PARAMS_A AnsiDevInstParams);
+DWORD pSetupDiSelDevParamsAnsiToUnicode(IN  PSP_SELECTDEVICE_PARAMS_A AnsiSelDevParams,
+                                        OUT PSP_SELECTDEVICE_PARAMS_W UnicodeSelDevParams);
+DWORD pSetupDiSelDevParamsUnicodeToAnsi(IN  PSP_SELECTDEVICE_PARAMS_W UnicodeSelDevParams,
+                                        OUT PSP_SELECTDEVICE_PARAMS_A AnsiSelDevParams);
+DWORD pSetupDiDrvInfoDataAnsiToUnicode(IN  PSP_DRVINFO_DATA_A AnsiDrvInfoData,
+                                       OUT PSP_DRVINFO_DATA_W UnicodeDrvInfoData);
+DWORD pSetupDiDrvInfoDataUnicodeToAnsi(IN  PSP_DRVINFO_DATA_W UnicodeDrvInfoData,
+                                       OUT PSP_DRVINFO_DATA_A AnsiDrvInfoData);
+DWORD pSetupDiDevInfoSetDetailDataUnicodeToAnsi(IN  PSP_DEVINFO_LIST_DETAIL_DATA_W UnicodeDevInfoSetDetails,
+                                                OUT PSP_DEVINFO_LIST_DETAIL_DATA_A AnsiDevInfoSetDetails);
 
 
 // Misc. utility routines
 
-DWORD
-MapCrToSpError(
-    IN CONFIGRET CmReturnCode,
-    IN DWORD     Default
-);
+DWORD MapCrToSpError(IN CONFIGRET CmReturnCode, IN DWORD     Default);
 
-VOID
-SetDevnodeNeedsRebootProblemWithArg2(
-    IN DEVINST  DevInst,
-    IN HMACHINE hMachine,
-    IN PSETUP_LOG_CONTEXT LogContext,
-    IN DWORD    Reason, OPTIONAL
-    IN ULONG_PTR Arg1, OPTIONAL
-    IN ULONG_PTR Arg2                    OPTIONAL
+VOID SetDevnodeNeedsRebootProblemWithArg2(IN DEVINST  DevInst,
+                                          IN HMACHINE hMachine,
+                                          IN PSETUP_LOG_CONTEXT LogContext,
+                                          IN DWORD    Reason, OPTIONAL
+                                          IN ULONG_PTR Arg1, OPTIONAL
+                                          IN ULONG_PTR Arg2                    OPTIONAL
 );
 
 #define SetDevnodeNeedsRebootProblemWithArg(DevInst,hMachine,LogContext,Reason,Arg) SetDevnodeNeedsRebootProblemWithArg2(DevInst,hMachine,LogContext,Reason,Arg,0)
 #define SetDevnodeNeedsRebootProblem(DevInst,hMachine,LogContext,Reason) SetDevnodeNeedsRebootProblemWithArg2(DevInst,hMachine,LogContext,Reason,0,0)
 
-BOOL
-GetBestDeviceDesc(
-    IN  HDEVINFO         DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
-    OUT PTSTR            DeviceDescBuffer
-);
-
+BOOL GetBestDeviceDesc(IN  HDEVINFO         DeviceInfoSet,
+                       IN  PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
+                       OUT PTSTR            DeviceDescBuffer);
