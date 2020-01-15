@@ -350,7 +350,6 @@ BOOL IsParPort(IN HDEVINFO         deviceInfoSet,
                                 0,
                                 DIREG_DRV,
                                 KEY_READ);
-
     if (hKey == INVALID_HANDLE_VALUE) {
         return FALSE;
     }

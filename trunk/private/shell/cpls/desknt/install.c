@@ -25,7 +25,7 @@ ULONG KeepEnabled;
 
 BOOL CALLBACK AddPropSheetPageProc(IN HPROPSHEETPAGE hpage, IN LPARAM lParam)
 {
-    *((HPROPSHEETPAGE *)lParam) = hpage;
+    *((HPROPSHEETPAGE*)lParam) = hpage;
     return TRUE;
 }
 
@@ -35,7 +35,7 @@ DisplayClassInstaller(
     IN DI_FUNCTION      InstallFunction,
     IN HDEVINFO         hDevInfo,
     IN PSP_DEVINFO_DATA DeviceInfoData OPTIONAL
-    )
+)
 
 /*
 
@@ -72,24 +72,21 @@ Return Value:
     DWORD err;
     SP_DRVINFO_DATA DrvInfoData;
 
-    KdPrint(("DisplayClassInstaller function = %d\n", (DWORD) InstallFunction));
+    KdPrint(("DisplayClassInstaller function = %d\n", (DWORD)InstallFunction));
 
-    switch(InstallFunction) {
-    case DIF_SELECTDEVICE :
+    switch (InstallFunction) {
+    case DIF_SELECTDEVICE:
 
         KdPrint(("DisplayClassInstaller DELECTDEVICE \n"));
 
-        if (SetupDiBuildDriverInfoList(hDevInfo, NULL, SPDIT_CLASSDRIVER))
-        {
+        if (SetupDiBuildDriverInfoList(hDevInfo, NULL, SPDIT_CLASSDRIVER)) {
             if (!SetupDiEnumDriverInfo(hDevInfo,
                                        NULL,
                                        SPDIT_CLASSDRIVER,
                                        0,
-                                       &DrvInfoData))
-            {
+                                       &DrvInfoData)) {
 
-                if (GetLastError() == ERROR_NO_MORE_ITEMS)
-                {
+                if (GetLastError() == ERROR_NO_MORE_ITEMS) {
 
                     // This is what happens when an old inf is loaded.
                     // Tell the user it is an old inf.
@@ -110,13 +107,13 @@ Return Value:
         break;
 
 
-    // we do not handle the following message because we are not
-    // plug-and-play yet.
+        // we do not handle the following message because we are not
+        // plug-and-play yet.
 
 
-    // case DIF_INSTALLDEVICE :
+        // case DIF_INSTALLDEVICE :
 
-    default :
+    default:
 
         break;
     }
@@ -133,7 +130,7 @@ Return Value:
 VOID
 SetSelectDevParams(
     HDEVINFO hDevInfo
-    )
+)
 
 /*
 
@@ -151,9 +148,9 @@ Arguments:
     ZeroMemory(&SelectDevParams, sizeof(SelectDevParams));
 
     SelectDevParams.ClassInstallHeader.cbSize
-                                 = sizeof(SelectDevParams.ClassInstallHeader);
+        = sizeof(SelectDevParams.ClassInstallHeader);
     SelectDevParams.ClassInstallHeader.InstallFunction
-                                 = DIF_SELECTDEVICE;
+        = DIF_SELECTDEVICE;
 
 
     // Get current SelectDevice parameters, and then set the fields
@@ -167,9 +164,9 @@ Arguments:
                                  NULL);
 
     SelectDevParams.ClassInstallHeader.cbSize
-                             = sizeof(SelectDevParams.ClassInstallHeader);
+        = sizeof(SelectDevParams.ClassInstallHeader);
     SelectDevParams.ClassInstallHeader.InstallFunction
-                             = DIF_SELECTDEVICE;
+        = DIF_SELECTDEVICE;
 
 
     // Set the strings to use on the select driver page .
@@ -213,7 +210,7 @@ VOID
 PreSelectDriver(
     HDEVINFO    hDevInfo,
     LPCTSTR     pszModel
-    )
+)
 /*
 
 Routine Description:
@@ -232,18 +229,15 @@ Routine Description:
     // If no model/manf given select first driver
 
 
-    if (pszModel && *pszModel)
-    {
+    if (pszModel && *pszModel) {
         DrvInfoData.cbSize = sizeof(DrvInfoData);
 
         while (SetupDiEnumDriverInfo(hDevInfo,
                                      NULL,
                                      SPDIT_CLASSDRIVER,
                                      dwIndex,
-                                     &DrvInfoData))
-        {
-            if (!lstrcmp(pszModel, DrvInfoData.Description))
-            {
+                                     &DrvInfoData)) {
+            if (!lstrcmp(pszModel, DrvInfoData.Description)) {
 
                 // Found a full match.  We will return.
 
@@ -290,7 +284,7 @@ InstallDriver(
     LPCTSTR      pszModel,
     LPCTSTR      pszInf,
     LPTSTR       serviceName
-    )
+)
 {
     HCURSOR hCursorOrg;
     HCURSOR hCursor;
@@ -307,7 +301,7 @@ InstallDriver(
     INFCONTEXT infoContext;
 
     LPTSTR pSourceLists[6];
-    LPTSTR *pSourceList = pSourceLists;
+    LPTSTR* pSourceList = pSourceLists;
     ULONG  pSourceListCount;
     TCHAR  szSourceLocation[LINE_LEN];
 
@@ -336,14 +330,13 @@ InstallDriver(
     // instantiate setup
 
 
-    hDevInfo = SetupDiCreateDeviceInfoList((LPGUID) &GUID_DEVCLASS_DISPLAY,
+    hDevInfo = SetupDiCreateDeviceInfoList((LPGUID)&GUID_DEVCLASS_DISPLAY,
                                            hwnd);
 
     if (hDevInfo == INVALID_HANDLE_VALUE)
         return ERROR_INVALID_PARAMETER;
 
-    if (InstallType != DETECT)
-    {
+    if (InstallType != DETECT) {
 
         // Turn on the hourglass since it will take a long time to process
         // the inf file
@@ -351,8 +344,7 @@ InstallDriver(
 
         hCursorOrg = GetCursor();
 
-        if (hCursor = LoadCursor(NULL, (LPCTSTR) IDC_WAIT))
-        {
+        if (hCursor = LoadCursor(NULL, (LPCTSTR)IDC_WAIT)) {
             SetCursor(hCursor);
         }
 
@@ -362,18 +354,14 @@ InstallDriver(
         // If we are preinstalling, specify the appropriate inf
 
 
-        if (InstallType == INSTALL)
-        {
+        if (InstallType == INSTALL) {
             if (!SetupDiBuildDriverInfoList(hDevInfo,
                                             NULL,
-                                            SPDIT_CLASSDRIVER))
-            {
+                                            SPDIT_CLASSDRIVER)) {
                 SetupDiDestroyDeviceInfoList(hDevInfo);
                 return ERROR_INVALID_PARAMETER;
             }
-        }
-        else
-        {
+        } else {
             DeviceInstallParams.cbSize = sizeof(SP_DEVINSTALL_PARAMS);
 
             SetupDiGetDeviceInstallParams(hDevInfo,
@@ -381,15 +369,13 @@ InstallDriver(
                                           &DeviceInstallParams);
 
             DeviceInstallParams.Flags |= DI_NOFILECOPY |
-                                         DI_DONOTCALLCONFIGMG |
-                                         DI_ENUMSINGLEINF;
+                DI_DONOTCALLCONFIGMG |
+                DI_ENUMSINGLEINF;
 
-            if (pszSourceDirectory == NULL)
-            {
+            if (pszSourceDirectory == NULL) {
                 if (SetupQuerySourceList(SRCLIST_SYSTEM,
                                          &pSourceList,
-                                         &pSourceListCount))
-                {
+                                         &pSourceListCount)) {
                     pSourceListCount = 0;
 
                     wsprintf(DeviceInstallParams.DriverPath,
@@ -398,9 +384,7 @@ InstallDriver(
 
                     SetupFreeSourceList(&pSourceList, pSourceListCount);
                 }
-            }
-            else
-            {
+            } else {
                 wsprintf(DeviceInstallParams.DriverPath,
                          TEXT("%ws\\%ws"),
                          pszSourceDirectory, pszInf);
@@ -433,8 +417,7 @@ InstallDriver(
         // Restore the pointer
 
 
-        if (hCursorOrg)
-        {
+        if (hCursorOrg) {
             SetCursor(hCursorOrg);
         }
 
@@ -443,7 +426,7 @@ InstallDriver(
         // Call setup to run the window
 
 
-reselect:
+    reselect:
 
         bEntryFound = FALSE;
 
@@ -453,30 +436,25 @@ reselect:
 
 
         if ((InstallType == PREINSTALL) ||
-            SetupDiSelectDevice(hDevInfo, NULL))
-        {
+            SetupDiSelectDevice(hDevInfo, NULL)) {
             DriverInfoData.cbSize = sizeof(SP_DRVINFO_DATA);
 
             if (SetupDiGetSelectedDriver(hDevInfo,
                                          NULL,
-                                         &DriverInfoData))
-            {
+                                         &DriverInfoData)) {
 
                 // If this is thrid party driver, put up a popup.
 
 
-                if (_tcsicmp(DriverInfoData.ProviderName, TEXT("Microsoft")))
-                {
+                if (_tcsicmp(DriverInfoData.ProviderName, TEXT("Microsoft"))) {
                     bThirdParty = TRUE;
 
-                    if (InstallType != PREINSTALL)
-                    {
+                    if (InstallType != PREINSTALL) {
                         if (FmtMessageBox(hwnd,
                                           MB_YESNO | MB_DEFBUTTON2 | MB_ICONQUESTION,
                                           FALSE,
                                           ID_DSP_TXT_THIRD_PARTY,
-                                          ID_DSP_TXT_THIRD_PARTY_DRIVER) != IDYES)
-                        {
+                                          ID_DSP_TXT_THIRD_PARTY_DRIVER) != IDYES) {
                             goto reselect;
                         }
                     }
@@ -490,15 +468,13 @@ reselect:
                                                 &DriverInfoDetailData,
                                                 DriverInfoDetailData.cbSize,
                                                 &cbOutputSize)) ||
-                    (GetLastError() == ERROR_INSUFFICIENT_BUFFER))
-                {
+                                                (GetLastError() == ERROR_INSUFFICIENT_BUFFER)) {
                     bEntryFound = TRUE;
                 }
             }
         }
 
-        if (bEntryFound == FALSE)
-        {
+        if (bEntryFound == FALSE) {
             retError = GetLastError();
             SetupDiDestroyDriverInfoList(hDevInfo, NULL, SPDIT_CLASSDRIVER);
             SetupDiDestroyDeviceInfoList(hDevInfo);
@@ -512,14 +488,11 @@ reselect:
     // manually.
 
 
-    if (InstallType == DETECT)
-    {
+    if (InstallType == DETECT) {
         InfName = TEXT("display.inf");
         copyFileSection = TEXT("detect");
         installSection = installSectionData;
-    }
-    else
-    {
+    } else {
         InfName = DriverInfoDetailData.InfFileName;
         copyFileSection = DriverInfoDetailData.SectionName;
         installSection = DriverInfoDetailData.SectionName;
@@ -534,12 +507,9 @@ reselect:
                                      INF_STYLE_WIN4,
                                      NULL);
 
-    if (InfFileHandle == INVALID_HANDLE_VALUE)
-    {
+    if (InfFileHandle == INVALID_HANDLE_VALUE) {
         retError = ERROR_INVALID_PARAMETER;
-    }
-    else
-    {
+    } else {
 
 
 
@@ -547,8 +517,7 @@ reselect:
         // So append that file if we need it.
 
 
-        if (bThirdParty == FALSE)
-        {
+        if (bThirdParty == FALSE) {
             SetupOpenAppendInfFile(NULL,
                                    InfFileHandle,
                                    NULL);
@@ -565,16 +534,13 @@ reselect:
         // Copy all the files to the disk
 
 
-        if (InstallType == PREINSTALL)
-        {
+        if (InstallType == PREINSTALL) {
             pSourceListCount = 0;
 
-            if (pszSourceDirectory == NULL)
-            {
+            if (pszSourceDirectory == NULL) {
                 if (SetupQuerySourceList(SRCLIST_SYSTEM,
                                          &pSourceList,
-                                         &pSourceListCount))
-                {
+                                         &pSourceListCount)) {
                     wsprintf(szSourceLocation,
                              TEXT("%ws\\%ws"),
                              pSourceList[0], WINNT_OEM_DISPLAY_DIR);
@@ -596,8 +562,7 @@ reselect:
                                         &SetupDefaultQueueCallback,
                                         Context,
                                         NULL,
-                                        NULL))
-        {
+                                        NULL)) {
             err = GetLastError();
             DbgPrint("Install files Error %d\n", err);
 
@@ -607,9 +572,8 @@ reselect:
             // If they were doing a detect, just exit with the cancel message.
 
 
-            if ( (err == ERROR_CANCELLED) &&
-                 (InstallType == INSTALL) )
-            {
+            if ((err == ERROR_CANCELLED) &&
+                (InstallType == INSTALL)) {
                 goto reselect;
             }
 
@@ -621,13 +585,11 @@ reselect:
         // we need to run.  So we will have a loop.
 
 
-        if (InstallType == DETECT)
-        {
+        if (InstallType == DETECT) {
             if (!SetupFindFirstLine(InfFileHandle,
                                     TEXT("detect.Services"),
                                     NULL,
-                                    &infoContext))
-            {
+                                    &infoContext)) {
                 return ERROR_INVALID_PARAMETER;
             }
 
@@ -635,14 +597,13 @@ reselect:
             // Get the next driver we have to install in a detect case
 
 
-detect_next:
+        detect_next:
 
             if (!SetupGetStringField(&infoContext,
                                      0,
                                      installSection,
                                      sizeof(installSectionData),
-                                     NULL))
-            {
+                                     NULL)) {
                 return ERROR_INVALID_PARAMETER;
             }
         }
@@ -658,13 +619,11 @@ detect_next:
         // will be installed.
 
 
-        if (SetupFindFirstLine(InfFileHandle, szServiceSection, NULL, &serviceContext))
-        {
+        if (SetupFindFirstLine(InfFileHandle, szServiceSection, NULL, &serviceContext)) {
             SetupGetStringField(&serviceContext, 1, szServiceName, sizeof(szServiceName), NULL);
         }
 
-        if (serviceName)
-        {
+        if (serviceName) {
             wsprintf(serviceName, TEXT("\\Registry\\Machine\\System\\CurrentControlSet\\Services\\%ws"), szServiceName);
         }
 
@@ -674,9 +633,8 @@ detect_next:
         DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
 
         if (SetupDiOpenDeviceInfo(hDevInfo, DeviceInst, hwnd, 0, &DeviceInfoData) ||
-            (SetupDiCreateDeviceInfo(hDevInfo, DeviceInst, (LPGUID) &GUID_DEVCLASS_DISPLAY, NULL, hwnd, 0, &DeviceInfoData) &&
-             SetupDiRegisterDeviceInfo(hDevInfo, &DeviceInfoData, 0, NULL, NULL, NULL)) )
-        {
+            (SetupDiCreateDeviceInfo(hDevInfo, DeviceInst, (LPGUID)&GUID_DEVCLASS_DISPLAY, NULL, hwnd, 0, &DeviceInfoData) &&
+             SetupDiRegisterDeviceInfo(hDevInfo, &DeviceInfoData, 0, NULL, NULL, NULL))) {
 
 
             // Set the parameters for the installation to do no
@@ -703,8 +661,8 @@ detect_next:
 
 
             DeviceInstallParams.Flags |= DI_NOFILECOPY |
-                                         DI_DONOTCALLCONFIGMG |
-                                         DI_ENUMSINGLEINF;
+                DI_DONOTCALLCONFIGMG |
+                DI_ENUMSINGLEINF;
 
             lstrcpy(DeviceInstallParams.DriverPath,
                     InfName);
@@ -713,8 +671,7 @@ detect_next:
                                           &DeviceInfoData,
                                           &DeviceInstallParams);
 
-            if (InstallType == DETECT)
-            {
+            if (InstallType == DETECT) {
                 TCHAR DeviceInstId[LINE_LEN];
                 ULONG DeviceInstIdLength;
 
@@ -727,28 +684,26 @@ detect_next:
                                         1,
                                         DeviceInstId,
                                         sizeof(DeviceInstId),
-                                        NULL))
-                {
+                                        NULL)) {
 
                     // Make the DeviceInstId a MULTI_SZ.
 
 
                     DeviceInstIdLength = lstrlen(DeviceInstId);
-                    DeviceInstId[DeviceInstIdLength] = (TCHAR) 0;
-                    DeviceInstId[DeviceInstIdLength + 1] = (TCHAR) 0;
+                    DeviceInstId[DeviceInstIdLength] = (TCHAR)0;
+                    DeviceInstId[DeviceInstIdLength + 1] = (TCHAR)0;
 
                     SetupDiSetDeviceRegistryProperty(hDevInfo,
                                                      &DeviceInfoData,
                                                      SPDRP_HARDWAREID,
-                                                     (PBYTE) DeviceInstId,
+                                                     (PBYTE)DeviceInstId,
                                                      (DeviceInstIdLength + 2) *
-                                                         sizeof(TCHAR));
+                                                     sizeof(TCHAR));
                 }
 
                 if (!SetupDiBuildDriverInfoList(hDevInfo,
                                                 &DeviceInfoData,
-                                                SPDIT_COMPATDRIVER))
-                {
+                                                SPDIT_COMPATDRIVER)) {
                     err = GetLastError();
                     DbgPrint("SetupDiBuildDriverInfoList Detail Error %d\n", err);
 
@@ -767,16 +722,13 @@ detect_next:
                                            &DeviceInfoData,
                                            SPDIT_COMPATDRIVER,
                                            0,
-                                           &DriverInfoData))
-                {
+                                           &DriverInfoData)) {
                     err = GetLastError();
                     DbgPrint("SetupDiEnumDriverInfo Detail Error %d\n", err);
 
                     return ERROR_INVALID_PARAMETER;
                 }
-            }
-            else
-            {
+            } else {
                 SetupDiBuildDriverInfoList(hDevInfo,
                                            &DeviceInfoData,
                                            SPDIT_CLASSDRIVER);
@@ -792,14 +744,12 @@ detect_next:
 
             if (!SetupDiSetSelectedDriver(hDevInfo,
                                           &DeviceInfoData,
-                                          &DriverInfoData))
-            {
+                                          &DriverInfoData)) {
                 return ERROR_INVALID_PARAMETER;
             }
 
             if (!SetupDiInstallDevice(hDevInfo,
-                                      &DeviceInfoData))
-            {
+                                      &DeviceInfoData)) {
                 return ERROR_INVALID_PARAMETER;
             }
 
@@ -809,32 +759,26 @@ detect_next:
             // See LonnyM for possible fix.
 
 
-            if (SetupDiGetDeviceRegistryProperty(hDevInfo, &DeviceInfoData, SPDRP_CONFIGFLAGS, NULL, (LPBYTE) &configFlags, sizeof(DWORD), NULL) &&
-                (configFlags & CONFIGFLAG_DISABLED))
-            {
+            if (SetupDiGetDeviceRegistryProperty(hDevInfo, &DeviceInfoData, SPDRP_CONFIGFLAGS, NULL, (LPBYTE)&configFlags, sizeof(DWORD), NULL) &&
+                (configFlags & CONFIGFLAG_DISABLED)) {
                 configFlags &= ~CONFIGFLAG_DISABLED;
-                SetupDiSetDeviceRegistryProperty(hDevInfo, &DeviceInfoData, SPDRP_CONFIGFLAGS, (LPBYTE) &configFlags, sizeof(DWORD));
+                SetupDiSetDeviceRegistryProperty(hDevInfo, &DeviceInfoData, SPDRP_CONFIGFLAGS, (LPBYTE)&configFlags, sizeof(DWORD));
             }
 
 
             // Destroy these structures
 
 
-            if (InstallType == DETECT)
-            {
+            if (InstallType == DETECT) {
                 SetupDiDestroyDriverInfoList(hDevInfo,
                                              &DeviceInfoData,
                                              SPDIT_COMPATDRIVER);
-            }
-            else
-            {
+            } else {
                 SetupDiDestroyDriverInfoList(hDevInfo,
                                              &DeviceInfoData,
                                              SPDIT_CLASSDRIVER);
             }
-        }
-        else
-        {
+        } else {
             err = GetLastError();
             DbgPrint("Device Install Detail Error %d\n", err);
 
@@ -857,8 +801,7 @@ detect_next:
         if (SetupFindFirstLine(InfFileHandle,
                                szSoftwareSection,
                                TEXT("MaximumNumberOfDevices"),
-                               &tmpContext))
-        {
+                               &tmpContext)) {
             SetupGetIntField(&tmpContext,
                              1,
                              &numDev);
@@ -867,8 +810,7 @@ detect_next:
         if (SetupFindFirstLine(InfFileHandle,
                                szSoftwareSection,
                                TEXT("MaximumDeviceMemoryConfiguration"),
-                               &tmpContext))
-        {
+                               &tmpContext)) {
             SetupGetIntField(&tmpContext,
                              1,
                              &maxmem);
@@ -877,8 +819,7 @@ detect_next:
         if (SetupFindFirstLine(InfFileHandle,
                                szSoftwareSection,
                                TEXT("PreConfiguredSettings"),
-                               &tmpContext))
-        {
+                               &tmpContext)) {
             SetupGetIntField(&tmpContext,
                              1,
                              &PreConfigured);
@@ -887,8 +828,7 @@ detect_next:
         if (SetupFindFirstLine(InfFileHandle,
                                szSoftwareSection,
                                TEXT("KeepExistingDriverEnabled"),
-                               &tmpContext))
-        {
+                               &tmpContext)) {
             SetupGetIntField(&tmpContext,
                              1,
                              &KeepEnabled);
@@ -904,8 +844,7 @@ detect_next:
         // more than 10 MEG of PTEs
 
 
-        if ((maxmem = maxmem * numDev) > 10)
-        {
+        if ((maxmem = maxmem * numDev) > 10) {
 
             // we need 1K PTEs to support 1 MEG
             // Then add 50% for other devices this type of machine may have.
@@ -914,7 +853,7 @@ detect_next:
             // to merge with whatever someone else put in there.
 
 
-            maxmem *= 0x400 * 3/2;
+            maxmem *= 0x400 * 3 / 2;
 
             if (RegCreateKeyEx(HKEY_LOCAL_MACHINE,
                                TEXT("System\\CurrentControlSet\\Control\\Session Manager\\Memory Management"),
@@ -924,9 +863,8 @@ detect_next:
                                KEY_READ | KEY_WRITE,
                                NULL,
                                &hkey,
-                               &disposition) == ERROR_SUCCESS)
-            {
-                RegSetValueEx(hkey, TEXT("SystemPages"), 0, REG_DWORD, (LPBYTE) &maxmem, sizeof(DWORD));
+                               &disposition) == ERROR_SUCCESS) {
+                RegSetValueEx(hkey, TEXT("SystemPages"), 0, REG_DWORD, (LPBYTE)&maxmem, sizeof(DWORD));
                 RegCloseKey(hkey);
             }
         }
@@ -942,11 +880,9 @@ detect_next:
             numDev -= 1;
 
             wsprintf(keyName, TEXT("System\\CurrentControlSet\\Services\\%ws\\Device%d"), szServiceName, numDev);
-            if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS)
-            {
+            if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS) {
                 wsprintf(szSoftwareSection, TEXT("%ws.SoftwareSettings"), installSection);
-                if (!SetupInstallFromInfSection(hwnd, InfFileHandle, szSoftwareSection, SPINST_REGISTRY, hkey, NULL, 0, &SetupDefaultQueueCallback, Context, NULL, NULL))
-                {
+                if (!SetupInstallFromInfSection(hwnd, InfFileHandle, szSoftwareSection, SPINST_REGISTRY, hkey, NULL, 0, &SetupDefaultQueueCallback, Context, NULL, NULL)) {
                     return ERROR_INVALID_PARAMETER;
                 }
 
@@ -954,9 +890,8 @@ detect_next:
                 // Write the description of the device if we are not detecting
 
 
-                if (InstallType != DETECT)
-                {
-                    RegSetValueEx(hkey, TEXT("Device Description"), 0, REG_SZ, (LPBYTE) DriverInfoDetailData.DrvDescription, (lstrlen(DriverInfoDetailData.DrvDescription) + 1) * sizeof(TCHAR) );
+                if (InstallType != DETECT) {
+                    RegSetValueEx(hkey, TEXT("Device Description"), 0, REG_SZ, (LPBYTE)DriverInfoDetailData.DrvDescription, (lstrlen(DriverInfoDetailData.DrvDescription) + 1) * sizeof(TCHAR));
                 }
 
 
@@ -971,8 +906,7 @@ detect_next:
 
                     if (CM_Get_First_Log_Conf(&LogConfig,
                                               DeviceInfoData.DevInst,
-                                              BASIC_LOG_CONF) == CR_SUCCESS)
-                    {
+                                              BASIC_LOG_CONF) == CR_SUCCESS) {
 
                         // This device instance has a basic log config, so we want to
                         // give the user a resource selection dialog.
@@ -984,8 +918,7 @@ detect_next:
 
                         if ((hModule = GetModuleHandle(TEXT("setupapi.dll"))) &&
                             (PropSheetExtProc = GetProcAddress(hModule,
-                                                               "ExtensionPropSheetPageProc")))
-                        {
+                                                               "ExtensionPropSheetPageProc"))) {
                             SP_PROPSHEETPAGE_REQUEST PropSheetRequest;
                             HPROPSHEETPAGE    hPage = {0};
                             PROPSHEETPAGE     PropPage;
@@ -1002,29 +935,24 @@ detect_next:
 
                             if (PropSheetExtProc(&PropSheetRequest,
                                                  AddPropSheetPageProc,
-                                                 &hPage))
-                            {
+                                                 &hPage)) {
 
-                                PropHeader.dwSize      = sizeof(PROPSHEETHEADER);
-                                PropHeader.dwFlags     = PSH_NOAPPLYNOW;
-                                PropHeader.hwndParent  = hwnd;
-                                PropHeader.hInstance   = ghmod;
-                                PropHeader.pszIcon     = NULL;
-                                PropHeader.pszCaption  = TEXT(" ");
-                                PropHeader.nPages      = 1;
-                                PropHeader.phpage      = &hPage;
-                                PropHeader.nStartPage  = 0;
+                                PropHeader.dwSize = sizeof(PROPSHEETHEADER);
+                                PropHeader.dwFlags = PSH_NOAPPLYNOW;
+                                PropHeader.hwndParent = hwnd;
+                                PropHeader.hInstance = ghmod;
+                                PropHeader.pszIcon = NULL;
+                                PropHeader.pszCaption = TEXT(" ");
+                                PropHeader.nPages = 1;
+                                PropHeader.phpage = &hPage;
+                                PropHeader.nStartPage = 0;
                                 PropHeader.pfnCallback = NULL;
 
-                                if (PropertySheet(&PropHeader) == -1)
-                                {
-                                    if(hPage)
-                                    {
+                                if (PropertySheet(&PropHeader) == -1) {
+                                    if (hPage) {
                                         DestroyPropertySheetPage(hPage);
                                     }
-                                }
-                                else
-                                {
+                                } else {
 
                                     // BUGBUG can this return zero ?
 
@@ -1041,13 +969,11 @@ detect_next:
 
                                     // while(
 
-                                    if (CM_Get_Next_Res_Des(&ResDes, ResDes, ResType_Mem, NULL, 0) == CR_SUCCESS)
-                                    {
+                                    if (CM_Get_Next_Res_Des(&ResDes, ResDes, ResType_Mem, NULL, 0) == CR_SUCCESS) {
                                         MEM_RESOURCE memRes;
 
-                                        if (CM_Get_Res_Des_Data(ResDes, &memRes, sizeof(memRes), 0) == CR_SUCCESS)
-                                        {
-                                            RegSetValueEx(hkey, TEXT("MemBase"), 0, REG_DWORD, (LPBYTE) &(memRes.MEM_Header.MD_Alloc_Base), sizeof(DWORD));
+                                        if (CM_Get_Res_Des_Data(ResDes, &memRes, sizeof(memRes), 0) == CR_SUCCESS) {
+                                            RegSetValueEx(hkey, TEXT("MemBase"), 0, REG_DWORD, (LPBYTE) & (memRes.MEM_Header.MD_Alloc_Base), sizeof(DWORD));
                                         }
 
                                         CM_Free_Res_Des_Handle(ResDes); // resdesnext
@@ -1069,8 +995,7 @@ detect_next:
         // entry.
 
 
-        if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\OpenGLDrivers"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS)
-        {
+        if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\OpenGLDrivers"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS) {
             wsprintf(szSoftwareSection, TEXT("%ws.OpenGLSoftwareSettings"), installSection);
             SetupInstallFromInfSection(hwnd, InfFileHandle, szSoftwareSection, SPINST_REGISTRY, hkey, NULL, 0, &SetupDefaultQueueCallback, Context, NULL, NULL);
             RegCloseKey(hkey);
@@ -1081,8 +1006,7 @@ detect_next:
 
 
         if ((InstallType == DETECT) &&
-            SetupFindNextLine(&infoContext, &infoContext))
-        {
+            SetupFindNextLine(&infoContext, &infoContext)) {
             goto detect_next;
         }
 
@@ -1102,13 +1026,12 @@ InstallNewDriver(
     LPCTSTR pszModel,
     BOOL    bDetect,
     PBOOL   pbKeepEnabled
-    )
+)
 {
     DWORD err;
     LPTSTR keyName;
 
-    if (bDetect)
-    {
+    if (bDetect) {
         LPTSTR psz1;
         int  iRet;
 
@@ -1123,8 +1046,7 @@ InstallNewDriver(
 
         LocalFree(psz1);
 
-        if (iRet != IDYES)
-        {
+        if (iRet != IDYES) {
             return ERROR_CANCELLED;
         }
     }
@@ -1136,8 +1058,7 @@ InstallNewDriver(
                         NULL,
                         NULL);
 
-    if (err == NO_ERROR)
-    {
+    if (err == NO_ERROR) {
         DWORD disposition;
         HKEY hkey;
 
@@ -1153,19 +1074,15 @@ InstallNewDriver(
                       ID_DSP_TXT_INSTALL_DRIVER,
                       ID_DSP_TXT_DRIVER_INSTALLED);
 
-        if (PreConfigured == 0)
-        {
-            if (bDetect)
-            {
+        if (PreConfigured == 0) {
+            if (bDetect) {
 
                 // Write a key to the registry to tell the display applet to
                 // cleanup all the drivers after the autodetect.
 
 
                 keyName = SZ_DETECT_DISPLAY;
-            }
-            else
-            {
+            } else {
 
                 // Create a registry key that indicates a new display was
                 // installed.
@@ -1174,8 +1091,7 @@ InstallNewDriver(
                 keyName = SZ_NEW_DISPLAY;
             }
 
-            if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS)
-            {
+            if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS) {
                 RegCloseKey(hkey);
             }
         }
@@ -1186,8 +1102,7 @@ InstallNewDriver(
         // for these changes to take effect
 
 
-        if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, SZ_REBOOT_NECESSARY, 0, NULL, REG_OPTION_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS)
-        {
+        if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, SZ_REBOOT_NECESSARY, 0, NULL, REG_OPTION_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hkey, &disposition) == ERROR_SUCCESS) {
             RegCloseKey(hkey);
         }
 
@@ -1201,9 +1116,7 @@ InstallNewDriver(
         PropSheet_RestartWindows(ghwndPropSheet);
         PropSheet_CancelToClose(ghwndPropSheet);
 
-    }
-    else if (err != ERROR_CANCELLED)
-    {
+    } else if (err != ERROR_CANCELLED) {
 
         // Tell the user the driver was not installed properly.
 
@@ -1225,7 +1138,7 @@ DWORD InstallGraphicsDriver(
     LPCWSTR pszSourceDirectory,
     LPCWSTR pszModel,
     LPCWSTR pszInf
-    )
+)
 {
     DWORD err;
     TCHAR ServiceName[MAX_PATH];
@@ -1241,15 +1154,14 @@ DWORD PreInstallDriver(
     LPCTSTR pszModel,
     LPCTSTR pszInf,
     LPTSTR  ServiceName
-    )
+)
 {
     DWORD err;
 
     err = InstallDriver(hwnd, PREINSTALL, NULL, pszModel, pszInf, ServiceName);
 
     // Tell the user the driver was not installed properly.
-    if (err != NO_ERROR)
-    {
+    if (err != NO_ERROR) {
         FmtMessageBox(hwnd, MB_ICONSTOP | MB_OK, FALSE, ID_DSP_TXT_INSTALL_DRIVER, ID_DSP_TXT_DRIVER_PREINSTALLED_FAILED);
     }
 

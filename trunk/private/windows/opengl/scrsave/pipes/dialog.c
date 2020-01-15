@@ -184,8 +184,7 @@ static void saveIniSettings(HWND hDlg)
 * Wrote it.
 */
 
-static void
-setupDialogControls(HWND hDlg)
+static void setupDialogControls(HWND hDlg)
 {
     int pos;
     int wTmp;
@@ -200,10 +199,8 @@ setupDialogControls(HWND hDlg)
     // setup jointType combo box
     idsJointType = IDS_JOINT_ELBOW;
     for (wTmp = 0; wTmp < NUM_JOINTTYPES; wTmp++, idsJointType++) {
-        LoadString(hMainInstance, idsJointType, szStr,
-                    GEN_STRING_SIZE);
-        SendDlgItemMessage(hDlg, DLG_COMBO_JOINTTYPE, CB_ADDSTRING, 0,
-                           (LPARAM) szStr);
+        LoadString(hMainInstance, idsJointType, szStr, GEN_STRING_SIZE);
+        SendDlgItemMessage(hDlg, DLG_COMBO_JOINTTYPE, CB_ADDSTRING, 0, (LPARAM) szStr);
     }
     SendDlgItemMessage(hDlg, DLG_COMBO_JOINTTYPE, CB_SETCURSEL,
                        ulJointType, 0);

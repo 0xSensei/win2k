@@ -30,7 +30,7 @@ CALLBACK
 pSetupAddPropPage(
     IN HPROPSHEETPAGE hPage,
     IN LPARAM         lParam
-   );
+);
 
 
 
@@ -43,7 +43,7 @@ typedef struct _SP_PROPPAGE_ADDPROC_CONTEXT {
     DWORD             PageListSize;        // input
     DWORD             NumPages;            // output
 
-} SP_PROPPAGE_ADDPROC_CONTEXT, *PSP_PROPPAGE_ADDPROC_CONTEXT;
+} SP_PROPPAGE_ADDPROC_CONTEXT, * PSP_PROPPAGE_ADDPROC_CONTEXT;
 
 
 #ifdef UNICODE
@@ -54,12 +54,12 @@ BOOL
 WINAPI
 SetupDiGetClassDevPropertySheetsA(
     IN  HDEVINFO           DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA   DeviceInfoData,                  OPTIONAL
+    IN  PSP_DEVINFO_DATA   DeviceInfoData, OPTIONAL
     IN  LPPROPSHEETHEADERA PropertySheetHeader,
     IN  DWORD              PropertySheetHeaderPageListSize,
-    OUT PDWORD             RequiredSize,                    OPTIONAL
+    OUT PDWORD             RequiredSize, OPTIONAL
     IN  DWORD              PropertySheetType
-    )
+)
 {
     PROPSHEETHEADERW UnicodePropertySheetHeader;
     DWORD Err = NO_ERROR;
@@ -67,7 +67,7 @@ SetupDiGetClassDevPropertySheetsA(
 
     // Make sure we're running interactively.
 
-    if(GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
+    if (GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
         SetLastError(ERROR_REQUIRES_INTERACTIVE_WINDOWSTATION);
         return FALSE;
     }
@@ -88,15 +88,15 @@ SetupDiGetClassDevPropertySheetsA(
     try {
 
         UnicodePropertySheetHeader.dwFlags = PropertySheetHeader->dwFlags;
-        UnicodePropertySheetHeader.nPages  = PropertySheetHeader->nPages;
-        UnicodePropertySheetHeader.phpage  = PropertySheetHeader->phpage;
+        UnicodePropertySheetHeader.nPages = PropertySheetHeader->nPages;
+        UnicodePropertySheetHeader.phpage = PropertySheetHeader->phpage;
 
-        if(SetupDiGetClassDevPropertySheetsW(DeviceInfoSet,
-                                             DeviceInfoData,
-                                             &UnicodePropertySheetHeader,
-                                             PropertySheetHeaderPageListSize,
-                                             RequiredSize,
-                                             PropertySheetType)) {
+        if (SetupDiGetClassDevPropertySheetsW(DeviceInfoSet,
+                                              DeviceInfoData,
+                                              &UnicodePropertySheetHeader,
+                                              PropertySheetHeaderPageListSize,
+                                              RequiredSize,
+                                              PropertySheetType)) {
 
             PropertySheetHeader->nPages = UnicodePropertySheetHeader.nPages;
             PropertySheetHeader->phpage = UnicodePropertySheetHeader.phpage;
@@ -120,12 +120,12 @@ BOOL
 WINAPI
 SetupDiGetClassDevPropertySheetsW(
     IN  HDEVINFO           DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA   DeviceInfoData,                  OPTIONAL
+    IN  PSP_DEVINFO_DATA   DeviceInfoData, OPTIONAL
     IN  LPPROPSHEETHEADERW PropertySheetHeader,
     IN  DWORD              PropertySheetHeaderPageListSize,
-    OUT PDWORD             RequiredSize,                    OPTIONAL
+    OUT PDWORD             RequiredSize, OPTIONAL
     IN  DWORD              PropertySheetType
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -142,12 +142,12 @@ BOOL
 WINAPI
 SetupDiGetClassDevPropertySheets(
     IN  HDEVINFO           DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA   DeviceInfoData,                  OPTIONAL
+    IN  PSP_DEVINFO_DATA   DeviceInfoData, OPTIONAL
     IN  LPPROPSHEETHEADER  PropertySheetHeader,
     IN  DWORD              PropertySheetHeaderPageListSize,
-    OUT PDWORD             RequiredSize,                    OPTIONAL
+    OUT PDWORD             RequiredSize, OPTIONAL
     IN  DWORD              PropertySheetType
-    )
+)
 /*++
 
 Routine Description:
@@ -231,7 +231,7 @@ Return Value:
 
     // Make sure we're running interactively.
 
-    if(GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
+    if (GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
         SetLastError(ERROR_REQUIRES_INTERACTIVE_WINDOWSTATION);
         return FALSE;
     }
@@ -239,12 +239,12 @@ Return Value:
 
     // Make sure the caller passed us a valid PropertySheetType.
 
-    if((PropertySheetType != DIGCDP_FLAG_BASIC) && (PropertySheetType != DIGCDP_FLAG_ADVANCED)) {
+    if ((PropertySheetType != DIGCDP_FLAG_BASIC) && (PropertySheetType != DIGCDP_FLAG_ADVANCED)) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -257,7 +257,7 @@ Return Value:
 
         // Make sure the property sheet header doesn't have the PSH_PROPSHEETPAGE flag set.
 
-        if(PropertySheetHeader->dwFlags & PSH_PROPSHEETPAGE) {
+        if (PropertySheetHeader->dwFlags & PSH_PROPSHEETPAGE) {
             Err = ERROR_INVALID_FLAGS;
             goto clean0;
         }
@@ -268,21 +268,20 @@ Return Value:
 
         OriginalPageCount = PropertySheetHeader->nPages;
 
-        if((OriginalPageCount > PropertySheetHeaderPageListSize) ||
-           (PropertySheetHeaderPageListSize && !(PropertySheetHeader->phpage))) {
+        if ((OriginalPageCount > PropertySheetHeaderPageListSize) ||
+            (PropertySheetHeaderPageListSize && !(PropertySheetHeader->phpage))) {
 
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Then we are to retrieve property sheets for a particular device.
 
-            if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                       DeviceInfoData,
-                                                       NULL))
-            {
+            if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                        DeviceInfoData,
+                                                        NULL)) {
                 InstallParamBlock = &(DevInfoElem->InstallParamBlock);
                 ClassGuid = &(DevInfoElem->ClassGuid);
 
@@ -295,7 +294,7 @@ Return Value:
 
             // We're retrieving (advanced) property pages for the set's class.
 
-            if(pDeviceInfoSet->HasClassGuid) {
+            if (pDeviceInfoSet->HasClassGuid) {
                 InstallParamBlock = &(pDeviceInfoSet->InstallParamBlock);
                 ClassGuid = &(pDeviceInfoSet->ClassGuid);
             } else {
@@ -307,8 +306,8 @@ Return Value:
 
         // Fill in a property sheet request structure for later use.
 
-        PropPageRequest.cbSize         = sizeof(SP_PROPSHEETPAGE_REQUEST);
-        PropPageRequest.DeviceInfoSet  = DeviceInfoSet;
+        PropPageRequest.cbSize = sizeof(SP_PROPSHEETPAGE_REQUEST);
+        PropPageRequest.DeviceInfoSet = DeviceInfoSet;
         PropPageRequest.DeviceInfoData = DeviceInfoData;
 
 
@@ -331,7 +330,7 @@ Return Value:
         // Essentially, CPL's will want BASIC sheets, and the Device Manager
         // will want advanced sheets.
 
-        if(PropertySheetType == DIGCDP_FLAG_BASIC) {
+        if (PropertySheetType == DIGCDP_FLAG_BASIC) {
 
             // The BasicProperties32 entrypoint is only supplied via a device's
             // driver key.  Thus, a device information element must be specified
@@ -343,7 +342,7 @@ Return Value:
             // required, then the caller can loop through each devinfo element
             // themselves, and retrieve basic property pages for each one.
 
-            if(!DevInfoElem) {
+            if (!DevInfoElem) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
@@ -352,7 +351,7 @@ Return Value:
             // If the basic property page provider has not been loaded, then load
             // it and get the function address for the BasicProperties32 function.
 
-            if(!InstallParamBlock->hinstBasicPropProvider) {
+            if (!InstallParamBlock->hinstBasicPropProvider) {
 
                 hk = SetupDiOpenDevRegKey(DeviceInfoSet,
                                           DeviceInfoData,
@@ -360,9 +359,9 @@ Return Value:
                                           0,
                                           DIREG_DRV,
                                           KEY_READ
-                                         );
+                );
 
-                if(hk != INVALID_HANDLE_VALUE) {
+                if (hk != INVALID_HANDLE_VALUE) {
 
                     try {
                         Err = GetModuleEntryPoint(hk,
@@ -377,21 +376,21 @@ Return Value:
                                                   NULL,
                                                   DRIVERSIGN_NONE,
                                                   TRUE
-                                                 );
+                        );
 
-                        if(Err == ERROR_DI_DO_DEFAULT) {
+                        if (Err == ERROR_DI_DO_DEFAULT) {
 
                             // The BasicProperties32 value wasn't present--this is not an error.
 
                             Err = NO_ERROR;
 
-                        } else if(Err != NO_ERROR) {
+                        } else if (Err != NO_ERROR) {
                             Err = ERROR_INVALID_PROPPAGE_PROVIDER;
                         }
 
                     } except(EXCEPTION_EXECUTE_HANDLER) {
                         Err = ERROR_INVALID_PROPPAGE_PROVIDER;
-                        if(InstallParamBlock->hinstBasicPropProvider) {
+                        if (InstallParamBlock->hinstBasicPropProvider) {
                             FreeLibrary(InstallParamBlock->hinstBasicPropProvider);
                             InstallParamBlock->hinstBasicPropProvider = NULL;
                         }
@@ -401,7 +400,7 @@ Return Value:
                     RegCloseKey(hk);
                     hk = INVALID_HANDLE_VALUE;
 
-                    if(Err != NO_ERROR) {
+                    if (Err != NO_ERROR) {
                         goto clean0;
                     }
                 }
@@ -410,7 +409,7 @@ Return Value:
 
             // If there is a basic property page provider entry point, then call it.
 
-            if(InstallParamBlock->EnumBasicPropertiesEntryPoint) {
+            if (InstallParamBlock->EnumBasicPropertiesEntryPoint) {
 
                 PropPageRequest.PageRequested = SPPSR_ENUM_BASIC_DEVICE_PROPERTIES;
 
@@ -422,10 +421,10 @@ Return Value:
                 pDeviceInfoSet = NULL;
 
                 InstallParamBlock->EnumBasicPropertiesEntryPoint(
-                                             &PropPageRequest,
-                                             pSetupAddPropPage,
-                                             (LPARAM)&PropPageAddProcContext
-                                            );
+                    &PropPageRequest,
+                    pSetupAddPropPage,
+                    (LPARAM)&PropPageAddProcContext
+                );
             }
 
 
@@ -453,15 +452,14 @@ Return Value:
             }
 
             if ((NO_ERROR == Err) &&
-                (PropertyPageData.NumDynamicPages > 0))
-            {
+                (PropertyPageData.NumDynamicPages > 0)) {
                 DWORD NumPages = 0;
 
                 while (NumPages < PropertyPageData.NumDynamicPages) {
 
                     pSetupAddPropPage(PropertyPageData.DynamicPages[NumPages++],
-                                      (LPARAM)&PropPageAddProcContext
-                                      );
+                        (LPARAM)&PropPageAddProcContext
+                    );
                 }
             }
 
@@ -471,11 +469,11 @@ Return Value:
             // entries in both the class key and (if we're talking about a specific device) in
             // the device's driver key.
 
-            if(!InstallParamBlock->hinstClassPropProvider) {
+            if (!InstallParamBlock->hinstClassPropProvider) {
 
                 hk = SetupDiOpenClassRegKey(ClassGuid, KEY_READ);
 
-                if(hk != INVALID_HANDLE_VALUE) {
+                if (hk != INVALID_HANDLE_VALUE) {
 
                     try {
                         Err = GetModuleEntryPoint(hk,
@@ -490,21 +488,21 @@ Return Value:
                                                   NULL,
                                                   DRIVERSIGN_NONE,
                                                   TRUE
-                                                 );
+                        );
 
-                        if(Err == ERROR_DI_DO_DEFAULT) {
+                        if (Err == ERROR_DI_DO_DEFAULT) {
 
                             // The EnumPropPages32 value wasn't present--this is not an error.
 
                             Err = NO_ERROR;
 
-                        } else if(Err != NO_ERROR) {
+                        } else if (Err != NO_ERROR) {
                             Err = ERROR_INVALID_PROPPAGE_PROVIDER;
                         }
 
                     } except(EXCEPTION_EXECUTE_HANDLER) {
                         Err = ERROR_INVALID_PROPPAGE_PROVIDER;
-                        if(InstallParamBlock->hinstClassPropProvider) {
+                        if (InstallParamBlock->hinstClassPropProvider) {
                             FreeLibrary(InstallParamBlock->hinstClassPropProvider);
                             InstallParamBlock->hinstClassPropProvider = NULL;
                         }
@@ -514,13 +512,13 @@ Return Value:
                     RegCloseKey(hk);
                     hk = INVALID_HANDLE_VALUE;
 
-                    if(Err != NO_ERROR) {
+                    if (Err != NO_ERROR) {
                         goto clean0;
                     }
                 }
             }
 
-            if(DevInfoElem && !InstallParamBlock->hinstDevicePropProvider) {
+            if (DevInfoElem && !InstallParamBlock->hinstDevicePropProvider) {
 
                 hk = SetupDiOpenDevRegKey(DeviceInfoSet,
                                           DeviceInfoData,
@@ -528,9 +526,9 @@ Return Value:
                                           0,
                                           DIREG_DRV,
                                           KEY_READ
-                                         );
+                );
 
-                if(hk != INVALID_HANDLE_VALUE) {
+                if (hk != INVALID_HANDLE_VALUE) {
 
                     try {
                         Err = GetModuleEntryPoint(hk,
@@ -545,21 +543,21 @@ Return Value:
                                                   NULL,
                                                   DRIVERSIGN_NONE,
                                                   TRUE
-                                                 );
+                        );
 
-                        if(Err == ERROR_DI_DO_DEFAULT) {
+                        if (Err == ERROR_DI_DO_DEFAULT) {
 
                             // The EnumPropPages32 value wasn't present--this is not an error.
 
                             Err = NO_ERROR;
 
-                        } else if(Err != NO_ERROR) {
+                        } else if (Err != NO_ERROR) {
                             Err = ERROR_INVALID_PROPPAGE_PROVIDER;
                         }
 
                     } except(EXCEPTION_EXECUTE_HANDLER) {
                         Err = ERROR_INVALID_PROPPAGE_PROVIDER;
-                        if(InstallParamBlock->hinstDevicePropProvider) {
+                        if (InstallParamBlock->hinstDevicePropProvider) {
                             FreeLibrary(InstallParamBlock->hinstDevicePropProvider);
                             InstallParamBlock->hinstDevicePropProvider = NULL;
                         }
@@ -569,7 +567,7 @@ Return Value:
                     RegCloseKey(hk);
                     hk = INVALID_HANDLE_VALUE;
 
-                    if(Err != NO_ERROR) {
+                    if (Err != NO_ERROR) {
                         goto clean0;
                     }
                 }
@@ -592,25 +590,25 @@ Return Value:
 
             // If there is an advanced property page provider for this class, then call it.
 
-            if(InstallParamBlock->ClassEnumPropPagesEntryPoint) {
+            if (InstallParamBlock->ClassEnumPropPagesEntryPoint) {
 
                 InstallParamBlock->ClassEnumPropPagesEntryPoint(
-                                             &PropPageRequest,
-                                             pSetupAddPropPage,
-                                             (LPARAM)&PropPageAddProcContext
-                                            );
+                    &PropPageRequest,
+                    pSetupAddPropPage,
+                    (LPARAM)&PropPageAddProcContext
+                );
             }
 
 
             // If there is an advanced property page provider for this particular device, then call it.
 
-            if(InstallParamBlock->DeviceEnumPropPagesEntryPoint) {
+            if (InstallParamBlock->DeviceEnumPropPagesEntryPoint) {
 
                 InstallParamBlock->DeviceEnumPropPagesEntryPoint(
-                                             &PropPageRequest,
-                                             pSetupAddPropPage,
-                                             (LPARAM)&PropPageAddProcContext
-                                            );
+                    &PropPageRequest,
+                    pSetupAddPropPage,
+                    (LPARAM)&PropPageAddProcContext
+                );
             }
 
 
@@ -638,33 +636,32 @@ Return Value:
             }
 
             if ((NO_ERROR == Err) ||
-                (PropertyPageData.NumDynamicPages > 0))
-            {
+                (PropertyPageData.NumDynamicPages > 0)) {
                 DWORD NumPages = 0;
 
                 while (NumPages < PropertyPageData.NumDynamicPages) {
 
                     pSetupAddPropPage(PropertyPageData.DynamicPages[NumPages++],
-                                      (LPARAM)&PropPageAddProcContext
-                                      );
+                        (LPARAM)&PropPageAddProcContext
+                    );
                 }
             }
         }
 
-        if(RequiredSize) {
+        if (RequiredSize) {
             *RequiredSize = PropPageAddProcContext.NumPages;
         }
 
-        if((OriginalPageCount + PropPageAddProcContext.NumPages) > PropertySheetHeaderPageListSize) {
+        if ((OriginalPageCount + PropPageAddProcContext.NumPages) > PropertySheetHeaderPageListSize) {
             Err = ERROR_INSUFFICIENT_BUFFER;
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
 
-        if(hk != INVALID_HANDLE_VALUE) {
+        if (hk != INVALID_HANDLE_VALUE) {
             RegCloseKey(hk);
         }
 
@@ -675,7 +672,7 @@ clean0: ;   // nothing to do.
         pDeviceInfoSet = pDeviceInfoSet;
     }
 
-    if(pDeviceInfoSet) {
+    if (pDeviceInfoSet) {
         UnlockDeviceInfoSet(pDeviceInfoSet);
     }
 
@@ -689,7 +686,7 @@ CALLBACK
 pSetupAddPropPage(
     IN HPROPSHEETPAGE hPage,
     IN LPARAM         lParam
-   )
+)
 /*++
 
 Routine Description:
@@ -720,7 +717,7 @@ Return Value:
 
     Context->NumPages++;
 
-    if(Context->PropertySheetHeader->nPages < Context->PageListSize) {
+    if (Context->PropertySheetHeader->nPages < Context->PageListSize) {
         Context->PropertySheetHeader->phpage[Context->PropertySheetHeader->nPages++] = hPage;
         return TRUE;
     }
@@ -735,7 +732,7 @@ ExtensionPropSheetPageProc(
     IN LPVOID lpv,
     IN LPFNADDPROPSHEETPAGE lpfnAddPropSheetPageProc,
     IN LPARAM lParam
-    )
+)
 {
     PSP_PROPSHEETPAGE_REQUEST PropPageRequest = (PSP_PROPSHEETPAGE_REQUEST)lpv;
     HPROPSHEETPAGE hPropSheetPage = NULL;
@@ -744,35 +741,35 @@ ExtensionPropSheetPageProc(
 
     // Make sure we're running interactively.
 
-    if(GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
+    if (GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
         SetLastError(ERROR_REQUIRES_INTERACTIVE_WINDOWSTATION);
         return FALSE;
     }
 
     try {
 
-        if(PropPageRequest->cbSize != sizeof(SP_PROPSHEETPAGE_REQUEST)) {
+        if (PropPageRequest->cbSize != sizeof(SP_PROPSHEETPAGE_REQUEST)) {
             goto clean0;
         }
 
-        switch(PropPageRequest->PageRequested) {
+        switch (PropPageRequest->PageRequested) {
 
-            case SPPSR_SELECT_DEVICE_RESOURCES :
+        case SPPSR_SELECT_DEVICE_RESOURCES:
 
-                if(!(hPropSheetPage = GetResourceSelectionPage(PropPageRequest->DeviceInfoSet,
-                                                               PropPageRequest->DeviceInfoData))) {
-                    goto clean0;
-                }
-                break;
-
-            default :
-
-                // Don't know what to do with this request.
-
+            if (!(hPropSheetPage = GetResourceSelectionPage(PropPageRequest->DeviceInfoSet,
+                                                            PropPageRequest->DeviceInfoData))) {
                 goto clean0;
+            }
+            break;
+
+        default:
+
+            // Don't know what to do with this request.
+
+            goto clean0;
         }
 
-        if(lpfnAddPropSheetPageProc(hPropSheetPage, lParam)) {
+        if (lpfnAddPropSheetPageProc(hPropSheetPage, lParam)) {
 
             // Page successfully handed off to requestor.  Reset our handle so that we don't
             // try to free it.
@@ -781,7 +778,7 @@ ExtensionPropSheetPageProc(
             b = TRUE;
         }
 
-clean0: ; // nothing to do
+    clean0:; // nothing to do
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
 
@@ -791,7 +788,7 @@ clean0: ; // nothing to do
         hPropSheetPage = hPropSheetPage;
     }
 
-    if(hPropSheetPage) {
+    if (hPropSheetPage) {
 
         // Property page was successfully created, but never handed off to requestor.  Free
         // it now.

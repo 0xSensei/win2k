@@ -52,22 +52,22 @@ Revision History:
 // (string constants defined in infstr.h)
 
 CONST TCHAR pszSourceDisksNames[] = SZ_KEY_SRCDISKNAMES,
-            pszSourceDisksFiles[] = SZ_KEY_SRCDISKFILES,
-            pszDestinationDirs[]  = SZ_KEY_DESTDIRS,
-            pszDefaultDestDir[]   = SZ_KEY_DEFDESTDIR;
+pszSourceDisksFiles[] = SZ_KEY_SRCDISKFILES,
+pszDestinationDirs[] = SZ_KEY_DESTDIRS,
+pszDefaultDestDir[] = SZ_KEY_DEFDESTDIR;
 
 
 BOOL
 _SetupGetSourceFileLocation(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,         OPTIONAL
-    IN  PCTSTR      FileName,           OPTIONAL
-    OUT PUINT       SourceId,           OPTIONAL
-    OUT PTSTR       ReturnBuffer,       OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCTSTR      FileName, OPTIONAL
+    OUT PUINT       SourceId, OPTIONAL
+    OUT PTSTR       ReturnBuffer, OPTIONAL
     IN  DWORD       ReturnBufferSize,
-    OUT PDWORD      RequiredSize,       OPTIONAL
+    OUT PDWORD      RequiredSize, OPTIONAL
     OUT PINFCONTEXT LineContext         OPTIONAL
-    )
+)
 
 /*++
 
@@ -124,7 +124,7 @@ Return Value:
     // is the filename. Retreive it.
 
     try {
-        fileName = InfContext ? pSetupGetField(InfContext,COPYSECT_TARGET_FILENAME) : FileName;
+        fileName = InfContext ? pSetupGetField(InfContext, COPYSECT_TARGET_FILENAME) : FileName;
     } except(EXCEPTION_EXECUTE_HANDLER) {
 
         // InfContext must be a bad pointer
@@ -132,7 +132,7 @@ Return Value:
         fileName = NULL;
     }
 
-    if(!fileName) {
+    if (!fileName) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return(FALSE);
     }
@@ -144,17 +144,17 @@ Return Value:
 
     _sntprintf(
         FileListSectionName,
-        sizeof(FileListSectionName)/sizeof(FileListSectionName[0]),
+        sizeof(FileListSectionName) / sizeof(FileListSectionName[0]),
         TEXT("%s.%s"),
         pszSourceDisksFiles,
         PlatformName
-        );
+    );
 
-    b = SetupFindFirstLine(InfHandle,FileListSectionName,fileName,&lineContext);
-    if(!b) {
-        b = SetupFindFirstLine(InfHandle,pszSourceDisksFiles,fileName,&lineContext);
+    b = SetupFindFirstLine(InfHandle, FileListSectionName, fileName, &lineContext);
+    if (!b) {
+        b = SetupFindFirstLine(InfHandle, pszSourceDisksFiles, fileName, &lineContext);
     }
-    if(!b) {
+    if (!b) {
         SetLastError(ERROR_LINE_NOT_FOUND);
         return(FALSE);
     }
@@ -164,15 +164,15 @@ Return Value:
     // We don't guard this with try/except because this routine is internal
     // and any fault is a bug in the caller.
 
-    if(LineContext) {
+    if (LineContext) {
         *LineContext = lineContext;
     }
 
 
     // Get the disk id.
 
-    if(SourceId) {
-        if(!SetupGetIntField(&lineContext,LAYOUTSECT_DISKID,SourceId)) {
+    if (SourceId) {
+        if (!SetupGetIntField(&lineContext, LAYOUTSECT_DISKID, SourceId)) {
             SetLastError(ERROR_INVALID_DATA);
             return(FALSE);
         }
@@ -182,15 +182,15 @@ Return Value:
     // If all the caller was interested in was the disk ID (i.e., they passed in ReturnBuffer
     // and RequiredSize both as NULL), then we can save the extra work and return now.
 
-    if(!(ReturnBuffer || RequiredSize)) {
+    if (!(ReturnBuffer || RequiredSize)) {
         return TRUE;
     }
 
 
     // Now get the path relative to the LDD.
 
-    SubDir = pSetupGetField(&lineContext,LAYOUTSECT_SUBDIR);
-    if(!SubDir) {
+    SubDir = pSetupGetField(&lineContext, LAYOUTSECT_SUBDIR);
+    if (!SubDir) {
         SubDir = TEXT("");
     }
 
@@ -199,7 +199,7 @@ Return Value:
 
     // Ignore leading path sep if present.
 
-    if(SubDir[0] == TEXT('\\')) {
+    if (SubDir[0] == TEXT('\\')) {
         Length--;
         SubDir++;
     }
@@ -208,11 +208,11 @@ Return Value:
     // See if there's a trailing path sep.
 
 #ifdef UNICODE
-    if(Length && (SubDir[Length-1] == TEXT('\\'))) {
+    if (Length && (SubDir[Length - 1] == TEXT('\\'))) {
         Length--;
     }
 #else
-    if(Length && *CharPrev(SubDir,SubDir+Length) == TEXT('\\')) {
+    if (Length && *CharPrev(SubDir, SubDir + Length) == TEXT('\\')) {
         Length--;
     }
 #endif
@@ -220,16 +220,16 @@ Return Value:
 
     // Leave space for the nul
 
-    if(RequiredSize) {
-        *RequiredSize = Length+1;
+    if (RequiredSize) {
+        *RequiredSize = Length + 1;
     }
 
 
     // Place data in caller's buffer.
     // If caller didn't specify a buffer we're done.
 
-    if(ReturnBuffer) {
-        if(ReturnBufferSize <= Length) {
+    if (ReturnBuffer) {
+        if (ReturnBufferSize <= Length) {
             SetLastError(ERROR_INSUFFICIENT_BUFFER);
             return(FALSE);
         }
@@ -239,7 +239,7 @@ Return Value:
         // a trailing path sep, lstrcpy could write the nul byte
         // past the end of the buffer.
 
-        CopyMemory(ReturnBuffer,SubDir,Length*sizeof(TCHAR));
+        CopyMemory(ReturnBuffer, SubDir, Length * sizeof(TCHAR));
         ReturnBuffer[Length] = 0;
     }
 
@@ -253,13 +253,13 @@ Return Value:
 BOOL
 SetupGetSourceFileLocationA(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,       OPTIONAL
-    IN  PCSTR       FileName,         OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCSTR       FileName, OPTIONAL
     OUT PUINT       SourceId,
-    OUT PSTR        ReturnBuffer,     OPTIONAL
+    OUT PSTR        ReturnBuffer, OPTIONAL
     IN  DWORD       ReturnBufferSize,
     OUT PDWORD      RequiredSize      OPTIONAL
-    )
+)
 {
     WCHAR returnbuffer[MAX_PATH];
     DWORD requiredsize;
@@ -270,9 +270,9 @@ SetupGetSourceFileLocationA(
     PCSTR ansireturn;
 
     rc = NO_ERROR;
-    if(FileName) {
-        rc = CaptureAndConvertAnsiArg(FileName,&filename);
-        if(rc != NO_ERROR) {
+    if (FileName) {
+        rc = CaptureAndConvertAnsiArg(FileName, &filename);
+        if (rc != NO_ERROR) {
             SetLastError(rc);
             return(FALSE);
         }
@@ -281,28 +281,28 @@ SetupGetSourceFileLocationA(
     }
 
     b = _SetupGetSourceFileLocation(
-            InfHandle,
-            InfContext,
-            filename,
-            &sourceid,
-            returnbuffer,
-            MAX_PATH,
-            &requiredsize,
-            NULL
-            );
+        InfHandle,
+        InfContext,
+        filename,
+        &sourceid,
+        returnbuffer,
+        MAX_PATH,
+        &requiredsize,
+        NULL
+    );
 
     rc = GetLastError();
 
-    if(b) {
+    if (b) {
         rc = NO_ERROR;
 
-        if(ansireturn = UnicodeToAnsi(returnbuffer)) {
+        if (ansireturn = UnicodeToAnsi(returnbuffer)) {
 
-            requiredsize = lstrlenA(ansireturn)+1;
+            requiredsize = lstrlenA(ansireturn) + 1;
 
             try {
                 *SourceId = sourceid;
-                if(RequiredSize) {
+                if (RequiredSize) {
                     *RequiredSize = requiredsize;
                 }
             } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -310,18 +310,18 @@ SetupGetSourceFileLocationA(
                 b = FALSE;
             }
 
-            if(rc == NO_ERROR) {
+            if (rc == NO_ERROR) {
 
-                if(ReturnBuffer) {
+                if (ReturnBuffer) {
 
-                    if(requiredsize <= ReturnBufferSize) {
+                    if (requiredsize <= ReturnBufferSize) {
 
 
                         // lstrcpy won't generate an exception on NT even if
                         // ReturnBuffer is invalid, but will return NULL
 
                         try {
-                            if(!lstrcpyA(ReturnBuffer,ansireturn)) {
+                            if (!lstrcpyA(ReturnBuffer, ansireturn)) {
                                 b = FALSE;
                                 rc = ERROR_INVALID_PARAMETER;
                             }
@@ -344,7 +344,7 @@ SetupGetSourceFileLocationA(
         }
     }
 
-    if(filename) {
+    if (filename) {
         MyFree(filename);
     }
     SetLastError(rc);
@@ -357,13 +357,13 @@ SetupGetSourceFileLocationA(
 BOOL
 SetupGetSourceFileLocationW(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,       OPTIONAL
-    IN  PCWSTR      FileName,         OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCWSTR      FileName, OPTIONAL
     OUT PUINT       SourceId,
-    OUT PWSTR       ReturnBuffer,     OPTIONAL
+    OUT PWSTR       ReturnBuffer, OPTIONAL
     IN  DWORD       ReturnBufferSize,
     OUT PDWORD      RequiredSize      OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(InfHandle);
     UNREFERENCED_PARAMETER(InfContext);
@@ -380,13 +380,13 @@ SetupGetSourceFileLocationW(
 BOOL
 SetupGetSourceFileLocation(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,         OPTIONAL
-    IN  PCTSTR      FileName,           OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCTSTR      FileName, OPTIONAL
     OUT PUINT       SourceId,
-    OUT PTSTR       ReturnBuffer,       OPTIONAL
+    OUT PTSTR       ReturnBuffer, OPTIONAL
     IN  DWORD       ReturnBufferSize,
     OUT PDWORD      RequiredSize        OPTIONAL
-    )
+)
 {
     TCHAR returnbuffer[MAX_PATH];
     DWORD requiredsize;
@@ -396,9 +396,9 @@ SetupGetSourceFileLocation(
     BOOL b;
 
     rc = NO_ERROR;
-    if(FileName) {
-        rc = CaptureStringArg(FileName,&filename);
-        if(rc != NO_ERROR) {
+    if (FileName) {
+        rc = CaptureStringArg(FileName, &filename);
+        if (rc != NO_ERROR) {
             SetLastError(rc);
             return(FALSE);
         }
@@ -407,24 +407,24 @@ SetupGetSourceFileLocation(
     }
 
     b = _SetupGetSourceFileLocation(
-            InfHandle,
-            InfContext,
-            filename,
-            &sourceid,
-            returnbuffer,
-            MAX_PATH,
-            &requiredsize,
-            NULL
-            );
+        InfHandle,
+        InfContext,
+        filename,
+        &sourceid,
+        returnbuffer,
+        MAX_PATH,
+        &requiredsize,
+        NULL
+    );
 
     rc = GetLastError();
 
-    if(b) {
+    if (b) {
         rc = NO_ERROR;
 
         try {
             *SourceId = sourceid;
-            if(RequiredSize) {
+            if (RequiredSize) {
                 *RequiredSize = requiredsize;
             }
         } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -432,18 +432,18 @@ SetupGetSourceFileLocation(
             b = FALSE;
         }
 
-        if(rc == NO_ERROR) {
+        if (rc == NO_ERROR) {
 
-            if(ReturnBuffer) {
+            if (ReturnBuffer) {
 
-                if(requiredsize <= ReturnBufferSize) {
+                if (requiredsize <= ReturnBufferSize) {
 
 
                     // lstrcpy won't generate an exception on NT even if
                     // ReturnBuffer is invalid, but will return NULL
 
                     try {
-                        if(!lstrcpy(ReturnBuffer,returnbuffer)) {
+                        if (!lstrcpy(ReturnBuffer, returnbuffer)) {
                             b = FALSE;
                             rc = ERROR_INVALID_PARAMETER;
                         }
@@ -459,7 +459,7 @@ SetupGetSourceFileLocation(
         }
     }
 
-    if(filename) {
+    if (filename) {
         MyFree(filename);
     }
     SetLastError(rc);
@@ -470,12 +470,12 @@ SetupGetSourceFileLocation(
 BOOL
 _SetupGetSourceFileSize(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,     OPTIONAL
-    IN  PCTSTR      FileName,       OPTIONAL
-    IN  PCTSTR      Section,        OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCTSTR      FileName, OPTIONAL
+    IN  PCTSTR      Section, OPTIONAL
     OUT PDWORD      FileSize,
     IN  UINT        RoundingFactor  OPTIONAL
-    )
+)
 
 /*++
 
@@ -523,14 +523,14 @@ Return Value:
     INFCONTEXT CopySectionContext;
     BOOL b;
     UINT Size;
-    LONG File,FileCount;
+    LONG File, FileCount;
     TCHAR FileListSectionName[64];
 
 
     // If the rounding factor is not specified, set it to 1 so the math
     // below works without special cases.
 
-    if(!RoundingFactor) {
+    if (!RoundingFactor) {
         RoundingFactor = 1;
     }
 
@@ -539,7 +539,7 @@ Return Value:
 
     fileName = NULL;
     FileCount = 1;
-    if(InfContext) {
+    if (InfContext) {
 
 
         // Caller passed INF line context.
@@ -555,13 +555,13 @@ Return Value:
         } except(EXCEPTION_EXECUTE_HANDLER) {
             b = FALSE;
         }
-        if(!b) {
+        if (!b) {
             SetLastError(ERROR_INVALID_PARAMETER);
             return(FALSE);
         }
 
     } else {
-        if(FileName) {
+        if (FileName) {
 
             // Caller passed an absolute file name. Remember it.
 
@@ -573,20 +573,20 @@ Return Value:
             // a set of files whose sizes are to be totalled. Determine the number
             // of lines in the section and establish a context.
 
-            if(Section) {
+            if (Section) {
 
-                FileCount = SetupGetLineCount(InfHandle,Section);
+                FileCount = SetupGetLineCount(InfHandle, Section);
 
-                if((FileCount == -1)
-                || !SetupFindFirstLine(InfHandle,Section,NULL,&CopySectionContext)) {
+                if ((FileCount == -1)
+                    || !SetupFindFirstLine(InfHandle, Section, NULL, &CopySectionContext)) {
 
                     try {
                         if (InfHandle != NULL && InfHandle != INVALID_HANDLE_VALUE && LockInf((PLOADED_INF)InfHandle)) {
                             WriteLogEntry(((PLOADED_INF)InfHandle)->LogContext,
-                                SETUP_LOG_ERROR,
-                                MSG_LOG_NOSECTION_MIN,
-                                NULL,
-                                Section);
+                                          SETUP_LOG_ERROR,
+                                          MSG_LOG_NOSECTION_MIN,
+                                          NULL,
+                                          Section);
                             UnlockInf((PLOADED_INF)InfHandle);
                         }
                     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -602,31 +602,31 @@ Return Value:
     }
 
     *FileSize = 0;
-    for(File=0; File<FileCount; File++) {
+    for (File = 0; File < FileCount; File++) {
 
-        if(File) {
+        if (File) {
 
             // This is not the first pass through the loop. We need
             // to locate the next line in the copy list section.
 
-            b = SetupFindNextLine(&CopySectionContext,&CopySectionContext);
-            if(!b) {
+            b = SetupFindNextLine(&CopySectionContext, &CopySectionContext);
+            if (!b) {
                 SetLastError(ERROR_INVALID_DATA);
                 return(FALSE);
             }
 
-            fileName = pSetupGetField(&CopySectionContext,COPYSECT_SOURCE_FILENAME);
-            if(fileName == NULL || fileName[0] == 0) {
-                fileName = pSetupGetField(&CopySectionContext,COPYSECT_TARGET_FILENAME);
+            fileName = pSetupGetField(&CopySectionContext, COPYSECT_SOURCE_FILENAME);
+            if (fileName == NULL || fileName[0] == 0) {
+                fileName = pSetupGetField(&CopySectionContext, COPYSECT_TARGET_FILENAME);
             }
         } else {
 
             // First pass through the loop. May need to get a filename.
 
-            if(!fileName) {
-                fileName = pSetupGetField(&CopySectionContext,COPYSECT_SOURCE_FILENAME);
-                if(fileName == NULL || fileName[0] == 0) {
-                    fileName = pSetupGetField(&CopySectionContext,COPYSECT_TARGET_FILENAME);
+            if (!fileName) {
+                fileName = pSetupGetField(&CopySectionContext, COPYSECT_SOURCE_FILENAME);
+                if (fileName == NULL || fileName[0] == 0) {
+                    fileName = pSetupGetField(&CopySectionContext, COPYSECT_TARGET_FILENAME);
                 }
             }
         }
@@ -634,7 +634,7 @@ Return Value:
 
         // If we don't have a filename by now, the inf is corrupt.
 
-        if(!fileName) {
+        if (!fileName) {
             SetLastError(ERROR_INVALID_DATA);
             return(FALSE);
         }
@@ -646,16 +646,16 @@ Return Value:
 
         _sntprintf(
             FileListSectionName,
-            sizeof(FileListSectionName)/sizeof(FileListSectionName[0]),
+            sizeof(FileListSectionName) / sizeof(FileListSectionName[0]),
             TEXT("%s.%s"),
             pszSourceDisksFiles,
             PlatformName
-            );
-        b = SetupFindFirstLine(InfHandle,FileListSectionName,fileName,&LayoutSectionContext);
-        if(!b) {
-            b = SetupFindFirstLine(InfHandle,pszSourceDisksFiles,fileName,&LayoutSectionContext);
+        );
+        b = SetupFindFirstLine(InfHandle, FileListSectionName, fileName, &LayoutSectionContext);
+        if (!b) {
+            b = SetupFindFirstLine(InfHandle, pszSourceDisksFiles, fileName, &LayoutSectionContext);
         }
-        if(!b) {
+        if (!b) {
             SetLastError(ERROR_LINE_NOT_FOUND);
             return(FALSE);
         }
@@ -663,8 +663,8 @@ Return Value:
 
         // Get the size data for the file.
 
-        b = SetupGetIntField(&LayoutSectionContext,LAYOUTSECT_SIZE,&Size);
-        if(!b) {
+        b = SetupGetIntField(&LayoutSectionContext, LAYOUTSECT_SIZE, &Size);
+        if (!b) {
             SetLastError(ERROR_INVALID_DATA);
             return(FALSE);
         }
@@ -672,7 +672,7 @@ Return Value:
 
         // Round size up to be an even multiple of the rounding factor
 
-        if(Size % RoundingFactor) {
+        if (Size % RoundingFactor) {
             Size += RoundingFactor - (Size % RoundingFactor);
         }
 
@@ -689,31 +689,31 @@ Return Value:
 BOOL
 SetupGetSourceFileSizeA(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,     OPTIONAL
-    IN  PCSTR       FileName,       OPTIONAL
-    IN  PCSTR       Section,        OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCSTR       FileName, OPTIONAL
+    IN  PCSTR       Section, OPTIONAL
     OUT PDWORD      FileSize,
     IN  UINT        RoundingFactor  OPTIONAL
-    )
+)
 {
-    PCWSTR filename,section;
+    PCWSTR filename, section;
     BOOL b;
     DWORD rc;
     DWORD size;
 
-    if(FileName) {
-        rc = CaptureAndConvertAnsiArg(FileName,&filename);
-        if(rc != NO_ERROR) {
+    if (FileName) {
+        rc = CaptureAndConvertAnsiArg(FileName, &filename);
+        if (rc != NO_ERROR) {
             SetLastError(rc);
             return(FALSE);
         }
     } else {
         filename = NULL;
     }
-    if(Section) {
-        rc = CaptureAndConvertAnsiArg(Section,&section);
-        if(rc != NO_ERROR) {
-            if(filename) {
+    if (Section) {
+        rc = CaptureAndConvertAnsiArg(Section, &section);
+        if (rc != NO_ERROR) {
+            if (filename) {
                 MyFree(filename);
             }
             SetLastError(rc);
@@ -723,7 +723,7 @@ SetupGetSourceFileSizeA(
         section = NULL;
     }
 
-    b = _SetupGetSourceFileSize(InfHandle,InfContext,filename,section,&size,RoundingFactor);
+    b = _SetupGetSourceFileSize(InfHandle, InfContext, filename, section, &size, RoundingFactor);
     rc = GetLastError();
 
     try {
@@ -733,10 +733,10 @@ SetupGetSourceFileSizeA(
         rc = ERROR_INVALID_PARAMETER;
     }
 
-    if(filename) {
+    if (filename) {
         MyFree(filename);
     }
-    if(section) {
+    if (section) {
         MyFree(section);
     }
 
@@ -751,12 +751,12 @@ SetupGetSourceFileSizeA(
 BOOL
 SetupGetSourceFileSizeW(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,     OPTIONAL
-    IN  PCWSTR      FileName,       OPTIONAL
-    IN  PCWSTR      Section,        OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCWSTR      FileName, OPTIONAL
+    IN  PCWSTR      Section, OPTIONAL
     OUT PDWORD      FileSize,
     IN  UINT        RoundingFactor  OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(InfHandle);
     UNREFERENCED_PARAMETER(InfContext);
@@ -772,31 +772,31 @@ SetupGetSourceFileSizeW(
 BOOL
 SetupGetSourceFileSize(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,     OPTIONAL
-    IN  PCTSTR      FileName,       OPTIONAL
-    IN  PCTSTR      Section,        OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCTSTR      FileName, OPTIONAL
+    IN  PCTSTR      Section, OPTIONAL
     OUT PDWORD      FileSize,
     IN  UINT        RoundingFactor  OPTIONAL
-    )
+)
 {
-    PCTSTR filename,section;
+    PCTSTR filename, section;
     BOOL b;
     DWORD rc;
     DWORD size;
 
-    if(FileName) {
-        rc = CaptureStringArg(FileName,&filename);
-        if(rc != NO_ERROR) {
+    if (FileName) {
+        rc = CaptureStringArg(FileName, &filename);
+        if (rc != NO_ERROR) {
             SetLastError(rc);
             return(FALSE);
         }
     } else {
         filename = NULL;
     }
-    if(Section) {
-        rc = CaptureStringArg(Section,&section);
-        if(rc != NO_ERROR) {
-            if(filename) {
+    if (Section) {
+        rc = CaptureStringArg(Section, &section);
+        if (rc != NO_ERROR) {
+            if (filename) {
                 MyFree(filename);
             }
             SetLastError(rc);
@@ -806,7 +806,7 @@ SetupGetSourceFileSize(
         section = NULL;
     }
 
-    b = _SetupGetSourceFileSize(InfHandle,InfContext,filename,section,&size,RoundingFactor);
+    b = _SetupGetSourceFileSize(InfHandle, InfContext, filename, section, &size, RoundingFactor);
     rc = GetLastError();
 
     try {
@@ -816,10 +816,10 @@ SetupGetSourceFileSize(
         rc = ERROR_INVALID_PARAMETER;
     }
 
-    if(filename) {
+    if (filename) {
         MyFree(filename);
     }
-    if(section) {
+    if (section) {
         MyFree(section);
     }
 
@@ -831,12 +831,12 @@ SetupGetSourceFileSize(
 BOOL
 _SetupGetTargetPath(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,       OPTIONAL
-    IN  PCTSTR      Section,          OPTIONAL
-    OUT PTSTR       ReturnBuffer,     OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCTSTR      Section, OPTIONAL
+    OUT PTSTR       ReturnBuffer, OPTIONAL
     IN  DWORD       ReturnBufferSize,
     OUT PDWORD      RequiredSize      OPTIONAL
-    )
+)
 
 /*++
 
@@ -906,13 +906,13 @@ Return Value:
     try {
         Inf = InfContext ? (PLOADED_INF)InfContext->Inf : (PLOADED_INF)InfHandle;
 
-        if(!LockInf(Inf)) {
+        if (!LockInf(Inf)) {
             Err = ERROR_INVALID_HANDLE;
         }
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
     }
-    if(Err != NO_ERROR) {
+    if (Err != NO_ERROR) {
         SetLastError(Err);
         return(FALSE);
     }
@@ -921,18 +921,18 @@ Return Value:
     // If we get here then InfContext is a good pointer if specified;
     // if not then Inf is a good pointer.
 
-    if(InfContext) {
+    if (InfContext) {
         CurInf = (PLOADED_INF)InfContext->CurrentInf;
         InfSourcePath = CurInf->InfSourcePath;
 
         Section = pStringTableStringFromId(
-                      CurInf->StringTable,
-                      CurInf->SectionBlock[InfContext->Section].SectionName
-                     );
+            CurInf->StringTable,
+            CurInf->SectionBlock[InfContext->Section].SectionName
+        );
     } else {
         InfSourcePath = Inf->InfSourcePath;
 
-        if(!Section) {
+        if (!Section) {
             Section = pszDefaultDestDir;
         }
     }
@@ -950,7 +950,7 @@ Return Value:
 
         CurInf = InfContext->CurrentInf;
 
-        if((DestDirsSection = InfLocateSection(CurInf, pszDestinationDirs, NULL))!=NULL) {
+        if ((DestDirsSection = InfLocateSection(CurInf, pszDestinationDirs, NULL)) != NULL) {
 
             // Locate the line in [DestinationDirs] that gives the target path
             // for the section. The section name will be the key on the relevant line.
@@ -958,12 +958,12 @@ Return Value:
             // entry, then look for that as well, and remember it if we find one.
 
             LineNumber = 0;
-            if(InfLocateLine(CurInf, DestDirsSection, Section, &LineNumber, &Line)) {
+            if (InfLocateLine(CurInf, DestDirsSection, Section, &LineNumber, &Line)) {
 
                 // Got the line in [DestinationDirs]. Pull out the directory. The subdir is optional.
 
                 DirId = InfGetField(CurInf, Line, DIRSECT_DIRID, NULL);
-                if(!DirId) {
+                if (!DirId) {
                     Err = ERROR_INVALID_DATA;
                     goto clean0;
                 }
@@ -971,7 +971,7 @@ Return Value:
                 SubDir = InfGetField(CurInf, Line, DIRSECT_SUBDIR, NULL);
 
                 DestDirFound = TRUE;
-            } else if(InfLocateLine(CurInf, DestDirsSection, pszDefaultDestDir, &LineNumber, &Line)) {
+            } else if (InfLocateLine(CurInf, DestDirsSection, pszDefaultDestDir, &LineNumber, &Line)) {
                 DefaultDestDirInf = CurInf;
                 DefaultDestDirLine = Line;
                 DefaultDestDirFound = TRUE;
@@ -979,13 +979,13 @@ Return Value:
         }
     }
 
-    if(!DestDirFound && !DefaultDestDirFound) {
+    if (!DestDirFound && !DefaultDestDirFound) {
 
         // search for any matches at all
 
-        for(CurInf = Inf; CurInf; CurInf = CurInf->Next) {
+        for (CurInf = Inf; CurInf; CurInf = CurInf->Next) {
 
-            if(!(DestDirsSection = InfLocateSection(CurInf, pszDestinationDirs, NULL))) {
+            if (!(DestDirsSection = InfLocateSection(CurInf, pszDestinationDirs, NULL))) {
                 continue;
             }
 
@@ -996,12 +996,12 @@ Return Value:
             // entry, then look for that as well, and remember it if we find one.
 
             LineNumber = 0;
-            if(InfLocateLine(CurInf, DestDirsSection, Section, &LineNumber, &Line)) {
+            if (InfLocateLine(CurInf, DestDirsSection, Section, &LineNumber, &Line)) {
 
                 // Got the line in [DestinationDirs]. Pull out the directory. The subdir is optional.
 
                 DirId = InfGetField(CurInf, Line, DIRSECT_DIRID, NULL);
-                if(!DirId) {
+                if (!DirId) {
                     Err = ERROR_INVALID_DATA;
                     goto clean0;
                 }
@@ -1012,8 +1012,8 @@ Return Value:
                 break;
             }
 
-            if(!DefaultDestDirFound &&
-                    InfLocateLine(CurInf, DestDirsSection, pszDefaultDestDir, &LineNumber, &Line)) {
+            if (!DefaultDestDirFound &&
+                InfLocateLine(CurInf, DestDirsSection, pszDefaultDestDir, &LineNumber, &Line)) {
                 DefaultDestDirInf = CurInf;
                 DefaultDestDirLine = Line;
                 DefaultDestDirFound = TRUE;
@@ -1021,14 +1021,14 @@ Return Value:
         }
     }
 
-    if(!DestDirFound) {
+    if (!DestDirFound) {
 
         // If we found a DefaultDestDir, then use that, otherwise, use a default.
 
-        if(DefaultDestDirFound) {
+        if (DefaultDestDirFound) {
 
             DirId = InfGetField(DefaultDestDirInf, DefaultDestDirLine, DIRSECT_DIRID, NULL);
-            if(!DirId) {
+            if (!DirId) {
                 Err = ERROR_INVALID_DATA;
                 goto clean0;
             }
@@ -1050,27 +1050,27 @@ Return Value:
                                          SubDir,
                                          InfSourcePath,
                                          (CurInf && CurInf->OsLoaderPath)
-                                             ? &(CurInf->OsLoaderPath)
-                                             : NULL
-                                        );
+                                         ? &(CurInf->OsLoaderPath)
+                                         : NULL
+    );
 
-    if(!ActualPath) {
+    if (!ActualPath) {
 
         // If the default DIRID lookup failed because DirId is in the
         // user-defined range, then GetLastError will return NO_ERROR.
         // Otherwise, we should bail now.
 
-        if((Err = GetLastError()) != NO_ERROR) {
+        if ((Err = GetLastError()) != NO_ERROR) {
             goto clean0;
         }
 
 
         // Now see if we there's a user-defined DIRID for this.
 
-        if(!(ActualPath = pSetupVolatileDirIdToPath(NULL,
-                                                DirIdInt,
-                                                SubDir,
-                                                Inf))) {
+        if (!(ActualPath = pSetupVolatileDirIdToPath(NULL,
+                                                     DirIdInt,
+                                                     SubDir,
+                                                     Inf))) {
             Err = GetLastError();
             goto clean0;
         }
@@ -1080,12 +1080,12 @@ Return Value:
     // Put actual path in caller's buffer.
 
     TmpRequiredSize = lstrlen(ActualPath) + 1;
-    if(RequiredSize) {
+    if (RequiredSize) {
         *RequiredSize = TmpRequiredSize;
     }
 
-    if(ReturnBuffer) {
-        if(TmpRequiredSize > ReturnBufferSize) {
+    if (ReturnBuffer) {
+        if (TmpRequiredSize > ReturnBufferSize) {
             Err = ERROR_INSUFFICIENT_BUFFER;
         } else {
             lstrcpy(ReturnBuffer, ActualPath);
@@ -1097,7 +1097,7 @@ Return Value:
 clean0:
     UnlockInf(Inf);
 
-    if(Err == NO_ERROR) {
+    if (Err == NO_ERROR) {
         return TRUE;
     } else {
         SetLastError(Err);
@@ -1112,12 +1112,12 @@ clean0:
 BOOL
 SetupGetTargetPathA(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,       OPTIONAL
-    IN  PCSTR       Section,          OPTIONAL
-    OUT PSTR        ReturnBuffer,     OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCSTR       Section, OPTIONAL
+    OUT PSTR        ReturnBuffer, OPTIONAL
     IN  DWORD       ReturnBufferSize,
     OUT PDWORD      RequiredSize      OPTIONAL
-    )
+)
 {
     BOOL b;
     DWORD rc;
@@ -1126,29 +1126,29 @@ SetupGetTargetPathA(
     PCWSTR section;
     PCSTR ansireturn;
 
-    if(Section) {
-        rc = CaptureAndConvertAnsiArg(Section,&section);
+    if (Section) {
+        rc = CaptureAndConvertAnsiArg(Section, &section);
     } else {
         section = NULL;
         rc = NO_ERROR;
     }
 
-    if(rc == NO_ERROR) {
-        b = _SetupGetTargetPath(InfHandle,InfContext,section,returnbuffer,MAX_PATH,&requiredsize);
+    if (rc == NO_ERROR) {
+        b = _SetupGetTargetPath(InfHandle, InfContext, section, returnbuffer, MAX_PATH, &requiredsize);
         rc = GetLastError();
     } else {
         b = FALSE;
     }
 
-    if(b) {
+    if (b) {
 
-        if(ansireturn = UnicodeToAnsi(returnbuffer)) {
+        if (ansireturn = UnicodeToAnsi(returnbuffer)) {
 
             rc = NO_ERROR;
 
             requiredsize = lstrlenA(ansireturn) + 1;
 
-            if(RequiredSize) {
+            if (RequiredSize) {
                 try {
                     *RequiredSize = requiredsize;
                 } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -1157,16 +1157,16 @@ SetupGetTargetPathA(
                 }
             }
 
-            if(rc == NO_ERROR) {
+            if (rc == NO_ERROR) {
 
-                if(ReturnBuffer) {
-                    if(requiredsize <= ReturnBufferSize) {
+                if (ReturnBuffer) {
+                    if (requiredsize <= ReturnBufferSize) {
 
 
                         // At least on NT lstrcpy won't fault if an arg is invalid
                         // but it will return false.
 
-                        if(!lstrcpyA(ReturnBuffer,ansireturn)) {
+                        if (!lstrcpyA(ReturnBuffer, ansireturn)) {
                             rc = ERROR_INVALID_PARAMETER;
                             b = FALSE;
                         }
@@ -1185,7 +1185,7 @@ SetupGetTargetPathA(
         }
     }
 
-    if(section) {
+    if (section) {
         MyFree(section);
     }
     SetLastError(rc);
@@ -1198,12 +1198,12 @@ SetupGetTargetPathA(
 BOOL
 SetupGetTargetPathW(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,       OPTIONAL
-    IN  PCWSTR      Section,          OPTIONAL
-    OUT PWSTR       ReturnBuffer,     OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCWSTR      Section, OPTIONAL
+    OUT PWSTR       ReturnBuffer, OPTIONAL
     IN  DWORD       ReturnBufferSize,
     OUT PDWORD      RequiredSize      OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(InfHandle);
     UNREFERENCED_PARAMETER(InfContext);
@@ -1219,12 +1219,12 @@ SetupGetTargetPathW(
 BOOL
 SetupGetTargetPath(
     IN  HINF        InfHandle,
-    IN  PINFCONTEXT InfContext,       OPTIONAL
-    IN  PCTSTR      Section,          OPTIONAL
-    OUT PTSTR       ReturnBuffer,     OPTIONAL
+    IN  PINFCONTEXT InfContext, OPTIONAL
+    IN  PCTSTR      Section, OPTIONAL
+    OUT PTSTR       ReturnBuffer, OPTIONAL
     IN  DWORD       ReturnBufferSize,
     OUT PDWORD      RequiredSize      OPTIONAL
-    )
+)
 {
     BOOL b;
     DWORD rc;
@@ -1232,24 +1232,24 @@ SetupGetTargetPath(
     DWORD requiredsize;
     PCTSTR section;
 
-    if(Section) {
-        rc = CaptureStringArg(Section,&section);
+    if (Section) {
+        rc = CaptureStringArg(Section, &section);
     } else {
         section = NULL;
         rc = NO_ERROR;
     }
 
-    if(rc == NO_ERROR) {
-        b = _SetupGetTargetPath(InfHandle,InfContext,section,returnbuffer,MAX_PATH,&requiredsize);
+    if (rc == NO_ERROR) {
+        b = _SetupGetTargetPath(InfHandle, InfContext, section, returnbuffer, MAX_PATH, &requiredsize);
         rc = GetLastError();
     } else {
         b = FALSE;
     }
 
-    if(b) {
+    if (b) {
         rc = NO_ERROR;
 
-        if(RequiredSize) {
+        if (RequiredSize) {
             try {
                 *RequiredSize = requiredsize;
             } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -1258,16 +1258,16 @@ SetupGetTargetPath(
             }
         }
 
-        if(rc == NO_ERROR) {
+        if (rc == NO_ERROR) {
 
-            if(ReturnBuffer) {
-                if(requiredsize <= ReturnBufferSize) {
+            if (ReturnBuffer) {
+                if (requiredsize <= ReturnBufferSize) {
 
 
                     // At least on NT lstrcpy won't fault if an arg is invalid
                     // but it will return false.
 
-                    if(!lstrcpy(ReturnBuffer,returnbuffer)) {
+                    if (!lstrcpy(ReturnBuffer, returnbuffer)) {
                         rc = ERROR_INVALID_PARAMETER;
                         b = FALSE;
                     }
@@ -1280,7 +1280,7 @@ SetupGetTargetPath(
         }
     }
 
-    if(section) {
+    if (section) {
         MyFree(section);
     }
     SetLastError(rc);
@@ -1288,18 +1288,14 @@ SetupGetTargetPath(
 }
 
 
-PCTSTR
-pSetupDirectoryIdToPath(
-    IN     PCTSTR  DirectoryId,    OPTIONAL
-    IN OUT PUINT   DirectoryIdInt, OPTIONAL
-    IN     PCTSTR  SubDirectory,   OPTIONAL
-    IN     PCTSTR  InfSourcePath,  OPTIONAL
-    IN OUT PCTSTR *OsLoaderPath    OPTIONAL
-    )
+PCTSTR pSetupDirectoryIdToPath(IN     PCTSTR  DirectoryId, OPTIONAL
+                               IN OUT PUINT   DirectoryIdInt, OPTIONAL
+                               IN     PCTSTR  SubDirectory, OPTIONAL
+                               IN     PCTSTR  InfSourcePath, OPTIONAL
+                               IN OUT PCTSTR* OsLoaderPath    OPTIONAL
+)
 /*++
-
     (See pSetupDirectoryIdToPathEx for details.)
-
 --*/
 {
     return pSetupDirectoryIdToPathEx(DirectoryId,
@@ -1308,27 +1304,21 @@ pSetupDirectoryIdToPath(
                                      InfSourcePath,
                                      OsLoaderPath,
                                      NULL
-                                    );
+    );
 }
 
 
-PCTSTR
-pSetupDirectoryIdToPathEx(
-    IN     PCTSTR  DirectoryId,        OPTIONAL
-    IN OUT PUINT   DirectoryIdInt,     OPTIONAL
-    IN     PCTSTR  SubDirectory,       OPTIONAL
-    IN     PCTSTR  InfSourcePath,      OPTIONAL
-    IN OUT PCTSTR *OsLoaderPath,       OPTIONAL
-    OUT    PBOOL   VolatileSystemDirId OPTIONAL
-    )
-
+PCTSTR pSetupDirectoryIdToPathEx(IN     PCTSTR  DirectoryId, OPTIONAL
+                                 IN OUT PUINT   DirectoryIdInt, OPTIONAL
+                                 IN     PCTSTR  SubDirectory, OPTIONAL
+                                 IN     PCTSTR  InfSourcePath, OPTIONAL
+                                 IN OUT PCTSTR* OsLoaderPath, OPTIONAL
+                                 OUT    PBOOL   VolatileSystemDirId OPTIONAL
+)
 /*++
-
 Routine Description:
-
     Translate a directory id/subdirectory pair to an actual path.
-    The directory ids are reserved string values that we share with Win9x (and
-    then some).
+    The directory ids are reserved string values that we share with Win9x (and then some).
 
     VOLATILE SYSTEM DIRID PATHS AND USER-DEFINED DIRID PATHS ARE NOT RETURNED
     BY THIS ROUTINE!!!
@@ -1371,9 +1361,7 @@ Return Value:
     If failure, the return value is NULL.  GetLastError() returns the reason
     for failure.  If the failure was because the DIRID was a user-defined one,
     then GetLastError() will return NO_ERROR.
-
 --*/
-
 {
     UINT Value;
     PTCHAR End;
@@ -1383,11 +1371,11 @@ Return Value:
     TCHAR Buffer[MAX_PATH];
     BOOL b;
 
-    if(VolatileSystemDirId) {
+    if (VolatileSystemDirId) {
         *VolatileSystemDirId = FALSE;
     }
 
-    if(DirectoryId) {
+    if (DirectoryId) {
 
         // We only allow base-10 integer ids for now.
         // Only the terminating nul should cause the conversion to stop.
@@ -1396,12 +1384,12 @@ Return Value:
 
         Value = _tcstoul(DirectoryId, &End, 10);
 
-        if(*End || (End == DirectoryId)) {
+        if (*End || (End == DirectoryId)) {
             SetLastError(ERROR_INVALID_DATA);
             return(NULL);
         }
 
-        if(DirectoryIdInt) {
+        if (DirectoryIdInt) {
             *DirectoryIdInt = Value;
         }
 
@@ -1410,13 +1398,13 @@ Return Value:
         Value = *DirectoryIdInt;
     }
 
-    if(!SubDirectory) {
+    if (!SubDirectory) {
         SubDirectory = TEXT("");
     }
 
     Path = NULL;
 
-    switch(Value) {
+    switch (Value) {
 
     case DIRID_NULL:
     case DIRID_ABSOLUTE:
@@ -1431,7 +1419,7 @@ Return Value:
 
         // If the caller supplied a path, then use it, otherwise, use our global default one.
 
-        if(InfSourcePath) {
+        if (InfSourcePath) {
             FirstPart = InfSourcePath;
         } else {
             FirstPart = SystemSourcePath;
@@ -1443,18 +1431,18 @@ Return Value:
 
         // System partition DIRIDS
 
-        if(OsLoaderPath && *OsLoaderPath) {
+        if (OsLoaderPath && *OsLoaderPath) {
             lstrcpyn(Buffer, *OsLoaderPath, SIZECHARS(Buffer));
         } else {
             pSetupGetOsLoaderDriveAndPath(FALSE, Buffer, SIZECHARS(Buffer), &Length);
 
-            if(OsLoaderPath) {
+            if (OsLoaderPath) {
 
                 // allocate a buffer to return the OsLoaderPath to the caller.
 
                 Length *= sizeof(TCHAR);    // need # bytes--not chars
 
-                if(!(*OsLoaderPath = MyMalloc(Length))) {
+                if (!(*OsLoaderPath = MyMalloc(Length))) {
                     SetLastError(ERROR_NOT_ENOUGH_MEMORY);
                     return(NULL);
                 }
@@ -1462,7 +1450,7 @@ Return Value:
                 CopyMemory((PVOID)(*OsLoaderPath), Buffer, Length);
             }
         }
-        if(Value == DIRID_BOOT) {
+        if (Value == DIRID_BOOT) {
             Buffer[3] = TEXT('\0'); // just want "<drive>:\" part.
         }
         FirstPart = Buffer;
@@ -1508,8 +1496,8 @@ Return Value:
 
         // Help directory
 
-        lstrcpyn(Buffer,WindowsDirectory,MAX_PATH);
-        ConcatenatePaths(Buffer,TEXT("help"),MAX_PATH,NULL);
+        lstrcpyn(Buffer, WindowsDirectory, MAX_PATH);
+        ConcatenatePaths(Buffer, TEXT("help"), MAX_PATH, NULL);
         FirstPart = Buffer;
         break;
 
@@ -1517,8 +1505,8 @@ Return Value:
 
         // Fonts directory
 
-        lstrcpyn(Buffer,WindowsDirectory,MAX_PATH);
-        ConcatenatePaths(Buffer,TEXT("fonts"),MAX_PATH,NULL);
+        lstrcpyn(Buffer, WindowsDirectory, MAX_PATH);
+        ConcatenatePaths(Buffer, TEXT("fonts"), MAX_PATH, NULL);
         FirstPart = Buffer;
         break;
 
@@ -1526,8 +1514,8 @@ Return Value:
 
         // Viewers directory
 
-        lstrcpyn(Buffer,SystemDirectory,MAX_PATH);
-        ConcatenatePaths(Buffer,TEXT("viewers"),MAX_PATH,NULL);
+        lstrcpyn(Buffer, SystemDirectory, MAX_PATH);
+        ConcatenatePaths(Buffer, TEXT("viewers"), MAX_PATH, NULL);
         FirstPart = Buffer;
         break;
 
@@ -1536,7 +1524,7 @@ Return Value:
         // ICM directory
 
         lstrcpyn(Buffer, SystemDirectory, MAX_PATH);
-        if(OSVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
+        if (OSVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
 
             // On NT, the path is system32\spool\drivers\color
 
@@ -1554,7 +1542,7 @@ Return Value:
 
         // Application directory.
 
-        lstrcpyn(Buffer,WindowsDirectory,MAX_PATH);
+        lstrcpyn(Buffer, WindowsDirectory, MAX_PATH);
         Buffer[2] = 0;
         FirstPart = Buffer;
         break;
@@ -1570,23 +1558,23 @@ Return Value:
 
         // spool directory
 
-        lstrcpyn(Buffer,SystemDirectory,MAX_PATH);
-        ConcatenatePaths(Buffer,TEXT("spool"),MAX_PATH,NULL);
+        lstrcpyn(Buffer, SystemDirectory, MAX_PATH);
+        ConcatenatePaths(Buffer, TEXT("spool"), MAX_PATH, NULL);
         FirstPart = Buffer;
         break;
 
     case DIRID_SPOOLDRIVERS:
 
         b = GetPrinterDriverDirectory(
-                NULL,                       // local machine
-                NULL,                       // default platform
-                1,                          // structure level
-                (PVOID)Buffer,
-                sizeof(Buffer),
-                (PDWORD)&Length
-                );
+            NULL,                       // local machine
+            NULL,                       // default platform
+            1,                          // structure level
+            (PVOID)Buffer,
+            sizeof(Buffer),
+            (PDWORD)&Length
+        );
 
-        if(!b) {
+        if (!b) {
             return NULL;
         }
         FirstPart = Buffer;
@@ -1595,15 +1583,15 @@ Return Value:
     case DIRID_PRINTPROCESSOR:
 
         b = GetPrintProcessorDirectory(
-                NULL,                       // local machine
-                NULL,                       // default platform
-                1,                          // structure level
-                (PVOID)Buffer,
-                sizeof(Buffer),
-                (PDWORD)&Length
-                );
+            NULL,                       // local machine
+            NULL,                       // default platform
+            1,                          // structure level
+            (PVOID)Buffer,
+            sizeof(Buffer),
+            (PDWORD)&Length
+        );
 
-        if(!b) {
+        if (!b) {
             return NULL;
         }
         FirstPart = Buffer;
@@ -1611,13 +1599,13 @@ Return Value:
 
     case DIRID_USERPROFILE:
 
-        b = GetEnvironmentVariable (
+        b = GetEnvironmentVariable(
             TEXT("USERPROFILE"),
             Buffer,
             MAX_PATH
-            );
+        );
 
-        if(!b) {
+        if (!b) {
 
             // Can this happen?
 
@@ -1630,13 +1618,13 @@ Return Value:
     default:
 
         FirstPart = NULL;
-        if((Value >= DIRID_USER) || (Value & VOLATILE_DIRID_FLAG)) {
+        if ((Value >= DIRID_USER) || (Value & VOLATILE_DIRID_FLAG)) {
 
             // User-defined or volatile dirid--don't do anything with this here
             // except let the caller know if it's a volatile system DIRID (if
             // they requested this information).
 
-            if(Value < DIRID_USER && VolatileSystemDirId) {
+            if (Value < DIRID_USER && VolatileSystemDirId) {
                 *VolatileSystemDirId = TRUE;
             }
 
@@ -1647,26 +1635,26 @@ Return Value:
 
         // Default to system32\unknown
 
-        if(!FirstPart) {
-            lstrcpyn(Buffer,SystemDirectory,MAX_PATH);
-            ConcatenatePaths(Buffer,TEXT("unknown"),MAX_PATH,NULL);
+        if (!FirstPart) {
+            lstrcpyn(Buffer, SystemDirectory, MAX_PATH);
+            ConcatenatePaths(Buffer, TEXT("unknown"), MAX_PATH, NULL);
             FirstPart = Buffer;
         }
         break;
     }
 
-    if(FirstPart) {
+    if (FirstPart) {
 
-        ConcatenatePaths((PTSTR)FirstPart,SubDirectory,0,&Length);
+        ConcatenatePaths((PTSTR)FirstPart, SubDirectory, 0, &Length);
 
         Path = MyMalloc(Length * sizeof(TCHAR));
-        if(!Path) {
+        if (!Path) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             return(NULL);
         }
 
-        lstrcpy(Path,FirstPart);
-        ConcatenatePaths(Path,SubDirectory,Length,NULL);
+        lstrcpy(Path, FirstPart);
+        ConcatenatePaths(Path, SubDirectory, Length, NULL);
 
     } else {
 
@@ -1682,15 +1670,15 @@ Return Value:
 
     Length = lstrlen(Path);
 #ifdef UNICODE
-    if(Length && (Path[Length-1] == TEXT('\\'))) {
-        if((Length != 3) || (Path[1] != TEXT(':'))) {
-            Path[Length-1] = 0;
+    if (Length && (Path[Length - 1] == TEXT('\\'))) {
+        if ((Length != 3) || (Path[1] != TEXT(':'))) {
+            Path[Length - 1] = 0;
         }
     }
 #else
-    if(Length && *CharPrev(Path,Path+Length) == TEXT('\\')) {
-        if((Length != 3) || (Path[1] != TEXT(':'))) {
-            Path[Length-1] = 0;
+    if (Length && *CharPrev(Path, Path + Length) == TEXT('\\')) {
+        if ((Length != 3) || (Path[1] != TEXT(':'))) {
+            Path[Length - 1] = 0;
         }
     }
 #endif
@@ -1701,10 +1689,10 @@ Return Value:
 
 PCTSTR
 pGetPathFromDirId(
-    IN     PCTSTR  DirectoryId,        OPTIONAL
-    IN     PCTSTR  SubDirectory,       OPTIONAL
+    IN     PCTSTR  DirectoryId, OPTIONAL
+    IN     PCTSTR  SubDirectory, OPTIONAL
     IN     HINF    Inf
-    )
+)
 /*
     Wrapper function that merges functionality of pSetupDirectoryIdToPathEx
     and pSetupVolatileDirIdToPath to return the DIRID that is needed, be it regular,
@@ -1712,28 +1700,28 @@ pGetPathFromDirId(
 
 */
 {
-    BOOL IsVolatileDirID=FALSE;
+    BOOL IsVolatileDirID = FALSE;
     PCTSTR ReturnPath;
     UINT Value;
 
-    if( ReturnPath = pSetupDirectoryIdToPathEx(DirectoryId,
+    if (ReturnPath = pSetupDirectoryIdToPathEx(DirectoryId,
                                                &Value,
                                                SubDirectory,
                                                NULL,
                                                NULL,
-                                               &IsVolatileDirID) ){
+                                               &IsVolatileDirID)) {
 
-        return( ReturnPath );
+        return(ReturnPath);
     }
 
-    if( IsVolatileDirID || (Value >= DIRID_USER) ){
+    if (IsVolatileDirID || (Value >= DIRID_USER)) {
 
         ReturnPath = pSetupVolatileDirIdToPath(DirectoryId,
                                                0,
                                                SubDirectory,
-                                               ((PLOADED_INF) Inf));
+                                               ((PLOADED_INF)Inf));
 
-        return( ReturnPath );
+        return(ReturnPath);
 
 
     }
@@ -1751,9 +1739,9 @@ PCTSTR
 pSetupFilenameFromLine(
     IN PINFCONTEXT Context,
     IN BOOL        GetSourceName
-    )
+)
 {
-    return(pSetupGetField(Context,GetSourceName ? COPYSECT_SOURCE_FILENAME : COPYSECT_TARGET_FILENAME));
+    return(pSetupGetField(Context, GetSourceName ? COPYSECT_SOURCE_FILENAME : COPYSECT_TARGET_FILENAME));
 }
 
 
@@ -1764,32 +1752,32 @@ pSetupFilenameFromLine(
 BOOL
 SetupSetDirectoryIdExA(
     IN HINF  InfHandle,
-    IN DWORD Id,        OPTIONAL
+    IN DWORD Id, OPTIONAL
     IN PCSTR Directory, OPTIONAL
     IN DWORD Flags,
     IN DWORD Reserved1,
     IN PVOID Reserved2
-    )
+)
 {
     BOOL b;
     DWORD rc;
     PCWSTR directory;
 
-    if(Directory) {
-        rc = CaptureAndConvertAnsiArg(Directory,&directory);
+    if (Directory) {
+        rc = CaptureAndConvertAnsiArg(Directory, &directory);
     } else {
         directory = NULL;
         rc = NO_ERROR;
     }
 
-    if(rc == NO_ERROR) {
-        b = SetupSetDirectoryIdExW(InfHandle,Id,directory,Flags,Reserved1,Reserved2);
+    if (rc == NO_ERROR) {
+        b = SetupSetDirectoryIdExW(InfHandle, Id, directory, Flags, Reserved1, Reserved2);
         rc = GetLastError();
     } else {
         b = FALSE;
     }
 
-    if(directory) {
+    if (directory) {
         MyFree(directory);
     }
 
@@ -1803,12 +1791,12 @@ SetupSetDirectoryIdExA(
 BOOL
 SetupSetDirectoryIdExW(
     IN HINF   InfHandle,
-    IN DWORD  Id,           OPTIONAL
-    IN PCWSTR Directory,    OPTIONAL
+    IN DWORD  Id, OPTIONAL
+    IN PCWSTR Directory, OPTIONAL
     IN DWORD  Flags,
     IN DWORD  Reserved1,
     IN PVOID  Reserved2
-    )
+)
 {
     UNREFERENCED_PARAMETER(InfHandle);
     UNREFERENCED_PARAMETER(Id);
@@ -1824,12 +1812,12 @@ SetupSetDirectoryIdExW(
 BOOL
 SetupSetDirectoryIdEx(
     IN HINF   InfHandle,
-    IN DWORD  Id,           OPTIONAL
-    IN PCTSTR Directory,    OPTIONAL
+    IN DWORD  Id, OPTIONAL
+    IN PCTSTR Directory, OPTIONAL
     IN DWORD  Flags,
     IN DWORD  Reserved1,
     IN PVOID  Reserved2
-    )
+)
 
 /*++
 
@@ -1893,7 +1881,7 @@ Return Value:
     // Also as a special case disallow the 16-bit -1 value.
     // Make sure reserved params are 0.
 
-    if((Id && ((Id < DIRID_USER) || (Id == DIRID_ABSOLUTE_16BIT))) || Reserved1 || Reserved2) {
+    if ((Id && ((Id < DIRID_USER) || (Id == DIRID_ABSOLUTE_16BIT))) || Reserved1 || Reserved2) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return(FALSE);
     }
@@ -1902,7 +1890,7 @@ Return Value:
     // Capture directory, if specified. Ignore if Id is not specified.
 
     rc = NO_ERROR;
-    if(Id && Directory) {
+    if (Id && Directory) {
         try {
             directory = DuplicateString(Directory);
         } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -1912,9 +1900,9 @@ Return Value:
         directory = NULL;
     }
 
-    if(rc == NO_ERROR) {
-        if(directory) {
-            if(Flags & SETDIRID_NOT_FULL_PATH) {
+    if (rc == NO_ERROR) {
+        if (directory) {
+            if (Flags & SETDIRID_NOT_FULL_PATH) {
                 lstrcpyn(Buffer, directory, MAX_PATH);
                 MyFree(directory);
             } else {
@@ -1923,17 +1911,17 @@ Return Value:
                                                SIZECHARS(Buffer),
                                                Buffer,
                                                &p
-                                              );
-                if(!RequiredSize) {
+                );
+                if (!RequiredSize) {
                     rc = GetLastError();
-                } else if(RequiredSize >= SIZECHARS(Buffer)) {
+                } else if (RequiredSize >= SIZECHARS(Buffer)) {
                     MYASSERT(0);
                     rc = ERROR_BUFFER_OVERFLOW;
                 }
 
                 MyFree(directory);
 
-                if(rc != NO_ERROR) {
+                if (rc != NO_ERROR) {
                     SetLastError(rc);
                     return(FALSE);
                 }
@@ -1946,28 +1934,28 @@ Return Value:
         return(FALSE);
     }
 
-    if(!LockInf((PLOADED_INF)InfHandle)) {
+    if (!LockInf((PLOADED_INF)InfHandle)) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
 
     UserDirIdList = &(((PLOADED_INF)InfHandle)->UserDirIdList);
 
-    if(Id) {
+    if (Id) {
 
         // Got an id to use. Find any existing association for it.
 
         UserDirId = NULL;
-        for(u = 0; u < UserDirIdList->UserDirIdCount; u++) {
-            if(UserDirIdList->UserDirIds[u].Id == Id) {
+        for (u = 0; u < UserDirIdList->UserDirIdCount; u++) {
+            if (UserDirIdList->UserDirIds[u].Id == Id) {
                 UserDirId = &(UserDirIdList->UserDirIds[u]);
                 break;
             }
         }
 
-        if(directory) {
+        if (directory) {
 
-            if(UserDirId) {
+            if (UserDirId) {
 
                 // Overwrite existing association.
 
@@ -1978,11 +1966,11 @@ Return Value:
                 // Add a new association at the end of the list.
 
                 UserDirId = UserDirIdList->UserDirIds
-                          ? MyRealloc(UserDirIdList->UserDirIds,
-                                      (UserDirIdList->UserDirIdCount+1)*sizeof(USERDIRID))
-                          : MyMalloc(sizeof(USERDIRID));
+                    ? MyRealloc(UserDirIdList->UserDirIds,
+                    (UserDirIdList->UserDirIdCount + 1) * sizeof(USERDIRID))
+                    : MyMalloc(sizeof(USERDIRID));
 
-                if(UserDirId) {
+                if (UserDirId) {
 
                     UserDirIdList->UserDirIds = UserDirId;
 
@@ -1999,7 +1987,7 @@ Return Value:
 
             // Need to delete any existing association we found.
 
-            if(UserDirId) {
+            if (UserDirId) {
 
                 // Close up the hole in the array.
                 // Note that when we get here u is the index of the
@@ -2007,16 +1995,16 @@ Return Value:
 
                 MoveMemory(
                     &(UserDirIdList->UserDirIds[u]),
-                    &(UserDirIdList->UserDirIds[u+1]),
-                    ((UserDirIdList->UserDirIdCount-u)-1) * sizeof(USERDIRID)
-                    );
+                    &(UserDirIdList->UserDirIds[u + 1]),
+                    ((UserDirIdList->UserDirIdCount - u) - 1) * sizeof(USERDIRID)
+                );
 
 
                 // Try to shrink the array -- this really should never fail
                 // but we won't fail the call if it does fail for some reason.
 
-                if(UserDirId = MyRealloc(UserDirIdList->UserDirIds,
-                                         (UserDirIdList->UserDirIdCount-1)*sizeof(USERDIRID))) {
+                if (UserDirId = MyRealloc(UserDirIdList->UserDirIds,
+                    (UserDirIdList->UserDirIdCount - 1) * sizeof(USERDIRID))) {
 
                     UserDirIdList->UserDirIds = UserDirId;
                 }
@@ -2028,7 +2016,7 @@ Return Value:
 
         // Id was not specified -- delete any set of associations.
 
-        if(UserDirIdList->UserDirIds) {
+        if (UserDirIdList->UserDirIds) {
             MyFree(UserDirIdList->UserDirIds);
             UserDirIdList->UserDirIds = NULL;
             UserDirIdList->UserDirIdCount = 0;
@@ -2036,7 +2024,7 @@ Return Value:
         MYASSERT(UserDirIdList->UserDirIdCount == 0);    // sanity check.
     }
 
-    if(rc == NO_ERROR) {
+    if (rc == NO_ERROR) {
 
         // Now apply new DIRID mappings to all unresolved string substitutions
         // in the loaded INFs.
@@ -2054,31 +2042,31 @@ Return Value:
 BOOL
 SetupSetDirectoryIdA(
     IN HINF   InfHandle,
-    IN DWORD  Id,           OPTIONAL
+    IN DWORD  Id, OPTIONAL
     IN PCSTR  Directory     OPTIONAL
-    )
+)
 {
-    return(SetupSetDirectoryIdExA(InfHandle,Id,Directory,0,0,0));
+    return(SetupSetDirectoryIdExA(InfHandle, Id, Directory, 0, 0, 0));
 }
 
 BOOL
 SetupSetDirectoryIdW(
     IN HINF   InfHandle,
-    IN DWORD  Id,           OPTIONAL
+    IN DWORD  Id, OPTIONAL
     IN PCWSTR Directory     OPTIONAL
-    )
+)
 {
-    return(SetupSetDirectoryIdExW(InfHandle,Id,Directory,0,0,0));
+    return(SetupSetDirectoryIdExW(InfHandle, Id, Directory, 0, 0, 0));
 }
 
 
 PCTSTR
 pSetupVolatileDirIdToPath(
-    IN PCTSTR      DirectoryId,    OPTIONAL
+    IN PCTSTR      DirectoryId, OPTIONAL
     IN UINT        DirectoryIdInt, OPTIONAL
-    IN PCTSTR      SubDirectory,   OPTIONAL
+    IN PCTSTR      SubDirectory, OPTIONAL
     IN PLOADED_INF Inf
-    )
+)
 
 /*++
 
@@ -2121,7 +2109,7 @@ Return Value:
     PUSERDIRID_LIST UserDirIdList;
     TCHAR SpecialFolderPath[MAX_PATH];
 
-    if(DirectoryId) {
+    if (DirectoryId) {
 
         // We only allow base-10 integer ids for now.
         // Only the terminating nul should cause the conversion to stop.
@@ -2130,7 +2118,7 @@ Return Value:
 
         Value = _tcstoul(DirectoryId, &End, 10);
 
-        if(*End || (End == DirectoryId)) {
+        if (*End || (End == DirectoryId)) {
             SetLastError(ERROR_INVALID_DATA);
             return(NULL);
         }
@@ -2138,14 +2126,14 @@ Return Value:
         Value = DirectoryIdInt;
     }
 
-    if(!SubDirectory) {
+    if (!SubDirectory) {
         SubDirectory = TEXT("");
     }
 
     Path = NULL;
     FirstPart = NULL;
 
-    if((Value < DIRID_USER) &&  (Value & VOLATILE_DIRID_FLAG)) {
+    if ((Value < DIRID_USER) && (Value & VOLATILE_DIRID_FLAG)) {
 
 #ifdef ANSI_SETUPAPI
 
@@ -2153,17 +2141,17 @@ Return Value:
             HRESULT Result;
             LPITEMIDLIST ppidl;
 
-            Result = SHGetSpecialFolderLocation (
-                        NULL,
-                        Value ^ VOLATILE_DIRID_FLAG,
-                        &ppidl
-                        );
+            Result = SHGetSpecialFolderLocation(
+                NULL,
+                Value ^ VOLATILE_DIRID_FLAG,
+                &ppidl
+            );
 
-            if (SUCCEEDED (Result)) {
-                if (SHGetPathFromIDList (
-                        ppidl,
-                        SpecialFolderPath
-                        )) {
+            if (SUCCEEDED(Result)) {
+                if (SHGetPathFromIDList(
+                    ppidl,
+                    SpecialFolderPath
+                )) {
 
                     FirstPart = SpecialFolderPath;
                 }
@@ -2178,11 +2166,11 @@ Return Value:
         // to make it easy to convert to the CSIDL value necessary to hand into
         // SHGetSpecialFolderPath.
 
-        if(SHGetSpecialFolderPath(NULL,
-                                  SpecialFolderPath,
-                                  (Value ^ VOLATILE_DIRID_FLAG),
-                                  TRUE // does this help?
-                                 )) {
+        if (SHGetSpecialFolderPath(NULL,
+                                   SpecialFolderPath,
+                                   (Value ^ VOLATILE_DIRID_FLAG),
+                                   TRUE // does this help?
+        )) {
 
             FirstPart = SpecialFolderPath;
         }
@@ -2195,9 +2183,9 @@ Return Value:
 
         UserDirIdList = &(Inf->UserDirIdList);
 
-        for(Length = 0; Length < UserDirIdList->UserDirIdCount; Length++) {
+        for (Length = 0; Length < UserDirIdList->UserDirIdCount; Length++) {
 
-            if(UserDirIdList->UserDirIds[Length].Id == Value) {
+            if (UserDirIdList->UserDirIds[Length].Id == Value) {
 
                 FirstPart = UserDirIdList->UserDirIds[Length].Directory;
                 break;
@@ -2205,12 +2193,12 @@ Return Value:
         }
     }
 
-    if(FirstPart) {
+    if (FirstPart) {
 
         ConcatenatePaths((PTSTR)FirstPart, SubDirectory, 0, &Length);
 
         Path = MyMalloc(Length * sizeof(TCHAR));
-        if(!Path) {
+        if (!Path) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             return NULL;
         }
@@ -2231,23 +2219,23 @@ Return Value:
 
     Length = lstrlen(Path);
 #ifdef UNICODE
-    if(Length && (Path[Length-1] == TEXT('\\'))) {
+    if (Length && (Path[Length - 1] == TEXT('\\'))) {
 
         // Special case when we have a path like "A:\"--we don't want
         // to strip the backslash in that scenario.
 
-        if((Length != 3) || (Path[1] != TEXT(':'))) {
-            Path[Length-1] = 0;
+        if ((Length != 3) || (Path[1] != TEXT(':'))) {
+            Path[Length - 1] = 0;
         }
     }
 #else
-    if(Length && (*CharPrev(Path,Path+Length) == TEXT('\\'))) {
+    if (Length && (*CharPrev(Path, Path + Length) == TEXT('\\'))) {
 
         // Special case when we have a path like "A:\"--we don't want
         // to strip the backslash in that scenario.
 
-        if((Length != 3) || (Path[1] != TEXT(':'))) {
-            Path[Length-1] = 0;
+        if ((Length != 3) || (Path[1] != TEXT(':'))) {
+            Path[Length - 1] = 0;
         }
     }
 #endif
@@ -2259,9 +2247,9 @@ Return Value:
 VOID
 InfSourcePathFromFileName(
     IN  PCTSTR  InfFileName,
-    OUT PTSTR  *SourcePath,  OPTIONAL
+    OUT PTSTR* SourcePath, OPTIONAL
     OUT PBOOL   TryPnf
-    )
+)
 /*++
 
 Routine Description:
@@ -2292,7 +2280,7 @@ Return Value:
     INT TempLen;
     PTSTR s;
 
-    if(SourcePath) {
+    if (SourcePath) {
         *SourcePath = NULL;
     }
 
@@ -2300,12 +2288,12 @@ Return Value:
     // First, determine if this INF is located somewhere in our search path list.  If so,
     // then there's nothing more to do.
 
-    if(!InfIsFromOemLocation(InfFileName, FALSE)) {
+    if (!InfIsFromOemLocation(InfFileName, FALSE)) {
         *TryPnf = TRUE;
         return;
     } else {
         *TryPnf = FALSE;
-        if(!SourcePath) {
+        if (!SourcePath) {
 
             // If the caller doesn't care about the source path, then we're done.
 
@@ -2319,7 +2307,7 @@ Return Value:
     lstrcpy(PathBuffer, InfFileName);
     s = (PTSTR)MyGetFileTitle(PathBuffer);
 
-    if(((s - PathBuffer) == 3) && (PathBuffer[1] == TEXT(':'))) {
+    if (((s - PathBuffer) == 3) && (PathBuffer[1] == TEXT(':'))) {
 
         // This path is a root path (e.g., 'A:\'), so don't strip the trailing backslash.
 
@@ -2329,15 +2317,15 @@ Return Value:
         // Strip the trailing backslash.
 
 #ifdef UNICODE
-        if((s > PathBuffer) && (*(s - 1) == TEXT('\\'))) {
+        if ((s > PathBuffer) && (*(s - 1) == TEXT('\\'))) {
             s--;
         }
 #else
-        if((s > PathBuffer) && (*CharPrev(PathBuffer,s) == TEXT('\\'))) {
+        if ((s > PathBuffer) && (*CharPrev(PathBuffer, s) == TEXT('\\'))) {
             s--;
         }
 #endif
-        *s = TEXT('\0');
+        * s = TEXT('\0');
     }
 
 

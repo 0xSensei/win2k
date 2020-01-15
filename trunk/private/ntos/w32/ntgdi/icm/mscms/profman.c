@@ -40,8 +40,8 @@
 
 
 typedef enum {
-    NOMATCH     = 0,
-    MATCH       = 1,
+    NOMATCH = 0,
+    MATCH = 1,
     EXACT_MATCH = 2,
 } MATCHTYPE;
 
@@ -49,19 +49,19 @@ typedef struct tagREGDATA {
     DWORD dwRefCount;
     DWORD dwManuID;
     DWORD dwModelID;
-} REGDATA, *PREGDATA;
+} REGDATA, * PREGDATA;
 
 typedef struct tagSCANNERDATA {
     PWSTR     pDeviceName;
     HINSTANCE hModule;
     PSTI      pSti;
-} SCANNERDATA, *PSCANNERDATA;
+} SCANNERDATA, * PSCANNERDATA;
 
-typedef BOOL  (WINAPI *PFNOPENDEVICE)(PTSTR, LPHANDLE, PTSTR);
-typedef BOOL  (WINAPI *PFNCLOSEDEVICE)(HANDLE);
-typedef DWORD (WINAPI *PFNGETDEVICEDATA)(HANDLE, PTSTR, PTSTR, PDWORD, PBYTE, DWORD, PDWORD);
-typedef DWORD (WINAPI *PFNSETDEVICEDATA)(HANDLE, PTSTR, PTSTR, DWORD, PBYTE, DWORD);
-typedef HRESULT (__stdcall *PFNSTICREATEINSTANCE)(HINSTANCE, DWORD, PSTI*, LPDWORD);
+typedef BOOL(WINAPI* PFNOPENDEVICE)(PTSTR, LPHANDLE, PTSTR);
+typedef BOOL(WINAPI* PFNCLOSEDEVICE)(HANDLE);
+typedef DWORD(WINAPI* PFNGETDEVICEDATA)(HANDLE, PTSTR, PTSTR, PDWORD, PBYTE, DWORD, PDWORD);
+typedef DWORD(WINAPI* PFNSETDEVICEDATA)(HANDLE, PTSTR, PTSTR, DWORD, PBYTE, DWORD);
+typedef HRESULT(__stdcall* PFNSTICREATEINSTANCE)(HINSTANCE, DWORD, PSTI*, LPDWORD);
 
 
 // Local functions
@@ -111,76 +111,76 @@ VOID  ChangeICMSetting(LPCTSTR, LPCTSTR, DWORD);
 // SetupAPI function pointers
 
 typedef WINSETUPAPI HKEY
-(WINAPI *FP_SetupDiOpenDevRegKey)(
+(WINAPI* FP_SetupDiOpenDevRegKey)(
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData,
     IN DWORD            Scope,
     IN DWORD            HwProfile,
     IN DWORD            KeyType,
     IN REGSAM           samDesired
-);
+    );
 
 typedef WINSETUPAPI BOOL
-(WINAPI *FP_SetupDiDestroyDeviceInfoList)(
+(WINAPI* FP_SetupDiDestroyDeviceInfoList)(
     IN HDEVINFO DeviceInfoSet
-);
+    );
 
 typedef WINSETUPAPI BOOL
-(WINAPI *FP_SetupDiEnumDeviceInfo)(
+(WINAPI* FP_SetupDiEnumDeviceInfo)(
     IN  HDEVINFO         DeviceInfoSet,
     IN  DWORD            MemberIndex,
     OUT PSP_DEVINFO_DATA DeviceInfoData
-);
+    );
 
 #if !defined(_WIN95_)
 typedef WINSETUPAPI BOOL
-(WINAPI *FP_SetupDiGetDeviceInstanceId)(
+(WINAPI* FP_SetupDiGetDeviceInstanceId)(
     IN  HDEVINFO         DeviceInfoSet,
     IN  PSP_DEVINFO_DATA DeviceInfoData,
     OUT PWSTR            DeviceInstanceId,
     IN  DWORD            DeviceInstanceIdSize,
     OUT PDWORD           RequiredSize          OPTIONAL
-);
+    );
 
 typedef WINSETUPAPI HDEVINFO
-(WINAPI *FP_SetupDiGetClassDevs)(
-    IN LPGUID ClassGuid,  OPTIONAL
+(WINAPI* FP_SetupDiGetClassDevs)(
+    IN LPGUID ClassGuid, OPTIONAL
     IN PCWSTR Enumerator, OPTIONAL
     IN HWND   hwndParent, OPTIONAL
     IN DWORD  Flags
-);
+    );
 #else
 typedef WINSETUPAPI BOOL
-(WINAPI *FP_SetupDiGetDeviceInstanceId)(
+(WINAPI* FP_SetupDiGetDeviceInstanceId)(
     IN  HDEVINFO         DeviceInfoSet,
     IN  PSP_DEVINFO_DATA DeviceInfoData,
     OUT PSTR             DeviceInstanceId,
     IN  DWORD            DeviceInstanceIdSize,
     OUT PDWORD           RequiredSize          OPTIONAL
-);
+    );
 
 typedef WINSETUPAPI HDEVINFO
-(WINAPI *FP_SetupDiGetClassDevs)(
-    IN LPGUID ClassGuid,  OPTIONAL
+(WINAPI* FP_SetupDiGetClassDevs)(
+    IN LPGUID ClassGuid, OPTIONAL
     IN PCSTR  Enumerator, OPTIONAL
     IN HWND   hwndParent, OPTIONAL
     IN DWORD  Flags
-);
+    );
 #endif
 
 HMODULE ghModSetupAPIDll = NULL;
 
-FP_SetupDiOpenDevRegKey         fpSetupDiOpenDevRegKey         = NULL;
+FP_SetupDiOpenDevRegKey         fpSetupDiOpenDevRegKey = NULL;
 FP_SetupDiDestroyDeviceInfoList fpSetupDiDestroyDeviceInfoList = NULL;
-FP_SetupDiEnumDeviceInfo        fpSetupDiEnumDeviceInfo        = NULL;
-FP_SetupDiGetDeviceInstanceId   fpSetupDiGetDeviceInstanceId   = NULL;
-FP_SetupDiGetClassDevs          fpSetupDiGetClassDevs          = NULL;
+FP_SetupDiEnumDeviceInfo        fpSetupDiEnumDeviceInfo = NULL;
+FP_SetupDiGetDeviceInstanceId   fpSetupDiGetDeviceInstanceId = NULL;
+FP_SetupDiGetClassDevs          fpSetupDiGetClassDevs = NULL;
 
 
 // Predefined profiles in order - INF file has 1-based index into this list
 
 
-TCHAR  *gszDispProfiles[] = {
+TCHAR* gszDispProfiles[] = {
     __TEXT("mnB22G15.icm"),                         // 1
     __TEXT("mnB22G18.icm"),                         // 2
     __TEXT("mnB22G21.icm"),                         // 3
@@ -194,9 +194,9 @@ TCHAR  *gszDispProfiles[] = {
     __TEXT("Hitachi Compatible 9300K G2.2.icm"),    // 11
     __TEXT("NEC Compatible 9300K G2.2.icm"),        // 12
     __TEXT("Trinitron Compatible 9300K G2.2.icm"),  // 13
-    };
+};
 
-TCHAR  *gpszClasses[] = {  // different profile classes
+TCHAR* gpszClasses[] = {  // different profile classes
     __TEXT("mntr"),                                 // 0
     __TEXT("prtr"),                                 // 1
     __TEXT("scnr"),                                 // 2
@@ -204,7 +204,7 @@ TCHAR  *gpszClasses[] = {  // different profile classes
     __TEXT("abst"),                                 // 4
     __TEXT("spac"),                                 // 5
     __TEXT("nmcl")                                  // 6
-    };
+};
 
 #define INDEX_CLASS_MONITOR     0
 #define INDEX_CLASS_PRINTER     1
@@ -242,7 +242,7 @@ GetColorDirectoryA(
     PCSTR   pMachineName,
     PSTR    pBuffer,
     PDWORD  pdwSize
-    )
+)
 {
     PWSTR pwszMachineName = NULL;   // Unicode machine name
     PWSTR pwBuffer = NULL;          // Unicode color directory path
@@ -258,8 +258,7 @@ GetColorDirectoryA(
 
     if (!pdwSize ||
         IsBadWritePtr(pdwSize, sizeof(DWORD)) ||
-        (pBuffer && IsBadWritePtr(pBuffer, *pdwSize)))
-    {
+        (pBuffer && IsBadWritePtr(pBuffer, *pdwSize))) {
         WARNING((__TEXT("Invalid parameter to GetColorDirectory\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -269,11 +268,9 @@ GetColorDirectoryA(
     // Convert machine name to Unicode
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToUnicode(pMachineName, &pwszMachineName, TRUE);
-    }
-    else
+    } else
         pwszMachineName = NULL;
 
     dwSize = *pdwSize * sizeof(WCHAR);
@@ -282,11 +279,9 @@ GetColorDirectoryA(
     // Create a buffer to get Unicode directory from system
 
 
-    if (pBuffer && dwSize)
-    {
+    if (pBuffer && dwSize) {
         pwBuffer = (PWSTR)MemAlloc(dwSize);
-        if (! pwBuffer)
-        {
+        if (!pwBuffer) {
             WARNING((__TEXT("Error allocating memory for Unicode string\n")));
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             rc = FALSE;
@@ -302,19 +297,16 @@ GetColorDirectoryA(
     // Convert Unicode path to Ansi
 
 
-    if (pwBuffer)
-    {
+    if (pwBuffer) {
         rc = rc && ConvertToAnsi(pwBuffer, &pBuffer, FALSE);
     }
 
 EndGetColorDirectoryA:
-    if (pwszMachineName)
-    {
+    if (pwszMachineName) {
         MemFree(pwszMachineName);
     }
 
-    if (pwBuffer)
-    {
+    if (pwBuffer) {
         MemFree(pwBuffer);
     }
 
@@ -326,7 +318,7 @@ GetColorDirectoryW(
     PCWSTR   pMachineName,
     PWSTR    pBuffer,
     PDWORD   pdwSize
-    )
+)
 {
     TRACEAPI((__TEXT("GetColorDirectoryW\n")));
 
@@ -344,7 +336,7 @@ GetColorDirectoryA(
     PCSTR   pMachineName,
     PSTR    pBuffer,
     PDWORD  pdwSize
-    )
+)
 {
     TRACEAPI((__TEXT("GetColorDirectoryA\n")));
 
@@ -360,7 +352,7 @@ GetColorDirectoryW(
     PCWSTR   pMachineName,
     PWSTR    pBuffer,
     PDWORD   pdwSize
-    )
+)
 {
     PSTR pszMachineName = NULL;     // Ansi machine name
     PSTR pszBuffer = NULL;          // Ansi color directory path
@@ -375,8 +367,7 @@ GetColorDirectoryW(
 
     if (!pdwSize ||
         IsBadWritePtr(pdwSize, sizeof(DWORD)) ||
-        (pBuffer && IsBadWritePtr(pBuffer, *pdwSize)))
-    {
+        (pBuffer && IsBadWritePtr(pBuffer, *pdwSize))) {
         WARNING((__TEXT("Invalid parameter to GetColorDirectory\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -386,11 +377,9 @@ GetColorDirectoryW(
     // Convert machine name to Ansi
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToAnsi(pMachineName, &pszMachineName, TRUE);
-    }
-    else
+    } else
         pszMachineName = NULL;
 
 
@@ -399,11 +388,9 @@ GetColorDirectoryW(
 
     dwSize = *pdwSize / sizeof(WCHAR);
 
-    if (pBuffer && dwSize)
-    {
+    if (pBuffer && dwSize) {
         pszBuffer = (PSTR)MemAlloc(dwSize);
-        if (! pszBuffer)
-        {
+        if (!pszBuffer) {
             WARNING((__TEXT("Error allocating memory for Ansi string\n")));
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             rc = FALSE;
@@ -419,19 +406,16 @@ GetColorDirectoryW(
     // Convert Ansi path to Unicode
 
 
-    if (pszBuffer)
-    {
+    if (pszBuffer) {
         rc = rc && ConvertToUnicode(pszBuffer, &pBuffer, FALSE);
     }
 
 EndGetColorDirectoryW:
-    if (pszMachineName)
-    {
+    if (pszMachineName) {
         MemFree(pszMachineName);
     }
 
-    if (pszBuffer)
-    {
+    if (pszBuffer) {
         MemFree(pszBuffer);
     }
 
@@ -466,7 +450,7 @@ BOOL  WINAPI
 InstallColorProfileA(
     PCSTR   pMachineName,
     PCSTR   pProfileName
-    )
+)
 
 {
     PWSTR pwszMachineName = NULL;   // Unicode machine name
@@ -479,8 +463,7 @@ InstallColorProfileA(
     // Validate parameters before we touch them
 
 
-    if (!pProfileName)
-    {
+    if (!pProfileName) {
         WARNING((__TEXT("Invalid parameter to InstallColorProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -490,11 +473,9 @@ InstallColorProfileA(
     // Convert machine name to Unicode
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToUnicode(pMachineName, &pwszMachineName, TRUE);
-    }
-    else
+    } else
         pwszMachineName = NULL;
 
 
@@ -513,13 +494,11 @@ InstallColorProfileA(
     // Free memory before leaving
 
 
-    if (pwszProfileName)
-    {
+    if (pwszProfileName) {
         MemFree(pwszProfileName);
     }
 
-    if (pwszMachineName)
-    {
+    if (pwszMachineName) {
         MemFree(pwszMachineName);
     }
 
@@ -531,7 +510,7 @@ BOOL  WINAPI
 InstallColorProfileW(
     PCWSTR   pMachineName,
     PCWSTR   pProfileName
-    )
+)
 {
     TRACEAPI((__TEXT("InstallColorProfileW\n")));
 
@@ -549,7 +528,7 @@ BOOL  WINAPI
 InstallColorProfileA(
     PCSTR   pMachineName,
     PCSTR   pProfileName
-    )
+)
 {
     TRACEAPI((__TEXT("InstallColorProfileA\n")));
 
@@ -565,7 +544,7 @@ BOOL  WINAPI
 InstallColorProfileW(
     PCWSTR   pMachineName,
     PCWSTR   pProfileName
-    )
+)
 {
     PSTR  pszMachineName = NULL;    // Ansi machine name
     PSTR  pszProfileName = NULL;    // Ansi profile name
@@ -577,8 +556,7 @@ InstallColorProfileW(
     // Validate parameters before we touch them
 
 
-    if (!pProfileName)
-    {
+    if (!pProfileName) {
         WARNING((__TEXT("Invalid parameter to InstallColorProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -588,11 +566,9 @@ InstallColorProfileW(
     // Convert machine name to Ansi
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToAnsi(pMachineName, &pszMachineName, TRUE);
-    }
-    else
+    } else
         pszMachineName = NULL;
 
 
@@ -611,13 +587,11 @@ InstallColorProfileW(
     // Free memory before leaving
 
 
-    if (pszProfileName)
-    {
+    if (pszProfileName) {
         MemFree(pszProfileName);
     }
 
-    if (pszMachineName)
-    {
+    if (pszMachineName) {
         MemFree(pszMachineName);
     }
 
@@ -654,7 +628,7 @@ UninstallColorProfileA(
     PCSTR   pMachineName,
     PCSTR   pProfileName,
     BOOL    bDelete
-    )
+)
 {
     PWSTR pwszMachineName = NULL;   // Unicode machine name
     PWSTR pwszProfileName = NULL;   // Unicode profile name
@@ -666,8 +640,7 @@ UninstallColorProfileA(
     // Validate parameters before we touch them
 
 
-    if (!pProfileName)
-    {
+    if (!pProfileName) {
         WARNING((__TEXT("Invalid parameter to UninstallColorProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -677,11 +650,9 @@ UninstallColorProfileA(
     // Convert machine name to Unicode
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToUnicode(pMachineName, &pwszMachineName, TRUE);
-    }
-    else
+    } else
         pwszMachineName = NULL;
 
 
@@ -695,19 +666,17 @@ UninstallColorProfileA(
 
 
     rc = rc && InternalUninstallColorProfile(pwszMachineName, pwszProfileName,
-                    bDelete);
+                                             bDelete);
 
 
     // Free memory before leaving
 
 
-    if (pwszProfileName)
-    {
+    if (pwszProfileName) {
         MemFree(pwszProfileName);
     }
 
-    if (pwszMachineName)
-    {
+    if (pwszMachineName) {
         MemFree(pwszMachineName);
     }
 
@@ -719,7 +688,7 @@ UninstallColorProfileW(
     PCWSTR   pMachineName,
     PCWSTR   pProfileName,
     BOOL     bDelete
-    )
+)
 {
     TRACEAPI((__TEXT("UninstallColorProfileW\n")));
 
@@ -738,7 +707,7 @@ UninstallColorProfileA(
     PCSTR   pMachineName,
     PCSTR   pProfileName,
     BOOL    bDelete
-    )
+)
 {
     TRACEAPI((__TEXT("UninstallColorProfileA\n")));
 
@@ -755,7 +724,7 @@ UninstallColorProfileW(
     PCWSTR   pMachineName,
     PCWSTR   pProfileName,
     BOOL     bDelete
-    )
+)
 {
     PSTR  pszMachineName = NULL;    // Ansi machine name
     PSTR  pszProfileName = NULL;    // Ansi profile name
@@ -767,8 +736,7 @@ UninstallColorProfileW(
     // Validate parameters before we touch them
 
 
-    if (!pProfileName)
-    {
+    if (!pProfileName) {
         WARNING((__TEXT("Invalid parameter to UninstallColorProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -778,11 +746,9 @@ UninstallColorProfileW(
     // Convert machine name to Ansi
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToAnsi(pMachineName, &pszMachineName, TRUE);
-    }
-    else
+    } else
         pszMachineName = NULL;
 
 
@@ -796,19 +762,17 @@ UninstallColorProfileW(
 
 
     rc = rc && InternalUninstallColorProfile(pszMachineName, pszProfileName,
-                    bDelete);
+                                             bDelete);
 
 
     // Free memory before leaving
 
 
-    if (pszProfileName)
-    {
+    if (pszProfileName) {
         MemFree(pszProfileName);
     }
 
-    if (pszMachineName)
-    {
+    if (pszMachineName) {
         MemFree(pszMachineName);
     }
 
@@ -846,7 +810,7 @@ AssociateColorProfileWithDeviceA(
     PCSTR pMachineName,
     PCSTR pProfileName,
     PCSTR pDeviceName
-    )
+)
 {
     PWSTR pwszMachineName = NULL;   // Unicode machine name
     PWSTR pwszProfileName = NULL;   // Unicode profile name
@@ -859,9 +823,8 @@ AssociateColorProfileWithDeviceA(
     // Validate parameters before we touch  them
 
 
-    if (! pProfileName ||
-        ! pDeviceName)
-    {
+    if (!pProfileName ||
+        !pDeviceName) {
         WARNING((__TEXT("Invalid parameter to AssociateColorProfileWithDevice\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -871,11 +834,9 @@ AssociateColorProfileWithDeviceA(
     // Convert machine name to Unicode
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToUnicode(pMachineName, &pwszMachineName, TRUE);
-    }
-    else
+    } else
         pwszMachineName = NULL;
 
 
@@ -895,24 +856,21 @@ AssociateColorProfileWithDeviceA(
 
 
     rc = rc && InternalAssociateColorProfileWithDevice(pwszMachineName,
-                pwszProfileName, pwszDeviceName);
+                                                       pwszProfileName, pwszDeviceName);
 
 
     // Free memory before leaving
 
 
-    if (pwszProfileName)
-    {
+    if (pwszProfileName) {
         MemFree(pwszProfileName);
     }
 
-    if (pwszMachineName)
-    {
+    if (pwszMachineName) {
         MemFree(pwszMachineName);
     }
 
-    if (pwszDeviceName)
-    {
+    if (pwszDeviceName) {
         MemFree(pwszDeviceName);
     }
 
@@ -925,7 +883,7 @@ AssociateColorProfileWithDeviceW(
     PCWSTR pMachineName,
     PCWSTR pProfileName,
     PCWSTR pDeviceName
-    )
+)
 {
     TRACEAPI((__TEXT("AssociateColorProfileWithDeviceW\n")));
 
@@ -934,7 +892,7 @@ AssociateColorProfileWithDeviceW(
 
 
     return InternalAssociateColorProfileWithDevice(pMachineName,
-                pProfileName, pDeviceName);
+                                                   pProfileName, pDeviceName);
 }
 
 
@@ -945,7 +903,7 @@ AssociateColorProfileWithDeviceA(
     PCSTR pMachineName,
     PCSTR pProfileName,
     PCSTR pDeviceName
-    )
+)
 {
     TRACEAPI((__TEXT("AssociateColorProfileWithDeviceA\n")));
 
@@ -954,7 +912,7 @@ AssociateColorProfileWithDeviceA(
 
 
     return InternalAssociateColorProfileWithDevice(pMachineName,
-                pProfileName, pDeviceName);
+                                                   pProfileName, pDeviceName);
 }
 
 
@@ -963,7 +921,7 @@ AssociateColorProfileWithDeviceW(
     PCWSTR pMachineName,
     PCWSTR pProfileName,
     PCWSTR pDeviceName
-    )
+)
 {
     PSTR  pszMachineName = NULL;    // Ansi machine name
     PSTR  pszProfileName = NULL;    // Ansi profile name
@@ -976,9 +934,8 @@ AssociateColorProfileWithDeviceW(
     // Validate parameters before we touch them
 
 
-    if (! pProfileName ||
-        ! pDeviceName)
-    {
+    if (!pProfileName ||
+        !pDeviceName) {
         WARNING((__TEXT("Invalid parameter to AssociateColorProfileWithDevice\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -988,11 +945,9 @@ AssociateColorProfileWithDeviceW(
     // Convert machine name to Ansi
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToAnsi(pMachineName, &pszMachineName, TRUE);
-    }
-    else
+    } else
         pszMachineName = NULL;
 
 
@@ -1012,24 +967,21 @@ AssociateColorProfileWithDeviceW(
 
 
     rc = rc && InternalAssociateColorProfileWithDevice(pszMachineName,
-                pszProfileName, pszDeviceName);
+                                                       pszProfileName, pszDeviceName);
 
 
     // Free memory before leaving
 
 
-    if (pszProfileName)
-    {
+    if (pszProfileName) {
         MemFree(pszProfileName);
     }
 
-    if (pszMachineName)
-    {
+    if (pszMachineName) {
         MemFree(pszMachineName);
     }
 
-    if (pszDeviceName)
-    {
+    if (pszDeviceName) {
         MemFree(pszDeviceName);
     }
 
@@ -1066,7 +1018,7 @@ DisassociateColorProfileFromDeviceA(
     PCSTR pMachineName,
     PCSTR pProfileName,
     PCSTR pDeviceName
-    )
+)
 {
     PWSTR pwszMachineName = NULL;   // Unicode machine name
     PWSTR pwszProfileName = NULL;   // Unicode profile name
@@ -1079,9 +1031,8 @@ DisassociateColorProfileFromDeviceA(
     // Validate parameters before we touch  them
 
 
-    if (! pProfileName ||
-        ! pDeviceName)
-    {
+    if (!pProfileName ||
+        !pDeviceName) {
         WARNING((__TEXT("Invalid parameter to DisassociateColorProfileFromDevice\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -1091,11 +1042,9 @@ DisassociateColorProfileFromDeviceA(
     // Convert machine name to Unicode
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToUnicode(pMachineName, &pwszMachineName, TRUE);
-    }
-    else
+    } else
         pwszMachineName = NULL;
 
 
@@ -1115,24 +1064,21 @@ DisassociateColorProfileFromDeviceA(
 
 
     rc = rc && InternalDisassociateColorProfileFromDevice(pwszMachineName,
-                pwszProfileName, pwszDeviceName);
+                                                          pwszProfileName, pwszDeviceName);
 
 
     // Free memory before leaving
 
 
-    if (pwszProfileName)
-    {
+    if (pwszProfileName) {
         MemFree(pwszProfileName);
     }
 
-    if (pwszMachineName)
-    {
+    if (pwszMachineName) {
         MemFree(pwszMachineName);
     }
 
-    if (pwszDeviceName)
-    {
+    if (pwszDeviceName) {
         MemFree(pwszDeviceName);
     }
 
@@ -1145,7 +1091,7 @@ DisassociateColorProfileFromDeviceW(
     PCWSTR pMachineName,
     PCWSTR pProfileName,
     PCWSTR pDeviceName
-    )
+)
 {
     TRACEAPI((__TEXT("DisassociateColorProfileWithDeviceW\n")));
 
@@ -1154,7 +1100,7 @@ DisassociateColorProfileFromDeviceW(
 
 
     return InternalDisassociateColorProfileFromDevice(pMachineName,
-                pProfileName, pDeviceName);
+                                                      pProfileName, pDeviceName);
 }
 
 
@@ -1165,7 +1111,7 @@ DisassociateColorProfileFromDeviceA(
     PCSTR pMachineName,
     PCSTR pProfileName,
     PCSTR pDeviceName
-    )
+)
 {
     TRACEAPI((__TEXT("DisassociateColorProfileWithDeviceA\n")));
 
@@ -1174,7 +1120,7 @@ DisassociateColorProfileFromDeviceA(
 
 
     return InternalDisassociateColorProfileFromDevice(pMachineName,
-                pProfileName, pDeviceName);
+                                                      pProfileName, pDeviceName);
 }
 
 
@@ -1183,7 +1129,7 @@ DisassociateColorProfileFromDeviceW(
     PCWSTR pMachineName,
     PCWSTR pProfileName,
     PCWSTR pDeviceName
-    )
+)
 {
     PSTR  pszMachineName = NULL;    // Ansi machine name
     PSTR  pszProfileName = NULL;    // Ansi profile name
@@ -1196,9 +1142,8 @@ DisassociateColorProfileFromDeviceW(
     // Validate parameters before we touch them
 
 
-    if (! pProfileName ||
-        ! pDeviceName)
-    {
+    if (!pProfileName ||
+        !pDeviceName) {
         WARNING((__TEXT("Invalid parameter to AssociateColorProfileWithDevice\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -1208,11 +1153,9 @@ DisassociateColorProfileFromDeviceW(
     // Convert machine name to Ansi
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToAnsi(pMachineName, &pszMachineName, TRUE);
-    }
-    else
+    } else
         pszMachineName = NULL;
 
 
@@ -1232,24 +1175,21 @@ DisassociateColorProfileFromDeviceW(
 
 
     rc = rc && InternalDisassociateColorProfileFromDevice(pszMachineName,
-                pszProfileName, pszDeviceName);
+                                                          pszProfileName, pszDeviceName);
 
 
     // Free memory before leaving
 
 
-    if (pszProfileName)
-    {
+    if (pszProfileName) {
         MemFree(pszProfileName);
     }
 
-    if (pszMachineName)
-    {
+    if (pszMachineName) {
         MemFree(pszMachineName);
     }
 
-    if (pszDeviceName)
-    {
+    if (pszDeviceName) {
         MemFree(pszDeviceName);
     }
 
@@ -1293,7 +1233,7 @@ EnumColorProfilesA(
     PBYTE      pBuffer,
     PDWORD     pdwSize,
     PDWORD     pnProfiles
-    )
+)
 {
     PWSTR pwszMachineName = NULL;   // Unicode machine name
     PWSTR pwszDeviceName = NULL;    // Unicode device name
@@ -1311,13 +1251,13 @@ EnumColorProfilesA(
     // Validate parameters before we touch them
 
 
-    if (! pdwSize ||
+    if (!pdwSize ||
         IsBadWritePtr(pdwSize, sizeof(DWORD)) ||
         (pBuffer && IsBadWritePtr(pBuffer, *pdwSize)) ||
-        ! pEnumRecord ||
-        IsBadReadPtr(pEnumRecord, sizeof(DWORD)*3))   // probe until ENUMTYPE.dwFields
+        !pEnumRecord ||
+        IsBadReadPtr(pEnumRecord, sizeof(DWORD) * 3))   // probe until ENUMTYPE.dwFields
     {
-ParameterError_EnumColorProfilesA:
+    ParameterError_EnumColorProfilesA:
         WARNING((__TEXT("Invalid parameter to EnumColorProfiles\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -1328,16 +1268,13 @@ ParameterError_EnumColorProfilesA:
 
 
     dwSizeOfStruct = pEnumRecord->dwSize;
-    dwVersion      = pEnumRecord->dwVersion;
+    dwVersion = pEnumRecord->dwVersion;
 
-    if (dwVersion >= ENUM_TYPE_VERSION)
-    {
+    if (dwVersion >= ENUM_TYPE_VERSION) {
         if (dwSizeOfStruct < sizeof(ENUMTYPE))
             goto ParameterError_EnumColorProfilesA;
-    }
-    else if (dwVersion == 0x0200)
-    {
-        if (dwSizeOfStruct < sizeof(ENUMTYPE)-sizeof(DWORD))
+    } else if (dwVersion == 0x0200) {
+        if (dwSizeOfStruct < sizeof(ENUMTYPE) - sizeof(DWORD))
             goto ParameterError_EnumColorProfilesA;
 
 
@@ -1348,14 +1285,11 @@ ParameterError_EnumColorProfilesA:
             goto ParameterError_EnumColorProfilesA;
 
         WARNING((__TEXT("Old version ENUMTYPE to EnumColorProfiles\n")));
-    }
-    else
-    {
+    } else {
         goto ParameterError_EnumColorProfilesA;
     }
 
-    if (IsBadReadPtr(pEnumRecord, dwSizeOfStruct))
-    {
+    if (IsBadReadPtr(pEnumRecord, dwSizeOfStruct)) {
         goto ParameterError_EnumColorProfilesA;
     }
 
@@ -1363,21 +1297,17 @@ ParameterError_EnumColorProfilesA:
     // Convert machine name to Unicode
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToUnicode(pMachineName, &pwszMachineName, TRUE);
-    }
-    else
+    } else
         pwszMachineName = NULL;
 
 
     // If device name is specified, convert it to Unicode
 
 
-    if (pEnumRecord->dwFields & ET_DEVICENAME)
-    {
-        if (! pEnumRecord->pDeviceName)
-        {
+    if (pEnumRecord->dwFields & ET_DEVICENAME) {
+        if (!pEnumRecord->pDeviceName) {
             WARNING((__TEXT("Invalid parameter to EnumColorProfiles\n")));
             SetLastError(ERROR_INVALID_PARAMETER);
             rc = FALSE;
@@ -1390,7 +1320,7 @@ ParameterError_EnumColorProfilesA:
 
         pAnsiDeviceName = (PSTR)pEnumRecord->pDeviceName;
         rc = rc && ConvertToUnicode(pAnsiDeviceName, &pwszDeviceName, TRUE);
-        pEnumRecord->pDeviceName = (PSTR) pwszDeviceName;
+        pEnumRecord->pDeviceName = (PSTR)pwszDeviceName;
     }
 
     dwSize = *pdwSize * sizeof(WCHAR);
@@ -1399,11 +1329,9 @@ ParameterError_EnumColorProfilesA:
     // Allocate buffer of suitable size
 
 
-    if (pBuffer && dwSize)
-    {
+    if (pBuffer && dwSize) {
         pwBuffer = MemAlloc(dwSize);
-        if (! pwBuffer)
-        {
+        if (!pwBuffer) {
             WARNING((__TEXT("Error allocating memory for Unicode buffer\n")));
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             rc = FALSE;
@@ -1416,16 +1344,14 @@ ParameterError_EnumColorProfilesA:
 
 
     rc = rc && InternalEnumColorProfiles(pwszMachineName,
-                (PENUMTYPEW)pEnumRecord, (PBYTE)pwBuffer, &dwSize, pnProfiles);
+        (PENUMTYPEW)pEnumRecord, (PBYTE)pwBuffer, &dwSize, pnProfiles);
 
-    if (pwBuffer && rc)
-    {
+    if (pwBuffer && rc) {
         pwTempBuffer = pwBuffer;
-        while (*pwTempBuffer)
-        {
-            rc = rc && ConvertToAnsi(pwTempBuffer, (PSTR *)&pBuffer, FALSE);
+        while (*pwTempBuffer) {
+            rc = rc && ConvertToAnsi(pwTempBuffer, (PSTR*)&pBuffer, FALSE);
             pwTempBuffer += lstrlenW(pwTempBuffer) + 1;
-            pBuffer  += (lstrlenA((PSTR)pBuffer) + 1) * sizeof(char);
+            pBuffer += (lstrlenA((PSTR)pBuffer) + 1) * sizeof(char);
         }
 
         *((PSTR)pBuffer) = '\0';
@@ -1434,19 +1360,16 @@ ParameterError_EnumColorProfilesA:
     *pdwSize = dwSize / sizeof(WCHAR);
 
 EndEnumColorProfilesA:
-    if (pwszMachineName)
-    {
+    if (pwszMachineName) {
         MemFree(pwszMachineName);
     }
-    if (pAnsiDeviceName)
-    {
+    if (pAnsiDeviceName) {
         ASSERT(pEnumRecord->pDeviceName != NULL);
 
         MemFree((PBYTE)pEnumRecord->pDeviceName);
         pEnumRecord->pDeviceName = (PCSTR)pAnsiDeviceName;
     }
-    if (pwBuffer)
-    {
+    if (pwBuffer) {
         MemFree(pwBuffer);
     }
 
@@ -1461,7 +1384,7 @@ EnumColorProfilesW(
     PBYTE      pBuffer,
     PDWORD     pdwSize,
     PDWORD     pnProfiles
-    )
+)
 {
     TRACEAPI((__TEXT("EnumColorProfilesW\n")));
 
@@ -1470,7 +1393,7 @@ EnumColorProfilesW(
 
 
     return InternalEnumColorProfiles(pMachineName, pEnumRecord,
-        pBuffer, pdwSize, pnProfiles);
+                                     pBuffer, pdwSize, pnProfiles);
 }
 
 #else                           // Windows 95 versions
@@ -1482,7 +1405,7 @@ EnumColorProfilesA(
     PBYTE      pBuffer,
     PDWORD     pdwSize,
     PDWORD     pnProfiles
-    )
+)
 {
     TRACEAPI((__TEXT("EnumColorProfilesA\n")));
 
@@ -1491,7 +1414,7 @@ EnumColorProfilesA(
 
 
     return InternalEnumColorProfiles(pMachineName, pEnumRecord,
-        pBuffer, pdwSize, pnProfiles);
+                                     pBuffer, pdwSize, pnProfiles);
 }
 
 
@@ -1502,7 +1425,7 @@ EnumColorProfilesW(
     PBYTE      pBuffer,
     PDWORD     pdwSize,
     PDWORD     pnProfiles
-    )
+)
 {
     PSTR  pszMachineName = NULL;    // Ansi machine name
     PSTR  pszDeviceName = NULL;     // Ansi device name
@@ -1520,13 +1443,13 @@ EnumColorProfilesW(
     // Validate parameters before we touch them
 
 
-    if (! pdwSize ||
+    if (!pdwSize ||
         IsBadWritePtr(pdwSize, sizeof(DWORD)) ||
         (pBuffer && IsBadWritePtr(pBuffer, *pdwSize)) ||
-        ! pEnumRecord ||
-        IsBadReadPtr(pEnumRecord, sizeof(DWORD)*3))   // probe until ENUMTYPE.dwFields
+        !pEnumRecord ||
+        IsBadReadPtr(pEnumRecord, sizeof(DWORD) * 3))   // probe until ENUMTYPE.dwFields
     {
-ParameterError_EnumColorProfilesW:
+    ParameterError_EnumColorProfilesW:
         WARNING((__TEXT("Invalid parameter to EnumColorProfiles\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -1537,16 +1460,13 @@ ParameterError_EnumColorProfilesW:
 
 
     dwSizeOfStruct = pEnumRecord->dwSize;
-    dwVersion      = pEnumRecord->dwVersion;
+    dwVersion = pEnumRecord->dwVersion;
 
-    if (dwVersion >= ENUM_TYPE_VERSION)
-    {
+    if (dwVersion >= ENUM_TYPE_VERSION) {
         if (dwSizeOfStruct < sizeof(ENUMTYPE))
             goto ParameterError_EnumColorProfilesW;
-    }
-    else if (dwVersion == 0x0200)
-    {
-        if (dwSizeOfStruct < sizeof(ENUMTYPE)-sizeof(DWORD))
+    } else if (dwVersion == 0x0200) {
+        if (dwSizeOfStruct < sizeof(ENUMTYPE) - sizeof(DWORD))
             goto ParameterError_EnumColorProfilesW;
 
 
@@ -1557,14 +1477,11 @@ ParameterError_EnumColorProfilesW:
             goto ParameterError_EnumColorProfilesW;
 
         WARNING((__TEXT("Old version ENUMTYPE to EnumColorProfiles\n")));
-    }
-    else
-    {
+    } else {
         goto ParameterError_EnumColorProfilesW;
     }
 
-    if (IsBadReadPtr(pEnumRecord, dwSizeOfStruct))
-    {
+    if (IsBadReadPtr(pEnumRecord, dwSizeOfStruct)) {
         goto ParameterError_EnumColorProfilesW;
     }
 
@@ -1572,8 +1489,7 @@ ParameterError_EnumColorProfilesW:
     // Convert machine name to Ansi
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToAnsi(pMachineName, &pszMachineName, TRUE);
     }
 
@@ -1581,10 +1497,8 @@ ParameterError_EnumColorProfilesW:
     // If device name is specified, convert it to Unicode
 
 
-    if (pEnumRecord->dwFields & ET_DEVICENAME)
-    {
-        if (! pEnumRecord->pDeviceName)
-        {
+    if (pEnumRecord->dwFields & ET_DEVICENAME) {
+        if (!pEnumRecord->pDeviceName) {
             WARNING((__TEXT("Invalid parameter to EnumColorProfiles\n")));
             SetLastError(ERROR_INVALID_PARAMETER);
             goto EndEnumColorProfilesW;
@@ -1596,7 +1510,7 @@ ParameterError_EnumColorProfilesW:
 
         pUnicodeDeviceName = (PWSTR)pEnumRecord->pDeviceName;
         rc = rc && ConvertToAnsi(pUnicodeDeviceName, &pszDeviceName, TRUE);
-        pEnumRecord->pDeviceName = (PCWSTR) pszDeviceName;
+        pEnumRecord->pDeviceName = (PCWSTR)pszDeviceName;
     }
 
     dwSize = *pdwSize / sizeof(WCHAR);
@@ -1605,11 +1519,9 @@ ParameterError_EnumColorProfilesW:
     // Allocate buffer of suitable size
 
 
-    if (pBuffer && dwSize)
-    {
+    if (pBuffer && dwSize) {
         pszBuffer = MemAlloc(dwSize);
-        if (! pszBuffer)
-        {
+        if (!pszBuffer) {
             WARNING((__TEXT("Error allocating memory for Ansi buffer\n")));
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             rc = FALSE;
@@ -1622,16 +1534,14 @@ ParameterError_EnumColorProfilesW:
 
 
     rc = rc && InternalEnumColorProfiles(pszMachineName,
-                (PENUMTYPEA)pEnumRecord, (PBYTE)pszBuffer, &dwSize, pnProfiles);
+        (PENUMTYPEA)pEnumRecord, (PBYTE)pszBuffer, &dwSize, pnProfiles);
 
-    if (pszBuffer && rc)
-    {
+    if (pszBuffer && rc) {
         pszTempBuffer = pszBuffer;
-        while (*pszTempBuffer)
-        {
-            rc = rc && ConvertToUnicode(pszTempBuffer, (PWSTR *)&pBuffer, FALSE);
+        while (*pszTempBuffer) {
+            rc = rc && ConvertToUnicode(pszTempBuffer, (PWSTR*)&pBuffer, FALSE);
             pszTempBuffer += lstrlenA(pszTempBuffer) + 1;
-            pBuffer   += (lstrlenW((PWSTR)pBuffer) + 1) * sizeof(WCHAR);
+            pBuffer += (lstrlenW((PWSTR)pBuffer) + 1) * sizeof(WCHAR);
         }
 
         *((PWSTR)pBuffer) = '\0';
@@ -1639,19 +1549,16 @@ ParameterError_EnumColorProfilesW:
     *pdwSize = dwSize * sizeof(WCHAR);
 
 EndEnumColorProfilesW:
-    if (pszMachineName)
-    {
+    if (pszMachineName) {
         MemFree(pszMachineName);
     }
-    if (pUnicodeDeviceName)
-    {
+    if (pUnicodeDeviceName) {
         ASSERT(pEnumRecord->pDeviceName != NULL);
 
         MemFree((PSTR)pEnumRecord->pDeviceName);
         pEnumRecord->pDeviceName = (PCWSTR)pUnicodeDeviceName;
     }
-    if (pszBuffer)
-    {
+    if (pszBuffer) {
         MemFree(pszBuffer);
     }
 
@@ -1688,7 +1595,7 @@ SetStandardColorSpaceProfileA(
     PCSTR   pMachineName,
     DWORD   dwSCS,
     PCSTR   pProfileName
-    )
+)
 {
     PWSTR pwszMachineName = NULL;   // Unicode machine name
     PWSTR pwszProfileName = NULL;   // Unicode profile name
@@ -1700,8 +1607,7 @@ SetStandardColorSpaceProfileA(
     // Validate parameters before we touch them
 
 
-    if (! pProfileName)
-    {
+    if (!pProfileName) {
         WARNING((__TEXT("Invalid parameter to SetStandardColorSpaceProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -1711,11 +1617,9 @@ SetStandardColorSpaceProfileA(
     // Convert machine name to Unicode
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToUnicode(pMachineName, &pwszMachineName, TRUE);
-    }
-    else
+    } else
         pwszMachineName = NULL;
 
 
@@ -1734,13 +1638,11 @@ SetStandardColorSpaceProfileA(
     // Free memory before leaving
 
 
-    if (pwszProfileName)
-    {
+    if (pwszProfileName) {
         MemFree(pwszProfileName);
     }
 
-    if (pwszMachineName)
-    {
+    if (pwszMachineName) {
         MemFree(pwszMachineName);
     }
 
@@ -1752,7 +1654,7 @@ SetStandardColorSpaceProfileW(
     PCWSTR   pMachineName,
     DWORD    dwSCS,
     PCWSTR   pProfileName
-    )
+)
 {
     TRACEAPI((__TEXT("SetStandardColorSpaceProfileW\n")));
 
@@ -1770,7 +1672,7 @@ SetStandardColorSpaceProfileA(
     PCSTR   pMachineName,
     DWORD   dwSCS,
     PCSTR   pProfileName
-    )
+)
 {
     TRACEAPI((__TEXT("SetStandardColorSpaceProfileA\n")));
 
@@ -1786,7 +1688,7 @@ SetStandardColorSpaceProfileW(
     PCWSTR   pMachineName,
     DWORD    dwSCS,
     PCWSTR   pProfileName
-    )
+)
 {
     PSTR  pszMachineName = NULL;    // Ansi machine name
     PSTR  pszProfileName = NULL;    // Ansi profile name
@@ -1798,8 +1700,7 @@ SetStandardColorSpaceProfileW(
     // Validate parameters before we touch them
 
 
-    if (! pProfileName)
-    {
+    if (!pProfileName) {
         WARNING((__TEXT("Invalid parameter to SetStandardColorSpaceProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -1809,11 +1710,9 @@ SetStandardColorSpaceProfileW(
     // Convert machine name to Ansi
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToAnsi(pMachineName, &pszMachineName, TRUE);
-    }
-    else
+    } else
         pszMachineName = NULL;
 
 
@@ -1832,13 +1731,11 @@ SetStandardColorSpaceProfileW(
     // Free memory before leaving
 
 
-    if (pszProfileName)
-    {
+    if (pszProfileName) {
         MemFree(pszProfileName);
     }
 
-    if (pszMachineName)
-    {
+    if (pszMachineName) {
         MemFree(pszMachineName);
     }
 
@@ -1878,7 +1775,7 @@ GetStandardColorSpaceProfileA(
     DWORD   dwSCS,
     PSTR    pBuffer,
     PDWORD  pdwSize
-    )
+)
 {
     PWSTR pwszMachineName = NULL;   // Unicode machine name
     PWSTR pwBuffer = NULL;          // Unicode color directory path
@@ -1891,10 +1788,9 @@ GetStandardColorSpaceProfileA(
     // Validate parameters before we touch them
 
 
-    if (! pdwSize ||
+    if (!pdwSize ||
         IsBadWritePtr(pdwSize, sizeof(DWORD)) ||
-        (pBuffer && IsBadWritePtr(pBuffer, *pdwSize)))
-    {
+        (pBuffer && IsBadWritePtr(pBuffer, *pdwSize))) {
         WARNING((__TEXT("Invalid parameter to GetStandardColorSpaceProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -1904,11 +1800,9 @@ GetStandardColorSpaceProfileA(
     // Convert machine name to Unicode
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToUnicode(pMachineName, &pwszMachineName, TRUE);
-    }
-    else
+    } else
         pwszMachineName = NULL;
 
     dwSize = *pdwSize * sizeof(WCHAR);
@@ -1917,11 +1811,9 @@ GetStandardColorSpaceProfileA(
     // Create a buffer to get Unicode filename from system
 
 
-    if (pBuffer && dwSize)
-    {
+    if (pBuffer && dwSize) {
         pwBuffer = (PWSTR)MemAlloc(dwSize);
-        if (! pwBuffer)
-        {
+        if (!pwBuffer) {
             WARNING((__TEXT("Error allocating memory for Unicode string\n")));
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             rc = FALSE;
@@ -1937,19 +1829,16 @@ GetStandardColorSpaceProfileA(
     // Convert Unicode path to Ansi
 
 
-    if (pwBuffer)
-    {
+    if (pwBuffer) {
         rc = rc && ConvertToAnsi(pwBuffer, &pBuffer, FALSE);
     }
 
 EndGetSCSProfileA:
-    if (pwszMachineName)
-    {
+    if (pwszMachineName) {
         MemFree(pwszMachineName);
     }
 
-    if (pwBuffer)
-    {
+    if (pwBuffer) {
         MemFree(pwBuffer);
     }
 
@@ -1962,7 +1851,7 @@ GetStandardColorSpaceProfileW(
     DWORD    dwSCS,
     PWSTR    pBuffer,
     PDWORD   pdwSize
-    )
+)
 {
     TRACEAPI((__TEXT("GetStandardColorSpaceProfileW\n")));
 
@@ -1981,7 +1870,7 @@ GetStandardColorSpaceProfileA(
     DWORD   dwSCS,
     PSTR    pBuffer,
     PDWORD  pdwSize
-    )
+)
 {
     TRACEAPI((__TEXT("GetStandardColorSpaceProfileA\n")));
 
@@ -1998,7 +1887,7 @@ GetStandardColorSpaceProfileW(
     DWORD    dwSCS,
     PWSTR    pBuffer,
     PDWORD   pdwSize
-    )
+)
 {
     PSTR pszMachineName = NULL;     // Ansi machine name
     PSTR pszBuffer = NULL;          // Ansi color directory path
@@ -2011,10 +1900,9 @@ GetStandardColorSpaceProfileW(
     // Validate parameters before we touch them
 
 
-    if (! pdwSize ||
+    if (!pdwSize ||
         IsBadWritePtr(pdwSize, sizeof(DWORD)) ||
-        (pBuffer && IsBadWritePtr(pBuffer, *pdwSize)))
-    {
+        (pBuffer && IsBadWritePtr(pBuffer, *pdwSize))) {
         WARNING((__TEXT("Invalid parameter to GetStandardColorSpaceProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -2024,11 +1912,9 @@ GetStandardColorSpaceProfileW(
     // Convert machine name to Ansi
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         rc = ConvertToAnsi(pMachineName, &pszMachineName, TRUE);
-    }
-    else
+    } else
         pszMachineName = NULL;
 
     dwSize = *pdwSize / sizeof(WCHAR);
@@ -2037,11 +1923,9 @@ GetStandardColorSpaceProfileW(
     // Create a buffer to get Ansi profilename from system
 
 
-    if (pBuffer && dwSize)
-    {
+    if (pBuffer && dwSize) {
         pszBuffer = (PSTR)MemAlloc(dwSize);
-        if (! pBuffer)
-        {
+        if (!pBuffer) {
             WARNING((__TEXT("Error allocating memory for Ansi string\n")));
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             rc = FALSE;
@@ -2057,19 +1941,16 @@ GetStandardColorSpaceProfileW(
     // Convert Ansi path to Unicode
 
 
-    if (pszBuffer)
-    {
+    if (pszBuffer) {
         rc = rc && ConvertToUnicode(pszBuffer, &pBuffer, FALSE);
     }
 
 EndGetSCSProfileW:
-    if (pszMachineName)
-    {
+    if (pszMachineName) {
         MemFree(pszMachineName);
     }
 
-    if (pszBuffer)
-    {
+    if (pszBuffer) {
         MemFree(pszBuffer);
     }
 
@@ -2109,7 +1990,7 @@ GenerateCopyFilePaths(
     LPWSTR      pszTargetDir,
     LPDWORD     pcchTargetDirSize,
     DWORD       dwFlags
-    )
+)
 {
     TRACEAPI((__TEXT("GenerateCopyFilePaths\n")));
     return ERROR_SUCCESS;
@@ -2143,7 +2024,7 @@ SpoolerCopyFileEvent(
     LPWSTR  pszPrinterName,
     LPWSTR  pszKey,
     DWORD   dwCopyFileEvent
-    )
+)
 {
     PTSTR pProfileList, pTemp, pBuffer;
     DWORD dwSize;
@@ -2152,8 +2033,7 @@ SpoolerCopyFileEvent(
 
     TRACEAPI((__TEXT("SpoolerCopyFileEvent\n")));
 
-    switch (dwCopyFileEvent)
-    {
+    switch (dwCopyFileEvent) {
     case COPYFILE_EVENT_SET_PRINTER_DATAEX:
 
 
@@ -2177,29 +2057,23 @@ SpoolerCopyFileEvent(
         // the client machine now.
 
 
-        #ifdef DBG
-        if (dwCopyFileEvent == COPYFILE_EVENT_ADD_PRINTER_CONNECTION)
-        {
+#ifdef DBG
+        if (dwCopyFileEvent == COPYFILE_EVENT_ADD_PRINTER_CONNECTION) {
             WARNING((__TEXT("AddPrinterConnection Event\n")));
-        }
-        else  if (dwCopyFileEvent == COPYFILE_EVENT_FILES_CHANGED)
-        {
+        } else  if (dwCopyFileEvent == COPYFILE_EVENT_FILES_CHANGED) {
             WARNING((__TEXT("FilesChanged Event\n")));
         }
-        #endif
+#endif
 
         dwSize = 0;
         if (GetDeviceData((PTSTR)pszPrinterName, CLASS_PRINTER, DEVICE_PROFILE_DATA,
-                          (PVOID *)&pProfileList, &dwSize, TRUE))
-        {
+            (PVOID*)&pProfileList, &dwSize, TRUE)) {
             dwSize = sizeof(szPath);
-            if (InternalGetColorDirectory(NULL, szPath, &dwSize))
-            {
+            if (InternalGetColorDirectory(NULL, szPath, &dwSize)) {
                 lstrcat(szPath, gszBackslash);
                 pBuffer = szPath + lstrlen(szPath);
                 pTemp = pProfileList;
-                while (*pTemp)
-                {
+                while (*pTemp) {
                     lstrcpy(pBuffer, pTemp);
                     InstallColorProfile(NULL, szPath);
                     pTemp += lstrlen(pTemp) + 1;
@@ -2222,11 +2096,9 @@ SpoolerCopyFileEvent(
 
         dwSize = 0;
         if (GetDeviceData((PTSTR)pszPrinterName, CLASS_PRINTER, DEVICE_PROFILE_DATA,
-                          (PVOID *)&pProfileList, &dwSize, TRUE))
-        {
+            (PVOID*)&pProfileList, &dwSize, TRUE)) {
             pTemp = pProfileList;
-            while (*pTemp)
-            {
+            while (*pTemp) {
                 DisassociateColorProfileFromDevice(NULL, pTemp, (PTSTR)pszPrinterName);
                 pTemp += lstrlen(pTemp) + 1;
             }
@@ -2273,8 +2145,8 @@ BOOL
 InternalGetColorDirectory(
     LPCTSTR  pMachineName,
     PTSTR    pBuffer,
-    DWORD   *pdwSize
-    )
+    DWORD* pdwSize
+)
 {
     DWORD dwBufLen = *pdwSize;      // size supplied
     BOOL  rc = FALSE;               // return value
@@ -2287,14 +2159,12 @@ InternalGetColorDirectory(
 
     DWORD dwNeeded;                 // size needed
 
-    if (!pBuffer && pdwSize && !IsBadWritePtr(pdwSize, sizeof(DWORD)))
-    {
+    if (!pBuffer && pdwSize && !IsBadWritePtr(pdwSize, sizeof(DWORD))) {
         *pdwSize = 0;
     }
 
     if (GetPrinterDriverDirectory((PTSTR)pMachineName, NULL, 1, (PBYTE)pBuffer,
-        *pdwSize, pdwSize))
-    {
+                                  *pdwSize, pdwSize)) {
 
         // This API returns the print$ path appended with the environment
         // directory. e.g. c:\winnt\system32\spool\drivers\w32x86. So we need
@@ -2305,7 +2175,7 @@ InternalGetColorDirectory(
 
         pDriverDir = GetFilenameFromPath(pBuffer);
 
-        ASSERT (pDriverDir != NULL);
+        ASSERT(pDriverDir != NULL);
 
         *pdwSize -= lstrlen(pDriverDir) * sizeof(WCHAR);
 
@@ -2316,8 +2186,7 @@ InternalGetColorDirectory(
 
 
         dwNeeded = *pdwSize + lstrlen(gszColorDir) * sizeof(WCHAR);
-        if (pBuffer[lstrlen(pBuffer) - 1] != '\\')
-        {
+        if (pBuffer[lstrlen(pBuffer) - 1] != '\\') {
             dwNeeded += sizeof(WCHAR);
         }
 
@@ -2331,53 +2200,41 @@ InternalGetColorDirectory(
         // If supplied buffer is big enough, append our stuff
 
 
-        if (dwNeeded <= dwBufLen)
-        {
-            if (pBuffer[lstrlen(pBuffer) - 1] != '\\')
-            {
+        if (dwNeeded <= dwBufLen) {
+            if (pBuffer[lstrlen(pBuffer) - 1] != '\\') {
                 lstrcat(pBuffer, gszBackslash);
             }
 
             lstrcat(pBuffer, gszColorDir);
 
             rc = TRUE;
-        }
-        else
-        {
+        } else {
             WARNING((__TEXT("Input buffer to GetColorDirectory not big enough\n")));
             SetLastError(ERROR_INSUFFICIENT_BUFFER);
         }
-    }
-    else if (GetLastError() == ERROR_INVALID_USER_BUFFER)
-    {
+    } else if (GetLastError() == ERROR_INVALID_USER_BUFFER) {
 
         // Spooler sets this error if buffer is NULL. Map it to our error
 
 
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
-    }
-    else if (GetLastError() == RPC_S_SERVER_UNAVAILABLE)
-    {
+    } else if (GetLastError() == RPC_S_SERVER_UNAVAILABLE) {
         TCHAR achTempPath[MAX_PATH * 2]; // Make sure enough path space.
 
 
         // Spooler service is not running. Use hardcoded path
 
 
-        if (GetSystemDirectory(achTempPath,MAX_PATH) != 0)
-        {
-            _tcscat(achTempPath,TEXT("\\spool\\drivers\\color"));
+        if (GetSystemDirectory(achTempPath, MAX_PATH) != 0) {
+            _tcscat(achTempPath, TEXT("\\spool\\drivers\\color"));
 
             *pdwSize = wcslen(achTempPath) + 1;
 
-            if (pBuffer && (*pdwSize <= dwBufLen))
-            {
-                _tcscpy(pBuffer,achTempPath);
+            if (pBuffer && (*pdwSize <= dwBufLen)) {
+                _tcscpy(pBuffer, achTempPath);
 
                 rc = TRUE;
-            }
-            else
-            {
+            } else {
                 WARNING((__TEXT("Input buffer to GetColorDirectory not big enough\n")));
                 SetLastError(ERROR_INSUFFICIENT_BUFFER);
             }
@@ -2393,8 +2250,7 @@ InternalGetColorDirectory(
     // Only local color directory query is allowed in Memphis
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         WARNING((__TEXT("Remote color directory query, failing...\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -2407,24 +2263,20 @@ InternalGetColorDirectory(
     // deadlocks on the Win16 lock.
 
 
-    if ((dwErr = RegOpenKey(HKEY_LOCAL_MACHINE, gszSetupPath, &hkSetup)) == ERROR_SUCCESS)
-    {
+    if ((dwErr = RegOpenKey(HKEY_LOCAL_MACHINE, gszSetupPath, &hkSetup)) == ERROR_SUCCESS) {
         if ((dwErr = RegQueryValueEx(hkSetup, gszICMDir, 0, NULL, (PBYTE)pBuffer,
-                pdwSize)) == ERROR_SUCCESS)
-        {
+                                     pdwSize)) == ERROR_SUCCESS) {
             rc = TRUE;
         }
         RegCloseKey(hkSetup);
     }
 
-    if (!rc)
-    {
+    if (!rc) {
 
         // Make error codes consistent
 
 
-        if (dwErr == ERROR_MORE_DATA)
-        {
+        if (dwErr == ERROR_MORE_DATA) {
             dwErr = ERROR_INSUFFICIENT_BUFFER;
         }
 
@@ -2437,8 +2289,7 @@ InternalGetColorDirectory(
     // is supposed to return FALSE. Check for this case.
 
 
-    if (pBuffer == NULL && rc)
-    {
+    if (pBuffer == NULL && rc) {
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
         rc = FALSE;
     }
@@ -2475,7 +2326,7 @@ BOOL
 InternalInstallColorProfile(
     LPCTSTR   pMachineName,
     LPCTSTR   pProfileName
-    )
+)
 {
     PROFILEHEADER header;           // profile header
     REGDATA  regData;               // for storing registry data about profile
@@ -2494,8 +2345,7 @@ InternalInstallColorProfile(
     // Validate parameters
 
 
-    if (!pProfileName)
-    {
+    if (!pProfileName) {
         WARNING((__TEXT("Invalid parameter to InstallColorProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -2505,8 +2355,7 @@ InternalInstallColorProfile(
     // Only local installs are allowed now
 
 
-    if (pMachineName)
-    {
+    if (pMachineName) {
         WARNING((__TEXT("Remote install attempted, failing...\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -2517,8 +2366,7 @@ InternalInstallColorProfile(
 
 
     pFilename = GetFilenameFromPath((PTSTR)pProfileName);
-    if (! pFilename)
-    {
+    if (!pFilename) {
         WARNING((__TEXT("Could not parse file name from profile path %s\n"), pProfileName));
         SetLastError(ERROR_INVALID_PARAMETER);
         goto EndInstallColorProfile;
@@ -2528,8 +2376,7 @@ InternalInstallColorProfile(
     // Get the profile class in the form of a string
 
 
-    if (! GetProfileClassString(pProfileName, szClass, &header))
-    {
+    if (!GetProfileClassString(pProfileName, szClass, &header)) {
         WARNING((__TEXT("Installing invalid profile %s\n"), pProfileName));
         SetLastError(ERROR_INVALID_PROFILE);
         goto EndInstallColorProfile;
@@ -2540,8 +2387,7 @@ InternalInstallColorProfile(
 
 
     if (((dwErr = RegCreateKey(HKEY_LOCAL_MACHINE, gszICMRegPath, &hkICM)) != ERROR_SUCCESS) ||
-        ((dwErr = RegCreateKey(hkICM, szClass, &hkDevice)) != ERROR_SUCCESS))
-    {
+        ((dwErr = RegCreateKey(hkICM, szClass, &hkDevice)) != ERROR_SUCCESS)) {
         WARNING((__TEXT("Cannot open ICM\\device branch of registry: %d\n"), dwErr));
         SetLastError(dwErr);
         goto EndInstallColorProfile;
@@ -2560,8 +2406,7 @@ InternalInstallColorProfile(
     // Copy the file to the color directory
 
 
-    if (! InternalGetColorDirectory(NULL, szDest, &dwSize))
-    {
+    if (!InternalGetColorDirectory(NULL, szDest, &dwSize)) {
         WARNING((__TEXT("Could not get color directory\n")));
         goto EndInstallColorProfile;
     }
@@ -2573,8 +2418,7 @@ InternalInstallColorProfile(
 
     CreateDirectory(szDest, NULL);
 
-    if (szDest[lstrlen(szDest) - 1] != '\\')
-    {
+    if (szDest[lstrlen(szDest) - 1] != '\\') {
         lstrcat(szDest, gszBackslash);
     }
     lstrcat(szDest, pFilename);
@@ -2594,8 +2438,7 @@ InternalInstallColorProfile(
     // and go on to add it into the registry.
 
 
-    if (!FileExist && !CopyFile(pProfileName, szDest, FALSE))
-    {
+    if (!FileExist && !CopyFile(pProfileName, szDest, FALSE)) {
         WARNING((__TEXT("Could not copy profile %s to color directory\n"), pProfileName));
         goto EndInstallColorProfile;
     }
@@ -2604,14 +2447,12 @@ InternalInstallColorProfile(
     // Add profile to the registry
 
 
-    if(!RegExist)
-    {
+    if (!RegExist) {
         regData.dwRefCount = 0;
         regData.dwManuID = FIX_ENDIAN(header.phManufacturer);
         regData.dwModelID = FIX_ENDIAN(header.phModel);
         if ((dwErr = RegSetValueEx(hkDevice, pFilename, 0, REG_BINARY,
-                  (PBYTE)&regData, sizeof(REGDATA))) != ERROR_SUCCESS)
-        {
+            (PBYTE)&regData, sizeof(REGDATA))) != ERROR_SUCCESS) {
             WARNING((__TEXT("Could not set registry data to install profile %s: %d\n"), pFilename, dwErr));
             SetLastError(dwErr);
             goto EndInstallColorProfile;
@@ -2621,12 +2462,10 @@ InternalInstallColorProfile(
     rc = TRUE;              // Everything went well!
 
 EndInstallColorProfile:
-    if (hkICM)
-    {
+    if (hkICM) {
         RegCloseKey(hkICM);
     }
-    if (hkDevice)
-    {
+    if (hkDevice) {
         RegCloseKey(hkDevice);
     }
 
@@ -2665,7 +2504,7 @@ InternalUninstallColorProfile(
     LPCTSTR pMachineName,
     LPCTSTR pProfileName,
     BOOL    bDelete
-    )
+)
 {
     REGDATA  regData;               // for storing registry data about profile
     HKEY     hkICM = NULL;          // key to ICM branch in registry
@@ -2681,8 +2520,7 @@ InternalUninstallColorProfile(
     // Validate parameters
 
 
-    if (!pProfileName)
-    {
+    if (!pProfileName) {
         WARNING((__TEXT("Invalid parameter to UninstallColorProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -2692,8 +2530,7 @@ InternalUninstallColorProfile(
     // Only local installs are allowed now
 
 
-    if (pMachineName != NULL)
-    {
+    if (pMachineName != NULL) {
         WARNING((__TEXT("Remote uninstall attempted, failing...\n")));
         SetLastError(ERROR_NOT_SUPPORTED);
         return FALSE;
@@ -2704,8 +2541,7 @@ InternalUninstallColorProfile(
 
 
     pFilename = GetFilenameFromPath((PTSTR)pProfileName);
-    if (! pFilename)
-    {
+    if (!pFilename) {
         WARNING((__TEXT("Could not parse file name from profile path\n"), pProfileName));
         SetLastError(ERROR_INVALID_PARAMETER);
         goto EndUninstallColorProfile;
@@ -2716,14 +2552,12 @@ InternalUninstallColorProfile(
 
 
     dwSize = sizeof(szColorPath);
-    if (! InternalGetColorDirectory(NULL, szColorPath, &dwSize))
-    {
+    if (!InternalGetColorDirectory(NULL, szColorPath, &dwSize)) {
         WARNING((__TEXT("Could not get color directory\n")));
         goto EndUninstallColorProfile;
     }
 
-    if (szColorPath[lstrlen(szColorPath) - 1] != '\\')
-    {
+    if (szColorPath[lstrlen(szColorPath) - 1] != '\\') {
         lstrcat(szColorPath, gszBackslash);
     }
     lstrcat(szColorPath, pFilename);
@@ -2732,8 +2566,7 @@ InternalUninstallColorProfile(
     // Get the profile class in the form of a string
 
 
-    if (! GetProfileClassString(szColorPath, szClass, NULL))
-    {
+    if (!GetProfileClassString(szColorPath, szClass, NULL)) {
         WARNING((__TEXT("Installing invalid profile\n")));
         SetLastError(ERROR_INVALID_PROFILE);
         goto EndUninstallColorProfile;
@@ -2744,8 +2577,7 @@ InternalUninstallColorProfile(
 
 
     if (((dwErr = RegOpenKey(HKEY_LOCAL_MACHINE, gszICMRegPath, &hkICM)) != ERROR_SUCCESS) ||
-        ((dwErr = RegOpenKey(hkICM, szClass, &hkDevice)) != ERROR_SUCCESS))
-    {
+        ((dwErr = RegOpenKey(hkICM, szClass, &hkDevice)) != ERROR_SUCCESS)) {
         WARNING((__TEXT("Cannot open ICM\\device branch of registry: %d\n"), dwErr));
         SetLastError(dwErr);
         goto EndUninstallColorProfile;
@@ -2757,22 +2589,19 @@ InternalUninstallColorProfile(
 
     dwSize = sizeof(REGDATA);
     if ((dwErr = RegQueryValueEx(hkDevice, pFilename, 0, NULL, (PBYTE)&regData,
-            &dwSize)) != ERROR_SUCCESS)
-    {
+                                 &dwSize)) != ERROR_SUCCESS) {
         WARNING((__TEXT("Trying to uninstall a profile that is not installed %s: %d\n"), pFilename, dwErr));
         SetLastError(dwErr);
         goto EndUninstallColorProfile;
     }
 
-    if (regData.dwRefCount != 0)
-    {
+    if (regData.dwRefCount != 0) {
         WARNING((__TEXT("Trying to uninstall profile %s whose refcount is %d\n"),
-            pFilename, regData.dwRefCount));
+                 pFilename, regData.dwRefCount));
         goto EndUninstallColorProfile;
     }
 
-    if ((dwErr = RegDeleteValue(hkDevice, pFilename)) != ERROR_SUCCESS)
-    {
+    if ((dwErr = RegDeleteValue(hkDevice, pFilename)) != ERROR_SUCCESS) {
         WARNING((__TEXT("Error deleting profile %s from registry: %d\n"), pFilename, dwErr));
         SetLastError(dwErr);
         goto EndUninstallColorProfile;
@@ -2782,14 +2611,12 @@ InternalUninstallColorProfile(
     // Remove profile from the registry
 
 
-    if (bDelete)
-    {
+    if (bDelete) {
 
         // Delete profile from the color directory
 
 
-        if (! DeleteFile(szColorPath))
-        {
+        if (!DeleteFile(szColorPath)) {
             WARNING((__TEXT("Error deleting profile %s: %d\n"), szColorPath, GetLastError()));
             goto EndUninstallColorProfile;
         }
@@ -2798,12 +2625,10 @@ InternalUninstallColorProfile(
     rc = TRUE;              // Everything went well!
 
 EndUninstallColorProfile:
-    if (hkICM)
-    {
+    if (hkICM) {
         RegCloseKey(hkICM);
     }
-    if (hkDevice)
-    {
+    if (hkDevice) {
         RegCloseKey(hkDevice);
     }
 
@@ -2839,7 +2664,7 @@ InternalAssociateColorProfileWithDevice(
     LPCTSTR pMachineName,
     LPCTSTR pProfileName,
     LPCTSTR pDeviceName
-    )
+)
 {
     PROFILEHEADER header;           // profile header
     REGDATA  regData;               // for storing registry data about profile
@@ -2860,9 +2685,8 @@ InternalAssociateColorProfileWithDevice(
     // Validate parameters
 
 
-    if (! pProfileName ||
-        ! pDeviceName)
-    {
+    if (!pProfileName ||
+        !pDeviceName) {
         WARNING((__TEXT("Invalid parameter to AssociateColorProfileWithDevice\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -2872,8 +2696,7 @@ InternalAssociateColorProfileWithDevice(
     // Only local associations are allowed now
 
 
-    if (pMachineName != NULL)
-    {
+    if (pMachineName != NULL) {
         WARNING((__TEXT("Remote profile association attempted, failing...\n")));
         SetLastError(ERROR_NOT_SUPPORTED);
         return FALSE;
@@ -2884,8 +2707,7 @@ InternalAssociateColorProfileWithDevice(
 
 
     pFilename = GetFilenameFromPath((PTSTR)pProfileName);
-    if (! pFilename)
-    {
+    if (!pFilename) {
         WARNING((__TEXT("Could not parse file name from profile path %s\n"), pProfileName));
         SetLastError(ERROR_INVALID_PARAMETER);
         goto EndAssociateProfileWithDevice;
@@ -2896,14 +2718,12 @@ InternalAssociateColorProfileWithDevice(
 
 
     dwSize = sizeof(szColorPath);
-    if (! InternalGetColorDirectory(NULL, szColorPath, &dwSize))
-    {
+    if (!InternalGetColorDirectory(NULL, szColorPath, &dwSize)) {
         WARNING((__TEXT("Could not get color directory\n")));
         goto EndAssociateProfileWithDevice;
     }
 
-    if (szColorPath[lstrlen(szColorPath) - 1] != '\\')
-    {
+    if (szColorPath[lstrlen(szColorPath) - 1] != '\\') {
         lstrcat(szColorPath, gszBackslash);
     }
     lstrcat(szColorPath, pFilename);
@@ -2912,8 +2732,7 @@ InternalAssociateColorProfileWithDevice(
     // Get the profile class in the form of a string
 
 
-    if (! GetProfileClassString(szColorPath, szClass, &header))
-    {
+    if (!GetProfileClassString(szColorPath, szClass, &header)) {
         WARNING((__TEXT("Installing invalid profile %s\n"), szColorPath));
         SetLastError(ERROR_INVALID_PROFILE);
         goto EndAssociateProfileWithDevice;
@@ -2924,8 +2743,7 @@ InternalAssociateColorProfileWithDevice(
 
 
     if (((dwErr = RegOpenKey(HKEY_LOCAL_MACHINE, gszICMRegPath, &hkICM)) != ERROR_SUCCESS) ||
-        ((dwErr = RegOpenKey(hkICM, szClass, &hkDevice)) != ERROR_SUCCESS))
-    {
+        ((dwErr = RegOpenKey(hkICM, szClass, &hkDevice)) != ERROR_SUCCESS)) {
         WARNING((__TEXT("Cannot open ICM\\device branch of registry: %d\n"), dwErr));
         SetLastError(dwErr);
         goto EndAssociateProfileWithDevice;
@@ -2937,8 +2755,7 @@ InternalAssociateColorProfileWithDevice(
 
     dwSize = sizeof(REGDATA);
     if ((dwErr = RegQueryValueEx(hkDevice, pFilename, 0, NULL, (PBYTE)&regData,
-            &dwSize)) != ERROR_SUCCESS)
-    {
+                                 &dwSize)) != ERROR_SUCCESS) {
         WARNING((__TEXT("Trying to associate a profile that is not installed %s: %d\n"), pFilename, dwErr));
         SetLastError(dwErr);
         goto EndAssociateProfileWithDevice;
@@ -2947,8 +2764,7 @@ InternalAssociateColorProfileWithDevice(
 
     // Treat CLASS_MONITOR as CLASS_COLORSPACE.
 
-    if ((dwDeviceClass = header.phClass) == CLASS_MONITOR)
-    {
+    if ((dwDeviceClass = header.phClass) == CLASS_MONITOR) {
 
         // since CLASS_MONTOR profile can be associated any device class.
 
@@ -2960,9 +2776,8 @@ InternalAssociateColorProfileWithDevice(
 
 
     dwSize = 0;
-    if (! GetDeviceData(pDeviceName, dwDeviceClass, DEVICE_PROFILE_DATA,
-                        (PVOID *)&pProfileList, &dwSize, TRUE))
-    {
+    if (!GetDeviceData(pDeviceName, dwDeviceClass, DEVICE_PROFILE_DATA,
+        (PVOID*)&pProfileList, &dwSize, TRUE)) {
         pProfileList = NULL;        // no data found
     }
 
@@ -2972,14 +2787,12 @@ InternalAssociateColorProfileWithDevice(
 
 
     if (pProfileList &&
-        IsStringInMultiSz(pProfileList, pFilename) == TRUE)
-    {
+        IsStringInMultiSz(pProfileList, pFilename) == TRUE) {
         rc = TRUE;
         goto EndAssociateProfileWithDevice;
     }
 
-    if (dwSize <= sizeof(TCHAR))
-    {
+    if (dwSize <= sizeof(TCHAR)) {
         bFirstProfile = TRUE;
     }
 
@@ -2988,8 +2801,7 @@ InternalAssociateColorProfileWithDevice(
     // terminate the MULTI_SZ string.
 
 
-    if (dwSize > 0)
-    {
+    if (dwSize > 0) {
 
         // Use a temporary pointer, so that if MemReAlloc fails, we do
         // not have a memory leak - the original pointer needs to be freed
@@ -3000,17 +2812,13 @@ InternalAssociateColorProfileWithDevice(
         dwNewSize = dwSize + (lstrlen(pFilename) + 1) * sizeof(TCHAR);
 
         pTemp = MemReAlloc(pProfileList, dwNewSize);
-        if (! pTemp)
-        {
+        if (!pTemp) {
             WARNING((__TEXT("Error reallocating pProfileList\n")));
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             goto EndAssociateProfileWithDevice;
-        }
-        else
+        } else
             pProfileList = pTemp;
-    }
-    else
-    {
+    } else {
 
         // Allocate extra character for double NULL termination. Setting
         // dwSize to 1 accomplishes this and lets the lstrcpy below
@@ -3021,8 +2829,7 @@ InternalAssociateColorProfileWithDevice(
 
         dwNewSize = dwSize + (lstrlen(pFilename) + 1) * sizeof(TCHAR);
         pProfileList = MemAlloc(dwNewSize);
-        if (! pProfileList)
-        {
+        if (!pProfileList) {
             WARNING((__TEXT("Error allocating pProfileList\n")));
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             goto EndAssociateProfileWithDevice;
@@ -3041,9 +2848,8 @@ InternalAssociateColorProfileWithDevice(
     // Set the device data
 
 
-    if (! SetDeviceData(pDeviceName, dwDeviceClass, DEVICE_PROFILE_DATA,
-                        pProfileList, dwNewSize))
-    {
+    if (!SetDeviceData(pDeviceName, dwDeviceClass, DEVICE_PROFILE_DATA,
+                       pProfileList, dwNewSize)) {
         WARNING((__TEXT("Error setting device profile data for %s\n"), pDeviceName));
         goto EndAssociateProfileWithDevice;
     }
@@ -3054,35 +2860,30 @@ InternalAssociateColorProfileWithDevice(
 
     regData.dwRefCount++;
     if ((dwErr = RegSetValueEx(hkDevice, pFilename, 0, REG_BINARY,
-            (PBYTE)&regData, sizeof(REGDATA))) != ERROR_SUCCESS)
-    {
+        (PBYTE)&regData, sizeof(REGDATA))) != ERROR_SUCCESS) {
         ERR((__TEXT("Could not set registry data for profile %s: %d\n"), pFilename, dwErr));
         SetLastError(dwErr);
         goto EndAssociateProfileWithDevice;
     }
 
-    #if !defined(_WIN95_)
+#if !defined(_WIN95_)
 
-    if (bFirstProfile)
-    {
+    if (bFirstProfile) {
         ChangeICMSetting(pMachineName, pDeviceName, ICM_ON);
     }
 
-    #endif
+#endif
 
     rc = TRUE;              // Everything went well!
 
 EndAssociateProfileWithDevice:
-    if (hkICM)
-    {
+    if (hkICM) {
         RegCloseKey(hkICM);
     }
-    if (hkDevice)
-    {
+    if (hkDevice) {
         RegCloseKey(hkDevice);
     }
-    if (pProfileList)
-    {
+    if (pProfileList) {
         MemFree(pProfileList);
     }
 
@@ -3119,7 +2920,7 @@ InternalDisassociateColorProfileFromDevice(
     LPCTSTR pMachineName,
     LPCTSTR pProfileName,
     LPCTSTR pDeviceName
-    )
+)
 {
     PROFILEHEADER header;           // profile header
     REGDATA  regData;               // for storing registry data about profile
@@ -3140,9 +2941,8 @@ InternalDisassociateColorProfileFromDevice(
     // Validate parameters
 
 
-    if (! pProfileName ||
-        ! pDeviceName)
-    {
+    if (!pProfileName ||
+        !pDeviceName) {
         WARNING((__TEXT("Invalid parameter to DisassociateColorProfileFromDevice\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -3152,8 +2952,7 @@ InternalDisassociateColorProfileFromDevice(
     // Only local associations are allowed now
 
 
-    if (pMachineName != NULL)
-    {
+    if (pMachineName != NULL) {
         WARNING((__TEXT("Remote profile disassociation attempted, failing...\n")));
         SetLastError(ERROR_NOT_SUPPORTED);
         return FALSE;
@@ -3164,8 +2963,7 @@ InternalDisassociateColorProfileFromDevice(
 
 
     pFilename = GetFilenameFromPath((PTSTR)pProfileName);
-    if (! pFilename)
-    {
+    if (!pFilename) {
         WARNING((__TEXT("Could not parse file name from profile path %s\n"), pProfileName));
         SetLastError(ERROR_INVALID_PARAMETER);
         goto EndDisassociateProfileWithDevice;
@@ -3176,14 +2974,12 @@ InternalDisassociateColorProfileFromDevice(
 
 
     dwSize = sizeof(szColorPath);
-    if (! InternalGetColorDirectory(NULL, szColorPath, &dwSize))
-    {
+    if (!InternalGetColorDirectory(NULL, szColorPath, &dwSize)) {
         WARNING((__TEXT("Could not get color directory\n")));
         goto EndDisassociateProfileWithDevice;
     }
 
-    if (szColorPath[lstrlen(szColorPath) - 1] != '\\')
-    {
+    if (szColorPath[lstrlen(szColorPath) - 1] != '\\') {
         lstrcat(szColorPath, gszBackslash);
     }
     lstrcat(szColorPath, pFilename);
@@ -3192,8 +2988,7 @@ InternalDisassociateColorProfileFromDevice(
     // Get the profile class in the form of a string
 
 
-    if (! GetProfileClassString(szColorPath, szClass, &header))
-    {
+    if (!GetProfileClassString(szColorPath, szClass, &header)) {
         WARNING((__TEXT("Installing invalid profile %s\n"), szColorPath));
         SetLastError(ERROR_INVALID_PROFILE);
         goto EndDisassociateProfileWithDevice;
@@ -3204,8 +2999,7 @@ InternalDisassociateColorProfileFromDevice(
 
 
     if (((dwErr = RegOpenKey(HKEY_LOCAL_MACHINE, gszICMRegPath, &hkICM)) != ERROR_SUCCESS) ||
-        ((dwErr = RegOpenKey(hkICM, szClass, &hkDevice)) != ERROR_SUCCESS))
-    {
+        ((dwErr = RegOpenKey(hkICM, szClass, &hkDevice)) != ERROR_SUCCESS)) {
         WARNING((__TEXT("Cannot open ICM\\device branch of registry: %d\n"), dwErr));
         SetLastError(dwErr);
         goto EndDisassociateProfileWithDevice;
@@ -3217,8 +3011,7 @@ InternalDisassociateColorProfileFromDevice(
 
     dwSize = sizeof(REGDATA);
     if ((dwErr = RegQueryValueEx(hkDevice, pFilename, 0, NULL, (PBYTE)&regData,
-            &dwSize)) != ERROR_SUCCESS)
-    {
+                                 &dwSize)) != ERROR_SUCCESS) {
         WARNING((__TEXT("Trying to disassociate a profile that is not installed %s: %d\n"), pFilename, dwErr));
         SetLastError(dwErr);
         goto EndDisassociateProfileWithDevice;
@@ -3227,8 +3020,7 @@ InternalDisassociateColorProfileFromDevice(
 
     // Treat CLASS_MONITOR as CLASS_COLORSPACE.
 
-    if ((dwDeviceClass = header.phClass) == CLASS_MONITOR)
-    {
+    if ((dwDeviceClass = header.phClass) == CLASS_MONITOR) {
 
         // since CLASS_MONTOR profile can be associated any device class.
 
@@ -3240,9 +3032,8 @@ InternalDisassociateColorProfileFromDevice(
 
 
     dwSize = 0;
-    if (! GetDeviceData(pDeviceName, dwDeviceClass, DEVICE_PROFILE_DATA,
-                        (PVOID *)&pProfileList, &dwSize, TRUE))
-    {
+    if (!GetDeviceData(pDeviceName, dwDeviceClass, DEVICE_PROFILE_DATA,
+        (PVOID*)&pProfileList, &dwSize, TRUE)) {
         pProfileList = NULL;        // no data found
     }
 
@@ -3250,9 +3041,8 @@ InternalDisassociateColorProfileFromDevice(
     // If the profile is not associated with the device, return failure
 
 
-    if (! pProfileList ||
-        ! IsStringInMultiSz(pProfileList, pFilename))
-    {
+    if (!pProfileList ||
+        !IsStringInMultiSz(pProfileList, pFilename)) {
         WARNING((__TEXT("Trying to disassociate a profile that is not associated %s\n"), pFilename));
         SetLastError(ERROR_PROFILE_NOT_ASSOCIATED_WITH_DEVICE);
         goto EndDisassociateProfileWithDevice;
@@ -3269,15 +3059,13 @@ InternalDisassociateColorProfileFromDevice(
     // Set the device data
 
 
-    if (! SetDeviceData(pDeviceName, dwDeviceClass, DEVICE_PROFILE_DATA,
-                        pProfileList, dwNewSize))
-    {
+    if (!SetDeviceData(pDeviceName, dwDeviceClass, DEVICE_PROFILE_DATA,
+                       pProfileList, dwNewSize)) {
         WARNING((__TEXT("Error setting device profile data for %s\n"), pDeviceName));
         goto EndDisassociateProfileWithDevice;
     }
 
-    if (dwNewSize <= sizeof(TCHAR))
-    {
+    if (dwNewSize <= sizeof(TCHAR)) {
         bLastProfile = TRUE;
     }
 
@@ -3287,35 +3075,30 @@ InternalDisassociateColorProfileFromDevice(
 
     regData.dwRefCount--;
     if ((dwErr = RegSetValueEx(hkDevice, pFilename, 0, REG_BINARY,
-            (PBYTE)&regData, sizeof(REGDATA))) != ERROR_SUCCESS)
-    {
+        (PBYTE)&regData, sizeof(REGDATA))) != ERROR_SUCCESS) {
         ERR((__TEXT("Could not set registry data for profile %s: %d\n"), pFilename, dwErr));
         SetLastError(dwErr);
         goto EndDisassociateProfileWithDevice;
     }
 
-    #if !defined(_WIN95_)
+#if !defined(_WIN95_)
 
-    if (bLastProfile)
-    {
+    if (bLastProfile) {
         ChangeICMSetting(pMachineName, pDeviceName, ICM_OFF);
     }
 
-    #endif
+#endif
 
     rc = TRUE;              // Everything went well!
 
 EndDisassociateProfileWithDevice:
-    if (hkICM)
-    {
+    if (hkICM) {
         RegCloseKey(hkICM);
     }
-    if (hkDevice)
-    {
+    if (hkDevice) {
         RegCloseKey(hkDevice);
     }
-    if (pProfileList)
-    {
+    if (pProfileList) {
         MemFree(pProfileList);
     }
 
@@ -3359,7 +3142,7 @@ InternalEnumColorProfiles(
     PBYTE      pBuffer,
     PDWORD     pdwSize,
     PDWORD     pnProfiles
-    )
+)
 {
     REGDATA  regData;               // for storing registry data about profile
     HKEY     hkICM = NULL;          // key to ICM branch in registry
@@ -3385,14 +3168,14 @@ InternalEnumColorProfiles(
     // Validate parameters
 
 
-    if (! pdwSize ||
+    if (!pdwSize ||
         IsBadWritePtr(pdwSize, sizeof(DWORD)) ||
         (pBuffer && IsBadWritePtr(pBuffer, *pdwSize)) ||
         (pnProfiles && IsBadWritePtr(pnProfiles, sizeof(DWORD))) ||
-        ! pEnumRecord ||
-        IsBadReadPtr(pEnumRecord, sizeof(DWORD)*3))   // probe until ENUMTYPE.dwFields
+        !pEnumRecord ||
+        IsBadReadPtr(pEnumRecord, sizeof(DWORD) * 3))   // probe until ENUMTYPE.dwFields
     {
-ParameterError_InternalEnumColorProfiles:
+    ParameterError_InternalEnumColorProfiles:
         WARNING((__TEXT("Invalid parameter to EnumColorProfiles\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -3403,16 +3186,13 @@ ParameterError_InternalEnumColorProfiles:
 
 
     dwSizeOfStruct = pEnumRecord->dwSize;
-    dwVersion      = pEnumRecord->dwVersion;
+    dwVersion = pEnumRecord->dwVersion;
 
-    if (dwVersion >= ENUM_TYPE_VERSION)
-    {
+    if (dwVersion >= ENUM_TYPE_VERSION) {
         if (dwSizeOfStruct < sizeof(ENUMTYPE))
             goto ParameterError_InternalEnumColorProfiles;
-    }
-    else if (dwVersion == 0x0200)
-    {
-        if (dwSizeOfStruct < sizeof(ENUMTYPE)-sizeof(DWORD))
+    } else if (dwVersion == 0x0200) {
+        if (dwSizeOfStruct < sizeof(ENUMTYPE) - sizeof(DWORD))
             goto ParameterError_InternalEnumColorProfiles;
 
 
@@ -3423,14 +3203,11 @@ ParameterError_InternalEnumColorProfiles:
             goto ParameterError_InternalEnumColorProfiles;
 
         WARNING((__TEXT("Old version ENUMTYPE to InternalEnumColorProfiles\n")));
-    }
-    else
-    {
+    } else {
         goto ParameterError_InternalEnumColorProfiles;
     }
 
-    if (IsBadReadPtr(pEnumRecord, dwSizeOfStruct))
-    {
+    if (IsBadReadPtr(pEnumRecord, dwSizeOfStruct)) {
         goto ParameterError_InternalEnumColorProfiles;
     }
 
@@ -3438,8 +3215,7 @@ ParameterError_InternalEnumColorProfiles:
     // Only local enumerations are allowed now
 
 
-    if (pMachineName != NULL)
-    {
+    if (pMachineName != NULL) {
         WARNING((__TEXT("Remote profile enumeration attempted, failing...\n")));
         SetLastError(ERROR_NOT_SUPPORTED);
         return FALSE;
@@ -3452,14 +3228,12 @@ ParameterError_InternalEnumColorProfiles:
 
 
     dwLen = sizeof(szFullPath);
-    if (! InternalGetColorDirectory(NULL, szFullPath, &dwLen))
-    {
+    if (!InternalGetColorDirectory(NULL, szFullPath, &dwLen)) {
         WARNING((__TEXT("Error getting color directory\n")));
         return FALSE;
     }
 
-    if (szFullPath[lstrlen(szFullPath) - 1] != '\\')
-    {
+    if (szFullPath[lstrlen(szFullPath) - 1] != '\\') {
         lstrcat(szFullPath, gszBackslash);
     }
     pProfile = &szFullPath[lstrlen(szFullPath)];
@@ -3473,8 +3247,7 @@ ParameterError_InternalEnumColorProfiles:
     if (pnProfiles)
         *pnProfiles = 0;
 
-    if (pBuffer && dwInputSize >= sizeof(TCHAR))
-    {
+    if (pBuffer && dwInputSize >= sizeof(TCHAR)) {
         *((PTSTR)pBuffer) = '\0';
     }
 
@@ -3483,13 +3256,11 @@ ParameterError_InternalEnumColorProfiles:
     // not because we enumerate them from different places.
 
 
-    if (pEnumRecord->dwFields & ET_DEVICENAME)
-    {
-        DWORD *pbSkipMatch = &bSkipMatch;
+    if (pEnumRecord->dwFields & ET_DEVICENAME) {
+        DWORD* pbSkipMatch = &bSkipMatch;
         DWORD  dwDeviceClass;
 
-        if (! pEnumRecord->pDeviceName)
-        {
+        if (!pEnumRecord->pDeviceName) {
             WARNING((__TEXT("Invalid parameter to EnumColorProfiles\n")));
             SetLastError(ERROR_INVALID_PARAMETER);
             goto EndEnumerateColorProfiles;
@@ -3500,12 +3271,9 @@ ParameterError_InternalEnumColorProfiles:
         // know what device it is, specify ColorSpace, which tries all three
 
 
-        if (pEnumRecord->dwFields & ET_DEVICECLASS)
-        {
+        if (pEnumRecord->dwFields & ET_DEVICECLASS) {
             dwDeviceClass = pEnumRecord->dwDeviceClass;
-        }
-        else
-        {
+        } else {
             dwDeviceClass = CLASS_COLORSPACE;
         }
 
@@ -3514,9 +3282,8 @@ ParameterError_InternalEnumColorProfiles:
 
 
         dwSize = sizeof(DWORD);
-        if (! GetDeviceData(pEnumRecord->pDeviceName, dwDeviceClass, DEVICE_PROFILE_ENUMMODE,
-                            (PVOID *)&pbSkipMatch, &dwSize, FALSE))
-        {
+        if (!GetDeviceData(pEnumRecord->pDeviceName, dwDeviceClass, DEVICE_PROFILE_ENUMMODE,
+            (PVOID*)&pbSkipMatch, &dwSize, FALSE)) {
             bSkipMatch = FALSE;
         }
 
@@ -3525,21 +3292,18 @@ ParameterError_InternalEnumColorProfiles:
 
 
         dwSize = 0;
-        if (! GetDeviceData(pEnumRecord->pDeviceName, dwDeviceClass, DEVICE_PROFILE_DATA,
-                            (PVOID *)&pProfileList, &dwSize, TRUE))
-        {
+        if (!GetDeviceData(pEnumRecord->pDeviceName, dwDeviceClass, DEVICE_PROFILE_DATA,
+            (PVOID*)&pProfileList, &dwSize, TRUE)) {
             pProfileList = NULL;    // no data found
         }
 
-        if(! pProfileList)
-        {
+        if (!pProfileList) {
 
             // No profiles associated with this device
 
 
             rc = TRUE;
-            if (pBuffer && dwInputSize >= sizeof(TCHAR)*2)
-            {
+            if (pBuffer && dwInputSize >= sizeof(TCHAR) * 2) {
                 *((PTSTR)pBuffer + 1) = '\0';
             }
             goto EndEnumerateColorProfiles;
@@ -3555,21 +3319,16 @@ ParameterError_InternalEnumColorProfiles:
         pBufferStart = pBuffer;
         pTempProfileList = pProfileList;
 
-        while (*pTempProfileList)
-        {
+        while (*pTempProfileList) {
             lstrcpy(pProfile, pTempProfileList);
 
-            if (bSkipMatch)
-            {
+            if (bSkipMatch) {
                 match = EXACT_MATCH;
-            }
-            else
-            {
+            } else {
                 match = DoesProfileMatchEnumRecord(szFullPath, pEnumRecord);
             }
 
-            if (match != NOMATCH)
-            {
+            if (match != NOMATCH) {
                 *pdwSize += (lstrlen(pTempProfileList) + 1) * sizeof(TCHAR);
 
 
@@ -3577,14 +3336,10 @@ ParameterError_InternalEnumColorProfiles:
                 // the final NULL termination
 
 
-                if (pBuffer && (*pdwSize < dwInputSize))
-                {
-                    if (match == MATCH)
-                    {
+                if (pBuffer && (*pdwSize < dwInputSize)) {
+                    if (match == MATCH) {
                         lstrcpy((PTSTR)pBuffer, pTempProfileList);
-                    }
-                    else
-                    {
+                    } else {
 
                         // Exact match, add to beginning of buffer
 
@@ -3601,11 +3356,9 @@ ParameterError_InternalEnumColorProfiles:
 
             pTempProfileList += lstrlen(pTempProfileList) + 1;
         }
-    }
-    else
-    {
+    } else {
         DWORD  dwNumClasses;
-        PTSTR *ppszEnumClasses;
+        PTSTR* ppszEnumClasses;
         PTSTR  pszEnumClassArray[2];
 
 
@@ -3613,8 +3366,7 @@ ParameterError_InternalEnumColorProfiles:
         // profiles from the registry
 
 
-        if (pEnumRecord->dwFields & ET_DEVICECLASS)
-        {
+        if (pEnumRecord->dwFields & ET_DEVICECLASS) {
 
             // If device class is specified, enumrate the specified device class and color
             // space class which can be associated to any device.
@@ -3623,28 +3375,24 @@ ParameterError_InternalEnumColorProfiles:
             pszEnumClassArray[0] = ConvertClassIdToClassString(pEnumRecord->dwDeviceClass);
             pszEnumClassArray[1] = ConvertClassIdToClassString(CLASS_COLORSPACE);
 
-            if (!pszEnumClassArray[0] || !pszEnumClassArray[1])
-            {
+            if (!pszEnumClassArray[0] || !pszEnumClassArray[1]) {
                 WARNING((__TEXT("Invalid DeviceClass to EnumColorProfiles\n")));
                 SetLastError(ERROR_INVALID_PARAMETER);
                 goto EndEnumerateColorProfiles;
             }
 
             ppszEnumClasses = pszEnumClassArray;
-            dwNumClasses    = 2;
-        }
-        else
-        {
+            dwNumClasses = 2;
+        } else {
             ppszEnumClasses = gpszClasses;
-            dwNumClasses    = sizeof(gpszClasses)/sizeof(PTSTR);
+            dwNumClasses = sizeof(gpszClasses) / sizeof(PTSTR);
         }
 
 
         // Open the registry path where profiles are kept (and create it if not exist)
 
 
-        if ((dwErr = RegCreateKey(HKEY_LOCAL_MACHINE, gszICMRegPath, &hkICM)) != ERROR_SUCCESS)
-        {
+        if ((dwErr = RegCreateKey(HKEY_LOCAL_MACHINE, gszICMRegPath, &hkICM)) != ERROR_SUCCESS) {
             WARNING((__TEXT("Cannot open ICM branch of registry: %d\n"), dwErr));
             SetLastError(dwErr);
             goto EndEnumerateColorProfiles;
@@ -3652,18 +3400,15 @@ ParameterError_InternalEnumColorProfiles:
 
         pBufferStart = pBuffer;
 
-        for (i=0; i<dwNumClasses; i++,ppszEnumClasses++)
-        {
+        for (i = 0; i < dwNumClasses; i++, ppszEnumClasses++) {
             DWORD   nValues;        // number of name-values in key
 
-            if (RegOpenKey(hkICM, *ppszEnumClasses, &hkDevice) != ERROR_SUCCESS)
-            {
+            if (RegOpenKey(hkICM, *ppszEnumClasses, &hkDevice) != ERROR_SUCCESS) {
                 continue;           // go to next key
             }
 
             if ((dwErr = RegQueryInfoKey(hkDevice, NULL, NULL, 0, NULL, NULL, NULL,
-                &nValues, NULL, NULL, NULL, NULL)) != ERROR_SUCCESS)
-            {
+                                         &nValues, NULL, NULL, NULL, NULL)) != ERROR_SUCCESS) {
                 WARNING((__TEXT("Cannot count values in device branch of registry: %d\n"), dwErr));
                 RegCloseKey(hkDevice);
                 SetLastError(dwErr);
@@ -3675,26 +3420,19 @@ ParameterError_InternalEnumColorProfiles:
             // satisfies the enumeration criteria
 
 
-            for (j=0; j<nValues; j++)
-            {
+            for (j = 0; j < nValues; j++) {
                 dwSize = sizeof(szFullPath) - dwLen;
                 dwDataSize = sizeof(REGDATA);
                 if (RegEnumValue(hkDevice, j, pProfile, &dwSize, 0,
-                    NULL, (PBYTE)&regData, &dwDataSize) == ERROR_SUCCESS)
-                {
+                                 NULL, (PBYTE)&regData, &dwDataSize) == ERROR_SUCCESS) {
                     match = DoesProfileMatchEnumRecord(szFullPath, pEnumRecord);
 
-                    if (match != NOMATCH)
-                    {
+                    if (match != NOMATCH) {
                         *pdwSize += (lstrlen(pProfile) + 1) * sizeof(TCHAR);
-                        if (pBuffer && (*pdwSize < dwInputSize))
-                        {
-                            if (match == MATCH)
-                            {
+                        if (pBuffer && (*pdwSize < dwInputSize)) {
+                            if (match == MATCH) {
                                 lstrcpy((PTSTR)pBuffer, pProfile);
-                            }
-                            else
-                            {
+                            } else {
 
                                 // Exact match, add to beginning of buffer
 
@@ -3717,24 +3455,19 @@ ParameterError_InternalEnumColorProfiles:
 
     *pdwSize += sizeof(TCHAR);      // extra NULL termination
 
-    if (pBuffer && *pdwSize <= dwInputSize)
-    {
+    if (pBuffer && *pdwSize <= dwInputSize) {
         *((PTSTR)pBuffer) = '\0';
         rc = TRUE;
-    }
-    else
-    {
+    } else {
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
     }
 
 EndEnumerateColorProfiles:
 
-    if (hkICM)
-    {
+    if (hkICM) {
         RegCloseKey(hkICM);
     }
-    if (pProfileList)
-    {
+    if (pProfileList) {
         MemFree(pProfileList);
     }
 
@@ -3746,11 +3479,11 @@ InsertInBuffer(
     PBYTE  pStart,
     PBYTE  pEnd,
     PTSTR  pString
-    )
+)
 {
     DWORD cnt = (lstrlen(pString) + 1) * sizeof(TCHAR);
 
-    MyCopyMemory(pStart+cnt, pStart, (DWORD)(pEnd - pStart));
+    MyCopyMemory(pStart + cnt, pStart, (DWORD)(pEnd - pStart));
 
     lstrcpy((PTSTR)pStart, pString);
 
@@ -3786,7 +3519,7 @@ InternalSetSCSProfile(
     LPCTSTR   pMachineName,
     DWORD     dwSCS,
     LPCTSTR   pProfileName
-    )
+)
 {
     HKEY   hkICM = NULL;            // key to ICM branch in registry
     HKEY   hkRegProf = NULL;        // key to registered color spaces branch
@@ -3799,8 +3532,7 @@ InternalSetSCSProfile(
     // Validate parameters
 
 
-    if (!pProfileName)
-    {
+    if (!pProfileName) {
         WARNING((__TEXT("Invalid parameter to SetStandardColorSpaceProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -3810,8 +3542,7 @@ InternalSetSCSProfile(
     // Only local registration is allowed now
 
 
-    if (pMachineName != NULL)
-    {
+    if (pMachineName != NULL) {
         WARNING((__TEXT("Remote SCS profile registration attempted, failing...\n")));
         SetLastError(ERROR_NOT_SUPPORTED);
         return FALSE;
@@ -3824,29 +3555,24 @@ InternalSetSCSProfile(
 
 
     if (((dwErr = RegCreateKey(HKEY_LOCAL_MACHINE, gszICMRegPath, &hkICM)) == ERROR_SUCCESS) &&
-        ((dwErr = RegCreateKey(hkICM, gszRegisteredProfiles, &hkRegProf))== ERROR_SUCCESS))
-    {
+        ((dwErr = RegCreateKey(hkICM, gszRegisteredProfiles, &hkRegProf)) == ERROR_SUCCESS)) {
         ConvertDwordToString(dwSCS, szProfileID);
 
         if ((dwErr = RegSetValueEx(hkRegProf, szProfileID, 0, REG_SZ,
-            (PBYTE)pProfileName, dwSize)) == ERROR_SUCCESS)
-        {
+            (PBYTE)pProfileName, dwSize)) == ERROR_SUCCESS) {
             rc = TRUE;
         }
     }
 
-    if (hkICM)
-    {
+    if (hkICM) {
         RegCloseKey(hkICM);
     }
 
-    if (hkRegProf)
-    {
+    if (hkRegProf) {
         RegCloseKey(hkRegProf);
     }
 
-    if (!rc)
-    {
+    if (!rc) {
         WARNING((__TEXT("InternalSetSCSProfile failed: %d\n"), dwErr));
         SetLastError(dwErr);
     }
@@ -3886,7 +3612,7 @@ InternalGetSCSProfile(
     DWORD     dwSCS,
     PTSTR     pBuffer,
     PDWORD    pdwSize
-    )
+)
 {
     HKEY   hkICM = NULL;            // key to ICM branch in registry
     HKEY   hkRegProf = NULL;        // key to registered color spaces branch
@@ -3899,10 +3625,9 @@ InternalGetSCSProfile(
     // Validate parameters
 
 
-    if (! pdwSize ||
+    if (!pdwSize ||
         IsBadWritePtr(pdwSize, sizeof(DWORD)) ||
-        (pBuffer && IsBadWritePtr(pBuffer, *pdwSize)))
-    {
+        (pBuffer && IsBadWritePtr(pBuffer, *pdwSize))) {
         WARNING((__TEXT("Invalid parameter to GetStandardColorSpaceProfile\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
@@ -3912,8 +3637,7 @@ InternalGetSCSProfile(
     // Only local query is allowed now
 
 
-    if (pMachineName != NULL)
-    {
+    if (pMachineName != NULL) {
         WARNING((__TEXT("Remote SCS profile query attempted, failing...\n")));
         SetLastError(ERROR_NOT_SUPPORTED);
         return FALSE;
@@ -3926,51 +3650,41 @@ InternalGetSCSProfile(
 
 
     if (((dwErr = RegOpenKey(HKEY_LOCAL_MACHINE, gszICMRegPath, &hkICM)) == ERROR_SUCCESS) &&
-        ((dwErr = RegOpenKey(hkICM, gszRegisteredProfiles, &hkRegProf)) == ERROR_SUCCESS))
-    {
+        ((dwErr = RegOpenKey(hkICM, gszRegisteredProfiles, &hkRegProf)) == ERROR_SUCCESS)) {
         ConvertDwordToString(dwSCS, szProfileID);
         if ((dwErr = RegQueryValueEx(hkRegProf, szProfileID, NULL, NULL,
-                (PBYTE)pBuffer, pdwSize)) == ERROR_SUCCESS)
-        {
+            (PBYTE)pBuffer, pdwSize)) == ERROR_SUCCESS) {
             rc = TRUE;
         }
     }
 
-    if (hkICM)
-    {
+    if (hkICM) {
         RegCloseKey(hkICM);
     }
 
-    if (hkRegProf)
-    {
+    if (hkRegProf) {
         RegCloseKey(hkRegProf);
     }
 
-    if (!rc && (dwSCS == LCS_sRGB || dwSCS == LCS_WINDOWS_COLOR_SPACE))
-    {
+    if (!rc && (dwSCS == LCS_sRGB || dwSCS == LCS_WINDOWS_COLOR_SPACE)) {
         *pdwSize = dwSize;
         rc = GetColorDirectory(NULL, pBuffer, pdwSize);
-        if (!rc && GetLastError() != ERROR_INSUFFICIENT_BUFFER)
-        {
+        if (!rc && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
             return FALSE;
         }
 
         *pdwSize += (lstrlen(gszBackslash) + lstrlen(gszsRGBProfile)) * sizeof(TCHAR);
 
-        if (*pdwSize <= dwSize && pBuffer)
-        {
+        if (*pdwSize <= dwSize && pBuffer) {
             lstrcat(pBuffer, gszBackslash);
             lstrcat(pBuffer, gszsRGBProfile);
             rc = TRUE;
-        }
-        else
-        {
+        } else {
             dwErr = ERROR_INSUFFICIENT_BUFFER;
         }
     }
 
-    if (!rc)
-    {
+    if (!rc) {
         WARNING((__TEXT("InternalGetSCSProfile failed: %d\n"), dwErr));
         SetLastError(dwErr);
     }
@@ -3980,8 +3694,7 @@ InternalGetSCSProfile(
     // in this case. Handle this.
 
 
-    if (pBuffer == NULL && rc)
-    {
+    if (pBuffer == NULL && rc) {
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
         rc = FALSE;
     }
@@ -4012,13 +3725,12 @@ VOID
 ConvertDwordToString(
     DWORD  dword,
     PTSTR  pString
-    )
+)
 {
     int i;                          // counter
 
-    for (i=0; i<4; i++)
-    {
-        pString[i]  = (TCHAR)(((char*)&dword)[3-i]);
+    for (i = 0; i < 4; i++) {
+        pString[i] = (TCHAR)(((char*)&dword)[3 - i]);
     }
 
     pString[4] = '\0';
@@ -4044,10 +3756,9 @@ ConvertDwordToString(
 PTSTR
 ConvertClassIdToClassString(
     DWORD  dwClassId
-    )
+)
 {
-    switch (dwClassId)
-    {
+    switch (dwClassId) {
     case CLASS_MONITOR:
         return (gpszClasses[INDEX_CLASS_MONITOR]);
     case CLASS_PRINTER:
@@ -4084,7 +3795,7 @@ GetProfileClassString(
     LPCTSTR        pProfileName,
     PTSTR          pClass,
     PPROFILEHEADER pHeader
-    )
+)
 {
     PROFILEHEADER header;                // color profile header
     PROFILE       prof;                  // profile object for opening profile
@@ -4101,9 +3812,8 @@ GetProfileClassString(
     prof.cbDataSize = (lstrlen(pProfileName) + 1) * sizeof(TCHAR);
 
     hProfile = OpenColorProfile(&prof, PROFILE_READ, FILE_SHARE_READ,
-                    OPEN_EXISTING);
-    if (! hProfile)
-    {
+                                OPEN_EXISTING);
+    if (!hProfile) {
         WARNING((__TEXT("Error opening profile %s\n"), pProfileName));
         goto EndGetProfileClassString;
     }
@@ -4111,8 +3821,7 @@ GetProfileClassString(
 
     // Check the validation of the profile.
 
-    if (! IsColorProfileValid(hProfile,&bValidProfile) || ! bValidProfile)
-    {
+    if (!IsColorProfileValid(hProfile, &bValidProfile) || !bValidProfile) {
         WARNING((__TEXT("Error invalid profile %s\n"), pProfileName));
         goto EndGetProfileClassString;
     }
@@ -4121,23 +3830,20 @@ GetProfileClassString(
     // Get the profile class
 
 
-    if (! pHeader)
-    {
+    if (!pHeader) {
         pHeader = &header;
     }
 
-    if (! GetColorProfileHeader(hProfile, pHeader))
-    {
+    if (!GetColorProfileHeader(hProfile, pHeader)) {
         ERR((__TEXT("Error getting color profile header for %s\n"), pProfileName));
         goto EndGetProfileClassString;
     }
     ConvertDwordToString(pHeader->phClass, pClass);
 
-    rc= TRUE;
+    rc = TRUE;
 
 EndGetProfileClassString:
-    if (hProfile)
-    {
+    if (hProfile) {
         CloseColorProfile(hProfile);
     }
 
@@ -4164,15 +3870,14 @@ EndGetProfileClassString:
 PTSTR
 GetFilenameFromPath(
     PTSTR pPathName
-    )
+)
 {
     DWORD dwLen;                      // length of pathname
     PTSTR pPathNameStart = pPathName;
 
     dwLen = lstrlen(pPathName);
 
-    if (dwLen == 0)
-    {
+    if (dwLen == 0) {
         return NULL;
     }
 
@@ -4188,12 +3893,10 @@ GetFilenameFromPath(
     // the pointer to last character.
 
 
-    do
-    {
-        pPathName = CharPrev(pPathNameStart,pPathName);
+    do {
+        pPathName = CharPrev(pPathNameStart, pPathName);
 
-        if (*pPathName == TEXT('\\'))
-        {
+        if (*pPathName == TEXT('\\')) {
             pPathName = CharNext(pPathName);
             break;
         }
@@ -4241,24 +3944,21 @@ GetDeviceData(
     LPCTSTR pDeviceName,
     DWORD   dwClass,
     DWORD   dwDataType,
-    PVOID  *ppDeviceData,
+    PVOID* ppDeviceData,
     PDWORD  pdwSize,
     BOOL    bAllocate
-    )
+)
 {
     BOOL rc = FALSE;
 
     if (dwClass == CLASS_MONITOR ||
         dwClass == CLASS_PRINTER ||
-        dwClass == CLASS_SCANNER)
-    {
+        dwClass == CLASS_SCANNER) {
         rc = IGetDeviceData(pDeviceName, dwClass, dwDataType, ppDeviceData, pdwSize, bAllocate);
-    }
-    else if (dwClass == CLASS_COLORSPACE)
-    {
+    } else if (dwClass == CLASS_COLORSPACE) {
         rc = IGetDeviceData(pDeviceName, CLASS_MONITOR, dwDataType, ppDeviceData, pdwSize, bAllocate) ||
-             IGetDeviceData(pDeviceName, CLASS_PRINTER, dwDataType, ppDeviceData, pdwSize, bAllocate) ||
-             IGetDeviceData(pDeviceName, CLASS_SCANNER, dwDataType, ppDeviceData, pdwSize, bAllocate);
+            IGetDeviceData(pDeviceName, CLASS_PRINTER, dwDataType, ppDeviceData, pdwSize, bAllocate) ||
+            IGetDeviceData(pDeviceName, CLASS_SCANNER, dwDataType, ppDeviceData, pdwSize, bAllocate);
     }
 
     return rc;
@@ -4290,10 +3990,10 @@ IGetDeviceData(
     LPCTSTR pDeviceName,
     DWORD   dwClass,
     DWORD   dwDataType,
-    PVOID  *ppDeviceData,
+    PVOID* ppDeviceData,
     PDWORD  pdwSize,
     BOOL    bAllocate
-    )
+)
 {
     PFNOPENDEVICE    fnOpenDevice;
     PFNCLOSEDEVICE   fnCloseDevice;
@@ -4308,24 +4008,23 @@ IGetDeviceData(
     // Set up function pointers so we can write common code
 
 
-    switch (dwClass)
-    {
+    switch (dwClass) {
     case CLASS_PRINTER:
-        fnOpenDevice  = (PFNOPENDEVICE)OpenPrtr;
+        fnOpenDevice = (PFNOPENDEVICE)OpenPrtr;
         fnCloseDevice = (PFNCLOSEDEVICE)ClosePrtr;
-        fnGetData     = (PFNGETDEVICEDATA)GetPrtrData;
+        fnGetData = (PFNGETDEVICEDATA)GetPrtrData;
         break;
 
     case CLASS_MONITOR:
-        fnOpenDevice  = (PFNOPENDEVICE)OpenMonitor;
+        fnOpenDevice = (PFNOPENDEVICE)OpenMonitor;
         fnCloseDevice = (PFNCLOSEDEVICE)CloseMonitor;
-        fnGetData     = (PFNGETDEVICEDATA)GetMonitorData;
+        fnGetData = (PFNGETDEVICEDATA)GetMonitorData;
         break;
 
     case CLASS_SCANNER:
-        fnOpenDevice  = (PFNOPENDEVICE)OpenScanner;
+        fnOpenDevice = (PFNOPENDEVICE)OpenScanner;
         fnCloseDevice = (PFNCLOSEDEVICE)CloseScanner;
-        fnGetData     = (PFNGETDEVICEDATA)GetScannerData;
+        fnGetData = (PFNGETDEVICEDATA)GetScannerData;
         break;
 
     default:
@@ -4336,22 +4035,18 @@ IGetDeviceData(
     // Set up registry keywords.
 
 
-    switch (dwDataType)
-    {
+    switch (dwDataType) {
     case DEVICE_PROFILE_DATA:
 
-        pDataKey      = gszICMProfileListKey;
+        pDataKey = gszICMProfileListKey;
 
 
         // The way to store printer profile is different than others... trim it.
 
 
-        if (dwClass == CLASS_PRINTER)
-        {
+        if (dwClass == CLASS_PRINTER) {
             pDataValue = gszFiles;
-        }
-        else
-        {
+        } else {
             pDataValue = gszICMProfileListValue;
         }
 
@@ -4359,8 +4054,8 @@ IGetDeviceData(
 
     case DEVICE_PROFILE_ENUMMODE:
 
-        pDataKey      = gszICMDeviceDataKey;
-        pDataValue    = gszICMProfileEnumMode;
+        pDataKey = gszICMDeviceDataKey;
+        pDataValue = gszICMProfileEnumMode;
         break;
 
     default:
@@ -4371,13 +4066,11 @@ IGetDeviceData(
     // Open the device and get a handle to it
 
 
-    if (! (*fnOpenDevice)((PTSTR)pDeviceName, &hDevice, NULL))
-    {
+    if (!(*fnOpenDevice)((PTSTR)pDeviceName, &hDevice, NULL)) {
         return FALSE;
     }
 
-    if (bAllocate || (ppDeviceData == NULL))
-    {
+    if (bAllocate || (ppDeviceData == NULL)) {
         DWORD retcode;
 
 
@@ -4388,7 +4081,7 @@ IGetDeviceData(
         dwSize = 0;
         retcode = (*fnGetData)(hDevice, pDataKey, pDataValue, NULL, NULL, 0, &dwSize);
 
-        if ((retcode != ERROR_SUCCESS)    &&  // Win 95 returns this
+        if ((retcode != ERROR_SUCCESS) &&  // Win 95 returns this
             (retcode != ERROR_MORE_DATA))     // NT returns this
         {
             VERBOSE((__TEXT("GetDeviceData failed for %s\n"), pDeviceName));
@@ -4397,24 +4090,20 @@ IGetDeviceData(
 
         *pdwSize = dwSize;
 
-        if (ppDeviceData == NULL)
-        {
+        if (ppDeviceData == NULL) {
 
             // Caller wants to know the data size.
 
 
             rc = TRUE;
             goto EndGetDeviceData;
-        }
-        else
-        {
+        } else {
 
             // Allocate buffer.
 
 
             *ppDeviceData = MemAlloc(dwSize);
-            if (! *ppDeviceData)
-            {
+            if (!*ppDeviceData) {
                 WARNING((__TEXT("Error allocating memory\n")));
                 SetLastError(ERROR_NOT_ENOUGH_MEMORY);
                 goto EndGetDeviceData;
@@ -4427,8 +4116,7 @@ IGetDeviceData(
 
 
     if ((*fnGetData)(hDevice, pDataKey, pDataValue, NULL, (PBYTE)*ppDeviceData,
-        *pdwSize, pdwSize) == ERROR_SUCCESS)
-    {
+                     *pdwSize, pdwSize) == ERROR_SUCCESS) {
         rc = TRUE;
     }
 
@@ -4468,21 +4156,18 @@ SetDeviceData(
     DWORD   dwDataType,
     PVOID   pDeviceData,
     DWORD   dwSize
-    )
+)
 {
     BOOL rc = FALSE;
 
     if (dwClass == CLASS_MONITOR ||
         dwClass == CLASS_PRINTER ||
-        dwClass == CLASS_SCANNER)
-    {
+        dwClass == CLASS_SCANNER) {
         rc = ISetDeviceData(pDeviceName, dwClass, dwDataType, pDeviceData, dwSize);
-    }
-    else if (dwClass == CLASS_COLORSPACE)
-    {
+    } else if (dwClass == CLASS_COLORSPACE) {
         rc = ISetDeviceData(pDeviceName, CLASS_MONITOR, dwDataType, pDeviceData, dwSize) ||
-             ISetDeviceData(pDeviceName, CLASS_PRINTER, dwDataType, pDeviceData, dwSize) ||
-             ISetDeviceData(pDeviceName, CLASS_SCANNER, dwDataType, pDeviceData, dwSize);
+            ISetDeviceData(pDeviceName, CLASS_PRINTER, dwDataType, pDeviceData, dwSize) ||
+            ISetDeviceData(pDeviceName, CLASS_SCANNER, dwDataType, pDeviceData, dwSize);
     }
 
     return rc;
@@ -4514,7 +4199,7 @@ ISetDeviceData(
     DWORD   dwDataType,
     PVOID   pDeviceData,
     DWORD   dwSize
-    )
+)
 {
     PRINTER_DEFAULTS    pd;
     PFNOPENDEVICE       fnOpenDevice;
@@ -4530,27 +4215,26 @@ ISetDeviceData(
     // Set up function pointers so we can write common code
 
 
-    switch (dwClass)
-    {
+    switch (dwClass) {
     case CLASS_PRINTER:
-        fnOpenDevice  = (PFNOPENDEVICE)OpenPrtr;
+        fnOpenDevice = (PFNOPENDEVICE)OpenPrtr;
         fnCloseDevice = (PFNCLOSEDEVICE)ClosePrtr;
-        fnSetData     = (PFNSETDEVICEDATA)SetPrtrData;
-        pd.pDatatype  = __TEXT("RAW");
-        pd.pDevMode   = NULL;
+        fnSetData = (PFNSETDEVICEDATA)SetPrtrData;
+        pd.pDatatype = __TEXT("RAW");
+        pd.pDevMode = NULL;
         pd.DesiredAccess = PRINTER_ACCESS_ADMINISTER;
         break;
 
     case CLASS_MONITOR:
-        fnOpenDevice  = (PFNOPENDEVICE)OpenMonitor;
+        fnOpenDevice = (PFNOPENDEVICE)OpenMonitor;
         fnCloseDevice = (PFNCLOSEDEVICE)CloseMonitor;
-        fnSetData     = (PFNSETDEVICEDATA)SetMonitorData;
+        fnSetData = (PFNSETDEVICEDATA)SetMonitorData;
         break;
 
     case CLASS_SCANNER:
-        fnOpenDevice  = (PFNOPENDEVICE)OpenScanner;
+        fnOpenDevice = (PFNOPENDEVICE)OpenScanner;
         fnCloseDevice = (PFNCLOSEDEVICE)CloseScanner;
-        fnSetData     = (PFNSETDEVICEDATA)SetScannerData;
+        fnSetData = (PFNSETDEVICEDATA)SetScannerData;
         break;
 
     default:
@@ -4561,23 +4245,19 @@ ISetDeviceData(
     // Set up registry keywords.
 
 
-    switch (dwDataType)
-    {
+    switch (dwDataType) {
     case DEVICE_PROFILE_DATA:
 
-        pDataKey      = gszICMProfileListKey;
+        pDataKey = gszICMProfileListKey;
 
 
         // The way to store printer profile is different than others... trim it.
 
 
-        if (dwClass == CLASS_PRINTER)
-        {
+        if (dwClass == CLASS_PRINTER) {
             pDataValue = gszFiles;
-            dwRegType  = REG_MULTI_SZ;
-        }
-        else
-        {
+            dwRegType = REG_MULTI_SZ;
+        } else {
             pDataValue = gszICMProfileListValue;
         }
 
@@ -4585,8 +4265,8 @@ ISetDeviceData(
 
     case DEVICE_PROFILE_ENUMMODE:
 
-        pDataKey      = gszICMDeviceDataKey;
-        pDataValue    = gszICMProfileEnumMode;
+        pDataKey = gszICMDeviceDataKey;
+        pDataValue = gszICMProfileEnumMode;
         break;
 
     default:
@@ -4597,8 +4277,7 @@ ISetDeviceData(
     // Open the device and get a handle to it
 
 
-    if (! (*fnOpenDevice)((PTSTR)pDeviceName, &hDevice, (PTSTR)&pd))
-    {
+    if (!(*fnOpenDevice)((PTSTR)pDeviceName, &hDevice, (PTSTR)&pd)) {
         WARNING((__TEXT("Error opening device %s\n"), pDeviceName));
         return FALSE;
     }
@@ -4608,8 +4287,7 @@ ISetDeviceData(
 
 
     if ((*fnSetData)(hDevice, pDataKey, pDataValue, dwRegType, (PBYTE)pDeviceData,
-                     dwSize) == ERROR_SUCCESS)
-    {
+                     dwSize) == ERROR_SUCCESS) {
         rc = TRUE;
     }
 
@@ -4619,13 +4297,11 @@ ISetDeviceData(
     // If this is printer class, need some more data for profile list.
 
 
-    if ((rc == TRUE) && (dwClass == CLASS_PRINTER) && (dwDataType == DEVICE_PROFILE_DATA))
-    {
+    if ((rc == TRUE) && (dwClass == CLASS_PRINTER) && (dwDataType == DEVICE_PROFILE_DATA)) {
         if (((*fnSetData)(hDevice, pDataKey, gszDirectory, REG_SZ, (PBYTE)gszColorDir,
-                          (lstrlen(gszColorDir) + 1)*sizeof(TCHAR)) != ERROR_SUCCESS) ||
-            ((*fnSetData)(hDevice, pDataKey, gszModule, REG_SZ, (PBYTE)gszMSCMS,
-                          (lstrlen(gszMSCMS) + 1)*sizeof(TCHAR)) != ERROR_SUCCESS))
-        {
+            (lstrlen(gszColorDir) + 1) * sizeof(TCHAR)) != ERROR_SUCCESS) ||
+                          ((*fnSetData)(hDevice, pDataKey, gszModule, REG_SZ, (PBYTE)gszMSCMS,
+            (lstrlen(gszMSCMS) + 1) * sizeof(TCHAR)) != ERROR_SUCCESS)) {
             rc = FALSE;
         }
     }
@@ -4659,14 +4335,12 @@ BOOL
 IsStringInMultiSz(
     PTSTR pMultiSzString,
     PTSTR pString
-    )
+)
 {
     BOOL rc = FALSE;                // return code
 
-    while (*pMultiSzString)
-    {
-        if (! lstrcmpi(pMultiSzString, pString))
-        {
+    while (*pMultiSzString) {
+        if (!lstrcmpi(pMultiSzString, pString)) {
             rc = TRUE;
             break;
         }
@@ -4700,16 +4374,14 @@ RemoveStringFromMultiSz(
     PTSTR pMultiSzString,
     PTSTR pString,
     DWORD dwSize
-    )
+)
 {
     DWORD dwCount = dwSize;         // count of bytes remaining
 
-    while (*pMultiSzString)
-    {
+    while (*pMultiSzString) {
         dwCount -= (lstrlen(pMultiSzString) + 1) * sizeof(TCHAR);
 
-        if (! lstrcmpi(pMultiSzString, pString))
-        {
+        if (!lstrcmpi(pMultiSzString, pString)) {
             break;
         }
 
@@ -4747,7 +4419,7 @@ MATCHTYPE
 DoesProfileMatchEnumRecord(
     PTSTR     pProfileName,
     PENUMTYPE pEnumRecord
-    )
+)
 {
     PROFILEHEADER header;           // color profile header
     PROFILE       prof;             // profile object for opening profile
@@ -4763,9 +4435,8 @@ DoesProfileMatchEnumRecord(
     prof.cbDataSize = (lstrlen(pProfileName) + 1) * sizeof(TCHAR);
 
     hProfile = OpenColorProfile(&prof, PROFILE_READ, FILE_SHARE_READ,
-                    OPEN_EXISTING);
-    if (! hProfile)
-    {
+                                OPEN_EXISTING);
+    if (!hProfile) {
         WARNING((__TEXT("Error opening profile %s\n"), pProfileName));
         goto EndDoesProfileMatchEnumRecord;
     }
@@ -4774,26 +4445,24 @@ DoesProfileMatchEnumRecord(
     // Get the profile header
 
 
-    if (! GetColorProfileHeader(hProfile, &header))
-    {
+    if (!GetColorProfileHeader(hProfile, &header)) {
         ERR((__TEXT("Error getting color profile header for %s\n"), pProfileName));
         goto EndDoesProfileMatchEnumRecord;
     }
 
-    if ((!SET(pEnumRecord, ET_CMMTYPE)         || (pEnumRecord->dwCMMType         == header.phCMMType))         &&
-        (!SET(pEnumRecord, ET_CLASS)           || (pEnumRecord->dwClass           == header.phClass))           &&
-        (!SET(pEnumRecord, ET_DATACOLORSPACE)  || (pEnumRecord->dwDataColorSpace  == header.phDataColorSpace))  &&
+    if ((!SET(pEnumRecord, ET_CMMTYPE) || (pEnumRecord->dwCMMType == header.phCMMType)) &&
+        (!SET(pEnumRecord, ET_CLASS) || (pEnumRecord->dwClass == header.phClass)) &&
+        (!SET(pEnumRecord, ET_DATACOLORSPACE) || (pEnumRecord->dwDataColorSpace == header.phDataColorSpace)) &&
         (!SET(pEnumRecord, ET_CONNECTIONSPACE) || (pEnumRecord->dwConnectionSpace == header.phConnectionSpace)) &&
-        (!SET(pEnumRecord, ET_SIGNATURE)       || (pEnumRecord->dwSignature       == header.phSignature))       &&
-        (!SET(pEnumRecord, ET_PLATFORM)        || (pEnumRecord->dwPlatform        == header.phPlatform))        &&
-        (!SET(pEnumRecord, ET_PROFILEFLAGS)    || (pEnumRecord->dwProfileFlags    == header.phProfileFlags))    &&
-        (!SET(pEnumRecord, ET_MANUFACTURER)    || (pEnumRecord->dwManufacturer    == header.phManufacturer))    &&
-        (!SET(pEnumRecord, ET_MODEL)           || (pEnumRecord->dwModel           == header.phModel))           &&
-        (!SET(pEnumRecord, ET_ATTRIBUTES)      || (pEnumRecord->dwAttributes[0]   == header.phAttributes[0] &&
-                                                   pEnumRecord->dwAttributes[1]   == header.phAttributes[1]))   &&
-        (!SET(pEnumRecord, ET_RENDERINGINTENT) || (pEnumRecord->dwRenderingIntent == header.phRenderingIntent)) &&
-        (!SET(pEnumRecord, ET_CREATOR)         || (pEnumRecord->dwCreator         == header.phCreator)))
-    {
+        (!SET(pEnumRecord, ET_SIGNATURE) || (pEnumRecord->dwSignature == header.phSignature)) &&
+        (!SET(pEnumRecord, ET_PLATFORM) || (pEnumRecord->dwPlatform == header.phPlatform)) &&
+        (!SET(pEnumRecord, ET_PROFILEFLAGS) || (pEnumRecord->dwProfileFlags == header.phProfileFlags)) &&
+        (!SET(pEnumRecord, ET_MANUFACTURER) || (pEnumRecord->dwManufacturer == header.phManufacturer)) &&
+        (!SET(pEnumRecord, ET_MODEL) || (pEnumRecord->dwModel == header.phModel)) &&
+        (!SET(pEnumRecord, ET_ATTRIBUTES) || (pEnumRecord->dwAttributes[0] == header.phAttributes[0] &&
+                                              pEnumRecord->dwAttributes[1] == header.phAttributes[1])) &&
+                                              (!SET(pEnumRecord, ET_RENDERINGINTENT) || (pEnumRecord->dwRenderingIntent == header.phRenderingIntent)) &&
+        (!SET(pEnumRecord, ET_CREATOR) || (pEnumRecord->dwCreator == header.phCreator))) {
         rc = EXACT_MATCH;
     }
 
@@ -4801,14 +4470,12 @@ DoesProfileMatchEnumRecord(
     // Check for resolution, media type and halftoning match
 
 
-    if (rc != NOMATCH && SET(pEnumRecord, ET_RESOLUTION|ET_MEDIATYPE|ET_DITHERMODE))
-    {
+    if (rc != NOMATCH && SET(pEnumRecord, ET_RESOLUTION | ET_MEDIATYPE | ET_DITHERMODE)) {
         rc = CheckResMedHftnMatch(hProfile, pEnumRecord);
     }
 
 EndDoesProfileMatchEnumRecord:
-    if (hProfile)
-    {
+    if (hProfile) {
         CloseColorProfile(hProfile);
     }
 
@@ -4841,7 +4508,7 @@ MATCHTYPE
 CheckResMedHftnMatch(
     HPROFILE   hProfile,
     PENUMTYPE  pEnumRecord
-    )
+)
 {
     PDEVICESETTINGS   pDevSettings = NULL;
     PPLATFORMENTRY    pPlatform;
@@ -4859,16 +4526,13 @@ CheckResMedHftnMatch(
     dwSize = 0;
     GetColorProfileElement(hProfile, TAG_DEVICESETTINGS, 0, &dwSize, NULL, &bReference);
 
-    if (dwSize > 0)
-    {
-        if (!(pDevSettings = (PDEVICESETTINGS)GlobalAllocPtr(GHND, dwSize)))
-        {
+    if (dwSize > 0) {
+        if (!(pDevSettings = (PDEVICESETTINGS)GlobalAllocPtr(GHND, dwSize))) {
             WARNING((__TEXT("Error allocating memory\n")));
             return NOMATCH;
         }
 
-        if (GetColorProfileElement(hProfile, TAG_DEVICESETTINGS, 0, &dwSize, (PBYTE)pDevSettings, &bReference))
-        {
+        if (GetColorProfileElement(hProfile, TAG_DEVICESETTINGS, 0, &dwSize, (PBYTE)pDevSettings, &bReference)) {
             pPlatform = &pDevSettings->PlatformEntry[0];
 
 
@@ -4884,8 +4548,7 @@ CheckResMedHftnMatch(
                 pPlatform = (PPLATFORMENTRY)((PBYTE)pPlatform + FIX_ENDIAN(pPlatform->dwSize));
             }
 
-            if (i >= iMax)
-            {
+            if (i >= iMax) {
 
                 // There are no MS specific settings, assume this profile is valid
                 // for all settings (ambigous match)
@@ -4900,43 +4563,33 @@ CheckResMedHftnMatch(
 
             pCombo = &pPlatform->SettingCombos[0];
             iMax = FIX_ENDIAN(pPlatform->nSettingCombos);
-            for (i=0; i<iMax; i++)
-            {
+            for (i = 0; i < iMax; i++) {
 
                 // Go through each setting in the combination
 
 
                 pSetting = &pCombo->Settings[0];
                 jMax = FIX_ENDIAN(pCombo->nSettings);
-                for (j=0; j<jMax; j++)
-                {
-                    if (pSetting->dwSettingType == ID_MEDIATYPE_REVERSED)
-                    {
+                for (j = 0; j < jMax; j++) {
+                    if (pSetting->dwSettingType == ID_MEDIATYPE_REVERSED) {
                         if (SET(pEnumRecord, ET_MEDIATYPE) &&
-                            !DwordMatches(pSetting, pEnumRecord->dwMediaType))
-                        {
+                            !DwordMatches(pSetting, pEnumRecord->dwMediaType)) {
                             goto NextCombo;
                         }
-                    }
-                    else if (pSetting->dwSettingType == ID_DITHER_REVERSED)
-                    {
+                    } else if (pSetting->dwSettingType == ID_DITHER_REVERSED) {
                         if (SET(pEnumRecord, ET_DITHERMODE) &&
-                            !DwordMatches(pSetting, pEnumRecord->dwDitheringMode))
-                        {
+                            !DwordMatches(pSetting, pEnumRecord->dwDitheringMode)) {
                             goto NextCombo;
                         }
-                    }
-                    else if (pSetting->dwSettingType == ID_RESLN_REVERSED)
-                    {
+                    } else if (pSetting->dwSettingType == ID_RESLN_REVERSED) {
                         if (SET(pEnumRecord, ET_RESOLUTION) &&
-                            !QwordMatches(pSetting, &pEnumRecord->dwResolution[0]))
-                        {
+                            !QwordMatches(pSetting, &pEnumRecord->dwResolution[0])) {
                             goto NextCombo;
                         }
                     }
 
                     pSetting = (PSETTINGS)((PBYTE)pSetting + sizeof(SETTINGS) - sizeof(DWORD) +
-                                        FIX_ENDIAN(pSetting->dwSizePerValue) * FIX_ENDIAN(pSetting->nValues));
+                                           FIX_ENDIAN(pSetting->dwSizePerValue) * FIX_ENDIAN(pSetting->nValues));
                 }
 
 
@@ -4953,57 +4606,44 @@ CheckResMedHftnMatch(
             rc = NOMATCH;
             goto EndCheckResMedHftnMatch;
 
-        }
-        else
-        {
+        } else {
             rc = NOMATCH;
             goto EndCheckResMedHftnMatch;
         }
-    }
-    else
-    {
+    } else {
 
         // Check if the old MSxx tags are present
 
 
         dwSize = sizeof(dwMSData);
-        if (SET(pEnumRecord, ET_MEDIATYPE))
-        {
-            if (GetColorProfileElement(hProfile, TAG_MS01, 0, &dwSize, dwMSData, &bReference))
-            {
+        if (SET(pEnumRecord, ET_MEDIATYPE)) {
+            if (GetColorProfileElement(hProfile, TAG_MS01, 0, &dwSize, dwMSData, &bReference)) {
                 rc = EXACT_MATCH;       // Assume exact match
 
-                if (pEnumRecord->dwMediaType != FIX_ENDIAN(dwMSData[2]))
-                {
+                if (pEnumRecord->dwMediaType != FIX_ENDIAN(dwMSData[2])) {
                     return NOMATCH;
                 }
             }
         }
 
         dwSize = sizeof(dwMSData);
-        if (SET(pEnumRecord, ET_DITHERMODE))
-        {
-            if (GetColorProfileElement(hProfile, TAG_MS02, 0, &dwSize, dwMSData, &bReference))
-            {
+        if (SET(pEnumRecord, ET_DITHERMODE)) {
+            if (GetColorProfileElement(hProfile, TAG_MS02, 0, &dwSize, dwMSData, &bReference)) {
                 rc = EXACT_MATCH;       // Assume exact match
 
-                if (pEnumRecord->dwDitheringMode != FIX_ENDIAN(dwMSData[2]))
-                {
+                if (pEnumRecord->dwDitheringMode != FIX_ENDIAN(dwMSData[2])) {
                     return NOMATCH;
                 }
             }
         }
 
         dwSize = sizeof(dwMSData);
-        if (SET(pEnumRecord, ET_RESOLUTION))
-        {
-            if (GetColorProfileElement(hProfile, TAG_MS03, 0, &dwSize, dwMSData, &bReference))
-            {
+        if (SET(pEnumRecord, ET_RESOLUTION)) {
+            if (GetColorProfileElement(hProfile, TAG_MS03, 0, &dwSize, dwMSData, &bReference)) {
                 rc = EXACT_MATCH;       // Assume exact match
 
                 if (pEnumRecord->dwResolution[0] != FIX_ENDIAN(dwMSData[2]) ||
-                    pEnumRecord->dwResolution[1] != FIX_ENDIAN(dwMSData[3]))
-                {
+                    pEnumRecord->dwResolution[1] != FIX_ENDIAN(dwMSData[3])) {
                     return NOMATCH;
                 }
             }
@@ -5012,8 +4652,7 @@ CheckResMedHftnMatch(
 
 EndCheckResMedHftnMatch:
 
-    if (pDevSettings)
-    {
+    if (pDevSettings) {
         GlobalFreePtr(pDevSettings);
     }
 
@@ -5025,7 +4664,7 @@ BOOL
 DwordMatches(
     PSETTINGS    pSetting,
     DWORD        dwValue
-    )
+)
 {
     DWORD  i, iMax;
     PDWORD pValue;
@@ -5038,10 +4677,8 @@ DwordMatches(
 
     pValue = &pSetting->Value[0];
     iMax = FIX_ENDIAN(pSetting->nValues);
-    for (i=0; i<iMax; i++)
-    {
-        if (dwValue == *pValue)
-        {
+    for (i = 0; i < iMax; i++) {
+        if (dwValue == *pValue) {
             return TRUE;
         }
 
@@ -5056,13 +4693,13 @@ BOOL
 QwordMatches(
     PSETTINGS    pSetting,
     PDWORD       pdwValue
-    )
+)
 {
     DWORD  i, iMax, dwValue1, dwValue2;
     PDWORD pValue;
 
     dwValue1 = FIX_ENDIAN(*pdwValue);  // so we don't have to do this in the loop
-    dwValue2 = FIX_ENDIAN(*(pdwValue+1));
+    dwValue2 = FIX_ENDIAN(*(pdwValue + 1));
 
 
     // Go through all the values. If any of them match, return TRUE.
@@ -5070,10 +4707,8 @@ QwordMatches(
 
     pValue = &pSetting->Value[0];
     iMax = FIX_ENDIAN(pSetting->nValues);
-    for (i=0; i<iMax; i++)
-    {
-        if ((dwValue1 == *pValue) && (dwValue2 == *(pValue + 1)))
-        {
+    for (i = 0; i < iMax; i++) {
+        if ((dwValue1 == *pValue) && (dwValue2 == *(pValue + 1))) {
             return TRUE;
         }
 
@@ -5108,13 +4743,13 @@ OpenPrtr(
     PTSTR    pDeviceName,
     LPHANDLE phDevice,
     PTSTR    pDummy
-    )
+)
 {
 #if !defined(_WIN95_)
     return OpenPrinter(pDeviceName, phDevice, (LPPRINTER_DEFAULTS)pDummy);
 #else
     HKEY    hkDevice = NULL;        // printers branch of registry
-    HKEY    hkPrtr   = NULL;        // Friendly name branch of registry
+    HKEY    hkPrtr = NULL;        // Friendly name branch of registry
     DWORD   dwErr;                  // error code
     BOOL    rc = FALSE;             // return code
 
@@ -5122,8 +4757,7 @@ OpenPrtr(
 
     if (((dwErr = RegOpenKey(HKEY_LOCAL_MACHINE, gszRegPrinter, &hkDevice)) != ERROR_SUCCESS) ||
         ((dwErr = RegOpenKey(hkDevice, pDeviceName, &hkPrtr)) != ERROR_SUCCESS) ||
-        ((dwErr = RegOpenKey(hkPrtr, gszPrinterData, (HKEY *)phDevice)) != ERROR_SUCCESS))
-    {
+        ((dwErr = RegOpenKey(hkPrtr, gszPrinterData, (HKEY*)phDevice)) != ERROR_SUCCESS)) {
         WARNING((__TEXT("Cannot open printer data branch of registry for %s: %d\n"), pDeviceName, dwErr));
         SetLastError(dwErr);
         goto EndOpenPrtr;
@@ -5132,12 +4766,10 @@ OpenPrtr(
     rc = TRUE;
 
 EndOpenPrtr:
-    if (hkDevice)
-    {
+    if (hkDevice) {
         RegCloseKey(hkDevice);
     }
-    if (hkPrtr)
-    {
+    if (hkPrtr) {
         RegCloseKey(hkPrtr);
     }
 
@@ -5165,7 +4797,7 @@ EndOpenPrtr:
 BOOL WINAPI
 ClosePrtr(
     HANDLE hDevice
-    )
+)
 {
 #if !defined(_WIN95_)
     return ClosePrinter(hDevice);
@@ -5209,12 +4841,12 @@ GetPrtrData(
     PBYTE  pData,
     DWORD  dwSize,
     PDWORD pdwNeeded
-    )
+)
 {
 #if !defined(_WIN95_)
     return GetPrinterDataEx(hDevice, pKey, pName, pdwType, pData, dwSize, pdwNeeded);
 #else
-    *pdwNeeded = dwSize;
+    * pdwNeeded = dwSize;
 
     return RegQueryValueEx((HKEY)hDevice, pName, 0, NULL, pData, pdwNeeded);
 #endif
@@ -5249,7 +4881,7 @@ SetPrtrData(
     DWORD  dwType,
     PBYTE  pData,
     DWORD  dwSize
-    )
+)
 {
 #if !defined(_WIN95_)
     return SetPrinterDataEx(hDevice, pKey, pName, dwType, pData, dwSize);
@@ -5281,7 +4913,7 @@ OpenMonitor(
     PTSTR    pDeviceName,
     LPHANDLE phDevice,
     PTSTR    pDummy
-    )
+)
 {
 #ifdef _WIN95_
 
@@ -5298,29 +4930,24 @@ OpenMonitor(
     SP_DEVINFO_DATA spdid;
     int             i;                      // instance counter
 
-    if (!LoadSetupAPIDll())
-    {
+    if (!LoadSetupAPIDll()) {
         WARNING((__TEXT("Error loading setupapi.dll: %d\n"), GetLastError()));
         return FALSE;
     }
 
-    hDevInfo = (*fpSetupDiGetClassDevs)((LPGUID)&GUID_DEVCLASS_MONITOR, NULL,  NULL, DIGCF_PRESENT);
+    hDevInfo = (*fpSetupDiGetClassDevs)((LPGUID)&GUID_DEVCLASS_MONITOR, NULL, NULL, DIGCF_PRESENT);
 
-    if (hDevInfo == INVALID_HANDLE_VALUE)
-    {
+    if (hDevInfo == INVALID_HANDLE_VALUE) {
         WARNING((__TEXT("Error getting hDevInfo: %d\n"), GetLastError()));
         goto EndOpenMonitor;
     }
 
     i = 0;
-    while (! rc)
-    {
+    while (!rc) {
         ZeroMemory(&spdid, sizeof(SP_DEVINFO_DATA));
         spdid.cbSize = sizeof(SP_DEVINFO_DATA);
-        if (! (*fpSetupDiEnumDeviceInfo)(hDevInfo, i, &spdid))
-        {
-            if (i == 0 && !lstrcmpi(pDeviceName, gszDisplay))
-            {
+        if (!(*fpSetupDiEnumDeviceInfo)(hDevInfo, i, &spdid)) {
+            if (i == 0 && !lstrcmpi(pDeviceName, gszDisplay)) {
 
                 // PnP support not in - open ICM key in registry
 
@@ -5334,8 +4961,7 @@ OpenMonitor(
 
 
                 if ((RegOpenKey(HKEY_LOCAL_MACHINE, gszICMRegPath, &hkICM) != ERROR_SUCCESS) ||
-                    (RegCreateKey(hkICM, szICMMonitorData, &hkDriver) != ERROR_SUCCESS))
-                {
+                    (RegCreateKey(hkICM, szICMMonitorData, &hkDriver) != ERROR_SUCCESS)) {
                     WARNING((__TEXT("Cannot open ICMMonitorData branch of registry\n")));
                     goto EndOpenMonitor;
                 }
@@ -5350,15 +4976,12 @@ OpenMonitor(
 
         dwSize = sizeof(szName);
         if ((*fpSetupDiGetDeviceInstanceId)(hDevInfo, &spdid, szName, dwSize, NULL) &&
-            ! lstrcmp(szName, pDeviceName))
-        {
+            !lstrcmp(szName, pDeviceName)) {
             hkDriver = (*fpSetupDiOpenDevRegKey)(hDevInfo, &spdid, DICS_FLAG_GLOBAL, 0, DIREG_DRV, KEY_ALL_ACCESS);
-            if (hkDriver == INVALID_HANDLE_VALUE)
-            {
+            if (hkDriver == INVALID_HANDLE_VALUE) {
                 WARNING((__TEXT("Could not open monitor s/w key for all access\n")));
                 hkDriver = (*fpSetupDiOpenDevRegKey)(hDevInfo, &spdid, DICS_FLAG_GLOBAL, 0, DIREG_DRV, KEY_READ);
-                if (hkDriver == INVALID_HANDLE_VALUE)
-                {
+                if (hkDriver == INVALID_HANDLE_VALUE) {
                     WARNING((__TEXT("Error opening s/w registry key for read access: %x\n"), GetLastError()));
                     goto EndOpenMonitor;
                 }
@@ -5372,13 +4995,11 @@ OpenMonitor(
 
 EndOpenMonitor:
 
-    if (hkICM)
-    {
+    if (hkICM) {
         RegCloseKey(hkICM);
     }
 
-    if (hDevInfo != INVALID_HANDLE_VALUE)
-    {
+    if (hDevInfo != INVALID_HANDLE_VALUE) {
         (*fpSetupDiDestroyDeviceInfoList)(hDevInfo);
     }
 
@@ -5399,38 +5020,30 @@ EndOpenMonitor:
     // Copy device class root key.
 
 
-    lstrcpy(szRegPath,gszDeviceClass);
-    lstrcat(szRegPath,gszMonitorGUID);
+    lstrcpy(szRegPath, gszDeviceClass);
+    lstrcat(szRegPath, gszMonitorGUID);
 
-    if (!lstrcmpi(pDeviceName, gszDisplay))
-    {
+    if (!lstrcmpi(pDeviceName, gszDisplay)) {
         WARNING((__TEXT("PnP support absent - Using DISPLAY\n")));
 
 
         // PnP support not in -  just open "0000" device.
 
 
-        lstrcat(szRegPath,TEXT("\\0000"));
-    }
-    else if (_tcsstr(pDeviceName,gszMonitorGUID))
-    {
+        lstrcat(szRegPath, TEXT("\\0000"));
+    } else if (_tcsstr(pDeviceName, gszMonitorGUID)) {
 
         // Extract monitor number from DeviceName
 
 
-        TCHAR *pDeviceNumber = _tcsrchr(pDeviceName,TEXT('\\'));
+        TCHAR* pDeviceNumber = _tcsrchr(pDeviceName, TEXT('\\'));
 
-        if (pDeviceNumber)
-        {
-            lstrcat(szRegPath,pDeviceNumber);
+        if (pDeviceNumber) {
+            lstrcat(szRegPath, pDeviceNumber);
+        } else {
+            lstrcat(szRegPath, TEXT("\\0000"));
         }
-        else
-        {
-            lstrcat(szRegPath,TEXT("\\0000"));
-        }
-    }
-    else
-    {
+    } else {
 
         // This is not valid monitor name.
 
@@ -5441,15 +5054,14 @@ EndOpenMonitor:
     // Open the registry path where monitor data is kept
 
 
-    if (RegOpenKey(HKEY_LOCAL_MACHINE, szRegPath, &hkDriver) != ERROR_SUCCESS)
-    {
-        WARNING((__TEXT("Cannot open %s key\n"),szRegPath));
+    if (RegOpenKey(HKEY_LOCAL_MACHINE, szRegPath, &hkDriver) != ERROR_SUCCESS) {
+        WARNING((__TEXT("Cannot open %s key\n"), szRegPath));
         hkDriver = NULL;
     }
 
 EndOpenMonitor:
 
-    *phDevice = (HANDLE) hkDriver;
+    *phDevice = (HANDLE)hkDriver;
 
     return (hkDriver != NULL);
 
@@ -5475,7 +5087,7 @@ EndOpenMonitor:
 BOOL WINAPI
 CloseMonitor(
     HANDLE hDevice
-    )
+)
 {
     DWORD dwErr;
 
@@ -5515,7 +5127,7 @@ GetMonitorData(
     PBYTE  pData,
     DWORD  dwSize,
     PDWORD pdwNeeded
-    )
+)
 {
     DWORD    dwType, dwTemp;
     DWORD    rc;
@@ -5523,21 +5135,17 @@ GetMonitorData(
     *pdwNeeded = dwSize;
 
     rc = RegQueryValueEx((HKEY)hDevice, pName, 0, &dwType, pData, pdwNeeded);
-    if (rc == ERROR_SUCCESS || rc == ERROR_MORE_DATA)
-    {
-        if (dwType == REG_SZ)
-        {
+    if (rc == ERROR_SUCCESS || rc == ERROR_MORE_DATA) {
+        if (dwType == REG_SZ) {
             PTSTR pFilename;
 
 
             // Old style value, convert to double null terminated binary
 
 
-            if (pData)
-            {
+            if (pData) {
                 pFilename = GetFilenameFromPath((PTSTR)pData);
-                if (pFilename != (PTSTR)pData)
-                {
+                if (pFilename != (PTSTR)pData) {
                     lstrcpy((PTSTR)pData, pFilename);
                 }
                 *pdwNeeded = lstrlen((PTSTR)pData) * sizeof(TCHAR);
@@ -5545,19 +5153,16 @@ GetMonitorData(
 
             *pdwNeeded += sizeof(TCHAR);    // for double NULL termination
 
-            if ((dwSize >= *pdwNeeded) && pData)
-            {
+            if ((dwSize >= *pdwNeeded) && pData) {
                 *((PTSTR)pData + lstrlen((PTSTR)pData) + 1) = '\0';
 
 
                 // Set the profile name in new format
 
 
-                RegSetValueEx((HKEY)hDevice, pName, 0, REG_BINARY, pData, (lstrlen((PTSTR)pData)+2)*sizeof(TCHAR));
+                RegSetValueEx((HKEY)hDevice, pName, 0, REG_BINARY, pData, (lstrlen((PTSTR)pData) + 2) * sizeof(TCHAR));
             }
-        }
-        else if (*pdwNeeded == 1)
-        {
+        } else if (*pdwNeeded == 1) {
 
             // If we have picked up the data and it is a 1 byte non-zero
             // value, it is an 1 based index in a list of
@@ -5567,14 +5172,12 @@ GetMonitorData(
             // not, so we assume it is and ask for a large enough buffer.
 
 
-            if (!pData || *pData != 0)
-            {
+            if (!pData || *pData != 0) {
 
                 // Old style 1-based index value
 
 
-                if ((dwSize >= MAX_PATH) && pData)
-                {
+                if ((dwSize >= MAX_PATH) && pData) {
                     HKEY     hkICM = NULL;
                     HKEY     hkDevice = NULL;
                     REGDATA  regData;
@@ -5583,8 +5186,7 @@ GetMonitorData(
                     // Make sure buggy inf doesn't crash us
 
 
-                    if (pData[0] > sizeof(gszDispProfiles)/sizeof(gszDispProfiles[0]))
-                    {
+                    if (pData[0] > sizeof(gszDispProfiles) / sizeof(gszDispProfiles[0])) {
                         WARNING((__TEXT("Predefined profile index too large: %d\n"), pData[0]));
                         goto EndCompatMode;
                     }
@@ -5600,8 +5202,7 @@ GetMonitorData(
 
 
                     if ((RegCreateKey(HKEY_LOCAL_MACHINE, gszICMRegPath, &hkICM) != ERROR_SUCCESS) ||
-                        (RegCreateKey(hkICM, __TEXT("mntr"), &hkDevice) != ERROR_SUCCESS))
-                    {
+                        (RegCreateKey(hkICM, __TEXT("mntr"), &hkDevice) != ERROR_SUCCESS)) {
                         WARNING((__TEXT("Cannot open ICM\\device branch of registry\n")));
                         goto EndCompatMode;
                     }
@@ -5613,20 +5214,16 @@ GetMonitorData(
 
                     dwTemp = sizeof(REGDATA);
                     if (RegQueryValueEx(hkDevice, (PTSTR)pData, 0, NULL, (PBYTE)&regData,
-                            &dwTemp) == ERROR_SUCCESS)
-                    {
+                                        &dwTemp) == ERROR_SUCCESS) {
                         regData.dwRefCount++;
-                    }
-                    else
-                    {
+                    } else {
                         regData.dwRefCount = 1;
                         regData.dwManuID = 'enon';  // it is our profile
                         regData.dwModelID = 'enon';
                     }
 
                     if (RegSetValueEx(hkDevice, (PTSTR)pData, 0, REG_BINARY,
-                            (PBYTE)&regData, sizeof(REGDATA)) != ERROR_SUCCESS)
-                    {
+                        (PBYTE)&regData, sizeof(REGDATA)) != ERROR_SUCCESS) {
                         WARNING((__TEXT("Error setting registry value\n")));
                         goto EndCompatMode;
                     }
@@ -5636,15 +5233,13 @@ GetMonitorData(
 
 
                     RegSetValueEx((HKEY)hDevice, pName, 0, REG_BINARY, pData,
-                                  (lstrlen((PTSTR)pData) + 2)*sizeof(TCHAR));
+                        (lstrlen((PTSTR)pData) + 2) * sizeof(TCHAR));
 
                 EndCompatMode:
-                    if (hkICM)
-                    {
+                    if (hkICM) {
                         RegCloseKey(hkICM);
                     }
-                    if (hkDevice)
-                    {
+                    if (hkDevice) {
                         RegCloseKey(hkDevice);
                     }
                 }
@@ -5653,8 +5248,7 @@ GetMonitorData(
         }
     }
 
-    if ((rc == ERROR_SUCCESS) && (*pdwNeeded > dwSize))
-    {
+    if ((rc == ERROR_SUCCESS) && (*pdwNeeded > dwSize)) {
         rc = ERROR_MORE_DATA;
     }
 
@@ -5690,7 +5284,7 @@ SetMonitorData(
     DWORD  dwType,
     PBYTE  pData,
     DWORD  dwSize
-    )
+)
 {
     return RegSetValueEx((HKEY)hDevice, pName, 0, dwType, pData, dwSize);
 }
@@ -5718,51 +5312,45 @@ OpenScanner(
     PTSTR    pDeviceName,
     LPHANDLE phDevice,
     PTSTR    pDummy
-    )
+)
 {
     PFNSTICREATEINSTANCE pStiCreateInstance;
     PSCANNERDATA         psd = NULL;
     HRESULT              hres;
     BOOL                 bRc = FALSE;
 
-    if (!(psd = (PSCANNERDATA)MemAlloc(sizeof(SCANNERDATA))))
-    {
+    if (!(psd = (PSCANNERDATA)MemAlloc(sizeof(SCANNERDATA)))) {
         WARNING((__TEXT("Error allocating memory for scanner data\n")));
         return FALSE;
     }
 
-    if (!(psd->pDeviceName = MemAlloc((lstrlen(pDeviceName) + 1) * sizeof(WCHAR))))
-    {
+    if (!(psd->pDeviceName = MemAlloc((lstrlen(pDeviceName) + 1) * sizeof(WCHAR)))) {
         WARNING((__TEXT("Error allocating memory for scanner name\n")));
         goto EndOpenScanner;
     }
 
-    #ifdef UNICODE
+#ifdef UNICODE
     lstrcpy(psd->pDeviceName, pDeviceName);
-    #else
-    if (! ConvertToUnicode(pDeviceName, &psd->pDeviceName, FALSE))
-    {
+#else
+    if (!ConvertToUnicode(pDeviceName, &psd->pDeviceName, FALSE)) {
         WARNING((__TEXT("Error converting scanner name to Unicode\n")));
         goto EndOpenScanner;
     }
-    #endif
+#endif
 
-    if (!(psd->hModule = LoadLibrary(gszStiDll)))
-    {
+    if (!(psd->hModule = LoadLibrary(gszStiDll))) {
         WARNING((__TEXT("Error loading sti.dll: %d\n"), GetLastError()));
         goto EndOpenScanner;
     }
 
-    if (!(pStiCreateInstance = (PFNSTICREATEINSTANCE)GetProcAddress(psd->hModule, gszStiCreateInstance)))
-    {
+    if (!(pStiCreateInstance = (PFNSTICREATEINSTANCE)GetProcAddress(psd->hModule, gszStiCreateInstance))) {
         WARNING((__TEXT("Error getting proc StiCreateInstance\n")));
         goto EndOpenScanner;
     }
 
     hres = (*pStiCreateInstance)(GetModuleHandle(NULL), STI_VERSION, &psd->pSti, NULL);
 
-    if (FAILED(hres))
-    {
+    if (FAILED(hres)) {
         WARNING((__TEXT("Error creating sti instance: %d\n"), hres));
         goto EndOpenScanner;
     }
@@ -5773,8 +5361,7 @@ OpenScanner(
 
 EndOpenScanner:
 
-    if (!bRc && psd)
-    {
+    if (!bRc && psd) {
         CloseScanner((HANDLE)psd);
     }
 
@@ -5800,24 +5387,20 @@ EndOpenScanner:
 BOOL WINAPI
 CloseScanner(
     HANDLE hDevice
-    )
+)
 {
     PSCANNERDATA psd = (PSCANNERDATA)hDevice;
 
-    if (psd)
-    {
-        if (psd->pSti)
-        {
+    if (psd) {
+        if (psd->pSti) {
             psd->pSti->lpVtbl->Release(psd->pSti);
         }
 
-        if (psd->pDeviceName)
-        {
+        if (psd->pDeviceName) {
             MemFree(psd->pDeviceName);
         }
 
-        if (psd->hModule)
-        {
+        if (psd->hModule) {
             FreeLibrary(psd->hModule);
         }
 
@@ -5858,7 +5441,7 @@ GetScannerData(
     PBYTE  pData,
     DWORD  dwSize,
     PDWORD pdwNeeded
-    )
+)
 {
     PSCANNERDATA psd = (PSCANNERDATA)hDevice;
     HRESULT      hres;
@@ -5870,8 +5453,7 @@ GetScannerData(
 
     hres = ConvertToUnicode(pName, &pwszName, TRUE);
 
-    if (!hres)
-    {
+    if (!hres) {
         return (ERROR_INVALID_PARAMETER);
     }
 
@@ -5879,7 +5461,7 @@ GetScannerData(
 
 #endif
 
-    *pdwNeeded = dwSize;
+    * pdwNeeded = dwSize;
 
     hres = psd->pSti->lpVtbl->GetDeviceValue(psd->pSti, psd->pDeviceName, (PWSTR)pName, pdwType, pData, pdwNeeded);
 
@@ -5921,7 +5503,7 @@ SetScannerData(
     DWORD  dwType,
     PBYTE  pData,
     DWORD  dwSize
-    )
+)
 {
     PSCANNERDATA psd = (PSCANNERDATA)hDevice;
     HRESULT      hres;
@@ -5933,8 +5515,7 @@ SetScannerData(
 
     hres = ConvertToUnicode(pName, &pwszName, TRUE);
 
-    if (!hres)
-    {
+    if (!hres) {
         return (ERROR_INVALID_PARAMETER);
     }
 
@@ -5964,14 +5545,13 @@ InternalGetDeviceConfig(
     DWORD   dwConfigType,
     PVOID   pConfigData,
     PDWORD  pdwSize
-    )
+)
 {
     DWORD   dwDataType;
     DWORD   dwSizeRequired = 0;
     BOOL    rc = FALSE;
 
-    switch (dwConfigType)
-    {
+    switch (dwConfigType) {
     case MSCMS_PROFILE_ENUM_MODE:
 
         dwDataType = DEVICE_PROFILE_ENUMMODE;
@@ -5988,27 +5568,20 @@ InternalGetDeviceConfig(
     // Query the size of the data.
 
 
-    if (GetDeviceData(pDeviceName,dwDeviceClass,dwDataType,NULL,&dwSizeRequired,FALSE))
-    {
-        if ((dwSizeRequired <= *pdwSize) && (pConfigData != NULL))
-        {
+    if (GetDeviceData(pDeviceName, dwDeviceClass, dwDataType, NULL, &dwSizeRequired, FALSE)) {
+        if ((dwSizeRequired <= *pdwSize) && (pConfigData != NULL)) {
 
             // If buffer is enough, get the data.
 
 
-            if (GetDeviceData(pDeviceName,dwDeviceClass,dwDataType,
-                              (PVOID *)&pConfigData,pdwSize,FALSE))
-            {
+            if (GetDeviceData(pDeviceName, dwDeviceClass, dwDataType,
+                (PVOID*)&pConfigData, pdwSize, FALSE)) {
                 rc = TRUE;
-            }
-            else
-            {
+            } else {
                 WARNING((__TEXT("Failed on GetDeviceData to query data\n")));
                 SetLastError(ERROR_INVALID_PARAMETER);
             }
-        }
-        else
-        {
+        } else {
 
             // Return nessesary buffer size to caller.
 
@@ -6016,9 +5589,7 @@ InternalGetDeviceConfig(
             *pdwSize = dwSizeRequired;
             SetLastError(ERROR_INSUFFICIENT_BUFFER);
         }
-    }
-    else
-    {
+    } else {
         WARNING((__TEXT("Failed on GetDeviceData to query data size\n")));
         SetLastError(ERROR_INVALID_PARAMETER);
     }
@@ -6033,12 +5604,11 @@ InternalSetDeviceConfig(
     DWORD   dwConfigType,
     PVOID   pConfigData,
     DWORD   dwSize
-    )
+)
 {
     DWORD   dwDataType;
 
-    switch (dwConfigType)
-    {
+    switch (dwConfigType) {
     case MSCMS_PROFILE_ENUM_MODE:
 
         dwDataType = DEVICE_PROFILE_ENUMMODE;
@@ -6055,7 +5625,7 @@ InternalSetDeviceConfig(
     // Save the data.
 
 
-    return (SetDeviceData(pDeviceName,dwDeviceClass,dwDataType,pConfigData,dwSize));
+    return (SetDeviceData(pDeviceName, dwDeviceClass, dwDataType, pConfigData, dwSize));
 }
 
 #ifdef _WIN95_
@@ -6067,33 +5637,30 @@ InternalSetDeviceConfig(
 BOOL
 LoadSetupAPIDll(
     VOID
-    )
+)
 {
     EnterCriticalSection(&critsec);
 
-    if (ghModSetupAPIDll == NULL)
-    {
+    if (ghModSetupAPIDll == NULL) {
         ghModSetupAPIDll = LoadLibrary(TEXT("setupapi.dll"));
 
-        if (ghModSetupAPIDll)
-        {
+        if (ghModSetupAPIDll) {
             fpSetupDiOpenDevRegKey = (FP_SetupDiOpenDevRegKey)
-                GetProcAddress(ghModSetupAPIDll,"SetupDiOpenDevRegKey");
+                GetProcAddress(ghModSetupAPIDll, "SetupDiOpenDevRegKey");
             fpSetupDiDestroyDeviceInfoList = (FP_SetupDiDestroyDeviceInfoList)
-                GetProcAddress(ghModSetupAPIDll,"SetupDiDestroyDeviceInfoList");
+                GetProcAddress(ghModSetupAPIDll, "SetupDiDestroyDeviceInfoList");
             fpSetupDiEnumDeviceInfo = (FP_SetupDiEnumDeviceInfo)
-                GetProcAddress(ghModSetupAPIDll,"SetupDiEnumDeviceInfo");
+                GetProcAddress(ghModSetupAPIDll, "SetupDiEnumDeviceInfo");
             fpSetupDiGetDeviceInstanceId = (FP_SetupDiGetDeviceInstanceId)
-                GetProcAddress(ghModSetupAPIDll,"SetupDiGetDeviceInstanceIdA");
+                GetProcAddress(ghModSetupAPIDll, "SetupDiGetDeviceInstanceIdA");
             fpSetupDiGetClassDevs = (FP_SetupDiGetClassDevs)
-                GetProcAddress(ghModSetupAPIDll,"SetupDiGetClassDevsA");
+                GetProcAddress(ghModSetupAPIDll, "SetupDiGetClassDevsA");
 
             if ((fpSetupDiOpenDevRegKey == NULL) ||
                 (fpSetupDiDestroyDeviceInfoList == NULL) ||
                 (fpSetupDiEnumDeviceInfo == NULL) ||
                 (fpSetupDiGetDeviceInstanceId == NULL) ||
-                (fpSetupDiGetClassDevs == NULL))
-            {
+                (fpSetupDiGetClassDevs == NULL)) {
                 WARNING((__TEXT("Could not find Export function in setupapi.dll\n")));
 
                 FreeLibrary(ghModSetupAPIDll);
@@ -6118,14 +5685,14 @@ ChangeICMSetting(
     LPCTSTR pMachineName,
     LPCTSTR pDeviceName,
     DWORD   dwICMMode
-    )
+)
 {
-    PRINTER_INFO_8   *ppi8;
-    PRINTER_INFO_9   *ppi9;
+    PRINTER_INFO_8* ppi8;
+    PRINTER_INFO_9* ppi9;
     PRINTER_DEFAULTS pd;
     HANDLE           hPrinter;
     DWORD            dwSize;
-    BYTE             temp[2*1024];    // sufficient for devmode
+    BYTE             temp[2 * 1024];    // sufficient for devmode
 
     pd.pDatatype = NULL;
     pd.pDevMode = NULL;
@@ -6134,16 +5701,11 @@ ChangeICMSetting(
     if (!OpenPrinter((PTSTR)pDeviceName, &hPrinter, &pd))
         return;
 
-
     // Get and update system devmode
 
-
-    ppi8 = (PRINTER_INFO_8 *)&temp;
-    if (GetPrinter(hPrinter, 8, (PBYTE)ppi8, sizeof(temp), &dwSize) &&
-        ppi8->pDevMode)
-    {
-        switch (dwICMMode)
-        {
+    ppi8 = (PRINTER_INFO_8*)&temp;
+    if (GetPrinter(hPrinter, 8, (PBYTE)ppi8, sizeof(temp), &dwSize) && ppi8->pDevMode) {
+        switch (dwICMMode) {
         case ICM_ON:
         case ICM_OFF:
             ppi8->pDevMode->dmFields |= DM_ICMMETHOD;
@@ -6157,12 +5719,10 @@ ChangeICMSetting(
     }
 
     // If the user has a per-user devmode, update this as well
-    ppi9 = (PRINTER_INFO_9 *)&temp;
+    ppi9 = (PRINTER_INFO_9*)&temp;
     if (GetPrinter(hPrinter, 9, (PBYTE)ppi9, sizeof(temp), &dwSize) &&
-        ppi9->pDevMode)
-    {
-        switch (dwICMMode)
-        {
+        ppi9->pDevMode) {
+        switch (dwICMMode) {
         case ICM_ON:
         case ICM_OFF:
             ppi9->pDevMode->dmFields |= DM_ICMMETHOD;

@@ -19,9 +19,9 @@ Author:
 DWORD pSetupDiGetCoInstallerList(
     IN     HDEVINFO                 DeviceInfoSet,
     IN     PSP_DEVINFO_DATA         DeviceInfoData,
-    IN     CONST GUID              *ClassGuid,
+    IN     CONST GUID* ClassGuid,
     IN OUT PDEVINSTALL_PARAM_BLOCK  InstallParamBlock
-    );
+);
 
 // Private logging data
 // these must be mirrored from setupapi.h
@@ -75,21 +75,21 @@ static LPCTSTR pSetupDiDifStrings[] = {
 BOOL WINAPI
 SetupDiGetDeviceInstallParamsA(
     IN  HDEVINFO                DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA        DeviceInfoData,          OPTIONAL
+    IN  PSP_DEVINFO_DATA        DeviceInfoData, OPTIONAL
     OUT PSP_DEVINSTALL_PARAMS_A DeviceInstallParams
-    )
+)
 {
     SP_DEVINSTALL_PARAMS_W deviceInstallParams;
     DWORD rc;
     BOOL b;
 
     deviceInstallParams.cbSize = sizeof(SP_DEVINSTALL_PARAMS_W);
-    b = SetupDiGetDeviceInstallParamsW(DeviceInfoSet,DeviceInfoData,&deviceInstallParams);
+    b = SetupDiGetDeviceInstallParamsW(DeviceInfoSet, DeviceInfoData, &deviceInstallParams);
     rc = GetLastError();
 
-    if(b) {
-        rc = pSetupDiDevInstParamsUnicodeToAnsi(&deviceInstallParams,DeviceInstallParams);
-        if(rc != NO_ERROR) {
+    if (b) {
+        rc = pSetupDiDevInstParamsUnicodeToAnsi(&deviceInstallParams, DeviceInstallParams);
+        if (rc != NO_ERROR) {
             b = FALSE;
         }
     }
@@ -103,9 +103,9 @@ BOOL
 WINAPI
 SetupDiGetDeviceInstallParamsW(
     IN  HDEVINFO                DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA        DeviceInfoData,          OPTIONAL
+    IN  PSP_DEVINFO_DATA        DeviceInfoData, OPTIONAL
     OUT PSP_DEVINSTALL_PARAMS_W DeviceInstallParams
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -120,9 +120,9 @@ BOOL
 WINAPI
 SetupDiGetDeviceInstallParams(
     IN  HDEVINFO              DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA      DeviceInfoData,          OPTIONAL
+    IN  PSP_DEVINFO_DATA      DeviceInfoData, OPTIONAL
     OUT PSP_DEVINSTALL_PARAMS DeviceInstallParams
-    )
+)
 /*++
 Routine Description:
     This routine retrieves installation parameters for a device information set (globally), or a particular device information element.
@@ -145,7 +145,7 @@ Return Value:
     DWORD Err;
     PDEVINFO_ELEM DevInfoElem;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -153,9 +153,9 @@ Return Value:
     Err = NO_ERROR;
 
     try {
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
             // Then we are to retrieve installation parameters for a particular device.
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
             } else {
                 Err = GetDevInstallParams(pDeviceInfoSet, &(DevInfoElem->InstallParamBlock), DeviceInstallParams);
@@ -181,11 +181,11 @@ BOOL
 WINAPI
 SetupDiGetClassInstallParamsA(
     IN  HDEVINFO                DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA        DeviceInfoData,         OPTIONAL
-    OUT PSP_CLASSINSTALL_HEADER ClassInstallParams,     OPTIONAL
+    IN  PSP_DEVINFO_DATA        DeviceInfoData, OPTIONAL
+    OUT PSP_CLASSINSTALL_HEADER ClassInstallParams, OPTIONAL
     IN  DWORD                   ClassInstallParamsSize,
     OUT PDWORD                  RequiredSize            OPTIONAL
-    )
+)
 {
     PDEVICE_INFO_SET pDeviceInfoSet;
     PDEVINFO_ELEM DevInfoElem;
@@ -197,7 +197,7 @@ SetupDiGetClassInstallParamsA(
     DWORD Err;
     BOOL b;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -205,9 +205,9 @@ SetupDiGetClassInstallParamsA(
     Err = NO_ERROR;
 
     try {
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
             // Then we are to retrieve installation parameters for a particular device.
-            if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,DeviceInfoData,NULL)) {
+            if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
                 InstallParamBlock = &DevInfoElem->InstallParamBlock;
             } else {
                 Err = ERROR_INVALID_PARAMETER;
@@ -220,8 +220,8 @@ SetupDiGetClassInstallParamsA(
         Err = ERROR_INVALID_PARAMETER;
     }
 
-    if(Err == NO_ERROR) {
-        if(InstallParamBlock->ClassInstallHeader) {
+    if (Err == NO_ERROR) {
+        if (InstallParamBlock->ClassInstallHeader) {
             Function = InstallParamBlock->ClassInstallHeader->InstallFunction;
         } else {
             Err = ERROR_NO_CLASSINSTALL_PARAMS;
@@ -230,33 +230,33 @@ SetupDiGetClassInstallParamsA(
 
     UnlockDeviceInfoSet(pDeviceInfoSet);
 
-    if(Err == NO_ERROR) {
+    if (Err == NO_ERROR) {
         // For DIF_SELECTDEVICE we need special processing since the structure that goes with it is ansi/unicode specific.
-        if(Function == DIF_SELECTDEVICE) {
-            b = SetupDiGetClassInstallParamsW(DeviceInfoSet,DeviceInfoData,(PSP_CLASSINSTALL_HEADER)&SelectDeviceParams,sizeof(SP_SELECTDEVICE_PARAMS_W),&requiredSize);
-            if(b) {
-                Err = pSetupDiSelDevParamsUnicodeToAnsi(&SelectDeviceParams,&SelectDeviceParamsA);
-                if(Err == NO_ERROR) {
+        if (Function == DIF_SELECTDEVICE) {
+            b = SetupDiGetClassInstallParamsW(DeviceInfoSet, DeviceInfoData, (PSP_CLASSINSTALL_HEADER)&SelectDeviceParams, sizeof(SP_SELECTDEVICE_PARAMS_W), &requiredSize);
+            if (b) {
+                Err = pSetupDiSelDevParamsUnicodeToAnsi(&SelectDeviceParams, &SelectDeviceParamsA);
+                if (Err == NO_ERROR) {
                     try {
-                        if(ClassInstallParams) {
-                            if((ClassInstallParamsSize < sizeof(SP_CLASSINSTALL_HEADER)) || (ClassInstallParams->cbSize != sizeof(SP_CLASSINSTALL_HEADER))) {
+                        if (ClassInstallParams) {
+                            if ((ClassInstallParamsSize < sizeof(SP_CLASSINSTALL_HEADER)) || (ClassInstallParams->cbSize != sizeof(SP_CLASSINSTALL_HEADER))) {
                                 Err = ERROR_INVALID_USER_BUFFER;
                             }
-                        } else if(ClassInstallParamsSize) {
+                        } else if (ClassInstallParamsSize) {
                             Err = ERROR_INVALID_USER_BUFFER;
                         }
 
-                        if(Err == NO_ERROR) {
+                        if (Err == NO_ERROR) {
                             // Store required size in output parameter (if requested).
-                            if(RequiredSize) {
+                            if (RequiredSize) {
                                 *RequiredSize = sizeof(SP_SELECTDEVICE_PARAMS_A);
                             }
 
                             // See if supplied buffer is large enough.
-                            if(ClassInstallParamsSize < sizeof(SP_SELECTDEVICE_PARAMS_A)) {
+                            if (ClassInstallParamsSize < sizeof(SP_SELECTDEVICE_PARAMS_A)) {
                                 Err = ERROR_INSUFFICIENT_BUFFER;
                             } else {
-                                CopyMemory(ClassInstallParams,&SelectDeviceParamsA,sizeof(SP_SELECTDEVICE_PARAMS_A));
+                                CopyMemory(ClassInstallParams, &SelectDeviceParamsA, sizeof(SP_SELECTDEVICE_PARAMS_A));
                             }
                         }
                     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -267,8 +267,8 @@ SetupDiGetClassInstallParamsA(
                 Err = GetLastError();
             }
         } else {
-            b = SetupDiGetClassInstallParamsW(DeviceInfoSet,DeviceInfoData,ClassInstallParams,ClassInstallParamsSize,RequiredSize);
-            if(b) {
+            b = SetupDiGetClassInstallParamsW(DeviceInfoSet, DeviceInfoData, ClassInstallParams, ClassInstallParamsSize, RequiredSize);
+            if (b) {
                 Err = NO_ERROR;
             } else {
                 Err = GetLastError();
@@ -285,11 +285,11 @@ BOOL
 WINAPI
 SetupDiGetClassInstallParamsW(
     IN  HDEVINFO                DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA        DeviceInfoData,         OPTIONAL
-    OUT PSP_CLASSINSTALL_HEADER ClassInstallParams,     OPTIONAL
+    IN  PSP_DEVINFO_DATA        DeviceInfoData, OPTIONAL
+    OUT PSP_CLASSINSTALL_HEADER ClassInstallParams, OPTIONAL
     IN  DWORD                   ClassInstallParamsSize,
     OUT PDWORD                  RequiredSize            OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -306,11 +306,11 @@ BOOL
 WINAPI
 SetupDiGetClassInstallParams(
     IN  HDEVINFO                DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA        DeviceInfoData,         OPTIONAL
-    OUT PSP_CLASSINSTALL_HEADER ClassInstallParams,     OPTIONAL
+    IN  PSP_DEVINFO_DATA        DeviceInfoData, OPTIONAL
+    OUT PSP_CLASSINSTALL_HEADER ClassInstallParams, OPTIONAL
     IN  DWORD                   ClassInstallParamsSize,
     OUT PDWORD                  RequiredSize            OPTIONAL
-    )
+)
 /*++
 Routine Description:
     This routine retrieves class installer parameters for a device information set (globally), or a particular device information element.
@@ -346,7 +346,7 @@ Return Value:
     DWORD Err;
     PDEVINFO_ELEM DevInfoElem;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -354,16 +354,16 @@ Return Value:
     Err = NO_ERROR;
 
     try {
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
             // Then we are to retrieve installation parameters for a particular device.
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,DeviceInfoData,NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
             } else {
-                Err = GetClassInstallParams(&(DevInfoElem->InstallParamBlock),ClassInstallParams,ClassInstallParamsSize,RequiredSize);
+                Err = GetClassInstallParams(&(DevInfoElem->InstallParamBlock), ClassInstallParams, ClassInstallParamsSize, RequiredSize);
             }
         } else {
             // Retrieve installation parameters for the global class driver list.
-            Err = GetClassInstallParams(&(pDeviceInfoSet->InstallParamBlock),ClassInstallParams,ClassInstallParamsSize,RequiredSize);
+            Err = GetClassInstallParams(&(pDeviceInfoSet->InstallParamBlock), ClassInstallParams, ClassInstallParamsSize, RequiredSize);
         }
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -380,16 +380,16 @@ BOOL
 WINAPI
 _SetupDiSetDeviceInstallParams(
     IN HDEVINFO              DeviceInfoSet,
-    IN PSP_DEVINFO_DATA      DeviceInfoData,     OPTIONAL
+    IN PSP_DEVINFO_DATA      DeviceInfoData, OPTIONAL
     IN PSP_DEVINSTALL_PARAMS DeviceInstallParams,
     IN BOOL                  MsgHandlerIsNativeCharWidth
-    )
+)
 {
     PDEVICE_INFO_SET pDeviceInfoSet;
     DWORD Err;
     PDEVINFO_ELEM DevInfoElem;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -397,16 +397,16 @@ _SetupDiSetDeviceInstallParams(
     Err = NO_ERROR;
 
     try {
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
             // Then we are to set installation parameters for a particular device.
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
             } else {
-                Err = SetDevInstallParams(pDeviceInfoSet,DeviceInstallParams,&(DevInfoElem->InstallParamBlock),MsgHandlerIsNativeCharWidth);
+                Err = SetDevInstallParams(pDeviceInfoSet, DeviceInstallParams, &(DevInfoElem->InstallParamBlock), MsgHandlerIsNativeCharWidth);
             }
         } else {
             // Set installation parameters for the global class driver list.
-            Err = SetDevInstallParams(pDeviceInfoSet,DeviceInstallParams,&(pDeviceInfoSet->InstallParamBlock),MsgHandlerIsNativeCharWidth);
+            Err = SetDevInstallParams(pDeviceInfoSet, DeviceInstallParams, &(pDeviceInfoSet->InstallParamBlock), MsgHandlerIsNativeCharWidth);
         }
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -425,20 +425,20 @@ BOOL
 WINAPI
 SetupDiSetDeviceInstallParamsA(
     IN HDEVINFO                DeviceInfoSet,
-    IN PSP_DEVINFO_DATA        DeviceInfoData,     OPTIONAL
+    IN PSP_DEVINFO_DATA        DeviceInfoData, OPTIONAL
     IN PSP_DEVINSTALL_PARAMS_A DeviceInstallParams
-    )
+)
 {
     DWORD rc;
     SP_DEVINSTALL_PARAMS_W deviceInstallParams;
 
-    rc = pSetupDiDevInstParamsAnsiToUnicode(DeviceInstallParams,&deviceInstallParams);
-    if(rc != NO_ERROR) {
+    rc = pSetupDiDevInstParamsAnsiToUnicode(DeviceInstallParams, &deviceInstallParams);
+    if (rc != NO_ERROR) {
         SetLastError(rc);
         return(FALSE);
     }
 
-    return(_SetupDiSetDeviceInstallParams(DeviceInfoSet,DeviceInfoData,&deviceInstallParams,FALSE));
+    return(_SetupDiSetDeviceInstallParams(DeviceInfoSet, DeviceInfoData, &deviceInstallParams, FALSE));
 }
 #else
 // Unicode version
@@ -446,9 +446,9 @@ BOOL
 WINAPI
 SetupDiSetDeviceInstallParamsW(
     IN HDEVINFO                DeviceInfoSet,
-    IN PSP_DEVINFO_DATA        DeviceInfoData,     OPTIONAL
+    IN PSP_DEVINFO_DATA        DeviceInfoData, OPTIONAL
     IN PSP_DEVINSTALL_PARAMS_W DeviceInstallParams
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -463,9 +463,9 @@ BOOL
 WINAPI
 SetupDiSetDeviceInstallParams(
     IN HDEVINFO              DeviceInfoSet,
-    IN PSP_DEVINFO_DATA      DeviceInfoData,     OPTIONAL
+    IN PSP_DEVINFO_DATA      DeviceInfoData, OPTIONAL
     IN PSP_DEVINSTALL_PARAMS DeviceInstallParams
-    )
+)
 /*++
 Routine Description:
     This routine sets installation parameters for a device information set (globally), or a particular device information element.
@@ -488,7 +488,7 @@ Remarks:
     All parameters will be validated before any changes are made, so a return status of FALSE indicates that no parameters were modified.
 --*/
 {
-    return(_SetupDiSetDeviceInstallParams(DeviceInfoSet,DeviceInfoData,DeviceInstallParams,TRUE));
+    return(_SetupDiSetDeviceInstallParams(DeviceInfoSet, DeviceInfoData, DeviceInstallParams, TRUE));
 }
 
 
@@ -498,29 +498,29 @@ BOOL
 WINAPI
 SetupDiSetClassInstallParamsA(
     IN HDEVINFO                DeviceInfoSet,
-    IN PSP_DEVINFO_DATA        DeviceInfoData,        OPTIONAL
-    IN PSP_CLASSINSTALL_HEADER ClassInstallParams,    OPTIONAL
+    IN PSP_DEVINFO_DATA        DeviceInfoData, OPTIONAL
+    IN PSP_CLASSINSTALL_HEADER ClassInstallParams, OPTIONAL
     IN DWORD                   ClassInstallParamsSize
-    )
+)
 {
     DWORD Err;
     DI_FUNCTION Function;
     SP_SELECTDEVICE_PARAMS_W SelectParams;
     BOOL b;
 
-    if(!ClassInstallParams) {
+    if (!ClassInstallParams) {
         // Just pass it on to the unicode version since there's no thunking to do. Note that the size must be 0.
-        if(ClassInstallParamsSize) {
+        if (ClassInstallParamsSize) {
             SetLastError(ERROR_INVALID_PARAMETER);
             return(FALSE);
         }
-        return SetupDiSetClassInstallParamsW(DeviceInfoSet,DeviceInfoData,ClassInstallParams,ClassInstallParamsSize);
+        return SetupDiSetClassInstallParamsW(DeviceInfoSet, DeviceInfoData, ClassInstallParams, ClassInstallParamsSize);
     }
 
     Err = NO_ERROR;
 
     try {
-        if(ClassInstallParams->cbSize == sizeof(SP_CLASSINSTALL_HEADER)) {
+        if (ClassInstallParams->cbSize == sizeof(SP_CLASSINSTALL_HEADER)) {
             Function = ClassInstallParams->InstallFunction;
         } else {
             // Structure is invalid.
@@ -530,26 +530,26 @@ SetupDiSetClassInstallParamsA(
         Err = ERROR_INVALID_PARAMETER;
     }
 
-    if(Err != NO_ERROR) {
+    if (Err != NO_ERROR) {
         SetLastError(Err);
         return(FALSE);
     }
 
     // DIF_SELECTDEVICE is a special case since it has an structure that needs to be translated from ansi to unicode.
     // Others can just be passed on to the unicode version with no changes to the parameters.
-    if(Function == DIF_SELECTDEVICE) {
+    if (Function == DIF_SELECTDEVICE) {
         b = FALSE;
-        if(ClassInstallParamsSize >= sizeof(SP_SELECTDEVICE_PARAMS_A)) {
-            Err = pSetupDiSelDevParamsAnsiToUnicode((PSP_SELECTDEVICE_PARAMS_A)ClassInstallParams,&SelectParams);
-            if(Err == NO_ERROR) {
-                b = SetupDiSetClassInstallParamsW(DeviceInfoSet,DeviceInfoData,(PSP_CLASSINSTALL_HEADER)&SelectParams,sizeof(SP_SELECTDEVICE_PARAMS_W));
+        if (ClassInstallParamsSize >= sizeof(SP_SELECTDEVICE_PARAMS_A)) {
+            Err = pSetupDiSelDevParamsAnsiToUnicode((PSP_SELECTDEVICE_PARAMS_A)ClassInstallParams, &SelectParams);
+            if (Err == NO_ERROR) {
+                b = SetupDiSetClassInstallParamsW(DeviceInfoSet, DeviceInfoData, (PSP_CLASSINSTALL_HEADER)&SelectParams, sizeof(SP_SELECTDEVICE_PARAMS_W));
                 Err = GetLastError();
             }
         } else {
             Err = ERROR_INVALID_PARAMETER;
         }
     } else {
-        b = SetupDiSetClassInstallParamsW(DeviceInfoSet,DeviceInfoData,ClassInstallParams,ClassInstallParamsSize);
+        b = SetupDiSetClassInstallParamsW(DeviceInfoSet, DeviceInfoData, ClassInstallParams, ClassInstallParamsSize);
         Err = GetLastError();
     }
 
@@ -562,10 +562,10 @@ BOOL
 WINAPI
 SetupDiSetClassInstallParamsW(
     IN HDEVINFO                DeviceInfoSet,
-    IN PSP_DEVINFO_DATA        DeviceInfoData,        OPTIONAL
-    IN PSP_CLASSINSTALL_HEADER ClassInstallParams,    OPTIONAL
+    IN PSP_DEVINFO_DATA        DeviceInfoData, OPTIONAL
+    IN PSP_CLASSINSTALL_HEADER ClassInstallParams, OPTIONAL
     IN DWORD                   ClassInstallParamsSize
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -581,10 +581,10 @@ BOOL
 WINAPI
 SetupDiSetClassInstallParams(
     IN HDEVINFO                DeviceInfoSet,
-    IN PSP_DEVINFO_DATA        DeviceInfoData,        OPTIONAL
-    IN PSP_CLASSINSTALL_HEADER ClassInstallParams,    OPTIONAL
+    IN PSP_DEVINFO_DATA        DeviceInfoData, OPTIONAL
+    IN PSP_CLASSINSTALL_HEADER ClassInstallParams, OPTIONAL
     IN DWORD                   ClassInstallParamsSize
-    )
+)
 /*++
 
 Routine Description:
@@ -639,7 +639,7 @@ Remarks:
     DWORD Err;
     PDEVINFO_ELEM DevInfoElem;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -647,16 +647,16 @@ Remarks:
     Err = NO_ERROR;
 
     try {
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
             // Then we are to set class installer parameters for a particular device.
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,DeviceInfoData,NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
             } else {
-                Err = SetClassInstallParams(pDeviceInfoSet,ClassInstallParams,ClassInstallParamsSize,&(DevInfoElem->InstallParamBlock));
+                Err = SetClassInstallParams(pDeviceInfoSet, ClassInstallParams, ClassInstallParamsSize, &(DevInfoElem->InstallParamBlock));
             }
         } else {
             // Set class installer parameters for the global class driver list.
-            Err = SetClassInstallParams(pDeviceInfoSet,ClassInstallParams,ClassInstallParamsSize,&(pDeviceInfoSet->InstallParamBlock));
+            Err = SetClassInstallParams(pDeviceInfoSet, ClassInstallParams, ClassInstallParamsSize, &(pDeviceInfoSet->InstallParamBlock));
         }
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -675,7 +675,7 @@ SetupDiCallClassInstaller(
     IN DI_FUNCTION      InstallFunction,
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -822,7 +822,7 @@ Remarks:
     If there is no class installer, or the class installer returns ERR_DI_DO_DEFAULT, then this function will call a default procedure for the specified class installer function.
 --*/
 {
-    return _SetupDiCallClassInstaller(InstallFunction,DeviceInfoSet,DeviceInfoData,CALLCI_LOAD_HELPERS | CALLCI_CALL_HELPERS);
+    return _SetupDiCallClassInstaller(InstallFunction, DeviceInfoSet, DeviceInfoData, CALLCI_LOAD_HELPERS | CALLCI_CALL_HELPERS);
 }
 
 
@@ -830,9 +830,9 @@ BOOL
 _SetupDiCallClassInstaller(
     IN DI_FUNCTION      InstallFunction,
     IN HDEVINFO         DeviceInfoSet,
-    IN PSP_DEVINFO_DATA DeviceInfoData,      OPTIONAL
+    IN PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
     IN DWORD            Flags
-    )
+)
 /*++
 Routine Description:
     Worker routine for SetupDiCallClassInstaller that allows the caller to control what actions are taken when handling this install request.
@@ -856,7 +856,7 @@ Routine Description:
     PDEVINFO_ELEM DevInfoElem;
     PDEVINSTALL_PARAM_BLOCK InstallParamBlock;
     HKEY hk;
-    CONST GUID *ClassGuid;
+    CONST GUID* ClassGuid;
     BOOL bRestoreMiniIconUsage = FALSE;
     BOOL MuteError = FALSE;
     PCOINSTALLER_INTERNAL_CONTEXT CoInstallerInternalContext;
@@ -867,7 +867,7 @@ Routine Description:
     PSETUP_LOG_CONTEXT LogContext = NULL;
     DWORD slot_dif_code = 0;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -879,10 +879,10 @@ Routine Description:
 
     try {
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
             // Then we are to call the class installer for a particular
             // device.
-            if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
+            if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
                 InstallParamBlock = &(DevInfoElem->InstallParamBlock);
                 ClassGuid = &(DevInfoElem->ClassGuid);
             } else {
@@ -896,27 +896,27 @@ Routine Description:
 
         // set the local log context before it gets used.
         LogContext = InstallParamBlock->LogContext;
-        if(Flags & CALLCI_LOAD_HELPERS) {
+        if (Flags & CALLCI_LOAD_HELPERS) {
             // Retrieve the parent window handle, as we may need it below if we need to popup UI due to unsigned class-/co-installers.
-            if(hwndParent = InstallParamBlock->hwndParent) {
-               if(!IsWindow(hwndParent)) {
+            if (hwndParent = InstallParamBlock->hwndParent) {
+                if (!IsWindow(hwndParent)) {
                     hwndParent = NULL;
-               }
+                }
             }
 
             // Retrieve a device description to use in case we need to give a driver signing warn/block popup.
-            if(GetBestDeviceDesc(DeviceInfoSet, DeviceInfoData, DescBuffer)) {
+            if (GetBestDeviceDesc(DeviceInfoSet, DeviceInfoData, DescBuffer)) {
                 DeviceDesc = DescBuffer;
             } else {
                 DeviceDesc = NULL;
             }
 
             // If the class installer has not been loaded, then load it and get the function address for the ClassInstall function.
-            if(!InstallParamBlock->hinstClassInstaller) {
-                if(ClassGuid && (hk = SetupDiOpenClassRegKey(ClassGuid, KEY_READ)) != INVALID_HANDLE_VALUE) {
-                    DWORD slot = AllocLogInfoSlot(LogContext,FALSE);
+            if (!InstallParamBlock->hinstClassInstaller) {
+                if (ClassGuid && (hk = SetupDiOpenClassRegKey(ClassGuid, KEY_READ)) != INVALID_HANDLE_VALUE) {
+                    DWORD slot = AllocLogInfoSlot(LogContext, FALSE);
 
-                    WriteLogEntry(LogContext,slot,MSG_LOG_CI_MODULE,NULL,DeviceDesc);
+                    WriteLogEntry(LogContext, slot, MSG_LOG_CI_MODULE, NULL, DeviceDesc);
 
                     try {
                         Err = GetModuleEntryPoint(hk,
@@ -931,10 +931,10 @@ Routine Description:
                                                   DeviceDesc,
                                                   DRIVERSIGN_NONE,
                                                   TRUE
-                                                 );
+                        );
                     } except(EXCEPTION_EXECUTE_HANDLER) {
                         Err = ERROR_INVALID_CLASS_INSTALLER;
-                        if(InstallParamBlock->hinstClassInstaller) {
+                        if (InstallParamBlock->hinstClassInstaller) {
                             FreeLibrary(InstallParamBlock->hinstClassInstaller);
                             InstallParamBlock->hinstClassInstaller = NULL;
                         }
@@ -942,31 +942,31 @@ Routine Description:
                     }
 
                     if (slot) {
-                        ReleaseLogInfoSlot(LogContext,slot);
+                        ReleaseLogInfoSlot(LogContext, slot);
                     }
 
                     RegCloseKey(hk);
 
-                    if((Err != NO_ERROR) && (Err != ERROR_DI_DO_DEFAULT)) {
-                        if(!(InstallParamBlock->FlagsEx & DI_FLAGSEX_CI_FAILED)) {
+                    if ((Err != NO_ERROR) && (Err != ERROR_DI_DO_DEFAULT)) {
+                        if (!(InstallParamBlock->FlagsEx & DI_FLAGSEX_CI_FAILED)) {
                             TCHAR ClassName[MAX_GUID_STRING_LEN];
                             TCHAR Title[MAX_TITLE_LEN];
 
-                            if(!SetupDiClassNameFromGuid(ClassGuid, ClassName, SIZECHARS(ClassName), NULL)) {
+                            if (!SetupDiClassNameFromGuid(ClassGuid, ClassName, SIZECHARS(ClassName), NULL)) {
                                 // Use the ClassName buffer to hold the class
                                 // GUID string (it's better than nothin')
-                                pSetupStringFromGuid(ClassGuid,ClassName,SIZECHARS(ClassName));
+                                pSetupStringFromGuid(ClassGuid, ClassName, SIZECHARS(ClassName));
                             }
 
                             // Write out an event log entry about this.
-                            WriteLogEntry(LogContext,DRIVER_LOG_ERROR | SETUP_LOG_BUFFER,MSG_CI_LOADFAIL_ERROR,NULL,ClassName);
-                            WriteLogError(LogContext,DRIVER_LOG_ERROR,Err);
+                            WriteLogEntry(LogContext, DRIVER_LOG_ERROR | SETUP_LOG_BUFFER, MSG_CI_LOADFAIL_ERROR, NULL, ClassName);
+                            WriteLogError(LogContext, DRIVER_LOG_ERROR, Err);
                             MuteError = TRUE;
-                            if(!(GlobalSetupFlags & PSPGF_NONINTERACTIVE)) {
-                                if(!LoadString(MyDllModuleHandle,IDS_DEVICEINSTALLER,Title,SIZECHARS(Title))) {
+                            if (!(GlobalSetupFlags & PSPGF_NONINTERACTIVE)) {
+                                if (!LoadString(MyDllModuleHandle, IDS_DEVICEINSTALLER, Title, SIZECHARS(Title))) {
                                     *Title = TEXT('\0');
                                 }
-                                FormatMessageBox(MyDllModuleHandle,InstallParamBlock->hwndParent,MSG_CI_LOADFAIL_ERROR,Title,MB_OK,ClassName);
+                                FormatMessageBox(MyDllModuleHandle, InstallParamBlock->hwndParent, MSG_CI_LOADFAIL_ERROR, Title, MB_OK, ClassName);
                             }
 
                             InstallParamBlock->FlagsEx |= DI_FLAGSEX_CI_FAILED;
@@ -979,15 +979,15 @@ Routine Description:
             }
 
             // If we haven't retrieved a list of co-installers to call, retrieve the list now.
-            if(InstallParamBlock->CoInstallerCount == -1) {
-                DWORD slot = AllocLogInfoSlot(LogContext,FALSE);
-                WriteLogEntry(LogContext,slot,MSG_LOG_COINST_MODULE,NULL,DeviceDesc);
-                Err = pSetupDiGetCoInstallerList(DeviceInfoSet,DeviceInfoData,ClassGuid,InstallParamBlock);
+            if (InstallParamBlock->CoInstallerCount == -1) {
+                DWORD slot = AllocLogInfoSlot(LogContext, FALSE);
+                WriteLogEntry(LogContext, slot, MSG_LOG_COINST_MODULE, NULL, DeviceDesc);
+                Err = pSetupDiGetCoInstallerList(DeviceInfoSet, DeviceInfoData, ClassGuid, InstallParamBlock);
                 if (slot) {
-                    ReleaseLogInfoSlot(LogContext,slot);
+                    ReleaseLogInfoSlot(LogContext, slot);
                 }
 
-                if(Err != NO_ERROR) {
+                if (Err != NO_ERROR) {
                     goto clean0;
                 }
 
@@ -995,27 +995,27 @@ Routine Description:
             }
         }
 
-        slot_dif_code = AllocLogInfoSlotOrLevel(LogContext,DRIVER_LOG_VERBOSE1,FALSE);
+        slot_dif_code = AllocLogInfoSlotOrLevel(LogContext, DRIVER_LOG_VERBOSE1, FALSE);
         if (slot_dif_code) {
             // this is skipped if we know we would never log anything
 
             // pass a string which we may log with an error or will log at VERBOSE1 level
-            if ((InstallFunction >= (sizeof(pSetupDiDifStrings)/sizeof(pSetupDiDifStrings[0]))) || (pSetupDiDifStrings[InstallFunction]==NULL)) {
+            if ((InstallFunction >= (sizeof(pSetupDiDifStrings) / sizeof(pSetupDiDifStrings[0]))) || (pSetupDiDifStrings[InstallFunction] == NULL)) {
                 // bugbug!!! (jamiehun)
                 // I would like to think this could be bad and should be logged at DRIVER_LOG_ERROR
                 // however function header alludes to user defined DIF_xxxx codes
-                WriteLogEntry(LogContext,slot_dif_code,MSG_LOG_DI_UNUSED_FUNC,NULL,InstallFunction);
+                WriteLogEntry(LogContext, slot_dif_code, MSG_LOG_DI_UNUSED_FUNC, NULL, InstallFunction);
             } else {
                 // use the string version of the DIF code
-                WriteLogEntry(LogContext,slot_dif_code,MSG_LOG_DI_FUNC,NULL,pSetupDiDifStrings[InstallFunction]);
+                WriteLogEntry(LogContext, slot_dif_code, MSG_LOG_DI_FUNC, NULL, pSetupDiDifStrings[InstallFunction]);
             }
         }
 
-        if(Flags & CALLCI_CALL_HELPERS) {
-            if(InstallParamBlock->CoInstallerCount > 0) {
+        if (Flags & CALLCI_CALL_HELPERS) {
+            if (InstallParamBlock->CoInstallerCount > 0) {
                 // Allocate an array of co-installer context structures to be used when calling (and potentially, re-calling) the entry points.
                 CoInstallerInternalContext = MyMalloc(sizeof(COINSTALLER_INTERNAL_CONTEXT) * InstallParamBlock->CoInstallerCount);
-                if(!CoInstallerInternalContext) {
+                if (!CoInstallerInternalContext) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
                 }
@@ -1026,45 +1026,45 @@ Routine Description:
                 UnlockDeviceInfoSet(pDeviceInfoSet);
                 pDeviceInfoSet = NULL;
 
-                for(i = 0; i < InstallParamBlock->CoInstallerCount; i++) {
+                for (i = 0; i < InstallParamBlock->CoInstallerCount; i++) {
                     // Store entry point in our context array, because the class installer may destroy this devinfo element and we wouldn't know who to callback otherwise.
                     CoInstallerInternalContext[i].CoInstallerEntryPoint = InstallParamBlock->CoInstallerList[i].CoInstallerEntryPoint;
 
-                    WriteLogEntry(LogContext,DRIVER_LOG_TIME,MSG_LOG_COINST_START,NULL,i+1,InstallParamBlock->CoInstallerCount);
-                    Err = CoInstallerInternalContext[i].CoInstallerEntryPoint(InstallFunction,DeviceInfoSet,DeviceInfoData,&(CoInstallerInternalContext[i].Context));
-                    if(Err == ERROR_DI_POSTPROCESSING_REQUIRED) {
+                    WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_COINST_START, NULL, i + 1, InstallParamBlock->CoInstallerCount);
+                    Err = CoInstallerInternalContext[i].CoInstallerEntryPoint(InstallFunction, DeviceInfoSet, DeviceInfoData, &(CoInstallerInternalContext[i].Context));
+                    if (Err == ERROR_DI_POSTPROCESSING_REQUIRED) {
                         CoInstallerInternalContext[i].DoPostProcessing = TRUE;
-                    } else if(Err != NO_ERROR) {
-                        WriteLogEntry(LogContext,DRIVER_LOG_ERROR | SETUP_LOG_BUFFER,MSG_LOG_COINST_END_ERROR,NULL,i+1,InstallParamBlock->CoInstallerCount);
-                        WriteLogError(LogContext,DRIVER_LOG_ERROR,Err);
+                    } else if (Err != NO_ERROR) {
+                        WriteLogEntry(LogContext, DRIVER_LOG_ERROR | SETUP_LOG_BUFFER, MSG_LOG_COINST_END_ERROR, NULL, i + 1, InstallParamBlock->CoInstallerCount);
+                        WriteLogError(LogContext, DRIVER_LOG_ERROR, Err);
                         MuteError = TRUE; // already logged it
                         goto clean0;
                     }
-                    WriteLogEntry(LogContext,DRIVER_LOG_VERBOSE1,MSG_LOG_COINST_END,NULL,i+1,InstallParamBlock->CoInstallerCount);
+                    WriteLogEntry(LogContext, DRIVER_LOG_VERBOSE1, MSG_LOG_COINST_END, NULL, i + 1, InstallParamBlock->CoInstallerCount);
                 }
             }
 
             // If there is a class installer entry point, then call it.
-            if(InstallParamBlock->ClassInstallerEntryPoint) {
+            if (InstallParamBlock->ClassInstallerEntryPoint) {
                 // Make sure we don't have the HDEVINFO locked.
-                if(pDeviceInfoSet) {
+                if (pDeviceInfoSet) {
                     UnlockDeviceInfoSet(pDeviceInfoSet);
                     pDeviceInfoSet = NULL;
                 }
 
-                WriteLogEntry(LogContext,DRIVER_LOG_TIME,MSG_LOG_CI_START,NULL);
-                Err = InstallParamBlock->ClassInstallerEntryPoint(InstallFunction,DeviceInfoSet,DeviceInfoData);
+                WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_CI_START, NULL);
+                Err = InstallParamBlock->ClassInstallerEntryPoint(InstallFunction, DeviceInfoSet, DeviceInfoData);
             } else {
                 Err = ERROR_DI_DO_DEFAULT;
             }
-            if(Err != NO_ERROR && Err != ERROR_DI_DO_DEFAULT) {
-                WriteLogEntry(LogContext,DRIVER_LOG_ERROR | SETUP_LOG_BUFFER,MSG_LOG_CI_END_ERROR,NULL);
-                WriteLogError(LogContext,DRIVER_LOG_ERROR,Err);
+            if (Err != NO_ERROR && Err != ERROR_DI_DO_DEFAULT) {
+                WriteLogEntry(LogContext, DRIVER_LOG_ERROR | SETUP_LOG_BUFFER, MSG_LOG_CI_END_ERROR, NULL);
+                WriteLogError(LogContext, DRIVER_LOG_ERROR, Err);
             } else {
-                WriteLogEntry(LogContext,DRIVER_LOG_VERBOSE1,MSG_LOG_CI_END,NULL);
+                WriteLogEntry(LogContext, DRIVER_LOG_VERBOSE1, MSG_LOG_CI_END, NULL);
             }
 
-            if(Err != ERROR_DI_DO_DEFAULT) {
+            if (Err != ERROR_DI_DO_DEFAULT) {
                 MuteError = TRUE; // already logged it
                 goto clean0;
             }
@@ -1073,15 +1073,15 @@ Routine Description:
         // Now we need to retrieve the parameter block all over again (we don't know what the class installer function might have done).
 
         // First, re-acquire the lock on the HDEVINFO, if we released it above in order to call the class installer.
-        if(!pDeviceInfoSet) {
-            if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+        if (!pDeviceInfoSet) {
+            if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
                 Err = ERROR_INVALID_HANDLE;
                 goto clean0;
             }
         }
 
-        if(DeviceInfoData) {
-            if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,DeviceInfoData,NULL)) {
+        if (DeviceInfoData) {
+            if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
                 InstallParamBlock = &(DevInfoElem->InstallParamBlock);
             } else {
                 // The device information element appears to have been destroyed--treat this as if the DI_NODI_DEFAULTACTION flag was set.
@@ -1091,14 +1091,14 @@ Routine Description:
             InstallParamBlock = &(pDeviceInfoSet->InstallParamBlock);
         }
 
-        if(InstallParamBlock->Flags & DI_NODI_DEFAULTACTION) {
+        if (InstallParamBlock->Flags & DI_NODI_DEFAULTACTION) {
             // We shouldn't provide a default action--just return the class installer result.
             goto clean0;
         }
 
         Err = NO_ERROR;
 
-        if((InstallFunction == DIF_SELECTDEVICE) && !(InstallParamBlock->Flags & DI_NOSELECTICONS)) {
+        if ((InstallFunction == DIF_SELECTDEVICE) && !(InstallParamBlock->Flags & DI_NOSELECTICONS)) {
             // We don't want to display mini-icons in the default Select Device case.
             // Temporarily set the flag that prevents this.
             InstallParamBlock->Flags |= DI_NOSELECTICONS;
@@ -1109,87 +1109,87 @@ Routine Description:
         UnlockDeviceInfoSet(pDeviceInfoSet);
         pDeviceInfoSet = NULL;
 
-        WriteLogEntry(LogContext,DRIVER_LOG_VERBOSE1,MSG_LOG_CI_DEF_START,NULL);
-        switch(InstallFunction) {
-            case DIF_SELECTDEVICE :
-                b = SetupDiSelectDevice(DeviceInfoSet, DeviceInfoData);
+        WriteLogEntry(LogContext, DRIVER_LOG_VERBOSE1, MSG_LOG_CI_DEF_START, NULL);
+        switch (InstallFunction) {
+        case DIF_SELECTDEVICE:
+            b = SetupDiSelectDevice(DeviceInfoSet, DeviceInfoData);
 
-                // If we need to reset the DI_NOSELECTICONS flag we set above, then re-acquire the lock and do that now.
-                if(bRestoreMiniIconUsage && (pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
-                    if(DeviceInfoData) {
-                        if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,DeviceInfoData,NULL)) {
-                            InstallParamBlock = &(DevInfoElem->InstallParamBlock);
-                        } else {
-                            InstallParamBlock = NULL;
-                        }
+            // If we need to reset the DI_NOSELECTICONS flag we set above, then re-acquire the lock and do that now.
+            if (bRestoreMiniIconUsage && (pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+                if (DeviceInfoData) {
+                    if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
+                        InstallParamBlock = &(DevInfoElem->InstallParamBlock);
                     } else {
-                        InstallParamBlock = &(pDeviceInfoSet->InstallParamBlock);
+                        InstallParamBlock = NULL;
                     }
-
-                    if(InstallParamBlock) {
-                        InstallParamBlock->Flags &= ~DI_NOSELECTICONS;
-                    }
+                } else {
+                    InstallParamBlock = &(pDeviceInfoSet->InstallParamBlock);
                 }
-                break;
-            case DIF_SELECTBESTCOMPATDRV :
-                b = SetupDiSelectBestCompatDrv(DeviceInfoSet, DeviceInfoData);
-                break;
-            case DIF_INSTALLDEVICE :
-                b = SetupDiInstallDevice(DeviceInfoSet, DeviceInfoData);
-                break;
-            case DIF_INSTALLDEVICEFILES :
-                b = SetupDiInstallDriverFiles(DeviceInfoSet, DeviceInfoData);
-                break;
-            case DIF_INSTALLINTERFACES :
-                b = SetupDiInstallDeviceInterfaces(DeviceInfoSet, DeviceInfoData);
-                break;
-            case DIF_REGISTER_COINSTALLERS :
-                b = SetupDiRegisterCoDeviceInstallers(DeviceInfoSet, DeviceInfoData);
-                break;
-            case DIF_REMOVE :
-                b = SetupDiRemoveDevice(DeviceInfoSet, DeviceInfoData);
-                break;
-            case DIF_UNREMOVE :
-                b = SetupDiUnremoveDevice(DeviceInfoSet, DeviceInfoData);
-                break;
+
+                if (InstallParamBlock) {
+                    InstallParamBlock->Flags &= ~DI_NOSELECTICONS;
+                }
+            }
+            break;
+        case DIF_SELECTBESTCOMPATDRV:
+            b = SetupDiSelectBestCompatDrv(DeviceInfoSet, DeviceInfoData);
+            break;
+        case DIF_INSTALLDEVICE:
+            b = SetupDiInstallDevice(DeviceInfoSet, DeviceInfoData);
+            break;
+        case DIF_INSTALLDEVICEFILES:
+            b = SetupDiInstallDriverFiles(DeviceInfoSet, DeviceInfoData);
+            break;
+        case DIF_INSTALLINTERFACES:
+            b = SetupDiInstallDeviceInterfaces(DeviceInfoSet, DeviceInfoData);
+            break;
+        case DIF_REGISTER_COINSTALLERS:
+            b = SetupDiRegisterCoDeviceInstallers(DeviceInfoSet, DeviceInfoData);
+            break;
+        case DIF_REMOVE:
+            b = SetupDiRemoveDevice(DeviceInfoSet, DeviceInfoData);
+            break;
+        case DIF_UNREMOVE:
+            b = SetupDiUnremoveDevice(DeviceInfoSet, DeviceInfoData);
+            break;
 
             // These are new messages for class installers such as the Network, where the class installer will do all of the work.
             // If no action is taken, ie, the class installer return ERROR_DI_DO_DEFAULT, then we return OK, since there is no default action for these cases.
-            case DIF_SELECTCLASSDRIVERS:
-            case DIF_VALIDATECLASSDRIVERS:
-            case DIF_INSTALLCLASSDRIVERS:
-                b = TRUE;
-                Err = ERROR_DI_DO_DEFAULT;
-                break;
-            case DIF_MOVEDEVICE :
-                b = SetupDiMoveDuplicateDevice(DeviceInfoSet, DeviceInfoData);
-                break;
-            case DIF_PROPERTYCHANGE :
-                b = SetupDiChangeState(DeviceInfoSet, DeviceInfoData);
-                break;
-            case DIF_REGISTERDEVICE :
-                b = SetupDiRegisterDeviceInfo(DeviceInfoSet,DeviceInfoData,0,NULL,NULL,NULL);
-                break;
+        case DIF_SELECTCLASSDRIVERS:
+        case DIF_VALIDATECLASSDRIVERS:
+        case DIF_INSTALLCLASSDRIVERS:
+            b = TRUE;
+            Err = ERROR_DI_DO_DEFAULT;
+            break;
+        case DIF_MOVEDEVICE:
+            b = SetupDiMoveDuplicateDevice(DeviceInfoSet, DeviceInfoData);
+            break;
+        case DIF_PROPERTYCHANGE:
+            b = SetupDiChangeState(DeviceInfoSet, DeviceInfoData);
+            break;
+        case DIF_REGISTERDEVICE:
+            b = SetupDiRegisterDeviceInfo(DeviceInfoSet, DeviceInfoData, 0, NULL, NULL, NULL);
+            break;
 
             // If the DIF_ message is not one of the above, and it is not handled, then let the caller handle it in a default manner.
-            default :
-                b = TRUE;
-                Err = ERROR_DI_DO_DEFAULT;
-                break;
+        default:
+            b = TRUE;
+            Err = ERROR_DI_DO_DEFAULT;
+            break;
         }
 
-        if(!b) {
+        if (!b) {
             Err = GetLastError();
         }
-        if(Err != NO_ERROR && Err != ERROR_DI_DO_DEFAULT) {
-            WriteLogEntry(LogContext,DRIVER_LOG_ERROR | SETUP_LOG_BUFFER,MSG_LOG_CI_DEF_END_ERROR,NULL);
-            WriteLogError(LogContext,DRIVER_LOG_ERROR,Err);
+        if (Err != NO_ERROR && Err != ERROR_DI_DO_DEFAULT) {
+            WriteLogEntry(LogContext, DRIVER_LOG_ERROR | SETUP_LOG_BUFFER, MSG_LOG_CI_DEF_END_ERROR, NULL);
+            WriteLogError(LogContext, DRIVER_LOG_ERROR, Err);
             MuteError = TRUE; // already logged it
         } else {
-            WriteLogEntry(LogContext,DRIVER_LOG_VERBOSE1,MSG_LOG_CI_DEF_END,NULL);
+            WriteLogEntry(LogContext, DRIVER_LOG_VERBOSE1, MSG_LOG_CI_DEF_END, NULL);
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
         // Access the following variables, so that the compiler will respect our statement ordering w.r.t. assignment.
@@ -1199,23 +1199,23 @@ clean0: ;   // nothing to do.
         DevInfoElem = DevInfoElem;
     }
 
-    if(pDeviceInfoSet) {
+    if (pDeviceInfoSet) {
         UnlockDeviceInfoSet(pDeviceInfoSet);
     }
 
     // Do a post-processing callback to any of the co-installers that requested one.
-    for(i--; i >= 0; i--) {
-        if(CoInstallerInternalContext[i].DoPostProcessing) {
+    for (i--; i >= 0; i--) {
+        if (CoInstallerInternalContext[i].DoPostProcessing) {
             CoInstallerInternalContext[i].Context.PostProcessing = TRUE;
             CoInstallerInternalContext[i].Context.InstallResult = Err;
             try {
-                WriteLogEntry(LogContext,DRIVER_LOG_TIME,MSG_LOG_COINST_POST_START,NULL,i);
-                Err = CoInstallerInternalContext[i].CoInstallerEntryPoint(InstallFunction,DeviceInfoSet,DevInfoElem ? DeviceInfoData : NULL,&(CoInstallerInternalContext[i].Context));
-                if(Err != NO_ERROR) {
-                    WriteLogEntry(LogContext,DRIVER_LOG_VERBOSE1 | SETUP_LOG_BUFFER,MSG_LOG_COINST_POST_END_ERROR,NULL,i+1);
-                    WriteLogError(LogContext,DRIVER_LOG_VERBOSE1,Err);
+                WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_COINST_POST_START, NULL, i);
+                Err = CoInstallerInternalContext[i].CoInstallerEntryPoint(InstallFunction, DeviceInfoSet, DevInfoElem ? DeviceInfoData : NULL, &(CoInstallerInternalContext[i].Context));
+                if (Err != NO_ERROR) {
+                    WriteLogEntry(LogContext, DRIVER_LOG_VERBOSE1 | SETUP_LOG_BUFFER, MSG_LOG_COINST_POST_END_ERROR, NULL, i + 1);
+                    WriteLogError(LogContext, DRIVER_LOG_VERBOSE1, Err);
                 } else {
-                    WriteLogEntry(LogContext,DRIVER_LOG_VERBOSE1,MSG_LOG_COINST_POST_END,NULL,i+1);
+                    WriteLogEntry(LogContext, DRIVER_LOG_VERBOSE1, MSG_LOG_COINST_POST_END, NULL, i + 1);
                 }
             } except(EXCEPTION_EXECUTE_HANDLER) {
                 ;   // ignore any co-installer that generates an exception during post-processing.
@@ -1223,7 +1223,7 @@ clean0: ;   // nothing to do.
         }
     }
 
-    if(CoInstallerInternalContext) {
+    if (CoInstallerInternalContext) {
         MyFree(CoInstallerInternalContext);
     }
 
@@ -1231,17 +1231,17 @@ clean0: ;   // nothing to do.
     // Clear our list, so it will be retrieved next time.
     // (NOTE:  Normally, the default action will be taken (i.e., SetupDiRegisterCoDeviceInstallers), which will have already invalidated the list.
     // The class installer may have handled this themselves, however, so we'll invalidate the list here as well just to be safe.)
-    if(InstallFunction == DIF_REGISTER_COINSTALLERS) {
+    if (InstallFunction == DIF_REGISTER_COINSTALLERS) {
         InvalidateHelperModules(DeviceInfoSet, DeviceInfoData, IHM_COINSTALLERS_ONLY);
     }
 
-    if(!MuteError && Err != NO_ERROR && Err != ERROR_DI_DO_DEFAULT) {
-        WriteLogEntry(LogContext,DRIVER_LOG_ERROR | SETUP_LOG_BUFFER,MSG_LOG_CCI_ERROR,NULL,i+1);
-        WriteLogError(LogContext,DRIVER_LOG_ERROR,Err);
+    if (!MuteError && Err != NO_ERROR && Err != ERROR_DI_DO_DEFAULT) {
+        WriteLogEntry(LogContext, DRIVER_LOG_ERROR | SETUP_LOG_BUFFER, MSG_LOG_CCI_ERROR, NULL, i + 1);
+        WriteLogError(LogContext, DRIVER_LOG_ERROR, Err);
     }
 
-    if(slot_dif_code) {
-        ReleaseLogInfoSlot(LogContext,slot_dif_code);
+    if (slot_dif_code) {
+        ReleaseLogInfoSlot(LogContext, slot_dif_code);
     }
 
     SetLastError(Err);
@@ -1254,35 +1254,35 @@ clean0: ;   // nothing to do.
 BOOL
 WINAPI
 SetupDiInstallClassExA(
-    IN HWND        hwndParent,         OPTIONAL
-    IN PCSTR       InfFileName,        OPTIONAL
+    IN HWND        hwndParent, OPTIONAL
+    IN PCSTR       InfFileName, OPTIONAL
     IN DWORD       Flags,
-    IN HSPFILEQ    FileQueue,          OPTIONAL
-    IN CONST GUID *InterfaceClassGuid, OPTIONAL
+    IN HSPFILEQ    FileQueue, OPTIONAL
+    IN CONST GUID* InterfaceClassGuid, OPTIONAL
     IN PVOID       Reserved1,
     IN PVOID       Reserved2
-    )
+)
 {
     PCWSTR inf;
     DWORD rc;
     BOOL b;
 
-    if(InfFileName) {
-        rc = CaptureAndConvertAnsiArg(InfFileName,&inf);
+    if (InfFileName) {
+        rc = CaptureAndConvertAnsiArg(InfFileName, &inf);
     } else {
         rc = NO_ERROR;
         inf = NULL;
     }
 
-    if(rc != NO_ERROR) {
+    if (rc != NO_ERROR) {
         SetLastError(rc);
         return(FALSE);
     }
 
-    b = SetupDiInstallClassExW(hwndParent,inf,Flags,FileQueue,InterfaceClassGuid,Reserved1,Reserved2);
+    b = SetupDiInstallClassExW(hwndParent, inf, Flags, FileQueue, InterfaceClassGuid, Reserved1, Reserved2);
     rc = GetLastError();
 
-    if(inf) {
+    if (inf) {
         MyFree(inf);
     }
 
@@ -1294,14 +1294,14 @@ SetupDiInstallClassExA(
 BOOL
 WINAPI
 SetupDiInstallClassExW(
-    IN HWND        hwndParent,         OPTIONAL
-    IN PCWSTR      InfFileName,        OPTIONAL
+    IN HWND        hwndParent, OPTIONAL
+    IN PCWSTR      InfFileName, OPTIONAL
     IN DWORD       Flags,
-    IN HSPFILEQ    FileQueue,          OPTIONAL
-    IN CONST GUID *InterfaceClassGuid, OPTIONAL
+    IN HSPFILEQ    FileQueue, OPTIONAL
+    IN CONST GUID* InterfaceClassGuid, OPTIONAL
     IN PVOID       Reserved1,
     IN PVOID       Reserved2
-    )
+)
 {
     UNREFERENCED_PARAMETER(hwndParent);
     UNREFERENCED_PARAMETER(InfFileName);
@@ -1319,14 +1319,14 @@ SetupDiInstallClassExW(
 BOOL
 WINAPI
 SetupDiInstallClassEx(
-    IN HWND        hwndParent,         OPTIONAL
-    IN PCTSTR      InfFileName,        OPTIONAL
+    IN HWND        hwndParent, OPTIONAL
+    IN PCTSTR      InfFileName, OPTIONAL
     IN DWORD       Flags,
-    IN HSPFILEQ    FileQueue,          OPTIONAL
-    IN CONST GUID *InterfaceClassGuid, OPTIONAL
+    IN HSPFILEQ    FileQueue, OPTIONAL
+    IN CONST GUID* InterfaceClassGuid, OPTIONAL
     IN PVOID       Reserved1,
     IN PVOID       Reserved2
-    )
+)
 /*++
 
 Routine Description:
@@ -1403,42 +1403,42 @@ Remarks:
     PSETUP_LOG_CONTEXT LogContext = NULL;
 
     // Validate the flags.
-    if(Flags & ~(DI_NOVCP | DI_NOBROWSE | DI_FORCECOPY | DI_QUIETINSTALL)) {
+    if (Flags & ~(DI_NOVCP | DI_NOBROWSE | DI_FORCECOPY | DI_QUIETINSTALL)) {
         SetLastError(ERROR_INVALID_FLAGS);
         return FALSE;
     }
 
     // If the caller didn't specify an interface class GUID (i.e., we're installing a class installer), then they'd better have supplied us with an INF filename.
     // Also, they have to pass NULL for the Reserved argument.
-    if((!InterfaceClassGuid && !InfFileName) || Reserved1 || Reserved2) {
+    if ((!InterfaceClassGuid && !InfFileName) || Reserved1 || Reserved2) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
     // Make sure that the caller supplied us with a file queue, if necessary.
-    if((Flags & DI_NOVCP) && (!FileQueue || (FileQueue == INVALID_HANDLE_VALUE))) {
+    if ((Flags & DI_NOVCP) && (!FileQueue || (FileQueue == INVALID_HANDLE_VALUE))) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
-    if(hwndParent && !IsWindow(hwndParent)) {
+    if (hwndParent && !IsWindow(hwndParent)) {
         hwndParent = NULL;
     }
 
     //bugbug. Take reserved field to be a hMachine. Since it is spec'd to be NULL that will translate to the local machine, which is all we currently
     //support. Or do we want to make Reserved 1 a structure, and hMachine part of it?
     //This is for future expansion
-    hMachine = (HMACHINE) Reserved1;
+    hMachine = (HMACHINE)Reserved1;
 
-    if(InfFileName) {
-        if((hInf = SetupOpenInfFile(InfFileName,NULL,INF_STYLE_WIN4,NULL)) == INVALID_HANDLE_VALUE) {
+    if (InfFileName) {
+        if ((hInf = SetupOpenInfFile(InfFileName, NULL, INF_STYLE_WIN4, NULL)) == INVALID_HANDLE_VALUE) {
             // Last error is already set--just return failure.
             return FALSE;
         }
-        Err = InheritLogContext(((PLOADED_INF) hInf)->LogContext,&LogContext);
+        Err = InheritLogContext(((PLOADED_INF)hInf)->LogContext, &LogContext);
     } else {
         hInf = INVALID_HANDLE_VALUE;
-        Err = CreateLogContext(NULL,&LogContext);
+        Err = CreateLogContext(NULL, &LogContext);
     }
     if (Err != NO_ERROR) {
         SetupCloseInfFile(hInf);
@@ -1446,7 +1446,7 @@ Remarks:
         return FALSE;
     }
     // we will look at ClassGuid at the end to give more error context give it a zero-value so that we don't get random data if we haven't initialized it before then
-    ZeroMemory(&ClassGuid,sizeof(ClassGuid));
+    ZeroMemory(&ClassGuid, sizeof(ClassGuid));
 
     Err = NO_ERROR;
     MsgHandlerContext = NULL;
@@ -1455,7 +1455,7 @@ Remarks:
     CloseFileQueue = FALSE;
 
     try {
-        if(InterfaceClassGuid) {
+        if (InterfaceClassGuid) {
             TCHAR ClassGuidBuffer[GUID_STRING_LEN];
             // Copy this GUID into our ClassGuid variable, which is used for both installer and device interface classes.
             CopyMemory(&ClassGuid, InterfaceClassGuid, sizeof(ClassGuid));
@@ -1463,52 +1463,50 @@ Remarks:
             // Legacy (compatibility) class name is not needed for device interface classes.
             ClassName = NULL;
 
-            if(pSetupStringFromGuid(&ClassGuid, ClassGuidBuffer, GUID_STRING_LEN) != NO_ERROR) {
-                ClassGuidBuffer[0]=TEXT('*');
-                ClassGuidBuffer[1]=TEXT('\0');
+            if (pSetupStringFromGuid(&ClassGuid, ClassGuidBuffer, GUID_STRING_LEN) != NO_ERROR) {
+                ClassGuidBuffer[0] = TEXT('*');
+                ClassGuidBuffer[1] = TEXT('\0');
             }
-            WriteLogEntry(LogContext,DRIVER_LOG_INFO,MSG_LOG_DO_INTERFACE_CLASS_INSTALL,NULL,       // text message
-                ClassGuidBuffer);
+            WriteLogEntry(LogContext, DRIVER_LOG_INFO, MSG_LOG_DO_INTERFACE_CLASS_INSTALL, NULL,       // text message
+                          ClassGuidBuffer);
         } else {
             // Retrieve the class GUID from the INF.  If it has no class GUID, then we can't install from it (even if it specifies the class name).
 
             // We utilize the fact that an INF handle is really a LOADED_INF pointer, combined with the fact that no one else will ever access this handle
             // (hence no synchronization issues).  This permits us to retrieve this version datum much more efficiently.
 
-            if(!(GuidString = pSetupGetVersionDatum(&((PLOADED_INF)hInf)->VersionBlock, pszClassGuid)) || (pSetupGuidFromString(GuidString, &ClassGuid) != NO_ERROR)) {
+            if (!(GuidString = pSetupGetVersionDatum(&((PLOADED_INF)hInf)->VersionBlock, pszClassGuid)) || (pSetupGuidFromString(GuidString, &ClassGuid) != NO_ERROR)) {
                 Err = ERROR_INVALID_CLASS;
                 goto clean0;
             }
 
             // We'll need to get the class name out of the INF as well.
-            if(!(ClassName = pSetupGetVersionDatum(&((PLOADED_INF)hInf)->VersionBlock, pszClass))) {
+            if (!(ClassName = pSetupGetVersionDatum(&((PLOADED_INF)hInf)->VersionBlock, pszClass))) {
                 Err = ERROR_INVALID_CLASS;
                 goto clean0;
             }
-            WriteLogEntry(LogContext,DRIVER_LOG_INFO,MSG_LOG_DO_CLASS_INSTALL,NULL,       // text message
-                (GuidString?GuidString:TEXT("*")),(ClassName?ClassName:TEXT("*")));
+            WriteLogEntry(LogContext, DRIVER_LOG_INFO, MSG_LOG_DO_CLASS_INSTALL, NULL,       // text message
+                (GuidString ? GuidString : TEXT("*")), (ClassName ? ClassName : TEXT("*")));
         }
 
         // First, attempt to open the key (i.e., not create it).
         // If that fails, then we'll try to create it.
         // That way, we can keep track of whether clean-up is required if an error occurs.
-        if(CR_SUCCESS != CM_Open_Class_Key_Ex(&ClassGuid,
-                                              ClassName,
-                                              KEY_ALL_ACCESS,
-                                              RegDisposition_OpenExisting,
-                                              &hKey,
-                                              InterfaceClassGuid ? CM_OPEN_CLASS_KEY_INTERFACE : CM_OPEN_CLASS_KEY_INSTALLER,
-                                              hMachine))
-        {
+        if (CR_SUCCESS != CM_Open_Class_Key_Ex(&ClassGuid,
+                                               ClassName,
+                                               KEY_ALL_ACCESS,
+                                               RegDisposition_OpenExisting,
+                                               &hKey,
+                                               InterfaceClassGuid ? CM_OPEN_CLASS_KEY_INTERFACE : CM_OPEN_CLASS_KEY_INSTALLER,
+                                               hMachine)) {
             // The key doesn't already exist--we've got to create it.
-            if(CR_SUCCESS != CM_Open_Class_Key_Ex(&ClassGuid,
-                                                  ClassName,
-                                                  KEY_ALL_ACCESS,
-                                                  RegDisposition_OpenAlways,
-                                                  &hKey,
-                                                  InterfaceClassGuid ? CM_OPEN_CLASS_KEY_INTERFACE : CM_OPEN_CLASS_KEY_INSTALLER,
-                                                  hMachine))
-            {
+            if (CR_SUCCESS != CM_Open_Class_Key_Ex(&ClassGuid,
+                                                   ClassName,
+                                                   KEY_ALL_ACCESS,
+                                                   RegDisposition_OpenAlways,
+                                                   &hKey,
+                                                   InterfaceClassGuid ? CM_OPEN_CLASS_KEY_INTERFACE : CM_OPEN_CLASS_KEY_INSTALLER,
+                                                   hMachine)) {
                 hKey = NULL;    // make sure it's still NULL
                 Err = ERROR_INVALID_DATA;
                 goto clean0;
@@ -1517,7 +1515,7 @@ Remarks:
             KeyNewlyCreated = TRUE;
         }
 
-        if(hInf == INVALID_HANDLE_VALUE) {
+        if (hInf == INVALID_HANDLE_VALUE) {
             // We've done all we need to do to install this interface device.
             goto clean0;
         } else {
@@ -1525,24 +1523,23 @@ Remarks:
             SetupOpenAppendInfFile(NULL, hInf, NULL);
         }
 
-        if(InterfaceClassGuid) {
+        if (InterfaceClassGuid) {
             // Look for an entry for this interface class in the [InterfaceInstall32] section of the INF.
             TCHAR GuidStringBuffer[GUID_STRING_LEN];
 
             pSetupStringFromGuid(InterfaceClassGuid, GuidStringBuffer, SIZECHARS(GuidStringBuffer));
-            if(!SetupFindFirstLine(hInf, pszInterfaceInstall32, GuidStringBuffer, &InterfaceClassInstallLine)) {
+            if (!SetupFindFirstLine(hInf, pszInterfaceInstall32, GuidStringBuffer, &InterfaceClassInstallLine)) {
                 // No install entry in this INF--we're done.
                 goto clean0;
             }
 
             // Make sure the Flags field is zero.
-            if(SetupGetIntField(&InterfaceClassInstallLine, 2, (PINT)&InstallFlags) && InstallFlags) {
+            if (SetupGetIntField(&InterfaceClassInstallLine, 2, (PINT)&InstallFlags) && InstallFlags) {
                 Err = ERROR_BAD_INTERFACE_INSTALLSECT;
                 goto clean0;
             }
 
-            if((!(UndecoratedInstallSection = pSetupGetField(&InterfaceClassInstallLine, 1))) || !(*UndecoratedInstallSection))
-            {
+            if ((!(UndecoratedInstallSection = pSetupGetField(&InterfaceClassInstallLine, 1))) || !(*UndecoratedInstallSection)) {
                 // No install section was given--we're done.
                 goto clean0;
             }
@@ -1557,17 +1554,17 @@ Remarks:
         // Get the 'real' (potentially OS/architecture-specific) class install section name.
         SetupDiGetActualSectionToInstall(hInf, UndecoratedInstallSection, ClassInstallSectionName, SIZECHARS(ClassInstallSectionName), NULL, &SectionExtension);
         // Also say what section is about to be installed.
-        WriteLogEntry(LogContext,DRIVER_LOG_VERBOSE,MSG_LOG_CLASS_SECTION,NULL,ClassInstallSectionName);
+        WriteLogEntry(LogContext, DRIVER_LOG_VERBOSE, MSG_LOG_CLASS_SECTION, NULL, ClassInstallSectionName);
         // If this is the undecorated name, then make sure that the section actually exists.
-        if(!SectionExtension && (SetupGetLineCount(hInf, ClassInstallSectionName) == -1)) {
+        if (!SectionExtension && (SetupGetLineCount(hInf, ClassInstallSectionName) == -1)) {
             Err = ERROR_SECTION_NOT_FOUND;
-            WriteLogEntry(LogContext,DRIVER_LOG_ERROR,MSG_LOG_NOSECTION,NULL,ClassInstallSectionName);
+            WriteLogEntry(LogContext, DRIVER_LOG_ERROR, MSG_LOG_NOSECTION, NULL, ClassInstallSectionName);
             goto clean0;
         }
 
-        if(!(Flags & DI_NOVCP)) {
+        if (!(Flags & DI_NOVCP)) {
             // Since we may need to check the queued files to determine whether file copy is necessary, we have to open our own queue, and commit it ourselves.
-            if((FileQueue = SetupOpenFileQueue()) != INVALID_HANDLE_VALUE) {
+            if ((FileQueue = SetupOpenFileQueue()) != INVALID_HANDLE_VALUE) {
                 CloseFileQueue = TRUE;
             } else {
                 // SetupOpenFileQueue sets actual error
@@ -1576,7 +1573,7 @@ Remarks:
             }
 
             NoProgressUI = (GuiSetupInProgress || (GlobalSetupFlags & PSPGF_NONINTERACTIVE) || (Flags & DI_QUIETINSTALL));
-            if(!(MsgHandlerContext = SetupInitDefaultQueueCallbackEx(hwndParent,(NoProgressUI ? INVALID_HANDLE_VALUE : NULL),0,0,NULL))) {
+            if (!(MsgHandlerContext = SetupInitDefaultQueueCallbackEx(hwndParent, (NoProgressUI ? INVALID_HANDLE_VALUE : NULL), 0, 0, NULL))) {
                 Err = ERROR_NOT_ENOUGH_MEMORY;
                 SetupCloseFileQueue(FileQueue);
                 CloseFileQueue = FALSE;
@@ -1585,7 +1582,7 @@ Remarks:
             MsgHandler = SetupDefaultQueueCallback;
         }
         // Replace the file queue's log context with current, if it's never been used
-        InheritLogContext(LogContext,&((PSP_FILE_QUEUE) FileQueue)->LogContext);
+        InheritLogContext(LogContext, &((PSP_FILE_QUEUE)FileQueue)->LogContext);
 
         Err = pSetupInstallFiles(hInf,
                                  NULL,
@@ -1600,14 +1597,14 @@ Remarks:
                                  // (In other words we're not committing the queue so there's no callback function to deal with, and the callback
                                  // would be the guy who would care about ansi vs unicode.)
                                  TRUE
-                                );
-        if(CloseFileQueue) {
-            if(Err == NO_ERROR) {
+        );
+        if (CloseFileQueue) {
+            if (Err == NO_ERROR) {
                 // We successfully queued up the file operations--now we need to commit the queue.
                 // First off, though, we should check to see if the files are already there.
                 // (If the 'force copy' flag is set, or if the INF is from an OEM location, then we don't care if the files are already there--we
                 // always need to copy them in that case.)
-                if((Flags & DI_FORCECOPY) || ((PLOADED_INF)hInf)->InfSourcePath) {
+                if ((Flags & DI_FORCECOPY) || ((PLOADED_INF)hInf)->InfSourcePath) {
                     // always copy the files.
                     ScanQueueResult = 0;
                 } else {
@@ -1627,7 +1624,7 @@ Remarks:
                     //    del/ren queues not empty.  Must commit queue. The
                     //    copy queue will have been emptied, so only del/ren
                     //    functions will be performed.
-                    if(!SetupScanFileQueue(FileQueue, SPQ_SCAN_FILE_VALIDITY | SPQ_SCAN_PRUNE_COPY_QUEUE, hwndParent, NULL, NULL, &ScanQueueResult)) {
+                    if (!SetupScanFileQueue(FileQueue, SPQ_SCAN_FILE_VALIDITY | SPQ_SCAN_PRUNE_COPY_QUEUE, hwndParent, NULL, NULL, &ScanQueueResult)) {
                         // SetupScanFileQueue should really never
                         // fail when you don't ask it to call a
                         // callback routine, but if it does, just
@@ -1636,10 +1633,10 @@ Remarks:
                     }
                 }
 
-                if(ScanQueueResult != 1) {
+                if (ScanQueueResult != 1) {
                     // Copy enqueued files. In this case the callback is
                     // SetupDefaultQueueCallback, so we know it's native char width.
-                    if(!_SetupCommitFileQueue(hwndParent,FileQueue,MsgHandler,MsgHandlerContext,TRUE)) {
+                    if (!_SetupCommitFileQueue(hwndParent, FileQueue, MsgHandler, MsgHandlerContext, TRUE)) {
                         Err = GetLastError();
                     }
                 }
@@ -1651,43 +1648,43 @@ Remarks:
         }
 
         // Terminate the default queue callback, if it was created.  (Do this before checking the return status of the file copying.)
-        if(MsgHandlerContext) {
+        if (MsgHandlerContext) {
             SetupTermDefaultQueueCallback(MsgHandlerContext);
             MsgHandlerContext = NULL;
         }
 
-        if(Err != NO_ERROR) {
+        if (Err != NO_ERROR) {
             goto clean0;
         }
 
         // If we get to here, then the file copying was successful--now we can perform the rest of the installation.
         // We don't pass a callback so we don't worry about ansi vs unicode issues here.
-        if(!_SetupInstallFromInfSection(NULL,
-                                        hInf,
-                                        ClassInstallSectionName,
-                                        SPINST_INIFILES | SPINST_REGISTRY | SPINST_INI2REG,
-                                        hKey,
-                                        NULL,
-                                        0,
-                                        NULL,
-                                        NULL,
-                                        INVALID_HANDLE_VALUE,
-                                        NULL,
-                                        TRUE,
-                                        (InterfaceClassGuid ? NULL : &RegContext)
-                                       )) {
+        if (!_SetupInstallFromInfSection(NULL,
+                                         hInf,
+                                         ClassInstallSectionName,
+                                         SPINST_INIFILES | SPINST_REGISTRY | SPINST_INI2REG,
+                                         hKey,
+                                         NULL,
+                                         0,
+                                         NULL,
+                                         NULL,
+                                         INVALID_HANDLE_VALUE,
+                                         NULL,
+                                         TRUE,
+                                         (InterfaceClassGuid ? NULL : &RegContext)
+        )) {
             Err = GetLastError();
             goto clean0;
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
 
-        if(MsgHandlerContext) {
+        if (MsgHandlerContext) {
             SetupTermDefaultQueueCallback(MsgHandlerContext);
         }
-        if(CloseFileQueue) {
+        if (CloseFileQueue) {
             SetupCloseFileQueue(FileQueue);
         }
 
@@ -1696,34 +1693,34 @@ clean0: ;   // nothing to do.
         KeyNewlyCreated = KeyNewlyCreated;
     }
 
-    if(hKey) {
+    if (hKey) {
         RegCloseKey(hKey);
-        if((Err != NO_ERROR) && KeyNewlyCreated && !InterfaceClassGuid) {
+        if ((Err != NO_ERROR) && KeyNewlyCreated && !InterfaceClassGuid) {
             // We hit an error, and the class installer key didn't previously exist,
             // so we want to remove it.
-            CM_Delete_Class_Key_Ex(&ClassGuid, CM_DELETE_CLASS_SUBKEYS,hMachine);
+            CM_Delete_Class_Key_Ex(&ClassGuid, CM_DELETE_CLASS_SUBKEYS, hMachine);
         }
     }
 
-    if(hInf != INVALID_HANDLE_VALUE) {
+    if (hInf != INVALID_HANDLE_VALUE) {
         SetupCloseInfFile(hInf);
     }
 
     if (Err == NO_ERROR) {
         // if we're >= DRIVER_LOG_INFO, give a +ve affirmation of install
-        WriteLogEntry(LogContext,DRIVER_LOG_INFO,MSG_LOG_CLASS_INSTALLED,NULL,NULL);
+        WriteLogEntry(LogContext, DRIVER_LOG_INFO, MSG_LOG_CLASS_INSTALLED, NULL, NULL);
     } else {
         // indicate install failed, display error
         // we make an extra effort here to log the guid
         TCHAR ClassGuidBuffer[GUID_STRING_LEN];
 
-        if(pSetupStringFromGuid(&ClassGuid, ClassGuidBuffer, GUID_STRING_LEN) != NO_ERROR) {
-            ClassGuidBuffer[0]=TEXT('*');
-            ClassGuidBuffer[1]=TEXT('\0');
+        if (pSetupStringFromGuid(&ClassGuid, ClassGuidBuffer, GUID_STRING_LEN) != NO_ERROR) {
+            ClassGuidBuffer[0] = TEXT('*');
+            ClassGuidBuffer[1] = TEXT('\0');
         }
 
-        WriteLogEntry(LogContext,DRIVER_LOG_ERROR | SETUP_LOG_BUFFER,MSG_LOG_CLASS_ERROR_ENCOUNTERED,NULL,ClassGuidBuffer);
-        WriteLogError(LogContext,DRIVER_LOG_ERROR,Err);
+        WriteLogEntry(LogContext, DRIVER_LOG_ERROR | SETUP_LOG_BUFFER, MSG_LOG_CLASS_ERROR_ENCOUNTERED, NULL, ClassGuidBuffer);
+        WriteLogError(LogContext, DRIVER_LOG_ERROR, Err);
     }
 
     if (LogContext) {
@@ -1740,23 +1737,23 @@ clean0: ;   // nothing to do.
 BOOL
 WINAPI
 SetupDiInstallClassA(
-    IN HWND     hwndParent,  OPTIONAL
+    IN HWND     hwndParent, OPTIONAL
     IN PCSTR    InfFileName,
     IN DWORD    Flags,
     IN HSPFILEQ FileQueue    OPTIONAL
-    )
+)
 {
     PCWSTR inf;
     DWORD rc;
     BOOL b;
 
-    rc = CaptureAndConvertAnsiArg(InfFileName,&inf);
-    if(rc != NO_ERROR) {
+    rc = CaptureAndConvertAnsiArg(InfFileName, &inf);
+    if (rc != NO_ERROR) {
         SetLastError(rc);
         return(FALSE);
     }
 
-    b = SetupDiInstallClassExW(hwndParent,inf,Flags,FileQueue,NULL,NULL,NULL);
+    b = SetupDiInstallClassExW(hwndParent, inf, Flags, FileQueue, NULL, NULL, NULL);
     rc = GetLastError();
 
     MyFree(inf);
@@ -1769,11 +1766,11 @@ SetupDiInstallClassA(
 BOOL
 WINAPI
 SetupDiInstallClassW(
-    IN HWND     hwndParent,  OPTIONAL
+    IN HWND     hwndParent, OPTIONAL
     IN PCWSTR   InfFileName,
     IN DWORD    Flags,
     IN HSPFILEQ FileQueue    OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(hwndParent);
     UNREFERENCED_PARAMETER(InfFileName);
@@ -1788,11 +1785,11 @@ SetupDiInstallClassW(
 BOOL
 WINAPI
 SetupDiInstallClass(
-    IN HWND     hwndParent,  OPTIONAL
+    IN HWND     hwndParent, OPTIONAL
     IN PCTSTR   InfFileName,
     IN DWORD    Flags,
     IN HSPFILEQ FileQueue    OPTIONAL
-    )
+)
 /*++
 Routine Description:
     This routine installs the [ClassInstall32] section of the specified INF.
@@ -1825,7 +1822,7 @@ Remarks:
     This API is generally called by the Device Manager when it installs a device of a new class.
 --*/
 {
-    return SetupDiInstallClassEx(hwndParent,InfFileName,Flags,FileQueue,NULL,NULL,NULL);
+    return SetupDiInstallClassEx(hwndParent, InfFileName, Flags, FileQueue, NULL, NULL, NULL);
 }
 
 
@@ -1838,9 +1835,9 @@ SetupDiGetHwProfileFriendlyNameA(
     OUT PSTR   FriendlyName,
     IN  DWORD  FriendlyNameSize,
     OUT PDWORD RequiredSize      OPTIONAL
-    )
+)
 {
-    return SetupDiGetHwProfileFriendlyNameExA(HwProfile,FriendlyName,FriendlyNameSize,RequiredSize,NULL,NULL);
+    return SetupDiGetHwProfileFriendlyNameExA(HwProfile, FriendlyName, FriendlyNameSize, RequiredSize, NULL, NULL);
 }
 #else
 // Unicode stub
@@ -1851,7 +1848,7 @@ SetupDiGetHwProfileFriendlyNameW(
     OUT PWSTR  FriendlyName,
     IN  DWORD  FriendlyNameSize,
     OUT PDWORD RequiredSize      OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(HwProfile);
     UNREFERENCED_PARAMETER(FriendlyName);
@@ -1870,13 +1867,13 @@ SetupDiGetHwProfileFriendlyName(
     OUT PTSTR  FriendlyName,
     IN  DWORD  FriendlyNameSize,
     OUT PDWORD RequiredSize      OPTIONAL
-    )
+)
 /*++
 Routine Description:
     See SetupDiGetHwProfileFriendlyNameEx for details.
 --*/
 {
-    return SetupDiGetHwProfileFriendlyNameEx(HwProfile,FriendlyName,FriendlyNameSize,RequiredSize,NULL,NULL);
+    return SetupDiGetHwProfileFriendlyNameEx(HwProfile, FriendlyName, FriendlyNameSize, RequiredSize, NULL, NULL);
 }
 
 
@@ -1888,10 +1885,10 @@ SetupDiGetHwProfileFriendlyNameExA(
     IN  DWORD  HwProfile,
     OUT PSTR   FriendlyName,
     IN  DWORD  FriendlyNameSize,
-    OUT PDWORD RequiredSize,     OPTIONAL
-    IN  PCSTR  MachineName,      OPTIONAL
+    OUT PDWORD RequiredSize, OPTIONAL
+    IN  PCSTR  MachineName, OPTIONAL
     IN  PVOID  Reserved
-    )
+)
 {
     WCHAR UnicodeName[MAX_PROFILE_LEN];
     PSTR nameA;
@@ -1900,9 +1897,9 @@ SetupDiGetHwProfileFriendlyNameExA(
     DWORD requiredSize;
     PCWSTR UnicodeMachineName;
 
-    if(MachineName) {
+    if (MachineName) {
         rc = CaptureAndConvertAnsiArg(MachineName, &UnicodeMachineName);
-        if(rc != NO_ERROR) {
+        if (rc != NO_ERROR) {
             SetLastError(rc);
             return FALSE;
         }
@@ -1910,13 +1907,13 @@ SetupDiGetHwProfileFriendlyNameExA(
         UnicodeMachineName = NULL;
     }
 
-    b = SetupDiGetHwProfileFriendlyNameExW(HwProfile,UnicodeName,SIZECHARS(UnicodeName),&requiredSize,UnicodeMachineName,Reserved);
+    b = SetupDiGetHwProfileFriendlyNameExW(HwProfile, UnicodeName, SIZECHARS(UnicodeName), &requiredSize, UnicodeMachineName, Reserved);
     rc = GetLastError();
 
-    if(b) {
-        if(nameA = UnicodeToAnsi(UnicodeName)) {
+    if (b) {
+        if (nameA = UnicodeToAnsi(UnicodeName)) {
             requiredSize = lstrlenA(nameA) + 1;
-            if(RequiredSize) {
+            if (RequiredSize) {
                 try {
                     *RequiredSize = requiredSize;
                 } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -1925,12 +1922,12 @@ SetupDiGetHwProfileFriendlyNameExA(
                 }
             }
 
-            if(b) {
-                if(requiredSize > FriendlyNameSize) {
+            if (b) {
+                if (requiredSize > FriendlyNameSize) {
                     rc = ERROR_INSUFFICIENT_BUFFER;
                     b = FALSE;
                 } else {
-                    if(!lstrcpyA(FriendlyName,nameA)) {
+                    if (!lstrcpyA(FriendlyName, nameA)) {
                         // lstrcpy faulted, caller passed in bogus buffer.
                         rc = ERROR_INVALID_USER_BUFFER;
                         b = FALSE;
@@ -1945,7 +1942,7 @@ SetupDiGetHwProfileFriendlyNameExA(
         }
     }
 
-    if(UnicodeMachineName) {
+    if (UnicodeMachineName) {
         MyFree(UnicodeMachineName);
     }
 
@@ -1960,10 +1957,10 @@ SetupDiGetHwProfileFriendlyNameExW(
     IN  DWORD  HwProfile,
     OUT PWSTR  FriendlyName,
     IN  DWORD  FriendlyNameSize,
-    OUT PDWORD RequiredSize,     OPTIONAL
-    IN  PCWSTR MachineName,      OPTIONAL
+    OUT PDWORD RequiredSize, OPTIONAL
+    IN  PCWSTR MachineName, OPTIONAL
     IN  PVOID  Reserved
-    )
+)
 {
     UNREFERENCED_PARAMETER(HwProfile);
     UNREFERENCED_PARAMETER(FriendlyName);
@@ -1983,10 +1980,10 @@ SetupDiGetHwProfileFriendlyNameEx(
     IN  DWORD  HwProfile,
     OUT PTSTR  FriendlyName,
     IN  DWORD  FriendlyNameSize,
-    OUT PDWORD RequiredSize,     OPTIONAL
-    IN  PCTSTR MachineName,      OPTIONAL
+    OUT PDWORD RequiredSize, OPTIONAL
+    IN  PCTSTR MachineName, OPTIONAL
     IN  PVOID  Reserved
-    )
+)
 /*++
 Routine Description:
     This routine retrieves the friendly name associated with a hardware profile ID.
@@ -2013,15 +2010,15 @@ Return Value:
     HMACHINE hMachine;
 
     // Make sure the caller didn't pass us anything in the Reserved parameter.
-    if(Reserved) {
+    if (Reserved) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
     // If the caller specified a remote machine name, connect to that machine
-    if(MachineName) {
+    if (MachineName) {
         cr = CM_Connect_Machine(MachineName, &hMachine);
-        if(cr != CR_SUCCESS) {
+        if (cr != CR_SUCCESS) {
             SetLastError(MapCrToSpError(cr, ERROR_INVALID_DATA));
             return FALSE;
         }
@@ -2030,28 +2027,28 @@ Return Value:
     }
 
     // If a hardware profile ID of 0 is specified, then retrieve information about the current hardware profile, otherwise, enumerate the hardware profiles, looking for the one specified.
-    if(HwProfile) {
+    if (HwProfile) {
         i = 0;
     } else {
         i = 0xFFFFFFFF;
     }
 
     do {
-        if((cr = CM_Get_Hardware_Profile_Info_Ex(i, &HwProfInfo, 0, hMachine)) == CR_SUCCESS) {
+        if ((cr = CM_Get_Hardware_Profile_Info_Ex(i, &HwProfInfo, 0, hMachine)) == CR_SUCCESS) {
             // Hardware profile info retrieved--see if it's what we're looking for.
-            if(!HwProfile || (HwProfInfo.HWPI_ulHWProfile == HwProfile)) {
+            if (!HwProfile || (HwProfInfo.HWPI_ulHWProfile == HwProfile)) {
                 try {
                     NameLen = lstrlen(HwProfInfo.HWPI_szFriendlyName) + 1;
 
-                    if(RequiredSize) {
+                    if (RequiredSize) {
                         *RequiredSize = NameLen;
                     }
 
-                    if(NameLen > FriendlyNameSize) {
+                    if (NameLen > FriendlyNameSize) {
                         Err = ERROR_INSUFFICIENT_BUFFER;
                     } else {
                         Err = NO_ERROR;
-                        CopyMemory(FriendlyName,HwProfInfo.HWPI_szFriendlyName,NameLen * sizeof(TCHAR));
+                        CopyMemory(FriendlyName, HwProfInfo.HWPI_szFriendlyName, NameLen * sizeof(TCHAR));
                     }
                 } except(EXCEPTION_EXECUTE_HANDLER) {
                     Err = ERROR_INVALID_PARAMETER;
@@ -2061,14 +2058,14 @@ Return Value:
             }
             // This wasn't the profile we wanted--go on to the next one.
             i++;
-        } else if(!HwProfile || (cr != CR_NO_SUCH_VALUE)) {
+        } else if (!HwProfile || (cr != CR_NO_SUCH_VALUE)) {
             // We should abort on any error other than CR_NO_SUCH_VALUE, otherwise we might loop forever!
             Err = ERROR_INVALID_DATA;
             break;
         }
-    } while(cr != CR_NO_SUCH_VALUE);
+    } while (cr != CR_NO_SUCH_VALUE);
 
-    if(hMachine) {
+    if (hMachine) {
         CM_Disconnect_Machine(hMachine);
     }
 
@@ -2082,7 +2079,7 @@ BOOL WINAPI SetupDiGetHwProfileList(
     IN  DWORD  HwProfileListSize,
     OUT PDWORD RequiredSize,
     OUT PDWORD CurrentlyActiveIndex OPTIONAL
-    )
+)
 /*++
 Routine Description:
     This routine retrieves a list of all currently-defined hardware profile IDs.
@@ -2099,7 +2096,7 @@ Return Value:
     To get extended error information, call GetLastError.
 --*/
 {
-    return SetupDiGetHwProfileListEx(HwProfileList,HwProfileListSize,RequiredSize,CurrentlyActiveIndex,NULL,NULL);
+    return SetupDiGetHwProfileListEx(HwProfileList, HwProfileListSize, RequiredSize, CurrentlyActiveIndex, NULL, NULL);
 }
 
 
@@ -2110,9 +2107,9 @@ BOOL WINAPI SetupDiGetHwProfileListExA(
     IN  DWORD  HwProfileListSize,
     OUT PDWORD RequiredSize,
     OUT PDWORD CurrentlyActiveIndex, OPTIONAL
-    IN  PCSTR  MachineName,          OPTIONAL
+    IN  PCSTR  MachineName, OPTIONAL
     IN  PVOID  Reserved
-    )
+)
 {
     PCWSTR UnicodeMachineName;
     DWORD rc;
@@ -2120,17 +2117,17 @@ BOOL WINAPI SetupDiGetHwProfileListExA(
 
     b = FALSE;
 
-    if(MachineName) {
+    if (MachineName) {
         rc = CaptureAndConvertAnsiArg(MachineName, &UnicodeMachineName);
     } else {
         UnicodeMachineName = NULL;
         rc = NO_ERROR;
     }
 
-    if(rc == NO_ERROR) {
-        b = SetupDiGetHwProfileListExW(HwProfileList,HwProfileListSize,RequiredSize,CurrentlyActiveIndex,UnicodeMachineName,Reserved);
+    if (rc == NO_ERROR) {
+        b = SetupDiGetHwProfileListExW(HwProfileList, HwProfileListSize, RequiredSize, CurrentlyActiveIndex, UnicodeMachineName, Reserved);
         rc = GetLastError();
-        if(UnicodeMachineName) {
+        if (UnicodeMachineName) {
             MyFree(UnicodeMachineName);
         }
     }
@@ -2145,9 +2142,9 @@ BOOL WINAPI SetupDiGetHwProfileListExW(
     IN  DWORD  HwProfileListSize,
     OUT PDWORD RequiredSize,
     OUT PDWORD CurrentlyActiveIndex, OPTIONAL
-    IN  PCWSTR MachineName,          OPTIONAL
+    IN  PCWSTR MachineName, OPTIONAL
     IN  PVOID  Reserved
-    )
+)
 {
     UNREFERENCED_PARAMETER(HwProfileList);
     UNREFERENCED_PARAMETER(HwProfileListSize);
@@ -2168,9 +2165,9 @@ SetupDiGetHwProfileListEx(
     IN  DWORD  HwProfileListSize,
     OUT PDWORD RequiredSize,
     OUT PDWORD CurrentlyActiveIndex, OPTIONAL
-    IN  PCTSTR MachineName,          OPTIONAL
+    IN  PCTSTR MachineName, OPTIONAL
     IN  PVOID  Reserved
-    )
+)
 /*++
 Routine Description:
     This routine retrieves a list of all currently-defined hardware profile IDs.
@@ -2198,15 +2195,15 @@ Return Value:
     HMACHINE hMachine;
 
     // Make sure the caller didn't pass us anything in the Reserved parameter.
-    if(Reserved) {
+    if (Reserved) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
     // If the caller specified a remote machine name, connect to that machine now.
-    if(MachineName) {
+    if (MachineName) {
         cr = CM_Connect_Machine(MachineName, &hMachine);
-        if(cr != CR_SUCCESS) {
+        if (cr != CR_SUCCESS) {
             SetLastError(MapCrToSpError(cr, ERROR_INVALID_DATA));
             return FALSE;
         }
@@ -2216,8 +2213,8 @@ Return Value:
 
     // First retrieve the currently active hardware profile ID, so we'll know what
     // to look for when we're enumerating all profiles (only need to do this if the user wants the index of the currently active hardware profile).
-    if(CurrentlyActiveIndex) {
-        if(CM_Get_Hardware_Profile_Info_Ex(0xFFFFFFFF, &HwProfInfo, 0, hMachine) == CR_SUCCESS) {
+    if (CurrentlyActiveIndex) {
+        if (CM_Get_Hardware_Profile_Info_Ex(0xFFFFFFFF, &HwProfInfo, 0, hMachine) == CR_SUCCESS) {
             // Store away the hardware profile ID.
             CurHwProfile = HwProfInfo.HWPI_ulHWProfile;
         } else {
@@ -2230,23 +2227,23 @@ Return Value:
         // Enumerate the hardware profiles, retrieving the ID for each.
         i = 0;
         do {
-            if((cr = CM_Get_Hardware_Profile_Info_Ex(i, &HwProfInfo, 0, hMachine)) == CR_SUCCESS) {
-                if(i < HwProfileListSize) {
+            if ((cr = CM_Get_Hardware_Profile_Info_Ex(i, &HwProfInfo, 0, hMachine)) == CR_SUCCESS) {
+                if (i < HwProfileListSize) {
                     HwProfileList[i] = HwProfInfo.HWPI_ulHWProfile;
                 }
-                if(CurrentlyActiveIndex && (HwProfInfo.HWPI_ulHWProfile == CurHwProfile)) {
+                if (CurrentlyActiveIndex && (HwProfInfo.HWPI_ulHWProfile == CurHwProfile)) {
                     *CurrentlyActiveIndex = i;
                     // Clear the CurrentlyActiveIndex pointer, so we once we find the currently active profile, we won't have to keep comparing.
                     CurrentlyActiveIndex = NULL;
                 }
                 i++;
             }
-        } while(cr == CR_SUCCESS);
+        } while (cr == CR_SUCCESS);
 
-        if(cr == CR_NO_MORE_HW_PROFILES) {
+        if (cr == CR_NO_MORE_HW_PROFILES) {
             // Then we enumerated all hardware profiles.  Now see if we had enough buffer to hold them all.
             *RequiredSize = i;
-            if(i > HwProfileListSize) {
+            if (i > HwProfileListSize) {
                 Err = ERROR_INSUFFICIENT_BUFFER;
             }
         } else {// Something else happened (probably a key not present).
@@ -2257,7 +2254,7 @@ Return Value:
     }
 
 clean0:
-    if(hMachine) {
+    if (hMachine) {
         CM_Disconnect_Machine(hMachine);
     }
 
@@ -2269,10 +2266,10 @@ clean0:
 DWORD
 pSetupDiGetCoInstallerList(
     IN     HDEVINFO                 DeviceInfoSet,
-    IN     PSP_DEVINFO_DATA         DeviceInfoData,   OPTIONAL
-    IN     CONST GUID              *ClassGuid,
+    IN     PSP_DEVINFO_DATA         DeviceInfoData, OPTIONAL
+    IN     CONST GUID* ClassGuid,
     IN OUT PDEVINSTALL_PARAM_BLOCK  InstallParamBlock
-    )
+)
 /*++
 Routine Description:
     This routine retrieves the list of co-installers (both class- and device-specific) and stores the entry points and module handles in the supplied install param block.
@@ -2302,19 +2299,19 @@ Return Value:
     BOOL MustAbort;
 
     // If there is already a list, then return success immediately.
-    if(InstallParamBlock->CoInstallerCount != -1) {
+    if (InstallParamBlock->CoInstallerCount != -1) {
         return NO_ERROR;
     }
 
     // Retrieve the parent window handle, as we may need it below if we need to popup UI due to unsigned class-/co-installers.
-    if(hwndParent = InstallParamBlock->hwndParent) {
-       if(!IsWindow(hwndParent)) {
+    if (hwndParent = InstallParamBlock->hwndParent) {
+        if (!IsWindow(hwndParent)) {
             hwndParent = NULL;
-       }
+        }
     }
 
     // Retrieve a device description to use in case we need to give a driver signing warn/block popup.
-    if(GetBestDeviceDesc(DeviceInfoSet, DeviceInfoData, DescBuffer)) {
+    if (GetBestDeviceDesc(DeviceInfoSet, DeviceInfoData, DescBuffer)) {
         DeviceDesc = DescBuffer;
     } else {
         DeviceDesc = NULL;
@@ -2326,12 +2323,12 @@ Return Value:
 
     // Open the CoDeviceInstallers key, as well as the device's driver key (if a devinfo element is specified).
     Err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, pszPathCoDeviceInstallers, 0, KEY_READ, &(hk[0]));
-    if(Err != ERROR_SUCCESS) {
+    if (Err != ERROR_SUCCESS) {
         hk[0] = INVALID_HANDLE_VALUE;
     }
 
-    if(DeviceInfoData) {
-        hk[1] = SetupDiOpenDevRegKey(DeviceInfoSet,DeviceInfoData,DICS_FLAG_GLOBAL,0,DIREG_DRV,KEY_READ);
+    if (DeviceInfoData) {
+        hk[1] = SetupDiOpenDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DRV, KEY_READ);
     } else {
         hk[1] = INVALID_HANDLE_VALUE;
     }
@@ -2342,29 +2339,29 @@ Return Value:
     i = 0;
 
     try {
-        for(KeyIndex = 0; KeyIndex < 2; KeyIndex++) {
+        for (KeyIndex = 0; KeyIndex < 2; KeyIndex++) {
             // If we couldn't open a key for this location, move on to the next one.
-            if(hk[KeyIndex] == INVALID_HANDLE_VALUE) {
+            if (hk[KeyIndex] == INVALID_HANDLE_VALUE) {
                 continue;
             }
 
             // Retrieve the multi-sz value containing the co-installer entries.
-            while(TRUE) {
-                if(!CoInstallerBuffer) {
-                    if(!(CoInstallerBuffer = MyMalloc(CoInstallerBufferSize))) {
+            while (TRUE) {
+                if (!CoInstallerBuffer) {
+                    if (!(CoInstallerBuffer = MyMalloc(CoInstallerBufferSize))) {
                         Err = ERROR_NOT_ENOUGH_MEMORY;
                         break;
                     }
                 }
 
                 Err = RegQueryValueEx(hk[KeyIndex],
-                                      (KeyIndex ? pszCoInstallers32 : GuidString),
+                    (KeyIndex ? pszCoInstallers32 : GuidString),
                                       NULL,
                                       &RegDataType,
                                       (PBYTE)CoInstallerBuffer,
                                       &CoInstallerBufferSize
-                                     );
-                if(Err == ERROR_MORE_DATA) {
+                );
+                if (Err == ERROR_MORE_DATA) {
                     // Buffer wasn't large enough--free current one and try again with new size.
                     MyFree(CoInstallerBuffer);
                     CoInstallerBuffer = NULL;
@@ -2374,32 +2371,32 @@ Return Value:
             }
 
             // Only out-of-memory errors are treated as fatal here.
-            if(Err == ERROR_NOT_ENOUGH_MEMORY) {
+            if (Err == ERROR_NOT_ENOUGH_MEMORY) {
                 goto cleanClass0;
-            } else if(Err == ERROR_SUCCESS) {
+            } else if (Err == ERROR_SUCCESS) {
                 // Make sure the buffer we got back looks valid.
-                if((RegDataType != REG_MULTI_SZ) || (CoInstallerBufferSize < sizeof(TCHAR))) {
+                if ((RegDataType != REG_MULTI_SZ) || (CoInstallerBufferSize < sizeof(TCHAR))) {
                     Err = ERROR_INVALID_COINSTALLER;
                     goto cleanClass0;
                 }
 
                 // Count the number of entries in this multi-sz list.
-                for(CoInstallerListSize = 0, CurEntry = CoInstallerBuffer; *CurEntry; CoInstallerListSize++, CurEntry += (lstrlen(CurEntry) + 1));
+                for (CoInstallerListSize = 0, CurEntry = CoInstallerBuffer; *CurEntry; CoInstallerListSize++, CurEntry += (lstrlen(CurEntry) + 1));
 
-                if(!CoInstallerListSize) {
+                if (!CoInstallerListSize) {
                     // List is empty, move on to next one.
                     continue;
                 }
 
                 // Allocate (or reallocate) an array large enough to hold this many co-installer entries.
-                if(CoInstallerList) {
+                if (CoInstallerList) {
                     TempCoInstallerList = MyRealloc(CoInstallerList, (CoInstallerListSize + i) * sizeof(COINSTALLER_NODE));
                 } else {
                     MYASSERT(i == 0);
                     TempCoInstallerList = MyMalloc(CoInstallerListSize * sizeof(COINSTALLER_NODE));
                 }
 
-                if(TempCoInstallerList) {
+                if (TempCoInstallerList) {
                     CoInstallerList = TempCoInstallerList;
                 } else {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
@@ -2407,7 +2404,7 @@ Return Value:
                 }
 
                 // Now loop through the list and get the co-installer for each entry.
-                for(CurEntry = CoInstallerBuffer; *CurEntry; CurEntry += (lstrlen(CurEntry) + 1)) {
+                for (CurEntry = CoInstallerBuffer; *CurEntry; CurEntry += (lstrlen(CurEntry) + 1)) {
                     // Initialize the hinstance to NULL, so we'll know whether or not we need to free the module if we hit an exception here.
                     CoInstallerList[i].hinstCoInstaller = NULL;
                     Err = GetModuleEntryPoint(INVALID_HANDLE_VALUE,
@@ -2422,13 +2419,13 @@ Return Value:
                                               DeviceDesc,
                                               DRIVERSIGN_NONE,
                                               TRUE
-                                             );
-                    if(Err == NO_ERROR) {
+                    );
+                    if (Err == NO_ERROR) {
                         i++;
                     } else {
                         // If the error we encountered above causes us to abort (e.g., due to a driver signing problem), then get out now.
                         // Otherwise, just skip this failed entry and move on to the next.
-                        if(MustAbort) {
+                        if (MustAbort) {
                             goto cleanClass0;
                         }
                     }
@@ -2438,12 +2435,12 @@ Return Value:
 
         Err = NO_ERROR;// If we get to here then we've successfully retrieved the co-installer list(s)
 
-cleanClass0:
+    cleanClass0:
         ;       // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_COINSTALLER;
-        for(; i >= 0; i--) {
-            if(CoInstallerList[i].hinstCoInstaller) {
+        for (; i >= 0; i--) {
+            if (CoInstallerList[i].hinstCoInstaller) {
                 FreeLibrary(CoInstallerList[i].hinstCoInstaller);
             }
         }
@@ -2452,20 +2449,20 @@ cleanClass0:
         CoInstallerList = CoInstallerList;
     }
 
-    if(CoInstallerBuffer) {
+    if (CoInstallerBuffer) {
         MyFree(CoInstallerBuffer);
     }
 
-    for(KeyIndex = 0; KeyIndex < 2; KeyIndex++) {
-        if(hk[KeyIndex] != INVALID_HANDLE_VALUE) {
+    for (KeyIndex = 0; KeyIndex < 2; KeyIndex++) {
+        if (hk[KeyIndex] != INVALID_HANDLE_VALUE) {
             RegCloseKey(hk[KeyIndex]);
         }
     }
 
-    if(Err == NO_ERROR) {
-        InstallParamBlock->CoInstallerList  = CoInstallerList;
+    if (Err == NO_ERROR) {
+        InstallParamBlock->CoInstallerList = CoInstallerList;
         InstallParamBlock->CoInstallerCount = i;
-    } else if(CoInstallerList) {
+    } else if (CoInstallerList) {
         MyFree(CoInstallerList);
     }
 

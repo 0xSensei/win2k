@@ -138,7 +138,7 @@ MINI_ICON_LIST GlobalMiniIconList;
 
 CONST INT UnknownClassMiniIconIndex = 11;
 
-CONST CLASSICON MiniIconXlate[] = { {&GUID_DEVCLASS_COMPUTER,      0, NULL},
+CONST CLASSICON MiniIconXlate[] = {{&GUID_DEVCLASS_COMPUTER,      0, NULL},
                                     {&GUID_DEVCLASS_DISPLAY,       2, NULL},
                                     {&GUID_DEVCLASS_MOUSE,         5, NULL},
                                     {&GUID_DEVCLASS_KEYBOARD,      6, NULL},
@@ -156,7 +156,7 @@ CONST CLASSICON MiniIconXlate[] = { {&GUID_DEVCLASS_COMPUTER,      0, NULL},
                                     {&GUID_DEVCLASS_UNKNOWN,      18, NULL},
                                     {&GUID_DEVCLASS_LEGACYDRIVER, 11, NULL},
                                     {&GUID_DEVCLASS_MTD,           9, NULL}
-                                  };
+};
 
 
 // BUGBUG hard-wired size for mini icons
@@ -185,9 +185,9 @@ CONST CLASSICON MiniIconXlate[] = { {&GUID_DEVCLASS_COMPUTER,      0, NULL},
 
 INT
 NewMiniIcon(
-    IN CONST GUID *ClassGuid,
+    IN CONST GUID* ClassGuid,
     IN HICON       hIcon      OPTIONAL
-    );
+);
 
 
 INT
@@ -197,7 +197,7 @@ SetupDiDrawMiniIcon(
     IN RECT  rc,
     IN INT   MiniIconIndex,
     IN DWORD Flags
-    )
+)
 /*++
 
 Routine Description:
@@ -259,36 +259,36 @@ Remarks:
     DWORD rgbBk, rgbText;
     INT ret = 0;
 
-    if(!LockMiniIconList(&GlobalMiniIconList)) {
+    if (!LockMiniIconList(&GlobalMiniIconList)) {
         return 0;
     }
 
     CreateMiniIcons();
 
-    if(GlobalMiniIconList.hbmMiniImage) {
+    if (GlobalMiniIconList.hbmMiniImage) {
 
         // Set the Foreground and  background color for the
         // conversion of the Mono Mask image
 
-        if(Flags & DMI_MASK) {
+        if (Flags & DMI_MASK) {
             rgbBk = SetBkColor(hdc, RGB_WHITE);
         } else {
             rgbBk = SetBkColor(hdc,
                                GetSysColor(((int)(Flags & DMI_BKCOLOR
-                                                      ? HIWORD(Flags)
-                                                      : COLOR_WINDOW)))
-                              );
+                                                  ? HIWORD(Flags)
+                                                  : COLOR_WINDOW)))
+            );
         }
         rgbText = SetTextColor(hdc, RGB_BLACK);
 
-        if(Flags & DMI_USERECT) {
+        if (Flags & DMI_USERECT) {
 
             // Copy the converted mask into the dest.  The transparent
             // areas will be drawn with the current window color.
 
             hbmOld = SelectObject(GlobalMiniIconList.hdcMiniMem,
                                   GlobalMiniIconList.hbmMiniMask
-                                 );
+            );
             StretchBlt(hdc,
                        rc.left,
                        rc.top,
@@ -301,13 +301,13 @@ Remarks:
                        MINIY,
                        SRCCOPY | NOMIRRORBITMAP);
 
-            if(!(Flags & DMI_MASK)) {
+            if (!(Flags & DMI_MASK)) {
 
                 // OR the image into the dest
 
                 SelectObject(GlobalMiniIconList.hdcMiniMem,
                              GlobalMiniIconList.hbmMiniImage
-                            );
+                );
                 StretchBlt(hdc,
                            rc.left,
                            rc.top,
@@ -328,36 +328,36 @@ Remarks:
 
             hbmOld = SelectObject(GlobalMiniIconList.hdcMiniMem,
                                   GlobalMiniIconList.hbmMiniMask
-                                 );
+            );
             BitBlt(hdc,
                    rc.left,
-                   rc.top + (rc.bottom - rc.top - MINIY)/2,
+                   rc.top + (rc.bottom - rc.top - MINIY) / 2,
                    MINIX,
                    MINIY,
                    GlobalMiniIconList.hdcMiniMem,
                    MINIX * MiniIconIndex,
                    0,
                    SRCCOPY | NOMIRRORBITMAP
-                  );
+            );
 
 
-            if(!(Flags & DMI_MASK)) {
+            if (!(Flags & DMI_MASK)) {
 
                 // OR the image into the dest
 
                 SelectObject(GlobalMiniIconList.hdcMiniMem,
                              GlobalMiniIconList.hbmMiniImage
-                            );
+                );
                 BitBlt(hdc,
                        rc.left,
-                       rc.top + (rc.bottom - rc.top - MINIY)/2,
+                       rc.top + (rc.bottom - rc.top - MINIY) / 2,
                        MINIX,
                        MINIY,
                        GlobalMiniIconList.hdcMiniMem,
                        MINIX * MiniIconIndex,
                        0,
                        SRCPAINT | NOMIRRORBITMAP
-                      );
+                );
             }
         }
 
@@ -365,7 +365,7 @@ Remarks:
         SetTextColor(hdc, rgbText);
 
         SelectObject(GlobalMiniIconList.hdcMiniMem, hbmOld);
-        if(Flags & DMI_USERECT) {
+        if (Flags & DMI_USERECT) {
             ret = rc.right - rc.left + 2;   // offset to string from left edge
         } else {
             ret = MINIX + 2;                // offset to string from left edge
@@ -381,10 +381,10 @@ Remarks:
 BOOL
 WINAPI
 SetupDiLoadClassIcon(
-    IN  CONST GUID *ClassGuid,
-    OUT HICON      *LargeIcon,     OPTIONAL
+    IN  CONST GUID* ClassGuid,
+    OUT HICON* LargeIcon, OPTIONAL
     OUT LPINT       MiniIconIndex  OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -438,25 +438,25 @@ Remarks:
     TCHAR FullPath[MAX_PATH];
     UINT  IconsExtracted;
 
-    if(!LockMiniIconList(&GlobalMiniIconList)) {
+    if (!LockMiniIconList(&GlobalMiniIconList)) {
         SetLastError(ERROR_CANT_LOAD_CLASS_ICON);
         return FALSE;
     }
 
     try {
 
-        if(MiniIconIndex) {
+        if (MiniIconIndex) {
             *MiniIconIndex = -1;
         }
 
-        if((hk = SetupDiOpenClassRegKey(ClassGuid, KEY_READ)) == INVALID_HANDLE_VALUE) {
+        if ((hk = SetupDiOpenClassRegKey(ClassGuid, KEY_READ)) == INVALID_HANDLE_VALUE) {
             goto clean0;
         }
 
         StringSize = sizeof(TempString);
         Err = RegQueryValueEx(hk, pszInsIcon, NULL, &RegDataType, (PBYTE)TempString, &StringSize);
-        if((Err == ERROR_SUCCESS) && (RegDataType == REG_SZ) && (StringSize > sizeof(TCHAR))) {
-            if((ClassIconIndex = _tcstol(TempString, &EndPtr, 10)) == 1) {
+        if ((Err == ERROR_SUCCESS) && (RegDataType == REG_SZ) && (StringSize > sizeof(TCHAR))) {
+            if ((ClassIconIndex = _tcstol(TempString, &EndPtr, 10)) == 1) {
                 // Positive values indicate that we should access an icon directly using its ID.
                 // Since ExtractIconEx uses negative values to indicate these IDs, and since the value -1 has a special meaning to that API, we must disallow a ClassIconIndex of +1.
                 goto clean1;
@@ -466,11 +466,11 @@ Remarks:
             ClassIconIndex = 0;
         }
 
-        if(MiniIconIndex) {
+        if (MiniIconIndex) {
 
             // If mini-icon is already around, then we're done with it.
 
-            if(!SetupDiGetClassBitmapIndex(ClassGuid, MiniIconIndex)) {
+            if (!SetupDiGetClassBitmapIndex(ClassGuid, MiniIconIndex)) {
 
                 // mini-icon not around--set flag to show we didn't get it.
 
@@ -478,19 +478,19 @@ Remarks:
             }
         }
 
-        if(ClassIconIndex < 0) {
+        if (ClassIconIndex < 0) {
             INT ClassIconIndexNeg = -ClassIconIndex;
 
             // Icon index is negative.  This means that this class is one
             // of our special classes with icons in setupapi.dll
 
-            if(LargeIcon) {
+            if (LargeIcon) {
                 hRetLargeIcon = LoadIcon(MyDllModuleHandle,
                                          MAKEINTRESOURCE(ClassIconIndexNeg)
-                                        );
+                );
             }
 
-            if(bGetMini) {
+            if (bGetMini) {
 
                 // Retrieve the small icon as well.  If the resource doesn't
                 // have a small icon then the big one will get smushed, but it's
@@ -502,16 +502,16 @@ Remarks:
                                           MINIX,
                                           MINIY,
                                           LR_DEFAULTCOLOR
-                                         );
+                );
 
-                if(hRetSmallIcon) {
+                if (hRetSmallIcon) {
                     *MiniIconIndex = NewMiniIcon(ClassGuid, hRetSmallIcon);
                     DestroyIcon(hRetSmallIcon);
                     hRetSmallIcon = NULL;
                 }
             }
 
-        } else if(bGetMini || LargeIcon) {
+        } else if (bGetMini || LargeIcon) {
 
             // Look for the binary containing the icon(s) first in the
             // "Installer32" entry, and if not found, then in the "EnumPropPages32"
@@ -526,10 +526,10 @@ Remarks:
                                   &RegDataType,
                                   (PBYTE)TempString,
                                   &StringSize
-                                 );
+            );
 
-            if((Err != ERROR_SUCCESS) || (RegDataType != REG_SZ) ||
-               (StringSize < sizeof(TCHAR))) {
+            if ((Err != ERROR_SUCCESS) || (RegDataType != REG_SZ) ||
+                (StringSize < sizeof(TCHAR))) {
 
                 StringSize = sizeof(TempString);
                 Err = RegQueryValueEx(hk,
@@ -538,10 +538,10 @@ Remarks:
                                       &RegDataType,
                                       (PBYTE)TempString,
                                       &StringSize
-                                     );
+                );
 
-                if((Err != ERROR_SUCCESS) || (RegDataType != REG_SZ) ||
-                   (StringSize < sizeof(TCHAR))) {
+                if ((Err != ERROR_SUCCESS) || (RegDataType != REG_SZ) ||
+                    (StringSize < sizeof(TCHAR))) {
 
                     goto clean1;
                 }
@@ -550,18 +550,18 @@ Remarks:
 
             // Remove function name, if present, from installer name.
 
-            for(EndPtr = TempString + ((StringSize / sizeof(TCHAR)) - 1);
-                EndPtr >= TempString;
-                EndPtr--) {
+            for (EndPtr = TempString + ((StringSize / sizeof(TCHAR)) - 1);
+                 EndPtr >= TempString;
+                 EndPtr--) {
 
-                if(*EndPtr == TEXT(',')) {
+                if (*EndPtr == TEXT(',')) {
                     *EndPtr = TEXT('\0');
                     break;
                 }
 
                 // If we hit a double-quote mark, we terminate the search.
 
-                if(*EndPtr == TEXT('\"')) {
+                if (*EndPtr == TEXT('\"')) {
                     break;
                 }
             }
@@ -572,13 +572,13 @@ Remarks:
                                            LargeIcon ? &hRetLargeIcon : NULL,
                                            bGetMini ? &hRetSmallIcon : NULL,
                                            1
-                                          );
-            if((IconsExtracted != (UINT)-1) && (IconsExtracted > 0)) {
+            );
+            if ((IconsExtracted != (UINT)-1) && (IconsExtracted > 0)) {
 
-                if(hRetLargeIcon) {
+                if (hRetLargeIcon) {
                     bDestroyLargeIcon = TRUE;
                 }
-                if(hRetSmallIcon) {
+                if (hRetSmallIcon) {
                     *MiniIconIndex = NewMiniIcon(ClassGuid, hRetSmallIcon);
                     DestroyIcon(hRetSmallIcon);
                     hRetSmallIcon = NULL;
@@ -586,32 +586,32 @@ Remarks:
             }
         }
 
-clean1:
+    clean1:
         RegCloseKey(hk);
         hk = INVALID_HANDLE_VALUE;
 
-clean0:
+    clean0:
 
         // Assume success, unless we hit some really big problem below.
 
         Err = NO_ERROR;
 
-        if(LargeIcon && !hRetLargeIcon) {
+        if (LargeIcon && !hRetLargeIcon) {
 
             // We didn't retrieve any icon, so use a default.
 
-            if(!(hRetLargeIcon = LoadIcon(MyDllModuleHandle, MAKEINTRESOURCE(ICON_DEFAULT)))) {
+            if (!(hRetLargeIcon = LoadIcon(MyDllModuleHandle, MAKEINTRESOURCE(ICON_DEFAULT)))) {
                 Err = GetLastError();
             }
         }
 
-        if(Err == NO_ERROR) {
+        if (Err == NO_ERROR) {
 
-            if(LargeIcon) {
+            if (LargeIcon) {
                 *LargeIcon = hRetLargeIcon;
             }
 
-            if(MiniIconIndex && (*MiniIconIndex == -1)) {
+            if (MiniIconIndex && (*MiniIconIndex == -1)) {
                 SetupDiGetClassBitmapIndex(NULL, MiniIconIndex);
             }
         }
@@ -619,16 +619,16 @@ clean0:
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
 
-        if(hRetSmallIcon) {
+        if (hRetSmallIcon) {
             DestroyIcon(hRetSmallIcon);
         }
 
-        if(hk != INVALID_HANDLE_VALUE) {
+        if (hk != INVALID_HANDLE_VALUE) {
             RegCloseKey(hk);
         }
     }
 
-    if((Err != NO_ERROR) && bDestroyLargeIcon) {
+    if ((Err != NO_ERROR) && bDestroyLargeIcon) {
 
         // We only need to destroy the large icon if it was retrieved
         // via ExtractIconEx (which uses CreateIcon).
@@ -658,9 +658,9 @@ clean0:
 BOOL
 WINAPI
 SetupDiGetClassBitmapIndex(
-    IN  CONST GUID *ClassGuid,    OPTIONAL
+    IN  CONST GUID* ClassGuid, OPTIONAL
     OUT PINT        MiniIconIndex
-    )
+)
 /*++
 
 Routine Description:
@@ -694,13 +694,13 @@ Return Value:
     PCLASSICON pci;
     DWORD Err;
 
-    if(ClassGuid) {
+    if (ClassGuid) {
 
         // First check the built-in list.
 
-        for(i = 0; !bRet && (i < ARRAYSIZE(MiniIconXlate)); i++) {
+        for (i = 0; !bRet && (i < ARRAYSIZE(MiniIconXlate)); i++) {
 
-            if(IsEqualGUID(MiniIconXlate[i].ClassGuid, ClassGuid)) {
+            if (IsEqualGUID(MiniIconXlate[i].ClassGuid, ClassGuid)) {
                 *MiniIconIndex = MiniIconXlate[i].MiniBitmapIndex;
                 bRet = TRUE;
             }
@@ -709,13 +709,13 @@ Return Value:
 
         // Next check the "new stuff" list to see if it's there.
 
-        if(!bRet && LockMiniIconList(&GlobalMiniIconList)) {
+        if (!bRet && LockMiniIconList(&GlobalMiniIconList)) {
 
-            for(pci = GlobalMiniIconList.ClassIconList;
-                !bRet && pci;
-                pci = pci->Next) {
+            for (pci = GlobalMiniIconList.ClassIconList;
+                 !bRet && pci;
+                 pci = pci->Next) {
 
-                if(IsEqualGUID(pci->ClassGuid, ClassGuid)) {
+                if (IsEqualGUID(pci->ClassGuid, ClassGuid)) {
                     *MiniIconIndex = pci->MiniBitmapIndex;
                     bRet = TRUE;
                 }
@@ -728,7 +728,7 @@ Return Value:
 
     // If no match was found, snag the "unknown" class.
 
-    if(!bRet) {
+    if (!bRet) {
         *MiniIconIndex = UnknownClassMiniIconIndex;
         Err = ERROR_NO_DEVICE_ICON;
     } else {
@@ -743,7 +743,7 @@ Return Value:
 BOOL
 CreateMiniIcons(
     VOID
-    )
+)
 /*++
 
 Routine Description:
@@ -767,7 +767,7 @@ Return Value:
     BITMAP bm;
     BOOL bRet = FALSE;          // assume failure
 
-    if(GlobalMiniIconList.hdcMiniMem) {
+    if (GlobalMiniIconList.hdcMiniMem) {
 
         // Then the mini-icon list has already been built, so
         // return success.
@@ -778,28 +778,28 @@ Return Value:
     hdc = GetDC(NULL);
     GlobalMiniIconList.hdcMiniMem = CreateCompatibleDC(hdc);
     ReleaseDC(NULL, hdc);
-    if(!GlobalMiniIconList.hdcMiniMem) {
+    if (!GlobalMiniIconList.hdcMiniMem) {
         goto clean0;
     }
 
 
-    if(!(hdcMem = CreateCompatibleDC(GlobalMiniIconList.hdcMiniMem))) {
+    if (!(hdcMem = CreateCompatibleDC(GlobalMiniIconList.hdcMiniMem))) {
         goto clean0;
     }
 
-    if(!(GlobalMiniIconList.hbmMiniImage = LoadBitmap(MyDllModuleHandle,
-                                                      MAKEINTRESOURCE(BMP_DRIVERTYPES)))) {
+    if (!(GlobalMiniIconList.hbmMiniImage = LoadBitmap(MyDllModuleHandle,
+                                                       MAKEINTRESOURCE(BMP_DRIVERTYPES)))) {
         goto clean1;
     }
 
 
     GetObject(GlobalMiniIconList.hbmMiniImage, sizeof(bm), &bm);
 
-    if(!(GlobalMiniIconList.hbmMiniMask = CreateBitmap(bm.bmWidth,
-                                                       bm.bmHeight,
-                                                       1,
-                                                       1,
-                                                       NULL))) {
+    if (!(GlobalMiniIconList.hbmMiniMask = CreateBitmap(bm.bmWidth,
+                                                        bm.bmHeight,
+                                                        1,
+                                                        1,
+                                                        NULL))) {
         goto clean1;
     }
 
@@ -807,7 +807,7 @@ Return Value:
     hbmOld = SelectObject(hdcMem, GlobalMiniIconList.hbmMiniImage);
     SelectObject(GlobalMiniIconList.hdcMiniMem,
                  GlobalMiniIconList.hbmMiniMask
-                );
+    );
 
 
     // make the mask.  white where transparent, black where opaque
@@ -822,7 +822,7 @@ Return Value:
            0,
            0,
            SRCCOPY
-          );
+    );
 
 
     // black-out all of the transparent parts of the image, in preparation
@@ -834,7 +834,7 @@ Return Value:
 
     SelectObject(GlobalMiniIconList.hdcMiniMem, hbmOld);
 
-    GlobalMiniIconList.NumClassImages = bm.bmWidth/MINIX;
+    GlobalMiniIconList.NumClassImages = bm.bmWidth / MINIX;
     bRet = TRUE;
 
     SelectObject(hdcMem, hbmOld);
@@ -846,7 +846,7 @@ clean0:
 
     // If failure, clean up anything we might have built
 
-    if(!bRet) {
+    if (!bRet) {
         DestroyMiniIcons();
     }
 
@@ -856,9 +856,9 @@ clean0:
 
 INT
 NewMiniIcon(
-    IN CONST GUID *ClassGuid,
+    IN CONST GUID* ClassGuid,
     IN HICON       hIcon      OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -888,22 +888,22 @@ Return Value:
     ICONINFO ii;
     PCLASSICON pci = NULL;
 
-    if(hIcon && GetIconInfo(hIcon, &ii)) {
+    if (hIcon && GetIconInfo(hIcon, &ii)) {
 
         try {
 
-            if((iBitmap = AddMiniIconToList(ii.hbmColor, ii.hbmMask)) != -1) {
+            if ((iBitmap = AddMiniIconToList(ii.hbmColor, ii.hbmMask)) != -1) {
 
                 // Allocate an extra GUID's worth of memory, so we can store
                 // the class GUID in the same chunk of memory as the CLASSICON
                 // node.
 
-                if(pci = (PCLASSICON)MyMalloc(sizeof(CLASSICON) + sizeof(GUID))) {
+                if (pci = (PCLASSICON)MyMalloc(sizeof(CLASSICON) + sizeof(GUID))) {
 
                     CopyMemory((PBYTE)pci + sizeof(CLASSICON),
                                ClassGuid,
                                sizeof(GUID)
-                              );
+                    );
                     pci->ClassGuid = (LPGUID)((PBYTE)pci + sizeof(CLASSICON));
                     pci->MiniBitmapIndex = iBitmap;
 
@@ -914,7 +914,7 @@ Return Value:
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            if(pci) {
+            if (pci) {
                 MyFree(pci);
             }
 
@@ -925,7 +925,7 @@ Return Value:
         DeleteObject(ii.hbmMask);
     }
 
-    if(iBitmap == -1) {
+    if (iBitmap == -1) {
         SetupDiGetClassBitmapIndex(NULL, &iBitmap);
     }
 
@@ -937,7 +937,7 @@ INT
 AddMiniIconToList(
     IN HBITMAP hbmImage,
     IN HBITMAP hbmMask
-    )
+)
 /*++
 
 Routine Description:
@@ -965,13 +965,13 @@ Return Value:
     BITMAP  bm;
     INT     iIcon = -1;  // assume failure
 
-    if(!CreateMiniIcons()) {
+    if (!CreateMiniIcons()) {
         goto AddIcon_Exit;
     }
 
     MYASSERT(GlobalMiniIconList.hdcMiniMem);
 
-    if(!(hdcMem = CreateCompatibleDC(GlobalMiniIconList.hdcMiniMem))) {
+    if (!(hdcMem = CreateCompatibleDC(GlobalMiniIconList.hdcMiniMem))) {
         goto AddIcon_Exit;
     }
 
@@ -980,11 +980,11 @@ Return Value:
 
     hbmOld = SelectObject(GlobalMiniIconList.hdcMiniMem,
                           GlobalMiniIconList.hbmMiniImage
-                         );
+    );
 
-    if(!(hbmNewImage = CreateCompatibleBitmap(GlobalMiniIconList.hdcMiniMem,
-                                              MINIX * (GlobalMiniIconList.NumClassImages + 1),
-                                              MINIY))) {
+    if (!(hbmNewImage = CreateCompatibleBitmap(GlobalMiniIconList.hdcMiniMem,
+                                               MINIX * (GlobalMiniIconList.NumClassImages + 1),
+                                               MINIY))) {
         goto AddIcon_Exit1;
     }
 
@@ -1001,7 +1001,7 @@ Return Value:
            0,
            0,
            SRCCOPY
-          );
+    );
 
 
     // Fit the New icon into ours. We need to stretch it to fit correctly.
@@ -1019,7 +1019,7 @@ Return Value:
                bm.bmWidth,
                bm.bmHeight,
                SRCCOPY
-              );
+    );
 
     SelectObject(GlobalMiniIconList.hdcMiniMem, hbmOld);
 
@@ -1031,12 +1031,12 @@ Return Value:
 
     hbmOld = SelectObject(GlobalMiniIconList.hdcMiniMem,
                           GlobalMiniIconList.hbmMiniMask
-                         );
-    if(!(hbmNewMask = CreateBitmap(MINIX * (GlobalMiniIconList.NumClassImages + 1),
-                                   MINIY,
-                                   1,
-                                   1,
-                                   NULL))) {
+    );
+    if (!(hbmNewMask = CreateBitmap(MINIX * (GlobalMiniIconList.NumClassImages + 1),
+                                    MINIY,
+                                    1,
+                                    1,
+                                    NULL))) {
         goto AddIcon_Exit1;
     }
 
@@ -1050,7 +1050,7 @@ Return Value:
            0,
            0,
            SRCCOPY
-          );
+    );
 
     SelectObject(GlobalMiniIconList.hdcMiniMem, hbmMask);
     GetObject(hbmMask, sizeof(bm), &bm);
@@ -1065,7 +1065,7 @@ Return Value:
                bm.bmWidth,
                bm.bmHeight,
                SRCCOPY
-              );
+    );
 
     SelectObject(GlobalMiniIconList.hdcMiniMem, hbmOld);
 
@@ -1086,7 +1086,7 @@ AddIcon_Exit:
 VOID
 DestroyMiniIcons(
     VOID
-    )
+)
 /*++
 
 Routine Description:
@@ -1106,17 +1106,17 @@ Return Value:
 {
     PCLASSICON pci;
 
-    if(GlobalMiniIconList.hdcMiniMem) {
+    if (GlobalMiniIconList.hdcMiniMem) {
         DeleteDC(GlobalMiniIconList.hdcMiniMem);
         GlobalMiniIconList.hdcMiniMem = NULL;
     }
 
-    if(GlobalMiniIconList.hbmMiniImage) {
+    if (GlobalMiniIconList.hbmMiniImage) {
         DeleteObject(GlobalMiniIconList.hbmMiniImage);
         GlobalMiniIconList.hbmMiniImage = NULL;
     }
 
-    if(GlobalMiniIconList.hbmMiniMask) {
+    if (GlobalMiniIconList.hbmMiniMask) {
         DeleteObject(GlobalMiniIconList.hbmMiniMask);
         GlobalMiniIconList.hbmMiniMask = NULL;
     }
@@ -1126,7 +1126,7 @@ Return Value:
 
     // Free up any additional class icon guys that were created
 
-    while(GlobalMiniIconList.ClassIconList) {
+    while (GlobalMiniIconList.ClassIconList) {
         pci = GlobalMiniIconList.ClassIconList;
         GlobalMiniIconList.ClassIconList = pci->Next;
         MyFree(pci);
@@ -1138,7 +1138,7 @@ BOOL
 WINAPI
 SetupDiGetClassImageList(
     OUT PSP_CLASSIMAGELIST_DATA ClassImageListData
-    )
+)
 /*++
 
 Routine Description:
@@ -1159,9 +1159,9 @@ BOOL
 WINAPI
 SetupDiGetClassImageListExA(
     OUT PSP_CLASSIMAGELIST_DATA ClassImageListData,
-    IN  PCSTR                   MachineName,        OPTIONAL
+    IN  PCSTR                   MachineName, OPTIONAL
     IN  PVOID                   Reserved
-    )
+)
 {
     PCWSTR UnicodeMachineName;
     DWORD rc;
@@ -1169,17 +1169,17 @@ SetupDiGetClassImageListExA(
 
     b = FALSE;
 
-    if(MachineName) {
+    if (MachineName) {
         rc = CaptureAndConvertAnsiArg(MachineName, &UnicodeMachineName);
     } else {
         UnicodeMachineName = NULL;
         rc = NO_ERROR;
     }
 
-    if(rc == NO_ERROR) {
+    if (rc == NO_ERROR) {
         b = SetupDiGetClassImageListExW(ClassImageListData, UnicodeMachineName, Reserved);
         rc = GetLastError();
-        if(UnicodeMachineName) {
+        if (UnicodeMachineName) {
             MyFree(UnicodeMachineName);
         }
     }
@@ -1195,9 +1195,9 @@ BOOL
 WINAPI
 SetupDiGetClassImageListExW(
     OUT PSP_CLASSIMAGELIST_DATA ClassImageListData,
-    IN  PCWSTR                  MachineName,        OPTIONAL
+    IN  PCWSTR                  MachineName, OPTIONAL
     IN  PVOID                   Reserved
-    )
+)
 {
     UNREFERENCED_PARAMETER(ClassImageListData);
     UNREFERENCED_PARAMETER(MachineName);
@@ -1211,9 +1211,9 @@ BOOL
 WINAPI
 SetupDiGetClassImageListEx(
     OUT PSP_CLASSIMAGELIST_DATA ClassImageListData,
-    IN  PCTSTR                  MachineName,        OPTIONAL
+    IN  PCTSTR                  MachineName, OPTIONAL
     IN  PVOID                   Reserved
-    )
+)
 /*++
 
 Routine Description:
@@ -1263,7 +1263,7 @@ Remarks:
     HDC     hDC = NULL, hMemImageDC = NULL;
     HBITMAP hbmMiniImage = NULL, hbmMiniMask = NULL, hbmOldImage = NULL;
     RECT    rc;
-    CONST GUID *pClassGuid = NULL;
+    CONST GUID* pClassGuid = NULL;
     BOOL    bUseBitmap, ComputerClassFound = FALSE;
     HICON   hiLargeIcon = NULL, hIcon = NULL;
     HBRUSH  hOldBrush;
@@ -1275,14 +1275,14 @@ Remarks:
 
     // Make sure the caller didn't pass us anything in the Reserved parameter.
 
-    if(Reserved) {
+    if (Reserved) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
     try {
 
-        if(ClassImageListData->cbSize != sizeof(SP_CLASSIMAGELIST_DATA)) {
+        if (ClassImageListData->cbSize != sizeof(SP_CLASSIMAGELIST_DATA)) {
             Err = ERROR_INVALID_USER_BUFFER;
             goto clean0;
         }
@@ -1291,14 +1291,14 @@ Remarks:
         // Allocate and initialize the image list, including setting up the
         // synchronization lock.  Destroy it when done.
 
-        if(ImageData = MyMalloc(sizeof(CLASS_IMAGE_LIST))) {
+        if (ImageData = MyMalloc(sizeof(CLASS_IMAGE_LIST))) {
             ZeroMemory(ImageData, sizeof(CLASS_IMAGE_LIST));
         } else {
             Err = ERROR_NOT_ENOUGH_MEMORY;
             goto clean0;
         }
 
-        if(InitializeSynchronizedAccess(&ImageData->Lock)) {
+        if (InitializeSynchronizedAccess(&ImageData->Lock)) {
             DestroyLock = TRUE;
         }
 
@@ -1309,12 +1309,11 @@ Remarks:
         cxMiniIcon = GetSystemMetrics(SM_CXSMICON);
         cyMiniIcon = GetSystemMetrics(SM_CYSMICON);
 
-        if(!(ImageList = ImageList_Create(cxMiniIcon,
-                                          cyMiniIcon,
-                                          ILC_MASK, // | ILC_SHARED,
-                                          1,
-                                          1)))
-        {
+        if (!(ImageList = ImageList_Create(cxMiniIcon,
+                                           cyMiniIcon,
+                                           ILC_MASK, // | ILC_SHARED,
+                                           1,
+                                           1))) {
             Err = ERROR_NOT_ENOUGH_MEMORY;
             goto clean0;
         }
@@ -1325,9 +1324,8 @@ Remarks:
         // Create a DC to draw the mini icons into.  This is needed
         // for the system defined Minis
 
-        if(!(hDC = GetDC(HWND_DESKTOP)) ||
-           !(hMemImageDC = CreateCompatibleDC(hDC)))
-        {
+        if (!(hDC = GetDC(HWND_DESKTOP)) ||
+            !(hMemImageDC = CreateCompatibleDC(hDC))) {
             Err = ERROR_NOT_ENOUGH_MEMORY;
             goto clean0;
         }
@@ -1345,7 +1343,7 @@ Remarks:
 
         // Did the bitmap get created?
 
-        if (!hbmMiniImage || ! hbmMiniMask) {
+        if (!hbmMiniImage || !hbmMiniMask) {
             Err = ERROR_NOT_ENOUGH_MEMORY;
             goto clean0;
         }
@@ -1358,9 +1356,9 @@ Remarks:
 
         // Prepare to draw the mini icon onto the memory DC
 
-        rc.left   = 0;
-        rc.top    = 0;
-        rc.right  = cxMiniIcon;
+        rc.left = 0;
+        rc.top = 0;
+        rc.right = cxMiniIcon;
         rc.bottom = cyMiniIcon;
 
 
@@ -1387,7 +1385,7 @@ Remarks:
 
                 MyFree(ImageData->ClassGuidList);
 
-                if(!(ImageData->ClassGuidList = MyMalloc(sizeof(GUID) * GuidCount))) {
+                if (!(ImageData->ClassGuidList = MyMalloc(sizeof(GUID) * GuidCount))) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
                 }
@@ -1459,7 +1457,7 @@ Remarks:
 
             // Add the image. Allocate a new PCI.
 
-            if(!(pci = (PCLASSICON)MyMalloc(sizeof(CLASSICON)))) {
+            if (!(pci = (PCLASSICON)MyMalloc(sizeof(CLASSICON)))) {
                 Err = ERROR_NOT_ENOUGH_MEMORY;
                 goto clean0;
             }
@@ -1475,7 +1473,7 @@ Remarks:
                 hiLargeIcon = NULL;
             }
 
-            if(pci->MiniBitmapIndex == (UINT)-1) {
+            if (pci->MiniBitmapIndex == (UINT)-1) {
                 Err = ERROR_NOT_ENOUGH_MEMORY;
                 MyFree(pci);
                 pci = NULL;
@@ -1500,7 +1498,7 @@ Remarks:
 
             SelectObject(hMemImageDC, hbmMiniImage);
 
-            if(IsEqualGUID(pClassGuid, &GUID_DEVCLASS_UNKNOWN)) {
+            if (IsEqualGUID(pClassGuid, &GUID_DEVCLASS_UNKNOWN)) {
                 ImageData->UnknownImageIndex = i;
             }
 
@@ -1516,16 +1514,16 @@ Remarks:
             // want to maintain the old behavior of adding this in manually
             // later on.
 
-            if(!ComputerClassFound && IsEqualGUID(pClassGuid, &GUID_DEVCLASS_COMPUTER)) {
+            if (!ComputerClassFound && IsEqualGUID(pClassGuid, &GUID_DEVCLASS_COMPUTER)) {
                 ComputerClassFound = TRUE;
             }
         }
 
-        if(!ComputerClassFound) {
+        if (!ComputerClassFound) {
 
             // Special Case for the Internal Class "Computer"
 
-            if(!(pci = (PCLASSICON)MyMalloc(sizeof(CLASSICON)))) {
+            if (!(pci = (PCLASSICON)MyMalloc(sizeof(CLASSICON)))) {
                 Err = ERROR_NOT_ENOUGH_MEMORY;
                 goto clean0;
             }
@@ -1557,7 +1555,7 @@ Remarks:
 
             pci->MiniBitmapIndex = ImageList_Add(ImageList, hbmMiniImage, hbmMiniMask);
 
-            if(pci->MiniBitmapIndex == (UINT)-1) {
+            if (pci->MiniBitmapIndex == (UINT)-1) {
                 Err = ERROR_NOT_ENOUGH_MEMORY;
                 MyFree(pci);
                 pci = NULL;
@@ -1583,19 +1581,19 @@ Remarks:
              iIcon <= IDI_CLASSICON_OVERLAYLAST;
              ++iIcon) {
 
-            if(!(hIcon = LoadIcon(MyDllModuleHandle, MAKEINTRESOURCE(iIcon)))) {
+            if (!(hIcon = LoadIcon(MyDllModuleHandle, MAKEINTRESOURCE(iIcon)))) {
                 Err = GetLastError();
                 goto clean0;
             }
 
             iIndex = ImageList_AddIcon(ImageList, hIcon);
 
-            if(iIndex == -1) {
+            if (iIndex == -1) {
                 Err = ERROR_NOT_ENOUGH_MEMORY;
                 goto clean0;
             }
 
-            if(!ImageList_SetOverlayImage(ImageList, iIndex, iIcon - IDI_CLASSICON_OVERLAYFIRST + 1)) {
+            if (!ImageList_SetOverlayImage(ImageList, iIndex, iIcon - IDI_CLASSICON_OVERLAYFIRST + 1)) {
                 Err = ERROR_INVALID_DATA;
                 goto clean0;
             }
@@ -1606,19 +1604,19 @@ Remarks:
         // image list, and associated CLASSICON nodes.  Now, store this information
         // in the caller's SP_CLASSIMAGELIST_DATA buffer.
 
-        ClassImageListData->Reserved  = (ULONG_PTR)ImageData;
+        ClassImageListData->Reserved = (ULONG_PTR)ImageData;
         ClassImageListData->ImageList = ImageList;
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_USER_BUFFER;
 
-        if(hDC) {
+        if (hDC) {
             ReleaseDC(HWND_DESKTOP, hDC);
         }
 
-        if(pci) {
+        if (pci) {
             MyFree(pci);
         }
 
@@ -1641,16 +1639,16 @@ clean0: ;   // nothing to do.
         DeleteDC(hMemImageDC);
     }
 
-    if(Err != NO_ERROR) {
+    if (Err != NO_ERROR) {
 
-        if(ImageData) {
-            if(DestroyLock) {
+        if (ImageData) {
+            if (DestroyLock) {
                 DestroySynchronizedAccess(&ImageData->Lock);
             }
-            if(ImageData->ClassGuidList) {
+            if (ImageData->ClassGuidList) {
                 MyFree(ImageData->ClassGuidList);
             }
-            while(ImageData->ClassIconList) {
+            while (ImageData->ClassIconList) {
                 pci = ImageData->ClassIconList;
                 ImageData->ClassIconList = pci->Next;
                 MyFree(pci);
@@ -1658,7 +1656,7 @@ clean0: ;   // nothing to do.
             MyFree(ImageData);
         }
 
-        if(ImageList) {
+        if (ImageList) {
             ImageList_Destroy(ImageList);
         }
     }
@@ -1672,7 +1670,7 @@ BOOL
 WINAPI
 SetupDiDestroyClassImageList(
     IN PSP_CLASSIMAGELIST_DATA ClassImageListData
-    )
+)
 /*++
 
 Routine Description:
@@ -1698,7 +1696,7 @@ Return Value:
     PCLASSICON pci;
 
     try {
-        if(ClassImageListData->cbSize != sizeof(SP_CLASSIMAGELIST_DATA)) {
+        if (ClassImageListData->cbSize != sizeof(SP_CLASSIMAGELIST_DATA)) {
             Err = ERROR_INVALID_USER_BUFFER;
             goto clean0;
         }
@@ -1722,7 +1720,7 @@ Return Value:
             MyFree(ImageData->ClassGuidList);
         }
 
-        while(ImageData->ClassIconList) {
+        while (ImageData->ClassIconList) {
             pci = ImageData->ClassIconList;
             ImageData->ClassIconList = pci->Next;
             MyFree(pci);
@@ -1732,7 +1730,7 @@ Return Value:
         MyFree(ImageData);
         ClassImageListData->Reserved = 0;
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_USER_BUFFER;
@@ -1747,9 +1745,9 @@ BOOL
 WINAPI
 SetupDiGetClassImageIndex(
     IN  PSP_CLASSIMAGELIST_DATA  ClassImageListData,
-    IN  CONST GUID              *ClassGuid,
+    IN  CONST GUID* ClassGuid,
     OUT PINT                     ImageIndex
-    )
+)
 /*++
 Routine Description:
     This routine retrieves the index within the class image list of a specified
@@ -1779,7 +1777,7 @@ Return Value:
     PCLASSICON pci;
 
     try {
-        if(ClassImageListData->cbSize != sizeof(SP_CLASSIMAGELIST_DATA)) {
+        if (ClassImageListData->cbSize != sizeof(SP_CLASSIMAGELIST_DATA)) {
             Err = ERROR_INVALID_USER_BUFFER;
             goto clean0;
         }
@@ -1802,7 +1800,7 @@ Return Value:
                  !bFound && pci;
                  pci = pci->Next) {
 
-                if(IsEqualGUID(pci->ClassGuid, ClassGuid)) {
+                if (IsEqualGUID(pci->ClassGuid, ClassGuid)) {
                     *ImageIndex = pci->MiniBitmapIndex;
                     bFound = TRUE;
                 }
@@ -1814,7 +1812,7 @@ Return Value:
             *ImageIndex = ImageData->UnknownImageIndex;
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_USER_BUFFER;

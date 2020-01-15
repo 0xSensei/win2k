@@ -228,8 +228,7 @@ saveIniSettings(HWND hDlg)
 *    - Creation
 \**/
 
-static void
-setupDialogControls(HWND hDlg)
+static void setupDialogControls(HWND hDlg)
 {
     int i;
     int idsImageQual;

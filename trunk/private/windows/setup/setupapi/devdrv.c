@@ -32,21 +32,21 @@ DRVSEARCH_INPROGRESS_LIST GlobalDrvSearchInProgressList;
 // Define structures private to this file.
 
 typedef struct _DRVSEARCH_CONTEXT {
-    PDRIVER_NODE    *pDriverListHead;
-    PDRIVER_NODE    *pDriverListTail;
+    PDRIVER_NODE* pDriverListHead;
+    PDRIVER_NODE* pDriverListTail;
     PUINT            pDriverCount;
     GUID             ClassGuid;
     PDEVICE_INFO_SET DeviceInfoSet;
     DWORD            Flags;
     BOOL             BuildClassDrvList;
-    LONG             IdList[2][MAX_HCID_COUNT+1];         // leave extra entry for '-1' end-of-list marker.
+    LONG             IdList[2][MAX_HCID_COUNT + 1];         // leave extra entry for '-1' end-of-list marker.
     PVOID            StringTable;
     PBOOL            CancelSearch;
     TCHAR            ClassGuidString[GUID_STRING_LEN];
     TCHAR            ClassName[MAX_CLASS_NAME_LEN];
     TCHAR            LegacyClassName[MAX_CLASS_NAME_LEN];
     TCHAR            LegacyClassLang[32];                 // e.g., "ENG", "GER", "FREN", "SPAN", etc.
-} DRVSEARCH_CONTEXT, *PDRVSEARCH_CONTEXT;
+} DRVSEARCH_CONTEXT, * PDRVSEARCH_CONTEXT;
 
 
 // DRVSEARCH_CONTEXT.Flags
@@ -64,7 +64,7 @@ typedef struct _DRVLIST_TO_APPEND {
     PDRIVER_NODE DriverHead;
     PDRIVER_NODE DriverTail;
     UINT         DriverCount;
-} DRVLIST_TO_APPEND, *PDRVLIST_TO_APPEND;
+} DRVLIST_TO_APPEND, * PDRVLIST_TO_APPEND;
 
 
 // Private function prototypes
@@ -75,7 +75,7 @@ DrvSearchCallback(
     IN     LPWIN32_FIND_DATA  InfFileData,
     IN     PSETUP_LOG_CONTEXT LogContext,
     IN OUT PDRVSEARCH_CONTEXT Context
-    );
+);
 
 UINT
 pSetupTestDevCompat(
@@ -83,7 +83,7 @@ pSetupTestDevCompat(
     IN  PINF_LINE          InfLine,
     IN  PDRVSEARCH_CONTEXT Context,
     OUT PLONG              MatchIndex
-    );
+);
 
 BOOL
 pSetupGetDeviceIDs(
@@ -92,7 +92,7 @@ pSetupGetDeviceIDs(
     IN     PINF_LINE    InfLine,
     IN OUT PVOID        StringTable,
     IN     PINF_SECTION CtlFlagsSection OPTIONAL
-    );
+);
 
 BOOL
 pSetupShouldDevBeExcluded(
@@ -100,44 +100,44 @@ pSetupShouldDevBeExcluded(
     IN  PLOADED_INF  Inf,
     IN  PINF_SECTION CtlFlagsSection,
     OUT PBOOL        ArchitectureSpecificExclude OPTIONAL
-    );
+);
 
 BOOL
 pSetupDoesInfContainDevIds(
     IN PLOADED_INF        Inf,
     IN PDRVSEARCH_CONTEXT Context
-    );
+);
 
 VOID
 pSetupMergeDriverNode(
     IN OUT PDRVSEARCH_CONTEXT Context,
     IN     PDRIVER_NODE       NewDriverNode,
     OUT    PBOOL              InsertedAtHead
-    );
+);
 
 DWORD
 BuildCompatListFromClassList(
     IN     PDRIVER_NODE       ClassDriverList,
     IN OUT PDRVSEARCH_CONTEXT Context
-    );
+);
 
 BOOL
 pSetupCalculateRankMatch(
     IN  LONG  DriverHwOrCompatId,
     IN  UINT  InfFieldIndex,
-    IN  LONG  DevIdList[2][MAX_HCID_COUNT+1], // Must be same dimension as in DRVSEARCH_CONTEXT!!!
+    IN  LONG  DevIdList[2][MAX_HCID_COUNT + 1], // Must be same dimension as in DRVSEARCH_CONTEXT!!!
     OUT PUINT Rank
-    );
+);
 
 PDRIVER_NODE
 DuplicateDriverNode(
     IN PDRIVER_NODE DriverNode
-    );
+);
 
 BOOL
 ExtractDrvSearchInProgressNode(
     PDRVSEARCH_INPROGRESS_NODE Node
-    );
+);
 
 
 
@@ -161,7 +161,7 @@ SetupDiBuildDriverInfoList(
     IN     HDEVINFO         DeviceInfoSet,
     IN OUT PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
     IN     DWORD            DriverType
-    )
+)
 /*++
 
 Routine Description:
@@ -254,7 +254,7 @@ Remarks:
     HINSTANCE hInstanceCDM = NULL;
     HANDLE hCDMContext = NULL;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -272,7 +272,7 @@ Remarks:
         // we can restore the original string table, without all the additional (unused)
         // strings hanging around.
 
-        if(!(DrvSearchContext.StringTable = pStringTableDuplicate(pDeviceInfoSet->StringTable))) {
+        if (!(DrvSearchContext.StringTable = pStringTableDuplicate(pDeviceInfoSet->StringTable))) {
             Err = ERROR_NOT_ENOUGH_MEMORY;
             goto clean0;
         }
@@ -283,21 +283,21 @@ Remarks:
 
         DrvSearchContext.DeviceInfoSet = pDeviceInfoSet;
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Then we're working with a driver list for a particular device.
 
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                         DeviceInfoData,
-                                                         NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                          DeviceInfoData,
+                                                          NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
         }
 
         LogContext = DevInfoElem ?
-                            DevInfoElem->InstallParamBlock.LogContext :
-                            pDeviceInfoSet->InstallParamBlock.LogContext;
+            DevInfoElem->InstallParamBlock.LogContext :
+            pDeviceInfoSet->InstallParamBlock.LogContext;
 
         SetLogSectionName(LogContext, TEXT("Driver Install"));
 
@@ -305,356 +305,356 @@ Remarks:
         // Now, fill in the rest of our context structure based on what type
         // of driver list we're creating.
 
-        switch(DriverType) {
+        switch (DriverType) {
 
-            case SPDIT_CLASSDRIVER :
+        case SPDIT_CLASSDRIVER:
 
-                if(DeviceInfoData) {
+            if (DeviceInfoData) {
 
-                    // Retrieve the list for a particular device.
+                // Retrieve the list for a particular device.
 
-                    if(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) {
+                if (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) {
 
-                        if(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_APPENDDRIVERLIST) {
+                    if (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_APPENDDRIVERLIST) {
 
-                            AppendingDriverLists = TRUE;
+                        AppendingDriverLists = TRUE;
 
 
-                            // Merging a new driver list into an existing list
-                            // invalidates our drivernode enumeration hint.
+                        // Merging a new driver list into an existing list
+                        // invalidates our drivernode enumeration hint.
 
-                            DevInfoElem->ClassDriverEnumHint = NULL;
-                            DevInfoElem->ClassDriverEnumHintIndex = INVALID_ENUM_INDEX;
-
-                        } else {
-
-                            // We already have a driver list, and we've not been asked to append
-                            // to it, so we're done.
-
-                            goto clean0;
-                        }
+                        DevInfoElem->ClassDriverEnumHint = NULL;
+                        DevInfoElem->ClassDriverEnumHintIndex = INVALID_ENUM_INDEX;
 
                     } else {
 
-                        // We don't have a class driver list--we'd better not
-                        // have a drivernode enumeration hint.
+                        // We already have a driver list, and we've not been asked to append
+                        // to it, so we're done.
 
-                        MYASSERT(DevInfoElem->ClassDriverEnumHint == NULL);
-                        MYASSERT(DevInfoElem->ClassDriverEnumHintIndex == INVALID_ENUM_INDEX);
-
-                        DrvSearchContext.pDriverListHead = &(DevInfoElem->ClassDriverHead);
-                        DrvSearchContext.pDriverListTail = &(DevInfoElem->ClassDriverTail);
-                        DrvSearchContext.pDriverCount    = &(DevInfoElem->ClassDriverCount);
-                    }
-
-                    pFlags   = &(DevInfoElem->InstallParamBlock.Flags);
-                    pFlagsEx = &(DevInfoElem->InstallParamBlock.FlagsEx);
-
-                    ClassGuid = &(DevInfoElem->ClassGuid);
-                    if((InfPathId = DevInfoElem->InstallParamBlock.DriverPath) != -1) {
-                        InfPath = pStringTableStringFromId(DrvSearchContext.StringTable,
-                                                           DevInfoElem->InstallParamBlock.DriverPath
-                                                          );
+                        goto clean0;
                     }
 
                 } else {
 
-                    // Retrieve the list for the device information set itself (globally)
+                    // We don't have a class driver list--we'd better not
+                    // have a drivernode enumeration hint.
 
-                    if(pDeviceInfoSet->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) {
+                    MYASSERT(DevInfoElem->ClassDriverEnumHint == NULL);
+                    MYASSERT(DevInfoElem->ClassDriverEnumHintIndex == INVALID_ENUM_INDEX);
 
-                        if(pDeviceInfoSet->InstallParamBlock.FlagsEx & DI_FLAGSEX_APPENDDRIVERLIST) {
+                    DrvSearchContext.pDriverListHead = &(DevInfoElem->ClassDriverHead);
+                    DrvSearchContext.pDriverListTail = &(DevInfoElem->ClassDriverTail);
+                    DrvSearchContext.pDriverCount = &(DevInfoElem->ClassDriverCount);
+                }
 
-                            AppendingDriverLists = TRUE;
+                pFlags = &(DevInfoElem->InstallParamBlock.Flags);
+                pFlagsEx = &(DevInfoElem->InstallParamBlock.FlagsEx);
+
+                ClassGuid = &(DevInfoElem->ClassGuid);
+                if ((InfPathId = DevInfoElem->InstallParamBlock.DriverPath) != -1) {
+                    InfPath = pStringTableStringFromId(DrvSearchContext.StringTable,
+                                                       DevInfoElem->InstallParamBlock.DriverPath
+                    );
+                }
+
+            } else {
+
+                // Retrieve the list for the device information set itself (globally)
+
+                if (pDeviceInfoSet->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) {
+
+                    if (pDeviceInfoSet->InstallParamBlock.FlagsEx & DI_FLAGSEX_APPENDDRIVERLIST) {
+
+                        AppendingDriverLists = TRUE;
 
 
-                            // Merging a new driver list into an existing list
-                            // invalidates our drivernode enumeration hint.
+                        // Merging a new driver list into an existing list
+                        // invalidates our drivernode enumeration hint.
 
-                            pDeviceInfoSet->ClassDriverEnumHint = NULL;
-                            pDeviceInfoSet->ClassDriverEnumHintIndex = INVALID_ENUM_INDEX;
-
-                        } else {
-
-                            // We already have a driver list, and we've not been asked to append
-                            // to it, so we're done.
-
-                            goto clean0;
-                        }
+                        pDeviceInfoSet->ClassDriverEnumHint = NULL;
+                        pDeviceInfoSet->ClassDriverEnumHintIndex = INVALID_ENUM_INDEX;
 
                     } else {
 
-                        // We don't have a class driver list--we'd better not
-                        // have a drivernode enumeration hint.
+                        // We already have a driver list, and we've not been asked to append
+                        // to it, so we're done.
 
-                        MYASSERT(pDeviceInfoSet->ClassDriverEnumHint == NULL);
-                        MYASSERT(pDeviceInfoSet->ClassDriverEnumHintIndex == INVALID_ENUM_INDEX);
-
-                        DrvSearchContext.pDriverListHead = &(pDeviceInfoSet->ClassDriverHead);
-                        DrvSearchContext.pDriverListTail = &(pDeviceInfoSet->ClassDriverTail);
-                        DrvSearchContext.pDriverCount    = &(pDeviceInfoSet->ClassDriverCount);
+                        goto clean0;
                     }
 
-                    pFlags   = &(pDeviceInfoSet->InstallParamBlock.Flags);
-                    pFlagsEx = &(pDeviceInfoSet->InstallParamBlock.FlagsEx);
+                } else {
 
-                    ClassGuid = &(pDeviceInfoSet->ClassGuid);
-                    if((InfPathId = pDeviceInfoSet->InstallParamBlock.DriverPath) != -1) {
-                        InfPath = pStringTableStringFromId(DrvSearchContext.StringTable,
-                                                           pDeviceInfoSet->InstallParamBlock.DriverPath
-                                                          );
+                    // We don't have a class driver list--we'd better not
+                    // have a drivernode enumeration hint.
+
+                    MYASSERT(pDeviceInfoSet->ClassDriverEnumHint == NULL);
+                    MYASSERT(pDeviceInfoSet->ClassDriverEnumHintIndex == INVALID_ENUM_INDEX);
+
+                    DrvSearchContext.pDriverListHead = &(pDeviceInfoSet->ClassDriverHead);
+                    DrvSearchContext.pDriverListTail = &(pDeviceInfoSet->ClassDriverTail);
+                    DrvSearchContext.pDriverCount = &(pDeviceInfoSet->ClassDriverCount);
+                }
+
+                pFlags = &(pDeviceInfoSet->InstallParamBlock.Flags);
+                pFlagsEx = &(pDeviceInfoSet->InstallParamBlock.FlagsEx);
+
+                ClassGuid = &(pDeviceInfoSet->ClassGuid);
+                if ((InfPathId = pDeviceInfoSet->InstallParamBlock.DriverPath) != -1) {
+                    InfPath = pStringTableStringFromId(DrvSearchContext.StringTable,
+                                                       pDeviceInfoSet->InstallParamBlock.DriverPath
+                    );
+                }
+            }
+
+            if (AppendingDriverLists) {
+                ZeroMemory(&DrvListToAppend, sizeof(DrvListToAppend));
+                DrvSearchContext.pDriverListHead = &(DrvListToAppend.DriverHead);
+                DrvSearchContext.pDriverListTail = &(DrvListToAppend.DriverTail);
+                DrvSearchContext.pDriverCount = &(DrvListToAppend.DriverCount);
+            }
+
+            DrvSearchContext.BuildClassDrvList = TRUE;
+
+
+            // Class driver lists are always filtered on class.
+
+            DrvSearchContext.Flags = DRVSRCH_FILTERCLASS;
+
+            break;
+
+        case SPDIT_COMPATDRIVER:
+
+            if (DeviceInfoData) {
+
+                if (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDCOMPATINFO) {
+
+                    if (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_APPENDDRIVERLIST) {
+
+                        AppendingDriverLists = TRUE;
+
+
+                        // Merging a new driver list into an existing list
+                        // invalidates our drivernode enumeration hint.
+
+                        DevInfoElem->CompatDriverEnumHint = NULL;
+                        DevInfoElem->CompatDriverEnumHintIndex = INVALID_ENUM_INDEX;
+
+                    } else {
+
+                        // We already have a driver list, and we've not been asked to append
+                        // to it, so we're done.
+
+                        goto clean0;
+                    }
+
+                } else {
+
+                    // We don't have a compatible driver list--we'd better
+                    // not have a drivernode enumeration hint.
+
+                    MYASSERT(DevInfoElem->CompatDriverEnumHint == NULL);
+                    MYASSERT(DevInfoElem->CompatDriverEnumHintIndex == INVALID_ENUM_INDEX);
+                }
+
+
+                // NOTE: The following variables must be set before retrieving the
+                // hardware/compatible ID lists, as execution may transfer to the
+                // 'clean1' label, that relies on these values.
+
+                pFlags = &(DevInfoElem->InstallParamBlock.Flags);
+                pFlagsEx = &(DevInfoElem->InstallParamBlock.FlagsEx);
+
+                DrvSearchContext.BuildClassDrvList = FALSE;
+
+
+                // We're building a compatible driver list--retrieve the list of Hardware IDs
+                // (index 0) and Compatible IDs (index 1) from the device's registry properties.
+
+                for (i = 0; i < 2; i++) {
+                    DWORD slot = AllocLogInfoSlot(LogContext, FALSE);
+                    MYASSERT(log_slot_i < ((sizeof(log_slots) / sizeof(log_slots[0]))));
+                    log_slots[log_slot_i++] = slot;
+
+                    TempBufferLen = sizeof(TempBuffer);
+                    cr = CM_Get_DevInst_Registry_Property_Ex(
+                        DevInfoElem->DevInst,
+                        (i ? CM_DRP_COMPATIBLEIDS : CM_DRP_HARDWAREID),
+                        NULL,
+                        TempBuffer,
+                        &TempBufferLen,
+                        0,
+                        pDeviceInfoSet->hMachine);
+
+
+                    switch (cr) {
+
+                    case CR_BUFFER_SMALL:
+                        Err = ERROR_INVALID_DATA;
+                        goto clean0;
+
+                    case CR_INVALID_DEVINST:
+                        Err = ERROR_NO_SUCH_DEVINST;
+                        goto clean0;
+
+                    default:;  // Ignore any other return code.
+                    }
+
+
+                    // If we retrieved a REG_MULTI_SZ buffer, add all the strings in it
+                    // to the device information set's string table.
+
+                    if ((cr == CR_SUCCESS) && (TempBufferLen > 2 * sizeof(TCHAR))) {
+
+                        if ((NumIds[i] = AddMultiSzToStringTable(DrvSearchContext.StringTable,
+                                                                 TempBuffer,
+                                                                 DrvSearchContext.IdList[i],
+                                                                 MAX_HCID_COUNT,
+                                                                 FALSE,
+                                                                 NULL)) == -1) {
+                            Err = ERROR_NOT_ENOUGH_MEMORY;
+                            goto clean0;
+                        }
+
+
+                        // Use a -1 end-of-list marker so that we don't have to store
+                        // the count in the context structure.
+
+                        DrvSearchContext.IdList[i][NumIds[i]] = -1;
+
+
+                        // Now that the data has been stored, it can be munged for
+                        // easy logging. In this, the NULLs between strings are
+                        // turned into commas.
+
+                        for (TempBufferPos = TempBuffer; *TempBufferPos != 0; TempBufferPos = CharNext(TempBufferPos)) {
+
+                            // we have a string, look for string terminator
+
+                            while (*TempBufferPos != 0) {
+                                TempBufferPos = CharNext(TempBufferPos);
+                            }
+
+                            // peek to see if a non-Null character follows terminating NULL
+                            // can't use CharNext here, as it wont go past end of string
+                            // however terminating NULL always only takes up 1 TCHAR
+
+                            if (*(TempBufferPos + 1) != 0) {
+
+                                // convert terminator into a comma unless last string
+
+                                *TempBufferPos = TEXT(',');
+                            }
+
+                            // onto next string
+
+                        }
+
+                        WriteLogEntry(LogContext,
+                                      slot,
+                                      (i ? MSG_LOG_SEARCH_COMPATIBLE_IDS
+                                       : MSG_LOG_SEARCH_HARDWARE_IDS),
+                                      NULL,
+                                      TempBuffer);
+
+                    } else {
+                        NumIds[i] = 0;
+                        DrvSearchContext.IdList[i][0] = -1;
                     }
                 }
 
-                if(AppendingDriverLists) {
+
+                // If no hardware id or compatible ids found, nothing is compatible.
+
+                if (!(NumIds[0] || NumIds[1])) {
+                    goto clean1;
+                }
+
+
+                // Compatible driver lists are filtered on class only if the
+                // DI_FLAGSEX_USECLASSFORCOMPAT flag is set.
+
+                DrvSearchContext.Flags = (*pFlagsEx & DI_FLAGSEX_USECLASSFORCOMPAT)
+                    ? DRVSRCH_FILTERCLASS : 0;
+
+                ClassGuid = &(DevInfoElem->ClassGuid);
+
+                if (AppendingDriverLists) {
                     ZeroMemory(&DrvListToAppend, sizeof(DrvListToAppend));
                     DrvSearchContext.pDriverListHead = &(DrvListToAppend.DriverHead);
                     DrvSearchContext.pDriverListTail = &(DrvListToAppend.DriverTail);
-                    DrvSearchContext.pDriverCount    = &(DrvListToAppend.DriverCount);
+                    DrvSearchContext.pDriverCount = &(DrvListToAppend.DriverCount);
+                } else {
+                    DrvSearchContext.pDriverListHead = &(DevInfoElem->CompatDriverHead);
+                    DrvSearchContext.pDriverListTail = &(DevInfoElem->CompatDriverTail);
+                    DrvSearchContext.pDriverCount = &(DevInfoElem->CompatDriverCount);
                 }
 
-                DrvSearchContext.BuildClassDrvList = TRUE;
+                if (*pFlags & DI_COMPAT_FROM_CLASS) {
+
+                    PDRIVER_LIST_OBJECT TempDriverListObject;
 
 
-                // Class driver lists are always filtered on class.
+                    // The caller wants to build the compatible driver list based on an
+                    // existing class driver list--first make sure that there _is_ a class
+                    // driver list.
 
-                DrvSearchContext.Flags = DRVSRCH_FILTERCLASS;
+                    if (!(*pFlagsEx & DI_FLAGSEX_DIDINFOLIST)) {
+                        Err = ERROR_NO_CLASS_DRIVER_LIST;
+                        goto clean0;
+                    } else if (!(DevInfoElem->ClassDriverHead)) {
 
-                break;
+                        // Then the class driver list is empty.  There's no need to do
+                        // any more work, just say that we succeeded.
 
-            case SPDIT_COMPATDRIVER :
-
-                if(DeviceInfoData) {
-
-                    if(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDCOMPATINFO) {
-
-                        if(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_APPENDDRIVERLIST) {
-
-                            AppendingDriverLists = TRUE;
-
-
-                            // Merging a new driver list into an existing list
-                            // invalidates our drivernode enumeration hint.
-
-                            DevInfoElem->CompatDriverEnumHint = NULL;
-                            DevInfoElem->CompatDriverEnumHintIndex = INVALID_ENUM_INDEX;
-
-                        } else {
-
-                            // We already have a driver list, and we've not been asked to append
-                            // to it, so we're done.
-
-                            goto clean0;
-                        }
-
-                    } else {
-
-                        // We don't have a compatible driver list--we'd better
-                        // not have a drivernode enumeration hint.
-
-                        MYASSERT(DevInfoElem->CompatDriverEnumHint == NULL);
-                        MYASSERT(DevInfoElem->CompatDriverEnumHintIndex == INVALID_ENUM_INDEX);
-                    }
-
-
-                    // NOTE: The following variables must be set before retrieving the
-                    // hardware/compatible ID lists, as execution may transfer to the
-                    // 'clean1' label, that relies on these values.
-
-                    pFlags   = &(DevInfoElem->InstallParamBlock.Flags);
-                    pFlagsEx = &(DevInfoElem->InstallParamBlock.FlagsEx);
-
-                    DrvSearchContext.BuildClassDrvList = FALSE;
-
-
-                    // We're building a compatible driver list--retrieve the list of Hardware IDs
-                    // (index 0) and Compatible IDs (index 1) from the device's registry properties.
-
-                    for(i = 0; i < 2; i++) {
-                        DWORD slot = AllocLogInfoSlot(LogContext,FALSE);
-                        MYASSERT(log_slot_i < ((sizeof(log_slots)/sizeof(log_slots[0]))));
-                        log_slots[log_slot_i++] = slot;
-
-                        TempBufferLen = sizeof(TempBuffer);
-                        cr = CM_Get_DevInst_Registry_Property_Ex(
-                                DevInfoElem->DevInst,
-                                (i ? CM_DRP_COMPATIBLEIDS : CM_DRP_HARDWAREID),
-                                NULL,
-                                TempBuffer,
-                                &TempBufferLen,
-                                0,
-                                pDeviceInfoSet->hMachine);
-
-
-                        switch(cr) {
-
-                            case CR_BUFFER_SMALL :
-                                Err = ERROR_INVALID_DATA;
-                                goto clean0;
-
-                            case CR_INVALID_DEVINST :
-                                Err = ERROR_NO_SUCH_DEVINST;
-                                goto clean0;
-
-                            default :  ;  // Ignore any other return code.
-                        }
-
-
-                        // If we retrieved a REG_MULTI_SZ buffer, add all the strings in it
-                        // to the device information set's string table.
-
-                        if((cr == CR_SUCCESS) && (TempBufferLen > 2 * sizeof(TCHAR))) {
-
-                            if((NumIds[i] = AddMultiSzToStringTable(DrvSearchContext.StringTable,
-                                                                    TempBuffer,
-                                                                    DrvSearchContext.IdList[i],
-                                                                    MAX_HCID_COUNT,
-                                                                    FALSE,
-                                                                    NULL)) == -1) {
-                                Err = ERROR_NOT_ENOUGH_MEMORY;
-                                goto clean0;
-                            }
-
-
-                            // Use a -1 end-of-list marker so that we don't have to store
-                            // the count in the context structure.
-
-                            DrvSearchContext.IdList[i][ NumIds[i] ] = -1;
-
-
-                            // Now that the data has been stored, it can be munged for
-                            // easy logging. In this, the NULLs between strings are
-                            // turned into commas.
-
-                            for (TempBufferPos = TempBuffer; *TempBufferPos != 0; TempBufferPos = CharNext(TempBufferPos)) {
-
-                                // we have a string, look for string terminator
-
-                                while (*TempBufferPos != 0) {
-                                    TempBufferPos = CharNext(TempBufferPos);
-                                }
-
-                                // peek to see if a non-Null character follows terminating NULL
-                                // can't use CharNext here, as it wont go past end of string
-                                // however terminating NULL always only takes up 1 TCHAR
-
-                                if(*(TempBufferPos+1) != 0) {
-
-                                    // convert terminator into a comma unless last string
-
-                                    *TempBufferPos = TEXT(',');
-                                }
-
-                                // onto next string
-
-                            }
-
-                            WriteLogEntry(LogContext,
-                                slot,
-                                (i ? MSG_LOG_SEARCH_COMPATIBLE_IDS
-                                   : MSG_LOG_SEARCH_HARDWARE_IDS),
-                                NULL,
-                                TempBuffer);
-
-                        } else {
-                            NumIds[i] = 0;
-                            DrvSearchContext.IdList[i][0] = -1;
-                        }
-                    }
-
-
-                    // If no hardware id or compatible ids found, nothing is compatible.
-
-                    if(!(NumIds[0] || NumIds[1])) {
+                        Err = NO_ERROR;
                         goto clean1;
                     }
 
 
-                    // Compatible driver lists are filtered on class only if the
-                    // DI_FLAGSEX_USECLASSFORCOMPAT flag is set.
+                    // When we're building a compatible driver list from an existing class
+                    // driver list, we don't do any checking on INF class (i.e., to update
+                    // the device's class if the most-compatible driver is of a different
+                    // device class).  Because of this, we must ensure that (a) the class
+                    // driver list was built for a particular class, and that (b) that class
+                    // matches the current class for this device.
 
-                    DrvSearchContext.Flags = (*pFlagsEx & DI_FLAGSEX_USECLASSFORCOMPAT)
-                                                 ? DRVSRCH_FILTERCLASS : 0;
+                    TempDriverListObject = GetAssociatedDriverListObject(
+                        pDeviceInfoSet->ClassDrvListObjectList,
+                        DevInfoElem->ClassDriverHead,
+                        NULL
+                    );
 
-                    ClassGuid = &(DevInfoElem->ClassGuid);
+                    MYASSERT(TempDriverListObject);
 
-                    if(AppendingDriverLists) {
-                        ZeroMemory(&DrvListToAppend, sizeof(DrvListToAppend));
-                        DrvSearchContext.pDriverListHead   = &(DrvListToAppend.DriverHead);
-                        DrvSearchContext.pDriverListTail   = &(DrvListToAppend.DriverTail);
-                        DrvSearchContext.pDriverCount      = &(DrvListToAppend.DriverCount);
+
+                    // Everything's in order--go search through the existing class driver list
+                    // for compatible drivers.
+
+                    if ((Err = BuildCompatListFromClassList(DevInfoElem->ClassDriverHead,
+                                                            &DrvSearchContext)) == NO_ERROR) {
+                        goto clean2;
                     } else {
-                        DrvSearchContext.pDriverListHead   = &(DevInfoElem->CompatDriverHead);
-                        DrvSearchContext.pDriverListTail   = &(DevInfoElem->CompatDriverTail);
-                        DrvSearchContext.pDriverCount      = &(DevInfoElem->CompatDriverCount);
+                        goto clean0;
                     }
 
-                    if(*pFlags & DI_COMPAT_FROM_CLASS) {
-
-                        PDRIVER_LIST_OBJECT TempDriverListObject;
-
-
-                        // The caller wants to build the compatible driver list based on an
-                        // existing class driver list--first make sure that there _is_ a class
-                        // driver list.
-
-                        if(!(*pFlagsEx & DI_FLAGSEX_DIDINFOLIST)) {
-                            Err = ERROR_NO_CLASS_DRIVER_LIST;
-                            goto clean0;
-                        } else if(!(DevInfoElem->ClassDriverHead)) {
-
-                            // Then the class driver list is empty.  There's no need to do
-                            // any more work, just say that we succeeded.
-
-                            Err = NO_ERROR;
-                            goto clean1;
-                        }
-
-
-                        // When we're building a compatible driver list from an existing class
-                        // driver list, we don't do any checking on INF class (i.e., to update
-                        // the device's class if the most-compatible driver is of a different
-                        // device class).  Because of this, we must ensure that (a) the class
-                        // driver list was built for a particular class, and that (b) that class
-                        // matches the current class for this device.
-
-                        TempDriverListObject = GetAssociatedDriverListObject(
-                                                   pDeviceInfoSet->ClassDrvListObjectList,
-                                                   DevInfoElem->ClassDriverHead,
-                                                   NULL
-                                                  );
-
-                        MYASSERT(TempDriverListObject);
-
-
-                        // Everything's in order--go search through the existing class driver list
-                        // for compatible drivers.
-
-                        if((Err = BuildCompatListFromClassList(DevInfoElem->ClassDriverHead,
-                                                               &DrvSearchContext)) == NO_ERROR) {
-                            goto clean2;
-                        } else {
-                            goto clean0;
-                        }
-
-                    } else if((InfPathId = DevInfoElem->InstallParamBlock.DriverPath) != -1) {
-                        InfPath = pStringTableStringFromId(DrvSearchContext.StringTable,
-                                                           DevInfoElem->InstallParamBlock.DriverPath
-                                                          );
-                    }
-
-                    break;
+                } else if ((InfPathId = DevInfoElem->InstallParamBlock.DriverPath) != -1) {
+                    InfPath = pStringTableStringFromId(DrvSearchContext.StringTable,
+                                                       DevInfoElem->InstallParamBlock.DriverPath
+                    );
                 }
 
-                // If no device instance specified, let fall through to error.
+                break;
+            }
+
+            // If no device instance specified, let fall through to error.
 
 
-            default :
-                Err = ERROR_INVALID_PARAMETER;
-                goto clean0;
+        default:
+            Err = ERROR_INVALID_PARAMETER;
+            goto clean0;
         }
 
-        if(IsEqualGUID(ClassGuid, &GUID_NULL)) {
+        if (IsEqualGUID(ClassGuid, &GUID_NULL)) {
 
             // If there is no class GUID, then don't try to filter on it.
 
@@ -666,7 +666,7 @@ Remarks:
             CopyMemory(&(DrvSearchContext.ClassGuid),
                        ClassGuid,
                        sizeof(GUID)
-                      );
+            );
             DrvSearchContext.Flags |= DRVSRCH_HASCLASSGUID;
 
 
@@ -677,10 +677,10 @@ Remarks:
             // Also exclude NoInstallClass unless the DI_FLAGSEX_ALLOWEXCLUDEDDRVS
             // flag is set.
 
-            if(DrvSearchContext.BuildClassDrvList &&
-               (*pFlagsEx & DI_FLAGSEX_FILTERCLASSES)) {
+            if (DrvSearchContext.BuildClassDrvList &&
+                (*pFlagsEx & DI_FLAGSEX_FILTERCLASSES)) {
 
-                if(ShouldClassBeExcluded(&DrvSearchContext.ClassGuid, !(*pFlagsEx & DI_FLAGSEX_ALLOWEXCLUDEDDRVS))) {
+                if (ShouldClassBeExcluded(&DrvSearchContext.ClassGuid, !(*pFlagsEx & DI_FLAGSEX_ALLOWEXCLUDEDDRVS))) {
 
 
                     // If the class has been filtered out, simply return success.
@@ -694,21 +694,21 @@ Remarks:
             // representation in the context structure as well, as an optimization
             // for PreprocessInf().
 
-            if(DrvSearchContext.Flags & DRVSRCH_FILTERCLASS) {
+            if (DrvSearchContext.Flags & DRVSRCH_FILTERCLASS) {
                 pSetupStringFromGuid(ClassGuid,
                                      DrvSearchContext.ClassGuidString,
                                      SIZECHARS(DrvSearchContext.ClassGuidString)
-                                    );
+                );
             }
         }
 
-        if(DrvSearchContext.BuildClassDrvList) {
+        if (DrvSearchContext.BuildClassDrvList) {
 
             // Allocate a new driver list object to store the class driver list in once
             // we've created it.  (Don't do this if we're appending driver lists.)
 
-            if(!AppendingDriverLists) {
-                if(!(ClassDriverListObject = MyMalloc(sizeof(DRIVER_LIST_OBJECT)))) {
+            if (!AppendingDriverLists) {
+                if (!(ClassDriverListObject = MyMalloc(sizeof(DRIVER_LIST_OBJECT)))) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
                 }
@@ -718,14 +718,14 @@ Remarks:
             // If the user wants to allow legacy INFs to be searched, then we need to
             // figure out what the legacy option name is.
 
-            if(*pFlagsEx & DI_FLAGSEX_OLDINF_IN_CLASSLIST) {
+            if (*pFlagsEx & DI_FLAGSEX_OLDINF_IN_CLASSLIST) {
 
                 DWORD RegDataType, RegDataSize;
 
 
                 // Don't allow this if we don't know what class we're building the list for.
 
-                if(!(DrvSearchContext.Flags & DRVSRCH_FILTERCLASS)) {
+                if (!(DrvSearchContext.Flags & DRVSRCH_FILTERCLASS)) {
                     Err = ERROR_NO_ASSOCIATED_CLASS;
                     goto clean0;
                 }
@@ -736,16 +736,16 @@ Remarks:
 
                 *DrvSearchContext.LegacyClassName = TEXT('\0');
 
-                if((hKey = SetupDiOpenClassRegKey(ClassGuid, KEY_READ)) != INVALID_HANDLE_VALUE) {
+                if ((hKey = SetupDiOpenClassRegKey(ClassGuid, KEY_READ)) != INVALID_HANDLE_VALUE) {
 
                     RegDataSize = sizeof(DrvSearchContext.LegacyClassName);
-                    if((RegQueryValueEx(hKey,
-                                        pszLegacyInfOption,
-                                        NULL,
-                                        &RegDataType,
-                                        (PBYTE)DrvSearchContext.LegacyClassName,
-                                        &RegDataSize) != ERROR_SUCCESS) ||
-                       (RegDataType != REG_SZ) || (RegDataSize < sizeof(TCHAR))) {
+                    if ((RegQueryValueEx(hKey,
+                                         pszLegacyInfOption,
+                                         NULL,
+                                         &RegDataType,
+                                         (PBYTE)DrvSearchContext.LegacyClassName,
+                                         &RegDataSize) != ERROR_SUCCESS) ||
+                                         (RegDataType != REG_SZ) || (RegDataSize < sizeof(TCHAR))) {
 
                         // No luck finding a legacy option name translation--make sure
                         // this string is still empty.
@@ -757,15 +757,15 @@ Remarks:
                     hKey = INVALID_HANDLE_VALUE;
                 }
 
-                if(!(*DrvSearchContext.LegacyClassName)) {
+                if (!(*DrvSearchContext.LegacyClassName)) {
 
                     // We didn't find a translation for the option, so assume it's the
                     // same as its Plug&Play class name.
 
-                    if(!SetupDiClassNameFromGuid(ClassGuid,
-                                                 DrvSearchContext.LegacyClassName,
-                                                 SIZECHARS(DrvSearchContext.LegacyClassName),
-                                                 NULL)) {
+                    if (!SetupDiClassNameFromGuid(ClassGuid,
+                                                  DrvSearchContext.LegacyClassName,
+                                                  SIZECHARS(DrvSearchContext.LegacyClassName),
+                                                  NULL)) {
 
                         // We can't get the name of this class--maybe it's not installed.  In
                         // any event, we can't proceed without this information.
@@ -779,7 +779,7 @@ Remarks:
                            IDS_LEGACYINFLANG,
                            DrvSearchContext.LegacyClassLang,
                            SIZECHARS(DrvSearchContext.LegacyClassLang)
-                          );
+                );
 
                 DrvSearchContext.Flags |= DRVSRCH_USEOLDINFS;
             }
@@ -798,11 +798,11 @@ Remarks:
         // Set up a "Driver Search In-Progress" node in the global list, that will be
         // used in case some other thread wants us to abort part-way through.
 
-        if(LockDrvSearchInProgressList(&GlobalDrvSearchInProgressList)) {
+        if (LockDrvSearchInProgressList(&GlobalDrvSearchInProgressList)) {
 
             HasDrvSearchInProgressLock = TRUE;
 
-            if(DrvSearchInProgressNode.SearchCancelledEvent = CreateEvent(NULL, TRUE, FALSE, NULL)) {
+            if (DrvSearchInProgressNode.SearchCancelledEvent = CreateEvent(NULL, TRUE, FALSE, NULL)) {
                 DrvSearchInProgressNode.CancelSearch = FALSE;
                 DrvSearchInProgressNode.DeviceInfoSet = DeviceInfoSet;
                 DrvSearchInProgressNode.Next = GlobalDrvSearchInProgressList.DrvSearchHead;
@@ -815,7 +815,7 @@ Remarks:
             UnlockDrvSearchInProgressList(&GlobalDrvSearchInProgressList);
             HasDrvSearchInProgressLock = FALSE;
 
-            if(Err != NO_ERROR) {
+            if (Err != NO_ERROR) {
                 goto clean0;
             }
 
@@ -867,13 +867,13 @@ Remarks:
                 CLOSE_CDM_CONTEXT_PROC pfnCloseCDMContext;
                 DOWNLOAD_UPDATED_FILES_PROC pfnDownloadUpdatedFiles;
 
-                if(hInstanceCDM = LoadLibrary(TEXT("CDM.DLL"))) {
+                if (hInstanceCDM = LoadLibrary(TEXT("CDM.DLL"))) {
 
-                    if((pfnOpenCDMContext =
+                    if ((pfnOpenCDMContext =
                         (OPEN_CDM_CONTEXT_PROC)GetProcAddress(hInstanceCDM, "OpenCDMContext")) &&
-                       (pfnCloseCDMContext =
+                         (pfnCloseCDMContext =
                         (CLOSE_CDM_CONTEXT_PROC)GetProcAddress(hInstanceCDM, "CloseCDMContext")) &&
-                       (pfnDownloadUpdatedFiles =
+                          (pfnDownloadUpdatedFiles =
                         (DOWNLOAD_UPDATED_FILES_PROC)GetProcAddress(hInstanceCDM, "DownloadUpdatedFiles"))) {
 
                         if (hCDMContext = pfnOpenCDMContext(DevInfoElem->InstallParamBlock.hwndParent)) {
@@ -887,15 +887,15 @@ Remarks:
 
                             CM_Get_Device_ID_Ex(DevInfoElem->DevInst,
                                                 DeviceInstanceId,
-                                                sizeof(DeviceInstanceId)/sizeof(TCHAR),
+                                                sizeof(DeviceInstanceId) / sizeof(TCHAR),
                                                 0,
                                                 pDeviceInfoSet->hMachine
-                                                );
+                            );
 
                             DownloadInfo.lpDeviceInstanceID = (LPCWSTR)DeviceInstanceId;
 
 
-                            GetVersionEx((OSVERSIONINFOW *)&DownloadInfo.OSVersionInfo);
+                            GetVersionEx((OSVERSIONINFOW*)&DownloadInfo.OSVersionInfo);
 
 
                             // Set dwArchitecture to PROCESSOR_ARCHITECTURE_UNKNOWN, this
@@ -916,13 +916,13 @@ Remarks:
                             // Hardware or Compatible IDs for this device.
 
                             if ((pfnDownloadUpdatedFiles(hCDMContext,
-                                                        DevInfoElem->InstallParamBlock.hwndParent,
-                                                        &DownloadInfo,
-                                                        CDMPath,
-                                                        sizeof(CDMPath),
-                                                        &BufferLen)) &&
+                                                         DevInfoElem->InstallParamBlock.hwndParent,
+                                                         &DownloadInfo,
+                                                         CDMPath,
+                                                         sizeof(CDMPath),
+                                                         &BufferLen)) &&
 
-                                (CDMPath[0] != TEXT('\0'))) {
+                                                         (CDMPath[0] != TEXT('\0'))) {
 
 
                                 // Windows Update found a driver package so enumerate all of
@@ -936,7 +936,7 @@ Remarks:
                                                             TRUE,
                                                             LogContext,
                                                             (PVOID)&DrvSearchContext
-                                                           );
+                                );
                             }
 
                             pfnCloseCDMContext(hCDMContext);
@@ -952,15 +952,15 @@ Remarks:
 
 
 #else
-                Err = ERROR_INVALID_PARAMETER;
-                goto clean0;
+            Err = ERROR_INVALID_PARAMETER;
+            goto clean0;
 #endif
         }
 
 
         // Now, retrieve the driver list.
 
-        else if((*pFlagsEx & DI_FLAGSEX_USEOLDINFSEARCH) || InfPath) {
+        else if ((*pFlagsEx & DI_FLAGSEX_USEOLDINFSEARCH) || InfPath) {
 
 
             // If this driver came from the Internet then set the
@@ -971,12 +971,12 @@ Remarks:
                 DrvSearchContext.Flags |= DRVSRCH_FROM_INET;
             }
 
-            if(*pFlags & DI_ENUMSINGLEINF) {
-                if(InfPath) {
+            if (*pFlags & DI_ENUMSINGLEINF) {
+                if (InfPath) {
 
                     Err = NO_ERROR;
 
-                    if(InfPath == MyGetFileTitle(InfPath)) {
+                    if (InfPath == MyGetFileTitle(InfPath)) {
 
                         // The specified INF path is a simple filename.
                         // Search for it in the directories listed in the
@@ -995,7 +995,7 @@ Remarks:
                                          InfPath,
                                          SIZECHARS(TempBuffer),
                                          NULL
-                                        );
+                        );
 
                         DrvSearchContext.Flags |= DRVSRCH_TRY_PNF;
 
@@ -1014,17 +1014,17 @@ Remarks:
                                                         SIZECHARS(TempBuffer),
                                                         TempBuffer,
                                                         &DontCare
-                                                       );
+                        );
 
-                        if(!TempBufferLen) {
+                        if (!TempBufferLen) {
                             Err = GetLastError();
-                        } else if(TempBufferLen >= SIZECHARS(TempBuffer)) {
+                        } else if (TempBufferLen >= SIZECHARS(TempBuffer)) {
                             MYASSERT(0);
                             Err = ERROR_BUFFER_OVERFLOW;
                         }
                     }
 
-                    if(Err == NO_ERROR) {
+                    if (Err == NO_ERROR) {
 
                         WIN32_FIND_DATA InfFileData;
 
@@ -1036,7 +1036,7 @@ Remarks:
                                                 DrvSearchCallback,
                                                 LogContext,
                                                 (PVOID)&DrvSearchContext
-                                               );
+                            );
                         } else {
                             Err = GetLastError();
                         }
@@ -1053,7 +1053,7 @@ Remarks:
                                             TRUE,
                                             LogContext,
                                             (PVOID)&DrvSearchContext
-                                           );
+                );
             }
 
         } else {
@@ -1082,20 +1082,20 @@ Remarks:
                                         TRUE,
                                         LogContext,
                                         (PVOID)&DrvSearchContext
-                                       );
+            );
         }
 
 
         // Extract our node from the "Driver Search In-Progress" list, and signal the waiting
         // threads if an abort is pending.
 
-        if(ExtractDrvSearchInProgressNode(&DrvSearchInProgressNode)) {
+        if (ExtractDrvSearchInProgressNode(&DrvSearchInProgressNode)) {
             Err = ERROR_CANCELLED;
         }
 
-        if(Err != NO_ERROR) {
+        if (Err != NO_ERROR) {
 
-            if(Err == ERROR_CANCELLED) {
+            if (Err == ERROR_CANCELLED) {
 
                 // Clean up the partial list we built.
 
@@ -1107,10 +1107,10 @@ Remarks:
             goto clean0;
         }
 
-clean2:
-        if(DrvSearchContext.BuildClassDrvList) {
+    clean2:
+        if (DrvSearchContext.BuildClassDrvList) {
 
-            if(AppendingDriverLists) {
+            if (AppendingDriverLists) {
 
                 DriverNode = *(DrvSearchContext.pDriverListHead);
 
@@ -1119,20 +1119,20 @@ clean2:
                 // real class list fields.  That way when we merge the new driver nodes
                 // into the list, everything will be updated properly.
 
-                if(DevInfoElem) {
+                if (DevInfoElem) {
                     DrvSearchContext.pDriverListHead = &(DevInfoElem->ClassDriverHead);
                     DrvSearchContext.pDriverListTail = &(DevInfoElem->ClassDriverTail);
-                    DrvSearchContext.pDriverCount    = &(DevInfoElem->ClassDriverCount);
+                    DrvSearchContext.pDriverCount = &(DevInfoElem->ClassDriverCount);
                 } else {
                     DrvSearchContext.pDriverListHead = &(pDeviceInfoSet->ClassDriverHead);
                     DrvSearchContext.pDriverListTail = &(pDeviceInfoSet->ClassDriverTail);
-                    DrvSearchContext.pDriverCount    = &(pDeviceInfoSet->ClassDriverCount);
+                    DrvSearchContext.pDriverCount = &(pDeviceInfoSet->ClassDriverCount);
                 }
 
 
                 // Merge our newly-built driver list with the already-existing one.
 
-                while(DriverNode) {
+                while (DriverNode) {
 
                     // Store a pointer to the next driver node before merging, because
                     // the driver node we're working with may be destroyed because it's
@@ -1144,7 +1144,7 @@ clean2:
                 }
             }
 
-            if(DriverNode = *(DrvSearchContext.pDriverListHead)) {
+            if (DriverNode = *(DrvSearchContext.pDriverListHead)) {
 
                 // Look through the class driver list we just built, and see if
                 // all drivers are from the same manufacturer.  If not, set the
@@ -1152,11 +1152,11 @@ clean2:
 
                 MfgNameId = DriverNode->MfgName;
 
-                for(DriverNode = DriverNode->Next;
-                    DriverNode;
-                    DriverNode = DriverNode->Next) {
+                for (DriverNode = DriverNode->Next;
+                     DriverNode;
+                     DriverNode = DriverNode->Next) {
 
-                    if(DriverNode->MfgName != MfgNameId) {
+                    if (DriverNode->MfgName != MfgNameId) {
                         *pFlags |= DI_MULTMFGS;
                         break;
                     }
@@ -1165,7 +1165,7 @@ clean2:
 
         } else {
 
-            if(AppendingDriverLists) {
+            if (AppendingDriverLists) {
 
                 DriverNode = *(DrvSearchContext.pDriverListHead);
 
@@ -1175,7 +1175,7 @@ clean2:
 
                 DrvSearchContext.pDriverListHead = &(DevInfoElem->CompatDriverHead);
                 DrvSearchContext.pDriverListTail = &(DevInfoElem->CompatDriverTail);
-                DrvSearchContext.pDriverCount    = &(DevInfoElem->CompatDriverCount);
+                DrvSearchContext.pDriverCount = &(DevInfoElem->CompatDriverCount);
 
 
                 // Check the rank of the best-matching driver node in our new list, and see
@@ -1183,10 +1183,10 @@ clean2:
                 // If so, then we'll want to update the class of this devinfo element to reflect
                 // this new class.
 
-                if(DriverNode && DrvSearchContext.Flags & DRVSRCH_HASCLASSGUID) {
+                if (DriverNode && DrvSearchContext.Flags & DRVSRCH_HASCLASSGUID) {
 
-                    if(DevInfoElem->CompatDriverHead &&
-                       (DriverNode->Rank >= DevInfoElem->CompatDriverHead->Rank)) {
+                    if (DevInfoElem->CompatDriverHead &&
+                        (DriverNode->Rank >= DevInfoElem->CompatDriverHead->Rank)) {
 
                         // There was already a compatible driver with a better rank match
                         // in the list, so don't update the class.
@@ -1201,8 +1201,8 @@ clean2:
                         // the actual list merging, so that we don't screw up the original list
                         // in case of error).
 
-                        if(pDeviceInfoSet->HasClassGuid &&
-                           !IsEqualGUID(ClassGuid, &(DrvSearchContext.ClassGuid))) {
+                        if (pDeviceInfoSet->HasClassGuid &&
+                            !IsEqualGUID(ClassGuid, &(DrvSearchContext.ClassGuid))) {
 
                             Err = ERROR_CLASS_MISMATCH;
 
@@ -1220,7 +1220,7 @@ clean2:
                 // OK, if we get to here, then it's safe to go ahead and merge the new compatible
                 // driver list in with our existing one.
 
-                while(DriverNode) {
+                while (DriverNode) {
 
                     // Store a pointer to the next driver node before merging, because
                     // the driver node we're working with may be destroyed because it's
@@ -1237,22 +1237,22 @@ clean2:
             // class of the most-compatible driver node we retrieved.  Don't do
             // this, however, if the device already has a selected driver.
 
-            if(!DevInfoElem->SelectedDriver &&
-               (DrvSearchContext.Flags & DRVSRCH_HASCLASSGUID) &&
-               !IsEqualGUID(ClassGuid, &(DrvSearchContext.ClassGuid))) {
+            if (!DevInfoElem->SelectedDriver &&
+                (DrvSearchContext.Flags & DRVSRCH_HASCLASSGUID) &&
+                !IsEqualGUID(ClassGuid, &(DrvSearchContext.ClassGuid))) {
 
                 // The class GUID for this device has changed.  We need to make sure
                 // that the devinfo set doesn't have an associated class.  Otherwise,
                 // we will introduce an inconsistency into the set, where a device
                 // contained in the set is of a different class than the set itself.
 
-                if(pDeviceInfoSet->HasClassGuid) {
+                if (pDeviceInfoSet->HasClassGuid) {
                     Err = ERROR_CLASS_MISMATCH;
                 } else {
                     Err = InvalidateHelperModules(DeviceInfoSet, DeviceInfoData, 0);
                 }
 
-                if(Err != NO_ERROR) {
+                if (Err != NO_ERROR) {
 
                     // Clean up the partial list we built.
 
@@ -1273,16 +1273,16 @@ clean2:
                                        (DWORD)-1,
                                        DIREG_DRV,
                                        TRUE
-                                      );
+                );
 
                 // Now delete the Driver property for this device.
 
                 CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst,
-                                                 CM_DRP_DRIVER,
-                                                 NULL,
-                                                 0,
-                                                 0,
-                                                 pDeviceInfoSet->hMachine);
+                                                    CM_DRP_DRIVER,
+                                                    NULL,
+                                                    0,
+                                                    0,
+                                                    pDeviceInfoSet->hMachine);
 
 
                 // Update the device's class GUID, and also update the caller-supplied
@@ -1291,12 +1291,12 @@ clean2:
                 CopyMemory(ClassGuid,
                            &(DrvSearchContext.ClassGuid),
                            sizeof(GUID)
-                          );
+                );
 
                 CopyMemory(&(DeviceInfoData->ClassGuid),
                            &(DrvSearchContext.ClassGuid),
                            sizeof(GUID)
-                          );
+                );
 
 
                 // Finally, update the device's ClassGUID registry property.  Also, if the
@@ -1305,25 +1305,25 @@ clean2:
 
                 pSetupStringFromGuid(ClassGuid, TempBuffer, SIZECHARS(TempBuffer));
                 CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst,
-                                                 CM_DRP_CLASSGUID,
-                                                 (PVOID)TempBuffer,
-                                                 GUID_STRING_LEN * sizeof(TCHAR),
-                                                 0,
-                                                 pDeviceInfoSet->hMachine);
+                                                    CM_DRP_CLASSGUID,
+                                                    (PVOID)TempBuffer,
+                                                    GUID_STRING_LEN * sizeof(TCHAR),
+                                                    0,
+                                                    pDeviceInfoSet->hMachine);
 
-                if(*DrvSearchContext.ClassName) {
+                if (*DrvSearchContext.ClassName) {
 
                     CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst,
-                                                     CM_DRP_CLASS,
-                                                     (PBYTE)DrvSearchContext.ClassName,
-                                                     (lstrlen(DrvSearchContext.ClassName) + 1) * sizeof(TCHAR),
-                                                     0,
-                                                     pDeviceInfoSet->hMachine);
+                                                        CM_DRP_CLASS,
+                                                        (PBYTE)DrvSearchContext.ClassName,
+                                                        (lstrlen(DrvSearchContext.ClassName) + 1) * sizeof(TCHAR),
+                                                        0,
+                                                        pDeviceInfoSet->hMachine);
                 }
             }
         }
 
-clean1:
+    clean1:
 
         // Replace our existing string table with the new one containing the additional strings
         // used by the new driver nodes.
@@ -1336,7 +1336,7 @@ clean1:
         // Set the flags to indicate that the driver list was built successfully.
 
         *pFlagsEx |= (DriverType == SPDIT_CLASSDRIVER) ? DI_FLAGSEX_DIDINFOLIST
-                                                       : DI_FLAGSEX_DIDCOMPATINFO;
+            : DI_FLAGSEX_DIDCOMPATINFO;
 
         // Since we aren't using partial information via a separate index, we build
         // the driver list with both basic and detailed information.
@@ -1346,7 +1346,7 @@ clean1:
         //        driver information is actually retrieved from the INF.
 
         *pFlags |= (DriverType == SPDIT_CLASSDRIVER) ? DI_DIDCLASS
-                                                     : DI_DIDCOMPAT;
+            : DI_DIDCOMPAT;
 
 
         // If we built a non-empty class driver list, then create a driver list object
@@ -1357,11 +1357,11 @@ clean1:
         // (If we're merely appending to an existing class driver list, then don't create
         // a new driver list object.)
 
-        if(DrvSearchContext.BuildClassDrvList && !AppendingDriverLists &&
-           (DriverNode = *(DrvSearchContext.pDriverListHead))) {
+        if (DrvSearchContext.BuildClassDrvList && !AppendingDriverLists &&
+            (DriverNode = *(DrvSearchContext.pDriverListHead))) {
 
             ClassDriverListObject->RefCount = 1;
-            ClassDriverListObject->ListCreationFlags   = *pFlags & INHERITED_FLAGS;
+            ClassDriverListObject->ListCreationFlags = *pFlags & INHERITED_FLAGS;
             ClassDriverListObject->ListCreationFlagsEx = *pFlagsEx & INHERITED_FLAGSEX;
             ClassDriverListObject->ListCreationDriverPath = InfPathId;
             ClassDriverListObject->DriverListHead = DriverNode;
@@ -1378,13 +1378,13 @@ clean1:
             ClassDriverListObject = NULL;
         }
 
-clean0: ;   // nothing to do
+    clean0:;   // nothing to do
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
 
         Err = ERROR_INVALID_PARAMETER;
 
-        if(HasDrvSearchInProgressLock) {
+        if (HasDrvSearchInProgressLock) {
             UnlockDrvSearchInProgressList(&GlobalDrvSearchInProgressList);
         }
 
@@ -1393,25 +1393,25 @@ clean0: ;   // nothing to do
 
         // Clean up any driver nodes we may have created.
 
-        if(PartialDrvListCleanUp) {
+        if (PartialDrvListCleanUp) {
             DestroyDriverNodes(*(DrvSearchContext.pDriverListHead), pDeviceInfoSet);
             *(DrvSearchContext.pDriverListHead) = *(DrvSearchContext.pDriverListTail) = NULL;
             *(DrvSearchContext.pDriverCount) = 0;
 
             // Clean up any flags that may have been set.
 
-            if(!AppendingDriverLists && pFlags && pFlagsEx) {
-                if(DriverType == SPDIT_CLASSDRIVER) {
-                    *pFlags   &= ~(DI_DIDCLASS | DI_MULTMFGS);
+            if (!AppendingDriverLists && pFlags && pFlagsEx) {
+                if (DriverType == SPDIT_CLASSDRIVER) {
+                    *pFlags &= ~(DI_DIDCLASS | DI_MULTMFGS);
                     *pFlagsEx &= ~DI_FLAGSEX_DIDINFOLIST;
                 } else {
-                    *pFlags   &= ~DI_DIDCOMPAT;
+                    *pFlags &= ~DI_DIDCOMPAT;
                     *pFlagsEx &= ~DI_FLAGSEX_DIDCOMPATINFO;
                 }
             }
         }
 
-        if(hKey != INVALID_HANDLE_VALUE) {
+        if (hKey != INVALID_HANDLE_VALUE) {
             RegCloseKey(hKey);
         }
 
@@ -1425,23 +1425,23 @@ clean0: ;   // nothing to do
 
     UnlockDeviceInfoSet(pDeviceInfoSet);
 
-    if(ClassDriverListObject) {
+    if (ClassDriverListObject) {
         MyFree(ClassDriverListObject);
     }
 
-    if(DrvSearchContext.StringTable) {
+    if (DrvSearchContext.StringTable) {
         pStringTableDestroy(DrvSearchContext.StringTable);
     }
 
-    if(DrvSearchInProgressNode.SearchCancelledEvent) {
+    if (DrvSearchInProgressNode.SearchCancelledEvent) {
         CloseHandle(DrvSearchInProgressNode.SearchCancelledEvent);
     }
 
-    while(log_slot_i > 0) {
+    while (log_slot_i > 0) {
 
         // free up any log slots allocated
 
-        ReleaseLogInfoSlot(LogContext,log_slots[--log_slot_i]);
+        ReleaseLogInfoSlot(LogContext, log_slots[--log_slot_i]);
     }
 
 
@@ -1453,8 +1453,8 @@ clean0: ;   // nothing to do
 
             CLOSE_CDM_CONTEXT_PROC pfnCloseCDMContext;
 
-            if (pfnCloseCDMContext =  (CLOSE_CDM_CONTEXT_PROC)GetProcAddress(hInstanceCDM,
-                            "CloseCDMContext")) {
+            if (pfnCloseCDMContext = (CLOSE_CDM_CONTEXT_PROC)GetProcAddress(hInstanceCDM,
+                                                                            "CloseCDMContext")) {
 
                 pfnCloseCDMContext(hCDMContext);
             }
@@ -1477,7 +1477,7 @@ DrvSearchCallback(
     IN     LPWIN32_FIND_DATA  InfFileData,
     IN     PSETUP_LOG_CONTEXT LogContext,
     IN OUT PDRVSEARCH_CONTEXT Context
-    )
+)
 /*++
 
 Routine Description:
@@ -1536,7 +1536,7 @@ Remarks:
     // Before we do anything else, check to see whether some other thread has told us
     // to abort.
 
-    if(*(Context->CancelSearch)) {
+    if (*(Context->CancelSearch)) {
         return FALSE;
     }
 
@@ -1544,7 +1544,7 @@ Remarks:
     // If the 'try pnf' flag isn't set, then we need to examine this particular filename,
     // to see whether it's a pnf candidate.
 
-    if(Context->Flags & DRVSRCH_TRY_PNF) {
+    if (Context->Flags & DRVSRCH_TRY_PNF) {
         TryPnf = TRUE;
     } else {
         InfSourcePathFromFileName(InfName, NULL, &TryPnf);
@@ -1556,18 +1556,18 @@ Remarks:
     // know that this INF handle will never be exposed to anyone else, and thus there are
     // no concurrency problems.
 
-    if(LoadInfFile(InfName,
-                   InfFileData,
-                   INF_STYLE_WIN4 | ((Context->Flags & DRVSRCH_USEOLDINFS) ? INF_STYLE_OLDNT : 0),
-                   LDINF_FLAG_IGNORE_VOLATILE_DIRIDS | (TryPnf ? LDINF_FLAG_ALWAYS_TRY_PNF : LDINF_FLAG_MATCH_CLASS_GUID),
-                   (Context->Flags & DRVSRCH_FILTERCLASS) ? Context->ClassGuidString : NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   LogContext,
-                   &Inf,
-                   &ErrorLineNumber,
-                   &PnfWasUsed) != NO_ERROR) {
+    if (LoadInfFile(InfName,
+                    InfFileData,
+                    INF_STYLE_WIN4 | ((Context->Flags & DRVSRCH_USEOLDINFS) ? INF_STYLE_OLDNT : 0),
+                    LDINF_FLAG_IGNORE_VOLATILE_DIRIDS | (TryPnf ? LDINF_FLAG_ALWAYS_TRY_PNF : LDINF_FLAG_MATCH_CLASS_GUID),
+                    (Context->Flags & DRVSRCH_FILTERCLASS) ? Context->ClassGuidString : NULL,
+                    NULL,
+                    NULL,
+                    NULL,
+                    LogContext,
+                    &Inf,
+                    &ErrorLineNumber,
+                    &PnfWasUsed) != NO_ERROR) {
 
         WriteLogEntry(
             LogContext,
@@ -1593,7 +1593,7 @@ Remarks:
 
         // Process the INF differently depending on whether it's a Win95-style or a legacy INF.
 
-        if(Inf->Style & INF_STYLE_WIN4) {
+        if (Inf->Style & INF_STYLE_WIN4) {
 
             // If we're building a compatible driver list, then we only care about this INF
             // if it contains the hardware/compatible IDs we're searching for.  An easy check
@@ -1601,14 +1601,14 @@ Remarks:
             // INF's string table.  If not, then we can skip this file right now, and save a
             // lot of time.
 
-            if((!Context->BuildClassDrvList) && (!pSetupDoesInfContainDevIds(Inf, Context))) {
+            if ((!Context->BuildClassDrvList) && (!pSetupDoesInfContainDevIds(Inf, Context))) {
                 goto clean0;
             }
 
 
             // Get the class GUID for this INF.
 
-            if(!ClassGuidFromInfVersionNode(&(Inf->VersionBlock), &InfClassGuid)) {
+            if (!ClassGuidFromInfVersionNode(&(Inf->VersionBlock), &InfClassGuid)) {
                 goto clean0;
             }
 
@@ -1616,8 +1616,8 @@ Remarks:
             // If we are building a class driver list, and there is an associated
             // class GUID, then check to see if this INF is of the same class.
 
-            if(Context->BuildClassDrvList && (Context->Flags & DRVSRCH_HASCLASSGUID)) {
-                if(!IsEqualGUID(&(Context->ClassGuid), &InfClassGuid)) {
+            if (Context->BuildClassDrvList && (Context->Flags & DRVSRCH_HASCLASSGUID)) {
+                if (!IsEqualGUID(&(Context->ClassGuid), &InfClassGuid)) {
                     goto clean0;
                 }
             }
@@ -1635,7 +1635,7 @@ Remarks:
 
             Provider = pSetupGetVersionDatum(&(Inf->VersionBlock), pszProvider);
 
-            if(!(MfgListSection = InfLocateSection(Inf, pszManufacturer, NULL))) {
+            if (!(MfgListSection = InfLocateSection(Inf, pszManufacturer, NULL))) {
 
                 // No [Manufacturer] section--skip this INF.
 
@@ -1654,7 +1654,7 @@ Remarks:
             // Add this INF's class GUID to our GUID table.
 
             InfClassGuidIndex = AddOrGetGuidTableIndex(Context->DeviceInfoSet, &InfClassGuid, TRUE);
-            if(InfClassGuidIndex == -1) {
+            if (InfClassGuidIndex == -1) {
                 goto clean0;
             }
 
@@ -1667,15 +1667,15 @@ Remarks:
 
             Rank = 0;  // Initialize this value for case where we're building a class driver list.
 
-            for(MfgListIndex = 0;
-                InfLocateLine(Inf, MfgListSection, NULL, &MfgListIndex, &MfgListLine);
-                MfgListIndex++) {
+            for (MfgListIndex = 0;
+                 InfLocateLine(Inf, MfgListSection, NULL, &MfgListIndex, &MfgListLine);
+                 MfgListIndex++) {
 
-                if(!(CurMfgName = InfGetField(Inf, MfgListLine, 0, NULL))) {
+                if (!(CurMfgName = InfGetField(Inf, MfgListLine, 0, NULL))) {
                     continue;
                 }
 
-                if(!(CurMfgSecName = InfGetField(Inf, MfgListLine, 1, NULL))) {
+                if (!(CurMfgSecName = InfGetField(Inf, MfgListLine, 1, NULL))) {
 
                     // Then the manufacturer entry is simply a key, and this key
                     // should be used as the manufacturer section name.
@@ -1683,32 +1683,32 @@ Remarks:
                     CurMfgSecName = CurMfgName;
                 }
 
-                if(!(CurMfgSection = InfLocateSection(Inf, CurMfgSecName, NULL))) {
+                if (!(CurMfgSection = InfLocateSection(Inf, CurMfgSecName, NULL))) {
                     continue;
                 }
 
 
                 // We have the manufacturer's section--now process all entries in it.
 
-                for(CurMfgIndex = 0;
-                    InfLocateLine(Inf, CurMfgSection, NULL, &CurMfgIndex, &CurMfgLine);
-                    CurMfgIndex++) {
+                for (CurMfgIndex = 0;
+                     InfLocateLine(Inf, CurMfgSection, NULL, &CurMfgIndex, &CurMfgLine);
+                     CurMfgIndex++) {
 
                     MatchIndex = -1;    // initialized for case when BuildClassDrvList is TRUE, to help with logging
 
-                    if(Context->BuildClassDrvList ||
-                       (Rank = pSetupTestDevCompat(Inf, CurMfgLine, Context, &MatchIndex)) != RANK_NO_MATCH) {
+                    if (Context->BuildClassDrvList ||
+                        (Rank = pSetupTestDevCompat(Inf, CurMfgLine, Context, &MatchIndex)) != RANK_NO_MATCH) {
 
                         // Get the device description.
 
-                        if(!(DevDesc = InfGetField(Inf, CurMfgLine, 0, NULL))) {
+                        if (!(DevDesc = InfGetField(Inf, CurMfgLine, 0, NULL))) {
                             continue;
                         }
 
 
                         // Get the install section name.
 
-                        if(!(InstallSecName = InfGetField(Inf, CurMfgLine, 1, NULL))) {
+                        if (!(InstallSecName = InfGetField(Inf, CurMfgLine, 1, NULL))) {
                             continue;
                         }
 
@@ -1724,25 +1724,25 @@ Remarks:
 
                         wsprintf(TempStringBuffer, pszDrvDescFormat, InstallSecName);
                         TempUint = 0;
-                        if(!Inf->HasStrings ||
-                           !InfLocateLine(Inf, Inf->SectionBlock, TempStringBuffer,
-                                          &TempUint, &DrvDescLine) ||
-                           !(DrvDesc = InfGetField(Inf, DrvDescLine, 1, NULL))) {
+                        if (!Inf->HasStrings ||
+                            !InfLocateLine(Inf, Inf->SectionBlock, TempStringBuffer,
+                                           &TempUint, &DrvDescLine) ||
+                            !(DrvDesc = InfGetField(Inf, DrvDescLine, 1, NULL))) {
 
                             DrvDesc = DevDesc;
                         }
 
-                        if(CreateDriverNode(Rank,
-                                            DevDesc,
-                                            DrvDesc,
-                                            Provider,
-                                            CurMfgName,
-                                            &(Inf->VersionBlock.LastWriteTime),
-                                            Inf->VersionBlock.Filename,
-                                            InstallSecName,
-                                            Context->StringTable,
-                                            InfClassGuidIndex,
-                                            &NewDriverNode) != NO_ERROR) {
+                        if (CreateDriverNode(Rank,
+                                             DevDesc,
+                                             DrvDesc,
+                                             Provider,
+                                             CurMfgName,
+                                             &(Inf->VersionBlock.LastWriteTime),
+                                             Inf->VersionBlock.Filename,
+                                             InstallSecName,
+                                             Context->StringTable,
+                                             InfClassGuidIndex,
+                                             &NewDriverNode) != NO_ERROR) {
                             continue;
                         }
 
@@ -1774,9 +1774,9 @@ Remarks:
                                 // to see if it is correctly signed or not.
 
                                 if (Verify3rdPartyInfFile(LogContext,
-                                                  InfName,
-                                                  Inf
-                                                  )) {
+                                                          InfName,
+                                                          Inf
+                                )) {
 
                                     InfIsDigitallySigned = TRUE;
                                 }
@@ -1800,7 +1800,7 @@ Remarks:
 
                         // Get which hardware ID we matched with.
 
-                        if(!(MatchedHwID = InfGetField(Inf, CurMfgLine, MatchIndex+3, NULL))) {
+                        if (!(MatchedHwID = InfGetField(Inf, CurMfgLine, MatchIndex + 3, NULL))) {
                             MatchedHwID = TEXT("?");
                         }
 
@@ -1819,13 +1819,13 @@ Remarks:
                             Provider,                   // Provider name
                             CurMfgName,                 // Manufacturer name
                             InstallSecName              // Install section name
-                            );
+                        );
 
-                        if(!pSetupGetDeviceIDs(NewDriverNode,
-                                               Inf,
-                                               CurMfgLine,
-                                               Context->StringTable,
-                                               OptionsTextOrCtlFlagsSection)) {
+                        if (!pSetupGetDeviceIDs(NewDriverNode,
+                                                Inf,
+                                                CurMfgLine,
+                                                Context->StringTable,
+                                                OptionsTextOrCtlFlagsSection)) {
 
                             DestroyDriverNodes(NewDriverNode, Context->DeviceInfoSet);
                             continue;
@@ -1840,7 +1840,7 @@ Remarks:
                                                          SIZECHARS(InfSectionWithExt),
                                                          NULL,
                                                          NULL
-                                                        );
+                        );
 
                         WriteLogEntry(
                             LogContext,
@@ -1887,7 +1887,7 @@ Remarks:
                                                    &(NewDriverNode->DriverVersion));
                         }
 
-                        if(!(Context->BuildClassDrvList)) {
+                        if (!(Context->BuildClassDrvList)) {
 
                             // Store away the index of the matching device ID in this compatible
                             // driver node.
@@ -1900,7 +1900,7 @@ Remarks:
                         // a corresponding PNF, then mark the driver node with
                         // the Win98-compatible DNF_INDEXED_DRIVER flag.
 
-                        if(PnfWasUsed) {
+                        if (PnfWasUsed) {
                             NewDriverNode->Flags |= DNF_INDEXED_DRIVER;
                         }
 
@@ -1943,7 +1943,7 @@ Remarks:
                         pSetupMergeDriverNode(Context, NewDriverNode, &InsertedAtHead);
                         NewDriverNode = NULL;
 
-                        if(!Context->BuildClassDrvList && InsertedAtHead) {
+                        if (!Context->BuildClassDrvList && InsertedAtHead) {
 
                             // Update the device instance class to that of the new
                             // lowest-rank driver.
@@ -1951,9 +1951,9 @@ Remarks:
                             CopyMemory(&(Context->ClassGuid),
                                        &InfClassGuid,
                                        sizeof(GUID)
-                                      );
+                            );
                             Context->Flags |= DRVSRCH_HASCLASSGUID;
-                            if(ClassName = pSetupGetVersionDatum(&(Inf->VersionBlock), pszClass)) {
+                            if (ClassName = pSetupGetVersionDatum(&(Inf->VersionBlock), pszClass)) {
                                 lstrcpy(Context->ClassName, ClassName);
                             } else {
                                 *(Context->ClassName) = TEXT('\0');
@@ -1971,8 +1971,8 @@ Remarks:
             // We're dealing with a legacy INF.  First, check to see if this is the INF
             // class we're looking for.
 
-            if(lstrcmpi(pSetupGetVersionDatum(&(Inf->VersionBlock), pszClass),
-                        Context->LegacyClassName)) {
+            if (lstrcmpi(pSetupGetVersionDatum(&(Inf->VersionBlock), pszClass),
+                         Context->LegacyClassName)) {
 
                 goto clean0;
             }
@@ -1987,14 +1987,14 @@ Remarks:
                        IDS_ADDITIONALMODELS,
                        TempStringBuffer,
                        SIZECHARS(TempStringBuffer)
-                      );
+            );
             CurMfgName = TempStringBuffer;
 
 
             // Now, retrieve the options from the [Options] section, and convert each one
             // into a driver node.
 
-            if(!(CurMfgSection = InfLocateSection(Inf, pszOptions, NULL))) {
+            if (!(CurMfgSection = InfLocateSection(Inf, pszOptions, NULL))) {
                 goto clean0;
             }
 
@@ -2006,16 +2006,16 @@ Remarks:
             CopyMemory(OptionsTextSectionName, pszOptionsText, sizeof(pszOptionsText) - sizeof(TCHAR));
             lstrcpy((PTSTR)((PBYTE)OptionsTextSectionName + (sizeof(pszOptionsText) - sizeof(TCHAR))),
                     LanguageName = Context->LegacyClassLang
-                   );
+            );
             OptionsTextOrCtlFlagsSection = InfLocateSection(Inf, OptionsTextSectionName, NULL);
 
-            if(!OptionsTextOrCtlFlagsSection) {
+            if (!OptionsTextOrCtlFlagsSection) {
 
                 // Then we couldn't retrieve the 'best' language.  Revert to picking the first
                 // language listed in the [LanguagesSupported] section.  (Recycle 'MfgList*' variables
                 // here.)
 
-                if(!(MfgListSection = InfLocateSection(Inf, pszLanguagesSupported, NULL))) {
+                if (!(MfgListSection = InfLocateSection(Inf, pszLanguagesSupported, NULL))) {
 
                     // No such section--give up on this INF.
 
@@ -2023,17 +2023,17 @@ Remarks:
                 }
 
                 MfgListIndex = 0;
-                if(!InfLocateLine(Inf, MfgListSection, NULL, &MfgListIndex, &MfgListLine)) {
+                if (!InfLocateLine(Inf, MfgListSection, NULL, &MfgListIndex, &MfgListLine)) {
                     goto clean0;
                 }
 
                 lstrcpy((PTSTR)((PBYTE)OptionsTextSectionName + (sizeof(pszOptionsText) - sizeof(TCHAR))),
                         LanguageName = InfGetField(Inf, MfgListLine, 0, NULL)
-                       );
+                );
 
-                if(!(OptionsTextOrCtlFlagsSection = InfLocateSection(Inf,
-                                                                     OptionsTextSectionName,
-                                                                     NULL))) {
+                if (!(OptionsTextOrCtlFlagsSection = InfLocateSection(Inf,
+                                                                      OptionsTextSectionName,
+                                                                      NULL))) {
                     goto clean0;
                 }
             }
@@ -2043,7 +2043,7 @@ Remarks:
             // Add the class GUID corresponding to this legacy INF's class name to our GUID table.
 
             InfClassGuidIndex = AddOrGetGuidTableIndex(Context->DeviceInfoSet, &(Context->ClassGuid), TRUE);
-            if(InfClassGuidIndex == -1) {
+            if (InfClassGuidIndex == -1) {
                 goto clean0;
             }
 
@@ -2051,14 +2051,14 @@ Remarks:
             // OK, now we have pointers to both the [Options] and [OptionsText<lang>] sections.
             // Now, enumerate the options.
 
-            for(CurMfgIndex = 0;
-                InfLocateLine(Inf, CurMfgSection, NULL, &CurMfgIndex, &CurMfgLine);
-                CurMfgIndex++) {
+            for (CurMfgIndex = 0;
+                 InfLocateLine(Inf, CurMfgSection, NULL, &CurMfgIndex, &CurMfgLine);
+                 CurMfgIndex++) {
 
 
                 // Get the Option name (used as the install section name).
 
-                if(!(InstallSecName = InfGetField(Inf, CurMfgLine, 0, NULL))) {
+                if (!(InstallSecName = InfGetField(Inf, CurMfgLine, 0, NULL))) {
                     continue;
                 }
 
@@ -2067,12 +2067,12 @@ Remarks:
                 // OptionsText section).
 
                 TempUint = 0;
-                if(!InfLocateLine(Inf,
-                                  OptionsTextOrCtlFlagsSection,
-                                  InstallSecName,
-                                  &TempUint,
-                                  &DrvDescLine) ||
-                   !(DrvDesc = InfGetField(Inf, DrvDescLine, 1, NULL))) {
+                if (!InfLocateLine(Inf,
+                                   OptionsTextOrCtlFlagsSection,
+                                   InstallSecName,
+                                   &TempUint,
+                                   &DrvDescLine) ||
+                    !(DrvDesc = InfGetField(Inf, DrvDescLine, 1, NULL))) {
 
                     // Couldn't find the driver description.
 
@@ -2082,17 +2082,17 @@ Remarks:
 
                 // We now have all the information we need to create a driver node.
 
-                if(CreateDriverNode(RANK_NO_MATCH,
-                                    DrvDesc,
-                                    DrvDesc,
-                                    Provider,
-                                    CurMfgName,
-                                    &(Inf->VersionBlock.LastWriteTime),
-                                    Inf->VersionBlock.Filename,
-                                    InstallSecName,
-                                    Context->StringTable,
-                                    InfClassGuidIndex,
-                                    &NewDriverNode) != NO_ERROR) {
+                if (CreateDriverNode(RANK_NO_MATCH,
+                                     DrvDesc,
+                                     DrvDesc,
+                                     Provider,
+                                     CurMfgName,
+                                     &(Inf->VersionBlock.LastWriteTime),
+                                     Inf->VersionBlock.Filename,
+                                     InstallSecName,
+                                     Context->StringTable,
+                                     InfClassGuidIndex,
+                                     &NewDriverNode) != NO_ERROR) {
                     continue;
                 }
 
@@ -2100,11 +2100,11 @@ Remarks:
                 // Now, add the string ID representing the language to be used for installing
                 // this driver node.
 
-                if((NewDriverNode->LegacyInfLang = pStringTableAddString(
-                                                       Context->StringTable,
-                                                       (PTSTR)LanguageName,
-                                                       STRTAB_CASE_SENSITIVE,
-                                                       NULL,0)) == -1) {
+                if ((NewDriverNode->LegacyInfLang = pStringTableAddString(
+                    Context->StringTable,
+                    (PTSTR)LanguageName,
+                    STRTAB_CASE_SENSITIVE,
+                    NULL, 0)) == -1) {
 
                     // Out-of-memory, can't use this driver node after all.
 
@@ -2128,12 +2128,12 @@ Remarks:
                 NewDriverNode = NULL;
             }
         }
-clean0:
+    clean0:
         ; // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
 
-        if(NewDriverNode) {
+        if (NewDriverNode) {
 
             // Make sure it didn't get partially linked into a list.
 
@@ -2154,7 +2154,7 @@ pSetupTestDevCompat(
     IN  PINF_LINE          InfLine,
     IN  PDRVSEARCH_CONTEXT Context,
     OUT PLONG              MatchIndex
-    )
+)
 /*++
 
 Routine Description:
@@ -2198,15 +2198,15 @@ Return Value:
     DWORD DeviceIdStringLength;
     TCHAR TempString[MAX_DEVICE_ID_LEN];
 
-    for(FieldIndex = 2;
-        DeviceIdString = InfGetField(Inf, InfLine, FieldIndex, NULL);
-        FieldIndex++) {
+    for (FieldIndex = 2;
+         DeviceIdString = InfGetField(Inf, InfLine, FieldIndex, NULL);
+         FieldIndex++) {
 
 
         // It's OK to hit an empty string for the hardware ID, but we need to
         // bail the first time we see an empty compat ID string.
 
-        if(!(*DeviceIdString) && (FieldIndex > 2)) {
+        if (!(*DeviceIdString) && (FieldIndex > 2)) {
             break;
         }
 
@@ -2216,13 +2216,13 @@ Return Value:
         // no need to waste any time on this ID.
 
         lstrcpyn(TempString, DeviceIdString, SIZECHARS(TempString));
-        if((DeviceIdVal = pStringTableLookUpString(Context->StringTable,
-                                                   TempString,
-                                                   &DeviceIdStringLength,
-                                                   NULL,
-                                                   NULL,
-                                                   STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
-                                                   NULL,0)) == -1) {
+        if ((DeviceIdVal = pStringTableLookUpString(Context->StringTable,
+                                                    TempString,
+                                                    &DeviceIdStringLength,
+                                                    NULL,
+                                                    NULL,
+                                                    STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
+                                                    NULL, 0)) == -1) {
             continue;
         }
 
@@ -2230,17 +2230,17 @@ Return Value:
         // The device ID is in our string table, so it _may_ be in
         // either our hardware id or compatible id list.
 
-        if(!pSetupCalculateRankMatch(DeviceIdVal,
-                                     FieldIndex,
-                                     Context->IdList,
-                                     &CurrentRank)) {
+        if (!pSetupCalculateRankMatch(DeviceIdVal,
+                                      FieldIndex,
+                                      Context->IdList,
+                                      &CurrentRank)) {
 
             // Then we had a match on a hardware ID--that's the best we're gonna get.
 
             *MatchIndex = (LONG)FieldIndex - 3;
             return CurrentRank;
 
-        } else if(CurrentRank < Rank) {
+        } else if (CurrentRank < Rank) {
 
             // This new rank is better than our current rank.
 
@@ -2249,7 +2249,7 @@ Return Value:
         }
     }
 
-    if(Rank != RANK_NO_MATCH) {
+    if (Rank != RANK_NO_MATCH) {
         *MatchIndex = LastMatchFieldIndex;
     }
 
@@ -2261,9 +2261,9 @@ BOOL
 pSetupCalculateRankMatch(
     IN  LONG  DriverHwOrCompatId,
     IN  UINT  InfFieldIndex,
-    IN  LONG  DevIdList[2][MAX_HCID_COUNT+1],
+    IN  LONG  DevIdList[2][MAX_HCID_COUNT + 1],
     OUT PUINT Rank
-    )
+)
 /*++
 
 Routine Description:
@@ -2301,11 +2301,11 @@ Return Value:
 
     MYASSERT(InfFieldIndex >= 2);
 
-    for(i = 0; i < 2; i++) {
+    for (i = 0; i < 2; i++) {
 
-        for(j = 0; DevIdList[i][j] != -1; j++) {
+        for (j = 0; DevIdList[i][j] != -1; j++) {
 
-            if(DevIdList[i][j] == DriverHwOrCompatId) {
+            if (DevIdList[i][j] == DriverHwOrCompatId) {
 
 
                 // We have a match.
@@ -2355,7 +2355,7 @@ pSetupGetDeviceIDs(
     IN     PINF_LINE    InfLine,
     IN OUT PVOID        StringTable,
     IN     PINF_SECTION CtlFlagsSection OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -2394,7 +2394,7 @@ Return Value:
 
     // If we already had a compatible ID list, free it now.
 
-    if(DriverNode->CompatIdList) {
+    if (DriverNode->CompatIdList) {
         MyFree(DriverNode->CompatIdList);
         DriverNode->CompatIdList = NULL;
         DriverNode->NumCompatIds = 0;
@@ -2403,7 +2403,7 @@ Return Value:
 
     // Get the hardware ID.
 
-    if(!(DeviceId = InfGetField(Inf, InfLine, 2, NULL))) {
+    if (!(DeviceId = InfGetField(Inf, InfLine, 2, NULL))) {
 
         DriverNode->HardwareId = -1;
         return TRUE;
@@ -2411,17 +2411,17 @@ Return Value:
     } else {
 
         lstrcpyn(TempString, DeviceId, SIZECHARS(TempString));
-        if((DriverNode->HardwareId = pStringTableAddString(StringTable,
-                                                           TempString,
-                                                           STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
-                                                           NULL,0)) == -1) {
+        if ((DriverNode->HardwareId = pStringTableAddString(StringTable,
+                                                            TempString,
+                                                            STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
+                                                            NULL, 0)) == -1) {
             return FALSE;
         } else {
 
             // If this INF has a [ControlFlags] section, then check to see if this
             // hardware ID is marked for exclusion
 
-            if(CtlFlagsSection && pSetupShouldDevBeExcluded(DeviceId, Inf, CtlFlagsSection, NULL)) {
+            if (CtlFlagsSection && pSetupShouldDevBeExcluded(DeviceId, Inf, CtlFlagsSection, NULL)) {
                 DriverNode->Flags |= DNF_EXCLUDEFROMLIST;
             }
         }
@@ -2432,26 +2432,26 @@ Return Value:
 
     MYASSERT(HASKEY(InfLine));
     NumCompatIds = InfLine->ValueCount - 4;
-    if(NumCompatIds > 0) {
+    if (NumCompatIds > 0) {
 
-        if(!(DriverNode->CompatIdList = MyMalloc(NumCompatIds * sizeof(LONG)))) {
+        if (!(DriverNode->CompatIdList = MyMalloc(NumCompatIds * sizeof(LONG)))) {
             return FALSE;
         }
         DriverNode->NumCompatIds = (DWORD)NumCompatIds;
 
-        for(i = 0; i < NumCompatIds; i++) {
+        for (i = 0; i < NumCompatIds; i++) {
 
-            if(!(DeviceId = InfGetField(Inf, InfLine, i + 3, NULL)) || !(*DeviceId)) {
+            if (!(DeviceId = InfGetField(Inf, InfLine, i + 3, NULL)) || !(*DeviceId)) {
 
                 // Just cut the list off here, and return.
 
                 DriverNode->NumCompatIds = i;
-                if(i) {
+                if (i) {
 
                     // Resize the buffer (since we're sizing this down, it should never fail,
                     // but it's no big deal if it does).
 
-                    if(TempIdList = MyRealloc(DriverNode->CompatIdList, i * sizeof(LONG))) {
+                    if (TempIdList = MyRealloc(DriverNode->CompatIdList, i * sizeof(LONG))) {
                         DriverNode->CompatIdList = TempIdList;
                     }
                 } else {
@@ -2463,11 +2463,11 @@ Return Value:
             } else {
 
                 lstrcpyn(TempString, DeviceId, SIZECHARS(TempString));
-                if((DriverNode->CompatIdList[i] = pStringTableAddString(
-                                                        StringTable,
-                                                        TempString,
-                                                        STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
-                                                        NULL,0)) == -1) {
+                if ((DriverNode->CompatIdList[i] = pStringTableAddString(
+                    StringTable,
+                    TempString,
+                    STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
+                    NULL, 0)) == -1) {
                     MyFree(DriverNode->CompatIdList);
                     DriverNode->CompatIdList = NULL;
                     DriverNode->NumCompatIds = 0;
@@ -2486,7 +2486,7 @@ ShouldDeviceBeExcluded(
     IN  PCTSTR DeviceId,
     IN  HINF   hInf,
     OUT PBOOL  ArchitectureSpecificExclude OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -2520,7 +2520,7 @@ Return Value:
     BOOL IsExcluded;
     PINF_SECTION CtlFlagsSection;
 
-    if(!LockInf((PLOADED_INF)hInf)) {
+    if (!LockInf((PLOADED_INF)hInf)) {
         return FALSE;
     }
 
@@ -2529,16 +2529,16 @@ Return Value:
 
     // Now attempt to locate a [ControlFlags] section in this INF.
 
-    if(CtlFlagsSection = InfLocateSection((PLOADED_INF)hInf, pszControlFlags, NULL)) {
+    if (CtlFlagsSection = InfLocateSection((PLOADED_INF)hInf, pszControlFlags, NULL)) {
 
         // This section is present--check to see if the specified device ID is marked
         // for exclusion.
 
         IsExcluded = pSetupShouldDevBeExcluded(DeviceId,
-                                               (PLOADED_INF)hInf,
+            (PLOADED_INF)hInf,
                                                CtlFlagsSection,
                                                ArchitectureSpecificExclude
-                                              );
+        );
     }
 
     UnlockInf((PLOADED_INF)hInf);
@@ -2553,7 +2553,7 @@ pSetupShouldDevBeExcluded(
     IN  PLOADED_INF  Inf,
     IN  PINF_SECTION CtlFlagsSection,
     OUT PBOOL        ArchitectureSpecificExclude OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -2603,47 +2603,47 @@ Return Value:
     StringIdUb = 0;
     PlatformSpecificIndex = (UINT)-1; // initially, assume no "ExcludeFromSelect.NT<Platform>"
 
-    for(i = 0; i < ExcludeFromSelectListUb; i++) {
+    for (i = 0; i < ExcludeFromSelectListUb; i++) {
 
-        if((StringIdList[StringIdUb] = pStringTableLookUpString(
-                                           Inf->StringTable,
-                                           pszExcludeFromSelectList[i],
-                                           &StringLength,
-                                           NULL,
-                                           NULL,
-                                           STRTAB_CASE_INSENSITIVE | STRTAB_ALREADY_LOWERCASE,
-                                           NULL,0)) != -1) {
+        if ((StringIdList[StringIdUb] = pStringTableLookUpString(
+            Inf->StringTable,
+            pszExcludeFromSelectList[i],
+            &StringLength,
+            NULL,
+            NULL,
+            STRTAB_CASE_INSENSITIVE | STRTAB_ALREADY_LOWERCASE,
+            NULL, 0)) != -1) {
 
             // If the index is 2, then we've found architecture-specific exlude lines.
             // Record the resulting index of this element, so we can determine later
             // whether we were excluded because of what platform we're on.
 
-            if(i == 2) {
+            if (i == 2) {
                 PlatformSpecificIndex = StringIdUb;
             }
             StringIdUb++;
         }
     }
 
-    if(StringIdUb) {
+    if (StringIdUb) {
 
         // There are some ExcludeFromSelect* lines--examine each line.
 
-        for(CtlFlagsIndex = 0;
-            InfLocateLine(Inf, CtlFlagsSection, NULL, &CtlFlagsIndex, &CtlFlagsLine);
-            CtlFlagsIndex++) {
+        for (CtlFlagsIndex = 0;
+             InfLocateLine(Inf, CtlFlagsSection, NULL, &CtlFlagsIndex, &CtlFlagsLine);
+             CtlFlagsIndex++) {
 
             // We can't use InfGetField() to retrieve the string ID of the line's key,
             // since it will give us the case-sensitive form, and we must use the
             // case-insensitive (i.e., lowercase) version for our fast matching scheme.
 
-            if((KeyStringId = pInfGetLineKeyId(Inf, CtlFlagsLine)) != -1) {
+            if ((KeyStringId = pInfGetLineKeyId(Inf, CtlFlagsLine)) != -1) {
 
                 // Check the string ID of this line's key against the string IDs we're
                 // interested in.
 
-                for(i = 0; i < StringIdUb; i++) {
-                    if(KeyStringId == StringIdList[i]) {
+                for (i = 0; i < StringIdUb; i++) {
+                    if (KeyStringId == StringIdList[i]) {
                         break;
                     }
                 }
@@ -2652,25 +2652,25 @@ Return Value:
                 // If we looked at all entries, and didn't find a match, then skip this
                 // line and continue with the next one.
 
-                if(i >= StringIdUb) {
+                if (i >= StringIdUb) {
                     continue;
                 }
 
-                for(j = 1;
-                    ExclDevId = InfGetField(Inf, CtlFlagsLine, j, NULL);
-                    j++) {
+                for (j = 1;
+                     ExclDevId = InfGetField(Inf, CtlFlagsLine, j, NULL);
+                     j++) {
 
                     // If we find a lone asterisk, treat it as a wildcard, and
                     // return TRUE.  Otherwise return TRUE only if the device IDs match.
 
-                    if(((*ExclDevId == TEXT('*')) && (ExclDevId[1] == TEXT('\0'))) ||
-                       !lstrcmpi(ExclDevId, DeviceId)) {
+                    if (((*ExclDevId == TEXT('*')) && (ExclDevId[1] == TEXT('\0'))) ||
+                        !lstrcmpi(ExclDevId, DeviceId)) {
 
                         // This device ID is to be excluded.  If the caller requested it,
                         // store a boolean in their output variable indicating whether this
                         // was an architecture-specific exclusion.
 
-                        if(ArchitectureSpecificExclude) {
+                        if (ArchitectureSpecificExclude) {
                             *ArchitectureSpecificExclude = (i == PlatformSpecificIndex);
                         }
                         return TRUE;
@@ -2689,7 +2689,7 @@ pSetupMergeDriverNode(
     IN OUT PDRVSEARCH_CONTEXT Context,
     IN     PDRIVER_NODE       NewDriverNode,
     OUT    PBOOL              InsertedAtHead
-    )
+)
 /*++
 
 Routine Description:
@@ -2725,29 +2725,29 @@ Return Value:
     PDRIVER_NODE PrevDrvNode, CurDrvNode, DrvNodeToDelete;
     DWORD MatchFlags = 0;
 
-    for(CurDrvNode = *(Context->pDriverListHead), PrevDrvNode = NULL;
-        CurDrvNode;
-        PrevDrvNode = CurDrvNode, CurDrvNode = CurDrvNode->Next) {
+    for (CurDrvNode = *(Context->pDriverListHead), PrevDrvNode = NULL;
+         CurDrvNode;
+         PrevDrvNode = CurDrvNode, CurDrvNode = CurDrvNode->Next) {
 
-        if(NewDriverNode->Rank < CurDrvNode->Rank) {
+        if (NewDriverNode->Rank < CurDrvNode->Rank) {
 
             break;
 
-        } else if(NewDriverNode->Rank == CurDrvNode->Rank) {
+        } else if (NewDriverNode->Rank == CurDrvNode->Rank) {
 
-            if(NewDriverNode->MfgName != CurDrvNode->MfgName) {
-                if(MatchFlags & 2) {
+            if (NewDriverNode->MfgName != CurDrvNode->MfgName) {
+                if (MatchFlags & 2) {
                     break;
                 }
             } else {
                 MatchFlags |= 2;
-                if(NewDriverNode->DevDescription != CurDrvNode->DevDescription) {
-                    if(MatchFlags & 4) {
+                if (NewDriverNode->DevDescription != CurDrvNode->DevDescription) {
+                    if (MatchFlags & 4) {
                         break;
                     }
                 } else {
                     MatchFlags |= 4;
-                    if(NewDriverNode->ProviderName != CurDrvNode->ProviderName) {
+                    if (NewDriverNode->ProviderName != CurDrvNode->ProviderName) {
 
                         NewDriverNode->Flags |= DNF_DUPDESC;
                         CurDrvNode->Flags |= DNF_DUPDESC;
@@ -2767,7 +2767,7 @@ Return Value:
                             // existing node is excluded, and this one is not.
 
                             if ((CurDrvNode->Flags & DNF_EXCLUDEFROMLIST) &&
-                                 !(NewDriverNode->Flags & DNF_EXCLUDEFROMLIST)) {
+                                !(NewDriverNode->Flags & DNF_EXCLUDEFROMLIST)) {
 
 
                                 // Remove the old driver node so we can replace it with
@@ -2782,7 +2782,7 @@ Return Value:
                                 if (!(CurDrvNode->Flags & DNF_INET_DRIVER)) {
                                     DrvNodeToDelete = CurDrvNode;
                                     CurDrvNode = CurDrvNode->Next;
-                                    if(PrevDrvNode) {
+                                    if (PrevDrvNode) {
                                         PrevDrvNode->Next = CurDrvNode;
                                     } else {
                                         *(Context->pDriverListHead) = CurDrvNode;
@@ -2823,10 +2823,10 @@ Return Value:
         }
     }
 
-    if(!(NewDriverNode->Next = CurDrvNode)) {
+    if (!(NewDriverNode->Next = CurDrvNode)) {
         *(Context->pDriverListTail) = NewDriverNode;
     }
-    if(PrevDrvNode) {
+    if (PrevDrvNode) {
         PrevDrvNode->Next = NewDriverNode;
         *InsertedAtHead = FALSE;
     } else {
@@ -2850,7 +2850,7 @@ SetupDiEnumDriverInfoA(
     IN  DWORD              DriverType,
     IN  DWORD              MemberIndex,
     OUT PSP_DRVINFO_DATA_A DriverInfoData
-    )
+)
 {
     BOOL b;
     DWORD rc;
@@ -2859,18 +2859,18 @@ SetupDiEnumDriverInfoA(
     driverInfoData.cbSize = sizeof(SP_DRVINFO_DATA_W);
 
     b = SetupDiEnumDriverInfoW(
-            DeviceInfoSet,
-            DeviceInfoData,
-            DriverType,
-            MemberIndex,
-            &driverInfoData
-            );
+        DeviceInfoSet,
+        DeviceInfoData,
+        DriverType,
+        MemberIndex,
+        &driverInfoData
+    );
 
     rc = GetLastError();
 
-    if(b) {
-        rc = pSetupDiDrvInfoDataUnicodeToAnsi(&driverInfoData,DriverInfoData);
-        if(rc != NO_ERROR) {
+    if (b) {
+        rc = pSetupDiDrvInfoDataUnicodeToAnsi(&driverInfoData, DriverInfoData);
+        if (rc != NO_ERROR) {
             b = FALSE;
         }
     }
@@ -2891,7 +2891,7 @@ SetupDiEnumDriverInfoW(
     IN  DWORD              DriverType,
     IN  DWORD              MemberIndex,
     OUT PSP_DRVINFO_DATA_W DriverInfoData
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -2911,7 +2911,7 @@ SetupDiEnumDriverInfo(
     IN  DWORD            DriverType,
     IN  DWORD            MemberIndex,
     OUT PSP_DRVINFO_DATA DriverInfoData
-    )
+)
 /*++
 
 Routine Description:
@@ -2965,10 +2965,10 @@ Remarks:
     PDEVINFO_ELEM DevInfoElem;
     UINT DriverCount, i;
     PDRIVER_NODE DriverNode;
-    PDRIVER_NODE *DriverEnumHint;
-    DWORD        *DriverEnumHintIndex;
+    PDRIVER_NODE* DriverEnumHint;
+    DWORD* DriverEnumHintIndex;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -2977,67 +2977,67 @@ Remarks:
 
     try {
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Then we are to enumerate a driver list for a particular
             // device.
 
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                         DeviceInfoData,
-                                                         NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                          DeviceInfoData,
+                                                          NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
         }
 
-        switch(DriverType) {
+        switch (DriverType) {
 
-            case SPDIT_CLASSDRIVER :
+        case SPDIT_CLASSDRIVER:
 
-                if(DeviceInfoData) {
+            if (DeviceInfoData) {
 
-                    // Enumerate class driver list for a particular device.
+                // Enumerate class driver list for a particular device.
 
-                    DriverCount = DevInfoElem->ClassDriverCount;
-                    DriverNode = DevInfoElem->ClassDriverHead;
+                DriverCount = DevInfoElem->ClassDriverCount;
+                DriverNode = DevInfoElem->ClassDriverHead;
 
-                    DriverEnumHint      = &(DevInfoElem->ClassDriverEnumHint);
-                    DriverEnumHintIndex = &(DevInfoElem->ClassDriverEnumHintIndex);
+                DriverEnumHint = &(DevInfoElem->ClassDriverEnumHint);
+                DriverEnumHintIndex = &(DevInfoElem->ClassDriverEnumHintIndex);
 
-                } else {
+            } else {
 
-                    // Enumerate the global class driver list.
+                // Enumerate the global class driver list.
 
-                    DriverCount = pDeviceInfoSet->ClassDriverCount;
-                    DriverNode = pDeviceInfoSet->ClassDriverHead;
+                DriverCount = pDeviceInfoSet->ClassDriverCount;
+                DriverNode = pDeviceInfoSet->ClassDriverHead;
 
-                    DriverEnumHint      = &(pDeviceInfoSet->ClassDriverEnumHint);
-                    DriverEnumHintIndex = &(pDeviceInfoSet->ClassDriverEnumHintIndex);
-                }
+                DriverEnumHint = &(pDeviceInfoSet->ClassDriverEnumHint);
+                DriverEnumHintIndex = &(pDeviceInfoSet->ClassDriverEnumHintIndex);
+            }
+            break;
+
+        case SPDIT_COMPATDRIVER:
+
+            if (DeviceInfoData) {
+
+                DriverCount = DevInfoElem->CompatDriverCount;
+                DriverNode = DevInfoElem->CompatDriverHead;
+
+                DriverEnumHint = &(DevInfoElem->CompatDriverEnumHint);
+                DriverEnumHintIndex = &(DevInfoElem->CompatDriverEnumHintIndex);
+
                 break;
+            }
 
-            case SPDIT_COMPATDRIVER :
-
-                if(DeviceInfoData) {
-
-                    DriverCount = DevInfoElem->CompatDriverCount;
-                    DriverNode = DevInfoElem->CompatDriverHead;
-
-                    DriverEnumHint      = &(DevInfoElem->CompatDriverEnumHint);
-                    DriverEnumHintIndex = &(DevInfoElem->CompatDriverEnumHintIndex);
-
-                    break;
-                }
-
-                // otherwise, let fall through for error condition.
+            // otherwise, let fall through for error condition.
 
 
-            default :
-                Err = ERROR_INVALID_PARAMETER;
-                goto clean0;
+        default:
+            Err = ERROR_INVALID_PARAMETER;
+            goto clean0;
         }
 
-        if(MemberIndex >= DriverCount) {
+        if (MemberIndex >= DriverCount) {
             Err = ERROR_NO_MORE_ITEMS;
             goto clean0;
         }
@@ -3046,7 +3046,7 @@ Remarks:
         // Find the element corresponding to the specified index (using our
         // enumeration hint optimization, if possible)
 
-        if(*DriverEnumHintIndex <= MemberIndex) {
+        if (*DriverEnumHintIndex <= MemberIndex) {
             MYASSERT(*DriverEnumHint);
             DriverNode = *DriverEnumHint;
             i = *DriverEnumHintIndex;
@@ -3054,14 +3054,14 @@ Remarks:
             i = 0;
         }
 
-        for(; i < MemberIndex; i++) {
+        for (; i < MemberIndex; i++) {
             DriverNode = DriverNode->Next;
         }
 
-        if(!DrvInfoDataFromDriverNode(pDeviceInfoSet,
-                                      DriverNode,
-                                      DriverType,
-                                      DriverInfoData)) {
+        if (!DrvInfoDataFromDriverNode(pDeviceInfoSet,
+                                       DriverNode,
+                                       DriverType,
+                                       DriverInfoData)) {
 
             Err = ERROR_INVALID_USER_BUFFER;
         }
@@ -3072,7 +3072,7 @@ Remarks:
         *DriverEnumHintIndex = MemberIndex;
         *DriverEnumHint = DriverNode;
 
-clean0: ;   // Nothing to do.
+    clean0:;   // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -3095,19 +3095,19 @@ SetupDiGetSelectedDriverA(
     IN  HDEVINFO           DeviceInfoSet,
     IN  PSP_DEVINFO_DATA   DeviceInfoData, OPTIONAL
     OUT PSP_DRVINFO_DATA_A DriverInfoData
-    )
+)
 {
     DWORD rc;
     BOOL b;
     SP_DRVINFO_DATA_W driverInfoData;
 
     driverInfoData.cbSize = sizeof(SP_DRVINFO_DATA_W);
-    b = SetupDiGetSelectedDriverW(DeviceInfoSet,DeviceInfoData,&driverInfoData);
+    b = SetupDiGetSelectedDriverW(DeviceInfoSet, DeviceInfoData, &driverInfoData);
     rc = GetLastError();
 
-    if(b) {
-        rc = pSetupDiDrvInfoDataUnicodeToAnsi(&driverInfoData,DriverInfoData);
-        if(rc != NO_ERROR) {
+    if (b) {
+        rc = pSetupDiDrvInfoDataUnicodeToAnsi(&driverInfoData, DriverInfoData);
+        if (rc != NO_ERROR) {
             b = FALSE;
         }
     }
@@ -3125,7 +3125,7 @@ SetupDiGetSelectedDriverW(
     IN  HDEVINFO           DeviceInfoSet,
     IN  PSP_DEVINFO_DATA   DeviceInfoData, OPTIONAL
     OUT PSP_DRVINFO_DATA_W DriverInfoData
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -3141,7 +3141,7 @@ SetupDiGetSelectedDriver(
     IN  HDEVINFO         DeviceInfoSet,
     IN  PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
     OUT PSP_DRVINFO_DATA DriverInfoData
-    )
+)
 /*++
 
 Routine Description:
@@ -3176,7 +3176,7 @@ Return Value:
     PDEVINFO_ELEM DevInfoElem;
     PDRIVER_NODE DriverNode;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -3185,13 +3185,13 @@ Return Value:
 
     try {
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Then we are to retrieve the selected driver for a particular device.
 
-            if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                       DeviceInfoData,
-                                                       NULL)) {
+            if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                        DeviceInfoData,
+                                                        NULL)) {
 
                 DriverNode = DevInfoElem->SelectedDriver;
                 DriverType = DevInfoElem->SelectedDriverType;
@@ -3206,12 +3206,12 @@ Return Value:
             DriverType = SPDIT_CLASSDRIVER;
         }
 
-        if(DriverNode) {
+        if (DriverNode) {
 
-            if(!DrvInfoDataFromDriverNode(pDeviceInfoSet,
-                                          DriverNode,
-                                          DriverType,
-                                          DriverInfoData)) {
+            if (!DrvInfoDataFromDriverNode(pDeviceInfoSet,
+                                           DriverNode,
+                                           DriverType,
+                                           DriverInfoData)) {
 
                 Err = ERROR_INVALID_USER_BUFFER;
             }
@@ -3220,7 +3220,7 @@ Return Value:
             Err = ERROR_NO_DRIVER_SELECTED;
         }
 
-clean0: ;   // Nothing to do.
+    clean0:;   // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -3243,31 +3243,31 @@ SetupDiSetSelectedDriverA(
     IN     HDEVINFO           DeviceInfoSet,
     IN     PSP_DEVINFO_DATA   DeviceInfoData, OPTIONAL
     IN OUT PSP_DRVINFO_DATA_A DriverInfoData  OPTIONAL
-    )
+)
 {
     SP_DRVINFO_DATA_W driverInfoData;
     DWORD rc;
     BOOL b;
 
-    if(DriverInfoData) {
-        rc = pSetupDiDrvInfoDataAnsiToUnicode(DriverInfoData,&driverInfoData);
-        if(rc != NO_ERROR) {
+    if (DriverInfoData) {
+        rc = pSetupDiDrvInfoDataAnsiToUnicode(DriverInfoData, &driverInfoData);
+        if (rc != NO_ERROR) {
             SetLastError(rc);
             return(FALSE);
         }
     }
 
     b = SetupDiSetSelectedDriverW(
-            DeviceInfoSet,
-            DeviceInfoData,
-            DriverInfoData ? &driverInfoData : NULL
-            );
+        DeviceInfoSet,
+        DeviceInfoData,
+        DriverInfoData ? &driverInfoData : NULL
+    );
 
     rc = GetLastError();
 
-    if(b && DriverInfoData) {
-        rc = pSetupDiDrvInfoDataUnicodeToAnsi(&driverInfoData,DriverInfoData);
-        if(rc != NO_ERROR) {
+    if (b && DriverInfoData) {
+        rc = pSetupDiDrvInfoDataUnicodeToAnsi(&driverInfoData, DriverInfoData);
+        if (rc != NO_ERROR) {
             b = FALSE;
         }
     }
@@ -3285,7 +3285,7 @@ SetupDiSetSelectedDriverW(
     IN     HDEVINFO           DeviceInfoSet,
     IN     PSP_DEVINFO_DATA   DeviceInfoData, OPTIONAL
     IN OUT PSP_DRVINFO_DATA_W DriverInfoData  OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -3301,7 +3301,7 @@ SetupDiSetSelectedDriver(
     IN     HDEVINFO         DeviceInfoSet,
     IN OUT PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
     IN OUT PSP_DRVINFO_DATA DriverInfoData  OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -3351,14 +3351,14 @@ Return Value:
     DWORD Err;
     PDEVINFO_ELEM DevInfoElem;
     PDRIVER_NODE DriverListHead, DriverNode;
-    PDRIVER_NODE *pSelectedDriver;
+    PDRIVER_NODE* pSelectedDriver;
     PDWORD pSelectedDriverType;
     DWORD DriverType;
     TCHAR ClassGuidString[GUID_STRING_LEN];
     PSETUP_LOG_CONTEXT LogContext = NULL;
     DWORD slot_section = 0;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         Err = ERROR_INVALID_HANDLE;
         goto clean1;
     }
@@ -3368,13 +3368,13 @@ Return Value:
 
     try {
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Then we are to select a driver for a particular device.
 
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                         DeviceInfoData,
-                                                         NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                          DeviceInfoData,
+                                                          NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
@@ -3386,12 +3386,12 @@ Return Value:
             pSelectedDriverType = NULL;
         }
 
-        if(!DriverInfoData) {
+        if (!DriverInfoData) {
 
             // Then the driver list selection is to be reset.
 
             *pSelectedDriver = NULL;
-            if(pSelectedDriverType) {
+            if (pSelectedDriverType) {
                 *pSelectedDriverType = SPDIT_NODRIVER;
             }
 
@@ -3400,48 +3400,48 @@ Return Value:
             // Retrieve the driver type from the SP_DRVINFO_DATA structure
             // so we know which linked list to search.
 
-            if((DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA)) ||
-               (DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA_V1))) {
+            if ((DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA)) ||
+                (DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA_V1))) {
                 DriverType = DriverInfoData->DriverType;
             } else {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
 
-            switch(DriverType) {
+            switch (DriverType) {
 
-                case SPDIT_CLASSDRIVER :
+            case SPDIT_CLASSDRIVER:
 
-                    if(DeviceInfoData) {
-                        DriverListHead = DevInfoElem->ClassDriverHead;
-                    } else {
-                        DriverListHead = pDeviceInfoSet->ClassDriverHead;
-                    }
+                if (DeviceInfoData) {
+                    DriverListHead = DevInfoElem->ClassDriverHead;
+                } else {
+                    DriverListHead = pDeviceInfoSet->ClassDriverHead;
+                }
+                break;
+
+            case SPDIT_COMPATDRIVER:
+
+                if (DeviceInfoData) {
+                    DriverListHead = DevInfoElem->CompatDriverHead;
                     break;
+                }
 
-                case SPDIT_COMPATDRIVER :
-
-                    if(DeviceInfoData) {
-                        DriverListHead = DevInfoElem->CompatDriverHead;
-                        break;
-                    }
-
-                    // otherwise, let fall through for error condition.
+                // otherwise, let fall through for error condition.
 
 
-                default :
-                    Err = ERROR_INVALID_PARAMETER;
-                    goto clean0;
+            default:
+                Err = ERROR_INVALID_PARAMETER;
+                goto clean0;
             }
 
 
             // Find the referenced driver node in the appropriate list.
 
-            if(DriverInfoData->Reserved) {
+            if (DriverInfoData->Reserved) {
 
-                if(!(DriverNode = FindAssociatedDriverNode(DriverListHead,
-                                                           DriverInfoData,
-                                                           NULL))) {
+                if (!(DriverNode = FindAssociatedDriverNode(DriverListHead,
+                                                            DriverInfoData,
+                                                            NULL))) {
                     Err = ERROR_INVALID_PARAMETER;
                     goto clean0;
                 }
@@ -3451,10 +3451,10 @@ Return Value:
                 // The caller has requested that we search for a driver node
                 // matching the criteria specified in this DriverInfoData.
 
-                if(!(DriverNode = SearchForDriverNode(pDeviceInfoSet->StringTable,
-                                                      DriverListHead,
-                                                      DriverInfoData,
-                                                      NULL))) {
+                if (!(DriverNode = SearchForDriverNode(pDeviceInfoSet->StringTable,
+                                                       DriverListHead,
+                                                       DriverInfoData,
+                                                       NULL))) {
                     Err = ERROR_INVALID_PARAMETER;
                     goto clean0;
                 }
@@ -3464,8 +3464,8 @@ Return Value:
             // If we're selecting a driver for a device information element, then update
             // that device's class to reflect the class of this new driver node.
 
-            if(DeviceInfoData) {
-                if(slot_section == 0) {
+            if (DeviceInfoData) {
+                if (slot_section == 0) {
 
                     // To aid in debugging, log inf/section for the newly selected node
 
@@ -3473,22 +3473,22 @@ Return Value:
 
                     szInfFileName = pStringTableStringFromId(pDeviceInfoSet->StringTable,
                                                              DriverNode->InfFileName
-                                                            );
+                    );
 
                     szInfSectionName = pStringTableStringFromId(pDeviceInfoSet->StringTable,
                                                                 DriverNode->InfSectionName
-                                                               );
+                    );
 
-                    slot_section = AllocLogInfoSlotOrLevel(LogContext,DRIVER_LOG_INFO,FALSE);
+                    slot_section = AllocLogInfoSlotOrLevel(LogContext, DRIVER_LOG_INFO, FALSE);
 
                     // Say what section is about to be installed.
 
                     WriteLogEntry(LogContext,
-                        slot_section,
-                        MSG_LOG_SETSELECTED_SECTION,
-                        NULL,
-                        szInfSectionName,
-                        szInfFileName);
+                                  slot_section,
+                                  MSG_LOG_SETSELECTED_SECTION,
+                                  NULL,
+                                  szInfSectionName,
+                                  szInfFileName);
                 }
 
 
@@ -3498,7 +3498,7 @@ Return Value:
                 pSetupStringFromGuid(&(pDeviceInfoSet->GuidTable[DriverNode->GuidIndex]),
                                      ClassGuidString,
                                      SIZECHARS(ClassGuidString)
-                                    );
+                );
 
                 WriteLogEntry(
                     LogContext,
@@ -3507,22 +3507,22 @@ Return Value:
                     NULL,
                     ClassGuidString);
 
-                if(!SetupDiSetDeviceRegistryProperty(DeviceInfoSet,
-                                                     DeviceInfoData,
-                                                     SPDRP_CLASSGUID,
-                                                     (PBYTE)ClassGuidString,
-                                                     sizeof(ClassGuidString))) {
+                if (!SetupDiSetDeviceRegistryProperty(DeviceInfoSet,
+                                                      DeviceInfoData,
+                                                      SPDRP_CLASSGUID,
+                                                      (PBYTE)ClassGuidString,
+                                                      sizeof(ClassGuidString))) {
                     Err = GetLastError();
                     goto clean0;
                 }
             }
 
             *pSelectedDriver = DriverNode;
-            if(pSelectedDriverType) {
+            if (pSelectedDriverType) {
                 *pSelectedDriverType = DriverType;
             }
 
-            if(!DriverInfoData->Reserved) {
+            if (!DriverInfoData->Reserved) {
 
                 // Update the caller-supplied DriverInfoData to reflect the driver node
                 // where the match was found.
@@ -3531,7 +3531,7 @@ Return Value:
             }
         }
 
-clean0: ;   // Nothing to do.
+    clean0:;   // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -3564,7 +3564,7 @@ clean1:
             Err);
     }
     if (slot_section) {
-        ReleaseLogInfoSlot(LogContext,slot_section);
+        ReleaseLogInfoSlot(LogContext, slot_section);
     }
 
     SetLastError(Err);
@@ -3580,12 +3580,12 @@ BOOL
 WINAPI
 SetupDiGetDriverInfoDetailA(
     IN  HDEVINFO                  DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA          DeviceInfoData,           OPTIONAL
+    IN  PSP_DEVINFO_DATA          DeviceInfoData, OPTIONAL
     IN  PSP_DRVINFO_DATA_A        DriverInfoData,
-    OUT PSP_DRVINFO_DETAIL_DATA_A DriverInfoDetailData,     OPTIONAL
+    OUT PSP_DRVINFO_DETAIL_DATA_A DriverInfoDetailData, OPTIONAL
     IN  DWORD                     DriverInfoDetailDataSize,
     OUT PDWORD                    RequiredSize              OPTIONAL
-    )
+)
 {
     BOOL b;
     DWORD rc;
@@ -3596,9 +3596,9 @@ SetupDiGetDriverInfoDetailA(
     int i;
     int CharCount;
     unsigned StringCount;
-    UCHAR SectionName[2*LINE_LEN];
-    UCHAR InfFileName[2*MAX_PATH];
-    UCHAR DrvDescription[2*LINE_LEN];
+    UCHAR SectionName[2 * LINE_LEN];
+    UCHAR InfFileName[2 * MAX_PATH];
+    UCHAR DrvDescription[2 * LINE_LEN];
     PUCHAR p;
 
 
@@ -3606,13 +3606,13 @@ SetupDiGetDriverInfoDetailA(
 
     rc = NO_ERROR;
     try {
-        if(DriverInfoDetailData) {
+        if (DriverInfoDetailData) {
 
             // Check signature and make sure buffer is large enough
             // to hold fixed part and at least a valid empty multi_sz.
 
-            if((DriverInfoDetailData->cbSize != sizeof(SP_DRVINFO_DETAIL_DATA_A))
-            || (DriverInfoDetailDataSize < (offsetof(SP_DRVINFO_DETAIL_DATA_A,HardwareID)+sizeof(CHAR)))) {
+            if ((DriverInfoDetailData->cbSize != sizeof(SP_DRVINFO_DETAIL_DATA_A))
+                || (DriverInfoDetailDataSize < (offsetof(SP_DRVINFO_DETAIL_DATA_A, HardwareID) + sizeof(CHAR)))) {
 
                 rc = ERROR_INVALID_USER_BUFFER;
             }
@@ -3620,7 +3620,7 @@ SetupDiGetDriverInfoDetailA(
 
             // Doesn't want data, size has to be 0.
 
-            if(DriverInfoDetailDataSize) {
+            if (DriverInfoDetailDataSize) {
                 rc = ERROR_INVALID_USER_BUFFER;
             }
         }
@@ -3631,10 +3631,10 @@ SetupDiGetDriverInfoDetailA(
 
     // Convert the driver info data to unicode.
 
-    if(rc == NO_ERROR) {
-        rc = pSetupDiDrvInfoDataAnsiToUnicode(DriverInfoData,&driverInfoData);
+    if (rc == NO_ERROR) {
+        rc = pSetupDiDrvInfoDataAnsiToUnicode(DriverInfoData, &driverInfoData);
     }
-    if(rc != NO_ERROR) {
+    if (rc != NO_ERROR) {
         SetLastError(rc);
         return(FALSE);
     }
@@ -3648,20 +3648,20 @@ SetupDiGetDriverInfoDetailA(
     // slow RPC operations, etc, we hope this will be satisfactory.
 
     b = SetupDiGetDriverInfoDetailW(
-            DeviceInfoSet,
-            DeviceInfoData,
-            &driverInfoData,
-            NULL,
-            0,
-            &requiredSize
-            );
+        DeviceInfoSet,
+        DeviceInfoData,
+        &driverInfoData,
+        NULL,
+        0,
+        &requiredSize
+    );
 
 
     // If it failed for a reason besides an insufficient buffer,
     // bail now. Last error remains set.
 
     MYASSERT(!b);
-    if(GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
+    if (GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
         return(FALSE);
     }
 
@@ -3670,22 +3670,22 @@ SetupDiGetDriverInfoDetailA(
     // again.
 
     Details = MyMalloc(requiredSize);
-    if(!Details) {
+    if (!Details) {
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return(FALSE);
     }
 
     Details->cbSize = sizeof(SP_DRVINFO_DETAIL_DATA_W);
     b = SetupDiGetDriverInfoDetail(
-            DeviceInfoSet,
-            DeviceInfoData,
-            &driverInfoData,
-            Details,
-            requiredSize,
-            NULL
-            );
+        DeviceInfoSet,
+        DeviceInfoData,
+        &driverInfoData,
+        Details,
+        requiredSize,
+        NULL
+    );
 
-    if(!b) {
+    if (!b) {
         rc = GetLastError();
         MyFree(Details);
         SetLastError(rc);
@@ -3697,9 +3697,9 @@ SetupDiGetDriverInfoDetailA(
     // hardware id multi_sz to ansi, assuming every unicode character would
     // translate into a double-byte char -- this is the worst-case scenario.
 
-    CharCount = (requiredSize - offsetof(SP_DRVINFO_DETAIL_DATA_W,HardwareID)) / sizeof(WCHAR);
-    AnsiMultiSz = MyMalloc(2*CharCount);
-    if(!AnsiMultiSz) {
+    CharCount = (requiredSize - offsetof(SP_DRVINFO_DETAIL_DATA_W, HardwareID)) / sizeof(WCHAR);
+    AnsiMultiSz = MyMalloc(2 * CharCount);
+    if (!AnsiMultiSz) {
         MyFree(Details);
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return(FALSE);
@@ -3708,8 +3708,8 @@ SetupDiGetDriverInfoDetailA(
 
     // Convert the chars in the multi_sz.
 
-    i = WideCharToMultiByte(CP_ACP, 0, Details->HardwareID, CharCount, AnsiMultiSz, CharCount*2, NULL, NULL);
-    if(!i) {
+    i = WideCharToMultiByte(CP_ACP, 0, Details->HardwareID, CharCount, AnsiMultiSz, CharCount * 2, NULL, NULL);
+    if (!i) {
         rc = GetLastError();
         MyFree(Details);
         MyFree(AnsiMultiSz);
@@ -3722,22 +3722,22 @@ SetupDiGetDriverInfoDetailA(
     // because we have the number of bytes in the ansi representation
     // of the multi_sz.
 
-    requiredSize = offsetof(SP_DRVINFO_DETAIL_DATA_A,HardwareID) + i;
+    requiredSize = offsetof(SP_DRVINFO_DETAIL_DATA_A, HardwareID) + i;
 
     rc = NO_ERROR;
     try {
-        if(RequiredSize) {
+        if (RequiredSize) {
             *RequiredSize = requiredSize;
         }
 
-        if(DriverInfoDetailData) {
+        if (DriverInfoDetailData) {
 
             // We know the buffer is large enough to hold the fixed part
             // because we checked this at the start of the routine.
 
 
-            MYASSERT(offsetof(SP_DRVINFO_DETAIL_DATA_A,SectionName) == offsetof(SP_DRVINFO_DETAIL_DATA_W,SectionName));
-            CopyMemory(DriverInfoDetailData,Details,offsetof(SP_DRVINFO_DETAIL_DATA_A,SectionName));
+            MYASSERT(offsetof(SP_DRVINFO_DETAIL_DATA_A, SectionName) == offsetof(SP_DRVINFO_DETAIL_DATA_W, SectionName));
+            CopyMemory(DriverInfoDetailData, Details, offsetof(SP_DRVINFO_DETAIL_DATA_A, SectionName));
 
             DriverInfoDetailData->cbSize = sizeof(SP_DRVINFO_DETAIL_DATA_A);
             DriverInfoDetailData->HardwareID[0] = 0;
@@ -3745,12 +3745,12 @@ SetupDiGetDriverInfoDetailA(
 
             // Convert fixed strings and guard against overflow.
 
-            i = WideCharToMultiByte(CP_ACP,0, Details->SectionName, -1, SectionName, sizeof(SectionName), NULL, NULL);
-            if(i) {
-                i = WideCharToMultiByte(CP_ACP,0, Details->InfFileName, -1, InfFileName, sizeof(InfFileName), NULL, NULL);
-                if(i) {
-                    i = WideCharToMultiByte(CP_ACP,0, Details->DrvDescription, -1, DrvDescription, sizeof(DrvDescription), NULL, NULL);
-                    if(!i) {
+            i = WideCharToMultiByte(CP_ACP, 0, Details->SectionName, -1, SectionName, sizeof(SectionName), NULL, NULL);
+            if (i) {
+                i = WideCharToMultiByte(CP_ACP, 0, Details->InfFileName, -1, InfFileName, sizeof(InfFileName), NULL, NULL);
+                if (i) {
+                    i = WideCharToMultiByte(CP_ACP, 0, Details->DrvDescription, -1, DrvDescription, sizeof(DrvDescription), NULL, NULL);
+                    if (!i) {
                         rc = GetLastError();
                     }
                 } else {
@@ -3760,10 +3760,10 @@ SetupDiGetDriverInfoDetailA(
                 rc = GetLastError();
             }
 
-            if(rc == NO_ERROR) {
-                if(!lstrcpynA(DriverInfoDetailData->SectionName,SectionName,LINE_LEN)
-                || !lstrcpynA(DriverInfoDetailData->InfFileName,InfFileName,MAX_PATH)
-                || !lstrcpynA(DriverInfoDetailData->DrvDescription,DrvDescription,LINE_LEN)) {
+            if (rc == NO_ERROR) {
+                if (!lstrcpynA(DriverInfoDetailData->SectionName, SectionName, LINE_LEN)
+                    || !lstrcpynA(DriverInfoDetailData->InfFileName, InfFileName, MAX_PATH)
+                    || !lstrcpynA(DriverInfoDetailData->DrvDescription, DrvDescription, LINE_LEN)) {
 
                     // lstrcpyn faulted, the buffer went bad
 
@@ -3771,20 +3771,20 @@ SetupDiGetDriverInfoDetailA(
                 }
             }
 
-            if(rc == NO_ERROR) {
+            if (rc == NO_ERROR) {
 
                 // Finally, we need to transfer in as much of the ansi multi_sz
                 // as will fit into the caller's buffer.
 
-                CharCount = DriverInfoDetailDataSize - offsetof(SP_DRVINFO_DETAIL_DATA_A,HardwareID);
+                CharCount = DriverInfoDetailDataSize - offsetof(SP_DRVINFO_DETAIL_DATA_A, HardwareID);
                 StringCount = 0;
 
-                for(p=AnsiMultiSz; *p; p+=i) {
+                for (p = AnsiMultiSz; *p; p += i) {
 
                     i = lstrlenA(p) + 1;
 
-                    if(CharCount > i) {
-                        lstrcpyA(DriverInfoDetailData->HardwareID+(p - AnsiMultiSz),p);
+                    if (CharCount > i) {
+                        lstrcpyA(DriverInfoDetailData->HardwareID + (p - AnsiMultiSz), p);
                         StringCount++;
                         CharCount -= i;
                     } else {
@@ -3793,17 +3793,17 @@ SetupDiGetDriverInfoDetailA(
                     }
                 }
 
-                DriverInfoDetailData->HardwareID[p-AnsiMultiSz] = 0;
+                DriverInfoDetailData->HardwareID[p - AnsiMultiSz] = 0;
 
 
                 // Now fix up the compat ids fields in the caller's structure.
                 // The first string is the hardware id and any additional ones
                 // are compatible ids.
 
-                if(StringCount > 1) {
-                    DriverInfoDetailData->CompatIDsOffset = lstrlenA(AnsiMultiSz)+1;
+                if (StringCount > 1) {
+                    DriverInfoDetailData->CompatIDsOffset = lstrlenA(AnsiMultiSz) + 1;
                     DriverInfoDetailData->CompatIDsLength = (DWORD)(p - AnsiMultiSz) + 1
-                                                          - DriverInfoDetailData->CompatIDsOffset;
+                        - DriverInfoDetailData->CompatIDsOffset;
                 } else {
                     DriverInfoDetailData->CompatIDsLength = 0;
                     DriverInfoDetailData->CompatIDsOffset = 0;
@@ -3828,12 +3828,12 @@ BOOL
 WINAPI
 SetupDiGetDriverInfoDetailW(
     IN  HDEVINFO                  DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA          DeviceInfoData,           OPTIONAL
+    IN  PSP_DEVINFO_DATA          DeviceInfoData, OPTIONAL
     IN  PSP_DRVINFO_DATA_W        DriverInfoData,
-    OUT PSP_DRVINFO_DETAIL_DATA_W DriverInfoDetailData,     OPTIONAL
+    OUT PSP_DRVINFO_DETAIL_DATA_W DriverInfoDetailData, OPTIONAL
     IN  DWORD                     DriverInfoDetailDataSize,
     OUT PDWORD                    RequiredSize              OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -3850,12 +3850,12 @@ BOOL
 WINAPI
 SetupDiGetDriverInfoDetail(
     IN  HDEVINFO                DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA        DeviceInfoData,           OPTIONAL
+    IN  PSP_DEVINFO_DATA        DeviceInfoData, OPTIONAL
     IN  PSP_DRVINFO_DATA        DriverInfoData,
-    OUT PSP_DRVINFO_DETAIL_DATA DriverInfoDetailData,     OPTIONAL
+    OUT PSP_DRVINFO_DETAIL_DATA DriverInfoDetailData, OPTIONAL
     IN  DWORD                   DriverInfoDetailDataSize,
     OUT PDWORD                  RequiredSize              OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -3929,7 +3929,7 @@ Remarks:
     DWORD DriverType;
     PDRIVER_NODE DriverListHead, DriverNode;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -3938,13 +3938,13 @@ Remarks:
 
     try {
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Then this is a driver for a particular device.
 
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                         DeviceInfoData,
-                                                         NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                          DeviceInfoData,
+                                                          NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
@@ -3954,8 +3954,8 @@ Remarks:
         // Retrieve the driver type from the SP_DRVINFO_DATA structure
         // so we know which linked list to search.
 
-        if((DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA)) ||
-           (DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA_V1))) {
+        if ((DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA)) ||
+            (DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA_V1))) {
             DriverType = DriverInfoData->DriverType;
         } else {
             Err = ERROR_INVALID_PARAMETER;
@@ -3968,41 +3968,41 @@ Remarks:
         // information around like we do today.  The assertions below indicate our
         // current assumption.
 
-        switch(DriverType) {
+        switch (DriverType) {
 
-            case SPDIT_CLASSDRIVER :
+        case SPDIT_CLASSDRIVER:
 
-                if(DeviceInfoData) {
-                    MYASSERT(DevInfoElem->InstallParamBlock.Flags & DI_DIDCLASS);
-                    DriverListHead = DevInfoElem->ClassDriverHead;
-                } else {
-                    MYASSERT(pDeviceInfoSet->InstallParamBlock.Flags & DI_DIDCLASS);
-                    DriverListHead = pDeviceInfoSet->ClassDriverHead;
-                }
+            if (DeviceInfoData) {
+                MYASSERT(DevInfoElem->InstallParamBlock.Flags & DI_DIDCLASS);
+                DriverListHead = DevInfoElem->ClassDriverHead;
+            } else {
+                MYASSERT(pDeviceInfoSet->InstallParamBlock.Flags & DI_DIDCLASS);
+                DriverListHead = pDeviceInfoSet->ClassDriverHead;
+            }
+            break;
+
+        case SPDIT_COMPATDRIVER:
+
+            if (DeviceInfoData) {
+                MYASSERT(DevInfoElem->InstallParamBlock.Flags & DI_DIDCOMPAT);
+                DriverListHead = DevInfoElem->CompatDriverHead;
                 break;
+            }
 
-            case SPDIT_COMPATDRIVER :
-
-                if(DeviceInfoData) {
-                    MYASSERT(DevInfoElem->InstallParamBlock.Flags & DI_DIDCOMPAT);
-                    DriverListHead = DevInfoElem->CompatDriverHead;
-                    break;
-                }
-
-                // otherwise, let fall through for error condition.
+            // otherwise, let fall through for error condition.
 
 
-            default :
-                Err = ERROR_INVALID_PARAMETER;
-                goto clean0;
+        default:
+            Err = ERROR_INVALID_PARAMETER;
+            goto clean0;
         }
 
 
         // Find the referenced driver node in the appropriate list.
 
-        if(!(DriverNode = FindAssociatedDriverNode(DriverListHead,
-                                                   DriverInfoData,
-                                                   NULL))) {
+        if (!(DriverNode = FindAssociatedDriverNode(DriverListHead,
+                                                    DriverInfoData,
+                                                    NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -4012,9 +4012,9 @@ Remarks:
                                            DriverInfoDetailData,
                                            DriverInfoDetailDataSize,
                                            RequiredSize
-                                          );
+        );
 
-clean0: ;   // Nothing to do.
+    clean0:;   // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -4033,7 +4033,7 @@ SetupDiDestroyDriverInfoList(
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
     IN DWORD            DriverType
-    )
+)
 /*++
 
 Routine Description:
@@ -4084,7 +4084,7 @@ Remarks:
     PDEVINFO_ELEM DevInfoElem;
     PDRIVER_NODE DriverNode;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -4093,13 +4093,13 @@ Remarks:
 
     try {
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Then this is a driver for a particular device.
 
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                         DeviceInfoData,
-                                                         NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                          DeviceInfoData,
+                                                          NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
@@ -4108,7 +4108,7 @@ Remarks:
             // If the selected driver is in the list we're deleting, then
             // reset the selection.
 
-            if(DevInfoElem->SelectedDriverType == DriverType) {
+            if (DevInfoElem->SelectedDriverType == DriverType) {
                 DevInfoElem->SelectedDriverType = SPDIT_NODRIVER;
                 DevInfoElem->SelectedDriver = NULL;
             }
@@ -4117,64 +4117,64 @@ Remarks:
             pDeviceInfoSet->SelectedClassDriver = NULL;
         }
 
-        switch(DriverType) {
+        switch (DriverType) {
 
-            case SPDIT_CLASSDRIVER :
+        case SPDIT_CLASSDRIVER:
 
-                if(DeviceInfoData) {
+            if (DeviceInfoData) {
 
-                    // Destroy class driver list for a particular device.
+                // Destroy class driver list for a particular device.
 
-                    DriverNode = DevInfoElem->ClassDriverHead;
-                    DevInfoElem->ClassDriverCount = 0;
-                    DevInfoElem->ClassDriverHead = DevInfoElem->ClassDriverTail = NULL;
-                    DevInfoElem->ClassDriverEnumHint = NULL;
-                    DevInfoElem->ClassDriverEnumHintIndex = INVALID_ENUM_INDEX;
-                    DevInfoElem->InstallParamBlock.Flags   &= ~(DI_DIDCLASS | DI_MULTMFGS);
-                    DevInfoElem->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDINFOLIST;
+                DriverNode = DevInfoElem->ClassDriverHead;
+                DevInfoElem->ClassDriverCount = 0;
+                DevInfoElem->ClassDriverHead = DevInfoElem->ClassDriverTail = NULL;
+                DevInfoElem->ClassDriverEnumHint = NULL;
+                DevInfoElem->ClassDriverEnumHintIndex = INVALID_ENUM_INDEX;
+                DevInfoElem->InstallParamBlock.Flags &= ~(DI_DIDCLASS | DI_MULTMFGS);
+                DevInfoElem->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDINFOLIST;
 
-                } else {
+            } else {
 
-                    // Destroy the global class driver list.
+                // Destroy the global class driver list.
 
-                    DriverNode = pDeviceInfoSet->ClassDriverHead;
-                    pDeviceInfoSet->ClassDriverCount = 0;
-                    pDeviceInfoSet->ClassDriverHead = pDeviceInfoSet->ClassDriverTail = NULL;
-                    pDeviceInfoSet->ClassDriverEnumHint = NULL;
-                    pDeviceInfoSet->ClassDriverEnumHintIndex = INVALID_ENUM_INDEX;
-                    pDeviceInfoSet->InstallParamBlock.Flags   &= ~(DI_DIDCLASS | DI_MULTMFGS);
-                    pDeviceInfoSet->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDINFOLIST;
-                }
+                DriverNode = pDeviceInfoSet->ClassDriverHead;
+                pDeviceInfoSet->ClassDriverCount = 0;
+                pDeviceInfoSet->ClassDriverHead = pDeviceInfoSet->ClassDriverTail = NULL;
+                pDeviceInfoSet->ClassDriverEnumHint = NULL;
+                pDeviceInfoSet->ClassDriverEnumHintIndex = INVALID_ENUM_INDEX;
+                pDeviceInfoSet->InstallParamBlock.Flags &= ~(DI_DIDCLASS | DI_MULTMFGS);
+                pDeviceInfoSet->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDINFOLIST;
+            }
 
 
-                // Dereference the class driver list.
+            // Dereference the class driver list.
 
-                DereferenceClassDriverList(pDeviceInfoSet, DriverNode);
+            DereferenceClassDriverList(pDeviceInfoSet, DriverNode);
 
+            break;
+
+        case SPDIT_COMPATDRIVER:
+
+            if (DeviceInfoData) {
+                DestroyDriverNodes(DevInfoElem->CompatDriverHead, pDeviceInfoSet);
+                DevInfoElem->CompatDriverCount = 0;
+                DevInfoElem->CompatDriverHead = DevInfoElem->CompatDriverTail = NULL;
+                DevInfoElem->CompatDriverEnumHint = NULL;
+                DevInfoElem->CompatDriverEnumHintIndex = INVALID_ENUM_INDEX;
+                DevInfoElem->InstallParamBlock.Flags &= ~DI_DIDCOMPAT;
+                DevInfoElem->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDCOMPATINFO;
                 break;
+            }
 
-            case SPDIT_COMPATDRIVER :
-
-                if(DeviceInfoData) {
-                    DestroyDriverNodes(DevInfoElem->CompatDriverHead, pDeviceInfoSet);
-                    DevInfoElem->CompatDriverCount = 0;
-                    DevInfoElem->CompatDriverHead = DevInfoElem->CompatDriverTail = NULL;
-                    DevInfoElem->CompatDriverEnumHint = NULL;
-                    DevInfoElem->CompatDriverEnumHintIndex = INVALID_ENUM_INDEX;
-                    DevInfoElem->InstallParamBlock.Flags   &= ~DI_DIDCOMPAT;
-                    DevInfoElem->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDCOMPATINFO;
-                    break;
-                }
-
-                // otherwise, let fall through for error condition.
+            // otherwise, let fall through for error condition.
 
 
-            default :
-                Err = ERROR_INVALID_PARAMETER;
-                goto clean0;
+        default:
+            Err = ERROR_INVALID_PARAMETER;
+            goto clean0;
         }
 
-clean0: ;   // Nothing to do.
+    clean0:;   // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -4195,26 +4195,26 @@ BOOL
 WINAPI
 SetupDiGetDriverInstallParamsA(
     IN  HDEVINFO              DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA      DeviceInfoData,     OPTIONAL
+    IN  PSP_DEVINFO_DATA      DeviceInfoData, OPTIONAL
     IN  PSP_DRVINFO_DATA_A    DriverInfoData,
     OUT PSP_DRVINSTALL_PARAMS DriverInstallParams
-    )
+)
 {
     DWORD rc;
     SP_DRVINFO_DATA_W driverInfoData;
 
-    rc = pSetupDiDrvInfoDataAnsiToUnicode(DriverInfoData,&driverInfoData);
-    if(rc != NO_ERROR) {
+    rc = pSetupDiDrvInfoDataAnsiToUnicode(DriverInfoData, &driverInfoData);
+    if (rc != NO_ERROR) {
         SetLastError(rc);
         return(FALSE);
     }
 
     return SetupDiGetDriverInstallParamsW(
-                DeviceInfoSet,
-                DeviceInfoData,
-                &driverInfoData,
-                DriverInstallParams
-                );
+        DeviceInfoSet,
+        DeviceInfoData,
+        &driverInfoData,
+        DriverInstallParams
+    );
 }
 #else
 
@@ -4224,10 +4224,10 @@ BOOL
 WINAPI
 SetupDiGetDriverInstallParamsW(
     IN  HDEVINFO              DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA      DeviceInfoData,     OPTIONAL
+    IN  PSP_DEVINFO_DATA      DeviceInfoData, OPTIONAL
     IN  PSP_DRVINFO_DATA_W    DriverInfoData,
     OUT PSP_DRVINSTALL_PARAMS DriverInstallParams
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -4242,10 +4242,10 @@ BOOL
 WINAPI
 SetupDiGetDriverInstallParams(
     IN  HDEVINFO              DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA      DeviceInfoData,     OPTIONAL
+    IN  PSP_DEVINFO_DATA      DeviceInfoData, OPTIONAL
     IN  PSP_DRVINFO_DATA      DriverInfoData,
     OUT PSP_DRVINSTALL_PARAMS DriverInstallParams
-    )
+)
 /*++
 
 Routine Description:
@@ -4287,7 +4287,7 @@ Return Value:
     DWORD DriverType;
     PDRIVER_NODE DriverListHead, DriverNode;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -4296,13 +4296,13 @@ Return Value:
 
     try {
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Then this is a driver for a particular device.
 
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                         DeviceInfoData,
-                                                         NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                          DeviceInfoData,
+                                                          NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
@@ -4312,46 +4312,46 @@ Return Value:
         // Retrieve the driver type from the SP_DRVINFO_DATA structure
         // so we know which linked list to search.
 
-        if((DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA)) ||
-           (DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA_V1))) {
+        if ((DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA)) ||
+            (DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA_V1))) {
             DriverType = DriverInfoData->DriverType;
         } else {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
-        switch(DriverType) {
+        switch (DriverType) {
 
-            case SPDIT_CLASSDRIVER :
+        case SPDIT_CLASSDRIVER:
 
-                if(DeviceInfoData) {
-                    DriverListHead = DevInfoElem->ClassDriverHead;
-                } else {
-                    DriverListHead = pDeviceInfoSet->ClassDriverHead;
-                }
+            if (DeviceInfoData) {
+                DriverListHead = DevInfoElem->ClassDriverHead;
+            } else {
+                DriverListHead = pDeviceInfoSet->ClassDriverHead;
+            }
+            break;
+
+        case SPDIT_COMPATDRIVER:
+
+            if (DeviceInfoData) {
+                DriverListHead = DevInfoElem->CompatDriverHead;
                 break;
+            }
 
-            case SPDIT_COMPATDRIVER :
-
-                if(DeviceInfoData) {
-                    DriverListHead = DevInfoElem->CompatDriverHead;
-                    break;
-                }
-
-                // otherwise, let fall through for error condition.
+            // otherwise, let fall through for error condition.
 
 
-            default :
-                Err = ERROR_INVALID_PARAMETER;
-                goto clean0;
+        default:
+            Err = ERROR_INVALID_PARAMETER;
+            goto clean0;
         }
 
 
         // Find the referenced driver node in the appropriate list.
 
-        if(!(DriverNode = FindAssociatedDriverNode(DriverListHead,
-                                                   DriverInfoData,
-                                                   NULL))) {
+        if (!(DriverNode = FindAssociatedDriverNode(DriverListHead,
+                                                    DriverInfoData,
+                                                    NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -4362,16 +4362,16 @@ Return Value:
 
         Err = GetDrvInstallParams(DriverNode,
                                   DriverInstallParams
-                                 );
+        );
 
-        if(Err == NO_ERROR) {
+        if (Err == NO_ERROR) {
 
             // Fill in the Win98-compatible DNF flags indicating whether this
             // driver node is from a compatible or class driver list.
 
             DriverInstallParams->Flags |= (DriverType == SPDIT_CLASSDRIVER)
-                                              ? DNF_CLASS_DRIVER
-                                              : DNF_COMPATIBLE_DRIVER;
+                ? DNF_CLASS_DRIVER
+                : DNF_COMPATIBLE_DRIVER;
 
 
             // Hide the private PDNF_xxx flags
@@ -4379,7 +4379,7 @@ Return Value:
             DriverInstallParams->Flags &= ~PDNF_MASK;
         }
 
-clean0: ;   // Nothing to do.
+    clean0:;   // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -4400,26 +4400,26 @@ BOOL
 WINAPI
 SetupDiSetDriverInstallParamsA(
     IN  HDEVINFO              DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA      DeviceInfoData,     OPTIONAL
+    IN  PSP_DEVINFO_DATA      DeviceInfoData, OPTIONAL
     IN  PSP_DRVINFO_DATA_A    DriverInfoData,
     OUT PSP_DRVINSTALL_PARAMS DriverInstallParams
-    )
+)
 {
     SP_DRVINFO_DATA_W driverInfoData;
     DWORD rc;
 
-    rc = pSetupDiDrvInfoDataAnsiToUnicode(DriverInfoData,&driverInfoData);
-    if(rc != NO_ERROR) {
+    rc = pSetupDiDrvInfoDataAnsiToUnicode(DriverInfoData, &driverInfoData);
+    if (rc != NO_ERROR) {
         SetLastError(rc);
         return(FALSE);
     }
 
     return SetupDiSetDriverInstallParamsW(
-                DeviceInfoSet,
-                DeviceInfoData,
-                &driverInfoData,
-                DriverInstallParams
-                );
+        DeviceInfoSet,
+        DeviceInfoData,
+        &driverInfoData,
+        DriverInstallParams
+    );
 }
 #else
 
@@ -4429,10 +4429,10 @@ BOOL
 WINAPI
 SetupDiSetDriverInstallParamsW(
     IN  HDEVINFO              DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA      DeviceInfoData,     OPTIONAL
+    IN  PSP_DEVINFO_DATA      DeviceInfoData, OPTIONAL
     IN  PSP_DRVINFO_DATA_W    DriverInfoData,
     OUT PSP_DRVINSTALL_PARAMS DriverInstallParams
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -4447,10 +4447,10 @@ BOOL
 WINAPI
 SetupDiSetDriverInstallParams(
     IN HDEVINFO              DeviceInfoSet,
-    IN PSP_DEVINFO_DATA      DeviceInfoData,     OPTIONAL
+    IN PSP_DEVINFO_DATA      DeviceInfoData, OPTIONAL
     IN PSP_DRVINFO_DATA      DriverInfoData,
     IN PSP_DRVINSTALL_PARAMS DriverInstallParams
-    )
+)
 /*++
 
 Routine Description:
@@ -4492,7 +4492,7 @@ Return Value:
     DWORD DriverType;
     PDRIVER_NODE DriverListHead, DriverNode;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -4501,13 +4501,13 @@ Return Value:
 
     try {
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Then this is a driver for a particular device.
 
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                         DeviceInfoData,
-                                                         NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                          DeviceInfoData,
+                                                          NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
@@ -4517,46 +4517,46 @@ Return Value:
         // Retrieve the driver type from the SP_DRVINFO_DATA structure
         // so we know which linked list to search.
 
-        if((DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA)) ||
-           (DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA_V1))) {
+        if ((DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA)) ||
+            (DriverInfoData->cbSize == sizeof(SP_DRVINFO_DATA_V1))) {
             DriverType = DriverInfoData->DriverType;
         } else {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
-        switch(DriverType) {
+        switch (DriverType) {
 
-            case SPDIT_CLASSDRIVER :
+        case SPDIT_CLASSDRIVER:
 
-                if(DeviceInfoData) {
-                    DriverListHead = DevInfoElem->ClassDriverHead;
-                } else {
-                    DriverListHead = pDeviceInfoSet->ClassDriverHead;
-                }
+            if (DeviceInfoData) {
+                DriverListHead = DevInfoElem->ClassDriverHead;
+            } else {
+                DriverListHead = pDeviceInfoSet->ClassDriverHead;
+            }
+            break;
+
+        case SPDIT_COMPATDRIVER:
+
+            if (DeviceInfoData) {
+                DriverListHead = DevInfoElem->CompatDriverHead;
                 break;
+            }
 
-            case SPDIT_COMPATDRIVER :
-
-                if(DeviceInfoData) {
-                    DriverListHead = DevInfoElem->CompatDriverHead;
-                    break;
-                }
-
-                // otherwise, let fall through for error condition.
+            // otherwise, let fall through for error condition.
 
 
-            default :
-                Err = ERROR_INVALID_PARAMETER;
-                goto clean0;
+        default:
+            Err = ERROR_INVALID_PARAMETER;
+            goto clean0;
         }
 
 
         // Find the referenced driver node in the appropriate list.
 
-        if(!(DriverNode = FindAssociatedDriverNode(DriverListHead,
-                                                   DriverInfoData,
-                                                   NULL))) {
+        if (!(DriverNode = FindAssociatedDriverNode(DriverListHead,
+                                                    DriverInfoData,
+                                                    NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -4567,9 +4567,9 @@ Return Value:
 
         Err = SetDrvInstallParams(DriverInstallParams,
                                   DriverNode
-                                 );
+        );
 
-clean0: ;   // Nothing to do.
+    clean0:;   // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -4586,7 +4586,7 @@ BOOL
 pSetupDoesInfContainDevIds(
     IN PLOADED_INF        Inf,
     IN PDRVSEARCH_CONTEXT Context
-    )
+)
 /*++
 
 Routine Description:
@@ -4620,9 +4620,9 @@ Remarks:
     LONG i;
     PLONG pDevIdNum;
 
-    for(i = 0; i < 2; i++) {
+    for (i = 0; i < 2; i++) {
 
-        for(pDevIdNum = Context->IdList[i]; *pDevIdNum != -1; pDevIdNum++) {
+        for (pDevIdNum = Context->IdList[i]; *pDevIdNum != -1; pDevIdNum++) {
 
             // First, obtain the device ID string corresponding to our stored-away
             // string table ID.
@@ -4637,13 +4637,13 @@ Remarks:
 
             MYASSERT(!(Inf->Next)); // We'd better only have one of these at this point.
 
-            if(pStringTableLookUpString(Inf->StringTable,
-                                        CurDevId,
-                                        &StringLength,
-                                        NULL,
-                                        NULL,
-                                        STRTAB_CASE_INSENSITIVE | STRTAB_ALREADY_LOWERCASE,
-                                        NULL,0) != -1) {
+            if (pStringTableLookUpString(Inf->StringTable,
+                                         CurDevId,
+                                         &StringLength,
+                                         NULL,
+                                         NULL,
+                                         STRTAB_CASE_INSENSITIVE | STRTAB_ALREADY_LOWERCASE,
+                                         NULL, 0) != -1) {
 
                 // We found a match--return success.
 
@@ -4663,7 +4663,7 @@ DWORD
 BuildCompatListFromClassList(
     IN     PDRIVER_NODE       ClassDriverList,
     IN OUT PDRVSEARCH_CONTEXT Context
-    )
+)
 /*++
 
 Routine Description:
@@ -4694,9 +4694,9 @@ Return Value:
         // Examine each node in the class driver list, and copy any compatible drivers
         // into the compatible driver list.
 
-        for(; ClassDriverList; ClassDriverList = ClassDriverList->Next) {
+        for (; ClassDriverList; ClassDriverList = ClassDriverList->Next) {
 
-            if(ClassDriverList->HardwareId == -1) {
+            if (ClassDriverList->HardwareId == -1) {
 
                 // If there's no HardwareId, then we know there are no compatible IDs,
                 // we can skip this driver node
@@ -4704,26 +4704,26 @@ Return Value:
                 continue;
             }
 
-            if(pSetupCalculateRankMatch(ClassDriverList->HardwareId,
-                                        2,
-                                        Context->IdList,
-                                        &Rank)) {
+            if (pSetupCalculateRankMatch(ClassDriverList->HardwareId,
+                                         2,
+                                         Context->IdList,
+                                         &Rank)) {
 
                 // Then we didn't hit a hardware ID match, so check the compatible IDs.
 
-                for(i = 0; i < ClassDriverList->NumCompatIds; i++) {
+                for (i = 0; i < ClassDriverList->NumCompatIds; i++) {
 
-                    if(!pSetupCalculateRankMatch(ClassDriverList->CompatIdList[i],
-                                                 i + 3,
-                                                 Context->IdList,
-                                                 &CurrentRank)) {
+                    if (!pSetupCalculateRankMatch(ClassDriverList->CompatIdList[i],
+                                                  i + 3,
+                                                  Context->IdList,
+                                                  &CurrentRank)) {
 
                         // Then we had a match on a hardware ID--that's the best we're gonna get.
 
                         Rank = CurrentRank;
                         break;
 
-                    } else if(CurrentRank < Rank) {
+                    } else if (CurrentRank < Rank) {
 
                         // This new rank is better than our current rank.
 
@@ -4732,11 +4732,11 @@ Return Value:
                 }
             }
 
-            if(Rank != RANK_NO_MATCH) {
+            if (Rank != RANK_NO_MATCH) {
 
                 // Make a copy of the class driver node for our new compatible driver node.
 
-                if(CompatDriverNode = DuplicateDriverNode(ClassDriverList)) {
+                if (CompatDriverNode = DuplicateDriverNode(ClassDriverList)) {
 
                     // Update the rank of our new driver node to what we just calculated.
 
@@ -4761,14 +4761,14 @@ Return Value:
                 pSetupMergeDriverNode(Context, CompatDriverNode, &InsertedAtHead);
                 CompatDriverNode = NULL;
 
-                if(InsertedAtHead) {
+                if (InsertedAtHead) {
 
                     // Update the device instance class to that of the new lowest-rank driver.
 
                     CopyMemory(&(Context->ClassGuid),
                                &(Context->DeviceInfoSet->GuidTable[ClassDriverList->GuidIndex]),
                                sizeof(GUID)
-                              );
+                    );
                     Context->Flags |= DRVSRCH_HASCLASSGUID;
                     *(Context->ClassName) = TEXT('\0');
                 }
@@ -4779,7 +4779,7 @@ Return Value:
 
         Err = ERROR_INVALID_PARAMETER;
 
-        if(CompatDriverNode) {
+        if (CompatDriverNode) {
 
             // Make sure it didn't get partially linked into a list.
 
@@ -4788,7 +4788,7 @@ Return Value:
         }
     }
 
-    if(Err != NO_ERROR) {
+    if (Err != NO_ERROR) {
         DestroyDriverNodes(*(Context->pDriverListHead), Context->DeviceInfoSet);
         *(Context->pDriverListHead) = *(Context->pDriverListTail) = NULL;
         *(Context->pDriverCount) = 0;
@@ -4801,7 +4801,7 @@ Return Value:
 PDRIVER_NODE
 DuplicateDriverNode(
     IN PDRIVER_NODE DriverNode
-    )
+)
 /*++
 
 Routine Description:
@@ -4822,7 +4822,7 @@ Return Value:
     PDRIVER_NODE NewDriverNode;
     BOOL FreeCompatIdList;
 
-    if(!(NewDriverNode = MyMalloc(sizeof(DRIVER_NODE)))) {
+    if (!(NewDriverNode = MyMalloc(sizeof(DRIVER_NODE)))) {
         return NULL;
     }
 
@@ -4834,18 +4834,18 @@ Return Value:
 
         NewDriverNode->Next = NULL;
 
-        if(DriverNode->NumCompatIds) {
+        if (DriverNode->NumCompatIds) {
 
             // Then allocate an array to contain them.
 
-            if(NewDriverNode->CompatIdList = MyMalloc(DriverNode->NumCompatIds * sizeof(LONG))) {
+            if (NewDriverNode->CompatIdList = MyMalloc(DriverNode->NumCompatIds * sizeof(LONG))) {
 
                 FreeCompatIdList = TRUE;
 
                 CopyMemory(NewDriverNode->CompatIdList,
                            DriverNode->CompatIdList,
                            DriverNode->NumCompatIds * sizeof(LONG)
-                          );
+                );
 
             } else {
                 MyFree(NewDriverNode);
@@ -4854,7 +4854,7 @@ Return Value:
         }
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
-        if(FreeCompatIdList) {
+        if (FreeCompatIdList) {
             MyFree(NewDriverNode->CompatIdList);
         }
         MyFree(NewDriverNode);
@@ -4869,7 +4869,7 @@ BOOL
 WINAPI
 SetupDiCancelDriverInfoSearch(
     IN HDEVINFO DeviceInfoSet
-    )
+)
 /*++
 
 Routine Description:
@@ -4898,7 +4898,7 @@ Return Value:
     PDRVSEARCH_INPROGRESS_NODE DrvSearchNode;
     HANDLE SearchCancelledEvent;
 
-    if(!LockDrvSearchInProgressList(&GlobalDrvSearchInProgressList)) {
+    if (!LockDrvSearchInProgressList(&GlobalDrvSearchInProgressList)) {
 
         // Uh-oh!  We're going away!
 
@@ -4909,11 +4909,11 @@ Return Value:
 
         // Step through the list, looking for a node that matches our HDEVINFO.
 
-        for(DrvSearchNode = GlobalDrvSearchInProgressList.DrvSearchHead;
-            DrvSearchNode;
-            DrvSearchNode = DrvSearchNode->Next) {
+        for (DrvSearchNode = GlobalDrvSearchInProgressList.DrvSearchHead;
+             DrvSearchNode;
+             DrvSearchNode = DrvSearchNode->Next) {
 
-            if(DrvSearchNode->DeviceInfoSet == DeviceInfoSet) {
+            if (DrvSearchNode->DeviceInfoSet == DeviceInfoSet) {
 
                 // We found the node--therefore, this devinfo set is currently
                 // tied up with a driver list search.  Set the 'CancelSearch' flag,
@@ -4936,7 +4936,7 @@ Return Value:
 
     UnlockDrvSearchInProgressList(&GlobalDrvSearchInProgressList);
 
-    if(Err == NO_ERROR) {
+    if (Err == NO_ERROR) {
 
         // We've signalled the other thread to abort--now wait for it to respond.
 
@@ -4953,7 +4953,7 @@ clean0:
 BOOL
 InitDrvSearchInProgressList(
     VOID
-    )
+)
 /*++
 
 Routine Description:
@@ -4980,7 +4980,7 @@ Return Value:
 BOOL
 DestroyDrvSearchInProgressList(
     VOID
-    )
+)
 /*++
 
 Routine Description:
@@ -5001,7 +5001,7 @@ Return Value:
 {
     PDRVSEARCH_INPROGRESS_NODE DriverSearchNode;
 
-    if(LockDrvSearchInProgressList(&GlobalDrvSearchInProgressList)) {
+    if (LockDrvSearchInProgressList(&GlobalDrvSearchInProgressList)) {
 
         // We would hope that this list is empty, but that may not be the case.
         // We will traverse this list, and signal the event for each node we find.
@@ -5011,10 +5011,9 @@ Return Value:
         // lies to free it.
 
         try {
-            for(DriverSearchNode = GlobalDrvSearchInProgressList.DrvSearchHead;
-                DriverSearchNode;
-                DriverSearchNode = DriverSearchNode->Next)
-            {
+            for (DriverSearchNode = GlobalDrvSearchInProgressList.DrvSearchHead;
+                 DriverSearchNode;
+                 DriverSearchNode = DriverSearchNode->Next) {
                 SetEvent(DriverSearchNode->SearchCancelledEvent);
             }
         } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -5032,7 +5031,7 @@ Return Value:
 BOOL
 ExtractDrvSearchInProgressNode(
     PDRVSEARCH_INPROGRESS_NODE Node
-    )
+)
 /*++
 
 Routine Description:
@@ -5055,7 +5054,7 @@ Return Value:
     PDRVSEARCH_INPROGRESS_NODE PrevNode, CurNode;
     BOOL b;
 
-    if(!LockDrvSearchInProgressList(&GlobalDrvSearchInProgressList)) {
+    if (!LockDrvSearchInProgressList(&GlobalDrvSearchInProgressList)) {
 
         // This should only happen if we're in the middle of a DLL_PROCESS_DETACH.
         // In this case, the clean-up code in CommonProcessAttach(FALSE) will signal
@@ -5070,11 +5069,11 @@ Return Value:
 
         // Search through the list, looking for our node.
 
-        for(CurNode = GlobalDrvSearchInProgressList.DrvSearchHead, PrevNode = NULL;
-            CurNode;
-            PrevNode = CurNode, CurNode = CurNode->Next) {
+        for (CurNode = GlobalDrvSearchInProgressList.DrvSearchHead, PrevNode = NULL;
+             CurNode;
+             PrevNode = CurNode, CurNode = CurNode->Next) {
 
-            if(CurNode == Node) {
+            if (CurNode == Node) {
 
                 // We've found the specified node in the global list.
 
@@ -5082,7 +5081,7 @@ Return Value:
             }
         }
 
-        if(!CurNode) {
+        if (!CurNode) {
 
             // The node wasn't in the list--probably because some kind of exception occurred
             // before it could be linked in.  Since it wasn't in the list, no other thread
@@ -5091,7 +5090,7 @@ Return Value:
             goto clean0;
         }
 
-        if(CurNode->CancelSearch) {
+        if (CurNode->CancelSearch) {
             b = TRUE;
             SetEvent(CurNode->SearchCancelledEvent);
         }
@@ -5099,13 +5098,13 @@ Return Value:
 
         // Remove this node from the linked list.
 
-        if(PrevNode) {
+        if (PrevNode) {
             PrevNode->Next = CurNode->Next;
         } else {
             GlobalDrvSearchInProgressList.DrvSearchHead = CurNode->Next;
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
 

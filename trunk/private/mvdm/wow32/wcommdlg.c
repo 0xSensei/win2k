@@ -239,11 +239,7 @@ WCD32CommonDialogProc(HWND       hdlg,
                       PCOMMDLGTD pCTD,
                       VPVOID     vpfnHook);
 
-UINT APIENTRY
-WCD32PrintSetupDialogProc(HWND   hdlg,
-                          UINT   uMsg,
-                          WPARAM uParam,
-                          LPARAM lParam);
+UINT APIENTRY WCD32PrintSetupDialogProc(HWND   hdlg, UINT   uMsg, WPARAM uParam, LPARAM lParam);
 
 UINT APIENTRY
 WCD32DialogProc(HWND   hdlg,
@@ -520,24 +516,15 @@ Routine Description:
 
 
 
-UINT APIENTRY
-WCD32PrintSetupDialogProc(HWND hdlg,
-                          UINT uMsg,
-                          WPARAM uParam,
-                          LPARAM lParam)
+UINT APIENTRY WCD32PrintSetupDialogProc(HWND hdlg, UINT uMsg, WPARAM uParam, LPARAM lParam)
 /*++
-
 Routine Description:
-
     This is the hook proc used by PrintSetup.  It is only used when
     the Setup button on the Print dialog directly creates the PrintSetup
-    dialog.  We find the correct TD by looking for the TD of our owner
-    window (which is the print dialog)
+    dialog.  We find the correct TD by looking for the TD of our owner window (which is the print dialog)
 
     It calls the common dialog proc to do the rest of the work.
-
 --*/
-
 {
     PCOMMDLGTD pTD;
 

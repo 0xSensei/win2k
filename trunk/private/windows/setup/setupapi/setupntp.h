@@ -429,15 +429,12 @@ ApplyNewVolatileDirIdsToInfs(
     IN PLOADED_INF Inf        OPTIONAL
     );
 
-PCTSTR
-pSetupDirectoryIdToPathEx(
-    IN     PCTSTR  DirectoryId,        OPTIONAL
+PCTSTR pSetupDirectoryIdToPathEx(IN     PCTSTR  DirectoryId,        OPTIONAL
     IN OUT PUINT   DirectoryIdInt,     OPTIONAL
     IN     PCTSTR  SubDirectory,       OPTIONAL
     IN     PCTSTR  InfSourcePath,      OPTIONAL
     IN OUT PCTSTR *OsLoaderPath,       OPTIONAL
-    OUT    PBOOL   VolatileSystemDirId OPTIONAL
-    );
+    OUT    PBOOL   VolatileSystemDirId OPTIONAL);
 
 PCTSTR
 pGetPathFromDirId(

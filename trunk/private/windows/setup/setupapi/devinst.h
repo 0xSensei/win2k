@@ -40,64 +40,64 @@ Revision History:
 // The content of the following strings is defined in regstr.h:
 
 extern CONST TCHAR pszNoUseClass[SIZECHARS(REGSTR_VAL_NOUSECLASS)],
-                   pszNoInstallClass[SIZECHARS(REGSTR_VAL_NOINSTALLCLASS)],
-                   pszNoDisplayClass[SIZECHARS(REGSTR_VAL_NODISPLAYCLASS)],
-                   pszDeviceDesc[SIZECHARS(REGSTR_VAL_DEVDESC)],
-                   pszDevicePath[SIZECHARS(REGSTR_VAL_DEVICEPATH)],
-                   pszPathSetup[SIZECHARS(REGSTR_PATH_SETUP)],
-                   pszKeySetup[SIZECHARS(REGSTR_KEY_SETUP)],
-                   pszPathRunOnce[SIZECHARS(REGSTR_PATH_RUNONCE)],
-                   pszSourcePath[SIZECHARS(REGSTR_VAL_SRCPATH)],
-                   pszSvcPackPath[SIZECHARS(REGSTR_VAL_SVCPAKSRCPATH)],
-                   pszDriverCachePath[SIZECHARS(REGSTR_VAL_DRIVERCACHEPATH)],
-                   pszBootDir[SIZECHARS(REGSTR_VAL_BOOTDIR)],
-                   pszInsIcon[SIZECHARS(REGSTR_VAL_INSICON)],
-                   pszInstaller32[SIZECHARS(REGSTR_VAL_INSTALLER_32)],
-                   pszEnumPropPages32[SIZECHARS(REGSTR_VAL_ENUMPROPPAGES_32)],
-                   pszInfPath[SIZECHARS(REGSTR_VAL_INFPATH)],
-                   pszInfSection[SIZECHARS(REGSTR_VAL_INFSECTION)],
-                   pszDrvDesc[SIZECHARS(REGSTR_VAL_DRVDESC)],
-                   pszHardwareID[SIZECHARS(REGSTR_VAL_HARDWAREID)],
-                   pszCompatibleIDs[SIZECHARS(REGSTR_VAL_COMPATIBLEIDS)],
-                   pszDriver[SIZECHARS(REGSTR_VAL_DRIVER)],
-                   pszConfigFlags[SIZECHARS(REGSTR_VAL_CONFIGFLAGS)],
-                   pszMfg[SIZECHARS(REGSTR_VAL_MFG)],
-                   pszService[SIZECHARS(REGSTR_VAL_SERVICE)],
-                   pszProviderName[SIZECHARS(REGSTR_VAL_PROVIDER_NAME)],
-                   pszFriendlyName[SIZECHARS(REGSTR_VAL_FRIENDLYNAME)],
-                   pszServicesRegPath[SIZECHARS(REGSTR_PATH_SERVICES)],
-                   pszLegacyInfOption[SIZECHARS(REGSTR_VAL_LEGACYINFOPT)],
-                   pszInfSectionExt[SIZECHARS(REGSTR_VAL_INFSECTIONEXT)],
-                   pszDeviceClassesPath[SIZECHARS(REGSTR_PATH_DEVICE_CLASSES)],
-                   pszDeviceInstance[SIZECHARS(REGSTR_VAL_DEVICE_INSTANCE)],
-                   pszDefault[SIZECHARS(REGSTR_VAL_DEFAULT)],
-                   pszControl[SIZECHARS(REGSTR_KEY_CONTROL)],
-                   pszLinked[SIZECHARS(REGSTR_VAL_LINKED)],
-                   pszDeviceParameters[SIZECHARS(REGSTR_KEY_DEVICEPARAMETERS)],
-                   pszLocationInformation[SIZECHARS(REGSTR_VAL_LOCATION_INFORMATION)],
-                   pszCapabilities[SIZECHARS(REGSTR_VAL_CAPABILITIES)],
-                   pszUiNumber[SIZECHARS(REGSTR_VAL_UI_NUMBER)],
-                   pszUpperFilters[SIZECHARS(REGSTR_VAL_UPPERFILTERS)],
-                   pszLowerFilters[SIZECHARS(REGSTR_VAL_LOWERFILTERS)],
-                   pszMatchingDeviceId[SIZECHARS(REGSTR_VAL_MATCHINGDEVID)],
-                   pszBasicProperties32[SIZECHARS(REGSTR_VAL_BASICPROPERTIES_32)],
-                   pszCoInstallers32[SIZECHARS(REGSTR_VAL_COINSTALLERS_32)],
-                   pszPathCoDeviceInstallers[SIZECHARS(REGSTR_PATH_CODEVICEINSTALLERS)],
-                   pszSystem[SIZECHARS(REGSTR_KEY_SYSTEM)],
-                   pszDrvSignPath[SIZECHARS(REGSTR_PATH_DRIVERSIGN)],
-                   pszNonDrvSignPath[SIZECHARS(REGSTR_PATH_NONDRIVERSIGN)],
-                   pszDrvSignPolicyPath[SIZECHARS(REGSTR_PATH_DRIVERSIGN_POLICY)],
-                   pszNonDrvSignPolicyPath[SIZECHARS(REGSTR_PATH_NONDRIVERSIGN_POLICY)],
-                   pszDrvSignPolicyValue[SIZECHARS(REGSTR_VAL_POLICY)],
-                   pszDrvSignBehaviorOnFailedVerifyDS[SIZECHARS(REGSTR_VAL_BEHAVIOR_ON_FAILED_VERIFY)],
-                   pszDriverDate[SIZECHARS(REGSTR_VAL_DRIVERDATE)],
-                   pszDriverDateData[SIZECHARS(REGSTR_VAL_DRIVERDATEDATA)],
-                   pszDriverVersion[SIZECHARS(REGSTR_VAL_DRIVERVERSION)],
-                   pszDevSecurity[SIZECHARS(REGSTR_VAL_DEVICE_SECURITY_DESCRIPTOR)],
-                   pszDevType[SIZECHARS(REGSTR_VAL_DEVICE_TYPE)],
-                   pszExclusive[SIZECHARS(REGSTR_VAL_DEVICE_EXCLUSIVE)],
-                   pszCharacteristics[SIZECHARS(REGSTR_VAL_DEVICE_CHARACTERISTICS)],
-                   pszUiNumberDescFormat[SIZECHARS(REGSTR_VAL_UI_NUMBER_DESC_FORMAT)];
+pszNoInstallClass[SIZECHARS(REGSTR_VAL_NOINSTALLCLASS)],
+pszNoDisplayClass[SIZECHARS(REGSTR_VAL_NODISPLAYCLASS)],
+pszDeviceDesc[SIZECHARS(REGSTR_VAL_DEVDESC)],
+pszDevicePath[SIZECHARS(REGSTR_VAL_DEVICEPATH)],
+pszPathSetup[SIZECHARS(REGSTR_PATH_SETUP)],
+pszKeySetup[SIZECHARS(REGSTR_KEY_SETUP)],
+pszPathRunOnce[SIZECHARS(REGSTR_PATH_RUNONCE)],
+pszSourcePath[SIZECHARS(REGSTR_VAL_SRCPATH)],
+pszSvcPackPath[SIZECHARS(REGSTR_VAL_SVCPAKSRCPATH)],
+pszDriverCachePath[SIZECHARS(REGSTR_VAL_DRIVERCACHEPATH)],
+pszBootDir[SIZECHARS(REGSTR_VAL_BOOTDIR)],
+pszInsIcon[SIZECHARS(REGSTR_VAL_INSICON)],
+pszInstaller32[SIZECHARS(REGSTR_VAL_INSTALLER_32)],
+pszEnumPropPages32[SIZECHARS(REGSTR_VAL_ENUMPROPPAGES_32)],
+pszInfPath[SIZECHARS(REGSTR_VAL_INFPATH)],
+pszInfSection[SIZECHARS(REGSTR_VAL_INFSECTION)],
+pszDrvDesc[SIZECHARS(REGSTR_VAL_DRVDESC)],
+pszHardwareID[SIZECHARS(REGSTR_VAL_HARDWAREID)],
+pszCompatibleIDs[SIZECHARS(REGSTR_VAL_COMPATIBLEIDS)],
+pszDriver[SIZECHARS(REGSTR_VAL_DRIVER)],
+pszConfigFlags[SIZECHARS(REGSTR_VAL_CONFIGFLAGS)],
+pszMfg[SIZECHARS(REGSTR_VAL_MFG)],
+pszService[SIZECHARS(REGSTR_VAL_SERVICE)],
+pszProviderName[SIZECHARS(REGSTR_VAL_PROVIDER_NAME)],
+pszFriendlyName[SIZECHARS(REGSTR_VAL_FRIENDLYNAME)],
+pszServicesRegPath[SIZECHARS(REGSTR_PATH_SERVICES)],
+pszLegacyInfOption[SIZECHARS(REGSTR_VAL_LEGACYINFOPT)],
+pszInfSectionExt[SIZECHARS(REGSTR_VAL_INFSECTIONEXT)],
+pszDeviceClassesPath[SIZECHARS(REGSTR_PATH_DEVICE_CLASSES)],
+pszDeviceInstance[SIZECHARS(REGSTR_VAL_DEVICE_INSTANCE)],
+pszDefault[SIZECHARS(REGSTR_VAL_DEFAULT)],
+pszControl[SIZECHARS(REGSTR_KEY_CONTROL)],
+pszLinked[SIZECHARS(REGSTR_VAL_LINKED)],
+pszDeviceParameters[SIZECHARS(REGSTR_KEY_DEVICEPARAMETERS)],
+pszLocationInformation[SIZECHARS(REGSTR_VAL_LOCATION_INFORMATION)],
+pszCapabilities[SIZECHARS(REGSTR_VAL_CAPABILITIES)],
+pszUiNumber[SIZECHARS(REGSTR_VAL_UI_NUMBER)],
+pszUpperFilters[SIZECHARS(REGSTR_VAL_UPPERFILTERS)],
+pszLowerFilters[SIZECHARS(REGSTR_VAL_LOWERFILTERS)],
+pszMatchingDeviceId[SIZECHARS(REGSTR_VAL_MATCHINGDEVID)],
+pszBasicProperties32[SIZECHARS(REGSTR_VAL_BASICPROPERTIES_32)],
+pszCoInstallers32[SIZECHARS(REGSTR_VAL_COINSTALLERS_32)],
+pszPathCoDeviceInstallers[SIZECHARS(REGSTR_PATH_CODEVICEINSTALLERS)],
+pszSystem[SIZECHARS(REGSTR_KEY_SYSTEM)],
+pszDrvSignPath[SIZECHARS(REGSTR_PATH_DRIVERSIGN)],
+pszNonDrvSignPath[SIZECHARS(REGSTR_PATH_NONDRIVERSIGN)],
+pszDrvSignPolicyPath[SIZECHARS(REGSTR_PATH_DRIVERSIGN_POLICY)],
+pszNonDrvSignPolicyPath[SIZECHARS(REGSTR_PATH_NONDRIVERSIGN_POLICY)],
+pszDrvSignPolicyValue[SIZECHARS(REGSTR_VAL_POLICY)],
+pszDrvSignBehaviorOnFailedVerifyDS[SIZECHARS(REGSTR_VAL_BEHAVIOR_ON_FAILED_VERIFY)],
+pszDriverDate[SIZECHARS(REGSTR_VAL_DRIVERDATE)],
+pszDriverDateData[SIZECHARS(REGSTR_VAL_DRIVERDATEDATA)],
+pszDriverVersion[SIZECHARS(REGSTR_VAL_DRIVERVERSION)],
+pszDevSecurity[SIZECHARS(REGSTR_VAL_DEVICE_SECURITY_DESCRIPTOR)],
+pszDevType[SIZECHARS(REGSTR_VAL_DEVICE_TYPE)],
+pszExclusive[SIZECHARS(REGSTR_VAL_DEVICE_EXCLUSIVE)],
+pszCharacteristics[SIZECHARS(REGSTR_VAL_DEVICE_CHARACTERISTICS)],
+pszUiNumberDescFormat[SIZECHARS(REGSTR_VAL_UI_NUMBER_DESC_FORMAT)];
 
 
 
@@ -130,30 +130,30 @@ extern CONST TCHAR pszNoUseClass[SIZECHARS(REGSTR_VAL_NOUSECLASS)],
 #define DISTR_DRIVER_SIGNING_CLASSES      (TEXT("DriverSigningClasses"))
 
 extern CONST TCHAR pszInfWildcard[SIZECHARS(DISTR_INF_WILDCARD)],
-                   pszOemInfWildcard[SIZECHARS(DISTR_OEMINF_WILDCARD)],
-                   pszCiDefaultProc[SIZECHARS(DISTR_CI_DEFAULTPROC)],
-                   pszSpaceLparen[SIZECHARS(DISTR_SPACE_LPAREN)],
-                   pszRparen[SIZECHARS(DISTR_RPAREN)],
-                   pszUniqueSubKey[SIZECHARS(DISTR_UNIQUE_SUBKEY)],
-                   pszOemInfGenerate[SIZECHARS(DISTR_OEMINF_GENERATE)],
-                   pszOemInfDefaultPath[SIZECHARS(DISTR_OEMINF_DEFAULTPATH)],
-                   pszDefaultService[SIZECHARS(DISTR_DEFAULT_SERVICE)],
-                   pszGuidNull[SIZECHARS(DISTR_GUID_NULL)],
-                   pszEventLog[SIZECHARS(DISTR_EVENTLOG)],
-                   pszGroupOrderListPath[SIZECHARS(DISTR_GROUPORDERLIST_PATH)],
-                   pszServiceGroupOrderPath[SIZECHARS(DISTR_SERVICEGROUPORDER_PATH)],
-                   pszOptions[SIZECHARS(DISTR_OPTIONS)],
-                   pszOptionsText[SIZECHARS(DISTR_OPTIONSTEXT)],
-                   pszLanguagesSupported[SIZECHARS(DISTR_LANGUAGESSUPPORTED)],
-                   pszRunOnceExe[SIZECHARS(DISTR_RUNONCE_EXE)],
-                   pszGrpConv[SIZECHARS(DISTR_GRPCONV)],
-                   pszGrpConvNoUi[SIZECHARS(DISTR_GRPCONV_NOUI)],
-                   pszDefaultSystemPartition[SIZECHARS(DISTR_DEFAULT_SYSPART)],
-                   pszBasicPropDefaultProc[SIZECHARS(DISTR_BASICPROP_DEFAULTPROC)],
-                   pszEnumPropDefaultProc[SIZECHARS(DISTR_ENUMPROP_DEFAULTPROC)],
-                   pszCoInstallerDefaultProc[SIZECHARS(DISTR_CODEVICEINSTALL_DEFAULTPROC)],
-                   pszDriverObjectPathPrefix[SIZECHARS(DISTR_DRIVER_OBJECT_PATH_PREFIX)],
-                   pszDriverSigningClasses[SIZECHARS(DISTR_DRIVER_SIGNING_CLASSES)];
+pszOemInfWildcard[SIZECHARS(DISTR_OEMINF_WILDCARD)],
+pszCiDefaultProc[SIZECHARS(DISTR_CI_DEFAULTPROC)],
+pszSpaceLparen[SIZECHARS(DISTR_SPACE_LPAREN)],
+pszRparen[SIZECHARS(DISTR_RPAREN)],
+pszUniqueSubKey[SIZECHARS(DISTR_UNIQUE_SUBKEY)],
+pszOemInfGenerate[SIZECHARS(DISTR_OEMINF_GENERATE)],
+pszOemInfDefaultPath[SIZECHARS(DISTR_OEMINF_DEFAULTPATH)],
+pszDefaultService[SIZECHARS(DISTR_DEFAULT_SERVICE)],
+pszGuidNull[SIZECHARS(DISTR_GUID_NULL)],
+pszEventLog[SIZECHARS(DISTR_EVENTLOG)],
+pszGroupOrderListPath[SIZECHARS(DISTR_GROUPORDERLIST_PATH)],
+pszServiceGroupOrderPath[SIZECHARS(DISTR_SERVICEGROUPORDER_PATH)],
+pszOptions[SIZECHARS(DISTR_OPTIONS)],
+pszOptionsText[SIZECHARS(DISTR_OPTIONSTEXT)],
+pszLanguagesSupported[SIZECHARS(DISTR_LANGUAGESSUPPORTED)],
+pszRunOnceExe[SIZECHARS(DISTR_RUNONCE_EXE)],
+pszGrpConv[SIZECHARS(DISTR_GRPCONV)],
+pszGrpConvNoUi[SIZECHARS(DISTR_GRPCONV_NOUI)],
+pszDefaultSystemPartition[SIZECHARS(DISTR_DEFAULT_SYSPART)],
+pszBasicPropDefaultProc[SIZECHARS(DISTR_BASICPROP_DEFAULTPROC)],
+pszEnumPropDefaultProc[SIZECHARS(DISTR_ENUMPROP_DEFAULTPROC)],
+pszCoInstallerDefaultProc[SIZECHARS(DISTR_CODEVICEINSTALL_DEFAULTPROC)],
+pszDriverObjectPathPrefix[SIZECHARS(DISTR_DRIVER_OBJECT_PATH_PREFIX)],
+pszDriverSigningClasses[SIZECHARS(DISTR_DRIVER_SIGNING_CLASSES)];
 
 
 // Global translation array for finding CM_DRP_* ordinal
@@ -175,7 +175,7 @@ extern STRING_TO_DATA InfRegValToClassRegProp[];
 // Define callback routine for EnumSingleInf,
 // EnumInfsInDirPathList & EnumInfsInDirectory.
 
-typedef BOOL (*PSP_ENUMINF_CALLBACK_ROUTINE) (
+typedef BOOL(*PSP_ENUMINF_CALLBACK_ROUTINE) (
     IN     PCTSTR               InfName,
     IN     LPWIN32_FIND_DATA    InfFileData,
     IN     PSETUP_LOG_CONTEXT   LogContext,
@@ -205,7 +205,7 @@ typedef BOOL (*PSP_ENUMINF_CALLBACK_ROUTINE) (
 
 // Define prototype of callback function supplied by class installers.
 
-typedef DWORD (CALLBACK* CLASS_INSTALL_PROC) (
+typedef DWORD(CALLBACK* CLASS_INSTALL_PROC) (
     IN DI_FUNCTION      InstallFunction,
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData OPTIONAL
@@ -215,7 +215,7 @@ typedef DWORD (CALLBACK* CLASS_INSTALL_PROC) (
 // Define prototype of property sheet provider function--basically, an
 // ExtensionPropSheetPageProc function with a (potentially) different name.
 
-typedef BOOL (CALLBACK* PROPSHEET_PROVIDER_PROC) (
+typedef BOOL(CALLBACK* PROPSHEET_PROVIDER_PROC) (
     IN PSP_PROPSHEETPAGE_REQUEST PropPageRequest,
     IN LPFNADDPROPSHEETPAGE lpfnAddPropSheetPageProc,
     IN LPARAM lParam
@@ -224,7 +224,7 @@ typedef BOOL (CALLBACK* PROPSHEET_PROVIDER_PROC) (
 
 // Define prototype of the co-installer function.
 
-typedef DWORD (CALLBACK* COINSTALLER_PROC) (
+typedef DWORD(CALLBACK* COINSTALLER_PROC) (
     IN     DI_FUNCTION               InstallFunction,
     IN     HDEVINFO                  DeviceInfoSet,
     IN     PSP_DEVINFO_DATA          DeviceInfoData, OPTIONAL
@@ -238,7 +238,7 @@ typedef DWORD (CALLBACK* COINSTALLER_PROC) (
 
 typedef struct _DRIVER_NODE {
 
-    struct _DRIVER_NODE *Next;
+    struct _DRIVER_NODE* Next;
 
     UINT Rank;
 
@@ -297,7 +297,7 @@ typedef struct _DRIVER_NODE {
     FILETIME  DriverDate;
     DWORDLONG DriverVersion;
 
-} DRIVER_NODE, *PDRIVER_NODE;
+} DRIVER_NODE, * PDRIVER_NODE;
 
 
 
@@ -306,7 +306,7 @@ typedef struct _DRIVER_NODE {
 typedef struct _COINSTALLER_NODE {
     HINSTANCE hinstCoInstaller;
     COINSTALLER_PROC CoInstallerEntryPoint;
-} COINSTALLER_NODE, *PCOINSTALLER_NODE;
+} COINSTALLER_NODE, * PCOINSTALLER_NODE;
 
 
 // Define structure containing context information about co-installer
@@ -316,7 +316,7 @@ typedef struct _COINSTALLER_INTERNAL_CONTEXT {
     COINSTALLER_CONTEXT_DATA Context;
     BOOL                     DoPostProcessing;
     COINSTALLER_PROC         CoInstallerEntryPoint;
-} COINSTALLER_INTERNAL_CONTEXT, *PCOINSTALLER_INTERNAL_CONTEXT;
+} COINSTALLER_INTERNAL_CONTEXT, * PCOINSTALLER_INTERNAL_CONTEXT;
 
 
 
@@ -406,7 +406,7 @@ typedef struct _DEVINSTALL_PARAM_BLOCK {
 
     PSETUP_LOG_CONTEXT LogContext;
 
-} DEVINSTALL_PARAM_BLOCK, *PDEVINSTALL_PARAM_BLOCK;
+} DEVINSTALL_PARAM_BLOCK, * PDEVINSTALL_PARAM_BLOCK;
 
 
 
@@ -415,7 +415,7 @@ typedef struct _DEVINSTALL_PARAM_BLOCK {
 
 typedef struct _INTERFACE_DEVICE_NODE {
 
-    struct _INTERFACE_DEVICE_NODE *Next;
+    struct _INTERFACE_DEVICE_NODE* Next;
 
 
     // String table ID for this interface device's symbolic link name.
@@ -439,16 +439,16 @@ typedef struct _INTERFACE_DEVICE_NODE {
     // may be enumerated outside the context of a device information element, and
     // we need to know how to get back to the owning device instance.
 
-    struct _DEVINFO_ELEM *OwningDevInfoElem;
+    struct _DEVINFO_ELEM* OwningDevInfoElem;
 
-} INTERFACE_DEVICE_NODE, *PINTERFACE_DEVICE_NODE;
+} INTERFACE_DEVICE_NODE, * PINTERFACE_DEVICE_NODE;
 
 typedef struct _INTERFACE_CLASS_LIST {
     LONG                   GuidIndex;
     PINTERFACE_DEVICE_NODE InterfaceDeviceNode;
     PINTERFACE_DEVICE_NODE InterfaceDeviceTruncateNode;  // used for rollback.
     DWORD                  InterfaceDeviceCount;
-} INTERFACE_CLASS_LIST, *PINTERFACE_CLASS_LIST;
+} INTERFACE_CLASS_LIST, * PINTERFACE_CLASS_LIST;
 
 
 
@@ -472,12 +472,12 @@ typedef struct _DEVINFO_ELEM {
     // specified element exists in the set.  This field should be zeroed
     // out when this element is destroyed.
 
-    struct _DEVICE_INFO_SET *ContainingDeviceInfoSet;
+    struct _DEVICE_INFO_SET* ContainingDeviceInfoSet;
 
 
     // Pointer to the next element in the set.
 
-    struct _DEVINFO_ELEM *Next;
+    struct _DEVINFO_ELEM* Next;
 
 
     // Specifies the device instance handle for this device.  This will
@@ -570,7 +570,7 @@ typedef struct _DEVINFO_ELEM {
 
     DWORD Context;
 
-} DEVINFO_ELEM, *PDEVINFO_ELEM;
+} DEVINFO_ELEM, * PDEVINFO_ELEM;
 
 
 
@@ -602,7 +602,7 @@ typedef struct _SP_DIALOGDATA {
     int             CurSelectionForSuccess; // If we have a pending successful return, what is the
                                             // listbox index for the successful selection?
 
-} SP_DIALOGDATA, *PSP_DIALOGDATA;
+} SP_DIALOGDATA, * PSP_DIALOGDATA;
 
 
 // Flags for SP_DIALOGDATA.flags:
@@ -636,7 +636,7 @@ typedef struct _NEWDEVWIZ_DATA {
     BOOL                  bInit;
     UINT_PTR              idTimer;
 
-} NEWDEVWIZ_DATA, *PNEWDEVWIZ_DATA;
+} NEWDEVWIZ_DATA, * PNEWDEVWIZ_DATA;
 
 
 // Define wizard page object structure used to ensure that wizard page
@@ -644,13 +644,13 @@ typedef struct _NEWDEVWIZ_DATA {
 
 typedef struct _WIZPAGE_OBJECT {
 
-    struct _WIZPAGE_OBJECT *Next;
+    struct _WIZPAGE_OBJECT* Next;
 
     DWORD RefCount;
 
     PNEWDEVWIZ_DATA ndwData;
 
-} WIZPAGE_OBJECT, *PWIZPAGE_OBJECT;
+} WIZPAGE_OBJECT, * PWIZPAGE_OBJECT;
 
 
 
@@ -660,7 +660,7 @@ typedef struct _WIZPAGE_OBJECT {
 
 typedef struct _DRIVER_LIST_OBJECT {
 
-    struct _DRIVER_LIST_OBJECT *Next;
+    struct _DRIVER_LIST_OBJECT* Next;
 
     DWORD RefCount;
 
@@ -687,7 +687,7 @@ typedef struct _DRIVER_LIST_OBJECT {
 
     PDRIVER_NODE DriverListHead;
 
-} DRIVER_LIST_OBJECT, *PDRIVER_LIST_OBJECT;
+} DRIVER_LIST_OBJECT, * PDRIVER_LIST_OBJECT;
 
 
 
@@ -698,12 +698,12 @@ typedef struct _DRIVER_LIST_OBJECT {
 
 typedef struct _MODULE_HANDLE_LIST_NODE {
 
-    struct _MODULE_HANDLE_LIST_NODE *Next;
+    struct _MODULE_HANDLE_LIST_NODE* Next;
 
     DWORD ModuleCount;
     HINSTANCE ModuleList[ANYSIZE_ARRAY];
 
-} MODULE_HANDLE_LIST_NODE, *PMODULE_HANDLE_LIST_NODE;
+} MODULE_HANDLE_LIST_NODE, * PMODULE_HANDLE_LIST_NODE;
 
 
 // Define structure for the internal representation of a
@@ -816,7 +816,7 @@ typedef struct _DEVICE_INFO_SET {
 
     MYLOCK Lock;
 
-} DEVICE_INFO_SET, *PDEVICE_INFO_SET;
+} DEVICE_INFO_SET, * PDEVICE_INFO_SET;
 
 #define LockDeviceInfoSet(d)   BeginSynchronizedAccess(&((d)->Lock))
 
@@ -831,11 +831,11 @@ typedef struct _DEVICE_INFO_SET {
 
 typedef struct _CLASSICON {
 
-    CONST GUID        *ClassGuid;
+    CONST GUID* ClassGuid;
     UINT               MiniBitmapIndex;
-    struct _CLASSICON *Next;
+    struct _CLASSICON* Next;
 
-} CLASSICON, *PCLASSICON;
+} CLASSICON, * PCLASSICON;
 
 typedef struct _MINI_ICON_LIST {
 
@@ -869,7 +869,7 @@ typedef struct _MINI_ICON_LIST {
 
     MYLOCK Lock;
 
-} MINI_ICON_LIST, *PMINI_ICON_LIST;
+} MINI_ICON_LIST, * PMINI_ICON_LIST;
 
 #define LockMiniIconList(d)   BeginSynchronizedAccess(&((d)->Lock))
 #define UnlockMiniIconList(d) EndSynchronizedAccess(&((d)->Lock))
@@ -904,7 +904,7 @@ typedef struct _CLASS_IMAGE_LIST {
 
     MYLOCK      Lock;
 
-} CLASS_IMAGE_LIST, *PCLASS_IMAGE_LIST;
+} CLASS_IMAGE_LIST, * PCLASS_IMAGE_LIST;
 
 
 #define LockImageList(d)   BeginSynchronizedAccess(&((d)->Lock))
@@ -913,7 +913,7 @@ typedef struct _CLASS_IMAGE_LIST {
 
 typedef struct _DRVSEARCH_INPROGRESS_NODE {
 
-    struct _DRVSEARCH_INPROGRESS_NODE *Next;
+    struct _DRVSEARCH_INPROGRESS_NODE* Next;
 
 
     // Handle of device information set for which driver list is
@@ -935,7 +935,7 @@ typedef struct _DRVSEARCH_INPROGRESS_NODE {
 
     HANDLE SearchCancelledEvent;
 
-} DRVSEARCH_INPROGRESS_NODE, *PDRVSEARCH_INPROGRESS_NODE;
+} DRVSEARCH_INPROGRESS_NODE, * PDRVSEARCH_INPROGRESS_NODE;
 
 typedef struct _DRVSEARCH_INPROGRESS_LIST {
 
@@ -950,7 +950,7 @@ typedef struct _DRVSEARCH_INPROGRESS_LIST {
 
     MYLOCK Lock;
 
-} DRVSEARCH_INPROGRESS_LIST, *PDRVSEARCH_INPROGRESS_LIST;
+} DRVSEARCH_INPROGRESS_LIST, * PDRVSEARCH_INPROGRESS_LIST;
 
 #define LockDrvSearchInProgressList(d)   BeginSynchronizedAccess(&((d)->Lock))
 #define UnlockDrvSearchInProgressList(d) EndSynchronizedAccess(&((d)->Lock))
@@ -967,63 +967,63 @@ extern DRVSEARCH_INPROGRESS_LIST GlobalDrvSearchInProgressList;
 PDEVICE_INFO_SET
 AllocateDeviceInfoSet(
     VOID
-    );
+);
 
 VOID
 DestroyDeviceInfoElement(
     IN HDEVINFO         hDevInfo,
     IN PDEVICE_INFO_SET pDeviceInfoSet,
     IN PDEVINFO_ELEM    DeviceInfoElement
-    );
+);
 
 DWORD
 DestroyDeviceInfoSet(
-    IN HDEVINFO         hDevInfo,      OPTIONAL
+    IN HDEVINFO         hDevInfo, OPTIONAL
     IN PDEVICE_INFO_SET pDeviceInfoSet
-    );
+);
 
 PDEVICE_INFO_SET
 AccessDeviceInfoSet(
     IN HDEVINFO DeviceInfoSet
-    );
+);
 
 PDEVICE_INFO_SET
 CloneDeviceInfoSet(
     IN HDEVINFO hDevInfo
-    );
+);
 
 PDEVICE_INFO_SET
 RollbackDeviceInfoSet(
     IN HDEVINFO hDevInfo,
     IN PDEVICE_INFO_SET ClonedDeviceInfoSet
-    );
+);
 
 PDEVICE_INFO_SET
 CommitDeviceInfoSet(
     IN HDEVINFO hDevInfo,
     IN PDEVICE_INFO_SET ClonedDeviceInfoSet
-    );
+);
 
 PDEVINFO_ELEM
 FindDevInfoByDevInst(
     IN  PDEVICE_INFO_SET  DeviceInfoSet,
     IN  DEVINST           DevInst,
-    OUT PDEVINFO_ELEM    *PrevDevInfoElem OPTIONAL
-    );
+    OUT PDEVINFO_ELEM* PrevDevInfoElem OPTIONAL
+);
 
 BOOL
 DevInfoDataFromDeviceInfoElement(
     IN  PDEVICE_INFO_SET DeviceInfoSet,
     IN  PDEVINFO_ELEM    DevInfoElem,
     OUT PSP_DEVINFO_DATA DeviceInfoData
-    );
+);
 
 PDEVINFO_ELEM
 FindAssociatedDevInfoElem(
     IN  PDEVICE_INFO_SET  DeviceInfoSet,
     IN  PSP_DEVINFO_DATA  DeviceInfoData,
-    OUT PDEVINFO_ELEM    *PreviousElement OPTIONAL
-    );
+    OUT PDEVINFO_ELEM* PreviousElement OPTIONAL
+);
 
 
 
@@ -1034,34 +1034,34 @@ CreateDriverNode(
     IN  UINT          Rank,
     IN  PCTSTR        DevDescription,
     IN  PCTSTR        DrvDescription,
-    IN  PCTSTR        ProviderName,   OPTIONAL
+    IN  PCTSTR        ProviderName, OPTIONAL
     IN  PCTSTR        MfgName,
     IN  PFILETIME     InfDate,
     IN  PCTSTR        InfFileName,
     IN  PCTSTR        InfSectionName,
     IN  PVOID         StringTable,
     IN  LONG          InfClassGuidIndex,
-    OUT PDRIVER_NODE *DriverNode
-    );
+    OUT PDRIVER_NODE* DriverNode
+);
 
 PDRIVER_LIST_OBJECT
 GetAssociatedDriverListObject(
     IN  PDRIVER_LIST_OBJECT  ObjectListHead,
     IN  PDRIVER_NODE         DriverListHead,
-    OUT PDRIVER_LIST_OBJECT *PrevDriverListObject OPTIONAL
-    );
+    OUT PDRIVER_LIST_OBJECT* PrevDriverListObject OPTIONAL
+);
 
 VOID
 DereferenceClassDriverList(
     IN PDEVICE_INFO_SET DeviceInfoSet,
     IN PDRIVER_NODE     DriverListHead OPTIONAL
-    );
+);
 
 VOID
 DestroyDriverNodes(
     IN PDRIVER_NODE DriverNode,
     IN PDEVICE_INFO_SET pDeviceInfoSet
-    );
+);
 
 BOOL
 DrvInfoDataFromDriverNode(
@@ -1069,22 +1069,22 @@ DrvInfoDataFromDriverNode(
     IN  PDRIVER_NODE     DriverNode,
     IN  DWORD            DriverType,
     OUT PSP_DRVINFO_DATA DriverInfoData
-    );
+);
 
 PDRIVER_NODE
 FindAssociatedDriverNode(
     IN  PDRIVER_NODE      DriverListHead,
     IN  PSP_DRVINFO_DATA  DriverInfoData,
-    OUT PDRIVER_NODE     *PreviousNode    OPTIONAL
-    );
+    OUT PDRIVER_NODE* PreviousNode    OPTIONAL
+);
 
 PDRIVER_NODE
 SearchForDriverNode(
     IN  PVOID             StringTable,
     IN  PDRIVER_NODE      DriverListHead,
     IN  PSP_DRVINFO_DATA  DriverInfoData,
-    OUT PDRIVER_NODE     *PreviousNode    OPTIONAL
-    );
+    OUT PDRIVER_NODE* PreviousNode    OPTIONAL
+);
 
 DWORD
 DrvInfoDetailsFromDriverNode(
@@ -1093,7 +1093,7 @@ DrvInfoDetailsFromDriverNode(
     OUT PSP_DRVINFO_DETAIL_DATA DriverInfoDetailData, OPTIONAL
     IN  DWORD                   BufferSize,
     OUT PDWORD                  RequiredSize          OPTIONAL
-    );
+);
 
 
 
@@ -1104,7 +1104,7 @@ GetDevInstallParams(
     IN  PDEVICE_INFO_SET        DeviceInfoSet,
     IN  PDEVINSTALL_PARAM_BLOCK DevInstParamBlock,
     OUT PSP_DEVINSTALL_PARAMS   DeviceInstallParams
-    );
+);
 
 DWORD
 GetClassInstallParams(
@@ -1112,7 +1112,7 @@ GetClassInstallParams(
     OUT PSP_CLASSINSTALL_HEADER ClassInstallParams, OPTIONAL
     IN  DWORD                   BufferSize,
     OUT PDWORD                  RequiredSize        OPTIONAL
-    );
+);
 
 DWORD
 SetDevInstallParams(
@@ -1120,35 +1120,35 @@ SetDevInstallParams(
     IN     PSP_DEVINSTALL_PARAMS   DeviceInstallParams,
     OUT    PDEVINSTALL_PARAM_BLOCK DevInstParamBlock,
     IN     BOOL                    MsgHandlerIsNativeCharWidth
-    );
+);
 
 DWORD
 SetClassInstallParams(
     IN OUT PDEVICE_INFO_SET        DeviceInfoSet,
-    IN     PSP_CLASSINSTALL_HEADER ClassInstallParams,    OPTIONAL
+    IN     PSP_CLASSINSTALL_HEADER ClassInstallParams, OPTIONAL
     IN     DWORD                   ClassInstallParamsSize,
     OUT    PDEVINSTALL_PARAM_BLOCK DevInstParamBlock
-    );
+);
 
 VOID
 DestroyInstallParamBlock(
-    IN HDEVINFO                hDevInfo,         OPTIONAL
+    IN HDEVINFO                hDevInfo, OPTIONAL
     IN PDEVICE_INFO_SET        pDeviceInfoSet,
-    IN PDEVINFO_ELEM           DevInfoElem,      OPTIONAL
+    IN PDEVINFO_ELEM           DevInfoElem, OPTIONAL
     IN PDEVINSTALL_PARAM_BLOCK InstallParamBlock
-    );
+);
 
 DWORD
 GetDrvInstallParams(
     IN  PDRIVER_NODE          DriverNode,
     OUT PSP_DRVINSTALL_PARAMS DriverInstallParams
-    );
+);
 
 DWORD
 SetDrvInstallParams(
     IN  PSP_DRVINSTALL_PARAMS DriverInstallParams,
     OUT PDRIVER_NODE          DriverNode
-    );
+);
 
 
 
@@ -1160,14 +1160,14 @@ SetDrvInstallParams(
 BOOL
 ValidateDeviceInstanceId(
     IN  PCTSTR DeviceInstanceId
-    );
+);
 
 VOID
 CopyFixedUpDeviceId(
     OUT PTSTR  DestinationString,
     IN  PCTSTR SourceString,
     IN  DWORD  SourceStringLen
-    );
+);
 
 #endif   // This functionality is performed by CM APIs.
 
@@ -1182,15 +1182,15 @@ AddMultiSzToStringTable(
     OUT PLONG   StringIdList,
     IN  DWORD   StringIdListSize,
     IN  BOOL    CaseSensitive,
-    OUT PTCHAR *UnprocessedBuffer    OPTIONAL
-    );
+    OUT PTCHAR* UnprocessedBuffer    OPTIONAL
+);
 
 LONG
 LookUpStringInDevInfoSet(
     IN HDEVINFO DeviceInfoSet,
     IN PTSTR    String,
     IN BOOL     CaseSensitive
-    );
+);
 
 
 
@@ -1204,7 +1204,7 @@ EnumSingleInf(
     IN     PSP_ENUMINF_CALLBACK_ROUTINE EnumInfCallback,
     IN     PSETUP_LOG_CONTEXT           LogContext,
     IN OUT PVOID                        Context
-    );
+);
 
 DWORD
 EnumInfsInDirPathList(
@@ -1214,7 +1214,7 @@ EnumInfsInDirPathList(
     IN     BOOL                         IgnoreNonCriticalErrors,
     IN     PSETUP_LOG_CONTEXT           LogContext,
     IN OUT PVOID                        Context
-    );
+);
 
 DWORD
 EnumInfsInDirectory(
@@ -1223,24 +1223,24 @@ EnumInfsInDirectory(
     IN     BOOL                         IgnoreNonCriticalErrors,
     IN     PSETUP_LOG_CONTEXT           LogContext,
     IN OUT PVOID                        Context
-    );
+);
 
 PTSTR
 GetFullyQualifiedMultiSzPathList(
     IN PCTSTR PathList
-    );
+);
 
 BOOL
 ShouldClassBeExcluded(
     IN LPGUID ClassGuid,
     IN BOOL   ExcludeNoInstallClass
-    );
+);
 
 BOOL
 ClassGuidFromInfVersionNode(
     IN  PINF_VERSION_NODE VersionNode,
     OUT LPGUID            ClassGuid
-    );
+);
 
 VOID
 AppendLoadIncludedInfs(
@@ -1248,30 +1248,30 @@ AppendLoadIncludedInfs(
     IN PCTSTR InfFileName,
     IN PCTSTR InfSectionName,
     IN BOOL   AppendLayoutInfs
-    );
+);
 
 DWORD
 InstallFromInfSectionAndNeededSections(
-    IN HWND              Owner,             OPTIONAL
+    IN HWND              Owner, OPTIONAL
     IN HINF              InfHandle,
     IN PCTSTR            SectionName,
     IN UINT              Flags,
-    IN HKEY              RelativeKeyRoot,   OPTIONAL
-    IN PCTSTR            SourceRootPath,    OPTIONAL
+    IN HKEY              RelativeKeyRoot, OPTIONAL
+    IN PCTSTR            SourceRootPath, OPTIONAL
     IN UINT              CopyFlags,
     IN PSP_FILE_CALLBACK MsgHandler,
-    IN PVOID             Context,           OPTIONAL
-    IN HDEVINFO          DeviceInfoSet,     OPTIONAL
-    IN PSP_DEVINFO_DATA  DeviceInfoData,    OPTIONAL
+    IN PVOID             Context, OPTIONAL
+    IN HDEVINFO          DeviceInfoSet, OPTIONAL
+    IN PSP_DEVINFO_DATA  DeviceInfoData, OPTIONAL
     IN HSPFILEQ          UserFileQ          OPTIONAL
-    );
+);
 
 DWORD
 MarkQueueForDeviceInstall(
     IN HSPFILEQ QueueHandle,
     IN HINF     DeviceInfHandle,
     IN PCTSTR   DeviceDesc       OPTIONAL
-    );
+);
 
 
 
@@ -1280,12 +1280,12 @@ MarkQueueForDeviceInstall(
 BOOL
 InitMiniIconList(
     VOID
-    );
+);
 
 BOOL
 DestroyMiniIconList(
     VOID
-    );
+);
 
 
 
@@ -1294,12 +1294,12 @@ DestroyMiniIconList(
 BOOL
 InitDrvSearchInProgressList(
     VOID
-    );
+);
 
 BOOL
 DestroyDrvSearchInProgressList(
     VOID
-    );
+);
 
 
 
@@ -1307,19 +1307,19 @@ DestroyDrvSearchInProgressList(
 
 DWORD
 GetModuleEntryPoint(
-    IN  HKEY                  hk,                  OPTIONAL
+    IN  HKEY                  hk, OPTIONAL
     IN  LPCTSTR               RegistryValue,
     IN  LPCTSTR               DefaultProcName,
-    OUT HINSTANCE            *phinst,
-    OUT FARPROC              *pEntryPoint,
-    OUT BOOL                 *pMustAbort,
+    OUT HINSTANCE* phinst,
+    OUT FARPROC* pEntryPoint,
+    OUT BOOL* pMustAbort,
     IN  PSETUP_LOG_CONTEXT    LogContext,
     IN  HWND                  Owner,
     IN  SetupapiVerifyProblem Problem,
-    IN  LPCTSTR               DeviceDesc,          OPTIONAL
+    IN  LPCTSTR               DeviceDesc, OPTIONAL
     IN  DWORD                 DriverSigningPolicy,
     IN  DWORD                 NoUI
-    );
+);
 
 
 // Define flags for InvalidateHelperModules
@@ -1332,7 +1332,7 @@ InvalidateHelperModules(
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
     IN DWORD            Flags
-    );
+);
 
 
 // Define flags for _SetupDiCallClassInstaller
@@ -1345,9 +1345,9 @@ BOOL
 _SetupDiCallClassInstaller(
     IN DI_FUNCTION      InstallFunction,
     IN HDEVINFO         DeviceInfoSet,
-    IN PSP_DEVINFO_DATA DeviceInfoData,      OPTIONAL
+    IN PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
     IN DWORD            Flags
-    );
+);
 
 
 
@@ -1355,11 +1355,11 @@ _SetupDiCallClassInstaller(
 
 DWORD
 SelectOEMDriver(
-    IN HWND             hwndParent,     OPTIONAL
+    IN HWND             hwndParent, OPTIONAL
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
     IN BOOL             IsWizard
-    );
+);
 
 
 
@@ -1372,13 +1372,13 @@ pSetupDeleteDevRegKeys(
     IN DWORD   HwProfile,
     IN DWORD   KeyType,
     IN BOOL    DeleteUserKeys
-    );
+);
 
 VOID
 GetRegSubkeysFromDeviceInterfaceName(
     IN OUT PTSTR  DeviceInterfaceName,
-    OUT    PTSTR *SubKeyName
-    );
+    OUT    PTSTR* SubKeyName
+);
 
 LONG
 OpenDeviceInterfaceSubKey(
@@ -1386,9 +1386,9 @@ OpenDeviceInterfaceSubKey(
     IN     PCTSTR DeviceInterfaceName,
     IN     REGSAM samDesired,
     OUT    PHKEY  phkResult,
-    OUT    PTSTR  OwningDevInstName,    OPTIONAL
+    OUT    PTSTR  OwningDevInstName, OPTIONAL
     IN OUT PDWORD OwningDevInstNameSize OPTIONAL
-    );
+);
 
 
 
@@ -1397,9 +1397,9 @@ OpenDeviceInterfaceSubKey(
 LONG
 AddOrGetGuidTableIndex(
     IN PDEVICE_INFO_SET  DeviceInfoSet,
-    IN CONST GUID       *ClassGuid,
+    IN CONST GUID* ClassGuid,
     IN BOOL              AddIfNotPresent
-    );
+);
 
 
 
@@ -1411,33 +1411,33 @@ AddOrGetInterfaceClassList(
     IN PDEVINFO_ELEM    DevInfoElem,
     IN LONG             InterfaceClassGuidIndex,
     IN BOOL             AddIfNotPresent
-    );
+);
 
 BOOL
 InterfaceDeviceDataFromNode(
     IN  PINTERFACE_DEVICE_NODE     InterfaceDeviceNode,
-    IN  CONST GUID                *InterfaceClassGuid,
+    IN  CONST GUID* InterfaceClassGuid,
     OUT PSP_DEVICE_INTERFACE_DATA  InterfaceDeviceData
-    );
+);
 
 PDEVINFO_ELEM
 FindDevInfoElemForInterfaceDevice(
     IN PDEVICE_INFO_SET          DeviceInfoSet,
     IN PSP_DEVICE_INTERFACE_DATA InterfaceDeviceData
-    );
+);
 
 
 
 // Service installation routines.
 
 typedef struct _SVCNAME_NODE {
-    struct _SVCNAME_NODE *Next;
+    struct _SVCNAME_NODE* Next;
     TCHAR Name[MAX_SERVICE_NAME_LEN];
     BOOL DeleteEventLog;
     TCHAR EventLogType[256];
     TCHAR EventLogName[256];
     DWORD Flags;
-} SVCNAME_NODE, *PSVCNAME_NODE;
+} SVCNAME_NODE, * PSVCNAME_NODE;
 
 
 // Define an additional (private) SPSVCINST flag for
@@ -1447,14 +1447,14 @@ typedef struct _SVCNAME_NODE {
 
 DWORD
 InstallNtService(
-    IN  PDEVINFO_ELEM    DevInfoElem,        OPTIONAL
+    IN  PDEVINFO_ELEM    DevInfoElem, OPTIONAL
     IN  HINF             hDeviceInf,
-    IN  PCTSTR                   InfFileName,            OPTIONAL
-    IN  PCTSTR           szSectionName,      OPTIONAL
-    OUT PSVCNAME_NODE   *ServicesToDelete,   OPTIONAL
+    IN  PCTSTR                   InfFileName, OPTIONAL
+    IN  PCTSTR           szSectionName, OPTIONAL
+    OUT PSVCNAME_NODE* ServicesToDelete, OPTIONAL
     IN  DWORD            Flags,
     OUT PBOOL            NullDriverInstalled
-    );
+);
 
 
 // Ansi/Unicode conversion routines.
@@ -1463,43 +1463,43 @@ DWORD
 pSetupDiDevInstParamsAnsiToUnicode(
     IN  PSP_DEVINSTALL_PARAMS_A AnsiDevInstParams,
     OUT PSP_DEVINSTALL_PARAMS_W UnicodeDevInstParams
-    );
+);
 
 DWORD
 pSetupDiDevInstParamsUnicodeToAnsi(
     IN  PSP_DEVINSTALL_PARAMS_W UnicodeDevInstParams,
     OUT PSP_DEVINSTALL_PARAMS_A AnsiDevInstParams
-    );
+);
 
 DWORD
 pSetupDiSelDevParamsAnsiToUnicode(
     IN  PSP_SELECTDEVICE_PARAMS_A AnsiSelDevParams,
     OUT PSP_SELECTDEVICE_PARAMS_W UnicodeSelDevParams
-    );
+);
 
 DWORD
 pSetupDiSelDevParamsUnicodeToAnsi(
     IN  PSP_SELECTDEVICE_PARAMS_W UnicodeSelDevParams,
     OUT PSP_SELECTDEVICE_PARAMS_A AnsiSelDevParams
-    );
+);
 
 DWORD
 pSetupDiDrvInfoDataAnsiToUnicode(
     IN  PSP_DRVINFO_DATA_A AnsiDrvInfoData,
     OUT PSP_DRVINFO_DATA_W UnicodeDrvInfoData
-    );
+);
 
 DWORD
 pSetupDiDrvInfoDataUnicodeToAnsi(
     IN  PSP_DRVINFO_DATA_W UnicodeDrvInfoData,
     OUT PSP_DRVINFO_DATA_A AnsiDrvInfoData
-    );
+);
 
 DWORD
 pSetupDiDevInfoSetDetailDataUnicodeToAnsi(
     IN  PSP_DEVINFO_LIST_DETAIL_DATA_W UnicodeDevInfoSetDetails,
     OUT PSP_DEVINFO_LIST_DETAIL_DATA_A AnsiDevInfoSetDetails
-    );
+);
 
 
 // Misc. utility routines
@@ -1508,17 +1508,17 @@ DWORD
 MapCrToSpError(
     IN CONFIGRET CmReturnCode,
     IN DWORD     Default
-    );
+);
 
 VOID
 SetDevnodeNeedsRebootProblemWithArg2(
     IN DEVINST  DevInst,
     IN HMACHINE hMachine,
     IN PSETUP_LOG_CONTEXT LogContext,
-    IN DWORD    Reason,                  OPTIONAL
-    IN ULONG_PTR Arg1,                   OPTIONAL
+    IN DWORD    Reason, OPTIONAL
+    IN ULONG_PTR Arg1, OPTIONAL
     IN ULONG_PTR Arg2                    OPTIONAL
-    );
+);
 
 #define SetDevnodeNeedsRebootProblemWithArg(DevInst,hMachine,LogContext,Reason,Arg) SetDevnodeNeedsRebootProblemWithArg2(DevInst,hMachine,LogContext,Reason,Arg,0)
 #define SetDevnodeNeedsRebootProblem(DevInst,hMachine,LogContext,Reason) SetDevnodeNeedsRebootProblemWithArg2(DevInst,hMachine,LogContext,Reason,0,0)
@@ -1526,7 +1526,7 @@ SetDevnodeNeedsRebootProblemWithArg2(
 BOOL
 GetBestDeviceDesc(
     IN  HDEVINFO         DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA DeviceInfoData,  OPTIONAL
+    IN  PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
     OUT PTSTR            DeviceDescBuffer
-    );
+);
 

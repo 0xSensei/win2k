@@ -286,8 +286,7 @@ static void saveIniSettings(HWND hDlg)
 
 */
 
-static void
-setupDialogControls(HWND hDlg)
+static void setupDialogControls(HWND hDlg)
 {
     int pos;
 

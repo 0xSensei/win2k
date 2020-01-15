@@ -25,14 +25,14 @@ pSetupOpenOrCreateDevRegKey(
     IN  BOOL             Create,
     IN  REGSAM           samDesired,
     OUT PHKEY            hDevRegKey
-    );
+);
 
 BOOL
 pSetupFindUniqueKey(
     IN HKEY   hkRoot,
     IN LPTSTR SubKey,
     IN ULONG  SubKeyLength
-    );
+);
 
 DWORD
 pSetupOpenOrCreateInterfaceDeviceRegKey(
@@ -42,22 +42,22 @@ pSetupOpenOrCreateInterfaceDeviceRegKey(
     IN  BOOL                      Create,
     IN  REGSAM                    samDesired,
     OUT PHKEY                     hInterfaceDeviceKey
-    );
+);
 
 DWORD
 pSetupDeleteInterfaceDeviceKey(
     IN HKEY                      hInterfaceClassKey,
     IN PDEVICE_INFO_SET          DeviceInfoSet,
     IN PSP_DEVICE_INTERFACE_DATA InterfaceDeviceData
-    );
+);
 
 
 HKEY
 WINAPI
 SetupDiOpenClassRegKey(
-    IN CONST GUID *ClassGuid, OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
     IN REGSAM      samDesired
-    )
+)
 /*
 
 Routine Description:
@@ -103,12 +103,12 @@ Remarks:
 HKEY
 WINAPI
 SetupDiOpenClassRegKeyExA(
-    IN CONST GUID *ClassGuid,   OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
     IN REGSAM      samDesired,
     IN DWORD       Flags,
     IN PCSTR       MachineName, OPTIONAL
     IN PVOID       Reserved
-    )
+)
 {
     PCWSTR UnicodeMachineName;
     DWORD rc;
@@ -116,24 +116,24 @@ SetupDiOpenClassRegKeyExA(
 
     hk = INVALID_HANDLE_VALUE;
 
-    if(MachineName) {
+    if (MachineName) {
         rc = CaptureAndConvertAnsiArg(MachineName, &UnicodeMachineName);
     } else {
         UnicodeMachineName = NULL;
         rc = NO_ERROR;
     }
 
-    if(rc == NO_ERROR) {
+    if (rc == NO_ERROR) {
 
         hk = SetupDiOpenClassRegKeyExW(ClassGuid,
                                        samDesired,
                                        Flags,
                                        UnicodeMachineName,
                                        Reserved
-                                      );
+        );
         rc = GetLastError();
 
-        if(UnicodeMachineName) {
+        if (UnicodeMachineName) {
             MyFree(UnicodeMachineName);
         }
     }
@@ -148,12 +148,12 @@ SetupDiOpenClassRegKeyExA(
 HKEY
 WINAPI
 SetupDiOpenClassRegKeyExW(
-    IN CONST GUID *ClassGuid,   OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
     IN REGSAM      samDesired,
     IN DWORD       Flags,
     IN PCWSTR      MachineName, OPTIONAL
     IN PVOID       Reserved
-    )
+)
 {
     UNREFERENCED_PARAMETER(ClassGuid);
     UNREFERENCED_PARAMETER(samDesired);
@@ -169,12 +169,12 @@ SetupDiOpenClassRegKeyExW(
 HKEY
 WINAPI
 SetupDiOpenClassRegKeyEx(
-    IN CONST GUID *ClassGuid,   OPTIONAL
+    IN CONST GUID* ClassGuid, OPTIONAL
     IN REGSAM      samDesired,
     IN DWORD       Flags,
     IN PCTSTR      MachineName, OPTIONAL
     IN PVOID       Reserved
-    )
+)
 /*
 
 Routine Description:
@@ -231,7 +231,7 @@ Remarks:
 
     // Make sure the user didn't pass us anything in the Reserved parameter.
 
-    if(Reserved) {
+    if (Reserved) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return INVALID_HANDLE_VALUE;
     }
@@ -240,8 +240,8 @@ Remarks:
     // Validate the flags (really, just an enum for now, but treated as
     // flags for future extensibility).
 
-    if((Flags & ~(DIOCR_INSTALLER | DIOCR_INTERFACE)) ||
-       ((Flags != DIOCR_INSTALLER) && (Flags != DIOCR_INTERFACE))) {
+    if ((Flags & ~(DIOCR_INSTALLER | DIOCR_INTERFACE)) ||
+        ((Flags != DIOCR_INSTALLER) && (Flags != DIOCR_INTERFACE))) {
 
         SetLastError(ERROR_INVALID_FLAGS);
         return INVALID_HANDLE_VALUE;
@@ -249,9 +249,9 @@ Remarks:
 
     try {
 
-        if(MachineName) {
+        if (MachineName) {
 
-            if(CR_SUCCESS != (cr = CM_Connect_Machine(MachineName, &hMachine))) {
+            if (CR_SUCCESS != (cr = CM_Connect_Machine(MachineName, &hMachine))) {
 
                 // Make sure machine handle is still invalid, so we won't
                 // try to disconnect later.
@@ -262,24 +262,23 @@ Remarks:
             }
         }
 
-        if((cr = CM_Open_Class_Key_Ex((LPGUID)ClassGuid,
-                                      NULL,
-                                      samDesired,
-                                      ClassGuid ? RegDisposition_OpenExisting
-                                                : RegDisposition_OpenAlways,
-                                      &hk,
-                                      (Flags & DIOCR_INSTALLER) ? CM_OPEN_CLASS_KEY_INSTALLER
-                                                                : CM_OPEN_CLASS_KEY_INTERFACE,
-                                      hMachine)) != CR_SUCCESS)
-        {
-            if(cr == CR_NO_SUCH_REGISTRY_KEY) {
+        if ((cr = CM_Open_Class_Key_Ex((LPGUID)ClassGuid,
+                                       NULL,
+                                       samDesired,
+                                       ClassGuid ? RegDisposition_OpenExisting
+                                       : RegDisposition_OpenAlways,
+                                       &hk,
+                                       (Flags & DIOCR_INSTALLER) ? CM_OPEN_CLASS_KEY_INSTALLER
+                                       : CM_OPEN_CLASS_KEY_INTERFACE,
+                                       hMachine)) != CR_SUCCESS) {
+            if (cr == CR_NO_SUCH_REGISTRY_KEY) {
                 Err = ERROR_INVALID_CLASS;
             } else {
                 Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
             }
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -290,7 +289,7 @@ clean0: ;   // nothing to do.
         hMachine = hMachine;
     }
 
-    if(hMachine) {
+    if (hMachine) {
         CM_Disconnect_Machine(hMachine);
     }
 
@@ -311,17 +310,17 @@ SetupDiCreateDevRegKeyA(
     IN DWORD            Scope,
     IN DWORD            HwProfile,
     IN DWORD            KeyType,
-    IN HINF             InfHandle,      OPTIONAL
+    IN HINF             InfHandle, OPTIONAL
     IN PCSTR            InfSectionName  OPTIONAL
-    )
+)
 {
     DWORD rc;
     PWSTR name;
     HKEY h;
 
-    if(InfSectionName) {
-        rc = CaptureAndConvertAnsiArg(InfSectionName,&name);
-        if(rc != NO_ERROR) {
+    if (InfSectionName) {
+        rc = CaptureAndConvertAnsiArg(InfSectionName, &name);
+        if (rc != NO_ERROR) {
             SetLastError(rc);
             return(INVALID_HANDLE_VALUE);
         }
@@ -330,18 +329,18 @@ SetupDiCreateDevRegKeyA(
     }
 
     h = SetupDiCreateDevRegKeyW(
-            DeviceInfoSet,
-            DeviceInfoData,
-            Scope,
-            HwProfile,
-            KeyType,
-            InfHandle,
-            name
-            );
+        DeviceInfoSet,
+        DeviceInfoData,
+        Scope,
+        HwProfile,
+        KeyType,
+        InfHandle,
+        name
+    );
 
     rc = GetLastError();
 
-    if(name) {
+    if (name) {
         MyFree(name);
     }
     SetLastError(rc);
@@ -359,9 +358,9 @@ SetupDiCreateDevRegKeyW(
     IN DWORD            Scope,
     IN DWORD            HwProfile,
     IN DWORD            KeyType,
-    IN HINF             InfHandle,      OPTIONAL
+    IN HINF             InfHandle, OPTIONAL
     IN PCWSTR           InfSectionName  OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -383,9 +382,9 @@ SetupDiCreateDevRegKey(
     IN DWORD            Scope,
     IN DWORD            HwProfile,
     IN DWORD            KeyType,
-    IN HINF             InfHandle,      OPTIONAL
+    IN HINF             InfHandle, OPTIONAL
     IN PCTSTR           InfSectionName  OPTIONAL
-    )
+)
 /*
 
 Routine Description:
@@ -470,7 +469,7 @@ Remarks:
     BOOL MsgHandlerIsNativeCharWidth;
     BOOL NoProgressUI;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return INVALID_HANDLE_VALUE;
     }
@@ -482,9 +481,9 @@ Remarks:
         // Get a pointer to the element for the specified device
         // instance.
 
-        if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                     DeviceInfoData,
-                                                     NULL))) {
+        if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                      DeviceInfoData,
+                                                      NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -492,14 +491,14 @@ Remarks:
 
         // Create the requested registry storage key.
 
-        if((Err = pSetupOpenOrCreateDevRegKey(pDeviceInfoSet,
-                                              DevInfoElem,
-                                              Scope,
-                                              HwProfile,
-                                              KeyType,
-                                              TRUE,
-                                              KEY_ALL_ACCESS,
-                                              &hk)) != NO_ERROR) {
+        if ((Err = pSetupOpenOrCreateDevRegKey(pDeviceInfoSet,
+                                               DevInfoElem,
+                                               Scope,
+                                               HwProfile,
+                                               KeyType,
+                                               TRUE,
+                                               KEY_ALL_ACCESS,
+                                               &hk)) != NO_ERROR) {
             goto clean0;
         }
 
@@ -507,25 +506,25 @@ Remarks:
         // We successfully created the storage key, now run an INF install
         // section against it (if specified).
 
-        if(InfHandle && (InfHandle != INVALID_HANDLE_VALUE) && InfSectionName) {
+        if (InfHandle && (InfHandle != INVALID_HANDLE_VALUE) && InfSectionName) {
 
             // If a copy msg handler and context haven't been specified, then use
             // the default one.
 
-            if(DevInfoElem->InstallParamBlock.InstallMsgHandler) {
-                MsgHandler        = DevInfoElem->InstallParamBlock.InstallMsgHandler;
+            if (DevInfoElem->InstallParamBlock.InstallMsgHandler) {
+                MsgHandler = DevInfoElem->InstallParamBlock.InstallMsgHandler;
                 MsgHandlerContext = DevInfoElem->InstallParamBlock.InstallMsgHandlerContext;
                 MsgHandlerIsNativeCharWidth = DevInfoElem->InstallParamBlock.InstallMsgHandlerIsNativeCharWidth;
             } else {
 
                 NoProgressUI = (GuiSetupInProgress || (DevInfoElem->InstallParamBlock.Flags & DI_QUIETINSTALL));
 
-                if(!(MsgHandlerContext = SetupInitDefaultQueueCallbackEx(
-                                             DevInfoElem->InstallParamBlock.hwndParent,
-                                             (NoProgressUI ? INVALID_HANDLE_VALUE : NULL),
-                                             0,
-                                             0,
-                                             NULL))) {
+                if (!(MsgHandlerContext = SetupInitDefaultQueueCallbackEx(
+                    DevInfoElem->InstallParamBlock.hwndParent,
+                    (NoProgressUI ? INVALID_HANDLE_VALUE : NULL),
+                    0,
+                    0,
+                    NULL))) {
 
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
@@ -534,34 +533,34 @@ Remarks:
                 MsgHandlerIsNativeCharWidth = TRUE;
             }
 
-            if(!_SetupInstallFromInfSection(DevInfoElem->InstallParamBlock.hwndParent,
-                                            InfHandle,
-                                            InfSectionName,
-                                            SPINST_ALL,
-                                            hk,
-                                            NULL,
-                                            0,
-                                            MsgHandler,
-                                            MsgHandlerContext,
-                                            ((KeyType == DIREG_DEV) ? DeviceInfoSet
-                                                                    : INVALID_HANDLE_VALUE),
-                                            ((KeyType == DIREG_DEV) ? DeviceInfoData
-                                                                    : NULL),
-                                            MsgHandlerIsNativeCharWidth,
-                                            NULL
-                                           )) {
+            if (!_SetupInstallFromInfSection(DevInfoElem->InstallParamBlock.hwndParent,
+                                             InfHandle,
+                                             InfSectionName,
+                                             SPINST_ALL,
+                                             hk,
+                                             NULL,
+                                             0,
+                                             MsgHandler,
+                                             MsgHandlerContext,
+                                             ((KeyType == DIREG_DEV) ? DeviceInfoSet
+                                              : INVALID_HANDLE_VALUE),
+                                              ((KeyType == DIREG_DEV) ? DeviceInfoData
+                                               : NULL),
+                                             MsgHandlerIsNativeCharWidth,
+                                             NULL
+            )) {
                 Err = GetLastError();
             }
 
 
             // If we used the default msg handler, release the default context now.
 
-            if(!DevInfoElem->InstallParamBlock.InstallMsgHandler) {
+            if (!DevInfoElem->InstallParamBlock.InstallMsgHandler) {
                 SetupTermDefaultQueueCallback(MsgHandlerContext);
             }
         }
 
-clean0:
+    clean0:
         ; // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -570,10 +569,10 @@ clean0:
 
     UnlockDeviceInfoSet(pDeviceInfoSet);
 
-    if(Err == NO_ERROR) {
+    if (Err == NO_ERROR) {
         return hk;
     } else {
-        if(hk != INVALID_HANDLE_VALUE) {
+        if (hk != INVALID_HANDLE_VALUE) {
             RegCloseKey(hk);
         }
         SetLastError(Err);
@@ -591,7 +590,7 @@ SetupDiOpenDevRegKey(
     IN DWORD            HwProfile,
     IN DWORD            KeyType,
     IN REGSAM           samDesired
-    )
+)
 /*
 
 Routine Description:
@@ -661,7 +660,7 @@ Remarks:
     DWORD Err;
     PDEVINFO_ELEM DevInfoElem;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return INVALID_HANDLE_VALUE;
     }
@@ -673,9 +672,9 @@ Remarks:
         // Get a pointer to the element for the specified device
         // instance.
 
-        if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                   DeviceInfoData,
-                                                   NULL)) {
+        if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                    DeviceInfoData,
+                                                    NULL)) {
 
             // Open the requested registry storage key.
 
@@ -687,7 +686,7 @@ Remarks:
                                               FALSE,
                                               samDesired,
                                               &hk
-                                             );
+            );
         } else {
             Err = ERROR_INVALID_PARAMETER;
         }
@@ -713,7 +712,7 @@ pSetupOpenOrCreateDevRegKey(
     IN  BOOL             Create,
     IN  REGSAM           samDesired,
     OUT PHKEY            hDevRegKey
-    )
+)
 /*
 
 Routine Description:
@@ -800,26 +799,26 @@ Remarks:
 
     // Figure out what flags to pass to CM_Open_DevInst_Key
 
-    switch(KeyType) {
+    switch (KeyType) {
 
-        case DIREG_DEV :
-            RegistryBranch = CM_REGISTRY_HARDWARE;
-            break;
+    case DIREG_DEV:
+        RegistryBranch = CM_REGISTRY_HARDWARE;
+        break;
 
-        case DIREG_DRV :
+    case DIREG_DRV:
 
-            // This key may only be opened if the device instance has been registered.
+        // This key may only be opened if the device instance has been registered.
 
-            if(!(DevInfoElem->DiElemFlags & DIE_IS_REGISTERED)) {
-                return ERROR_DEVINFO_NOT_REGISTERED;
-            }
+        if (!(DevInfoElem->DiElemFlags & DIE_IS_REGISTERED)) {
+            return ERROR_DEVINFO_NOT_REGISTERED;
+        }
 
 
-            // Retrieve the 'Driver' registry property which indicates where the
-            // storage key is located in the class branch.
+        // Retrieve the 'Driver' registry property which indicates where the
+        // storage key is located in the class branch.
 
-            DriverKeyLength = sizeof(DriverKey);
-            if((cr = CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst,
+        DriverKeyLength = sizeof(DriverKey);
+        if ((cr = CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst,
                                                       CM_DRP_DRIVER,
                                                       NULL,
                                                       DriverKey,
@@ -827,18 +826,18 @@ Remarks:
                                                       0,
                                                       pDeviceInfoSet->hMachine)) != CR_SUCCESS) {
 
-                if(cr != CR_NO_SUCH_VALUE) {
-                    return (cr == CR_INVALID_DEVINST) ? ERROR_NO_SUCH_DEVINST
-                                                      : ERROR_INVALID_DATA;
-                } else if(!Create) {
-                    return ERROR_KEY_DOES_NOT_EXIST;
-                }
+            if (cr != CR_NO_SUCH_VALUE) {
+                return (cr == CR_INVALID_DEVINST) ? ERROR_NO_SUCH_DEVINST
+                    : ERROR_INVALID_DATA;
+            } else if (!Create) {
+                return ERROR_KEY_DOES_NOT_EXIST;
+            }
 
 
-                // The Driver entry doesn't exist, and we should create it.
+            // The Driver entry doesn't exist, and we should create it.
 
-                hk = INVALID_HANDLE_VALUE;
-                if(CM_Open_Class_Key_Ex(NULL,
+            hk = INVALID_HANDLE_VALUE;
+            if (CM_Open_Class_Key_Ex(NULL,
                                      NULL,
                                      KEY_ALL_ACCESS,
                                      RegDisposition_OpenAlways,
@@ -846,122 +845,122 @@ Remarks:
                                      0,
                                      pDeviceInfoSet->hMachine) != CR_SUCCESS) {
 
-                    // This shouldn't fail.
+                // This shouldn't fail.
 
-                    return ERROR_INVALID_DATA;
-                }
-
-                try {
-
-                    // Find a unique key name under this class key.
-
-                    DriverKeyLength = SIZECHARS(DriverKey);
-                    if(CM_Get_Class_Key_Name_Ex(&(DevInfoElem->ClassGuid), DriverKey, &DriverKeyLength, 0, pDeviceInfoSet->hMachine) != CR_SUCCESS) {
-                        Err = ERROR_INVALID_CLASS;
-                        goto clean0;
-                    }
-                    DriverKeyLength--;  // don't want to include terminating NULL.
-
-                    while(pSetupFindUniqueKey(hkClass, DriverKey, DriverKeyLength)) {
-                        if((Err = RegCreateKeyEx(hkClass, DriverKey, 0, &EmptyString, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hk, &Disposition)) == ERROR_SUCCESS) {
-
-                            // Everything's great, unless the Disposition indicates
-                            // that the key already existed.  That means that someone
-                            // else claimed the key before we got a chance to.  In
-                            // that case, we close this key, and try again.
-
-                            if(Disposition == REG_OPENED_EXISTING_KEY) {
-                                RegCloseKey(hk);
-                                hk = INVALID_HANDLE_VALUE;
-
-                                // Truncate off the class instance part, to be replaced
-                                // with a new instance number the next go-around.
-
-                                DriverKey[GUID_STRING_LEN - 1] = TEXT('\0');
-                            } else {
-                                break;
-                            }
-                        } else {
-                            hk = INVALID_HANDLE_VALUE;
-                            break;
-                        }
-                    }
-
-                    if(Err != NO_ERROR) {   // NO_ERROR == ERROR_SUCCESS
-                        goto clean0;
-                    }
-
-
-                    // Set the device instance's 'Driver' registry property to reflect the
-                    // new software registry storage location.
-
-                    CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst,
-                                                     CM_DRP_DRIVER,
-                                                     DriverKey,
-                                                     sizeof(DriverKey),
-                                                     0,
-                                                     pDeviceInfoSet->hMachine);
-
-
-clean0:             ;   // nothing to do
-
-                } except(EXCEPTION_EXECUTE_HANDLER) {
-                    Err = ERROR_INVALID_PARAMETER;
-
-                    // Access the hk variable so that the compiler will respect
-                    // the statement ordering in the try clause.
-
-                    hk = hk;
-                }
-
-                if(hk != INVALID_HANDLE_VALUE) {
-                    RegCloseKey(hk);
-                }
-
-                RegCloseKey(hkClass);
-
-                if(Err != NO_ERROR) {
-                    return Err;
-                }
+                return ERROR_INVALID_DATA;
             }
 
-            RegistryBranch = CM_REGISTRY_SOFTWARE;
-            break;
+            try {
 
-        default :
-            return ERROR_INVALID_FLAGS;
+                // Find a unique key name under this class key.
+
+                DriverKeyLength = SIZECHARS(DriverKey);
+                if (CM_Get_Class_Key_Name_Ex(&(DevInfoElem->ClassGuid), DriverKey, &DriverKeyLength, 0, pDeviceInfoSet->hMachine) != CR_SUCCESS) {
+                    Err = ERROR_INVALID_CLASS;
+                    goto clean0;
+                }
+                DriverKeyLength--;  // don't want to include terminating NULL.
+
+                while (pSetupFindUniqueKey(hkClass, DriverKey, DriverKeyLength)) {
+                    if ((Err = RegCreateKeyEx(hkClass, DriverKey, 0, &EmptyString, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hk, &Disposition)) == ERROR_SUCCESS) {
+
+                        // Everything's great, unless the Disposition indicates
+                        // that the key already existed.  That means that someone
+                        // else claimed the key before we got a chance to.  In
+                        // that case, we close this key, and try again.
+
+                        if (Disposition == REG_OPENED_EXISTING_KEY) {
+                            RegCloseKey(hk);
+                            hk = INVALID_HANDLE_VALUE;
+
+                            // Truncate off the class instance part, to be replaced
+                            // with a new instance number the next go-around.
+
+                            DriverKey[GUID_STRING_LEN - 1] = TEXT('\0');
+                        } else {
+                            break;
+                        }
+                    } else {
+                        hk = INVALID_HANDLE_VALUE;
+                        break;
+                    }
+                }
+
+                if (Err != NO_ERROR) {   // NO_ERROR == ERROR_SUCCESS
+                    goto clean0;
+                }
+
+
+                // Set the device instance's 'Driver' registry property to reflect the
+                // new software registry storage location.
+
+                CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst,
+                                                    CM_DRP_DRIVER,
+                                                    DriverKey,
+                                                    sizeof(DriverKey),
+                                                    0,
+                                                    pDeviceInfoSet->hMachine);
+
+
+            clean0:;   // nothing to do
+
+            } except(EXCEPTION_EXECUTE_HANDLER) {
+                Err = ERROR_INVALID_PARAMETER;
+
+                // Access the hk variable so that the compiler will respect
+                // the statement ordering in the try clause.
+
+                hk = hk;
+            }
+
+            if (hk != INVALID_HANDLE_VALUE) {
+                RegCloseKey(hk);
+            }
+
+            RegCloseKey(hkClass);
+
+            if (Err != NO_ERROR) {
+                return Err;
+            }
+        }
+
+        RegistryBranch = CM_REGISTRY_SOFTWARE;
+        break;
+
+    default:
+        return ERROR_INVALID_FLAGS;
     }
 
-    if(Scope == DICS_FLAG_CONFIGSPECIFIC) {
+    if (Scope == DICS_FLAG_CONFIGSPECIFIC) {
         RegistryBranch |= CM_REGISTRY_CONFIG;
-    } else if(Scope != DICS_FLAG_GLOBAL) {
+    } else if (Scope != DICS_FLAG_GLOBAL) {
         return ERROR_INVALID_FLAGS;
     }
 
     cr = CM_Open_DevInst_Key_Ex(DevInfoElem->DevInst,
-                             samDesired,
-                             HwProfile,
-                             (Create ? RegDisposition_OpenAlways : RegDisposition_OpenExisting),
-                             &hk,
-                             RegistryBranch,
-                             pDeviceInfoSet->hMachine);
-    if(cr == CR_SUCCESS) {
+                                samDesired,
+                                HwProfile,
+                                (Create ? RegDisposition_OpenAlways : RegDisposition_OpenExisting),
+                                &hk,
+                                RegistryBranch,
+                                pDeviceInfoSet->hMachine);
+    if (cr == CR_SUCCESS) {
         *hDevRegKey = hk;
         Err = NO_ERROR;
     } else {
 
-        switch(cr) {
+        switch (cr) {
 
-            case CR_INVALID_DEVINST :
-                Err = ERROR_NO_SUCH_DEVINST;
-                break;
+        case CR_INVALID_DEVINST:
+            Err = ERROR_NO_SUCH_DEVINST;
+            break;
 
-            case CR_NO_SUCH_REGISTRY_KEY :
-                Err = ERROR_KEY_DOES_NOT_EXIST;
-                break;
+        case CR_NO_SUCH_REGISTRY_KEY:
+            Err = ERROR_KEY_DOES_NOT_EXIST;
+            break;
 
-            default :
-                Err = ERROR_INVALID_DATA;
+        default:
+            Err = ERROR_INVALID_DATA;
         }
     }
 
@@ -978,9 +977,9 @@ BOOL WINAPI _SetupDiGetDeviceRegistryProperty(
     IN  DWORD            PropertyBufferSize,
     OUT PDWORD           RequiredSize         OPTIONAL
 #ifdef UNICODE
-    IN ,BOOL             Ansi
+    IN, BOOL             Ansi
 #endif
-    )
+)
 {
     PDEVICE_INFO_SET pDeviceInfoSet;
     DWORD Err;
@@ -988,7 +987,7 @@ BOOL WINAPI _SetupDiGetDeviceRegistryProperty(
     CONFIGRET cr;
     ULONG CmRegProperty, PropLength;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -997,12 +996,12 @@ BOOL WINAPI _SetupDiGetDeviceRegistryProperty(
 
     try {
         // Get a pointer to the element for the specified device instance.
-        if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
+        if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
-        if(Property < SPDRP_MAXIMUM_PROPERTY) {
+        if (Property < SPDRP_MAXIMUM_PROPERTY) {
             CmRegProperty = SPDRP_TO_CMDRP(Property);
         } else {
             Err = ERROR_INVALID_REG_PROPERTY;
@@ -1011,34 +1010,34 @@ BOOL WINAPI _SetupDiGetDeviceRegistryProperty(
 
         PropLength = PropertyBufferSize;
 #ifdef UNICODE
-        if(Ansi) {
+        if (Ansi) {
             cr = CM_Get_DevInst_Registry_Property_ExA(DevInfoElem->DevInst, CmRegProperty, PropertyRegDataType, PropertyBuffer, &PropLength, 0, pDeviceInfoSet->hMachine);
         } else
 #endif
-        cr = CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CmRegProperty, PropertyRegDataType, PropertyBuffer, &PropLength, 0, pDeviceInfoSet->hMachine);
-        if((cr == CR_SUCCESS) || (cr == CR_BUFFER_SMALL)) {
-            if(RequiredSize) {
+            cr = CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CmRegProperty, PropertyRegDataType, PropertyBuffer, &PropLength, 0, pDeviceInfoSet->hMachine);
+        if ((cr == CR_SUCCESS) || (cr == CR_BUFFER_SMALL)) {
+            if (RequiredSize) {
                 *RequiredSize = PropLength;
             }
         }
 
-        if(cr != CR_SUCCESS) {
-            switch(cr) {
-            case CR_INVALID_DEVINST :
+        if (cr != CR_SUCCESS) {
+            switch (cr) {
+            case CR_INVALID_DEVINST:
                 Err = ERROR_NO_SUCH_DEVINST;
                 break;
-            case CR_INVALID_PROPERTY :
+            case CR_INVALID_PROPERTY:
                 Err = ERROR_INVALID_REG_PROPERTY;
                 break;
-            case CR_BUFFER_SMALL :
+            case CR_BUFFER_SMALL:
                 Err = ERROR_INSUFFICIENT_BUFFER;
                 break;
-            default :
+            default:
                 Err = ERROR_INVALID_DATA;
             }
         }
 
-clean0:
+    clean0:
         ; // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -1053,14 +1052,14 @@ clean0:
 
 #ifdef UNICODE
 BOOL WINAPI SetupDiGetDeviceRegistryPropertyA(// ANSI version
-    IN  HDEVINFO         DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA DeviceInfoData,
-    IN  DWORD            Property,
-    OUT PDWORD           PropertyRegDataType, OPTIONAL
-    OUT PBYTE            PropertyBuffer,
-    IN  DWORD            PropertyBufferSize,
-    OUT PDWORD           RequiredSize         OPTIONAL
-    )
+                                              IN  HDEVINFO         DeviceInfoSet,
+                                              IN  PSP_DEVINFO_DATA DeviceInfoData,
+                                              IN  DWORD            Property,
+                                              OUT PDWORD           PropertyRegDataType, OPTIONAL
+                                              OUT PBYTE            PropertyBuffer,
+                                              IN  DWORD            PropertyBufferSize,
+                                              OUT PDWORD           RequiredSize         OPTIONAL
+)
 {
     BOOL b;
 
@@ -1069,14 +1068,14 @@ BOOL WINAPI SetupDiGetDeviceRegistryPropertyA(// ANSI version
 }
 #else
 BOOL WINAPI SetupDiGetDeviceRegistryPropertyW(// Unicode stub
-    IN  HDEVINFO         DeviceInfoSet,
-    IN  PSP_DEVINFO_DATA DeviceInfoData,
-    IN  DWORD            Property,
-    OUT PDWORD           PropertyRegDataType, OPTIONAL
-    OUT PBYTE            PropertyBuffer,
-    IN  DWORD            PropertyBufferSize,
-    OUT PDWORD           RequiredSize         OPTIONAL
-    )
+                                              IN  HDEVINFO         DeviceInfoSet,
+                                              IN  PSP_DEVINFO_DATA DeviceInfoData,
+                                              IN  DWORD            Property,
+                                              OUT PDWORD           PropertyRegDataType, OPTIONAL
+                                              OUT PBYTE            PropertyBuffer,
+                                              IN  DWORD            PropertyBufferSize,
+                                              OUT PDWORD           RequiredSize         OPTIONAL
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -1099,7 +1098,7 @@ BOOL WINAPI SetupDiGetDeviceRegistryProperty(
     OUT PBYTE            PropertyBuffer,
     IN  DWORD            PropertyBufferSize,
     OUT PDWORD           RequiredSize         OPTIONAL
-    )
+)
 /*
 Routine Description:
     This routine retrieves the specified property from the Plug & Play device storage location in the registry.
@@ -1129,17 +1128,17 @@ Return Value:
     BOOL b;
 
     b = _SetupDiGetDeviceRegistryProperty(
-            DeviceInfoSet,
-            DeviceInfoData,
-            Property,
-            PropertyRegDataType,
-            PropertyBuffer,
-            PropertyBufferSize,
-            RequiredSize
+        DeviceInfoSet,
+        DeviceInfoData,
+        Property,
+        PropertyRegDataType,
+        PropertyBuffer,
+        PropertyBufferSize,
+        RequiredSize
 #ifdef UNICODE
-           ,FALSE
+        , FALSE
 #endif
-            );
+    );
 
     return(b);
 }
@@ -1152,12 +1151,12 @@ _SetupDiSetDeviceRegistryProperty(
     IN     HDEVINFO         DeviceInfoSet,
     IN OUT PSP_DEVINFO_DATA DeviceInfoData,
     IN     DWORD            Property,
-    IN     CONST BYTE*      PropertyBuffer,    OPTIONAL
+    IN     CONST BYTE* PropertyBuffer, OPTIONAL
     IN     DWORD            PropertyBufferSize
 #ifdef UNICODE
-    IN    ,BOOL             Ansi
+    IN, BOOL             Ansi
 #endif
-    )
+)
 {
     PDEVICE_INFO_SET pDeviceInfoSet;
     DWORD Err;
@@ -1169,7 +1168,7 @@ _SetupDiSetDeviceRegistryProperty(
     TCHAR ClassName[MAX_CLASS_NAME_LEN];
     DWORD ClassNameLength;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -1181,9 +1180,9 @@ _SetupDiSetDeviceRegistryProperty(
         // Get a pointer to the element for the specified device
         // instance.
 
-        if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                     DeviceInfoData,
-                                                     NULL))) {
+        if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                      DeviceInfoData,
+                                                      NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -1193,7 +1192,7 @@ _SetupDiSetDeviceRegistryProperty(
         // (the Class property is not settable directly, and is automatically
         // updated when the ClassGUID property changes).
 
-        if((Property < SPDRP_MAXIMUM_PROPERTY) && (Property != SPDRP_CLASS)) {
+        if ((Property < SPDRP_MAXIMUM_PROPERTY) && (Property != SPDRP_CLASS)) {
             CmRegProperty = SPDRP_TO_CMDRP(Property);
         } else {
             Err = ERROR_INVALID_REG_PROPERTY;
@@ -1205,14 +1204,14 @@ _SetupDiSetDeviceRegistryProperty(
         // see whether the new GUID is different from the current one.  If there's
         // no change, then we're done.
 
-        if(CmRegProperty == CM_DRP_CLASSGUID) {
+        if (CmRegProperty == CM_DRP_CLASSGUID) {
 
-            if(!PropertyBuffer) {
+            if (!PropertyBuffer) {
 
                 // Then the intent is to reset the device's class GUID.  Make
                 // sure they passed us a buffer length of zero.
 
-                if(PropertyBufferSize) {
+                if (PropertyBufferSize) {
                     Err = ERROR_INVALID_PARAMETER;
                     goto clean0;
                 }
@@ -1229,33 +1228,33 @@ _SetupDiSetDeviceRegistryProperty(
 
                 PCWSTR UnicodeGuidString;
 
-                if(Ansi) {
+                if (Ansi) {
                     UnicodeGuidString = AnsiToUnicode((PCSTR)PropertyBuffer);
-                    if(!UnicodeGuidString) {
+                    if (!UnicodeGuidString) {
                         Err = ERROR_NOT_ENOUGH_MEMORY;
                         goto clean0;
                     }
                 } else {
                     UnicodeGuidString = (PCWSTR)PropertyBuffer;
                 }
-                Err = pSetupGuidFromString(UnicodeGuidString,&ClassGuid);
-                if(UnicodeGuidString != (PCWSTR)PropertyBuffer) {
+                Err = pSetupGuidFromString(UnicodeGuidString, &ClassGuid);
+                if (UnicodeGuidString != (PCWSTR)PropertyBuffer) {
                     MyFree(UnicodeGuidString);
                 }
-                if(Err != NO_ERROR) {
+                if (Err != NO_ERROR) {
                     goto clean0;
                 }
 #else
-                if((Err = pSetupGuidFromString((PCTSTR)PropertyBuffer, &ClassGuid)) != NO_ERROR) {
+                if ((Err = pSetupGuidFromString((PCTSTR)PropertyBuffer, &ClassGuid)) != NO_ERROR) {
                     goto clean0;
                 }
 #endif
                 ClassGuidSpecified = TRUE;
             }
 
-            if(IsEqualGUID(&(DevInfoElem->ClassGuid),
-                           (ClassGuidSpecified ? &ClassGuid
-                                               : &GUID_NULL))) {
+            if (IsEqualGUID(&(DevInfoElem->ClassGuid),
+                (ClassGuidSpecified ? &ClassGuid
+                 : &GUID_NULL))) {
 
                 // No change--nothing to do.
 
@@ -1267,13 +1266,13 @@ _SetupDiSetDeviceRegistryProperty(
             // set containing this device doesn't have an associated class (otherwise,
             // we'll suddenly have a device whose class doesn't match the set's class).
 
-            if(pDeviceInfoSet->HasClassGuid) {
+            if (pDeviceInfoSet->HasClassGuid) {
                 Err = ERROR_CLASS_MISMATCH;
             } else {
                 Err = InvalidateHelperModules(DeviceInfoSet, DeviceInfoData, 0);
             }
 
-            if(Err != NO_ERROR) {
+            if (Err != NO_ERROR) {
                 goto clean0;
             }
 
@@ -1287,7 +1286,7 @@ _SetupDiSetDeviceRegistryProperty(
                                    (DWORD)-1,
                                    DIREG_DRV,
                                    TRUE
-                                  );
+            );
 
             // Now delete the Driver property for this device...
 
@@ -1296,39 +1295,39 @@ _SetupDiSetDeviceRegistryProperty(
                                              NULL,
                                              0,
                                              0
-                                            );
+            );
         }
 
 #ifdef UNICODE
-        if(Ansi) {
+        if (Ansi) {
             cr = CM_Set_DevInst_Registry_PropertyA(
-                    DevInfoElem->DevInst,
-                    CmRegProperty,
-                    (PVOID)PropertyBuffer,
-                    PropertyBufferSize,
-                    0
-                    );
+                DevInfoElem->DevInst,
+                CmRegProperty,
+                (PVOID)PropertyBuffer,
+                PropertyBufferSize,
+                0
+            );
         } else
 #endif
-        cr = CM_Set_DevInst_Registry_Property(DevInfoElem->DevInst,
-                                              CmRegProperty,
-                                              (PVOID)PropertyBuffer,
-                                              PropertyBufferSize,
-                                              0
-                                             );
-        if(cr == CR_SUCCESS) {
+            cr = CM_Set_DevInst_Registry_Property(DevInfoElem->DevInst,
+                                                  CmRegProperty,
+                                                  (PVOID)PropertyBuffer,
+                                                  PropertyBufferSize,
+                                                  0
+            );
+        if (cr == CR_SUCCESS) {
 
             // If we were setting the device's ClassGUID property, then we need to
             // update its Class name property as well.
 
-            if(CmRegProperty == CM_DRP_CLASSGUID) {
+            if (CmRegProperty == CM_DRP_CLASSGUID) {
 
-                if(ClassGuidSpecified) {
+                if (ClassGuidSpecified) {
 
-                    if(!SetupDiClassNameFromGuid(&ClassGuid,
-                                                 ClassName,
-                                                 SIZECHARS(ClassName),
-                                                 &ClassNameLength)) {
+                    if (!SetupDiClassNameFromGuid(&ClassGuid,
+                                                  ClassName,
+                                                  SIZECHARS(ClassName),
+                                                  &ClassNameLength)) {
 
                         // We couldn't retrieve the corresponding class name.
                         // Set ClassNameLength to zero so that we reset class
@@ -1349,7 +1348,7 @@ _SetupDiSetDeviceRegistryProperty(
                                                  ClassNameLength ? (PVOID)ClassName : NULL,
                                                  ClassNameLength * sizeof(TCHAR),
                                                  0
-                                                );
+                );
 
 
                 // Finally, update the device's class GUID, and also update the
@@ -1357,38 +1356,38 @@ _SetupDiSetDeviceRegistryProperty(
                 // new class.
 
                 CopyMemory(&(DevInfoElem->ClassGuid),
-                           (ClassGuidSpecified ? &ClassGuid : &GUID_NULL),
+                    (ClassGuidSpecified ? &ClassGuid : &GUID_NULL),
                            sizeof(GUID)
-                          );
+                );
 
                 CopyMemory(&(DeviceInfoData->ClassGuid),
-                           (ClassGuidSpecified ? &ClassGuid : &GUID_NULL),
+                    (ClassGuidSpecified ? &ClassGuid : &GUID_NULL),
                            sizeof(GUID)
-                          );
+                );
             }
 
         } else {
 
-            switch(cr) {
+            switch (cr) {
 
-                case CR_INVALID_DEVINST :
-                    Err = ERROR_NO_SUCH_DEVINST;
-                    break;
+            case CR_INVALID_DEVINST:
+                Err = ERROR_NO_SUCH_DEVINST;
+                break;
 
-                case CR_INVALID_PROPERTY :
-                    Err = ERROR_INVALID_REG_PROPERTY;
-                    break;
+            case CR_INVALID_PROPERTY:
+                Err = ERROR_INVALID_REG_PROPERTY;
+                break;
 
-                case CR_INVALID_DATA :
-                    Err = ERROR_INVALID_PARAMETER;
-                    break;
+            case CR_INVALID_DATA:
+                Err = ERROR_INVALID_PARAMETER;
+                break;
 
-                default :
-                    Err = ERROR_INVALID_DATA;
+            default:
+                Err = ERROR_INVALID_DATA;
             }
         }
 
-clean0:
+    clean0:
         ; // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -1411,20 +1410,20 @@ SetupDiSetDeviceRegistryPropertyA(
     IN     HDEVINFO         DeviceInfoSet,
     IN OUT PSP_DEVINFO_DATA DeviceInfoData,
     IN     DWORD            Property,
-    IN     CONST BYTE*      PropertyBuffer,    OPTIONAL
+    IN     CONST BYTE* PropertyBuffer, OPTIONAL
     IN     DWORD            PropertyBufferSize
-    )
+)
 {
     BOOL b;
 
     b = _SetupDiSetDeviceRegistryProperty(
-            DeviceInfoSet,
-            DeviceInfoData,
-            Property,
-            PropertyBuffer,
-            PropertyBufferSize,
-            TRUE
-            );
+        DeviceInfoSet,
+        DeviceInfoData,
+        Property,
+        PropertyBuffer,
+        PropertyBufferSize,
+        TRUE
+    );
 
     return(b);
 }
@@ -1438,9 +1437,9 @@ SetupDiSetDeviceRegistryPropertyW(
     IN     HDEVINFO         DeviceInfoSet,
     IN OUT PSP_DEVINFO_DATA DeviceInfoData,
     IN     DWORD            Property,
-    IN     CONST BYTE*      PropertyBuffer,    OPTIONAL
+    IN     CONST BYTE* PropertyBuffer, OPTIONAL
     IN     DWORD            PropertyBufferSize
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInfoData);
@@ -1458,9 +1457,9 @@ SetupDiSetDeviceRegistryProperty(
     IN     HDEVINFO         DeviceInfoSet,
     IN OUT PSP_DEVINFO_DATA DeviceInfoData,
     IN     DWORD            Property,
-    IN     CONST BYTE*      PropertyBuffer,    OPTIONAL
+    IN     CONST BYTE* PropertyBuffer, OPTIONAL
     IN     DWORD            PropertyBufferSize
-    )
+)
 
 /*
 
@@ -1513,15 +1512,15 @@ Remarks:
     BOOL b;
 
     b = _SetupDiSetDeviceRegistryProperty(
-            DeviceInfoSet,
-            DeviceInfoData,
-            Property,
-            PropertyBuffer,
-            PropertyBufferSize
+        DeviceInfoSet,
+        DeviceInfoData,
+        Property,
+        PropertyBuffer,
+        PropertyBufferSize
 #ifdef UNICODE
-           ,FALSE
+        , FALSE
 #endif
-            );
+    );
 
     return(b);
 }
@@ -1533,10 +1532,10 @@ _SetupDiGetClassRegistryProperty(
     OUT PDWORD           PropertyRegDataType, OPTIONAL
     OUT PBYTE            PropertyBuffer,
     IN  DWORD            PropertyBufferSize,
-    OUT PDWORD           RequiredSize,        OPTIONAL
-    IN  PCTSTR           MachineName,         OPTIONAL
+    OUT PDWORD           RequiredSize, OPTIONAL
+    IN  PCTSTR           MachineName, OPTIONAL
     IN  BOOL             Ansi
-    )
+)
 /*
 
     See SetupDiGetClassRegistryProperty
@@ -1557,9 +1556,9 @@ _SetupDiGetClassRegistryProperty(
 
         // if we want to set register for another machine, find that machine
 
-        if(MachineName) {
+        if (MachineName) {
 
-            if(CR_SUCCESS != (cr = CM_Connect_Machine(MachineName, &hMachine))) {
+            if (CR_SUCCESS != (cr = CM_Connect_Machine(MachineName, &hMachine))) {
 
                 // Make sure machine handle is still invalid, so we won't
                 // try to disconnect later.
@@ -1570,7 +1569,7 @@ _SetupDiGetClassRegistryProperty(
             }
         }
 
-        if(Property < SPCRP_MAXIMUM_PROPERTY) {
+        if (Property < SPCRP_MAXIMUM_PROPERTY) {
             CmRegProperty = SPCRP_TO_CMCRP(Property);
         } else {
             Err = ERROR_INVALID_REG_PROPERTY;
@@ -1578,31 +1577,9 @@ _SetupDiGetClassRegistryProperty(
         }
 
         PropLength = PropertyBufferSize;
-    #ifdef UNICODE
-        if(Ansi) {
+#ifdef UNICODE
+        if (Ansi) {
             cr = CM_Get_Class_Registry_PropertyA(
-                    ClassGuid,
-                    CmRegProperty,
-                    PropertyRegDataType,
-                    PropertyBuffer,
-                    &PropLength,
-                    0,
-                    hMachine);
-         } else {
-             cr = CM_Get_Class_Registry_PropertyW(
-                     ClassGuid,
-                     CmRegProperty,
-                     PropertyRegDataType,
-                     PropertyBuffer,
-                     &PropLength,
-                     0,
-                     hMachine);
-         }
-    #else
-
-        // on ANSI version
-
-        cr = CM_Get_Class_Registry_Property(
                 ClassGuid,
                 CmRegProperty,
                 PropertyRegDataType,
@@ -1610,33 +1587,55 @@ _SetupDiGetClassRegistryProperty(
                 &PropLength,
                 0,
                 hMachine);
-    #endif
+        } else {
+            cr = CM_Get_Class_Registry_PropertyW(
+                ClassGuid,
+                CmRegProperty,
+                PropertyRegDataType,
+                PropertyBuffer,
+                &PropLength,
+                0,
+                hMachine);
+        }
+#else
 
-        if((cr == CR_SUCCESS) || (cr == CR_BUFFER_SMALL)) {
+        // on ANSI version
 
-            if(RequiredSize) {
+        cr = CM_Get_Class_Registry_Property(
+            ClassGuid,
+            CmRegProperty,
+            PropertyRegDataType,
+            PropertyBuffer,
+            &PropLength,
+            0,
+            hMachine);
+#endif
+
+        if ((cr == CR_SUCCESS) || (cr == CR_BUFFER_SMALL)) {
+
+            if (RequiredSize) {
                 *RequiredSize = PropLength;
             }
         }
 
-        if(cr != CR_SUCCESS) {
+        if (cr != CR_SUCCESS) {
 
-            switch(cr) {
+            switch (cr) {
 
-                case CR_INVALID_DEVINST :
-                    Err = ERROR_NO_SUCH_DEVINST;
-                    break;
+            case CR_INVALID_DEVINST:
+                Err = ERROR_NO_SUCH_DEVINST;
+                break;
 
-                case CR_INVALID_PROPERTY :
-                    Err = ERROR_INVALID_REG_PROPERTY;
-                    break;
+            case CR_INVALID_PROPERTY:
+                Err = ERROR_INVALID_REG_PROPERTY;
+                break;
 
-                case CR_BUFFER_SMALL :
-                    Err = ERROR_INSUFFICIENT_BUFFER;
-                    break;
+            case CR_BUFFER_SMALL:
+                Err = ERROR_INSUFFICIENT_BUFFER;
+                break;
 
-                default :
-                    Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
+            default:
+                Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
             }
         }
 
@@ -1664,10 +1663,10 @@ SetupDiGetClassRegistryPropertyA(
     OUT PDWORD           PropertyRegDataType, OPTIONAL
     OUT PBYTE            PropertyBuffer,
     IN  DWORD            PropertyBufferSize,
-    OUT PDWORD           RequiredSize,        OPTIONAL
-    IN  PCSTR            MachineName,         OPTIONAL
+    OUT PDWORD           RequiredSize, OPTIONAL
+    IN  PCSTR            MachineName, OPTIONAL
     IN  PVOID            Reserved
-    )
+)
 /*
 
     See SetupDiGetClassRegistryProperty
@@ -1692,19 +1691,19 @@ SetupDiGetClassRegistryPropertyA(
 
         if (MachineName != NULL) {
             MachineString = AnsiToUnicode(MachineName);
-            if(!MachineString) {
+            if (!MachineString) {
                 Err = ERROR_NOT_ENOUGH_MEMORY;
                 leave;
             }
         }
         Err = _SetupDiGetClassRegistryProperty(ClassGuid,
-                                                Property,
-                                                PropertyRegDataType,
-                                                PropertyBuffer,
-                                                PropertyBufferSize,
-                                                RequiredSize,
-                                                MachineString,
-                                                TRUE);
+                                               Property,
+                                               PropertyRegDataType,
+                                               PropertyBuffer,
+                                               PropertyBufferSize,
+                                               RequiredSize,
+                                               MachineString,
+                                               TRUE);
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = NO_ERROR;
@@ -1729,10 +1728,10 @@ SetupDiGetClassRegistryPropertyW(
     OUT PDWORD           PropertyRegDataType, OPTIONAL
     OUT PBYTE            PropertyBuffer,
     IN  DWORD            PropertyBufferSize,
-    OUT PDWORD           RequiredSize,        OPTIONAL
-    IN  PCWSTR           MachineName,         OPTIONAL
+    OUT PDWORD           RequiredSize, OPTIONAL
+    IN  PCWSTR           MachineName, OPTIONAL
     IN  PVOID            Reserved
-    )
+)
 /*
 
     See SetupDiGetClassRegistryProperty
@@ -1762,10 +1761,10 @@ SetupDiGetClassRegistryProperty(
     OUT PDWORD           PropertyRegDataType, OPTIONAL
     OUT PBYTE            PropertyBuffer,
     IN  DWORD            PropertyBufferSize,
-    OUT PDWORD           RequiredSize,        OPTIONAL
-    IN  PCTSTR           MachineName,         OPTIONAL
+    OUT PDWORD           RequiredSize, OPTIONAL
+    IN  PCTSTR           MachineName, OPTIONAL
     IN  PVOID            Reserved
-    )
+)
 /*
 
 Routine Description:
@@ -1814,13 +1813,13 @@ Return Value:
     }
 
     Err = _SetupDiGetClassRegistryProperty(ClassGuid,
-                                            Property,
-                                            PropertyRegDataType,
-                                            PropertyBuffer,
-                                            PropertyBufferSize,
-                                            RequiredSize,
-                                            MachineName,
-                                            FALSE);
+                                           Property,
+                                           PropertyRegDataType,
+                                           PropertyBuffer,
+                                           PropertyBufferSize,
+                                           RequiredSize,
+                                           MachineName,
+                                           FALSE);
 
     SetLastError(Err);
     return (BOOL)(Err == NO_ERROR);
@@ -1831,11 +1830,11 @@ DWORD
 _SetupDiSetClassRegistryProperty(
     IN  LPGUID           ClassGuid,
     IN  DWORD            Property,
-    IN  CONST BYTE*      PropertyBuffer,      OPTIONAL
+    IN  CONST BYTE* PropertyBuffer, OPTIONAL
     IN  DWORD            PropertyBufferSize,
-    IN  PCTSTR           MachineName,         OPTIONAL
+    IN  PCTSTR           MachineName, OPTIONAL
     IN  BOOL             Ansi
-    )
+)
 /*
 
     See SetupDiGetClassRegistryProperty
@@ -1853,9 +1852,9 @@ _SetupDiSetClassRegistryProperty(
 
         // if we want to set register for another machine, find that machine
 
-        if(MachineName) {
+        if (MachineName) {
 
-            if(CR_SUCCESS != (cr = CM_Connect_Machine(MachineName, &hMachine))) {
+            if (CR_SUCCESS != (cr = CM_Connect_Machine(MachineName, &hMachine))) {
 
                 // Make sure machine handle is still invalid, so we won't
                 // try to disconnect later.
@@ -1866,7 +1865,7 @@ _SetupDiSetClassRegistryProperty(
             }
         }
 
-        if(Property < SPCRP_MAXIMUM_PROPERTY) {
+        if (Property < SPCRP_MAXIMUM_PROPERTY) {
             CmRegProperty = SPCRP_TO_CMCRP(Property);
         } else {
             Err = ERROR_INVALID_REG_PROPERTY;
@@ -1875,47 +1874,47 @@ _SetupDiSetClassRegistryProperty(
 
         PropLength = PropertyBufferSize;
 
-    #ifdef UNICODE
-        if(Ansi) {
+#ifdef UNICODE
+        if (Ansi) {
             cr = CM_Set_Class_Registry_PropertyA(
-                    ClassGuid,
-                    CmRegProperty,
-                    PropertyBuffer,
-                    PropLength,
-                    0,
-                    hMachine);
-         } else {
-             cr = CM_Set_Class_Registry_PropertyW(
-                     ClassGuid,
-                     CmRegProperty,
-                     PropertyBuffer,
-                     PropLength,
-                     0,
-                     hMachine);
-         }
-    #else
-
-        // on ANSI version
-
-        cr = CM_Set_Class_Registry_Property(
                 ClassGuid,
                 CmRegProperty,
                 PropertyBuffer,
                 PropLength,
                 0,
                 hMachine);
-    #endif
+        } else {
+            cr = CM_Set_Class_Registry_PropertyW(
+                ClassGuid,
+                CmRegProperty,
+                PropertyBuffer,
+                PropLength,
+                0,
+                hMachine);
+        }
+#else
 
-        if(cr != CR_SUCCESS) {
+        // on ANSI version
 
-            switch(cr) {
+        cr = CM_Set_Class_Registry_Property(
+            ClassGuid,
+            CmRegProperty,
+            PropertyBuffer,
+            PropLength,
+            0,
+            hMachine);
+#endif
 
-                case CR_INVALID_PROPERTY :
-                    Err = ERROR_INVALID_REG_PROPERTY;
-                    break;
+        if (cr != CR_SUCCESS) {
 
-                default :
-                    Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
+            switch (cr) {
+
+            case CR_INVALID_PROPERTY:
+                Err = ERROR_INVALID_REG_PROPERTY;
+                break;
+
+            default:
+                Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
             }
         }
 
@@ -1940,11 +1939,11 @@ WINAPI
 SetupDiSetClassRegistryPropertyA(
     IN     LPGUID           ClassGuid,
     IN     DWORD            Property,
-    IN     CONST BYTE*      PropertyBuffer,    OPTIONAL
+    IN     CONST BYTE* PropertyBuffer, OPTIONAL
     IN     DWORD            PropertyBufferSize,
-    IN     PCSTR            MachineName,       OPTIONAL
+    IN     PCSTR            MachineName, OPTIONAL
     IN     PVOID            Reserved
-    )
+)
 /*
 
     See SetupDiSetClassRegistryProperty
@@ -1969,17 +1968,17 @@ SetupDiSetClassRegistryPropertyA(
 
         if (MachineName != NULL) {
             MachineString = AnsiToUnicode(MachineName);
-            if(!MachineString) {
+            if (!MachineString) {
                 Err = ERROR_NOT_ENOUGH_MEMORY;
                 leave;
             }
         }
         Err = _SetupDiSetClassRegistryProperty(ClassGuid,
-                                                Property,
-                                                PropertyBuffer,
-                                                PropertyBufferSize,
-                                                MachineString,
-                                                TRUE);
+                                               Property,
+                                               PropertyBuffer,
+                                               PropertyBufferSize,
+                                               MachineString,
+                                               TRUE);
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = NO_ERROR;
@@ -1995,17 +1994,13 @@ SetupDiSetClassRegistryPropertyA(
 
 // UNICODE stub
 
-WINSETUPAPI
-BOOL
-WINAPI
-SetupDiSetClassRegistryPropertyW(
-    IN     LPGUID           ClassGuid,
-    IN     DWORD            Property,
-    IN     CONST BYTE*      PropertyBuffer,    OPTIONAL
-    IN     DWORD            PropertyBufferSize,
-    IN     PCWSTR           MachineName,       OPTIONAL
-    IN     PVOID            Reserved
-    )
+WINSETUPAPI BOOL WINAPI SetupDiSetClassRegistryPropertyW(IN     LPGUID           ClassGuid,
+                                                         IN     DWORD            Property,
+                                                         IN     CONST BYTE* PropertyBuffer, OPTIONAL
+                                                         IN     DWORD            PropertyBufferSize,
+                                                         IN     PCWSTR           MachineName, OPTIONAL
+                                                         IN     PVOID            Reserved
+)
 /*
 
     See SetupDiSetClassRegistryProperty
@@ -2025,17 +2020,13 @@ SetupDiSetClassRegistryPropertyW(
 #endif // UNICODE
 
 
-WINSETUPAPI
-BOOL
-WINAPI
-SetupDiSetClassRegistryProperty(
-    IN     LPGUID           ClassGuid,
-    IN     DWORD            Property,
-    IN     CONST BYTE*      PropertyBuffer,    OPTIONAL
-    IN     DWORD            PropertyBufferSize,
-    IN     PCTSTR           MachineName,       OPTIONAL
-    IN     PVOID            Reserved
-    )
+WINSETUPAPI BOOL WINAPI SetupDiSetClassRegistryProperty(IN     LPGUID           ClassGuid,
+                                                        IN     DWORD            Property,
+                                                        IN     CONST BYTE* PropertyBuffer, OPTIONAL
+                                                        IN     DWORD            PropertyBufferSize,
+                                                        IN     PCTSTR           MachineName, OPTIONAL
+                                                        IN     PVOID            Reserved
+)
 /*
 
 Routine Description:
@@ -2079,11 +2070,11 @@ Return Value:
     DWORD Err;
 
     Err = _SetupDiSetClassRegistryProperty(ClassGuid,
-                                            Property,
-                                            PropertyBuffer,
-                                            PropertyBufferSize,
-                                            MachineName,
-                                            FALSE);
+                                           Property,
+                                           PropertyBuffer,
+                                           PropertyBufferSize,
+                                           MachineName,
+                                           FALSE);
     SetLastError(Err);
     return (BOOL)(Err == NO_ERROR);
 }
@@ -2096,7 +2087,7 @@ pSetupFindUniqueKey(
     IN HKEY   hkRoot,
     IN LPTSTR SubKey,
     IN ULONG  SubKeyLength
-    )
+)
 /*
 
 Routine Description:
@@ -2123,9 +2114,9 @@ Return Value:
     INT  i;
     HKEY hk;
 
-    for(i = 0; i <= 9999; i++) {
+    for (i = 0; i <= 9999; i++) {
         wsprintf(&(SubKey[SubKeyLength]), pszUniqueSubKey, i);
-        if(RegOpenKeyEx(hkRoot, SubKey, 0, KEY_READ, &hk) != ERROR_SUCCESS) {
+        if (RegOpenKeyEx(hkRoot, SubKey, 0, KEY_READ, &hk) != ERROR_SUCCESS) {
             return TRUE;
         }
         RegCloseKey(hk);
@@ -2134,15 +2125,12 @@ Return Value:
 }
 
 
-BOOL
-WINAPI
-SetupDiDeleteDevRegKey(
-    IN HDEVINFO         DeviceInfoSet,
-    IN PSP_DEVINFO_DATA DeviceInfoData,
-    IN DWORD            Scope,
-    IN DWORD            HwProfile,
-    IN DWORD            KeyType
-    )
+BOOL WINAPI SetupDiDeleteDevRegKey(IN HDEVINFO         DeviceInfoSet,
+                                   IN PSP_DEVINFO_DATA DeviceInfoData,
+                                   IN DWORD            Scope,
+                                   IN DWORD            HwProfile,
+                                   IN DWORD            KeyType
+)
 /*
 
 Routine Description:
@@ -2201,7 +2189,7 @@ Return Value:
     PDEVINFO_ELEM DevInfoElem;
     CONFIGRET cr;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -2211,9 +2199,9 @@ Return Value:
         // Get a pointer to the element for the specified device
         // instance.
 
-        if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                   DeviceInfoData,
-                                                   NULL)) {
+        if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                    DeviceInfoData,
+                                                    NULL)) {
 
             Err = pSetupDeleteDevRegKeys(DevInfoElem->DevInst, Scope, HwProfile, KeyType, FALSE);
 
@@ -2239,7 +2227,7 @@ pSetupDeleteDevRegKeys(
     IN DWORD   HwProfile,
     IN DWORD   KeyType,
     IN BOOL    DeleteUserKeys
-    )
+)
 /*
 
 Routine Description:
@@ -2266,52 +2254,52 @@ Remarks:
 
     cr = CR_SUCCESS;
 
-    if(Scope & DICS_FLAG_GLOBAL) {
+    if (Scope & DICS_FLAG_GLOBAL) {
 
-        if((KeyType == DIREG_DEV) || (KeyType == DIREG_BOTH)) {
+        if ((KeyType == DIREG_DEV) || (KeyType == DIREG_BOTH)) {
             crTemp = CM_Delete_DevInst_Key(DevInst, 0, CM_REGISTRY_HARDWARE);
-            if((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
+            if ((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
                 cr = crTemp;
             }
         }
 
-        if((KeyType == DIREG_DRV) || (KeyType == DIREG_BOTH)) {
+        if ((KeyType == DIREG_DRV) || (KeyType == DIREG_BOTH)) {
             crTemp = CM_Delete_DevInst_Key(DevInst, 0, CM_REGISTRY_SOFTWARE);
-            if((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
+            if ((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
                 cr = crTemp;
             }
         }
     }
 
-    if(Scope & DICS_FLAG_CONFIGSPECIFIC) {
+    if (Scope & DICS_FLAG_CONFIGSPECIFIC) {
 
-        if((KeyType == DIREG_DEV) || (KeyType == DIREG_BOTH)) {
+        if ((KeyType == DIREG_DEV) || (KeyType == DIREG_BOTH)) {
             crTemp = CM_Delete_DevInst_Key(DevInst, HwProfile, CM_REGISTRY_HARDWARE | CM_REGISTRY_CONFIG);
-            if((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
+            if ((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
                 cr = crTemp;
             }
         }
 
-        if((KeyType == DIREG_DRV) || (KeyType == DIREG_BOTH)) {
+        if ((KeyType == DIREG_DRV) || (KeyType == DIREG_BOTH)) {
             crTemp = CM_Delete_DevInst_Key(DevInst, HwProfile, CM_REGISTRY_SOFTWARE | CM_REGISTRY_CONFIG);
-            if((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
+            if ((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
                 cr = crTemp;
             }
         }
     }
 
-    if(DeleteUserKeys) {
+    if (DeleteUserKeys) {
 
-        if((KeyType == DIREG_DEV) || (KeyType == DIREG_BOTH)) {
+        if ((KeyType == DIREG_DEV) || (KeyType == DIREG_BOTH)) {
             crTemp = CM_Delete_DevInst_Key(DevInst, 0, CM_REGISTRY_HARDWARE | CM_REGISTRY_USER);
-            if((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
+            if ((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
                 cr = crTemp;
             }
         }
 
-        if((KeyType == DIREG_DRV) || (KeyType == DIREG_BOTH)) {
+        if ((KeyType == DIREG_DRV) || (KeyType == DIREG_BOTH)) {
             crTemp = CM_Delete_DevInst_Key(DevInst, 0, CM_REGISTRY_SOFTWARE | CM_REGISTRY_USER);
-            if((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
+            if ((cr == CR_SUCCESS) && (crTemp != CR_SUCCESS) && (crTemp != CR_NO_SUCH_REGISTRY_KEY)) {
                 cr = crTemp;
             }
         }
@@ -2320,22 +2308,22 @@ Remarks:
 
     // Now translate the ConfigMgr return code into a Win32 one.
 
-    switch(cr) {
+    switch (cr) {
 
-        case CR_SUCCESS :
-            Err = NO_ERROR;
-            break;
+    case CR_SUCCESS:
+        Err = NO_ERROR;
+        break;
 
-        case CR_REGISTRY_ERROR :
-            Err = ERROR_ACCESS_DENIED;
-            break;
+    case CR_REGISTRY_ERROR:
+        Err = ERROR_ACCESS_DENIED;
+        break;
 
-        case CR_INVALID_DEVINST :
-            Err = ERROR_NO_SUCH_DEVINST;
-            break;
+    case CR_INVALID_DEVINST:
+        Err = ERROR_NO_SUCH_DEVINST;
+        break;
 
-        default :
-            Err = ERROR_INVALID_DATA;
+    default:
+        Err = ERROR_INVALID_DATA;
     }
 
     return Err;
@@ -2346,24 +2334,21 @@ Remarks:
 
 // ANSI version
 
-HKEY
-WINAPI
-SetupDiCreateDeviceInterfaceRegKeyA(
-    IN HDEVINFO                  DeviceInfoSet,
-    IN PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData,
-    IN DWORD                     Reserved,
-    IN REGSAM                    samDesired,
-    IN HINF                      InfHandle,           OPTIONAL
-    IN PCSTR                     InfSectionName       OPTIONAL
-    )
+HKEY WINAPI SetupDiCreateDeviceInterfaceRegKeyA(IN HDEVINFO                  DeviceInfoSet,
+                                                IN PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData,
+                                                IN DWORD                     Reserved,
+                                                IN REGSAM                    samDesired,
+                                                IN HINF                      InfHandle, OPTIONAL
+                                                IN PCSTR                     InfSectionName       OPTIONAL
+)
 {
     DWORD rc;
     PWSTR name;
     HKEY h;
 
-    if(InfSectionName) {
+    if (InfSectionName) {
         rc = CaptureAndConvertAnsiArg(InfSectionName, &name);
-        if(rc != NO_ERROR) {
+        if (rc != NO_ERROR) {
             SetLastError(rc);
             return(INVALID_HANDLE_VALUE);
         }
@@ -2377,11 +2362,11 @@ SetupDiCreateDeviceInterfaceRegKeyA(
                                             samDesired,
                                             InfHandle,
                                             name
-                                           );
+    );
 
     rc = GetLastError();
 
-    if(name) {
+    if (name) {
         MyFree(name);
     }
     SetLastError(rc);
@@ -2391,16 +2376,14 @@ SetupDiCreateDeviceInterfaceRegKeyA(
 
 // Unicode stub
 
-HKEY
-WINAPI
-SetupDiCreateDeviceInterfaceRegKeyW(
+HKEY WINAPI SetupDiCreateDeviceInterfaceRegKeyW(
     IN HDEVINFO                  DeviceInfoSet,
     IN PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData,
     IN DWORD                     Reserved,
     IN REGSAM                    samDesired,
-    IN HINF                      InfHandle,           OPTIONAL
+    IN HINF                      InfHandle, OPTIONAL
     IN PCWSTR                    InfSectionName       OPTIONAL
-    )
+)
 {
     UNREFERENCED_PARAMETER(DeviceInfoSet);
     UNREFERENCED_PARAMETER(DeviceInterfaceData);
@@ -2413,16 +2396,14 @@ SetupDiCreateDeviceInterfaceRegKeyW(
 }
 #endif
 
-HKEY
-WINAPI
-SetupDiCreateDeviceInterfaceRegKey(
+HKEY WINAPI SetupDiCreateDeviceInterfaceRegKey(
     IN HDEVINFO                  DeviceInfoSet,
     IN PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData,
     IN DWORD                     Reserved,
     IN REGSAM                    samDesired,
-    IN HINF                      InfHandle,           OPTIONAL
+    IN HINF                      InfHandle, OPTIONAL
     IN PCTSTR                    InfSectionName       OPTIONAL
-    )
+)
 /*
 
 Routine Description:
@@ -2480,12 +2461,12 @@ Remarks:
     BOOL MsgHandlerIsNativeCharWidth;
     BOOL NoProgressUI;
 
-    if(Reserved != 0) {
+    if (Reserved != 0) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return INVALID_HANDLE_VALUE;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return INVALID_HANDLE_VALUE;
     }
@@ -2498,7 +2479,7 @@ Remarks:
         // Get a pointer to the device information element for the specified
         // interface device.
 
-        if(!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
+        if (!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -2508,9 +2489,9 @@ Remarks:
                                       DIOCR_INTERFACE,
                                       NULL,
                                       NULL
-                                     );
+        );
 
-        if(hk == INVALID_HANDLE_VALUE) {
+        if (hk == INVALID_HANDLE_VALUE) {
 
             // We couldn't open the interface class subkey--this should never happen.
 
@@ -2527,12 +2508,12 @@ Remarks:
                                                       TRUE,
                                                       samDesired,
                                                       &hSubKey
-                                                     );
+        );
 
         RegCloseKey(hk);
         hk = INVALID_HANDLE_VALUE;
 
-        if(Err != NO_ERROR) {
+        if (Err != NO_ERROR) {
             goto clean0;
         }
 
@@ -2540,25 +2521,25 @@ Remarks:
         // We successfully created the storage key, now run an INF install
         // section against it (if specified).
 
-        if(InfHandle && (InfHandle != INVALID_HANDLE_VALUE) && InfSectionName) {
+        if (InfHandle && (InfHandle != INVALID_HANDLE_VALUE) && InfSectionName) {
 
             // If a copy msg handler and context haven't been specified, then
             // use the default one.
 
-            if(DevInfoElem->InstallParamBlock.InstallMsgHandler) {
-                MsgHandler        = DevInfoElem->InstallParamBlock.InstallMsgHandler;
+            if (DevInfoElem->InstallParamBlock.InstallMsgHandler) {
+                MsgHandler = DevInfoElem->InstallParamBlock.InstallMsgHandler;
                 MsgHandlerContext = DevInfoElem->InstallParamBlock.InstallMsgHandlerContext;
                 MsgHandlerIsNativeCharWidth = DevInfoElem->InstallParamBlock.InstallMsgHandlerIsNativeCharWidth;
             } else {
 
                 NoProgressUI = (GuiSetupInProgress || (DevInfoElem->InstallParamBlock.Flags & DI_QUIETINSTALL));
 
-                if(!(MsgHandlerContext = SetupInitDefaultQueueCallbackEx(
-                                             DevInfoElem->InstallParamBlock.hwndParent,
-                                             (NoProgressUI ? INVALID_HANDLE_VALUE : NULL),
-                                             0,
-                                             0,
-                                             NULL))) {
+                if (!(MsgHandlerContext = SetupInitDefaultQueueCallbackEx(
+                    DevInfoElem->InstallParamBlock.hwndParent,
+                    (NoProgressUI ? INVALID_HANDLE_VALUE : NULL),
+                    0,
+                    0,
+                    NULL))) {
 
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
@@ -2567,20 +2548,20 @@ Remarks:
                 MsgHandlerIsNativeCharWidth = TRUE;
             }
 
-            if(!_SetupInstallFromInfSection(DevInfoElem->InstallParamBlock.hwndParent,
-                                            InfHandle,
-                                            InfSectionName,
-                                            SPINST_ALL ^ SPINST_LOGCONFIG,
-                                            hSubKey,
-                                            NULL,
-                                            0,
-                                            MsgHandler,
-                                            MsgHandlerContext,
-                                            INVALID_HANDLE_VALUE,
-                                            NULL,
-                                            MsgHandlerIsNativeCharWidth,
-                                            NULL
-                                            )) {
+            if (!_SetupInstallFromInfSection(DevInfoElem->InstallParamBlock.hwndParent,
+                                             InfHandle,
+                                             InfSectionName,
+                                             SPINST_ALL ^ SPINST_LOGCONFIG,
+                                             hSubKey,
+                                             NULL,
+                                             0,
+                                             MsgHandler,
+                                             MsgHandlerContext,
+                                             INVALID_HANDLE_VALUE,
+                                             NULL,
+                                             MsgHandlerIsNativeCharWidth,
+                                             NULL
+            )) {
                 Err = GetLastError();
             }
 
@@ -2588,18 +2569,18 @@ Remarks:
             // If we used the default msg handler, release the default context
             // now.
 
-            if(!DevInfoElem->InstallParamBlock.InstallMsgHandler) {
+            if (!DevInfoElem->InstallParamBlock.InstallMsgHandler) {
                 SetupTermDefaultQueueCallback(MsgHandlerContext);
             }
         }
 
-clean0:
+    clean0:
         ; // Nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
 
-        if(hk != INVALID_HANDLE_VALUE) {
+        if (hk != INVALID_HANDLE_VALUE) {
             RegCloseKey(hk);
         }
 
@@ -2612,10 +2593,10 @@ clean0:
 
     UnlockDeviceInfoSet(pDeviceInfoSet);
 
-    if(Err == NO_ERROR) {
+    if (Err == NO_ERROR) {
         return hSubKey;
     } else {
-        if(hSubKey != INVALID_HANDLE_VALUE) {
+        if (hSubKey != INVALID_HANDLE_VALUE) {
             RegCloseKey(hSubKey);
         }
         SetLastError(Err);
@@ -2624,14 +2605,12 @@ clean0:
 }
 
 
-HKEY
-WINAPI
-SetupDiOpenDeviceInterfaceRegKey(
+HKEY WINAPI SetupDiOpenDeviceInterfaceRegKey(
     IN HDEVINFO                  DeviceInfoSet,
     IN PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData,
     IN DWORD                     Reserved,
     IN REGSAM                    samDesired
-    )
+)
 /*
 Routine Description:
     This routine opens a registry storage key for a particular device interface, and returns a handle to the key.
@@ -2652,12 +2631,12 @@ Remarks:
     DWORD Err;
     PDEVINFO_ELEM DevInfoElem;
 
-    if(Reserved != 0) {
+    if (Reserved != 0) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return INVALID_HANDLE_VALUE;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return INVALID_HANDLE_VALUE;
     }
@@ -2667,13 +2646,13 @@ Remarks:
 
     try {
         // Get a pointer to the device information element for the specified interface device.
-        if(!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
+        if (!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
         hk = SetupDiOpenClassRegKeyEx(&(DeviceInterfaceData->InterfaceClassGuid), KEY_READ, DIOCR_INTERFACE, NULL, NULL);
-        if(hk == INVALID_HANDLE_VALUE) {
+        if (hk == INVALID_HANDLE_VALUE) {
             // We couldn't open the interface class subkey--this should never happen.
             Err = GetLastError();
             goto clean0;
@@ -2682,7 +2661,7 @@ Remarks:
         // Now, open up the client-accessible registry storage key for this interface device.
         Err = pSetupOpenOrCreateInterfaceDeviceRegKey(hk, pDeviceInfoSet, DeviceInterfaceData, FALSE, samDesired, &hSubKey);
 
-clean0:
+    clean0:
         ; // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -2693,7 +2672,7 @@ clean0:
 
     UnlockDeviceInfoSet(pDeviceInfoSet);
 
-    if(hk != INVALID_HANDLE_VALUE) {
+    if (hk != INVALID_HANDLE_VALUE) {
         RegCloseKey(hk);
     }
 
@@ -2702,13 +2681,10 @@ clean0:
 }
 
 
-BOOL
-WINAPI
-SetupDiDeleteDeviceInterfaceRegKey(
-    IN HDEVINFO                  DeviceInfoSet,
-    IN PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData,
-    IN DWORD                     Reserved
-    )
+BOOL WINAPI SetupDiDeleteDeviceInterfaceRegKey(IN HDEVINFO                  DeviceInfoSet,
+                                               IN PSP_DEVICE_INTERFACE_DATA DeviceInterfaceData,
+                                               IN DWORD                     Reserved
+)
 /*
 Routine Description:
     This routine deletes the registry key associated with a device interface.
@@ -2726,12 +2702,12 @@ Return Value:
     DWORD Err;
     PDEVINFO_ELEM DevInfoElem;
 
-    if(Reserved != 0) {
+    if (Reserved != 0) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -2740,13 +2716,13 @@ Return Value:
 
     try {
         // Get a pointer to the device information element for the specified interface device.
-        if(!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
+        if (!(DevInfoElem = FindDevInfoElemForInterfaceDevice(pDeviceInfoSet, DeviceInterfaceData))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
         hk = SetupDiOpenClassRegKeyEx(&(DeviceInterfaceData->InterfaceClassGuid), KEY_READ, DIOCR_INTERFACE, NULL, NULL);
-        if(hk == INVALID_HANDLE_VALUE) {
+        if (hk == INVALID_HANDLE_VALUE) {
             // We couldn't open the interface class subkey--this should never happen.
             Err = GetLastError();
             goto clean0;
@@ -2754,7 +2730,7 @@ Return Value:
 
         Err = pSetupDeleteInterfaceDeviceKey(hk, pDeviceInfoSet, DeviceInterfaceData);// Now delete the interface device key.
 
-clean0:
+    clean0:
         ;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -2764,7 +2740,7 @@ clean0:
 
     UnlockDeviceInfoSet(pDeviceInfoSet);
 
-    if(hk != INVALID_HANDLE_VALUE) {
+    if (hk != INVALID_HANDLE_VALUE) {
         RegCloseKey(hk);
     }
 
@@ -2781,7 +2757,7 @@ pSetupOpenOrCreateInterfaceDeviceRegKey(
     IN  BOOL                      Create,
     IN  REGSAM                    samDesired,
     OUT PHKEY                     hInterfaceDeviceKey
-    )
+)
 /*
 Routine Description:
     This routine creates or opens a registry storage key for the specified interface device, and returns a handle to the opened key.
@@ -2813,13 +2789,13 @@ Remarks:
         InterfaceDeviceNode = (PINTERFACE_DEVICE_NODE)(InterfaceDeviceData->Reserved);
         ClassGuid = &(DeviceInfoSet->GuidTable[InterfaceDeviceNode->GuidIndex]);
 
-        if(!IsEqualGUID(ClassGuid, &(InterfaceDeviceData->InterfaceClassGuid))) {
+        if (!IsEqualGUID(ClassGuid, &(InterfaceDeviceData->InterfaceClassGuid))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
         // Verify that this interface device hasn't been removed.
-        if(InterfaceDeviceNode->Flags & SPINT_REMOVED) {
+        if (InterfaceDeviceNode->Flags & SPINT_REMOVED) {
             Err = ERROR_DEVICE_INTERFACE_REMOVED;
             goto clean0;
         }
@@ -2827,7 +2803,7 @@ Remarks:
         // OK, now open the interface device's root storage key.
         DevicePath = pStringTableStringFromId(DeviceInfoSet->StringTable, InterfaceDeviceNode->SymLinkName);
 
-        if(ERROR_SUCCESS != OpenDeviceInterfaceSubKey(hInterfaceClassKey, DevicePath, KEY_READ, &hInterfaceDeviceRootKey, NULL, NULL)) {
+        if (ERROR_SUCCESS != OpenDeviceInterfaceSubKey(hInterfaceClassKey, DevicePath, KEY_READ, &hInterfaceDeviceRootKey, NULL, NULL)) {
             // Make sure hInterfaceDeviceRootKey is still INVALID_HANDLE_VALUE, so we
             // won't try to close it later.
             hInterfaceDeviceRootKey = INVALID_HANDLE_VALUE;
@@ -2835,13 +2811,13 @@ Remarks:
             goto clean0;
         }
 
-        if(Create) {
+        if (Create) {
             Err = RegCreateKeyEx(hInterfaceDeviceRootKey, pszDeviceParameters, 0, NULL, REG_OPTION_NON_VOLATILE, samDesired, NULL, &hSubKey, &Disposition);
         } else {
             Err = RegOpenKeyEx(hInterfaceDeviceRootKey, pszDeviceParameters, 0, samDesired, &hSubKey);
         }
 
-clean0:
+    clean0:
         ;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -2850,11 +2826,11 @@ clean0:
         hInterfaceDeviceRootKey = hInterfaceDeviceRootKey;
     }
 
-    if(hInterfaceDeviceRootKey != INVALID_HANDLE_VALUE) {
+    if (hInterfaceDeviceRootKey != INVALID_HANDLE_VALUE) {
         RegCloseKey(hInterfaceDeviceRootKey);
     }
 
-    if(Err == NO_ERROR) {
+    if (Err == NO_ERROR) {
         *hInterfaceDeviceKey = hSubKey;
     }
 
@@ -2867,7 +2843,7 @@ pSetupDeleteInterfaceDeviceKey(
     IN HKEY                      hInterfaceClassKey,
     IN PDEVICE_INFO_SET          DeviceInfoSet,
     IN PSP_DEVICE_INTERFACE_DATA InterfaceDeviceData
-    )
+)
 /*
 Routine Description:
     This routine deletes an interface device registry key (recursively deleting any subkeys as well).
@@ -2894,13 +2870,13 @@ Return Value:
         InterfaceDeviceNode = (PINTERFACE_DEVICE_NODE)(InterfaceDeviceData->Reserved);
         ClassGuid = &(DeviceInfoSet->GuidTable[InterfaceDeviceNode->GuidIndex]);
 
-        if(!IsEqualGUID(ClassGuid, &(InterfaceDeviceData->InterfaceClassGuid))) {
+        if (!IsEqualGUID(ClassGuid, &(InterfaceDeviceData->InterfaceClassGuid))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
         // Verify that this interface device hasn't been removed.
-        if(InterfaceDeviceNode->Flags & SPINT_REMOVED) {
+        if (InterfaceDeviceNode->Flags & SPINT_REMOVED) {
             Err = ERROR_DEVICE_INTERFACE_REMOVED;
             goto clean0;
         }
@@ -2908,7 +2884,7 @@ Return Value:
         // OK, now open the interface device's root storage key.
         DevicePath = pStringTableStringFromId(DeviceInfoSet->StringTable, InterfaceDeviceNode->SymLinkName);
 
-        if(ERROR_SUCCESS != OpenDeviceInterfaceSubKey(hInterfaceClassKey, DevicePath, KEY_READ, &hInterfaceDeviceRootKey, NULL, NULL)) {
+        if (ERROR_SUCCESS != OpenDeviceInterfaceSubKey(hInterfaceClassKey, DevicePath, KEY_READ, &hInterfaceDeviceRootKey, NULL, NULL)) {
             // Make sure hInterfaceDeviceRootKey is still INVALID_HANDLE_VALUE, so we
             // won't try to close it later.
             hInterfaceDeviceRootKey = INVALID_HANDLE_VALUE;
@@ -2918,7 +2894,7 @@ Return Value:
 
         Err = RegistryDelnode(hInterfaceDeviceRootKey, pszDeviceParameters);
 
-clean0:
+    clean0:
         ;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -2927,7 +2903,7 @@ clean0:
         hInterfaceDeviceRootKey = hInterfaceDeviceRootKey;
     }
 
-    if(hInterfaceDeviceRootKey != INVALID_HANDLE_VALUE) {
+    if (hInterfaceDeviceRootKey != INVALID_HANDLE_VALUE) {
         RegCloseKey(hInterfaceDeviceRootKey);
     }
 

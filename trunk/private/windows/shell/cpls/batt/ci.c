@@ -22,9 +22,9 @@ BOOL APIENTRY LibMain(
     DWORD dwReason,
     LPVOID lpReserved)
 {
-    switch( dwReason ) {
+    switch (dwReason) {
     case DLL_PROCESS_ATTACH:
-        TRACE_MSG (TF_FUNC, "Battery Class Installer Loaded\n");
+        TRACE_MSG(TF_FUNC, "Battery Class Installer Loaded\n");
         DisableThreadLibraryCalls(hDll);
         break;
     case DLL_PROCESS_DETACH:
@@ -44,7 +44,7 @@ BatteryClassInstall(
     IN DI_FUNCTION      DiFunction,
     IN HDEVINFO         DevInfoHandle,
     IN PSP_DEVINFO_DATA DevInfoData     OPTIONAL
-    )
+)
 /*++
 Routine Description:
     This function is the class installer entry-point.
@@ -68,22 +68,21 @@ Arguments:
 
 
     devParams.cbSize = sizeof(devParams);
-    if (!SetupDiGetDeviceInstallParams(DevInfoHandle, DevInfoData, &devParams))
-    {
+    if (!SetupDiGetDeviceInstallParams(DevInfoHandle, DevInfoData, &devParams)) {
         status = GetLastError();
     } else {
-        TRACE_MSG (TF_GENERAL, "DiFunction = %x\n", DiFunction);
+        TRACE_MSG(TF_GENERAL, "DiFunction = %x\n", DiFunction);
 
         switch (DiFunction) {// Dispatch the InstallFunction
-            case DIF_INSTALLDEVICE:
-                status = InstallCompositeBattery (DevInfoHandle, DevInfoData, &devParams);
-                if (status == ERROR_SUCCESS) {
-                    status = ERROR_DI_DO_DEFAULT;// Let the default device installer actually install the battery.
-                }
-                break;
-            default:
-                status = ERROR_DI_DO_DEFAULT;
-                break;
+        case DIF_INSTALLDEVICE:
+            status = InstallCompositeBattery(DevInfoHandle, DevInfoData, &devParams);
+            if (status == ERROR_SUCCESS) {
+                status = ERROR_DI_DO_DEFAULT;// Let the default device installer actually install the battery.
+            }
+            break;
+        default:
+            status = ERROR_DI_DO_DEFAULT;
+            break;
         }
     }
 
@@ -96,11 +95,11 @@ Arguments:
 
 DWORD
 PRIVATE
-InstallCompositeBattery (
+InstallCompositeBattery(
     IN     HDEVINFO                DevInfoHandle,
-    IN     PSP_DEVINFO_DATA        DevInfoData,         OPTIONAL
+    IN     PSP_DEVINFO_DATA        DevInfoData, OPTIONAL
     IN OUT PSP_DEVINSTALL_PARAMS   DevInstallParams
-    )
+)
 /*++
 Routine Description:
     This function installs the composite battery if it hasn't already been installed.
@@ -118,17 +117,17 @@ Arguments:
     DWORD                   bufferLen;
 
     // Allocate local memory for a new device info structure
-    if(!(newDevInfoData = LocalAlloc(LPTR, sizeof(SP_DEVINFO_DATA)))) {
+    if (!(newDevInfoData = LocalAlloc(LPTR, sizeof(SP_DEVINFO_DATA)))) {
         status = GetLastError();
-        TRACE_MSG (TF_ERROR, "Couldn't allocate composite battery device info- %x\n", status);
+        TRACE_MSG(TF_ERROR, "Couldn't allocate composite battery device info- %x\n", status);
         goto clean0;
     }
 
     // Create a new device info list.  Since we are "manufacturing" a completely new device with the Composite Battery, we can't use any of the information from the battery device list.
-    newDevInfoHandle = SetupDiCreateDeviceInfoList ((LPGUID)&GUID_DEVCLASS_SYSTEM, DevInstallParams->hwndParent);
+    newDevInfoHandle = SetupDiCreateDeviceInfoList((LPGUID)&GUID_DEVCLASS_SYSTEM, DevInstallParams->hwndParent);
     if (newDevInfoHandle == INVALID_HANDLE_VALUE) {
         status = GetLastError();
-        TRACE_MSG (TF_ERROR, "Can't create DevInfoList - %x\n", status);
+        TRACE_MSG(TF_ERROR, "Can't create DevInfoList - %x\n", status);
         goto clean1;
     }
 
@@ -139,22 +138,22 @@ Arguments:
 
 
     newDevInfoData->cbSize = sizeof(SP_DEVINFO_DATA);
-    if(!SetupDiCreateDeviceInfo(newDevInfoHandle,
-                              TEXT("Root\\COMPOSITE_BATTERY\\0000"),
-                              (LPGUID)&GUID_DEVCLASS_SYSTEM,
-                              NULL,
-                              DevInstallParams->hwndParent,  // same parent window as enumerated device
-                              0,
-                              newDevInfoData)) {
+    if (!SetupDiCreateDeviceInfo(newDevInfoHandle,
+                                 TEXT("Root\\COMPOSITE_BATTERY\\0000"),
+                                 (LPGUID)&GUID_DEVCLASS_SYSTEM,
+                                 NULL,
+                                 DevInstallParams->hwndParent,  // same parent window as enumerated device
+                                 0,
+                                 newDevInfoData)) {
         status = GetLastError();
         if (status == ERROR_DEVINST_ALREADY_EXISTS) {
 
             // The composite battery is already installed.  Our work is done.
-            TRACE_MSG (TF_GENERAL, "Composite Battery Already Installed\n");
+            TRACE_MSG(TF_GENERAL, "Composite Battery Already Installed\n");
             status = ERROR_SUCCESS;
             goto clean2;
         } else {
-            TRACE_MSG (TF_ERROR, "Error creating composite battery devinfo - %x\n", status);
+            TRACE_MSG(TF_ERROR, "Error creating composite battery devinfo - %x\n", status);
             goto clean2;
         }
     }
@@ -163,7 +162,7 @@ Arguments:
     // Register the device so it is not a phantom anymore
     if (!SetupDiRegisterDeviceInfo(newDevInfoHandle, newDevInfoData, 0, NULL, NULL, NULL)) {
         status = GetLastError();
-        TRACE_MSG (TF_ERROR, "Couldn't register device - %x\n", status);
+        TRACE_MSG(TF_ERROR, "Couldn't register device - %x\n", status);
         goto clean3;
     }
 
@@ -172,19 +171,17 @@ Arguments:
     // Set the hardware ID.  For the composite battery it will be COMPOSITE_BATTERY
 
 
-    memset (tmpBuffer, 0, sizeof(tmpBuffer));
-    lstrcpy (tmpBuffer, TEXT("COMPOSITE_BATTERY"));
+    memset(tmpBuffer, 0, sizeof(tmpBuffer));
+    lstrcpy(tmpBuffer, TEXT("COMPOSITE_BATTERY"));
 
     bufferLen = lstrlen(tmpBuffer) + (2 * sizeof(TCHAR));
-    TRACE_MSG (TF_GENERAL, "tmpBuffer - %s\n with strlen = %x\n", tmpBuffer, bufferLen);
+    TRACE_MSG(TF_GENERAL, "tmpBuffer - %s\n with strlen = %x\n", tmpBuffer, bufferLen);
 
-    status = SetupDiSetDeviceRegistryProperty (
-                        newDevInfoHandle,
-                        newDevInfoData,
-                        SPDRP_HARDWAREID,
-                        tmpBuffer,
-                        bufferLen
-                        );
+    status = SetupDiSetDeviceRegistryProperty(newDevInfoHandle,
+                                              newDevInfoData,
+                                              SPDRP_HARDWAREID,
+                                              tmpBuffer,
+                                              bufferLen);
     if (!status) {
         status = GetLastError();
         TRACE_MSG(TF_ERROR, "Couldn't set the HardwareID - %x\n", status);
@@ -196,7 +193,7 @@ Arguments:
     // Build a compatible driver list for this new device...
 
 
-    if(!SetupDiBuildDriverInfoList(newDevInfoHandle, newDevInfoData, SPDIT_COMPATDRIVER)) {
+    if (!SetupDiBuildDriverInfoList(newDevInfoHandle, newDevInfoData, SPDIT_COMPATDRIVER)) {
         status = GetLastError();
         TRACE_MSG(TF_ERROR, "Couldn't build class driver list - %x\n", status);
         goto clean3;
@@ -207,33 +204,33 @@ Arguments:
     // Select the first driver in the list as this will be the most compatible
 
 
-    driverInfoData.cbSize = sizeof (SP_DRVINFO_DATA);
+    driverInfoData.cbSize = sizeof(SP_DRVINFO_DATA);
     if (!SetupDiEnumDriverInfo(newDevInfoHandle, newDevInfoData, SPDIT_COMPATDRIVER, 0, &driverInfoData)) {
         status = GetLastError();
         TRACE_MSG(TF_ERROR, "Couldn't get driver list - %x\n", status);
         goto clean3;
     } else {
         TRACE_MSG(TF_GENERAL, "Driver info - \n"
-                              "-- DriverType     %x\n"
-                              "-- Description    %s\n"
-                              "-- MfgName        %s\n"
-                              "-- ProviderName   %s\n\n",
-                              driverInfoData.DriverType,
-                              driverInfoData.Description,
-                              driverInfoData.MfgName,
-                              driverInfoData.ProviderName);
+                  "-- DriverType     %x\n"
+                  "-- Description    %s\n"
+                  "-- MfgName        %s\n"
+                  "-- ProviderName   %s\n\n",
+                  driverInfoData.DriverType,
+                  driverInfoData.Description,
+                  driverInfoData.MfgName,
+                  driverInfoData.ProviderName);
         if (!SetupDiSetSelectedDriver(newDevInfoHandle, newDevInfoData, &driverInfoData)) {
             status = GetLastError();
-            TRACE_MSG (TF_ERROR, "Couldn't select driver - %x\n", status);
+            TRACE_MSG(TF_ERROR, "Couldn't select driver - %x\n", status);
             goto clean4;
         }
     }
 
 
     // Install the device
-    if (!SetupDiInstallDevice (newDevInfoHandle, newDevInfoData)) {
+    if (!SetupDiInstallDevice(newDevInfoHandle, newDevInfoData)) {
         status = GetLastError();
-        TRACE_MSG (TF_ERROR, "Couldn't install device - %x\n", status);
+        TRACE_MSG(TF_ERROR, "Couldn't install device - %x\n", status);
         goto clean4;
     }
 
@@ -243,22 +240,22 @@ Arguments:
 
 
     status = ERROR_SUCCESS;
-    SetLastError (status);
+    SetLastError(status);
     goto clean1;
 
 
 clean4:
-    SetupDiDestroyDriverInfoList (newDevInfoHandle, newDevInfoData, SPDIT_COMPATDRIVER);
+    SetupDiDestroyDriverInfoList(newDevInfoHandle, newDevInfoData, SPDIT_COMPATDRIVER);
 
 clean3:
-    SetupDiDeleteDeviceInfo (newDevInfoHandle, newDevInfoData);
+    SetupDiDeleteDeviceInfo(newDevInfoHandle, newDevInfoData);
 
 clean2:
-    SetupDiDestroyDeviceInfoList (newDevInfoHandle);
+    SetupDiDestroyDeviceInfoList(newDevInfoHandle);
 
 clean1:
-    LocalFree (newDevInfoData);
+    LocalFree(newDevInfoData);
 
 clean0:
-   return status;
+    return status;
 }

@@ -70,7 +70,7 @@ typedef struct _CLASSDRV_THREAD_CONTEXT {
 
     HWND NotificationWindow;
 
-} CLASSDRV_THREAD_CONTEXT, *PCLASSDRV_THREAD_CONTEXT;
+} CLASSDRV_THREAD_CONTEXT, * PCLASSDRV_THREAD_CONTEXT;
 
 
 
@@ -79,8 +79,8 @@ typedef struct _CLASSDRV_THREAD_CONTEXT {
 DWORD
 pSetupCreateNewDevWizData(
     IN  PSP_INSTALLWIZARD_DATA  InstallWizardData,
-    OUT PNEWDEVWIZ_DATA        *NewDeviceWizardData
-    );
+    OUT PNEWDEVWIZ_DATA* NewDeviceWizardData
+);
 
 UINT
 CALLBACK
@@ -88,7 +88,7 @@ SelectDevicePropSheetPageProc(
     IN HWND hwnd,
     IN UINT uMsg,
     IN LPPROPSHEETPAGE ppsp
-    );
+);
 
 INT_PTR
 CALLBACK
@@ -97,150 +97,142 @@ SelectDeviceDlgProc(
     IN UINT uMsg,
     IN WPARAM wParam,
     IN LPARAM lParam
-    );
+);
 
 BOOL
 InitSelectDeviceDlg(
     IN     HWND hwndDlg,
     IN OUT PSP_DIALOGDATA lpdd
-    );
+);
 
 VOID
 _OnSysColorChange(
     HWND hWnd,
     WPARAM wParam,
     LPARAM lParam
-    );
+);
 
 BOOL
 OnSetActive(
     IN     HWND            hwndDlg,
     IN OUT PNEWDEVWIZ_DATA ndwData
-    );
+);
 
 DWORD
 HandleSelectOEM(
     IN     HWND           hwndDlg,
     IN OUT PSP_DIALOGDATA lpdd
-    );
+);
 
 DWORD
 HandleWindowsUpdate(
     IN     HWND           hwndDlg,
     IN OUT PSP_DIALOGDATA lpdd
-    );
+);
 
 DWORD
 FillInDeviceList(
     IN HWND           hwndDlg,
     IN PSP_DIALOGDATA lpdd
-    );
+);
 
 VOID
 ShowListForMfg(
     IN PSP_DIALOGDATA          lpdd,
     IN PDEVICE_INFO_SET        DeviceInfoSet,
     IN PDEVINSTALL_PARAM_BLOCK InstallParamBlock,
-    IN PDRIVER_NODE            DriverNode,        OPTIONAL
+    IN PDRIVER_NODE            DriverNode, OPTIONAL
     IN INT                     iMfg
-    );
+);
 
 VOID
 LockAndShowListForMfg(
     IN PSP_DIALOGDATA   lpdd,
     IN INT              iMfg
-    );
+);
 
 PDRIVER_NODE
 GetDriverNodeFromLParam(
     IN PDEVICE_INFO_SET DeviceInfoSet,
     IN PSP_DIALOGDATA   lpdd,
     IN LPARAM           lParam
-    );
+);
 
 BOOL
 pSetupIsSelectedHardwareIdValid(
     IN HWND           hWnd,
     IN PSP_DIALOGDATA lpdd,
     IN INT            iCur
-    );
+);
 
 VOID
 SetSelectedDriverNode(
     IN PSP_DIALOGDATA lpdd,
     IN INT            iCur
-    );
+);
 
 BOOL
 bNoDevsToShow(
     IN PDEVINFO_ELEM DevInfoElem
-    );
+);
 
 PNEWDEVWIZ_DATA
 GetNewDevWizDataFromPsPage(
     LPPROPSHEETPAGE ppsp
-    );
+);
 
 LONG
 GetCurDesc(
     IN PSP_DIALOGDATA lpdd
-    );
+);
 
 VOID
 OnCancel(
     IN PNEWDEVWIZ_DATA ndwData
-    );
+);
 
 VOID
 __cdecl
 ClassDriverSearchThread(
     IN PVOID Context
-    );
+);
 
 BOOL
 pSetupIsClassDriverListBuilt(
     IN PSP_DIALOGDATA lpdd
-    );
+);
 
 VOID
 pSetupDevInfoDataFromDialogData(
     IN  PSP_DIALOGDATA   lpdd,
     OUT PSP_DEVINFO_DATA DeviceInfoData
-    );
+);
 
 VOID
 ToggleDialogControls(
     IN HWND           hwndDlg,
     IN PSP_DIALOGDATA lpdd,
     IN BOOL           Enable
-    );
+);
 
 BOOL
 CDMIsInternetAvailable(
     void
-    );
+);
 
 
-HPROPSHEETPAGE
-WINAPI
-SetupDiGetWizardPage(
-    IN HDEVINFO               DeviceInfoSet,
-    IN PSP_DEVINFO_DATA       DeviceInfoData,    OPTIONAL
-    IN PSP_INSTALLWIZARD_DATA InstallWizardData,
-    IN DWORD                  PageType,
-    IN DWORD                  Flags
-    )
+HPROPSHEETPAGE WINAPI SetupDiGetWizardPage(IN HDEVINFO               DeviceInfoSet,
+                                           IN PSP_DEVINFO_DATA       DeviceInfoData, OPTIONAL
+                                           IN PSP_INSTALLWIZARD_DATA InstallWizardData,
+                                           IN DWORD                  PageType,
+                                           IN DWORD                  Flags
+)
 /*++
-
 Routine Description:
-
     This routine retrieves a handle to one of the Setup API-provided wizard
     pages, for an application to include in its own wizard.
-
 Arguments:
-
-    DeviceInfoSet - Supplies the handle of the device information set to
-        retrieve a wizard page for.
+    DeviceInfoSet - Supplies the handle of the device information set to retrieve a wizard page for.
 
     DeviceInfoData - Optionally, supplies the address of a device information
         with which the wizard page will be associated.  This parameter is only
@@ -303,43 +295,43 @@ Remarks:
 
     // Make sure we're running interactively.
 
-    if(GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
+    if (GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
         SetLastError(ERROR_REQUIRES_INTERACTIVE_WINDOWSTATION);
         return FALSE;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
 
     try {
 
-        switch(PageType) {
+        switch (PageType) {
 
-            case SPWPT_SELECTDEVICE :
+        case SPWPT_SELECTDEVICE:
 
-                Page->pszTemplate = MAKEINTRESOURCE(IDD_DYNAWIZ_SELECTDEV_PAGE);
-                Page->pfnDlgProc = SelectDeviceDlgProc;
-                Page->pfnCallback = SelectDevicePropSheetPageProc;
+            Page->pszTemplate = MAKEINTRESOURCE(IDD_DYNAWIZ_SELECTDEV_PAGE);
+            Page->pfnDlgProc = SelectDeviceDlgProc;
+            Page->pfnCallback = SelectDevicePropSheetPageProc;
 
 #ifndef ANSI_SETUPAPI
-                Page->pszHeaderTitle = MAKEINTRESOURCE(IDS_NDW_SELECTDEVICE);
-                Page->pszHeaderSubTitle = MAKEINTRESOURCE(IDS_NDW_SELECTDEVICE_INFO);
+            Page->pszHeaderTitle = MAKEINTRESOURCE(IDS_NDW_SELECTDEVICE);
+            Page->pszHeaderSubTitle = MAKEINTRESOURCE(IDS_NDW_SELECTDEVICE_INFO);
 #endif
 
-                break;
+            break;
 
-            default :
-                Err = ERROR_INVALID_PARAMETER;
-                goto clean0;
+        default:
+            Err = ERROR_INVALID_PARAMETER;
+            goto clean0;
         }
 
 
         // Validate the supplied InstallWizardData structure, and create a private
         // storage buffer for internal use by the wizard page.
 
-        if((Err = pSetupCreateNewDevWizData(InstallWizardData, &ndwData)) != NO_ERROR) {
+        if ((Err = pSetupCreateNewDevWizData(InstallWizardData, &ndwData)) != NO_ERROR) {
             goto clean0;
         }
 
@@ -353,18 +345,18 @@ Remarks:
         // If the caller specified the SPWP_USE_DEVINFO_DATA flag, then store information
         // in the dialog data structure about the specified devinfo element (if supplied).
 
-        if(Flags & SPWP_USE_DEVINFO_DATA) {
-            if(DeviceInfoData) {
+        if (Flags & SPWP_USE_DEVINFO_DATA) {
+            if (DeviceInfoData) {
 
                 // Verify that the specified device information element is a valid one.
 
-                if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                             DeviceInfoData,
-                                                             NULL))) {
+                if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                              DeviceInfoData,
+                                                              NULL))) {
                     Err = ERROR_INVALID_PARAMETER;
                     goto clean0;
 
-                } else if(DevInfoElem->DiElemFlags & DIE_IS_LOCKED) {
+                } else if (DevInfoElem->DiElemFlags & DIE_IS_LOCKED) {
 
                     // Device information element cannot be explicitly used by more than
                     // one wizard page at a time.
@@ -383,7 +375,7 @@ Remarks:
         // We've successfully created and initialized the devwiz data structure.
         // Now create a wizpage object so we can keep track of it.
 
-        if(WizPageObject = MyMalloc(sizeof(WIZPAGE_OBJECT))) {
+        if (WizPageObject = MyMalloc(sizeof(WIZPAGE_OBJECT))) {
             WizPageObject->RefCount = 0;
             WizPageObject->ndwData = ndwData;
 
@@ -409,13 +401,13 @@ Remarks:
 
         Page->lParam = (LPARAM)DeviceInfoSet;
 
-        *((PVOID *)(&(pspBuffer[sizeof(PROPSHEETPAGE)]))) = WizPageObject;
+        *((PVOID*)(&(pspBuffer[sizeof(PROPSHEETPAGE)]))) = WizPageObject;
 
-        if(!(hPage = CreatePropertySheetPage(Page))) {
+        if (!(hPage = CreatePropertySheetPage(Page))) {
             Err = ERROR_INVALID_DATA;
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -423,11 +415,11 @@ clean0: ;   // nothing to do.
 
     UnlockDeviceInfoSet(pDeviceInfoSet);
 
-    if(Err != NO_ERROR) {
-        if(ndwData) {
+    if (Err != NO_ERROR) {
+        if (ndwData) {
             MyFree(ndwData);
         }
-        if(WizPageObject) {
+        if (WizPageObject) {
             MyFree(WizPageObject);
         }
     }
@@ -437,22 +429,12 @@ clean0: ;   // nothing to do.
 }
 
 
-BOOL
-WINAPI
-SetupDiGetSelectedDevice(
-    IN  HDEVINFO          DeviceInfoSet,
-    OUT PSP_DEVINFO_DATA  DeviceInfoData
-    )
+BOOL WINAPI SetupDiGetSelectedDevice(IN  HDEVINFO          DeviceInfoSet, OUT PSP_DEVINFO_DATA  DeviceInfoData)
 /*++
-
 Routine Description:
-
     This routine retrieves the currently-selected device for the specified
-    device information set.  This is typically used during an installation
-    wizard.
-
+    device information set.  This is typically used during an installation wizard.
 Arguments:
-
     DeviceInfoSet - Supplies a handle to the device information set for
         which the selected device is to be retrieved.
 
@@ -473,7 +455,7 @@ Return Value:
     PDEVICE_INFO_SET pDeviceInfoSet;
     DWORD Err;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -482,11 +464,11 @@ Return Value:
 
     try {
 
-        if(pDeviceInfoSet->SelectedDevInfoElem) {
+        if (pDeviceInfoSet->SelectedDevInfoElem) {
 
-            if(!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
-                                                  pDeviceInfoSet->SelectedDevInfoElem,
-                                                  DeviceInfoData))) {
+            if (!(DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
+                                                   pDeviceInfoSet->SelectedDevInfoElem,
+                                                   DeviceInfoData))) {
                 Err = ERROR_INVALID_USER_BUFFER;
             }
 
@@ -505,42 +487,25 @@ Return Value:
 }
 
 
-BOOL
-WINAPI
-SetupDiSetSelectedDevice(
-    IN HDEVINFO          DeviceInfoSet,
-    IN PSP_DEVINFO_DATA  DeviceInfoData
-    )
+BOOL WINAPI SetupDiSetSelectedDevice(IN HDEVINFO          DeviceInfoSet, IN PSP_DEVINFO_DATA  DeviceInfoData)
 /*++
-
 Routine Description:
-
     This routine sets the specified device information element to be the
     currently selected member of a device information set.  This is typically
     used during an installation wizard.
-
 Arguments:
-
-    DeviceInfoSet - Supplies a handle to the device information set for
-        which the selected device is to be set.
-
-    DeviceInfoData - Supplies the address of a SP_DEVINFO_DATA structure
-        specifying the device information element to be selected.
-
+    DeviceInfoSet - Supplies a handle to the device information set for which the selected device is to be set.
+    DeviceInfoData - Supplies the address of a SP_DEVINFO_DATA structure specifying the device information element to be selected.
 Return Value:
-
     If the function succeeds, the return value is TRUE.
-
-    If the function fails, the return value is FALSE.  To get extended error
-    information, call GetLastError.
-
+    If the function fails, the return value is FALSE.  To get extended error information, call GetLastError.
 --*/
 {
     PDEVICE_INFO_SET pDeviceInfoSet;
     DWORD Err;
     PDEVINFO_ELEM DevInfoElem;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -549,7 +514,7 @@ Return Value:
 
     try {
 
-        if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
+        if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
             pDeviceInfoSet->SelectedDevInfoElem = DevInfoElem;
         } else {
             Err = ERROR_INVALID_PARAMETER;
@@ -569,8 +534,8 @@ Return Value:
 DWORD
 pSetupCreateNewDevWizData(
     IN  PSP_INSTALLWIZARD_DATA  InstallWizardData,
-    OUT PNEWDEVWIZ_DATA        *NewDeviceWizardData
-    )
+    OUT PNEWDEVWIZ_DATA* NewDeviceWizardData
+)
 /*++
 
 Routine Description:
@@ -596,8 +561,8 @@ Return Value:
     PNEWDEVWIZ_DATA ndwData = NULL;
     DWORD Err = NO_ERROR;
 
-    if((InstallWizardData->ClassInstallHeader.cbSize != sizeof(SP_CLASSINSTALL_HEADER)) ||
-       (InstallWizardData->ClassInstallHeader.InstallFunction != DIF_INSTALLWIZARD)) {
+    if ((InstallWizardData->ClassInstallHeader.cbSize != sizeof(SP_CLASSINSTALL_HEADER)) ||
+        (InstallWizardData->ClassInstallHeader.InstallFunction != DIF_INSTALLWIZARD)) {
 
         return ERROR_INVALID_USER_BUFFER;
     }
@@ -609,7 +574,7 @@ Return Value:
 
     try {
 
-        if(ndwData = MyMalloc(sizeof(NEWDEVWIZ_DATA))) {
+        if (ndwData = MyMalloc(sizeof(NEWDEVWIZ_DATA))) {
             ZeroMemory(ndwData, sizeof(NEWDEVWIZ_DATA));
         } else {
             Err = ERROR_NOT_ENOUGH_MEMORY;
@@ -628,15 +593,15 @@ Return Value:
         CopyMemory(&(ndwData->InstallData),
                    InstallWizardData,
                    sizeof(SP_INSTALLWIZARD_DATA)
-                  );
+        );
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
     }
 
-    if((Err != NO_ERROR) && ndwData) {
+    if ((Err != NO_ERROR) && ndwData) {
         MyFree(ndwData);
     } else {
         *NewDeviceWizardData = ndwData;
@@ -652,7 +617,7 @@ SelectDevicePropSheetPageProc(
     IN HWND hwnd,
     IN UINT uMsg,
     IN LPPROPSHEETPAGE ppsp
-    )
+)
 /*++
 
 Routine Description:
@@ -685,7 +650,7 @@ Return Value:
 
     // Access the device info set handle stored in the propsheetpage's lParam.
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet((HDEVINFO)(ppsp->lParam)))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet((HDEVINFO)(ppsp->lParam)))) {
         return FALSE;
     }
 
@@ -698,13 +663,13 @@ Return Value:
         // Retrieve this now, and look for it in the devinfo set's list of
         // wizard objects.
 
-        WizObjectId = *((PVOID *)(&(((PBYTE)ppsp)[sizeof(PROPSHEETPAGE)])));
+        WizObjectId = *((PVOID*)(&(((PBYTE)ppsp)[sizeof(PROPSHEETPAGE)])));
 
-        for(CurWizObject = pDeviceInfoSet->WizPageList, PrevWizObject = NULL;
-            CurWizObject;
-            PrevWizObject = CurWizObject, CurWizObject = CurWizObject->Next) {
+        for (CurWizObject = pDeviceInfoSet->WizPageList, PrevWizObject = NULL;
+             CurWizObject;
+             PrevWizObject = CurWizObject, CurWizObject = CurWizObject->Next) {
 
-            if(WizObjectId == CurWizObject) {
+            if (WizObjectId == CurWizObject) {
 
                 // We found our object.
 
@@ -712,66 +677,66 @@ Return Value:
             }
         }
 
-        if(!CurWizObject) {
+        if (!CurWizObject) {
             ret = FALSE;
             goto clean0;
         }
 
-        switch(uMsg) {
+        switch (uMsg) {
 
-            case PSPCB_CREATE :
+        case PSPCB_CREATE:
 
-                // Fail the create if we've already been created once (hopefully, this
-                // will never happen).
+            // Fail the create if we've already been created once (hopefully, this
+            // will never happen).
 
-                if(CurWizObject->RefCount) {
-                    ret = FALSE;
-                    goto clean0;
+            if (CurWizObject->RefCount) {
+                ret = FALSE;
+                goto clean0;
+            } else {
+                CurWizObject->RefCount++;
+            }
+            break;
+
+        case PSPCB_RELEASE:
+
+            // Decrement the wizard object refcount.  If it goes to zero (or if it
+            // already was zero because we never got a PSPCB_CREATE message), then
+            // remove the object from the linked list, and free all associated memory.
+
+            if (CurWizObject->RefCount) {
+                CurWizObject->RefCount--;
+            }
+
+            MYASSERT(!CurWizObject->RefCount);
+
+            if (!CurWizObject->RefCount) {
+
+                // Remove the object from the object list.
+
+                if (PrevWizObject) {
+                    PrevWizObject->Next = CurWizObject->Next;
                 } else {
-                    CurWizObject->RefCount++;
-                }
-                break;
-
-            case PSPCB_RELEASE :
-
-                // Decrement the wizard object refcount.  If it goes to zero (or if it
-                // already was zero because we never got a PSPCB_CREATE message), then
-                // remove the object from the linked list, and free all associated memory.
-
-                if(CurWizObject->RefCount) {
-                    CurWizObject->RefCount--;
+                    pDeviceInfoSet->WizPageList = CurWizObject->Next;
                 }
 
-                MYASSERT(!CurWizObject->RefCount);
 
-                if(!CurWizObject->RefCount) {
+                // If this wizard object was explicitly tied to a particular device
+                // information element, then unlock that element now.
 
-                    // Remove the object from the object list.
+                if ((CurWizObject->ndwData->ddData.flags & DD_FLAG_USE_DEVINFO_ELEM) &&
+                    (DevInfoElem = CurWizObject->ndwData->ddData.DevInfoElem)) {
 
-                    if(PrevWizObject) {
-                        PrevWizObject->Next = CurWizObject->Next;
-                    } else {
-                        pDeviceInfoSet->WizPageList = CurWizObject->Next;
-                    }
+                    MYASSERT(DevInfoElem->DiElemFlags & DIE_IS_LOCKED);
 
-
-                    // If this wizard object was explicitly tied to a particular device
-                    // information element, then unlock that element now.
-
-                    if((CurWizObject->ndwData->ddData.flags & DD_FLAG_USE_DEVINFO_ELEM) &&
-                       (DevInfoElem = CurWizObject->ndwData->ddData.DevInfoElem)) {
-
-                        MYASSERT(DevInfoElem->DiElemFlags & DIE_IS_LOCKED);
-
-                        DevInfoElem->DiElemFlags ^= DIE_IS_LOCKED;
-                    }
-
-                    MyFree(CurWizObject->ndwData);
-                    MyFree(CurWizObject);
+                    DevInfoElem->DiElemFlags ^= DIE_IS_LOCKED;
                 }
+
+                MyFree(CurWizObject->ndwData);
+                MyFree(CurWizObject);
+            }
         }
 
-clean0: ;   // nothing to do
+    clean0:;   // nothing to do
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         ret = FALSE;
@@ -790,7 +755,7 @@ SelectDeviceDlgProc(
     IN UINT uMsg,
     IN WPARAM wParam,
     IN LPARAM lParam
-    )
+)
 /*++
 
 Routine Description:
@@ -808,7 +773,7 @@ Routine Description:
     PCLASSDRV_THREAD_CONTEXT ClassDrvThreadContext;
     HCURSOR hOldCursor;
 
-    if(uMsg == WM_INITDIALOG) {
+    if (uMsg == WM_INITDIALOG) {
 
         LPPROPSHEETPAGE Page = (LPPROPSHEETPAGE)lParam;
 
@@ -819,7 +784,7 @@ Routine Description:
         ndwData = GetNewDevWizDataFromPsPage(Page);
         SetWindowLongPtr(hwndDlg, DWLP_USER, (LONG_PTR)ndwData);
 
-        if(ndwData) {
+        if (ndwData) {
             ndwData->bInit = TRUE;
             ndwData->idTimer = 0;
             ndwData->bInit = FALSE;
@@ -832,7 +797,7 @@ Routine Description:
             return TRUE;  // we didn't set the focus
         }
 
-        if(ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
+        if (ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
 
             // For the stand-alone dialog box version, we initialize here.
 
@@ -865,7 +830,7 @@ Routine Description:
         // For the small set of messages that we get before WM_INITDIALOG, we
         // won't have a devwizdata pointer!
 
-        if(ndwData = (PNEWDEVWIZ_DATA)GetWindowLongPtr(hwndDlg, DWLP_USER)) {
+        if (ndwData = (PNEWDEVWIZ_DATA)GetWindowLongPtr(hwndDlg, DWLP_USER)) {
             iwd = &(ndwData->InstallData);
         } else {
 
@@ -880,764 +845,764 @@ Routine Description:
         }
     }
 
-    switch(uMsg) {
+    switch (uMsg) {
 
-        case WMX_CLASSDRVLIST_DONE :
+    case WMX_CLASSDRVLIST_DONE:
 
-            MYASSERT(ndwData->ddData.AuxThreadRunning);
-            ndwData->ddData.AuxThreadRunning = FALSE;
+        MYASSERT(ndwData->ddData.AuxThreadRunning);
+        ndwData->ddData.AuxThreadRunning = FALSE;
 
 
-            // wParam is a boolean indicating the result of the class driver search.
-            // lParam is NO_ERROR upon success, or a Win32 error code indicating cause of failure.
+        // wParam is a boolean indicating the result of the class driver search.
+        // lParam is NO_ERROR upon success, or a Win32 error code indicating cause of failure.
 
-            switch(ndwData->ddData.PendingAction) {
+        switch (ndwData->ddData.PendingAction) {
 
-                case PENDING_ACTION_NONE :
+        case PENDING_ACTION_NONE:
 
-                    // Then the thread has completed, but the user is still mulling over the
-                    // choices on the compatible driver list.  If the class driver list was
-                    // successfully built, then there's nothing to do here.  If it failed for
-                    // some reason (highly unlikely), then we (silently) disable the class list
-                    // radio button.
+            // Then the thread has completed, but the user is still mulling over the
+            // choices on the compatible driver list.  If the class driver list was
+            // successfully built, then there's nothing to do here.  If it failed for
+            // some reason (highly unlikely), then we (silently) disable the class list
+            // radio button.
 
-                    if(!wParam) {
+            if (!wParam) {
+                ndwData->ddData.flags |= DD_FLAG_CLASSLIST_FAILED;
+                EnableWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_SHOWALL), FALSE);
+            }
+            break;
+
+        case PENDING_ACTION_SELDONE:
+
+            // In this case, we don't care what happened in the other thread.  The
+            // user has made their selection, and we're ready to return success.
+
+            SetSelectedDriverNode(&(ndwData->ddData),
+                                  ndwData->ddData.CurSelectionForSuccess
+            );
+            EndDialog(hwndDlg, NO_ERROR);
+            break;
+
+        case PENDING_ACTION_SHOWCLASS:
+
+            // Then we've been waiting on the class driver search to complete, so that
+            // we can show the list.  Hopefully, the search was successful.  If not,
+            // we'll give the user a popup saying that the list could not be shown, and
+            // then leave them in the compatible list view (with the class list radio
+            // button now disabled).
+
+            ndwData->ddData.PendingAction = PENDING_ACTION_NONE;
+
+            if (wParam) {
+
+                // The class driver list was built successfully.
+
+                if (ndwData->ddData.CurSelectionForSuccess != LB_ERR) {
+
+                    lvItem.mask = LVIF_TEXT;
+                    lvItem.iItem = ndwData->ddData.CurSelectionForSuccess;
+                    lvItem.iSubItem = 0;
+                    lvItem.pszText = TempString;
+                    lvItem.cchTextMax = SIZECHARS(TempString);
+
+                    if (ListView_GetItem((ndwData->ddData).hwndDrvList, &lvItem)) {
+
+                        // Now retrieve the (case-insensitive) string ID of this
+                        // string, and store it as the current description ID.
+
+                        (ndwData->ddData).iCurDesc = LookUpStringInDevInfoSet((ndwData->ddData).DevInfoSet,
+                                                                              TempString,
+                                                                              FALSE
+                        );
+                    }
+                }
+
+                ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_STATUS_TEXT), SW_HIDE);
+
+                if (FillInDeviceList(hwndDlg, &(ndwData->ddData)) == NO_ERROR) {
+                    EnableWindow(GetDlgItem(hwndDlg, IDOK), TRUE);
+                    break;
+                }
+            }
+
+
+            // Inform the user that the class driver search failed.
+
+            if (!LoadString(MyDllModuleHandle,
+                            IDS_SELECT_DEVICE,
+                            TempString,
+                            SIZECHARS(TempString))) {
+                *TempString = TEXT('\0');
+            }
+
+            FormatMessageBox(MyDllModuleHandle, hwndDlg, MSG_NO_CLASSDRVLIST_ERROR, TempString, MB_OK | MB_TASKMODAL);
+
+
+            // Re-select the "Show compatible devices" radio button, and disable
+            // the 'Show all devices" radio button.
+
+            ndwData->ddData.ListType = IDC_NDW_PICKDEV_SHOWCOMPAT;
+            CheckRadioButton(hwndDlg, IDC_NDW_PICKDEV_SHOWCOMPAT, IDC_NDW_PICKDEV_SHOWALL, IDC_NDW_PICKDEV_SHOWCOMPAT);
+
+            ndwData->ddData.flags |= DD_FLAG_CLASSLIST_FAILED;
+            EnableWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_SHOWALL), FALSE);
+
+            // We also must unhide the compatible driver list controls, and re-enable
+            // the OK button.
+
+            ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_STATUS_TEXT), SW_HIDE);
+            ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_MODELSLABEL), SW_SHOW);
+            ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_DRVLIST), SW_SHOW);
+            EnableWindow(GetDlgItem(hwndDlg, IDOK), TRUE);
+
+            break;
+
+        case PENDING_ACTION_CANCEL:
+
+            // This is an easy one.  No matter what happened in the other thread,
+            // we simply want to clean up and return.
+
+            OnCancel(ndwData);
+            EndDialog(hwndDlg, ERROR_CANCELLED);
+            break;
+
+        case PENDING_ACTION_OEM:
+        case PENDING_ACTION_WINDOWSUPDATE:
+
+            // The user clicked the "Have Disk" button or the "Windows Update" button.
+            // Pass this off to either HandleSelectOEM() or HandleWindowsUpdate().
+            // If we get back success, then we are done, and can end the dialog.
+
+            ndwData->ddData.PendingAction = PENDING_ACTION_NONE;
+
+            if (((ndwData->ddData.PendingAction == PENDING_ACTION_OEM) &&
+                (HandleSelectOEM(hwndDlg, &(ndwData->ddData)) == NO_ERROR)) ||
+                 ((ndwData->ddData.PendingAction == PENDING_ACTION_WINDOWSUPDATE) &&
+                (HandleWindowsUpdate(hwndDlg, &(ndwData->ddData)) == NO_ERROR))) {
+                EndDialog(hwndDlg, NO_ERROR);
+            } else {
+
+                // The OEM selection was not made, so we'll just continue as though
+                // nothing had happened.  Re-enable the dialog controls.
+
+                if (ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
+
+                    ToggleDialogControls(hwndDlg, &(ndwData->ddData), TRUE);
+                }
+
+                ndwData->bInit = FALSE;
+
+
+                // We got here by aborting the class driver search.  Since we may need
+                // it after all, we must re-start the search (unless the auxilliary thread
+                // happened to have already finished before we sent it the abort request).
+
+                if (!(ndwData->ddData.flags & DD_FLAG_CLASSLIST_FAILED) &&
+                    !pSetupIsClassDriverListBuilt(&(ndwData->ddData))) {
+
+                    // Allocate a context structure to pass to the auxilliary thread (the
+                    // auxilliary thread will take care of freeing the memory).
+
+                    if (ClassDrvThreadContext = MyMalloc(sizeof(CLASSDRV_THREAD_CONTEXT))) {
+
+                        // Fill in the context structure, and fire off the thread.
+
+                        ClassDrvThreadContext->DeviceInfoSet = ndwData->ddData.DevInfoSet;
+
+
+                        // SP_DEVINFO_DATA can only be retrieved whilst the device information
+                        // set is locked.
+
+                        pSetupDevInfoDataFromDialogData(&(ndwData->ddData),
+                                                        &(ClassDrvThreadContext->DeviceInfoData)
+                        );
+
+                        ClassDrvThreadContext->NotificationWindow = hwndDlg;
+
+                        if (_beginthread(ClassDriverSearchThread, 0, ClassDrvThreadContext) == -1) {
+                            MyFree(ClassDrvThreadContext);
+                        } else {
+
+                            ndwData->ddData.AuxThreadRunning = TRUE;
+
+
+                            // If we're currently in the class driver list view, then disable
+                            // the OK button, since the user can't select a class driver yet.
+
+                            EnableWindow(GetDlgItem(hwndDlg, IDOK), FALSE);
+                        }
+                    }
+
+                    if (!(ndwData->ddData.AuxThreadRunning)) {
+
+                        // We couldn't start the class driver search thread.  Disable the
+                        // "Show all devices" radio button (and select the "Show compatible
+                        // devices" button, if it's not already selected).
+
+                        if (ndwData->ddData.ListType != IDC_NDW_PICKDEV_SHOWCOMPAT) {
+
+                            ndwData->ddData.ListType = IDC_NDW_PICKDEV_SHOWCOMPAT;
+                            CheckRadioButton(hwndDlg,
+                                             IDC_NDW_PICKDEV_SHOWCOMPAT,
+                                             IDC_NDW_PICKDEV_SHOWALL,
+                                             IDC_NDW_PICKDEV_SHOWCOMPAT
+                            );
+                        }
+
                         ndwData->ddData.flags |= DD_FLAG_CLASSLIST_FAILED;
                         EnableWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_SHOWALL), FALSE);
                     }
-                    break;
+                }
+            }
+        }
 
-                case PENDING_ACTION_SELDONE :
+        break;
 
-                    // In this case, we don't care what happened in the other thread.  The
-                    // user has made their selection, and we're ready to return success.
+    case WMX_NO_DRIVERS_IN_LIST:
+    {
 
-                    SetSelectedDriverNode(&(ndwData->ddData),
-                                          ndwData->ddData.CurSelectionForSuccess
-                                         );
-                    EndDialog(hwndDlg, NO_ERROR);
-                    break;
+        TCHAR Title[LINE_LEN];
 
-                case PENDING_ACTION_SHOWCLASS :
+        LoadString(MyDllModuleHandle, IDS_SELECT_DEVICE, Title, SIZECHARS(Title));
+        LoadString(MyDllModuleHandle, IDS_NDW_NODRIVERS_WARNING, TempString, SIZECHARS(TempString));
 
-                    // Then we've been waiting on the class driver search to complete, so that
-                    // we can show the list.  Hopefully, the search was successful.  If not,
-                    // we'll give the user a popup saying that the list could not be shown, and
-                    // then leave them in the compatible list view (with the class list radio
-                    // button now disabled).
+        if (IDOK == MessageBox(hwndDlg, TempString, Title, MB_OKCANCEL | MB_ICONEXCLAMATION)) {
 
-                    ndwData->ddData.PendingAction = PENDING_ACTION_NONE;
+            PostMessage(hwndDlg, WM_COMMAND, IDC_NDW_PICKDEV_HAVEDISK, 0);
+        } else {
 
-                    if(wParam) {
+            PostMessage(hwndDlg, WM_COMMAND, IDCANCEL, 0);
+        }
 
-                        // The class driver list was built successfully.
+        break;
+    }
 
-                        if(ndwData->ddData.CurSelectionForSuccess != LB_ERR) {
+    case WM_DESTROY:
 
-                            lvItem.mask = LVIF_TEXT;
-                            lvItem.iItem = ndwData->ddData.CurSelectionForSuccess;
-                            lvItem.iSubItem = 0;
-                            lvItem.pszText = TempString;
-                            lvItem.cchTextMax = SIZECHARS(TempString);
+        if (ndwData->ddData.AuxThreadRunning) {
 
-                            if(ListView_GetItem((ndwData->ddData).hwndDrvList, &lvItem)) {
+            // This should never happen.  But just to be on the safe side, if it does,
+            // we'll cancel the search.  We _will not_ however, wait for the
+            // WMX_CLASSDRVLIST_DONE message, to signal that the thread has terminated.
+            // This should be OK, since the worst that can happen is that it will try
+            // to send a message to a window that no longer exists.
 
-                                // Now retrieve the (case-insensitive) string ID of this
-                                // string, and store it as the current description ID.
+            SetupDiCancelDriverInfoSearch(ndwData->ddData.DevInfoSet);
+        }
 
-                                (ndwData->ddData).iCurDesc = LookUpStringInDevInfoSet((ndwData->ddData).DevInfoSet,
-                                                                                      TempString,
-                                                                                      FALSE
-                                                                                     );
-                            }
-                        }
+        if (ndwData->idTimer) {
+            ndwData->bInit = TRUE;
+            KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
+        }
+
+        if (hicon = (HICON)SendDlgItemMessage(hwndDlg, IDC_CLASSICON, STM_GETICON, 0, 0)) {
+            DestroyIcon(hicon);
+        }
+        break;
+
+    case WM_COMMAND:
+
+        switch (LOWORD(wParam)) {
+
+        case IDC_NDW_PICKDEV_SHOWCOMPAT:
+        case IDC_NDW_PICKDEV_SHOWALL:
+
+            if ((HIWORD(wParam) == BN_CLICKED) &&
+                IsWindowVisible(GetDlgItem(hwndDlg, LOWORD(wParam))) &&
+                !IsDlgButtonChecked(hwndDlg, LOWORD(wParam))) {
+
+                // Due to focus/click weirdness in USER, pre-click
+                // the button and unclick if needed.
+
+                CheckRadioButton(hwndDlg,
+                                 IDC_NDW_PICKDEV_SHOWCOMPAT,
+                                 IDC_NDW_PICKDEV_SHOWALL,
+                                 LOWORD(wParam)
+                );
+                ndwData->ddData.ListType = (INT)LOWORD(wParam);
+
+                // Update the current description ID in the dialog data so that
+                // the same device will be highlighted when we switch from one
+                // view to the other.
+
+                iCur = (int)ListView_GetNextItem((ndwData->ddData).hwndDrvList,
+                                                 -1,
+                                                 LVNI_SELECTED
+                );
+
+                if (ndwData->ddData.AuxThreadRunning) {
+
+                    // There are two possibilities here:
+
+                    // 1. The user was looking at the compatible driver list, and then
+                    //    decided to look at the class driver list, which we're not done
+                    //    building yet.  In that case, hide the compatible driver listbox,
+                    //    and unhide our "waiting for class list" static text control.
+
+                    // 2. The user switched to the class driver list view, saw that we
+                    //    were still working on it, and then decided to switch back to
+                    //    the compatible list.  In that case, we simply need to re-hide
+                    //    the "waiting for class list" static text control, and show
+                    //    the compatible driver listbox again.  In this case, we don't
+                    //    want to attempt to re-initialize the listbox, as that will
+                    //    require acquiring the HDEVINFO lock, and we will hang.
+
+                    if (ndwData->ddData.ListType == IDC_NDW_PICKDEV_SHOWCOMPAT) {
 
                         ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_STATUS_TEXT), SW_HIDE);
+                        ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_MODELSLABEL), SW_SHOW);
+                        ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_DRVLIST), SW_SHOW);
+                        EnableWindow(GetDlgItem(hwndDlg, IDOK), TRUE);
 
-                        if(FillInDeviceList(hwndDlg, &(ndwData->ddData)) == NO_ERROR) {
-                            EnableWindow(GetDlgItem(hwndDlg, IDOK), TRUE);
-                            break;
+
+                        // We no longer have a pending action.
+
+                        ndwData->ddData.PendingAction = PENDING_ACTION_NONE;
+
+                    } else {
+
+                        // Temporarily hide the compatible driver listbox, and unhide the
+                        // "waiting for class list" static text control.
+
+                        ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_MODELSLABEL), SW_HIDE);
+                        ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_DRVLIST), SW_HIDE);
+                        ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_STATUS_TEXT), SW_SHOW);
+
+                        LoadString(MyDllModuleHandle, IDS_NDW_RETRIEVING_LIST, TempString, SIZECHARS(TempString));
+                        SetDlgItemText(hwndDlg, IDC_NDW_STATUS_TEXT, TempString);
+
+
+                        // Disable the OK button, because the user can't select a class driver
+                        // yet.
+
+                        EnableWindow(GetDlgItem(hwndDlg, IDOK), FALSE);
+
+                        MYASSERT(ndwData->ddData.PendingAction == PENDING_ACTION_NONE);
+
+                        ndwData->ddData.PendingAction = PENDING_ACTION_SHOWCLASS;
+                        ndwData->ddData.CurSelectionForSuccess = iCur;
+                    }
+
+                } else {
+
+                    if (iCur != LB_ERR) {
+
+                        lvItem.mask = LVIF_TEXT;
+                        lvItem.iItem = iCur;
+                        lvItem.iSubItem = 0;
+                        lvItem.pszText = TempString;
+                        lvItem.cchTextMax = SIZECHARS(TempString);
+
+                        if (ListView_GetItem((ndwData->ddData).hwndDrvList, &lvItem)) {
+
+                            // Now retrieve the (case-insensitive) string ID of this
+                            // string, and store it as the current description ID.
+
+                            (ndwData->ddData).iCurDesc = LookUpStringInDevInfoSet((ndwData->ddData).DevInfoSet,
+                                                                                  TempString,
+                                                                                  FALSE
+                            );
                         }
                     }
 
+                    FillInDeviceList(hwndDlg, &(ndwData->ddData));
 
-                    // Inform the user that the class driver search failed.
 
-                    if(!LoadString(MyDllModuleHandle,
-                                   IDS_SELECT_DEVICE,
-                                   TempString,
-                                   SIZECHARS(TempString))) {
+                    // If we just filled in the compatible driver list, then make sure there
+                    // aren't isn't a time waiting to pounce and destroy our list!
+
+                    if ((ndwData->ddData.ListType == IDC_NDW_PICKDEV_SHOWCOMPAT) &&
+                        (ndwData->idTimer)) {
+
+                        KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
+                        ndwData->idTimer = 0;
+                    }
+                }
+            }
+            break;
+
+        case IDC_NDW_PICKDEV_HAVEDISK:
+
+            // If we're doing a dialog box, then pressing "Have Disk" will popup another
+            // Select Device dialog.  Disable all controls on this one first, to avoid
+            // user confusion.
+
+            if (ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
+                ToggleDialogControls(hwndDlg, &(ndwData->ddData), FALSE);
+            }
+
+
+            // If HandleSelectOEM returns success, we are done, and can either end
+            // the dialog, or proceed to the next wizard page.
+
+            if (ndwData->ddData.AuxThreadRunning) {
+
+                // The auxilliary thread is still running.  Set our cursor to an
+                // hourglass, and set our pending action to be OEM Select while we
+                // wait for the thread to respond to our cancel request.
+
+                MYASSERT((ndwData->ddData.PendingAction == PENDING_ACTION_NONE) ||
+                    (ndwData->ddData.PendingAction == PENDING_ACTION_SHOWCLASS));
+
+                hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
+
+                SetupDiCancelDriverInfoSearch(ndwData->ddData.DevInfoSet);
+
+                // Disable all dialog controls, so that no other button may be pressed
+                // until we respond to this pending action.  Also, kill the timer, so
+                // that it doesn't fire in the meantime.
+
+                ndwData->bInit = TRUE;
+                if (ndwData->idTimer) {
+                    KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
+                    ndwData->idTimer = 0;
+                }
+                ndwData->ddData.PendingAction = PENDING_ACTION_OEM;
+
+                SetCursor(hOldCursor);
+
+            } else {
+
+                if (HandleSelectOEM(hwndDlg, &(ndwData->ddData)) == NO_ERROR) {
+
+                    if (ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
+                        EndDialog(hwndDlg, NO_ERROR);
+                    } else {
+                        iwd->Flags |= NDW_INSTALLFLAG_CI_PICKED_OEM;
+                        PropSheet_PressButton(GetParent(hwndDlg), PSBTN_NEXT);
+                    }
+
+                } else if (ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
+
+                    // The user didn't make an OEM selection, so we need to re-enable
+                    // the controls on our dialog.
+
+                    ToggleDialogControls(hwndDlg, &(ndwData->ddData), TRUE);
+                }
+            }
+            break;
+
+        case IDC_NDW_PICKDEV_WINDOWSUPDATE:
+
+            // If we're doing a dialog box, then pressing "Have Disk" will popup another
+            // Select Device dialog.  Disable all controls on this one first, to avoid
+            // user confusion.
+
+            if (ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
+                ToggleDialogControls(hwndDlg, &(ndwData->ddData), FALSE);
+            }
+
+
+            // If HandleWindowsUpdate returns success, we are done, and can either end
+            // the dialog, or proceed to the next wizard page.
+
+            if (ndwData->ddData.AuxThreadRunning) {
+
+
+                // The auxilliary thread is still running.  Set our cursor to an
+                // hourglass, and set our pending action to be Windows Update Select while we
+                // wait for the thread to respond to our cancel request.
+
+                MYASSERT((ndwData->ddData.PendingAction == PENDING_ACTION_NONE) ||
+                    (ndwData->ddData.PendingAction == PENDING_ACTION_SHOWCLASS));
+
+                hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
+
+                SetupDiCancelDriverInfoSearch(ndwData->ddData.DevInfoSet);
+
+                // Disable all dialog controls, so that no other button may be pressed
+                // until we respond to this pending action.  Also, kill the timer, so
+                // that it doesn't fire in the meantime.
+
+                ndwData->bInit = TRUE;
+                if (ndwData->idTimer) {
+                    KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
+                    ndwData->idTimer = 0;
+                }
+                ndwData->ddData.PendingAction = PENDING_ACTION_WINDOWSUPDATE;
+
+                SetCursor(hOldCursor);
+
+            } else {
+
+                if (HandleWindowsUpdate(hwndDlg, &(ndwData->ddData)) == NO_ERROR) {
+
+                    if (ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
+                        EndDialog(hwndDlg, NO_ERROR);
+                    } else {
+                        iwd->Flags |= NDW_INSTALLFLAG_CI_PICKED_OEM;
+                        PropSheet_PressButton(GetParent(hwndDlg), PSBTN_NEXT);
+                    }
+
+                } else if (ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
+
+                    // The user didn't make an OEM selection, so we need to re-enable
+                    // the controls on our dialog.
+
+                    ToggleDialogControls(hwndDlg, &(ndwData->ddData), TRUE);
+                }
+            }
+            break;
+
+        case IDOK:
+        HandleOK:
+            iCur = (int)ListView_GetNextItem((ndwData->ddData).hwndDrvList,
+                                             -1,
+                                             LVNI_SELECTED
+            );
+            if (iCur != LB_ERR) {
+
+                // We have retrieved a valid selection from our listbox.
+
+                if (ndwData->ddData.AuxThreadRunning) {
+
+                    // The auxilliary thread is still running.  Set our cursor to an
+                    // hourglass, while we wait for the thread to terminate.
+
+                    MYASSERT((ndwData->ddData.PendingAction == PENDING_ACTION_NONE) ||
+                        (ndwData->ddData.PendingAction == PENDING_ACTION_SHOWCLASS));
+
+                    hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
+
+                    SetupDiCancelDriverInfoSearch(ndwData->ddData.DevInfoSet);
+
+                    // Disable all dialog controls, so that no other button may be pressed
+                    // until we respond to this pending action.  Also, kill the timer, so
+                    // that it doesn't fire in the meantime.
+
+                    ToggleDialogControls(hwndDlg, &(ndwData->ddData), FALSE);
+                    ndwData->bInit = TRUE;
+                    if (ndwData->idTimer) {
+                        KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
+                        ndwData->idTimer = 0;
+                    }
+                    ndwData->ddData.PendingAction = PENDING_ACTION_SELDONE;
+                    ndwData->ddData.CurSelectionForSuccess = iCur;
+
+                    SetCursor(hOldCursor);
+
+                } else {
+
+                    // The auxilliary thread has already returned. We can return
+                    // success right here.
+
+                    SetSelectedDriverNode(&(ndwData->ddData), iCur);
+                    EndDialog(hwndDlg, NO_ERROR);
+                }
+
+            } else {
+
+
+                // If the list box is empty, then just leave. We will treat this
+                // just like the user canceled.
+
+                if (0 == ListView_GetItemCount((ndwData->ddData).hwndDrvList)) {
+
+                    PostMessage(hwndDlg, WM_COMMAND, IDCANCEL, 0);
+
+                } else {
+
+
+                    // Tell user to select something since there are items in the list
+
+                    if (!LoadString(MyDllModuleHandle,
+                                    IDS_SELECT_DEVICE,
+                                    TempString,
+                                    SIZECHARS(TempString))) {
                         *TempString = TEXT('\0');
                     }
 
-                    FormatMessageBox(MyDllModuleHandle, hwndDlg, MSG_NO_CLASSDRVLIST_ERROR, TempString, MB_OK | MB_TASKMODAL);
-
-
-                    // Re-select the "Show compatible devices" radio button, and disable
-                    // the 'Show all devices" radio button.
-
-                    ndwData->ddData.ListType = IDC_NDW_PICKDEV_SHOWCOMPAT;
-                    CheckRadioButton(hwndDlg, IDC_NDW_PICKDEV_SHOWCOMPAT, IDC_NDW_PICKDEV_SHOWALL, IDC_NDW_PICKDEV_SHOWCOMPAT);
-
-                    ndwData->ddData.flags |= DD_FLAG_CLASSLIST_FAILED;
-                    EnableWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_SHOWALL), FALSE);
-
-                    // We also must unhide the compatible driver list controls, and re-enable
-                    // the OK button.
-
-                    ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_STATUS_TEXT), SW_HIDE);
-                    ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_MODELSLABEL), SW_SHOW);
-                    ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_DRVLIST), SW_SHOW);
-                    EnableWindow(GetDlgItem(hwndDlg, IDOK), TRUE);
-
-                    break;
-
-                case PENDING_ACTION_CANCEL :
-
-                    // This is an easy one.  No matter what happened in the other thread,
-                    // we simply want to clean up and return.
-
-                    OnCancel(ndwData);
-                    EndDialog(hwndDlg, ERROR_CANCELLED);
-                    break;
-
-                case PENDING_ACTION_OEM :
-                case PENDING_ACTION_WINDOWSUPDATE:
-
-                    // The user clicked the "Have Disk" button or the "Windows Update" button.
-                    // Pass this off to either HandleSelectOEM() or HandleWindowsUpdate().
-                    // If we get back success, then we are done, and can end the dialog.
-
-                    ndwData->ddData.PendingAction = PENDING_ACTION_NONE;
-
-                    if(((ndwData->ddData.PendingAction == PENDING_ACTION_OEM) &&
-                        (HandleSelectOEM(hwndDlg, &(ndwData->ddData)) == NO_ERROR)) ||
-                       ((ndwData->ddData.PendingAction == PENDING_ACTION_WINDOWSUPDATE) &&
-                        (HandleWindowsUpdate(hwndDlg, &(ndwData->ddData)) == NO_ERROR))) {
-                        EndDialog(hwndDlg, NO_ERROR);
-                    } else {
-
-                        // The OEM selection was not made, so we'll just continue as though
-                        // nothing had happened.  Re-enable the dialog controls.
-
-                        if(ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
-
-                            ToggleDialogControls(hwndDlg, &(ndwData->ddData), TRUE);
-                        }
-
-                        ndwData->bInit = FALSE;
-
-
-                        // We got here by aborting the class driver search.  Since we may need
-                        // it after all, we must re-start the search (unless the auxilliary thread
-                        // happened to have already finished before we sent it the abort request).
-
-                        if(!(ndwData->ddData.flags & DD_FLAG_CLASSLIST_FAILED) &&
-                           !pSetupIsClassDriverListBuilt(&(ndwData->ddData)))
-                        {
-
-                            // Allocate a context structure to pass to the auxilliary thread (the
-                            // auxilliary thread will take care of freeing the memory).
-
-                            if(ClassDrvThreadContext = MyMalloc(sizeof(CLASSDRV_THREAD_CONTEXT))) {
-
-                                // Fill in the context structure, and fire off the thread.
-
-                                ClassDrvThreadContext->DeviceInfoSet = ndwData->ddData.DevInfoSet;
-
-
-                                // SP_DEVINFO_DATA can only be retrieved whilst the device information
-                                // set is locked.
-
-                                pSetupDevInfoDataFromDialogData(&(ndwData->ddData),
-                                                                &(ClassDrvThreadContext->DeviceInfoData)
-                                                               );
-
-                                ClassDrvThreadContext->NotificationWindow = hwndDlg;
-
-                                if(_beginthread(ClassDriverSearchThread, 0, ClassDrvThreadContext) == -1) {
-                                    MyFree(ClassDrvThreadContext);
-                                } else {
-
-                                    ndwData->ddData.AuxThreadRunning = TRUE;
-
-
-                                    // If we're currently in the class driver list view, then disable
-                                    // the OK button, since the user can't select a class driver yet.
-
-                                    EnableWindow(GetDlgItem(hwndDlg, IDOK), FALSE);
-                                }
-                            }
-
-                            if(!(ndwData->ddData.AuxThreadRunning)) {
-
-                                // We couldn't start the class driver search thread.  Disable the
-                                // "Show all devices" radio button (and select the "Show compatible
-                                // devices" button, if it's not already selected).
-
-                                if(ndwData->ddData.ListType != IDC_NDW_PICKDEV_SHOWCOMPAT) {
-
-                                    ndwData->ddData.ListType = IDC_NDW_PICKDEV_SHOWCOMPAT;
-                                    CheckRadioButton(hwndDlg,
-                                                     IDC_NDW_PICKDEV_SHOWCOMPAT,
-                                                     IDC_NDW_PICKDEV_SHOWALL,
-                                                     IDC_NDW_PICKDEV_SHOWCOMPAT
-                                                    );
-                                }
-
-                                ndwData->ddData.flags |= DD_FLAG_CLASSLIST_FAILED;
-                                EnableWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_SHOWALL), FALSE);
-                            }
-                        }
-                    }
+                    FormatMessageBox(MyDllModuleHandle, hwndDlg, MSG_SELECTDEVICE_ERROR, TempString, MB_OK | MB_ICONEXCLAMATION);
+                }
             }
-
             break;
 
-        case WMX_NO_DRIVERS_IN_LIST: {
+        case IDCANCEL:
 
-            TCHAR Title[LINE_LEN];
+            if (ndwData->ddData.AuxThreadRunning) {
 
-            LoadString(MyDllModuleHandle, IDS_SELECT_DEVICE, Title, SIZECHARS(Title));
-            LoadString(MyDllModuleHandle, IDS_NDW_NODRIVERS_WARNING, TempString, SIZECHARS(TempString));
+                // The auxilliary thread is running, so we have to ask it to cancel,
+                // and set our pending action to do the cancel upon the thread's
+                // termination notification.
 
-            if (IDOK == MessageBox(hwndDlg, TempString, Title, MB_OKCANCEL | MB_ICONEXCLAMATION)) {
+                MYASSERT((ndwData->ddData.PendingAction == PENDING_ACTION_NONE) ||
+                    (ndwData->ddData.PendingAction == PENDING_ACTION_SHOWCLASS));
 
-                PostMessage(hwndDlg, WM_COMMAND, IDC_NDW_PICKDEV_HAVEDISK, 0);
+                hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
+
+                SetupDiCancelDriverInfoSearch(ndwData->ddData.DevInfoSet);
+
+                // Disable all dialog controls, so that no other button may be pressed
+                // until we respond to this pending action.  Also, kill the timer, so
+                // that it doesn't fire in the meantime.
+
+                ToggleDialogControls(hwndDlg, &(ndwData->ddData), FALSE);
+                ndwData->bInit = TRUE;
+                if (ndwData->idTimer) {
+                    KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
+                    ndwData->idTimer = 0;
+                }
+                ndwData->ddData.PendingAction = PENDING_ACTION_CANCEL;
+
+                SetCursor(hOldCursor);
+
             } else {
 
-                PostMessage(hwndDlg, WM_COMMAND, IDCANCEL, 0);
+                // The auxilliary thread isn't running, so we can return right here.
+
+                OnCancel(ndwData);
+                EndDialog(hwndDlg, ERROR_CANCELLED);
+            }
+            break;
+
+        default:
+            return FALSE;
+        }
+        break;
+
+    case WM_NOTIFY:
+
+        switch (((LPNMHDR)lParam)->code) {
+
+        case PSN_SETACTIVE:
+
+            // Init the text in set active since a class installer
+            // has the option of replacing it.
+
+            SetDlgText(hwndDlg, IDC_NDW_TEXT, IDS_NDW_PICKDEV1, IDS_NDW_PICKDEV1);
+
+            ndwData->bInit = TRUE;       // Still doing some init stuff
+
+            if (!OnSetActive(hwndDlg, ndwData)) {
+                SetDlgMsgResult(hwndDlg, uMsg, -1);
             }
 
+            ndwData->bInit = FALSE;      // Done with init stuff
+            break;
+
+        case PSN_WIZBACK:
+            if (iwd->DynamicPageFlags & DYNAWIZ_FLAG_PAGESADDED) {
+                SetDlgMsgResult(hwndDlg, uMsg, IDD_DYNAWIZ_SELECT_PREVPAGE);
+            } else {
+                SetDlgMsgResult(hwndDlg, uMsg, IDD_DYNAWIZ_SELECTCLASS_PAGE);
+            }
+            break;
+
+        case PSN_WIZNEXT:
+            if (!(iwd->Flags & NDW_INSTALLFLAG_CI_PICKED_OEM)) {
+
+                iCur = (int)ListView_GetNextItem((ndwData->ddData).hwndDrvList,
+                                                 -1,
+                                                 LVNI_SELECTED
+                );
+                if (iCur != LB_ERR) {
+
+                    // We have retrieved a valid selection from our listbox.
+
+                    if (pSetupIsSelectedHardwareIdValid(hwndDlg, &(ndwData->ddData), iCur)) {
+                        SetSelectedDriverNode(&(ndwData->ddData), iCur);
+                    } else {
+                        SetDlgMsgResult(hwndDlg, uMsg, (LRESULT)-1);
+                        break;
+                    }
+
+                } else {        // Invalid Listview selection
+
+                    // Fail the call and end the case
+
+                    SetDlgMsgResult(hwndDlg, uMsg, (LRESULT)-1);
+                    break;
+                }
+            }
+
+
+            // Update the current description in the dialog data so that we'll hi-lite
+            // the correct selection if the user comes back to this page.
+
+            (ndwData->ddData).iCurDesc = GetCurDesc(&(ndwData->ddData));
+
+            if (iwd->DynamicPageFlags & DYNAWIZ_FLAG_PAGESADDED) {
+                SetDlgMsgResult(hwndDlg, uMsg, IDD_DYNAWIZ_SELECT_NEXTPAGE);
+            } else {
+                SetDlgMsgResult(hwndDlg, uMsg, IDD_DYNAWIZ_ANALYZEDEV_PAGE);
+            }
+            break;
+        case LVN_ITEMCHANGED:
+            // If the idFrom is the MFG list, then update the Drv list.
+            if (((((LPNMHDR)lParam)->idFrom) == IDC_NDW_PICKDEV_MFGLIST) && !ndwData->bInit) {
+                if (ndwData->idTimer) {
+                    KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
+                }
+
+                ndwData->idTimer = SetTimer(hwndDlg, SELECTMFG_TIMER_ID, SELECTMFG_TIMER_DELAY, NULL);
+                if (ndwData->idTimer == 0) {
+                    goto SelectMfgItemNow;
+                }
+            }
+            break;
+        case NM_DBLCLK:
+            if (((((LPNMHDR)lParam)->idFrom) == IDC_NDW_PICKDEV_DRVLIST) || ((((LPNMHDR)lParam)->idFrom) == IDC_NDW_PICKDEV_ONEMFG_DRVLIST)) {
+                if (ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
+                    goto HandleOK;
+                } else {
+                    PropSheet_PressButton(GetParent(hwndDlg), PSBTN_NEXT);
+                }
+            }
             break;
         }
 
-        case WM_DESTROY:
-
-            if(ndwData->ddData.AuxThreadRunning) {
-
-                // This should never happen.  But just to be on the safe side, if it does,
-                // we'll cancel the search.  We _will not_ however, wait for the
-                // WMX_CLASSDRVLIST_DONE message, to signal that the thread has terminated.
-                // This should be OK, since the worst that can happen is that it will try
-                // to send a message to a window that no longer exists.
-
-                SetupDiCancelDriverInfoSearch(ndwData->ddData.DevInfoSet);
-            }
-
-            if(ndwData->idTimer) {
-                ndwData->bInit = TRUE;
-                KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
-            }
-
-            if(hicon = (HICON)SendDlgItemMessage(hwndDlg, IDC_CLASSICON, STM_GETICON, 0, 0)) {
-                DestroyIcon(hicon);
-            }
-            break;
-
-        case WM_COMMAND:
-
-            switch(LOWORD(wParam)) {
-
-                case IDC_NDW_PICKDEV_SHOWCOMPAT :
-                case IDC_NDW_PICKDEV_SHOWALL :
-
-                    if((HIWORD(wParam) == BN_CLICKED) &&
-                       IsWindowVisible(GetDlgItem(hwndDlg, LOWORD(wParam))) &&
-                       !IsDlgButtonChecked(hwndDlg, LOWORD(wParam))) {
-
-                        // Due to focus/click weirdness in USER, pre-click
-                        // the button and unclick if needed.
-
-                        CheckRadioButton(hwndDlg,
-                                         IDC_NDW_PICKDEV_SHOWCOMPAT,
-                                         IDC_NDW_PICKDEV_SHOWALL,
-                                         LOWORD(wParam)
-                                        );
-                        ndwData->ddData.ListType = (INT)LOWORD(wParam);
-
-                        // Update the current description ID in the dialog data so that
-                        // the same device will be highlighted when we switch from one
-                        // view to the other.
-
-                        iCur = (int)ListView_GetNextItem((ndwData->ddData).hwndDrvList,
-                                                         -1,
-                                                         LVNI_SELECTED
-                                                        );
-
-                        if(ndwData->ddData.AuxThreadRunning) {
-
-                            // There are two possibilities here:
-
-                            // 1. The user was looking at the compatible driver list, and then
-                            //    decided to look at the class driver list, which we're not done
-                            //    building yet.  In that case, hide the compatible driver listbox,
-                            //    and unhide our "waiting for class list" static text control.
-
-                            // 2. The user switched to the class driver list view, saw that we
-                            //    were still working on it, and then decided to switch back to
-                            //    the compatible list.  In that case, we simply need to re-hide
-                            //    the "waiting for class list" static text control, and show
-                            //    the compatible driver listbox again.  In this case, we don't
-                            //    want to attempt to re-initialize the listbox, as that will
-                            //    require acquiring the HDEVINFO lock, and we will hang.
-
-                            if(ndwData->ddData.ListType == IDC_NDW_PICKDEV_SHOWCOMPAT) {
-
-                                ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_STATUS_TEXT), SW_HIDE);
-                                ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_MODELSLABEL), SW_SHOW);
-                                ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_DRVLIST), SW_SHOW);
-                                EnableWindow(GetDlgItem(hwndDlg, IDOK), TRUE);
-
-
-                                // We no longer have a pending action.
-
-                                ndwData->ddData.PendingAction = PENDING_ACTION_NONE;
-
-                            } else {
-
-                                // Temporarily hide the compatible driver listbox, and unhide the
-                                // "waiting for class list" static text control.
-
-                                ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_MODELSLABEL), SW_HIDE);
-                                ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_DRVLIST), SW_HIDE);
-                                ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_STATUS_TEXT), SW_SHOW);
-
-                                LoadString(MyDllModuleHandle, IDS_NDW_RETRIEVING_LIST, TempString, SIZECHARS(TempString));
-                                SetDlgItemText(hwndDlg, IDC_NDW_STATUS_TEXT, TempString);
-
-
-                                // Disable the OK button, because the user can't select a class driver
-                                // yet.
-
-                                EnableWindow(GetDlgItem(hwndDlg, IDOK), FALSE);
-
-                                MYASSERT(ndwData->ddData.PendingAction == PENDING_ACTION_NONE);
-
-                                ndwData->ddData.PendingAction = PENDING_ACTION_SHOWCLASS;
-                                ndwData->ddData.CurSelectionForSuccess = iCur;
-                            }
-
-                        } else {
-
-                            if(iCur != LB_ERR) {
-
-                                lvItem.mask = LVIF_TEXT;
-                                lvItem.iItem = iCur;
-                                lvItem.iSubItem = 0;
-                                lvItem.pszText = TempString;
-                                lvItem.cchTextMax = SIZECHARS(TempString);
-
-                                if(ListView_GetItem((ndwData->ddData).hwndDrvList, &lvItem)) {
-
-                                    // Now retrieve the (case-insensitive) string ID of this
-                                    // string, and store it as the current description ID.
-
-                                    (ndwData->ddData).iCurDesc = LookUpStringInDevInfoSet((ndwData->ddData).DevInfoSet,
-                                                                                          TempString,
-                                                                                          FALSE
-                                                                                         );
-                                }
-                            }
-
-                            FillInDeviceList(hwndDlg, &(ndwData->ddData));
-
-
-                            // If we just filled in the compatible driver list, then make sure there
-                            // aren't isn't a time waiting to pounce and destroy our list!
-
-                            if((ndwData->ddData.ListType == IDC_NDW_PICKDEV_SHOWCOMPAT) &&
-                               (ndwData->idTimer)) {
-
-                                KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
-                                ndwData->idTimer = 0;
-                            }
-                        }
-                    }
-                    break;
-
-                case IDC_NDW_PICKDEV_HAVEDISK :
-
-                    // If we're doing a dialog box, then pressing "Have Disk" will popup another
-                    // Select Device dialog.  Disable all controls on this one first, to avoid
-                    // user confusion.
-
-                    if(ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
-                        ToggleDialogControls(hwndDlg, &(ndwData->ddData), FALSE);
-                    }
-
-
-                    // If HandleSelectOEM returns success, we are done, and can either end
-                    // the dialog, or proceed to the next wizard page.
-
-                    if(ndwData->ddData.AuxThreadRunning) {
-
-                        // The auxilliary thread is still running.  Set our cursor to an
-                        // hourglass, and set our pending action to be OEM Select while we
-                        // wait for the thread to respond to our cancel request.
-
-                        MYASSERT((ndwData->ddData.PendingAction == PENDING_ACTION_NONE) ||
-                                 (ndwData->ddData.PendingAction == PENDING_ACTION_SHOWCLASS));
-
-                        hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
-
-                        SetupDiCancelDriverInfoSearch(ndwData->ddData.DevInfoSet);
-
-                        // Disable all dialog controls, so that no other button may be pressed
-                        // until we respond to this pending action.  Also, kill the timer, so
-                        // that it doesn't fire in the meantime.
-
-                        ndwData->bInit = TRUE;
-                        if(ndwData->idTimer) {
-                            KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
-                            ndwData->idTimer = 0;
-                        }
-                        ndwData->ddData.PendingAction = PENDING_ACTION_OEM;
-
-                        SetCursor(hOldCursor);
-
-                    } else {
-
-                        if(HandleSelectOEM(hwndDlg, &(ndwData->ddData)) == NO_ERROR) {
-
-                            if(ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
-                                EndDialog(hwndDlg, NO_ERROR);
-                            } else {
-                                iwd->Flags |= NDW_INSTALLFLAG_CI_PICKED_OEM;
-                                PropSheet_PressButton(GetParent(hwndDlg), PSBTN_NEXT);
-                            }
-
-                        } else if(ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
-
-                            // The user didn't make an OEM selection, so we need to re-enable
-                            // the controls on our dialog.
-
-                            ToggleDialogControls(hwndDlg, &(ndwData->ddData), TRUE);
-                        }
-                    }
-                    break;
-
-                case IDC_NDW_PICKDEV_WINDOWSUPDATE:
-
-                    // If we're doing a dialog box, then pressing "Have Disk" will popup another
-                    // Select Device dialog.  Disable all controls on this one first, to avoid
-                    // user confusion.
-
-                    if(ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
-                        ToggleDialogControls(hwndDlg, &(ndwData->ddData), FALSE);
-                    }
-
-
-                    // If HandleWindowsUpdate returns success, we are done, and can either end
-                    // the dialog, or proceed to the next wizard page.
-
-                    if(ndwData->ddData.AuxThreadRunning) {
-
-
-                        // The auxilliary thread is still running.  Set our cursor to an
-                        // hourglass, and set our pending action to be Windows Update Select while we
-                        // wait for the thread to respond to our cancel request.
-
-                        MYASSERT((ndwData->ddData.PendingAction == PENDING_ACTION_NONE) ||
-                                 (ndwData->ddData.PendingAction == PENDING_ACTION_SHOWCLASS));
-
-                        hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
-
-                        SetupDiCancelDriverInfoSearch(ndwData->ddData.DevInfoSet);
-
-                        // Disable all dialog controls, so that no other button may be pressed
-                        // until we respond to this pending action.  Also, kill the timer, so
-                        // that it doesn't fire in the meantime.
-
-                        ndwData->bInit = TRUE;
-                        if(ndwData->idTimer) {
-                            KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
-                            ndwData->idTimer = 0;
-                        }
-                        ndwData->ddData.PendingAction = PENDING_ACTION_WINDOWSUPDATE;
-
-                        SetCursor(hOldCursor);
-
-                    } else {
-
-                        if(HandleWindowsUpdate(hwndDlg, &(ndwData->ddData)) == NO_ERROR) {
-
-                            if(ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
-                                EndDialog(hwndDlg, NO_ERROR);
-                            } else {
-                                iwd->Flags |= NDW_INSTALLFLAG_CI_PICKED_OEM;
-                                PropSheet_PressButton(GetParent(hwndDlg), PSBTN_NEXT);
-                            }
-
-                        } else if(ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
-
-                            // The user didn't make an OEM selection, so we need to re-enable
-                            // the controls on our dialog.
-
-                            ToggleDialogControls(hwndDlg, &(ndwData->ddData), TRUE);
-                        }
-                    }
-                    break;
-
-                case IDOK :
-HandleOK:
-                    iCur = (int)ListView_GetNextItem((ndwData->ddData).hwndDrvList,
-                                                     -1,
-                                                     LVNI_SELECTED
-                                                    );
-                    if(iCur != LB_ERR) {
-
-                        // We have retrieved a valid selection from our listbox.
-
-                        if(ndwData->ddData.AuxThreadRunning) {
-
-                            // The auxilliary thread is still running.  Set our cursor to an
-                            // hourglass, while we wait for the thread to terminate.
-
-                            MYASSERT((ndwData->ddData.PendingAction == PENDING_ACTION_NONE) ||
-                                     (ndwData->ddData.PendingAction == PENDING_ACTION_SHOWCLASS));
-
-                            hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
-
-                            SetupDiCancelDriverInfoSearch(ndwData->ddData.DevInfoSet);
-
-                            // Disable all dialog controls, so that no other button may be pressed
-                            // until we respond to this pending action.  Also, kill the timer, so
-                            // that it doesn't fire in the meantime.
-
-                            ToggleDialogControls(hwndDlg, &(ndwData->ddData), FALSE);
-                            ndwData->bInit = TRUE;
-                            if(ndwData->idTimer) {
-                                KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
-                                ndwData->idTimer = 0;
-                            }
-                            ndwData->ddData.PendingAction = PENDING_ACTION_SELDONE;
-                            ndwData->ddData.CurSelectionForSuccess = iCur;
-
-                            SetCursor(hOldCursor);
-
-                        } else {
-
-                            // The auxilliary thread has already returned. We can return
-                            // success right here.
-
-                            SetSelectedDriverNode(&(ndwData->ddData), iCur);
-                            EndDialog(hwndDlg, NO_ERROR);
-                        }
-
-                    } else {
-
-
-                        // If the list box is empty, then just leave. We will treat this
-                        // just like the user canceled.
-
-                        if (0 == ListView_GetItemCount((ndwData->ddData).hwndDrvList)) {
-
-                            PostMessage(hwndDlg, WM_COMMAND, IDCANCEL, 0);
-
-                        } else {
-
-
-                            // Tell user to select something since there are items in the list
-
-                            if(!LoadString(MyDllModuleHandle,
-                                           IDS_SELECT_DEVICE,
-                                           TempString,
-                                           SIZECHARS(TempString))) {
-                                *TempString = TEXT('\0');
-                            }
-
-                            FormatMessageBox(MyDllModuleHandle, hwndDlg, MSG_SELECTDEVICE_ERROR, TempString, MB_OK | MB_ICONEXCLAMATION);
-                        }
-                    }
-                    break;
-
-                case IDCANCEL :
-
-                    if(ndwData->ddData.AuxThreadRunning) {
-
-                        // The auxilliary thread is running, so we have to ask it to cancel,
-                        // and set our pending action to do the cancel upon the thread's
-                        // termination notification.
-
-                        MYASSERT((ndwData->ddData.PendingAction == PENDING_ACTION_NONE) ||
-                                 (ndwData->ddData.PendingAction == PENDING_ACTION_SHOWCLASS));
-
-                        hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
-
-                        SetupDiCancelDriverInfoSearch(ndwData->ddData.DevInfoSet);
-
-                        // Disable all dialog controls, so that no other button may be pressed
-                        // until we respond to this pending action.  Also, kill the timer, so
-                        // that it doesn't fire in the meantime.
-
-                        ToggleDialogControls(hwndDlg, &(ndwData->ddData), FALSE);
-                        ndwData->bInit = TRUE;
-                        if(ndwData->idTimer) {
-                            KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
-                            ndwData->idTimer = 0;
-                        }
-                        ndwData->ddData.PendingAction = PENDING_ACTION_CANCEL;
-
-                        SetCursor(hOldCursor);
-
-                    } else {
-
-                        // The auxilliary thread isn't running, so we can return right here.
-
-                        OnCancel(ndwData);
-                        EndDialog(hwndDlg, ERROR_CANCELLED);
-                    }
-                    break;
-
-                default :
-                    return FALSE;
-            }
-            break;
-
-        case WM_NOTIFY :
-
-            switch(((LPNMHDR)lParam)->code) {
-
-                case PSN_SETACTIVE :
-
-                    // Init the text in set active since a class installer
-                    // has the option of replacing it.
-
-                    SetDlgText(hwndDlg, IDC_NDW_TEXT, IDS_NDW_PICKDEV1, IDS_NDW_PICKDEV1);
-
-                    ndwData->bInit = TRUE;       // Still doing some init stuff
-
-                    if(!OnSetActive(hwndDlg, ndwData)) {
-                        SetDlgMsgResult(hwndDlg, uMsg, -1);
-                    }
-
-                    ndwData->bInit = FALSE;      // Done with init stuff
-                    break;
-
-                case PSN_WIZBACK :
-                    if(iwd->DynamicPageFlags & DYNAWIZ_FLAG_PAGESADDED) {
-                        SetDlgMsgResult(hwndDlg, uMsg, IDD_DYNAWIZ_SELECT_PREVPAGE);
-                    } else {
-                        SetDlgMsgResult(hwndDlg, uMsg, IDD_DYNAWIZ_SELECTCLASS_PAGE);
-                    }
-                    break;
-
-                case PSN_WIZNEXT :
-                    if(!(iwd->Flags & NDW_INSTALLFLAG_CI_PICKED_OEM)) {
-
-                        iCur = (int)ListView_GetNextItem((ndwData->ddData).hwndDrvList,
-                                                         -1,
-                                                         LVNI_SELECTED
-                                                        );
-                        if(iCur != LB_ERR) {
-
-                            // We have retrieved a valid selection from our listbox.
-
-                            if (pSetupIsSelectedHardwareIdValid(hwndDlg, &(ndwData->ddData), iCur)) {
-                                SetSelectedDriverNode(&(ndwData->ddData), iCur);
-                            } else {
-                                SetDlgMsgResult(hwndDlg, uMsg, (LRESULT)-1);
-                                break;
-                            }
-
-                        } else {        // Invalid Listview selection
-
-                            // Fail the call and end the case
-
-                            SetDlgMsgResult(hwndDlg, uMsg, (LRESULT)-1);
-                            break;
-                        }
-                    }
-
-
-                    // Update the current description in the dialog data so that we'll hi-lite
-                    // the correct selection if the user comes back to this page.
-
-                    (ndwData->ddData).iCurDesc = GetCurDesc(&(ndwData->ddData));
-
-                    if(iwd->DynamicPageFlags & DYNAWIZ_FLAG_PAGESADDED) {
-                        SetDlgMsgResult(hwndDlg, uMsg, IDD_DYNAWIZ_SELECT_NEXTPAGE);
-                    } else {
-                        SetDlgMsgResult(hwndDlg, uMsg, IDD_DYNAWIZ_ANALYZEDEV_PAGE);
-                    }
-                    break;
-                case LVN_ITEMCHANGED :
-                    // If the idFrom is the MFG list, then update the Drv list.
-                    if(((((LPNMHDR)lParam)->idFrom) == IDC_NDW_PICKDEV_MFGLIST) && !ndwData->bInit) {
-                        if(ndwData->idTimer) {
-                            KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
-                        }
-
-                        ndwData->idTimer = SetTimer(hwndDlg, SELECTMFG_TIMER_ID, SELECTMFG_TIMER_DELAY, NULL);
-                        if(ndwData->idTimer == 0) {
-                            goto SelectMfgItemNow;
-                        }
-                    }
-                    break;
-                case NM_DBLCLK :
-                    if(((((LPNMHDR)lParam)->idFrom) == IDC_NDW_PICKDEV_DRVLIST) || ((((LPNMHDR)lParam)->idFrom) == IDC_NDW_PICKDEV_ONEMFG_DRVLIST)) {
-                        if(ndwData->ddData.flags & DD_FLAG_IS_DIALOGBOX) {
-                            goto HandleOK;
-                        } else {
-                            PropSheet_PressButton(GetParent(hwndDlg), PSBTN_NEXT);
-                        }
-                    }
-                    break;
-            }
-
-            break;
-        case WM_TIMER :
-            KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
-            ndwData->idTimer = 0;
-
-SelectMfgItemNow:
-            iCur = ListView_GetNextItem((ndwData->ddData).hwndMfgList,
-                                        -1,
-                                        LVNI_SELECTED
-                                       );
-            if(iCur != -1) {
-
-                RECT rcTo, rcFrom;
-
-                ListView_EnsureVisible((ndwData->ddData).hwndMfgList, iCur, FALSE);
-                UpdateWindow((ndwData->ddData).hwndMfgList);
-
-                GetWindowRect((ndwData->ddData).hwndDrvList, &rcTo);
-                MapWindowPoints(NULL, hwndDlg, (LPPOINT)&rcTo, 2);
-
-                ListView_GetItemRect((ndwData->ddData).hwndMfgList,
-                                     iCur,
-                                     &rcFrom,
-                                     LVIR_LABEL
-                                    );
-                MapWindowPoints((ndwData->ddData).hwndMfgList,
-                                hwndDlg,
-                                (LPPOINT)&rcFrom,
-                                2
-                               );
-
-                DrawAnimatedRects(hwndDlg, IDANI_OPEN, &rcFrom, &rcTo);
-                LockAndShowListForMfg(&(ndwData->ddData), iCur);
-            }
-            break;
-
-        case WM_SYSCOLORCHANGE :
-            _OnSysColorChange(hwndDlg, wParam, lParam);
-            break;
-
-        default :
-
-            if (!g_uQueryCancelAutoPlay) {
-                g_uQueryCancelAutoPlay = RegisterWindowMessage(TEXT("QueryCancelAutoPlay"));
-            }
-
-            if (uMsg == g_uQueryCancelAutoPlay) {
-                SetWindowLongPtr( hwndDlg, DWLP_MSGRESULT, 1 );
-                return 1;       // cancel auto-play
-            }
-
-            return(FALSE);
+        break;
+    case WM_TIMER:
+        KillTimer(hwndDlg, SELECTMFG_TIMER_ID);
+        ndwData->idTimer = 0;
+
+    SelectMfgItemNow:
+        iCur = ListView_GetNextItem((ndwData->ddData).hwndMfgList,
+                                    -1,
+                                    LVNI_SELECTED
+        );
+        if (iCur != -1) {
+
+            RECT rcTo, rcFrom;
+
+            ListView_EnsureVisible((ndwData->ddData).hwndMfgList, iCur, FALSE);
+            UpdateWindow((ndwData->ddData).hwndMfgList);
+
+            GetWindowRect((ndwData->ddData).hwndDrvList, &rcTo);
+            MapWindowPoints(NULL, hwndDlg, (LPPOINT)&rcTo, 2);
+
+            ListView_GetItemRect((ndwData->ddData).hwndMfgList,
+                                 iCur,
+                                 &rcFrom,
+                                 LVIR_LABEL
+            );
+            MapWindowPoints((ndwData->ddData).hwndMfgList,
+                            hwndDlg,
+                            (LPPOINT)&rcFrom,
+                            2
+            );
+
+            DrawAnimatedRects(hwndDlg, IDANI_OPEN, &rcFrom, &rcTo);
+            LockAndShowListForMfg(&(ndwData->ddData), iCur);
+        }
+        break;
+
+    case WM_SYSCOLORCHANGE:
+        _OnSysColorChange(hwndDlg, wParam, lParam);
+        break;
+
+    default:
+
+        if (!g_uQueryCancelAutoPlay) {
+            g_uQueryCancelAutoPlay = RegisterWindowMessage(TEXT("QueryCancelAutoPlay"));
+        }
+
+        if (uMsg == g_uQueryCancelAutoPlay) {
+            SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 1);
+            return 1;       // cancel auto-play
+        }
+
+        return(FALSE);
     }
 
     return TRUE;
@@ -1649,7 +1614,7 @@ _OnSysColorChange(
     HWND hWnd,
     WPARAM wParam,
     LPARAM lParam
-    )
+)
 /*++
 
 Routine Description:
@@ -1667,7 +1632,7 @@ Return Value:
 
     hChildWnd = GetWindow(hWnd, GW_CHILD);
 
-    while(hChildWnd != NULL) {
+    while (hChildWnd != NULL) {
 
         SendMessage(hChildWnd, WM_SYSCOLORCHANGE, wParam, lParam);
         hChildWnd = GetWindow(hChildWnd, GW_HWNDNEXT);
@@ -1680,7 +1645,7 @@ DWORD
 FillInDeviceList(
     IN HWND           hwndDlg,
     IN PSP_DIALOGDATA lpdd
-    )
+)
 /*++
 
 Routine Description:
@@ -1727,17 +1692,17 @@ Return Value:
 
     try {
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
         }
 
-        if(DevInfoElem) {
+        if (DevInfoElem) {
             dipb = &(DevInfoElem->InstallParamBlock);
             ClassGuid = &(DevInfoElem->ClassGuid);
 
-            if(lpdd->ListType == IDC_NDW_PICKDEV_SHOWALL) {
+            if (lpdd->ListType == IDC_NDW_PICKDEV_SHOWALL) {
                 DriverNodeHead = DevInfoElem->ClassDriverHead;
                 DriverNodeType = SPDIT_CLASSDRIVER;
             } else {
@@ -1757,7 +1722,7 @@ Return Value:
             DriverNodeHead = pDeviceInfoSet->ClassDriverHead;
             DriverNodeType = SPDIT_CLASSDRIVER;
 
-            if(pDeviceInfoSet->HasClassGuid) {
+            if (pDeviceInfoSet->HasClassGuid) {
                 ClassGuid = &(pDeviceInfoSet->ClassGuid);
             } else {
 
@@ -1768,9 +1733,9 @@ Return Value:
             }
         }
 
-        if(!DriverNodeHead) {
+        if (!DriverNodeHead) {
 
-            if(!(lpdd->flags & DD_FLAG_IS_DIALOGBOX)) {
+            if (!(lpdd->flags & DD_FLAG_IS_DIALOGBOX)) {
 
                 // We can't just go away, so we have to do something useful.  For now, simply
                 // display the UI as if we had a single-Mfg list, except that the list is empty.
@@ -1791,13 +1756,13 @@ Return Value:
 
                 // Set the Models string
 
-                if(USE_CI_SELSTRINGS(dipb)) {
+                if (USE_CI_SELSTRINGS(dipb)) {
                     SetDlgItemText(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_MODELSLABEL, GET_CI_SELSTRINGS(dipb, ListLabel));
                 } else {
-                    if(!(LoadString(MyDllModuleHandle,
-                                    IDS_NDWSEL_MODELSLABEL,
-                                    szBuf,
-                                    SIZECHARS(szBuf)))) {
+                    if (!(LoadString(MyDllModuleHandle,
+                                     IDS_NDWSEL_MODELSLABEL,
+                                     szBuf,
+                                     SIZECHARS(szBuf)))) {
                         szBuf[0] = TEXT('\0');
                     }
                     SetDlgItemText(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_MODELSLABEL, szBuf);
@@ -1815,14 +1780,14 @@ Return Value:
             goto clean0;
         }
 
-        if((lpdd->flags & DD_FLAG_IS_DIALOGBOX) && !USE_CI_SELSTRINGS(dipb)) {
+        if ((lpdd->flags & DD_FLAG_IS_DIALOGBOX) && !USE_CI_SELSTRINGS(dipb)) {
 
             // If a class installer didn't supply strings for us to use in this dialogbox,
             // then retrieve the instruction text to be used.
 
             // First, get the class description to use for the dialog text.
 
-            if(!SetupDiGetClassDescription(ClassGuid, szBuf, SIZECHARS(szBuf), NULL)) {
+            if (!SetupDiGetClassDescription(ClassGuid, szBuf, SIZECHARS(szBuf), NULL)) {
 
                 // Fall back to the generic description "device"
 
@@ -1830,17 +1795,17 @@ Return Value:
                            IDS_GENERIC_DEVNAME,
                            szBuf,
                            SIZECHARS(szBuf)
-                          );
+                );
             }
 
-            if(lpdd->ListType == IDC_NDW_PICKDEV_SHOWALL) {
+            if (lpdd->ListType == IDC_NDW_PICKDEV_SHOWALL) {
 
                 // Show class list.
 
-                if(LoadString(MyDllModuleHandle,
-                              IDS_INSTALLSTR1,
-                              szMessage,
-                              SIZECHARS(szMessage))) {
+                if (LoadString(MyDllModuleHandle,
+                               IDS_INSTALLSTR1,
+                               szMessage,
+                               SIZECHARS(szMessage))) {
                     wsprintf(szText, szMessage, szBuf);
                 }
 
@@ -1848,29 +1813,29 @@ Return Value:
 
                 // Show compatible list.
 
-                if(LoadString(MyDllModuleHandle,
-                              IDS_INSTALLSTR0,
-                              szMessage,
-                              SIZECHARS(szMessage))) {
+                if (LoadString(MyDllModuleHandle,
+                               IDS_INSTALLSTR0,
+                               szMessage,
+                               SIZECHARS(szMessage))) {
                     wsprintf(szText, szMessage, szBuf);
                 }
                 lpszText = szText + lstrlen(szText);
-                if(LoadString(MyDllModuleHandle,
-                              IDS_INSTALLCLASS,
-                              szMessage,
-                              SIZECHARS(szMessage))) {
+                if (LoadString(MyDllModuleHandle,
+                               IDS_INSTALLCLASS,
+                               szMessage,
+                               SIZECHARS(szMessage))) {
                     wsprintf(lpszText, szMessage, szBuf);
                 }
             }
 
-            if(dipb->DriverPath != -1) {
+            if (dipb->DriverPath != -1) {
 
                 lpszText = szText + lstrlen(szText);
                 LoadString(MyDllModuleHandle,
                            IDS_INSTALLOEM1,
                            lpszText,
                            SIZECHARS(szText) - lstrlen(szText)
-                          );
+                );
 
             } else if (dipb->Flags & DI_SHOWOEM) {
 
@@ -1879,13 +1844,13 @@ Return Value:
                            IDS_INSTALLOEM,
                            lpszText,
                            SIZECHARS(szText) - lstrlen(szText)
-                          );
+                );
             }
 
             SetDlgItemText(hwndDlg, IDC_NDW_TEXT, szText);
         }
 
-        if((lpdd->ListType == IDC_NDW_PICKDEV_SHOWALL) && (dipb->Flags & DI_MULTMFGS)) {
+        if ((lpdd->ListType == IDC_NDW_PICKDEV_SHOWALL) && (dipb->Flags & DI_MULTMFGS)) {
 
             // Hide the Single MFG controls
 
@@ -1904,13 +1869,13 @@ Return Value:
 
             // Set the colunm heading for the Driver list
 
-            if(USE_CI_SELSTRINGS(dipb)) {
+            if (USE_CI_SELSTRINGS(dipb)) {
                 SetDlgItemText(hwndDlg, IDC_NDW_PICKDEV_MODELSLABEL, GET_CI_SELSTRINGS(dipb, ListLabel));
             } else {
-                if(!(LoadString(MyDllModuleHandle,
-                                IDS_NDWSEL_MODELSLABEL,
-                                szBuf,
-                                SIZECHARS(szBuf)))) {
+                if (!(LoadString(MyDllModuleHandle,
+                                 IDS_NDWSEL_MODELSLABEL,
+                                 szBuf,
+                                 SIZECHARS(szBuf)))) {
                     szBuf[0] = TEXT('\0');
                 }
                 SetDlgItemText(hwndDlg, IDC_NDW_PICKDEV_MODELSLABEL, szBuf);
@@ -1944,7 +1909,7 @@ Return Value:
 
             MfgNameId = -1;
 
-            for(CurDriverNode = DriverNodeHead; CurDriverNode; CurDriverNode = CurDriverNode->Next) {
+            for (CurDriverNode = DriverNodeHead; CurDriverNode; CurDriverNode = CurDriverNode->Next) {
 
 
                 // Skip this driver node if it is to be excluded of if it is an old INET driver or
@@ -1953,20 +1918,20 @@ Return Value:
                 if ((CurDriverNode->Flags & DNF_OLD_INET_DRIVER) ||
                     (CurDriverNode->Flags & DNF_BAD_DRIVER) ||
                     ((CurDriverNode->Flags & DNF_EXCLUDEFROMLIST) &&
-                   !(dipb->FlagsEx & DI_FLAGSEX_ALLOWEXCLUDEDDRVS))) {
+                     !(dipb->FlagsEx & DI_FLAGSEX_ALLOWEXCLUDEDDRVS))) {
 
                     continue;
                 }
 
 
-                if((MfgNameId == -1) || (MfgNameId != CurDriverNode->MfgName)) {
+                if ((MfgNameId == -1) || (MfgNameId != CurDriverNode->MfgName)) {
 
                     MfgNameId = CurDriverNode->MfgName;
 
                     MYASSERT(CurDriverNode->MfgDisplayName != -1);
                     lpszMfg = pStringTableStringFromId(pDeviceInfoSet->StringTable,
                                                        CurDriverNode->MfgDisplayName
-                                                      );
+                    );
                     lviItem.pszText = lpszMfg;
 
                     lviItem.lParam = (LPARAM)CurDriverNode;
@@ -1976,12 +1941,12 @@ Return Value:
 
                 // If this driver node is the selected one, preselect here.
 
-                if(lpdd->iCurDesc == CurDriverNode->DevDescription) {
+                if (lpdd->iCurDesc == CurDriverNode->DevDescription) {
                     ListView_SetItemState(lpdd->hwndMfgList,
                                           i,
-                                          (LVIS_SELECTED|LVIS_FOCUSED),
-                                          (LVIS_SELECTED|LVIS_FOCUSED)
-                                         );
+                                          (LVIS_SELECTED | LVIS_FOCUSED),
+                                          (LVIS_SELECTED | LVIS_FOCUSED)
+                    );
                     ShowListForMfg(lpdd, pDeviceInfoSet, dipb, NULL, i);
                     bDidDrvList = TRUE;
                 }
@@ -1996,13 +1961,13 @@ Return Value:
             // If we did not expand one of the MFGs by default, then
             // expand the First MFG.
 
-            if(!bDidDrvList) {
+            if (!bDidDrvList) {
 
                 ListView_SetItemState(lpdd->hwndMfgList,
                                       0,
-                                      (LVIS_SELECTED|LVIS_FOCUSED),
-                                      (LVIS_SELECTED|LVIS_FOCUSED)
-                                     );
+                                      (LVIS_SELECTED | LVIS_FOCUSED),
+                                      (LVIS_SELECTED | LVIS_FOCUSED)
+                );
                 ShowListForMfg(lpdd, pDeviceInfoSet, dipb, NULL, 0);
 
                 SendMessage(lpdd->hwndMfgList, WM_SETREDRAW, TRUE, 0L);
@@ -2017,7 +1982,7 @@ Return Value:
                 ListView_EnsureVisible(lpdd->hwndMfgList,
                                        ListView_GetNextItem(lpdd->hwndMfgList, -1, LVNI_SELECTED),
                                        FALSE
-                                      );
+                );
             }
 
         } else {
@@ -2039,13 +2004,13 @@ Return Value:
 
             // Set the Models string
 
-            if(USE_CI_SELSTRINGS(dipb)) {
+            if (USE_CI_SELSTRINGS(dipb)) {
                 SetDlgItemText(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_MODELSLABEL, GET_CI_SELSTRINGS(dipb, ListLabel));
             } else {
-                if(!(LoadString(MyDllModuleHandle,
-                                IDS_NDWSEL_MODELSLABEL,
-                                szBuf,
-                                SIZECHARS(szBuf)))) {
+                if (!(LoadString(MyDllModuleHandle,
+                                 IDS_NDWSEL_MODELSLABEL,
+                                 szBuf,
+                                 SIZECHARS(szBuf)))) {
                     szBuf[0] = TEXT('\0');
                 }
                 SetDlgItemText(hwndDlg, IDC_NDW_PICKDEV_ONEMFG_MODELSLABEL, szBuf);
@@ -2059,7 +2024,7 @@ Return Value:
             ShowListForMfg(lpdd, pDeviceInfoSet, dipb, DriverNodeHead, -1);
         }
 
-clean0: ;   // nothing to do
+    clean0:;   // nothing to do
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         ;   // nothing to do
@@ -2076,9 +2041,9 @@ ShowListForMfg(
     IN PSP_DIALOGDATA          lpdd,
     IN PDEVICE_INFO_SET        DeviceInfoSet,
     IN PDEVINSTALL_PARAM_BLOCK InstallParamBlock,
-    IN PDRIVER_NODE            DriverNode,        OPTIONAL
+    IN PDRIVER_NODE            DriverNode, OPTIONAL
     IN INT                     iMfg
-    )
+)
 /*++
 
 Routine Description:
@@ -2128,10 +2093,10 @@ Return Value:
     SetWindowLong(lpdd->hwndDrvList,
                   GWL_STYLE,
                   (GetWindowLong(lpdd->hwndDrvList, GWL_STYLE) & ~(LVS_SORTASCENDING | LVS_SORTDESCENDING)) |
-                      ((InstallParamBlock->Flags & DI_INF_IS_SORTED)
-                          ? 0
-                          : LVS_SORTASCENDING)
-                 );
+                  ((InstallParamBlock->Flags & DI_INF_IS_SORTED)
+                   ? 0
+                   : LVS_SORTASCENDING)
+    );
 
     SendMessage(lpdd->hwndDrvList, WM_SETREDRAW, FALSE, 0L);
 
@@ -2140,15 +2105,15 @@ Return Value:
 
     ListView_DeleteAllItems(lpdd->hwndDrvList);
 
-    if(!DriverNode) {
+    if (!DriverNode) {
 
         if (ListView_GetItemCount(lpdd->hwndMfgList) > 0) {
 
             lviItem.mask = LVIF_PARAM;
             lviItem.iItem = iMfg;
             lviItem.iSubItem = 0;
-            if(!ListView_GetItem(lpdd->hwndMfgList, &lviItem) ||
-               !(DriverNode = GetDriverNodeFromLParam(DeviceInfoSet, lpdd, lviItem.lParam))) {
+            if (!ListView_GetItem(lpdd->hwndMfgList, &lviItem) ||
+                !(DriverNode = GetDriverNodeFromLParam(DeviceInfoSet, lpdd, lviItem.lParam))) {
 
                 return;
             }
@@ -2168,9 +2133,9 @@ Return Value:
 
     // Add descriptions to the list
 
-    for( ; DriverNode; DriverNode = DriverNode->Next) {
+    for (; DriverNode; DriverNode = DriverNode->Next) {
 
-        if((MfgNameId != -1) && (MfgNameId != DriverNode->MfgName)) {
+        if ((MfgNameId != -1) && (MfgNameId != DriverNode->MfgName)) {
 
             // We've gone beyond the manufacturer list--break out of loop.
 
@@ -2183,28 +2148,28 @@ Return Value:
         if ((DriverNode->Flags & DNF_OLD_INET_DRIVER) ||
             (DriverNode->Flags & DNF_BAD_DRIVER) ||
             ((DriverNode->Flags & DNF_EXCLUDEFROMLIST) &&
-           !(InstallParamBlock->FlagsEx & DI_FLAGSEX_ALLOWEXCLUDEDDRVS))) {
+             !(InstallParamBlock->FlagsEx & DI_FLAGSEX_ALLOWEXCLUDEDDRVS))) {
 
             continue;
         }
 
-        if(DriverNode->Flags & DNF_DUPDESC) {
+        if (DriverNode->Flags & DNF_DUPDESC) {
 
             lstrcpy(szTemp,
                     pStringTableStringFromId(DeviceInfoSet->StringTable,
                                              DriverNode->DevDescriptionDisplayName)
-                   );
+            );
 
 
             //For drivers with duplicate descriptions add the provider name
             //in parens.
 
             lstrcat(szTemp, pszSpaceLparen);
-            if(DriverNode->ProviderDisplayName != -1) {
+            if (DriverNode->ProviderDisplayName != -1) {
                 lstrcat(szTemp,
                         pStringTableStringFromId(DeviceInfoSet->StringTable,
                                                  DriverNode->ProviderDisplayName)
-                       );
+                );
             }
 
             lstrcat(szTemp, pszRparen);
@@ -2214,7 +2179,7 @@ Return Value:
             lstrcpy(szTemp,
                     pStringTableStringFromId(DeviceInfoSet->StringTable,
                                              DriverNode->DevDescriptionDisplayName)
-                   );
+            );
 
 
             //For drivers with duplicate descriptions and providers, add the
@@ -2229,8 +2194,8 @@ Return Value:
                 LoadString(MyDllModuleHandle, IDS_VERSION, FormatString, SIZECHARS(FormatString));
 
                 wsprintf(VersionString, FormatString,
-                        HIWORD(Version.HighPart), LOWORD(Version.HighPart),
-                        HIWORD(Version.LowPart), LOWORD(Version.LowPart));
+                         HIWORD(Version.HighPart), LOWORD(Version.HighPart),
+                         HIWORD(Version.LowPart), LOWORD(Version.LowPart));
 
                 lstrcat(szTemp, VersionString);
             }
@@ -2246,7 +2211,7 @@ Return Value:
                                       NULL,
                                       FormatString,
                                       SIZECHARS(FormatString)
-                                      ) != 0) {
+                    ) != 0) {
 
                         wsprintf(szDate, TEXT(" [%s]"), FormatString);
 
@@ -2266,7 +2231,7 @@ Return Value:
 
         lviItem.lParam = (LPARAM)DriverNode;
 
-        if(ListView_InsertItem(lpdd->hwndDrvList, &lviItem) != -1) {
+        if (ListView_InsertItem(lpdd->hwndDrvList, &lviItem) != -1) {
             lviItem.iItem++;
         }
     }
@@ -2279,23 +2244,23 @@ Return Value:
 
     // select the current description string
 
-    if(lpdd->iCurDesc == -1) {
+    if (lpdd->iCurDesc == -1) {
         i = 0;
     } else {
         lvfiFind.flags = LVFI_STRING;
         lvfiFind.psz = pStringTableStringFromId(DeviceInfoSet->StringTable,
                                                 lpdd->iCurDesc
-                                               );
+        );
         i = ListView_FindItem(lpdd->hwndDrvList, -1, &lvfiFind);
-        if(i == -1) {
+        if (i == -1) {
             i = 0;
         }
     }
     ListView_SetItemState(lpdd->hwndDrvList,
                           i,
-                          (LVIS_SELECTED|LVIS_FOCUSED),
-                          (LVIS_SELECTED|LVIS_FOCUSED)
-                         );
+                          (LVIS_SELECTED | LVIS_FOCUSED),
+                          (LVIS_SELECTED | LVIS_FOCUSED)
+    );
 
 
     // We must turn redraw back on before sending the LVM_ENSUREVISIBLE message, or
@@ -2310,7 +2275,7 @@ VOID
 LockAndShowListForMfg(
     IN PSP_DIALOGDATA   lpdd,
     IN INT              iMfg
-    )
+)
 /*++
 
 Routine Description:
@@ -2342,21 +2307,21 @@ Return Value:
 
     try {
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
         }
 
         dipb = DevInfoElem ? &(DevInfoElem->InstallParamBlock)
-                           : &(pDeviceInfoSet->InstallParamBlock);
+            : &(pDeviceInfoSet->InstallParamBlock);
 
         ShowListForMfg(lpdd,
                        pDeviceInfoSet,
                        dipb,
                        NULL,
                        iMfg
-                      );
+        );
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         ;   // nothing to do
@@ -2370,7 +2335,7 @@ BOOL
 InitSelectDeviceDlg(
     IN     HWND hwndDlg,
     IN OUT PSP_DIALOGDATA lpdd
-    )
+)
 /*++
 
 Routine Description:
@@ -2410,7 +2375,7 @@ Return Value:
     HCURSOR hOldCursor;
     BOOL Return = TRUE;
 
-    if(!lpdd->hwndMfgList) {
+    if (!lpdd->hwndMfgList) {
 
         // Then this is the first time we've initialized this dialog (we may hit
         // this routine multiple times in the wizard case, because the user can
@@ -2440,13 +2405,13 @@ Return Value:
 
     try {
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
         }
 
-        if(DevInfoElem) {
+        if (DevInfoElem) {
             dipb = &(DevInfoElem->InstallParamBlock);
             ClassGuid = &(DevInfoElem->ClassGuid);
 
@@ -2457,19 +2422,19 @@ Return Value:
             DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
                                              DevInfoElem,
                                              &DevInfoData
-                                            );
+            );
 
             // Set flags indicating which driver lists already exist.
 
-            if(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDCOMPATINFO) {
+            if (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDCOMPATINFO) {
                 lpdd->bKeeplpCompatDrvList = TRUE;
             }
 
-            if(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) {
+            if (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) {
                 lpdd->bKeeplpClassDrvList = TRUE;
             }
 
-            if(DevInfoElem->SelectedDriver) {
+            if (DevInfoElem->SelectedDriver) {
                 lpdd->bKeeplpSelectedDrv = TRUE;
             }
 
@@ -2480,7 +2445,7 @@ Return Value:
 
         } else {
             dipb = &(pDeviceInfoSet->InstallParamBlock);
-            if(pDeviceInfoSet->HasClassGuid) {
+            if (pDeviceInfoSet->HasClassGuid) {
                 ClassGuid = &(pDeviceInfoSet->ClassGuid);
             } else {
 
@@ -2490,11 +2455,11 @@ Return Value:
                 ClassGuid = (LPGUID)&GUID_DEVCLASS_UNKNOWN;
             }
 
-            if(pDeviceInfoSet->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) {
+            if (pDeviceInfoSet->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) {
                 lpdd->bKeeplpClassDrvList = TRUE;
             }
 
-            if(pDeviceInfoSet->SelectedClassDriver) {
+            if (pDeviceInfoSet->SelectedClassDriver) {
                 lpdd->bKeeplpSelectedDrv = TRUE;
             }
         }
@@ -2509,9 +2474,9 @@ Return Value:
         // If we are supposed to override the instructions and title with the class
         // installer-provided strings, do it now.
 
-        if(USE_CI_SELSTRINGS(dipb)) {
+        if (USE_CI_SELSTRINGS(dipb)) {
 
-            if(lpdd->flags & DD_FLAG_IS_DIALOGBOX) {
+            if (lpdd->flags & DD_FLAG_IS_DIALOGBOX) {
                 SetWindowText(hwndDlg, GET_CI_SELSTRINGS(dipb, Title));
             } else {
 
@@ -2519,12 +2484,12 @@ Return Value:
                 // Set wizard title and subtitle
 
                 PropSheet_SetHeaderTitle(GetParent(hwndDlg),
-                        PropSheet_HwndToIndex(GetParent(hwndDlg), hwndDlg),
-                        GET_CI_SELSTRINGS(dipb, Title));
+                                         PropSheet_HwndToIndex(GetParent(hwndDlg), hwndDlg),
+                                         GET_CI_SELSTRINGS(dipb, Title));
 
                 PropSheet_SetHeaderSubTitle(GetParent(hwndDlg),
-                        PropSheet_HwndToIndex(GetParent(hwndDlg), hwndDlg),
-                        GET_CI_SELSTRINGS(dipb, SubTitle));
+                                            PropSheet_HwndToIndex(GetParent(hwndDlg), hwndDlg),
+                                            GET_CI_SELSTRINGS(dipb, SubTitle));
 #endif
             }
             SetDlgItemText(hwndDlg, IDC_NDW_TEXT, GET_CI_SELSTRINGS(dipb, Instructions));
@@ -2533,7 +2498,7 @@ Return Value:
 
         // If we should not allow OEM driver, then hide the HAVE disk button.
 
-        if(!(dipb->Flags & DI_SHOWOEM)) {
+        if (!(dipb->Flags & DI_SHOWOEM)) {
             ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_HAVEDISK), SW_HIDE);
         }
 
@@ -2562,7 +2527,7 @@ Return Value:
 
         hOldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));  // Potentially slow operations ahead!
 
-        if(DriverType == SPDIT_COMPATDRIVER) {
+        if (DriverType == SPDIT_COMPATDRIVER) {
 
 
             // OR in the DI_FLAGSEX_EXCLUDE_OLD_INET_DRIVERS flag so that we don't include
@@ -2572,31 +2537,30 @@ Return Value:
             if (SetupDiGetDeviceInstallParams(lpdd->DevInfoSet,
                                               &DevInfoData,
                                               &DeviceInstallParams
-                                              ))
-            {
+            )) {
                 DeviceInstallParams.FlagsEx |= DI_FLAGSEX_EXCLUDE_OLD_INET_DRIVERS;
 
                 SetupDiSetDeviceInstallParams(lpdd->DevInfoSet,
                                               &DevInfoData,
                                               &DeviceInstallParams
-                                              );
+                );
             }
 
             SetupDiBuildDriverInfoList(lpdd->DevInfoSet,
                                        &DevInfoData,
                                        SPDIT_COMPATDRIVER
-                                      );
+            );
 
 
             // Verify that there are some devices in the list to show.
 
-            if(bNoDevsToShow(DevInfoElem)) {
-                if(!lpdd->bKeeplpCompatDrvList) {
+            if (bNoDevsToShow(DevInfoElem)) {
+                if (!lpdd->bKeeplpCompatDrvList) {
                     SetupDiDestroyDriverInfoList(lpdd->DevInfoSet, &DevInfoData, SPDIT_COMPATDRIVER);
                 }
                 DriverType = SPDIT_CLASSDRIVER;
 
-            } else if(!lpdd->bKeeplpClassDrvList) {
+            } else if (!lpdd->bKeeplpClassDrvList) {
 
                 // We have a list to get our UI up and running, but we don't have a class driver
                 // list yet.  Set a flag that causes us to spawn a thread for this later.
@@ -2605,7 +2569,7 @@ Return Value:
             }
         }
 
-        if(DriverType == SPDIT_CLASSDRIVER) {
+        if (DriverType == SPDIT_CLASSDRIVER) {
 
             // We couldn't find any compatible drivers, so we fall back on the class driver
             // list.  In this case we have to have this list before continuing.  In the
@@ -2621,25 +2585,24 @@ Return Value:
             if (SetupDiGetDeviceInstallParams(lpdd->DevInfoSet,
                                               DevInfoElem ? &DevInfoData : NULL,
                                               &DeviceInstallParams
-                                              ))
-            {
+            )) {
                 DeviceInstallParams.FlagsEx |= DI_FLAGSEX_EXCLUDE_OLD_INET_DRIVERS;
 
                 SetupDiSetDeviceInstallParams(lpdd->DevInfoSet,
                                               DevInfoElem ? &DevInfoData : NULL,
                                               &DeviceInstallParams
-                                              );
+                );
             }
 
             SetupDiBuildDriverInfoList(lpdd->DevInfoSet,
                                        DevInfoElem ? &DevInfoData : NULL,
                                        SPDIT_CLASSDRIVER
-                                      );
+            );
         }
 
         SetCursor(LoadCursor(NULL, IDC_ARROW));  // Done with slow operations.
 
-        if(DriverType == SPDIT_COMPATDRIVER) {
+        if (DriverType == SPDIT_COMPATDRIVER) {
 
             // Since we ran this through bNoDevsToShow() above, and it succeeded, we know
             // there's at least one driver in the compatible driver list.
@@ -2650,16 +2613,16 @@ Return Value:
             // a driver _before_ going ahead and letting the default behavior of
             // SetupDiSelectDevice occur.)
 
-            if((dipb->FlagsEx & DI_FLAGSEX_AUTOSELECTRANK0) &&
-               !(DevInfoElem->CompatDriverHead->Rank)) {
+            if ((dipb->FlagsEx & DI_FLAGSEX_AUTOSELECTRANK0) &&
+                !(DevInfoElem->CompatDriverHead->Rank)) {
 
-                if(!SetupDiSelectBestCompatDrv(lpdd->DevInfoSet, &DevInfoData)) {
+                if (!SetupDiSelectBestCompatDrv(lpdd->DevInfoSet, &DevInfoData)) {
 
                     // The only time this failure should happen is if the device is
                     // a member of a set with an associated class, and the best driver
                     // match we found is from an INF of a different class.
 
-                    if(lpdd->flags & DD_FLAG_IS_DIALOGBOX) {
+                    if (lpdd->flags & DD_FLAG_IS_DIALOGBOX) {
                         EndDialog(hwndDlg, GetLastError());
                         goto clean0;
                     }
@@ -2678,7 +2641,7 @@ Return Value:
                              IDC_NDW_PICKDEV_SHOWCOMPAT,
                              IDC_NDW_PICKDEV_SHOWALL,
                              IDC_NDW_PICKDEV_SHOWCOMPAT
-                            );
+            );
         } else {
 
             // There is no compatible list, so hide the radio buttons.
@@ -2692,14 +2655,14 @@ Return Value:
         // Initial current description.  This will be used to set
         // the Default ListView selection.
 
-        if(lpdd->iCurDesc == -1) {
+        if (lpdd->iCurDesc == -1) {
 
             // If we already have a selected driver for the devinfo set or element,
             // then we'll use that, otherwise, we'll use the devinfo element's
             // description (if applicable).
 
-            if(DevInfoElem) {
-                if(DevInfoElem->SelectedDriver) {
+            if (DevInfoElem) {
+                if (DevInfoElem->SelectedDriver) {
                     lpdd->iCurDesc = DevInfoElem->SelectedDriver->DevDescription;
                 } else {
 
@@ -2712,29 +2675,29 @@ Return Value:
 
                     TempStringSize = sizeof(TempString);
 
-                    if((DevInfoElem->DeviceDescription == -1) &&
-                       (CM_Get_DevInst_Registry_Property(DevInfoElem->DevInst,
-                                                         CM_DRP_DEVICEDESC,
-                                                         NULL,
-                                                         TempString,
-                                                         &TempStringSize,
-                                                         0) == CR_SUCCESS)) {
+                    if ((DevInfoElem->DeviceDescription == -1) &&
+                        (CM_Get_DevInst_Registry_Property(DevInfoElem->DevInst,
+                                                          CM_DRP_DEVICEDESC,
+                                                          NULL,
+                                                          TempString,
+                                                          &TempStringSize,
+                                                          0) == CR_SUCCESS)) {
 
                         // We were able to retrieve a device description.  Now store it
                         // (case-insensitive only) in the devinfo element.
 
                         DevInfoElem->DeviceDescription = pStringTableAddString(
-                                                           pDeviceInfoSet->StringTable,
-                                                           TempString,
-                                                           STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
-                                                           NULL,0
-                                                           );
+                            pDeviceInfoSet->StringTable,
+                            TempString,
+                            STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
+                            NULL, 0
+                        );
                     }
 
                     lpdd->iCurDesc = DevInfoElem->DeviceDescription;
                 }
             } else {
-                if(pDeviceInfoSet->SelectedClassDriver) {
+                if (pDeviceInfoSet->SelectedClassDriver) {
                     lpdd->iCurDesc = pDeviceInfoSet->SelectedClassDriver->DevDescription;
                 }
             }
@@ -2742,7 +2705,7 @@ Return Value:
 
         Err = FillInDeviceList(hwndDlg, lpdd);
 
-        if(lpdd->flags & DD_FLAG_IS_DIALOGBOX) {
+        if (lpdd->flags & DD_FLAG_IS_DIALOGBOX) {
 
             HWND hLineWnd;
             RECT Rect;
@@ -2750,7 +2713,7 @@ Return Value:
 
             // If FillInDeviceList() fails during init time, don't even bring up the dialog.
 
-            if(Err != NO_ERROR) {
+            if (Err != NO_ERROR) {
                 EndDialog(hwndDlg, Err);
                 goto clean0;
             }
@@ -2767,7 +2730,7 @@ Return Value:
             SetWindowLong(hLineWnd,
                           GWL_EXSTYLE,
                           (GetWindowLong(hLineWnd, GWL_EXSTYLE) | WS_EX_STATICEDGE)
-                         );
+            );
             GetClientRect(hLineWnd, &Rect);
             SetWindowPos(hLineWnd,
                          HWND_TOP,
@@ -2776,7 +2739,7 @@ Return Value:
                          Rect.right,
                          GetSystemMetrics(SM_CYEDGE),
                          SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED
-                        );
+            );
         }
 
 
@@ -2805,7 +2768,7 @@ Return Value:
         }
 
 
-clean0: ;   // nothing to do
+    clean0:;   // nothing to do
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
 
@@ -2814,7 +2777,7 @@ clean0: ;   // nothing to do
         // case is the only time we'll try to spawn off a driver search thread, so we're
         // safe in resetting that flag here as well.
 
-        if(lpdd->flags & DD_FLAG_IS_DIALOGBOX) {
+        if (lpdd->flags & DD_FLAG_IS_DIALOGBOX) {
             EndDialog(hwndDlg, ERROR_INVALID_DATA);
             SpawnClassDriverSearch = FALSE;
         }
@@ -2822,12 +2785,12 @@ clean0: ;   // nothing to do
 
     UnlockDeviceInfoSet(pDeviceInfoSet);
 
-    if(SpawnClassDriverSearch) {
+    if (SpawnClassDriverSearch) {
 
         // Allocate a context structure to pass to the auxilliary thread (the auxilliary
         // thread will take care of freeing the memory).
 
-        if(!(ClassDrvThreadContext = MyMalloc(sizeof(CLASSDRV_THREAD_CONTEXT)))) {
+        if (!(ClassDrvThreadContext = MyMalloc(sizeof(CLASSDRV_THREAD_CONTEXT)))) {
             EndDialog(hwndDlg, ERROR_NOT_ENOUGH_MEMORY);
         } else {
 
@@ -2839,11 +2802,11 @@ clean0: ;   // nothing to do
             CopyMemory(&(ClassDrvThreadContext->DeviceInfoData),
                        &DevInfoData,
                        sizeof(DevInfoData)
-                      );
+            );
 
             ClassDrvThreadContext->NotificationWindow = hwndDlg;
 
-            if(_beginthread(ClassDriverSearchThread, 0, ClassDrvThreadContext) == -1) {
+            if (_beginthread(ClassDriverSearchThread, 0, ClassDrvThreadContext) == -1) {
 
                 // Assume out-of-memory
 
@@ -2864,7 +2827,7 @@ GetDriverNodeFromLParam(
     IN PDEVICE_INFO_SET DeviceInfoSet,
     IN PSP_DIALOGDATA   lpdd,
     IN LPARAM           lParam
-    )
+)
 /*++
 
 Routine Description:
@@ -2900,22 +2863,22 @@ Return Value:
     PDRIVER_NODE CurDriverNode;
     PDEVINFO_ELEM DevInfoElem;
 
-    if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+    if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
         DevInfoElem = lpdd->DevInfoElem;
     } else {
         DevInfoElem = DeviceInfoSet->SelectedDevInfoElem;
     }
 
-    if(DevInfoElem) {
+    if (DevInfoElem) {
         CurDriverNode = (lpdd->ListType == IDC_NDW_PICKDEV_SHOWALL) ? DevInfoElem->ClassDriverHead
-                                                                    : DevInfoElem->CompatDriverHead;
+            : DevInfoElem->CompatDriverHead;
     } else {
         MYASSERT(lpdd->ListType == IDC_NDW_PICKDEV_SHOWALL);
         CurDriverNode = DeviceInfoSet->ClassDriverHead;
     }
 
-    while(CurDriverNode) {
-        if(CurDriverNode == (PDRIVER_NODE)lParam) {
+    while (CurDriverNode) {
+        if (CurDriverNode == (PDRIVER_NODE)lParam) {
             return CurDriverNode;
         } else {
             CurDriverNode = CurDriverNode->Next;
@@ -2930,7 +2893,7 @@ BOOL
 OnSetActive(
     IN     HWND            hwndDlg,
     IN OUT PNEWDEVWIZ_DATA ndwData
-    )
+)
 /*++
 
 Routine Description:
@@ -2971,13 +2934,13 @@ Return Value:
 
     try {
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
         }
 
-        if(DevInfoElem) {
+        if (DevInfoElem) {
             dipb = &(DevInfoElem->InstallParamBlock);
         } else {
             dipb = &(pDeviceInfoSet->InstallParamBlock);
@@ -2986,9 +2949,9 @@ Return Value:
 
         // Set the Button State
 
-        if((iwd->Flags & NDW_INSTALLFLAG_SKIPCLASSLIST) &&
-           (iwd->Flags & NDW_INSTALLFLAG_EXPRESSINTRO) &&
-           !(iwd->DynamicPageFlags & DYNAWIZ_FLAG_PAGESADDED)) {
+        if ((iwd->Flags & NDW_INSTALLFLAG_SKIPCLASSLIST) &&
+            (iwd->Flags & NDW_INSTALLFLAG_EXPRESSINTRO) &&
+            !(iwd->DynamicPageFlags & DYNAWIZ_FLAG_PAGESADDED)) {
 
             // No back if we skipped the Class list, and are in express mode
 
@@ -3002,7 +2965,7 @@ Return Value:
         // If we are being jumped to by a dyna wiz page,
         // then do not call the class installer
 
-        if(iwd->DynamicPageFlags & DYNAWIZ_FLAG_PAGESADDED) {
+        if (iwd->DynamicPageFlags & DYNAWIZ_FLAG_PAGESADDED) {
             InitSelectDeviceDlg(hwndDlg, lpdd);
         } else {
 
@@ -3014,12 +2977,12 @@ Return Value:
 
             // Call the Class Installer
 
-            if(!(dipb->Flags & DI_NODI_DEFAULTACTION)) {
+            if (!(dipb->Flags & DI_NODI_DEFAULTACTION)) {
                 dipb->Flags |= DI_NODI_DEFAULTACTION;
                 FlagNeedsReset = TRUE;
             }
 
-            if(DevInfoElem) {
+            if (DevInfoElem) {
 
                 // Initialize a SP_DEVINFO_DATA buffer to use as an argument to
                 // SetupDiCallClassInstaller.
@@ -3028,7 +2991,7 @@ Return Value:
                 DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
                                                  DevInfoElem,
                                                  &DeviceInfoData
-                                                );
+                );
             }
 
 
@@ -3037,10 +3000,10 @@ Return Value:
             UnlockDeviceInfoSet(pDeviceInfoSet);
             pDeviceInfoSet = NULL;
 
-            if(_SetupDiCallClassInstaller(DIF_SELECTDEVICE,
-                                          lpdd->DevInfoSet,
-                                          DevInfoElem ? &DeviceInfoData : NULL,
-                                          CALLCI_LOAD_HELPERS | CALLCI_CALL_HELPERS)) {
+            if (_SetupDiCallClassInstaller(DIF_SELECTDEVICE,
+                                           lpdd->DevInfoSet,
+                                           DevInfoElem ? &DeviceInfoData : NULL,
+                                           CALLCI_LOAD_HELPERS | CALLCI_CALL_HELPERS)) {
                 CiErr = NO_ERROR;
             } else {
                 CiErr = GetLastError();
@@ -3052,27 +3015,27 @@ Return Value:
             pDeviceInfoSet = AccessDeviceInfoSet(lpdd->DevInfoSet);
             MYASSERT(pDeviceInfoSet);
 
-            if(DevInfoElem && !(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM)) {
+            if (DevInfoElem && !(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM)) {
 
                 // Verify that the class installer didn't do something nasty like delete
                 // the currently selected devinfo element!
 
-                for(CurDevInfoElem = pDeviceInfoSet->DeviceInfoHead;
-                    CurDevInfoElem;
-                    CurDevInfoElem = CurDevInfoElem->Next) {
+                for (CurDevInfoElem = pDeviceInfoSet->DeviceInfoHead;
+                     CurDevInfoElem;
+                     CurDevInfoElem = CurDevInfoElem->Next) {
 
-                    if(CurDevInfoElem = DevInfoElem) {
+                    if (CurDevInfoElem = DevInfoElem) {
                         break;
                     }
                 }
 
-                if(!CurDevInfoElem) {
+                if (!CurDevInfoElem) {
 
                     // The class installer deleted the selected devinfo element.  Get
                     // the newly-selected one, or fall back to the global driver list
                     // if none selected.
 
-                    if(DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem) {
+                    if (DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem) {
                         dipb = &(DevInfoElem->InstallParamBlock);
                     } else {
                         dipb = &(pDeviceInfoSet->InstallParamBlock);
@@ -3088,67 +3051,67 @@ Return Value:
 
             // Reset the DI_NODI_DEFAULTACTION flag if necessary.
 
-            if(FlagNeedsReset) {
+            if (FlagNeedsReset) {
                 dipb->Flags &= ~DI_NODI_DEFAULTACTION;
             }
 
-            switch(CiErr) {
+            switch (CiErr) {
 
                 // Class installer did the select, so goto analyze
 
-                case NO_ERROR :
+            case NO_ERROR:
 
-                    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, IDD_DYNAWIZ_ANALYZEDEV_PAGE);
-                    break;
+                SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, IDD_DYNAWIZ_ANALYZEDEV_PAGE);
+                break;
 
 
                 // Class installer wants us to do default.
 
-                case ERROR_DI_DO_DEFAULT :
+            case ERROR_DI_DO_DEFAULT:
+
+                InitSelectDeviceDlg(hwndDlg, lpdd);
+                break;
+
+            default:
+
+                // If we are doing an OEM select, and we fail, then
+                // we should init after clearing the OEM stuff.
+
+                if (iwd->Flags & NDW_INSTALLFLAG_CI_PICKED_OEM) {
+
+                    iwd->Flags &= ~NDW_INSTALLFLAG_CI_PICKED_OEM;
+
+
+                    // Destroy the existing class driver list.
+
+                    if (DevInfoElem) {
+
+                        // Initialize a SP_DEVINFO_DATA buffer to use as an argument to
+                        // SetupDiDestroyDriverInfoList.
+
+                        DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
+                        DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
+                                                         DevInfoElem,
+                                                         &DeviceInfoData
+                        );
+                    }
+
+                    SetupDiDestroyDriverInfoList(lpdd->DevInfoSet,
+                                                 DevInfoElem ? &DeviceInfoData : NULL,
+                                                 SPDIT_CLASSDRIVER
+                    );
+
+
+                    // Make sure the OEM button is shown.
+
+                    dipb->Flags |= DI_SHOWOEM;
 
                     InitSelectDeviceDlg(hwndDlg, lpdd);
-                    break;
 
-                default :
-
-                    // If we are doing an OEM select, and we fail, then
-                    // we should init after clearing the OEM stuff.
-
-                    if(iwd->Flags & NDW_INSTALLFLAG_CI_PICKED_OEM) {
-
-                        iwd->Flags &= ~NDW_INSTALLFLAG_CI_PICKED_OEM;
-
-
-                        // Destroy the existing class driver list.
-
-                        if(DevInfoElem) {
-
-                            // Initialize a SP_DEVINFO_DATA buffer to use as an argument to
-                            // SetupDiDestroyDriverInfoList.
-
-                            DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-                            DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
-                                                             DevInfoElem,
-                                                             &DeviceInfoData
-                                                            );
-                        }
-
-                        SetupDiDestroyDriverInfoList(lpdd->DevInfoSet,
-                                                     DevInfoElem ? &DeviceInfoData : NULL,
-                                                     SPDIT_CLASSDRIVER
-                                                    );
-
-
-                        // Make sure the OEM button is shown.
-
-                        dipb->Flags |= DI_SHOWOEM;
-
-                        InitSelectDeviceDlg(hwndDlg, lpdd);
-
-                    } else {
-                        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, IDD_DYNAWIZ_SELECTCLASS_PAGE);
-                    }
-                    break;
+                } else {
+                    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, IDD_DYNAWIZ_SELECTCLASS_PAGE);
+                }
+                break;
             }
         }
 
@@ -3161,7 +3124,7 @@ Return Value:
         pDeviceInfoSet = pDeviceInfoSet;
     }
 
-    if(pDeviceInfoSet) {
+    if (pDeviceInfoSet) {
         UnlockDeviceInfoSet(pDeviceInfoSet);
     }
 
@@ -3173,7 +3136,7 @@ pSetupIsSelectedHardwareIdValid(
     IN HWND           hWnd,
     IN PSP_DIALOGDATA lpdd,
     IN INT            iCur
-    )
+)
 {
     PDEVICE_INFO_SET pDeviceInfoSet;
     PDRIVER_NODE DriverNode;
@@ -3202,7 +3165,7 @@ pSetupIsSelectedHardwareIdValid(
 
     try {
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
@@ -3225,7 +3188,7 @@ pSetupIsSelectedHardwareIdValid(
         lviItem.iItem = iCur;
         lviItem.iSubItem = 0;
 
-        if(ListView_GetItem(lpdd->hwndDrvList, &lviItem)) {
+        if (ListView_GetItem(lpdd->hwndDrvList, &lviItem)) {
             DriverNode = GetDriverNodeFromLParam(pDeviceInfoSet, lpdd, lviItem.lParam);
         } else {
             DriverNode = NULL;
@@ -3238,19 +3201,19 @@ pSetupIsSelectedHardwareIdValid(
 
             SelectedDriverHardwareId = pStringTableStringFromId(pDeviceInfoSet->StringTable,
                                                                 DriverNode->HardwareId
-                                                               );
+            );
 
-            for (i=0; !bRet, i<2; i++) {
+            for (i = 0; !bRet, i < 2; i++) {
 
                 IDBufferLen = sizeof(IDBuffer);
                 if (CM_Get_DevInst_Registry_Property_Ex(
-                        DevInfoElem->DevInst,
-                        (i ? CM_DRP_COMPATIBLEIDS : CM_DRP_HARDWAREID),
-                        NULL,
-                        IDBuffer,
-                        &IDBufferLen,
-                        0,
-                        pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                    DevInfoElem->DevInst,
+                    (i ? CM_DRP_COMPATIBLEIDS : CM_DRP_HARDWAREID),
+                    NULL,
+                    IDBuffer,
+                    &IDBufferLen,
+                    0,
+                    pDeviceInfoSet->hMachine) == CR_SUCCESS) {
 
 
                     //See if the HardwareID for the selected driver matches any of the
@@ -3269,11 +3232,11 @@ pSetupIsSelectedHardwareIdValid(
                     //See if any of the Compatible IDs for the selceted driver matches any
                     //of the Hardware or Compatible IDs for the actual hardware
 
-                    for (j=0; !bRet, j<DriverNode->NumCompatIds; j++) {
+                    for (j = 0; !bRet, j < DriverNode->NumCompatIds; j++) {
 
                         SelectedDriverCompatibleId = pStringTableStringFromId(
-                                        pDeviceInfoSet->StringTable,
-                                        DriverNode->CompatIdList[j]);
+                            pDeviceInfoSet->StringTable,
+                            DriverNode->CompatIdList[j]);
 
                         for (pID = IDBuffer; !bRet, *pID; pID += (lstrlen(pID) + 1)) {
 
@@ -3312,14 +3275,14 @@ pSetupIsSelectedHardwareIdValid(
 
                 LoadString(MyDllModuleHandle, IDS_DRIVER_UPDATE_TITLE, Title, LINE_LEN);
 
-                MessageLen  = LoadString(MyDllModuleHandle, IDS_DRIVER_NOMATCH1, Message, SIZECHARS(Message));
+                MessageLen = LoadString(MyDllModuleHandle, IDS_DRIVER_NOMATCH1, Message, SIZECHARS(Message));
                 MessageLen += LoadString(MyDllModuleHandle, IDS_DRIVER_NOMATCH2, Message + MessageLen, SIZECHARS(Message) - MessageLen);
                 MessageLen += LoadString(MyDllModuleHandle, IDS_DRIVER_NOMATCH3, Message + MessageLen, SIZECHARS(Message) - MessageLen);
 
-                if(MessageLen) {
+                if (MessageLen) {
 
                     if (MessageBox(hWnd, Message, Title, MB_YESNO | MB_TASKMODAL | MB_ICONEXCLAMATION |
-                            MB_DEFBUTTON2) == IDYES) {
+                                   MB_DEFBUTTON2) == IDYES) {
 
                         bRet = TRUE;
                     }
@@ -3334,7 +3297,7 @@ pSetupIsSelectedHardwareIdValid(
             bRet = TRUE;
         }
 
-//clean0: ;   // nothing to do.
+        //clean0: ;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         ;   // nothing to do
@@ -3349,7 +3312,7 @@ VOID
 SetSelectedDriverNode(
     IN PSP_DIALOGDATA lpdd,
     IN INT            iCur
-    )
+)
 /*++
 
 Routine Description:
@@ -3390,24 +3353,24 @@ Return Value:
         lviItem.iItem = iCur;
         lviItem.iSubItem = 0;
 
-        if(ListView_GetItem(lpdd->hwndDrvList, &lviItem)) {
+        if (ListView_GetItem(lpdd->hwndDrvList, &lviItem)) {
             DriverNode = GetDriverNodeFromLParam(pDeviceInfoSet, lpdd, lviItem.lParam);
         } else {
             DriverNode = NULL;
         }
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
         }
 
-        if(DevInfoElem) {
+        if (DevInfoElem) {
 
             // If a driver node is being selected, update the device's class to ensure
             // it matches the class of the INF containing the selected driver node.
 
-            if(DriverNode) {
+            if (DriverNode) {
 
                 // Get the INF class GUID for this driver node in string form, because
                 // this property is stored as a REG_SZ.
@@ -3415,7 +3378,7 @@ Return Value:
                 pSetupStringFromGuid(&(pDeviceInfoSet->GuidTable[DriverNode->GuidIndex]),
                                      ClassGuidString,
                                      SIZECHARS(ClassGuidString)
-                                    );
+                );
 
 
                 // Fill in a SP_DEVINFO_DATA structure for the upcoming call to
@@ -3425,13 +3388,13 @@ Return Value:
                 DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
                                                  DevInfoElem,
                                                  &DevInfoData
-                                                );
+                );
 
-                if(!SetupDiSetDeviceRegistryProperty(lpdd->DevInfoSet,
-                                                     &DevInfoData,
-                                                     SPDRP_CLASSGUID,
-                                                     (PBYTE)ClassGuidString,
-                                                     sizeof(ClassGuidString))) {
+                if (!SetupDiSetDeviceRegistryProperty(lpdd->DevInfoSet,
+                                                      &DevInfoData,
+                                                      SPDRP_CLASSGUID,
+                                                      (PBYTE)ClassGuidString,
+                                                      sizeof(ClassGuidString))) {
 
                     // The class cannot be updated--don't change the selected driver.
 
@@ -3440,10 +3403,10 @@ Return Value:
             }
 
             DevInfoElem->SelectedDriver = DriverNode;
-            if(DriverNode) {
+            if (DriverNode) {
                 DevInfoElem->SelectedDriverType = (lpdd->ListType == IDC_NDW_PICKDEV_SHOWALL)
-                                                      ? SPDIT_CLASSDRIVER
-                                                      : SPDIT_COMPATDRIVER;
+                    ? SPDIT_CLASSDRIVER
+                    : SPDIT_COMPATDRIVER;
             } else {
                 DevInfoElem->SelectedDriverType = SPDIT_NODRIVER;
             }
@@ -3451,7 +3414,7 @@ Return Value:
             pDeviceInfoSet->SelectedClassDriver = DriverNode;
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         ;   // nothing to do
@@ -3465,7 +3428,7 @@ DWORD
 HandleSelectOEM(
     IN     HWND           hwndDlg,
     IN OUT PSP_DIALOGDATA lpdd
-    )
+)
 /*++
 
 Routine Description:
@@ -3496,7 +3459,7 @@ Return Value:
 
     try {
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
@@ -3506,13 +3469,13 @@ Return Value:
         // If this is for a particular device, then initialize a device
         // information structure to use for SelectOEMDriver.
 
-        if(DevInfoElem) {
+        if (DevInfoElem) {
 
             DevInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
             DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
                                              DevInfoElem,
                                              &DevInfoData
-                                            );
+            );
         }
 
 
@@ -3522,11 +3485,11 @@ Return Value:
         UnlockDeviceInfoSet(pDeviceInfoSet);
         pDeviceInfoSet = NULL;
 
-        if((Err = SelectOEMDriver(hwndDlg,
-                                  lpdd->DevInfoSet,
-                                  DevInfoElem ? &DevInfoData : NULL,
-                                  !(lpdd->flags & DD_FLAG_IS_DIALOGBOX)
-                                 )) == ERROR_DI_DO_DEFAULT) {
+        if ((Err = SelectOEMDriver(hwndDlg,
+                                   lpdd->DevInfoSet,
+                                   DevInfoElem ? &DevInfoData : NULL,
+                                   !(lpdd->flags & DD_FLAG_IS_DIALOGBOX)
+        )) == ERROR_DI_DO_DEFAULT) {
 
             // Fill in the list to select from
 
@@ -3535,7 +3498,7 @@ Return Value:
                              IDC_NDW_PICKDEV_SHOWCOMPAT,
                              IDC_NDW_PICKDEV_SHOWALL,
                              IDC_NDW_PICKDEV_SHOWALL
-                            );
+            );
 
             FillInDeviceList(hwndDlg, lpdd);
 
@@ -3556,7 +3519,7 @@ Return Value:
         pDeviceInfoSet = pDeviceInfoSet;
     }
 
-    if(pDeviceInfoSet) {
+    if (pDeviceInfoSet) {
         UnlockDeviceInfoSet(pDeviceInfoSet);
     }
 
@@ -3567,12 +3530,12 @@ Return Value:
 
 DWORD
 SelectWindowsUpdateDriver(
-    IN     HWND             hwndParent,     OPTIONAL
+    IN     HWND             hwndParent, OPTIONAL
     IN     HDEVINFO         DeviceInfoSet,
     IN OUT PSP_DEVINFO_DATA DeviceInfoData, OPTIONAL
     IN     PTSTR            CDMPath,
     IN     BOOL             IsWizard
-    )
+)
 /*++
 
 Routine Description:
@@ -3634,13 +3597,13 @@ Return Value:
 
     try {
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Then we're working with a particular device.
 
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                         DeviceInfoData,
-                                                         NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                          DeviceInfoData,
+                                                          NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
@@ -3650,7 +3613,7 @@ Return Value:
             // we're going to be calling the class installer, and we don't want to
             // allow it to delete this element!
 
-            if(!(DevInfoElem->DiElemFlags & DIE_IS_LOCKED)) {
+            if (!(DevInfoElem->DiElemFlags & DIE_IS_LOCKED)) {
                 DevInfoElem->DiElemFlags |= DIE_IS_LOCKED;
                 bUnlockDevInfoElem = TRUE;
             }
@@ -3664,7 +3627,7 @@ Return Value:
 
         // Make this selection window the parent window for Windows Update stuff
 
-        if(hwndParent) {
+        if (hwndParent) {
             hwndSave = dipb->hwndParent;
             dipb->hwndParent = hwndParent;
             bRestoreHwnd = TRUE;
@@ -3690,11 +3653,11 @@ Return Value:
 
         // Set the DriverPath to the path returned by CDM
 
-        if((DriverPathId = pStringTableAddString(
-                                      pDeviceInfoSet->StringTable,
-                                      CDMPath,
-                                      STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
-                                      NULL,0)) == -1) {
+        if ((DriverPathId = pStringTableAddString(
+            pDeviceInfoSet->StringTable,
+            CDMPath,
+            STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE,
+            NULL, 0)) == -1) {
 
             Err = ERROR_NOT_ENOUGH_MEMORY;
             goto clean0;
@@ -3711,24 +3674,24 @@ Return Value:
 
         // (Note: we don't attempt to save/restore our driver enumeration hints)
 
-        if(DevInfoElem) {
-            lpOrgCompat     = DevInfoElem->CompatDriverHead;
+        if (DevInfoElem) {
+            lpOrgCompat = DevInfoElem->CompatDriverHead;
             lpOrgCompatTail = DevInfoElem->CompatDriverTail;
-            OrgCompatCount  = DevInfoElem->CompatDriverCount;
+            OrgCompatCount = DevInfoElem->CompatDriverCount;
 
-            lpOrgClass      = DevInfoElem->ClassDriverHead;
-            lpOrgClassTail  = DevInfoElem->ClassDriverTail;
-            OrgClassCount   = DevInfoElem->ClassDriverCount;
+            lpOrgClass = DevInfoElem->ClassDriverHead;
+            lpOrgClassTail = DevInfoElem->ClassDriverTail;
+            OrgClassCount = DevInfoElem->ClassDriverCount;
 
-            lpOrgSel        = DevInfoElem->SelectedDriver;
-            dwOrgSelType    = DevInfoElem->SelectedDriverType;
+            lpOrgSel = DevInfoElem->SelectedDriver;
+            dwOrgSelType = DevInfoElem->SelectedDriverType;
         } else {
-            lpOrgClass      = pDeviceInfoSet->ClassDriverHead;
-            lpOrgClassTail  = pDeviceInfoSet->ClassDriverTail;
-            OrgClassCount   = pDeviceInfoSet->ClassDriverCount;
+            lpOrgClass = pDeviceInfoSet->ClassDriverHead;
+            lpOrgClassTail = pDeviceInfoSet->ClassDriverTail;
+            OrgClassCount = pDeviceInfoSet->ClassDriverCount;
 
-            lpOrgSel        = pDeviceInfoSet->SelectedClassDriver;
-            dwOrgSelType    = lpOrgSel ? SPDIT_CLASSDRIVER : SPDIT_NODRIVER;
+            lpOrgSel = pDeviceInfoSet->SelectedClassDriver;
+            dwOrgSelType = lpOrgSel ? SPDIT_CLASSDRIVER : SPDIT_NODRIVER;
         }
 
         dwOrgFlags = dipb->Flags;
@@ -3736,7 +3699,7 @@ Return Value:
 
         bRestoreDeviceInfo = TRUE;
 
-        if(DevInfoElem) {
+        if (DevInfoElem) {
             DevInfoElem->CompatDriverHead = DevInfoElem->CompatDriverTail = NULL;
             DevInfoElem->CompatDriverCount = 0;
             DevInfoElem->CompatDriverEnumHint = NULL;
@@ -3750,7 +3713,7 @@ Return Value:
             DevInfoElem->SelectedDriver = NULL;
             DevInfoElem->SelectedDriverType = SPDIT_NODRIVER;
         } else {
-            lpOrgCompat     = NULL; // just so we won't ever try to free this list.
+            lpOrgCompat = NULL; // just so we won't ever try to free this list.
 
             pDeviceInfoSet->ClassDriverHead = pDeviceInfoSet->ClassDriverTail = NULL;
             pDeviceInfoSet->ClassDriverCount = 0;
@@ -3763,10 +3726,10 @@ Return Value:
         SavedFlags = dipb->Flags & (DI_SHOWOEM | DI_NODI_DEFAULTACTION);
         SavedFlagsEx = dipb->FlagsEx & (DI_FLAGSEX_SHOWWINDOWSUPDATE);
 
-        dipb->Flags   &= ~(DI_DIDCOMPAT | DI_DIDCLASS | DI_MULTMFGS | DI_SHOWOEM);
+        dipb->Flags &= ~(DI_DIDCOMPAT | DI_DIDCLASS | DI_MULTMFGS | DI_SHOWOEM);
         dipb->FlagsEx &= ~(DI_FLAGSEX_DIDINFOLIST | DI_FLAGSEX_DIDCOMPATINFO | DI_FLAGSEX_SHOWWINDOWSUPDATE);
 
-        if(IsWizard) {
+        if (IsWizard) {
 
             // We don't want default action taken in the wizard case.
 
@@ -3780,10 +3743,10 @@ Return Value:
         UnlockDeviceInfoSet(pDeviceInfoSet);
         pDeviceInfoSet = NULL;
 
-        if(_SetupDiCallClassInstaller(DIF_SELECTDEVICE,
-                                      DeviceInfoSet,
-                                      DeviceInfoData,
-                                      CALLCI_LOAD_HELPERS | CALLCI_CALL_HELPERS)) {
+        if (_SetupDiCallClassInstaller(DIF_SELECTDEVICE,
+                                       DeviceInfoSet,
+                                       DeviceInfoData,
+                                       CALLCI_LOAD_HELPERS | CALLCI_CALL_HELPERS)) {
             Err = NO_ERROR;
         } else {
             Err = GetLastError();
@@ -3806,146 +3769,146 @@ Return Value:
         // they either did not process the DIF_SELECTDEVICE, or they
         // have setup our device info structure with an OEM INF.
 
-        switch(Err) {
+        switch (Err) {
 
-            case ERROR_DI_DO_DEFAULT :
+        case ERROR_DI_DO_DEFAULT:
 
-                // This case is only handled if we're in a wizard.  Otherwise, send it down
-                // for default processing.
+            // This case is only handled if we're in a wizard.  Otherwise, send it down
+            // for default processing.
 
-                if(!IsWizard) {
-                    goto DefaultHandling;
-                }
-
-
-                // This will be the most likely return, since we are not allowing the
-                // default handler to be called.  So we will build a new class Drv list
-                // If it is empty we will ask again, otherwise we will accept the new
-                // selection and go on.
-
-                SetCursor(LoadCursor(NULL, IDC_WAIT));
+            if (!IsWizard) {
+                goto DefaultHandling;
+            }
 
 
-                // Any drivers we find are Internet drivers.
+            // This will be the most likely return, since we are not allowing the
+            // default handler to be called.  So we will build a new class Drv list
+            // If it is empty we will ask again, otherwise we will accept the new
+            // selection and go on.
 
-                dipb->FlagsEx |= DI_FLAGSEX_INET_DRIVER;
-
-                SetupDiBuildDriverInfoList(DeviceInfoSet,
-                                           DeviceInfoData,
-                                           SPDIT_CLASSDRIVER
-                                          );
-
-                dipb->FlagsEx &= ~DI_FLAGSEX_INET_DRIVER;
-
-                SetCursor(LoadCursor(NULL, IDC_ARROW));
-
-                if(DevInfoElem) {
-                    NewClassDriverCount = DevInfoElem->ClassDriverCount;
-                } else {
-                    NewClassDriverCount = pDeviceInfoSet->ClassDriverCount;
-                }
-
-                if(!NewClassDriverCount) {
-
-                    // Error.
-
-                    if(!LoadString(MyDllModuleHandle,
-                                   IDS_SELECT_DEVICE,
-                                   Title,
-                                   SIZECHARS(Title))) {
-                        *Title = TEXT('\0');
-                    }
-
-                    FormatMessageBox(MyDllModuleHandle, NULL, MSG_NO_DEVICEINFO_ERROR, Title, MB_OK | MB_TASKMODAL);
+            SetCursor(LoadCursor(NULL, IDC_WAIT));
 
 
-                    // Clean up anything that happened to get put in here.
+            // Any drivers we find are Internet drivers.
 
-                    if(DevInfoElem &&
-                       (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDCOMPATINFO)) {
+            dipb->FlagsEx |= DI_FLAGSEX_INET_DRIVER;
 
-                        // The class installer built a compatible driver list--kill it here.
+            SetupDiBuildDriverInfoList(DeviceInfoSet,
+                                       DeviceInfoData,
+                                       SPDIT_CLASSDRIVER
+            );
 
-                        DestroyDriverNodes(DevInfoElem->CompatDriverHead, pDeviceInfoSet);
+            dipb->FlagsEx &= ~DI_FLAGSEX_INET_DRIVER;
 
-                        DevInfoElem->CompatDriverHead = DevInfoElem->CompatDriverTail = NULL;
-                        DevInfoElem->CompatDriverCount = 0;
-                        DevInfoElem->InstallParamBlock.Flags   &= ~DI_DIDCOMPAT;
-                        DevInfoElem->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDCOMPATINFO;
+            SetCursor(LoadCursor(NULL, IDC_ARROW));
 
-                        DevInfoElem->SelectedDriver = NULL;
-                        DevInfoElem->SelectedDriverType = SPDIT_NODRIVER;
-                    }
-                    dipb->DriverPath = -1;
+            if (DevInfoElem) {
+                NewClassDriverCount = DevInfoElem->ClassDriverCount;
+            } else {
+                NewClassDriverCount = pDeviceInfoSet->ClassDriverCount;
+            }
 
-                    break;
-                }
+            if (!NewClassDriverCount) {
 
-                // Allow to fall through to handling of NO_ERROR which does clean-up for us.
+                // Error.
 
-
-            case NO_ERROR :
-
-                // Destroy the original lists
-
-                if(bRestoreDeviceInfo) {
-                    DestroyDriverNodes(lpOrgCompat, pDeviceInfoSet);
-                    DereferenceClassDriverList(pDeviceInfoSet, lpOrgClass);
-
-                    bRestoreDeviceInfo = FALSE;
-                }
-
-                bRestoreDriverPath = FALSE;
-                break;
-
-            case ERROR_DI_BAD_PATH :
-
-                // Pop up an error messagebox, and then leave
-
-                if(!LoadString(MyDllModuleHandle,
-                               IDS_SELECT_DEVICE,
-                               Title,
-                               SIZECHARS(Title))) {
+                if (!LoadString(MyDllModuleHandle,
+                                IDS_SELECT_DEVICE,
+                                Title,
+                                SIZECHARS(Title))) {
                     *Title = TEXT('\0');
                 }
 
                 FormatMessageBox(MyDllModuleHandle, NULL, MSG_NO_DEVICEINFO_ERROR, Title, MB_OK | MB_TASKMODAL);
-                dipb->DriverPath = -1;
 
 
-                // Allow to fall through to default processing to delete the current
-                // driver list(s).
+                // Clean up anything that happened to get put in here.
 
+                if (DevInfoElem &&
+                    (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDCOMPATINFO)) {
 
-            default :
-DefaultHandling:
-
-                // Destroy the current driver list(s).
-
-                if(DevInfoElem) {
+                    // The class installer built a compatible driver list--kill it here.
 
                     DestroyDriverNodes(DevInfoElem->CompatDriverHead, pDeviceInfoSet);
+
                     DevInfoElem->CompatDriverHead = DevInfoElem->CompatDriverTail = NULL;
                     DevInfoElem->CompatDriverCount = 0;
-
-                    DereferenceClassDriverList(pDeviceInfoSet, DevInfoElem->ClassDriverHead);
-                    DevInfoElem->ClassDriverHead = DevInfoElem->ClassDriverTail = NULL;
-                    DevInfoElem->ClassDriverCount = 0;
+                    DevInfoElem->InstallParamBlock.Flags &= ~DI_DIDCOMPAT;
+                    DevInfoElem->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDCOMPATINFO;
 
                     DevInfoElem->SelectedDriver = NULL;
                     DevInfoElem->SelectedDriverType = SPDIT_NODRIVER;
-
-                } else {
-
-                    DereferenceClassDriverList(pDeviceInfoSet, pDeviceInfoSet->ClassDriverHead);
-                    pDeviceInfoSet->ClassDriverHead = pDeviceInfoSet->ClassDriverTail = NULL;
-                    pDeviceInfoSet->ClassDriverCount = 0;
-
-                    pDeviceInfoSet->SelectedClassDriver = NULL;
                 }
+                dipb->DriverPath = -1;
+
+                break;
             }
 
-clean0: ;   // nothing to do
+            // Allow to fall through to handling of NO_ERROR which does clean-up for us.
+
+
+        case NO_ERROR:
+
+            // Destroy the original lists
+
+            if (bRestoreDeviceInfo) {
+                DestroyDriverNodes(lpOrgCompat, pDeviceInfoSet);
+                DereferenceClassDriverList(pDeviceInfoSet, lpOrgClass);
+
+                bRestoreDeviceInfo = FALSE;
+            }
+
+            bRestoreDriverPath = FALSE;
+            break;
+
+        case ERROR_DI_BAD_PATH:
+
+            // Pop up an error messagebox, and then leave
+
+            if (!LoadString(MyDllModuleHandle,
+                            IDS_SELECT_DEVICE,
+                            Title,
+                            SIZECHARS(Title))) {
+                *Title = TEXT('\0');
+            }
+
+            FormatMessageBox(MyDllModuleHandle, NULL, MSG_NO_DEVICEINFO_ERROR, Title, MB_OK | MB_TASKMODAL);
+            dipb->DriverPath = -1;
+
+
+            // Allow to fall through to default processing to delete the current
+            // driver list(s).
+
+
+        default:
+        DefaultHandling:
+
+            // Destroy the current driver list(s).
+
+            if (DevInfoElem) {
+
+                DestroyDriverNodes(DevInfoElem->CompatDriverHead, pDeviceInfoSet);
+                DevInfoElem->CompatDriverHead = DevInfoElem->CompatDriverTail = NULL;
+                DevInfoElem->CompatDriverCount = 0;
+
+                DereferenceClassDriverList(pDeviceInfoSet, DevInfoElem->ClassDriverHead);
+                DevInfoElem->ClassDriverHead = DevInfoElem->ClassDriverTail = NULL;
+                DevInfoElem->ClassDriverCount = 0;
+
+                DevInfoElem->SelectedDriver = NULL;
+                DevInfoElem->SelectedDriverType = SPDIT_NODRIVER;
+
+            } else {
+
+                DereferenceClassDriverList(pDeviceInfoSet, pDeviceInfoSet->ClassDriverHead);
+                pDeviceInfoSet->ClassDriverHead = pDeviceInfoSet->ClassDriverTail = NULL;
+                pDeviceInfoSet->ClassDriverCount = 0;
+
+                pDeviceInfoSet->SelectedClassDriver = NULL;
+            }
+        }
+
+    clean0:;   // nothing to do
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = GetLastError();
@@ -3964,9 +3927,9 @@ clean0: ;   // nothing to do
     // If we need to restore any state, then we must make sure that we have the HDEVINFO
     // locked.
 
-    if(bRestoreDeviceInfo || bUnlockDevInfoElem || bRestoreHwnd || bRestoreDriverPath) {
+    if (bRestoreDeviceInfo || bUnlockDevInfoElem || bRestoreHwnd || bRestoreDriverPath) {
 
-        if(!pDeviceInfoSet) {
+        if (!pDeviceInfoSet) {
             pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet);
             MYASSERT(pDeviceInfoSet);
         }
@@ -3975,9 +3938,9 @@ clean0: ;   // nothing to do
 
             // If necessary, restore the original list(s).
 
-            if(bRestoreDeviceInfo) {
+            if (bRestoreDeviceInfo) {
 
-                if(DevInfoElem) {
+                if (DevInfoElem) {
 
                     DestroyDriverNodes(DevInfoElem->CompatDriverHead, pDeviceInfoSet);
                     DevInfoElem->CompatDriverHead = lpOrgCompat;
@@ -4012,7 +3975,7 @@ clean0: ;   // nothing to do
 
             // If we locked the DevInfoElem just for this API, then unlock it now.
 
-            if(bUnlockDevInfoElem) {
+            if (bUnlockDevInfoElem) {
                 MYASSERT(DevInfoElem);
                 DevInfoElem->DiElemFlags &= ~DIE_IS_LOCKED;
             }
@@ -4020,14 +3983,14 @@ clean0: ;   // nothing to do
 
             // If the install param block needs its parent hwnd restored, do so now.
 
-            if(bRestoreHwnd) {
+            if (bRestoreHwnd) {
                 dipb->hwndParent = hwndSave;
             }
 
 
             // Likewise, restore the old driver path if necessary.
 
-            if(bRestoreDriverPath) {
+            if (bRestoreDriverPath) {
                 dipb->DriverPath = DriverPathSave;
                 dipb->Flags |= DriverPathFlagsSave;
             }
@@ -4036,20 +3999,20 @@ clean0: ;   // nothing to do
 
         } except(EXCEPTION_EXECUTE_HANDLER) {
 
-            if(bRestoreDeviceInfo) {
+            if (bRestoreDeviceInfo) {
 
                 // If we hit an exception before we got a chance to restore any of our stored-away
                 // driver lists, then clean those up here.
 
-                if(DevInfoElem) {
-                    if(lpOrgCompat) {
+                if (DevInfoElem) {
+                    if (lpOrgCompat) {
                         DestroyDriverNodes(lpOrgCompat, pDeviceInfoSet);
                     }
-                    if(lpOrgClass) {
+                    if (lpOrgClass) {
                         DereferenceClassDriverList(pDeviceInfoSet, lpOrgClass);
                     }
                 } else {
-                    if(lpOrgClass) {
+                    if (lpOrgClass) {
                         DereferenceClassDriverList(pDeviceInfoSet, lpOrgClass);
                     }
                 }
@@ -4057,7 +4020,7 @@ clean0: ;   // nothing to do
         }
     }
 
-    if(pDeviceInfoSet) {
+    if (pDeviceInfoSet) {
         UnlockDeviceInfoSet(pDeviceInfoSet);
     }
 
@@ -4068,7 +4031,7 @@ DWORD
 HandleWindowsUpdate(
     IN     HWND           hwndDlg,
     IN OUT PSP_DIALOGDATA lpdd
-    )
+)
 /*++
 
 Routine Description:
@@ -4106,7 +4069,7 @@ Return Value:
 
     try {
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
@@ -4116,13 +4079,13 @@ Return Value:
         // If this is for a particular device, then initialize a device
         // information structure.
 
-        if(DevInfoElem) {
+        if (DevInfoElem) {
 
             DevInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
             DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
                                              DevInfoElem,
                                              &DevInfoData
-                                            );
+            );
             dipb = &(DevInfoElem->InstallParamBlock);
 
         } else {
@@ -4161,7 +4124,7 @@ Return Value:
 
             DownloadInfo.lpDeviceInstanceID = NULL;
 
-            GetVersionEx((OSVERSIONINFOW *)&DownloadInfo.OSVersionInfo);
+            GetVersionEx((OSVERSIONINFOW*)&DownloadInfo.OSVersionInfo);
 
 
             // Set dwArchitecture to PROCESSOR_ARCHITECTURE_UNKNOWN, this
@@ -4187,7 +4150,7 @@ Return Value:
                                          sizeof(CDMPath),
                                          &BufferLen)) &&
 
-                (CDMPath[0] != TEXT('\0'))) {
+                                         (CDMPath[0] != TEXT('\0'))) {
 
 
                 // We successfully downloaded a package from Windows Update
@@ -4200,12 +4163,12 @@ Return Value:
                 UnlockDeviceInfoSet(pDeviceInfoSet);
                 pDeviceInfoSet = NULL;
 
-                if((Err = SelectWindowsUpdateDriver(hwndDlg,
-                                              lpdd->DevInfoSet,
-                                              DevInfoElem ? &DevInfoData : NULL,
-                                              CDMPath,
-                                              !(lpdd->flags & DD_FLAG_IS_DIALOGBOX)
-                                             )) == ERROR_DI_DO_DEFAULT) {
+                if ((Err = SelectWindowsUpdateDriver(hwndDlg,
+                                                     lpdd->DevInfoSet,
+                                                     DevInfoElem ? &DevInfoData : NULL,
+                                                     CDMPath,
+                                                     !(lpdd->flags & DD_FLAG_IS_DIALOGBOX)
+                )) == ERROR_DI_DO_DEFAULT) {
 
                     // Fill in the list to select from
 
@@ -4214,7 +4177,7 @@ Return Value:
                                      IDC_NDW_PICKDEV_SHOWCOMPAT,
                                      IDC_NDW_PICKDEV_SHOWALL,
                                      IDC_NDW_PICKDEV_SHOWALL
-                                    );
+                    );
 
                     FillInDeviceList(hwndDlg, lpdd);
 
@@ -4226,7 +4189,7 @@ Return Value:
                     ShowWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_SHOWALL), SW_HIDE);
                 }
 
-            }  else {
+            } else {
 
 
                 // Something failed when we tried to download the INF from the Internet
@@ -4236,7 +4199,7 @@ Return Value:
 
                 // Pop up an error messagebox, then go try again.
 
-                if(!LoadString(MyDllModuleHandle, IDS_SELECT_DEVICE, Title, SIZECHARS(Title))) {
+                if (!LoadString(MyDllModuleHandle, IDS_SELECT_DEVICE, Title, SIZECHARS(Title))) {
                     *Title = TEXT('\0');
                 }
 
@@ -4258,7 +4221,7 @@ Return Value:
         pDeviceInfoSet = pDeviceInfoSet;
     }
 
-    if(pDeviceInfoSet) {
+    if (pDeviceInfoSet) {
         UnlockDeviceInfoSet(pDeviceInfoSet);
     }
 
@@ -4270,7 +4233,7 @@ DWORD
 HandleWindowsUpdate(
     IN     HWND           hwndDlg,
     IN OUT PSP_DIALOGDATA lpdd
-    )
+)
 {
     return ERROR_INVALID_PARAMETER;
 }
@@ -4281,7 +4244,7 @@ HandleWindowsUpdate(
 PNEWDEVWIZ_DATA
 GetNewDevWizDataFromPsPage(
     LPPROPSHEETPAGE ppsp
-    )
+)
 /*++
 
 Routine Description:
@@ -4306,7 +4269,7 @@ Return Value:
 
     // Access the device info set handle stored in the propsheetpage's lParam.
 
-    if(pDeviceInfoSet = AccessDeviceInfoSet((HDEVINFO)(ppsp->lParam))) {
+    if (pDeviceInfoSet = AccessDeviceInfoSet((HDEVINFO)(ppsp->lParam))) {
 
         try {
 
@@ -4315,13 +4278,13 @@ Return Value:
             // Retrieve this now, and look for it in the devinfo set's list of
             // wizard objects.
 
-            WizObjectId = *((PVOID *)(&(((PBYTE)ppsp)[sizeof(PROPSHEETPAGE)])));
+            WizObjectId = *((PVOID*)(&(((PBYTE)ppsp)[sizeof(PROPSHEETPAGE)])));
 
-            for(CurWizObject = pDeviceInfoSet->WizPageList;
-                CurWizObject;
-                CurWizObject = CurWizObject->Next) {
+            for (CurWizObject = pDeviceInfoSet->WizPageList;
+                 CurWizObject;
+                 CurWizObject = CurWizObject->Next) {
 
-                if(WizObjectId == CurWizObject) {
+                if (WizObjectId == CurWizObject) {
 
                     // We found our object.
 
@@ -4340,12 +4303,7 @@ Return Value:
 }
 
 
-BOOL
-WINAPI
-SetupDiSelectDevice(
-    IN     HDEVINFO         DeviceInfoSet,
-    IN OUT PSP_DEVINFO_DATA DeviceInfoData OPTIONAL
-    )
+BOOL WINAPI SetupDiSelectDevice(IN     HDEVINFO         DeviceInfoSet, IN OUT PSP_DEVINFO_DATA DeviceInfoData OPTIONAL)
 /*++
 
 Routine Description:
@@ -4397,12 +4355,12 @@ Return Value:
 
     // Make sure we're running interactively.
 
-    if(GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
+    if (GlobalSetupFlags & PSPGF_NONINTERACTIVE) {
         SetLastError(ERROR_REQUIRES_INTERACTIVE_WINDOWSTATION);
         return FALSE;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -4414,19 +4372,19 @@ Return Value:
         // This routine cannot be called when the lock level is nested (i.e., > 1).  This
         // is explicitly disallowed, so that our multi-threaded dialog won't deadlock.
 
-        if(pDeviceInfoSet->LockRefCount > 1) {
+        if (pDeviceInfoSet->LockRefCount > 1) {
             Err = ERROR_DEVINFO_LIST_LOCKED;
             goto clean0;
         }
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Special check to make sure we aren't being passed a zombie (different from
             // phantom, the zombie devinfo element is one whose corresponding devinst was
             // deleted via SetupDiRemoveDevice, but who lingers on until the caller kills
             // it via SetupDiDeleteDeviceInfo or SetupDiDestroyDeviceInfoList).
 
-            if(!DeviceInfoData->DevInst) {
+            if (!DeviceInfoData->DevInst) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
@@ -4434,9 +4392,9 @@ Return Value:
 
             // Then we are to select a driver for a particular device.
 
-            if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
-                                                         DeviceInfoData,
-                                                         NULL))) {
+            if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet,
+                                                          DeviceInfoData,
+                                                          NULL))) {
                 Err = ERROR_INVALID_PARAMETER;
                 goto clean0;
             }
@@ -4469,7 +4427,7 @@ Return Value:
 
         Page->lParam = (LPARAM)DeviceInfoSet;
 
-        *((PVOID *)(&(pspBuffer[sizeof(PROPSHEETPAGE)]))) = &WizPageObject;
+        *((PVOID*)(&(pspBuffer[sizeof(PROPSHEETPAGE)]))) = &WizPageObject;
 
 
         // Release the lock, so other stuff can happen while this dialog is up.
@@ -4482,7 +4440,7 @@ Return Value:
                                     dipb->hwndParent,
                                     SelectDeviceDlgProc,
                                     (LPARAM)Page
-                                   );
+        );
 
 
         // Re-acquire the devinfo set lock.
@@ -4495,34 +4453,34 @@ Return Value:
         // assume that it's still at the head of the list, since someone else couldn've
         // added another page.
 
-        for(CurWizObject = pDeviceInfoSet->WizPageList, PrevWizObject = NULL;
-            CurWizObject;
-            PrevWizObject = CurWizObject, CurWizObject = CurWizObject->Next) {
+        for (CurWizObject = pDeviceInfoSet->WizPageList, PrevWizObject = NULL;
+             CurWizObject;
+             PrevWizObject = CurWizObject, CurWizObject = CurWizObject->Next) {
 
-            if(CurWizObject == &WizPageObject) {
+            if (CurWizObject == &WizPageObject) {
                 break;
             }
         }
 
         MYASSERT(CurWizObject);
 
-        if(PrevWizObject) {
+        if (PrevWizObject) {
             PrevWizObject->Next = CurWizObject->Next;
         } else {
             pDeviceInfoSet->WizPageList = CurWizObject->Next;
         }
 
-        if(DeviceInfoData) {
+        if (DeviceInfoData) {
 
             // Update the caller's device information element with its (potentially) new class.
 
             DevInfoDataFromDeviceInfoElement(pDeviceInfoSet,
                                              DevInfoElem,
                                              DeviceInfoData
-                                            );
+            );
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
@@ -4533,7 +4491,7 @@ clean0: ;   // nothing to do.
         pDeviceInfoSet = pDeviceInfoSet;
     }
 
-    if(pDeviceInfoSet) {
+    if (pDeviceInfoSet) {
         UnlockDeviceInfoSet(pDeviceInfoSet);
     }
 
@@ -4545,7 +4503,7 @@ clean0: ;   // nothing to do.
 BOOL
 bNoDevsToShow(
     IN PDEVINFO_ELEM DevInfoElem
-    )
+)
 /*++
 
 Routine Description:
@@ -4567,9 +4525,9 @@ Return Value:
 {
     PDRIVER_NODE CurDriverNode;
 
-    for(CurDriverNode = DevInfoElem->CompatDriverHead;
-        CurDriverNode;
-        CurDriverNode = CurDriverNode->Next) {
+    for (CurDriverNode = DevInfoElem->CompatDriverHead;
+         CurDriverNode;
+         CurDriverNode = CurDriverNode->Next) {
 
         if (!(CurDriverNode->Flags & DNF_OLD_INET_DRIVER) &&
             !(CurDriverNode->Flags & DNF_BAD_DRIVER) &&
@@ -4587,7 +4545,7 @@ Return Value:
 VOID
 OnCancel(
     IN PNEWDEVWIZ_DATA ndwData
-    )
+)
 /*++
 
 Routine Description:
@@ -4620,64 +4578,64 @@ Return Value:
 
     try {
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
         }
 
-        if(DevInfoElem) {
+        if (DevInfoElem) {
 
-            if(lpdd->bKeeplpSelectedDrv) {
+            if (lpdd->bKeeplpSelectedDrv) {
                 SelectedDriverType = DevInfoElem->SelectedDriverType;
             } else {
                 DevInfoElem->SelectedDriver = NULL;
                 DevInfoElem->SelectedDriverType = SPDIT_NODRIVER;
             }
 
-            if((DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) &&
-               !lpdd->bKeeplpClassDrvList && (SelectedDriverType != SPDIT_CLASSDRIVER)) {
+            if ((DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) &&
+                !lpdd->bKeeplpClassDrvList && (SelectedDriverType != SPDIT_CLASSDRIVER)) {
 
                 DereferenceClassDriverList(pDeviceInfoSet, DevInfoElem->ClassDriverHead);
                 DevInfoElem->ClassDriverHead = DevInfoElem->ClassDriverTail = NULL;
                 DevInfoElem->ClassDriverCount = 0;
                 DevInfoElem->ClassDriverEnumHint = NULL;
                 DevInfoElem->ClassDriverEnumHintIndex = INVALID_ENUM_INDEX;
-                DevInfoElem->InstallParamBlock.Flags   &= ~(DI_DIDCLASS | DI_MULTMFGS);
+                DevInfoElem->InstallParamBlock.Flags &= ~(DI_DIDCLASS | DI_MULTMFGS);
                 DevInfoElem->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDINFOLIST;
             }
 
-            if((DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDCOMPATINFO) &&
-               !lpdd->bKeeplpCompatDrvList && (SelectedDriverType != SPDIT_COMPATDRIVER)) {
+            if ((DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDCOMPATINFO) &&
+                !lpdd->bKeeplpCompatDrvList && (SelectedDriverType != SPDIT_COMPATDRIVER)) {
 
                 DestroyDriverNodes(DevInfoElem->CompatDriverHead, pDeviceInfoSet);
                 DevInfoElem->CompatDriverHead = DevInfoElem->CompatDriverTail = NULL;
                 DevInfoElem->CompatDriverCount = 0;
                 DevInfoElem->CompatDriverEnumHint = NULL;
                 DevInfoElem->CompatDriverEnumHintIndex = INVALID_ENUM_INDEX;
-                DevInfoElem->InstallParamBlock.Flags   &= ~DI_DIDCOMPAT;
+                DevInfoElem->InstallParamBlock.Flags &= ~DI_DIDCOMPAT;
                 DevInfoElem->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDCOMPATINFO;
             }
 
         } else {
 
-            if(lpdd->bKeeplpSelectedDrv) {
-                if(pDeviceInfoSet->SelectedClassDriver) {
+            if (lpdd->bKeeplpSelectedDrv) {
+                if (pDeviceInfoSet->SelectedClassDriver) {
                     SelectedDriverType = SPDIT_CLASSDRIVER;
                 }
             } else {
                 pDeviceInfoSet->SelectedClassDriver = NULL;
             }
 
-            if((pDeviceInfoSet->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) &&
-               !lpdd->bKeeplpClassDrvList && (SelectedDriverType != SPDIT_CLASSDRIVER)) {
+            if ((pDeviceInfoSet->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST) &&
+                !lpdd->bKeeplpClassDrvList && (SelectedDriverType != SPDIT_CLASSDRIVER)) {
 
                 DereferenceClassDriverList(pDeviceInfoSet, pDeviceInfoSet->ClassDriverHead);
                 pDeviceInfoSet->ClassDriverHead = pDeviceInfoSet->ClassDriverTail = NULL;
                 pDeviceInfoSet->ClassDriverCount = 0;
                 pDeviceInfoSet->ClassDriverEnumHint = NULL;
                 pDeviceInfoSet->ClassDriverEnumHintIndex = INVALID_ENUM_INDEX;
-                pDeviceInfoSet->InstallParamBlock.Flags   &= ~(DI_DIDCLASS | DI_MULTMFGS);
+                pDeviceInfoSet->InstallParamBlock.Flags &= ~(DI_DIDCLASS | DI_MULTMFGS);
                 pDeviceInfoSet->InstallParamBlock.FlagsEx &= ~DI_FLAGSEX_DIDINFOLIST;
             }
         }
@@ -4693,7 +4651,7 @@ Return Value:
 LONG
 GetCurDesc(
     IN PSP_DIALOGDATA lpdd
-    )
+)
 /*++
 
 Routine Description:
@@ -4723,20 +4681,20 @@ Return Value:
 
     try {
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
         }
 
-        if(DevInfoElem) {
+        if (DevInfoElem) {
             ret = DevInfoElem->SelectedDriver
-                      ? DevInfoElem->SelectedDriver->DevDescription
-                      : -1;
+                ? DevInfoElem->SelectedDriver->DevDescription
+                : -1;
         } else {
             ret = pDeviceInfoSet->SelectedClassDriver
-                      ? pDeviceInfoSet->SelectedClassDriver->DevDescription
-                      : -1;
+                ? pDeviceInfoSet->SelectedClassDriver->DevDescription
+                : -1;
         }
 
     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -4753,7 +4711,7 @@ VOID
 __cdecl
 ClassDriverSearchThread(
     IN PVOID Context
-    )
+)
 
 /*++
 
@@ -4788,19 +4746,18 @@ Return Value:
     if (SetupDiGetDeviceInstallParams(ClassDrvThreadContext->DeviceInfoSet,
                                       &(ClassDrvThreadContext->DeviceInfoData),
                                       &DeviceInstallParams
-                                      ))
-    {
+    )) {
         DeviceInstallParams.FlagsEx |= DI_FLAGSEX_EXCLUDE_OLD_INET_DRIVERS;
 
         SetupDiSetDeviceInstallParams(ClassDrvThreadContext->DeviceInfoSet,
                                       &(ClassDrvThreadContext->DeviceInfoData),
                                       &DeviceInstallParams
-                                      );
+        );
     }
 
-    if(b = SetupDiBuildDriverInfoList(ClassDrvThreadContext->DeviceInfoSet,
-                                      &(ClassDrvThreadContext->DeviceInfoData),
-                                      SPDIT_CLASSDRIVER)) {
+    if (b = SetupDiBuildDriverInfoList(ClassDrvThreadContext->DeviceInfoSet,
+                                       &(ClassDrvThreadContext->DeviceInfoData),
+                                       SPDIT_CLASSDRIVER)) {
         Err = NO_ERROR;
     } else {
         Err = GetLastError();
@@ -4813,7 +4770,7 @@ Return Value:
                 WMX_CLASSDRVLIST_DONE,
                 (WPARAM)b,
                 (LPARAM)Err
-               );
+    );
 
     MyFree(Context);
 
@@ -4827,7 +4784,7 @@ Return Value:
 BOOL
 pSetupIsClassDriverListBuilt(
     IN PSP_DIALOGDATA lpdd
-    )
+)
 /*++
 
 Routine Description:
@@ -4856,13 +4813,13 @@ Return Value:
 
     try {
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
         }
 
-        if(DevInfoElem) {
+        if (DevInfoElem) {
             b = DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST;
         } else {
             b = pDeviceInfoSet->InstallParamBlock.FlagsEx & DI_FLAGSEX_DIDINFOLIST;
@@ -4881,7 +4838,7 @@ VOID
 pSetupDevInfoDataFromDialogData(
     IN  PSP_DIALOGDATA   lpdd,
     OUT PSP_DEVINFO_DATA DeviceInfoData
-    )
+)
 /*++
 
 Routine Description:
@@ -4911,7 +4868,7 @@ Return Value:
 
     try {
 
-        if(lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
+        if (lpdd->flags & DD_FLAG_USE_DEVINFO_ELEM) {
             DevInfoElem = lpdd->DevInfoElem;
         } else {
             DevInfoElem = pDeviceInfoSet->SelectedDevInfoElem;
@@ -4942,7 +4899,7 @@ ToggleDialogControls(
     IN HWND           hwndDlg,
     IN PSP_DIALOGDATA lpdd,
     IN BOOL           Enable
-    )
+)
 /*++
 
 Routine Description:
@@ -4974,8 +4931,8 @@ Return Value:
     // If we're enabling controls, make sure we only enable the "Show all devices" radio
     // button if we successfully built a class list.
 
-    if(Enable) {
-        if(!(lpdd->flags & DD_FLAG_CLASSLIST_FAILED)) {
+    if (Enable) {
+        if (!(lpdd->flags & DD_FLAG_CLASSLIST_FAILED)) {
             EnableWindow(GetDlgItem(hwndDlg, IDC_NDW_PICKDEV_SHOWALL), TRUE);
         }
     } else {
@@ -4995,7 +4952,7 @@ Return Value:
 BOOL
 CDMIsInternetAvailable(
     void
-    )
+)
 /*++
 
 Routine Description:

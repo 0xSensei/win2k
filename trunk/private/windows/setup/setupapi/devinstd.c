@@ -19,27 +19,27 @@ Revision History:
 
 
 // Global strings for use inside this file only.
-CONST TCHAR pszDisplayName[]    = INFSTR_KEY_DISPLAYNAME,
-            pszServiceType[]    = INFSTR_KEY_SERVICETYPE,
-            pszStartType[]      = INFSTR_KEY_STARTTYPE,
-            pszErrorControl[]   = INFSTR_KEY_ERRORCONTROL,
-            pszServiceBinary[]  = INFSTR_KEY_SERVICEBINARY,
-            pszLoadOrderGroup[] = INFSTR_KEY_LOADORDERGROUP,
-            pszDependencies[]   = INFSTR_KEY_DEPENDENCIES,
-            pszStartName[]      = INFSTR_KEY_STARTNAME,
-            pszSystemRoot[]     = TEXT("%SystemRoot%\\"),
-            pszSecurity[]       = INFSTR_KEY_SECURITY,
-            pszDescription[]    = INFSTR_KEY_DESCRIPTION;
+CONST TCHAR pszDisplayName[] = INFSTR_KEY_DISPLAYNAME,
+pszServiceType[] = INFSTR_KEY_SERVICETYPE,
+pszStartType[] = INFSTR_KEY_STARTTYPE,
+pszErrorControl[] = INFSTR_KEY_ERRORCONTROL,
+pszServiceBinary[] = INFSTR_KEY_SERVICEBINARY,
+pszLoadOrderGroup[] = INFSTR_KEY_LOADORDERGROUP,
+pszDependencies[] = INFSTR_KEY_DEPENDENCIES,
+pszStartName[] = INFSTR_KEY_STARTNAME,
+pszSystemRoot[] = TEXT("%SystemRoot%\\"),
+pszSecurity[] = INFSTR_KEY_SECURITY,
+pszDescription[] = INFSTR_KEY_DESCRIPTION;
 
 // Define function prototype for legacy INF interpreter supplied by setupdll.dll
-typedef BOOL (WINAPI *LEGACY_INF_INTERP_PROC)(
+typedef BOOL(WINAPI* LEGACY_INF_INTERP_PROC)(
     IN  HWND   OwnerWindow,
     IN  PCSTR  InfFilename,
     IN  PCSTR  InfSection,
     IN  PCHAR  ExtraVariables,
     OUT PSTR   InfResult,
     IN  DWORD  BufferSize,
-    OUT INT   *InterpResult,
+    OUT INT* InterpResult,
     IN  PCSTR  InfSourceDir      OPTIONAL
     );
 
@@ -48,12 +48,12 @@ typedef enum _NEWINF_COPYTYPE {
     NewInfCopyYes,       // new INF placeholder created--need to copy real INF
     NewInfCopyNo,        // no need to copy--INF already present in destination
     NewInfCopyZeroLength // previously-existing zero-length INF match found
-} NEWINF_COPYTYPE, *PNEWINF_COPYTYPE;
+} NEWINF_COPYTYPE, * PNEWINF_COPYTYPE;
 
 
 // Define function prototype for legacy INF routine that returns a list
 // of all services modified during an INF 'run' via LegacyInfInterpret().
-typedef DWORD (WINAPI *LEGACY_INF_GETSVCLIST_PROC)(
+typedef DWORD(WINAPI* LEGACY_INF_GETSVCLIST_PROC)(
     IN  LPSTR SvcNameBuffer,
     IN  UINT  SvcNameBufferSize,
     OUT PUINT RequiredSize
@@ -68,18 +68,18 @@ typedef DWORD (WINAPI *LEGACY_INF_GETSVCLIST_PROC)(
 
 // Define a list node to hold an interface class to be installed.
 typedef struct _INTERFACE_CLASS_TO_INSTALL {
-    struct _INTERFACE_CLASS_TO_INSTALL *Next;
+    struct _INTERFACE_CLASS_TO_INSTALL* Next;
     GUID  InterfaceGuid;
     DWORD Flags;
     TCHAR InstallSection[MAX_SECT_NAME_LEN];
-} INTERFACE_CLASS_TO_INSTALL, *PINTERFACE_CLASS_TO_INSTALL;
+} INTERFACE_CLASS_TO_INSTALL, * PINTERFACE_CLASS_TO_INSTALL;
 
 
 // Define a list node to hold an INF that has been newly-installed during SetupDiInstallDevice, hence must be cleaned up if SetupDiInstallDevice subsequently encounters a failure.
 typedef struct _INSTALLED_INF_CLEANUP {
-    struct _INSTALLED_INF_CLEANUP *Next;
+    struct _INSTALLED_INF_CLEANUP* Next;
     TCHAR InfName[MAX_PATH];
-} INSTALLED_INF_CLEANUP, *PINSTALLED_INF_CLEANUP;
+} INSTALLED_INF_CLEANUP, * PINSTALLED_INF_CLEANUP;
 
 
 // Private function prototypes
@@ -88,7 +88,7 @@ _SetupDiInstallDevice(
     IN     HDEVINFO         DeviceInfoSet,
     IN OUT PSP_DEVINFO_DATA DeviceInfoData,
     IN     BOOL             DoFullInstall
-    );
+);
 
 DWORD
 InstallHW(
@@ -97,38 +97,38 @@ InstallHW(
     IN  HINF             hDeviceInf,
     IN  PCTSTR           szSectionName,
     OUT PBOOL            DeleteDevKey
-    );
+);
 
 BOOL
 AssociateDevInstWithDefaultService(
     IN     PDEVINFO_ELEM DevInfoElem,
     OUT    PTSTR         ServiceName,
     IN OUT PDWORD        ServiceNameSize
-    );
+);
 
 VOID
 CheckIfDevStarted(
     IN PDEVINFO_ELEM      DevInfoElem,
     IN HMACHINE           hMachine,
     IN PSETUP_LOG_CONTEXT LogContext
-    );
+);
 
 DWORD
 pSetupAddService(
     IN  PINFCONTEXT        LineContext,
-    OUT PSVCNAME_NODE *    SvcListHead,
+    OUT PSVCNAME_NODE* SvcListHead,
     IN  DWORD              Flags,
-    IN  DEVINST            DevInst,            OPTIONAL
+    IN  DEVINST            DevInst, OPTIONAL
     OUT PBOOL              NullDriverInstalled,
     IN  PSETUP_LOG_CONTEXT LogContext
-    );
+);
 
 DWORD
 pSetupDeleteService(
     IN PINFCONTEXT         LineContext,
     IN DWORD               Flags,
     IN PSETUP_LOG_CONTEXT  LogContext
-    );
+);
 
 VOID DeleteServicesInList(IN PSVCNAME_NODE ServicesToDelete);
 BOOL IsDevRemovedFromAllHwProfiles(IN PCTSTR DeviceInstanceId, IN HMACHINE hMachine);
@@ -142,16 +142,16 @@ pSetupRunLegacyInf(
     IN PCTSTR  InfOptionName,
     IN PCTSTR  InfLanguageName,
     IN HINF    InfHandle
-    );
+);
 
 PTSTR
 pSetupCmdLineAppendString(
     IN     PTSTR  CmdLine,
     IN     PCTSTR Key,
-    IN     PCTSTR Value,   OPTIONAL
+    IN     PCTSTR Value, OPTIONAL
     IN OUT PUINT  StrLen,
     IN OUT PUINT  BufSize
-    );
+);
 
 PTSTR DoServiceModsForLegacyInf(IN PTSTR ServiceList);
 
@@ -160,46 +160,46 @@ _SetupDiInstallInterfaceDevices(
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData,
     IN BOOL             DoFullInstall,
-    IN HINF             hDeviceInf,     OPTIONAL
+    IN HINF             hDeviceInf, OPTIONAL
     IN HSPFILEQ         UserFileQ       OPTIONAL
-    );
+);
 
 BOOL
 _SetupDiRegisterCoDeviceInstallers(
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData,
     IN BOOL             DoFullInstall,
-    IN HINF             hDeviceInf,     OPTIONAL
+    IN HINF             hDeviceInf, OPTIONAL
     IN HSPFILEQ         UserFileQ       OPTIONAL
-    );
+);
 
 BOOL
 RetrieveAllFilterDriversForDevice(
     IN  PDEVINFO_ELEM  DevInfoElem,
-    OUT PTSTR         *FilterDrivers,
+    OUT PTSTR* FilterDrivers,
     IN  HMACHINE       hMachine
-    );
+);
 
 DWORD
 GetNewInfName(
-    IN  HWND                 Owner,                  OPTIONAL
+    IN  HWND                 Owner, OPTIONAL
     IN  PCTSTR               OemInfName,
     IN  PCTSTR               OemInfOriginalName,
-    IN  PCTSTR               OemInfCatName,          OPTIONAL
+    IN  PCTSTR               OemInfCatName, OPTIONAL
     OUT PTSTR                NewInfName,
     IN  DWORD                NewInfNameSize,
     OUT PDWORD               RequiredSize,
     OUT PNEWINF_COPYTYPE     CopyNeeded,
     IN  BOOL                 ReplaceOnly,
-    IN  PCTSTR               DeviceDesc,             OPTIONAL
+    IN  PCTSTR               DeviceDesc, OPTIONAL
     IN  DWORD                DriverSigningPolicy,
     IN  DWORD                Flags,
-    IN  PCTSTR               AltCatalogFile,         OPTIONAL
-    IN  PSP_ALTPLATFORM_INFO AltPlatformInfo,        OPTIONAL
-    OUT PDWORD               DriverSigningError,     OPTIONAL
+    IN  PCTSTR               AltCatalogFile, OPTIONAL
+    IN  PSP_ALTPLATFORM_INFO AltPlatformInfo, OPTIONAL
+    OUT PDWORD               DriverSigningError, OPTIONAL
     OUT PTSTR                CatalogFilenameOnSystem,
     IN  PSETUP_LOG_CONTEXT   LogContext
-    );
+);
 
 BOOL IsOemInf(IN PCTSTR InfFileName);
 
@@ -297,7 +297,7 @@ Return Value:
     BOOL MsgHandlerIsNativeCharWidth;
     HSPFILEQ UserFileQ;
     INFCONTEXT InfContext;
-    DWORD dwConfigFlags=0;
+    DWORD dwConfigFlags = 0;
     ULONG cbData;
     PTSTR DevIdBuffer = NULL;
     PCTSTR TempString;
@@ -333,37 +333,37 @@ Return Value:
     ASSERT_HEAP_IS_VALID();
 
     // We can only install a device if a device was specified.
-    if(!DeviceInfoData) {
+    if (!DeviceInfoData) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
 
     //Make sure we're local
-    if  (NULL != pDeviceInfoSet->hMachine ) {   //&& !g_ReadOnlyRemote ??
+    if (NULL != pDeviceInfoSet->hMachine) {   //&& !g_ReadOnlyRemote ??
             //hDevInfo may be valid, but it's not for this machine
-            UnlockDeviceInfoSet (pDeviceInfoSet);
-            SetLastError(ERROR_INVALID_HANDLE);
-            return FALSE;
+        UnlockDeviceInfoSet(pDeviceInfoSet);
+        SetLastError(ERROR_INVALID_HANDLE);
+        return FALSE;
     }
 
     Err = NO_ERROR;
 
     try {
-        if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
+        if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
         // Make sure we only use the devinfo element's window if it's valid.
-        if(hwndParent = DevInfoElem->InstallParamBlock.hwndParent) {
-           if(!IsWindow(hwndParent)) {
+        if (hwndParent = DevInfoElem->InstallParamBlock.hwndParent) {
+            if (!IsWindow(hwndParent)) {
                 hwndParent = NULL;
-           }
+            }
         }
 
         // set the local log context before it gets used.
@@ -372,17 +372,17 @@ Return Value:
         WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_INSTALL_TIME, NULL);       // text message
 
         // obtain the full id of the device we are (re)installing
-        if( CM_Get_Device_ID(DevInfoElem->DevInst, DeviceFullID, SIZECHARS(DeviceFullID), 0) != CR_SUCCESS ) {
-                Err = ERROR_INVALID_HANDLE;
-                goto clean0;
+        if (CM_Get_Device_ID(DevInfoElem->DevInst, DeviceFullID, SIZECHARS(DeviceFullID), 0) != CR_SUCCESS) {
+            Err = ERROR_INVALID_HANDLE;
+            goto clean0;
         }
 
         // If we are installing a driver, then the selected driver pointer will be
         // non-NULL, otherwise we are actually removing the driver (i.e., installing the NULL driver)
-        if(DevInfoElem->SelectedDriver) {
-            if(DoFullInstall) {
-                if(slot_deviceID == 0) {
-                    slot_deviceID = AllocLogInfoSlotOrLevel(LogContext,DRIVER_LOG_INFO,FALSE);
+        if (DevInfoElem->SelectedDriver) {
+            if (DoFullInstall) {
+                if (slot_deviceID == 0) {
+                    slot_deviceID = AllocLogInfoSlotOrLevel(LogContext, DRIVER_LOG_INFO, FALSE);
                 }
                 WriteLogEntry(
                     LogContext,
@@ -391,17 +391,17 @@ Return Value:
                     NULL,       // text message
                     DeviceFullID);
                 // Create the Driver Reg Key.
-                if((hkDrv = SetupDiCreateDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DRV, NULL, NULL)) == INVALID_HANDLE_VALUE) {
+                if ((hkDrv = SetupDiCreateDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DRV, NULL, NULL)) == INVALID_HANDLE_VALUE) {
                     Err = GetLastError();
                     goto clean0;
                 }
             } else {
                 DWORD slot = slot_deviceID;
-                if(slot_deviceID == 0) {
-                    if(DevInfoElem->InstallParamBlock.Flags & DI_NOVCP) {
-                        slot = AllocLogInfoSlotOrLevel(LogContext,DRIVER_LOG_VERBOSE,TRUE); // may be being copied for someone else - keep this around
+                if (slot_deviceID == 0) {
+                    if (DevInfoElem->InstallParamBlock.Flags & DI_NOVCP) {
+                        slot = AllocLogInfoSlotOrLevel(LogContext, DRIVER_LOG_VERBOSE, TRUE); // may be being copied for someone else - keep this around
                     } else {
-                        slot_deviceID = slot = AllocLogInfoSlotOrLevel(LogContext,DRIVER_LOG_INFO,FALSE); // we do copy ourselves
+                        slot_deviceID = slot = AllocLogInfoSlotOrLevel(LogContext, DRIVER_LOG_INFO, FALSE); // we do copy ourselves
                     }
                 }
                 WriteLogEntry(
@@ -411,7 +411,7 @@ Return Value:
                     NULL,       // text message
                     DeviceFullID);
                 // Make sure we aren't trying to do a copy-only install on a legacy driver--we don't know how to do that!
-                if(DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) {
+                if (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) {
                     Err = ERROR_WRONG_INF_STYLE;
                     goto clean0;
                 }
@@ -419,27 +419,27 @@ Return Value:
 
             szInfFileName = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->InfFileName);
             szInfSectionName = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->InfSectionName);
-            if((hDeviceInf = SetupOpenInfFile(szInfFileName,
-                                              NULL,
-                                              ((DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) ? INF_STYLE_OLDNT : INF_STYLE_WIN4),
-                                              NULL)) == INVALID_HANDLE_VALUE) {
+            if ((hDeviceInf = SetupOpenInfFile(szInfFileName,
+                                               NULL,
+                                               ((DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) ? INF_STYLE_OLDNT : INF_STYLE_WIN4),
+                                               NULL)) == INVALID_HANDLE_VALUE) {
                 Err = GetLastError();
                 goto clean0;
             }
 
             // Give the INF whatever the local log context is.
-            InheritLogContext(LogContext, &((PLOADED_INF) hDeviceInf)->LogContext);
+            InheritLogContext(LogContext, &((PLOADED_INF)hDeviceInf)->LogContext);
             SetLogSectionName(LogContext, TEXT("Driver Install"));
 
             // Figure out whether we need to copy files. (Ignore the DI_NOFILECOPY flag if we're doing a copy-only installation--that's what setupx does.)
             DoFileCopying = (!(DevInfoElem->InstallParamBlock.Flags & DI_NOFILECOPY) || !DoFullInstall);
 
             // Unless we happen to be installing from a legacy INF, we want to find out the 'real' install section we should be using (i.e., the potentially OS/architecture-specific one.
-            if(!(DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF)) {
+            if (!(DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF)) {
                 SetupDiGetActualSectionToInstall(hDeviceInf, szInfSectionName, InfSectionWithExt, SIZECHARS(InfSectionWithExt), &InfSectionWithExtLength, &szInfSectionExt);
 
                 // Append the layout INF, if necessary.
-                if(DoFileCopying) {
+                if (DoFileCopying) {
                     SetupOpenAppendInfFile(NULL, hDeviceInf, NULL);
                 }
 
@@ -450,10 +450,10 @@ Return Value:
             ASSERT_HEAP_IS_VALID();
 
             // Now perform file installation activities...
-            if(!DoFileCopying || (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF)) {
+            if (!DoFileCopying || (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF)) {
                 // We're not supposed to do any file copying, or we're installing from a legacy INF (where file copying is handled differently).
                 // In either case, we still need to have the INF copied to the INF directory (along with its associated catalog, if any).
-                if(InfIsFromOemLocation(szInfFileName, TRUE)) {
+                if (InfIsFromOemLocation(szInfFileName, TRUE)) {
                     TCHAR CatalogName[MAX_PATH];
                     TCHAR OriginalInfName[MAX_PATH];
                     TCHAR CatalogFilenameOnSystem[MAX_PATH];
@@ -463,9 +463,9 @@ Return Value:
                     // Retrieve (potentially decorated) CatalogFile= entry, if present, from [version] section.
 
                     // Note: We're safe in casting our INF handle straight to a PLOADED_INF (without even locking it), since this INF handle will never be seen outside of this routine.
-                    Err = pGetInfOriginalNameAndCatalogFile((PLOADED_INF) hDeviceInf, NULL, &DifferentOriginalName, OriginalInfName, SIZECHARS(OriginalInfName), CatalogName, SIZECHARS(CatalogName), NULL);
-                    if(Err == NO_ERROR) {
-                        if(*CatalogName) {
+                    Err = pGetInfOriginalNameAndCatalogFile((PLOADED_INF)hDeviceInf, NULL, &DifferentOriginalName, OriginalInfName, SIZECHARS(OriginalInfName), CatalogName, SIZECHARS(CatalogName), NULL);
+                    if (Err == NO_ERROR) {
+                        if (*CatalogName) {
                             TempString = CatalogName;
                         } else {
                             TempString = NULL;
@@ -477,7 +477,7 @@ Return Value:
                     PolicyToUse = GetCodeSigningPolicyForInf(LogContext, hDeviceInf, &UseOriginalInfName);
 
                     // An exception INF can't be used in a device installation!
-                    if(UseOriginalInfName) {
+                    if (UseOriginalInfName) {
                         Err = ERROR_INVALID_CLASS;
                         goto clean0;
                     }
@@ -485,33 +485,33 @@ Return Value:
                     // If this is a legacy INF, then we _do_ want to copy it if it doesn't already exist ('cause this is the only chance we get!).
                     // However, if this is not a legacy INF, that means we aren't supposed to be copying files, hence we
                     // want to fail if the INF doesn't already exist in the Inf directory.
-                    if(_SetupCopyOEMInf(szInfFileName,
-                                        NULL, // default source location to where INF presently is
-                                        (DevInfoElem->SelectedDriver->Flags & DNF_INET_DRIVER) ? SPOST_URL : SPOST_PATH,
-                                        ((DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) ? SP_COPY_NOOVERWRITE : SP_COPY_REPLACEONLY),
-                                        szNewName,
-                                        SIZECHARS(szNewName),
-                                        NULL,
-                                        NULL,
-                                        (DifferentOriginalName ? OriginalInfName : MyGetFileTitle(szInfFileName)),
-                                        TempString,
-                                        hwndParent,
-                                        pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->DrvDescription),
-                                        PolicyToUse,
-                                        (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) ? 0 : SCOI_NO_UI_ON_SIGFAIL,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        CatalogFilenameOnSystem,
-                                        LogContext)) {
+                    if (_SetupCopyOEMInf(szInfFileName,
+                                         NULL, // default source location to where INF presently is
+                                         (DevInfoElem->SelectedDriver->Flags & DNF_INET_DRIVER) ? SPOST_URL : SPOST_PATH,
+                                         ((DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) ? SP_COPY_NOOVERWRITE : SP_COPY_REPLACEONLY),
+                                         szNewName,
+                                         SIZECHARS(szNewName),
+                                         NULL,
+                                         NULL,
+                                         (DifferentOriginalName ? OriginalInfName : MyGetFileTitle(szInfFileName)),
+                                         TempString,
+                                         hwndParent,
+                                         pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->DrvDescription),
+                                         PolicyToUse,
+                                         (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) ? 0 : SCOI_NO_UI_ON_SIGFAIL,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         CatalogFilenameOnSystem,
+                                         LogContext)) {
                         // If this was a legacy INF, we successfully copied this INF to a new filename in the INF directory--set a flag that to let us know if we need to clean it up
                         // later in case we encounter an error.
-                        if(DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) {
+                        if (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) {
                             OemInfFileToCopy = TRUE;
                         }
                     } else {
                         Err = GetLastError();
-                        if(Err == ERROR_FILE_EXISTS) {
+                        if (Err == ERROR_FILE_EXISTS) {
                             // We couldn't copy the legacy INF because it already exists in the %windir%\Inf directory.
                             // Since it probably has better source path information than we do, it's best to leave the
                             // PNF alone.  We also need this information about the INF's existence to that we know whether or
@@ -526,7 +526,7 @@ Return Value:
                     }
                 }
 
-                if(DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) {
+                if (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) {
                     PTSTR szLegacyInfLangName;
 
                     // We're doing a script-driven install using a legacy INF.
@@ -535,20 +535,20 @@ Return Value:
                     // copy action.  No other actions are performed with this INF throughout the rest of the installation.
                     szLegacyInfLangName = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->LegacyInfLang);
                     Err = pSetupRunLegacyInf(DevInfoElem->DevInst, hwndParent, szInfFileName, szInfSectionName, szLegacyInfLangName, hDeviceInf);
-                    if(Err != NO_ERROR) {
+                    if (Err != NO_ERROR) {
                         goto clean0;
                     }
                 }
             } else {
                 // If the DI_NOVCP flag is set, then just queue up the file copy/rename/delete operations.  Otherwise, perform the
                 // actions.
-                if(DevInfoElem->InstallParamBlock.Flags & DI_NOVCP) {
+                if (DevInfoElem->InstallParamBlock.Flags & DI_NOVCP) {
                     // We must have a user-supplied file queue.
                     MYASSERT(DevInfoElem->InstallParamBlock.UserFileQ);
                     UserFileQ = DevInfoElem->InstallParamBlock.UserFileQ;
                 } else {
                     // Since we may need to check the queued files to determine whether file copy is necessary, we have to open our own queue, and commit it ourselves.
-                    if((UserFileQ = SetupOpenFileQueue()) != INVALID_HANDLE_VALUE) {
+                    if ((UserFileQ = SetupOpenFileQueue()) != INVALID_HANDLE_VALUE) {
                         CloseUserFileQ = TRUE;
                     } else {
                         // SetupOpenFileQueue sets actual error
@@ -559,24 +559,24 @@ Return Value:
                 // Maybe replace the file queue's log context with the Inf's
                 if (LogContext) {
                     InheritLogContext(LogContext,
-                        &((PSP_FILE_QUEUE) UserFileQ)->LogContext);
+                                      &((PSP_FILE_QUEUE)UserFileQ)->LogContext);
                 }
 
-                if(slot_section == 0) {
+                if (slot_section == 0) {
                     // we haven't done anything about logging section yet...
-                    slot_section = AllocLogInfoSlotOrLevel(LogContext,DRIVER_LOG_VERBOSE,FALSE);
+                    slot_section = AllocLogInfoSlotOrLevel(LogContext, DRIVER_LOG_VERBOSE, FALSE);
                     // Say what section is about to be installed.
                     WriteLogEntry(LogContext, slot_section, MSG_LOG_INSTALLING_SECTION_FROM, NULL, InfSectionWithExt, szInfFileName);
                 }
 
                 // DI_FLAGSEX_PREINSTALLBACKUP has precedence over DI_FLAGSEX_BACKUPONREPLACE
-                if(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_PREINSTALLBACKUP) {
+                if (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_PREINSTALLBACKUP) {
                     BackupFlags |= SP_BKFLG_PREBACKUP | SP_BKFLG_CALLBACK;
-                } else if(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_BACKUPONREPLACE) {
+                } else if (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_BACKUPONREPLACE) {
                     BackupFlags |= SP_BKFLG_LATEBACKUP | SP_BKFLG_CALLBACK;
                 }
 
-                if(BackupFlags != 0) {
+                if (BackupFlags != 0) {
                     WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_PREP_BACKUP_TIME, NULL);// text message
 
                     pSetupGetBackupQueue(DeviceFullID, UserFileQ, BackupFlags);
@@ -597,31 +597,31 @@ Return Value:
                                                              INVALID_HANDLE_VALUE,
                                                              NULL,
                                                              UserFileQ
-                                                            );
+                );
 
                 // If we're not doing a full install (i.e., file copy-only), then we also want to
                 // queue up any file operations for co-installer registration and device interface installation.
-                if(!DoFullInstall && (Err == NO_ERROR)) {
+                if (!DoFullInstall && (Err == NO_ERROR)) {
                     WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_CO_INSTALLER_COPY_TIME, NULL);       // text message
-                    if(!_SetupDiRegisterCoDeviceInstallers(DeviceInfoSet, DeviceInfoData, FALSE, hDeviceInf, UserFileQ) ||
-                       !_SetupDiInstallInterfaceDevices(DeviceInfoSet, DeviceInfoData, FALSE, hDeviceInf, UserFileQ)) {
+                    if (!_SetupDiRegisterCoDeviceInstallers(DeviceInfoSet, DeviceInfoData, FALSE, hDeviceInf, UserFileQ) ||
+                        !_SetupDiInstallInterfaceDevices(DeviceInfoSet, DeviceInfoData, FALSE, hDeviceInf, UserFileQ)) {
                         Err = GetLastError();
                     }
                 }
 
                 // Mark the queue as a device install queue (and make sure there's a catalog node representing our device INF in the queue).
                 Err = MarkQueueForDeviceInstall(UserFileQ, hDeviceInf, pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->DrvDescription));
-                if(CloseUserFileQ) {
-                    if(Err == NO_ERROR) {
+                if (CloseUserFileQ) {
+                    if (Err == NO_ERROR) {
                         // If the parameter block contains an install message handler, then use it, otherwise, initialize our default one.
-                        if(DevInfoElem->InstallParamBlock.InstallMsgHandler) {
+                        if (DevInfoElem->InstallParamBlock.InstallMsgHandler) {
                             MsgHandler = DevInfoElem->InstallParamBlock.InstallMsgHandler;
                             MsgHandlerContext = DevInfoElem->InstallParamBlock.InstallMsgHandlerContext;
                             MsgHandlerIsNativeCharWidth = DevInfoElem->InstallParamBlock.InstallMsgHandlerIsNativeCharWidth;
                         } else {
                             NoProgressUI = (GuiSetupInProgress || (DevInfoElem->InstallParamBlock.Flags & DI_QUIETINSTALL));
                             MsgHandlerContext = SetupInitDefaultQueueCallbackEx(hwndParent, (NoProgressUI ? INVALID_HANDLE_VALUE : NULL), 0, 0, NULL);
-                            if(MsgHandlerContext) {
+                            if (MsgHandlerContext) {
                                 FreeMsgHandlerContext = TRUE;
                                 MsgHandler = SetupDefaultQueueCallback;
                                 MsgHandlerIsNativeCharWidth = TRUE;
@@ -634,14 +634,14 @@ Return Value:
                         // We do this beforehand so that we know what unique name was generated when an OEM INF was installed into
                         // %windir%\Inf (in case we need to delete the INF/PNF/CAT files later if we encounter an error).
                         WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_VERIFY_CAT_TIME, NULL);       // text message
-                        if(Err == NO_ERROR) {
+                        if (Err == NO_ERROR) {
                             Err = _SetupVerifyQueuedCatalogs(
-                                      hwndParent,
-                                      UserFileQ,
-                                      (VERCAT_INSTALL_INF_AND_CAT | ((DevInfoElem->SelectedDriver->Flags & DNF_INET_DRIVER) ? VERCAT_PRIMARY_DEVICE_INF_FROM_INET : 0)),
-                                      szNewName,
-                                      &OemInfFileToCopy
-                                     );
+                                hwndParent,
+                                UserFileQ,
+                                (VERCAT_INSTALL_INF_AND_CAT | ((DevInfoElem->SelectedDriver->Flags & DNF_INET_DRIVER) ? VERCAT_PRIMARY_DEVICE_INF_FROM_INET : 0)),
+                                szNewName,
+                                &OemInfFileToCopy
+                            );
                         }
                         WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_END_VERIFY_CAT_TIME, NULL);       // text message
                         ASSERT_HEAP_IS_VALID();
@@ -663,7 +663,7 @@ Return Value:
                                 // (jamiehun) If DI_FLAGSEX_PREINSTALLBACKUP is specified and there are items to be backed up, it
                                 // is covered in (2) the inf file will have already been backed up
                                 WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_PRESCAN_TIME, NULL);       // text message
-                                if(!SetupScanFileQueue(UserFileQ, SPQ_SCAN_FILE_VALIDITY | SPQ_SCAN_PRUNE_COPY_QUEUE, hwndParent, NULL, NULL, &ScanQueueResult)) {
+                                if (!SetupScanFileQueue(UserFileQ, SPQ_SCAN_FILE_VALIDITY | SPQ_SCAN_PRUNE_COPY_QUEUE, hwndParent, NULL, NULL, &ScanQueueResult)) {
                                     // SetupScanFileQueue should really never fail when you don't ask it to call a
                                     // callback routine, but if it does, just go ahead and commit the queue.
                                     ScanQueueResult = 0;
@@ -673,16 +673,16 @@ Return Value:
                                 ScanQueueResult = 0;
                             }
 
-                            if(ScanQueueResult != 1) {
+                            if (ScanQueueResult != 1) {
                                 // Copy enqueued files.
                                 WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_COMMIT_TIME, NULL);       // text message
-                                if(_SetupCommitFileQueue(hwndParent, UserFileQ, MsgHandler, MsgHandlerContext, MsgHandlerIsNativeCharWidth)) {
+                                if (_SetupCommitFileQueue(hwndParent, UserFileQ, MsgHandler, MsgHandlerContext, MsgHandlerIsNativeCharWidth)) {
                                     // Check to see whether a reboot is required as a result of committing the queue (i.e., because files were in use, or the INF requested a reboot).
                                     FileQueueNeedsReboot = SetupPromptReboot(UserFileQ, NULL, TRUE);
                                     // This should never fail...
                                     MYASSERT(FileQueueNeedsReboot != -1);
 
-                                    if(FileQueueNeedsReboot) {
+                                    if (FileQueueNeedsReboot) {
                                         DevInfoElem->InstallParamBlock.Flags |= DI_NEEDREBOOT;
                                         SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, LogContext, MSG_LOG_REBOOT_REASON_INUSE);
                                     }
@@ -692,7 +692,7 @@ Return Value:
                             }
 
                             // Terminate the default queue callback, if it was created.
-                            if(FreeMsgHandlerContext) {
+                            if (FreeMsgHandlerContext) {
                                 SetupTermDefaultQueueCallback(MsgHandlerContext);
                                 FreeMsgHandlerContext = FALSE;
                             }
@@ -704,25 +704,25 @@ Return Value:
                     CloseUserFileQ = FALSE;
                 }
 
-                if(Err != NO_ERROR) {
+                if (Err != NO_ERROR) {
                     goto clean0;
                 }
             }
 
             // If the copy succeeded (or in setup's case was queued), then it's time to update the registry and ini files.
-            if(Err == NO_ERROR) {
+            if (Err == NO_ERROR) {
                 // We've got some registry modifications to do, but we don't want to do them if this is a copy-only installation.
-                if(DoFullInstall) {
+                if (DoFullInstall) {
                     // Do every thing left over (but only if we're not installing from a legacy INF).
-                    if(!(DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF)) {
+                    if (!(DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF)) {
                         // Skip installation of basic log configs if this is an enumerated device.
-                        if((CM_Get_DevInst_Status_Ex(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine) != CR_SUCCESS) || (ulStatus & DN_ROOT_ENUMERATED)) {
+                        if ((CM_Get_DevInst_Status_Ex(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine) != CR_SUCCESS) || (ulStatus & DN_ROOT_ENUMERATED)) {
                             LOG_CONF LogConf;
 
                             WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_WRITE_BASIC_CFGS_TIME, NULL);       // text message
 
                             // Clean out all existing BASIC_LOG_CONF LogConfigs before writing out new ones from the INF.
-                            while(CM_Get_First_Log_Conf_Ex(&LogConf, DevInfoElem->DevInst, BASIC_LOG_CONF,pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                            while (CM_Get_First_Log_Conf_Ex(&LogConf, DevInfoElem->DevInst, BASIC_LOG_CONF, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
                                 CM_Free_Log_Conf(LogConf, 0);
                                 CM_Free_Log_Conf_Handle(LogConf);
                             }
@@ -732,13 +732,13 @@ Return Value:
                         } else {
                             // For non-root-enumerated devices, check to see if there's an [<InstallSec>.LogConfigOverride] section, and if so, run it.
                             CopyMemory(&(InfSectionWithExt[InfSectionWithExtLength - 1]), pszLogConfigOverrideSectionSuffix, sizeof(pszLogConfigOverrideSectionSuffix));
-                            if(SetupFindFirstLine(hDeviceInf, InfSectionWithExt, NULL, &InfContext)) {
+                            if (SetupFindFirstLine(hDeviceInf, InfSectionWithExt, NULL, &InfContext)) {
                                 LOG_CONF LogConf;
 
                                 WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_WRITE_OVERRIDE_CFGS_TIME, NULL);       // text message
 
                                 // Clean out all existing OVERRIDE_LOG_CONF LogConfigs before writing out new ones from the INF.
-                                while(CM_Get_First_Log_Conf_Ex(&LogConf, DevInfoElem->DevInst, OVERRIDE_LOG_CONF,pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                                while (CM_Get_First_Log_Conf_Ex(&LogConf, DevInfoElem->DevInst, OVERRIDE_LOG_CONF, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
                                     CM_Free_Log_Conf(LogConf, 0);
                                     CM_Free_Log_Conf_Handle(LogConf);
                                 }
@@ -756,14 +756,14 @@ Return Value:
                                                                              DeviceInfoSet,
                                                                              DeviceInfoData,
                                                                              NULL
-                                                                            );
+                                );
                             }
 
                             // Make sure we strip off the ".LogConfigOverride" we added above.
                             InfSectionWithExt[InfSectionWithExtLength - 1] = TEXT('\0');
                         }
 
-                        if((Err == NO_ERROR) && !(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NO_DRVREG_MODIFY)) {
+                        if ((Err == NO_ERROR) && !(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NO_DRVREG_MODIFY)) {
                             // (Don't pass devinfo set and element here, because we're writing to the _driver_ key, not the _device_ key.)
                             WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_INSTALL_REG_TIME, NULL);       // text message
                             Err = InstallFromInfSectionAndNeededSections(NULL,
@@ -778,31 +778,31 @@ Return Value:
                                                                          INVALID_HANDLE_VALUE,
                                                                          NULL,
                                                                          NULL
-                                                                        );
-                            if(Err == NO_ERROR) {
+                            );
+                            if (Err == NO_ERROR) {
                                 // Install extra HardWare registry section (if any).
                                 Err = InstallHW(DeviceInfoSet, DeviceInfoData, hDeviceInf, InfSectionWithExt, &DeleteDevKey);
                             }
                         }
 
                         //  Set appropriate flags if we need to reboot or restart after this installation.
-                        if(SetupFindFirstLine(hDeviceInf, InfSectionWithExt, pszReboot, &InfContext)) {
+                        if (SetupFindFirstLine(hDeviceInf, InfSectionWithExt, pszReboot, &InfContext)) {
                             DevInfoElem->InstallParamBlock.Flags |= DI_NEEDREBOOT;
-                            SetDevnodeNeedsRebootProblemWithArg2(DevInfoElem->DevInst,pDeviceInfoSet->hMachine, LogContext, MSG_LOG_REBOOT_REASON_KEY,(ULONG_PTR)pszReboot,(ULONG_PTR)InfSectionWithExt);
-                        } else if(SetupFindFirstLine(hDeviceInf, InfSectionWithExt, pszRestart, &InfContext)) {
+                            SetDevnodeNeedsRebootProblemWithArg2(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, LogContext, MSG_LOG_REBOOT_REASON_KEY, (ULONG_PTR)pszReboot, (ULONG_PTR)InfSectionWithExt);
+                        } else if (SetupFindFirstLine(hDeviceInf, InfSectionWithExt, pszRestart, &InfContext)) {
                             // NOTE: This behavior is taken from setupx.  In both "Reboot" and "Restart" cases, it sets the DI_NEEDREBOOT flag.
                             DevInfoElem->InstallParamBlock.Flags |= DI_NEEDREBOOT;
-                            SetDevnodeNeedsRebootProblemWithArg2(DevInfoElem->DevInst,pDeviceInfoSet->hMachine, LogContext, MSG_LOG_REBOOT_REASON_KEY,(ULONG_PTR)pszRestart,(ULONG_PTR)InfSectionWithExt);
+                            SetDevnodeNeedsRebootProblemWithArg2(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, LogContext, MSG_LOG_REBOOT_REASON_KEY, (ULONG_PTR)pszRestart, (ULONG_PTR)InfSectionWithExt);
                         }
                     }
 
                     // Set the value to write for the config flags, only if there are no config flags yet.  If they exist, i.e., we are updating
                     // an existing device, just clear the re-install flag.
                     dwConfigFlags = GetDevInstConfigFlags(
-                                        DevInfoElem->DevInst,
-                                        (DevInfoElem->InstallParamBlock.Flags & DI_INSTALLDISABLED) ? CONFIGFLAG_DISABLED : 0,
-                                        pDeviceInfoSet->hMachine
-                                       );
+                        DevInfoElem->DevInst,
+                        (DevInfoElem->InstallParamBlock.Flags & DI_INSTALLDISABLED) ? CONFIGFLAG_DISABLED : 0,
+                        pDeviceInfoSet->hMachine
+                    );
 
                     // Always clear the REINSTALL bit and the FAILEDINSTALL bit when installing a device.
                     // (Also, clear the CONFIGFLAG_FINISH_INSTALL bit, which is used for Raw and driver-detected devnodes.)
@@ -810,14 +810,14 @@ Return Value:
                 }
 
                 // If we're doing a copy-only installation, then we're done.
-                if(!DoFullInstall) {
+                if (!DoFullInstall) {
                     goto clean0;
                 }
 
                 WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_WRITE_REG_TIME, NULL);       // text message
 
                 // Insert Driver Specific strings into the registry.
-                if(InfFromOemPath = InfIsFromOemLocation(szInfFileName, TRUE)) {
+                if (InfFromOemPath = InfIsFromOemLocation(szInfFileName, TRUE)) {
                     TempString = MyGetFileTitle(szNewName);
                 } else {
                     TempString = MyGetFileTitle(szInfFileName);
@@ -825,7 +825,7 @@ Return Value:
 
                 RegSetValueEx(hkDrv, pszInfPath, 0, REG_SZ, (PBYTE)TempString, (lstrlen(TempString) + 1) * sizeof(TCHAR));
                 RegSetValueEx(hkDrv, pszInfSection, 0, REG_SZ, (PBYTE)szInfSectionName, (lstrlen(szInfSectionName) + 1) * sizeof(TCHAR));
-                if(szInfSectionExt) {
+                if (szInfSectionExt) {
                     RegSetValueEx(hkDrv, pszInfSectionExt, 0, REG_SZ, (PBYTE)szInfSectionExt, (lstrlen(szInfSectionExt) + 1) * sizeof(TCHAR));
                 } else {
                     // This wasn't an OS/architecture-specific install section, _or_ we are installing from a legacy INF.  Make sure there's no value hanging
@@ -833,7 +833,7 @@ Return Value:
                     RegDeleteValue(hkDrv, pszInfSectionExt);
                 }
 
-                if(DevInfoElem->SelectedDriver->ProviderDisplayName == -1) {
+                if (DevInfoElem->SelectedDriver->ProviderDisplayName == -1) {
                     // No provider specified--delete any previously existing value entry.
                     RegDeleteValue(hkDrv, pszProviderName);
                 } else {
@@ -879,23 +879,22 @@ Return Value:
 
                 // Add hardware and compatible IDs to the hardware key if they exist in the driver node and don't already exist in the registry.  This
                 // sets up an ID for manually installed devices.
-                if(!(DevInfoElem->InstallParamBlock.Flags & DI_NOWRITE_IDS) &&     // Want IDs written?
-                   (DevInfoElem->SelectedDriver->HardwareId != -1))                // ID in driver node?
+                if (!(DevInfoElem->InstallParamBlock.Flags & DI_NOWRITE_IDS) &&     // Want IDs written?
+                    (DevInfoElem->SelectedDriver->HardwareId != -1))                // ID in driver node?
                 {
                     // Don't write IDs if either Hardware or Compatible IDs already exist in the registry.  Note that I use cbData as an IN/OUT parameter
                     // to both CM calls.  This is OK, however, since cbSize will not be modified on a CR_NO_SUCH_VALUE return, and I won't try to re-use it otherwise.
 
                     cbData = 0;
-                    if((DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_ALWAYSWRITEIDS) ||
-                       ((CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_HARDWAREID, NULL, NULL, &cbData, 0, pDeviceInfoSet->hMachine) == CR_NO_SUCH_VALUE) &&
-                        (CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_COMPATIBLEIDS, NULL, NULL, &cbData, 0, pDeviceInfoSet->hMachine) == CR_NO_SUCH_VALUE)))
-                    {
+                    if ((DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_ALWAYSWRITEIDS) ||
+                        ((CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_HARDWAREID, NULL, NULL, &cbData, 0, pDeviceInfoSet->hMachine) == CR_NO_SUCH_VALUE) &&
+                        (CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_COMPATIBLEIDS, NULL, NULL, &cbData, 0, pDeviceInfoSet->hMachine) == CR_NO_SUCH_VALUE))) {
                         DWORD CurStringLen, TotalStringLen, i;
 
                         // Compute the maximum buffer size needed to hold our REG_MULTI_SZ ID lists.
-                        TotalStringLen = (((DevInfoElem->SelectedDriver->NumCompatIds) ? DevInfoElem->SelectedDriver->NumCompatIds  : 1) * MAX_DEVICE_ID_LEN) + 1;
+                        TotalStringLen = (((DevInfoElem->SelectedDriver->NumCompatIds) ? DevInfoElem->SelectedDriver->NumCompatIds : 1) * MAX_DEVICE_ID_LEN) + 1;
 
-                        if(!(DevIdBuffer = MyMalloc(TotalStringLen * sizeof(TCHAR)))) {
+                        if (!(DevIdBuffer = MyMalloc(TotalStringLen * sizeof(TCHAR)))) {
                             Err = ERROR_NOT_ENOUGH_MEMORY;
                             goto clean0;
                         }
@@ -907,18 +906,18 @@ Return Value:
                         CopyMemory(DevIdBuffer, TempString, TotalStringLen * sizeof(TCHAR));
                         DevIdBuffer[TotalStringLen++] = TEXT('\0');  // Add extra terminating NULL;
 
-                        CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_HARDWAREID, DevIdBuffer, TotalStringLen * sizeof(TCHAR), 0, pDeviceInfoSet->hMachine );
+                        CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_HARDWAREID, DevIdBuffer, TotalStringLen * sizeof(TCHAR), 0, pDeviceInfoSet->hMachine);
 
                         // Build a multi-sz list of the zero or more CompatibleIDs, and set it
                         TotalStringLen = 0;
-                        for(i = 0; i < DevInfoElem->SelectedDriver->NumCompatIds; i++) {
+                        for (i = 0; i < DevInfoElem->SelectedDriver->NumCompatIds; i++) {
                             TempString = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->CompatIdList[i]);
                             CurStringLen = lstrlen(TempString) + 1;
                             CopyMemory(&(DevIdBuffer[TotalStringLen]), TempString, CurStringLen * sizeof(TCHAR));
                             TotalStringLen += CurStringLen;
                         }
 
-                        if(TotalStringLen) {
+                        if (TotalStringLen) {
                             DevIdBuffer[TotalStringLen++] = TEXT('\0');  // Add extra terminating NULL;
                             CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_COMPATIBLEIDS, DevIdBuffer, TotalStringLen * sizeof(TCHAR), 0, pDeviceInfoSet->hMachine);
                         }
@@ -931,8 +930,8 @@ Return Value:
                 // If the class driver node didn't specify a hardware or compatible IDs, then this value
                 // will not be written (we'll actually delete it to make sure it doesn't exist from a previous driver installation).
                 TempString = NULL;
-                if(DevInfoElem->SelectedDriverType == SPDIT_COMPATDRIVER) {
-                    if(DevInfoElem->SelectedDriver->MatchingDeviceId == -1) {
+                if (DevInfoElem->SelectedDriverType == SPDIT_COMPATDRIVER) {
+                    if (DevInfoElem->SelectedDriver->MatchingDeviceId == -1) {
                         // We have a HardwareID match.
                         TempString = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->HardwareId);
                     } else {
@@ -940,12 +939,12 @@ Return Value:
                         MYASSERT((DevInfoElem->SelectedDriver->MatchingDeviceId >= 0) && ((DWORD)(DevInfoElem->SelectedDriver->MatchingDeviceId) < DevInfoElem->SelectedDriver->NumCompatIds));
                         TempString = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->CompatIdList[DevInfoElem->SelectedDriver->MatchingDeviceId]);
                     }
-                } else if(DevInfoElem->SelectedDriver->HardwareId != -1) {
+                } else if (DevInfoElem->SelectedDriver->HardwareId != -1) {
                     // There's no notion of compatibility for class drivers--pick the device ID with the highest order of preference.
                     TempString = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->HardwareId);
-                    if(!(*TempString)) {
+                    if (!(*TempString)) {
                         // The HardwareID was an empty string--use the first CompatibleID.
-                        if(DevInfoElem->SelectedDriver->NumCompatIds) {
+                        if (DevInfoElem->SelectedDriver->NumCompatIds) {
                             TempString = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->CompatIdList[0]);
                         } else {
                             TempString = NULL;
@@ -953,7 +952,7 @@ Return Value:
                     }
                 }
 
-                if(TempString) {
+                if (TempString) {
                     RegSetValueEx(hkDrv, pszMatchingDeviceId, 0, REG_SZ, (PBYTE)TempString, (lstrlen(TempString) + 1) * sizeof(TCHAR));
                 } else {
                     // We have an override situation where the user picked a class driver that didn't specify any hardware or compatible IDs.
@@ -962,12 +961,12 @@ Return Value:
                 }
 
                 // If we're running under Windows NT, and we've successfully installed the device instance, then we need to install any required services.
-                if((Err == NO_ERROR) && (OSVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT)) {
+                if ((Err == NO_ERROR) && (OSVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT)) {
                     PTSTR pServiceInstallSection;
 
                     WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_SERVICE_TIME, NULL);       // text message
 
-                    if(DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) {
+                    if (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF) {
                         pServiceInstallSection = NULL;
                     } else {
                         // The install section name is of the form:
@@ -993,44 +992,42 @@ Return Value:
 
             NullDriverInstall = TRUE;
 
-            if(DoFullInstall) {
+            if (DoFullInstall) {
                 BOOL NullDrvInstallOK = FALSE;
 
                 // Check to see if the devnode is raw-capable, or if it already has a controlling service.
                 // If neither of those conditions are met, then we should fail this call unless the caller has explicitly passed us the DI_FLAGSEX_SETFAILEDINSTALL flag.
                 cbData = sizeof(DevInstCapabilities);
-                if(CR_SUCCESS == CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CAPABILITIES, NULL, &DevInstCapabilities, &cbData, 0, pDeviceInfoSet->hMachine))
-                {
+                if (CR_SUCCESS == CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CAPABILITIES, NULL, &DevInstCapabilities, &cbData, 0, pDeviceInfoSet->hMachine)) {
                     NullDrvInstallOK = (DevInstCapabilities & CM_DEVCAP_RAWDEVICEOK);
                 }
 
-                if(!NullDrvInstallOK) {
+                if (!NullDrvInstallOK) {
                     // The devnode isn't raw-capable.  Check to see if it already has a controlling service (e.g., because it was created as a result of a driver's call to IoReportDetectedDevice).
                     cbData = 0;
-                    if(CR_BUFFER_SMALL == CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_SERVICE, NULL, NULL, &cbData, 0, pDeviceInfoSet->hMachine))
-                    {
+                    if (CR_BUFFER_SMALL == CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_SERVICE, NULL, NULL, &cbData, 0, pDeviceInfoSet->hMachine)) {
                         NullDrvInstallOK = TRUE;
                     }
                 }
 
-                if(!NullDrvInstallOK && !(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_SETFAILEDINSTALL)) {
+                if (!NullDrvInstallOK && !(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_SETFAILEDINSTALL)) {
                     Err = ERROR_NO_ASSOCIATED_SERVICE;
                 } else {
-                    dwConfigFlags = GetDevInstConfigFlags(DevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine) & ~(CONFIGFLAG_DISABLED | CONFIGFLAG_REINSTALL | CONFIGFLAG_FINISH_INSTALL);
+                    dwConfigFlags = GetDevInstConfigFlags(DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine) & ~(CONFIGFLAG_DISABLED | CONFIGFLAG_REINSTALL | CONFIGFLAG_FINISH_INSTALL);
 
                     // Delete all driver (software) keys associated with the device, and clear the "Driver" registry property.
                     SetupDiDeleteDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL | DICS_FLAG_CONFIGGENERAL, 0, DIREG_DRV);
 
-                    CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_DRIVER, NULL, 0, 0,pDeviceInfoSet->hMachine);
+                    CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_DRIVER, NULL, 0, 0, pDeviceInfoSet->hMachine);
 
                     // Delete the controlling (FDO) Service property, as well as the UpperFilters and LowerFilters properties.
                     // Only do this if the devnode is not root-enumerated, however, since NT can have root-enumerated devnodes reported by drivers via
                     // IoReportDetectedDevice for which there's no corresponding INF (hence, the user
                     // must do a null-driver install in order to silence the "New Hardware Found" popups for these devices.
-                    if((CM_Get_DevInst_Status_Ex(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine) == CR_SUCCESS) && !(ulStatus & DN_ROOT_ENUMERATED)) {
-                        CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_SERVICE, NULL, 0, 0,pDeviceInfoSet->hMachine);
-                        CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_UPPERFILTERS, NULL, 0, 0,pDeviceInfoSet->hMachine);
-                        CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_LOWERFILTERS, NULL, 0, 0,pDeviceInfoSet->hMachine);
+                    if ((CM_Get_DevInst_Status_Ex(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) && !(ulStatus & DN_ROOT_ENUMERATED)) {
+                        CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_SERVICE, NULL, 0, 0, pDeviceInfoSet->hMachine);
+                        CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_UPPERFILTERS, NULL, 0, 0, pDeviceInfoSet->hMachine);
+                        CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_LOWERFILTERS, NULL, 0, 0, pDeviceInfoSet->hMachine);
                     }
                 }
             } else {
@@ -1040,10 +1037,10 @@ Return Value:
         }
 
         // If all went well above, then write some configflags, and re-enumerate the parent device instance if necessary
-        if(Err == NO_ERROR) {
+        if (Err == NO_ERROR) {
             // Write the Driver Description to the Registry, if there is an lpSelectedDriver, and the Device Description also
             WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_WRITE_REG2_TIME, NULL);       // text message
-            if(DevInfoElem->SelectedDriver) {
+            if (DevInfoElem->SelectedDriver) {
                 TempString = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->DrvDescription);
                 RegSetValueEx(hkDrv, pszDrvDesc, 0, REG_SZ, (PBYTE)TempString, (lstrlen(TempString) + 1) * sizeof(TCHAR));
 
@@ -1056,8 +1053,8 @@ Return Value:
                 // No driver is selected, so use the description stored with the device information element itself for the device description.
                 //  However, only set thisif it isn't already present.
                 cbData = 0;
-                if(CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_DEVICEDESC, NULL, NULL, &cbData, 0, pDeviceInfoSet->hMachine) == CR_NO_SUCH_VALUE) {
-                    if(DevInfoElem->DeviceDescriptionDisplayName != -1) {
+                if (CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_DEVICEDESC, NULL, NULL, &cbData, 0, pDeviceInfoSet->hMachine) == CR_NO_SUCH_VALUE) {
+                    if (DevInfoElem->DeviceDescriptionDisplayName != -1) {
                         TempString = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->DeviceDescriptionDisplayName);
                         CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_DEVICEDESC, TempString, (lstrlen(TempString) + 1) * sizeof(TCHAR), 0, pDeviceInfoSet->hMachine);
                     }
@@ -1065,26 +1062,25 @@ Return Value:
             }
 
             // Unless the caller explicitly requested that this device be installed disabled, clear the CONFIGFLAG_DISABLED bit.
-            if(!(DevInfoElem->InstallParamBlock.Flags & DI_INSTALLDISABLED)) {
+            if (!(DevInfoElem->InstallParamBlock.Flags & DI_INSTALLDISABLED)) {
                 dwConfigFlags &= ~CONFIGFLAG_DISABLED;
             }
 
             // Write the config flags. If no selected driver means we should mark the install as a failure, then do so.
-            if(DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_SETFAILEDINSTALL) {
+            if (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_SETFAILEDINSTALL) {
                 dwConfigFlags |= CONFIGFLAG_FAILEDINSTALL;
             }
 
             CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CONFIGFLAGS, &dwConfigFlags, sizeof(dwConfigFlags), 0, pDeviceInfoSet->hMachine);
-            if(!(DevInfoElem->InstallParamBlock.Flags & (DI_DONOTCALLCONFIGMG | DI_NEEDREBOOT | DI_NEEDRESTART))) {
+            if (!(DevInfoElem->InstallParamBlock.Flags & (DI_DONOTCALLCONFIGMG | DI_NEEDREBOOT | DI_NEEDRESTART))) {
                 // Retrieve the device's capabilities.  We need to know whether the device is capable of being driven 'raw' (i.e., without a function driver).
                 cbData = sizeof(DevInstCapabilities);
-                if(CR_SUCCESS != CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CAPABILITIES, NULL, &DevInstCapabilities, &cbData, 0, pDeviceInfoSet->hMachine))
-                {
+                if (CR_SUCCESS != CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CAPABILITIES, NULL, &DevInstCapabilities, &cbData, 0, pDeviceInfoSet->hMachine)) {
                     DevInstCapabilities = 0;
                 }
 
                 // If the device instance has a problem but is not disabled. Just restart it. This should be 90% of the cases.
-                if((CM_Get_DevInst_Status_Ex(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine) == CR_SUCCESS) && ((ulStatus & DN_HAS_PROBLEM) || !(ulStatus & DN_DRIVER_LOADED))) {
+                if ((CM_Get_DevInst_Status_Ex(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) && ((ulStatus & DN_HAS_PROBLEM) || !(ulStatus & DN_DRIVER_LOADED))) {
                     // Poke at Config Manager to make it load the driver.
                     WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_RESTART_TIME, NULL);       // text message
                     CM_Setup_DevInst_Ex(DevInfoElem->DevInst, CM_SETUP_DEVINST_READY, pDeviceInfoSet->hMachine);
@@ -1093,7 +1089,7 @@ Return Value:
                     // If we're installing a 'real' driver (i.e., not null), or if the device is raw-capable, then we want to check and see if the device actually started as
                     // a result of CM_Setup_DevInst.  If not, a reboot is in order.  (There's no need to check when we're doing a null driver install for a non-raw devnode.
                     // We know it can't start, and we definitely don't want to generate a 'need reboot' popup in this case!)
-                    if(!NullDriverInstall || (DevInstCapabilities & CM_DEVCAP_RAWDEVICEOK)) {
+                    if (!NullDriverInstall || (DevInstCapabilities & CM_DEVCAP_RAWDEVICEOK)) {
                         CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine, LogContext);
                     }
                 } else {
@@ -1119,11 +1115,11 @@ Return Value:
                                                         SIZECHARS(VetoName),
                                                         (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NOUIONQUERYREMOVE) ? CM_QUERY_REMOVE_UI_NOT_OK : CM_QUERY_REMOVE_UI_OK,
                                                         pDeviceInfoSet->hMachine
-                                                       );
+                    );
 
                     WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_END_REMOVE_TIME, NULL);       // text message
 
-                    if(cr == CR_SUCCESS) {
+                    if (cr == CR_SUCCESS) {
                         WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_RESTART_TIME, NULL);       // text message
                         CM_Setup_DevInst_Ex(DevInfoElem->DevInst, CM_SETUP_DEVINST_READY, pDeviceInfoSet->hMachine);
                         WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_END_RESTART_TIME, NULL);       // text message
@@ -1132,14 +1128,14 @@ Return Value:
                         // result of CM_Setup_DevInst.  If not, a reboot is in order.  (There's no need to check when we're doing a
                         // null driver install for a non-raw devnode.  We know
                         // it can't start, and we definitely don't want to generate a 'need reboot' popup in this case!)
-                        if(!NullDriverInstall || (DevInstCapabilities & CM_DEVCAP_RAWDEVICEOK)) {
+                        if (!NullDriverInstall || (DevInstCapabilities & CM_DEVCAP_RAWDEVICEOK)) {
                             CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine, LogContext);
                         }
                     } else {
                         // If the failure was due to a veto, then log information about who vetoed us.
 
                         // SPLOG-- write out a log entry
-                        if(cr == CR_REMOVE_VETOED) {
+                        if (cr == CR_REMOVE_VETOED) {
                             WriteLogEntry(
                                 LogContext,
                                 DRIVER_LOG_WARNING,
@@ -1154,9 +1150,9 @@ Return Value:
                         // anything (plus, you can't set a problem on a non-existent devnode anyway).  This could happen, for
                         // example, if the user plugged in a USB mouse, then unplugged it again before we got a chance to
                         // complete the device installation.  In this case, we'll just ignore the failure and continue on.
-                        if(cr != CR_INVALID_DEVNODE) {
+                        if (cr != CR_INVALID_DEVNODE) {
                             DevInfoElem->InstallParamBlock.Flags |= DI_NEEDREBOOT;
-                            SetDevnodeNeedsRebootProblemWithArg(DevInfoElem->DevInst,pDeviceInfoSet->hMachine, LogContext, MSG_LOG_REBOOT_REASON_QR_VETOED,cr);
+                            SetDevnodeNeedsRebootProblemWithArg(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, LogContext, MSG_LOG_REBOOT_REASON_QR_VETOED, cr);
                         }
                     }
 #else
@@ -1170,27 +1166,25 @@ Return Value:
                     // This should never fail.
                     CM_Get_Device_ID(DevInfoElem->DevInst, DeviceInstanceId, SIZECHARS(DeviceInstanceId), 0);
 
-                   // If there is a device instance with no problem , then we should remove it, and re-enumerate its parent to recreate it.  This is because its driver has changed
-                   // in this case.  If the device instance refuses to remove, then set the flags that say we need to reboot.
-                   if(CM_Query_Remove_SubTree(DevInfoElem->DevInst, (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NOUIONQUERYREMOVE) ? CM_QUERY_REMOVE_UI_NOT_OK : CM_QUERY_REMOVE_UI_OK) == CR_SUCCESS)
-                   {
-                       CM_Get_Parent(&dnReenum, DevInfoElem->DevInst, 0);
-                       CM_Remove_SubTree(DevInfoElem->DevInst, (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NOUIONQUERYREMOVE) ? CM_REMOVE_UI_NOT_OK : CM_REMOVE_UI_OK);
-                       DevInfoElem->DevInst = 0;
-                       DevInfoElem->DiElemFlags &= ~DIE_IS_PHANTOM;
+                    // If there is a device instance with no problem , then we should remove it, and re-enumerate its parent to recreate it.  This is because its driver has changed
+                    // in this case.  If the device instance refuses to remove, then set the flags that say we need to reboot.
+                    if (CM_Query_Remove_SubTree(DevInfoElem->DevInst, (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NOUIONQUERYREMOVE) ? CM_QUERY_REMOVE_UI_NOT_OK : CM_QUERY_REMOVE_UI_OK) == CR_SUCCESS) {
+                        CM_Get_Parent(&dnReenum, DevInfoElem->DevInst, 0);
+                        CM_Remove_SubTree(DevInfoElem->DevInst, (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NOUIONQUERYREMOVE) ? CM_REMOVE_UI_NOT_OK : CM_REMOVE_UI_OK);
+                        DevInfoElem->DevInst = 0;
+                        DevInfoElem->DiElemFlags &= ~DIE_IS_PHANTOM;
                     } else {
-                       DevInfoElem->InstallParamBlock.Flags |= DI_NEEDREBOOT;
+                        DevInfoElem->InstallParamBlock.Flags |= DI_NEEDREBOOT;
                     }
 
                     // Only re-enumerate the device instance if we installed something, and we sucessfully removed the old one.
-                    if(!NullDriverInstall && !DevInfoElem->DevInst) {
+                    if (!NullDriverInstall && !DevInfoElem->DevInst) {
                         // Did we get DnReenum above?
-                        if(!dnReenum) {
+                        if (!dnReenum) {
                             // Use the Root
                             CM_Locate_DevInst(&dnReenum, NULL, CM_LOCATE_DEVINST_NORMAL);
 
-                            if(CM_Create_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)DeviceInstanceId, dnReenum, CM_CREATE_DEVINST_NORMAL) != CR_SUCCESS)
-                            {
+                            if (CM_Create_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)DeviceInstanceId, dnReenum, CM_CREATE_DEVINST_NORMAL) != CR_SUCCESS) {
                                 DevInfoElem->InstallParamBlock.Flags |= DI_NEEDREBOOT;
                                 // Retrieve the devinst as a phantom.
                                 CM_Locate_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)DeviceInstanceId, CM_LOCATE_DEVINST_PHANTOM);
@@ -1198,18 +1192,18 @@ Return Value:
                             } else {
                                 // Reenumerate Syncronous
                                 CM_Reenumerate_DevInst(dnReenum, CM_REENUMERATE_SYNCHRONOUS);
-                                CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine,LogContext);
+                                CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine, LogContext);
                             }
                         } else {
                             CM_Reenumerate_DevInst(dnReenum, CM_REENUMERATE_SYNCHRONOUS);
-                            if(CM_Locate_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)DeviceInstanceId, CM_LOCATE_DEVINST_NORMAL) != CR_SUCCESS) {
+                            if (CM_Locate_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)DeviceInstanceId, CM_LOCATE_DEVINST_NORMAL) != CR_SUCCESS) {
                                 DevInfoElem->InstallParamBlock.Flags |= DI_NEEDREBOOT;
                                 // Retrieve the devinst as a phantom
                                 CM_Locate_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)DeviceInstanceId, CM_LOCATE_DEVINST_PHANTOM);
                                 DevInfoElem->DiElemFlags |= DIE_IS_PHANTOM;
                             }
 
-                            CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine,LogContext);
+                            CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine, LogContext);
                         }
                     } else {
                         // We installed the NULL driver, and we successfully removed the device instance.  Retrieve it again as a phantom.
@@ -1221,7 +1215,7 @@ Return Value:
             }
         }
 
-        if((Err == NO_ERROR) && !GuiSetupInProgress) {
+        if ((Err == NO_ERROR) && !GuiSetupInProgress) {
             MYASSERT(DoFullInstall);
 
             // Kick off RunOnce.
@@ -1230,15 +1224,15 @@ Return Value:
             Err = InstallStopEx(TRUE, INSTALLSTOP_NO_GRPCONV, LogContext);
         }
 
-clean0: ;   // nothing to do
+    clean0:;   // nothing to do
     } except(EXCEPTION_EXECUTE_HANDLER) {
         // If our exception was an AV, then use Win32 invalid param error, otherwise, assume it was an inpage error dealing with a mapped-in file.
         Err = (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION) ? ERROR_INVALID_PARAMETER : ERROR_READ_FAULT;
 
-        if(FreeMsgHandlerContext) {
+        if (FreeMsgHandlerContext) {
             SetupTermDefaultQueueCallback(MsgHandlerContext);
         }
-        if(CloseUserFileQ) {
+        if (CloseUserFileQ) {
             SetupCloseFileQueue(UserFileQ);
         }
 
@@ -1254,16 +1248,16 @@ clean0: ;   // nothing to do
 
     // Clean up the registry if the install didn't go well.
     // Along with other error paths, this handles the case where the user cancels the install while copying files
-    if(Err != NO_ERROR) {
+    if (Err != NO_ERROR) {
         WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_BEGIN_CLEANUP_TIME, NULL);       // text message
-        if(DevInfoElem && DoFullInstall) {
+        if (DevInfoElem && DoFullInstall) {
             // Disable the device if the error wasn't a user cancel.
-            if(Err != ERROR_CANCELLED) {
+            if (Err != ERROR_CANCELLED) {
                 DWORD dwConfigFlagsSize;
 
                 // The device is in an unknown state.  Disable it by setting the CONFIGFLAG_DISABLED config flag.
                 dwConfigFlagsSize = sizeof(DWORD);
-                if(CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CONFIGFLAGS, NULL, &dwConfigFlags, &dwConfigFlagsSize, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                if (CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CONFIGFLAGS, NULL, &dwConfigFlags, &dwConfigFlagsSize, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
                     dwConfigFlags |= (CONFIGFLAG_DISABLED | CONFIGFLAG_REINSTALL);
                     // Also, make sure we clear the finish-install flag.
                     dwConfigFlags &= ~CONFIGFLAG_FINISH_INSTALL;
@@ -1273,20 +1267,20 @@ clean0: ;   // nothing to do
 
                 CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CONFIGFLAGS, &dwConfigFlags, sizeof(dwConfigFlags), 0, pDeviceInfoSet->hMachine);
                 // Delete the Driver= entry from the Dev Reg Key and delete the DrvRegKey (as well as the DevRegKey if it didn't previously exist).
-                if(DevInfoElem->SelectedDriver) {
+                if (DevInfoElem->SelectedDriver) {
                     SetupDiDeleteDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL | DICS_FLAG_CONFIGGENERAL, 0, (DeleteDevKey ? DIREG_BOTH : DIREG_DRV));
-                    CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_DRIVER, NULL, 0, 0,pDeviceInfoSet->hMachine);
+                    CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_DRIVER, NULL, 0, 0, pDeviceInfoSet->hMachine);
                 }
 
                 // If necessary, delete any service entries created for this device instance.
-                if(DeleteServiceList) {
+                if (DeleteServiceList) {
                     DeleteServicesInList(DeleteServiceList);
                 }
             }
         }
 
         // If we copied the OEM INF into the INF directory under a newly-generated name, delete it now.
-        if(OemInfFileToCopy) {
+        if (OemInfFileToCopy) {
             // Delete the INF...
             DeleteFile(szNewName);
             // and now the PNF...
@@ -1297,19 +1291,19 @@ clean0: ;   // nothing to do
 
     UnlockDeviceInfoSet(pDeviceInfoSet);
 
-    if(hDeviceInf != INVALID_HANDLE_VALUE) {
+    if (hDeviceInf != INVALID_HANDLE_VALUE) {
         SetupCloseInfFile(hDeviceInf);
     }
-    if(hkDrv != INVALID_HANDLE_VALUE) {
+    if (hkDrv != INVALID_HANDLE_VALUE) {
         RegCloseKey(hkDrv);
     }
-    if(DevIdBuffer) {
+    if (DevIdBuffer) {
         MyFree(DevIdBuffer);
     }
-    if(DeleteServiceList) {
+    if (DeleteServiceList) {
         PSVCNAME_NODE TmpSvcNode;
 
-        for(TmpSvcNode = DeleteServiceList; TmpSvcNode; TmpSvcNode = DeleteServiceList) {
+        for (TmpSvcNode = DeleteServiceList; TmpSvcNode; TmpSvcNode = DeleteServiceList) {
             DeleteServiceList = DeleteServiceList->Next;
             MyFree(TmpSvcNode);
         }
@@ -1318,7 +1312,7 @@ clean0: ;   // nothing to do
     if (Err == NO_ERROR) {
         // give a +ve affirmation of install
         // if copy install, only do in Verbose-Logging, else do for standard Info-Logging
-        WriteLogEntry(LogContext, DoFullInstall?DRIVER_LOG_INFO:DRIVER_LOG_VERBOSE, MSG_LOG_INSTALLED, NULL, DeviceFullID);
+        WriteLogEntry(LogContext, DoFullInstall ? DRIVER_LOG_INFO : DRIVER_LOG_VERBOSE, MSG_LOG_INSTALLED, NULL, DeviceFullID);
     } else {
         // indicate install failed, display error
         WriteLogEntry(LogContext, DRIVER_LOG_ERROR | SETUP_LOG_BUFFER, MSG_LOG_INSTALL_ERROR_ENCOUNTERED, NULL);
@@ -1326,10 +1320,10 @@ clean0: ;   // nothing to do
     }
 
     if (slot_deviceID) {
-        ReleaseLogInfoSlot(LogContext,slot_deviceID);
+        ReleaseLogInfoSlot(LogContext, slot_deviceID);
     }
     if (slot_section) {
-        ReleaseLogInfoSlot(LogContext,slot_section);
+        ReleaseLogInfoSlot(LogContext, slot_section);
     }
     WriteLogEntry(LogContext, DRIVER_LOG_TIME, MSG_LOG_END_INSTALL_TIME, NULL);       // text message
     SetLastError(Err);
@@ -1397,7 +1391,7 @@ Remarks:
     ULONG ulProblem;
     PSETUP_LOG_CONTEXT LogContext = NULL;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         Err = ERROR_INVALID_HANDLE;
         goto clean1;
     }
@@ -1407,7 +1401,7 @@ Remarks:
 
     try {
         // Locate the devinfo element to be removed.
-        if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
+        if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
             dipb = &(DevInfoElem->InstallParamBlock);
             LogContext = dipb->LogContext;
         } else {
@@ -1415,10 +1409,10 @@ Remarks:
             goto clean0;
         }
 
-        if(CM_Get_DevInst_Status_Ex(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine) == CR_SUCCESS && (ulStatus & DN_ROOT_ENUMERATED) && !(ulStatus & DN_DISABLEABLE)) {
-           // we cannot remove a root enumerated non-disableable device
-           Err = ERROR_NOT_DISABLEABLE;
-           goto clean0;
+        if (CM_Get_DevInst_Status_Ex(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS && (ulStatus & DN_ROOT_ENUMERATED) && !(ulStatus & DN_DISABLEABLE)) {
+            // we cannot remove a root enumerated non-disableable device
+            Err = ERROR_NOT_DISABLEABLE;
+            goto clean0;
         }
 
         // Retrieve the name of the device instance.
@@ -1427,10 +1421,10 @@ Remarks:
         CM_Get_Device_ID_Ex(DevInfoElem->DevInst, DeviceInstanceId, SIZECHARS(DeviceInstanceId), 0, pDeviceInfoSet->hMachine);
 
         // See if there's a SP_REMOVEDEVICE_PARAMS structure we need to pay attention to.
-        if((dipb->Flags & DI_CLASSINSTALLPARAMS) && (dipb->ClassInstallHeader->InstallFunction == DIF_REMOVE)) {
+        if ((dipb->Flags & DI_CLASSINSTALLPARAMS) && (dipb->ClassInstallHeader->InstallFunction == DIF_REMOVE)) {
             RemoveDevParams = (PSP_REMOVEDEVICE_PARAMS)(dipb->ClassInstallHeader);
 
-            if(RemoveGlobally = (RemoveDevParams->Scope == DI_REMOVEDEVICE_GLOBAL)) {
+            if (RemoveGlobally = (RemoveDevParams->Scope == DI_REMOVEDEVICE_GLOBAL)) {
                 // We are doing a global removal.  We still want to set CSCONFIGFLAG_DO_NOT_CREATE for this device in the current hardware profile, so that someone else happening
                 // to do an enumeration won't turn this guy back on before we get a chance to remove it.
                 HwProfileToRemove = 0;
@@ -1439,25 +1433,25 @@ Remarks:
                 HwProfileToRemove = RemoveDevParams->HwProfile;
 
                 // Set the CSCONFIGFLAG_DO_NOT_CREATE flag for the specified hardware profile.
-                if(CM_Get_HW_Prof_Flags_Ex(DeviceInstanceId, HwProfileToRemove, &HwProfFlags, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                if (CM_Get_HW_Prof_Flags_Ex(DeviceInstanceId, HwProfileToRemove, &HwProfFlags, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
                     HwProfFlags |= CSCONFIGFLAG_DO_NOT_CREATE;
                 } else {
                     HwProfFlags = CSCONFIGFLAG_DO_NOT_CREATE;
                 }
 
-                Err = MapCrToSpError(CM_Set_HW_Prof_Flags_Ex(DeviceInstanceId, HwProfileToRemove, HwProfFlags, 0,pDeviceInfoSet->hMachine), ERROR_INVALID_DATA);
-                if(Err != NO_ERROR) {
+                Err = MapCrToSpError(CM_Set_HW_Prof_Flags_Ex(DeviceInstanceId, HwProfileToRemove, HwProfFlags, 0, pDeviceInfoSet->hMachine), ERROR_INVALID_DATA);
+                if (Err != NO_ERROR) {
                     goto clean0;
                 }
 
                 // Determine if we are deleting the device from the current hw profile.
-                if((HwProfileToRemove == 0) || ((CM_Get_Hardware_Profile_Info_Ex((ULONG)-1, &HwProfileInfo, 0,pDeviceInfoSet->hMachine) == CR_SUCCESS) && (HwProfileInfo.HWPI_ulHWProfile == HwProfileToRemove))) {
+                if ((HwProfileToRemove == 0) || ((CM_Get_Hardware_Profile_Info_Ex((ULONG)-1, &HwProfileInfo, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) && (HwProfileInfo.HWPI_ulHWProfile == HwProfileToRemove))) {
                     IsCurrentHwProfile = TRUE;
                 }
             }
 
             // Is this the current hardware profile or a global removal AND is there a present device?
-            if((IsCurrentHwProfile || RemoveGlobally) && !(DevInfoElem->DiElemFlags & DIE_IS_PHANTOM) && !(dipb->Flags & DI_DONOTCALLCONFIGMG)) {
+            if ((IsCurrentHwProfile || RemoveGlobally) && !(DevInfoElem->DiElemFlags & DIE_IS_PHANTOM) && !(dipb->Flags & DI_DONOTCALLCONFIGMG)) {
                 RemoveDevInst = TRUE;
             }
         } else {
@@ -1465,17 +1459,17 @@ Remarks:
             RemoveGlobally = TRUE;
             HwProfileToRemove = 0;
 
-            if(!(dipb->Flags & DI_DONOTCALLCONFIGMG)) {
+            if (!(dipb->Flags & DI_DONOTCALLCONFIGMG)) {
                 RemoveDevInst = TRUE;
             }
         }
 
         // If this is a global removal, or the last hardware profile-specific one, then clean up the registry.
-        if(RemoveGlobally || IsDevRemovedFromAllHwProfiles(DeviceInstanceId,pDeviceInfoSet->hMachine)) {
+        if (RemoveGlobally || IsDevRemovedFromAllHwProfiles(DeviceInstanceId, pDeviceInfoSet->hMachine)) {
             NukeDevInst = TRUE;
         }
 
-        if(RemoveDevInst) {
+        if (RemoveDevInst) {
             CONFIGRET cr;
             TCHAR VetoName[MAX_PATH];
             PNP_VETO_TYPE VetoType;
@@ -1487,8 +1481,8 @@ Remarks:
                                                 SIZECHARS(VetoName),
                                                 (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NOUIONQUERYREMOVE) ? CM_QUERY_REMOVE_UI_NOT_OK : CM_QUERY_REMOVE_UI_OK,
                                                 pDeviceInfoSet->hMachine
-                                               );
-            if(cr == CR_SUCCESS) {
+            );
+            if (cr == CR_SUCCESS) {
                 // Device instance successfully removed--now locate it as a phantom.
                 CM_Locate_DevInst_Ex(&(DevInfoElem->DevInst), (DEVINSTID)DeviceInstanceId, CM_LOCATE_DEVINST_PHANTOM, pDeviceInfoSet->hMachine);
 
@@ -1497,7 +1491,7 @@ Remarks:
                 // If the failure was due to a veto, then log information about who vetoed us.
 
                 // SPLOG--write out an entry with real logging.
-                if(cr == CR_REMOVE_VETOED) {
+                if (cr == CR_REMOVE_VETOED) {
                     // get the LogContext from dipb which should be a pointer to the appropriate DevInstallParamBlock
                     WriteLogEntry(
                         dipb->LogContext,
@@ -1510,7 +1504,7 @@ Remarks:
                 }
 
                 dipb->Flags |= DI_NEEDREBOOT;
-                SetDevnodeNeedsRebootProblemWithArg(DevInfoElem->DevInst,pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_QR_VETOED_UNINSTALL,cr);
+                SetDevnodeNeedsRebootProblemWithArg(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_QR_VETOED_UNINSTALL, cr);
             }
 #else
             // It appears that some people (who are broken)
@@ -1518,7 +1512,7 @@ Remarks:
             // so old code conditionally re-introduced to try and fix them
             WriteLogEntry(LogContext, DRIVER_LOG_ERROR, MSG_LOG_ERROR_IGNORED, NULL);
 
-            if((CM_Query_Remove_SubTree(DevInfoElem->DevInst, CM_QUERY_REMOVE_UI_OK) == CR_SUCCESS) && (CM_Remove_SubTree(DevInfoElem->DevInst, CM_REMOVE_UI_OK) == CR_SUCCESS)) {
+            if ((CM_Query_Remove_SubTree(DevInfoElem->DevInst, CM_QUERY_REMOVE_UI_OK) == CR_SUCCESS) && (CM_Remove_SubTree(DevInfoElem->DevInst, CM_REMOVE_UI_OK) == CR_SUCCESS)) {
                 // Device instance successfully removed--now locate it as a phantom.
                 CM_Locate_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)DeviceInstanceId, CM_LOCATE_DEVINST_PHANTOM);
                 DevInfoElem->DiElemFlags |= DIE_IS_PHANTOM;
@@ -1529,11 +1523,11 @@ Remarks:
 #endif
         }
 
-        if(NukeDevInst) {
+        if (NukeDevInst) {
             // Remove all traces of this device from the registry.
             pSetupDeleteDevRegKeys(DevInfoElem->DevInst, DICS_FLAG_GLOBAL | DICS_FLAG_CONFIGSPECIFIC, (DWORD)-1, DIREG_BOTH, TRUE);
 
-            cr = CM_Uninstall_DevInst_Ex(DevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine);
+            cr = CM_Uninstall_DevInst_Ex(DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine);
             if (cr != CR_SUCCESS) {
                 // we try to catch this earlier
                 Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
@@ -1542,8 +1536,8 @@ Remarks:
 
             // The above API will also remove all interface devices associated with this device instance.
             // Now we need to mark every interface device node that we are tracking for this devinfo element to indicate that they have been removed.
-            for(i = 0; i < DevInfoElem->InterfaceClassListSize; i++) {
-                for(InterfaceDeviceNode = DevInfoElem->InterfaceClassList[i].InterfaceDeviceNode; InterfaceDeviceNode; InterfaceDeviceNode = InterfaceDeviceNode->Next) {
+            for (i = 0; i < DevInfoElem->InterfaceClassListSize; i++) {
+                for (InterfaceDeviceNode = DevInfoElem->InterfaceClassList[i].InterfaceDeviceNode; InterfaceDeviceNode; InterfaceDeviceNode = InterfaceDeviceNode->Next) {
                     InterfaceDeviceNode->Flags |= SPINT_REMOVED;
                 }
             }
@@ -1556,7 +1550,7 @@ Remarks:
         // Now update the DevInst field of the DeviceInfoData structure with the new value of the devinst handle (possibly NULL).
         DeviceInfoData->DevInst = DevInfoElem->DevInst;
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
     }
@@ -1611,7 +1605,7 @@ Remarks:
     DEVINST dnRoot;
     PSETUP_LOG_CONTEXT LogContext = NULL;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         Err = ERROR_INVALID_HANDLE;
         goto clean1;
     }
@@ -1621,7 +1615,7 @@ Remarks:
 
     try {
         // Locate the devinfo element to be unremoved.
-        if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
+        if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
             dipb = &(DevInfoElem->InstallParamBlock);
             LogContext = dipb->LogContext;
         } else {
@@ -1630,7 +1624,7 @@ Remarks:
         }
 
         // We'd better have DIF_UNREMOVE class install params
-        if(!(dipb->Flags & DI_CLASSINSTALLPARAMS) || (dipb->ClassInstallHeader->InstallFunction != DIF_UNREMOVE)) {
+        if (!(dipb->Flags & DI_CLASSINSTALLPARAMS) || (dipb->ClassInstallHeader->InstallFunction != DIF_UNREMOVE)) {
             Err = ERROR_NO_CLASSINSTALL_PARAMS;
             goto clean0;
         }
@@ -1644,23 +1638,23 @@ Remarks:
         // We need to do this because accessing hardware profile-specific config flags is done via name instead of devnode handle.
         // (Also, we'll need this later after re-enumerating this device's parent.)
         CM_Get_Device_ID_Ex(DevInfoElem->DevInst, DeviceInstanceId, SIZECHARS(DeviceInstanceId), 0, pDeviceInfoSet->hMachine);
-        if(CM_Get_HW_Prof_Flags_Ex(DeviceInstanceId, UnremoveDevParams->HwProfile, &HwProfFlags, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+        if (CM_Get_HW_Prof_Flags_Ex(DeviceInstanceId, UnremoveDevParams->HwProfile, &HwProfFlags, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
             HwProfFlags &= ~CSCONFIGFLAG_DO_NOT_CREATE;
-            Err = MapCrToSpError(CM_Set_HW_Prof_Flags_Ex(DeviceInstanceId, UnremoveDevParams->HwProfile, HwProfFlags, 0,pDeviceInfoSet->hMachine), ERROR_INVALID_DATA);
-            if(Err != NO_ERROR) {
+            Err = MapCrToSpError(CM_Set_HW_Prof_Flags_Ex(DeviceInstanceId, UnremoveDevParams->HwProfile, HwProfFlags, 0, pDeviceInfoSet->hMachine), ERROR_INVALID_DATA);
+            if (Err != NO_ERROR) {
                 goto clean0;
             }
         }
 
         // Determine if we are trying to un-remove the device in the current hardware profile.
-        if((UnremoveDevParams->HwProfile == 0) || ((CM_Get_Hardware_Profile_Info_Ex((ULONG)-1, &HwProfileInfo, 0,pDeviceInfoSet->hMachine) == CR_SUCCESS) &&
+        if ((UnremoveDevParams->HwProfile == 0) || ((CM_Get_Hardware_Profile_Info_Ex((ULONG)-1, &HwProfileInfo, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) &&
             (HwProfileInfo.HWPI_ulHWProfile == UnremoveDevParams->HwProfile))) {
             // Make sure the device has started correctly.
-            if(CM_Locate_DevInst_Ex(&dnRoot, NULL, CM_LOCATE_DEVINST_NORMAL,pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+            if (CM_Locate_DevInst_Ex(&dnRoot, NULL, CM_LOCATE_DEVINST_NORMAL, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
                 // Try to get this device enumerated
-                CM_Reenumerate_DevInst_Ex(dnRoot, CM_REENUMERATE_SYNCHRONOUS,pDeviceInfoSet->hMachine);
+                CM_Reenumerate_DevInst_Ex(dnRoot, CM_REENUMERATE_SYNCHRONOUS, pDeviceInfoSet->hMachine);
 
-                if(CM_Locate_DevInst_Ex(&(DevInfoElem->DevInst), (DEVINSTID)DeviceInstanceId, CM_LOCATE_DEVINST_NORMAL, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                if (CM_Locate_DevInst_Ex(&(DevInfoElem->DevInst), (DEVINSTID)DeviceInstanceId, CM_LOCATE_DEVINST_NORMAL, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
                     CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine, dipb->LogContext);
                 } else {
                     // We couldn't locate the devnode.  We don't need to
@@ -1680,7 +1674,7 @@ Remarks:
             }
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
     }
@@ -1729,12 +1723,12 @@ Return Value:
     PSETUP_LOG_CONTEXT LogContext = NULL;
 
     // A device information element must be specified for this routine.
-    if(!DestinationDeviceInfoData) {
+    if (!DestinationDeviceInfoData) {
         Err = ERROR_INVALID_PARAMETER;
         goto clean1;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         Err = ERROR_INVALID_HANDLE;
         goto clean1;
     }
@@ -1745,7 +1739,7 @@ Return Value:
 
     try {
         // Locate the destination devinfo element.
-        if(DestDevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DestinationDeviceInfoData, NULL)) {
+        if (DestDevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DestinationDeviceInfoData, NULL)) {
             dipb = &(DestDevInfoElem->InstallParamBlock);
             LogContext = dipb->LogContext;
         } else {
@@ -1754,7 +1748,7 @@ Return Value:
         }
 
         // We'd better have DIF_MOVEDEVICE class install params
-        if(!(dipb->Flags & DI_CLASSINSTALLPARAMS) || (dipb->ClassInstallHeader->InstallFunction != DIF_MOVEDEVICE)) {
+        if (!(dipb->Flags & DI_CLASSINSTALLPARAMS) || (dipb->ClassInstallHeader->InstallFunction != DIF_MOVEDEVICE)) {
             Err = ERROR_NO_CLASSINSTALL_PARAMS;
             goto clean0;
         }
@@ -1762,24 +1756,24 @@ Return Value:
         MoveDevParams = (PSP_MOVEDEV_PARAMS)(dipb->ClassInstallHeader);
 
         // Find the source device.
-        if(!(SourceDevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, &(MoveDevParams->SourceDeviceInfoData), NULL))) {
+        if (!(SourceDevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, &(MoveDevParams->SourceDeviceInfoData), NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
         // We're about to call the class installer to handle device install (and possibly device selection as well).
         // We don't want the class installer to do something slimy like delete the devices out from under us, so we'll lock 'em down.
-        if(!(DestDevInfoElem->DiElemFlags & DIE_IS_LOCKED)) {
+        if (!(DestDevInfoElem->DiElemFlags & DIE_IS_LOCKED)) {
             DestDevInfoElem->DiElemFlags |= DIE_IS_LOCKED;
             bUnlockDestDevInfoElem = TRUE;
         }
-        if(!(SourceDevInfoElem->DiElemFlags & DIE_IS_LOCKED)) {
+        if (!(SourceDevInfoElem->DiElemFlags & DIE_IS_LOCKED)) {
             SourceDevInfoElem->DiElemFlags |= DIE_IS_LOCKED;
             bUnlockSourceDevInfoElem = TRUE;
         }
 
         // We don't want the following calls to cause the ConfigMgr to do re-enumeration, etc.
-        if(!(dipb->Flags & DI_DONOTCALLCONFIGMG)) {
+        if (!(dipb->Flags & DI_DONOTCALLCONFIGMG)) {
             dipb->Flags |= DI_DONOTCALLCONFIGMG;
             bRestoreConfigMgrBehavior = TRUE;
         }
@@ -1789,14 +1783,14 @@ Return Value:
         pDeviceInfoSet = NULL;
 
         // If the destination device doesn't have a selected driver, then get one.
-        if(!DestDevInfoElem->SelectedDriver) {
-            if(!_SetupDiCallClassInstaller(DIF_SELECTDEVICE, DeviceInfoSet, DestinationDeviceInfoData, CALLCI_LOAD_HELPERS | CALLCI_CALL_HELPERS)) {
+        if (!DestDevInfoElem->SelectedDriver) {
+            if (!_SetupDiCallClassInstaller(DIF_SELECTDEVICE, DeviceInfoSet, DestinationDeviceInfoData, CALLCI_LOAD_HELPERS | CALLCI_CALL_HELPERS)) {
                 Err = GetLastError();
                 goto clean0;
             }
         }
 
-        if(!_SetupDiCallClassInstaller(DIF_INSTALLDEVICE, DeviceInfoSet, DestinationDeviceInfoData, CALLCI_LOAD_HELPERS | CALLCI_CALL_HELPERS)) {
+        if (!_SetupDiCallClassInstaller(DIF_INSTALLDEVICE, DeviceInfoSet, DestinationDeviceInfoData, CALLCI_LOAD_HELPERS | CALLCI_CALL_HELPERS)) {
             Err = GetLastError();
             goto clean0;
         }
@@ -1816,9 +1810,9 @@ Return Value:
 
         // NOTE: The ConfigFlags of the _destination_ device are retrieved, and checked for the presence of the CONFIGFLAG_CANTSTOPACHILD flag.
         // PierreYs assures me that this is the correct behavior.
-        ConfigFlags = GetDevInstConfigFlags(DestDevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine);
+        ConfigFlags = GetDevInstConfigFlags(DestDevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine);
 
-        if(ConfigFlags & CONFIGFLAG_CANTSTOPACHILD) {
+        if (ConfigFlags & CONFIGFLAG_CANTSTOPACHILD) {
             RemoveSucceeded = FALSE;
         } else {
             CONFIGRET cr;
@@ -1832,14 +1826,14 @@ Return Value:
                                                 SIZECHARS(VetoName),
                                                 (SourceDevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NOUIONQUERYREMOVE) ? CM_QUERY_REMOVE_UI_NOT_OK : CM_QUERY_REMOVE_UI_OK,
                                                 pDeviceInfoSet->hMachine
-                                               );
-            if(cr == CR_SUCCESS) {
+            );
+            if (cr == CR_SUCCESS) {
                 RemoveSucceeded = TRUE;
             } else {
                 // If the failure was due to a veto, then log information about who vetoed us.
 
                 // SPLOG--write out a log entry
-                if(cr == CR_REMOVE_VETOED) {
+                if (cr == CR_REMOVE_VETOED) {
                     // get the LogContext from dipb which should be a pointer to the appropriate DevInstallParamBlock
                     WriteLogEntry(
                         dipb->LogContext,
@@ -1864,7 +1858,7 @@ Return Value:
 #endif
         }
 
-        if(RemoveSucceeded) {
+        if (RemoveSucceeded) {
             // Source device instance successfully removed--now locate it as a phantom.
             CM_Locate_DevInst_Ex(&(SourceDevInfoElem->DevInst), (DEVINSTID)DeviceInstanceId, CM_LOCATE_DEVINST_PHANTOM, pDeviceInfoSet->hMachine);
 
@@ -1895,7 +1889,7 @@ Return Value:
         SourceDevInfoElem->DiElemFlags &= ~DIE_IS_REGISTERED;
         SourceDevInfoElem->DevInst = (DEVINST)0;
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
         // Reference the following variables so that the compiler will respect our statement ordering w.r.t. assignment.
@@ -1904,19 +1898,19 @@ clean0: ;   // nothing to do.
         bUnlockSourceDevInfoElem = bUnlockSourceDevInfoElem;
     }
 
-    if(bUnlockDestDevInfoElem || bUnlockSourceDevInfoElem || bRestoreConfigMgrBehavior) {
-        if(!pDeviceInfoSet) {
+    if (bUnlockDestDevInfoElem || bUnlockSourceDevInfoElem || bRestoreConfigMgrBehavior) {
+        if (!pDeviceInfoSet) {
             pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet);
             MYASSERT(pDeviceInfoSet);
         }
         try {
-            if(bUnlockDestDevInfoElem) {
+            if (bUnlockDestDevInfoElem) {
                 DestDevInfoElem->DiElemFlags &= ~DIE_IS_LOCKED;
             }
-            if(bUnlockSourceDevInfoElem) {
+            if (bUnlockSourceDevInfoElem) {
                 SourceDevInfoElem->DiElemFlags &= ~DIE_IS_LOCKED;
             }
-            if(bRestoreConfigMgrBehavior) {
+            if (bRestoreConfigMgrBehavior) {
                 dipb->Flags &= ~DI_DONOTCALLCONFIGMG;
             }
         } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -1924,7 +1918,7 @@ clean0: ;   // nothing to do.
         }
     }
 
-    if(pDeviceInfoSet) {
+    if (pDeviceInfoSet) {
         UnlockDeviceInfoSet(pDeviceInfoSet);
     }
 
@@ -1976,7 +1970,7 @@ Return Value:
     ULONG ulProblem;
 #endif
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         SetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
@@ -1985,27 +1979,27 @@ Return Value:
 
     try {
         // Locate the devinfo element whose state is to be changed.
-        if(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
+        if (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) {
             dipb = &(DevInfoElem->InstallParamBlock);
         } else {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
 
-        if(!(dipb->Flags & DI_CLASSINSTALLPARAMS) || (dipb->ClassInstallHeader->InstallFunction != DIF_PROPERTYCHANGE)) {
+        if (!(dipb->Flags & DI_CLASSINSTALLPARAMS) || (dipb->ClassInstallHeader->InstallFunction != DIF_PROPERTYCHANGE)) {
             // Don't have any class install parameters to tell us what needs to be done!
             Err = ERROR_NO_CLASSINSTALL_PARAMS;
             goto clean0;
         }
 
-        if(!DevInfoElem->DevInst) {
+        if (!DevInfoElem->DevInst) {
             Err = ERROR_NO_SUCH_DEVINST;
             goto clean0;
         }
 
         dwStateChange = ((PSP_PROPCHANGE_PARAMS)(dipb->ClassInstallHeader))->StateChange;
-        dwFlags       = ((PSP_PROPCHANGE_PARAMS)(dipb->ClassInstallHeader))->Scope;
-        lParam        = ((PSP_PROPCHANGE_PARAMS)(dipb->ClassInstallHeader))->HwProfile;
+        dwFlags = ((PSP_PROPCHANGE_PARAMS)(dipb->ClassInstallHeader))->Scope;
+        lParam = ((PSP_PROPCHANGE_PARAMS)(dipb->ClassInstallHeader))->HwProfile;
 
 #if 0 // people are relying on broken behaviour
         if (dwFlags == DICS_FLAG_CONFIGGENERAL) {
@@ -2014,118 +2008,260 @@ Return Value:
         }
 #endif
 
-        switch(dwStateChange) {
-            case DICS_ENABLE:
-                if(dwFlags == DICS_FLAG_GLOBAL) {
-                    // Clear the Disabled config flag, and attempt to enumerate the device.
-                    // Presumably it has a device node, it is just dormant (ie prob 80000001).
-                    dwConfigFlags = GetDevInstConfigFlags(DevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine) & ~CONFIGFLAG_DISABLED;
+        switch (dwStateChange) {
+        case DICS_ENABLE:
+            if (dwFlags == DICS_FLAG_GLOBAL) {
+                // Clear the Disabled config flag, and attempt to enumerate the device.
+                // Presumably it has a device node, it is just dormant (ie prob 80000001).
+                dwConfigFlags = GetDevInstConfigFlags(DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine) & ~CONFIGFLAG_DISABLED;
 
-                    // Set the New config flags value
-                    CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CONFIGFLAGS, &dwConfigFlags, sizeof(dwConfigFlags), 0, pDeviceInfoSet->hMachine);
-                    if(!(dipb->Flags & (DI_NEEDRESTART | DI_NEEDREBOOT))) {
-                        if(CM_Enable_DevNode_Ex(DevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine) == CR_SUCCESS) {
-                            // Find the parent of this devnode and reenumerate it to bring this devnode online.
-                            if (CM_Get_Parent_Ex(&dnToReenum, DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
-                                // Process this devnode now.
-                                CM_Reenumerate_DevNode_Ex(dnToReenum, CM_REENUMERATE_SYNCHRONOUS,pDeviceInfoSet->hMachine);
-                            }
-
-                            // See if we sucessfully started dynamically.
-                            CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine, dipb->LogContext);
-                        } else {
-                            // We could not enable so we should restart
-                            dipb->Flags |= DI_NEEDREBOOT;
-                            SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst,pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_ENABLE_FAILED);
+                // Set the New config flags value
+                CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CONFIGFLAGS, &dwConfigFlags, sizeof(dwConfigFlags), 0, pDeviceInfoSet->hMachine);
+                if (!(dipb->Flags & (DI_NEEDRESTART | DI_NEEDREBOOT))) {
+                    if (CM_Enable_DevNode_Ex(DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                        // Find the parent of this devnode and reenumerate it to bring this devnode online.
+                        if (CM_Get_Parent_Ex(&dnToReenum, DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                            // Process this devnode now.
+                            CM_Reenumerate_DevNode_Ex(dnToReenum, CM_REENUMERATE_SYNCHRONOUS, pDeviceInfoSet->hMachine);
                         }
-                    }
-                } else {
-                    // Get the hardware profile-specific flags
-                    CM_Get_Device_ID_Ex(DevInfoElem->DevInst, szDevID, SIZECHARS(szDevID), 0, pDeviceInfoSet->hMachine);
-                    if(CM_Get_HW_Prof_Flags_Ex(szDevID, lParam, &dwHWProfFlags, 0,pDeviceInfoSet->hMachine) == CR_SUCCESS) {
-                        // Clear the Disabled bit.
-                        dwHWProfFlags &= ~CSCONFIGFLAG_DISABLED;
+
+                        // See if we sucessfully started dynamically.
+                        CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine, dipb->LogContext);
                     } else {
-                        dwHWProfFlags = 0;
-                    }
-
-                    // Set the profile Flags for this device to Enabled.  Setting the flags will also bring the devnode on-line, if we're modifying the current hardware profile.
-                    cr = CM_Set_HW_Prof_Flags_Ex(szDevID, lParam, dwHWProfFlags, 0, pDeviceInfoSet->hMachine);
-                    if(cr == CR_NEED_RESTART) {
+                        // We could not enable so we should restart
                         dipb->Flags |= DI_NEEDREBOOT;
-                        SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst,pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_HW_PROF_ENABLE_FAILED);
-                    } else if(cr != CR_SUCCESS) {
+                        SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_ENABLE_FAILED);
+                    }
+                }
+            } else {
+                // Get the hardware profile-specific flags
+                CM_Get_Device_ID_Ex(DevInfoElem->DevInst, szDevID, SIZECHARS(szDevID), 0, pDeviceInfoSet->hMachine);
+                if (CM_Get_HW_Prof_Flags_Ex(szDevID, lParam, &dwHWProfFlags, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                    // Clear the Disabled bit.
+                    dwHWProfFlags &= ~CSCONFIGFLAG_DISABLED;
+                } else {
+                    dwHWProfFlags = 0;
+                }
+
+                // Set the profile Flags for this device to Enabled.  Setting the flags will also bring the devnode on-line, if we're modifying the current hardware profile.
+                cr = CM_Set_HW_Prof_Flags_Ex(szDevID, lParam, dwHWProfFlags, 0, pDeviceInfoSet->hMachine);
+                if (cr == CR_NEED_RESTART) {
+                    dipb->Flags |= DI_NEEDREBOOT;
+                    SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_HW_PROF_ENABLE_FAILED);
+                } else if (cr != CR_SUCCESS) {
+                    Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
+                    goto clean0;
+                }
+            }
+            break;
+        case DICS_DISABLE:
+            if (dwFlags == DICS_FLAG_GLOBAL) {
+                BOOL disabled = FALSE;
+                // we try to dynamically disable a device
+                // if it fails with anything but CR_NOT_DISABLEABLE
+                // then we set flag to try to disable it on reboot
+                if (!(dipb->Flags & (DI_NEEDRESTART | DI_NEEDREBOOT))) {
+                    cr = CM_Disable_DevNode_Ex(DevInfoElem->DevInst, CM_DISABLE_POLITE | CM_DISABLE_UI_NOT_OK, pDeviceInfoSet->hMachine);
+                    if (cr == CR_SUCCESS) {
+                        // we managed to disable it immediately
+                        disabled = TRUE;
+                    } else if (cr == CR_NOT_DISABLEABLE) {
+                        // we couldn't and shouldn't try to disable it
                         Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
                         goto clean0;
                     }
                 }
-                break;
-            case DICS_DISABLE:
-                if(dwFlags == DICS_FLAG_GLOBAL) {
-                    BOOL disabled = FALSE;
-                    // we try to dynamically disable a device
-                    // if it fails with anything but CR_NOT_DISABLEABLE
-                    // then we set flag to try to disable it on reboot
-                    if(!(dipb->Flags & (DI_NEEDRESTART | DI_NEEDREBOOT))) {
-                        cr = CM_Disable_DevNode_Ex(DevInfoElem->DevInst, CM_DISABLE_POLITE | CM_DISABLE_UI_NOT_OK, pDeviceInfoSet->hMachine);
-                        if (cr == CR_SUCCESS) {
-                            // we managed to disable it immediately
-                            disabled = TRUE;
-                        } else if (cr == CR_NOT_DISABLEABLE) {
-                            // we couldn't and shouldn't try to disable it
-                            Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
-                            goto clean0;
-                        }
+
+                // BugBug!!! (jamiehun) if the device is reboot disabled, but becomes non-disableable we could have a problem
+
+                // Try and set the Disabled config flag if not already set, even if we managed to disable it
+                dwConfigFlags = GetDevInstConfigFlags(DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine);
+                if ((dwConfigFlags & CONFIGFLAG_DISABLED) == 0) {
+                    dwConfigFlags |= CONFIGFLAG_DISABLED;
+                    // Set the New config flags value
+                    cr = CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CONFIGFLAGS, &dwConfigFlags, sizeof(dwConfigFlags), 0, pDeviceInfoSet->hMachine);
+                    if (cr != CR_SUCCESS) {
+                        Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
+                        goto clean0;
+                    }
+                }
+            } else {
+                // Get the hardware profile-specific flags
+                CM_Get_Device_ID_Ex(DevInfoElem->DevInst, szDevID, SIZECHARS(szDevID), 0, pDeviceInfoSet->hMachine);
+                if (CM_Get_HW_Prof_Flags_Ex(szDevID, lParam, &dwHWProfFlags, 0, pDeviceInfoSet->hMachine) != CR_SUCCESS) {
+                    dwHWProfFlags = 0;
+                }
+
+                // Set the Disabled bit.
+                dwHWProfFlags |= CSCONFIGFLAG_DISABLED;
+
+                // Set the profile Flags for this device to Disabled.  Setting this
+                // flag will also take this device off-line, if we're modifying the current hardware profile.
+                cr = CM_Set_HW_Prof_Flags_Ex(szDevID, lParam, dwHWProfFlags, CM_SET_HW_PROF_FLAGS_UI_NOT_OK, pDeviceInfoSet->hMachine);
+                if (cr == CR_NEED_RESTART) {
+                    dipb->Flags |= DI_NEEDREBOOT;
+                    SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_HW_PROF_DISABLE_FAILED);
+                } else if (cr != CR_SUCCESS) {
+                    Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
+                    goto clean0;
+                }
+            }
+            break;
+        case DICS_PROPCHANGE:
+            // Properties have changed, so we need to remove the Devnode, and re-enumerate its parent.
+
+            // Don't remove/reenumerate if reboot/restart is required, or if DI_DONOTCALLCONFIGMG is set (the device may implement some form of 'non-stop' property change mechanism).
+            if (!(dipb->Flags & (DI_DONOTCALLCONFIGMG | DI_NEEDREBOOT | DI_NEEDRESTART))) {
+                TCHAR VetoName[MAX_PATH];
+                PNP_VETO_TYPE VetoType;
+
+                // Get the device instance ID for this device.  We gotta have this to find the device instance again after we remove it from the hardware tree.
+                CM_Get_Device_ID_Ex(DevInfoElem->DevInst, szDevID, SIZECHARS(szDevID), 0, pDeviceInfoSet->hMachine);
+
+                CM_Get_Parent_Ex(&dnToReenum, DevInfoElem->DevInst, 0, pDeviceInfoSet->hMachine);
+
+#ifdef UNICODE
+                cr = CM_Query_And_Remove_SubTree_Ex(DevInfoElem->DevInst,
+                                                    &VetoType,
+                                                    VetoName,
+                                                    SIZECHARS(VetoName),
+                                                    (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NOUIONQUERYREMOVE) ? CM_QUERY_REMOVE_UI_NOT_OK : CM_QUERY_REMOVE_UI_OK,
+                                                    pDeviceInfoSet->hMachine
+                );
+                if (cr == CR_SUCCESS) {
+                    CM_Reenumerate_DevInst_Ex(dnToReenum, CM_REENUMERATE_SYNCHRONOUS, pDeviceInfoSet->hMachine);
+                    DevInfoElem->DevInst = 0;
+
+                    if (CM_Locate_DevInst_Ex(&(DevInfoElem->DevInst), (DEVINSTID)szDevID, CM_LOCATE_DEVINST_NORMAL, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                        // Make sure the device instance started OK
+                        CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine, dipb->LogContext);
+                    } else {
+                        // We couldn't locate the devnode.  We don't need to request a reboot, because if the devnode ever
+                        // shows up again, we should be able to bring it back on-line just fine.
+
+                        // Retrieve the devnode as a phantom
+                        CM_Locate_DevInst_Ex(&(DevInfoElem->DevInst), (DEVINSTID)szDevID, CM_LOCATE_DEVINST_PHANTOM, pDeviceInfoSet->hMachine);
+
+                        DevInfoElem->DiElemFlags |= DIE_IS_PHANTOM;
                     }
 
-                    // BugBug!!! (jamiehun) if the device is reboot disabled, but becomes non-disableable we could have a problem
+                    // Update the caller's buffer to reflect the new device instance handle
+                    DeviceInfoData->DevInst = DevInfoElem->DevInst;
+                } else {
+                    // If the failure was due to a veto, then log information about who vetoed us.
 
-                    // Try and set the Disabled config flag if not already set, even if we managed to disable it
-                    dwConfigFlags = GetDevInstConfigFlags(DevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine);
-                    if ((dwConfigFlags & CONFIGFLAG_DISABLED) == 0) {
-                        dwConfigFlags |= CONFIGFLAG_DISABLED;
-                        // Set the New config flags value
-                        cr = CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_CONFIGFLAGS, &dwConfigFlags, sizeof(dwConfigFlags), 0, pDeviceInfoSet->hMachine);
-                        if (cr != CR_SUCCESS) {
-                            Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
-                            goto clean0;
-                        }
+                    // SPLOG--write a log entry
+                    if (cr == CR_REMOVE_VETOED) {
+                        // get the LogContext from dipb which should be a pointer to the appropriate DevInstallParamBlock
+                        WriteLogEntry(
+                            dipb->LogContext,
+                            DRIVER_LOG_WARNING,
+                            MSG_LOG_REMOVE_VETOED_IN_PROPCHANGE,
+                            NULL,       // text message
+                            szDevID,
+                            VetoName,
+                            VetoType);
+                    }
+
+                    dipb->Flags |= DI_NEEDREBOOT;
+                    SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst, pDeviceInfoSet->hMachine,
+                                                 dipb->LogContext, MSG_LOG_REBOOT_VETOED_IN_PROPCHANGE);
+                }
+#else
+                // It appears that some people (who are broken)
+                // do rely on setupapi to install devices
+                // so old code conditionally re-introduced to try and fix them
+                WriteLogEntry(dipb->LogContext, DRIVER_LOG_ERROR, MSG_LOG_ERROR_IGNORED, NULL);
+
+                if (CM_Query_Remove_SubTree(DevInfoElem->DevInst, 0) == CR_SUCCESS) {
+                    CM_Get_Parent(&dnToReenum, DevInfoElem->DevInst, 0);
+                    CM_Remove_SubTree(DevInfoElem->DevInst, 0);
+                    CM_Reenumerate_DevInst(dnToReenum, CM_REENUMERATE_SYNCHRONOUS);
+                    DevInfoElem->DevInst = 0;
+
+                    if (CM_Locate_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)szDevID, CM_LOCATE_DEVINST_NORMAL) != CR_SUCCESS) {
+                        dipb->Flags |= DI_NEEDREBOOT;
+                        // Retrieve the devinst as a phantom
+                        CM_Locate_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)szDevID, CM_LOCATE_DEVINST_PHANTOM);
+                        DevInfoElem->DiElemFlags |= DIE_IS_PHANTOM;
+                        // Update the caller's buffer to reflect the new device instance handle
+                        DeviceInfoData->DevInst = DevInfoElem->DevInst;
+                    }
+
+                    // Make Sure the device instance started OK
+                    if ((CM_Get_DevNode_Status(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0) == CR_SUCCESS) && !(ulStatus & DN_STARTED)) {
+                        dipb->Flags |= DI_NEEDREBOOT;
                     }
                 } else {
-                    // Get the hardware profile-specific flags
-                    CM_Get_Device_ID_Ex(DevInfoElem->DevInst, szDevID, SIZECHARS(szDevID), 0, pDeviceInfoSet->hMachine);
-                    if(CM_Get_HW_Prof_Flags_Ex(szDevID, lParam, &dwHWProfFlags, 0,pDeviceInfoSet->hMachine) != CR_SUCCESS) {
-                        dwHWProfFlags = 0;
-                    }
-
-                    // Set the Disabled bit.
-                    dwHWProfFlags |= CSCONFIGFLAG_DISABLED;
-
-                    // Set the profile Flags for this device to Disabled.  Setting this
-                    // flag will also take this device off-line, if we're modifying the current hardware profile.
-                    cr = CM_Set_HW_Prof_Flags_Ex(szDevID, lParam, dwHWProfFlags, CM_SET_HW_PROF_FLAGS_UI_NOT_OK, pDeviceInfoSet->hMachine);
-                    if(cr == CR_NEED_RESTART) {
-                        dipb->Flags |= DI_NEEDREBOOT;
-                        SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst,pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_HW_PROF_DISABLE_FAILED);
-                    } else if(cr != CR_SUCCESS) {
-                        Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
-                        goto clean0;
-                    }
+                    dipb->Flags |= DI_NEEDREBOOT;
                 }
-                break;
-            case DICS_PROPCHANGE:
-                // Properties have changed, so we need to remove the Devnode, and re-enumerate its parent.
+#endif
+            }
+            break;
+        case DICS_START:
+            // DICS_START is always config specific (we enforce this in SetupDiSetClassInstallParams).
+            MYASSERT(dwFlags == DICS_FLAG_CONFIGSPECIFIC);
 
-                // Don't remove/reenumerate if reboot/restart is required, or if DI_DONOTCALLCONFIGMG is set (the device may implement some form of 'non-stop' property change mechanism).
-                if(!(dipb->Flags & (DI_DONOTCALLCONFIGMG | DI_NEEDREBOOT | DI_NEEDRESTART))) {
+            // Get the Profile Flags.
+            CM_Get_Device_ID_Ex(DevInfoElem->DevInst, szDevID, SIZECHARS(szDevID), 0, pDeviceInfoSet->hMachine);
+            if (CM_Get_HW_Prof_Flags_Ex(szDevID, lParam, &dwHWProfFlags, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
+                // Clear the "don't start" bit.
+                dwHWProfFlags &= ~CSCONFIGFLAG_DO_NOT_START;
+            } else {
+                dwHWProfFlags = 0;
+            }
+
+            cr = CM_Set_HW_Prof_Flags_Ex(szDevID, lParam, dwHWProfFlags, 0, pDeviceInfoSet->hMachine);
+            if (cr == CR_NEED_RESTART) {
+                // Since setting/clearing the CSCONFIGFLAG_DO_NOT_START doesn't automatically effect a change, we should never get here.
+                dipb->Flags |= DI_NEEDREBOOT;
+                SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_CLEAR_CSCONFIGFLAG_DO_NOT_START);
+            } else if (cr != CR_SUCCESS) {
+                Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
+                goto clean0;
+            }
+
+            // Start the device instance if this is for the current config (ie dwConfigID/lparam == 0)
+            if ((lParam == 0) || ((CM_Get_Hardware_Profile_Info_Ex((ULONG)-1, &HwProfileInfo, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) && (HwProfileInfo.HWPI_ulHWProfile == lParam))) {
+                // Try to start the devnode.
+                if (!(dipb->Flags & (DI_NEEDRESTART | DI_NEEDREBOOT))) {
+                    CM_Setup_DevNode_Ex(DevInfoElem->DevInst, CM_SETUP_DEVNODE_READY, pDeviceInfoSet->hMachine);
+                    CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine, dipb->LogContext);
+                }
+            }
+            break;
+        case DICS_STOP:
+            // DICS_STOP is always config specific (we enforce this in SetupDiSetClassInstallParams).
+            MYASSERT(dwFlags == DICS_FLAG_CONFIGSPECIFIC);
+
+            // Get the Profile Flags.
+            CM_Get_Device_ID_Ex(DevInfoElem->DevInst, szDevID, SIZECHARS(szDevID), 0, pDeviceInfoSet->hMachine);
+
+            if (CM_Get_HW_Prof_Flags_Ex(szDevID, lParam, &dwHWProfFlags, 0, pDeviceInfoSet->hMachine) != CR_SUCCESS) {
+                dwHWProfFlags = 0;
+            }
+
+            // Set the "don't start" bit.
+            dwHWProfFlags |= CSCONFIGFLAG_DO_NOT_START;
+
+            cr = CM_Set_HW_Prof_Flags_Ex(szDevID, lParam, dwHWProfFlags, CM_SET_HW_PROF_FLAGS_UI_NOT_OK, pDeviceInfoSet->hMachine);
+            if (cr == CR_NEED_RESTART) {
+                // Since setting/clearing the CSCONFIGFLAG_DO_NOT_START doesn't automatically effect a change, we should never get here.
+                dipb->Flags |= DI_NEEDREBOOT;
+                SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_SET_CSCONFIGFLAG_DO_NOT_START);
+            } else if (cr != CR_SUCCESS) {
+                Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
+                goto clean0;
+            }
+
+            // Stop the device instance if this is for the current config (ie dwConfigID/lparam == 0)
+            if ((lParam == 0) || ((CM_Get_Hardware_Profile_Info_Ex((ULONG)-1, &HwProfileInfo, 0, pDeviceInfoSet->hMachine) == CR_SUCCESS) && (HwProfileInfo.HWPI_ulHWProfile == lParam))) {
+                // Try to stop the devnode.
+                if (!(dipb->Flags & (DI_NEEDRESTART | DI_NEEDREBOOT))) {
                     TCHAR VetoName[MAX_PATH];
                     PNP_VETO_TYPE VetoType;
 
-                    // Get the device instance ID for this device.  We gotta have this to find the device instance again after we remove it from the hardware tree.
-                    CM_Get_Device_ID_Ex(DevInfoElem->DevInst, szDevID, SIZECHARS(szDevID), 0, pDeviceInfoSet->hMachine);
-
-                    CM_Get_Parent_Ex(&dnToReenum, DevInfoElem->DevInst, 0,pDeviceInfoSet->hMachine);
-
+                    // Remove the device instance in order to stop the device.
 #ifdef UNICODE
                     cr = CM_Query_And_Remove_SubTree_Ex(DevInfoElem->DevInst,
                                                         &VetoType,
@@ -2133,36 +2269,24 @@ Return Value:
                                                         SIZECHARS(VetoName),
                                                         (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NOUIONQUERYREMOVE) ? CM_QUERY_REMOVE_UI_NOT_OK : CM_QUERY_REMOVE_UI_OK,
                                                         pDeviceInfoSet->hMachine
-                                                       );
-                    if(cr == CR_SUCCESS) {
-                        CM_Reenumerate_DevInst_Ex(dnToReenum, CM_REENUMERATE_SYNCHRONOUS,pDeviceInfoSet->hMachine);
-                        DevInfoElem->DevInst = 0;
+                    );
+                    if (cr == CR_SUCCESS) {
+                        // Device instance successfully removed--now locate it as a phantom.
+                        CM_Locate_DevInst_Ex(&(DevInfoElem->DevInst), (DEVINSTID)szDevID, CM_LOCATE_DEVINST_PHANTOM, pDeviceInfoSet->hMachine);
 
-                        if(CM_Locate_DevInst_Ex(&(DevInfoElem->DevInst), (DEVINSTID)szDevID, CM_LOCATE_DEVINST_NORMAL, pDeviceInfoSet->hMachine) == CR_SUCCESS) {
-                            // Make sure the device instance started OK
-                            CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine, dipb->LogContext);
-                        } else {
-                            // We couldn't locate the devnode.  We don't need to request a reboot, because if the devnode ever
-                            // shows up again, we should be able to bring it back on-line just fine.
-
-                            // Retrieve the devnode as a phantom
-                            CM_Locate_DevInst_Ex(&(DevInfoElem->DevInst), (DEVINSTID)szDevID, CM_LOCATE_DEVINST_PHANTOM, pDeviceInfoSet->hMachine);
-
-                            DevInfoElem->DiElemFlags |= DIE_IS_PHANTOM;
-                        }
-
-                        // Update the caller's buffer to reflect the new device instance handle
+                        DevInfoElem->DiElemFlags |= DIE_IS_PHANTOM;
+                        // Update the caller's buffer to reflect the new device instance handle.
                         DeviceInfoData->DevInst = DevInfoElem->DevInst;
                     } else {
                         // If the failure was due to a veto, then log information about who vetoed us.
 
-                        // SPLOG--write a log entry
-                        if(cr == CR_REMOVE_VETOED) {
+                        // SPLOG--write out a real log entry
+                        if (cr == CR_REMOVE_VETOED) {
                             // get the LogContext from dipb which should be a pointer to the appropriate DevInstallParamBlock
                             WriteLogEntry(
                                 dipb->LogContext,
                                 DRIVER_LOG_WARNING,
-                                MSG_LOG_REMOVE_VETOED_IN_PROPCHANGE,
+                                MSG_LOG_REMOVE_VETOED_IN_STOP,
                                 NULL,       // text message
                                 szDevID,
                                 VetoName,
@@ -2170,167 +2294,33 @@ Return Value:
                         }
 
                         dipb->Flags |= DI_NEEDREBOOT;
-                        SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst,pDeviceInfoSet->hMachine,
-                            dipb->LogContext, MSG_LOG_REBOOT_VETOED_IN_PROPCHANGE);
+                        SetDevnodeNeedsRebootProblemWithArg(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_QR_VETOED_IN_STOP, cr);
                     }
 #else
-                    // It appears that some people (who are broken)
-                    // do rely on setupapi to install devices
-                    // so old code conditionally re-introduced to try and fix them
+                        // It appears that some people (who are broken)
+                        // do rely on setupapi to install devices
+                        // so old code remains for Win9x version of setupapi.dll
                     WriteLogEntry(dipb->LogContext, DRIVER_LOG_ERROR, MSG_LOG_ERROR_IGNORED, NULL);
 
-                    if(CM_Query_Remove_SubTree(DevInfoElem->DevInst, 0) == CR_SUCCESS) {
-                        CM_Get_Parent(&dnToReenum, DevInfoElem->DevInst, 0);
-                        CM_Remove_SubTree(DevInfoElem->DevInst, 0);
-                        CM_Reenumerate_DevInst(dnToReenum, CM_REENUMERATE_SYNCHRONOUS);
-                        DevInfoElem->DevInst = 0;
-
-                        if(CM_Locate_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)szDevID, CM_LOCATE_DEVINST_NORMAL) != CR_SUCCESS) {
-                            dipb->Flags |= DI_NEEDREBOOT;
-                            // Retrieve the devinst as a phantom
-                            CM_Locate_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)szDevID, CM_LOCATE_DEVINST_PHANTOM);
-                            DevInfoElem->DiElemFlags |= DIE_IS_PHANTOM;
-                            // Update the caller's buffer to reflect the new device instance handle
-                            DeviceInfoData->DevInst = DevInfoElem->DevInst;
-                        }
-
-                        // Make Sure the device instance started OK
-                        if((CM_Get_DevNode_Status(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0) == CR_SUCCESS) && !(ulStatus & DN_STARTED)) {
-                            dipb->Flags |= DI_NEEDREBOOT;
-                        }
+                    // Remove the device instance in order to stop the device.
+                    if ((CM_Query_Remove_SubTree(DevInfoElem->DevInst, CM_QUERY_REMOVE_UI_OK) == CR_SUCCESS) && (CM_Remove_SubTree(DevInfoElem->DevInst, CM_REMOVE_UI_OK) == CR_SUCCESS)) {
+                        // Device instance successfully removed--now locate it as a phantom.
+                        CM_Locate_DevInst(&(DevInfoElem->DevInst), (DEVINSTID)szDevID, CM_LOCATE_DEVINST_PHANTOM);
+                        DevInfoElem->DiElemFlags |= DIE_IS_PHANTOM;
+                        // Update the caller's buffer to reflect the new device instance handle.
+                        DeviceInfoData->DevInst = DevInfoElem->DevInst;
                     } else {
                         dipb->Flags |= DI_NEEDREBOOT;
                     }
 #endif
                 }
-                break;
-            case DICS_START:
-                // DICS_START is always config specific (we enforce this in SetupDiSetClassInstallParams).
-                MYASSERT(dwFlags == DICS_FLAG_CONFIGSPECIFIC);
-
-                // Get the Profile Flags.
-                CM_Get_Device_ID_Ex(DevInfoElem->DevInst, szDevID, SIZECHARS(szDevID), 0, pDeviceInfoSet->hMachine);
-                if(CM_Get_HW_Prof_Flags_Ex(szDevID, lParam, &dwHWProfFlags, 0,pDeviceInfoSet->hMachine) == CR_SUCCESS) {
-                    // Clear the "don't start" bit.
-                    dwHWProfFlags &= ~CSCONFIGFLAG_DO_NOT_START;
-                } else {
-                    dwHWProfFlags = 0;
-                }
-
-                cr = CM_Set_HW_Prof_Flags_Ex(szDevID, lParam, dwHWProfFlags, 0, pDeviceInfoSet->hMachine);
-                if(cr == CR_NEED_RESTART) {
-                    // Since setting/clearing the CSCONFIGFLAG_DO_NOT_START doesn't automatically effect a change, we should never get here.
-                    dipb->Flags |= DI_NEEDREBOOT;
-                    SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst,pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_CLEAR_CSCONFIGFLAG_DO_NOT_START);
-                } else if(cr != CR_SUCCESS) {
-                    Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
-                    goto clean0;
-                }
-
-                // Start the device instance if this is for the current config (ie dwConfigID/lparam == 0)
-                if((lParam == 0) || ((CM_Get_Hardware_Profile_Info_Ex((ULONG)-1, &HwProfileInfo, 0,pDeviceInfoSet->hMachine) == CR_SUCCESS) && (HwProfileInfo.HWPI_ulHWProfile == lParam)))
-                {
-                    // Try to start the devnode.
-                    if(!(dipb->Flags & (DI_NEEDRESTART | DI_NEEDREBOOT))) {
-                        CM_Setup_DevNode_Ex(DevInfoElem->DevInst, CM_SETUP_DEVNODE_READY,pDeviceInfoSet->hMachine);
-                        CheckIfDevStarted(DevInfoElem, pDeviceInfoSet->hMachine, dipb->LogContext);
-                    }
-                }
-                break;
-            case DICS_STOP:
-                // DICS_STOP is always config specific (we enforce this in SetupDiSetClassInstallParams).
-                MYASSERT(dwFlags == DICS_FLAG_CONFIGSPECIFIC);
-
-                // Get the Profile Flags.
-                CM_Get_Device_ID_Ex(DevInfoElem->DevInst, szDevID, SIZECHARS(szDevID), 0, pDeviceInfoSet->hMachine);
-
-                if(CM_Get_HW_Prof_Flags_Ex(szDevID, lParam, &dwHWProfFlags, 0,pDeviceInfoSet->hMachine) != CR_SUCCESS) {
-                    dwHWProfFlags = 0;
-                }
-
-                // Set the "don't start" bit.
-                dwHWProfFlags |= CSCONFIGFLAG_DO_NOT_START;
-
-                cr = CM_Set_HW_Prof_Flags_Ex(szDevID, lParam, dwHWProfFlags, CM_SET_HW_PROF_FLAGS_UI_NOT_OK, pDeviceInfoSet->hMachine);
-                if(cr == CR_NEED_RESTART) {
-                    // Since setting/clearing the CSCONFIGFLAG_DO_NOT_START doesn't automatically effect a change, we should never get here.
-                    dipb->Flags |= DI_NEEDREBOOT;
-                    SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst,pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_REASON_SET_CSCONFIGFLAG_DO_NOT_START);
-                } else if(cr != CR_SUCCESS) {
-                    Err = MapCrToSpError(cr, ERROR_INVALID_DATA);
-                    goto clean0;
-                }
-
-                // Stop the device instance if this is for the current config (ie dwConfigID/lparam == 0)
-                if((lParam == 0) || ((CM_Get_Hardware_Profile_Info_Ex((ULONG)-1, &HwProfileInfo, 0,pDeviceInfoSet->hMachine) == CR_SUCCESS) && (HwProfileInfo.HWPI_ulHWProfile == lParam)))
-                {
-                    // Try to stop the devnode.
-                    if(!(dipb->Flags & (DI_NEEDRESTART | DI_NEEDREBOOT))) {
-                        TCHAR VetoName[MAX_PATH];
-                        PNP_VETO_TYPE VetoType;
-
-                        // Remove the device instance in order to stop the device.
-#ifdef UNICODE
-                        cr = CM_Query_And_Remove_SubTree_Ex(DevInfoElem->DevInst,
-                                                            &VetoType,
-                                                            VetoName,
-                                                            SIZECHARS(VetoName),
-                                                            (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NOUIONQUERYREMOVE) ? CM_QUERY_REMOVE_UI_NOT_OK : CM_QUERY_REMOVE_UI_OK,
-                                                            pDeviceInfoSet->hMachine
-                                                           );
-                        if(cr == CR_SUCCESS) {
-                            // Device instance successfully removed--now locate it as a phantom.
-                            CM_Locate_DevInst_Ex(&(DevInfoElem->DevInst), (DEVINSTID)szDevID, CM_LOCATE_DEVINST_PHANTOM, pDeviceInfoSet->hMachine);
-
-                            DevInfoElem->DiElemFlags |= DIE_IS_PHANTOM;
-                            // Update the caller's buffer to reflect the new device instance handle.
-                            DeviceInfoData->DevInst = DevInfoElem->DevInst;
-                        } else {
-                            // If the failure was due to a veto, then log information about who vetoed us.
-
-                            // SPLOG--write out a real log entry
-                            if(cr == CR_REMOVE_VETOED) {
-                                // get the LogContext from dipb which should be a pointer to the appropriate DevInstallParamBlock
-                                WriteLogEntry(
-                                    dipb->LogContext,
-                                    DRIVER_LOG_WARNING,
-                                    MSG_LOG_REMOVE_VETOED_IN_STOP,
-                                    NULL,       // text message
-                                    szDevID,
-                                    VetoName,
-                                    VetoType);
-                            }
-
-                            dipb->Flags |= DI_NEEDREBOOT;
-                            SetDevnodeNeedsRebootProblemWithArg(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, dipb->LogContext, MSG_LOG_REBOOT_QR_VETOED_IN_STOP, cr);
-                        }
-#else
-                        // It appears that some people (who are broken)
-                        // do rely on setupapi to install devices
-                        // so old code remains for Win9x version of setupapi.dll
-                        WriteLogEntry(dipb->LogContext, DRIVER_LOG_ERROR, MSG_LOG_ERROR_IGNORED, NULL);
-
-                        // Remove the device instance in order to stop the device.
-                        if ((CM_Query_Remove_SubTree(DevInfoElem->DevInst, CM_QUERY_REMOVE_UI_OK) == CR_SUCCESS) && (CM_Remove_SubTree(DevInfoElem->DevInst, CM_REMOVE_UI_OK) == CR_SUCCESS))
-                        {
-                            // Device instance successfully removed--now locate it as a phantom.
-                            CM_Locate_DevInst(&(DevInfoElem->DevInst), (DEVINSTID) szDevID, CM_LOCATE_DEVINST_PHANTOM);
-                            DevInfoElem->DiElemFlags |= DIE_IS_PHANTOM;
-                            // Update the caller's buffer to reflect the new device instance handle.
-                            DeviceInfoData->DevInst = DevInfoElem->DevInst;
-                        } else
-                        {
-                            dipb->Flags |= DI_NEEDREBOOT;
-                        }
-#endif
-                    }
-                }
-                break;
-            default:
-                Err = ERROR_DI_DO_DEFAULT;
+            }
+            break;
+        default:
+            Err = ERROR_DI_DO_DEFAULT;
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
     }
@@ -2344,24 +2334,24 @@ clean0: ;   // nothing to do.
 
 DWORD
 GetNewInfName(
-    IN  HWND                 Owner,                  OPTIONAL
+    IN  HWND                 Owner, OPTIONAL
     IN  PCTSTR               OemInfName,
     IN  PCTSTR               OemInfOriginalName,
-    IN  PCTSTR               OemInfCatName,          OPTIONAL
+    IN  PCTSTR               OemInfCatName, OPTIONAL
     OUT PTSTR                NewInfName,
     IN  DWORD                NewInfNameSize,
     OUT PDWORD               RequiredSize,
     OUT PNEWINF_COPYTYPE     CopyNeeded,
     IN  BOOL                 ReplaceOnly,
-    IN  PCTSTR               DeviceDesc,             OPTIONAL
+    IN  PCTSTR               DeviceDesc, OPTIONAL
     IN  DWORD                DriverSigningPolicy,
     IN  DWORD                Flags,
-    IN  PCTSTR               AltCatalogFile,         OPTIONAL
-    IN  PSP_ALTPLATFORM_INFO AltPlatformInfo,        OPTIONAL
-    OUT PDWORD               DriverSigningError,     OPTIONAL
+    IN  PCTSTR               AltCatalogFile, OPTIONAL
+    IN  PSP_ALTPLATFORM_INFO AltPlatformInfo, OPTIONAL
+    OUT PDWORD               DriverSigningError, OPTIONAL
     OUT PTSTR                CatalogFilenameOnSystem,
     IN  PSETUP_LOG_CONTEXT   LogContext
-    )
+)
 /*
 
 Routine Description:
@@ -2469,12 +2459,12 @@ Return Value:
     *CopyNeeded = NewInfCopyYes;
 
     // Initialize the driver signing error output parameter to success, and set the CatalogFilenameOnSystem character buffer to an empty string.
-    if(DriverSigningError) {
+    if (DriverSigningError) {
         *DriverSigningError = NO_ERROR;
     }
     *CatalogFilenameOnSystem = TEXT('\0');
 
-    if(OemInfCatName || !AltCatalogFile) {
+    if (OemInfCatName || !AltCatalogFile) {
         // The INF has a CatalogFile= entry, or we don't have an override.  This
         // means we want to do the 'normal' behavior of looking for an existing
         // match in the INF directory, using default rules for which catalog files we'll consider during validation, etc.
@@ -2485,7 +2475,7 @@ Return Value:
         ConcatenatePaths(lpszNewName, pszOemInfWildcard, SIZECHARS(lpszNewName), NULL);
 
         // If we're supposed to install the INF and CAT under their original names, then we don't want to look at any of the oem<n>.inf files.
-        if(Flags & SCOI_KEEP_INF_AND_CAT_ORIGINAL_NAMES) {
+        if (Flags & SCOI_KEEP_INF_AND_CAT_ORIGINAL_NAMES) {
             FindHandle = INVALID_HANDLE_VALUE;
         } else {
             FindHandle = FindFirstFile(lpszNewName, &FindData);
@@ -2495,26 +2485,26 @@ Return Value:
         FilenamePart = (PTSTR)MyGetFileTitle(lpszNewName);
         lstrcpy(FilenamePart, OemInfOriginalName);
 
-        FileOfSameNameExists = Dyn_GetFileAttributesEx (lpszNewName, GetFileExInfoStandard, &FileAttribData);
+        FileOfSameNameExists = Dyn_GetFileAttributesEx(lpszNewName, GetFileExInfoStandard, &FileAttribData);
 
-        if(FileOfSameNameExists && !OemInfCatName) {
+        if (FileOfSameNameExists && !OemInfCatName) {
             // We can try to match up an OEM INF with a system INF having the same
             // name even if the INF doesn't specify a CatalogFile= entry, but _not_
             // if the system INF is zero-length!
-            if(!FileAttribData.nFileSizeLow) {
+            if (!FileAttribData.nFileSizeLow) {
                 FileOfSameNameExists = FALSE;
             }
         }
 
-        if((FindHandle != INVALID_HANDLE_VALUE) || FileOfSameNameExists) {
+        if ((FindHandle != INVALID_HANDLE_VALUE) || FileOfSameNameExists) {
             // We have at least one INF to compare against, so open our source INF in preparation.
-            if(OpenAndMapFileForRead(OemInfName, &OemInfFileSize, &OemInfFileHandle, &OemInfMappingHandle, &OemInfBaseAddress) == NO_ERROR) {
-                if(OemInfCatName) {
+            if (OpenAndMapFileForRead(OemInfName, &OemInfFileSize, &OemInfFileHandle, &OemInfMappingHandle, &OemInfBaseAddress) == NO_ERROR) {
+                if (OemInfCatName) {
                     // INF has an associated catalog--map it into memory for subsequent comparisons with existing installed catalogs.
                     lstrcpy(CatalogName, OemInfName);
                     lstrcpy((PTSTR)MyGetFileTitle(CatalogName), OemInfCatName);
 
-                    if(OpenAndMapFileForRead(CatalogName, &CatalogFileSize, &CatalogFileHandle, &CatalogMappingHandle, &CatalogBaseAddress) != NO_ERROR) {
+                    if (OpenAndMapFileForRead(CatalogName, &CatalogFileSize, &CatalogFileHandle, &CatalogMappingHandle, &CatalogBaseAddress) != NO_ERROR) {
                         // Act as if the INF specified no CatalogFile.
                         // This will allow us to match up with any OEM<n>.INF that binary-compares with this one.
                         // We will consider this a digital signature verification failure, however.
@@ -2524,7 +2514,7 @@ Return Value:
                         // has this OEM INF's original name.  That's because this would trip us up later because we'd believe we
                         // could do global validation on it (i.e., we'd think it was a system INF).
                         CatalogBaseAddress = NULL; // don't try to unmap and close later
-                        if(FindHandle == INVALID_HANDLE_VALUE) {
+                        if (FindHandle == INVALID_HANDLE_VALUE) {
                             // There are no OEM<n>.INF files to check--go ahead and bail.
                             goto FinishedCheckingOemInfs;
                         }
@@ -2556,21 +2546,21 @@ Return Value:
                 LastResortInf = NULL;
 
                 do {
-                    if(FileOfSameNameExists) {
-                        if(FileAttribData.nFileSizeHigh) {
+                    if (FileOfSameNameExists) {
+                        if (FileAttribData.nFileSizeHigh) {
                             goto CheckNextOemInf;
                         }
-                        if(FileAttribData.nFileSizeLow && (FileAttribData.nFileSizeLow != OemInfFileSize)) {
+                        if (FileAttribData.nFileSizeLow && (FileAttribData.nFileSizeLow != OemInfFileSize)) {
                             goto CheckNextOemInf;
                         }
                         // Note:  We will consider a zero-length system INF that has the same name as our OEM INF, even if our OEM INF doesn't
                         // have a CatalogFile= entry in its version section.  This allows us to re-use this name as long as we find our catalog is already installed.
                         CurInfFileSize = FileAttribData.nFileSizeLow;
                     } else {
-                        if(FindData.nFileSizeHigh) {
+                        if (FindData.nFileSizeHigh) {
                             goto CheckNextOemInf;
                         }
-                        if(FindData.nFileSizeLow && (FindData.nFileSizeLow != OemInfFileSize)) {
+                        if (FindData.nFileSizeLow && (FindData.nFileSizeLow != OemInfFileSize)) {
                             goto CheckNextOemInf;
                         }
                         CurInfFileSize = FindData.nFileSizeLow;
@@ -2580,8 +2570,8 @@ Return Value:
                     }
 
                     // If the INF isn't zero-length, then map it into memory to see if it matches our OEM INF.
-                    if(CurInfFileSize) {
-                        if(OpenAndMapFileForRead(lpszNewName, &CurInfFileSize, &CurInfFileHandle, &CurInfMappingHandle, &CurInfBaseAddress) == NO_ERROR) {
+                    if (CurInfFileSize) {
+                        if (OpenAndMapFileForRead(lpszNewName, &CurInfFileSize, &CurInfFileHandle, &CurInfMappingHandle, &CurInfBaseAddress) == NO_ERROR) {
                             // Surround the following in try/except, in case we get an inpage error.
                             try {
                                 // We've found a potential match.
@@ -2595,13 +2585,13 @@ Return Value:
                             FoundMatchingInf = FALSE;
                         }
 
-                        if(!FoundMatchingInf) {
+                        if (!FoundMatchingInf) {
                             goto CheckNextOemInf;
                         }
 
                         // If this is an OEM*.INF name and the INF has no CatalogFile= entry, then we've found our match.  Set
                         // up our driver signing problem variables to indicate that there was an INF failure (since there was no catalog.
-                        if(!OemInfCatName && !FileOfSameNameExists) {
+                        if (!OemInfCatName && !FileOfSameNameExists) {
                             *CopyNeeded = NewInfCopyNo;
                             Problem = SetupapiVerifyInfProblem;
                             ProblemFile = OemInfName;
@@ -2612,7 +2602,7 @@ Return Value:
                     } else {
                         // The current INF we're considering for a match is zero-length.  This won't work for us if the INF we're
                         // searching for doesn't have a CatalogFile= entry, and this isn't an INF having the same name.
-                        if(!OemInfCatName && !FileOfSameNameExists) {
+                        if (!OemInfCatName && !FileOfSameNameExists) {
                             goto CheckNextOemInf;
                         }
                     }
@@ -2620,27 +2610,27 @@ Return Value:
                     // OK, the files binary compare OK (unless the one we're currently examining is zero length!), but we're not out of
                     // the woods yet!  If the INF we're examining had a CatalogFile=
                     // entry, then generate the catalog name to be used for verification (based on the filename of the INF we're examining).
-                    if(OemInfCatName) {
+                    if (OemInfCatName) {
                         lstrcpy(CatalogName, FilenamePart);
                         lstrcpy(_tcsrchr(CatalogName, TEXT('.')), pszCatSuffix);
                     }
 
                     // Now verify the INF's signature against the specified catalog
                     // (or globally if the INF doesn't specify a catalog).
-                    Err =  VerifyFile(LogContext,
-                                      (OemInfCatName ? CatalogName : NULL),
-                                      CatalogBaseAddress,
-                                      CatalogFileSize,
-                                      OemInfOriginalName,
-                                      OemInfName,
-                                      &Problem,
-                                      PathBuffer,
-                                      FALSE,
-                                      AltPlatformInfo,
-                                      CatalogFilenameOnSystem,
-                                      &NumCatalogsConsidered
-                                     );
-                    if(Err == NO_ERROR) {
+                    Err = VerifyFile(LogContext,
+                        (OemInfCatName ? CatalogName : NULL),
+                                     CatalogBaseAddress,
+                                     CatalogFileSize,
+                                     OemInfOriginalName,
+                                     OemInfName,
+                                     &Problem,
+                                     PathBuffer,
+                                     FALSE,
+                                     AltPlatformInfo,
+                                     CatalogFilenameOnSystem,
+                                     &NumCatalogsConsidered
+                    );
+                    if (Err == NO_ERROR) {
                         // We've found this INF/CAT combination already installed, and the signatures check out!
                         *CopyNeeded = CurInfFileSize ? NewInfCopyNo : NewInfCopyZeroLength;
                         Problem = SetupapiVerifyNoProblem;
@@ -2653,7 +2643,7 @@ Return Value:
                         //    with the name of the installed catalog that matches ours.
                         // 2. We didn't find our catalog among the ones enumerated based on the OEM INF's hash.  In that
                         //    case, CatalogFilenameOnSystem will be an empty string.
-                        if((Problem == SetupapiVerifyFileProblem) && !(*CatalogFilenameOnSystem)) {
+                        if ((Problem == SetupapiVerifyFileProblem) && !(*CatalogFilenameOnSystem)) {
                             // We didn't find a catalog match--move on to the next INF (note: there still might be a match later on,
                             // because if the INF specified a CatalogFile= entry, we must match on _both_ the catalog filename _and_ the catalog's image.
 
@@ -2663,8 +2653,7 @@ Return Value:
                             // the original source name and location info is almost certainly bogus.  (One more thing--make sure the
                             // catalog isn't zero length.  If it is, then that definitely implies that this was being used as a
                             // placeholder by setupapi, and we don't want to touch it!)
-                            if(!NumCatalogsConsidered && !LastResortInf && CurInfFileSize)
-                            {
+                            if (!NumCatalogsConsidered && !LastResortInf && CurInfFileSize) {
                                 LastResortInf = DuplicateString(lpszNewName);
                                 SavedErr = Err;
                             }
@@ -2678,23 +2667,23 @@ Return Value:
                         *CopyNeeded = CurInfFileSize ? NewInfCopyNo : NewInfCopyZeroLength;
                     }
 
-    CheckNextOemInf:
-                    if(FileOfSameNameExists) {
+                CheckNextOemInf:
+                    if (FileOfSameNameExists) {
                         FileOfSameNameExists = FALSE;
                         MoreInfsToCheck = (FindHandle != INVALID_HANDLE_VALUE);
                     } else {
                         MoreInfsToCheck = FindNextFile(FindHandle, &FindData);
                     }
-                } while((*CopyNeeded == NewInfCopyYes) && MoreInfsToCheck);
+                } while ((*CopyNeeded == NewInfCopyYes) && MoreInfsToCheck);
 
-                if(LastResortInf) {
-                    if(*CopyNeeded == NewInfCopyYes) {
+                if (LastResortInf) {
+                    if (*CopyNeeded == NewInfCopyYes) {
                         // We didn't find any better INF, so we'll try to use the incorrectly-installed INF.
 
                         // If this INF doesn't specify a CatalogFile= entry, then we'll just automatically set up the digital signature
                         // verification failure parameters, because that's the state
                         // we're in.
-                        if(!OemInfCatName) {
+                        if (!OemInfCatName) {
                             Err = SavedErr;
                             Problem = SetupapiVerifyInfProblem;
                             lstrcpy(PathBuffer, OemInfName);
@@ -2709,8 +2698,8 @@ Return Value:
                             *((PTSTR)MyGetFileTitle(CatalogName)) = TEXT('\0');
                             ConcatenatePaths(CatalogName, OemInfCatName, SIZECHARS(CatalogName), NULL);
                             Err = VerifyFile(LogContext, CatalogName, NULL, 0, OemInfOriginalName, OemInfName, &Problem, PathBuffer, FALSE, AltPlatformInfo, NULL, NULL);
-                            if(Err != NO_ERROR) {
-                                if(Problem != SetupapiVerifyCatalogProblem) {
+                            if (Err != NO_ERROR) {
+                                if (Problem != SetupapiVerifyCatalogProblem) {
                                     MYASSERT(Problem != SetupapiVerifyNoProblem);
                                     // If the problem was not a catalog problem, then it's an INF problem (the VerifyFile routine doesn't know the file we passed it is an INF).
                                     Problem = SetupapiVerifyInfProblem;
@@ -2725,7 +2714,7 @@ Return Value:
                                 // system, and CatalogName is the fully-
                                 // qualified path of the catalog file in the oem location.
                                 Err = InstallCatalog(CatalogName, PathBuffer, CatalogFilenameOnSystem);
-                                if(Err != NO_ERROR) {
+                                if (Err != NO_ERROR) {
                                     Problem = SetupapiVerifyCatalogProblem;
                                     ProblemFile = CatalogName;
                                 }
@@ -2741,14 +2730,14 @@ Return Value:
                     MyFree(LastResortInf);
                 }
 
-    FinishedCheckingOemInfs:
-                if(CatalogBaseAddress) {
+            FinishedCheckingOemInfs:
+                if (CatalogBaseAddress) {
                     UnmapAndCloseFile(CatalogFileHandle, CatalogMappingHandle, CatalogBaseAddress);
                 }
                 UnmapAndCloseFile(OemInfFileHandle, OemInfMappingHandle, OemInfBaseAddress);
             }
 
-            if(FindHandle != INVALID_HANDLE_VALUE) {
+            if (FindHandle != INVALID_HANDLE_VALUE) {
                 FindClose(FindHandle);
             }
         }
@@ -2756,8 +2745,8 @@ Return Value:
         // The INF has no CatalogFile= entry, and we have an alternate catalog
         // to use.  Validate our INF using the specified alternate catalog.
         Err = VerifyFile(LogContext, AltCatalogFile, NULL, 0, OemInfOriginalName, OemInfName, &Problem, PathBuffer, FALSE, AltPlatformInfo, NULL, NULL);
-        if(Err != NO_ERROR) {
-            if(Problem != SetupapiVerifyCatalogProblem) {
+        if (Err != NO_ERROR) {
+            if (Problem != SetupapiVerifyCatalogProblem) {
                 MYASSERT(Problem != SetupapiVerifyNoProblem);
                 // If the problem was not a catalog problem, then it's an INF problem (the VerifyFile routine doesn't know the file we passed it is an INF).
                 Problem = SetupapiVerifyInfProblem;
@@ -2765,7 +2754,7 @@ Return Value:
             ProblemFile = PathBuffer;
         } else {
             Err = InstallCatalog(AltCatalogFile, MyGetFileTitle(AltCatalogFile), CatalogFilenameOnSystem);
-            if(Err != NO_ERROR) {
+            if (Err != NO_ERROR) {
                 Problem = SetupapiVerifyCatalogProblem;
                 ProblemFile = AltCatalogFile;
             }
@@ -2779,18 +2768,18 @@ Return Value:
         lstrcpy(lpszNewName, OemInfName);
     }
 
-    if(*CopyNeeded != NewInfCopyYes) {
+    if (*CopyNeeded != NewInfCopyYes) {
         // Then this INF already exists in the Inf directory (or at least its zero-length placeholder does), and its associated catalog (if it has
         // one) is already installed, too.  If either of these files had a signature verification problem, then inform the user now (based on policy).
-        if(Problem != SetupapiVerifyNoProblem) {
+        if (Problem != SetupapiVerifyNoProblem) {
             BOOL result;
 
             MYASSERT(Err != NO_ERROR);
-            if(DriverSigningError) {
+            if (DriverSigningError) {
                 *DriverSigningError = Err;
             }
 
-            if(((Err == ERROR_NO_CATALOG_FOR_OEM_INF) && (Flags & SCOI_NO_ERRLOG_ON_MISSING_CATALOG)) || (Flags & SCOI_NO_ERRLOG_IF_INF_ALREADY_PRESENT)) {
+            if (((Err == ERROR_NO_CATALOG_FOR_OEM_INF) && (Flags & SCOI_NO_ERRLOG_ON_MISSING_CATALOG)) || (Flags & SCOI_NO_ERRLOG_IF_INF_ALREADY_PRESENT)) {
                 // We shouldn't do any UI/logging because of one of the two following reasons:
                 // 1.  This may be a valid INF after all (i.e., if it uses layout.inf for source media info, or doesn't copy any files at all).
                 // 2.  We were asked not to.  The public API, SetupCopyOEMInf doesn't want/need anything to happen here, because the
@@ -2809,7 +2798,7 @@ Return Value:
         // There was no problem, or the user elected to install in spite of a problem, so return the INF name we found.
         *RequiredSize = lstrlen(lpszNewName) + 1;
 
-        if(*RequiredSize < NewInfNameSize) {
+        if (*RequiredSize < NewInfNameSize) {
             CopyMemory(NewInfName, lpszNewName, *RequiredSize * sizeof(TCHAR));
             return NO_ERROR;
         } else {
@@ -2819,22 +2808,22 @@ Return Value:
 
     // If we're in 'replace only' mode, then the fact that we didn't find the
     // INF/CAT already installed above means we should fail with ERROR_FILE_NOT_FOUND.
-    if(ReplaceOnly) {
+    if (ReplaceOnly) {
         return ERROR_FILE_NOT_FOUND;
     }
 
     // OK, so the INF isn't presently in the Inf directory--find a unique name for it.  (Note: We'll go into the loop below even if we're meant to be
     // installing the INF and CAT under their original names.  We'll just skip the auto-generation part, and then we'll break out of the loop once
     // we've made the attempt at INF/CAT installation.)
-    for(i = 0; i < 100000; i++) {
-        if(Flags & SCOI_KEEP_INF_AND_CAT_ORIGINAL_NAMES) {
+    for (i = 0; i < 100000; i++) {
+        if (Flags & SCOI_KEEP_INF_AND_CAT_ORIGINAL_NAMES) {
             lstrcpy(lpszNewName, InfDirectory);
             ConcatenatePaths(lpszNewName, OemInfOriginalName, SIZECHARS(lpszNewName), NULL);
         } else {
             wsprintf(lpszNewName, pszOemInfGenerate, InfDirectory, i);
         }
 
-        if((h = CreateFile(lpszNewName, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE) {
+        if ((h = CreateFile(lpszNewName, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE) {
             // Then we either opened an existing file (that we need to leave alone, unless we're replacing it with a new exception INF), or
             // we created a new file (in which case, we've found our unique name).  These two cases are identified by the value of GetLastError().
             Err = GetLastError();
@@ -2844,15 +2833,15 @@ Return Value:
 
             FileNewlyCreated = (Err != ERROR_ALREADY_EXISTS);
 
-            if(FileNewlyCreated || (Flags & SCOI_KEEP_INF_AND_CAT_ORIGINAL_NAMES)) {
+            if (FileNewlyCreated || (Flags & SCOI_KEEP_INF_AND_CAT_ORIGINAL_NAMES)) {
                 // We've either (a) created a new file, or (b) found that we can replace an existing exception INF.  Determine whether the filename fits in the caller-supplied buffer.
                 *RequiredSize = lstrlen(lpszNewName) + 1;
 
-                if(*RequiredSize < NewInfNameSize) {
+                if (*RequiredSize < NewInfNameSize) {
                     // OK, we have a unique filename, and the caller-
                     // supplied buffer is large enough to hold that name.
                     // Now we need to verify the INF and its associated CAT.
-                    if(!OemInfCatName) {
+                    if (!OemInfCatName) {
                         // An OEM INF without a CatalogFile= entry is automatically a digital signature failure!
                         Err = ERROR_NO_CATALOG_FOR_OEM_INF;
                         Problem = SetupapiVerifyInfProblem;
@@ -2864,8 +2853,8 @@ Return Value:
                         ConcatenatePaths(CatalogName, OemInfCatName, SIZECHARS(CatalogName), NULL);
 
                         Err = VerifyFile(LogContext, CatalogName, NULL, 0, OemInfOriginalName, OemInfName, &Problem, PathBuffer, FALSE, AltPlatformInfo, NULL, NULL);
-                        if(Err != NO_ERROR) {
-                            if(Problem != SetupapiVerifyCatalogProblem) {
+                        if (Err != NO_ERROR) {
+                            if (Problem != SetupapiVerifyCatalogProblem) {
                                 MYASSERT(Problem != SetupapiVerifyNoProblem);
                                 // If the problem was not a catalog problem, then it's an INF problem (the VerifyFile routine doesn't know the file we passed it is an INF).
                                 Problem = SetupapiVerifyInfProblem;
@@ -2881,7 +2870,7 @@ Return Value:
                             // system, and CatalogName is the fully-
                             // qualified path of the catalog file in the oem location.
                             Err = InstallCatalog(CatalogName, PathBuffer, CatalogFilenameOnSystem);
-                            if(Err != NO_ERROR) {
+                            if (Err != NO_ERROR) {
                                 Problem = SetupapiVerifyCatalogProblem;
                                 ProblemFile = CatalogName;
                             }
@@ -2890,16 +2879,16 @@ Return Value:
 
                     // At this point if Err isn't NO_ERROR, then we encountered some signature verification failure (or
                     // were unable to install the catalog).  Prompt the user (based on policy) about what they want to do.
-                    if(Err != NO_ERROR) {
-                        if(DriverSigningError) {
+                    if (Err != NO_ERROR) {
+                        if (DriverSigningError) {
                             *DriverSigningError = Err;
                         }
 
                         // Unless the error was due to missing CatalogFile=
                         // entry in the INF (and we were instructed to ignore such errors), then we need to handle the verification failure.
-                        if((Err != ERROR_NO_CATALOG_FOR_OEM_INF) || !(Flags & SCOI_NO_ERRLOG_ON_MISSING_CATALOG)) {
-                            if(!HandleFailedVerification(Owner, Problem, ProblemFile, DeviceDesc, DriverSigningPolicy, (Flags & SCOI_NO_UI_ON_SIGFAIL), Err, LogContext, NULL, NULL)) {
-                                if(FileNewlyCreated) {
+                        if ((Err != ERROR_NO_CATALOG_FOR_OEM_INF) || !(Flags & SCOI_NO_ERRLOG_ON_MISSING_CATALOG)) {
+                            if (!HandleFailedVerification(Owner, Problem, ProblemFile, DeviceDesc, DriverSigningPolicy, (Flags & SCOI_NO_UI_ON_SIGFAIL), Err, LogContext, NULL, NULL)) {
+                                if (FileNewlyCreated) {
                                     DeleteFile(lpszNewName);
                                 }
                                 return Err;
@@ -2913,7 +2902,7 @@ Return Value:
                 } else {
                     // The caller's buffer isn't large enough.  We have to delete the file we created.
                     // We don't want to delete the file, however, if it already existed (i.e., for the exception INF case).
-                    if(FileNewlyCreated) {
+                    if (FileNewlyCreated) {
                         DeleteFile(lpszNewName);
                     }
                     return ERROR_INSUFFICIENT_BUFFER;
@@ -2930,10 +2919,10 @@ Return Value:
             // If, however, the file doesn't exist, then this indicates that we can't create files in the directory, and we should bail now.
             Err = GetLastError();
 
-            if(Flags & SCOI_KEEP_INF_AND_CAT_ORIGINAL_NAMES) {
+            if (Flags & SCOI_KEEP_INF_AND_CAT_ORIGINAL_NAMES) {
                 // If we're installing an exception INF, we don't care what the error is--we gotta bail.
                 return Err;
-            } else if((Err == ERROR_ACCESS_DENIED) && !FileExists(lpszNewName, NULL)) {
+            } else if ((Err == ERROR_ACCESS_DENIED) && !FileExists(lpszNewName, NULL)) {
                 return ERROR_ACCESS_DENIED;
             }
         }
@@ -2950,7 +2939,7 @@ InstallHW(
     IN  HINF             hDeviceInf,
     IN  PCTSTR           szSectionName,
     OUT PBOOL            DeleteDevKey
-    )
+)
 /*
 Routine Description:
     This routine appends a ".Hw" to the end of the install section name for the specified device, and attempts to find that section name in the specified INF.
@@ -2984,20 +2973,20 @@ Return Value:
     // Form the hardware INF section name, and see if that section exists in the INF.
     wsprintf(szHwSection, pszHwSectionFormat, szSectionName);
 
-    if(!SetupFindFirstLine(hDeviceInf, szHwSection, NULL, &InfContext)) {
+    if (!SetupFindFirstLine(hDeviceInf, szHwSection, NULL, &InfContext)) {
         return NO_ERROR;
     }
 
-    if((hKey = SetupDiOpenDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_ALL_ACCESS)) == INVALID_HANDLE_VALUE) {
+    if ((hKey = SetupDiOpenDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_ALL_ACCESS)) == INVALID_HANDLE_VALUE) {
         // Open failed--try create.
-        if((hKey = SetupDiCreateDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, NULL, NULL)) == INVALID_HANDLE_VALUE) {
+        if ((hKey = SetupDiCreateDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, NULL, NULL)) == INVALID_HANDLE_VALUE) {
             return GetLastError();
         } else {
             *DeleteDevKey = TRUE;
         }
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         MYASSERT(pDeviceInfoSet);
         RegCloseKey(hKey);
         SetLastError(ERROR_INVALID_HANDLE);
@@ -3008,8 +2997,7 @@ Return Value:
     NeedsSectionList = NULL;
 
     try {
-        if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)))
-        {
+        if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -3020,8 +3008,7 @@ Return Value:
         AppendLoadIncludedInfs(hDeviceInf, szInfFileName, szHwSection, FALSE);
 
         NeedsSectionList = GetMultiSzFromInf(hDeviceInf, szHwSection, TEXT("needs"), &b);
-        if (!NeedsSectionList && b)
-        {
+        if (!NeedsSectionList && b) {
             // Out of memory!
             Err = ERROR_NOT_ENOUGH_MEMORY;
             goto clean0;
@@ -3033,17 +3020,16 @@ Return Value:
         RegContext.DevInst = DeviceInfoData->DevInst;
 
         // Process the registry lines ("AddReg" and "DelReg") in this section, as well as those contained with any sections referenced in the "needs=" entry in this section.
-        for(CurInstallSection = szHwSection;
+        for (CurInstallSection = szHwSection;
             (CurInstallSection && *CurInstallSection);
-            CurInstallSection = (CurInstallSection == szHwSection) ? NeedsSectionList : (CurInstallSection + lstrlen(CurInstallSection) + 1))
-        {
-            if((Err = pSetupInstallRegistry(hDeviceInf, CurInstallSection, &RegContext)) != NO_ERROR) {
+             CurInstallSection = (CurInstallSection == szHwSection) ? NeedsSectionList : (CurInstallSection + lstrlen(CurInstallSection) + 1)) {
+            if ((Err = pSetupInstallRegistry(hDeviceInf, CurInstallSection, &RegContext)) != NO_ERROR) {
                 //Stop if we encounter an error while processing one of the section's registry entries
                 break;
             }
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         // If our exception was an AV, then use Win32 invalid param error, otherwise, assume it was an inpage error dealing with a mapped-in file.
         Err = (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION) ? ERROR_INVALID_PARAMETER : ERROR_READ_FAULT;
@@ -3053,7 +3039,7 @@ clean0: ;   // nothing to do.
 
     RegCloseKey(hKey);
 
-    if(NeedsSectionList) {
+    if (NeedsSectionList) {
         MyFree(NeedsSectionList);
     }
 
@@ -3075,10 +3061,10 @@ Arguments:
 {
     ULONG ulStatus, ulProblem;
 
-    if(CM_Get_DevInst_Status_Ex(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0,hMachine) == CR_SUCCESS) {
-        if(!(ulStatus & DN_STARTED)) {
+    if (CM_Get_DevInst_Status_Ex(&ulStatus, &ulProblem, DevInfoElem->DevInst, 0, hMachine) == CR_SUCCESS) {
+        if (!(ulStatus & DN_STARTED)) {
             if (ulStatus & DN_HAS_PROBLEM) {
-                if(ulProblem != CM_PROB_DISABLED && ulProblem != CM_PROB_HARDWARE_DISABLED) {
+                if (ulProblem != CM_PROB_DISABLED && ulProblem != CM_PROB_HARDWARE_DISABLED) {
                     // some problem other than being disabled - change into need reboot and log what problem code was
                     DevInfoElem->InstallParamBlock.Flags |= DI_NEEDREBOOT;
                     SetDevnodeNeedsRebootProblemWithArg(DevInfoElem->DevInst, hMachine, LogContext, MSG_LOG_REBOOT_REASON_DEVHASPROBLEM, (ULONG_PTR)ulProblem);
@@ -3107,14 +3093,14 @@ Arguments:
 
 DWORD
 InstallNtService(
-    IN  PDEVINFO_ELEM    DevInfoElem,        OPTIONAL
+    IN  PDEVINFO_ELEM    DevInfoElem, OPTIONAL
     IN  HINF             hDeviceInf,
-    IN  PCTSTR           InfFileName,            OPTIONAL
-    IN  PCTSTR           szSectionName,      OPTIONAL
-    OUT PSVCNAME_NODE   *ServicesToDelete,   OPTIONAL
+    IN  PCTSTR           InfFileName, OPTIONAL
+    IN  PCTSTR           szSectionName, OPTIONAL
+    OUT PSVCNAME_NODE* ServicesToDelete, OPTIONAL
     IN  DWORD            Flags,
     OUT PBOOL            NullDriverInstalled
-    )
+)
 /*
 
 Routine Description:
@@ -3210,7 +3196,7 @@ Return Value:
     *NullDriverInstalled = FALSE;
     NeedsReboot = FALSE;
 
-    if(szSectionName) {
+    if (szSectionName) {
         // Surround the following in try/except, in case we get an inpage error.
         try {
             NeedsSectionList = NULL;
@@ -3218,7 +3204,7 @@ Return Value:
             if (InfFileName) {
                 AppendLoadIncludedInfs(hDeviceInf, InfFileName, szSectionName, FALSE);
                 NeedsSectionList = GetMultiSzFromInf(hDeviceInf, szSectionName, TEXT("needs"), &b);
-                if(!NeedsSectionList && b) {
+                if (!NeedsSectionList && b) {
                     // Out of memory!
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
@@ -3226,43 +3212,41 @@ Return Value:
             }
 
             if (slot_section == 0) {
-                slot_section = AllocLogInfoSlot(((PLOADED_INF) hDeviceInf)->LogContext,FALSE);
+                slot_section = AllocLogInfoSlot(((PLOADED_INF)hDeviceInf)->LogContext, FALSE);
             }
 
             // Make two passes through the section--once for deletions, and a second time for additions.
-            for(i = 0; i < 2; i++) {
+            for (i = 0; i < 2; i++) {
                 // Find the relevent line (if there is one) in the given install section.
                 Key = (i) ? pszAddService : pszDelService;
 
                 // Process the service lines in this section, as well as those contained with any sections referenced in the "needs=" entry in this section.
-                for(CurInstallSection = (PTSTR)szSectionName;
+                for (CurInstallSection = (PTSTR)szSectionName;
                     (CurInstallSection && *CurInstallSection);
-                    CurInstallSection = (CurInstallSection == szSectionName) ? NeedsSectionList : (CurInstallSection + lstrlen(CurInstallSection) + 1))
-                {
-                    if(!SetupFindFirstLine(hDeviceInf, CurInstallSection, Key, &LineContext)) {
+                     CurInstallSection = (CurInstallSection == szSectionName) ? NeedsSectionList : (CurInstallSection + lstrlen(CurInstallSection) + 1)) {
+                    if (!SetupFindFirstLine(hDeviceInf, CurInstallSection, Key, &LineContext)) {
                         continue;
                     }
 
                     do {
                         // Log which section we're installing if we log anything else
-                        WriteLogEntry(((PLOADED_INF) hDeviceInf)->LogContext, slot_section, MSG_LOG_PROCESS_SERVICE_SECTION, NULL, CurInstallSection);
+                        WriteLogEntry(((PLOADED_INF)hDeviceInf)->LogContext, slot_section, MSG_LOG_PROCESS_SERVICE_SECTION, NULL, CurInstallSection);
 
                         // We have a line to act upon.
                         Err = (i) ?
-                            pSetupAddService(&LineContext, &SvcListHead, Flags, (DevInfoElem ? DevInfoElem->DevInst : 0), &NullFunctionDriverAdded, ((PLOADED_INF) hDeviceInf)->LogContext) :
-                            pSetupDeleteService(&LineContext, Flags, ((PLOADED_INF) hDeviceInf)->LogContext);
-                        if (Err != NO_ERROR)
-                        {
+                            pSetupAddService(&LineContext, &SvcListHead, Flags, (DevInfoElem ? DevInfoElem->DevInst : 0), &NullFunctionDriverAdded, ((PLOADED_INF)hDeviceInf)->LogContext) :
+                            pSetupDeleteService(&LineContext, Flags, ((PLOADED_INF)hDeviceInf)->LogContext);
+                        if (Err != NO_ERROR) {
                             // Log that an error occurred
                             WriteLogError(
-                                ((PLOADED_INF) hDeviceInf)->LogContext,
+                                ((PLOADED_INF)hDeviceInf)->LogContext,
                                 // we don't know if it's a driver or not,
                                 // so just allow both to work
                                 SETUP_LOG_ERROR | DRIVER_LOG_ERROR,
                                 Err);
 
                             goto clean0;
-                        } else if(i) {
+                        } else if (i) {
                             // We're processing AddService entries, so check to see if we just installed a null service (thus having no
                             // function driver on a non-raw-capable PDO should be allowed).
                             *NullDriverInstalled |= NullFunctionDriverAdded;
@@ -3270,11 +3254,11 @@ Return Value:
                                 NeedsReboot |= TRUE;
                             }
                         }
-                    } while(SetupFindNextMatchLine(&LineContext, Key, &LineContext));
+                    } while (SetupFindNextMatchLine(&LineContext, Key, &LineContext));
                 }
             }
 
-clean0: ; // nothing to do
+        clean0:; // nothing to do
         } except(EXCEPTION_EXECUTE_HANDLER) {
             // If our exception was an AV, then use Win32 invalid param error, otherwise, assume it was an inpage error dealing with a mapped-in file.
             Err = (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION) ? ERROR_INVALID_PARAMETER : ERROR_READ_FAULT;
@@ -3284,7 +3268,7 @@ clean0: ; // nothing to do
             MyFree(NeedsSectionList);
         }
 
-        if((Err != NO_ERROR) || (Flags & SPSVCINST_NO_DEVINST_CHECK)) {
+        if ((Err != NO_ERROR) || (Flags & SPSVCINST_NO_DEVINST_CHECK)) {
             goto FinalClean0;
         }
     }
@@ -3293,8 +3277,7 @@ clean0: ; // nothing to do
 
     // Find out if the device instance already has an associated service.
     ServiceNameSize = sizeof(ServiceName);
-    if(CR_SUCCESS == (cr = CM_Get_DevInst_Registry_Property(DevInfoElem->DevInst, CM_DRP_SERVICE, NULL, ServiceName, &ServiceNameSize, 0)))
-    {
+    if (CR_SUCCESS == (cr = CM_Get_DevInst_Registry_Property(DevInfoElem->DevInst, CM_DRP_SERVICE, NULL, ServiceName, &ServiceNameSize, 0))) {
         AssociatedService = TRUE;
         // Make sure that the NullDriverInstalled output parameter is still FALSE.
         // It typically would be, but might not be in the case where there are multiple AddService entries that specify SPSVCINST_ASSOCSERVICE (e.g.,
@@ -3306,27 +3289,26 @@ clean0: ; // nothing to do
 
         // Either the device instance has gone sour (in which case we return an error), or we couldn't retrieve an associated service name.
         // In the latter case, we will make the association based on the default service for the class.
-        if(cr == CR_INVALID_DEVINST) {
+        if (cr == CR_INVALID_DEVINST) {
             Err = ERROR_NO_SUCH_DEVINST;
-        } else if(!*NullDriverInstalled) {
+        } else if (!*NullDriverInstalled) {
             ServiceNameSize = sizeof(ServiceName);
             AssociatedService = AssociateDevInstWithDefaultService(DevInfoElem, ServiceName, &ServiceNameSize);
-            if(!AssociatedService) {
+            if (!AssociatedService) {
                 // If the device's capabilities report that it can be driven 'raw', then not having a function driver is OK.
                 // Otherwise, we have an error.
                 DevInstCapabilitiesSize = sizeof(DevInstCapabilities);
-                if(CR_SUCCESS != CM_Get_DevInst_Registry_Property(DevInfoElem->DevInst, CM_DRP_CAPABILITIES, NULL, &DevInstCapabilities, &DevInstCapabilitiesSize, 0))
-                {
+                if (CR_SUCCESS != CM_Get_DevInst_Registry_Property(DevInfoElem->DevInst, CM_DRP_CAPABILITIES, NULL, &DevInstCapabilities, &DevInstCapabilitiesSize, 0)) {
                     DevInstCapabilities = 0;
                 }
 
-                if(!(DevInstCapabilities & CM_DEVCAP_RAWDEVICEOK)) {
+                if (!(DevInstCapabilities & CM_DEVCAP_RAWDEVICEOK)) {
                     Err = ERROR_NO_ASSOCIATED_SERVICE;
                 }
             }
         }
 
-        if(!AssociatedService) {
+        if (!AssociatedService) {
             // Either we hit an error, or the device can be driven 'raw'.
             // In either case, we can skip the service controller checks that lie ahead.
             goto FinalClean0;
@@ -3335,19 +3317,18 @@ clean0: ; // nothing to do
 
     // At this point, we have the name of the service with which the device instance is associated.
     // Attempt to locate this service in the SCM database.
-    if(!(SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) {
+    if (!(SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) {
         Err = GetLastError();
         goto FinalClean0;
     }
 
-    if(!(ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS))) {
+    if (!(ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS))) {
         // We couldn't access the service--either because it doesn't exist, or because
         // this is a detected device reported by a 'disembodied' driver object (e.g., the one the HAL creates for its driver object it got via IoCreateDriver).
 
         // The former case is an error, the latter case is just fine.
         Err = GetLastError();
-        if((lstrlen(ServiceName) > CSTRLEN(pszDriverObjectPathPrefix)) && CharUpper(ServiceName) && !memcmp(ServiceName, pszDriverObjectPathPrefix, CSTRLEN(pszDriverObjectPathPrefix)))
-        {
+        if ((lstrlen(ServiceName) > CSTRLEN(pszDriverObjectPathPrefix)) && CharUpper(ServiceName) && !memcmp(ServiceName, pszDriverObjectPathPrefix, CSTRLEN(pszDriverObjectPathPrefix))) {
             // The "service name" is actually a driver name (e.g., "\Driver\PCI_HAL"), so it's OK.
             Err = NO_ERROR;
         }
@@ -3355,58 +3336,58 @@ clean0: ; // nothing to do
     }
 
     // The service exists.  Make sure that it's not disabled.
-    if((Err = RetrieveServiceConfig(ServiceHandle, &ServiceConfig)) == NO_ERROR) {
-        if(ServiceConfig->dwStartType == SERVICE_DISABLED) {
+    if ((Err = RetrieveServiceConfig(ServiceHandle, &ServiceConfig)) == NO_ERROR) {
+        if (ServiceConfig->dwStartType == SERVICE_DISABLED) {
             Err = ERROR_SERVICE_DISABLED;
         } else {
             // If this service has a load order group, and is a kernel or filesystem driver, then make sure that it has a tag.
 
             // NOTE: We have to do this here, even though we ensure that all new services we install have their tags set up properly in pSetupAddService().
             // The reason is that the device may using an existing service that wasn't installed via a Win95-style INF.
-            if(ServiceConfig->lpLoadOrderGroup && *(ServiceConfig->lpLoadOrderGroup) &&
-               (ServiceConfig->dwServiceType & (SERVICE_KERNEL_DRIVER | SERVICE_FILE_SYSTEM_DRIVER))) {
+            if (ServiceConfig->lpLoadOrderGroup && *(ServiceConfig->lpLoadOrderGroup) &&
+                (ServiceConfig->dwServiceType & (SERVICE_KERNEL_DRIVER | SERVICE_FILE_SYSTEM_DRIVER))) {
                 // This service needs a tag--does it have one???
-                if(!(NewTag = ServiceConfig->dwTagId)) {
+                if (!(NewTag = ServiceConfig->dwTagId)) {
                     // Attempt to lock the service database before generating a tag.
                     // We'll go ahead and make the change, even if this fails.
                     AcquireSCMLock(SCMHandle, &SCLock);
 
-                    if(!ChangeServiceConfig(ServiceHandle,
-                                            SERVICE_NO_CHANGE,
-                                            SERVICE_NO_CHANGE,
-                                            SERVICE_NO_CHANGE,
-                                            NULL,
-                                            ServiceConfig->lpLoadOrderGroup,  // have to specify this to generate new tag.
-                                            &NewTag,
-                                            NULL,
-                                            NULL,
-                                            NULL,
-                                            NULL)) {
+                    if (!ChangeServiceConfig(ServiceHandle,
+                                             SERVICE_NO_CHANGE,
+                                             SERVICE_NO_CHANGE,
+                                             SERVICE_NO_CHANGE,
+                                             NULL,
+                                             ServiceConfig->lpLoadOrderGroup,  // have to specify this to generate new tag.
+                                             &NewTag,
+                                             NULL,
+                                             NULL,
+                                             NULL,
+                                             NULL)) {
                         NewTag = 0;
                     }
 
-                    if(SCLock) {
+                    if (SCLock) {
                         UnlockServiceDatabase(SCLock);
                     }
                 }
 
                 // Make sure that the tag exists in the service's corresponding GroupOrderList entry.
-                if(NewTag) {
+                if (NewTag) {
                     AddTagToGroupOrderListEntry(ServiceConfig->lpLoadOrderGroup, NewTag, Flags & SPSVCINST_TAGTOFRONT);
                 }
             }
 
             // If the function driver is marked as boot-start, then make sure that all associated upper- and lower-filters (both class- and device-specific) are also boot-start drivers.
-            if((ServiceConfig->dwStartType == SERVICE_BOOT_START) &&
-//               RetrieveAllFilterDriversForDevice(DevInfoElem, &FilterDrivers,<Need remote hMachine>)) {
-               RetrieveAllFilterDriversForDevice(DevInfoElem, &FilterDrivers,NULL)) {
+            if ((ServiceConfig->dwStartType == SERVICE_BOOT_START) &&
+                //               RetrieveAllFilterDriversForDevice(DevInfoElem, &FilterDrivers,<Need remote hMachine>)) {
+                RetrieveAllFilterDriversForDevice(DevInfoElem, &FilterDrivers, NULL)) {
                 // If FilterDrivers is NULL, then we hit an out-of-memory error.
-                if(!FilterDrivers) {
+                if (!FilterDrivers) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                 } else {
                     // Check each filter driver.
-                    for(CurFilterDriver = FilterDrivers; *CurFilterDriver; CurFilterDriver += (lstrlen(CurFilterDriver) + 1)) {
-                        if(!(FilterServiceHandle = OpenService(SCMHandle, CurFilterDriver, SERVICE_ALL_ACCESS))) {
+                    for (CurFilterDriver = FilterDrivers; *CurFilterDriver; CurFilterDriver += (lstrlen(CurFilterDriver) + 1)) {
+                        if (!(FilterServiceHandle = OpenService(SCMHandle, CurFilterDriver, SERVICE_ALL_ACCESS))) {
                             // We couldn't access the service--probably because it doesn't exist.
                             // Bail now.
                             Err = GetLastError();
@@ -3415,46 +3396,46 @@ clean0: ; // nothing to do
 
                         // The service exists.  Make sure that it's not disabled.
                         Err = RetrieveServiceConfig(FilterServiceHandle, &FilterServiceConfig);
-                        if(Err != NO_ERROR) {
+                        if (Err != NO_ERROR) {
                             goto CloseFilterSvcAndContinue;
                         }
 
-                        if(FilterServiceConfig->dwStartType == SERVICE_DISABLED) {
+                        if (FilterServiceConfig->dwStartType == SERVICE_DISABLED) {
                             Err = ERROR_SERVICE_DISABLED;
                         } else {
                             // Ensure that this service is a boot-start kernel driver, and that it has a tag if necessary.
-                            if(FilterServiceConfig->dwServiceType & SERVICE_KERNEL_DRIVER) {
-                                if(FilterServiceConfig->lpLoadOrderGroup && *(FilterServiceConfig->lpLoadOrderGroup)) {
+                            if (FilterServiceConfig->dwServiceType & SERVICE_KERNEL_DRIVER) {
+                                if (FilterServiceConfig->lpLoadOrderGroup && *(FilterServiceConfig->lpLoadOrderGroup)) {
                                     FilterNeedsTag = TRUE;
                                     NewTag = FilterServiceConfig->dwTagId;
                                 }
 
-                                if((FilterNeedsTag && !NewTag) || (FilterServiceConfig->dwStartType != SERVICE_BOOT_START)) {
+                                if ((FilterNeedsTag && !NewTag) || (FilterServiceConfig->dwStartType != SERVICE_BOOT_START)) {
                                     // Lock the service database before modifying this service.
                                     Err = AcquireSCMLock(SCMHandle, &SCLock);
-                                    if(Err == NO_ERROR) {
+                                    if (Err == NO_ERROR) {
                                         // Make the modifications to the service (NOTE:  Because the
                                         // service controller is really stupid when it comes to driver paths,
                                         // we must explicitly pass the lpBinaryPathName in, even though we aren't changing it.
                                         // Otherwise, the service controller will complain because it thinks all paths have to begin with \SystemRoot\.)
-                                        if(!ChangeServiceConfig(FilterServiceHandle,
-                                                                SERVICE_NO_CHANGE,
-                                                                (FilterServiceConfig->dwStartType != SERVICE_BOOT_START) ? SERVICE_BOOT_START : SERVICE_NO_CHANGE,
-                                                                SERVICE_NO_CHANGE,
-                                                                (FilterServiceConfig->dwStartType != SERVICE_BOOT_START) ? FilterServiceConfig->lpBinaryPathName : NULL,
-                                                                (FilterNeedsTag && !NewTag) ? FilterServiceConfig->lpLoadOrderGroup : NULL,
-                                                                (FilterNeedsTag && !NewTag) ? &NewTag : NULL,
-                                                                NULL,
-                                                                NULL,
-                                                                NULL,
-                                                                NULL)) {
+                                        if (!ChangeServiceConfig(FilterServiceHandle,
+                                                                 SERVICE_NO_CHANGE,
+                                                                 (FilterServiceConfig->dwStartType != SERVICE_BOOT_START) ? SERVICE_BOOT_START : SERVICE_NO_CHANGE,
+                                                                 SERVICE_NO_CHANGE,
+                                                                 (FilterServiceConfig->dwStartType != SERVICE_BOOT_START) ? FilterServiceConfig->lpBinaryPathName : NULL,
+                                                                 (FilterNeedsTag && !NewTag) ? FilterServiceConfig->lpLoadOrderGroup : NULL,
+                                                                 (FilterNeedsTag && !NewTag) ? &NewTag : NULL,
+                                                                 NULL,
+                                                                 NULL,
+                                                                 NULL,
+                                                                 NULL)) {
                                             Err = GetLastError();
                                         }
 
                                         UnlockServiceDatabase(SCLock);
                                     }
 
-                                    if((Err == NO_ERROR) && FilterNeedsTag) {
+                                    if ((Err == NO_ERROR) && FilterNeedsTag) {
                                         // Make sure that the tag exists in the service's corresponding GroupOrderList entry.
                                         MYASSERT(NewTag);
                                         AddTagToGroupOrderListEntry(FilterServiceConfig->lpLoadOrderGroup, NewTag, FALSE);
@@ -3467,7 +3448,7 @@ clean0: ; // nothing to do
                         }
                         MyFree(FilterServiceConfig);
 
-CloseFilterSvcAndContinue:
+                    CloseFilterSvcAndContinue:
                         CloseServiceHandle(FilterServiceHandle);
                     }
                     MyFree(FilterDrivers);
@@ -3484,12 +3465,12 @@ FinalClean1:
     CloseServiceHandle(SCMHandle);
 
 FinalClean0:
-    if(Err == NO_ERROR) {
+    if (Err == NO_ERROR) {
         // If requested, store the linked-list of newly-created service nodes in the output parameter, otherwise, delete the list.
-        if(ServicesToDelete) {
+        if (ServicesToDelete) {
             *ServicesToDelete = SvcListHead;
         } else {
-            for(TmpSvcNode = SvcListHead; TmpSvcNode; TmpSvcNode = SvcListHead) {
+            for (TmpSvcNode = SvcListHead; TmpSvcNode; TmpSvcNode = SvcListHead) {
                 SvcListHead = SvcListHead->Next;
                 MyFree(TmpSvcNode);
             }
@@ -3501,9 +3482,9 @@ FinalClean0:
         }
     } else {
         // Something failed along the way, so we need to clean up any newly-created services.
-        if(SvcListHead) {
+        if (SvcListHead) {
             DeleteServicesInList(SvcListHead);
-            for(TmpSvcNode = SvcListHead; TmpSvcNode; TmpSvcNode = SvcListHead) {
+            for (TmpSvcNode = SvcListHead; TmpSvcNode; TmpSvcNode = SvcListHead) {
                 SvcListHead = SvcListHead->Next;
                 MyFree(TmpSvcNode);
             }
@@ -3511,7 +3492,7 @@ FinalClean0:
     }
 
     if (slot_section != 0) {
-        ReleaseLogInfoSlot(((PLOADED_INF) hDeviceInf)->LogContext,slot_section);
+        ReleaseLogInfoSlot(((PLOADED_INF)hDeviceInf)->LogContext, slot_section);
     }
 
     return Err;
@@ -3523,7 +3504,7 @@ AssociateDevInstWithDefaultService(
     IN     PDEVINFO_ELEM DevInfoElem,
     OUT    PTSTR         ServiceName,
     IN OUT PDWORD        ServiceNameSize
-    )
+)
 /*
 Routine Description:
     This routine attempts to find out the default service with which to associate the specified device.
@@ -3542,7 +3523,7 @@ Return Value:
     BOOL Success;
 
     // Open up the class key for this device's class.
-    if((hClassKey = SetupDiOpenClassRegKey(&(DevInfoElem->ClassGuid), KEY_READ)) == INVALID_HANDLE_VALUE) {
+    if ((hClassKey = SetupDiOpenClassRegKey(&(DevInfoElem->ClassGuid), KEY_READ)) == INVALID_HANDLE_VALUE) {
         return FALSE;
     }
 
@@ -3551,21 +3532,21 @@ Return Value:
     try {
         // Retrieve the "Default Service" value from the class key.  If present, this value entry
         // indicates what service to associate the device with, when one isn't specified during installation.
-        if(RegQueryValueEx(hClassKey, pszDefaultService, NULL, &RegDataType, (PBYTE)ServiceName, ServiceNameSize) != ERROR_SUCCESS) {
+        if (RegQueryValueEx(hClassKey, pszDefaultService, NULL, &RegDataType, (PBYTE)ServiceName, ServiceNameSize) != ERROR_SUCCESS) {
             goto clean0;
         }
 
-        if((RegDataType != REG_SZ) || (*ServiceNameSize < sizeof(TCHAR)) || !(*ServiceName)) {
+        if ((RegDataType != REG_SZ) || (*ServiceNameSize < sizeof(TCHAR)) || !(*ServiceName)) {
             goto clean0;
         }
 
         // We have successfully retrieved the default service name to be associated with this device instance.
         // Perform the association now by setting the Service device registry property.
-        if(CM_Set_DevInst_Registry_Property(DevInfoElem->DevInst, CM_DRP_SERVICE, ServiceName, *ServiceNameSize, 0) == CR_SUCCESS) {
+        if (CM_Set_DevInst_Registry_Property(DevInfoElem->DevInst, CM_DRP_SERVICE, ServiceName, *ServiceNameSize, 0) == CR_SUCCESS) {
             Success = TRUE;
         }
 
-clean0: ;   // nothing to do
+    clean0:;   // nothing to do
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Success = FALSE;
     }
@@ -3591,43 +3572,43 @@ Arguments:
     HKEY hKeyEventLog = NULL, hKeyEventLogType;
     TCHAR RegistryPath[SIZECHARS(REGSTR_PATH_SERVICES) + SIZECHARS(DISTR_EVENTLOG) + (2 * 256)];
 
-    if(SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS)) {
-        if(NO_ERROR == AcquireSCMLock(SCMHandle, &SCLock)) {
-            for(; ServicesToDelete; ServicesToDelete = ServicesToDelete->Next) {
-                if(ServiceHandle = OpenService(SCMHandle, ServicesToDelete->Name, SERVICE_ALL_ACCESS)) {
+    if (SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS)) {
+        if (NO_ERROR == AcquireSCMLock(SCMHandle, &SCLock)) {
+            for (; ServicesToDelete; ServicesToDelete = ServicesToDelete->Next) {
+                if (ServiceHandle = OpenService(SCMHandle, ServicesToDelete->Name, SERVICE_ALL_ACCESS)) {
                     // stop the service first if we're supposed to wait awhile for the service to stop before deleting the
                     //  service, since we don't want the service to be in use when delete the service or the service binaries
                     if (ServicesToDelete->Flags & SPSVCINST_STOPSERVICE) {
                         SERVICE_STATUS ssStatus;
 
-                        if (ControlService( ServiceHandle, SERVICE_CONTROL_STOP , &ssStatus) || GetLastError() == ERROR_SERVICE_NOT_ACTIVE) {
-                            #define SLEEP_TIME 4000
-                            #define LOOP_COUNT 30
+                        if (ControlService(ServiceHandle, SERVICE_CONTROL_STOP, &ssStatus) || GetLastError() == ERROR_SERVICE_NOT_ACTIVE) {
+#define SLEEP_TIME 4000
+#define LOOP_COUNT 30
                             DWORD loopCount = 0;
                             do {
                                 BOOL b;
 
-                                b = QueryServiceStatus( ServiceHandle, &ssStatus);
-                                if ( !b ) {
+                                b = QueryServiceStatus(ServiceHandle, &ssStatus);
+                                if (!b) {
                                     // query failed for some reason, but let's just delete the service anyway
 
                                     // BugBug log something here
                                     break;
                                 }
                                 if (ssStatus.dwCurrentState == SERVICE_STOP_PENDING) {
-                                    if ( loopCount++ == LOOP_COUNT ) {
+                                    if (loopCount++ == LOOP_COUNT) {
                                         // still pending after LOOP_COUNT iterations...
                                         // just delete the service anyway
 
                                         // BugBug log something here
                                         break;
                                     }
-                                    Sleep( SLEEP_TIME );
+                                    Sleep(SLEEP_TIME);
                                 } else {
                                     loopCount++;
                                 }
-                            } while ( ssStatus.dwCurrentState != SERVICE_STOPPED && loopCount < LOOP_COUNT );
-                        } else  {
+                            } while (ssStatus.dwCurrentState != SERVICE_STOPPED && loopCount < LOOP_COUNT);
+                        } else {
                             // control service failed for some reason...
                             // let's just continue on and try to delete the service anyway
 
@@ -3640,22 +3621,22 @@ Arguments:
                 }
 
                 // Delete the event log entry (if required) if either (a) we succeeded in deleting the service, or (b) the service didn't exist.
-                if(ServicesToDelete->DeleteEventLog) {
-                    if(ServiceHandle || (GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST)) {
+                if (ServicesToDelete->DeleteEventLog) {
+                    if (ServiceHandle || (GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST)) {
                         // We need to delete the associated event log for this service.
-                        if(!hKeyEventLog) {
+                        if (!hKeyEventLog) {
                             // We haven't opened up the EventLog registry key yet, so do that now.
                             CopyMemory(RegistryPath, pszServicesRegPath, sizeof(pszServicesRegPath));
                             CopyMemory(RegistryPath + CSTRLEN(REGSTR_PATH_SERVICES), pszEventLog, sizeof(pszEventLog));
 
-                            if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, RegistryPath, 0, KEY_READ, &hKeyEventLog) != ERROR_SUCCESS) {
+                            if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, RegistryPath, 0, KEY_READ, &hKeyEventLog) != ERROR_SUCCESS) {
                                 hKeyEventLog = NULL; // make sure this value is still NULL!
                                 continue;
                             }
                         }
 
                         // Now open up the event log type key.
-                        if(RegOpenKeyEx(hKeyEventLog, ServicesToDelete->EventLogType, 0, KEY_READ | KEY_WRITE, &hKeyEventLogType) == ERROR_SUCCESS) {
+                        if (RegOpenKeyEx(hKeyEventLog, ServicesToDelete->EventLogType, 0, KEY_READ | KEY_WRITE, &hKeyEventLogType) == ERROR_SUCCESS) {
                             RegistryDelnode(hKeyEventLogType, ServicesToDelete->EventLogName);
                             RegCloseKey(hKeyEventLogType);
                         }
@@ -3663,7 +3644,7 @@ Arguments:
                 }
             }
 
-            if(hKeyEventLog) {
+            if (hKeyEventLog) {
                 RegCloseKey(hKeyEventLog);
             }
             UnlockServiceDatabase(SCLock);
@@ -3692,9 +3673,8 @@ Return Value:
 
     // Enumerate all the hardware profiles.
     do {
-        if((cr = CM_Get_Hardware_Profile_Info_Ex(i, &HwProfileInfo, 0,hMachine)) == CR_SUCCESS) {
-            if((CM_Get_HW_Prof_Flags_Ex((DEVINSTID)DeviceInstanceId, HwProfileInfo.HWPI_ulHWProfile, &HwProfFlags, 0, hMachine) != CR_SUCCESS) || !(HwProfFlags & CSCONFIGFLAG_DO_NOT_CREATE))
-            {
+        if ((cr = CM_Get_Hardware_Profile_Info_Ex(i, &HwProfileInfo, 0, hMachine)) == CR_SUCCESS) {
+            if ((CM_Get_HW_Prof_Flags_Ex((DEVINSTID)DeviceInstanceId, HwProfileInfo.HWPI_ulHWProfile, &HwProfFlags, 0, hMachine) != CR_SUCCESS) || !(HwProfFlags & CSCONFIGFLAG_DO_NOT_CREATE)) {
                 // If we couldn't retrieve the CSConfigFlags, or if the
                 // CSCONFIGFLAG_DO_NOT_CREATE bit was not set, then we've found a profile where the device still exists, so we can bail here.
                 return FALSE;
@@ -3702,7 +3682,7 @@ Return Value:
         }
 
         i++;
-    } while(cr != CR_NO_MORE_HW_PROFILES);
+    } while (cr != CR_NO_MORE_HW_PROFILES);
 
     return TRUE;// We didn't find any hardware profile where the device wasn't removed.
 }
@@ -3725,7 +3705,7 @@ Notes:
     DWORD ConfigFlags;
     ULONG ConfigFlagsSize = sizeof(ConfigFlags);
 
-    if(CM_Get_DevInst_Registry_Property_Ex(DevInst, CM_DRP_CONFIGFLAGS, NULL, &ConfigFlags, &ConfigFlagsSize, 0, hMachine) != CR_SUCCESS) {
+    if (CM_Get_DevInst_Registry_Property_Ex(DevInst, CM_DRP_CONFIGFLAGS, NULL, &ConfigFlags, &ConfigFlagsSize, 0, hMachine) != CR_SUCCESS) {
         ConfigFlags = Default;
     }
 
@@ -3761,29 +3741,29 @@ Return Value:
     BOOL DeleteEventLogEntry;
 
     // Initialize a service name node for a call to DeleteServicesInList.
-    if(!SetupGetStringField(LineContext, 1, TempSvcNode.Name, SIZECHARS(TempSvcNode.Name), NULL)) {
+    if (!SetupGetStringField(LineContext, 1, TempSvcNode.Name, SIZECHARS(TempSvcNode.Name), NULL)) {
         return GetLastError();
     }
 
     // Get the flags field.
-    if(!SetupGetIntField(LineContext, 2, (PINT)&DelServiceFlags)) {
+    if (!SetupGetIntField(LineContext, 2, (PINT)&DelServiceFlags)) {
         DelServiceFlags = 0;
     }
 
     DeleteEventLogEntry = (Flags & SPSVCINST_DELETEEVENTLOGENTRY);
 
     // If the caller specified that the associated event log entry should be deleted, then make sure that flag is set.
-    if(DeleteEventLogEntry) {
+    if (DeleteEventLogEntry) {
         DelServiceFlags |= SPSVCINST_DELETEEVENTLOGENTRY;
     }
 
-    if(TempSvcNode.DeleteEventLog = (DelServiceFlags & SPSVCINST_DELETEEVENTLOGENTRY)) {
+    if (TempSvcNode.DeleteEventLog = (DelServiceFlags & SPSVCINST_DELETEEVENTLOGENTRY)) {
         // Retrieve the event log type (default is "System") and the event log name (default is the service name).
-        if(!(EventLogType = pSetupGetField(LineContext, 3)) || !(*EventLogType)) {
+        if (!(EventLogType = pSetupGetField(LineContext, 3)) || !(*EventLogType)) {
             EventLogType = pszSystem;
         }
 
-        if(!(EventLogName = pSetupGetField(LineContext, 4)) || !(*EventLogName)) {
+        if (!(EventLogName = pSetupGetField(LineContext, 4)) || !(*EventLogName)) {
             EventLogName = TempSvcNode.Name;
         }
 
@@ -3794,11 +3774,11 @@ Return Value:
     TempSvcNode.Next = NULL;
     TempSvcNode.Flags = DelServiceFlags | Flags;
 
-    slot_service = AllocLogInfoSlot(LogContext,FALSE);
+    slot_service = AllocLogInfoSlot(LogContext, FALSE);
 
     WriteLogEntry(LogContext, slot_service, MSG_LOG_SERVICE_DELETE, NULL, TempSvcNode.Name);
     DeleteServicesInList(&TempSvcNode);
-    ReleaseLogInfoSlot(LogContext,slot_service);
+    ReleaseLogInfoSlot(LogContext, slot_service);
     return NO_ERROR;
 }
 
@@ -3806,12 +3786,12 @@ Return Value:
 DWORD
 pSetupAddService(
     IN  PINFCONTEXT    LineContext,
-    OUT PSVCNAME_NODE *SvcListHead,
+    OUT PSVCNAME_NODE* SvcListHead,
     IN  DWORD          Flags,
     IN  DEVINST        DevInst, OPTIONAL
     OUT PBOOL          NullDriverInstalled,
     IN  PSETUP_LOG_CONTEXT LogContext
-    )
+)
 /*
 Routine Description:
     This routine processes the specified AddService line in an INF's Service install section.  The line has the form:
@@ -3914,7 +3894,7 @@ Remarks:
     NeedsReboot = FALSE;
 
     // Get the AddService flags.
-    if(!SetupGetIntField(LineContext, 2, (PINT)&ServiceInstallFlags)) {
+    if (!SetupGetIntField(LineContext, 2, (PINT)&ServiceInstallFlags)) {
         ServiceInstallFlags = 0;
     }
 
@@ -3922,11 +3902,11 @@ Remarks:
     ServiceInstallFlags |= Flags;
 
     // Now get the service name.
-    if(!(ServiceName = pSetupGetField(LineContext, 1)) || !(*ServiceName)) {
+    if (!(ServiceName = pSetupGetField(LineContext, 1)) || !(*ServiceName)) {
         // This is only allowed if the SPSVCINST_ASSOCSERVICE flag is set.  That
         // indicates to PnP that a null driver installation is allowed, even though the underlying bus didn't report the device as raw-capable.
-        if(ServiceInstallFlags & SPSVCINST_ASSOCSERVICE) {
-            if(DevInst) {
+        if (ServiceInstallFlags & SPSVCINST_ASSOCSERVICE) {
+            if (DevInst) {
                 CM_Set_DevInst_Registry_Property(DevInst, CM_DRP_SERVICE, NULL, 0, 0);
             }
 
@@ -3938,7 +3918,7 @@ Remarks:
     }
 
     // Next, get the name of the install section.
-    if(!(InstallSection = pSetupGetField(LineContext, 3))) {
+    if (!(InstallSection = pSetupGetField(LineContext, 3))) {
         return GetLastError();
     }
 
@@ -3946,20 +3926,20 @@ Remarks:
     hInf = LineContext->Inf;
 
     // Retrieve the required values from this section.  Don't do validation on them--leave that up to the Service Control Manager.
-    if(!SetupFindFirstLine(hInf, InstallSection, pszServiceType, &InstallSectionContext) || !SetupGetIntField(&InstallSectionContext, 1, (PINT)&ServiceType)) {
+    if (!SetupFindFirstLine(hInf, InstallSection, pszServiceType, &InstallSectionContext) || !SetupGetIntField(&InstallSectionContext, 1, (PINT)&ServiceType)) {
         return ERROR_BAD_SERVICE_INSTALLSECT;
     }
 
-    if(!SetupFindFirstLine(hInf, InstallSection, pszStartType, &InstallSectionContext) || !SetupGetIntField(&InstallSectionContext, 1, (PINT)&StartType)) {
+    if (!SetupFindFirstLine(hInf, InstallSection, pszStartType, &InstallSectionContext) || !SetupGetIntField(&InstallSectionContext, 1, (PINT)&StartType)) {
         return ERROR_BAD_SERVICE_INSTALLSECT;
     }
 
-    if(!SetupFindFirstLine(hInf, InstallSection, pszErrorControl, &InstallSectionContext) || !SetupGetIntField(&InstallSectionContext, 1, (PINT)&ErrorControl)) {
+    if (!SetupFindFirstLine(hInf, InstallSection, pszErrorControl, &InstallSectionContext) || !SetupGetIntField(&InstallSectionContext, 1, (PINT)&ErrorControl)) {
         return ERROR_BAD_SERVICE_INSTALLSECT;
     }
 
     BinaryInSysRoot = FALSE;
-    if(SetupFindFirstLine(hInf, InstallSection, pszServiceBinary, &InstallSectionContext) && (ServiceBinary = pSetupGetField(&InstallSectionContext, 1)) && *ServiceBinary) {
+    if (SetupFindFirstLine(hInf, InstallSection, pszServiceBinary, &InstallSectionContext) && (ServiceBinary = pSetupGetField(&InstallSectionContext, 1)) && *ServiceBinary) {
         // Compare the initial part of this path with the WindowsDirectory path.  If they're
         // the same, then we strip off that part (including the dividing backslash), and use
         // the rest of the path for the subsequent calls to SCM.  This allows SCM to assign
@@ -3968,19 +3948,19 @@ Remarks:
         MYASSERT(PathLen);
 
         // Make sure that the it is possible for the WindowsDirectory to fit in the ServiceBinary path string.
-        if(PathLen < lstrlen(ServiceBinary)) {
+        if (PathLen < lstrlen(ServiceBinary)) {
             // There will never be a trailing backslash in the WindowsDirectory path, unless the
             // installation is at the root of a drive (e.g., C:\).  Check this, just to be on the safe side.
 
             // BUGBUG--DBCS-unfriendly code ahead.  This isn't a problem in the ANSI version of setupapi presently, because there's no such thing as service installation on Win9x.
             b = (WindowsDirectory[PathLen - 1] == TEXT('\\'));
 
-            if(b || (ServiceBinary[PathLen] == TEXT('\\'))) {
+            if (b || (ServiceBinary[PathLen] == TEXT('\\'))) {
                 // The path prefix is in the right format--now we need to see if the two paths actually match. Copy just the prefix part to another buffer, so that we can do the comparison.
                 CopyMemory(ServiceBinaryBuffer, ServiceBinary, PathLen * sizeof(TCHAR));
                 ServiceBinaryBuffer[PathLen] = TEXT('\0');
 
-                if(!lstrcmpi(WindowsDirectory, ServiceBinaryBuffer)) {
+                if (!lstrcmpi(WindowsDirectory, ServiceBinaryBuffer)) {
                     // We have a match--take the relative part of the path (relative to SystemRoot), and do one of the following:
 
                     // 1. If it's a driver, simply use the relative part (no preceding backslash).
@@ -3988,11 +3968,11 @@ Remarks:
 
                     // 2. If it's a Win32 service, prepend a %SystemRoot%, so that the service will still be able to start if the drive letter mappings change.
                     ServiceBinary += PathLen;
-                    if(!b) {
+                    if (!b) {
                         ServiceBinary++;
                     }
 
-                    if(ServiceType & SERVICE_WIN32) {
+                    if (ServiceType & SERVICE_WIN32) {
                         CopyMemory(ServiceBinaryBuffer, pszSystemRoot, sizeof(pszSystemRoot) - sizeof(TCHAR));
                         lstrcpy(ServiceBinaryBuffer + CSTRLEN(pszSystemRoot), ServiceBinary);
                         ServiceBinary = ServiceBinaryBuffer;
@@ -4007,7 +3987,7 @@ Remarks:
     }
 
     // If this is a driver, then it has to be located under SystemRoot.
-    if((ServiceType & (SERVICE_KERNEL_DRIVER | SERVICE_FILE_SYSTEM_DRIVER)) && !BinaryInSysRoot) {
+    if ((ServiceType & (SERVICE_KERNEL_DRIVER | SERVICE_FILE_SYSTEM_DRIVER)) && !BinaryInSysRoot) {
         return ERROR_BAD_SERVICE_INSTALLSECT;
     }
 
@@ -4017,34 +3997,34 @@ Remarks:
     }
 
     // Now check for the other, optional, parameters.
-    if(SetupFindFirstLine(hInf, InstallSection, pszDisplayName, &InstallSectionContext)) {
-        if((DisplayName = pSetupGetField(&InstallSectionContext, 1)) && !(*DisplayName)) {
+    if (SetupFindFirstLine(hInf, InstallSection, pszDisplayName, &InstallSectionContext)) {
+        if ((DisplayName = pSetupGetField(&InstallSectionContext, 1)) && !(*DisplayName)) {
             DisplayName = NULL;
         }
     }
 
-    if(SetupFindFirstLine(hInf, InstallSection, pszLoadOrderGroup, &InstallSectionContext)) {
-        if((LoadOrderGroup = pSetupGetField(&InstallSectionContext, 1)) && !(*LoadOrderGroup)) {
+    if (SetupFindFirstLine(hInf, InstallSection, pszLoadOrderGroup, &InstallSectionContext)) {
+        if ((LoadOrderGroup = pSetupGetField(&InstallSectionContext, 1)) && !(*LoadOrderGroup)) {
             LoadOrderGroup = NULL;
         }
     }
 
-    if(SetupFindFirstLine(hInf, InstallSection, pszSecurity, &InstallSectionContext)) {
-        if((Security = pSetupGetField(&InstallSectionContext, 1)) && !(*Security)) {
+    if (SetupFindFirstLine(hInf, InstallSection, pszSecurity, &InstallSectionContext)) {
+        if ((Security = pSetupGetField(&InstallSectionContext, 1)) && !(*Security)) {
             Security = NULL;
         }
     }
 
-    if(SetupFindFirstLine(hInf, InstallSection, pszDescription, &InstallSectionContext)) {
-        if((Description = pSetupGetField(&InstallSectionContext, 1)) && !(*Description)) {
+    if (SetupFindFirstLine(hInf, InstallSection, pszDescription, &InstallSectionContext)) {
+        if ((Description = pSetupGetField(&InstallSectionContext, 1)) && !(*Description)) {
             Description = NULL;
         }
     }
 
     // Only retrieve the StartName parameter for kernel-mode drivers.
-    if(ServiceType & (SERVICE_KERNEL_DRIVER | SERVICE_FILE_SYSTEM_DRIVER)) {
-        if(SetupFindFirstLine(hInf, InstallSection, pszStartName, &InstallSectionContext)) {
-            if((StartName = pSetupGetField(&InstallSectionContext, 1)) && !(*StartName)) {
+    if (ServiceType & (SERVICE_KERNEL_DRIVER | SERVICE_FILE_SYSTEM_DRIVER)) {
+        if (SetupFindFirstLine(hInf, InstallSection, pszStartName, &InstallSectionContext)) {
+            if ((StartName = pSetupGetField(&InstallSectionContext, 1)) && !(*StartName)) {
                 StartName = NULL;
             }
         }
@@ -4060,14 +4040,14 @@ Remarks:
     NewService = FALSE;
     ServiceConfig = NULL;
     try {
-        if(!(DependenciesBuffer = GetMultiSzFromInf(hInf, InstallSection, pszDependencies, &b)) && b) {
+        if (!(DependenciesBuffer = GetMultiSzFromInf(hInf, InstallSection, pszDependencies, &b)) && b) {
             // Then we failed to retrieve a dependencies list because of an out-of-memory error.
             Err = ERROR_NOT_ENOUGH_MEMORY;
             goto clean0;
         }
 
         // We've now retrieved all parameters necessary to create a service.
-        if(!(SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) {
+        if (!(SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) {
             Err = GetLastError();
             goto clean0;
         }
@@ -4076,63 +4056,63 @@ Remarks:
         ServiceHasTag = (LoadOrderGroup && (ServiceType & (SERVICE_KERNEL_DRIVER | SERVICE_FILE_SYSTEM_DRIVER)));
 
         NewTag = ServiceHasTag ? &TagId : NULL;
-        slot_service = AllocLogInfoSlot(LogContext,FALSE);
+        slot_service = AllocLogInfoSlot(LogContext, FALSE);
 
         // Log that which service is being added.
         WriteLogEntry(LogContext, slot_service, MSG_LOG_SERVICE_ADD, NULL, ServiceName, DisplayName);
 
         ServiceHandle = CreateService(SCMHandle, ServiceName, DisplayName, SERVICE_CHANGE_CONFIG, ServiceType, StartType, ErrorControl, ServiceBinary, LoadOrderGroup, NewTag, DependenciesBuffer, StartName, NULL);
-        if(ServiceHandle) {
+        if (ServiceHandle) {
             NewService = TRUE;
             NewSvcNameNode.Next = NULL;
             NewSvcNameNode.DeleteEventLog = FALSE;
             lstrcpy(NewSvcNameNode.Name, ServiceName);
 
 #ifdef UNICODE
-            if( Security ){
+            if (Security) {
                 // Log security being set.
                 WriteLogEntry(LogContext, slot_service, MSG_LOG_SERVICE_SET_SECURITY, NULL, ServiceName, Security);
 
-                if( NO_ERROR != (Err = pSetupCallSCE( ST_SCE_SERVICES, ServiceName, NULL, Security, StartType, NULL )) )
+                if (NO_ERROR != (Err = pSetupCallSCE(ST_SCE_SERVICES, ServiceName, NULL, Security, StartType, NULL)))
                     goto clean0;
             }
 #endif
         } else {
             // If we were unable to create the service, then check to see if the service already exists.
             // If so, all we need to do is change the configuration parameters in the service.
-            if((Err = GetLastError()) != ERROR_SERVICE_EXISTS) {
+            if ((Err = GetLastError()) != ERROR_SERVICE_EXISTS) {
                 goto clean0;
             }
 
             // Lock the service database.
-            if(NO_ERROR != (Err = AcquireSCMLock(SCMHandle, &SCLock))) {
+            if (NO_ERROR != (Err = AcquireSCMLock(SCMHandle, &SCLock))) {
                 goto clean0;
             }
 
-            if(!(ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS))) {
+            if (!(ServiceHandle = OpenService(SCMHandle, ServiceName, SERVICE_ALL_ACCESS))) {
                 Err = GetLastError();
                 goto clean0;
             }
 
-            if((Err = RetrieveServiceConfig(ServiceHandle, &ServiceConfig)) != NO_ERROR) {
+            if ((Err = RetrieveServiceConfig(ServiceHandle, &ServiceConfig)) != NO_ERROR) {
                 // Make sure our ServiceConfig pointer is still NULL.
                 ServiceConfig = NULL;
                 goto clean0;
             }
 
             // Since this is an existing driver, then it may already have a perfectly good tag.  If so, we don't want to disturb it.
-            if(ServiceHasTag) {
-                if(ServiceConfig->lpLoadOrderGroup && *(ServiceConfig->lpLoadOrderGroup)) {
+            if (ServiceHasTag) {
+                if (ServiceConfig->lpLoadOrderGroup && *(ServiceConfig->lpLoadOrderGroup)) {
                     // The service already has a load order group specified.
                     // Check to see whether the load order group 'noclobber' flag is set.
-                    if(ServiceInstallFlags & SPSVCINST_NOCLOBBER_LOADORDERGROUP) {
+                    if (ServiceInstallFlags & SPSVCINST_NOCLOBBER_LOADORDERGROUP) {
                         // We should leave the existing load order group as-is.
                         // We do this by replacing the INF-specified one with the previously-existing one.
                         // That way, our code below will still generate a tag if necessary.
                         LoadOrderGroup = ServiceConfig->lpLoadOrderGroup;
                     }
 
-                    if(!lstrcmpi(ServiceConfig->lpLoadOrderGroup, LoadOrderGroup) && ServiceConfig->dwTagId) {
+                    if (!lstrcmpi(ServiceConfig->lpLoadOrderGroup, LoadOrderGroup) && ServiceConfig->dwTagId) {
                         // The load order group hasn't changed, and there's already a tag assigned, so leave it alone.
                         NewTag = NULL;
                         TagId = ServiceConfig->dwTagId;
@@ -4140,32 +4120,32 @@ Remarks:
                 }
             }
 
-            if(ServiceInstallFlags & SPSVCINST_NOCLOBBER_DISPLAYNAME) {
+            if (ServiceInstallFlags & SPSVCINST_NOCLOBBER_DISPLAYNAME) {
                 // If the service already has a display name, then we don't want to overwrite it.
-                if(ServiceConfig->lpDisplayName && *(ServiceConfig->lpDisplayName)) {
+                if (ServiceConfig->lpDisplayName && *(ServiceConfig->lpDisplayName)) {
                     DisplayName = NULL;
                 }
             }
 
-            if(ServiceInstallFlags & SPSVCINST_NOCLOBBER_DEPENDENCIES) {
+            if (ServiceInstallFlags & SPSVCINST_NOCLOBBER_DEPENDENCIES) {
                 // If the service already has a dependencies list, then we don't want to overwrite it.
-                if(ServiceConfig->lpDependencies && *(ServiceConfig->lpDependencies)) {
+                if (ServiceConfig->lpDependencies && *(ServiceConfig->lpDependencies)) {
                     MyFree(DependenciesBuffer);
                     DependenciesBuffer = NULL;
                 }
             }
 
-            if(!ChangeServiceConfig(ServiceHandle,
-                                    ServiceType,
-                                    (ServiceInstallFlags & SPSVCINST_NOCLOBBER_STARTTYPE) ? SERVICE_NO_CHANGE : StartType,
-                                    (ServiceInstallFlags & SPSVCINST_NOCLOBBER_ERRORCONTROL) ? SERVICE_NO_CHANGE : ErrorControl,
-                                    ServiceBinary,
-                                    LoadOrderGroup,
-                                    NewTag,
-                                    DependenciesBuffer,
-                                    StartName,
-                                    NULL,
-                                    DisplayName)) {
+            if (!ChangeServiceConfig(ServiceHandle,
+                                     ServiceType,
+                                     (ServiceInstallFlags & SPSVCINST_NOCLOBBER_STARTTYPE) ? SERVICE_NO_CHANGE : StartType,
+                                     (ServiceInstallFlags & SPSVCINST_NOCLOBBER_ERRORCONTROL) ? SERVICE_NO_CHANGE : ErrorControl,
+                                     ServiceBinary,
+                                     LoadOrderGroup,
+                                     NewTag,
+                                     DependenciesBuffer,
+                                     StartName,
+                                     NULL,
+                                     DisplayName)) {
                 Err = GetLastError();
                 goto clean0;
             }
@@ -4179,40 +4159,40 @@ Remarks:
             SERVICE_DESCRIPTION ServiceDescription;
 
             ServiceDescription.lpDescription = (LPTSTR)Description;
-            ChangeServiceConfig2(ServiceHandle, SERVICE_CONFIG_DESCRIPTION,&ServiceDescription);
+            ChangeServiceConfig2(ServiceHandle, SERVICE_CONFIG_DESCRIPTION, &ServiceDescription);
         }
 #endif
 
         // We've successfully created/updated the service.  If this service has a load order group tag, then make sure it's in the appropriate GroupOrderList entry.
 
         // (We ignore failure here, since the service should still work just fine without this.)
-        if(ServiceHasTag) {
+        if (ServiceHasTag) {
             AddTagToGroupOrderListEntry(LoadOrderGroup, TagId, ServiceInstallFlags & SPSVCINST_TAGTOFRONT);
         }
 
         // Now process any AddReg and DelReg entries found in this service install section.
         CopyMemory(RegistryPath, pszServicesRegPath, sizeof(pszServicesRegPath));
         ConcatenatePaths(RegistryPath, ServiceName, SIZECHARS(RegistryPath), NULL);
-        if((Err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, RegistryPath, 0, KEY_READ | KEY_WRITE, &hKeyService)) != ERROR_SUCCESS) {
+        if ((Err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, RegistryPath, 0, KEY_READ | KEY_WRITE, &hKeyService)) != ERROR_SUCCESS) {
             goto clean0;
         }
 
         ZeroMemory(&RegContext, sizeof(RegContext));
         RegContext.UserRootKey = hKeyService;
 
-        if((Err = pSetupInstallRegistry(hInf, InstallSection, &RegContext)) != NO_ERROR) {
+        if ((Err = pSetupInstallRegistry(hInf, InstallSection, &RegContext)) != NO_ERROR) {
             goto clean0;
         }
 
         // Now, see if the INF also specifies an EventLog installation section.  If so, create a
         // key under HKLM\System\CurrentControlSet\Services\EventLog\System for that service, and run the registry modification lines in the specified install section.
-        if((InstallSection = pSetupGetField(LineContext, 4)) && *InstallSection) {
+        if ((InstallSection = pSetupGetField(LineContext, 4)) && *InstallSection) {
             // Get the (optional) event log type and event log name strings.
-            if(!(EventLogType = pSetupGetField(LineContext, 5)) || !(*EventLogType)) {
+            if (!(EventLogType = pSetupGetField(LineContext, 5)) || !(*EventLogType)) {
                 EventLogType = pszSystem;
             }
 
-            if(!(EventLogName = pSetupGetField(LineContext, 6)) || !(*EventLogName)) {
+            if (!(EventLogName = pSetupGetField(LineContext, 6)) || !(*EventLogName)) {
                 EventLogName = ServiceName;
             }
 
@@ -4221,11 +4201,11 @@ Remarks:
             CopyMemory(RegistryPath + CSTRLEN(REGSTR_PATH_SERVICES), pszEventLog, sizeof(pszEventLog));
             ConcatenatePaths(RegistryPath, EventLogType, SIZECHARS(RegistryPath), NULL);
             ConcatenatePaths(RegistryPath, EventLogName, SIZECHARS(RegistryPath), NULL);
-            if((Err = RegCreateKeyEx(HKEY_LOCAL_MACHINE, RegistryPath, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hKeyEventLog, &EventLogKeyDisposition)) != ERROR_SUCCESS) {
+            if ((Err = RegCreateKeyEx(HKEY_LOCAL_MACHINE, RegistryPath, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hKeyEventLog, &EventLogKeyDisposition)) != ERROR_SUCCESS) {
                 goto clean0;
             }
 
-            if(EventLogKeyDisposition == REG_CREATED_NEW_KEY) {
+            if (EventLogKeyDisposition == REG_CREATED_NEW_KEY) {
                 NewSvcNameNode.DeleteEventLog = TRUE;
                 lstrcpy(NewSvcNameNode.EventLogType, EventLogType);
                 lstrcpy(NewSvcNameNode.EventLogName, EventLogName);
@@ -4234,7 +4214,7 @@ Remarks:
             ZeroMemory(&RegContext, sizeof(RegContext));
             RegContext.UserRootKey = hKeyEventLog;
 
-            if((Err = pSetupInstallRegistry(hInf, InstallSection, &RegContext)) != NO_ERROR) {
+            if ((Err = pSetupInstallRegistry(hInf, InstallSection, &RegContext)) != NO_ERROR) {
                 goto clean0;
             }
         }
@@ -4243,17 +4223,17 @@ Remarks:
         // If the AddService flags field in the INF included the SPSVCINST_ASSOCSERVICE flag, _and_
         // the caller supplied us with a non-zero DevInst handle, then we need to set the
         // device instance's 'Service' property to indicate that it is associated with this service.
-        if(DevInst && (ServiceInstallFlags & SPSVCINST_ASSOCSERVICE)) {
+        if (DevInst && (ServiceInstallFlags & SPSVCINST_ASSOCSERVICE)) {
             CM_Set_DevInst_Registry_Property(DevInst, CM_DRP_SERVICE, ServiceName, (lstrlen(ServiceName) + 1) * sizeof(TCHAR), 0);
         }
 
         // If a new service was created, then link a new service name node into the list we were passed in.
         // Don't fret about the case where we can't allocate a node--it just
         // means we won't know about this new service in case clean-up is required later.
-        if(NewService) {
-            if(TmpNode = MyMalloc(sizeof(SVCNAME_NODE))) {
+        if (NewService) {
+            if (TmpNode = MyMalloc(sizeof(SVCNAME_NODE))) {
                 lstrcpy(TmpNode->Name, NewSvcNameNode.Name);
-                if(TmpNode->DeleteEventLog = NewSvcNameNode.DeleteEventLog) {
+                if (TmpNode->DeleteEventLog = NewSvcNameNode.DeleteEventLog) {
                     lstrcpy(TmpNode->EventLogType, NewSvcNameNode.EventLogType);
                     lstrcpy(TmpNode->EventLogName, NewSvcNameNode.EventLogName);
                 }
@@ -4263,7 +4243,7 @@ Remarks:
             }
         }
 
-clean0: ; // nothing to do.
+    clean0:; // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         // If our exception was an AV, then use Win32 invalid param error, otherwise, assume it was an inpage error dealing with a mapped-in file.
         Err = (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION) ? ERROR_INVALID_PARAMETER : ERROR_READ_FAULT;
@@ -4280,25 +4260,25 @@ clean0: ; // nothing to do.
         ServiceConfig = ServiceConfig;
     }
 
-    if(ServiceConfig) {
+    if (ServiceConfig) {
         MyFree(ServiceConfig);
     }
-    if(DependenciesBuffer) {
+    if (DependenciesBuffer) {
         MyFree(DependenciesBuffer);
     }
-    if(hKeyService) {
+    if (hKeyService) {
         RegCloseKey(hKeyService);
     }
-    if(hKeyEventLog) {
+    if (hKeyEventLog) {
         RegCloseKey(hKeyEventLog);
     }
-    if(ServiceHandle) {
+    if (ServiceHandle) {
         CloseServiceHandle(ServiceHandle);
     }
-    if(SCLock) {
+    if (SCLock) {
         UnlockServiceDatabase(SCLock);
     }
-    if(SCMHandle) {
+    if (SCMHandle) {
         CloseServiceHandle(SCMHandle);
     }
 
@@ -4314,14 +4294,14 @@ clean0: ; // nothing to do.
     }
 
     if (slot_service) {
-        ReleaseLogInfoSlot(LogContext,slot_service);
+        ReleaseLogInfoSlot(LogContext, slot_service);
     }
 
     return Err;
 }
 
 
-DWORD RetrieveServiceConfig(IN SC_HANDLE ServiceHandle, OUT LPQUERY_SERVICE_CONFIG *ServiceConfig)
+DWORD RetrieveServiceConfig(IN SC_HANDLE ServiceHandle, OUT LPQUERY_SERVICE_CONFIG* ServiceConfig)
 /*
 Routine Description:
     This routine allocates a buffer for the specified service's configuration parameters, and retrieves those parameters into the buffer.
@@ -4339,20 +4319,20 @@ Remarks:
 
     *ServiceConfig = NULL;
 
-    while(TRUE) {
-        if(QueryServiceConfig(ServiceHandle, *ServiceConfig, ServiceConfigSize, &ServiceConfigSize)) {
+    while (TRUE) {
+        if (QueryServiceConfig(ServiceHandle, *ServiceConfig, ServiceConfigSize, &ServiceConfigSize)) {
             MYASSERT(*ServiceConfig);
             return NO_ERROR;
         } else {
             Err = GetLastError();
 
-            if(*ServiceConfig) {
+            if (*ServiceConfig) {
                 MyFree(*ServiceConfig);
             }
 
-            if(Err == ERROR_INSUFFICIENT_BUFFER) {
+            if (Err == ERROR_INSUFFICIENT_BUFFER) {
                 // Allocate a larger buffer, and try again.
-                if(!(*ServiceConfig = MyMalloc(ServiceConfigSize))) {
+                if (!(*ServiceConfig = MyMalloc(ServiceConfigSize))) {
                     return ERROR_NOT_ENOUGH_MEMORY;
                 }
             } else {
@@ -4365,7 +4345,7 @@ Remarks:
 
 
 #ifdef UNICODE
-DWORD RetrieveServiceConfig2(IN SC_HANDLE ServiceHandle, IN DWORD Level, OUT LPBYTE *Buffer)
+DWORD RetrieveServiceConfig2(IN SC_HANDLE ServiceHandle, IN DWORD Level, OUT LPBYTE* Buffer)
 /*
 Routine Description:
     This routine allocates a buffer for the specified service's configuration parameters, and retrieves those parameters into the buffer.
@@ -4384,20 +4364,20 @@ Remarks:
 
     *Buffer = NULL;
 
-    while(TRUE) {
-        if(QueryServiceConfig2(ServiceHandle, Level, *Buffer, ServiceConfigSize, &ServiceConfigSize)) {
+    while (TRUE) {
+        if (QueryServiceConfig2(ServiceHandle, Level, *Buffer, ServiceConfigSize, &ServiceConfigSize)) {
             MYASSERT(*Buffer);
             return NO_ERROR;
         } else {
             Err = GetLastError();
 
-            if(*Buffer) {
+            if (*Buffer) {
                 MyFree(*Buffer);
             }
 
-            if(Err == ERROR_INSUFFICIENT_BUFFER) {
+            if (Err == ERROR_INSUFFICIENT_BUFFER) {
                 // Allocate a larger buffer, and try again.
-                if(!(*Buffer = MyMalloc(ServiceConfigSize))) {
+                if (!(*Buffer = MyMalloc(ServiceConfigSize))) {
                     return ERROR_NOT_ENOUGH_MEMORY;
                 }
             } else {
@@ -4433,19 +4413,19 @@ Return Value:
     PDWORD GroupOrderList, p;
     DWORD GroupOrderListSize, DataType, ExtraBytes, i, NumElements;
 
-    if((Err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, pszGroupOrderListPath, 0, KEY_ALL_ACCESS, &hKey)) != ERROR_SUCCESS) {
+    if ((Err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, pszGroupOrderListPath, 0, KEY_ALL_ACCESS, &hKey)) != ERROR_SUCCESS) {
         return Err;
     }
 
     Err = QueryRegistryValue(hKey, LoadOrderGroup, (PVOID)(&GroupOrderList), &DataType, &GroupOrderListSize);
-    if(Err == NO_ERROR) {
+    if (Err == NO_ERROR) {
         // Validate the list, and fix it if it's broken.
-        if(GroupOrderListSize < sizeof(DWORD)) {
-            if(GroupOrderList) {
+        if (GroupOrderListSize < sizeof(DWORD)) {
+            if (GroupOrderList) {
                 MyFree(GroupOrderList);
             }
 
-            if(GroupOrderList = MyMalloc(sizeof(DWORD))) {
+            if (GroupOrderList = MyMalloc(sizeof(DWORD))) {
                 *GroupOrderList = 0;
                 GroupOrderListSize = sizeof(DWORD);
             } else {
@@ -4453,8 +4433,8 @@ Return Value:
                 goto clean1;
             }
         } else {
-            if(ExtraBytes = GroupOrderListSize % sizeof(DWORD)) {
-                if(p = MyRealloc(GroupOrderList, GroupOrderListSize + (sizeof(DWORD) - ExtraBytes))) {
+            if (ExtraBytes = GroupOrderListSize % sizeof(DWORD)) {
+                if (p = MyRealloc(GroupOrderList, GroupOrderListSize + (sizeof(DWORD) - ExtraBytes))) {
                     GroupOrderList = p;
                     ZeroMemory((PBYTE)GroupOrderList + GroupOrderListSize, ExtraBytes);
                     GroupOrderListSize += ExtraBytes;
@@ -4470,8 +4450,8 @@ Return Value:
         // We now have a list that's at least in the correct format.  Now validate the list count, and adjust if necessary.
         NumElements = (GroupOrderListSize / sizeof(DWORD)) - 1;
 
-        if(*GroupOrderList != NumElements) {
-            if(*GroupOrderList > NumElements) {
+        if (*GroupOrderList != NumElements) {
+            if (*GroupOrderList > NumElements) {
                 *GroupOrderList = NumElements;
             } else {
                 NumElements = *GroupOrderList;
@@ -4480,11 +4460,11 @@ Return Value:
         }
     } else {
         // If we ran out of memory, then bail, otherwise, just assume there wasn't a list to retrieve.
-        if(Err == ERROR_NOT_ENOUGH_MEMORY) {
+        if (Err == ERROR_NOT_ENOUGH_MEMORY) {
             goto clean0;
         } else {
             // Allocate a list containing no tags.
-            if(GroupOrderList = MyMalloc(sizeof(DWORD))) {
+            if (GroupOrderList = MyMalloc(sizeof(DWORD))) {
                 *GroupOrderList = 0;
                 GroupOrderListSize = sizeof(DWORD);
             } else {
@@ -4495,16 +4475,16 @@ Return Value:
     }
 
     // Now we have a valid group order list to manipulate.
-    for(i = 0; i < *GroupOrderList; i++) {
-        if(GroupOrderList[i + 1] == TagId) {
+    for (i = 0; i < *GroupOrderList; i++) {
+        if (GroupOrderList[i + 1] == TagId) {
             // Tag already exists in the list.
             break;
         }
     }
 
-    if(i == *GroupOrderList) {
+    if (i == *GroupOrderList) {
         // Then we didn't find the tag in the list.  Add it either to the front, or the end, depending on the 'MoveToFront' flag.
-        if(p = MyRealloc(GroupOrderList, GroupOrderListSize + sizeof(DWORD))) {
+        if (p = MyRealloc(GroupOrderList, GroupOrderListSize + sizeof(DWORD))) {
             GroupOrderList = p;
             GroupOrderListSize += sizeof(DWORD);
         } else {
@@ -4512,7 +4492,7 @@ Return Value:
             goto clean0;
         }
 
-        if(MoveToFront) {
+        if (MoveToFront) {
             MoveMemory(&(GroupOrderList[2]), &(GroupOrderList[1]), *GroupOrderList);
             GroupOrderList[1] = TagId;
         } else {
@@ -4520,7 +4500,7 @@ Return Value:
         }
 
         (*GroupOrderList)++;
-    } else if(MoveToFront && i) {
+    } else if (MoveToFront && i) {
         MoveMemory(&(GroupOrderList[2]), &(GroupOrderList[1]), i * sizeof(DWORD));
         GroupOrderList[1] = TagId;
     }
@@ -4572,20 +4552,20 @@ Return Value:
     BOOL FreeSourceRoot;
     DWORD InfSourceMediaType;
 #ifdef UNICODE
-    CHAR AnsiBuffer[2*MAX_PATH];    // allow room for full Unicode->DBCS expansion,
+    CHAR AnsiBuffer[2 * MAX_PATH];    // allow room for full Unicode->DBCS expansion,
                                     // just to be on the safe side
 #endif
 
-    if(!(LegacySetupDllModule = LoadLibrary(TEXT("SETUPDLL")))) {
+    if (!(LegacySetupDllModule = LoadLibrary(TEXT("SETUPDLL")))) {
         return GetLastError();
     }
 
-    if(!(pfnLegacyInfInterpret = (LEGACY_INF_INTERP_PROC)GetProcAddress(LegacySetupDllModule, "LegacyInfInterpret"))) {
+    if (!(pfnLegacyInfInterpret = (LEGACY_INF_INTERP_PROC)GetProcAddress(LegacySetupDllModule, "LegacyInfInterpret"))) {
         Err = GetLastError();
         goto clean0;
     }
 
-    if(!(pfnLegacyInfGetModifiedSvcList = (LEGACY_INF_GETSVCLIST_PROC)GetProcAddress(LegacySetupDllModule, "LegacyInfGetModifiedSvcList"))) {
+    if (!(pfnLegacyInfGetModifiedSvcList = (LEGACY_INF_GETSVCLIST_PROC)GetProcAddress(LegacySetupDllModule, "LegacyInfGetModifiedSvcList"))) {
         Err = GetLastError();
         goto clean0;
     }
@@ -4601,9 +4581,9 @@ Return Value:
 #endif // else not UNICODE
 
     FreeSourceRoot = FALSE;
-    if(LegacySourcePath = pSetupGetDefaultSourcePath(InfHandle, SRCPATH_USEPNFINFORMATION, &InfSourceMediaType)) {
+    if (LegacySourcePath = pSetupGetDefaultSourcePath(InfHandle, SRCPATH_USEPNFINFORMATION, &InfSourceMediaType)) {
         // BUGBUG (lonnym): For now, if the INF is from the internet, just use the default OEM source path (A:\) instead.
-        if(InfSourceMediaType == SPOST_URL) {
+        if (InfSourceMediaType == SPOST_URL) {
             MyFree(LegacySourcePath);
             LegacySourcePath = NULL;
         } else {
@@ -4611,7 +4591,7 @@ Return Value:
         }
     }
 
-    if(!LegacySourcePath) {
+    if (!LegacySourcePath) {
         // Fall back to default OEM source path.
         LegacySourcePath = pszOemInfDefaultPath;
     }
@@ -4619,50 +4599,50 @@ Return Value:
     // Build the command line to be passed to the legacy INF interpreter.
     CmdLineSize = 1;
     BufSize = 1024;
-    if(CmdLine = MyMalloc(BufSize * sizeof(TCHAR))) {
+    if (CmdLine = MyMalloc(BufSize * sizeof(TCHAR))) {
         *CmdLine = TEXT('\0');
     } else {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean1;
     }
 
-    if(!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("STF_WINDOWSPATH"), WindowsDirectory, &CmdLineSize, &BufSize))) {
+    if (!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("STF_WINDOWSPATH"), WindowsDirectory, &CmdLineSize, &BufSize))) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean1;
     }
 
     lstrcpyn(TempBuffer, WindowsDirectory, 3);
-    if(!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("STF_NTDRIVE"), TempBuffer, &CmdLineSize, &BufSize))) {
+    if (!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("STF_NTDRIVE"), TempBuffer, &CmdLineSize, &BufSize))) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean1;
     }
 
-    if(!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("STF_NTPATH"), SystemDirectory, &CmdLineSize, &BufSize))) {
+    if (!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("STF_NTPATH"), SystemDirectory, &CmdLineSize, &BufSize))) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean1;
     }
 
-    if(!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("STF_WINDOWSSYSPATH"), SystemDirectory, &CmdLineSize, &BufSize))) {
+    if (!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("STF_WINDOWSSYSPATH"), SystemDirectory, &CmdLineSize, &BufSize))) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean1;
     }
 
-    if(!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("LEGACY_DODEVINSTALL"), TEXT("YES"), &CmdLineSize, &BufSize))) {
+    if (!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("LEGACY_DODEVINSTALL"), TEXT("YES"), &CmdLineSize, &BufSize))) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean1;
     }
 
-    if(!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("LEGACY_DI_LANG"), InfLanguageName, &CmdLineSize, &BufSize))) {
+    if (!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("LEGACY_DI_LANG"), InfLanguageName, &CmdLineSize, &BufSize))) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean1;
     }
 
-    if(!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("LEGACY_DI_OPTION"), InfOptionName, &CmdLineSize, &BufSize))) {
+    if (!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("LEGACY_DI_OPTION"), InfOptionName, &CmdLineSize, &BufSize))) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean1;
     }
 
-    if(!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("LEGACY_DI_SRCDIR"), LegacySourcePath, &CmdLineSize, &BufSize))) {
+    if (!(CmdLine = pSetupCmdLineAppendString(CmdLine, TEXT("LEGACY_DI_SRCDIR"), LegacySourcePath, &CmdLineSize, &BufSize))) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean1;
     }
@@ -4670,7 +4650,7 @@ Return Value:
 #ifdef UNICODE
 
     // Allocate the correct amount of space for the ANSI version of the command line. Leave room for DBCS chars if there are any.
-    if(!(AnsiLine = MyMalloc(CmdLineSize * 2 * sizeof(CHAR)))) {
+    if (!(AnsiLine = MyMalloc(CmdLineSize * 2 * sizeof(CHAR)))) {
         MyFree(CmdLine);
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean1;
@@ -4682,12 +4662,12 @@ Return Value:
     MyFree(CmdLine);
 
     // Convert the Unicode source path to ANSI.
-    if(!(AnsiSourcePath = UnicodeToAnsi(LegacySourcePath))) {
+    if (!(AnsiSourcePath = UnicodeToAnsi(LegacySourcePath))) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean2;
     }
 
-    if(FreeSourceRoot) {
+    if (FreeSourceRoot) {
         MyFree(LegacySourcePath);
     }
 
@@ -4710,7 +4690,7 @@ Return Value:
         Err = (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION) ? ERROR_INVALID_DATA : ERROR_READ_FAULT;
     }
 
-    if(Err == NO_ERROR) {
+    if (Err == NO_ERROR) {
         // We successfully ran the interpreter, so we know that we need to loop on a call to FreeLibrary until setupdll goes away.
         OnlyFreeSetupDllOnce = FALSE;
     } else {
@@ -4722,7 +4702,7 @@ Return Value:
     // NOTE:  It seems that most legacy INFs aren't very good about distinguishing between SETUP_ERROR_USERCANCEL and SETUP_ERROR_GENERAL.
     // Therefore, we can't reliably set our error to indicate that the user cancelled (as opposed to some other INF problem).
     // Since almost all of the failures we'll encounter are because the user cancelled, we simply lump both these errors into the same category, and return ERROR_CANCELLED in both cases.
-    if(InterpResult != SETUP_ERROR_SUCCESS) {
+    if (InterpResult != SETUP_ERROR_SUCCESS) {
         Err = ERROR_CANCELLED;
         goto clean2;
     }
@@ -4738,7 +4718,7 @@ Return Value:
     // Since we didn't pass this routine a buffer, then it should always fail.
     MYASSERT(Err != NO_ERROR);
 
-    if(Err == ERROR_NO_MORE_ITEMS) {
+    if (Err == ERROR_NO_MORE_ITEMS) {
         // No service modifications were performed by this INF.  This may be OK, since there may
         // be a default service for this device's class.  Consider our legacy INF installation a success (at least, for now).
         Err = NO_ERROR;
@@ -4751,7 +4731,7 @@ Return Value:
     // list.  (Re-use AnsiLine to store the ANSI multi-sz list.)
     MyFree(AnsiLine);
 
-    if(!(AnsiLine = MyMalloc(BufSize * sizeof(CHAR)))) {
+    if (!(AnsiLine = MyMalloc(BufSize * sizeof(CHAR)))) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean2;
     }
@@ -4762,7 +4742,7 @@ Return Value:
         Err = ERROR_NO_MORE_ITEMS;
     }
 
-    if(Err != NO_ERROR) {
+    if (Err != NO_ERROR) {
         // The only time this should ever happen is if we hit an exception in setupdll.
         // We'll ignore the error.
         Err = NO_ERROR;
@@ -4771,12 +4751,12 @@ Return Value:
 
 #ifdef UNICODE
     // Convert this multi-sz list to Unicode.
-    if(!(CmdLine = MyMalloc(BufSize * sizeof(WCHAR)))) {
+    if (!(CmdLine = MyMalloc(BufSize * sizeof(WCHAR)))) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean2;
     }
 
-    if(!MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, AnsiLine, BufSize * sizeof(CHAR), CmdLine, BufSize)) {
+    if (!MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, AnsiLine, BufSize * sizeof(CHAR), CmdLine, BufSize)) {
         Err = GetLastError();
         MyFree(CmdLine);
         goto clean2;
@@ -4792,10 +4772,10 @@ Return Value:
 
     // OK, we now have the proper TCHAR-ized form of the multi-sz list.  Process the services
     // listed therein, and return the one that should be associated with this device instance.
-    if(AssociatedService = DoServiceModsForLegacyInf(CmdLine)) {
+    if (AssociatedService = DoServiceModsForLegacyInf(CmdLine)) {
         // Make the association between the service and the device.
-        if((cr = CM_Set_DevInst_Registry_Property(DevInst, CM_DRP_SERVICE, AssociatedService, (lstrlen(AssociatedService) + 1) * sizeof(TCHAR), 0)) != CR_SUCCESS) {
-            if(cr == CR_INVALID_DEVINST) {
+        if ((cr = CM_Set_DevInst_Registry_Property(DevInst, CM_DRP_SERVICE, AssociatedService, (lstrlen(AssociatedService) + 1) * sizeof(TCHAR), 0)) != CR_SUCCESS) {
+            if (cr == CR_INVALID_DEVINST) {
                 Err = ERROR_NO_SUCH_DEVINST;
             } else {
                 Err = ERROR_INVALID_DATA;
@@ -4804,20 +4784,20 @@ Return Value:
     }
 
 clean2:
-    if(AnsiLine) {
+    if (AnsiLine) {
         MyFree(AnsiLine);
     }
 
 clean1:
-    if(FreeSourceRoot) {
+    if (FreeSourceRoot) {
         MyFree(LegacySourcePath);
     }
 
 clean0:
     // Clean up
-    while(GetModuleFileName(LegacySetupDllModule, TempBuffer, SIZECHARS(TempBuffer))) {
+    while (GetModuleFileName(LegacySetupDllModule, TempBuffer, SIZECHARS(TempBuffer))) {
         FreeLibrary(LegacySetupDllModule);
-        if(OnlyFreeSetupDllOnce) {
+        if (OnlyFreeSetupDllOnce) {
             break;
         }
     }
@@ -4830,10 +4810,10 @@ PTSTR
 pSetupCmdLineAppendString(
     IN     PTSTR  CmdLine,
     IN     PCTSTR Key,
-    IN     PCTSTR Value,   OPTIONAL
+    IN     PCTSTR Value, OPTIONAL
     IN OUT PUINT  StrLen,
     IN OUT PUINT  BufSize
-    )
+)
 /*
 Routine Description:
     Forms a new (multi-sz) command line by appending a list of arguments to the current command line. For example:
@@ -4856,7 +4836,7 @@ Returns:
     UINT NewLen;
 
     // Handle special cases so we don't end up with empty strings.
-    if(!Value || !(*Value)) {
+    if (!Value || !(*Value)) {
         Value = TEXT("\"\"");
     }
 
@@ -4866,11 +4846,11 @@ Returns:
     NewLen = (*StrLen + 2 + lstrlen(Key) + lstrlen(Value));
 
     // Allocate more space if necessary.
-    if(NewLen >= *BufSize) {
+    if (NewLen >= *BufSize) {
         // Grow the current buffer
         *BufSize += 1024;
 
-        if(Ptr = MyRealloc(CmdLine, (*BufSize) * sizeof(TCHAR))) {
+        if (Ptr = MyRealloc(CmdLine, (*BufSize) * sizeof(TCHAR))) {
             CmdLine = Ptr;
         } else {
             // Free the memory here so the caller doesn't have to worry about it.
@@ -4879,11 +4859,11 @@ Returns:
         }
     }
 
-    Ptr = &(CmdLine[*StrLen-1]);
+    Ptr = &(CmdLine[*StrLen - 1]);
     lstrcpy(Ptr, Key);
-    Ptr = &(CmdLine[*StrLen+lstrlen(Key)]);
+    Ptr = &(CmdLine[*StrLen + lstrlen(Key)]);
     lstrcpy(Ptr, Value);
-    CmdLine[NewLen-1] = TEXT('\0');
+    CmdLine[NewLen - 1] = TEXT('\0');
 
     // Update the length of the buffer that we are using
     *StrLen = NewLen;
@@ -4917,19 +4897,19 @@ Returns:
     DWORD AssocGroupIndex = DWORD_MAX;
     HKEY hKey;
 
-    if(!(SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) {
+    if (!(SCMHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) {
         return NULL;
     }
 
     // Retrieve the 'List' multi-sz value entry under HKLM\System\CCS\Control\ServiceGroupOrder.
-    if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, pszServiceGroupOrderPath, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
-        if(QueryRegistryValue(hKey, TEXT("List"), &ServiceGroupOrderList, &RegDataType, &RegDataSize) != NO_ERROR) {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, pszServiceGroupOrderPath, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+        if (QueryRegistryValue(hKey, TEXT("List"), &ServiceGroupOrderList, &RegDataType, &RegDataSize) != NO_ERROR) {
             // Couldn't retrieve the list--set up an empty list.
             NullChar = TEXT('\0');
             ServiceGroupOrderList = &NullChar;
         } else {
             // If the value entry was present, but zero-length, then setup an emtpy list.
-            if(!ServiceGroupOrderList) {
+            if (!ServiceGroupOrderList) {
                 NullChar = TEXT('\0');
                 ServiceGroupOrderList = &NullChar;
             }
@@ -4942,67 +4922,67 @@ Returns:
         ServiceGroupOrderList = &NullChar;
     }
 
-    for(CurServiceName = ServiceList; *CurServiceName; CurServiceName += (lstrlen(CurServiceName) + 1)) {
+    for (CurServiceName = ServiceList; *CurServiceName; CurServiceName += (lstrlen(CurServiceName) + 1)) {
         // Open this service.
-        if(!(ServiceHandle = OpenService(SCMHandle, CurServiceName, SERVICE_ALL_ACCESS))) {
+        if (!(ServiceHandle = OpenService(SCMHandle, CurServiceName, SERVICE_ALL_ACCESS))) {
             // We couldn't access the service--possibly because it doesn't exist anymore.
             // Continue on with the next service.
             continue;
         }
 
         // Now retrieve the configuration for this service.
-        if(RetrieveServiceConfig(ServiceHandle, &ServiceConfig) != NO_ERROR) {
+        if (RetrieveServiceConfig(ServiceHandle, &ServiceConfig) != NO_ERROR) {
             // There's not a lot we can do without knowing the service's configuration,
             // either.  Again, we'll just skip this service and continue with the next one.
             goto clean0;
         }
 
         // If this service is marked as disabled, then we don't care about it.
-        if(ServiceConfig->dwStartType == SERVICE_DISABLED) {
+        if (ServiceConfig->dwStartType == SERVICE_DISABLED) {
             goto clean1;
         }
 
         // If this service has a load order group, and is a kernel or filesystem driver, then make sure that it has a tag.
-        if(ServiceConfig->lpLoadOrderGroup && *(ServiceConfig->lpLoadOrderGroup) && (ServiceConfig->dwServiceType & (SERVICE_KERNEL_DRIVER | SERVICE_FILE_SYSTEM_DRIVER))) {
+        if (ServiceConfig->lpLoadOrderGroup && *(ServiceConfig->lpLoadOrderGroup) && (ServiceConfig->dwServiceType & (SERVICE_KERNEL_DRIVER | SERVICE_FILE_SYSTEM_DRIVER))) {
             // This service needs a tag--does it have one???
-            if(!(NewTag = ServiceConfig->dwTagId)) {
+            if (!(NewTag = ServiceConfig->dwTagId)) {
                 // Attempt to lock the service database before generating a tag.  We'll go ahead and make the change, even if this fails.
                 AcquireSCMLock(SCMHandle, &SCLock);
 
-                if(!ChangeServiceConfig(ServiceHandle,
-                                        SERVICE_NO_CHANGE,
-                                        SERVICE_NO_CHANGE,
-                                        SERVICE_NO_CHANGE,
-                                        NULL,
-                                        ServiceConfig->lpLoadOrderGroup, // have to specify this to generate new tag.
-                                        &NewTag,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        NULL)) {
+                if (!ChangeServiceConfig(ServiceHandle,
+                                         SERVICE_NO_CHANGE,
+                                         SERVICE_NO_CHANGE,
+                                         SERVICE_NO_CHANGE,
+                                         NULL,
+                                         ServiceConfig->lpLoadOrderGroup, // have to specify this to generate new tag.
+                                         &NewTag,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL)) {
                     NewTag = 0;
                 }
 
-                if(SCLock) {
+                if (SCLock) {
                     UnlockServiceDatabase(SCLock);
                 }
             }
 
             // Make sure that the tag exists in the service's corresponding GroupOrderList entry.
-            if(NewTag) {
+            if (NewTag) {
                 AddTagToGroupOrderListEntry(ServiceConfig->lpLoadOrderGroup, NewTag, FALSE);
             }
         }
 
         // Determine the index that this service's load group occupies in the multi-sz ServiceGroupOrder list we retrieved above.
-        if(ServiceConfig->lpLoadOrderGroup) {
-            for(CurGroupName = ServiceGroupOrderList, ServiceGroupIndex = 0; *CurGroupName; CurGroupName += (lstrlen(CurGroupName) + 1), ServiceGroupIndex++) {
-                if(!lstrcmpi(CurGroupName, ServiceConfig->lpLoadOrderGroup)) {
+        if (ServiceConfig->lpLoadOrderGroup) {
+            for (CurGroupName = ServiceGroupOrderList, ServiceGroupIndex = 0; *CurGroupName; CurGroupName += (lstrlen(CurGroupName) + 1), ServiceGroupIndex++) {
+                if (!lstrcmpi(CurGroupName, ServiceConfig->lpLoadOrderGroup)) {
                     break;
                 }
             }
 
-            if(!(*CurGroupName)) {
+            if (!(*CurGroupName)) {
                 // Then we didn't find this group in our list--give it the maximum index value.
                 ServiceGroupIndex = DWORD_MAX;
             }
@@ -5012,27 +4992,27 @@ Returns:
         }
 
         // Finally, determine if this service loads before any services we've encountered so far, and if so, then make it our new choice for associated service.
-        if(ServiceConfig->dwStartType < AssocStartType) {
+        if (ServiceConfig->dwStartType < AssocStartType) {
             // Then this service loads in an earlier load phase, so we're guaranteed it loads before any drivers we've previously seen.
             AssocServiceName = CurServiceName;
             AssocStartType = ServiceConfig->dwStartType;
             AssocGroupIndex = ServiceGroupIndex;
-        } else if(ServiceConfig->dwStartType == AssocStartType) {
+        } else if (ServiceConfig->dwStartType == AssocStartType) {
             // This service starts in the same load phase as the current selection, so we need to compare the group load order indices to see if this one comes earlier.
-            if(ServiceGroupIndex < AssocGroupIndex) {
+            if (ServiceGroupIndex < AssocGroupIndex) {
                 AssocServiceName = CurServiceName;
                 AssocGroupIndex = ServiceGroupIndex;
             }
         }
 
-clean1:
+    clean1:
         MyFree(ServiceConfig);
 
-clean0:
+    clean0:
         CloseServiceHandle(ServiceHandle);
     }
 
-    if(ServiceGroupOrderList != &NullChar) {
+    if (ServiceGroupOrderList != &NullChar) {
         MyFree(ServiceGroupOrderList);
     }
 
@@ -5049,34 +5029,34 @@ WINAPI
 SetupDiGetActualSectionToInstallA(
     IN  HINF    InfHandle,
     IN  PCSTR   InfSectionName,
-    OUT PSTR    InfSectionWithExt,     OPTIONAL
+    OUT PSTR    InfSectionWithExt, OPTIONAL
     IN  DWORD   InfSectionWithExtSize,
-    OUT PDWORD  RequiredSize,          OPTIONAL
-    OUT PSTR   *Extension              OPTIONAL
-    )
+    OUT PDWORD  RequiredSize, OPTIONAL
+    OUT PSTR* Extension              OPTIONAL
+)
 {
     PWSTR infsectionname;
     DWORD rc;
     BOOL b;
     PWSTR extension;
-    UINT CharOffset,i;
+    UINT CharOffset, i;
     PSTR p;
     DWORD requiredsize;
     WCHAR newsection[MAX_SECT_NAME_LEN];
     PSTR ansi;
 
-    rc = CaptureAndConvertAnsiArg(InfSectionName,&infsectionname);
-    if(rc != NO_ERROR) {
+    rc = CaptureAndConvertAnsiArg(InfSectionName, &infsectionname);
+    if (rc != NO_ERROR) {
         SetLastError(rc);
         return(FALSE);
     }
 
     b = SetupDiGetActualSectionToInstallW(InfHandle, infsectionname, newsection, MAX_SECT_NAME_LEN, &requiredsize, &extension);
     rc = GetLastError();
-    if(b) {
-        if(ansi = UnicodeToAnsi(newsection)) {
-            requiredsize = lstrlenA(ansi)+1;
-            if(RequiredSize) {
+    if (b) {
+        if (ansi = UnicodeToAnsi(newsection)) {
+            requiredsize = lstrlenA(ansi) + 1;
+            if (RequiredSize) {
                 try {
                     *RequiredSize = requiredsize;
                 } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -5085,9 +5065,9 @@ SetupDiGetActualSectionToInstallA(
                 }
             }
 
-            if(b && InfSectionWithExt) {
-                if(requiredsize <= InfSectionWithExtSize) {
-                    if(!lstrcpyA(InfSectionWithExt,ansi)) {
+            if (b && InfSectionWithExt) {
+                if (requiredsize <= InfSectionWithExtSize) {
+                    if (!lstrcpyA(InfSectionWithExt, ansi)) {
                         // lstrcpy faulted, so InfSectionWithExt must be bad
                         rc = ERROR_INVALID_PARAMETER;
                         b = FALSE;
@@ -5098,12 +5078,12 @@ SetupDiGetActualSectionToInstallA(
                 }
             }
 
-            if(b && Extension) {
-                if(extension && InfSectionWithExt) {
+            if (b && Extension) {
+                if (extension && InfSectionWithExt) {
                     // We need to figure out where the extension is in the converted string. To be DBCS safe we will count characters forward to find it.
                     CharOffset = (UINT)(extension - newsection);
                     p = InfSectionWithExt;
-                    for(i=0; i<CharOffset; i++) {
+                    for (i = 0; i < CharOffset; i++) {
                         p = CharNextA(p);
                     }
                 } else {
@@ -5136,11 +5116,11 @@ WINAPI
 SetupDiGetActualSectionToInstallW(
     IN  HINF    InfHandle,
     IN  PCWSTR  InfSectionName,
-    OUT PWSTR   InfSectionWithExt,     OPTIONAL
+    OUT PWSTR   InfSectionWithExt, OPTIONAL
     IN  DWORD   InfSectionWithExtSize,
-    OUT PDWORD  RequiredSize,          OPTIONAL
-    OUT PWSTR  *Extension              OPTIONAL
-    )
+    OUT PDWORD  RequiredSize, OPTIONAL
+    OUT PWSTR* Extension              OPTIONAL
+)
 {
     UNREFERENCED_PARAMETER(InfHandle);
     UNREFERENCED_PARAMETER(InfSectionName);
@@ -5159,11 +5139,11 @@ WINAPI
 SetupDiGetActualSectionToInstall(
     IN  HINF    InfHandle,
     IN  PCTSTR  InfSectionName,
-    OUT PTSTR   InfSectionWithExt,     OPTIONAL
+    OUT PTSTR   InfSectionWithExt, OPTIONAL
     IN  DWORD   InfSectionWithExtSize,
-    OUT PDWORD  RequiredSize,          OPTIONAL
-    OUT PTSTR  *Extension              OPTIONAL
-    )
+    OUT PDWORD  RequiredSize, OPTIONAL
+    OUT PTSTR* Extension              OPTIONAL
+)
 /*
 Routine Description:
     This API finds the appropriate install section to be used when installing a device from a Win95-style device INF.
@@ -5203,21 +5183,21 @@ Remarks:
 
     CopyMemory(TempInfSectionName, InfSectionName, SectionNameLen * sizeof(TCHAR));
 
-    if(OSVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
+    if (OSVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
         // We're running on NT, so first try the NT architecture-specific extension, then the generic NT extension.
         CopyMemory(&(TempInfSectionName[SectionNameLen]), pszNtPlatformSuffix, sizeof(pszNtPlatformSuffix));
-        if(SetupGetLineCount(InfHandle, TempInfSectionName) != -1) {
+        if (SetupGetLineCount(InfHandle, TempInfSectionName) != -1) {
             goto clean0;
         }
 
         CopyMemory(&(TempInfSectionName[SectionNameLen]), pszNtSuffix, sizeof(pszNtSuffix));
-        if(SetupGetLineCount(InfHandle, TempInfSectionName) != -1) {
+        if (SetupGetLineCount(InfHandle, TempInfSectionName) != -1) {
             goto clean0;
         }
     } else {
         // We're running on Windows 95, so try the Windows-specific extension
         CopyMemory(&(TempInfSectionName[SectionNameLen]), pszWinSuffix, sizeof(pszWinSuffix));
-        if(SetupGetLineCount(InfHandle, TempInfSectionName) != -1) {
+        if (SetupGetLineCount(InfHandle, TempInfSectionName) != -1) {
             goto clean0;
         }
     }
@@ -5232,15 +5212,15 @@ clean0:
 
     // Guard the rest of the routine in try/except, since we're dealing with caller-supplied memory.
     try {
-        if(RequiredSize) {
+        if (RequiredSize) {
             *RequiredSize = ExtBufferLen;
         }
-        if(InfSectionWithExt) {
-            if(ExtBufferLen > InfSectionWithExtSize) {
+        if (InfSectionWithExt) {
+            if (ExtBufferLen > InfSectionWithExtSize) {
                 Err = ERROR_INSUFFICIENT_BUFFER;
             } else {
                 CopyMemory(InfSectionWithExt, TempInfSectionName, ExtBufferLen * sizeof(TCHAR));
-                if(Extension) {
+                if (Extension) {
                     *Extension = ExtFound ? InfSectionWithExt + SectionNameLen : NULL;
                 }
             }
@@ -5275,9 +5255,9 @@ Returns:
     DirTruncPos = CharPrev(InfFileName, CharPos);
 
     // (We know MyGetFileTitle will never return a pointer to a path separator character, so the following check is valid.)
-    if(*DirTruncPos == TEXT('\\')) {
+    if (*DirTruncPos == TEXT('\\')) {
         // If this is in a root directory (e.g., "A:\"), then we don't want to strip off the trailing backslash.
-        if(((DirTruncPos - InfFileName) != 2) || (*CharNext(InfFileName) != TEXT(':'))) {
+        if (((DirTruncPos - InfFileName) != 2) || (*CharNext(InfFileName) != TEXT(':'))) {
             CharPos = DirTruncPos;
         }
     }
@@ -5285,7 +5265,7 @@ Returns:
     DirectoryPathLen = (int)(CharPos - InfFileName);
 
     // Now, see if this directory matches any of the ones in our search path list.
-    if(InfDirectoryOnly) {
+    if (InfDirectoryOnly) {
         CharPos = InfDirectory;
     } else {
         CharPos = InfSearchPaths;
@@ -5295,19 +5275,19 @@ Returns:
         // If the current search path ends in a backslash, we want to strip it off.
         CurSearchPathLen = lstrlen(CharPos);
 
-        if((DirectoryPathLen == CurSearchPathLen) && !_tcsnicmp(CharPos, InfFileName, CurSearchPathLen)) {
+        if ((DirectoryPathLen == CurSearchPathLen) && !_tcsnicmp(CharPos, InfFileName, CurSearchPathLen)) {
             // We've found this directory in our list--we can return.
             return FALSE;
         }
 
-        if(InfDirectoryOnly) {
+        if (InfDirectoryOnly) {
             // We're only supposed to consider the %windir%\Inf directory--that failed, so we're done.
             break;
         } else {
             // Move on to next component of INF search path.
             CharPos += (CurSearchPathLen + 1);
         }
-    } while(*CharPos);
+    } while (*CharPos);
 
     // If we get to here, then we didn't find the directory in our search path list.
     // Therefore, it's from an OEM location.
@@ -5334,7 +5314,7 @@ Returns:
     }
 
     // At this point we know the Inf is living in one of the default Inf search paths, so we need to check to see if was originally located somewhere else, making it an OEM Inf.
-    if ((pGetInfOriginalNameAndCatalogFile(NULL, InfFileName, &bDifferentName, OriginalName, sizeof(OriginalName)/sizeof(TCHAR), NULL, 0, NULL) == NO_ERROR) && (bDifferentName)) {
+    if ((pGetInfOriginalNameAndCatalogFile(NULL, InfFileName, &bDifferentName, OriginalName, sizeof(OriginalName) / sizeof(TCHAR), NULL, 0, NULL) == NO_ERROR) && (bDifferentName)) {
         return TRUE;
     }
 
@@ -5389,9 +5369,9 @@ _SetupDiInstallInterfaceDevices(
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData,
     IN BOOL             DoFullInstall,
-    IN HINF             hDeviceInf,     OPTIONAL
+    IN HINF             hDeviceInf, OPTIONAL
     IN HSPFILEQ         UserFileQ       OPTIONAL
-    )
+)
 /*
 Routine Description:
     Worker routine for both SetupDiInstallInterfaceDevices and SetupDiInstallDriverFiles.
@@ -5448,12 +5428,12 @@ Remarks:
     DWORD slot_section = 0;
 
     // A device information element must be specified.
-    if(!DeviceInfoData) {
+    if (!DeviceInfoData) {
         Err = ERROR_INVALID_PARAMETER;
         goto clean1;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         Err = ERROR_INVALID_HANDLE;
         goto clean1;
     }
@@ -5469,7 +5449,7 @@ Remarks:
     NeedsSectionList = NULL;
 
     try {
-        if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
+        if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -5477,27 +5457,27 @@ Remarks:
         LogContext = DevInfoElem->InstallParamBlock.LogContext;
 
         // If there's no driver selected (i.e., this is a null driver install), or we're using a legacy INF, then there's nothing for us to do.
-        if(!(DevInfoElem->SelectedDriver) || (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF)) {
+        if (!(DevInfoElem->SelectedDriver) || (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF)) {
             goto clean0;
         }
 
         // Make sure we only use the devinfo element's window if it's valid.
-        if(hwndParent = DevInfoElem->InstallParamBlock.hwndParent) {
-           if(!IsWindow(hwndParent)) {
+        if (hwndParent = DevInfoElem->InstallParamBlock.hwndParent) {
+            if (!IsWindow(hwndParent)) {
                 hwndParent = NULL;
-           }
+            }
         }
 
         // Ignore the DI_NOFILECOPY flag if we're doing a copy-only installation--that's what setupx does.
-        if(DoFileCopying = (!(DevInfoElem->InstallParamBlock.Flags & DI_NOFILECOPY) || !DoFullInstall)) {
-            if(UserFileQ == INVALID_HANDLE_VALUE) {
-                if(DevInfoElem->InstallParamBlock.Flags & DI_NOVCP) {
+        if (DoFileCopying = (!(DevInfoElem->InstallParamBlock.Flags & DI_NOFILECOPY) || !DoFullInstall)) {
+            if (UserFileQ == INVALID_HANDLE_VALUE) {
+                if (DevInfoElem->InstallParamBlock.Flags & DI_NOVCP) {
                     // We must have a user-supplied file queue.
                     MYASSERT(DevInfoElem->InstallParamBlock.UserFileQ);
                     UserFileQ = DevInfoElem->InstallParamBlock.UserFileQ;
                 } else {
                     // Create our own queue.
-                    if((UserFileQ = SetupOpenFileQueue()) != INVALID_HANDLE_VALUE) {
+                    if ((UserFileQ = SetupOpenFileQueue()) != INVALID_HANDLE_VALUE) {
                         CloseUserFileQ = TRUE;
                     } else {
                         // SetupOpenFileQueue sets actual error
@@ -5506,14 +5486,14 @@ Remarks:
                     }
                 }
                 // Maybe replace the file queue's log context with the DevInfoElem's
-                InheritLogContext(LogContext, &((PSP_FILE_QUEUE) UserFileQ)->LogContext);
+                InheritLogContext(LogContext, &((PSP_FILE_QUEUE)UserFileQ)->LogContext);
             }
         }
 
         szInfFileName = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->InfFileName);
         szInfSectionName = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->InfSectionName);
-        if(hDeviceInf == INVALID_HANDLE_VALUE) {
-            if((hDeviceInf = SetupOpenInfFile(szInfFileName, NULL, INF_STYLE_WIN4, NULL)) == INVALID_HANDLE_VALUE) {
+        if (hDeviceInf == INVALID_HANDLE_VALUE) {
+            if ((hDeviceInf = SetupOpenInfFile(szInfFileName, NULL, INF_STYLE_WIN4, NULL)) == INVALID_HANDLE_VALUE) {
                 Err = GetLastError();
                 goto clean0;
             }
@@ -5526,15 +5506,15 @@ Remarks:
 
         // Now append the ".Interfaces" extension to the install section name to find the interface install section to run.
         CopyMemory(&(InfSectionWithExt[InfSectionWithExtLength - 1]), pszInterfacesSectionSuffix, sizeof(pszInterfacesSectionSuffix));
-        if(slot_section == 0) {
+        if (slot_section == 0) {
             // we haven't done anything about logging section yet...
-            slot_section = AllocLogInfoSlotOrLevel(LogContext,DRIVER_LOG_VERBOSE,FALSE);
+            slot_section = AllocLogInfoSlotOrLevel(LogContext, DRIVER_LOG_VERBOSE, FALSE);
             // Say what section is about to be installed.
             WriteLogEntry(LogContext, slot_section, MSG_LOG_INSTALLING_SECTION_FROM, NULL, InfSectionWithExt, szInfFileName);
         }
 
         // Append the layout INF, if necessary.
-        if(DoFileCopying) {
+        if (DoFileCopying) {
             SetupOpenAppendInfFile(NULL, hDeviceInf, NULL);
         }
 
@@ -5542,27 +5522,25 @@ Remarks:
         AppendLoadIncludedInfs(hDeviceInf, szInfFileName, InfSectionWithExt, DoFileCopying);
 
         NeedsSectionList = GetMultiSzFromInf(hDeviceInf, InfSectionWithExt, TEXT("needs"), &b);
-        if(!NeedsSectionList && b) {
+        if (!NeedsSectionList && b) {
             // Out of memory!
             Err = ERROR_NOT_ENOUGH_MEMORY;
             goto clean0;
         }
 
         // Process the "AddInterface" lines in this section, as well as those contained with any sections referenced in the "needs=" entry in this section.
-        for(CurInstallSection = InfSectionWithExt;
+        for (CurInstallSection = InfSectionWithExt;
             (CurInstallSection && *CurInstallSection);
-            CurInstallSection = (CurInstallSection == InfSectionWithExt) ? NeedsSectionList : (CurInstallSection + lstrlen(CurInstallSection) + 1))
-        {
-            if(SetupFindFirstLine(hDeviceInf, CurInstallSection, pszAddInterface, &InterfaceDeviceInstallLine)) {
+             CurInstallSection = (CurInstallSection == InfSectionWithExt) ? NeedsSectionList : (CurInstallSection + lstrlen(CurInstallSection) + 1)) {
+            if (SetupFindFirstLine(hDeviceInf, CurInstallSection, pszAddInterface, &InterfaceDeviceInstallLine)) {
                 do {
                     // Retrieve the interface class GUID for this interface device.
-                    if(!SetupGetStringField(&InterfaceDeviceInstallLine, 1, InterfaceGuidString, SIZECHARS(InterfaceGuidString), NULL))
-                    {
+                    if (!SetupGetStringField(&InterfaceDeviceInstallLine, 1, InterfaceGuidString, SIZECHARS(InterfaceGuidString), NULL)) {
                         Err = ERROR_BAD_INTERFACE_INSTALLSECT;
                         goto clean0;
                     }
 
-                    if(NO_ERROR != pSetupGuidFromString(InterfaceGuidString, &InterfaceGuid)) {
+                    if (NO_ERROR != pSetupGuidFromString(InterfaceGuidString, &InterfaceGuid)) {
                         Err = ERROR_BAD_INTERFACE_INSTALLSECT;
                         goto clean0;
                     }
@@ -5572,38 +5550,36 @@ Remarks:
                     NeedToInstallInterfaceClass = FALSE;
 
                     hKeyInterfaceClass = SetupDiOpenClassRegKeyEx(&InterfaceGuid, KEY_READ, DIOCR_INTERFACE, NULL, NULL);
-                    if(hKeyInterfaceClass != INVALID_HANDLE_VALUE) {
+                    if (hKeyInterfaceClass != INVALID_HANDLE_VALUE) {
                         // OK, this interface class already exists.  We don't need to install it.
                         RegCloseKey(hKeyInterfaceClass);
                         hKeyInterfaceClass = INVALID_HANDLE_VALUE;
                     } else {
                         // This interface class isn't currently installed.
                         // Check to see if we've already encountered this class (and added it to our list of interface classes to install).
-                        for(CurInterfaceInstallNode = InterfacesToInstall; CurInterfaceInstallNode; CurInterfaceInstallNode = CurInterfaceInstallNode->Next)
-                        {
-                            if(IsEqualGUID(&InterfaceGuid, &(CurInterfaceInstallNode->InterfaceGuid))) {
+                        for (CurInterfaceInstallNode = InterfacesToInstall; CurInterfaceInstallNode; CurInterfaceInstallNode = CurInterfaceInstallNode->Next) {
+                            if (IsEqualGUID(&InterfaceGuid, &(CurInterfaceInstallNode->InterfaceGuid))) {
                                 // The installation of this interface class is already in our
                                 // 'to do' list.
                                 break;
                             }
                         }
 
-                        if(!CurInterfaceInstallNode) {
+                        if (!CurInterfaceInstallNode) {
                             NeedToInstallInterfaceClass = TRUE;
                         }
                     }
 
-                    if(NeedToInstallInterfaceClass) {
+                    if (NeedToInstallInterfaceClass) {
                         // Look for this interface class GUID in the INF's [InterfaceInstall32] section
                         // (if present).
-                        if(SetupFindFirstLine(hDeviceInf, pszInterfaceInstall32, InterfaceGuidString, &InterfaceClassInstallLine)) {
+                        if (SetupFindFirstLine(hDeviceInf, pszInterfaceInstall32, InterfaceGuidString, &InterfaceClassInstallLine)) {
                             // Get the name of the install section for this interface class.
-                            if((UndecoratedInstallSection = pSetupGetField(&InterfaceClassInstallLine, 1)) && !(*UndecoratedInstallSection))
-                            {
+                            if ((UndecoratedInstallSection = pSetupGetField(&InterfaceClassInstallLine, 1)) && !(*UndecoratedInstallSection)) {
                                 UndecoratedInstallSection = NULL;
                             }
 
-                            if(!UndecoratedInstallSection) {
+                            if (!UndecoratedInstallSection) {
                                 *InterfaceInstallSection = TEXT('\0');
                             } else {
                                 // Get the (potentially) os/architecture-specific install section.
@@ -5611,14 +5587,14 @@ Remarks:
 
                                 SetupDiGetActualSectionToInstall(hDeviceInf, UndecoratedInstallSection, InterfaceInstallSection, SIZECHARS(InterfaceInstallSection), NULL, &SectionExtension);
                                 // If this is the undecorated name, then make sure that the section actually exists.
-                                if(!SectionExtension && (SetupGetLineCount(hDeviceInf, InterfaceInstallSection) == -1)) {
+                                if (!SectionExtension && (SetupGetLineCount(hDeviceInf, InterfaceInstallSection) == -1)) {
                                     WriteLogEntry(LogContext, DRIVER_LOG_ERROR, MSG_LOG_NOSECTION, NULL, InterfaceInstallSection);
                                     Err = ERROR_SECTION_NOT_FOUND;
                                     goto clean0;
                                 }
                             }
 
-                            if(!SetupGetIntField(&InterfaceClassInstallLine, 2, (PINT)&InstallFlags)) {
+                            if (!SetupGetIntField(&InterfaceClassInstallLine, 2, (PINT)&InstallFlags)) {
                                 InstallFlags = 0;
                             }
                         } else {
@@ -5627,7 +5603,7 @@ Remarks:
                         }
 
                         // At this point, we just want to queue up any file operations required.
-                        if(DoFileCopying && *InterfaceInstallSection) {
+                        if (DoFileCopying && *InterfaceInstallSection) {
                             Err = pSetupInstallFiles(hDeviceInf,
                                                      NULL,
                                                      InterfaceInstallSection,
@@ -5638,14 +5614,14 @@ Remarks:
                                                      NULL,
                                                      UserFileQ,
                                                      TRUE
-                                                    );
-                            if(Err != NO_ERROR) {
+                            );
+                            if (Err != NO_ERROR) {
                                 goto clean0;
                             }
                         }
 
                         // Now add a node onto our 'to do' list of interface classes to install.
-                        if(InterfaceInstallNode = MyMalloc(sizeof(INTERFACE_CLASS_TO_INSTALL))) {
+                        if (InterfaceInstallNode = MyMalloc(sizeof(INTERFACE_CLASS_TO_INSTALL))) {
                             CopyMemory(&(InterfaceInstallNode->InterfaceGuid), &InterfaceGuid, sizeof(InterfaceGuid));
 
                             lstrcpy(InterfaceInstallNode->InstallSection, InterfaceInstallSection);
@@ -5663,37 +5639,36 @@ Remarks:
                     }
 
                     // Now queue up any file operations for this particular device interface.
-                    if(DoFileCopying && SetupGetStringField(&InterfaceDeviceInstallLine, 3, InterfaceInstallSection, SIZECHARS(InterfaceInstallSection), NULL) && *InterfaceInstallSection)
-                    {
+                    if (DoFileCopying && SetupGetStringField(&InterfaceDeviceInstallLine, 3, InterfaceInstallSection, SIZECHARS(InterfaceInstallSection), NULL) && *InterfaceInstallSection) {
                         Err = pSetupInstallFiles(hDeviceInf,
                                                  NULL,
                                                  InterfaceInstallSection,
                                                  NULL,
                                                  NULL,
                                                  NULL,
-                                                 SP_COPY_NEWER_OR_SAME | SP_COPY_LANGUAGEAWARE | ((DevInfoElem->InstallParamBlock.Flags & DI_NOBROWSE)? SP_COPY_NOBROWSE : 0),
+                                                 SP_COPY_NEWER_OR_SAME | SP_COPY_LANGUAGEAWARE | ((DevInfoElem->InstallParamBlock.Flags & DI_NOBROWSE) ? SP_COPY_NOBROWSE : 0),
                                                  NULL,
                                                  UserFileQ,
                                                  TRUE
-                                                );
-                        if(Err != NO_ERROR) {
+                        );
+                        if (Err != NO_ERROR) {
                             goto clean0;
                         }
                     }
-                } while(SetupFindNextMatchLine(&InterfaceDeviceInstallLine, pszAddInterface, &InterfaceDeviceInstallLine));
+                } while (SetupFindNextMatchLine(&InterfaceDeviceInstallLine, pszAddInterface, &InterfaceDeviceInstallLine));
             }
         }
 
         // Mark the queue as a device install queue (and make sure there's a catalog node representing our device INF in the queue).
-        if(DoFileCopying) {
+        if (DoFileCopying) {
             MYASSERT(UserFileQ && (UserFileQ != INVALID_HANDLE_VALUE));
             Err = MarkQueueForDeviceInstall(UserFileQ, hDeviceInf, pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->DrvDescription));
         }
 
         // At this point, we have queued up all the files that need to be
         // copied.  If we weren't given a user-supplied queue, then commit our queue now.
-        if(CloseUserFileQ) {
-            if(Err == NO_ERROR) {
+        if (CloseUserFileQ) {
+            if (Err == NO_ERROR) {
                 // Determine whether the queue actually needs to be committed.
 
                 // ScanQueueResult can have 1 of 3 values:
@@ -5706,23 +5681,22 @@ Remarks:
                 //    The copy queue will have been emptied, so only del/ren/backup functions will be performed.
 
                 // (jamiehun) see previous case of SetupScanFileQueue for a discussion of DI_FLAGSEX_PREINSTALLBACKUP handling.
-                if(!SetupScanFileQueue(UserFileQ, SPQ_SCAN_FILE_VALIDITY | SPQ_SCAN_PRUNE_COPY_QUEUE, hwndParent, NULL, NULL, &ScanQueueResult)) {
+                if (!SetupScanFileQueue(UserFileQ, SPQ_SCAN_FILE_VALIDITY | SPQ_SCAN_PRUNE_COPY_QUEUE, hwndParent, NULL, NULL, &ScanQueueResult)) {
                     // SetupScanFileQueue should really never fail when you don't ask it to call a callback routine, but if it does,
                     // just go ahead and commit the queue.
                     ScanQueueResult = 0;
                 }
             }
 
-            if((Err == NO_ERROR) && (ScanQueueResult != 1)) {
+            if ((Err == NO_ERROR) && (ScanQueueResult != 1)) {
                 // We need to commit this file queue.  Figure out what message handler to use.
-                if(DevInfoElem->InstallParamBlock.InstallMsgHandler) {
+                if (DevInfoElem->InstallParamBlock.InstallMsgHandler) {
                     MsgHandler = DevInfoElem->InstallParamBlock.InstallMsgHandler;
                     MsgHandlerContext = DevInfoElem->InstallParamBlock.InstallMsgHandlerContext;
                     MsgHandlerIsNativeCharWidth = DevInfoElem->InstallParamBlock.InstallMsgHandlerIsNativeCharWidth;
                 } else {
                     NoProgressUI = (GuiSetupInProgress || (DevInfoElem->InstallParamBlock.Flags & DI_QUIETINSTALL));
-                    if(MsgHandlerContext = SetupInitDefaultQueueCallbackEx(hwndParent, (NoProgressUI ? INVALID_HANDLE_VALUE : NULL), 0, 0, NULL))
-                    {
+                    if (MsgHandlerContext = SetupInitDefaultQueueCallbackEx(hwndParent, (NoProgressUI ? INVALID_HANDLE_VALUE : NULL), 0, 0, NULL)) {
                         FreeMsgHandlerContext = TRUE;
                         MsgHandler = SetupDefaultQueueCallback;
                         MsgHandlerIsNativeCharWidth = TRUE;
@@ -5732,14 +5706,14 @@ Remarks:
                 }
 
                 // Copy enqueued files.
-                if(Err == NO_ERROR) {
-                    if(_SetupCommitFileQueue(hwndParent, UserFileQ, MsgHandler, MsgHandlerContext, MsgHandlerIsNativeCharWidth)) {
+                if (Err == NO_ERROR) {
+                    if (_SetupCommitFileQueue(hwndParent, UserFileQ, MsgHandler, MsgHandlerContext, MsgHandlerIsNativeCharWidth)) {
                         // Check to see whether a reboot is required as a result of committing the queue (i.e., because files were in use, or the INF requested a reboot).
                         FileQueueNeedsReboot = SetupPromptReboot(UserFileQ, NULL, TRUE);
                         // This should never fail...
                         MYASSERT(FileQueueNeedsReboot != -1);
 
-                        if(FileQueueNeedsReboot) {
+                        if (FileQueueNeedsReboot) {
                             DevInfoElem->InstallParamBlock.Flags |= DI_NEEDREBOOT;
                             SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, LogContext, MSG_LOG_REBOOT_REASON_INUSE);
                         }
@@ -5754,59 +5728,58 @@ Remarks:
             CloseUserFileQ = FALSE;
 
             // Terminate the default queue callback, if it was created.
-            if(FreeMsgHandlerContext) {
+            if (FreeMsgHandlerContext) {
                 SetupTermDefaultQueueCallback(MsgHandlerContext);
                 FreeMsgHandlerContext = FALSE;
             }
 
-            if(Err != NO_ERROR) {
+            if (Err != NO_ERROR) {
                 // BUGBUG (lonnym) -- If we encountered some error above, we should have a way to rollback at least the INF/PNF/CAT files we installed!
                 goto clean0;
             }
         }
 
         // If all we were asked to do was copy files, then we're done.
-        if(!DoFullInstall) {
+        if (!DoFullInstall) {
             goto clean0;
         }
 
         // Now go through our list of interface classes to install, and install each one.
-        if(CurInterfaceInstallNode = InterfacesToInstall) {
+        if (CurInterfaceInstallNode = InterfacesToInstall) {
             // Open a handle to the root of the DeviceClasses registry branch.
             hKeyDeviceClassesRoot = SetupDiOpenClassRegKeyEx(NULL, KEY_ALL_ACCESS, DIOCR_INTERFACE, NULL, NULL);
-            if(hKeyDeviceClassesRoot == INVALID_HANDLE_VALUE) {
+            if (hKeyDeviceClassesRoot == INVALID_HANDLE_VALUE) {
                 Err = GetLastError();
                 goto clean0;
             }
 
             do {
                 // Presently, the flags field, if present, must be zero.
-                if(CurInterfaceInstallNode->Flags) {
+                if (CurInterfaceInstallNode->Flags) {
                     Err = ERROR_INVALID_FLAGS;
                     goto clean0;
                 }
 
                 pSetupStringFromGuid(&(CurInterfaceInstallNode->InterfaceGuid), InterfaceGuidString, SIZECHARS(InterfaceGuidString));
                 Err = RegCreateKeyEx(hKeyDeviceClassesRoot, InterfaceGuidString, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKeyInterfaceClass, &RegDisposition);
-                if(Err != ERROR_SUCCESS) {
+                if (Err != ERROR_SUCCESS) {
                     // Ensure that the registry handle is still invalid, so we won't try to close it.
                     hKeyInterfaceClass = INVALID_HANDLE_VALUE;
                     goto clean0;
                 }
 
                 // Now run the INF section for this newly-created key.
-                if(!SetupInstallFromInfSection(NULL,
-                                               hDeviceInf,
-                                               CurInterfaceInstallNode->InstallSection,
-                                               SPINST_INIFILES | SPINST_REGISTRY | SPINST_INI2REG | SPINST_BITREG,
-                                               hKeyInterfaceClass,
-                                               NULL,
-                                               0,
-                                               NULL,
-                                               NULL,
-                                               INVALID_HANDLE_VALUE,
-                                               NULL))
-                {
+                if (!SetupInstallFromInfSection(NULL,
+                                                hDeviceInf,
+                                                CurInterfaceInstallNode->InstallSection,
+                                                SPINST_INIFILES | SPINST_REGISTRY | SPINST_INI2REG | SPINST_BITREG,
+                                                hKeyInterfaceClass,
+                                                NULL,
+                                                0,
+                                                NULL,
+                                                NULL,
+                                                INVALID_HANDLE_VALUE,
+                                                NULL)) {
                     Err = GetLastError();
                     // Normally, we would want to clean up this newly-created key.
                     // However, the kernel-mode IoRegisterDeviceClassAssociation API will quite happily create the class key if it doesn't exist.
@@ -5817,23 +5790,22 @@ Remarks:
                 RegCloseKey(hKeyInterfaceClass);
                 hKeyInterfaceClass = INVALID_HANDLE_VALUE;
 
-                if(Err != NO_ERROR) {
+                if (Err != NO_ERROR) {
                     goto clean0;
                 }
 
                 CurInterfaceInstallNode = CurInterfaceInstallNode->Next;
-            } while(CurInterfaceInstallNode);
+            } while (CurInterfaceInstallNode);
         }
 
         // At this point, we've done everything except for actually registering the interface devices and (potentially) running INFs against their registry keys.
         // Do that now...
         InterfaceDeviceData.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
 
-        for(CurInstallSection = InfSectionWithExt;
+        for (CurInstallSection = InfSectionWithExt;
             (CurInstallSection && *CurInstallSection);
-            CurInstallSection = (CurInstallSection == InfSectionWithExt) ? NeedsSectionList : (CurInstallSection + lstrlen(CurInstallSection) + 1))
-        {
-            if(SetupFindFirstLine(hDeviceInf, CurInstallSection, pszAddInterface, &InterfaceDeviceInstallLine)) {
+             CurInstallSection = (CurInstallSection == InfSectionWithExt) ? NeedsSectionList : (CurInstallSection + lstrlen(CurInstallSection) + 1)) {
+            if (SetupFindFirstLine(hDeviceInf, CurInstallSection, pszAddInterface, &InterfaceDeviceInstallLine)) {
 
                 do {
                     // Retrieve the interface class GUID for this interface device.  (There's
@@ -5841,87 +5813,84 @@ Remarks:
                     SetupGetStringField(&InterfaceDeviceInstallLine, 1, InterfaceGuidString, SIZECHARS(InterfaceGuidString), NULL);
                     pSetupGuidFromString(InterfaceGuidString, &InterfaceGuid);
 
-                    if(!SetupGetStringField(&InterfaceDeviceInstallLine, 2, RefString, SIZECHARS(RefString), NULL))
-                    {
+                    if (!SetupGetStringField(&InterfaceDeviceInstallLine, 2, RefString, SIZECHARS(RefString), NULL)) {
                         *RefString = TEXT('\0');
                     }
 
-                    if(!SetupGetStringField(&InterfaceDeviceInstallLine, 3, InterfaceInstallSection, SIZECHARS(InterfaceInstallSection), NULL))
-                    {
+                    if (!SetupGetStringField(&InterfaceDeviceInstallLine, 3, InterfaceInstallSection, SIZECHARS(InterfaceInstallSection), NULL)) {
                         *InterfaceInstallSection = TEXT('\0');
                     }
 
-                    if(!SetupGetIntField(&InterfaceDeviceInstallLine, 4, (PINT)&InstallFlags)) {
+                    if (!SetupGetIntField(&InterfaceDeviceInstallLine, 4, (PINT)&InstallFlags)) {
                         InstallFlags = 0;
                     }
 
                     // (Presently, no flags are defined--field, if present, must be zero.
-                    if(InstallFlags) {
+                    if (InstallFlags) {
                         Err = ERROR_INVALID_FLAGS;
                         goto clean0;
                     }
 
                     // OK, we have all the information we need to create this interface device.
-                    if(!SetupDiCreateDeviceInterface(DeviceInfoSet, DeviceInfoData, &InterfaceGuid, (*RefString) ? RefString : NULL, 0, &InterfaceDeviceData)) {
+                    if (!SetupDiCreateDeviceInterface(DeviceInfoSet, DeviceInfoData, &InterfaceGuid, (*RefString) ? RefString : NULL, 0, &InterfaceDeviceData)) {
                         Err = GetLastError();
                         goto clean0;
                     }
 
-                    if(*InterfaceInstallSection) {
+                    if (*InterfaceInstallSection) {
                         // Run the INF against this interface device's registry key.
                         hKeyInterfaceDevice = SetupDiCreateDeviceInterfaceRegKey(DeviceInfoSet, &InterfaceDeviceData, 0, KEY_ALL_ACCESS, INVALID_HANDLE_VALUE, NULL);
-                        if(hKeyInterfaceDevice == INVALID_HANDLE_VALUE) {
+                        if (hKeyInterfaceDevice == INVALID_HANDLE_VALUE) {
                             Err = GetLastError();
                             goto clean0;
                         }
 
                         // Now run the INF section for this newly-created key.
-                        if(!SetupInstallFromInfSection(NULL,
-                                                       hDeviceInf,
-                                                       InterfaceInstallSection,
-                                                       SPINST_INIFILES | SPINST_REGISTRY | SPINST_INI2REG | SPINST_BITREG,
-                                                       hKeyInterfaceDevice,
-                                                       NULL,
-                                                       0,
-                                                       NULL,
-                                                       NULL,
-                                                       INVALID_HANDLE_VALUE,
-                                                       NULL))
-                        {
+                        if (!SetupInstallFromInfSection(NULL,
+                                                        hDeviceInf,
+                                                        InterfaceInstallSection,
+                                                        SPINST_INIFILES | SPINST_REGISTRY | SPINST_INI2REG | SPINST_BITREG,
+                                                        hKeyInterfaceDevice,
+                                                        NULL,
+                                                        0,
+                                                        NULL,
+                                                        NULL,
+                                                        INVALID_HANDLE_VALUE,
+                                                        NULL)) {
                             Err = GetLastError();
                         }
 
                         RegCloseKey(hKeyInterfaceDevice);
                         hKeyInterfaceDevice = INVALID_HANDLE_VALUE;
 
-                        if(Err != NO_ERROR) {
+                        if (Err != NO_ERROR) {
                             goto clean0;
                         }
                     }
-                } while(SetupFindNextMatchLine(&InterfaceDeviceInstallLine, pszAddInterface, &InterfaceDeviceInstallLine));
+                } while (SetupFindNextMatchLine(&InterfaceDeviceInstallLine, pszAddInterface, &InterfaceDeviceInstallLine));
             }
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
 
-        if(hKeyInterfaceClass != INVALID_HANDLE_VALUE) {
+        if (hKeyInterfaceClass != INVALID_HANDLE_VALUE) {
             RegCloseKey(hKeyInterfaceClass);
         }
 
-        if(hKeyInterfaceDevice != INVALID_HANDLE_VALUE) {
+        if (hKeyInterfaceDevice != INVALID_HANDLE_VALUE) {
             RegCloseKey(hKeyInterfaceDevice);
         }
 
-        if(InterfaceInstallNode) {
+        if (InterfaceInstallNode) {
             MyFree(InterfaceInstallNode);
         }
 
-        if(FreeMsgHandlerContext) {
+        if (FreeMsgHandlerContext) {
             SetupTermDefaultQueueCallback(MsgHandlerContext);
         }
-        if(CloseUserFileQ) {
+        if (CloseUserFileQ) {
             SetupCloseFileQueue(UserFileQ);
         }
 
@@ -5933,21 +5902,21 @@ clean0: ;   // nothing to do.
 
     UnlockDeviceInfoSet(pDeviceInfoSet);
 
-    for(CurInterfaceInstallNode = InterfacesToInstall; CurInterfaceInstallNode; CurInterfaceInstallNode = InterfacesToInstall) {
+    for (CurInterfaceInstallNode = InterfacesToInstall; CurInterfaceInstallNode; CurInterfaceInstallNode = InterfacesToInstall) {
         InterfacesToInstall = CurInterfaceInstallNode->Next;
         MyFree(CurInterfaceInstallNode);
     }
 
-    if(hKeyDeviceClassesRoot != INVALID_HANDLE_VALUE) {
+    if (hKeyDeviceClassesRoot != INVALID_HANDLE_VALUE) {
         RegCloseKey(hKeyDeviceClassesRoot);
     }
 
-    if(CloseInfHandle) {
+    if (CloseInfHandle) {
         MYASSERT(hDeviceInf != INVALID_HANDLE_VALUE);
         SetupCloseInfFile(hDeviceInf);
     }
 
-    if(NeedsSectionList) {
+    if (NeedsSectionList) {
         MyFree(NeedsSectionList);
     }
 
@@ -5962,7 +5931,7 @@ clean1:
     }
 
     if (slot_section) {
-        ReleaseLogInfoSlot(LogContext,slot_section);
+        ReleaseLogInfoSlot(LogContext, slot_section);
     }
 
     SetLastError(Err);
@@ -5990,7 +5959,7 @@ Return Value:
     BOOL bReturn = FALSE;
 
     if (FileExists(InfName, &InfFileData)) {
-        if(LoadInfFile(InfName, &InfFileData, INF_STYLE_WIN4, LDINF_FLAG_IGNORE_VOLATILE_DIRIDS, NULL, NULL, NULL, NULL, NULL, &Inf, &ErrorLineNumber, &PnfWasUsed) == NO_ERROR) {
+        if (LoadInfFile(InfName, &InfFileData, INF_STYLE_WIN4, LDINF_FLAG_IGNORE_VOLATILE_DIRIDS, NULL, NULL, NULL, NULL, NULL, &Inf, &ErrorLineNumber, &PnfWasUsed) == NO_ERROR) {
             if (PnfWasUsed) {
                 // We were able to open the INF with a PNF.  Now get the InfSourceMediaType.
                 LockInf(Inf);
@@ -6014,14 +5983,14 @@ BOOL
 WINAPI
 SetupCopyOEMInfA(
     IN  PCSTR   SourceInfFileName,
-    IN  PCSTR   OEMSourceMediaLocation,         OPTIONAL
+    IN  PCSTR   OEMSourceMediaLocation, OPTIONAL
     IN  DWORD   OEMSourceMediaType,
     IN  DWORD   CopyStyle,
-    OUT PSTR    DestinationInfFileName,         OPTIONAL
+    OUT PSTR    DestinationInfFileName, OPTIONAL
     IN  DWORD   DestinationInfFileNameSize,
-    OUT PDWORD  RequiredSize,                   OPTIONAL
-    OUT PSTR   *DestinationInfFileNameComponent OPTIONAL
-    )
+    OUT PDWORD  RequiredSize, OPTIONAL
+    OUT PSTR* DestinationInfFileNameComponent OPTIONAL
+)
 {
     PWSTR UnicodeSourceInfFileName, UnicodeOEMSourceMediaLocation, UnicodeFileNameComponent;
     WCHAR UnicodeDestinationInfFileName[MAX_PATH];
@@ -6040,14 +6009,14 @@ SetupCopyOEMInfA(
     BOOL UseOriginalInfName;
 
     rc = CaptureAndConvertAnsiArg(SourceInfFileName, &UnicodeSourceInfFileName);
-    if(rc != NO_ERROR) {
+    if (rc != NO_ERROR) {
         SetLastError(rc);
         return FALSE;
     }
 
     // Open the specified INF.
     hInf = SetupOpenInfFile(UnicodeSourceInfFileName, NULL, INF_STYLE_OLDNT | INF_STYLE_WIN4, NULL);
-    if(hInf == INVALID_HANDLE_VALUE) {
+    if (hInf == INVALID_HANDLE_VALUE) {
         // last error already set.
         return FALSE;
     }
@@ -6057,13 +6026,13 @@ SetupCopyOEMInfA(
     // Note: We're safe in casting our INF handle straight to a PLOADED_INF
     // (without even locking it), since this INF handle will never be seen outside of this routine.
     rc = pGetInfOriginalNameAndCatalogFile((PLOADED_INF)hInf, NULL, &DifferentOriginalName, OriginalInfName, SIZECHARS(OriginalInfName), SourceInfCatalogName, SIZECHARS(SourceInfCatalogName), NULL);
-    if(rc == NO_ERROR) {
+    if (rc == NO_ERROR) {
         CodeSigningPolicy = GetCodeSigningPolicyForInf(NULL, hInf, &UseOriginalInfName);
     }
 
-    if(UseOriginalInfName) {
+    if (UseOriginalInfName) {
         // If we're looking at an exception INF, make sure it's under its original name.
-        if(DifferentOriginalName) {
+        if (DifferentOriginalName) {
             rc = ERROR_INVALID_CLASS;
         }
     }
@@ -6071,15 +6040,15 @@ SetupCopyOEMInfA(
     // We're done with the INF handle
     SetupCloseInfFile(hInf);
 
-    if(rc != NO_ERROR) {
+    if (rc != NO_ERROR) {
         MyFree(UnicodeSourceInfFileName);
         SetLastError(rc);
         return FALSE;
     }
 
-    if(OEMSourceMediaLocation) {
+    if (OEMSourceMediaLocation) {
         rc = CaptureAndConvertAnsiArg(OEMSourceMediaLocation, &UnicodeOEMSourceMediaLocation);
-        if(rc != NO_ERROR) {
+        if (rc != NO_ERROR) {
             MyFree(UnicodeSourceInfFileName);
             SetLastError(rc);
             return FALSE;
@@ -6107,14 +6076,14 @@ SetupCopyOEMInfA(
                          NULL,
                          CatalogFilenameOnSystem,
                          NULL   // external users cannot pass in a LogContext
-                        );
+    );
     rc = GetLastError();
 
-    if(b || (rc == ERROR_FILE_EXISTS)) {
-        if(DestinationInfFileName || RequiredSize) {
-            if(AnsiDestinationInfFileName = UnicodeToAnsi(UnicodeDestinationInfFileName)) {
+    if (b || (rc == ERROR_FILE_EXISTS)) {
+        if (DestinationInfFileName || RequiredSize) {
+            if (AnsiDestinationInfFileName = UnicodeToAnsi(UnicodeDestinationInfFileName)) {
                 AnsiRequiredSize = lstrlenA(AnsiDestinationInfFileName) + 1;
-                if(RequiredSize) {
+                if (RequiredSize) {
                     try {
                         *RequiredSize = AnsiRequiredSize;
                     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -6123,18 +6092,18 @@ SetupCopyOEMInfA(
                     }
                 }
 
-                if((b || (rc == ERROR_FILE_EXISTS)) && DestinationInfFileName) {
-                    if(AnsiRequiredSize <= DestinationInfFileNameSize) {
-                        if(!lstrcpyA(DestinationInfFileName, AnsiDestinationInfFileName)) {
+                if ((b || (rc == ERROR_FILE_EXISTS)) && DestinationInfFileName) {
+                    if (AnsiRequiredSize <= DestinationInfFileNameSize) {
+                        if (!lstrcpyA(DestinationInfFileName, AnsiDestinationInfFileName)) {
                             // lstrcpy faulted; DestinationInfFileName must be bad
                             b = FALSE;
                             rc = ERROR_INVALID_PARAMETER;
-                        } else if(DestinationInfFileNameComponent) {
+                        } else if (DestinationInfFileNameComponent) {
                             // We need to figure out where the extension is in the converted string. To be DBCS safe we will
                             // count characters forward to find it.
                             CharOffset = (DWORD)(UnicodeFileNameComponent - UnicodeDestinationInfFileName);
                             p = DestinationInfFileName;
-                            for(i = 0; i < CharOffset; i++) {
+                            for (i = 0; i < CharOffset; i++) {
                                 p = CharNextA(p);
                             }
 
@@ -6159,7 +6128,7 @@ SetupCopyOEMInfA(
         } else {
             // It would be dumb to request the filename part of the destination INF path when
             // the path itself wasn't requested, but let's make sure we set this to NULL if that happens.
-            if(DestinationInfFileNameComponent) {
+            if (DestinationInfFileNameComponent) {
                 try {
                     *DestinationInfFileNameComponent = NULL;
                 } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -6171,7 +6140,7 @@ SetupCopyOEMInfA(
     }
 
     MyFree(UnicodeSourceInfFileName);
-    if(UnicodeOEMSourceMediaLocation) {
+    if (UnicodeOEMSourceMediaLocation) {
         MyFree(UnicodeOEMSourceMediaLocation);
     }
 
@@ -6184,14 +6153,14 @@ BOOL
 WINAPI
 SetupCopyOEMInfW(
     IN  PCWSTR  SourceInfFileName,
-    IN  PCWSTR  OEMSourceMediaLocation,         OPTIONAL
+    IN  PCWSTR  OEMSourceMediaLocation, OPTIONAL
     IN  DWORD   OEMSourceMediaType,
     IN  DWORD   CopyStyle,
-    OUT PWSTR   DestinationInfFileName,         OPTIONAL
+    OUT PWSTR   DestinationInfFileName, OPTIONAL
     IN  DWORD   DestinationInfFileNameSize,
-    OUT PDWORD  RequiredSize,                   OPTIONAL
-    OUT PWSTR  *DestinationInfFileNameComponent OPTIONAL
-    )
+    OUT PDWORD  RequiredSize, OPTIONAL
+    OUT PWSTR* DestinationInfFileNameComponent OPTIONAL
+)
 {
     UNREFERENCED_PARAMETER(SourceInfFileName);
     UNREFERENCED_PARAMETER(OEMSourceMediaLocation);
@@ -6211,14 +6180,14 @@ BOOL
 WINAPI
 SetupCopyOEMInf(
     IN  PCTSTR  SourceInfFileName,
-    IN  PCTSTR  OEMSourceMediaLocation,         OPTIONAL
+    IN  PCTSTR  OEMSourceMediaLocation, OPTIONAL
     IN  DWORD   OEMSourceMediaType,
     IN  DWORD   CopyStyle,
-    OUT PTSTR   DestinationInfFileName,         OPTIONAL
+    OUT PTSTR   DestinationInfFileName, OPTIONAL
     IN  DWORD   DestinationInfFileNameSize,
-    OUT PDWORD  RequiredSize,                   OPTIONAL
-    OUT PTSTR  *DestinationInfFileNameComponent OPTIONAL
-    )
+    OUT PDWORD  RequiredSize, OPTIONAL
+    OUT PTSTR* DestinationInfFileNameComponent OPTIONAL
+)
 /*
 Routine Description:
     This API copies an INF into %windir%\Inf, giving it a unique name if it doesn't already exist there.
@@ -6316,20 +6285,20 @@ Return Value:
 
     // Open the specified INF.
     hInf = SetupOpenInfFile(SourceInfFileName, NULL, INF_STYLE_OLDNT | INF_STYLE_WIN4, NULL);
-    if(hInf == INVALID_HANDLE_VALUE) {
+    if (hInf == INVALID_HANDLE_VALUE) {
         // last error already set.
         return FALSE;
     }
 
     // Retrieve the CatalogFile entry (if present) from this INF's version section.
     rc = pGetInfOriginalNameAndCatalogFile(NULL, SourceInfFileName, &DifferentOriginalName, OriginalInfName, SIZECHARS(OriginalInfName), SourceInfCatalogName, SIZECHARS(SourceInfCatalogName), NULL);
-    if(rc == NO_ERROR) {
+    if (rc == NO_ERROR) {
         CodeSigningPolicy = GetCodeSigningPolicyForInf(NULL, hInf, &UseOriginalInfName);
     }
 
-    if(UseOriginalInfName) {
+    if (UseOriginalInfName) {
         // If we're looking at an exception INF, make sure it's under its original name.
-        if(DifferentOriginalName) {
+        if (DifferentOriginalName) {
             rc = ERROR_INVALID_CLASS;
         }
     }
@@ -6337,7 +6306,7 @@ Return Value:
     // We're done with the INF handle
     SetupCloseInfFile(hInf);
 
-    if(rc != NO_ERROR) {
+    if (rc != NO_ERROR) {
         SetLastError(rc);
         return FALSE;
     }
@@ -6361,32 +6330,32 @@ Return Value:
                             NULL,
                             CatalogFilenameOnSystem,
                             NULL   // external users cannot pass in a LogContext
-                           );
+    );
 }
 
 
 BOOL
 _SetupCopyOEMInf(
     IN  PCTSTR               SourceInfFileName,
-    IN  PCTSTR               OEMSourceMediaLocation,          OPTIONAL
+    IN  PCTSTR               OEMSourceMediaLocation, OPTIONAL
     IN  DWORD                OEMSourceMediaType,
     IN  DWORD                CopyStyle,
-    OUT PTSTR                DestinationInfFileName,          OPTIONAL
+    OUT PTSTR                DestinationInfFileName, OPTIONAL
     IN  DWORD                DestinationInfFileNameSize,
-    OUT PDWORD               RequiredSize,                    OPTIONAL
-    OUT PTSTR               *DestinationInfFileNameComponent, OPTIONAL
+    OUT PDWORD               RequiredSize, OPTIONAL
+    OUT PTSTR* DestinationInfFileNameComponent, OPTIONAL
     IN  PCTSTR               SourceInfOriginalName,
-    IN  PCTSTR               SourceInfCatalogName,            OPTIONAL
+    IN  PCTSTR               SourceInfCatalogName, OPTIONAL
     IN  HWND                 Owner,
-    IN  PCTSTR               DeviceDesc,                      OPTIONAL
+    IN  PCTSTR               DeviceDesc, OPTIONAL
     IN  DWORD                DriverSigningPolicy,
     IN  DWORD                Flags,
-    IN  PCTSTR               AltCatalogFile,                  OPTIONAL
-    IN  PSP_ALTPLATFORM_INFO AltPlatformInfo,                 OPTIONAL
-    OUT PDWORD               DriverSigningError,              OPTIONAL
+    IN  PCTSTR               AltCatalogFile, OPTIONAL
+    IN  PSP_ALTPLATFORM_INFO AltPlatformInfo, OPTIONAL
+    OUT PDWORD               DriverSigningError, OPTIONAL
     OUT PTSTR                CatalogFilenameOnSystem,
     IN  PSETUP_LOG_CONTEXT   LogContext
-    )
+)
 /*
 Routine Description:
     (See SetupCopyOEMInf)
@@ -6452,16 +6421,14 @@ Return Value:
 
     // If the DestinationInfFileName buffer is NULL, the size had better be zero.
     // Also, make sure the caller passed us a valid OEMSourceMediaType.
-    if((!DestinationInfFileName && DestinationInfFileNameSize) || (OEMSourceMediaType >= SPOST_MAX))
-    {
+    if ((!DestinationInfFileName && DestinationInfFileNameSize) || (OEMSourceMediaType >= SPOST_MAX)) {
         MYASSERT(!DriverSigningError);
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
 
     // If we're installing an exception INF, it's illegal to request that we not copy the INF.
-    if((Flags & SCOI_KEEP_INF_AND_CAT_ORIGINAL_NAMES) && (CopyStyle & SP_COPY_OEMINF_CATALOG_ONLY))
-    {
+    if ((Flags & SCOI_KEEP_INF_AND_CAT_ORIGINAL_NAMES) && (CopyStyle & SP_COPY_OEMINF_CATALOG_ONLY)) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return FALSE;
     }
@@ -6491,12 +6458,12 @@ Return Value:
                             &TempDriverSigningError,
                             CatalogFilenameOnSystem,
                             LogContext
-                           );
-        if(DriverSigningError) {
+        );
+        if (DriverSigningError) {
             *DriverSigningError = TempDriverSigningError;
         }
 
-        if(Err != NO_ERROR) {
+        if (Err != NO_ERROR) {
             // Value of CopyNeeded parameter is undefined upon error, but we do know that no clean-up will be necessary if GetNewInfName fails.
             CopyNeeded = NewInfCopyNo;
 
@@ -6509,22 +6476,22 @@ Return Value:
 
             // BUGBUG (lonnym)--we can't add new localized text this late in
             // the NT5 cycle, but for NT5.1 this needs to be cleaned up so that a more accurate (specific) description of the problem is provided.
-            if((CopyStyle & SP_COPY_OEMINF_CATALOG_ONLY) && (TempDriverSigningError == NO_ERROR)) {
-                if(HandleFailedVerification(Owner, SetupapiVerifyInfProblem, SourceInfFileName, DeviceDesc, DriverSigningPolicy, (Flags & SCOI_NO_UI_ON_SIGFAIL), Err, LogContext, NULL, NULL)) {
+            if ((CopyStyle & SP_COPY_OEMINF_CATALOG_ONLY) && (TempDriverSigningError == NO_ERROR)) {
+                if (HandleFailedVerification(Owner, SetupapiVerifyInfProblem, SourceInfFileName, DeviceDesc, DriverSigningPolicy, (Flags & SCOI_NO_UI_ON_SIGFAIL), Err, LogContext, NULL, NULL)) {
                     // We should consider the operation a success, even though we couldn't install the catalog.
                     // In this case, we don't have a filename to return to the caller.
-                    if(RequiredSize) {
+                    if (RequiredSize) {
                         *RequiredSize = 0;
                     }
-                    if(DestinationInfFileName && DestinationInfFileNameSize) {
+                    if (DestinationInfFileName && DestinationInfFileNameSize) {
                         *DestinationInfFileName = TEXT('\0');
                     }
-                    if(DestinationInfFileNameComponent) {
+                    if (DestinationInfFileNameComponent) {
                         *DestinationInfFileNameComponent = NULL;
                     }
 
                     TempDriverSigningError = Err;
-                    if(DriverSigningError) {
+                    if (DriverSigningError) {
                         *DriverSigningError = TempDriverSigningError;
                     }
 
@@ -6536,23 +6503,23 @@ Return Value:
         }
 
         // OK, we have a filename to copy to, now copy the file (if necessary), unless the caller doesn't want to overwrite the existing file.
-        if(CopyNeeded != NewInfCopyNo) {
+        if (CopyNeeded != NewInfCopyNo) {
             // We either created a new zero-length placeholder file ourselves, or we found an existing placeholder that we could use.
 
             // Copy our INF over the top of this placeholder file, unless the caller specified the SP_COPY_OEMINF_CATALOG_ONLY flag, in which
             // case we want to leave the zero-length file as-is (and mark it
             // hidden), so that no other OEM INFs can subsequently get this name (hence causing namespace collisions for the catalog files).
-            if(!(CopyStyle & SP_COPY_OEMINF_CATALOG_ONLY)) {
+            if (!(CopyStyle & SP_COPY_OEMINF_CATALOG_ONLY)) {
                 // Reset the existing file's attributes prior to attempting the copy.
                 SetFileAttributes(NewName, FILE_ATTRIBUTE_NORMAL);
 
-                if(!CopyFile(SourceInfFileName, NewName, FALSE)) {
+                if (!CopyFile(SourceInfFileName, NewName, FALSE)) {
                     Err = GetLastError();
                     goto clean0;
                 }
             } else {
                 // If we didn't encounter a driver signing error, or if the zero-length file was already present, then just make sure it's marked as hidden.
-                if((TempDriverSigningError == NO_ERROR) || (CopyNeeded == NewInfCopyZeroLength)) {
+                if ((TempDriverSigningError == NO_ERROR) || (CopyNeeded == NewInfCopyZeroLength)) {
                     // Mark the zero-length file as hidden.
                     SetFileAttributes(NewName, FILE_ATTRIBUTE_HIDDEN);
                 } else {
@@ -6562,13 +6529,13 @@ Return Value:
                 }
 
                 // Since we only have a zero-length placeholder (or possibly, no placeholder at all if catalog installation failed), we shouldn't return a filename to the caller.
-                if(RequiredSize) {
+                if (RequiredSize) {
                     *RequiredSize = 0;
                 }
-                if(DestinationInfFileName && DestinationInfFileNameSize) {
+                if (DestinationInfFileName && DestinationInfFileNameSize) {
                     *DestinationInfFileName = TEXT('\0');
                 }
-                if(DestinationInfFileNameComponent) {
+                if (DestinationInfFileNameComponent) {
                     *DestinationInfFileNameComponent = NULL;
                 }
                 // We're done!
@@ -6578,7 +6545,7 @@ Return Value:
             // If the original INF name and the new INF name are different, then we know this wasn't an alternate catalog-only install.
             AlternateCatInstalled = !lstrcmpi(SourceInfFileName, NewName);
 
-            if((CopyStyle & SP_COPY_NOOVERWRITE) && !AlternateCatInstalled) {
+            if ((CopyStyle & SP_COPY_NOOVERWRITE) && !AlternateCatInstalled) {
                 // OK, the INF already exists in the INF directory, and the caller has specified that they _do not_ want to wipe out the
                 // existing PNF.  We may need to return back the name of the existing INF if they requested it, however.
                 Err = ERROR_FILE_EXISTS;
@@ -6587,15 +6554,15 @@ Return Value:
 
         // If we get to here, then the INF exists in %windir%\Inf, and we either have no error, or ERROR_FILE_EXISTS.
         // Next, we need to store the name of the INF in the caller's buffer (if supplied).
-        if(RequiredSize) {
+        if (RequiredSize) {
             *RequiredSize = TempRequiredSize;
         }
 
-        if(DestinationInfFileName) {
-            if(DestinationInfFileNameSize >= TempRequiredSize) {
+        if (DestinationInfFileName) {
+            if (DestinationInfFileNameSize >= TempRequiredSize) {
                 CopyMemory(DestinationInfFileName, NewName, TempRequiredSize * sizeof(TCHAR));
                 // If requested by the caller, return a pointer to the filename part of this path.
-                if(DestinationInfFileNameComponent) {
+                if (DestinationInfFileNameComponent) {
                     *DestinationInfFileNameComponent = (PTSTR)MyGetFileTitle(DestinationInfFileName);
                 }
             } else {
@@ -6605,12 +6572,12 @@ Return Value:
 
             // Nobody should be requesting a pointer to the filename component of the path when they don't supply us a buffer to store the full path.
             // If anyone does do this, make sure we set the pointer to NULL.
-            if(DestinationInfFileNameComponent) {
+            if (DestinationInfFileNameComponent) {
                 *DestinationInfFileNameComponent = NULL;
             }
         }
 
-        if((Err != NO_ERROR) || AlternateCatInstalled) {
+        if ((Err != NO_ERROR) || AlternateCatInstalled) {
             goto clean0;
         }
 
@@ -6628,12 +6595,12 @@ Return Value:
             }
         }
 
-        if(!OEMSourceMediaLocation && (OEMSourceMediaType == SPOST_PATH)) {
+        if (!OEMSourceMediaLocation && (OEMSourceMediaType == SPOST_PATH)) {
             // The caller wants to store the OEM source path, but they didn't provide us with one to use.
             // Thus, we'll use the path where the INF existed (unless there's a valid PNF there, in which case we'll use its SPOST_PATH information, if it has any).
             // pSetupGetDefaultSourcePath() does just what we want.
             hInf = SetupOpenInfFile(SourceInfFileName, NULL, INF_STYLE_WIN4 | INF_STYLE_OLDNT, NULL);
-            if(hInf == INVALID_HANDLE_VALUE) {
+            if (hInf == INVALID_HANDLE_VALUE) {
                 Err = GetLastError();
                 MYASSERT(Err != NO_ERROR);
                 goto clean0;
@@ -6647,7 +6614,7 @@ Return Value:
 
             MYASSERT(DefaultSourceMediaType == SPOST_PATH);
 
-            if(TempCharPtr) {
+            if (TempCharPtr) {
                 lstrcpy(TempOemSourceMediaLocation, TempCharPtr);
                 OEMSourceMediaLocation = TempOemSourceMediaLocation;
                 // We no longer need the buffer allocated for us by pSetupGetDefaultSourcePath.
@@ -6661,7 +6628,7 @@ Return Value:
             }
         }
 
-        if(!FileExists(NewName, &FindData)) {
+        if (!FileExists(NewName, &FindData)) {
             Err = GetLastError();
             goto clean0;
         }
@@ -6678,8 +6645,8 @@ Return Value:
                           &PrecompiledNewInf,
                           &ErrorLineNumber,
                           NULL
-                         );
-        if(Err != NO_ERROR) {
+        );
+        if (Err != NO_ERROR) {
             goto clean0;
         }
 
@@ -6687,24 +6654,24 @@ Return Value:
         FreeInfFile(PrecompiledNewInf);
 
         // Finally, delete the source INF file if the caller requested it.
-        if(CopyStyle & SP_COPY_DELETESOURCE) {
+        if (CopyStyle & SP_COPY_DELETESOURCE) {
             DeleteFile(SourceInfFileName);
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
-        if(TempCharPtr) {
+        if (TempCharPtr) {
             MyFree(TempCharPtr);
         }
-        if(hInf != INVALID_HANDLE_VALUE) {
+        if (hInf != INVALID_HANDLE_VALUE) {
             SetupCloseInfFile(hInf);
         }
         // Reference the following variable so the compiler will respect statement ordering w.r.t. assignment.
         CopyNeeded = CopyNeeded;
     }
 
-    if((Err != NO_ERROR) && (CopyNeeded == NewInfCopyYes)) {
+    if ((Err != NO_ERROR) && (CopyNeeded == NewInfCopyYes)) {
         // We encountered an error, after GetNewInfName created a new, unique INF for us.  Delete it now.
 
         // (Note: we don't do clean-up when GetNewInfName found an existing, zero-length file for us to use, even if we may have subsequently
@@ -6760,9 +6727,9 @@ _SetupDiRegisterCoDeviceInstallers(
     IN HDEVINFO         DeviceInfoSet,
     IN PSP_DEVINFO_DATA DeviceInfoData,
     IN BOOL             DoFullInstall,
-    IN HINF             hDeviceInf,     OPTIONAL
+    IN HINF             hDeviceInf, OPTIONAL
     IN HSPFILEQ         UserFileQ       OPTIONAL
-    )
+)
 /*
 Routine Description:
     Worker routine for both SetupDiRegisterCoDeviceInstallers and SetupDiInstallDriverFiles.
@@ -6806,12 +6773,12 @@ Remarks:
     BOOL NoProgressUI;
 
     // A device information element must be specified.
-    if(!DeviceInfoData) {
+    if (!DeviceInfoData) {
         Err = ERROR_INVALID_PARAMETER;
         goto clean1;
     }
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         Err = ERROR_INVALID_HANDLE;
         goto clean1;
     }
@@ -6827,7 +6794,7 @@ Remarks:
     CloseInfHandle = FALSE;
 
     try {
-        if(!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
+        if (!(DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))) {
             Err = ERROR_INVALID_PARAMETER;
             goto clean0;
         }
@@ -6836,21 +6803,21 @@ Remarks:
         LogContext = DevInfoElem->InstallParamBlock.LogContext;
 
         // If there's no driver selected (i.e., this is a null driver install), or we're using a legacy INF, then there's nothing for us to do.
-        if(!(DevInfoElem->SelectedDriver) || (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF)) {
+        if (!(DevInfoElem->SelectedDriver) || (DevInfoElem->SelectedDriver->Flags & DNF_LEGACYINF)) {
             goto clean0;
         }
 
         // Make sure we only use the devinfo element's window if it's valid.
-        if(hwndParent = DevInfoElem->InstallParamBlock.hwndParent) {
-           if(!IsWindow(hwndParent)) {
+        if (hwndParent = DevInfoElem->InstallParamBlock.hwndParent) {
+            if (!IsWindow(hwndParent)) {
                 hwndParent = NULL;
-           }
+            }
         }
 
         szInfFileName = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->InfFileName);
         szInfSectionName = pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->InfSectionName);
-        if(hDeviceInf == INVALID_HANDLE_VALUE) {
-            if((hDeviceInf = SetupOpenInfFile(szInfFileName, NULL, INF_STYLE_WIN4, NULL)) == INVALID_HANDLE_VALUE) {
+        if (hDeviceInf == INVALID_HANDLE_VALUE) {
+            if ((hDeviceInf = SetupOpenInfFile(szInfFileName, NULL, INF_STYLE_WIN4, NULL)) == INVALID_HANDLE_VALUE) {
                 Err = GetLastError();
                 goto clean0;
             }
@@ -6858,9 +6825,9 @@ Remarks:
             CloseInfHandle = TRUE;
         }
         // see if we should give the INF the same LogContext as the DevInfoElem
-        InheritLogContext(LogContext, &((PLOADED_INF) hDeviceInf)->LogContext);
+        InheritLogContext(LogContext, &((PLOADED_INF)hDeviceInf)->LogContext);
 
-        slot_section = AllocLogInfoSlot(LogContext,FALSE);
+        slot_section = AllocLogInfoSlot(LogContext, FALSE);
 
         // Find out the 'real' install section we should be using (i.e., the potentially OS/architecture-specific one.
         SetupDiGetActualSectionToInstall(hDeviceInf, szInfSectionName, InfSectionWithExt, SIZECHARS(InfSectionWithExt), &InfSectionWithExtLength, NULL);
@@ -6872,7 +6839,7 @@ Remarks:
         DoFileCopying = (!(DevInfoElem->InstallParamBlock.Flags & DI_NOFILECOPY) || !DoFullInstall);
 
         // Append the layout INF, if necessary.
-        if(DoFileCopying) {
+        if (DoFileCopying) {
             SetupOpenAppendInfFile(NULL, hDeviceInf, NULL);
         }
 
@@ -6880,17 +6847,17 @@ Remarks:
         AppendLoadIncludedInfs(hDeviceInf, szInfFileName, InfSectionWithExt, DoFileCopying);
 
         // Now copy the files, if necessary.
-        if(DoFileCopying) {
-            if(UserFileQ == INVALID_HANDLE_VALUE) {
+        if (DoFileCopying) {
+            if (UserFileQ == INVALID_HANDLE_VALUE) {
                 // If the DI_NOVCP flag is set, then just queue up the file copy/rename/delete operations.  Otherwise, perform the
                 // actions.
-                if(DevInfoElem->InstallParamBlock.Flags & DI_NOVCP) {
+                if (DevInfoElem->InstallParamBlock.Flags & DI_NOVCP) {
                     // We must have a user-supplied file queue.
                     MYASSERT(DevInfoElem->InstallParamBlock.UserFileQ);
                     UserFileQ = DevInfoElem->InstallParamBlock.UserFileQ;
                 } else {
                     // Since we may need to check the queued files to determine whether file copy is necessary, we have to open our own queue, and commit it ourselves.
-                    if((UserFileQ = SetupOpenFileQueue()) != INVALID_HANDLE_VALUE) {
+                    if ((UserFileQ = SetupOpenFileQueue()) != INVALID_HANDLE_VALUE) {
                         CloseUserFileQ = TRUE;
                     } else {
                         // SetupOpenFileQueue sets actual error
@@ -6900,7 +6867,7 @@ Remarks:
                 }
             }
             // See if we should replace the file queue's log context with the DevInfoElem's
-            InheritLogContext(LogContext, &((PSP_FILE_QUEUE) UserFileQ)->LogContext);
+            InheritLogContext(LogContext, &((PSP_FILE_QUEUE)UserFileQ)->LogContext);
             WriteLogEntry(LogContext, slot_section, MSG_LOG_COINSTALLER_REGISTRATION, NULL, InfSectionWithExt);
             Err = InstallFromInfSectionAndNeededSections(NULL,
                                                          hDeviceInf,
@@ -6914,14 +6881,14 @@ Remarks:
                                                          INVALID_HANDLE_VALUE,
                                                          NULL,
                                                          UserFileQ
-                                                        );
+            );
 
             // Mark the queue as a device install queue (and make sure there's a catalog node representing our device INF in the queue).
             Err = MarkQueueForDeviceInstall(UserFileQ, hDeviceInf, pStringTableStringFromId(pDeviceInfoSet->StringTable, DevInfoElem->SelectedDriver->DrvDescription));
 
             // At this point, we have queued up all the files that need to be copied.  If we weren't given a user-supplied queue, then commit our queue now.
-            if(CloseUserFileQ) {
-                if(Err == NO_ERROR) {
+            if (CloseUserFileQ) {
+                if (Err == NO_ERROR) {
                     // Determine whether the queue actually needs to be committed.
 
                     // ScanQueueResult can have 1 of 3 values:
@@ -6935,23 +6902,22 @@ Remarks:
 
                     // (jamiehun) see previous case of SetupScanFileQueue
                     // for a discussion of DI_FLAGSEX_PREINSTALLBACKUP handling.
-                    if(!SetupScanFileQueue(UserFileQ, SPQ_SCAN_FILE_VALIDITY | SPQ_SCAN_PRUNE_COPY_QUEUE, hwndParent, NULL, NULL, &ScanQueueResult)) {
+                    if (!SetupScanFileQueue(UserFileQ, SPQ_SCAN_FILE_VALIDITY | SPQ_SCAN_PRUNE_COPY_QUEUE, hwndParent, NULL, NULL, &ScanQueueResult)) {
                         // SetupScanFileQueue should really never fail when you don't ask it to call a callback routine, but
                         // if it  does, just go ahead and commit the queue.
                         ScanQueueResult = 0;
                     }
                 }
 
-                if((Err == NO_ERROR) && (ScanQueueResult != 1)) {
+                if ((Err == NO_ERROR) && (ScanQueueResult != 1)) {
                     // We need to commit this file queue.  Figure out what message handler to use.
-                    if(DevInfoElem->InstallParamBlock.InstallMsgHandler) {
+                    if (DevInfoElem->InstallParamBlock.InstallMsgHandler) {
                         MsgHandler = DevInfoElem->InstallParamBlock.InstallMsgHandler;
                         MsgHandlerContext = DevInfoElem->InstallParamBlock.InstallMsgHandlerContext;
                         MsgHandlerIsNativeCharWidth = DevInfoElem->InstallParamBlock.InstallMsgHandlerIsNativeCharWidth;
                     } else {
                         NoProgressUI = (GuiSetupInProgress || (DevInfoElem->InstallParamBlock.Flags & DI_QUIETINSTALL));
-                        if(MsgHandlerContext = SetupInitDefaultQueueCallbackEx(hwndParent, (NoProgressUI ? INVALID_HANDLE_VALUE : NULL), 0, 0, NULL))
-                        {
+                        if (MsgHandlerContext = SetupInitDefaultQueueCallbackEx(hwndParent, (NoProgressUI ? INVALID_HANDLE_VALUE : NULL), 0, 0, NULL)) {
                             FreeMsgHandlerContext = TRUE;
                             MsgHandler = SetupDefaultQueueCallback;
                             MsgHandlerIsNativeCharWidth = TRUE;
@@ -6961,14 +6927,14 @@ Remarks:
                     }
 
                     // Copy enqueued files.
-                    if(Err == NO_ERROR) {
-                        if(_SetupCommitFileQueue(hwndParent, UserFileQ, MsgHandler, MsgHandlerContext, MsgHandlerIsNativeCharWidth)) {
+                    if (Err == NO_ERROR) {
+                        if (_SetupCommitFileQueue(hwndParent, UserFileQ, MsgHandler, MsgHandlerContext, MsgHandlerIsNativeCharWidth)) {
                             // Check to see whether a reboot is required as a result of committing the queue (i.e., because files were in use, or the INF requested a reboot).
                             FileQueueNeedsReboot = SetupPromptReboot(UserFileQ, NULL, TRUE);
                             // This should never fail...
                             MYASSERT(FileQueueNeedsReboot != -1);
 
-                            if(FileQueueNeedsReboot) {
+                            if (FileQueueNeedsReboot) {
                                 DevInfoElem->InstallParamBlock.Flags |= DI_NEEDREBOOT;
                                 SetDevnodeNeedsRebootProblem(DevInfoElem->DevInst, pDeviceInfoSet->hMachine, LogContext, MSG_LOG_REBOOT_REASON_INUSE);
                             }
@@ -6983,12 +6949,12 @@ Remarks:
                 CloseUserFileQ = FALSE;
 
                 // Terminate the default queue callback, if it was created.
-                if(FreeMsgHandlerContext) {
+                if (FreeMsgHandlerContext) {
                     SetupTermDefaultQueueCallback(MsgHandlerContext);
                     FreeMsgHandlerContext = FALSE;
                 }
 
-                if(Err != NO_ERROR) {
+                if (Err != NO_ERROR) {
                     // BUGBUG (lonnym) -- If we encountered some error above, we should have a way to rollback at least the INF/PNF/CAT files we installed!
                     goto clean0;
                 }
@@ -6996,14 +6962,14 @@ Remarks:
         }
 
         // If all we were asked to do was copy files, then we're done.
-        if(!DoFullInstall || (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NO_DRVREG_MODIFY)) {
+        if (!DoFullInstall || (DevInfoElem->InstallParamBlock.FlagsEx & DI_FLAGSEX_NO_DRVREG_MODIFY)) {
             goto clean0;
         }
 
         // Open/create the Driver Reg Key.
-        if((hkDrv = SetupDiOpenDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DRV, KEY_READ | KEY_WRITE)) == INVALID_HANDLE_VALUE) {
+        if ((hkDrv = SetupDiOpenDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DRV, KEY_READ | KEY_WRITE)) == INVALID_HANDLE_VALUE) {
             // Assume the driver key doesn't already exist--try to create it.
-            if((hkDrv = SetupDiCreateDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DRV, NULL, NULL)) != INVALID_HANDLE_VALUE) {
+            if ((hkDrv = SetupDiCreateDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DRV, NULL, NULL)) != INVALID_HANDLE_VALUE) {
                 // We successfully created the driver key.  Set a flag so we'll know to delete it in case we hit an error and need to clean up.
                 DeleteDrvRegKey = TRUE;
             } else {
@@ -7025,8 +6991,8 @@ Remarks:
                                                      INVALID_HANDLE_VALUE,
                                                      NULL,
                                                      NULL
-                                                    );
-        if(Err == NO_ERROR) {
+        );
+        if (Err == NO_ERROR) {
             // Registering co-installers invalidates our existing co-installer list.  Reset this list (migrating the module handles to the devinfo
             // set's list of "things to clean up later".
             // (NOTE: SetupDiCallClassInstaller also does this when its handling DIF_REGISTER_COINSTALLERS, but since we can't be guaranteed we're
@@ -7034,14 +7000,14 @@ Remarks:
             Err = InvalidateHelperModules(DeviceInfoSet, DeviceInfoData, IHM_COINSTALLERS_ONLY);
         }
 
-clean0: ;   // nothing to do
+    clean0:;   // nothing to do
     } except(EXCEPTION_EXECUTE_HANDLER) {
         Err = ERROR_INVALID_PARAMETER;
 
-        if(FreeMsgHandlerContext) {
+        if (FreeMsgHandlerContext) {
             SetupTermDefaultQueueCallback(MsgHandlerContext);
         }
-        if(CloseUserFileQ) {
+        if (CloseUserFileQ) {
             SetupCloseFileQueue(UserFileQ);
         }
         // Reference the following variables so the compiler will respect our statement ordering w.r.t. assignment.
@@ -7049,15 +7015,15 @@ clean0: ;   // nothing to do
         CloseInfHandle = CloseInfHandle;
     }
 
-    if(hkDrv != INVALID_HANDLE_VALUE) {
+    if (hkDrv != INVALID_HANDLE_VALUE) {
         RegCloseKey(hkDrv);
-        if((Err != NO_ERROR) && DeleteDrvRegKey) {
+        if ((Err != NO_ERROR) && DeleteDrvRegKey) {
             SetupDiDeleteDevRegKey(DeviceInfoSet, DeviceInfoData, DICS_FLAG_GLOBAL | DICS_FLAG_CONFIGGENERAL, 0, DIREG_DRV);
-            CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_DRIVER, NULL, 0, 0,pDeviceInfoSet->hMachine);
+            CM_Set_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, CM_DRP_DRIVER, NULL, 0, 0, pDeviceInfoSet->hMachine);
         }
     }
 
-    if(CloseInfHandle) {
+    if (CloseInfHandle) {
         MYASSERT(hDeviceInf != INVALID_HANDLE_VALUE);
         SetupCloseInfFile(hDeviceInf);
     }
@@ -7073,7 +7039,7 @@ clean1:
     }
 
     if (slot_section) {
-        ReleaseLogInfoSlot(LogContext,slot_section);
+        ReleaseLogInfoSlot(LogContext, slot_section);
     }
 
     if (pDeviceInfoSet) {
@@ -7117,30 +7083,28 @@ Return Value:
     BestRank = RANK_NO_MATCH;
     MemberIndex = 0;
 
-    if(!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
+    if (!(pDeviceInfoSet = AccessDeviceInfoSet(DeviceInfoSet))) {
         Err = ERROR_INVALID_HANDLE;
         goto clean1;
     }
 
     LogContext = pDeviceInfoSet->InstallParamBlock.LogContext;
 
-    if(DeviceInfoData && (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL))!=NULL) {
+    if (DeviceInfoData && (DevInfoElem = FindAssociatedDevInfoElem(pDeviceInfoSet, DeviceInfoData, NULL)) != NULL) {
         LogContext = DevInfoElem->InstallParamBlock.LogContext;
     }
 
     DriverInfoData.cbSize = sizeof(SP_DRVINFO_DATA);//Enumerate through all of the drivers and find the Best Rank
 
-    while (SetupDiEnumDriverInfo(DeviceInfoSet, DeviceInfoData, SPDIT_COMPATDRIVER, MemberIndex, &DriverInfoData))
-    {
+    while (SetupDiEnumDriverInfo(DeviceInfoSet, DeviceInfoData, SPDIT_COMPATDRIVER, MemberIndex, &DriverInfoData)) {
         DriverInstallParams.cbSize = sizeof(SP_DRVINSTALL_PARAMS);
         if ((SetupDiGetDriverInstallParams(DeviceInfoSet, DeviceInfoData, &DriverInfoData, &DriverInstallParams)) &&
             !(DriverInstallParams.Flags & DNF_BAD_DRIVER) &&
-            ((DriverInstallParams.Rank <= BestRank) || (BestRank == RANK_NO_MATCH)))
-        {
+            ((DriverInstallParams.Rank <= BestRank) || (BestRank == RANK_NO_MATCH))) {
             if (BestRank == RANK_NO_MATCH) {
                 //This is the 1st driver so just copy it into BestDriverInfoData
                 memcpy(&BestDriverInfoData, &DriverInfoData, sizeof(SP_DRVINFO_DATA));
-           } else {
+            } else {
                 //If this new driver has a better (smaller) Rank then the current Best Driver or it has a newer date then make it the Best Driver.
                 if ((DriverInstallParams.Rank < BestRank) || (CompareFileTime(&(BestDriverInfoData.DriverDate), &(DriverInfoData.DriverDate)) == -1)) {
                     memcpy(&BestDriverInfoData, &DriverInfoData, sizeof(SP_DRVINFO_DATA));
@@ -7159,7 +7123,7 @@ Return Value:
         goto clean1;
     }
 
-    if(!SetupDiSetSelectedDriver(DeviceInfoSet, DeviceInfoData, &BestDriverInfoData)) {
+    if (!SetupDiSetSelectedDriver(DeviceInfoSet, DeviceInfoData, &BestDriverInfoData)) {
         Err = GetLastError();
     }
 
@@ -7182,7 +7146,7 @@ clean1:
 }
 
 
-BOOL RetrieveAllFilterDriversForDevice(IN  PDEVINFO_ELEM  DevInfoElem, OUT PTSTR *FilterDrivers, IN HMACHINE hMachine)
+BOOL RetrieveAllFilterDriversForDevice(IN  PDEVINFO_ELEM  DevInfoElem, OUT PTSTR* FilterDrivers, IN HMACHINE hMachine)
 /*
 Routine Description:
     This routine returns a multi-sz list of all filter drivers (both upper and lower, class-specific and device-specific) for the specified device information element.
@@ -7207,7 +7171,7 @@ Return Value:
 
     BufferSize = 1024 * sizeof(TCHAR);  // start out with a reasonably-sized buffer.
     Buffer = MyMalloc(BufferSize);
-    if(Buffer) {
+    if (Buffer) {
         UsedSize = 0;
         CurPos = Buffer;
     } else {
@@ -7222,23 +7186,21 @@ Return Value:
     NumLists = (hk == INVALID_HANDLE_VALUE) ? 2 : 4;
 
     // First, retrieve the UpperFilters and LowerFilters device properties (i.e., the device-specific filters).
-    for(i = 0; i < NumLists; i++)
-    {
+    for (i = 0; i < NumLists; i++) {
         RequiredSize = 0;
 
-        while(TRUE)
-        {
+        while (TRUE) {
             // Do we need a larger buffer?
-            if(RequiredSize > (BufferSize - UsedSize)) {
+            if (RequiredSize > (BufferSize - UsedSize)) {
                 BufferSize = UsedSize + RequiredSize;
                 NewBuffer = MyRealloc(Buffer, BufferSize);
-                if(NewBuffer) {
+                if (NewBuffer) {
                     // Adjust our current position pointer.
                     CurPos = NewBuffer + (CurPos - Buffer);
                     Buffer = NewBuffer;
                 } else {
                     MyFree(Buffer);
-                    if(hk != INVALID_HANDLE_VALUE) {
+                    if (hk != INVALID_HANDLE_VALUE) {
                         RegCloseKey(hk);
                     }
                     return TRUE;
@@ -7247,18 +7209,17 @@ Return Value:
                 RequiredSize = BufferSize - UsedSize;
             }
 
-            if(i < 2) {
+            if (i < 2) {
                 // Then we're retrieving the device-specific lists.
                 cr = CM_Get_DevInst_Registry_Property_Ex(DevInfoElem->DevInst, (i ? CM_DRP_UPPERFILTERS : CM_DRP_LOWERFILTERS), NULL, CurPos, &RequiredSize, 0, hMachine);
-                switch(cr)
-                {
-                case CR_SUCCESS :
+                switch (cr) {
+                case CR_SUCCESS:
                     Err = ERROR_SUCCESS;
                     break;
-                case CR_BUFFER_SMALL :
+                case CR_BUFFER_SMALL:
                     Err = ERROR_MORE_DATA;
                     break;
-                default :
+                default:
                     Err = ERROR_INVALID_DATA; // any old error will do.
                     break;
                 }
@@ -7267,7 +7228,7 @@ Return Value:
                 Err = RegQueryValueEx(hk, ((i == 2) ? pszLowerFilters : pszUpperFilters), NULL, &RegDataType, (PBYTE)CurPos, &RequiredSize);
             }
 
-            if(Err == ERROR_SUCCESS) {
+            if (Err == ERROR_SUCCESS) {
                 // Walk through the service names in the multi-sz list we just retrieved to find
                 // the end (just in case someone screwed up when saving out this list and didn't size it properly, etc.)
 
@@ -7275,20 +7236,19 @@ Return Value:
                 p = CurPos;
 
                 try {
-                    while(*CurPos)
-                    {
+                    while (*CurPos) {
                         CurPos += _tcslen(CurPos);
 
-                        if(CurPos >= (PTSTR)((PBYTE)Buffer + BufferSize)) {
+                        if (CurPos >= (PTSTR)((PBYTE)Buffer + BufferSize)) {
                             // We found a list that wasn't properly double-null terminated, but it didn't cause an exception.
                             CurPos = p;
                             *CurPos = TEXT('\0');
                             break;
-                        } else if(++CurPos == (PTSTR)((PBYTE)Buffer + BufferSize)) {
+                        } else if (++CurPos == (PTSTR)((PBYTE)Buffer + BufferSize)) {
                             // Reallocate the buffer to accommodate a terminating null (which the list we retrieved didn't provide).
                             BufferSize += sizeof(TCHAR);
                             NewBuffer = MyRealloc(Buffer, BufferSize);
-                            if(!NewBuffer) {
+                            if (!NewBuffer) {
                                 MyFree(Buffer);
                                 Buffer = NULL;
                                 goto clean0;
@@ -7302,7 +7262,7 @@ Return Value:
 
                         p = CurPos;
                     }
-clean0:
+                clean0:
                     ;   // nothing to do.
                 } except(EXCEPTION_EXECUTE_HANDLER) {
                     MYASSERT(CurPos != p);
@@ -7310,9 +7270,9 @@ clean0:
                     *CurPos = TEXT('\0');
                 }
 
-                if(!Buffer) {
+                if (!Buffer) {
                     // We needed to resize the buffer to fix an improperly-terminated list, but we ran out of memory.
-                    if(hk != INVALID_HANDLE_VALUE) {
+                    if (hk != INVALID_HANDLE_VALUE) {
                         RegCloseKey(hk);
                     }
                     return TRUE;
@@ -7321,18 +7281,18 @@ clean0:
                 UsedSize = (DWORD)((PBYTE)CurPos - (PBYTE)Buffer) + sizeof(TCHAR);
                 MYASSERT(UsedSize <= BufferSize);
                 break;
-            } else if(Err != ERROR_MORE_DATA) {
+            } else if (Err != ERROR_MORE_DATA) {
                 // We failed for some reason other than buffer-too-small.  Move on to the next filter driver list.
                 break;
             }
         }
     }
 
-    if(hk != INVALID_HANDLE_VALUE) {
+    if (hk != INVALID_HANDLE_VALUE) {
         RegCloseKey(hk);
     }
 
-    if(UsedSize) {
+    if (UsedSize) {
         // We retrieved a list of services to return to the caller.
         *FilterDrivers = Buffer;
         return TRUE;
@@ -7375,20 +7335,19 @@ Arguments:
     lstrcpyn(DefaultInfPath, InfFileName, SIZECHARS(DefaultInfPath));
     FileNamePos = (PTSTR)MyGetFileTitle(DefaultInfPath);
 
-    if(SetupFindFirstLine(hDeviceInf, InfSectionName, TEXT("include"), &InfContext)) {
-        for(FieldIndex = 1;
-            SetupGetStringField(&InfContext, FieldIndex, FileNamePos, (DWORD)((DefaultInfPath + SIZECHARS(DefaultInfPath)) - FileNamePos), NULL);
-            FieldIndex++)
-        {
+    if (SetupFindFirstLine(hDeviceInf, InfSectionName, TEXT("include"), &InfContext)) {
+        for (FieldIndex = 1;
+             SetupGetStringField(&InfContext, FieldIndex, FileNamePos, (DWORD)((DefaultInfPath + SIZECHARS(DefaultInfPath)) - FileNamePos), NULL);
+             FieldIndex++) {
             // Try full path and if that fails just use the inf name and let the open routine try to locate the inf.
             // Ignore errors. We'll catch them later, during the install phases.
             b = SetupOpenAppendInfFile(DefaultInfPath, hDeviceInf, NULL);
-            if(!b) {
+            if (!b) {
                 b = SetupOpenAppendInfFile(FileNamePos, hDeviceInf, NULL);
             }
 
             // If we successfully append-loaded the included INF, and if we're also supposed to be append-loading any associated layout INFs, then do that now.
-            if(b && AppendLayoutInfs) {
+            if (b && AppendLayoutInfs) {
                 SetupOpenAppendInfFile(NULL, hDeviceInf, NULL);
             }
         }
@@ -7398,19 +7357,19 @@ Arguments:
 
 DWORD
 InstallFromInfSectionAndNeededSections(
-    IN HWND              Owner,             OPTIONAL
+    IN HWND              Owner, OPTIONAL
     IN HINF              InfHandle,
     IN PCTSTR            SectionName,
     IN UINT              Flags,
-    IN HKEY              RelativeKeyRoot,   OPTIONAL
-    IN PCTSTR            SourceRootPath,    OPTIONAL
+    IN HKEY              RelativeKeyRoot, OPTIONAL
+    IN PCTSTR            SourceRootPath, OPTIONAL
     IN UINT              CopyFlags,
     IN PSP_FILE_CALLBACK MsgHandler,
-    IN PVOID             Context,           OPTIONAL
-    IN HDEVINFO          DeviceInfoSet,     OPTIONAL
-    IN PSP_DEVINFO_DATA  DeviceInfoData,    OPTIONAL
+    IN PVOID             Context, OPTIONAL
+    IN HDEVINFO          DeviceInfoSet, OPTIONAL
+    IN PSP_DEVINFO_DATA  DeviceInfoData, OPTIONAL
     IN HSPFILEQ          UserFileQ          OPTIONAL
-    )
+)
 /*
 Routine Description:
     This routine calls SetupInstallFromInfSection for the specified install section, as well as for any additional sections specified in a "needs=" line contained in that section.
@@ -7429,16 +7388,16 @@ Return Value:
     lstrcpyn(SectionToInstall, SectionName, SIZECHARS(SectionToInstall));
     NeedsEntriesToProcess = SetupFindFirstLine(InfHandle, SectionName, TEXT("needs"), &InfContext);
     Err = NO_ERROR;
-    for(FieldIndex = 0; (!FieldIndex || NeedsEntriesToProcess); FieldIndex++) {
-        if(FieldIndex) {
+    for (FieldIndex = 0; (!FieldIndex || NeedsEntriesToProcess); FieldIndex++) {
+        if (FieldIndex) {
             // Get next section name on "needs=" line to be processed.
-            if(!SetupGetStringField(&InfContext, FieldIndex, SectionToInstall, SIZECHARS(SectionToInstall), NULL)) {
+            if (!SetupGetStringField(&InfContext, FieldIndex, SectionToInstall, SIZECHARS(SectionToInstall), NULL)) {
                 // We've exhausted all the extra sections we needed to install.
                 break;
             }
         }
 
-        if(UserFileQ) {
+        if (UserFileQ) {
             // The caller supplied their own file queue, so all we can do is copy
             // files.  Make sure that file copying is all they want, and that they gave us a valid file queue handle.
             MYASSERT(Flags == SPINST_FILES);
@@ -7447,7 +7406,7 @@ Return Value:
             Err = pSetupInstallFiles(InfHandle, NULL, SectionToInstall, SourceRootPath, MsgHandler, Context, CopyFlags, Owner, UserFileQ, TRUE);
         } else {
             // The caller didn't supply their own file queue, so we can just use SetupInstallFromInfSection.
-            if(!_SetupInstallFromInfSection(Owner, InfHandle, SectionToInstall, Flags, RelativeKeyRoot, SourceRootPath, CopyFlags, MsgHandler, Context, DeviceInfoSet, DeviceInfoData, TRUE, NULL)) {
+            if (!_SetupInstallFromInfSection(Owner, InfHandle, SectionToInstall, Flags, RelativeKeyRoot, SourceRootPath, CopyFlags, MsgHandler, Context, DeviceInfoSet, DeviceInfoData, TRUE, NULL)) {
                 Err = GetLastError();
                 break;
             }
@@ -7464,9 +7423,9 @@ SetDevnodeNeedsRebootProblemWithArg2(
     IN HMACHINE hMachine,
     IN PSETUP_LOG_CONTEXT LogContext,
     IN DWORD    Reason, OPTIONAL
-    IN ULONG_PTR Arg1,  OPTIONAL
+    IN ULONG_PTR Arg1, OPTIONAL
     IN ULONG_PTR Arg2   OPTIONAL
-    )
+)
 /*
 Routine Description:
     This routine sets the problem of the specified devnode to be CM_PROB_NEED_RESTART.
@@ -7486,7 +7445,7 @@ Arguments:
             DRIVER_LOG_WARNING,  // should this be a warning?
             Reason,
             NULL,
-            Arg1,Arg2);
+            Arg1, Arg2);
         // Maybe it would be nice to say which device here, but where does that information come from?
     }
 }
@@ -7529,7 +7488,7 @@ Return Value:
     UnlockInf = FALSE;
 
     try {
-        if(LockInf((PLOADED_INF)DeviceInfHandle)) {
+        if (LockInf((PLOADED_INF)DeviceInfHandle)) {
             UnlockInf = TRUE;
         } else {
             Err = ERROR_INVALID_HANDLE;
@@ -7537,18 +7496,18 @@ Return Value:
         }
 
         // We want to process each INF in the LOADED_INF list...
-        for(pInf = (PLOADED_INF)DeviceInfHandle; pInf; pInf = pInf->Next) {
+        for (pInf = (PLOADED_INF)DeviceInfHandle; pInf; pInf = pInf->Next) {
             // First, get the (potentially decorated) CatalogFile= entry from
             // the version block of this INF member, as well as the INF's original name (if different from the INF's current name).
             Err = pGetInfOriginalNameAndCatalogFile(pInf, NULL, &DifferentOriginalName, OriginalInfName, SIZECHARS(OriginalInfName), TempBuffer, SIZECHARS(TempBuffer), NULL);
-            if(Err != NO_ERROR) {
+            if (Err != NO_ERROR) {
                 goto clean0;
             }
 
-            if(DifferentOriginalName) {
+            if (DifferentOriginalName) {
                 // Add the INF's original (simple) filename to our string table.
                 OriginalInfStringId = StringTableAddString(Queue->StringTable, OriginalInfName, STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE);
-                if(OriginalInfStringId == -1) {
+                if (OriginalInfStringId == -1) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
                 }
@@ -7557,9 +7516,9 @@ Return Value:
                 OriginalInfStringId = -1;
             }
 
-            if(*TempBuffer) {
+            if (*TempBuffer) {
                 CatStringId = StringTableAddString(Queue->StringTable, TempBuffer, STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE);
-                if(CatStringId == -1) {
+                if (CatStringId == -1) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
                 }
@@ -7571,14 +7530,14 @@ Return Value:
             // Now, get the INF's full path.
             lstrcpyn(TempBuffer, pInf->VersionBlock.Filename, SIZECHARS(TempBuffer));
             InfStringId = StringTableAddString(Queue->StringTable, TempBuffer, STRTAB_CASE_INSENSITIVE | STRTAB_BUFFER_WRITEABLE);
-            if(InfStringId == -1) {
+            if (InfStringId == -1) {
                 Err = ERROR_NOT_ENOUGH_MEMORY;
                 goto clean0;
             }
 
             // Now search for an existing catalog node (there'll typically be one unless the device INF doesn't copy any files, such as a modem INF).
-            for(PrevCatalogNode=NULL, CatalogNode=Queue->CatalogList; CatalogNode; CatalogNode=CatalogNode->Next) {
-                if(CatalogNode->InfFullPath == InfStringId) {
+            for (PrevCatalogNode = NULL, CatalogNode = Queue->CatalogList; CatalogNode; CatalogNode = CatalogNode->Next) {
+                if (CatalogNode->InfFullPath == InfStringId) {
                     // Already in there. No need to create a new node.
                     // Break out here, with CatalogNode pointing at the proper node for this catalog file.
 
@@ -7595,10 +7554,10 @@ Return Value:
             }
 
             // If we didn't find an existing catalog node, then add one now.
-            if(!CatalogNode) {
+            if (!CatalogNode) {
                 // Need to create a new catalog node.
                 NewCatalogNode = MyMalloc(sizeof(SPQ_CATALOG_INFO));
-                if(!NewCatalogNode) {
+                if (!NewCatalogNode) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     goto clean0;
                 }
@@ -7609,7 +7568,7 @@ Return Value:
                 NewCatalogNode->AltCatalogFileFromInfPending = -1;
                 NewCatalogNode->InfFullPath = InfStringId;
                 NewCatalogNode->InfFinalPath = -1;
-                if(Queue->CatalogList) {
+                if (Queue->CatalogList) {
                     PrevCatalogNode->Next = NewCatalogNode;
                 } else {
                     Queue->CatalogList = NewCatalogNode;
@@ -7619,14 +7578,14 @@ Return Value:
                 NewCatalogNode = NULL;
             }
 
-            if(pInf == (PLOADED_INF)DeviceInfHandle) {
+            if (pInf == (PLOADED_INF)DeviceInfHandle) {
                 // At this point, CatalogNode points to the node representing the device INF upon which this device installation is based.
                 // Mark this node as such, so that _SetupVerifyQueuedCatalogs can return the INF's new name if it's an OEM INF.
                 CatalogNode->Flags |= CATINFO_FLAG_PRIMARY_DEVICE_INF;
             }
         }
 
-        if(!(Queue->Flags & FQF_DEVICE_INSTALL)) {
+        if (!(Queue->Flags & FQF_DEVICE_INSTALL)) {
             // This queue wasn't previously known to be a device install queue,
             // so we need to clear the "catalog verifications done" flags so
             // that we'll redo them later (e.g., to make sure any OEM INFs were properly installed).
@@ -7638,7 +7597,7 @@ Return Value:
             // Retrieve the codesigning policy in effect for this device (thus replacing the default non-driver signing policy that was
             // associated with the queue when it was originally created).
             IsInfForDeviceInstall(Queue->LogContext, (PLOADED_INF)DeviceInfHandle, (DeviceDesc ? NULL : &InfDeviceDesc), &(Queue->DriverSigningPolicy), &UseOriginalInfName);
-            if(UseOriginalInfName) {
+            if (UseOriginalInfName) {
                 Queue->Flags |= FQF_KEEP_INF_AND_CAT_ORIGINAL_NAMES;
             }
 
@@ -7647,9 +7606,9 @@ Return Value:
 
             // NOTE: When adding the following string to the string table, we cast away its CONST-ness to avoid a compiler warning.  Since we
             // are adding it case-sensitively, we are guaranteed it will not be modified.
-            if(DeviceDesc) {
+            if (DeviceDesc) {
                 Queue->DeviceDescStringId = StringTableAddString(Queue->StringTable, (PTSTR)DeviceDesc, STRTAB_CASE_SENSITIVE);
-            } else if(InfDeviceDesc) {
+            } else if (InfDeviceDesc) {
                 // Use the more generic description based on the device's class
                 Queue->DeviceDescStringId = StringTableAddString(Queue->StringTable, InfDeviceDesc, STRTAB_CASE_SENSITIVE);
             }
@@ -7661,12 +7620,12 @@ Return Value:
         } else {
             // This queue has previously been marked as a device install queue.
             // However, we still want to update the device description, if the caller supplied one.
-            if(DeviceDesc) {
+            if (DeviceDesc) {
                 Queue->DeviceDescStringId = StringTableAddString(Queue->StringTable, (PTSTR)DeviceDesc, STRTAB_CASE_SENSITIVE);
             }
         }
 
-clean0: ;   // nothing to do.
+    clean0:;   // nothing to do.
     } except(EXCEPTION_EXECUTE_HANDLER) {
         // If we hit an AV, then use invalid parameter error, otherwise, assume an inpage error when dealing with a mapped-in file.
         Err = (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION) ? ERROR_INVALID_PARAMETER : ERROR_READ_FAULT;
@@ -7676,15 +7635,15 @@ clean0: ;   // nothing to do.
         NewCatalogNode = NewCatalogNode;
     }
 
-    if(UnlockInf) {
+    if (UnlockInf) {
         UnlockInf((PLOADED_INF)DeviceInfHandle);
     }
 
-    if(NewCatalogNode) {
+    if (NewCatalogNode) {
         MyFree(NewCatalogNode);
     }
 
-    if(InfDeviceDesc) {
+    if (InfDeviceDesc) {
         MyFree(InfDeviceDesc);
     }
 

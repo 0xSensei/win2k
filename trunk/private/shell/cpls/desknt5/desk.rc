@@ -1,30 +1,15 @@
-
-
-
 // Generated from the TEXTINCLUDE 2 resource.
-
 #include "windows.h"
 #include "commctrl.h"
 #include "deskid.h"
 #include "desk.h"
 #include "settings.h"
 
-
-
-
-
-
 // Icon
-
-
 IDS_ICON                ICON    DISCARDABLE          "DESK.ICO"
 IDI_DISPLAY             ICON    PRELOAD DISCARDABLE  "desk.ico"
 
-
-
 // Bitmap
-
-
 BMP_MONITOR             BITMAP  DISCARDABLE     "MONITOR.BMP"
 IDB_COLOR4              BITMAP  DISCARDABLE     "COLOR4.BMP"
 IDB_COLOR4DITHER        BITMAP  DISCARDABLE     "COLOR4D.BMP"
@@ -35,10 +20,7 @@ IDB_ENERGYSTAR          BITMAP  DISCARDABLE     "ENERGYST.BMP"
 
 IDB_MONITOR_BITMAP      BITMAP  DISCARDABLE     "wizmon.bmp"
 
-
-
 // Menu
-
 MENU_MONITOR MENU
 begin
     popup "!"
@@ -51,10 +33,7 @@ begin
     end
 end
 
-
-
 // Dialog
-
 DLG_BACKGROUND DIALOGEX DISCARDABLE  0, 0, 252, 218
 STYLE DS_MODALFRAME|(DS_SETFONT|DS_FIXEDSYS) | DS_NOIDLEMSG | DS_3DLOOK | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Background"
