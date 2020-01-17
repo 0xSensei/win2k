@@ -300,13 +300,7 @@ VerQueryValueIndexA(
         PUINT puLen
         )
 {
-   return VerpQueryValue(pb,
-                         lpSubBlock,
-                         nIndex,
-                         lplpKey,
-                         lplpBuffer,
-                         puLen,
-                         FALSE);
+   return VerpQueryValue(pb, lpSubBlock, nIndex, lplpKey, lplpBuffer, puLen, FALSE);
 }
 
 BOOL
@@ -318,13 +312,7 @@ VerQueryValueA(
         PUINT puLen
         )
 {
-    return VerpQueryValue(pb,
-                          lpSubBlock,
-                          -1,
-                          NULL,
-                          lplpBuffer,
-                          puLen,
-                          FALSE);
+    return VerpQueryValue(pb, lpSubBlock, -1, NULL, lplpBuffer, puLen, FALSE);
 }
 
 
@@ -337,13 +325,7 @@ VerQueryValueW(
         PUINT puLen
         )
 {
-    return VerpQueryValue(pb,
-                          lpSubBlock,
-                          -1,
-                          NULL,
-                          lplpBuffer,
-                          puLen,
-                          TRUE);
+    return VerpQueryValue(pb, lpSubBlock, -1, NULL, lplpBuffer, puLen, TRUE);
 }
 
 
@@ -358,14 +340,5 @@ VerQueryValueIndexW(
         PUINT puLen
         )
 {
-    return VerpQueryValue(pb,
-                          lpSubBlock,
-                          nIndex,
-                          lplpKey,
-                          lplpBuffer,
-                          puLen,
-                          TRUE);
+    return VerpQueryValue(pb, lpSubBlock, nIndex, lplpKey, lplpBuffer, puLen, TRUE);
 }
-
-
-

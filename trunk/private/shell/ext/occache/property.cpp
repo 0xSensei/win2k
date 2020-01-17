@@ -585,33 +585,21 @@ void InitPropPage4(HWND hDlg, LPARAM lParam)
 
         // set Company field
         wsprintf(szQueryString, "%s\\CompanyName", szQueryPrefix);
-        if (VerQueryValue(
-            lpData,
-            szQueryString,
-            (LPVOID*)&lpBuffer, &uSize))
+        if (VerQueryValue(lpData, szQueryString, (LPVOID*)&lpBuffer, &uSize))
             SetDlgItemText(hDlg, IDC_STATIC_VER_COMPANY, lpBuffer);
 
         // set Description field
         wsprintf(szQueryString, "%s\\FileDescription", szQueryPrefix);
-        if (VerQueryValue(
-            lpData,
-            szQueryString,
-            (LPVOID*)&lpBuffer, &uSize))
+        if (VerQueryValue(lpData, szQueryString, (LPVOID*)&lpBuffer, &uSize))
             SetDlgItemText(hDlg, IDC_STATIC_VER_DESCRIPTION, lpBuffer);
 
         // set CopyRight field
         wsprintf(szQueryString, "%s\\LegalCopyright", szQueryPrefix);
-        if (VerQueryValue(
-            lpData,
-            szQueryString,
-            (LPVOID*)&lpBuffer, &uSize))
+        if (VerQueryValue(lpData, szQueryString, (LPVOID*)&lpBuffer, &uSize))
             SetDlgItemText(hDlg, IDC_STATIC_VER_COPYRIGHT, lpBuffer);
 
         // set Language field
-        if (VerQueryValue(
-            lpData,
-            TEXT("\\VarFileInfo\\Translation"),
-            (LPVOID*)&lpBuffer, &uSize))
+        if (VerQueryValue(lpData, TEXT("\\VarFileInfo\\Translation"), (LPVOID*)&lpBuffer, &uSize))
         {
             LPWORD lpLangId = (LPWORD)lpBuffer;
             VerLanguageName(*lpLangId, szBuf, MESSAGE_MAXSIZE);

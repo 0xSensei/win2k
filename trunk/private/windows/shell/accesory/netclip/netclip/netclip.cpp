@@ -441,10 +441,7 @@ void CNetClipApp::OnAppAbout()
         {
             DWORD* pdwBuffer ;
             // Get the translation information.
-            BOOL bResult = ::VerQueryValue( pdata,
-                              _T("\\VarFileInfo\\Translation"),
-                              (void**)&pdwBuffer,
-                              (UINT*)&dw);
+            BOOL bResult = ::VerQueryValue( pdata, _T("\\VarFileInfo\\Translation"), (void**)&pdwBuffer, (UINT*)&dw);
             if (!bResult || !dw) goto NastyGoto ;
 
             // Build the path to the OLESelfRegister key
@@ -456,10 +453,7 @@ void CNetClipApp::OnAppAbout()
                      HIWORD(*pdwBuffer)) ;
 
             // Search for the key.
-            bResult = ::VerQueryValue( pdata,
-                                       szName,
-                                       (void**)&pdwBuffer,
-                                       (UINT*)&dw);
+            bResult = ::VerQueryValue( pdata, szName, (void**)&pdwBuffer, (UINT*)&dw);
             if (!bResult || !dw) goto NastyGoto ;
 
 #ifdef _UNICODE

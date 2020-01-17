@@ -243,10 +243,7 @@ BOOL capInternalGetDriverDesc (UINT wDriverIndex,
         lpVersion     = NULL;
 
         // Look for the corresponding string.
-        bRetCode      =  VerQueryValue((LPVOID)lpstrVffInfo,
-                        (LPTSTR)szGetName,
-                        (void FAR* FAR*)&lpVersion,
-                        (UINT FAR *) &wVersionLen);
+        bRetCode      =  VerQueryValue((LPVOID)lpstrVffInfo, (LPTSTR)szGetName, (void FAR* FAR*)&lpVersion, (UINT FAR *) &wVersionLen);
 
         if (fGetName && bRetCode && wVersionLen && lpVersion)
            lstrcpyn (lpszName, lpVersion, cbName);

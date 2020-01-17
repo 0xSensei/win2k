@@ -1034,10 +1034,7 @@ DWORD GetFontDefaultLangID( )
 
                         UINT uSize;
 
-                        if( VerQueryValue( lpvBuf,
-                                           TEXT( "\\VarFileInfo\\Translation" ),
-                                           (LPVOID *) &lpTrans,
-                                           &uSize )
+                        if( VerQueryValue( lpvBuf, TEXT( "\\VarFileInfo\\Translation" ), (LPVOID *) &lpTrans, &uSize )
                             && uSize >= sizeof( *lpTrans ) )
                         {
                             dwTemp = lpTrans->wLang;
@@ -1071,10 +1068,7 @@ DWORD GetFontDefaultLangID( )
 
                     UINT uSize;
 
-                    if( VerQueryValue( lpVer,
-                                       TEXT( "\\VarFileInfo\\Translation" ),
-                                       (LPVOID *) &lpTrans,
-                                       &uSize )
+                    if( VerQueryValue( lpVer, TEXT( "\\VarFileInfo\\Translation" ), (LPVOID *) &lpTrans, &uSize )
                         && uSize >= sizeof( *lpTrans ) )
                     {
                         dwTemp = lpTrans->wLang;

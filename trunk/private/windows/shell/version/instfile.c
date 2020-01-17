@@ -387,15 +387,12 @@ VerInstallFileW(
                                 break;
                             }
 
-                            if (lpDstTrans[dwDstTrans].wLanguage
-                                == lpSrcTrans[dwSrcTrans].wLanguage) {
+                            if (lpDstTrans[dwDstTrans].wLanguage == lpSrcTrans[dwSrcTrans].wLanguage) {
                                 /* OK if dst is CP0 and src is not UNICODE
                                  */
-                                if (lpDstTrans[dwDstTrans].wCodePage==0 &&
-                                    lpSrcTrans[dwSrcTrans].wCodePage!=1200)
+                                if (lpDstTrans[dwDstTrans].wCodePage==0 && lpSrcTrans[dwSrcTrans].wCodePage!=1200)
                                     break;
-                                if (lpDstTrans[dwDstTrans].wCodePage
-                                    == lpSrcTrans[dwSrcTrans].wCodePage)
+                                if (lpDstTrans[dwDstTrans].wCodePage == lpSrcTrans[dwSrcTrans].wCodePage)
                                     break;
                             }
                         }

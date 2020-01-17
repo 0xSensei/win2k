@@ -91,43 +91,21 @@ Return Value:
         return FALSE;
     }
 
-
     // Extract the fixed info
-
-
-    VerQueryValue (
-        VersionStruct->VersionBuffer,
-        TEXT("\\"),
-        &VersionStruct->FixedInfo,
-        &VersionStruct->FixedInfoSize
-        );
-
+    VerQueryValue (VersionStruct->VersionBuffer, TEXT("\\"), &VersionStruct->FixedInfo, &VersionStruct->FixedInfoSize);
     return TRUE;
 }
 
 
-VOID
-ShDestroyVersionStruct (
-    IN      PVERSION_STRUCT VersionStruct
-    )
-
+VOID ShDestroyVersionStruct (IN      PVERSION_STRUCT VersionStruct)
 /*++
-
 Routine Description:
-
-  ShDestroyVersionStruct cleans up all memory allocated by the routines
-  in this module.
-
+  ShDestroyVersionStruct cleans up all memory allocated by the routines in this module.
 Arguments:
-
   VersionStruct - Specifies the structure to clean up
-
 Return Value:
-
   none
-
 */
-
 {
     if (VersionStruct->VersionBuffer) {
         HeapFree (GetProcessHeap (), 0, VersionStruct->VersionBuffer);
@@ -227,23 +205,12 @@ pShEnumFirstVersionTranslation (
 {
     UINT ArraySize;
 
-    if (!VerQueryValue (
-            VersionStruct->VersionBuffer,
-            TEXT("\\VarFileInfo\\Translation"),
-            &VersionStruct->Translations,
-            &ArraySize
-            )) {
-
+    if (!VerQueryValue (VersionStruct->VersionBuffer, TEXT("\\VarFileInfo\\Translation"), &VersionStruct->Translations, &ArraySize)) {
         // No translations are available
-
-
         ArraySize = 0;
     }
 
-
     // Return a pointer to the first translation
-
-
     VersionStruct->CurrentDefaultTranslation = 0;
     VersionStruct->MaxTranslations = ArraySize / sizeof (TRANSLATION);
     VersionStruct->CurrentTranslation = 0;
@@ -372,20 +339,9 @@ pShEnumVersionValueCommon (
         );
 
     __try {
-
         // Get the value from the version stamp
-
-
-        if (!VerQueryValue (
-                VersionStruct->VersionBuffer,
-                Text,
-                &String,
-                &StringLen
-                )) {
-
+        if (!VerQueryValue (VersionStruct->VersionBuffer, Text, &String, &StringLen)) {
             // No value is available
-
-
             return NULL;
         }
         CopyMemory (VersionStruct->StringBuffer, String, StringLen * sizeof (TCHAR));

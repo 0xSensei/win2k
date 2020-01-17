@@ -3638,10 +3638,7 @@ STATIC INT_PTR PASCAL GetVerDesc (LPCTSTR pstrFile, LPTSTR pstrDesc)
         lpVersion     = NULL;
 
         // Look for the corresponding string.
-        bRetCode = VerQueryValue((LPVOID)lpVffInfo,
-                     (LPTSTR)szBuf,
-                     (void FAR* FAR*)&lpVersion,
-                     (UINT FAR *) &wVersionLen);
+        bRetCode = VerQueryValue((LPVOID)lpVffInfo, (LPTSTR)szBuf, (void FAR* FAR*)&lpVersion, (UINT FAR *) &wVersionLen);
 
         if (bRetCode && wVersionLen > 2 && lpVersion)
         {

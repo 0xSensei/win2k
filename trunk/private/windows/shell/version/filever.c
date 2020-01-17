@@ -943,7 +943,6 @@ VerpQueryValue(
     Fail:
 
     if (!bUnicodeNeeded) {
-
         RtlFreeUnicodeString(&UnicodeString);
     } else {
         LocalFree(lpSubBlockOrg);

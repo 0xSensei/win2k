@@ -5,7 +5,7 @@
 #include "test.h"            /* specific to this program             */
 
 HANDLE hInst;                /* current instance                 */
-HMODULE    hMod=NULL;
+HMODULE    hMod = NULL;
 
 TCHAR szInfoBuf[1024];
 TCHAR szBuffer[256];
@@ -31,7 +31,6 @@ WORD    languageid;
 
         If this function must abort before entering the message loop, it
         returns the conventional value NULL.
-
 */
 
 int WINAPI WinMain(
@@ -39,18 +38,17 @@ int WINAPI WinMain(
     HINSTANCE hPrevInstance,
     LPSTR lpCmdLine,
     int nCmdShow
-    )
+)
 {
-
     MSG msg;                     /* message                 */
 
-    UNREFERENCED_PARAMETER( lpCmdLine );
+    UNREFERENCED_PARAMETER(lpCmdLine);
 
     if (!hPrevInstance)             /* Other instances of app running? */
-    if (!InitApplication(hInstance)) /* Initialize shared things */
-        return (FALSE);         /* Exits if unable to initialize     */
+        if (!InitApplication(hInstance)) /* Initialize shared things */
+            return (FALSE);         /* Exits if unable to initialize     */
 
-    /* Perform initializations that apply to a specific instance */
+        /* Perform initializations that apply to a specific instance */
 
     if (!InitInstance(hInstance, nCmdShow))
         return (FALSE);
@@ -58,12 +56,12 @@ int WINAPI WinMain(
     /* Acquire and dispatch messages until a WM_QUIT message is received. */
 
     while (GetMessage(&msg,       /* message structure                 */
-        NULL,           /* handle of window receiving the message */
-        0,              /* lowest message to examine             */
-        0))                    /* highest message to examine         */
+                      NULL,           /* handle of window receiving the message */
+                      0,              /* lowest message to examine             */
+                      0))                    /* highest message to examine         */
     {
-    TranslateMessage(&msg);       /* Translates virtual key codes         */
-    DispatchMessage(&msg);       /* Dispatches message to window         */
+        TranslateMessage(&msg);       /* Translates virtual key codes         */
+        DispatchMessage(&msg);       /* Dispatches message to window         */
     }
     return (msg.wParam);       /* Returns the value from PostQuitMessage */
 }
@@ -106,7 +104,7 @@ BOOL InitApplication(HANDLE hInstance)       /* current instance         */
     wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = GetStockObject(WHITE_BRUSH);
-    wc.lpszMenuName =  MAKEINTRESOURCE(IDM_VERSION);
+    wc.lpszMenuName = MAKEINTRESOURCE(IDM_VERSION);
     wc.lpszClassName = TEXT("VerTestWClass"); /* Name used in call to CreateWindow. */
 
     /* Register the window class and return success/failure code. */
@@ -180,14 +178,9 @@ BOOL InitInstance(
     PURPOSE:  Processes messages
 
     MESSAGES:
-
     WM_COMMAND    - application menu
     WM_DESTROY    - destroy window
-
-    COMMENTS:
-
 */
-
 LONG APIENTRY MainWndProc(
     HWND hWnd,          /* window handle             */
     UINT message,          /* type of message             */
@@ -200,9 +193,9 @@ LONG APIENTRY MainWndProc(
     PVOID    pData;
     INT        cbData;
     INT        dummy;
-    VS_FIXEDFILEINFO    *pvs;
-    DWORD    *pdw;
-    WORD    *pw;
+    VS_FIXEDFILEINFO* pvs;
+    DWORD* pdw;
+    WORD* pw;
     PAINTSTRUCT ps;
 
     switch (message) {
@@ -210,156 +203,143 @@ LONG APIENTRY MainWndProc(
         switch (LOWORD(wParam)) {
 
         case IDM_ABOUT:
-        lpProc = (DLGPROC)MakeProcInstance((FARPROC)About, hInst);
-
+            lpProc = (DLGPROC)MakeProcInstance((FARPROC)About, hInst);
             DialogBox(hInst,         /* current instance         */
-            MAKEINTRESOURCE(IDD_ABOUT),     /* resource to use  */
-                hWnd,             /* parent handle         */
-                (DLGPROC)lpProc);     /* About() instance address */
+                      MAKEINTRESOURCE(IDD_ABOUT),     /* resource to use  */
+                      hWnd,             /* parent handle         */
+                      (DLGPROC)lpProc);     /* About() instance address */
 
             FreeProcInstance(lpProc);
             break;
-
         case IDM_FREE:
-        FreeLibrary(hMod);
-        break;
-
+            FreeLibrary(hMod);
+            break;
         case IDM_EXIT:
-        FreeLibrary(hMod);
-        DestroyWindow(hWnd);
-        break;
-
+            FreeLibrary(hMod);
+            DestroyWindow(hWnd);
+            break;
         case IDM_QUERY:
-        lpProc = (DLGPROC)MakeProcInstance((FARPROC)Query, hInst);
+            lpProc = (DLGPROC)MakeProcInstance((FARPROC)Query, hInst);
             DialogBox(hInst,         /* current instance         */
-            MAKEINTRESOURCE(IDD_QUERY),     /* resource to use  */
-                hWnd,             /* parent handle         */
-                (DLGPROC)lpProc);     /* About() instance address */
+                      MAKEINTRESOURCE(IDD_QUERY),     /* resource to use  */
+                      hWnd,             /* parent handle         */
+                      (DLGPROC)lpProc);     /* About() instance address */
             FreeProcInstance(lpProc);
-        if (VerQueryValue(szInfoBuf, szFileName, &pData, &cbData) == FALSE)
-            MessageBox(hWnd, TEXT("Returned NULL"), TEXT("VerQueryValue"), MB_OK);
-        else {
-            if (lstrcmp(szFileName, TEXT("\\")) == 0) {
-            pvs = (VS_FIXEDFILEINFO*)pData;
-            wsprintf(szBuffer, TEXT("0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx "),
-                pvs->dwSignature,
-                pvs->dwStrucVersion,
-                pvs->dwFileVersionMS,
-                pvs->dwFileVersionLS,
-                pvs->dwProductVersionMS,
-                pvs->dwProductVersionLS,
-                pvs->dwFileFlagsMask,
-                pvs->dwFileFlags,
-                pvs->dwFileOS,
-                pvs->dwFileType,
-                pvs->dwFileSubtype,
-                pvs->dwFileDateMS,
-                pvs->dwFileDateLS);
-            MessageBox(hWnd, szBuffer, TEXT("VerQueryValue VS_FIXEDFILEINFO"), MB_OK);
-            }
-            else if (lstrcmpi(szFileName, TEXT("\\VarFileInfo\\Translation")) == 0) {
-            pw = (WORD*)pData;    /* assume 2 words */
-            wsprintf(szBuffer, TEXT("0x%lx 0x%lx"), *pw, *(pw+1));
-            MessageBox(hWnd, szBuffer, TEXT("VerQueryValue VS_FIXEDFILEINFO"), MB_OK);
-            }
-                else if (
-#ifndef UNICODE
-                             strnicmp
-#else
-                             _wcsnicmp
-#endif
-                             (szFileName, TEXT("\\StringFileInfo\\"), 16) == 0) {
-            wsprintf(szBuffer, TEXT("%s:%ws"), szFileName, pData);
-            MessageBox(hWnd, szBuffer, TEXT("VerQueryValue"), MB_OK);
-            }
-            else
-            MessageBox(hWnd, TEXT("Other"), TEXT("VerQueryValue"), MB_OK);
-        }
-        break;
-
-        case IDM_INFO:
-        lpProc = (DLGPROC)MakeProcInstance((FARPROC)Information, hInst);
-            DialogBox(hInst,         /* current instance         */
-            MAKEINTRESOURCE(IDD_INFO),     /* resource to use  */
-                hWnd,             /* parent handle         */
-                (DLGPROC)lpProc);     /* About() instance address */
-            FreeProcInstance(lpProc);
-        if (GetFileVersionInfoSize(szFileName, NULL) == FALSE)
-            MessageBox(hWnd, TEXT("Returned NULL"), TEXT("GetFileVersionInfoSize"), MB_OK);
-        else {
-            if (GetFileVersionInfo(szFileName, 0, 1024, szInfoBuf) == FALSE)
-            MessageBox(hWnd, TEXT("Returned NULL"), TEXT("GetFileVersionInfo"), MB_OK);
+            if (VerQueryValue(szInfoBuf, szFileName, &pData, &cbData) == FALSE)
+                MessageBox(hWnd, TEXT("Returned NULL"), TEXT("VerQueryValue"), MB_OK);
             else {
-            MessageBox(hWnd, TEXT("Returned OK"), TEXT("GetFileVersionInfo"), MB_OK);
+                if (lstrcmp(szFileName, TEXT("\\")) == 0) {
+                    pvs = (VS_FIXEDFILEINFO*)pData;
+                    wsprintf(szBuffer, TEXT("0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx "),
+                             pvs->dwSignature,
+                             pvs->dwStrucVersion,
+                             pvs->dwFileVersionMS,
+                             pvs->dwFileVersionLS,
+                             pvs->dwProductVersionMS,
+                             pvs->dwProductVersionLS,
+                             pvs->dwFileFlagsMask,
+                             pvs->dwFileFlags,
+                             pvs->dwFileOS,
+                             pvs->dwFileType,
+                             pvs->dwFileSubtype,
+                             pvs->dwFileDateMS,
+                             pvs->dwFileDateLS);
+                    MessageBox(hWnd, szBuffer, TEXT("VerQueryValue VS_FIXEDFILEINFO"), MB_OK);
+                } else if (lstrcmpi(szFileName, TEXT("\\VarFileInfo\\Translation")) == 0) {
+                    pw = (WORD*)pData;    /* assume 2 words */
+                    wsprintf(szBuffer, TEXT("0x%lx 0x%lx"), *pw, *(pw + 1));
+                    MessageBox(hWnd, szBuffer, TEXT("VerQueryValue VS_FIXEDFILEINFO"), MB_OK);
+                } else if (
+#ifndef UNICODE
+                    strnicmp
+#else
+                    _wcsnicmp
+#endif
+                    (szFileName, TEXT("\\StringFileInfo\\"), 16) == 0) {
+                    wsprintf(szBuffer, TEXT("%s:%ws"), szFileName, pData);
+                    MessageBox(hWnd, szBuffer, TEXT("VerQueryValue"), MB_OK);
+                } else
+                    MessageBox(hWnd, TEXT("Other"), TEXT("VerQueryValue"), MB_OK);
             }
-        }
-        break;
-
+            break;
+        case IDM_INFO:
+            lpProc = (DLGPROC)MakeProcInstance((FARPROC)Information, hInst);
+            DialogBox(hInst,         /* current instance         */
+                      MAKEINTRESOURCE(IDD_INFO),     /* resource to use  */
+                      hWnd,             /* parent handle         */
+                      (DLGPROC)lpProc);     /* About() instance address */
+            FreeProcInstance(lpProc);
+            if (GetFileVersionInfoSize(szFileName, NULL) == FALSE)
+                MessageBox(hWnd, TEXT("Returned NULL"), TEXT("GetFileVersionInfoSize"), MB_OK);
+            else {
+                if (GetFileVersionInfo(szFileName, 0, 1024, szInfoBuf) == FALSE)
+                    MessageBox(hWnd, TEXT("Returned NULL"), TEXT("GetFileVersionInfo"), MB_OK);
+                else {
+                    MessageBox(hWnd, TEXT("Returned OK"), TEXT("GetFileVersionInfo"), MB_OK);
+                }
+            }
+            break;
         case IDM_FIND:
-        lpProc = (DLGPROC)MakeProcInstance((FARPROC)Find, hInst);
+            lpProc = (DLGPROC)MakeProcInstance((FARPROC)Find, hInst);
             DialogBox(hInst,         /* current instance         */
-            MAKEINTRESOURCE(IDD_FIND),     /* resource to use  */
-                hWnd,             /* parent handle         */
-                (DLGPROC)lpProc);     /* About() instance address */
+                      MAKEINTRESOURCE(IDD_FIND),     /* resource to use  */
+                      hWnd,             /* parent handle         */
+                      (DLGPROC)lpProc);     /* About() instance address */
             FreeProcInstance(lpProc);
-        GetWindowsDirectory(szBuf, 256);
-        dummy = 256;
-        cbData = 1024;
-        if (VerFindFile(0L, szFileName, szBuf, TEXT("c:\\tmp"), szLang, &dummy, szInfoBuf, &cbData) == FALSE)
-            MessageBox(hWnd, TEXT("Returned NULL"), TEXT("VerFindFile"), MB_OK);
-        else {
-            wsprintf(szBuffer, TEXT("%s:%s"), szLang, szInfoBuf);
-            MessageBox(hWnd, szBuffer, TEXT("VerFindFile"), MB_OK);
-        }
-        break;
-
+            GetWindowsDirectory(szBuf, 256);
+            dummy = 256;
+            cbData = 1024;
+            if (VerFindFile(0L, szFileName, szBuf, TEXT("c:\\tmp"), szLang, &dummy, szInfoBuf, &cbData) == FALSE)
+                MessageBox(hWnd, TEXT("Returned NULL"), TEXT("VerFindFile"), MB_OK);
+            else {
+                wsprintf(szBuffer, TEXT("%s:%s"), szLang, szInfoBuf);
+                MessageBox(hWnd, szBuffer, TEXT("VerFindFile"), MB_OK);
+            }
+            break;
         case IDM_INSTALL:
-        lpProc = (DLGPROC)MakeProcInstance((FARPROC)Install, hInst);
+            lpProc = (DLGPROC)MakeProcInstance((FARPROC)Install, hInst);
             DialogBox(hInst,         /* current instance         */
-            MAKEINTRESOURCE(IDD_INSTALL),     /* resource to use  */
-                hWnd,             /* parent handle         */
-                (DLGPROC)lpProc);     /* About() instance address */
+                      MAKEINTRESOURCE(IDD_INSTALL),     /* resource to use  */
+                      hWnd,             /* parent handle         */
+                      (DLGPROC)lpProc);     /* About() instance address */
             FreeProcInstance(lpProc);
 
-        dummy = 256;
-        cbData = VerInstallFile(VIFF_FORCEINSTALL|VIFF_DONTDELETEOLD,
-            szFileName, szFileName, TEXT("."), szLang, szInfoBuf,
-            szBuf, &dummy);
-        if (cbData == 0)
-            MessageBox(hWnd, TEXT("Returned NULL"), TEXT("VerInstallFile"), MB_OK);
-        else {
-            wsprintf(szBuffer, TEXT("0x%lx:%s"), cbData, szBuf);
-            MessageBox(hWnd, szBuffer, TEXT("VerInstallFile"), MB_OK);
-        }
-        break;
-
+            dummy = 256;
+            cbData = VerInstallFile(VIFF_FORCEINSTALL | VIFF_DONTDELETEOLD,
+                                    szFileName, szFileName, TEXT("."), szLang, szInfoBuf,
+                                    szBuf, &dummy);
+            if (cbData == 0)
+                MessageBox(hWnd, TEXT("Returned NULL"), TEXT("VerInstallFile"), MB_OK);
+            else {
+                wsprintf(szBuffer, TEXT("0x%lx:%s"), cbData, szBuf);
+                MessageBox(hWnd, szBuffer, TEXT("VerInstallFile"), MB_OK);
+            }
+            break;
         case IDM_LANG:
-        lpProc = (DLGPROC)MakeProcInstance((FARPROC)Language, hInst);
+            lpProc = (DLGPROC)MakeProcInstance((FARPROC)Language, hInst);
             DialogBox(hInst,         /* current instance         */
-            MAKEINTRESOURCE(IDD_LANG),     /* resource to use  */
-                hWnd,             /* parent handle         */
-                (DLGPROC)lpProc);     /* About() instance address */
+                      MAKEINTRESOURCE(IDD_LANG),     /* resource to use  */
+                      hWnd,             /* parent handle         */
+                      (DLGPROC)lpProc);     /* About() instance address */
             FreeProcInstance(lpProc);
-        VerLanguageName(languageid, szLang, 256);
-        MessageBox(hWnd, szLang, TEXT("Language ID is:"), MB_OK);
-        break;
+            VerLanguageName(languageid, szLang, 256);
+            MessageBox(hWnd, szLang, TEXT("Language ID is:"), MB_OK);
+            break;
 
         default:
             return (DefWindowProc(hWnd, message, wParam, lParam));
         }
-
     case WM_PAINT:
-            BeginPaint(hWnd, (LPPAINTSTRUCT)&ps);
-            EndPaint(hWnd, (LPPAINTSTRUCT)&ps);
+        BeginPaint(hWnd, (LPPAINTSTRUCT)&ps);
+        EndPaint(hWnd, (LPPAINTSTRUCT)&ps);
         break;
-
     case WM_DESTROY:          /* message: window being destroyed */
         PostQuitMessage(0);
         break;
-
     default:              /* Passes it on if unproccessed    */
         return (DefWindowProc(hWnd, message, wParam, lParam));
     }
+
     return (0);
 }
 
@@ -393,12 +373,11 @@ BOOL APIENTRY About(
     switch (message) {
     case WM_INITDIALOG:           /* message: initialize dialog box */
         return (TRUE);
-
     case WM_COMMAND:              /* message: received a command */
         if (LOWORD(wParam) == IDOK)        /* "OK" box selected?         */
-        EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
+            EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
         else if (LOWORD(wParam) == IDCANCEL) /* close command? */
-        EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
+            EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
         return (TRUE);
     }
     return (FALSE);                  /* Didn't process a message    */
@@ -435,14 +414,12 @@ BOOL APIENTRY Find(
     switch (message) {
     case WM_INITDIALOG:           /* message: initialize dialog box */
         return (TRUE);
-
     case WM_COMMAND:        /* message: received a command */
-        if (LOWORD(wParam) == IDOK)    {    /* "OK" box selected?         */
-        GetDlgItemText(hDlg, IDC_FILENAME, szFileName, MAX_PATH);
-        EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
-        }
-        else if (LOWORD(wParam) == IDCANCEL) /* close command? */
-        EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
+        if (LOWORD(wParam) == IDOK) {    /* "OK" box selected?         */
+            GetDlgItemText(hDlg, IDC_FILENAME, szFileName, MAX_PATH);
+            EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
+        } else if (LOWORD(wParam) == IDCANCEL) /* close command? */
+            EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
         return (TRUE);
         break;
     }
@@ -451,7 +428,6 @@ BOOL APIENTRY Find(
 }
 
 /*
-
     FUNCTION: Install(HWND, unsigned, WORD, LONG)
 
     PURPOSE:  Processes messages for "Install" dialog box
@@ -467,9 +443,7 @@ BOOL APIENTRY Find(
     must be returned to Windows.
 
     Wait for user to click on "Ok" button, then close the dialog box.
-
 */
-
 BOOL APIENTRY Install(
     HWND hDlg,                /* window handle of the dialog box */
     UINT message,             /* type of message                 */
@@ -479,14 +453,12 @@ BOOL APIENTRY Install(
     switch (message) {
     case WM_INITDIALOG:           /* message: initialize dialog box */
         return (TRUE);
-
     case WM_COMMAND:        /* message: received a command */
-        if (LOWORD(wParam) == IDOK)    {    /* "OK" box selected?         */
-        GetDlgItemText(hDlg, IDC_FILENAME, szFileName, MAX_PATH);
-        EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
-        }
-        else if (LOWORD(wParam) == IDCANCEL) /* close command? */
-        EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
+        if (LOWORD(wParam) == IDOK) {    /* "OK" box selected?         */
+            GetDlgItemText(hDlg, IDC_FILENAME, szFileName, MAX_PATH);
+            EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
+        } else if (LOWORD(wParam) == IDCANCEL) /* close command? */
+            EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
         return (TRUE);
         break;
     }
@@ -495,7 +467,6 @@ BOOL APIENTRY Install(
 }
 
 /*
-
     FUNCTION: Query(HWND, unsigned, WORD, LONG)
 
     PURPOSE:  Processes messages for "Query" dialog box
@@ -511,7 +482,6 @@ BOOL APIENTRY Install(
     must be returned to Windows.
 
     Wait for user to click on "Ok" button, then close the dialog box.
-
 */
 
 BOOL APIENTRY Query(
@@ -523,14 +493,12 @@ BOOL APIENTRY Query(
     switch (message) {
     case WM_INITDIALOG:           /* message: initialize dialog box */
         return (TRUE);
-
     case WM_COMMAND:        /* message: received a command */
-        if (LOWORD(wParam) == IDOK)    {    /* "OK" box selected?         */
-        GetDlgItemText(hDlg, IDC_FILENAME, szFileName, MAX_PATH);
-        EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
-        }
-        else if (LOWORD(wParam) == IDCANCEL) /* close command? */
-        EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
+        if (LOWORD(wParam) == IDOK) {    /* "OK" box selected?         */
+            GetDlgItemText(hDlg, IDC_FILENAME, szFileName, MAX_PATH);
+            EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
+        } else if (LOWORD(wParam) == IDCANCEL) /* close command? */
+            EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
         return (TRUE);
         break;
     }
@@ -539,7 +507,6 @@ BOOL APIENTRY Query(
 }
 
 /*
-
     FUNCTION: Language(HWND, unsigned, WORD, LONG)
 
     PURPOSE:  Processes messages for "Language" dialog box
@@ -555,9 +522,7 @@ BOOL APIENTRY Query(
     must be returned to Windows.
 
     Wait for user to click on "Ok" button, then close the dialog box.
-
 */
-
 BOOL APIENTRY Language(
     HWND hDlg,                /* window handle of the dialog box */
     UINT message,             /* type of message                 */
@@ -570,16 +535,14 @@ BOOL APIENTRY Language(
     switch (message) {
     case WM_INITDIALOG:           /* message: initialize dialog box */
         return (TRUE);
-
     case WM_COMMAND:        /* message: received a command */
-        if (LOWORD(wParam) == IDOK)    {    /* "OK" box selected?         */
-        lang = GetDlgItemInt(hDlg, IDC_LANGID, NULL, FALSE);
-        sublang = GetDlgItemInt(hDlg, IDC_SUBLANGID, NULL, FALSE);
-        languageid = MAKELANGID(lang, sublang);
-        EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
-        }
-        else if (LOWORD(wParam) == IDCANCEL) /* close command? */
-        EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
+        if (LOWORD(wParam) == IDOK) {    /* "OK" box selected?         */
+            lang = GetDlgItemInt(hDlg, IDC_LANGID, NULL, FALSE);
+            sublang = GetDlgItemInt(hDlg, IDC_SUBLANGID, NULL, FALSE);
+            languageid = MAKELANGID(lang, sublang);
+            EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
+        } else if (LOWORD(wParam) == IDCANCEL) /* close command? */
+            EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
         return (TRUE);
         break;
     }
@@ -588,7 +551,6 @@ BOOL APIENTRY Language(
 }
 
 /*
-
     FUNCTION: Information(HWND, unsigned, WORD, LONG)
 
     PURPOSE:  Processes messages for "Information" dialog box
@@ -604,9 +566,7 @@ BOOL APIENTRY Language(
     must be returned to Windows.
 
     Wait for user to click on "Ok" button, then close the dialog box.
-
 */
-
 BOOL APIENTRY Information(
     HWND hDlg,                /* window handle of the dialog box */
     UINT message,             /* type of message                 */
@@ -616,14 +576,12 @@ BOOL APIENTRY Information(
     switch (message) {
     case WM_INITDIALOG:           /* message: initialize dialog box */
         return (TRUE);
-
     case WM_COMMAND:        /* message: received a command */
-        if (LOWORD(wParam) == IDOK)    {    /* "OK" box selected?         */
-        GetDlgItemText(hDlg, IDC_FILENAME, szFileName, MAX_PATH);
-        EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
-        }
-        else if (LOWORD(wParam) == IDCANCEL) /* close command? */
-        EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
+        if (LOWORD(wParam) == IDOK) {    /* "OK" box selected?         */
+            GetDlgItemText(hDlg, IDC_FILENAME, szFileName, MAX_PATH);
+            EndDialog(hDlg, TRUE);          /* Exits the dialog box         */
+        } else if (LOWORD(wParam) == IDCANCEL) /* close command? */
+            EndDialog(hDlg, FALSE);          /* Exits the dialog box         */
         return (TRUE);
         break;
     }

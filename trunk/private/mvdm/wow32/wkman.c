@@ -4680,14 +4680,7 @@ ULONG FASTCALL WK32WowPartyByNumber(PVDMFRAME pFrame)
 // the translation table.  For now we only need a few.
 
 
-BOOL
-FASTCALL
-MyVerQueryValue(
-    const LPVOID pBlock,
-    LPSTR lpName,
-    LPVOID * lplpBuffer,
-    PUINT puLen
-    )
+BOOL FASTCALL MyVerQueryValue(const LPVOID pBlock, LPSTR lpName, LPVOID * lplpBuffer, PUINT puLen)
 {
 #define SFILEN 25                // Length of apszSFI strings without null
     static PSZ apszSFI[] = {

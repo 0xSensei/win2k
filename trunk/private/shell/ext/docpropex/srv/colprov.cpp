@@ -254,9 +254,9 @@ FARPROC CExeVerColumnProvider::_GetVerProc( LPCSTR pszName )
 
 BOOL CExeVerColumnProvider::VerQueryValue(const void *pBlock, LPTSTR lpSubBlock, void **lplpBuffer, PUINT puLen )
 {
-    if( NULL == g_pfnVQV &&
-        NULL == (g_pfnVQV = (PFNVERQUERYVALUE)_GetVerProc( szVERQUERYVALUE )) )
+    if( NULL == g_pfnVQV && NULL == (g_pfnVQV = (PFNVERQUERYVALUE)_GetVerProc( szVERQUERYVALUE )) )
         return FALSE ;
+    
     return g_pfnVQV( pBlock, lpSubBlock, lplpBuffer, puLen ) ;
 }
 
