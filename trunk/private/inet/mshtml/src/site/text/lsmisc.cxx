@@ -138,10 +138,7 @@ MtDefine(LSVerCheck, Locals, "LS Version check")
 #if DBG==1
 void CLineServices::InitTimeSanityCheck()
 {
-
     // First verify we're looking at the right version of msls.
-
-
     static BOOL fCheckedVersion = FALSE;
 
     if (!fCheckedVersion)
@@ -159,11 +156,9 @@ void CLineServices::InitTimeSanityCheck()
             {
                 DWORD dwHandle;
                 DWORD dwVerInfoSize = GetFileVersionInfoSizeA(achPath, &dwHandle);
-
                 if (dwVerInfoSize)
                 {
                     void * lpBuffer = MemAlloc( Mt(LSVerCheck), dwVerInfoSize );
-
                     if (lpBuffer)
                     {
                         if (GetFileVersionInfoA(achPath, dwHandle, dwVerInfoSize, lpBuffer))
@@ -178,7 +173,6 @@ void CLineServices::InitTimeSanityCheck()
                                 if (pchDot)
                                 {
                                     pchDot = StrChrA( pchDot + 1, '.' );
-
                                     if (pchDot)
                                     {
                                         int iVersion = atoi(pchDot + 1);

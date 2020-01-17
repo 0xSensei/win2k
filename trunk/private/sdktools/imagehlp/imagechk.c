@@ -37,21 +37,21 @@ extern "C" {
 #include <cvinfo.h>
 #include <private.h>
 
-typedef struct _SYMMODLIST{
-    char *ModName;
-    void *ModBase;
-    struct _SYMMODLIST *Next;
-} SYMMODLIST, *PSYMMODLIST;
+typedef struct _SYMMODLIST {
+    char* ModName;
+    void* ModBase;
+    struct _SYMMODLIST* Next;
+} SYMMODLIST, * PSYMMODLIST;
 
 typedef struct List {
     char            Name[40];
     unsigned long   Attributes;
-} List, *pList;
+} List, * pList;
 
 typedef struct _LogListItem {
-    char *LogLine;
-    struct _LogListItem *Next;
-} LogListItem, *pLogListItem;
+    char* LogLine;
+    struct _LogListItem* Next;
+} LogListItem, * pLogListItem;
 
 
 // decarations
@@ -62,50 +62,50 @@ FindFiles();
 
 VOID
 Imagechk(
-    List *rgpList,
-    TCHAR *szDirectory
-    );
+    List* rgpList,
+    TCHAR* szDirectory
+);
 
 VOID
 ParseArgs(
-    int *pargc,
-    char **argv
-    );
+    int* pargc,
+    char** argv
+);
 
 int
 __cdecl
 CompFileAndDir(
-    const void *elem1,
-    const void *elem2
-    );
+    const void* elem1,
+    const void* elem2
+);
 
 int
 __cdecl
 CompName(
-    const void *elem1,
-    const void *elem2
-    );
+    const void* elem1,
+    const void* elem2
+);
 
 VOID
 Usage(
     VOID
-    );
+);
 
 int
 _cdecl
 _cwild(
     VOID
-    );
+);
 
 PSYMMODLIST
 MakeModList(
     HANDLE
-    );
+);
 
 void
 FreeModList(
     PSYMMODLIST
-    );
+);
 
 BOOL
 CALLBACK
@@ -113,53 +113,53 @@ SymEnumerateModulesCallback(
     LPSTR,
     ULONG64,
     PVOID
-    );
+);
 
-void *
+void*
 GetModAddrFromName(
     PSYMMODLIST,
-    char *
-    );
+    char*
+);
 
 BOOL
 VerifyVersionResource(
     PCHAR FileName,
     BOOL fSelfRegister
-    );
+);
 
 BOOL
 ValidatePdata(
     PIMAGE_DOS_HEADER DosHeader
-    );
+);
 
 BOOL
 ImageNeedsOleSelfRegister(
     PIMAGE_DOS_HEADER DosHeader
-    );
+);
 
 NTSTATUS
-MiVerifyImageHeader (
+MiVerifyImageHeader(
     IN PIMAGE_NT_HEADERS NtHeader,
     IN PIMAGE_DOS_HEADER DosHeader,
     IN DWORD NtHeaderSize
-    );
+);
 
 pLogListItem
 LogAppend(
-    char *,
+    char*,
     pLogListItem
-    );
+);
 
 void
 LogOutAndClean(
     BOOL
-    );
+);
 
 void
 LogPrintf(
-    const char *format,
+    const char* format,
     ...
-    );
+);
 
 #define X64K (64*1024)
 
@@ -200,13 +200,13 @@ BOOL fPathOverride;
 BOOL fSingleSlash;
 BOOL fDebugMapped;
 FILE* fout;
-CHAR *szFileName = {"*.*"};
-CHAR *pszRootDir;
-CHAR *pszFileOut;
+CHAR* szFileName = {"*.*"};
+CHAR* pszRootDir;
+CHAR* pszFileOut;
 CHAR szDirectory[MAX_PATH] = {"."};
 CHAR szSympath[MAX_PATH] = {0};
-CHAR *szPattern;
-int endpath, DirNum=1, ProcessedFiles;
+CHAR* szPattern;
+int endpath, DirNum = 1, ProcessedFiles;
 ULONG PageSize;
 ULONG PageShift;
 PVOID HighestUserAddress;
@@ -223,7 +223,7 @@ pLogListItem pLogListTmp = NULL;
 
 typedef
 NTSTATUS
-(NTAPI *LPLDRVERIFYIMAGECHKSUM)(
+(NTAPI* LPLDRVERIFYIMAGECHKSUM)(
     IN HANDLE ImageFileHandle
     );
 
@@ -231,7 +231,7 @@ LPLDRVERIFYIMAGECHKSUM lpOldLdrVerifyImageMatchesChecksum;
 
 typedef
 NTSTATUS
-(NTAPI *LPLDRVERIFYIMAGEMATCHESCHECKSUM) (
+(NTAPI* LPLDRVERIFYIMAGEMATCHESCHECKSUM) (
     IN HANDLE ImageFileHandle,
     IN PLDR_IMPORT_MODULE_CALLBACK ImportCallbackRoutine OPTIONAL,
     IN PVOID ImportCallbackParameter,
@@ -242,7 +242,7 @@ LPLDRVERIFYIMAGEMATCHESCHECKSUM lpNewLdrVerifyImageMatchesChecksum;
 
 typedef
 NTSTATUS
-(NTAPI *LPNTQUERYSYSTEMINFORMATION) (
+(NTAPI* LPNTQUERYSYSTEMINFORMATION) (
     IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
     OUT PVOID SystemInformation,
     IN ULONG SystemInformationLength,
@@ -256,7 +256,7 @@ OSVERSIONINFO VersionInformation;
 
 // function definitions
 
-VOID __cdecl main(int argc, char *argv[], char *envp[])
+VOID __cdecl main(int argc, char* argv[], char* envp[])
 /*++
 Routine Description:
     program entry
@@ -267,7 +267,7 @@ Arguments:
 --*/
 {
     TCHAR CWD[MAX_PATH];
-    int dirlen=0;
+    int dirlen = 0;
 
     if (argc < 2) {
         Usage();
@@ -278,25 +278,23 @@ Arguments:
     GetCurrentDirectory(MAX_PATH, CWD);
 
     VersionInformation.dwOSVersionInfoSize = sizeof(VersionInformation);
-    if (!GetVersionEx( &VersionInformation )) {
-        fprintf(stderr, "Unable to detect OS version.  Terminating.\n" );
+    if (!GetVersionEx(&VersionInformation)) {
+        fprintf(stderr, "Unable to detect OS version.  Terminating.\n");
         exit(1);
     }
-    if ((VersionInformation.dwPlatformId != VER_PLATFORM_WIN32_NT) || (VersionInformation.dwBuildNumber < 1230))
-    {
+    if ((VersionInformation.dwPlatformId != VER_PLATFORM_WIN32_NT) || (VersionInformation.dwBuildNumber < 1230)) {
         lpOldLdrVerifyImageMatchesChecksum = (LPLDRVERIFYIMAGECHKSUM)
             GetProcAddress(GetModuleHandle(TEXT("NTDLL.DLL")), TEXT("LdrVerifyImageMatchesChecksum"));
         if (lpOldLdrVerifyImageMatchesChecksum == NULL) {
-            fprintf(stderr, "Incorrect operating system version.\n" );
+            fprintf(stderr, "Incorrect operating system version.\n");
             exit(1);
         }
     } else {
         lpOldLdrVerifyImageMatchesChecksum = NULL;
-        if ((VersionInformation.dwPlatformId == VER_PLATFORM_WIN32_NT) && (VersionInformation.dwBuildNumber >= 1230))
-        {
-            lpNewLdrVerifyImageMatchesChecksum = (LPLDRVERIFYIMAGEMATCHESCHECKSUM) GetProcAddress(GetModuleHandle(TEXT("NTDLL.DLL")), TEXT("LdrVerifyImageMatchesChecksum"));
+        if ((VersionInformation.dwPlatformId == VER_PLATFORM_WIN32_NT) && (VersionInformation.dwBuildNumber >= 1230)) {
+            lpNewLdrVerifyImageMatchesChecksum = (LPLDRVERIFYIMAGEMATCHESCHECKSUM)GetProcAddress(GetModuleHandle(TEXT("NTDLL.DLL")), TEXT("LdrVerifyImageMatchesChecksum"));
             if (lpNewLdrVerifyImageMatchesChecksum == NULL) {
-                fprintf(stderr, "OS is screwed up.  NTDLL doesn't export LdrVerifyImageMatchesChecksum.\n" );
+                fprintf(stderr, "OS is screwed up.  NTDLL doesn't export LdrVerifyImageMatchesChecksum.\n");
                 exit(1);
             }
         }
@@ -322,8 +320,8 @@ Arguments:
         }
         HighestUserAddress = (PVOID)SystemInformation.MaximumUserModeAddress;
     } else {
-UseWin9x:
-        HighestUserAddress = (PVOID) 0x7FFE0000;
+    UseWin9x:
+        HighestUserAddress = (PVOID)0x7FFE0000;
 #ifdef _M_IX86
         ValidMachineIDMin = IMAGE_FILE_MACHINE_I386;
         ValidMachineIDMax = IMAGE_FILE_MACHINE_I386;
@@ -342,7 +340,7 @@ UseWin9x:
     }
 
     if (fPathOverride) {
-        if (_chdir(szDirectory) == -1){   // cd to dir
+        if (_chdir(szDirectory) == -1) {   // cd to dir
             fprintf(stderr, "Path not found: %s\n", szDirectory);
             Usage();
         }
@@ -350,7 +348,7 @@ UseWin9x:
     // remove trailing '\' needed only for above chdir, not for output formatting
     if (fSingleSlash) {
         dirlen = strlen(szDirectory);
-        szDirectory[dirlen-1] = '\0';
+        szDirectory[dirlen - 1] = '\0';
     }
 
     FindFiles();
@@ -367,11 +365,11 @@ Routine Description:
 {
     HANDLE fh;
     TCHAR CWD[MAX_PATH];
-    char *q;
-    WIN32_FIND_DATA *pfdata;
-    BOOL fFilesInDir=FALSE;
-    BOOL fDirsFound=FALSE;
-    int dnCounter=0, cNumDir=0, i=0, Length=0, NameSize=0, total=0, cNumFiles=0;
+    char* q;
+    WIN32_FIND_DATA* pfdata;
+    BOOL fFilesInDir = FALSE;
+    BOOL fDirsFound = FALSE;
+    int dnCounter = 0, cNumDir = 0, i = 0, Length = 0, NameSize = 0, total = 0, cNumFiles = 0;
 
     pList rgpList[5000];
 
@@ -388,7 +386,7 @@ Routine Description:
     }
 
     if (fh == INVALID_HANDLE_VALUE) {
-        fprintf(fout==NULL? stderr : fout , "File not found: %s\n", szFileName);
+        fprintf(fout == NULL ? stderr : fout, "File not found: %s\n", szFileName);
         return;
     }
 
@@ -404,7 +402,7 @@ Routine Description:
 
             if (!(pfdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {   // if file
 
-                fFilesInDir=TRUE;
+                fFilesInDir = TRUE;
 
                 // see if given pattern wildcard extension matches pfdata->cFileName extension
                 if (fPattern) {
@@ -430,7 +428,7 @@ Routine Description:
             } else {
                 if (pfdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {   // if dir
 
-                    fDirsFound=TRUE;
+                    fDirsFound = TRUE;
                     //cNumDir++;
 
                     if (fRecurse) {
@@ -443,30 +441,30 @@ Routine Description:
                 }
             }
         }
-blah: ;
+    blah:;
 
     } while (FindNextFile(fh, pfdata));
 
     FindClose(fh); // close the file handle
 
     // Sort Array arranging FILE entries at top
-    qsort( (void *)rgpList, dnCounter, sizeof(List *), CompFileAndDir);
+    qsort((void*)rgpList, dnCounter, sizeof(List*), CompFileAndDir);
 
     // Sort Array alphabetizing only FILE names
-    qsort( (void *)rgpList, dnCounter-cNumDir, sizeof(List *), CompName);
+    qsort((void*)rgpList, dnCounter - cNumDir, sizeof(List*), CompName);
 
     // Sort Array alphabetizing only DIRectory names
     if (fRecurse) {
-        qsort( (void *)&rgpList[dnCounter-cNumDir], cNumDir, sizeof(List *), CompName);
+        qsort((void*)&rgpList[dnCounter - cNumDir], cNumDir, sizeof(List*), CompName);
     }
 
     // Process newly sorted structures.
-    for (i=0; i < dnCounter; ++i) {
+    for (i = 0; i < dnCounter; ++i) {
 
         if (rgpList[i]->Attributes & FILE_ATTRIBUTE_DIRECTORY) {  // if Dir
             if (fRecurse) {
 
-                if (_chdir(rgpList[i]->Name) == -1){   // cd into subdir and check for error
+                if (_chdir(rgpList[i]->Name) == -1) {   // cd into subdir and check for error
                     fprintf(stderr, "Unable to change directory: %s\n", rgpList[i]->Name);
 
                 } else {
@@ -484,7 +482,7 @@ blah: ;
                     _chdir("..");
 
                     // cut off previously appended directory name - for output only
-                    szDirectory[total-(NameSize+1)]='\0';
+                    szDirectory[total - (NameSize + 1)] = '\0';
                 }
             }
         } else {
@@ -496,9 +494,9 @@ blah: ;
 
 VOID
 Imagechk(
-    List *rgpList,
-    TCHAR *szDirectory
-    )
+    List* rgpList,
+    TCHAR* szDirectory
+)
 /*++
 
 Routine Description:
@@ -560,41 +558,41 @@ Notes:
 
     DosHeader = NULL;
     ImageOk = TRUE;
-    File = CreateFile (ImageName,
-                        GENERIC_READ | FILE_EXECUTE,
-                        OSVerInfo.dwPlatformId == VER_PLATFORM_WIN32_NT ? (FILE_SHARE_READ | FILE_SHARE_DELETE) : FILE_SHARE_READ,
-                        NULL,
-                        OPEN_EXISTING,
-                        FILE_ATTRIBUTE_NORMAL,
-                        NULL);
+    File = CreateFile(ImageName,
+                      GENERIC_READ | FILE_EXECUTE,
+                      OSVerInfo.dwPlatformId == VER_PLATFORM_WIN32_NT ? (FILE_SHARE_READ | FILE_SHARE_DELETE) : FILE_SHARE_READ,
+                      NULL,
+                      OPEN_EXISTING,
+                      FILE_ATTRIBUTE_NORMAL,
+                      NULL);
     if (File == INVALID_HANDLE_VALUE) {
         LogPrintf("Error, CreateFile() %d\n", GetLastError());
         ImageOk = FALSE;
         goto NextImage;
     }
 
-    MemMap = CreateFileMapping (File,
-                        NULL,           // default security.
-                        PAGE_READONLY,  // file protection.
-                        0,              // high-order file size.
-                        0,
-                        NULL);
+    MemMap = CreateFileMapping(File,
+                               NULL,           // default security.
+                               PAGE_READONLY,  // file protection.
+                               0,              // high-order file size.
+                               0,
+                               NULL);
     if (!GetFileInformationByHandle(File, &FileInfo)) {
-        fprintf(stderr,"Error, GetFileInfo() %d\n", GetLastError());
+        fprintf(stderr, "Error, GetFileInfo() %d\n", GetLastError());
         CloseHandle(File);
         ImageOk = FALSE; goto NextImage;
     }
 
-    DosHeader = (PIMAGE_DOS_HEADER) MapViewOfFile(MemMap,
-                              FILE_MAP_READ,
-                              0,  // high
-                              0,  // low
-                              0   // whole file
-                              );
+    DosHeader = (PIMAGE_DOS_HEADER)MapViewOfFile(MemMap,
+                                                 FILE_MAP_READ,
+                                                 0,  // high
+                                                 0,  // low
+                                                 0   // whole file
+    );
 
     CloseHandle(MemMap);
     if (!DosHeader) {
-        fprintf(stderr,"Error, MapViewOfFile() %d\n", GetLastError());
+        fprintf(stderr, "Error, MapViewOfFile() %d\n", GetLastError());
         ImageOk = FALSE; goto NextImage;
     }
 
@@ -647,7 +645,7 @@ Notes:
     // Check to see if this is an NT image or a DOS or OS/2 image.
 
 
-    Status = MiVerifyImageHeader (NtHeader, DosHeader, 50000);
+    Status = MiVerifyImageHeader(NtHeader, DosHeader, 50000);
     if (Status != STATUS_SUCCESS) {
         ImageOk = FALSE;            //continue checking the image but don't print "OK"
     }
@@ -659,37 +657,37 @@ Notes:
     fHasPdata = TRUE;       // Most do
 
     switch (NtHeader->FileHeader.Machine) {
-        case IMAGE_FILE_MACHINE_I386:
-            MachineType = "x86";
-            PageSize = 4096;
-            PageShift = 12;
-            fHasPdata = FALSE;
-            break;
+    case IMAGE_FILE_MACHINE_I386:
+        MachineType = "x86";
+        PageSize = 4096;
+        PageShift = 12;
+        fHasPdata = FALSE;
+        break;
 
-        case IMAGE_FILE_MACHINE_ALPHA:
-            MachineType = "Alpha";
-            PageSize = 8192;
-            PageShift = 13;
-            break;
+    case IMAGE_FILE_MACHINE_ALPHA:
+        MachineType = "Alpha";
+        PageSize = 8192;
+        PageShift = 13;
+        break;
 
-        case IMAGE_FILE_MACHINE_IA64:
-            MachineType = "Intel64";
-            PageSize = 8192;
-            PageShift = 13;
-            break;
+    case IMAGE_FILE_MACHINE_IA64:
+        MachineType = "Intel64";
+        PageSize = 8192;
+        PageShift = 13;
+        break;
 
-        case IMAGE_FILE_MACHINE_ALPHA64:
-            MachineType = "Alpha64";
-            PageSize = 8192;
-            PageShift = 13;
-            break;
+    case IMAGE_FILE_MACHINE_ALPHA64:
+        MachineType = "Alpha64";
+        PageSize = 8192;
+        PageShift = 13;
+        break;
 
-        default:
-            LogPrintf("Unrecognized machine type x%lx\n",
-                NtHeader->FileHeader.Machine);
-            ImageOk = FALSE;
-            break;
-        }
+    default:
+        LogPrintf("Unrecognized machine type x%lx\n",
+                  NtHeader->FileHeader.Machine);
+        ImageOk = FALSE;
+        break;
+    }
 
     if ((NtHeader->FileHeader.Machine < ValidMachineIDMin) ||
         (NtHeader->FileHeader.Machine > ValidMachineIDMax)) {
@@ -700,7 +698,7 @@ Notes:
 
     ImageAlignment = NtHeader->OptionalHeader.SectionAlignment;
 
-    NumberOfPtes = BYTES_TO_PAGES (NtHeader->OptionalHeader.SizeOfImage);
+    NumberOfPtes = BYTES_TO_PAGES(NtHeader->OptionalHeader.SizeOfImage);
 
     NextVa = NtHeader->OptionalHeader.ImageBase;
 
@@ -710,17 +708,17 @@ Notes:
         // Image header is not aligned on a 64k boundary.
 
 
-        LogPrintf("image base not on 64k boundary %lx\n",NextVa);
+        LogPrintf("image base not on 64k boundary %lx\n", NextVa);
 
         ImageOk = FALSE;
         goto BadPeImageSegment;
     }
 
     //BasedAddress = (PVOID)NextVa;
-    PtesInSubsection = MI_ROUND_TO_SIZE (
-                                       NtHeader->OptionalHeader.SizeOfHeaders,
-                                       ImageAlignment
-                                   ) >> PageShift;
+    PtesInSubsection = MI_ROUND_TO_SIZE(
+        NtHeader->OptionalHeader.SizeOfHeaders,
+        ImageAlignment
+    ) >> PageShift;
 
     if (ImageAlignment >= PageSize) {
 
@@ -735,7 +733,7 @@ Notes:
 
 
             LogPrintf("Image size in header (%ld.) not consistent with sections (%ld.)\n",
-                    NumberOfPtes, PtesInSubsection);
+                      NumberOfPtes, PtesInSubsection);
             ImageOk = FALSE;
             goto BadPeImageSegment;
         }
@@ -763,8 +761,8 @@ Notes:
 
 
     OffsetToSectionTable = sizeof(ULONG) +
-                              sizeof(IMAGE_FILE_HEADER) +
-                              NtHeader->FileHeader.SizeOfOptionalHeader;
+        sizeof(IMAGE_FILE_HEADER) +
+        NtHeader->FileHeader.SizeOfOptionalHeader;
 
     SectionTableEntry = (PIMAGE_SECTION_HEADER)((PCHAR)NtHeader + OffsetToSectionTable);
 
@@ -795,12 +793,12 @@ Notes:
 
             if (((SectionTableEntry->PointerToRawData !=
                   SectionTableEntry->VirtualAddress))
-                        ||
+                ||
                 ((SectionTableEntry->SizeOfRawData +
-                        SectionTableEntry->PointerToRawData) >
-                     FileInfo.nFileSizeLow)
-                        ||
-               (SectionVirtualSize > SectionTableEntry->SizeOfRawData)) {
+                  SectionTableEntry->PointerToRawData) >
+                 FileInfo.nFileSizeLow)
+                ||
+                (SectionVirtualSize > SectionTableEntry->SizeOfRawData)) {
 
                 LogPrintf("invalid BSS/Trailingzero section/file size\n");
 
@@ -836,13 +834,13 @@ Notes:
 
 
             LogPrintf("Section virtual size is 0, NextVa for section %lx %lx\n",
-                    SectionTableEntry->VirtualAddress, NextVa);
+                      SectionTableEntry->VirtualAddress, NextVa);
             ImageOk = FALSE;
             goto BadPeImageSegment;
         }
 
         if (NextVa !=
-                (PreferredImageBase + SectionTableEntry->VirtualAddress)) {
+            (PreferredImageBase + SectionTableEntry->VirtualAddress)) {
 
 
             // The specified virtual address does not align
@@ -850,13 +848,13 @@ Notes:
 
 
             LogPrintf("Section Va not set to alignment, NextVa for section %lx %lx\n",
-                    SectionTableEntry->VirtualAddress, NextVa);
+                      SectionTableEntry->VirtualAddress, NextVa);
             ImageOk = FALSE;
             goto BadPeImageSegment;
         }
 
         PtesInSubsection =
-            MI_ROUND_TO_SIZE (SectionVirtualSize, ImageAlignment) >> PageShift;
+            MI_ROUND_TO_SIZE(SectionVirtualSize, ImageAlignment) >> PageShift;
 
         if (PtesInSubsection > NumberOfPtes) {
 
@@ -864,8 +862,8 @@ Notes:
             // Inconsistent image, size does not agree with object tables.
 
             LogPrintf("Image size in header not consistent with sections, needs %ld. pages\n",
-                PtesInSubsection - NumberOfPtes);
-            LogPrintf("va of bad section %lx\n",SectionTableEntry->VirtualAddress);
+                      PtesInSubsection - NumberOfPtes);
+            LogPrintf("va of bad section %lx\n", SectionTableEntry->VirtualAddress);
 
             ImageOk = FALSE;
             goto BadPeImageSegment;
@@ -874,12 +872,12 @@ Notes:
 
         StartingSector = SectionTableEntry->PointerToRawData >> MMSECTOR_SHIFT;
         EndingSector =
-                         (SectionTableEntry->PointerToRawData +
-                                     SectionVirtualSize);
+            (SectionTableEntry->PointerToRawData +
+             SectionVirtualSize);
         EndingSector = EndingSector >> MMSECTOR_SHIFT;
 
         ImageFileSize = SectionTableEntry->PointerToRawData +
-                                    SectionTableEntry->SizeOfRawData;
+            SectionTableEntry->SizeOfRawData;
 
         for (i = 0; i < PtesInSubsection; i++) {
 
@@ -906,7 +904,7 @@ Notes:
 
 
         LogPrintf("invalid image size - file size %lx - image size %lx\n",
-            FileInfo.nFileSizeLow, ImageFileSize);
+                  FileInfo.nFileSizeLow, ImageFileSize);
         ImageOk = FALSE;
         goto BadPeImageSegment;
     }
@@ -917,14 +915,14 @@ Notes:
         ULONG DebugDirectorySize, NumberOfDebugDirectories, i;
         PIMAGE_DEBUG_DIRECTORY DebugDirectory;
 
-        ImageBase = (PVOID) DosHeader;
+        ImageBase = (PVOID)DosHeader;
 
         DebugDirectory = (PIMAGE_DEBUG_DIRECTORY)
             ImageDirectoryEntryToData(
                 ImageBase,
                 FALSE,
                 IMAGE_DIRECTORY_ENTRY_DEBUG,
-                &DebugDirectorySize );
+                &DebugDirectorySize);
 
         if (!DebugDirectoryIsUseful(DebugDirectory, DebugDirectorySize)) {
 
@@ -932,33 +930,33 @@ Notes:
 
             if (DebugDirectory || DebugDirectorySize) {
                 LogPrintf("Debug directory values [%x, %x] are invalid\n",
-                        DebugDirectory,
-                        DebugDirectorySize);
+                          DebugDirectory,
+                          DebugDirectorySize);
                 ImageOk = FALSE;
             }
 
             goto DebugDirsDone;
         }
 
-        NumberOfDebugDirectories = DebugDirectorySize / sizeof( IMAGE_DEBUG_DIRECTORY );
+        NumberOfDebugDirectories = DebugDirectorySize / sizeof(IMAGE_DEBUG_DIRECTORY);
 
-        for (i=0; i < NumberOfDebugDirectories; i++) {
+        for (i = 0; i < NumberOfDebugDirectories; i++) {
             if (DebugDirectory->PointerToRawData > FileInfo.nFileSizeLow) {
                 LogPrintf("Invalid debug directory entry[%d] - File Offset %x is beyond the end of the file\n",
-                        i,
-                        DebugDirectory->PointerToRawData
-                       );
+                          i,
+                          DebugDirectory->PointerToRawData
+                );
                 ImageOk = FALSE;
                 goto BadPeImageSegment;
             }
 
             if ((DebugDirectory->PointerToRawData + DebugDirectory->SizeOfData) > FileInfo.nFileSizeLow) {
                 LogPrintf("Invalid debug directory entry[%d] - File Offset (%X) + Size (%X) is beyond the end of the file (filesize: %X)\n",
-                        i,
-                        DebugDirectory->PointerToRawData,
-                        DebugDirectory->SizeOfData,
-                        FileInfo.nFileSizeLow
-                       );
+                          i,
+                          DebugDirectory->PointerToRawData,
+                          DebugDirectory->SizeOfData,
+                          FileInfo.nFileSizeLow
+                );
                 ImageOk = FALSE;
                 goto BadPeImageSegment;
             }
@@ -966,26 +964,26 @@ Notes:
             if (DebugDirectory->AddressOfRawData != 0) {
                 if (!fDebugMapped) {
                     LogPrintf("Invalid debug directory entry[%d] - VA is non-zero (%X), but no .debug section exists\n",
-                            i,
-                            DebugDirectory->AddressOfRawData);
+                              i,
+                              DebugDirectory->AddressOfRawData);
                     ImageOk = FALSE;
                     goto BadPeImageSegment;
                 }
-                if (DebugDirectory->AddressOfRawData > ImageFileSize){
+                if (DebugDirectory->AddressOfRawData > ImageFileSize) {
                     LogPrintf("Invalid debug directory entry[%d] - VA (%X) is beyond the end of the image VA (%X)\n",
-                            i,
-                            DebugDirectory->AddressOfRawData,
-                            ImageFileSize);
+                              i,
+                              DebugDirectory->AddressOfRawData,
+                              ImageFileSize);
                     ImageOk = FALSE;
                     goto BadPeImageSegment;
                 }
 
-                if ((DebugDirectory->AddressOfRawData + DebugDirectory->SizeOfData )> ImageFileSize){
+                if ((DebugDirectory->AddressOfRawData + DebugDirectory->SizeOfData) > ImageFileSize) {
                     LogPrintf("Invalid debug directory entry[%d] - VA (%X) + size (%X) is beyond the end of the image VA (%X)\n",
-                            i,
-                            DebugDirectory->AddressOfRawData,
-                            DebugDirectory->SizeOfData,
-                            ImageFileSize);
+                              i,
+                              DebugDirectory->AddressOfRawData,
+                              DebugDirectory->SizeOfData,
+                              ImageFileSize);
                     ImageOk = FALSE;
                     goto BadPeImageSegment;
                 }
@@ -993,74 +991,72 @@ Notes:
 
             if (DebugDirectory->Type <= 0x7fffffff) {
                 switch (DebugDirectory->Type) {
-                    case IMAGE_DEBUG_TYPE_MISC:
-                        {
-                            PIMAGE_DEBUG_MISC pDebugMisc;
-                            // MISC should point to an IMAGE_DEBUG_MISC structure
-                            pDebugMisc = (PIMAGE_DEBUG_MISC)((PCHAR)ImageBase + DebugDirectory->PointerToRawData);
-                            if (pDebugMisc->DataType != IMAGE_DEBUG_MISC_EXENAME) {
-                                LogPrintf("MISC Debug has an invalid DataType\n");
-                                ImageOk = FALSE;
-                                goto BadPeImageSegment;
-                            }
-                            if (pDebugMisc->Length != DebugDirectory->SizeOfData) {
-                                LogPrintf("MISC Debug has an invalid size.\n");
-                                ImageOk = FALSE;
-                                goto BadPeImageSegment;
-                            }
-
-                            if (!pDebugMisc->Unicode) {
-                                i= 0;
-                                while (i < pDebugMisc->Length - sizeof(IMAGE_DEBUG_MISC)) {
-                                    if (!isprint(pDebugMisc->Data[i]) &&
-                                        (pDebugMisc->Data[i] != '\0') )
-                                    {
-                                        LogPrintf("MISC Debug has unprintable characters... Possibly corrupt\n");
-                                        ImageOk = FALSE;
-                                        goto BadPeImageSegment;
-                                    }
-                                    i++;
-                                }
-
-                                // The data must be a null terminated string.
-                                if (strlen(pDebugMisc->Data) > (pDebugMisc->Length - sizeof(IMAGE_DEBUG_MISC))) {
-                                    LogPrintf("MISC Debug has invalid data... Possibly corrupt\n");
-                                    ImageOk = FALSE;
-                                    goto BadPeImageSegment;
-                                }
-                            }
-                        }
-                        break;
-
-                    case IMAGE_DEBUG_TYPE_CODEVIEW:
-                        // CV will point to either a NB09 or an NB10 signature.  Make sure it does.
-                        {
-                            OMFSignature * CVDebug;
-                            CVDebug = (OMFSignature *)((PCHAR)ImageBase + DebugDirectory->PointerToRawData);
-                            if (((*(PULONG)(CVDebug->Signature)) != '90BN') &&
-                                ((*(PULONG)(CVDebug->Signature)) != '01BN'))
-                            {
-                                LogPrintf("CV Debug has an invalid signature\n");
-                                ImageOk = FALSE;
-                                goto BadPeImageSegment;
-                            }
-                        }
-                        break;
-
-                    case IMAGE_DEBUG_TYPE_COFF:
-                    case IMAGE_DEBUG_TYPE_FPO:
-                    case IMAGE_DEBUG_TYPE_EXCEPTION:
-                    case IMAGE_DEBUG_TYPE_FIXUP:
-                    case IMAGE_DEBUG_TYPE_OMAP_TO_SRC:
-                    case IMAGE_DEBUG_TYPE_OMAP_FROM_SRC:
-                        // Not much we can do about these now.
-                        break;
-
-                    default:
-                        LogPrintf("Invalid debug directory type: %d\n", DebugDirectory->Type);
+                case IMAGE_DEBUG_TYPE_MISC:
+                {
+                    PIMAGE_DEBUG_MISC pDebugMisc;
+                    // MISC should point to an IMAGE_DEBUG_MISC structure
+                    pDebugMisc = (PIMAGE_DEBUG_MISC)((PCHAR)ImageBase + DebugDirectory->PointerToRawData);
+                    if (pDebugMisc->DataType != IMAGE_DEBUG_MISC_EXENAME) {
+                        LogPrintf("MISC Debug has an invalid DataType\n");
                         ImageOk = FALSE;
                         goto BadPeImageSegment;
-                        break;
+                    }
+                    if (pDebugMisc->Length != DebugDirectory->SizeOfData) {
+                        LogPrintf("MISC Debug has an invalid size.\n");
+                        ImageOk = FALSE;
+                        goto BadPeImageSegment;
+                    }
+
+                    if (!pDebugMisc->Unicode) {
+                        i = 0;
+                        while (i < pDebugMisc->Length - sizeof(IMAGE_DEBUG_MISC)) {
+                            if (!isprint(pDebugMisc->Data[i]) &&
+                                (pDebugMisc->Data[i] != '\0')) {
+                                LogPrintf("MISC Debug has unprintable characters... Possibly corrupt\n");
+                                ImageOk = FALSE;
+                                goto BadPeImageSegment;
+                            }
+                            i++;
+                        }
+
+                        // The data must be a null terminated string.
+                        if (strlen(pDebugMisc->Data) > (pDebugMisc->Length - sizeof(IMAGE_DEBUG_MISC))) {
+                            LogPrintf("MISC Debug has invalid data... Possibly corrupt\n");
+                            ImageOk = FALSE;
+                            goto BadPeImageSegment;
+                        }
+                    }
+                }
+                break;
+
+                case IMAGE_DEBUG_TYPE_CODEVIEW:
+                    // CV will point to either a NB09 or an NB10 signature.  Make sure it does.
+                {
+                    OMFSignature* CVDebug;
+                    CVDebug = (OMFSignature*)((PCHAR)ImageBase + DebugDirectory->PointerToRawData);
+                    if (((*(PULONG)(CVDebug->Signature)) != '90BN') &&
+                        ((*(PULONG)(CVDebug->Signature)) != '01BN')) {
+                        LogPrintf("CV Debug has an invalid signature\n");
+                        ImageOk = FALSE;
+                        goto BadPeImageSegment;
+                    }
+                }
+                break;
+
+                case IMAGE_DEBUG_TYPE_COFF:
+                case IMAGE_DEBUG_TYPE_FPO:
+                case IMAGE_DEBUG_TYPE_EXCEPTION:
+                case IMAGE_DEBUG_TYPE_FIXUP:
+                case IMAGE_DEBUG_TYPE_OMAP_TO_SRC:
+                case IMAGE_DEBUG_TYPE_OMAP_FROM_SRC:
+                    // Not much we can do about these now.
+                    break;
+
+                default:
+                    LogPrintf("Invalid debug directory type: %d\n", DebugDirectory->Type);
+                    ImageOk = FALSE;
+                    goto BadPeImageSegment;
+                    break;
                 }
             }
         }
@@ -1081,7 +1077,7 @@ DebugDirsDone:
 
 
         LogPrintf("invalid image - PTEs left %lx\n",
-            NumberOfPtes);
+                  NumberOfPtes);
 
         ImageOk = FALSE;
         goto BadPeImageSegment;
@@ -1131,8 +1127,7 @@ PeReturnSuccess:
     // these high-level debugging api's will also call a pdb validation routine
 
 
-    if(ArgFlag & ArgFlag_SymCK)
-    {
+    if (ArgFlag & ArgFlag_SymCK) {
         HANDLE hProcess = 0;
         char Target[MAX_PATH] = {0};
         char drive[_MAX_DRIVE];
@@ -1141,7 +1136,7 @@ PeReturnSuccess:
         char ext[_MAX_EXT];
         IMAGEHLP_MODULE64 ModuleInfo = {0};
         PSYMMODLIST ModList = 0;
-        void *vpAddr;
+        void* vpAddr;
         PLOADED_IMAGE pLImage = NULL;
         DWORD64 symLMflag;
 
@@ -1155,8 +1150,7 @@ PeReturnSuccess:
 
         hProcess = GetCurrentProcess();
 
-        if(!SymInitialize(hProcess, szSympath, FALSE))
-        {
+        if (!SymInitialize(hProcess, szSympath, FALSE)) {
             LogPrintf("ERROR:SymInitialize failed!\n");
             hProcess = 0;
             goto symckend;
@@ -1166,11 +1160,10 @@ PeReturnSuccess:
         // attempt to use symbols
 
 
-        _splitpath(Target, drive, dir, fname, ext );
+        _splitpath(Target, drive, dir, fname, ext);
 
         symLMflag = SymLoadModule64(hProcess, NULL, Target, fname, 0, 0);
-        if(!symLMflag)
-        {
+        if (!symLMflag) {
             LogPrintf("ERROR:SymLoadModule failed! last error:0x%x\n", GetLastError());
             goto symckend;
         }
@@ -1184,37 +1177,35 @@ PeReturnSuccess:
         ModList = MakeModList(hProcess);
         vpAddr = GetModAddrFromName(ModList, fname);
 
-        if(!SymGetModuleInfo64(hProcess, (DWORD64)vpAddr, &ModuleInfo))
-        {
+        if (!SymGetModuleInfo64(hProcess, (DWORD64)vpAddr, &ModuleInfo)) {
             LogPrintf("ERROR:SymGetModuleInfo failed! last error:0x%x\n", GetLastError());
             goto symckend;
         }
 
-        if(ModuleInfo.SymType != SymPdb)
-        {
+        if (ModuleInfo.SymType != SymPdb) {
             LogPrintf("WARNING: No pdb info for file!\n");
-            switch(ModuleInfo.SymType){
-                case SymNone:
-                    LogPrintf("symtype: SymNone\n");
-                    break;
-                case SymCoff:
-                    LogPrintf("symtype: SymCoff\n");
-                    break;
-                case SymCv:
-                    LogPrintf("symtype: SymCv\n");
-                    break;
-                case SymPdb:
-                    LogPrintf("symtype: SymPdb\n");
-                    break;
-                case SymExport:
-                    LogPrintf("symtype: SymExport\n");
-                    break;
-                case SymDeferred:
-                    LogPrintf("symtype: SymDeferred\n");
-                    break;
-                case SymSym:
-                    LogPrintf("symtype: SymSym\n");
-                    break;
+            switch (ModuleInfo.SymType) {
+            case SymNone:
+                LogPrintf("symtype: SymNone\n");
+                break;
+            case SymCoff:
+                LogPrintf("symtype: SymCoff\n");
+                break;
+            case SymCv:
+                LogPrintf("symtype: SymCv\n");
+                break;
+            case SymPdb:
+                LogPrintf("symtype: SymPdb\n");
+                break;
+            case SymExport:
+                LogPrintf("symtype: SymExport\n");
+                break;
+            case SymDeferred:
+                LogPrintf("symtype: SymDeferred\n");
+                break;
+            case SymSym:
+                LogPrintf("symtype: SymSym\n");
+                break;
             }
         }
 
@@ -1239,7 +1230,7 @@ PeReturnSuccess:
 
                 if (ReadSuccess && (BytesRead == sizeof(DbgHeader))) {
                     // Got enough to check if it's a valid dbg file.
-                    if(((PIMAGE_NT_HEADERS)pLImage->FileHeader)->OptionalHeader.CheckSum != DbgHeader.CheckSum) {
+                    if (((PIMAGE_NT_HEADERS)pLImage->FileHeader)->OptionalHeader.CheckSum != DbgHeader.CheckSum) {
                         LogPrintf("ERROR! image / debug file checksum not equal\n");
                         ImageOk = FALSE;
                     }
@@ -1252,21 +1243,17 @@ PeReturnSuccess:
         // cleanup
 
 
-symckend:
-        if(ModList)
-        {
+    symckend:
+        if (ModList) {
             FreeModList(ModList);
         }
-        if(pLImage)
-        {
+        if (pLImage) {
             ImageUnload(pLImage);
         }
-        if(symLMflag)
-        {
+        if (symLMflag) {
             SymUnloadModule64(hProcess, (DWORD)symLMflag);
         }
-        if(hProcess)
-        {
+        if (hProcess) {
             SymCleanup(hProcess);
         }
     }
@@ -1274,7 +1261,7 @@ symckend:
 NextImage:
 BadPeImageSegment:
 NeImage:
-    if ( ImageOk && (ArgFlag & ArgFlag_OK)) {
+    if (ImageOk && (ArgFlag & ArgFlag_OK)) {
         if (MachineTypeMismatch) {
             LogPrintf(" OK [%s]\n", MachineType);
         } else {
@@ -1286,27 +1273,26 @@ NeImage:
     // print out results
 
 
-    if (ImageOk)
-    {
+    if (ImageOk) {
         LogOutAndClean((ArgFlag & ArgFlag_OK) ? TRUE : FALSE);
     } else {
         LogOutAndClean(TRUE);
     }
 
-    if ( File != INVALID_HANDLE_VALUE ) {
+    if (File != INVALID_HANDLE_VALUE) {
         CloseHandle(File);
     }
-    if ( DosHeader ) {
+    if (DosHeader) {
         UnmapViewOfFile(DosHeader);
     }
 }
 
 NTSTATUS
-MiVerifyImageHeader (
+MiVerifyImageHeader(
     IN PIMAGE_NT_HEADERS NtHeader,
     IN PIMAGE_DOS_HEADER DosHeader,
     IN ULONG NtHeaderSize
-    )
+)
 /*++
 
 Routine Description:
@@ -1371,7 +1357,7 @@ Return Value:
 
 
     if ((((NtHeader->OptionalHeader.FileAlignment << 1) - 1) &
-        NtHeader->OptionalHeader.FileAlignment) !=
+         NtHeader->OptionalHeader.FileAlignment) !=
         NtHeader->OptionalHeader.FileAlignment) {
         LogPrintf("file alignment not power of 2\n");
         return STATUS_INVALID_IMAGE_FORMAT;
@@ -1383,22 +1369,22 @@ Return Value:
     }
 
     if (NtHeader->OptionalHeader.SizeOfImage > MM_SIZE_OF_LARGEST_IMAGE) {
-        LogPrintf("Image too big %lx\n",NtHeader->OptionalHeader.SizeOfImage);
+        LogPrintf("Image too big %lx\n", NtHeader->OptionalHeader.SizeOfImage);
         return STATUS_INVALID_IMAGE_FORMAT;
     }
 
     if (NtHeader->FileHeader.NumberOfSections > MM_MAXIMUM_IMAGE_SECTIONS) {
         LogPrintf("Too many image sections %ld.\n",
-                NtHeader->FileHeader.NumberOfSections);
+                  NtHeader->FileHeader.NumberOfSections);
         return STATUS_INVALID_IMAGE_FORMAT;
     }
 
     if (ArgFlag & ArgFlag_CKBase) {
-       if ((PVOID)NtHeader->OptionalHeader.ImageBase >= HighestUserAddress) {
-          LogPrintf("Image base (%lx) is invalid on this machine\n",
-                NtHeader->OptionalHeader.ImageBase);
-          return STATUS_SUCCESS;
-       }
+        if ((PVOID)NtHeader->OptionalHeader.ImageBase >= HighestUserAddress) {
+            LogPrintf("Image base (%lx) is invalid on this machine\n",
+                      NtHeader->OptionalHeader.ImageBase);
+            return STATUS_SUCCESS;
+        }
     }
 
     return STATUS_SUCCESS;
@@ -1407,9 +1393,9 @@ Return Value:
 
 VOID
 ParseArgs(
-    int *pargc,
-    char **argv
-    )
+    int* pargc,
+    char** argv
+)
 /*++
 
 Routine Description:
@@ -1440,9 +1426,9 @@ Notes:
 
 --*/
 {
-    CHAR cswitch, c, *p;
+    CHAR cswitch, c, * p;
     CHAR sztmp[MAX_PATH];
-    int argnum = 1, i=0, len=0, count=0;
+    int argnum = 1, i = 0, len = 0, count = 0;
     BOOL fslashfound = FALSE;
 
 
@@ -1451,58 +1437,58 @@ Notes:
 
     ArgFlag |= ArgFlag_CKBase;
 
-    while ( argnum < *pargc ) {
+    while (argnum < *pargc) {
         _strlwr(argv[argnum]);
         cswitch = *(argv[argnum]);
         if (cswitch == '/' || cswitch == '-') {
-            c = *(argv[argnum]+1);
+            c = *(argv[argnum] + 1);
 
             switch (c) {
-                case 'o':
-                    ArgFlag |= ArgFlag_OLESelf;
-                    break;
+            case 'o':
+                ArgFlag |= ArgFlag_OLESelf;
+                break;
 
-                case 'v':
-                    ArgFlag |= ArgFlag_OK | ArgFlag_CKMZ | ArgFlag_OLESelf;
-                    break;
+            case 'v':
+                ArgFlag |= ArgFlag_OK | ArgFlag_CKMZ | ArgFlag_OLESelf;
+                break;
 
-                case '?':
-                    Usage();
-                    break;
+            case '?':
+                Usage();
+                break;
 
-                case 'b':
-                    ArgFlag ^= ArgFlag_CKBase;
-                    break;
+            case 'b':
+                ArgFlag ^= ArgFlag_CKBase;
+                break;
 
-                case 's':
-                    if (argv[argnum+1]) {
-                        strcpy(szSympath, (argv[argnum+1]));
-                        ArgFlag |= ArgFlag_SymCK;
-                        argnum++;
+            case 's':
+                if (argv[argnum + 1]) {
+                    strcpy(szSympath, (argv[argnum + 1]));
+                    ArgFlag |= ArgFlag_SymCK;
+                    argnum++;
+                }
+                break;
+
+            case 'p':
+                ArgFlag |= ArgFlag_CKMZ;
+                break;
+
+            case 'r':
+                fRecurse = TRUE;
+                if (argv[argnum + 1]) {
+                    fPathOverride = TRUE;
+                    strcpy(szDirectory, (argv[argnum + 1]));
+                    if (!(strcmp(szDirectory, "\\"))) {  // if just '\'
+                        fSingleSlash = TRUE;
                     }
-                    break;
+                    //LogPrintf("dir %s\n", szDirectory);
+                    argnum++;
+                }
 
-                case 'p':
-                    ArgFlag |= ArgFlag_CKMZ;
-                    break;
+                break;
 
-                case 'r':
-                    fRecurse = TRUE;
-                    if (argv[argnum+1]) {
-                        fPathOverride=TRUE;
-                        strcpy(szDirectory, (argv[argnum+1]));
-                        if (!(strcmp(szDirectory, "\\"))) {  // if just '\'
-                            fSingleSlash=TRUE;
-                        }
-                        //LogPrintf("dir %s\n", szDirectory);
-                        argnum++;
-                    }
-
-                    break;
-
-                default:
-                    fprintf(stderr, "Invalid argument.\n");
-                    Usage();
+            default:
+                fprintf(stderr, "Invalid argument.\n");
+                Usage();
             }
         } else {
             // Check for path\filename or wildcards
@@ -1510,31 +1496,31 @@ Notes:
             // Search for '\' in string
             strcpy(sztmp, (argv[argnum]));
             len = strlen(sztmp);
-            for (i=0; i < len; i++) {
-                if (sztmp[i]=='\\') {
+            for (i = 0; i < len; i++) {
+                if (sztmp[i] == '\\') {
                     count++;
-                    endpath=i;         // mark last '\' char found
-                    fslashfound=TRUE;  // found backslash, so must be a path\filename combination
+                    endpath = i;         // mark last '\' char found
+                    fslashfound = TRUE;  // found backslash, so must be a path\filename combination
                 }
             }
 
             if (fslashfound && !fRecurse) { // if backslash found and not a recursive operation
                                             // seperate the directory and filename into two strings
-                fPathOverride=TRUE;
+                fPathOverride = TRUE;
                 strcpy(szDirectory, sztmp);
 
                 if (!(strcmp(szDirectory, "\\"))) {
                     Usage();
                 }
 
-                szFileName = _strdup(&(sztmp[endpath+1]));
+                szFileName = _strdup(&(sztmp[endpath + 1]));
 
 
                 if (count == 1) { //&& szDirectory[1] == ':') { // if only one '\' char and drive letter indicated
-                    fSingleSlash=TRUE;
-                    szDirectory[endpath+1]='\0';  // keep trailing '\' in order to chdir properly
-                }  else {
-                    szDirectory[endpath]='\0';
+                    fSingleSlash = TRUE;
+                    szDirectory[endpath + 1] = '\0';  // keep trailing '\' in order to chdir properly
+                } else {
+                    szDirectory[endpath] = '\0';
                 }
 
                 if (szFileName[0] == '*' && szFileName[1] == '.' && szFileName[2] != '*') {
@@ -1548,12 +1534,12 @@ Notes:
 
                 // filename or wildcard
 
-                if ( (*(argv[argnum]) == '*') && (*(argv[argnum]+1) == '.') && (*(argv[argnum]+2) != '*') ){
+                if ((*(argv[argnum]) == '*') && (*(argv[argnum] + 1) == '.') && (*(argv[argnum] + 2) != '*')) {
                     // *.xxx
                     _strlwr(szFileName);
                     szPattern = strchr(szFileName, '.'); //search for '.'
                     fPattern = TRUE;
-                } else if ( (*(argv[argnum]) == '*') && (*(argv[argnum]+1) == '.') && (*(argv[argnum]+2) == '*') ) {
+                } else if ((*(argv[argnum]) == '*') && (*(argv[argnum] + 1) == '.') && (*(argv[argnum] + 2) == '*')) {
                     // *.*
                 } else {
                     // probably a single filename
@@ -1561,7 +1547,7 @@ Notes:
                     fSingleFile = TRUE;
                 }
 
-                if (fRecurse && strchr(szFileName, '\\') ) { // don't want path\filename when recursing
+                if (fRecurse && strchr(szFileName, '\\')) { // don't want path\filename when recursing
                     Usage();
                 }
 
@@ -1579,9 +1565,9 @@ Notes:
 int
 __cdecl
 CompFileAndDir(
-    const void *elem1,
-    const void *elem2
-    )
+    const void* elem1,
+    const void* elem2
+)
 /*++
 
 Routine Description:
@@ -1613,16 +1599,16 @@ Notes:
     p1 = (*(List**)elem1);
     p2 = (*(List**)elem2);
 
-    if ( (p1->Attributes & FILE_ATTRIBUTE_DIRECTORY) &&  (p2->Attributes & FILE_ATTRIBUTE_DIRECTORY))
+    if ((p1->Attributes & FILE_ATTRIBUTE_DIRECTORY) && (p2->Attributes & FILE_ATTRIBUTE_DIRECTORY))
         return 0;
     //both dirs
     if (!(p1->Attributes & FILE_ATTRIBUTE_DIRECTORY) && !(p2->Attributes & FILE_ATTRIBUTE_DIRECTORY))
         return 0;
     //both files
-    if ( (p1->Attributes & FILE_ATTRIBUTE_DIRECTORY) && !(p2->Attributes & FILE_ATTRIBUTE_DIRECTORY))
+    if ((p1->Attributes & FILE_ATTRIBUTE_DIRECTORY) && !(p2->Attributes & FILE_ATTRIBUTE_DIRECTORY))
         return 1;
     // elem1 is dir and elem2 is file
-    if (!(p1->Attributes & FILE_ATTRIBUTE_DIRECTORY) &&  (p2->Attributes & FILE_ATTRIBUTE_DIRECTORY))
+    if (!(p1->Attributes & FILE_ATTRIBUTE_DIRECTORY) && (p2->Attributes & FILE_ATTRIBUTE_DIRECTORY))
         return -1;
     // elem1 is file and elem2 is dir
 
@@ -1632,9 +1618,9 @@ Notes:
 int
 __cdecl
 CompName(
-    const void *elem1,
-    const void *elem2
-    )
+    const void* elem1,
+    const void* elem2
+)
 /*++
 
 Routine Description:
@@ -1656,14 +1642,14 @@ Notes:
 
 --*/
 {
-   return strcmp( (*(List**)elem1)->Name, (*(List**)elem2)->Name );
+    return strcmp((*(List**)elem1)->Name, (*(List**)elem2)->Name);
 }
 
 
 VOID
 Usage(
     VOID
-    )
+)
 /*++
 
 Routine Description:
@@ -1680,21 +1666,21 @@ Notes:
 
 --*/
 {
-   fputs("Usage: imagechk  [/?] displays this message\n"
-         "                 [/r dir] recurse from directory dir\n"
-         "                 [/b] don't check image base address\n"
-         "                 [/v] verbose - output everything\n"
-         "                 [/o] output \"OleSelfRegister not set\" warning\n"
-         "                 [/p] output \"MZ header not found\"\n"
-         "                 [/s <sympath>] check pdb symbols\n"
-         "                 [filename] file to check\n"
-         " Accepts wildcard extensions such as *.exe\n"
-         " imagechk /r . \"*.exe\"   check all *.exe recursing on current directory\n"
-         " imagechk /r \\ \"*.exe\"  check all *.exe recursing from root of current drive\n"
-         " imagechk \"*.exe\"        check all *.exe in current directory\n"
-         " imagechk c:\\bar.exe      check c:\\bar.exe only\n",
-         stderr);
-   exit(1);
+    fputs("Usage: imagechk  [/?] displays this message\n"
+          "                 [/r dir] recurse from directory dir\n"
+          "                 [/b] don't check image base address\n"
+          "                 [/v] verbose - output everything\n"
+          "                 [/o] output \"OleSelfRegister not set\" warning\n"
+          "                 [/p] output \"MZ header not found\"\n"
+          "                 [/s <sympath>] check pdb symbols\n"
+          "                 [filename] file to check\n"
+          " Accepts wildcard extensions such as *.exe\n"
+          " imagechk /r . \"*.exe\"   check all *.exe recursing on current directory\n"
+          " imagechk /r \\ \"*.exe\"  check all *.exe recursing from root of current drive\n"
+          " imagechk \"*.exe\"        check all *.exe in current directory\n"
+          " imagechk c:\\bar.exe      check c:\\bar.exe only\n",
+          stderr);
+    exit(1);
 }
 
 int
@@ -1716,18 +1702,18 @@ Notes:
 
 --*/
 {
-   return(0);
+    return(0);
 }
 
-typedef DWORD (WINAPI *PFNGVS)(LPSTR, LPDWORD);
-typedef BOOL (WINAPI *PFNGVI)(LPTSTR, DWORD, DWORD, LPVOID);
-typedef BOOL (WINAPI *PFNVQV)(const LPVOID, LPTSTR, LPVOID *, PUINT);
+typedef DWORD(WINAPI* PFNGVS)(LPSTR, LPDWORD);
+typedef BOOL(WINAPI* PFNGVI)(LPTSTR, DWORD, DWORD, LPVOID);
+typedef BOOL(WINAPI* PFNVQV)(const LPVOID, LPTSTR, LPVOID*, PUINT);
 
 BOOL
 VerifyVersionResource(
     PCHAR FileName,
     BOOL fSelfRegister
-    )
+)
 /*++
 
 Routine Description:
@@ -1759,7 +1745,7 @@ Notes:
     LPVOID lpData = NULL, lpInfo;
     BOOL rc = FALSE;
     DWORD dwDefLang = 0x00000409;
-    DWORD *pdwTranslation, uLen;
+    DWORD* pdwTranslation, uLen;
     CHAR buf[60];
 
     CHAR szVersionDll[_MAX_PATH];
@@ -1776,9 +1762,9 @@ Notes:
             return TRUE;
         }
 
-        pfnGetFileVersionInfoSize = (PFNGVS) GetProcAddress(hVersion, "GetFileVersionInfoSizeA");
-        pfnGetFileVersionInfo = (PFNGVI) GetProcAddress(hVersion, "GetFileVersionInfoA");
-        pfnVerQueryValue = (PFNVQV) GetProcAddress(hVersion, "VerQueryValueA");
+        pfnGetFileVersionInfoSize = (PFNGVS)GetProcAddress(hVersion, "GetFileVersionInfoSizeA");
+        pfnGetFileVersionInfo = (PFNGVI)GetProcAddress(hVersion, "GetFileVersionInfoA");
+        pfnVerQueryValue = (PFNVQV)GetProcAddress(hVersion, "VerQueryValueA");
     }
 
     if (!pfnGetFileVersionInfoSize || !pfnGetFileVersionInfo || !pfnVerQueryValue) {
@@ -1786,7 +1772,7 @@ Notes:
         goto cleanup;
     }
 
-    if ((dwSize = (*pfnGetFileVersionInfoSize)(FileName, &dwSize)) == 0){
+    if ((dwSize = (*pfnGetFileVersionInfoSize)(FileName, &dwSize)) == 0) {
         LogPrintf("No version resource detected\n");
         goto cleanup;
     }
@@ -1807,14 +1793,14 @@ Notes:
         goto cleanup;
     }
 
-    if(!pfnVerQueryValue(lpData, "\\VarFileInfo\\Translation", &pdwTranslation, &uLen)) {
+    if (!pfnVerQueryValue(lpData, "\\VarFileInfo\\Translation", &pdwTranslation, &uLen)) {
         pdwTranslation = &dwDefLang;
         uLen = sizeof(DWORD);
     }
 
     sprintf(buf, "\\StringFileInfo\\%04x%04x\\OleSelfRegister", LOWORD(*pdwTranslation), HIWORD(*pdwTranslation));
 
-    if (!pfnVerQueryValue(lpData, buf, &lpInfo, &lpInfoSize) && (ArgFlag & ArgFlag_OLESelf )) {
+    if (!pfnVerQueryValue(lpData, buf, &lpInfo, &lpInfoSize) && (ArgFlag & ArgFlag_OLESelf)) {
         LogPrintf("OleSelfRegister not set\n");
     } else {
         rc = TRUE;
@@ -1832,7 +1818,7 @@ cleanup:
 BOOL
 ValidatePdata(
     PIMAGE_DOS_HEADER DosHeader
-    )
+)
 /*++
 
 Routine Description:
@@ -1875,11 +1861,10 @@ Notes:
             DosHeader,
             FALSE,
             IMAGE_DIRECTORY_ENTRY_EXCEPTION,
-            &ExceptionTableSize );
+            &ExceptionTableSize);
 
     if (!ExceptionTable ||
-        (ExceptionTable && (ExceptionTableSize == 0)))
-    {
+        (ExceptionTable && (ExceptionTableSize == 0))) {
         // No Exception table.
         return(TRUE);
     }
@@ -1892,14 +1877,14 @@ Notes:
 
     LastEnd = 0;
     fRc = TRUE;
-    for (i=0; i < (ExceptionTableSize / sizeof(IMAGE_RUNTIME_FUNCTION_ENTRY)); i++) {
+    for (i = 0; i < (ExceptionTableSize / sizeof(IMAGE_RUNTIME_FUNCTION_ENTRY)); i++) {
 
         if (!ExceptionTable[i].BeginAddress) {
             if (fRc != FALSE) {
                 LogPrintf("exception table is corrupt.\n");
             }
             LogPrintf("PDATA Entry[%d]: zero value for BeginAddress\n",
-                    i);
+                      i);
             fRc = FALSE;
         }
         if (!ExceptionTable[i].EndAddress) {
@@ -1907,7 +1892,7 @@ Notes:
                 LogPrintf("exception table is corrupt.\n");
             }
             LogPrintf("PDATA Entry[%d]: zero value for EndAddress\n",
-                    i);
+                      i);
             fRc = FALSE;
         }
 #if defined(_IA64_)
@@ -1916,7 +1901,7 @@ Notes:
                 LogPrintf("exception table is corrupt.\n");
             }
             LogPrintf("PDATA Entry[%d]: zero value for UnwindInfoAddress\n",
-                    i);
+                      i);
             fRc = FALSE;
         }
 #else
@@ -1925,7 +1910,7 @@ Notes:
                 LogPrintf("exception table is corrupt.\n");
             }
             LogPrintf("PDATA Entry[%d]: zero value for PrologEndAddress\n",
-                    i);
+                      i);
             fRc = FALSE;
         }
 
@@ -1936,9 +1921,9 @@ Notes:
                 LogPrintf("exception table is corrupt.\n");
             }
             LogPrintf("PDATA Entry[%d]: the begin address [%8.8x] is out of sequence.  Prior end was [%8.8x]\n",
-                    i,
-                    ExceptionTable[i].BeginAddress,
-                    LastEnd);
+                      i,
+                      ExceptionTable[i].BeginAddress,
+                      LastEnd);
             fRc = FALSE;
         }
 
@@ -1947,16 +1932,15 @@ Notes:
                 LogPrintf("exception table is corrupt.\n");
             }
             LogPrintf("PDATA Entry[%d]: the end address [%8.8x] is before the begin address[%8.8X]\n",
-                    i,
-                    ExceptionTable[i].EndAddress,
-                    ExceptionTable[i].BeginAddress);
+                      i,
+                      ExceptionTable[i].EndAddress,
+                      ExceptionTable[i].BeginAddress);
             fRc = FALSE;
         }
 
 #if !defined(_IA64_)
         if (!((ExceptionTable[i].PrologEndAddress >= ExceptionTable[i].BeginAddress) &&
-              (ExceptionTable[i].PrologEndAddress <= ExceptionTable[i].EndAddress)))
-        {
+            (ExceptionTable[i].PrologEndAddress <= ExceptionTable[i].EndAddress))) {
             if (NtHeader->FileHeader.Machine == IMAGE_FILE_MACHINE_ALPHA) {
                 // Change this test.  On Alpha, the PrologEndAddress is allowed to be
                 // outside the Function Start/End range.  If this is true, the PrologEnd
@@ -1965,17 +1949,17 @@ Notes:
                 // pdata data that descibes the real scoping function.
 
                 LONG PrologAddress;
-                PrologAddress = (LONG) (ExceptionTable[i].PrologEndAddress - ImageBase - PDataStart);
+                PrologAddress = (LONG)(ExceptionTable[i].PrologEndAddress - ImageBase - PDataStart);
                 if (PrologAddress % sizeof(IMAGE_RUNTIME_FUNCTION_ENTRY)) {
                     if (fRc != FALSE) {
                         LogPrintf("exception table is corrupt.\n");
                     }
                     LogPrintf("PDATA Entry[%d]: the secondary prolog end address[%8.8x] does not evenly index into the exception table.\n",
-                            i,
-                            ExceptionTable[i].PrologEndAddress,
-                            ExceptionTable[i].BeginAddress,
-                            ExceptionTable[i].EndAddress
-                            );
+                              i,
+                              ExceptionTable[i].PrologEndAddress,
+                              ExceptionTable[i].BeginAddress,
+                              ExceptionTable[i].EndAddress
+                    );
                     fRc = FALSE;
                 } else {
                     if ((PrologAddress < 0) || (PrologAddress > (LONG)(PDataStart - sizeof(IMAGE_RUNTIME_FUNCTION_ENTRY)))) {
@@ -1983,11 +1967,11 @@ Notes:
                             LogPrintf("exception table is corrupt.\n");
                         }
                         LogPrintf("PDATA Entry[%d]: the secondary prolog end address[%8.8x] does not index into the exception table.\n",
-                                i,
-                                ExceptionTable[i].PrologEndAddress,
-                                ExceptionTable[i].BeginAddress,
-                                ExceptionTable[i].EndAddress
-                                );
+                                  i,
+                                  ExceptionTable[i].PrologEndAddress,
+                                  ExceptionTable[i].BeginAddress,
+                                  ExceptionTable[i].EndAddress
+                        );
                         fRc = FALSE;
                     }
                 }
@@ -1996,11 +1980,11 @@ Notes:
                     LogPrintf("exception table is corrupt.\n");
                 }
                 LogPrintf("PDATA Entry[%d]: the prolog end address[%8.8x] is not within the bounds of the frame [%8.8X] - [%8.8X]\n",
-                        i,
-                        ExceptionTable[i].PrologEndAddress,
-                        ExceptionTable[i].BeginAddress,
-                        ExceptionTable[i].EndAddress
-                        );
+                          i,
+                          ExceptionTable[i].PrologEndAddress,
+                          ExceptionTable[i].BeginAddress,
+                          ExceptionTable[i].EndAddress
+                );
                 fRc = FALSE;
             }
         }
@@ -2015,7 +1999,7 @@ Notes:
 BOOL
 ImageNeedsOleSelfRegister(
     PIMAGE_DOS_HEADER DosHeader
-    )
+)
 /*++
 
 Routine Description:
@@ -2044,12 +2028,11 @@ Return Value:
             DosHeader,
             FALSE,
             IMAGE_DIRECTORY_ENTRY_EXPORT,
-            &ExportDirectorySize );
+            &ExportDirectorySize);
 
     if (!ExportDirectory ||
         !ExportDirectorySize ||
-        !ExportDirectory->NumberOfNames)
-    {
+        !ExportDirectory->NumberOfNames) {
         // No exports (no directory, no size, or no names).
         return(FALSE);
     }
@@ -2062,7 +2045,7 @@ Return Value:
     for (x = 0; x < NtHeader->FileHeader.NumberOfSections; x++) {
         if (((ULONG)((PCHAR)ExportDirectory - (PCHAR)DosHeader) >= SectionHeader->PointerToRawData) &&
             ((ULONG)((PCHAR)ExportDirectory - (PCHAR)DosHeader) <
-                   (SectionHeader->PointerToRawData + SectionHeader->SizeOfRawData))) {
+            (SectionHeader->PointerToRawData + SectionHeader->SizeOfRawData))) {
             break;
         } else {
             SectionHeader++;
@@ -2080,8 +2063,7 @@ Return Value:
 
     for (i = 0; i < ExportDirectory->NumberOfNames; i++) {
         if (!strcmp("DllRegisterServer", rvaDelta + NameTable[i]) ||
-            !strcmp("DllUnRegisterServer", rvaDelta + NameTable[i]))
-        {
+            !strcmp("DllUnRegisterServer", rvaDelta + NameTable[i])) {
             return(TRUE);
         }
     }
@@ -2097,7 +2079,7 @@ Return Value:
 PSYMMODLIST
 MakeModList(
     HANDLE hProcess
-    )
+)
 /*++
 
 Routine Description:
@@ -2131,7 +2113,7 @@ SymEnumerateModulesCallback(
     LPSTR ModuleName,
     ULONG64 BaseOfDll,
     PVOID UserContext
-    )
+)
 /*++
 
 Routine Description:
@@ -2165,8 +2147,7 @@ Notes:
 
 
     pSymModList = (PSYMMODLIST)UserContext;
-    while (pSymModList->ModBase)
-    {
+    while (pSymModList->ModBase) {
         pSymModList = pSymModList->Next;
     }
 
@@ -2176,17 +2157,17 @@ Notes:
 
     pSymModList->ModName = malloc(strlen(ModuleName) + 1);
     strcpy(pSymModList->ModName, ModuleName);
-    pSymModList->ModBase = (void *)BaseOfDll;
+    pSymModList->ModBase = (void*)BaseOfDll;
     pSymModList->Next = (PSYMMODLIST)calloc(1, sizeof(SYMMODLIST));
 
     return(TRUE);
 }
 
-void *
+void*
 GetModAddrFromName(
     PSYMMODLIST ModList,
-    char *ModName
-    )
+    char* ModName
+)
 /*++
 
 Routine Description:
@@ -2204,10 +2185,8 @@ Return Value:
 
 --*/
 {
-    while (ModList->Next != 0)
-    {
-        if (strcmp(ModList->ModName, ModName) == 0)
-        {
+    while (ModList->Next != 0) {
+        if (strcmp(ModList->ModName, ModName) == 0) {
             break;
         }
         ModList = ModList->Next;
@@ -2219,7 +2198,7 @@ Return Value:
 void
 FreeModList(
     PSYMMODLIST ModList
-    )
+)
 /*++
 
 Routine Description:
@@ -2238,10 +2217,8 @@ Return Value:
 {
     PSYMMODLIST ModListNext;
 
-    while (ModList)
-    {
-        if(ModList->ModName)
-        {
+    while (ModList) {
+        if (ModList->ModName) {
             free(ModList->ModName);
         }
         ModListNext = ModList->Next;
@@ -2250,23 +2227,15 @@ Return Value:
     }
 }
 
-pLogListItem LogAppend(
-    char *logitem,
-    pLogListItem plog
-    )
+
+pLogListItem LogAppend(char* logitem, pLogListItem plog)
 /*++
-
 Routine Description:
-
     add a log line to the linked list of log lines
-
 Arguments:
-
     char *  logitem     - a formatted line of text to be logged
     pLogListItem plog   - pointer to LogListItem
-
 Return Value:
-
     a pointer to the LogListItem allocated
     the first call to this function should save this pointer and use
     it for the head of the list, and it should be used when calling
@@ -2277,94 +2246,69 @@ Return Value:
     of the list.
     If plog == head of list, search for end of list
     if plog == last item allocated, then the search is much faster
-
 --*/
 {
     pLogListItem ptemp;
 
     ptemp = plog;
-    if(plog)
-    {
-        while(ptemp->Next)
-        {
+    if (plog) {
+        while (ptemp->Next) {
             ptemp = ptemp->Next;
         }
     }
 
-    if(!ptemp)
-    {
+    if (!ptemp) {
         ptemp = (pLogListItem)calloc(sizeof(LogListItem), 1);
     } else {
         ptemp->Next = (pLogListItem)calloc(sizeof(LogListItem), 1);
         ptemp = ptemp->Next;
     }
 
-    ptemp->LogLine = (char *)malloc(strlen(logitem) + 1);
+    ptemp->LogLine = (char*)malloc(strlen(logitem) + 1);
     strcpy(ptemp->LogLine, logitem);
     return (ptemp);
 }
 
-void LogOutAndClean(
-    BOOL print
-    )
+
+void LogOutAndClean(BOOL print)
 /*++
-
 Routine Description:
-
     output the log output, and free all the items in the list
-
 Arguments:
-
     none
-
 Return Value:
-
     none
-
 --*/
 {
     pLogListItem ptemp;
     pLogListItem plog = pLogList;
 
-    while(plog)
-    {
+    while (plog) {
         ptemp = plog;
-        if(print)
-        {
+        if (print) {
             fprintf(stderr, plog->LogLine);
         }
         plog = plog->Next;
         free(ptemp->LogLine);
         free(ptemp);
     }
-    if(print)
-    {
+
+    if (print) {
         fprintf(stderr, "\n");
     }
 
     pLogListTmp = pLogList = NULL;
-
 }
 
-void
-LogPrintf(
-    const char *format,
-    ...
-    )
+
+void LogPrintf(const char* format, ...)
 /*++
-
 Routine Description:
-
     logging wrapper for fprintf
-
 Arguments:
-
     none
-
 Return Value:
-
     none
-
 --*/
 {
     va_list arglist;
@@ -2373,20 +2317,11 @@ Return Value:
     va_start(arglist, format);
     vsprintf(LogStr, format, arglist);
 
-    if(pLogList == NULL)
-    {
-
+    if (pLogList == NULL) {
         // initialize log
-
-
         pLogListTmp = pLogList = LogAppend(LogStr, NULL);
-
     } else {
-
-
         // append to log
-
-
         pLogListTmp = LogAppend(LogStr, pLogListTmp);
 
     }

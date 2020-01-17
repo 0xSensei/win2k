@@ -338,7 +338,6 @@ BOOL LoadVersionInfo(
     GetSystemPathName(szPath, piiex->wszImeFile, ARRAY_SIZE(szPath));
 
     dwVersionSize = (*pfnGetFileVersionInfoSizeW)(szPath, &dwHandle);
-
     if (dwVersionSize == 0L)
         goto LoadVerInfoUnload;
 

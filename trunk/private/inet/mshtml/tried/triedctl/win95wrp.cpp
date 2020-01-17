@@ -5800,23 +5800,13 @@ extern "C"{
         return 0;
     }
 
-    BOOL
-        WINAPI
-        OGetFileVersionInfoW(
-        LPWSTR lpszFile,
-        DWORD dwHandle,
-        DWORD cbBuf,
-        LPVOID lpvData)
+    BOOL WINAPI OGetFileVersionInfoW(LPWSTR lpszFile, DWORD dwHandle, DWORD cbBuf, LPVOID lpvData)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetFileVersionInfoW");
         return 0;
     }
 
-    DWORD
-        WINAPI
-        OGetFileVersionInfoSizeW(
-        LPWSTR lpszFile,
-        LPDWORD lpdwHandle)
+    DWORD WINAPI OGetFileVersionInfoSizeW(LPWSTR lpszFile, LPDWORD lpdwHandle)
     {
         AssertFail("No Unicode Wrapper Available for Win32 API - GetFileVersionInfoSizeW");
         return 0;

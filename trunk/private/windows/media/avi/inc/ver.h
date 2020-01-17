@@ -37,17 +37,17 @@ extern "C" {            /* Assume C declarations for C++ */
 #define NEAR        _near
 #define FAR         _far
 #define PASCAL      _pascal
-typedef int             BOOL;
+    typedef int             BOOL;
 #define TRUE        1
 #define FALSE       0
-typedef unsigned char   BYTE;
-typedef unsigned short  WORD;
-typedef unsigned int    UINT;
-typedef signed long     LONG;
-typedef unsigned long   DWORD;
-typedef char far*       LPSTR;
-typedef const char far* LPCSTR;
-typedef int             HFILE;
+    typedef unsigned char   BYTE;
+    typedef unsigned short  WORD;
+    typedef unsigned int    UINT;
+    typedef signed long     LONG;
+    typedef unsigned long   DWORD;
+    typedef char far* LPSTR;
+    typedef const char far* LPCSTR;
+    typedef int             HFILE;
 #define OFSTRUCT    void            /* Not used by the .lib version */
 #define LOWORD(l)        ((WORD)(l))
 #define HIWORD(l)        ((WORD)(((DWORD)(l) >> 16) & 0xFFFF))
@@ -178,76 +178,74 @@ typedef int             HFILE;
 
 /* ----- Types and structures ----- */
 
-typedef signed short int SHORT;
+    typedef signed short int SHORT;
 
-typedef struct tagVS_FIXEDFILEINFO
-{
-    DWORD   dwSignature;            /* e.g. 0xfeef04bd */
-    DWORD   dwStrucVersion;         /* e.g. 0x00000042 = "0.42" */
-    DWORD   dwFileVersionMS;        /* e.g. 0x00030075 = "3.75" */
-    DWORD   dwFileVersionLS;        /* e.g. 0x00000031 = "0.31" */
-    DWORD   dwProductVersionMS;     /* e.g. 0x00030010 = "3.10" */
-    DWORD   dwProductVersionLS;     /* e.g. 0x00000031 = "0.31" */
-    DWORD   dwFileFlagsMask;        /* = 0x3F for version "0.42" */
-    DWORD   dwFileFlags;            /* e.g. VFF_DEBUG | VFF_PRERELEASE */
-    DWORD   dwFileOS;               /* e.g. VOS_DOS_WINDOWS16 */
-    DWORD   dwFileType;             /* e.g. VFT_DRIVER */
-    DWORD   dwFileSubtype;          /* e.g. VFT2_DRV_KEYBOARD */
-    DWORD   dwFileDateMS;           /* e.g. 0 */
-    DWORD   dwFileDateLS;           /* e.g. 0 */
-} VS_FIXEDFILEINFO;
+    typedef struct tagVS_FIXEDFILEINFO
+    {
+        DWORD   dwSignature;            /* e.g. 0xfeef04bd */
+        DWORD   dwStrucVersion;         /* e.g. 0x00000042 = "0.42" */
+        DWORD   dwFileVersionMS;        /* e.g. 0x00030075 = "3.75" */
+        DWORD   dwFileVersionLS;        /* e.g. 0x00000031 = "0.31" */
+        DWORD   dwProductVersionMS;     /* e.g. 0x00030010 = "3.10" */
+        DWORD   dwProductVersionLS;     /* e.g. 0x00000031 = "0.31" */
+        DWORD   dwFileFlagsMask;        /* = 0x3F for version "0.42" */
+        DWORD   dwFileFlags;            /* e.g. VFF_DEBUG | VFF_PRERELEASE */
+        DWORD   dwFileOS;               /* e.g. VOS_DOS_WINDOWS16 */
+        DWORD   dwFileType;             /* e.g. VFT_DRIVER */
+        DWORD   dwFileSubtype;          /* e.g. VFT2_DRV_KEYBOARD */
+        DWORD   dwFileDateMS;           /* e.g. 0 */
+        DWORD   dwFileDateLS;           /* e.g. 0 */
+    } VS_FIXEDFILEINFO;
 
-/* ----- Function prototypes ----- */
+    /* ----- Function prototypes ----- */
 
-UINT WINAPI VerFindFile(UINT uFlags, LPCSTR szFileName,
-      LPCSTR szWinDir, LPCSTR szAppDir,
-      LPSTR szCurDir, UINT FAR* lpuCurDirLen,
-      LPSTR szDestDir, UINT FAR* lpuDestDirLen);
+    UINT WINAPI VerFindFile(UINT uFlags, LPCSTR szFileName,
+                            LPCSTR szWinDir, LPCSTR szAppDir,
+                            LPSTR szCurDir, UINT FAR* lpuCurDirLen,
+                            LPSTR szDestDir, UINT FAR* lpuDestDirLen);
 
-DWORD WINAPI VerInstallFile(UINT uFlags,
-      LPCSTR szSrcFileName, LPCSTR szDestFileName, LPCSTR szSrcDir,
-      LPCSTR szDestDir, LPCSTR szCurDir, LPSTR szTmpFile, UINT FAR* lpuTmpFileLen);
+    DWORD WINAPI VerInstallFile(UINT uFlags,
+                                LPCSTR szSrcFileName, LPCSTR szDestFileName, LPCSTR szSrcDir,
+                                LPCSTR szDestDir, LPCSTR szCurDir, LPSTR szTmpFile, UINT FAR* lpuTmpFileLen);
 
-/* Returns size of version info in bytes */
-DWORD WINAPI GetFileVersionInfoSize(
-      LPCSTR lpstrFilename,     /* Filename of version stamped file */
-      DWORD FAR *lpdwHandle);   /* Information for use by GetFileVersionInfo */
+    /* Returns size of version info in bytes */
+    DWORD WINAPI GetFileVersionInfoSize(LPCSTR lpstrFilename,     /* Filename of version stamped file */
+                                        DWORD FAR* lpdwHandle);   /* Information for use by GetFileVersionInfo */
 
-/* Read version info into buffer */
-BOOL WINAPI GetFileVersionInfo(
-      LPCSTR lpstrFilename,     /* Filename of version stamped file */
-      DWORD dwHandle,           /* Information from GetFileVersionSize */
-      DWORD dwLen,              /* Length of buffer for info */
-      void FAR* lpData);        /* Buffer to place the data structure */
+                                  /* Read version info into buffer */
+    BOOL WINAPI GetFileVersionInfo(LPCSTR lpstrFilename,     /* Filename of version stamped file */
+                                   DWORD dwHandle,           /* Information from GetFileVersionSize */
+                                   DWORD dwLen,              /* Length of buffer for info */
+                                   void FAR* lpData);        /* Buffer to place the data structure */
 
-/* Returns size of resource in bytes */
-DWORD WINAPI GetFileResourceSize(
-      LPCSTR lpstrFilename,     /* Filename of version stamped file */
-      LPCSTR lpstrResType,      /* Type:  normally VS_FILE_INFO */
-      LPCSTR lpstrResID,        /* ID:  normally VS_VERSION_INFO */
-      DWORD FAR *lpdwFileOffset); /* Returns file offset of resource */
+                             /* Returns size of resource in bytes */
+    DWORD WINAPI GetFileResourceSize(
+        LPCSTR lpstrFilename,     /* Filename of version stamped file */
+        LPCSTR lpstrResType,      /* Type:  normally VS_FILE_INFO */
+        LPCSTR lpstrResID,        /* ID:  normally VS_VERSION_INFO */
+        DWORD FAR* lpdwFileOffset); /* Returns file offset of resource */
 
-/* Reads file resource into buffer */
-BOOL WINAPI GetFileResource(
-      LPCSTR lpstrFilename,     /* Filename of version stamped file */
-      LPCSTR lpstrResType,      /* Type:  normally VS_FILE_INFO */
-      LPCSTR lpstrResID,        /* ID:  normally VS_VERSION_INFO */
-      DWORD dwFileOffset,       /* File offset or NULL */
-      DWORD dwResLen,           /* Length of resource to read or NULL */
-      void FAR* lpData);        /* Pointer to data buffer */
+  /* Reads file resource into buffer */
+    BOOL WINAPI GetFileResource(
+        LPCSTR lpstrFilename,     /* Filename of version stamped file */
+        LPCSTR lpstrResType,      /* Type:  normally VS_FILE_INFO */
+        LPCSTR lpstrResID,        /* ID:  normally VS_VERSION_INFO */
+        DWORD dwFileOffset,       /* File offset or NULL */
+        DWORD dwResLen,           /* Length of resource to read or NULL */
+        void FAR* lpData);        /* Pointer to data buffer */
 
-UINT WINAPI VerLanguageName(UINT wLang, LPSTR szLang, UINT nSize);
+    UINT WINAPI VerLanguageName(UINT wLang, LPSTR szLang, UINT nSize);
 
 #ifdef LIB
 
-UINT WINAPI GetWindowsDir(LPCSTR szAppDir, LPSTR lpBuffer, int nSize);
+    UINT WINAPI GetWindowsDir(LPCSTR szAppDir, LPSTR lpBuffer, int nSize);
 
-UINT WINAPI GetSystemDir(LPCSTR szAppDir, LPSTR lpBuffer, int nSize);
+    UINT WINAPI GetSystemDir(LPCSTR szAppDir, LPSTR lpBuffer, int nSize);
 
 #endif /* LIB */
 
-BOOL WINAPI VerQueryValue(const void FAR* pBlock, LPCSTR lpSubBlock,
-      void FAR* FAR* lplpBuffer, UINT FAR* lpuLen);
+    BOOL WINAPI VerQueryValue(const void FAR* pBlock, LPCSTR lpSubBlock,
+                              void FAR* FAR* lplpBuffer, UINT FAR* lpuLen);
 
 #ifdef __cplusplus
 }

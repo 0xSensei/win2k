@@ -66,12 +66,7 @@ Return Value:
 
 
     // Allocate enough memory for the version stamp
-
-
-    VersionStruct->Size = GetFileVersionInfoSize (
-                                (PTSTR) FileSpec,
-                                &VersionStruct->Handle
-                                );
+    VersionStruct->Size = GetFileVersionInfoSize ((PTSTR) FileSpec, &VersionStruct->Handle);
     if (!VersionStruct->Size) {
         return FALSE;
     }
@@ -91,14 +86,7 @@ Return Value:
 
 
     // Now get the version info from the file
-
-
-    if (!GetFileVersionInfo (
-             (PTSTR) FileSpec,
-             VersionStruct->Handle,
-             VersionStruct->Size,
-             VersionStruct->VersionBuffer
-             )) {
+    if (!GetFileVersionInfo ((PTSTR) FileSpec, VersionStruct->Handle, VersionStruct->Size, VersionStruct->VersionBuffer)) {
         ShDestroyVersionStruct (VersionStruct);
         return FALSE;
     }

@@ -92,12 +92,7 @@ MyExtractVersionResource16W (
  * lpwstrFilename is the name of the file to get version information from
  * lpdwHandle is outdated for the Win32 api and is set to zero.
 */
-DWORD
-APIENTRY
-GetFileVersionInfoSizeW(
-                       LPWSTR lpwstrFilename,
-                       LPDWORD lpdwHandle
-                       )
+DWORD APIENTRY GetFileVersionInfoSizeW(LPWSTR lpwstrFilename, LPDWORD lpdwHandle)
 {
     DWORD dwTemp;
     VERHEAD *pVerHead;
@@ -220,14 +215,7 @@ GetFileVersionInfoSizeW(
  * dwLen is the length of the buffer to fill.
  * lpData is the buffer to fill.
 */
-BOOL
-APIENTRY
-GetFileVersionInfoW(
-                   LPWSTR lpwstrFilename,
-                   DWORD dwHandle,
-                   DWORD dwLen,
-                   LPVOID lpData
-                   )
+BOOL APIENTRY GetFileVersionInfoW(LPWSTR lpwstrFilename, DWORD dwHandle, DWORD dwLen, LPVOID lpData)
 {
     VERHEAD *pVerHead;
     VERHEAD16 *pVerHead16;

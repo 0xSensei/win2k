@@ -148,16 +148,11 @@ STDMETHODIMP CURLExec::Execute(LPSHELLEXECUTEINFOA pei)
 
                 if(hinst)
                 {
-                    PFNVERQUERYVALUEA pfnVerQueryValue =
-                        (PFNVERQUERYVALUEA)GetProcAddress(hinst, "VerQueryValueA");
-                    PFNGETFILEVERSIONINFOSIZEA pfnGetFileVersionInfoSize =
-                        (PFNGETFILEVERSIONINFOSIZEA)GetProcAddress(hinst, "GetFileVersionInfoSizeA");
-                    PFNGETFILEVERSIONINFOA pfnGetFileVersionInfo =
-                        (PFNGETFILEVERSIONINFOA)GetProcAddress(hinst, "GetFileVersionInfoA");
+                    PFNVERQUERYVALUEA pfnVerQueryValue = (PFNVERQUERYVALUEA)GetProcAddress(hinst, "VerQueryValueA");
+                    PFNGETFILEVERSIONINFOSIZEA pfnGetFileVersionInfoSize = (PFNGETFILEVERSIONINFOSIZEA)GetProcAddress(hinst, "GetFileVersionInfoSizeA");
+                    PFNGETFILEVERSIONINFOA pfnGetFileVersionInfo = (PFNGETFILEVERSIONINFOA)GetProcAddress(hinst, "GetFileVersionInfoA");
 
-                    if (pfnVerQueryValue      &&
-                        pfnGetFileVersionInfo &&
-                        pfnGetFileVersionInfoSize)
+                    if (pfnVerQueryValue      && pfnGetFileVersionInfo && pfnGetFileVersionInfoSize)
                     {
                         CHAR   chBuffer[2048]; // hopefully this is enough
                         DWORD  cb;

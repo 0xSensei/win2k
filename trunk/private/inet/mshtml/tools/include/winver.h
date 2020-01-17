@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 
-/* ----- Symbols ----- */
+    /* ----- Symbols ----- */
 #define VS_FILE_INFO            RT_VERSION
 #define VS_VERSION_INFO         1
 #define VS_USER_DEFINED         100
@@ -121,48 +121,48 @@ extern "C" {
 
 /* ----- Types and structures ----- */
 
-typedef struct tagVS_FIXEDFILEINFO
-{
-    DWORD   dwSignature;            /* e.g. 0xfeef04bd */
-    DWORD   dwStrucVersion;         /* e.g. 0x00000042 = "0.42" */
-    DWORD   dwFileVersionMS;        /* e.g. 0x00030075 = "3.75" */
-    DWORD   dwFileVersionLS;        /* e.g. 0x00000031 = "0.31" */
-    DWORD   dwProductVersionMS;     /* e.g. 0x00030010 = "3.10" */
-    DWORD   dwProductVersionLS;     /* e.g. 0x00000031 = "0.31" */
-    DWORD   dwFileFlagsMask;        /* = 0x3F for version "0.42" */
-    DWORD   dwFileFlags;            /* e.g. VFF_DEBUG | VFF_PRERELEASE */
-    DWORD   dwFileOS;               /* e.g. VOS_DOS_WINDOWS16 */
-    DWORD   dwFileType;             /* e.g. VFT_DRIVER */
-    DWORD   dwFileSubtype;          /* e.g. VFT2_DRV_KEYBOARD */
-    DWORD   dwFileDateMS;           /* e.g. 0 */
-    DWORD   dwFileDateLS;           /* e.g. 0 */
-} VS_FIXEDFILEINFO;
+    typedef struct tagVS_FIXEDFILEINFO
+    {
+        DWORD   dwSignature;            /* e.g. 0xfeef04bd */
+        DWORD   dwStrucVersion;         /* e.g. 0x00000042 = "0.42" */
+        DWORD   dwFileVersionMS;        /* e.g. 0x00030075 = "3.75" */
+        DWORD   dwFileVersionLS;        /* e.g. 0x00000031 = "0.31" */
+        DWORD   dwProductVersionMS;     /* e.g. 0x00030010 = "3.10" */
+        DWORD   dwProductVersionLS;     /* e.g. 0x00000031 = "0.31" */
+        DWORD   dwFileFlagsMask;        /* = 0x3F for version "0.42" */
+        DWORD   dwFileFlags;            /* e.g. VFF_DEBUG | VFF_PRERELEASE */
+        DWORD   dwFileOS;               /* e.g. VOS_DOS_WINDOWS16 */
+        DWORD   dwFileType;             /* e.g. VFT_DRIVER */
+        DWORD   dwFileSubtype;          /* e.g. VFT2_DRV_KEYBOARD */
+        DWORD   dwFileDateMS;           /* e.g. 0 */
+        DWORD   dwFileDateLS;           /* e.g. 0 */
+    } VS_FIXEDFILEINFO;
 
-/* ----- Function prototypes ----- */
+    /* ----- Function prototypes ----- */
 
-DWORD
-APIENTRY
-VerFindFileA(
-        DWORD uFlags,
-        LPSTR szFileName,
-        LPSTR szWinDir,
-        LPSTR szAppDir,
-        LPSTR szCurDir,
-        PUINT lpuCurDirLen,
-        LPSTR szDestDir,
-        PUINT lpuDestDirLen
+    DWORD
+        APIENTRY
+        VerFindFileA(
+            DWORD uFlags,
+            LPSTR szFileName,
+            LPSTR szWinDir,
+            LPSTR szAppDir,
+            LPSTR szCurDir,
+            PUINT lpuCurDirLen,
+            LPSTR szDestDir,
+            PUINT lpuDestDirLen
         );
-DWORD
-APIENTRY
-VerFindFileW(
-        DWORD uFlags,
-        LPWSTR szFileName,
-        LPWSTR szWinDir,
-        LPWSTR szAppDir,
-        LPWSTR szCurDir,
-        PUINT lpuCurDirLen,
-        LPWSTR szDestDir,
-        PUINT lpuDestDirLen
+    DWORD
+        APIENTRY
+        VerFindFileW(
+            DWORD uFlags,
+            LPWSTR szFileName,
+            LPWSTR szWinDir,
+            LPWSTR szAppDir,
+            LPWSTR szCurDir,
+            PUINT lpuCurDirLen,
+            LPWSTR szDestDir,
+            PUINT lpuDestDirLen
         );
 #ifdef UNICODE
 #define VerFindFile  VerFindFileW
@@ -170,29 +170,29 @@ VerFindFileW(
 #define VerFindFile  VerFindFileA
 #endif // !UNICODE
 
-DWORD
-APIENTRY
-VerInstallFileA(
-        DWORD uFlags,
-        LPSTR szSrcFileName,
-        LPSTR szDestFileName,
-        LPSTR szSrcDir,
-        LPSTR szDestDir,
-        LPSTR szCurDir,
-        LPSTR szTmpFile,
-        PUINT lpuTmpFileLen
+    DWORD
+        APIENTRY
+        VerInstallFileA(
+            DWORD uFlags,
+            LPSTR szSrcFileName,
+            LPSTR szDestFileName,
+            LPSTR szSrcDir,
+            LPSTR szDestDir,
+            LPSTR szCurDir,
+            LPSTR szTmpFile,
+            PUINT lpuTmpFileLen
         );
-DWORD
-APIENTRY
-VerInstallFileW(
-        DWORD uFlags,
-        LPWSTR szSrcFileName,
-        LPWSTR szDestFileName,
-        LPWSTR szSrcDir,
-        LPWSTR szDestDir,
-        LPWSTR szCurDir,
-        LPWSTR szTmpFile,
-        PUINT lpuTmpFileLen
+    DWORD
+        APIENTRY
+        VerInstallFileW(
+            DWORD uFlags,
+            LPWSTR szSrcFileName,
+            LPWSTR szDestFileName,
+            LPWSTR szSrcDir,
+            LPWSTR szDestDir,
+            LPWSTR szCurDir,
+            LPWSTR szTmpFile,
+            PUINT lpuTmpFileLen
         );
 #ifdef UNICODE
 #define VerInstallFile  VerInstallFileW
@@ -200,20 +200,14 @@ VerInstallFileW(
 #define VerInstallFile  VerInstallFileA
 #endif // !UNICODE
 
+    /* Returns size of version info in bytes */
+    DWORD APIENTRY GetFileVersionInfoSizeA(LPSTR lptstrFilename, /* Filename of version stamped file */
+                                           LPDWORD lpdwHandle
+    );                      /* Information for use by GetFileVersionInfo */
 /* Returns size of version info in bytes */
-DWORD
-APIENTRY
-GetFileVersionInfoSizeA(
-        LPSTR lptstrFilename, /* Filename of version stamped file */
-        LPDWORD lpdwHandle
-        );                      /* Information for use by GetFileVersionInfo */
-/* Returns size of version info in bytes */
-DWORD
-APIENTRY
-GetFileVersionInfoSizeW(
-        LPWSTR lptstrFilename, /* Filename of version stamped file */
-        LPDWORD lpdwHandle
-        );                      /* Information for use by GetFileVersionInfo */
+    DWORD APIENTRY GetFileVersionInfoSizeW(LPWSTR lptstrFilename, /* Filename of version stamped file */
+                                           LPDWORD lpdwHandle
+    );                      /* Information for use by GetFileVersionInfo */
 #ifdef UNICODE
 #define GetFileVersionInfoSize  GetFileVersionInfoSizeW
 #else
@@ -221,65 +215,33 @@ GetFileVersionInfoSizeW(
 #endif // !UNICODE
 
 /* Read version info into buffer */
-BOOL
-APIENTRY
-GetFileVersionInfoA(
-        LPSTR lptstrFilename, /* Filename of version stamped file */
-        DWORD dwHandle,         /* Information from GetFileVersionSize */
-        DWORD dwLen,            /* Length of buffer for info */
-        LPVOID lpData
-        );                      /* Buffer to place the data structure */
+    BOOL APIENTRY GetFileVersionInfoA(LPSTR lptstrFilename, /* Filename of version stamped file */
+                                      DWORD dwHandle,         /* Information from GetFileVersionSize */
+                                      DWORD dwLen,            /* Length of buffer for info */
+                                      LPVOID lpData
+    );                      /* Buffer to place the data structure */
 /* Read version info into buffer */
-BOOL
-APIENTRY
-GetFileVersionInfoW(
-        LPWSTR lptstrFilename, /* Filename of version stamped file */
-        DWORD dwHandle,         /* Information from GetFileVersionSize */
-        DWORD dwLen,            /* Length of buffer for info */
-        LPVOID lpData
-        );                      /* Buffer to place the data structure */
+    BOOL APIENTRY GetFileVersionInfoW(LPWSTR lptstrFilename, /* Filename of version stamped file */
+                                      DWORD dwHandle,         /* Information from GetFileVersionSize */
+                                      DWORD dwLen,            /* Length of buffer for info */
+                                      LPVOID lpData
+    );                      /* Buffer to place the data structure */
 #ifdef UNICODE
 #define GetFileVersionInfo  GetFileVersionInfoW
 #else
 #define GetFileVersionInfo  GetFileVersionInfoA
 #endif // !UNICODE
 
-DWORD
-APIENTRY
-VerLanguageNameA(
-        DWORD wLang,
-        LPSTR szLang,
-        DWORD nSize
-        );
-DWORD
-APIENTRY
-VerLanguageNameW(
-        DWORD wLang,
-        LPWSTR szLang,
-        DWORD nSize
-        );
+    DWORD APIENTRY VerLanguageNameA(DWORD wLang, LPSTR szLang, DWORD nSize);
+    DWORD APIENTRY VerLanguageNameW(DWORD wLang, LPWSTR szLang, DWORD nSize);
 #ifdef UNICODE
 #define VerLanguageName  VerLanguageNameW
 #else
 #define VerLanguageName  VerLanguageNameA
 #endif // !UNICODE
 
-BOOL
-APIENTRY
-VerQueryValueA(
-        const LPVOID pBlock,
-        LPSTR lpSubBlock,
-        LPVOID * lplpBuffer,
-        PUINT puLen
-        );
-BOOL
-APIENTRY
-VerQueryValueW(
-        const LPVOID pBlock,
-        LPWSTR lpSubBlock,
-        LPVOID * lplpBuffer,
-        PUINT puLen
-        );
+    BOOL APIENTRY VerQueryValueA(const LPVOID pBlock, LPSTR lpSubBlock, LPVOID* lplpBuffer, PUINT puLen);
+    BOOL APIENTRY VerQueryValueW(const LPVOID pBlock, LPWSTR lpSubBlock, LPVOID* lplpBuffer, PUINT puLen);
 #ifdef UNICODE
 #define VerQueryValue  VerQueryValueW
 #else

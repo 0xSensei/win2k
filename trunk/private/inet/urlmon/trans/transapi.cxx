@@ -2898,8 +2898,7 @@ BOOL PDFNeedProgressiveDownload()
     // now we are at HKCR\CLSID\xxx-yyyy\InProcServer32
     // we need to get the path to the ocx
     lSize = MAX_PATH;
-    if( ERROR_SUCCESS != RegQueryValue(
-                    hClsRegEntry, NULL, szPath, &lSize) )
+    if( ERROR_SUCCESS != RegQueryValue(hClsRegEntry, NULL, szPath, &lSize) )
     {
         RegCloseKey(hClsRegEntry);
         goto Exit;
@@ -2925,14 +2924,12 @@ BOOL PDFNeedProgressiveDownload()
         goto Exit;
     }
 
-    if( !VerQueryValue(
-            pVerBuffer, TEXT("\\"),(LPVOID*)&lpVSFixedFileInfo, &uiLength) )
+    if( !VerQueryValue(pVerBuffer, TEXT("\\"),(LPVOID*)&lpVSFixedFileInfo, &uiLength) )
     {
         goto Exit;
     }
 
-    if( lpVSFixedFileInfo->dwFileVersionMS == 0x00010003 &&
-        lpVSFixedFileInfo->dwFileVersionLS < 170 )
+    if( lpVSFixedFileInfo->dwFileVersionMS == 0x00010003 && lpVSFixedFileInfo->dwFileVersionLS < 170 )
     {
         // this is 3.0 or 3.01, we should disable progressive download
         fRet = FALSE;

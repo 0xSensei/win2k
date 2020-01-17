@@ -514,17 +514,8 @@ DWORD WINAPI videoCapDriverDescAndVer (
         UINT FAR* lpuLen
         );
 
-    typedef BOOL (WINAPI FAR *LPGETFILEVERSIONINFO)(
-        LPCSTR lpstrFilename,
-        DWORD dwHandle,
-        DWORD dwLen,
-        void FAR* lpData
-        );
-
-    typedef DWORD (WINAPI FAR *LPGETFILEVERSIONINFOSIZE)(
-        LPCSTR lpstrFilename,
-        DWORD FAR *lpdwHandle
-        );
+    typedef BOOL (WINAPI FAR *LPGETFILEVERSIONINFO)(LPCSTR lpstrFilename, DWORD dwHandle, DWORD dwLen, void FAR* lpData);
+    typedef DWORD (WINAPI FAR *LPGETFILEVERSIONINFOSIZE)(LPCSTR lpstrFilename, DWORD FAR *lpdwHandle);
 
     LPGETFILEVERSIONINFOSIZE lpfnGetFileVersionInfoSize;
     LPGETFILEVERSIONINFO     lpfnGetFileVersionInfo;
@@ -583,14 +574,9 @@ DWORD WINAPI videoCapDriverDescAndVer (
         return FALSE;
     }
 
-    *(FARPROC *)&lpfnGetFileVersionInfoSize =
-        GetProcAddress(hinstVer, szGetFileVerInfoSize);
-
-    *(FARPROC *)&lpfnGetFileVersionInfo =
-        GetProcAddress(hinstVer, szGetFileVerInfo);
-
-    *(FARPROC *)&lpfnVerQueryValue =
-        GetProcAddress(hinstVer, szVerQueryValue );
+    *(FARPROC *)&lpfnGetFileVersionInfoSize = GetProcAddress(hinstVer, szGetFileVerInfoSize);
+    *(FARPROC *)&lpfnGetFileVersionInfo = GetProcAddress(hinstVer, szGetFileVerInfo);
+    *(FARPROC *)&lpfnVerQueryValue = GetProcAddress(hinstVer, szVerQueryValue );
 
 #if 0
     {

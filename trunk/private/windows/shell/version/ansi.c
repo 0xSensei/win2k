@@ -235,12 +235,8 @@ VerInstallFileA(
     return Status;
 }
 
-DWORD
-APIENTRY
-GetFileVersionInfoSizeA(
-        LPSTR lpstrFilename,
-        LPDWORD lpdwHandle
-        )
+
+DWORD APIENTRY GetFileVersionInfoSizeA(LPSTR lpstrFilename, LPDWORD lpdwHandle)
 {
     UNICODE_STRING FileName;
     ANSI_STRING AnsiString;
@@ -259,14 +255,8 @@ GetFileVersionInfoSizeA(
     return dwStatus;
 }
 
-BOOL
-APIENTRY
-GetFileVersionInfoA(
-        LPSTR lpstrFilename,
-        DWORD dwHandle,
-        DWORD dwLen,
-        LPVOID lpData
-        )
+
+BOOL APIENTRY GetFileVersionInfoA(LPSTR lpstrFilename, DWORD dwHandle, DWORD dwLen, LPVOID lpData)
 {
     UNICODE_STRING FileName;
     ANSI_STRING AnsiString;

@@ -94,11 +94,8 @@ Control_GetFileDescription(LPTSTR ptszFile, LPTSTR ptszBuf, UINT ctch)
             UINT uiSize;
 
             if (GetFileVersionInfo(ptszFile, dwHandle, cb, pvData) &&
-                VerQueryValue(pvData, TEXT("\\VarFileInfo\\Translation"),
-                              (LPVOID)&rgwTrans, &uiSize)) {
-                if (Control_VerQueryDescription(pvData,
-                                                rgwTrans[0], rgwTrans[1],
-                                                ptszBuf, ctch) ||
+                VerQueryValue(pvData, TEXT("\\VarFileInfo\\Translation"), (LPVOID)&rgwTrans, &uiSize)) {
+                if (Control_VerQueryDescription(pvData, rgwTrans[0], rgwTrans[1], ptszBuf, ctch) ||
                     /*
                      *  Lots of morons forget to set the language properly,
                      *  so we will try English/USA regardless.  And if that

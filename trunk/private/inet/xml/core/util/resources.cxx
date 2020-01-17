@@ -194,7 +194,6 @@ Resources::GetVersion(String* fileName, VerInfo& auiVersion)
     bool result = false;
     if (0<(GetFullPathNameA((char *)AsciiText(fileName), MAX_PATH, szFileBuffer, NULL))) {
         dwInfo = GetFileVersionInfoSizeA(szFileBuffer,&dwJunk);
-
         if (dwInfo>0) {
             if (TRUE==GetFileVersionInfoA(szFileBuffer,0,MAX_PATH,szBuffer)) {
                 goo = dwInfo;

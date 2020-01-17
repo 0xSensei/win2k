@@ -81,9 +81,7 @@ BOOL GetVersion(LPCONTROLPIDL pcpidl, LPTSTR lpszBuf)
     // Quick copy to handle failure cases
     lstrcpy(lpszBuf, g_szUnknownData);
 
-        if ((dwBufLen = ::GetFileVersionInfoSize(
-                                        (LPTSTR)pszLocation,
-                                        &dwHandle)) == 0)
+        if ((dwBufLen = ::GetFileVersionInfoSize((LPTSTR)pszLocation, &dwHandle)) == 0)
         return FALSE;
 
         lpvData = (LPVOID) new BYTE[dwBufLen];
@@ -91,11 +89,7 @@ BOOL GetVersion(LPCONTROLPIDL pcpidl, LPTSTR lpszBuf)
         if (lpvData == NULL)
                 return FALSE;
 
-        if (GetFileVersionInfo(
-                       (LPTSTR)pszLocation,
-                       dwHandle,
-                       dwBufLen,
-                       lpvData))
+        if (GetFileVersionInfo((LPTSTR)pszLocation, dwHandle, dwBufLen, lpvData))
         {
                 fResult = VerQueryValue(lpvData, "\\", (LPVOID*)&pVersionInfo, &uLen);
 

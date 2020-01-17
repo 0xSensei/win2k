@@ -3614,8 +3614,7 @@ STATIC INT_PTR PASCAL GetVerDesc (LPCTSTR pstrFile, LPTSTR pstrDesc)
 
 
        // Get the File Version first
-        if (GetFileVersionInfo (pstrFile, 0L,
-                    dwVerInfoSize, lpVffInfo))
+        if (GetFileVersionInfo (pstrFile, 0L, dwVerInfoSize, lpVffInfo))
         {
         static SZCODE cszFileDescr[] = TEXT ("\\StringFileInfo\\040904E4\\FileDescription");
         TCHAR   szBuf[MAX_PATH];
