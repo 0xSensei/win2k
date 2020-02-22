@@ -1,15 +1,8 @@
-
-
 //  Microsoft Windows
 //  Copyright (C) Microsoft Corporation, 1992 - 1993.
-
 //  File:       shell.c
-
 //  Contents:   Microsoft Logon GUI DLL
-
 //  History:    7-14-94   RichardW   Created
-
-
 
 #include "precomp.h"
 #pragma hdrstop
@@ -64,10 +57,7 @@ ExecApplication(
     BOOL Result, IgnoreResult;
     HANDLE ImpersonationHandle;
 
-
-
     // Initialize process startup info
-
     si.cb = sizeof(STARTUPINFO);
     si.lpReserved = pch;
     si.lpTitle = pch;
@@ -78,21 +68,14 @@ ExecApplication(
     si.cbReserved2 = 0;
     si.lpDesktop = Desktop;
 
-
-    // Impersonate the user so we get access checked correctly on
-    // the file we're trying to execute
-
-
+    // Impersonate the user so we get access checked correctly on the file we're trying to execute
     ImpersonationHandle = ImpersonateUser(&pTerm->pWinStaWinlogon->UserProcessData, NULL);
     if (ImpersonationHandle == NULL) {
         DebugLog((DEB_ERROR, "ExecApplication failed to impersonate user\n"));
         return(FALSE);
     }
 
-
-
     // Create the app suspended
-
     DebugLog((DEB_TRACE, "About to create process of %ws, on desktop %ws\n", pch, Desktop));
     Result = CreateProcessAsUser(
                       pTerm->pWinStaWinlogon->UserProcessData.UserToken,
@@ -107,24 +90,13 @@ ExecApplication(
                       &si,
                       ProcessInformation);
 
-
     IgnoreResult = StopImpersonating(ImpersonationHandle);
     ASSERT(IgnoreResult);
-
     return(Result);
-
 }
 
 
-
-BOOL
-WINAPI
-WlxStartApplication(
-    PVOID                   pWlxContext,
-    PWSTR                   pszDesktop,
-    PVOID                   pEnvironment,
-    PWSTR                   pszCmdLine
-    )
+BOOL WINAPI WlxStartApplication(PVOID pWlxContext, PWSTR pszDesktop, PVOID pEnvironment, PWSTR pszCmdLine)
 {
     PROCESS_INFORMATION ProcessInformation;
     BOOL   bExec;
@@ -136,20 +108,16 @@ WlxStartApplication(
                              0,
                              STARTF_USESHOWWINDOW,
                              &ProcessInformation);
-
     if (!bExec) {
         return(FALSE);
     }
 
-    if (SetProcessQuotas(&ProcessInformation,
-                         &g_pTerminals->pWinStaWinlogon->UserProcessData)) {
+    if (SetProcessQuotas(&ProcessInformation, &g_pTerminals->pWinStaWinlogon->UserProcessData)) {
         ResumeThread(ProcessInformation.hThread);
 
     } else {
-        TerminateProcess(ProcessInformation.hProcess,
-                        ERROR_ACCESS_DENIED);
+        TerminateProcess(ProcessInformation.hProcess, ERROR_ACCESS_DENIED);
     }
-
 
     CloseHandle(ProcessInformation.hThread);
     CloseHandle(ProcessInformation.hProcess);

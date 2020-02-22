@@ -1,20 +1,7 @@
-
-
 //  Microsoft Windows
 //  Copyright (C) Microsoft Corporation, 1992 - 1993.
-
 //  File:       logon32.c
-
-//  Contents:
-
-//  Classes:
-
-//  Functions:
-
 //  History:    9-30-94   RichardW   Created
-
-
-
 
 #include "advapi.h"
 #include <crypt.h>
@@ -27,26 +14,21 @@
 
 #define SECURITY_WIN32
 #include <security.h>
-
 #include <windows.h>
-
 #include <winbase.h>
 #include <execsrv.h>
-
-
 
 // We dynamically load mpr.dll (no big surprise there), in order to call
 // WNetLogonNotify, as defined in private\inc\mpr.h.  This prototype matches
 // it -- consult the header file for all the parameters.
 
-typedef (* LOGONNOTIFYFN)(LPCWSTR, PLUID, LPCWSTR, LPVOID,
-                            LPCWSTR, LPVOID, LPWSTR, LPVOID, LPWSTR *);
+typedef (*LOGONNOTIFYFN)(LPCWSTR, PLUID, LPCWSTR, LPVOID,
+                         LPCWSTR, LPVOID, LPWSTR, LPVOID, LPWSTR*);
 
 
 // The QuotaLimits are global, because the defaults
 // are always used for accounts, based on server/wksta, and no one ever
 // calls lsasetaccountquota
-
 
 HANDLE      Logon32LsaHandle = NULL;
 ULONG       Logon32MsvHandle = 0xFFFFFFFF;
@@ -58,50 +40,31 @@ QUOTA_LIMITS    Logon32QuotaLimits;
 HINSTANCE       Logon32MprHandle = NULL;
 LOGONNOTIFYFN   Logon32LogonNotify = NULL;
 
-
 RTL_CRITICAL_SECTION    Logon32Lock;
 
 #define LockLogon()     RtlEnterCriticalSection( &Logon32Lock )
 #define UnlockLogon()   RtlLeaveCriticalSection( &Logon32Lock )
 
-
 SID_IDENTIFIER_AUTHORITY L32SystemSidAuthority = SECURITY_NT_AUTHORITY;
 SID_IDENTIFIER_AUTHORITY L32LocalSidAuthority = SECURITY_LOCAL_SID_AUTHORITY;
-
-
 
 #define COMMON_CREATE_SUSPENDED 0x00000001  // Suspended, do not Resume()
 #define COMMON_CREATE_PROCESSSD 0x00000002  // Whack the process SD
 #define COMMON_CREATE_THREADSD  0x00000004  // Whack the thread SD
 
 
-
-
-
 //  Function:   Logon32Initialize
-
 //  Synopsis:   Initializes the critical section
-
-//  Arguments:  [hMod]    --
-//              [Reason]  --
-//              [Context] --
-
-
-BOOL
-Logon32Initialize(
-    IN PVOID    hMod,
-    IN ULONG    Reason,
-    IN PCONTEXT Context)
+BOOL Logon32Initialize(IN PVOID    hMod, IN ULONG    Reason, IN PCONTEXT Context)
 {
     NTSTATUS    Status;
 
-    if (Reason == DLL_PROCESS_ATTACH)
-    {
-        Status = RtlInitializeCriticalSection( &Logon32Lock );
-        return( Status == STATUS_SUCCESS );
+    if (Reason == DLL_PROCESS_ATTACH) {
+        Status = RtlInitializeCriticalSection(&Logon32Lock);
+        return(Status == STATUS_SUCCESS);
     }
 
-    return( TRUE );
+    return(TRUE);
 }
 
 
@@ -116,50 +79,33 @@ Logon32Initialize(
 * History:
 * 12-05-91 Davidc       Created
 */
-PSID
-L32CreateLogonSid(
-    PLUID LogonId OPTIONAL
-    )
+PSID L32CreateLogonSid(PLUID LogonId OPTIONAL)
 {
     NTSTATUS Status;
     ULONG   Length;
     PSID    Sid;
     LUID    Luid;
 
-
     // Generate a locally unique id to include in the logon sid
-
-
     Status = NtAllocateLocallyUniqueId(&Luid);
     if (!NT_SUCCESS(Status)) {
         return(NULL);
     }
 
-
-
     // Allocate space for the sid and fill it in.
-
-
     Length = RtlLengthRequiredSid(SECURITY_LOGON_IDS_RID_COUNT);
-
     Sid = (PSID)LocalAlloc(LMEM_FIXED, Length);
-
     if (Sid != NULL) {
-
         RtlInitializeSid(Sid, &L32SystemSidAuthority, SECURITY_LOGON_IDS_RID_COUNT);
 
         ASSERT(SECURITY_LOGON_IDS_RID_COUNT == 3);
 
         *(RtlSubAuthoritySid(Sid, 0)) = SECURITY_LOGON_IDS_RID;
-        *(RtlSubAuthoritySid(Sid, 1 )) = Luid.HighPart;
-        *(RtlSubAuthoritySid(Sid, 2 )) = Luid.LowPart;
+        *(RtlSubAuthoritySid(Sid, 1)) = Luid.HighPart;
+        *(RtlSubAuthoritySid(Sid, 2)) = Luid.LowPart;
     }
 
-
-
     // Return the logon LUID if required.
-
-
     if (LogonId != NULL) {
         *LogonId = Luid;
     }
@@ -169,7 +115,6 @@ L32CreateLogonSid(
 
 
 /*
-
     NAME:       GetDefaultDomainName
 
     SYNOPSIS:   Fills in the given array with the name of the default
@@ -186,110 +131,77 @@ L32CreateLogonSid(
     HISTORY:
         KeithMo     05-Dec-1994 Created.
         RichardW    10-Jan-95   Liberated from sockets and stuck in base
-
 */
-BOOL
-L32GetDefaultDomainName(
-    PUNICODE_STRING     pDomainName
-    )
+BOOL L32GetDefaultDomainName(PUNICODE_STRING     pDomainName)
 {
     OBJECT_ATTRIBUTES           ObjectAttributes;
     NTSTATUS                    NtStatus;
     INT                         Result;
-    DWORD                       err             = 0;
+    DWORD                       err = 0;
     LSA_HANDLE                  LsaPolicyHandle = NULL;
-    PPOLICY_ACCOUNT_DOMAIN_INFO DomainInfo      = NULL;
+    PPOLICY_ACCOUNT_DOMAIN_INFO DomainInfo = NULL;
     PUNICODE_STRING             pDomain;
 
-    if (Logon32DomainName[0] != L'\0')
-    {
+    if (Logon32DomainName[0] != L'\0') {
         RtlInitUnicodeString(pDomainName, Logon32DomainName);
         return(TRUE);
     }
 
     //  Open a handle to the local machine's LSA policy object.
+    InitializeObjectAttributes(&ObjectAttributes,  // object attributes
+                               NULL,               // name
+                               0L,                 // attributes
+                               NULL,               // root directory
+                               NULL);             // security descriptor
 
-
-    InitializeObjectAttributes( &ObjectAttributes,  // object attributes
-                                NULL,               // name
-                                0L,                 // attributes
-                                NULL,               // root directory
-                                NULL );             // security descriptor
-
-    NtStatus = LsaOpenPolicy( NULL,                 // system name
-                              &ObjectAttributes,    // object attributes
-                              POLICY_EXECUTE,       // access mask
-                              &LsaPolicyHandle );   // policy handle
-
-    if( !NT_SUCCESS( NtStatus ) )
-    {
+    NtStatus = LsaOpenPolicy(NULL,                 // system name
+                             &ObjectAttributes,    // object attributes
+                             POLICY_EXECUTE,       // access mask
+                             &LsaPolicyHandle);   // policy handle
+    if (!NT_SUCCESS(NtStatus)) {
         BaseSetLastNTError(NtStatus);
         return(FALSE);
     }
 
-
     //  Query the domain information from the policy object.
-
-    NtStatus = LsaQueryInformationPolicy( LsaPolicyHandle,
-                                          PolicyAccountDomainInformation,
-                                          (PVOID *) &DomainInfo );
-
-    if (!NT_SUCCESS(NtStatus))
-    {
+    NtStatus = LsaQueryInformationPolicy(LsaPolicyHandle,
+                                         PolicyAccountDomainInformation,
+                                         (PVOID*)&DomainInfo);
+    if (!NT_SUCCESS(NtStatus)) {
         BaseSetLastNTError(NtStatus);
         LsaClose(LsaPolicyHandle);
         return(FALSE);
     }
 
-
-    (void) LsaClose(LsaPolicyHandle);
-
-
+    (void)LsaClose(LsaPolicyHandle);
     // Copy the domain name into our cache, and
 
-
-    CopyMemory( Logon32DomainName,
-                DomainInfo->DomainName.Buffer,
-                DomainInfo->DomainName.Length );
-
+    CopyMemory(Logon32DomainName,
+               DomainInfo->DomainName.Buffer,
+               DomainInfo->DomainName.Length);
 
     // Null terminate it appropriately
-
-
     Logon32DomainName[DomainInfo->DomainName.Length / sizeof(WCHAR)] = L'\0';
 
-
     // Clean up
-
-    LsaFreeMemory( (PVOID)DomainInfo );
-
+    LsaFreeMemory((PVOID)DomainInfo);
 
     // And init the string
-
     RtlInitUnicodeString(pDomainName, Logon32DomainName);
 
     return TRUE;
-
 }   // GetDefaultDomainName
 
 
 
 //  Function:   L32pInitLsa
-
 //  Synopsis:   Initialize connection with LSA
-
 //  Arguments:  (none)
-
 //  History:    4-21-95   RichardW   Created
-
-//  Notes:
-
-
-BOOL
-L32pInitLsa(void)
+BOOL L32pInitLsa(void)
 {
     char    MyName[MAX_PATH];
-    char *  ModuleName;
+    char* ModuleName;
     STRING  LogonProcessName;
     STRING  PackageName;
     ULONG   dummy;
@@ -301,107 +213,67 @@ L32pInitLsa(void)
     BOOL fReverted = FALSE; // did we RevertToSelf() during call?
     HANDLE hPreviousToken = NULL;
 
-
     // three SeTcbPrivilege scenarios:
     // 1. present in process token, thread not impersonating.
     // 2. present in process token, thread is impersonating.
     // 3. present in thread token.
 
-
-
     // try in this order:
     // process token (original method).
     // if thread impersonating, thread token
     // if thread impersonating, process token after reverting.
-
-
     Status = RtlAdjustPrivilege(SE_TCB_PRIVILEGE, TRUE, FALSE, &WasEnabled);
-
-    if (!NT_SUCCESS(Status))
-    {
+    if (!NT_SUCCESS(Status)) {
         NTSTATUS TempStatus;
 
-        TempStatus = NtOpenThreadToken(
-                         NtCurrentThread(),
-                         TOKEN_IMPERSONATE,
-                         FALSE,
-                         &hPreviousToken
-                         );
-
-        if( !NT_SUCCESS(TempStatus) ) {
-
-
+        TempStatus = NtOpenThreadToken(NtCurrentThread(), TOKEN_IMPERSONATE, FALSE, &hPreviousToken);
+        if (!NT_SUCCESS(TempStatus)) {
             // retry with accesscheck against process.
-
-
-            if( TempStatus != STATUS_ACCESS_DENIED )
+            if (TempStatus != STATUS_ACCESS_DENIED)
                 goto Cleanup;
 
-            TempStatus = NtOpenThreadToken(
-                            NtCurrentThread(),
-                            TOKEN_IMPERSONATE,
-                            TRUE,
-                            &hPreviousToken
-                            );
-
-            if( !NT_SUCCESS(TempStatus) )
+            TempStatus = NtOpenThreadToken(NtCurrentThread(), TOKEN_IMPERSONATE, TRUE, &hPreviousToken);
+            if (!NT_SUCCESS(TempStatus))
                 goto Cleanup;
         }
 
-
         // thread token is present.
         // first, try enabling the privilege in the thread token.
-
-
         fThread = TRUE;
-
         Status = RtlAdjustPrivilege(SE_TCB_PRIVILEGE, TRUE, fThread, &WasEnabled);
-
-        if( !NT_SUCCESS(Status) ) {
-
+        if (!NT_SUCCESS(Status)) {
             HANDLE NewToken = NULL;
 
-
             // if that fails, try reverting and enabling privilege in process token.
-
-
             TempStatus = NtSetInformationThread(
-                            NtCurrentThread(),
-                            ThreadImpersonationToken,
-                            &NewToken,
-                            sizeof(NewToken)
-                            );
-
-            if( !NT_SUCCESS(TempStatus) )
+                NtCurrentThread(),
+                ThreadImpersonationToken,
+                &NewToken,
+                sizeof(NewToken));
+            if (!NT_SUCCESS(TempStatus))
                 goto Cleanup;
 
             fThread = FALSE;
             fReverted = TRUE;
-
             Status = RtlAdjustPrivilege(SE_TCB_PRIVILEGE, TRUE, fThread, &WasEnabled);
-            if( !NT_SUCCESS(Status) )
+            if (!NT_SUCCESS(Status))
                 goto Cleanup;
         }
     }
 
     GetModuleFileNameA(NULL, MyName, MAX_PATH);
     ModuleName = strrchr(MyName, '\\');
-    if (!ModuleName)
-    {
+    if (!ModuleName) {
         ModuleName = MyName;
     }
 
     // Hookup to the LSA and locate our authentication package.
     RtlInitString(&LogonProcessName, ModuleName);
-    Status = LsaRegisterLogonProcess(
-                 &LogonProcessName,
-                 &Logon32LsaHandle,
-                 &dummy
-                 );
+    Status = LsaRegisterLogonProcess(&LogonProcessName, &Logon32LsaHandle, &dummy);
 
     // Turn off the privilege now.
-    if( !WasEnabled ) {
-        (VOID) RtlAdjustPrivilege(SE_TCB_PRIVILEGE, FALSE, fThread, &WasEnabled);
+    if (!WasEnabled) {
+        (VOID)RtlAdjustPrivilege(SE_TCB_PRIVILEGE, FALSE, fThread, &WasEnabled);
     }
 
     if (!NT_SUCCESS(Status)) {
@@ -411,36 +283,38 @@ L32pInitLsa(void)
 
     // Connect with the MSV1_0 authentication package
     RtlInitString(&PackageName, "MICROSOFT_AUTHENTICATION_PACKAGE_V1_0");
-    Status = LsaLookupAuthenticationPackage (Logon32LsaHandle, &PackageName, &Logon32MsvHandle);
+    Status = LsaLookupAuthenticationPackage(Logon32LsaHandle, &PackageName, &Logon32MsvHandle);
     if (!NT_SUCCESS(Status)) {
         goto Cleanup;
     }
 
     // Connect with the Negotiate authentication package
     RtlInitString(&PackageName, NEGOSSP_NAME_A);
-    Status = LsaLookupAuthenticationPackage (Logon32LsaHandle, &PackageName, &Logon32NegoHandle);
+    Status = LsaLookupAuthenticationPackage(Logon32LsaHandle, &PackageName, &Logon32NegoHandle);
     if (!NT_SUCCESS(Status)) {
         goto Cleanup;
     }
 
 Cleanup:
-    if( hPreviousToken ) {
-        if( fReverted ) {
-
+    if (hPreviousToken) {
+        if (fReverted) {
             // put old token back...
-            (VOID) NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, &hPreviousToken, sizeof(hPreviousToken));
+            (VOID)NtSetInformationThread(NtCurrentThread(), 
+                                         ThreadImpersonationToken,
+                                         &hPreviousToken,
+                                         sizeof(hPreviousToken));
         }
 
-        NtClose( hPreviousToken );
+        NtClose(hPreviousToken);
     }
 
-    if( !NT_SUCCESS(Status) ) {
-        if( Logon32LsaHandle ) {
-            (VOID) LsaDeregisterLogonProcess( Logon32LsaHandle );
+    if (!NT_SUCCESS(Status)) {
+        if (Logon32LsaHandle) {
+            (VOID)LsaDeregisterLogonProcess(Logon32LsaHandle);
             Logon32LsaHandle = NULL;
         }
 
-        BaseSetLastNTError( Status );
+        BaseSetLastNTError(Status);
         return FALSE;
     }
 
@@ -448,105 +322,61 @@ Cleanup:
 }
 
 
-
 //  Function:   L32pNotifyMpr
-
 //  Synopsis:   Loads the MPR DLL and notifies the network providers (like
 //              csnw) so they know about this logon session and the credentials
-
 //  Arguments:  [NewLogon] -- New logon information
 //              [LogonId]  -- Logon ID
-
 //  History:    4-24-95   RichardW   Created
-
-//  Notes:
-
-
-BOOL
-L32pNotifyMpr(
-    PMSV1_0_INTERACTIVE_LOGON   NewLogon,
-    PLUID                       LogonId
-    )
+BOOL L32pNotifyMpr(PMSV1_0_INTERACTIVE_LOGON   NewLogon, PLUID                       LogonId)
 {
     MSV1_0_INTERACTIVE_LOGON    OldLogon;
     LPWSTR                      LogonScripts;
     DWORD                       status;
 
-    if ( Logon32MprHandle == NULL )
-    {
+    if (Logon32MprHandle == NULL) {
         LockLogon();
 
-        if ( Logon32MprHandle == NULL)
-        {
-            Logon32MprHandle =  LoadLibrary("mpr.dll");
+        if (Logon32MprHandle == NULL) {
+            Logon32MprHandle = LoadLibrary("mpr.dll");
             if (Logon32MprHandle != NULL) {
 
-                Logon32LogonNotify = (LOGONNOTIFYFN) GetProcAddress(
-                                        Logon32MprHandle,
-                                        "WNetLogonNotify");
-
+                Logon32LogonNotify = (LOGONNOTIFYFN)GetProcAddress(Logon32MprHandle, "WNetLogonNotify");
             }
         }
 
         UnlockLogon();
-
     }
 
-    if ( Logon32LogonNotify != NULL )
-    {
-
-
+    if (Logon32LogonNotify != NULL) {
         CopyMemory(&OldLogon, NewLogon, sizeof(OldLogon));
 
         status = Logon32LogonNotify(
-                        L"Windows NT Network Provider",
-                        LogonId,
-                        L"MSV1_0:Interactive",
-                        (LPVOID)NewLogon,
-                        L"MSV1_0:Interactive",
-                        (LPVOID)&OldLogon,
-                        L"SvcCtl",          // StationName
-                        NULL,               // StationHandle
-                        &LogonScripts);     // LogonScripts
-
+            L"Windows NT Network Provider",
+            LogonId,
+            L"MSV1_0:Interactive",
+            (LPVOID)NewLogon,
+            L"MSV1_0:Interactive",
+            (LPVOID)&OldLogon,
+            L"SvcCtl",          // StationName
+            NULL,               // StationHandle
+            &LogonScripts);     // LogonScripts
         if (status == NO_ERROR) {
-            if (LogonScripts != NULL ) {
-                (void) LocalFree(LogonScripts);
+            if (LogonScripts != NULL) {
+                (void)LocalFree(LogonScripts);
             }
         }
 
-        return( TRUE );
+        return(TRUE);
     }
 
-    return( FALSE );
+    return(FALSE);
 }
 
 
-
-
 //  Function:   L32pLogonUser
-
 //  Synopsis:   Wraps up the call to LsaLogonUser
-
-//  Arguments:  [LsaHandle]             --
-//              [AuthenticationPackage] --
-//              [LogonType]             --
-//              [UserName]              --
-//              [Domain]                --
-//              [Password]              --
-//              [LogonSid]              --
-//              [LogonId]               --
-//              [LogonToken]            --
-//              [Quotas]                --
-//              [pProfileBuffer]        --
-//              [pProfileBufferLength]  --
-//              [pSubStatus]            --
-
 //  History:    4-24-95   RichardW   Created
-
-//  Notes:
-
-
 NTSTATUS
 L32pLogonUser(
     IN HANDLE LsaHandle,
@@ -559,10 +389,10 @@ L32pLogonUser(
     OUT PLUID LogonId,
     OUT PHANDLE LogonToken,
     OUT PQUOTA_LIMITS Quotas,
-    OUT PVOID *pProfileBuffer,
+    OUT PVOID* pProfileBuffer,
     OUT PULONG pProfileBufferLength,
     OUT PNTSTATUS pSubStatus
-    )
+)
 {
     NTSTATUS Status;
     STRING OriginName;
@@ -573,7 +403,7 @@ L32pLogonUser(
     ULONG AuthInfoSize;
     PTOKEN_GROUPS TokenGroups;
     PSID LocalSid;
-    WCHAR ComputerName[ MAX_COMPUTERNAME_LENGTH + 1 ];
+    WCHAR ComputerName[MAX_COMPUTERNAME_LENGTH + 1];
     DWORD ComputerNameLength;
 
     union {
@@ -583,395 +413,239 @@ L32pLogonUser(
 
     NT_OWF_PASSWORD PasswordHash;
     OEM_STRING  LmPassword;
-    UCHAR       LmPasswordBuf[ LM20_PWLEN + 1 ];
+    UCHAR       LmPasswordBuf[LM20_PWLEN + 1];
     LM_OWF_PASSWORD LmPasswordHash;
 
-
 #if DBG
-    if (!RtlValidSid(LogonSid))
-    {
+    if (!RtlValidSid(LogonSid)) {
         return(STATUS_INVALID_PARAMETER);
     }
 #endif
 
-
     // Initialize source context structure
-
-
     strncpy(SourceContext.SourceName, "Advapi  ", sizeof(SourceContext.SourceName)); // LATER from res file
 
     Status = NtAllocateLocallyUniqueId(&SourceContext.SourceIdentifier);
-
     if (!NT_SUCCESS(Status)) {
         return(Status);
     }
 
-
-
-
     // Set logon origin
-
-
     RtlInitString(&OriginName, "LogonUser API");
 
-
-
     // For network logons, do the magic.
-
-
-    if ( ( LogonType == Network ) &&
-         ( AuthenticationPackage == Logon32MsvHandle ) )
-    {
+    if ((LogonType == Network) && (AuthenticationPackage == Logon32MsvHandle)) {
         ComputerNameLength = MAX_COMPUTERNAME_LENGTH + 1;
 
-        if (!GetComputerNameW( ComputerName, &ComputerNameLength ) )
-        {
-            return( STATUS_INVALID_PARAMETER );
+        if (!GetComputerNameW(ComputerName, &ComputerNameLength)) {
+            return(STATUS_INVALID_PARAMETER);
         }
 
-        AuthInfoSize = sizeof( MSV1_0_LM20_LOGON ) +
-                         UserName->Length +
-                         Domain->Length +
-                         sizeof(WCHAR) * (ComputerNameLength + 1) +
-                         NT_RESPONSE_LENGTH +
-                         LM_RESPONSE_LENGTH ;
-        MsvNetAuthInfo = AuthInfoBuf = RtlAllocateHeap( RtlProcessHeap(), HEAP_ZERO_MEMORY, AuthInfoSize );
-        if ( !MsvNetAuthInfo )
-        {
-            return( STATUS_NO_MEMORY );
+        AuthInfoSize = sizeof(MSV1_0_LM20_LOGON) +
+            UserName->Length +
+            Domain->Length +
+            sizeof(WCHAR) * (ComputerNameLength + 1) +
+            NT_RESPONSE_LENGTH +
+            LM_RESPONSE_LENGTH;
+        MsvNetAuthInfo = AuthInfoBuf = RtlAllocateHeap(RtlProcessHeap(), HEAP_ZERO_MEMORY, AuthInfoSize);
+        if (!MsvNetAuthInfo) {
+            return(STATUS_NO_MEMORY);
         }
-
 
         // Start packing in the string
-
-
         MsvNetAuthInfo->MessageType = MsV1_0NetworkLogon;
 
-
         // Copy the user name into the authentication buffer
+        MsvNetAuthInfo->UserName.Length = UserName->Length;
+        MsvNetAuthInfo->UserName.MaximumLength = MsvNetAuthInfo->UserName.Length;
 
-
-        MsvNetAuthInfo->UserName.Length =
-                    UserName->Length;
-        MsvNetAuthInfo->UserName.MaximumLength =
-                    MsvNetAuthInfo->UserName.Length;
-
-        MsvNetAuthInfo->UserName.Buffer = (PWSTR)(MsvNetAuthInfo+1);
-        RtlCopyMemory(
-            MsvNetAuthInfo->UserName.Buffer,
-            UserName->Buffer,
-            UserName->Length
-            );
-
-
+        MsvNetAuthInfo->UserName.Buffer = (PWSTR)(MsvNetAuthInfo + 1);
+        RtlCopyMemory(MsvNetAuthInfo->UserName.Buffer, UserName->Buffer, UserName->Length);
 
         // Copy the domain name into the authentication buffer
-
-
         MsvNetAuthInfo->LogonDomainName.Length = Domain->Length;
-        MsvNetAuthInfo->LogonDomainName.MaximumLength = Domain->Length ;
+        MsvNetAuthInfo->LogonDomainName.MaximumLength = Domain->Length;
 
         MsvNetAuthInfo->LogonDomainName.Buffer = (PWSTR)
-                                     ((PBYTE)(MsvNetAuthInfo->UserName.Buffer) +
-                                     MsvNetAuthInfo->UserName.MaximumLength);
+            ((PBYTE)(MsvNetAuthInfo->UserName.Buffer) +
+             MsvNetAuthInfo->UserName.MaximumLength);
 
-        RtlCopyMemory(
-            MsvNetAuthInfo->LogonDomainName.Buffer,
-            Domain->Buffer,
-            Domain->Length);
-
+        RtlCopyMemory(MsvNetAuthInfo->LogonDomainName.Buffer, Domain->Buffer, Domain->Length);
 
         // Copy the workstation name into the buffer
+        MsvNetAuthInfo->Workstation.Length = (USHORT)(sizeof(WCHAR) * ComputerNameLength);
 
-
-        MsvNetAuthInfo->Workstation.Length = (USHORT)
-                            (sizeof(WCHAR) * ComputerNameLength);
-
-        MsvNetAuthInfo->Workstation.MaximumLength =
-                            MsvNetAuthInfo->Workstation.Length + sizeof(WCHAR);
+        MsvNetAuthInfo->Workstation.MaximumLength = MsvNetAuthInfo->Workstation.Length + sizeof(WCHAR);
 
         MsvNetAuthInfo->Workstation.Buffer = (PWSTR)
-                            ((PBYTE) (MsvNetAuthInfo->LogonDomainName.Buffer) +
-                            MsvNetAuthInfo->LogonDomainName.MaximumLength );
+            ((PBYTE)(MsvNetAuthInfo->LogonDomainName.Buffer) + MsvNetAuthInfo->LogonDomainName.MaximumLength);
 
-        wcscpy( MsvNetAuthInfo->Workstation.Buffer, ComputerName );
-
+        wcscpy(MsvNetAuthInfo->Workstation.Buffer, ComputerName);
 
         // Now, generate the bits for the challenge
-
-
-        Status = NtAllocateLocallyUniqueId( &Challenge.Luid );
-
-        if ( !NT_SUCCESS(Status) )
-        {
-            RtlFreeHeap( RtlProcessHeap(), 0, MsvNetAuthInfo );
-
-            return( Status );
+        Status = NtAllocateLocallyUniqueId(&Challenge.Luid);
+        if (!NT_SUCCESS(Status)) {
+            RtlFreeHeap(RtlProcessHeap(), 0, MsvNetAuthInfo);
+            return(Status);
         }
 
-        RtlCopyMemory(  MsvNetAuthInfo->ChallengeToClient,
-                        & Challenge,
-                        MSV1_0_CHALLENGE_LENGTH );
-
+        RtlCopyMemory(MsvNetAuthInfo->ChallengeToClient,
+                      &Challenge,
+                      MSV1_0_CHALLENGE_LENGTH);
 
         // Set up space for response
 
-
         MsvNetAuthInfo->CaseSensitiveChallengeResponse.Buffer = (PUCHAR)
-                    ((PBYTE) (MsvNetAuthInfo->Workstation.Buffer) +
-                    MsvNetAuthInfo->Workstation.MaximumLength );
+            ((PBYTE)(MsvNetAuthInfo->Workstation.Buffer) +
+             MsvNetAuthInfo->Workstation.MaximumLength);
 
         MsvNetAuthInfo->CaseSensitiveChallengeResponse.Length =
-                            NT_RESPONSE_LENGTH;
+            NT_RESPONSE_LENGTH;
 
         MsvNetAuthInfo->CaseSensitiveChallengeResponse.MaximumLength =
-                            NT_RESPONSE_LENGTH;
+            NT_RESPONSE_LENGTH;
 
-        RtlCalculateNtOwfPassword(
-                    Password,
-                    & PasswordHash );
+        RtlCalculateNtOwfPassword(Password, &PasswordHash);
 
         RtlCalculateNtResponse(
-                & Challenge.NtChallenge,
-                & PasswordHash,
-                (PNT_RESPONSE) MsvNetAuthInfo->CaseSensitiveChallengeResponse.Buffer );
+            &Challenge.NtChallenge,
+            &PasswordHash,
+            (PNT_RESPONSE)MsvNetAuthInfo->CaseSensitiveChallengeResponse.Buffer);
 
         // Now do the painful LM compatible hash, so anyone who is maintaining
         // their account from a WfW machine will still have a password.
         LmPassword.Buffer = LmPasswordBuf;
         LmPassword.Length = LmPassword.MaximumLength = LM20_PWLEN + 1;
 
-        Status = RtlUpcaseUnicodeStringToOemString(& LmPassword, Password, FALSE );
-        if ( NT_SUCCESS(Status) )
-        {
+        Status = RtlUpcaseUnicodeStringToOemString(&LmPassword, Password, FALSE);
+        if (NT_SUCCESS(Status)) {
             MsvNetAuthInfo->CaseInsensitiveChallengeResponse.Buffer = (PUCHAR)
-               ((PBYTE) (MsvNetAuthInfo->CaseSensitiveChallengeResponse.Buffer) +
-               MsvNetAuthInfo->CaseSensitiveChallengeResponse.MaximumLength );
+                ((PBYTE)(MsvNetAuthInfo->CaseSensitiveChallengeResponse.Buffer) +
+                 MsvNetAuthInfo->CaseSensitiveChallengeResponse.MaximumLength);
 
-            MsvNetAuthInfo->CaseInsensitiveChallengeResponse.Length =
-                            LM_RESPONSE_LENGTH;
+            MsvNetAuthInfo->CaseInsensitiveChallengeResponse.Length = LM_RESPONSE_LENGTH;
+            MsvNetAuthInfo->CaseInsensitiveChallengeResponse.MaximumLength = LM_RESPONSE_LENGTH;
+            RtlCalculateLmOwfPassword(LmPassword.Buffer, &LmPasswordHash);
 
-            MsvNetAuthInfo->CaseInsensitiveChallengeResponse.MaximumLength =
-                            LM_RESPONSE_LENGTH;
-
-
-            RtlCalculateLmOwfPassword(
-                        LmPassword.Buffer,
-                        & LmPasswordHash );
-
-            ZeroMemory( LmPassword.Buffer, LmPassword.Length );
+            ZeroMemory(LmPassword.Buffer, LmPassword.Length);
 
             RtlCalculateLmResponse(
-                        & Challenge.NtChallenge,
-                        & LmPasswordHash,
-                        (PLM_RESPONSE) MsvNetAuthInfo->CaseInsensitiveChallengeResponse.Buffer );
-
-        }
-        else
-        {
-
+                &Challenge.NtChallenge,
+                &LmPasswordHash,
+                (PLM_RESPONSE)MsvNetAuthInfo->CaseInsensitiveChallengeResponse.Buffer);
+        } else {
             // If we're here, the NT (supplied) password is longer than the
             // limit allowed for LM passwords.  NULL out the field, so that
             // MSV knows not to worry about it.
 
-
-            RtlZeroMemory( &MsvNetAuthInfo->CaseInsensitiveChallengeResponse,
-                           sizeof( STRING ) );
+            RtlZeroMemory(&MsvNetAuthInfo->CaseInsensitiveChallengeResponse, sizeof(STRING));
         }
-
-    }
-    else
-    {
-
+    } else {
         // Build logon structure for non-network logons - service,
         // batch, interactive, unlock, new credentials, networkcleartext
 
-
         AuthInfoSize = sizeof(MSV1_0_INTERACTIVE_LOGON) +
-                        UserName->Length +
-                        Domain->Length +
-                        Password->Length;
-
+            UserName->Length +
+            Domain->Length +
+            Password->Length;
         MsvAuthInfo = AuthInfoBuf = RtlAllocateHeap(RtlProcessHeap(), HEAP_ZERO_MEMORY, AuthInfoSize);
         if (MsvAuthInfo == NULL) {
             return(STATUS_NO_MEMORY);
         }
 
-
         // This authentication buffer will be used for a logon attempt
-
-
         MsvAuthInfo->MessageType = MsV1_0InteractiveLogon;
 
-
-
         // Copy the user name into the authentication buffer
-
-
         MsvAuthInfo->UserName.Length = UserName->Length;
-        MsvAuthInfo->UserName.MaximumLength =
-                    MsvAuthInfo->UserName.Length;
+        MsvAuthInfo->UserName.MaximumLength = MsvAuthInfo->UserName.Length;
 
-        MsvAuthInfo->UserName.Buffer = (PWSTR)(MsvAuthInfo+1);
-        RtlCopyMemory(
-            MsvAuthInfo->UserName.Buffer,
-            UserName->Buffer,
-            UserName->Length
-            );
-
-
+        MsvAuthInfo->UserName.Buffer = (PWSTR)(MsvAuthInfo + 1);
+        RtlCopyMemory(MsvAuthInfo->UserName.Buffer, UserName->Buffer, UserName->Length);
 
         // Copy the domain name into the authentication buffer
-
-
         MsvAuthInfo->LogonDomainName.Length = Domain->Length;
-        MsvAuthInfo->LogonDomainName.MaximumLength =
-                     MsvAuthInfo->LogonDomainName.Length;
+        MsvAuthInfo->LogonDomainName.MaximumLength = MsvAuthInfo->LogonDomainName.Length;
 
         MsvAuthInfo->LogonDomainName.Buffer = (PWSTR)
-                                     ((PBYTE)(MsvAuthInfo->UserName.Buffer) +
-                                     MsvAuthInfo->UserName.MaximumLength);
+            ((PBYTE)(MsvAuthInfo->UserName.Buffer) +
+             MsvAuthInfo->UserName.MaximumLength);
 
-        RtlCopyMemory(
-            MsvAuthInfo->LogonDomainName.Buffer,
-            Domain->Buffer,
-            Domain->Length
-            );
-
+        RtlCopyMemory(MsvAuthInfo->LogonDomainName.Buffer, Domain->Buffer, Domain->Length);
 
         // Copy the password into the authentication buffer
         // Hide it once we have copied it.  Use the same seed value
         // that we used for the original password in pGlobals.
 
-
-
         MsvAuthInfo->Password.Length = Password->Length;
-        MsvAuthInfo->Password.MaximumLength =
-                     MsvAuthInfo->Password.Length;
+        MsvAuthInfo->Password.MaximumLength = MsvAuthInfo->Password.Length;
 
         MsvAuthInfo->Password.Buffer = (PWSTR)
-                                     ((PBYTE)(MsvAuthInfo->LogonDomainName.Buffer) +
-                                     MsvAuthInfo->LogonDomainName.MaximumLength);
+            ((PBYTE)(MsvAuthInfo->LogonDomainName.Buffer) +
+             MsvAuthInfo->LogonDomainName.MaximumLength);
 
-        RtlCopyMemory(
-            MsvAuthInfo->Password.Buffer,
-            Password->Buffer,
-            Password->Length
-            );
-
+        RtlCopyMemory(MsvAuthInfo->Password.Buffer, Password->Buffer, Password->Length);
     }
-
-
-
 
     // Create logon token groups
 
-
 #define TOKEN_GROUP_COUNT   2 // We'll add the local SID and the logon SID
 
-    TokenGroups = (PTOKEN_GROUPS) RtlAllocateHeap(RtlProcessHeap(), 0, sizeof(TOKEN_GROUPS) + (TOKEN_GROUP_COUNT - ANYSIZE_ARRAY) * sizeof(SID_AND_ATTRIBUTES));
+    TokenGroups = (PTOKEN_GROUPS)RtlAllocateHeap(RtlProcessHeap(),
+                                                 0, 
+                                                 sizeof(TOKEN_GROUPS) + (TOKEN_GROUP_COUNT - ANYSIZE_ARRAY) * sizeof(SID_AND_ATTRIBUTES));
     if (TokenGroups == NULL) {
         RtlFreeHeap(RtlProcessHeap(), 0, AuthInfoBuf);
         return(STATUS_NO_MEMORY);
     }
 
-
     // Fill in the logon token group list
-
-
-    Status = RtlAllocateAndInitializeSid(
-                    &L32LocalSidAuthority,
-                    1,
-                    SECURITY_LOCAL_RID,
-                    0, 0, 0, 0, 0, 0, 0,
-                    &LocalSid
-                    );
-
-    if ( NT_SUCCESS( Status ) )
-    {
-
+    Status = RtlAllocateAndInitializeSid(&L32LocalSidAuthority, 1, SECURITY_LOCAL_RID, 0, 0, 0, 0, 0, 0, 0, &LocalSid);
+    if (NT_SUCCESS(Status)) {
         TokenGroups->GroupCount = TOKEN_GROUP_COUNT;
         TokenGroups->Groups[0].Sid = LogonSid;
-        TokenGroups->Groups[0].Attributes =
-                SE_GROUP_MANDATORY | SE_GROUP_ENABLED |
-                SE_GROUP_ENABLED_BY_DEFAULT | SE_GROUP_LOGON_ID;
+        TokenGroups->Groups[0].Attributes = SE_GROUP_MANDATORY | SE_GROUP_ENABLED | SE_GROUP_ENABLED_BY_DEFAULT | SE_GROUP_LOGON_ID;
         TokenGroups->Groups[1].Sid = LocalSid;
-        TokenGroups->Groups[1].Attributes =
-                SE_GROUP_MANDATORY | SE_GROUP_ENABLED |
-                SE_GROUP_ENABLED_BY_DEFAULT;
-
+        TokenGroups->Groups[1].Attributes = SE_GROUP_MANDATORY | SE_GROUP_ENABLED | SE_GROUP_ENABLED_BY_DEFAULT;
 
         // Now try to log this sucker on
-
-
-
-        Status = LsaLogonUser (
-                    LsaHandle,
-                    &OriginName,
-                    LogonType,
-                    AuthenticationPackage,
-                    AuthInfoBuf,
-                    AuthInfoSize,
-                    TokenGroups,
-                    &SourceContext,
-                    pProfileBuffer,
-                    pProfileBufferLength,
-                    LogonId,
-                    LogonToken,
-                    Quotas,
-                    pSubStatus
-                    );
+        Status = LsaLogonUser(
+            LsaHandle,
+            &OriginName,
+            LogonType,
+            AuthenticationPackage,
+            AuthInfoBuf,
+            AuthInfoSize,
+            TokenGroups,
+            &SourceContext,
+            pProfileBuffer,
+            pProfileBufferLength,
+            LogonId,
+            LogonToken,
+            Quotas,
+            pSubStatus);
 
         RtlFreeSid(LocalSid);
-
     }
 
-
     // Discard token group list
-
-
     RtlFreeHeap(RtlProcessHeap(), 0, TokenGroups);
 
-
     // Notify all the network providers, if this is a NON network logon
-
-
-    if ( NT_SUCCESS( Status ) &&
-         (LogonType != Network) )
-    {
+    if (NT_SUCCESS(Status) && (LogonType != Network)) {
         L32pNotifyMpr(AuthInfoBuf, LogonId);
     }
 
-
     // Discard authentication buffer
-
-
     RtlFreeHeap(RtlProcessHeap(), 0, AuthInfoBuf);
-
 
     return(Status);
 }
 
 
-
-
-
 //  Function:   LogonUserA
-
 //  Synopsis:   ANSI wrapper for LogonUserW.  See description below
-
-//  Arguments:  [lpszUsername]    --
-//              [lpszDomain]      --
-//              [lpszPassword]    --
-//              [dwLogonType]     --
-//              [dwLogonProvider] --
-//              [phToken]         --
-
 //  History:    4-25-95   RichardW   Created
-
-//  Notes:
-
-
 BOOL
 WINAPI
 LogonUserA(
@@ -980,98 +654,82 @@ LogonUserA(
     LPSTR       lpszPassword,
     DWORD       dwLogonType,
     DWORD       dwLogonProvider,
-    HANDLE *    phToken
-    )
+    HANDLE* phToken
+)
 {
     UNICODE_STRING Username;
     UNICODE_STRING Domain;
     UNICODE_STRING Password;
-    ANSI_STRING Temp ;
+    ANSI_STRING Temp;
     NTSTATUS Status;
     BOOL    bRet;
-
 
     Username.Buffer = NULL;
     Domain.Buffer = NULL;
     Password.Buffer = NULL;
 
-    RtlInitAnsiString( &Temp, lpszUsername );
-    Status = RtlAnsiStringToUnicodeString( &Username, &Temp, TRUE );
-    if (!NT_SUCCESS( Status ) )
-    {
+    RtlInitAnsiString(&Temp, lpszUsername);
+    Status = RtlAnsiStringToUnicodeString(&Username, &Temp, TRUE);
+    if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         bRet = FALSE;
         goto Cleanup;
     }
 
-    RtlInitAnsiString( &Temp, lpszDomain );
-    Status = RtlAnsiStringToUnicodeString(&Domain, &Temp, TRUE );
-    if (!NT_SUCCESS(Status))
-    {
+    RtlInitAnsiString(&Temp, lpszDomain);
+    Status = RtlAnsiStringToUnicodeString(&Domain, &Temp, TRUE);
+    if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         bRet = FALSE;
         goto Cleanup;
     }
 
-    RtlInitAnsiString( &Temp, lpszPassword );
-    Status = RtlAnsiStringToUnicodeString( &Password, &Temp, TRUE );
-    if (!NT_SUCCESS(Status))
-    {
+    RtlInitAnsiString(&Temp, lpszPassword);
+    Status = RtlAnsiStringToUnicodeString(&Password, &Temp, TRUE);
+    if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         bRet = FALSE;
         goto Cleanup;
     }
 
-    bRet = LogonUserW(  Username.Buffer,
-                        Domain.Buffer,
-                        Password.Buffer,
-                        dwLogonType,
-                        dwLogonProvider,
-                        phToken);
+    bRet = LogonUserW(Username.Buffer,
+                      Domain.Buffer,
+                      Password.Buffer,
+                      dwLogonType,
+                      dwLogonProvider,
+                      phToken);
 
 Cleanup:
 
-    if (Username.Buffer)
-    {
+    if (Username.Buffer) {
         RtlFreeUnicodeString(&Username);
     }
 
-    if (Domain.Buffer)
-    {
+    if (Domain.Buffer) {
         RtlFreeUnicodeString(&Domain);
     }
 
-    if (Password.Buffer)
-    {
+    if (Password.Buffer) {
         RtlZeroMemory(Password.Buffer, Password.Length);
         RtlFreeUnicodeString(&Password);
     }
 
     return(bRet);
-
 }
 
 
-
-
 //  Function:   LogonUserW
-
 //  Synopsis:   Logs a user on via plaintext password, username and domain
 //              name via the LSA.
-
 //  Arguments:  [lpszUsername]    -- User name
 //              [lpszDomain]      -- Domain name
 //              [lpszPassword]    -- Password
 //              [dwLogonType]     -- Logon type
 //              [dwLogonProvider] -- Provider
 //              [phToken]         -- Returned handle to primary token
-
 //  History:    4-25-95   RichardW   Created
-
 //  Notes:      Requires SeTcbPrivilege, and will enable it if not already
 //              present.
-
-
 BOOL
 WINAPI
 LogonUserW(
@@ -1080,10 +738,9 @@ LogonUserW(
     PWSTR       lpszPassword,
     DWORD       dwLogonType,
     DWORD       dwLogonProvider,
-    HANDLE *    phToken
-    )
+    HANDLE* phToken
+)
 {
-
     NTSTATUS    Status;
     ULONG       PackageId;
     UNICODE_STRING  Username;
@@ -1096,182 +753,130 @@ LogonUserW(
     NTSTATUS    SubStatus;
     SECURITY_LOGON_TYPE LogonType;
 
-
-
     // Validate the provider
 
-    if (dwLogonProvider == LOGON32_PROVIDER_DEFAULT)
-    {
+    if (dwLogonProvider == LOGON32_PROVIDER_DEFAULT) {
         dwLogonProvider = LOGON32_PROVIDER_WINNT40;
     }
 
-    if (dwLogonProvider > LOGON32_PROVIDER_WINNT50)
-    {
+    if (dwLogonProvider > LOGON32_PROVIDER_WINNT50) {
         BaseSetLastNTError(STATUS_INVALID_PARAMETER);
         return(FALSE);
     }
 
-    switch (dwLogonType)
-    {
-        case LOGON32_LOGON_INTERACTIVE:
-            LogonType = Interactive;
-            break;
-
-        case LOGON32_LOGON_BATCH:
-            LogonType = Batch;
-            break;
-
-        case LOGON32_LOGON_SERVICE:
-            LogonType = Service;
-            break;
-
-        case LOGON32_LOGON_NETWORK:
-            LogonType = Network;
-            break;
-
-        case LOGON32_LOGON_UNLOCK:
-            LogonType = Unlock ;
-            break;
-
-        case LOGON32_LOGON_NETWORK_CLEARTEXT:
-            LogonType = NetworkCleartext ;
-            break;
-
-        case LOGON32_LOGON_NEW_CREDENTIALS:
-            LogonType = NewCredentials;
-            break;
-
-        default:
-            BaseSetLastNTError(STATUS_INVALID_PARAMETER);
-            return(FALSE);
-            break;
+    switch (dwLogonType) {
+    case LOGON32_LOGON_INTERACTIVE:
+        LogonType = Interactive;
+        break;
+    case LOGON32_LOGON_BATCH:
+        LogonType = Batch;
+        break;
+    case LOGON32_LOGON_SERVICE:
+        LogonType = Service;
+        break;
+    case LOGON32_LOGON_NETWORK:
+        LogonType = Network;
+        break;
+    case LOGON32_LOGON_UNLOCK:
+        LogonType = Unlock;
+        break;
+    case LOGON32_LOGON_NETWORK_CLEARTEXT:
+        LogonType = NetworkCleartext;
+        break;
+    case LOGON32_LOGON_NEW_CREDENTIALS:
+        LogonType = NewCredentials;
+        break;
+    default:
+        BaseSetLastNTError(STATUS_INVALID_PARAMETER);
+        return(FALSE);
+        break;
     }
 
-
     // If the MSV handle is -1, grab the lock, and try again:
-
-
-    if (Logon32MsvHandle == 0xFFFFFFFF)
-    {
+    if (Logon32MsvHandle == 0xFFFFFFFF) {
         LockLogon();
-
 
         // If the MSV handle is still -1, init our connection to lsa.  We
         // have the lock, so no other threads can be trying this right now.
 
-        if (Logon32MsvHandle == 0xFFFFFFFF)
-        {
-            if (!L32pInitLsa())
-            {
+        if (Logon32MsvHandle == 0xFFFFFFFF) {
+            if (!L32pInitLsa()) {
                 UnlockLogon();
-
-                return( FALSE );
+                return(FALSE);
             }
         }
 
         UnlockLogon();
     }
 
-
     // Validate the parameters.  NULL or empty domain or NULL or empty
     // user name is invalid.
-
-
     RtlInitUnicodeString(&Username, lpszUsername);
-    if (Username.Length == 0)
-    {
+    if (Username.Length == 0) {
         BaseSetLastNTError(STATUS_INVALID_PARAMETER);
         return(FALSE);
     }
 
-
     // Initialize the token handle, if the pointer is invalid, then catch
     // the exception now.
-
-
     *phToken = NULL;
-
 
     // Parse that domain.  Note, if the special token . is passed in for
     // domain, we will use the right value from the LSA, meaning AccountDomain.
     // If the domain is null, the lsa will talk to the local domain, the
     // primary domain, and then on from there...
 
-    if (lpszDomain && *lpszDomain)
-    {
-        if ((lpszDomain[0] == L'.') &&
-            (lpszDomain[1] == L'\0') )
-        {
-            if (!L32GetDefaultDomainName(&Domain))
-            {
+    if (lpszDomain && *lpszDomain) {
+        if ((lpszDomain[0] == L'.') && (lpszDomain[1] == L'\0')) {
+            if (!L32GetDefaultDomainName(&Domain)) {
                 return(FALSE);
             }
-        }
-        else
+        } else
             RtlInitUnicodeString(&Domain, lpszDomain);
-    }
-    else
-    {
+    } else {
         RtlInitUnicodeString(&Domain, lpszDomain);
     }
 
-
     // Finally, init the password
-
     RtlInitUnicodeString(&Password, lpszPassword);
 
-
-
     // Get a logon sid to refer to this guy
-
     pLogonSid = L32CreateLogonSid(NULL);
-    if (!pLogonSid)
-    {
+    if (!pLogonSid) {
         BaseSetLastNTError(STATUS_NO_MEMORY);
         return(FALSE);
     }
 
-
-
     // Attempt the logon
-
-
     Status = L32pLogonUser(
-                    Logon32LsaHandle,
-                    (dwLogonProvider == LOGON32_PROVIDER_WINNT50) ?
-                        Logon32NegoHandle : Logon32MsvHandle,
-                    LogonType,
-                    &Username,
-                    &Domain,
-                    &Password,
-                    pLogonSid,
-                    &LogonId,
-                    phToken,
-                    &Logon32QuotaLimits,
-                    &Profile,
-                    &ProfileLength,
-                    &SubStatus);
-
+        Logon32LsaHandle,
+        (dwLogonProvider == LOGON32_PROVIDER_WINNT50) ?
+        Logon32NegoHandle : Logon32MsvHandle,
+        LogonType,
+        &Username,
+        &Domain,
+        &Password,
+        pLogonSid,
+        &LogonId,
+        phToken,
+        &Logon32QuotaLimits,
+        &Profile,
+        &ProfileLength,
+        &SubStatus);
 
     // Done with logon sid, regardless of result:
+    LocalFree(pLogonSid);
 
-
-    LocalFree( pLogonSid );
-
-    if (!NT_SUCCESS(Status))
-    {
-        if (Status == STATUS_ACCOUNT_RESTRICTION)
-        {
+    if (!NT_SUCCESS(Status)) {
+        if (Status == STATUS_ACCOUNT_RESTRICTION) {
             BaseSetLastNTError(SubStatus);
-        }
-        else
+        } else
             BaseSetLastNTError(Status);
 
         return(FALSE);
     }
 
-    if (Profile != NULL)
-    {
+    if (Profile != NULL) {
         LsaFreeReturnBuffer(Profile);
     }
 
@@ -1279,25 +884,11 @@ LogonUserW(
 }
 
 
-
-
 //  Function:   ImpersonateLoggedOnUser
-
 //  Synopsis:   Duplicates the token passed in if it is primary, and assigns
 //              it to the thread that called.
-
-//  Arguments:  [hToken] --
-
 //  History:    1-10-95   RichardW   Created
-
-//  Notes:
-
-
-BOOL
-WINAPI
-ImpersonateLoggedOnUser(
-    HANDLE  hToken
-    )
+BOOL WINAPI ImpersonateLoggedOnUser(HANDLE  hToken)
 {
     TOKEN_TYPE                  Type;
     ULONG                       cbType;
@@ -1307,27 +898,14 @@ ImpersonateLoggedOnUser(
     OBJECT_ATTRIBUTES           ObjectAttributes;
     BOOL                        fCloseImp;
 
-    Status = NtQueryInformationToken(
-                hToken,
-                TokenType,
-                &Type,
-                sizeof(TOKEN_TYPE),
-                &cbType);
-
-    if (!NT_SUCCESS(Status))
-    {
+    Status = NtQueryInformationToken(hToken, TokenType, &Type, sizeof(TOKEN_TYPE), &cbType);
+    if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         return(FALSE);
     }
 
-    if (Type == TokenPrimary)
-    {
-        InitializeObjectAttributes(
-                            &ObjectAttributes,
-                            NULL,
-                            0L,
-                            NULL,
-                            NULL);
+    if (Type == TokenPrimary) {
+        InitializeObjectAttributes(&ObjectAttributes, NULL, 0L, NULL, NULL);
 
         SecurityQualityOfService.Length = sizeof(SECURITY_QUALITY_OF_SERVICE);
         SecurityQualityOfService.ImpersonationLevel = SecurityImpersonation;
@@ -1335,47 +913,35 @@ ImpersonateLoggedOnUser(
         SecurityQualityOfService.EffectiveOnly = FALSE;
 
         ObjectAttributes.SecurityQualityOfService = &SecurityQualityOfService;
-
-
-        Status = NtDuplicateToken( hToken,
-                                   TOKEN_IMPERSONATE | TOKEN_QUERY,
-                                   &ObjectAttributes,
-                                   FALSE,
-                                   TokenImpersonation,
-                                   &hImpToken
-                                 );
-
-        if (!NT_SUCCESS(Status))
-        {
+        Status = NtDuplicateToken(hToken,
+                                  TOKEN_IMPERSONATE | TOKEN_QUERY,
+                                  &ObjectAttributes,
+                                  FALSE,
+                                  TokenImpersonation,
+                                  &hImpToken);
+        if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
             return(FALSE);
         }
 
         fCloseImp = TRUE;
-
     }
-
     else
-
     {
         hImpToken = hToken;
         fCloseImp = FALSE;
     }
 
     Status = NtSetInformationThread(
-                NtCurrentThread(),
-                ThreadImpersonationToken,
-                (PVOID) &hImpToken,
-                sizeof(hImpToken)
-                );
-
-    if (fCloseImp)
-    {
-        (void) NtClose(hImpToken);
+        NtCurrentThread(),
+        ThreadImpersonationToken,
+        (PVOID)&hImpToken,
+        sizeof(hImpToken));
+    if (fCloseImp) {
+        (void)NtClose(hImpToken);
     }
 
-    if (!NT_SUCCESS(Status))
-    {
+    if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         return(FALSE);
     }
@@ -1385,19 +951,8 @@ ImpersonateLoggedOnUser(
 
 
 //  Function:   L32SetProcessToken
-
 //  Synopsis:   Sets the primary token for the new process.
-
-//  Arguments:  [psd]      --
-//              [hProcess] --
-//              [hThread]  --
-//              [hToken]   --
-
 //  History:    4-25-95   RichardW   Created
-
-//  Notes:
-
-
 BOOL
 L32SetProcessToken(
     PSECURITY_DESCRIPTOR    psd,
@@ -1405,7 +960,7 @@ L32SetProcessToken(
     HANDLE                  hThread,
     HANDLE                  hToken,
     BOOL                    AlreadyImpersonating
-    )
+)
 {
     NTSTATUS Status, AdjustStatus;
     PROCESS_ACCESS_TOKEN PrimaryTokenInfo;
@@ -1417,8 +972,7 @@ L32SetProcessToken(
     // Check for a NULL token. (No need to do anything)
     // The process will run in the parent process's context and inherit
     // the default ACL from the parent process's token.
-    if (hToken == NULL)
-    {
+    if (hToken == NULL) {
         return(TRUE);
     }
 
@@ -1427,13 +981,13 @@ L32SetProcessToken(
     // process.
     InitializeObjectAttributes(&ObjectAttributes, NULL, 0, NULL, psd);
     Status = NtDuplicateToken(
-                 hToken, // Duplicate this token
-                 0,                 // Same desired access
-                 &ObjectAttributes,
-                 FALSE,             // EffectiveOnly
-                 TokenPrimary,      // TokenType
-                 &TokenToAssign     // Duplicate token handle stored here
-                 );
+        hToken, // Duplicate this token
+        0,                 // Same desired access
+        &ObjectAttributes,
+        FALSE,             // EffectiveOnly
+        TokenPrimary,      // TokenType
+        &TokenToAssign     // Duplicate token handle stored here
+    );
     if (!NT_SUCCESS(Status)) {
         return(FALSE);
     }
@@ -1444,31 +998,25 @@ L32SetProcessToken(
     // have the SeAssignPrimary privilege
 
     // Enable the required privilege
-    if ( !AlreadyImpersonating )
-    {
-        Status = RtlImpersonateSelf( SecurityImpersonation );
-    }
-    else
-    {
-        Status = STATUS_SUCCESS ;
+    if (!AlreadyImpersonating) {
+        Status = RtlImpersonateSelf(SecurityImpersonation);
+    } else {
+        Status = STATUS_SUCCESS;
     }
 
-    if ( NT_SUCCESS( Status ) )
-    {
+    if (NT_SUCCESS(Status)) {
         // We now allow restricted tokens to passed in, so we don't fail if the privilege isn't held.  Let the kernel deal with the possibilities.
         Status = RtlAdjustPrivilege(SE_ASSIGNPRIMARYTOKEN_PRIVILEGE, TRUE, TRUE, &WasEnabled);
-        if ( !NT_SUCCESS( Status ) )
-        {
-            WasEnabled = TRUE ;     // Don't try to restore it.
+        if (!NT_SUCCESS(Status)) {
+            WasEnabled = TRUE;     // Don't try to restore it.
         }
 
-        PrimaryTokenInfo.Token  = TokenToAssign;
+        PrimaryTokenInfo.Token = TokenToAssign;
         PrimaryTokenInfo.Thread = hThread;
         Status = NtSetInformationProcess(hProcess, ProcessAccessToken, (PVOID)&PrimaryTokenInfo, (ULONG)sizeof(PROCESS_ACCESS_TOKEN));
         // Restore the privilege to its previous state
 
-        if (!WasEnabled)
-        {
+        if (!WasEnabled) {
             AdjustStatus = RtlAdjustPrivilege(SE_ASSIGNPRIMARYTOKEN_PRIVILEGE, WasEnabled, TRUE, &WasEnabled);
             if (NT_SUCCESS(Status)) {
                 Status = AdjustStatus;
@@ -1477,13 +1025,11 @@ L32SetProcessToken(
 
         // Revert back to process.
 
-        if ( !AlreadyImpersonating )
-        {
+        if (!AlreadyImpersonating) {
             NullHandle = NULL;
 
-            AdjustStatus = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, (PVOID) &NullHandle, sizeof( HANDLE ) );
-            if ( NT_SUCCESS( Status ) )
-            {
+            AdjustStatus = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, (PVOID)&NullHandle, sizeof(HANDLE));
+            if (NT_SUCCESS(Status)) {
                 Status = AdjustStatus;
             }
         }
@@ -1503,17 +1049,10 @@ L32SetProcessToken(
 
 
 //  Function:   L32SetProcessQuotas
-
 //  Synopsis:   Updates the quotas for the process
-
 //  Arguments:  [hProcess] --
-
 //  History:    4-25-95   RichardW   Created
-
-//  Notes:
-
-
-BOOL L32SetProcessQuotas(HANDLE  hProcess, BOOL    AlreadyImpersonating )
+BOOL L32SetProcessQuotas(HANDLE  hProcess, BOOL    AlreadyImpersonating)
 {
     NTSTATUS Status = STATUS_SUCCESS;
     NTSTATUS AdjustStatus = STATUS_SUCCESS;
@@ -1528,20 +1067,16 @@ BOOL L32SetProcessQuotas(HANDLE  hProcess, BOOL    AlreadyImpersonating )
     // Set the process's quota.   This MUST be
     // called when we are not impersonating!  The client generally does *not*
     // have the SeIncreaseQuota privilege.
-    if ( !AlreadyImpersonating )
-    {
-        Status = RtlImpersonateSelf( SecurityImpersonation );
+    if (!AlreadyImpersonating) {
+        Status = RtlImpersonateSelf(SecurityImpersonation);
     }
 
-    if ( NT_SUCCESS( Status ) )
-    {
+    if (NT_SUCCESS(Status)) {
         if (RequestedLimits.PagedPoolLimit != 0) {
             Status = RtlAdjustPrivilege(SE_INCREASE_QUOTA_PRIVILEGE, TRUE, TRUE, &WasEnabled);
-            if ( NT_SUCCESS( Status ) )
-            {
+            if (NT_SUCCESS(Status)) {
                 Status = NtSetInformationProcess(hProcess, ProcessQuotaLimits, (PVOID)&RequestedLimits, (ULONG)sizeof(QUOTA_LIMITS));
-                if (!WasEnabled)
-                {
+                if (!WasEnabled) {
                     AdjustStatus = RtlAdjustPrivilege(SE_INCREASE_QUOTA_PRIVILEGE, WasEnabled, FALSE, &WasEnabled);
                     if (NT_SUCCESS(Status)) {
                         Status = AdjustStatus;
@@ -1550,20 +1085,17 @@ BOOL L32SetProcessQuotas(HANDLE  hProcess, BOOL    AlreadyImpersonating )
             }
         }
 
-        if ( !AlreadyImpersonating )
-        {
+        if (!AlreadyImpersonating) {
             NullHandle = NULL;
 
-            AdjustStatus = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, (PVOID) &NullHandle, sizeof( HANDLE ) );
-            if ( NT_SUCCESS( Status ) )
-            {
+            AdjustStatus = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, (PVOID)&NullHandle, sizeof(HANDLE));
+            if (NT_SUCCESS(Status)) {
                 Status = AdjustStatus;
             }
         }
     }
 
-    if (!NT_SUCCESS(Status))
-    {
+    if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         return(FALSE);
     }
@@ -1572,28 +1104,17 @@ BOOL L32SetProcessQuotas(HANDLE  hProcess, BOOL    AlreadyImpersonating )
 }
 
 
-
 //  Function:   L32CommonCreate
-
-//  Synopsis:
-
-//  Effects:
-
 //  Arguments:  [CreateFlags]     -- Flags (see top of file)
 //              [hToken]          -- Primary token to use
 //              [lpProcessInfo]   -- Process Info
-
 //  History:    1-20-95   RichardW   Created
-
-//  Notes:
-
-
 BOOL
 L32CommonCreate(
     DWORD   CreateFlags,
     HANDLE  hToken,
     LPPROCESS_INFORMATION   lpProcessInfo
-    )
+)
 {
     PTOKEN_DEFAULT_DACL     pDefDacl;
     DWORD                   cDefDacl = 0;
@@ -1605,7 +1126,7 @@ L32CommonCreate(
     DWORD                   dummy;
     HANDLE                  hThreadToken;
     HANDLE                  hNull;
-    BOOL                    UsingImpToken = FALSE ;
+    BOOL                    UsingImpToken = FALSE;
 
 #ifdef ALLOW_IMPERSONATION_TOKENS
     HANDLE                  hTempToken;
@@ -1618,27 +1139,20 @@ L32CommonCreate(
     // without credentials.
 
     Status = NtQueryInformationToken(hToken, TokenType,
-                                    (PUCHAR) &Type, sizeof(Type), &dummy);
-    if (!NT_SUCCESS(Status))
-    {
+        (PUCHAR)&Type, sizeof(Type), &dummy);
+    if (!NT_SUCCESS(Status)) {
         BaseSetLastNTError(Status);
         NtTerminateProcess(lpProcessInfo->hProcess, ERROR_ACCESS_DENIED);
         NtClose(lpProcessInfo->hProcess);
         NtClose(lpProcessInfo->hThread);
-        RtlZeroMemory( lpProcessInfo, sizeof( PROCESS_INFORMATION ) );
+        RtlZeroMemory(lpProcessInfo, sizeof(PROCESS_INFORMATION));
         return(FALSE);
     }
-    if (Type != TokenPrimary)
-    {
+    if (Type != TokenPrimary) {
 #ifdef ALLOW_IMPERSONATION_TOKENS
         OBJECT_ATTRIBUTES   ObjectAttributes;
 
-        InitializeObjectAttributes(
-                            &ObjectAttributes,
-                            NULL,
-                            0L,
-                            NULL,
-                            NULL);
+        InitializeObjectAttributes(&ObjectAttributes, NULL, 0L, NULL, NULL);
 
         SecurityQualityOfService.Length = sizeof(SECURITY_QUALITY_OF_SERVICE);
         SecurityQualityOfService.ImpersonationLevel = SecurityImpersonation;
@@ -1646,23 +1160,18 @@ L32CommonCreate(
         SecurityQualityOfService.EffectiveOnly = FALSE;
 
         ObjectAttributes.SecurityQualityOfService = &SecurityQualityOfService;
-
-
-        Status = NtDuplicateToken( hToken,
-                                   TOKEN_IMPERSONATE | TOKEN_QUERY,
-                                   &ObjectAttributes,
-                                   FALSE,
-                                   TokenPrimary,
-                                   &hTempToken
-                                 );
-
-        if (!NT_SUCCESS(Status))
-        {
+        Status = NtDuplicateToken(hToken,
+                                  TOKEN_IMPERSONATE | TOKEN_QUERY,
+                                  &ObjectAttributes,
+                                  FALSE,
+                                  TokenPrimary,
+                                  &hTempToken);
+        if (!NT_SUCCESS(Status)) {
             BaseSetLastNTError(Status);
             NtTerminateProcess(lpProcessInfo->hProcess, ERROR_ACCESS_DENIED);
             NtClose(lpProcessInfo->hProcess);
             NtClose(lpProcessInfo->hThread);
-            RtlZeroMemory( lpProcessInfo, sizeof( PROCESS_INFORMATION ) );
+            RtlZeroMemory(lpProcessInfo, sizeof(PROCESS_INFORMATION));
             return(FALSE);
         }
 
@@ -1674,20 +1183,15 @@ L32CommonCreate(
         NtTerminateProcess(lpProcessInfo->hProcess, ERROR_ACCESS_DENIED);
         NtClose(lpProcessInfo->hProcess);
         NtClose(lpProcessInfo->hThread);
-        RtlZeroMemory( lpProcessInfo, sizeof( PROCESS_INFORMATION ) );
+        RtlZeroMemory(lpProcessInfo, sizeof(PROCESS_INFORMATION));
         return(FALSE);
-
 #endif
-
     }
-
 #ifdef ALLOW_IMPERSONATION_TOKENS
-    else
-    {
+    else {
         hTempToken = NULL;
     }
 #endif
-
 
     // Okay, get the default DACL from the token.  This DACL will be
     // applied to the process.  Note that the creator of this process may
@@ -1695,40 +1199,29 @@ L32CommonCreate(
     // since the caller already has a valid handle (in ProcessInfo), they
     // can keep doing things.
 
-
     pDefDacl = NULL;
-    Status = NtQueryInformationToken(hToken,
-                                    TokenDefaultDacl,
-                                    NULL, 0, &cDefDacl);
-    if (NT_SUCCESS(Status) || (Status == STATUS_BUFFER_TOO_SMALL))
-    {
+    Status = NtQueryInformationToken(hToken, TokenDefaultDacl, NULL, 0, &cDefDacl);
+    if (NT_SUCCESS(Status) || (Status == STATUS_BUFFER_TOO_SMALL)) {
         pDefDacl = RtlAllocateHeap(RtlProcessHeap(), HEAP_ZERO_MEMORY, cDefDacl);
-        if (pDefDacl)
-        {
-            Status = NtQueryInformationToken(   hToken, TokenDefaultDacl, pDefDacl, cDefDacl, &cDefDacl);
-        }
-        else
-        {
+        if (pDefDacl) {
+            Status = NtQueryInformationToken(hToken, TokenDefaultDacl, pDefDacl, cDefDacl, &cDefDacl);
+        } else {
             Status = STATUS_NO_MEMORY;
         }
     }
 
-    if (!NT_SUCCESS(Status))
-    {
-        if (pDefDacl)
-        {
+    if (!NT_SUCCESS(Status)) {
+        if (pDefDacl) {
             RtlFreeHeap(RtlProcessHeap(), 0, pDefDacl);
         }
-
-
+        
         // Our failure mantra:  Set the last error, kill the process (since it
         // is suspended, and hasn't actually started yet, we can do this safely)
         // close the handles, and return false.
 
 #ifdef ALLOW_IMPERSONATION_TOKENS
-        if (hTempToken)
-        {
-            NtClose( hTempToken );
+        if (hTempToken) {
+            NtClose(hTempToken);
         }
 #endif
 
@@ -1736,275 +1229,189 @@ L32CommonCreate(
         NtTerminateProcess(lpProcessInfo->hProcess, ERROR_ACCESS_DENIED);
         NtClose(lpProcessInfo->hProcess);
         NtClose(lpProcessInfo->hThread);
-        RtlZeroMemory( lpProcessInfo, sizeof( PROCESS_INFORMATION ) );
+        RtlZeroMemory(lpProcessInfo, sizeof(PROCESS_INFORMATION));
         return(FALSE);
     }
 
-    psd = (PSECURITY_DESCRIPTOR) buf;
+    psd = (PSECURITY_DESCRIPTOR)buf;
     InitializeSecurityDescriptor(psd, SECURITY_DESCRIPTOR_REVISION);
     SetSecurityDescriptorDacl(psd, TRUE, pDefDacl->DefaultDacl, FALSE);
 
-    if (CreateFlags & (COMMON_CREATE_PROCESSSD | COMMON_CREATE_THREADSD))
-    {
-
-
+    if (CreateFlags & (COMMON_CREATE_PROCESSSD | COMMON_CREATE_THREADSD)) {
         // Now, based on what we're told:
-
-
-        if (CreateFlags & COMMON_CREATE_PROCESSSD)
-        {
-            Success = SetKernelObjectSecurity(  lpProcessInfo->hProcess,
-                                                DACL_SECURITY_INFORMATION,
-                                                psd);
+        if (CreateFlags & COMMON_CREATE_PROCESSSD) {
+            Success = SetKernelObjectSecurity(lpProcessInfo->hProcess,
+                                              DACL_SECURITY_INFORMATION,
+                                              psd);
         }
-
 
         // Ah, WOW apps created through here don't have thread handles,
         // so check:
-
-
-        if ((Success) &&
-            (CreateFlags & COMMON_CREATE_THREADSD))
-        {
-            if ( lpProcessInfo->hThread )
-            {
-                Success = SetKernelObjectSecurity(  lpProcessInfo->hThread,
-                                                    DACL_SECURITY_INFORMATION,
-                                                    psd);
+        if ((Success) && (CreateFlags & COMMON_CREATE_THREADSD)) {
+            if (lpProcessInfo->hThread) {
+                Success = SetKernelObjectSecurity(lpProcessInfo->hThread,
+                                                  DACL_SECURITY_INFORMATION,
+                                                  psd);
             }
         }
-
-
-    }
-    else
-    {
+    } else {
         Success = TRUE;
     }
 
-
-    if (Success)
-    {
-
+    if (Success) {
         // Unfortunately, this is usually called when we are impersonating,
         // because one does not want to start a process for a user that he
         // does not actually have access to.  However, this user also does
         // not have (usually) AssignPrimary and IncreaseQuota privileges.
         // So, if we are impersonating, we open the thread token, then
         // stop impersonating, saving the token away to restore later.
-
-
-        Status = NtOpenThreadToken( NtCurrentThread(),
-                                    TOKEN_IMPERSONATE,
-                                    TRUE,
-                                    &hThreadToken);
-
-        if (NT_SUCCESS(Status))
-        {
-
+        Status = NtOpenThreadToken(NtCurrentThread(),
+                                   TOKEN_IMPERSONATE,
+                                   TRUE,
+                                   &hThreadToken);
+        if (NT_SUCCESS(Status)) {
             // Okay, stop impersonating:
-
-
             hNull = NULL;
-
             Status = NtSetInformationThread(
-                            NtCurrentThread(),
-                            ThreadImpersonationToken,
-                            (PVOID) &hNull,
-                            sizeof(hNull)
-                            );
-
-
-        }
-        else
-        {
+                NtCurrentThread(),
+                ThreadImpersonationToken,
+                (PVOID)&hNull,
+                sizeof(hNull));
+        } else {
             hThreadToken = NULL;
         }
 
-
         // Okay, we've set the process security descriptor.  Now, set the
         // process primary token to the right thing
-
-
-        Success = L32SetProcessToken(   psd,
-                                        lpProcessInfo->hProcess,
-                                        lpProcessInfo->hThread,
-                                        hToken,
-                                        FALSE );
-
-        if ( !Success && hThreadToken )
-        {
+        Success = L32SetProcessToken(psd,
+                                     lpProcessInfo->hProcess,
+                                     lpProcessInfo->hThread,
+                                     hToken,
+                                     FALSE);
+        if (!Success && hThreadToken) {
             Status = NtSetInformationThread(
-                            NtCurrentThread(),
-                            ThreadImpersonationToken,
-                            (PVOID) &hThreadToken,
-                            sizeof(hThreadToken)
-                            );
+                NtCurrentThread(),
+                ThreadImpersonationToken,
+                (PVOID)&hThreadToken,
+                sizeof(hThreadToken));
 
-            UsingImpToken = TRUE ;
+            UsingImpToken = TRUE;
 
             Success = L32SetProcessToken(
-                                psd,
-                                lpProcessInfo->hProcess,
-                                lpProcessInfo->hThread,
-                                hToken,
-                                TRUE );
+                psd,
+                lpProcessInfo->hProcess,
+                lpProcessInfo->hThread,
+                hToken,
+                TRUE);
         }
 
-        if ( Success )
-        {
+        if (Success) {
 #ifdef ALLOW_IMPERSONATION_TOKENS
-            if (hTempToken)
-            {
+            if (hTempToken) {
                 NtClose(hTempToken);
             }
 #endif
 
             // That worked.  Now adjust the quota to be something reasonable
-
-
-            Success = L32SetProcessQuotas(
-                            lpProcessInfo->hProcess,
-                            UsingImpToken );
-
-            if ( (!Success) &&
-                 (hThreadToken != NULL) &&
-                 (UsingImpToken == FALSE ) )
-            {
+            Success = L32SetProcessQuotas(lpProcessInfo->hProcess, UsingImpToken);
+            if ((!Success) && (hThreadToken != NULL) && (UsingImpToken == FALSE)) {
                 Status = NtSetInformationThread(
-                                NtCurrentThread(),
-                                ThreadImpersonationToken,
-                                (PVOID) &hThreadToken,
-                                sizeof(hThreadToken)
-                                );
-
-                UsingImpToken = TRUE ;
-
-                Success = L32SetProcessQuotas(
-                            lpProcessInfo->hProcess,
-                            TRUE );
-
+                    NtCurrentThread(),
+                    ThreadImpersonationToken,
+                    (PVOID)&hThreadToken,
+                    sizeof(hThreadToken));
+                UsingImpToken = TRUE;
+                Success = L32SetProcessQuotas(lpProcessInfo->hProcess, TRUE);
             }
-            if ( Success )
-            {
-
+            if (Success) {
                 // If we're not supposed to leave it suspended, resume the
                 // thread and let it run...
 
-                if ((CreateFlags & COMMON_CREATE_SUSPENDED) == 0)
-                {
+                if ((CreateFlags & COMMON_CREATE_SUSPENDED) == 0) {
                     ResumeThread(lpProcessInfo->hThread);
                 }
 
                 RtlFreeHeap(RtlProcessHeap(), 0, pDefDacl);
 
-                if (hThreadToken)
-                {
+                if (hThreadToken) {
                     Status = NtSetInformationThread(
-                                    NtCurrentThread(),
-                                    ThreadImpersonationToken,
-                                    (PVOID) &hThreadToken,
-                                    sizeof(hThreadToken)
-                                    );
+                        NtCurrentThread(),
+                        ThreadImpersonationToken,
+                        (PVOID)&hThreadToken,
+                        sizeof(hThreadToken));
 
                     NtClose(hThreadToken);
                 }
 
                 return(TRUE);
             }
-
         }
-
 
         // If we were impersonating before, resume impersonating here
-
-
-        if (hThreadToken)
-        {
+        if (hThreadToken) {
             Status = NtSetInformationThread(
-                            NtCurrentThread(),
-                            ThreadImpersonationToken,
-                            (PVOID) &hThreadToken,
-                            sizeof(hThreadToken)
-                            );
-
+                NtCurrentThread(),
+                ThreadImpersonationToken,
+                (PVOID)&hThreadToken,
+                sizeof(hThreadToken));
 
             // Done with this now.
-
-
             NtClose(hThreadToken);
         }
-
-
     }
 
-
     // Failure mantra again...
-
-    if (pDefDacl)
-    {
+    if (pDefDacl) {
         RtlFreeHeap(RtlProcessHeap(), 0, pDefDacl);
     }
 
     NtTerminateProcess(lpProcessInfo->hProcess, ERROR_ACCESS_DENIED);
     NtClose(lpProcessInfo->hProcess);
     NtClose(lpProcessInfo->hThread);
-    RtlZeroMemory( lpProcessInfo, sizeof( PROCESS_INFORMATION ) );
+    RtlZeroMemory(lpProcessInfo, sizeof(PROCESS_INFORMATION));
     return(FALSE);
-
 }
 
 
-
-
 //   MarshallString
-
 //    Marshall in a UNICODE_NULL terminated WCHAR string
-
 //  ENTRY:
 //    pSource (input)
 //      Pointer to source string
-
 //    pBase (input)
 //      Base buffer pointer for normalizing the string pointer
-
 //    MaxSize (input)
 //      Maximum buffer size available
-
 //    ppPtr (input/output)
 //      Pointer to the current context pointer in the marshall buffer.
 //      This is updated as data is marshalled into the buffer
-
 //    pCount (input/output)
 //      Current count of data in the marshall buffer.
 //      This is updated as data is marshalled into the buffer
-
 //  EXIT:
 //    NULL - Error
 //    !=NULL "normalized" pointer to the string in reference to pBase
-
-
 PWCHAR
 MarshallString(
     PCWSTR pSource,
     PCHAR  pBase,
     ULONG  MaxSize,
-    PCHAR  *ppPtr,
+    PCHAR* ppPtr,
     PULONG pCount
-    )
+)
 {
     ULONG Len;
     PCHAR ptr;
 
-    Len = wcslen( pSource );
+    Len = wcslen(pSource);
     Len++; // include the NULL;
 
     Len *= sizeof(WCHAR); // convert to bytes
-    if( (*pCount + Len) > MaxSize ) {
-        return( NULL );
+    if ((*pCount + Len) > MaxSize) {
+        return(NULL);
     }
 
-    RtlMoveMemory( *ppPtr, pSource, Len );
-
+    RtlMoveMemory(*ppPtr, pSource, Len);
 
     // the normalized ptr is the current count
 
@@ -2024,27 +1431,21 @@ void DumpOutLastErrorString()
     LPVOID  lpMsgBuf;
 
     FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER |
-            FORMAT_MESSAGE_FROM_SYSTEM |
-            FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL,
-            GetLastError(),
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-            (LPTSTR) &lpMsgBuf,
-            0,
-            NULL
-        );
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        GetLastError(),
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+        (LPTSTR)&lpMsgBuf,
+        0,
+        NULL);
 
-        // Process any inserts in lpMsgBuf.
-        // ...
-        // Display the string.
+    // Process any inserts in lpMsgBuf.
+    // ...
+    // Display the string.
+    KdPrint(("%s\n", (LPCTSTR)lpMsgBuf));
 
-        KdPrint(("%s\n", (LPCTSTR)lpMsgBuf ));
-
-
-        // Free the buffer.
-
-        LocalFree( lpMsgBuf );
+    // Free the buffer.
+    LocalFree(lpMsgBuf);
 }
 #endif
 
@@ -2093,7 +1494,7 @@ CreateRemoteSessionProcessW(
     LPCWSTR lpszCurDir,
     LPSTARTUPINFOW pStartInfo,
     LPPROCESS_INFORMATION pProcInfo
-    )
+)
 {
     BOOL            Result;
     HANDLE          hPipe = NULL;
@@ -2107,15 +1508,15 @@ CreateRemoteSessionProcessW(
     ULONG           MaxSize = EXECSRV_BUFFER_SIZE;
     DWORD           rc;
     LPVOID          lpMsgBuf;
-    ULONG           envSize=0;  // size of the lpEnvironemt, if any
+    ULONG           envSize = 0;  // size of the lpEnvironemt, if any
     PWCHAR           lpEnv;
 
 #if DBG
-    if( lpszImageName )
-        KdPrint(("logon32.c: CreateRemoteSessionProcessW: lpszImageName %ws\n",lpszImageName));
+    if (lpszImageName)
+        KdPrint(("logon32.c: CreateRemoteSessionProcessW: lpszImageName %ws\n", lpszImageName));
 
-    if( lpszCommandLine )
-        KdPrint(("logon32.c: CreateRemoteSessionProcessW: lpszCommandLine %ws\n",lpszCommandLine));
+    if (lpszCommandLine)
+        KdPrint(("logon32.c: CreateRemoteSessionProcessW: lpszCommandLine %ws\n", lpszCommandLine));
 #endif
 
 
@@ -2124,118 +1525,91 @@ CreateRemoteSessionProcessW(
     swprintf(szPipeName, EXECSRV_SYSTEM_PIPE_NAME, SessionId);
 
     hPipe = CreateFileW(
-                szPipeName,
-                GENERIC_READ|GENERIC_WRITE,
-                0,    // File share mode
-                NULL, // default security
-                OPEN_EXISTING,
-                0,    // Attrs and flags
-                NULL  // template file handle
-                );
+        szPipeName,
+        GENERIC_READ | GENERIC_WRITE,
+        0,    // File share mode
+        NULL, // default security
+        OPEN_EXISTING,
+        0,    // Attrs and flags
+        NULL  // template file handle
+    );
 
     DBG_DumpOutLastError;
 
-    if( hPipe == INVALID_HANDLE_VALUE ) {
+    if (hPipe == INVALID_HANDLE_VALUE) {
         KdPrint(("logon32.c: Could not create pipe name %ws\n", szPipeName));
         return(FALSE);
     }
 
-
     // Get the handle to the current process
-
     MyProcId = GetCurrentProcessId();
 
-
     // setup the marshalling
-
     ptr = Buf;
     Count = 0;
 
     pReq = (PEXECSRV_REQUEST)ptr;
-    ptr   += sizeof(EXECSRV_REQUEST);
+    ptr += sizeof(EXECSRV_REQUEST);
     Count += sizeof(EXECSRV_REQUEST);
 
-
     // set the basic parameters
-
     pReq->System = System;
     pReq->hToken = hToken;
     pReq->RequestingProcessId = MyProcId;
     pReq->fInheritHandles = fInheritHandles;
     pReq->fdwCreate = fdwCreate;
 
-
     // marshall the ImageName string
-
-    if( lpszImageName ) {
-        pReq->lpszImageName = MarshallString( lpszImageName, Buf, MaxSize, &ptr, &Count );
-        if (! pReq->lpszImageName)
-        {
+    if (lpszImageName) {
+        pReq->lpszImageName = MarshallString(lpszImageName, Buf, MaxSize, &ptr, &Count);
+        if (!pReq->lpszImageName) {
             goto Cleanup;
         }
-    }
-    else {
+    } else {
         pReq->lpszImageName = NULL;
     }
 
-
     // marshall in the CommandLine string
-
-    if( lpszCommandLine ) {
-        pReq->lpszCommandLine = MarshallString( lpszCommandLine, Buf, MaxSize, &ptr, &Count );
-        if ( ! pReq->lpszCommandLine )
-        {
+    if (lpszCommandLine) {
+        pReq->lpszCommandLine = MarshallString(lpszCommandLine, Buf, MaxSize, &ptr, &Count);
+        if (!pReq->lpszCommandLine) {
             goto Cleanup;
         }
-    }
-    else {
+    } else {
         pReq->lpszCommandLine = NULL;
     }
 
-
     // marshall in the CurDir string
-
-    if( lpszCurDir ) {
-        pReq->lpszCurDir = MarshallString( lpszCurDir, Buf, MaxSize, &ptr, &Count );
-        if ( ! pReq->lpszCurDir  )
-        {
+    if (lpszCurDir) {
+        pReq->lpszCurDir = MarshallString(lpszCurDir, Buf, MaxSize, &ptr, &Count);
+        if (!pReq->lpszCurDir) {
             goto Cleanup;
         }
-    }
-    else {
+    } else {
         pReq->lpszCurDir = NULL;
     }
 
-
     // marshall in the StartupInfo structure
-
-    RtlMoveMemory( &pReq->StartInfo, pStartInfo, sizeof(STARTUPINFO) );
-
+    RtlMoveMemory(&pReq->StartInfo, pStartInfo, sizeof(STARTUPINFO));
 
     // Now marshall the strings in STARTUPINFO
-
-    if( pStartInfo->lpDesktop ) {
-        pReq->StartInfo.lpDesktop = MarshallString( pStartInfo->lpDesktop, Buf, MaxSize, &ptr, &Count );
-        if (! pReq->StartInfo.lpDesktop )
-        {
+    if (pStartInfo->lpDesktop) {
+        pReq->StartInfo.lpDesktop = MarshallString(pStartInfo->lpDesktop, Buf, MaxSize, &ptr, &Count);
+        if (!pReq->StartInfo.lpDesktop) {
             goto Cleanup;
         }
-    }
-    else {
+    } else {
         pReq->StartInfo.lpDesktop = NULL;
     }
 
-    if( pStartInfo->lpTitle ) {
-        pReq->StartInfo.lpTitle = MarshallString( pStartInfo->lpTitle, Buf, MaxSize, &ptr, &Count );
-        if ( !pReq->StartInfo.lpTitle  )
-        {
+    if (pStartInfo->lpTitle) {
+        pReq->StartInfo.lpTitle = MarshallString(pStartInfo->lpTitle, Buf, MaxSize, &ptr, &Count);
+        if (!pReq->StartInfo.lpTitle) {
             goto Cleanup;
         }
-    }
-    else {
+    } else {
         pReq->StartInfo.lpTitle = NULL;
     }
-
 
     // WARNING: This version does not pass the following:
 
@@ -2243,21 +1617,15 @@ CreateRemoteSessionProcessW(
     //  the users default security on the remote WinStation
 
     // Set things that are always NULL
-
     pReq->StartInfo.lpReserved = NULL;  // always NULL
 
-
-    if ( lpvEnvionment)
-    {
-        for ( lpEnv = (PWCHAR) lpvEnvionment;
-            (*lpEnv ) && (envSize + Count < MaxSize ) ;  lpEnv++)
-        {
-            while( *lpEnv )
-            {
+    if (lpvEnvionment) {
+        for (lpEnv = (PWCHAR)lpvEnvionment;
+            (*lpEnv) && (envSize + Count < MaxSize);  lpEnv++) {
+            while (*lpEnv) {
                 lpEnv++;
                 envSize += 2;   // we are dealing with wide chars
-                if ( envSize+Count >= MaxSize )
-                {
+                if (envSize + Count >= MaxSize) {
                     // we have too many
                     // vars in the user's profile.
                     KdPrint(("\tEnv length too big = %d \n", envSize));
@@ -2265,84 +1633,54 @@ CreateRemoteSessionProcessW(
                 }
             }
             // this is the null which marked the end of the last env var.
-            envSize +=2;
-
+            envSize += 2;
         }
         envSize += 2;    // this is the final NULL
 
-
-        if ( Count + envSize < MaxSize )
-        {
-            RtlMoveMemory( (PCHAR)&Buf[Count] ,lpvEnvionment, envSize );
+        if (Count + envSize < MaxSize) {
+            RtlMoveMemory((PCHAR)&Buf[Count], lpvEnvionment, envSize);
             // SUNDOWN: Count is zero-extended and store in lpvEnvironment.
             //          This zero-extension is valid. The consuming code [see tsext\notify\execsrv.c]
             //          considers lpvEnvironment as an offset (<2GB).
             pReq->lpvEnvironment = (PCHAR)ULongToPtr(Count);
             ptr += envSize;         // for the next guy
             Count += envSize;       // the count used so far
-        }
-        else    // no room left to make a complete copy
+        } else    // no room left to make a complete copy
         {
             pReq->lpvEnvironment = NULL;
         }
-
-    }
-    else
-    {
+    } else {
         pReq->lpvEnvironment = NULL;
     }
 
-
     // now fill in the total count
-
     pReq->Size = Count;
 
 #if DBG
-    KdPrint(("pReq->Size = %d, envSize = %d \n", pReq->Size , envSize ));
+    KdPrint(("pReq->Size = %d, envSize = %d \n", pReq->Size, envSize));
 #endif
 
-
     // Now send the buffer out to the server
-
-    Result = WriteFile(
-                 hPipe,
-                 Buf,
-                 Count,
-                 &AmountWrote,
-                 NULL
-                 );
-
-    if( !Result ) {
-        KdPrint(("logon32.c: Error %d sending request\n",GetLastError() ));
+    Result = WriteFile(hPipe, Buf, Count, &AmountWrote, NULL);
+    if (!Result) {
+        KdPrint(("logon32.c: Error %d sending request\n", GetLastError()));
         goto Cleanup;
     }
-
 
     // Now read the reply
-
-    Result = ReadFile(
-                 hPipe,
-                 &Rep,
-                 sizeof(Rep),
-                 &AmountRead,
-                 NULL
-                 );
-
-    if( !Result ) {
-        KdPrint(("logon32.c: Error %d reading reply\n",GetLastError()));
+    Result = ReadFile(hPipe, &Rep, sizeof(Rep), &AmountRead, NULL);
+    if (!Result) {
+        KdPrint(("logon32.c: Error %d reading reply\n", GetLastError()));
         goto Cleanup;
     }
 
-
     // Check the result
-
-    if( !Rep.Result ) {
-        KdPrint(("logon32.c: Error %d in reply\n",Rep.LastError));
+    if (!Rep.Result) {
+        KdPrint(("logon32.c: Error %d in reply\n", Rep.LastError));
 
         // set the error in the current thread to the returned error
-
         Result = Rep.Result;
-        SetLastError( Rep.LastError );
+        SetLastError(Rep.LastError);
         goto Cleanup;
     }
 
@@ -2358,29 +1696,7 @@ Cleanup:
 }
 
 
-//  Synopsis:   Creates a process running as the user in hToken.
-
-//  Arguments:  [hToken]               -- Handle to a Primary Token to use
-//              [lpApplicationName]    -- as CreateProcess() q.v.
-//              [lpCommandLine]        --
-//              [lpProcessAttributes]  --
-//              [lpThreadAttributes]   --
-//              [bInheritHandles]      --
-//              [dwCreationFlags]      --
-//              [lpEnvironment]        --
-//              [lpCurrentDirectory]   --
-//              [lpStartupInfo]        --
-//              [lpProcessInformation] --
-
-//  Return Values
-//          If the function succeeds, the return value is nonzero.
-//          If the function fails, the return value is zero. To get extended error information, call GetLastError.
-
-//  History:    4-25-95   RichardW   Created
-//              1-14-98     AraBern     add changes for Hydra
-BOOL
-WINAPI
-CreateProcessAsUserW(
+BOOL WINAPI CreateProcessAsUserW(
     HANDLE  hToken,
     LPCWSTR lpApplicationName,
     LPWSTR lpCommandLine,
@@ -2392,51 +1708,59 @@ CreateProcessAsUserW(
     LPCWSTR lpCurrentDirectory,
     LPSTARTUPINFOW lpStartupInfo,
     LPPROCESS_INFORMATION lpProcessInformation
-    )
+)
+//  Synopsis:   Creates a process running as the user in hToken.
+//  Arguments:  [hToken]               -- Handle to a Primary Token to use
+//              [lpApplicationName]    -- as CreateProcess() q.v.
+//              [lpCommandLine]        --
+//              [lpProcessAttributes]  --
+//              [lpThreadAttributes]   --
+//              [bInheritHandles]      --
+//              [dwCreationFlags]      --
+//              [lpEnvironment]        --
+//              [lpCurrentDirectory]   --
+//              [lpStartupInfo]        --
+//              [lpProcessInformation] --
+//  Return Values
+//          If the function succeeds, the return value is nonzero.
+//          If the function fails, the return value is zero. To get extended error information, call GetLastError.
+//  History:    4-25-95   RichardW   Created
+//              1-14-98     AraBern     add changes for Hydra
 {
     DWORD    CreateFlags;
-    DWORD    clientSessionID=0;
-    DWORD    currentSessionID=0;
+    DWORD    clientSessionID = 0;
+    DWORD    currentSessionID = 0;
     DWORD    resultLength;
     HANDLE   hTmpToken;
-    DWORD    curProcId ;
-    NTSTATUS Status ;
-    PROCESS_SESSION_INFORMATION SessInfo ;
+    DWORD    curProcId;
+    NTSTATUS Status;
+    PROCESS_SESSION_INFORMATION SessInfo;
 
     CreateFlags = (dwCreationFlags & CREATE_SUSPENDED ? COMMON_CREATE_SUSPENDED : 0);
 
-
     // get the sessionID (if zero then it means that we are on the console).
-
     currentSessionID = NtCurrentPeb()->SessionId;
 
-    if ( !GetTokenInformation ( hToken, TokenSessionId , &clientSessionID,sizeof( DWORD), &resultLength ) )
-    {
-
-    // get the access token for the client of this call
-    // get token instead of process since the client might have only
-    // impersonated the thread, not the process
+    if (!GetTokenInformation(hToken, TokenSessionId, &clientSessionID, sizeof(DWORD), &resultLength)) {
+        // get the access token for the client of this call
+        // get token instead of process since the client might have only
+        // impersonated the thread, not the process
 
         DBG_DumpOutLastError;
-        ASSERT( FALSE );
+        ASSERT(FALSE);
         currentSessionID = 0;
-
 
         // We should probably return FALSE here, but at this time we don't want to alter the
         // non-Hydra code-execution-flow at all.
-
     }
 
     // KdPrint(("logon32.c: CreateProcessAsUserW(): clientSessionID = %d, currentSessionID = %d \n",
     //    clientSessionID, currentSessionID ));
 
-    if (  clientSessionID != currentSessionID )
-    {
-
+    if (clientSessionID != currentSessionID) {
         // If the client session ID is not the same as the current session ID, then, we are attempting
         // to create a process on a remote session from the current session.
         // This block of code is used to accomplish such process creation, it is Terminal-Server specific
-
 
         BOOL        bHaveImpersonated;
         HANDLE      hCurrentThread;
@@ -2445,95 +1769,72 @@ CreateProcessAsUserW(
         TOKEN_TYPE  tokenType;
 
         // We must send the request to the remote session of the requestor
-        // NOTE: The current WinStationCreateProcessW() does not use the supplied security descriptor, but creates the process under the account of the logged on user.
+        // NOTE: The current WinStationCreateProcessW() does not use the supplied security descriptor, 
+        // but creates the process under the account of the logged on user.
         // We do not stuff the security descriptor, so clear the suspend flag
         dwCreationFlags &= ~CREATE_SUSPENDED;
-
 
         // Stop impersonating before doing the WinStationCreateProcess.
         // The remote winstation exec thread will launch the app under
         // the users context. We must not be impersonating because this
         // call only lets SYSTEM request the remote execute.
-
         hCurrentThread = GetCurrentThread();
 
-
         // Init bHaveImpersonated to the FALSE state
-
         bHaveImpersonated = FALSE;
-
 
         // Since the caller of this function (runas-> SecLogon service ) has already
         // impersonated the new (target) user, we do the OpenThreadToken with
         // OpenAsSelf = TRUE
 
-        if ( OpenThreadToken( hCurrentThread, TOKEN_QUERY, TRUE, &hPrevToken ) )
-        {
-
+        if (OpenThreadToken(hCurrentThread, TOKEN_QUERY, TRUE, &hPrevToken)) {
             bHaveImpersonated = TRUE;
 
-            if ( !RevertToSelf() )
-            {
+            if (!RevertToSelf()) {
                 return FALSE;
             }
         }
 
-
-       // else, we are not impersoating, as reflected by the init value of bHaveImpersonated
-
-
+        // else, we are not impersoating, as reflected by the init value of bHaveImpersonated
         rc = CreateRemoteSessionProcessW(
-                clientSessionID,
-                FALSE,     // not creating a process for System
-                hToken,
-                lpApplicationName,
-                lpCommandLine,
-                lpProcessAttributes,
-                lpThreadAttributes,
-                bInheritHandles,
-                dwCreationFlags |  CREATE_SEPARATE_WOW_VDM,
-                lpEnvironment,
-                lpCurrentDirectory,
-                lpStartupInfo,
-                lpProcessInformation) ;
-
-
-        // Undo the effect of RevertToSelf() if we had impersoanted
-
-        if ( bHaveImpersonated )
-        {
-            Status = NtSetInformationThread(
-                        NtCurrentThread(),
-                        ThreadImpersonationToken,
-                        &hPrevToken,
-                        sizeof( hPrevToken ) );
-
-            NtClose( hPrevToken );
-        }
-
-        if ( rc )
-        {
-            return TRUE;
-        }
-        else
-        {
-            return FALSE;
-        }
-    }
-    else
-        // this is the standard non-Hydra related call block
-    {
-        if (!CreateProcessW(lpApplicationName,
+            clientSessionID,
+            FALSE,     // not creating a process for System
+            hToken,
+            lpApplicationName,
             lpCommandLine,
             lpProcessAttributes,
             lpThreadAttributes,
             bInheritHandles,
-            dwCreationFlags | CREATE_SUSPENDED | CREATE_SEPARATE_WOW_VDM,
+            dwCreationFlags | CREATE_SEPARATE_WOW_VDM,
             lpEnvironment,
             lpCurrentDirectory,
             lpStartupInfo,
-            lpProcessInformation))
-        {
+            lpProcessInformation);
+
+        // Undo the effect of RevertToSelf() if we had impersoanted
+        if (bHaveImpersonated) {
+            Status = NtSetInformationThread(NtCurrentThread(), ThreadImpersonationToken, &hPrevToken, sizeof(hPrevToken));
+            NtClose(hPrevToken);
+        }
+
+        if (rc) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    } else
+        // this is the standard non-Hydra related call block
+    {
+        if (!CreateProcessW(lpApplicationName,
+                            lpCommandLine,
+                            lpProcessAttributes,
+                            lpThreadAttributes,
+                            bInheritHandles,
+                            dwCreationFlags | CREATE_SUSPENDED | CREATE_SEPARATE_WOW_VDM,
+                            lpEnvironment,
+                            lpCurrentDirectory,
+                            lpStartupInfo,
+                            lpProcessInformation)) {
             return(FALSE);
         }
 
@@ -2546,8 +1847,7 @@ CreateProcessAsUserW(
 
 
 //  ANSI wrapper for CreateRemoteSessionProcessW()
-BOOL
-CreateRemoteSessionProcessA(
+BOOL CreateRemoteSessionProcessA(
     ULONG  SessionId,
     BOOL   System,
     HANDLE  hToken,
@@ -2572,124 +1872,111 @@ CreateRemoteSessionProcessA(
     UNICODE_STRING          unicodeTitle, unicodeDesktop, unicodeReserved;
     BOOL                    bRet;
 
-    RtlInitAnsiString( &ansiAppName, lpApplicationName );
-    st = RtlAnsiStringToUnicodeString( &unicodeAppName, &ansiAppName, TRUE);
-    if (!NT_SUCCESS(st ) )
-    {
+    RtlInitAnsiString(&ansiAppName, lpApplicationName);
+    st = RtlAnsiStringToUnicodeString(&unicodeAppName, &ansiAppName, TRUE);
+    if (!NT_SUCCESS(st)) {
         BaseSetLastNTError(st);
         bRet = FALSE;
         goto Cleanup;
     }
 
-    RtlInitAnsiString( &ansiCommandLine, lpCommandLine );
-    st = RtlAnsiStringToUnicodeString( &unicodeCommandLine, &ansiCommandLine, TRUE);
-    if (!NT_SUCCESS(st ) )
-    {
+    RtlInitAnsiString(&ansiCommandLine, lpCommandLine);
+    st = RtlAnsiStringToUnicodeString(&unicodeCommandLine, &ansiCommandLine, TRUE);
+    if (!NT_SUCCESS(st)) {
         BaseSetLastNTError(st);
         bRet = FALSE;
         goto Cleanup;
     }
 
-    RtlInitAnsiString( &ansiCurDir, lpCurrentDirectory );
-    st = RtlAnsiStringToUnicodeString( &unicodeCurDir, &ansiCurDir, TRUE);
-    if (!NT_SUCCESS(st ) )
-    {
+    RtlInitAnsiString(&ansiCurDir, lpCurrentDirectory);
+    st = RtlAnsiStringToUnicodeString(&unicodeCurDir, &ansiCurDir, TRUE);
+    if (!NT_SUCCESS(st)) {
         BaseSetLastNTError(st);
         bRet = FALSE;
         goto Cleanup;
     }
 
-    RtlInitAnsiString( &ansiTitle, lpStartupInfo->lpTitle );
-    st = RtlAnsiStringToUnicodeString( &unicodeTitle, &ansiTitle, TRUE );
-    if (!NT_SUCCESS(st ) )
-    {
+    RtlInitAnsiString(&ansiTitle, lpStartupInfo->lpTitle);
+    st = RtlAnsiStringToUnicodeString(&unicodeTitle, &ansiTitle, TRUE);
+    if (!NT_SUCCESS(st)) {
         BaseSetLastNTError(st);
         bRet = FALSE;
         goto Cleanup;
     }
 
-    RtlInitAnsiString( &ansiDesktop, lpStartupInfo->lpDesktop );
-    st = RtlAnsiStringToUnicodeString( &unicodeDesktop, &ansiDesktop, TRUE );
-    if (!NT_SUCCESS(st ) )
-    {
+    RtlInitAnsiString(&ansiDesktop, lpStartupInfo->lpDesktop);
+    st = RtlAnsiStringToUnicodeString(&unicodeDesktop, &ansiDesktop, TRUE);
+    if (!NT_SUCCESS(st)) {
         BaseSetLastNTError(st);
         bRet = FALSE;
         goto Cleanup;
     }
 
-    RtlInitAnsiString( &ansiReserved, lpStartupInfo->lpReserved );
-    st = RtlAnsiStringToUnicodeString( &unicodeReserved, &ansiReserved, TRUE );
-    if (!NT_SUCCESS(st ) )
-    {
+    RtlInitAnsiString(&ansiReserved, lpStartupInfo->lpReserved);
+    st = RtlAnsiStringToUnicodeString(&unicodeReserved, &ansiReserved, TRUE);
+    if (!NT_SUCCESS(st)) {
         BaseSetLastNTError(st);
         bRet = FALSE;
         goto Cleanup;
     }
 
-    unicodeStartupInfo.cb               = lpStartupInfo->cb ;
-    unicodeStartupInfo.cbReserved2      = lpStartupInfo->cbReserved2;
-    unicodeStartupInfo.dwFillAttribute  = lpStartupInfo->dwFillAttribute;
-    unicodeStartupInfo.dwFlags          = lpStartupInfo->dwFlags;
-    unicodeStartupInfo.dwX              = lpStartupInfo->dwX;
-    unicodeStartupInfo.dwXCountChars    = lpStartupInfo->dwXCountChars;
-    unicodeStartupInfo.dwXSize          = lpStartupInfo->dwXSize;
-    unicodeStartupInfo.dwY              = lpStartupInfo->dwY;
-    unicodeStartupInfo.dwYCountChars    = lpStartupInfo->dwYCountChars;
-    unicodeStartupInfo.dwYSize          = lpStartupInfo->dwYSize;
-    unicodeStartupInfo.hStdError        = lpStartupInfo->hStdError;
-    unicodeStartupInfo.hStdInput        = lpStartupInfo->hStdInput;
-    unicodeStartupInfo.hStdOutput       = lpStartupInfo->hStdOutput;
-    unicodeStartupInfo.lpReserved2      = lpStartupInfo->lpReserved2;
-    unicodeStartupInfo.wShowWindow      = lpStartupInfo->wShowWindow;
-    unicodeStartupInfo.lpDesktop        = unicodeDesktop.Buffer;;
-    unicodeStartupInfo.lpReserved       = unicodeReserved.Buffer;
-    unicodeStartupInfo.lpTitle          = unicodeTitle.Buffer;
+    unicodeStartupInfo.cb = lpStartupInfo->cb;
+    unicodeStartupInfo.cbReserved2 = lpStartupInfo->cbReserved2;
+    unicodeStartupInfo.dwFillAttribute = lpStartupInfo->dwFillAttribute;
+    unicodeStartupInfo.dwFlags = lpStartupInfo->dwFlags;
+    unicodeStartupInfo.dwX = lpStartupInfo->dwX;
+    unicodeStartupInfo.dwXCountChars = lpStartupInfo->dwXCountChars;
+    unicodeStartupInfo.dwXSize = lpStartupInfo->dwXSize;
+    unicodeStartupInfo.dwY = lpStartupInfo->dwY;
+    unicodeStartupInfo.dwYCountChars = lpStartupInfo->dwYCountChars;
+    unicodeStartupInfo.dwYSize = lpStartupInfo->dwYSize;
+    unicodeStartupInfo.hStdError = lpStartupInfo->hStdError;
+    unicodeStartupInfo.hStdInput = lpStartupInfo->hStdInput;
+    unicodeStartupInfo.hStdOutput = lpStartupInfo->hStdOutput;
+    unicodeStartupInfo.lpReserved2 = lpStartupInfo->lpReserved2;
+    unicodeStartupInfo.wShowWindow = lpStartupInfo->wShowWindow;
+    unicodeStartupInfo.lpDesktop = unicodeDesktop.Buffer;;
+    unicodeStartupInfo.lpReserved = unicodeReserved.Buffer;
+    unicodeStartupInfo.lpTitle = unicodeTitle.Buffer;
 
-    rc =     CreateRemoteSessionProcessW(
+    rc = CreateRemoteSessionProcessW(
         SessionId,
         System,
         hToken,
         unicodeAppName.Buffer,
         unicodeCommandLine.Buffer,
         lpProcessAttributes,
-        lpThreadAttributes ,
+        lpThreadAttributes,
         bInheritHandles,
         dwCreationFlags,
         lpEnvironment,
         unicodeCurDir.Buffer,
         &unicodeStartupInfo,
-        lpProcessInformation
-    );
+        lpProcessInformation);
 
 Cleanup:
 
-    if (unicodeAppName.Buffer)
-    {
+    if (unicodeAppName.Buffer) {
         RtlFreeUnicodeString(&unicodeAppName);
     }
 
-    if (unicodeCommandLine.Buffer)
-    {
+    if (unicodeCommandLine.Buffer) {
         RtlFreeUnicodeString(&unicodeCommandLine);
     }
 
-    if (unicodeCurDir.Buffer)
-    {
+    if (unicodeCurDir.Buffer) {
         RtlFreeUnicodeString(&unicodeCurDir);
     }
 
-    if (unicodeTitle.Buffer)
-    {
+    if (unicodeTitle.Buffer) {
         RtlFreeUnicodeString(&unicodeTitle);
     }
 
-    if (unicodeDesktop.Buffer)
-    {
+    if (unicodeDesktop.Buffer) {
         RtlFreeUnicodeString(&unicodeDesktop);
     }
 
-    if (unicodeReserved.Buffer)
-    {
+    if (unicodeReserved.Buffer) {
         RtlFreeUnicodeString(&unicodeReserved);
     }
 
@@ -2697,37 +1984,7 @@ Cleanup:
 }
 
 
-
-
-//  Function:   CreateProcessAsUserA
-
-//  Synopsis:   ANSI wrapper for CreateProcessAsUserW
-
-//  Arguments:  [hToken]               --
-//              [lpApplicationName]    --
-//              [lpCommandLine]        --
-//              [lpProcessAttributes]  --
-//              [lpThreadAttributes]   --
-//              [bInheritHandles]      --
-//              [dwCreationFlags]      --
-//              [lpEnvironment]        --
-//              [lpCurrentDirectory]   --
-//              [lpStartupInfo]        --
-//              [lpProcessInformation] --
-
-//  Return Values
-//          If the function succeeds, the return value is nonzero.
-//          If the function fails, the return value is zero. To get extended error information, call GetLastError.
-
-//  History:    4-25-95   RichardW   Created
-//              1-14-98  AraBern     add changes for Hydra
-
-//  Notes:
-
-
-BOOL
-WINAPI
-CreateProcessAsUserA(
+BOOL WINAPI CreateProcessAsUserA(
     HANDLE  hToken,
     LPCSTR lpApplicationName,
     LPSTR lpCommandLine,
@@ -2739,167 +1996,134 @@ CreateProcessAsUserA(
     LPCSTR lpCurrentDirectory,
     LPSTARTUPINFOA lpStartupInfo,
     LPPROCESS_INFORMATION lpProcessInformation
-    )
+)
+//  Synopsis:   ANSI wrapper for CreateProcessAsUserW
+//  Return Values
+//          If the function succeeds, the return value is nonzero.
+//          If the function fails, the return value is zero. To get extended error information, call GetLastError.
+//  History:    4-25-95   RichardW   Created
+//              1-14-98  AraBern     add changes for Hydra
 {
     DWORD   CreateFlags;
-    DWORD   clientSessionID=0;
-    DWORD   currentSessionID=0;
+    DWORD   clientSessionID = 0;
+    DWORD   currentSessionID = 0;
     DWORD   resultLength;
     HANDLE  hTmpToken;
-    DWORD   curProcId ;
+    DWORD   curProcId;
 
     CreateFlags = (dwCreationFlags & CREATE_SUSPENDED ? COMMON_CREATE_SUSPENDED : 0);
 
-
     // get the session if (zero means console).
-
     currentSessionID = NtCurrentPeb()->SessionId;
 
-    if ( !GetTokenInformation ( hToken, TokenSessionId , &clientSessionID,sizeof( DWORD), &resultLength ) )
-    {
-
-    // get the access token for the client of this call
-    // use get token instead of process since the client might have only
-    // impersonated the thread, not the process
-
+    if (!GetTokenInformation(hToken, TokenSessionId, &clientSessionID, sizeof(DWORD), &resultLength)) {
+        // get the access token for the client of this call
+        // use get token instead of process since the client might have only
+        // impersonated the thread, not the process
         DBG_DumpOutLastError;
-        ASSERT( FALSE );
+        ASSERT(FALSE);
         currentSessionID = 0;
-
 
         // We should probably return FALSE here, but at this time we don't want to alter the
         // non-Hydra code-execution-flow at all.
-
     }
 
     KdPrint(("logon32.c: CreateProcessAsUserA(): clientSessionID = %d, currentSessionID = %d \n",
-            clientSessionID, currentSessionID ));
+             clientSessionID, currentSessionID));
 
-    if ( ( clientSessionID != currentSessionID ))
-    {
+    if ((clientSessionID != currentSessionID)) {
+        // If the client session ID is not the same as the current session ID, then, we are attempting
+        // to create a process on a remote session from the current session.
+        // This block of code is used to accomplish such process creation, it is Terminal-Server specific
+        BOOL        bHaveImpersonated;
+        HANDLE      hCurrentThread;
+        HANDLE      hPrevToken = NULL;
+        DWORD       rc;
+        TOKEN_TYPE  tokenType;
 
-       // If the client session ID is not the same as the current session ID, then, we are attempting
-       // to create a process on a remote session from the current session.
-       // This block of code is used to accomplish such process creation, it is Terminal-Server specific
+        // We must send the request to the remote WinStation of the requestor
+        // NOTE: The current WinStationCreateProcessW() does not use the supplied security descriptor, 
+        // but creates the process under the account of the logged on user.
+        // We do not stuff the security descriptor, so clear the suspend flag
+        dwCreationFlags &= ~CREATE_SUSPENDED;
 
+        // Stop impersonating before doing the WinStationCreateProcess.
+        // The remote winstation exec thread will launch the app under
+        // the users context. We must not be impersonating because this
+        // call only lets SYSTEM request the remote execute.
+        hCurrentThread = GetCurrentThread();
 
-       BOOL        bHaveImpersonated;
-       HANDLE      hCurrentThread;
-       HANDLE      hPrevToken = NULL;
-       DWORD       rc;
-       TOKEN_TYPE  tokenType;
-
-       // We must send the request to the remote WinStation of the requestor
-       // NOTE: The current WinStationCreateProcessW() does not use the supplied security descriptor, but creates the process under the account of the logged on user.
-       // We do not stuff the security descriptor, so clear the suspend flag
-       dwCreationFlags &= ~CREATE_SUSPENDED;
-
-
-       // Stop impersonating before doing the WinStationCreateProcess.
-       // The remote winstation exec thread will launch the app under
-       // the users context. We must not be impersonating because this
-       // call only lets SYSTEM request the remote execute.
-
-       hCurrentThread = GetCurrentThread();
-
-
-       // Init bHaveImpersonated to the FALSE state
-
-       bHaveImpersonated = FALSE;
-
-
+        // Init bHaveImpersonated to the FALSE state
+        bHaveImpersonated = FALSE;
 
         // Since the caller of this function (runas-> SecLogon service ) has already
         // impersonated the new (target) user, we do the OpenThreadToken with
         // OpenAsSelf = TRUE
 
-        if ( OpenThreadToken( hCurrentThread, TOKEN_QUERY, TRUE, &hPrevToken ) )
-        {
-
+        if (OpenThreadToken(hCurrentThread, TOKEN_QUERY, TRUE, &hPrevToken)) {
             bHaveImpersonated = TRUE;
 
-            if ( !RevertToSelf() )
-            {
+            if (!RevertToSelf()) {
                 return FALSE;
             }
         }
 
-
-       // else, we are not impersoating, as reflected by the init value of bHaveImpersonated
-
-
-        if ( bHaveImpersonated )
-        {
-            if ( !RevertToSelf() )
-            {
+        // else, we are not impersoating, as reflected by the init value of bHaveImpersonated
+        if (bHaveImpersonated) {
+            if (!RevertToSelf()) {
                 return FALSE;
             }
         }
-
 
         rc = CreateRemoteSessionProcessA(
-                clientSessionID,
-                FALSE,     // not creating a process for System
-                hToken,
-                lpApplicationName,
-                lpCommandLine,
-                lpProcessAttributes,
-                lpThreadAttributes,
-                bInheritHandles,
-                dwCreationFlags |  CREATE_SEPARATE_WOW_VDM,
-                lpEnvironment,
-                lpCurrentDirectory,
-                lpStartupInfo,
-                lpProcessInformation) ;
-
+            clientSessionID,
+            FALSE,     // not creating a process for System
+            hToken,
+            lpApplicationName,
+            lpCommandLine,
+            lpProcessAttributes,
+            lpThreadAttributes,
+            bInheritHandles,
+            dwCreationFlags | CREATE_SEPARATE_WOW_VDM,
+            lpEnvironment,
+            lpCurrentDirectory,
+            lpStartupInfo,
+            lpProcessInformation);
 
         // Undo the effect of RevertToSelf() if we had impersoanted
-
-        if ( bHaveImpersonated )
-        {
+        if (bHaveImpersonated) {
             DWORD   rc_2;
-            rc_2 = ImpersonateLoggedOnUser( hPrevToken );
-            CloseHandle( hPrevToken );
-            if ( rc_2 )
-            {
+            rc_2 = ImpersonateLoggedOnUser(hPrevToken);
+            CloseHandle(hPrevToken);
+            if (rc_2) {
                 return FALSE;
             }
         }
 
-        if ( rc )
-        {
+        if (rc) {
             return TRUE;
-        }
-        else
-        {
+        } else {
             return FALSE;
         }
-
-    }
-    else
-
-    // this is the standard non-Hydra related call block
-
+    } else
+        // this is the standard non-Hydra related call block
     {
-            if (!CreateProcessA(lpApplicationName,
-                                lpCommandLine,
-                                lpProcessAttributes,
-                                lpThreadAttributes,
-                                bInheritHandles,
-                                dwCreationFlags | CREATE_SUSPENDED | CREATE_SEPARATE_WOW_VDM,
-                                lpEnvironment,
-                                lpCurrentDirectory,
-                                lpStartupInfo,
-                                lpProcessInformation))
-            {
-                return(FALSE);
-            }
+        if (!CreateProcessA(lpApplicationName,
+                            lpCommandLine,
+                            lpProcessAttributes,
+                            lpThreadAttributes,
+                            bInheritHandles,
+                            dwCreationFlags | CREATE_SUSPENDED | CREATE_SEPARATE_WOW_VDM,
+                            lpEnvironment,
+                            lpCurrentDirectory,
+                            lpStartupInfo,
+                            lpProcessInformation)) {
+            return(FALSE);
+        }
 
-            CreateFlags |= (lpProcessAttributes ? 0 : COMMON_CREATE_PROCESSSD);
-            CreateFlags |= (lpThreadAttributes ? 0 : COMMON_CREATE_THREADSD);
+        CreateFlags |= (lpProcessAttributes ? 0 : COMMON_CREATE_PROCESSSD);
+        CreateFlags |= (lpThreadAttributes ? 0 : COMMON_CREATE_THREADSD);
 
-            return(L32CommonCreate(CreateFlags, hToken, lpProcessInformation));
+        return(L32CommonCreate(CreateFlags, hToken, lpProcessInformation));
     }
-
 }
-

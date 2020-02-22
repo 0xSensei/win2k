@@ -1245,14 +1245,12 @@ BOOL CPBApp::DoPromptFileName( CString& fileName, UINT nIDSTitle, DWORD lFlags,
     else
     {
        DWORD dwIndex;
-       if (m_nFltTypeUsed != IFLT_UNKNOWN &&
-                        (dwIndex = GetFilterIndex(m_nFltTypeUsed))) // has an export filter?
+       if (m_nFltTypeUsed != IFLT_UNKNOWN && (dwIndex = GetFilterIndex(m_nFltTypeUsed))) // has an export filter?
             dlgFile.m_pofn->nFilterIndex = dwIndex + 4; // skip the first 4 BMP types
         else if (m_nFilterOutIdx >= 4)
             dlgFile.m_pofn->nFilterIndex = m_nFilterOutIdx;
         else
             dlgFile.m_pofn->nFilterIndex = iColors + 1; // 1 based number
-
     }
     dlgFile.m_pofn->lpstrFilter = strFilter;
     dlgFile.m_pofn->hwndOwner   = AfxGetMainWnd()->GetSafeHwnd();
@@ -1264,30 +1262,22 @@ BOOL CPBApp::DoPromptFileName( CString& fileName, UINT nIDSTitle, DWORD lFlags,
     ::LoadString (GetModuleHandle (NULL), AFX_IDS_UNTITLED, szInitPath, MAX_PATH);
 
     // Look in "My Documents" on NT 5, Win98, and later.
-
     if (!theApp.GetLastFile() || !*(theApp.GetLastFile()))
     {
        static SHSPECPATH pfnSpecialPath = NULL;
        if (!pfnSpecialPath)
        {
-
           #ifdef UNICODE
-          pfnSpecialPath = (SHSPECPATH)GetProcAddress (
-                                           GetModuleHandle(TEXT("shell32.dll")),
-                                           "SHGetSpecialFolderPathW");
+          pfnSpecialPath = (SHSPECPATH)GetProcAddress (GetModuleHandle(TEXT("shell32.dll")), "SHGetSpecialFolderPathW");
           #else
-          pfnSpecialPath = (SHSPECPATH)GetProcAddress (
-                                           GetModuleHandle(TEXT("shell32.dll")),
-                                           "SHGetSpecialFolderPathA");
+          pfnSpecialPath = (SHSPECPATH)GetProcAddress (GetModuleHandle(TEXT("shell32.dll")), "SHGetSpecialFolderPathA");
           #endif //UNICODE
-
        }
        if (pfnSpecialPath)
        {
           (pfnSpecialPath)(NULL, szInitPath, CSIDL_MYPICTURES, FALSE);
           dlgFile.m_pofn->lpstrInitialDir = szInitPath;
        }
-
     }
 
     BOOL bRet = dlgFile.DoModal() == IDOK? TRUE : FALSE;
@@ -1309,7 +1299,6 @@ BOOL CPBApp::DoPromptFileName( CString& fileName, UINT nIDSTitle, DWORD lFlags,
         if (! sExt.CompareNoCase( ((const TCHAR *)strFilterExt) + 1 ))
             iColors = 5;
 #endif
-
 
     return bRet;
     }

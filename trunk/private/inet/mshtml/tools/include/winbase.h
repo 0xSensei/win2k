@@ -4195,12 +4195,7 @@ LogonUserW (
 #define LogonUser  LogonUserA
 #endif // !UNICODE
 
-WINADVAPI
-BOOL
-WINAPI
-ImpersonateLoggedOnUser(
-    HANDLE  hToken
-    );
+WINADVAPI BOOL WINAPI ImpersonateLoggedOnUser(HANDLE  hToken);
 
 WINADVAPI
 BOOL

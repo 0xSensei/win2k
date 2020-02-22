@@ -46,7 +46,7 @@ LPVOID lpfnWowShellExecCB = NULL;
 #endif
 
 // from dllload.c
-extern "C" BOOL AllowSetForegroundWindow( DWORD dwProcId );
+extern "C" BOOL AllowSetForegroundWindow(DWORD dwProcId);
 
 class CShellExecute {
 public:
@@ -91,7 +91,7 @@ private:
     HRESULT _QueryString(ASSOCF flags, ASSOCSTR str, LPTSTR psz, DWORD cch);
     BOOL _CheckForRegisteredProgram(void);
     BOOL _ProcessErrorShouldTryExecCommand(DWORD err, HWND hwnd, BOOL fCreateProcessFailed);
-    LPTSTR _BuildEnvironmentForNewProcess( LPCTSTR pszNewEnvString );
+    LPTSTR _BuildEnvironmentForNewProcess(LPCTSTR pszNewEnvString);
     void _FixActivationStealingApps(HWND hwndOldActive, int nShow);
     DWORD _GetCreateFlags(ULONG fMask);
     BOOL _Resolve(void);
@@ -106,14 +106,11 @@ private:
     void _DestroyHiddenDDEWindow(HWND hwnd);
     BOOL _TryDDEShortCircuit(HWND hwnd, HGLOBAL hMem, int nShow);
     BOOL _PostDDEExecute(HWND hwndConv,
-                        HGLOBAL hDDECommand,
-                        HANDLE hConversationDone,
-                        BOOL fWaitForDDE,
-                        HWND *phwndDDE);
-    BOOL _DDEExecute(BOOL fWillRetry,
-                    HWND hwndParent,
-                    int   nShowCmd,
-                    BOOL fWaitForDDE);
+                         HGLOBAL hDDECommand,
+                         HANDLE hConversationDone,
+                         BOOL fWaitForDDE,
+                         HWND* phwndDDE);
+    BOOL _DDEExecute(BOOL fWillRetry, HWND hwndParent, int   nShowCmd, BOOL fWaitForDDE);
 
     // exec methods
     BOOL _TryHooks(LPSHELLEXECUTEINFO pei);
@@ -129,7 +126,7 @@ private:
 
     //  uninit/error handling methods
     BOOL _Cleanup(BOOL fSucceeded);
-    BOOL _FinalMapError(HINSTANCE UNALIGNED64 *phinst);
+    BOOL _FinalMapError(HINSTANCE UNALIGNED64* phinst);
     BOOL _ReportWin32(DWORD err);
     BOOL _ReportHinst(HINSTANCE hinst);
     DWORD _MapHINSTToWin32Err(HINSTANCE se_err);
@@ -144,7 +141,6 @@ private:
     // BUGBUGTODO members that arent yet
     //  BUGBUGTODO _InvokeInProcExec
     //  BUGBUGTODO _ShellExecPidl
-
 
     // PRIVATE MEMBERS
 
@@ -177,7 +173,7 @@ private:
     ATOM       _aApplication;
     ATOM       _aTopic;
     LPITEMIDLIST _pidlGlobal;
-    IQueryAssociations *_pqa;
+    IQueryAssociations* _pqa;
 
     HWND _hwndParent;
     LPSECURITY_ATTRIBUTES _pProcAttrs;
@@ -226,11 +222,11 @@ CShellExecute::~CShellExecute()
 void CShellExecute::_SetMask(ULONG fMask)
 {
     _fDoEnvSubst = (fMask & SEE_MASK_DOENVSUBST);
-    _fNoUI       = (fMask & SEE_MASK_FLAG_NO_UI);
+    _fNoUI = (fMask & SEE_MASK_FLAG_NO_UI);
     _fNoQueryClassStore = (fMask & SEE_MASK_NOQUERYCLASSSTORE);
     _fDDEWait = fMask & SEE_MASK_FLAG_DDEWAIT;
     _fWaitForInputIdle = fMask & SEE_MASK_WAITFORINPUTIDLE;
-    _fUseClass   = _UseClassName(fMask) || _UseClassKey(fMask);
+    _fUseClass = _UseClassName(fMask) || _UseClassKey(fMask);
 
     _dwCreateFlags = _GetCreateFlags(fMask);
     _uConnect = fMask & SEE_MASK_CONNECTNETDRV ? VALIDATEUNC_CONNECT : 0;
@@ -254,16 +250,14 @@ HRESULT CShellExecute::_Init(LPSHELLEXECUTEINFO pei)
 
     _SetMask(pei->fMask);
 
-    _lpParameters= pei->lpParameters;
-    _lpID        = (LPITEMIDLIST)(_UseIDList(pei->fMask) ? pei->lpIDList : NULL);
-    _lpTitle     = _UseTitleName(pei->fMask) ? pei->lpClass : NULL;
-
+    _lpParameters = pei->lpParameters;
+    _lpID = (LPITEMIDLIST)(_UseIDList(pei->fMask) ? pei->lpIDList : NULL);
+    _lpTitle = _UseTitleName(pei->fMask) ? pei->lpClass : NULL;
 
     //  default to TRUE;
     _fActivateHandler = TRUE;
 
-    if (pei->lpVerb && *(pei->lpVerb))
-    {
+    if (pei->lpVerb && *(pei->lpVerb)) {
         SHTCharToUnicode(pei->lpVerb, _wszVerb, SIZECHARS(_wszVerb));
         _pszQueryVerb = _wszVerb;
 
@@ -272,9 +266,7 @@ HRESULT CShellExecute::_Init(LPSHELLEXECUTEINFO pei)
     }
 
     _hwndParent = pei->hwnd;
-
     pei->hProcess = 0;
-
     _nShow = pei->nShow;
 
     //  initialize the startup struct
@@ -285,13 +277,11 @@ HRESULT CShellExecute::_Init(LPSHELLEXECUTEINFO pei)
 
 void CShellExecute::_SetWorkingDir(LPCTSTR pszIn)
 {
-        //  if we were given a directory, we attempt to use it
-    if (pszIn && *pszIn)
-    {
+    //  if we were given a directory, we attempt to use it
+    if (pszIn && *pszIn) {
         StrCpyN(_szWorkingDir, pszIn, SIZECHARS(_szWorkingDir));
         if (_fDoEnvSubst)
             DoEnvironmentSubst(_szWorkingDir, SIZECHARS(_szWorkingDir));
-
 
         // if the passed directory is not valid (after env subst) dont
         // fail, act just like Win31 and use whatever the current dir is.
@@ -299,45 +289,33 @@ void CShellExecute::_SetWorkingDir(LPCTSTR pszIn)
         // Win31 is stranger than I could imagine, if you pass ShellExecute
         // an invalid directory, it will change the current drive.
 
-        if (!PathIsDirectory(_szWorkingDir))
-        {
-            if (PathGetDriveNumber(_szWorkingDir) >= 0)
-            {
+        if (!PathIsDirectory(_szWorkingDir)) {
+            if (PathGetDriveNumber(_szWorkingDir) >= 0) {
                 TraceMsg(TF_SHELLEXEC, "SHEX::_SetWorkingDir() bad directory %s, using %c:", _szWorkingDir, _szWorkingDir[0]);
                 PathStripToRoot(_szWorkingDir);
-            }
-            else
-            {
+            } else {
                 TraceMsg(TF_SHELLEXEC, "SHEX::_SetWorkingDir() bad directory %s, using current dir", _szWorkingDir);
                 GetCurrentDirectory(SIZECHARS(_szWorkingDir), _szWorkingDir);
             }
-        }
-        else
-        {
+        } else {
             return;
         }
-    }
-    else
-    {
+    } else {
         // if we are doing a SHCreateProcessAsUser or a normal shellexecute w/ the "runas" verb, and
         // the caller passed NULL for lpCurrentDirectory then we we do NOT want to fall back and use
         // the CWD because the newly logged on user might not have permissions in the current users CWD.
         // We will have better luck just passing NULL and letting the OS figure it out.
-        if (_fRunAs)
-        {
+        if (_fRunAs) {
             _fUseNullCWD = TRUE;
             return;
-        }
-        else
-        {
+        } else {
             GetCurrentDirectory(SIZECHARS(_szWorkingDir), _szWorkingDir);
         }
     }
 
     //  there are some lame cases where even CD is bad.
     //  and CreateProcess() will then fail.
-    if (!PathIsDirectory(_szWorkingDir))
-    {
+    if (!PathIsDirectory(_szWorkingDir)) {
         GetWindowsDirectory(_szWorkingDir, SIZECHARS(_szWorkingDir));
     }
 
@@ -352,8 +330,7 @@ inline BOOL _IsNamespaceObject(LPCTSTR psz)
 
 void CShellExecute::_SetFile(LPCTSTR pszIn)
 {
-    if (pszIn && pszIn[0])
-    {
+    if (pszIn && pszIn[0]) {
         PARSEDURL pu;
 
         TraceMsg(TF_SHELLEXEC, "SHEX::_SetFileName() Entered pszIn = %s", pszIn);
@@ -362,8 +339,7 @@ void CShellExecute::_SetFile(LPCTSTR pszIn)
 
         pu.cbSize = SIZEOF(pu);
         _fIsUrl = SUCCEEDED(ParseURL(pszIn, &pu));
-        if (_fIsUrl && URL_SCHEME_FILE == pu.nScheme)
-        {
+        if (_fIsUrl && URL_SCHEME_FILE == pu.nScheme) {
             //  BUGBUG - we lose local anchors on any dospaths - zekel - 5-Feb-97
             //  if an URL comes thru as "file://c:/foo/bar.htm#fragment"
             //  the "#fragment" will be discarded.  right now
@@ -381,19 +357,14 @@ void CShellExecute::_SetFile(LPCTSTR pszIn)
             //  WARNING:  In IE4 we left the fIsUrl set to true even though it is now a path.
             //  I dont think that this was utilized, so i am now setting it to false
             _fIsUrl = FALSE;
-        }
-        else
-        {
+        } else {
             StrCpyN(_szFile, pszIn, SIZECHARS(_szFile));
             _fIsNamespaceObject = (!_lpID && _IsNamespaceObject(_szFile));
         }
 
         if (_fDoEnvSubst)
             DoEnvironmentSubst(_szFile, SIZECHARS(_szFile));
-
-    }
-    else
-    {
+    } else {
         //  LEGACY - to support shellexec() of directories.
         if (!_lpID)
             StrCpyN(_szFile, _szWorkingDir, SIZECHARS(_szFile));
@@ -408,8 +379,7 @@ void CShellExecute::_SetFileAndUrl(LPCTSTR pszIn)
     TraceMsg(TF_SHELLEXEC, "SHEX::_SetFileAndUrl() enter:  pszIn = %s", pszIn);
 
     if (SUCCEEDED(_QueryString(0, ASSOCSTR_EXECUTABLE, _szTemp, SIZECHARS(_szTemp)))
-    &&  DoesAppWantUrl(_szTemp))
-    {
+        && DoesAppWantUrl(_szTemp)) {
         // our lpFile points to a string that contains both an Internet Cache
         // File location and the URL name that is associated with that cache file
         // (they are seperated by a single NULL). The application that we are
@@ -418,98 +388,81 @@ void CShellExecute::_SetFileAndUrl(LPCTSTR pszIn)
         int iLength = lstrlen(pszIn);
         LPCTSTR pszUrlPart = &pszIn[iLength + 1];
 
-        if (IsBadStringPtr(pszUrlPart, INTERNET_MAX_URL_LENGTH) || !PathIsURL(pszUrlPart))
-        {
+        if (IsBadStringPtr(pszUrlPart, INTERNET_MAX_URL_LENGTH) || !PathIsURL(pszUrlPart)) {
             ASSERT(FALSE);
-        }
-        else
-        {
+        } else {
             // we have a vaild URL, so use it
             lstrcpy(_szFile, pszUrlPart);
         }
     }
-    TraceMsg(TF_SHELLEXEC, "SHEX::_SetFileAndUrl() exit: szFile = %s",_szFile);
-
+    TraceMsg(TF_SHELLEXEC, "SHEX::_SetFileAndUrl() exit: szFile = %s", _szFile);
 }
 
 
 //  _TryValidateUNC() has queer return values
-
 BOOL CShellExecute::_TryValidateUNC(LPTSTR pszFile, LPSHELLEXECUTEINFO pei)
 {
     HRESULT hr = S_FALSE;
     BOOL fRet = FALSE;
 
-    if (PathIsUNC(pszFile))
-    {
+    if (PathIsUNC(pszFile)) {
         TraceMsg(TF_SHELLEXEC, "SHEX::_TVUNC Is UNC: %s", pszFile);
         // Notes:
         //  SHValidateUNC() returns FALSE if it failed. In such a case,
         //   GetLastError will gives us the right error code.
 
-        if (!SHValidateUNC(_hwndParent, pszFile, _uConnect))
-        {
+        if (!SHValidateUNC(_hwndParent, pszFile, _uConnect)) {
             hr = E_FAIL;
             // Note that SHValidateUNC calls SetLastError() and we need
             // to preserve that so that the caller makes the right decision
             DWORD err = GetLastError();
 
-            if (ERROR_CANCELLED == err)
-            {
+            if (ERROR_CANCELLED == err) {
                 // Not a print share, use the error returned from the first call
                 // _ReportWin32(ERROR_CANCELLED);
                 //  we dont need to report this error, it is the callers responsibility
                 //  the caller should GetLastError() on E_FAIL and do a _ReportWin32()
                 TraceMsg(TF_SHELLEXEC, "SHEX::_TVUNC FAILED with ERROR_CANCELLED");
-            }
-            else if (pei)
-            {
+            } else if (pei) {
                 // Now check to see if it's a print share, if it is, we need to exec as pidl
                 // Note: This call will not display "connect ui" because SHValidateUNC
                 // uses the CONNECT_CURRENT_MEDIA flag for VALIDATEUNC_PRINT.
-                if (SHValidateUNC(_hwndParent, pszFile, _uConnect | VALIDATEUNC_PRINT))
-                {
+                if (SHValidateUNC(_hwndParent, pszFile, _uConnect | VALIDATEUNC_PRINT)) {
                     hr = S_OK;
                     TraceMsg(TF_SHELLEXEC, "SHEX::TVUNC found print share");
-                }
-                else
+                } else
                     // need to reset the orginal error ,cuz SHValidateUNC() has set it again
                     SetLastError(err);
-
             }
-        }
-        else
-        {
+        } else {
             TraceMsg(TF_SHELLEXEC, "SHEX::_TVUNC UNC is accessible");
         }
     }
 
     TraceMsg(TF_SHELLEXEC, "SHEX::_TVUNC exit: hr = %X", hr);
 
-    switch (hr)
-    {
-//  S_FALSE    pszFile is not a UNC or is a valid UNC according to the flags
-//  S_OK       pszFile is a valid UNC to a print share
-//  E_FAIL     pszFile is a UNC but cannot be validated use GetLastError() to get the real error
-        case S_OK:
-            //  we got a good UNC
-            if(_DoExecPidl(pei))
-            {
-                //  we got the pidl, whether or not we could use it,
-                //  so we drop through and goto Quit
-                fRet = TRUE;
-            }
-            //  if we dont get a pidl we just try something else.
-            break;
-
-        case E_FAIL:
-            _ProcessErrorShouldTryExecCommand(GetLastError(), _hwndParent, FALSE);
-            //  never retry since we didnt try in the first place.
+    switch (hr) {
+        //  S_FALSE    pszFile is not a UNC or is a valid UNC according to the flags
+        //  S_OK       pszFile is a valid UNC to a print share
+        //  E_FAIL     pszFile is a UNC but cannot be validated use GetLastError() to get the real error
+    case S_OK:
+        //  we got a good UNC
+        if (_DoExecPidl(pei)) {
+            //  we got the pidl, whether or not we could use it,
+            //  so we drop through and goto Quit
             fRet = TRUE;
+        }
+        //  if we dont get a pidl we just try something else.
+        break;
+
+    case E_FAIL:
+        _ProcessErrorShouldTryExecCommand(GetLastError(), _hwndParent, FALSE);
+        //  never retry since we didnt try in the first place.
+        fRet = TRUE;
 
         // case S_FALSE: Dropthrough
-        default:
-            break;
+    default:
+        break;
     }
 
     return fRet;
@@ -523,19 +476,16 @@ BOOL CShellExecute::_ShellExecPidl(LPSHELLEXECUTEINFO pei, LPITEMIDLIST pidlExec
     // I need a copy so that the bind can modify the IDList
     LPITEMIDLIST pidl = ILClone(pidlExec);
 
-    if (pidl)
-    {
+    if (pidl) {
         LPCITEMIDLIST pidlLast;
-        IShellFolder *psf;
+        IShellFolder* psf;
 
-        hres = SHBindToIDListParent(pidl, IID_IShellFolder, (LPVOID *)&psf, &pidlLast);
-        if (SUCCEEDED(hres))
-        {
-            IContextMenu *pcm;
+        hres = SHBindToIDListParent(pidl, IID_IShellFolder, (LPVOID*)&psf, &pidlLast);
+        if (SUCCEEDED(hres)) {
+            IContextMenu* pcm;
 
-            hres = psf->GetUIObjectOf(pei->hwnd, 1, &pidlLast, IID_IContextMenu, NULL, (LPVOID *)&pcm);
-            if (SUCCEEDED(hres))
-            {
+            hres = psf->GetUIObjectOf(pei->hwnd, 1, &pidlLast, IID_IContextMenu, NULL, (LPVOID*)&pcm);
+            if (SUCCEEDED(hres)) {
                 //  BUGBUGTODO - need to convert InvokeInProcExec to a member function
                 hres = InvokeInProcExec(pcm, pei, NULL);
 
@@ -547,15 +497,13 @@ BOOL CShellExecute::_ShellExecPidl(LPSHELLEXECUTEINFO pei, LPITEMIDLIST pidlExec
         ILFree(pidl);
     }
 
-    if (FAILED(hres))
-    {
+    if (FAILED(hres)) {
         // BUGBUG could we have better error mapping here? - zekel - 22-JAN-98
         //  are there any meaningful HRESULTs for ShellExec?
         switch (hres) {
         case E_OUTOFMEMORY:
             _ReportWin32(ERROR_NOT_ENOUGH_MEMORY);
             break;
-
         default:
             _ReportWin32(ERROR_ACCESS_DENIED);
             break;
@@ -571,8 +519,6 @@ BOOL CShellExecute::_ShellExecPidl(LPSHELLEXECUTEINFO pei, LPITEMIDLIST pidlExec
 //  BUGBUGTODO CShellExecute::_ShellExecPidl() needs to be added probably, but right now
 //  we work around it being all alone.
 
-
-
 //  BOOL CShellExecute::_DoExecPidl(LPSHELLEXECUTEINFO pei)
 
 //  returns TRUE if a pidl was created, FALSE otherwise
@@ -584,34 +530,29 @@ BOOL CShellExecute::_DoExecPidl(LPSHELLEXECUTEINFO pei)
     //BUGBUG simple PIDL?
     LPITEMIDLIST pidl;
     pidl = ILCreateFromPath(_szFile);
-    if (pidl)
-    {
+    if (pidl) {
 
 #ifdef DEBUG
-        static int panic=0;
-        ASSERT(panic==0);
+        static int panic = 0;
+        ASSERT(panic == 0);
         panic++;
 #endif
-
 
         //  if _ShellExecPidl() FAILS, it does
         //  Report() for us
 
         _ShellExecPidl(pei, pidl);
-
         ILFree(pidl);
 
 #ifdef DEBUG
         panic--;
-        ASSERT(panic==0);
+        ASSERT(panic == 0);
 #endif
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_SHELLEXEC, "SHEX::_DoExecPidl() unhandled cuz ILCreateFromPath() failed");
-
         return FALSE;
     }
+    
     return TRUE;
 }
 
@@ -624,7 +565,6 @@ Purpose: This function looks up the given file in "HKLM\Software\
 Returns: TRUE if the file has a registered path
          FALSE if it does not or if the provided filename has
                a relative path already
-
 
 Cond:    !! Side effect: the szFile field may be changed by
          !! this function.
@@ -639,8 +579,7 @@ BOOL CShellExecute::_CheckForRegisteredProgram(void)
     if (PathFindFileName(_szFile) != _szFile)
         return FALSE;
 
-    if (PathToAppPath(_szFile, szTemp))
-    {
+    if (PathToAppPath(_szFile, szTemp)) {
         TraceMsg(TF_SHELLEXEC, "SHEX::CFRP Set szFile = %s", szTemp);
 
         StrCpy(_szFile, szTemp);
@@ -654,7 +593,7 @@ BOOL CShellExecute::_Resolve(void)
 {
     // No; get the fully qualified path and add .exe extension
     // if needed
-    LPCTSTR rgszDirs[2] =  { _szWorkingDir, NULL };
+    LPCTSTR rgszDirs[2] = { _szWorkingDir, NULL };
     const UINT uFlags = PRF_VERIFYEXISTS | PRF_TRYPROGRAMEXTENSIONS | PRF_FIRSTDIRDEF;
 
     // if the Path is not an URL
@@ -665,14 +604,12 @@ BOOL CShellExecute::_Resolve(void)
     //  that LastError is set.
 
     if (!_fNoResolve && !_fIsUrl && !_fIsNamespaceObject &&
-        !PathResolve(_szFile, rgszDirs, uFlags))
-    {
+        !PathResolve(_szFile, rgszDirs, uFlags)) {
         //  _CheckForRegisteredProgram() changes _szFile if
         //  there is a registered program in the registry
         //  so we recheck to see if it exists.
         if (!_CheckForRegisteredProgram() ||
-             !PathResolve(_szFile, rgszDirs, uFlags))
-        {
+            !PathResolve(_szFile, rgszDirs, uFlags)) {
             // No; file not found, bail out
 
             //  WARNING LEGACY - we must return ERROR_FILE_NOT_FOUND - ZekeL - 14-APR-99
@@ -709,15 +646,11 @@ BOOL CShellExecute::_TryExecPidl(LPSHELLEXECUTEINFO pei)
     TraceMsg(TF_SHELLEXEC, "SHEX::TryExecPidl entered szFile = %s", _szFile);
     BOOL fInvokeIdList = _InvokeIDList(pei->fMask);
 
-
     // If we're explicitly given a class then we don't care if the file exists.
     // Just let the handler for the class worry about it, and _TryExecPidl()
     // will return the default of FALSE.
 
-
-    if ( *_szFile &&
-         (!_fUseClass || fInvokeIdList || _fIsNamespaceObject) )
-    {
+    if (*_szFile && (!_fUseClass || fInvokeIdList || _fIsNamespaceObject)) {
         if (!_fNoResolve && !_Resolve())
             return TRUE;
 
@@ -726,10 +659,10 @@ BOOL CShellExecute::_TryExecPidl(LPSHELLEXECUTEINFO pei)
         // code (it calls the context menu handlers, etc...)
 
         if ((!_pszQueryVerb && !(_fNoExecPidl))
-        ||  _fIsUrl                  //  BUGBUG - i dont think this is used
-        ||  fInvokeIdList            //  caller told us to!
-        ||  _fIsNamespaceObject      //  namespace objects can only be invoked through pidls
-        ||  PathIsShortcut(_szFile)) //  to support LNK files and soon URL files
+            || _fIsUrl                  //  BUGBUG - i dont think this is used
+            || fInvokeIdList            //  caller told us to!
+            || _fIsNamespaceObject      //  namespace objects can only be invoked through pidls
+            || PathIsShortcut(_szFile)) //  to support LNK files and soon URL files
         {
             //  this means that we can tryexecpidl
             TraceMsg(TF_SHELLEXEC, "SHEX::TryExecPidl() succeeded now TEP()");
@@ -748,19 +681,13 @@ HRESULT CShellExecute::_InitClassAssociations(LPCTSTR pszClass, HKEY hkClass)
     TraceMsg(TF_SHELLEXEC, "SHEX::InitClassAssoc enter: lpClass = %s, hkClass = %X", pszClass, hkClass);
 
     HRESULT hr = AssocCreate(CLSID_QueryAssociations, IID_IQueryAssociations, (LPVOID*)&_pqa);
-    if (SUCCEEDED(hr))
-    {
-        if (hkClass)
-        {
+    if (SUCCEEDED(hr)) {
+        if (hkClass) {
             hr = _pqa->Init(0, NULL, hkClass, NULL);
-        }
-        else if (pszClass)
-        {
+        } else if (pszClass) {
             SHTCharToUnicode(pszClass, _wszTemp, SIZECHARS(_wszTemp));
             hr = _pqa->Init(0, _wszTemp, NULL, NULL);
-        }
-        else
-        {
+        } else {
             //  LEGACY - they didnt pass us anything to go on so we default to folder
             //  because of the chaos of the original shellexec() we didnt even notice
             //  when we had nothing to be associated with, and just used
@@ -780,24 +707,20 @@ HRESULT CShellExecute::_InitShellAssociations(LPCTSTR pszFile, LPCITEMIDLIST pid
 
     HRESULT hr;
     LPITEMIDLIST pidlFree = NULL;
-    if (*pszFile)
-    {
+    if (*pszFile) {
         hr = SHILCreateFromPath(pszFile, &pidlFree, NULL);
 
         if (SUCCEEDED(hr))
             pidl = pidlFree;
-    }
-    else if (pidl)
-    {
+    } else if (pidl) {
         // Other parts of CShellExecute expect that _szFile is
         // filled in, so we may as well do it here.
         SHGetNameAndFlags(pidl, SHGDN_FORPARSING, _szFile, SIZECHARS(_szFile), NULL);
         _fNoResolve = TRUE;
     }
 
-    if (pidl)
-    {
-        hr = SHGetAssociations(pidl, (LPVOID *)&_pqa);
+    if (pidl) {
+        hr = SHGetAssociations(pidl, (LPVOID*)&_pqa);
 
         // NOTE: sometimes we can have the extension or even the progid in the registry, but there
         // is no "shell" subkey. An example of this is for .xls files in NT5: the index server guys
@@ -811,15 +734,14 @@ HRESULT CShellExecute::_InitShellAssociations(LPCTSTR pszFile, LPCITEMIDLIST pid
 
         DWORD cch;
         if (FAILED(hr) ||
-        (FAILED(_pqa->GetString(0, ASSOCSTR_COMMAND, _pszQueryVerb, NULL, &cch))
-        && FAILED(_pqa->GetData(0, ASSOCDATA_MSIDESCRIPTOR, _pszQueryVerb, NULL, &cch))))
+            (FAILED(_pqa->GetString(0, ASSOCSTR_COMMAND, _pszQueryVerb, NULL, &cch))
+             && FAILED(_pqa->GetData(0, ASSOCDATA_MSIDESCRIPTOR, _pszQueryVerb, NULL, &cch))))
 
         {
             if (!_pqa)
                 hr = AssocCreate(CLSID_QueryAssociations, IID_IQueryAssociations, (LPVOID*)&_pqa);
 
-            if (_pqa)
-            {
+            if (_pqa) {
                 hr = _pqa->Init(0, L"Unknown", NULL, NULL);
 
                 //  this allows us to locate something
@@ -831,9 +753,7 @@ HRESULT CShellExecute::_InitShellAssociations(LPCTSTR pszFile, LPCITEMIDLIST pid
             }
         }
 
-    }
-    else
-    {
+    } else {
         LPCTSTR pszExt = PathFindExtension(_szFile);
         if (*pszExt)
             hr = _InitClassAssociations(pszExt, NULL);
@@ -850,20 +770,16 @@ HRESULT CShellExecute::_InitShellAssociations(LPCTSTR pszFile, LPCITEMIDLIST pid
 BOOL CShellExecute::_InitAssociations(LPSHELLEXECUTEINFO pei)
 {
     HRESULT hr;
-    if (_fUseClass || (!_szFile[0] && !_lpID))
-    {
+    if (_fUseClass || (!_szFile[0] && !_lpID)) {
         ASSERT(pei);
         hr = _InitClassAssociations(pei->lpClass, pei->hkeyClass);
-    }
-    else
-    {
+    } else {
         hr = _InitShellAssociations(_szFile, _lpID);
     }
 
     TraceMsg(TF_SHELLEXEC, "SHEX::InitAssoc return %X", hr);
 
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         if (PathIsExe(_szFile))
             _fTryOpenExe = TRUE;
         else
@@ -884,18 +800,14 @@ void CShellExecute::_TryOpenExe(void)
     ASSERT(PathIsExe(_szFile));
 
     // even with no association, we know how to open an executable
-    if ((!_pszQueryVerb || !StrCmpIW(_pszQueryVerb, L"open")))
-    {
+    if ((!_pszQueryVerb || !StrCmpIW(_pszQueryVerb, L"open"))) {
         //  _SetCommand() by hand here...
 
         // NB WinExec can handle long names so there's no need to convert it.
         StrCpy(_szCommand, _szFile);
 
-
         // We need to append the parameter
-
-        if (_lpParameters && *_lpParameters)
-        {
+        if (_lpParameters && *_lpParameters) {
             StrCatBuff(_szCommand, c_szSpace, ARRAYSIZE(_szCommand));
             StrCatBuff(_szCommand, _lpParameters, ARRAYSIZE(_szCommand));
         }
@@ -904,9 +816,7 @@ void CShellExecute::_TryOpenExe(void)
 
         //  _TryExecCommand() sets the fSucceeded if appropriate
         _DoExecCommand();
-    }
-    else
-    {
+    } else {
         TraceMsg(TF_SHELLEXEC, "SHEX::TryOpenExe() wrong verb");
         _ReportWin32(ERROR_INVALID_PARAMETER);
     }
@@ -922,17 +832,14 @@ BOOL CShellExecute::_ProcessErrorShouldTryExecCommand(DWORD err, HWND hwnd, BOOL
     TraceMsg(TF_SHELLEXEC, "SHEX::PESTEC() enter : err = %d", err);
 
     // special case some error returns
-    switch (err)
-    {
+    switch (err) {
     case ERROR_FILE_NOT_FOUND:
     case ERROR_PATH_NOT_FOUND:
     case ERROR_BAD_PATHNAME:
     case ERROR_INVALID_NAME:
-        if ((_szCmdTemplate[0] != TEXT('%')) && fCreateProcessFailed)
-        {
+        if ((_szCmdTemplate[0] != TEXT('%')) && fCreateProcessFailed) {
             UINT uAppType = LOWORD(GetExeType(_szImageName));
-            if ((uAppType == NEMAGIC))
-            {
+            if ((uAppType == NEMAGIC)) {
 
                 // PK16FNF only applies to 16bit modules, and only when it was an
                 // implicit DLL load failure (ie, the szImageName exists).
@@ -942,17 +849,15 @@ BOOL CShellExecute::_ProcessErrorShouldTryExecCommand(DWORD err, HWND hwnd, BOOL
                 // puts up the dialog, according to ChrisG.
 
                 PK16FNF(_szImageName);
-                if (_szImageName[0])
-                {
+                if (_szImageName[0]) {
                     // do the message here so that callers of us won't need
                     // to deal with 32bit and 16bit apps separately
                     ShellMessageBox(HINST_THISDLL, hwnd, MAKEINTRESOURCE(IDS_CANTFINDCOMPONENT), NULL,
-                                    MB_OK|MB_ICONEXCLAMATION | MB_SETFOREGROUND, _szImageName, _szFile);
+                                    MB_OK | MB_ICONEXCLAMATION | MB_SETFOREGROUND, _szImageName, _szFile);
                     _ReportWin32(ERROR_DLL_NOT_FOUND);
                     fNeedToReport = FALSE;
                 }
-            }
-            else if (uAppType != PEMAGIC && !_fNoUI)   // ie, it was not found
+            } else if (uAppType != PEMAGIC && !_fNoUI)   // ie, it was not found
             {
                 INT iret;
                 HKEY hk;
@@ -964,22 +869,17 @@ BOOL CShellExecute::_ProcessErrorShouldTryExecCommand(DWORD err, HWND hwnd, BOOL
 
 
                 // have user help us find missing exe
-
-                iret  = FindAssociatedExe(hwnd, _szCommand, _szFile, hk);
-
+                iret = FindAssociatedExe(hwnd, _szCommand, _szFile, hk);
                 if (hk)
                     RegCloseKey(hk);
-
 
                 //  We infinitely retry until either the user cancel it
                 // or we find it.
 
-                if (iret == -1)
-                {
+                if (iret == -1) {
                     fRet = TRUE;
                     TraceMsg(TF_SHELLEXEC, "SHEX::PESTEC() found new exe");
-                }
-                else
+                } else
                     _ReportWin32(ERROR_CANCELLED);
 
                 //  either way we dont need to report this error
@@ -987,9 +887,7 @@ BOOL CShellExecute::_ProcessErrorShouldTryExecCommand(DWORD err, HWND hwnd, BOOL
             }
         }
         break;
-
     case ERROR_SINGLE_INSTANCE_APP:
-
         // REVIEW: first we should search for windows with szFile in
         // their title (maybe sans the extension).  if that fails then
         // we should look for the exe that we tried to run (as we do now)
@@ -1005,12 +903,9 @@ BOOL CShellExecute::_ProcessErrorShouldTryExecCommand(DWORD err, HWND hwnd, BOOL
             fNeedToReport = FALSE;
 
             TraceMsg(TF_SHELLEXEC, "SHEX::PESTEC() found single instance app");
-
         }
         break;
-
     } // switch (errWin32)
-
 
     if (fNeedToReport)
         _ReportWin32(err);
@@ -1026,29 +921,25 @@ void CShellExecute::_SetStartup(LPSHELLEXECUTEINFO pei)
     ASSERT(!_startup.cb);
     _startup.cb = SIZEOF(_startup);
     _startup.dwFlags |= STARTF_USESHOWWINDOW;
-    _startup.wShowWindow = (WORD) pei->nShow;
+    _startup.wShowWindow = (WORD)pei->nShow;
     _startup.lpTitle = (LPTSTR)_lpTitle;
 
 #ifdef WINNT
-    if ( pei->fMask & SEE_MASK_RESERVED )
-    {
+    if (pei->fMask & SEE_MASK_RESERVED) {
         _startup.lpReserved = (LPTSTR)pei->hInstApp;
     }
 
-    if (pei->fMask & SEE_MASK_HASLINKNAME)
-    {
+    if (pei->fMask & SEE_MASK_HASLINKNAME) {
         _startup.dwFlags |= STARTF_TITLEISLINKNAME;
     }
 #endif
 
-    if (pei->fMask & SEE_MASK_HOTKEY)
-    {
+    if (pei->fMask & SEE_MASK_HOTKEY) {
         _startup.hStdInput = (HANDLE)(pei->dwHotKey);
         _startup.dwFlags |= STARTF_USEHOTKEY;
     }
 
-
-// Multi-monitor support (dli) pass a hMonitor to createprocess
+    // Multi-monitor support (dli) pass a hMonitor to createprocess
 
 #ifndef STARTF_HASHMONITOR
 #define STARTF_HASHMONITOR       0x00000400  // same as HASSHELLDATA
@@ -1057,41 +948,31 @@ void CShellExecute::_SetStartup(LPSHELLEXECUTEINFO pei)
     if (pei->fMask & SEE_MASK_ICON) {
         _startup.hStdOutput = (HANDLE)pei->hIcon;
         _startup.dwFlags |= STARTF_HASSHELLDATA;
-    }
-    else if (pei->fMask & SEE_MASK_HMONITOR)
-    {
+    } else if (pei->fMask & SEE_MASK_HMONITOR) {
         _startup.hStdOutput = (HANDLE)pei->hMonitor;
         _startup.dwFlags |= STARTF_HASHMONITOR;
-    }
-    else if (pei->hwnd)
-    {
-        _startup.hStdOutput = (HANDLE)MonitorFromWindow(pei->hwnd,MONITOR_DEFAULTTONEAREST);
+    } else if (pei->hwnd) {
+        _startup.hStdOutput = (HANDLE)MonitorFromWindow(pei->hwnd, MONITOR_DEFAULTTONEAREST);
         _startup.dwFlags |= STARTF_HASHMONITOR;
     }
     TraceMsg(TF_SHELLEXEC, "SHEX::SetStartup() called");
-
 }
 
 
-
-
-ULONG _GetEnvSizeAndFindString( LPTSTR pszEnv, LPCTSTR pFindString, LPTSTR *ppFoundString )
+ULONG _GetEnvSizeAndFindString(LPTSTR pszEnv, LPCTSTR pFindString, LPTSTR* ppFoundString)
 {
     LPTSTR psz;
     ULONG FindStringLen = 0;
 
-    if ( pFindString )
-        FindStringLen = lstrlen( pFindString );
+    if (pFindString)
+        FindStringLen = lstrlen(pFindString);
 
-
-    for (psz = pszEnv; *psz; psz += lstrlen(psz)+1)
-    {
+    for (psz = pszEnv; *psz; psz += lstrlen(psz) + 1) {
         // Well lets try to use the CompareString function to find
         // out if we found the Path... Note return of 2 is equal...
 
-        if ( pFindString && (CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE, psz,
-                FindStringLen, pFindString, FindStringLen) == CSTR_EQUAL) && (*(psz+FindStringLen) == TEXT('=')))
-        {
+        if (pFindString && (CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE, psz,
+                                          FindStringLen, pFindString, FindStringLen) == CSTR_EQUAL) && (*(psz + FindStringLen) == TEXT('='))) {
             // We found the string
             *ppFoundString = psz;
         }
@@ -1101,7 +982,7 @@ ULONG _GetEnvSizeAndFindString( LPTSTR pszEnv, LPCTSTR pFindString, LPTSTR *ppFo
 }
 
 
-BOOL _AddEnvVariable( LPTSTR *ppszEnv, LPCTSTR StringToAdd )
+BOOL _AddEnvVariable(LPTSTR* ppszEnv, LPCTSTR StringToAdd)
 {
     ULONG NewEnvSize;
     LPTSTR psz;
@@ -1111,37 +992,29 @@ BOOL _AddEnvVariable( LPTSTR *ppszEnv, LPCTSTR StringToAdd )
     int nCompareResult;
     TCHAR t;
 
-
     psz = (LPTSTR)StringToAdd;
-    while ( (t = *psz) && (TEXT('=') != t) )
-    {
+    while ((t = *psz) && (TEXT('=') != t)) {
         psz++;
     }
 
-    if ( NULL == t )
-    {
+    if (NULL == t) {
         // This should not happen - it's an invalid string format
-        Assert( t == TEXT('=') );
+        Assert(t == TEXT('='));
         return FALSE;
     }
 
     NewStringNameLen = (ULONG)(psz - StringToAdd);
     NewStringLen = lstrlen(StringToAdd);
-
-    NewEnvSize = _GetEnvSizeAndFindString( *ppszEnv, NULL, NULL );
-
-    pszNewEnv = (LPTSTR)LocalAlloc( LPTR, (NewEnvSize + NewStringLen + 1) * sizeof(TCHAR) );
-
+    NewEnvSize = _GetEnvSizeAndFindString(*ppszEnv, NULL, NULL);
+    pszNewEnv = (LPTSTR)LocalAlloc(LPTR, (NewEnvSize + NewStringLen + 1) * sizeof(TCHAR));
     if (!pszNewEnv)
         return FALSE;
-
 
     // Since these need to be in order, find the right place to stick it
 
     psz = *ppszEnv;
-    while ( *psz && (CSTR_LESS_THAN == (nCompareResult = CompareString( LOCALE_SYSTEM_DEFAULT,
-            NORM_IGNORECASE, StringToAdd, NewStringNameLen, psz, NewStringNameLen)) ) )
-    {
+    while (*psz && (CSTR_LESS_THAN == (nCompareResult = CompareString(LOCALE_SYSTEM_DEFAULT,
+                                                                      NORM_IGNORECASE, StringToAdd, NewStringNameLen, psz, NewStringNameLen)))) {
         // Get to next string
         psz += lstrlen(psz) + 1;
     }
@@ -1150,47 +1023,34 @@ BOOL _AddEnvVariable( LPTSTR *ppszEnv, LPCTSTR StringToAdd )
     // or we found a match (ie: it existed already) so we insert here in any case.
 
     // First, copy all the strings before ours
-    CopyMemory(
-        pszNewEnv,
-        *ppszEnv,
-        (PBYTE)psz - (PBYTE)*ppszEnv
-        );
+    CopyMemory(pszNewEnv, *ppszEnv, (PBYTE)psz - (PBYTE)*ppszEnv);
 
     // Now bring in the new string
-    lstrcpy( pszNewEnv + (psz - *ppszEnv), StringToAdd );
+    lstrcpy(pszNewEnv + (psz - *ppszEnv), StringToAdd);
 
     // Now copy whatever's left
 
     // If the thing found was a match, we have to skip it
-    if ( *psz && (nCompareResult == CSTR_EQUAL) && (TEXT('=') == *(psz + NewStringNameLen) ) )
-    {
+    if (*psz && (nCompareResult == CSTR_EQUAL) && (TEXT('=') == *(psz + NewStringNameLen))) {
         // It was an exact match - skip it.
-        psz += lstrlen( psz ) + 1;
+        psz += lstrlen(psz) + 1;
     }
 
     // Now were either at the end of the block, or there's more strings
-    if ( *psz )
-    {
+    if (*psz) {
         // There's more
-        CopyMemory(
-            pszNewEnv + (psz - *ppszEnv) + (NewStringLen + 1),
-            psz,
-            _GetEnvSizeAndFindString( psz, NULL, NULL ) * sizeof(TCHAR)
-            );
+        CopyMemory(pszNewEnv + (psz - *ppszEnv) + (NewStringLen + 1), psz, _GetEnvSizeAndFindString(psz, NULL, NULL) * sizeof(TCHAR));
     }
 
-
     // The king is dead.  Long live the king.
-    LocalFree( *ppszEnv );
+    LocalFree(*ppszEnv);
     *ppszEnv = pszNewEnv;
-
 
     return TRUE;
 }
 
 
-
-LPTSTR CShellExecute::_BuildEnvironmentForNewProcess( LPCTSTR pszNewEnvString )
+LPTSTR CShellExecute::_BuildEnvironmentForNewProcess(LPCTSTR pszNewEnvString)
 {
     LPTSTR pszNewEnv = NULL;
     DWORD cbTemp = SIZEOF(_szTemp);
@@ -1198,23 +1058,19 @@ LPTSTR CShellExecute::_BuildEnvironmentForNewProcess( LPCTSTR pszNewEnvString )
     int cchOldEnv;
     int cchNewEnv = 0;
 
-
     // Use the _szTemp variable of pseem to build key to the programs specific
     // key in the registry as well as other things...
     PathToAppPathKey(_szImageName, _szTemp, SIZECHARS(_szTemp));
 
     // Currently only clone environment if we have path.
-    if (ERROR_SUCCESS == SHGetValue(HKEY_LOCAL_MACHINE, _szTemp, TEXT("PATH"), NULL, _szTemp, &cbTemp))
-    {
+    if (ERROR_SUCCESS == SHGetValue(HKEY_LOCAL_MACHINE, _szTemp, TEXT("PATH"), NULL, _szTemp, &cbTemp)) {
         LPTSTR psz;
         LPTSTR pszPath = NULL;
         int cchT = lstrlen(c_szPATH);
 
         // We need to figure out how big an environment we have.
         // While we are at it find the path environment var...
-
-        cchOldEnv = _GetEnvSizeAndFindString( pszEnv, (LPTSTR)c_szPATH, &pszPath );
-
+        cchOldEnv = _GetEnvSizeAndFindString(pszEnv, (LPTSTR)c_szPATH, &pszPath);
 
         // Now lets allocate some memory to create a new environment from.
 
@@ -1227,20 +1083,17 @@ LPTSTR CShellExecute::_BuildEnvironmentForNewProcess( LPCTSTR pszNewEnvString )
 
         cchNewEnv = (cchOldEnv + lstrlen(_szTemp) + cchT + 10);
         pszNewEnv = (LPTSTR)LocalAlloc(LPTR, cchNewEnv * SIZEOF(TCHAR));
-
-        if (pszNewEnv == NULL)
-        {
+        if (pszNewEnv == NULL) {
             FreeEnvBlock(_hUserToken, pszEnv);
             return(NULL);
         }
 
-        if (pszPath)
-        {
+        if (pszPath) {
             // We found a path from before, calc how many bytes to copy
             // to start off with.  This should be up till the end of the
             // current path= var
 
-            cchT = (int)(pszPath-pszEnv) + lstrlen(c_szPATH) + 1;
+            cchT = (int)(pszPath - pszEnv) + lstrlen(c_szPATH) + 1;
             hmemcpy(pszNewEnv, pszEnv, cchT * SIZEOF(TCHAR));
             psz = pszNewEnv + cchT;
             StrCpy(psz, _szTemp);
@@ -1248,16 +1101,13 @@ LPTSTR CShellExecute::_BuildEnvironmentForNewProcess( LPCTSTR pszNewEnvString )
             *psz++ = TEXT(';');  // add a ; between old path and new things
 
             // and copy in the rest of the stuff.
-            hmemcpy(psz, pszEnv+cchT, (cchOldEnv-cchT) * SIZEOF(TCHAR));
-        }
-        else
-        {
-
+            hmemcpy(psz, pszEnv + cchT, (cchOldEnv - cchT) * SIZEOF(TCHAR));
+        } else {
             // Path not found so copy entire old environment down
             // And add PATH= and the end.
 
             hmemcpy(pszNewEnv, pszEnv, cchOldEnv * SIZEOF(TCHAR));
-            psz = pszNewEnv + cchOldEnv -1; // Before last trailing NULL
+            psz = pszNewEnv + cchOldEnv - 1; // Before last trailing NULL
             StrCpy(psz, c_szPATH);
             StrCat(psz, SZEQUALS);
             StrCat(psz, _szTemp);
@@ -1265,45 +1115,30 @@ LPTSTR CShellExecute::_BuildEnvironmentForNewProcess( LPCTSTR pszNewEnvString )
             // Add the Final Null for the end of the environment.
             *(psz + lstrlen(psz) + 1) = TEXT('\0');
         }
-
     }
 
-
-
     // If there was a new string passed in, add it.
-
-    if ( pszNewEnvString )
-    {
-
-
+    if (pszNewEnvString) {
         // Do we have to build a new env block from scratch?
-
-        if ( NULL == pszNewEnv )
-        {
-            cchNewEnv = _GetEnvSizeAndFindString( pszEnv, NULL, NULL );
-
-            pszNewEnv = (LPTSTR)LocalAlloc( LPTR, cchNewEnv * sizeof(TCHAR) );
-            if ( NULL == pszNewEnv )
-            {
-                Assert( pszNewEnv )
-                return NULL;
+        if (NULL == pszNewEnv) {
+            cchNewEnv = _GetEnvSizeAndFindString(pszEnv, NULL, NULL);
+            pszNewEnv = (LPTSTR)LocalAlloc(LPTR, cchNewEnv * sizeof(TCHAR));
+            if (NULL == pszNewEnv) {
+                Assert(pszNewEnv)
+                    return NULL;
             }
 
-            CopyMemory( pszNewEnv, pszEnv, cchNewEnv * sizeof(TCHAR) );
+            CopyMemory(pszNewEnv, pszEnv, cchNewEnv * sizeof(TCHAR));
         }
-
 
         // We cannot just add ours to the end (they must be in order), so use
         // this routine to add our var to the list - berniem 7/7/99
-
-        _AddEnvVariable( &pszNewEnv, pszNewEnvString );
-
+        _AddEnvVariable(&pszNewEnv, pszNewEnvString);
     }
 
     FreeEnvBlock(_hUserToken, pszEnv);
 
     return(pszNewEnv);
-
 }
 
 
@@ -1328,8 +1163,7 @@ DWORD CShellExecute::_GetCreateFlags(ULONG fMask)
 
 #ifdef WINNT
     dwFlags |= CREATE_DEFAULT_ERROR_MODE;
-    if ( fMask & SEE_MASK_FLAG_SEPVDM )
-    {
+    if (fMask & SEE_MASK_FLAG_SEPVDM) {
         dwFlags |= CREATE_SEPARATE_WOW_VDM;
     }
 #else
@@ -1340,8 +1174,7 @@ DWORD CShellExecute::_GetCreateFlags(ULONG fMask)
     dwFlags |= CREATE_UNICODE_ENVIRONMENT;
 #endif
 
-    if ( !(fMask & SEE_MASK_NO_CONSOLE))
-    {
+    if (!(fMask & SEE_MASK_NO_CONSOLE)) {
         dwFlags |= CREATE_NEW_CONSOLE;
     }
 
@@ -1378,14 +1211,13 @@ int GetUEMAssoc(LPCTSTR pszFile, LPCTSTR pszImage)
 }
 
 
-
 #ifdef WINNT
 
 typedef enum
 {
-    RUNAS_NORMAL                = 0x0000,   // the user explicityl choose the "Run as..." verb
-    RUNAS_NONADMININSTALL       = 0x0001,   // "user is not an admin" and running a setup app
-    RUNAS_HYDRANOINSTALLMODE    = 0x0002,   // (hyrdra only) machine is not in install mode and the user is running a setup app
+    RUNAS_NORMAL = 0x0000,   // the user explicityl choose the "Run as..." verb
+    RUNAS_NONADMININSTALL = 0x0001,   // "user is not an admin" and running a setup app
+    RUNAS_HYDRANOINSTALLMODE = 0x0002,   // (hyrdra only) machine is not in install mode and the user is running a setup app
 } RUNAS_TYPE;
 
 typedef struct {
@@ -1401,61 +1233,50 @@ typedef struct {
 // but we are launching a setup application
 BOOL_PTR CALLBACK HydraNoInstallMode_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    LOGONINFO *pli= (LOGONINFO*)GetWindowLongPtr(hDlg, DWLP_USER);
+    LOGONINFO* pli = (LOGONINFO*)GetWindowLongPtr(hDlg, DWLP_USER);
 
-    switch (uMsg)
+    switch (uMsg) {
+    case WM_INITDIALOG:
+        pli = (LOGONINFO*)lParam;
+        SetWindowLongPtr(hDlg, DWLP_USER, (LONG_PTR)pli);
+        Static_SetIcon(GetDlgItem(hDlg, IDD_ITEMICON), LoadIcon(NULL, MAKEINTRESOURCE(IDI_ERROR)));
+        break;
+    case WM_DESTROY:
     {
-        case WM_INITDIALOG:
-            pli = (LOGONINFO*)lParam;
-            SetWindowLongPtr(hDlg, DWLP_USER, (LONG_PTR)pli);
-
-            Static_SetIcon(GetDlgItem(hDlg, IDD_ITEMICON), LoadIcon(NULL, MAKEINTRESOURCE(IDI_ERROR)));
-            break;
-
-        case WM_DESTROY:
-        {
-            HICON hIcon = (HICON)SendDlgItemMessage(hDlg, IDD_ITEMICON, STM_GETICON, 0, 0L);
-            if (hIcon)
-            {
-                DestroyIcon(hIcon);
-            }
+        HICON hIcon = (HICON)SendDlgItemMessage(hDlg, IDD_ITEMICON, STM_GETICON, 0, 0L);
+        if (hIcon) {
+            DestroyIcon(hIcon);
         }
-        break;
+    }
+    break;
+    case WM_NOTIFY:
+        if (((LPNMHDR)lParam)->code == NM_CLICK || ((LPNMHDR)lParam)->code == NM_RETURN) {
+            TCHAR szModule[MAX_PATH];
+            if (GetSystemDirectory(szModule, ARRAYSIZE(szModule))) {
+                if (PathAppend(szModule, TEXT("appwiz.cpl"))) {
+                    TCHAR szParam[1 + MAX_PATH + 2 + MAX_CCH_CPLNAME]; // See MakeCPLCommandLine function
+                    TCHAR szAppwiz[64];
 
-        case WM_NOTIFY:
-            if (((LPNMHDR)lParam)->code == NM_CLICK || ((LPNMHDR)lParam)->code == NM_RETURN )
-            {
-                TCHAR szModule[MAX_PATH];
-                if (GetSystemDirectory(szModule, ARRAYSIZE(szModule)))
-                {
-                    if (PathAppend(szModule, TEXT("appwiz.cpl")))
-                    {
-                        TCHAR szParam[1 + MAX_PATH + 2 + MAX_CCH_CPLNAME]; // See MakeCPLCommandLine function
-                        TCHAR szAppwiz[64];
-
-                        LoadString(g_hinst, IDS_APPWIZCPL, szAppwiz, ARRAYSIZE(szAppwiz));
-                        MakeCPLCommandLine(szModule, szAppwiz, szParam, ARRAYSIZE(szParam));
-                        SHRunControlPanelEx(szParam, NULL, FALSE);
-                    }
+                    LoadString(g_hinst, IDS_APPWIZCPL, szAppwiz, ARRAYSIZE(szAppwiz));
+                    MakeCPLCommandLine(szModule, szAppwiz, szParam, ARRAYSIZE(szParam));
+                    SHRunControlPanelEx(szParam, NULL, FALSE);
                 }
-                EndDialog(hDlg, IDCANCEL);
             }
-            break;
-
-        case WM_COMMAND:
-        {
-            int idCmd = GET_WM_COMMAND_ID(wParam, lParam);
-            switch (idCmd)
-            {
-                case IDOK:
-                case IDCANCEL:
-                    EndDialog(hDlg, IDCANCEL); // we always just return IDCANCLE so that the install aborts
-            }
+            EndDialog(hDlg, IDCANCEL);
         }
         break;
-
-        default:
-            return FALSE;
+    case WM_COMMAND:
+    {
+        int idCmd = GET_WM_COMMAND_ID(wParam, lParam);
+        switch (idCmd) {
+        case IDOK:
+        case IDCANCEL:
+            EndDialog(hDlg, IDCANCEL); // we always just return IDCANCLE so that the install aborts
+        }
+    }
+    break;
+    default:
+        return FALSE;
     }
 
     return TRUE;
@@ -1493,17 +1314,14 @@ void SetInitialNameAndDomain(LOGONINFO* pli, HWND hDlg)
 {
     TCHAR szName[MAX_PATH];
 
-
     // BUGBUG (reinerf) - we should save off what the user typed in and use that as the default
 
-    if (LoadString(HINST_THISDLL, IDS_ADMINISTRATOR, szName, ARRAYSIZE(szName)) > 0)
-    {
+    if (LoadString(HINST_THISDLL, IDS_ADMINISTRATOR, szName, ARRAYSIZE(szName)) > 0) {
         // default the "User name:" to Administrator
         SetDlgItemText(hDlg, IDC_USERNAME, szName);
     }
 
-    if (GetEnvironmentVariable(TEXT("COMPUTERNAME"), szName, ARRAYSIZE(szName)) > 0)
-    {
+    if (GetEnvironmentVariable(TEXT("COMPUTERNAME"), szName, ARRAYSIZE(szName)) > 0) {
         // default the "Domain:" to COMPUTERNAME
         SetDlgItemText(hDlg, IDC_DOMAIN, szName);
     }
@@ -1514,178 +1332,143 @@ BOOL_PTR CALLBACK UserLogon_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM 
 {
     TCHAR szTemp[UNLEN + 1 + GNLEN + 1];    // enough to hold "reinerf@NTDEV" or "NTDEV\reinerf"
     LPTSTR psz;
-    LOGONINFO *pli= (LOGONINFO*)GetWindowLongPtr(hDlg, DWLP_USER);
+    LOGONINFO* pli = (LOGONINFO*)GetWindowLongPtr(hDlg, DWLP_USER);
 
-    switch (uMsg)
+    switch (uMsg) {
+    case WM_INITDIALOG:
     {
-        case WM_INITDIALOG:
-        {
-            TCHAR szFullName[UNLEN + 1 + GNLEN + 1];    // enough to hold "reinerf@NTDEV" or "NTDEV\reinerf"
-            TCHAR szName[UNLEN + 1 + GNLEN + 1];
-            ULONG cchName;
+        TCHAR szFullName[UNLEN + 1 + GNLEN + 1];    // enough to hold "reinerf@NTDEV" or "NTDEV\reinerf"
+        TCHAR szName[UNLEN + 1 + GNLEN + 1];
+        ULONG cchName;
 
-            pli = (LOGONINFO*)lParam;
-            SetWindowLongPtr(hDlg, DWLP_USER, (LONG_PTR)pli);
+        pli = (LOGONINFO*)lParam;
+        SetWindowLongPtr(hDlg, DWLP_USER, (LONG_PTR)pli);
 
-            // start off with "the current user" in case we fail, so we don't put garbage in the dialog
-            LoadString(HINST_THISDLL, IDS_THECURRENTUSER, szFullName, ARRAYSIZE(szFullName));
+        // start off with "the current user" in case we fail, so we don't put garbage in the dialog
+        LoadString(HINST_THISDLL, IDS_THECURRENTUSER, szFullName, ARRAYSIZE(szFullName));
 
-            if (!GetUserNameEx(NameSamCompatible, szName, &(cchName = ARRAYSIZE(szName))))
-            {
-                if (GetUserNameEx(NameDisplay, szName, &(cchName = ARRAYSIZE(szName)))  ||
-                    GetUserName(szName, &(cchName = ARRAYSIZE(szName)))                 ||
-                    (GetEnvironmentVariable(TEXT("USERNAME"), szName, ARRAYSIZE(szName)) > 0))
-                {
-                    if (GetEnvironmentVariable(TEXT("USERDOMAIN"), szFullName, ARRAYSIZE(szFullName)) > 0)
-                    {
-                        lstrcatn(szFullName, TEXT("\\"), ARRAYSIZE(szFullName));
-                        lstrcatn(szFullName, szName, ARRAYSIZE(szFullName));
+        if (!GetUserNameEx(NameSamCompatible, szName, &(cchName = ARRAYSIZE(szName)))) {
+            if (GetUserNameEx(NameDisplay, szName, &(cchName = ARRAYSIZE(szName))) ||
+                GetUserName(szName, &(cchName = ARRAYSIZE(szName))) ||
+                (GetEnvironmentVariable(TEXT("USERNAME"), szName, ARRAYSIZE(szName)) > 0)) {
+                if (GetEnvironmentVariable(TEXT("USERDOMAIN"), szFullName, ARRAYSIZE(szFullName)) > 0) {
+                    lstrcatn(szFullName, TEXT("\\"), ARRAYSIZE(szFullName));
+                    lstrcatn(szFullName, szName, ARRAYSIZE(szFullName));
+                }
+            } else {
+                TraceMsg(TF_WARNING, "UserLogon_DlgProc: failed to get the user's name using various methods");
+            }
+        } else {
+            // we got the SamCompatible name, so just use that
+            lstrcpy(szFullName, szName);
+        }
+
+        SetInitialNameAndDomain(pli, hDlg);
+
+        // limit the edit box lengths to prevent buffer overrun
+        Edit_LimitText(GetDlgItem(hDlg, IDC_USERNAME), UNLEN + 1 + GNLEN);  // enough room for "reinerf@NTDEV" or "NTDEV\reinerf"
+        Edit_LimitText(GetDlgItem(hDlg, IDC_PASSWORD), PWLEN);
+        Edit_LimitText(GetDlgItem(hDlg, IDC_DOMAIN), GNLEN);
+
+        // call the proper init function depending on whether this is a setup program launching or the normal runas case
+        if (pli->raType == RUNAS_NONADMININSTALL) {
+            InitSetupLogonDlg(pli, hDlg, szFullName);
+        } else if (pli->raType == RUNAS_NORMAL) {
+            InitUserLogonDlg(pli, hDlg, szFullName);
+        } else {
+            ASSERTMSG(FALSE, "UserLogon_DlgProc: found pli->raType that is not RUNAS_NORMAL or RUNAS_NONADMININSTALL!");
+        }
+        break;
+    }
+    break;
+    case WM_COMMAND:
+    {
+        BOOL fNoInlineDomain;
+        int idCmd = GET_WM_COMMAND_ID(wParam, lParam);
+        switch (idCmd) {
+        case IDC_USERNAME:
+            if (GET_WM_COMMAND_CMD(wParam, lParam) == EN_UPDATE) {
+                EnableOKButtonFromID(hDlg, IDC_USERNAME);
+                GetDlgItemText(hDlg, IDC_USERNAME, szTemp, ARRAYSIZE(szTemp));
+
+                if (!IsDlgButtonChecked(hDlg, IDC_USECURRENTACCOUNT)) {
+                    fNoInlineDomain = (StrChr(szTemp, TEXT('\\')) == NULL);
+                    EnableWindow(GetDlgItem(hDlg, IDC_DOMAIN), fNoInlineDomain);
+                    EnableWindow(GetDlgItem(hDlg, IDC_DOMAINLBL), fNoInlineDomain);
+                }
+            }
+            break;
+        case IDC_USEOTHERACCOUNT:
+        case IDC_USECURRENTACCOUNT:
+            if (IsDlgButtonChecked(hDlg, IDC_USECURRENTACCOUNT)) {
+                EnableWindow(GetDlgItem(hDlg, IDC_USERNAME), FALSE);
+                EnableWindow(GetDlgItem(hDlg, IDC_PASSWORD), FALSE);
+                EnableWindow(GetDlgItem(hDlg, IDC_DOMAIN), FALSE);
+                EnableWindow(GetDlgItem(hDlg, IDC_USERNAMELBL), FALSE);
+                EnableWindow(GetDlgItem(hDlg, IDC_PASSWORDLBL), FALSE);
+                EnableWindow(GetDlgItem(hDlg, IDC_DOMAINLBL), FALSE);
+                EnableWindow(GetDlgItem(hDlg, IDOK), TRUE);
+            } else {
+                EnableWindow(GetDlgItem(hDlg, IDC_USERNAME), TRUE);
+                EnableWindow(GetDlgItem(hDlg, IDC_PASSWORD), TRUE);
+                EnableWindow(GetDlgItem(hDlg, IDC_USERNAMELBL), TRUE);
+                EnableWindow(GetDlgItem(hDlg, IDC_PASSWORDLBL), TRUE);
+                GetDlgItemText(hDlg, IDC_USERNAME, szTemp, ARRAYSIZE(szTemp));
+                fNoInlineDomain = (StrChr(szTemp, TEXT('\\')) == NULL);
+                EnableWindow(GetDlgItem(hDlg, IDC_DOMAIN), fNoInlineDomain);
+                EnableWindow(GetDlgItem(hDlg, IDC_DOMAINLBL), fNoInlineDomain);
+                EnableOKButtonFromID(hDlg, IDC_USERNAME);
+            }
+            break;
+        case IDOK:
+            if (IsDlgButtonChecked(hDlg, IDC_USEOTHERACCOUNT)) {
+                szTemp[0] = 0;
+                GetDlgItemText(hDlg, IDC_PASSWORD, pli->szPassword, ARRAYSIZE(pli->szPassword));
+                GetDlgItemText(hDlg, IDC_USERNAME, szTemp, ARRAYSIZE(szTemp));
+                GetDlgItemText(hDlg, IDC_DOMAIN, pli->szDomain, ARRAYSIZE(pli->szDomain));
+
+                // Order of domain name acquisition, the first one found wins:
+                // 1) use domain if user entered domain\username
+                // 2) use domain name if entered
+                // 3) check for username@domain
+                if (psz = StrChr(szTemp, TEXT('\\'))) {
+                    // domain\name format
+                    ASSERT(IsWindowEnabled(GetDlgItem(hDlg, IDC_DOMAIN)) == FALSE);
+                    *psz = 0;
+                    lstrcpyn(pli->szUser, psz + 1, ARRAYSIZE(pli->szUser));
+                    lstrcpyn(pli->szDomain, szTemp, ARRAYSIZE(pli->szDomain));
+                } else {
+                    psz = StrChr(szTemp, TEXT('@'));
+                    if ((pli->szDomain[0] == 0) && (psz != NULL)) {
+                        // name@domain format
+                        *psz = 0;
+                        lstrcpyn(pli->szDomain, psz + 1, ARRAYSIZE(pli->szDomain));
+                        lstrcpyn(pli->szUser, szTemp, ARRAYSIZE(pli->szUser));
+                    } else {
+                        lstrcpyn(pli->szUser, szTemp, ARRAYSIZE(pli->szUser));
                     }
                 }
-                else
-                {
-                    TraceMsg(TF_WARNING, "UserLogon_DlgProc: failed to get the user's name using various methods");
-                }
+            } else {
+                idCmd = IDNO;
             }
-            else
-            {
-                // we got the SamCompatible name, so just use that
-                lstrcpy(szFullName, szName);
-            }
+            // fall through
 
-            SetInitialNameAndDomain(pli, hDlg);
-
-            // limit the edit box lengths to prevent buffer overrun
-            Edit_LimitText(GetDlgItem(hDlg, IDC_USERNAME), UNLEN + 1 + GNLEN);  // enough room for "reinerf@NTDEV" or "NTDEV\reinerf"
-            Edit_LimitText(GetDlgItem(hDlg, IDC_PASSWORD), PWLEN);
-            Edit_LimitText(GetDlgItem(hDlg, IDC_DOMAIN), GNLEN);
-
-            // call the proper init function depending on whether this is a setup program launching or the normal runas case
-            if (pli->raType == RUNAS_NONADMININSTALL)
-            {
-                InitSetupLogonDlg(pli, hDlg, szFullName);
-            }
-            else if (pli->raType == RUNAS_NORMAL)
-            {
-                InitUserLogonDlg(pli, hDlg, szFullName);
-            }
-            else
-            {
-                ASSERTMSG(FALSE, "UserLogon_DlgProc: found pli->raType that is not RUNAS_NORMAL or RUNAS_NONADMININSTALL!");
-            }
+        case IDCANCEL:
+            EndDialog(hDlg, idCmd);
+            return TRUE;
             break;
         }
         break;
-
-        case WM_COMMAND:
-        {
-            BOOL fNoInlineDomain;
-            int idCmd = GET_WM_COMMAND_ID(wParam, lParam);
-            switch (idCmd)
-            {
-                case IDC_USERNAME:
-                    if (GET_WM_COMMAND_CMD(wParam, lParam) == EN_UPDATE)
-                    {
-                        EnableOKButtonFromID(hDlg, IDC_USERNAME);
-                        GetDlgItemText(hDlg, IDC_USERNAME, szTemp, ARRAYSIZE(szTemp));
-
-                        if (!IsDlgButtonChecked(hDlg, IDC_USECURRENTACCOUNT))
-                        {
-                            fNoInlineDomain = (StrChr(szTemp, TEXT('\\')) == NULL);
-                            EnableWindow(GetDlgItem(hDlg, IDC_DOMAIN), fNoInlineDomain);
-                            EnableWindow(GetDlgItem(hDlg, IDC_DOMAINLBL), fNoInlineDomain);
-                        }
-                    }
-                    break;
-
-                case IDC_USEOTHERACCOUNT:
-                case IDC_USECURRENTACCOUNT:
-                    if (IsDlgButtonChecked(hDlg, IDC_USECURRENTACCOUNT))
-                    {
-                        EnableWindow(GetDlgItem(hDlg, IDC_USERNAME), FALSE);
-                        EnableWindow(GetDlgItem(hDlg, IDC_PASSWORD), FALSE);
-                        EnableWindow(GetDlgItem(hDlg, IDC_DOMAIN), FALSE);
-                        EnableWindow(GetDlgItem(hDlg, IDC_USERNAMELBL), FALSE);
-                        EnableWindow(GetDlgItem(hDlg, IDC_PASSWORDLBL), FALSE);
-                        EnableWindow(GetDlgItem(hDlg, IDC_DOMAINLBL), FALSE);
-                        EnableWindow(GetDlgItem(hDlg, IDOK), TRUE);
-                    }
-                    else
-                    {
-                        EnableWindow(GetDlgItem(hDlg, IDC_USERNAME), TRUE);
-                        EnableWindow(GetDlgItem(hDlg, IDC_PASSWORD), TRUE);
-                        EnableWindow(GetDlgItem(hDlg, IDC_USERNAMELBL), TRUE);
-                        EnableWindow(GetDlgItem(hDlg, IDC_PASSWORDLBL), TRUE);
-                        GetDlgItemText(hDlg, IDC_USERNAME, szTemp, ARRAYSIZE(szTemp));
-                        fNoInlineDomain = (StrChr(szTemp, TEXT('\\')) == NULL);
-                        EnableWindow(GetDlgItem(hDlg, IDC_DOMAIN), fNoInlineDomain);
-                        EnableWindow(GetDlgItem(hDlg, IDC_DOMAINLBL), fNoInlineDomain);
-                        EnableOKButtonFromID(hDlg, IDC_USERNAME);
-                    }
-                    break;
-
-                case IDOK:
-                    if (IsDlgButtonChecked(hDlg, IDC_USEOTHERACCOUNT))
-                    {
-                        szTemp[0] = 0;
-                        GetDlgItemText(hDlg, IDC_PASSWORD, pli->szPassword, ARRAYSIZE(pli->szPassword));
-                        GetDlgItemText(hDlg, IDC_USERNAME, szTemp, ARRAYSIZE(szTemp));
-                        GetDlgItemText(hDlg, IDC_DOMAIN, pli->szDomain, ARRAYSIZE(pli->szDomain));
-
-                        // Order of domain name acquisition, the first one found wins:
-                        // 1) use domain if user entered domain\username
-                        // 2) use domain name if entered
-                        // 3) check for username@domain
-                        if (psz = StrChr(szTemp, TEXT('\\')))
-                        {
-                            // domain\name format
-                            ASSERT(IsWindowEnabled(GetDlgItem(hDlg, IDC_DOMAIN)) == FALSE);
-                            *psz = 0;
-                            lstrcpyn(pli->szUser, psz + 1, ARRAYSIZE(pli->szUser));
-                            lstrcpyn(pli->szDomain, szTemp, ARRAYSIZE(pli->szDomain));
-                        }
-                        else
-                        {
-                            psz = StrChr(szTemp, TEXT('@'));
-                            if ((pli->szDomain[0] == 0) && (psz != NULL))
-                            {
-                                // name@domain format
-                                *psz = 0;
-                                lstrcpyn(pli->szDomain, psz + 1, ARRAYSIZE(pli->szDomain));
-                                lstrcpyn(pli->szUser, szTemp, ARRAYSIZE(pli->szUser));
-                            }
-                            else
-                            {
-                                lstrcpyn(pli->szUser, szTemp, ARRAYSIZE(pli->szUser));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        idCmd = IDNO;
-                    }
-                // fall through
-
-                case IDCANCEL:
-                    EndDialog(hDlg, idCmd);
-                    return TRUE;
-                    break;
-            }
-            break;
-        }
-
-        default:
-            return FALSE;
+    }
+    default:
+        return FALSE;
     }
 
-    if (!pli || (pli->raType == RUNAS_NONADMININSTALL))
-    {
+    if (!pli || (pli->raType == RUNAS_NONADMININSTALL)) {
         // we want the MessageBoxCheckExDlgProc have a crack at all messages in
         // the RUNAS_NONADMININSTALL case, so return FALSE here
         return FALSE;
-    }
-    else
-    {
+    } else {
         return TRUE;
     }
 }
@@ -1707,13 +1490,13 @@ BOOL _IsLogonError(DWORD err)
         ERROR_NONE_MAPPED,
         ERROR_NO_SUCH_USER,
         ERROR_INVALID_ACCOUNT_NAME
-        };
+    };
 
-    for (int i = 0; i < ARRAYSIZE(s_aLogonErrs); i++)
-    {
+    for (int i = 0; i < ARRAYSIZE(s_aLogonErrs); i++) {
         if (err == s_aLogonErrs[i])
             return TRUE;
     }
+    
     return FALSE;
 }
 
@@ -1755,8 +1538,7 @@ BOOL CheckForInstallApplication(LPCTSTR pszApplicationName, LPCTSTR pszCommandLi
 {
     // if we are on a TS machine, AND its not in "Remote Administration" mode, AND this is a TS setup exe (eg install.exe or setup.exe)
     // AND we aren't in install mode...
-    if (IsOS(OS_WIN2000TERMINAL) && !IsOS(OS_TERMINALREMOTEADMIN) && IsTSSetupExe(pszApplicationName) && !TermsrvAppInstallMode())
-    {
+    if (IsOS(OS_WIN2000TERMINAL) && !IsOS(OS_TERMINALREMOTEADMIN) && IsTSSetupExe(pszApplicationName) && !TermsrvAppInstallMode()) {
         TCHAR szExePath[MAX_PATH];
 
         lstrcpyn(szExePath, pszCommandLine, ARRAYSIZE(szExePath));
@@ -1764,8 +1546,7 @@ BOOL CheckForInstallApplication(LPCTSTR pszApplicationName, LPCTSTR pszCommandLi
         PathUnquoteSpaces(szExePath);
 
         // ...AND the app we are launching is not TS aware, then we block the install and tell the user to go to Add/Remove Programs.
-        if (!IsExeTSAware(szExePath))
-        {
+        if (!IsExeTSAware(szExePath)) {
             TraceMsg(TF_SHELLEXEC, "_SHCreateProcess: blocking the install on TS beacuse the machine is not in install mode for %s", pszApplicationName);
             pli->raType = RUNAS_HYDRANOINSTALLMODE;
             return TRUE;
@@ -1773,12 +1554,10 @@ BOOL CheckForInstallApplication(LPCTSTR pszApplicationName, LPCTSTR pszCommandLi
     }
 
     // the hyrda case failed, so we check for the user not running as an admin but launching a setup exe (eg winnt32.exe, install.exe, or setup.exe)
-    if (!SHRestricted(REST_NORUNASINSTALLPROMPT) && IsRunAsSetupExe(pszApplicationName) && !IsUserAnAdmin())
-    {
+    if (!SHRestricted(REST_NORUNASINSTALLPROMPT) && IsRunAsSetupExe(pszApplicationName) && !IsUserAnAdmin()) {
         BOOL bPromptForInstall = TRUE;
 
-        if (!SHRestricted(REST_PROMPTRUNASINSTALLNETPATH))
-        {
+        if (!SHRestricted(REST_PROMPTRUNASINSTALLNETPATH)) {
             TCHAR szFullPathToApp[MAX_PATH];
 
             // we want to disable runas on unc and net shares for now since the Administrative account might not
@@ -1787,15 +1566,13 @@ BOOL CheckForInstallApplication(LPCTSTR pszApplicationName, LPCTSTR pszCommandLi
             PathRemoveArgs(szFullPathToApp);
             PathUnquoteSpaces(szFullPathToApp);
 
-            if (PathIsUNC(szFullPathToApp) || IsNetDrive(PathGetDriveNumber(szFullPathToApp)))
-            {
+            if (PathIsUNC(szFullPathToApp) || IsNetDrive(PathGetDriveNumber(szFullPathToApp))) {
                 TraceMsg(TF_SHELLEXEC, "_SHCreateProcess: not prompting for runas install on unc/network path %s", szFullPathToApp);
                 bPromptForInstall = FALSE;
             }
         }
 
-        if (bPromptForInstall)
-        {
+        if (bPromptForInstall) {
             TraceMsg(TF_SHELLEXEC, "_SHCreateProcess: bringing up the Run As... dialog for %s", pszApplicationName);
             pli->raType = RUNAS_NONADMININSTALL;
             return TRUE;
@@ -1813,31 +1590,29 @@ BOOL CheckForInstallApplication(LPCTSTR pszApplicationName, LPCTSTR pszCommandLi
 //            for internal use only.
 
 BOOL _SHCreateProcess(
-                     HWND hwnd,
-                     HANDLE hToken,
-                     LPCTSTR lpApplicationName,
-                     LPTSTR lpCommandLine,
-                     DWORD dwCreationFlags,
-                     LPSECURITY_ATTRIBUTES  lpProcessAttributes,
-                     LPSECURITY_ATTRIBUTES  lpThreadAttributes,
-                     BOOL  bInheritHandles,
-                     LPVOID lpEnvironment,
-                     LPCTSTR lpCurrentDirectory,
-                     LPSTARTUPINFO lpStartupInfo,
-                     LPPROCESS_INFORMATION lpProcessInformation,
-                     BOOL fUserLogon,
-                     BOOL fNoUI
-                    )
+    HWND hwnd,
+    HANDLE hToken,
+    LPCTSTR lpApplicationName,
+    LPTSTR lpCommandLine,
+    DWORD dwCreationFlags,
+    LPSECURITY_ATTRIBUTES  lpProcessAttributes,
+    LPSECURITY_ATTRIBUTES  lpThreadAttributes,
+    BOOL  bInheritHandles,
+    LPVOID lpEnvironment,
+    LPCTSTR lpCurrentDirectory,
+    LPSTARTUPINFO lpStartupInfo,
+    LPPROCESS_INFORMATION lpProcessInformation,
+    BOOL fUserLogon,
+    BOOL fNoUI
+)
 {
     BOOL fRet = FALSE;
     BOOL fAllowRunAs = FALSE;
     DWORD err = NOERROR;
 #ifdef WINNT
-    LOGONINFO li = {0};
+    LOGONINFO li = { 0 };
 
-
-    if (!fUserLogon)
-    {
+    if (!fUserLogon) {
         // see if we need to put up a warning prompt either because the user is not an
         // admin or this is hydra and we are not in install mode.
         fUserLogon = CheckForInstallApplication(lpApplicationName, lpCommandLine, &li);
@@ -1850,116 +1625,98 @@ BOOL _SHCreateProcess(
             fAllowRunAs = TRUE;
     }
 
-    if (!hToken && fUserLogon && lpApplicationName)
-    {
+    if (!hToken && fUserLogon && lpApplicationName) {
         AssocQueryString(ASSOCF_VERIFY | ASSOCF_INIT_BYEXENAME, ASSOCSTR_FRIENDLYAPPNAME,
-            lpApplicationName, NULL, li.szAppName, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(li.szAppName)));
+                         lpApplicationName, NULL, li.szAppName, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(li.szAppName)));
 
         //  if there is NO_UI, we cant prompt the user. Except when it's the runas dialog.
         //  default to DENIED
-        if (fNoUI && !fAllowRunAs)
-        {
+        if (fNoUI && !fAllowRunAs) {
             err = ERROR_ACCESS_DENIED;
-        }
-        else
-        {
-RetryUserLogon:
+        } else {
+        RetryUserLogon:
             INT_PTR iLogon;
 
-            switch (li.raType)
+            switch (li.raType) {
+            case RUNAS_NORMAL:
             {
-                case RUNAS_NORMAL:
-                {
-                    // this is the normal "Run as..." verb dialgo
-                    iLogon = DialogBoxParam(HINST_THISDLL,
-                                            MAKEINTRESOURCE(DLG_RUNUSERLOGON),
-                                            hwnd,
-                                            UserLogon_DlgProc,
-                                            (LPARAM)&li);
-                }
-                break;
+                // this is the normal "Run as..." verb dialgo
+                iLogon = DialogBoxParam(HINST_THISDLL,
+                                        MAKEINTRESOURCE(DLG_RUNUSERLOGON),
+                                        hwnd,
+                                        UserLogon_DlgProc,
+                                        (LPARAM)&li);
+            }
+            break;
+            case RUNAS_NONADMININSTALL:
+            {
+                // in the non-administrator setup app case. we want the "dont show me
+                // this again" functionality, so we use the SHMessageBoxCheckEx function
+                iLogon = SHMessageBoxCheckEx(hwnd,
+                                             HINST_THISDLL,
+                                             MAKEINTRESOURCE(DLG_RUNSETUPLOGON),
+                                             UserLogon_DlgProc,
+                                             (LPVOID)&li,
+                                             IDNO, // if they checked the "dont show me this again", we want to just launch it as the current user
+                                             TEXT("WarnOnNonAdminInstall"));
+            }
+            break;
+            case RUNAS_HYDRANOINSTALLMODE:
+            {
+                // this is the hydra machine that is not in install mode and a setup app is running case.
+                LinkWindow_RegisterClass();
+                iLogon = DialogBoxParam(HINST_THISDLL,
+                                        MAKEINTRESOURCE(DLG_TSINSTALLFAILURE),
+                                        hwnd,
+                                        HydraNoInstallMode_DlgProc,
+                                        (LPARAM)&li);
 
-                case RUNAS_NONADMININSTALL:
-                {
-                    // in the non-administrator setup app case. we want the "dont show me
-                    // this again" functionality, so we use the SHMessageBoxCheckEx function
-                    iLogon = SHMessageBoxCheckEx(hwnd,
-                                                 HINST_THISDLL,
-                                                 MAKEINTRESOURCE(DLG_RUNSETUPLOGON),
-                                                 UserLogon_DlgProc,
-                                                 (LPVOID)&li,
-                                                 IDNO, // if they checked the "dont show me this again", we want to just launch it as the current user
-                                                 TEXT("WarnOnNonAdminInstall"));
-                }
-                break;
-
-                case RUNAS_HYDRANOINSTALLMODE:
-                {
-                    // this is the hydra machine that is not in install mode and a setup app is running case.
-                    LinkWindow_RegisterClass();
-                    iLogon = DialogBoxParam(HINST_THISDLL,
-                                            MAKEINTRESOURCE(DLG_TSINSTALLFAILURE),
-                                            hwnd,
-                                            HydraNoInstallMode_DlgProc,
-                                            (LPARAM)&li);
-
-                    ASSERT(iLogon == IDCANCEL); // we should always abort the execute in this case
-                }
-                break;
-
-                default:
-                {
-                    ASSERTMSG(FALSE, "_SHCreateProcess: li.raType not recognized!");
-                }
-                break;
+                ASSERT(iLogon == IDCANCEL); // we should always abort the execute in this case
+            }
+            break;
+            default:
+            {
+                ASSERTMSG(FALSE, "_SHCreateProcess: li.raType not recognized!");
+            }
+            break;
             }
 
             // check the return value from the dlg
-            switch (iLogon)
-            {
-                case IDOK:
-                    //  use the information from the dialog
-                    //  to logon the user
-                    ASSERT(fUserLogon);
-                    break;
-
-                case IDNO:
-                    //  in this case we will call the regular
-                    //  CreateProcess() and it will SLE()
-                    fUserLogon = FALSE;
-                    break;
-
-                default:
-                    //  user hit the cancel button
-                    err = ERROR_CANCELLED;
-                    break;
+            switch (iLogon) {
+            case IDOK:
+                //  use the information from the dialog
+                //  to logon the user
+                ASSERT(fUserLogon);
+                break;
+            case IDNO:
+                //  in this case we will call the regular
+                //  CreateProcess() and it will SLE()
+                fUserLogon = FALSE;
+                break;
+            default:
+                //  user hit the cancel button
+                err = ERROR_CANCELLED;
+                break;
             }
-
         }
     }
 
 #endif // WINNT
 
-    if (err == NOERROR)
-    {
-        if (!fUserLogon)
-        {
+    if (err == NOERROR) {
+        if (!fUserLogon) {
             // DEFAULT use CreateProcess
             fRet = CreateProcess(NULL, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles,
                                  dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo,
                                  lpProcessInformation);
         }
 #ifdef WINNT
-        else if (hToken)
-        {
+        else if (hToken) {
             //  use the user Token
             fRet = CreateProcessAsUser(hToken, NULL, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles,
-                                 dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo,
-                                 lpProcessInformation);
-
-        }
-        else
-        {
+                                       dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo,
+                                       lpProcessInformation);
+        } else {
             LPTSTR pszDesktop = lpStartupInfo->lpDesktop;
             // 99/08/19 #389284 vtan: clip username and domain to 125 characters each to avoid hitting the combined MAX_PATH
             // limit in AllowDesktopAccessToUser in advapi32.dll which is invoked by CreateProcessWithLogonW.
@@ -1968,11 +1725,10 @@ RetryUserLogon:
             li.szUser[125] = li.szDomain[125] = TEXT('\0');
             //  we are attempting logon the user. NOTE: pass LOGON_WITH_PROFILE so that we ensure that the profile is loaded
             fRet = DelayCreateProcessWithLogon(li.szUser, li.szDomain, li.szPassword, LOGON_WITH_PROFILE, NULL, lpCommandLine,
-                                  dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo,
-                                  lpProcessInformation);
+                                               dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo,
+                                               lpProcessInformation);
 
-            if (!fRet)
-            {
+            if (!fRet) {
                 // HACKHACK: When CreateProcessWithLogon fails, it munges the desktop.
                 // This causes the next call to "Appear" to fail because the app show up on another desktop...
                 //     Why? I don't know...
@@ -1984,8 +1740,7 @@ RetryUserLogon:
 
                 //  ShellMessageBox can alter LastError
                 err = GetLastError();
-                if (_IsLogonError(err))
-                {
+                if (_IsLogonError(err)) {
                     TCHAR szTemp[MAX_PATH];
                     LoadString(HINST_THISDLL, IDS_CANTLOGON, szTemp, SIZECHARS(szTemp));
 
@@ -2001,20 +1756,15 @@ RetryUserLogon:
                     goto RetryUserLogon;
                 }
             }
-
         }
-
 #endif // WINNT
     }
-
 
     // fire *after* the actual process since:
     //  - if there's a bug we at least get the process started (hopefully)
     //  - don't want to log failed events (for now at least)
-    if (fRet)
-    {
-        if (UEMIsLoaded())
-        {
+    if (fRet) {
+        if (UEMIsLoaded()) {
             // skip the call if stuff isn't there yet.
             // the load is expensive (forces ole32.dll and browseui.dll in
             // and then pins browseui).
@@ -2024,8 +1774,7 @@ RetryUserLogon:
             // 'paired'.  however it's way easier to do UIBW_RUNASSOC
             // elsewhere so we'll live w/ it.
         }
-    }
-    else if (err)
+    } else if (err)
         SetLastError(err);
 
     return fRet;
@@ -2034,23 +1783,19 @@ RetryUserLogon:
 
 BOOL CShellExecute::_SetCommand(void)
 {
-    if (_szCmdTemplate[0])
-    {
+    if (_szCmdTemplate[0]) {
         // parse arguments into command line
         DWORD se_err = ReplaceParameters(_szCommand, ARRAYSIZE(_szCommand),
-            _szFile, _szCmdTemplate, _lpParameters,
-            _nShow, NULL, FALSE, _lpID, &_pidlGlobal);
+                                         _szFile, _szCmdTemplate, _lpParameters,
+                                         _nShow, NULL, FALSE, _lpID, &_pidlGlobal);
 
         if (se_err)
             _ReportHinst((HINSTANCE)se_err);
         else
             return TRUE;
-    }
-    else if (PathIsExe(_szFile))
-    {
+    } else if (PathIsExe(_szFile)) {
         _fTryOpenExe = TRUE;
-    }
-    else
+    } else
         _ReportWin32(ERROR_NO_ASSOCIATION);
 
     return FALSE;
@@ -2068,13 +1813,10 @@ void CShellExecute::_TryExecCommand(void)
 
 void CShellExecute::_SetImageName(void)
 {
-    if (SUCCEEDED(_QueryString(ASSOCF_VERIFY, ASSOCSTR_EXECUTABLE, _szImageName, SIZECHARS(_szImageName))))
-    {
+    if (SUCCEEDED(_QueryString(ASSOCF_VERIFY, ASSOCSTR_EXECUTABLE, _szImageName, SIZECHARS(_szImageName)))) {
         if (0 == lstrcmp(_szImageName, TEXT("%1")))
             StrCpyN(_szImageName, _szFile, SIZECHARS(_szImageName));
-    }
-    else if (PathIsExe(_szFile))
-    {
+    } else if (PathIsExe(_szFile)) {
         StrCpyN(_szImageName, _szFile, SIZECHARS(_szImageName));
     }
 }
@@ -2090,8 +1832,7 @@ void CShellExecute::_DoExecCommand(void)
     BOOL fCreateProcessFailed;
     TraceMsg(TF_SHELLEXEC, "SHEX::DoExecCommand() entered szCommand = %s", _szCommand);
 
-    do
-    {
+    do {
         HWND hwndOld = GetForegroundWindow();
         LPTSTR pszEnv = NULL;
         LPCTSTR pszNewEnvString = NULL;
@@ -2100,21 +1841,17 @@ void CShellExecute::_DoExecCommand(void)
         _SetImageName();
 
         // Check exec restrictions.
-        if (SHRestricted(REST_RESTRICTRUN) && RestrictedApp(_szImageName))
-        {
+        if (SHRestricted(REST_RESTRICTRUN) && RestrictedApp(_szImageName)) {
             _ReportWin32(ERROR_RESTRICTED_APP);
             break;
         }
-        if (SHRestricted(REST_DISALLOWRUN) && DisallowedApp(_szImageName))
-        {
+        if (SHRestricted(REST_DISALLOWRUN) && DisallowedApp(_szImageName)) {
             _ReportWin32(ERROR_RESTRICTED_APP);
             break;
         }
-
 
         // Check if app is incompatible in some fashion...
-        if (!CheckAppCompatibility(_szImageName, &pszNewEnvString, _fNoUI, _hwndParent))
-        {
+        if (!CheckAppCompatibility(_szImageName, &pszNewEnvString, _fNoUI, _hwndParent)) {
             _ReportWin32(ERROR_CANCELLED);
             break;
         }
@@ -2122,8 +1859,7 @@ void CShellExecute::_DoExecCommand(void)
         //  try to validate the image if it is on a UNC share
         //  we dont need to check for Print shares, so we
         //  will fail if it is on one.
-        if (_TryValidateUNC(_szImageName, NULL))
-        {
+        if (_TryValidateUNC(_szImageName, NULL)) {
             // returns TRUE if it failed or handled the operation
             // Note that SHValidateUNC calls SetLastError
             // this continue will test based on GetLastError()
@@ -2141,7 +1877,7 @@ void CShellExecute::_DoExecCommand(void)
 #endif
 
         // See if we need to pass a new environment to the new process
-        pszEnv = _BuildEnvironmentForNewProcess( pszNewEnvString );
+        pszEnv = _BuildEnvironmentForNewProcess(pszNewEnvString);
 
         TraceMsg(TF_SHELLEXEC, "SHEX::DoExecCommand() CreateProcess(NULL,%s,...)", _szCommand);
 
@@ -2159,26 +1895,23 @@ void CShellExecute::_DoExecCommand(void)
                              &_startup,
                              &_pi,
                              _fRunAs,
-                             _fNoUI))
-        {
+                             _fNoUI)) {
             // If we're doing DDE we'd better wait for the app to be up and running
             // before we try to talk to them.
-            if (_fDDEInfoSet || _fWaitForInputIdle)
-            {
+            if (_fDDEInfoSet || _fWaitForInputIdle) {
                 // Yep, How long to wait? For now, try 60 seconds to handle
                 // pig-slow OLE apps.
-                WaitForInputIdle(_pi.hProcess, 60*1000);
+                WaitForInputIdle(_pi.hProcess, 60 * 1000);
             }
 #ifndef WINNT
             // For 16-bit apps, we need to wait until they've started. 32-bit
             // apps never have to wait.
             // On NT, the 16-bit app path doesn't get this far so we can avoid
             // it altogether.
-            else if (GetProcessDword(GetCurrentProcessId(), GPD_FLAGS) & GPF_WIN16_PROCESS)
-            {
+            else if (GetProcessDword(GetCurrentProcessId(), GPD_FLAGS) & GPF_WIN16_PROCESS) {
                 // NT and win3.1 16 bit callers all wait, even if the target is
                 // a 32 bit guy
-                WaitForInputIdle(_pi.hProcess, 10*1000);
+                WaitForInputIdle(_pi.hProcess, 10 * 1000);
             }
 #endif
 
@@ -2189,12 +1922,10 @@ void CShellExecute::_DoExecCommand(void)
             // Now fix the focus and do any dde stuff that we need to do
             _FixActivationStealingApps(hwndOld, _nShow);
 
-            if (_fDDEInfoSet)
-            {
+            if (_fDDEInfoSet) {
                 //  this will _Report() any errors for us if necessary
                 _DDEExecute(NULL, _hwndParent, _nShow, _fDDEWait);
-            }
-            else
+            } else
                 _ReportHinst(hinst);
 
             //  clean up before the break
@@ -2202,23 +1933,18 @@ void CShellExecute::_DoExecCommand(void)
                 LocalFree(pszEnv);
 
             break;  // out of retry loop
-        }
-        else
-        {
+        } else {
             fCreateProcessFailed = TRUE;
-
         }
 
         //  clean up the loop
         if (pszEnv)
             LocalFree(pszEnv);
 
-
-    // **WARNING** this assumes that SetLastError() has been called - zekel - 20-NOV-97
-    //  right now we only reach here after CreateProcess() fails or
-    //  SHValidateUNC() fails.  both of these do SetLastError()
-    }
-    while (_ProcessErrorShouldTryExecCommand(GetLastError(), _hwndParent, fCreateProcessFailed));
+        // **WARNING** this assumes that SetLastError() has been called - zekel - 20-NOV-97
+        //  right now we only reach here after CreateProcess() fails or
+        //  SHValidateUNC() fails.  both of these do SetLastError()
+    } while (_ProcessErrorShouldTryExecCommand(GetLastError(), _hwndParent, fCreateProcessFailed));
 
     // (we used to do a UIBW_RUNASSOC here, but moved it higher up)
 }
@@ -2232,76 +1958,60 @@ HGLOBAL CShellExecute::_CreateDDECommand(int nShow, BOOL fLFNAware, BOOL fNative
     SHSTR strTemp;
     HGLOBAL hRet = NULL;
 
-    if (SUCCEEDED(strTemp.SetSize((2 * INTERNET_MAX_URL_LENGTH) + 64)))
-    {
+    if (SUCCEEDED(strTemp.SetSize((2 * INTERNET_MAX_URL_LENGTH) + 64))) {
         if (0 == ReplaceParameters(strTemp.GetStr(), strTemp.GetSize(), _szFile,
-            _szDDECmd, _lpParameters, nShow, ((DWORD*) &_startup.hStdInput), fLFNAware, _lpID, &_pidlGlobal))
-        {
+                                   _szDDECmd, _lpParameters, nShow, ((DWORD*)&_startup.hStdInput), fLFNAware, _lpID, &_pidlGlobal)) {
 
             TraceMsg(TF_SHELLEXEC, "SHEX::_CreateDDECommand(%d, %d) : %s", fLFNAware, fNative, strTemp.GetStr());
 
 #ifdef UNICODE
             //  we only have to thunk on NT
-            if (!fNative)
-            {
+            if (!fNative) {
                 SHSTRA stra;
-                if (SUCCEEDED(stra.SetStr(strTemp)))
-                {
+                if (SUCCEEDED(stra.SetStr(strTemp))) {
                     // Get dde memory for the command and copy the command line.
 
                     hRet = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, CbFromCch(lstrlenA(stra.GetStr()) + 1));
-
-                    if (hRet)
-                    {
-                        LPSTR psz = (LPSTR) GlobalLock(hRet);
+                    if (hRet) {
+                        LPSTR psz = (LPSTR)GlobalLock(hRet);
                         lstrcpyA(psz, stra.GetStr());
                         GlobalUnlock(hRet);
                     }
                 }
-            }
-            else
-            {
+            } else {
 #else
-                ASSERT(fNative);
+            ASSERT(fNative);
 #endif
 
-                // Get dde memory for the command and copy the command line.
-
-                hRet = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, CbFromCch(lstrlen(strTemp.GetStr()) + 1));
-
-                if (hRet)
-                {
-                    LPTSTR psz = (LPTSTR) GlobalLock(hRet);
-                    lstrcpy(psz, strTemp.GetStr());
-                    GlobalUnlock(hRet);
-                }
+            // Get dde memory for the command and copy the command line.
+            hRet = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, CbFromCch(lstrlen(strTemp.GetStr()) + 1));
+            if (hRet) {
+                LPTSTR psz = (LPTSTR)GlobalLock(hRet);
+                lstrcpy(psz, strTemp.GetStr());
+                GlobalUnlock(hRet);
+            }
 #ifdef UNICODE
             }
 #endif
-
         }
     }
 
-    return hRet;
+return hRet;
 }
 
 // Short cut all DDE commands with a WM_NOTIFY
 //  returns true if this was handled...or unrecoverable error.
 BOOL CShellExecute::_TryDDEShortCircuit(HWND hwnd, HGLOBAL hMem, int nShow)
 {
-    if (hwnd  && IsWindowInProcess(hwnd))
-    {
+    if (hwnd && IsWindowInProcess(hwnd)) {
         HINSTANCE hret = (HINSTANCE)SE_ERR_FNF;
 
         // get the top most owner.
         hwnd = GetTopParentWindow(hwnd);
 
-        if (IsWindowInProcess(hwnd))
-        {
+        if (IsWindowInProcess(hwnd)) {
             LPNMVIEWFOLDER lpnm = (LPNMVIEWFOLDER)LocalAlloc(LPTR, SIZEOF(NMVIEWFOLDER));
-
-            if (lpnm)
-            {
+            if (lpnm) {
                 lpnm->hdr.hwndFrom = NULL;
                 lpnm->hdr.idFrom = 0;
                 lpnm->hdr.code = SEN_DDEEXECUTE;
@@ -2311,22 +2021,20 @@ BOOL CShellExecute::_TryDDEShortCircuit(HWND hwnd, HGLOBAL hMem, int nShow)
                 else
                     lpnm->hMonitor = NULL;
 
-                StrCpyN(lpnm->szCmd, (LPTSTR) GlobalLock(hMem), ARRAYSIZE(lpnm->szCmd));
+                StrCpyN(lpnm->szCmd, (LPTSTR)GlobalLock(hMem), ARRAYSIZE(lpnm->szCmd));
                 GlobalUnlock(hMem);
 
                 if (SendMessage(hwnd, WM_NOTIFY, 0, (LPARAM)lpnm))
-                    hret =  Window_GetInstance(hwnd);
+                    hret = Window_GetInstance(hwnd);
 
                 LocalFree(lpnm);
-            }
-            else
+            } else
                 hret = (HINSTANCE)SE_ERR_OOM;
         }
 
         TraceMsg(TF_SHELLEXEC, "SHEX::_TryDDEShortcut hinst = %d", hret);
 
-        if ((UINT_PTR)hret != SE_ERR_FNF)
-        {
+        if ((UINT_PTR)hret != SE_ERR_FNF) {
             _ReportHinst(hret);
             return TRUE;
         }
@@ -2345,25 +2053,21 @@ STDAPI_(void) _WaitForDDEMsg(HWND hwnd, DWORD dwTimeout, UINT wMsg)
     HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
     SetProp(hwnd, SZTERMEVENT, hEvent);
 
-    for (;;)
-    {
+    for (;;) {
         MSG msg;
         DWORD dwEndTime = GetTickCount() + dwTimeout;
         LONG lWait = (LONG)dwTimeout;
 
-        DWORD dwReturn = MsgWaitForMultipleObjects(1, &hEvent,
-                FALSE, lWait, QS_POSTMESSAGE);
+        DWORD dwReturn = MsgWaitForMultipleObjects(1, &hEvent, FALSE, lWait, QS_POSTMESSAGE);
 
         //  if we time out or get an error or get our EVENT!!!
         //  we just bag out
-        if (dwReturn != (WAIT_OBJECT_0 + 1))
-        {
+        if (dwReturn != (WAIT_OBJECT_0 + 1)) {
             break;
         }
 
         // we woke up because of messages.
-        while (PeekMessage(&msg, NULL, WM_DDE_FIRST, WM_DDE_LAST, PM_REMOVE))
-        {
+        while (PeekMessage(&msg, NULL, WM_DDE_FIRST, WM_DDE_LAST, PM_REMOVE)) {
             ASSERT(msg.message != WM_QUIT);
             DispatchMessage(&msg);
 
@@ -2372,8 +2076,7 @@ STDAPI_(void) _WaitForDDEMsg(HWND hwnd, DWORD dwTimeout, UINT wMsg)
         }
 
         // calculate new timeout value
-        if (dwTimeout != INFINITE)
-        {
+        if (dwTimeout != INFINITE) {
             lWait = (LONG)dwEndTime - GetTickCount();
         }
     }
@@ -2388,22 +2091,18 @@ Quit:
 
 LRESULT CALLBACK DDESubClassWndProc(HWND hWnd, UINT wMsg, WPARAM wParam, LPARAM lParam)
 {
-    HWND hwndConv = (HWND) GetProp(hWnd, SZCONV);
+    HWND hwndConv = (HWND)GetProp(hWnd, SZCONV);
     WPARAM nLow;
     WPARAM nHigh;
     HANDLE hEvent;
 
-    switch (wMsg)
-    {
-      case WM_DDE_ACK:
-        if (!hwndConv)
-        {
+    switch (wMsg) {
+    case WM_DDE_ACK:
+        if (!hwndConv) {
             // this is the first ACK for our INITIATE message
             TraceMsg(TF_SHELLEXEC, "SHEX::DDEStubWnd get ACK on INITIATE");
             return SetProp(hWnd, SZCONV, (HANDLE)wParam);
-        }
-        else if (((UINT_PTR)hwndConv == 1) || ((HWND)wParam == hwndConv))
-
+        } else if (((UINT_PTR)hwndConv == 1) || ((HWND)wParam == hwndConv))
         {
             // this is the ACK for our EXECUTE message
             TraceMsg(TF_SHELLEXEC, "SHEX::DDEStubWnd got ACK on EXECUTE");
@@ -2413,7 +2112,7 @@ LRESULT CALLBACK DDESubClassWndProc(HWND hWnd, UINT wMsg, WPARAM wParam, LPARAM 
             FreeDDElParam(wMsg, lParam);
 
             // prevent us from destroying again....
-            if ((UINT_PTR) hwndConv != 1)
+            if ((UINT_PTR)hwndConv != 1)
                 DestroyWindow(hWnd);
         }
 
@@ -2421,18 +2120,13 @@ LRESULT CALLBACK DDESubClassWndProc(HWND hWnd, UINT wMsg, WPARAM wParam, LPARAM 
         // besides the first.  We return FALSE, so the conversation
         // should terminate.
         break;
-
-      case WM_DDE_TERMINATE:
-        if (hwndConv == (HANDLE)wParam)
-        {
+    case WM_DDE_TERMINATE:
+        if (hwndConv == (HANDLE)wParam) {
             // this TERMINATE was originated by another application
             // (otherwise, hwndConv would be 1)
             // they should have freed the memory for the exec message
-
             TraceMsg(TF_SHELLEXEC, "SHEX::DDEStubWnd got TERMINATE from hwndConv");
-
             PostMessage((HWND)wParam, WM_DDE_TERMINATE, (WPARAM)hWnd, 0L);
-
             RemoveProp(hWnd, SZCONV);
             DestroyWindow(hWnd);
         }
@@ -2444,31 +2138,26 @@ LRESULT CALLBACK DDESubClassWndProc(HWND hWnd, UINT wMsg, WPARAM wParam, LPARAM 
         // This is the TERMINATE response for our TERMINATE message
         // or a random terminate (which we don't really care about)
         break;
-
-      case WM_TIMER:
-        if ( wParam == DDE_DEATH_TIMER_ID )
-        {
+    case WM_TIMER:
+        if (wParam == DDE_DEATH_TIMER_ID) {
             // we have waited long enough, we still have no ACK, so quit the window ...
             hEvent = RemoveProp(hWnd, SZDDEEVENT);
-            if ( hEvent )
-                CloseHandle( hEvent );
+            if (hEvent)
+                CloseHandle(hEvent);
 
             // The conversation will be terminated in the destroy code
             DestroyWindow(hWnd);
 
             TraceMsg(TF_SHELLEXEC, "SHEX::DDEStubWnd TIMER closing DDE Window due to lack of ACK");
             break;
-        }
-        else
-          return DefWindowProc(hWnd, wMsg, wParam, lParam);
-
-      case WM_DESTROY:
+        } else
+            return DefWindowProc(hWnd, wMsg, wParam, lParam);
+    case WM_DESTROY:
         TraceMsg(TF_SHELLEXEC, "SHEX::DDEStubWnd WM_DESTROY'd");
 
         // kill the timer just incase.... (this may fail if we never set the timer)
-        KillTimer( hWnd, DDE_DEATH_TIMER_ID );
-        if (hwndConv)
-        {
+        KillTimer(hWnd, DDE_DEATH_TIMER_ID);
+        if (hwndConv) {
             // Make sure the window is not destroyed twice
             SetProp(hWnd, SZCONV, (HANDLE)1);
 
@@ -2476,15 +2165,12 @@ LRESULT CALLBACK DDESubClassWndProc(HWND hWnd, UINT wMsg, WPARAM wParam, LPARAM 
              * Wait for the acknowledging TERMINATE message or a timeout
              */
             PostMessage(hwndConv, WM_DDE_TERMINATE, (WPARAM)hWnd, 0L);
-
             _WaitForDDEMsg(hWnd, DDE_TERMINATETIMEOUT, WM_DDE_TERMINATE);
-
             RemoveProp(hWnd, SZCONV);
         }
 
         // the DDE conversation is officially over, let ShellExec know
-        if (NULL != (hEvent = GetProp(hWnd, SZDDEEVENT)))
-        {
+        if (NULL != (hEvent = GetProp(hWnd, SZDDEEVENT))) {
             SetEvent(hEvent);
 
             //  this can be picked off by the event handler...
@@ -2494,7 +2180,7 @@ LRESULT CALLBACK DDESubClassWndProc(HWND hWnd, UINT wMsg, WPARAM wParam, LPARAM 
         }
 
         /* Fall through */
-      default:
+    default:
         return DefWindowProc(hWnd, wMsg, wParam, lParam);
     }
 
@@ -2504,11 +2190,9 @@ LRESULT CALLBACK DDESubClassWndProc(HWND hWnd, UINT wMsg, WPARAM wParam, LPARAM 
 HWND CShellExecute::_CreateHiddenDDEWindow(HWND hwndParent, HANDLE hDDEEvent)
 {
     // lets be lazy and not create a class for it
-    HWND hwnd = SHCreateWorkerWindow(DDESubClassWndProc, GetTopParentWindow(hwndParent),
-        0, 0, NULL, NULL);
+    HWND hwnd = SHCreateWorkerWindow(DDESubClassWndProc, GetTopParentWindow(hwndParent), 0, 0, NULL, NULL);
 
-    if (hwnd)
-    {
+    if (hwnd) {
         SetProp(hwnd, SZDDEEVENT, hDDEEvent);
     }
 
@@ -2519,8 +2203,7 @@ HWND CShellExecute::_CreateHiddenDDEWindow(HWND hwndParent, HANDLE hDDEEvent)
 
 void CShellExecute::_DestroyHiddenDDEWindow(HWND hwnd)
 {
-    if (IsWindow(hwnd))
-    {
+    if (IsWindow(hwnd)) {
         TraceMsg(TF_SHELLEXEC, "SHEX::_DestroyHiddenDDEWindow on hwnd = 0x%X", hwnd);
 
         HANDLE hEvent = RemoveProp(hwnd, SZDDEEVENT);
@@ -2536,37 +2219,31 @@ BOOL CShellExecute::_PostDDEExecute(HWND hwndConv,
                                     HGLOBAL hDDECommand,
                                     HANDLE hConversationDone,
                                     BOOL fWaitForDDE,
-                                    HWND *phwndDDE)
+                                    HWND* phwndDDE)
 {
     TraceMsg(TF_SHELLEXEC, "SHEX::_PostDDEExecute(0x%X, 0x%X) entered", hwndConv, *phwndDDE);
 
     DWORD dwProcessID = 0;
-    GetWindowThreadProcessId( hwndConv, &dwProcessID );
-    if ( dwProcessID )
-    {
-        AllowSetForegroundWindow( dwProcessID );
+    GetWindowThreadProcessId(hwndConv, &dwProcessID);
+    if (dwProcessID) {
+        AllowSetForegroundWindow(dwProcessID);
     }
 
-    if (PostMessage(hwndConv, WM_DDE_EXECUTE, (WPARAM)*phwndDDE, (LPARAM)PackDDElParam(WM_DDE_EXECUTE, 0,(UINT_PTR)hDDECommand)))
-    {
+    if (PostMessage(hwndConv, WM_DDE_EXECUTE, (WPARAM)*phwndDDE, (LPARAM)PackDDElParam(WM_DDE_EXECUTE, 0, (UINT_PTR)hDDECommand))) {
         TraceMsg(TF_SHELLEXEC, "SHEX::_PostDDEExecute() connected");
 
         // everything's going fine so far, so return to the application
         // with the instance handle of the guy, and hope he can execute our string
-
         _ReportHinst(Window_GetInstance(hwndConv));
 
-        if (fWaitForDDE)
-        {
+        if (fWaitForDDE) {
             // We can't return from this call until the DDE conversation terminates.
             // Otherwise the thread may go away, nuking our hwndConv window,
             // messing up the DDE conversation, and Word drops funky error messages
             // on us.
             TraceMsg(TF_SHELLEXEC, "SHEX::_PostDDEExecute() waiting for termination");
             SHProcessMessagesUntilEvent(NULL, hConversationDone, INFINITE);
-        }
-        else if (IsWindow(*phwndDDE))
-        {
+        } else if (IsWindow(*phwndDDE)) {
             // set a timer to tidy up the window incase we never get a ACK....
             TraceMsg(TF_SHELLEXEC, "SHEX::_PostDDEExecute() setting DEATH timer");
 
@@ -2587,19 +2264,15 @@ void CShellExecute::_CacheDDEWindowClass(HWND hwnd)
     ASSERT(_hkDDE);
 
     //  if they use the DDEML stuff, then they are no good to us.
-    if (GetClassName(hwnd, _szValue, SIZECHARS(_szValue)) && !StrStr(_szValue, TEXT("DDEML")))
-    {
+    if (GetClassName(hwnd, _szValue, SIZECHARS(_szValue)) && !StrStr(_szValue, TEXT("DDEML"))) {
         //  we now want to cache this in the DDE key so that we can
         //  to use it first the next time we try this file type.
         //  this will avoid doing broadcasts, and thus decrease the
         //  chance of us hanging or doing other DDE trash.
 
-        RegSetValueEx(_hkDDE, SZWNDCLASS, 0, REG_SZ, (LPBYTE) _szValue, SIZEOF(_szValue));
+        RegSetValueEx(_hkDDE, SZWNDCLASS, 0, REG_SZ, (LPBYTE)_szValue, SIZEOF(_szValue));
         TraceMsg(TF_SHELLEXEC, "SHEX::CacheDDEWndClass caching: %s", _szValue);
-
-
     }
-
 }
 #endif // FEATURE_SHELLEXECCACHE
 
@@ -2611,27 +2284,26 @@ typedef struct {
     HWND  hwndDDE;
     LONG  lAppTopic;
     UINT  timeout;
-}INITDDECONV ;
+}INITDDECONV;
 
 #ifdef FEATURE_SHELLEXECCACHE
 
 BOOL InitDDEConv(HWND hwnd, LPARAM pv)
 {
-    INITDDECONV *pidc = (INITDDECONV *) pv;
+    INITDDECONV* pidc = (INITDDECONV*)pv;
 
     ASSERT(pidc);
 
     //  if this is the desired window....
-    if (pidc->aName == GetClassWord(hwnd, GCW_ATOM))
-    {
+    if (pidc->aName == GetClassWord(hwnd, GCW_ATOM)) {
         DWORD dwResult;
         //  we found somebody who used to like us...
         // Send the initiate message.
         // NB This doesn't need packing.
         SendMessageTimeout(hwnd, WM_DDE_INITIATE, (WPARAM)pidc->hwndDDE,
-                pidc->lAppTopic, SMTO_ABORTIFHUNG,
-                pidc->timeout,
-                &dwResult);
+                           pidc->lAppTopic, SMTO_ABORTIFHUNG,
+                           pidc->timeout,
+                           &dwResult);
 
         return !BOOLIFY(GetProp(pidc->hwndDDE, SZCONV));
     }
@@ -2649,7 +2321,7 @@ HWND CShellExecute::_GetConversationWindow(HWND hwndDDE)
                         hwndDDE,
                         MAKELONG(_aApplication, _aTopic),
                         SHIsLowMemoryMachine(ILMM_IE4) ? DDE_TIMEOUT_LOW_MEM : DDE_TIMEOUT
-                        };
+    };
 
 #ifdef FEATURE_SHELLEXECCACHE
 
@@ -2659,15 +2331,13 @@ HWND CShellExecute::_GetConversationWindow(HWND hwndDDE)
     //  this requires using NtQueryInformationProcess(), and i dont know how expensive that is.
     DWORD cbValue = SIZEOF(_szValue), dwType = REG_SZ;
     //  see if we have a cached wndclass name
-    if (ERROR_SUCCESS == SHQueryValueEx(_hkDDE, SZWNDCLASS, NULL, &dwType, (LPBYTE) _szValue, &cbValue) && _szValue[0])
-    {
+    if (ERROR_SUCCESS == SHQueryValueEx(_hkDDE, SZWNDCLASS, NULL, &dwType, (LPBYTE)_szValue, &cbValue) && _szValue[0]) {
         TraceMsg(TF_SHELLEXEC, "SHEX::GetConvWnd() looking for class: %s", _szValue);
         idc.aName = GlobalAddAtom(_szValue);
 
-        if (idc.aName)
-        {
+        if (idc.aName) {
             EnumWindows(InitDDEConv, (LPARAM)&idc);
-            hwnd = (HWND) GetProp(hwndDDE, SZCONV);
+            hwnd = (HWND)GetProp(hwndDDE, SZCONV);
             TraceMsg(TF_SHELLEXEC, "SHEX::GetConvWnd found this classy window [%X]", hwnd);
             GlobalDeleteAtom(idc.aName);
         }
@@ -2675,15 +2345,13 @@ HWND CShellExecute::_GetConversationWindow(HWND hwndDDE)
 #endif  // FEATURE_SHELLEXECCACHE
 
     //  if we didnt find him, then we better default to the old way...
-    if (!hwnd)
-    {
-
+    if (!hwnd) {
         //  we found somebody who used to like us...
         // Send the initiate message.
         // NB This doesn't need packing.
-        SendMessageTimeout((HWND) -1, WM_DDE_INITIATE, (WPARAM)hwndDDE, idc.lAppTopic, SMTO_ABORTIFHUNG, idc.timeout, &dwResult);
+        SendMessageTimeout((HWND)-1, WM_DDE_INITIATE, (WPARAM)hwndDDE, idc.lAppTopic, SMTO_ABORTIFHUNG, idc.timeout, &dwResult);
 
-        hwnd = (HWND) GetProp(hwndDDE, SZCONV);
+        hwnd = (HWND)GetProp(hwndDDE, SZCONV);
     }
 
     TraceMsg(TF_SHELLEXEC, "SHEX::GetConvWnd returns [%X]", hwnd);
@@ -2701,27 +2369,20 @@ BOOL CShellExecute::_DDEExecute(BOOL fWillRetry, HWND hwndParent, int   nShowCmd
     // we'll rebuild the command string a bit later on.
     HGLOBAL hDDECommand = _CreateDDECommand(nShowCmd, TRUE, TRUE);
 
-    if (hDDECommand)
-    {
+    if (hDDECommand) {
         //  we have a DDE command to try
 
-        if (_TryDDEShortCircuit(hwndParent, hDDECommand, nShowCmd))
-        {
+        if (_TryDDEShortCircuit(hwndParent, hDDECommand, nShowCmd)) {
             //  the shortcut tried and now we have an error reported
             fReportErr = FALSE;
-        }
-        else
-        {
+        } else {
             HANDLE hConversationDone = CreateEvent(NULL, FALSE, FALSE, NULL);
-            if (hConversationDone)
-            {
+            if (hConversationDone) {
                 // Create a hidden window for the conversation
                 HWND hwndDDE = _CreateHiddenDDEWindow(hwndParent, hConversationDone);
-                if (hwndDDE)
-                {
+                if (hwndDDE) {
                     HWND hwndConv = _GetConversationWindow(hwndDDE);                    // no one responded
-                    if (hwndConv)
-                    {
+                    if (hwndConv) {
 #ifdef FEATURE_SHELLEXECCACHE
                         //  we want to set them up for next time...
                         _CacheDDEWindowClass(hwndConv);
@@ -2731,7 +2392,7 @@ BOOL CShellExecute::_DDEExecute(BOOL fWillRetry, HWND hwndParent, int   nShowCmd
 
                         // This doesn't work if the other guy is using ddeml.
                         if (_fActivateHandler)
-                            ActivateHandler(hwndConv, (DWORD_PTR) _startup.hStdInput);
+                            ActivateHandler(hwndConv, (DWORD_PTR)_startup.hStdInput);
 
                         // Can the guy we're talking to handle LFNs?
                         BOOL fLFNAware = Window_IsLFNAware(hwndConv);
@@ -2740,19 +2401,16 @@ BOOL CShellExecute::_DDEExecute(BOOL fWillRetry, HWND hwndParent, int   nShowCmd
 #else
 #define fNative TRUE
 #endif
-                        if (!fLFNAware || !fNative)
-                        {
+                        if (!fLFNAware || !fNative) {
                             //  we need to redo the command string.
                             // Nope - App isn't LFN aware - redo the command string.
                             GlobalFree(hDDECommand);
 
                             //  we may need a new _pidlGlobal too.
-                            if (_pidlGlobal)
-                            {
+                            if (_pidlGlobal) {
                                 //  BUGBUG : there is one time that we may use a global...
-                                SHFreeShared((HANDLE)_pidlGlobal,GetCurrentProcessId());
+                                SHFreeShared((HANDLE)_pidlGlobal, GetCurrentProcessId());
                                 _pidlGlobal = NULL;
-
                             }
 
                             hDDECommand = _CreateDDECommand(nShowCmd, fLFNAware, fNative);
@@ -2761,22 +2419,18 @@ BOOL CShellExecute::_DDEExecute(BOOL fWillRetry, HWND hwndParent, int   nShowCmd
                         // Send the execute message to the application.
                         err = ERROR_DDE_FAIL;
 
-                        if (_PostDDEExecute(hwndConv, hDDECommand, hConversationDone, fWaitForDDE, &hwndDDE))
-                        {
+                        if (_PostDDEExecute(hwndConv, hDDECommand, hConversationDone, fWaitForDDE, &hwndDDE)) {
                             fReportErr = FALSE;
                             hDDECommand = NULL;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         err = (ERROR_FILE_NOT_FOUND);
                     }
 
                     //  cleanup
                     _DestroyHiddenDDEWindow(hwndDDE);
-                }
-                else
-                //  otherwise its cleaned up in _DestroyHiddenDDEWindow()
+                } else
+                    //  otherwise its cleaned up in _DestroyHiddenDDEWindow()
                     CloseHandle(hConversationDone);
             }
         }
@@ -2786,10 +2440,8 @@ BOOL CShellExecute::_DDEExecute(BOOL fWillRetry, HWND hwndParent, int   nShowCmd
             GlobalFree(hDDECommand);
     }
 
-    if (fReportErr)
-    {
-        if (fWillRetry && ERROR_FILE_NOT_FOUND == err)
-        {
+    if (fReportErr) {
+        if (fWillRetry && ERROR_FILE_NOT_FOUND == err) {
             //  this means that we need to update the
             //  command so that we can try DDE again after
             //  starting the app up...
@@ -2798,10 +2450,7 @@ BOOL CShellExecute::_DDEExecute(BOOL fWillRetry, HWND hwndParent, int   nShowCmd
             _QueryString(0, ASSOCSTR_DDEIFEXEC, _szDDECmd, SIZECHARS(_szDDECmd));
 
             return FALSE;
-        }
-        else
-        {
-
+        } else {
             _ReportWin32(err);
         }
     }
@@ -2814,15 +2463,13 @@ BOOL CShellExecute::_SetDDEInfo(void)
 {
     ASSERT(_pqa);
 
-    if (SUCCEEDED(_QueryString(0, ASSOCSTR_DDECOMMAND, _szDDECmd, SIZECHARS(_szDDECmd))))
-    {
+    if (SUCCEEDED(_QueryString(0, ASSOCSTR_DDECOMMAND, _szDDECmd, SIZECHARS(_szDDECmd)))) {
         TraceMsg(TF_SHELLEXEC, "SHEX::SetDDEInfo command: %s", _szDDECmd);
 
         // Any activation info?
         _fActivateHandler = FAILED(_pqa->GetData(0, ASSOCDATA_NOACTIVATEHANDLER, _pszQueryVerb, NULL, NULL));
 
-        if (SUCCEEDED(_QueryString(0, ASSOCSTR_DDEAPPLICATION, _szTemp, SIZECHARS(_szTemp))))
-        {
+        if (SUCCEEDED(_QueryString(0, ASSOCSTR_DDEAPPLICATION, _szTemp, SIZECHARS(_szTemp)))) {
             TraceMsg(TF_SHELLEXEC, "SHEX::SetDDEInfo application: %s", _szTemp);
 
             if (_aApplication)
@@ -2830,8 +2477,7 @@ BOOL CShellExecute::_SetDDEInfo(void)
 
             _aApplication = GlobalAddAtom(_szTemp);
 
-            if (SUCCEEDED(_QueryString(0, ASSOCSTR_DDETOPIC, _szTemp, SIZECHARS(_szTemp))))
-            {
+            if (SUCCEEDED(_QueryString(0, ASSOCSTR_DDETOPIC, _szTemp, SIZECHARS(_szTemp)))) {
                 TraceMsg(TF_SHELLEXEC, "SHEX::SetDDEInfo topic: %s", _szTemp);
 
                 if (_aTopic)
@@ -2853,8 +2499,7 @@ BOOL CShellExecute::_TryExecDDE(void)
     BOOL fRet = FALSE;
     TraceMsg(TF_SHELLEXEC, "SHEX::TryExecDDE entered ");
 
-    if (_SetDDEInfo())
-    {
+    if (_SetDDEInfo()) {
         //  try the real deal here.  we pass TRUE for fWillRetry because
         //  if this fails to find the app, we will attempt to start
         //  the app and then use DDE again.
@@ -2871,8 +2516,7 @@ HRESULT CShellExecute::_SetDarwinCmdTemplate()
 {
     HRESULT hr = S_FALSE;
 
-    if (_fAlreadyQueriedDarwin && _szDarwinCmdTemplate[0])
-    {
+    if (_fAlreadyQueriedDarwin && _szDarwinCmdTemplate[0]) {
         // we already queried darwin once and got a value, so just use the value
         // that was returned last time and return S_OK to avoid calling darwin twice.
         lstrcpy(_szCmdTemplate, _szDarwinCmdTemplate);
@@ -2880,21 +2524,17 @@ HRESULT CShellExecute::_SetDarwinCmdTemplate()
         return S_OK;
     }
 
-    if (SUCCEEDED(_pqa->GetData(0, ASSOCDATA_MSIDESCRIPTOR, _pszQueryVerb, (void *)_wszTemp, (LPDWORD)MAKEINTRESOURCE(SIZEOF(_wszTemp)))))
-    {
+    if (SUCCEEDED(_pqa->GetData(0, ASSOCDATA_MSIDESCRIPTOR, _pszQueryVerb, (void*)_wszTemp, (LPDWORD)MAKEINTRESOURCE(SIZEOF(_wszTemp))))) {
         SHUnicodeToTChar(_wszTemp, _szTemp, SIZECHARS(_szTemp));
 
         // call darwin to give us the real location of the app.
 
         // Note: this call could possibly fault the application in thus
         // installing it on the users machine.
-        if (SUCCEEDED(hr = ParseDarwinID(_szTemp, _szDarwinCmdTemplate, SIZECHARS(_szDarwinCmdTemplate))))
-        {
+        if (SUCCEEDED(hr = ParseDarwinID(_szTemp, _szDarwinCmdTemplate, SIZECHARS(_szDarwinCmdTemplate)))) {
             lstrcpy(_szCmdTemplate, _szDarwinCmdTemplate);
             hr = S_OK;
-        }
-        else
-        {
+        } else {
             _ReportWin32(HRESULT_CODE(hr));
         }
     }
@@ -2904,10 +2544,8 @@ HRESULT CShellExecute::_SetDarwinCmdTemplate()
 
 HRESULT CShellExecute::_QueryString(ASSOCF flags, ASSOCSTR str, LPTSTR psz, DWORD cch)
 {
-    if (_pqa)
-    {
+    if (_pqa) {
         HRESULT hr = _pqa->GetString(flags, str, _pszQueryVerb, _wszTemp, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(_wszTemp)));
-
         if (SUCCEEDED(hr))
             SHUnicodeToTChar(_wszTemp, psz, cch);
 
@@ -2934,30 +2572,24 @@ BOOL CShellExecute::_SetCmdTemplate(void)
     HRESULT hr = S_FALSE;
 
     // we check darwin first since it should override everything else
-    if (IsDarwinEnabled())
-    {
+    if (IsDarwinEnabled()) {
         // if darwin is enabled, then check for the darwin ID in
         // the registry and set the value based on that.
         hr = _SetDarwinCmdTemplate();
     }
 
-    if (S_OK == hr)
-    {
+    if (S_OK == hr) {
         // darwin was successful, check to see if we need to retry
         // with the new darwin info
-        _fRetryExecute =  _ShouldRetryWithNewDarwinInfo();
-    }
-    else if (S_FALSE == hr)
-    {
+        _fRetryExecute = _ShouldRetryWithNewDarwinInfo();
+    } else if (S_FALSE == hr) {
         // no darwin information in the registry
 #ifdef WINNT
         // so now we have to check to see if the NT5 class store will populate our registry
         // with some helpful information (darwin or otherwise)
         _fRetryExecute = _ShouldRetryWithNewClassKey();
 #endif
-        if (!_fRetryExecute)
-        {
-
+        if (!_fRetryExecute) {
             //  both darwin and the class store were unsucessful, so fall back to
             //  the good ole' default command value.
 
@@ -2966,24 +2598,18 @@ BOOL CShellExecute::_SetCmdTemplate(void)
             //  then we should fail here so that
             //  we dont popup the OpenWith dialog box.
 
-            if (!_fClassStoreOnly)
-            {
+            if (!_fClassStoreOnly) {
                 ASSERT(hr == S_FALSE);
 
-                if (!_fRunAs
-                || !PathIsExe(_szFile)
-                || !_SetAppRunAsCmdTemplate())
+                if (!_fRunAs || !PathIsExe(_szFile) || !_SetAppRunAsCmdTemplate())
                     hr = _QueryString(0, ASSOCSTR_COMMAND, _szCmdTemplate, SIZECHARS(_szCmdTemplate));
-            }
-            else
-            {
+            } else {
                 hr = E_FAIL;
             }
         }
     }
 
     TraceMsg(TF_SHELLEXEC, "SHEX::SetCmdTemplate() value = %s", _szCmdTemplate);
-
 
     if (SUCCEEDED(hr))
         return TRUE;
@@ -2999,8 +2625,7 @@ BOOL CShellExecute::_SetCmdTemplate(void)
 
 BOOL CShellExecute::_ShouldRetryWithNewDarwinInfo()
 {
-    if (!_fAlreadyQueriedDarwin)
-    {
+    if (!_fAlreadyQueriedDarwin) {
         // darwin was successful and this was the first time during this execute we envoked darwin
         _fAlreadyQueriedDarwin = TRUE;
 
@@ -3017,38 +2642,30 @@ BOOL CShellExecute::_ShouldRetryWithNewDarwinInfo()
 #ifdef WINNT
 BOOL CShellExecute::_TryWowShellExec(void)
 {
-
     // WOWShellExecute sets this global variable
     //     The cb is only valid when we are being called from wow
     //     If valid use it
 
-
-    if (lpfnWowShellExecCB)
-    {
+    if (lpfnWowShellExecCB) {
         SHSTRA strCmd;
         SHSTRA strDir;
 
         HINSTANCE hinst = (HINSTANCE)SE_ERR_OOM;
-        if (SUCCEEDED(strCmd.SetStr(_szCommand)) && SUCCEEDED(strDir.SetStr(_szWorkingDir)))
-        {
-           if (g_bRunOnNT5)
-              hinst = (HINSTANCE)(*(LPFNWOWSHELLEXECCB)lpfnWowShellExecCB)(strCmd.GetStr(), _startup.wShowWindow, strDir.GetStr());
-           else
-            hinst = (HINSTANCE)(*(LPFNWOWSHELLEXECCB_NT4)lpfnWowShellExecCB)(strCmd.GetStr(), _startup.wShowWindow);
+        if (SUCCEEDED(strCmd.SetStr(_szCommand)) && SUCCEEDED(strDir.SetStr(_szWorkingDir))) {
+            if (g_bRunOnNT5)
+                hinst = (HINSTANCE)(*(LPFNWOWSHELLEXECCB)lpfnWowShellExecCB)(strCmd.GetStr(), _startup.wShowWindow, strDir.GetStr());
+            else
+                hinst = (HINSTANCE)(*(LPFNWOWSHELLEXECCB_NT4)lpfnWowShellExecCB)(strCmd.GetStr(), _startup.wShowWindow);
         }
 
-        if (!_ReportHinst(hinst))
-        {
+        if (!_ReportHinst(hinst)) {
             //  SUCCESS!
-
 
             // If we were doing DDE, then retry now that the app has been
             // exec'd.  Note we don't keep HINSTANCE returned from _DDEExecute
             // because it will be constant 33 instead of the valid WOW HINSTANCE
             // returned from *lpfnWowShellExecCB above.
-
-            if (_fDDEInfoSet)
-            {
+            if (_fDDEInfoSet) {
                 _DDEExecute(NULL, _hwndParent, _nShow, _fDDEWait);
             }
         }
@@ -3072,11 +2689,9 @@ BOOL CShellExecute::_ShouldRetryWithNewClassKey(void)
     // so that we know when we are dealing with HKCR\Unknown (or any other progid that always wants to
     // do a classtore lookup)
     if (!_fAlreadyQueriedClassStore && !_fNoQueryClassStore &&
-        SUCCEEDED(_pqa->GetData(0, ASSOCDATA_QUERYCLASSSTORE, NULL, NULL, NULL)))
-    {
+        SUCCEEDED(_pqa->GetData(0, ASSOCDATA_QUERYCLASSSTORE, NULL, NULL, NULL))) {
         // go hit the NT5 Directory Services class store
-        if (_szFile[0])
-        {
+        if (_szFile[0]) {
             INSTALLDATA id;
             LPTSTR pszExtPart;
             WCHAR szFileExt[MAX_PATH];
@@ -3093,24 +2708,20 @@ BOOL CShellExecute::_ShouldRetryWithNewClassKey(void)
             id.Spec.FileExt = szFileExt;
 
             // call the DS to lookup the file type in the class store
-            if (ERROR_SUCCESS == InstallApplication(&id))
-            {
+            if (ERROR_SUCCESS == InstallApplication(&id)) {
                 // Since InstallApplication succeeded, it could have possibly installed and app
                 // or munged the registry so that we now have the necesssary reg info to
                 // launch the app. So basically re-read the class association to see if there is any
                 // new darwin info or new normal info, and jump back up and retry to execute.
                 LPITEMIDLIST pidlUnkFile = ILCreateFromPath(_szFile);
 
-                if (pidlUnkFile)
-                {
-                    IQueryAssociations *pqa;
-                    if (SUCCEEDED(SHGetAssociations(pidlUnkFile, (void **)&pqa)))
-                    {
+                if (pidlUnkFile) {
+                    IQueryAssociations* pqa;
+                    if (SUCCEEDED(SHGetAssociations(pidlUnkFile, (void**)&pqa))) {
                         _pqa->Release();
                         _pqa = pqa;
 
-                        if (_pszQueryVerb && (lstrcmpi(_pszQueryVerb, TEXT("openas")) == 0))
-                        {
+                        if (_pszQueryVerb && (lstrcmpi(_pszQueryVerb, TEXT("openas")) == 0)) {
                             // Since we just sucessfully queried the class store, if our verb was "openas" (meaning
                             // that we used the Unknown key to do the execute) we always reset the verb to the default.
                             // If we do not do this, then we could fail the execute since "openas" is most likely not a
@@ -3125,11 +2736,8 @@ BOOL CShellExecute::_ShouldRetryWithNewClassKey(void)
                     _fClassStoreOnly = FALSE;
                     fRet = TRUE;
                 }
-
             } // CoGetClassInfo
-
         } // _szFile[0]
-
     }
 
     TraceMsg(TF_SHELLEXEC, "SHEX::ShouldRWNCK() returning %d", fRet);
@@ -3149,16 +2757,13 @@ BOOL CShellExecute::_TryInProcess(LPSHELLEXECUTEINFO pei)
     //  done in TryExecPidl() but right now the IntShCut object doesnt
     //  do any default verbs, so we dont notice...
 
-
     //  thunk the values to get pass to the real TryInProcess...
     HKEY hk;
-    if (SUCCEEDED(_pqa->GetKey(0, ASSOCKEY_SHELLEXECCLASS, _pszQueryVerb, &hk)))
-    {
+    if (SUCCEEDED(_pqa->GetKey(0, ASSOCKEY_SHELLEXECCLASS, _pszQueryVerb, &hk))) {
         StrCpy(_szTemp, TEXT("shell\\"));
         StrCatBuff(_szTemp, _pszQueryVerb ? pei->lpVerb : TEXT("open"), SIZECHARS(_szTemp));
 
-        if (S_FALSE != TryInProcess(pei, hk, _szTemp, pei->lpVerb))
-        {
+        if (S_FALSE != TryInProcess(pei, hk, _szTemp, pei->lpVerb)) {
             _ReportHinst(pei->hInstApp);
             fRet = TRUE;
         }
@@ -3172,14 +2777,11 @@ BOOL CShellExecute::_TryInProcess(LPSHELLEXECUTEINFO pei)
 BOOL CShellExecute::_TryHooks(LPSHELLEXECUTEINFO pei)
 {
     BOOL fRet = FALSE;
-    if (_UseHooks(pei->fMask))
-    {
+    if (_UseHooks(pei->fMask)) {
         //  BUGBUG the only client of this are URLs.
         //  if we change psfInternet to return IID_IQueryAssociations,
         //  then we can kill the urlexechook  (our only client)
-
-        if (S_FALSE != TryShellExecuteHooks(pei))
-        {
+        if (S_FALSE != TryShellExecuteHooks(pei)) {
             //  either way we always exit.  should get TryShellhook to use SetLastError()
             _ReportHinst(pei->hInstApp);
             fRet = TRUE;;
@@ -3195,43 +2797,32 @@ void CShellExecute::ExecuteNormal(LPSHELLEXECUTEINFO pei)
 
     _Init(pei);
 
-
     //  Copy the specified directory in _szWorkingDir if the working
     // directory is specified; otherwise, get the current directory there.
-
     _SetWorkingDir(pei->lpDirectory);
-
 
     //  Copy the file name to _szFile, if it is specified. Then,
     // perform environment substitution.
-
     _SetFile(pei->lpFile);
 
-
     //  If the specified filename is a UNC path, validate it now.
-
     if (_TryValidateUNC(_szFile, pei))
         goto Quit;
-
 
     if (_TryHooks(pei))
         goto Quit;
 
-
     // If we're explicitly given a class then we don't care if the file exists.
     // Just let the handler for the class worry about it, and _TryExecPidl()
     // will return S_FALSE.
-
-
-    if(_TryExecPidl(pei))
+    if (_TryExecPidl(pei))
         goto Quit;
 
     // Is the class key provided?
     if (!_InitAssociations(pei))
         goto Quit;
 
-    do
-    {
+    do {
         // check for both the CacheFilename and URL being passed to us,
         // if this is the case, we need to check to see which one the App
         // wants us to pass to it.
@@ -3245,7 +2836,6 @@ void CShellExecute::ExecuteNormal(LPSHELLEXECUTEINFO pei)
         if (_TryExecDDE())
             goto Quit;
 
-
         //  SetCmdTemplate() will set this to true
         //  if the pqa has been redirected...
         _fRetryExecute = FALSE;
@@ -3253,7 +2843,6 @@ void CShellExecute::ExecuteNormal(LPSHELLEXECUTEINFO pei)
         // check to see if darwin is enabled on the machine
         if (!_SetCmdTemplate())
             goto Quit;
-
     } while (_fRetryExecute);
 
     // At this point, the _szFile should have been determined one way
@@ -3261,12 +2850,9 @@ void CShellExecute::ExecuteNormal(LPSHELLEXECUTEINFO pei)
     ASSERT(_szFile[0] || _szCmdTemplate[0]);
 
     // do we have the necessary RegDB info to do an exec?
-
     _TryExecCommand();
 
 Quit:
-
-
     //  we should only see this if the registry is corrupted.
     //  but we still want to be able to open EXE's
 #ifdef DEBUG
@@ -3297,8 +2883,8 @@ Quit:
 BOOL CShellExecute::_Cleanup(BOOL fSucceeded)
 {
     // Clean this up if the exec failed
-    if(!fSucceeded && _pidlGlobal)
-        SHFreeShared((HANDLE)_pidlGlobal,GetCurrentProcessId());
+    if (!fSucceeded && _pidlGlobal)
+        SHFreeShared((HANDLE)_pidlGlobal, GetCurrentProcessId());
 
     if (_aTopic)
         GlobalDeleteAtom(_aTopic);
@@ -3311,11 +2897,9 @@ BOOL CShellExecute::_Cleanup(BOOL fSucceeded)
     return fSucceeded;
 }
 
-BOOL CShellExecute::_FinalMapError(HINSTANCE UNALIGNED64 *phinst)
+BOOL CShellExecute::_FinalMapError(HINSTANCE UNALIGNED64* phinst)
 {
-
-    if (_err != ERROR_SUCCESS)
-    {
+    if (_err != ERROR_SUCCESS) {
         // REVIEW: if errWin32 == ERROR_CANCELLED, we may want to
         // set hInstApp to 42 so silly people who don't check the return
         // code properly won't put up bogus messages. We should still
@@ -3324,14 +2908,10 @@ BOOL CShellExecute::_FinalMapError(HINSTANCE UNALIGNED64 *phinst)
         // if we do want to do this, we should do it in ShellExecute
         // only. (This will force new people to do it right.)
 
-
         // Map FNF for drives to something slightly more sensible.
-        if (_err == ERROR_FILE_NOT_FOUND && PathIsRoot(_szFile) &&
-            !PathIsUNC(_szFile))
-        {
+        if (_err == ERROR_FILE_NOT_FOUND && PathIsRoot(_szFile) && !PathIsUNC(_szFile)) {
             // NB CD-Rom drives with disk missing will hit this.
-            if ((DriveType(DRIVEID(_szFile)) == DRIVE_CDROM) ||
-                (DriveType(DRIVEID(_szFile)) == DRIVE_REMOVABLE))
+            if ((DriveType(DRIVEID(_szFile)) == DRIVE_CDROM) || (DriveType(DRIVEID(_szFile)) == DRIVE_REMOVABLE))
                 _err = ERROR_NOT_READY;
             else
                 _err = ERROR_BAD_UNIT;
@@ -3341,15 +2921,10 @@ BOOL CShellExecute::_FinalMapError(HINSTANCE UNALIGNED64 *phinst)
 
         if (phinst)
             *phinst = _MapWin32ErrToHINST(_err);
-
-    }
-    else if (phinst)
-    {
-        if (!_hInstance)
-        {
-            *phinst = (HINSTANCE) 42;
-        }
-        else
+    } else if (phinst) {
+        if (!_hInstance) {
+            *phinst = (HINSTANCE)42;
+        } else
             *phinst = _hInstance;
 
         ASSERT(ISSHELLEXECSUCCEEDED(*phinst));
@@ -3364,9 +2939,7 @@ BOOL CShellExecute::Finalize(LPSHELLEXECUTEINFO pei)
 {
     _Cleanup(_err == ERROR_SUCCESS);
 
-    if (_pi.hProcess)
-    {
-
+    if (_pi.hProcess) {
         //  BUGBUGLEGACY - change from win95 behavior - zekel 3-APR-98
         //  in win95 we would close the proces but return a handle.
         //  the handle was invalid of course, but some crazy app could be
@@ -3376,29 +2949,23 @@ BOOL CShellExecute::Finalize(LPSHELLEXECUTEINFO pei)
 
         //  PEIOUT - set the hProcess if they are going to use it.
         if (_err == ERROR_SUCCESS
-        && (pei->fMask & SEE_MASK_NOCLOSEPROCESS))
-        {
+            && (pei->fMask & SEE_MASK_NOCLOSEPROCESS)) {
             pei->hProcess = _pi.hProcess;
-        }
-        else
-        {
+        } else {
             CloseHandle(_pi.hProcess);
         }
 
         CloseHandle(_pi.hThread);
     }
 
-
     //  NOTE:  _FinalMapError() actually calls SetLastError() with our best error
     //  if any win32 apis are called after this, they can reset LastError!!
-
     return _FinalMapError(&(pei->hInstApp));
 }
 
 
 //  Both the Reports return back TRUE if there was an error
 //  or FALSE if it was a Success.
-
 BOOL CShellExecute::_ReportWin32(DWORD err)
 {
     ASSERT(!_err);
@@ -3412,12 +2979,10 @@ BOOL CShellExecute::_ReportHinst(HINSTANCE hinst)
 {
     ASSERT(!_hInstance);
     TraceMsg(TF_SHELLEXEC, "SHEX::ReportHinst reporting hinst = %d", hinst);
-    if(ISSHELLEXECSUCCEEDED(hinst) || !hinst)
-    {
+    if (ISSHELLEXECSUCCEEDED(hinst) || !hinst) {
         _hInstance = hinst;
         return FALSE;
-    }
-    else
+    } else
         return _ReportWin32(_MapHINSTToWin32Err(hinst));
 }
 
@@ -3466,7 +3031,7 @@ const SHEXERR c_rgShexErrs[] = {
 DWORD CShellExecute::_MapHINSTToWin32Err(HINSTANCE hinst)
 {
     DWORD errWin32 = 0;
-    UINT_PTR se_err = (UINT_PTR) hinst;
+    UINT_PTR se_err = (UINT_PTR)hinst;
 
     ASSERT(se_err);
     ASSERT(!ISSHELLEXECSUCCEEDED(se_err));
@@ -3476,15 +3041,11 @@ DWORD CShellExecute::_MapHINSTToWin32Err(HINSTANCE hinst)
     // i dont think these occur anymore
     AssertMsg(!ISUNMAPPEDHINST(se_err), TEXT("SHEX::COMPATIBILITY SE_ERR = %d, Get ZekeL!!!"), se_err);
 
-    if (ISONE2ONE(se_err))
-    {
-        errWin32 = (DWORD) se_err;
-    }
-    else for (int i = 0; i < ARRAYSIZE(c_rgShexErrs) ; i++)
-    {
-        if (se_err == c_rgShexErrs[i].se_err)
-        {
-            errWin32= c_rgShexErrs[i].errWin32;
+    if (ISONE2ONE(se_err)) {
+        errWin32 = (DWORD)se_err;
+    } else for (int i = 0; i < ARRAYSIZE(c_rgShexErrs); i++) {
+        if (se_err == c_rgShexErrs[i].se_err) {
+            errWin32 = c_rgShexErrs[i].errWin32;
             break;
         }
     }
@@ -3500,28 +3061,23 @@ HINSTANCE CShellExecute::_MapWin32ErrToHINST(UINT errWin32)
     ASSERT(errWin32);
 
     UINT se_err = 0;
-    if (ISONE2ONE(errWin32))
-    {
+    if (ISONE2ONE(errWin32)) {
         se_err = errWin32;
-    }
-    else for (int i = 0; i < ARRAYSIZE(c_rgShexErrs) ; i++)
-    {
-        if (errWin32 == c_rgShexErrs[i].errWin32)
-        {
+    } else for (int i = 0; i < ARRAYSIZE(c_rgShexErrs); i++) {
+        if (errWin32 == c_rgShexErrs[i].errWin32) {
             se_err = c_rgShexErrs[i].se_err;
             break;
         }
     }
 
-    if (!se_err)
-    {
+    if (!se_err) {
         //  NOTE legacy error handling  - zekel - 20-NOV-97
         //  for any unhandled win32 errors, we default to ACCESS_DENIED
         ASSERT(errWin32 >= SE_ERR_SHARE);
         se_err = SE_ERR_ACCESSDENIED;
     }
 
-    return (HINSTANCE) se_err;
+    return (HINSTANCE)se_err;
 }
 
 
@@ -3533,15 +3089,12 @@ BOOL ShellExecuteNormal(LPSHELLEXECUTEINFO pei)
     //  WARNING Dont use up Stack Space
     //  we allocate because of win16 stack issues
     //  and the shex is a big object
-    CShellExecute *shex = new CShellExecute();
+    CShellExecute* shex = new CShellExecute();
 
-    if (!shex)
-    {
+    if (!shex) {
         pei->hInstApp = (HINSTANCE)SE_ERR_OOM;
         SetLastError(ERROR_OUTOFMEMORY);
-    }
-    else
-    {
+    } else {
         shex->ExecuteNormal(pei);
         fRet = shex->Finalize(pei);
         delete shex;
@@ -3560,31 +3113,25 @@ BOOL CShellExecute::Init(PSHCREATEPROCESSINFO pscpi)
 
     _SetMask(pscpi->fMask);
 
-    _lpParameters= pscpi->pszParameters;
+    _lpParameters = pscpi->pszParameters;
 
     //  we always do "runas"
     StrCpyN(_wszVerb, TEXT("runas"), SIZECHARS(_wszVerb));
     _pszQueryVerb = _wszVerb;
     _fRunAs = TRUE;
 
-    if (pscpi->lpStartupInfo)
-    {
+    if (pscpi->lpStartupInfo) {
         _nShow = pscpi->lpStartupInfo->wShowWindow;
         _startup = *(pscpi->lpStartupInfo);
-    }
-    else    // require startupinfo
+    } else    // require startupinfo
         return !(_ReportWin32(ERROR_INVALID_PARAMETER));
-
 
     //  Copy the specified directory in _szWorkingDir if the working
     // directory is specified; otherwise, get the current directory there.
-
     _SetWorkingDir(pscpi->pszCurrentDirectory);
-
 
     //  Copy the file name to _szFile, if it is specified. Then,
     // perform environment substitution.
-
     _SetFile(pscpi->pszFile);
 
     _pProcAttrs = pscpi->lpProcessAttributes;
@@ -3604,9 +3151,7 @@ void CShellExecute::ExecuteProcess(void)
 {
     SetAppStartingCursor(_hwndParent, TRUE);
 
-
     //  If the specified filename is a UNC path, validate it now.
-
     if (_TryValidateUNC(_szFile, NULL))
         goto Quit;
 
@@ -3616,8 +3161,7 @@ void CShellExecute::ExecuteProcess(void)
     if (!_InitAssociations(NULL))
         goto Quit;
 
-    do
-    {
+    do {
         // check for both the CacheFilename and URL being passed to us,
         // if this is the case, we need to check to see which one the App
         // wants us to pass to it.
@@ -3631,7 +3175,6 @@ void CShellExecute::ExecuteProcess(void)
         // check to see if darwin is enabled on the machine
         if (!_SetCmdTemplate())
             goto Quit;
-
     } while (_fRetryExecute);
 
     // At this point, the _szFile should have been determined one way
@@ -3639,20 +3182,16 @@ void CShellExecute::ExecuteProcess(void)
     ASSERT(_szFile[0] || _szCmdTemplate[0]);
 
     // do we have the necessary RegDB info to do an exec?
-
     _TryExecCommand();
 
 Quit:
-
-
     //  we should only see this if the registry is corrupted.
     //  but we still want to be able to open EXE's
     RIP(!_fTryOpenExe);
     if (_fTryOpenExe)
         _TryOpenExe();
 
-    if (_err == ERROR_SUCCESS && UEMIsLoaded())
-    {
+    if (_err == ERROR_SUCCESS && UEMIsLoaded()) {
         int i;
         // skip the call if stuff isn't there yet.
         // the load is expensive (forces ole32.dll and browseui.dll in
@@ -3673,30 +3212,22 @@ BOOL CShellExecute::Finalize(PSHCREATEPROCESSINFO pscpi)
 {
     _Cleanup(_err == ERROR_SUCCESS);
 
-    if (_pi.hProcess)
-    {
-        if (!(pscpi->fMask & SEE_MASK_NOCLOSEPROCESS))
-        {
+    if (_pi.hProcess) {
+        if (!(pscpi->fMask & SEE_MASK_NOCLOSEPROCESS)) {
             CloseHandle(_pi.hProcess);
             _pi.hProcess = NULL;
             CloseHandle(_pi.hThread);
             _pi.hThread = NULL;
         }
 
-        if (_err == ERROR_SUCCESS
-        && pscpi->lpProcessInformation)
-        {
+        if (_err == ERROR_SUCCESS && pscpi->lpProcessInformation) {
             *(pscpi->lpProcessInformation) = _pi;
         }
-
-    }
-    else if (pscpi->lpProcessInformation)
+    } else if (pscpi->lpProcessInformation)
         ZeroMemory(pscpi->lpProcessInformation, SIZEOF(_pi));
-
 
     //  NOTE:  _FinalMapError() actually calls SetLastError() with our best error
     //  if any win32 apis are called after this, they can reset LastError!!
-
     return _FinalMapError(NULL);
 }
 
@@ -3706,22 +3237,22 @@ BOOL CShellExecute::Finalize(PSHCREATEPROCESSINFO pscpi)
 
 typedef struct _SHCREATEPROCESSINFO%
 {
-        DWORD cbSize;
-        ULONG fMask;
-        HWND hwnd;
-        LPCTSTR% pszFile;
-        LPCTSTR% pszParameters;
-        LPCTSTR% pszCurrentDirectory;
-        IN HANDLE hUserToken;
-        IN LPSECURITY_ATTRIBUTES lpProcessAttributes;
-        IN LPSECURITY_ATTRIBUTES lpThreadAttributes;
-        IN BOOL bInheritHandles;
-        IN DWORD dwCreationFlags;
-        IN LPSTARTUPINFO% lpStartupInfo;
-        OUT LPPROCESS_INFORMATION lpProcessInformation;
-} SHCREATEPROCESSINFO%, *PSHCREATEPROCESSINFO%;
+    DWORD cbSize;
+    ULONG fMask;
+    HWND hwnd;
+    LPCTSTR% pszFile;
+    LPCTSTR% pszParameters;
+    LPCTSTR% pszCurrentDirectory;
+    IN HANDLE hUserToken;
+    IN LPSECURITY_ATTRIBUTES lpProcessAttributes;
+    IN LPSECURITY_ATTRIBUTES lpThreadAttributes;
+    IN BOOL bInheritHandles;
+    IN DWORD dwCreationFlags;
+    IN LPSTARTUPINFO% lpStartupInfo;
+    OUT LPPROCESS_INFORMATION lpProcessInformation;
+} SHCREATEPROCESSINFO%, * PSHCREATEPROCESSINFO%;
 
-SHSTDAPI_(BOOL) SHCreateProcessAsUser%(PSHCREATEPROCESSINFO% pscpi);
+SHSTDAPI_(BOOL) SHCreateProcessAsUser % (PSHCREATEPROCESSINFO% pscpi);
 
 #endif // 0
 
@@ -3733,18 +3264,16 @@ SHSTDAPI_(BOOL) SHCreateProcessAsUserW(PSHCREATEPROCESSINFOW pscpi)
     //  WARNING Dont use up Stack Space
     //  we allocate because of win16 stack issues
     //  and the shex is a big object
-    CShellExecute *pshex = new CShellExecute();
+    CShellExecute* pshex = new CShellExecute();
 
-    if (pshex)
-    {
+    if (pshex) {
         if (pshex->Init(pscpi))
             pshex->ExecuteProcess();
 
         fRet = pshex->Finalize(pscpi);
 
         delete pshex;
-    }
-    else
+    } else
         SetLastError(ERROR_OUTOFMEMORY);
 
     TraceMsg(TF_SHELLEXEC, "SHCreateProcess returning %d, win32 = %d", fRet, GetLastError());
@@ -3766,19 +3295,19 @@ HINSTANCE  APIENTRY WOWShellExecute(
     INT nShowCmd,
     LPVOID lpfnCBWinExec)
 {
-   HINSTANCE hinstRet;
+    HINSTANCE hinstRet;
 
-   lpfnWowShellExecCB = lpfnCBWinExec;
+    lpfnWowShellExecCB = lpfnCBWinExec;
 
-   if (!lpParameters)
-       lpParameters = STR_BLANK;
+    if (!lpParameters)
+        lpParameters = STR_BLANK;
 
-   hinstRet = RealShellExecuteExA(hwnd,lpOperation,lpFile,lpParameters,
-      lpDirectory,NULL, (LPCSTR)STR_BLANK,NULL,(WORD)nShowCmd, NULL, 0);
+    hinstRet = RealShellExecuteExA(hwnd, lpOperation, lpFile, lpParameters,
+                                   lpDirectory, NULL, (LPCSTR)STR_BLANK, NULL, (WORD)nShowCmd, NULL, 0);
 
-   lpfnWowShellExecCB = NULL;
+    lpfnWowShellExecCB = NULL;
 
-   return(hinstRet);
+    return(hinstRet);
 }
 
 #endif //WINNT
@@ -3786,7 +3315,7 @@ HINSTANCE  APIENTRY WOWShellExecute(
 void _ShellExec_RunDLL(HWND hwnd, HINSTANCE hAppInstance, LPTSTR pszCmdLine, int nCmdShow)
 {
     TCHAR szQuotedCmdLine[MAX_PATH * 2];
-    SHELLEXECUTEINFO ei = {0};
+    SHELLEXECUTEINFO ei = { 0 };
     ULONG fMask = SEE_MASK_FLAG_DDEWAIT;
     LPTSTR pszArgs;
 
@@ -3795,21 +3324,17 @@ void _ShellExec_RunDLL(HWND hwnd, HINSTANCE hAppInstance, LPTSTR pszCmdLine, int
     if (!pszCmdLine || !*pszCmdLine)
         return;
 
-
     //   the flags are prepended to the command line like:
     //   "?0x00000001?" "cmd line"
 
-    if (pszCmdLine[0] == TEXT('?'))
-    {
+    if (pszCmdLine[0] == TEXT('?')) {
         //  these are the fMask flags
         int i;
-        if (StrToIntEx(++pszCmdLine, STIF_SUPPORT_HEX, &i))
-        {
+        if (StrToIntEx(++pszCmdLine, STIF_SUPPORT_HEX, &i)) {
             fMask |= i;
         }
 
         pszCmdLine = StrChr(pszCmdLine, TEXT('?'));
-
         if (!pszCmdLine)
             return;
 
@@ -3819,7 +3344,7 @@ void _ShellExec_RunDLL(HWND hwnd, HINSTANCE hAppInstance, LPTSTR pszCmdLine, int
     // Gross, but if the process command fails, copy the command line to let
     // shell execute report the errors
     if (PathProcessCommand(pszCmdLine, szQuotedCmdLine, ARRAYSIZE(szQuotedCmdLine),
-                           PPCF_ADDARGUMENTS|PPCF_FORCEQUALIFY) == -1)
+                           PPCF_ADDARGUMENTS | PPCF_FORCEQUALIFY) == -1)
         StrCpyN(szQuotedCmdLine, pszCmdLine, SIZECHARS(szQuotedCmdLine));
 
     pszArgs = PathGetArgs(szQuotedCmdLine);
@@ -3828,22 +3353,20 @@ void _ShellExec_RunDLL(HWND hwnd, HINSTANCE hAppInstance, LPTSTR pszCmdLine, int
 
     PathUnquoteSpaces(szQuotedCmdLine);
 
-    ei.cbSize          = sizeof(SHELLEXECUTEINFO);
-    ei.hwnd            = hwnd;
-    ei.lpFile          = szQuotedCmdLine;
-    ei.lpParameters    = pszArgs;
-    ei.nShow           = nCmdShow;
-    ei.fMask           = fMask;
+    ei.cbSize = sizeof(SHELLEXECUTEINFO);
+    ei.hwnd = hwnd;
+    ei.lpFile = szQuotedCmdLine;
+    ei.lpParameters = pszArgs;
+    ei.nShow = nCmdShow;
+    ei.fMask = fMask;
 
     //  if shellexec() fails we want to pass back the error.
-    if (!ShellExecuteEx(&ei))
-    {
+    if (!ShellExecuteEx(&ei)) {
         DWORD err = GetLastError();
 
         if (InRunDllProcess())
             ExitProcess(err);
     }
-
 }
 
 STDAPI_(void) ShellExec_RunDLLA(HWND hwnd, HINSTANCE hAppInstance, LPSTR pszCmdLine, int nCmdShow)
@@ -3860,6 +3383,3 @@ STDAPI_(void) ShellExec_RunDLLW(HWND hwnd, HINSTANCE hAppInstance, LPWSTR pszCmd
     if (SUCCEEDED(str.SetStr(pszCmdLine)))
         _ShellExec_RunDLL(hwnd, hAppInstance, str, nCmdShow);
 }
-
-
-

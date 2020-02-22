@@ -2159,19 +2159,14 @@ Return Value:
         }
 
 #else
-
-
         // This is a volatile system DIRID.  Presently, we only support DIRIDs
         // representing shell special folders, and we chose those DIRID values
-        // to make it easy to convert to the CSIDL value necessary to hand into
-        // SHGetSpecialFolderPath.
-
+        // to make it easy to convert to the CSIDL value necessary to hand into SHGetSpecialFolderPath.
         if (SHGetSpecialFolderPath(NULL,
                                    SpecialFolderPath,
                                    (Value ^ VOLATILE_DIRID_FLAG),
                                    TRUE // does this help?
         )) {
-
             FirstPart = SpecialFolderPath;
         }
 #endif

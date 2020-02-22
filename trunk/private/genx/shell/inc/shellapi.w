@@ -15,9 +15,9 @@
 #include <objbase.h>    ; internal_NT
 ;begin_both
 
-//
+
 // Define API decoration for direct importing of DLL references.
-//
+
 #ifndef WINSHELLAPI
 #if !defined(_SHELL32_)
 #define WINSHELLAPI       DECLSPEC_IMPORT
@@ -87,9 +87,9 @@ typedef struct _DRAGINFO% {
 SHSTDAPI_(BOOL) DragQueryInfo(HDROP hDrop, LPDRAGINFO lpdi);
 ;end_internal
 
-////
+
 //// AppBar stuff
-////
+
 #define ABM_NEW           0x00000000
 #define ABM_REMOVE        0x00000001
 #define ABM_QUERYPOS      0x00000002
@@ -132,9 +132,9 @@ typedef struct _AppBarData
 
 SHSTDAPI_(UINT) SHAppBarMessage(DWORD dwMessage, PAPPBARDATA pData);
 
-////
+
 ////  EndAppBar
-////
+
 
 SHSTDAPI_(HGLOBAL) InternalExtractIcon%(HINSTANCE hInst, LPCTSTR% lpszFile, UINT nIconIndex, UINT nIcons); ;internal_win40
 SHSTDAPI_(HGLOBAL) InternalExtractIconList%(HANDLE hInst, LPTSTR% lpszExeFileName, LPINT lpnIcons); ;internal_win40
@@ -145,9 +145,9 @@ SHSTDAPI_(BOOL)    RegisterShellHook(HWND, BOOL);                           ;int
 SHSTDAPI_(UINT) ExtractIconEx%(LPCTSTR% lpszFile, int nIconIndex, HICON *phiconLarge, HICON *phiconSmall, UINT nIcons);
 
 
-////
+
 //// Shell File Operations
-////
+
 #ifndef FO_MOVE //these need to be kept in sync with the ones in shlobj.h
 
 #define FO_MOVE           0x0001
@@ -195,7 +195,7 @@ typedef WORD PRINTEROP_FLAGS;
 //      if pFrom or pTo are unqualified names the current directories are
 //      taken from the global current drive/directory settings managed
 //      by Get/SetCurrentDrive/Directory
-//
+
 //      the global confirmation settings
 
 typedef struct _SHFILEOPSTRUCT%
@@ -224,13 +224,13 @@ typedef struct _SHNAMEMAPPING%
 #define SHGetNameMappingCount(_hnm) DSA_GetItemCount(_hnm)              ;internal
 #define SHGetNameMappingPtr(_hnm, _iItem) (LPSHNAMEMAPPING)DSA_GetItemPtr(_hnm, _iItem) ;internal
 
-////
-//// End Shell File Operations
-////
 
-////
+//// End Shell File Operations
+
+
+
 ////  Begin ShellExecuteEx and family
-////
+
 ;begin_internal
 
 typedef struct _RUNDLL_NOTIFY% {
@@ -337,9 +337,9 @@ HINSTANCE RealShellExecuteEx%(              ;internal_NT
 #define SEE_VALID_CMIC_BITS     0x308FAFF0                               ;internal_win40
 #define SEE_VALID_CMIC_FLAGS    0x000FAFC0                               ;internal_win40
 
-//
+
 // For compilers that don't support nameless unions
-//
+
 #ifndef DUMMYUNIONNAME
 #ifdef NONAMELESSUNION
 #define DUMMYUNIONNAME   u
@@ -383,7 +383,7 @@ typedef struct _SHELLEXECUTEINFO%
 SHSTDAPI_(BOOL) ShellExecuteEx%(LPSHELLEXECUTEINFO% lpExecInfo);
 SHSTDAPI_(void) WinExecError%(HWND hwnd, int error, LPCTSTR% lpstrFileName, LPCTSTR% lpstrTitle);
 
-//
+
 //  SHCreateProcessAsUser()
 typedef struct _SHCREATEPROCESSINFOW
 {
@@ -404,13 +404,13 @@ typedef struct _SHCREATEPROCESSINFOW
 
 SHSTDAPI_(BOOL) SHCreateProcessAsUserW(PSHCREATEPROCESSINFOW pscpi);
 
-////
-////  End ShellExecuteEx and family
-////
 
-//
+////  End ShellExecuteEx and family
+
+
+
 // RecycleBin
-//
+
 
 // struct for query recycle bin info
 typedef struct _SHQUERYRBINFO {
@@ -426,7 +426,7 @@ typedef struct _SHQUERYRBINFO {
 
 
 // flags for SHEmptyRecycleBin
-//
+
 #define SHERB_NOCONFIRMATION    0x00000001
 #define SHERB_NOPROGRESSUI      0x00000002
 #define SHERB_NOSOUND           0x00000004
@@ -435,23 +435,23 @@ typedef struct _SHQUERYRBINFO {
 SHSTDAPI SHQueryRecycleBin%(LPCTSTR% pszRootPath, LPSHQUERYRBINFO pSHQueryRBInfo);
 SHSTDAPI SHEmptyRecycleBin%(HWND hwnd, LPCTSTR% pszRootPath, DWORD dwFlags);
 
-////
+
 //// end of RecycleBin
 
 
-////
+
 //// Tray notification definitions
-////
+
 ;begin_internal
-//
+
 //  We have to define this structure twice.
 //  The public definition uses HWNDs and HICONs.
 //  The private definition uses DWORDs for Win32/64 interop.
 //  The private version is called "NOTIFYICONDATA32" because it is the
 //  explicit 32-bit version.
-//
+
 //  Make sure to keep them in sync!
-//
+
 ;end_internal
 
 typedef struct _NOTIFYICONDATA% {
@@ -567,16 +567,16 @@ typedef struct _TRAYNOTIFYDATA% {                                        ;intern
 
 SHSTDAPI_(BOOL) Shell_NotifyIcon%(DWORD dwMessage, PNOTIFYICONDATA% lpData);
 
-////
+
 //// End Tray Notification Icons
-////
+
 
 
 #ifndef SHFILEINFO_DEFINED
 #define SHFILEINFO_DEFINED
-////
+
 //// Begin SHGetFileInfo
-////
+
 
 /*
  * The SHGetFileInfo API provides an easy way to get attributes
@@ -643,9 +643,9 @@ SHSTDAPI_(BOOL) SHGetNewLinkInfo%(LPCTSTR% pszLinkTo, LPCTSTR% pszDir, LPTSTR% p
 #define SHGNLI_NOUNIQUE         0x000000004     // don't do the unique name generation
 
 
-////
+
 //// End SHGetFileInfo
-////
+
 
 // Printer stuff
 #define PRINTACTION_OPEN           0
@@ -699,7 +699,7 @@ VOID Printers_UnregisterWindow(HANDLE hClassPidl, HWND hwnd);     ;internal_NT
 
 #if (_WIN32_WINNT >= 0x0500) || (_WIN32_WINDOWS >= 0x0500)  
 
-//
+
 // The SHLoadNonloadedIconOverlayIdentifiers API causes the shell's
 // icon overlay manager to load any registered icon overlay
 // identifers that are not currently loaded.  This is useful if an
@@ -707,20 +707,20 @@ VOID Printers_UnregisterWindow(HANDLE hClassPidl, HWND hwnd);     ;internal_NT
 // and can be loaded at a later time.  Identifiers already loaded
 // are not affected.  Overlay identifiers implement the 
 // IShellIconOverlayIdentifier interface.
-//
+
 // Returns:
 //      S_OK
 // 
 SHSTDAPI SHLoadNonloadedIconOverlayIdentifiers(void);
 
-//
+
 // The SHIsFileAvailableOffline API determines whether a file
 // or folder is available for offline use.
-//
+
 // Parameters:
 //     pwszPath             file name to get info about
 //     pdwStatus            (optional) OFFLINE_STATUS_* flags returned here
-//
+
 // Returns:
 //     S_OK                 File/directory is available offline, unless
 //                            OFFLINE_STATUS_INCOMPLETE is returned.
@@ -731,7 +731,7 @@ SHSTDAPI SHLoadNonloadedIconOverlayIdentifiers(void);
 //     OFFLINE_STATUS_INCOMPLETE is never returned for directories.
 //     Both OFFLINE_STATUS_LOCAL and OFFLINE_STATUS_REMOTE may be returned,
 //     indicating "open in both places." This is common when the server is online.
-//
+
 SHSTDAPI SHIsFileAvailableOffline(LPCWSTR pwszPath, LPDWORD pdwStatus);
 
 #define OFFLINE_STATUS_LOCAL        0x0001  // If open, it's open locally
@@ -744,9 +744,9 @@ SHSTDAPI SHIsFileAvailableOffline(LPCWSTR pwszPath, LPDWORD pdwStatus);
 
 
 ;begin_internal
-//
+
 // Internal APIs Follow.  NOT FOR PUBLIC CONSUMPTION.
-//
+
 
 //====== ShellMessageBox ================================================
 
@@ -765,7 +765,7 @@ SHSTDAPI SHIsFileAvailableOffline(LPCWSTR pwszPath, LPDWORD pdwStatus);
 //         %nn%lx          the nn-th arg is a DWORD, and formatted hex
 //     note that lengths are allowed on the %s, %ld, and %lx, just
 //                         like wsprintf
-//
+
 
 int _cdecl ShellMessageBox%(
     HINSTANCE hAppInst,
@@ -781,10 +781,10 @@ SHSTDAPI_(BOOL) IsLFNDrive%(LPCTSTR% pszPath);
 
 #if (_WIN32_WINNT >= 0x0500) || (_WIN32_WINDOWS >= 0x0500)  
 
-//
+
 // The SHMultiFileProperties API displays a property sheet for a 
 // set of files specified in an IDList Array.
-//
+
 // Parameters:
 //      pdtobj  - Data object containing list of files.  The data
 //                object must provide the "Shell IDList Array" 
@@ -792,9 +792,9 @@ SHSTDAPI_(BOOL) IsLFNDrive%(LPCTSTR% pszPath);
 //                IShellFolder::GetDisplayNameOf must return a fully-qualified
 //                filesystem path for each item in response to the 
 //                SHGDN_FORPARSING flag.
-//
+
 //      dwFlags - Reserved for future use.  Should be set to 0.
-//
+
 // Returns:
 //      S_OK
 // 

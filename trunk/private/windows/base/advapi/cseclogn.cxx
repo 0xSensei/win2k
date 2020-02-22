@@ -12,22 +12,18 @@
 
  * Revision History:
  * PraeritG    10/8/97  To integrate this in to services.exe
-
 */
 
 #define UNICODE
-
 #define SECURITY_WIN32
 
 #include <Windows.h>
 #include "seclogon.h"
 #include "security.h"
 
-
 // must move to winbase.h soon!
 #define LOGON_WITH_PROFILE              0x00000001
 #define LOGON_NETCREDENTIALS_ONLY       0x00000002
-
 
 // Global function pointers to user32 functions
 // This is to dynamically load user32 when CreateProcessWithLogon is called.
@@ -35,38 +31,27 @@
 HMODULE hModule1 = NULL;
 HMODULE hModule2 = NULL;
 
-typedef HDESK(*OPENDESKTOP) (
-    LPWSTR lpszDesktop,
-    DWORD dwFlags,
-    BOOL fInherit,
-    ACCESS_MASK dwDesiredAccess);
+typedef HDESK(*OPENDESKTOP) (LPWSTR lpszDesktop, DWORD dwFlags, BOOL fInherit, ACCESS_MASK dwDesiredAccess);
 
 OPENDESKTOP myOpenDesktop = NULL;
 
-typedef HDESK(*GETTHREADDESKTOP)(
-    DWORD dwThreadId);
+typedef HDESK(*GETTHREADDESKTOP)(DWORD dwThreadId);
 
 GETTHREADDESKTOP    myGetThreadDesktop = NULL;
 
-typedef BOOL(*CLOSEDESKTOP)(
-    HDESK hDesktop);
+typedef BOOL(*CLOSEDESKTOP)(HDESK hDesktop);
 
 CLOSEDESKTOP    myCloseDesktop = NULL;
 
-typedef HWINSTA(*OPENWINDOWSTATION)(
-    LPWSTR lpszWinSta,
-    BOOL fInherit,
-    ACCESS_MASK dwDesiredAccess);
+typedef HWINSTA(*OPENWINDOWSTATION)(LPWSTR lpszWinSta, BOOL fInherit, ACCESS_MASK dwDesiredAccess);
 
 OPENWINDOWSTATION   myOpenWindowStation = NULL;
 
-typedef HWINSTA(*GETPROCESSWINDOWSTATION)(
-    VOID);
+typedef HWINSTA(*GETPROCESSWINDOWSTATION)(VOID);
 
 GETPROCESSWINDOWSTATION myGetProcessWindowStation = NULL;
 
-typedef BOOL(*CLOSEWINDOWSTATION)(
-    HWINSTA hWinSta);
+typedef BOOL(*CLOSEWINDOWSTATION)(HWINSTA hWinSta);
 
 CLOSEWINDOWSTATION  myCloseWindowStation = NULL;
 
@@ -147,8 +132,7 @@ Arguments:
     HANDLE   hToken;
 
     hWinsta = myOpenWindowStation(WinstaName, TRUE, MAXIMUM_ALLOWED);
-    if (!hWinsta)
-    {
+    if (!hWinsta) {
         // couldn't open the windowstation from service context!
         // we can just return and see how far this gets.
         return GetLastError();
@@ -157,59 +141,47 @@ Arguments:
     // Query the security descriptor
     SeReq = DACL_SECURITY_INFORMATION;
 
-    if (!myGetUserObjectSecurity(hWinsta, &SeReq, Sd, 0, &Needed))
-    {
+    if (!myGetUserObjectSecurity(hWinsta, &SeReq, Sd, 0, &Needed)) {
         // allocate buffer large for returned SD and another ACE.
         Sd = (PSECURITY_DESCRIPTOR)HeapAlloc(GetProcessHeap(), 0, Needed + 100);
-        if (!Sd)
-        {
-
+        if (!Sd) {
             // Heap allocation failed.
             // can't go forward.. must return.
 
             myCloseWindowStation(hWinsta);
             return GetLastError();
         }
-        if (!myGetUserObjectSecurity(hWinsta, &SeReq, Sd, Needed, &Needed))
-        {
+        if (!myGetUserObjectSecurity(hWinsta, &SeReq, Sd, Needed, &Needed)) {
             myCloseWindowStation(hWinsta);
             HeapFree(GetProcessHeap(), 0, Sd);
             return GetLastError();
         }
     }
 
-
     // If it is a downlevel name Domain\Name, then we can do this.
-
-    if (DomainName)
-    {
+    if (DomainName) {
         lstrcpy(AccountName, DomainName);
         lstrcat(AccountName, L"\\");
         lstrcat(AccountName, UserName);
-    }
-    else
-    {
+    } else {
         // otherwise we first have to find the downlevel name
         // before we can proceed.
         // Lets translate name and then do the lookup
     }
 
-    if (!LookupAccountName(NULL, AccountName, (PSID)SidBuff, &BuffLen, RefDom, &DomNameLen, &Use))
-    {
+    if (!LookupAccountName(NULL, AccountName, (PSID)SidBuff, &BuffLen, RefDom, &DomNameLen, &Use)) {
         myCloseWindowStation(hWinsta);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
     }
 
-    if (!GetSecurityDescriptorDacl(Sd, &DaclPresent, &Dacl, &DaclDefaulted))
-    {
+    if (!GetSecurityDescriptorDacl(Sd, &DaclPresent, &Dacl, &DaclDefaulted)) {
         myCloseWindowStation(hWinsta);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
     }
 
-    if (Dacl == NULL)
-    {
+    if (Dacl == NULL) {
         // if Dacl is null, we don't need to do anything
         // because it gives WORLD full control...
         myCloseWindowStation(hWinsta);
@@ -218,8 +190,7 @@ Arguments:
     }
 
     // We should persist the 100 bytes added to the buffer only if the free bytes in the DACL are less than 100 bytes
-    if (!GetAclInformation(Dacl, (PVOID)&AclSize, sizeof(AclSize), AclSizeInformation))
-    {
+    if (!GetAclInformation(Dacl, (PVOID)&AclSize, sizeof(AclSize), AclSizeInformation)) {
         myCloseWindowStation(hWinsta);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
@@ -227,16 +198,14 @@ Arguments:
 
     if (AclSize.AclBytesFree < 100) Dacl->AclSize += 100;
 
-    if (!AddAccessAllowedAce(Dacl, ACL_REVISION, 0xffffffff, (PSID)(SidBuff)))
-    {
+    if (!AddAccessAllowedAce(Dacl, ACL_REVISION, 0xffffffff, (PSID)(SidBuff))) {
         myCloseWindowStation(hWinsta);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
     }
 
     // set the security descriptor
-    if (!mySetUserObjectSecurity(hWinsta, &SeReq, Sd))
-    {
+    if (!mySetUserObjectSecurity(hWinsta, &SeReq, Sd)) {
         myCloseWindowStation(hWinsta);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
@@ -247,49 +216,40 @@ Arguments:
     HeapFree(GetProcessHeap(), 0, Sd);
 
     hDesk = myOpenDesktop(DeskName, 0, TRUE, MAXIMUM_ALLOWED);
-    if (!hDesk)
-    {
+    if (!hDesk) {
         // couldn't open the desktop from service context!
         // we can just return and see how far this gets.
         return GetLastError();
     }
 
-
     // Query the security descriptor
 
     SeReq = DACL_SECURITY_INFORMATION;
 
-    if (!myGetUserObjectSecurity(hDesk, &SeReq, Sd, 0, &Needed))
-    {
+    if (!myGetUserObjectSecurity(hDesk, &SeReq, Sd, 0, &Needed)) {
         // allocate buffer large for returned SD and another ACE.
         Sd = (PSECURITY_DESCRIPTOR)HeapAlloc(GetProcessHeap(), 0, Needed + 100);
-        if (!Sd)
-        {
-
+        if (!Sd) {
             // Heap allocation failed.
             // can't go forward.. must return.
 
             myCloseDesktop(hDesk);
             return GetLastError();
         }
-        if (!myGetUserObjectSecurity(hDesk, &SeReq, Sd, Needed, &Needed))
-        {
+        if (!myGetUserObjectSecurity(hDesk, &SeReq, Sd, Needed, &Needed)) {
             myCloseDesktop(hDesk);
             HeapFree(GetProcessHeap(), 0, Sd);
             return GetLastError();
         }
     }
 
-    if (!GetSecurityDescriptorDacl(Sd, &DaclPresent, &Dacl, &DaclDefaulted))
-    {
+    if (!GetSecurityDescriptorDacl(Sd, &DaclPresent, &Dacl, &DaclDefaulted)) {
         myCloseDesktop(hDesk);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
     }
 
-    if (Dacl == NULL)
-    {
-
+    if (Dacl == NULL) {
         // if Dacl is null, we don't need to do anything
         // because it gives WORLD full control...
 
@@ -298,12 +258,10 @@ Arguments:
         return ERROR_SUCCESS;
     }
 
-
     // We should persist the 100 bytes added to the buffer only if
     // the free bytes in the DACL are less than 100 bytes
 
-    if (!GetAclInformation(Dacl, (PVOID)&AclSize, sizeof(AclSize), AclSizeInformation))
-    {
+    if (!GetAclInformation(Dacl, (PVOID)&AclSize, sizeof(AclSize), AclSizeInformation)) {
         myCloseDesktop(hDesk);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
@@ -311,16 +269,14 @@ Arguments:
 
     if (AclSize.AclBytesFree < 100) Dacl->AclSize += 100;
 
-    if (!AddAccessAllowedAce(Dacl, ACL_REVISION, 0xffffffff, (PSID)(SidBuff)))
-    {
+    if (!AddAccessAllowedAce(Dacl, ACL_REVISION, 0xffffffff, (PSID)(SidBuff))) {
         myCloseDesktop(hDesk);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
     }
 
     // set the security descriptor
-    if (!mySetUserObjectSecurity(hDesk, &SeReq, Sd))
-    {
+    if (!mySetUserObjectSecurity(hDesk, &SeReq, Sd)) {
         myCloseDesktop(hDesk);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
@@ -360,12 +316,9 @@ Arguments:
     SID_NAME_USE Use;
 
     hWinsta = myOpenWindowStation(WinstaName, TRUE, MAXIMUM_ALLOWED);
-    if (!hWinsta)
-    {
-
+    if (!hWinsta) {
         // couldn't open the windowstation from service context!
         // we can just return and see how far this gets.
-
         return GetLastError();
     }
 
@@ -373,77 +326,60 @@ Arguments:
     lstrcat(AccountName, L"\\");
     lstrcat(AccountName, UserName);
 
-    if (!LookupAccountName(NULL, AccountName, (PSID)SidBuff, &BuffLen, RefDom, &DomNameLen, &Use))
-    {
+    if (!LookupAccountName(NULL, AccountName, (PSID)SidBuff, &BuffLen, RefDom, &DomNameLen, &Use)) {
         myCloseWindowStation(hWinsta);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
     }
 
-
     // Query the security descriptor
 
     SeReq = DACL_SECURITY_INFORMATION;
-    if (!myGetUserObjectSecurity(hWinsta, &SeReq, Sd, 0, &Needed))
-    {
+    if (!myGetUserObjectSecurity(hWinsta, &SeReq, Sd, 0, &Needed)) {
         // allocate buffer large for returned SD and another ACE.
         Sd = (PBYTE)HeapAlloc(GetProcessHeap(), 0, Needed + 40);
-        if (!Sd)
-        {
-
+        if (!Sd) {
             // Heap allocation failed.
             // can't go forward.. must return.
-
             myCloseWindowStation(hWinsta);
             return GetLastError();
         }
-        if (!myGetUserObjectSecurity(hWinsta, &SeReq, Sd, Needed, &Needed))
-        {
+        if (!myGetUserObjectSecurity(hWinsta, &SeReq, Sd, Needed, &Needed)) {
             myCloseWindowStation(hWinsta);
             HeapFree(GetProcessHeap(), 0, Sd);
             return GetLastError();
         }
     }
 
-    if (!GetSecurityDescriptorDacl(Sd, &DaclPresent, &Dacl, &DaclDefaulted))
-    {
+    if (!GetSecurityDescriptorDacl(Sd, &DaclPresent, &Dacl, &DaclDefaulted)) {
         myCloseWindowStation(hWinsta);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
     }
 
-    if (Dacl == NULL)
-    {
-
+    if (Dacl == NULL) {
         // if Dacl is null, we don't need to do anything
         // because it gives WORLD full control...
-
         myCloseWindowStation(hWinsta);
         HeapFree(GetProcessHeap(), 0, Sd);
         return ERROR_SUCCESS;
     }
 
     // delete the first ACE found for this User.
-
-    if (!GetAclInformation(Dacl, &DaclSize, sizeof(DaclSize), AclSizeInformation))
-    {
+    if (!GetAclInformation(Dacl, &DaclSize, sizeof(DaclSize), AclSizeInformation)) {
         myCloseWindowStation(hWinsta);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
     }
 
-    for (i = 0; i < DaclSize.AceCount; i++)
-    {
-        if (!GetAce(Dacl, i, (PVOID*)(&Ace)))
-        {
+    for (i = 0; i < DaclSize.AceCount; i++) {
+        if (!GetAce(Dacl, i, (PVOID*)(&Ace))) {
             myCloseWindowStation(hWinsta);
             HeapFree(GetProcessHeap(), 0, Sd);
             return GetLastError();
         }
-        if (EqualSid((PSID)(SidBuff), (PSID)(&(Ace->SidStart))))
-        {
-            if (!DeleteAce(Dacl, i))
-            {
+        if (EqualSid((PSID)(SidBuff), (PSID)(&(Ace->SidStart)))) {
+            if (!DeleteAce(Dacl, i)) {
                 myCloseWindowStation(hWinsta);
                 HeapFree(GetProcessHeap(), 0, Sd);
                 return GetLastError();
@@ -454,8 +390,7 @@ Arguments:
     }
 
     // set the security descriptor
-    if (!mySetUserObjectSecurity(hWinsta, &SeReq, Sd))
-    {
+    if (!mySetUserObjectSecurity(hWinsta, &SeReq, Sd)) {
         myCloseWindowStation(hWinsta);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
@@ -466,53 +401,40 @@ Arguments:
     HeapFree(GetProcessHeap(), 0, Sd);
 
     hDesk = myOpenDesktop(DeskName, 0, TRUE, MAXIMUM_ALLOWED);
-    if (!hDesk)
-    {
-
+    if (!hDesk) {
         // couldn't open the desktop from service context!
         // we can just return and see how far this gets.
-
         return GetLastError();
     }
-
 
     // Query the security descriptor
 
     SeReq = DACL_SECURITY_INFORMATION;
-    if (!myGetUserObjectSecurity(hDesk, &SeReq, Sd, 0, &Needed))
-    {
+    if (!myGetUserObjectSecurity(hDesk, &SeReq, Sd, 0, &Needed)) {
         // allocate buffer large for returned SD and another ACE.
         Sd = (PBYTE)HeapAlloc(GetProcessHeap(), 0, Needed + 40);
-        if (!Sd)
-        {
-
+        if (!Sd) {
             // Heap allocation failed.
             // can't go forward.. must return.
-
             myCloseDesktop(hDesk);
             return GetLastError();
         }
-        if (!myGetUserObjectSecurity(hDesk, &SeReq, Sd, Needed, &Needed))
-        {
+        if (!myGetUserObjectSecurity(hDesk, &SeReq, Sd, Needed, &Needed)) {
             myCloseDesktop(hDesk);
             HeapFree(GetProcessHeap(), 0, Sd);
             return GetLastError();
         }
     }
 
-    if (!GetSecurityDescriptorDacl(Sd, &DaclPresent, &Dacl, &DaclDefaulted))
-    {
+    if (!GetSecurityDescriptorDacl(Sd, &DaclPresent, &Dacl, &DaclDefaulted)) {
         myCloseDesktop(hDesk);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
     }
 
-    if (Dacl == NULL)
-    {
-
+    if (Dacl == NULL) {
         // if Dacl is null, we don't need to do anything
         // because it gives WORLD full control...
-
         myCloseDesktop(hDesk);
         HeapFree(GetProcessHeap(), 0, Sd);
         return ERROR_SUCCESS;
@@ -520,25 +442,20 @@ Arguments:
 
     // delete the first ACE found for this User.
 
-    if (!GetAclInformation(Dacl, &DaclSize, sizeof(DaclSize), AclSizeInformation))
-    {
+    if (!GetAclInformation(Dacl, &DaclSize, sizeof(DaclSize), AclSizeInformation)) {
         myCloseDesktop(hDesk);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
     }
 
-    for (i = 0; i < DaclSize.AceCount; i++)
-    {
-        if (!GetAce(Dacl, i, (PVOID*)(&Ace)))
-        {
+    for (i = 0; i < DaclSize.AceCount; i++) {
+        if (!GetAce(Dacl, i, (PVOID*)(&Ace))) {
             myCloseDesktop(hDesk);
             HeapFree(GetProcessHeap(), 0, Sd);
             return GetLastError();
         }
-        if (EqualSid((PSID)(SidBuff), (PSID)(&(Ace->SidStart))))
-        {
-            if (!DeleteAce(Dacl, i))
-            {
+        if (EqualSid((PSID)(SidBuff), (PSID)(&(Ace->SidStart)))) {
+            if (!DeleteAce(Dacl, i)) {
                 myCloseDesktop(hDesk);
                 HeapFree(GetProcessHeap(), 0, Sd);
                 return GetLastError();
@@ -549,8 +466,7 @@ Arguments:
     }
 
     // set the security descriptor
-    if (!mySetUserObjectSecurity(hDesk, &SeReq, Sd))
-    {
+    if (!mySetUserObjectSecurity(hDesk, &SeReq, Sd)) {
         myCloseDesktop(hDesk);
         HeapFree(GetProcessHeap(), 0, Sd);
         return GetLastError();
@@ -581,17 +497,12 @@ static PVOID __cdecl PackStructAndDataW(PDWORD pcbBytesToSend, PVOID pvStruct, i
 
         LPBYTE pbUnpackedData = *(LPBYTE*)((PBYTE)pvStruct + nDataPtrOffset);
         if (pbUnpackedData == NULL) {
-
             // User passed a NULL pointer
-
             nDataLen = 0;
-        }
-        else {
+        } else {
             if (nDataLen == PSAD_STRING_DATA) {
-
                 // We are assuming that this is a string,
                 // calc the number of bytes in the string
-
                 nDataLen = sizeof(WCHAR) * (lstrlenW((LPCWSTR)pbUnpackedData) + 1);
             }
         }
@@ -608,21 +519,16 @@ static PVOID __cdecl PackStructAndDataW(PDWORD pcbBytesToSend, PVOID pvStruct, i
 
     // Allocate a memory block large enough to hold the structure and all of its data
     PBYTE pbPackedStruct = (PBYTE)HeapAlloc(GetProcessHeap(), 0, cbStruct + cbPackedData);
-    if (pbPackedStruct == NULL)
-    {
+    if (pbPackedStruct == NULL) {
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return((PVOID)pbPackedStruct);
     }
 
-
     // Copy the original structure to the beginning of the new block
-
     CopyMemory(pbPackedStruct, pvStruct, cbStruct);
-
 
     // Append the data to the end of the block &
     // change data pointer members to offets
-
     PBYTE pbPackedData = pbPackedStruct + cbStruct;
 
     nDataPtrOffset = nDataPtrOffset0;
@@ -632,31 +538,24 @@ static PVOID __cdecl PackStructAndDataW(PDWORD pcbBytesToSend, PVOID pvStruct, i
     while (nDataPtrOffset != PSAD_NO_MORE_DATA) {
         LPBYTE pbUnpackedData = *(LPBYTE*)((PBYTE)pvStruct + nDataPtrOffset);
         if (pbUnpackedData == NULL) {
-
             // User passed a NULL pointer
-
             nDataLen = PSAD_NULL_DATA;
-        }
-        else {
+        } else {
             if (nDataLen == PSAD_STRING_DATA) {
-
                 // We are assuming that this is a string,
                 //calc the number of bytes in the string
-
                 nDataLen = sizeof(WCHAR) * (lstrlenW((LPCWSTR)pbUnpackedData) + 1);
             }
         }
 
         *(PDWORD)pbPackedData = nDataLen; // Store the data'a length
         pbPackedData += sizeof(DWORD);
-        *(PDWORD)&pbPackedStruct[nDataPtrOffset] =
-            (DWORD)(pbPackedData - pbPackedStruct);
+        *(PDWORD)&pbPackedStruct[nDataPtrOffset] = (DWORD)(pbPackedData - pbPackedStruct);
 
         if (nDataLen != PSAD_NULL_DATA) {
             CopyMemory(pbPackedData, pbUnpackedData, nDataLen);
             pbPackedData += nDataLen;
         }
-
 
         // Get the offset of the next data element & its length
 
@@ -671,7 +570,7 @@ static PVOID __cdecl PackStructAndDataW(PDWORD pcbBytesToSend, PVOID pvStruct, i
 }
 
 
-extern "C" void *__cdecl _alloca(size_t);
+extern "C" void* __cdecl _alloca(size_t);
 
 
 BOOL WINAPI CreateProcessWithLogonW(
@@ -715,11 +614,9 @@ BOOL WINAPI CreateProcessWithLogonW(
     // dynamically load user32.dll and resolve the functions.
 
     // note: last error is left as returned by loadlib or getprocaddress
-    if (hModule1 == NULL)
-    {
+    if (hModule1 == NULL) {
         hModule1 = LoadLibrary(L"user32.dll");
-        if (hModule1)
-        {
+        if (hModule1) {
             myOpenDesktop = (OPENDESKTOP)GetProcAddress(hModule1, "OpenDesktopW");
             if (!myOpenDesktop) return FALSE;
 
@@ -746,23 +643,17 @@ BOOL WINAPI CreateProcessWithLogonW(
 
             myGetUserObjectInformation = (GETUSEROBJECTINFORMATION)GetProcAddress(hModule1, "GetUserObjectInformationW");
             if (!mySetUserObjectSecurity) return FALSE;
-        }
-        else
-        {
+        } else {
             return FALSE;
         }
     }
 
-    if (hModule2 == NULL)
-    {
+    if (hModule2 == NULL) {
         hModule2 = LoadLibrary(L"secur32.dll");
-        if (hModule2)
-        {
+        if (hModule2) {
             myTranslateName = (TRANSLATENAME)GetProcAddress(hModule2, "TranslateNameW");
             if (!myTranslateName) return FALSE;
-        }
-        else
-        {
+        } else {
             return FALSE;
         }
     }
@@ -779,8 +670,7 @@ BOOL WINAPI CreateProcessWithLogonW(
             __leave;
         }
 
-        if (dwLogonFlags & ~(LOGON_WITH_PROFILE | LOGON_NETCREDENTIALS_ONLY))
-        {
+        if (dwLogonFlags & ~(LOGON_WITH_PROFILE | LOGON_NETCREDENTIALS_ONLY)) {
             LastError = ERROR_INVALID_PARAMETER;
             __leave;
         }
@@ -800,16 +690,13 @@ BOOL WINAPI CreateProcessWithLogonW(
 
         // Lookup the fullpathname of the specified executable
         pszCmdLine = (LPWSTR)HeapAlloc(hheap, 0, sizeof(WCHAR) * (MAX_PATH + lstrlenW(lpCommandLine)));
-        if (pszApplName == NULL || pszCmdLine == NULL)
-        {
+        if (pszApplName == NULL || pszCmdLine == NULL) {
             LastError = ERROR_INVALID_PARAMETER;
             __leave;
         }
 
-        if (lpApplicationName == NULL)
-        {
-            if (lpCommandLine != NULL)
-            {
+        if (lpApplicationName == NULL) {
+            if (lpCommandLine != NULL) {
                 // Commandline contains the name, we should parse it out and get the full path so that correct executable is invoked.
                 DWORD   Length;
                 DWORD   fileattr;
@@ -824,15 +711,13 @@ BOOL WINAPI CreateProcessWithLogonW(
                 WhiteScan = ApplName;
 
                 // if there is a leading quote
-                if (*WhiteScan == L'\"')
-                {
+                if (*WhiteScan == L'\"') {
                     // we will NOT retry search, as app name is quoted.
                     SearchRetry = FALSE;
                     WhiteScan++;
                     TempApplName = WhiteScan;
                     while (*WhiteScan) {
-                        if (*WhiteScan == L'\"')
-                        {
+                        if (*WhiteScan == L'\"') {
                             TempChar = *WhiteScan;
                             *WhiteScan = L'\0';
                             TempRemainderString = WhiteScan;
@@ -840,23 +725,18 @@ BOOL WINAPI CreateProcessWithLogonW(
                         }
                         WhiteScan++;
                     }
-                }
-                else
-                {
+                } else {
                     // skip to the first non-white char
                     while (*WhiteScan) {
-                        if (*WhiteScan == L' ' || *WhiteScan == L'\t')
-                        {
+                        if (*WhiteScan == L' ' || *WhiteScan == L'\t') {
                             WhiteScan++;
-                        }
-                        else
+                        } else
                             break;
                     }
                     TempApplName = WhiteScan;
 
                     while (*WhiteScan) {
-                        if (*WhiteScan == L' ' || *WhiteScan == L'\t')
-                        {
+                        if (*WhiteScan == L' ' || *WhiteScan == L'\t') {
                             TempChar = *WhiteScan;
                             *WhiteScan = L'\0';
                             TempRemainderString = WhiteScan;
@@ -868,8 +748,7 @@ BOOL WINAPI CreateProcessWithLogonW(
 
             RetrySearch:
                 Length = SearchPathW(NULL, TempApplName, (PWSTR)L".exe", MAX_PATH, NameBuffer, NULL);
-                if (!Length || Length > MAX_PATH)
-                {
+                if (!Length || Length > MAX_PATH) {
                     if (LastError)
                         SetLastError(LastError);
                     else
@@ -886,25 +765,20 @@ BOOL WINAPI CreateProcessWithLogonW(
                     // stop at c:\word, our next
                     // will stop at c:\word 95\winword.exe
 
-                    if (TempRemainderString)
-                    {
+                    if (TempRemainderString) {
                         *TempRemainderString = TempChar;
                         WhiteScan++;
                     }
-                    if (*WhiteScan & SearchRetry)
-                    {
+                    if (*WhiteScan & SearchRetry) {
                         // again skip to the first non-white char
                         while (*WhiteScan) {
-                            if (*WhiteScan == L' ' || *WhiteScan == L'\t')
-                            {
+                            if (*WhiteScan == L' ' || *WhiteScan == L'\t') {
                                 WhiteScan++;
-                            }
-                            else
+                            } else
                                 break;
                         }
                         while (*WhiteScan) {
-                            if (*WhiteScan == L' ' || *WhiteScan == L'\t')
-                            {
+                            if (*WhiteScan == L' ' || *WhiteScan == L'\t') {
                                 TempChar = *WhiteScan;
                                 *WhiteScan = L'\0';
                                 TempRemainderString = WhiteScan;
@@ -917,22 +791,18 @@ BOOL WINAPI CreateProcessWithLogonW(
                         goto RetrySearch;
                     }
 
-
                     // otherwise we have failed.
 
                     if (NameBuffer) HeapFree(hheap, 0, NameBuffer);
                     if (ApplName) HeapFree(hheap, 0, ApplName);
 
                     // we should let CreateProcess do its job.
-                    if (pszApplName)
-                    {
+                    if (pszApplName) {
                         HeapFree(hheap, 0, pszApplName);
                         pszApplName = NULL;
                     }
                     lstrcpy(pszCmdLine, lpCommandLine);
-                }
-                else
-                {
+                } else {
                     // searchpath succeeded.
                     // but it can find a directory!
                     fileattr = GetFileAttributesW(NameBuffer);
@@ -940,7 +810,6 @@ BOOL WINAPI CreateProcessWithLogonW(
                         Length = 0;
                         goto CoverForDirectoryCase;
                     }
-
 
                     // so it is not a directory.. it must be the real thing!
 
@@ -950,23 +819,15 @@ BOOL WINAPI CreateProcessWithLogonW(
                     HeapFree(hheap, 0, ApplName);
                     HeapFree(hheap, 0, NameBuffer);
                 }
-            }
-            else
-            {
+            } else {
                 LastError = ERROR_INVALID_PARAMETER;
                 __leave;
             }
-        }
-        else
-        {
-
-
+        } else {
             // If ApplicationName is not null, we need to handle
             // one case here -- the application name is present in
             // current directory.  All other cases will be handled by
             // CreateProcess in the server side anyway.
-
-
 
             // let us get a FullPath relative to current directory
             // and try to open it.  If it succeeds, then the full path
@@ -974,37 +835,27 @@ BOOL WINAPI CreateProcessWithLogonW(
             // pass what we got from caller and let CreateProcess deal with it.
 
             LPWSTR lpFilePart;
-
             DWORD  cchFullPath = GetFullPathName(lpApplicationName, MAX_PATH, pszApplName, &lpFilePart);
-            if (cchFullPath)
-            {
+            if (cchFullPath) {
                 HANDLE hFile;
 
                 // let us try to open it.
                 // if it works, pszApplName is already setup correctly.
                 // just close the handle.
-
                 hFile = CreateFile(lpApplicationName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-                if (hFile == INVALID_HANDLE_VALUE)
-                {
+                if (hFile == INVALID_HANDLE_VALUE) {
                     // otherwise, keep what the caller gave us.
                     lstrcpy(pszApplName, lpApplicationName);
-                }
-                else
+                } else
                     CloseHandle(hFile);
-
-            }
-            else
+            } else
                 // lets keep what the caller gave us.
                 lstrcpy(pszApplName, lpApplicationName);
 
-
             // Commandline should be kept as is.
-
             if (lpCommandLine != NULL)
                 lstrcpy(pszCmdLine, lpCommandLine);
-            else
-            {
+            else {
                 HeapFree(hheap, 0, pszCmdLine);
                 pszCmdLine = NULL;
             }
@@ -1024,44 +875,30 @@ BOOL WINAPI CreateProcessWithLogonW(
         }
 #endif
 
-
         // Construct a memory block will all the info that needs to go to the server
 
-
-
         // first conver the name form we might have got.
-
-        if (lpDomain == NULL || lpDomain[0] == L'\0')
-        {
+        if (lpDomain == NULL || lpDomain[0] == L'\0') {
             PWCHAR str;
 
             // Assume the name is UPN (user@domain)
-
             if (!myTranslateName(lpUsername,
                                  NameUserPrincipal,
                                  NameSamCompatible,
                                  TranslatedName,
-                                 &TranslatedNameSize
-            ))
-            {
+                                 &TranslatedNameSize)) {
                 // even if it fails, we don't worry too much..
                 // it is only best effort.
                 LastError = GetLastError();
                 sli.lpUsername = (LPWSTR)lpUsername;
                 sli.lpDomain = (LPWSTR)lpDomain;
-            }
-            else
-            {
-
+            } else {
                 // we have the Domain\Name form now,
                 // let us split it and use it.
-
                 DomainName = TranslatedName;
                 str = DomainName;
-                while (*str != L'\0')
-                {
-                    if (*str == L'\\')
-                    {
+                while (*str != L'\0') {
+                    if (*str == L'\\') {
                         *str = L'\0';
                         UserName = str + 1;
                         break;
@@ -1073,9 +910,7 @@ BOOL WINAPI CreateProcessWithLogonW(
                 sli.lpUsername = (LPWSTR)UserName;
                 sli.lpDomain = (LPWSTR)DomainName;
             }
-        }
-        else
-        {
+        } else {
             // they have been passed old style correctly.
             sli.lpUsername = (LPWSTR)lpUsername;
             sli.lpDomain = (LPWSTR)lpDomain;
@@ -1092,26 +927,21 @@ BOOL WINAPI CreateProcessWithLogonW(
         sli.lpEnvironment = lpEnvironment;
         sli.lpCurrentDirectory = lpCurrentDirectory;
         sli.lpStartupInfo = lpStartupInfo;
-        if (sli.lpStartupInfo->lpDesktop == NULL || sli.lpStartupInfo->lpDesktop[0] == L'\0')
-        {
+        if (sli.lpStartupInfo->lpDesktop == NULL || sli.lpStartupInfo->lpDesktop[0] == L'\0') {
             DWORD    Length;
             HWINSTA Winsta = myGetProcessWindowStation();
             HDESK Desk = myGetThreadDesktop(GetCurrentThreadId());
 
-            if (myGetUserObjectInformation(Winsta, UOI_NAME, WinstaName, (MAX_PATH * sizeof(TCHAR)), &Length))
-            {
-                if (myGetUserObjectInformation(Desk, UOI_NAME, DeskName, (MAX_PATH * sizeof(TCHAR)), &Length))
-                {
+            if (myGetUserObjectInformation(Winsta, UOI_NAME, WinstaName, (MAX_PATH * sizeof(TCHAR)), &Length)) {
+                if (myGetUserObjectInformation(Desk, UOI_NAME, DeskName, (MAX_PATH * sizeof(TCHAR)), &Length)) {
                     lstrcpy((LPTSTR)DesktopName, L"");
                     lstrcat((LPTSTR)DesktopName, WinstaName);
                     lstrcat((LPTSTR)DesktopName, L"\\");
                     lstrcat((LPTSTR)DesktopName, DeskName);
                     sli.lpStartupInfo->lpDesktop = DesktopName;
-                }
-                else
+                } else
                     sli.lpStartupInfo->lpDesktop = L"";
-            }
-            else
+            } else
                 sli.lpStartupInfo->lpDesktop = L"";
 
             DWORD ret = AllowDesktopAccessToUser(WinstaName, DeskName, lpUsername, lpDomain);
@@ -1119,10 +949,8 @@ BOOL WINAPI CreateProcessWithLogonW(
                 AccessWasAllowed = TRUE;
         }
 
-
         // Package all data used in this INput structure into an
         // all-encompassing block
-
         psiT = (LPSTARTUPINFOW)PackStructAndDataW(&cbBytesToSend1,
                                                   sli.lpStartupInfo,
                                                   sizeof(*psiT),
@@ -1132,36 +960,28 @@ BOOL WINAPI CreateProcessWithLogonW(
                                                   PSAD_STRING_DATA,
                                                   PSAD_NO_MORE_DATA,
                                                   PSAD_NO_MORE_DATA);
-        if (psiT == NULL)
-        {
+        if (psiT == NULL) {
             LastError = ERROR_INVALID_PARAMETER;
             __leave;
         }
 
-
         // Point to the packed structure
-
         sli.lpStartupInfo = psiT;
 
-
         // Calculate the size of the environment block (if one is passed)
-
         int nEnvironment = 0;
         if (sli.lpEnvironment != NULL) {
             if ((sli.dwCreationFlags & CREATE_UNICODE_ENVIRONMENT) != 0) {
                 while (((LPCWSTR)lpEnvironment)[nEnvironment] != 0)
                     nEnvironment += lstrlenW(&((LPCWSTR)lpEnvironment)[nEnvironment]) + 1;
                 nEnvironment *= sizeof(WCHAR);   // Convert to number of bytes
-            }
-            else {
+            } else {
                 while (((LPCSTR)lpEnvironment)[nEnvironment] != 0)
                     nEnvironment += lstrlenA(&((LPCSTR)lpEnvironment)[nEnvironment]) + 1;
             }
         }
 
-
         // Package all data used in this INput structure into an all-encompassing block
-
         psliT = (PSECONDARYLOGONINFOW)PackStructAndDataW(&cbBytesToSend, &sli, sizeof(*psliT),
                                                          FIELDOFFSET(SECONDARYLOGONINFOW, lpUsername), PSAD_STRING_DATA,
                                                          FIELDOFFSET(SECONDARYLOGONINFOW, lpDomain), PSAD_STRING_DATA,
@@ -1172,43 +992,35 @@ BOOL WINAPI CreateProcessWithLogonW(
                                                          FIELDOFFSET(SECONDARYLOGONINFOW, lpCurrentDirectory), PSAD_STRING_DATA,
                                                          FIELDOFFSET(SECONDARYLOGONINFOW, lpStartupInfo), cbBytesToSend1,
                                                          PSAD_NO_MORE_DATA, PSAD_NO_MORE_DATA);
-        if (psliT == NULL)
-        {
+        if (psliT == NULL) {
             LastError = ERROR_INVALID_PARAMETER;
             __leave;
         }
 
         // Connect to the pipe
         hpipe = CreateFileW(L"\\\\.\\pipe\\SecondaryLogon", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-        if (hpipe == INVALID_HANDLE_VALUE)
-        {
+        if (hpipe == INVALID_HANDLE_VALUE) {
             LastError = GetLastError();
-            if (LastError == ERROR_FILE_NOT_FOUND)
-            {
-
+            if (LastError == ERROR_FILE_NOT_FOUND) {
                 // try to start the service.
                 // if we can, try CreateFile again.
-
                 SC_HANDLE   hSCM;
                 SC_HANDLE   hService;
 
                 hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
-                if (hSCM == NULL)
-                {
+                if (hSCM == NULL) {
                     LastError = GetLastError();
                     __leave;
                 }
 
                 hService = OpenService(hSCM, g_szSvcName, SERVICE_START);
-                if (hService == NULL)
-                {
+                if (hService == NULL) {
                     LastError = GetLastError();
                     CloseServiceHandle(hSCM);
                     __leave;
                 }
 
-                if (!StartService(hService, NULL, NULL))
-                {
+                if (!StartService(hService, NULL, NULL)) {
                     LastError = GetLastError();
                     CloseServiceHandle(hSCM);
                     CloseServiceHandle(hService);
@@ -1218,25 +1030,20 @@ BOOL WINAPI CreateProcessWithLogonW(
                 CloseServiceHandle(hSCM);
                 CloseServiceHandle(hService);
 
-
                 // BUGBUG -- during testing I found out that
                 // immediately opening the pipe after starting the service
                 // did not give enough time to actually start the service.
 
                 // So we simulate a wait here for few milliseconds.
-
-
                 SleepEx(100, FALSE);
 
                 // Now open the pipe again.
                 hpipe = CreateFileW(L"\\\\.\\pipe\\SecondaryLogon", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
-                if (hpipe == INVALID_HANDLE_VALUE)
-                {
+                if (hpipe == INVALID_HANDLE_VALUE) {
                     LastError = GetLastError();
                     __leave;
                 }
-            }
-            else
+            } else
                 __leave;
         }
 
@@ -1254,19 +1061,14 @@ BOOL WINAPI CreateProcessWithLogonW(
         Overlapped.hEvent = CreateEvent(&SecurityAttr, FALSE, FALSE, NULL);
         if (Overlapped.hEvent == NULL) __leave;
 
-        if (!WriteFile(hpipe, &cbBytesToSend, sizeof(cbBytesToSend), &cbBytesTransferred, &Overlapped))
-        {
+        if (!WriteFile(hpipe, &cbBytesToSend, sizeof(cbBytesToSend), &cbBytesTransferred, &Overlapped)) {
             LastError = GetLastError();
-            if (LastError == ERROR_IO_PENDING)
-            {
-                if (!GetOverlappedResult(hpipe, &Overlapped, &cbBytesTransferred, TRUE))
-                {
+            if (LastError == ERROR_IO_PENDING) {
+                if (!GetOverlappedResult(hpipe, &Overlapped, &cbBytesTransferred, TRUE)) {
                     if (Overlapped.hEvent) CloseHandle(Overlapped.hEvent);
                     __leave;
                 }
-            }
-            else
-            {
+            } else {
                 if (Overlapped.hEvent) CloseHandle(Overlapped.hEvent);
                 __leave;
             }
@@ -1274,19 +1076,14 @@ BOOL WINAPI CreateProcessWithLogonW(
 
         Overlapped.Offset = 0;
         Overlapped.OffsetHigh = 0;
-        if (!WriteFile(hpipe, psliT, cbBytesToSend, &cbBytesTransferred, &Overlapped))
-        {
+        if (!WriteFile(hpipe, psliT, cbBytesToSend, &cbBytesTransferred, &Overlapped)) {
             LastError = GetLastError();
-            if (LastError == ERROR_IO_PENDING)
-            {
-                if (!GetOverlappedResult(hpipe, &Overlapped, &cbBytesTransferred, TRUE))
-                {
+            if (LastError == ERROR_IO_PENDING) {
+                if (!GetOverlappedResult(hpipe, &Overlapped, &cbBytesTransferred, TRUE)) {
                     if (Overlapped.hEvent) CloseHandle(Overlapped.hEvent);
                     __leave;
                 }
-            }
-            else
-            {
+            } else {
                 if (Overlapped.hEvent) CloseHandle(Overlapped.hEvent);
                 __leave;
             }
@@ -1294,19 +1091,14 @@ BOOL WINAPI CreateProcessWithLogonW(
 
         Overlapped.Offset = 0;
         Overlapped.OffsetHigh = 0;
-        if (!ReadFile(hpipe, &slri, sizeof(slri), &cbBytesTransferred, &Overlapped))
-        {
+        if (!ReadFile(hpipe, &slri, sizeof(slri), &cbBytesTransferred, &Overlapped)) {
             LastError = GetLastError();
-            if (LastError == ERROR_IO_PENDING)
-            {
-                if (!GetOverlappedResult(hpipe, &Overlapped, &cbBytesTransferred, TRUE))
-                {
+            if (LastError == ERROR_IO_PENDING) {
+                if (!GetOverlappedResult(hpipe, &Overlapped, &cbBytesTransferred, TRUE)) {
                     if (Overlapped.hEvent) CloseHandle(Overlapped.hEvent);
                     __leave;
                 }
-            }
-            else
-            {
+            } else {
                 if (Overlapped.hEvent) CloseHandle(Overlapped.hEvent);
                 __leave;
             }
@@ -1316,26 +1108,18 @@ BOOL WINAPI CreateProcessWithLogonW(
 
         fOk = (slri.dwErrorCode == NO_ERROR);  // This function succeeds if the server's function succeeds
         if (!fOk) {
-
             // If the server function failed, set the server's
             // returned eror code as this thread's error code
-
             LastError = slri.dwErrorCode;
             SetLastError(slri.dwErrorCode);
-        }
-        else {
-
+        } else {
             // The server function succeeded, return the
             // PROCESS_INFORMATION info
-
             *lpProcessInformation = slri.pi;
             LastError = ERROR_SUCCESS;
         }
-    }
-    __finally {
-
-        if (LastError != ERROR_SUCCESS)
-        {
+    } __finally {
+        if (LastError != ERROR_SUCCESS) {
             if (AccessWasAllowed)
                 RemoveDesktopAccessFromUser(WinstaName, DeskName, lpUsername, lpDomain);
         }

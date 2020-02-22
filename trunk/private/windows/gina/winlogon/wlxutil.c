@@ -552,12 +552,6 @@ BOOL WINAPI WlxSetTimeout(HANDLE  hWlx, DWORD   Timeout)
 
 //  Synopsis:   Allows a GINA to establish the correct shell protection for
 //              a process.  Superceded by the Win32 API, CreateProcessAsUser.
-
-//  Arguments:  [hWlx]     --
-//              [hToken]   --
-//              [hProcess] --
-//              [hThread]  --
-
 //  History:    10-14-97   RichardW   Created
 int WINAPI WlxAssignShellProtection(HANDLE  hWlx, HANDLE  hToken, HANDLE  hProcess, HANDLE  hThread)
 {
@@ -580,7 +574,6 @@ int WINAPI WlxAssignShellProtection(HANDLE  hWlx, HANDLE  hToken, HANDLE  hProce
     {
         return(RtlNtStatusToDosError(Status));
     }
-
 
     pDefDacl = LocalAlloc(LMEM_FIXED | LMEM_ZEROINIT, cDefDacl);
     if (!pDefDacl)
@@ -611,13 +604,6 @@ int WINAPI WlxAssignShellProtection(HANDLE  hWlx, HANDLE  hToken, HANDLE  hProce
 
 
 //  Synopsis:   Allows a GINA to raise a message box.
-
-//  Arguments:  [hWlx]  --
-//              [hWnd]  --
-//              [lpsz1] --
-//              [lpsz2] --
-//              [fmb]   --
-
 //  History:    10-14-97   RichardW   Created
 int WINAPI WlxMessageBox(HANDLE hWlx, HWND hWnd, LPWSTR lpsz1, LPWSTR lpsz2, UINT fmb)
 {
@@ -880,13 +866,6 @@ BOOL WINAPI WlxSetReturnDesktop(HANDLE hWlx, PWLX_DESKTOP pDesktop)
 
 
 //  Synopsis:   Allows a GINA to create a desktop for use by user processes
-
-//  Arguments:  [hWlx]           --
-//              [hToken]         --
-//              [Flags]          --
-//              [pszDesktopName] --
-//              [ppDesktop]      --
-
 //  History:    10-14-97   RichardW   Created
 BOOL WINAPI WlxCreateUserDesktop(HANDLE hWlx, HANDLE hToken, DWORD Flags, PWSTR pszDesktopName, PWLX_DESKTOP * ppDesktop)
 {

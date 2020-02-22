@@ -1,10 +1,7 @@
 //  Microsoft Windows
 //  Copyright (C) Microsoft Corporation, 1992 - 1997.
-
 //  File:       jobwait.c
-
 //  Contents:   Generic "start app in job and wait" functionality
-
 //  History:    6-19-98   RichardW   Created
 
 #include "precomp.h"
@@ -45,10 +42,7 @@ BOOL InitializeJobControl(VOID)
 }
 
 
-VOID
-DerefWinlogonJob(
-    PWINLOGON_JOB Job
-)
+VOID DerefWinlogonJob(PWINLOGON_JOB Job)
 {
     EnterCriticalSection(&JobLock);
 
@@ -79,7 +73,6 @@ DerefWinlogonJob(
         }
 
         LocalFree(Job);
-
     }
 
     LeaveCriticalSection(&JobLock);
@@ -87,9 +80,7 @@ DerefWinlogonJob(
 
 
 //  Synopsis:   Thread that monitors the IO Port when jobs are active
-
 //  Arguments:  [Ignored] --
-
 //  History:    6-21-98   RichardW   Created
 DWORD JobThread(PVOID Ignored)
 {
@@ -176,7 +167,6 @@ DWORD JobThread(PVOID Ignored)
         switch (CompletionCode) {
         case JOB_OBJECT_MSG_WINLOGON_TERMINATE_JOB:
         case JOB_OBJECT_MSG_WINLOGON_KILL_JOB:
-
             DebugLog((DEB_TRACE_JOB, "%s termination for job %x:%x\n",
                 (CompletionCode == JOB_OBJECT_MSG_WINLOGON_TERMINATE_JOB ? "Timeout" : "Root-died"),
                       Job->UniqueId.HighPart,
@@ -209,12 +199,10 @@ DWORD JobThread(PVOID Ignored)
                     NtClose(Job->RootProcess);
                     Job->RootProcess = NULL;
 
-
                     // The initial process has terminated,
                     // and we're watching it.  If there are other
                     // processes still in the job, we need to kill
                     // them.
-
 
                     Status = NtQueryInformationJobObject(
                         Job->Job,
@@ -223,9 +211,7 @@ DWORD JobThread(PVOID Ignored)
                         sizeof(JobInfo),
                         NULL);
 
-                    if ((Status == STATUS_SUCCESS) ||
-                        (Status == STATUS_BUFFER_OVERFLOW)) {
-
+                    if ((Status == STATUS_SUCCESS) || (Status == STATUS_BUFFER_OVERFLOW)) {
                         // bugbug, 0 or 1?
 
                         if (JobInfo.NumberOfAssignedProcesses > 0) {
@@ -233,43 +219,30 @@ DWORD JobThread(PVOID Ignored)
                                       Job->UniqueId.HighPart,
                                       Job->UniqueId.LowPart));
 
-
-                            // Post a private message indicating that we want to kill
-                            // the job.
-
-
+                            // Post a private message indicating that we want to kill the job.
                             PostQueuedCompletionStatus(IoPort,
                                                        JOB_OBJECT_MSG_WINLOGON_KILL_JOB,
                                                        (ULONG_PTR)Job,
                                                        &Overlapped);
 
                             // Let the work happen in the normal place
-
-
                         }
                     }
-
                 }
-
             }
 
             LeaveCriticalSection(&JobLock);
 
             continue;
-
             break;
-
         case JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO:
         case JOB_OBJECT_MSG_WINLOGON_TERMINATED:
-
             DebugLog((DEB_TRACE_JOB, "Job %x:%x completed\n",
                       Job->UniqueId.HighPart,
                       Job->UniqueId.LowPart));
 
             EnterCriticalSection(&JobLock);
-
             Job->Flags |= WINLOGON_JOB_TERMINATED;
-
             LeaveCriticalSection(&JobLock);
 
             if ((CompletionCode == JOB_OBJECT_MSG_WINLOGON_TERMINATED) ||
@@ -283,35 +256,22 @@ DWORD JobThread(PVOID Ignored)
                 }
 
                 Job->Flags |= WINLOGON_JOB_CALLBACKS_DONE;
-
             }
 
             if (CompletionCode == JOB_OBJECT_MSG_WINLOGON_TERMINATED) {
-
                 // For these, we need to keep waiting until the
                 // job object actually empties.  Take away the ref
                 // that we added when this message was posted, and
                 // continue waiting.
 
-
                 Job->Timeout = INFINITE;
-
                 DerefWinlogonJob(Job);
-
                 continue;
             }
 
-
-
             break;
-
-
         default:
-
-
             // Not a message we care about
-
-
             continue;
         }
 
@@ -322,34 +282,22 @@ DWORD JobThread(PVOID Ignored)
                   Job->UniqueId.LowPart));
 
         if (Job->List.Flink) {
-
             RemoveEntryList(&Job->List);
-
             Job->List.Flink = NULL;
             Job->List.Blink = NULL;
-
         }
 
         DerefWinlogonJob(Job);
 
         LeaveCriticalSection(&JobLock);
-
     } while (TRUE);
 
-
     // Thread cleanup:
-
-
     EnterCriticalSection(&JobLock);
-
     CloseHandle(IoPort);
-
     IoPort = NULL;
-
     CloseHandle(hJobThread);
-
     hJobThread = NULL;
-
     LeaveCriticalSection(&JobLock);
 
     return 0;
@@ -416,10 +364,8 @@ PWINLOGON_JOB CreateWinlogonJob(VOID)
     JOBOBJECT_END_OF_JOB_TIME_INFORMATION JobTime;
 
     Job = LocalAlloc(LMEM_FIXED | LMEM_ZEROINIT, sizeof(WINLOGON_JOB));
-
     if (Job) {
-        // Generate a unique name so we don't overlap with other winlogons or
-        // threads
+        // Generate a unique name so we don't overlap with other winlogons or threads
 
         AllocateLocallyUniqueId(&Job->UniqueId);
 
@@ -486,23 +432,15 @@ BOOL SetWinlogonJobTimeout(PWINLOGON_JOB pJob, ULONG Timeout)
 }
 
 
-
 //  Function:   StartProcessInJob
-
 //  Synopsis:   Starts a process in a winlogon job
-
 //  Arguments:  [pTerm]        -- Terminal for the process
 //              [bUser]        -- TRUE if should be started as the user
 //              [lpDesktop]    -- Desktop to run process on
 //              [pEnvironment] -- Environment pointer, or NULL to inherit ours
 //              [lpCmdLine]    -- Command line to run
 //              [pJob]         -- Job to associate process with
-
 //  History:    9-11-98   RichardW   Created
-
-//  Notes:
-
-
 BOOL
 StartProcessInJob(
     IN PTERMINAL pTerm,
@@ -575,12 +513,9 @@ StartProcessInJob(
             &si,
             &pi);
 
-
         // If we are impersonating, then we are launching as a user, so
         // don't close that token.  If we aren't, we're doing a filtered token,
         // so close it when we're done with it.
-
-
         if (ImpersonationHandle) {
             StopImpersonating(ImpersonationHandle);
         } else {
@@ -604,12 +539,10 @@ StartProcessInJob(
             // Nuke the process
             TerminateProcess(pi.hProcess, ERROR_ACCESS_DENIED);
             Result = FALSE;
-
         }
 
         if (pJob->Flags & WINLOGON_JOB_WATCH_PROCESS) {
             pJob->RootProcess = pi.hProcess;
-
         } else {
             CloseHandle(pi.hProcess);
         }
@@ -620,7 +553,6 @@ StartProcessInJob(
     }
 
     return Result;
-
 }
 
 
@@ -640,7 +572,6 @@ BOOL CreateJobEvent(PWINLOGON_JOB Job)
 
     if (Job->Event != NULL) {
         LeaveCriticalSection(&JobLock);
-
         return TRUE;
     }
 
@@ -649,19 +580,14 @@ BOOL CreateJobEvent(PWINLOGON_JOB Job)
                Job->UniqueId.HighPart, Job->UniqueId.LowPart);
 
     Job->Event = CreateEvent(NULL, FALSE, FALSE, EventName);
-
 #else
-
     Job->Event = CreateEvent(NULL, FALSE, FALSE, NULL);
-
 #endif
 
     LeaveCriticalSection(&JobLock);
 
     return (Job->Event != NULL);
-
 }
-
 
 
 
@@ -677,9 +603,7 @@ BOOL WaitForJob(PWINLOGON_JOB Job, DWORD Timeout)
         if (CreateJobEvent(Job)) {
             if (SetWinlogonJobTimeout(Job, Timeout)) {
                 WaitForSingleObjectEx(Job->Event, INFINITE, FALSE);
-
                 return TRUE;
-
             }
         }
     }
@@ -704,7 +628,6 @@ BOOL TerminateJob(PWINLOGON_JOB Job, DWORD ExitCode)
 
     if (Job->Flags & WINLOGON_JOB_TERMINATED) {
         DebugLog((DEB_ERROR, "TerminateJob called on a job that has already completed\n"));
-
         return FALSE;
     }
 
@@ -726,21 +649,9 @@ BOOL TerminateJob(PWINLOGON_JOB Job, DWORD ExitCode)
 }
 
 
-
-
 //  Function:   SetJobCallback
-
 //  Synopsis:   Sets a function to be called when the job completes.
-
-//  Arguments:  [Job]       --
-//              [Callback]  --
-//              [Parameter] --
-
 //  History:    9-11-98   RichardW   Created
-
-//  Notes:
-
-
 BOOL
 SetJobCallback(
     IN PWINLOGON_JOB Job,

@@ -3759,10 +3759,7 @@ BuildSilentFolderList(CscFilenameList *pfnlSilentFolders,
 
     for (int i = 0; i < ARRAYSIZE(s_csidlFolders); i++)
     {
-        if (SHGetSpecialFolderPath(NULL,
-                                   szPath,
-                                   s_csidlFolders[i][0] | CSIDL_FLAG_DONT_VERIFY,
-                                   FALSE))
+        if (SHGetSpecialFolderPath(NULL, szPath, s_csidlFolders[i][0] | CSIDL_FLAG_DONT_VERIFY, FALSE))
         {
             // We only want UNC net paths
             LPTSTR pszUNC = NULL;
