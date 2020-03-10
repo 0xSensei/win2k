@@ -1393,24 +1393,24 @@ CreateAcceleratorTableWrapW(LPACCEL lpAccel, int cEntries)
 #endif // NEED_USER32_WRAPPER
 
 #ifdef NEED_GDI32_WRAPPER
-typedef HDC(*FnCreateHDCA)(LPCSTR, LPCSTR, LPCSTR, CONST DEVMODEA *);
+typedef HDC(*FnCreateHDCA)(LPCSTR, LPCSTR, LPCSTR, CONST DEVMODEA*);
 
 HDC WINAPI
 CreateHDCWrapW(
     LPCWSTR             lpszDriver,
     LPCWSTR             lpszDevice,
     LPCWSTR             lpszOutput,
-    CONST DEVMODEW *    lpInitData,
+    CONST DEVMODEW* lpInitData,
     FnCreateHDCA        pfn)
 {
-    DEVMODEA *  pdevmode = NULL;
+    DEVMODEA* pdevmode = NULL;
     CStrIn      strDriver(lpszDriver);
     CStrIn      strDevice(lpszDevice);
     CStrIn      strOutput(lpszOutput);
     HDC         hdcReturn = 0;
 
     if (lpInitData) {
-        pdevmode = (DEVMODEA *)LocalAlloc(LPTR, lpInitData->dmSize + lpInitData->dmDriverExtra);
+        pdevmode = (DEVMODEA*)LocalAlloc(LPTR, lpInitData->dmSize + lpInitData->dmDriverExtra);
 
         if (pdevmode) {
             // LPBYTE->LPSTR casts below
@@ -1445,7 +1445,7 @@ CreateDCWrapW(
     LPCWSTR             lpszDriver,
     LPCWSTR             lpszDevice,
     LPCWSTR             lpszOutput,
-    CONST DEVMODEW *    lpInitData)
+    CONST DEVMODEW* lpInitData)
 {
     VALIDATE_PROTOTYPE(CreateDC);
 
@@ -1464,7 +1464,7 @@ CreateICWrapW(
     LPCWSTR             lpszDriver,
     LPCWSTR             lpszDevice,
     LPCWSTR             lpszOutput,
-    CONST DEVMODEW *    lpInitData)
+    CONST DEVMODEW* lpInitData)
 {
     VALIDATE_PROTOTYPE(CreateIC);
 
@@ -1628,7 +1628,7 @@ CreateFileWrapW(
 #ifdef NEED_GDI32_WRAPPER
 
 HFONT WINAPI
-CreateFontIndirectWrapW(CONST LOGFONTW * plfw)
+CreateFontIndirectWrapW(CONST LOGFONTW* plfw)
 {
     VALIDATE_PROTOTYPE(CreateFontIndirect);
 
@@ -1760,7 +1760,7 @@ DialogBoxParamWrapW(
 #ifdef NEED_USER32_WRAPPER
 
 LRESULT FORWARD_API WINAPI
-DispatchMessageWrapW(CONST MSG * lpMsg)
+DispatchMessageWrapW(CONST MSG* lpMsg)
 {
     VALIDATE_PROTOTYPE(DispatchMessage);
 
@@ -1826,15 +1826,15 @@ struct EFFSTAT
 
 int CALLBACK
 EnumFontFamiliesCallbackWrap(
-    ENUMLOGFONTA *  lpelf,
-    NEWTEXTMETRIC * lpntm,
+    ENUMLOGFONTA* lpelf,
+    NEWTEXTMETRIC* lpntm,
     DWORD           FontType,
     LPARAM          lParam)
 {
     ENUMLOGFONTW    elf;
 
     //  Convert strings from ANSI to Unicode
-    if (((EFFSTAT *)lParam)->fFamilySpecified && (FontType & TRUETYPE_FONTTYPE)) {
+    if (((EFFSTAT*)lParam)->fFamilySpecified && (FontType & TRUETYPE_FONTTYPE)) {
         // LPBYTE->LPCSTR cast below
         SHAnsiToUnicode((LPCSTR)lpelf->elfFullName, elf.elfFullName, ARRAYSIZE(elf.elfFullName));
         SHAnsiToUnicode((LPCSTR)lpelf->elfStyle, elf.elfStyle, ARRAYSIZE(elf.elfStyle));
@@ -1852,11 +1852,11 @@ EnumFontFamiliesCallbackWrap(
         FIELD_OFFSET(LOGFONTA, lfFaceName));
 
     //  Chain to the original callback function
-    return (*((EFFSTAT *)lParam)->lpEnumFontProc)(
-        (const LOGFONTW *)&elf,
-        (const TEXTMETRICW *)lpntm,
+    return (*((EFFSTAT*)lParam)->lpEnumFontProc)(
+        (const LOGFONTW*)&elf,
+        (const TEXTMETRICW*)lpntm,
         FontType,
-        ((EFFSTAT *)lParam)->lParam);
+        ((EFFSTAT*)lParam)->lParam);
 }
 
 #endif // NEED_GDI32_WRAPPER
@@ -2044,7 +2044,7 @@ FindWindowExWrapW(HWND hwndParent, HWND hwndChildAfter, LPCWSTR pwzClassName, LP
 
 // Returns - True if arg is wide string, False if other
 
-BOOL FindNextArgInfo(LPCWSTR *pszTemplate, UINT *puiNum, LPWSTR pszFormat, UINT cchFormat)
+BOOL FindNextArgInfo(LPCWSTR* pszTemplate, UINT* puiNum, LPWSTR pszFormat, UINT cchFormat)
 {
     BOOL fRet = FALSE;
 
@@ -2140,18 +2140,18 @@ DWORD
 FormatMessageLiteW(
     DWORD       dwFlags,
     LPCWSTR     lpSource,
-    PVOID *     pDest,
+    PVOID* pDest,
     DWORD       nSize,
-    va_list *   Arguments)
+    va_list* Arguments)
 {
     BOOL fIsStr;
     UINT uiNum;
     UINT uiDataCnt = 0;
     va_list pArgList = *Arguments;
     va_list pArgList2;
-    WCHAR *pszBuf2;
+    WCHAR* pszBuf2;
     WCHAR szFmt[256];
-    VOID *pData[10];
+    VOID* pData[10];
     LPCWSTR psz = lpSource;
     LPCWSTR psz1 = NULL;
     LPWSTR lpBuffer;
@@ -2164,7 +2164,7 @@ FormatMessageLiteW(
 
     if (dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) {
         nSize = max(nSize, FML_BUFFER_SIZE);
-        if ((lpBuffer = (WCHAR *)LocalAlloc(LPTR, nSize * sizeof(WCHAR))) == NULL)
+        if ((lpBuffer = (WCHAR*)LocalAlloc(LPTR, nSize * sizeof(WCHAR))) == NULL)
             return(0);
     } else {
         if (nSize == 0)
@@ -2173,7 +2173,7 @@ FormatMessageLiteW(
     }
 
     cchBuf2 = nSize + lstrlen(lpSource);
-    if ((pszBuf2 = (WCHAR *)LocalAlloc(LPTR, cchBuf2 * sizeof(WCHAR))) != NULL) {
+    if ((pszBuf2 = (WCHAR*)LocalAlloc(LPTR, cchBuf2 * sizeof(WCHAR))) != NULL) {
         *lpBuffer = TEXT('\0');
         while (*psz) {
             if (*psz == TEXT('%')) {
@@ -2184,7 +2184,7 @@ FormatMessageLiteW(
                         if (dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) {
                             LPWSTR lpRealloc;
                             nSize = max(FML_BUFFER_INC, cch);
-                            if ((lpRealloc = (WCHAR *)LocalReAlloc(lpBuffer, nSize * sizeof(WCHAR), LMEM_ZEROINIT | LMEM_MOVEABLE)) == NULL) {
+                            if ((lpRealloc = (WCHAR*)LocalReAlloc(lpBuffer, nSize * sizeof(WCHAR), LMEM_ZEROINIT | LMEM_MOVEABLE)) == NULL) {
                                 LocalFree(lpBuffer);
                                 LocalFree(pszBuf2);
                                 return(0);
@@ -2206,7 +2206,7 @@ FormatMessageLiteW(
                     if (uiNum > uiDataCnt) {
                         for (UINT i = uiDataCnt; i < uiNum; i++)    // Find the iTH argument
                         {
-                            pData[i] = va_arg(pArgList, VOID *);
+                            pData[i] = va_arg(pArgList, VOID*);
                             uiDataCnt++;
                         }
                     }
@@ -2229,7 +2229,7 @@ FormatMessageLiteW(
                         if (dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) {
                             LPWSTR lpRealloc;
                             nSize += max(FML_BUFFER_INC, cch);
-                            if ((lpRealloc = (WCHAR *)LocalReAlloc(lpBuffer, nSize * sizeof(WCHAR), LMEM_ZEROINIT | LMEM_MOVEABLE)) == NULL) {
+                            if ((lpRealloc = (WCHAR*)LocalReAlloc(lpBuffer, nSize * sizeof(WCHAR), LMEM_ZEROINIT | LMEM_MOVEABLE)) == NULL) {
                                 LocalFree(lpBuffer);
                                 LocalFree(pszBuf2);
                                 return(0);
@@ -2260,7 +2260,7 @@ FormatMessageLiteW(
                 if (dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) {
                     LPWSTR lpRealloc;
                     nSize = max(FML_BUFFER_INC, cch);
-                    if ((lpRealloc = (WCHAR *)LocalReAlloc(lpBuffer, nSize * sizeof(WCHAR), LMEM_ZEROINIT | LMEM_MOVEABLE)) == NULL) {
+                    if ((lpRealloc = (WCHAR*)LocalReAlloc(lpBuffer, nSize * sizeof(WCHAR), LMEM_ZEROINIT | LMEM_MOVEABLE)) == NULL) {
                         LocalFree(lpBuffer);
                         LocalFree(pszBuf2);
                         return(0);
@@ -2280,7 +2280,7 @@ FormatMessageLiteW(
     }
 
     if (dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) {
-        *pDest = (PVOID *)lpBuffer;
+        *pDest = (PVOID*)lpBuffer;
     }
 
     return((DWORD)cchBufUsed);
@@ -2294,7 +2294,7 @@ FormatMessageWrapW(
     DWORD       dwLanguageId,
     LPWSTR      lpBuffer,
     DWORD       nSize,
-    va_list *   Arguments)
+    va_list* Arguments)
 {
     VALIDATE_PROTOTYPE(FormatMessage);
     if (!(dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER)) {
@@ -2353,7 +2353,7 @@ FormatMessageWrapW(
         (dwFlags == (FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER))) &&
          (dwMessageId == 0) && (dwLanguageId == 0)) {
         TraceMsg(TF_WARNING, "This is a lite version of FormatMessage.  It may not act as you expect.");
-        dwResult = FormatMessageLiteW(dwFlags, (LPCWSTR)lpSource, (PVOID *)lpBuffer, nSize, Arguments);
+        dwResult = FormatMessageLiteW(dwFlags, (LPCWSTR)lpSource, (PVOID*)lpBuffer, nSize, Arguments);
     } else {
         CStrIn strSource((dwFlags & FORMAT_MESSAGE_FROM_STRING) ? CP_ACP : CP_ATOM,
             (LPCWSTR)lpSource, -1);
@@ -2364,7 +2364,7 @@ FormatMessageWrapW(
             dwResult = str.ConvertExcludingNul();
         } else {
             LPSTR pszBuffer = NULL;
-            LPWSTR * ppwzOut = (LPWSTR *)lpBuffer;
+            LPWSTR* ppwzOut = (LPWSTR*)lpBuffer;
 
             *ppwzOut = NULL;
             FormatMessageA(dwFlags, strSource, dwMessageId, dwLanguageId, (LPSTR)&pszBuffer, 0, Arguments);
@@ -2619,7 +2619,7 @@ SearchPathWrapW(
     LPCWSTR lpExtension,
     DWORD   cchReturnBuffer,
     LPWSTR  lpReturnBuffer,
-    LPWSTR *  plpfilePart)
+    LPWSTR* plpfilePart)
 {
     VALIDATE_PROTOTYPE(SearchPath);
     VALIDATE_OUTBUF(lpReturnBuffer, cchReturnBuffer);
@@ -2645,7 +2645,7 @@ SearchPathWrapW(
         strExtension,
         strReturnBuffer.BufSize(),
         strReturnBuffer,
-        (LPSTR *)plpfilePart);
+        (LPSTR*)plpfilePart);
 
 
     // Getting the correct value for plpfilePart requires
@@ -2848,7 +2848,7 @@ int WINAPI SHFileOperationWrapW(LPSHFILEOPSTRUCTW pFileOpW)
 
 
 #ifdef NEED_SHELL32_WRAPPER
-UINT WINAPI ExtractIconExWrapW(LPCWSTR pwzFile, int nIconIndex, HICON FAR *phiconLarge, HICON FAR *phiconSmall, UINT nIcons)
+UINT WINAPI ExtractIconExWrapW(LPCWSTR pwzFile, int nIconIndex, HICON FAR* phiconLarge, HICON FAR* phiconSmall, UINT nIcons)
 {
     VALIDATE_PROTOTYPE_DELAYLOAD(ExtractIconEx, _ExtractIconEx);
 
@@ -2904,7 +2904,7 @@ BOOL WINAPI SetFileAttributesWrapW(LPCWSTR pwzFile, DWORD dwFileAttributes)
 
 #ifdef NEED_KERNEL32_WRAPPER
 
-int WINAPI GetNumberFormatWrapW(LCID Locale, DWORD dwFlags, LPCWSTR pwzValue, CONST NUMBERFMTW * pFormatW, LPWSTR pwzNumberStr, int cchNumber)
+int WINAPI GetNumberFormatWrapW(LCID Locale, DWORD dwFlags, LPCWSTR pwzValue, CONST NUMBERFMTW* pFormatW, LPWSTR pwzNumberStr, int cchNumber)
 {
     VALIDATE_PROTOTYPE(GetNumberFormat);
 
@@ -2919,7 +2919,7 @@ int WINAPI GetNumberFormatWrapW(LCID Locale, DWORD dwFlags, LPCWSTR pwzValue, CO
     CStrOut strNumberStr(pwzNumberStr, cchNumber);
 
     if (pFormatW) {
-        FormatA = *(NUMBERFMTA *)pFormatW;
+        FormatA = *(NUMBERFMTA*)pFormatW;
         FormatA.lpDecimalSep = strDecimalSep;
         FormatA.lpThousandSep = strThousandSep;
     }
@@ -2975,7 +2975,7 @@ WINAPI
 GetFullPathNameWrapW(LPCWSTR lpFileName,
                      DWORD  nBufferLength,
                      LPWSTR lpBuffer,
-                     LPWSTR *lpFilePart)
+                     LPWSTR* lpFilePart)
 {
     VALIDATE_PROTOTYPE(GetFullPathName);
     VALIDATE_OUTBUF(lpBuffer, nBufferLength);
@@ -3644,7 +3644,7 @@ typedef struct tagPUIMENUITEM
     DWORD_PTR dwItemData; // original MENUITEMINFO dwItemData value
     LPWSTR lpwz;        // unicode menu string
     UINT   cch;         // number of character for menu string
-} PUIMENUITEM, *LPPUIMENUITEM;
+} PUIMENUITEM, * LPPUIMENUITEM;
 
 void MungeMenuItem(HMENU hMenu, LPCMENUITEMINFOW lpmiiW, LPMENUITEMINFOW lpmiiNewW)
 {
@@ -3750,7 +3750,7 @@ DestroyMenuWrap(HMENU hMenu)
 
 // This is required for ML, so do not put inside #ifdef NEED_USER32_WRAPPER
 
-LPBYTE MenuLoadMENUTemplates(LPBYTE lpMenuTemplate, HMENU *phMenu)
+LPBYTE MenuLoadMENUTemplates(LPBYTE lpMenuTemplate, HMENU* phMenu)
 {
     HMENU hMenu;
     UINT menuFlags = 0;
@@ -3763,14 +3763,14 @@ LPBYTE MenuLoadMENUTemplates(LPBYTE lpMenuTemplate, HMENU *phMenu)
 
     do {
         // Get the menu flags.
-        menuFlags = (UINT)(*(WORD *)lpMenuTemplate);
+        menuFlags = (UINT)(*(WORD*)lpMenuTemplate);
         lpMenuTemplate += 2;
         if (menuFlags & ~MF_VALID) {
             goto memoryerror;
         }
 
         if (!(menuFlags & MF_POPUP)) {
-            menuId = *(WORD *)lpMenuTemplate;
+            menuId = *(WORD*)lpMenuTemplate;
             lpMenuTemplate += 2;
         }
 
@@ -3783,7 +3783,7 @@ LPBYTE MenuLoadMENUTemplates(LPBYTE lpMenuTemplate, HMENU *phMenu)
 
         // Skip over terminating NULL of the string (or the single NULL if empty string).
         lpMenuTemplate += sizeof(WCHAR);
-        lpMenuTemplate = (BYTE *)(((ULONG_PTR)lpMenuTemplate + 1) & ~1);    // word align
+        lpMenuTemplate = (BYTE*)(((ULONG_PTR)lpMenuTemplate + 1) & ~1);    // word align
 
         ZeroMemory(&mii, sizeof(mii));
         mii.cbSize = sizeof(MENUITEMINFO);
@@ -3791,7 +3791,7 @@ LPBYTE MenuLoadMENUTemplates(LPBYTE lpMenuTemplate, HMENU *phMenu)
 
         if (menuFlags & MF_POPUP) {
             mii.fMask |= MIIM_SUBMENU;
-            lpMenuTemplate = MenuLoadMENUTemplates(lpMenuTemplate, (HMENU *)&menuId);
+            lpMenuTemplate = MenuLoadMENUTemplates(lpMenuTemplate, (HMENU*)&menuId);
             if (!lpMenuTemplate)
                 goto memoryerror;
             mii.hSubMenu = (HMENU)menuId;
@@ -3833,7 +3833,7 @@ memoryerror:
     return NULL;
 }
 
-PMENUITEMTEMPLATE2 MenuLoadMENUEXTemplates(PMENUITEMTEMPLATE2 lpMenuTemplate, HMENU *phMenu, WORD wResInfo)
+PMENUITEMTEMPLATE2 MenuLoadMENUEXTemplates(PMENUITEMTEMPLATE2 lpMenuTemplate, HMENU* phMenu, WORD wResInfo)
 {
     HMENU hMenu;
     HMENU hSubMenu;
@@ -3936,12 +3936,12 @@ HMENU CreateMenuFromResource(LPBYTE lpMenuTemplate)
 
     // menu resource: First, strip version number word out of the menu
     // template.  This value should be 0 for MENU, 1 for MENUEX.
-    menuTemplateVersion = *(WORD *)lpMenuTemplate;
+    menuTemplateVersion = *(WORD*)lpMenuTemplate;
     lpMenuTemplate += 2;
     if (menuTemplateVersion > 1)
         return NULL;
 
-    menuTemplateHeaderSize = *(WORD *)lpMenuTemplate;
+    menuTemplateHeaderSize = *(WORD*)lpMenuTemplate;
     lpMenuTemplate += 2;
     lpMenuTemplate += menuTemplateHeaderSize;
     switch (menuTemplateVersion) {
@@ -4276,7 +4276,7 @@ BOOL IsWindowOnCurrentThread(HWND hWnd)
 // This is required for ML, so do not put inside #ifdef NEED_USER32_WRAPPER
 
 BOOL WINAPI
-TrackPopupMenuWrap(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, CONST RECT *prcRect)
+TrackPopupMenuWrap(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, CONST RECT* prcRect)
 {
     VALIDATE_PROTOTYPEX(TrackPopupMenu);
 
@@ -4379,7 +4379,7 @@ LoadStringWrapW(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int nBufferMax)
 
 
 static WCHAR
-TransformCharNoOp1(LPCWSTR *ppch, int)
+TransformCharNoOp1(LPCWSTR* ppch, int)
 {
     WCHAR ch = **ppch;
 
@@ -4411,7 +4411,7 @@ TransformCharNoOp1(LPCWSTR *ppch, int)
 
 
 static WCHAR
-TransformCharWidth(LPCWSTR *ppch, int cchRemaining)
+TransformCharWidth(LPCWSTR* ppch, int cchRemaining)
 {
     WCHAR ch = **ppch;
 
@@ -4616,7 +4616,7 @@ CompareStringString(
     int nRet = 0;
     WCHAR wchIgnoreNulA = cchA == -1 ? 0 : -1;
     WCHAR wchIgnoreNulB = cchB == -1 ? 0 : -1;
-    WCHAR(*pfnTransformWidth)(LPCWSTR *, int);
+    WCHAR(*pfnTransformWidth)(LPCWSTR*, int);
     WCHAR(*pfnTransformKana)(WCHAR);
     DWORD(*pfnTransformLower)(LPWSTR, DWORD);
     WCHAR(*pfnTransformFinal)(WCHAR);
@@ -4791,7 +4791,7 @@ int WINAPI CompareStringWrapW(LCID Locale, DWORD dwFlags,
 
 #ifndef UNIX
 BOOL WINAPI
-MessageBoxIndirectWrapW(CONST MSGBOXPARAMS *pmbp)
+MessageBoxIndirectWrapW(CONST MSGBOXPARAMS* pmbp)
 #else
 int WINAPI
 MessageBoxIndirectWrapW(LPMSGBOXPARAMS pmbp)
@@ -4879,7 +4879,7 @@ BOOL WINAPI GetCharWidth32WrapW(
         // Convert string
         ch = (WCHAR)iFirstChar;
         WideCharToMultiByte(CP_ACP, 0, &ch, 1,
-            (char *)&mbChar, 2, NULL, NULL);
+            (char*)&mbChar, 2, NULL, NULL);
     }
 
     return (GetCharWidthA(hdc, iFirstChar, iLastChar, lpBuffer));
@@ -4902,7 +4902,7 @@ BOOL WINAPI GetCharWidth32WrapW(
 //  The name of this app:  Lotus SmartSuite ScreenCam 97.
 
 LWSTDAPI_(BOOL)
-ExtTextOutWrapW(HDC hdc, int x, int y, UINT fuOptions, CONST RECT *lprc, LPCWSTR lpStr, UINT cch, CONST INT *lpDx)
+ExtTextOutWrapW(HDC hdc, int x, int y, UINT fuOptions, CONST RECT* lprc, LPCWSTR lpStr, UINT cch, CONST INT* lpDx)
 {
     VALIDATE_PROTOTYPE(ExtTextOut);
     if (lpStr == NULL)              // Stupid workaround
@@ -5532,7 +5532,7 @@ RegSetValueExWrapW(
 #ifdef NEED_USER32_WRAPPER
 
 ATOM WINAPI
-RegisterClassWrapW(CONST WNDCLASSW * lpWndClass)
+RegisterClassWrapW(CONST WNDCLASSW* lpWndClass)
 {
     VALIDATE_PROTOTYPE(RegisterClass);
 
@@ -5760,8 +5760,8 @@ SendMessageAThunk(
     {
         LRESULT nLen;
 
-        CStrOut str((LPWSTR)lParam, (*(SHORT *)lParam) + 1);
-        *(SHORT *)(LPSTR)str = *(SHORT *)lParam;
+        CStrOut str((LPWSTR)lParam, (*(SHORT*)lParam) + 1);
+        *(SHORT*)(LPSTR)str = *(SHORT*)lParam;
         nLen = SendMessageA(hWnd, Msg, (WPARAM)wParam, (LPARAM)(LPSTR)str);
 
         if (nLen > 0)
@@ -6331,7 +6331,7 @@ VkKeyScanWrapW(WCHAR ch)
 
     CStrIn str(&ch, 1);
 
-    return VkKeyScanA(*(char *)str);
+    return VkKeyScanA(*(char*)str);
 }
 
 #endif // NEED_USER32_WRAPPER
@@ -6950,10 +6950,10 @@ BOOL WINAPI IsBadStringPtrWrapW(LPCWSTR pwzString, UINT_PTR ucchMax)
 
     _try
     {
-        chTest = *(volatile WCHAR *)pwzStartAddress;
+        chTest = *(volatile WCHAR*)pwzStartAddress;
         while (chTest && (pwzStartAddress != pwzEndAddress)) {
             pwzStartAddress++;
-            chTest = *(volatile WCHAR *)pwzStartAddress;
+            chTest = *(volatile WCHAR*)pwzStartAddress;
         }
     }
         _except(EXCEPTION_EXECUTE_HANDLER)
@@ -6984,7 +6984,7 @@ HINSTANCE WINAPI LoadLibraryWrapW(LPCWSTR pwzLibFileName)
 
 #ifdef NEED_KERNEL32_WRAPPER
 
-int WINAPI GetTimeFormatWrapW(LCID Locale, DWORD dwFlags, CONST SYSTEMTIME * lpTime, LPCWSTR pwzFormat, LPWSTR pwzTimeStr, int cchTime)
+int WINAPI GetTimeFormatWrapW(LCID Locale, DWORD dwFlags, CONST SYSTEMTIME* lpTime, LPCWSTR pwzFormat, LPWSTR pwzTimeStr, int cchTime)
 {
     VALIDATE_PROTOTYPE(GetTimeFormat);
     if (g_bRunningOnNT)
@@ -7002,7 +7002,7 @@ int WINAPI GetTimeFormatWrapW(LCID Locale, DWORD dwFlags, CONST SYSTEMTIME * lpT
 
 #ifdef NEED_KERNEL32_WRAPPER
 
-int WINAPI GetDateFormatWrapW(LCID Locale, DWORD dwFlags, CONST SYSTEMTIME * lpDate, LPCWSTR pwzFormat, LPWSTR pwzDateStr, int cchDate)
+int WINAPI GetDateFormatWrapW(LCID Locale, DWORD dwFlags, CONST SYSTEMTIME* lpDate, LPCWSTR pwzFormat, LPWSTR pwzDateStr, int cchDate)
 {
     VALIDATE_PROTOTYPE(GetDateFormat);
     if (g_bRunningOnNT)
@@ -7060,7 +7060,7 @@ DWORD WINAPI GetPrivateProfileStringWrapW(LPCWSTR pwzAppName, LPCWSTR pwzKeyName
 
 #ifdef NEED_SHELL32_WRAPPER
 
-STDAPI_(DWORD_PTR) SHGetFileInfoWrapW(LPCWSTR pwzPath, DWORD dwFileAttributes, SHFILEINFOW FAR  *psfi, UINT cbFileInfo, UINT uFlags)
+STDAPI_(DWORD_PTR) SHGetFileInfoWrapW(LPCWSTR pwzPath, DWORD dwFileAttributes, SHFILEINFOW FAR* psfi, UINT cbFileInfo, UINT uFlags)
 {
     VALIDATE_PROTOTYPE_DELAYLOAD(SHGetFileInfo, _SHGetFileInfo);
     if (g_bRunningOnNT)
@@ -7095,7 +7095,7 @@ STDAPI_(DWORD_PTR) SHGetFileInfoWrapW(LPCWSTR pwzPath, DWORD dwFileAttributes, S
 
 #ifdef NEED_USER32_WRAPPER
 
-STDAPI_(ATOM) RegisterClassExWrapW(CONST WNDCLASSEXW FAR * pwcx)
+STDAPI_(ATOM) RegisterClassExWrapW(CONST WNDCLASSEXW FAR* pwcx)
 {
     VALIDATE_PROTOTYPE(RegisterClassEx);
     if (g_bRunningOnNT)
@@ -7103,7 +7103,7 @@ STDAPI_(ATOM) RegisterClassExWrapW(CONST WNDCLASSEXW FAR * pwcx)
 
     CStrIn strMenuName(pwcx->lpszMenuName);
     CStrIn strClassName(pwcx->lpszClassName);
-    WNDCLASSEXA wcx = *(CONST WNDCLASSEXA FAR *) pwcx;
+    WNDCLASSEXA wcx = *(CONST WNDCLASSEXA FAR*) pwcx;
     wcx.cbSize = sizeof(wcx);
     wcx.lpszMenuName = strMenuName;
     wcx.lpszClassName = strClassName;
@@ -7127,7 +7127,7 @@ STDAPI_(BOOL) GetClassInfoExWrapW(HINSTANCE hinst, LPCWSTR pwzClass, LPWNDCLASSE
     wcx.cbSize = sizeof(wcx);
 
     fResult = GetClassInfoExA(hinst, strClassName, &wcx);
-    *(WNDCLASSEXA FAR *) lpwcx = wcx;
+    *(WNDCLASSEXA FAR*) lpwcx = wcx;
     lpwcx->lpszMenuName = NULL;        // GetClassInfoExA makes this point off to private data that they own.
     lpwcx->lpszClassName = pwzClass;
 
@@ -7143,7 +7143,7 @@ STDAPI_(BOOL) GetClassInfoExWrapW(HINSTANCE hinst, LPCWSTR pwzClass, LPWNDCLASSE
 
 
 int
-StartDocWrapW(HDC hDC, const DOCINFO * lpdi)
+StartDocWrapW(HDC hDC, const DOCINFO* lpdi)
 {
     VALIDATE_PROTOTYPE(StartDoc);
 
@@ -7257,7 +7257,7 @@ GetFileVersionInfoWrapW(LPWSTR pwzFilename, DWORD dwHandle, DWORD dwLen, LPVOID 
 #ifdef NEED_VERSION_WRAPPER
 
 STDAPI_(BOOL)
-VerQueryValueWrapW(const LPVOID pBlock, LPWSTR pwzSubBlock, LPVOID *ppBuffer, PUINT puLen)
+VerQueryValueWrapW(const LPVOID pBlock, LPWSTR pwzSubBlock, LPVOID* ppBuffer, PUINT puLen)
 {
     if (g_bRunningOnNT) {
         return VerQueryValueW(pBlock, pwzSubBlock, ppBuffer, puLen);
@@ -7302,8 +7302,8 @@ VerQueryValueWrapW(const LPVOID pBlock, LPWSTR pwzSubBlock, LPVOID *ppBuffer, PU
 #ifdef NEED_SHELL32_WRAPPER
 
 HRESULT WINAPI SHDefExtractIconWrapW(LPCWSTR pszFile, int nIconIndex,
-                                     UINT uFlags, HICON *phiconLarge,
-                                     HICON *phiconSmall, UINT nIconSize)
+                                     UINT uFlags, HICON* phiconLarge,
+                                     HICON* phiconSmall, UINT nIconSize)
 {
     VALIDATE_PROTOTYPE_DELAYLOAD(SHDefExtractIcon, _SHDefExtractIcon);
 
@@ -7325,7 +7325,7 @@ HRESULT WINAPI SHDefExtractIconWrapW(LPCWSTR pszFile, int nIconIndex,
 #endif // NEED_SHELL32_WRAPPER
 
 
-BOOL WINAPI SHGetNewLinkInfoWrapW(LPCWSTR pszpdlLinkTo, LPCWSTR pszDir, LPWSTR pszName, BOOL *pfMustCopy, UINT uFlags)
+BOOL WINAPI SHGetNewLinkInfoWrapW(LPCWSTR pszpdlLinkTo, LPCWSTR pszDir, LPWSTR pszName, BOOL* pfMustCopy, UINT uFlags)
 {
     VALIDATE_PROTOTYPE_DELAYLOAD(SHGetNewLinkInfo, _SHGetNewLinkInfo);
 
@@ -7776,7 +7776,7 @@ LWSTDAPI_(void) SHFlushSFCacheWrap(void)
                     // then, we need to work around the "missing critical section" bug
                     // that's been causing so many faults recently...
                     BOOL fTakeCriticalSection = (dllinfo.dwMajorVersion == 4);
-                    CRITICAL_SECTION * pcsShell = NULL;
+                    CRITICAL_SECTION* pcsShell = NULL;
 
                     if (fTakeCriticalSection) {
 #if 1
@@ -7784,7 +7784,7 @@ LWSTDAPI_(void) SHFlushSFCacheWrap(void)
                         // Turn the real code on when we get data.
                         return;
 #else
-                        IShellFolder *psf;
+                        IShellFolder* psf;
 
                         if (FAILED(SHGetDesktopFolder(&psf)))
                             return;

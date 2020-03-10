@@ -4,7 +4,6 @@
     Contains video APIs
 
     Copyright (c) Microsoft Corporation 1992. All rights reserved
-
 */
 
 #include <windows.h>
@@ -25,7 +24,6 @@
 #include <ver.h>
 #endif
 
-
 #include "debug.h"
 
 #ifndef DEVNODE
@@ -33,41 +31,39 @@ typedef    DWORD       DEVNODE;    // Devnode.
 #endif
 
 #ifndef LPHKEY
-typedef HKEY FAR * LPHKEY;
+typedef HKEY FAR* LPHKEY;
 #endif
 
 #if defined _WIN32 && !defined UNICODE
-HDRVR WINAPI OpenDriverA( LPCSTR szDriverName, LPCSTR szSectionName, LPARAM lParam2);
+HDRVR WINAPI OpenDriverA(LPCSTR szDriverName, LPCSTR szSectionName, LPARAM lParam2);
 #endif
-
 
 /*
  * Variables
-
 */
 
 #ifdef WIN16 // All of this is currently only used in 16 bit land
 
-SZCODE  szVideo[]           = TEXT("msvideo");
+SZCODE  szVideo[] = TEXT("msvideo");
 
 #ifndef UNICODE
 // Registry settings of interest to capture drivers
-SZCODE  szRegKey[]          = TEXT("SYSTEM\\CurrentControlSet\\Control\\MediaResources\\msvideo");
-SZCODE  szRegActive[]       = TEXT("Active");
-SZCODE  szRegDisabled[]     = TEXT("Disabled");
-SZCODE  szRegDescription[]  = TEXT("Description");
-SZCODE  szRegDevNode[]      = TEXT("DevNode");
-SZCODE  szRegDriver[]       = TEXT("Driver");
-SZCODE  szRegSoftwareKey[]  = TEXT("SOFTWAREKEY");
+SZCODE  szRegKey[] = TEXT("SYSTEM\\CurrentControlSet\\Control\\MediaResources\\msvideo");
+SZCODE  szRegActive[] = TEXT("Active");
+SZCODE  szRegDisabled[] = TEXT("Disabled");
+SZCODE  szRegDescription[] = TEXT("Description");
+SZCODE  szRegDevNode[] = TEXT("DevNode");
+SZCODE  szRegDriver[] = TEXT("Driver");
+SZCODE  szRegSoftwareKey[] = TEXT("SOFTWAREKEY");
 #endif
 
 #ifndef _WIN32
-SZCODE  szDrivers[]     = "Drivers";
+SZCODE  szDrivers[] = "Drivers";
 #else
-STATICDT SZCODE  szDrivers[]     = DRIVERS_SECTION;
+STATICDT SZCODE  szDrivers[] = DRIVERS_SECTION;
 #endif
 
-STATICDT SZCODE  szSystemIni[]   = TEXT("system.ini");
+STATICDT SZCODE  szSystemIni[] = TEXT("system.ini");
 
 static SZCODE    szNull[] = TEXT("");
 
@@ -93,25 +89,18 @@ LPCAPDRIVERINFO aCapDriverList[MAXVIDEODRIVERS]; // Array of all capture drivers
 
  * @rdesc Returns Key on success, else NULL.
 */
-HKEY videoRegOpenMSVideoKey (void)
+HKEY videoRegOpenMSVideoKey(void)
 {
     HKEY hKey = NULL;
 
     // Get the key if it already exists
-    if (RegOpenKey (
-                HKEY_LOCAL_MACHINE,
-                szRegKey,
-                &hKey) != ERROR_SUCCESS) {
-
+    if (RegOpenKey(HKEY_LOCAL_MACHINE, szRegKey, &hKey) != ERROR_SUCCESS) {
         // Otherwise make a new key
-        if (RegCreateKey (
-                        HKEY_LOCAL_MACHINE,
-                        szRegKey,
-                        &hKey) == ERROR_SUCCESS) {
+        if (RegCreateKey(HKEY_LOCAL_MACHINE, szRegKey, &hKey) == ERROR_SUCCESS) {
             // Add the default entries to the msvideo node?
-
         }
     }
+
     return hKey;
 }
 
@@ -140,56 +129,46 @@ HKEY videoRegOpenMSVideoKey (void)
  *       file can be non-contiguous, applications should not assume
  *       the indexes range between zero and the number of devices minus
  *       one.
-
 */
-
-
-BOOL videoRegGetKeyByIndex (
-        HKEY            hKeyMSVideoRoot,
-        DWORD           dwDeviceID,
-        LPCAPDRIVERINFO lpCapDriverInfo,
-        LPHKEY          phKeyChild)
+BOOL videoRegGetKeyByIndex(
+    HKEY            hKeyMSVideoRoot,
+    DWORD           dwDeviceID,
+    LPCAPDRIVERINFO lpCapDriverInfo,
+    LPHKEY          phKeyChild)
 {
     BOOL fOK = FALSE;
     HKEY hKeyEnum;
     int i;
 
-    *phKeyChild = (HKEY) 0;
+    *phKeyChild = (HKEY)0;
 
-    for (i=0; i < MAXVIDEODRIVERS; i++) {
-
-        if (RegEnumKey (
-                hKeyMSVideoRoot,
-                i,
-                lpCapDriverInfo-> szKeyEnumName,
-                sizeof(lpCapDriverInfo->szKeyEnumName)/sizeof(TCHAR)) != ERROR_SUCCESS)
+    for (i = 0; i < MAXVIDEODRIVERS; i++) {
+        if (RegEnumKey(
+            hKeyMSVideoRoot,
+            i,
+            lpCapDriverInfo->szKeyEnumName,
+            sizeof(lpCapDriverInfo->szKeyEnumName) / sizeof(TCHAR)) != ERROR_SUCCESS)
             break;
 
         // Found a subkey, does it match the requested index?
-        if (i == (int) dwDeviceID) {
-
-            if (RegOpenKey (
-                        hKeyMSVideoRoot,
-                        lpCapDriverInfo-> szKeyEnumName,
-                        &hKeyEnum) == ERROR_SUCCESS) {
-
+        if (i == (int)dwDeviceID) {
+            if (RegOpenKey(hKeyMSVideoRoot, lpCapDriverInfo->szKeyEnumName, &hKeyEnum) == ERROR_SUCCESS) {
                 *phKeyChild = hKeyEnum;  // Found it!!!
                 fOK = TRUE;
-
             }
             break;
         }
     } // endof all driver indices
+
     return fOK;
 }
 
 // Fetches driver info listed in the registry.
 // Returns: TRUE if the index was valid, FALSE if no driver at that index
 // Note: Registry entry ordering is random.
-
-BOOL videoRegGetDriverByIndex (
-        DWORD           dwDeviceID,
-        LPCAPDRIVERINFO lpCapDriverInfo)
+BOOL videoRegGetDriverByIndex(
+    DWORD           dwDeviceID,
+    LPCAPDRIVERINFO lpCapDriverInfo)
 {
     DWORD dwType;
     DWORD dwSize;
@@ -198,12 +177,12 @@ BOOL videoRegGetDriverByIndex (
     HKEY hKeyMSVideoRoot;
 
     // Always start clean since the entry may be recycled
-    _fmemset (lpCapDriverInfo, 0, sizeof (CAPDRIVERINFO));
+    _fmemset(lpCapDriverInfo, 0, sizeof(CAPDRIVERINFO));
 
     if (!(hKeyMSVideoRoot = videoRegOpenMSVideoKey()))
         return FALSE;
 
-    if (fOK = videoRegGetKeyByIndex (hKeyMSVideoRoot, dwDeviceID, lpCapDriverInfo, &hKeyChild)) {
+    if (fOK = videoRegGetKeyByIndex(hKeyMSVideoRoot, dwDeviceID, lpCapDriverInfo, &hKeyChild)) {
         // Fetch the values:
         //      Active
         //      Disabled
@@ -214,68 +193,68 @@ BOOL videoRegGetDriverByIndex (
 
         dwSize = sizeof(BOOL);          // Active
         RegQueryValueEx(
-                   hKeyChild,
-                   szRegActive,
-                   NULL,
-                   &dwType,
-                   (LPBYTE) &lpCapDriverInfo->fActive,
-                   &dwSize);
+            hKeyChild,
+            szRegActive,
+            NULL,
+            &dwType,
+            (LPBYTE)&lpCapDriverInfo->fActive,
+            &dwSize);
 
         dwSize = sizeof(BOOL);          // Enabled
         RegQueryValueEx(
-                   hKeyChild,
-                   szRegDisabled,
-                   NULL,
-                   &dwType,
-                   (LPBYTE) &lpCapDriverInfo->fDisabled,
-                   &dwSize);
+            hKeyChild,
+            szRegDisabled,
+            NULL,
+            &dwType,
+            (LPBYTE)&lpCapDriverInfo->fDisabled,
+            &dwSize);
         // Convert this silly thing to a bool
         lpCapDriverInfo->fDisabled = (lpCapDriverInfo->fDisabled == '1');
 
         // DriverDescription
-        dwSize = sizeof (lpCapDriverInfo->szDriverDescription) / sizeof (TCHAR);
+        dwSize = sizeof(lpCapDriverInfo->szDriverDescription) / sizeof(TCHAR);
         RegQueryValueEx(
-                   hKeyChild,
-                   szRegDescription,
-                   NULL,
-                   &dwType,
-                   (LPBYTE) lpCapDriverInfo->szDriverDescription,
-                   &dwSize);
+            hKeyChild,
+            szRegDescription,
+            NULL,
+            &dwType,
+            (LPBYTE)lpCapDriverInfo->szDriverDescription,
+            &dwSize);
 
         // DEVNODE
         dwSize = sizeof(DEVNODE);
         RegQueryValueEx(
-                   hKeyChild,
-                   szRegDevNode,
-                   NULL,
-                   &dwType,
-                   (LPBYTE) &lpCapDriverInfo->dnDevNode,
-                   &dwSize);
+            hKeyChild,
+            szRegDevNode,
+            NULL,
+            &dwType,
+            (LPBYTE)&lpCapDriverInfo->dnDevNode,
+            &dwSize);
 
         // DriverName
-        dwSize = sizeof (lpCapDriverInfo->szDriverName) / sizeof (TCHAR);
+        dwSize = sizeof(lpCapDriverInfo->szDriverName) / sizeof(TCHAR);
         RegQueryValueEx(
-                   hKeyChild,
-                   szRegDriver,
-                   NULL,
-                   &dwType,
-                   (LPBYTE) lpCapDriverInfo->szDriverName,
-                   &dwSize);
+            hKeyChild,
+            szRegDriver,
+            NULL,
+            &dwType,
+            (LPBYTE)lpCapDriverInfo->szDriverName,
+            &dwSize);
 
         // SoftwareKey
-        dwSize = sizeof (lpCapDriverInfo->szSoftwareKey) / sizeof (TCHAR);
+        dwSize = sizeof(lpCapDriverInfo->szSoftwareKey) / sizeof(TCHAR);
         RegQueryValueEx(
-                   hKeyChild,
-                   szRegSoftwareKey,
-                   NULL,
-                   &dwType,
-                   (LPBYTE) lpCapDriverInfo->szSoftwareKey,
-                   &dwSize);
+            hKeyChild,
+            szRegSoftwareKey,
+            NULL,
+            &dwType,
+            (LPBYTE)lpCapDriverInfo->szSoftwareKey,
+            &dwSize);
 
-        RegCloseKey (hKeyChild);
+        RegCloseKey(hKeyChild);
     } // if the subkey could be opened
 
-    RegCloseKey (hKeyMSVideoRoot);
+    RegCloseKey(hKeyMSVideoRoot);
 
     return fOK;
 }
@@ -283,45 +262,46 @@ BOOL videoRegGetDriverByIndex (
 // Fetches driver info listed in system.ini
 // Returns: TRUE if the index was valid, FALSE if no driver at that index
 
-BOOL videoIniGetDriverByIndex (
-        DWORD           dwDeviceID,
-        LPCAPDRIVERINFO lpCapDriverInfo)
+BOOL videoIniGetDriverByIndex(
+    DWORD           dwDeviceID,
+    LPCAPDRIVERINFO lpCapDriverInfo)
 {
-    TCHAR szKey[sizeof(szVideo)/sizeof(TCHAR) + 2];
-    int w = (int) dwDeviceID;
+    TCHAR szKey[sizeof(szVideo) / sizeof(TCHAR) + 2];
+    int w = (int)dwDeviceID;
     BOOL fOK = FALSE;
 
     // Always start clean since the entry may be recycled
-    _fmemset (lpCapDriverInfo, 0, sizeof (CAPDRIVERINFO));
+    _fmemset(lpCapDriverInfo, 0, sizeof(CAPDRIVERINFO));
 
     lstrcpy(szKey, szVideo);
-    szKey[(sizeof(szVideo)/sizeof(TCHAR)) - 1] = (TCHAR)0;
-    if( w > 0 ) {
-        szKey[(sizeof(szVideo)/sizeof(TCHAR))] = (TCHAR)0;
-        szKey[(sizeof(szVideo)/sizeof(TCHAR))-1] = (TCHAR) TEXT('1' + (w-1) );  // driver ordinal
+    szKey[(sizeof(szVideo) / sizeof(TCHAR)) - 1] = (TCHAR)0;
+    if (w > 0) {
+        szKey[(sizeof(szVideo) / sizeof(TCHAR))] = (TCHAR)0;
+        szKey[(sizeof(szVideo) / sizeof(TCHAR)) - 1] = (TCHAR)TEXT('1' + (w - 1));  // driver ordinal
     }
-    if (GetPrivateProfileString(szDrivers, szKey, szNull, lpCapDriverInfo->szDriverName, sizeof(lpCapDriverInfo->szDriverName)/sizeof(TCHAR), szSystemIni)) {
+    if (GetPrivateProfileString(szDrivers,
+                                szKey,
+                                szNull,
+                                lpCapDriverInfo->szDriverName,
+                                sizeof(lpCapDriverInfo->szDriverName) / sizeof(TCHAR),
+                                szSystemIni)) {
         // Found an entry at the requested index
-        // The description and version info will be inserted as
-        // requested by the client app.
-
-        lpCapDriverInfo-> fOnlySystemIni = TRUE;
-
+        // The description and version info will be inserted as requested by the client app.
+        lpCapDriverInfo->fOnlySystemIni = TRUE;
         fOK = TRUE;
     }
 
     return fOK;
 }
 
-DWORD videoFreeDriverList (void)
-
+DWORD videoFreeDriverList(void)
 {
     int i;
 
     // Free the driver list
     for (i = 0; i < MAXVIDEODRIVERS; i++) {
         if (aCapDriverList[i])
-            GlobalFreePtr (aCapDriverList[i]);
+            GlobalFreePtr(aCapDriverList[i]);
         aCapDriverList[i] = NULL;
     }
 
@@ -344,36 +324,29 @@ DWORD videoFreeDriverList (void)
 
 // Returns DV_ERR_OK on success, even if no drivers are installed.
 
-DWORD videoCreateDriverList (void)
-
+DWORD videoCreateDriverList(void)
 {
     int i, j, k;
 
     wTotalVideoDevs = 0;
 
     // Delete the existing list
-    videoFreeDriverList ();
+    videoFreeDriverList();
 
     // Allocate an array of pointers to all possible capture drivers
     for (i = 0; i < MAXVIDEODRIVERS; i++) {
-        aCapDriverList[i] = (LPCAPDRIVERINFO) GlobalAllocPtr (
-                GMEM_MOVEABLE |
-                GMEM_SHARE |
-                GMEM_ZEROINIT,
-                sizeof (CAPDRIVERINFO));
+        aCapDriverList[i] = (LPCAPDRIVERINFO)GlobalAllocPtr(
+            GMEM_MOVEABLE | GMEM_SHARE | GMEM_ZEROINIT,
+            sizeof(CAPDRIVERINFO));
         if (aCapDriverList[i] == NULL)
             return DV_ERR_NOMEM;
     }
 
     // Walk the list of Registry drivers and get each entry
     for (i = 0; i < MAXVIDEODRIVERS; i++) {
-        if (videoRegGetDriverByIndex (
-                    (DWORD) i, aCapDriverList[wTotalVideoDevs])) {
-
+        if (videoRegGetDriverByIndex((DWORD)i, aCapDriverList[wTotalVideoDevs])) {
             wTotalVideoDevs++;
-
-        }
-        else
+        } else
             break;
     }
 
@@ -383,18 +356,13 @@ DWORD videoCreateDriverList (void)
     // Now add the entries listed in system.ini, (msvideo[0-9] = driver.drv)
     // to the driver array, ONLY if the entry doesn't exactly match
     // an existing registry entry.
-
     for (j = 0; j < MAXVIDEODRIVERS; j++) {
-        if (videoIniGetDriverByIndex ((DWORD) j,
-                        aCapDriverList[wTotalVideoDevs])) {
-
+        if (videoIniGetDriverByIndex((DWORD)j, aCapDriverList[wTotalVideoDevs])) {
             // Found an entry, now see if it is a duplicate of an existing
             // registry entry
-
-            for (k = 0; k < (int) wTotalVideoDevs; k++) {
-
-                if (lstrcmpi (aCapDriverList[k]->szDriverName,
-                    aCapDriverList[wTotalVideoDevs]->szDriverName) == 0) {
+            for (k = 0; k < (int)wTotalVideoDevs; k++) {
+                if (lstrcmpi(aCapDriverList[k]->szDriverName,
+                             aCapDriverList[wTotalVideoDevs]->szDriverName) == 0) {
 
                     // Found an exact match, so skip it!
                     goto SkipThisEntry;
@@ -406,7 +374,7 @@ DWORD videoCreateDriverList (void)
 
             wTotalVideoDevs++;
 
-SkipThisEntry:
+        SkipThisEntry:
             ;
         } // If sytem.ini entry was found
     } // For all system.ini possibilities
@@ -416,10 +384,8 @@ AllDone:
     // Decrement wTotalVideoDevs for any entries which are marked as disabled
     // And remove disabled entries from the list
     for (i = 0; i < MAXVIDEODRIVERS; ) {
-
         if (aCapDriverList[i] && aCapDriverList[i]->fDisabled) {
-
-            GlobalFreePtr (aCapDriverList[i]);
+            GlobalFreePtr(aCapDriverList[i]);
 
             // Shift down the remaining drivers
             for (j = i; j < MAXVIDEODRIVERS - 1; j++) {
@@ -428,22 +394,21 @@ AllDone:
             aCapDriverList[MAXVIDEODRIVERS - 1] = NULL;
 
             wTotalVideoDevs--;
-        }
-        else
+        } else
             i++;
     }
 
     // Free the unused pointers
     for (i = wTotalVideoDevs; i < MAXVIDEODRIVERS; i++) {
         if (aCapDriverList[i])
-            GlobalFreePtr (aCapDriverList[i]);
+            GlobalFreePtr(aCapDriverList[i]);
         aCapDriverList[i] = NULL;
     }
 
     // Put PnP drivers first in the list
     // These are the only entries that have a DevNode
-    for (k = i = 0; i < (int) wTotalVideoDevs; i++) {
-        if (aCapDriverList[i]-> dnDevNode) {
+    for (k = i = 0; i < (int)wTotalVideoDevs; i++) {
+        if (aCapDriverList[i]->dnDevNode) {
             LPCAPDRIVERINFO lpCDTemp;
 
             if (k != i) {
@@ -483,8 +448,7 @@ typedef struct tagLANGANDCP
 // Returns DV_ERR_OK on success, even if no version info was available.
 
 
-DWORD WINAPI videoGetDriverDescAndVer (
-        LPCAPDRIVERINFO lpCapDriverInfo)
+DWORD WINAPI videoGetDriverDescAndVer(LPCAPDRIVERINFO lpCapDriverInfo)
 {
     LPSTR   lpVersion;
     WORD    wVersionLen;
@@ -502,74 +466,73 @@ DWORD WINAPI videoGetDriverDescAndVer (
     if (fGetDesc)
         lpCapDriverInfo->szDriverDescription[0] = '\0';
     if (fGetVersion)
-        lpCapDriverInfo->szDriverVersion [0] = '\0';
+        lpCapDriverInfo->szDriverVersion[0] = '\0';
 
     // Copy in the driver name initially, just in case the driver
     // has omitted a description field.
     if (fGetDesc)
-        lstrcpyn (lpCapDriverInfo->szDriverDescription,
-                lpCapDriverInfo->szDriverName,
-                sizeof (lpCapDriverInfo->szDriverDescription) / sizeof (TCHAR));
+        lstrcpyn(lpCapDriverInfo->szDriverDescription,
+                 lpCapDriverInfo->szDriverName,
+                 sizeof(lpCapDriverInfo->szDriverDescription) / sizeof(TCHAR));
 
     // You must find the size first before getting any file info
-    dwVerInfoSize =
-        GetFileVersionInfoSize(lpCapDriverInfo->szDriverName, &dwVerHnd);
+    dwVerInfoSize = GetFileVersionInfoSize(lpCapDriverInfo->szDriverName, &dwVerHnd);
 
     if (dwVerInfoSize) {
         LPSTR   lpstrVffInfo;             // Pointer to block to hold info
 
         // Get a block big enough to hold version info
-        if (lpstrVffInfo  = GlobalAllocPtr(GMEM_MOVEABLE, dwVerInfoSize)) {
+        if (lpstrVffInfo = GlobalAllocPtr(GMEM_MOVEABLE, dwVerInfoSize)) {
 
-           // Get the File Version first
-           if(GetFileVersionInfo(lpCapDriverInfo->szDriverName, 0L,
-                           dwVerInfoSize, lpstrVffInfo)) {
-           VS_VERSION FAR *pVerInfo = (VS_VERSION FAR *) lpstrVffInfo;
+            // Get the File Version first
+            if (GetFileVersionInfo(lpCapDriverInfo->szDriverName, 0L, dwVerInfoSize, lpstrVffInfo)) {
+                VS_VERSION FAR* pVerInfo = (VS_VERSION FAR*) lpstrVffInfo;
 
-           // fill in the file version
-           wsprintf(szBuf,
-                   "Version:  %d.%d.%d.%d",
-                   HIWORD(pVerInfo->vffInfo.dwFileVersionMS),
-                   LOWORD(pVerInfo->vffInfo.dwFileVersionMS),
-                   HIWORD(pVerInfo->vffInfo.dwFileVersionLS),
-                   LOWORD(pVerInfo->vffInfo.dwFileVersionLS));
-           if (fGetVersion)
-                   lstrcpyn (lpCapDriverInfo->szDriverVersion, szBuf,
-                           sizeof (lpCapDriverInfo->szDriverVersion) / sizeof(TCHAR));
-           }
+                // fill in the file version
+                wsprintf(szBuf,
+                         "Version:  %d.%d.%d.%d",
+                         HIWORD(pVerInfo->vffInfo.dwFileVersionMS),
+                         LOWORD(pVerInfo->vffInfo.dwFileVersionMS),
+                         HIWORD(pVerInfo->vffInfo.dwFileVersionLS),
+                         LOWORD(pVerInfo->vffInfo.dwFileVersionLS));
+                if (fGetVersion)
+                    lstrcpyn(lpCapDriverInfo->szDriverVersion, szBuf,
+                             sizeof(lpCapDriverInfo->szDriverVersion) / sizeof(TCHAR));
+            }
 
-           // Now try to get the FileDescription
-           // First try this for the "Translation" entry, and then
-           // try the American english translation.
-           // Keep track of the string length for easy updating.
-           // 040904E4 represents the language ID and the four
-           // least significant digits represent the codepage for
-           // which the data is formatted.  The language ID is
-           // composed of two parts: the low ten bits represent
-           // the major language and the high six bits represent
-           // the sub language.
+            // Now try to get the FileDescription
+            // First try this for the "Translation" entry, and then
+            // try the American english translation.
+            // Keep track of the string length for easy updating.
+            // 040904E4 represents the language ID and the four
+            // least significant digits represent the codepage for
+            // which the data is formatted.  The language ID is
+            // composed of two parts: the low ten bits represent
+            // the major language and the high six bits represent
+            // the sub language.
 
-           lstrcpy(szBuf, "\\StringFileInfo\\040904E4\\FileDescription");
+            lstrcpy(szBuf, "\\StringFileInfo\\040904E4\\FileDescription");
 
-           wVersionLen   = 0;
-           lpVersion     = NULL;
+            wVersionLen = 0;
+            lpVersion = NULL;
 
-           // Look for the corresponding string.
-           bRetCode      =  VerQueryValue((LPVOID)lpstrVffInfo,
-                           (LPSTR)szBuf,
-                           (void FAR* FAR*)&lpVersion,
-                           (UINT FAR *) &wVersionLen);
+            // Look for the corresponding string.
+            bRetCode = VerQueryValue(
+                (LPVOID)lpstrVffInfo,
+                (LPSTR)szBuf,
+                (void FAR * FAR*) & lpVersion,
+                (UINT FAR*) & wVersionLen);
 
-           if (fGetDesc && bRetCode && wVersionLen && lpVersion)
-                lstrcpyn (lpCapDriverInfo->szDriverDescription, lpVersion,
-                   sizeof (lpCapDriverInfo->szDriverDescription) / sizeof(TCHAR));
+            if (fGetDesc && bRetCode && wVersionLen && lpVersion)
+                lstrcpyn(lpCapDriverInfo->szDriverDescription, lpVersion,
+                         sizeof(lpCapDriverInfo->szDriverDescription) / sizeof(TCHAR));
 
-           // Let go of the memory
-           GlobalFreePtr(lpstrVffInfo);
-        }
-        else
+            // Let go of the memory
+            GlobalFreePtr(lpstrVffInfo);
+        } else
             return DV_ERR_NOMEM;
     }
+
     return DV_ERR_OK;
 }
 
@@ -579,41 +542,40 @@ DWORD WINAPI videoGetDriverDescAndVer (
 //      DV_ERR_OK on success
 //      DV_ERR_BADINSTALL if the driver at the specified index is not found
 
-DWORD WINAPI videoCapDriverDescAndVer (
-        DWORD dwDeviceID,
-        LPTSTR lpszDesc, UINT cbDesc,
-        LPTSTR lpszVer, UINT cbVer)
+DWORD WINAPI videoCapDriverDescAndVer(
+    DWORD dwDeviceID,
+    LPTSTR lpszDesc, UINT cbDesc,
+    LPTSTR lpszVer, UINT cbVer)
 {
     DWORD dwR = DV_ERR_OK;
 
-    if (lpszDesc && IsBadWritePtr (lpszDesc, cbDesc))
+    if (lpszDesc && IsBadWritePtr(lpszDesc, cbDesc))
         return DV_ERR_NONSPECIFIC;
     else if (lpszDesc)
         *lpszDesc = '\0';
-    if (lpszVer && IsBadWritePtr (lpszVer, cbVer))
+    if (lpszVer && IsBadWritePtr(lpszVer, cbVer))
         return DV_ERR_NONSPECIFIC;
     else if (lpszVer)
         *lpszVer = '\0';
 
     if (!wTotalVideoDevs)
-        dwR = videoCreateDriverList ();
+        dwR = videoCreateDriverList();
 
     if (dwR != DV_ERR_OK)
         return dwR;
 
-    if ((WORD) dwDeviceID >= wTotalVideoDevs)
+    if ((WORD)dwDeviceID >= wTotalVideoDevs)
         return DV_ERR_BADDEVICEID;
 
-    dwR = videoGetDriverDescAndVer (aCapDriverList[(int)dwDeviceID]);
-
+    dwR = videoGetDriverDescAndVer(aCapDriverList[(int)dwDeviceID]);
     if (dwR == DV_ERR_OK) {
-       if (lpszDesc)
-           lstrcpyn (lpszDesc, aCapDriverList[(int)dwDeviceID]->szDriverDescription, cbDesc);
+        if (lpszDesc)
+            lstrcpyn(lpszDesc, aCapDriverList[(int)dwDeviceID]->szDriverDescription, cbDesc);
 
-       if (lpszVer)
-           lstrcpyn (lpszVer, aCapDriverList[(int)dwDeviceID]->szDriverVersion, cbVer);
-
+        if (lpszVer)
+            lstrcpyn(lpszVer, aCapDriverList[(int)dwDeviceID]->szDriverVersion, cbVer);
     }
+
     return (dwR);
 }
 
@@ -646,7 +608,7 @@ DWORD WINAPI videoMessage(HVIDEO hVideo, UINT msg, DWORD dwP1, DWORD dwP2)
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    return SendDriverMessage ((HDRVR)hVideo, msg, dwP1, dwP2);
+    return SendDriverMessage((HDRVR)hVideo, msg, dwP1, dwP2);
 }
 
 /*
@@ -671,7 +633,7 @@ DWORD WINAPI videoGetNumDevs(void)
     if (wTotalVideoDevs)
         return (DWORD)wTotalVideoDevs;
 
-    videoCreateDriverList ();
+    videoCreateDriverList();
 
     return (DWORD)wTotalVideoDevs;
 }
@@ -709,12 +671,11 @@ DWORD WINAPI videoGetNumDevs(void)
 
 // for WIN32 this is the ansi entry point
 
-DWORD WINAPI videoGetErrorTextA (HVIDEO hVideo,
-    UINT wError, LPSTR lpText, UINT wSize)
+DWORD WINAPI videoGetErrorTextA(HVIDEO hVideo, UINT wError, LPSTR lpText, UINT wSize)
 {
     VIDEO_GETERRORTEXT_PARMS vet;
 
-    if (IsBadWritePtr (lpText, wSize))
+    if (IsBadWritePtr(lpText, wSize))
         return DV_ERR_PARAM1;
 
     lpText[0] = 0;
@@ -724,28 +685,25 @@ DWORD WINAPI videoGetErrorTextA (HVIDEO hVideo,
                 return DV_ERR_BADERRNUM;
             else
                 return DV_ERR_OK;
-        }
-        else
+        } else
             return DV_ERR_SIZEFIELD;
-    }
-    else if (wError >= DV_ERR_USER_MSG && hVideo) {
+    } else if (wError >= DV_ERR_USER_MSG && hVideo) {
         DWORD dwResult;
-        LPWSTR lpwstr = LocalAlloc(LPTR, wSize*sizeof(WCHAR));
+        LPWSTR lpwstr = LocalAlloc(LPTR, wSize * sizeof(WCHAR));
         if (NULL == lpwstr) {
             return(DV_ERR_NOMEM);
         }
-        vet.dwError = (DWORD) wError;
+        vet.dwError = (DWORD)wError;
         vet.lpText = lpwstr;
-        vet.dwLength = (DWORD) wSize;
-        dwResult = videoMessage (hVideo, DVM_GETERRORTEXT, (DWORD) (LPVOID) &vet,
-                        (DWORD) NULL);
+        vet.dwLength = (DWORD)wSize;
+        dwResult = videoMessage(hVideo, DVM_GETERRORTEXT, (DWORD)(LPVOID)&vet,
+            (DWORD)NULL);
         if (DV_ERR_OK == dwResult) {
             wcstombs(lpText, lpwstr, wSize);
         }
         LocalFree(lpwstr);
         return(dwResult);
-    }
-    else
+    } else
         return DV_ERR_BADERRNUM;
 }
 #endif
@@ -754,11 +712,9 @@ DWORD WINAPI videoGetErrorTextA (HVIDEO hVideo,
 // The unicode/Win16 equivalent of the above
 
 #ifdef _WIN32
-DWORD WINAPI videoGetErrorTextW (HVIDEO hVideo, UINT wError,
-                        LPWSTR lpText, UINT wSize)
+DWORD WINAPI videoGetErrorTextW(HVIDEO hVideo, UINT wError, LPWSTR lpText, UINT wSize)
 #else
-DWORD WINAPI videoGetErrorText (HVIDEO hVideo, UINT wError,
-                        LPSTR lpText, UINT wSize)
+DWORD WINAPI videoGetErrorText(HVIDEO hVideo, UINT wError, LPSTR lpText, UINT wSize)
 #endif
 {
     VIDEO_GETERRORTEXT_PARMS vet;
@@ -766,37 +722,34 @@ DWORD WINAPI videoGetErrorText (HVIDEO hVideo, UINT wError,
 
     if (((wError > DV_ERR_BASE) && (wError <= DV_ERR_LASTERROR))) {
         if (wSize > 1) {
-           #ifdef _WIN32
-            LPSTR lpsz = LocalAlloc (LPTR, wSize);
+#ifdef _WIN32
+            LPSTR lpsz = LocalAlloc(LPTR, wSize);
             UINT  cch;
 
             if (!lpsz)
                 return DV_ERR_NOMEM;
-            cch = LoadString (ghInst, wError, lpsz, wSize);
+            cch = LoadString(ghInst, wError, lpsz, wSize);
 
             lpsz[cch] = 0;
-            mbstowcs (lpText, lpsz, cch+1);
-            LocalFree (lpsz);
+            mbstowcs(lpText, lpsz, cch + 1);
+            LocalFree(lpsz);
 
             if (!cch)
-           #else
+#else
             if (!LoadString(ghInst, wError, lpText, wSize))
-           #endif
+#endif
                 return DV_ERR_BADERRNUM;
             else
                 return DV_ERR_OK;
-        }
-        else
+        } else
             return DV_ERR_SIZEFIELD;
-    }
-    else if (wError >= DV_ERR_USER_MSG && hVideo) {
-        vet.dwError = (DWORD) wError;
+    } else if (wError >= DV_ERR_USER_MSG && hVideo) {
+        vet.dwError = (DWORD)wError;
         vet.lpText = lpText;
         vet.dwLength = wSize;
-        return videoMessage (hVideo, DVM_GETERRORTEXT, (DWORD) (LPVOID) &vet,
-                             (DWORD) NULL);
-    }
-    else
+        return videoMessage(hVideo, DVM_GETERRORTEXT, (DWORD)(LPVOID)&vet,
+            (DWORD)NULL);
+    } else
         return DV_ERR_BADERRNUM;
 }
 
@@ -825,13 +778,12 @@ DWORD WINAPI videoGetErrorText (HVIDEO hVideo, UINT wError,
  *   include whether or not the channel can crop and scale images,
  *   or show overlay.
 */
-DWORD WINAPI videoGetChannelCaps(HVIDEO hVideo, LPCHANNEL_CAPS lpChannelCaps,
-            DWORD dwSize)
+DWORD WINAPI videoGetChannelCaps(HVIDEO hVideo, LPCHANNEL_CAPS lpChannelCaps, DWORD dwSize)
 {
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    if (IsBadWritePtr (lpChannelCaps, sizeof (CHANNEL_CAPS)))
+    if (IsBadWritePtr(lpChannelCaps, sizeof(CHANNEL_CAPS)))
         return DV_ERR_PARAM1;
 
     // _fmemset (lpChannelCaps, 0, sizeof (CHANNEL_CAPS));
@@ -846,8 +798,7 @@ DWORD WINAPI videoGetChannelCaps(HVIDEO hVideo, LPCHANNEL_CAPS lpChannelCaps,
     lpChannelCaps->dwDstRectWidthMod = 0;
     lpChannelCaps->dwDstRectHeightMod = 0;
 
-    return videoMessage(hVideo, DVM_GET_CHANNEL_CAPS, (DWORD) lpChannelCaps,
-        (DWORD) dwSize);
+    return videoMessage(hVideo, DVM_GET_CHANNEL_CAPS, (DWORD)lpChannelCaps, (DWORD)dwSize);
 }
 
 
@@ -873,12 +824,12 @@ DWORD WINAPI videoGetChannelCaps(HVIDEO hVideo, LPCHANNEL_CAPS lpChannelCaps,
  *   whenever the client window receives a <m WM_MOVE>, <m WM_SIZE>,
  *   or <m WM_PAINT> message.
 */
-DWORD WINAPI videoUpdate (HVIDEO hVideo, HWND hWnd, HDC hDC)
+DWORD WINAPI videoUpdate(HVIDEO hVideo, HWND hWnd, HDC hDC)
 {
-    if ((!hVideo) || (!hWnd) || (!hDC) )
+    if ((!hVideo) || (!hWnd) || (!hDC))
         return DV_ERR_INVALHANDLE;
 
-    return videoMessage(hVideo, DVM_UPDATE, (DWORD) hWnd, (DWORD) hDC);
+    return videoMessage(hVideo, DVM_UPDATE, (DWORD)hWnd, (DWORD)hDC);
 }
 
 /*
@@ -932,23 +883,23 @@ DWORD WINAPI videoUpdate (HVIDEO hVideo, HWND hWnd, HDC hDC)
 
  * @xref <f videoClose>
 */
-DWORD WINAPI videoOpen (LPHVIDEO lphVideo, DWORD dwDeviceID, DWORD dwFlags)
+DWORD WINAPI videoOpen(LPHVIDEO lphVideo, DWORD dwDeviceID, DWORD dwFlags)
 {
     UINT w;
     VIDEO_OPEN_PARMS vop;       // Same as IC_OPEN struct!!!
     DWORD dwVersion = VIDEOAPIVERSION;
 
-    if (IsBadWritePtr ((LPVOID) lphVideo, sizeof (HVIDEO)) )
+    if (IsBadWritePtr((LPVOID)lphVideo, sizeof(HVIDEO)))
         return DV_ERR_PARAM1;
 
-    vop.dwSize = sizeof (VIDEO_OPEN_PARMS);
+    vop.dwSize = sizeof(VIDEO_OPEN_PARMS);
     vop.fccType = OPEN_TYPE_VCAP;       // "vcap"
     vop.fccComp = 0L;
     vop.dwVersion = VIDEOAPIVERSION;
     vop.dwFlags = dwFlags;      // In, Out, External In, External Out
     vop.dwError = DV_ERR_OK;
 
-    w = (UINT) dwDeviceID;
+    w = (UINT)dwDeviceID;
     *lphVideo = NULL;
 
     if (!wTotalVideoDevs)   // trying to open without finding how many devs.
@@ -964,35 +915,31 @@ DWORD WINAPI videoOpen (LPHVIDEO lphVideo, DWORD dwDeviceID, DWORD dwFlags)
     vop.dnDevNode = aCapDriverList[w]->dnDevNode;
 
 #ifdef UNICODE
-    *lphVideo = (HVIDEO) OpenDriver(aCapDriverList[w]->szDriverName,
-                        NULL, (LPARAM) (LPVOID) &vop);
+    * lphVideo = (HVIDEO)OpenDriver(aCapDriverList[w]->szDriverName, NULL, (LPARAM)(LPVOID)&vop);
 #else
 
 #if defined _WIN32
-    *lphVideo = (HVIDEO) OpenDriverA(aCapDriverList[w]->szDriverName,
-                        NULL, (LPARAM) (LPVOID) &vop);
+    * lphVideo = (HVIDEO)OpenDriverA(aCapDriverList[w]->szDriverName, NULL, (LPARAM)(LPVOID)&vop);
 #else
-    *lphVideo = (HVIDEO) OpenDriver(aCapDriverList[w]->szDriverName,
-                        NULL, (LPARAM) (LPVOID) &vop);
+    * lphVideo = (HVIDEO)OpenDriver(aCapDriverList[w]->szDriverName, NULL, (LPARAM)(LPVOID)&vop);
 #endif
 #endif
 
-
-    if( ! *lphVideo ) {
+    if (!*lphVideo) {
         if (vop.dwError)    // if driver returned an error code...
             return vop.dwError;
         else {
 #ifdef _WIN32
-            if (GetFileAttributes(aCapDriverList[w]->szDriverName) == (DWORD) -1)
+            if (GetFileAttributes(aCapDriverList[w]->szDriverName) == (DWORD)-1)
 #else
             OFSTRUCT of;
 
-            if (OpenFile (aCapDriverList[w]->szDriverName, &of, OF_EXIST) == HFILE_ERROR)
+            if (OpenFile(aCapDriverList[w]->szDriverName, &of, OF_EXIST) == HFILE_ERROR)
 #endif
                 return (DV_ERR_BADINSTALL);
             else
                 return (DV_ERR_NOTDETECTED);
-    }
+        }
     }
 
     return DV_ERR_OK;
@@ -1021,13 +968,13 @@ DWORD WINAPI videoOpen (LPHVIDEO lphVideo, DWORD dwDeviceID, DWORD dwFlags)
 
  * @xref <f videoOpen> <f videoStreamInit> <f videoStreamFini> <f videoStreamReset>
 */
-DWORD WINAPI videoClose (HVIDEO hVideo)
+DWORD WINAPI videoClose(HVIDEO hVideo)
 {
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    if (CloseDriver((HDRVR)hVideo, 0L, 0L ))
-       return DV_ERR_OK;
+    if (CloseDriver((HDRVR)hVideo, 0L, 0L))
+        return DV_ERR_OK;
 
     return DV_ERR_NONSPECIFIC;
 }
@@ -1102,9 +1049,9 @@ DWORD WINAPI videoClose (HVIDEO hVideo)
  * @xref <f videoOpen> <f videoMessage>
 
 */
-DWORD WINAPI videoConfigure (HVIDEO hVideo, UINT msg, DWORD dwFlags,
-        LPDWORD lpdwReturn, LPVOID lpData1, DWORD dwSize1,
-                LPVOID lpData2, DWORD dwSize2)
+DWORD WINAPI videoConfigure(HVIDEO hVideo, UINT msg, DWORD dwFlags,
+                            LPDWORD lpdwReturn, LPVOID lpData1, DWORD dwSize1,
+                            LPVOID lpData2, DWORD dwSize2)
 {
     VIDEOCONFIGPARMS    vcp;
 
@@ -1112,17 +1059,17 @@ DWORD WINAPI videoConfigure (HVIDEO hVideo, UINT msg, DWORD dwFlags,
         return DV_ERR_INVALHANDLE;
 
     if (lpData1)
-        if (IsBadHugeReadPtr (lpData1, dwSize1))
+        if (IsBadHugeReadPtr(lpData1, dwSize1))
             return DV_ERR_CONFIG1;
 
     if (lpData2)
-        if (IsBadHugeReadPtr (lpData2, dwSize2))
+        if (IsBadHugeReadPtr(lpData2, dwSize2))
             return DV_ERR_CONFIG2;
 
     if (dwFlags & VIDEO_CONFIGURE_QUERYSIZE) {
         if (!lpdwReturn)
             return DV_ERR_NONSPECIFIC;
-        if (IsBadWritePtr (lpdwReturn, sizeof (DWORD)) )
+        if (IsBadWritePtr(lpdwReturn, sizeof(DWORD)))
             return DV_ERR_NONSPECIFIC;
     }
 
@@ -1132,10 +1079,8 @@ DWORD WINAPI videoConfigure (HVIDEO hVideo, UINT msg, DWORD dwFlags,
     vcp.lpData2 = lpData2;
     vcp.dwSize2 = dwSize2;
 
-    return videoMessage(hVideo, msg, dwFlags,
-        (DWORD)(LPVIDEOCONFIGPARMS)&vcp );
+    return videoMessage(hVideo, msg, dwFlags, (DWORD)(LPVIDEOCONFIGPARMS)&vcp);
 }
-
 
 
 /*
@@ -1172,10 +1117,7 @@ DWORD WINAPI videoConfigure (HVIDEO hVideo, UINT msg, DWORD dwFlags,
 
 // for win32 this is the ansi entry point
 
-DWORD WINAPI videoConfigureStorageA (
-    HVIDEO hVideo,
-    LPSTR lpstrIdent,
-    DWORD dwFlags)
+DWORD WINAPI videoConfigureStorageA(HVIDEO hVideo, LPSTR lpstrIdent, DWORD dwFlags)
 {
     DWORD ret;
     LPWSTR lpwstr;
@@ -1183,19 +1125,17 @@ DWORD WINAPI videoConfigureStorageA (
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-
     // Convert the input string to Unicode
     // Call the driver, free the Unicode string and return the result
     ret = strlen(lpstrIdent);
-    lpwstr = LocalAlloc(LPTR, ret*sizeof(WCHAR));
+    lpwstr = LocalAlloc(LPTR, ret * sizeof(WCHAR));
     if (!lpwstr) {
         return(DV_ERR_NOMEM);
     }
 
     mbstowcs(lpwstr, lpstrIdent, ret);
 
-    ret = videoMessage(hVideo, DVM_CONFIGURESTORAGE,
-        (DWORD)lpwstr, dwFlags);
+    ret = videoMessage(hVideo, DVM_CONFIGURESTORAGE, (DWORD)lpwstr, dwFlags);
 
     LocalFree(lpwstr);
     return(ret);
@@ -1208,18 +1148,15 @@ DWORD WINAPI videoConfigureStorageA (
 // so send them off...
 
 #ifdef _WIN32
-DWORD WINAPI videoConfigureStorageW (HVIDEO hVideo,
-   LPWSTR lpstrIdent, DWORD  dwFlags)
+DWORD WINAPI videoConfigureStorageW(HVIDEO hVideo, LPWSTR lpstrIdent, DWORD  dwFlags)
 #else
-DWORD WINAPI videoConfigureStorage (HVIDEO hVideo,
-   LPSTR lpstrIdent, DWORD  dwFlags)
+DWORD WINAPI videoConfigureStorage(HVIDEO hVideo, LPSTR lpstrIdent, DWORD  dwFlags)
 #endif
 {
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    return videoMessage(hVideo, DVM_CONFIGURESTORAGE,
-                        (DWORD)lpstrIdent, dwFlags);
+    return videoMessage(hVideo, DVM_CONFIGURESTORAGE, (DWORD)lpstrIdent, dwFlags);
 }
 
 /*
@@ -1250,18 +1187,16 @@ DWORD WINAPI videoConfigureStorage (HVIDEO hVideo,
 
  * @xref <f videoOpen> <f videoConfigureStorage>
 */
-DWORD WINAPI videoDialog (HVIDEO hVideo, HWND hWndParent, DWORD dwFlags)
+DWORD WINAPI videoDialog(HVIDEO hVideo, HWND hWndParent, DWORD dwFlags)
 {
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    if ((!hWndParent) || (!IsWindow (hWndParent)) )
+    if ((!hWndParent) || (!IsWindow(hWndParent)))
         return DV_ERR_INVALHANDLE;
 
     return videoMessage(hVideo, DVM_DIALOG, (DWORD)hWndParent, dwFlags);
 }
-
-
 
 
 /*
@@ -1309,8 +1244,6 @@ DWORD WINAPI videoUnprepareHeader(LPVIDEOHDR lpVideoHdr, DWORD dwSize)
 }
 
 
-
-
 /*
  * @doc EXTERNAL  VIDEO
 
@@ -1345,32 +1278,28 @@ DWORD WINAPI videoUnprepareHeader(LPVIDEOHDR lpVideoHdr, DWORD dwSize)
 
  * @xref <f videoStreamFreeHdrAndBuffer>
 */
-DWORD WINAPI videoStreamAllocHdrAndBuffer(HVIDEO hVideo,
-        LPVIDEOHDR FAR * plpvideoHdr, DWORD dwSize)
+DWORD WINAPI videoStreamAllocHdrAndBuffer(HVIDEO hVideo, LPVIDEOHDR FAR* plpvideoHdr, DWORD dwSize)
 {
     DWORD         wRet;
 
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    if (IsBadWritePtr (plpvideoHdr, sizeof (VIDEOHDR *)) )
+    if (IsBadWritePtr(plpvideoHdr, sizeof(VIDEOHDR*)))
         return DV_ERR_PARAM1;
 
     *plpvideoHdr = NULL;        // Init to NULL ptr
 
-    wRet = (DWORD)videoMessage((HVIDEO)hVideo, DVM_STREAM_ALLOCHDRANDBUFFER,
-            (DWORD)plpvideoHdr, (DWORD)dwSize);
+    wRet = (DWORD)videoMessage((HVIDEO)hVideo, DVM_STREAM_ALLOCHDRANDBUFFER, (DWORD)plpvideoHdr, (DWORD)dwSize);
 
-    if (*plpvideoHdr == NULL ||
-                IsBadHugeWritePtr (*plpvideoHdr, dwSize)) {
-        DebugErr(DBF_WARNING,"videoStreamAllocHdrAndBuffer: Allocation failed.");
+    if (*plpvideoHdr == NULL || IsBadHugeWritePtr(*plpvideoHdr, dwSize)) {
+        DebugErr(DBF_WARNING, "videoStreamAllocHdrAndBuffer: Allocation failed.");
         *plpvideoHdr = NULL;
         return wRet;
     }
 
-    if (IsVideoHeaderPrepared(HVIDEO, *plpvideoHdr))
-    {
-        DebugErr(DBF_WARNING,"videoStreamAllocHdrAndBuffer: header is already prepared.");
+    if (IsVideoHeaderPrepared(HVIDEO, *plpvideoHdr)) {
+        DebugErr(DBF_WARNING, "videoStreamAllocHdrAndBuffer: header is already prepared.");
         return DV_ERR_OK;
     }
 
@@ -1407,34 +1336,28 @@ DWORD WINAPI videoStreamAllocHdrAndBuffer(HVIDEO hVideo,
  * @xref <f videoStreamAllocHdrAndBuffer>
 */
 
-DWORD WINAPI videoStreamFreeHdrAndBuffer(HVIDEO hVideo,
-        LPVIDEOHDR lpvideoHdr)
+DWORD WINAPI videoStreamFreeHdrAndBuffer(HVIDEO hVideo, LPVIDEOHDR lpvideoHdr)
 {
     DWORD         wRet;
 
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    if (IsBadWritePtr (lpvideoHdr, sizeof (VIDEOHDR)) )
+    if (IsBadWritePtr(lpvideoHdr, sizeof(VIDEOHDR)))
         return DV_ERR_PARAM1;
 
-    if (lpvideoHdr->dwFlags & VHDR_INQUEUE)
-    {
+    if (lpvideoHdr->dwFlags & VHDR_INQUEUE) {
         DebugErr(DBF_WARNING, "videoStreamFreeHdrAndBuffer: buffer still in queue.");
         return DV_ERR_STILLPLAYING;
     }
 
-    if (!IsVideoHeaderPrepared(hVideo, lpvideoHdr))
-    {
-        DebugErr(DBF_WARNING,"videoStreamFreeHdrAndBuffer: header is not prepared.");
+    if (!IsVideoHeaderPrepared(hVideo, lpvideoHdr)) {
+        DebugErr(DBF_WARNING, "videoStreamFreeHdrAndBuffer: header is not prepared.");
     }
 
-    wRet = (DWORD)videoMessage((HVIDEO)hVideo, DVM_STREAM_FREEHDRANDBUFFER,
-            (DWORD)lpvideoHdr, (DWORD)0);
-
-    if (wRet != DV_ERR_OK)
-    {
-        DebugErr(DBF_WARNING,"videoStreamFreeHdrAndBuffer: Error freeing buffer.");
+    wRet = (DWORD)videoMessage((HVIDEO)hVideo, DVM_STREAM_FREEHDRANDBUFFER, (DWORD)lpvideoHdr, (DWORD)0);
+    if (wRet != DV_ERR_OK) {
+        DebugErr(DBF_WARNING, "videoStreamFreeHdrAndBuffer: Error freeing buffer.");
     }
 
     return wRet;
@@ -1472,28 +1395,24 @@ DWORD WINAPI videoStreamFreeHdrAndBuffer(HVIDEO hVideo,
 
  * @xref <f videoStreamUnprepareHeader>
 */
-DWORD WINAPI videoStreamPrepareHeader(HVIDEO hVideo,
-        LPVIDEOHDR lpvideoHdr, DWORD dwSize)
+DWORD WINAPI videoStreamPrepareHeader(HVIDEO hVideo, LPVIDEOHDR lpvideoHdr, DWORD dwSize)
 {
     DWORD         wRet;
 
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    if (IsBadWritePtr (lpvideoHdr, sizeof (VIDEOHDR)) )
+    if (IsBadWritePtr(lpvideoHdr, sizeof(VIDEOHDR)))
         return DV_ERR_PARAM1;
 
-    if (IsVideoHeaderPrepared(HVIDEO, lpvideoHdr))
-    {
-        DebugErr(DBF_WARNING,"videoStreamPrepareHeader: header is already prepared.");
+    if (IsVideoHeaderPrepared(HVIDEO, lpvideoHdr)) {
+        DebugErr(DBF_WARNING, "videoStreamPrepareHeader: header is already prepared.");
         return DV_ERR_OK;
     }
 
     lpvideoHdr->dwFlags = 0;
 
-    wRet = (DWORD)videoMessage((HVIDEO)hVideo, DVM_STREAM_PREPAREHEADER,
-            (DWORD)lpvideoHdr, (DWORD)dwSize);
-
+    wRet = (DWORD)videoMessage((HVIDEO)hVideo, DVM_STREAM_PREPAREHEADER, (DWORD)lpvideoHdr, (DWORD)dwSize);
     if (wRet == DV_ERR_NOTSUPPORTED)
         wRet = videoPrepareHeader(lpvideoHdr, dwSize);
 
@@ -1540,24 +1459,20 @@ DWORD WINAPI videoStreamUnprepareHeader(HVIDEO hVideo, LPVIDEOHDR lpvideoHdr, DW
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    if (IsBadWritePtr (lpvideoHdr, sizeof (VIDEOHDR)) )
+    if (IsBadWritePtr(lpvideoHdr, sizeof(VIDEOHDR)))
         return DV_ERR_PARAM1;
 
-    if (lpvideoHdr->dwFlags & VHDR_INQUEUE)
-    {
+    if (lpvideoHdr->dwFlags & VHDR_INQUEUE) {
         DebugErr(DBF_WARNING, "videoStreamUnprepareHeader: buffer still in queue.");
         return DV_ERR_STILLPLAYING;
     }
 
-    if (!IsVideoHeaderPrepared(hVideo, lpvideoHdr))
-    {
-        DebugErr(DBF_WARNING,"videoStreamUnprepareHeader: header is not prepared.");
+    if (!IsVideoHeaderPrepared(hVideo, lpvideoHdr)) {
+        DebugErr(DBF_WARNING, "videoStreamUnprepareHeader: header is not prepared.");
         return DV_ERR_OK;
     }
 
-    wRet = (DWORD)videoMessage((HVIDEO)hVideo, DVM_STREAM_UNPREPAREHEADER,
-            (DWORD)lpvideoHdr, (DWORD)dwSize);
-
+    wRet = (DWORD)videoMessage((HVIDEO)hVideo, DVM_STREAM_UNPREPAREHEADER, (DWORD)lpvideoHdr, (DWORD)dwSize);
     if (wRet == DV_ERR_NOTSUPPORTED)
         wRet = videoUnprepareHeader(lpvideoHdr, dwSize);
 
@@ -1604,24 +1519,21 @@ DWORD WINAPI videoStreamAddBuffer(HVIDEO hVideo, LPVIDEOHDR lpvideoHdr, DWORD dw
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    if (IsBadWritePtr (lpvideoHdr, sizeof (VIDEOHDR)) )
+    if (IsBadWritePtr(lpvideoHdr, sizeof(VIDEOHDR)))
         return DV_ERR_PARAM1;
 
-    if (!IsVideoHeaderPrepared(hVideo, lpvideoHdr))
-    {
+    if (!IsVideoHeaderPrepared(hVideo, lpvideoHdr)) {
         DebugErr(DBF_WARNING, "videoStreamAddBuffer: buffer not prepared.");
         return DV_ERR_UNPREPARED;
     }
 
-    if (lpvideoHdr->dwFlags & VHDR_INQUEUE)
-    {
+    if (lpvideoHdr->dwFlags & VHDR_INQUEUE) {
         DebugErr(DBF_WARNING, "videoStreamAddBuffer: buffer already in queue.");
         return DV_ERR_STILLPLAYING;
     }
 
     return (DWORD)videoMessage((HVIDEO)hVideo, DVM_STREAM_ADDBUFFER, (DWORD)lpvideoHdr, (DWORD)dwSize);
 }
-
 
 
 /*
@@ -1718,13 +1630,11 @@ DWORD WINAPI videoStreamGetPosition(HVIDEO hVideo, LPMMTIME lpInfo, DWORD dwSize
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    if (IsBadWritePtr (lpInfo, sizeof (MMTIME)) )
+    if (IsBadWritePtr(lpInfo, sizeof(MMTIME)))
         return DV_ERR_PARAM1;
 
-    return videoMessage(hVideo, DVM_STREAM_GETPOSITION,
-            (DWORD)lpInfo, (DWORD)dwSize);
+    return videoMessage(hVideo, DVM_STREAM_GETPOSITION, (DWORD)lpInfo, (DWORD)dwSize);
 }
-
 
 
 /*
@@ -1808,23 +1718,23 @@ DWORD WINAPI videoStreamGetPosition(HVIDEO hVideo, LPMMTIME lpInfo, DWORD dwSize
  * @xref <f videoOpen> <f videoStreamFini> <f videoClose>
 */
 DWORD WINAPI videoStreamInit(HVIDEO hVideo,
-              DWORD dwMicroSecPerFrame, DWORD_PTR dwCallback,
-              DWORD_PTR dwCallbackInst, DWORD dwFlags)
+                             DWORD dwMicroSecPerFrame, DWORD_PTR dwCallback,
+                             DWORD_PTR dwCallbackInst, DWORD dwFlags)
 {
     VIDEO_STREAM_INIT_PARMS vsip;
 
     if (!hVideo)
         return DV_ERR_INVALHANDLE;
 
-    if (dwCallback && ((dwFlags & CALLBACK_TYPEMASK) == CALLBACK_FUNCTION) ) {
-        if (IsBadCodePtr ((FARPROC) dwCallback) )
+    if (dwCallback && ((dwFlags & CALLBACK_TYPEMASK) == CALLBACK_FUNCTION)) {
+        if (IsBadCodePtr((FARPROC)dwCallback))
             return DV_ERR_PARAM2;
         if (!dwCallbackInst)
             return DV_ERR_PARAM2;
     }
 
-    if (dwCallback && ((dwFlags & CALLBACK_TYPEMASK) == CALLBACK_WINDOW) ) {
-        if (!IsWindow((HWND) dwCallback) )
+    if (dwCallback && ((dwFlags & CALLBACK_TYPEMASK) == CALLBACK_WINDOW)) {
+        if (!IsWindow((HWND)dwCallback))
             return DV_ERR_PARAM2;
     }
 
@@ -1835,8 +1745,8 @@ DWORD WINAPI videoStreamInit(HVIDEO hVideo,
     vsip.hVideo = (DWORD_PTR)hVideo;
 
     return videoMessage(hVideo, DVM_STREAM_INIT,
-                (DWORD_PTR) (LPVIDEO_STREAM_INIT_PARMS) &vsip,
-                (DWORD) sizeof (VIDEO_STREAM_INIT_PARMS));
+        (DWORD_PTR)(LPVIDEO_STREAM_INIT_PARMS)&vsip,
+                        (DWORD)sizeof(VIDEO_STREAM_INIT_PARMS));
 }
 
 /*
@@ -1988,8 +1898,7 @@ DWORD WINAPI videoFrame (HVIDEO hVideo, LPVIDEOHDR lpVHdr)
     if (IsBadWritePtr (lpVHdr, sizeof (VIDEOHDR)) )
         return DV_ERR_PARAM1;
 
-    return videoMessage(hVideo, DVM_FRAME, (DWORD) lpVHdr,
-                        sizeof(VIDEOHDR));
+    return videoMessage(hVideo, DVM_FRAME, (DWORD) lpVHdr, sizeof(VIDEOHDR));
 }
 
 #endif  // ifdef WIN16
@@ -1999,12 +1908,10 @@ DWORD WINAPI videoFrame (HVIDEO hVideo, LPVIDEOHDR lpVHdr)
 
 * @api void | videoCleanup | clean up video stuff
 *   called in MSVIDEOs WEP()
-
 */
 void FAR PASCAL videoCleanup(HTASK hTask)
 {
 #ifdef WIN16
-        videoFreeDriverList();
+    videoFreeDriverList();
 #endif
 }
-

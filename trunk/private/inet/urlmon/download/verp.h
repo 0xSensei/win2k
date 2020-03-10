@@ -4,7 +4,7 @@
 
 class CVersion
 {
-    public:
+public:
 #define DELAYVERAPI(_fn, _args, _nargs) \
     DWORD _fn _args { \
         HRESULT hres = Init(); \
@@ -22,64 +22,57 @@ class CVersion
     BOOL    m_fInited;
     HMODULE m_hMod;
 
-    DELAYVERAPI( VerInstallFileA,
+    DELAYVERAPI(VerInstallFileA,
         (DWORD uFlags,
-        LPSTR szSrcFileName,
-        LPSTR szDestFileName,
-        LPSTR szSrcDir,
-        LPSTR szDestDir,
-        LPSTR szCurDir,
-        LPSTR szTmpFile,
-        PUINT lpuTmpFileLen),
-        (uFlags, szSrcFileName, szDestFileName, szSrcDir, szDestDir,
-        szCurDir, szTmpFile, lpuTmpFileLen));
+         LPSTR szSrcFileName,
+         LPSTR szDestFileName,
+         LPSTR szSrcDir,
+         LPSTR szDestDir,
+         LPSTR szCurDir,
+         LPSTR szTmpFile,
+         PUINT lpuTmpFileLen),
+         (uFlags, szSrcFileName, szDestFileName, szSrcDir, szDestDir,
+          szCurDir, szTmpFile, lpuTmpFileLen));
 
-
-    DELAYVERAPI( VerQueryValueA,
+    DELAYVERAPI(VerQueryValueA,
         (const LPVOID pBlock,
-        LPSTR lpSubBlock,
-        LPVOID * lplpBuffer,
-        PUINT puLen),
-        (pBlock, lpSubBlock, lplpBuffer, puLen));
+         LPSTR lpSubBlock,
+         LPVOID* lplpBuffer,
+         PUINT puLen),
+         (pBlock, lpSubBlock, lplpBuffer, puLen));
 
-    DELAYVERAPI( GetFileVersionInfoA,
+    DELAYVERAPI(GetFileVersionInfoA,
         (LPSTR lptstrFilename,
-        DWORD dwHandle,
-        DWORD dwLen,
-        LPVOID lpData),
-        (lptstrFilename, dwHandle, dwLen, lpData));
+         DWORD dwHandle,
+         DWORD dwLen,
+         LPVOID lpData),
+         (lptstrFilename, dwHandle, dwLen, lpData));
 
-    DELAYVERAPI( GetFileVersionInfoSizeA,
+    DELAYVERAPI(GetFileVersionInfoSizeA,
         (LPSTR lptstrFilename,
-        LPDWORD lpdwHandle),
-        (lptstrFilename, lpdwHandle));
-
-
+         LPDWORD lpdwHandle),
+         (lptstrFilename, lpdwHandle));
 };
 
-inline
-CVersion::CVersion()
+inline CVersion::CVersion()
 {
     m_fInited = FALSE;
 }
 
-inline
-CVersion::~CVersion()
+inline CVersion::~CVersion()
 {
     if (m_fInited) {
         FreeLibrary(m_hMod);
     }
 }
 
-inline
-HRESULT
-CVersion::Init(void)
+inline HRESULT CVersion::Init(void)
 {
     if (m_fInited) {
         return S_OK;
     }
 
-    m_hMod = LoadLibrary( "VERSION.DLL" );
+    m_hMod = LoadLibrary("VERSION.DLL");
 
     if (!m_hMod) {
         return HRESULT_FROM_WIN32(GetLastError());

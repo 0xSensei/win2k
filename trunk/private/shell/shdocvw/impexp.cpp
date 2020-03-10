@@ -100,7 +100,7 @@
 // file.
 typedef enum MYENTRYTYPE
 {
-    ET_OPEN_DIR     = 531,  // New level in heirarchy
+    ET_OPEN_DIR = 531,  // New level in heirarchy
     ET_CLOSE_DIR,           // Close level in heirarchy
     ET_BOOKMARK,            // Bookmark entry.
     ET_NONE,                // End of File
@@ -112,26 +112,26 @@ typedef enum MYENTRYTYPE
 
 BOOL    ImportNetscapeProxy(void);        // Import Netscape Proxy Setting
 BOOL    UpdateHomePage(void);            // Upgrade IE v1.0 Home URL to v3.0
-BOOL    ImportBookmarks(TCHAR *pszPathToFavorites, TCHAR *pszPathToBookmarks, HWND hwnd);            //  Import Netscape Bookmarks to IE Favorites
-BOOL    ExportFavorites(TCHAR *pszPathToFavorites, TCHAR *pszPathToBookmarks, HWND hwnd);            //  Export IE Favorites to Netscape Bookmarks
-BOOL    RegStrValueEmpty(HKEY hTheKey, char * szPath, char * szKey);
-BOOL    GetNSProxyValue(char * szProxyValue, DWORD * pdwSize);
+BOOL    ImportBookmarks(TCHAR* pszPathToFavorites, TCHAR* pszPathToBookmarks, HWND hwnd);            //  Import Netscape Bookmarks to IE Favorites
+BOOL    ExportFavorites(TCHAR* pszPathToFavorites, TCHAR* pszPathToBookmarks, HWND hwnd);            //  Export IE Favorites to Netscape Bookmarks
+BOOL    RegStrValueEmpty(HKEY hTheKey, char* szPath, char* szKey);
+BOOL    GetNSProxyValue(char* szProxyValue, DWORD* pdwSize);
 
 BOOL        VerifyBookmarksFile(HANDLE hFile);
-BOOL        ConvertBookmarks(TCHAR * szFavoritesDir, HANDLE hFile);
-MyEntryType   NextFileEntry(char ** ppStr, char ** ppToken);
-BOOL        GetData(char ** ppData, HANDLE hFile);
-void        RemoveInvalidFileNameChars(char * pBuf);
-BOOL        CreateDir(char *pDirName);
+BOOL        ConvertBookmarks(TCHAR* szFavoritesDir, HANDLE hFile);
+MyEntryType   NextFileEntry(char** ppStr, char** ppToken);
+BOOL        GetData(char** ppData, HANDLE hFile);
+void        RemoveInvalidFileNameChars(char* pBuf);
+BOOL        CreateDir(char* pDirName);
 BOOL        CloseDir(void);
-BOOL        CreateBookmark(char *pBookmarkName);
+BOOL        CreateBookmark(char* pBookmarkName);
 BOOL        GetPathFromRegistry(LPTSTR szPath, UINT cbPath, HKEY theHKEY, LPTSTR szKey, LPTSTR szVName);
-BOOL        GetNavBkMkDir( LPTSTR lpszDir, int isize);
+BOOL        GetNavBkMkDir(LPTSTR lpszDir, int isize);
 BOOL        GetTargetFavoritesPath(LPTSTR szPath, UINT cbPath);
 
-BOOL    PostFavorites(TCHAR *pszPathToBookmarks, TCHAR* pszPathToPost);
+BOOL    PostFavorites(TCHAR* pszPathToBookmarks, TCHAR* pszPathToPost);
 void    CALLBACK StatusCallback(HINTERNET hInternet, DWORD_PTR dwContext, DWORD dwStatus,
-            LPVOID lpvInfo, DWORD dwInfoLength);
+                                LPVOID lpvInfo, DWORD dwInfoLength);
 
 
 //  TYPES:
@@ -154,15 +154,15 @@ void    CALLBACK StatusCallback(HINTERNET hInternet, DWORD_PTR dwContext, DWORD 
 //  GLOBALS:
 
 #ifndef UNIX
-TCHAR   * szNetscapeBMRegSub        = TEXT("SOFTWARE\\Netscape\\Netscape Navigator\\Bookmark List");
+TCHAR* szNetscapeBMRegSub = TEXT("SOFTWARE\\Netscape\\Netscape Navigator\\Bookmark List");
 #else
-TCHAR   * szNetscapeBMRegSub        = TEXT("SOFTWARE\\Microsoft\\Internet Explorer\\unix\\nsbookmarks");
+TCHAR* szNetscapeBMRegSub = TEXT("SOFTWARE\\Microsoft\\Internet Explorer\\unix\\nsbookmarks");
 #endif
 
-TCHAR   * szNetscapeBMRegKey        = TEXT("File Location");
-TCHAR   * szIEFavoritesRegSub       = TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders");
-TCHAR   * szIEFavoritesRegKey       = TEXT("Favorites");
-char    * szInvalidFolderCharacters = "\\/:*?\"<>|";
+TCHAR* szNetscapeBMRegKey = TEXT("File Location");
+TCHAR* szIEFavoritesRegSub = TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders");
+TCHAR* szIEFavoritesRegKey = TEXT("Favorites");
+char* szInvalidFolderCharacters = "\\/:*?\"<>|";
 
 BOOL    gfValidNetscapeFile = FALSE;
 BOOL    gfValidIEDirFile = FALSE;
@@ -212,102 +212,102 @@ static UCHAR LocalLegalAnsiCharacterArray[AnsiMaxChar] = {
                           _OLE_,  // 0x1D GS
                           _OLE_,  // 0x1E RS
                           _OLE_,  // 0x1F US
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x20 space
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_,          // 0x21 !
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x20 space
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_,          // 0x21 !
                   _WILD_,                 // 0x22 "
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x23 #
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x24 $
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x25 %
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x26 &
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x27 '
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x28 (
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x29 )
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x23 #
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x24 $
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x25 %
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x26 &
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x27 '
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x28 (
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x29 )
                   _WILD_,                 // 0x2A *
-        _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x2B +
-        _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x2C ,
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x2D -
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x2E .
+        _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x2B +
+        _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x2C ,
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x2D -
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x2E .
     0,                                                // 0x2F /
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x30 0
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x31 1
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x32 2
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x33 3
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x34 4
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x35 5
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x36 6
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x37 7
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x38 8
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x39 9
-             _NTFS_ |         _OFS_,          // 0x3A :
-        _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x3B ;
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x30 0
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x31 1
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x32 2
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x33 3
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x34 4
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x35 5
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x36 6
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x37 7
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x38 8
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x39 9
+             _NTFS_ | _OFS_,          // 0x3A :
+        _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x3B ;
                   _WILD_,                 // 0x3C <
-        _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x3D =
+        _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x3D =
                   _WILD_,                 // 0x3E >
                   _WILD_,                 // 0x3F ?
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x40 @
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x41 A
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x42 B
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x43 C
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x44 D
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x45 E
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x46 F
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x47 G
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x48 H
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x49 I
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x4A J
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x4B K
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x4C L
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x4D M
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x4E N
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x4F O
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x50 P
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x51 Q
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x52 R
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x53 S
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x54 T
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x55 U
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x56 V
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x57 W
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x58 X
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x59 Y
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x5A Z
-        _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x5B [
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x40 @
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x41 A
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x42 B
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x43 C
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x44 D
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x45 E
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x46 F
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x47 G
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x48 H
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x49 I
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x4A J
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x4B K
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x4C L
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x4D M
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x4E N
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x4F O
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x50 P
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x51 Q
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x52 R
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x53 S
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x54 T
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x55 U
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x56 V
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x57 W
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x58 X
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x59 Y
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x5A Z
+        _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x5B [
     0,                                                // 0x5C backslash
-        _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x5D ]
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x5E ^
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x5F _
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x60 `
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x61 a
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x62 b
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x63 c
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x64 d
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x65 e
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x66 f
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x67 g
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x68 h
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x69 i
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x6A j
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x6B k
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x6C l
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x6D m
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x6E n
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x6F o
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x70 p
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x71 q
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x72 r
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x73 s
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x74 t
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x75 u
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x76 v
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x77 w
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x78 x
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x79 y
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x7A z
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x7B {
+        _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x5D ]
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x5E ^
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x5F _
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x60 `
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x61 a
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x62 b
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x63 c
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x64 d
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x65 e
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x66 f
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x67 g
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x68 h
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x69 i
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x6A j
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x6B k
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x6C l
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x6D m
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x6E n
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x6F o
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x70 p
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x71 q
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x72 r
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x73 s
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x74 t
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x75 u
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x76 v
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x77 w
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x78 x
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x79 y
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x7A z
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x7B {
                           _OLE_,  // 0x7C |
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x7D }
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x7E ~
-    _FAT_ | _HPFS_ | _NTFS_ |         _OFS_ | _OLE_,  // 0x7F 
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x7D }
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x7E ~
+    _FAT_ | _HPFS_ | _NTFS_ | _OFS_ | _OLE_,  // 0x7F 
 };
 
 
@@ -315,8 +315,7 @@ static UCHAR LocalLegalAnsiCharacterArray[AnsiMaxChar] = {
 // Returns the location of the favorites folder in which to import the netscape favorites
 BOOL GetTargetFavoritesPath(LPTSTR szPath, UINT cbPath)
 {
-    if (GetPathFromRegistry(szPath, cbPath, HKEY_CURRENT_USER, szIEFavoritesRegSub, szIEFavoritesRegKey))
-    {
+    if (GetPathFromRegistry(szPath, cbPath, HKEY_CURRENT_USER, szIEFavoritesRegSub, szIEFavoritesRegKey)) {
         //MLLoadString(IDS_NS_BOOKMARKS_DIR, szSubDir, sizeof(szSubDir))
         //lstrcat(szPath, "\\Imported Netscape Favorites");
         return TRUE;
@@ -346,50 +345,43 @@ BOOL GetTargetFavoritesPath(LPTSTR szPath, UINT cbPath)
     otherwise it will return TRUE.
 \**/
 
-BOOL ImportBookmarks(TCHAR *pszPathToFavorites, TCHAR *pszPathToBookmarks, HWND hwnd)
+BOOL ImportBookmarks(TCHAR* pszPathToFavorites, TCHAR* pszPathToBookmarks, HWND hwnd)
 {
-    HANDLE  hBookmarksFile        = INVALID_HANDLE_VALUE;
-    BOOL    fSuccess              = FALSE;
+    HANDLE  hBookmarksFile = INVALID_HANDLE_VALUE;
+    BOOL    fSuccess = FALSE;
 
     // Prompt the user to insert floppy, format floppy or drive, remount mapped partition,
     // or any create sub directories so pszPathToBookmarks becomes valid.
     if (FAILED(SHPathPrepareForWriteWrap(hwnd, NULL, pszPathToBookmarks, FO_COPY, (SHPPFW_DEFAULT | SHPPFW_IGNOREFILENAME))))
         return FALSE;
 
-    if (pszPathToFavorites==NULL || *pszPathToFavorites == TEXT('\0') ||
-        pszPathToBookmarks==NULL || *pszPathToBookmarks == TEXT('\0'))
-    {
+    if (pszPathToFavorites == NULL || *pszPathToFavorites == TEXT('\0') ||
+        pszPathToBookmarks == NULL || *pszPathToBookmarks == TEXT('\0')) {
         return FALSE;
     }
 
     hBookmarksFile = CreateFile(pszPathToBookmarks, GENERIC_READ, FILE_SHARE_READ, NULL,
-                                OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+                                OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
-    if ( hBookmarksFile != INVALID_HANDLE_VALUE )
-    {
+    if (hBookmarksFile != INVALID_HANDLE_VALUE) {
 
         // Verify it's a valid Bookmarks file
 
-        if (VerifyBookmarksFile( hBookmarksFile ))
-        {
+        if (VerifyBookmarksFile(hBookmarksFile)) {
 
             // Do the importing...
 
             fSuccess = ConvertBookmarks(pszPathToFavorites, hBookmarksFile);
 
-            if (hwnd && !fSuccess)
-            {
+            if (hwnd && !fSuccess) {
                 MLShellMessageBox(
                     hwnd,
                     MAKEINTRESOURCE(IDS_IMPORTCONVERTERROR),
                     MAKEINTRESOURCE(IDS_CONFIRM_IMPTTL_FAV),
                     MB_OK);
             }
-        }
-        else
-        {
-            if (hwnd)
-            {
+        } else {
+            if (hwnd) {
                 MLShellMessageBox(
                     hwnd,
                     MAKEINTRESOURCE(IDS_NOTVALIDBOOKMARKS),
@@ -398,11 +390,8 @@ BOOL ImportBookmarks(TCHAR *pszPathToFavorites, TCHAR *pszPathToBookmarks, HWND 
             }
         }
         CloseHandle(hBookmarksFile);
-    }
-    else
-    {
-        if (hwnd)
-        {
+    } else {
+        if (hwnd) {
             MLShellMessageBox(
                 hwnd,
                 MAKEINTRESOURCE(IDS_COULDNTOPENBOOKMARKS),
@@ -435,14 +424,14 @@ BOOL ImportBookmarks(TCHAR *pszPathToFavorites, TCHAR *pszPathToBookmarks, HWND 
     that NextFileEntry() will eventually return ET_NONE or ET_ERROR.
 \**/
 
-BOOL ConvertBookmarks(TCHAR * szFavoritesDir, HANDLE hFile)
+BOOL ConvertBookmarks(TCHAR* szFavoritesDir, HANDLE hFile)
 {
-    BOOL    fDone       = FALSE;
-    BOOL    fSuccess    = TRUE;
-    BOOL    fIsEmpty    = TRUE;
-    char    * szData    = NULL;
-    char    * szCurrent = NULL;
-    char    * szToken   = NULL;
+    BOOL    fDone = FALSE;
+    BOOL    fSuccess = TRUE;
+    BOOL    fIsEmpty = TRUE;
+    char* szData = NULL;
+    char* szCurrent = NULL;
+    char* szToken = NULL;
 
     fSuccess = GetData(&szData, hFile);
     if (NULL == szData)
@@ -451,10 +440,9 @@ BOOL ConvertBookmarks(TCHAR * szFavoritesDir, HANDLE hFile)
     szCurrent = szData;
 
     // Verify directory exists or that we can make it.
-    if ((TRUE == fSuccess) && ( !SetCurrentDirectory(szFavoritesDir)))
-    {
+    if ((TRUE == fSuccess) && (!SetCurrentDirectory(szFavoritesDir))) {
         // If the directory doesn't exist, make it...
-        if ( !CreateDirectory(szFavoritesDir, NULL))
+        if (!CreateDirectory(szFavoritesDir, NULL))
             fSuccess = FALSE;
         else
             if (!SetCurrentDirectory(szFavoritesDir))
@@ -462,38 +450,34 @@ BOOL ConvertBookmarks(TCHAR * szFavoritesDir, HANDLE hFile)
     }
 
 
-    while ((FALSE == fDone) && (TRUE == fSuccess))
-    {
-        switch(NextFileEntry(&szCurrent, &szToken))
-        {
-            case ET_OPEN_DIR:
-                fSuccess = CreateDir(szToken);
-                break;
-            case ET_CLOSE_DIR:
-                fSuccess = CloseDir();
-                break;
-            case ET_BOOKMARK:
-                fSuccess = CreateBookmark(szToken);
-                fIsEmpty = FALSE;
-                break;
-            case ET_ERROR:
-                fSuccess = FALSE;
-                break;
-            case ET_NONE:
-            default:
-                fDone = TRUE;
-                break;
+    while ((FALSE == fDone) && (TRUE == fSuccess)) {
+        switch (NextFileEntry(&szCurrent, &szToken)) {
+        case ET_OPEN_DIR:
+            fSuccess = CreateDir(szToken);
+            break;
+        case ET_CLOSE_DIR:
+            fSuccess = CloseDir();
+            break;
+        case ET_BOOKMARK:
+            fSuccess = CreateBookmark(szToken);
+            fIsEmpty = FALSE;
+            break;
+        case ET_ERROR:
+            fSuccess = FALSE;
+            break;
+        case ET_NONE:
+        default:
+            fDone = TRUE;
+            break;
         }
     }
 
-    if ( fIsEmpty )
-    {
+    if (fIsEmpty) {
         // nothing to import, delete the dir created earlier
         RemoveDirectory(szFavoritesDir);
     }
 
-    if (NULL != szData)
-    {
+    if (NULL != szData) {
         LocalFree(szData);
         szData = NULL;
         szCurrent = NULL;       // szCurrent no longer points to valid data.
@@ -526,12 +510,12 @@ BOOL ConvertBookmarks(TCHAR * szFavoritesDir, HANDLE hFile)
     to parse the data.
 \**/
 
-MyEntryType NextFileEntry(char ** ppStr, char ** ppToken)
+MyEntryType NextFileEntry(char** ppStr, char** ppToken)
 {
-    MyEntryType   returnVal       = ET_NONE;
-    char *      pCurrentToken   = NULL;         // The current token to check if valid.
-    char *      pTheToken       = NULL;         // The next valid token.
-    char *      pszTemp         = NULL;
+    MyEntryType   returnVal = ET_NONE;
+    char* pCurrentToken = NULL;         // The current token to check if valid.
+    char* pTheToken = NULL;         // The next valid token.
+    char* pszTemp = NULL;
 #ifdef UNIX
     char        szMidDirToken[8];
 #endif
@@ -540,46 +524,39 @@ MyEntryType NextFileEntry(char ** ppStr, char ** ppToken)
     //ASSERTSZ(NULL != *ppStr, "It's an error to pass NULL for *ppStr");
     //ASSERTSZ(NULL != ppToken, "It's an error to pass NULL for ppToken");
 
-    if ((NULL != ppStr) && (NULL != *ppStr) && (NULL != ppToken))
-    {
+    if ((NULL != ppStr) && (NULL != *ppStr) && (NULL != ppToken)) {
         // Check for begin dir token
-        if (NULL != (pCurrentToken = ANSIStrStr(*ppStr, BEGIN_DIR_TOKEN)))
-        {
+        if (NULL != (pCurrentToken = ANSIStrStr(*ppStr, BEGIN_DIR_TOKEN))) {
             // Begin dir token found
             // Verify that other needed tokens exist or it's an error
 #ifndef UNIX
             if ((NULL == (pszTemp = ANSIStrStr(pCurrentToken, MID_DIR_TOKEN))) ||
 #else
-        if (pCurrentToken[7] == ' ')
-            StrCpyNA(szMidDirToken, MID_DIR_TOKEN, lstrlenA(MID_DIR_TOKEN) + 1);
-        else
-            StrCpyNA(szMidDirToken, MID_DIR_TOKEN0, lstrlenA(MID_DIR_TOKEN0) + 1);
-            if ((NULL == (pszTemp = ANSIStrStr(pCurrentToken, szMidDirToken))) ||
-#endif
-                (NULL == ANSIStrStr(pszTemp, END_DIR_TOKEN)))
-            {
-                returnVal = ET_ERROR;       // We can't find all the tokens needed.
-            }
+            if (pCurrentToken[7] == ' ')
+                StrCpyNA(szMidDirToken, MID_DIR_TOKEN, lstrlenA(MID_DIR_TOKEN) + 1);
             else
-            {
-                // This function has to set *ppToken to the name of the directory to create
-#ifndef UNIX
-                *ppToken =  ANSIStrStr(pCurrentToken, MID_DIR_TOKEN) + sizeof(MID_DIR_TOKEN)-1;
-#else
-                *ppToken =  ANSIStrStr(pCurrentToken, szMidDirToken) + lstrlenA(szMidDirToken);
+                StrCpyNA(szMidDirToken, MID_DIR_TOKEN0, lstrlenA(MID_DIR_TOKEN0) + 1);
+                if ((NULL == (pszTemp = ANSIStrStr(pCurrentToken, szMidDirToken))) ||
 #endif
-                pTheToken = pCurrentToken;
-                returnVal = ET_OPEN_DIR;
-            }
+                    (NULL == ANSIStrStr(pszTemp, END_DIR_TOKEN))) {
+                    returnVal = ET_ERROR;       // We can't find all the tokens needed.
+                } else {
+                    // This function has to set *ppToken to the name of the directory to create
+#ifndef UNIX
+                    * ppToken = ANSIStrStr(pCurrentToken, MID_DIR_TOKEN) + sizeof(MID_DIR_TOKEN) - 1;
+#else
+                    * ppToken = ANSIStrStr(pCurrentToken, szMidDirToken) + lstrlenA(szMidDirToken);
+#endif
+                    pTheToken = pCurrentToken;
+                    returnVal = ET_OPEN_DIR;
+                }
         }
         // Check for exit dir token
         if ((ET_ERROR != returnVal) &&
-            (NULL != (pCurrentToken = ANSIStrStr(*ppStr, BEGIN_EXITDIR_TOKEN))))
-        {
+            (NULL != (pCurrentToken = ANSIStrStr(*ppStr, BEGIN_EXITDIR_TOKEN)))) {
             // Exit dir token found
             // See if this token comes before TheToken.
-            if ((NULL == pTheToken) || (pCurrentToken < pTheToken))
-            {
+            if ((NULL == pTheToken) || (pCurrentToken < pTheToken)) {
                 // ppToken is not used for Exit Dir
                 *ppToken = NULL;
                 pTheToken = pCurrentToken;
@@ -588,60 +565,52 @@ MyEntryType NextFileEntry(char ** ppStr, char ** ppToken)
         }
         // Check for begin url token
         if ((ET_ERROR != returnVal) &&
-            (NULL != (pCurrentToken = ANSIStrStr(*ppStr, BEGIN_URL_TOKEN))))
-        {
+            (NULL != (pCurrentToken = ANSIStrStr(*ppStr, BEGIN_URL_TOKEN)))) {
             // Bookmark token found
             // Verify that other needed tokens exist or it's an error
 #ifndef UNIX
             if ((NULL == (pszTemp = ANSIStrStr(pCurrentToken, END_URL_TOKEN))) ||
 #else
             if (((NULL == (pszTemp = ANSIStrStr(pCurrentToken, END_URL_TOKEN))) &&
-         (NULL == (pszTemp = ANSIStrStr(pCurrentToken, END_URL_TOKEN2)))) ||
+                (NULL == (pszTemp = ANSIStrStr(pCurrentToken, END_URL_TOKEN2)))) ||
 #endif
                 (NULL == (pszTemp = ANSIStrStr(pszTemp, BEGIN_BOOKMARK_TOKEN))) ||
-                (NULL == ANSIStrStr(pszTemp, END_BOOKMARK_TOKEN)))
-            {
+                (NULL == ANSIStrStr(pszTemp, END_BOOKMARK_TOKEN))) {
                 returnVal = ET_ERROR;       // We can't find all the tokens needed.
-            }
-            else
-            {
+            } else {
                 // See if this token comes before TheToken.
-                if ((NULL == pTheToken) || (pCurrentToken < pTheToken))
-                {
+                if ((NULL == pTheToken) || (pCurrentToken < pTheToken)) {
                     // This function has to set *ppToken to the name of the bookmark
-                    *ppToken =  pCurrentToken + sizeof(BEGIN_URL_TOKEN)-1;
+                    *ppToken = pCurrentToken + sizeof(BEGIN_URL_TOKEN) - 1;
                     pTheToken = pCurrentToken;
                     returnVal = ET_BOOKMARK;
                 }
             }
         }
-    }
-    else
-        returnVal = ET_ERROR;               // We should never get here.
+    } else
+                returnVal = ET_ERROR;               // We should never get here.
 
     if (NULL == pTheToken)
         returnVal = ET_NONE;
-    else
-    {
+    else {
         // Next time we will start parsing where we left off.
-        switch(returnVal)
-        {
-            case ET_OPEN_DIR:
+        switch (returnVal) {
+        case ET_OPEN_DIR:
 #ifndef UNIX
-                *ppStr = ANSIStrStr(pTheToken, MID_DIR_TOKEN) + sizeof(MID_DIR_TOKEN);
+            * ppStr = ANSIStrStr(pTheToken, MID_DIR_TOKEN) + sizeof(MID_DIR_TOKEN);
 #else
-                *ppStr = ANSIStrStr(pTheToken, szMidDirToken) + lstrlenA(szMidDirToken) + 1;
+            * ppStr = ANSIStrStr(pTheToken, szMidDirToken) + lstrlenA(szMidDirToken) + 1;
 #endif
-                break;
-            case ET_CLOSE_DIR:
-                *ppStr = pTheToken + sizeof(BEGIN_EXITDIR_TOKEN);
-                break;
-            case ET_BOOKMARK:
-                *ppStr = ANSIStrStr(pTheToken, END_BOOKMARK_TOKEN) + sizeof(END_BOOKMARK_TOKEN);
-                break;
-            default:
-                break;
-    }
+            break;
+        case ET_CLOSE_DIR:
+            *ppStr = pTheToken + sizeof(BEGIN_EXITDIR_TOKEN);
+            break;
+        case ET_BOOKMARK:
+            *ppStr = ANSIStrStr(pTheToken, END_BOOKMARK_TOKEN) + sizeof(END_BOOKMARK_TOKEN);
+            break;
+        default:
+            break;
+        }
     }
 
     return(returnVal);
@@ -672,7 +641,7 @@ MyEntryType NextFileEntry(char ** ppStr, char ** ppToken)
 \**/
 
 BOOL GetPathFromRegistry(LPTSTR szPath, UINT cbPath, HKEY theHKEY,
-                LPTSTR szKey, LPTSTR szVName)
+                         LPTSTR szKey, LPTSTR szVName)
 {
     DWORD   dwType;
     DWORD   dwSize;
@@ -682,7 +651,7 @@ BOOL GetPathFromRegistry(LPTSTR szPath, UINT cbPath, HKEY theHKEY,
      *      from the registry
      */
     dwSize = cbPath;
-    return (ERROR_SUCCESS == SHGetValue(theHKEY, szKey, szVName, &dwType, (LPBYTE) szPath, &dwSize)
+    return (ERROR_SUCCESS == SHGetValue(theHKEY, szKey, szVName, &dwType, (LPBYTE)szPath, &dwSize)
             && (dwType == REG_EXPAND_SZ || dwType == REG_SZ));
 }
 
@@ -700,35 +669,32 @@ BOOL GetPathFromRegistry(LPTSTR szPath, UINT cbPath, HKEY theHKEY,
     for more invalid chars until they have all been removed.
 \**/
 
-void RemoveInvalidFileNameChars(char * pBuf)
+void RemoveInvalidFileNameChars(char* pBuf)
 {
     //ASSERTSZ(NULL != pBuf, "Invalid function parameter");
 
     // Go through the array of chars, replacing offending characters with a space
-    if (NULL != pBuf)
-    {
-    if (REASONABLE_NAME_LEN < strlen(pBuf))
-        pBuf[REASONABLE_NAME_LEN] = '\0';   // String too long. Terminate it.
+    if (NULL != pBuf) {
+        if (REASONABLE_NAME_LEN < strlen(pBuf))
+            pBuf[REASONABLE_NAME_LEN] = '\0';   // String too long. Terminate it.
 
-    while ('\0' != *pBuf)
-    {
-        // Check if the character is invalid
-        if (!IsDBCSLeadByte(*pBuf))
-        {
-        if  (ANSIStrChr(szInvalidFolderCharacters, *pBuf) != NULL)
-            *pBuf = '_';
-        }
+        while ('\0' != *pBuf) {
+            // Check if the character is invalid
+            if (!IsDBCSLeadByte(*pBuf)) {
+                if (ANSIStrChr(szInvalidFolderCharacters, *pBuf) != NULL)
+                    *pBuf = '_';
+            }
 #if 0
-// Old code
-        // We look in the array to see if the character is supported by FAT.
-        // The array only includes the first 128 values, so we need to fail
-        // on the other 128 values that have the high bit set.
-        if (((AnsiMaxChar <= *pBuf) && (FALSE == IsDBCSLeadByte(*pBuf))) ||
-        (0 == LocalLegalAnsiCharacterArray[*pBuf]))
-        *pBuf = '$';
+            // Old code
+                    // We look in the array to see if the character is supported by FAT.
+                    // The array only includes the first 128 values, so we need to fail
+                    // on the other 128 values that have the high bit set.
+            if (((AnsiMaxChar <= *pBuf) && (FALSE == IsDBCSLeadByte(*pBuf))) ||
+                (0 == LocalLegalAnsiCharacterArray[*pBuf]))
+                *pBuf = '$';
 #endif
-        pBuf = CharNextA(pBuf);
-    }
+            pBuf = CharNextA(pBuf);
+        }
     }
 }
 
@@ -752,83 +718,75 @@ void RemoveInvalidFileNameChars(char * pBuf)
     failure.
 \**/
 
-BOOL CreateBookmark(char *pBookmarkName)
+BOOL CreateBookmark(char* pBookmarkName)
 {
-    BOOL    fSuccess                = FALSE;
+    BOOL    fSuccess = FALSE;
     char    szNameOfBM[REASONABLE_NAME_LEN];
     char    szURL[MAX_URL];
-    char    * pstrEndOfStr          = NULL;
-    char    * pstrBeginOfName       = NULL;
-    long    lStrLen                 = 0;
-    HANDLE  hFile                   = NULL;
+    char* pstrEndOfStr = NULL;
+    char* pstrBeginOfName = NULL;
+    long    lStrLen = 0;
+    HANDLE  hFile = NULL;
     DWORD   dwSize;
     char    szBuf[MAX_URL];
 
     //ASSERTSZ(NULL != pBookmarkName, "Bad input parameter");
-    if (NULL != pBookmarkName)
-    {
+    if (NULL != pBookmarkName) {
 
-    pstrEndOfStr = ANSIStrStr(pBookmarkName, END_URL_TOKEN);
+        pstrEndOfStr = ANSIStrStr(pBookmarkName, END_URL_TOKEN);
 #ifdef UNIX
-    if (!pstrEndOfStr)
-        pstrEndOfStr = ANSIStrStr(pBookmarkName, END_URL_TOKEN2);
+        if (!pstrEndOfStr)
+            pstrEndOfStr = ANSIStrStr(pBookmarkName, END_URL_TOKEN2);
 #endif
-    if (NULL != pstrEndOfStr)
-    {
-        lStrLen = (int) (pstrEndOfStr-pBookmarkName);
-        if (MAX_URL < lStrLen)
-        lStrLen = MAX_URL-1;
+        if (NULL != pstrEndOfStr) {
+            lStrLen = (int)(pstrEndOfStr - pBookmarkName);
+            if (MAX_URL < lStrLen)
+                lStrLen = MAX_URL - 1;
 
-        // Create the name of the Bookmark
-        StrCpyNA(szURL, pBookmarkName, ARRAYSIZE(szURL));
-        szURL[lStrLen] = '\0';
+            // Create the name of the Bookmark
+            StrCpyNA(szURL, pBookmarkName, ARRAYSIZE(szURL));
+            szURL[lStrLen] = '\0';
 
-        // filter out file links, we won't create a bookmark to a file link
-        // but remove the link silently and continue
-        if (IsFileUrl(szURL))
-            return TRUE;
+            // filter out file links, we won't create a bookmark to a file link
+            // but remove the link silently and continue
+            if (IsFileUrl(szURL))
+                return TRUE;
 
-        pstrBeginOfName = ANSIStrStr(pstrEndOfStr, BEGIN_BOOKMARK_TOKEN);
-        if (NULL != pstrBeginOfName)
-        {
-        pstrBeginOfName += sizeof(BEGIN_BOOKMARK_TOKEN) - 1;            // Start at beginning of Name
+            pstrBeginOfName = ANSIStrStr(pstrEndOfStr, BEGIN_BOOKMARK_TOKEN);
+            if (NULL != pstrBeginOfName) {
+                pstrBeginOfName += sizeof(BEGIN_BOOKMARK_TOKEN) - 1;            // Start at beginning of Name
 
-        pstrEndOfStr = ANSIStrStr(pstrBeginOfName, END_BOOKMARK_TOKEN); // Find end of name
-        if (NULL != pstrEndOfStr)
-        {
-            lStrLen = (int) (pstrEndOfStr-pstrBeginOfName);
-            if (REASONABLE_NAME_LEN-FILE_EXT < lStrLen)
-            lStrLen = REASONABLE_NAME_LEN-FILE_EXT-1;
+                pstrEndOfStr = ANSIStrStr(pstrBeginOfName, END_BOOKMARK_TOKEN); // Find end of name
+                if (NULL != pstrEndOfStr) {
+                    lStrLen = (int)(pstrEndOfStr - pstrBeginOfName);
+                    if (REASONABLE_NAME_LEN - FILE_EXT < lStrLen)
+                        lStrLen = REASONABLE_NAME_LEN - FILE_EXT - 1;
 
-            // Generate the URL
-            StrCpyNA(szNameOfBM, pstrBeginOfName, lStrLen+1);
-            //szNameOfBM[lStrLen] = '\0';
-            StrCatBuffA(szNameOfBM, ".url", ARRAYSIZE(szNameOfBM));
-            RemoveInvalidFileNameChars(szNameOfBM);
+                    // Generate the URL
+                    StrCpyNA(szNameOfBM, pstrBeginOfName, lStrLen + 1);
+                    //szNameOfBM[lStrLen] = '\0';
+                    StrCatBuffA(szNameOfBM, ".url", ARRAYSIZE(szNameOfBM));
+                    RemoveInvalidFileNameChars(szNameOfBM);
 
-            // Check to see if Favorite w/same name exists
-            if (INVALID_HANDLE_VALUE != (hFile = CreateFileA(szNameOfBM, GENERIC_WRITE, FILE_SHARE_READ, NULL,
-                                 CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL )))
-            {
-                WriteFile(hFile, "[InternetShortcut]\n", lstrlenA( "[InternetShortcut]\n" ), &dwSize, NULL);
-                wnsprintfA( szBuf, ARRAYSIZE(szBuf), "URL=%s\n", szURL);
-                WriteFile(hFile, szBuf, lstrlenA(szBuf), &dwSize, NULL );
-                fSuccess = TRUE;
+                    // Check to see if Favorite w/same name exists
+                    if (INVALID_HANDLE_VALUE != (hFile = CreateFileA(szNameOfBM, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+                                                                     CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL))) {
+                        WriteFile(hFile, "[InternetShortcut]\n", lstrlenA("[InternetShortcut]\n"), &dwSize, NULL);
+                        wnsprintfA(szBuf, ARRAYSIZE(szBuf), "URL=%s\n", szURL);
+                        WriteFile(hFile, szBuf, lstrlenA(szBuf), &dwSize, NULL);
+                        fSuccess = TRUE;
+                    } else {
+                        fSuccess = TRUE;
+                    }
+
+                    if (NULL != hFile) {
+                        CloseHandle(hFile);
+                        hFile = NULL;
+                    }
+
+                }
             }
-            else
-            {
-                fSuccess = TRUE;
-            }
-
-            if (NULL != hFile)
-            {
-                CloseHandle( hFile );
-                hFile = NULL;
-            }
-
         }
-        }
-    }
     }
 
     return(fSuccess);
@@ -852,39 +810,33 @@ BOOL CreateBookmark(char *pBookmarkName)
     will cause the function to return FALSE to indicate
     failure.
 \**/
-BOOL CreateDir(char *pDirName)
+BOOL CreateDir(char* pDirName)
 {
-    BOOL    fSuccess                = FALSE;
+    BOOL    fSuccess = FALSE;
     char    szNameOfDir[REASONABLE_NAME_LEN];
-    char    * pstrEndOfName         = NULL;
-    long    lStrLen                 = 0;
+    char* pstrEndOfName = NULL;
+    long    lStrLen = 0;
 
     //ASSERTSZ(NULL != pDirName, "Bad input parameter");
-    if (NULL != pDirName)
-    {
+    if (NULL != pDirName) {
         pstrEndOfName = ANSIStrStr(pDirName, END_DIR_TOKEN);
-        if (NULL != pstrEndOfName)
-        {
-            lStrLen = (int) (pstrEndOfName-pDirName);
+        if (NULL != pstrEndOfName) {
+            lStrLen = (int)(pstrEndOfName - pDirName);
             if (REASONABLE_NAME_LEN < lStrLen)
-            lStrLen = REASONABLE_NAME_LEN-1;
+                lStrLen = REASONABLE_NAME_LEN - 1;
 
-            StrCpyNA(szNameOfDir, pDirName, lStrLen+1);
+            StrCpyNA(szNameOfDir, pDirName, lStrLen + 1);
             //szNameOfDir[lStrLen] = '\0';
             RemoveInvalidFileNameChars(szNameOfDir);
 
             // BUGBUG : Try to CD into existing dir first
-            if ( !SetCurrentDirectoryA(szNameOfDir) )
-            {
-                if ( CreateDirectoryA(szNameOfDir, NULL) )
-                {
-                    if ( SetCurrentDirectoryA(szNameOfDir) )
-                    {
+            if (!SetCurrentDirectoryA(szNameOfDir)) {
+                if (CreateDirectoryA(szNameOfDir, NULL)) {
+                    if (SetCurrentDirectoryA(szNameOfDir)) {
                         fSuccess = TRUE;// It didn't exist, but now it does.
                     }
                 }
-            }
-            else
+            } else
                 fSuccess = TRUE;        // It exists already.
         }
     }
@@ -904,7 +856,7 @@ BOOL CreateDir(char *pDirName)
 \**/
 BOOL CloseDir(void)
 {
-    return( SetCurrentDirectoryA("..") );
+    return(SetCurrentDirectoryA(".."));
 }
 
 
@@ -926,8 +878,8 @@ BOOL CloseDir(void)
 
 BOOL VerifyBookmarksFile(HANDLE hFile)
 {
-    BOOL    fSuccess            = FALSE;
-    char    szFileHeader[sizeof(VALIDATION_STR)+1] = "";
+    BOOL    fSuccess = FALSE;
+    char    szFileHeader[sizeof(VALIDATION_STR) + 1] = "";
     DWORD   dwSize;
 
     //ASSERTSZ(NULL != pFile, "You can't pass me a NULL File Pointer");
@@ -936,15 +888,14 @@ BOOL VerifyBookmarksFile(HANDLE hFile)
 
     // Reading the first part of the file.  If the file isn't this long, then
     // it can't possibly be a Bookmarks file.
-    if ( ReadFile( hFile, szFileHeader, sizeof(VALIDATION_STR)-1, &dwSize, NULL ) && (dwSize == sizeof(VALIDATION_STR)-1) )
-    {
+    if (ReadFile(hFile, szFileHeader, sizeof(VALIDATION_STR) - 1, &dwSize, NULL) && (dwSize == sizeof(VALIDATION_STR) - 1)) {
 #ifndef UNIX
         szFileHeader[sizeof(VALIDATION_STR)] = '\0';            // Terminate String.
 #else
         // BUGBUG : The above statement doesn;t serve the purpose on UNIX.
         // I think we should change for NT also.
         // IEUNIX : NULL character after the buffer read
-        szFileHeader[sizeof(VALIDATION_STR)-1] = '\0';          // Terminate String.
+        szFileHeader[sizeof(VALIDATION_STR) - 1] = '\0';          // Terminate String.
 #endif
 
         if (0 == StrCmpA(szFileHeader, VALIDATION_STR))          // See if header is the same as the Validation string.
@@ -952,9 +903,9 @@ BOOL VerifyBookmarksFile(HANDLE hFile)
     }
 
     // Reset the point to point to the beginning of the file.
-    dwSize = SetFilePointer( hFile, 0, NULL, FILE_BEGIN );
-    if ( dwSize == 0xFFFFFFFF )
-         fSuccess = FALSE;
+    dwSize = SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+    if (dwSize == 0xFFFFFFFF)
+        fSuccess = FALSE;
 
     return(fSuccess);
 }
@@ -977,26 +928,22 @@ BOOL VerifyBookmarksFile(HANDLE hFile)
     needs to be freed by the falling function.
 \**/
 
-BOOL GetData(char ** ppData, HANDLE hFile)
+BOOL GetData(char** ppData, HANDLE hFile)
 {
     DWORD  dwlength, dwRead;
     BOOL   fSuccess = FALSE;
 
     //ASSERTSZ(NULL != ppData, "Invalid input parameter");
 
-    if (NULL != ppData)
-    {
+    if (NULL != ppData) {
         *ppData = NULL;
 
         // Find the size of the data
-        if ( dwlength = GetFileSize(hFile, NULL))
-        {
-            *ppData = (PSTR)LocalAlloc(LPTR, dwlength+1 );
-            if (NULL != *ppData)
-            {
-                if ( ReadFile( hFile, *ppData, dwlength+1, &dwRead, NULL ) &&
-                     ( dwlength == dwRead ) )
-                {
+        if (dwlength = GetFileSize(hFile, NULL)) {
+            *ppData = (PSTR)LocalAlloc(LPTR, dwlength + 1);
+            if (NULL != *ppData) {
+                if (ReadFile(hFile, *ppData, dwlength + 1, &dwRead, NULL) &&
+                    (dwlength == dwRead)) {
                     fSuccess = TRUE;
                 }
 
@@ -1011,7 +958,7 @@ BOOL GetData(char ** ppData, HANDLE hFile)
 
 // AddPath - added by julianj when porting from setup code to stand alone
 
-void PASCAL AddPath(LPTSTR pszPath, LPCTSTR pszName, int cchPath )
+void PASCAL AddPath(LPTSTR pszPath, LPCTSTR pszName, int cchPath)
 {
     LPTSTR pszTmp;
     int    cchTmp;
@@ -1021,16 +968,15 @@ void PASCAL AddPath(LPTSTR pszPath, LPCTSTR pszName, int cchPath )
     pszTmp = pszPath + cchTmp;
     cchTmp = cchPath - cchTmp;
 
-        // If no trailing backslash then add one
-    if ( pszTmp > pszPath && *(CharPrev( pszPath, pszTmp )) != FILENAME_SEPARATOR )
-    {
+    // If no trailing backslash then add one
+    if (pszTmp > pszPath&&* (CharPrev(pszPath, pszTmp)) != FILENAME_SEPARATOR) {
         *(pszTmp++) = FILENAME_SEPARATOR;
         cchTmp--;
     }
 
-        // Add new name to existing path string
-    while ( *pszName == TEXT(' ') ) pszName++;
-    StrCpyN( pszTmp, pszName, cchTmp );
+    // Add new name to existing path string
+    while (*pszName == TEXT(' ')) pszName++;
+    StrCpyN(pszTmp, pszName, cchTmp);
 }
 
 
@@ -1040,37 +986,31 @@ BOOL GetVersionFromFile(PTSTR pszFileName, PDWORD pdwMSVer, PDWORD pdwLSVer)
 {
     DWORD dwVerInfoSize, dwHandle;
     LPVOID lpVerInfo;
-    VS_FIXEDFILEINFO *pvsVSFixedFileInfo;
+    VS_FIXEDFILEINFO* pvsVSFixedFileInfo;
     UINT uSize;
 
     HRESULT hr = E_FAIL;
 
     *pdwMSVer = *pdwLSVer = 0;
 
-    if ((dwVerInfoSize = GetFileVersionInfoSize(pszFileName, &dwHandle)))
-    {
-        if ((lpVerInfo = (LPVOID) LocalAlloc(LPTR, dwVerInfoSize)) != NULL)
-        {
-            if (GetFileVersionInfo(pszFileName, dwHandle, dwVerInfoSize, lpVerInfo))
-            {
-                if (VerQueryValue(lpVerInfo, TEXT("\\"), (LPVOID *) &pvsVSFixedFileInfo, &uSize))
-                {
+    if ((dwVerInfoSize = GetFileVersionInfoSize(pszFileName, &dwHandle))) {
+        if ((lpVerInfo = (LPVOID)LocalAlloc(LPTR, dwVerInfoSize)) != NULL) {
+            if (GetFileVersionInfo(pszFileName, dwHandle, dwVerInfoSize, lpVerInfo)) {
+                if (VerQueryValue(lpVerInfo, TEXT("\\"), (LPVOID*)&pvsVSFixedFileInfo, &uSize)) {
                     *pdwMSVer = pvsVSFixedFileInfo->dwFileVersionMS;
                     *pdwLSVer = pvsVSFixedFileInfo->dwFileVersionLS;
                     hr = S_OK;
                 }
             }
             LocalFree(lpVerInfo);
-        }
-        else
-        {
+        } else {
             hr = E_OUTOFMEMORY;
         }
     }
     return hr;
 }
 
-BOOL GetNavBkMkDir( LPTSTR lpszDir, int isize)
+BOOL GetNavBkMkDir(LPTSTR lpszDir, int isize)
 {
     BOOL    bDirFound = FALSE;
 #ifndef UNIX
@@ -1080,33 +1020,26 @@ BOOL GetNavBkMkDir( LPTSTR lpszDir, int isize)
     TCHAR   szUser[MAX_PATH];
     DWORD   dwSize;
 
-    StrCpyN( szUser, REGSTR_PATH_APPPATHS, ARRAYSIZE(szUser) );
-    AddPath( szUser, TEXT("NetScape.exe"), ARRAYSIZE(szUser) );
-    if ( GetPathFromRegistry( szDir, MAX_PATH, HKEY_LOCAL_MACHINE, szUser, TEXT("") ) &&
-         lstrlen(szDir) )
-    {
+    StrCpyN(szUser, REGSTR_PATH_APPPATHS, ARRAYSIZE(szUser));
+    AddPath(szUser, TEXT("NetScape.exe"), ARRAYSIZE(szUser));
+    if (GetPathFromRegistry(szDir, MAX_PATH, HKEY_LOCAL_MACHINE, szUser, TEXT("")) &&
+        lstrlen(szDir)) {
         DWORD dwMV, dwLV;
 
-        if ( SUCCEEDED(GetVersionFromFile( szDir, &dwMV, &dwLV )) )
-        {
-            if ( dwMV < 0x00040000 )
-                bDirFound = GetPathFromRegistry( lpszDir, isize, HKEY_CURRENT_USER,
-                                     szNetscapeBMRegSub, szNetscapeBMRegKey);
-            else
-            {
-                if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Netscape\\Netscape Navigator\\Users"), 0, KEY_READ, &hKey) == ERROR_SUCCESS)
-                {
+        if (SUCCEEDED(GetVersionFromFile(szDir, &dwMV, &dwLV))) {
+            if (dwMV < 0x00040000)
+                bDirFound = GetPathFromRegistry(lpszDir, isize, HKEY_CURRENT_USER,
+                                                szNetscapeBMRegSub, szNetscapeBMRegKey);
+            else {
+                if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Netscape\\Netscape Navigator\\Users"), 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
                     dwSize = sizeof(szUser);
-                    if (RegQueryValueEx(hKey, TEXT("CurrentUser"), NULL, NULL, (LPBYTE)szUser, &dwSize) == ERROR_SUCCESS)
-                    {
-                        if (RegOpenKeyEx(hKey, szUser, 0, KEY_READ, &hKeyUser) == ERROR_SUCCESS)
-                        {
+                    if (RegQueryValueEx(hKey, TEXT("CurrentUser"), NULL, NULL, (LPBYTE)szUser, &dwSize) == ERROR_SUCCESS) {
+                        if (RegOpenKeyEx(hKey, szUser, 0, KEY_READ, &hKeyUser) == ERROR_SUCCESS) {
                             dwSize = sizeof(szDir);
-                            if (RegQueryValueEx(hKeyUser, TEXT("DirRoot"), NULL, NULL, (LPBYTE)szDir, &dwSize) == ERROR_SUCCESS)
-                            {
+                            if (RegQueryValueEx(hKeyUser, TEXT("DirRoot"), NULL, NULL, (LPBYTE)szDir, &dwSize) == ERROR_SUCCESS) {
                                 // Found the directory for the current user.
-                                StrCpyN( lpszDir, szDir, isize);
-                                AddPath( lpszDir, TEXT("bookmark.htm"), isize );
+                                StrCpyN(lpszDir, szDir, isize);
+                                AddPath(lpszDir, TEXT("bookmark.htm"), isize);
                                 bDirFound = TRUE;
                             }
                             RegCloseKey(hKeyUser);
@@ -1116,11 +1049,10 @@ BOOL GetNavBkMkDir( LPTSTR lpszDir, int isize)
                 }
             }
         }
-    }
-    else
+    } else
 #endif
-        bDirFound = GetPathFromRegistry( lpszDir, isize, HKEY_CURRENT_USER,
-                                         szNetscapeBMRegSub, szNetscapeBMRegKey);
+        bDirFound = GetPathFromRegistry(lpszDir, isize, HKEY_CURRENT_USER,
+                                        szNetscapeBMRegSub, szNetscapeBMRegKey);
 
     return bDirFound;
 }
@@ -1146,7 +1078,7 @@ int Indent = 0;
 
 HANDLE g_hOutputStream = INVALID_HANDLE_VALUE;
 
-void Output(const char *format, ...)
+void Output(const char* format, ...)
 {
     DWORD dwSize;
     char buf[MAX_URL];
@@ -1155,8 +1087,7 @@ void Output(const char *format, ...)
 
     va_start(argptr, format);
 
-    for (int i=0; i<Indent*INDENT_AMOUNT; i++)
-    {
+    for (int i = 0; i < Indent * INDENT_AMOUNT; i++) {
         WriteFile(g_hOutputStream, " ", 1, &dwSize, NULL);
     }
 
@@ -1164,7 +1095,7 @@ void Output(const char *format, ...)
     WriteFile(g_hOutputStream, buf, lstrlenA(buf), &dwSize, NULL);
 }
 
-void OutputLn(const char *format, ...)
+void OutputLn(const char* format, ...)
 {
     DWORD dwSize;
     char buf[MAX_URL];
@@ -1173,8 +1104,7 @@ void OutputLn(const char *format, ...)
 
     va_start(argptr, format);
 
-    for (int i=0; i<Indent*INDENT_AMOUNT; i++)
-    {
+    for (int i = 0; i < Indent * INDENT_AMOUNT; i++) {
         WriteFile(g_hOutputStream, " ", 1, &dwSize, NULL);
     }
 
@@ -1202,15 +1132,14 @@ UINT GetUnixFileTime(LPTSTR pszFileName, int mode)
     WIN32_FIND_DATA wfd;
     HANDLE hFind;
 
-    hFind = FindFirstFile(pszFileName,&wfd);
+    hFind = FindFirstFile(pszFileName, &wfd);
 
     if (hFind == INVALID_HANDLE_VALUE)
         return 0;
 
     FindClose(hFind);
 
-    switch (mode)
-    {
+    switch (mode) {
 
     case CREATION_TIME:
         return FILETIME_TO_UNIXTIME(wfd.ftCreationTime);
@@ -1229,7 +1158,7 @@ UINT GetUnixFileTime(LPTSTR pszFileName, int mode)
 
 }
 
-void WalkTree(TCHAR * szDir)
+void WalkTree(TCHAR* szDir)
 {
     WIN32_FIND_DATA findFileData;
     TCHAR buf[MAX_PATH];
@@ -1242,13 +1171,10 @@ void WalkTree(TCHAR * szDir)
 
     wnsprintf(buf, ARRAYSIZE(buf), TEXT("%s") TEXT(FILENAME_SEPARATOR_STR) TEXT("*"), szDir);
     hFind = FindFirstFile(buf, &findFileData);
-    if (INVALID_HANDLE_VALUE != hFind)
-    {
-        do
-        {
-            if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            {
-                if ((StrCmp(findFileData.cFileName, TEXT(".")) != 0  &&
+    if (INVALID_HANDLE_VALUE != hFind) {
+        do {
+            if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                if ((StrCmp(findFileData.cFileName, TEXT(".")) != 0 &&
                      StrCmp(findFileData.cFileName, TEXT("..")) != 0 &&
                      StrCmp(findFileData.cFileName, TEXT("History")) != 0 && // REVIEW just for JJ. Should check for system bit on folders
                      StrCmp(findFileData.cFileName, TEXT("Software Updates")) != 0 && // don't export software updates
@@ -1257,18 +1183,15 @@ void WalkTree(TCHAR * szDir)
                     char thisFile[MAX_PATH];
                     wnsprintf(buf, ARRAYSIZE(buf), TEXT("%s") TEXT(FILENAME_SEPARATOR_STR) TEXT("%s"), szDir, findFileData.cFileName);
 
-                    if (!(GetFileAttributes(buf)&FILE_ATTRIBUTE_SYSTEM))
-                    {
+                    if (!(GetFileAttributes(buf) & FILE_ATTRIBUTE_SYSTEM)) {
                         SHTCharToAnsi(findFileData.cFileName, thisFile, MAX_PATH);
-                        OutputLn("<DT><H3 FOLDED ADD_DATE=\"%u\">%s</H3>", GetUnixFileTime(buf,CREATION_TIME), thisFile);
+                        OutputLn("<DT><H3 FOLDED ADD_DATE=\"%u\">%s</H3>", GetUnixFileTime(buf, CREATION_TIME), thisFile);
                         OutputLn("<DL><p>");
                         WalkTree(buf);
                         OutputLn(BEGIN_EXITDIR_TOKEN);
                     }
 
-                }
-                else
-                {
+                } else {
                     ; // ignore . and ..
                 }
             }
@@ -1282,12 +1205,9 @@ void WalkTree(TCHAR * szDir)
 
     wnsprintf(buf, ARRAYSIZE(buf), TEXT("%s") TEXT(FILENAME_SEPARATOR_STR) TEXT("*"), szDir);
     hFind = FindFirstFile(buf, &findFileData);
-    if (INVALID_HANDLE_VALUE != hFind)
-    {
-        do
-        {
-            if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            {
+    if (INVALID_HANDLE_VALUE != hFind) {
+        do {
+            if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
                 wnsprintf(buf, ARRAYSIZE(buf), TEXT("%s") TEXT(FILENAME_SEPARATOR_STR) TEXT("%s"), szDir, findFileData.cFileName);
 
 
@@ -1302,8 +1222,7 @@ void WalkTree(TCHAR * szDir)
                     MAX_PATH,
                     buf);        // full path to .url file
 
-                if (*szUrl != 0)
-                {
+                if (*szUrl != 0) {
 
                     // create a copy of the filename without the extension
                     // note PathFindExtension returns a ptr to the NULL at
@@ -1311,17 +1230,17 @@ void WalkTree(TCHAR * szDir)
 
                     TCHAR szFileName[MAX_PATH];
                     StrCpyN(szFileName, findFileData.cFileName, ARRAYSIZE(szFileName));
-                    TCHAR *pch = PathFindExtension(szFileName);
+                    TCHAR* pch = PathFindExtension(szFileName);
                     *pch = TEXT('\0'); //
                     char  szUrlAnsi[MAX_PATH], szFileNameAnsi[MAX_PATH];
                     SHTCharToAnsi(szUrl, szUrlAnsi, MAX_PATH);
                     SHTCharToAnsi(szFileName, szFileNameAnsi, MAX_PATH);
                     OutputLn("<DT><A HREF=\"%s\" ADD_DATE=\"%u\" LAST_VISIT=\"%u\" LAST_MODIFIED=\"%u\">%s</A>",
-                        szUrlAnsi,
-                        GetUnixFileTime(buf,CREATION_TIME),
-                        GetUnixFileTime(buf,ACCESS_TIME),
-                        GetUnixFileTime(buf,MODIFY_TIME),
-                        szFileNameAnsi);
+                             szUrlAnsi,
+                             GetUnixFileTime(buf, CREATION_TIME),
+                             GetUnixFileTime(buf, ACCESS_TIME),
+                             GetUnixFileTime(buf, MODIFY_TIME),
+                             szFileNameAnsi);
                 }
             }
         } while (FindNextFile(hFind, &findFileData));
@@ -1332,7 +1251,7 @@ void WalkTree(TCHAR * szDir)
     Indent--;
 }
 
-BOOL ExportFavorites(TCHAR * pszPathToFavorites, TCHAR * pszPathToBookmarks, HWND hwnd)
+BOOL ExportFavorites(TCHAR* pszPathToFavorites, TCHAR* pszPathToBookmarks, HWND hwnd)
 {
     // Prompt the user to insert floppy, format floppy or drive, remount mapped partition,
     // or any create sub directories so pszPathToBookmarks becomes valid.
@@ -1400,17 +1319,17 @@ BOOL ExportFavorites(TCHAR * pszPathToFavorites, TCHAR * pszPathToBookmarks, HWN
 
 
 
-TCHAR g_szPathToFavorites[MAX_PATH+1];
-TCHAR g_szPathToBookmarks[MAX_PATH+1];
+TCHAR g_szPathToFavorites[MAX_PATH + 1];
+TCHAR g_szPathToBookmarks[MAX_PATH + 1];
 LPITEMIDLIST g_pidlFavorites = NULL;
 
-enum DIALOG_TYPE {FILE_OPEN_DIALOG, FILE_SAVE_DIALOG};
+enum DIALOG_TYPE { FILE_OPEN_DIALOG, FILE_SAVE_DIALOG };
 
-BOOL BrowseForBookmarks(TCHAR *pszPathToBookmarks, int cchPathToBookmarks, HWND hwnd, DIALOG_TYPE dialogType)
+BOOL BrowseForBookmarks(TCHAR* pszPathToBookmarks, int cchPathToBookmarks, HWND hwnd, DIALOG_TYPE dialogType)
 {
     TCHAR szFile[MAX_PATH];
     TCHAR szDir[MAX_PATH];
-    TCHAR *pszFileName = PathFindFileName(pszPathToBookmarks);
+    TCHAR* pszFileName = PathFindFileName(pszPathToBookmarks);
     TCHAR szDialogTitle[MAX_PATH];
 
 
@@ -1419,8 +1338,8 @@ BOOL BrowseForBookmarks(TCHAR *pszPathToBookmarks, int cchPathToBookmarks, HWND 
     // so it contains the initial working directory for the dialog
 
     StrCpyN(szFile, pszFileName, ARRAYSIZE(szFile));
-    StrCpyN(szDir,  pszPathToBookmarks, ARRAYSIZE(szDir));
-    szDir[pszFileName-pszPathToBookmarks] = TEXT('\0');
+    StrCpyN(szDir, pszPathToBookmarks, ARRAYSIZE(szDir));
+    szDir[pszFileName - pszPathToBookmarks] = TEXT('\0');
 
 
     // Use common dialog code to get path to folder
@@ -1436,26 +1355,21 @@ BOOL BrowseForBookmarks(TCHAR *pszPathToBookmarks, int cchPathToBookmarks, HWND 
     ofn.lpstrInitialDir = szDir;
     ofn.lpstrDefExt = TEXT("htm");
 
-    if (dialogType == FILE_SAVE_DIALOG)
-    {
+    if (dialogType == FILE_SAVE_DIALOG) {
         MLLoadString(IDS_EXPORTDIALOGTITLE, szDialogTitle, ARRAYSIZE(szDialogTitle));
 
         ofn.lpstrTitle = szDialogTitle;
         ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
-        if (GetSaveFileName(&ofn))
-        {
+        if (GetSaveFileName(&ofn)) {
             StrCpyN(pszPathToBookmarks, szFile, cchPathToBookmarks);
             return TRUE;
         }
-    }
-    else
-    {
+    } else {
         MLLoadString(IDS_IMPORTDIALOGTITLE, szDialogTitle, ARRAYSIZE(szDialogTitle));
 
         ofn.lpstrTitle = szDialogTitle;
         ofn.Flags = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
-        if (GetOpenFileName(&ofn))
-        {
+        if (GetOpenFileName(&ofn)) {
             StrCpyN(pszPathToBookmarks, szFile, cchPathToBookmarks);
             return TRUE;
         }
@@ -1474,21 +1388,17 @@ HRESULT CreateILFromPath(LPCTSTR pszPath, LPITEMIDLIST* ppidl)
 
     hr = SHGetDesktopFolder(&pIShellFolder);
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         // ASSERT(pIShellFolder);
 
         WCHAR wszPath[MAX_PATH];
 
-        if (SHTCharToUnicode(pszPath, wszPath, ARRAYSIZE(wszPath)))
-        {
+        if (SHTCharToUnicode(pszPath, wszPath, ARRAYSIZE(wszPath))) {
             ULONG ucch;
 
             hr = pIShellFolder->ParseDisplayName(NULL, NULL, wszPath, &ucch,
                                                  ppidl, NULL);
-        }
-        else
-        {
+        } else {
             hr = E_FAIL;
         }
         pIShellFolder->Release();
@@ -1498,8 +1408,7 @@ HRESULT CreateILFromPath(LPCTSTR pszPath, LPITEMIDLIST* ppidl)
 
 int CALLBACK BrowseForFavoritesCallBack(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case BFFM_INITIALIZED:
         SendMessage(hwnd, BFFM_SETSELECTIONA, (WPARAM)TRUE, lpData);
         break;
@@ -1511,7 +1420,7 @@ int CALLBACK BrowseForFavoritesCallBack(HWND hwnd, UINT uMsg, LPARAM lParam, LPA
 }
 
 
-void BrowseForFavorites(char *pszPathToFavorites, HWND hwnd)
+void BrowseForFavorites(char* pszPathToFavorites, HWND hwnd)
 {
 
     // Use SHBrowseForFolder to get path to folder
@@ -1532,8 +1441,7 @@ void BrowseForFavorites(char *pszPathToFavorites, HWND hwnd)
     bi.lParam = (LPARAM)pszPathToFavorites;
     LPITEMIDLIST pidl = SHBrowseForFolderA(&bi);
 
-    if (pidl)
-    {
+    if (pidl) {
         SHGetPathFromIDListA(pidl, pszPathToFavorites);
         ILFree(pidl);
     };
@@ -1560,13 +1468,12 @@ void InitializePaths()
     // Read the Netscape users bookmark file location and the
     // current users favorite path from registry
 
-    if (!GetNavBkMkDir(g_szPathToBookmarks, MAX_PATH))
-    {
+    if (!GetNavBkMkDir(g_szPathToBookmarks, MAX_PATH)) {
 
         // If Nav isn't installed then use the desktop
 
         GetPathFromRegistry(g_szPathToBookmarks, MAX_PATH, HKEY_CURRENT_USER,
-            REG_STR_SHELLFOLDERS, REG_STR_DESKTOP);
+                            REG_STR_SHELLFOLDERS, REG_STR_DESKTOP);
         StrCatBuff(g_szPathToBookmarks, STR_BOOKMARK_FILE, ARRAYSIZE(g_szPathToBookmarks));
     }
 
@@ -1584,8 +1491,7 @@ void InitializePaths()
     DWORD dwSize;
     DWORD dwType;
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_STR_IMPEXP, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_STR_IMPEXP, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
         dwSize = MAX_PATH;
         dwType = REG_SZ;
         RegQueryValueEx(hKey, REG_STR_PATHTOBOOKMARKS, 0, &dwType, (LPBYTE)g_szPathToBookmarks, &dwSize);
@@ -1603,10 +1509,9 @@ void PersistPaths()
     HKEY hKey;
     DWORD dwDisp;
 
-    if (RegCreateKeyEx(HKEY_CURRENT_USER, REG_STR_IMPEXP, 0, NULL, 0, KEY_WRITE, NULL, &hKey, &dwDisp) == ERROR_SUCCESS)
-    {
-        RegSetValueEx(hKey, REG_STR_PATHTOBOOKMARKS, 0, REG_SZ, (LPBYTE)g_szPathToBookmarks, (lstrlen(g_szPathToBookmarks)+1)*sizeof(TCHAR));
-        RegSetValueEx(hKey, REG_STR_PATHTOFAVORITES, 0, REG_SZ, (LPBYTE)g_szPathToFavorites, (lstrlen(g_szPathToFavorites)+1)*sizeof(TCHAR));
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, REG_STR_IMPEXP, 0, NULL, 0, KEY_WRITE, NULL, &hKey, &dwDisp) == ERROR_SUCCESS) {
+        RegSetValueEx(hKey, REG_STR_PATHTOBOOKMARKS, 0, REG_SZ, (LPBYTE)g_szPathToBookmarks, (lstrlen(g_szPathToBookmarks) + 1) * sizeof(TCHAR));
+        RegSetValueEx(hKey, REG_STR_PATHTOFAVORITES, 0, REG_SZ, (LPBYTE)g_szPathToFavorites, (lstrlen(g_szPathToFavorites) + 1) * sizeof(TCHAR));
         RegCloseKey(hKey);
     }
 }
@@ -1622,10 +1527,9 @@ BOOL IsImportExportDisabled(void)
     DWORD value = 0;
     BOOL  bret = FALSE;
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_STR_IE_POLICIES, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, REG_STR_IE_POLICIES, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
         if (RegQueryValueEx(hKey, REG_STR_IMPEXP_POLICIES, 0, &dwType, (PBYTE)&value, &dwSize) == ERROR_SUCCESS &&
-                   (dwType == REG_BINARY || dwType == REG_DWORD))
+            (dwType == REG_BINARY || dwType == REG_DWORD))
             bret = (value) ? TRUE : FALSE;
 
         RegCloseKey(hKey);
@@ -1646,15 +1550,14 @@ void DoImportOrExport(BOOL fImport, LPCWSTR pwszPath, LPCWSTR pwszImpExpPath, BO
     hwnd = GetActiveWindow();
 
     // Decide if import/export is allowed here
-    if (IsImportExportDisabled())
-    {
+    if (IsImportExportDisabled()) {
         MLShellMessageBox(
-                        hwnd,
-                        (fImport) ? MAKEINTRESOURCE(IDS_IMPORT_DISABLED) :
-                                    MAKEINTRESOURCE(IDS_EXPORT_DISABLED),
-                        (fImport) ? MAKEINTRESOURCE(IDS_CONFIRM_IMPTTL_FAV) :
-                                    MAKEINTRESOURCE(IDS_CONFIRM_EXPTTL_FAV),
-                        MB_OK);
+            hwnd,
+            (fImport) ? MAKEINTRESOURCE(IDS_IMPORT_DISABLED) :
+            MAKEINTRESOURCE(IDS_EXPORT_DISABLED),
+            (fImport) ? MAKEINTRESOURCE(IDS_CONFIRM_IMPTTL_FAV) :
+            MAKEINTRESOURCE(IDS_CONFIRM_EXPTTL_FAV),
+            MB_OK);
         return;
     }
 
@@ -1664,8 +1567,7 @@ void DoImportOrExport(BOOL fImport, LPCWSTR pwszPath, LPCWSTR pwszImpExpPath, BO
 
     // Overwrite path to favorites with passed in one if present
 
-    if (pwszPath && *pwszPath != 0)
-    {
+    if (pwszPath && *pwszPath != 0) {
         SHUnicodeToTChar(pwszPath, g_szPathToFavorites, ARRAYSIZE(g_szPathToFavorites));
     }
 
@@ -1674,21 +1576,17 @@ void DoImportOrExport(BOOL fImport, LPCWSTR pwszPath, LPCWSTR pwszImpExpPath, BO
     //   (we expect pwszImpExpPath an absolute path)
     // if it's not a valid URL or filename, we give error message and bail out
 
-    if (pwszImpExpPath && *pwszImpExpPath != 0)
-    {
+    if (pwszImpExpPath && *pwszImpExpPath != 0) {
         SHUnicodeToTChar(pwszImpExpPath, szImpExpPath, ARRAYSIZE(szImpExpPath));
 
-        if (PathIsURL(pwszImpExpPath))
-        {
+        if (PathIsURL(pwszImpExpPath)) {
 
             TCHAR szDialogTitle[MAX_PATH];
-            TCHAR szfmt[MAX_PATH], szmsg[MAX_PATH+INTERNET_MAX_URL_LENGTH];
+            TCHAR szfmt[MAX_PATH], szmsg[MAX_PATH + INTERNET_MAX_URL_LENGTH];
             fRemote = TRUE;
 
-            if (fImport)
-            {
-                if (fConfirm)
-                {
+            if (fImport) {
+                if (fConfirm) {
 
                     // Show confirmation UI when importing over internet
 
@@ -1696,14 +1594,13 @@ void DoImportOrExport(BOOL fImport, LPCWSTR pwszPath, LPCWSTR pwszImpExpPath, BO
                     MLLoadShellLangString(IDS_CONFIRM_IMPORT, szfmt, ARRAYSIZE(szfmt));
                     wnsprintf(szmsg, ARRAYSIZE(szmsg), szfmt, szImpExpPath);
                     if (MLShellMessageBox(hwnd, szmsg, szDialogTitle,
-                                              MB_YESNO | MB_ICONQUESTION) == IDNO)
+                                          MB_YESNO | MB_ICONQUESTION) == IDNO)
                         return;
                 }
                 // download imported file to cache
 
-                if ( (IsGlobalOffline() && !InternetGoOnline(g_szPathToBookmarks,hwnd,0)) ||
-                      FAILED(URLDownloadToCacheFile(NULL, szImpExpPath, g_szPathToBookmarks, MAX_PATH, 0, NULL)))
-                {
+                if ((IsGlobalOffline() && !InternetGoOnline(g_szPathToBookmarks, hwnd, 0)) ||
+                    FAILED(URLDownloadToCacheFile(NULL, szImpExpPath, g_szPathToBookmarks, MAX_PATH, 0, NULL))) {
                     MLShellMessageBox(
                         hwnd,
                         MAKEINTRESOURCE(IDS_IMPORTFAILURE_FAV),
@@ -1711,11 +1608,8 @@ void DoImportOrExport(BOOL fImport, LPCWSTR pwszPath, LPCWSTR pwszImpExpPath, BO
                         MB_OK);
                     return;
                 }
-            }
-            else
-            {
-                if (fConfirm)
-                {
+            } else {
+                if (fConfirm) {
 
                     // Show confirmation UI when exporting over internet
 
@@ -1723,7 +1617,7 @@ void DoImportOrExport(BOOL fImport, LPCWSTR pwszPath, LPCWSTR pwszImpExpPath, BO
                     MLLoadShellLangString(IDS_CONFIRM_EXPORT, szfmt, ARRAYSIZE(szfmt));
                     wnsprintf(szmsg, ARRAYSIZE(szmsg), szfmt, szImpExpPath);
                     if (MLShellMessageBox(hwnd, szmsg, szDialogTitle,
-                                              MB_YESNO | MB_ICONQUESTION) == IDNO)
+                                          MB_YESNO | MB_ICONQUESTION) == IDNO)
                         return;
                 }
 
@@ -1731,26 +1625,21 @@ void DoImportOrExport(BOOL fImport, LPCWSTR pwszPath, LPCWSTR pwszImpExpPath, BO
                 // Create bookmark file name from bookmark directory with favorite name so we can export
                 // favorites to local file before posting to URL
 
-                TCHAR *pszFav = PathFindFileName(g_szPathToFavorites);
-                TCHAR *pszBMD = PathFindFileName(g_szPathToBookmarks);
-                if (pszFav && pszBMD)
-                {
+                TCHAR* pszFav = PathFindFileName(g_szPathToFavorites);
+                TCHAR* pszBMD = PathFindFileName(g_szPathToBookmarks);
+                if (pszFav && pszBMD) {
                     StrCpyN(pszBMD, pszFav, ARRAYSIZE(g_szPathToBookmarks) - ((int)(pszFav - g_szPathToBookmarks)));
                     StrCatBuff(pszBMD, TEXT(".htm"), ARRAYSIZE(g_szPathToBookmarks) - ((int)(pszFav - g_szPathToBookmarks)));
                 }
 
             }
-        }
-        else
-        {
+        } else {
 
-            if (fConfirm)
-            {
+            if (fConfirm) {
                 TCHAR szDialogTitle[MAX_PATH];
-                TCHAR szfmt[MAX_PATH], szmsg[MAX_PATH+INTERNET_MAX_URL_LENGTH];
+                TCHAR szfmt[MAX_PATH], szmsg[MAX_PATH + INTERNET_MAX_URL_LENGTH];
 
-                if (fImport)
-                {
+                if (fImport) {
 
                     // Show confirmation UI when importing
 
@@ -1758,11 +1647,9 @@ void DoImportOrExport(BOOL fImport, LPCWSTR pwszPath, LPCWSTR pwszImpExpPath, BO
                     MLLoadShellLangString(IDS_CONFIRM_IMPORT, szfmt, ARRAYSIZE(szfmt));
                     wnsprintf(szmsg, ARRAYSIZE(szmsg), szfmt, szImpExpPath);
                     if (MLShellMessageBox(hwnd, szmsg, szDialogTitle,
-                                              MB_YESNO | MB_ICONQUESTION) == IDNO)
+                                          MB_YESNO | MB_ICONQUESTION) == IDNO)
                         return;
-                }
-                else
-                {
+                } else {
 
                     // Show confirmation UI when exporting.
 
@@ -1770,20 +1657,17 @@ void DoImportOrExport(BOOL fImport, LPCWSTR pwszPath, LPCWSTR pwszImpExpPath, BO
                     MLLoadShellLangString(IDS_CONFIRM_EXPORT, szfmt, ARRAYSIZE(szfmt));
                     wnsprintf(szmsg, ARRAYSIZE(szmsg), szfmt, szImpExpPath);
                     if (MLShellMessageBox(hwnd, szmsg, szDialogTitle,
-                                              MB_YESNO | MB_ICONQUESTION) == IDNO)
+                                          MB_YESNO | MB_ICONQUESTION) == IDNO)
                         return;
                 }
             }
 
-            if (PathFindFileName(szImpExpPath) != szImpExpPath)
-            {
+            if (PathFindFileName(szImpExpPath) != szImpExpPath) {
 
                 //override path to bookmarks with passed in one
                 StrCpyN(g_szPathToBookmarks, szImpExpPath, ARRAYSIZE(g_szPathToBookmarks));
 
-            }
-            else
-            {
+            } else {
                 MLShellMessageBox(
                     hwnd,
                     MAKEINTRESOURCE(IDS_IMPORTFAILURE_FAV),
@@ -1793,19 +1677,14 @@ void DoImportOrExport(BOOL fImport, LPCWSTR pwszPath, LPCWSTR pwszImpExpPath, BO
             }
 
         }
-    }
-    else
-    {
-        if (fImport)
-        {
+    } else {
+        if (fImport) {
 
             // Do Import Favorites UI
 
             if (!BrowseForBookmarks(g_szPathToBookmarks, ARRAYSIZE(g_szPathToBookmarks), hwnd, FILE_OPEN_DIALOG))
                 return;
-        }
-        else
-        {
+        } else {
 
             // Do Export Favorites UI
 
@@ -1814,64 +1693,50 @@ void DoImportOrExport(BOOL fImport, LPCWSTR pwszPath, LPCWSTR pwszImpExpPath, BO
         }
     }
 
-    if (fImport)
-    {
-        if (ImportBookmarks(g_szPathToFavorites, g_szPathToBookmarks, hwnd))
-        {
+    if (fImport) {
+        if (ImportBookmarks(g_szPathToFavorites, g_szPathToBookmarks, hwnd)) {
             MLShellMessageBox(hwnd, MAKEINTRESOURCE(IDS_IMPORTSUCCESS_FAV), MAKEINTRESOURCE(IDS_CONFIRM_IMPTTL_FAV), MB_OK);
 #ifdef UNIX
-        SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH | SHCNF_FLUSH, g_szPathToFavorites, 0);
+            SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH | SHCNF_FLUSH, g_szPathToFavorites, 0);
 #endif
             if (!fRemote)
                 PersistPaths();
-        }
-        else
-        {
+        } else {
             ; // ImportBookmarks will report errors
         }
-    }
-    else
-    {
-        if (ExportFavorites(g_szPathToFavorites, g_szPathToBookmarks, hwnd))
-        {
-            if (fRemote)
-            {
-                if ( (!IsGlobalOffline() || InternetGoOnline(g_szPathToBookmarks,hwnd,0)) &&
-                       PostFavorites(g_szPathToBookmarks, szImpExpPath))
-                {
+    } else {
+        if (ExportFavorites(g_szPathToFavorites, g_szPathToBookmarks, hwnd)) {
+            if (fRemote) {
+                if ((!IsGlobalOffline() || InternetGoOnline(g_szPathToBookmarks, hwnd, 0)) &&
+                    PostFavorites(g_szPathToBookmarks, szImpExpPath)) {
                     MLShellMessageBox(
-                                hwnd,
-                                MAKEINTRESOURCE(IDS_EXPORTSUCCESS_FAV),
-                                MAKEINTRESOURCE(IDS_CONFIRM_EXPTTL_FAV),
-                                MB_OK);
-                }
-                else
+                        hwnd,
+                        MAKEINTRESOURCE(IDS_EXPORTSUCCESS_FAV),
+                        MAKEINTRESOURCE(IDS_CONFIRM_EXPTTL_FAV),
+                        MB_OK);
+                } else
                     MLShellMessageBox(
-                                hwnd,
-                                MAKEINTRESOURCE(IDS_EXPORTFAILURE_FAV),
-                                MAKEINTRESOURCE(IDS_CONFIRM_EXPTTL_FAV),
-                                MB_OK);
+                        hwnd,
+                        MAKEINTRESOURCE(IDS_EXPORTFAILURE_FAV),
+                        MAKEINTRESOURCE(IDS_CONFIRM_EXPTTL_FAV),
+                        MB_OK);
 
                 //Remove temp file on local disk
                 DeleteFile(g_szPathToBookmarks);
-            }
-            else
-            {
+            } else {
                 MLShellMessageBox(
-                                hwnd,
-                                MAKEINTRESOURCE(IDS_EXPORTSUCCESS_FAV),
-                                MAKEINTRESOURCE(IDS_CONFIRM_EXPTTL_FAV),
-                                MB_OK);
+                    hwnd,
+                    MAKEINTRESOURCE(IDS_EXPORTSUCCESS_FAV),
+                    MAKEINTRESOURCE(IDS_CONFIRM_EXPTTL_FAV),
+                    MB_OK);
                 PersistPaths();
             }
-        }
-        else
-        {
+        } else {
             MLShellMessageBox(
-                            hwnd,
-                            MAKEINTRESOURCE(IDS_EXPORTFAILURE_FAV),
-                            MAKEINTRESOURCE(IDS_CONFIRM_EXPTTL_FAV),
-                            MB_OK);
+                hwnd,
+                MAKEINTRESOURCE(IDS_EXPORTFAILURE_FAV),
+                MAKEINTRESOURCE(IDS_CONFIRM_EXPTTL_FAV),
+                MB_OK);
         }
     }
 }
@@ -1907,12 +1772,12 @@ void CloseRequest(void)
 
 }
 
-HRESULT InitRequest(LPSTR pszPostURL, BOOL bAsync, ASYNCRES *pasyncres)
+HRESULT InitRequest(LPSTR pszPostURL, BOOL bAsync, ASYNCRES* pasyncres)
 {
-    char    hostName[INTERNET_MAX_HOST_NAME_LENGTH+1];
-    char    userName[INTERNET_MAX_USER_NAME_LENGTH+1];
-    char    password[INTERNET_MAX_PASSWORD_LENGTH+1];
-    char    urlPath[INTERNET_MAX_PATH_LENGTH+1];
+    char    hostName[INTERNET_MAX_HOST_NAME_LENGTH + 1];
+    char    userName[INTERNET_MAX_USER_NAME_LENGTH + 1];
+    char    password[INTERNET_MAX_PASSWORD_LENGTH + 1];
+    char    urlPath[INTERNET_MAX_PATH_LENGTH + 1];
     URL_COMPONENTSA     uc;
 
     memset(&uc, 0, sizeof(URL_COMPONENTS));
@@ -1927,87 +1792,77 @@ HRESULT InitRequest(LPSTR pszPostURL, BOOL bAsync, ASYNCRES *pasyncres)
     uc.lpszUrlPath = urlPath;
     uc.dwUrlPathLength = sizeof(urlPath);
 
-    if (!InternetCrackUrlA(pszPostURL,lstrlenA(pszPostURL),ICU_DECODE, &uc))
-    {
+    if (!InternetCrackUrlA(pszPostURL, lstrlenA(pszPostURL), ICU_DECODE, &uc)) {
         return E_FAIL;
     }
 
-    if (bAsync)
-    {
+    if (bAsync) {
         // Create an auto-reset event
-        g_hEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
+        g_hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
         if (g_hEvent == NULL)
             bAsync = FALSE;
     }
 
     g_hInternet = InternetOpenA(STR_USERAGENT,               // used in User-Agent: header
-                            INTERNET_OPEN_TYPE_PRECONFIG,  //INTERNET_OPEN_TYPE_DIRECT,
-                            NULL,
-                            NULL,
-                            (bAsync) ? INTERNET_FLAG_ASYNC : 0
-                            );
+                                INTERNET_OPEN_TYPE_PRECONFIG,  //INTERNET_OPEN_TYPE_DIRECT,
+                                NULL,
+                                NULL,
+                                (bAsync) ? INTERNET_FLAG_ASYNC : 0
+    );
 
-    if ( !g_hInternet )
-    {
+    if (!g_hInternet) {
         return E_FAIL;
     }
 
-    if (bAsync)
-    {
+    if (bAsync) {
         if (INTERNET_INVALID_STATUS_CALLBACK == InternetSetStatusCallbackA(g_hInternet, StatusCallback))
             return E_FAIL;
     }
 
     // Connect to host
     g_hConnect = InternetConnectA(g_hInternet,
-                                    uc.lpszHostName,
-                                    uc.nPort,           //INTERNET_INVALID_PORT_NUMBER,
-                                    uc.lpszUserName,
-                                    uc.lpszPassword,
-                                    INTERNET_SERVICE_HTTP,
-                                    0,                  //INTERNET_FLAG_KEEP_CONNECTION,
-                                    (bAsync)? (DWORD_PTR) pasyncres : 0);
+                                  uc.lpszHostName,
+                                  uc.nPort,           //INTERNET_INVALID_PORT_NUMBER,
+                                  uc.lpszUserName,
+                                  uc.lpszPassword,
+                                  INTERNET_SERVICE_HTTP,
+                                  0,                  //INTERNET_FLAG_KEEP_CONNECTION,
+                                  (bAsync) ? (DWORD_PTR)pasyncres : 0);
 
-    if ( !g_hConnect )
-    {
-        if (bAsync && GetLastError() == ERROR_IO_PENDING)
-        {
+    if (!g_hConnect) {
+        if (bAsync && GetLastError() == ERROR_IO_PENDING) {
             WaitForSingleObject(g_hEvent, INFINITE);
             if (pasyncres->Result == 0)
                 return E_FAIL;
 
             g_hConnect = (HINTERNET)pasyncres->Result;
-        }
-        else
+        } else
             return E_FAIL;
     }
 
     // Create request.
     g_hHttpRequest = HttpOpenRequestA
-        (
-            g_hConnect,
-            "POST",
-            uc.lpszUrlPath,
-            HTTP_VERSIONA,
-            NULL,                     //lpszReferer
-            NULL,                     //lpszAcceptTypes
-            INTERNET_FLAG_RELOAD
-            | INTERNET_FLAG_KEEP_CONNECTION
-            | SECURITY_INTERNET_MASK, // ignore SSL warnings
-            (bAsync)? (DWORD_PTR) pasyncres : 0);
+    (
+        g_hConnect,
+        "POST",
+        uc.lpszUrlPath,
+        HTTP_VERSIONA,
+        NULL,                     //lpszReferer
+        NULL,                     //lpszAcceptTypes
+        INTERNET_FLAG_RELOAD
+        | INTERNET_FLAG_KEEP_CONNECTION
+        | SECURITY_INTERNET_MASK, // ignore SSL warnings
+        (bAsync) ? (DWORD_PTR)pasyncres : 0);
 
 
-    if ( !g_hHttpRequest )
-    {
-        if (bAsync && GetLastError() == ERROR_IO_PENDING)
-        {
+    if (!g_hHttpRequest) {
+        if (bAsync && GetLastError() == ERROR_IO_PENDING) {
             WaitForSingleObject(g_hEvent, INFINITE);
             if (pasyncres->Result == 0)
                 return E_FAIL;
 
             g_hHttpRequest = (HINTERNET)pasyncres->Result;
-        }
-        else
+        } else
             return E_FAIL;
     }
 
@@ -2024,18 +1879,17 @@ BOOL AddRequestHeaders
     DWORD      dwHeadersLength,
     DWORD      dwAddFlag,
     BOOL       bAsync,
-    ASYNCRES   *pasyncres
+    ASYNCRES* pasyncres
 )
 {
     BOOL bRet = FALSE;
 
     bRet = HttpAddRequestHeadersA(g_hHttpRequest,
-                           lpszHeaders,
-                           dwHeadersLength,
-                           HTTP_ADDREQ_FLAG_ADD | dwAddFlag);
+                                  lpszHeaders,
+                                  dwHeadersLength,
+                                  HTTP_ADDREQ_FLAG_ADD | dwAddFlag);
 
-    if (bAsync && !bRet && GetLastError() == ERROR_IO_PENDING)
-    {
+    if (bAsync && !bRet && GetLastError() == ERROR_IO_PENDING) {
         WaitForSingleObject(g_hEvent, INFINITE);
         bRet = (BOOL)pasyncres->Result;
     }
@@ -2050,10 +1904,10 @@ HRESULT SendRequest
     LPCSTR     lpszOption,
     DWORD      dwOptionLength,
     BOOL       bAsync,
-    ASYNCRES   *pasyncres
+    ASYNCRES* pasyncres
 )
 {
-    BOOL bRet=FALSE;
+    BOOL bRet = FALSE;
 
     bRet = AddRequestHeaders((LPCSTR)c_szHeaders, (DWORD)-1L, 0, bAsync, pasyncres);
 
@@ -2061,13 +1915,12 @@ HRESULT SendRequest
     {
 
         bRet = AddRequestHeaders(
-                          (LPCSTR)lpszHeaders,
-                          dwHeadersLength,
-                          HTTP_ADDREQ_FLAG_REPLACE,
-                          bAsync,
-                          pasyncres);
-        if ( !bRet )
-        {
+            (LPCSTR)lpszHeaders,
+            dwHeadersLength,
+            HTTP_ADDREQ_FLAG_REPLACE,
+            bAsync,
+            pasyncres);
+        if (!bRet) {
             return E_FAIL;
         }
     }
@@ -2075,32 +1928,26 @@ HRESULT SendRequest
     pasyncres->Result = 0;
 
     bRet = HttpSendRequestA(g_hHttpRequest,
-                          NULL,                            //HEADER_ENCTYPE,
-                          0,                               //sizeof(HEADER_ENCTYPE),
-                          (LPVOID)lpszOption,
-                          dwOptionLength);
+                            NULL,                            //HEADER_ENCTYPE,
+                            0,                               //sizeof(HEADER_ENCTYPE),
+                            (LPVOID)lpszOption,
+                            dwOptionLength);
 
-    if ( !bRet )
-    {
+    if (!bRet) {
         DWORD_PTR dwLastError = GetLastError();
-        if (bAsync && dwLastError == ERROR_IO_PENDING)
-        {
+        if (bAsync && dwLastError == ERROR_IO_PENDING) {
             WaitForSingleObject(g_hEvent, INFINITE);
             dwLastError = pasyncres->Error;
             bRet = (BOOL)pasyncres->Result;
-            if (!bRet)
-            {
+            if (!bRet) {
                 TraceMsg(DM_ERROR, "Async HttpSendRequest returned FALSE");
-                if (dwLastError != ERROR_SUCCESS)
-                {
+                if (dwLastError != ERROR_SUCCESS) {
                     TraceMsg(DM_ERROR, "Async HttpSendRequest failed: Error = %lx", dwLastError);
                     return E_FAIL;
                 }
             }
 
-        }
-        else
-        {
+        } else {
             TraceMsg(DM_ERROR, "HttpSendRequest failed: Error = %lx", dwLastError);
             return E_FAIL;
         }
@@ -2115,10 +1962,10 @@ HRESULT SendRequest
     dwBuffLen = sizeof(buff);
 
     bRet = HttpQueryInfo(g_hHttpRequest,
-                        HTTP_QUERY_STATUS_CODE,   //HTTP_QUERY_RAW_HEADERS,
-                        buff,
-                        &dwBuffLen,
-                        NULL);
+                         HTTP_QUERY_STATUS_CODE,   //HTTP_QUERY_RAW_HEADERS,
+                         buff,
+                         &dwBuffLen,
+                         NULL);
 
     int iretcode = StrToInt(buff);
     TraceMsg(DM_TRACE, "HttpQueryInfo returned %d", iretcode);
@@ -2134,27 +1981,25 @@ DWORD ReadFavoritesFile(LPCTSTR lpFile, LPSTR* lplpbuf)
     DWORD   cbRead;
 
     hFile = CreateFile(lpFile,
-                GENERIC_READ,
-                0,                              //no sharing
-                NULL,
-                OPEN_EXISTING,
-                FILE_ATTRIBUTE_NORMAL,
-                NULL);
+                       GENERIC_READ,
+                       0,                              //no sharing
+                       NULL,
+                       OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL,
+                       NULL);
 
     if (hFile == INVALID_HANDLE_VALUE)
         return 0;
 
     cbFile = GetFileSize(hFile, NULL);
-    if (cbFile == 0xFFFFFFFF)
-    {
+    if (cbFile == 0xFFFFFFFF) {
         CloseHandle(hFile);
         return 0;
     }
 
     *lplpbuf = (LPSTR)GlobalAlloc(LPTR, (cbFile + 2) * sizeof(CHAR));
     cbRead = 0;
-    if (!ReadFile(hFile, *lplpbuf, cbFile, &cbRead, NULL))
-    {
+    if (!ReadFile(hFile, *lplpbuf, cbFile, &cbRead, NULL)) {
         cbRead = 0;
     }
 
@@ -2164,7 +2009,7 @@ DWORD ReadFavoritesFile(LPCTSTR lpFile, LPSTR* lplpbuf)
 }
 
 
-BOOL PostFavorites(TCHAR *pszPathToBookmarks, TCHAR* pszPathToPost)
+BOOL PostFavorites(TCHAR* pszPathToBookmarks, TCHAR* pszPathToPost)
 {
     DWORD cbRead = 0;
     LPSTR lpbuf = NULL;
@@ -2177,16 +2022,14 @@ BOOL PostFavorites(TCHAR *pszPathToBookmarks, TCHAR* pszPathToPost)
     if (cbRead == 0)
         return TRUE;
     SHTCharToAnsi(pszPathToPost, szPathToPost, ARRAYSIZE(szPathToPost));
-    if (SUCCEEDED(InitRequest(szPathToPost, bAsync, &asyncres)))
-    {
+    if (SUCCEEDED(InitRequest(szPathToPost, bAsync, &asyncres))) {
         bret = (SUCCEEDED(SendRequest(NULL, lstrlenA(""), lpbuf, cbRead, bAsync, &asyncres)));
     }
 
     CloseRequest();
 
-    if (lpbuf)
-    {
-        GlobalFree( lpbuf );
+    if (lpbuf) {
+        GlobalFree(lpbuf);
         lpbuf = NULL;
     }
 
@@ -2202,21 +2045,20 @@ void CALLBACK StatusCallback(
     DWORD dwStatus,
     LPVOID lpvInfo,
     DWORD dwInfoLength
-    )
+)
 {
-    switch (dwStatus)
-    {
+    switch (dwStatus) {
 
     case INTERNET_STATUS_REQUEST_COMPLETE:
     {
-        ASYNCRES *pasyncres = (ASYNCRES *)dwContext;
+        ASYNCRES* pasyncres = (ASYNCRES*)dwContext;
 
         pasyncres->Result = ((LPINTERNET_ASYNC_RESULT)lpvInfo)->dwResult;
         pasyncres->Error = ((LPINTERNET_ASYNC_RESULT)lpvInfo)->dwError;
 
         SetEvent(g_hEvent);
     }
-        break;
+    break;
 
     default:
         break;

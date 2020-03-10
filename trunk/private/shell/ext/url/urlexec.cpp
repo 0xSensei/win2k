@@ -31,19 +31,19 @@ public:
 
     // IUnknown methods
 
-    STDMETHODIMP  QueryInterface(REFIID riid, PVOID *ppvObj);
+    STDMETHODIMP  QueryInterface(REFIID riid, PVOID* ppvObj);
     STDMETHODIMP_(ULONG) AddRef(void);
     STDMETHODIMP_(ULONG) Release(void);
 
 #ifdef DEBUG
-    friend BOOL IsValidPCURLExec(const CURLExec * pue);
+    friend BOOL IsValidPCURLExec(const CURLExec* pue);
 #endif
 };
 
 
 #ifdef DEBUG
 
-BOOL IsValidPCURLExec(CURLExec * pue)
+BOOL IsValidPCURLExec(CURLExec* pue)
 {
     return (IS_VALID_READ_PTR(pue, CURLExec));
 }
@@ -72,19 +72,14 @@ CURLExec::~CURLExec(void)
 Purpose: IUnknown::QueryInterface handler for CURLExec
 
 */
-STDMETHODIMP CURLExec::QueryInterface(REFIID riid, PVOID *ppvObj)
+STDMETHODIMP CURLExec::QueryInterface(REFIID riid, PVOID* ppvObj)
 {
     if (IsEqualIID(riid, IID_IUnknown) ||
-        IsEqualIID(riid, IID_IShellExecuteHookA))
-    {
-        *ppvObj = SAFECAST(this, IShellExecuteHookA *);
-    }
-    else if (IsEqualIID(riid, IID_IShellExecuteHookW))
-    {
-        *ppvObj = SAFECAST(this, IShellExecuteHookW *);
-    }
-    else
-    {
+        IsEqualIID(riid, IID_IShellExecuteHookA)) {
+        *ppvObj = SAFECAST(this, IShellExecuteHookA*);
+    } else if (IsEqualIID(riid, IID_IShellExecuteHookW)) {
+        *ppvObj = SAFECAST(this, IShellExecuteHookW*);
+    } else {
         *ppvObj = NULL;
         return E_NOINTERFACE;
     }
@@ -110,12 +105,12 @@ STDMETHODIMP_(ULONG) CURLExec::Release()
 }
 
 
-typedef BOOL (* PFNVERQUERYVALUEA)(const LPVOID pBlock,
-        LPCSTR lpSubBlock, LPVOID * lplpBuffer, LPDWORD lpuLen);
-typedef DWORD (* PFNGETFILEVERSIONINFOSIZEA) (
-        LPCSTR lptstrFilename, LPDWORD lpdwHandle);
-typedef BOOL (* PFNGETFILEVERSIONINFOA) (
-        LPCSTR lptstrFilename, DWORD dwHandle, DWORD dwLen, LPVOID lpData);
+typedef BOOL(*PFNVERQUERYVALUEA)(const LPVOID pBlock,
+                                 LPCSTR lpSubBlock, LPVOID* lplpBuffer, LPDWORD lpuLen);
+typedef DWORD(*PFNGETFILEVERSIONINFOSIZEA) (
+    LPCSTR lptstrFilename, LPDWORD lpdwHandle);
+typedef BOOL(*PFNGETFILEVERSIONINFOA) (
+    LPCSTR lptstrFilename, DWORD dwHandle, DWORD dwLen, LPVOID lpData);
 
 #define BLOCK_FILE2          TEXT("infinst2.exe") //for 3.02
 #define BLOCK_FILE           TEXT("infinst.exe")  //for 3.0 and 3.01
@@ -133,40 +128,33 @@ STDMETHODIMP CURLExec::Execute(LPSHELLEXECUTEINFOA pei)
     ASSERT(IS_VALID_STRUCT_PTR(this, CURLExec));
     ASSERT(IS_VALID_READ_PTR(pei, SHELLEXECUTEINFO));
 
-    if (! pei->lpVerb ||
-        ! lstrcmpi(pei->lpVerb, TEXT("open")))
-    {
-        if (pei->lpFile)
-        {
+    if (!pei->lpVerb ||
+        !lstrcmpi(pei->lpVerb, TEXT("open"))) {
+        if (pei->lpFile) {
             LPTSTR pszURL;
             LPTSTR psz = PathFindFileName(pei->lpFile);
 
             if (lstrcmpi(psz, BLOCK_FILE2) == 0 ||
-                lstrcmpi(psz, BLOCK_FILE) == 0)
-            {
+                lstrcmpi(psz, BLOCK_FILE) == 0) {
                 HINSTANCE hinst = LoadLibrary("VERSION.DLL");
 
-                if(hinst)
-                {
+                if (hinst) {
                     PFNVERQUERYVALUEA pfnVerQueryValue = (PFNVERQUERYVALUEA)GetProcAddress(hinst, "VerQueryValueA");
                     PFNGETFILEVERSIONINFOSIZEA pfnGetFileVersionInfoSize = (PFNGETFILEVERSIONINFOSIZEA)GetProcAddress(hinst, "GetFileVersionInfoSizeA");
                     PFNGETFILEVERSIONINFOA pfnGetFileVersionInfo = (PFNGETFILEVERSIONINFOA)GetProcAddress(hinst, "GetFileVersionInfoA");
 
-                    if (pfnVerQueryValue      && pfnGetFileVersionInfo && pfnGetFileVersionInfoSize)
-                    {
+                    if (pfnVerQueryValue && pfnGetFileVersionInfo && pfnGetFileVersionInfoSize) {
                         CHAR   chBuffer[2048]; // hopefully this is enough
                         DWORD  cb;
                         DWORD  dwHandle;
-                        VS_FIXEDFILEINFO *pffi = NULL;
+                        VS_FIXEDFILEINFO* pffi = NULL;
 
                         cb = pfnGetFileVersionInfoSize(pei->lpFile, &dwHandle);
                         if (cb <= ARRAYSIZE(chBuffer) &&
                             pfnGetFileVersionInfo(pei->lpFile, dwHandle, ARRAYSIZE(chBuffer), chBuffer) &&
-                            pfnVerQueryValue(chBuffer, TEXT("\\"), (LPVOID*)&pffi, &cb))
-                        {
+                            pfnVerQueryValue(chBuffer, TEXT("\\"), (LPVOID*)&pffi, &cb)) {
                             if (pffi->dwProductVersionMS == BLOCK_FILE_VERSION &&
-                                pei->fMask & SEE_MASK_NOCLOSEPROCESS)
-                            {
+                                pei->fMask & SEE_MASK_NOCLOSEPROCESS) {
                                 STARTUPINFO         si;
                                 PROCESS_INFORMATION pi;
                                 TCHAR               szText[256];
@@ -176,12 +164,11 @@ STDMETHODIMP CURLExec::Execute(LPSHELLEXECUTEINFOA pei)
                                 si.cb = sizeof(si);
 
                                 if (CreateProcess(NULL, TEXT("rundll32.exe url.dll,DummyEntryPoint"),
-                                    NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
-                                {
+                                                  NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
                                     pei->hProcess = pi.hProcess;
                                 }
                                 // inform user that we won't run this exe
-                                MLLoadString(IDS_IE3_INSTALL_BLOCK_TEXT,  szText,  ARRAYSIZE(szText));
+                                MLLoadString(IDS_IE3_INSTALL_BLOCK_TEXT, szText, ARRAYSIZE(szText));
                                 MLLoadString(IDS_IE3_INSTALL_BLOCK_TITLE, szTitle, ARRAYSIZE(szTitle));
 
                                 MessageBox(pei->hwnd, szText, szTitle, MB_OK | MB_ICONSTOP);
@@ -207,29 +194,24 @@ STDMETHODIMP CURLExec::Execute(LPSHELLEXECUTEINFOA pei)
                                 TRANSLATEURL_FL_GUESS_PROTOCOL | TRANSLATEURL_FL_CANONICALIZE,
                                 &pszURL);
 
-            if (SUCCEEDED(hres))
-            {
+            if (SUCCEEDED(hres)) {
                 LPCTSTR pszURLToUse;
 
                 pszURLToUse = (hres == S_OK) ? pszURL : pei->lpFile;
 
                 hres = ValidateURL(pszURLToUse);
 
-                if (SUCCEEDED(hres))
-                {
-                    IUniformResourceLocator * purl;
+                if (SUCCEEDED(hres)) {
+                    IUniformResourceLocator* purl;
 
-                    hres = SHCoCreateInstance(NULL, &CLSID_InternetShortcut, NULL, IID_IUniformResourceLocator, (void **)&purl);
-                    if (SUCCEEDED(hres))
-                    {
+                    hres = SHCoCreateInstance(NULL, &CLSID_InternetShortcut, NULL, IID_IUniformResourceLocator, (void**)&purl);
+                    if (SUCCEEDED(hres)) {
                         hres = purl->SetURL(pszURLToUse, 0);
-                        if (hres == S_OK)
-                        {
-                            IShellLink * psl;
+                        if (hres == S_OK) {
+                            IShellLink* psl;
 
-                            hres = purl->QueryInterface(IID_IShellLink, (void **)&psl);
-                            if (SUCCEEDED(hres))
-                            {
+                            hres = purl->QueryInterface(IID_IShellLink, (void**)&psl);
+                            if (SUCCEEDED(hres)) {
                                 URLINVOKECOMMANDINFO urlici;
 
                                 EVAL(psl->SetShowCmd(pei->nShow) == S_OK);
@@ -258,21 +240,17 @@ STDMETHODIMP CURLExec::Execute(LPSHELLEXECUTEINFOA pei)
                 if (pszURL)
                     LocalFree(pszURL);
             }
-        }
-        else
+        } else
             // BUGBUG (scotth): This hook only handles execution of file string, not IDList.
             hres = S_FALSE;
-    }
-    else
+    } else
         // Unrecognized verb.
         hres = S_FALSE;
 
     if (hres == S_OK)
         pei->hInstApp = (HINSTANCE)42;  // BUGBUG (scotth): huh??
-    else if (FAILED(hres))
-    {
-        switch (hres)
-        {
+    else if (FAILED(hres)) {
+        switch (hres) {
         case URL_E_INVALID_SYNTAX:
         case URL_E_UNREGISTERED_PROTOCOL:
             hres = S_FALSE;
@@ -297,13 +275,12 @@ STDMETHODIMP CURLExec::Execute(LPSHELLEXECUTEINFOA pei)
             hres = E_FAIL;
             break;
         }
-    }
-    else
+    } else
         ASSERT(hres == S_FALSE);
 
     ASSERT(hres == S_OK ||
-        hres == S_FALSE ||
-        hres == E_FAIL);
+           hres == S_FALSE ||
+           hres == E_FAIL);
 
     return hres;
 }
@@ -315,49 +292,47 @@ STDMETHODIMP CURLExec::Execute(LPSHELLEXECUTEINFOW pei)
     UINT cchVerb = 0;
     UINT cchFile = 0;
     UINT cchParameters = 0;
-    UINT cchDirectory  = 0;
+    UINT cchDirectory = 0;
     UINT cchClass = 0;
     LPSTR lpszBuffer;
     HRESULT hres = E_FAIL;
 
     seia = *(SHELLEXECUTEINFOA*)pei;    // Copy all of the binary data
 
-    if (pei->lpVerb)
-    {
-        cchVerb = WideCharToMultiByte(CP_ACP,0,
+    if (pei->lpVerb) {
+        cchVerb = WideCharToMultiByte(CP_ACP, 0,
                                       pei->lpVerb, -1,
                                       NULL, 0,
-                                      NULL, NULL)+1;
+                                      NULL, NULL) + 1;
     }
 
     if (pei->lpFile)
-        cchFile = WideCharToMultiByte(CP_ACP,0,
+        cchFile = WideCharToMultiByte(CP_ACP, 0,
                                       pei->lpFile, -1,
                                       NULL, 0,
-                                      NULL, NULL)+1;
+                                      NULL, NULL) + 1;
 
     if (pei->lpParameters)
-        cchParameters = WideCharToMultiByte(CP_ACP,0,
+        cchParameters = WideCharToMultiByte(CP_ACP, 0,
                                             pei->lpParameters, -1,
                                             NULL, 0,
-                                            NULL, NULL)+1;
+                                            NULL, NULL) + 1;
 
     if (pei->lpDirectory)
-        cchDirectory = WideCharToMultiByte(CP_ACP,0,
+        cchDirectory = WideCharToMultiByte(CP_ACP, 0,
                                            pei->lpDirectory, -1,
                                            NULL, 0,
-                                           NULL, NULL)+1;
+                                           NULL, NULL) + 1;
     if (((pei->fMask & SEE_MASK_CLASS) == SEE_MASK_CLASSNAME) && pei->lpClass)
-        cchClass = WideCharToMultiByte(CP_ACP,0,
+        cchClass = WideCharToMultiByte(CP_ACP, 0,
                                        pei->lpClass, -1,
                                        NULL, 0,
-                                       NULL, NULL)+1;
+                                       NULL, NULL) + 1;
 
     // what is this (alloca)? InvokeShellExecuteHook is not freeing lpszBuffer
     //lpszBuffer = alloca(cchVerb+cchFile+cchParameters+cchDirectory+cchClass);
-    lpszBuffer = (LPSTR)LocalAlloc(LPTR, cchVerb+cchFile+cchParameters+cchDirectory+cchClass);
-    if (lpszBuffer)
-    {
+    lpszBuffer = (LPSTR)LocalAlloc(LPTR, cchVerb + cchFile + cchParameters + cchDirectory + cchClass);
+    if (lpszBuffer) {
         LPSTR lpsz = lpszBuffer;
 
         seia.lpVerb = NULL;
@@ -369,38 +344,33 @@ STDMETHODIMP CURLExec::Execute(LPSHELLEXECUTEINFOW pei)
 
         // Convert all of the strings to ANSI
 
-        if (pei->lpVerb)
-        {
+        if (pei->lpVerb) {
             WideCharToMultiByte(CP_ACP, 0, pei->lpVerb, -1,
                                 lpszBuffer, cchVerb, NULL, NULL);
             seia.lpVerb = lpszBuffer;
             lpszBuffer += cchVerb;
         }
-        if (pei->lpFile)
-        {
+        if (pei->lpFile) {
             WideCharToMultiByte(CP_ACP, 0, pei->lpFile, -1,
                                 lpszBuffer, cchFile, NULL, NULL);
             seia.lpFile = lpszBuffer;
             lpszBuffer += cchFile;
         }
-        if (pei->lpParameters)
-        {
+        if (pei->lpParameters) {
             WideCharToMultiByte(CP_ACP, 0,
                                 pei->lpParameters, -1,
                                 lpszBuffer, cchParameters, NULL, NULL);
             seia.lpParameters = lpszBuffer;
             lpszBuffer += cchParameters;
         }
-        if (pei->lpDirectory)
-        {
+        if (pei->lpDirectory) {
             WideCharToMultiByte(CP_ACP, 0,
                                 pei->lpDirectory, -1,
                                 lpszBuffer, cchDirectory, NULL, NULL);
             seia.lpDirectory = lpszBuffer;
             lpszBuffer += cchDirectory;
         }
-        if (((pei->fMask & SEE_MASK_CLASS) == SEE_MASK_CLASSNAME) && pei->lpClass)
-        {
+        if (((pei->fMask & SEE_MASK_CLASS) == SEE_MASK_CLASSNAME) && pei->lpClass) {
             WideCharToMultiByte(CP_ACP, 0,
                                 pei->lpClass, -1,
                                 lpszBuffer, cchClass, NULL, NULL);
@@ -420,14 +390,14 @@ STDMETHODIMP CURLExec::Execute(LPSHELLEXECUTEINFOW pei)
     return hres;
 }
 
-STDAPI CreateInstance_URLExec(LPUNKNOWN punkOuter, REFIID riid, void **ppvOut)
+STDAPI CreateInstance_URLExec(LPUNKNOWN punkOuter, REFIID riid, void** ppvOut)
 {
     *ppvOut = NULL;
 
     if (punkOuter)
         return CLASS_E_NOAGGREGATION;
 
-    CURLExec *pue = new(CURLExec);
+    CURLExec* pue = new(CURLExec);
     if (!pue)
         return E_OUTOFMEMORY;
 

@@ -69,14 +69,12 @@ void InitPropPage1(HWND hDlg, LPARAM lParam)
 
 
     GetContentBools(pcpidl, &bHasActiveX, &bHasJava);
-    if (bHasJava)
-    {
+    if (bHasJava) {
         if (bHasActiveX)
             MLLoadString(IDS_PROPERTY_TYPE_MIXED, szBuf, MESSAGE_MAXSIZE);
         else
             MLLoadString(IDS_PROPERTY_TYPE_JAVA, szBuf, MESSAGE_MAXSIZE);
-    }
-    else
+    } else
         MLLoadString(IDS_PROPERTY_TYPE_ACTX, szBuf, MESSAGE_MAXSIZE);
 
     SetDlgItemText(hDlg, IDC_STATIC_TYPE, szBuf);
@@ -91,13 +89,12 @@ void InitPropPage1(HWND hDlg, LPARAM lParam)
     // insert commas to separate groups of digits
     int nLen = lstrlen(szSize);
     int i = 0, j = (nLen <= 3 ? nLen : (nLen % 3));
-    TCHAR *pCh = szSize + j;
+    TCHAR* pCh = szSize + j;
 
     for (; i < j; i++)
         szBuf[i] = szSize[i];
 
-    for (; *pCh != '\0'; i++, pCh++)
-    {
+    for (; *pCh != '\0'; i++, pCh++) {
         if (((pCh - szSize) % 3 == j) && (i > 0))
             szBuf[i++] = ',';
         szBuf[i] = *pCh;
@@ -191,13 +188,11 @@ int ListCtrl_InsertColumn(
     column.mask = LVCF_TEXT | LVCF_FMT;
     column.pszText = (LPTSTR)lpszColumnHeading;
     column.fmt = nFormat;
-    if (nWidth != -1)
-    {
+    if (nWidth != -1) {
         column.mask |= LVCF_WIDTH;
         column.cx = nWidth;
     }
-    if (nSubItem != -1)
-    {
+    if (nSubItem != -1) {
         column.mask |= LVCF_SUBITEM;
         column.iSubItem = nSubItem;
     }
@@ -296,21 +291,16 @@ void InitPropPage2(HWND hDlg, LPARAM lParam)
     DWORD dwFileSize = 0;
     BOOL bOCXRemovable = IsModuleRemovable(GetStringInfo(pcpidl, SI_LOCATION));
 
-    for (UINT iFile = 0; iFile < cTotalFiles; iFile++)
-    {
-        if (!GetDependentFile(pcpidl, iFile, szBuf, &dwFileSize))
-        {
+    for (UINT iFile = 0; iFile < cTotalFiles; iFile++) {
+        if (!GetDependentFile(pcpidl, iFile, szBuf, &dwFileSize)) {
             Assert(FALSE);
             break;
         }
 
         // put a star after file name if file is not safe for removal
-        if (!bOCXRemovable)
-        {
+        if (!bOCXRemovable) {
             lstrcat(szBuf, TEXT("*"));
-        }
-        else if (!IsModuleRemovable(szBuf))
-        {
+        } else if (!IsModuleRemovable(szBuf)) {
             // check if it is inf file.
             TCHAR szExt[10];
             MLLoadString(IDS_EXTENSION_INF, szExt, 10);
@@ -324,28 +314,25 @@ void InitPropPage2(HWND hDlg, LPARAM lParam)
         PathCompactPath(NULL, szBuf, iFileNameWidth);
         iIndex = ListCtrl_InsertItem(hwndCtrl, LVIF_TEXT, iFile, szBuf, 0, 0, 0, 0);
 
-        if (dwFileSize > 0)
-        {
+        if (dwFileSize > 0) {
             TCHAR szBuf2[100];
             wsprintf(szBuf2, "%u", dwFileSize);
 
             // insert commas to separate groups of digits
             int nLen = lstrlen(szBuf2);
             int i = 0, j = (nLen <= 3 ? nLen : (nLen % 3));
-            TCHAR *pCh = szBuf2 + j;
+            TCHAR* pCh = szBuf2 + j;
 
             for (; i < j; i++)
                 szBuf[i] = szBuf2[i];
 
-            for (; *pCh != '\0'; i++, pCh++)
-            {
+            for (; *pCh != '\0'; i++, pCh++) {
                 if (((pCh - szBuf2) % 3 == j) && (i > 0))
                     szBuf[i++] = ',';
                 szBuf[i] = *pCh;
             }
             szBuf[i] = '\0';
-        }
-        else
+        } else
             MLLoadString(IDS_STATUS_DAMAGED, szBuf, MAX_PATH);
 
         ListCtrl_SetItemText(hwndCtrl, iIndex, 1, szBuf);
@@ -377,18 +364,15 @@ void InitPropPage2(HWND hDlg, LPARAM lParam)
     // insert dependent packages into list box
     UINT         cTotalPackages = 0;;
 
-    if (pcpidl->ci.dwIsDistUnit)
-    {
+    if (pcpidl->ci.dwIsDistUnit) {
         CParseInf    parseInf;
 
-        if (SUCCEEDED(parseInf.DoParseDU(GetStringInfo(pcpidl, SI_LOCATION), GetStringInfo(pcpidl, SI_CLSID))))
-        {
-            CPackageNode *ppn;
+        if (SUCCEEDED(parseInf.DoParseDU(GetStringInfo(pcpidl, SI_LOCATION), GetStringInfo(pcpidl, SI_CLSID)))) {
+            CPackageNode* ppn;
 
             for (ppn = parseInf.GetFirstPackage();
                  ppn != NULL;
-                 ppn = parseInf.GetNextPackage(), cTotalPackages++)
-            {
+                 ppn = parseInf.GetNextPackage(), cTotalPackages++) {
                 iIndex = ListCtrl_InsertItem(hwndCtrl, LVIF_TEXT, cTotalPackages, ppn->GetName(), 0, 0, 0, 0);
                 ListCtrl_SetItemText(hwndCtrl, iIndex, 1, ppn->GetNamespace());
             }
@@ -474,11 +458,9 @@ BOOL Page3_OnCommand(HWND hDlg, WORD wCmd)
 
     // if top check box is not checked and edit box does not
     // have the focus and it is empty, put in default interval
-    if (bEnable && (GetFocus() != hwnd))
-    {
+    if (bEnable && (GetFocus() != hwnd)) {
         TCHAR szText[10];
-        if (GetWindowText(hwnd, szText, 10) == 0)
-        {
+        if (GetWindowText(hwnd, szText, 10) == 0) {
             // wsprintf(szText, "%i", g_dwDefaultInterval);
             SetWindowText(hwnd, szText);
         }
@@ -508,7 +490,7 @@ void InitPropPage4(HWND hDlg, LPARAM lParam)
     char szQueryPrefix[MAX_QUERYPREFIX_LEN];
     char szQueryString[MAX_QUERYSTRING_LEN];
     char szLangCodePad[8]; // Padded string rep of a dword
-    char *pszTmp = NULL;
+    char* pszTmp = NULL;
     char  szVBufPad[4];  // To fit a DWORD
     char  szVBuf[4];     // To fit a DWORD (padded)
 
@@ -523,8 +505,7 @@ void InitPropPage4(HWND hDlg, LPARAM lParam)
     }
 
     // set page header
-    if (MLLoadString(IDS_VERSION_PAGE_HEADER, szBuf, MESSAGE_MAXSIZE))
-    {
+    if (MLLoadString(IDS_VERSION_PAGE_HEADER, szBuf, MESSAGE_MAXSIZE)) {
         TCHAR szHeading[MESSAGE_MAXSIZE];
         wsprintf(szHeading, szBuf, GetStringInfo(pcpidl, SI_CONTROL));
         SetDlgItemText(hDlg, IDC_STATIC_VER_HEADING, szHeading);
@@ -544,20 +525,16 @@ void InitPropPage4(HWND hDlg, LPARAM lParam)
         return;
 
 
-    if (GetFileVersionInfo(lpszFileName, 0, dwSizeVer, lpData))
-    {
+    if (GetFileVersionInfo(lpszFileName, 0, dwSizeVer, lpData)) {
         // Get correct codepage information
 
         if (!VerQueryValue(lpData, "\\VarFileInfo\\Translation", &lpVerData,
-                           &uLen))
-        {
+                           &uLen)) {
             wsprintf(szQueryPrefix, "\\StringFileInfo\\%x\\CompanyName",
                      DEFAULT_LANG_CODEPAGE_PAIR);
-        }
-        else
-        {
+        } else {
             ASSERT(lpVerData);
-            wsprintf(szVBuf, "%x", LOWORD(*((DWORD *)lpVerData)));
+            wsprintf(szVBuf, "%x", LOWORD(*((DWORD*)lpVerData)));
 
             // Pad the low word to 4 digits
 
@@ -570,7 +547,7 @@ void InitPropPage4(HWND hDlg, LPARAM lParam)
 
             // Pad the high word to 4 digits
 
-            wsprintf(szVBuf, "%x", HIWORD(*((DWORD *)lpVerData)));
+            wsprintf(szVBuf, "%x", HIWORD(*((DWORD*)lpVerData)));
             lstrcpy(szVBufPad, "0000");
             pszTmp = szVBufPad + (4 - lstrlen(szVBuf));
             ASSERT(pszTmp > szVBufPad);
@@ -599,8 +576,7 @@ void InitPropPage4(HWND hDlg, LPARAM lParam)
             SetDlgItemText(hDlg, IDC_STATIC_VER_COPYRIGHT, lpBuffer);
 
         // set Language field
-        if (VerQueryValue(lpData, TEXT("\\VarFileInfo\\Translation"), (LPVOID*)&lpBuffer, &uSize))
-        {
+        if (VerQueryValue(lpData, TEXT("\\VarFileInfo\\Translation"), (LPVOID*)&lpBuffer, &uSize)) {
             LPWORD lpLangId = (LPWORD)lpBuffer;
             VerLanguageName(*lpLangId, szBuf, MESSAGE_MAXSIZE);
             SetDlgItemText(hDlg, IDC_STATIC_VER_LANGUAGE, szBuf);
@@ -675,11 +651,11 @@ HRESULT CreatePropDialog(
     LPCONTROLPIDL pcpidl)
 {
 #ifdef AUTO_UPDATE
-    PROPSHEETPAGE psp[NUM_PAGES] = { {0},{0},{0},{0} };
+    PROPSHEETPAGE psp[NUM_PAGES] = {{0},{0},{0},{0}};
 #else
-    PROPSHEETPAGE psp[NUM_PAGES] = { {0},{0},{0} };
+    PROPSHEETPAGE psp[NUM_PAGES] = {{0},{0},{0}};
 #endif
-    PROPSHEETHEADER psh = { 0 };
+    PROPSHEETHEADER psh = {0};
 
     // initialize propsheet page 1.
     psp[0].dwSize = sizeof(PROPSHEETPAGE);

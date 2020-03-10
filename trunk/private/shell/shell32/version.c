@@ -1,4 +1,3 @@
-
 // processes the version property sheet page.
 
 
@@ -19,7 +18,7 @@
 
 // magic undoced explort from version.dll
 
-STDAPI_(BOOL) VerQueryValueIndexW(const void *pBlock, LPTSTR lpSubBlock, DWORD dwIndex, void **ppBuffer, void **ppValue, PUINT puLen);
+STDAPI_(BOOL) VerQueryValueIndexW(const void* pBlock, LPTSTR lpSubBlock, DWORD dwIndex, void** ppBuffer, void** ppValue, PUINT puLen);
 
 #ifdef UNICODE
 #define VerQueryValueIndex VerQueryValueIndexW
@@ -30,7 +29,7 @@ typedef struct
     WORD wTotLen;
     WORD wValLen;
     TCHAR szKey[];
-} SHELLVERBLOCK, *LPSHELLVERBLOCK;
+} SHELLVERBLOCK, * LPSHELLVERBLOCK;
 
 // Following code is copied from fileman\wfdlgs2.c
 
@@ -39,7 +38,7 @@ typedef struct
 //    name (which is not localized) with a string ID.  This is so we
 //    can show translations of these names to the user.
 struct vertbl {
-    TCHAR const *pszName;
+    TCHAR const* pszName;
     short idString;
 };
 
@@ -81,7 +80,7 @@ typedef struct { // vp
 
 
 #define VER_KEY_END     25      /* length of "\StringFileInfo\xxxxyyyy\" */
-                                /* (not localized) */
+/* (not localized) */
 #define MAXMESSAGELEN   (50 + MAX_PATH * 2)
 
 
@@ -108,7 +107,7 @@ LPTSTR GetVersionDatum(LPVERPROPSHEETPAGE pvp, LPCTSTR pszName)
 
     lstrcpy(pvp->szVersionKey + VER_KEY_END, pszName);
 
-    VerQueryValue(pvp->pVerBuffer, pvp->szVersionKey, (void **)&lpValue, &cbValue);
+    VerQueryValue(pvp->pVerBuffer, pvp->szVersionKey, (void**)&lpValue, &cbValue);
 
     return (cbValue != 0) ? lpValue : NULL;
 }
@@ -120,13 +119,11 @@ LPTSTR GetVersionDatum(LPVERPROPSHEETPAGE pvp, LPCTSTR pszName)
 */
 void FreeVersionInfo(LPVERPROPSHEETPAGE pvp)
 {
-    if (pvp->pVerBuffer)
-    {
+    if (pvp->pVerBuffer) {
         GlobalFree(pvp->pVerBuffer);
         pvp->pVerBuffer = NULL;
     }
-    if (pvp->pszXlate)
-    {
+    if (pvp->pszXlate) {
         LocalFree((HLOCAL)(HANDLE)pvp->pszXlate);
         pvp->pszXlate = NULL;
     }
@@ -175,39 +172,32 @@ BOOL GetVersionInfo(LPVERPROPSHEETPAGE pvp, LPCTSTR pszPath)
 
     // cast const -> non const for bad API def
 
-    if (!GetFileVersionInfo((LPTSTR)pszPath, dwHandle, dwVersionSize, pvp->pVerBuffer))
-    {
+    if (!GetFileVersionInfo((LPTSTR)pszPath, dwHandle, dwVersionSize, pvp->pVerBuffer)) {
         return FALSE;
     }
 
     // Look for translations
-    if (VerQueryValue(pvp->pVerBuffer, TEXT("\\VarFileInfo\\Translation"), (void **)&pvp->lpXlate, &cbValue)
-                && cbValue)
-    {
+    if (VerQueryValue(pvp->pVerBuffer, TEXT("\\VarFileInfo\\Translation"), (void**)&pvp->lpXlate, &cbValue)
+        && cbValue) {
         pvp->cXlate = cbValue / SIZEOF(DWORD);
         pvp->cchXlateString = pvp->cXlate * 64;  /* figure 64 chars per lang name */
-        pvp->pszXlate = (LPTSTR)(void*)LocalAlloc(LPTR, pvp->cchXlateString*SIZEOF(TCHAR));
+        pvp->pszXlate = (LPTSTR)(void*)LocalAlloc(LPTR, pvp->cchXlateString * SIZEOF(TCHAR));
         // failure of above will be handled later
-    }
-    else
-    {
+    } else {
         pvp->lpXlate = NULL;
     }
 
     // Try same language as this program
-    if (LoadString(HINST_THISDLL, IDS_VN_FILEVERSIONKEY, pvp->szVersionKey, ARRAYSIZE(pvp->szVersionKey)))
-    {
-        if (GetVersionDatum(pvp, vernames[0].pszName))
-        {
+    if (LoadString(HINST_THISDLL, IDS_VN_FILEVERSIONKEY, pvp->szVersionKey, ARRAYSIZE(pvp->szVersionKey))) {
+        if (GetVersionDatum(pvp, vernames[0].pszName)) {
             return TRUE;
         }
     }
 
     // Try first language this supports
-    if (pvp->lpXlate)
-    {
+    if (pvp->lpXlate) {
         wsprintf(pvp->szVersionKey, TEXT("\\StringFileInfo\\%04X%04X\\"),
-                pvp->lpXlate[0].wLanguage, pvp->lpXlate[0].wCodePage);
+                 pvp->lpXlate[0].wLanguage, pvp->lpXlate[0].wCodePage);
         if (GetVersionDatum(pvp, vernames[0].pszName))  /* a required field */
         {
             return TRUE;
@@ -217,23 +207,20 @@ BOOL GetVersionInfo(LPVERPROPSHEETPAGE pvp, LPCTSTR pszPath)
 #ifdef UNICODE
     // try English, unicode code page
     lstrcpy(pvp->szVersionKey, TEXT("\\StringFileInfo\\040904B0\\"));
-    if (GetVersionDatum(pvp, vernames[0].pszName))
-    {
+    if (GetVersionDatum(pvp, vernames[0].pszName)) {
         return TRUE;
     }
 #endif
 
     // try English
     lstrcpy(pvp->szVersionKey, TEXT("\\StringFileInfo\\040904E4\\"));
-    if (GetVersionDatum(pvp, vernames[0].pszName))
-    {
+    if (GetVersionDatum(pvp, vernames[0].pszName)) {
         return TRUE;
     }
 
     // try English, null codepage
     lstrcpy(pvp->szVersionKey, TEXT("\\StringFileInfo\\04090000\\"));
-    if (GetVersionDatum(pvp, vernames[0].pszName))
-    {
+    if (GetVersionDatum(pvp, vernames[0].pszName)) {
         return TRUE;
     }
 
@@ -255,10 +242,10 @@ void FillVersionList(LPVERPROPSHEETPAGE pvp)
 {
     LPTSTR pszName;
     LPTSTR pszValue;
-    TCHAR szStringBase[VER_KEY_END+1];
+    TCHAR szStringBase[VER_KEY_END + 1];
     int i, j, idx;
     HWND hwndLB;
-    TCHAR szMessage[MAXMESSAGELEN+1];
+    TCHAR szMessage[MAXMESSAGELEN + 1];
     UINT uOffset, cbValue;
 #ifdef NOQUERYVALUEINDEX
     LPSHELLVERBLOCK pszBlock, pszEnd;      /* will point to a block */
@@ -267,8 +254,7 @@ void FillVersionList(LPVERPROPSHEETPAGE pvp)
     hwndLB = GetDlgItem(pvp->hDlg, IDD_VERSION_KEY);
 
     ListBox_ResetContent(hwndLB);
-    for (i=0; i<NUM_SPECIAL_STRINGS; ++i)
-    {
+    for (i = 0; i < NUM_SPECIAL_STRINGS; ++i) {
         SetDlgItemText(pvp->hDlg, vernames[i].idString, szNULL);
     }
 
@@ -279,8 +265,7 @@ void FillVersionList(LPVERPROPSHEETPAGE pvp)
     // Note: The Nt Version of version.dll has other exports.  If/When they are
     // available in Win version then we can remove this section...
 #ifdef NOQUERYVALUEINDEX
-    if (!VerQueryValue(pvp->pVerBuffer, szStringBase, (void **)&pszBlock, &cbValue))
-    {
+    if (!VerQueryValue(pvp->pVerBuffer, szStringBase, (void**)&pszBlock, &cbValue)) {
         goto NoVersionStrings;
     }
 
@@ -297,17 +282,16 @@ void FillVersionList(LPVERPROPSHEETPAGE pvp)
     */
 
     pszBlock = (LPSHELLVERBLOCK)((LPSTR)pszBlock - (DWORDUP(sizeof("040904e4")) + sizeof(SHELLVERBLOCK)));
-    pszEnd   = (LPSHELLVERBLOCK)((LPSTR)pszBlock + pszBlock->wTotLen);
+    pszEnd = (LPSHELLVERBLOCK)((LPSTR)pszBlock + pszBlock->wTotLen);
 
     pszBlock = (LPSHELLVERBLOCK)((LPSTR)pszBlock + DWORDUP(sizeof("040904e4")) + sizeof(SHELLVERBLOCK) +
-        DWORDUP(pszBlock->wValLen));
+                                 DWORDUP(pszBlock->wValLen));
 #endif // NOQUERYVALUEINDEX
 
 
     // Now iterate through all of the strings
 
-    for (j = 0; ; j++)
-    {
+    for (j = 0; ; j++) {
 #ifdef NOQUERYVALUEINDEX
         if (pszBlock >= pszEnd)
             break;
@@ -318,46 +302,37 @@ void FillVersionList(LPVERPROPSHEETPAGE pvp)
             break;
 #endif
 
-        for (i = 0; i < ARRAYSIZE(vernames); i++)
-        {
-            if (!lstrcmp(vernames[i].pszName, pszName))
-            {
+        for (i = 0; i < ARRAYSIZE(vernames); i++) {
+            if (!lstrcmp(vernames[i].pszName, pszName)) {
                 break;
             }
         }
 
-        if (i < NUM_SPECIAL_STRINGS)
-        {
-            VS_FIXEDFILEINFO *pffi;
+        if (i < NUM_SPECIAL_STRINGS) {
+            VS_FIXEDFILEINFO* pffi;
             if ((vernames[i].idString == IDD_VERSION_FILEVERSION) &&
-                VerQueryValue(pvp->pVerBuffer, TEXT("\\"), (void **)&pffi, &cbValue) && cbValue)
-            {
+                VerQueryValue(pvp->pVerBuffer, TEXT("\\"), (void**)&pffi, &cbValue) && cbValue) {
                 TCHAR szString[128];
 
                 // display the binary version info, not the useless
                 // string version (that can be out of sync)
 
                 wnsprintf(szString, ARRAYSIZE(szString), TEXT("%d.%d.%d.%d"),
-                    HIWORD(pffi->dwFileVersionMS),
-                    LOWORD(pffi->dwFileVersionMS),
-                    HIWORD(pffi->dwFileVersionLS),
-                    LOWORD(pffi->dwFileVersionLS));
+                          HIWORD(pffi->dwFileVersionMS),
+                          LOWORD(pffi->dwFileVersionMS),
+                          HIWORD(pffi->dwFileVersionLS),
+                          LOWORD(pffi->dwFileVersionLS));
                 SetDlgItemText(pvp->hDlg, vernames[i].idString, szString);
-            }
-            else
+            } else
                 SetDlgItemText(pvp->hDlg, vernames[i].idString, pszValue);
-        }
-        else
-        {
+        } else {
             if (i == ARRAYSIZE(vernames) ||
-                !LoadString(HINST_THISDLL, vernames[i].idString, szMessage, ARRAYSIZE(szMessage)))
-            {
+                !LoadString(HINST_THISDLL, vernames[i].idString, szMessage, ARRAYSIZE(szMessage))) {
                 lstrcpy(szMessage, pszName);
             }
 
             idx = ListBox_AddString(hwndLB, szMessage);
-            if (idx != LB_ERR)
-            {
+            if (idx != LB_ERR) {
                 ListBox_SetItemData(hwndLB, idx, (DWORD_PTR)pszValue);
             }
         }
@@ -369,14 +344,14 @@ void FillVersionList(LPVERPROPSHEETPAGE pvp)
     // Now look at the \VarFileInfo\Translations section and add an
     // item for the language(s) this file supports.
 #ifdef NOQUERYVALUEINDEX
-NoVersionStrings:
+    NoVersionStrings :
 #endif
 
     if (pvp->lpXlate == NULL || pvp->pszXlate == NULL)
         return;
 
     if (!LoadString(HINST_THISDLL, (pvp->cXlate == 1) ? IDS_VN_LANGUAGE : IDS_VN_LANGUAGES,
-        szMessage, ARRAYSIZE(szMessage)))
+                    szMessage, ARRAYSIZE(szMessage)))
         return;
 
     idx = ListBox_AddString(hwndLB, szMessage);
@@ -429,25 +404,22 @@ BOOL _UpdateVersionPrsht(LPVERPROPSHEETPAGE pvp)
 
 void _VersionPrshtCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
-        LPTSTR pszValue;
-        int idx;
+    LPTSTR pszValue;
+    int idx;
 
-        switch (id)
-        {
-        case IDD_VERSION_KEY:
-                if (codeNotify != LBN_SELCHANGE)
-                {
-                        break;
-                }
-
-                idx = ListBox_GetCurSel(hwndCtl);
-                pszValue = (LPTSTR)ListBox_GetItemData(hwndCtl, idx);
-                if (pszValue)
-                {
-                        SetDlgItemText(hwnd, IDD_VERSION_VALUE, pszValue);
-                }
-                break;
+    switch (id) {
+    case IDD_VERSION_KEY:
+        if (codeNotify != LBN_SELCHANGE) {
+            break;
         }
+
+        idx = ListBox_GetCurSel(hwndCtl);
+        pszValue = (LPTSTR)ListBox_GetItemData(hwndCtl, idx);
+        if (pszValue) {
+            SetDlgItemText(hwnd, IDD_VERSION_VALUE, pszValue);
+        }
+        break;
+    }
 }
 
 // Array for context help:
@@ -466,8 +438,7 @@ BOOL_PTR CALLBACK _VersionPrshtDlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, 
 {
     LPVERPROPSHEETPAGE pvp = (LPVERPROPSHEETPAGE)GetWindowLongPtr(hDlg, DWLP_USER);
 
-    switch (uMessage)
-    {
+    switch (uMessage) {
     case WM_INITDIALOG:
         SetWindowLongPtr(hDlg, DWLP_USER, lParam);
         pvp = (LPVERPROPSHEETPAGE)lParam;
@@ -479,18 +450,17 @@ BOOL_PTR CALLBACK _VersionPrshtDlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, 
         break;
 
     case WM_HELP:
-        WinHelp((HWND) ((LPHELPINFO) lParam)->hItemHandle, NULL, HELP_WM_HELP,
-            (ULONG_PTR) (LPTSTR) aVersionHelpIds);
+        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, NULL, HELP_WM_HELP,
+            (ULONG_PTR)(LPTSTR)aVersionHelpIds);
         break;
 
     case WM_CONTEXTMENU:      // right mouse click
-        WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU,
-            (ULONG_PTR) (LPTSTR) aVersionHelpIds);
+        WinHelp((HWND)wParam, NULL, HELP_CONTEXTMENU,
+            (ULONG_PTR)(LPTSTR)aVersionHelpIds);
         break;
 
     case WM_NOTIFY:
-        switch (((NMHDR *)lParam)->code)
-        {
+        switch (((NMHDR*)lParam)->code) {
         case PSN_SETACTIVE:
             _UpdateVersionPrsht(pvp);
             break;
@@ -530,11 +500,9 @@ void AddVersionPage(LPCTSTR pszFile, LPFNADDPROPSHEETPAGE pfnAddPage, LPARAM lPa
     // REVIEW: dwVerHandle is unused, and can be NULL on NT.  If the same
     // is true on Win9x, we can delete the dwVerHandle local var
     dwAttr = GetFileAttributes(vp.szFile);
-    if (0xFFFFFFFF != dwAttr && 0 == (dwAttr & FILE_ATTRIBUTE_OFFLINE) /*avoid HSM recall*/)
-    {
+    if (0xFFFFFFFF != dwAttr && 0 == (dwAttr & FILE_ATTRIBUTE_OFFLINE) /*avoid HSM recall*/) {
         dwVerLen = GetFileVersionInfoSize(vp.szFile, &dwVerHandle);
-        if (dwVerLen)
-        {
+        if (dwVerLen) {
             HPROPSHEETPAGE hpage;
 
             vp.psp.dwSize = SIZEOF(VERPROPSHEETPAGE);     // extra data

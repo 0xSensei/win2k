@@ -52,7 +52,7 @@ typedef struct tagRECTS
 } RECTS;
 
 typedef struct
-    {
+{
     LPTSTR lpszDesc;
     LPTSTR lpszCL;
     LPTSTR lpszWD;
@@ -63,7 +63,7 @@ typedef struct
 #ifdef WINNT
     BOOL bSepVdm;
 #endif
-    }   PMITEM, *PPMITEM, *LPPMITEM;
+}   PMITEM, * PPMITEM, * LPPMITEM;
 
 // Old Progman stuff.
 #define GROUP_MAGIC    0x43434D50L  // 'PMCC'
@@ -73,7 +73,7 @@ typedef struct
  * Win 3.1 .GRP file formats (ITEMDEF for items, GROUPDEF for groups)
 */
 typedef struct
-    {
+{
     POINTS        pt;
     WORD          iIcon;
     WORD          cbHeader;
@@ -85,10 +85,10 @@ typedef struct
     WORD          pName;
     WORD          pCommand;
     WORD          pIconPath;
-    } ITEMDEF, *PITEMDEF, *LPITEMDEF;
+} ITEMDEF, * PITEMDEF, * LPITEMDEF;
 
 typedef struct
-    {
+{
     DWORD     dwMagic;
     WORD      wCheckSum;
     WORD      cbGroup;
@@ -101,14 +101,14 @@ typedef struct
     WORD      wIconFormat;
     WORD      wReserved;
     WORD      cItems;
-    } GROUPDEF, *PGROUPDEF, *LPGROUPDEF;
+} GROUPDEF, * PGROUPDEF, * LPGROUPDEF;
 
 typedef struct
-    {
+{
     WORD wID;
     WORD wItem;
     WORD cb;
-    } PMTAG, *PPMTAG, *LPPMTAG;
+} PMTAG, * PPMTAG, * LPPMTAG;
 
 // Thank God the tag stuff never really caught on.
 #define TAG_MAGIC GROUP_MAGIC
@@ -142,8 +142,8 @@ typedef struct tagGROUPDEF_A {
 
     WORD    cItems;         /* number of items in group */
     WORD    rgiItems[1];    /* array of ITEMDEF offsets */
-} NT_GROUPDEF_A, *PNT_GROUPDEF_A;
-typedef NT_GROUPDEF_A *LPNT_GROUPDEF_A;
+} NT_GROUPDEF_A, * PNT_GROUPDEF_A;
+typedef NT_GROUPDEF_A* LPNT_GROUPDEF_A;
 
 typedef struct tagITEMDEF_A {
     POINT   pt;             /* location of item icon in group */
@@ -157,8 +157,8 @@ typedef struct tagITEMDEF_A {
     WORD    pName;          /* offset of name string */
     WORD    pCommand;       /* offset of command string */
     WORD    pIconPath;      /* offset of icon path */
-} NT_ITEMDEF_A, *PNT_ITEMDEF_A;
-typedef NT_ITEMDEF_A *LPNT_ITEMDEF_A;
+} NT_ITEMDEF_A, * PNT_ITEMDEF_A;
+typedef NT_ITEMDEF_A* LPNT_ITEMDEF_A;
 
 /*
  * NT 3.1a Unicode .GRP File format structures
@@ -181,8 +181,8 @@ typedef struct tagGROUPDEF {
     WORD    Reserved1;
     DWORD   Reserved2;
     DWORD   rgiItems[1];    /* array of ITEMDEF offsets */
-} NT_GROUPDEF, *PNT_GROUPDEF;
-typedef NT_GROUPDEF *LPNT_GROUPDEF;
+} NT_GROUPDEF, * PNT_GROUPDEF;
+typedef NT_GROUPDEF* LPNT_GROUPDEF;
 
 typedef struct tagITEMDEF {
     POINT   pt;             /* location of item icon in group */
@@ -194,18 +194,18 @@ typedef struct tagITEMDEF {
     DWORD   pName;          /* offset of name string */
     DWORD   pCommand;       /* offset of command string */
     DWORD   pIconPath;      /* offset of icon path */
-} NT_ITEMDEF, *PNT_ITEMDEF;
-typedef NT_ITEMDEF *LPNT_ITEMDEF;
+} NT_ITEMDEF, * PNT_ITEMDEF;
+typedef NT_ITEMDEF* LPNT_ITEMDEF;
 
 typedef struct _tag
-  {
+{
     WORD wID;                   // tag identifier
     WORD dummy1;                // need this for alignment!
     int wItem;                  // (unde the covers 32 bit point!)item the tag belongs to
     WORD cb;                    // size of record, including id and count
     WORD dummy2;                // need this for alignment!
     BYTE rgb[1];
-  } NT_PMTAG, * LPNT_PMTAG;
+} NT_PMTAG, * LPNT_PMTAG;
 
 /* the pointers in the above structures are short pointers relative to the
  * beginning of the segments.  This macro converts the short pointer into
@@ -252,38 +252,37 @@ int ConvertToUnicodeGroup(LPNT_GROUPDEF_A lpGroupORI, LPHANDLE lphNewGroup);
 BOOL ItemList_Create(LPCTSTR lpszGroup)
 {
     if (!hdsaPMItems)
-            hdsaPMItems = DSA_Create(SIZEOF(PMITEM), 16);
+        hdsaPMItems = DSA_Create(SIZEOF(PMITEM), 16);
 
-        if (hdsaPMItems)
-                return TRUE;
+    if (hdsaPMItems)
+        return TRUE;
 
-        DebugMsg(DM_ERROR, TEXT("cg.gi: Unable to init."));
-        return FALSE;
+    DebugMsg(DM_ERROR, TEXT("cg.gi: Unable to init."));
+    return FALSE;
 }
 
 
 // Tidyup.
 void ItemList_Destroy(void)
 {
-        int i;
-        int cItems;
-        LPPMITEM lppmitem;
+    int i;
+    int cItems;
+    LPPMITEM lppmitem;
 
-        // Clean up the items.
-        cItems = DSA_GetItemCount(hdsaPMItems);
-        for(i=0; i < cItems; i++)
-        {
-                lppmitem = DSA_GetItemPtr(hdsaPMItems, 0);
-                // Nuke the strings.
-                CFree(lppmitem->lpszDesc);
-                CFree(lppmitem->lpszCL);
-                CFree(lppmitem->lpszWD);
-                CFree(lppmitem->lpszIconPath);
-                // Nuke the structure.
-                DSA_DeleteItem(hdsaPMItems, 0);
-        }
-        DSA_Destroy(hdsaPMItems);
-        hdsaPMItems = NULL;
+    // Clean up the items.
+    cItems = DSA_GetItemCount(hdsaPMItems);
+    for (i = 0; i < cItems; i++) {
+        lppmitem = DSA_GetItemPtr(hdsaPMItems, 0);
+        // Nuke the strings.
+        CFree(lppmitem->lpszDesc);
+        CFree(lppmitem->lpszCL);
+        CFree(lppmitem->lpszWD);
+        CFree(lppmitem->lpszIconPath);
+        // Nuke the structure.
+        DSA_DeleteItem(hdsaPMItems, 0);
+    }
+    DSA_Destroy(hdsaPMItems);
+    hdsaPMItems = NULL;
 }
 
 
@@ -291,7 +290,7 @@ void ItemList_Destroy(void)
 // group is returned in lpszTitle which must be at least 32 chars big.
 // REVIEW - Is it worth checking the checksum?
 UINT Group_ValidOldFormat(LPCTSTR lpszOldGroup, LPTSTR lpszTitle)
-    {
+{
 #ifdef UNICODE
     HANDLE fh;
     DWORD  dwBytesRead;
@@ -309,7 +308,7 @@ UINT Group_ValidOldFormat(LPCTSTR lpszOldGroup, LPTSTR lpszTitle)
     fh = _lopen(lpszOldGroup, OF_READ | OF_SHARE_DENY_NONE);
     if (fh != HFILE_ERROR)
 #endif
-        {
+    {
         // Get the definition.
 #ifdef UNICODE
         ReadFile(fh, &grpdef, SIZEOF(grpdef), &dwBytesRead, NULL);
@@ -318,125 +317,115 @@ UINT Group_ValidOldFormat(LPCTSTR lpszOldGroup, LPTSTR lpszTitle)
 #endif
 
         // Does it have the right magic bytes?.
-        switch( grpdef.dwMagic )
+        switch (grpdef.dwMagic) {
+        case GROUP_UNICODE:
+        {
+            NT_GROUPDEF nt_grpdef;
+
+#ifdef UNICODE
+            SetFilePointer(fh, 0, NULL, FILE_BEGIN);
+            ReadFile(fh, &nt_grpdef, SIZEOF(nt_grpdef), &dwBytesRead, NULL);
+#else
+            _llseek(fh, 0, 0);      // Back to the start
+            _lread(fh, &nt_grpdef, SIZEOF(nt_grpdef));
+#endif
+
+            // Yep, Get it's size..
+            // Is it at least as big as the header says it is?
+#ifdef UNICODE
+            if (nt_grpdef.cbGroup <= (DWORD)SetFilePointer(fh, 0L, NULL, FILE_END))
+#else
+            if (nt_grpdef.cbGroup <= (DWORD)_llseek(fh, 0L, 2))
+#endif
             {
-            case GROUP_UNICODE:
-                {
-                    NT_GROUPDEF nt_grpdef;
+                WCHAR wchGroupName[MAXGROUPNAMELEN + 1];
 
+                // Yep, probably valid.
+                // Get its title.
 #ifdef UNICODE
-                    SetFilePointer(fh, 0, NULL, FILE_BEGIN);
-                    ReadFile(fh, &nt_grpdef, SIZEOF(nt_grpdef), &dwBytesRead, NULL);
+                SetFilePointer(fh, nt_grpdef.pName, 0, FILE_BEGIN);
+                ReadFile(fh, wchGroupName, SIZEOF(wchGroupName), &dwBytesRead, NULL);
+                lstrcpy(lpszTitle, wchGroupName);
 #else
-                    _llseek(fh, 0, 0);      // Back to the start
-                    _lread(fh, &nt_grpdef, SIZEOF(nt_grpdef));
+                _llseek(fh, nt_grpdef.pName, 0);
+                _lread(fh, wchGroupName, SIZEOF(wchGroupName));
+                WideCharToMultiByte(CP_ACP, 0, wchGroupName, -1,
+                                    lpszTitle, MAXGROUPNAMELEN + 1, NULL, NULL);
 #endif
-
-                    // Yep, Get it's size..
-                    // Is it at least as big as the header says it is?
-#ifdef UNICODE
-                    if ( nt_grpdef.cbGroup <= (DWORD)SetFilePointer(fh, 0L, NULL,  FILE_END))
-#else
-                    if ( nt_grpdef.cbGroup <= (DWORD)_llseek(fh, 0L, 2))
-#endif
-                    {
-                        WCHAR wchGroupName[MAXGROUPNAMELEN+1];
-
-                        // Yep, probably valid.
-                        // Get its title.
-#ifdef UNICODE
-                        SetFilePointer(fh, nt_grpdef.pName, 0, FILE_BEGIN);
-                        ReadFile(fh, wchGroupName, SIZEOF(wchGroupName), &dwBytesRead, NULL);
-                        lstrcpy(lpszTitle, wchGroupName);
-#else
-                        _llseek(fh, nt_grpdef.pName, 0);
-                        _lread(fh,wchGroupName, SIZEOF(wchGroupName));
-                        WideCharToMultiByte (CP_ACP, 0, wchGroupName, -1,
-                                         lpszTitle, MAXGROUPNAMELEN+1, NULL, NULL);
-#endif
-                        nCode = VOF_WINNT;
-                    }
-                    else
-                    {
-                        // No. Too small.
-                        DebugMsg(DM_TRACE, TEXT("gc.gvof: File has invalid size."));
-                        nCode = VOF_BAD;
-                    }
-                }
-                break;
-            case GROUP_MAGIC:
-                {
-                CHAR chGroupName[MAXGROUPNAMELEN+1];
-                // Yep, Get it's size..
-                // Is it at least as big as the header says it is?
-#ifdef UNICODE
-                if (grpdef.cbGroup <= (WORD) SetFilePointer(fh, 0L, NULL, FILE_END))
-#else
-                if (grpdef.cbGroup <= (WORD) _llseek(fh, 0L, 2))
-#endif
-                    {
-                    // Check to make sure there is a name embedded in the
-                    // .grp file.  If not, just use the filename
-                    if (grpdef.pName==0)
-                        {
-                        LPTSTR lpszFile, lpszExt, lpszDest = lpszTitle;
-
-                        lpszFile = PathFindFileName( lpszOldGroup );
-                        lpszExt  = PathFindExtension( lpszOldGroup );
-                        for( ;
-                             lpszFile && lpszExt && (lpszFile != lpszExt);
-                             *lpszDest++ = *lpszFile++
-                            );
-                        *lpszDest = TEXT('\0');
-
-                        }
-                    else
-                        {
-
-                        // Yep, probably valid.
-                        // Get it's title.
-#ifdef UNICODE
-                        SetFilePointer(fh, grpdef.pName, NULL, FILE_BEGIN);
-                        ReadFile(fh, chGroupName, MAXGROUPNAMELEN+1, &dwBytesRead, NULL);
-                        MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, chGroupName, -1, lpszTitle, MAXGROUPNAMELEN+1) ;
-#else
-                        _llseek(fh, grpdef.pName, 0);
-                        _lread(fh, lpszTitle, MAXGROUPNAMELEN+1);
-#endif
-                        }
-
-                    nCode = VOF_WIN31;
-                    }
-                else
-                    {
-                    // No. Too small.
-                    DebugMsg(DM_TRACE, TEXT("gc.gvof: File has invalid size."));
-                    nCode = VOF_BAD;
-                    }
-                break;
-                }
-
-            default:
-                // No, the magic bytes are wrong.
-                DebugMsg(DM_TRACE, TEXT("gc.gvof: File has invalid magic bytes."));
+                nCode = VOF_WINNT;
+            } else {
+                // No. Too small.
+                DebugMsg(DM_TRACE, TEXT("gc.gvof: File has invalid size."));
                 nCode = VOF_BAD;
-                break;
             }
+        }
+        break;
+        case GROUP_MAGIC:
+        {
+            CHAR chGroupName[MAXGROUPNAMELEN + 1];
+            // Yep, Get it's size..
+            // Is it at least as big as the header says it is?
+#ifdef UNICODE
+            if (grpdef.cbGroup <= (WORD)SetFilePointer(fh, 0L, NULL, FILE_END))
+#else
+            if (grpdef.cbGroup <= (WORD)_llseek(fh, 0L, 2))
+#endif
+            {
+                // Check to make sure there is a name embedded in the
+                // .grp file.  If not, just use the filename
+                if (grpdef.pName == 0) {
+                    LPTSTR lpszFile, lpszExt, lpszDest = lpszTitle;
+
+                    lpszFile = PathFindFileName(lpszOldGroup);
+                    lpszExt = PathFindExtension(lpszOldGroup);
+                    for (;
+                         lpszFile && lpszExt && (lpszFile != lpszExt);
+                         *lpszDest++ = *lpszFile++
+                         );
+                    *lpszDest = TEXT('\0');
+
+                } else {
+
+                    // Yep, probably valid.
+                    // Get it's title.
+#ifdef UNICODE
+                    SetFilePointer(fh, grpdef.pName, NULL, FILE_BEGIN);
+                    ReadFile(fh, chGroupName, MAXGROUPNAMELEN + 1, &dwBytesRead, NULL);
+                    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, chGroupName, -1, lpszTitle, MAXGROUPNAMELEN + 1);
+#else
+                    _llseek(fh, grpdef.pName, 0);
+                    _lread(fh, lpszTitle, MAXGROUPNAMELEN + 1);
+#endif
+                }
+
+                nCode = VOF_WIN31;
+            } else {
+                // No. Too small.
+                DebugMsg(DM_TRACE, TEXT("gc.gvof: File has invalid size."));
+                nCode = VOF_BAD;
+            }
+            break;
+        }
+
+        default:
+            // No, the magic bytes are wrong.
+            DebugMsg(DM_TRACE, TEXT("gc.gvof: File has invalid magic bytes."));
+            nCode = VOF_BAD;
+            break;
+        }
 #ifdef UNICODE
         CloseHandle(fh);
 #else
         _lclose(fh);
 #endif
-        }
-    else
-        {
+    } else {
         // No. Can't even read the file.
         DebugMsg(DM_TRACE, TEXT("gc.gvof: File is unreadble."));
         nCode = VOF_BAD;
-        }
+    }
 
     return nCode;
-    }
+}
 
 
 // BUGBUG:: there is a similar function in shelldll\path.c and in cabinet\dde.c
@@ -469,8 +458,7 @@ void PathRemoveIllegalChars(LPTSTR pszPath, int iGroupName, UINT flags)
 
     // Map all of the strange characters out of the name for both LFn and not
     // machines
-    while (*pszT)
-    {
+    while (*pszT) {
         if (!_IsValidFileNameChar(*pszT, flags))
             *pszT = TEXT('_');        // Don't Allow invalid chars in names
         pszT = CharNext(pszT);
@@ -483,8 +471,7 @@ void PathRemoveIllegalChars(LPTSTR pszPath, int iGroupName, UINT flags)
 void MapGroupTitle(LPCTSTR lpszOld, LPTSTR lpszNew, UINT cchNew)
 {
     // Is there a mapping?
-    if (!Reg_GetString(g_hkeyGrpConv, c_szMapGroups, lpszOld, lpszNew, cchNew*sizeof(TCHAR)))
-    {
+    if (!Reg_GetString(g_hkeyGrpConv, c_szMapGroups, lpszOld, lpszNew, cchNew * sizeof(TCHAR))) {
         // Nope, just use the given name.
         lstrcpyn(lpszNew, lpszOld, cchNew);
     }
@@ -499,31 +486,26 @@ BOOL Group_DeleteIfRequired(LPCTSTR lpszOldGrpTitle, LPCTSTR lpszOldGrpFile)
     HKEY  hkeyNew;
     TCHAR szIniFile[MAX_PATH], szFile[MAX_PATH];
 
-    if (Reg_GetString(g_hkeyGrpConv, c_szDelGroups, lpszOldGrpTitle, NULL, 0))
-    {
+    if (Reg_GetString(g_hkeyGrpConv, c_szDelGroups, lpszOldGrpTitle, NULL, 0)) {
         Win32DeleteFile(lpszOldGrpFile);
 
         DebugMsg(DM_TRACE, TEXT("gc.mgr: old group %s has been deleted"), lpszOldGrpTitle);
 
         // Remove old Group entry from registry..
 
-        if (RegOpenKey(g_hkeyGrpConv, c_szGroups, &hkeyNew) == ERROR_SUCCESS)
-        {
-            if (RegDeleteValue(hkeyNew, lpszOldGrpFile) == ERROR_SUCCESS)
-            {
+        if (RegOpenKey(g_hkeyGrpConv, c_szGroups, &hkeyNew) == ERROR_SUCCESS) {
+            if (RegDeleteValue(hkeyNew, lpszOldGrpFile) == ERROR_SUCCESS) {
                 fRet = TRUE;
             }
             RegCloseKey(hkeyNew);
         }
 
         // Remove old Group entry from progman.ini
-        if (FindProgmanIni(szIniFile))
-        {
+        if (FindProgmanIni(szIniFile)) {
             UINT uSize;
             LPTSTR pSection, pKey;
 
-            for (uSize = 1024; uSize < 1024 * 8; uSize += 1024)
-            {
+            for (uSize = 1024; uSize < 1024 * 8; uSize += 1024) {
                 pSection = (PSTR)LocalAlloc(LPTR, uSize);
                 if (!pSection)
                     break;
@@ -536,14 +518,11 @@ BOOL Group_DeleteIfRequired(LPCTSTR lpszOldGrpTitle, LPCTSTR lpszOldGrpFile)
                 fRet = FALSE;
             }
 
-            if (pSection)
-            {
-                for (pKey = pSection; *pKey; pKey += lstrlen(pKey) + 1)
-                {
+            if (pSection) {
+                for (pKey = pSection; *pKey; pKey += lstrlen(pKey) + 1) {
                     GetPrivateProfileString(c_szGroups, pKey, c_szNULL, szFile, ARRAYSIZE(szFile), szIniFile);
 
-                    if (lstrcmpi(lpszOldGrpFile, szFile) == 0)
-                    {
+                    if (lstrcmpi(lpszOldGrpFile, szFile) == 0) {
                         WritePrivateProfileString(c_szGroups, pKey, NULL, szIniFile);
                         break;
                     }
@@ -562,8 +541,7 @@ BOOL Group_DeleteIfRequired(LPCTSTR lpszOldGrpTitle, LPCTSTR lpszOldGrpFile)
 void PathRemoveExtension(LPTSTR pszPath)
 {
     LPTSTR pExt = PathFindExtension(pszPath);
-    if (*pExt)
-    {
+    if (*pExt) {
         Assert(*pExt == TEXT('.'));
         *pExt = 0;    // null out the "."
     }
@@ -573,7 +551,7 @@ void PathRemoveExtension(LPTSTR pszPath)
 // Given a path to an old group, create and return a path to where the new
 // group will be.
 BOOL Group_GenerateNewGroupPath(HWND hwnd, LPCTSTR lpszOldGrpTitle,
-    LPTSTR lpszNewGrpPath, LPCTSTR pszOldGrpPath)
+                                LPTSTR lpszNewGrpPath, LPCTSTR pszOldGrpPath)
 {
     int iLen;
     TCHAR szGrpTitle[MAX_PATH];
@@ -586,8 +564,7 @@ BOOL Group_GenerateNewGroupPath(HWND hwnd, LPCTSTR lpszOldGrpTitle,
         SHGetSpecialFolderPath(hwnd, lpszNewGrpPath, CSIDL_PROGRAMS, TRUE);
 
 
-    if (IsLFNDrive(lpszNewGrpPath))
-    {
+    if (IsLFNDrive(lpszNewGrpPath)) {
         // Fix it a bit.
         lstrcpyn(szOldGrpTitle, lpszOldGrpTitle, ARRAYSIZE(szOldGrpTitle));
         PathRemoveIllegalChars(szOldGrpTitle, 0, PRICF_NORMAL);
@@ -597,19 +574,16 @@ BOOL Group_GenerateNewGroupPath(HWND hwnd, LPCTSTR lpszOldGrpTitle,
         PathAddBackslash(lpszNewGrpPath);
         iLen = lstrlen(lpszNewGrpPath);
         // NB Don't use PathAppend() - very bad if there's a colons in the title.
-        lstrcpyn(lpszNewGrpPath+iLen, szGrpTitle, MAX_PATH-iLen);
+        lstrcpyn(lpszNewGrpPath + iLen, szGrpTitle, MAX_PATH - iLen);
         PathRemoveIllegalChars(lpszNewGrpPath, iLen, PRICF_ALLOWSLASH);
-    }
-    else
-    {
+    } else {
         // Just use the old group file name - this will make sure the group
         // names remain unique.
         PathAppend(lpszNewGrpPath, PathFindFileName(pszOldGrpPath));
         PathRemoveExtension(lpszNewGrpPath);
     }
 
-    if (!PathFileExists(lpszNewGrpPath))
-    {
+    if (!PathFileExists(lpszNewGrpPath)) {
         // Folder doesn't exist.
         // return Win32CreateDirectory(lpszNewGrpPath, NULL);
         return (SHCreateDirectory(hwnd, lpszNewGrpPath) == 0);
@@ -622,32 +596,30 @@ BOOL Group_GenerateNewGroupPath(HWND hwnd, LPCTSTR lpszOldGrpTitle,
 
 // Returns true if the offsets given in the item def are valid-ish.
 BOOL CheckItemDef(LPITEMDEF lpitemdef, WORD cbGroup)
-    {
+{
     if (lpitemdef->pHeader < cbGroup && lpitemdef->pANDPlane < cbGroup &&
         lpitemdef->pXORPlane < cbGroup && lpitemdef->pName < cbGroup &&
         lpitemdef->pCommand < cbGroup && lpitemdef->pIconPath < cbGroup &&
         lpitemdef->pHeader && lpitemdef->pXORPlane && lpitemdef->pCommand)
         return TRUE;
-    else
-        {
+    else {
         return FALSE;
-        }
     }
+}
 
 
 // Returns true if the offsets given in the item def are valid-ish.
 BOOL CheckItemDefNT(LPNT_ITEMDEF lpitemdef, DWORD cbGroup)
-    {
+{
     if (lpitemdef->pName < cbGroup &&
         lpitemdef->pCommand < cbGroup &&
         lpitemdef->pIconPath < cbGroup &&
         lpitemdef->pCommand)
         return TRUE;
-    else
-        {
+    else {
         return FALSE;
-        }
     }
+}
 
 
 // Read the tags info from the given file handle from the given offset.
@@ -672,10 +644,9 @@ void HandleTags(int fh, WORD oTags)
 #ifdef UNICODE
     cbGroupReal = SetFilePointer(fh, 0, NULL, FILE_END);
 #else
-    cbGroupReal = (WORD) _llseek(fh, 0L, 2);
+    cbGroupReal = (WORD)_llseek(fh, 0L, 2);
 #endif
-    if (cbGroupReal <= (LONG) oTags)
-    {
+    if (cbGroupReal <= (LONG)oTags) {
         // No tags in this file.
         return;
     }
@@ -686,8 +657,7 @@ void HandleTags(int fh, WORD oTags)
 #else
     _llseek(fh, oTags, 0);
 #endif
-    while (fTags)
-    {
+    while (fTags) {
 #ifdef UNICODE
         if (!ReadFile(fh, &pmtag, SIZEOF(pmtag), &dwBytesRead, NULL) || dwBytesRead == 0) {
             fTags = FALSE;
@@ -696,139 +666,124 @@ void HandleTags(int fh, WORD oTags)
 #else
         fTags = _lread(fh, &pmtag, SIZEOF(pmtag));
 #endif
-        switch (pmtag.wID)
+        switch (pmtag.wID) {
+        case ID_MAGIC:
         {
-            case ID_MAGIC:
-            {
-//                DebugMsg(DM_TRACE, "gc.ht: First tag found.");
-                fFirstTag = TRUE;
+            //                DebugMsg(DM_TRACE, "gc.ht: First tag found.");
+            fFirstTag = TRUE;
 #ifdef UNICODE
-                SetFilePointer(fh, pmtag.cb - SIZEOF(PMTAG), NULL, FILE_CURRENT);
+            SetFilePointer(fh, pmtag.cb - SIZEOF(PMTAG), NULL, FILE_CURRENT);
 #else
-                _llseek(fh, pmtag.cb - SIZEOF(PMTAG), 1);
+            _llseek(fh, pmtag.cb - SIZEOF(PMTAG), 1);
 #endif
-                break;
+            break;
+        }
+        case ID_LASTTAG:
+        {
+            //                DebugMsg(DM_TRACE, "gc.ht: Last tag found.");
+            fTags = FALSE;
+            break;
+        }
+        case ID_APPLICATIONDIR:
+        {
+            //                DebugMsg(DM_TRACE, "gc.ht: App dir %s found for %d.", (LPSTR) szText, pmtag.wItem);
+            fgets(szText, SIZEOF(szText), fh);
+            lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
+            if (lppmitem) {
+                Str_SetPtr(&lppmitem->lpszCL, szText);
             }
-            case ID_LASTTAG:
-            {
-//                DebugMsg(DM_TRACE, "gc.ht: Last tag found.");
-                fTags = FALSE;
-                break;
-            }
-            case ID_APPLICATIONDIR:
-            {
-//                DebugMsg(DM_TRACE, "gc.ht: App dir %s found for %d.", (LPSTR) szText, pmtag.wItem);
-                fgets(szText, SIZEOF(szText), fh);
-                lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
-                if (lppmitem)
-                {
-                    Str_SetPtr(&lppmitem->lpszCL, szText);
-                }
 #ifdef DEBUG
-                else
-                {
-                    DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
-                }
-#endif
-                break;
+            else {
+                DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
             }
-            case ID_HOTKEY:
-            {
-                // DebugMsg(DM_TRACE, "gc.ht: Hotkey found for %d.", pmtag.wItem);
+#endif
+            break;
+        }
+        case ID_HOTKEY:
+        {
+            // DebugMsg(DM_TRACE, "gc.ht: Hotkey found for %d.", pmtag.wItem);
 #ifdef UNICODE
-                ReadFile(fh, &wHotKey, SIZEOF(wHotKey), &dwBytesRead, NULL);
+            ReadFile(fh, &wHotKey, SIZEOF(wHotKey), &dwBytesRead, NULL);
 #else
-                _lread(fh, &wHotKey, SIZEOF(wHotKey));
+            _lread(fh, &wHotKey, SIZEOF(wHotKey));
 #endif
-                lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
-                if (lppmitem)
-                {
-                    lppmitem->wHotKey = wHotKey;
-                }
-#ifdef DEBUG
-                else
-                {
-                    DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
-                }
-#endif
-                break;
+            lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
+            if (lppmitem) {
+                lppmitem->wHotKey = wHotKey;
             }
-            case ID_MINIMIZE:
-            {
-                // DebugMsg(DM_TRACE, "gc.ht: Minimise flag found for %d.", pmtag.wItem);
-                lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
-                if (lppmitem)
-                {
-                    lppmitem->nShowCmd = SW_SHOWMINNOACTIVE;
-                }
 #ifdef DEBUG
-                else
-                {
-                    DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
-                }
+            else {
+                DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
+            }
 #endif
-                // Skip to the next tag.
+            break;
+        }
+        case ID_MINIMIZE:
+        {
+            // DebugMsg(DM_TRACE, "gc.ht: Minimise flag found for %d.", pmtag.wItem);
+            lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
+            if (lppmitem) {
+                lppmitem->nShowCmd = SW_SHOWMINNOACTIVE;
+            }
+#ifdef DEBUG
+            else {
+                DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
+            }
+#endif
+            // Skip to the next tag.
 #ifdef UNICODE
-                SetFilePointer(fh, pmtag.cb - SIZEOF(PMTAG), NULL, FILE_CURRENT);
+            SetFilePointer(fh, pmtag.cb - SIZEOF(PMTAG), NULL, FILE_CURRENT);
 #else
-                _llseek(fh, pmtag.cb - SIZEOF(PMTAG), 1);
+            _llseek(fh, pmtag.cb - SIZEOF(PMTAG), 1);
 #endif
-                break;
-            }
+            break;
+        }
 #ifdef WINNT
-            case ID_NEWVDM:
-            {
-                // DebugMsg(DM_TRACE, "gc.ht: Separate VDM flag found for %d.", pmtag.wItem );
-                lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
-                if (lppmitem)
-                {
-                    lppmitem->bSepVdm = TRUE;
-                }
+        case ID_NEWVDM:
+        {
+            // DebugMsg(DM_TRACE, "gc.ht: Separate VDM flag found for %d.", pmtag.wItem );
+            lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
+            if (lppmitem) {
+                lppmitem->bSepVdm = TRUE;
+            }
 #ifdef DEBUG
-                else
-                {
-                    DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
-                }
-#endif
-                // Skip to the next tag.
-#ifdef UNICODE
-                SetFilePointer(fh, pmtag.cb - SIZEOF(PMTAG), NULL, FILE_CURRENT);
-#else
-                _llseek(fh, pmtag.cb - SIZEOF(PMTAG), 1);
-#endif
-                break;
+            else {
+                DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
             }
 #endif
-            default:
-            {
-                // We've found something we don't understand but we haven't
-                // found the first tag yet - probably a bust file.
-                if (!fFirstTag)
-                {
-                    DebugMsg(DM_TRACE, TEXT("gc.ht: No initial tag found - tags section is corrupt."));
+            // Skip to the next tag.
+#ifdef UNICODE
+            SetFilePointer(fh, pmtag.cb - SIZEOF(PMTAG), NULL, FILE_CURRENT);
+#else
+            _llseek(fh, pmtag.cb - SIZEOF(PMTAG), 1);
+#endif
+            break;
+        }
+#endif
+        default:
+        {
+            // We've found something we don't understand but we haven't
+            // found the first tag yet - probably a bust file.
+            if (!fFirstTag) {
+                DebugMsg(DM_TRACE, TEXT("gc.ht: No initial tag found - tags section is corrupt."));
+                fTags = FALSE;
+            } else {
+                // Some unknown tag.
+                if (pmtag.cb < SIZEOF(PMTAG)) {
+                    // Can't continue!
+                    DebugMsg(DM_TRACE, TEXT("gc.ht: Tag has invalid size - ignoring remaining tags."));
                     fTags = FALSE;
-                }
-                else
-                {
-                    // Some unknown tag.
-                    if (pmtag.cb < SIZEOF(PMTAG))
-                    {
-                        // Can't continue!
-                        DebugMsg(DM_TRACE, TEXT("gc.ht: Tag has invalid size - ignoring remaining tags."));
-                        fTags = FALSE;
-                    }
-                    else
-                    {
-                        // Just ignore its data and continue.
+                } else {
+                    // Just ignore its data and continue.
 #ifdef UNICODE
-                        SetFilePointer(fh, pmtag.cb - SIZEOF(PMTAG), NULL, FILE_CURRENT);
+                    SetFilePointer(fh, pmtag.cb - SIZEOF(PMTAG), NULL, FILE_CURRENT);
 #else
-                        _llseek(fh, pmtag.cb - SIZEOF(PMTAG), 1);
+                    _llseek(fh, pmtag.cb - SIZEOF(PMTAG), 1);
 #endif
-                    }
                 }
-                break;
             }
+            break;
+        }
         }
     }
 }
@@ -860,16 +815,14 @@ void HandleTagsNT(int fh, DWORD oTags)
 #else
     cbGroupReal = _llseek(fh, 0L, 2);
 #endif
-    if (cbGroupReal <= oTags)
-    {
+    if (cbGroupReal <= oTags) {
         // No tags in this file.
         return;
     }
 
     // Get to the tags section.
     dwPosition = oTags;
-    while (fTags)
-    {
+    while (fTags) {
 #ifdef UNICODE
         SetFilePointer(fh, dwPosition, NULL, FILE_BEGIN);
         if (!ReadFile(fh, &pmtag, SIZEOF(pmtag), &dwBytesRead, NULL) || dwBytesRead == 0) {
@@ -878,137 +831,122 @@ void HandleTagsNT(int fh, DWORD oTags)
         }
 
 #else
-        _llseek(fh,dwPosition,0);
+        _llseek(fh, dwPosition, 0);
         fTags = _lread(fh, &pmtag, SIZEOF(pmtag));
 #endif
-        switch (pmtag.wID)
+        switch (pmtag.wID) {
+        case ID_MAGIC:
         {
-            case ID_MAGIC:
-            {
-//                DebugMsg(DM_TRACE, "gc.ht: First tag found.");
-                fFirstTag = TRUE;
-                dwPosition += pmtag.cb;
-                break;
-            }
-            case ID_LASTTAG:
-            {
-//                DebugMsg(DM_TRACE, "gc.ht: Last tag found.");
-                fTags = FALSE;
-                break;
-            }
-            case ID_APPLICATIONDIR:
-            {
+            //                DebugMsg(DM_TRACE, "gc.ht: First tag found.");
+            fFirstTag = TRUE;
+            dwPosition += pmtag.cb;
+            break;
+        }
+        case ID_LASTTAG:
+        {
+            //                DebugMsg(DM_TRACE, "gc.ht: Last tag found.");
+            fTags = FALSE;
+            break;
+        }
+        case ID_APPLICATIONDIR:
+        {
 #ifdef UNICODE
-                SetFilePointer(fh, dwPosition+FIELD_OFFSET(NT_PMTAG,rgb[0]), NULL, FILE_BEGIN);
-                ReadFile(fh, wszTemp, SIZEOF(wszTemp), &dwBytesRead, NULL);
-                lstrcpy(szText, wszTemp);
+            SetFilePointer(fh, dwPosition + FIELD_OFFSET(NT_PMTAG, rgb[0]), NULL, FILE_BEGIN);
+            ReadFile(fh, wszTemp, SIZEOF(wszTemp), &dwBytesRead, NULL);
+            lstrcpy(szText, wszTemp);
 #else
-                _llseek(fh,dwPosition+FIELD_OFFSET(NT_PMTAG,rgb[0]),0);
-                _lread(fh,wszTemp,SIZEOF(wszTemp));
-                WideCharToMultiByte (CP_ACP, 0, wszTemp, -1,
-                                 szText, ARRAYSIZE(szText), NULL, NULL);
+            _llseek(fh, dwPosition + FIELD_OFFSET(NT_PMTAG, rgb[0]), 0);
+            _lread(fh, wszTemp, SIZEOF(wszTemp));
+            WideCharToMultiByte(CP_ACP, 0, wszTemp, -1,
+                                szText, ARRAYSIZE(szText), NULL, NULL);
 #endif
-//                DebugMsg(DM_TRACE, "gc.ht: App dir %s found for %d.", (LPSTR) szText, pmtag.wItem);
-                lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
-                if (lppmitem)
-                {
-                    Str_SetPtr(&lppmitem->lpszCL, szText);
-                }
-#ifdef DEBUG
-                else
-                {
-                    DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
-                }
-#endif
-                dwPosition += pmtag.cb;
-                break;
+            //                DebugMsg(DM_TRACE, "gc.ht: App dir %s found for %d.", (LPSTR) szText, pmtag.wItem);
+            lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
+            if (lppmitem) {
+                Str_SetPtr(&lppmitem->lpszCL, szText);
             }
-            case ID_HOTKEY:
-            {
-//                DebugMsg(DM_TRACE, "gc.ht: Hotkey found for %d.", pmtag.wItem);
+#ifdef DEBUG
+            else {
+                DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
+            }
+#endif
+            dwPosition += pmtag.cb;
+            break;
+        }
+        case ID_HOTKEY:
+        {
+            //                DebugMsg(DM_TRACE, "gc.ht: Hotkey found for %d.", pmtag.wItem);
 #ifdef UNICODE
-                ReadFile(fh, &wHotKey, SIZEOF(wHotKey), &dwBytesRead, NULL);
+            ReadFile(fh, &wHotKey, SIZEOF(wHotKey), &dwBytesRead, NULL);
 #else
-                _lread(fh, &wHotKey, SIZEOF(wHotKey));
+            _lread(fh, &wHotKey, SIZEOF(wHotKey));
 #endif
-                lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
-                if (lppmitem)
-                {
-                    lppmitem->wHotKey = wHotKey;
-                }
-#ifdef DEBUG
-                else
-                {
-                    DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
-                }
-#endif
-                dwPosition += pmtag.cb;
-                break;
+            lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
+            if (lppmitem) {
+                lppmitem->wHotKey = wHotKey;
             }
-            case ID_MINIMIZE:
-            {
-//                DebugMsg(DM_TRACE, "gc.ht: Minimise flag found for %d.", pmtag.wItem);
-                lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
-                if (lppmitem)
-                {
-                    lppmitem->nShowCmd = SW_SHOWMINNOACTIVE;
-                }
 #ifdef DEBUG
-                else
-                {
-                    DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
-                }
-#endif
-                // Skip to the next tag.
-                dwPosition += pmtag.cb;
-                break;
+            else {
+                DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
             }
+#endif
+            dwPosition += pmtag.cb;
+            break;
+        }
+        case ID_MINIMIZE:
+        {
+            //                DebugMsg(DM_TRACE, "gc.ht: Minimise flag found for %d.", pmtag.wItem);
+            lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
+            if (lppmitem) {
+                lppmitem->nShowCmd = SW_SHOWMINNOACTIVE;
+            }
+#ifdef DEBUG
+            else {
+                DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
+            }
+#endif
+            // Skip to the next tag.
+            dwPosition += pmtag.cb;
+            break;
+        }
 #ifdef WINNT
-            case ID_NEWVDM:
-            {
-                // DebugMsg(DM_TRACE, "gc.ht: Separate VDM flag found for %d.", pmtag.wItem );
-                lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
-                if (lppmitem)
-                {
-                    lppmitem->bSepVdm = TRUE;
-                }
+        case ID_NEWVDM:
+        {
+            // DebugMsg(DM_TRACE, "gc.ht: Separate VDM flag found for %d.", pmtag.wItem );
+            lppmitem = DSA_GetItemPtr(hdsaPMItems, pmtag.wItem);
+            if (lppmitem) {
+                lppmitem->bSepVdm = TRUE;
+            }
 #ifdef DEBUG
-                else
-                {
-                    DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
-                }
-#endif
-                // Skip to the next tag.
-                dwPosition += pmtag.cb;
-                break;
+            else {
+                DebugMsg(DM_ERROR, TEXT("gc.ht: Item is invalid."));
             }
 #endif
-            default:
-            {
-                // We've found something we don't understand but we haven't
-                // found the first tag yet - probably a bust file.
-                if (!fFirstTag)
-                {
-                    DebugMsg(DM_TRACE, TEXT("gc.ht: No initial tag found - tags section is corrupt."));
+            // Skip to the next tag.
+            dwPosition += pmtag.cb;
+            break;
+        }
+#endif
+        default:
+        {
+            // We've found something we don't understand but we haven't
+            // found the first tag yet - probably a bust file.
+            if (!fFirstTag) {
+                DebugMsg(DM_TRACE, TEXT("gc.ht: No initial tag found - tags section is corrupt."));
+                fTags = FALSE;
+            } else {
+                // Some unknown tag.
+                if (pmtag.cb < SIZEOF(PMTAG)) {
+                    // Can't continue!
+                    DebugMsg(DM_TRACE, TEXT("gc.ht: Tag has invalid size - ignoring remaining tags."));
                     fTags = FALSE;
+                } else {
+                    // Just ignore its data and continue.
+                    dwPosition += pmtag.cb;
                 }
-                else
-                {
-                    // Some unknown tag.
-                    if (pmtag.cb < SIZEOF(PMTAG))
-                    {
-                        // Can't continue!
-                        DebugMsg(DM_TRACE, TEXT("gc.ht: Tag has invalid size - ignoring remaining tags."));
-                        fTags = FALSE;
-                    }
-                    else
-                    {
-                        // Just ignore its data and continue.
-                        dwPosition += pmtag.cb;
-                    }
-                }
-                break;
             }
+            break;
+        }
         }
     }
 }
@@ -1021,12 +959,10 @@ void DeleteBustedItems(void)
 
 
     cItems = DSA_GetItemCount(hdsaPMItems);
-    for (i=0; i<cItems; i++)
-    {
+    for (i = 0; i < cItems; i++) {
         ppmitem = DSA_GetItemPtr(hdsaPMItems, i);
         // Is the item broken?
-        if (!ppmitem->lpszDesc || !(*ppmitem->lpszDesc))
-        {
+        if (!ppmitem->lpszDesc || !(*ppmitem->lpszDesc)) {
             // Yep, delete it.
             DSA_DeleteItem(hdsaPMItems, i);
             cItems--;
@@ -1042,8 +978,7 @@ void ShortenDescriptions(void)
     LPPMITEM ppmitem;
 
     cItems = DSA_GetItemCount(hdsaPMItems);
-    for (i=0; i<cItems; i++)
-    {
+    for (i = 0; i < cItems; i++) {
         ppmitem = DSA_GetItemPtr(hdsaPMItems, i);
         // Shorten the descriptions
         lstrcpyn(ppmitem->lpszDesc, ppmitem->lpszDesc, 9);
@@ -1081,8 +1016,7 @@ void MungePaths(void)
 
     cItems = DSA_GetItemCount(hdsaPMItems);
 
-    for (i=0; i<cItems; i++)
-    {
+    for (i = 0; i < cItems; i++) {
         szCL[0] = TEXT('\0');
         szWD[0] = TEXT('\0');
         lppmitem = DSA_GetItemPtr(hdsaPMItems, i);
@@ -1095,39 +1029,32 @@ void MungePaths(void)
         // Find the filename part...
         // Params will confuse PFFN.
         lpszParams = PathGetArgs(szWD);
-        if (*lpszParams)
-        {
+        if (*lpszParams) {
             // Chop them off.
             // NB Previous char is a space by definition.
-            *(lpszParams-1) = TEXT('\0');
+            *(lpszParams - 1) = TEXT('\0');
             lpszFileName = _PathFindFileName(szWD);
             // Put them back
-            *(lpszParams-1) = TEXT(' ');
-        }
-        else
-        {
+            *(lpszParams - 1) = TEXT(' ');
+        } else {
             // No params.
             lpszFileName = PathFindFileName(szWD);
         }
         // Copy this onto the exe path.
-        lstrcat((LPTSTR) szCL, lpszFileName);
+        lstrcat((LPTSTR)szCL, lpszFileName);
         // Remove it from the end of the WD.
         *lpszFileName = TEXT('\0');
         // For anything but things like c:\ remove the last slash.
-        if (!PathIsRoot(szWD))
-        {
-            *(lpszFileName-1) = TEXT('\0');
+        if (!PathIsRoot(szWD)) {
+            *(lpszFileName - 1) = TEXT('\0');
         }
 #else
         lpszFileName = szWD;
 
-        if (*lpszFileName == TEXT('"'))
-        {
-            while (lpszFileName)
-            {
-                lpszFileName = StrChr(lpszFileName+1,TEXT('"'));
-                if (!lpszFileName)
-                {
+        if (*lpszFileName == TEXT('"')) {
+            while (lpszFileName) {
+                lpszFileName = StrChr(lpszFileName + 1, TEXT('"'));
+                if (!lpszFileName) {
 
                     // The directory is not in quotes and since the command
                     // path starts with a quote, there is no working directory.
@@ -1135,8 +1062,7 @@ void MungePaths(void)
                     lpszFileName = szWD;
                     break;
                 }
-                if (*(lpszFileName+1) == TEXT('\\'))
-                {
+                if (*(lpszFileName + 1) == TEXT('\\')) {
 
                     // The working directory is in quotes.
 
@@ -1144,18 +1070,15 @@ void MungePaths(void)
                     break;
                 }
             }
-        }
-        else
-        {
+        } else {
 
             // if there's a working directory, it is not in quotes
             // Copy up until the last \ preceding any quote, space, or the end
 
             LPTSTR lpEnd = lpszFileName;
 
-            while (*lpszFileName && *lpszFileName != TEXT('"') && *lpszFileName != TEXT(' '))
-            {
-                if ((*lpszFileName == TEXT('\\') || *lpszFileName == TEXT(':')) && *(lpszFileName+1) != TEXT('\\'))
+            while (*lpszFileName && *lpszFileName != TEXT('"') && *lpszFileName != TEXT(' ')) {
+                if ((*lpszFileName == TEXT('\\') || *lpszFileName == TEXT(':')) && *(lpszFileName + 1) != TEXT('\\'))
                     lpEnd = lpszFileName;
                 lpszFileName = CharNext(lpszFileName);
             }
@@ -1165,33 +1088,29 @@ void MungePaths(void)
         // If the split is at the beginning,
         // then there is no working dir
 
-        if (lpszFileName == szWD)
-        {
+        if (lpszFileName == szWD) {
             lstrcat(szCL, szWD);
             szWD[0] = TEXT('\0');
-        }
-        else
-        {
-            lstrcat(szCL, lpszFileName+1);
-            *(lpszFileName+1) = TEXT('\0');        // Split it.
+        } else {
+            lstrcat(szCL, lpszFileName + 1);
+            *(lpszFileName + 1) = TEXT('\0');        // Split it.
 
 
             // Remove quotes from the working dir NOW.
 
             if (szWD[0] == TEXT('"')) {
-               LPTSTR lpTemp;
+                LPTSTR lpTemp;
 
-               for (lpTemp = szWD+1; *lpTemp && *lpTemp != TEXT('"'); lpTemp++)
-                  *(lpTemp-1) = *lpTemp;
+                for (lpTemp = szWD + 1; *lpTemp && *lpTemp != TEXT('"'); lpTemp++)
+                    *(lpTemp - 1) = *lpTemp;
 
-               if (*lpTemp == TEXT('"')) {
-                  *(lpTemp-1) = TEXT('\0');
-               }
+                if (*lpTemp == TEXT('"')) {
+                    *(lpTemp - 1) = TEXT('\0');
+                }
             }
 
             // For anything but things like c:\ remove the last slash.
-            if (!PathIsRoot(szWD))
-            {
+            if (!PathIsRoot(szWD)) {
                 *lpszFileName = TEXT('\0');
             }
         }
@@ -1208,7 +1127,7 @@ void MungePaths(void)
 
 // Set all the fields of the given pmitem to clear;
 void PMItem_Clear(LPPMITEM lppmitem)
-    {
+{
     lppmitem->lpszDesc = NULL;
     lppmitem->lpszCL = NULL;
     lppmitem->lpszWD = NULL;
@@ -1219,7 +1138,7 @@ void PMItem_Clear(LPPMITEM lppmitem)
 #ifdef WINNT
     lppmitem->bSepVdm = FALSE;
 #endif
-    }
+}
 
 
 // Read the item data from the file and add it to the list.
@@ -1231,7 +1150,7 @@ BOOL GetAllItemData(HFILE fh, WORD cItems, WORD cbGroup, LPTSTR lpszOldGrpTitle,
 #endif
 {
     UINT cbItemArray;
-    WORD *rgItems;
+    WORD* rgItems;
     UINT i, iItem;
     TCHAR szDesc[CCHSZNORMAL];
     TCHAR szCL[CCHSZNORMAL];
@@ -1247,9 +1166,8 @@ BOOL GetAllItemData(HFILE fh, WORD cItems, WORD cbGroup, LPTSTR lpszOldGrpTitle,
     // Read in the old item table...
     iItem = 0;
     cbItemArray = cItems * SIZEOF(*rgItems);
-    rgItems = (WORD *)LocalAlloc(LPTR, cbItemArray);
-    if (!rgItems)
-    {
+    rgItems = (WORD*)LocalAlloc(LPTR, cbItemArray);
+    if (!rgItems) {
         DebugMsg(DM_ERROR, TEXT("gc.gcnfo: Out of memory."));
         return FALSE;
     }
@@ -1262,14 +1180,13 @@ BOOL GetAllItemData(HFILE fh, WORD cItems, WORD cbGroup, LPTSTR lpszOldGrpTitle,
 #endif
 
     // Show progress in two stages, first reading then writing.
-    Group_SetProgressNameAndRange(lpszNewGrpPath, (cItems*2)-1);
+    Group_SetProgressNameAndRange(lpszNewGrpPath, (cItems * 2) - 1);
 
     // Read in the items.
     // NB Don't just skip busted items since the tag data contains
     // indices to items and that includes busted ones. Just use
     // an empty description to indicate that the link is invalid.
-    for (i=0; i<cItems; i++)
-    {
+    for (i = 0; i < cItems; i++) {
         Group_SetProgress(i);
 
         szDesc[0] = TEXT('\0');
@@ -1277,13 +1194,11 @@ BOOL GetAllItemData(HFILE fh, WORD cItems, WORD cbGroup, LPTSTR lpszOldGrpTitle,
         szIconPath[0] = TEXT('\0');
         itemdef.iIcon = 0;
 
-        if (rgItems[i] == 0)
-        {
+        if (rgItems[i] == 0) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file has empty item definition - skipping."));
             goto AddItem;
         }
-        if (rgItems[i] > cbGroup)
-        {
+        if (rgItems[i] > cbGroup) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file busted (item entry in invalid part of file) - skipping item."));
             fOK = FALSE;
             goto AddItem;
@@ -1295,14 +1210,12 @@ BOOL GetAllItemData(HFILE fh, WORD cItems, WORD cbGroup, LPTSTR lpszOldGrpTitle,
         _llseek(fh, rgItems[i], 0);
         cbRead = _lread(fh, &itemdef, SIZEOF(itemdef));
 #endif
-        if (cbRead != SIZEOF(itemdef))
-        {
+        if (cbRead != SIZEOF(itemdef)) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file busted (invalid definition) - skipping item %d."), i);
             fOK = FALSE;
             goto AddItem;
         }
-        if (!CheckItemDef(&itemdef, cbGroup))
-        {
+        if (!CheckItemDef(&itemdef, cbGroup)) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file busted (invalid item field) - skipping item %d."), i);
             fOK = FALSE;
             goto AddItem;
@@ -1313,8 +1226,7 @@ BOOL GetAllItemData(HFILE fh, WORD cItems, WORD cbGroup, LPTSTR lpszOldGrpTitle,
         _llseek(fh, itemdef.pName, 0);
 #endif
         fgets(szDesc, SIZEOF(szDesc), fh);
-        if (!*szDesc)
-        {
+        if (!*szDesc) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file busted (empty name) - skipping item %d."), i);
             fOK = FALSE;
             goto AddItem;
@@ -1326,10 +1238,9 @@ BOOL GetAllItemData(HFILE fh, WORD cItems, WORD cbGroup, LPTSTR lpszOldGrpTitle,
 #endif
         fgets(szCL, SIZEOF(szCL), fh);
 
-// We hit this case with links to c:\ (rare, very rare).
+        // We hit this case with links to c:\ (rare, very rare).
 #if 0
-        if (!*szCL)
-        {
+        if (!*szCL) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file busted (empty command line) - skipping item %d."), i);
             // We use a null description to signal a problem with this item.
             szDesc[0] = TEXT('\0');
@@ -1338,22 +1249,18 @@ BOOL GetAllItemData(HFILE fh, WORD cItems, WORD cbGroup, LPTSTR lpszOldGrpTitle,
         }
 #endif
 
-        if (itemdef.pIconPath!=0xFFFF)
-        {
+        if (itemdef.pIconPath != 0xFFFF) {
 #ifdef UNICODE
             SetFilePointer(fh, itemdef.pIconPath, NULL, FILE_BEGIN);
 #else
             _llseek(fh, itemdef.pIconPath, 0);
 #endif
             fgets(szIconPath, SIZEOF(szIconPath), fh);
-        }
-        else
-        {
-            szIconPath[ 0 ] = TEXT('\0');
+        } else {
+            szIconPath[0] = TEXT('\0');
         }
 
-        if (!*szIconPath)
-        {
+        if (!*szIconPath) {
             // NB Do nothing. Empty icon paths are legal - associated apps where the associated
             // app is missing will have an empty icon path.
         }
@@ -1366,18 +1273,17 @@ BOOL GetAllItemData(HFILE fh, WORD cItems, WORD cbGroup, LPTSTR lpszOldGrpTitle,
         // NB We load the old commands line into the working dir field because
         // only the leaf is the command, the rest is the WD. Once we've been
         // through the tags section we can sort out the mess.
-AddItem:
+    AddItem:
         PMItem_Clear(&pmitem);
 
 #ifdef DEBUG
-        DebugMsg(GC_TRACE, TEXT("gc.gaid: Desc %s"), (LPTSTR) szDesc);
-        DebugMsg(GC_TRACE, TEXT("    WD: %s"), (LPTSTR) szCL);
-        DebugMsg(GC_TRACE, TEXT("    IP: %s(%d)"), (LPTSTR) szIconPath, itemdef.iIcon);
+        DebugMsg(GC_TRACE, TEXT("gc.gaid: Desc %s"), (LPTSTR)szDesc);
+        DebugMsg(GC_TRACE, TEXT("    WD: %s"), (LPTSTR)szCL);
+        DebugMsg(GC_TRACE, TEXT("    IP: %s(%d)"), (LPTSTR)szIconPath, itemdef.iIcon);
 #endif
 
         // Don't store anything for items with invalid descriptions.
-        if (*szDesc)
-        {
+        if (*szDesc) {
             // Remove illegal chars.
             PathRemoveIllegalChars(szDesc, 0, PRICF_NORMAL);
             Str_SetPtr(&pmitem.lpszDesc, szDesc);
@@ -1403,7 +1309,7 @@ typedef struct _enumstruct {
     UINT    iIndex;
     BOOL    fFound;
     WORD    wIconRTIconID;
-} ENUMSTRUCT, *LPENUMSTRUCT;
+} ENUMSTRUCT, * LPENUMSTRUCT;
 
 BOOL EnumIconFunc(
     HMODULE hMod,
@@ -1429,8 +1335,7 @@ BOOL EnumIconFunc(
     UnlockResource(h);
     FreeResource(h);
 
-    if (id == lpes->wIconRTIconID)
-    {
+    if (id == lpes->wIconRTIconID) {
         lpes->fFound = TRUE;
         return FALSE;
     }
@@ -1439,7 +1344,7 @@ BOOL EnumIconFunc(
     return TRUE;
 }
 
-WORD FindAppropriateIcon( LPTSTR lpszFileName, WORD wIconRTIconID )
+WORD FindAppropriateIcon(LPTSTR lpszFileName, WORD wIconRTIconID)
 {
     HINSTANCE hInst;
     TCHAR   szExe[MAX_PATH];
@@ -1447,17 +1352,15 @@ WORD FindAppropriateIcon( LPTSTR lpszFileName, WORD wIconRTIconID )
     ENUMSTRUCT  es;
     int olderror;
 
-    hInst = FindExecutable(lpszFileName,NULL,szExe);
-    if ( hInst <= (HINSTANCE)HINSTANCE_ERROR )
-    {
+    hInst = FindExecutable(lpszFileName, NULL, szExe);
+    if (hInst <= (HINSTANCE)HINSTANCE_ERROR) {
         return 0;
     }
 
     olderror = SetErrorMode(SEM_FAILCRITICALERRORS);
-    hInst = LoadLibraryEx(szExe,NULL, DONT_RESOLVE_DLL_REFERENCES);
+    hInst = LoadLibraryEx(szExe, NULL, DONT_RESOLVE_DLL_REFERENCES);
     SetErrorMode(olderror);
-    if ( hInst <= (HINSTANCE)HINSTANCE_ERROR )
-    {
+    if (hInst <= (HINSTANCE)HINSTANCE_ERROR) {
         return 0;
     }
 
@@ -1465,16 +1368,13 @@ WORD FindAppropriateIcon( LPTSTR lpszFileName, WORD wIconRTIconID )
     es.fFound = FALSE;
     es.wIconRTIconID = wIconRTIconID;
 
-    EnumResourceNames( hInst, RT_GROUP_ICON, EnumIconFunc, (LPARAM)&es );
+    EnumResourceNames(hInst, RT_GROUP_ICON, EnumIconFunc, (LPARAM)&es);
 
-    FreeLibrary( hInst );
+    FreeLibrary(hInst);
 
-    if (es.fFound)
-    {
+    if (es.fFound) {
         return (WORD)es.iIndex;
-    }
-    else
-    {
+    } else {
         return 0;
     }
 }
@@ -1489,7 +1389,7 @@ BOOL GetAllItemDataNT(HFILE fh, WORD cItems, DWORD cbGroup, LPTSTR lpszOldGrpTit
 #endif
 {
     UINT cbItemArray;
-    DWORD *rgItems;
+    DWORD* rgItems;
     UINT i, iItem;
     WCHAR wszTemp[CCHSZNORMAL];
     TCHAR szDesc[CCHSZNORMAL];
@@ -1507,29 +1407,27 @@ BOOL GetAllItemDataNT(HFILE fh, WORD cItems, DWORD cbGroup, LPTSTR lpszOldGrpTit
     // Read in the old item table...
     iItem = 0;
     cbItemArray = cItems * SIZEOF(*rgItems);
-    rgItems = (DWORD *)LocalAlloc(LPTR, cbItemArray);
-    if (!rgItems)
-    {
+    rgItems = (DWORD*)LocalAlloc(LPTR, cbItemArray);
+    if (!rgItems) {
         DebugMsg(DM_ERROR, TEXT("gc.gcnfo: Out of memory."));
         return FALSE;
     }
 #ifdef UNICODE
-    SetFilePointer(fh, FIELD_OFFSET(NT_GROUPDEF,rgiItems[0]), NULL, FILE_BEGIN);
+    SetFilePointer(fh, FIELD_OFFSET(NT_GROUPDEF, rgiItems[0]), NULL, FILE_BEGIN);
     ReadFile(fh, rgItems, cbItemArray, &cbRead, NULL);
 #else
-    _llseek(fh, FIELD_OFFSET(NT_GROUPDEF,rgiItems[0]), 0);
+    _llseek(fh, FIELD_OFFSET(NT_GROUPDEF, rgiItems[0]), 0);
     _lread(fh, rgItems, cbItemArray);
 #endif
 
     // Show progress in two stages, first reading then writing.
-    Group_SetProgressNameAndRange(lpszNewGrpPath, (cItems*2)-1);
+    Group_SetProgressNameAndRange(lpszNewGrpPath, (cItems * 2) - 1);
 
     // Read in the items.
     // NB Don't just skip busted items since the tag data contains
     // indices to items and that includes busted ones. Just use
     // an empty description to indicate that the link is invalid.
-    for (i=0; i<cItems; i++)
-    {
+    for (i = 0; i < cItems; i++) {
         Group_SetProgress(i);
 
         szDesc[0] = TEXT('\0');
@@ -1537,13 +1435,11 @@ BOOL GetAllItemDataNT(HFILE fh, WORD cItems, DWORD cbGroup, LPTSTR lpszOldGrpTit
         szIconPath[0] = TEXT('\0');
         itemdef.iIcon = 0;
 
-        if (rgItems[i] == 0)
-        {
+        if (rgItems[i] == 0) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file has empty item definition - skipping."));
             goto AddItem;
         }
-        if (rgItems[i] > cbGroup)
-        {
+        if (rgItems[i] > cbGroup) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file busted (item entry in invalid part of file) - skipping item."));
             fOK = FALSE;
             goto AddItem;
@@ -1555,14 +1451,12 @@ BOOL GetAllItemDataNT(HFILE fh, WORD cItems, DWORD cbGroup, LPTSTR lpszOldGrpTit
         _llseek(fh, rgItems[i], 0);
         cbRead = _lread(fh, &itemdef, SIZEOF(itemdef));
 #endif
-        if (cbRead != SIZEOF(itemdef))
-        {
+        if (cbRead != SIZEOF(itemdef)) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file busted (invalid definition) - skipping item %d."), i);
             fOK = FALSE;
             goto AddItem;
         }
-        if (!CheckItemDefNT(&itemdef, cbGroup))
-        {
+        if (!CheckItemDefNT(&itemdef, cbGroup)) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file busted (invalid item field) - skipping item %d."), i);
             fOK = FALSE;
             goto AddItem;
@@ -1574,8 +1468,7 @@ BOOL GetAllItemDataNT(HFILE fh, WORD cItems, DWORD cbGroup, LPTSTR lpszOldGrpTit
         _llseek(fh, itemdef.pName, 0);
         _lread(fh, wszTemp, SIZEOF(wszTemp)); // There will be a NUL somewhere
 #endif
-        if (!*wszTemp)
-        {
+        if (!*wszTemp) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file busted (empty name) - skipping item %d."), i);
             fOK = FALSE;
             goto AddItem;
@@ -1583,8 +1476,8 @@ BOOL GetAllItemDataNT(HFILE fh, WORD cItems, DWORD cbGroup, LPTSTR lpszOldGrpTit
 #ifdef UNICODE
         lstrcpy(szDesc, wszTemp);
 #else
-        WideCharToMultiByte (CP_ACP, 0, wszTemp, -1,
-                         szDesc, ARRAYSIZE(szDesc), NULL, NULL);
+        WideCharToMultiByte(CP_ACP, 0, wszTemp, -1,
+                            szDesc, ARRAYSIZE(szDesc), NULL, NULL);
 #endif
 
 #ifdef UNICODE
@@ -1594,8 +1487,7 @@ BOOL GetAllItemDataNT(HFILE fh, WORD cItems, DWORD cbGroup, LPTSTR lpszOldGrpTit
         _llseek(fh, itemdef.pCommand, 0);
         _lread(fh, wszTemp, SIZEOF(wszTemp));
 #endif
-        if (!*wszTemp)
-        {
+        if (!*wszTemp) {
             DebugMsg(DM_TRACE, TEXT("gc.gcnfo: Old group file busted (empty command line) - skipping item %d."), i);
             // We use a null description to signal a problem with this item.
             szDesc[0] = TEXT('\0');
@@ -1605,8 +1497,8 @@ BOOL GetAllItemDataNT(HFILE fh, WORD cItems, DWORD cbGroup, LPTSTR lpszOldGrpTit
 #ifdef UNICODE
         lstrcpy(szCL, wszTemp);
 #else
-        WideCharToMultiByte (CP_ACP, 0, wszTemp, -1,
-                         szCL, ARRAYSIZE(szCL), NULL, NULL);
+        WideCharToMultiByte(CP_ACP, 0, wszTemp, -1,
+                            szCL, ARRAYSIZE(szCL), NULL, NULL);
 #endif
 
 #ifdef UNICODE
@@ -1616,16 +1508,15 @@ BOOL GetAllItemDataNT(HFILE fh, WORD cItems, DWORD cbGroup, LPTSTR lpszOldGrpTit
         _llseek(fh, itemdef.pIconPath, 0);
         _lread(fh, wszTemp, SIZEOF(wszTemp));
 #endif
-        if (!*wszTemp)
-        {
+        if (!*wszTemp) {
             // NB Do nothing. Empty icon paths are legal - associated apps where the associated
             // app is missing will have an empty icon path.
         }
 #ifdef UNICODE
         lstrcpy(szIconPath, wszTemp);
 #else
-        WideCharToMultiByte (CP_ACP, 0, wszTemp, -1,
-                         szIconPath, ARRAYSIZE(szIconPath), NULL, NULL);
+        WideCharToMultiByte(CP_ACP, 0, wszTemp, -1,
+                            szIconPath, ARRAYSIZE(szIconPath), NULL, NULL);
 #endif
 
         // NB Forget about the icon data.
@@ -1636,18 +1527,17 @@ BOOL GetAllItemDataNT(HFILE fh, WORD cItems, DWORD cbGroup, LPTSTR lpszOldGrpTit
         // NB We load the old commands line into the working dir field because
         // only the leaf is the command, the rest is the WD. Once we've been
         // through the tags section we can sort out the mess.
-AddItem:
+    AddItem:
         PMItem_Clear(&pmitem);
 
 #ifdef DEBUG
-        DebugMsg(GC_TRACE, TEXT("gc.gaid: Desc %s"), (LPTSTR) szDesc);
-        DebugMsg(GC_TRACE, TEXT("    WD: %s"), (LPTSTR) szCL);
-        DebugMsg(GC_TRACE, TEXT("    IP: %s(%d)"), (LPTSTR) szIconPath, itemdef.iIcon);
+        DebugMsg(GC_TRACE, TEXT("gc.gaid: Desc %s"), (LPTSTR)szDesc);
+        DebugMsg(GC_TRACE, TEXT("    WD: %s"), (LPTSTR)szCL);
+        DebugMsg(GC_TRACE, TEXT("    IP: %s(%d)"), (LPTSTR)szIconPath, itemdef.iIcon);
 #endif
 
         // Don't store anything for items with invalid descriptions.
-        if (*szDesc)
-        {
+        if (*szDesc) {
             WORD    wIconIndex;
 
             // Remove illegal chars.
@@ -1657,18 +1547,15 @@ AddItem:
             Str_SetPtr(&pmitem.lpszIconPath, szIconPath);
 
             wIconIndex = itemdef.wIconIndex;
-            if ( wIconIndex == 0 )
-            {
+            if (wIconIndex == 0) {
                 WORD    wIcon;
                 HICON   hIcon;
 
-                if ( *szIconPath == TEXT('\0') )
-                {
-                    FindExecutable(szCL,NULL,szIconPath);
+                if (*szIconPath == TEXT('\0')) {
+                    FindExecutable(szCL, NULL, szIconPath);
                 }
-                if ( *szIconPath != TEXT('\0') )
-                {
-                    wIconIndex = FindAppropriateIcon( szIconPath, itemdef.iIcon);
+                if (*szIconPath != TEXT('\0')) {
+                    wIconIndex = FindAppropriateIcon(szIconPath, itemdef.iIcon);
                 }
             }
             pmitem.wiIcon = wIconIndex;
@@ -1692,15 +1579,15 @@ void CreateLinks(LPCTSTR lpszNewGrpPath, BOOL fStartup, INT cItemsStart)
     TCHAR szLinkName[MAX_PATH];
     TCHAR szBuffer[MAX_PATH];
     // we make this 3*MAX_PATH so that DARWIN and LOGO3 callers can pass their extra information
-    TCHAR szExpBuff[3*MAX_PATH];
+    TCHAR szExpBuff[3 * MAX_PATH];
     WCHAR wszPath[MAX_PATH];
     LPTSTR lpszArgs;
     LPCTSTR dirs[2];
-    IShellLink *psl;
+    IShellLink* psl;
     LPTSTR pszExt;
 
     if (SUCCEEDED(ICoCreateInstance(&CLSID_ShellLink, &IID_IShellLink, &psl))) {
-        IPersistFile *ppf;
+        IPersistFile* ppf;
         psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile, &ppf);
 
         cItems = DSA_GetItemCount(hdsaPMItems);
@@ -1709,7 +1596,7 @@ void CreateLinks(LPCTSTR lpszNewGrpPath, BOOL fStartup, INT cItemsStart)
             LPPMITEM lppmitem = DSA_GetItemPtr(hdsaPMItems, i);
 
             // We show the progress in 2 halves.
-            Group_SetProgress(cItemsStart+(i*cItemsStart/cItems));
+            Group_SetProgress(cItemsStart + (i * cItemsStart / cItems));
 
             // command line and args.
             // if this command line points to net drives we should add
@@ -1721,14 +1608,13 @@ void CreateLinks(LPCTSTR lpszNewGrpPath, BOOL fStartup, INT cItemsStart)
 
             lpszArgs = PathGetArgs(szBuffer);
             if (*lpszArgs)
-                *(lpszArgs-1) = TEXT('\0');
+                *(lpszArgs - 1) = TEXT('\0');
 
             // NB Special case, remove all links to Progman[.exe] from the
             // Startup Group. A lot of people put it there to give it a hotkey.
             // We want to be able to delete it regardless of its name ie we
             // can't just use setup.ini to do the work.
-            if (fStartup)
-            {
+            if (fStartup) {
                 if ((lstrcmpi(c_szProgmanExe, PathFindFileName(szBuffer)) == 0) ||
                     (lstrcmpi(c_szProgman, PathFindFileName(szBuffer)) == 0))
                     continue;
@@ -1740,43 +1626,37 @@ void CreateLinks(LPCTSTR lpszNewGrpPath, BOOL fStartup, INT cItemsStart)
             // Remove quotes from the command file name NOW.
 
             if (szBuffer[0] == TEXT('"')) {
-               LPTSTR lpTemp;
+                LPTSTR lpTemp;
 
-               for (lpTemp = szBuffer+1; *lpTemp && *lpTemp != TEXT('"'); lpTemp++)
-                  *(lpTemp-1) = *lpTemp;
+                for (lpTemp = szBuffer + 1; *lpTemp && *lpTemp != TEXT('"'); lpTemp++)
+                    *(lpTemp - 1) = *lpTemp;
 
-               if (*lpTemp == TEXT('"')) {
-                  *(lpTemp-1) = TEXT('\0');
-               }
+                if (*lpTemp == TEXT('"')) {
+                    *(lpTemp - 1) = TEXT('\0');
+                }
             }
 
             // working directory
             // NB Progman assumed an empty WD meant use the windows
             // directory but we want to change this so to be
             // backwards compatable we'll fill in missing WD's here.
-            if (!lppmitem->lpszWD || !*lppmitem->lpszWD)
-            {
+            if (!lppmitem->lpszWD || !*lppmitem->lpszWD) {
                 // NB For links to pif's we don't fill in a default WD
                 // so we'll pick it up from pif itself. This fixes a
                 // problem upgrading some Compaq Deskpro's.
                 pszExt = PathFindExtension(szBuffer);
-                if (lstrcmpi(pszExt, c_szDotPif) == 0)
-                {
+                if (lstrcmpi(pszExt, c_szDotPif) == 0) {
                     psl->lpVtbl->SetWorkingDirectory(psl, c_szNULL);
-                }
-                else
-                {
+                } else {
 #ifdef WINNT
                     // Avoid setting to %windir%, under NT we want to change to the users home directory.
-                    psl->lpVtbl->SetWorkingDirectory( psl, TEXT("%HOMEDRIVE%%HOMEPATH%") );
+                    psl->lpVtbl->SetWorkingDirectory(psl, TEXT("%HOMEDRIVE%%HOMEPATH%"));
 #else
                     // Not a pif. Set the WD to be that of the windows dir.
                     psl->lpVtbl->SetWorkingDirectory(psl, TEXT("%windir%"));
 #endif
                 }
-            }
-            else
-            {
+            } else {
                 psl->lpVtbl->SetWorkingDirectory(psl, lppmitem->lpszWD);
             }
 
@@ -1784,16 +1664,13 @@ void CreateLinks(LPCTSTR lpszNewGrpPath, BOOL fStartup, INT cItemsStart)
 
             // REVIEW, do we want to unqualify the icon path if possible?  also,
             // if the icon path is the same as the command line we don't need it
-            if (lppmitem->wiIcon != 0 || lstrcmpi(lppmitem->lpszIconPath, szBuffer) != 0)
-            {
+            if (lppmitem->wiIcon != 0 || lstrcmpi(lppmitem->lpszIconPath, szBuffer) != 0) {
                 // Remove args.
                 lpszArgs = PathGetArgs(lppmitem->lpszIconPath);
                 if (*lpszArgs)
-                    *(lpszArgs-1) = TEXT('\0');
+                    *(lpszArgs - 1) = TEXT('\0');
                 psl->lpVtbl->SetIconLocation(psl, lppmitem->lpszIconPath, lppmitem->wiIcon);
-            }
-            else
-            {
+            } else {
                 psl->lpVtbl->SetIconLocation(psl, NULL, 0);
             }
 
@@ -1820,27 +1697,24 @@ void CreateLinks(LPCTSTR lpszNewGrpPath, BOOL fStartup, INT cItemsStart)
             dirs[1] = NULL;
 
             // Try expanding szBuffer
-            ExpandEnvironmentStrings( szBuffer, szExpBuff, MAX_PATH );
-            szExpBuff[ MAX_PATH-1 ] = TEXT('\0');
-            if (!PathResolve(szExpBuff, dirs, PRF_TRYPROGRAMEXTENSIONS))
-            {
+            ExpandEnvironmentStrings(szBuffer, szExpBuff, MAX_PATH);
+            szExpBuff[MAX_PATH - 1] = TEXT('\0');
+            if (!PathResolve(szExpBuff, dirs, PRF_TRYPROGRAMEXTENSIONS)) {
                 // Just assume the expanded thing was a-ok...
                 ExpandEnvironmentStrings(szBuffer, szExpBuff, MAX_PATH);
-                szExpBuff[ MAX_PATH-1 ] = TEXT('\0');
+                szExpBuff[MAX_PATH - 1] = TEXT('\0');
             }
 
             // all we need to call is setpath, it takes care of creating the
             // pidl for us.
-            psl->lpVtbl->SetPath( psl, szBuffer );
+            psl->lpVtbl->SetPath(psl, szBuffer);
 #ifdef WINNT
             {
                 IShellLinkDataList* psldl;
 
-                if (SUCCEEDED(psl->lpVtbl->QueryInterface(psl, &IID_IShellLinkDataList, (LPVOID)&psldl)))
-                {
+                if (SUCCEEDED(psl->lpVtbl->QueryInterface(psl, &IID_IShellLinkDataList, (LPVOID)&psldl))) {
                     DWORD dwFlags;
-                    if (SUCCEEDED(psldl->lpVtbl->GetFlags(psldl, &dwFlags)))
-                    {
+                    if (SUCCEEDED(psldl->lpVtbl->GetFlags(psldl, &dwFlags))) {
                         if (lppmitem->bSepVdm)
                             dwFlags |= SLDF_RUN_IN_SEPARATE;
                         else
@@ -1874,31 +1748,27 @@ BOOL StartupCmp(LPTSTR szGrp)
     static TCHAR szOldStartupGrp[MAX_PATH];
     TCHAR szNewStartupPath[MAX_PATH];
 
-    if (!*szOldStartupGrp)
-    {
+    if (!*szOldStartupGrp) {
         // Was it over-ridden in progman ini?
         GetPrivateProfileString(c_szSettings, c_szStartup, c_szNULL, szOldStartupGrp,
-            ARRAYSIZE(szOldStartupGrp), c_szProgmanIni);
-        if (!*szOldStartupGrp)
-        {
+                                ARRAYSIZE(szOldStartupGrp), c_szProgmanIni);
+        if (!*szOldStartupGrp) {
             LONG    lResult;
             DWORD   cbSize;
 
             // No, try reading it from the NT registry
             cbSize = MAX_PATH;
-            lResult = RegQueryValue(HKEY_CURRENT_USER, c_szProgmanStartup, szOldStartupGrp, &cbSize );
+            lResult = RegQueryValue(HKEY_CURRENT_USER, c_szProgmanStartup, szOldStartupGrp, &cbSize);
 
             // BUGBUG_JAPAN - Probably need a check for Kana Start
 
-            if ( lResult != ERROR_SUCCESS )
-            {
+            if (lResult != ERROR_SUCCESS) {
                 // No, use the default name.
                 LoadString(g_hinst, IDS_STARTUP, szOldStartupGrp, ARRAYSIZE(szOldStartupGrp));
             }
         }
 
-        if (*szOldStartupGrp)
-        {
+        if (*szOldStartupGrp) {
             // Yes, use the over-riding name by updating the registry.
             SHGetSpecialFolderPath(NULL, szNewStartupPath, CSIDL_PROGRAMS, FALSE);
             PathAddBackslash(szNewStartupPath);
@@ -1925,16 +1795,14 @@ BOOL CALLBACK IsDescUnique(LPCTSTR lpsz, UINT n)
     // DebugMsg(DM_TRACE, "gc.idu: Checking uniqueness of %s.", lpsz);
 
     cItems = DSA_GetItemCount(hdsaPMItems);
-    for (i=0; i<cItems; i++)
-    {
+    for (i = 0; i < cItems; i++) {
         // N is our guy, skip it.
         if ((UINT)i == n)
             continue;
 
         pitem = DSA_GetItemPtr(hdsaPMItems, i);
         Assert(pitem);
-        if (pitem->lpszDesc && *pitem->lpszDesc && (lstrcmpi(pitem->lpszDesc, lpsz) == 0))
-        {
+        if (pitem->lpszDesc && *pitem->lpszDesc && (lstrcmpi(pitem->lpszDesc, lpsz) == 0)) {
             // DebugMsg(DM_TRACE, "gc.idu: Not Unique.");
             return FALSE;
         }
@@ -1958,7 +1826,7 @@ void ResolveDuplicates(LPCTSTR pszNewGrpPath)
     DebugMsg(DM_TRACE, TEXT("gc.rd: Fixing dups..."));
 
     // How much room is there for adding the #xx stuff?
-    cchSpace = (ARRAYSIZE(szNew)-lstrlen(pszNewGrpPath))-2;
+    cchSpace = (ARRAYSIZE(szNew) - lstrlen(pszNewGrpPath)) - 2;
 
     // LFN's or no?
     fLFN = IsLFNDrive(pszNewGrpPath);
@@ -1967,14 +1835,12 @@ void ResolveDuplicates(LPCTSTR pszNewGrpPath)
 
     // Fix dups
     cItems = DSA_GetItemCount(hdsaPMItems);
-    for (i=0; i<(cItems-1); i++)
-    {
+    for (i = 0; i < (cItems - 1); i++) {
         pitem = DSA_GetItemPtr(hdsaPMItems, i);
         Assert(pitem);
         YetAnotherMakeUniqueName(szNew, cchSpace, pitem->lpszDesc, IsDescUnique, i, fLFN);
         // Did we get a new name?
-        if (lstrcmp(szNew, pitem->lpszDesc) != 0)
-        {
+        if (lstrcmp(szNew, pitem->lpszDesc) != 0) {
             // Yep.
             DebugMsg(DM_TRACE, TEXT("gc.rd: %s to %s"), pitem->lpszDesc, szNew);
             Str_SetPtr(&pitem->lpszDesc, szNew);
@@ -1992,7 +1858,7 @@ typedef struct
     LPTSTR pszModule;
     LPTSTR pszVer;
 } ALITEM;
-typedef ALITEM *PALITEM;
+typedef ALITEM* PALITEM;
 
 
 // Record the total list of apps in a DSA.
@@ -2001,41 +1867,34 @@ void AppList_WriteFile(void)
     int i, cItems;
     PALITEM palitem;
     TCHAR szBetaID[MAX_PATH];
-    TCHAR szLine[4*MAX_PATH];
+    TCHAR szLine[4 * MAX_PATH];
     HANDLE hFile;
     DWORD cbWritten;
 
     Assert(g_hdsaAppList);
 
     cItems = DSA_GetItemCount(g_hdsaAppList);
-    if (cItems)
-    {
+    if (cItems) {
         // Get the beta ID.
         szBetaID[0] = TEXT('\0');
         Reg_GetString(HKEY_LOCAL_MACHINE, c_szRegistry, c_szDefaultUser, szBetaID, SIZEOF(szBetaID));
 
         // Ick - Hard coded file name and in the current dir!
         hFile = CreateFile(c_szGrpConvData, GENERIC_WRITE, FILE_SHARE_READ, NULL,
-            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (hFile != INVALID_HANDLE_VALUE)
-        {
-            for (i=0; i < cItems; i++)
-            {
+                           CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (hFile != INVALID_HANDLE_VALUE) {
+            for (i = 0; i < cItems; i++) {
                 palitem = DSA_GetItemPtr(g_hdsaAppList, i);
                 wsprintf(szLine, TEXT("%s,\"%s\",\"%s\",\"%s\",\"%s\",,,\r\n"), szBetaID, palitem->pszName,
-                    palitem->pszPath, palitem->pszModule, palitem->pszVer);
-                DebugMsg(DM_TRACE,TEXT("gc.al_wf: %s"), szLine);
-                WriteFile(hFile, szLine, lstrlen(szLine)*SIZEOF(TCHAR), &cbWritten, NULL);
+                         palitem->pszPath, palitem->pszModule, palitem->pszVer);
+                DebugMsg(DM_TRACE, TEXT("gc.al_wf: %s"), szLine);
+                WriteFile(hFile, szLine, lstrlen(szLine) * SIZEOF(TCHAR), &cbWritten, NULL);
             }
             CloseHandle(hFile);
-        }
-        else
-        {
+        } else {
             DebugMsg(DM_ERROR, TEXT("gc.al_wf: Can't write file."));
         }
-    }
-    else
-    {
+    } else {
         DebugMsg(DM_TRACE, TEXT("gc.al_wf: Empty app list. Nothing to write."));
     }
 }
@@ -2062,9 +1921,8 @@ BOOL Ver_GetDefaultCharSet(const PVOID pBuf, LPTSTR pszLangCharSet, int cbLangCh
     Assert(pszLangCharSet);
     Assert(cbLangCharSet > 8);
 
-    if (VerQueryValue(pBuf, (LPTSTR)c_szTranslation, &pTransTable, &cb))
-    {
-        wsprintf(pszLangCharSet, TEXT("%04X%04X"), *pTransTable, *(pTransTable+1));
+    if (VerQueryValue(pBuf, (LPTSTR)c_szTranslation, &pTransTable, &cb)) {
+        wsprintf(pszLangCharSet, TEXT("%04X%04X"), *pTransTable, *(pTransTable + 1));
         return TRUE;
     }
 
@@ -2074,7 +1932,7 @@ BOOL Ver_GetDefaultCharSet(const PVOID pBuf, LPTSTR pszLangCharSet, int cbLangCh
 
 // Semi-decent wrappers around the not very good ver apis.
 BOOL Ver_GetStringFileInfo(PVOID pBuf, LPCTSTR pszLangCharSet,
-    LPCTSTR pszStringName, LPTSTR pszValue, int cbValue)
+                           LPCTSTR pszStringName, LPTSTR pszValue, int cbValue)
 {
     TCHAR szSubBlock[MAX_PATH];
     LPTSTR pszBuf;
@@ -2085,8 +1943,7 @@ BOOL Ver_GetStringFileInfo(PVOID pBuf, LPCTSTR pszLangCharSet,
     lstrcat(szSubBlock, c_szSlash);
     lstrcat(szSubBlock, pszStringName);
 
-    if (VerQueryValue(pBuf, szSubBlock, &pszBuf, &cbBuf))
-    {
+    if (VerQueryValue(pBuf, szSubBlock, &pszBuf, &cbBuf)) {
         lstrcpyn(pszValue, pszBuf, cbValue);
         return TRUE;
     }
@@ -2108,21 +1965,15 @@ void GetVersionInfo(LPTSTR pszPath, LPTSTR pszModule, int cbModule, LPTSTR pszVe
     pszVer[0] = TEXT('\0');
 
     cbBuf = GetFileVersionInfoSize(pszPath, &dwWasteOfAnAuto);
-    if (cbBuf)
-    {
+    if (cbBuf) {
         pBuf = SHAlloc(cbBuf);
-        if (pBuf)
-        {
-            if (GetFileVersionInfo(pszPath, 0, cbBuf, pBuf))
-            {
+        if (pBuf) {
+            if (GetFileVersionInfo(pszPath, 0, cbBuf, pBuf)) {
                 // Try the default language from the translation tables.
-                if (Ver_GetDefaultCharSet(pBuf, szCharSet, ARRAYSIZE(szCharSet)))
-                {
+                if (Ver_GetDefaultCharSet(pBuf, szCharSet, ARRAYSIZE(szCharSet))) {
                     Ver_GetStringFileInfo(pBuf, szCharSet, c_szInternalName, pszModule, cbModule);
                     Ver_GetStringFileInfo(pBuf, szCharSet, c_szProductVersion, pszVer, cbVer);
-                }
-                else
-                {
+                } else {
                     // Try the same language as us.
                     LoadString(g_hinst, IDS_DEFLANGCHARSET, szCharSet, ARRAYSIZE(szCharSet));
                     Ver_GetStringFileInfo(pBuf, szCharSet, c_szInternalName, pszModule, cbModule);
@@ -2134,20 +1985,14 @@ void GetVersionInfo(LPTSTR pszPath, LPTSTR pszModule, int cbModule, LPTSTR pszVe
                     Ver_GetStringFileInfo(pBuf, c_szEngLangCharSet, c_szInternalName, pszModule, cbModule);
                 if (!*pszVer)
                     Ver_GetStringFileInfo(pBuf, c_szEngLangCharSet, c_szProductVersion, pszVer, cbVer);
-            }
-            else
-            {
+            } else {
                 DebugMsg(DM_TRACE, TEXT("gc.gvi: Can't get version info."));
             }
             SHFree(pBuf);
-        }
-        else
-        {
+        } else {
             DebugMsg(DM_TRACE, TEXT("gc.gvi: Can't allocate version info buffer."));
-            }
-    }
-    else
-    {
+        }
+    } else {
         DebugMsg(DM_TRACE, TEXT("gc.gvi: No version info."));
     }
 }
@@ -2160,12 +2005,9 @@ BOOL AppList_Create(void)
 
     g_hdsaAppList = DSA_Create(SIZEOF(ALITEM), 0);
 
-    if (g_hdsaAppList)
-    {
+    if (g_hdsaAppList) {
         return TRUE;
-    }
-    else
-    {
+    } else {
         DebugMsg(DM_ERROR, TEXT("gc.al_c: Can't create app list."));
         return FALSE;
     }
@@ -2181,8 +2023,7 @@ void AppList_Destroy(void)
     Assert(g_hdsaAppList);
 
     cItems = DSA_GetItemCount(g_hdsaAppList);
-    for (i=0; i < cItems; i++)
-    {
+    for (i = 0; i < cItems; i++) {
         palitem = DSA_GetItemPtr(g_hdsaAppList, i);
         if (palitem->pszName)
             SHFree(palitem->pszName);
@@ -2215,18 +2056,17 @@ void AppList_Append(void)
     Assert(g_hdsaAppList);
 
     cItems = DSA_GetItemCount(hdsaPMItems);
-    for (i = 0; i < cItems; i++)
-    {
+    for (i = 0; i < cItems; i++) {
         LPPMITEM lppmitem = DSA_GetItemPtr(hdsaPMItems, i);
 
         // We show the progress in 2 halves.
-        Group_SetProgress(cItems+i);
+        Group_SetProgress(cItems + i);
 
         // Command line and args.
         Str_GetPtr(lppmitem->lpszCL, szCL, ARRAYSIZE(szCL));
         lpszArgs = PathGetArgs(szCL);
         if (*lpszArgs)
-            *(lpszArgs-1) = TEXT('\0');
+            *(lpszArgs - 1) = TEXT('\0');
         dirs[0] = lppmitem->lpszWD;
         dirs[1] = NULL;
         PathResolve(szCL, dirs, PRF_TRYPROGRAMEXTENSIONS);
@@ -2272,14 +2112,14 @@ BOOL Group_CreateNewFromOld(HWND hwnd, LPCTSTR lpszOldGrpPath, UINT options)
 
 #ifdef UNICODE
     fh = CreateFile(
-             lpszOldGrpPath,
-             GENERIC_READ,
-             FILE_SHARE_READ,
-             NULL,
-             OPEN_EXISTING,
-             0,
-             NULL
-             );
+        lpszOldGrpPath,
+        GENERIC_READ,
+        FILE_SHARE_READ,
+        NULL,
+        OPEN_EXISTING,
+        0,
+        NULL
+    );
     if (fh == INVALID_HANDLE_VALUE) {
 #else
     fh = _lopen(lpszOldGrpPath, OF_READ | OF_SHARE_DENY_NONE);
@@ -2306,25 +2146,25 @@ BOOL Group_CreateNewFromOld(HWND hwnd, LPCTSTR lpszOldGrpPath, UINT options)
 
     // Check to make sure there is a name embedded in the
     // .grp file.  If not, just use the filename
-    if (grpdef.pName==0) {
+    if (grpdef.pName == 0) {
         LPTSTR lpszFile, lpszExt, lpszDest = szOldGrpTitle;
 
-        lpszFile = PathFindFileName( lpszOldGrpPath );
-        lpszExt  = PathFindExtension( lpszOldGrpPath );
-        for( ;
+        lpszFile = PathFindFileName(lpszOldGrpPath);
+        lpszExt = PathFindExtension(lpszOldGrpPath);
+        for (;
              lpszFile && lpszExt && (lpszFile != lpszExt);
              *lpszDest++ = *lpszFile++
-            );
+             );
         *lpszDest = TEXT('\0');
 
     } else {
 
 #ifdef UNICODE
-        CHAR szAnsiTitle[ MAXGROUPNAMELEN + 1 ];
+        CHAR szAnsiTitle[MAXGROUPNAMELEN + 1];
 
         SetFilePointer(fh, grpdef.pName, NULL, FILE_BEGIN);
         ReadFile(fh, szAnsiTitle, SIZEOF(szAnsiTitle), &dwBytesRead, NULL);
-        MultiByteToWideChar( CP_ACP, 0, szAnsiTitle, -1, szOldGrpTitle, ARRAYSIZE(szOldGrpTitle) );
+        MultiByteToWideChar(CP_ACP, 0, szAnsiTitle, -1, szOldGrpTitle, ARRAYSIZE(szOldGrpTitle));
 #else
         _llseek(fh, grpdef.pName, 0);
         _lread(fh, szOldGrpTitle, SIZEOF(szOldGrpTitle));
@@ -2380,13 +2220,12 @@ BOOL Group_CreateNewFromOld(HWND hwnd, LPCTSTR lpszOldGrpPath, UINT options)
 
     // Do we just want a list of the apps or create some links?
     if (options & GC_BUILDLIST)
-            AppList_Append();
+        AppList_Append();
     else
         CreateLinks(szNewGrpPath, fStartup, grpdef.cItems);
 
     // Get the cabinet to show the new group.
-    if (options & GC_OPENGROUP)
-    {
+    if (options & GC_OPENGROUP) {
         sei.cbSize = SIZEOF(sei);
         sei.fMask = 0;
         sei.hwnd = hwnd;
@@ -2419,10 +2258,9 @@ ProcExit:
     // Delete old group file when it is specified in special
     // registry entry. Bug#7259-win95d
 
-    if (fStatus == TRUE)
-    {
+    if (fStatus == TRUE) {
         // delete it only if the conversion was successful.
-        Group_DeleteIfRequired(szOldGrpTitle,lpszOldGrpPath);
+        Group_DeleteIfRequired(szOldGrpTitle, lpszOldGrpPath);
     }
 #endif // !WINNT
 ProcExit2:
@@ -2456,14 +2294,14 @@ BOOL Group_CreateNewFromOldNT(HWND hwnd, LPCTSTR lpszOldGrpPath, UINT options)
 
 #ifdef UNICODE
     fh = CreateFile(
-             lpszOldGrpPath,
-             GENERIC_READ,
-             FILE_SHARE_READ,
-             NULL,
-             OPEN_EXISTING,
-             0,
-             NULL
-             );
+        lpszOldGrpPath,
+        GENERIC_READ,
+        FILE_SHARE_READ,
+        NULL,
+        OPEN_EXISTING,
+        0,
+        NULL
+    );
     if (fh == INVALID_HANDLE_VALUE) {
 #else
     fh = _lopen(lpszOldGrpPath, OF_READ | OF_SHARE_DENY_NONE);
@@ -2499,8 +2337,8 @@ BOOL Group_CreateNewFromOldNT(HWND hwnd, LPCTSTR lpszOldGrpPath, UINT options)
 #ifdef UNICODE
     lstrcpy(szOldGrpTitle, szOldGrpTitleUnicode);
 #else
-    WideCharToMultiByte (CP_ACP, 0, szOldGrpTitleUnicode, -1,
-                         szOldGrpTitle, MAXGROUPNAMELEN+1, NULL, NULL);
+    WideCharToMultiByte(CP_ACP, 0, szOldGrpTitleUnicode, -1,
+                        szOldGrpTitle, MAXGROUPNAMELEN + 1, NULL, NULL);
 #endif
 
     // Get the destination dir, use the title from the old group.
@@ -2549,13 +2387,12 @@ BOOL Group_CreateNewFromOldNT(HWND hwnd, LPCTSTR lpszOldGrpPath, UINT options)
 
     // Do we just want a list of the apps or create some links?
     if (options & GC_BUILDLIST)
-            AppList_Append();
+        AppList_Append();
     else
         CreateLinks(szNewGrpPath, fStartup, grpdef.cItems);
 
     // Get the cabinet to show the new group.
-    if (options & GC_OPENGROUP)
-    {
+    if (options & GC_OPENGROUP) {
         sei.cbSize = SIZEOF(sei);
         sei.fMask = 0;
         sei.hwnd = hwnd;
@@ -2587,7 +2424,7 @@ ProcExit2:
 
 
 // Record the last write date/time of the given group in the ini file.
-void Group_WriteLastModDateTime(LPCTSTR lpszGroupFile,DWORD dwLowDateTime)
+void Group_WriteLastModDateTime(LPCTSTR lpszGroupFile, DWORD dwLowDateTime)
 {
     Reg_SetStruct(g_hkeyGrpConv, c_szGroups, lpszGroupFile, &dwLowDateTime, SIZEOF(dwLowDateTime));
 }
@@ -2608,7 +2445,7 @@ DWORD Group_ReadLastModDateTime(LPCTSTR lpszGroupFile)
 // Returns FALSE if something goes wrong.
 // Returns true if the given group got converted or the user cancelled.
 BOOL Group_Convert(HWND hwnd, LPCTSTR lpszOldGrpFile, UINT options)
-    {
+{
     TCHAR szGroupTitle[MAXGROUPNAMELEN + 1];          // PM Groups had a max title len of 30.
     BOOL fStatus;
     WIN32_FIND_DATA fd;
@@ -2619,118 +2456,95 @@ BOOL Group_Convert(HWND hwnd, LPCTSTR lpszOldGrpFile, UINT options)
 
     Log(TEXT("Grp: %s"), lpszOldGrpFile);
 
-    DebugMsg(DM_TRACE, TEXT("gc.gc: Converting group %s"), (LPTSTR) lpszOldGrpFile);
+    DebugMsg(DM_TRACE, TEXT("gc.gc: Converting group %s"), (LPTSTR)lpszOldGrpFile);
 
     // Does the group exist?
-    if (PathFileExists(lpszOldGrpFile))
-        {
+    if (PathFileExists(lpszOldGrpFile)) {
         // Group exists - is it valid?
 
         nCode = Group_ValidOldFormat(lpszOldGrpFile, szGroupTitle);
-        switch( nCode )
-            {
-            case VOF_WINNT:
-            case VOF_WIN31:
-                // Yes - ask for confirmation.
-                if (!(options & GC_PROMPTBEFORECONVERT) ||
-                    MyMessageBox(hwnd, IDS_APPTITLE, IDS_OKTOCONVERT, szGroupTitle, MB_YESNO) == IDYES)
-                    {
-                    // Everything went OK?
-                    if ( nCode == VOF_WIN31 )
-                        {
-                        fStatus = Group_CreateNewFromOld(hwnd,lpszOldGrpFile,
-                                                                      options);
-                        }
-                    else
-                        {
-                        fStatus = Group_CreateNewFromOldNT(hwnd,lpszOldGrpFile,
-                                                                      options);
-                        }
-                    if ( fStatus )
-                        {
-                        iErrorId = 0;
-                        }
-                    else
-                        {
-                        // Nope - FU. Warn and exit.
-                        iErrorId = IDS_CONVERTERROR;
-                        }
-                    }
-                else
-                    {
-                    // User cancelled...
-                    iErrorId = 0;
-                    }
-                break;
-
-            default:
-            case VOF_BAD:
-                {
-                // Nope, File is invalid.
-                // Warn user.
-                iErrorId = IDS_NOTGROUPFILE;
+        switch (nCode) {
+        case VOF_WINNT:
+        case VOF_WIN31:
+            // Yes - ask for confirmation.
+            if (!(options & GC_PROMPTBEFORECONVERT) ||
+                MyMessageBox(hwnd, IDS_APPTITLE, IDS_OKTOCONVERT, szGroupTitle, MB_YESNO) == IDYES) {
+                // Everything went OK?
+                if (nCode == VOF_WIN31) {
+                    fStatus = Group_CreateNewFromOld(hwnd, lpszOldGrpFile,
+                                                     options);
+                } else {
+                    fStatus = Group_CreateNewFromOldNT(hwnd, lpszOldGrpFile,
+                                                       options);
                 }
-                break;
+                if (fStatus) {
+                    iErrorId = 0;
+                } else {
+                    // Nope - FU. Warn and exit.
+                    iErrorId = IDS_CONVERTERROR;
+                }
+            } else {
+                // User cancelled...
+                iErrorId = 0;
             }
-        }
-    else
+            break;
+
+        default:
+        case VOF_BAD:
         {
+            // Nope, File is invalid.
+            // Warn user.
+            iErrorId = IDS_NOTGROUPFILE;
+        }
+        break;
+        }
+    } else {
         // Nope, File doesn't even exist.
         iErrorId = IDS_MISSINGFILE;
-        }
+    }
 
-    if ( iErrorId != 0 )
-        {
-        if (options & GC_REPORTERROR)
-            {
+    if (iErrorId != 0) {
+        if (options & GC_REPORTERROR) {
             MyMessageBox(hwnd, IDS_APPTITLE, iErrorId,
-                         lpszOldGrpFile, MB_OK|MB_ICONEXCLAMATION);
-            }
+                         lpszOldGrpFile, MB_OK | MB_ICONEXCLAMATION);
+        }
 
         Log(TEXT("Grp: %s done."), lpszOldGrpFile);
 
         return FALSE;
-        }
-    else
-        {
+    } else {
         DebugMsg(DM_TRACE, TEXT("gc.gc: Done."));
 
         Log(TEXT("Grp: %s done."), lpszOldGrpFile);
 
         return TRUE;
-        }
     }
+}
 
 
 // Checks the date/time stamp of the given group against the one in
 // grpconv.ini
 BOOL GroupHasBeenModified(LPCTSTR lpszGroupFile)
 {
-        WIN32_FIND_DATA fd;
-        HANDLE hff;
-        BOOL fModified;
+    WIN32_FIND_DATA fd;
+    HANDLE hff;
+    BOOL fModified;
 
-        hff = FindFirstFile(lpszGroupFile, &fd);
-        if (hff != INVALID_HANDLE_VALUE)
-        {
-                if (Group_ReadLastModDateTime(lpszGroupFile) != fd.ftLastWriteTime.dwLowDateTime)
-                {
-                        DebugMsg(DM_TRACE, TEXT("cg.ghbm: Group %s has been modified."), (LPTSTR)lpszGroupFile);
-                        fModified = TRUE;
-                }
-                else
-                {
-                        DebugMsg(DM_TRACE, TEXT("cg.ghbm: Group %s has not been modified."), (LPTSTR)lpszGroupFile);
-                        fModified = FALSE;
-                }
-                FindClose(hff);
-                return fModified;
+    hff = FindFirstFile(lpszGroupFile, &fd);
+    if (hff != INVALID_HANDLE_VALUE) {
+        if (Group_ReadLastModDateTime(lpszGroupFile) != fd.ftLastWriteTime.dwLowDateTime) {
+            DebugMsg(DM_TRACE, TEXT("cg.ghbm: Group %s has been modified."), (LPTSTR)lpszGroupFile);
+            fModified = TRUE;
+        } else {
+            DebugMsg(DM_TRACE, TEXT("cg.ghbm: Group %s has not been modified."), (LPTSTR)lpszGroupFile);
+            fModified = FALSE;
         }
-        else
-        {
-                // Hmm, file doesn't exist, pretend it's up to date.
-                return TRUE;
-        }
+        FindClose(hff);
+        return fModified;
+    } else {
+        // Hmm, file doesn't exist, pretend it's up to date.
+        return TRUE;
+    }
 }
 
 
@@ -2740,7 +2554,7 @@ BOOL GroupHasBeenModified(LPCTSTR lpszGroupFile)
 // into a GROUP_UNICODE format file.  In this way we will always be able to
 // distiguish the NT group files from the Win 3.1 group files.
 
-BOOL MakeGroupFile( LPTSTR lpFileName, LPTSTR lpGroupName)
+BOOL MakeGroupFile(LPTSTR lpFileName, LPTSTR lpGroupName)
 {
     LONG    lResult;
     DWORD   cbSize;
@@ -2754,55 +2568,47 @@ BOOL MakeGroupFile( LPTSTR lpFileName, LPTSTR lpGroupName)
 
     fOk = FALSE;
 
-    lResult = RegOpenKeyEx(hkeyGroups, lpGroupName, 0, KEY_READ, &hkey );
-    if ( lResult != ERROR_SUCCESS )
-    {
+    lResult = RegOpenKeyEx(hkeyGroups, lpGroupName, 0, KEY_READ, &hkey);
+    if (lResult != ERROR_SUCCESS) {
         return FALSE;
     }
 
-    lResult = RegQueryValueEx( hkey, NULL, NULL, NULL, NULL, &cbSize);
-    if ( lResult != ERROR_SUCCESS )
-    {
+    lResult = RegQueryValueEx(hkey, NULL, NULL, NULL, NULL, &cbSize);
+    if (lResult != ERROR_SUCCESS) {
         goto CleanupKey;
     }
 
-    hBuffer = GlobalAlloc(GMEM_MOVEABLE,cbSize);
-    if ( hBuffer == NULL )
-    {
+    hBuffer = GlobalAlloc(GMEM_MOVEABLE, cbSize);
+    if (hBuffer == NULL) {
         goto CleanupKey;
     }
     lpBuffer = (LPBYTE)GlobalLock(hBuffer);
-    if ( lpBuffer == NULL )
-    {
+    if (lpBuffer == NULL) {
         goto CleanupMem;
     }
 
-    lResult = RegQueryValueEx( hkey, NULL, NULL, NULL, lpBuffer, &cbSize );
-    if ( lResult != ERROR_SUCCESS )
-    {
+    lResult = RegQueryValueEx(hkey, NULL, NULL, NULL, lpBuffer, &cbSize);
+    if (lResult != ERROR_SUCCESS) {
         goto Cleanup;
     }
 
-    if ( *(DWORD *)lpBuffer == GROUP_MAGIC )
-    {
+    if (*(DWORD*)lpBuffer == GROUP_MAGIC) {
         HGLOBAL hNew;
 
-        cbSize = ConvertToUnicodeGroup( (LPNT_GROUPDEF_A)lpBuffer, &hNew );
+        cbSize = ConvertToUnicodeGroup((LPNT_GROUPDEF_A)lpBuffer, &hNew);
 
-        GlobalUnlock( hBuffer );
-        GlobalFree( hBuffer );
+        GlobalUnlock(hBuffer);
+        GlobalFree(hBuffer);
         hBuffer = hNew;
-        lpBuffer = GlobalLock( hBuffer );
-        if ( lpBuffer == NULL )
-        {
+        lpBuffer = GlobalLock(hBuffer);
+        if (lpBuffer == NULL) {
             goto CleanupMem;
         }
     }
 
-    hFile = CreateFile(lpFileName,GENERIC_WRITE,0,NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
-        fOk = WriteFile(hFile,lpBuffer,cbSize,&cbWrote,NULL);
+    hFile = CreateFile(lpFileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile != INVALID_HANDLE_VALUE) {
+        fOk = WriteFile(hFile, lpBuffer, cbSize, &cbWrote, NULL);
 
         CloseHandle(hFile);
     }
@@ -2814,7 +2620,7 @@ CleanupMem:
     GlobalFree(hBuffer);
 
 CleanupKey:
-    RegCloseKey( hkey );
+    RegCloseKey(hkey);
     return fOk;
 }
 
@@ -2823,7 +2629,7 @@ CleanupKey:
 
 // Enumerate all the groups or just all the modified groups.
 int Group_Enum(PFNGRPCALLBACK pfncb, BOOL fProgress,
-    BOOL fModifiedOnly)
+               BOOL fModifiedOnly)
 {
     TCHAR szIniFile[MAX_PATH], szFile[MAX_PATH];
     FILETIME  ft;
@@ -2836,8 +2642,7 @@ int Group_Enum(PFNGRPCALLBACK pfncb, BOOL fProgress,
     if (!FindProgmanIni(szIniFile))
         return 0;
 
-    for (uSize = BIG_STEP; uSize < BIG_STEP * 8; uSize += BIG_STEP)
-    {
+    for (uSize = BIG_STEP; uSize < BIG_STEP * 8; uSize += BIG_STEP) {
         pSection = (LPTSTR)LocalAlloc(LPTR, uSize);
         if (!pSection)
             return 0;
@@ -2853,19 +2658,16 @@ int Group_Enum(PFNGRPCALLBACK pfncb, BOOL fProgress,
     if (fProgress)
         Group_CreateProgressDlg();
 
-    for (pKey = pSection; *pKey; pKey += lstrlen(pKey) + 1)
-    {
+    for (pKey = pSection; *pKey; pKey += lstrlen(pKey) + 1) {
         GetPrivateProfileString(c_szGroups, pKey, c_szNULL, szFile, ARRAYSIZE(szFile), szIniFile);
-        if (szFile[0])
-        {
-            if (!fModifiedOnly || GroupHasBeenModified(szFile))
-            {
+        if (szFile[0]) {
+            if (!fModifiedOnly || GroupHasBeenModified(szFile)) {
                 (*pfncb)(szFile);
                 cGroups++;
-                hFile = FindFirstFile (szFile, &fd);
+                hFile = FindFirstFile(szFile, &fd);
 
                 if (hFile != INVALID_HANDLE_VALUE) {
-                    FindClose (hFile);
+                    FindClose(hFile);
                     Group_WriteLastModDateTime(szFile, fd.ftLastWriteTime.dwLowDateTime);
                 }
             }
@@ -2875,7 +2677,7 @@ int Group_Enum(PFNGRPCALLBACK pfncb, BOOL fProgress,
     // Cabinet uses the date/time of progman.ini as a hint to speed things up
     // so set it here so we won't run automatically again.
     GetSystemTimeAsFileTime(&ft);
-    Group_WriteLastModDateTime(szIniFile,ft.dwLowDateTime);
+    Group_WriteLastModDateTime(szIniFile, ft.dwLowDateTime);
 
     LocalFree((HLOCAL)pSection);
 
@@ -2890,11 +2692,11 @@ int Group_Enum(PFNGRPCALLBACK pfncb, BOOL fProgress,
 
 // Enumerate all the NT groups or just all the modified groups.
 int Group_EnumNT(PFNGRPCALLBACK pfncb, BOOL fProgress,
-    BOOL fModifiedOnly, HKEY hKeyRoot, LPCTSTR lpKey)
+                 BOOL fModifiedOnly, HKEY hKeyRoot, LPCTSTR lpKey)
 {
     LONG      lResult;
     DWORD     dwSubKey = 0;
-    TCHAR     szGroupName[MAXGROUPNAMELEN+1];
+    TCHAR     szGroupName[MAXGROUPNAMELEN + 1];
     TCHAR     szFileName[MAX_PATH];
     TCHAR     szTempFileDir[MAX_PATH];
     TCHAR     szTempFileName[MAX_PATH];
@@ -2906,25 +2708,21 @@ int Group_EnumNT(PFNGRPCALLBACK pfncb, BOOL fProgress,
     int       cGroups = 0;
 
     // Look for groups in the registry
-    lResult = RegOpenKeyEx(hKeyRoot, lpKey, 0, KEY_READ, &hkeyGroups );
-    if ( lResult != ERROR_SUCCESS )
-    {
+    lResult = RegOpenKeyEx(hKeyRoot, lpKey, 0, KEY_READ, &hkeyGroups);
+    if (lResult != ERROR_SUCCESS) {
         return 0;
     }
 
-    while ( TRUE )
-    {
+    while (TRUE) {
         cchGroupNameLen = ARRAYSIZE(szGroupName);
-        lResult = RegEnumKeyEx( hkeyGroups, dwSubKey, szGroupName,
-                                &cchGroupNameLen, NULL, NULL, NULL, &ft );
+        lResult = RegEnumKeyEx(hkeyGroups, dwSubKey, szGroupName,
+                               &cchGroupNameLen, NULL, NULL, NULL, &ft);
         szGroupName[MAXGROUPNAMELEN] = TEXT('\0');
 
-        if ( lResult == ERROR_NO_MORE_ITEMS )
-        {
+        if (lResult == ERROR_NO_MORE_ITEMS) {
             break;
         }
-        if ( lResult == ERROR_SUCCESS )
-        {
+        if (lResult == ERROR_SUCCESS) {
             GetWindowsDirectory(szFileName, ARRAYSIZE(szFileName));
 
             // Save this dir for use by GetTempFileName below
@@ -2933,42 +2731,34 @@ int Group_EnumNT(PFNGRPCALLBACK pfncb, BOOL fProgress,
 #ifdef WINNT
             GetEnvironmentVariable(TEXT("USERPROFILE"), szTempFileDir, MAX_PATH);
 #endif
-            lstrcat(szFileName,TEXT("\\"));
-            lstrcat(szFileName,szGroupName);
-            lstrcat(szFileName,TEXT(".grp"));
+            lstrcat(szFileName, TEXT("\\"));
+            lstrcat(szFileName, szGroupName);
+            lstrcat(szFileName, TEXT(".grp"));
 
 
             // If the key has been modified since we last processed it,
             // then time to process it again.
 
             fProcess = FALSE;
-            if (fModifiedOnly)
-            {
-                if ( Group_ReadLastModDateTime(szFileName) != ft.dwLowDateTime )
-                {
+            if (fModifiedOnly) {
+                if (Group_ReadLastModDateTime(szFileName) != ft.dwLowDateTime) {
                     fProcess = TRUE;
                 }
-            }
-            else
-            {
+            } else {
                 fProcess = TRUE;
             }
 
-            if (fProcess)
-            {
-                if (GetTempFileName(szTempFileDir,TEXT("grp"),0,szTempFileName) != 0)
-                {
-                    fOk = MakeGroupFile(szTempFileName,szGroupName);
-                    if ( fOk )
-                    {
-                        if (fProgress && !fDialog)
-                        {
+            if (fProcess) {
+                if (GetTempFileName(szTempFileDir, TEXT("grp"), 0, szTempFileName) != 0) {
+                    fOk = MakeGroupFile(szTempFileName, szGroupName);
+                    if (fOk) {
+                        if (fProgress && !fDialog) {
                             Group_CreateProgressDlg();
                             fDialog = TRUE;
                         }
                         (*pfncb)(szTempFileName);
                         DeleteFile(szTempFileName);
-                        Group_WriteLastModDateTime(szFileName,ft.dwLowDateTime);
+                        Group_WriteLastModDateTime(szFileName, ft.dwLowDateTime);
                         cGroups++;
                     }
                 }
@@ -2977,7 +2767,7 @@ int Group_EnumNT(PFNGRPCALLBACK pfncb, BOOL fProgress,
         dwSubKey++;
     }
 
-    RegCloseKey( hkeyGroups );
+    RegCloseKey(hkeyGroups);
     hkeyGroups = NULL;
 
     if (fProgress && fDialog)
@@ -2996,12 +2786,10 @@ int Group_EnumNT(PFNGRPCALLBACK pfncb, BOOL fProgress,
 // Find the progman ini from before an upgrade.
 BOOL FindOldProgmanIni(LPTSTR pszPath)
 {
-    if (Reg_GetString(HKEY_LOCAL_MACHINE, REGSTR_PATH_SETUP, REGSTR_VAL_OLDWINDIR, pszPath, MAX_PATH*SIZEOF(TCHAR)))
-    {
+    if (Reg_GetString(HKEY_LOCAL_MACHINE, REGSTR_PATH_SETUP, REGSTR_VAL_OLDWINDIR, pszPath, MAX_PATH * SIZEOF(TCHAR))) {
         PathAppend(pszPath, c_szProgmanIni);
 
-        if (PathFileExists(pszPath))
-        {
+        if (PathFileExists(pszPath)) {
             return TRUE;
         }
         DebugMsg(DM_ERROR, TEXT("Can't find old progman.ini"));
@@ -3021,8 +2809,7 @@ void Group_EnumOldGroups(PFNGRPCALLBACK pfncb, BOOL fProgress)
     if (!FindOldProgmanIni(szIniFile))
         return;
 
-    for (uSize = BIG_STEP; uSize < BIG_STEP * 8; uSize += BIG_STEP)
-    {
+    for (uSize = BIG_STEP; uSize < BIG_STEP * 8; uSize += BIG_STEP) {
         pSection = (LPTSTR)LocalAlloc(LPTR, uSize);
         if (!pSection)
             return;
@@ -3038,11 +2825,9 @@ void Group_EnumOldGroups(PFNGRPCALLBACK pfncb, BOOL fProgress)
     if (fProgress)
         Group_CreateProgressDlg();
 
-    for (pKey = pSection; *pKey; pKey += lstrlen(pKey) + 1)
-    {
+    for (pKey = pSection; *pKey; pKey += lstrlen(pKey) + 1) {
         GetPrivateProfileString(c_szGroups, pKey, c_szNULL, szFile, ARRAYSIZE(szFile), szIniFile);
-        if (szFile[0])
-        {
+        if (szFile[0]) {
             (*pfncb)(szFile);
         }
     }
@@ -3057,7 +2842,7 @@ void Group_EnumOldGroups(PFNGRPCALLBACK pfncb, BOOL fProgress)
 // Given a pidl for a link, extract the appropriate info and append it to
 // the app list.
 void AppList_AppendCurrentItem(LPITEMIDLIST pidlFolder, LPSHELLFOLDER psf,
-    LPITEMIDLIST pidlItem, IShellLink *psl, IPersistFile *ppf)
+                               LPITEMIDLIST pidlItem, IShellLink * psl, IPersistFile * ppf)
 {
     STRRET str;
     WCHAR wszPath[MAX_PATH];
@@ -3068,8 +2853,7 @@ void AppList_AppendCurrentItem(LPITEMIDLIST pidlFolder, LPSHELLFOLDER psf,
     TCHAR szVer[MAX_PATH];
     ALITEM alitem;
 
-    if (SUCCEEDED(psf->lpVtbl->GetDisplayNameOf(psf, pidlItem, SHGDN_NORMAL, &str)))
-    {
+    if (SUCCEEDED(psf->lpVtbl->GetDisplayNameOf(psf, pidlItem, SHGDN_NORMAL, &str))) {
         // Get the name.
         StrRetToStrN(szName, ARRAYSIZE(szName), &str, pidlItem);
         DebugMsg(DM_TRACE, TEXT("c.gi_gi: Link %s"), szName);
@@ -3082,11 +2866,9 @@ void AppList_AppendCurrentItem(LPITEMIDLIST pidlFolder, LPSHELLFOLDER psf,
         ppf->lpVtbl->Load(ppf, wszPath, 0);
         // Copy all the data.
         szPath[0] = TEXT('\0');
-        if (SUCCEEDED(psl->lpVtbl->GetPath(psl, szPath, ARRAYSIZE(szPath), NULL, SLGP_SHORTPATH)))
-        {
+        if (SUCCEEDED(psl->lpVtbl->GetPath(psl, szPath, ARRAYSIZE(szPath), NULL, SLGP_SHORTPATH))) {
             // Valid CL?
-            if (szPath[0])
-            {
+            if (szPath[0]) {
                 GetVersionInfo(szPath, szModule, ARRAYSIZE(szModule), szVer, sizeof(szVer));
 
                 alitem.pszName = NULL;
@@ -3109,10 +2891,10 @@ HRESULT AppList_ShellFolderEnum(LPITEMIDLIST pidlFolder, LPSHELLFOLDER psf)
 {
     HRESULT hres;
     LPENUMIDLIST penum;
-    IShellLink *psl;
+    IShellLink* psl;
     LPITEMIDLIST pidlItem;
     UINT celt;
-    IPersistFile *ppf;
+    IPersistFile* ppf;
     DWORD dwAttribs;
     LPSHELLFOLDER psfItem;
     LPITEMIDLIST pidlPath;
@@ -3120,36 +2902,27 @@ HRESULT AppList_ShellFolderEnum(LPITEMIDLIST pidlFolder, LPSHELLFOLDER psf)
     DebugMsg(DM_TRACE, TEXT("gc.al_sfe: Enum..."));
 
     hres = psf->lpVtbl->EnumObjects(psf, (HWND)NULL, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS, &penum);
-    if (SUCCEEDED(hres))
-    {
+    if (SUCCEEDED(hres)) {
         hres = ICoCreateInstance(&CLSID_ShellLink, &IID_IShellLink, &psl);
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile, &ppf);
-            while ((penum->lpVtbl->Next(penum, 1, &pidlItem, &celt) == NOERROR) && (celt == 1))
-            {
-                dwAttribs = SFGAO_LINK|SFGAO_FOLDER;
-                if (SUCCEEDED(psf->lpVtbl->GetAttributesOf(psf, 1, &pidlItem, &dwAttribs)))
-                {
+            while ((penum->lpVtbl->Next(penum, 1, &pidlItem, &celt) == NOERROR) && (celt == 1)) {
+                dwAttribs = SFGAO_LINK | SFGAO_FOLDER;
+                if (SUCCEEDED(psf->lpVtbl->GetAttributesOf(psf, 1, &pidlItem, &dwAttribs))) {
                     // Is it a folder
-                    if (dwAttribs & SFGAO_FOLDER)
-                    {
+                    if (dwAttribs & SFGAO_FOLDER) {
                         // Recurse.
                         DebugMsg(DM_TRACE, TEXT("al_sfe: Folder."));
                         hres = psf->lpVtbl->BindToObject(psf, pidlItem, NULL, &IID_IShellFolder, &psfItem);
-                        if (SUCCEEDED(hres))
-                        {
+                        if (SUCCEEDED(hres)) {
                             pidlPath = ILCombine(pidlFolder, pidlItem);
-                            if (pidlPath)
-                            {
+                            if (pidlPath) {
                                 AppList_ShellFolderEnum(pidlPath, psfItem);
                                 psfItem->lpVtbl->Release(psfItem);
                                 ILFree(pidlPath);
                             }
                         }
-                    }
-                    else if (dwAttribs & SFGAO_LINK)
-                    {
+                    } else if (dwAttribs & SFGAO_LINK) {
                         // Regular link, add it to the list.
                         DebugMsg(DM_TRACE, TEXT("al_sfe: Link."));
                         AppList_AppendCurrentItem(pidlFolder, psf, pidlItem, psl, ppf);
@@ -3174,34 +2947,24 @@ void Applist_SpecialFolderEnum(int nFolder)
     TCHAR sz[MAX_PATH];
 
     // Get the group info.
-    if (SHGetSpecialFolderPath(NULL, sz, nFolder, FALSE))
-    {
+    if (SHGetSpecialFolderPath(NULL, sz, nFolder, FALSE)) {
         pidlGroup = ILCreateFromPath(sz);
-        if (pidlGroup)
-            {
-            if (SUCCEEDED(ICoCreateInstance(&CLSID_ShellDesktop, &IID_IShellFolder, &psfDesktop)))
-            {
+        if (pidlGroup) {
+            if (SUCCEEDED(ICoCreateInstance(&CLSID_ShellDesktop, &IID_IShellFolder, &psfDesktop))) {
                 hres = psfDesktop->lpVtbl->BindToObject(psfDesktop, pidlGroup, NULL, &IID_IShellFolder, &psf);
-                if (SUCCEEDED(hres))
-                {
+                if (SUCCEEDED(hres)) {
                     hres = AppList_ShellFolderEnum(pidlGroup, psf);
                     psf->lpVtbl->Release(psf);
                 }
                 psfDesktop->lpVtbl->Release(psfDesktop);
-            }
-            else
-            {
+            } else {
                 DebugMsg(DM_ERROR, TEXT("OneTree: failed to bind to Desktop root"));
             }
             ILFree(pidlGroup);
-            }
-        else
-        {
-                DebugMsg(DM_ERROR, TEXT("gc.al_acs: Can't create IDList for path.."));
+        } else {
+            DebugMsg(DM_ERROR, TEXT("gc.al_acs: Can't create IDList for path.."));
         }
-    }
-    else
-    {
+    } else {
         DebugMsg(DM_ERROR, TEXT("gc.al_acs: Can't find programs folder."));
     }
 }
@@ -3211,10 +2974,8 @@ BOOL StartMenuIsProgramsParent(void)
     LPITEMIDLIST pidlStart, pidlProgs;
     BOOL fParent = FALSE;
 
-    if (SHGetSpecialFolderLocation(NULL, CSIDL_STARTMENU, &pidlStart))
-    {
-        if (SHGetSpecialFolderLocation(NULL, CSIDL_PROGRAMS, &pidlProgs))
-        {
+    if (SHGetSpecialFolderLocation(NULL, CSIDL_STARTMENU, &pidlStart)) {
+        if (SHGetSpecialFolderLocation(NULL, CSIDL_PROGRAMS, &pidlProgs)) {
             if (ILIsParent(pidlStart, pidlProgs, FALSE))
                 fParent = TRUE;
             ILFree(pidlProgs);
@@ -3234,8 +2995,7 @@ void AppList_AddCurrentStuff(void)
 
     DebugMsg(DM_TRACE, TEXT("gc.al_acs: Enumerating StartMenu..."));
     Applist_SpecialFolderEnum(CSIDL_STARTMENU);
-    if (!StartMenuIsProgramsParent())
-    {
+    if (!StartMenuIsProgramsParent()) {
         DebugMsg(DM_TRACE, TEXT("gc.al_acs: Enumerating Programs..."));
         Applist_SpecialFolderEnum(CSIDL_PROGRAMS);
     }
@@ -3258,21 +3018,19 @@ DWORD SizeofGroup(LPNT_GROUPDEF lpgd)
     cbSeg = (DWORD)GlobalSize(lpgd);
 
     // BUGBUG - The following needs to be verified
-    lptag = (LPNT_PMTAG)((LPSTR)lpgd+lpgd->cbGroup);
+    lptag = (LPNT_PMTAG)((LPSTR)lpgd + lpgd->cbGroup);
 
-    if ((DWORD)((PCHAR)lptag - (PCHAR)lpgd +MyDwordAlign(SIZEOF(NT_PMTAG))-MyDwordAlign(SIZEOF(lptag->rgb))+4) <= cbSeg
+    if ((DWORD)((PCHAR)lptag - (PCHAR)lpgd + MyDwordAlign(SIZEOF(NT_PMTAG)) - MyDwordAlign(SIZEOF(lptag->rgb)) + 4) <= cbSeg
         && lptag->wID == ID_MAGIC
         && lptag->wItem == (int)0xFFFF
-        && lptag->cb == (WORD)(MyDwordAlign(SIZEOF(NT_PMTAG))-MyDwordAlign(SIZEOF(lptag->rgb)) + 4)
-        && *(PLONG)lptag->rgb == TAG_MAGIC)
-      {
-        while ((cb = (DWORD)((PCHAR)lptag - (PCHAR)lpgd + MyDwordAlign(SIZEOF(NT_PMTAG))-MyDwordAlign(SIZEOF(lptag->rgb)))) <= cbSeg)
-          {
+        && lptag->cb == (WORD)(MyDwordAlign(SIZEOF(NT_PMTAG)) - MyDwordAlign(SIZEOF(lptag->rgb)) + 4)
+        && *(PLONG)lptag->rgb == TAG_MAGIC) {
+        while ((cb = (DWORD)((PCHAR)lptag - (PCHAR)lpgd + MyDwordAlign(SIZEOF(NT_PMTAG)) - MyDwordAlign(SIZEOF(lptag->rgb)))) <= cbSeg) {
             if (lptag->wID == ID_LASTTAG)
                 return cb;
             (LPSTR)lptag += lptag->cb;
-          }
-      }
+        }
+    }
     return lpgd->cbGroup;
 }
 
@@ -3290,16 +3048,15 @@ LPNT_PMTAG FindTag(LPNT_GROUPDEF lpgd, int item, WORD id)
 
     cbSeg = (DWORD)GlobalSize(lpgd);
 
-    lptag = (LPNT_PMTAG)((LPSTR)lpgd+lpgd->cbGroup);
+    lptag = (LPNT_PMTAG)((LPSTR)lpgd + lpgd->cbGroup);
 
-    if ((PCHAR)lptag - (PCHAR)lpgd + MyDwordAlign(SIZEOF(NT_PMTAG))-MyDwordAlign(SIZEOF(lptag->rgb)) + 4 <= cbSeg
+    if ((PCHAR)lptag - (PCHAR)lpgd + MyDwordAlign(SIZEOF(NT_PMTAG)) - MyDwordAlign(SIZEOF(lptag->rgb)) + 4 <= cbSeg
         && lptag->wID == ID_MAGIC
         && lptag->wItem == (int)0xFFFF
-        && lptag->cb == (WORD)(MyDwordAlign(SIZEOF(NT_PMTAG))-MyDwordAlign(SIZEOF(lptag->rgb)) +4)
-        && *(LONG *)lptag->rgb == TAG_MAGIC) {
+        && lptag->cb == (WORD)(MyDwordAlign(SIZEOF(NT_PMTAG)) - MyDwordAlign(SIZEOF(lptag->rgb)) + 4)
+        && *(LONG*)lptag->rgb == TAG_MAGIC) {
 
-        while ((cb = (DWORD)((PCHAR)lptag - (PCHAR)lpgd + MyDwordAlign(SIZEOF(NT_PMTAG))-MyDwordAlign(SIZEOF(lptag->rgb)))) <= cbSeg)
-        {
+        while ((cb = (DWORD)((PCHAR)lptag - (PCHAR)lpgd + MyDwordAlign(SIZEOF(NT_PMTAG)) - MyDwordAlign(SIZEOF(lptag->rgb)))) <= cbSeg) {
             if ((item == lptag->wItem)
                 && (id == 0 || id == lptag->wID)) {
                 return lptag;
@@ -3330,9 +3087,9 @@ VOID DeleteTag(HANDLE hGroup, int item, WORD id)
     LPWSTR lpend;
     LPNT_GROUPDEF lpgd;
 
-    lpgd = (LPNT_GROUPDEF) GlobalLock(hGroup);
+    lpgd = (LPNT_GROUPDEF)GlobalLock(hGroup);
 
-    lptag = FindTag(lpgd,item,id);
+    lptag = FindTag(lpgd, item, id);
 
     if (lptag == NULL) {
         GlobalUnlock(hGroup);
@@ -3379,7 +3136,7 @@ INT AddTag(HANDLE h, int item, WORD id, LPWSTR lpbuf, UINT cb)
 
 
     if (!cb && lpbuf) {
-        cb = SIZEOF(WCHAR)*(lstrlenW(lpbuf) + 1);
+        cb = SIZEOF(WCHAR) * (lstrlenW(lpbuf) + 1);
     }
     cbMyLen = MyDwordAlign(cb);
 
@@ -3422,7 +3179,7 @@ INT AddTag(HANDLE h, int item, WORD id, LPWSTR lpbuf, UINT cb)
         return 0;
     }
 
-    cbNew += (DWORD)((PCHAR)lptag -(PCHAR)lpgd);
+    cbNew += (DWORD)((PCHAR)lptag - (PCHAR)lpgd);
     lpgdOld = lpgd;
     GlobalUnlock(h);
     if (!GlobalReAlloc(h, (DWORD)cbNew, GMEM_MOVEABLE)) {
@@ -3437,7 +3194,7 @@ INT AddTag(HANDLE h, int item, WORD id, LPWSTR lpbuf, UINT cb)
          */
         lptag->wID = ID_MAGIC;
         lptag->wItem = (int)0xFFFF;
-        *(LONG *)lptag->rgb = TAG_MAGIC;
+        *(LONG*)lptag->rgb = TAG_MAGIC;
         lptag->cb = (WORD)(MyDwordAlign(SIZEOF(NT_PMTAG)) - MyDwordAlign(SIZEOF(lptag->rgb)) + 4);
         (LPSTR)lptag += lptag->cb;
     }
@@ -3491,18 +3248,18 @@ HANDLE CreateNewGroupFromAnsiGroup(LPNT_GROUPDEF_A lpGroupORI)
 
     // convert pGroupName to unicode here
 
-    cchMultiByte=MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,pGroupName,
-            -1,pGroupNameUNI,cchWideChar) ;
+    cchMultiByte = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, pGroupName,
+                                       -1, pGroupNameUNI, cchWideChar);
 
-    pGroupNameUNI = LocalAlloc(LPTR,(++cchMultiByte)*SIZEOF(WCHAR)) ;
+    pGroupNameUNI = LocalAlloc(LPTR, (++cchMultiByte) * SIZEOF(WCHAR));
 
-    MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,pGroupName,
-            -1,pGroupNameUNI,cchMultiByte) ;
+    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, pGroupName,
+                        -1, pGroupNameUNI, cchMultiByte);
 
 
-    wGroupNameLen = MyDwordAlign(SIZEOF(WCHAR)*(lstrlenW(pGroupNameUNI) + 1));
+    wGroupNameLen = MyDwordAlign(SIZEOF(WCHAR) * (lstrlenW(pGroupNameUNI) + 1));
     cItems = lpGroupORI->cItems;
-    cb = SIZEOF(NT_GROUPDEF) + (cItems * SIZEOF(DWORD)) +  wGroupNameLen;
+    cb = SIZEOF(NT_GROUPDEF) + (cItems * SIZEOF(DWORD)) + wGroupNameLen;
 
 
     // In CreateNewGroup before GlobalAlloc.
@@ -3523,7 +3280,7 @@ HANDLE CreateNewGroupFromAnsiGroup(LPNT_GROUPDEF_A lpGroupORI)
     lpgd->cyIcon = lpGroupORI->cyIcon;
     lpgd->ptMin.x = (INT)lpGroupORI->ptMin.x;
     lpgd->ptMin.y = (INT)lpGroupORI->ptMin.y;
-    CopyRect(&(lpgd->rcNormal),&(lpGroupORI->rcNormal));
+    CopyRect(&(lpgd->rcNormal), &(lpGroupORI->rcNormal));
 
 
     lpgd->dwMagic = GROUP_UNICODE;
@@ -3540,7 +3297,7 @@ HANDLE CreateNewGroupFromAnsiGroup(LPNT_GROUPDEF_A lpGroupORI)
     }
 
     lstrcpyW((LPWSTR)((LPBYTE)lpgd + SIZEOF(NT_GROUPDEF) + cItems * SIZEOF(DWORD)),
-            pGroupNameUNI); // lhb tracks
+             pGroupNameUNI); // lhb tracks
     LocalFree((HLOCAL)pGroupNameUNI);
 
     GlobalUnlock(hT);
@@ -3585,7 +3342,7 @@ DWORD AddThing(HANDLE hGroup, LPWSTR lpStuff, DWORD cbStuff)
     }
 
     if (!cbStuff) {
-        cbStuff = SIZEOF(WCHAR)*(DWORD)(1 + lstrlenW(lpStuff));
+        cbStuff = SIZEOF(WCHAR) * (DWORD)(1 + lstrlenW(lpStuff));
     }
 
     cbStuffSize = MyDwordAlign((int)cbStuff);
@@ -3599,7 +3356,7 @@ DWORD AddThing(HANDLE hGroup, LPWSTR lpStuff, DWORD cbStuff)
 
     GlobalUnlock(hGroup);
 
-    if (!GlobalReAlloc(hGroup,(DWORD)(cbGroupSize + cbStuffSize), GMEM_MOVEABLE))
+    if (!GlobalReAlloc(hGroup, (DWORD)(cbGroupSize + cbStuffSize), GMEM_MOVEABLE))
         return 0;
 
     lpgd = (LPNT_GROUPDEF)GlobalLock(hGroup);
@@ -3608,7 +3365,7 @@ DWORD AddThing(HANDLE hGroup, LPWSTR lpStuff, DWORD cbStuff)
      * Slide the tags up
      */
     memmove((LPSTR)lpgd + myOffset + cbStuffSize, (LPSTR)lpgd + myOffset,
-                            (cbGroupSize - myOffset));
+        (cbGroupSize - myOffset));
     lpgd->cbGroup += cbStuffSize;
 
     lpT = (LPWSTR)((LPSTR)lpgd + myOffset);
@@ -3641,19 +3398,19 @@ DWORD AddThing_A(HANDLE hGroup, LPSTR lpStuff, WORD cbStuff)
     }
 
     if (!cbStuff) {
-            INT cchMultiByte;
-            INT cchWideChar = 0;
+        INT cchMultiByte;
+        INT cchWideChar = 0;
 
         bAlloc = TRUE;
-        cchMultiByte=MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,lpStuff,
-            -1,lpStuffUNI,cchWideChar) ;
+        cchMultiByte = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpStuff,
+                                           -1, lpStuffUNI, cchWideChar);
 
-        lpStuffUNI = LocalAlloc(LPTR,(++cchMultiByte)*SIZEOF(WCHAR)) ;
+        lpStuffUNI = LocalAlloc(LPTR, (++cchMultiByte) * SIZEOF(WCHAR));
 
-        MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,lpStuff,
-            -1,lpStuffUNI,cchMultiByte) ;
+        MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpStuff,
+                            -1, lpStuffUNI, cchMultiByte);
 
-        cbStuff = (WORD)SIZEOF(WCHAR)*(1 + lstrlenW(lpStuffUNI)); // lhb tracks
+        cbStuff = (WORD)SIZEOF(WCHAR) * (1 + lstrlenW(lpStuffUNI)); // lhb tracks
     } else {
         lpStuffUNI = (LPWSTR)lpStuff;
     }
@@ -3703,96 +3460,96 @@ int ConvertToUnicodeGroup(LPNT_GROUPDEF_A lpGroupORI, LPHANDLE lphNewGroup)
     for (i = 0; i < (int)lpGroupORI->cItems; i++) {
 
 
-      // Get the pointer to the 16bit item
+        // Get the pointer to the 16bit item
 
-      lpid_A = (LPBYTE)ITEM(lpGroupORI, i);
-      if (lpGroupORI->rgiItems[i]) {
-
-
-        // Create the item.
-
-        offset = AddThing(hNewGroup, NULL, SIZEOF(NT_ITEMDEF));
-        if (!offset) {
-            DebugMsg(DM_ERROR, TEXT("gc.ctug: AddThing NT_ITEMDEF failed"));
-            goto QuitThis;
-        }
-
-        lpgd = (LPNT_GROUPDEF)GlobalLock(hNewGroup);
-
-        lpgd->rgiItems[i] = offset;
-        lpid = ITEM(lpgd, i);
+        lpid_A = (LPBYTE)ITEM(lpGroupORI, i);
+        if (lpGroupORI->rgiItems[i]) {
 
 
-        // Set the item's position.
+            // Create the item.
 
-        lpid->pt.x = ((LPNT_ITEMDEF_A)lpid_A)->pt.x;
-        lpid->pt.y = ((LPNT_ITEMDEF_A)lpid_A)->pt.y;
+            offset = AddThing(hNewGroup, NULL, SIZEOF(NT_ITEMDEF));
+            if (!offset) {
+                DebugMsg(DM_ERROR, TEXT("gc.ctug: AddThing NT_ITEMDEF failed"));
+                goto QuitThis;
+            }
 
+            lpgd = (LPNT_GROUPDEF)GlobalLock(hNewGroup);
 
-        // Add the item's Name.
-
-        GlobalUnlock(hNewGroup);
-        lpT = (LPSTR)PTR(lpGroupORI,((LPNT_ITEMDEF_A)lpid_A)->pName);
-
-        offset = AddThing_A(hNewGroup, lpT, 0);
-        if (!offset) {
-            DebugMsg(DM_ERROR, TEXT("gc.ctug: AddThing pName failed"));
-            goto PuntCreation;
-        }
-        lpgd = (LPNT_GROUPDEF)GlobalLock(hNewGroup);
-        lpid = ITEM(lpgd, i);
-        lpid->pName = offset;
+            lpgd->rgiItems[i] = offset;
+            lpid = ITEM(lpgd, i);
 
 
-        // Add the item's Command line.
+            // Set the item's position.
 
-        GlobalUnlock(hNewGroup);
-        lpT = (LPSTR)PTR(lpGroupORI, ((LPNT_ITEMDEF_A)lpid_A)->pCommand);
-        offset = AddThing_A(hNewGroup, lpT, 0);
-        if (!offset) {
-            DebugMsg(DM_ERROR, TEXT("gc.ctug: AddThing pCommand failed"));
-            goto PuntCreation;
-        }
-        lpgd = (LPNT_GROUPDEF)GlobalLock(hNewGroup);
-        lpid = ITEM(lpgd, i);
-        lpid->pCommand = offset;
+            lpid->pt.x = ((LPNT_ITEMDEF_A)lpid_A)->pt.x;
+            lpid->pt.y = ((LPNT_ITEMDEF_A)lpid_A)->pt.y;
 
 
-        // Add the item's Icon path.
+            // Add the item's Name.
 
-        GlobalUnlock(hNewGroup);
-        lpT = (LPSTR)PTR(lpGroupORI, ((LPNT_ITEMDEF_A)lpid_A)->pIconPath);
-        offset = AddThing_A(hNewGroup, lpT, 0);
-        if (!offset) {
-            DebugMsg(DM_ERROR, TEXT("gc.ctug: AddThing pIconPath failed"));
-            goto PuntCreation;
-        }
-        lpgd = (LPNT_GROUPDEF)GlobalLock(hNewGroup);
-        lpid = ITEM(lpgd, i);
-        lpid->pIconPath = offset;
+            GlobalUnlock(hNewGroup);
+            lpT = (LPSTR)PTR(lpGroupORI, ((LPNT_ITEMDEF_A)lpid_A)->pName);
+
+            offset = AddThing_A(hNewGroup, lpT, 0);
+            if (!offset) {
+                DebugMsg(DM_ERROR, TEXT("gc.ctug: AddThing pName failed"));
+                goto PuntCreation;
+            }
+            lpgd = (LPNT_GROUPDEF)GlobalLock(hNewGroup);
+            lpid = ITEM(lpgd, i);
+            lpid->pName = offset;
 
 
-        // Get the item's icon resource using the Icon path and the icon index.
-        // And add the item's Icon resource.
+            // Add the item's Command line.
 
-        lpid->iIcon    = ((LPNT_ITEMDEF_A)lpid_A)->idIcon;
+            GlobalUnlock(hNewGroup);
+            lpT = (LPSTR)PTR(lpGroupORI, ((LPNT_ITEMDEF_A)lpid_A)->pCommand);
+            offset = AddThing_A(hNewGroup, lpT, 0);
+            if (!offset) {
+                DebugMsg(DM_ERROR, TEXT("gc.ctug: AddThing pCommand failed"));
+                goto PuntCreation;
+            }
+            lpgd = (LPNT_GROUPDEF)GlobalLock(hNewGroup);
+            lpid = ITEM(lpgd, i);
+            lpid->pCommand = offset;
+
+
+            // Add the item's Icon path.
+
+            GlobalUnlock(hNewGroup);
+            lpT = (LPSTR)PTR(lpGroupORI, ((LPNT_ITEMDEF_A)lpid_A)->pIconPath);
+            offset = AddThing_A(hNewGroup, lpT, 0);
+            if (!offset) {
+                DebugMsg(DM_ERROR, TEXT("gc.ctug: AddThing pIconPath failed"));
+                goto PuntCreation;
+            }
+            lpgd = (LPNT_GROUPDEF)GlobalLock(hNewGroup);
+            lpid = ITEM(lpgd, i);
+            lpid->pIconPath = offset;
+
+
+            // Get the item's icon resource using the Icon path and the icon index.
+            // And add the item's Icon resource.
+
+            lpid->iIcon = ((LPNT_ITEMDEF_A)lpid_A)->idIcon;
             lpid->cbIconRes = ((LPNT_ITEMDEF_A)lpid_A)->cbIconRes;
-            lpid->wIconVer  = ((LPNT_ITEMDEF_A)lpid_A)->wIconVer;
-        GlobalUnlock(hNewGroup);
+            lpid->wIconVer = ((LPNT_ITEMDEF_A)lpid_A)->wIconVer;
+            GlobalUnlock(hNewGroup);
 
-        lpT = (LPBYTE)PTR(lpGroupORI, ((LPNT_ITEMDEF_A)lpid_A)->pIconRes);
-        offset = AddThing_A(hNewGroup, (LPSTR)lpT, lpid->cbIconRes);
-        if (!offset) {
-            DebugMsg(DM_ERROR, TEXT("gc.ctug: AddThing pIconRes failed"));
-            goto PuntCreation;
+            lpT = (LPBYTE)PTR(lpGroupORI, ((LPNT_ITEMDEF_A)lpid_A)->pIconRes);
+            offset = AddThing_A(hNewGroup, (LPSTR)lpT, lpid->cbIconRes);
+            if (!offset) {
+                DebugMsg(DM_ERROR, TEXT("gc.ctug: AddThing pIconRes failed"));
+                goto PuntCreation;
+            }
+            lpgd = (LPNT_GROUPDEF)GlobalLock(hNewGroup);
+            lpid = ITEM(lpgd, i);
+            lpid->pIconRes = offset;
+
+            GlobalUnlock(hNewGroup);
+
         }
-        lpgd = (LPNT_GROUPDEF)GlobalLock(hNewGroup);
-        lpid = ITEM(lpgd, i);
-        lpid->pIconRes = offset;
-
-        GlobalUnlock(hNewGroup);
-
-      }
     }
 
     /*
@@ -3802,7 +3559,7 @@ int ConvertToUnicodeGroup(LPNT_GROUPDEF_A lpGroupORI, LPHANDLE lphNewGroup)
 
     if (lptag_A->wID == ID_MAGIC &&
         lptag_A->wItem == (int)0xFFFF &&
-        *(LONG *)lptag_A->rgb == TAG_MAGIC) {
+        *(LONG*)lptag_A->rgb == TAG_MAGIC) {
 
 
         // This is the first tag id, goto start of item tags.
@@ -3812,38 +3569,36 @@ int ConvertToUnicodeGroup(LPNT_GROUPDEF_A lpGroupORI, LPHANDLE lphNewGroup)
         while (lptag_A->wID != ID_LASTTAG) {
 
             wTagId = lptag_A->wID;
-            cb = lptag_A->cb  - (3 * SIZEOF(DWORD)); // cb - sizeof tag
+            cb = lptag_A->cb - (3 * SIZEOF(DWORD)); // cb - sizeof tag
 
             if (wTagId == ID_MINIMIZE) {
                 lpTagValueUNI = NULL;
-            }
-            else {
-                lpTagValue = lptag_A->rgb ;
+            } else {
+                lpTagValue = lptag_A->rgb;
                 if (wTagId != ID_HOTKEY) {
 
                     bAlloc = TRUE;
                     cchWideChar = 0;
-                    cchMultiByte=MultiByteToWideChar(CP_ACP,
-                                         MB_PRECOMPOSED,lpTagValue,
-                                        -1,NULL,cchWideChar) ;
+                    cchMultiByte = MultiByteToWideChar(CP_ACP,
+                                                       MB_PRECOMPOSED, lpTagValue,
+                                                       -1, NULL, cchWideChar);
 
-                    lpTagValueUNI = LocalAlloc(LPTR,(++cchMultiByte)*SIZEOF(WCHAR)) ;
+                    lpTagValueUNI = LocalAlloc(LPTR, (++cchMultiByte) * SIZEOF(WCHAR));
 
-                    MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,lpTagValue,
-                                        -1,lpTagValueUNI,cchMultiByte) ;
-                    cb = SIZEOF(WCHAR)*(lstrlenW(lpTagValueUNI) + 1); // lhb tracks
-                }
-                else {
+                    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpTagValue,
+                                        -1, lpTagValueUNI, cchMultiByte);
+                    cb = SIZEOF(WCHAR) * (lstrlenW(lpTagValueUNI) + 1); // lhb tracks
+                } else {
                     lpTagValueUNI = (LPWSTR)lpTagValue;
                 }
             }
 
-            if (! AddTag( hNewGroup,
-                          lptag_A->wItem,   // wItem
-                          wTagId,              // wID
-                          lpTagValueUNI,          // rgb : tag value
-                          cb
-                        )) {
+            if (!AddTag(hNewGroup,
+                        lptag_A->wItem,   // wItem
+                        wTagId,              // wID
+                        lpTagValueUNI,          // rgb : tag value
+                        cb
+            )) {
 
                 DebugMsg(DM_ERROR, TEXT("gc.ctug: AddTag failed"));
             }
@@ -3853,7 +3608,7 @@ int ConvertToUnicodeGroup(LPNT_GROUPDEF_A lpGroupORI, LPHANDLE lphNewGroup)
                 bAlloc = FALSE;
             }
 
-            (LPBYTE)lptag_A += lptag_A->cb ;      //  go to next tag
+            (LPBYTE)lptag_A += lptag_A->cb;      //  go to next tag
         }
     }
 

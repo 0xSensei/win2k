@@ -11,7 +11,7 @@
 
 typedef struct CPL {            /* control panel */
     TCHAR tszFile[MAX_PATH];    /* File name */
-} CPL, *PCPL;
+} CPL, * PCPL;
 
 #define icplPlvi(plvi) ((UINT)(plvi)->lParam)
 #define pcplIcpl(icpl) (&pcpii->pcpl[icpl])
@@ -19,7 +19,7 @@ typedef struct CPL {            /* control panel */
 
 typedef struct CPII {
     Declare_Gxa(CPL, cpl);
-} CPII, *PCPII;
+} CPII, * PCPII;
 
 CPII cpii;
 #define pcpii (&cpii)
@@ -50,7 +50,7 @@ Control_VerQueryDescription(LPVOID pvData, UINT uiLang, UINT uiCharSet,
     UINT cb;
 
     wsprintf(tsz, TEXT("\\StringFileInfo\\%04X%04X\\")
-                  TEXT("FileDescription"), uiLang, uiCharSet);
+             TEXT("FileDescription"), uiLang, uiCharSet);
     fRc = VerQueryValue(pvData, tsz, (LPVOID)&pwsz, &cb);
 
     if (fRc && cb > 0) {
@@ -235,7 +235,7 @@ Control_InitControls2(HWND hwnd)
          *  X=              <x coordinate>
          *  Y=              <y coordinate>
          */
-        /* BUGBUG -- Add string */
+         /* BUGBUG -- Add string */
         if (lstrcmpi(ptsz, TEXT("NumApps")) == 0) {
             continue;
         }
@@ -281,7 +281,7 @@ void PASCAL Control_InitControls3(HWND hwnd)
         if (h != INVALID_HANDLE_VALUE) {
             do {
                 Control_AddCpl(hwnd, wfd.cFileName);
-            } while (FindNextFile(h, &wfd)) ;
+            } while (FindNextFile(h, &wfd));
             FindClose(h);
         }
         SetCurrentDirectory(tszPrevDir);
@@ -343,7 +343,7 @@ Control_OnDestroy(HWND hdlg)
 void PASCAL
 Control_LV_Dirtify(LPARAM icpl)
 {
-//    pcpii->pcpl[icpl].cplfl |= cplflEdited;
+    //    pcpii->pcpl[icpl].cplfl |= cplflEdited;
 }
 
 /*

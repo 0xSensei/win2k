@@ -2,9 +2,7 @@
 #include "utils.h"
 
 /*
-
  *  Typedefs
-
 */
 typedef struct _DYNLOAD_INFO
 {
@@ -15,9 +13,7 @@ typedef struct _DYNLOAD_INFO
 DYNLOAD_INFO, *PDYNLOAD_INFO;
 
 /*
-
  * File Globals
-
 */
 static SZCODE aszMSACM32[] = TEXT("MSACM32.DLL");
 static SZCODE aszAVIFIL32[] = TEXT("AVIFIL32.DLL");
@@ -119,10 +115,7 @@ PROC_INFO VERSIONProcs[] =
     NULL, 0
 };
 
-/*
 
-
-*/
 STATIC BOOL LoadLibraryAndProcs(LPCTSTR pLibrary, PPROC_INFO pProcInfo)
 {
     HMODULE    hLibrary;

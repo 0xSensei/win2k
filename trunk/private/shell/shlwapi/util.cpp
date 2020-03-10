@@ -50,7 +50,7 @@ const CRID g_rgcrid[] = {
 };
 
 
-HRESULT _LoadCommonResource(LPCSTR pszDll, DWORD dwRes, HMODULE * phmod, UINT * pnID)
+HRESULT _LoadCommonResource(LPCSTR pszDll, DWORD dwRes, HMODULE* phmod, UINT* pnID)
 {
     HRESULT hres = E_FAIL;
     HINSTANCE hinst;
@@ -60,16 +60,13 @@ HRESULT _LoadCommonResource(LPCSTR pszDll, DWORD dwRes, HMODULE * phmod, UINT * 
     // handle from LoadLibraryEx).
 
     // bugbug:  Should fix like we did in _LoadIconFromInstanceA.
-    if (g_bRunningOnNT)
-    {
+    if (g_bRunningOnNT) {
         // Don't load code pages
         hinst = LoadLibraryEx(pszDll, NULL, LOAD_LIBRARY_AS_DATAFILE);
-    }
-    else
+    } else
         hinst = LoadLibrary(pszDll);
 
-    if (hinst)
-    {
+    if (hinst) {
 
     }
 
@@ -87,21 +84,16 @@ STDAPI SHGetAnimationFromGuids(LPGUID pguidSource, LPGUID pguidDestination, LPWS
     ASSERT(IS_VALID_WRITE_PTR(phmod, HMODULE));
     ASSERT(IS_VALID_WRITE_PTR(pnID, UINT));
 
-    if (phmod && pnID)
-    {
+    if (phmod && pnID) {
         // Is this a predefined ID?
-        if (HIWORD(pszID) == 0)
-        {
+        if (HIWORD(pszID) == 0) {
             // Yes
             UINT icrid = LOWORD(pszID) - 1;
 
-            if (icrid < ARRAYSIZE(g_rgcrid))
-            {
+            if (icrid < ARRAYSIZE(g_rgcrid)) {
                 hres = _LoadCommonResource(g_rgcrid[icrid].pszDll, g_rgcrid[icrid].dwRes, phmod, pnID);
             }
-        }
-        else
-        {
+        } else {
             // No; look it up in the registry
             hres = E_NOTIMPL;
         }
@@ -113,7 +105,7 @@ STDAPI SHGetAnimationFromGuids(LPGUID pguidSource, LPGUID pguidDestination, LPWS
 
 
 
-STDAPI SHGetCommonResourceID(LPCSTR pszID, DWORD dwRes, HMODULE * phmod, UINT * pnID)
+STDAPI SHGetCommonResourceID(LPCSTR pszID, DWORD dwRes, HMODULE* phmod, UINT* pnID)
 {
     HRESULT hres = E_INVALIDARG;
 
@@ -121,21 +113,16 @@ STDAPI SHGetCommonResourceID(LPCSTR pszID, DWORD dwRes, HMODULE * phmod, UINT * 
     ASSERT(IS_VALID_WRITE_PTR(phmod, HMODULE));
     ASSERT(IS_VALID_WRITE_PTR(pnID, UINT));
 
-    if (phmod && pnID)
-    {
+    if (phmod && pnID) {
         // Is this a predefined ID?
-        if (HIWORD(pszID) == 0)
-        {
+        if (HIWORD(pszID) == 0) {
             // Yes
             UINT icrid = LOWORD(pszID) - 1;
 
-            if (icrid < ARRAYSIZE(g_rgcrid))
-            {
+            if (icrid < ARRAYSIZE(g_rgcrid)) {
                 hres = _LoadCommonResource(g_rgcrid[icrid].pszDll, g_rgcrid[icrid].dwRes, phmod, pnID);
             }
-        }
-        else
-        {
+        } else {
             // No; look it up in the registry
             hres = E_NOTIMPL;
         }
@@ -158,21 +145,17 @@ typedef struct
 STDAPI_(HANDLE) SHLoadRawAccelerators(HINSTANCE hInst, LPCTSTR lpTableName)
 {
     HACCEL      hAcc;
-    CA_ACCEL*   pca = NULL;
+    CA_ACCEL* pca = NULL;
 
     //  Load the accelerator resource
-    if ((hAcc = LoadAccelerators(hInst, lpTableName)) != NULL)
-    {
+    if ((hAcc = LoadAccelerators(hInst, lpTableName)) != NULL) {
         //  Retrieve the number of entries
         int  cEntries;
-        if ((cEntries = CopyAcceleratorTable(hAcc, NULL, 0)) > 0)
-        {
+        if ((cEntries = CopyAcceleratorTable(hAcc, NULL, 0)) > 0) {
             //  Allocate a counted array and copy the elements
-            if ((pca = (CA_ACCEL*)LocalAlloc(LPTR, sizeof(CA_ACCEL) + cEntries * SIZEOF(ACCEL))) != NULL)
-            {
+            if ((pca = (CA_ACCEL*)LocalAlloc(LPTR, sizeof(CA_ACCEL) + cEntries * SIZEOF(ACCEL))) != NULL) {
                 pca->cEntries = cEntries;
-                if (cEntries != CopyAcceleratorTable(hAcc, pca->rgacc, cEntries))
-                {
+                if (cEntries != CopyAcceleratorTable(hAcc, pca->rgacc, cEntries)) {
                     LocalFree(pca);
                     pca = NULL;
                 }
@@ -192,10 +175,8 @@ STDAPI_(BOOL) SHQueryRawAccelerator(HANDLE hcaAcc, IN BYTE fVirtMask, IN BYTE fV
     if (puCmdID)
         *puCmdID = 0;
 
-    for (int i = 0; i < pca->cEntries; i++)
-    {
-        if (fVirt == (pca->rgacc[i].fVirt & fVirtMask) && wKey == pca->rgacc[i].key)
-        {
+    for (int i = 0; i < pca->cEntries; i++) {
+        if (fVirt == (pca->rgacc[i].fVirt & fVirtMask) && wKey == pca->rgacc[i].key) {
             if (puCmdID)
                 *puCmdID = pca->rgacc[i].cmd;
             return TRUE;
@@ -206,8 +187,7 @@ STDAPI_(BOOL) SHQueryRawAccelerator(HANDLE hcaAcc, IN BYTE fVirtMask, IN BYTE fV
 
 STDAPI_(BOOL) SHQueryRawAcceleratorMsg(HANDLE hcaAcc, MSG* pmsg, OUT OPTIONAL UINT* puCmdID)
 {
-    if (WM_KEYDOWN == pmsg->message || WM_KEYUP == pmsg->message)
-    {
+    if (WM_KEYDOWN == pmsg->message || WM_KEYUP == pmsg->message) {
 #define TESTKEYSTATE(vk)   ((GetKeyState(vk) & 0x8000)!=0)
 
         BYTE fVirt = FVIRTKEY;
@@ -224,17 +204,16 @@ STDAPI_(BOOL) SHQueryRawAcceleratorMsg(HANDLE hcaAcc, MSG* pmsg, OUT OPTIONAL UI
     return FALSE;
 }
 
-STDAPI SHSetThreadRef(IUnknown *punk)
+STDAPI SHSetThreadRef(IUnknown* punk)
 {
     TlsSetValue(g_tlsThreadRef, punk);
     return S_OK;
 }
 
-STDAPI SHGetThreadRef(IUnknown **ppunk)
+STDAPI SHGetThreadRef(IUnknown** ppunk)
 {
-    *ppunk = (IUnknown *)TlsGetValue(g_tlsThreadRef);
-    if (*ppunk)
-    {
+    *ppunk = (IUnknown*)TlsGetValue(g_tlsThreadRef);
+    if (*ppunk) {
         (*ppunk)->AddRef();
         return S_OK;
     }
@@ -249,17 +228,17 @@ typedef struct
     LPTHREAD_START_ROUTINE pfnMain;
     LPTHREAD_START_ROUTINE pfnSync;
     HANDLE hSync;
-    void *pvData;
+    void* pvData;
     DWORD dwFlags;
-    IUnknown *punkThreadRef;
-    IUnknown *punkProcessRef;
+    IUnknown* punkThreadRef;
+    IUnknown* punkProcessRef;
 } PRIVCREATETHREADDATA;
 
-DWORD CALLBACK WrapperThreadProc(void *pv)
+DWORD CALLBACK WrapperThreadProc(void* pv)
 {
     // make a copy of the input buffer, this is sitting on the calling threads stack
     // once we signal him his copy will be invalid
-    PRIVCREATETHREADDATA rgCreate = *((PRIVCREATETHREADDATA *)pv);
+    PRIVCREATETHREADDATA rgCreate = *((PRIVCREATETHREADDATA*)pv);
     HRESULT hrInit;
 
     if (rgCreate.dwFlags & CTF_COINIT)
@@ -299,12 +278,12 @@ DWORD CALLBACK WrapperThreadProc(void *pv)
 
 STDAPI_(BOOL) SHCreateThread(
     LPTHREAD_START_ROUTINE pfnThreadProc,
-    void *pvData,
+    void* pvData,
     DWORD dwFlags,                          // CTF_*
     LPTHREAD_START_ROUTINE pfnCallback)     OPTIONAL
 {
     BOOL bRet = FALSE;
-    PRIVCREATETHREADDATA rgCreate = { 0 };  // can be on the stack since we sync the thread
+    PRIVCREATETHREADDATA rgCreate = {0};  // can be on the stack since we sync the thread
 
     ASSERT(dwFlags & CTF_INSIST ? pfnCallback == NULL : TRUE);  // can't have a sync if you insist
 
@@ -319,12 +298,10 @@ STDAPI_(BOOL) SHCreateThread(
     rgCreate.pvData = pvData;
     rgCreate.dwFlags = dwFlags;
     rgCreate.hSync = CreateEvent(NULL, FALSE, FALSE, NULL);
-    if (rgCreate.hSync)
-    {
+    if (rgCreate.hSync) {
         DWORD idThread;
         HANDLE hThread = CreateThread(NULL, 0, WrapperThreadProc, &rgCreate, 0, &idThread);
-        if (hThread)
-        {
+        if (hThread) {
             // BUGBUG: should this be infinite, or should it be say 20 seconds ?
             WaitForSingleObject(rgCreate.hSync, INFINITE);
             CloseHandle(hThread);
@@ -334,16 +311,14 @@ STDAPI_(BOOL) SHCreateThread(
         CloseHandle(rgCreate.hSync);
     }
 
-    if (!bRet)
-    {
+    if (!bRet) {
         if (rgCreate.punkThreadRef)
             rgCreate.punkThreadRef->Release();
 
         if (rgCreate.punkProcessRef)
             rgCreate.punkProcessRef->Release();
 
-        if (dwFlags & CTF_INSIST)
-        {
+        if (dwFlags & CTF_INSIST) {
             // failed to create another thread... call synchronously
 
             ASSERT(pfnCallback == NULL);  // can't have a sync if you insist
@@ -367,8 +342,7 @@ STDAPI_(BOOL) SHIsLowMemoryMachine(DWORD dwType)
 #else
     static int fLowMem = -1;
 
-    if (ILMM_IE4 == dwType && fLowMem == -1)
-    {
+    if (ILMM_IE4 == dwType && fLowMem == -1) {
         MEMORYSTATUS ms;
         GlobalMemoryStatus(&ms);
 
@@ -400,8 +374,7 @@ int _AnsiToUnicode(UINT uiCP, LPCSTR pstr, LPWSTR pwstr, int cch)
         pwstr[0] = 0;
 
 #if 0
-    switch (uiCP)
-    {
+    switch (uiCP) {
     case 1200:                      // UCS-2 (Unicode)
         uiCP = 65001;
         // fall through;
@@ -415,14 +388,11 @@ int _AnsiToUnicode(UINT uiCP, LPCSTR pstr, LPWSTR pwstr, int cch)
 
         if (SUCCEEDED(ConvertINetMultiByteToUnicode(NULL, uiCP, pstr,
                                                     &cchSrc, pwstr, &cchDst)) &&
-            cchSrc < cchSrcOriginal)
-        {
+            cchSrc < cchSrcOriginal) {
             LPWSTR pwsz = (LPWSTR)LocalAlloc(LPTR, cchDst * SIZEOF(WCHAR));
-            if (pwsz)
-            {
+            if (pwsz) {
                 if (SUCCEEDED(ConvertINetMultiByteToUnicode(NULL, uiCP, pstr,
-                                                            &cchSrcOriginal, pwsz, &cchDst)))
-                {
+                                                            &cchSrcOriginal, pwsz, &cchDst))) {
                     StrCpyNW(pwstr, pwsz, cch);
                     cchDst = cch;
                 }
@@ -476,8 +446,7 @@ int _UnicodeToAnsi(UINT uiCP, LPCWSTR pwstr, LPSTR pstr, int cch)
         pstr[0] = 0;
 
 #if 0
-    switch (uiCP)
-    {
+    switch (uiCP) {
     case 1200:                      // UCS-2 (Unicode)
         uiCP = 65001;
         // fall through
@@ -491,14 +460,11 @@ int _UnicodeToAnsi(UINT uiCP, LPCWSTR pwstr, LPSTR pstr, int cch)
 
         if (SUCCEEDED(ConvertINetUnicodeToMultiByte(NULL, uiCP, pwstr,
                                                     &cchSrc, pstr, &cchDst)) &&
-            cchSrc < cchSrcOriginal)
-        {
+            cchSrc < cchSrcOriginal) {
             LPSTR psz = (LPSTR)LocalAlloc(LPTR, cchDst * SIZEOF(CHAR));
-            if (psz)
-            {
+            if (psz) {
                 if (SUCCEEDED(ConvertINetUnicodeToMultiByte(NULL, uiCP, pwstr,
-                                                            &cchSrcOriginal, psz, &cchDst)))
-                {
+                                                            &cchSrcOriginal, psz, &cchDst))) {
                     // lstrcpyn puts NULL at pstr[cch-1]
                     // without considering if it'd cut in dbcs
                     TruncateString(psz, cch);
@@ -561,7 +527,7 @@ int _UnicodeToAnsi(UINT uiCP, LPCWSTR pwstr, LPSTR pstr, int cch)
 // update: made it faster for sbcs environment (5/26/97)
 //         now returns adjusted cch            (6/20/97)
 
-STDAPI_(int) SHTruncateString(CHAR *sz, int cchBufferSize)
+STDAPI_(int) SHTruncateString(CHAR* sz, int cchBufferSize)
 {
     if (!sz || cchBufferSize <= 0) return 0;
 
@@ -569,11 +535,9 @@ STDAPI_(int) SHTruncateString(CHAR *sz, int cchBufferSize)
 
     LPSTR psz = &sz[cch];
 
-    while (psz > sz)
-    {
+    while (psz > sz) {
         psz--;
-        if (!IsDBCSLeadByte(*psz))
-        {
+        if (!IsDBCSLeadByte(*psz)) {
             // Found non-leadbyte for the first time.
             // This is either a trail byte of double byte char
             // or a single byte character we've first seen.
@@ -583,8 +547,7 @@ STDAPI_(int) SHTruncateString(CHAR *sz, int cchBufferSize)
             break;
         }
     }
-    if (((&sz[cch] - psz) & 1) && cch > 0)
-    {
+    if (((&sz[cch] - psz) & 1) && cch > 0) {
         // we're truncating the string in the middle of dbcs
         cch--;
     }
@@ -607,7 +570,7 @@ STDAPI_(int) SHTruncateString(CHAR *sz, int cchBufferSize)
 //      thread is now using an object after the first thread already
 //      atomicreleased it.  Bug.
 
-STDAPI_(void) IUnknown_AtomicRelease(void **ppunk)
+STDAPI_(void) IUnknown_AtomicRelease(void** ppunk)
 {
 #if 1 // Unsafe
     if (ppunk && *ppunk) {
@@ -617,7 +580,7 @@ STDAPI_(void) IUnknown_AtomicRelease(void **ppunk)
     }
 #else // Safe
     if (ppunk) {
-        IUnknown* punk = (IUnknown *)InterlockedExchangePointer(ppunk, NULL);
+        IUnknown* punk = (IUnknown*)InterlockedExchangePointer(ppunk, NULL);
         if (punk) {
             punk->Release();
         }
@@ -629,8 +592,7 @@ STDAPI_(void) IUnknown_AtomicRelease(void **ppunk)
 STDAPI ConnectToConnectionPoint(IUnknown* punkThis, REFIID riidEvent, BOOL fConnect, IUnknown* punkTarget, DWORD* pdwCookie, IConnectionPoint** ppcpOut)
 {
     // We always need punkTarget, we only need punkThis on connect
-    if (!punkTarget || (fConnect && !punkThis))
-    {
+    if (!punkTarget || (fConnect && !punkThis)) {
         return E_FAIL;
     }
 
@@ -638,23 +600,18 @@ STDAPI ConnectToConnectionPoint(IUnknown* punkThis, REFIID riidEvent, BOOL fConn
         *ppcpOut = NULL;
 
     HRESULT hr;
-    IConnectionPointContainer *pcpContainer;
+    IConnectionPointContainer* pcpContainer;
 
     // Let's now have the Browser Window give us notification when something happens.
-    if (SUCCEEDED(hr = punkTarget->QueryInterface(IID_IConnectionPointContainer, (void **)&pcpContainer)))
-    {
-        IConnectionPoint *pcp;
-        if (SUCCEEDED(hr = pcpContainer->FindConnectionPoint(riidEvent, &pcp)))
-        {
-            if (fConnect)
-            {
+    if (SUCCEEDED(hr = punkTarget->QueryInterface(IID_IConnectionPointContainer, (void**)&pcpContainer))) {
+        IConnectionPoint* pcp;
+        if (SUCCEEDED(hr = pcpContainer->FindConnectionPoint(riidEvent, &pcp))) {
+            if (fConnect) {
                 // Add us to the list of people interested...
                 hr = pcp->Advise(punkThis, pdwCookie);
                 if (FAILED(hr))
                     *pdwCookie = 0;
-            }
-            else
-            {
+            } else {
                 // Remove us from the list of people interested...
                 hr = pcp->Unadvise(*pdwCookie);
                 *pdwCookie = 0;
@@ -673,13 +630,13 @@ STDAPI ConnectToConnectionPoint(IUnknown* punkThis, REFIID riidEvent, BOOL fConn
 
 
 
-STDAPI IUnknown_QueryStatus(IUnknown *punk, const GUID *pguidCmdGroup,
-                            ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT *pcmdtext)
+STDAPI IUnknown_QueryStatus(IUnknown* punk, const GUID* pguidCmdGroup,
+                            ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext)
 {
     HRESULT hres = E_FAIL;
     if (punk) {
         IOleCommandTarget* pct;
-        hres = punk->QueryInterface(IID_IOleCommandTarget, (void **)&pct);
+        hres = punk->QueryInterface(IID_IOleCommandTarget, (void**)&pct);
         if (pct) {
             hres = pct->QueryStatus(pguidCmdGroup, cCmds, rgCmds, pcmdtext);
             pct->Release();
@@ -690,15 +647,13 @@ STDAPI IUnknown_QueryStatus(IUnknown *punk, const GUID *pguidCmdGroup,
 }
 
 
-STDAPI IUnknown_Exec(IUnknown* punk, const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG *pvarargIn, VARIANTARG *pvarargOut)
+STDAPI IUnknown_Exec(IUnknown* punk, const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut)
 {
     HRESULT hr = E_FAIL;
-    if (punk)
-    {
+    if (punk) {
         IOleCommandTarget* pct;
         hr = punk->QueryInterface(IID_PPV_ARG(IOleCommandTarget, &pct));
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             hr = pct->Exec(pguidCmdGroup, nCmdID, nCmdexecopt, pvarargIn, pvarargOut);
             pct->Release();
         }
@@ -725,7 +680,7 @@ STDAPI_(void) SHSetWindowBits(HWND hWnd, int iWhich, DWORD dwBits, DWORD dwValue
 // stream if we ask for read-only, if the entry does not exist.
 // we need to detect that case.
 
-const LARGE_INTEGER c_li0 = { 0, 0 };
+const LARGE_INTEGER c_li0 = {0, 0};
 
 STDAPI_(BOOL) SHIsEmptyStream(IStream* pstm)
 {
@@ -741,19 +696,15 @@ STDAPI_(BOOL) SHIsEmptyStream(IStream* pstm)
 #endif
 
     STATSTG st;
-    if (SUCCEEDED(pstm->Stat(&st, STATFLAG_NONAME)))
-    {
+    if (SUCCEEDED(pstm->Stat(&st, STATFLAG_NONAME))) {
         if (st.cbSize.LowPart || st.cbSize.HighPart)
             return FALSE;
-    }
-    else
-    {
+    } else {
         // Win95 IStream code did not implement stat, so check
         // emptiness by trying to read.
 
         int iTmp;
-        if (SUCCEEDED(IStream_Read(pstm, &iTmp, SIZEOF(iTmp))))
-        {
+        if (SUCCEEDED(IStream_Read(pstm, &iTmp, SIZEOF(iTmp)))) {
             // The stream is indeed present, seek back to start
 
             pstm->Seek(c_li0, STREAM_SEEK_SET, NULL);
@@ -770,8 +721,7 @@ STDAPI_(void) SHSetParentHwnd(HWND hwnd, HWND hwndParent)
 {
     HWND hwndOldParent = GetParent(hwnd);
 
-    if (hwndParent != hwndOldParent)
-    {
+    if (hwndParent != hwndOldParent) {
 
         // Get the child flag correct!  If we don't do this and
         // somebody calls DialogBox on us while we are parented to NULL
@@ -796,21 +746,18 @@ STDAPI_(void) SHSetParentHwnd(HWND hwnd, HWND hwndParent)
         //         we reparent, we grab the bits on the parent window
         //         and mirror them to the child.
 
-        if (g_bRunningOnNT5OrHigher)
-        {
+        if (g_bRunningOnNT5OrHigher) {
             LRESULT lUIState;
 
             lUIState = SendMessage(hwndParent, WM_QUERYUISTATE, 0, 0);
 
-            if (lUIState & (UISF_HIDEFOCUS | UISF_HIDEACCEL))
-            {
+            if (lUIState & (UISF_HIDEFOCUS | UISF_HIDEACCEL)) {
                 SendMessage(hwnd, WM_UPDATEUISTATE,
                             MAKEWPARAM(UIS_SET,
                                        lUIState & (UISF_HIDEFOCUS | UISF_HIDEACCEL)), 0);
             }
 
-            if (~lUIState & (UISF_HIDEFOCUS | UISF_HIDEACCEL))
-            {
+            if (~lUIState & (UISF_HIDEFOCUS | UISF_HIDEACCEL)) {
                 SendMessage(hwnd, WM_UPDATEUISTATE,
                             MAKEWPARAM(UIS_CLEAR,
                                        ~lUIState & (UISF_HIDEFOCUS | UISF_HIDEACCEL)), 0);
@@ -825,28 +772,22 @@ STDAPI_(void) SHSetParentHwnd(HWND hwnd, HWND hwndParent)
 
 STDAPI_(BOOL) SHIsSameObject(IUnknown* punk1, IUnknown* punk2)
 {
-    if (!punk1 || !punk2)
-    {
+    if (!punk1 || !punk2) {
         return FALSE;
-    }
-    else if (punk1 == punk2)
-    {
+    } else if (punk1 == punk2) {
         // Quick shortcut -- if they're the same pointer
         // already then they must be the same object
 
         return TRUE;
-    }
-    else
-    {
+    } else {
         IUnknown* punkI1;
         IUnknown* punkI2;
         HRESULT hres;
 
         // Some apps don't implement QueryInterface! (SecureFile)
-        if (SUCCEEDED(hres = punk1->QueryInterface(IID_IUnknown, (void **)&punkI1)))
-        {
+        if (SUCCEEDED(hres = punk1->QueryInterface(IID_IUnknown, (void**)&punkI1))) {
             punkI1->Release();
-            if (SUCCEEDED(hres = punk2->QueryInterface(IID_IUnknown, (void **)&punkI2)))
+            if (SUCCEEDED(hres = punk2->QueryInterface(IID_IUnknown, (void**)&punkI2)))
                 punkI2->Release();
         }
 
@@ -861,11 +802,10 @@ STDAPI_(BOOL) SHIsSameObject(IUnknown* punk1, IUnknown* punk2)
 // the bind context to see if that guy should be avoided
 // this would be a good shlwapi service.
 
-STDAPI_(BOOL) SHSkipJunction(IBindCtx *pbc, const CLSID *pclsid)
+STDAPI_(BOOL) SHSkipJunction(IBindCtx* pbc, const CLSID* pclsid)
 {
-    IUnknown *punk;
-    if (pbc && SUCCEEDED(pbc->GetObjectParam(STR_SKIP_BINDING_CLSID, &punk)))
-    {
+    IUnknown* punk;
+    if (pbc && SUCCEEDED(pbc->GetObjectParam(STR_SKIP_BINDING_CLSID, &punk))) {
         CLSID clsid;
         BOOL bSkip = SUCCEEDED(IUnknown_GetClassID(punk, &clsid)) && IsEqualCLSID(clsid, *pclsid);
         punk->Release();
@@ -879,25 +819,19 @@ STDAPI IUnknown_GetWindow(IUnknown* punk, HWND* phwnd)
     HRESULT hres = E_FAIL;
     *phwnd = NULL;
 
-    if (punk)
-    {
+    if (punk) {
         IOleWindow* pow;
         IInternetSecurityMgrSite* pisms;
         IShellView* psv;
 
         // How many ways are there to get a window?  Let me count the ways...
-        if (SUCCEEDED(hres = punk->QueryInterface(IID_IOleWindow, (void **)&pow)))
-        {
+        if (SUCCEEDED(hres = punk->QueryInterface(IID_IOleWindow, (void**)&pow))) {
             hres = pow->GetWindow(phwnd);
             pow->Release();
-        }
-        else if (SUCCEEDED(hres = punk->QueryInterface(IID_IInternetSecurityMgrSite, (void **)&pisms)))
-        {
+        } else if (SUCCEEDED(hres = punk->QueryInterface(IID_IInternetSecurityMgrSite, (void**)&pisms))) {
             hres = pisms->GetWindow(phwnd);
             pisms->Release();
-        }
-        else if (SUCCEEDED(hres = punk->QueryInterface(IID_IShellView, (void **)&psv)))
-        {
+        } else if (SUCCEEDED(hres = punk->QueryInterface(IID_IShellView, (void**)&psv))) {
             hres = psv->GetWindow(phwnd);
             psv->Release();
         }
@@ -915,41 +849,31 @@ STDAPI IUnknown_GetWindow(IUnknown* punk, HWND* phwnd)
     This requires us to use a utility function to query the punk until one is
     implemented and then use it.
 \**/
-HRESULT IUnknown_EnableModless(IUnknown * punk, BOOL fEnabled)
+HRESULT IUnknown_EnableModless(IUnknown* punk, BOOL fEnabled)
 {
     HRESULT hr = E_FAIL;
 
-    if (punk)
-    {
-        IOleInPlaceActiveObject * poipao;
-        IInternetSecurityMgrSite * pisms;
-        IOleInPlaceFrame * poipf;
-        IShellBrowser * psb;
-        IDocHostUIHandler * pdhuh;
+    if (punk) {
+        IOleInPlaceActiveObject* poipao;
+        IInternetSecurityMgrSite* pisms;
+        IOleInPlaceFrame* poipf;
+        IShellBrowser* psb;
+        IDocHostUIHandler* pdhuh;
 
         // How many ways are there to enable modless?  Let me count the ways...
-        if (SUCCEEDED(hr = punk->QueryInterface(IID_IOleInPlaceActiveObject, (void **)&poipao)))
-        {
+        if (SUCCEEDED(hr = punk->QueryInterface(IID_IOleInPlaceActiveObject, (void**)&poipao))) {
             hr = poipao->EnableModeless(fEnabled);
             poipao->Release();
-        }
-        else if (SUCCEEDED(hr = punk->QueryInterface(IID_IInternetSecurityMgrSite, (void **)&pisms)))
-        {
+        } else if (SUCCEEDED(hr = punk->QueryInterface(IID_IInternetSecurityMgrSite, (void**)&pisms))) {
             hr = pisms->EnableModeless(fEnabled);
             pisms->Release();
-        }
-        else if (SUCCEEDED(hr = punk->QueryInterface(IID_IOleInPlaceFrame, (void **)&poipf)))
-        {
+        } else if (SUCCEEDED(hr = punk->QueryInterface(IID_IOleInPlaceFrame, (void**)&poipf))) {
             hr = poipf->EnableModeless(fEnabled);
             poipf->Release();
-        }
-        else if (SUCCEEDED(hr = punk->QueryInterface(IID_IShellBrowser, (void **)&psb)))
-        {
+        } else if (SUCCEEDED(hr = punk->QueryInterface(IID_IShellBrowser, (void**)&psb))) {
             hr = psb->EnableModelessSB(fEnabled);
             psb->Release();
-        }
-        else if (SUCCEEDED(hr = punk->QueryInterface(IID_IDocHostUIHandler, (void **)&pdhuh)))
-        {
+        } else if (SUCCEEDED(hr = punk->QueryInterface(IID_IDocHostUIHandler, (void**)&pdhuh))) {
             hr = pdhuh->EnableModeless(fEnabled);
             pdhuh->Release();
         }
@@ -968,7 +892,7 @@ STDAPI IUnknown_SetOwner(IUnknown* punk, IUnknown* punkOwner)
 
         // need to check for succeeded here instead of pss because
         // some old win95 objects (like rnaui.dll) don't null out the in param
-        if (SUCCEEDED(punk->QueryInterface(IID_IShellService, (void **)&pss))) {
+        if (SUCCEEDED(punk->QueryInterface(IID_IShellService, (void**)&pss))) {
             pss->SetOwner(punkOwner);
             pss->Release();
         }
@@ -977,30 +901,25 @@ STDAPI IUnknown_SetOwner(IUnknown* punk, IUnknown* punkOwner)
 }
 
 
-STDAPI IUnknown_SetSite(IUnknown *punk, IUnknown *punkSite)
+STDAPI IUnknown_SetSite(IUnknown* punk, IUnknown* punkSite)
 {
     HRESULT hr = E_FAIL;
 
-    if (punk)
-    {
-        IObjectWithSite *pows;
+    if (punk) {
+        IObjectWithSite* pows;
 
         hr = punk->QueryInterface(IID_IObjectWithSite, (void**)&pows);
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             hr = pows->SetSite(punkSite);
             ASSERT(SUCCEEDED(hr));
             pows->Release();
-        }
-        else
-        {
-            IInternetSecurityManager * pism;
+        } else {
+            IInternetSecurityManager* pism;
 
             // The security guys should have used IObjectWithSite, but no....
             hr = punk->QueryInterface(IID_IInternetSecurityManager, (void**)&pism);
-            if (SUCCEEDED(hr))
-            {
-                hr = pism->SetSecuritySite((IInternetSecurityMgrSite *)punkSite);
+            if (SUCCEEDED(hr)) {
+                hr = pism->SetSecuritySite((IInternetSecurityMgrSite*)punkSite);
                 ASSERT(SUCCEEDED(hr));
                 pism->Release();
             }
@@ -1010,13 +929,13 @@ STDAPI IUnknown_SetSite(IUnknown *punk, IUnknown *punkSite)
 }
 
 
-STDAPI IUnknown_GetSite(IUnknown *punk, REFIID riid, void **ppv)
+STDAPI IUnknown_GetSite(IUnknown* punk, REFIID riid, void** ppv)
 {
     HRESULT hr = E_FAIL;
 
     *ppv = NULL;
     if (punk) {
-        IObjectWithSite *pows;
+        IObjectWithSite* pows;
         hr = punk->QueryInterface(IID_IObjectWithSite, (void**)&pows);
         ASSERT(SUCCEEDED(hr) || pows == NULL);  // paranoia
         if (SUCCEEDED(hr)) {
@@ -1039,11 +958,9 @@ STDAPI IUnknown_GetSite(IUnknown *punk, REFIID riid, void **ppv)
 STDAPI_(UINT) GetUIVersion()
 {
     static UINT s_uiShell32 = 0;
-    if (s_uiShell32 == 0)
-    {
+    if (s_uiShell32 == 0) {
         HINSTANCE hinst = GetModuleHandle(TEXT("SHELL32.DLL"));
-        if (hinst)
-        {
+        if (hinst) {
             DLLGETVERSIONPROC pfnGetVersion = (DLLGETVERSIONPROC)GetProcAddress(hinst, "DllGetVersion");
             DLLVERSIONINFO dllinfo;
 
@@ -1060,40 +977,34 @@ STDAPI_(UINT) GetUIVersion()
 
 
 //**   IUnknown_GetClassID -- do punk->IPS::GetClassID
-STDAPI IUnknown_GetClassID(IUnknown *punk, CLSID *pclsid)
+STDAPI IUnknown_GetClassID(IUnknown* punk, CLSID* pclsid)
 {
     HRESULT hres = E_FAIL;
 
     ASSERT(punk);   // currently nobody does
-    if (punk)
-    {
-        IPersist *p;
+    if (punk) {
+        IPersist* p;
         hres = punk->QueryInterface(IID_PPV_ARG(IPersist, &p));
 
         //  sometimes we can do this since they dont answer the
         //  the QI for IPersist.  but we cant do it on NT4 plain
         //  since the net hood faults if the psf is just a \\server
-        if (FAILED(hres) && (GetUIVersion() > 3))
-        {
+        if (FAILED(hres) && (GetUIVersion() > 3)) {
 
             //  BUGBUGLEGACY - we have some issues here on downlevel implementations of IPersistFolder
             //  so in order to protect ourselves from bad implementations we will wrap this in a simple
             //  exception handler.
 
-            __try
-            {
-                IPersistFolder *pf;
+            __try {
+                IPersistFolder* pf;
                 hres = punk->QueryInterface(IID_PPV_ARG(IPersistFolder, &pf));
                 p = pf;
-            }
-            __except (EXCEPTION_EXECUTE_HANDLER)
-            {
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
                 hres = E_NOTIMPL;
             }
         }
 
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             hres = p->GetClassID(pclsid);
             p->Release();
         }
@@ -1103,27 +1014,24 @@ STDAPI IUnknown_GetClassID(IUnknown *punk, CLSID *pclsid)
 }
 
 
-STDAPI IUnknown_QueryService(IUnknown* punk, REFGUID guidService, REFIID riid, void **ppvOut)
+STDAPI IUnknown_QueryService(IUnknown* punk, REFGUID guidService, REFIID riid, void** ppvOut)
 {
     HRESULT hres;
-    IServiceProvider *psp = NULL;   // Protect against QS dorks.
+    IServiceProvider* psp = NULL;   // Protect against QS dorks.
 
 #ifdef DEBUG
-    psp = (IServiceProvider *)0xFFFFFFFF;    // Make punk->QueryInterface() NULL this out
+    psp = (IServiceProvider*)0xFFFFFFFF;    // Make punk->QueryInterface() NULL this out
 #endif // DEBUG
 
-    *ppvOut = NULL;
+    * ppvOut = NULL;
     if (!punk)
         return E_FAIL;
 
-    hres = punk->QueryInterface(IID_IServiceProvider, (void **)&psp);
-    if (SUCCEEDED(hres) && EVAL(psp))
-    {
+    hres = punk->QueryInterface(IID_IServiceProvider, (void**)&psp);
+    if (SUCCEEDED(hres) && EVAL(psp)) {
         hres = psp->QueryService(guidService, riid, ppvOut);
         psp->Release();
-    }
-    else
-    {
+    } else {
         // If you hit this, punk didn't NULL psp in ::QueryInterface().
         ASSERT(!psp);
     }
@@ -1143,16 +1051,15 @@ STDAPI IUnknown_QueryService(IUnknown* punk, REFGUID guidService, REFIID riid, v
 //  If you get an error back, it means that the IUnknown is incorrectly
 //  implemented, and you probably should avoid doing anything with it.
 
-STDAPI_(HRESULT) IUnknown_IsCanonical(IUnknown *punk)
+STDAPI_(HRESULT) IUnknown_IsCanonical(IUnknown* punk)
 {
-    IUnknown *punkT;
-    HRESULT hres = punk->QueryInterface(IID_IUnknown, (void **)&punkT);
+    IUnknown* punkT;
+    HRESULT hres = punk->QueryInterface(IID_IUnknown, (void**)&punkT);
     if (EVAL(SUCCEEDED(hres))) {
         punkT->Release();
         if (punk == punkT) {
             hres = S_OK;
-        }
-        else {
+        } else {
             hres = S_FALSE;
         }
     }
@@ -1187,7 +1094,7 @@ STDAPI_(HRESULT) IUnknown_IsCanonical(IUnknown *punk)
 //  both the outer.
 
 STDAPI
-SHWeakQueryInterface(IUnknown *punkOuter, IUnknown *punkTarget, REFIID riid, void **ppvOut)
+SHWeakQueryInterface(IUnknown* punkOuter, IUnknown* punkTarget, REFIID riid, void** ppvOut)
 {
     HRESULT hres;
 
@@ -1201,14 +1108,12 @@ SHWeakQueryInterface(IUnknown *punkOuter, IUnknown *punkTarget, REFIID riid, voi
         if (SUCCEEDED(hres)) {
             punkOuter->Release();
             hres = S_OK;
-        }
-        else {
+        } else {
             // Double-check that QI isn't buggy.
             ASSERT(*ppvOut == NULL);
         }
 
-    }
-    else {
+    } else {
         hres = E_NOINTERFACE;
     }
 
@@ -1226,23 +1131,22 @@ SHWeakQueryInterface(IUnknown *punkOuter, IUnknown *punkTarget, REFIID riid, voi
 //  ppunk     - The IUnknown to release
 
 STDAPI_(void)
-SHWeakReleaseInterface(IUnknown *punkOuter, IUnknown **ppunk)
+SHWeakReleaseInterface(IUnknown* punkOuter, IUnknown** ppunk)
 {
     if (*ppunk) {
         ASSERT(IS_VALID_CODE_PTR(punkOuter, IUnknown));
         punkOuter->AddRef();
-        IUnknown_AtomicRelease((void **)ppunk);
+        IUnknown_AtomicRelease((void**)ppunk);
     }
 }
 
-HRESULT IUnknown_SetOptions(IUnknown * punk, DWORD dwACLOptions)
+HRESULT IUnknown_SetOptions(IUnknown* punk, DWORD dwACLOptions)
 {
     HRESULT hr = S_OK;
-    IACList2 * pal2;
+    IACList2* pal2;
 
-    hr = punk->QueryInterface(IID_IACList2, (void **)&pal2);
-    if (SUCCEEDED(hr))
-    {
+    hr = punk->QueryInterface(IID_IACList2, (void**)&pal2);
+    if (SUCCEEDED(hr)) {
         hr = pal2->SetOptions(dwACLOptions);
         pal2->Release();
     }
@@ -1250,52 +1154,44 @@ HRESULT IUnknown_SetOptions(IUnknown * punk, DWORD dwACLOptions)
     return hr;
 }
 
-IUnknown * ACGetLists(DWORD dwFlags, DWORD dwACLOptions)
+IUnknown* ACGetLists(DWORD dwFlags, DWORD dwACLOptions)
 {
-    IUnknown * punkACLMulti = NULL;
-    HRESULT hr = CoCreateInstance(CLSID_ACLMulti, NULL, CLSCTX_INPROC_SERVER, IID_IUnknown, (void **)&punkACLMulti);
+    IUnknown* punkACLMulti = NULL;
+    HRESULT hr = CoCreateInstance(CLSID_ACLMulti, NULL, CLSCTX_INPROC_SERVER, IID_IUnknown, (void**)&punkACLMulti);
 
     AssertMsg((CO_E_NOTINITIALIZED != hr), TEXT("SHAutoComplete() can not use AutoComplete because OleInitialize() was never called."));
-    if (SUCCEEDED(hr))
-    {
-        IObjMgr * pomMulti;
+    if (SUCCEEDED(hr)) {
+        IObjMgr* pomMulti;
 
-        hr = punkACLMulti->QueryInterface(IID_IObjMgr, (void **)&pomMulti);
-        if (SUCCEEDED(hr))
-        {
-            if (dwFlags & SHACF_URLMRU)
-            {
+        hr = punkACLMulti->QueryInterface(IID_IObjMgr, (void**)&pomMulti);
+        if (SUCCEEDED(hr)) {
+            if (dwFlags & SHACF_URLMRU) {
                 // ADD The MRU List
-                IUnknown * punkACLMRU;
-                hr = CoCreateInstance(CLSID_ACLMRU, NULL, CLSCTX_INPROC_SERVER, IID_IUnknown, (void **)&punkACLMRU);
-                if (SUCCEEDED(hr))
-                {
+                IUnknown* punkACLMRU;
+                hr = CoCreateInstance(CLSID_ACLMRU, NULL, CLSCTX_INPROC_SERVER, IID_IUnknown, (void**)&punkACLMRU);
+                if (SUCCEEDED(hr)) {
                     pomMulti->Append(punkACLMRU);
                     IUnknown_SetOptions(punkACLMRU, dwACLOptions);
                     punkACLMRU->Release();
                 }
             }
 
-            if (dwFlags & SHACF_URLHISTORY)
-            {
+            if (dwFlags & SHACF_URLHISTORY) {
                 // ADD The History List
-                IUnknown * punkACLHist;
-                hr = CoCreateInstance(CLSID_ACLHistory, NULL, CLSCTX_INPROC_SERVER, IID_IUnknown, (void **)&punkACLHist);
-                if (SUCCEEDED(hr))
-                {
+                IUnknown* punkACLHist;
+                hr = CoCreateInstance(CLSID_ACLHistory, NULL, CLSCTX_INPROC_SERVER, IID_IUnknown, (void**)&punkACLHist);
+                if (SUCCEEDED(hr)) {
                     pomMulti->Append(punkACLHist);
                     IUnknown_SetOptions(punkACLHist, dwACLOptions);
                     punkACLHist->Release();
                 }
             }
 
-            if (dwFlags & SHACF_FILESYSTEM)
-            {
+            if (dwFlags & SHACF_FILESYSTEM) {
                 // ADD The ISF List
-                IUnknown * punkACLISF;
-                hr = CoCreateInstance(CLSID_ACListISF, NULL, CLSCTX_INPROC_SERVER, IID_IUnknown, (void **)&punkACLISF);
-                if (SUCCEEDED(hr))
-                {
+                IUnknown* punkACLISF;
+                hr = CoCreateInstance(CLSID_ACListISF, NULL, CLSCTX_INPROC_SERVER, IID_IUnknown, (void**)&punkACLISF);
+                if (SUCCEEDED(hr)) {
                     pomMulti->Append(punkACLISF);
                     IUnknown_SetOptions(punkACLISF, dwACLOptions);
                     punkACLISF->Release();
@@ -1313,22 +1209,20 @@ IUnknown * ACGetLists(DWORD dwFlags, DWORD dwACLOptions)
 #define SZ_REGKEY_AUTOCOMPLETE_TAB          TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoComplete")
 #define SZ_REGVALUE_AUTOCOMPLETE_TAB        TEXT("Always Use Tab")
 #define BOOL_NOT_SET                        0x00000005
-DWORD _UpdateAutoCompleteFlags(DWORD dwFlags, DWORD * pdwACLOptions)
+DWORD _UpdateAutoCompleteFlags(DWORD dwFlags, DWORD* pdwACLOptions)
 {
     DWORD dwACOptions = 0;
 
     *pdwACLOptions = 0;
     if (!(SHACF_AUTOAPPEND_FORCE_OFF & dwFlags) &&
         ((SHACF_AUTOAPPEND_FORCE_ON & dwFlags) ||
-         SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOAPPEND, FALSE, /*default:*/FALSE)))
-    {
+         SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOAPPEND, FALSE, /*default:*/FALSE))) {
         dwACOptions |= ACO_AUTOAPPEND;
     }
 
     if (!(SHACF_AUTOSUGGEST_FORCE_OFF & dwFlags) &&
         ((SHACF_AUTOSUGGEST_FORCE_ON & dwFlags) ||
-         SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOSUGGEST, FALSE, /*default:*/TRUE)))
-    {
+         SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOSUGGEST, FALSE, /*default:*/TRUE))) {
         dwACOptions |= ACO_AUTOSUGGEST;
     }
 
@@ -1367,7 +1261,7 @@ DWORD _UpdateAutoCompleteFlags(DWORD dwFlags, DWORD * pdwACLOptions)
 \**/
 STDAPI SHAutoComplete(HWND hwndEdit, DWORD dwFlags)
 {
-    IUnknown * punkACL = NULL;
+    IUnknown* punkACL = NULL;
     HRESULT hr = E_OUTOFMEMORY;
     DWORD dwACLOptions = 0;
     DWORD dwACOptions = _UpdateAutoCompleteFlags(dwFlags, &dwACLOptions);
@@ -1378,20 +1272,17 @@ STDAPI SHAutoComplete(HWND hwndEdit, DWORD dwFlags)
     punkACL = ACGetLists(dwFlags, dwACLOptions);
     if (punkACL)    // May fail on low memory.
     {
-        IAutoComplete2 * pac;
+        IAutoComplete2* pac;
 
         // Create the AutoComplete Object
-        hr = CoCreateInstance(CLSID_AutoComplete, NULL, CLSCTX_INPROC_SERVER, IID_IAutoComplete2, (void **)&pac);
+        hr = CoCreateInstance(CLSID_AutoComplete, NULL, CLSCTX_INPROC_SERVER, IID_IAutoComplete2, (void**)&pac);
         if (SUCCEEDED(hr))   // May fail because of out of memory
         {
             if (SHPinDllOfCLSID(&CLSID_ACListISF) &&
-                SHPinDllOfCLSID(&CLSID_AutoComplete))
-            {
+                SHPinDllOfCLSID(&CLSID_AutoComplete)) {
                 hr = pac->Init(hwndEdit, punkACL, NULL, NULL);
                 EVAL(SUCCEEDED(pac->SetOptions(dwACOptions)));
-            }
-            else
-            {
+            } else {
                 hr = E_FAIL;
             }
             pac->Release();
@@ -1421,7 +1312,7 @@ STDAPI SHAutoComplete(HWND hwndEdit, DWORD dwFlags)
 //  WARNING: we never touch anything but the 1st field of rgCmds, so
 //  IsExecForward can (and does!) lie and pass us '(OLECMD *) &nCmdID'.
 
-STDAPI IsQSForward(const GUID *pguidCmdGroup, int cCmds, OLECMD *pCmds)
+STDAPI IsQSForward(const GUID* pguidCmdGroup, int cCmds, OLECMD* pCmds)
 {
     int octd = 0;
 
@@ -1451,13 +1342,9 @@ STDAPI IsQSForward(const GUID *pguidCmdGroup, int cCmds, OLECMD *pCmds)
                 break;
             }
         }
-    }
-    else if (IsEqualGUID(CGID_Explorer, *pguidCmdGroup))
-    {
-        for (; cCmds > 0; pCmds++, cCmds--)
-        {
-            switch (pCmds->cmdID)
-            {
+    } else if (IsEqualGUID(CGID_Explorer, *pguidCmdGroup)) {
+        for (; cCmds > 0; pCmds++, cCmds--) {
+            switch (pCmds->cmdID) {
             case  SBCMDID_FILEDELETE:
             case  SBCMDID_FILEPROPERTIES:
             case  SBCMDID_FILERENAME:
@@ -1492,8 +1379,8 @@ STDAPI IsQSForward(const GUID *pguidCmdGroup, int cCmds, OLECMD *pCmds)
 
 //**   MayQSForward -- forward IOleCT::QS if appropriate
 
-STDAPI MayQSForward(IUnknown *punk, int iUpDown, const GUID *pguidCmdGroup,
-                    ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT *pcmdtext)
+STDAPI MayQSForward(IUnknown* punk, int iUpDown, const GUID* pguidCmdGroup,
+                    ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext)
 {
     HRESULT hrTmp;
 
@@ -1520,7 +1407,7 @@ STDAPI MayQSForward(IUnknown *punk, int iUpDown, const GUID *pguidCmdGroup,
 //**   MayExecForward -- forward IOleCT::Exec if appropriate
 // NOTES
 //  should iUpDown be an int or an HRESULT?
-STDAPI MayExecForward(IUnknown *punk, int iUpDown, const GUID *pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG *pvarargIn, VARIANTARG *pvarargOut)
+STDAPI MayExecForward(IUnknown* punk, int iUpDown, const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut)
 {
     HRESULT hrTmp;
 
@@ -1560,7 +1447,7 @@ STDAPI_(HMENU) SHLoadMenuPopup(HINSTANCE hinst, UINT id)
 }
 
 
-typedef LRESULT(WINAPI *POSTORSENDMESSAGEPROC)(HWND, UINT, WPARAM, LPARAM);
+typedef LRESULT(WINAPI* POSTORSENDMESSAGEPROC)(HWND, UINT, WPARAM, LPARAM);
 struct propagatemsg
 {
     UINT   uMsg;
@@ -1571,7 +1458,7 @@ struct propagatemsg
 
 BOOL CALLBACK PropagateCallback(HWND hwndChild, LPARAM lParam)
 {
-    struct propagatemsg *pmsg = (struct propagatemsg *)lParam;
+    struct propagatemsg* pmsg = (struct propagatemsg*)lParam;
 
     pmsg->PostOrSendMessage(hwndChild, pmsg->uMsg, pmsg->wParam, pmsg->lParam);
 
@@ -1590,8 +1477,7 @@ STDAPI_(void) SHPropagateMessage(HWND hwndParent, UINT uMsg, WPARAM wParam, LPAR
     if (fSend) {
         msg.PostOrSendMessage = IsWindowUnicode(hwndParent) ?
             SendMessageW : SendMessageA;
-    }
-    else {
+    } else {
         msg.PostOrSendMessage = (POSTORSENDMESSAGEPROC)
             (IsWindowUnicode(hwndParent) ?
              PostMessageW : PostMessageA);
@@ -1604,8 +1490,7 @@ LRESULT SHDefWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (IsWindowUnicode(hwnd)) {
         return DefWindowProcW(hwnd, uMsg, wParam, lParam);
-    }
-    else {
+    } else {
         return DefWindowProcA(hwnd, uMsg, wParam, lParam);
     }
 }
@@ -1629,8 +1514,7 @@ STDAPI_(HMENU) SHGetMenuFromID(HMENU hmMain, UINT uID)
 
 STDAPI_(int) SHMenuIndexFromID(HMENU hm, UINT id)
 {
-    for (int index = GetMenuItemCount(hm) - 1; index >= 0; index--)
-    {
+    for (int index = GetMenuItemCount(hm) - 1; index >= 0; index--) {
         // We have to use GetMenuItemInfo and not the simpler GetMenuItemID
         // because GetMenuItemID does not support submenus (grr).
         MENUITEMINFO mii;
@@ -1639,8 +1523,7 @@ STDAPI_(int) SHMenuIndexFromID(HMENU hm, UINT id)
         mii.cch = 0;        // just in case
 
         if (GetMenuItemInfo(hm, (UINT)index, TRUE, &mii)
-            && (mii.wID == id))
-        {
+            && (mii.wID == id)) {
             break;
         }
     }
@@ -1654,8 +1537,7 @@ STDAPI_(void) SHRemoveAllSubMenus(HMENU hmenu)
     int cItems = GetMenuItemCount(hmenu);
     int i;
 
-    for (i = cItems - 1; i >= 0; i--)
-    {
+    for (i = cItems - 1; i >= 0; i--) {
         if (GetSubMenu(hmenu, i))
             RemoveMenu(hmenu, i, MF_BYPOSITION);
     }
@@ -1683,7 +1565,7 @@ STDAPI_(void) SHCheckMenuItem(HMENU hmenu, UINT id, BOOL fChecked)
 // NOTES
 //  'saner' means that it only returns SUCCEEDED when it reads everything
 //  you asked for.  'simpler' means no 'pcbRead' param.
-STDAPI IStream_Read(IStream *pstm, void *pv, ULONG cb)
+STDAPI IStream_Read(IStream* pstm, void* pv, ULONG cb)
 {
     ASSERT(pstm);
     HRESULT hr;
@@ -1697,7 +1579,7 @@ STDAPI IStream_Read(IStream *pstm, void *pv, ULONG cb)
 }
 
 
-STDAPI IStream_Write(IStream *pstm, LPCVOID pvIn, ULONG cbIn)
+STDAPI IStream_Write(IStream* pstm, LPCVOID pvIn, ULONG cbIn)
 {
     ASSERT(pstm);
     DWORD cb;
@@ -1709,26 +1591,25 @@ STDAPI IStream_Write(IStream *pstm, LPCVOID pvIn, ULONG cbIn)
 }
 
 
-STDAPI IStream_Reset(IStream *pstm)
+STDAPI IStream_Reset(IStream* pstm)
 {
     return pstm->Seek(c_li0, STREAM_SEEK_SET, NULL);
 }
 
 
-STDAPI IStream_Size(IStream *pstm, ULARGE_INTEGER *pui)
+STDAPI IStream_Size(IStream* pstm, ULARGE_INTEGER* pui)
 {
     ASSERT(pstm);
     ASSERT(pui);
 
     HRESULT hr;
-    STATSTG st = { 0 };
+    STATSTG st = {0};
 
     // BUGBUG: What if IStream::Stat is not implemented?
     // Win95/NT4/IE4's IStream had this problem.  Fixed
     // for NT5...
 
-    if (SUCCEEDED(hr = pstm->Stat(&st, STATFLAG_NONAME)))
-    {
+    if (SUCCEEDED(hr = pstm->Stat(&st, STATFLAG_NONAME))) {
         *pui = st.cbSize;
     }
 
@@ -1766,7 +1647,7 @@ STDAPI_(BOOL) SHRegisterClassW(const WNDCLASSW* pwc)
 
 //  SHUnregisterClasses unregisters an array of class names.
 
-STDAPI_(void) SHUnregisterClassesA(HINSTANCE hinst, const LPCSTR *rgpszClasses, UINT cpsz)
+STDAPI_(void) SHUnregisterClassesA(HINSTANCE hinst, const LPCSTR* rgpszClasses, UINT cpsz)
 {
     UINT i;
     for (i = 0; i < cpsz; i++) {
@@ -1777,7 +1658,7 @@ STDAPI_(void) SHUnregisterClassesA(HINSTANCE hinst, const LPCSTR *rgpszClasses, 
     }
 }
 
-STDAPI_(void) SHUnregisterClassesW(HINSTANCE hinst, const LPCWSTR *rgpszClasses, UINT cpsz)
+STDAPI_(void) SHUnregisterClassesW(HINSTANCE hinst, const LPCWSTR* rgpszClasses, UINT cpsz)
 {
     UINT i;
     for (i = 0; i < cpsz; i++) {
@@ -1800,8 +1681,8 @@ typedef struct tagMBCINFOW {  // Used only between the routine and its DlgProc
     LPCWSTR pwszRegVal;
 
     DLGPROC pUserDlgProc;
-    void * pUserData;
-} MBCINFOW, *LPMBCINFOW;
+    void* pUserData;
+} MBCINFOW, * LPMBCINFOW;
 
 
 void _MoveDlgItem(HDWP hdwp, HWND hDlg, int nItem, int x, int y)
@@ -1821,8 +1702,7 @@ void _AddIcon(HWND hDlg, LPRECT prcNextChild, UINT uType)
 {
     HICON hic;
 
-    switch (uType & MB_ICONMASK)
-    {
+    switch (uType & MB_ICONMASK) {
     case MB_ICONHAND:
         hic = LoadIcon(NULL, IDI_HAND);
         break;
@@ -1838,8 +1718,7 @@ void _AddIcon(HWND hDlg, LPRECT prcNextChild, UINT uType)
     default:
         hic = NULL;
     }
-    if (hic)
-    {
+    if (hic) {
         prcNextChild->left += GetSystemMetrics(SM_CXICON) + 10;
         SendDlgItemMessage(hDlg, IDC_MBC_ICON, STM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)hic);
     }
@@ -1909,8 +1788,7 @@ void HideAndDisableWindow(HWND hwnd)
 
 BOOL_PTR CALLBACK MessageBoxCheckDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg)
-    {
+    switch (uMsg) {
         // we only handle the WM_INITDIALOG so that we can resize the dialog
         // approprately
     case WM_INITDIALOG:
@@ -1927,15 +1805,12 @@ BOOL_PTR CALLBACK MessageBoxCheckDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LP
         SetDlgItemTextWrapW(hDlg, IDC_MBC_TEXT, lpmbci->pwszText);
         if (lpmbci->pwszTitle)
             SetWindowTextWrapW(hDlg, lpmbci->pwszTitle);
-        if ((lpmbci->uType & MB_TYPEMASK) == MB_OKCANCEL)
-        {
+        if ((lpmbci->uType & MB_TYPEMASK) == MB_OKCANCEL) {
             SendMessage(hDlg, DM_SETDEFID, IDOK, 0);
             HideAndDisableWindow(hwndYES);
             HideAndDisableWindow(hwndNO);
             SetFocus(hwndOK);
-        }
-        else if ((lpmbci->uType & MB_TYPEMASK) == MB_OK)
-        {
+        } else if ((lpmbci->uType & MB_TYPEMASK) == MB_OK) {
             RECT rc;
 
             SendMessage(hDlg, DM_SETDEFID, IDOK, 0);
@@ -1943,15 +1818,13 @@ BOOL_PTR CALLBACK MessageBoxCheckDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LP
             HideAndDisableWindow(hwndNO);
             HideAndDisableWindow(hwndCANCEL);
 
-            if (EVAL(GetClientRect(hwndCANCEL, &rc)))
-            {
+            if (EVAL(GetClientRect(hwndCANCEL, &rc))) {
                 MapWindowPoints(hwndCANCEL, hDlg, (LPPOINT)&rc, 2);
                 EVAL(SetWindowPos(hwndOK, hDlg, rc.left, rc.top, RECTWIDTH(rc), RECTHEIGHT(rc), SWP_NOZORDER | SWP_SHOWWINDOW));
             }
 
             SetFocus(hwndOK);
-        }
-        else // MB_YESNO
+        } else // MB_YESNO
         {
             SendMessage(hDlg, DM_SETDEFID, IDYES, 0);
             HideAndDisableWindow(hwndOK);
@@ -1976,13 +1849,11 @@ BOOL_PTR CALLBACK MessageBoxCheckExDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, 
     MBCINFOW* pmbci = NULL;
     HWND hwndCheckBox = GetDlgItem(hDlg, IDC_MESSAGEBOXCHECKEX);
 
-    if (uMsg == WM_INITDIALOG)
-    {
+    if (uMsg == WM_INITDIALOG) {
         pmbci = (MBCINFOW*)lParam;
 
         // we have to have this control or we're hopeless
-        if (!hwndCheckBox)
-        {
+        if (!hwndCheckBox) {
             AssertMsg(FALSE, "MessageBoxCheckEx dialog templates must have a control whos ID is IDC_MESSAGEBOXCHECKEX!!");
             EndDialog(hDlg, 0);
         }
@@ -1990,9 +1861,7 @@ BOOL_PTR CALLBACK MessageBoxCheckExDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, 
         // we use the checkbox to hang our data off of, since the caller
         // might want to use hDlg to hang its data off of.
         SetWindowPtr(hwndCheckBox, GWLP_USERDATA, pmbci);
-    }
-    else
-    {
+    } else {
         pmbci = (MBCINFOW*)GetWindowPtr(hwndCheckBox, GWLP_USERDATA);
     }
 
@@ -2004,8 +1873,7 @@ BOOL_PTR CALLBACK MessageBoxCheckExDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, 
 
 
     // now check to see if we have a user specified dlg proc
-    if (pmbci->pUserDlgProc)
-    {
+    if (pmbci->pUserDlgProc) {
         // for the messages below, we simply return what the "real" dialog proc
         // said since they do NOT return TRUE/FALSE (eg handled or not handled).
         if (uMsg == WM_CTLCOLORMSGBOX ||
@@ -2019,14 +1887,12 @@ BOOL_PTR CALLBACK MessageBoxCheckExDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, 
             uMsg == WM_VKEYTOITEM ||
             uMsg == WM_CHARTOITEM ||
             uMsg == WM_QUERYDRAGICON ||
-            uMsg == WM_INITDIALOG)
-        {
+            uMsg == WM_INITDIALOG) {
             return pmbci->pUserDlgProc(hDlg, uMsg, wParam, (uMsg == WM_INITDIALOG) ? (LPARAM)(pmbci->pUserData) : lParam);
         }
 
         if ((pmbci->pUserDlgProc(hDlg, uMsg, wParam, lParam) != FALSE) &&
-            (uMsg != WM_DESTROY))
-        {
+            (uMsg != WM_DESTROY)) {
             // the "real" dialog proc handled it so we are done, except we always
             // need to handle the WM_DESTROY message so we can check the state of
             // the checkbox in order to set the registry key accordingly.
@@ -2034,15 +1900,13 @@ BOOL_PTR CALLBACK MessageBoxCheckExDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, 
         }
     }
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_CLOSE:
         wParam = IDCANCEL;
         // fall through
     case WM_COMMAND:
     {
-        switch (LOWORD(wParam))
-        {
+        switch (LOWORD(wParam)) {
         case IDOK:
         case IDYES:
         case IDCANCEL:
@@ -2054,8 +1918,7 @@ BOOL_PTR CALLBACK MessageBoxCheckExDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, 
     }
 
     case WM_DESTROY:
-        if (IsDlgButtonChecked(hDlg, IDC_MESSAGEBOXCHECKEX) == BST_CHECKED)
-        {
+        if (IsDlgButtonChecked(hDlg, IDC_MESSAGEBOXCHECKEX) == BST_CHECKED) {
             // Note: we need to call the Wide version of this function,
             // since our pmbci is always UNICODE
             SHRegSetUSValueW(pmbci->pwszRegPath, pmbci->pwszRegVal, REG_SZ,
@@ -2143,9 +2006,9 @@ STDAPI_(int) SHMessageBoxCheckA(HWND hwnd, LPCSTR pszText, LPCSTR pszTitle, UINT
 
     // Since there is no MAX possible size for these strings, we dynamically allocate them.
     // Convert the input params into UNICODE.
-    if (!(lpwszText = (LPWSTR)LocalAlloc(LPTR, sizeof(WCHAR)*(iTextBuffSize = lstrlen(pszText) + 1))))
+    if (!(lpwszText = (LPWSTR)LocalAlloc(LPTR, sizeof(WCHAR) * (iTextBuffSize = lstrlen(pszText) + 1))))
         goto End_MsgBoxCheck;
-    if (!(lpwszTitle = (LPWSTR)LocalAlloc(LPTR, sizeof(WCHAR)*(iTitleBuffSize = lstrlen(pszTitle) + 1))))
+    if (!(lpwszTitle = (LPWSTR)LocalAlloc(LPTR, sizeof(WCHAR) * (iTitleBuffSize = lstrlen(pszTitle) + 1))))
         goto End_MsgBoxCheck;
 
     // Conver the Ansi strings into Unicode strings.
@@ -2170,10 +2033,10 @@ End_MsgBoxCheck:
 
 // This function calls directly to the helper function
 
-STDAPI_(int) SHMessageBoxCheckExW(HWND hwnd, HINSTANCE hinst, LPCWSTR pwszTemplateName, DLGPROC pDlgProc, void *pData,
+STDAPI_(int) SHMessageBoxCheckExW(HWND hwnd, HINSTANCE hinst, LPCWSTR pwszTemplateName, DLGPROC pDlgProc, void* pData,
                                   int iDefault, LPCWSTR pwszRegVal)
 {
-    MBCINFOW mbci = { 0 };
+    MBCINFOW mbci = {0};
 
     // check first to see if the "dont show me this again" is set
     if (!SHRegGetBoolUSValueW(REGSTR_PATH_MESSAGEBOXCHECKW, pwszRegVal, FALSE, /*default:*/TRUE))
@@ -2192,11 +2055,11 @@ STDAPI_(int) SHMessageBoxCheckExW(HWND hwnd, HINSTANCE hinst, LPCWSTR pwszTempla
 
 // This function thunks the strings and calls the helper function
 
-STDAPI_(int) SHMessageBoxCheckExA(HWND hwnd, HINSTANCE hinst, LPCSTR pszTemplateName, DLGPROC pDlgProc, void *pData,
+STDAPI_(int) SHMessageBoxCheckExA(HWND hwnd, HINSTANCE hinst, LPCSTR pszTemplateName, DLGPROC pDlgProc, void* pData,
                                   int iDefault, LPCSTR pszRegVal)
 {
     WCHAR   wszRegVal[REGSTR_MAX_VALUE_LENGTH];
-    MBCINFOW mbci = { 0 };
+    MBCINFOW mbci = {0};
 
     // check first to see if the "dont show me this again" is set
     if (!SHRegGetBoolUSValueA(REGSTR_PATH_MESSAGEBOXCHECKA, pszRegVal, FALSE, /*default:*/TRUE))
@@ -2236,21 +2099,19 @@ LWSTDAPI_(void) SHRestrictedMessageBox(HWND hwnd)
 // in/out
 //      pdwEffect   [optional] effects allowed and returns what was performed.
 
-STDAPI SHSimulateDrop(IDropTarget *pdrop, IDataObject *pdtobj, DWORD grfKeyState,
-                      const POINTL *ppt, DWORD *pdwEffect)
+STDAPI SHSimulateDrop(IDropTarget* pdrop, IDataObject* pdtobj, DWORD grfKeyState,
+                      const POINTL* ppt, DWORD* pdwEffect)
 {
     POINTL pt;
     DWORD dwEffect;
 
-    if (!ppt)
-    {
+    if (!ppt) {
         ppt = &pt;
         pt.x = 0;
         pt.y = 0;
     }
 
-    if (!pdwEffect)
-    {
+    if (!pdwEffect) {
         pdwEffect = &dwEffect;
         dwEffect = DROPEFFECT_LINK | DROPEFFECT_MOVE | DROPEFFECT_COPY;
     }
@@ -2258,13 +2119,10 @@ STDAPI SHSimulateDrop(IDropTarget *pdrop, IDataObject *pdtobj, DWORD grfKeyState
     DWORD dwEffectSave = *pdwEffect;    // drag enter returns the default effect
 
     HRESULT hr = pdrop->DragEnter(pdtobj, grfKeyState, *ppt, pdwEffect);
-    if (*pdwEffect)
-    {
+    if (*pdwEffect) {
         *pdwEffect = dwEffectSave;      // do Drop with the full set of bits
         hr = pdrop->Drop(pdtobj, grfKeyState, *ppt, pdwEffect);
-    }
-    else
-    {
+    } else {
         pdrop->DragLeave();
         hr = S_FALSE;     // HACK? S_FALSE DragEnter said no
     }
@@ -2275,9 +2133,8 @@ STDAPI SHSimulateDrop(IDropTarget *pdrop, IDataObject *pdtobj, DWORD grfKeyState
 STDAPI SHLoadFromPropertyBag(IUnknown* punk, IPropertyBag* ppg)
 {
     IPersistPropertyBag* pppg;
-    HRESULT hres = punk->QueryInterface(IID_IPersistPropertyBag, (void **)&pppg);
-    if (SUCCEEDED(hres))
-    {
+    HRESULT hres = punk->QueryInterface(IID_IPersistPropertyBag, (void**)&pppg);
+    if (SUCCEEDED(hres)) {
         hres = pppg->Load(ppg, NULL);
         pppg->Release();
     }
@@ -2287,10 +2144,10 @@ STDAPI SHLoadFromPropertyBag(IUnknown* punk, IPropertyBag* ppg)
 
 
 //**   IUnknown_TranslateAcceleratorOCS -- do punk->IOCS::TranslateAccelerator
-STDAPI IUnknown_TranslateAcceleratorOCS(IUnknown *punk, LPMSG lpMsg, DWORD grfMods)
+STDAPI IUnknown_TranslateAcceleratorOCS(IUnknown* punk, LPMSG lpMsg, DWORD grfMods)
 {
     HRESULT hr = E_FAIL;
-    IOleControlSite *pocs;
+    IOleControlSite* pocs;
 
     if (punk) {
         hr = punk->QueryInterface(IID_IOleControlSite, (void**)&pocs);
@@ -2304,10 +2161,10 @@ STDAPI IUnknown_TranslateAcceleratorOCS(IUnknown *punk, LPMSG lpMsg, DWORD grfMo
 }
 
 
-STDAPI IUnknown_OnFocusOCS(IUnknown *punk, BOOL fGotFocus)
+STDAPI IUnknown_OnFocusOCS(IUnknown* punk, BOOL fGotFocus)
 {
     HRESULT hr = E_FAIL;
-    IOleControlSite *pocs;
+    IOleControlSite* pocs;
 
     if (punk) {
         hr = punk->QueryInterface(IID_IOleControlSite, (void**)&pocs);
@@ -2321,17 +2178,16 @@ STDAPI IUnknown_OnFocusOCS(IUnknown *punk, BOOL fGotFocus)
 }
 
 
-STDAPI IUnknown_HandleIRestrict(IUnknown * punk, const GUID * pguidID, DWORD dwRestrictAction, VARIANT * pvarArgs, DWORD * pdwRestrictionResult)
+STDAPI IUnknown_HandleIRestrict(IUnknown* punk, const GUID* pguidID, DWORD dwRestrictAction, VARIANT* pvarArgs, DWORD* pdwRestrictionResult)
 {
     HRESULT hr = E_INVALIDARG;
-    IRestrict * pr;
+    IRestrict* pr;
 
     if (!EVAL(pdwRestrictionResult))
         return hr;
 
     hr = IUnknown_QueryService(punk, SID_SRestrictionHandler, IID_IRestrict, (void**)&pr);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         hr = pr->IsRestricted(pguidID, dwRestrictAction, pvarArgs, pdwRestrictionResult);
         pr->Release();
     }
@@ -2360,7 +2216,7 @@ STDAPI_(UINT) SHGetCurColorRes(void)
 // If a folder returns QIF_DONTEXPANDFODLER from QueryInfo, the folder should
 // not get expanded.  This is used by menu code to not expand channel folders.
 
-STDAPI_(BOOL) SHIsExpandableFolder(IShellFolder *psf, LPCITEMIDLIST pidl)
+STDAPI_(BOOL) SHIsExpandableFolder(IShellFolder* psf, LPCITEMIDLIST pidl)
 {
     ASSERT(psf);
     ASSERT(pidl);
@@ -2370,14 +2226,12 @@ STDAPI_(BOOL) SHIsExpandableFolder(IShellFolder *psf, LPCITEMIDLIST pidl)
     IQueryInfo* pqi;
 
     if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidl, IID_IQueryInfo, NULL,
-        (void **)&pqi)))
-    {
+        (void**)&pqi))) {
         ASSERT(pqi);
 
         DWORD dwFlags;
 
-        if (SUCCEEDED(pqi->GetInfoFlags(&dwFlags)))
-        {
+        if (SUCCEEDED(pqi->GetInfoFlags(&dwFlags))) {
             fRet = !(dwFlags & QIF_DONTEXPANDFOLDER);
         }
 
@@ -2396,13 +2250,11 @@ STDAPI_(DWORD) SHWaitForSendMessageThread(HANDLE hThread, DWORD dwTimeout)
 
     // We will attempt to wait up to dwTimeout for the thread to
     // terminate
-    do
-    {
+    do {
         dwRet = MsgWaitForMultipleObjects(1, &hThread, FALSE,
                                           dwTimeout, QS_SENDMESSAGE);
 
-        if (dwRet == (WAIT_OBJECT_0 + 1))
-        {
+        if (dwRet == (WAIT_OBJECT_0 + 1)) {
             // There must be a pending SendMessage from either the
             // thread we are killing or some other thread/process besides
             // this one.  Do a PeekMessage to process the pending
@@ -2411,11 +2263,9 @@ STDAPI_(DWORD) SHWaitForSendMessageThread(HANDLE hThread, DWORD dwTimeout)
 
             // Calculate if we have any more time left in the timeout to
             // wait on.
-            if (dwTimeout != INFINITE)
-            {
+            if (dwTimeout != INFINITE) {
                 dwTimeout = dwEnd - GetTickCount();
-                if ((long)dwTimeout <= 0)
-                {
+                if ((long)dwTimeout <= 0) {
                     // No more time left, fail with WAIT_TIMEOUT
                     dwRet = WAIT_TIMEOUT;
                 }
@@ -2446,24 +2296,21 @@ STDAPI_(BOOL) SHVerbExistsNA(LPCSTR szExtension, LPCSTR pszVerb, LPSTR pszComman
 
     if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CLASSES_ROOT, szExtension, 0, KEY_READ, &hKey)) {
         DWORD dwType, dwcbData;
-        TCHAR szVerb[MAX_PATH + MAX_FILETYPE_NAME] = { NULL };
+        TCHAR szVerb[MAX_PATH + MAX_FILETYPE_NAME] = {NULL};
         TCHAR szDefaultName[MAX_FILETYPE_NAME];
         dwcbData = SIZEOF(szDefaultName);
 
-        if (ERROR_SUCCESS == RegQueryValueEx(hKey, NULL, NULL, &dwType, (LPBYTE)&szDefaultName, &dwcbData))
-        {
+        if (ERROR_SUCCESS == RegQueryValueEx(hKey, NULL, NULL, &dwType, (LPBYTE)&szDefaultName, &dwcbData)) {
             HKEY hKey2;
             wnsprintf(szVerb, SIZECHARS(szVerb), TEXT("%s\\shell\\%s\\command"), szDefaultName, pszVerb);
             if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CLASSES_ROOT, szVerb, 0, KEY_READ, &hKey2)) {
                 if (pszCommand) {
                     pszCommand[0] = 0;
                     dwcbData = cchCommand;
-                    if (ERROR_SUCCESS == RegQueryValueEx(hKey2, NULL, NULL, &dwType, (LPBYTE)pszCommand, &dwcbData))
-                    {
+                    if (ERROR_SUCCESS == RegQueryValueEx(hKey2, NULL, NULL, &dwType, (LPBYTE)pszCommand, &dwcbData)) {
                         fRet = TRUE;
                     }
-                }
-                else
+                } else
                     fRet = TRUE;
 
                 RegCloseKey(hKey2);
@@ -2486,7 +2333,7 @@ STDAPI_(void) SHFillRectClr(HDC hdc, LPRECT prc, COLORREF clr)
 
 //**   SearchMapInt -- map int->int
 
-STDAPI_(int) SHSearchMapInt(const int *src, const int *dst, int cnt, int val)
+STDAPI_(int) SHSearchMapInt(const int* src, const int* dst, int cnt, int val)
 {
     for (; cnt > 0; cnt--, src++, dst++) {
         if (*src == val)
@@ -2496,16 +2343,14 @@ STDAPI_(int) SHSearchMapInt(const int *src, const int *dst, int cnt, int val)
 }
 
 
-STDAPI_(void) IUnknown_Set(IUnknown ** ppunk, IUnknown * punk)
+STDAPI_(void) IUnknown_Set(IUnknown** ppunk, IUnknown* punk)
 {
     ASSERT(ppunk);
 
-    if (*ppunk != punk)
-    {
+    if (*ppunk != punk) {
         IUnknown_AtomicRelease((VOID**)ppunk);
 
-        if (punk)
-        {
+        if (punk) {
             punk->AddRef();
             *ppunk = punk;
         }
@@ -2528,8 +2373,7 @@ STDAPI_(CHAR) SHStripMneumonicA(LPSTR pszMenu)
     LPSTR pszAmp = StrChr(pszMenu, TEXT('&'));
     CHAR cMneumonic = pszAmp ? *CharNext(pszAmp) : pszMenu[0];  //Return the Char.
 
-    while (pszAmp && *pszAmp)
-    {
+    while (pszAmp && *pszAmp) {
         *pszAmp = *CharNext(pszAmp);
         pszAmp = CharNext(pszAmp);
     }
@@ -2548,8 +2392,7 @@ STDAPI_(WCHAR) SHStripMneumonicW(LPWSTR pszMenu)
     LPWSTR pszAmp = StrChrW(pszMenu, L'&');
     WCHAR cMneumonic = (pszAmp ? pszAmp[1] : pszMenu[0]);  //Return the Char.
 
-    while (pszAmp && *pszAmp)
-    {
+    while (pszAmp && *pszAmp) {
         pszAmp[0] = pszAmp[1];
         pszAmp++;
     }
@@ -2597,8 +2440,7 @@ STDAPI IContextMenu_Invoke(IContextMenu* pcm, HWND hwndOwner, LPCSTR pVerb, UINT
 {
     HRESULT hres = S_OK;
 
-    if (pcm)
-    {
+    if (pcm) {
         UINT idCmd = 0;
         DECLAREWAITCURSOR;
         SetWaitCursor();
@@ -2621,20 +2463,17 @@ STDAPI IContextMenu_Invoke(IContextMenu* pcm, HWND hwndOwner, LPCSTR pVerb, UINT
 #else
             ici.lpVerb = pVerb;
 #endif
-        }
-        else {
+        } else {
 
             hmenu = CreatePopupMenu();
 
-            if (hmenu)
-            {
+            if (hmenu) {
                 fFlags |= CMF_DEFAULTONLY;
 #define CMD_ID_FIRST 1
                 pcm->QueryContextMenu(hmenu, 0, CMD_ID_FIRST, 0xFFFF, fFlags);
 
                 idCmd = GetMenuDefaultItem(hmenu, MF_BYCOMMAND, 0);
-                if (-1 != idCmd)
-                {
+                if (-1 != idCmd) {
                     ici.lpVerb = (LPSTR)MAKEINTRESOURCE(idCmd - CMD_ID_FIRST);
                 }
             }
@@ -2646,8 +2485,7 @@ STDAPI IContextMenu_Invoke(IContextMenu* pcm, HWND hwndOwner, LPCSTR pVerb, UINT
         ResetWaitCursor();
 
         // can't just check verb because it could be 0 if idCmd == CMD_ID_FIRST
-        if ((-1 != idCmd) || ici.lpVerb)
-        {
+        if ((-1 != idCmd) || ici.lpVerb) {
             if (!hwndOwner)
                 ici.fMask |= CMIC_MASK_FLAG_NO_UI;
 
@@ -2692,20 +2530,17 @@ STDAPI_(void) SHSetDefaultDialogFont(HWND hDlg, int idCtl)
 
     SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(LOGFONT), &lfDefault, 0);
 
-    if (lfDefault.lfCharSet == lf.lfCharSet)
-    {
+    if (lfDefault.lfCharSet == lf.lfCharSet) {
         // if the dialog already has correct character set
         // don't do anything.
         return;
     }
 
     // If we already have hfont created, use it.
-    if (!(hfontDefault = (HFONT)GetProp(hDlg, c_szPropDlgFont)))
-    {
+    if (!(hfontDefault = (HFONT)GetProp(hDlg, c_szPropDlgFont))) {
         // assign the same height of the dialog font
         lfDefault.lfHeight = lf.lfHeight;
-        if (!(hfontDefault = CreateFontIndirect(&lfDefault)))
-        {
+        if (!(hfontDefault = CreateFontIndirect(&lfDefault))) {
             // restore back in failure
             hfontDefault = hfont;
         }
@@ -2730,8 +2565,7 @@ STDAPI_(void) SHSetDefaultDialogFont(HWND hDlg, int idCtl)
 STDAPI_(void) SHRemoveDefaultDialogFont(HWND hDlg)
 {
     HFONT hfont;
-    if (hfont = (HFONT)GetProp(hDlg, c_szPropDlgFont))
-    {
+    if (hfont = (HFONT)GetProp(hDlg, c_szPropDlgFont)) {
         DeleteObject(hfont);
         RemoveProp(hDlg, c_szPropDlgFont);
     }
@@ -2741,12 +2575,12 @@ STDAPI_(void) SHRemoveDefaultDialogFont(HWND hDlg)
 // system messages that are ansi/unicode, so only support an ansi version.
 // If the pfnWndProc cares, it can thunk the messages. (Do this because
 // Win95 doesn't support RegisterClassW.)
-HWND SHCreateWorkerWindowA(WNDPROC pfnWndProc, HWND hwndParent, DWORD dwExStyle, DWORD dwFlags, HMENU hmenu, void * p)
+HWND SHCreateWorkerWindowA(WNDPROC pfnWndProc, HWND hwndParent, DWORD dwExStyle, DWORD dwFlags, HMENU hmenu, void* p)
 {
-    WNDCLASSA wc = { 0 };
+    WNDCLASSA wc = {0};
 
     wc.lpfnWndProc = DefWindowProcA;
-    wc.cbWndExtra = SIZEOF(void *);
+    wc.cbWndExtra = SIZEOF(void*);
     wc.hInstance = HINST_THISDLL;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
@@ -2778,18 +2612,17 @@ HWND SHCreateWorkerWindowA(WNDPROC pfnWndProc, HWND hwndParent, DWORD dwExStyle,
 // Win95 doesn't support RegisterClassW.)
 
 
-HWND SHCreateWorkerWindowW(WNDPROC pfnWndProc, HWND hwndParent, DWORD dwExStyle, DWORD dwFlags, HMENU hmenu, void * p)
+HWND SHCreateWorkerWindowW(WNDPROC pfnWndProc, HWND hwndParent, DWORD dwExStyle, DWORD dwFlags, HMENU hmenu, void* p)
 {
     //  must default to ANSI on win95
-    if (!g_bRunningOnNT)
-    {
+    if (!g_bRunningOnNT) {
         return SHCreateWorkerWindowA(pfnWndProc, hwndParent, dwExStyle, dwFlags, hmenu, p);
     }
 
-    WNDCLASSW wc = { 0 };
+    WNDCLASSW wc = {0};
 
     wc.lpfnWndProc = DefWindowProcW;
-    wc.cbWndExtra = SIZEOF(void *);
+    wc.cbWndExtra = SIZEOF(void*);
     wc.hInstance = HINST_THISDLL;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
@@ -2814,7 +2647,7 @@ HWND SHCreateWorkerWindowW(WNDPROC pfnWndProc, HWND hwndParent, DWORD dwExStyle,
 #pragma warning(disable:4035)   // no return value
 
 #undef SHInterlockedCompareExchange
-STDAPI_(void *) SHInterlockedCompareExchange(void **ppDest, void *pExch, void *pComp)
+STDAPI_(void*) SHInterlockedCompareExchange(void** ppDest, void* pExch, void* pComp)
 {
 #if defined(_X86_)
     _asm {
@@ -2832,7 +2665,7 @@ STDAPI_(void *) SHInterlockedCompareExchange(void **ppDest, void *pExch, void *p
 
 #define REGSTR_PATH_POLICIESW    L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies"
 
-STDAPI_(DWORD) SHRestrictionLookup(INT rest, LPCWSTR pszBaseKey, const SHRESTRICTIONITEMS *pRestrictions,
+STDAPI_(DWORD) SHRestrictionLookup(INT rest, LPCWSTR pszBaseKey, const SHRESTRICTIONITEMS* pRestrictions,
                                    DWORD* pdwRestrictionItemValues)
 {
     int i;
@@ -2841,16 +2674,13 @@ STDAPI_(DWORD) SHRestrictionLookup(INT rest, LPCWSTR pszBaseKey, const SHRESTRIC
 
     // Loop through the restrictions
 
-    for (i = 0; pRestrictions[i].pszKey; i++)
-    {
-        if (rest == pRestrictions[i].iFlag)
-        {
+    for (i = 0; pRestrictions[i].pszKey; i++) {
+        if (rest == pRestrictions[i].iFlag) {
             dw = pdwRestrictionItemValues[i];
 
             // Has this restriction been initialized yet?
 
-            if (dw == -1)
-            {
+            if (dw == -1) {
                 dw = SHGetRestriction(pszBaseKey, pRestrictions[i].pszKey, pRestrictions[i].pszValue);
                 pdwRestrictionItemValues[i] = dw;
             }
@@ -2891,8 +2721,7 @@ STDAPI_(DWORD) SHGetRestriction(LPCWSTR pszBaseKey, LPCWSTR pszGroup, LPCWSTR ps
     dwSize = sizeof(dw);
     if (ERROR_SUCCESS != SHGetValueW(HKEY_LOCAL_MACHINE,
                                      szSubKey, pszRestriction,
-                                     &dwType, &dw, &dwSize))
-    {
+                                     &dwType, &dw, &dwSize)) {
         // Check current user if we didn't find anything for the local machine.
         dwSize = sizeof(dw);
         SHGetValueW(HKEY_CURRENT_USER,
@@ -2919,8 +2748,7 @@ STDAPI_(UINT) WhichPlatform(void)
 
     // Not all callers are linked to SHELL32.DLL, so we must use LoadLibrary.
     hinst = LoadLibraryA("SHELL32.DLL");
-    if (hinst)
-    {
+    if (hinst) {
         DWORD fValue;
         DWORD cbSize = sizeof(fValue);
         HKEY hKey;
@@ -2934,16 +2762,12 @@ STDAPI_(UINT) WhichPlatform(void)
 
         // check that the registry reflects the right value... (this is so iexplore can check efficiently)
         lRes = RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Microsoft\\Internet Explorer"), 0, KEY_READ | KEY_WRITE, &hKey);
-        if (lRes == ERROR_SUCCESS)
-        {
+        if (lRes == ERROR_SUCCESS) {
             lRes = RegQueryValueEx(hKey, REGVAL_INTEGRATEDBROWSER, NULL, NULL, (LPBYTE)&fValue, &cbSize);
-            if (lRes == ERROR_SUCCESS && uInstall == PLATFORM_BROWSERONLY)
-            {
+            if (lRes == ERROR_SUCCESS && uInstall == PLATFORM_BROWSERONLY) {
                 // remove the value, we are now Browser only release
                 RegDeleteValue(hKey, REGVAL_INTEGRATEDBROWSER);
-            }
-            else if (lRes != ERROR_SUCCESS && uInstall == PLATFORM_INTEGRATED)
-            {
+            } else if (lRes != ERROR_SUCCESS && uInstall == PLATFORM_INTEGRATED) {
                 // install the RegValue, we are integrated browser mode...
                 fValue = TRUE;
                 cbSize = sizeof(fValue);
@@ -2952,9 +2776,7 @@ STDAPI_(UINT) WhichPlatform(void)
                 // function called anyway....
             }
             RegCloseKey(hKey);
-        }
-        else
-        {
+        } else {
             // a machine without our regKey,
             TraceMsg(TF_ERROR, "WhichPlatform: failed to open 'HKLM\\Software\\Microsoft\\Internet Explorer'");
         }
@@ -2981,38 +2803,30 @@ BOOL DoRegisterGlobalHotkey(WORD wOldHotkey, WORD wNewHotkey,
 
     hwndTray = FindWindowA(c_szTrayNotificationClass, 0);
 
-    if (hwndTray)
-    {
-        if (wOldHotkey)
-        {
+    if (hwndTray) {
+        if (wOldHotkey) {
             SendMessage(hwndTray, WMTRAY_SCUNREGISTERHOTKEY, wOldHotkey, 0);
 
             TraceMsg(TF_FUNC, "RegisterGlobalHotkey(): Unregistered old hotkey %#04x.", wOldHotkey);
         }
 
-        if (wNewHotkey)
-        {
+        if (wNewHotkey) {
             //  If not running on NT and we have a widestr, need to convert to ansi
-            if ((!g_bRunningOnNT) && (NULL == pcszPath))
-            {
+            if ((!g_bRunningOnNT) && (NULL == pcszPath)) {
                 SHUnicodeToAnsi(pcwszPath, szPath, ARRAYSIZE(szPath));
                 pcszPath = szPath;
             }
 
             // Aargh: The W95/browser only mode sends a string, other platforms sends
             // Atom...
-            if (!g_bRunningOnNT && (WhichPlatform() == PLATFORM_IE3))
-            {
+            if (!g_bRunningOnNT && (WhichPlatform() == PLATFORM_IE3)) {
                 SendMessage(hwndTray, WMTRAY_SCREGISTERHOTKEY, wNewHotkey, (LPARAM)pcszPath);
-            }
-            else
-            {
+            } else {
                 ATOM atom = (NULL != pcszPath) ?
                     GlobalAddAtomA(pcszPath) :
                     GlobalAddAtomW(pcwszPath);
                 ASSERT(atom);
-                if (atom)
-                {
+                if (atom) {
                     SendMessage(hwndTray, WMTRAY_SCREGISTERHOTKEY, wNewHotkey, (LPARAM)atom);
                     GlobalDeleteAtom(atom);
                 }
@@ -3022,9 +2836,7 @@ BOOL DoRegisterGlobalHotkey(WORD wOldHotkey, WORD wNewHotkey,
         }
 
         bResult = TRUE;
-    }
-    else
-    {
+    } else {
         bResult = FALSE;
 
         TraceMsgA(TF_WARNING, "RegisterGlobalHotkey(): Unable to find Tray window of class %s to notify.",
@@ -3058,17 +2870,15 @@ RegisterGlobalHotkeyA(
     return DoRegisterGlobalHotkey(wOldHotkey, wNewHotkey, pcszPath, NULL);
 }
 
-typedef UINT(__stdcall * PFNGETSYSTEMWINDOWSDIRECTORYW)(LPWSTR pwszBuffer, UINT cchBuff);
+typedef UINT(__stdcall* PFNGETSYSTEMWINDOWSDIRECTORYW)(LPWSTR pwszBuffer, UINT cchBuff);
 
 UINT WINAPI
 SHGetSystemWindowsDirectoryW(LPWSTR lpBuffer, UINT uSize)
 {
-    if (g_bRunningOnNT)
-    {
+    if (g_bRunningOnNT) {
         static PFNGETSYSTEMWINDOWSDIRECTORYW s_pfn = (PFNGETSYSTEMWINDOWSDIRECTORYW)-1;
 
-        if (((PFNGETSYSTEMWINDOWSDIRECTORYW)-1) == s_pfn)
-        {
+        if (((PFNGETSYSTEMWINDOWSDIRECTORYW)-1) == s_pfn) {
             HINSTANCE hinst = GetModuleHandle(TEXT("KERNEL32.DLL"));
 
             ASSERT(NULL != hinst);  //  YIKES!
@@ -3079,20 +2889,15 @@ SHGetSystemWindowsDirectoryW(LPWSTR lpBuffer, UINT uSize)
                 s_pfn = NULL;
         }
 
-        if (s_pfn)
-        {
+        if (s_pfn) {
             // we use the new API so we dont get lied to by hydra
             return s_pfn(lpBuffer, uSize);
-        }
-        else
-        {
+        } else {
             GetSystemDirectoryW(lpBuffer, uSize);
             PathRemoveFileSpecW(lpBuffer);
             return lstrlenW(lpBuffer);
         }
-    }
-    else
-    {
+    } else {
         return GetWindowsDirectoryWrapW(lpBuffer, uSize);
     }
 }
@@ -3100,15 +2905,12 @@ SHGetSystemWindowsDirectoryW(LPWSTR lpBuffer, UINT uSize)
 UINT WINAPI
 SHGetSystemWindowsDirectoryA(LPSTR lpBuffer, UINT uSize)
 {
-    if (g_bRunningOnNT)
-    {
+    if (g_bRunningOnNT) {
         WCHAR wszPath[MAX_PATH];
 
         SHGetSystemWindowsDirectoryW(wszPath, ARRAYSIZE(wszPath));
         return SHUnicodeToAnsi(wszPath, lpBuffer, uSize);
-    }
-    else
-    {
+    } else {
         return GetWindowsDirectoryA(lpBuffer, uSize);
     }
 }
@@ -3183,22 +2985,16 @@ STDAPI SHInvokeDefaultCommand(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlIt
 STDAPI SHInvokeCommand(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem, LPCSTR lpVerb)
 {
     HRESULT hres = E_FAIL;
-    if (psf)
-    {
-        IContextMenu *pcm;
-        if (SUCCEEDED(psf->GetUIObjectOf(hwnd, 1, &pidlItem, IID_IContextMenu, 0, (void**)&pcm)))
-        {
-            if (pcm)
-            {
+    if (psf) {
+        IContextMenu* pcm;
+        if (SUCCEEDED(psf->GetUIObjectOf(hwnd, 1, &pidlItem, IID_IContextMenu, 0, (void**)&pcm))) {
+            if (pcm) {
                 HMENU hmenu = CreatePopupMenu();
-                if (hmenu)
-                {
+                if (hmenu) {
                     if (SUCCEEDED(pcm->QueryContextMenu(hmenu, 0, CMD_ID_FIRST, CMD_ID_LAST,
-                                                        lpVerb ? 0 : CMF_DEFAULTONLY)))
-                    {
+                                                        lpVerb ? 0 : CMF_DEFAULTONLY))) {
                         UINT idCmd = -1;
-                        if (lpVerb == NULL)
-                        {
+                        if (lpVerb == NULL) {
                             idCmd = GetMenuDefaultItem(hmenu, MF_BYCOMMAND, 0);
                             if ((UINT)-1 != idCmd)
                                 lpVerb = MAKEINTRESOURCE(idCmd - CMD_ID_FIRST);
@@ -3206,9 +3002,8 @@ STDAPI SHInvokeCommand(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem, LPC
 
                         // if idCmd == 0, then lpVerb would be Zero. So we need to check to
                         // see if idCmd is not -1.
-                        if (lpVerb || idCmd != (UINT)-1)
-                        {
-                            CMINVOKECOMMANDINFO ici = { 0 };
+                        if (lpVerb || idCmd != (UINT)-1) {
+                            CMINVOKECOMMANDINFO ici = {0};
                             ici.cbSize = SIZEOF(CMINVOKECOMMANDINFO);
                             ici.hwnd = hwnd;
                             ici.lpVerb = lpVerb;
@@ -3227,7 +3022,7 @@ STDAPI SHInvokeCommand(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem, LPC
     return hres;
 }
 
-int MessageBoxHelper(HINSTANCE hInst, HWND hwnd, IUnknown *punkEnableModless, LPCWSTR pwzMessage, UINT idTitle, UINT nFlags)
+int MessageBoxHelper(HINSTANCE hInst, HWND hwnd, IUnknown* punkEnableModless, LPCWSTR pwzMessage, UINT idTitle, UINT nFlags)
 {
     WCHAR wzTitle[MAX_PATH];
     UINT uiResult;
@@ -3246,14 +3041,13 @@ int MessageBoxHelper(HINSTANCE hInst, HWND hwnd, IUnknown *punkEnableModless, LP
 }
 
 
-int MessageBoxDiskHelper(HINSTANCE hInst, HWND hwnd, IUnknown *punkEnableModless, UINT idMessage, UINT idTitle, UINT nFlags, BOOL fDrive, DWORD dwDrive)
+int MessageBoxDiskHelper(HINSTANCE hInst, HWND hwnd, IUnknown* punkEnableModless, UINT idMessage, UINT idTitle, UINT nFlags, BOOL fDrive, DWORD dwDrive)
 {
     WCHAR wzMessage[MAX_PATH];
 
     EVAL(LoadStringWrapW(hInst, idMessage, wzMessage, ARRAYSIZE(wzMessage)));
 
-    if (fDrive)
-    {
+    if (fDrive) {
         WCHAR wzTemp[MAX_PATH];
 
         wnsprintfW(wzTemp, ARRAYSIZE(wzTemp), wzMessage, dwDrive);
@@ -3263,7 +3057,7 @@ int MessageBoxDiskHelper(HINSTANCE hInst, HWND hwnd, IUnknown *punkEnableModless
     return MessageBoxHelper(hInst, hwnd, punkEnableModless, wzMessage, idTitle, nFlags);
 }
 
-BOOL DoMediaPrompt(HWND hwnd, IUnknown *punkEnableModless, int nDrive, LPCWSTR pwzDrive, BOOL fOfferToFormat, DWORD dwError, UINT wFunc, BOOL * pfRetry)
+BOOL DoMediaPrompt(HWND hwnd, IUnknown* punkEnableModless, int nDrive, LPCWSTR pwzDrive, BOOL fOfferToFormat, DWORD dwError, UINT wFunc, BOOL* pfRetry)
 {
     BOOL fDiskHasMedia = TRUE;  // Assume yes
     *pfRetry = FALSE;
@@ -3274,35 +3068,28 @@ BOOL DoMediaPrompt(HWND hwnd, IUnknown *punkEnableModless, int nDrive, LPCWSTR p
     // that we need to map to not formatted, talk to robwi...
 
     // Is it true that it's not ready or we can't format it?
-    if ((dwError == ERROR_NOT_READY) || !fOfferToFormat)
-    {
+    if ((dwError == ERROR_NOT_READY) || !fOfferToFormat) {
         // Yes, so do the disk insert w/o offering to format.
         fDiskHasMedia = FALSE;
 
         // drive not ready (no disk in the drive)
         if (hwnd &&
             (IDRETRY == MessageBoxDiskHelper(HINST_THISDLL, hwnd, punkEnableModless, IDS_DRIVENOTREADY, (IDS_FILEERROR + wFunc),
-            (MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_RETRYCANCEL), TRUE, (DWORD)(nDrive + TEXT('A')))))
-        {
+            (MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_RETRYCANCEL), TRUE, (DWORD)(nDrive + TEXT('A'))))) {
             *pfRetry = TRUE;    // The user wants to try again, bless their heart.
-        }
-        else
-        {
+        } else {
             // The user was informed that media isn't present and they basically
             // informed us to cancel the operation.
             *pfRetry = FALSE;
         }
-    }
-    else if ((dwError == ERROR_GEN_FAILURE) ||
+    } else if ((dwError == ERROR_GEN_FAILURE) ||
         (dwError == ERROR_UNRECOGNIZED_MEDIA) ||
-             (dwError == ERROR_UNRECOGNIZED_VOLUME))
-    {
+               (dwError == ERROR_UNRECOGNIZED_VOLUME)) {
         // general failue (disk not formatted)
 
         if (hwnd &&
             (IDYES == MessageBoxDiskHelper(HINST_THISDLL, hwnd, punkEnableModless, IDS_UNFORMATTED, (IDS_FILEERROR + wFunc),
-            (MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_YESNO), TRUE, (DWORD)(nDrive + TEXT('A')))))
-        {
+            (MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_YESNO), TRUE, (DWORD)(nDrive + TEXT('A'))))) {
             if (hwnd)
                 IUnknown_EnableModless(punkEnableModless, FALSE);
 
@@ -3310,8 +3097,7 @@ BOOL DoMediaPrompt(HWND hwnd, IUnknown *punkEnableModless, int nDrive, LPCWSTR p
             if (hwnd)
                 IUnknown_EnableModless(punkEnableModless, TRUE);
 
-            switch (uiFormat)
-            {
+            switch (uiFormat) {
             case SHFMT_CANCEL:
                 *pfRetry = FALSE;
                 fDiskHasMedia = FALSE;
@@ -3320,13 +3106,11 @@ BOOL DoMediaPrompt(HWND hwnd, IUnknown *punkEnableModless, int nDrive, LPCWSTR p
             case SHFMT_ERROR:
             case SHFMT_NOFORMAT:
                 fDiskHasMedia = FALSE;  // We still don't have a formatted drive
-                if (hwnd)
-                {
+                if (hwnd) {
                     MessageBoxDiskHelper(HINST_THISDLL, hwnd, punkEnableModless, IDS_NOFMT, (IDS_FILEERROR + wFunc),
                         (MB_SETFOREGROUND | MB_ICONEXCLAMATION | MB_OK), TRUE, (DWORD)(nDrive + TEXT('A')));
                     *pfRetry = TRUE;
-                }
-                else
+                } else
                     *pfRetry = FALSE;   // If we can't display UI, no need to try again.
 
                 break;
@@ -3337,24 +3121,17 @@ BOOL DoMediaPrompt(HWND hwnd, IUnknown *punkEnableModless, int nDrive, LPCWSTR p
                 fDiskHasMedia = TRUE;
                 break;
             }
-        }
-        else
-        {
+        } else {
             *pfRetry = FALSE;   // If we can't display UI, or no need to try again.
             fDiskHasMedia = FALSE;  // The user either wasn't given the option of formatting or decided not to format.
         }
-    }
-    else
-    {
-        if (hwnd)
-        {
+    } else {
+        if (hwnd) {
             MessageBoxDiskHelper(HINST_THISDLL, hwnd, punkEnableModless, IDS_NOSUCHDRIVE, (IDS_FILEERROR + wFunc),
                 (MB_SETFOREGROUND | MB_ICONHAND), TRUE, (DWORD)(nDrive + TEXT('A')));
             *pfRetry = FALSE;
             fDiskHasMedia = FALSE;
-        }
-        else
-        {
+        } else {
             *pfRetry = FALSE;
             fDiskHasMedia = FALSE;
         }
@@ -3364,7 +3141,7 @@ BOOL DoMediaPrompt(HWND hwnd, IUnknown *punkEnableModless, int nDrive, LPCWSTR p
 }
 
 
-BOOL CheckDiskForMedia(HWND hwnd, IUnknown *punkEnableModless, int nDrive, LPCWSTR pwzDrive, UINT wFunc, BOOL * pfRetry)
+BOOL CheckDiskForMedia(HWND hwnd, IUnknown* punkEnableModless, int nDrive, LPCWSTR pwzDrive, UINT wFunc, BOOL* pfRetry)
 {
     BOOL fDiskHasMedia = TRUE;  // Assume yes because of the fall thru case. (Path Exists)
 
@@ -3379,35 +3156,27 @@ BOOL CheckDiskForMedia(HWND hwnd, IUnknown *punkEnableModless, int nDrive, LPCWS
         // Is the CD not in and the caller wants UI?
         if (!PathFileExistsW(pwzDrive) && hwnd)
             fDiskHasMedia = DoMediaPrompt(hwnd, punkEnableModless, nDrive, pwzDrive, wFunc, FALSE, GetLastError(), pfRetry);
-    }
-    else
-    {
+    } else {
         int iIsNet;
 
         // Is this some kind of net drive?
-        if ((_DriveType(nDrive) != DRIVE_FIXED) && (FALSE != (iIsNet = _IsNetDrive(nDrive))))
-        {
+        if ((_DriveType(nDrive) != DRIVE_FIXED) && (FALSE != (iIsNet = _IsNetDrive(nDrive)))) {
             // Yes, so see if the connection still exists.
-            if (iIsNet == 1)
-            {
+            if (iIsNet == 1) {
                 // Yes, it exists so we are done.
                 *pfRetry = FALSE;
                 fDiskHasMedia = TRUE;
-            }
-            else
-            {
+            } else {
                 // No, so try to restore the connection.
                 DWORD dwError = WNetRestoreConnectionWrapW(hwnd, pwzDrive);
 
-                if (dwError != WN_SUCCESS)
-                {
+                if (dwError != WN_SUCCESS) {
                     // Restoring the connection failed, so prepare to tell the
                     // caller the bad news and then display UI to the user if appropriate.
                     *pfRetry = FALSE;
                     fDiskHasMedia = TRUE;
 
-                    if (!(dwError == WN_CANCEL || dwError == ERROR_CONTINUE) && hwnd)
-                    {
+                    if (!(dwError == WN_CANCEL || dwError == ERROR_CONTINUE) && hwnd) {
                         WCHAR wzMessage[128];
 
                         WNetGetLastErrorWrapW(&dwError, wzMessage, ARRAYSIZE(wzMessage), NULL, 0);
@@ -3416,27 +3185,20 @@ BOOL CheckDiskForMedia(HWND hwnd, IUnknown *punkEnableModless, int nDrive, LPCWS
                             (MB_OK | MB_ICONEXCLAMATION | MB_SETFOREGROUND));
                         IUnknown_EnableModless(punkEnableModless, TRUE);
                     }
-                }
-                else
-                {
+                } else {
                     // Restoring the connection worked.
                     *pfRetry = FALSE;
                     fDiskHasMedia = TRUE;
                 }
             }
-        }
-        else
-        {
+        } else {
             // No, so see if it's a floppy or unformatted drive.
 
             // Is the destination reachable?
-            if (!PathFileExistsW(pwzDrive))
-            {
+            if (!PathFileExistsW(pwzDrive)) {
                 // No so ask the user about formatting or inserting the media.
                 fDiskHasMedia = DoMediaPrompt(hwnd, punkEnableModless, nDrive, pwzDrive, TRUE, GetLastError(), wFunc, pfRetry);
-            }
-            else
-            {
+            } else {
                 ASSERT(FALSE == *pfRetry);      // Make sure the defaults are still true.
                 ASSERT(TRUE == fDiskHasMedia);
             }
@@ -3463,7 +3225,7 @@ BOOL CheckDiskForMedia(HWND hwnd, IUnknown *punkEnableModless, int nDrive, LPCWS
 // wFunc - Type of operation (FO_MOVE, FO_COPY, FO_DELETE, FO_RENAME - shellapi.h)
 
 // Keep the return value a strict TRUE/FALSE because some callers rely on it.
-BOOL SHCheckDiskForMediaW(HWND hwnd, IUnknown *punkEnableModless, LPCWSTR pwzPath, UINT wFunc)
+BOOL SHCheckDiskForMediaW(HWND hwnd, IUnknown* punkEnableModless, LPCWSTR pwzPath, UINT wFunc)
 {
     BOOL fDiskHasMedia = FALSE;  // Assume yes
     int nDrive = PathGetDriveNumberW(pwzPath);
@@ -3476,15 +3238,14 @@ BOOL SHCheckDiskForMediaW(HWND hwnd, IUnknown *punkEnableModless, LPCWSTR pwzPat
         PathBuildRootW(wzDrive, nDrive);
         BOOL fKeepRetrying;
 
-        do
-        {
+        do {
             fDiskHasMedia = CheckDiskForMedia(hwnd, punkEnableModless, nDrive, wzDrive, wFunc, &fKeepRetrying);
         } while (fKeepRetrying);
     }
     return fDiskHasMedia;
 }
 
-BOOL SHCheckDiskForMediaA(HWND hwnd, IUnknown *punkEnableModless, LPCSTR pszPath, UINT wFunc)
+BOOL SHCheckDiskForMediaA(HWND hwnd, IUnknown* punkEnableModless, LPCSTR pszPath, UINT wFunc)
 {
     WCHAR wzPath[MAX_PATH];
 
@@ -3492,11 +3253,11 @@ BOOL SHCheckDiskForMediaA(HWND hwnd, IUnknown *punkEnableModless, LPCSTR pszPath
     return SHCheckDiskForMediaW(hwnd, punkEnableModless, wzPath, wFunc);
 }
 
-HRESULT _FaultInIEFeature(HWND hwnd, uCLSSPEC *pclsspec, QUERYCONTEXT *pQ, DWORD dwFlags);
+HRESULT _FaultInIEFeature(HWND hwnd, uCLSSPEC* pclsspec, QUERYCONTEXT* pQ, DWORD dwFlags);
 
 struct HELPCONT_FILE
 {
-    const   CHAR *pszFile;
+    const   CHAR* pszFile;
     int     nLength;
 } g_helpConts[] =
 {
@@ -3521,21 +3282,18 @@ HRESULT _JITHelpFileA(HWND hwnd, LPCSTR pszPath)
 
     HRESULT hr = S_OK;
     BOOL bMustJIT = FALSE;
-    CHAR *pszFile = PathFindFileName(pszPath);
+    CHAR* pszFile = PathFindFileName(pszPath);
 
-    for (int i = 0; i < ARRAYSIZE(g_helpConts); i++)
-    {
-        if (StrCmpNIA(g_helpConts[i].pszFile, pszFile, g_helpConts[i].nLength) == 0)
-        {
+    for (int i = 0; i < ARRAYSIZE(g_helpConts); i++) {
+        if (StrCmpNIA(g_helpConts[i].pszFile, pszFile, g_helpConts[i].nLength) == 0) {
             bMustJIT = TRUE;
             break;
         }
     }
 
-    if (bMustJIT)
-    {
+    if (bMustJIT) {
         uCLSSPEC ucs;
-        QUERYCONTEXT qc = { 0 };
+        QUERYCONTEXT qc = {0};
 
         ucs.tyspec = TYSPEC_CLSID;
         ucs.tagged_union.clsid = CLSID_IEHelp;
@@ -3562,16 +3320,11 @@ BOOL _JITSetLastError(HRESULT hr)
 {
     DWORD err;
 
-    if (HRESULT_FACILITY(hr) == FACILITY_WIN32)
-    {
+    if (HRESULT_FACILITY(hr) == FACILITY_WIN32) {
         err = HRESULT_CODE(hr);
-    }
-    else if (hr == E_ACCESSDENIED)
-    {
+    } else if (hr == E_ACCESSDENIED) {
         err = ERROR_ACCESS_DENIED;
-    }
-    else
-    {
+    } else {
         err = ERROR_FILE_NOT_FOUND;
     }
 
@@ -3640,7 +3393,7 @@ BOOL SHWinHelpOnDemandA(HWND hwnd, LPCSTR pszFile, UINT uCommand, DWORD_PTR dwDa
 \**/
 #define SIZE_PERSISTDATAOBJECT  (10 * 1024)
 
-STDAPI SHPersistDataObject(/*IN*/ IDataObject * pdoToPersist, /*OUT*/ STGMEDIUM * pMedium)
+STDAPI SHPersistDataObject(/*IN*/ IDataObject* pdoToPersist, /*OUT*/ STGMEDIUM* pMedium)
 {
     HRESULT hr = E_NOTIMPL;
 
@@ -3673,10 +3426,10 @@ STDAPI SHPersistDataObject(/*IN*/ IDataObject * pdoToPersist, /*OUT*/ STGMEDIUM 
                         un-serializing the object didn't work.  It always has
                         it's own ref.
 \**/
-STDAPI SHLoadPersistedDataObject(/*IN*/ IDataObject * pdo, /*OUT*/ IDataObject ** ppdoToPersist)
+STDAPI SHLoadPersistedDataObject(/*IN*/ IDataObject* pdo, /*OUT*/ IDataObject** ppdoToPersist)
 {
     // See SHPersistDataObject() for details
-    return pdo->QueryInterface(IID_IDataObject, (void **)ppdoToPersist);
+    return pdo->QueryInterface(IID_IDataObject, (void**)ppdoToPersist);
 }
 
 #ifndef SMTO_NOTIMEOUTIFNOTHUNG
@@ -3715,7 +3468,7 @@ LWSTDAPI_(LRESULT) SHSendMessageBroadcastW(UINT uMsg, WPARAM wParam, LPARAM lPar
 \**/
 STDAPI_(BOOL) SHCreateThreadPriv(
     LPTHREAD_START_ROUTINE pfnThreadProc,
-    void *pvData,
+    void* pvData,
     DWORD dwFlags,                          // CTF_*
     LPTHREAD_START_ROUTINE pfnCallback)     OPTIONAL
 {
@@ -3740,21 +3493,21 @@ typedef struct tagAPPCOMPAT
     LPCTSTR pszModule;
     LPCTSTR pszVersion;
     DWORD  dwFlags;
-} APPCOMPAT, *LPAPPCOMPAT;
+} APPCOMPAT, * LPAPPCOMPAT;
 
 typedef struct tagAPPCLASS
 {
     LPCTSTR pstzWndClass;
     DWORD   dwFlags;
-} APPCLASS, *LPAPPCLASS;
+} APPCLASS, * LPAPPCLASS;
 
 typedef struct tagWNDDAT
 {
-    const APPCLASS *rgAppClass;
+    const APPCLASS* rgAppClass;
     DWORD      cAppClass;
     DWORD      dwPid;
     int        irgFound;
-} WNDDAT, *LPWNDDAT;
+} WNDDAT, * LPWNDDAT;
 
 
 BOOL CALLBACK EnumWnd(HWND hwnd, LPARAM lParam)
@@ -3764,18 +3517,14 @@ BOOL CALLBACK EnumWnd(HWND hwnd, LPARAM lParam)
     int cch;
     LPWNDDAT pwd = (LPWNDDAT)lParam;
 
-    if (GetClassName(hwnd, sz, ARRAYSIZE(sz)))
-    {
+    if (GetClassName(hwnd, sz, ARRAYSIZE(sz))) {
         cch = lstrlen(sz);
-        for (DWORD irg = 0; irg < pwd->cAppClass; irg++)
-        {
+        for (DWORD irg = 0; irg < pwd->cAppClass; irg++) {
             ASSERT(lstrlen(&(pwd->rgAppClass[irg].pstzWndClass[1])) == (int)pwd->rgAppClass[irg].pstzWndClass[0]);
             if (lstrncmp(sz, &(pwd->rgAppClass[irg].pstzWndClass[1]),
-                         min(cch, (int)pwd->rgAppClass[irg].pstzWndClass[0])) == 0)
-            {
+                         min(cch, (int)pwd->rgAppClass[irg].pstzWndClass[0])) == 0) {
                 GetWindowThreadProcessId(hwnd, &dwPid);
-                if (dwPid == pwd->dwPid)
-                {
+                if (dwPid == pwd->dwPid) {
                     pwd->irgFound = irg;
                     return FALSE;
                 }
@@ -3790,9 +3539,7 @@ BOOL _IsAppCompatVersion(LPTSTR szModulePath, LPCTSTR pszVersionMatch)
     if (pszVersionMatch == NULL)            // Wildcard - match all versions
     {
         return TRUE;
-    }
-    else
-    {
+    } else {
         CHAR  chBuffer[4096]; // hopefully this is enough... Star Office 5 requires 3172
         TCHAR* pszVersion = NULL;
         UINT  cb;
@@ -3808,14 +3555,12 @@ BOOL _IsAppCompatVersion(LPTSTR szModulePath, LPCTSTR pszVersionMatch)
 
         cb = GetFileVersionInfoSize(szModulePath, &dwHandle);
         if (cb <= ARRAYSIZE(chBuffer) &&
-            GetFileVersionInfo(szModulePath, dwHandle, ARRAYSIZE(chBuffer), (void *)chBuffer) &&
-            (VerQueryValue((void *)chBuffer, TEXT("\\StringFileInfo\\040904E4\\ProductVersion"), (void **)&pszVersion, &cb) ||
-             VerQueryValue((void *)chBuffer, TEXT("\\StringFileInfo\\040704E4\\ProductVersion"), (void **)&pszVersion, &cb) ||
-             VerQueryValue((void *)chBuffer, TEXT("\\StringFileInfo\\040904B0\\ProductVersion"), (void **)&pszVersion, &cb)))
-        {
+            GetFileVersionInfo(szModulePath, dwHandle, ARRAYSIZE(chBuffer), (void*)chBuffer) &&
+            (VerQueryValue((void*)chBuffer, TEXT("\\StringFileInfo\\040904E4\\ProductVersion"), (void**)&pszVersion, &cb) ||
+             VerQueryValue((void*)chBuffer, TEXT("\\StringFileInfo\\040704E4\\ProductVersion"), (void**)&pszVersion, &cb) ||
+             VerQueryValue((void*)chBuffer, TEXT("\\StringFileInfo\\040904B0\\ProductVersion"), (void**)&pszVersion, &cb))) {
             DWORD_PTR cchCmp = 0;
-            if (pszVersionMatch[0] == CH_MAJORVERSION)
-            {
+            if (pszVersionMatch[0] == CH_MAJORVERSION) {
                 // Truncate at the first comma or period
                 LPTSTR pszTemp = StrChr(pszVersion, TEXT(','));
                 if (pszTemp)
@@ -3826,19 +3571,15 @@ BOOL _IsAppCompatVersion(LPTSTR szModulePath, LPCTSTR pszVersionMatch)
                     *pszTemp = 0;
 
                 pszVersionMatch++;
-            }
-            else
-            {
-                TCHAR *pch = StrChr(pszVersionMatch, TEXT('*'));
-                if (pch)
-                {
+            } else {
+                TCHAR* pch = StrChr(pszVersionMatch, TEXT('*'));
+                if (pch) {
                     cchCmp = pch - pszVersionMatch;
                 }
             }
 
             if ((cchCmp && StrCmpNI(pszVersion, pszVersionMatch, (int)cchCmp) == 0)
-                || lstrcmpi(pszVersion, pszVersionMatch) == 0)
-            {
+                || lstrcmpi(pszVersion, pszVersionMatch) == 0) {
                 DebugMsg(TF_ALWAYS, TEXT("%s ver %s - compatibility hacks enabled"), PathFindFileName(szModulePath), pszVersion);
                 return TRUE;
             }
@@ -3852,11 +3593,10 @@ typedef struct {
     LPCTSTR psz;
 } FLAGMAP;
 
-DWORD _GetMappedFlags(HKEY hk, const FLAGMAP *pmaps, DWORD cmaps)
+DWORD _GetMappedFlags(HKEY hk, const FLAGMAP* pmaps, DWORD cmaps)
 {
     DWORD dwRet = 0;
-    for (DWORD i = 0; i < cmaps; i++)
-    {
+    for (DWORD i = 0; i < cmaps; i++) {
         if (NOERROR == SHGetValue(hk, NULL, pmaps[i].psz, NULL, NULL, NULL))
             dwRet |= pmaps[i].flag;
     }
@@ -3875,15 +3615,13 @@ DWORD _GetRegistryCompatFlags(LPTSTR pszModulePath)
 
     wnsprintf(sz, ARRAYSIZE(sz), TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ShellCompatibility\\Applications\\%s"), pszModule);
 
-    if (NOERROR == RegOpenKeyEx(HKEY_LOCAL_MACHINE, sz, 0, KEY_QUERY_VALUE, &hk))
-    {
+    if (NOERROR == RegOpenKeyEx(HKEY_LOCAL_MACHINE, sz, 0, KEY_QUERY_VALUE, &hk)) {
         LPCTSTR pszVersion = NULL;
         DWORD dw = SIZEOF(sz);
         if (NOERROR == SHGetValue(hk, NULL, TEXT("Version"), NULL, sz, &dw))
             pszVersion = sz;
 
-        if (_IsAppCompatVersion(pszModulePath, pszVersion))
-        {
+        if (_IsAppCompatVersion(pszModulePath, pszVersion)) {
             static const FLAGMAP rgAcfMaps[] = {
                 ACFMAPPING(CONTEXTMENU),
                 ACFMAPPING(CORELINTERNETENUM),
@@ -3987,18 +3725,15 @@ DWORD SHGetAppCompatFlags(DWORD dwFlagsNeeded)
     {TEXT("\x18""File Open Message Window"),           ACF_APPISOFFICE | ACF_FOLDERSCUTASLINK},
     };
 
-    if (dwFlagsNeeded & (ACF_PERPROCESSFLAGS))
-    {
-        if (!bInitialized)
-        {
+    if (dwFlagsNeeded & (ACF_PERPROCESSFLAGS)) {
+        if (!bInitialized) {
 
             //  Do this only for old apps.
 
             //  Once an app marks itself as NT5-compatible, we stop doing
             //  NT4/Win5 app hacks for it.
 
-            if (GetProcessVersion(0) < MAKELONG(0, 5))
-            {
+            if (GetProcessVersion(0) < MAKELONG(0, 5)) {
 
                 TCHAR  szModulePath[MODULE_NAME_SIZE];
                 TCHAR* pszModuleName;
@@ -4007,14 +3742,10 @@ DWORD SHGetAppCompatFlags(DWORD dwFlagsNeeded)
                 GetModuleFileName(GetModuleHandle(NULL), szModulePath, ARRAYSIZE(szModulePath));
                 pszModuleName = PathFindFileName(szModulePath);
 
-                if (pszModuleName)
-                {
-                    for (i = 0; i < ARRAYSIZE(aAppCompat); i++)
-                    {
-                        if (lstrcmpi(aAppCompat[i].pszModule, pszModuleName) == 0)
-                        {
-                            if (_IsAppCompatVersion(szModulePath, aAppCompat[i].pszVersion))
-                            {
+                if (pszModuleName) {
+                    for (i = 0; i < ARRAYSIZE(aAppCompat); i++) {
+                        if (lstrcmpi(aAppCompat[i].pszModule, pszModuleName) == 0) {
+                            if (_IsAppCompatVersion(szModulePath, aAppCompat[i].pszVersion)) {
                                 dwCachedProcessFlags = aAppCompat[i].dwFlags;
                                 break;
                             }
@@ -4028,8 +3759,7 @@ DWORD SHGetAppCompatFlags(DWORD dwFlagsNeeded)
         }
     }
 
-    if ((dwFlagsNeeded & ACF_PERCALLFLAGS) && !(dwCachedProcessFlags & ACF_KNOWPERPROCESS))
-    {
+    if ((dwFlagsNeeded & ACF_PERCALLFLAGS) && !(dwCachedProcessFlags & ACF_KNOWPERPROCESS)) {
         WNDDAT wd;
         wd.dwPid = GetCurrentProcessId();
         wd.irgFound = -1;
@@ -4037,8 +3767,7 @@ DWORD SHGetAppCompatFlags(DWORD dwFlagsNeeded)
         wd.cAppClass = ARRAYSIZE(aAppClass);
         EnumWindows(EnumWnd, (LPARAM)&wd);
 
-        if (wd.irgFound > -1)
-        {
+        if (wd.irgFound > -1) {
             dwCachedProcessFlags |= (aAppClass[wd.irgFound].dwFlags);
         }
         dwCachedProcessFlags |= ACF_KNOWPERPROCESS;

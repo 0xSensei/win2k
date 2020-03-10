@@ -238,15 +238,11 @@ extern "C" {            /* Assume C declarations for C++ */
     UINT WINAPI VerLanguageName(UINT wLang, LPSTR szLang, UINT nSize);
 
 #ifdef LIB
-
     UINT WINAPI GetWindowsDir(LPCSTR szAppDir, LPSTR lpBuffer, int nSize);
-
     UINT WINAPI GetSystemDir(LPCSTR szAppDir, LPSTR lpBuffer, int nSize);
-
 #endif /* LIB */
 
-    BOOL WINAPI VerQueryValue(const void FAR* pBlock, LPCSTR lpSubBlock,
-                              void FAR* FAR* lplpBuffer, UINT FAR* lpuLen);
+    BOOL WINAPI VerQueryValue(const void FAR* pBlock, LPCSTR lpSubBlock, void FAR* FAR* lplpBuffer, UINT FAR* lpuLen);
 
 #ifdef __cplusplus
 }

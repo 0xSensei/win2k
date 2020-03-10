@@ -1,23 +1,15 @@
-
-
 // pfiles.cpp
 //      Explorer Font Folder extension routines
-
 
 // History:
 //      31 May 95 SteveCat
 //          Ported to Windows NT and Unicode, cleaned up
 
-
 // NOTE/BUGS
-
 //  Copyright (C) 1992-1995 Microsoft Corporation
 
 
-
-
 //                              Include files
-
 
 #include "priv.h"
 #include "globals.h"
@@ -42,21 +34,18 @@
 extern "C" {
 #endif
 
+    // [stevecat]   This used to reside in "wingdip.h" (included with <winp.h>)
+    //  6/29/95     but I have taken it out because of C++ name-mangling problems
+    //              with that header file that are not going to be fixed because
+    //              this file is going to change significantly (according to
+    //              EricK) when we switch over to Kernel mode GDI/User.
 
-// [stevecat]   This used to reside in "wingdip.h" (included with <winp.h>)
-//  6/29/95     but I have taken it out because of C++ name-mangling problems
-//              with that header file that are not going to be fixed because
-//              this file is going to change significantly (according to
-//              EricK) when we switch over to Kernel mode GDI/User.
+    //#include <stddef.h>     //  Needed for winp.h
+    //#include <winp.h>       //  For private GDI entry point:  GetFontResourceInfo
 
+    //#undef SWAPL            //  The SWAPL macro in wingdip.h clashes with mine
 
-//#include <stddef.h>     //  Needed for winp.h
-//#include <winp.h>       //  For private GDI entry point:  GetFontResourceInfo
-
-//#undef SWAPL            //  The SWAPL macro in wingdip.h clashes with mine
-
-
-// Private Control Panel entry point to enumerate fonts by file.
+    // Private Control Panel entry point to enumerate fonts by file.
 
 #define GFRI_NUMFONTS       0L
 #define GFRI_DESCRIPTION    1L
@@ -66,17 +55,16 @@ extern "C" {
 #define GFRI_ISREMOVED      5L
 #define GFRI_FONTMETRICS    6L
 
-extern BOOL WINAPI GetFontResourceInfoW( LPWSTR  lpPathname,
-                                         LPDWORD lpBytes,
-                                         LPVOID  lpBuffer,
-                                         DWORD   iType );
+    extern BOOL WINAPI GetFontResourceInfoW(LPWSTR  lpPathname,
+                                            LPDWORD lpBytes,
+                                            LPVOID  lpBuffer,
+                                            DWORD   iType);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
 
 
 // this needs to go in a header. Probably pnewexe.h
@@ -88,7 +76,7 @@ typedef struct
     WORD    fontOrdinal;
     WORD    dfVersion;
     DWORD   dfSize;
-    char    dfCopyright[ COPYRIGHT_LEN ];
+    char    dfCopyright[COPYRIGHT_LEN];
     WORD    dfType;
     WORD    dfPoints;
     WORD    dfVertRes;
@@ -114,16 +102,14 @@ typedef struct
     DWORD   dfDevice;
     DWORD   dfFace;
     DWORD   dfReserved;
-    char    szDeviceName[ 1 ];
-
-} FONTENTRY, FAR *LPFONTENTRY;
+    char    szDeviceName[1];
+} FONTENTRY, FAR* LPFONTENTRY;
 #pragma pack()
 
 
-
-TCHAR c_szTrueType[] = TEXT( "TrueType" );
-TCHAR c_szOpenType[] = TEXT( "OpenType" );
-TCHAR c_szDotOTF[]   = TEXT( ".OTF" );
+TCHAR c_szTrueType[] = TEXT("TrueType");
+TCHAR c_szOpenType[] = TEXT("OpenType");
+TCHAR c_szDotOTF[] = TEXT(".OTF");
 
 #define M_INTEGERTYPE( wType )   (wType & 0x8000)
 #define M_FONTDIRTYPE( wType )   ((wType & 0x7fff) == 7)
@@ -147,7 +133,6 @@ TCHAR c_szDotOTF[]   = TEXT( ".OTF" );
 
 
 //  name ids.
-
 
 #define COPYRIGHT_ID    0x0000
 #define FAMILY_ID       0x0100
@@ -186,13 +171,13 @@ TCHAR c_szDotOTF[]   = TEXT( ".OTF" );
 // a subset that is useful in the font folder.
 
 enum TrueTypeTables {
-    TT_TABLE_CMAP  = 0x00000001,
-    TT_TABLE_HEAD  = 0x00000002,
-    TT_TABLE_NAME  = 0x00000004,
-    TT_TABLE_OS2   = 0x00000008,
-    TT_TABLE_DSIG  = 0x00000010,
-    TT_TABLE_CFF   = 0x00000020
-                    };
+    TT_TABLE_CMAP = 0x00000001,
+    TT_TABLE_HEAD = 0x00000002,
+    TT_TABLE_NAME = 0x00000004,
+    TT_TABLE_OS2 = 0x00000008,
+    TT_TABLE_DSIG = 0x00000010,
+    TT_TABLE_CFF = 0x00000020
+};
 
 
 //  The TTF structure as used here:
@@ -202,9 +187,9 @@ enum TrueTypeTables {
 
 
 typedef struct {
-        WORD    id_Specific;
-        WORD    id_Platform;
-        WORD    id_Language;
+    WORD    id_Specific;
+    WORD    id_Platform;
+    WORD    id_Language;
 } IDBlock_t;
 
 
@@ -223,52 +208,52 @@ typedef struct {
 
 
 typedef struct ttc_hdr_tag {
-   DWORD dwTag;
-   DWORD dwVersion;
-   DWORD dwDirCount;
+    DWORD dwTag;
+    DWORD dwVersion;
+    DWORD dwDirCount;
 } ttc_hdr;
 
 typedef struct tt_hdr_tag {
-  DWORD dwVersion;
-  WORD  uNumTables;
-  WORD  uSearchRange;
-  WORD  uEntrySelector;
-  WORD  uRangeShift;
+    DWORD dwVersion;
+    WORD  uNumTables;
+    WORD  uSearchRange;
+    WORD  uEntrySelector;
+    WORD  uRangeShift;
 } tt_hdr;
 
 typedef struct tttag_tag {
-  DWORD dwTag;
-  DWORD dwCheckSum;
-  DWORD dwOffset;
-  DWORD dwLength;
+    DWORD dwTag;
+    DWORD dwCheckSum;
+    DWORD dwOffset;
+    DWORD dwLength;
 } tttag;
 
 typedef struct tt_head_tag {
-  DWORD dwVersion;
-  DWORD dwRevision;
-  DWORD dwChecksum;
-  DWORD dwMagic;
-  WORD  wFlags;
-  WORD  wUnitsPerEm;
-  DWORD dwCreated1;
-  DWORD dwCreated2;
-  DWORD dwModified1;
-  DWORD dwModified2;
-  WORD  wXMin;
-  WORD  wYMin;
-  WORD  wXMax;
-  WORD  wYMax;
-  WORD  wStyle;
-  WORD  wMinReadableSize;
-  short iDirectionHint;
-  short iIndexToLocFormat;
-  short iGlyphDataFormat;
+    DWORD dwVersion;
+    DWORD dwRevision;
+    DWORD dwChecksum;
+    DWORD dwMagic;
+    WORD  wFlags;
+    WORD  wUnitsPerEm;
+    DWORD dwCreated1;
+    DWORD dwCreated2;
+    DWORD dwModified1;
+    DWORD dwModified2;
+    WORD  wXMin;
+    WORD  wYMin;
+    WORD  wXMax;
+    WORD  wYMax;
+    WORD  wStyle;
+    WORD  wMinReadableSize;
+    short iDirectionHint;
+    short iIndexToLocFormat;
+    short iGlyphDataFormat;
 } tt_head;
 
 typedef struct {
-     WORD     wPlatformID;
-     WORD     wSpecificID;
-     DWORD    wOffset;
+    WORD     wPlatformID;
+    WORD     wSpecificID;
+    DWORD    wOffset;
 } sfnt_platformEntry;
 
 typedef struct {
@@ -284,37 +269,37 @@ typedef struct {
     WORD    wNameID;
     WORD    wLength;
     WORD    wOffset;
-} sfnt_NameRecord, *sfnt_pNameRecord, FAR* sfnt_lpNameRecord;
+} sfnt_NameRecord, * sfnt_pNameRecord, FAR* sfnt_lpNameRecord;
 
 typedef struct {
     WORD    wFormat;
     WORD    wCntRecords;
     WORD    wOffsetString;
-/*  sfnt_NameRecord[ count ]  */
-} sfnt_NameTable, *sfnt_pNameTable, FAR* sfnt_lpNameTable;
+    /*  sfnt_NameRecord[ count ]  */
+} sfnt_NameTable, * sfnt_pNameTable, FAR* sfnt_lpNameTable;
 
 
 extern "C" {
-    void FAR PASCAL UnicodeToAnsi( LPWORD lpwName, LPSTR szName );
+    void FAR PASCAL UnicodeToAnsi(LPWORD lpwName, LPSTR szName);
 }
 
-static void NEAR PASCAL FillName( LPTSTR            szName,
-                                  sfnt_lpNameRecord pNameRecord,
-                                  WORD              igi,
-                                  LPBYTE            pStringByte );
+static void NEAR PASCAL FillName(LPTSTR            szName,
+                                 sfnt_lpNameRecord pNameRecord,
+                                 WORD              igi,
+                                 LPBYTE            pStringByte);
 
-static BOOL  NEAR PASCAL bGetName( CFontFile&    file,
-                                   tttag         *pTTTag,
-                                   IDBlock_t     &ID_Block,
-                                   LPTSTR         szName,
-                                   LPFONTDESCINFO lpFDI = NULL );
+static BOOL  NEAR PASCAL bGetName(CFontFile& file,
+                                  tttag* pTTTag,
+                                  IDBlock_t& ID_Block,
+                                  LPTSTR         szName,
+                                  LPFONTDESCINFO lpFDI = NULL);
 
-static BOOL  NEAR PASCAL bFindNameThing( sfnt_pNameTable pNames,
-                                         IDBlock_t      &ID_Block,
-                                         WORD            NameID,
-                                         LPTSTR          szName );
+static BOOL  NEAR PASCAL bFindNameThing(sfnt_pNameTable pNames,
+                                        IDBlock_t& ID_Block,
+                                        WORD            NameID,
+                                        LPTSTR          szName);
 
-static VOID  NEAR PASCAL vReadCountedString( CFontFile& file, LPSTR lpStr, int iLen );
+static VOID  NEAR PASCAL vReadCountedString(CFontFile& file, LPSTR lpStr, int iLen);
 
 
 
@@ -325,107 +310,88 @@ static VOID  NEAR PASCAL vReadCountedString( CFontFile& file, LPSTR lpStr, int i
 #ifdef WINNT
 
 
+ // ValidFontFile
 
-// ValidFontFile
+ // in:
+ //    lpszFile       file name to validate
+ // out:
+ //    lpszDesc       on succes name of TT file or description from exehdr
+ //    lpiFontType    set to a value based on Font type 1 == TT, 2 == Type1
+ //    lpdwStatus     Set to status of validation functions.
+ //                   Query to determine why font is invalid.
+ //                   The following list contains the possible status
+ //                   values.  See fvscodes.h for details.
 
-// in:
-//    lpszFile       file name to validate
-// out:
-//    lpszDesc       on succes name of TT file or description from exehdr
-//    lpiFontType    set to a value based on Font type 1 == TT, 2 == Type1
-//    lpdwStatus     Set to status of validation functions.
-//                   Query to determine why font is invalid.
-//                   The following list contains the possible status
-//                   values.  See fvscodes.h for details.
+ //                   FVS_SUCCESS
+ //                   FVS_INVALID_FONTFILE
+ //                   FVS_INVALID_ARG
+ //                   FVS_INSUFFICIENT_BUF
+ //                   FVS_FILE_IO_ERR
+ //                   FVS_EXCEPTION
 
-//                   FVS_SUCCESS
-//                   FVS_INVALID_FONTFILE
-//                   FVS_INVALID_ARG
-//                   FVS_INSUFFICIENT_BUF
-//                   FVS_FILE_IO_ERR
-//                   FVS_EXCEPTION
+ // NOTE: Assumes that lpszDesc is of size DESCMAX
 
-// NOTE: Assumes that lpszDesc is of size DESCMAX
-
-// returns:
-//    TRUE success, FALSE failure
-
-
-
-BOOL bCPValidFontFile( LPTSTR    lpszFile,
-                       LPTSTR    lpszDesc,
-                       WORD FAR *lpwFontType,
-                       BOOL      bFOTOK,
-                       LPDWORD   lpdwStatus )
+ // returns:
+ //    TRUE success, FALSE failure
+BOOL bCPValidFontFile(LPTSTR    lpszFile,
+                      LPTSTR    lpszDesc,
+                      WORD FAR* lpwFontType,
+                      BOOL      bFOTOK,
+                      LPDWORD   lpdwStatus)
 {
     BOOL          result;
     DWORD         dwBufSize;
     FONTDESCINFO  File;
     BOOL          bTrueType = FALSE;
-    TCHAR         szDesc[ DESCMAX ];
+    TCHAR         szDesc[DESCMAX];
     WORD          wType = NOT_TT_OR_T1;
     LPTSTR        lpTemp;
     DWORD         dwStatus = FVS_MAKE_CODE(FVS_SUCCESS, FVS_FILE_UNK);
     DWORD         dwTrueTypeTables = 0;
 
-
-
     // Initialize status return.
-
     if (NULL != lpdwStatus)
-       *lpdwStatus = FVS_MAKE_CODE(FVS_INVALID_STATUS, FVS_FILE_UNK);
-
+        *lpdwStatus = FVS_MAKE_CODE(FVS_INVALID_STATUS, FVS_FILE_UNK);
 
     //  Set up the FDI depending on what the caller wanted.
-
-
     File.dwFlags = FDI_NONE;
 
-    if( lpszDesc )
-    {
-        *lpszDesc = (TCHAR) 0;
+    if (lpszDesc) {
+        *lpszDesc = (TCHAR)0;
         File.dwFlags = FDI_DESC;
     }
 
-    if( lpwFontType )
+    if (lpwFontType)
         *lpwFontType = NOT_TT_OR_T1;
 
-    GetFullPathName( lpszFile,
-                     PATHMAX,
-                     File.szFile,
-                     &lpTemp );
+    GetFullPathName(lpszFile, PATHMAX, File.szFile, &lpTemp);
 
-    if( bIsTrueType( &File, &dwTrueTypeTables, &dwStatus ) )
-    {
+    if (bIsTrueType(&File, &dwTrueTypeTables, &dwStatus)) {
         LPCTSTR pszDecoration = c_szTrueType;
-        WORD    wFontType     = TRUETYPE_FONT;
+        WORD    wFontType = TRUETYPE_FONT;
 
         // If the font has a CFF table, we append (OpenType) name decoration.
 
-        if (TT_TABLE_CFF & dwTrueTypeTables)
-        {
+        if (TT_TABLE_CFF & dwTrueTypeTables) {
             pszDecoration = c_szOpenType;
-            wFontType     = OPENTYPE_FONT;
+            wFontType = OPENTYPE_FONT;
         }
-        if( lpwFontType )
+        if (lpwFontType)
             *lpwFontType = wFontType;
 
-        if( lpszDesc )
-            wsprintf( lpszDesc, c_szDescFormat, File.szDesc, pszDecoration );
+        if (lpszDesc)
+            wsprintf(lpszDesc, c_szDescFormat, File.szDesc, pszDecoration);
 
         if (NULL != lpdwStatus)
             *lpdwStatus = dwStatus;
 
         return TRUE;
-    }
-    else
-    {
+    } else {
 
         // Return FALSE if bIsTrueType failed for any reason other than
         // FVS_INVALID_FONTFILE.
 
-        if (FVS_STATUS(dwStatus) != FVS_INVALID_FONTFILE)
-        {
+        if (FVS_STATUS(dwStatus) != FVS_INVALID_FONTFILE) {
             if (NULL != lpdwStatus)
                 *lpdwStatus = dwStatus;
 
@@ -433,29 +399,23 @@ BOOL bCPValidFontFile( LPTSTR    lpszFile,
         }
     }
 
-
-    if( ::IsPSFont( File.szFile, szDesc, (LPTSTR) NULL, (LPTSTR) NULL,
-                    (BOOL *) NULL, &dwStatus ))
-    {
-        if( lpwFontType )
+    if (::IsPSFont(File.szFile, szDesc, (LPTSTR)NULL, (LPTSTR)NULL,
+        (BOOL*)NULL, &dwStatus)) {
+        if (lpwFontType)
             *lpwFontType = TYPE1_FONT;
 
-        if( lpszDesc )
-            lstrcpy( lpszDesc, szDesc );
+        if (lpszDesc)
+            lstrcpy(lpszDesc, szDesc);
 
         if (NULL != lpdwStatus)
             *lpdwStatus = dwStatus;
 
         return TRUE;
-    }
-    else
-    {
-
+    } else {
         // Return FALSE if IsPSFont failed for any reason other than
         // FVS_INVALID_FONTFILE.
 
-        if (FVS_STATUS(dwStatus) != FVS_INVALID_FONTFILE)
-        {
+        if (FVS_STATUS(dwStatus) != FVS_INVALID_FONTFILE) {
             if (NULL != lpdwStatus)
                 *lpdwStatus = dwStatus;
 
@@ -465,58 +425,43 @@ BOOL bCPValidFontFile( LPTSTR    lpszFile,
 
     result = FALSE;
 
-    if( AddFontResource( File.szFile ) )
-    {
-
+    if (AddFontResource(File.szFile)) {
         //  At this point it is a valid font file of some sort
         //  (like a .FON file); however, we are still looking for
         //  more validation using GetFontResourceInfoW call.
 
         //  See if this is a TrueType font file
 
+        dwBufSize = sizeof(BOOL);
 
-        dwBufSize = sizeof( BOOL );
-
-        result = GetFontResourceInfoW( File.szFile,
-                                       &dwBufSize,
-                                       &bTrueType,
-                                       GFRI_ISTRUETYPE );
-
-        if( bTrueType && lpwFontType )
+        result = GetFontResourceInfoW(File.szFile, &dwBufSize, &bTrueType, GFRI_ISTRUETYPE);
+        if (bTrueType && lpwFontType)
             *lpwFontType = TRUETYPE_FONT;
 
-        if( result )
-        {
+        if (result) {
             dwBufSize = DESCMAX;
 
-            result = GetFontResourceInfoW( File.szFile,
-                                           &dwBufSize,
-                                           szDesc,
-                                           GFRI_DESCRIPTION );
-
-            if (NULL != lpszDesc)
-            {
+            result = GetFontResourceInfoW(File.szFile, &dwBufSize, szDesc, GFRI_DESCRIPTION);
+            if (NULL != lpszDesc) {
                 vCPStripBlanks(szDesc);
                 if (result && bTrueType)
-                    wsprintf( lpszDesc, c_szDescFormat, (LPTSTR) szDesc,
-                                                  (LPTSTR) c_szTrueType);
+                    wsprintf(lpszDesc, c_szDescFormat, (LPTSTR)szDesc,
+                    (LPTSTR)c_szTrueType);
                 else
-                    lstrcpy( lpszDesc, szDesc );
+                    lstrcpy(lpszDesc, szDesc);
             }
         }
-        RemoveFontResource( File.szFile );
+        RemoveFontResource(File.szFile);
     }
-
 
     // At this point, "result" indicates status of the FontResource tests.
     // If we've made it this far, this function just reports SUCCESS or INVALID_FONTFILE.
 
     if (NULL != lpdwStatus)
         *lpdwStatus = (result ? FVS_MAKE_CODE(FVS_SUCCESS, FVS_FILE_UNK) :
-                                FVS_MAKE_CODE(FVS_INVALID_FONTFILE, FVS_FILE_UNK));
+                       FVS_MAKE_CODE(FVS_INVALID_FONTFILE, FVS_FILE_UNK));
 
-    return( result );
-
+    return(result);
 
     bFOTOK;
 }
@@ -525,18 +470,18 @@ BOOL bCPValidFontFile( LPTSTR    lpszFile,
 #else  //  WINNT
 
 
-// NOTE for NON-NT programmers.
-// The argument lpdwStatus has been added to the function definition
-// so that it will build with the changes made to the prototype.
-// However, the argument is ignored in this NON-NT version of
-// the function body.
+ // NOTE for NON-NT programmers.
+ // The argument lpdwStatus has been added to the function definition
+ // so that it will build with the changes made to the prototype.
+ // However, the argument is ignored in this NON-NT version of
+ // the function body.
 
 
-BOOL FAR PASCAL bCPValidFontFile( LPCTSTR    lpszFile,
-                                  LPTSTR     lpszDesc,
-                                  BOOL FAR  *lpbTrueType,
-                                  BOOL       bFOTOK,
-                                  LPDWORD    lpdwStatus )
+BOOL FAR PASCAL bCPValidFontFile(LPCTSTR    lpszFile,
+                                 LPTSTR     lpszDesc,
+                                 BOOL FAR* lpbTrueType,
+                                 BOOL       bFOTOK,
+                                 LPDWORD    lpdwStatus)
 {
     FONTDESCINFO  File;
     LPTSTR        lpCh;
@@ -544,13 +489,10 @@ BOOL FAR PASCAL bCPValidFontFile( LPCTSTR    lpszFile,
     BOOL          bValid = FALSE;
     DWORD         dwTrueTypeTables = 0;
 
-
     //  Set up the FDI depending on what the caller wanted.
-
-
     File.dwFlags = FDI_NONE;
 
-    if( lpszDesc )
+    if (lpszDesc)
         File.dwFlags = FDI_DESC;
 
 
@@ -558,15 +500,12 @@ BOOL FAR PASCAL bCPValidFontFile( LPCTSTR    lpszFile,
 
 
 #if 0
-    lstrcpy( File.szFile, lpszFile );
+    lstrcpy(File.szFile, lpszFile);
 #else
     {
         LPTSTR   lpTemp;
 
-        GetFullPathName( lpszFile,
-                         PATHMAX,
-                         File.szFile,
-                         &lpTemp );
+        GetFullPathName(lpszFile, PATHMAX, File.szFile, &lpTemp);
     }
 #endif
 
@@ -583,45 +522,37 @@ BOOL FAR PASCAL bCPValidFontFile( LPCTSTR    lpszFile,
     // it will compile with the modified bIsTrueType prototype.
     // See similar note at top of function.
 
-    if( bIsTrueType( &File, &dwTrueTypeTables, lpdwStatus ) )
-    {
+    if (bIsTrueType(&File, &dwTrueTypeTables, lpdwStatus)) {
         bTrueType = TRUE;
-        bValid    = TRUE;
-    }
-    else if( bIsNewExe( &File ) )
-    {
-        TCHAR cSave = File.szDesc[ 7 ];
+        bValid = TRUE;
+    } else if (bIsNewExe(&File)) {
+        TCHAR cSave = File.szDesc[7];
 
 
         //  This does not require DBCS
 
 
-        File.szDesc[ 7 ] = TEXT( '\0' );
+        File.szDesc[7] = TEXT('\0');
 
-        bValid = !lstrcmp( File.szDesc, TEXT( "FONTRES" ) );
+        bValid = !lstrcmp(File.szDesc, TEXT("FONTRES"));
 
-        File.szDesc[ 7 ] = cSave;
+        File.szDesc[7] = cSave;
     }
 
 
     //  Prepare returns (if the caller is interested)
 
 
-    if( lpszDesc )
-    {
-        *lpszDesc = (TCHAR) 0;
+    if (lpszDesc) {
+        *lpszDesc = (TCHAR)0;
 
-        if( bTrueType )
-            wsprintf( lpszDesc, c_szDescFormat, (LPTSTR) File.szDesc, (LPTSTR)c_szTrueType );
-        else if( bValid )
-        {
-            if( bFOTOK )
-            {
-                lpCh = StrStr( File.szDesc + 7, TEXT( ":" ) );
-            }
-            else
-            {
-                lpCh = StrStr( File.szDesc + 8, TEXT( ":" ) );
+        if (bTrueType)
+            wsprintf(lpszDesc, c_szDescFormat, (LPTSTR)File.szDesc, (LPTSTR)c_szTrueType);
+        else if (bValid) {
+            if (bFOTOK) {
+                lpCh = StrStr(File.szDesc + 7, TEXT(":"));
+            } else {
+                lpCh = StrStr(File.szDesc + 8, TEXT(":"));
             }
 
 
@@ -629,18 +560,17 @@ BOOL FAR PASCAL bCPValidFontFile( LPCTSTR    lpszFile,
             //  lpCh could be 0 from the StrStr call.
 
 
-            if( lpCh )
-            {
-                vCPStripBlanks( ++lpCh );
-                lstrcpy( lpszDesc, lpCh );
+            if (lpCh) {
+                vCPStripBlanks(++lpCh);
+                lstrcpy(lpszDesc, lpCh);
             }
         }
 
-        if( *lpszDesc == 0 )
+        if (*lpszDesc == 0)
             bValid = FALSE;
     }
 
-    if( lpbTrueType )
+    if (lpbTrueType)
         *lpbTrueType = bTrueType;
 
     return bValid;
@@ -657,33 +587,31 @@ BOOL FAR PASCAL bCPValidFontFile( LPCTSTR    lpszFile,
  *****/
 
 
-// Determine if a True Type font file (.TTF) was converted from a Type1 font.
+ // Determine if a True Type font file (.TTF) was converted from a Type1 font.
 
-// The string "Converter: Windows Type 1 Installer" is stored in a TrueType file
-// in the the version info section of the "name" block to indicate that
-// the font was converted from a Type1 font.  This function reads this version
-// info string from the caller-provided name block and determines if it matches
-// the Type1 converter signature.
+ // The string "Converter: Windows Type 1 Installer" is stored in a TrueType file
+ // in the the version info section of the "name" block to indicate that
+ // the font was converted from a Type1 font.  This function reads this version
+ // info string from the caller-provided name block and determines if it matches
+ // the Type1 converter signature.
 
-// Note that in the UNICODE section of the file, the converter signature
-// string is stored in Big Endian byte order.  However, since bFindNameThing
-// handles byte ordering and returns a TEXT string, we can just compare strings.
+ // Note that in the UNICODE section of the file, the converter signature
+ // string is stored in Big Endian byte order.  However, since bFindNameThing
+ // handles byte ordering and returns a TEXT string, we can just compare strings.
 
-// WARNING:  Refererence \ntgdi\fondrv\tt\ttfd\fdfon.c for the actual
-//           byte string that is written by GDI to the file upon conversion.
+ // WARNING:  Refererence \ntgdi\fondrv\tt\ttfd\fdfon.c for the actual
+ //           byte string that is written by GDI to the file upon conversion.
 
 
 BOOL NEAR PASCAL bIsConvertedTrueType(sfnt_pNameTable pNames, IDBlock_t& ID_Block)
 {
     BOOL bStatus = FALSE;
     static TCHAR szTTFConverterSignature[] = TEXT("Converter: Windows Type 1 Installer");
-    static UINT cchTTFConverterSignature   = ARRAYSIZE(szTTFConverterSignature);
+    static UINT cchTTFConverterSignature = ARRAYSIZE(szTTFConverterSignature);
 
-    if (NULL != pNames)
-    {
+    if (NULL != pNames) {
         FontDesc_t szVersionInfo;
-        if( bFindNameThing( pNames, ID_Block, VERSION_ID, szVersionInfo ) )
-        {
+        if (bFindNameThing(pNames, ID_Block, VERSION_ID, szVersionInfo)) {
 
             // Got version info string from "name" block.
             // Truncate to proper length for comparison with signature and compare.
@@ -697,32 +625,30 @@ BOOL NEAR PASCAL bIsConvertedTrueType(sfnt_pNameTable pNames, IDBlock_t& ID_Bloc
 
 
 
-BOOL NEAR PASCAL bGetName( CFontFile& file,
-                           tttag *pTTTag,
-                           IDBlock_t& ID_Block,
-                           LPTSTR lpszName,
-                           LPFONTDESCINFO lpFDI )
+BOOL NEAR PASCAL bGetName(CFontFile& file,
+                          tttag* pTTTag,
+                          IDBlock_t& ID_Block,
+                          LPTSTR lpszName,
+                          LPFONTDESCINFO lpFDI)
 {
     sfnt_pNameTable pNames;
     WORD            size;
-    TCHAR           szSubFamily[ 64 ];
+    TCHAR           szSubFamily[64];
 
     IDBlock_t       ID_DefBlock = ID_Block;
 
 
     ID_DefBlock.id_Language = (ID_DefBlock.id_Platform == PLATFORM_MS)
-                                                         ? LANG_US_ENG : 0;
+        ? LANG_US_ENG : 0;
 
-    size = (WORD) SWAPL( pTTTag->dwLength );
+    size = (WORD)SWAPL(pTTTag->dwLength);
 
     *lpszName = 0;
 
-    pNames = (sfnt_pNameTable) LocalAlloc( LPTR, size );
+    pNames = (sfnt_pNameTable)LocalAlloc(LPTR, size);
 
-    if( pNames )
-    {
-        if (ERROR_SUCCESS == file.Read(pNames, size))
-        {
+    if (pNames) {
+        if (ERROR_SUCCESS == file.Read(pNames, size)) {
 
             //  The logic for what name to find:
             //  If font file was converted from a Type1 font
@@ -739,107 +665,90 @@ BOOL NEAR PASCAL bGetName( CFontFile& file,
             // keys in the "Fonts" and "Type1Fonts" sections and must match.
 
             if (bIsConvertedTrueType(pNames, ID_Block) &&
-                bFindNameThing(pNames, ID_Block, POSTSCRIPT_ID, lpszName))
-            {
+                bFindNameThing(pNames, ID_Block, POSTSCRIPT_ID, lpszName)) {
 
-               // Replace all dashes with spaces (same as .PFM/.INF file reader code)
+                // Replace all dashes with spaces (same as .PFM/.INF file reader code)
 
-               for (LPTSTR pc = lpszName; *pc; pc++)
-                 if (*pc == TEXT('-'))
-                    *pc = TEXT(' ');
-            }
-            else if( bFindNameThing( pNames, ID_Block, FACENAME_ID, lpszName ) )
-               ;
-            else if( bFindNameThing( pNames, ID_Block, SUBFAMILY_ID, szSubFamily )
-                 && (bFindNameThing( pNames, ID_Block,    FAMILY_ID, lpszName )
-                 ||  bFindNameThing( pNames, ID_DefBlock, FAMILY_ID, lpszName ) ) )
-            {
-                lstrcat( lpszName, TEXT( " " ) );
-                lstrcat( lpszName, szSubFamily );
-            }
-            else( bFindNameThing( pNames, ID_DefBlock, FACENAME_ID, lpszName ) )
+                for (LPTSTR pc = lpszName; *pc; pc++)
+                    if (*pc == TEXT('-'))
+                        *pc = TEXT(' ');
+            } else if (bFindNameThing(pNames, ID_Block, FACENAME_ID, lpszName))
+                ;
+            else if (bFindNameThing(pNames, ID_Block, SUBFAMILY_ID, szSubFamily)
+                     && (bFindNameThing(pNames, ID_Block, FAMILY_ID, lpszName)
+                         || bFindNameThing(pNames, ID_DefBlock, FAMILY_ID, lpszName))) {
+                lstrcat(lpszName, TEXT(" "));
+                lstrcat(lpszName, szSubFamily);
+            } else(bFindNameThing(pNames, ID_DefBlock, FACENAME_ID, lpszName))
                 ;
 
 
             //  Get the names for the font description if requested.
 
 
-            if( lpFDI )
-            {
-                if( lpFDI->dwFlags & FDI_FAMILY )
-                {
-                    lpFDI->szFamily[ 0 ] = 0;
+            if (lpFDI) {
+                if (lpFDI->dwFlags & FDI_FAMILY) {
+                    lpFDI->szFamily[0] = 0;
 
-                    if( !bFindNameThing( pNames, ID_Block, FAMILY_ID,
-                                         lpFDI->szFamily ) )
-                        bFindNameThing( pNames, ID_DefBlock, FAMILY_ID,
-                                        lpFDI->szFamily );
+                    if (!bFindNameThing(pNames, ID_Block, FAMILY_ID, lpFDI->szFamily))
+                        bFindNameThing(pNames, ID_DefBlock, FAMILY_ID, lpFDI->szFamily);
                 }
 
-                if( lpFDI->dwFlags & FDI_VTC )
-                {
-                    TCHAR  szTemp[ 256 ];
+                if (lpFDI->dwFlags & FDI_VTC) {
+                    TCHAR  szTemp[256];
 
-                    lpFDI->lpszVersion   = 0;
+                    lpFDI->lpszVersion = 0;
                     lpFDI->lpszTrademark = 0;
                     lpFDI->lpszCopyright = 0;
 
+                    if (bFindNameThing(pNames, ID_Block, VERSION_ID, szTemp) ||
+                        bFindNameThing(pNames, ID_DefBlock, VERSION_ID, szTemp)) {
+                        lpFDI->lpszVersion = new TCHAR[lstrlen(szTemp) + 1];
 
-                    if( bFindNameThing( pNames, ID_Block, VERSION_ID, szTemp ) ||
-                       bFindNameThing( pNames, ID_DefBlock, VERSION_ID, szTemp ) )
-                    {
-                        lpFDI->lpszVersion = new TCHAR[ lstrlen( szTemp ) + 1 ];
-
-                        if( lpFDI->lpszVersion )
-                            lstrcpy( lpFDI->lpszVersion, szTemp );
+                        if (lpFDI->lpszVersion)
+                            lstrcpy(lpFDI->lpszVersion, szTemp);
                     }
 
-                    if( bFindNameThing( pNames, ID_Block, COPYRIGHT_ID, szTemp ) ||
-                       bFindNameThing( pNames, ID_DefBlock, COPYRIGHT_ID, szTemp ) )
-                    {
-                        lpFDI->lpszCopyright = new TCHAR[ lstrlen( szTemp ) + 1 ];
+                    if (bFindNameThing(pNames, ID_Block, COPYRIGHT_ID, szTemp) ||
+                        bFindNameThing(pNames, ID_DefBlock, COPYRIGHT_ID, szTemp)) {
+                        lpFDI->lpszCopyright = new TCHAR[lstrlen(szTemp) + 1];
 
-                        if( lpFDI->lpszCopyright )
-                            lstrcpy( lpFDI->lpszCopyright, szTemp );
+                        if (lpFDI->lpszCopyright)
+                            lstrcpy(lpFDI->lpszCopyright, szTemp);
                     }
 
-                    if( bFindNameThing( pNames, ID_Block, TRADEMARK_ID, szTemp ) ||
-                       bFindNameThing( pNames, ID_DefBlock, TRADEMARK_ID, szTemp ) )
-                    {
-                        lpFDI->lpszTrademark = new TCHAR[ lstrlen( szTemp ) + 1 ];
+                    if (bFindNameThing(pNames, ID_Block, TRADEMARK_ID, szTemp) ||
+                        bFindNameThing(pNames, ID_DefBlock, TRADEMARK_ID, szTemp)) {
+                        lpFDI->lpszTrademark = new TCHAR[lstrlen(szTemp) + 1];
 
-                        if( lpFDI->lpszTrademark )
-                            lstrcpy( lpFDI->lpszTrademark, szTemp );
+                        if (lpFDI->lpszTrademark)
+                            lstrcpy(lpFDI->lpszTrademark, szTemp);
                     }
                 }
-
             }
         }
-        LocalFree( (HANDLE)pNames );
-   }
+        LocalFree((HANDLE)pNames);
+    }
 
-   return *lpszName != 0;
+    return *lpszName != 0;
 }
 
 
-void NEAR PASCAL FillName( LPTSTR            szName,
-                           sfnt_lpNameRecord pNameRecord, // unsigned PlatformID,
-                           WORD              igi,
-                           LPBYTE            pStringByte )
+void NEAR PASCAL FillName(LPTSTR            szName,
+                          sfnt_lpNameRecord pNameRecord, // unsigned PlatformID,
+                          WORD              igi,
+                          LPBYTE            pStringByte)
 {
     WORD    i;
-    WORD    wName[ 64 ];
+    WORD    wName[64];
     BOOL    bUsedDefault;
     LPSTR   lpSrc;
     LPTSTR  lpDest;
     LPSTR   lpByteStr;
 
-    WORD UNALIGNED *pStringWord;
+    WORD UNALIGNED* pStringWord;
 
-
-    if( pNameRecord->wPlatformID == PLATFORM_MS )
-    {
-
+    if (pNameRecord->wPlatformID == PLATFORM_MS) {
         //  wName now contains the flipped bytes.
         //  Decode depending on the way the string was encoded.
 
@@ -867,27 +776,21 @@ void NEAR PASCAL FillName( LPTSTR            szName,
         //        characters need null padding for leading byte.
 
 
-        switch( pNameRecord->wSpecificID )
-        {
+        switch (pNameRecord->wSpecificID) {
         case ENCODEID_PRC:
         case ENCODEID_BIG5:
         case ENCODEID_WANGSUNG:
         case ENCODEID_JOHAB:
-            if (g_bDBCS)
-            {
+            if (g_bDBCS) {
                 lpSrc = (LPSTR)pStringByte;
 
                 lpByteStr = (LPSTR)wName;
 
-                for( i = 0; i < igi; i++ )
-                {
-                    if( IsDBCSLeadByte( *lpSrc ) )
-                    {
-                        *lpByteStr++ = (CHAR) *lpSrc++;
+                for (i = 0; i < igi; i++) {
+                    if (IsDBCSLeadByte(*lpSrc)) {
+                        *lpByteStr++ = (CHAR)*lpSrc++;
                         i++;
-                    }
-                    else if( !*lpSrc )
-                    {
+                    } else if (!*lpSrc) {
                         lpSrc++;
                         i++;
                     }
@@ -895,137 +798,104 @@ void NEAR PASCAL FillName( LPTSTR            szName,
                     *lpByteStr++ = *lpSrc++;
                 }
 
-                *lpByteStr = (BYTE) 0;
+                *lpByteStr = (BYTE)0;
 
 #ifdef UNICODE
-                MultiByteToWideChar(CP_ACP,0,(LPSTR)wName,-1,szName,64);
+                MultiByteToWideChar(CP_ACP, 0, (LPSTR)wName, -1, szName, 64);
 #else
-                lstrcpy(szName,(LPSTR)wName);
+                lstrcpy(szName, (LPSTR)wName);
 #endif // UNICODE
 
-            }
-            else // !g_bDBCS
+            } else // !g_bDBCS
             {
-                lpSrc  = (LPSTR)pStringByte;
+                lpSrc = (LPSTR)pStringByte;
 
                 lpDest = szName;
 
-                for( i = 0; i < igi; i++ )
-                {
-                    if( IsDBCSLeadByte( *lpSrc ) )
-                    {
-                        *lpDest++ = (TCHAR) *lpSrc++;
+                for (i = 0; i < igi; i++) {
+                    if (IsDBCSLeadByte(*lpSrc)) {
+                        *lpDest++ = (TCHAR)*lpSrc++;
                         i++;
-                    }
-                    else if( !*lpSrc )
-                    {
+                    } else if (!*lpSrc) {
                         lpSrc++;
                         i++;
                     }
 
-                    *lpDest++ = (TCHAR) *lpSrc++;
+                    *lpDest++ = (TCHAR)*lpSrc++;
                 }
 
-                *lpDest = (TCHAR) 0;
+                *lpDest = (TCHAR)0;
             }
 
             break;
 
 
-         default:
-            if( igi >= sizeof( wName ) )
-                igi = sizeof( wName ) - sizeof( wName[ 0 ] );
+        default:
+            if (igi >= sizeof(wName))
+                igi = sizeof(wName) - sizeof(wName[0]);
 
-            igi /= sizeof( wName[ 0 ] );
+            igi /= sizeof(wName[0]);
 
-            pStringWord = (PWORD) pStringByte;
+            pStringWord = (PWORD)pStringByte;
 
             WORD wLen = igi;
 
 #ifdef UNICODE
+            wName[igi] = 0;
+            szName[igi] = TEXT('\0');
 
-            wName[ igi ] = 0;
+            while (igi--) {
+                wName[igi] = SWAPW(pStringWord[igi]);
 
-            szName[ igi ] = TEXT( '\0' );
-
-            while( igi--)
-            {
-                wName[ igi ] = SWAPW( pStringWord[ igi ] );
-
-                szName[ igi ] = wName[ igi ];
+                szName[igi] = wName[igi];
             }
-
 #else
+            while (igi--)
+                wName[igi] = SWAPW(pStringWord[igi]);
 
-            while( igi--)
-                wName[ igi ] = SWAPW( pStringWord[ igi ] );
-
-            int iRet = WideCharToMultiByte( CP_ACP,
-                                            0,          // WC_SEPCHARS,
-                                            wName,
-                                            wLen,       // -1,
-                                            szName,
-                                            2 * (wLen + 1),
-                                            NULL,
-                                            &bUsedDefault );
-            szName[ iRet ] = 0;
-
+            int iRet = WideCharToMultiByte(CP_ACP,
+                                           0,          // WC_SEPCHARS,
+                                           wName,
+                                           wLen,       // -1,
+                                           szName,
+                                           2 * (wLen + 1),
+                                           NULL,
+                                           &bUsedDefault);
+            szName[iRet] = 0;
 #endif  // UNICODE
-
         }  // End of switch( )
-
-    }
-    else
-    {
-
+    } else {
         //  Mac font
+        szName[igi] = (TCHAR)0;
 
-
-        szName[ igi ] = (TCHAR) 0;
-
-        while( igi--)
-            szName[ igi ] = Mac2Ansi( pStringByte[ igi ] );
+        while (igi--)
+            szName[igi] = Mac2Ansi(pStringByte[igi]);
     }
 }
 
 
 
-DWORD GetFontDefaultLangID( )
+DWORD GetFontDefaultLangID()
 {
-
     //  set it initally to illegal value
-
-
     static DWORD dwLangID = 0xffffffff;
 
-
-
     //  Only do this once
-
-
-    if( dwLangID == 0xffffffff )
-    {
-
+    if (dwLangID == 0xffffffff) {
         //  Default to English
-
-
         DWORD dwTemp = 0x00000409;
 
 #ifdef WINNT
 
-        TCHAR   szModName[ PATHMAX ];
+        TCHAR   szModName[PATHMAX];
         DWORD   dwSize, dwHandle;
         LPVOID  lpvBuf;
 
 
-        if( GetModuleFileName( g_hInst, szModName, PATHMAX ) )
-        {
-            if( dwSize = GetFileVersionInfoSize( szModName, &dwHandle ) )
-            {
-                if( lpvBuf = (LPVOID) LocalAlloc( LPTR, dwSize ) )
-                {
-                    if( GetFileVersionInfo( szModName, dwHandle, dwSize, lpvBuf ) )
-                    {
+        if (GetModuleFileName(g_hInst, szModName, PATHMAX)) {
+            if (dwSize = GetFileVersionInfoSize(szModName, &dwHandle)) {
+                if (lpvBuf = (LPVOID)LocalAlloc(LPTR, dwSize)) {
+                    if (GetFileVersionInfo(szModName, dwHandle, dwSize, lpvBuf)) {
                         struct
                         {
                             WORD wLang;
@@ -1034,32 +904,24 @@ DWORD GetFontDefaultLangID( )
 
                         UINT uSize;
 
-                        if( VerQueryValue( lpvBuf, TEXT( "\\VarFileInfo\\Translation" ), (LPVOID *) &lpTrans, &uSize )
-                            && uSize >= sizeof( *lpTrans ) )
-                        {
+                        if (VerQueryValue(lpvBuf, TEXT("\\VarFileInfo\\Translation"), (LPVOID*)&lpTrans, &uSize)
+                            && uSize >= sizeof(*lpTrans)) {
                             dwTemp = lpTrans->wLang;
                         }
                     }
-                    LocalFree( (HLOCAL) lpvBuf );
+                    LocalFree((HLOCAL)lpvBuf);
                 }
             }
         }
 
 #else
 
-        HRSRC hrsVer = FindResource( g_hInst, (LPTSTR) VS_VERSION_INFO,
-                                     RT_VERSION );
-
-        if( hrsVer )
-        {
-            HGLOBAL hVer = LoadResource( g_hInst, hrsVer );
-
-            if( hVer )
-            {
-                LPVOID lpVer = LockResource( hVer );
-
-                if( lpVer )
-                {
+        HRSRC hrsVer = FindResource(g_hInst, (LPTSTR)VS_VERSION_INFO, RT_VERSION);
+        if (hrsVer) {
+            HGLOBAL hVer = LoadResource(g_hInst, hrsVer);
+            if (hVer) {
+                LPVOID lpVer = LockResource(hVer);
+                if (lpVer) {
                     struct
                     {
                         WORD wLang;
@@ -1068,29 +930,24 @@ DWORD GetFontDefaultLangID( )
 
                     UINT uSize;
 
-                    if( VerQueryValue( lpVer, TEXT( "\\VarFileInfo\\Translation" ), (LPVOID *) &lpTrans, &uSize )
-                        && uSize >= sizeof( *lpTrans ) )
-                    {
+                    if (VerQueryValue(lpVer, TEXT("\\VarFileInfo\\Translation"), (LPVOID*)&lpTrans, &uSize)
+                        && uSize >= sizeof(*lpTrans)) {
                         dwTemp = lpTrans->wLang;
                     }
 
-                    UnlockResource( hVer );
+                    UnlockResource(hVer);
                 }
 
-                FreeResource( hVer );
+                FreeResource(hVer);
             }
         }
-
 #endif  //  WINNT
 
-
         //  Use dwTemp so this is re-entrant (if not efficient)
-
-
         dwLangID = dwTemp;
     }
 
-    return( dwLangID );
+    return(dwLangID);
 }
 
 
@@ -1105,25 +962,22 @@ DWORD GetFontDefaultLangID( )
 //  FVS_MEM_ALLOC_ERR
 
 
-BOOL bValidateTrueType( CFontFile& file,
-                        DWORD dwOffset,
-                        LPFONTDESCINFO lpFile,
-                        DWORD *pdwTableTags,
-                        LPDWORD lpdwStatus )
+BOOL bValidateTrueType(CFontFile& file,
+                       DWORD dwOffset,
+                       LPFONTDESCINFO lpFile,
+                       DWORD* pdwTableTags,
+                       LPDWORD lpdwStatus)
 {
     struct cmap_thing {
         sfnt_char2IndexDir    DirCmap;
-        sfnt_platformEntry    Plat[ 2 ];
+        sfnt_platformEntry    Plat[2];
     } Cmap;
 
     tt_hdr     TTHeader;
     tt_head    TTFontHeader;
-
     IDBlock_t  ID_Block;
-    tttag*     pTags;
-
+    tttag* pTags;
     sfnt_platformEntry FAR* lpPlat;
-
     short      i, nTables;
     DWORD      dwSize;
     unsigned   cTables, ncTables;
@@ -1134,25 +988,17 @@ BOOL bValidateTrueType( CFontFile& file,
 
     DWORD      dwStatus = FVS_MAKE_CODE(FVS_INVALID_FONTFILE, FVS_FILE_UNK);
 
-
     // Initialize return status value.
 
     if (NULL != lpdwStatus)
         *lpdwStatus = FVS_MAKE_CODE(FVS_INVALID_STATUS, FVS_FILE_UNK);
 
-
     //  Init the ID block.
-
-
-    ID_Block.id_Platform = (WORD) -1;
-
-    WORD wLangID = (WORD) GetFontDefaultLangID( );
-
-    ID_Block.id_Language = SWAPW( wLangID );   // SWAPW( info.nLanguageID );
-
+    ID_Block.id_Platform = (WORD)-1;
+    WORD wLangID = (WORD)GetFontDefaultLangID();
+    ID_Block.id_Language = SWAPW(wLangID);   // SWAPW( info.nLanguageID );
 
     //  Load the TTF directory header.
-
     file.Seek(dwOffset, FILE_BEGIN);
 
     if (ERROR_SUCCESS != file.Read(&TTHeader, sizeof(TTHeader)))
@@ -1163,24 +1009,21 @@ BOOL bValidateTrueType( CFontFile& file,
     //  will be blown off.
 
 
-    if( ( nTables = SWAPW( TTHeader.uNumTables ) ) > 0x7fff / sizeof( tttag ) )
-    {
-        DEBUGMSG( ( DM_ERROR, TEXT( "bIsTrueType: header too large." ) ) );
+    if ((nTables = SWAPW(TTHeader.uNumTables)) > 0x7fff / sizeof(tttag)) {
+        DEBUGMSG((DM_ERROR, TEXT("bIsTrueType: header too large.")));
         goto IsTrueType_closefile;
     }
 
-    i = nTables * sizeof( tttag );
+    i = nTables * sizeof(tttag);
 
-    if( !(pTags = (tttag *) LocalAlloc( LPTR, i ) ) )
-    {
-        DEBUGMSG( ( DM_ERROR, TEXT( "bIsTrueType( ): LocalAlloc failed." ) ) );
+    if (!(pTags = (tttag*)LocalAlloc(LPTR, i))) {
+        DEBUGMSG((DM_ERROR, TEXT("bIsTrueType( ): LocalAlloc failed.")));
         dwStatus = FVS_MAKE_CODE(FVS_MEM_ALLOC_ERR, FVS_FILE_UNK);
         goto IsTrueType_closefile;
     }
 
-    if (ERROR_SUCCESS != file.Read(pTags, i))
-    {
-        DEBUGMSG( ( DM_ERROR, TEXT( "bIsTrueType(): File READ failure" ) ) );
+    if (ERROR_SUCCESS != file.Read(pTags, i)) {
+        DEBUGMSG((DM_ERROR, TEXT("bIsTrueType(): File READ failure")));
         goto FailAndFree;
     }
 
@@ -1193,59 +1036,49 @@ BOOL bValidateTrueType( CFontFile& file,
     //  this font uses
 
 
-    for( i = 0; i < nTables; i++ )
-    {
-        if( pTags[ i ].dwTag == TAG_CHARTOINDEXMAP )
-        {
+    for (i = 0; i < nTables; i++) {
+        if (pTags[i].dwTag == TAG_CHARTOINDEXMAP) {
 
             //  get platform stuff
 
-            file.Seek(SWAPL(pTags[ i ].dwOffset), FILE_BEGIN);
+            file.Seek(SWAPL(pTags[i].dwOffset), FILE_BEGIN);
 
             if (ERROR_SUCCESS != file.Read(&Cmap, sizeof(Cmap), &dwSize))
                 break;
-            else if( ( ncTables = SWAPW( Cmap.DirCmap.wNumTables ) ) == 1 )
-            {
-                if( dwSize < sizeof( Cmap )-sizeof( Cmap.Plat[ 1 ] ) )
+            else if ((ncTables = SWAPW(Cmap.DirCmap.wNumTables)) == 1) {
+                if (dwSize < sizeof(Cmap) - sizeof(Cmap.Plat[1]))
                     break;
             }
 
-            for( cTables = 0; cTables < ncTables; cTables++ )
-            {
+            for (cTables = 0; cTables < ncTables; cTables++) {
 
                 //  we read 2 platform entries at a time
 
 
-                if( cTables >= 2 && !(cTables & 1 ) )
-                {
-                    dwSize = ncTables-cTables>1 ? sizeof( Cmap.Plat )
-                                                : sizeof( Cmap.Plat[ 0 ]);
+                if (cTables >= 2 && !(cTables & 1)) {
+                    dwSize = ncTables - cTables > 1 ? sizeof(Cmap.Plat)
+                        : sizeof(Cmap.Plat[0]);
 
                     if (ERROR_SUCCESS != file.Read(Cmap.Plat, dwSize))
                         break;
                 }
 
-                lpPlat = &Cmap.Plat[ cTables & 01 ];
+                lpPlat = &Cmap.Plat[cTables & 01];
 
 
                 //  Unicode: get this and exit
 
 
-                if( lpPlat->wPlatformID == PLATFORM_MS )
-                {
-                    DEBUGMSG( (DM_TRACE1, TEXT( "--- PlatformID is PLATFORM_MS" ) ) );
+                if (lpPlat->wPlatformID == PLATFORM_MS) {
+                    DEBUGMSG((DM_TRACE1, TEXT("--- PlatformID is PLATFORM_MS")));
 
                     ID_Block.id_Platform = lpPlat->wPlatformID;
                     ID_Block.id_Specific = lpPlat->wSpecificID;
                     break;
                 }
 
-
                 //  Mac: get it, hope the Unicode platform will come
-
-
-                if( lpPlat->wPlatformID == 0x100 && lpPlat->wSpecificID == 0 )
-                {
+                if (lpPlat->wPlatformID == 0x100 && lpPlat->wSpecificID == 0) {
                     ID_Block.id_Platform = lpPlat->wPlatformID;
                     ID_Block.id_Specific = lpPlat->wSpecificID;
                 }
@@ -1254,98 +1087,75 @@ BOOL bValidateTrueType( CFontFile& file,
         }
     }
 
-    if( ID_Block.id_Platform == (WORD)-1 )
-    {
-        DEBUGMSG( ( DM_ERROR, TEXT( "bIsTrueType( ): No platform id" ) ) );
+    if (ID_Block.id_Platform == (WORD)-1) {
+        DEBUGMSG((DM_ERROR, TEXT("bIsTrueType( ): No platform id")));
         goto FailAndFree;
     }
-
 
     //  we found 'cmap' with the PlatformID now look for 'head'
     //  then 'name'
 
-    while( ++i < nTables )
-    {
-        if( pTags[ i ].dwTag == TAG_FONTHEADER )
-        {
-            file.Seek(SWAPL( pTags[ i ].dwOffset ), FILE_BEGIN);
+    while (++i < nTables) {
+        if (pTags[i].dwTag == TAG_FONTHEADER) {
+            file.Seek(SWAPL(pTags[i].dwOffset), FILE_BEGIN);
 
             if (ERROR_SUCCESS != file.Read(&TTFontHeader, sizeof(TTFontHeader))
-                || TTFontHeader.dwMagic != SFNT_MAGIC )
-            {
-                DEBUGMSG( (DM_ERROR, TEXT( "WRONG MAGIC! : %x" ), TTFontHeader.dwMagic ) );
+                || TTFontHeader.dwMagic != SFNT_MAGIC) {
+                DEBUGMSG((DM_ERROR, TEXT("WRONG MAGIC! : %x"), TTFontHeader.dwMagic));
                 goto FailAndFree;
             }
             break;
         }
     }
 
-
     //  At this point, the function is successful. If the caller wants a
     //  description and can't get it, return false (see next block).
-
-
     result = TRUE;
-
 
     //  Retrieve the font name (description) and family name if they were
     //  requested.
-
-
-    if( lpFile->dwFlags & (FDI_DESC | FDI_FAMILY ) )
-    {
-        while( ++i < nTables )
-        {
-            if( pTags[ i ].dwTag == TAG_NAMINGTABLE )
-            {
-                file.Seek(SWAPL( pTags[ i ].dwOffset ), FILE_BEGIN);
-                result = bGetName( file, &pTags[ i ], ID_Block, lpFile->szDesc,
-                                   lpFile );
-
+    if (lpFile->dwFlags & (FDI_DESC | FDI_FAMILY)) {
+        while (++i < nTables) {
+            if (pTags[i].dwTag == TAG_NAMINGTABLE) {
+                file.Seek(SWAPL(pTags[i].dwOffset), FILE_BEGIN);
+                result = bGetName(file, &pTags[i], ID_Block, lpFile->szDesc,
+                                  lpFile);
                 break;
             }
-       }
+        }
     }
 
-
     //  if requested, get the style and PANOSE information.
-
-
-    if( lpFile->dwFlags & (FDI_STYLE | FDI_PANOSE ) )
-    {
-        for( i = 0; i < nTables; i++ )
-        {
-            if( pTags[ i ].dwTag == TAG_OS2TABLE )
-            {
+    if (lpFile->dwFlags & (FDI_STYLE | FDI_PANOSE)) {
+        for (i = 0; i < nTables; i++) {
+            if (pTags[i].dwTag == TAG_OS2TABLE) {
 
 #define WEIGHT_OFFSET   4
 #define PAN_OFFSET      32
 #define SEL_OFFSET      62
 
-                DWORD dwStart = SWAPL( pTags[ i ].dwOffset );
+                DWORD dwStart = SWAPL(pTags[i].dwOffset);
 
-                if( lpFile->dwFlags & FDI_PANOSE )
-                {
+                if (lpFile->dwFlags & FDI_PANOSE) {
                     file.Seek(dwStart + PAN_OFFSET, FILE_BEGIN);
                     file.Read(lpFile->jPanose, PANOSE_LEN);
                 }
 
-                if( lpFile->dwFlags & FDI_STYLE )
-                {
+                if (lpFile->dwFlags & FDI_STYLE) {
                     WORD  wTemp;
 
                     file.Seek(dwStart + WEIGHT_OFFSET, FILE_BEGIN);
                     file.Read(&wTemp, sizeof(wTemp));
 
-                    lpFile->wWeight = SWAPW( wTemp );
+                    lpFile->wWeight = SWAPW(wTemp);
 
                     file.Seek(dwStart + SEL_OFFSET, FILE_BEGIN);
                     file.Read(&wTemp, sizeof(wTemp));
 
-                    wTemp = SWAPW( wTemp );
+                    wTemp = SWAPW(wTemp);
 
-                    lpFile->dwStyle  = (wTemp & 0x0001) ? FDI_S_ITALIC
-                                                        : FDI_S_REGULAR;
+                    lpFile->dwStyle = (wTemp & 0x0001) ? FDI_S_ITALIC
+                        : FDI_S_REGULAR;
 
                     lpFile->dwStyle |= (wTemp & 0x0020) ? FDI_S_BOLD : 0;
                 }
@@ -1354,8 +1164,7 @@ BOOL bValidateTrueType( CFontFile& file,
         }
     }
 
-    if (NULL != pdwTableTags)
-    {
+    if (NULL != pdwTableTags) {
 
         // Caller want's to know exactly what tables the font contains.
         // Would prefer to do this in one of the earlier loops but they
@@ -1363,29 +1172,24 @@ BOOL bValidateTrueType( CFontFile& file,
         // table info.  It's merely comparing DWORDs so it's very fast.
 
         *pdwTableTags = 0;
-        for (int i = 0; i < nTables; i++)
-        {
-            switch(pTags[i].dwTag)
-            {
-                case TAG_CHARTOINDEXMAP:  *pdwTableTags |= TT_TABLE_CMAP; break;
-                case TAG_FONTHEADER:      *pdwTableTags |= TT_TABLE_HEAD; break;
-                case TAG_NAMINGTABLE:     *pdwTableTags |= TT_TABLE_NAME; break;
-                case TAG_OS2TABLE:        *pdwTableTags |= TT_TABLE_OS2;  break;
-                case TAG_DSIG:            *pdwTableTags |= TT_TABLE_DSIG; break;
-                case TAG_CFF:             *pdwTableTags |= TT_TABLE_CFF;  break;
-                default:
-                    break;
+        for (int i = 0; i < nTables; i++) {
+            switch (pTags[i].dwTag) {
+            case TAG_CHARTOINDEXMAP:  *pdwTableTags |= TT_TABLE_CMAP; break;
+            case TAG_FONTHEADER:      *pdwTableTags |= TT_TABLE_HEAD; break;
+            case TAG_NAMINGTABLE:     *pdwTableTags |= TT_TABLE_NAME; break;
+            case TAG_OS2TABLE:        *pdwTableTags |= TT_TABLE_OS2;  break;
+            case TAG_DSIG:            *pdwTableTags |= TT_TABLE_DSIG; break;
+            case TAG_CFF:             *pdwTableTags |= TT_TABLE_CFF;  break;
+            default:
+                break;
             }
         }
     }
 
 FailAndFree:
-
-    LocalFree( (HANDLE) pTags );
+    LocalFree((HANDLE)pTags);
 
 IsTrueType_closefile:
-
-
     // If successful, update verification status for success.
     // Otherwise, leave at assigned error code.
 
@@ -1410,25 +1214,24 @@ IsTrueType_closefile:
 //  FVS_INSUFFICIENT_BUF
 
 
-BOOL NEAR PASCAL bIsTrueType( LPFONTDESCINFO lpFile, DWORD *pdwTableTags, LPDWORD lpdwStatus )
+BOOL NEAR PASCAL bIsTrueType(LPFONTDESCINFO lpFile, DWORD* pdwTableTags, LPDWORD lpdwStatus)
 {
     ttc_hdr     TTCHeader;
     CFontFile   file;
     DWORD       i;
     BOOL        result = FALSE;
-    DWORD       *pdwDirectory = 0;
+    DWORD* pdwDirectory = 0;
     FontDesc_t  szFontDesc;
-    TCHAR       szConcat[ 32 ];
+    TCHAR       szConcat[32];
 
 
-    DEBUGMSG( (DM_TRACE1, TEXT( "bIsTrueType() checking file %s" ), lpFile->szFile ) );
+    DEBUGMSG((DM_TRACE1, TEXT("bIsTrueType() checking file %s"), lpFile->szFile));
 
-    if (ERROR_SUCCESS != file.Open(lpFile->szFile, GENERIC_READ, FILE_SHARE_READ))
-    {
+    if (ERROR_SUCCESS != file.Open(lpFile->szFile, GENERIC_READ, FILE_SHARE_READ)) {
         if (NULL != lpdwStatus)
             *lpdwStatus = FVS_MAKE_CODE(FVS_FILE_OPEN_ERR, FVS_FILE_UNK);
 
-        return( FALSE );
+        return(FALSE);
     }
 
 
@@ -1439,46 +1242,43 @@ BOOL NEAR PASCAL bIsTrueType( LPFONTDESCINFO lpFile, DWORD *pdwTableTags, LPDWOR
     if (NULL != lpdwStatus)
         *lpdwStatus = FVS_MAKE_CODE(FVS_INVALID_FONTFILE, FVS_FILE_UNK);
 
-    if(ERROR_SUCCESS != file.Read(&TTCHeader, sizeof(TTCHeader)))
+    if (ERROR_SUCCESS != file.Read(&TTCHeader, sizeof(TTCHeader)))
         goto IsTrueType_closefile;
 
 
     //  Check for a TTC file.
 
 
-    if( TTCHeader.dwTag == TAG_TTCF )
-    {
-       if( !LoadString( g_hInst, IDS_TTC_CONCAT, szConcat, ARRAYSIZE( szConcat ) ) )
-            lstrcpy( szConcat, TEXT( " & " ) );
+    if (TTCHeader.dwTag == TAG_TTCF) {
+        if (!LoadString(g_hInst, IDS_TTC_CONCAT, szConcat, ARRAYSIZE(szConcat)))
+            lstrcpy(szConcat, TEXT(" & "));
 
-       TTCHeader.dwDirCount  = SWAPL( TTCHeader.dwDirCount );
-
-
-       //  Load in the first directory, for now.
+        TTCHeader.dwDirCount = SWAPL(TTCHeader.dwDirCount);
 
 
-       if( !TTCHeader.dwDirCount )
+        //  Load in the first directory, for now.
+
+
+        if (!TTCHeader.dwDirCount)
             goto IsTrueType_closefile;
 
-       pdwDirectory = new DWORD [ TTCHeader.dwDirCount ];
+        pdwDirectory = new DWORD[TTCHeader.dwDirCount];
 
-       if( !pdwDirectory )
+        if (!pdwDirectory)
             goto IsTrueType_closefile;
 
-       file.Seek(sizeof(TTCHeader), FILE_BEGIN);
+        file.Seek(sizeof(TTCHeader), FILE_BEGIN);
 
-       DWORD dwBytesToRead = sizeof( DWORD ) * TTCHeader.dwDirCount;
+        DWORD dwBytesToRead = sizeof(DWORD) * TTCHeader.dwDirCount;
 
-       if(ERROR_SUCCESS != file.Read(pdwDirectory, dwBytesToRead))
+        if (ERROR_SUCCESS != file.Read(pdwDirectory, dwBytesToRead))
             goto IsTrueType_closefile;
-    }
-    else
-    {
+    } else {
         TTCHeader.dwDirCount = 1;
 
-        pdwDirectory = new DWORD [ 1 ];
+        pdwDirectory = new DWORD[1];
 
-        if( !pdwDirectory )
+        if (!pdwDirectory)
             goto IsTrueType_closefile;
 
         *pdwDirectory = 0;
@@ -1486,22 +1286,14 @@ BOOL NEAR PASCAL bIsTrueType( LPFONTDESCINFO lpFile, DWORD *pdwTableTags, LPDWOR
 
 
     //  For each TrueType directory, process it.
+    szFontDesc[0] = 0;
 
-
-    szFontDesc[ 0 ] = 0;
-
-    for( i = 0; i < TTCHeader.dwDirCount; i++ )
-    {
-
+    for (i = 0; i < TTCHeader.dwDirCount; i++) {
         //  Save of the description of the previous font.
-
-
-        if( i && ( lpFile->dwFlags & FDI_DESC ) )
-        {
-           vCPStripBlanks(lpFile->szDesc);
-           if( ( lstrlen( szFontDesc ) + lstrlen( lpFile->szDesc )
-                 + lstrlen( szConcat ) + 1 ) > ARRAYSIZE( szFontDesc ) )
-           {
+        if (i && (lpFile->dwFlags & FDI_DESC)) {
+            vCPStripBlanks(lpFile->szDesc);
+            if ((lstrlen(szFontDesc) + lstrlen(lpFile->szDesc)
+                 + lstrlen(szConcat) + 1) > ARRAYSIZE(szFontDesc)) {
                 if (NULL != lpdwStatus)
                     *lpdwStatus = FVS_MAKE_CODE(FVS_INSUFFICIENT_BUF, FVS_FILE_UNK);
 
@@ -1510,14 +1302,13 @@ BOOL NEAR PASCAL bIsTrueType( LPFONTDESCINFO lpFile, DWORD *pdwTableTags, LPDWOR
 
                 ASSERT(FALSE);
                 goto IsTrueType_closefile;
-           }
+            }
 
-           lstrcat( szFontDesc, lpFile->szDesc );
-
-           lstrcat( szFontDesc, szConcat );
+            lstrcat(szFontDesc, lpFile->szDesc);
+            lstrcat(szFontDesc, szConcat);
         }
 
-        if( !bValidateTrueType( file, SWAPL( *(pdwDirectory + i ) ), lpFile, pdwTableTags, lpdwStatus ) )
+        if (!bValidateTrueType(file, SWAPL(*(pdwDirectory + i)), lpFile, pdwTableTags, lpdwStatus))
             goto IsTrueType_closefile;
     }
 
@@ -1526,18 +1317,16 @@ BOOL NEAR PASCAL bIsTrueType( LPFONTDESCINFO lpFile, DWORD *pdwTableTags, LPDWOR
     //  last one to the list.
 
 
-    if( TTCHeader.dwDirCount > 1 )
-    {
-        if( lpFile->dwFlags & FDI_DESC )
-        {
+    if (TTCHeader.dwDirCount > 1) {
+        if (lpFile->dwFlags & FDI_DESC) {
             vCPStripBlanks(lpFile->szDesc);
-            if( ( lstrlen( szFontDesc ) + lstrlen( lpFile->szDesc )
-                  + lstrlen( szConcat ) + 1 ) > ARRAYSIZE( szFontDesc ) )
+            if ((lstrlen(szFontDesc) + lstrlen(lpFile->szDesc)
+                 + lstrlen(szConcat) + 1) > ARRAYSIZE(szFontDesc))
                 goto IsTrueType_closefile;
 
-          lstrcat( szFontDesc, lpFile->szDesc );
+            lstrcat(szFontDesc, lpFile->szDesc);
 
-          lstrcpy( lpFile->szDesc, szFontDesc );
+            lstrcpy(lpFile->szDesc, szFontDesc);
         }
     }
 
@@ -1545,10 +1334,10 @@ BOOL NEAR PASCAL bIsTrueType( LPFONTDESCINFO lpFile, DWORD *pdwTableTags, LPDWOR
 
 IsTrueType_closefile:
 
-    if( pdwDirectory )
-        delete [] pdwDirectory;
+    if (pdwDirectory)
+        delete[] pdwDirectory;
 
-    DEBUGMSG( (DM_TRACE1, TEXT( "bIsTrueType() returning %d" ), result ) );
+    DEBUGMSG((DM_TRACE1, TEXT("bIsTrueType() returning %d"), result));
 
 
     // If successful, update verification status.
@@ -1562,17 +1351,14 @@ IsTrueType_closefile:
 
 
 
-void NEAR PASCAL vReadCountedString( CFontFile& file, LPSTR lpString, int iLen )
+void NEAR PASCAL vReadCountedString(CFontFile& file, LPSTR lpString, int iLen)
 {
     char cBytes;
 
     file.Read(&cBytes, 1);
 
-
     //  Limit check 6 August 1990    clarkc
-
-
-    cBytes = __min( cBytes, iLen-1 );
+    cBytes = __min(cBytes, iLen - 1);
 
     file.Read(lpString, cBytes);
 
@@ -1580,10 +1366,10 @@ void NEAR PASCAL vReadCountedString( CFontFile& file, LPSTR lpString, int iLen )
 }
 
 
-BOOL bReadNewExeInfo( CFontFile& file,
-                      struct new_exe * pne,
-                      long             lHeaderOffset,
-                      LPFONTDESCINFO   lpFile )
+BOOL bReadNewExeInfo(CFontFile& file,
+                     struct new_exe* pne,
+                     long             lHeaderOffset,
+                     LPFONTDESCINFO   lpFile)
 {
     LONG  lResTable = pne->ne_rsrctab + lHeaderOffset;
     BOOL  bRet = FALSE;
@@ -1594,48 +1380,31 @@ BOOL bReadNewExeInfo( CFontFile& file,
 
     LPFONTENTRY pfe;
 
-
-
     //  Fix up the lpFile in case we bail early.
-
-
     lpFile->lpszVersion = lpFile->lpszCopyright = lpFile->lpszTrademark = 0;
 
-
     //  Move to the beginning of the resource table.
-
-
     file.Seek(lResTable, FILE_BEGIN);
 
-
     //  Read the shift count.
-
-    if(ERROR_SUCCESS != file.Read(&wShiftCount, 2))
+    if (ERROR_SUCCESS != file.Read(&wShiftCount, 2))
         goto backout;
-
 
     //  Quick validity check.
-
-
-    if( wShiftCount > 12 )
+    if (wShiftCount > 12)
         goto backout;
 
-
     //  Read the resources until we hit the FONTDIR
+    while (TRUE) {
+        memset(&rt, 0, sizeof(rt));
 
-
-    while( TRUE )
-    {
-        memset( &rt, 0, sizeof( rt ) );
-
-        if(ERROR_SUCCESS != file.Read(&rt, sizeof(rt)))
+        if (ERROR_SUCCESS != file.Read(&rt, sizeof(rt)))
             goto backout;
 
-        if( rt.rt_id == 0 )
+        if (rt.rt_id == 0)
             break;
 
-        if( M_INTEGERTYPE( rt.rt_id ) && M_FONTDIRTYPE( rt.rt_id ) )
-        {
+        if (M_INTEGERTYPE(rt.rt_id) && M_FONTDIRTYPE(rt.rt_id)) {
 
             //  Read one resinfo record. We don't need all of them. The
             //  style and name of all should be the same.
@@ -1645,36 +1414,34 @@ BOOL bReadNewExeInfo( CFontFile& file,
                 goto backout;
 
 
-            LONG lOffset = ( (LONG) ri.rn_offset ) << wShiftCount;
-            LONG lSize   = ( (LONG) ri.rn_length ) << wShiftCount;
+            LONG lOffset = ((LONG)ri.rn_offset) << wShiftCount;
+            LONG lSize = ((LONG)ri.rn_length) << wShiftCount;
 
 
             //  Allocate memory for the resource.
 
 
-            LPSTR lpMem = new char [ lSize ];
+            LPSTR lpMem = new char[lSize];
 
 
-            if( !lpMem )
+            if (!lpMem)
                 goto backout;
 
             file.Seek(lOffset, FILE_BEGIN);
 
             LPSTR lpTMem = lpMem;
 
-            while( lSize )
-            {
+            while (lSize) {
                 WORD wSize;
 
-                if( lSize >= 32767 )
-                   wSize = 32767;
+                if (lSize >= 32767)
+                    wSize = 32767;
                 else
-                   wSize = (WORD) lSize;
+                    wSize = (WORD)lSize;
 
-                if (ERROR_SUCCESS != file.Read(lpTMem, wSize))
-                {
-                   delete lpMem;
-                   goto backout;
+                if (ERROR_SUCCESS != file.Read(lpTMem, wSize)) {
+                    delete lpMem;
+                    goto backout;
                 }
 
                 lSize -= wSize;
@@ -1686,51 +1453,45 @@ BOOL bReadNewExeInfo( CFontFile& file,
             //  font entries.
 
 
-            int nFonts = (int)*( (unsigned short *) lpMem );
+            int nFonts = (int)*((unsigned short*)lpMem);
 
-            pfe = (LPFONTENTRY) (lpMem + sizeof( WORD ) );
+            pfe = (LPFONTENTRY)(lpMem + sizeof(WORD));
 
-            if( lpFile->dwFlags & FDI_STYLE )
-            {
-               lpFile->dwStyle = (pfe->dfItalic ) ? FDI_S_ITALIC : FDI_S_REGULAR;
+            if (lpFile->dwFlags & FDI_STYLE) {
+                lpFile->dwStyle = (pfe->dfItalic) ? FDI_S_ITALIC : FDI_S_REGULAR;
 
-               lpFile->wWeight = pfe->dfWeight;
+                lpFile->wWeight = pfe->dfWeight;
             }
 
-            if( lpFile->dwFlags & FDI_FAMILY )
-            {
+            if (lpFile->dwFlags & FDI_FAMILY) {
                 LPSTR lpFace;
                 LPSTR lpDev = pfe->szDeviceName;
 
-                lpFace = lpDev + lstrlenA( lpDev ) + 1;
+                lpFace = lpDev + lstrlenA(lpDev) + 1;
 
 #ifdef UNICODE
-                MultiByteToWideChar( CP_ACP, 0, lpFace, -1,
-                                     lpFile->szFamily, PATHMAX );
+                MultiByteToWideChar(CP_ACP, 0, lpFace, -1,
+                                    lpFile->szFamily, PATHMAX);
 
 #else
 
-                strcpy( lpFile->szFamily, lpFace );
+                strcpy(lpFile->szFamily, lpFace);
 
 #endif  //  UNICODE
             }
 
-            if( lpFile->dwFlags & FDI_VTC )
-            {
-
+            if (lpFile->dwFlags & FDI_VTC) {
                 //  No version or trademark. Get the copyright.
-
-
-                lpFile->lpszCopyright = new TCHAR[ COPYRIGHT_LEN ];
+                lpFile->lpszCopyright = new TCHAR[COPYRIGHT_LEN];
 
 #ifdef UNICODE
-                if( lpFile->lpszCopyright )
-                    MultiByteToWideChar( CP_ACP, 0, pfe->dfCopyright, -1,
-                                         lpFile->lpszCopyright, COPYRIGHT_LEN );
+                if (lpFile->lpszCopyright)
+                    MultiByteToWideChar(CP_ACP, 0, pfe->dfCopyright, -1,
+                                        lpFile->lpszCopyright, COPYRIGHT_LEN);
 
 #else
-                if( lpFile->lpszCopyright )
-                    strcpy( lpFile->lpszCopyright, pfe->dfCopyright );
+                if (lpFile->lpszCopyright)
+                    strcpy(lpFile->lpszCopyright, pfe->dfCopyright);
 
 #endif  //  UNICODE
             }
@@ -1738,10 +1499,7 @@ BOOL bReadNewExeInfo( CFontFile& file,
             bRet = TRUE;
             delete lpMem;
 
-
             //  We got one, get out of here.
-
-
             break;
         }
     }
@@ -1750,7 +1508,7 @@ backout:
     return bRet;
 }
 
-BOOL NEAR PASCAL bIsNewExe( LPFONTDESCINFO lpFile )
+BOOL NEAR PASCAL bIsNewExe(LPFONTDESCINFO lpFile)
 {
     BOOL     bValid = FALSE;
     long     lNewHeader;
@@ -1760,11 +1518,10 @@ BOOL NEAR PASCAL bIsNewExe( LPFONTDESCINFO lpFile )
     struct new_exe neHeader;
 
 
-    if (ERROR_SUCCESS == file.Open(lpFile->szFile, GENERIC_READ, FILE_SHARE_READ))
-    {
+    if (ERROR_SUCCESS == file.Open(lpFile->szFile, GENERIC_READ, FILE_SHARE_READ)) {
         file.Read(&oeHeader, sizeof(oeHeader));
 
-        if( oeHeader.e_magic == EMAGIC && oeHeader.e_lfanew )
+        if (oeHeader.e_magic == EMAGIC && oeHeader.e_lfanew)
             lNewHeader = oeHeader.e_lfanew;
         else
             lNewHeader = 0L;
@@ -1773,36 +1530,25 @@ BOOL NEAR PASCAL bIsNewExe( LPFONTDESCINFO lpFile )
 
         file.Read(&neHeader, sizeof(neHeader));
 
-        if( neHeader.ne_magic == NEMAGIC )
-        {
+        if (neHeader.ne_magic == NEMAGIC) {
 
             // seek to the description, and read it
 
             file.Seek(neHeader.ne_nrestab, FILE_BEGIN);
 
 #ifdef UNICODE
-            char szTemp[ DESCMAX ];
-
-            vReadCountedString( file, szTemp, DESCMAX );
-
-            MultiByteToWideChar( CP_ACP, 0, szTemp, -1,
-                                     lpFile->szDesc, DESCMAX );
-
+            char szTemp[DESCMAX];
+            vReadCountedString(file, szTemp, DESCMAX);
+            MultiByteToWideChar(CP_ACP, 0, szTemp, -1, lpFile->szDesc, DESCMAX);
 #else
-
-            vReadCountedString( fh, lpFile->szDesc, sizeof( lpFile->szDesc ) );
-
+            vReadCountedString(fh, lpFile->szDesc, sizeof(lpFile->szDesc));
 #endif  //  UNICODE
 
             bValid = TRUE;
 
-
             //  If requested, get family and style information.
-
-
-            if( lpFile->dwFlags & (FDI_FAMILY | FDI_STYLE | FDI_VTC ) )
-            {
-                bValid = bReadNewExeInfo( file, &neHeader, lNewHeader, lpFile );
+            if (lpFile->dwFlags & (FDI_FAMILY | FDI_STYLE | FDI_VTC)) {
+                bValid = bReadNewExeInfo(file, &neHeader, lNewHeader, lpFile);
             }
         }
     }
@@ -1830,8 +1576,7 @@ BOOL NEAR PASCAL bIsNewExe( LPFONTDESCINFO lpFile )
 //     FALSE    name not found, szName is NULL
 
 
-BOOL NEAR PASCAL bFindNameThing( sfnt_pNameTable pNames, IDBlock_t &ID_Block,
-                                 WORD NameID, LPTSTR szName )
+BOOL NEAR PASCAL bFindNameThing(sfnt_pNameTable pNames, IDBlock_t& ID_Block, WORD NameID, LPTSTR szName)
 {
     sfnt_lpNameRecord pNameRecord;
 
@@ -1839,70 +1584,54 @@ BOOL NEAR PASCAL bFindNameThing( sfnt_pNameTable pNames, IDBlock_t &ID_Block,
 
     int     cNames;
     LPBYTE  pStringArea;
-    WORD    wWantLang = SWAPW( ID_Block.id_Language );
+    WORD    wWantLang = SWAPW(ID_Block.id_Language);
 
-
-    szName[ 0 ] = 0;
-
+    szName[0] = 0;
 
     //  Verify that this, indeed, is a name thing. The format should be zero.
-
-
-    if( pNames->wFormat )
+    if (pNames->wFormat)
         return FALSE;
 
-    cNames = SWAPW( pNames->wCntRecords );
+    cNames = SWAPW(pNames->wCntRecords);
 
-    pNameRecord = (sfnt_pNameRecord)( (LPBYTE) pNames + sizeof( sfnt_NameTable ) );
+    pNameRecord = (sfnt_pNameRecord)((LPBYTE)pNames + sizeof(sfnt_NameTable));
 
-    for( ; cNames--; pNameRecord++ )
-    {
-        if( pNameRecord->wPlatformID == ID_Block.id_Platform &&
+    for (; cNames--; pNameRecord++) {
+        if (pNameRecord->wPlatformID == ID_Block.id_Platform &&
             pNameRecord->wSpecificID == ID_Block.id_Specific &&
-            pNameRecord->wNameID     == NameID )
-        {
-
+            pNameRecord->wNameID == NameID) {
             //  Check the language matches
+            WORD wFoundLang = SWAPW(pNameRecord->wLanguageID);
 
-
-            WORD wFoundLang = SWAPW( pNameRecord->wLanguageID );
-
-            if( PRIMARYLANGID( wFoundLang ) != PRIMARYLANGID( wWantLang ) )
-            {
+            if (PRIMARYLANGID(wFoundLang) != PRIMARYLANGID(wWantLang)) {
                 continue;
             }
 
             pFoundRecord = pNameRecord;
 
-
             //  Check the locale matches too
-
-
-            if( pNameRecord->wLanguageID == ID_Block.id_Language )
-            {
+            if (pNameRecord->wLanguageID == ID_Block.id_Language) {
                 break;
             }
         }
     }
 
-    if( pFoundRecord )
-    {
+    if (pFoundRecord) {
         pNameRecord = pFoundRecord;
 
-        pStringArea  = (LPBYTE) pNames;
-        pStringArea += SWAPW( pNames->wOffsetString );
-        pStringArea += SWAPW( pNameRecord->wOffset );
+        pStringArea = (LPBYTE)pNames;
+        pStringArea += SWAPW(pNames->wOffsetString);
+        pStringArea += SWAPW(pNameRecord->wOffset);
 
-        FillName( szName, pNameRecord, //->wPlatformID,
-                  SWAPW( pNameRecord->wLength ), pStringArea );
+        FillName(szName, pNameRecord, //->wPlatformID,
+                 SWAPW(pNameRecord->wLength), pStringArea);
 
         return TRUE;
     }
 
-    DEBUGMSG( (DM_ERROR, TEXT( "bFindNameThing(): ERROR!" ) ) );
-    DEBUGMSG( (DM_ERROR, TEXT( "--- Platform: %x  Specific: %x   Language: %x" ),
-            ID_Block.id_Platform, ID_Block.id_Specific, ID_Block.id_Language) );
+    DEBUGMSG((DM_ERROR, TEXT("bFindNameThing(): ERROR!")));
+    DEBUGMSG((DM_ERROR, TEXT("--- Platform: %x  Specific: %x   Language: %x"),
+              ID_Block.id_Platform, ID_Block.id_Specific, ID_Block.id_Language));
 
     return FALSE;
 }
-

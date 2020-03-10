@@ -1,8 +1,6 @@
 /*
  *  FILERES.C
-
  *              File resource extraction routines.
-
 */
 
 //  BUGBUG - GetVerInfoSize plays tricks and tells the caller to allocate
@@ -30,51 +28,47 @@ typedef struct tagVERBLOCK {
     WORD wValLen;
     WORD wType;
     WCHAR szKey[1];
-} VERBLOCK ;
+} VERBLOCK;
 
 typedef struct tagVERHEAD {
     WORD wTotLen;
     WORD wValLen;
     WORD wType;         /* always 0 */
-    WCHAR szKey[(sizeof("VS_VERSION_INFO")+3)&~03];
+    WCHAR szKey[(sizeof("VS_VERSION_INFO") + 3) & ~03];
     VS_FIXEDFILEINFO vsf;
-} VERHEAD ;
+} VERHEAD;
 
 
 typedef struct tagVERBLOCK16 {
     WORD wTotLen;
     WORD wValLen;
     CHAR szKey[1];
-} VERBLOCK16 ;
+} VERBLOCK16;
 
 typedef struct tagVERHEAD16 {
     WORD wTotLen;
     WORD wValLen;
-    CHAR szKey[(sizeof("VS_VERSION_INFO")+3)&~03];
+    CHAR szKey[(sizeof("VS_VERSION_INFO") + 3) & ~03];
     VS_FIXEDFILEINFO vsf;      // same as win31
-} VERHEAD16 ;
+} VERHEAD16;
 
-DWORD VER2_SIG='X2EF';
+DWORD VER2_SIG = 'X2EF';
 
 
 extern WCHAR szTrans[];
 
 /* ----- Functions ----- */
-DWORD
-MyExtractVersionResource16W (
-    LPCWSTR  lpwstrFilename,
-    LPHANDLE hVerRes
-    )
+DWORD MyExtractVersionResource16W(LPCWSTR  lpwstrFilename, LPHANDLE hVerRes)
 {
     DWORD dwTemp = 0;
-    DWORD (__stdcall *pExtractVersionResource16W)(LPCWSTR, LPHANDLE);
+    DWORD(__stdcall * pExtractVersionResource16W)(LPCWSTR, LPHANDLE);
     HINSTANCE hShell32 = LoadLibraryW(L"shell32.dll");
 
     if (hShell32) {
-        pExtractVersionResource16W = (DWORD(__stdcall *)(LPCWSTR, LPHANDLE))
-                                     GetProcAddress(hShell32, "ExtractVersionResource16W");
+        pExtractVersionResource16W = (DWORD(__stdcall*)(LPCWSTR, LPHANDLE))
+            GetProcAddress(hShell32, "ExtractVersionResource16W");
         if (pExtractVersionResource16W) {
-            dwTemp = pExtractVersionResource16W( lpwstrFilename, hVerRes );
+            dwTemp = pExtractVersionResource16W(lpwstrFilename, hVerRes);
         } else {
             dwTemp = 0;
         }
@@ -95,7 +89,7 @@ MyExtractVersionResource16W (
 DWORD APIENTRY GetFileVersionInfoSizeW(LPWSTR lpwstrFilename, LPDWORD lpdwHandle)
 {
     DWORD dwTemp;
-    VERHEAD *pVerHead;
+    VERHEAD* pVerHead;
     HANDLE hMod;
     HANDLE hVerRes;
     HANDLE h;
@@ -111,9 +105,8 @@ DWORD APIENTRY GetFileVersionInfoSizeW(LPWSTR lpwstrFilename, LPDWORD lpdwHandle
     pVerHead = NULL;
     if (!hMod) {
         hVerRes = NULL;
-        __try
-        {
-            dwTemp = MyExtractVersionResource16W( lpwstrFilename, &hVerRes );
+        __try {
+            dwTemp = MyExtractVersionResource16W(lpwstrFilename, &hVerRes);
 
             dwError = ERROR_SUCCESS;
             if (!dwTemp) {
@@ -125,9 +118,9 @@ DWORD APIENTRY GetFileVersionInfoSizeW(LPWSTR lpwstrFilename, LPDWORD lpdwHandle
                 dwTemp = 0;
                 __leave;
             }
-        } __except( EXCEPTION_EXECUTE_HANDLER ) {
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
             dwError = ERROR_INVALID_DATA;
-            dwTemp = 0 ;
+            dwTemp = 0;
         }
 
         if (pVerHead)
@@ -148,7 +141,7 @@ DWORD APIENTRY GetFileVersionInfoSizeW(LPWSTR lpwstrFilename, LPDWORD lpdwHandle
             __leave;
         }
 
-        if ((dwTemp=SizeofResource(hMod, hVerRes)) == 0) {
+        if ((dwTemp = SizeofResource(hMod, hVerRes)) == 0) {
             dwTemp = 0;
             __leave;
         }
@@ -170,7 +163,6 @@ DWORD APIENTRY GetFileVersionInfoSizeW(LPWSTR lpwstrFilename, LPDWORD lpdwHandle
         }
 
         dwTemp = (DWORD)pVerHead->wTotLen;
-
         dwTemp = DWORDUP(dwTemp);
 
         if (pVerHead->vsf.dwSignature != VS_FFI_SIGNATURE) {
@@ -178,7 +170,7 @@ DWORD APIENTRY GetFileVersionInfoSizeW(LPWSTR lpwstrFilename, LPDWORD lpdwHandle
             dwTemp = 0;
             __leave;
         }
-    } __except(EXCEPTION_EXECUTE_HANDLER) {
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
         dwError = ERROR_INVALID_DATA;
         dwTemp = 0;
     }
@@ -190,12 +182,9 @@ DWORD APIENTRY GetFileVersionInfoSizeW(LPWSTR lpwstrFilename, LPDWORD lpdwHandle
 
     SetLastError(dwError);
 
-
     // dwTemp should be evenly divisible by two since not single
     // byte components at all (also DWORDUP for safety above):
     // alloc space for ansi components
-
-
 
     // Keep space for DBCS chars.
 
@@ -217,8 +206,8 @@ DWORD APIENTRY GetFileVersionInfoSizeW(LPWSTR lpwstrFilename, LPDWORD lpdwHandle
 */
 BOOL APIENTRY GetFileVersionInfoW(LPWSTR lpwstrFilename, DWORD dwHandle, DWORD dwLen, LPVOID lpData)
 {
-    VERHEAD *pVerHead;
-    VERHEAD16 *pVerHead16;
+    VERHEAD* pVerHead;
+    VERHEAD16* pVerHead16;
     HANDLE hMod;
     HANDLE hVerRes;
     HANDLE h;
@@ -228,7 +217,6 @@ BOOL APIENTRY GetFileVersionInfoW(LPWSTR lpwstrFilename, DWORD dwHandle, DWORD d
     UNREFERENCED_PARAMETER(dwHandle);
 
     // Check minimum size to prevent access violations
-
     if (dwLen < sizeof(((VERHEAD*)lpData)->wTotLen)) {
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
         return (FALSE);
@@ -240,9 +228,9 @@ BOOL APIENTRY GetFileVersionInfoW(LPWSTR lpwstrFilename, DWORD dwHandle, DWORD d
     if (hMod == NULL) {
         // Allow 16bit stuff
         __try {
-            dwTemp = MyExtractVersionResource16W( lpwstrFilename, &hVerRes );
-        } __except( EXCEPTION_EXECUTE_HANDLER ) {
-            dwTemp = 0 ;
+            dwTemp = MyExtractVersionResource16W(lpwstrFilename, &hVerRes);
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            dwTemp = 0;
         }
 
         if (!dwTemp)
@@ -259,7 +247,7 @@ BOOL APIENTRY GetFileVersionInfoW(LPWSTR lpwstrFilename, DWORD dwHandle, DWORD d
 
             if ((dwTemp * 3) > dwLen) {
                 // We are forced to truncate.
-                dwTemp = dwLen/3;
+                dwTemp = dwLen / 3;
                 bTruncate = TRUE;
             } else {
                 bTruncate = FALSE;
@@ -275,7 +263,7 @@ BOOL APIENTRY GetFileVersionInfoW(LPWSTR lpwstrFilename, DWORD dwHandle, DWORD d
                 ((VERHEAD16*)lpData)->wTotLen = (WORD)dwTemp;
             }
             rc = TRUE;
-        } __except( EXCEPTION_EXECUTE_HANDLER ) {
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
             rc = FALSE;
         }
 
@@ -323,7 +311,7 @@ BOOL APIENTRY GetFileVersionInfoW(LPWSTR lpwstrFilename, DWORD dwHandle, DWORD d
             }
 
             rc = TRUE;
-        } __except( EXCEPTION_EXECUTE_HANDLER ) {
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
             rc = FALSE;
         }
     }
@@ -336,28 +324,26 @@ BOOL APIENTRY GetFileVersionInfoW(LPWSTR lpwstrFilename, DWORD dwHandle, DWORD d
 
 BOOL
 VerpQueryValue16(
-                const LPVOID pb,
-                LPVOID lpSubBlockX,
-                INT    nIndex,
-                LPVOID *lplpKey,
-                LPVOID *lplpBuffer,
-                PUINT puLen,
-                BOOL    bUnicodeNeeded
-                )
+    const LPVOID pb,
+    LPVOID lpSubBlockX,
+    INT    nIndex,
+    LPVOID* lplpKey,
+    LPVOID* lplpBuffer,
+    PUINT puLen,
+    BOOL    bUnicodeNeeded
+)
 {
     ANSI_STRING AnsiString;
     UNICODE_STRING UnicodeString;
     LPSTR lpSubBlock;
     LPSTR lpSubBlockOrg;
     NTSTATUS Status;
-
-    VERBLOCK16 *pBlock = (VERBLOCK16*)pb;
+    VERBLOCK16* pBlock = (VERBLOCK16*)pb;
     LPSTR lpStart, lpEndBlock, lpEndSubBlock;
     CHAR cTemp, cEndBlock;
     BOOL bLastSpec;
     DWORD dwHeadLen, dwTotBlockLen;
     INT  nCmp;
-
     BOOL bThunkNeeded;
 
     /*
@@ -365,33 +351,28 @@ VerpQueryValue16(
      * to ansi.  If it's ansi already, we make a copy so we can
      * modify it.
      */
-
     if (bUnicodeNeeded) {
-
-
         // Thunk is not needed if lpSubBlockX == \VarFileInfo\Translation
         // or if lpSubBlockX == \
 
         bThunkNeeded = (BOOL)((*(LPTSTR)lpSubBlockX != 0) &&
-                              (lstrcmp(lpSubBlockX, TEXT("\\")) != 0) &&
+            (lstrcmp(lpSubBlockX, TEXT("\\")) != 0) &&
                               (lstrcmpi(lpSubBlockX, szTrans) != 0));
 
         RtlInitUnicodeString(&UnicodeString, lpSubBlockX);
         Status = RtlUnicodeStringToAnsiString(&AnsiString, &UnicodeString, TRUE);
-
         if (!NT_SUCCESS(Status)) {
             SetLastError(Status);
             return FALSE;
         }
         lpSubBlock = AnsiString.Buffer;
-
     } else {
-        lpSubBlockOrg = (LPSTR)LocalAlloc(LPTR,(lstrlenA(lpSubBlockX)+1)*sizeof(CHAR));
-        if (lpSubBlockOrg == NULL ) {
+        lpSubBlockOrg = (LPSTR)LocalAlloc(LPTR, (lstrlenA(lpSubBlockX) + 1) * sizeof(CHAR));
+        if (lpSubBlockOrg == NULL) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             return FALSE;
         }
-        lstrcpyA(lpSubBlockOrg,lpSubBlockX);
+        lstrcpyA(lpSubBlockOrg, lpSubBlockX);
         lpSubBlock = lpSubBlockOrg;
     }
 
@@ -415,7 +396,6 @@ VerpQueryValue16(
     bLastSpec = FALSE;
 
     while ((*lpSubBlock || nIndex != -1)) {
-
         // Ignore leading '\\'s
 
         while (*lpSubBlock == '\\')
@@ -434,19 +414,19 @@ VerpQueryValue16(
              * the identifying string) and skip past the value
              */
 
-            dwHeadLen = sizeof(WORD)*2 + DWORDUP(lstrlenA(pBlock->szKey)+1)
-                        + DWORDUP(pBlock->wValLen);
+            dwHeadLen = sizeof(WORD) * 2 + DWORDUP(lstrlenA(pBlock->szKey) + 1)
+                + DWORDUP(pBlock->wValLen);
 
             if (dwHeadLen > pBlock->wTotLen)
                 goto NotFound;
             lpEndSubBlock = ((LPSTR)pBlock) + pBlock->wTotLen;
-            pBlock = (VERBLOCK16 FAR *)((LPSTR)pBlock+dwHeadLen);
+            pBlock = (VERBLOCK16 FAR*)((LPSTR)pBlock + dwHeadLen);
 
             /* Look for the first sub-block name and terminate it
              */
-            for (lpStart=lpSubBlock; *lpSubBlock && *lpSubBlock!='\\';
-                lpSubBlock=CharNextA(lpSubBlock))
-                /* find next '\\' */ ;
+            for (lpStart = lpSubBlock; *lpSubBlock && *lpSubBlock != '\\';
+                 lpSubBlock = CharNextA(lpSubBlock))
+                /* find next '\\' */;
             cTemp = *lpSubBlock;
             *lpSubBlock = '\0';
 
@@ -457,23 +437,18 @@ VerpQueryValue16(
              */
 
             nCmp = 1;
-            while ((INT)pBlock->wTotLen>sizeof(VERBLOCK16) &&
-                   (INT)(lpEndSubBlock-((LPSTR)pBlock))>=(INT)pBlock->wTotLen) {
-
-
+            while ((INT)pBlock->wTotLen > sizeof(VERBLOCK16) &&
+                (INT)(lpEndSubBlock - ((LPSTR)pBlock)) >= (INT)pBlock->wTotLen) {
                 // Index functionality: if we are at the end of the path
                 // (cTemp == 0 set below) and nIndex is NOT -1 (index search)
                 // then break on nIndex zero.  Else do normal wscicmp.
 
                 if (bLastSpec && nIndex != -1) {
-
                     if (!nIndex) {
-
                         if (lplpKey) {
                             *lplpKey = pBlock->szKey;
                         }
-                        nCmp=0;
-
+                        nCmp = 0;
 
                         // Index found, set nInde to -1
                         // so that we exit this loop
@@ -483,20 +458,15 @@ VerpQueryValue16(
                     }
 
                     nIndex--;
-
                 } else {
-
-
                     // Check if the sub-block name is what we are looking for
-
-
-                    if (!(nCmp=lstrcmpiA(lpStart, pBlock->szKey)))
+                    if (!(nCmp = lstrcmpiA(lpStart, pBlock->szKey)))
                         break;
                 }
 
                 /* Skip to the next sub-block
                  */
-                pBlock=(VERBLOCK16 FAR *)((LPSTR)pBlock+DWORDUP(pBlock->wTotLen));
+                pBlock = (VERBLOCK16 FAR*)((LPSTR)pBlock + DWORDUP(pBlock->wTotLen));
             }
 
             /* Restore the char NULLed above and return failure if the sub-block
@@ -548,12 +518,9 @@ VerpQueryValue16(
      *----------------------------------------------------------------------*/
 
     if (bUnicodeNeeded) {
-
-
         // Do thunk only if we aren't looking for \VarFileInfo\Translation or \
 
         if (bThunkNeeded) {
-
             AnsiString.Length = AnsiString.MaximumLength = (SHORT)*puLen;
             AnsiString.Buffer = *lplpBuffer;
 
@@ -562,28 +529,24 @@ VerpQueryValue16(
             // Assumes wTotLen is first filed in VERHEAD
 
             UnicodeString.Buffer = (LPWSTR)((PBYTE)pb + DWORDUP(*((WORD*)pb)) +
-                                            (DWORD)((PBYTE)*lplpBuffer - (PBYTE)pb)*2);
+                (DWORD)((PBYTE)*lplpBuffer - (PBYTE)pb) * 2);
 
-            UnicodeString.MaximumLength = (SHORT)((*puLen+1) * sizeof(WCHAR));
+            UnicodeString.MaximumLength = (SHORT)((*puLen + 1) * sizeof(WCHAR));
             RtlAnsiStringToUnicodeString(&UnicodeString, &AnsiString, FALSE);
 
             *lplpBuffer = UnicodeString.Buffer;
         }
 
         if (lplpKey) {
-
-
             // Thunk the key
-
-
             dwHeadLen = lstrlenA(*lplpKey);
             AnsiString.Length = AnsiString.MaximumLength = (SHORT)dwHeadLen;
             AnsiString.Buffer = *lplpKey;
 
-            UnicodeString.Buffer = (LPWSTR) ((PBYTE)pb + DWORDUP(*((WORD*)pb)) +
-                                             (DWORD)((PBYTE)*lplpKey - (PBYTE)pb)*2);
+            UnicodeString.Buffer = (LPWSTR)((PBYTE)pb + DWORDUP(*((WORD*)pb)) +
+                (DWORD)((PBYTE)*lplpKey - (PBYTE)pb) * 2);
 
-            UnicodeString.MaximumLength = (SHORT)((dwHeadLen+1) * sizeof(WCHAR));
+            UnicodeString.MaximumLength = (SHORT)((dwHeadLen + 1) * sizeof(WCHAR));
             RtlAnsiStringToUnicodeString(&UnicodeString, &AnsiString, FALSE);
 
             *lplpKey = UnicodeString.Buffer;
@@ -593,14 +556,13 @@ VerpQueryValue16(
     return (TRUE);
 
 
-
-    NotFound:
+NotFound:
 
     /* Restore the char we NULLed above
      */
     *lpEndBlock = cEndBlock;
 
-    Fail:
+Fail:
 
     if (bUnicodeNeeded) {
         RtlFreeAnsiString(&AnsiString);
@@ -625,22 +587,21 @@ VerpQueryValue16(
 BOOL
 APIENTRY
 VerpQueryValue(
-              const LPVOID pb,
-              LPVOID lpSubBlockX,    // can be ansi or unicode
-              INT    nIndex,
-              LPVOID *lplpKey,
-              LPVOID *lplpBuffer,
-              PUINT puLen,
-              BOOL    bUnicodeNeeded
-              )
+    const LPVOID pb,
+    LPVOID lpSubBlockX,    // can be ansi or unicode
+    INT    nIndex,
+    LPVOID* lplpKey,
+    LPVOID* lplpBuffer,
+    PUINT puLen,
+    BOOL    bUnicodeNeeded
+)
 {
     ANSI_STRING AnsiString;
     UNICODE_STRING UnicodeString;
     LPWSTR lpSubBlockOrg;
     LPWSTR lpSubBlock;
     NTSTATUS Status;
-
-    VERBLOCK *pBlock = (PVOID)pb;
+    VERBLOCK* pBlock = (PVOID)pb;
     LPWSTR lpStart, lpEndBlock, lpEndSubBlock;
     WCHAR cTemp, cEndBlock;
     DWORD dwHeadLen, dwTotBlockLen;
@@ -654,7 +615,6 @@ VerpQueryValue(
      * Major hack: wType is 0 for win32 versions, but holds 56 ('V')
      * for win16.
      */
-
     if (((VERHEAD*)pb)->wType)
         return VerpQueryValue16(pb,
                                 lpSubBlockX,
@@ -670,27 +630,22 @@ VerpQueryValue(
      */
 
     if (!bUnicodeNeeded) {
-
         RtlInitAnsiString(&AnsiString, (LPSTR)lpSubBlockX);
         Status = RtlAnsiStringToUnicodeString(&UnicodeString, &AnsiString, TRUE);
-
         if (!NT_SUCCESS(Status)) {
             SetLastError(Status);
             return FALSE;
         }
         lpSubBlock = UnicodeString.Buffer;
-
     } else {
-        lpSubBlockOrg = (LPWSTR)LocalAlloc(LPTR,(lstrlen(lpSubBlockX)+1)*sizeof(WCHAR));
-        if (lpSubBlockOrg == NULL ) {
+        lpSubBlockOrg = (LPWSTR)LocalAlloc(LPTR, (lstrlen(lpSubBlockX) + 1) * sizeof(WCHAR));
+        if (lpSubBlockOrg == NULL) {
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             return FALSE;
         }
-        lstrcpy(lpSubBlockOrg,lpSubBlockX);
+        lstrcpy(lpSubBlockOrg, lpSubBlockX);
         lpSubBlock = lpSubBlockOrg;
     }
-
-
 
     /* Ensure that the total length is less than 32K but greater than the
      * size of a block header; we will assume that the size of pBlock is at
@@ -708,7 +663,6 @@ VerpQueryValue(
     bLastSpec = FALSE;
 
     while ((*lpSubBlock || nIndex != -1)) {
-
         // Ignore leading '\\'s
 
         while (*lpSubBlock == TEXT('\\'))
@@ -719,7 +673,7 @@ VerpQueryValue(
              */
             dwTotBlockLen = (DWORD)((LPSTR)lpEndBlock - (LPSTR)pBlock + sizeof(WCHAR));
             if ((int)dwTotBlockLen < sizeof(VERBLOCK) ||
-                pBlock->wTotLen > (WORD)dwTotBlockLen)
+                pBlock->wTotLen >(WORD)dwTotBlockLen)
                 goto NotFound;
 
             /* Calculate the length of the "header" (the two length WORDs plus
@@ -727,18 +681,18 @@ VerpQueryValue(
              * past the value.
              */
             dwHeadLen = DWORDUP(sizeof(VERBLOCK) - sizeof(WCHAR) +
-                                (wcslen(pBlock->szKey) + 1) * sizeof(WCHAR)) +
-                        DWORDUP(pBlock->wValLen);
+                (wcslen(pBlock->szKey) + 1) * sizeof(WCHAR)) +
+                DWORDUP(pBlock->wValLen);
             if (dwHeadLen > pBlock->wTotLen)
                 goto NotFound;
             lpEndSubBlock = (LPWSTR)((LPSTR)pBlock + pBlock->wTotLen);
-            pBlock = (VERBLOCK*)((LPSTR)pBlock+dwHeadLen);
+            pBlock = (VERBLOCK*)((LPSTR)pBlock + dwHeadLen);
 
             /* Look for the first sub-block name and terminate it
              */
-            for (lpStart=lpSubBlock; *lpSubBlock && *lpSubBlock!=TEXT('\\');
-                lpSubBlock++)
-                /* find next '\\' */ ;
+            for (lpStart = lpSubBlock; *lpSubBlock && *lpSubBlock != TEXT('\\');
+                 lpSubBlock++)
+                /* find next '\\' */;
             cTemp = *lpSubBlock;
             *lpSubBlock = 0;
 
@@ -749,22 +703,17 @@ VerpQueryValue(
              */
             nCmp = 1;
             while ((int)pBlock->wTotLen > sizeof(VERBLOCK) &&
-                   (int)pBlock->wTotLen <= (LPSTR)lpEndSubBlock-(LPSTR)pBlock) {
-
-
+                (int)pBlock->wTotLen <= (LPSTR)lpEndSubBlock - (LPSTR)pBlock) {
                 // Index functionality: if we are at the end of the path
                 // (cTemp == 0 set below) and nIndex is NOT -1 (index search)
                 // then break on nIndex zero.  Else do normal wscicmp.
 
                 if (bLastSpec && nIndex != -1) {
-
                     if (!nIndex) {
-
                         if (lplpKey) {
                             *lplpKey = pBlock->szKey;
                         }
-                        nCmp=0;
-
+                        nCmp = 0;
 
                         // Index found, set nInde to -1
                         // so that we exit this loop
@@ -774,20 +723,15 @@ VerpQueryValue(
                     }
 
                     nIndex--;
-
                 } else {
-
-
                     // Check if the sub-block name is what we are looking for
-
-
-                    if (!(nCmp=_wcsicmp(lpStart, pBlock->szKey)))
+                    if (!(nCmp = _wcsicmp(lpStart, pBlock->szKey)))
                         break;
                 }
 
                 /* Skip to the next sub-block
                  */
-                pBlock=(VERBLOCK*)((LPSTR)pBlock+DWORDUP(pBlock->wTotLen));
+                pBlock = (VERBLOCK*)((LPSTR)pBlock + DWORDUP(pBlock->wTotLen));
             }
 
             /* Restore the char NULLed above and return failure if the sub-block
@@ -815,12 +759,12 @@ VerpQueryValue(
      * block (i.e., the val string is outside of the current block).
      */
 
-    lpStart = (LPWSTR)((LPSTR)pBlock+DWORDUP((sizeof(VERBLOCK)-sizeof(WCHAR))+
-                                             (wcslen(pBlock->szKey)+1)*sizeof(WCHAR)));
+    lpStart = (LPWSTR)((LPSTR)pBlock + DWORDUP((sizeof(VERBLOCK) - sizeof(WCHAR)) +
+        (wcslen(pBlock->szKey) + 1) * sizeof(WCHAR)));
 
-    *lplpBuffer = lpStart < (LPWSTR)((LPBYTE)pBlock+pBlock->wTotLen) ?
-                  lpStart :
-                  (LPWSTR)(pBlock->szKey+wcslen(pBlock->szKey));
+    *lplpBuffer = lpStart < (LPWSTR)((LPBYTE)pBlock + pBlock->wTotLen) ?
+        lpStart :
+        (LPWSTR)(pBlock->szKey + wcslen(pBlock->szKey));
 
     bString = pBlock->wType;
 
@@ -850,24 +794,21 @@ VerpQueryValue(
 
         DWORD cbAnsiTranslateBuffer;
         if (fV2) {
-            cbAnsiTranslateBuffer = DWORDUP(*((WORD *)pb));
+            cbAnsiTranslateBuffer = DWORDUP(*((WORD*)pb));
         } else {
-            cbAnsiTranslateBuffer = DWORDUP(*((WORD *)pb)) / 2;
+            cbAnsiTranslateBuffer = DWORDUP(*((WORD*)pb)) / 2;
         }
 
         if (bString && *puLen != 0) {
             DWORD cb, cb2;
-
 
             // Must multiply length by two (first subtract 1 since puLen includes the null terminator)
 
             UnicodeString.Length = UnicodeString.MaximumLength = (SHORT)((*puLen - 1) * 2);
             UnicodeString.Buffer = *lplpBuffer;
 
-
             // Do the string conversion in the second half of the buffer
             // Assumes wTotLen is first filed in VERHEAD
-
 
             // cb = offset in buffer to beginning of string
             cb = (DWORD)((PBYTE)*lplpBuffer - (PBYTE)pb);
@@ -882,24 +823,21 @@ VerpQueryValue(
             AnsiString.Buffer = (PBYTE)pb + DWORDUP(*((WORD*)pb)) + cb2;
 
             AnsiString.MaximumLength = (USHORT)RtlUnicodeStringToAnsiSize(&UnicodeString);
-            if ( AnsiString.MaximumLength > MAXUSHORT ) {
+            if (AnsiString.MaximumLength > MAXUSHORT) {
                 goto Fail;
-                }
+            }
 
             AnsiString.MaximumLength = (USHORT)(__min((DWORD)AnsiString.MaximumLength,
-                                                      (DWORD)(cbAnsiTranslateBuffer-cb2)));
+                (DWORD)(cbAnsiTranslateBuffer - cb2)));
 
             RtlUnicodeStringToAnsiString(&AnsiString, &UnicodeString, FALSE);
 
             *lplpBuffer = AnsiString.Buffer;
             *puLen = AnsiString.Length + 1;
-
         }
 
         if (lplpKey) {
-
             DWORD cb, cb2;
-
 
             // Thunk the key
 
@@ -919,28 +857,28 @@ VerpQueryValue(
             AnsiString.Buffer = (PBYTE)pb + DWORDUP(*((WORD*)pb)) + cb2;
 
             AnsiString.MaximumLength = (USHORT)RtlUnicodeStringToAnsiSize(&UnicodeString);
-            if ( AnsiString.MaximumLength > MAXUSHORT ) {
+            if (AnsiString.MaximumLength > MAXUSHORT) {
                 goto Fail;
-                }
+            }
 
             AnsiString.MaximumLength = (USHORT)(__min((DWORD)AnsiString.MaximumLength,
-                                                      (DWORD)(cbAnsiTranslateBuffer-cb2)));
+                (DWORD)(cbAnsiTranslateBuffer - cb2)));
             RtlUnicodeStringToAnsiString(&AnsiString, &UnicodeString, FALSE);
 
             *lplpKey = AnsiString.Buffer;
-            *puLen = AnsiString.Length+1;
+            *puLen = AnsiString.Length + 1;
         }
     }
 
     return (TRUE);
 
 
-    NotFound:
+NotFound:
     /* Restore the char we NULLed above
      */
     *lpEndBlock = cEndBlock;
 
-    Fail:
+Fail:
 
     if (!bUnicodeNeeded) {
         RtlFreeUnicodeString(&UnicodeString);

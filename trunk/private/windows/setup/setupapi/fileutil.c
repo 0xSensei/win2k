@@ -22,7 +22,7 @@ GUID DriverVerifyGuid = DRIVER_ACTION_VERIFY;
 // Instantiate exception class GUID.
 
 #include <initguid.h>
-DEFINE_GUID( GUID_DEVCLASS_WINDOWS_COMPONENT_PUBLISHER, 0xF5776D81L, 0xAE53, 0x4935, 0x8E, 0x84, 0xB0, 0xB2, 0x83, 0xD8, 0xBC, 0xEF );
+DEFINE_GUID(GUID_DEVCLASS_WINDOWS_COMPONENT_PUBLISHER, 0xF5776D81L, 0xAE53, 0x4935, 0x8E, 0x84, 0xB0, 0xB2, 0x83, 0xD8, 0xBC, 0xEF);
 
 
 DWORD
@@ -31,8 +31,8 @@ OpenAndMapFileForRead(
     OUT PDWORD   FileSize,
     OUT PHANDLE  FileHandle,
     OUT PHANDLE  MappingHandle,
-    OUT PVOID   *BaseAddress
-    )
+    OUT PVOID* BaseAddress
+)
 /*++
 Routine Description:
     Open and map an existing file for read access.
@@ -54,9 +54,9 @@ Return Value:
 
     // Open the file -- fail if it does not exist.
     *FileHandle = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-    if(*FileHandle == INVALID_HANDLE_VALUE) {
+    if (*FileHandle == INVALID_HANDLE_VALUE) {
         rc = GetLastError();
-    } else if((rc = MapFileForRead(*FileHandle, FileSize, MappingHandle, BaseAddress)) != NO_ERROR) {
+    } else if ((rc = MapFileForRead(*FileHandle, FileSize, MappingHandle, BaseAddress)) != NO_ERROR) {
         CloseHandle(*FileHandle);
     }
 
@@ -69,8 +69,8 @@ MapFileForRead(
     IN  HANDLE   FileHandle,
     OUT PDWORD   FileSize,
     OUT PHANDLE  MappingHandle,
-    OUT PVOID   *BaseAddress
-    )
+    OUT PVOID* BaseAddress
+)
 /*++
 Routine Description:
     Map an opened file for read access.
@@ -89,13 +89,13 @@ Return Value:
 
     // Get the size of the file.
     *FileSize = GetFileSize(FileHandle, NULL);
-    if(*FileSize != (DWORD)(-1)) {
+    if (*FileSize != (DWORD)(-1)) {
         // Create file mapping for the whole file.
         *MappingHandle = CreateFileMapping(FileHandle, NULL, PAGE_READONLY, 0, *FileSize, NULL);
-        if(*MappingHandle) {
+        if (*MappingHandle) {
             // Map the whole file.
             *BaseAddress = MapViewOfFile(*MappingHandle, FILE_MAP_READ, 0, 0, *FileSize);
-            if(*BaseAddress) {
+            if (*BaseAddress) {
                 return(NO_ERROR);
             }
 
@@ -138,7 +138,7 @@ DWORD
 ReadAsciiOrUnicodeTextFile(
     IN  HANDLE                FileHandle,
     OUT PTEXTFILE_READ_BUFFER Result
-    )
+)
 /*++
 Routine Description:
 
@@ -212,7 +212,7 @@ Remarks:
 
     // Map the file for read access.
     rc = MapFileForRead(FileHandle, &FileSize, &MappingHandle, &ViewAddress);
-    if(rc != NO_ERROR) {
+    if (rc != NO_ERROR) {
         // We couldn't map the file--close the file handle now.
         CloseHandle(FileHandle);
     } else {
@@ -223,7 +223,7 @@ Remarks:
             // is Unicode, and don't have to go through the slow process of trying to figure it out.
             TextStartAddress = ViewAddress;
 
-            if((FileSize >= sizeof(WCHAR)) && (*(PWCHAR)TextStartAddress == 0xFEFF)) {
+            if ((FileSize >= sizeof(WCHAR)) && (*(PWCHAR)TextStartAddress == 0xFEFF)) {
                 // The file has the BOM prefix.  Adjust the pointer to the
                 // start of the text, so that we don't include the marker
                 // in the text buffer we return.
@@ -237,7 +237,7 @@ Remarks:
                 ((PWCHAR)TextStartAddress)++;
                 FileSize -= sizeof(WCHAR);
             } else {
-                IsNativeChar = IsTextUnicode(TextStartAddress,FileSize,NULL);
+                IsNativeChar = IsTextUnicode(TextStartAddress, FileSize, NULL);
 #ifndef UNICODE
                 IsNativeChar = !IsNativeChar;
 #endif // !UNICODE
@@ -246,8 +246,8 @@ Remarks:
             rc = ERROR_READ_FAULT;
         }
 
-        if(rc == NO_ERROR) {
-            if(IsNativeChar) {
+        if (rc == NO_ERROR) {
+            if (IsNativeChar) {
                 // No conversion is required--we'll just use the mapped-in image in memory.
                 Result->TextBuffer = TextStartAddress;
                 Result->TextBufferSize = FileSize / sizeof(TCHAR);
@@ -269,7 +269,7 @@ Remarks:
                 // of bytes that the Unicode text occupies.
 #endif // UNICODE
 
-                if(Buffer = MyMalloc(FileSize * sizeof(TCHAR))) {
+                if (Buffer = MyMalloc(FileSize * sizeof(TCHAR))) {
                     try {
 #ifdef UNICODE
                         // BugBug(jamiehun) 8/9/99
@@ -278,11 +278,11 @@ Remarks:
 
                         SysCodePage = CP_ACP;
 #if 0 // BugBug(jamiehun) 9/1/99 backed out for Win2k Raid 394640/373540
-                        if((SysLangID = GetSystemDefaultUILanguage())!=0) {
-                            if(GetLocaleInfo(MAKELCID(SysLangID,SORT_DEFAULT),
-                                            LOCALE_IDEFAULTANSICODEPAGE,SysCodePageString,
-                                            sizeof(SysCodePageString)/sizeof(TCHAR))>0) {
-                                SysCodePage = (UINT)_tcstoul(SysCodePageString,NULL,0);
+                        if ((SysLangID = GetSystemDefaultUILanguage()) != 0) {
+                            if (GetLocaleInfo(MAKELCID(SysLangID, SORT_DEFAULT),
+                                              LOCALE_IDEFAULTANSICODEPAGE, SysCodePageString,
+                                              sizeof(SysCodePageString) / sizeof(TCHAR)) > 0) {
+                                SysCodePage = (UINT)_tcstoul(SysCodePageString, NULL, 0);
                             }
                         }
 #endif
@@ -296,9 +296,9 @@ Remarks:
                                                               FileSize,
                                                               NULL,
                                                               NULL
-                                                             );
+                        );
 #endif // UNICODE
-                        if(!NativeCharCount) {
+                        if (!NativeCharCount) {
                             rc = GetLastError();
                         }
                     } except(EXCEPTION_EXECUTE_HANDLER) {
@@ -308,13 +308,13 @@ Remarks:
                     rc = ERROR_NOT_ENOUGH_MEMORY;
                 }
 
-                if(rc == NO_ERROR) {
+                if (rc == NO_ERROR) {
                     // If the converted buffer doesn't require the entire block
                     // we allocated, attempt to reallocate the buffer to its
                     // correct size.  We don't care if this fails, since the
                     // buffer we have is perfectly fine (just bigger than we need).
 
-                    if(!(Result->TextBuffer = MyRealloc(Buffer, NativeCharCount * sizeof(TCHAR)))) {
+                    if (!(Result->TextBuffer = MyRealloc(Buffer, NativeCharCount * sizeof(TCHAR)))) {
                         Result->TextBuffer = Buffer;
                     }
 
@@ -322,7 +322,7 @@ Remarks:
                     Result->FileHandle = INVALID_HANDLE_VALUE;
                 } else {
                     // Free the buffer, if it was previously allocated.
-                    if(Buffer) {
+                    if (Buffer) {
                         MyFree(Buffer);
                     }
                 }
@@ -331,7 +331,7 @@ Remarks:
 
         // If the file was already in native character form and we didn't
         // enounter any errors, then we don't want to close it, because we use the mapped-in view directly.
-        if((rc != NO_ERROR) || !IsNativeChar) {
+        if ((rc != NO_ERROR) || !IsNativeChar) {
             UnmapAndCloseFile(FileHandle, MappingHandle, ViewAddress);
         }
     }
@@ -352,7 +352,7 @@ Return Value:
 {
     // If our ReadBuffer structure has a valid FileHandle, then we must
     // unmap and close the file, otherwise, we simply need to free the allocated buffer.
-    if(ReadBuffer->FileHandle != INVALID_HANDLE_VALUE) {
+    if (ReadBuffer->FileHandle != INVALID_HANDLE_VALUE) {
         return UnmapAndCloseFile(ReadBuffer->FileHandle, ReadBuffer->MappingHandle, ReadBuffer->ViewAddress);
     } else {
         MyFree(ReadBuffer->TextBuffer);
@@ -365,8 +365,8 @@ BOOL
 GetVersionInfoFromImage(
     IN  PCTSTR      FileName,
     OUT PDWORDLONG  Version,
-    OUT LANGID     *Language
-    )
+    OUT LANGID* Language
+)
 /*++
 Routine Description:
 
@@ -398,7 +398,7 @@ Return Value:
 {
     DWORD d;
     PVOID VersionBlock;
-    VS_FIXEDFILEINFO *FixedVersionInfo;
+    VS_FIXEDFILEINFO* FixedVersionInfo;
     UINT DataLength;
     BOOL b;
     PWORD Translation;
@@ -408,14 +408,14 @@ Return Value:
     b = FALSE;
 
     // Get the size of version info block.
-    if(d = GetFileVersionInfoSize((PTSTR)FileName,&Ignored)) {
+    if (d = GetFileVersionInfoSize((PTSTR)FileName, &Ignored)) {
         // Allocate memory block of sufficient size to hold version info block
-        VersionBlock = MyMalloc(d*sizeof(TCHAR));
-        if(VersionBlock) {
+        VersionBlock = MyMalloc(d * sizeof(TCHAR));
+        if (VersionBlock) {
             // Get the version block from the file.
-            if(GetFileVersionInfo((PTSTR)FileName,0,d*sizeof(TCHAR),VersionBlock)) {
+            if (GetFileVersionInfo((PTSTR)FileName, 0, d * sizeof(TCHAR), VersionBlock)) {
                 // Get fixed version info.
-                if(VerQueryValue(VersionBlock,TEXT("\\"),&FixedVersionInfo,&DataLength)) {
+                if (VerQueryValue(VersionBlock, TEXT("\\"), &FixedVersionInfo, &DataLength)) {
                     // If we get here, we declare success, even if there is
                     // no language.
                     b = TRUE;
@@ -429,8 +429,8 @@ Return Value:
 
                     // The translation table consists of LANGID/Codepage pairs.
 
-                    if(VerQueryValue(VersionBlock,TEXT("\\VarFileInfo\\Translation"),&Translation,&DataLength)
-                    && (DataLength >= (2*sizeof(WORD)))) {
+                    if (VerQueryValue(VersionBlock, TEXT("\\VarFileInfo\\Translation"), &Translation, &DataLength)
+                        && (DataLength >= (2 * sizeof(WORD)))) {
                         *Language = Translation[0];
                     } else {
                         // No language
@@ -451,7 +451,7 @@ BOOL
 FileExists(
     IN  PCTSTR           FileName,
     OUT PWIN32_FIND_DATA FindData   OPTIONAL
-    )
+)
 /*++
 Routine Description:
     Determine if a file exists and is accessible.
@@ -471,12 +471,12 @@ Return Value:
 
     OldMode = SetErrorMode(SEM_FAILCRITICALERRORS);
 
-    FindHandle = FindFirstFile(FileName,&findData);
-    if(FindHandle == INVALID_HANDLE_VALUE) {
+    FindHandle = FindFirstFile(FileName, &findData);
+    if (FindHandle == INVALID_HANDLE_VALUE) {
         Error = GetLastError();
     } else {
         FindClose(FindHandle);
-        if(FindData) {
+        if (FindData) {
             *FindData = findData;
         }
         Error = NO_ERROR;
@@ -492,11 +492,11 @@ Return Value:
 DWORD
 GetSetFileTimestamp(
     IN  PCTSTR    FileName,
-    OUT FILETIME *CreateTime,   OPTIONAL
-    OUT FILETIME *AccessTime,   OPTIONAL
-    OUT FILETIME *WriteTime,    OPTIONAL
+    OUT FILETIME* CreateTime, OPTIONAL
+    OUT FILETIME* AccessTime, OPTIONAL
+    OUT FILETIME* WriteTime, OPTIONAL
     IN  BOOL      Set
-    )
+)
 /*++
 Routine Description:
     Get or set a file's timestamp values.
@@ -514,11 +514,11 @@ Return Value:
     BOOL b;
 
     h = CreateFile(FileName, Set ? GENERIC_WRITE : GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-    if(h == INVALID_HANDLE_VALUE) {
+    if (h == INVALID_HANDLE_VALUE) {
         return(GetLastError());
     }
 
-    b = Set ? SetFileTime(h,CreateTime,AccessTime,WriteTime) : GetFileTime(h,CreateTime,AccessTime,WriteTime);
+    b = Set ? SetFileTime(h, CreateTime, AccessTime, WriteTime) : GetFileTime(h, CreateTime, AccessTime, WriteTime);
     d = b ? NO_ERROR : GetLastError();
     CloseHandle(h);
     return(d);
@@ -528,8 +528,8 @@ Return Value:
 DWORD
 RetreiveFileSecurity(
     IN  PCTSTR                FileName,
-    OUT PSECURITY_DESCRIPTOR *SecurityDescriptor
-    )
+    OUT PSECURITY_DESCRIPTOR* SecurityDescriptor
+)
 /*++
 Routine Description:
     Retreive security information from a file and place it into a buffer.
@@ -553,21 +553,21 @@ Return Value:
     while (TRUE) {
         // Allocate a buffer of the required size.
         p = MyMalloc(BytesRequired);
-        if(!p) {
+        if (!p) {
             return(ERROR_NOT_ENOUGH_MEMORY);
         }
 
         // Get the security.
         b = GetFileSecurity(
-                FileName,
-                OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
-                p,
-                BytesRequired,
-                &BytesRequired
-                );
+            FileName,
+            OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
+            p,
+            BytesRequired,
+            &BytesRequired
+        );
 
         // Return with sucess
-        if(b) {
+        if (b) {
             *SecurityDescriptor = p;
             return(NO_ERROR);
         }
@@ -575,7 +575,7 @@ Return Value:
         // Return an error code, unless we just need a bigger buffer
         MyFree(p);
         d = GetLastError();
-        if(d != ERROR_INSUFFICIENT_BUFFER) {
+        if (d != ERROR_INSUFFICIENT_BUFFER) {
             return (d);
         }
 
@@ -594,7 +594,7 @@ DWORD
 StampFileSecurity(
     IN PCTSTR               FileName,
     IN PSECURITY_DESCRIPTOR SecurityInfo
-    )
+)
 /*++
 Routine Description:
     Set security information on a file.
@@ -613,10 +613,10 @@ Return Value:
     BOOL b;
 
     b = SetFileSecurity(
-            FileName,
-            OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
-            SecurityInfo
-            );
+        FileName,
+        OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
+        SecurityInfo
+    );
 
     return(b ? NO_ERROR : GetLastError());
 }
@@ -640,45 +640,45 @@ Return Value:
     PTOKEN_OWNER OwnerInfo;
 
     // Open the process token.
-    if(!OpenProcessToken(GetCurrentProcess(),TOKEN_QUERY,&Token)) {
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &Token)) {
         Err = GetLastError();
         goto clean0;
     }
 
     // Get the current process's default owner sid.
-    GetTokenInformation(Token,TokenOwner,NULL,0,&BytesRequired);
+    GetTokenInformation(Token, TokenOwner, NULL, 0, &BytesRequired);
     Err = GetLastError();
-    if(Err != ERROR_INSUFFICIENT_BUFFER) {
+    if (Err != ERROR_INSUFFICIENT_BUFFER) {
         goto clean1;
     }
 
     OwnerInfo = MyMalloc(BytesRequired);
-    if(!OwnerInfo) {
+    if (!OwnerInfo) {
         Err = ERROR_NOT_ENOUGH_MEMORY;
         goto clean1;
     }
 
-    b = GetTokenInformation(Token,TokenOwner,OwnerInfo,BytesRequired,&BytesRequired);
-    if(!b) {
+    b = GetTokenInformation(Token, TokenOwner, OwnerInfo, BytesRequired, &BytesRequired);
+    if (!b) {
         Err = GetLastError();
         goto clean2;
     }
 
     // Initialize the security descriptor.
 
-    if(!InitializeSecurityDescriptor(&SecurityDescriptor,SECURITY_DESCRIPTOR_REVISION)
-    || !SetSecurityDescriptorOwner(&SecurityDescriptor,OwnerInfo->Owner,FALSE)) {
+    if (!InitializeSecurityDescriptor(&SecurityDescriptor, SECURITY_DESCRIPTOR_REVISION)
+        || !SetSecurityDescriptorOwner(&SecurityDescriptor, OwnerInfo->Owner, FALSE)) {
         Err = GetLastError();
         goto clean2;
     }
 
     // Set file security.
-    Err = SetFileSecurity(Filename,OWNER_SECURITY_INFORMATION,&SecurityDescriptor)
+    Err = SetFileSecurity(Filename, OWNER_SECURITY_INFORMATION, &SecurityDescriptor)
         ? NO_ERROR
         : GetLastError();
 
     // Not all filesystems support this operation.
-    if(Err == ERROR_NOT_SUPPORTED) {
+    if (Err == ERROR_NOT_SUPPORTED) {
         Err = NO_ERROR;
     }
 
@@ -699,7 +699,7 @@ SearchForInfFile(
     OUT PTSTR             FullInfPath,
     IN  UINT              FullInfPathSize,
     OUT PUINT             RequiredSize     OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -772,14 +772,14 @@ Return Value:
 
     // Retrieve the path list.
 
-    if(SearchControl == INFINFO_INF_PATH_LIST_SEARCH) {
+    if (SearchControl == INFINFO_INF_PATH_LIST_SEARCH) {
 
         // Just use our global list of INF search paths.
 
         PathList = InfSearchPaths;
         FreePathList = FALSE;
     } else {
-        if(!(PathList = AllocAndReturnDriverSearchList(SearchControl))) {
+        if (!(PathList = AllocAndReturnDriverSearchList(SearchControl))) {
             return ERROR_NOT_ENOUGH_MEMORY;
         }
         FreePathList = TRUE;
@@ -791,7 +791,7 @@ Return Value:
     InfPathLocation = NULL;
     d = NO_ERROR;
 
-    for(PathPtr = PathList; *PathPtr; PathPtr += (lstrlen(PathPtr) + 1)) {
+    for (PathPtr = PathList; *PathPtr; PathPtr += (lstrlen(PathPtr) + 1)) {
 
         // Concatenate the INF file name with the current search path.
 
@@ -800,10 +800,10 @@ Return Value:
                          InfName,
                          SIZECHARS(CurInfPath),
                          &PathLength
-                        );
+        );
 
-        if(b = FileExists(CurInfPath, FindData)) {
-            if(!(FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+        if (b = FileExists(CurInfPath, FindData)) {
+            if (!(FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
                 InfPathLocation = CurInfPath;
                 break;
             }
@@ -812,7 +812,7 @@ Return Value:
             // See if we got a 'real' error
 
             d = GetLastError();
-            if((d == ERROR_NO_MORE_FILES) || (d == ERROR_FILE_NOT_FOUND) || (d == ERROR_PATH_NOT_FOUND)) {
+            if ((d == ERROR_NO_MORE_FILES) || (d == ERROR_FILE_NOT_FOUND) || (d == ERROR_PATH_NOT_FOUND)) {
 
                 // Not really an error--continue looking.
 
@@ -830,28 +830,28 @@ Return Value:
 
     // Whatever the outcome, we're through with the PathList buffer.
 
-    if(FreePathList) {
+    if (FreePathList) {
         MyFree(PathList);
     }
 
-    if(d != NO_ERROR) {
+    if (d != NO_ERROR) {
         return d;
-    } else if(!InfPathLocation) {
+    } else if (!InfPathLocation) {
         return ERROR_FILE_NOT_FOUND;
     }
 
-    if(RequiredSize) {
+    if (RequiredSize) {
         *RequiredSize = PathLength;
     }
 
-    if(PathLength > FullInfPathSize) {
+    if (PathLength > FullInfPathSize) {
         return ERROR_INSUFFICIENT_BUFFER;
     }
 
     CopyMemory(FullInfPath,
                InfPathLocation,
                PathLength * sizeof(TCHAR)
-              );
+    );
 
     return NO_ERROR;
 }
@@ -863,7 +863,7 @@ MultiSzFromSearchControl(
     OUT PTCHAR PathList,
     IN  DWORD  PathListSize,
     OUT PDWORD RequiredSize  OPTIONAL
-    )
+)
 /*++
 
 Routine Description:
@@ -916,7 +916,7 @@ Return Value:
     DWORD NumPaths, Err;
     BOOL UseDefaultDevicePath;
 
-    if(PathList) {
+    if (PathList) {
         Err = NO_ERROR;  // assume success.
     } else {
         return ERROR_INVALID_PARAMETER;
@@ -924,15 +924,15 @@ Return Value:
 
     UseDefaultDevicePath = FALSE;
 
-    if(SearchControl == INFINFO_INF_PATH_LIST_SEARCH) {
+    if (SearchControl == INFINFO_INF_PATH_LIST_SEARCH) {
 
         // Retrieve the INF search path list from the registry.
 
-        if(RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                        pszPathSetup,
-                        0,
-                        KEY_READ,
-                        &hk) != ERROR_SUCCESS) {
+        if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                         pszPathSetup,
+                         0,
+                         KEY_READ,
+                         &hk) != ERROR_SUCCESS) {
 
             // Fall back to default (just the Inf directory).
 
@@ -953,83 +953,83 @@ Return Value:
                                       &RegDataType,
                                       (LPBYTE)PathList,
                                       &PathLength
-                                     );
+                );
 
                 // Need path length in characters from now on.
 
                 PathLength /= sizeof(TCHAR);
 
-                if(Err == ERROR_SUCCESS) {
+                if (Err == ERROR_SUCCESS) {
 
-                    if((RegDataType == REG_SZ) || (RegDataType == REG_EXPAND_SZ)) {
+                    if ((RegDataType == REG_SZ) || (RegDataType == REG_EXPAND_SZ)) {
 
                         // Convert this semicolon-delimited list to a REG_MULTI_SZ.
 
                         NumPaths = DelimStringToMultiSz(PathList,
                                                         PathLength,
                                                         TEXT(';')
-                                                       );
+                        );
 
 #if 0
-                        if(RegDataType == REG_EXPAND_SZ) {
+                        if (RegDataType == REG_EXPAND_SZ) {
 #endif
 
-                        // Allocate a temporary buffer large enough to hold the number
-                        // of paths in the MULTI_SZ list, each having maximum length
-                        // (plus an extra terminating NULL at the end).
+                            // Allocate a temporary buffer large enough to hold the number
+                            // of paths in the MULTI_SZ list, each having maximum length
+                            // (plus an extra terminating NULL at the end).
 
-                        if(!(PathBuffer = MyMalloc((NumPaths * MAX_PATH * sizeof(TCHAR))
-                                                   + sizeof(TCHAR)))) {
-                            Err = ERROR_NOT_ENOUGH_MEMORY;
-                            goto clean0;
-                        }
-
-                        PathLength = 0;
-                        for(Path1 = PathList;
-                            *Path1;
-                            Path1 += lstrlen(Path1) + 1) {
-
-                            if(RegDataType == REG_EXPAND_SZ) {
-                                PathLength += ExpandEnvironmentStrings(Path1,
-                                                                       PathBuffer + PathLength,
-                                                                       MAX_PATH
-                                                                      );
-                            } else {
-                                lstrcpy(PathBuffer + PathLength, Path1);
-                                PathLength += lstrlen(Path1) + 1;
+                            if (!(PathBuffer = MyMalloc((NumPaths * MAX_PATH * sizeof(TCHAR))
+                                                        + sizeof(TCHAR)))) {
+                                Err = ERROR_NOT_ENOUGH_MEMORY;
+                                goto clean0;
                             }
 
-                            // If the last character in this path is a backslash, then strip
-                            // it off.
+                            PathLength = 0;
+                            for (Path1 = PathList;
+                                 *Path1;
+                                 Path1 += lstrlen(Path1) + 1) {
+
+                                if (RegDataType == REG_EXPAND_SZ) {
+                                    PathLength += ExpandEnvironmentStrings(Path1,
+                                                                           PathBuffer + PathLength,
+                                                                           MAX_PATH
+                                    );
+                                } else {
+                                    lstrcpy(PathBuffer + PathLength, Path1);
+                                    PathLength += lstrlen(Path1) + 1;
+                                }
+
+                                // If the last character in this path is a backslash, then strip
+                                // it off.
 
 #ifdef UNICODE
-                            if(*(PathBuffer + PathLength - 2) == TEXT('\\')) {
-                                PathLength--;
-                                *(PathBuffer + PathLength - 1) = TEXT('\0');
-                            }
+                                if (*(PathBuffer + PathLength - 2) == TEXT('\\')) {
+                                    PathLength--;
+                                    *(PathBuffer + PathLength - 1) = TEXT('\0');
+                                }
 #else
-                            if(*CharPrev(PathBuffer,PathBuffer + PathLength - 1) == TEXT('\\')) {
-                                *(PathBuffer + PathLength - 2) = TEXT('\0');
-                                PathLength--;
-                            }
+                                if (*CharPrev(PathBuffer, PathBuffer + PathLength - 1) == TEXT('\\')) {
+                                    *(PathBuffer + PathLength - 2) = TEXT('\0');
+                                    PathLength--;
+                                }
 #endif
-                        }
+                            }
 
-                        // Add additional terminating NULL at the end.
+                            // Add additional terminating NULL at the end.
 
-                        *(PathBuffer + PathLength) = TEXT('\0');
+                            *(PathBuffer + PathLength) = TEXT('\0');
 
-                        if(++PathLength > PathListSize) {
-                            Err = ERROR_INSUFFICIENT_BUFFER;
-                        } else {
-                            CopyMemory(PathList,
-                                       PathBuffer,
-                                       PathLength * sizeof(TCHAR)
-                                      );
-                        }
+                            if (++PathLength > PathListSize) {
+                                Err = ERROR_INSUFFICIENT_BUFFER;
+                            } else {
+                                CopyMemory(PathList,
+                                           PathBuffer,
+                                           PathLength * sizeof(TCHAR)
+                                );
+                            }
 
-                        MyFree(PathBuffer);
-                        PathBuffer = NULL;
+                            MyFree(PathBuffer);
+                            PathBuffer = NULL;
 #if 0
                         }
 #endif
@@ -1041,7 +1041,7 @@ Return Value:
                         UseDefaultDevicePath = TRUE;
                     }
 
-                } else if(Err == ERROR_MORE_DATA){
+                } else if (Err == ERROR_MORE_DATA) {
                     Err = ERROR_INSUFFICIENT_BUFFER;
                 } else {
 
@@ -1050,7 +1050,7 @@ Return Value:
                     UseDefaultDevicePath = TRUE;
                 }
 
-clean0:         ;   // nothing to do
+            clean0:;   // nothing to do
 
             } except(EXCEPTION_EXECUTE_HANDLER) {
 
@@ -1058,7 +1058,7 @@ clean0:         ;   // nothing to do
 
                 UseDefaultDevicePath = TRUE;
 
-                if(PathBuffer) {
+                if (PathBuffer) {
                     MyFree(PathBuffer);
                 }
             }
@@ -1067,11 +1067,11 @@ clean0:         ;   // nothing to do
         }
     }
 
-    if(UseDefaultDevicePath) {
+    if (UseDefaultDevicePath) {
 
         PathLength = lstrlen(InfDirectory) + 2;
 
-        if(PathLength > PathListSize) {
+        if (PathLength > PathListSize) {
             Err = ERROR_INSUFFICIENT_BUFFER;
         } else {
             Err = NO_ERROR;
@@ -1082,29 +1082,29 @@ clean0:         ;   // nothing to do
             PathList[PathLength - 1] = TEXT('\0');
         }
 
-    } else if((Err == NO_ERROR) && (SearchControl != INFINFO_INF_PATH_LIST_SEARCH)) {
+    } else if ((Err == NO_ERROR) && (SearchControl != INFINFO_INF_PATH_LIST_SEARCH)) {
 
-        switch(SearchControl) {
+        switch (SearchControl) {
 
-            case INFINFO_DEFAULT_SEARCH :
-                Path1 = InfDirectory;
-                Path2 = SystemDirectory;
-                break;
+        case INFINFO_DEFAULT_SEARCH:
+            Path1 = InfDirectory;
+            Path2 = SystemDirectory;
+            break;
 
-            case INFINFO_REVERSE_DEFAULT_SEARCH :
-                Path1 = SystemDirectory;
-                Path2 = InfDirectory;
-                break;
+        case INFINFO_REVERSE_DEFAULT_SEARCH:
+            Path1 = SystemDirectory;
+            Path2 = InfDirectory;
+            break;
 
-            default :
-                return ERROR_INVALID_PARAMETER;
+        default:
+            return ERROR_INVALID_PARAMETER;
         }
 
         PathLength1 = lstrlen(Path1) + 1;
         PathLength2 = lstrlen(Path2) + 1;
         PathLength = PathLength1 + PathLength2 + 1;
 
-        if(PathLength > PathListSize) {
+        if (PathLength > PathListSize) {
             Err = ERROR_INSUFFICIENT_BUFFER;
         } else {
 
@@ -1117,7 +1117,7 @@ clean0:         ;   // nothing to do
         }
     }
 
-    if(((Err == NO_ERROR) || (Err == ERROR_INSUFFICIENT_BUFFER)) && RequiredSize) {
+    if (((Err == NO_ERROR) || (Err == ERROR_INSUFFICIENT_BUFFER)) && RequiredSize) {
         *RequiredSize = PathLength;
     }
 
@@ -1128,7 +1128,7 @@ clean0:         ;   // nothing to do
 PTSTR
 AllocAndReturnDriverSearchList(
     IN DWORD SearchControl
-    )
+)
 /*++
 
 Routine Description:
@@ -1166,7 +1166,7 @@ Returns:
     // Start out with a buffer of MAX_PATH length, which should cover most cases.
 
     BufferSize = MAX_PATH;
-    if(PathListBuffer = MyMalloc(BufferSize * sizeof(TCHAR))) {
+    if (PathListBuffer = MyMalloc(BufferSize * sizeof(TCHAR))) {
 
         // Loop on a call to MultiSzFromSearchControl until we succeed or hit some
         // error other than buffer-too-small.  There are two reasons for this.  1st, it
@@ -1178,19 +1178,19 @@ Returns:
 
         // With all that said, we'll almost never see this call made more than once.
 
-        while(TRUE) {
+        while (TRUE) {
 
-            if((Err = MultiSzFromSearchControl(SearchControl,
-                                               PathListBuffer,
-                                               BufferSize,
-                                               &BufferSize)) == NO_ERROR) {
+            if ((Err = MultiSzFromSearchControl(SearchControl,
+                                                PathListBuffer,
+                                                BufferSize,
+                                                &BufferSize)) == NO_ERROR) {
 
                 // We've successfully retrieved the path list.  If the list is larger
                 // than necessary (the normal case), then trim it down before returning.
                 // (If this fails it's no big deal--we'll just keep on using the original
                 // buffer.)
 
-                if(TrimBuffer = MyRealloc(PathListBuffer, BufferSize * sizeof(TCHAR))) {
+                if (TrimBuffer = MyRealloc(PathListBuffer, BufferSize * sizeof(TCHAR))) {
                     return TrimBuffer;
                 } else {
                     return PathListBuffer;
@@ -1202,8 +1202,8 @@ Returns:
 
                 MyFree(PathListBuffer);
 
-                if((Err != ERROR_INSUFFICIENT_BUFFER) ||
-                   !(PathListBuffer = MyMalloc(BufferSize * sizeof(TCHAR)))) {
+                if ((Err != ERROR_INSUFFICIENT_BUFFER) ||
+                    !(PathListBuffer = MyMalloc(BufferSize * sizeof(TCHAR)))) {
 
                     // We failed.
 
@@ -1221,7 +1221,7 @@ BOOL
 DoMove(
     IN PCTSTR CurrentName,
     IN PCTSTR NewName
-    )
+)
 /*++
 
 Routine Description:
@@ -1245,11 +1245,11 @@ Returns:
 
     // Try to be as efficient as possible on Windows NT.
 
-    if(OSVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-        b = MoveFileEx(CurrentName,NewName,MOVEFILE_REPLACE_EXISTING);
+    if (OSVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
+        b = MoveFileEx(CurrentName, NewName, MOVEFILE_REPLACE_EXISTING);
     } else {
         DeleteFile(NewName);
-        b = MoveFile(CurrentName,NewName);
+        b = MoveFile(CurrentName, NewName);
     }
 
     return(b);
@@ -1260,7 +1260,7 @@ BOOL
 DelayedMove(
     IN PCTSTR CurrentName,
     IN PCTSTR NewName       OPTIONAL
-    )
+)
 
 /*++
 
@@ -1297,13 +1297,13 @@ Returns:
     BOOL b;
     DWORD d;
 
-    if(OSVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
+    if (OSVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
 
         b = MoveFileEx(
-                CurrentName,
-                NewName,
-                MOVEFILE_REPLACE_EXISTING | MOVEFILE_DELAY_UNTIL_REBOOT
-                );
+            CurrentName,
+            NewName,
+            MOVEFILE_REPLACE_EXISTING | MOVEFILE_DELAY_UNTIL_REBOOT
+        );
 
     } else {
 
@@ -1322,8 +1322,8 @@ Returns:
         CHAR WininitFile[MAX_PATH];
         CHAR NewSFN[MAX_PATH];
         CHAR CurrentSFN[MAX_PATH];
-        CHAR *Buffer;
-        CHAR *p,*q;
+        CHAR* Buffer;
+        CHAR* p, * q;
         DWORD d;
         DWORD Size;
 
@@ -1340,17 +1340,17 @@ Returns:
         // For renames, we add a line to delete the target file first.
         // Not sure if this is really necessary, but it won't hurt anything.
 
-        if(Buffer = MyMalloc(32767)) {
+        if (Buffer = MyMalloc(32767)) {
 
-            lstrcpy(WininitFile,WindowsDirectory);
-            ConcatenatePaths(WininitFile,"WININIT.INI",MAX_PATH,NULL);
+            lstrcpy(WininitFile, WindowsDirectory);
+            ConcatenatePaths(WininitFile, "WININIT.INI", MAX_PATH, NULL);
 
-            if(!GetShortPathName(CurrentName,CurrentSFN,MAX_PATH)) {
-                lstrcpyn(CurrentSFN,CurrentName,MAX_PATH);
+            if (!GetShortPathName(CurrentName, CurrentSFN, MAX_PATH)) {
+                lstrcpyn(CurrentSFN, CurrentName, MAX_PATH);
             }
-            if(NewName) {
-                if(!GetShortPathName(NewName,NewSFN,MAX_PATH)) {
-                    lstrcpyn(NewSFN,NewName,MAX_PATH);
+            if (NewName) {
+                if (!GetShortPathName(NewName, NewSFN, MAX_PATH)) {
+                    lstrcpyn(NewSFN, NewName, MAX_PATH);
                 }
 
 
@@ -1360,7 +1360,7 @@ Returns:
                 // plus terminating nul chars for each line.
 
                 Size = 3 + 1 + lstrlen(NewSFN) + 1
-                     + lstrlen(NewSFN) + 1 + lstrlen(CurrentSFN) + 1;
+                    + lstrlen(NewSFN) + 1 + lstrlen(CurrentSFN) + 1;
 
             } else {
 
@@ -1369,35 +1369,35 @@ Returns:
                 // plus terminating nul char for the line
 
                 Size = 3 + 1 + lstrlen(CurrentSFN) + 1;
-                lstrcpy(NewSFN,"NUL");
+                lstrcpy(NewSFN, "NUL");
             }
 
 
             // Fetch the section and see if the line is already in there.
             // If so, we're done.
 
-            d = GetPrivateProfileSection("Rename",Buffer,32767,WininitFile);
-            for(p=Buffer; *p; p+=lstrlen(p)+1) {
-                if(q = _mbschr(p,'=')) {
+            d = GetPrivateProfileSection("Rename", Buffer, 32767, WininitFile);
+            for (p = Buffer; *p; p += lstrlen(p) + 1) {
+                if (q = _mbschr(p, '=')) {
                     *q = 0;
-                    if(!lstrcmpi(p,NewSFN) && !lstrcmpi(q+1,CurrentSFN)) {
+                    if (!lstrcmpi(p, NewSFN) && !lstrcmpi(q + 1, CurrentSFN)) {
                         break;
                     }
                     *q = '=';
                 }
             }
 
-            if((*p == 0) && (Size <= 32766-d)) {
+            if ((*p == 0) && (Size <= 32766 - d)) {
 
                 // Add our line(s), and make sure we have that extra nul
                 // to terminate things properly. We guaranteed that there'd be
                 // enough room by the checks above.
 
-                if(NewName) {
-                    d += wsprintf(Buffer+d,"NUL=%s",NewSFN) + 1;
-                    d += wsprintf(Buffer+d,"%s=%s",NewSFN,CurrentSFN) + 1;
+                if (NewName) {
+                    d += wsprintf(Buffer + d, "NUL=%s", NewSFN) + 1;
+                    d += wsprintf(Buffer + d, "%s=%s", NewSFN, CurrentSFN) + 1;
                 } else {
-                    d += wsprintf(Buffer+d,"NUL=%s",CurrentSFN) + 1;
+                    d += wsprintf(Buffer + d, "NUL=%s", CurrentSFN) + 1;
                 }
 
                 Buffer[d] = 0;
@@ -1405,7 +1405,7 @@ Returns:
 
                 // Write the section back out.
 
-                b = WritePrivateProfileSection("Rename",Buffer,WininitFile);
+                b = WritePrivateProfileSection("Rename", Buffer, WininitFile);
                 d = b ? NO_ERROR : GetLastError();
             } else {
 
@@ -1434,7 +1434,7 @@ Returns:
 DWORD
 IsOemCatalog(
     IN  PCTSTR                CatalogFile
-    )
+)
 
 /*++
 
@@ -1500,9 +1500,9 @@ Return Value:
 DWORD
 InstallCatalog(
     IN  LPCTSTR CatalogFullPath,
-    IN  LPCTSTR NewBaseName,        OPTIONAL
+    IN  LPCTSTR NewBaseName, OPTIONAL
     OUT LPTSTR  NewCatalogFullPath  OPTIONAL
-    )
+)
 
 /*++
 
@@ -1535,10 +1535,10 @@ Return Value:
     LPWSTR catalogFullPath = NULL;
     LPWSTR newBaseName = NULL;
 
-    if(!CryptCATAdminAcquireContext(&hCatAdmin,&DriverVerifyGuid,0)) {
+    if (!CryptCATAdminAcquireContext(&hCatAdmin, &DriverVerifyGuid, 0)) {
         Err = GetLastError();
         MYASSERT(Err != NO_ERROR);
-        if(Err == NO_ERROR) {
+        if (Err == NO_ERROR) {
             Err = ERROR_INVALID_DATA;
         }
     } else {
@@ -1549,10 +1549,10 @@ Return Value:
         // takes non-const strings and I have no idea whatsoever whether this
         // was just sloppiness or a real requirement, and no desire to mess around trying to figure it out.
 
-        if(catalogFullPath = DuplicateString(CatalogFullPath)) {
-            if(NewBaseName) {
+        if (catalogFullPath = DuplicateString(CatalogFullPath)) {
+            if (NewBaseName) {
                 newBaseName = DuplicateString(NewBaseName);
-                if(!newBaseName) {
+                if (!newBaseName) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                 }
             }
@@ -1560,10 +1560,10 @@ Return Value:
             Err = ERROR_NOT_ENOUGH_MEMORY;
         }
 #else
-        if(catalogFullPath = AnsiToUnicode(CatalogFullPath)) {
-            if(NewBaseName) {
+        if (catalogFullPath = AnsiToUnicode(CatalogFullPath)) {
+            if (NewBaseName) {
                 newBaseName = AnsiToUnicode(NewBaseName);
-                if(!newBaseName) {
+                if (!newBaseName) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                 }
             }
@@ -1572,22 +1572,22 @@ Return Value:
         }
 #endif
 
-        if(Err == NO_ERROR) {
-            hCatInfo = CryptCATAdminAddCatalog(hCatAdmin,catalogFullPath,newBaseName,0);
-            if(!hCatInfo) {
+        if (Err == NO_ERROR) {
+            hCatInfo = CryptCATAdminAddCatalog(hCatAdmin, catalogFullPath, newBaseName, 0);
+            if (!hCatInfo) {
                 Err = GetLastError();
                 MYASSERT(Err != NO_ERROR);
-                if(Err == NO_ERROR) {
+                if (Err == NO_ERROR) {
                     Err = ERROR_INVALID_DATA;
                 }
-        } else {
+            } else {
                 // If the caller wants to know the full path under which the catalog got installed, then find that out now.
-                if(NewCatalogFullPath) {
+                if (NewCatalogFullPath) {
                     CatalogInfo.cbStruct = sizeof(CATALOG_INFO);
-                    if(!CryptCATCatalogInfoFromContext(hCatInfo,&CatalogInfo,0)) {
+                    if (!CryptCATCatalogInfoFromContext(hCatInfo, &CatalogInfo, 0)) {
                         Err = GetLastError();
                         MYASSERT(Err != NO_ERROR);
-                        if(Err == NO_ERROR) {
+                        if (Err == NO_ERROR) {
                             Err = ERROR_INVALID_DATA;
                         }
                     } else {
@@ -1598,16 +1598,16 @@ Return Value:
 #endif
                     }
                 }
-                CryptCATAdminReleaseCatalogContext(hCatAdmin,hCatInfo,0);
+                CryptCATAdminReleaseCatalogContext(hCatAdmin, hCatInfo, 0);
             }
         }
-        CryptCATAdminReleaseContext(hCatAdmin,0);
+        CryptCATAdminReleaseContext(hCatAdmin, 0);
     }
 
-    if(catalogFullPath) {
+    if (catalogFullPath) {
         MyFree(catalogFullPath);
     }
-    if(newBaseName) {
+    if (newBaseName) {
         MyFree(newBaseName);
     }
 
@@ -1618,7 +1618,7 @@ Return Value:
 DWORD
 VerifyCatalogFile(
     IN LPCTSTR CatalogFullPath
-    )
+)
 
 /*++
 
@@ -1671,19 +1671,19 @@ Return Value:
 DWORD
 _VerifyFile(
     IN  PSETUP_LOG_CONTEXT     LogContext,
-    IN  LPCTSTR                Catalog,                OPTIONAL
-    IN  PVOID                  CatalogBaseAddress,     OPTIONAL
+    IN  LPCTSTR                Catalog, OPTIONAL
+    IN  PVOID                  CatalogBaseAddress, OPTIONAL
     IN  DWORD                  CatalogImageSize,
     IN  LPCTSTR                Key,
     IN  LPCTSTR                FileFullPath,
-    OUT SetupapiVerifyProblem *Problem,                OPTIONAL
-    OUT LPTSTR                 ProblemFile,            OPTIONAL
+    OUT SetupapiVerifyProblem* Problem, OPTIONAL
+    OUT LPTSTR                 ProblemFile, OPTIONAL
     IN  BOOL                   CatalogAlreadyVerified,
     IN  BOOL                   UseOemCatalogs,
-    IN  PSP_ALTPLATFORM_INFO   AltPlatformInfo,        OPTIONAL
-    OUT LPTSTR                 CatalogFileUsed,        OPTIONAL
+    IN  PSP_ALTPLATFORM_INFO   AltPlatformInfo, OPTIONAL
+    OUT LPTSTR                 CatalogFileUsed, OPTIONAL
     OUT PDWORD                 NumCatalogsConsidered   OPTIONAL
-    )
+)
 
 /*++
 
@@ -1839,7 +1839,7 @@ Return Value:
 
     // If a catalog image is specified, we'd better have been given a size.
 
-    MYASSERT((CatalogBaseAddress && CatalogImageSize) ||
+    MYASSERT((CatalogBaseAddress&& CatalogImageSize) ||
              !(CatalogBaseAddress || CatalogImageSize));
 
 
@@ -1852,7 +1852,7 @@ Return Value:
     // Initialize the CatalogFileUsed parameter to an empty string (i.e., no
     // applicable catalog at this point.
 
-    if(CatalogFileUsed) {
+    if (CatalogFileUsed) {
         *CatalogFileUsed = TEXT('\0');
     }
 
@@ -1860,11 +1860,11 @@ Return Value:
     // Initialize the output counter indicating the number of catalog files we
     // processed during the attempted verification.
 
-    if(NumCatalogsConsidered) {
+    if (NumCatalogsConsidered) {
         *NumCatalogsConsidered = 0;
     }
 
-//    MYASSERT(LogContext);
+    //    MYASSERT(LogContext);
 
     WriteLogEntry(
         (PSETUP_LOG_CONTEXT)LogContext,
@@ -1873,12 +1873,12 @@ Return Value:
         NULL,                        // text message
         FileFullPath,
         Key,
-        Catalog!=NULL ? Catalog : TEXT("-") );
+        Catalog != NULL ? Catalog : TEXT("-"));
 
 
     // Calculate the hash value for the inf.
 
-    if(CryptCATAdminAcquireContext(&hCatAdmin, &DriverVerifyGuid, 0)) {
+    if (CryptCATAdminAcquireContext(&hCatAdmin, &DriverVerifyGuid, 0)) {
 
         hFile = CreateFile(FileFullPath,
                            GENERIC_READ,
@@ -1887,12 +1887,12 @@ Return Value:
                            OPEN_EXISTING,
                            0,
                            NULL
-                          );
+        );
 
-        if(hFile == INVALID_HANDLE_VALUE) {
+        if (hFile == INVALID_HANDLE_VALUE) {
             Err = GetLastError();
             MYASSERT(Err != NO_ERROR);
-            if(Problem) {
+            if (Problem) {
                 *Problem = SetupapiVerifyFileProblem;
                 lstrcpy(ProblemFile, FileFullPath);
             }
@@ -1909,7 +1909,7 @@ Return Value:
             WintrustData.dwStateAction = WTD_STATEACTION_AUTO_CACHE;
             WintrustData.dwProvFlags = WTD_REVOCATION_CHECK_NONE;
 
-            if(AltPlatformInfo) {
+            if (AltPlatformInfo) {
 
                 MYASSERT(AltPlatformInfo->cbSize == sizeof(SP_ALTPLATFORM_INFO));
 
@@ -1922,10 +1922,10 @@ Return Value:
                 VersionInfo.cbStruct = sizeof(DRIVER_VER_INFO);
 
                 VersionInfo.dwPlatform = AltPlatformInfo->Platform;
-                VersionInfo.dwVersion  = AltPlatformInfo->MajorVersion;
+                VersionInfo.dwVersion = AltPlatformInfo->MajorVersion;
 
-                VersionInfo.sOSVersionLow.dwMajor  = AltPlatformInfo->MajorVersion;
-                VersionInfo.sOSVersionLow.dwMinor  = AltPlatformInfo->MinorVersion;
+                VersionInfo.sOSVersionLow.dwMajor = AltPlatformInfo->MajorVersion;
+                VersionInfo.sOSVersionLow.dwMinor = AltPlatformInfo->MinorVersion;
                 VersionInfo.sOSVersionHigh.dwMajor = AltPlatformInfo->MajorVersion;
                 VersionInfo.sOSVersionHigh.dwMinor = AltPlatformInfo->MinorVersion;
 
@@ -1940,11 +1940,11 @@ Return Value:
             HashSize = 100;
             do {
                 Hash = MyMalloc(HashSize);
-                if(!Hash) {
+                if (!Hash) {
                     Err = ERROR_NOT_ENOUGH_MEMORY;
                     break;
                 }
-                if(CryptCATAdminCalcHashFromFileHandle(hFile, &HashSize, Hash, 0)) {
+                if (CryptCATAdminCalcHashFromFileHandle(hFile, &HashSize, Hash, 0)) {
                     Err = NO_ERROR;
                 } else {
                     Err = GetLastError();
@@ -1953,12 +1953,12 @@ Return Value:
                     // If this API did screw up and not set last error, go ahead
                     // and set something.
 
-                    if(Err == NO_ERROR) {
+                    if (Err == NO_ERROR) {
                         Err = ERROR_INVALID_DATA;
                     }
 
                     MyFree(Hash);
-                    if(Err != ERROR_INSUFFICIENT_BUFFER) {
+                    if (Err != ERROR_INSUFFICIENT_BUFFER) {
 
                         // The API failed for some reason other than
                         // buffer-too-small.  We will try to check if the file
@@ -1979,11 +1979,11 @@ Return Value:
                         goto selfsign;
                     }
                 }
-            } while(Err != NO_ERROR);
+            } while (Err != NO_ERROR);
 
             CloseHandle(hFile);
 
-            if(Err == NO_ERROR) {
+            if (Err == NO_ERROR) {
 
                 // Now we have the file's hash.  Initialize the structures that
                 // will be used later on in calls to WinVerifyTrust.
@@ -2018,12 +2018,12 @@ Return Value:
 #endif
                 WintrustCatalogInfo.pcwszMemberTag = UnicodeKey;
 
-                if(Catalog && (Catalog != MyGetFileTitle(Catalog))) {
+                if (Catalog && (Catalog != MyGetFileTitle(Catalog))) {
 
                     // We know in this case we're always going to examine
                     // exactly one catalog.
 
-                    if(NumCatalogsConsidered) {
+                    if (NumCatalogsConsidered) {
                         *NumCatalogsConsidered = 1;
                     }
 
@@ -2033,12 +2033,12 @@ Return Value:
                     // the catalog (unless the caller already did it), and if
                     // that succeeds, then verify the file.
 
-                    if(!CatalogAlreadyVerified) {
+                    if (!CatalogAlreadyVerified) {
                         Err = VerifyCatalogFile(Catalog);
                     }
 
-                    if(Err != NO_ERROR) {
-                        if(Problem) {
+                    if (Err != NO_ERROR) {
+                        if (Problem) {
                             *Problem = SetupapiVerifyCatalogProblem;
                             lstrcpy(ProblemFile, Catalog);
                         }
@@ -2047,7 +2047,7 @@ Return Value:
                         // Catalog was verified, now verify the file using that
                         // catalog.
 
-                        if(CatalogFileUsed) {
+                        if (CatalogFileUsed) {
                             lstrcpy(CatalogFileUsed, Catalog);
                         }
 #ifdef UNICODE
@@ -2063,19 +2063,19 @@ Return Value:
                         Err = (DWORD)WinVerifyTrust(NULL,
                                                     &DriverVerifyGuid,
                                                     &WintrustData
-                                                   );
+                        );
 
 
                         // If we specified an alternate platform, then the
                         // DRIVER_VER_INFO structure we filled in will now
                         // contain a pointer that must be freed (Arggh!!!).
 
-                        if(AltPlatformInfo && VersionInfo.pcSignerCertContext) {
+                        if (AltPlatformInfo && VersionInfo.pcSignerCertContext) {
                             CertFreeCertificateContext(VersionInfo.pcSignerCertContext);
                             VersionInfo.pcSignerCertContext = NULL;
                         }
 
-                        if(Err != NO_ERROR) {
+                        if (Err != NO_ERROR) {
 
                             // The file failed to validate using the specified
                             // catalog.  See if the file validates without a
@@ -2098,20 +2098,20 @@ Return Value:
                             WintrustFileInfo.pcwszFilePath = UnicodeKey;
 #endif
                             Err = (DWORD)WinVerifyTrust(NULL, &DriverVerifyGuid, &WintrustData);
-                            if(AltPlatformInfo && VersionInfo.pcSignerCertContext) {
+                            if (AltPlatformInfo && VersionInfo.pcSignerCertContext) {
                                 CertFreeCertificateContext(VersionInfo.pcSignerCertContext);
                             }
 
-                            if(Err == NO_ERROR) {
+                            if (Err == NO_ERROR) {
 
                                 // The file validated without a catalog.  Store
                                 // an empty string in the CatalogFileUsed
                                 // buffer (if supplied).
 
-                                if(CatalogFileUsed) {
+                                if (CatalogFileUsed) {
                                     *CatalogFileUsed = TEXT('\0');
                                 }
-                            } else if(Problem) {
+                            } else if (Problem) {
                                 *Problem = SetupapiVerifyFileProblem;
                                 lstrcpy(ProblemFile, FileFullPath);
                             }
@@ -2121,9 +2121,9 @@ Return Value:
                     // Search through installed catalogs looking for those that contain data for a file with the hash we just calculated.
                     PrevCat = NULL;
                     hCatInfo = CryptCATAdminEnumCatalogFromHash(hCatAdmin, Hash, HashSize, 0, &PrevCat);
-                    while(hCatInfo) {
+                    while (hCatInfo) {
                         CatInfo.cbStruct = sizeof(CATALOG_INFO);
-                        if(CryptCATCatalogInfoFromContext(hCatInfo, &CatInfo, 0)) {
+                        if (CryptCATCatalogInfoFromContext(hCatInfo, &CatInfo, 0)) {
 #ifdef UNICODE
                             CatalogFullPath = CatInfo.wszCatalogFile;
 #else
@@ -2134,12 +2134,11 @@ Return Value:
                             // If we have a catalog name we're looking for, see if the current catalog matches.
                             // If the caller didn't specify a catalog, then just attempt to validate against each catalog we
                             // enumerate.  Note that the catalog file info we get back gives us a fully qualified path.
-                            if((!Catalog && (UseOemCatalogs || !IsOemCatalog(CatalogFullPath))) || (!lstrcmpi(MyGetFileTitle(CatalogFullPath), Catalog)))
-                            {
+                            if ((!Catalog && (UseOemCatalogs || !IsOemCatalog(CatalogFullPath))) || (!lstrcmpi(MyGetFileTitle(CatalogFullPath), Catalog))) {
                                 // Increment our counter of how many catalogs
                                 // we've considered.
 
-                                if(NumCatalogsConsidered) {
+                                if (NumCatalogsConsidered) {
                                     (*NumCatalogsConsidered)++;
                                 }
 
@@ -2147,21 +2146,21 @@ Return Value:
 
                                 // If the caller supplied a mapped-in image of the catalog we're looking for, then check to
                                 // see if this catalog matches by doing a binary compare.
-                                if(CatalogBaseAddress) {
+                                if (CatalogBaseAddress) {
                                     FoundMatchingImage = Dyn_GetFileAttributesEx(CatalogFullPath, GetFileExInfoStandard, &FileAttribData);
 
                                     // Check to see if the catalog we're looking
                                     // at is the same size as the one we're verifying.
-                                    if(FoundMatchingImage && (FileAttribData.nFileSizeLow != CatalogImageSize)) {
+                                    if (FoundMatchingImage && (FileAttribData.nFileSizeLow != CatalogImageSize)) {
                                         FoundMatchingImage = FALSE;
                                     }
 
-                                    if(FoundMatchingImage) {
-                                        if(OpenAndMapFileForRead(CatalogFullPath,
-                                                                 &CurCatFileSize,
-                                                                 &CurCatFileHandle,
-                                                                 &CurCatMappingHandle,
-                                                                 &CurCatBaseAddress) == NO_ERROR) {
+                                    if (FoundMatchingImage) {
+                                        if (OpenAndMapFileForRead(CatalogFullPath,
+                                                                  &CurCatFileSize,
+                                                                  &CurCatFileHandle,
+                                                                  &CurCatMappingHandle,
+                                                                  &CurCatBaseAddress) == NO_ERROR) {
                                             MYASSERT(CurCatFileSize == CatalogImageSize);
 
                                             // Surround the following in try/except, in case we get an inpage error.
@@ -2186,7 +2185,7 @@ Return Value:
                                     FoundMatchingImage = TRUE;
                                 }
 
-                                if(FoundMatchingImage) {
+                                if (FoundMatchingImage) {
 
                                     // We found an applicable catalog, now
                                     // validate the file against that catalog.
@@ -2207,25 +2206,25 @@ Return Value:
                                     // contain a pointer that must be freed
                                     // (Arggh!!!).
 
-                                    if(AltPlatformInfo && VersionInfo.pcSignerCertContext) {
+                                    if (AltPlatformInfo && VersionInfo.pcSignerCertContext) {
                                         CertFreeCertificateContext(VersionInfo.pcSignerCertContext);
                                         VersionInfo.pcSignerCertContext = NULL;
                                     }
 
-                                    if(Err == NO_ERROR) {
+                                    if (Err == NO_ERROR) {
                                         // We successfully verified the
                                         // file--store the name of the
                                         // catalog used, if the caller
                                         // requested it.
-                                        if(CatalogFileUsed) {
+                                        if (CatalogFileUsed) {
                                             lstrcpy(CatalogFileUsed, CatalogFullPath);
                                         }
                                     } else {
-                                        if(Catalog || CatalogBaseAddress) {
-                                            if(CatalogFileUsed) {
+                                        if (Catalog || CatalogBaseAddress) {
+                                            if (CatalogFileUsed) {
                                                 lstrcpy(CatalogFileUsed, CatalogFullPath);
                                             }
-                                            if(Problem) {
+                                            if (Problem) {
                                                 *Problem = SetupapiVerifyFileProblem;
                                                 lstrcpy(ProblemFile, FileFullPath);
                                             }
@@ -2240,7 +2239,7 @@ Return Value:
                                     // on to the next catalog.  Otherwise, we've
                                     // failed.
 
-                                    if((Err == NO_ERROR) || Catalog || CatalogBaseAddress) {
+                                    if ((Err == NO_ERROR) || Catalog || CatalogBaseAddress) {
 
                                         CryptCATAdminReleaseCatalogContext(hCatAdmin, hCatInfo, 0);
                                         break;
@@ -2252,8 +2251,8 @@ Return Value:
                         PrevCat = hCatInfo;
                         hCatInfo = CryptCATAdminEnumCatalogFromHash(hCatAdmin, Hash, HashSize, 0, &PrevCat);
                     }
-selfsign:
-                    if(!hCatInfo) {
+                selfsign:
+                    if (!hCatInfo) {
                         // We exhausted all the applicable catalogs without
                         // finding the one we needed.
 
@@ -2261,7 +2260,7 @@ selfsign:
                         MYASSERT(Err != NO_ERROR);
 
                         // Make sure we have a valid error code.
-                        if(Err == NO_ERROR) {
+                        if (Err == NO_ERROR) {
                             Err = ERROR_INVALID_DATA;
                         }
 
@@ -2288,21 +2287,21 @@ selfsign:
                         Err = (DWORD)WinVerifyTrust(NULL,
                                                     &DriverVerifyGuid,
                                                     &WintrustData
-                                                   );
-                        if(AltPlatformInfo && VersionInfo.pcSignerCertContext) {
+                        );
+                        if (AltPlatformInfo && VersionInfo.pcSignerCertContext) {
                             CertFreeCertificateContext(VersionInfo.pcSignerCertContext);
                         }
 
-                        if(Err == NO_ERROR) {
+                        if (Err == NO_ERROR) {
 
                             // The file validated without a catalog.  Store
                             // an empty string in the CatalogFileUsed
                             // buffer (if supplied).
 
-                            if(CatalogFileUsed) {
+                            if (CatalogFileUsed) {
                                 *CatalogFileUsed = TEXT('\0');
                             }
-                        } else if(Problem) {
+                        } else if (Problem) {
                             *Problem = SetupapiVerifyFileProblem;
                             lstrcpy(ProblemFile, FileFullPath);
                         }
@@ -2310,18 +2309,18 @@ selfsign:
                 }
 
             } else {
-                if(Problem) {
+                if (Problem) {
                     *Problem = SetupapiVerifyFileProblem;
                     lstrcpy(ProblemFile, FileFullPath);
                 }
             }
 
-            if(Hash) {
+            if (Hash) {
                 MyFree(Hash);
             }
         }
 
-        CryptCATAdminReleaseContext(hCatAdmin,0);
+        CryptCATAdminReleaseContext(hCatAdmin, 0);
 
     } else {
         Err = GetLastError();
@@ -2329,11 +2328,11 @@ selfsign:
 
         // Make sure we have a valid error code.
 
-        if(Err == NO_ERROR) {
+        if (Err == NO_ERROR) {
             Err = ERROR_INVALID_DATA;
         }
 
-        if(Problem) {
+        if (Problem) {
 
             // We failed too early to blame the file as the problem, but it's
             // the only filename we currently have to return as the problematic
@@ -2351,16 +2350,16 @@ selfsign:
         // just in case we don't note this later on
 
         WriteLogEntry(
-                    (PSETUP_LOG_CONTEXT)LogContext,
-                    SETUP_LOG_VERBOSE|SETUP_LOG_BUFFER,
-                    MSG_LOG_VERIFYFILE_ERROR,
-                    NULL
-                    );
+            (PSETUP_LOG_CONTEXT)LogContext,
+            SETUP_LOG_VERBOSE | SETUP_LOG_BUFFER,
+            MSG_LOG_VERIFYFILE_ERROR,
+            NULL
+        );
         WriteLogError(
-                    (PSETUP_LOG_CONTEXT)LogContext,
-                    SETUP_LOG_VERBOSE,
-                    Err
-                    );
+            (PSETUP_LOG_CONTEXT)LogContext,
+            SETUP_LOG_VERBOSE,
+            Err
+        );
     }
     SetLastError(Err);
     return Err;
@@ -2370,18 +2369,18 @@ selfsign:
 DWORD
 VerifyFile(
     IN  PSETUP_LOG_CONTEXT     LogContext,
-    IN  LPCTSTR                Catalog,                OPTIONAL
-    IN  PVOID                  CatalogBaseAddress,     OPTIONAL
+    IN  LPCTSTR                Catalog, OPTIONAL
+    IN  PVOID                  CatalogBaseAddress, OPTIONAL
     IN  DWORD                  CatalogImageSize,
     IN  LPCTSTR                Key,
     IN  LPCTSTR                FileFullPath,
-    OUT SetupapiVerifyProblem *Problem,                OPTIONAL
-    OUT LPTSTR                 ProblemFile,            OPTIONAL
+    OUT SetupapiVerifyProblem* Problem, OPTIONAL
+    OUT LPTSTR                 ProblemFile, OPTIONAL
     IN  BOOL                   CatalogAlreadyVerified,
-    IN  PSP_ALTPLATFORM_INFO   AltPlatformInfo,        OPTIONAL
-    OUT LPTSTR                 CatalogFileUsed,        OPTIONAL
+    IN  PSP_ALTPLATFORM_INFO   AltPlatformInfo, OPTIONAL
+    OUT LPTSTR                 CatalogFileUsed, OPTIONAL
     OUT PDWORD                 NumCatalogsConsidered   OPTIONAL
-    )
+)
 
 /*++
 
@@ -2406,18 +2405,18 @@ Routine Description:
                        AltPlatformInfo,
                        CatalogFileUsed,
                        NumCatalogsConsidered
-                       );
+    );
 }
 
 
 BOOL
 IsInfForDeviceInstall(
-    IN  PSETUP_LOG_CONTEXT  LogContext,        OPTIONAL
-    IN  PLOADED_INF         LoadedInf,         OPTIONAL
-    OUT PTSTR              *DeviceDesc,        OPTIONAL
-    OUT PDWORD              PolicyToUse,       OPTIONAL
+    IN  PSETUP_LOG_CONTEXT  LogContext, OPTIONAL
+    IN  PLOADED_INF         LoadedInf, OPTIONAL
+    OUT PTSTR* DeviceDesc, OPTIONAL
+    OUT PDWORD              PolicyToUse, OPTIONAL
     OUT PBOOL               UseOriginalInfName OPTIONAL
-    )
+)
 
 /*++
 
@@ -2501,27 +2500,27 @@ Return Value:
     INFCONTEXT InfContext;
     UINT ErrorLine;
 
-    if(DeviceDesc) {
+    if (DeviceDesc) {
         *DeviceDesc = NULL;
     }
 
-    if(UseOriginalInfName) {
+    if (UseOriginalInfName) {
         *UseOriginalInfName = FALSE;
     }
 
-    if(!LoadedInf) {
+    if (!LoadedInf) {
 
         // Not a whole lot to do here.  Assume non-driver-signing policy and
         // return.
 
-        if(PolicyToUse) {
+        if (PolicyToUse) {
             *PolicyToUse = GetCurrentDriverSigningPolicy(FALSE);
         }
 
         return FALSE;
     }
 
-    if(PolicyToUse) {
+    if (PolicyToUse) {
 
         // Initialize policy to "Ignore"
 
@@ -2548,9 +2547,9 @@ Return Value:
                          NULL,
                          NULL,
                          NULL
-                        );
+        );
 
-        if(Err == NO_ERROR) {
+        if (Err == NO_ERROR) {
 
             // Open up driver signing class list INF for use when examining the
             // individual INFs in the LOADED_INF list below.
@@ -2559,9 +2558,9 @@ Return Value:
                                              NULL,
                                              INF_STYLE_WIN4,
                                              &ErrorLine
-                                            );
+            );
 
-            if(hCertClassInf == INVALID_HANDLE_VALUE) {
+            if (hCertClassInf == INVALID_HANDLE_VALUE) {
 
                 // This failure is highly unlikely to occur, since we just got
                 // through validating the INF.
@@ -2574,7 +2573,7 @@ Return Value:
                               NULL,
                               CertClassInfPath,
                               ErrorLine
-                             );
+                );
             }
 
         } else {
@@ -2586,10 +2585,10 @@ Return Value:
                           MSG_LOG_CERTCLASS_INVALID,
                           NULL,
                           CertClassInfPath
-                         );
+            );
         }
 
-        if(Err != NO_ERROR) {
+        if (Err != NO_ERROR) {
 
             // Somebody mucked with/deleted certclas.inf!  (Or, much less likely,
             // we encountered some other failure whilst trying to load the INF.)
@@ -2601,13 +2600,13 @@ Return Value:
             WriteLogError(LogContext,
                           SETUP_LOG_WARNING | SETUP_LOG_BUFFER,
                           Err
-                         );
+            );
 
             WriteLogEntry(LogContext,
                           SETUP_LOG_WARNING,
                           MSG_LOG_DRIVER_SIGNING_FOR_ALL_CLASSES,
                           NULL
-                         );
+            );
         }
     }
 
@@ -2617,10 +2616,10 @@ Return Value:
 
     DeviceInfFound = FALSE;
 
-    for(CurInf = LoadedInf; CurInf; CurInf = CurInf->Next) {
+    for (CurInf = LoadedInf; CurInf; CurInf = CurInf->Next) {
 
-        if(!ClassGuidFromInfVersionNode(&(CurInf->VersionBlock), &ClassGuid) ||
-           IsEqualGUID(&ClassGuid, &GUID_NULL)) {
+        if (!ClassGuidFromInfVersionNode(&(CurInf->VersionBlock), &ClassGuid) ||
+            IsEqualGUID(&ClassGuid, &GUID_NULL)) {
 
             // The INF doesn't have an associated class, or it explicitly
             // specified a ClassGUID of GUID_NULL (like some of our non-device
@@ -2635,18 +2634,18 @@ Return Value:
         // device INF we've encountered, then do our best to retrieve a
         // description for it (if we've been asked to do so).
 
-        if(!DeviceInfFound) {
+        if (!DeviceInfFound) {
 
             DeviceInfFound = TRUE;
 
-            if(DeviceDesc) {
+            if (DeviceDesc) {
 
                 // First, try to retrieve the class's friendly name.
 
-                if(SetupDiGetClassDescription(&ClassGuid,
-                                              ClassDescBuffer,
-                                              SIZECHARS(ClassDescBuffer),
-                                              NULL)) {
+                if (SetupDiGetClassDescription(&ClassGuid,
+                                               ClassDescBuffer,
+                                               SIZECHARS(ClassDescBuffer),
+                                               NULL)) {
 
                     ClassDesc = ClassDescBuffer;
 
@@ -2657,8 +2656,8 @@ Return Value:
 
                     ClassDesc = pSetupGetVersionDatum(&(CurInf->VersionBlock),
                                                       pszClass
-                                                     );
-                    if(!ClassDesc) {
+                    );
+                    if (!ClassDesc) {
 
                         // We have an INF that specifies a ClassGUID= entry, but
                         // no Class= entry in its [Version] section, and for
@@ -2670,10 +2669,10 @@ Return Value:
                         // installation, but it definitely is a device INF.
                         // Therefore, we just give it a generic description.
 
-                        if(LoadString(MyDllModuleHandle,
-                                      IDS_UNKNOWN_DRIVER,
-                                      ClassDescBuffer,
-                                      SIZECHARS(ClassDescBuffer))) {
+                        if (LoadString(MyDllModuleHandle,
+                                       IDS_UNKNOWN_DRIVER,
+                                       ClassDescBuffer,
+                                       SIZECHARS(ClassDescBuffer))) {
 
                             ClassDesc = ClassDescBuffer;
                         } else {
@@ -2686,7 +2685,7 @@ Return Value:
                 // OK, we have a description for this device (unless we hit
                 // some weird error).
 
-                if(ClassDesc) {
+                if (ClassDesc) {
                     *DeviceDesc = DuplicateString(ClassDesc);
                 }
             }
@@ -2696,15 +2695,15 @@ Return Value:
         // If we get to this point, we know that:  (a) we have a device INF and
         // (b) we've retrieved a device description, if necessary.
 
-        if(PolicyToUse) {
+        if (PolicyToUse) {
 
             // First, check to see if this is an exception INF--if it is, then
             // policy is Block, and we want to install the INF and CAT files
             // using their original names.
 
-            if(IsEqualGUID(&ClassGuid, &GUID_DEVCLASS_WINDOWS_COMPONENT_PUBLISHER)) {
+            if (IsEqualGUID(&ClassGuid, &GUID_DEVCLASS_WINDOWS_COMPONENT_PUBLISHER)) {
                 *PolicyToUse = DRIVERSIGN_BLOCKING;
-                if(UseOriginalInfName) {
+                if (UseOriginalInfName) {
                     *UseOriginalInfName = TRUE;
                 }
                 break;
@@ -2715,7 +2714,7 @@ Return Value:
             // has certification programs for (hence should be subject to driver
             // signing policy).
 
-            if(ClassInDrvSignList) {
+            if (ClassInDrvSignList) {
 
                 // We already knew that driver signing policy should be used, if
                 // a device INF was ever encountered.  This had to have been set
@@ -2735,12 +2734,12 @@ Return Value:
                 pSetupStringFromGuid(&ClassGuid,
                                      ClassGuidString,
                                      SIZECHARS(ClassGuidString)
-                                    );
+                );
 
-                if(SetupFindFirstLine(hCertClassInf,
-                                      pszDriverSigningClasses,
-                                      ClassGuidString,
-                                      &InfContext)) {
+                if (SetupFindFirstLine(hCertClassInf,
+                                       pszDriverSigningClasses,
+                                       ClassGuidString,
+                                       &InfContext)) {
 
                     // This class is among the list of classes for which a WHQL
                     // certification program exists.
@@ -2760,19 +2759,19 @@ Return Value:
         }
     }
 
-    if(PolicyToUse) {
+    if (PolicyToUse) {
 
         // Unless we've already established that the policy to use is "Block"
         // (because we found an exception INF), we should retrieve the
         // applicable policy now...
 
-        if(*PolicyToUse != DRIVERSIGN_BLOCKING) {
+        if (*PolicyToUse != DRIVERSIGN_BLOCKING) {
 
             *PolicyToUse =
                 GetCurrentDriverSigningPolicy(DeviceInfFound && ClassInDrvSignList);
         }
 
-        if(hCertClassInf != INVALID_HANDLE_VALUE) {
+        if (hCertClassInf != INVALID_HANDLE_VALUE) {
             SetupCloseInfFile(hCertClassInf);
         }
     }
@@ -2783,10 +2782,10 @@ Return Value:
 
 DWORD
 GetCodeSigningPolicyForInf(
-    IN  PSETUP_LOG_CONTEXT LogContext,        OPTIONAL
+    IN  PSETUP_LOG_CONTEXT LogContext, OPTIONAL
     IN  HINF               InfHandle,
     OUT PBOOL              UseOriginalInfName OPTIONAL
-    )
+)
 
 /*++
 
@@ -2821,7 +2820,7 @@ Return Value:
 {
     DWORD Policy;
 
-    if(!LockInf((PLOADED_INF)InfHandle)) {
+    if (!LockInf((PLOADED_INF)InfHandle)) {
 
         // This is an internal-only routine, and all callers should be
         // passing in valid INF handles.
@@ -2833,7 +2832,7 @@ Return Value:
         return GetCurrentDriverSigningPolicy(FALSE);
     }
 
-    IsInfForDeviceInstall(LogContext, (PLOADED_INF)InfHandle,  NULL,  &Policy, UseOriginalInfName);
+    IsInfForDeviceInstall(LogContext, (PLOADED_INF)InfHandle, NULL, &Policy, UseOriginalInfName);
 
     UnlockInf((PLOADED_INF)InfHandle);
 
@@ -2844,7 +2843,7 @@ Return Value:
 DWORD
 GetCurrentDriverSigningPolicy(
     IN BOOL IsDeviceInstallation
-    )
+)
 
 /*++
 
@@ -2920,35 +2919,33 @@ Return Value:
 
     // First, retrieve the system default policy (under HKLM).
 
-    if(ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                                     (IsDeviceInstallation ? pszDrvSignPath
-                                                           : pszNonDrvSignPath),
-                                     0,
-                                     KEY_READ,
-                                     &hKey))
-    {
+    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+        (IsDeviceInstallation ? pszDrvSignPath
+         : pszNonDrvSignPath),
+                                      0,
+                                      KEY_READ,
+                                      &hKey)) {
         RegDataSize = sizeof(PolicyFromReg);
-        if(ERROR_SUCCESS == RegQueryValueEx(hKey,
-                                            pszDrvSignPolicyValue,
-                                            NULL,
-                                            &RegDataType,
-                                            (PBYTE)&PolicyFromReg,
-                                            &RegDataSize))
-        {
+        if (ERROR_SUCCESS == RegQueryValueEx(hKey,
+                                             pszDrvSignPolicyValue,
+                                             NULL,
+                                             &RegDataType,
+                                             (PBYTE)&PolicyFromReg,
+                                             &RegDataSize)) {
 
             // To be compatible with Win98's value, we support both REG_BINARY
             // and REG_DWORD.
 
-            if((RegDataType == REG_BINARY) && (RegDataSize >= sizeof(BYTE))) {
+            if ((RegDataType == REG_BINARY) && (RegDataSize >= sizeof(BYTE))) {
                 // Use the value contained in the first byte of the buffer.
-                PolicyFromReg = (DWORD)*((PBYTE)&PolicyFromReg);
-            } else if((RegDataType != REG_DWORD) || (RegDataSize != sizeof(DWORD))) {
+                PolicyFromReg = (DWORD) * ((PBYTE)&PolicyFromReg);
+            } else if ((RegDataType != REG_DWORD) || (RegDataSize != sizeof(DWORD))) {
                 // Bogus entry for system default policy--ignore it.
                 PolicyFromReg = DRIVERSIGN_NONE;
             }
 
             // Finally, make sure a valid policy value was specified.
-            if((PolicyFromReg != DRIVERSIGN_NONE) && (PolicyFromReg != DRIVERSIGN_WARNING) && (PolicyFromReg != DRIVERSIGN_BLOCKING)) {
+            if ((PolicyFromReg != DRIVERSIGN_NONE) && (PolicyFromReg != DRIVERSIGN_WARNING) && (PolicyFromReg != DRIVERSIGN_BLOCKING)) {
                 // Bogus entry for system default policy--ignore it.
                 PolicyFromReg = DRIVERSIGN_NONE;
             }
@@ -2961,25 +2958,22 @@ Return Value:
     // Next, retrieve the user policy.  If policy isn't set for this user, then
     // retrieve the user's preference, instead.
 
-    if(ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_USER,
-                                     (IsDeviceInstallation ? pszDrvSignPolicyPath
-                                                           : pszNonDrvSignPolicyPath),
-                                     0,
-                                     KEY_READ,
-                                     &hKey))
-    {
+    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_USER,
+        (IsDeviceInstallation ? pszDrvSignPolicyPath
+         : pszNonDrvSignPolicyPath),
+                                      0,
+                                      KEY_READ,
+                                      &hKey)) {
         RegDataSize = sizeof(PolicyFromDS);
-        if(ERROR_SUCCESS == RegQueryValueEx(hKey,
-                                            pszDrvSignBehaviorOnFailedVerifyDS,
-                                            NULL,
-                                            &RegDataType,
-                                            (PBYTE)&PolicyFromDS,
-                                            &RegDataSize))
-        {
-            if((RegDataType == REG_DWORD) &&
-               (RegDataSize == sizeof(DWORD)) &&
-               ((PolicyFromDS == DRIVERSIGN_NONE) || (PolicyFromDS == DRIVERSIGN_WARNING) || (PolicyFromDS == DRIVERSIGN_BLOCKING)))
-            {
+        if (ERROR_SUCCESS == RegQueryValueEx(hKey,
+                                             pszDrvSignBehaviorOnFailedVerifyDS,
+                                             NULL,
+                                             &RegDataType,
+                                             (PBYTE)&PolicyFromDS,
+                                             &RegDataSize)) {
+            if ((RegDataType == REG_DWORD) &&
+                (RegDataSize == sizeof(DWORD)) &&
+                ((PolicyFromDS == DRIVERSIGN_NONE) || (PolicyFromDS == DRIVERSIGN_WARNING) || (PolicyFromDS == DRIVERSIGN_BLOCKING))) {
 
                 // We successfully retrieved user policy, so we won't need to
                 // retrieve user preference.
@@ -2994,21 +2988,18 @@ Return Value:
 
     // If we didn't find a user policy, then retrieve the user preference.
 
-    if(!UserPolicyRetrieved) {
-        if(ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_USER,
-                                         (IsDeviceInstallation ? pszDrvSignPath
-                                                               : pszNonDrvSignPath),
-                                         0,
-                                         KEY_READ,
-                                         &hKey))
-        {
+    if (!UserPolicyRetrieved) {
+        if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_USER,
+            (IsDeviceInstallation ? pszDrvSignPath
+             : pszNonDrvSignPath),
+                                          0,
+                                          KEY_READ,
+                                          &hKey)) {
             RegDataSize = sizeof(PolicyFromDS);
-            if(ERROR_SUCCESS == RegQueryValueEx(hKey, pszDrvSignPolicyValue, NULL, &RegDataType, (PBYTE)&PolicyFromDS, &RegDataSize))
-            {
-                if((RegDataType != REG_DWORD) ||
-                   (RegDataSize != sizeof(DWORD)) ||
-                   !((PolicyFromDS == DRIVERSIGN_NONE) || (PolicyFromDS == DRIVERSIGN_WARNING) || (PolicyFromDS == DRIVERSIGN_BLOCKING)))
-                {
+            if (ERROR_SUCCESS == RegQueryValueEx(hKey, pszDrvSignPolicyValue, NULL, &RegDataType, (PBYTE)&PolicyFromDS, &RegDataSize)) {
+                if ((RegDataType != REG_DWORD) ||
+                    (RegDataSize != sizeof(DWORD)) ||
+                    !((PolicyFromDS == DRIVERSIGN_NONE) || (PolicyFromDS == DRIVERSIGN_WARNING) || (PolicyFromDS == DRIVERSIGN_BLOCKING))) {
                     // Bogus entry for user preference--ignore it.
                     PolicyFromDS = DRIVERSIGN_NONE;
                 }
@@ -3020,7 +3011,7 @@ Return Value:
 
     // Now return the more restrictive of the two policies.
 
-    if(PolicyFromDS > PolicyFromReg) {
+    if (PolicyFromDS > PolicyFromReg) {
         return PolicyFromDS;
     } else {
         return PolicyFromReg;
@@ -3031,16 +3022,16 @@ Return Value:
 DWORD
 VerifySourceFile(
     IN  PSETUP_LOG_CONTEXT     LogContext,
-    IN  PSP_FILE_QUEUE         Queue,                      OPTIONAL
-    IN  PSP_FILE_QUEUE_NODE    QueueNode,                  OPTIONAL
+    IN  PSP_FILE_QUEUE         Queue, OPTIONAL
+    IN  PSP_FILE_QUEUE_NODE    QueueNode, OPTIONAL
     IN  PCTSTR                 Key,
     IN  PCTSTR                 FileToVerifyFullPath,
     IN  PCTSTR                 OriginalSourceFileFullPath, OPTIONAL
-    IN  PSP_ALTPLATFORM_INFO   AltPlatformInfo,            OPTIONAL
+    IN  PSP_ALTPLATFORM_INFO   AltPlatformInfo, OPTIONAL
     IN  BOOL                   UseOemCatalogs,
-    OUT SetupapiVerifyProblem *Problem,
+    OUT SetupapiVerifyProblem* Problem,
     OUT LPTSTR                 ProblemFile
-    )
+)
 
 /*++
 
@@ -3114,13 +3105,13 @@ Return Value:
 
     // Check to see if the source file is signed.
 
-    if(QueueNode && QueueNode->CatalogInfo) {
+    if (QueueNode && QueueNode->CatalogInfo) {
         // We should never have the IQF_FROM_BAD_OEM_INF internal flag set in
         // this case.
 
         MYASSERT(!(QueueNode->InternalFlags & IQF_FROM_BAD_OEM_INF));
 
-        if(*(QueueNode->CatalogInfo->CatalogFilenameOnSystem)) {
+        if (*(QueueNode->CatalogInfo->CatalogFilenameOnSystem)) {
             // The fact that our catalog info node has a filename filled in
             // means we successfully verfied this catalog previously.  So
             // all we need VerifyFile to do is just verify the temporary
@@ -3139,7 +3130,7 @@ Return Value:
                              AltPlatformInfo,
                              NULL,
                              NULL
-                            );
+            );
         } else {
             // If there's no error associated with this catalog info node, then
             // that simply means that the INF didn't specify a CatalogFile=
@@ -3147,12 +3138,12 @@ Return Value:
             // error, however, we should return it.
 
             rc = QueueNode->CatalogInfo->VerificationFailureError;
-            if(rc == NO_ERROR) {
+            if (rc == NO_ERROR) {
                 // If the queue has an alternate default catalog file associated
                 // with it, then retrieve that catalog's name for use later.
                 AltCatalogFile = (Queue->AltCatalogFile != -1)
-                               ? StringTableStringFromId(Queue->StringTable, Queue->AltCatalogFile)
-                               : NULL;
+                    ? StringTableStringFromId(Queue->StringTable, Queue->AltCatalogFile)
+                    : NULL;
 
                 rc = _VerifyFile(LogContext,
                                  AltCatalogFile,
@@ -3166,10 +3157,9 @@ Return Value:
                                  UseOemCatalogs,
                                  AltPlatformInfo,
                                  NULL,
-                                 NULL
-                                );
+                                 NULL);
             } else {
-                if(rc == ERROR_NO_CATALOG_FOR_OEM_INF) {
+                if (rc == ERROR_NO_CATALOG_FOR_OEM_INF) {
                     // The failure is the INF's fault (it's an OEM INF that
                     // copies files without specifying a catalog).  Blame the
                     // INF, not the file being copied.
@@ -3178,7 +3168,7 @@ Return Value:
                     MYASSERT(QueueNode->CatalogInfo->InfFullPath != -1);
                     InfFullPath = StringTableStringFromId(Queue->StringTable,
                                                           QueueNode->CatalogInfo->InfFullPath
-                                                         );
+                    );
                     lstrcpy(ProblemFile, InfFullPath);
                 } else {
                     // We previously failed to validate the catalog file
@@ -3190,7 +3180,7 @@ Return Value:
                     // (which will be taken care of later), go ahead and copy the path
                     // of the file that was to be verified.
 
-                    if(!OriginalSourceFileFullPath) {
+                    if (!OriginalSourceFileFullPath) {
                         lstrcpy(ProblemFile, FileToVerifyFullPath);
                     }
                 }
@@ -3204,9 +3194,9 @@ Return Value:
 
         rc = NO_ERROR;
 
-        if(Queue) {
-            if(Queue->AltCatalogFile == -1) {
-                if(QueueNode && (QueueNode->InternalFlags & IQF_FROM_BAD_OEM_INF)) {
+        if (Queue) {
+            if (Queue->AltCatalogFile == -1) {
+                if (QueueNode && (QueueNode->InternalFlags & IQF_FROM_BAD_OEM_INF)) {
                     rc = ERROR_NO_CATALOG_FOR_OEM_INF;
                     *Problem = SetupapiVerifyFileProblem;
                     lstrcpy(ProblemFile, FileToVerifyFullPath);
@@ -3222,7 +3212,7 @@ Return Value:
             AltCatalogFile = NULL;
         }
 
-        if(rc == NO_ERROR) {
+        if (rc == NO_ERROR) {
             rc = _VerifyFile(LogContext,
                              AltCatalogFile,
                              NULL,
@@ -3236,7 +3226,7 @@ Return Value:
                              AltPlatformInfo,
                              NULL,
                              NULL
-                            );
+            );
         }
     }
 
@@ -3245,8 +3235,8 @@ Return Value:
     // use the real source name, if supplied, as opposed to the temporary
     // filename we passed into VerifyFile.
 
-    if((rc != NO_ERROR) && OriginalSourceFileFullPath &&
-       ((*Problem == SetupapiVerifyFileNotSigned) || (*Problem == SetupapiVerifyFileProblem))) {
+    if ((rc != NO_ERROR) && OriginalSourceFileFullPath &&
+        ((*Problem == SetupapiVerifyFileNotSigned) || (*Problem == SetupapiVerifyFileProblem))) {
 
         lstrcpy(ProblemFile, OriginalSourceFileFullPath);
     }
@@ -3260,7 +3250,7 @@ Verify3rdPartyInfFile(
     IN  PSETUP_LOG_CONTEXT  LogContext,
     IN  LPCTSTR             CurrentInfName,
     IN  PLOADED_INF         pInf
-    )
+)
 {
     TCHAR CatalogName[MAX_PATH];
     TCHAR FullCatalogPath[MAX_PATH];
@@ -3294,7 +3284,7 @@ Verify3rdPartyInfFile(
     }
 
     Err = _VerifyFile(LogContext,
-                      ((FullCatalogPath[0] == TEXT('\0')) ? NULL : FullCatalogPath),
+        ((FullCatalogPath[0] == TEXT('\0')) ? NULL : FullCatalogPath),
                       NULL,
                       0,
                       OriginalInfFileName,
@@ -3314,9 +3304,9 @@ Verify3rdPartyInfFile(
 BOOL
 IsFileProtected(
     IN  LPCTSTR            FileFullPath,
-    IN  PSETUP_LOG_CONTEXT LogContext,   OPTIONAL
+    IN  PSETUP_LOG_CONTEXT LogContext, OPTIONAL
     OUT PHANDLE            phSfp         OPTIONAL
-    )
+)
 /*++
 Routine Description:
     This routine determines whether the specified file is a protected system file.
@@ -3335,7 +3325,7 @@ Return Value:
     HANDLE hSfp;
 
     hSfp = SfcConnectToServer(NULL);
-    if(!hSfp) {
+    if (!hSfp) {
         // This ain't good...
         WriteLogEntry(LogContext, SETUP_LOG_ERROR, MSG_LOG_SFC_CONNECT_FAILED, NULL);
         return FALSE;
@@ -3349,7 +3339,7 @@ Return Value:
 
     // If the file _is_ protected, and the caller wants the SFP handle (e.g., to subsequently exempt an unsigned replacement operation),
     // then save the handle in the caller-supplied buffer.  Otherwise, close the handle.
-    if(ret && phSfp) {
+    if (ret && phSfp) {
         *phSfp = hSfp;
     } else {
         SfcClose(hSfp);

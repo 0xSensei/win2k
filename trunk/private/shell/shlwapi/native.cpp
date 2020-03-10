@@ -9,52 +9,42 @@
 // in:
 //      pszFile     file name to open
 //      grfMode     STGM_ flags
-STDAPI _CreateStreamOnFile(LPCTSTR pszFile, DWORD grfMode, IStream **ppstm)
+STDAPI _CreateStreamOnFile(LPCTSTR pszFile, DWORD grfMode, IStream** ppstm)
 {
     HANDLE hFile;
 
     *ppstm = NULL;
 
     //  we only handle the below modes (they map to STGM_ flags), don't let anything else through
-    if (grfMode & ~(STGM_READ | STGM_WRITE | STGM_SHARE_DENY_NONE | STGM_SHARE_DENY_READ | STGM_SHARE_DENY_WRITE | STGM_SHARE_EXCLUSIVE | STGM_READWRITE | STGM_CREATE))
-    {
+    if (grfMode & ~(STGM_READ | STGM_WRITE | STGM_SHARE_DENY_NONE | STGM_SHARE_DENY_READ | STGM_SHARE_DENY_WRITE | STGM_SHARE_EXCLUSIVE | STGM_READWRITE | STGM_CREATE)) {
         DebugMsg(DM_ERROR, TEXT("CreateSreamOnFile: Invalid STGM_ mode"));
         return E_INVALIDARG;
     }
 
-    if (grfMode & STGM_CREATE)
-    {
+    if (grfMode & STGM_CREATE) {
         // Need to get the file attributes of the file first, so that CREATE_ALWAYS will succeed for HIDDEN and SYSTEM attributes.
         DWORD dwAttrib = GetFileAttributes(pszFile);
-        if ((DWORD) -1 == dwAttrib)
-        {
+        if ((DWORD)-1 == dwAttrib) {
             // something went wrong, so set attributes to something normal before we try to create the file...
             dwAttrib = 0;
         }
 
         // STGM_CREATE
         hFile = CreateFile(pszFile, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, dwAttrib, NULL);
-    }
-    else
-    {
+    } else {
         DWORD dwDesiredAccess, dwShareMode, dwShareBits;
 
         // not STGM_CREATE
-        if (grfMode & STGM_WRITE)
-        {
+        if (grfMode & STGM_WRITE) {
             dwDesiredAccess = GENERIC_WRITE;
-        }
-        else
-        {
+        } else {
             dwDesiredAccess = GENERIC_READ;
         }
-        if (grfMode & STGM_READWRITE)
-        {
+        if (grfMode & STGM_READWRITE) {
             dwDesiredAccess |= (GENERIC_READ | GENERIC_WRITE);
         }
         dwShareBits = grfMode & (STGM_SHARE_EXCLUSIVE | STGM_SHARE_DENY_WRITE | STGM_SHARE_DENY_READ | STGM_SHARE_DENY_NONE);
-        switch (dwShareBits)
-        {
+        switch (dwShareBits) {
         case STGM_SHARE_DENY_WRITE:
             dwShareMode = FILE_SHARE_READ;
             break;
@@ -72,19 +62,15 @@ STDAPI _CreateStreamOnFile(LPCTSTR pszFile, DWORD grfMode, IStream **ppstm)
         hFile = CreateFile(pszFile, dwDesiredAccess, dwShareMode, NULL, OPEN_EXISTING, 0, NULL);
     }
 
-    if (hFile == INVALID_HANDLE_VALUE)
-    {
+    if (hFile == INVALID_HANDLE_VALUE) {
         DebugMsg(DM_TRACE, TEXT("CreateSreamOnFile: CreateFileW() failed %s"), pszFile);
         return HRESULT_FROM_WIN32(GetLastError());
     }
 
-    *ppstm = (IStream *)new CFileStream(hFile, grfMode);
-    if (*ppstm)
-    {
+    *ppstm = (IStream*)new CFileStream(hFile, grfMode);
+    if (*ppstm) {
         return S_OK;
-    }
-    else
-    {
+    } else {
         CloseHandle(hFile);
         return E_OUTOFMEMORY;
     }
@@ -96,10 +82,9 @@ BOOL _PathAppend(LPCTSTR pszBase, LPCTSTR pszAppend, LPTSTR pszOut, DWORD cchOut
     DWORD cchBase = lstrlen(pszBase);
 
     //  +1 is one for the whack
-    if (cchOut > cchBase + lstrlen(pszAppend) + 1)
-    {
+    if (cchOut > cchBase + lstrlen(pszAppend) + 1) {
         StrCpy(pszOut, pszBase);
-        pszOut+=cchBase;
+        pszOut += cchBase;
         *pszOut++ = TEXT('\\');
         StrCpy(pszOut, pszAppend);
         return TRUE;
@@ -115,8 +100,7 @@ LWSTDAPI AssocMakeFileExtsToApplication(ASSOCMAKEF flags, LPCTSTR pszExt, LPCTST
 {
     HRESULT hr = E_INVALIDARG;
 
-    if (pszExt)
-    {
+    if (pszExt) {
         TCHAR szKey[MAX_PATH];
         _PathAppend(REGSTR_PATH_EXPLORER_FILEEXTS, pszExt, szKey, SIZECHARS(szKey));
 
@@ -124,7 +108,7 @@ LWSTDAPI AssocMakeFileExtsToApplication(ASSOCMAKEF flags, LPCTSTR pszExt, LPCTST
         if (!pszApplication)
             err = SHDeleteValue(HKEY_CURRENT_USER, szKey, TEXT("Application"));
         else
-            err = SHSetValue(HKEY_CURRENT_USER, szKey, TEXT("Application"), REG_SZ, pszApplication, CbFromCch(lstrlen(pszApplication) +1));
+            err = SHSetValue(HKEY_CURRENT_USER, szKey, TEXT("Application"), REG_SZ, pszApplication, CbFromCch(lstrlen(pszApplication) + 1));
 
         hr = HRESULT_FROM_WIN32(err);
     }
@@ -133,7 +117,7 @@ LWSTDAPI AssocMakeFileExtsToApplication(ASSOCMAKEF flags, LPCTSTR pszExt, LPCTST
 }
 
 
-HRESULT _AllocValueString(HKEY hkey, LPCTSTR pszKey, LPCTSTR pszVal, LPTSTR *ppsz)
+HRESULT _AllocValueString(HKEY hkey, LPCTSTR pszKey, LPCTSTR pszVal, LPTSTR* ppsz)
 {
     DWORD cb, err;
     err = SHGetValue(hkey, pszKey, pszVal, NULL, NULL, &cb);
@@ -141,19 +125,16 @@ HRESULT _AllocValueString(HKEY hkey, LPCTSTR pszKey, LPCTSTR pszVal, LPTSTR *pps
     ASSERT(ppsz);
     *ppsz = NULL;
 
-    if (NOERROR == err)
-    {
-        LPTSTR psz = (LPTSTR) LocalAlloc(LPTR, cb);
+    if (NOERROR == err) {
+        LPTSTR psz = (LPTSTR)LocalAlloc(LPTR, cb);
 
-        if (psz)
-        {
+        if (psz) {
             err = SHGetValue(hkey, pszKey, pszVal, NULL, (LPVOID)psz, &cb);
             if (NOERROR == err)
                 *ppsz = psz;
             else
                 LocalFree(psz);
-        }
-        else
+        } else
             err = ERROR_OUTOFMEMORY;
     }
 
@@ -173,21 +154,17 @@ VOID WINAPI PrettifyFileDescription(LPTSTR pszDesc, LPCTSTR pszCutList)
 
     // get the Cut list from registry
     //  this is MULTI_SZ
-    if (S_OK == _AllocValueString(HKEY_LOCAL_MACHINE, SZ_REGKEY_FILEASSOCIATION, TEXT("CutList"), &pszCutListReg))
-    {
+    if (S_OK == _AllocValueString(HKEY_LOCAL_MACHINE, SZ_REGKEY_FILEASSOCIATION, TEXT("CutList"), &pszCutListReg)) {
         pszCutList = pszCutListReg;
     }
 
-    if (pszCutList)
-    {
+    if (pszCutList) {
         // cut strings in cut list from file description
-        for (LPCTSTR pszCut = pszCutList; *pszCut; pszCut = pszCut + lstrlen(pszCut) + 1)
-        {
+        for (LPCTSTR pszCut = pszCutList; *pszCut; pszCut = pszCut + lstrlen(pszCut) + 1) {
             LPTSTR pch = StrRStrI(pszDesc, NULL, pszCut);
 
             // cut the exact substring from the end of file description
-            if (pch && !*(pch + lstrlen(pszCut)))
-            {
+            if (pch && !*(pch + lstrlen(pszCut))) {
                 *pch = '\0';
 
                 // remove trailing spaces
@@ -226,10 +203,10 @@ VOID WINAPI PrettifyFileDescription(LPTSTR pszDesc, LPCTSTR pszCutList)
     Return:
         TRUE on success, and FALSE otherwise
 */
-BOOL WINAPI SHGetFileDescription(LPCTSTR pszPath, LPCTSTR pszVersionKeyIn, LPCTSTR pszCutListIn, LPTSTR pszDesc, UINT *pcchDesc)
+BOOL WINAPI SHGetFileDescription(LPCTSTR pszPath, LPCTSTR pszVersionKeyIn, LPCTSTR pszCutListIn, LPTSTR pszDesc, UINT* pcchDesc)
 {
     UINT cchValue = 0;
-    TCHAR szPath[MAX_PATH], *pszValue = NULL;
+    TCHAR szPath[MAX_PATH], * pszValue = NULL;
 
     DWORD dwHandle;                 /* version subsystem handle */
     DWORD dwVersionSize;            /* size of the version data */
@@ -261,40 +238,37 @@ BOOL WINAPI SHGetFileDescription(LPCTSTR pszPath, LPCTSTR pszVersionKeyIn, LPCTS
         goto Error;
 
     // Try same language as the caller
-    if (pszVersionKeyIn)
-    {
+    if (pszVersionKeyIn) {
         lstrcpyn(szVersionKey, pszVersionKeyIn, ARRAYSIZE(szVersionKey));
 
-        if (VerQueryValue(lpVersionBuffer, szVersionKey, (void **)&pszValue, &cchValue))
-        {
+        if (VerQueryValue(lpVersionBuffer, szVersionKey, (void**)&pszValue, &cchValue)) {
             goto Exit;
         }
     }
 
     // Try first language this supports
     // Look for translations
-    if (VerQueryValue(lpVersionBuffer, TEXT("\\VarFileInfo\\Translation"), (void **)&lpXlate, &cchValue) && cchValue)
-    {
+    if (VerQueryValue(lpVersionBuffer, TEXT("\\VarFileInfo\\Translation"), (void**)&lpXlate, &cchValue) && cchValue) {
         wnsprintf(szVersionKey, ARRAYSIZE(szVersionKey), TEXT("\\StringFileInfo\\%04X%04X\\FileDescription"), lpXlate[0].wLanguage, lpXlate[0].wCodePage);
-        if (VerQueryValue(lpVersionBuffer, szVersionKey, (void **)&pszValue, &cchValue))
+        if (VerQueryValue(lpVersionBuffer, szVersionKey, (void**)&pszValue, &cchValue))
             goto Exit;
     }
 
 #ifdef UNICODE
     // try English, unicode code page
     lstrcpy(szVersionKey, TEXT("\\StringFileInfo\\040904B0\\FileDescription"));
-    if (VerQueryValue(lpVersionBuffer, szVersionKey, (void **)&pszValue, &cchValue))
+    if (VerQueryValue(lpVersionBuffer, szVersionKey, (void**)&pszValue, &cchValue))
         goto Exit;
 #endif
 
     // try English
     lstrcpy(szVersionKey, TEXT("\\StringFileInfo\\040904E4\\FileDescription"));
-    if (VerQueryValue(lpVersionBuffer, szVersionKey, (void **)&pszValue, &cchValue))
+    if (VerQueryValue(lpVersionBuffer, szVersionKey, (void**)&pszValue, &cchValue))
         goto Exit;
 
     // try English, null codepage
     lstrcpy(szVersionKey, TEXT("\\StringFileInfo\\04090000\\FileDescription"));
-    if (VerQueryValue(lpVersionBuffer, szVersionKey, (void **)&pszValue, &cchValue))
+    if (VerQueryValue(lpVersionBuffer, szVersionKey, (void**)&pszValue, &cchValue))
         goto Exit;
 
 Error:  // Could not find FileVersion info in a reasonable format, return file name
@@ -308,8 +282,7 @@ Exit:
 
     if (!pszDesc)   // only want to know the length of the friendly name
         *pcchDesc = cchValue;
-    else
-    {
+    else {
         *pcchDesc = min(*pcchDesc, cchValue);
         lstrcpyn(pszDesc, pszValue, *pcchDesc);
     }
@@ -327,16 +300,13 @@ BOOL DoesStringRoundTrip(LPCTSTR pwszIn, LPSTR pszOut, UINT cchOut)
 #ifdef UNICODE
     // On NT5 we have to be more stringent since you can switch UI
     // languages on the fly, thereby breaking this constant codepage assumption inherent in the downlevel implementations.
-    if (g_bRunningOnNT5OrHigher)
-    {
+    if (g_bRunningOnNT5OrHigher) {
         LPCTSTR pIn = pwszIn;
         LPSTR pOut = pszOut;
         UINT cch = cchOut;
 
-        while (*pIn && cch)
-        {
-            if (*pIn > ((TCHAR)127))
-            {
+        while (*pIn && cch) {
+            if (*pIn > ((TCHAR)127)) {
 #ifdef DEBUG
                 SHUnicodeToAnsiCP(CP_ACPNOVALIDATE, pwszIn, pszOut, cchOut);
 #else
@@ -349,19 +319,15 @@ BOOL DoesStringRoundTrip(LPCTSTR pwszIn, LPSTR pszOut, UINT cchOut)
         }
 
         // Null terminate the out buffer
-        if (cch)
-        {
+        if (cch) {
             *pOut = '\0';
-        }
-        else if (cchOut)
-        {
-            *(pOut-1) = '\0';
+        } else if (cchOut) {
+            *(pOut - 1) = '\0';
         }
 
         return TRUE;// Everything was low ascii, no dbcs worries and it will always round-trip
-    }
-    else
-    // but we probably don't want to change downlevel shell behavior in this regard, so we keep that implementation:
+    } else
+        // but we probably don't want to change downlevel shell behavior in this regard, so we keep that implementation:
     {
         BOOL fRet = FALSE;
         WCHAR wszTemp[MAX_PATH];
@@ -369,13 +335,11 @@ BOOL DoesStringRoundTrip(LPCTSTR pwszIn, LPSTR pszOut, UINT cchOut)
         UINT cchTemp = ARRAYSIZE(wszTemp);
 
         // We better have enough room for the buffer.
-        if (ARRAYSIZE(wszTemp) < cchOut)
-        {
-            pwszTemp = (LPWSTR)LocalAlloc(LPTR, cchOut*sizeof(WCHAR));
+        if (ARRAYSIZE(wszTemp) < cchOut) {
+            pwszTemp = (LPWSTR)LocalAlloc(LPTR, cchOut * sizeof(WCHAR));
             cchTemp = cchOut;
         }
-        if (pwszTemp)
-        {
+        if (pwszTemp) {
 #ifdef DEBUG
             SHUnicodeToAnsiCP(CP_ACPNOVALIDATE, pwszIn, pszOut, cchOut);
 #else
@@ -384,8 +348,7 @@ BOOL DoesStringRoundTrip(LPCTSTR pwszIn, LPSTR pszOut, UINT cchOut)
             SHAnsiToUnicode(pszOut, pwszTemp, cchTemp);
             fRet = lstrcmp(pwszIn, pwszTemp) == 0;     // are they the same?
 
-            if (pwszTemp != wszTemp)
-            {
+            if (pwszTemp != wszTemp) {
                 LocalFree(pwszTemp);
             }
         }

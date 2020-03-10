@@ -16,7 +16,7 @@
 #include <shlwapi.h>
 
 
-char * pszExtName = "SHLEXTS";
+char* pszExtName = "SHLEXTS";
 
 #include <stdexts.h>
 #include <stdexts.c>
@@ -182,7 +182,7 @@ enum GF_FLAGS {
 
 struct _tagFlags
 {
-    LPSTR * apszFlags;
+    LPSTR* apszFlags;
     LPSTR pszFlagsname;
 } argFlag[GF_MAX] =
 {
@@ -222,7 +222,7 @@ LPSTR GetFlags(
     WORD i;
     BOOL fFirst = TRUE;
     BOOL fNoMoreNames = FALSE;
-    LPSTR *apszFlags;
+    LPSTR* apszFlags;
 
     if (pszBuf == NULL) {
         pszBuf = szT;
@@ -280,8 +280,7 @@ LPSTR GetFlags(
 * 11/5/1997 Created cdturner
 
 */
-BOOL Iflags( DWORD dwOpts,
-             LPSTR pszArgs )
+BOOL Iflags(DWORD dwOpts, LPSTR pszArgs)
 {
     CHAR szBuffer[100];
     int iOffset = 0;
@@ -291,80 +290,69 @@ BOOL Iflags( DWORD dwOpts,
     DWORD dwValue;
     LPSTR pszOut;
 
-    if ( dwOpts & OFLAG(l))
-    {
+    if (dwOpts & OFLAG(l)) {
         // list all the struct names
         Print("Flags types known:\n");
 
-        for ( iFlags = 0; iFlags < GF_MAX; iFlags ++ )
-        {
-            sprintf( szBuffer, "    %s\n", argFlag[iFlags].pszFlagsname);
-            Print( szBuffer );
+        for (iFlags = 0; iFlags < GF_MAX; iFlags++) {
+            sprintf(szBuffer, "    %s\n", argFlag[iFlags].pszFlagsname);
+            Print(szBuffer);
         }
         return TRUE;
     }
 
     // skip whitespace
-    while ( *pszArgs == ' ' )
-        pszArgs ++;
+    while (*pszArgs == ' ')
+        pszArgs++;
 
     // now grab the flagsname
-    while ( pszArgs[iOffset] != ' ' && pszArgs[iOffset] != '\0' )
-    {
+    while (pszArgs[iOffset] != ' ' && pszArgs[iOffset] != '\0') {
         szBuffer[iOffset] = pszArgs[iOffset];
-        iOffset ++;
+        iOffset++;
     };
 
     // terminate the string
     szBuffer[iOffset] = 0;
 
     // find the flags value
-    for ( iFlags = 0; iFlags < GF_MAX; iFlags ++ )
-    {
-        if ( lstrcmpA( szBuffer, argFlag[iFlags].pszFlagsname ) == 0 )
+    for (iFlags = 0; iFlags < GF_MAX; iFlags++) {
+        if (lstrcmpA(szBuffer, argFlag[iFlags].pszFlagsname) == 0)
             break;
     }
 
-    if ( iFlags >= GF_MAX )
-    {
-        Print( "unknown flagsname - ");
-        Print( szBuffer );
-        Print( "\n" );
+    if (iFlags >= GF_MAX) {
+        Print("unknown flagsname - ");
+        Print(szBuffer);
+        Print("\n");
         return TRUE;
     }
 
     // skip white space
-    while ( pszArgs[iOffset] == ' ' )
-        iOffset ++;
+    while (pszArgs[iOffset] == ' ')
+        iOffset++;
 
-    if ( pszArgs[iOffset] == '*' )
-    {
+    if (pszArgs[iOffset] == '*') {
         bAddr = TRUE;
-        iOffset ++;
+        iOffset++;
     }
 
-    pAddr = (LPDWORD) EvalExp( pszArgs + iOffset );
+    pAddr = (LPDWORD)EvalExp(pszArgs + iOffset);
 
-    if ( bAddr )
-    {
-        if ( !tryDword( &dwValue, pAddr ) )
-        {
-            Print( "unable to access memory at that location\n");
+    if (bAddr) {
+        if (!tryDword(&dwValue, pAddr)) {
+            Print("unable to access memory at that location\n");
             return TRUE;
         }
-    }
-    else
-    {
+    } else {
         dwValue = PtrToUlong(pAddr);
     }
 
-    pszOut = GetFlags( (WORD) iFlags, dwValue, NULL, TRUE );
-    if ( pszOut )
-    {
-        sprintf( szBuffer, "Value = %8X, pAddr = %8X\n", dwValue, (DWORD_PTR)pAddr );
-        Print( szBuffer );
-        Print( pszOut );
-        Print( "\n" );
+    pszOut = GetFlags((WORD)iFlags, dwValue, NULL, TRUE);
+    if (pszOut) {
+        sprintf(szBuffer, "Value = %8X, pAddr = %8X\n", dwValue, (DWORD_PTR)pAddr);
+        Print(szBuffer);
+        Print(pszOut);
+        Print("\n");
     }
 
     return TRUE;
@@ -426,8 +414,7 @@ BOOL Iver()
 * 11/4/1997 Created cdturner
 
 */
-BOOL Ifilever( DWORD dwOpts,
-             LPSTR pszArgs )
+BOOL Ifilever(DWORD dwOpts, LPSTR pszArgs)
 {
     HINSTANCE hDll = NULL;
     DLLGETVERSIONPROC pGetVer = NULL;
@@ -437,45 +424,39 @@ BOOL Ifilever( DWORD dwOpts,
     char szMessage[200];
     BOOL fSkipLoad = FALSE;
 
-
     // do they want the speech on shell versions ....
-    if ( pszArgs == NULL || lstrlenA( pszArgs ) == 0 )
-    {
+    if (pszArgs == NULL || lstrlenA(pszArgs) == 0) {
         pszArgs = "Shell32.dll";
     }
 
-    if ( !(dwOpts & OFLAG(n)) )
-    {
+    if (!(dwOpts & OFLAG(n))) {
         hDll = LoadLibraryA(pszArgs);
-        if ( hDll == NULL )
-        {
+        if (hDll == NULL) {
             Print("ERROR: Can't Load ");
             Print(pszArgs);
             Print("\n");
 
             return TRUE;
         }
-        pGetVer = (DLLGETVERSIONPROC) GetProcAddress( hDll, "DllGetVersion");
-        if ( pGetVer )
-        {
+        pGetVer = (DLLGETVERSIONPROC)GetProcAddress(hDll, "DllGetVersion");
+        if (pGetVer) {
             DLLVERSIONINFO rgVerInfo;
 
-            rgVerInfo.cbSize = sizeof( rgVerInfo );
+            rgVerInfo.cbSize = sizeof(rgVerInfo);
 
-            pGetVer( &rgVerInfo );
+            pGetVer(&rgVerInfo);
 
-            wsprintfA( szMessage, "DllGetVersion for %s Reports:\n    Major = %d\n    Minor = %d\n    Build = %d\n",
-                pszArgs, rgVerInfo.dwMajorVersion, rgVerInfo.dwMinorVersion, rgVerInfo.dwBuildNumber );
+            wsprintfA(szMessage, "DllGetVersion for %s Reports:\n    Major = %d\n    Minor = %d\n    Build = %d\n",
+                      pszArgs, rgVerInfo.dwMajorVersion, rgVerInfo.dwMinorVersion, rgVerInfo.dwBuildNumber);
 
-            Print(szMessage );
+            Print(szMessage);
         }
-        FreeLibrary( hDll );
+        FreeLibrary(hDll);
     }
 
     // now test the normal version details...
-    dwBlockLen = GetFileVersionInfoSizeA( pszArgs, &dwHandle );
-    if ( dwBlockLen == 0 )
-    {
+    dwBlockLen = GetFileVersionInfoSizeA(pszArgs, &dwHandle);
+    if (dwBlockLen == 0) {
         Print("GetFileVersionSize(");
         Print(pszArgs);
         Print(" failed\n");
@@ -483,23 +464,21 @@ BOOL Ifilever( DWORD dwOpts,
         return TRUE;
     }
 
-    pBlock = LocalAlloc( LPTR, dwBlockLen );
-    if ( pBlock )
-    {
-        if (GetFileVersionInfoA( pszArgs, dwHandle, dwBlockLen, pBlock ))
-        {
-            VS_FIXEDFILEINFO * pFileInfo;
+    pBlock = LocalAlloc(LPTR, dwBlockLen);
+    if (pBlock) {
+        if (GetFileVersionInfoA(pszArgs, dwHandle, dwBlockLen, pBlock)) {
+            VS_FIXEDFILEINFO* pFileInfo;
             UINT uLen;
 
-            VerQueryValueA( pBlock, "\\", (LPVOID *) &pFileInfo, &uLen );
-            wsprintfA( szMessage, "GetFileVersionInfo for %s Reports:\n    Major = %X\n    Minor = %d.%d\n",
-                pszArgs,
-                (pFileInfo->dwFileVersionMS & 0xf0000) >> 16,
-                (pFileInfo->dwFileVersionLS & 0xffff0000) >> 16,
-                (pFileInfo->dwFileVersionLS & 0xffff));
-            Print( szMessage );
+            VerQueryValueA(pBlock, "\\", (LPVOID*)&pFileInfo, &uLen);
+            wsprintfA(szMessage, "GetFileVersionInfo for %s Reports:\n    Major = %X\n    Minor = %d.%d\n",
+                      pszArgs,
+                      (pFileInfo->dwFileVersionMS & 0xf0000) >> 16,
+                      (pFileInfo->dwFileVersionLS & 0xffff0000) >> 16,
+                      (pFileInfo->dwFileVersionLS & 0xffff));
+            Print(szMessage);
         }
-        LocalFree( pBlock );
+        LocalFree(pBlock);
     }
     return TRUE;
 }

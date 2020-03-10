@@ -25,10 +25,10 @@
 #define VERSION_GetFileVersionInfoSizeW "GetFileVersionInfoSizeW"
 #define VERSION_VerQueryValueW          "VerQueryValueW"
 
-typedef BOOL  (WINAPI *LPFNGETFILEVERSIONINFOW)(PWSTR, DWORD, DWORD, LPVOID);
-typedef DWORD (WINAPI *LPFNGETFILEVERSIONINFOSIZEW)(PWSTR, LPDWORD);
-typedef BOOL  (WINAPI *LPFNVERQUERYVALUEW)(const LPVOID, PWSTR, LPVOID*, LPDWORD);
-typedef VS_FIXEDFILEINFO *PFIXEDFILEINFO;
+typedef BOOL(WINAPI* LPFNGETFILEVERSIONINFOW)(PWSTR, DWORD, DWORD, LPVOID);
+typedef DWORD(WINAPI* LPFNGETFILEVERSIONINFOSIZEW)(PWSTR, LPDWORD);
+typedef BOOL(WINAPI* LPFNVERQUERYVALUEW)(const LPVOID, PWSTR, LPVOID*, LPDWORD);
+typedef VS_FIXEDFILEINFO* PFIXEDFILEINFO;
 
 static LPFNGETFILEVERSIONINFOW     pfnGetFileVersionInfoW;
 static LPFNGETFILEVERSIONINFOSIZEW pfnGetFileVersionInfoSizeW;
@@ -55,12 +55,12 @@ BOOL ImmLoadLayout(
     }
 
     lRet = RegOpenKey(HKEY_LOCAL_MACHINE, gszRegKbdLayout, &hKeyKbdLayout);
-    if ( lRet != ERROR_SUCCESS ) {
+    if (lRet != ERROR_SUCCESS) {
         return(FALSE);
     }
 
     lRet = RegOpenKey(hKeyKbdLayout, strIme.Buffer, &hKeyIme);
-    if ( lRet != ERROR_SUCCESS ) {
+    if (lRet != ERROR_SUCCESS) {
         RegCloseKey(hKeyKbdLayout);
         return(FALSE);
     }
@@ -73,7 +73,7 @@ BOOL ImmLoadLayout(
                            (LPBYTE)piiex->wszImeFile,
                            &dwTmp);
 
-    if ( lRet != ERROR_SUCCESS ) {
+    if (lRet != ERROR_SUCCESS) {
         RegCloseKey(hKeyIme);
         RegCloseKey(hKeyKbdLayout);
         return(FALSE);
@@ -116,26 +116,16 @@ ExtractColumn(
     LPWSTR lpSrc,
     WCHAR  cSeparator,
     UINT   uiColumn
-    )
-
+)
 /*++
-
-Routine Description:
-
-
 Arguments:
-
     lpSrc - "YYYY.MM.DD" or "HH:MM:SS" or "MM.NN" pointer
-
 Return Value:
-
     packed int
-
 --*/
-
 {
     UNICODE_STRING uStr;
-    WCHAR *pSep, *pStr;
+    WCHAR* pSep, * pStr;
     INT i;
 
     if (!lpSrc) {
@@ -161,8 +151,7 @@ Return Value:
         if (pSep) {
             *pSep = TEXT('\0');
             uStr.Length = (USHORT)((pSep - pStr) * sizeof(WCHAR));
-        }
-        else {
+        } else {
             uStr.Length = (USHORT)(((lpSrc - pStr) + 1) * sizeof(WCHAR));
         }
         uStr.Buffer = pStr;
@@ -179,10 +168,7 @@ Return Value:
 }
 
 
-PWSTR GetVersionDatum(
-    PWSTR pszVersionBuffer,
-    PWSTR pszVersionKey,
-    PWSTR pszName)
+PWSTR GetVersionDatum(PWSTR pszVersionBuffer, PWSTR pszVersionKey, PWSTR pszName)
 {
     ULONG ulSize;
     DWORD cbValue = 0;
@@ -191,37 +177,27 @@ PWSTR GetVersionDatum(
     ulSize = wcslen(pszVersionKey);
     wcscat(pszVersionKey, pszName);
 
-    (*pfnVerQueryValueW)(pszVersionBuffer,
-                          pszVersionKey,
-                          (LPVOID*)&pValue,
-                          &cbValue);
+    (*pfnVerQueryValueW)(pszVersionBuffer, pszVersionKey, (LPVOID*)&pValue, &cbValue);
 
     pszVersionKey[ulSize] = L'\0';
     return (cbValue != 0) ? pValue : (PWSTR)NULL;
 }
 
 
-BOOL LoadFixVersionInfo(
-    PIMEINFOEX piiex,
-    PWSTR      pszVersionBuffer)
+BOOL LoadFixVersionInfo(PIMEINFOEX piiex, PWSTR      pszVersionBuffer)
 {
     PFIXEDFILEINFO pFixedVersionInfo;
     BOOL           fResult;
     DWORD          cbValue;
 
-    fResult = (*pfnVerQueryValueW)(pszVersionBuffer,
-                                   SZ_BACKSLASH,
-                                   &pFixedVersionInfo,
-                                   &cbValue);
-
+    fResult = (*pfnVerQueryValueW)(pszVersionBuffer, SZ_BACKSLASH, &pFixedVersionInfo, &cbValue);
     if (!fResult || cbValue == 0)
         return FALSE;
 
     /*
      * Check for IME file type.
      */
-    if (pFixedVersionInfo->dwFileType != VFT_DRV ||
-        pFixedVersionInfo->dwFileSubtype != VFT2_DRV_INPUTMETHOD) {
+    if (pFixedVersionInfo->dwFileType != VFT_DRV || pFixedVersionInfo->dwFileSubtype != VFT2_DRV_INPUTMETHOD) {
         return FALSE;
     }
 
@@ -235,9 +211,7 @@ BOOL LoadFixVersionInfo(
     return TRUE;
 }
 
-BOOL LoadVarVersionInfo(
-    PIMEINFOEX piiex,
-    PWSTR      pszVersionBuffer)
+BOOL LoadVarVersionInfo(PIMEINFOEX piiex, PWSTR      pszVersionBuffer)
 {
     PWSTR   pDescription;
     WORD    wLangId;
@@ -246,11 +220,7 @@ BOOL LoadVarVersionInfo(
     DWORD   cbValue;
     WCHAR   szVersionKey[80];
 
-    fResult = (*pfnVerQueryValueW)(pszVersionBuffer,
-                                   L"\\VarFileInfo\\Translation",
-                                   (LPVOID *)&puXlate,
-                                   &cbValue);
-
+    fResult = (*pfnVerQueryValueW)(pszVersionBuffer, L"\\VarFileInfo\\Translation", (LPVOID*)&puXlate, &cbValue);
     if (!fResult || cbValue == 0)
         return FALSE;
 
@@ -260,10 +230,10 @@ BOOL LoadVarVersionInfo(
         /*
          * A newly installed IME, its HKL is not assigned yet.
          */
-        piiex->hkl = (HKL)LongToHandle( MAKELONG(wLangId, 0) );
+        piiex->hkl = (HKL)LongToHandle(MAKELONG(wLangId, 0));
     }
 #if 0    // let unlocalized IME to work.
-    else if (LOWORD(HandleToUlong(piiex->hkl)) != wLangId){
+    else if (LOWORD(HandleToUlong(piiex->hkl)) != wLangId) {
         /*
          * Mismatch in Lang ID, blow out
          */
@@ -274,27 +244,22 @@ BOOL LoadVarVersionInfo(
     /*
      * First try the language we are currently in.
      */
-    wsprintf(szVersionKey, L"\\StringFileInfo\\%04X04B0\\",
-             LANGIDFROMLCID(GetThreadLocale()));
+    wsprintf(szVersionKey, L"\\StringFileInfo\\%04X04B0\\", LANGIDFROMLCID(GetThreadLocale()));
 
-    pDescription = GetVersionDatum(pszVersionBuffer, szVersionKey,
-            L"FileDescription");
+    pDescription = GetVersionDatum(pszVersionBuffer, szVersionKey, L"FileDescription");
 
     if (pDescription == NULL) {
         /*
          * Now try the first translation specified in IME
          */
-        wsprintf(szVersionKey, L"\\StringFileInfo\\%04X%04X\\",
-                 *puXlate, *(puXlate+1));
+        wsprintf(szVersionKey, L"\\StringFileInfo\\%04X%04X\\", *puXlate, *(puXlate + 1));
 
-        pDescription = GetVersionDatum(pszVersionBuffer, szVersionKey,
-                L"FileDescription");
+        pDescription = GetVersionDatum(pszVersionBuffer, szVersionKey, L"FileDescription");
     }
 
     if (pDescription != NULL) {
         wcscpy(piiex->wszImeDescription, pDescription);
-    }
-    else {
+    } else {
         piiex->wszImeDescription[0] = L'\0';
     }
 
@@ -302,8 +267,7 @@ BOOL LoadVarVersionInfo(
 }
 
 
-BOOL LoadVersionInfo(
-    PIMEINFOEX piiex)
+BOOL LoadVersionInfo(PIMEINFOEX piiex)
 {
     WCHAR   szPath[MAX_PATH];
     PWSTR   pszVersionBuffer;
@@ -315,8 +279,7 @@ BOOL LoadVersionInfo(
     hVersion = GetModuleHandle(VERSION_DLL);
     if (hVersion != NULL) {
         fUnload = FALSE;
-    }
-    else {
+    } else {
         hVersion = LoadLibrary(VERSION_DLL);
         if (hVersion == NULL) {
             return FALSE;

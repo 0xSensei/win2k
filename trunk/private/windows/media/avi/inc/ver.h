@@ -244,8 +244,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
 #endif /* LIB */
 
-    BOOL WINAPI VerQueryValue(const void FAR* pBlock, LPCSTR lpSubBlock,
-                              void FAR* FAR* lplpBuffer, UINT FAR* lpuLen);
+    BOOL WINAPI VerQueryValue(const void FAR* pBlock, LPCSTR lpSubBlock, void FAR* FAR* lplpBuffer, UINT FAR* lpuLen);
 
 #ifdef __cplusplus
 }

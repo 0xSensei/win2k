@@ -1325,36 +1325,23 @@ CFILEVER::~CFILEVER() {
 }
 
 LPTSTR CFILEVER::GetVerInfo(LPTSTR pszKey) {
-
     LPTSTR lpValue;
     UINT cb = 0;
 
-
     // Try to get info in the local language
-
-
-    wsprintf(szVersionKey, TEXT("\\StringFileInfo\\%04X04B0\\%ws"),
-             LANGIDFROMLCID(GetUserDefaultLCID()), pszKey);
+    wsprintf(szVersionKey, TEXT("\\StringFileInfo\\%04X04B0\\%ws"), LANGIDFROMLCID(GetUserDefaultLCID()), pszKey);
 
     if (lpbVerInfo) {
         VerQueryValue(lpbVerInfo, szVersionKey, (LPVOID*)&lpValue, &cb);
-
         if (cb == 0) {
-
             // No local language, try US English
-
-
             wsprintf(szVersionKey, TEXT("\\StringFileInfo\\040904B0\\%ws"), pszKey);
-
             VerQueryValue(lpbVerInfo, szVersionKey, (LPVOID*)&lpValue, &cb);
         }
     }
 
     if (cb == 0) {
-
         // We have no file information.
-
-
         LoadString(ghmod, IDS_NO_VERSION_INFO, szVersionKey, sizeof(szVersionKey));
         lpValue = szVersionKey;
     }

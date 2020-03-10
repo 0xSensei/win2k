@@ -11,12 +11,12 @@ extern char g_szBrowserPrimaryLang[];
 CVersion g_versiondll;
 extern BOOL g_bRunOnWin95;
 
-HRESULT NeedForceLanguageCheck(HKEY hkeyCLSID, CLocalComponentInfo *plci);
-BOOL    SniffStringFileInfo( LPSTR szFileName, LPCTSTR lpszSubblock, DWORD *pdw = NULL );
-HRESULT IsDistUnitLocallyInstalledZI(LPCWSTR , LPCWSTR, DWORD , DWORD , CLocalComponentInfo * );
-HRESULT IsDistUnitLocallyInstalledSxS(LPCWSTR wszDistUnit, LPCWSTR wszClsid, DWORD dwFileVersionMS, DWORD dwFileVersionLS, CLocalComponentInfo * plci);
-void ExtractVersion(char *pszDistUnit, DWORD *pdwVerMS, DWORD *pdwVerLS);
-void GetLatestZIVersion(const WCHAR *pwzDistUnit, DWORD *pdwVerMS, DWORD *pdwVerLS);
+HRESULT NeedForceLanguageCheck(HKEY hkeyCLSID, CLocalComponentInfo* plci);
+BOOL    SniffStringFileInfo(LPSTR szFileName, LPCTSTR lpszSubblock, DWORD* pdw = NULL);
+HRESULT IsDistUnitLocallyInstalledZI(LPCWSTR, LPCWSTR, DWORD, DWORD, CLocalComponentInfo*);
+HRESULT IsDistUnitLocallyInstalledSxS(LPCWSTR wszDistUnit, LPCWSTR wszClsid, DWORD dwFileVersionMS, DWORD dwFileVersionLS, CLocalComponentInfo* plci);
+void ExtractVersion(char* pszDistUnit, DWORD* pdwVerMS, DWORD* pdwVerLS);
+void GetLatestZIVersion(const WCHAR* pwzDistUnit, DWORD* pdwVerMS, DWORD* pdwVerLS);
 
 
 // %%Function: CLocalComponentInfo::CLocalComponentInfo
@@ -65,7 +65,7 @@ CLocalComponentInfo::MakeDestDir()
 
     if (szExistingFileName[0]) {
 
-        DWORD cbLen = (DWORD) (pBaseExistingFileName - szExistingFileName);
+        DWORD cbLen = (DWORD)(pBaseExistingFileName - szExistingFileName);
 
 
         lpDestDir = new char[cbLen + 1];
@@ -86,7 +86,7 @@ CLocalComponentInfo::MakeDestDir()
 // %%Function: CModuleUsage::CModuleUsage
 // CModuleUsage is the basic download obj.
 
-CModuleUsage::CModuleUsage(LPCSTR szFileName, DWORD muflags, HRESULT *phr)
+CModuleUsage::CModuleUsage(LPCSTR szFileName, DWORD muflags, HRESULT* phr)
 {
 
     m_szFileName = NULL;
@@ -94,23 +94,20 @@ CModuleUsage::CModuleUsage(LPCSTR szFileName, DWORD muflags, HRESULT *phr)
     if (szFileName) {
         CHAR szCanonical[MAX_PATH];
 
-        if ( CDLGetLongPathNameA( szCanonical, szFileName, MAX_PATH ) != 0 )
-            m_szFileName = new char [lstrlen(szCanonical)+1];
+        if (CDLGetLongPathNameA(szCanonical, szFileName, MAX_PATH) != 0)
+            m_szFileName = new char[lstrlen(szCanonical) + 1];
 
         if (m_szFileName) {
             lstrcpy(m_szFileName, szCanonical);
-        }
-        else
-        {
+        } else {
             // CDLGetLongPathName failed, so we are on a platform that
             // doesn't support it, and we can't guess what the right long
             // pathname is. Just use the short one
-            m_szFileName = new char [lstrlen(szFileName)+1];
+            m_szFileName = new char[lstrlen(szFileName) + 1];
 
             if (m_szFileName) {
                 lstrcpy(m_szFileName, szFileName);
-            }
-            else {
+            } else {
                 *phr = E_OUTOFMEMORY;
             }
         }
@@ -138,12 +135,12 @@ CModuleUsage::Update(LPCSTR lpClientName)
 {
 
     return ::UpdateModuleUsage(m_szFileName,
-                            lpClientName, NULL,
-                            m_dwFlags);
+                               lpClientName, NULL,
+                               m_dwFlags);
 }  // ~CModuleUsage
 
 HRESULT
-GetVersionHint(HKEY hkeyVersion, DWORD *pdwVersionMS, DWORD *pdwVersionLS)
+GetVersionHint(HKEY hkeyVersion, DWORD* pdwVersionMS, DWORD* pdwVersionLS)
 {
     DWORD Size = MAX_PATH;
     char szVersionBuf[MAX_PATH];
@@ -154,7 +151,7 @@ GetVersionHint(HKEY hkeyVersion, DWORD *pdwVersionMS, DWORD *pdwVersionLS)
     *pdwVersionLS = 0;
 
     DWORD lResult = ::RegQueryValueEx(hkeyVersion, NULL, NULL, &dwType,
-                        (unsigned char *)szVersionBuf, &Size);
+        (unsigned char*)szVersionBuf, &Size);
 
     if (lResult != ERROR_SUCCESS) {
 
@@ -165,7 +162,7 @@ GetVersionHint(HKEY hkeyVersion, DWORD *pdwVersionMS, DWORD *pdwVersionLS)
         goto Exit;
     }
 
-    if ( FAILED(GetVersionFromString(szVersionBuf, pdwVersionMS, pdwVersionLS))){
+    if (FAILED(GetVersionFromString(szVersionBuf, pdwVersionMS, pdwVersionLS))) {
         hr = S_FALSE;
     }
 
@@ -203,20 +200,20 @@ Exit:
 HRESULT
 CheckInstalledVersionHint(
     HKEY hKeyEmbedding,
-    CLocalComponentInfo *plci,
+    CLocalComponentInfo* plci,
     DWORD dwFileVersionMS,
     DWORD dwFileVersionLS)
 {
     HRESULT hr = S_OK;
     DWORD Size = MAX_PATH;
-    DWORD dwType =0;
+    DWORD dwType = 0;
     LONG lResult = ERROR_SUCCESS;
 
-    const static char * szInstalledVersion = "InstalledVersion";
-    const static char * szAvailableVersion = "AvailableVersion";
-    const static char * szPATH = "Path";
-    const static char * szLASTMODIFIED = "LastModified";
-    const static char * szETAG = "Etag";
+    const static char* szInstalledVersion = "InstalledVersion";
+    const static char* szAvailableVersion = "AvailableVersion";
+    const static char* szPATH = "Path";
+    const static char* szLASTMODIFIED = "LastModified";
+    const static char* szETAG = "Etag";
 
     char szVersionBuf[MAX_PATH];
     char szFileName[MAX_PATH];
@@ -225,15 +222,15 @@ CheckInstalledVersionHint(
 
     DWORD dwLocFVMS = 0;
     DWORD dwLocFVLS = 0;
-    char szLastMod[INTERNET_RFC1123_BUFSIZE+1];
+    char szLastMod[INTERNET_RFC1123_BUFSIZE + 1];
 
     if (RegOpenKeyEx(hKeyEmbedding, szAvailableVersion, 0,
-            KEY_READ, &hkeyAvailableVersion) == ERROR_SUCCESS) {
+                     KEY_READ, &hkeyAvailableVersion) == ERROR_SUCCESS) {
 
         DWORD dwAvailMS = 0;
         DWORD dwAvailLS = 0;
 
-        if ( GetVersionHint(hkeyAvailableVersion, &dwAvailMS, &dwAvailLS) == S_OK){
+        if (GetVersionHint(hkeyAvailableVersion, &dwAvailMS, &dwAvailLS) == S_OK) {
 
             plci->dwAvailMS = dwAvailMS;
             plci->dwAvailLS = dwAvailLS;
@@ -243,7 +240,7 @@ CheckInstalledVersionHint(
 
 
     lResult = ::RegOpenKeyEx(hKeyEmbedding, szInstalledVersion, 0,
-                        KEY_READ, &hKeyVersion);
+                             KEY_READ, &hKeyVersion);
 
     if (lResult != ERROR_SUCCESS) {
 
@@ -254,7 +251,7 @@ CheckInstalledVersionHint(
         goto Exit;
     }
 
-    if ( GetVersionHint(hKeyVersion, &dwLocFVMS, &dwLocFVLS) == S_FALSE){
+    if (GetVersionHint(hKeyVersion, &dwLocFVMS, &dwLocFVLS) == S_FALSE) {
         hr = S_FALSE;
         goto Exit;
     }
@@ -264,7 +261,7 @@ CheckInstalledVersionHint(
 
     Size = INTERNET_RFC1123_BUFSIZE + 1;
     lResult = ::RegQueryValueEx(hKeyVersion, szLASTMODIFIED, NULL, &dwType,
-                        (unsigned char *)szLastMod, &Size);
+        (unsigned char*)szLastMod, &Size);
 
     if (lResult == ERROR_SUCCESS) {
 
@@ -272,7 +269,7 @@ CheckInstalledVersionHint(
         FILETIME ft;
         // convert intenet time to file time
         if (InternetTimeToSystemTime(szLastMod, &st, 0) &&
-             SystemTimeToFileTime(&st, &ft) ) {
+            SystemTimeToFileTime(&st, &ft)) {
 
             memcpy(&(plci->ftLastModified), &ft, sizeof(FILETIME));
 
@@ -281,12 +278,12 @@ CheckInstalledVersionHint(
 
     Size = 0;
     lResult = ::RegQueryValueEx(hKeyVersion, szETAG, NULL, &dwType,
-                        (unsigned char *)NULL, &Size);
+        (unsigned char*)NULL, &Size);
     if (lResult == ERROR_SUCCESS) {
-        char *pbEtag = new char [Size];
+        char* pbEtag = new char[Size];
         if (pbEtag) {
             lResult = ::RegQueryValueEx(hKeyVersion, szETAG, NULL, &dwType,
-                        (unsigned char *)pbEtag, &Size);
+                (unsigned char*)pbEtag, &Size);
             if (lResult == ERROR_SUCCESS)
                 plci->pbEtag = pbEtag;
             else
@@ -296,9 +293,9 @@ CheckInstalledVersionHint(
 
     // check file versions
     if ((dwFileVersionMS > dwLocFVMS) ||
-             ((dwFileVersionMS == dwLocFVMS) &&
-                 (dwFileVersionLS > dwLocFVLS)))
-                     hr = S_FALSE;
+        ((dwFileVersionMS == dwLocFVMS) &&
+        (dwFileVersionLS > dwLocFVLS)))
+        hr = S_FALSE;
 
 
     if (hr == S_OK) {
@@ -312,7 +309,7 @@ CheckInstalledVersionHint(
         dwType = 0;
         Size = MAX_PATH;
         lResult = ::SHQueryValueEx(hKeyVersion, szPATH, NULL, &dwType,
-                            (unsigned char *)szFileName, &Size);
+            (unsigned char*)szFileName, &Size);
 
         if (lResult != ERROR_SUCCESS)
             goto Exit;
@@ -342,16 +339,16 @@ Exit:
 }
 
 HRESULT
-CreateJavaPackageManager(IJavaPackageManager **ppPackageManager)
+CreateJavaPackageManager(IJavaPackageManager** ppPackageManager)
 {
     HRESULT hr = S_OK;
 
     Assert(ppPackageManager);
 
     if (!(*ppPackageManager)) {
-       ICreateJavaPackageMgr *picjpm;
+        ICreateJavaPackageMgr* picjpm;
 
-        hr=CoCreateInstance(CLSID_JavaPackageManager,NULL,(CLSCTX_INPROC_SERVER), IID_ICreateJavaPackageMgr,(LPVOID *) &picjpm); 
+        hr = CoCreateInstance(CLSID_JavaPackageManager, NULL, (CLSCTX_INPROC_SERVER), IID_ICreateJavaPackageMgr, (LPVOID*)&picjpm);
         if (SUCCEEDED(hr)) {
             hr = picjpm->GetPackageManager(ppPackageManager);
             picjpm->Release();
@@ -362,10 +359,10 @@ CreateJavaPackageManager(IJavaPackageManager **ppPackageManager)
 }
 
 HRESULT
-IsPackageLocallyInstalled(IJavaPackageManager **ppPackageManager, LPCWSTR szPackageName, LPCWSTR szNameSpace, DWORD dwVersionMS, DWORD dwVersionLS)
+IsPackageLocallyInstalled(IJavaPackageManager** ppPackageManager, LPCWSTR szPackageName, LPCWSTR szNameSpace, DWORD dwVersionMS, DWORD dwVersionLS)
 {
     HRESULT hr = S_OK;      // assume Ok!
-    IJavaPackage *pJavaPkg = NULL;
+    IJavaPackage* pJavaPkg = NULL;
     DWORD dwLocMS = 0;
     DWORD dwLocLS = 0;
 
@@ -379,16 +376,16 @@ IsPackageLocallyInstalled(IJavaPackageManager **ppPackageManager, LPCWSTR szPack
     }
 
 
-    if (SUCCEEDED((*ppPackageManager)->GetPackage(szPackageName, szNameSpace,  &pJavaPkg))) {
+    if (SUCCEEDED((*ppPackageManager)->GetPackage(szPackageName, szNameSpace, &pJavaPkg))) {
 
         Assert(pJavaPkg);
 
         pJavaPkg->GetVersion(&dwLocMS, &dwLocLS);
 
         if ((dwVersionMS > dwLocMS) ||
-                 ((dwVersionMS == dwLocMS) &&
-                     (dwVersionLS > dwLocLS)))
-                         hr = S_FALSE;
+            ((dwVersionMS == dwLocMS) &&
+            (dwVersionLS > dwLocLS)))
+            hr = S_FALSE;
 
 
         BSTR bstrFileName = NULL;
@@ -420,7 +417,7 @@ Exit:
 }
 
 HRESULT
-AreNameSpacePackagesIntact(HKEY hkeyJava, LPCWSTR lpwszNameSpace, IJavaPackageManager **ppPackageManager)
+AreNameSpacePackagesIntact(HKEY hkeyJava, LPCWSTR lpwszNameSpace, IJavaPackageManager** ppPackageManager)
 {
     int iValue = 0;
     DWORD dwType = REG_SZ;
@@ -430,15 +427,15 @@ AreNameSpacePackagesIntact(HKEY hkeyJava, LPCWSTR lpwszNameSpace, IJavaPackageMa
 
     while (
         RegEnumValue(hkeyJava, iValue++, szPkgName, &dwValueSize, 0,
-            &dwType, NULL, NULL) == ERROR_SUCCESS) {
+                     &dwType, NULL, NULL) == ERROR_SUCCESS) {
 
         LPWSTR lpwszPkgName = NULL;
 
         dwValueSize = MAX_PATH; // reset
 
-        if ( (Ansi2Unicode(szPkgName,&lpwszPkgName) == S_OK)
+        if ((Ansi2Unicode(szPkgName, &lpwszPkgName) == S_OK)
             && ((IsPackageLocallyInstalled
-            (ppPackageManager, lpwszPkgName, lpwszNameSpace, 0,0) != S_OK)) ) {
+            (ppPackageManager, lpwszPkgName, lpwszNameSpace, 0, 0) != S_OK))) {
 
             hr = S_FALSE;
             SAFEDELETE(lpwszPkgName);
@@ -456,16 +453,16 @@ ArePackagesIntact(HKEY hkeyContains)
 {
     HRESULT hr = S_OK;
     HKEY hkeyJava = 0;
-    const static char * szJava = "Java";
-    IJavaPackageManager *pPackageManager = NULL;
+    const static char* szJava = "Java";
+    IJavaPackageManager* pPackageManager = NULL;
     DWORD iSubKey = 0;
     DWORD dwSize = MAX_PATH;
     DWORD lResult;
     char szNameSpace[MAX_PATH];
 
     // first validate pkgs in the global namespace
-    if (RegOpenKeyEx( hkeyContains, szJava,
-            0, KEY_READ, &hkeyJava) == ERROR_SUCCESS) {
+    if (RegOpenKeyEx(hkeyContains, szJava,
+                     0, KEY_READ, &hkeyJava) == ERROR_SUCCESS) {
 
         hr = AreNameSpacePackagesIntact(hkeyJava, NULL, &pPackageManager);
 
@@ -476,19 +473,19 @@ ArePackagesIntact(HKEY hkeyContains)
     }
 
     // validate pkgs in each of other namespaces, if any
-    while ( (lResult = RegEnumKeyEx(hkeyJava, iSubKey++, szNameSpace, &dwSize, NULL, NULL, NULL, NULL)) == ERROR_SUCCESS) {
+    while ((lResult = RegEnumKeyEx(hkeyJava, iSubKey++, szNameSpace, &dwSize, NULL, NULL, NULL, NULL)) == ERROR_SUCCESS) {
 
         dwSize = MAX_PATH;
         HKEY hkeyNameSpace = 0;
 
-        if (RegOpenKeyEx( hkeyJava, szNameSpace,
-                0, KEY_READ, &hkeyNameSpace) == ERROR_SUCCESS) {
+        if (RegOpenKeyEx(hkeyJava, szNameSpace,
+                         0, KEY_READ, &hkeyNameSpace) == ERROR_SUCCESS) {
 
             LPWSTR lpwszNameSpace = NULL;
 
-            if (Ansi2Unicode(szNameSpace,&lpwszNameSpace) == S_OK)
+            if (Ansi2Unicode(szNameSpace, &lpwszNameSpace) == S_OK)
                 hr = AreNameSpacePackagesIntact(hkeyNameSpace, lpwszNameSpace,
-                    &pPackageManager);
+                                                &pPackageManager);
 
             SAFEDELETE(lpwszNameSpace);
             RegCloseKey(hkeyNameSpace);
@@ -530,7 +527,7 @@ IsDistUnitLocallyInstalled(
     LPCWSTR szDistUnit,
     DWORD dwFileVersionMS,
     DWORD dwFileVersionLS,
-    CLocalComponentInfo *plci,
+    CLocalComponentInfo* plci,
     LPSTR szDestDirHint,
     LPBOOL pbParanoidCheck,
     DWORD flags)
@@ -541,9 +538,9 @@ IsDistUnitLocallyInstalled(
     HKEY hkeyContains = 0;
     HKEY hkeyFiles = 0;
     HKEY hkeyDepends = 0;
-    const static char * szContains = "Contains";
-    const static char * szFiles = "Files";
-    const static char * szDistUnitStr = "Distribution Units";
+    const static char* szContains = "Contains";
+    const static char* szFiles = "Files";
+    const static char* szDistUnitStr = "Distribution Units";
     LONG lResult = ERROR_SUCCESS;
     char szFileName[MAX_PATH];
     ULONG cbSize = MAX_PATH;
@@ -554,16 +551,14 @@ IsDistUnitLocallyInstalled(
     }
 
     lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_DIST_UNITS,
-                          0, KEY_READ, &hkeyDist);
+                           0, KEY_READ, &hkeyDist);
 
-    if (lResult != ERROR_SUCCESS)
-    {
+    if (lResult != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(REGDB_E_KEYMISSING);
         goto Exit;
     }
 
-    if (FAILED((hr=::Unicode2Ansi(szDistUnit, &pszDist))))
-    {
+    if (FAILED((hr = ::Unicode2Ansi(szDistUnit, &pszDist)))) {
         goto Exit;
     }
 
@@ -572,24 +567,22 @@ IsDistUnitLocallyInstalled(
     // Open the key for this embedding:
 
     lResult = ::RegOpenKeyEx(hkeyDist, pszDist, 0, KEY_READ,
-                    &hkeyThisDist);
+                             &hkeyThisDist);
 
     if (lResult == ERROR_SUCCESS) {
 
-        hr = CheckInstalledVersionHint( hkeyThisDist, plci,
-            dwFileVersionMS, dwFileVersionLS);
+        hr = CheckInstalledVersionHint(hkeyThisDist, plci,
+                                       dwFileVersionMS, dwFileVersionLS);
 
-    }
-    else
-    {
+    } else {
         hr = HRESULT_FROM_WIN32(REGDB_E_KEYMISSING);
         goto Exit;
     }
 
     if (hr == S_OK || (SUCCEEDED(hr) && dwFileVersionMS == -1 && dwFileVersionLS == -1)) {
 
-        if (RegOpenKeyEx( hkeyThisDist, szContains,
-            0, KEY_READ, &hkeyContains) == ERROR_SUCCESS) {
+        if (RegOpenKeyEx(hkeyThisDist, szContains,
+                         0, KEY_READ, &hkeyContains) == ERROR_SUCCESS) {
 
             if (pbParanoidCheck) {
                 *pbParanoidCheck = TRUE;
@@ -604,12 +597,12 @@ IsDistUnitLocallyInstalled(
             // BUGBUG: maybe we should only do this in paranoid mode
             // instead of all the time.
 
-            if (RegOpenKeyEx( hkeyContains, szDistUnitStr,
-                0, KEY_READ, &hkeyDepends) == ERROR_SUCCESS ) {
+            if (RegOpenKeyEx(hkeyContains, szDistUnitStr,
+                             0, KEY_READ, &hkeyDepends) == ERROR_SUCCESS) {
 
                 int iSubKey = 0;
                 while (RegEnumValue(hkeyDepends, iSubKey++,
-                    szFileName, &cbSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS) {
+                                    szFileName, &cbSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS) {
 
                     CLocalComponentInfo lci;
                     LPWSTR wszFileName = 0;
@@ -624,7 +617,7 @@ IsDistUnitLocallyInstalled(
                         CLSIDFromString(wszFileName, &clsidTemp);
                     // if above call fails DistUnit is not clsid
 
-                    if (IsControlLocallyInstalled(NULL, &clsidTemp, wszFileName, 0,0, &lci, NULL) != S_OK) {
+                    if (IsControlLocallyInstalled(NULL, &clsidTemp, wszFileName, 0, 0, &lci, NULL) != S_OK) {
                         SAFEDELETE(wszFileName);
 
                         plci->dwLocFVMS = 0;
@@ -636,18 +629,18 @@ IsDistUnitLocallyInstalled(
 
                     SAFEDELETE(wszFileName);
                     cbSize = MAX_PATH;
-               }
+                }
             }
 
-            if (RegOpenKeyEx( hkeyContains, szFiles,
-                    0, KEY_READ, &hkeyFiles) == ERROR_SUCCESS) {
+            if (RegOpenKeyEx(hkeyContains, szFiles,
+                             0, KEY_READ, &hkeyFiles) == ERROR_SUCCESS) {
 
                 int iValue = 0;
                 DWORD dwType = REG_SZ;
                 DWORD dwValueSize = MAX_PATH;
 
                 while (RegEnumValue(hkeyFiles, iValue++,
-                    szFileName, &dwValueSize, 0, &dwType, NULL, NULL) == ERROR_SUCCESS) {
+                                    szFileName, &dwValueSize, 0, &dwType, NULL, NULL) == ERROR_SUCCESS) {
 
                     dwValueSize = MAX_PATH; // reset
 
@@ -711,10 +704,10 @@ IsFileLocallyInstalled(
     LPSTR lpCurCode,
     DWORD dwFileVersionMS,
     DWORD dwFileVersionLS,
-    CLocalComponentInfo *plci,
+    CLocalComponentInfo* plci,
     LPSTR szDestDirHint,
     BOOL bExactVersion
-    )
+)
 {
     HRESULT hr = S_FALSE;
 
@@ -729,12 +722,12 @@ IsFileLocallyInstalled(
 
     if (szDestDirHint) {
 
-        if (SearchPath( szDestDirHint,
-                    lpCurCode, NULL, MAX_PATH,
-                        plci->szExistingFileName, &(plci->pBaseExistingFileName))) {
+        if (SearchPath(szDestDirHint,
+                       lpCurCode, NULL, MAX_PATH,
+                       plci->szExistingFileName, &(plci->pBaseExistingFileName))) {
 
             //    check fileversion to see if update reqd.
-            hr = LocalVersionOK(0,plci,dwFileVersionMS, dwFileVersionLS, bExactVersion);
+            hr = LocalVersionOK(0, plci, dwFileVersionMS, dwFileVersionLS, bExactVersion);
 
             goto Exit;
         }
@@ -743,14 +736,14 @@ IsFileLocallyInstalled(
     // file not found in suggested destination. Look in system searchpath
     // SearchPath for this filename
 
-    if (!(SearchPath( NULL, lpCurCode, NULL, MAX_PATH,
-                                        plci->szExistingFileName, &(plci->pBaseExistingFileName)))) {
-            hr = S_FALSE;
-            goto Exit;
+    if (!(SearchPath(NULL, lpCurCode, NULL, MAX_PATH,
+                     plci->szExistingFileName, &(plci->pBaseExistingFileName)))) {
+        hr = S_FALSE;
+        goto Exit;
     }
 
     //    check fileversion to see if update reqd.
-    hr = LocalVersionOK(0,plci,dwFileVersionMS, dwFileVersionLS, bExactVersion);
+    hr = LocalVersionOK(0, plci, dwFileVersionMS, dwFileVersionLS, bExactVersion);
 
 Exit:
 
@@ -765,11 +758,11 @@ BOOL GetEXEName(LPSTR szCmdLine)
     LPSTR pchStartBaseName = szCmdLine;
     BOOL bFullyQualified = FALSE;
     BOOL bHasSpaces = FALSE;
-    char *pch;
+    char* pch;
 
     if (*szCmdLine == '"') {
         szCmdLine++;
-        char *pszEnd = StrStrA(szCmdLine, "\"");
+        char* pszEnd = StrStrA(szCmdLine, "\"");
 
         ASSERT(pszEnd);
         *pszEnd = '\0';
@@ -800,7 +793,7 @@ BOOL GetEXEName(LPSTR szCmdLine)
         if (*pch == '\\')
             pchStartBaseName = pch;
 
-        if ( (*pch == ' ') || (*pch == '\t') )
+        if ((*pch == ' ') || (*pch == '\t'))
             bHasSpaces = TRUE;
     }
 
@@ -830,7 +823,7 @@ BOOL GetEXEName(LPSTR szCmdLine)
 
     for (pch = pchStartBaseName; *pch != '\0'; pch++) {
 
-        if ( (*pch == ' ') || (*pch == '\t') ) {
+        if ((*pch == ' ') || (*pch == '\t')) {
 
             char chTemp = *pch; // sacve the white spc char
 
@@ -849,8 +842,8 @@ BOOL GetEXEName(LPSTR szCmdLine)
                 char szBuf[MAX_PATH];
                 LPSTR pBaseFileName;
 
-                if (SearchPath( NULL, szCmdLine, NULL, MAX_PATH,
-                        szBuf, &pBaseFileName)) {
+                if (SearchPath(NULL, szCmdLine, NULL, MAX_PATH,
+                               szBuf, &pBaseFileName)) {
 
                     //found the EXE name, it is already in szCmdLine
                     return TRUE;
@@ -869,7 +862,7 @@ BOOL
 AdviseForceDownload(const LPCLSID lpclsid, DWORD dwClsContext)
 {
     HRESULT hr = S_OK;
-    BOOL bNullClsid = lpclsid?IsEqualGUID(*lpclsid , CLSID_NULL):TRUE;
+    BOOL bNullClsid = lpclsid ? IsEqualGUID(*lpclsid, CLSID_NULL) : TRUE;
     HKEY hKeyClsid = 0;
     HKEY hKeyEmbedding = 0;
     HKEY hkeyDist = 0;
@@ -877,24 +870,23 @@ AdviseForceDownload(const LPCLSID lpclsid, DWORD dwClsContext)
     LPOLESTR pwcsClsid = NULL;
     DWORD dwType;
     LONG lResult = ERROR_SUCCESS;
-    static char * szAppID = "AppID";
+    static char* szAppID = "AppID";
     LPSTR pszClsid = NULL;
     CLocalComponentInfo lci;
-    static char * szInprocServer32 = "InProcServer32";
-    static char * szLocalServer32 = "LocalServer32";
+    static char* szInprocServer32 = "InProcServer32";
+    static char* szLocalServer32 = "LocalServer32";
 
     if (bNullClsid)
         goto Exit;
 
     // return if we can't get a valid string representation of the CLSID
-    if (FAILED((hr=StringFromCLSID(*lpclsid, &pwcsClsid))))
+    if (FAILED((hr = StringFromCLSID(*lpclsid, &pwcsClsid))))
         goto Exit;
 
     Assert(pwcsClsid != NULL);
 
 
-    if (FAILED((hr=::Unicode2Ansi(pwcsClsid, &pszClsid))))
-    {
+    if (FAILED((hr = ::Unicode2Ansi(pwcsClsid, &pszClsid)))) {
         goto Exit;
     }
 
@@ -902,12 +894,11 @@ AdviseForceDownload(const LPCLSID lpclsid, DWORD dwClsContext)
     lResult = ::RegOpenKeyEx(HKEY_CLASSES_ROOT, "CLSID", 0, KEY_READ, &hKeyClsid);
 
 
-    if (lResult == ERROR_SUCCESS)
-    {
+    if (lResult == ERROR_SUCCESS) {
 
         // Open the key for this embedding:
         lResult = ::RegOpenKeyEx(hKeyClsid, pszClsid, 0, KEY_READ,
-                        &hKeyEmbedding);
+                                 &hKeyEmbedding);
 
         if (lResult == ERROR_SUCCESS) {
 
@@ -922,8 +913,8 @@ AdviseForceDownload(const LPCLSID lpclsid, DWORD dwClsContext)
             // overloading the object tag to do version checking and
             // random stuff
 
-            hr = CheckInstalledVersionHint( hKeyEmbedding, &lci,
-                0, 0);
+            hr = CheckInstalledVersionHint(hKeyEmbedding, &lci,
+                                           0, 0);
 
             // if the key is found and
             // if the latest version is not available then
@@ -947,7 +938,7 @@ AdviseForceDownload(const LPCLSID lpclsid, DWORD dwClsContext)
             // ckeck if DCOM
             HKEY hKeyAppID;
             lResult = ::RegOpenKeyEx(hKeyEmbedding, szAppID, 0,
-                                KEY_READ, &hKeyAppID);
+                                     KEY_READ, &hKeyAppID);
             if (lResult == ERROR_SUCCESS) {
 
                 // DCOM
@@ -962,11 +953,11 @@ AdviseForceDownload(const LPCLSID lpclsid, DWORD dwClsContext)
 
             HKEY hKeyInProc;
             lResult = ::RegOpenKeyEx(hKeyEmbedding, szInprocServer32, 0,
-                                KEY_READ, &hKeyInProc);
+                                     KEY_READ, &hKeyInProc);
 
             if (lResult != ERROR_SUCCESS) {
                 if (RegOpenKeyEx(hKeyEmbedding, szLocalServer32, 0,
-                                KEY_READ, &hKeyInProc) == ERROR_SUCCESS) {
+                                 KEY_READ, &hKeyInProc) == ERROR_SUCCESS) {
 
                     // specific look for vb doc obj hack where they just use
                     // the OBJECT tag to do code download, but not hosting
@@ -987,20 +978,19 @@ AdviseForceDownload(const LPCLSID lpclsid, DWORD dwClsContext)
 
 
     lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_DIST_UNITS,
-                          0, KEY_READ, &hkeyDist);
+                           0, KEY_READ, &hkeyDist);
 
-    if (lResult == ERROR_SUCCESS)
-    {
+    if (lResult == ERROR_SUCCESS) {
 
         // Open the key for this embedding:
         HKEY hkeyThisDist = 0;
 
         if (RegOpenKeyEx(hkeyDist, pszClsid, 0, KEY_READ,
-                        &hkeyThisDist) == ERROR_SUCCESS) {
+                         &hkeyThisDist) == ERROR_SUCCESS) {
 
             HKEY hkeyJava = 0;
             if (RegOpenKeyEx(hkeyThisDist, "Contains\\Java", 0, KEY_READ,
-                        &hkeyJava) == ERROR_SUCCESS) {
+                             &hkeyJava) == ERROR_SUCCESS) {
                 bForceDownload = FALSE;
                 RegCloseKey(hkeyJava);
 
@@ -1044,23 +1034,23 @@ SYNOPSIS:   Indicates whether the provided CLSID represents an
 */
 HRESULT
 IsControlLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
-    LPCWSTR szDistUnit,
-    DWORD dwFileVersionMS, DWORD dwFileVersionLS,
-    CLocalComponentInfo *plci,
-    LPSTR szDestDirHint,
-    BOOL bExactVersion)
+                          LPCWSTR szDistUnit,
+                          DWORD dwFileVersionMS, DWORD dwFileVersionLS,
+                          CLocalComponentInfo* plci,
+                          LPSTR szDestDirHint,
+                          BOOL bExactVersion)
 {
     HRESULT hr1, hr2, hrResult, hr = S_FALSE;
-    BOOL bNullClsid = lpclsid?IsEqualGUID(*lpclsid , CLSID_NULL):TRUE;
+    BOOL bNullClsid = lpclsid ? IsEqualGUID(*lpclsid, CLSID_NULL) : TRUE;
     BOOL bParanoidCheck = FALSE;
 #ifdef _ZEROIMPACT
     LPOLESTR wszClsid = NULL;
     StringFromCLSID(*lpclsid, &wszClsid);
 #endif
 
-    if ( bNullClsid  && (lpCurCode == NULL) && (szDistUnit == NULL) ) {
+    if (bNullClsid && (lpCurCode == NULL) && (szDistUnit == NULL)) {
 
-        hr =  E_INVALIDARG;
+        hr = E_INVALIDARG;
         goto Exit;
 
     }
@@ -1083,12 +1073,11 @@ IsControlLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
 #endif
 
     if (szDistUnit) {
-        hr1 = IsDistUnitLocallyInstalled( szDistUnit, dwFileVersionMS, dwFileVersionLS, plci, szDestDirHint, &bParanoidCheck, 0);
+        hr1 = IsDistUnitLocallyInstalled(szDistUnit, dwFileVersionMS, dwFileVersionLS, plci, szDestDirHint, &bParanoidCheck, 0);
     } else {
 
-        if (bNullClsid)
-        {
-            hr1 = IsFileLocallyInstalled( lpCurCode, dwFileVersionMS, dwFileVersionLS, plci, szDestDirHint, bExactVersion);
+        if (bNullClsid) {
+            hr1 = IsFileLocallyInstalled(lpCurCode, dwFileVersionMS, dwFileVersionLS, plci, szDestDirHint, bExactVersion);
 
             // if no dist unit name or clsid and this is
             // clearly just checking for dependent file then
@@ -1096,42 +1085,30 @@ IsControlLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
 
             hr = hr1;
             goto Exit;
-        }
-        else
-        {
+        } else {
             hr1 = E_FAIL;
         }
 
     }
 
-    hr2 = IsCLSIDLocallyInstalled( lpCurCode, lpclsid, szDistUnit, dwFileVersionMS, dwFileVersionLS, plci, szDestDirHint, &hrResult , bExactVersion);
+    hr2 = IsCLSIDLocallyInstalled(lpCurCode, lpclsid, szDistUnit, dwFileVersionMS, dwFileVersionLS, plci, szDestDirHint, &hrResult, bExactVersion);
 
-    if (hr2 != S_OK)
-    {
+    if (hr2 != S_OK) {
         // if HKLM\CLSID\{CLSID} existed, but control wasn't there, we fail with that error
         // otherwise we fail with hr1.
-        if (SUCCEEDED(hrResult))
-        {
+        if (SUCCEEDED(hrResult)) {
             hr = hr2;
-        }
-        else
-        {
+        } else {
             // if DU check returned S_FALSE or S_OK we return that, otherwise return from CLSID check.
 
-            if (SUCCEEDED(hr1))
-            {
+            if (SUCCEEDED(hr1)) {
                 hr = hr1;
-            }
-            else
-            {
+            } else {
                 hr = hr2;
             }
         }
-    }
-    else
-    {
-        if (hr1 == S_FALSE)
-        {
+    } else {
+        if (hr1 == S_FALSE) {
             // COM branch says we are OK, but Distribution unit says we are lacking.
             // if we did paranoid checking and then failed the DU then
             // really fail. But if we just looked at the InstalledVersion
@@ -1148,16 +1125,14 @@ IsControlLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
             else
                 hr = hr2;
 
-        }
-        else
-        {
+        } else {
             hr = hr2;
         }
     }
 
 Exit:
 #ifdef _ZEROIMPACT
-    if(wszClsid)
+    if (wszClsid)
         delete wszClsid;
 #endif
     return hr;
@@ -1176,13 +1151,13 @@ SYNOPSIS:   Indicates whether the provided CLSID represents an
 */
 HRESULT
 IsCLSIDLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
-    LPCWSTR szDistUnit,
-    DWORD dwFileVersionMS, DWORD dwFileVersionLS,
-    CLocalComponentInfo *plci,
-    LPSTR szDestDirHint,
-    HRESULT *pHrExtra,
-    BOOL bExactVersion
-    )
+                        LPCWSTR szDistUnit,
+                        DWORD dwFileVersionMS, DWORD dwFileVersionLS,
+                        CLocalComponentInfo* plci,
+                        LPSTR szDestDirHint,
+                        HRESULT* pHrExtra,
+                        BOOL bExactVersion
+)
 
 
 {
@@ -1191,9 +1166,9 @@ IsCLSIDLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
     HRESULT hr = S_FALSE;
     DWORD dwType;
     LONG lResult = ERROR_SUCCESS;
-    static char * szInprocServer32 = "InProcServer32";
-    static char * szLocalServer32 = "LocalServer32";
-    static char * szAppID = "AppID";
+    static char* szInprocServer32 = "InProcServer32";
+    static char* szLocalServer32 = "LocalServer32";
+    static char* szAppID = "AppID";
     HKEY hKeyClsid = 0;
     DWORD Size = MAX_PATH;
 
@@ -1201,7 +1176,7 @@ IsCLSIDLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
         *pHrExtra = E_FAIL;
 
     // return if we can't get a valid string representation of the CLSID
-    if (FAILED((hr=StringFromCLSID(*lpclsid, &pwcsClsid))))
+    if (FAILED((hr = StringFromCLSID(*lpclsid, &pwcsClsid))))
         goto Exit;
 
     Assert(pwcsClsid != NULL);
@@ -1209,10 +1184,8 @@ IsCLSIDLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
     // Open root HKEY_CLASSES_ROOT\CLSID key
     lResult = ::RegOpenKeyEx(HKEY_CLASSES_ROOT, "CLSID", 0, KEY_READ, &hKeyClsid);
 
-    if (lResult == ERROR_SUCCESS)
-    {
-        if (FAILED((hr=::Unicode2Ansi(pwcsClsid, &pszClsid))))
-        {
+    if (lResult == ERROR_SUCCESS) {
+        if (FAILED((hr = ::Unicode2Ansi(pwcsClsid, &pszClsid)))) {
             goto Exit;
         }
 
@@ -1221,7 +1194,7 @@ IsCLSIDLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
         HKEY hKeyInProc;
 
         lResult = ::RegOpenKeyEx(hKeyClsid, pszClsid, 0, KEY_READ,
-                        &hKeyEmbedding);
+                                 &hKeyEmbedding);
 
         if (lResult == ERROR_SUCCESS) {
 
@@ -1236,15 +1209,14 @@ IsCLSIDLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
             // overloading the object tag to do version checking and
             // random stuff
 
-            if (pHrExtra)
-            {
+            if (pHrExtra) {
                 // indicate that CLSID reg key exists, so any failures after this
                 // imply the control is not registered correctly
                 *pHrExtra = S_OK;
             }
 
-            hr = CheckInstalledVersionHint( hKeyEmbedding, plci,
-                dwFileVersionMS, dwFileVersionLS);
+            hr = CheckInstalledVersionHint(hKeyEmbedding, plci,
+                                           dwFileVersionMS, dwFileVersionLS);
 
             // if the key is found and
             // if the latest version is not available then
@@ -1259,7 +1231,7 @@ IsCLSIDLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
             // ckeck if DCOM
             HKEY hKeyAppID;
             lResult = ::RegOpenKeyEx(hKeyEmbedding, szAppID, 0,
-                                KEY_READ, &hKeyAppID);
+                                     KEY_READ, &hKeyAppID);
             if (lResult == ERROR_SUCCESS) {
 
                 // DCOM
@@ -1272,26 +1244,26 @@ IsCLSIDLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
 
 
             lResult = ::RegOpenKeyEx(hKeyEmbedding, szInprocServer32, 0,
-                                KEY_READ, &hKeyInProc);
+                                     KEY_READ, &hKeyInProc);
 
             if (lResult == ERROR_SUCCESS) {
 
                 Size = MAX_PATH;
                 lResult = ::SHQueryValueEx(hKeyInProc, NULL, NULL, &dwType,
-                                    (unsigned char *)plci->szExistingFileName, &Size);
+                    (unsigned char*)plci->szExistingFileName, &Size);
 
                 if (lResult == ERROR_SUCCESS) {
 
-                    if (!(SearchPath( NULL,
-                                plci->szExistingFileName, NULL, MAX_PATH,
-                                    plci->szExistingFileName, &(plci->pBaseExistingFileName)))) {
+                    if (!(SearchPath(NULL,
+                                     plci->szExistingFileName, NULL, MAX_PATH,
+                                     plci->szExistingFileName, &(plci->pBaseExistingFileName)))) {
                         hr = S_FALSE;
                         goto finish_verchecks;
                     }
 
                     //    check fileversion to see if update reqd.
                     hr = LocalVersionOK(hKeyEmbedding, plci,
-                                dwFileVersionMS, dwFileVersionLS, bExactVersion);
+                                        dwFileVersionMS, dwFileVersionLS, bExactVersion);
 
                     if (plci->bForceLangGetLatest) {
                         hr = NeedForceLanguageCheck(hKeyEmbedding, plci);
@@ -1307,16 +1279,16 @@ IsCLSIDLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
             } else {
 
                 lResult = ::RegOpenKeyEx(hKeyEmbedding, szLocalServer32, 0,
-                                KEY_READ, &hKeyInProc);
+                                         KEY_READ, &hKeyInProc);
 
                 if (lResult != ERROR_SUCCESS) {
                     hr = S_FALSE; // problem :have a clsid but, can't locate it
                     goto finish_all;
-                 }
+                }
 
                 Size = MAX_PATH;
                 lResult = ::SHQueryValueEx(hKeyInProc, NULL, NULL, &dwType,
-                                    (unsigned char *)plci->szExistingFileName, &Size);
+                    (unsigned char*)plci->szExistingFileName, &Size);
 
                 if (lResult == ERROR_SUCCESS) {
 
@@ -1325,9 +1297,9 @@ IsCLSIDLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
 
                     GetEXEName(plci->szExistingFileName);
 
-                    if (!(SearchPath( NULL,
-                                plci->szExistingFileName, NULL, MAX_PATH,
-                                    plci->szExistingFileName, &(plci->pBaseExistingFileName)))) {
+                    if (!(SearchPath(NULL,
+                                     plci->szExistingFileName, NULL, MAX_PATH,
+                                     plci->szExistingFileName, &(plci->pBaseExistingFileName)))) {
                         hr = S_FALSE;
                         goto finish_verchecks;
                     }
@@ -1348,10 +1320,10 @@ IsCLSIDLocallyInstalled(LPSTR lpCurCode, const LPCLSID lpclsid,
             }
 
 
-            finish_verchecks:
+        finish_verchecks:
             ::RegCloseKey(hKeyInProc);
 
-            finish_all:
+        finish_all:
 
             ::RegCloseKey(hKeyEmbedding);
 
@@ -1382,23 +1354,23 @@ Exit:
 
 BOOL SupportsSelfRegister(LPSTR szFileName)
 {
-    return SniffStringFileInfo( szFileName, TEXT("OLESelfRegister") );
+    return SniffStringFileInfo(szFileName, TEXT("OLESelfRegister"));
 }
 
-BOOL WantsAutoExpire(LPSTR szFileName, DWORD *pnExpireDays)
+BOOL WantsAutoExpire(LPSTR szFileName, DWORD* pnExpireDays)
 {
-    return SniffStringFileInfo( szFileName, TEXT("Expire"), pnExpireDays );
+    return SniffStringFileInfo(szFileName, TEXT("Expire"), pnExpireDays);
 }
 
 
-HRESULT GetFileVersion(CLocalComponentInfo *plci, LPDWORD pdwFileVersionMS, LPDWORD pdwFileVersionLS)
+HRESULT GetFileVersion(CLocalComponentInfo* plci, LPDWORD pdwFileVersionMS, LPDWORD pdwFileVersionLS)
 {
     DWORD  handle;
     UINT  uiInfoSize;
-    UINT  uiVerSize ;
-    UINT  uiSize ;
-    BYTE* pbData = NULL ;
-    VS_FIXEDFILEINFO *lpVSInfo;;
+    UINT  uiVerSize;
+    UINT  uiSize;
+    BYTE* pbData = NULL;
+    VS_FIXEDFILEINFO* lpVSInfo;;
     HRESULT hr = S_OK;
     LPVOID lpVerBuffer = NULL;
 
@@ -1417,7 +1389,7 @@ HRESULT GetFileVersion(CLocalComponentInfo *plci, LPDWORD pdwFileVersionMS, LPDW
     *pdwFileVersionLS = 0;
 
     // Get the size of the version information.
-    uiInfoSize = g_versiondll.GetFileVersionInfoSize( (char *)plci->szExistingFileName, &handle);
+    uiInfoSize = g_versiondll.GetFileVersionInfoSize((char*)plci->szExistingFileName, &handle);
 
     if (uiInfoSize == 0) {
         hr = S_FALSE;
@@ -1425,47 +1397,47 @@ HRESULT GetFileVersion(CLocalComponentInfo *plci, LPDWORD pdwFileVersionMS, LPDW
     }
 
     // Allocate a buffer for the version information.
-    pbData = new BYTE[uiInfoSize] ;
+    pbData = new BYTE[uiInfoSize];
     if (!pbData)
-         return E_OUTOFMEMORY;
+        return E_OUTOFMEMORY;
 
     // Fill the buffer with the version information.
-    if (!g_versiondll.GetFileVersionInfo((char *)plci->szExistingFileName, handle, uiInfoSize, pbData)) {
-         hr = HRESULT_FROM_WIN32(GetLastError());
-         goto Exit ;
+    if (!g_versiondll.GetFileVersionInfo((char*)plci->szExistingFileName, handle, uiInfoSize, pbData)) {
+        hr = HRESULT_FROM_WIN32(GetLastError());
+        goto Exit;
     }
 
     // Get the translation information.
-    if (!g_versiondll.VerQueryValue( pbData, "\\", (void**)&lpVSInfo, &uiVerSize)) {
+    if (!g_versiondll.VerQueryValue(pbData, "\\", (void**)&lpVSInfo, &uiVerSize)) {
         hr = HRESULT_FROM_WIN32(GetLastError());
-        goto Exit ;
+        goto Exit;
     }
 
     if (!uiVerSize) {
         hr = E_FAIL;
-        goto Exit ;
+        goto Exit;
     }
 
     *pdwFileVersionMS = lpVSInfo->dwFileVersionMS;
     *pdwFileVersionLS = lpVSInfo->dwFileVersionLS;
 
     // Get the translation information.
-    if (!g_versiondll.VerQueryValue( pbData, "\\VarFileInfo\\Translation", &lpVerBuffer, &uiVerSize)) {
+    if (!g_versiondll.VerQueryValue(pbData, "\\VarFileInfo\\Translation", &lpVerBuffer, &uiVerSize)) {
         hr = HRESULT_FROM_WIN32(GetLastError());
-        goto Exit ;
+        goto Exit;
     }
 
     if (!uiVerSize) {
         hr = E_FAIL;
-        goto Exit ;
+        goto Exit;
     }
 
-     plci->lcid = LOWORD(*((DWORD *) lpVerBuffer));   // Language ID
+    plci->lcid = LOWORD(*((DWORD*)lpVerBuffer));   // Language ID
 
 Exit:
 
     if (pbData)
-        delete [] pbData ;
+        delete[] pbData;
 
     return hr;
 }
@@ -1485,17 +1457,17 @@ GetLanguageCheckInterval(HKEY hkeyCheckPeriod)
     if (SUCCEEDED(GetLangString(lcidPriOverride, szLangString))) {
 
         if (RegQueryValueEx(hkeyCheckPeriod, szLangString, NULL, &dwType,
-            (unsigned char *)&dwMagicDays, &dwSize) == ERROR_SUCCESS) {
+            (unsigned char*)&dwMagicDays, &dwSize) == ERROR_SUCCESS) {
 
             return dwMagicDays;
         }
     }
 
-    if ( (lcidPriOverride != lcidPriBrowser) &&
+    if ((lcidPriOverride != lcidPriBrowser) &&
         SUCCEEDED(GetLangString(lcidPriBrowser, szLangString))) {
 
         if (RegQueryValueEx(hkeyCheckPeriod, szLangString, NULL, &dwType,
-            (unsigned char *)&dwMagicDays, &dwSize) == ERROR_SUCCESS) {
+            (unsigned char*)&dwMagicDays, &dwSize) == ERROR_SUCCESS) {
 
             return dwMagicDays;
         }
@@ -1509,12 +1481,12 @@ GetLanguageCheckInterval(HKEY hkeyCheckPeriod)
 //          S_FALSE: localversion not of right lang force lang check now
 //          ERROR: fail
 
-HRESULT NeedForceLanguageCheck(HKEY hkeyCLSID, CLocalComponentInfo *plci)
+HRESULT NeedForceLanguageCheck(HKEY hkeyCLSID, CLocalComponentInfo* plci)
 {
     HRESULT hr = S_OK;
     DWORD lResult;
-    const char *szCHECKPERIOD = "LanguageCheckPeriod";
-    const char *szLASTCHECKEDHI = "LastCheckedHi";
+    const char* szCHECKPERIOD = "LanguageCheckPeriod";
+    const char* szLASTCHECKEDHI = "LastCheckedHi";
     DWORD dwMagicPerDay = 201;
     DWORD dwMagicDays;
     DWORD dwType;
@@ -1531,8 +1503,8 @@ HRESULT NeedForceLanguageCheck(HKEY hkeyCLSID, CLocalComponentInfo *plci)
     // lang is mismatched for this browser
     // check when was the last time we checked for the right lang
 
-    if ((lResult = RegOpenKeyEx( hkeyCLSID, szCHECKPERIOD,
-                        0, KEY_READ, &hkeyCheckPeriod)) != ERROR_SUCCESS) {
+    if ((lResult = RegOpenKeyEx(hkeyCLSID, szCHECKPERIOD,
+                                0, KEY_READ, &hkeyCheckPeriod)) != ERROR_SUCCESS) {
         plci->bForceLangGetLatest = FALSE;
         goto Exit;
 
@@ -1541,9 +1513,9 @@ HRESULT NeedForceLanguageCheck(HKEY hkeyCLSID, CLocalComponentInfo *plci)
     szLangEnable[0] = '\0';
     dwType = REG_SZ;
     dwSize = MAX_PATH;
-    if ( (RegQueryValueEx(hkeyCheckPeriod, NULL, NULL, &dwType,
-         (unsigned char *)szLangEnable, &dwSize) != ERROR_SUCCESS) ||
-         lstrcmpi(szLangEnable, "Enabled") != 0 ) {
+    if ((RegQueryValueEx(hkeyCheckPeriod, NULL, NULL, &dwType,
+        (unsigned char*)szLangEnable, &dwSize) != ERROR_SUCCESS) ||
+        lstrcmpi(szLangEnable, "Enabled") != 0) {
 
         plci->bForceLangGetLatest = FALSE;
         goto Exit;
@@ -1561,7 +1533,7 @@ HRESULT NeedForceLanguageCheck(HKEY hkeyCLSID, CLocalComponentInfo *plci)
     dwType = REG_DWORD;
     dwSize = sizeof(DWORD);
     if (RegQueryValueEx(hkeyCheckPeriod, szLASTCHECKEDHI, NULL, &dwType,
-        (unsigned char *)&ftlast.dwHighDateTime, &dwSize) == ERROR_SUCCESS) {
+        (unsigned char*)&ftlast.dwHighDateTime, &dwSize) == ERROR_SUCCESS) {
 
         ftlast.dwHighDateTime += (dwMagicPerDay * dwMagicDays);
     }
@@ -1578,10 +1550,10 @@ Exit:
     if (FAILED(hr))
         plci->bForceLangGetLatest = FALSE;
 
-    return plci->bForceLangGetLatest?S_FALSE:S_OK;
+    return plci->bForceLangGetLatest ? S_FALSE : S_OK;
 }
 
-HRESULT IsRightLanguageLocallyInstalled(CLocalComponentInfo *plci)
+HRESULT IsRightLanguageLocallyInstalled(CLocalComponentInfo* plci)
 {
     HRESULT hr = S_OK;
     LCID lcidLocalVersion;
@@ -1638,16 +1610,16 @@ Exit:
 }
 
 
-HRESULT LocalVersionOK(HKEY hkeyCLSID, CLocalComponentInfo *plci, DWORD dwFileVersionMS, DWORD dwFileVersionLS, BOOL bExactVersion)
+HRESULT LocalVersionOK(HKEY hkeyCLSID, CLocalComponentInfo* plci, DWORD dwFileVersionMS, DWORD dwFileVersionLS, BOOL bExactVersion)
 {
     DWORD  handle;
     HRESULT hr = S_OK; // assume local version OK.
     DWORD dwLocFVMS = 0;
     DWORD dwLocFVLS = 0;
     HKEY hkeyCheckPeriod = 0;
-    const char *szCHECKPERIOD = "LanguageCheckPeriod";
+    const char* szCHECKPERIOD = "LanguageCheckPeriod";
 
-    if (FAILED(hr = plci->MakeDestDir()) ) {
+    if (FAILED(hr = plci->MakeDestDir())) {
         goto Exit;
     }
 
@@ -1664,8 +1636,8 @@ HRESULT LocalVersionOK(HKEY hkeyCLSID, CLocalComponentInfo *plci, DWORD dwFileVe
         // One can also avoid such checks
         // by adding a [InstalledVersion] key under the clsid
 
-        if (!hkeyCLSID || RegOpenKeyEx( hkeyCLSID, szCHECKPERIOD,
-                            0, KEY_READ, &hkeyCheckPeriod) != ERROR_SUCCESS) {
+        if (!hkeyCLSID || RegOpenKeyEx(hkeyCLSID, szCHECKPERIOD,
+                                       0, KEY_READ, &hkeyCheckPeriod) != ERROR_SUCCESS) {
             goto Exit;
 
         }
@@ -1673,7 +1645,7 @@ HRESULT LocalVersionOK(HKEY hkeyCLSID, CLocalComponentInfo *plci, DWORD dwFileVe
 
     }
 
-    hr = GetFileVersion( plci, &dwLocFVMS, &dwLocFVLS);
+    hr = GetFileVersion(plci, &dwLocFVMS, &dwLocFVLS);
 
     if (hr == S_OK) {
 
@@ -1688,12 +1660,11 @@ HRESULT LocalVersionOK(HKEY hkeyCLSID, CLocalComponentInfo *plci, DWORD dwFileVe
                 // sets the plci->bForcelangGetLatest if reqd
                 IsRightLanguageLocallyInstalled(plci);
             }
-        }
-        else {
+        } else {
             if ((dwFileVersionMS > dwLocFVMS) ||
-                     ((dwFileVersionMS == dwLocFVMS) &&
-                         (dwFileVersionLS > dwLocFVLS))) {
-                             hr = S_FALSE;
+                ((dwFileVersionMS == dwLocFVMS) &&
+                (dwFileVersionLS > dwLocFVLS))) {
+                hr = S_FALSE;
             } else {
                 // check language
                 // sets the plci->bForcelangGetLatest if reqd
@@ -1742,7 +1713,7 @@ Exit:
  */
 
 HRESULT
-UpdateSharedDlls( LPCSTR szFileName)
+UpdateSharedDlls(LPCSTR szFileName)
 {
     HKEY hKeySD = NULL;
     HRESULT hr = S_OK;
@@ -1754,10 +1725,10 @@ UpdateSharedDlls( LPCSTR szFileName)
     // get the main SHAREDDLLS key ready; this is never freed!
 
 
-    if ((lResult = RegOpenKeyEx( HKEY_LOCAL_MACHINE, REGSTR_PATH_SHAREDDLLS,
-                        0, KEY_ALL_ACCESS, &hKeySD)) != ERROR_SUCCESS) {
-        if ((lResult = RegCreateKey( HKEY_LOCAL_MACHINE,
-                   REGSTR_PATH_SHAREDDLLS, &hKeySD)) != ERROR_SUCCESS) {
+    if ((lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_SHAREDDLLS,
+                                0, KEY_ALL_ACCESS, &hKeySD)) != ERROR_SUCCESS) {
+        if ((lResult = RegCreateKey(HKEY_LOCAL_MACHINE,
+                                    REGSTR_PATH_SHAREDDLLS, &hKeySD)) != ERROR_SUCCESS) {
             hKeySD = NULL;
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
@@ -1767,16 +1738,16 @@ UpdateSharedDlls( LPCSTR szFileName)
 
     // now look for szFileName
     lResult = SHQueryValueEx(hKeySD, szFileName, NULL, &dwType,
-                        (unsigned char *)&dwRef, &dwSize);
+        (unsigned char*)&dwRef, &dwSize);
 
     if (lResult == ERROR_SUCCESS)
         dwRef++;
 
     // does not exist. Create one and initialize to 1
 
-    if ((lResult = RegSetValueEx (hKeySD, szFileName, 0, REG_DWORD,
-                        (unsigned char *)&dwRef,
-                        sizeof(DWORD))) != ERROR_SUCCESS) {
+    if ((lResult = RegSetValueEx(hKeySD, szFileName, 0, REG_DWORD,
+        (unsigned char*)&dwRef,
+                                 sizeof(DWORD))) != ERROR_SUCCESS) {
         hr = HRESULT_FROM_WIN32(lResult);
         goto Exit;
     }
@@ -1841,10 +1812,10 @@ UpdateModuleUsage(
     DWORD dwSize = MAX_PATH;
     char szBuf[MAX_PATH];
 
-    const char *pchSrc;
-    char *pchDest;
+    const char* pchSrc;
+    char* pchDest;
     static const LPCSTR szCLIENTPATHDEFAULT = "";
-    LPCSTR lpClientPath = (szClientPath)?szClientPath:szCLIENTPATHDEFAULT;
+    LPCSTR lpClientPath = (szClientPath) ? szClientPath : szCLIENTPATHDEFAULT;
 
     HKEY hKeyMU = NULL;
     static const char szOWNER[] = ".Owner";
@@ -1874,10 +1845,10 @@ UpdateModuleUsage(
 
     // get the main MODULEUSAGE key ready; this is never freed!
 
-    if (RegOpenKeyEx( HKEY_LOCAL_MACHINE, REGSTR_PATH_MODULE_USAGE,
-            0, KEY_ALL_ACCESS, &hKeyMU) != ERROR_SUCCESS)
-        if ((lResult = RegCreateKey( HKEY_LOCAL_MACHINE,
-                   REGSTR_PATH_MODULE_USAGE, &hKeyMU)) != ERROR_SUCCESS) {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGSTR_PATH_MODULE_USAGE,
+                     0, KEY_ALL_ACCESS, &hKeyMU) != ERROR_SUCCESS)
+        if ((lResult = RegCreateKey(HKEY_LOCAL_MACHINE,
+                                    REGSTR_PATH_MODULE_USAGE, &hKeyMU)) != ERROR_SUCCESS) {
             hKeyMU = NULL;
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
@@ -1899,13 +1870,13 @@ UpdateModuleUsage(
     *pchDest = '\0'; // null terminate
     szBuf[256] = '\0'; // truncate if longer than 255 ude to win95 registry bug
 
-    if (RegOpenKeyEx( hKeyMU, szBuf,
-            0, KEY_ALL_ACCESS, &hKeyMod) != ERROR_SUCCESS) {
-        if ((lResult = RegCreateKey( hKeyMU,
-                   szBuf, &hKeyMod)) != ERROR_SUCCESS) {
+    if (RegOpenKeyEx(hKeyMU, szBuf,
+                     0, KEY_ALL_ACCESS, &hKeyMod) != ERROR_SUCCESS) {
+        if ((lResult = RegCreateKey(hKeyMU,
+                                    szBuf, &hKeyMod)) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
-            }
+        }
     }
 
 
@@ -1913,7 +1884,7 @@ UpdateModuleUsage(
     dwSize = MAX_PATH;
     szBuf[0] = '\0';
     if (RegQueryValueEx(hKeyMod, szOWNER, NULL, &dwType,
-                        (unsigned char *)szBuf, &dwSize) == ERROR_SUCCESS) {
+        (unsigned char*)szBuf, &dwSize) == ERROR_SUCCESS) {
         if ((lstrcmpi(szBuf, szClientName) != 0) && (muFlags & MU_OWNER)) {
             // if we are the not the owner we can't make ourselves the owner
             hr = E_INVALIDARG;
@@ -1925,9 +1896,9 @@ UpdateModuleUsage(
         // '.Owner =' does not exist. Create one and initialize to us
         // if muFlags & MU_OWNER
 
-        if (((lResult = RegSetValueEx (hKeyMod, szOWNER, 0, REG_SZ,
-                (UCHAR *)((muFlags & MU_OWNER)?szClientName:szUNKNOWN),
-                ((muFlags & MU_OWNER)?cbClientName:cbUnknown)))) != ERROR_SUCCESS) {
+        if (((lResult = RegSetValueEx(hKeyMod, szOWNER, 0, REG_SZ,
+            (UCHAR*)((muFlags & MU_OWNER) ? szClientName : szUNKNOWN),
+                                      ((muFlags & MU_OWNER) ? cbClientName : cbUnknown)))) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
         }
@@ -1939,7 +1910,7 @@ UpdateModuleUsage(
 
     dwSize = MAX_PATH;
     if (SHQueryValueEx(hKeyMod, szClientName, NULL, &dwType,
-                        (unsigned char *)szBuf, &dwSize) == ERROR_SUCCESS) {
+        (unsigned char*)szBuf, &dwSize) == ERROR_SUCCESS) {
 
         // signal that we have already registered as a
         // client and so don't up ref count in shareddlls
@@ -1951,8 +1922,8 @@ UpdateModuleUsage(
 
         // add ourselves as a client
 
-        if ((lResult =RegSetValueEx(hKeyMod, szClientName, 0, REG_SZ,
-                (unsigned char *)lpClientPath, lstrlen(lpClientPath)+1 )) != ERROR_SUCCESS) {
+        if ((lResult = RegSetValueEx(hKeyMod, szClientName, 0, REG_SZ,
+            (unsigned char*)lpClientPath, lstrlen(lpClientPath) + 1)) != ERROR_SUCCESS) {
             hr = HRESULT_FROM_WIN32(lResult);
             goto Exit;
         }
@@ -1972,7 +1943,7 @@ Exit:
     // already updated. This will ensure that the code downloader has
     // just one ref count represented in SharedDlls
 
-    if ( fUpdateSharedDlls)
+    if (fUpdateSharedDlls)
         hr = UpdateSharedDlls(szShortFileName);
 
     return hr;
@@ -1990,19 +1961,19 @@ Exit:
 // Notes:
 //     This function implements stuff common to SupportsSelfRegister and WantsAutoExpire
 
-BOOL SniffStringFileInfo(  LPSTR szFileName, LPCTSTR lpszSubblock, DWORD *pdw )
+BOOL SniffStringFileInfo(LPSTR szFileName, LPCTSTR lpszSubblock, DWORD* pdw)
 {
     BOOL bResult = FALSE;
     DWORD  handle;
     UINT  uiInfoSize;
-    UINT  uiVerSize ;
-    UINT  uiSize ;
-    BYTE* pbData = NULL ;
+    UINT  uiVerSize;
+    UINT  uiSize;
+    BYTE* pbData = NULL;
     DWORD* lpBuffer;
-    TCHAR szName[512] ;
+    TCHAR szName[512];
     LPTSTR szExpire;
 
-    if ( pdw )
+    if (pdw)
         *pdw = 0;
 
 #ifdef UNIX
@@ -2011,45 +1982,43 @@ BOOL SniffStringFileInfo(  LPSTR szFileName, LPCTSTR lpszSubblock, DWORD *pdw )
     return FALSE;
 #endif
     // Get the size of the version information.
-    uiInfoSize = g_versiondll.GetFileVersionInfoSize( szFileName, &handle);
+    uiInfoSize = g_versiondll.GetFileVersionInfoSize(szFileName, &handle);
 
-    if (uiInfoSize == 0) return FALSE ;
+    if (uiInfoSize == 0) return FALSE;
 
     // Allocate a buffer for the version information.
-    pbData = new BYTE[uiInfoSize] ;
+    pbData = new BYTE[uiInfoSize];
 
     if (!pbData)
-         return TRUE; // nothing nasty, just quirky
+        return TRUE; // nothing nasty, just quirky
 
-    // Fill the buffer with the version information.
-    bResult = g_versiondll.GetFileVersionInfo( szFileName, handle, uiInfoSize, pbData);
+   // Fill the buffer with the version information.
+    bResult = g_versiondll.GetFileVersionInfo(szFileName, handle, uiInfoSize, pbData);
 
-    if (!bResult) goto Exit ;
+    if (!bResult) goto Exit;
 
     // Get the translation information.
-    bResult = g_versiondll.VerQueryValue( pbData, "\\VarFileInfo\\Translation",
-                       (void**)&lpBuffer, &uiVerSize);
+    bResult = g_versiondll.VerQueryValue(pbData, "\\VarFileInfo\\Translation",
+        (void**)&lpBuffer, &uiVerSize);
 
-    if (!bResult) goto Exit ;
+    if (!bResult) goto Exit;
 
-    if (!uiVerSize) goto Exit ;
+    if (!uiVerSize) goto Exit;
 
     // Build the path to the OLESelfRegister key
     // using the translation information.
-    wsprintf( szName, "\\StringFileInfo\\%04hX%04hX\\%s",
-              LOWORD(*lpBuffer), HIWORD(*lpBuffer), lpszSubblock) ;
+    wsprintf(szName, "\\StringFileInfo\\%04hX%04hX\\%s",
+             LOWORD(*lpBuffer), HIWORD(*lpBuffer), lpszSubblock);
 
     // Search for the key.
-    bResult = g_versiondll.VerQueryValue( pbData, szName, (void**)&szExpire, &uiSize);
+    bResult = g_versiondll.VerQueryValue(pbData, szName, (void**)&szExpire, &uiSize);
 
     // If there's a string there, we need to convert it to a count of days.
-    if ( bResult && pdw && uiSize )
-    {
+    if (bResult && pdw && uiSize) {
         DWORD dwExpire = 0;
 
-        for ( ; *szExpire; szExpire++ )
-        {
-            if ( (*szExpire >= TEXT('0') && *szExpire <= TEXT('9')) )
+        for (; *szExpire; szExpire++) {
+            if ((*szExpire >= TEXT('0') && *szExpire <= TEXT('9')))
                 dwExpire = dwExpire * 10 + *szExpire - TEXT('0');
             else
                 break;
@@ -2062,8 +2031,8 @@ BOOL SniffStringFileInfo(  LPSTR szFileName, LPCTSTR lpszSubblock, DWORD *pdw )
     }
 
 Exit:
-    delete [] pbData ;
-    return bResult ;
+    delete[] pbData;
+    return bResult;
 }
 
 
@@ -2071,7 +2040,7 @@ Exit:
 // zeroimpactly, or error codes
 HRESULT
 IsDistUnitLocallyInstalledZI(LPCWSTR wszDistUnit, LPCWSTR wszClsid, DWORD dwFileVersionMS, DWORD dwFileVersionLS,
-                             CLocalComponentInfo * plci)
+                             CLocalComponentInfo* plci)
 {
     HRESULT hrNormalCheck = S_OK;
     HRESULT hrZICheck = S_OK;
@@ -2089,19 +2058,16 @@ IsDistUnitLocallyInstalledZI(LPCWSTR wszDistUnit, LPCWSTR wszClsid, DWORD dwFile
 
     ASSERT(wszDistUnit);
 
-    if (!dwFileVersionMS && !dwFileVersionLS)
-    {
+    if (!dwFileVersionMS && !dwFileVersionLS) {
         GetLatestZIVersion(wszDistUnit, &dwFileVersionMS, &dwFileVersionLS);
     }
 
-    if(GetStringFromVersion(szVersion, dwFileVersionMS, dwFileVersionLS, '_'))
-    {
-        if(MultiByteToWideChar(CP_ACP, 0, szVersion, -1, wszVersion, MAX_PATH) != 0)
-        {
+    if (GetStringFromVersion(szVersion, dwFileVersionMS, dwFileVersionLS, '_')) {
+        if (MultiByteToWideChar(CP_ACP, 0, szVersion, -1, wszVersion, MAX_PATH) != 0) {
             // buffer overflow guard
             iLenDU = lstrlenW(wszDistUnit);
             iLenVer = lstrlenW(wszVersion);
-            if(iLenDU + iLenVer /*dot and null*/ + 2 > MAX_PATH)
+            if (iLenDU + iLenVer /*dot and null*/ + 2 > MAX_PATH)
                 return E_UNEXPECTED;
             StrCpyW(wszDistDotVersion, wszDistUnit);
             wszDistDotVersion[iLenDU++] = L'!';
@@ -2119,42 +2085,34 @@ IsDistUnitLocallyInstalledZI(LPCWSTR wszDistUnit, LPCWSTR wszClsid, DWORD dwFile
                                                dwFileVersionLS, plci, NULL, &bParanoid, 0);
 
 
-    if(FAILED(hrZICheck))
-    {
-        if(hrZICheck == HRESULT_FROM_WIN32(ERROR_MORE_DATA))
+    if (FAILED(hrZICheck)) {
+        if (hrZICheck == HRESULT_FROM_WIN32(ERROR_MORE_DATA))
             return E_UNEXPECTED;
         else
             return hrZICheck;
     }
 
     // hrZICheck == S_OK: directory was found; hrZICheck == S_FALSE: directory was not found
-    if(hrZICheck == S_OK)
-    {
+    if (hrZICheck == S_OK) {
         cBufLen = MAX_PATH;
 
         // Found the dir, now look for a dll name to report up
         hrDll = ZIGetDllName(szDir, wszDistUnit, wszClsid, dwFileVersionMS, dwFileVersionLS, szFile, &cBufLen);
-        if(hrDll == S_OK)
-        {
+        if (hrDll == S_OK) {
             wsprintf(szDllName, TEXT("%s\\%s"), szDir, szFile);
-            if(MultiByteToWideChar(CP_ACP, 0, szDllName, -1, plci->wszDllName, MAX_PATH) == 0)
+            if (MultiByteToWideChar(CP_ACP, 0, szDllName, -1, plci->wszDllName, MAX_PATH) == 0)
                 plci->wszDllName[0] = L'\0';
-        }
-        else
-        {
+        } else {
             plci->wszDllName[0] = L'\0';
         }
 
         // if IsDistUnit...lled already filled this in, don't overwrite
-        if(hrNormalCheck != S_OK)
-        {
+        if (hrNormalCheck != S_OK) {
             plci->dwLocFVMS = dwFileVersionMS;
             plci->dwLocFVLS = dwFileVersionLS;
         }
         plci->m_bIsZI = TRUE;
-    }
-    else
-    {
+    } else {
         plci->dwLocFVMS = 0;
         plci->dwLocFVLS = 0;
         plci->m_bIsZI = FALSE;
@@ -2163,8 +2121,8 @@ IsDistUnitLocallyInstalledZI(LPCWSTR wszDistUnit, LPCWSTR wszClsid, DWORD dwFile
     return hrZICheck;
 }
 
-void GetLatestZIVersion(const WCHAR *pwzDistUnit, DWORD *pdwVerMS,
-                        DWORD *pdwVerLS)
+void GetLatestZIVersion(const WCHAR* pwzDistUnit, DWORD* pdwVerMS,
+                        DWORD* pdwVerLS)
 {
     HKEY                         hkeyZI = 0;
     HANDLE                       hFile = INVALID_HANDLE_VALUE;
@@ -2174,32 +2132,27 @@ void GetLatestZIVersion(const WCHAR *pwzDistUnit, DWORD *pdwVerMS,
     DWORD                        iSubKey;
     DWORD                        dwSize = MAX_REGSTR_LEN;
     char                         szDistUnitCur[MAX_REGSTR_LEN];
-    char                        *szPtr = NULL;
-    char                        *pszDistUnit = NULL;
+    char* szPtr = NULL;
+    char* pszDistUnit = NULL;
     int                          iLen = 0;
 
-    if (Unicode2Ansi(pwzDistUnit, &pszDistUnit))
-    {
+    if (Unicode2Ansi(pwzDistUnit, &pszDistUnit)) {
         goto Exit;
     }
 
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGKEY_ZEROIMPACT_DIRS, 0, KEY_READ,
-                     &hkeyZI) == ERROR_SUCCESS)
-    {
+                     &hkeyZI) == ERROR_SUCCESS) {
         iSubKey = 0;
         while ((lResult = RegEnumKeyEx(hkeyZI, iSubKey++, szDistUnitCur,
                                        &dwSize, NULL, NULL, NULL,
-                                       NULL)) == ERROR_SUCCESS)
-        {
+                                       NULL)) == ERROR_SUCCESS) {
             szPtr = StrStrI(szDistUnitCur, pszDistUnit);
 
-            if (szPtr)
-            {
+            if (szPtr) {
                 ExtractVersion(szDistUnitCur, &dwDistVerMS, &dwDistVerLS);
 
-                if (dwDistVerMS > *pdwVerMS ||
-                    ((dwDistVerMS == *pdwVerMS) && dwDistVerLS > *pdwVerLS))
-                {
+                if (dwDistVerMS > * pdwVerMS ||
+                    ((dwDistVerMS == *pdwVerMS) && dwDistVerLS > * pdwVerLS)) {
                     *pdwVerMS = dwDistVerMS;
                     *pdwVerLS = dwDistVerLS;
                 }
@@ -2210,8 +2163,7 @@ void GetLatestZIVersion(const WCHAR *pwzDistUnit, DWORD *pdwVerMS,
         }
     }
 
-    if (!*pdwVerMS && !*pdwVerLS)
-    {
+    if (!*pdwVerMS && !*pdwVerLS) {
         LPTSTR                      szDir = (LPTSTR)GetZeroImpactRootDir();
         TCHAR                       szQualifiedPath[MAX_PATH];
         WIN32_FIND_DATA             wfd;
@@ -2235,10 +2187,9 @@ void GetLatestZIVersion(const WCHAR *pwzDistUnit, DWORD *pdwVerMS,
                         ExtractVersion(wfd.cFileName, &dwDistVerMS,
                                        &dwDistVerLS);
 
-                        if (dwDistVerMS > *pdwVerMS ||
+                        if (dwDistVerMS > * pdwVerMS ||
                             ((dwDistVerMS == *pdwVerMS) &&
-                              dwDistVerLS > *pdwVerLS))
-                        {
+                             dwDistVerLS > * pdwVerLS)) {
                             *pdwVerMS = dwDistVerMS;
                             *pdwVerLS = dwDistVerLS;
                         }
@@ -2251,10 +2202,9 @@ void GetLatestZIVersion(const WCHAR *pwzDistUnit, DWORD *pdwVerMS,
                             ExtractVersion(wfd.cFileName, &dwDistVerMS,
                                            &dwDistVerLS);
 
-                            if (dwDistVerMS > *pdwVerMS ||
+                            if (dwDistVerMS > * pdwVerMS ||
                                 ((dwDistVerMS == *pdwVerMS) &&
-                                  dwDistVerLS > *pdwVerLS))
-                            {
+                                 dwDistVerLS > * pdwVerLS)) {
                                 *pdwVerMS = dwDistVerMS;
                                 *pdwVerLS = dwDistVerLS;
                             }
@@ -2267,27 +2217,24 @@ void GetLatestZIVersion(const WCHAR *pwzDistUnit, DWORD *pdwVerMS,
 
 Exit:
 
-    if (hkeyZI)
-    {
+    if (hkeyZI) {
         RegCloseKey(hkeyZI);
     }
 
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
+    if (hFile != INVALID_HANDLE_VALUE) {
         FindClose(hFile);
     }
 
     SAFEDELETE(pszDistUnit);
 }
 
-void ExtractVersion(char *pszDistUnit, DWORD *pdwVerMS, DWORD *pdwVerLS)
+void ExtractVersion(char* pszDistUnit, DWORD* pdwVerMS, DWORD* pdwVerLS)
 {
-    char                    *pszCopy = NULL;
-    char                    *pszPtr = NULL;
+    char* pszCopy = NULL;
+    char* pszPtr = NULL;
     int                      iLen = 0;
 
-    if (!pszDistUnit)
-    {
+    if (!pszDistUnit) {
         return;
     }
 
@@ -2304,10 +2251,8 @@ void ExtractVersion(char *pszDistUnit, DWORD *pdwVerMS, DWORD *pdwVerLS)
 
     // Convert _ to , for GetVersionFromString()
 
-    while (*pszPtr)
-    {
-        if (*pszPtr == '_')
-        {
+    while (*pszPtr) {
+        if (*pszPtr == '_') {
             *pszPtr = ',';
         }
 
@@ -2315,7 +2260,6 @@ void ExtractVersion(char *pszDistUnit, DWORD *pdwVerMS, DWORD *pdwVerLS)
     }
 
     pszPtr = StrStrA(pszCopy, "!");
-
     if (pszPtr) {
         pszPtr++;
         GetVersionFromString(pszPtr, pdwVerMS, pdwVerLS);
@@ -2323,4 +2267,3 @@ void ExtractVersion(char *pszDistUnit, DWORD *pdwVerMS, DWORD *pdwVerLS)
 
     SAFEDELETE(pszCopy);
 }
-

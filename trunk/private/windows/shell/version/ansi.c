@@ -4,18 +4,17 @@
 #include "verpriv.h"
 
 #define DWORDUP(x) (((x)+3) & ~3)
-DWORD
-APIENTRY
-VerFindFileA(
-        DWORD wFlags,
-        LPSTR lpszFileName,
-        LPSTR lpszWinDir,
-        LPSTR lpszAppDir,
-        LPSTR lpszCurDir,
-        PUINT puCurDirLen,
-        LPSTR lpszDestDir,
-        PUINT puDestDirLen
-        )
+
+DWORD APIENTRY VerFindFileA(
+    DWORD wFlags,
+    LPSTR lpszFileName,
+    LPSTR lpszWinDir,
+    LPSTR lpszAppDir,
+    LPSTR lpszCurDir,
+    PUINT puCurDirLen,
+    LPSTR lpszDestDir,
+    PUINT puDestDirLen
+)
 {
     UNICODE_STRING FileName;
     UNICODE_STRING WinDir;
@@ -70,22 +69,21 @@ VerFindFileA(
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return VFF_BUFFTOOSMALL;
     }
-    Status = VerFindFileW(wFlags,
-                        FileName.Buffer,
-                        WinDir.Buffer,
-                        AppDir.Buffer,
-                        CurDir.Buffer, &CurDirLen,
-                        DestDir.Buffer, &DestDirLen);
 
+    Status = VerFindFileW(wFlags,
+                          FileName.Buffer,
+                          WinDir.Buffer,
+                          AppDir.Buffer,
+                          CurDir.Buffer, &CurDirLen,
+                          DestDir.Buffer, &DestDirLen);
     if (Status & VFF_BUFFTOOSMALL) {
         *lpszCurDir = 0;
         *puCurDirLen = CurDirLen;
         *lpszDestDir = 0;
         *puDestDirLen = DestDirLen;
     } else {
-
-        CurDir.Length = (USHORT)(sizeof(WCHAR)*CurDirLen);
-        DestDir.Length = (USHORT)(sizeof(WCHAR)*DestDirLen);
+        CurDir.Length = (USHORT)(sizeof(WCHAR) * CurDirLen);
+        DestDir.Length = (USHORT)(sizeof(WCHAR) * DestDirLen);
 
         AnsiString.Buffer = lpszCurDir;
         AnsiString.MaximumLength = (USHORT)*puCurDirLen;
@@ -104,21 +102,19 @@ VerFindFileA(
     RtlFreeUnicodeString(&CurDir);
     RtlFreeUnicodeString(&DestDir);
     return Status;
-
 }
 
-DWORD
-APIENTRY
-VerInstallFileA(
-        DWORD wFlags,
-        LPSTR lpszSrcFileName,
-        LPSTR lpszDstFileName,
-        LPSTR lpszSrcDir,
-        LPSTR lpszDstDir,
-        LPSTR lpszCurDir,
-        LPSTR lpszTmpFile,
-        PUINT puTmpFileLen
-        )
+
+DWORD APIENTRY VerInstallFileA(
+    DWORD wFlags,
+    LPSTR lpszSrcFileName,
+    LPSTR lpszDstFileName,
+    LPSTR lpszSrcDir,
+    LPSTR lpszDstDir,
+    LPSTR lpszCurDir,
+    LPSTR lpszTmpFile,
+    PUINT puTmpFileLen
+)
 {
     UNICODE_STRING SrcFileName;
     UNICODE_STRING DstFileName;
@@ -188,7 +184,6 @@ VerInstallFileA(
     }
 
     Status = RtlAnsiStringToUnicodeString(&TmpFile, &AnsiString, FALSE);
-
     if (!NT_SUCCESS(Status)) {
         RtlFreeUnicodeString(&SrcFileName);
         RtlFreeUnicodeString(&DstFileName);
@@ -201,25 +196,19 @@ VerInstallFileA(
     }
 
     Status = VerInstallFileW(wFlags,
-                        SrcFileName.Buffer,
-                        DstFileName.Buffer,
-                        SrcDir.Buffer,
-                        DstDir.Buffer,
-                        CurDir.Buffer,
-                        TmpFile.Buffer, &TmpFileLen);
-
+                             SrcFileName.Buffer,
+                             DstFileName.Buffer,
+                             SrcDir.Buffer,
+                             DstDir.Buffer,
+                             CurDir.Buffer,
+                             TmpFile.Buffer, &TmpFileLen);
     if (Status & VIF_BUFFTOOSMALL) {
-
         // The lpszTmpFile buffer was too small,
         // the TmpFileLen field contains the size necessary.
-
         *lpszTmpFile = 0;
         *puTmpFileLen = TmpFileLen;
-
     } else {
-
         TmpFile.Length = TmpFile.MaximumLength = (USHORT)(TmpFileLen * sizeof(WCHAR));
-
         AnsiString.Buffer = lpszTmpFile;
         AnsiString.MaximumLength = (USHORT)*puTmpFileLen;
         RtlUnicodeStringToAnsiString(&AnsiString, &TmpFile, FALSE);
@@ -277,68 +266,43 @@ BOOL APIENTRY GetFileVersionInfoA(LPSTR lpstrFilename, DWORD dwHandle, DWORD dwL
 
 
 /*
- *  DWORD
- *  APIENTRY
- *  VerLanguageNameA(
- *      DWORD wLang,
- *      LPSTR szLang,
- *      DWORD wSize)
+ *  DWORD APIENTRY VerLanguageNameA(DWORD wLang, LPSTR szLang, DWORD wSize)
 
  *  This routine was moved to NLSLIB.LIB so that it uses the WINNLS.RC file.
  *  NLSLIB.LIB is part of KERNEL32.DLL.
 */
 
 
-BOOL
-APIENTRY
-VerQueryValueIndexA(
-        const LPVOID pb,
-        LPSTR lpSubBlock,
-        INT    nIndex,
-        LPVOID *lplpKey,
-        LPVOID *lplpBuffer,
-        PUINT puLen
-        )
+BOOL APIENTRY VerQueryValueIndexA(
+    const LPVOID pb,
+    LPSTR lpSubBlock,
+    INT    nIndex,
+    LPVOID* lplpKey,
+    LPVOID* lplpBuffer,
+    PUINT puLen
+)
 {
-   return VerpQueryValue(pb, lpSubBlock, nIndex, lplpKey, lplpBuffer, puLen, FALSE);
+    return VerpQueryValue(pb, lpSubBlock, nIndex, lplpKey, lplpBuffer, puLen, FALSE);
 }
 
-BOOL
-APIENTRY
-VerQueryValueA(
-        const LPVOID pb,
-        LPSTR lpSubBlock,
-        LPVOID *lplpBuffer,
-        PUINT puLen
-        )
+BOOL APIENTRY VerQueryValueA(const LPVOID pb, LPSTR lpSubBlock, LPVOID* lplpBuffer, PUINT puLen)
 {
     return VerpQueryValue(pb, lpSubBlock, -1, NULL, lplpBuffer, puLen, FALSE);
 }
 
 
-BOOL
-APIENTRY
-VerQueryValueW(
-        const LPVOID pb,
-        LPWSTR lpSubBlock,
-        LPVOID *lplpBuffer,
-        PUINT puLen
-        )
+BOOL APIENTRY VerQueryValueW(const LPVOID pb, LPWSTR lpSubBlock, LPVOID* lplpBuffer, PUINT puLen)
 {
     return VerpQueryValue(pb, lpSubBlock, -1, NULL, lplpBuffer, puLen, TRUE);
 }
 
 
-BOOL
-APIENTRY
-VerQueryValueIndexW(
-        const LPVOID pb,
-        LPWSTR lpSubBlock,
-        INT    nIndex,
-        LPVOID *lplpKey,
-        LPVOID *lplpBuffer,
-        PUINT puLen
-        )
+BOOL APIENTRY VerQueryValueIndexW(const LPVOID pb,
+                                  LPWSTR lpSubBlock,
+                                  INT    nIndex,
+                                  LPVOID* lplpKey,
+                                  LPVOID* lplpBuffer,
+                                  PUINT puLen)
 {
     return VerpQueryValue(pb, lpSubBlock, nIndex, lplpKey, lplpBuffer, puLen, TRUE);
 }

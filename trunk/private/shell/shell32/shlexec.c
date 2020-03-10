@@ -1,7 +1,7 @@
-    /*
- *  shlexec.c -
+/*
+*  shlexec.c -
 
- *  Implements the ShellExecuteEx() function
+*  Implements the ShellExecuteEx() function
 */
 #include "shellprv.h"
 #pragma  hdrstop
@@ -48,7 +48,7 @@ HINSTANCE g_hInstDarwin = NULL;
 #define SAFE_DEBUGSTR(str)    ((str) ? (str) : "<NULL>")
 
 // secret kernel api to get name of missing 16 bit component
-extern int WINAPI PK16FNF(TCHAR *szBuffer);
+extern int WINAPI PK16FNF(TCHAR* szBuffer);
 
 BOOL _ShellExecPidl(LPSHELLEXECUTEINFO pei, LPITEMIDLIST pidlExec);
 
@@ -69,7 +69,7 @@ BOOL IsValidPSHELLEXECUTEINFO(LPSHELLEXECUTEINFO pei)
             (IsFlagSet(pei->fMask, SEE_MASK_FLAG_NO_UI) ||
              NULL == pei->hwnd ||
              IS_VALID_HANDLE(pei->hwnd, WND)) &&
-            (NULL == pei->lpVerb || IS_VALID_STRING_PTR(pei->lpVerb, -1)) &&
+             (NULL == pei->lpVerb || IS_VALID_STRING_PTR(pei->lpVerb, -1)) &&
             (NULL == pei->lpFile || IS_VALID_STRING_PTR(pei->lpFile, -1)) &&
             (NULL == pei->lpParameters || IS_VALID_STRING_PTR(pei->lpParameters, -1)) &&
             (NULL == pei->lpDirectory || IS_VALID_STRING_PTR(pei->lpDirectory, -1)) &&
@@ -77,18 +77,18 @@ BOOL IsValidPSHELLEXECUTEINFO(LPSHELLEXECUTEINFO pei)
             (IsFlagClear(pei->fMask, SEE_MASK_IDLIST) ||
              IsFlagSet(pei->fMask, SEE_MASK_INVOKEIDLIST) ||        // because SEE_MASK_IDLIST is part of SEE_MASK_INVOKEIDLIST this line will
              IS_VALID_PIDL(pei->lpIDList)) &&                       // defer to the next clause if the superset is true
-            (IsFlagClear(pei->fMask, SEE_MASK_INVOKEIDLIST) ||
-             NULL == pei->lpIDList ||
-             IS_VALID_PIDL(pei->lpIDList)) &&
-            ( !_UseClassName(pei->fMask) ||
-             IS_VALID_STRING_PTR(pei->lpClass, -1)) &&
-            ( !_UseTitleName(pei->fMask) ||
-             NULL == pei->lpClass ||
-             IS_VALID_STRING_PTR(pei->lpClass, -1)) &&
-            ( !_UseClassKey(pei->fMask) ||
-             IS_VALID_HANDLE(pei->hkeyClass, KEY)) &&
-            (IsFlagClear(pei->fMask, SEE_MASK_ICON) ||
-             IS_VALID_HANDLE(pei->hIcon, ICON)));
+             (IsFlagClear(pei->fMask, SEE_MASK_INVOKEIDLIST) ||
+              NULL == pei->lpIDList ||
+              IS_VALID_PIDL(pei->lpIDList)) &&
+              (!_UseClassName(pei->fMask) ||
+               IS_VALID_STRING_PTR(pei->lpClass, -1)) &&
+               (!_UseTitleName(pei->fMask) ||
+                NULL == pei->lpClass ||
+                IS_VALID_STRING_PTR(pei->lpClass, -1)) &&
+                (!_UseClassKey(pei->fMask) ||
+                 IS_VALID_HANDLE(pei->hkeyClass, KEY)) &&
+                 (IsFlagClear(pei->fMask, SEE_MASK_ICON) ||
+                  IS_VALID_HANDLE(pei->hIcon, ICON)));
 }
 
 #endif // DEBUG
@@ -144,9 +144,8 @@ BOOL CALLBACK _RoundRobinWindows(HWND hWnd, LPARAM lParam)
     TraceMsg(TF_SHELLEXEC, "RoundRobinWindows: %x %x    %s %s", hWnd, hInstance, (LPTSTR)szWnd, (LPTSTR)szT);
 #endif
 
-    if (lstrcmpi(PathFindFileName(szT), PathFindFileName((LPTSTR)lParam)) == 0)
-    {
-        *(HWND *)lParam = hWnd;
+    if (lstrcmpi(PathFindFileName(szT), PathFindFileName((LPTSTR)lParam)) == 0) {
+        *(HWND*)lParam = hWnd;
         return FALSE;
     }
 
@@ -160,7 +159,7 @@ HWND _GetAncestorWindow(HWND hwnd)
     HWND hwndT;
 
     if (!hwnd)
-      return NULL;
+        return NULL;
 
     /* First go up the parent chain to find the popup window.  Then go
     * up the owner chain to find the main window
@@ -190,7 +189,7 @@ HWND _FindPopupFromExe(LPTSTR lpExe)
     if (b)
         return NULL;
 
-    hwnd = *(HWND *)szExe;
+    hwnd = *(HWND*)szExe;
     if (hwnd == NULL)
         return NULL;
 
@@ -212,7 +211,7 @@ HWND _FindPopupFromExe(LPTSTR lpExe)
 BOOL Window_IsLFNAware(HWND hwnd)
 {
 #ifdef WINNT
-    if (LOWORD(GetWindowLongPtr(hwnd,GWLP_HINSTANCE)) == 0) {
+    if (LOWORD(GetWindowLongPtr(hwnd, GWLP_HINSTANCE)) == 0) {
         // 32-bit window
         return TRUE;
     }
@@ -222,8 +221,7 @@ BOOL Window_IsLFNAware(HWND hwnd)
     DWORD idProcess;
 
     GetWindowThreadProcessId(hwnd, &idProcess);
-    if (!(GetProcessDword(idProcess, GPD_FLAGS) & GPF_WIN16_PROCESS) || (GetProcessDword(idProcess, GPD_EXP_WINVER) >= 0x0400))
-    {
+    if (!(GetProcessDword(idProcess, GPD_FLAGS) & GPF_WIN16_PROCESS) || (GetProcessDword(idProcess, GPD_EXP_WINVER) >= 0x0400)) {
         TraceMsg(TF_SHELLEXEC, "Window_IsLFNAware: Win32 app (%x) handling DDE cmd.", hwnd);
         return TRUE;
     }
@@ -249,7 +247,7 @@ BOOL Window_IsLFNAware(HWND hwnd)
 LPTSTR _GetNextParm(LPCTSTR lpSrc, LPTSTR lpDst, UINT cchDst)
 {
     LPCTSTR lpNextQuote, lpNextSpace;
-    LPTSTR lpEnd = lpDst+cchDst-1;       // dec to account for trailing NULL
+    LPTSTR lpEnd = lpDst + cchDst - 1;       // dec to account for trailing NULL
     BOOL fQuote;                        // quoted string?
     BOOL fDoubleQuote;                  // is this quote a double quote?
     VDATEINPUTBUF(lpDst, TCHAR, cchDst);
@@ -264,48 +262,35 @@ LPTSTR _GetNextParm(LPCTSTR lpSrc, LPTSTR lpDst, UINT cchDst)
     if (fQuote)
         lpSrc++;   // skip leading quote
 
-    for (;;)
-    {
+    for (;;) {
         lpNextQuote = StrChr(lpSrc, TEXT('"'));
 
-        if (!fQuote)
-        {
+        if (!fQuote) {
             // for an un-quoted string, copy all chars to first space/null
 
             lpNextSpace = StrChr(lpSrc, TEXT(' '));
 
             if (!lpNextSpace) // null before space! (end of string)
             {
-                if (!lpNextQuote)
-                {
+                if (!lpNextQuote) {
                     // copy all chars to the null
-                    if (lpDst)
-                    {
+                    if (lpDst) {
                         COPYTODST(lpDst, lpEnd, lpSrc, lstrlen(lpSrc), NULL);
                     }
                     return NULL;
-                }
-                else
-                {
+                } else {
                     // we have a quote to convert.  Fall through.
                 }
-            }
-            else if (!lpNextQuote || lpNextSpace < lpNextQuote)
-            {
+            } else if (!lpNextQuote || lpNextSpace < lpNextQuote) {
                 // copy all chars to the space
-                if (lpDst)
-                {
-                    COPYTODST(lpDst, lpEnd, lpSrc, (UINT)(lpNextSpace-lpSrc), NULL);
+                if (lpDst) {
+                    COPYTODST(lpDst, lpEnd, lpSrc, (UINT)(lpNextSpace - lpSrc), NULL);
                 }
                 return (LPTSTR)lpNextSpace;
-            }
-            else
-            {
+            } else {
                 // quote before space.  Fall through to convert quote.
             }
-        }
-        else if (!lpNextQuote)
-        {
+        } else if (!lpNextQuote) {
             // a quoted string without a terminating quote?  Illegal!
             ASSERT(0);
             return NULL;
@@ -314,19 +299,17 @@ LPTSTR _GetNextParm(LPCTSTR lpSrc, LPTSTR lpDst, UINT cchDst)
         // we have a potential quote to convert
         ASSERT(lpNextQuote);
 
-        fDoubleQuote = *(lpNextQuote+1) == TEXT('"');
+        fDoubleQuote = *(lpNextQuote + 1) == TEXT('"');
         if (fDoubleQuote)
             lpNextQuote++;      // so the quote is copied
 
-        if (lpDst)
-        {
-            COPYTODST(lpDst, lpEnd, lpSrc, (UINT) (lpNextQuote-lpSrc), NULL);
+        if (lpDst) {
+            COPYTODST(lpDst, lpEnd, lpSrc, (UINT)(lpNextQuote - lpSrc), NULL);
         }
 
-        lpSrc = lpNextQuote+1;
+        lpSrc = lpNextQuote + 1;
 
-        if (!fDoubleQuote)
-        {
+        if (!fDoubleQuote) {
             // we just copied the rest of this quoted string.  if this wasn't
             // quoted, it's an illegal string... treat the quote as a space.
             ASSERT(fQuote);
@@ -352,8 +335,7 @@ BOOL App_IsLFNAware(LPCTSTR pszFile)
     // Assume Win 4.0 apps and Win32 apps are LFN aware.
     dw = GetExeType(pszFile);
     // TraceMsg(TF_SHELLEXEC, "s.aila: %s %s %x", lpszFile, szFile, dw);
-    if ((LOWORD(dw) == PEMAGIC) || ((LOWORD(dw) == NEMAGIC) && (HIWORD(dw) >= 0x0400)))
-    {
+    if ((LOWORD(dw) == PEMAGIC) || ((LOWORD(dw) == NEMAGIC) && (HIWORD(dw) >= 0x0400))) {
         TCHAR sz[MAX_PATH];
         PathToAppPathKey(pszFile, sz, ARRAYSIZE(sz));
 
@@ -377,8 +359,7 @@ BOOL DoesAppWantUrl(LPCTSTR pszPath)
     // NOTE this assumes that this is a path to the exe
     // and not a command line
     PathToAppPathKey(pszPath, sz, ARRAYSIZE(sz));
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sz, 0L, KEY_QUERY_VALUE, &hk) == ERROR_SUCCESS)
-    {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sz, 0L, KEY_QUERY_VALUE, &hk) == ERROR_SUCCESS) {
         bRet = SHQueryValueEx(hk, TEXT("UseURL"), NULL, NULL, NULL, NULL) == ERROR_SUCCESS;
         RegCloseKey(hk);
     }
@@ -393,8 +374,7 @@ BOOL _AppIsLFNAware(LPCTSTR lpszFile)
     LPTSTR pszArgs;
 
     // Does it look like a DDE command?
-    if (lpszFile && *lpszFile && (*lpszFile != TEXT('[')))
-    {
+    if (lpszFile && *lpszFile && (*lpszFile != TEXT('['))) {
         // Nope - Hopefully just a regular old command %1 thing.
         lstrcpyn(szFile, lpszFile, ARRAYSIZE(szFile));
         pszArgs = PathGetArgs(szFile);
@@ -425,8 +405,8 @@ BOOL _AppIsLFNAware(LPCTSTR lpszFile)
 // BUGBUG, we need to make sure we don't do more than MAX_PATH bytes into lpTo
 
 UINT ReplaceParameters(LPTSTR lpTo, UINT cchTo, LPCTSTR lpFile,
-        LPCTSTR lpFrom, LPCTSTR lpParms, int nShow, DWORD * pdwHotKey, BOOL fLFNAware,
-        LPCITEMIDLIST lpID, LPITEMIDLIST *ppidlGlobal)
+                       LPCTSTR lpFrom, LPCTSTR lpParms, int nShow, DWORD* pdwHotKey, BOOL fLFNAware,
+                       LPCITEMIDLIST lpID, LPITEMIDLIST* ppidlGlobal)
 {
     int i;
     TCHAR c;
@@ -439,58 +419,46 @@ UINT ReplaceParameters(LPTSTR lpTo, UINT cchTo, LPCTSTR lpFile,
     LPCTSTR pFromOrig = lpFrom;
 #endif
 
-    for ( ; *lpFrom; lpFrom++)
-    {
-        if (*lpFrom == TEXT('%'))
-        {
-            switch (*(++lpFrom))
-            {
+    for (; *lpFrom; lpFrom++) {
+        if (*lpFrom == TEXT('%')) {
+            switch (*(++lpFrom)) {
             case TEXT('~'): // Copy all parms starting with nth (n >= 2 and <= 9)
-                  c = *(++lpFrom);
-                  if (c >= TEXT('2') && c <= TEXT('9'))
-                    {
-                      for (i = 2, lpT = lpParms; i < c-TEXT('0') && lpT; i++)
-                        {
-                          lpT = _GetNextParm(lpT, NULL, 0);
-                        }
+                c = *(++lpFrom);
+                if (c >= TEXT('2') && c <= TEXT('9')) {
+                    for (i = 2, lpT = lpParms; i < c - TEXT('0') && lpT; i++) {
+                        lpT = _GetNextParm(lpT, NULL, 0);
+                    }
 
-                      if (lpT)
-                        {
-                          COPYTODST(lpTo, lpEnd, lpT, lstrlen(lpT), SE_ERR_ACCESSDENIED);
-                        }
+                    if (lpT) {
+                        COPYTODST(lpTo, lpEnd, lpT, lstrlen(lpT), SE_ERR_ACCESSDENIED);
                     }
-                  else
-                    {
-                      lpFrom -= 2;            // Backup over %~ and pass through
-                      goto NormalChar;
-                    }
-                  break;
+                } else {
+                    lpFrom -= 2;            // Backup over %~ and pass through
+                    goto NormalChar;
+                }
+                break;
 
             case TEXT('*'): // Copy all parms
-                  if (lpParms)
-                  {
-                      COPYTODST(lpTo, lpEnd, lpParms, lstrlen(lpParms), SE_ERR_ACCESSDENIED);
-                  }
-                  break;
+                if (lpParms) {
+                    COPYTODST(lpTo, lpEnd, lpParms, lstrlen(lpParms), SE_ERR_ACCESSDENIED);
+                }
+                break;
 
             case TEXT('0'):
             case TEXT('1'):
-                  // %0, %1, copy the file name
-                  // If the filename comes first then we don't need to convert it to
-                  // a shortname. If it appears anywhere else and the app is not LFN
-                  // aware then we must.
-                  if (!(fFirstParam || fLFNAware || _AppIsLFNAware(pToOrig)) &&
-                      GetShortPathName(lpFile, sz, ARRAYSIZE(sz)) > 0)
-                  {
-                      TraceMsg(TF_SHELLEXEC, "ShellExecuteEx: Getting short version of path.");
-                      COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
-                  }
-                  else
-                  {
-                      TraceMsg(TF_SHELLEXEC, "ShellExecuteEx: Using long version of path.");
-                      COPYTODST(lpTo, lpEnd, lpFile, lstrlen(lpFile), SE_ERR_ACCESSDENIED);
-                  }
-                  break;
+                // %0, %1, copy the file name
+                // If the filename comes first then we don't need to convert it to
+                // a shortname. If it appears anywhere else and the app is not LFN
+                // aware then we must.
+                if (!(fFirstParam || fLFNAware || _AppIsLFNAware(pToOrig)) &&
+                    GetShortPathName(lpFile, sz, ARRAYSIZE(sz)) > 0) {
+                    TraceMsg(TF_SHELLEXEC, "ShellExecuteEx: Getting short version of path.");
+                    COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
+                } else {
+                    TraceMsg(TF_SHELLEXEC, "ShellExecuteEx: Using long version of path.");
+                    COPYTODST(lpTo, lpEnd, lpFile, lstrlen(lpFile), SE_ERR_ACCESSDENIED);
+                }
+                break;
             case TEXT('2'):
             case TEXT('3'):
             case TEXT('4'):
@@ -499,133 +467,119 @@ UINT ReplaceParameters(LPTSTR lpTo, UINT cchTo, LPCTSTR lpFile,
             case TEXT('7'):
             case TEXT('8'):
             case TEXT('9'):
-                  for (i = *lpFrom-TEXT('2'), lpT = lpParms; lpT; --i)
-                    {
-                      if (i)
-                          lpT = _GetNextParm(lpT, NULL, 0);
-                      else
-                        {
-                          _GetNextParm(lpT, sz, ARRAYSIZE(sz));
-                          COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
-                          break;
-                        }
+                for (i = *lpFrom - TEXT('2'), lpT = lpParms; lpT; --i) {
+                    if (i)
+                        lpT = _GetNextParm(lpT, NULL, 0);
+                    else {
+                        _GetNextParm(lpT, sz, ARRAYSIZE(sz));
+                        COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
+                        break;
                     }
-                  break;
-                case TEXT('s'):
-                case TEXT('S'):
-                  wsprintf(sz, TEXT("%ld"), nShow);
-                  COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
-                  break;
-                case TEXT('h'):
-                case TEXT('H'):
-                  wsprintf(sz, TEXT("%X"), pdwHotKey ? *pdwHotKey : 0);
-                  COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
-                  if (pdwHotKey)
-                      *pdwHotKey = 0;
-                  break;
+                }
+                break;
+            case TEXT('s'):
+            case TEXT('S'):
+                wsprintf(sz, TEXT("%ld"), nShow);
+                COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
+                break;
+            case TEXT('h'):
+            case TEXT('H'):
+                wsprintf(sz, TEXT("%X"), pdwHotKey ? *pdwHotKey : 0);
+                COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
+                if (pdwHotKey)
+                    *pdwHotKey = 0;
+                break;
 
                 // Note that a new global IDList is created for each
-                case TEXT('i'):
-                case TEXT('I'):
-                  // Note that a single global ID list is created and used over
-                  // again, so that it may be easily destroyed if anything
-                  // goes wrong
-                  if (ppidlGlobal)
-                  {
-                      if (lpID && !*ppidlGlobal)
-                      {
+            case TEXT('i'):
+            case TEXT('I'):
+                // Note that a single global ID list is created and used over
+                // again, so that it may be easily destroyed if anything
+                // goes wrong
+                if (ppidlGlobal) {
+                    if (lpID && !*ppidlGlobal) {
 #ifndef WINNT
-                          // these are the folks who figured out the %I and
-                          // rely upon it being global data
-                          if (StrStr(pFromOrig, "pdexplo.exe")) {
-                              *ppidlGlobal = ILGlobalClone((lpID));
-                              if (!*ppidlGlobal)
-                              {
-                                  return(SE_ERR_OOM);
-                              }
+                        // these are the folks who figured out the %I and
+                        // rely upon it being global data
+                        if (StrStr(pFromOrig, "pdexplo.exe")) {
+                            *ppidlGlobal = ILGlobalClone((lpID));
+                            if (!*ppidlGlobal) {
+                                return(SE_ERR_OOM);
+                            }
 
-                              wsprintf(sz, ":%ld", *ppidlGlobal);
-                              COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
-                              break;
-                          }
+                            wsprintf(sz, ":%ld", *ppidlGlobal);
+                            COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
+                            break;
+                        }
 #endif
 
-                          *ppidlGlobal = (LPITEMIDLIST)SHAllocShared(lpID,ILGetSize(lpID),GetCurrentProcessId());
-                          if (!*ppidlGlobal)
-                          {
-                              return(SE_ERR_OOM);
-                          }
-                      }
-                      wsprintf(sz, TEXT(":%ld:%ld"), *ppidlGlobal,GetCurrentProcessId());
-                  }
-                  else
-                  {
-                      lstrcpy(sz,TEXT(":0"));
-                  }
-
-                  COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
-                  break;
-                case TEXT('l'):
-                case TEXT('L'):
-                  // Like %1 only using the long name.
-                  // REVIEW UNDONE IANEL Remove the fFirstParam and fLFNAware crap as soon as this
-                  // is up and running.
-                  TraceMsg(TF_SHELLEXEC, "ShellExecuteEx: Using long version of path.");
-                  COPYTODST(lpTo, lpEnd, lpFile, lstrlen(lpFile), SE_ERR_ACCESSDENIED);
-                  break;
-                case TEXT('D'):
-                case TEXT('d'):
-                {
-                  // %D gives the display name of an object.
-                  IShellFolder* pShellFolder;
-                  LPITEMIDLIST pidlRight = NULL;
-                  BOOL fSuccess = FALSE;
-                  STRRET str;
-
-                  if ( !lpID || FAILED(SHBindToIDListParent(lpID, &IID_IShellFolder, &pShellFolder, &pidlRight)) )
-                      return SE_ERR_ACCESSDENIED;
-
-                  if ( SUCCEEDED(pShellFolder->lpVtbl->GetDisplayNameOf(pShellFolder, pidlRight, SHGDN_FORPARSING, &str)) )
-                      fSuccess = SUCCEEDED(StrRetToBuf(&str, lpID, sz, ARRAYSIZE(sz)));
-
-                  pShellFolder->lpVtbl->Release(pShellFolder);
-
-                  if ( fSuccess )
-                      COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
-
-                  break;
+                        * ppidlGlobal = (LPITEMIDLIST)SHAllocShared(lpID, ILGetSize(lpID), GetCurrentProcessId());
+                        if (!*ppidlGlobal) {
+                            return(SE_ERR_OOM);
+                        }
+                    }
+                    wsprintf(sz, TEXT(":%ld:%ld"), *ppidlGlobal, GetCurrentProcessId());
+                } else {
+                    lstrcpy(sz, TEXT(":0"));
                 }
-                default:
-                  goto NormalChar;
-              }
-              // TraceMsg(TF_SHELLEXEC, "s.rp: Past first param (1).");
-              fFirstParam = FALSE;
-        }
-        else
-        {
-NormalChar:
-              // not a "%?" thing, just copy this to the destination
 
-              if (lpEnd-lpTo < 2)
-              {
-                  // Always check for room for DBCS char
-                  return(SE_ERR_ACCESSDENIED);
-              }
+                COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
+                break;
+            case TEXT('l'):
+            case TEXT('L'):
+                // Like %1 only using the long name.
+                // REVIEW UNDONE IANEL Remove the fFirstParam and fLFNAware crap as soon as this
+                // is up and running.
+                TraceMsg(TF_SHELLEXEC, "ShellExecuteEx: Using long version of path.");
+                COPYTODST(lpTo, lpEnd, lpFile, lstrlen(lpFile), SE_ERR_ACCESSDENIED);
+                break;
+            case TEXT('D'):
+            case TEXT('d'):
+            {
+                // %D gives the display name of an object.
+                IShellFolder* pShellFolder;
+                LPITEMIDLIST pidlRight = NULL;
+                BOOL fSuccess = FALSE;
+                STRRET str;
 
-              *lpTo++ = *lpFrom;
-              // Special case for things like "%1" ie don't clear the first param flag
-              // if we hit a dbl-quote.
-              if (*lpFrom != TEXT('"'))
-              {
-                  // TraceMsg(TF_SHELLEXEC, "s.rp: Past first param (2).");
-                  fFirstParam = FALSE;
-              }
-              else if (IsDBCSLeadByte(*lpFrom))
-              {
-                  *lpTo++ = *(++lpFrom);
-              }
+                if (!lpID || FAILED(SHBindToIDListParent(lpID, &IID_IShellFolder, &pShellFolder, &pidlRight)))
+                    return SE_ERR_ACCESSDENIED;
 
+                if (SUCCEEDED(pShellFolder->lpVtbl->GetDisplayNameOf(pShellFolder, pidlRight, SHGDN_FORPARSING, &str)))
+                    fSuccess = SUCCEEDED(StrRetToBuf(&str, lpID, sz, ARRAYSIZE(sz)));
+
+                pShellFolder->lpVtbl->Release(pShellFolder);
+
+                if (fSuccess)
+                    COPYTODST(lpTo, lpEnd, sz, lstrlen(sz), SE_ERR_ACCESSDENIED);
+
+                break;
             }
+            default:
+                goto NormalChar;
+            }
+            // TraceMsg(TF_SHELLEXEC, "s.rp: Past first param (1).");
+            fFirstParam = FALSE;
+        } else {
+        NormalChar:
+            // not a "%?" thing, just copy this to the destination
+
+            if (lpEnd - lpTo < 2) {
+                // Always check for room for DBCS char
+                return(SE_ERR_ACCESSDENIED);
+            }
+
+            *lpTo++ = *lpFrom;
+            // Special case for things like "%1" ie don't clear the first param flag
+            // if we hit a dbl-quote.
+            if (*lpFrom != TEXT('"')) {
+                // TraceMsg(TF_SHELLEXEC, "s.rp: Past first param (2).");
+                fFirstParam = FALSE;
+            } else if (IsDBCSLeadByte(*lpFrom)) {
+                *lpTo++ = *(++lpFrom);
+            }
+
+        }
     }
 
     // We should always have enough room since we dec'ed cchTo when determining
@@ -641,12 +595,10 @@ HWND ThreadID_GetVisibleWindow(DWORD dwID)
     HWND hwnd;
     DWORD dwIDTmp;
 
-    for (hwnd = GetWindow(GetDesktopWindow(), GW_CHILD); hwnd; hwnd = GetWindow(hwnd, GW_HWNDNEXT))
-    {
+    for (hwnd = GetWindow(GetDesktopWindow(), GW_CHILD); hwnd; hwnd = GetWindow(hwnd, GW_HWNDNEXT)) {
         dwIDTmp = GetWindowThreadProcessId(hwnd, NULL);
         TraceMsg(TF_SHELLEXEC, "s.ti_gvw: Hwnd %x Thread ID %x.", hwnd, dwIDTmp);
-        if (IsWindowVisible(hwnd) && (dwIDTmp == dwID))
-        {
+        if (IsWindowVisible(hwnd) && (dwIDTmp == dwID)) {
             TraceMsg(TF_SHELLEXEC, "s.ti_gvw: Found match %x.", hwnd);
             return hwnd;
         }
@@ -663,24 +615,19 @@ void ActivateHandler(HWND hwnd, DWORD_PTR dwHotKey)
 
     hwndT = GetLastActivePopup(hwnd);
 
-    if (!IsWindowVisible(hwndT))
-    {
+    if (!IsWindowVisible(hwndT)) {
         dwID = GetWindowThreadProcessId(hwnd, NULL);
         TraceMsg(TF_SHELLEXEC, "ActivateHandler: Hwnd %x Thread ID %x.", hwnd, dwID);
         ASSERT(dwID);
         // Find the first visible top level window owned by the
         // same guy that's handling the DDE conversation.
         hwnd = ThreadID_GetVisibleWindow(dwID);
-        if (hwnd)
-        {
+        if (hwnd) {
             hwndT = GetLastActivePopup(hwnd);
-            if (IsIconic(hwnd))
-            {
+            if (IsIconic(hwnd)) {
                 TraceMsg(TF_SHELLEXEC, "ActivateHandler: Window is iconic, restoring.");
-                ShowWindow(hwnd,SW_RESTORE);
-            }
-            else
-            {
+                ShowWindow(hwnd, SW_RESTORE);
+            } else {
                 TraceMsg(TF_SHELLEXEC, "ActivateHandler: Window is normal, bringing to top.");
                 BringWindowToTop(hwnd);
                 if (hwndT && hwnd != hwndT)
@@ -752,8 +699,7 @@ HRESULT _CheckExistingNet(LPCTSTR pszFile, LPCTSTR pszRoot, BOOL fPrint)
 
     HRESULT hr = S_FALSE;
 
-    if (!PathIsRoot(pszFile))
-    {
+    if (!PathIsRoot(pszFile)) {
         // if we are checking for a printshare, then it must be a Root
         if (fPrint)
             hr = E_FAIL;
@@ -761,19 +707,15 @@ HRESULT _CheckExistingNet(LPCTSTR pszFile, LPCTSTR pszRoot, BOOL fPrint)
             hr = S_OK;
     }
 
-    if (S_FALSE == hr)
-    {
+    if (S_FALSE == hr) {
         DWORD dwType;
 
-        if (NetPathExists(pszRoot ,&dwType))
-        {
+        if (NetPathExists(pszRoot, &dwType)) {
             if (fPrint ? dwType != RESOURCETYPE_PRINT : dwType == RESOURCETYPE_PRINT)
                 hr = E_FAIL;
             else
                 hr = S_OK;
-        }
-        else if (-1 != GetFileAttributes(pszRoot))
-        {
+        } else if (-1 != GetFileAttributes(pszRoot)) {
 
             // BUGBUG:  IE 4.01 SP1 QFE #104.  GetFileAttributes now called
             // as a last resort become some clients often fail when using
@@ -818,20 +760,16 @@ HRESULT _CheckNetUse(HWND hwnd, LPTSTR pszShare, UINT fConnect, LPTSTR pszOut, D
 
     TraceMsg(TF_SHELLEXEC, "SHValidateUNC WNetUseConnection(%s) returned %x", pszShare, err);
 
-    if (err)
-    {
+    if (err) {
         SetLastError(err);
         return E_FAIL;
-    }
-    else if (fConnect & VALIDATEUNC_PRINT)
-    {
+    } else if (fConnect & VALIDATEUNC_PRINT) {
         //  just because WNetUse succeeded, doesnt mean
         //  NetPathExists will.  if it fails then
         //  we shouldnt succeed this call regardless
         //  because we are only interested in print shares.
         if (!NetPathExists(pszShare, &dw)
-        || (dw != RESOURCETYPE_PRINT))
-        {
+            || (dw != RESOURCETYPE_PRINT)) {
             SetLastError(ERROR_NOT_SUPPORTED);
             return E_FAIL;
         }
@@ -865,8 +803,7 @@ BOOL WINAPI SHValidateUNC(HWND hwndOwner, LPTSTR pszFile, UINT fConnect)
 
     lstrcpyn(szShare, pszFile, ARRAYSIZE(szShare));
 
-    if (!PathStripToRoot(szShare))
-    {
+    if (!PathStripToRoot(szShare)) {
         SetLastError(ERROR_PATH_NOT_FOUND);
         return FALSE;
     }
@@ -876,27 +813,22 @@ BOOL WINAPI SHValidateUNC(HWND hwndOwner, LPTSTR pszFile, UINT fConnect)
     else
         hr = _CheckExistingNet(pszFile, szShare, fPrint);
 
-    if (S_FALSE == hr)
-    {
+    if (S_FALSE == hr) {
         TCHAR  szAccessName[MAX_PATH];
 
-        if (!fPrint && FindExistingDrv(szShare, szAccessName))
-        {
+        if (!fPrint && FindExistingDrv(szShare, szAccessName)) {
             hr = S_OK;
-        }
-        else
+        } else
             hr = _CheckNetUse(hwndOwner, szShare, fConnect, szAccessName, SIZECHARS(szAccessName));
 
 
-        if (S_OK == hr && !fPrint)
-        {
+        if (S_OK == hr && !fPrint) {
             StrCatBuff(szAccessName, pszFile + lstrlen(szShare), ARRAYSIZE(szAccessName));
             // The name should only get shorter, so no need to check length
             lstrcpy(pszFile, szAccessName);
 
             // Handle the root case
-            if (pszFile[2] == TEXT('\0'))
-            {
+            if (pszFile[2] == TEXT('\0')) {
                 pszFile[2] = TEXT('\\');
                 pszFile[3] = TEXT('\0');
             }
@@ -909,23 +841,22 @@ BOOL WINAPI SHValidateUNC(HWND hwndOwner, LPTSTR pszFile, UINT fConnect)
 }
 
 HINSTANCE WINAPI RealShellExecuteExA(HWND hwnd, LPCSTR lpOp, LPCSTR lpFile,
-                                   LPCSTR lpArgs, LPCSTR lpDir, LPSTR lpResult,
-                                   LPCSTR lpTitle, LPSTR lpReserved,
-                                   WORD nShowCmd, LPHANDLE lphProcess,
-                                   DWORD dwFlags )
+                                     LPCSTR lpArgs, LPCSTR lpDir, LPSTR lpResult,
+                                     LPCSTR lpTitle, LPSTR lpReserved,
+                                     WORD nShowCmd, LPHANDLE lphProcess,
+                                     DWORD dwFlags)
 {
-    SHELLEXECUTEINFOA sei = { SIZEOF(SHELLEXECUTEINFOA), SEE_MASK_FLAG_NO_UI|SEE_MASK_FORCENOIDLIST, hwnd, lpOp, lpFile, lpArgs, lpDir, nShowCmd, NULL};
+    SHELLEXECUTEINFOA sei = {SIZEOF(SHELLEXECUTEINFOA), SEE_MASK_FLAG_NO_UI | SEE_MASK_FORCENOIDLIST, hwnd, lpOp, lpFile, lpArgs, lpDir, nShowCmd, NULL};
 
     TraceMsg(TF_SHELLEXEC, "RealShellExecuteExA(%04X, %s, %s, %s, %s, %s, %s, %s, %d, %08lX, %d)",
-                    hwnd, lpOp, lpFile, lpArgs, lpDir, lpResult, lpTitle,
-                    lpReserved, nShowCmd, lphProcess, dwFlags );
+             hwnd, lpOp, lpFile, lpArgs, lpDir, lpResult, lpTitle,
+             lpReserved, nShowCmd, lphProcess, dwFlags);
 
 #ifdef WINNT
 
     // Pass along the lpReserved parameter to the new process
 
-    if ( lpReserved )
-    {
+    if (lpReserved) {
         sei.fMask |= SEE_MASK_RESERVED;
         sei.hInstApp = (HINSTANCE)lpReserved;
     }
@@ -933,8 +864,7 @@ HINSTANCE WINAPI RealShellExecuteExA(HWND hwnd, LPCSTR lpOp, LPCSTR lpFile,
 
     // Pass along the lpTitle parameter to the new process
 
-    if ( lpTitle )
-    {
+    if (lpTitle) {
         sei.fMask |= SEE_MASK_HASTITLE;
         sei.lpClass = lpTitle;
     }
@@ -942,8 +872,7 @@ HINSTANCE WINAPI RealShellExecuteExA(HWND hwnd, LPCSTR lpOp, LPCSTR lpFile,
 
     // Pass along the SEPARATE_VDM flag
 
-    if ( dwFlags & EXEC_SEPARATE_VDM )
-    {
+    if (dwFlags & EXEC_SEPARATE_VDM) {
         sei.fMask |= SEE_MASK_FLAG_SEPVDM;
     }
 #endif
@@ -951,22 +880,18 @@ HINSTANCE WINAPI RealShellExecuteExA(HWND hwnd, LPCSTR lpOp, LPCSTR lpFile,
 
     // Pass along the NO_CONSOLE flag
 
-    if ( dwFlags & EXEC_NO_CONSOLE )
-    {
+    if (dwFlags & EXEC_NO_CONSOLE) {
         sei.fMask |= SEE_MASK_NO_CONSOLE;
     }
 
-    if ( lphProcess )
-    {
+    if (lphProcess) {
 
         // Return the process handle
 
         sei.fMask |= SEE_MASK_NOCLOSEPROCESS;
         ShellExecuteExA(&sei);
         *lphProcess = sei.hProcess;
-    }
-    else
-    {
+    } else {
         ShellExecuteExA(&sei);
     }
 
@@ -974,23 +899,22 @@ HINSTANCE WINAPI RealShellExecuteExA(HWND hwnd, LPCSTR lpOp, LPCSTR lpFile,
 }
 
 HINSTANCE WINAPI RealShellExecuteExW(HWND hwnd, LPCWSTR lpOp, LPCWSTR lpFile,
-                                   LPCWSTR lpArgs, LPCWSTR lpDir, LPWSTR lpResult,
-                                   LPCWSTR lpTitle, LPWSTR lpReserved,
-                                   WORD nShowCmd, LPHANDLE lphProcess,
-                                   DWORD dwFlags )
+                                     LPCWSTR lpArgs, LPCWSTR lpDir, LPWSTR lpResult,
+                                     LPCWSTR lpTitle, LPWSTR lpReserved,
+                                     WORD nShowCmd, LPHANDLE lphProcess,
+                                     DWORD dwFlags)
 {
-    SHELLEXECUTEINFOW sei = { SIZEOF(SHELLEXECUTEINFOW), SEE_MASK_FLAG_NO_UI|SEE_MASK_FORCENOIDLIST, hwnd, lpOp, lpFile, lpArgs, lpDir, nShowCmd, NULL};
+    SHELLEXECUTEINFOW sei = {SIZEOF(SHELLEXECUTEINFOW), SEE_MASK_FLAG_NO_UI | SEE_MASK_FORCENOIDLIST, hwnd, lpOp, lpFile, lpArgs, lpDir, nShowCmd, NULL};
 
     TraceMsg(TF_SHELLEXEC, "RealShellExecuteExW(%04X, %s, %s, %s, %s, %s, %s, %s, %d, %08lX, %d)",
-                    hwnd, lpOp, lpFile, lpArgs, lpDir, lpResult, lpTitle,
-                    lpReserved, nShowCmd, lphProcess, dwFlags );
+             hwnd, lpOp, lpFile, lpArgs, lpDir, lpResult, lpTitle,
+             lpReserved, nShowCmd, lphProcess, dwFlags);
 
 #ifdef WINNT
 
     // Pass along the lpReserved parameter to the new process
 
-    if ( lpReserved )
-    {
+    if (lpReserved) {
         sei.fMask |= SEE_MASK_RESERVED;
         sei.hInstApp = (HINSTANCE)lpReserved;
     }
@@ -998,8 +922,7 @@ HINSTANCE WINAPI RealShellExecuteExW(HWND hwnd, LPCWSTR lpOp, LPCWSTR lpFile,
 
     // Pass along the lpTitle parameter to the new process
 
-    if ( lpTitle )
-    {
+    if (lpTitle) {
         sei.fMask |= SEE_MASK_HASTITLE;
         sei.lpClass = lpTitle;
     }
@@ -1007,8 +930,7 @@ HINSTANCE WINAPI RealShellExecuteExW(HWND hwnd, LPCWSTR lpOp, LPCWSTR lpFile,
 
     // Pass along the SEPARATE_VDM flag
 
-    if ( dwFlags & EXEC_SEPARATE_VDM )
-    {
+    if (dwFlags & EXEC_SEPARATE_VDM) {
         sei.fMask |= SEE_MASK_FLAG_SEPVDM;
     }
 #endif
@@ -1016,22 +938,18 @@ HINSTANCE WINAPI RealShellExecuteExW(HWND hwnd, LPCWSTR lpOp, LPCWSTR lpFile,
 
     // Pass along the NO_CONSOLE flag
 
-    if ( dwFlags & EXEC_NO_CONSOLE )
-    {
+    if (dwFlags & EXEC_NO_CONSOLE) {
         sei.fMask |= SEE_MASK_NO_CONSOLE;
     }
 
-    if ( lphProcess )
-    {
+    if (lphProcess) {
 
         // Return the process handle
 
         sei.fMask |= SEE_MASK_NOCLOSEPROCESS;
         ShellExecuteExW(&sei);
         *lphProcess = sei.hProcess;
-    }
-    else
-    {
+    } else {
         ShellExecuteExW(&sei);
     }
 
@@ -1041,37 +959,37 @@ HINSTANCE WINAPI RealShellExecuteExW(HWND hwnd, LPCWSTR lpOp, LPCWSTR lpFile,
 HINSTANCE WINAPI RealShellExecuteA(HWND hwnd, LPCSTR lpOp, LPCSTR lpFile,
                                    LPCSTR lpArgs, LPCSTR lpDir, LPSTR lpResult,
                                    LPCSTR lpTitle, LPSTR lpReserved,
-                                   WORD nShowCmd, LPHANDLE lphProcess )
+                                   WORD nShowCmd, LPHANDLE lphProcess)
 {
     TraceMsg(TF_SHELLEXEC, "RealShellExecuteA(%04X, %s, %s, %s, %s, %s, %s, %s, %d, %08lX)",
-                    hwnd, lpOp, lpFile, lpArgs, lpDir, lpResult, lpTitle,
-                    lpReserved, nShowCmd, lphProcess );
+             hwnd, lpOp, lpFile, lpArgs, lpDir, lpResult, lpTitle,
+             lpReserved, nShowCmd, lphProcess);
 
-    return RealShellExecuteExA(hwnd,lpOp,lpFile,lpArgs,lpDir,lpResult,lpTitle,lpReserved,nShowCmd,lphProcess,0);
+    return RealShellExecuteExA(hwnd, lpOp, lpFile, lpArgs, lpDir, lpResult, lpTitle, lpReserved, nShowCmd, lphProcess, 0);
 }
 
 HINSTANCE RealShellExecuteW(HWND hwnd, LPCWSTR lpOp, LPCWSTR lpFile,
-                                   LPCWSTR lpArgs, LPCWSTR lpDir, LPWSTR lpResult,
-                                   LPCWSTR lpTitle, LPWSTR lpReserved,
-                                   WORD nShowCmd, LPHANDLE lphProcess)
+                            LPCWSTR lpArgs, LPCWSTR lpDir, LPWSTR lpResult,
+                            LPCWSTR lpTitle, LPWSTR lpReserved,
+                            WORD nShowCmd, LPHANDLE lphProcess)
 {
     TraceMsg(TF_SHELLEXEC, "RealShellExecuteW(%04X, %s, %s, %s, %s, %s, %s, %s, %d, %08lX)",
-                    hwnd, lpOp, lpFile, lpArgs, lpDir, lpResult, lpTitle,
-                    lpReserved, nShowCmd, lphProcess );
+             hwnd, lpOp, lpFile, lpArgs, lpDir, lpResult, lpTitle,
+             lpReserved, nShowCmd, lphProcess);
 
-    return RealShellExecuteExW(hwnd,lpOp,lpFile,lpArgs,lpDir,lpResult,lpTitle,lpReserved,nShowCmd,lphProcess,0);
+    return RealShellExecuteExW(hwnd, lpOp, lpFile, lpArgs, lpDir, lpResult, lpTitle, lpReserved, nShowCmd, lphProcess, 0);
 }
 
 HINSTANCE WINAPI ShellExecute(HWND hwnd, LPCTSTR lpOp, LPCTSTR lpFile, LPCTSTR lpArgs,
-                               LPCTSTR lpDir, int nShowCmd)
+                              LPCTSTR lpDir, int nShowCmd)
 {
     // NB The FORCENOIDLIST flag stops us from going through the ShellExecPidl()
     // code (for backwards compatability with progman).
     // DDEWAIT makes us synchronous, and gets around threads without
     // msg pumps and ones that are killed immediately after shellexec()
-    SHELLEXECUTEINFO sei = { SIZEOF(SHELLEXECUTEINFO), 0, hwnd, lpOp, lpFile, lpArgs, lpDir, nShowCmd, NULL};
-    ULONG fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FORCENOIDLIST;
-    if(!(SHGetAppCompatFlags(ACF_WIN95SHLEXEC) & ACF_WIN95SHLEXEC))
+    SHELLEXECUTEINFO sei = {SIZEOF(SHELLEXECUTEINFO), 0, hwnd, lpOp, lpFile, lpArgs, lpDir, nShowCmd, NULL};
+    ULONG fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_FORCENOIDLIST;
+    if (!(SHGetAppCompatFlags(ACF_WIN95SHLEXEC) & ACF_WIN95SHLEXEC))
         fMask |= SEE_MASK_FLAG_DDEWAIT;
     sei.fMask = fMask;
 
@@ -1089,15 +1007,15 @@ HINSTANCE WINAPI ShellExecuteA(HWND hwnd, LPCSTR lpOp, LPCSTR lpFile, LPCSTR lpA
     // code (for backwards compatability with progman).
     // DDEWAIT makes us synchronous, and gets around threads without
     // msg pumps and ones that are killed immediately after shellexec()
-    SHELLEXECUTEINFOA sei = { SIZEOF(SHELLEXECUTEINFOA), 0, hwnd, lpOp, lpFile, lpArgs, lpDir, nShowCmd, NULL};
-    ULONG fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FORCENOIDLIST;
-    if(!(SHGetAppCompatFlags(ACF_WIN95SHLEXEC) & ACF_WIN95SHLEXEC))
+    SHELLEXECUTEINFOA sei = {SIZEOF(SHELLEXECUTEINFOA), 0, hwnd, lpOp, lpFile, lpArgs, lpDir, nShowCmd, NULL};
+    ULONG fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_FORCENOIDLIST;
+    if (!(SHGetAppCompatFlags(ACF_WIN95SHLEXEC) & ACF_WIN95SHLEXEC))
         fMask |= SEE_MASK_FLAG_DDEWAIT;
     sei.fMask = fMask;
 
     TraceMsg(TF_SHELLEXEC, "ShellExecuteA(%04X, %S, %S, %S, %S, %d)", hwnd,
-        SAFE_DEBUGSTR(lpOp), SAFE_DEBUGSTR(lpFile), SAFE_DEBUGSTR(lpArgs),
-        SAFE_DEBUGSTR(lpDir), nShowCmd);
+             SAFE_DEBUGSTR(lpOp), SAFE_DEBUGSTR(lpFile), SAFE_DEBUGSTR(lpArgs),
+             SAFE_DEBUGSTR(lpDir), nShowCmd);
 
     ShellExecuteExA(&sei);
     return sei.hInstApp;
@@ -1115,9 +1033,9 @@ HINSTANCE  APIENTRY ShellExecuteW(
     // code (for backwards compatability with progman).
     // DDEWAIT makes us synchronous, and gets around threads without
     // msg pumps and ones that are killed immediately after shellexec()
-    SHELLEXECUTEINFOW sei = { SIZEOF(SHELLEXECUTEINFOW), 0, hwnd, lpOp, lpFile, lpArgs, lpDir, nShowCmd, NULL};
-    ULONG fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FORCENOIDLIST;
-    if(!(SHGetAppCompatFlags(ACF_WIN95SHLEXEC) & ACF_WIN95SHLEXEC))
+    SHELLEXECUTEINFOW sei = {SIZEOF(SHELLEXECUTEINFOW), 0, hwnd, lpOp, lpFile, lpArgs, lpDir, nShowCmd, NULL};
+    ULONG fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_FORCENOIDLIST;
+    if (!(SHGetAppCompatFlags(ACF_WIN95SHLEXEC) & ACF_WIN95SHLEXEC))
         fMask |= SEE_MASK_FLAG_DDEWAIT;
     sei.fMask = fMask;
 
@@ -1147,23 +1065,20 @@ extern BOOL IsNameListedUnderKey(LPCTSTR pszFileName, LPCTSTR pszKey)
 
     // Enum through the list of apps.
 
-    if (RegOpenKey(HKEY_CURRENT_USER, pszKey, &hkey) == ERROR_SUCCESS)
-    {
+    if (RegOpenKey(HKEY_CURRENT_USER, pszKey, &hkey) == ERROR_SUCCESS) {
+        cbData = SIZEOF(szData);
+        cchValue = ARRAYSIZE(szValue);
+        while (RegEnumValue(hkey, iValue, szValue, &cchValue, NULL, &dwType,
+            (LPBYTE)szData, &cbData) == ERROR_SUCCESS) {
+            if (lstrcmpi(szData, pszFileName) == 0) {
+                RegCloseKey(hkey);
+                return TRUE;
+            }
             cbData = SIZEOF(szData);
             cchValue = ARRAYSIZE(szValue);
-            while (RegEnumValue(hkey, iValue, szValue, &cchValue, NULL, &dwType,
-                    (LPBYTE)szData, &cbData) == ERROR_SUCCESS)
-            {
-                    if (lstrcmpi(szData, pszFileName) == 0)
-                    {
-                            RegCloseKey(hkey);
-                            return TRUE;
-                    }
-                    cbData = SIZEOF(szData);
-                    cchValue = ARRAYSIZE(szValue);
-                    iValue++;
-            }
-            RegCloseKey(hkey);
+            iValue++;
+        }
+        RegCloseKey(hkey);
     }
 
     // End of the list...
@@ -1225,20 +1140,16 @@ BOOL HasFat32Drives()
     // Assume false
     fHasFat32Drives = FALSE;
 
-    for (iDrive = 0; iDrive < 26; iDrive++)
-    {
+    for (iDrive = 0; iDrive < 26; iDrive++) {
         TCHAR szDriveName[4];
 
         // BUGBUG (scotth): lets make PathBuildRoot return aligned strings
-        if (GetDriveType((LPTSTR)PathBuildRoot(szDriveName, iDrive)) == DRIVE_FIXED)
-        {
+        if (GetDriveType((LPTSTR)PathBuildRoot(szDriveName, iDrive)) == DRIVE_FIXED) {
             TCHAR szFileSystemName[12];
 
             if (GetVolumeInformation(szDriveName, NULL, 0, NULL, NULL, NULL,
-                                     szFileSystemName, sizeof(szFileSystemName)))
-            {
-                if (lstrcmpi(szFileSystemName, TEXT("FAT32"))==0)
-                {
+                                     szFileSystemName, sizeof(szFileSystemName))) {
+                if (lstrcmpi(szFileSystemName, TEXT("FAT32")) == 0) {
                     fHasFat32Drives = TRUE;
                     return fHasFat32Drives;
                 }
@@ -1259,7 +1170,7 @@ typedef struct {
     DWORD         dwResString;
     BOOL          fHardBlock;
     BOOL          fDone;
-} APPCOMPATDLG_DATA, *PAPPCOMPATDLG_DATA;
+} APPCOMPATDLG_DATA, * PAPPCOMPATDLG_DATA;
 
 
 BOOL_PTR CALLBACK AppCompat_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -1267,92 +1178,87 @@ BOOL_PTR CALLBACK AppCompat_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM 
     PAPPCOMPATDLG_DATA lpdata = (PAPPCOMPATDLG_DATA)GetWindowLongPtr(hDlg, DWLP_USER);
     DWORD aHelpIDs[4];
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_INITDIALOG:
-        {
-            TCHAR szMsgText[2048];
+    {
+        TCHAR szMsgText[2048];
 
-            /* The title will be in the lParam. */
-            lpdata = (PAPPCOMPATDLG_DATA)lParam;
-            lpdata->hDlg = hDlg;
-            if (lpdata->fHardBlock)
-            {
-                // Disable the "Run" button.
-                EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
-            }
-            SetWindowLongPtr(hDlg, DWLP_USER, (LONG_PTR)lpdata);
-            SetWindowText(hDlg, lpdata->lpszTitle);
-
-            LoadString(HINST_THISDLL, lpdata->dwResString, szMsgText, ARRAYSIZE(szMsgText));
-            SetDlgItemText(hDlg, IDD_LINE_1, szMsgText);
-            return TRUE;
+        /* The title will be in the lParam. */
+        lpdata = (PAPPCOMPATDLG_DATA)lParam;
+        lpdata->hDlg = hDlg;
+        if (lpdata->fHardBlock) {
+            // Disable the "Run" button.
+            EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
         }
+        SetWindowLongPtr(hDlg, DWLP_USER, (LONG_PTR)lpdata);
+        SetWindowText(hDlg, lpdata->lpszTitle);
+
+        LoadString(HINST_THISDLL, lpdata->dwResString, szMsgText, ARRAYSIZE(szMsgText));
+        SetDlgItemText(hDlg, IDD_LINE_1, szMsgText);
+        return TRUE;
+    }
 
     case WM_DESTROY:
         break;
 
     case WM_HELP:
-//        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, TEXT("apps.chm>Proc4"), HELP_CONTEXT, 0);
+        //        WinHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, TEXT("apps.chm>Proc4"), HELP_CONTEXT, 0);
         HtmlHelp((HWND)((LPHELPINFO)lParam)->hItemHandle, TEXT("apps.chm>Proc4"), HELP_CONTEXT, 0);
         break;
 
     case WM_COMMAND:
-        switch (GET_WM_COMMAND_ID(wParam, lParam))
-        {
+        switch (GET_WM_COMMAND_ID(wParam, lParam)) {
         case IDHELP:
-            aHelpIDs[0]=IDHELP;
-            aHelpIDs[1]=lpdata->dwHelpId;
-            aHelpIDs[2]=0;
-            aHelpIDs[3]=0;
+            aHelpIDs[0] = IDHELP;
+            aHelpIDs[1] = lpdata->dwHelpId;
+            aHelpIDs[2] = 0;
+            aHelpIDs[3] = 0;
 
-//            WinHelp(hDlg, TEXT("apps.chm>Proc4"), HELP_CONTEXT, (DWORD)lpdata->dwHelpId);
+            //            WinHelp(hDlg, TEXT("apps.chm>Proc4"), HELP_CONTEXT, (DWORD)lpdata->dwHelpId);
             HtmlHelp(hDlg, TEXT("apps.chm>Proc4"), HH_HELP_CONTEXT, (DWORD)lpdata->dwHelpId);
             break;
 
         case IDD_COMMAND:
-            case IDOK:
-                if (IsDlgButtonChecked(hDlg, IDD_STATE))
-                    EndDialog(hDlg, 0x8000 | IDOK);
-                else
-                    EndDialog(hDlg, IDOK);
-                break;
+        case IDOK:
+            if (IsDlgButtonChecked(hDlg, IDD_STATE))
+                EndDialog(hDlg, 0x8000 | IDOK);
+            else
+                EndDialog(hDlg, IDOK);
+            break;
 
-            case IDCANCEL:
-                EndDialog(hDlg, IDCANCEL);
-                break;
-
-            default:
-                return FALSE;
-        }
-        break;
+        case IDCANCEL:
+            EndDialog(hDlg, IDCANCEL);
+            break;
 
         default:
             return FALSE;
+        }
+        break;
+
+    default:
+        return FALSE;
     }
     return TRUE;
 }
 
 
 
-BOOL _GetAppCompatData(LPCTSTR pszAppPath, LPCTSTR pszAppName, LPCTSTR *ppszNewEnvString, HKEY hkApp, APPCOMPATDLG_DATA *pdata, LPTSTR pszValue, DWORD cchValue)
+BOOL _GetAppCompatData(LPCTSTR pszAppPath, LPCTSTR pszAppName, LPCTSTR* ppszNewEnvString, HKEY hkApp, APPCOMPATDLG_DATA* pdata, LPTSTR pszValue, DWORD cchValue)
 {
     BOOL fRet = FALSE;
-    BOOL fBreakOutOfTheLoop=FALSE;
+    BOOL fBreakOutOfTheLoop = FALSE;
     int iValue;
 
     // Enum keys under this app name and check for dependant files.
-    for (iValue = 0; !fBreakOutOfTheLoop; iValue++)
-    {
+    for (iValue = 0; !fBreakOutOfTheLoop; iValue++) {
         DWORD cch = cchValue;
         DWORD dwType;
-        void *pvData;
+        void* pvData;
         DWORD cbData;
         LONG lResult;
 
         lResult = RegEnumValue(hkApp, iValue, pszValue, &cch, NULL, &dwType, NULL, &cbData);
-        if ((lResult != NOERROR) && (lResult != ERROR_MORE_DATA))
-        {
+        if ((lResult != NOERROR) && (lResult != ERROR_MORE_DATA)) {
             //  no more values
             break;
         }
@@ -1362,11 +1268,9 @@ BOOL _GetAppCompatData(LPCTSTR pszAppPath, LPCTSTR pszAppName, LPCTSTR *ppszNewE
             continue;
 
         pvData = GlobalAlloc(GPTR, cbData);
-        if (pvData)
-        {
+        if (pvData) {
             cch = cchValue;
-            if (NOERROR == RegEnumValue(hkApp, iValue, pszValue, &cch, NULL, &dwType, pvData, &cbData))
-            {
+            if (NOERROR == RegEnumValue(hkApp, iValue, pszValue, &cch, NULL, &dwType, pvData, &cbData)) {
                 BADAPP_DATA badAppData;
                 BADAPP_PROP badAppProp;
                 badAppProp.Size = sizeof(BADAPP_PROP);
@@ -1375,19 +1279,17 @@ BOOL _GetAppCompatData(LPCTSTR pszAppPath, LPCTSTR pszAppName, LPCTSTR *ppszNewE
                 badAppData.Blob = pvData;
                 badAppData.BlobSize = cbData;
 
-                if (SHIsBadApp(&badAppData, &badAppProp))
-                {
+                if (SHIsBadApp(&badAppData, &badAppProp)) {
 
                     // we found a bad app
 
                     pdata->dwHelpId = badAppProp.MsgId;
                     pdata->lpszTitle = pszAppName;
 
-                    fRet=TRUE;
+                    fRet = TRUE;
 
                     // Map ids to message strings for the various platforms we run on
-                    switch (badAppProp.AppType & APPTYPE_TYPE_MASK)
-                    {
+                    switch (badAppProp.AppType & APPTYPE_TYPE_MASK) {
                     case APPTYPE_MINORPROBLEM:
                         pdata->dwResString = IDS_APPCOMPATWIN95L;
                         break;
@@ -1401,25 +1303,24 @@ BOOL _GetAppCompatData(LPCTSTR pszAppPath, LPCTSTR pszAppName, LPCTSTR *ppszNewE
 
 #ifdef WINNT
                     case APPTYPE_VERSIONSUB:
-                        {
-                            static LPCTSTR VersionFlavors[] = {
-                                TEXT("_COMPAT_VER_NNN=4,0,1381,3,0,2,Service Pack 3"),
-                                TEXT("_COMPAT_VER_NNN=4,0,1381,4,0,2,Service Pack 4"),
-                                TEXT("_COMPAT_VER_NNN=4,0,1381,5,0,2,Service Pack 5"),
-                                TEXT("_COMPAT_VER_NNN=4,0,950,0,0,1"),
-                                0};
+                    {
+                        static LPCTSTR VersionFlavors[] = {
+                            TEXT("_COMPAT_VER_NNN=4,0,1381,3,0,2,Service Pack 3"),
+                            TEXT("_COMPAT_VER_NNN=4,0,1381,4,0,2,Service Pack 4"),
+                            TEXT("_COMPAT_VER_NNN=4,0,1381,5,0,2,Service Pack 5"),
+                            TEXT("_COMPAT_VER_NNN=4,0,950,0,0,1"),
+                            0};
 
 
-                            // Is the ID within the number of strings we have?
+                        // Is the ID within the number of strings we have?
 
-                            if ( badAppProp.MsgId <= (sizeof(VersionFlavors) / sizeof(LPTSTR) - 1) )
-                            {
-                                *ppszNewEnvString = VersionFlavors[badAppProp.MsgId];
-                            }
-
-                            fRet = FALSE;
+                        if (badAppProp.MsgId <= (sizeof(VersionFlavors) / sizeof(LPTSTR) - 1)) {
+                            *ppszNewEnvString = VersionFlavors[badAppProp.MsgId];
                         }
-                        break;
+
+                        fRet = FALSE;
+                    }
+                    break;
                     case APPTYPE_SHIM:
 
 
@@ -1452,7 +1353,7 @@ typedef enum {
     SEV_HARD,
 } SEVERITY;
 
-BOOL _GetBadAppData(LPCTSTR pszAppPath, LPCTSTR pszAppName, HKEY hkApp, APPCOMPATDLG_DATA *pdata, LPTSTR pszValue, DWORD cchValue)
+BOOL _GetBadAppData(LPCTSTR pszAppPath, LPCTSTR pszAppName, HKEY hkApp, APPCOMPATDLG_DATA* pdata, LPTSTR pszValue, DWORD cchValue)
 {
     BOOL fRet = FALSE;
     int iValue;
@@ -1468,20 +1369,17 @@ BOOL _GetBadAppData(LPCTSTR pszAppPath, LPCTSTR pszAppName, HKEY hkApp, APPCOMPA
     pchCopyToPath = &szPath[cchPath];
     cchPath = ARRAYSIZE(szPath) - cchPath;
 
-    for (iValue = 0; !fRet; iValue++)
-    {
+    for (iValue = 0; !fRet; iValue++) {
         DWORD cch = cchValue;
         TCHAR szData[MAX_PATH];
         DWORD cbData = SIZEOF(szData);
         DWORD dwType;
-        if (NOERROR == RegEnumValue(hkApp, iValue, pszValue, &cch, NULL, &dwType, (LPBYTE)szData, &cbData))
-        {
+        if (NOERROR == RegEnumValue(hkApp, iValue, pszValue, &cch, NULL, &dwType, (LPBYTE)szData, &cbData)) {
             // Fully qualified path to dependant file
             StrCpyN(pchCopyToPath, pszValue, cchPath);
 
             // * means match any file.
-            if (pszValue[0] == TEXT('*') || PathFileExistsAndAttributes(szPath, NULL))
-            {
+            if (pszValue[0] == TEXT('*') || PathFileExistsAndAttributes(szPath, NULL)) {
                 DWORD rgData[2];
                 DWORD dwHelpId = StrToInt(szData);
                 SEVERITY sev = SEV_DEFAULT;
@@ -1491,16 +1389,14 @@ BOOL _GetBadAppData(LPCTSTR pszAppPath, LPCTSTR pszAppName, HKEY hkApp, APPCOMPA
                 StrCatBuff(szData, pszValue, ARRAYSIZE(szData));
 
                 cbData = SIZEOF(szData);
-                if (SHQueryValueEx(hkApp, szData, NULL, &dwType, (LPBYTE)szData, &cbData) == ERROR_SUCCESS && cbData >= 1)
-                {
+                if (SHQueryValueEx(hkApp, szData, NULL, &dwType, (LPBYTE)szData, &cbData) == ERROR_SUCCESS && cbData >= 1) {
                     if (StrChr(szData, TEXT('L')))
                         sev = SEV_LOW;
 
                     if (StrChr(szData, TEXT('Y')))
                         sev = SEV_HARD;
 
-                    if ((StrChr(szData, TEXT('N')) && !(GetSystemMetrics(SM_NETWORK) | RNC_NETWORKS)) ||  (StrChr(szData, TEXT('F')) && !HasFat32Drives()))
-                    {
+                    if ((StrChr(szData, TEXT('N')) && !(GetSystemMetrics(SM_NETWORK) | RNC_NETWORKS)) || (StrChr(szData, TEXT('F')) && !HasFat32Drives())) {
                         continue;
                     }
                 }
@@ -1510,8 +1406,7 @@ BOOL _GetBadAppData(LPCTSTR pszAppPath, LPCTSTR pszAppName, HKEY hkApp, APPCOMPA
                 StrCatBuff(szData, pszValue, ARRAYSIZE(szData));
                 cbData = SIZEOF(rgData);
                 if (SHQueryValueEx(hkApp, szData, NULL, &dwType, (LPBYTE)rgData, &cbData) == ERROR_SUCCESS
-                && (cbData == 8))
-                {
+                    && (cbData == 8)) {
                     DWORD dwVerLen, dwVerHandle;
                     DWORD dwMajorVer, dwMinorVer;
                     DWORD dwBadMajorVer, dwBadMinorVer;
@@ -1531,16 +1426,13 @@ BOOL _GetBadAppData(LPCTSTR pszAppPath, LPCTSTR pszAppName, HKEY hkApp, APPCOMPA
                     // 3.10  10.10
                     // 40 30 20 10 is 10 20 30 40 in registry
                     // cast const -> non const
-                    if (0 != (dwVerLen = GetFileVersionInfoSize((LPTSTR)pszAppPath, &dwVerHandle)))
-                    {
+                    if (0 != (dwVerLen = GetFileVersionInfoSize((LPTSTR)pszAppPath, &dwVerHandle))) {
                         lpVerBuffer = (LPTSTR)GlobalAlloc(GPTR, dwVerLen);
-                        if (lpVerBuffer)
-                        {
-                            VS_FIXEDFILEINFO *pffi = NULL;
+                        if (lpVerBuffer) {
+                            VS_FIXEDFILEINFO* pffi = NULL;
                             UINT             cb;
 
-                            if (GetFileVersionInfo((LPTSTR)pszAppPath, dwVerHandle, dwVerLen, lpVerBuffer) && VerQueryValue(lpVerBuffer, TEXT("\\"), &pffi, &cb))
-                            {
+                            if (GetFileVersionInfo((LPTSTR)pszAppPath, dwVerHandle, dwVerLen, lpVerBuffer) && VerQueryValue(lpVerBuffer, TEXT("\\"), &pffi, &cb)) {
                                 dwMajorVer = pffi->dwProductVersionMS;
                                 dwMinorVer = pffi->dwProductVersionLS;
                             }
@@ -1554,8 +1446,7 @@ BOOL _GetBadAppData(LPCTSTR pszAppPath, LPCTSTR pszAppName, HKEY hkApp, APPCOMPA
                     else if ((dwMajorVer == dwBadMajorVer) && (dwMinorVer <= dwBadMinorVer))
                         fBadApp = TRUE;
 
-                    if (!fBadApp)
-                    {
+                    if (!fBadApp) {
                         // This dude is ok
                         continue;
                     }
@@ -1565,8 +1456,7 @@ BOOL _GetBadAppData(LPCTSTR pszAppPath, LPCTSTR pszAppName, HKEY hkApp, APPCOMPA
                 pdata->lpszTitle = pszAppName;
 
                 // Map ids to message strings for the various platforms we run on
-                switch (sev)
-                {
+                switch (sev) {
                 case SEV_LOW:
                     pdata->dwResString = IDS_APPCOMPATWIN95L;
                     break;
@@ -1581,8 +1471,7 @@ BOOL _GetBadAppData(LPCTSTR pszAppPath, LPCTSTR pszAppName, HKEY hkApp, APPCOMPA
                 // this will break us out
                 fRet = TRUE;
             }
-        }
-        else
+        } else
             break;
     }
 
@@ -1597,21 +1486,17 @@ HKEY _OpenBadAppKey(LPCTSTR pszApp, LPCTSTR pszName)
 
     ASSERT(pszApp && *pszApp && pszName && *pszName);
 
-    if (HIWORD(dwAppVersion) < 0x0400)
-    {
+    if (HIWORD(dwAppVersion) < 0x0400) {
         // Check the reg key for apps older than 4.00
         RegOpenKey(HKEY_LOCAL_MACHINE, REGSTR_PATH_CHECKBADAPPSNEW, &hkBad);
-    }
-    else if (HIWORD(dwAppVersion) == 0x0400)
-    {
+    } else if (HIWORD(dwAppVersion) == 0x0400) {
         // Check the reg key for apps == 4.00
         RegOpenKey(HKEY_LOCAL_MACHINE, REGSTR_PATH_CHECKBADAPPS400NEW, &hkBad);
     }
     //  else
         // Newer than 4.0 so all should be fine.
 
-    if (hkBad)
-    {
+    if (hkBad) {
         // Check for the app name
         HKEY hkRet = NULL;
         RegOpenKey(hkBad, pszName, &hkRet);
@@ -1623,12 +1508,11 @@ HKEY _OpenBadAppKey(LPCTSTR pszApp, LPCTSTR pszName)
 }
 
 
-HKEY _CheckBadApps(LPCTSTR pszAppPath, LPCTSTR pszAppName, APPCOMPATDLG_DATA *pdata, LPTSTR pszValue, DWORD cchValue)
+HKEY _CheckBadApps(LPCTSTR pszAppPath, LPCTSTR pszAppName, APPCOMPATDLG_DATA* pdata, LPTSTR pszValue, DWORD cchValue)
 {
     HKEY hkApp = _OpenBadAppKey(pszAppPath, pszAppName);
 
-    if (hkApp)
-    {
+    if (hkApp) {
         TraceMsg(TF_SHELLEXEC, "CheckBadApps() maybe is bad %s", pszAppName);
         if (_GetBadAppData(pszAppPath, pszAppName, hkApp, pdata, pszValue, cchValue))
             return hkApp;
@@ -1652,12 +1536,11 @@ HKEY _OpenAppCompatKey(LPCTSTR pszAppName)
 }
 
 
-HKEY _CheckAppCompat(LPCTSTR pszAppPath, LPCTSTR pszAppName, LPCTSTR *ppszNewEnvString, APPCOMPATDLG_DATA *pdata, LPTSTR pszValue, DWORD cchValue)
+HKEY _CheckAppCompat(LPCTSTR pszAppPath, LPCTSTR pszAppName, LPCTSTR* ppszNewEnvString, APPCOMPATDLG_DATA* pdata, LPTSTR pszValue, DWORD cchValue)
 {
     HKEY hkApp = _OpenAppCompatKey(pszAppName);
 
-    if (hkApp)
-    {
+    if (hkApp) {
         TraceMsg(TF_SHELLEXEC, "CheckAppCompat() maybe is bad %s", pszAppName);
         if (_GetAppCompatData(pszAppPath, pszAppName, ppszNewEnvString, hkApp, pdata, pszValue, cchValue))
             return hkApp;
@@ -1670,7 +1553,7 @@ HKEY _CheckAppCompat(LPCTSTR pszAppPath, LPCTSTR pszAppName, LPCTSTR *ppszNewEnv
 
 // Returns FALSE if app is fatally incompatible
 
-BOOL CheckAppCompatibility(LPCTSTR pszApp, LPCTSTR *ppszNewEnvString, BOOL fNoUI, HWND hwnd)
+BOOL CheckAppCompatibility(LPCTSTR pszApp, LPCTSTR* ppszNewEnvString, BOOL fNoUI, HWND hwnd)
 {
     BOOL fRet = TRUE;
     // If no app name, then nothing to check, so pretend it's a good app.
@@ -1678,24 +1561,20 @@ BOOL CheckAppCompatibility(LPCTSTR pszApp, LPCTSTR *ppszNewEnvString, BOOL fNoUI
     // "nonintuitively".  (If you give RegOpenKey a null string, it
     // returns the same key back and does *not* bump the refcount.)
 
-    if (pszApp && *pszApp)
-    {
+    if (pszApp && *pszApp) {
         LPCTSTR pszFileName = PathFindFileName(pszApp);
 
-        if (pszFileName && *pszFileName)
-        {
+        if (pszFileName && *pszFileName) {
             APPCOMPATDLG_DATA data = {0};
             TCHAR szValue[MAX_PATH];
             HKEY hkBad = _CheckAppCompat(pszApp, pszFileName, ppszNewEnvString, &data, szValue, ARRAYSIZE(szValue));
             if (!hkBad)
                 hkBad = _CheckBadApps(pszApp, pszFileName, &data, szValue, ARRAYSIZE(szValue));
 
-            if (hkBad)
-            {
+            if (hkBad) {
                 TraceMsg(TF_SHELLEXEC, "BADAPP %s", pszFileName);
 
-                if (fNoUI && !hwnd)
-                {
+                if (fNoUI && !hwnd) {
 
                     //  LEGACY - we just let soft blocks right on through - ZekeL - 27-MAY-99
                     //  the NOUI flag is usually passed by apps when they
@@ -1707,15 +1586,12 @@ BOOL CheckAppCompatibility(LPCTSTR pszApp, LPCTSTR *ppszNewEnvString, BOOL fNoUI
                         fRet = FALSE;
                     else
                         fRet = TRUE;
-                }
-                else
-                {
+                } else {
                     int iRet = (int)DialogBoxParam(HINST_THISDLL,
-                                            MAKEINTRESOURCE(DLG_APPCOMPAT),
-                                            hwnd, AppCompat_DlgProc, (LPARAM)&data);
+                                                   MAKEINTRESOURCE(DLG_APPCOMPAT),
+                                                   hwnd, AppCompat_DlgProc, (LPARAM)&data);
 
-                    if (iRet & 0x8000)
-                    {
+                    if (iRet & 0x8000) {
                         // Delete so we don't warn again.
                         RegDeleteValue(hkBad, szValue);
                     }
@@ -1737,8 +1613,7 @@ HINSTANCE MapWin32ErrToHINST(UINT errWin32)
 {
     HINSTANCE hinst;
 
-    switch (errWin32)
-    {
+    switch (errWin32) {
     case ERROR_SHARING_VIOLATION:
         hinst = (HINSTANCE)SE_ERR_SHARE;
         break;
@@ -1791,8 +1666,7 @@ UINT MapHINSTToWin32Err(HINSTANCE hinst)
 {
     UINT errWin32;
 
-    switch (PtrToUlong(hinst))
-    {
+    switch (PtrToUlong(hinst)) {
     case SE_ERR_SHARE:
         errWin32 = ERROR_SHARING_VIOLATION;
         break;
@@ -1840,74 +1714,69 @@ HRESULT
 InvokeShellExecuteHook(
     LPCLSID pclsidHook,
     LPSHELLEXECUTEINFO pei,
-    HRESULT *phrHook)
+    HRESULT* phrHook)
 {
     HRESULT hr;
-    IUnknown *punk;
+    IUnknown* punk;
 
     *phrHook = S_FALSE;
 
     hr = SHExtCoCreateInstance(NULL, pclsidHook, NULL, &IID_IUnknown, &punk);
-    if (hr == S_OK)
-    {
-        IShellExecuteHook *pshexhk;
+    if (hr == S_OK) {
+        IShellExecuteHook* pshexhk;
 
         hr = punk->lpVtbl->QueryInterface(punk, &IID_IShellExecuteHook, &pshexhk);
-        if (hr == S_OK)
-        {
+        if (hr == S_OK) {
             *phrHook = pshexhk->lpVtbl->Execute(pshexhk, pei);
             pshexhk->lpVtbl->Release(pshexhk);
         }
 #ifdef UNICODE
-        else
-        {
-            IShellExecuteHookA *pshexhkA;
+        else {
+            IShellExecuteHookA* pshexhkA;
 
             hr = punk->lpVtbl->QueryInterface(punk, &IID_IShellExecuteHookA, &pshexhkA);
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 SHELLEXECUTEINFOA seia;
                 UINT cchVerb = 0;
                 UINT cchFile = 0;
                 UINT cchParameters = 0;
-                UINT cchDirectory  = 0;
+                UINT cchDirectory = 0;
                 UINT cchClass = 0;
                 LPSTR lpszBuffer;
 
                 seia = *(SHELLEXECUTEINFOA*)pei;    // Copy all of the binary data
 
-                if (pei->lpVerb)
-                {
-                    cchVerb = WideCharToMultiByte(CP_ACP,0,
+                if (pei->lpVerb) {
+                    cchVerb = WideCharToMultiByte(CP_ACP, 0,
                                                   pei->lpVerb, -1,
                                                   NULL, 0,
                                                   NULL, NULL) + 1;
                 }
 
                 if (pei->lpFile)
-                    cchFile = WideCharToMultiByte(CP_ACP,0,
+                    cchFile = WideCharToMultiByte(CP_ACP, 0,
                                                   pei->lpFile, -1,
                                                   NULL, 0,
-                                                  NULL, NULL)+1;
+                                                  NULL, NULL) + 1;
 
                 if (pei->lpParameters)
-                    cchParameters = WideCharToMultiByte(CP_ACP,0,
+                    cchParameters = WideCharToMultiByte(CP_ACP, 0,
                                                         pei->lpParameters, -1,
                                                         NULL, 0,
-                                                        NULL, NULL)+1;
+                                                        NULL, NULL) + 1;
 
                 if (pei->lpDirectory)
-                    cchDirectory = WideCharToMultiByte(CP_ACP,0,
+                    cchDirectory = WideCharToMultiByte(CP_ACP, 0,
                                                        pei->lpDirectory, -1,
                                                        NULL, 0,
-                                                       NULL, NULL)+1;
+                                                       NULL, NULL) + 1;
                 if (_UseClassName(pei->fMask) && pei->lpClass)
-                    cchClass = WideCharToMultiByte(CP_ACP,0,
+                    cchClass = WideCharToMultiByte(CP_ACP, 0,
                                                    pei->lpClass, -1,
                                                    NULL, 0,
-                                                   NULL, NULL)+1;
+                                                   NULL, NULL) + 1;
 
-                lpszBuffer = alloca(cchVerb+cchFile+cchParameters+cchDirectory+cchClass);
+                lpszBuffer = alloca(cchVerb + cchFile + cchParameters + cchDirectory + cchClass);
 
                 seia.lpVerb = NULL;
                 seia.lpFile = NULL;
@@ -1918,37 +1787,32 @@ InvokeShellExecuteHook(
 
                 // Convert all of the strings to ANSI
 
-                if (pei->lpVerb)
-                {
+                if (pei->lpVerb) {
                     WideCharToMultiByte(CP_ACP, 0, pei->lpVerb, -1, lpszBuffer, cchVerb, NULL, NULL);
                     seia.lpVerb = lpszBuffer;
                     lpszBuffer += cchVerb;
                 }
-                if (pei->lpFile)
-                {
+                if (pei->lpFile) {
                     WideCharToMultiByte(CP_ACP, 0, pei->lpFile, -1, lpszBuffer, cchFile, NULL, NULL);
                     seia.lpFile = lpszBuffer;
                     lpszBuffer += cchFile;
                 }
-                if (pei->lpParameters)
-                {
+                if (pei->lpParameters) {
                     WideCharToMultiByte(CP_ACP, 0, pei->lpParameters, -1, lpszBuffer, cchParameters, NULL, NULL);
                     seia.lpParameters = lpszBuffer;
                     lpszBuffer += cchParameters;
                 }
-                if (pei->lpDirectory)
-                {
+                if (pei->lpDirectory) {
                     WideCharToMultiByte(CP_ACP, 0, pei->lpDirectory, -1, lpszBuffer, cchDirectory, NULL, NULL);
                     seia.lpDirectory = lpszBuffer;
                     lpszBuffer += cchDirectory;
                 }
-                if (_UseClassName(pei->fMask) && pei->lpClass)
-                {
+                if (_UseClassName(pei->fMask) && pei->lpClass) {
                     WideCharToMultiByte(CP_ACP, 0, pei->lpClass, -1, lpszBuffer, cchClass, NULL, NULL);
                     seia.lpClass = lpszBuffer;
                 }
 
-                *phrHook = pshexhkA->lpVtbl->Execute(pshexhkA, &seia );
+                *phrHook = pshexhkA->lpVtbl->Execute(pshexhkA, &seia);
 
                 pei->hInstApp = seia.hInstApp;
                 // hook may set hProcess (e.g. CURLExec creates dummy process
@@ -1981,8 +1845,7 @@ HRESULT TryShellExecuteHooks(LPSHELLEXECUTEINFO pei)
     // Enumerate the list of hooks.  A hook is registered as a GUID value of the
     // c_szShellExecuteHooks key.
 
-    if (RegOpenKey(HKEY_LOCAL_MACHINE, c_szShellExecuteHooks, &hkeyHooks) == ERROR_SUCCESS)
-    {
+    if (RegOpenKey(HKEY_LOCAL_MACHINE, c_szShellExecuteHooks, &hkeyHooks) == ERROR_SUCCESS) {
         DWORD dwiValue;
         TCHAR szCLSID[GUIDSTR_MAX];
         DWORD dwcbCLSIDLen;
@@ -1990,16 +1853,13 @@ HRESULT TryShellExecuteHooks(LPSHELLEXECUTEINFO pei)
         // Invoke each hook.  A hook returns S_FALSE if it does not handle the
         // exec.  Stop when a hook returns S_OK (handled) or an error.
 
-        for (dwcbCLSIDLen = SIZEOF(szCLSID), dwiValue = 0; RegEnumValue(hkeyHooks, dwiValue, szCLSID, &dwcbCLSIDLen, NULL, NULL, NULL, NULL) == ERROR_SUCCESS; dwcbCLSIDLen = SIZEOF(szCLSID), dwiValue++)
-        {
+        for (dwcbCLSIDLen = SIZEOF(szCLSID), dwiValue = 0; RegEnumValue(hkeyHooks, dwiValue, szCLSID, &dwcbCLSIDLen, NULL, NULL, NULL, NULL) == ERROR_SUCCESS; dwcbCLSIDLen = SIZEOF(szCLSID), dwiValue++) {
             CLSID clsidHook;
 
-            if (SUCCEEDED(SHCLSIDFromString(szCLSID, &clsidHook)))
-            {
+            if (SUCCEEDED(SHCLSIDFromString(szCLSID, &clsidHook))) {
                 HRESULT hrHook;
 
-                if (InvokeShellExecuteHook(&clsidHook, pei, &hrHook) == S_OK && hrHook != S_FALSE)
-                {
+                if (InvokeShellExecuteHook(&clsidHook, pei, &hrHook) == S_OK && hrHook != S_FALSE) {
                     hr = hrHook;
                     break;
                 }
@@ -2009,25 +1869,23 @@ HRESULT TryShellExecuteHooks(LPSHELLEXECUTEINFO pei)
         RegCloseKey(hkeyHooks);
     }
 
-    ASSERT(hr == S_FALSE || (hr == S_OK && ISSHELLEXECSUCCEEDED(pei->hInstApp)) || (FAILED(hr) && ! ISSHELLEXECSUCCEEDED(pei->hInstApp)));
+    ASSERT(hr == S_FALSE || (hr == S_OK && ISSHELLEXECSUCCEEDED(pei->hInstApp)) || (FAILED(hr) && !ISSHELLEXECSUCCEEDED(pei->hInstApp)));
     return(hr);
 }
 
 #endif   // ! NO_SHELLEXECUTE_HOOK
 
 
-STDAPI InvokeInProcExec(IContextMenu *pcm, LPSHELLEXECUTEINFO pei, LPCTSTR pszDefVerb)
+STDAPI InvokeInProcExec(IContextMenu* pcm, LPSHELLEXECUTEINFO pei, LPCTSTR pszDefVerb)
 {
     HRESULT hres = E_OUTOFMEMORY;
 
     HMENU hmenu = CreatePopupMenu();
-    if (hmenu)
-    {
+    if (hmenu) {
         CMINVOKECOMMANDINFOEX ici;
-        void * pvFree;
+        void* pvFree;
 
-        if (SUCCEEDED(SEI2ICIX(pei, &ici, &pvFree)))
-        {
+        if (SUCCEEDED(SEI2ICIX(pei, &ici, &pvFree))) {
             UINT uFlags;
             BOOL fDefVerb;
             CHAR szDefVerbAnsi[128];
@@ -2049,20 +1907,15 @@ STDAPI InvokeInProcExec(IContextMenu *pcm, LPSHELLEXECUTEINFO pei, LPCTSTR pszDe
 
             pcm->lpVtbl->QueryContextMenu(pcm, hmenu, 0, CMD_ID_FIRST, CMD_ID_LAST, uFlags);
 
-            if (fDefVerb)
-            {
+            if (fDefVerb) {
                 UINT idCmd = GetMenuDefaultItem(hmenu, MF_BYCOMMAND, 0);
-                if (-1 == idCmd)
-                {
-                    if (pszDefVerb)
-                    {
+                if (-1 == idCmd) {
+                    if (pszDefVerb) {
                         SHTCharToAnsi(pszDefVerb, szDefVerbAnsi, ARRAYSIZE(szDefVerbAnsi));
                         ici.lpVerb = szDefVerbAnsi;
-                    }
-                    else
+                    } else
                         ici.lpVerb = (LPSTR)MAKEINTRESOURCE(0);  // best guess
-                }
-                else
+                } else
                     ici.lpVerb = (LPSTR)MAKEINTRESOURCE(idCmd - CMD_ID_FIRST);
             }
 
@@ -2072,11 +1925,9 @@ STDAPI InvokeInProcExec(IContextMenu *pcm, LPSHELLEXECUTEINFO pei, LPCTSTR pszDe
 
             // Assume success
             pei->hInstApp = (HINSTANCE)42;
-            if (FAILED(hres))
-            {
+            if (FAILED(hres)) {
                 UINT errWin32 = GetLastError();
-                if (errWin32 != ERROR_SUCCESS)
-                {
+                if (errWin32 != ERROR_SUCCESS) {
                     // Assume that the InvokeCommand set the last
                     // error properly. (Such as when we wind up
                     // calling back into ShellExecuteEx.)
@@ -2107,7 +1958,7 @@ BindToInProcHandler(
     IN  LPSHELLEXECUTEINFO pei,
     IN  LPCLSID            pclsid,
     IN  HKEY               hkeyClass,
-    OUT IContextMenu **    ppcm)
+    OUT IContextMenu** ppcm)
 {
     HRESULT hres = E_OUTOFMEMORY;
     LPITEMIDLIST pidl;
@@ -2119,27 +1970,23 @@ BindToInProcHandler(
     *ppcm = NULL;
 
     pidl = ILCreateFromPath(pei->lpFile);
-    if (pidl)
-    {
-        IShellExtInit * psei;
+    if (pidl) {
+        IShellExtInit* psei;
 
         hres = SHExtCoCreateInstance(NULL, pclsid, NULL, &IID_IShellExtInit, &psei);
-        if (SUCCEEDED(hres))
-        {
-            IShellFolder * psf;
+        if (SUCCEEDED(hres)) {
+            IShellFolder* psf;
             LPITEMIDLIST pidlLast;
 
             hres = SHBindToIDListParent(pidl, &IID_IShellFolder, &psf,
                                         &pidlLast);
-            if (SUCCEEDED(hres))
-            {
-                IDataObject * pdtobj;
+            if (SUCCEEDED(hres)) {
+                IDataObject* pdtobj;
 
                 // Get the data object
                 hres = psf->lpVtbl->GetUIObjectOf(psf, pei->hwnd, 1, &pidlLast,
                                                   &IID_IDataObject, NULL, &pdtobj);
-                if (SUCCEEDED(hres))
-                {
+                if (SUCCEEDED(hres)) {
                     ILRemoveLastID(pidl);
 
                     hres = psei->lpVtbl->Initialize(psei, pidl, pdtobj, hkeyClass);
@@ -2183,22 +2030,18 @@ STDAPI TryInProcess(
     ASSERT(hkeyClass);
     ASSERT(pszClassVerb);
 
-    if (NO_ERROR == RegOpenKeyEx(hkeyClass, pszClassVerb, 0, KEY_QUERY_VALUE, &hkey))
-    {
+    if (NO_ERROR == RegOpenKeyEx(hkeyClass, pszClassVerb, 0, KEY_QUERY_VALUE, &hkey)) {
         TCHAR szCLSID[GUIDSTR_MAX];
         DWORD cbData = SIZEOF(szCLSID);
 
-        if (NO_ERROR == SHQueryValueEx(hkey, TEXT("CLSID"), NULL, NULL, (LPBYTE)szCLSID, &cbData))
-        {
+        if (NO_ERROR == SHQueryValueEx(hkey, TEXT("CLSID"), NULL, NULL, (LPBYTE)szCLSID, &cbData)) {
             CLSID clsid;
 
-            if (SUCCEEDED(SHCLSIDFromString(szCLSID, &clsid)))
-            {
-                IContextMenu *pcm;
+            if (SUCCEEDED(SHCLSIDFromString(szCLSID, &clsid))) {
+                IContextMenu* pcm;
 
                 hres = BindToInProcHandler(pei, &clsid, hkeyClass, &pcm);
-                if (SUCCEEDED(hres))
-                {
+                if (SUCCEEDED(hres)) {
                     hres = InvokeInProcExec(pcm, pei, pszVerb);
 
                     // (we only return S_FALSE if there was no handler)
@@ -2206,8 +2049,7 @@ STDAPI TryInProcess(
                         hres = S_OK;
 
                     pcm->lpVtbl->Release(pcm);
-                }
-                else
+                } else
                     hres = S_FALSE;
             }
         }
@@ -2216,8 +2058,8 @@ STDAPI TryInProcess(
     }
 
     ASSERT(hres == S_FALSE ||
-          (hres == S_OK && ISSHELLEXECSUCCEEDED(pei->hInstApp)) ||
-          (FAILED(hres) && ! ISSHELLEXECSUCCEEDED(pei->hInstApp)));
+        (hres == S_OK && ISSHELLEXECSUCCEEDED(pei->hInstApp)) ||
+           (FAILED(hres) && !ISSHELLEXECSUCCEEDED(pei->hInstApp)));
 
     return hres;
 }
@@ -2229,27 +2071,23 @@ BOOL _ShellExecPidl(LPSHELLEXECUTEINFO pei, LPITEMIDLIST pidlExec)
     HRESULT hres;
 
     LPITEMIDLIST pidlLast;
-    IShellFolder *psf;
+    IShellFolder* psf;
 
     hres = SHBindToIDListParent(pidlExec, &IID_IShellFolder, &psf, &pidlLast);
-    if (SUCCEEDED(hres))
-    {
-        IContextMenu *pcm;
+    if (SUCCEEDED(hres)) {
+        IContextMenu* pcm;
 
         hres = psf->lpVtbl->GetUIObjectOf(psf, pei->hwnd, 1, &pidlLast, &IID_IContextMenu, NULL, &pcm);
-        if (SUCCEEDED(hres))
-        {
+        if (SUCCEEDED(hres)) {
             hres = InvokeInProcExec(pcm, pei, NULL);
             pcm->lpVtbl->Release(pcm);
         }
         psf->lpVtbl->Release(psf);
     }
 
-    if (FAILED(hres))
-    {
+    if (FAILED(hres)) {
         UINT errWin32 = ERROR_SUCCESS;
-        switch (hres)
-        {
+        switch (hres) {
         case E_OUTOFMEMORY:
             pei->hInstApp = (HINSTANCE)SE_ERR_OOM;
             errWin32 = ERROR_NOT_ENOUGH_MEMORY;
@@ -2259,12 +2097,9 @@ BOOL _ShellExecPidl(LPSHELLEXECUTEINFO pei, LPITEMIDLIST pidlExec)
             // HACKHACK (lamadio): A canceled dialog is not an error. Just deal.
             // This would not have been a hack if we propogated the error messages out and
             // were consistant in our use of win32, ole and shell errors. Why so many? Who knows.
-            if (GetLastError() == ERROR_CANCELLED)
-            {
+            if (GetLastError() == ERROR_CANCELLED) {
                 hres = S_OK;
-            }
-            else
-            {
+            } else {
                 pei->hInstApp = (HINSTANCE)SE_ERR_ACCESSDENIED;
                 errWin32 = ERROR_ACCESS_DENIED;
             }
@@ -2280,12 +2115,10 @@ BOOL InRunDllProcess(void)
 {
     static BOOL s_fInRunDll = -1;
 
-    if (-1 == s_fInRunDll)
-    {
+    if (-1 == s_fInRunDll) {
         TCHAR sz[MAX_PATH];
         s_fInRunDll = FALSE;
-        if (GetModuleFileName(NULL, sz, SIZECHARS(sz)))
-        {
+        if (GetModuleFileName(NULL, sz, SIZECHARS(sz))) {
 
             //  WARNING - rundll often seems to fail to add the DDEWAIT flag, and
             //  it often needs to since it is common to use rundll as a fire
@@ -2325,15 +2158,13 @@ BOOL WINAPI ShellExecuteEx(LPSHELLEXECUTEINFO pei)
     // can't do our shell hooks.
     HRESULT hrInit = SHCoInitialize();
 
-    if (IS_VALID_STRUCT_PTR(pei, SHELLEXECUTEINFO) && sizeof(*pei) == pei->cbSize)
-    {
+    if (IS_VALID_STRUCT_PTR(pei, SHELLEXECUTEINFO) && sizeof(*pei) == pei->cbSize) {
         // This internal bit prevents error message box reporting
         // when we recurse back into ShellExecuteEx
         ULONG ulOriginalMask = pei->fMask;
         pei->fMask |= SEE_MASK_FLAG_SHELLEXEC;
 
-        if (!(pei->fMask & SEE_MASK_FLAG_DDEWAIT) && InRunDllProcess())
-        {
+        if (!(pei->fMask & SEE_MASK_FLAG_DDEWAIT) && InRunDllProcess()) {
 
             //  WARNING - rundll often seems to fail to add the DDEWAIT flag, and
             //  it often needs to since it is common to use rundll as a fire
@@ -2344,20 +2175,16 @@ BOOL WINAPI ShellExecuteEx(LPSHELLEXECUTEINFO pei)
 
         // This is semi-bogus, but before we exec something we should make sure that the
         // user heap has memory left.
-        if (!CheckResourcesBeforeExec())
-        {
+        if (!CheckResourcesBeforeExec()) {
             TraceMsg(TF_ERROR, "ShellExecuteEx - User said Low memory so return out of memory");
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-            fRet= FALSE;
+            fRet = FALSE;
         }
 
-        else if (_InvokeIDList(pei->fMask) && pei->lpIDList)
-        {
+        else if (_InvokeIDList(pei->fMask) && pei->lpIDList) {
             // _ShellExecPidl does its own SetLastError
             fRet = _ShellExecPidl(pei, pei->lpIDList);
-        }
-        else
-        {
+        } else {
             // if _InvokeIDList, ShellExecuteNormal will create a pidl
             // and call _ShellExecPidl on that.
 
@@ -2366,26 +2193,22 @@ BOOL WINAPI ShellExecuteEx(LPSHELLEXECUTEINFO pei)
         }
 
         // Mike's attempt to be consistent in error reporting:
-        if (!fRet)
-        {
+        if (!fRet) {
             errLast = GetLastError();
             // we shouldn't put up errors on dll's not found.
             // this is handled WITHIN shellexecuteNormal because
             // sometimes kernel will put up the message for us, and sometimes
             // we need to.  we've put the curtion at ShellExecuteNormal
-            if (errLast != ERROR_DLL_NOT_FOUND && errLast != ERROR_CANCELLED)
-            {
+            if (errLast != ERROR_DLL_NOT_FOUND && errLast != ERROR_CANCELLED) {
                 _ShellExecuteError(pei, NULL, errLast);
             }
         }
 
         pei->fMask = ulOriginalMask;
-    }
-    else
-    {
+    } else {
         // Failed parameter validation
         pei->hInstApp = (HINSTANCE)SE_ERR_ACCESSDENIED;
-        errLast =  ERROR_ACCESS_DENIED;
+        errLast = ERROR_ACCESS_DENIED;
         fRet = FALSE;
     }
 
@@ -2420,14 +2243,13 @@ BOOL WINAPI ShellExecuteExA(LPSHELLEXECUTEINFOA pei)
 {
     BOOL    b;
     SHELLEXECUTEINFOW seiw;
-    ThunkText * pThunkText;
+    ThunkText* pThunkText;
     LPWSTR pwszFileAndUrl = NULL;
 
-    memset( &seiw, 0, SIZEOF(SHELLEXECUTEINFOW) );
+    memset(&seiw, 0, SIZEOF(SHELLEXECUTEINFOW));
 
     // BUGBUG: We need many robustness checks here
-    if (pei->cbSize != SIZEOF(SHELLEXECUTEINFOA))
-    {
+    if (pei->cbSize != SIZEOF(SHELLEXECUTEINFOA)) {
         pei->hInstApp = (HINSTANCE)SE_ERR_ACCESSDENIED;
         SetLastError(ERROR_ACCESS_DENIED);
         return FALSE;
@@ -2435,10 +2257,10 @@ BOOL WINAPI ShellExecuteExA(LPSHELLEXECUTEINFOA pei)
 
     seiw.cbSize = SIZEOF(SHELLEXECUTEINFOW);
     seiw.fMask = pei->fMask;
-    seiw.hwnd  = pei->hwnd;
+    seiw.hwnd = pei->hwnd;
     seiw.nShow = pei->nShow;
 
-    if ( pei->fMask & SEE_MASK_IDLIST )
+    if (pei->fMask & SEE_MASK_IDLIST)
         seiw.lpIDList = pei->lpIDList;
 
 
@@ -2447,30 +2269,29 @@ BOOL WINAPI ShellExecuteExA(LPSHELLEXECUTEINFOA pei)
     // is not set.
 
 
-    if ( pei->fMask & SEE_MASK_CLASSKEY & !(pei->fMask & SEE_MASK_CLASSNAME))
+    if (pei->fMask & SEE_MASK_CLASSKEY & !(pei->fMask & SEE_MASK_CLASSNAME))
         seiw.hkeyClass = pei->hkeyClass;
 
-    if ( pei->fMask & SEE_MASK_HOTKEY )
+    if (pei->fMask & SEE_MASK_HOTKEY)
         seiw.dwHotKey = pei->dwHotKey;
-    if ( pei->fMask & SEE_MASK_ICON )
+    if (pei->fMask & SEE_MASK_ICON)
         seiw.hIcon = pei->hIcon;
 
 
     // Thunk the text fields as appropriate
 
     pThunkText =
-      ConvertStrings( 6,
-                      pei->lpVerb,
-                      pei->lpFile,
-                      pei->lpParameters,
-                      pei->lpDirectory,
-                      ((pei->fMask & SEE_MASK_HASLINKNAME) ||
+        ConvertStrings(6,
+                       pei->lpVerb,
+                       pei->lpFile,
+                       pei->lpParameters,
+                       pei->lpDirectory,
+                       ((pei->fMask & SEE_MASK_HASLINKNAME) ||
                        (pei->fMask & SEE_MASK_HASTITLE) ||
-                       (pei->fMask & SEE_MASK_CLASSNAME)) ? pei->lpClass : NULL,
-                      (pei->fMask & SEE_MASK_RESERVED)  ? pei->hInstApp : NULL);
+                        (pei->fMask & SEE_MASK_CLASSNAME)) ? pei->lpClass : NULL,
+                        (pei->fMask & SEE_MASK_RESERVED) ? pei->hInstApp : NULL);
 
-    if (NULL == pThunkText)
-    {
+    if (NULL == pThunkText) {
         pei->hInstApp = (HINSTANCE)SE_ERR_OOM;  // BUGBUG (DavePl) More appropriate error code
         return FALSE;
     }
@@ -2478,12 +2299,12 @@ BOOL WINAPI ShellExecuteExA(LPSHELLEXECUTEINFOA pei)
 
     // Set our UNICODE text fields to point to the thunked strings
 
-    seiw.lpVerb         = pThunkText->m_pStr[0];
-    seiw.lpFile         = pThunkText->m_pStr[1];
-    seiw.lpParameters   = pThunkText->m_pStr[2];
-    seiw.lpDirectory    = pThunkText->m_pStr[3];
-    seiw.lpClass        = pThunkText->m_pStr[4];
-    seiw.hInstApp       = (HINSTANCE)pThunkText->m_pStr[5];
+    seiw.lpVerb = pThunkText->m_pStr[0];
+    seiw.lpFile = pThunkText->m_pStr[1];
+    seiw.lpParameters = pThunkText->m_pStr[2];
+    seiw.lpDirectory = pThunkText->m_pStr[3];
+    seiw.lpClass = pThunkText->m_pStr[4];
+    seiw.hInstApp = (HINSTANCE)pThunkText->m_pStr[5];
 
 
     // If we are passed the SEE_MASK_FILEANDURL flag, this means that
@@ -2491,26 +2312,21 @@ BOOL WINAPI ShellExecuteExA(LPSHELLEXECUTEINFOA pei)
     // (seperated by a single NULL, eg. "CacheFileName\0UrlName). We therefore
     // need to special case the thunking of pei->lpFile.
 
-    if (pei->fMask & SEE_MASK_FILEANDURL)
-    {
+    if (pei->fMask & SEE_MASK_FILEANDURL) {
         int iUrlLength;
         int iCacheFileLength = lstrlenW(pThunkText->m_pStr[1]);
         WCHAR wszURL[INTERNET_MAX_URL_LENGTH];
         LPSTR pszUrlPart = (LPSTR)&pei->lpFile[iCacheFileLength + 1];
 
 
-        if (IsBadStringPtrA(pszUrlPart, INTERNET_MAX_URL_LENGTH) || !PathIsURLA(pszUrlPart))
-        {
+        if (IsBadStringPtrA(pszUrlPart, INTERNET_MAX_URL_LENGTH) || !PathIsURLA(pszUrlPart)) {
             ASSERT(FALSE);
-        }
-        else
-        {
+        } else {
             // we have a vaild URL, so thunk it
             iUrlLength = lstrlenA(pszUrlPart);
 
             pwszFileAndUrl = LocalAlloc(LPTR, (iUrlLength + iCacheFileLength + 2) * SIZEOF(WCHAR));
-            if (!pwszFileAndUrl)
-            {
+            if (!pwszFileAndUrl) {
                 pei->hInstApp = (HINSTANCE)SE_ERR_OOM;
                 return FALSE;
             }
@@ -2551,10 +2367,8 @@ BOOL WINAPI ShellExecuteExW(LPSHELLEXECUTEINFOW pei)
 void _DisplayShellExecError(ULONG fMask, HWND hwnd, LPCTSTR pszFile, LPCTSTR pszTitle, DWORD dwErr)
 {
 
-    if (!(fMask & SEE_MASK_FLAG_NO_UI))
-    {
-        if (dwErr != ERROR_CANCELLED)
-        {
+    if (!(fMask & SEE_MASK_FLAG_NO_UI)) {
+        if (dwErr != ERROR_CANCELLED) {
             LPCTSTR pszHeader;
             UINT ids;
 
@@ -2570,8 +2384,7 @@ void _DisplayShellExecError(ULONG fMask, HWND hwnd, LPCTSTR pszFile, LPCTSTR psz
                 pszHeader = pszFile;
 
             // Use our messages when we can -- they're more descriptive
-            switch (dwErr)
-            {
+            switch (dwErr) {
             case 0:
             case ERROR_NOT_ENOUGH_MEMORY:
             case ERROR_OUTOFMEMORY:
@@ -2620,9 +2433,9 @@ void _DisplayShellExecError(ULONG fMask, HWND hwnd, LPCTSTR pszFile, LPCTSTR psz
                 ids = IDS_DDEFailError;
                 break;
 
-            // THESE ARE FAKE ERROR_ VALUES DEFINED AT TOP OF THIS FILE.
-            // THEY ARE FOR ERROR MESSAGE PURPOSES ONLY AND ARE MAPPED
-            // TO VALID WINERROR.H ERROR MESSAGES BELOW.
+                // THESE ARE FAKE ERROR_ VALUES DEFINED AT TOP OF THIS FILE.
+                // THEY ARE FOR ERROR MESSAGE PURPOSES ONLY AND ARE MAPPED
+                // TO VALID WINERROR.H ERROR MESSAGES BELOW.
 
             case ERROR_RESTRICTED_APP:
                 ids = IDS_RESTRICTIONS;
@@ -2631,7 +2444,7 @@ void _DisplayShellExecError(ULONG fMask, HWND hwnd, LPCTSTR pszFile, LPCTSTR psz
                     pszHeader = MAKEINTRESOURCE(IDS_RESTRICTIONSTITLE);
                 break;
 
-            // If we don't get a match, let the system handle it for us
+                // If we don't get a match, let the system handle it for us
             default:
                 ids = 0;
                 SHSysErrorMessageBox(
@@ -2644,22 +2457,19 @@ void _DisplayShellExecError(ULONG fMask, HWND hwnd, LPCTSTR pszFile, LPCTSTR psz
                 break;
             }
 
-            if (ids)
-            {
+            if (ids) {
                 ShellMessageBox(HINST_THISDLL, hwnd, MAKEINTRESOURCE(ids),
-                        pszHeader, (ids == IDS_LowMemError)?
-                        (MB_OK | MB_ICONSTOP | MB_SYSTEMMODAL):(MB_OK | MB_ICONSTOP),
-                        pszFile);
+                                pszHeader, (ids == IDS_LowMemError) ?
+                                (MB_OK | MB_ICONSTOP | MB_SYSTEMMODAL) : (MB_OK | MB_ICONSTOP),
+                                pszFile);
             }
         }
     }
 
-    if (!(fMask & SEE_MASK_FLAG_SHELLEXEC))
-    {
+    if (!(fMask & SEE_MASK_FLAG_SHELLEXEC)) {
         UINT err = 0;
 
-        switch (dwErr)
-        {
+        switch (dwErr) {
         case ERROR_RESTRICTED_APP:
             dwErr = ERROR_ACCESS_DENIED;
             break;
@@ -2708,8 +2518,7 @@ HINSTANCE WINAPI FindExecutable(LPCTSTR lpFile, LPCTSTR lpDirectory, LPTSTR lpRe
     // get fully qualified path and add .exe extension if needed
     dirs[0] = (LPTSTR)lpDirectory;
     dirs[1] = NULL;
-    if (!PathResolve(szFile, dirs, PRF_VERIFYEXISTS | PRF_TRYPROGRAMEXTENSIONS | PRF_FIRSTDIRDEF))
-    {
+    if (!PathResolve(szFile, dirs, PRF_VERIFYEXISTS | PRF_TRYPROGRAMEXTENSIONS | PRF_FIRSTDIRDEF)) {
         // File doesn't exist, return file not found.
         hInstance = (HINSTANCE)SE_ERR_FNF;
         goto Exit;
@@ -2717,18 +2526,14 @@ HINSTANCE WINAPI FindExecutable(LPCTSTR lpFile, LPCTSTR lpDirectory, LPTSTR lpRe
 
     TraceMsg(TF_SHELLEXEC, "FindExecutable: PathResolve -> %s", (LPCSTR)szFile);
 
-    if (PathIsExe(szFile))
-    {
+    if (PathIsExe(szFile)) {
         lstrcpy(lpResult, szFile);
         goto Exit;
     }
 
-    if (SUCCEEDED(AssocQueryString(0, ASSOCSTR_EXECUTABLE, szFile, NULL, szFile, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(szFile)))))
-    {
+    if (SUCCEEDED(AssocQueryString(0, ASSOCSTR_EXECUTABLE, szFile, NULL, szFile, (LPDWORD)MAKEINTRESOURCE(SIZECHARS(szFile))))) {
         lstrcpy(lpResult, szFile);
-    }
-    else
-    {
+    } else {
         hInstance = (HINSTANCE)SE_ERR_NOASSOC;
     }
 
@@ -2744,11 +2549,10 @@ HINSTANCE WINAPI FindExecutableA(LPCSTR lpFile, LPCSTR lpDirectory, LPSTR lpResu
 {
     HINSTANCE   hResult;
     WCHAR       wszResult[MAX_PATH];
-    ThunkText * pThunkText = ConvertStrings(2, lpFile, lpDirectory);
+    ThunkText* pThunkText = ConvertStrings(2, lpFile, lpDirectory);
 
     *lpResult = '\0';
-    if (NULL == pThunkText)
-    {
+    if (NULL == pThunkText) {
         return (HINSTANCE)SE_ERR_OOM;   // BUGBUG (DavePl) More appropriate error code
     }
 
@@ -2761,10 +2565,9 @@ HINSTANCE WINAPI FindExecutableA(LPCSTR lpFile, LPCSTR lpDirectory, LPSTR lpResu
     // Thunk the output result string back to ANSI.  If the conversion fails,
     // or if the default char is used, we fail the API call.
 
-    if (0 == WideCharToMultiByte(CP_ACP, 0, wszResult, -1, lpResult, MAX_PATH, NULL, NULL))
-    {
+    if (0 == WideCharToMultiByte(CP_ACP, 0, wszResult, -1, lpResult, MAX_PATH, NULL, NULL)) {
         SetLastError((DWORD)E_FAIL);    // BUGBUG Need better error value
-        return (HINSTANCE) SE_ERR_FNF;  // BUGBUG (DavePl) More appropriate error code
+        return (HINSTANCE)SE_ERR_FNF;  // BUGBUG (DavePl) More appropriate error code
     }
 
     return hResult;
@@ -2781,7 +2584,7 @@ HINSTANCE WINAPI FindExecutableW(LPCWSTR lpFile, LPCWSTR lpDirectory, LPWSTR lpR
 
 // Data structures for our wait for file open functions
 
-typedef struct _WaitForItem * PWAITFORITEM;
+typedef struct _WaitForItem* PWAITFORITEM;
 
 typedef struct _WaitForItem
 {
@@ -2805,7 +2608,7 @@ typedef struct _WaitForItem32
     LONG            hEvent;        // Truncated event handle
     UINT            NotUsed2;
     ITEMIDLIST      idlItem;       // pidl to wait for
-} WAITFORITEM32, *PWAITFORITEM32;
+} WAITFORITEM32, * PWAITFORITEM32;
 
 
 //  These macros enforce type safety so people are forced to use the
@@ -2822,24 +2625,20 @@ __inline void SHUnlockWaitForItem(PWAITFORITEM32 pwfi)
 PWAITFORITEM g_pwfiHead = NULL;
 #pragma data_seg()
 
-HANDLE SHWaitOp_OperateInternal( DWORD fOperation, LPCITEMIDLIST pidlItem)
+HANDLE SHWaitOp_OperateInternal(DWORD fOperation, LPCITEMIDLIST pidlItem)
 {
     PWAITFORITEM    pwfi;
     HANDLE  hEvent = (HANDLE)NULL;
 
-    for (pwfi = g_pwfiHead; pwfi != NULL; pwfi = pwfi->pwfiNext)
-    {
-        if (ILIsEqual(&(pwfi->idlItem), pidlItem))
-        {
+    for (pwfi = g_pwfiHead; pwfi != NULL; pwfi = pwfi->pwfiNext) {
+        if (ILIsEqual(&(pwfi->idlItem), pidlItem)) {
             hEvent = pwfi->hEvent;
             break;
         }
     }
 
-    if (fOperation & WFFO_ADD)
-    {
-        if (!pwfi)
-        {
+    if (fOperation & WFFO_ADD) {
+        if (!pwfi) {
             UINT uSize;
             UINT uSizeIDList = 0;
 
@@ -2854,14 +2653,13 @@ HANDLE SHWaitOp_OperateInternal( DWORD fOperation, LPCITEMIDLIST pidlItem)
             if (hEvent)
                 pwfi = (PWAITFORITEM)SHAlloc(uSize);
 
-            if (pwfi)
-            {
+            if (pwfi) {
                 pwfi->dwSize = uSize;
                 // pwfi->fOperation = 0;       // Meaningless
                 pwfi->hEvent = hEvent;
                 pwfi->iWaiting = ((fOperation & WFFO_WAIT) != 0);
 
-                memcpy( &(pwfi->idlItem), pidlItem, uSizeIDList);
+                memcpy(&(pwfi->idlItem), pidlItem, uSizeIDList);
 
                 // now link it in
                 pwfi->pwfiNext = g_pwfiHead;
@@ -2870,8 +2668,7 @@ HANDLE SHWaitOp_OperateInternal( DWORD fOperation, LPCITEMIDLIST pidlItem)
         }
     }
 
-    if (pwfi)
-    {
+    if (pwfi) {
         if (fOperation & WFFO_WAIT)
             pwfi->iWaiting++;
 
@@ -2882,15 +2679,12 @@ HANDLE SHWaitOp_OperateInternal( DWORD fOperation, LPCITEMIDLIST pidlItem)
             pwfi->iWaiting--;       // decrement in use count;
 
         // Only check removal case if not adding
-        if ((fOperation & WFFO_ADD) == 0)
-        {
+        if ((fOperation & WFFO_ADD) == 0) {
             // Remove it if nobody waiting on it
-            if (pwfi->iWaiting == 0)
-            {
+            if (pwfi->iWaiting == 0) {
                 if (g_pwfiHead == pwfi)
                     g_pwfiHead = pwfi->pwfiNext;
-                else
-                {
+                else {
                     PWAITFORITEM pwfiT = g_pwfiHead;
                     while ((pwfiT != NULL) && (pwfiT->pwfiNext != pwfi))
                         pwfiT = pwfiT->pwfiNext;
@@ -2913,7 +2707,7 @@ HANDLE SHWaitOp_OperateInternal( DWORD fOperation, LPCITEMIDLIST pidlItem)
     return hEvent;
 }
 
-void SHWaitOp_Operate( HANDLE hWait, DWORD dwProcId)
+void SHWaitOp_Operate(HANDLE hWait, DWORD dwProcId)
 {
     PWAITFORITEM32 pwfiFind;
 
@@ -2926,7 +2720,7 @@ void SHWaitOp_Operate( HANDLE hWait, DWORD dwProcId)
     SHUnlockWaitForItem(pwfiFind);
 }
 
-HANDLE SHWaitOp_Create( DWORD fOperation, LPCITEMIDLIST pidlItem, DWORD dwProcId)
+HANDLE SHWaitOp_Create(DWORD fOperation, LPCITEMIDLIST pidlItem, DWORD dwProcId)
 {
     UINT    uSizeIDList = 0;
     UINT    uSize;
@@ -2942,7 +2736,7 @@ HANDLE SHWaitOp_Create( DWORD fOperation, LPCITEMIDLIST pidlItem, DWORD dwProcId
     if (!hWaitOp)
         goto Punt;
 
-    pwfi = SHLockWaitForItem(hWaitOp,dwProcId);
+    pwfi = SHLockWaitForItem(hWaitOp, dwProcId);
     if (!pwfi)
         goto Punt;
 
@@ -2981,10 +2775,8 @@ DWORD WINAPI SHWaitForFileToOpen(LPCITEMIDLIST pidl, UINT uOptions, DWORD dwTime
 
     hwndShell = GetShellWindow();
 
-    if ( (uOptions & (WFFO_WAIT | WFFO_ADD)) != 0)
-    {
-        if (hwndShell)
-        {
+    if ((uOptions & (WFFO_WAIT | WFFO_ADD)) != 0) {
+        if (hwndShell) {
             PWAITFORITEM32 pwfi;
             DWORD dwProcIdDst;
 
@@ -2992,7 +2784,7 @@ DWORD WINAPI SHWaitForFileToOpen(LPCITEMIDLIST pidl, UINT uOptions, DWORD dwTime
             GetWindowThreadProcessId(hwndShell, &dwProcIdDst);
 
             // Do just the add and/or wait portions
-            hWaitOp = SHWaitOp_Create( uOptions & (WFFO_WAIT | WFFO_ADD), pidl, dwProcIdSrc);
+            hWaitOp = SHWaitOp_Create(uOptions & (WFFO_WAIT | WFFO_ADD), pidl, dwProcIdSrc);
 
             SendMessage(hwndShell, CWM_WAITOP, (WPARAM)hWaitOp, (LPARAM)dwProcIdSrc);
 
@@ -3000,21 +2792,17 @@ DWORD WINAPI SHWaitForFileToOpen(LPCITEMIDLIST pidl, UINT uOptions, DWORD dwTime
             // Now get the hEvent and convert to a local handle
 
             pwfi = SHLockWaitForItem(hWaitOp, dwProcIdSrc);
-            if (pwfi)
-            {
-                hEvent = SHMapHandle(LongToHandle(pwfi->hEvent),dwProcIdDst, dwProcIdSrc, EVENT_ALL_ACCESS, 0);
+            if (pwfi) {
+                hEvent = SHMapHandle(LongToHandle(pwfi->hEvent), dwProcIdDst, dwProcIdSrc, EVENT_ALL_ACCESS, 0);
             }
             SHUnlockWaitForItem(pwfi);
-            SHFreeShared(hWaitOp,dwProcIdSrc);
-        }
-        else
-        {
+            SHFreeShared(hWaitOp, dwProcIdSrc);
+        } else {
             // Do just the add and/or wait portions
             hEvent = SHWaitOp_OperateInternal(uOptions & (WFFO_WAIT | WFFO_ADD), pidl);
         }
 
-        if ((uOptions & WFFO_WAIT) && hEvent != (HANDLE)NULL)
-        {
+        if ((uOptions & WFFO_WAIT) && hEvent != (HANDLE)NULL) {
             dwReturn = SHProcessMessagesUntilEvent(NULL, hEvent, dwTimeout);
         }
 
@@ -3024,17 +2812,13 @@ DWORD WINAPI SHWaitForFileToOpen(LPCITEMIDLIST pidl, UINT uOptions, DWORD dwTime
             CloseHandle(hEvent);
     }
 
-    if (uOptions & WFFO_REMOVE)
-    {
-        if (hwndShell)
-        {
+    if (uOptions & WFFO_REMOVE) {
+        if (hwndShell) {
             dwProcIdSrc = GetCurrentProcessId();
-            hWaitOp = SHWaitOp_Create( WFFO_REMOVE, pidl, dwProcIdSrc);
+            hWaitOp = SHWaitOp_Create(WFFO_REMOVE, pidl, dwProcIdSrc);
             SendMessage(hwndShell, CWM_WAITOP, (WPARAM)hWaitOp, (LPARAM)dwProcIdSrc);
-            SHFreeShared(hWaitOp,dwProcIdSrc);
-        }
-        else
-        {
+            SHFreeShared(hWaitOp, dwProcIdSrc);
+        } else {
             SHWaitOp_OperateInternal(WFFO_REMOVE, pidl);
         }
     }
@@ -3051,26 +2835,22 @@ BOOL WINAPI SignalFileOpen(LPCITEMIDLIST pidl)
     PWAITFORITEM32 pwfi;
 
     hwndShell = GetShellWindow();
-    if (hwndShell)
-    {
+    if (hwndShell) {
         HANDLE  hWaitOp;
         DWORD dwProcId;
 
         dwProcId = GetCurrentProcessId();
-        hWaitOp = SHWaitOp_Create( WFFO_SIGNAL, pidl, dwProcId);
+        hWaitOp = SHWaitOp_Create(WFFO_SIGNAL, pidl, dwProcId);
         SendMessage(hwndShell, CWM_WAITOP, (WPARAM)hWaitOp, (LPARAM)dwProcId);
 
         // Now get the hEvent to determine return value...
         pwfi = SHLockWaitForItem(hWaitOp, dwProcId);
-        if (pwfi)
-        {
+        if (pwfi) {
             fResult = (LongToHandle(pwfi->hEvent) != (HANDLE)NULL);
         }
         SHUnlockWaitForItem(pwfi);
-        SHFreeShared(hWaitOp,dwProcId);
-    }
-    else
-    {
+        SHFreeShared(hWaitOp, dwProcId);
+    } else {
         fResult = (SHWaitOp_OperateInternal(WFFO_SIGNAL, pidl) == (HANDLE)NULL);
     }
 
@@ -3082,12 +2862,10 @@ BOOL WINAPI SignalFileOpen(LPCITEMIDLIST pidl)
 BOOL IsDarwinEnabled()
 {
     static BOOL fInit = FALSE;
-    if (!fInit)
-    {
+    if (!fInit) {
         BOOL bDarwinDisabled = FALSE;
         HKEY hkeyPolicy = 0;
-        if (RegOpenKey(HKEY_CURRENT_USER, REGSTR_PATH_POLICIES_EXPLORER, &hkeyPolicy) == ERROR_SUCCESS)
-        {
+        if (RegOpenKey(HKEY_CURRENT_USER, REGSTR_PATH_POLICIES_EXPLORER, &hkeyPolicy) == ERROR_SUCCESS) {
             bDarwinDisabled = (SHQueryValueEx(hkeyPolicy, TEXT("DisableMSI"), NULL, NULL, NULL, NULL) == ERROR_SUCCESS);
             RegCloseKey(hkeyPolicy);
         }
@@ -3102,12 +2880,12 @@ BOOL IsDarwinEnabled()
 
 
 // PFNMSIPROVIDECOMPONENTFROMDESCRIPTOR is specifically TCHAR since we delayload the xxxA on win95, and the xxxW on NT4
-typedef UINT (__stdcall * PFNMSIPROVIDECOMPONENTFROMDESCRIPTOR)(LPCTSTR, LPTSTR, DWORD*, DWORD*);
+typedef UINT(__stdcall* PFNMSIPROVIDECOMPONENTFROMDESCRIPTOR)(LPCTSTR, LPTSTR, DWORD*, DWORD*);
 
 
 // PFNCOMMANDLINEFROMMSIDESCRIPTOR is specifically WCHAR since this api is NT5 only
 
-typedef DWORD (__stdcall * PFNCOMMANDLINEFROMMSIDESCRIPTOR)(LPWSTR, LPWSTR, DWORD*);
+typedef DWORD(__stdcall* PFNCOMMANDLINEFROMMSIDESCRIPTOR)(LPWSTR, LPWSTR, DWORD*);
 
 
 
@@ -3124,12 +2902,10 @@ STDAPI ParseDarwinID(LPTSTR pszDarwinDescriptor, LPTSTR pszDarwinCommand, DWORD 
 #ifdef WINNT
     // On NT5 we call the CommandLineFromMsiDescriptor in ADVAPI instead of MSI directly. Don't ask
     // me why; I just work here.
-    if (IsOS(OS_NT5))
-    {
+    if (IsOS(OS_NT5)) {
         static PFNCOMMANDLINEFROMMSIDESCRIPTOR s_pfnCommandLineFromDescriptor = (LPVOID)-1;
 
-        if ((LPVOID)-1 == s_pfnCommandLineFromDescriptor)
-        {
+        if ((LPVOID)-1 == s_pfnCommandLineFromDescriptor) {
             HINSTANCE hinst = GetModuleHandle(TEXT("ADVAPI32.DLL"));
 
             if (hinst)
@@ -3138,8 +2914,7 @@ STDAPI ParseDarwinID(LPTSTR pszDarwinDescriptor, LPTSTR pszDarwinCommand, DWORD 
                 s_pfnCommandLineFromDescriptor = NULL;
         }
 
-        if (s_pfnCommandLineFromDescriptor)
-        {
+        if (s_pfnCommandLineFromDescriptor) {
             DWORD dwError = s_pfnCommandLineFromDescriptor(pszDarwinDescriptor, pszDarwinCommand, &cchDarwinCommand);
 
             return HRESULT_FROM_WIN32(dwError);
@@ -3148,19 +2923,16 @@ STDAPI ParseDarwinID(LPTSTR pszDarwinDescriptor, LPTSTR pszDarwinCommand, DWORD 
         SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 
         return HRESULT_FROM_WIN32(ERROR_CALL_NOT_IMPLEMENTED);;
-    }
-    else
+    } else
 #endif WINNT
     {
         static PFNMSIPROVIDECOMPONENTFROMDESCRIPTOR s_pfnMsiProvideComponentFromDescriptor = (LPVOID)-1;
         DWORD dwArgsOffset = 0;
 
-        if ((LPVOID)-1 == s_pfnMsiProvideComponentFromDescriptor)
-        {
+        if ((LPVOID)-1 == s_pfnMsiProvideComponentFromDescriptor) {
             HINSTANCE hinst = LoadLibrary(TEXT("MSI.DLL"));
 
-            if (hinst)
-            {
+            if (hinst) {
 #ifdef UNICODE
                 // on NT4 call the UNICODE function
                 s_pfnMsiProvideComponentFromDescriptor = (PFNMSIPROVIDECOMPONENTFROMDESCRIPTOR)GetProcAddress(hinst, "MsiProvideComponentFromDescriptorW");
@@ -3168,15 +2940,12 @@ STDAPI ParseDarwinID(LPTSTR pszDarwinDescriptor, LPTSTR pszDarwinCommand, DWORD 
                 // on win95 call the ANSI function
                 s_pfnMsiProvideComponentFromDescriptor = (PFNMSIPROVIDECOMPONENTFROMDESCRIPTOR)GetProcAddress(hinst, "MsiProvideComponentFromDescriptorA");
 #endif
-            }
-            else
-            {
+            } else {
                 s_pfnMsiProvideComponentFromDescriptor = NULL;
             }
         }
 
-        if (s_pfnMsiProvideComponentFromDescriptor)
-        {
+        if (s_pfnMsiProvideComponentFromDescriptor) {
             UINT uError = s_pfnMsiProvideComponentFromDescriptor(pszDarwinDescriptor, pszDarwinCommand, &cchDarwinCommand, &dwArgsOffset);
 
             // The darwin guys used to pass us back the dwArgsOffset and we would have to strcat it onto the pszDarwinCommand.
@@ -3184,9 +2953,7 @@ STDAPI ParseDarwinID(LPTSTR pszDarwinDescriptor, LPTSTR pszDarwinCommand, DWORD 
             ASSERT(dwArgsOffset == 0);
 
             return HRESULT_FROM_WIN32(uError);
-        }
-        else
-        {
+        } else {
             SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 
             return HRESULT_FROM_WIN32(ERROR_CALL_NOT_IMPLEMENTED);

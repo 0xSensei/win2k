@@ -2,17 +2,17 @@
 
 BOOL GetVersion(LPCONTROLPIDL pcpidl, LPTSTR lpszBuf);
 BOOL GetTimeInfo(
-               BOOL bCreation, LPCONTROLPIDL pcpidl,
-               FILETIME* lpTime, LPTSTR lpszBuf, BOOL bShowTime);
+    BOOL bCreation, LPCONTROLPIDL pcpidl,
+    FILETIME* lpTime, LPTSTR lpszBuf, BOOL bShowTime);
 
 // Also defined in nt\private\inet\urlmon\isctrl.cxx
-const TCHAR *g_pszLastCheckDateKey = "LastCheckDate";
-const TCHAR *g_pszUpdateInfo = "UpdateInfo";
+const TCHAR* g_pszLastCheckDateKey = "LastCheckDate";
+const TCHAR* g_pszUpdateInfo = "UpdateInfo";
 
 
 // IEnumIDList methods
 
-CControlFolderEnum::CControlFolderEnum(STRRET &str, LPCITEMIDLIST pidl, UINT shcontf) :
+CControlFolderEnum::CControlFolderEnum(STRRET& str, LPCITEMIDLIST pidl, UINT shcontf) :
     m_shcontf(shcontf)
 {
     DebugMsg(DM_TRACE, TEXT("cfe - CControlFolderEnum() called"));
@@ -35,12 +35,12 @@ CControlFolderEnum::~CControlFolderEnum()
 }
 
 HRESULT CControlFolderEnum_CreateInstance(
-                                      LPITEMIDLIST pidl,
-                                      UINT shcontf,
-                                      LPENUMIDLIST *ppeidl)
+    LPITEMIDLIST pidl,
+    UINT shcontf,
+    LPENUMIDLIST* ppeidl)
 
 {
-    DebugMsg(DM_TRACE,("cfe - CreateInstance() called."));
+    DebugMsg(DM_TRACE, ("cfe - CreateInstance() called."));
 
     if (pidl == NULL)
         return HRESULT_FROM_WIN32(ERROR_BAD_ARGUMENTS);
@@ -57,7 +57,7 @@ HRESULT CControlFolderEnum_CreateInstance(
 
     *ppeidl = NULL;                 // null the out param
 
-    CControlFolderEnum *pCFE = new CControlFolderEnum(name, pidl, shcontf);
+    CControlFolderEnum* pCFE = new CControlFolderEnum(name, pidl, shcontf);
     if (!pCFE)
         return E_OUTOFMEMORY;
 
@@ -72,52 +72,50 @@ BOOL GetVersion(LPCONTROLPIDL pcpidl, LPTSTR lpszBuf)
     LPCTSTR pszLocation = GetStringInfo(pcpidl, SI_LOCATION);
 
     DWORD dwBufLen;
-        DWORD dwHandle;
-        LPVOID lpvData;
-        BOOL fResult = FALSE;
-        UINT uLen;
-        VS_FIXEDFILEINFO *pVersionInfo = NULL;
+    DWORD dwHandle;
+    LPVOID lpvData;
+    BOOL fResult = FALSE;
+    UINT uLen;
+    VS_FIXEDFILEINFO* pVersionInfo = NULL;
 
     // Quick copy to handle failure cases
     lstrcpy(lpszBuf, g_szUnknownData);
 
-        if ((dwBufLen = ::GetFileVersionInfoSize((LPTSTR)pszLocation, &dwHandle)) == 0)
+    if ((dwBufLen = ::GetFileVersionInfoSize((LPTSTR)pszLocation, &dwHandle)) == 0)
         return FALSE;
 
-        lpvData = (LPVOID) new BYTE[dwBufLen];
-        Assert(lpvData);
-        if (lpvData == NULL)
-                return FALSE;
+    lpvData = (LPVOID) new BYTE[dwBufLen];
+    Assert(lpvData);
+    if (lpvData == NULL)
+        return FALSE;
 
-        if (GetFileVersionInfo((LPTSTR)pszLocation, dwHandle, dwBufLen, lpvData))
-        {
-                fResult = VerQueryValue(lpvData, "\\", (LPVOID*)&pVersionInfo, &uLen);
+    if (GetFileVersionInfo((LPTSTR)pszLocation, dwHandle, dwBufLen, lpvData)) {
+        fResult = VerQueryValue(lpvData, "\\", (LPVOID*)&pVersionInfo, &uLen);
 
-                if (fResult)
-                {
-                        wsprintf(lpszBuf, "%d,%d,%d,%d",
-                                (pVersionInfo->dwFileVersionMS & 0xffff0000)>>16,
-                                (pVersionInfo->dwFileVersionMS & 0xffff),
-                                (pVersionInfo->dwFileVersionLS & 0xffff0000)>>16,
-                                (pVersionInfo->dwFileVersionLS & 0xffff));
-                }
-
+        if (fResult) {
+            wsprintf(lpszBuf, "%d,%d,%d,%d",
+                (pVersionInfo->dwFileVersionMS & 0xffff0000) >> 16,
+                     (pVersionInfo->dwFileVersionMS & 0xffff),
+                     (pVersionInfo->dwFileVersionLS & 0xffff0000) >> 16,
+                     (pVersionInfo->dwFileVersionLS & 0xffff));
         }
 
-        delete (BYTE*)lpvData;
+    }
+
+    delete (BYTE*)lpvData;
 
     return fResult;
 }
 
 BOOL GetTimeInfo(
-             BOOL bCreation,
-             LPCONTROLPIDL pcpidl,
-             FILETIME* lpTime,
-             LPTSTR lpszBuf,
-             BOOL bShowTime)
+    BOOL bCreation,
+    LPCONTROLPIDL pcpidl,
+    FILETIME* lpTime,
+    LPTSTR lpszBuf,
+    BOOL bShowTime)
 {
     Assert(pcpidl != NULL);
-        Assert (lpszBuf != NULL);
+    Assert(lpszBuf != NULL);
     if (pcpidl == NULL || lpszBuf == NULL)
         return FALSE;
 
@@ -125,26 +123,22 @@ BOOL GetTimeInfo(
 
     BOOL fResult = TRUE;
     HANDLE hFile = NULL;
-        WIN32_FIND_DATA findFileData;
-        TCHAR szTime[TIMESTAMP_MAXSIZE];
+    WIN32_FIND_DATA findFileData;
+    TCHAR szTime[TIMESTAMP_MAXSIZE];
     TCHAR szDate[TIMESTAMP_MAXSIZE];
-        SYSTEMTIME sysTime;
-        FILETIME localTime;
+    SYSTEMTIME sysTime;
+    FILETIME localTime;
 
-        hFile = FindFirstFile(pszLocation, &findFileData);
+    hFile = FindFirstFile(pszLocation, &findFileData);
 
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
-                // Get the creation time and date information.
-        if (bCreation)
-        {
+    if (hFile != INVALID_HANDLE_VALUE) {
+        // Get the creation time and date information.
+        if (bCreation) {
             *lpTime = findFileData.ftCreationTime;
-                    FileTimeToLocalFileTime(&findFileData.ftCreationTime, &localTime);
-        }
-        else
-        {
+            FileTimeToLocalFileTime(&findFileData.ftCreationTime, &localTime);
+        } else {
             *lpTime = findFileData.ftLastAccessTime;
-                    FileTimeToLocalFileTime(&findFileData.ftLastAccessTime, &localTime);
+            FileTimeToLocalFileTime(&findFileData.ftLastAccessTime, &localTime);
         }
 
         FileTimeToSystemTime(&localTime, &sysTime);
@@ -159,8 +153,7 @@ BOOL GetTimeInfo(
 
         lstrcpy(lpszBuf, szDate);
 
-        if (bShowTime)
-        {
+        if (bShowTime) {
             GetTimeFormat(
                 LOCALE_SYSTEM_DEFAULT,
                 TIME_NOSECONDS,
@@ -168,25 +161,23 @@ BOOL GetTimeInfo(
                 NULL,
                 szTime,
                 TIMESTAMP_MAXSIZE
-                );
+            );
 
             lstrcat(lpszBuf, TEXT(" "));
             lstrcat(lpszBuf, szTime);
         }
 
-            FindClose(hFile);
-    }
-    else
-    {
+        FindClose(hFile);
+    } else {
         fResult = FALSE;
         lstrcpy(lpszBuf, g_szUnknownData);
         lpTime->dwLowDateTime = lpTime->dwHighDateTime = 0;
     }
 
-        return fResult;
+    return fResult;
 }
 
-LPCONTROLPIDL CreateControlPidl(IMalloc *pmalloc, HANDLE hControl)
+LPCONTROLPIDL CreateControlPidl(IMalloc* pmalloc, HANDLE hControl)
 {
     Assert(pmalloc != NULL);
 
@@ -196,8 +187,7 @@ LPCONTROLPIDL CreateControlPidl(IMalloc *pmalloc, HANDLE hControl)
     ulSize += (dw - 1) * sizeof(DEPENDENTFILEINFO);
     LPCONTROLPIDL pcpidl = (LPCONTROLPIDL)pmalloc->Alloc(ulSize);
 
-    if (pcpidl)
-    {
+    if (pcpidl) {
         memset(pcpidl, 0, ulSize);
         pcpidl->cb = (USHORT)(ulSize - sizeof(USHORT));
 
@@ -216,26 +206,22 @@ LPCONTROLPIDL CreateControlPidl(IMalloc *pmalloc, HANDLE hControl)
         GetControlInfo(hControl, GCI_STATUS, &(pcpidl->ci.dwStatus), NULL, 0);
         GetControlInfo(hControl, GCI_HAS_ACTIVEX, &(pcpidl->ci.dwHasActiveX), NULL, 0);
         GetControlInfo(hControl, GCI_HAS_JAVA, &(pcpidl->ci.dwHasJava), NULL, 0);
-        if (pcpidl->ci.dwIsDistUnit)
-        {
+        if (pcpidl->ci.dwIsDistUnit) {
             GetControlInfo(hControl, GCI_DIST_UNIT_VERSION, NULL, pcpidl->ci.szVersion, VERSION_MAXSIZE);
-        }
-        else
-        {
+        } else {
             GetVersion(pcpidl, pcpidl->ci.szVersion);
         }
 
         LONG lResult = ERROR_SUCCESS;
         LPDEPENDENTFILEINFO pInfo = &(pcpidl->ci.dependentFile);
         dw = GetTotalNumOfFiles(pcpidl);
-        for (UINT iFile = 0;;)
-        {
+        for (UINT iFile = 0;;) {
             lResult = GetControlDependentFile(
-                                       iFile,
-                                       hControl,
-                                       pInfo->szFile,
-                                       &(pInfo->dwSize),
-                                       TRUE);
+                iFile,
+                hControl,
+                pInfo->szFile,
+                &(pInfo->dwSize),
+                TRUE);
             Assert(lResult == ERROR_SUCCESS);
             if ((++iFile >= (UINT)dw) || (lResult != ERROR_SUCCESS))
                 break;
@@ -250,13 +236,12 @@ LPCONTROLPIDL CreateControlPidl(IMalloc *pmalloc, HANDLE hControl)
 
 // IUnknown Methods...
 
-HRESULT CControlFolderEnum::QueryInterface(REFIID iid,void **ppv)
+HRESULT CControlFolderEnum::QueryInterface(REFIID iid, void** ppv)
 {
     DebugMsg(DM_TRACE, TEXT("cfe - QueryInterface called."));
 
-    if ((iid == IID_IEnumIDList) || (iid == IID_IUnknown))
-    {
-        *ppv = (void *)this;
+    if ((iid == IID_IEnumIDList) || (iid == IID_IUnknown)) {
+        *ppv = (void*)this;
         AddRef();
         return S_OK;
     }
@@ -280,9 +265,9 @@ ULONG CControlFolderEnum::Release(void)
 }
 
 HRESULT CControlFolderEnum::Next(
-                             ULONG celt,
-                             LPITEMIDLIST *rgelt,
-                             ULONG *pceltFetched)
+    ULONG celt,
+    LPITEMIDLIST* rgelt,
+    ULONG* pceltFetched)
 {
     DebugMsg(DM_TRACE, TEXT("cfe - Next() called."));
 
@@ -295,8 +280,8 @@ HRESULT CControlFolderEnum::Next(
     LPCONTROLPIDL pcpidl = NULL;
 
     lres = (!m_bEnumStarted ?
-                  FindFirstControl(m_hEnumControl, hControl, m_szCachePath) :
-                  FindNextControl(m_hEnumControl, hControl));
+            FindFirstControl(m_hEnumControl, hControl, m_szCachePath) :
+            FindNextControl(m_hEnumControl, hControl));
 
     if (pceltFetched)
         *pceltFetched = (lres == ERROR_SUCCESS ? 1 : 0);
@@ -305,8 +290,7 @@ HRESULT CControlFolderEnum::Next(
         goto EXIT_NEXT;
 
     pcpidl = CreateControlPidl(m_pMalloc, hControl);
-    if (pcpidl == NULL)
-    {
+    if (pcpidl == NULL) {
         lres = ERROR_NOT_ENOUGH_MEMORY;
         goto EXIT_NEXT;
     }
@@ -318,10 +302,8 @@ EXIT_NEXT:
 
     ReleaseControlHandle(hControl);
 
-    if (lres != ERROR_SUCCESS)
-    {
-        if (pcpidl != NULL)
-        {
+    if (lres != ERROR_SUCCESS) {
+        if (pcpidl != NULL) {
             m_pMalloc->Free(pcpidl);
             pcpidl = NULL;
         }
@@ -345,7 +327,7 @@ HRESULT CControlFolderEnum::Reset()
     return E_NOTIMPL;
 }
 
-HRESULT CControlFolderEnum::Clone(IEnumIDList **ppenum)
+HRESULT CControlFolderEnum::Clone(IEnumIDList** ppenum)
 {
     DebugMsg(DM_TRACE, TEXT("cfe - Clone() called."));
     return E_NOTIMPL;

@@ -18,27 +18,17 @@ LPTSTR GetVerInfo(LPBYTE lpbVerInfo, LPTSTR pszKey) {
     // Try to get info in the local language
 
 
-    if (lpbVerInfo)
-    {
-        wsprintf(szVersionKey, TEXT("\\StringFileInfo\\%04X04B0\\%ws"),
-                LANGIDFROMLCID(GetUserDefaultLCID()), pszKey);
-
+    if (lpbVerInfo) {
+        wsprintf(szVersionKey, TEXT("\\StringFileInfo\\%04X04B0\\%ws"), LANGIDFROMLCID(GetUserDefaultLCID()), pszKey);
         VerQueryValue(lpbVerInfo, szVersionKey, (LPVOID*)&pVerInfo, &cb);
-
-        if (cb == 0)
-        {
-
+        if (cb == 0) {
             // No local language, try US English
-
-
             wsprintf(szVersionKey, TEXT("\\StringFileInfo\\040904B0\\%ws"), pszKey);
-
             VerQueryValue(lpbVerInfo, szVersionKey, (LPVOID*)&pVerInfo, &cb);
         }
     }
 
-    if (cb == 0)
-    {
+    if (cb == 0) {
         pVerInfo = NULL;
     }
 
@@ -59,12 +49,12 @@ CDLGCHGADAPTOR::CDLGCHGADAPTOR() : iRet(RET_NO_CHANGE) {
 }
 
 BOOL CDLGCHGADAPTOR::InitDlg(HWND hwndFocus) {
-    LPDISPLAY_DEVICE pDisplayDevice = (LPDISPLAY_DEVICE) (this->lParam);
+    LPDISPLAY_DEVICE pDisplayDevice = (LPDISPLAY_DEVICE)(this->lParam);
     //DLI: make it compile CREGVIDOBJ crvo((&(pDisplayDevice->DeviceName[0]));
 #ifdef UNICODE
     CREGVIDOBJ crvo(&(pDisplayDevice->DeviceName[0]));
 #else
-    CREGVIDOBJ crvo((char *) &(pDisplayDevice->DeviceName[0]));
+    CREGVIDOBJ crvo((char*)&(pDisplayDevice->DeviceName[0]));
 #endif
     LPTSTR psz;
     TCHAR noVersion[MAX_PATH];
@@ -101,7 +91,7 @@ BOOL CDLGCHGADAPTOR::InitDlg(HWND hwndFocus) {
     this->SendCtlMsg(ID_ADP_ADAPTOR,
                      WM_SETTEXT,
                      0,
-                     (LPARAM) (&(pDisplayDevice->DeviceString[0])));
+                     (LPARAM)(&(pDisplayDevice->DeviceString[0])));
 
 
     // Get the miniport driver path
@@ -135,7 +125,7 @@ BOOL CDLGCHGADAPTOR::InitDlg(HWND hwndFocus) {
     this->SendCtlMsg(ID_ADP_MANUFACT,
                      WM_SETTEXT,
                      0,
-                     (ULONG) (lpInfo ? lpInfo : noVersion));
+                     (ULONG)(lpInfo ? lpInfo : noVersion));
 
 
     // Get the version number from the miniport, and append "," and the
@@ -165,17 +155,17 @@ BOOL CDLGCHGADAPTOR::InitDlg(HWND hwndFocus) {
 
     crvo.GetHardwareInformation(&hardwareInfo);
 
-    this->SendCtlMsg(ID_ADP_CHIP,       WM_SETTEXT, 0, (LPARAM)hardwareInfo.ChipType);
-    this->SendCtlMsg(ID_ADP_DAC,        WM_SETTEXT, 0, (LPARAM)hardwareInfo.DACType);
-    this->SendCtlMsg(ID_ADP_MEM,        WM_SETTEXT, 0, (LPARAM)hardwareInfo.MemSize);
+    this->SendCtlMsg(ID_ADP_CHIP, WM_SETTEXT, 0, (LPARAM)hardwareInfo.ChipType);
+    this->SendCtlMsg(ID_ADP_DAC, WM_SETTEXT, 0, (LPARAM)hardwareInfo.DACType);
+    this->SendCtlMsg(ID_ADP_MEM, WM_SETTEXT, 0, (LPARAM)hardwareInfo.MemSize);
     this->SendCtlMsg(ID_ADP_ADP_STRING, WM_SETTEXT, 0, (LPARAM)hardwareInfo.AdapString);
-    this->SendCtlMsg(ID_ADP_BIOS_INFO,  WM_SETTEXT, 0, (LPARAM)hardwareInfo.BiosString);
+    this->SendCtlMsg(ID_ADP_BIOS_INFO, WM_SETTEXT, 0, (LPARAM)hardwareInfo.BiosString);
 
-    for (i=0; i < 5; i++) {
+    for (i = 0; i < 5; i++) {
 
-        if ( *(((LPTSTR *) (&hardwareInfo)) + i) != NULL) {
+        if (*(((LPTSTR*)(&hardwareInfo)) + i) != NULL) {
 
-            LocalFree(*(((LPTSTR *) (&hardwareInfo)) + i));
+            LocalFree(*(((LPTSTR*)(&hardwareInfo)) + i));
 
         }
     }
@@ -183,7 +173,7 @@ BOOL CDLGCHGADAPTOR::InitDlg(HWND hwndFocus) {
     return TRUE;
 }
 
-BOOL CDLGCHGADAPTOR::DoCommand(int idControl, HWND hwndControl, int iNoteCode ) {
+BOOL CDLGCHGADAPTOR::DoCommand(int idControl, HWND hwndControl, int iNoteCode) {
 
     return FALSE;
 
@@ -192,7 +182,7 @@ BOOL CDLGCHGADAPTOR::DoCommand(int idControl, HWND hwndControl, int iNoteCode ) 
 
 // DoNotify method
 
-BOOL CDLGCHGADAPTOR::DoNotify(int idControl, NMHDR *lpnmh, UINT iNoteCode ) {
+BOOL CDLGCHGADAPTOR::DoNotify(int idControl, NMHDR* lpnmh, UINT iNoteCode) {
 
     switch (iNoteCode) {
 
@@ -248,7 +238,7 @@ BOOL CALLBACK AdvAdaptorPageProc(
     UINT msg,
     WPARAM wParam,
     LPARAM lParam
-    )
+)
 {
     PCDLGCHGADAPTOR pddDialog;
 
@@ -263,7 +253,7 @@ BOOL CALLBACK AdvAdaptorPageProc(
         // dli -- moved to multimon.cpp
         //ghwndPropSheet = GetParent(hwnd);
 
-        lParam =  (LPARAM)pddDialog;
+        lParam = (LPARAM)pddDialog;
         break;
 
     case WM_NCDESTROY:
@@ -276,7 +266,7 @@ BOOL CALLBACK AdvAdaptorPageProc(
 
     }
 
-    return CDialogProc(hwnd, msg, wParam, lParam );
+    return CDialogProc(hwnd, msg, wParam, lParam);
 }
 
 

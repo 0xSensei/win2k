@@ -29,16 +29,16 @@ DECLSPEC_SELECTANY const CLSID CLSID_ShellInetRoot = {0x871C5380, 0x42A0, 0x1069
 // Module variables
 
 #pragma data_seg(DATASEG_READONLY)
-static const TCHAR  s_szMutexName[]     = TEXT("ActiveSSMutex");
+static const TCHAR  s_szMutexName[] = TEXT("ActiveSSMutex");
 
-static const TCHAR  s_szMprDll[]        = TEXT("MPR.DLL");
-static const TCHAR  s_szProviderName[]  = TEXT("SCRSAVE");
-static const TCHAR  s_szPwdChangePW[]   = TEXT("PwdChangePasswordA");
-    // Password
+static const TCHAR  s_szMprDll[] = TEXT("MPR.DLL");
+static const TCHAR  s_szProviderName[] = TEXT("SCRSAVE");
+static const TCHAR  s_szPwdChangePW[] = TEXT("PwdChangePasswordA");
+// Password
 
-static const TCHAR  s_szImmDLL[]        = TEXT("IMM32.DLL");
-static const TCHAR  s_szImmFnc[]        = TEXT("ImmAssociateContext");
-    // IME
+static const TCHAR  s_szImmDLL[] = TEXT("IMM32.DLL");
+static const TCHAR  s_szImmFnc[] = TEXT("ImmAssociateContext");
+// IME
 #pragma data_seg()
 
 
@@ -49,21 +49,21 @@ TCHAR g_szRegSubKey[] = TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\IE4 
 #pragma data_seg()
 
 BOOL            g_bPlatformNT;
-    // Are we running on NT?
+// Are we running on NT?
 
 HANDLE          g_hHeap = NULL;
-IMalloc *       g_pMalloc = NULL;
-    // Heap for malloc/free and new/delete
+IMalloc* g_pMalloc = NULL;
+// Heap for malloc/free and new/delete
 
 HINSTANCE       g_hIMM = NULL;
 IMMASSOCPROC    g_pfnIMMProc = NULL;
-    // IME
+// IME
 
 #ifdef _DEBUG
 ULONG           g_cHeapAllocsOutstanding = 0;
 #endif  // _DEBUG
 
-CExeModule *    _pModule;
+CExeModule* _pModule;
 
 BEGIN_OBJECT_MAP(ObjectMap)
     OBJECT_ENTRY(CLSID_CActiveScreenSaver, CActiveScreenSaver)
@@ -115,8 +115,7 @@ extern "C" int _stdcall ModuleEntry
 
     LPTSTR pszCmdLine = GetCommandLine();
 
-    if (*pszCmdLine == TEXT('\"'))
-    {
+    if (*pszCmdLine == TEXT('\"')) {
         // Scan, and skip over, subsequent characters until
         // another double-quote or a null is encountered.
         while (*++pszCmdLine && (*pszCmdLine != TEXT('\"')));
@@ -124,9 +123,7 @@ extern "C" int _stdcall ModuleEntry
         // over it.
         if (*pszCmdLine == TEXT('\"'))
             pszCmdLine++;
-    }
-    else
-    {
+    } else {
         while (*pszCmdLine != TEXT(' '))
             pszCmdLine++;
     }
@@ -135,15 +132,15 @@ extern "C" int _stdcall ModuleEntry
     while (*pszCmdLine && (*pszCmdLine <= TEXT(' ')))
         pszCmdLine++;
 
-    STARTUPINFO si = { 0 };
+    STARTUPINFO si = {0};
     GetStartupInfoA(&si);
 
     int i = WinMain(GetModuleHandle(NULL),
                     NULL,
                     pszCmdLine,
                     ((si.dwFlags & STARTF_USESHOWWINDOW)
-                        ? si.wShowWindow
-                        : SW_SHOWDEFAULT));
+                     ? si.wShowWindow
+                     : SW_SHOWDEFAULT));
 
     ExitProcess(i);
 
@@ -168,23 +165,16 @@ BOOL VersionCheck(VOID)
     DWORD   dwVerHnd;
     TCHAR   szBuf[256];
 
-    if((dwVerInfoSize = GetFileVersionInfoSize(FILE_TO_CHECK_VER, &dwVerHnd)) != 0)
-    {
-        if((lpstrVffInfo = (LPSTR)LocalAlloc(LPTR, dwVerInfoSize)) != NULL)
-        {
-            if(GetFileVersionInfo(FILE_TO_CHECK_VER, dwVerHnd, dwVerInfoSize, lpstrVffInfo))
-            {
-                if(VerQueryValue(lpstrVffInfo, TEXT("\\"), (LPVOID *)&lpFileInfo, &uiLen))
-                {
+    if ((dwVerInfoSize = GetFileVersionInfoSize(FILE_TO_CHECK_VER, &dwVerHnd)) != 0) {
+        if ((lpstrVffInfo = (LPSTR)LocalAlloc(LPTR, dwVerInfoSize)) != NULL) {
+            if (GetFileVersionInfo(FILE_TO_CHECK_VER, dwVerHnd, dwVerInfoSize, lpstrVffInfo)) {
+                if (VerQueryValue(lpstrVffInfo, TEXT("\\"), (LPVOID*)&lpFileInfo, &uiLen)) {
                     LARGE_INTEGER uiFileVersion64;
-                    uiFileVersion64.HighPart = ((VS_FIXEDFILEINFO *)lpFileInfo)->dwFileVersionMS;
-                    uiFileVersion64.LowPart =  ((VS_FIXEDFILEINFO *)lpFileInfo)->dwFileVersionLS;
-                    if(uiFileVersion64.QuadPart >= VALID_SHDOCVW_VER)
-                    {
+                    uiFileVersion64.HighPart = ((VS_FIXEDFILEINFO*)lpFileInfo)->dwFileVersionMS;
+                    uiFileVersion64.LowPart = ((VS_FIXEDFILEINFO*)lpFileInfo)->dwFileVersionLS;
+                    if (uiFileVersion64.QuadPart >= VALID_SHDOCVW_VER) {
                         fRC = TRUE;
-                    }
-                    else
-                    {
+                    } else {
                         wnsprintf(szBuf, ARRAYSIZE(szBuf), TEXT("Screen Saver version mismatch with %s"), FILE_TO_CHECK_VER);
                         TraceMsg(TF_ERROR, szBuf);
                     }
@@ -192,9 +182,7 @@ BOOL VersionCheck(VOID)
             }
 
             LocalFree((LPSTR)lpstrVffInfo);
-        }
-        else
-        {
+        } else {
             wnsprintf(szBuf, ARRAYSIZE(szBuf), TEXT("Screen Saver alloc failed in VersionCheck. GLE=%d"), GetLastError());
             TraceMsg(TF_ERROR, szBuf);
         }
@@ -207,18 +195,16 @@ BOOL VersionCheck(VOID)
 
 // WinMain
 
-int WINAPI WinMain
-(
+int WINAPI WinMain(
     HINSTANCE   hInstance,
     HINSTANCE   hPrevInstance,
     LPTSTR      lpCmdLine,
-    int         nShowCmd
-)
+    int         nShowCmd)
 {
     BOOL    bDone = FALSE;
     HWND    hwndParent = NULL;
 
-    if(!VersionCheck())
+    if (!VersionCheck())
         return 1;
 
     // Initialize OLE COM
@@ -232,8 +218,7 @@ int WINAPI WinMain
 
     _pModule = new CExeModule;
 
-    if (NULL == _pModule)
-    {
+    if (NULL == _pModule) {
         g_pMalloc->Release();
         return 1;
     }
@@ -247,144 +232,135 @@ int WINAPI WinMain
 
     InitIME();
 
-    for (;;)
-    {
-        switch (*lpCmdLine)
+    for (;;) {
+        switch (*lpCmdLine) {
+        case TEXT('P'): // Preview Mode
+        case TEXT('p'):
         {
-            case TEXT('P'): // Preview Mode
-            case TEXT('p'):
-            {
-                // Skip to the empty space
-                do lpCmdLine++; while(*lpCmdLine == TEXT(' '));
+            // Skip to the empty space
+            do lpCmdLine++; while (*lpCmdLine == TEXT(' '));
 
-                if  (
+            if (
 #ifdef _DEBUG
-                    (
+            (
 #endif  // _DEBUG
-                        ((hwndParent = (HWND)myatoi(lpCmdLine)) != NULL)
+                ((hwndParent = (HWND)myatoi(lpCmdLine)) != NULL)
 #ifdef _DEBUG
-                        ||
+                ||
 
-                        ((hwndParent = GetDesktopWindow()) != NULL)
-                    )
+                ((hwndParent = GetDesktopWindow()) != NULL)
+            )
 #endif  // _DEBUG
-                    &&
-                    IsWindow(hwndParent)
-                    )
-                {
-                    EVAL(RunScreenSaver(hwndParent, SSMODE_PREVIEW, NULL));
-                }
-
-                bDone = TRUE;
-                break;
+                &&
+                IsWindow(hwndParent)
+                ) {
+                EVAL(RunScreenSaver(hwndParent, SSMODE_PREVIEW, NULL));
             }
 
-            case TEXT('S'): // Screen Saver Mode
-            case TEXT('s'):
-            {
-                // Make sure we don't run in Screen Saver mode more than once.
-                if (!IsScreenSaverRunning())
-                    EVAL(RunScreenSaver(NULL, SSMODE_NORMAL, NULL));
-                else
-                    TraceMsg(TF_ALWAYS, "Screen Saver already running in Screen Saver mode.");
+            bDone = TRUE;
+            break;
+        }
+        case TEXT('S'): // Screen Saver Mode
+        case TEXT('s'):
+        {
+            // Make sure we don't run in Screen Saver mode more than once.
+            if (!IsScreenSaverRunning())
+                EVAL(RunScreenSaver(NULL, SSMODE_NORMAL, NULL));
+            else
+                TraceMsg(TF_ALWAYS, "Screen Saver already running in Screen Saver mode.");
 
-                bDone = TRUE;
-                break;
-            }
+            bDone = TRUE;
+            break;
+        }
 
-            case TEXT('C'): // Configuration Mode
-            case TEXT('c'):
-            {
-                do
-                {
-                    lpCmdLine++;
-                }
-                while((*lpCmdLine == TEXT(' ')) || (*lpCmdLine == TEXT(':')));
-
-                HWND hwndParent = (HWND)myatoi(lpCmdLine);
-
-                if (NULL == hwndParent)
-                {
-                    hwndParent = GetForegroundWindow();
-                }
-                EVAL(RunConfiguration(hwndParent));
-
-                bDone = TRUE;
-                break;
-            }
-
-            case TEXT('A'): // Change Password Mode
-            case TEXT('a'):
-            {
-                // Skip to the empty space
-                do lpCmdLine++; while (*lpCmdLine == TEXT(' '));
-
-                if  (
-                    ((hwndParent = (HWND)myatoi(lpCmdLine)) == NULL)
-                    ||
-                    !IsWindow(hwndParent)
-                    )
-                {
-                    hwndParent = GetForegroundWindow();
-                }
-
-                RunPasswordChange(hwndParent);
-
-                bDone = TRUE;
-                break;
-            }
-
-            case TEXT('U'): // Single URL Mode
-            case TEXT('u'):
-            {
-                // Skip to the empty space
-                do lpCmdLine++; while (*lpCmdLine == TEXT(' '));
-
-                if (!IsScreenSaverRunning())
-                    EVAL(RunScreenSaver(NULL, SSMODE_SINGLEURL, lpCmdLine));
-                else
-                    TraceMsg(TF_ALWAYS, "Screen Saver already running in Screen Saver mode.");
-
-                bDone = TRUE;
-                break;
-            }
-
-            case TEXT('\0'):
-            {
-                EVAL(RunConfiguration(NULL));
-
-                bDone = TRUE;
-                break;
-            }
-
-            case TEXT(' '):
-            case TEXT('-'):
-            case TEXT('/'):
-            {
+        case TEXT('C'): // Configuration Mode
+        case TEXT('c'):
+        {
+            do {
                 lpCmdLine++;
-                break;
+            } while ((*lpCmdLine == TEXT(' ')) || (*lpCmdLine == TEXT(':')));
+
+            HWND hwndParent = (HWND)myatoi(lpCmdLine);
+
+            if (NULL == hwndParent) {
+                hwndParent = GetForegroundWindow();
+            }
+            EVAL(RunConfiguration(hwndParent));
+
+            bDone = TRUE;
+            break;
+        }
+
+        case TEXT('A'): // Change Password Mode
+        case TEXT('a'):
+        {
+            // Skip to the empty space
+            do lpCmdLine++; while (*lpCmdLine == TEXT(' '));
+
+            if (
+                ((hwndParent = (HWND)myatoi(lpCmdLine)) == NULL)
+                ||
+                !IsWindow(hwndParent)
+                ) {
+                hwndParent = GetForegroundWindow();
             }
 
-            default:
-            {
-                bDone = TRUE;
-                break;
-            }
+            RunPasswordChange(hwndParent);
+
+            bDone = TRUE;
+            break;
+        }
+
+        case TEXT('U'): // Single URL Mode
+        case TEXT('u'):
+        {
+            // Skip to the empty space
+            do lpCmdLine++; while (*lpCmdLine == TEXT(' '));
+
+            if (!IsScreenSaverRunning())
+                EVAL(RunScreenSaver(NULL, SSMODE_SINGLEURL, lpCmdLine));
+            else
+                TraceMsg(TF_ALWAYS, "Screen Saver already running in Screen Saver mode.");
+
+            bDone = TRUE;
+            break;
+        }
+
+        case TEXT('\0'):
+        {
+            EVAL(RunConfiguration(NULL));
+
+            bDone = TRUE;
+            break;
+        }
+
+        case TEXT(' '):
+        case TEXT('-'):
+        case TEXT('/'):
+        {
+            lpCmdLine++;
+            break;
+        }
+
+        default:
+        {
+            bDone = TRUE;
+            break;
+        }
         }
 
         if (bDone)
             break;
     }
 
-//    _pModule->UnregisterServer();
+    //    _pModule->UnregisterServer();
 
     _pModule->Term();
     delete _pModule;
 
     TraceMsg(TF_LIFETIME, "Screen saver leaving memory");
 
-    if (g_hHeap != NULL)
-    {
+    if (g_hHeap != NULL) {
 #ifdef _DEBUG
         TraceMsg(TF_ALWAYS, "MEM: %d heap alloctions remaining", g_cHeapAllocsOutstanding);
 #endif  // _DEBUG
@@ -406,20 +382,18 @@ int WINAPI WinMain
 
 // IsScreenSaverRunning
 
-BOOL IsScreenSaverRunning
-(
-)
+BOOL IsScreenSaverRunning()
 {
     HANDLE  hMutex;
     BOOL    bRunning;
 
     // Create a named mutex to determine if the screen
     // saver is already running in screen saver mode.
-    bRunning =  (
-                ((hMutex = CreateMutex(NULL, FALSE, s_szMutexName)) != NULL)
-                &&
-                (GetLastError() == ERROR_ALREADY_EXISTS)
-                );
+    bRunning = (
+        ((hMutex = CreateMutex(NULL, FALSE, s_szMutexName)) != NULL)
+        &&
+        (GetLastError() == ERROR_ALREADY_EXISTS)
+        );
 
     if (hMutex != NULL)
         EVAL(CloseHandle(hMutex));
@@ -430,8 +404,7 @@ BOOL IsScreenSaverRunning
 
 // RunScreenSaver
 
-BOOL RunScreenSaver
-(
+BOOL RunScreenSaver(
     HWND    hwndParent,
     long    lMode,
     LPTSTR  pszSingleURL
@@ -441,38 +414,30 @@ BOOL RunScreenSaver
 
     ASSERT(_pModule != NULL);
 
-    if (FAILED(hrResult = _pModule->RegisterClassObjects(   CLSCTX_LOCAL_SERVER,
-                                                            REGCLS_MULTIPLEUSE)))
-    {
+    if (FAILED(hrResult = _pModule->RegisterClassObjects(CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE))) {
         return hrResult;
     }
 
-    for (;;)
-    {
-        IScreenSaver * pScreenSaver;
-        if (FAILED(hrResult = CoCreateInstance( CLSID_CActiveScreenSaver, NULL, CLSCTX_INPROC_SERVER, IID_IScreenSaver, (void **)&pScreenSaver)))
-        {
+    for (;;) {
+        IScreenSaver* pScreenSaver;
+        if (FAILED(hrResult = CoCreateInstance(CLSID_CActiveScreenSaver, NULL, CLSCTX_INPROC_SERVER, IID_IScreenSaver, (void**)&pScreenSaver))) {
             break;
         }
 
         BOOL    bDummy;
         HANDLE  hRunMutex;
 
-        if (lMode == SSMODE_NORMAL)
-        {
+        if (lMode == SSMODE_NORMAL) {
             hRunMutex = StartScreenSaverRunning();
 
             // Make sure the system knows we are running.
             SystemParametersInfo(SPI_SCREENSAVERRUNNING, TRUE, &bDummy, 0);
-        }
-        else if (lMode == SSMODE_SINGLEURL)
-        {
+        } else if (lMode == SSMODE_SINGLEURL) {
             ASSERT(pszSingleURL != NULL);
 
             BSTR bstrURL = TCharSysAllocString(pszSingleURL);
 
-            if (bstrURL)
-            {
+            if (bstrURL) {
                 pScreenSaver->put_CurrentURL(bstrURL);
                 SysFreeString(bstrURL);
             }
@@ -482,8 +447,7 @@ BOOL RunScreenSaver
         pScreenSaver->Run(hwndParent);
         EVAL(pScreenSaver->Release() == 0);
 
-        if (lMode == SSMODE_NORMAL)
-        {
+        if (lMode == SSMODE_NORMAL) {
             ASSERT(hRunMutex != NULL);
 
             // #61159, important!! keep the sequence of the following calls.
@@ -505,26 +469,19 @@ BOOL RunScreenSaver
 
 // RunConfiguration
 
-BOOL RunConfiguration
-(
-    HWND hwndParent
-)
+BOOL RunConfiguration(HWND hwndParent)
 {
     HRESULT hrResult;
 
     ASSERT(_pModule != NULL);
 
-    if (FAILED(hrResult = _pModule->RegisterClassObjects(   CLSCTX_LOCAL_SERVER,
-                                                            REGCLS_MULTIPLEUSE)))
-    {
+    if (FAILED(hrResult = _pModule->RegisterClassObjects(CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE))) {
         return hrResult;
     }
 
-    for (;;)
-    {
-        IScreenSaverConfig * pConfig;
-        if (FAILED(hrResult = CoCreateInstance( CLSID_CActiveScreenSaver, NULL, CLSCTX_INPROC_SERVER, IID_IScreenSaverConfig, (void **)&pConfig)))
-        {
+    for (;;) {
+        IScreenSaverConfig* pConfig;
+        if (FAILED(hrResult = CoCreateInstance(CLSID_CActiveScreenSaver, NULL, CLSCTX_INPROC_SERVER, IID_IScreenSaverConfig, (void**)&pConfig))) {
             break;
         }
 
@@ -544,17 +501,13 @@ BOOL RunConfiguration
 
 // RunPasswordChange
 
-typedef DWORD (FAR PASCAL *PWCHGPROC)(LPCSTR, HWND, DWORD, LPVOID);
+typedef DWORD(FAR PASCAL* PWCHGPROC)(LPCSTR, HWND, DWORD, LPVOID);
 
-void RunPasswordChange
-(
-    HWND hwndParent
-)
+void RunPasswordChange(HWND hwndParent)
 {
     HINSTANCE mpr;
 
-    if ((mpr = LoadLibrary(s_szMprDll)) != NULL)
-    {
+    if ((mpr = LoadLibrary(s_szMprDll)) != NULL) {
         PWCHGPROC pwd;
 
         if ((pwd = (PWCHGPROC)GetProcAddress(mpr, s_szPwdChangePW)) != NULL)
@@ -566,17 +519,12 @@ void RunPasswordChange
 
 
 // InitIME
-
-void InitIME
-(
-)
+void InitIME()
 {
     // Load the IME DLL so we can disable, if needed.
-    if ((g_hIMM = GetModuleHandle(s_szImmDLL)) != NULL)
-    {
+    if ((g_hIMM = GetModuleHandle(s_szImmDLL)) != NULL) {
         g_pfnIMMProc = (IMMASSOCPROC)GetProcAddress(g_hIMM, s_szImmFnc);
 
         TraceMsg(TF_IME, "Loaded IMM DLL 0x%.8X, GetProcAddress = 0x%.8X", g_hIMM, g_pfnIMMProc);
     }
 }
-

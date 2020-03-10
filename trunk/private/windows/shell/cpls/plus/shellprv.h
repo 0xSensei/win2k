@@ -202,8 +202,7 @@ BOOL ShareDLL_Init(void);
 
 // For Version DLL
 
-typedef BOOL (* PFNVERQUERYVALUE)(const LPVOID pBlock,
-        LPCSTR lpSubBlock, LPVOID * lplpBuffer, LPDWORD lpuLen);
+typedef BOOL (* PFNVERQUERYVALUE)(const LPVOID pBlock, LPCSTR lpSubBlock, LPVOID * lplpBuffer, LPDWORD lpuLen);
 typedef DWORD (* PFNGETFILEVERSIONINFOSIZE) (LPCSTR lptstrFilename, LPDWORD lpdwHandle);
 typedef BOOL (* PFNGETFILEVERSIONINFO) (LPCSTR lptstrFilename, DWORD dwHandle, DWORD dwLen, LPVOID lpData);
 typedef DWORD (* PFNVERLANGUAGENAME)(DWORD wLang, LPSTR szLang,DWORD nSize);

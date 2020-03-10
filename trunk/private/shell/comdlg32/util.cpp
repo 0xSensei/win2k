@@ -56,10 +56,10 @@ Author :
         This function will have AutoComplete take over
     an editbox to help autocomplete DOS paths.
 \*****/
-HRESULT AutoComplete(HWND hwndEdit, ICurrentWorkingDirectory ** ppcwd, DWORD dwFlags)
+HRESULT AutoComplete(HWND hwndEdit, ICurrentWorkingDirectory** ppcwd, DWORD dwFlags)
 {
     HRESULT hr;
-    IUnknown * punkACLISF;
+    IUnknown* punkACLISF;
     static BOOL fUseAutoComplete = -10; // Not inited.
 
     if (-10 == fUseAutoComplete)
@@ -67,34 +67,29 @@ HRESULT AutoComplete(HWND hwndEdit, ICurrentWorkingDirectory ** ppcwd, DWORD dwF
 
     // WARNING: If you want to disable AutoComplete by default,
     //          turn USE_AUTOCOMPETE_DEFAULT to FALSE
-    if (fUseAutoComplete)
-    {
+    if (fUseAutoComplete) {
         Assert(!dwFlags);    // Not yet used.
-        hr = SHCoCreateInstance(NULL, &CLSID_ACListISF, NULL, IID_IUnknown, (void **)&punkACLISF);
+        hr = SHCoCreateInstance(NULL, &CLSID_ACListISF, NULL, IID_IUnknown, (void**)&punkACLISF);
 
         Assert(SUCCEEDED(hr));
-        if (SUCCEEDED(hr))
-        {
-            IAutoComplete2 * pac;
+        if (SUCCEEDED(hr)) {
+            IAutoComplete2* pac;
 
             // Create the AutoComplete Object
-            hr = SHCoCreateInstance(NULL, &CLSID_AutoComplete, NULL, IID_IAutoComplete2, (void **)&pac);
+            hr = SHCoCreateInstance(NULL, &CLSID_AutoComplete, NULL, IID_IAutoComplete2, (void**)&pac);
 
             Assert(SUCCEEDED(hr));
-            if (SUCCEEDED(hr))
-            {
+            if (SUCCEEDED(hr)) {
                 DWORD dwOptions = 0;
 
                 hr = pac->Init(hwndEdit, punkACLISF, NULL, NULL);
 
                 // Set the autocomplete options
-                if (SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOAPPEND, FALSE, /*default:*/FALSE))
-                {
+                if (SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOAPPEND, FALSE, /*default:*/FALSE)) {
                     dwOptions |= ACO_AUTOAPPEND;
                 }
 
-                if (SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOSUGGEST, FALSE, /*default:*/TRUE))
-                {
+                if (SHRegGetBoolUSValue(REGSTR_PATH_AUTOCOMPLETE, REGSTR_VAL_USEAUTOSUGGEST, FALSE, /*default:*/TRUE)) {
                     dwOptions |= ACO_AUTOSUGGEST;
                 }
 
@@ -115,9 +110,8 @@ HRESULT AutoComplete(HWND hwndEdit, ICurrentWorkingDirectory ** ppcwd, DWORD dwF
                 pac->Release();
             }
 
-            if (ppcwd)
-            {
-                punkACLISF->QueryInterface(IID_ICurrentWorkingDirectory, (void **)ppcwd);
+            if (ppcwd) {
+                punkACLISF->QueryInterface(IID_ICurrentWorkingDirectory, (void**)ppcwd);
             }
 
             punkACLISF->Release();
@@ -133,12 +127,12 @@ HRESULT AutoComplete(HWND hwndEdit, ICurrentWorkingDirectory ** ppcwd, DWORD dwF
 
     DESCRIPTION:
 \*****/
-HRESULT SetAutoCompleteCWD(LPCTSTR pszDir, ICurrentWorkingDirectory * pcwd)
+HRESULT SetAutoCompleteCWD(LPCTSTR pszDir, ICurrentWorkingDirectory* pcwd)
 {
     WCHAR wsDir[MAX_PATH];
 
     if (!pcwd)
-       return S_OK;
+        return S_OK;
 
     SHTCharToUnicode(pszDir, wsDir, ARRAYSIZE(wsDir));
     return pcwd->SetDirectory(wsDir);
@@ -150,14 +144,14 @@ HRESULT SetAutoCompleteCWD(LPCTSTR pszDir, ICurrentWorkingDirectory * pcwd)
 //  Overloaded allocation operators.
 
 
-void * __cdecl operator new(
+void* __cdecl operator new(
     size_t size)
 {
-    return ((void *)LocalAlloc(LPTR, size));
+    return ((void*)LocalAlloc(LPTR, size));
 }
 
 void __cdecl operator delete(
-    void *ptr)
+    void* ptr)
 {
     LocalFree(ptr);
 }
@@ -188,49 +182,42 @@ const SHRESTRICTIONITEMS c_rgRestItems[] =
 #define NUMRESTRICTIONS  ARRAYSIZE(c_rgRestItems)
 
 
-DWORD g_rgRestItemValues[NUMRESTRICTIONS - 1 ] = { -1 };
+DWORD g_rgRestItemValues[NUMRESTRICTIONS - 1] = {-1};
 
 DWORD IsRestricted(COMMDLG_RESTRICTIONS rest)
-{   static BOOL bFirstTime = TRUE;
+{
+    static BOOL bFirstTime = TRUE;
 
-    if (bFirstTime)
-    {
-       memset((LPBYTE)g_rgRestItemValues,(BYTE)-1, SIZEOF(g_rgRestItemValues));
-       bFirstTime = FALSE;
+    if (bFirstTime) {
+        memset((LPBYTE)g_rgRestItemValues, (BYTE)-1, SIZEOF(g_rgRestItemValues));
+        bFirstTime = FALSE;
     }
     return SHRestrictionLookup(rest, NULL, c_rgRestItems, g_rgRestItemValues);
 }
 
 
-STDAPI CDBindToObject(IShellFolder *psf, REFIID riid, LPCITEMIDLIST pidl, void **ppvOut)
+STDAPI CDBindToObject(IShellFolder* psf, REFIID riid, LPCITEMIDLIST pidl, void** ppvOut)
 {
     HRESULT hres;
-    IShellFolder *psfRelease;
+    IShellFolder* psfRelease;
 
     *ppvOut = NULL;
 
 
-    if (!psf)
-    {
-       SHGetDesktopFolder(&psf);
-       psfRelease = psf;
-    }
-    else
-    {
+    if (!psf) {
+        SHGetDesktopFolder(&psf);
+        psfRelease = psf;
+    } else {
         psfRelease = NULL;
     }
 
-    if (!pidl || ILIsEmpty(pidl))
-    {
+    if (!pidl || ILIsEmpty(pidl)) {
         hres = psf->QueryInterface(riid, ppvOut);
-    }
-    else
-    {
+    } else {
         hres = psf->BindToObject(pidl, NULL, riid, ppvOut);
     }
 
-    if (psfRelease)
-    {
+    if (psfRelease) {
         psfRelease->Release();
     }
 
@@ -244,9 +231,8 @@ STDAPI CDGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, voi
 
     LPCITEMIDLIST pidlChild;
     IShellFolder* psf;
-    HRESULT hr = CDBindToIDListParent(pidl, IID_IShellFolder, (void **)&psf, &pidlChild);
-    if (SUCCEEDED(hr))
-    {
+    HRESULT hr = CDBindToIDListParent(pidl, IID_IShellFolder, (void**)&psf, &pidlChild);
+    if (SUCCEEDED(hr)) {
         hr = psf->GetUIObjectOf(hwnd, 1, &pidlChild, riid, NULL, ppv);
         psf->Release();
     }
@@ -255,18 +241,16 @@ STDAPI CDGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, voi
 }
 
 
-STDAPI CDBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void **ppv, LPCITEMIDLIST *ppidlLast)
+STDAPI CDBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITEMIDLIST* ppidlLast)
 {
     HRESULT hres;
 
     LPITEMIDLIST pidlParent = ILClone(pidl);
-    if (pidlParent)
-    {
+    if (pidlParent) {
         ILRemoveLastID(pidlParent);
         hres = CDBindToObject(NULL, riid, pidlParent, ppv);
         ILFree(pidlParent);
-    }
-    else
+    } else
         hres = E_OUTOFMEMORY;
 
     if (ppidlLast)
@@ -276,30 +260,26 @@ STDAPI CDBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void **ppv, LPCITEM
 }
 
 
-STDAPI CDGetNameAndFlags(LPCITEMIDLIST pidl, DWORD dwFlags, LPTSTR pszName, UINT cchName, DWORD *pdwAttribs)
+STDAPI CDGetNameAndFlags(LPCITEMIDLIST pidl, DWORD dwFlags, LPTSTR pszName, UINT cchName, DWORD* pdwAttribs)
 {
-    if (pszName)
-    {
+    if (pszName) {
         *pszName = 0;
     }
 
-    IShellFolder *psf;
+    IShellFolder* psf;
     LPCITEMIDLIST pidlLast;
-    HRESULT hres = CDBindToIDListParent(pidl, IID_IShellFolder, (void **)&psf, &pidlLast);
-    if (SUCCEEDED(hres))
-    {
-        if (pszName)
-        {
+    HRESULT hres = CDBindToIDListParent(pidl, IID_IShellFolder, (void**)&psf, &pidlLast);
+    if (SUCCEEDED(hres)) {
+        if (pszName) {
             STRRET str;
             hres = psf->GetDisplayNameOf(pidlLast, dwFlags, &str);
             if (SUCCEEDED(hres))
                 StrRetToStrN(pszName, cchName, &str, pidlLast);
         }
 
-        if (pdwAttribs)
-        {
+        if (pdwAttribs) {
             ASSERT(*pdwAttribs);    // this is an in-out param
-            hres = psf->GetAttributesOf(1, (LPCITEMIDLIST *)&pidlLast, pdwAttribs);
+            hres = psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidlLast, pdwAttribs);
         }
         psf->Release();
     }
@@ -339,8 +319,7 @@ DWORD CDGetAppCompatFlags()
         {TEXT("ds70.exe"),NULL, CDACF_FILETITLE}
     };
 
-    if (!bInitialized)
-    {
+    if (!bInitialized) {
         TCHAR  szModulePath[MODULE_NAME_SIZE];
         TCHAR* pszModuleName;
         DWORD  dwHandle;
@@ -349,18 +328,12 @@ DWORD CDGetAppCompatFlags()
         GetModuleFileName(GetModuleHandle(NULL), szModulePath, ARRAYSIZE(szModulePath));
         pszModuleName = PathFindFileName(szModulePath);
 
-        if (pszModuleName)
-        {
-            for (i=0; i < ARRAYSIZE(aAppCompat); i++)
-            {
-                if (lstrcmpi(aAppCompat[i].pszModule, pszModuleName) == 0)
-                {
-                    if (aAppCompat[i].pszVersion == NULL)
-                    {
+        if (pszModuleName) {
+            for (i = 0; i < ARRAYSIZE(aAppCompat); i++) {
+                if (lstrcmpi(aAppCompat[i].pszModule, pszModuleName) == 0) {
+                    if (aAppCompat[i].pszVersion == NULL) {
                         dwCachedFlags = aAppCompat[i].dwFlags;
-                    }
-                    else
-                    {
+                    } else {
                         CHAR  chBuffer[3072]; // hopefully this is enough... lotus smart center needs 3000
                         TCHAR* pszVersion = NULL;
                         UINT  cb;
@@ -369,11 +342,9 @@ DWORD CDGetAppCompatFlags()
                         cb = GetFileVersionInfoSize(szModulePath, &dwHandle);
                         if (cb <= ARRAYSIZE(chBuffer) &&
                             GetFileVersionInfo(szModulePath, dwHandle, ARRAYSIZE(chBuffer), (LPVOID)chBuffer) &&
-                            VerQueryValue((LPVOID)chBuffer, TEXT("\\StringFileInfo\\040904E4\\ProductVersion"), (void **) &pszVersion, &cb))
-                        {
+                            VerQueryValue((LPVOID)chBuffer, TEXT("\\StringFileInfo\\040904E4\\ProductVersion"), (void**)&pszVersion, &cb)) {
                             DebugMsg(0x0004, TEXT("product: %s\n version: %s"), pszModuleName, pszVersion);
-                            if (lstrcmpi(pszVersion, aAppCompat[i].pszVersion) == 0)
-                            {
+                            if (lstrcmpi(pszVersion, aAppCompat[i].pszVersion) == 0) {
                                 dwCachedFlags = aAppCompat[i].dwFlags;
                                 break;
                             }
@@ -391,16 +362,14 @@ DWORD CDGetAppCompatFlags()
 
 BOOL ILIsFTP(LPCITEMIDLIST pidl)
 {
-    IShellFolder * psf;
+    IShellFolder* psf;
     BOOL fIsFTPFolder = FALSE;
 
-    if (SUCCEEDED(CDBindToObject(NULL, IID_IShellFolder, pidl, (void **) &psf)))
-    {
+    if (SUCCEEDED(CDBindToObject(NULL, IID_IShellFolder, pidl, (void**)&psf))) {
         CLSID clsid;
 
         if (SUCCEEDED(IUnknown_GetClassID(psf, &clsid)) &&
-            (IsEqualIID(clsid, CLSID_FtpFolder)))
-        {
+            (IsEqualIID(clsid, CLSID_FtpFolder))) {
             fIsFTPFolder = TRUE;
         }
 
